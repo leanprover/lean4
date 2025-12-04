@@ -875,7 +875,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = lean_ctor_get(x_2, 2);
 x_8 = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabSubKeys_spec__0_spec__0_spec__0___closed__2;
 x_9 = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lake_Toml_Elab_Expression_0__Lake_Toml_elabSubKeys_spec__0_spec__0_spec__0___closed__6;
@@ -6238,7 +6238,7 @@ x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_15 = l_Lean_Name_components(x_13);
 if (lean_obj_tag(x_15) == 0)
 {
@@ -6920,7 +6920,7 @@ goto block_21;
 else
 {
 lean_object* x_29; lean_object* x_30; 
-lean_dec_ref(x_15);
+lean_dec(x_15);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -7302,7 +7302,7 @@ x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_11, 2);
 lean_inc_ref(x_14);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_15 = l_Lean_Name_components(x_13);
 if (lean_obj_tag(x_15) == 0)
 {

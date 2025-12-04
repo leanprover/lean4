@@ -297,7 +297,7 @@ x_9 = l_Lean_ForEachExprWhere_cacheSize___closed__0;
 x_10 = lean_usize_mod(x_8, x_9);
 x_11 = lean_array_uget(x_7, x_10);
 x_12 = lean_ptr_addr(x_11);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_13 = lean_usize_dec_eq(x_12, x_8);
 if (x_13 == 0)
 {

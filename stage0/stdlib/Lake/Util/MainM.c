@@ -1637,7 +1637,7 @@ lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13;
 x_10 = lean_array_uget(x_4, x_5);
 lean_inc_ref(x_1);
 x_11 = l_Lake_logToStream(x_10, x_1, x_2, x_3);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 x_12 = 1;
 x_13 = lean_usize_add(x_5, x_12);
 x_5 = x_13;

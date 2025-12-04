@@ -77,3 +77,9 @@ test_run build
 # Test build fails on v2
 git switch v2 --detach
 test_err 'Unknown identifier `poorly_named_lemma`' build
+
+# Test build with different package names
+sed_i '/name/ s/A/A-v1/' .lake/packages/DiamondExample-B/lakefile.toml
+sed_i '/name/ s/A/A-v2/' .lake/packages/DiamondExample-C/lakefile.toml
+test_run update
+test_err 'could not disambiguate the module `DiamondExampleA.Ring.Lemmas`' build

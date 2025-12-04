@@ -1138,7 +1138,7 @@ x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc_ref(x_8);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_9 = l_Lake_Toml_encodeLeanOptionValue(x_8);
 x_10 = l___private_Lake_CLI_Translate_Toml_0__Lake_instInsertFieldOfEncodeFieldOfBEqOfConfigField___redArg___lam__0___closed__0;
 x_11 = l_Lake_Toml_RBDict_insert___redArg(x_10, x_7, x_9, x_4);
@@ -5860,7 +5860,7 @@ x_15 = lean_array_uget(x_2, x_3);
 x_16 = lean_ctor_get_uint8(x_15, sizeof(void*)*2);
 if (x_16 == 0)
 {
-lean_dec_ref(x_15);
+lean_dec(x_15);
 x_8 = x_5;
 x_9 = x_7;
 goto block_13;
@@ -5870,7 +5870,7 @@ else
 lean_object* x_17; uint8_t x_18; 
 x_17 = lean_ctor_get(x_15, 0);
 lean_inc(x_17);
-lean_dec_ref(x_15);
+lean_dec(x_15);
 x_18 = l_Array_contains___at___00__private_Lake_CLI_Translate_Toml_0__Lake_genToToml___at___00__private_Lake_CLI_Translate_Toml_0__Lake___aux__Lake__CLI__Translate__Toml______macroRules____private__Lake__CLI__Translate__Toml__0__Lake__commandGen__toml__encoders_x25__1_spec__0_spec__0(x_1, x_17);
 if (x_18 == 0)
 {
@@ -18958,9 +18958,9 @@ x_7 = lean_nat_sub(x_3, x_6);
 lean_dec(x_3);
 x_8 = lean_array_fget_borrowed(x_1, x_7);
 x_9 = lean_array_fget_borrowed(x_2, x_7);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_10 = l_System_FilePath_normalize(x_8);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 x_11 = l_System_FilePath_normalize(x_9);
 x_12 = lean_string_dec_eq(x_10, x_11);
 lean_dec_ref(x_11);
@@ -21948,7 +21948,7 @@ x_14 = lean_ctor_get(x_12, 2);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_12, 3);
 lean_inc(x_15);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_16 = lean_name_eq(x_14, x_1);
 lean_dec(x_14);
 if (x_16 == 0)
@@ -22029,7 +22029,7 @@ x_14 = lean_ctor_get(x_12, 2);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_12, 3);
 lean_inc(x_15);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_16 = lean_name_eq(x_14, x_1);
 lean_dec(x_14);
 if (x_16 == 0)
@@ -22110,7 +22110,7 @@ x_14 = lean_ctor_get(x_12, 2);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_12, 3);
 lean_inc(x_15);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_16 = lean_name_eq(x_14, x_1);
 lean_dec(x_14);
 if (x_16 == 0)
@@ -22191,7 +22191,7 @@ x_14 = lean_ctor_get(x_12, 2);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_12, 3);
 lean_inc(x_15);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_16 = lean_name_eq(x_14, x_1);
 lean_dec(x_14);
 if (x_16 == 0)

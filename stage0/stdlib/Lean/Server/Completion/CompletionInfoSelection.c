@@ -483,7 +483,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9;
 x_6 = lean_array_uget(x_2, x_3);
 x_7 = lean_ctor_get(x_6, 2);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = lean_ctor_get(x_1, 2);
 lean_inc_ref(x_8);
 x_9 = l___private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_Completion_filterDuplicateCompletionInfos_eq(x_7, x_8);
@@ -544,7 +544,7 @@ size_t x_17; size_t x_18; uint8_t x_19;
 x_17 = 0;
 x_18 = lean_usize_of_nat(x_15);
 lean_dec(x_15);
-lean_inc_ref(x_11);
+lean_inc(x_11);
 x_19 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_Completion_filterDuplicateCompletionInfos_spec__0(x_11, x_4, x_17, x_18);
 if (x_19 == 0)
 {
@@ -552,7 +552,7 @@ goto block_13;
 }
 else
 {
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_5 = x_4;
 goto block_9;
 }
@@ -991,7 +991,7 @@ goto block_10;
 else
 {
 lean_object* x_18; uint8_t x_19; 
-lean_dec_ref(x_15);
+lean_dec(x_15);
 x_18 = l_Lean_Server_Completion_findSyntheticCompletions(x_1, x_2, x_3, x_4);
 x_19 = 0;
 x_5 = x_18;

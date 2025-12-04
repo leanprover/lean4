@@ -1255,7 +1255,7 @@ lean_inc(x_14);
 lean_inc_ref(x_13);
 lean_inc(x_12);
 lean_inc_ref(x_11);
-lean_inc_ref(x_17);
+lean_inc(x_17);
 x_21 = l_Lean_Elab_Tactic_Conv_mkConvGoalFor(x_17, x_20, x_11, x_12, x_13, x_14);
 if (lean_obj_tag(x_21) == 0)
 {

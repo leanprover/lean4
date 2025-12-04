@@ -1170,7 +1170,7 @@ if (x_10 == 0)
 lean_object* x_11; 
 lean_dec(x_7);
 lean_dec(x_3);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_11 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_11, 0, x_8);
 return x_11;
@@ -3333,7 +3333,7 @@ if (x_10 == 0)
 lean_object* x_11; 
 lean_dec(x_7);
 lean_dec(x_3);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_11 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_11, 0, x_8);
 return x_11;
@@ -3650,7 +3650,7 @@ x_9 = l_Lean_PersistentEnvExtension_getState___redArg(x_3, x_5, x_1, x_7, x_8);
 lean_dec(x_7);
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = l_Lean_PersistentHashMap_find_x3f___at___00Lean_getStructureInfo_x3f_spec__0___redArg(x_10, x_2);
 lean_dec(x_2);
 return x_11;
@@ -4500,7 +4500,7 @@ lean_dec(x_10);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; 
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_12 = 1;
 x_13 = lean_usize_add(x_6, x_12);
 {
@@ -4774,7 +4774,7 @@ lean_dec_ref(x_8);
 x_12 = lean_array_uget(x_5, x_7);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 lean_inc_ref(x_1);
 x_14 = l___private_Lean_Structure_0__Lean_findParentProjStruct_x3f_go(x_1, x_2, x_13, x_9);
 x_15 = lean_ctor_get(x_14, 0);
@@ -6689,6 +6689,7 @@ x_15 = lean_usize_of_nat(x_12);
 lean_dec(x_12);
 x_16 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), x_7, x_2, x_8, x_14, x_15);
 x_17 = lean_unbox(x_16);
+lean_dec(x_16);
 if (x_17 == 0)
 {
 return x_13;
@@ -6847,6 +6848,7 @@ x_71 = lean_usize_of_nat(x_68);
 lean_dec(x_68);
 x_72 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), x_23, x_67, x_24, x_70, x_71);
 x_73 = lean_unbox(x_72);
+lean_dec(x_72);
 if (x_73 == 0)
 {
 x_52 = x_69;
@@ -6917,6 +6919,7 @@ x_45 = lean_usize_of_nat(x_42);
 lean_dec(x_42);
 x_46 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), x_40, x_41, x_38, x_44, x_45);
 x_47 = lean_unbox(x_46);
+lean_dec(x_46);
 if (x_47 == 0)
 {
 lean_dec(x_6);
@@ -7497,7 +7500,7 @@ x_24 = lean_nat_dec_lt(x_5, x_22);
 if (x_24 == 0)
 {
 lean_dec(x_22);
-lean_dec_ref(x_21);
+lean_dec(x_21);
 lean_dec_ref(x_6);
 x_12 = x_23;
 goto block_17;
@@ -7509,7 +7512,7 @@ x_25 = lean_nat_dec_le(x_22, x_22);
 if (x_25 == 0)
 {
 lean_dec(x_22);
-lean_dec_ref(x_21);
+lean_dec(x_21);
 lean_dec_ref(x_6);
 x_12 = x_23;
 goto block_17;
@@ -7671,6 +7674,7 @@ x_14 = lean_usize_of_nat(x_11);
 lean_dec(x_11);
 x_15 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), x_7, x_1, x_8, x_13, x_14);
 x_16 = lean_unbox(x_15);
+lean_dec(x_15);
 if (x_16 == 0)
 {
 lean_dec_ref(x_3);

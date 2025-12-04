@@ -1668,7 +1668,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11;
 x_9 = lean_array_uget(x_4, x_6);
 x_10 = lean_ctor_get(x_9, 14);
 lean_inc(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(x_10, x_1);
 lean_dec(x_10);
 if (lean_obj_tag(x_11) == 1)
@@ -1762,7 +1762,7 @@ if (x_5 == 0)
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_uget(x_2, x_3);
 x_7 = l_Lake_Package_isLocalModule(x_1, x_6);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 if (x_7 == 0)
 {
 size_t x_8; size_t x_9; 
@@ -1852,7 +1852,7 @@ if (x_5 == 0)
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_uget(x_2, x_3);
 x_7 = l_Lake_Package_isBuildableModule(x_1, x_6);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 if (x_7 == 0)
 {
 size_t x_8; size_t x_9; 
@@ -2281,7 +2281,7 @@ x_14 = lean_array_uget(x_4, x_6);
 x_15 = l_Lake_Package_findTargetDecl_x3f(x_1, x_14);
 if (lean_obj_tag(x_15) == 0)
 {
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_8 = x_2;
 goto block_12;
 }
@@ -2308,7 +2308,7 @@ if (x_22 == 0)
 lean_dec(x_20);
 lean_dec(x_18);
 lean_free_object(x_15);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_8 = x_2;
 goto block_12;
 }
@@ -2348,7 +2348,7 @@ if (x_31 == 0)
 {
 lean_dec(x_29);
 lean_dec(x_27);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_8 = x_2;
 goto block_12;
 }
@@ -2453,7 +2453,7 @@ x_14 = lean_array_uget(x_4, x_6);
 x_15 = l_Lake_Package_findTargetDecl_x3f(x_1, x_14);
 if (lean_obj_tag(x_15) == 0)
 {
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_8 = x_2;
 goto block_12;
 }
@@ -2480,7 +2480,7 @@ if (x_22 == 0)
 lean_dec(x_20);
 lean_dec(x_18);
 lean_free_object(x_15);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_8 = x_2;
 goto block_12;
 }
@@ -2520,7 +2520,7 @@ if (x_31 == 0)
 {
 lean_dec(x_29);
 lean_dec(x_27);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_8 = x_2;
 goto block_12;
 }
@@ -2625,7 +2625,7 @@ x_14 = lean_array_uget(x_4, x_6);
 x_15 = l_Lake_Package_findTargetDecl_x3f(x_1, x_14);
 if (lean_obj_tag(x_15) == 0)
 {
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_8 = x_2;
 goto block_12;
 }
@@ -2652,7 +2652,7 @@ if (x_22 == 0)
 lean_dec(x_20);
 lean_dec(x_18);
 lean_free_object(x_15);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_8 = x_2;
 goto block_12;
 }
@@ -2692,7 +2692,7 @@ if (x_31 == 0)
 {
 lean_dec(x_29);
 lean_dec(x_27);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_8 = x_2;
 goto block_12;
 }
@@ -2860,11 +2860,11 @@ else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_9 = lean_array_uget(x_4, x_6);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 x_10 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lake_Workspace_findTargetConfig_x3f_spec__1___lam__0), 2, 1);
 lean_closure_set(x_10, 0, x_9);
 x_11 = l_Lake_Package_findTargetConfig_x3f(x_1, x_9);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_12 = l_Functor_mapRev___at___00Lake_Workspace_findTargetConfig_x3f_spec__0___redArg(x_11, x_10);
 if (lean_obj_tag(x_12) == 1)
 {
@@ -2971,11 +2971,11 @@ else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_9 = lean_array_uget(x_4, x_6);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 x_10 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lake_Workspace_findTargetDecl_x3f_spec__0___lam__0), 2, 1);
 lean_closure_set(x_10, 0, x_9);
 x_11 = l_Lake_Package_findTargetDecl_x3f(x_1, x_9);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_12 = l_Functor_mapRev___at___00Lake_Workspace_findTargetConfig_x3f_spec__0___redArg(x_11, x_10);
 if (lean_obj_tag(x_12) == 1)
 {
@@ -3325,7 +3325,7 @@ x_7 = lean_ctor_get(x_6, 4);
 lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_6, 2);
 lean_inc_ref(x_8);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_9 = lean_ctor_get(x_7, 6);
 lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_7, 9);
@@ -3420,7 +3420,7 @@ x_7 = lean_ctor_get(x_6, 4);
 lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_6, 2);
 lean_inc_ref(x_8);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_9 = lean_ctor_get(x_7, 6);
 lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_7, 7);
@@ -3517,7 +3517,7 @@ x_10 = lean_ctor_get(x_9, 2);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 3);
 lean_inc(x_11);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_12 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lake_Workspace_findLeanLib_x3f_spec__0___closed__1;
 x_13 = lean_name_eq(x_10, x_12);
 lean_dec(x_10);
@@ -3574,7 +3574,7 @@ if (x_15 == 0)
 {
 lean_dec(x_13);
 lean_dec_ref(x_12);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_5 = x_4;
 goto block_9;
 }
@@ -3690,7 +3690,7 @@ x_9 = lean_ctor_get(x_8, 4);
 lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_8, 2);
 lean_inc_ref(x_10);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_11 = lean_ctor_get(x_9, 6);
 lean_inc_ref(x_11);
 x_12 = lean_ctor_get(x_9, 8);

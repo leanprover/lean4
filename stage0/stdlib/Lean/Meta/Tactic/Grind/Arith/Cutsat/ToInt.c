@@ -683,11 +683,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -1312,7 +1312,7 @@ lean_object* x_7; lean_object* x_8; uint8_t x_9; uint8_t x_10;
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = 1;
 lean_inc(x_1);
 x_10 = l_Lean_Environment_contains(x_8, x_1, x_9);
@@ -2394,7 +2394,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_instantiateMVarsCore(x_7, x_1);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
@@ -7519,7 +7519,7 @@ x_17 = lean_usize_shift_right(x_11, x_16);
 x_18 = lean_nat_add(x_4, x_13);
 lean_dec(x_4);
 lean_inc(x_9);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_19 = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Grind_Arith_Cutsat_getToIntId_x3f_spec__3_spec__3___redArg(x_5, x_17, x_1, x_8, x_9);
 x_4 = x_18;
 x_5 = x_19;
@@ -14417,7 +14417,7 @@ if (lean_is_exclusive(x_15)) {
 }
 x_24 = lean_ctor_get(x_14, 0);
 lean_inc_ref(x_24);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_25 = lean_ctor_get(x_16, 1);
 lean_inc_ref(x_25);
 x_26 = lean_ctor_get(x_16, 2);
@@ -14627,7 +14627,7 @@ goto block_70;
 else
 {
 uint8_t x_82; 
-lean_dec_ref(x_14);
+lean_dec(x_14);
 lean_dec_ref(x_12);
 lean_dec(x_2);
 x_82 = !lean_is_exclusive(x_15);
@@ -14687,7 +14687,7 @@ if (lean_is_exclusive(x_89)) {
 }
 x_98 = lean_ctor_get(x_88, 0);
 lean_inc_ref(x_98);
-lean_dec_ref(x_88);
+lean_dec(x_88);
 x_99 = lean_ctor_get(x_90, 1);
 lean_inc_ref(x_99);
 x_100 = lean_ctor_get(x_90, 2);
@@ -14897,7 +14897,7 @@ goto block_144;
 else
 {
 lean_object* x_156; lean_object* x_157; lean_object* x_158; 
-lean_dec_ref(x_88);
+lean_dec(x_88);
 lean_dec_ref(x_86);
 lean_dec(x_2);
 x_156 = lean_ctor_get(x_89, 0);

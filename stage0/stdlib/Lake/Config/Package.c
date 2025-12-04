@@ -2181,7 +2181,7 @@ x_7 = lean_ctor_get(x_6, 2);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 3);
 lean_inc(x_8);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_9 = 1;
 x_15 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lake_Package_isLocalModule_spec__0___closed__1;
 x_16 = lean_name_eq(x_7, x_15);
@@ -2315,7 +2315,7 @@ goto block_21;
 }
 else
 {
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_10 = x_24;
 goto block_14;
 }
@@ -2342,7 +2342,7 @@ x_15 = lean_ctor_get(x_6, 2);
 lean_inc(x_15);
 x_16 = lean_ctor_get(x_6, 3);
 lean_inc(x_16);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_17 = l_Lake_LeanExe_keyword;
 x_18 = lean_name_eq(x_15, x_17);
 lean_dec(x_15);

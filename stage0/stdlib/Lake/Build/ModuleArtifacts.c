@@ -1007,7 +1007,7 @@ x_116 = l_Option_fromJson_x3f___at___00Lake_ModuleOutputDescrs_fromJson_x3f_spec
 if (lean_obj_tag(x_116) == 0)
 {
 uint8_t x_117; 
-lean_dec_ref(x_48);
+lean_dec(x_48);
 lean_dec(x_47);
 lean_dec(x_46);
 lean_dec(x_33);
@@ -1045,7 +1045,7 @@ else
 if (lean_obj_tag(x_116) == 0)
 {
 uint8_t x_125; 
-lean_dec_ref(x_48);
+lean_dec(x_48);
 lean_dec(x_47);
 lean_dec(x_46);
 lean_dec(x_33);
@@ -1158,7 +1158,7 @@ else
 {
 lean_object* x_73; lean_object* x_74; 
 x_73 = lean_array_fget_borrowed(x_24, x_70);
-lean_inc_ref(x_73);
+lean_inc(x_73);
 if (lean_is_scalar(x_11)) {
  x_74 = lean_alloc_ctor(1, 1, 0);
 } else {
@@ -1181,7 +1181,7 @@ if (lean_obj_tag(x_78) == 0)
 {
 lean_object* x_79; 
 lean_dec(x_76);
-lean_dec_ref(x_48);
+lean_dec(x_48);
 lean_dec(x_47);
 lean_dec(x_46);
 lean_dec(x_33);
@@ -1203,7 +1203,7 @@ if (lean_obj_tag(x_81) == 0)
 {
 uint8_t x_82; 
 lean_dec(x_76);
-lean_dec_ref(x_48);
+lean_dec(x_48);
 lean_dec(x_47);
 lean_dec(x_46);
 lean_dec(x_33);
@@ -1242,7 +1242,7 @@ if (lean_obj_tag(x_81) == 0)
 {
 uint8_t x_90; 
 lean_dec(x_76);
-lean_dec_ref(x_48);
+lean_dec(x_48);
 lean_dec(x_47);
 lean_dec(x_46);
 lean_dec(x_33);
@@ -1297,7 +1297,7 @@ if (lean_obj_tag(x_98) == 0)
 uint8_t x_99; 
 lean_dec(x_93);
 lean_dec(x_76);
-lean_dec_ref(x_48);
+lean_dec(x_48);
 lean_dec(x_47);
 lean_dec(x_46);
 lean_dec(x_33);
@@ -1336,7 +1336,7 @@ if (lean_obj_tag(x_98) == 0)
 uint8_t x_107; 
 lean_dec(x_93);
 lean_dec(x_76);
-lean_dec_ref(x_48);
+lean_dec(x_48);
 lean_dec(x_47);
 lean_dec(x_46);
 lean_dec(x_33);

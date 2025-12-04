@@ -1173,7 +1173,7 @@ private def checkNoInductiveNameConflicts (elabs : Array InductiveElabStep1) (is
   let throwErrorsAt (init cur : Syntax) (msg : MessageData) : TermElabM Unit := do
     logErrorAt init msg
     throwErrorAt cur msg
-  -- Maps names of inductive types to to `true` and those of constructors to `false`, along with syntax refs
+  -- Maps names of inductive types to `true` and those of constructors to `false`, along with syntax refs
   let mut uniqueNames : Std.HashMap Name (Bool × Syntax) := {}
   let declString := if isCoinductive then "coinductive predicate" else "inductive type"
   trace[Elab.inductive] "deckString: {declString}"

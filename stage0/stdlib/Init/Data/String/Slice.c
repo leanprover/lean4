@@ -15,6 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_String_Slice_toString___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_startsWith___redArg___boxed(lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToBackwardSearcher_defaultDropSuffix_x3f___at___00__private_Init_Data_String_Slice_0__String_Slice_dropEndWhile_go___at___00String_Slice_trimAscii_spec__2_spec__2___boxed(lean_object*);
 lean_object* l_Char_isDigit___boxed(lean_object*);
 static lean_object* l_String_Slice_instBEq___closed__0;
@@ -473,7 +474,6 @@ lean_object* l_Std_Iterators_Iter_anyM___redArg(lean_object*, lean_object*, lean
 LEAN_EXPORT lean_object* l_String_Slice_SplitIterator_atEnd_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_RevSplitIterator_instIteratorLoopOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_ByteIterator_instIteratorLoopUInt8OfMonad___redArg(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_RevSplitIterator_instIteratorLoopPartialOfMonad___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_trimAsciiStart___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_takeEndWhile_go___redArg(lean_object*, lean_object*, lean_object*);
@@ -3916,6 +3916,7 @@ x_6 = lean_apply_1(x_1, x_2);
 x_7 = l_String_Slice_contains___redArg___closed__9;
 x_8 = l_Std_Iterators_Iter_anyM___redArg(x_7, x_6, x_4, x_5);
 x_9 = lean_unbox(x_8);
+lean_dec(x_8);
 return x_9;
 }
 }

@@ -2305,7 +2305,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_instantiateMVarsCore(x_7, x_1);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
@@ -3679,11 +3679,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -6831,7 +6831,7 @@ lean_dec_ref(x_75);
 x_78 = lean_st_ref_get(x_5);
 x_79 = lean_ctor_get(x_78, 0);
 lean_inc_ref(x_79);
-lean_dec_ref(x_78);
+lean_dec(x_78);
 x_80 = l_Lean_Environment_find_x3f(x_79, x_76, x_70);
 if (lean_obj_tag(x_80) == 0)
 {
@@ -7139,7 +7139,7 @@ lean_dec_ref(x_146);
 x_149 = lean_st_ref_get(x_5);
 x_150 = lean_ctor_get(x_149, 0);
 lean_inc_ref(x_150);
-lean_dec_ref(x_149);
+lean_dec(x_149);
 x_151 = l_Lean_Environment_find_x3f(x_150, x_147, x_141);
 if (lean_obj_tag(x_151) == 0)
 {

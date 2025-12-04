@@ -26,7 +26,7 @@ It is used in particular by the code generator to replace calls to such function
 `cases` construct.
 
 The `getSparseCasesInfo?` function calculates the `CasesInfo` from the type of the declaration, and
-makes certian assumptions about their shapes. If this is too fragile, the `sparseCasesOn` env
+makes certain assumptions about their shapes. If this is too fragile, the `sparseCasesOn` env
 extension could carry more information from which the shape can be calculated..
 -/
 

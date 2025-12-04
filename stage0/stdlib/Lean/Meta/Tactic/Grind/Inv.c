@@ -296,7 +296,7 @@ else
 {
 lean_object* x_9; uint8_t x_10; 
 x_9 = lean_array_fget_borrowed(x_2, x_4);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 lean_inc_ref(x_5);
 lean_inc_ref(x_1);
 x_10 = l_Lean_Meta_Grind_instBEqCongrKey___private__1(x_1, x_5, x_9);
@@ -317,7 +317,7 @@ lean_dec_ref(x_1);
 x_14 = lean_array_fget_borrowed(x_3, x_4);
 lean_dec(x_4);
 lean_inc(x_14);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_9);
 lean_ctor_set(x_15, 1, x_14);
@@ -855,7 +855,7 @@ x_94 = lean_ctor_get(x_93, 2);
 lean_inc_ref(x_94);
 x_95 = lean_ctor_get(x_93, 5);
 lean_inc_ref(x_95);
-lean_dec_ref(x_93);
+lean_dec(x_93);
 lean_inc(x_29);
 x_96 = l_Lean_PersistentHashMap_findEntry_x3f___at___00__private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkEqc_spec__2___redArg(x_94, x_95, x_29);
 if (lean_obj_tag(x_96) == 0)
@@ -2461,11 +2461,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -2655,7 +2655,7 @@ else
 lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 x_12 = lean_array_uget(x_3, x_5);
 x_13 = l___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkChild___redArg(x_1, x_12, x_7);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
 {
@@ -4035,7 +4035,7 @@ if (x_38 == 0)
 {
 uint8_t x_39; 
 x_39 = lean_expr_equal(x_3, x_37);
-lean_dec_ref(x_37);
+lean_dec(x_37);
 if (x_39 == 0)
 {
 x_16 = x_4;
@@ -4062,7 +4062,7 @@ goto block_36;
 else
 {
 lean_object* x_42; lean_object* x_43; 
-lean_dec_ref(x_37);
+lean_dec(x_37);
 x_42 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkPtrEqImpliesStructEq_spec__0___redArg___closed__4;
 lean_inc(x_14);
 lean_inc_ref(x_13);
@@ -4260,7 +4260,7 @@ lean_inc(x_7);
 lean_inc_ref(x_4);
 lean_inc_ref(x_3);
 x_28 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkPtrEqImpliesStructEq_spec__0___redArg(x_3, x_4, x_27, x_1, x_2, x_25, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
-lean_dec_ref(x_27);
+lean_dec(x_27);
 if (lean_obj_tag(x_28) == 0)
 {
 lean_dec_ref(x_28);
@@ -7704,7 +7704,7 @@ lean_dec(x_14);
 x_15 = lean_st_ref_get(x_11);
 x_16 = lean_st_ref_get(x_11);
 lean_dec(x_11);
-lean_dec_ref(x_16);
+lean_dec(x_16);
 lean_ctor_set(x_12, 0, x_15);
 return x_12;
 }
@@ -7715,7 +7715,7 @@ lean_dec(x_12);
 x_17 = lean_st_ref_get(x_11);
 x_18 = lean_st_ref_get(x_11);
 lean_dec(x_11);
-lean_dec_ref(x_18);
+lean_dec(x_18);
 x_19 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_19, 0, x_17);
 return x_19;

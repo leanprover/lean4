@@ -2519,7 +2519,7 @@ return x_5;
 else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-lean_inc_ref(x_10);
+lean_inc(x_10);
 x_14 = lean_box(0);
 x_15 = lean_array_fset(x_5, x_8, x_14);
 x_16 = l_Array_binInsertM___at___00__private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at___00Lean_Meta_DiscrTree_insertCore___at___00Lean_Meta_Ext_initFn_00___x40_Lean_Meta_Tactic_Ext_2642131899____hygCtx___hyg_2__spec__0_spec__8_spec__10___lam__2(x_1, x_2, x_3, x_4, x_10);
@@ -2553,7 +2553,7 @@ return x_5;
 else
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
-lean_inc_ref(x_20);
+lean_inc(x_20);
 x_24 = lean_box(0);
 x_25 = lean_array_fset(x_5, x_19, x_24);
 x_26 = l_Array_binInsertM___at___00__private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at___00Lean_Meta_DiscrTree_insertCore___at___00Lean_Meta_Ext_initFn_00___x40_Lean_Meta_Tactic_Ext_2642131899____hygCtx___hyg_2__spec__0_spec__8_spec__10___lam__2(x_1, x_2, x_3, x_4, x_20);
@@ -2703,7 +2703,7 @@ x_16 = lean_nat_dec_lt(x_11, x_15);
 lean_dec(x_15);
 if (x_16 == 0)
 {
-lean_dec_ref(x_12);
+lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_4);
 lean_dec_ref(x_3);
@@ -2752,7 +2752,7 @@ return x_31;
 }
 else
 {
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_8 = x_11;
 goto _start;
 }
@@ -2760,7 +2760,7 @@ goto _start;
 else
 {
 uint8_t x_33; 
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_33 = lean_nat_dec_eq(x_11, x_7);
 if (x_33 == 0)
 {
@@ -3513,7 +3513,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = l_Lean_Meta_Ext_getExtTheorems___closed__0;
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc_ref(x_10);
@@ -3551,7 +3551,7 @@ if (x_31 == 0)
 {
 lean_dec(x_28);
 lean_dec(x_17);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_20 = x_29;
 goto block_26;
 }
@@ -3563,7 +3563,7 @@ if (x_32 == 0)
 {
 lean_dec(x_28);
 lean_dec(x_17);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_20 = x_29;
 goto block_26;
 }
@@ -3602,7 +3602,7 @@ return x_25;
 }
 else
 {
-lean_dec_ref(x_14);
+lean_dec(x_14);
 return x_16;
 }
 }
@@ -4169,7 +4169,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11;
 x_7 = lean_array_uget(x_2, x_3);
 x_8 = lean_ctor_get(x_7, 1);
 lean_inc(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 lean_inc(x_1);
 x_9 = l_Lean_Meta_DiscrTree_Trie_foldValuesM___at___00Lean_Meta_Ext_ExtTheorems_contains_spec__0___redArg(x_1, x_5, x_8);
 lean_dec(x_8);
@@ -4968,7 +4968,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_6 = l_Lean_Meta_Ext_getExtTheorems___closed__0;
 x_7 = lean_ctor_get(x_6, 1);
 lean_inc_ref(x_7);

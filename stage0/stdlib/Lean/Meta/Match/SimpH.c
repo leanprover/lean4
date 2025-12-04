@@ -884,7 +884,7 @@ lean_object* x_9; lean_object* x_10; uint8_t x_11;
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = l_List_elem___at___00__private_Lean_Meta_Match_SimpH_0__Lean_Meta_Match_SimpH_substRHS_spec__0(x_2, x_10);
 lean_dec(x_10);
 if (x_11 == 0)
@@ -901,7 +901,7 @@ lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_obje
 x_14 = lean_st_ref_get(x_3);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_16 = lean_box(0);
 x_17 = 0;
 x_18 = l_Lean_Meta_substCore(x_15, x_1, x_11, x_16, x_11, x_17, x_4, x_5, x_6, x_7);
@@ -1113,7 +1113,7 @@ lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* 
 x_3 = lean_st_ref_get(x_1);
 x_4 = lean_ctor_get(x_3, 2);
 lean_inc(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_5 = l_List_isEmpty___redArg(x_4);
 lean_dec(x_4);
 x_6 = lean_box(x_5);
@@ -4236,7 +4236,7 @@ x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_7, 2);
 lean_inc(x_10);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_11 = lean_alloc_closure((void*)(l___private_Lean_Meta_Match_SimpH_0__Lean_Meta_Match_SimpH_processNextEq___lam__0___boxed), 7, 0);
 lean_inc(x_8);
 x_12 = lean_alloc_closure((void*)(l___private_Lean_Meta_Match_SimpH_0__Lean_Meta_Match_SimpH_processNextEq___lam__1___boxed), 10, 4);
@@ -4563,7 +4563,7 @@ lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_23; lean_object*
 x_5 = lean_st_ref_get(x_3);
 x_29 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_29);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_30 = lean_alloc_closure((void*)(l_Lean_exprDependsOn___at___00Lean_Meta_Match_simpH_x3f_spec__2___redArg___lam__0___boxed), 1, 0);
 x_31 = lean_alloc_closure((void*)(l_Lean_exprDependsOn___at___00Lean_Meta_Match_simpH_x3f_spec__2___redArg___lam__1___boxed), 2, 1);
 lean_closure_set(x_31, 0, x_2);
@@ -4802,11 +4802,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -5529,7 +5529,7 @@ x_60 = lean_unbox(x_58);
 if (x_60 == 0)
 {
 lean_object* x_61; 
-lean_dec_ref(x_59);
+lean_dec(x_59);
 lean_dec(x_58);
 lean_dec_ref(x_3);
 lean_dec(x_6);
@@ -5549,7 +5549,7 @@ x_63 = lean_ctor_get(x_59, 1);
 lean_inc(x_63);
 x_64 = lean_ctor_get(x_59, 3);
 lean_inc(x_64);
-lean_dec_ref(x_59);
+lean_dec(x_59);
 x_65 = l_List_reverse___redArg(x_64);
 x_66 = lean_array_mk(x_65);
 x_67 = lean_array_size(x_66);
@@ -5582,7 +5582,7 @@ x_78 = lean_unbox(x_76);
 if (x_78 == 0)
 {
 lean_object* x_79; lean_object* x_80; 
-lean_dec_ref(x_77);
+lean_dec(x_77);
 lean_dec(x_76);
 lean_dec_ref(x_3);
 lean_dec(x_6);
@@ -5602,7 +5602,7 @@ x_82 = lean_ctor_get(x_77, 1);
 lean_inc(x_82);
 x_83 = lean_ctor_get(x_77, 3);
 lean_inc(x_83);
-lean_dec_ref(x_77);
+lean_dec(x_77);
 x_84 = l_List_reverse___redArg(x_83);
 x_85 = lean_array_mk(x_84);
 x_86 = lean_array_size(x_85);
@@ -5862,7 +5862,7 @@ x_140 = lean_unbox(x_137);
 if (x_140 == 0)
 {
 lean_object* x_141; lean_object* x_142; 
-lean_dec_ref(x_139);
+lean_dec(x_139);
 lean_dec(x_137);
 lean_dec_ref(x_116);
 lean_dec(x_6);
@@ -5887,7 +5887,7 @@ x_144 = lean_ctor_get(x_139, 1);
 lean_inc(x_144);
 x_145 = lean_ctor_get(x_139, 3);
 lean_inc(x_145);
-lean_dec_ref(x_139);
+lean_dec(x_139);
 x_146 = l_List_reverse___redArg(x_145);
 x_147 = lean_array_mk(x_146);
 x_148 = lean_array_size(x_147);
@@ -6228,7 +6228,7 @@ x_235 = lean_unbox(x_232);
 if (x_235 == 0)
 {
 lean_object* x_236; lean_object* x_237; 
-lean_dec_ref(x_234);
+lean_dec(x_234);
 lean_dec(x_232);
 lean_dec_ref(x_211);
 lean_dec(x_6);
@@ -6253,7 +6253,7 @@ x_239 = lean_ctor_get(x_234, 1);
 lean_inc(x_239);
 x_240 = lean_ctor_get(x_234, 3);
 lean_inc(x_240);
-lean_dec_ref(x_234);
+lean_dec(x_234);
 x_241 = l_List_reverse___redArg(x_240);
 x_242 = lean_array_mk(x_241);
 x_243 = lean_array_size(x_242);

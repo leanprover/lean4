@@ -521,7 +521,7 @@ def get [TransCmp cmp] (t : ExtDTreeMap α β cmp) (a : α) (h : a ∈ t) : β :
     (fun _ _ _ _ h => h.constGet_eq)
 
 @[inline, inherit_doc ExtDTreeMap.get!]
-def get! [TransCmp cmp] (t : ExtDTreeMap α β cmp) (a : α) [Inhabited β] : β :=
+def get! [TransCmp cmp] [Inhabited β] (t : ExtDTreeMap α β cmp) (a : α) : β :=
   t.lift (fun m => DTreeMap.Const.get! m a)
     (fun _ _ h => h.constGet!_eq)
 

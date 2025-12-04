@@ -840,7 +840,7 @@ lean_object* x_6; lean_object* x_7; uint8_t x_8;
 x_6 = lean_array_uget(x_2, x_3);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = lean_name_eq(x_7, x_1);
 lean_dec(x_7);
 if (x_8 == 0)
@@ -980,7 +980,7 @@ lean_dec(x_16);
 x_17 = lean_array_uget(x_1, x_3);
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
-lean_dec_ref(x_17);
+lean_dec(x_17);
 x_19 = lean_array_fget(x_9, x_10);
 x_20 = lean_unsigned_to_nat(1u);
 x_21 = lean_nat_add(x_10, x_20);
@@ -1000,7 +1000,7 @@ lean_dec(x_7);
 x_26 = lean_array_uget(x_1, x_3);
 x_27 = lean_ctor_get(x_26, 0);
 lean_inc(x_27);
-lean_dec_ref(x_26);
+lean_dec(x_26);
 x_28 = lean_array_fget(x_9, x_10);
 x_29 = lean_unsigned_to_nat(1u);
 x_30 = lean_nat_add(x_10, x_29);
@@ -1057,7 +1057,7 @@ if (lean_is_exclusive(x_36)) {
 x_44 = lean_array_uget(x_1, x_3);
 x_45 = lean_ctor_get(x_44, 0);
 lean_inc(x_45);
-lean_dec_ref(x_44);
+lean_dec(x_44);
 x_46 = lean_array_fget(x_38, x_39);
 x_47 = lean_unsigned_to_nat(1u);
 x_48 = lean_nat_add(x_39, x_47);
@@ -2692,12 +2692,14 @@ uint8_t x_9;
 x_9 = lean_usize_dec_eq(x_3, x_4);
 if (x_9 == 0)
 {
-uint8_t x_10; lean_object* x_11; uint8_t x_12; 
+uint8_t x_10; lean_object* x_11; 
 x_10 = 1;
 x_11 = lean_array_uget(x_2, x_3);
-x_12 = lean_unbox(x_11);
 if (x_1 == 0)
 {
+uint8_t x_12; 
+x_12 = lean_unbox(x_11);
+lean_dec(x_11);
 if (x_12 == 0)
 {
 return x_10;
@@ -2705,25 +2707,28 @@ return x_10;
 else
 {
 goto block_8;
-}
-}
-else
-{
-if (x_12 == 0)
-{
-goto block_8;
-}
-else
-{
-return x_10;
-}
 }
 }
 else
 {
 uint8_t x_13; 
-x_13 = 0;
-return x_13;
+x_13 = lean_unbox(x_11);
+lean_dec(x_11);
+if (x_13 == 0)
+{
+goto block_8;
+}
+else
+{
+return x_10;
+}
+}
+}
+else
+{
+uint8_t x_14; 
+x_14 = 0;
+return x_14;
 }
 block_8:
 {
@@ -2909,7 +2914,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = lean_array_uget(x_1, x_2);
 x_9 = l_Lean_Compiler_LCNF_Alt_getCode(x_8);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 lean_inc_ref(x_5);
 x_10 = l_Lean_Compiler_LCNF_FixedParams_evalCode(x_9, x_5, x_6);
 if (lean_obj_tag(x_10) == 0)
@@ -3312,7 +3317,7 @@ lean_dec(x_42);
 if (x_44 == 0)
 {
 lean_dec_ref(x_43);
-lean_dec_ref(x_18);
+lean_dec(x_18);
 x_10 = x_2;
 x_11 = x_9;
 goto block_15;
@@ -3436,7 +3441,7 @@ else
 {
 lean_dec_ref(x_23);
 lean_dec_ref(x_19);
-lean_dec_ref(x_18);
+lean_dec(x_18);
 x_10 = x_2;
 x_11 = x_20;
 goto block_15;
@@ -3842,7 +3847,7 @@ lean_dec_ref(x_20);
 x_25 = l_Lean_Compiler_LCNF_FixedParams_mkInitialValues(x_21);
 lean_dec(x_21);
 x_26 = l_Lean_Compiler_LCNF_FixedParams_mkAssignment(x_12, x_25);
-lean_inc_ref(x_12);
+lean_inc(x_12);
 lean_inc_ref(x_1);
 x_27 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_27, 0, x_1);
@@ -3864,7 +3869,7 @@ else
 lean_object* x_32; 
 lean_dec(x_21);
 lean_dec_ref(x_20);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_32 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(x_18, x_23, x_5);
 x_6 = x_32;
 goto block_10;
@@ -3874,7 +3879,7 @@ block_17:
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_14 = lean_ctor_get(x_12, 0);
 lean_inc(x_14);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_15 = lean_ctor_get(x_13, 1);
 lean_inc_ref(x_15);
 lean_dec_ref(x_13);

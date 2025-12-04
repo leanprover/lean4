@@ -1578,6 +1578,7 @@ x_15 = lean_usize_of_nat(x_8);
 lean_dec(x_8);
 x_16 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), x_9, x_13, x_6, x_14, x_15);
 x_17 = lean_unbox(x_16);
+lean_dec(x_16);
 if (x_17 == 0)
 {
 return x_10;
@@ -1633,6 +1634,7 @@ x_12 = lean_usize_of_nat(x_5);
 lean_dec(x_5);
 x_13 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), x_6, x_10, x_3, x_11, x_12);
 x_14 = lean_unbox(x_13);
+lean_dec(x_13);
 if (x_14 == 0)
 {
 return x_7;
@@ -1721,6 +1723,7 @@ x_13 = lean_usize_of_nat(x_8);
 lean_dec(x_8);
 x_14 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), x_9, x_11, x_6, x_12, x_13);
 x_15 = lean_unbox(x_14);
+lean_dec(x_14);
 return x_15;
 }
 }
@@ -1763,6 +1766,7 @@ x_10 = lean_usize_of_nat(x_5);
 lean_dec(x_5);
 x_11 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), x_6, x_8, x_3, x_9, x_10);
 x_12 = lean_unbox(x_11);
+lean_dec(x_11);
 return x_12;
 }
 }

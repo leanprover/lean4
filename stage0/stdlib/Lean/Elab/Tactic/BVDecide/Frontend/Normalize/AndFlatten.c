@@ -707,7 +707,7 @@ x_11 = lean_ctor_get(x_1, 1);
 x_12 = lean_ctor_get(x_1, 2);
 x_13 = lean_ctor_get(x_8, 2);
 lean_inc_ref(x_13);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_14 = l_Std_DHashMap_Internal_Raw_u2080_contains___at___00__private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_AndFlatten_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass_trySplit_spec__0___redArg(x_13, x_11);
 lean_dec_ref(x_13);
 if (x_14 == 0)
@@ -1152,7 +1152,7 @@ lean_inc(x_110);
 lean_dec(x_1);
 x_113 = lean_ctor_get(x_8, 2);
 lean_inc_ref(x_113);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_114 = l_Std_DHashMap_Internal_Raw_u2080_contains___at___00__private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_AndFlatten_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass_trySplit_spec__0___redArg(x_113, x_111);
 lean_dec_ref(x_113);
 if (x_114 == 0)
@@ -1702,7 +1702,7 @@ x_9 = lean_ctor_get(x_7, 0);
 x_10 = lean_st_ref_get(x_2);
 x_11 = lean_ctor_get(x_10, 2);
 lean_inc_ref(x_11);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 x_12 = l_Std_DHashMap_Internal_Raw_u2080_contains___at___00__private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_AndFlatten_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass_trySplit_spec__0___redArg(x_11, x_9);
 lean_dec_ref(x_11);
 if (x_12 == 0)
@@ -1997,7 +1997,7 @@ lean_dec(x_7);
 x_95 = lean_st_ref_get(x_2);
 x_96 = lean_ctor_get(x_95, 2);
 lean_inc_ref(x_96);
-lean_dec_ref(x_95);
+lean_dec(x_95);
 x_97 = l_Std_DHashMap_Internal_Raw_u2080_contains___at___00__private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_AndFlatten_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass_trySplit_spec__0___redArg(x_96, x_94);
 lean_dec_ref(x_96);
 if (x_97 == 0)
@@ -2639,7 +2639,7 @@ x_15 = lean_ctor_get(x_14, 0);
 lean_inc_ref(x_15);
 x_16 = lean_ctor_get(x_14, 1);
 lean_inc_ref(x_16);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_17 = l_Array_isEmpty___redArg(x_16);
 if (x_17 == 0)
 {
@@ -2757,7 +2757,7 @@ x_36 = lean_ctor_get(x_35, 0);
 lean_inc_ref(x_36);
 x_37 = lean_ctor_get(x_35, 1);
 lean_inc_ref(x_37);
-lean_dec_ref(x_35);
+lean_dec(x_35);
 x_38 = l_Array_isEmpty___redArg(x_37);
 if (x_38 == 0)
 {

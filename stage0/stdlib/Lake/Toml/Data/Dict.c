@@ -2523,7 +2523,7 @@ x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 lean_inc_ref(x_1);
 x_10 = l_Lake_Toml_RBDict_insert___redArg(x_1, x_8, x_9, x_5);
 x_11 = 1;

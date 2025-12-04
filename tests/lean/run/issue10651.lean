@@ -10,9 +10,9 @@ termination_by x
 
 /--
 info: equations:
-theorem f.eq_1 : f 0 = 1
-theorem f.eq_2 : f 100 = 2
-theorem f.eq_3 : f 1000 = 3
+@[defeq] theorem f.eq_1 : f 0 = 1
+@[defeq] theorem f.eq_2 : f 100 = 2
+@[defeq] theorem f.eq_3 : f 1000 = 3
 theorem f.eq_4 : ∀ (x_2 : Nat), (x_2 = 99 → False) → (x_2 = 999 → False) → f x_2.succ = f x_2
 -/
 #guard_msgs(pass trace, all) in

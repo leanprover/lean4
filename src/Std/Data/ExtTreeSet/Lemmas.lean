@@ -107,6 +107,8 @@ theorem contains_insert_self [TransCmp cmp] {k : α} :
     (t.insert k).contains k :=
   ExtTreeMap.contains_insertIfNew_self
 
+theorem mem_of_get_eq [TransCmp cmp] {k v : α} {w} (_ : t.get k w = v) : k ∈ t := w
+
 theorem mem_insert_self [TransCmp cmp] {k : α} :
     k ∈ t.insert k :=
   ExtTreeMap.mem_insertIfNew_self

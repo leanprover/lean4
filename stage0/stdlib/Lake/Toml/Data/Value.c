@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at___00Lake_Toml_instBEqValue_beq_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_dropEndWhile_go___at___00Lake_Toml_ppTable_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Toml_ppTable_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_float_elim___redArg(lean_object*, lean_object*);
@@ -151,7 +152,6 @@ lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 static lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at___00Lake_Toml_ppString_spec__0___redArg___closed__3;
 static lean_object* l_Lake_Toml_Table_empty___closed__1;
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Toml_ppTable_spec__4___closed__3;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake_Toml_ppInlineTable_spec__0___closed__0;
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
@@ -470,8 +470,8 @@ x_7 = lean_nat_sub(x_3, x_6);
 lean_dec(x_3);
 x_8 = lean_array_fget_borrowed(x_1, x_7);
 x_9 = lean_array_fget_borrowed(x_2, x_7);
-lean_inc_ref(x_9);
-lean_inc_ref(x_8);
+lean_inc(x_9);
+lean_inc(x_8);
 x_10 = l_Lake_Toml_instBEqValue_beq(x_8, x_9);
 if (x_10 == 0)
 {
@@ -2009,7 +2009,7 @@ x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc(x_8);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_9 = l___private_Lake_Toml_Data_Value_0__Lake_Toml_ppTable_appendKeyval(x_4, x_7, x_8);
 x_10 = 1;
 x_11 = lean_usize_add(x_2, x_10);
@@ -2184,7 +2184,7 @@ return x_6;
 }
 else
 {
-lean_dec_ref(x_7);
+lean_dec(x_7);
 return x_6;
 }
 }
@@ -2323,7 +2323,7 @@ goto block_15;
 else
 {
 lean_object* x_32; lean_object* x_33; 
-lean_dec_ref(x_17);
+lean_dec(x_17);
 lean_dec_ref(x_6);
 x_32 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Toml_ppTable_spec__4___closed__5;
 x_33 = l_panic___at___00Lake_Toml_ppTable_spec__3(x_32);
@@ -2571,7 +2571,7 @@ lean_inc_ref(x_62);
 lean_dec_ref(x_19);
 x_63 = lean_ctor_get(x_18, 0);
 lean_inc(x_63);
-lean_dec_ref(x_18);
+lean_dec(x_18);
 x_64 = lean_ctor_get(x_62, 0);
 lean_inc_ref(x_64);
 lean_dec_ref(x_62);

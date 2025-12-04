@@ -1015,7 +1015,7 @@ lean_inc_ref(x_3);
 x_11 = l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___redArg(x_8, x_1, x_2, x_3, x_6, x_10);
 x_12 = l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___redArg(x_8, x_4, x_5, x_3, x_7, x_10);
 x_13 = l_Array_append___redArg(x_11, x_12);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_14 = lean_array_get_size(x_13);
 x_15 = l_Array_toSubarray___redArg(x_13, x_9, x_14);
 return x_15;

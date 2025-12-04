@@ -133,6 +133,7 @@ Lean.Doc.assert'
 Lean.Doc.attr
 Lean.Doc.conv
 Lean.Doc.given
+Lean.Doc.givenInstance
 Lean.Doc.kw
 Lean.Doc.kw!
 Lean.Doc.kw?
@@ -189,6 +190,32 @@ Visible:
  * For {given (type:="Nat")}`k`, {assert}`givenTests m k = m - k`.
 -/
 def givenTests (x y : Nat) : Nat := x - y
+
+/--
+{given -show}`α : Type, β : Type, γ : Type` {given -show}`x : α, y : α, z : α`
+Invisible: {givenInstance -show}`Add α` {givenInstance -show}`addInst : Add β`
+
+There is an {lean}`addInst : Add β` and an {lean}`inferInstance : Add α`, and {lean}`x + y + z`.
+
+Visible: {givenInstance}`Add γ`&{givenInstance}`addInst : OfNat γ 5`
+
+Check: {lean}`(5 : γ) + 5`
+
+-/
+def givenInstanceTests (x y : Nat) : Nat := x - y
+
+/--
+info:  ⏎
+Invisible:  ⏎
+
+There is an `addInst : Add β` and an `inferInstance : Add α`, and `x + y + z`\.
+
+Visible: `Add γ`&`addInst : OfNat γ 5`
+
+Check: `(5 : γ) + 5`
+-/
+#guard_msgs in
+#verso_to_markdown givenInstanceTests
 
 /--
 info: Invisible: ⏎

@@ -42,7 +42,7 @@ def exact? (ref : Syntax) (config : Parser.Tactic.LibrarySearchConfig)
     let allowFailure := fun g => do
       let g ← g.withContext (instantiateMVars (.mvar g))
       return required.all fun e => e.occurs g
-    match (← librarySearch goal tactic allowFailure) with
+    match (← librarySearch goal tactic allowFailure (includeStar := config.star)) with
     -- Found goal that closed problem
     | none =>
       addExactSuggestion ref (← instantiateMVars (mkMVar mvar)).headBeta (checkState? := initialState)

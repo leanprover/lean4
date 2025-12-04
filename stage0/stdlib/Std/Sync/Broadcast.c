@@ -34,7 +34,6 @@ LEAN_EXPORT lean_object* l_Std_Broadcast_Receiver_recv(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Std_Broadcast_Receiver_instAsyncWriteOfInhabited___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Broadcast_trySend___redArg(lean_object*, lean_object*);
 lean_object* l_Std_Internal_IO_Async_EAsync_instMonad(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___lam__1___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_getSlotValue___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Broadcast_Receiver_instAsyncWriteOfInhabited___lam__3(lean_object*);
@@ -148,7 +147,6 @@ LEAN_EXPORT lean_object* l_Std_Broadcast_Receiver_tryRecv___redArg(lean_object*)
 LEAN_EXPORT lean_object* l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_getValueByPosition___at___00__private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_tryRecv_x27___at___00__private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_tryRecv_spec__0_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Broadcast_Sync_Receiver_tryRecv(lean_object*, lean_object*);
 static lean_object* l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_recvSelector___redArg___lam__9___closed__0;
-LEAN_EXPORT lean_object* l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___lam__1(lean_object*);
 static lean_object* l___private_Std_Sync_Broadcast_0__Std_instReprSlot_repr___redArg___closed__9;
 LEAN_EXPORT lean_object* l___private_Std_Sync_Broadcast_0__Std_Bounded_new___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Broadcast_0__Std_Bounded_isFull___boxed(lean_object*, lean_object*, lean_object*);
@@ -159,6 +157,7 @@ LEAN_EXPORT lean_object* l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_
 static lean_object* l_Std_instMonadLiftBroadcastIO___lam__0___closed__0;
 LEAN_EXPORT lean_object* l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_getValueByPosition___at___00__private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_tryRecv_x27___at___00__private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_recvSelector_spec__0_spec__0___redArg___lam__0(lean_object*, lean_object*);
 static lean_object* l___auto___closed__18_00___x40_Std_Sync_Broadcast_64347732____hygCtx___hyg_6_;
+static lean_object* l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___closed__1;
 static lean_object* l___auto___closed__11_00___x40_Std_Sync_Broadcast_64347732____hygCtx___hyg_6_;
 LEAN_EXPORT lean_object* l_Std_Broadcast_close___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Broadcast_0__Std_Bounded_enqueue___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -212,7 +211,6 @@ LEAN_EXPORT lean_object* l_Std_Broadcast_send(lean_object*, lean_object*, lean_o
 static lean_object* l___auto___closed__14_00___x40_Std_Sync_Broadcast_64347732____hygCtx___hyg_6_;
 LEAN_EXPORT lean_object* l_Std_instMonadLiftBroadcastIO;
 LEAN_EXPORT lean_object* l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_recvSelector___redArg___lam__4___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___lam__0(lean_object*);
 lean_object* lean_task_pure(lean_object*);
 lean_object* l_ST_Prim_Ref_modifyGetUnsafe___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_modify___at___00__private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_tryRecv_x27___at___00__private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_tryRecv_spec__0_spec__4(lean_object*, lean_object*);
@@ -383,6 +381,7 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00__p
 LEAN_EXPORT lean_object* l___private_Std_Sync_Broadcast_0__Std_Broadcast_Consumer_resolve___redArg(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_recvSelector_registerAux___redArg___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_getValueByPosition(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___closed__2;
 LEAN_EXPORT lean_object* l_Std_Mutex_atomically___at___00__private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_recvSelector_spec__5___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Broadcast_0__Std_Bounded_enqueue(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_getValueByPosition___at___00__private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_tryRecv_x27___at___00__private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_tryRecv_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -567,6 +566,7 @@ LEAN_EXPORT lean_object* l_Std_Mutex_atomically___at___00__private_Std_Sync_Broa
 LEAN_EXPORT lean_object* l_Std_Broadcast_Error_alreadyClosed_elim___redArg___boxed(lean_object*);
 static lean_object* l_Std_instToStringBroadcastError___lam__0___closed__2;
 static lean_object* l___private_Std_Sync_Broadcast_0__Std_instReprSlot_repr___redArg___closed__1;
+static lean_object* l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___closed__0;
 LEAN_EXPORT lean_object* l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_getSlotValue___at___00__private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_getValueByPosition___at___00__private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_tryRecv_x27___at___00__private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_recvSelector_spec__0_spec__0_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Broadcast_Receiver_tryRecv___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_getValueByPosition___at___00__private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_tryRecv_x27___at___00__private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_recvSelector_spec__0_spec__0___redArg___lam__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2882,9 +2882,9 @@ goto block_152;
 block_144:
 {
 lean_object* x_141; lean_object* x_142; lean_object* x_143; 
-x_141 = lean_nat_add(x_138, x_140);
+x_141 = lean_nat_add(x_139, x_140);
 lean_dec(x_140);
-lean_dec(x_138);
+lean_dec(x_139);
 if (lean_is_scalar(x_135)) {
  x_142 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -2903,7 +2903,7 @@ if (lean_is_scalar(x_125)) {
 lean_ctor_set(x_143, 0, x_137);
 lean_ctor_set(x_143, 1, x_128);
 lean_ctor_set(x_143, 2, x_129);
-lean_ctor_set(x_143, 3, x_139);
+lean_ctor_set(x_143, 3, x_138);
 lean_ctor_set(x_143, 4, x_142);
 return x_143;
 }
@@ -2929,8 +2929,8 @@ if (lean_obj_tag(x_131) == 0)
 lean_object* x_150; 
 x_150 = lean_ctor_get(x_131, 0);
 lean_inc(x_150);
-x_138 = x_149;
-x_139 = x_148;
+x_138 = x_148;
+x_139 = x_149;
 x_140 = x_150;
 goto block_144;
 }
@@ -2938,8 +2938,8 @@ else
 {
 lean_object* x_151; 
 x_151 = lean_unsigned_to_nat(0u);
-x_138 = x_149;
-x_139 = x_148;
+x_138 = x_148;
+x_139 = x_149;
 x_140 = x_151;
 goto block_144;
 }
@@ -5581,9 +5581,9 @@ goto block_51;
 block_43:
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; 
-x_40 = lean_nat_add(x_37, x_39);
+x_40 = lean_nat_add(x_38, x_39);
 lean_dec(x_39);
-lean_dec(x_37);
+lean_dec(x_38);
 if (lean_is_scalar(x_34)) {
  x_41 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -5602,7 +5602,7 @@ if (lean_is_scalar(x_24)) {
 lean_ctor_set(x_42, 0, x_36);
 lean_ctor_set(x_42, 1, x_27);
 lean_ctor_set(x_42, 2, x_28);
-lean_ctor_set(x_42, 3, x_38);
+lean_ctor_set(x_42, 3, x_37);
 lean_ctor_set(x_42, 4, x_41);
 return x_42;
 }
@@ -5629,8 +5629,8 @@ if (lean_obj_tag(x_30) == 0)
 lean_object* x_49; 
 x_49 = lean_ctor_get(x_30, 0);
 lean_inc(x_49);
-x_37 = x_48;
-x_38 = x_47;
+x_37 = x_47;
+x_38 = x_48;
 x_39 = x_49;
 goto block_43;
 }
@@ -5638,8 +5638,8 @@ else
 {
 lean_object* x_50; 
 x_50 = lean_unsigned_to_nat(0u);
-x_37 = x_48;
-x_38 = x_47;
+x_37 = x_47;
+x_38 = x_48;
 x_39 = x_50;
 goto block_43;
 }
@@ -15920,40 +15920,40 @@ x_5 = l_Std_Broadcast_Receiver_forAsync___redArg(x_1, x_2, x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___lam__0(lean_object* x_1) {
+static lean_object* _init_l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___closed__0() {
 _start:
 {
-lean_object* x_2; 
-x_2 = l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_recvSelector___redArg(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_recvSelector___redArg), 1, 0);
+return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___lam__1(lean_object* x_1) {
+static lean_object* _init_l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___closed__1() {
 _start:
 {
-lean_object* x_3; 
-x_3 = l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_unsubscribe___redArg(x_1);
-return x_3;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_unsubscribe___redArg___boxed), 2, 0);
+return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___lam__1___boxed(lean_object* x_1, lean_object* x_2) {
+static lean_object* _init_l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___closed__2() {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___lam__1(x_1);
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___closed__1;
+x_2 = l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___closed__0;
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_alloc_closure((void*)(l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___lam__0), 1, 0);
-x_4 = lean_alloc_closure((void*)(l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___lam__1___boxed), 2, 0);
-x_5 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_5, 0, x_3);
-lean_ctor_set(x_5, 1, x_4);
-return x_5;
+lean_object* x_3; 
+x_3 = l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___closed__2;
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___boxed(lean_object* x_1, lean_object* x_2) {
@@ -16884,6 +16884,12 @@ l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_recvSelector___redArg___l
 lean_mark_persistent(l___private_Std_Sync_Broadcast_0__Std_Bounded_Receiver_recvSelector___redArg___lam__9___closed__1);
 l___auto_00___x40_Std_Sync_Broadcast_64347733____hygCtx___hyg_6_ = _init_l___auto_00___x40_Std_Sync_Broadcast_64347733____hygCtx___hyg_6_();
 lean_mark_persistent(l___auto_00___x40_Std_Sync_Broadcast_64347733____hygCtx___hyg_6_);
+l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___closed__0 = _init_l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___closed__0();
+lean_mark_persistent(l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___closed__0);
+l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___closed__1 = _init_l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___closed__1();
+lean_mark_persistent(l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___closed__1);
+l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___closed__2 = _init_l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___closed__2();
+lean_mark_persistent(l_Std_Broadcast_Receiver_instAsyncStreamOptionOfInhabited___closed__2);
 l_Std_Broadcast_Receiver_instAsyncWriteOfInhabited___lam__0___closed__0 = _init_l_Std_Broadcast_Receiver_instAsyncWriteOfInhabited___lam__0___closed__0();
 lean_mark_persistent(l_Std_Broadcast_Receiver_instAsyncWriteOfInhabited___lam__0___closed__0);
 l_Std_Broadcast_Receiver_instAsyncWriteOfInhabited___lam__0___closed__1 = _init_l_Std_Broadcast_Receiver_instAsyncWriteOfInhabited___lam__0___closed__1();

@@ -102,7 +102,6 @@ LEAN_EXPORT lean_object* l_Std_Time_Week_Ordinal_toOffset___boxed(lean_object*);
 static lean_object* l___auto___closed__19_00___x40_Std_Time_Date_Unit_Week_197636206____hygCtx___hyg_3_;
 LEAN_EXPORT lean_object* l_Std_Time_Week_instLEOffset;
 static lean_object* l___auto___closed__7_00___x40_Std_Time_Date_Unit_Week_197636206____hygCtx___hyg_3_;
-lean_object* l_Std_Time_Internal_UnitVal_instNeg___lam__0___boxed(lean_object*);
 static lean_object* l_Std_Time_Week_instInhabitedOrdinal___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_Week_instDecidableEqOrdinal___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Week_Offset_toMinutes___boxed(lean_object*);
@@ -130,6 +129,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Week_Offset_ofNanoseconds___boxed(lean_objec
 LEAN_EXPORT lean_object* l_Std_Time_Week_Ordinal_ofFin(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Week_Offset_toDays___boxed(lean_object*);
 static lean_object* l___auto___closed__0_00___x40_Std_Time_Date_Unit_Week_197636206____hygCtx___hyg_3_;
+lean_object* l_Int_neg___boxed(lean_object*);
 static lean_object* l_Std_Time_Week_instSubOffset___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_Week_Offset_ofMilliseconds___boxed(lean_object*);
 static lean_object* l_Std_Time_Week_instInhabitedOrdinal___closed__5;
@@ -571,7 +571,7 @@ static lean_object* _init_l_Std_Time_Week_instNegOffset___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_Time_Internal_UnitVal_instNeg___lam__0___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Int_neg___boxed), 1, 0);
 return x_1;
 }
 }

@@ -302,7 +302,7 @@ block_31:
 lean_object* x_16; lean_object* x_17; 
 x_16 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_16, 0, x_15);
-x_17 = l_Lake_JsonObject_insertJson(x_13, x_14, x_16);
+x_17 = l_Lake_JsonObject_insertJson(x_14, x_13, x_16);
 if (lean_obj_tag(x_12) == 1)
 {
 lean_object* x_18; uint64_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
@@ -371,8 +371,8 @@ x_40 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Array_
 x_41 = lean_string_append(x_39, x_40);
 x_42 = lean_string_append(x_41, x_34);
 lean_dec_ref(x_34);
-x_13 = x_32;
-x_14 = x_35;
+x_13 = x_35;
+x_14 = x_32;
 x_15 = x_42;
 goto block_31;
 }
@@ -381,8 +381,8 @@ else
 lean_object* x_43; 
 lean_dec_ref(x_34);
 x_43 = l_Lake_Hash_hex(x_33);
-x_13 = x_32;
-x_14 = x_35;
+x_13 = x_35;
+x_14 = x_32;
 x_15 = x_43;
 goto block_31;
 }
@@ -1086,12 +1086,12 @@ block_56:
 lean_object* x_54; lean_object* x_55; 
 x_54 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_54, 0, x_48);
-lean_ctor_set(x_54, 1, x_52);
+lean_ctor_set(x_54, 1, x_50);
 lean_ctor_set(x_54, 2, x_53);
 lean_ctor_set(x_54, 3, x_46);
 lean_ctor_set(x_54, 4, x_51);
 lean_ctor_set(x_54, 5, x_49);
-lean_ctor_set(x_54, 6, x_50);
+lean_ctor_set(x_54, 6, x_52);
 if (lean_is_scalar(x_47)) {
  x_55 = lean_alloc_ctor(1, 1, 0);
 } else {
@@ -1113,9 +1113,9 @@ lean_dec(x_33);
 lean_dec(x_24);
 x_63 = lean_box(0);
 x_49 = x_57;
-x_50 = x_58;
-x_51 = x_59;
-x_52 = x_60;
+x_50 = x_60;
+x_51 = x_58;
+x_52 = x_59;
 x_53 = x_63;
 goto block_56;
 }
@@ -1131,9 +1131,9 @@ if (lean_is_scalar(x_33)) {
 }
 lean_ctor_set(x_65, 0, x_64);
 x_49 = x_57;
-x_50 = x_58;
-x_51 = x_59;
-x_52 = x_60;
+x_50 = x_60;
+x_51 = x_58;
+x_52 = x_59;
 x_53 = x_65;
 goto block_56;
 }
@@ -1149,8 +1149,8 @@ lean_object* x_72;
 lean_dec(x_11);
 x_72 = lean_box(0);
 x_57 = x_67;
-x_58 = x_69;
-x_59 = x_68;
+x_58 = x_68;
+x_59 = x_69;
 x_60 = x_72;
 goto block_66;
 }
@@ -1166,8 +1166,8 @@ if (lean_is_scalar(x_11)) {
 }
 lean_ctor_set(x_74, 0, x_73);
 x_57 = x_67;
-x_58 = x_69;
-x_59 = x_68;
+x_58 = x_68;
+x_59 = x_69;
 x_60 = x_74;
 goto block_66;
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Internalize
-// Imports: public import Lean.Meta.Tactic.Grind.Types import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types import Lean.Meta.Tactic.Grind.Arith.IsRelevant import Lean.Meta.Match.MatchEqs import Lean.Meta.Tactic.Grind.Util import Lean.Meta.Tactic.Grind.Beta import Lean.Meta.Tactic.Grind.MatchCond import Lean.Meta.Tactic.Grind.Simp import Lean.Meta.Tactic.Grind.Proof import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons import Lean.Meta.Tactic.Grind.PropagateInj import Lean.Meta.Tactic.Grind.FunCC
+// Imports: public import Lean.Meta.Tactic.Grind.Types import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types import Lean.Meta.Tactic.Grind.Arith.IsRelevant import Lean.Meta.Match.MatchEqsExt import Lean.Meta.Tactic.Grind.Util import Lean.Meta.Tactic.Grind.Beta import Lean.Meta.Tactic.Grind.MatchCond import Lean.Meta.Tactic.Grind.Simp import Lean.Meta.Tactic.Grind.Proof import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons import Lean.Meta.Tactic.Grind.PropagateInj import Lean.Meta.Tactic.Grind.FunCC import Lean.Util.CollectLevelParams
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -455,7 +455,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNode___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_addSplitCandidatesForExt_found_spec__2_spec__2_spec__2___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Grind_Theorems_insert___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_activateTheoremPatterns_spec__0_spec__10_spec__10___redArg(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_addMatchEqns_spec__4_spec__4_spec__6___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Match_genMatchCongrEqns(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_get_congr_match_equations_for(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_useFunCongrAtDecl_spec__1_spec__1_spec__1_spec__1_spec__3___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at___00Lean_PersistentHashMap_insertAtCollisionNode___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_addSplitCandidatesForExt_found_spec__2_spec__2_spec__2_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_internalizePattern_go___closed__7;
@@ -11111,7 +11111,7 @@ lean_inc(x_10);
 lean_inc_ref(x_9);
 lean_inc(x_8);
 lean_inc_ref(x_7);
-x_35 = l_Lean_Meta_Match_genMatchCongrEqns(x_17, x_7, x_8, x_9, x_10);
+x_35 = lean_get_congr_match_equations_for(x_17, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; size_t x_37; size_t x_38; uint8_t x_39; lean_object* x_40; 
@@ -11224,7 +11224,7 @@ lean_inc(x_10);
 lean_inc_ref(x_9);
 lean_inc(x_8);
 lean_inc_ref(x_7);
-x_61 = l_Lean_Meta_Match_genMatchCongrEqns(x_17, x_7, x_8, x_9, x_10);
+x_61 = lean_get_congr_match_equations_for(x_17, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_61) == 0)
 {
 lean_object* x_62; size_t x_63; size_t x_64; uint8_t x_65; lean_object* x_66; 
@@ -11412,7 +11412,7 @@ lean_inc(x_10);
 lean_inc_ref(x_9);
 lean_inc(x_8);
 lean_inc_ref(x_7);
-x_107 = l_Lean_Meta_Match_genMatchCongrEqns(x_17, x_7, x_8, x_9, x_10);
+x_107 = lean_get_congr_match_equations_for(x_17, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_107) == 0)
 {
 lean_object* x_108; size_t x_109; size_t x_110; uint8_t x_111; lean_object* x_112; 
@@ -11685,7 +11685,7 @@ lean_inc(x_10);
 lean_inc_ref(x_9);
 lean_inc(x_8);
 lean_inc_ref(x_7);
-x_164 = l_Lean_Meta_Match_genMatchCongrEqns(x_17, x_7, x_8, x_9, x_10);
+x_164 = lean_get_congr_match_equations_for(x_17, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_164) == 0)
 {
 lean_object* x_165; size_t x_166; size_t x_167; uint8_t x_168; lean_object* x_169; 
@@ -12022,7 +12022,7 @@ lean_inc(x_10);
 lean_inc_ref(x_9);
 lean_inc(x_8);
 lean_inc_ref(x_7);
-x_230 = l_Lean_Meta_Match_genMatchCongrEqns(x_182, x_7, x_8, x_9, x_10);
+x_230 = lean_get_congr_match_equations_for(x_182, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_230) == 0)
 {
 lean_object* x_231; size_t x_232; size_t x_233; uint8_t x_234; lean_object* x_235; 
@@ -31867,7 +31867,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Grind_Theorems_insert___at___00__private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_activateTheoremPatterns_spec__0___closed__2;
 x_2 = lean_unsigned_to_nat(18u);
-x_3 = lean_unsigned_to_nat(486u);
+x_3 = lean_unsigned_to_nat(487u);
 x_4 = l___private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_internalizeImpl_go___closed__1;
 x_5 = l___private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_internalizeImpl_go___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -35881,7 +35881,7 @@ return x_13;
 lean_object* initialize_Lean_Meta_Tactic_Grind_Types(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Types(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_IsRelevant(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Match_MatchEqs(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Match_MatchEqsExt(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Util(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Beta(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_MatchCond(uint8_t builtin);
@@ -35890,6 +35890,7 @@ lean_object* initialize_Lean_Meta_Tactic_Grind_Proof(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_MarkNestedSubsingletons(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_PropagateInj(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Grind_FunCC(uint8_t builtin);
+lean_object* initialize_Lean_Util_CollectLevelParams(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Internalize(uint8_t builtin) {
 lean_object * res;
@@ -35904,7 +35905,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Arith_IsRelevant(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Match_MatchEqs(builtin);
+res = initialize_Lean_Meta_Match_MatchEqsExt(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Util(builtin);
@@ -35929,6 +35930,9 @@ res = initialize_Lean_Meta_Tactic_Grind_PropagateInj(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_FunCC(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Util_CollectLevelParams(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_addCongrTable_isEqCongrSymm___redArg___closed__0 = _init_l___private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_addCongrTable_isEqCongrSymm___redArg___closed__0();

@@ -80,6 +80,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Match_initFn___lam__0_00___x40_Lean_Meta_Ma
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Match_registerMatchEqns_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Match_isMatchEqnTheorem___closed__0;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at___00Lean_PersistentHashMap_insertAtCollisionNode___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Match_registerMatchEqns_spec__0_spec__0_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_get_congr_match_equations_for(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentHashMap_empty___at___00Lean_Meta_Match_instInhabitedMatchEqnsExtState_default_spec__0___closed__0;
 static lean_object* l_Lean_Meta_Match_instReprMatchEqns_repr___redArg___closed__7;
 static lean_object* l_Lean_Meta_Match_instReprMatchEqns_repr___redArg___closed__14;
@@ -105,6 +106,7 @@ static lean_object* l_Lean_Meta_Match_instInhabitedMatchEqnsExtState_default___c
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_instInhabitedMatchEqnsExtState_default;
 static lean_object* l_Array_Array_repr___at___00Lean_Meta_Match_instReprMatchEqns_repr_spec__0___closed__8;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Match_genMatchCongrEqns___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkCollisionNode___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Array_Array_repr___at___00Lean_Meta_Match_instReprMatchEqns_repr_spec__0_spec__3(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -1797,6 +1799,14 @@ _start:
 {
 lean_object* x_7; 
 x_7 = lean_get_match_equations_for(x_1, x_2, x_3, x_4, x_5);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Match_genMatchCongrEqns___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = lean_get_congr_match_equations_for(x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }

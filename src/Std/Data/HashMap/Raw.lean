@@ -248,6 +248,8 @@ instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
 
 instance [BEq α] [Hashable α] : Inter (Raw α β) := ⟨inter⟩
 
+instance [BEq α] [Hashable α] : SDiff (Raw α β) := ⟨diff⟩
+
 @[inline, inherit_doc DHashMap.Raw.filterMap] def filterMap {γ : Type w} (f : α → β → Option γ)
     (m : Raw α β) : Raw α γ :=
   ⟨m.inner.filterMap f⟩

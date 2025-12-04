@@ -25,6 +25,9 @@ and in many cases this will suffice to do the proof that a recursive function
 is only called on smaller values.
 If the default proof strategy fails, it is recommended to supply a custom
 size measure using the `termination_by` argument on the function definition.
+
+The derived `SizeOf` instances are intended only for termination checking and
+are not compiled. It is not recommended to use `sizeOf` for programming purposes.
 -/
 class SizeOf (α : Sort u) where
   /-- The "size" of an element, a natural number which decreases on fields of
@@ -49,17 +52,17 @@ for every element of `α`.
 Every type `α` has a low priority default `SizeOf` instance that just returns `0`
 for every element of `α`.
 -/
-instance (priority := low) instSizeOfDefault (α : Sort u) : SizeOf α where
+noncomputable instance (priority := low) instSizeOfDefault (α : Sort u) : SizeOf α where
   sizeOf := default.sizeOf α
 
 @[simp] theorem sizeOf_default (n : α) : sizeOf n = 0 := rfl
 
-instance : SizeOf Nat where
+noncomputable instance : SizeOf Nat where
   sizeOf n := n
 
 @[simp] theorem sizeOf_nat (n : Nat) : sizeOf n = n := rfl
 
-instance [SizeOf α] : SizeOf (Unit → α) where
+noncomputable instance [SizeOf α] : SizeOf (Unit → α) where
   sizeOf f := sizeOf (f ())
 
 @[simp] theorem sizeOf_thunk [SizeOf α] (f : Unit → α) : sizeOf f = sizeOf (f ()) :=

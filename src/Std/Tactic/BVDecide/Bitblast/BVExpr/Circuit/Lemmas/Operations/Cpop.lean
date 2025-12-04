@@ -210,228 +210,252 @@ theorem denote_blastExtractAndExtendPopulate
           acc
     · simp_all
 
-
 theorem denote_blastAddVec
-  (aig : AIG α) (usedNodes validNodes : Nat) (hw : 1 < w)
-  (oldParSum : AIG.RefVec aig (validNodes * w)) (newParSum : AIG.RefVec aig ((usedNodes / 2) * w))
-  (hval : validNodes ≤ w) (hused : usedNodes ≤ validNodes + 1) (hmod : usedNodes % 2 = 0)
-  (oldParSumBv : BitVec (validNodes * w))
-  (hval : 0 < validNodes)
+  (aig : AIG α)
+  (iter_num : Nat)
+  (old_layer : AIG.RefVec aig (old_length * w))
+  (new_layer : AIG.RefVec aig (iter_num * w))
+  (hold' : 2 * (iter_num - 1) < old_length)
+  (old_layer_bv : BitVec (old_length * w))
+  (hval : 0 < l_length)
   -- the bits added already denote to the corresponding entry in acc
-  (hold : ∀ (idx : Nat) (hidx : idx < validNodes * w),
-          ⟦aig, oldParSum.get idx hidx, assign⟧ = oldParSumBv.getLsbD idx)
-  (hnew : ∀ (idx : Nat) (hidx : idx < (usedNodes / 2) * w),
-          ⟦aig, newParSum.get idx hidx, assign⟧ =
-      (BitVec.pps_layer 0 (old_layer := oldParSumBv) 0#(0 * w) (by simp; omega) (by sorry)).val.getLsbD idx) :
-    ∀ (idx : Nat) (hidx : idx < (validNodes + 1) / 2 * w),
+  (hold : ∀ (idx : Nat) (hidx : idx < old_length * w),
+          ⟦aig, old_layer.get idx hidx, assign⟧ = old_layer_bv.getLsbD idx)
+  (hnew : ∀ (idx : Nat) (hidx : idx < iter_num * w),
+          ⟦aig, new_layer.get idx hidx, assign⟧ =
+      (BitVec.pps_layer 0 (old_layer := old_layer_bv) 0#(0 * w) (by simp; omega) (by simp)).val.getLsbD idx) :
+    ∀ (idx : Nat) (hidx : idx < (old_length + 1) / 2 * w),
       ⟦
-        (blastAddVec aig usedNodes validNodes oldParSum newParSum hval hused hmod).aig,
-        (blastAddVec aig usedNodes validNodes oldParSum newParSum hval hused hmod).vec.get idx hidx,
+        (blastAddVec aig iter_num old_layer new_layer hold').aig,
+        (blastAddVec aig iter_num old_layer new_layer hold').vec.get idx hidx,
         assign
       ⟧ =
-        have hcastZero : 0 = 0 / 2 * w := by omega
-      (BitVec.addVecAux 0 validNodes hw oldParSumBv (hcastZero▸0#0) (by intros; omega) (by omega) (by omega) (by omega)).val.getLsbD idx := by sorry
-  -- intros idx hidx
-  -- generalize hgen : blastAddVec aig usedNodes validNodes oldParSum newParSum hval hused hmod = res
-  -- unfold blastAddVec at hgen
-  -- split at hgen
-  -- · case _ hgen'  =>
-  --   rw [← hgen]
-  --   expose_names
-  --   rw [denote_blastAddVec]
-  --   · -- hold
-  --     intros idx hidx
-  --     specialize hold idx hidx
-  --     rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastAdd)]
-  --     rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastExtract)]
-  --     · simp [hold]
-  --     · simp
-  --       exact (oldParSum.get idx hidx).hgate
-  --   · -- hnew
-  --     intros idx hidx
-  --     · simp
-  --       expose_names
-  --       let res := (blastAdd (blastExtract aig { w := validNodes * w, vec := oldParSum, start := usedNodes * w }).aig
-  --                   { lhs := (blastExtract aig { w := validNodes * w, vec := oldParSum, start := usedNodes * w }).vec,
-  --                     rhs := (if usedNodes + 1 < validNodes then (blastExtract aig
-  --                                 { w := validNodes * w, vec := oldParSum, start := (usedNodes + 1) * w }).vec
-  --                               else blastConst aig 0#w).cast (by apply LawfulVecOperator.le_size (f := blastExtract))})
+      (BitVec.pps_layer 0 old_layer_bv 0#(0 * w) (by omega) (by simp)).val.getLsbD idx := by
+  intros idx hidx
+  generalize hgen : blastAddVec aig iter_num old_layer new_layer hold' = res
+  unfold blastAddVec at hgen
+  split at hgen
+  · case _ hgen' =>
+    rw [← hgen]
+    expose_names
+    rw [denote_blastAddVec]
+    · omega
+    · intros idx hidx
+      specialize hold idx hidx
+      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastAdd)]
+      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastExtract)]
+      · simp [hold]
+      · simp
+        exact (old_layer.get idx hidx).hgate
+      · simp
+        exact (old_layer.get idx hidx).hgate
+    · intros idx hidx
+      expose_names
+      let res := (blastAdd (blastExtract aig { w := old_length * w, vec := old_layer, start := 2 * iter_num * w }).aig
+                  { lhs := (blastExtract aig { w := old_length * w, vec := old_layer, start := 2 * iter_num * w }).vec,
+                    rhs := (if 2 * iter_num + 1 < old_length then (blastExtract aig
+                                { w := old_length * w, vec := old_layer, start := (2 * iter_num + 1) * w }).vec
+                              else blastConst aig 0#w).cast (by apply LawfulVecOperator.le_size (f := blastExtract))})
+      have hres : res = (blastAdd (blastExtract aig { w := old_length * w, vec := old_layer, start := 2 * iter_num * w }).aig
+                  {lhs := (blastExtract aig { w := old_length * w, vec := old_layer, start := 2 * iter_num * w }).vec,
+                    rhs := (if 2 * iter_num + 1 < old_length then (blastExtract aig
+                                { w := old_length * w, vec := old_layer, start := (2 * iter_num + 1) * w }).vec
+                              else blastConst aig 0#w).cast (by apply LawfulVecOperator.le_size (f := blastExtract))}) := rfl
+      have h1 : 2 * iter_num / 2 * w + w = (2 * iter_num + 2) / 2 * w := by
+          rw [show 2 * iter_num / 2 * w + w = 2 * iter_num / 2 * w + 1 * w by omega]
+          rw [← Nat.add_mul]
+          simp
+      let elem := (blastAdd (blastExtract aig { w := old_length * w, vec := old_layer, start := 2 * iter_num * w }).aig
+          { lhs := (blastExtract aig { w := old_length * w, vec := old_layer, start := 2 * iter_num * w }).vec,
+            rhs :=
+              (if 2 * iter_num + 1 < old_length then
+                    (blastExtract aig
+                        { w := old_length * w, vec := old_layer, start := (2 * iter_num + 1) * w }).vec
+                  else blastConst aig 0#w).cast (by apply LawfulVecOperator.le_size (f := blastExtract))})
+      simp
 
-  --       have h1 : usedNodes / 2 * w + w = (usedNodes + 2) / 2 * w := by
-  --           rw [show usedNodes / 2 * w + w = usedNodes / 2 * w + 1 * w by omega]
-  --           rw [← Nat.add_mul]
-  --           simp
+      have hc1 : w + iter_num * w = (iter_num + 1) * w := by simp [Nat.add_mul]; omega
+      have hc2 : (iter_num + 1) * w = w + iter_num * w := by simp [Nat.add_mul]; omega
+      have hc3 : w + iter_num * w = (iter_num + 1) * w := by simp [Nat.add_mul]; omega
+      have : (hc1▸
+                hc2 ▸
+                  hc3 ▸
+                    (blastAdd (blastExtract aig { w := old_length * w, vec := old_layer, start := 2 * iter_num * w }).aig
+                            {
+                              lhs :=
+                                (blastExtract aig
+                                    { w := old_length * w, vec := old_layer, start := 2 * iter_num * w }).vec,
+                              rhs :=
+                                (if 2 * iter_num + 1 < old_length then
+                                      (blastExtract aig
+                                          { w := old_length * w, vec := old_layer, start := (2 * iter_num + 1) * w }).vec
+                                    else blastConst aig 0#w).cast
+                                  (by sorry) }).vec.append
+                    (new_layer.cast (by sorry)))
+          = (blastAdd (blastExtract aig { w := old_length * w, vec := old_layer, start := 2 * iter_num * w }).aig
+                            {
+                              lhs :=
+                                (blastExtract aig
+                                    { w := old_length * w, vec := old_layer, start := 2 * iter_num * w }).vec,
+                              rhs :=
+                                (if 2 * iter_num + 1 < old_length then
+                                      (blastExtract aig
+                                          { w := old_length * w, vec := old_layer, start := (2 * iter_num + 1) * w }).vec
+                                    else blastConst aig 0#w).cast
+                                  (by sorry).vec.append
+                    (new_layer.cast (by sorry)) := by sorry
+      let bvRes:= BitVec.pps_layer 0 old_layer_bv 0#(0 * w) (by omega) (by omega)
+      rw [denote_append]
 
-  --       let elem := (blastAdd (blastExtract aig { w := validNodes * w, vec := oldParSum, start := usedNodes * w }).aig
-  --                   { lhs := (blastExtract aig { w := validNodes * w, vec := oldParSum, start := usedNodes * w }).vec,
-  --                     rhs :=
-  --                       (if usedNodes + 1 < validNodes then
-  --                             (blastExtract aig
-  --                                 { w := validNodes * w, vec := oldParSum, start := (usedNodes + 1) * w }).vec
-  --                           else blastConst aig 0#w).cast (by apply LawfulVecOperator.le_size (f := blastExtract))})
+      sorry
+  · case _ hgen' =>
+    rw [← hgen]
+    have hcast : iter_num = (old_length + 1) / 2 := by
+      omega
+    have hcast1 : idx < iter_num * w := by
+      rw [← hcast] at hidx
+      exact hidx
+    have : (hcast▸new_layer).get idx (by omega) = new_layer.get idx (by omega) := by
+      congr
+      · omega
+      · apply eqRec_heq
+      · exact
+        heq_of_eqRec_eq
+          (congrArg (LT.lt idx) (congrFun (congrArg HMul.hMul (id (Eq.symm hcast))) w)) rfl
+    conv =>
+      lhs
+      arg 2
+      arg 2
+      simp
+    simp [this]
+    specialize hnew idx (by omega)
+    simp [hnew]
 
-  --       have : (h1▸ ((newParSum.cast (by simp [elem]; apply LawfulVecOperator.le_size)).append elem.vec)).get idx hidx =
-  --                     ((newParSum.cast (by simp [elem]; apply LawfulVecOperator.le_size)).append elem.vec).get idx (by simp_all) := by
-  --               congr 2
-  --               · omega
-  --               · apply eqRec_heq h1
-  --               · exact heq_of_eqRec_eq (congrArg (LT.lt idx) (id (Eq.symm h1))) rfl
-  --       have hcastZero : 0 = 0 / 2 * w := by omega
-  --       rw [this]
-  --       have  : 0 = 0 / 2 * w := by omega
-  --       let bvRes:= (BitVec.addVecAux 0 validNodes hw oldParSumBv (hcastZero ▸ 0#0) (by intros; omega) hval (by omega) (by omega))
-  --       rw [denote_append (assign := assign) (elem := elem.vec) (acc := newParSum.cast (by simp [elem]; apply LawfulVecOperator.le_size))
-  --                 (l := bvRes.val.extractLsb' 0 (usedNodes / 2 * w)) (bv := bvRes.val.extractLsb' (usedNodes / 2 * w) w)]
-  --       · simp
-  --         by_cases hsplit : idx < usedNodes/2 * w
-  --         · simp [bvRes]
-  --           rw [BitVec.getLsbD_append]
-  --           simp [hsplit]
-  --         · rw [BitVec.getLsbD_append]
-  --           simp [hsplit, show idx - usedNodes / 2 * w < w by omega]
-  --           rw [show usedNodes / 2 * w + (idx - usedNodes / 2 * w) = idx by omega]
-  --       · intros idx1 hidx1
-  --         simp [elem]
-  --         rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastAdd)]
-  --         rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastExtract)]
-  --         · specialize hnew idx1 hidx1
-  --           simp [hnew, bvRes]
-  --           omega
-  --         · exact (newParSum.get idx1 hidx1).hgate
-  --       · intros idx1 hidx1
-  --         simp [elem]
-  --         rw [denote_blastAdd (assign := assign) (w := w)
-  --                 (lhs := oldParSumBv.extractLsb' (usedNodes * w) w)
-  --                 (rhs := if usedNodes + 1 < validNodes then oldParSumBv.extractLsb' ((usedNodes + 1) * w) w else 0#w)
-  --                 (input := ⟨(blastExtract aig { w := validNodes * w, vec := oldParSum, start := usedNodes * w }).vec,
-  --                     ((if usedNodes + 1 < validNodes then
-  --                     (blastExtract aig { w := validNodes * w, vec := oldParSum, start := (usedNodes + 1) * w }).vec
-  --                   else blastConst aig 0#w)).cast (by apply AIG.LawfulVecOperator.le_size)⟩)]
-  --         · split
-  --           · case _ hsplit =>
-  --             simp [hidx1]
-  --             have proof := bvRes.property
-  --             sorry
-  --             specialize proof (usedNodes/2) (by omega) idx1 (by omega)
-  --             have hlsb := BitVec.getLsbD_extractLsb'_eq_getLsbD (x := bvRes.val) (start := usedNodes/2 * w) (len := w) (i := idx1) (by omega)
-  --             rw [← hlsb]
-  --             simp [proof, hsplit, show usedNodes/2 * 2 = usedNodes by omega]
-  --             rw [BitVec.getLsbD_eq_getElem (by omega)]
-  --           · case _ hsplit =>
-  --             have proof := bvRes.property
-  --             simp
-  --             specialize proof (usedNodes /2) (by omega) idx1 hidx1
-  --             have hlsb := BitVec.getLsbD_extractLsb'_eq_getLsbD (x := bvRes.val) (start := usedNodes/2 * w) (len := w) (i := idx1) (by omega)
-  --             rw [← hlsb]
-  --             simp [proof, hsplit, show usedNodes/2 * 2 = usedNodes by omega]
-  --         · intros idx2 hidx2
-  --           simp [denote_blastExtract]
-  --           split
-  --           · simp [hidx2]
-  --             specialize hold (usedNodes * w + idx2) (by omega)
-  --             simp [hold]
-  --           · simp
-  --             intros
-  --             simp [show validNodes * w ≤ usedNodes * w + idx2 by omega]
-  --         · intros idx3 hidx3
-  --           simp only
-  --           split
-  --           · next hsplit =>
-  --             rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastExtract)]
-  --             · simp
-  --               simp [hidx3]
-  --               simp at *
-  --               simp [blastExtract]
-  --               simp [blastExtract.go_get]
-  --               simp [RefVec.getD]
-  --               split
-  --               · (expose_names; exact hold ((usedNodes + 1) * w + idx3) h)
-  --               · rw [denote_mkConstCached]
-  --                 simp [show validNodes * w ≤ (usedNodes + 1) * w + idx3 by omega]
-  --             · simp
-  --               exact
-  --                 ((blastExtract aig
-  --                           { w := validNodes * w, vec := oldParSum,
-  --                             start := (usedNodes + 1) * w }).vec.get
-  --                     idx3 hidx3).hgate
-  --           · rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastExtract)]
-  --             simp
-  --             · rw [denote_blastConst]
-  --               simp
-  --             · simp
-  --               exact ((blastConst aig 0#w).get idx3 hidx3).hgate
-  -- · case _ hgen'  =>
-  --   rw [← hgen]
-  --   have hcast : usedNodes / 2 * w = (validNodes + 1) / 2 * w := by
-  --     congr 1
-  --     omega
-  --   have : (hcast▸newParSum).get idx (by omega) = newParSum.get idx (by omega) := by
-  --     congr 2
-  --     · omega
-  --     · simp_all
-  --       exact eqRec_heq hcast newParSum
-  --     · simp_all only [Nat.reduceDiv, BitVec.getLsbD_eq_getElem]
-  --       rw [heq_eq_eq]
-  --   conv =>
-  --     lhs
-  --     arg 2
-  --     arg 2
-  --     simp
-  --     rw [this]
-  --   simp
-  --   specialize hnew idx (by omega)
-  --   simp [hnew]
+theorem pss_eq_of_eq (x y : BitVec (l_length * w)) (hxy : x = y)
+  (xproof : x.addRecAux l_length 0#w = kx)
+  (yproof : y.addRecAux l_length 0#w = ky)
+  (xproof_length : 0 < l_length)
+  (yproof_length : 0 < l_length)
+  (hk : kx = ky)
+  (hxy : x = y)
+  (xhw : 0 < w)
+  (yhw : 0 < w) :
+  BitVec.pps x kx xproof xproof_length xhw ≍ BitVec.pps y ky yproof yproof_length yhw := by
+  subst hk
+  subst hxy
+  rfl
 
 theorem denote_go
-  (aig : AIG α) (validNodes : Nat)
-  (parSum : AIG.RefVec aig (validNodes * w))  (hw : 1 < w)
-  (hval : validNodes ≤ w) (hval' : 0 < validNodes)
-  (parSumBv : BitVec (validNodes * w))
-  (hpar : ∀ (idx : Nat) (hidx : idx < validNodes * w),
-          ⟦aig, parSum.get idx hidx, assign⟧ = parSumBv.getLsbD idx) :
+  (aig : AIG α) (l_length : Nat)
+  (l : AIG.RefVec aig (l_length * w)) (hw : 1 < w)
+  (h : 0 < l_length)
+  (l_bv : BitVec (l_length * w))
+  (hpar : ∀ (idx : Nat) (hidx : idx < l_length * w),
+          ⟦aig, l.get idx hidx, assign⟧ = l_bv.getLsbD idx) :
     ∀ (idx : Nat) (hidx : idx < w),
       ⟦
-        (go aig validNodes parSum hw hval hval').aig,
-        (go aig validNodes parSum hw hval hval').vec.get idx hidx,
+        (go aig l_length l h).aig,
+        (go aig l_length l h).vec.get idx hidx,
         assign
       ⟧ =
-      (BitVec.parPrefixSum validNodes parSumBv (by omega) hval hval').val.getLsbD idx := by sorry
-  -- intros idx hidx
-  -- generalize hgen : go aig validNodes parSum hw hval hval' = res
-  -- unfold go at hgen
-  -- split at hgen
-  -- · rw [← hgen]
-  --   simp
-  --   have hcastZero : 0 = 0 / 2 * w := by omega
-  --   let bvRes := BitVec.addVecAux 0 validNodes (by omega) parSumBv (hcastZero▸0#0)
-  --                       (by intros i hi j hj; simp [show i = 0 by omega]; omega) (by omega) (by omega) (by omega)
-  --   rw [denote_go (validNodes := (validNodes + 1)/2) (parSumBv := bvRes.val)]
-  --   · conv =>
-  --       rhs
-  --       unfold BitVec.parPrefixSum
-  --     simp
-  --     split
-  --     · simp [bvRes]
-  --     · omega
-  --   · intros idx hidx
-  --     rw [denote_blastAddVec (oldParSumBv := parSumBv)]
-  --     · intros idx hidx
-  --       apply hpar
-  --     · omega
-  -- · rw [← hgen]
-  --   simp
-  --   have hval1 : validNodes = 1 := by omega
-  --   have hcast : validNodes * w = w := by simp [hval1]
-  --   specialize hpar idx (by simp [hval1]; omega)
-  --   unfold BitVec.parPrefixSum
-  --   simp [hval1]
-  --   have hcasteq: (hcast ▸ parSum).get idx hidx = parSum.get idx (by omega) := by
-  --     congr
-  --     · simp [hval1]
-  --     · exact eqRec_heq hcast parSum
-  --     · exact heq_of_eqRec_eq (congrArg (LT.lt idx) (id (Eq.symm hcast))) rfl
-  --   rw [hcasteq]
-  --   simp [hpar]
+      (BitVec.pps l_bv (l_bv.addRecAux l_length 0#w) (by rfl) (by omega) (by omega)).val.getLsbD idx := by
+  intros idx hidx
+  generalize hgen : go aig l_length l h = res
+  unfold go at hgen
+  split at hgen
+  · rw [← hgen]
+    simp
+    have hcastZero : 0 = 0 / 2 * w := by omega
+    let bvRes := BitVec.pps_layer 0 l_bv 0#(0 * w) (by omega) (by simp)
+    rw [denote_go (l_length := (l_length + 1) / 2) (l_bv := bvRes.val) ]
+    · conv =>
+        rhs
+        unfold BitVec.pps
+      simp
+      split
+      · case _ h1 =>
+        subst h1
+        simp
+        have proof := bvRes.property (i := 0) (by omega) (by omega)
+        have hlbv : l_bv.getLsbD idx = (BitVec.extractLsb' (0 * w) w l_bv).getLsbD idx := by
+          simp; omega
+        unfold BitVec.pps
+        simp
+        have hresbv : bvRes.val.getLsbD idx = (BitVec.extractLsb' (0 * w) w bvRes.val).getLsbD idx := by
+          simp; omega
+        rw [hlbv, hresbv]
+        congr 1
+        rw [proof]
+        simp
+      · case _ hg =>
+        have ⟨layer, layer_proof⟩ := BitVec.pps_layer 0 l_bv (0#(0 * w)) h (by omega)
+        have ⟨bvRes, bvRes_proof⟩ := bvRes
+        have : bvRes = layer := by
+          ext k hk
+          let pos := (k - k % w) / w
+          let idx := k % w
+          have : k = w * ((k - k % w)/w)+ k % w := by
+            by_cases hmod0 : k % w = 0
+            · simp [hmod0]
+              rw [Nat.mul_comm, Nat.div_mul_cancel (by omega)]
+            · have h_id : k = (k / w) * w + k % w := by exact Eq.symm (Nat.div_add_mod' k w)
+              have h_div_mul : (k / w) * w = k - k % w := by exact Nat.div_mul_self_eq_mod_sub_self
+              have h_div : k / w = (k - k % w) / w := by exact Nat.div_eq_sub_mod_div
+              rw [← h_div]
+              exact Eq.symm (Nat.div_add_mod k w)
+          rw [show (k - k % w) / w = pos by rfl, show k % w = idx by rfl] at this
+          simp [this, Nat.mul_comm w pos]
+          have : (k - k % w) / w < (l_length + 1) / 2 := by
+            have h_le_k : k / w * w ≤ k := by exact Nat.div_mul_le_self k w
+            have h_combined : k / w * w < (l_length + 1) / 2 * w := Nat.lt_of_le_of_lt h_le_k hk
+            have := Nat.sub_eq_of_eq_add (Nat.div_add_mod k w).symm
+            rw [this, Nat.mul_div_cancel_left _ (by omega)]
+            exact Nat.lt_of_mul_lt_mul_right h_combined
+          specialize layer_proof (i := pos) (by simp [pos]; omega) (by omega)
+          specialize bvRes_proof (i := pos) (by simp [pos]; omega) (by omega)
+          have hlayer := BitVec.getLsbD_extractLsb' (start := pos * w) (i := idx) (x := layer) (len := w)
+          have hbvRes := BitVec.getLsbD_extractLsb' (start := pos * w) (i := idx) (x := bvRes) (len := w)
+          simp only [show idx < w by simp [idx]; refine Nat.mod_lt k (by omega),
+            decide_true,
+            Bool.true_and] at hlayer hbvRes
+          rw [← BitVec.getLsbD_eq_getElem, ← hbvRes, bvRes_proof]
+          rw [← BitVec.getLsbD_eq_getElem, ← hlayer, layer_proof]
+        have haddrec := BitVec.rec_add_eq_rec_add_iff (a := bvRes) (b := l_bv) (b_length := l_length)
+                            (hadd := by omega) (hw := by omega) (hlen := by omega) (by omega)
+                            (n := (l_length + 1) / 2) (by omega)
+        subst this
+        simp
+        congr 2
+        ext ls
+        simp
+        simp [haddrec]
+        apply pss_eq_of_eq (x := bvRes) (y := bvRes)
+                    (kx := bvRes.addRecAux ((l_length + 1) / 2) 0#w) (ky := l_bv.addRecAux l_length 0#w)
+        · rfl
+        · exact haddrec
+        · rfl
+    · omega
+    · intros idx hidx
+      rw [denote_blastAddVec (old_layer_bv := l_bv) (l_length := l_length)]
+      · omega
+      · intros idx hidx
+        apply hpar
+      · intros idx hidx
+        simp at hidx
+  · rw [← hgen]
+    simp
+    have hval1 : l_length = 1 := by omega
+    have hcast : l_length * w = w := by simp [hval1]
+    specialize hpar idx (by omega)
+    unfold BitVec.pps
+    simp [hval1]
+    have hcasteq: (hcast ▸ l).get idx hidx = l.get idx (by omega) := by
+      congr
+      · simp [hval1]
+      · exact eqRec_heq hcast l
+      · exact heq_of_eqRec_eq (congrArg (LT.lt idx) (id (Eq.symm hcast))) rfl
+    rw [hcasteq]
+    simp [hpar]
 
 end blastCpop
 

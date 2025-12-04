@@ -1,9 +1,11 @@
 myid 10 : Nat
 myid true : Bool
 autoBoundImplicits1.lean:16:4-16:11: warning: declaration uses 'sorry'
-autoBoundImplicits1.lean:20:25-20:29: error(lean.unknownIdentifier): Unknown identifier `size`
+autoBoundImplicits1.lean:20:25-20:29: error: Unknown identifier `size`
 
 Note: It is not possible to treat `size` as an implicitly bound variable here because it has multiple characters while the `relaxedAutoImplicit` option is set to `false`.
+
+Hint: This error occurred after the identifiers `α`, `β`, and `n` had been identified as free variables and automatically given implicit bindings. Are those identifiers all supposed to be implicitly bound? Automatic implicit binding can sometimes occur due to typos or missing `import` or `open` statements, and this may cause unexpected errors.
 autoBoundImplicits1.lean:24:23-24:24: error(lean.unknownIdentifier): Unknown identifier `α`
 
 Note: It is not possible to treat `α` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.

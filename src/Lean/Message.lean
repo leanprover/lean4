@@ -172,6 +172,15 @@ def kind : MessageData → Name
   | tagged n _              => n
   | _                       => .anonymous
 
+/--
+Check if the *outermost* constructor is `.tagged`.
+To check if a tag exists anywhere in the message, use `MessageData.hasTag (fun _ => true)`.
+-/
+def isTagged : MessageData → Bool
+  | .tagged .. => true
+  | _ => false
+
+
 def isTrace : MessageData → Bool
   | withContext _ msg       => msg.isTrace
   | withNamingContext _ msg => msg.isTrace

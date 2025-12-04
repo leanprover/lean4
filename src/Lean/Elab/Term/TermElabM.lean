@@ -17,6 +17,7 @@ public import Lean.Elab.DeclarationRange
 public import Lean.Elab.WhereFinally
 public import Lean.Elab.InfoTree.InlayHints
 public meta import Lean.Parser.Term
+import all Lean.Elab.ErrorUtils
 
 
 
@@ -1276,7 +1277,28 @@ private def mkSyntheticSorryFor (expectedType? : Option Expr) : TermElabM Expr :
   elaboration step with exception `ex`.
 -/
 def exceptionToSorry (ex : Exception) (expectedType? : Option Expr) : TermElabM Expr := do
-  logException ex
+  let autoBoundNames ←
+    (← readThe Term.Context).autoBoundImplicitContext
+      |>.map (·.boundVariables.toList)
+      |>.getD []
+      |>.mapM (·.fvarId!.getUserName)
+  if autoBoundNames.length > 0 then
+    if let .error ref msg := ex then
+      if msg.isTagged || msg.hasTag (· = `suppressAutoImplicitWarning) then
+        logException ex
+      else
+        let extra :=  m!"This error occurred after the identifier{plural autoBoundNames.length} \
+          {autoBoundNames.map (m!"`{.ofName ·}`") |> toOxford} had been identified as \
+          {plural autoBoundNames.length "a free variable" "free variables"} and automatically \
+          given {plural autoBoundNames.length "an implicit binding" "implicit bindings"}. \
+          {plural autoBoundNames.length m!"Is `{.ofName autoBoundNames[0]!}`" m!"Are those identifiers all"} \
+          supposed to be implicitly bound? Automatic implicit binding can sometimes occur due to \
+          typos or missing `import` or `open` statements, and this may cause unexpected errors."
+        logException (.error ref (msg ++ .hint' extra))
+    else
+      logException ex
+  else
+    logException ex
   mkSyntheticSorryFor expectedType?
 
 /-- If `mayPostpone == true`, throw `Exception.postpone`. -/
@@ -1885,6 +1907,32 @@ partial def withAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
             withLocalDecl n .implicit (← mkFreshTypeMVar) fun x => do
               loop (← saveState) (ctx.push x)
           | none   => throw ex
+
+/-
+      withTraceNode `Elab (fun _ => pure m!"withabi {ctx.boundVariables.toList.length}") do
+      try
+        withReader ({ · with autoBoundImplicitContext := .some ctx }) <|
+          withSaveAutoImplicitInfoContext k
+      catch
+        | ex@(.internal id k) =>
+          if id == autoBoundImplicitExceptionId then
+            withTraceNode `Elab (fun _ => pure m!"catchInternal {k.getName `localId `x}") do
+            -- Restore state, declare a new temporary local variable, and try again
+            let n := k.getName `localId `x
+            s.restore (restoreInfo := true)
+            withLocalDecl n .implicit (← mkFreshTypeMVar) fun x => do
+              loop (← saveState) (ctx.push x)
+          else throw ex
+        | .error ref msg =>
+          withTraceNode `Elab (fun _ => pure m!"catchError {ref}") do
+            logInfo m!"ERROR AFTER BOUND: {ctx.autoImplicitEnabled} {ctx.boundVariables.toArray}"
+          throwErrorAt ref (msg ++ .hint' m!"warning {ref}")
+
+        | ex => match isAutoBoundImplicitLocalException? ex with
+          | some n =>
+          | none   => throw ex
+-/
+
     loop (← saveState) initCtx
   else
     -- Track whether we are in an auto-bound context regardless of whether

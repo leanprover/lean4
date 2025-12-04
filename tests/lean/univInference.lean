@@ -101,4 +101,4 @@ inductive Sorry2 where
 
 inductive Sorry3 where
   | x (a : Array Sorry3)
-  | y {x} (b : x Err3)
+  | y (b : x Err3)

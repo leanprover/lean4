@@ -6,8 +6,9 @@ Authors: Rob Simmons
 module
 
 prelude
-import Init.Notation
-import Init.Data.String
+import Lean.Message
+
+namespace Lean
 
 /--
 Translate numbers (1, 2, 3, 212, 322 ...) to ordinals with appropriate English-language names for
@@ -35,6 +36,24 @@ def _root_.Nat.toOrdinal : Nat -> String
     else
       s!"{n}th"
 
+class HasOxfordStrings α where
+  emp : α
+  and : α
+  comma : α
+  commaAnd : α
+
+instance : HasOxfordStrings String where
+  emp := ""
+  and := " and "
+  comma := ", "
+  commaAnd := ", and "
+
+instance : HasOxfordStrings MessageData where
+  emp := ""
+  and := " and "
+  comma := ", "
+  commaAnd := ", and "
+
 /--
 Make an oxford-comma-separated list of strings.
 
@@ -42,24 +61,38 @@ Make an oxford-comma-separated list of strings.
  - `["eats", "shoots"].toOxford == "eats and shoots"`
  - `["eats", "shoots", "leaves"] == "eats, shoots, and leaves"`
 -/
-def _root_.List.toOxford : List String -> String
-  | [] => ""
+def toOxford [Append α] [HasOxfordStrings α] : List α -> α
+  | [] => HasOxfordStrings.emp
   | [a] => a
-  | [a, b] => a ++ " and " ++ b
-  | [a, b, c] => a ++ ", " ++ b  ++ ", and " ++ c
-  | a :: as => a ++ ", " ++ toOxford as
+  | [a, b] => a ++ HasOxfordStrings.and ++ b
+  | [a, b, c] => a ++ HasOxfordStrings.comma ++ b  ++ HasOxfordStrings.commaAnd ++ c
+  | a :: as => a ++ HasOxfordStrings.comma ++ toOxford as
+
+class HasPluralDefaults α where
+  singular : α
+  plural : α → α
+
+instance : HasPluralDefaults String where
+  singular := ""
+  plural := (· ++ "s")
+
+instance : HasPluralDefaults MessageData where
+  singular := .nil
+  plural := (m!"{·}s")
 
 /--
 Give alternative forms of a string if the `count` is 1 or not.
 
- - `(1).plural == ""`
- - `(2).plural == "s"`
- - `(1).plural "wug" == "wug"`
- - `(2).plural "wug" == "wugs"`
- - `(1).plural "it" "they" == "it"`
- - `(2).plural "it" "they" == "they"`
+ - `(1) |> plural == ""`
+ - `(2) |> plural == "s"`
+ - `(1) |> plural "wug" == "wug"`
+ - `(2) |> plural "wug" == "wugs"`
+ - `(1) |> plural "it" "they" == "it"`
+ - `(2) |> plural "it" "they" == "they"`
 -/
-def _root_.Nat.plural (count : Nat) (singular : String := "") (plural : String := singular ++ "s") :=
+def plural [HasPluralDefaults α] (count : Nat)
+    (singular : α := HasPluralDefaults.singular)
+    (plural : α := HasPluralDefaults.plural singular) :=
   if count = 1 then
     singular
   else

@@ -14,6 +14,8 @@ has type
   Vect m A
 but is expected to have type
   A
+
+Hint: This error occurred after the identifiers `A`, `m`, `i`, and `j` had been identified as free variables and automatically given implicit bindings. Are those identifiers all supposed to be implicitly bound? Automatic implicit binding can sometimes occur due to typos or missing `import` or `open` statements, and this may cause unexpected errors.
 ---
 error: Type mismatch: After simplification, term
   ih

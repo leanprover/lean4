@@ -6,3 +6,5 @@ but this term has type
 
 Note: Expected a function because this term is being applied to the argument
   Expr
+
+Hint: This error occurred after the identifiers `Expr` and `MetaM` had been identified as free variables and automatically given implicit bindings. Are those identifiers all supposed to be implicitly bound? Automatic implicit binding can sometimes occur due to typos or missing `import` or `open` statements, and this may cause unexpected errors.

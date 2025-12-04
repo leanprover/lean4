@@ -262,17 +262,17 @@ def explainStuckTypeclassProblem (typeclassProblem : Expr) : TermElabM (Option M
   -- Formulate error message
   let containMVars :=
     if simpleMVars then
-      nStuck.plural "is a metavariable" "are metavariables"
+      plural nStuck "is a metavariable" "are metavariables"
     else
-      nStuck.plural "contains metavariables" "contain metavariables"
+      plural nStuck "contains metavariables" "contain metavariables"
 
   let theTypeArguments :=
     if args.length = 1 then
       "the type argument"
     else
-      s!"the {(stuckArguments.toList.map (·.succ.toOrdinal)).toOxford} type {nStuck.plural "argument" "arguments"}"
+      s!"the {(stuckArguments.toList.map (·.succ.toOrdinal)) |> toOxford} type {plural nStuck "argument" "arguments"}"
 
-  return .some (.note m!"Lean will not try to resolve this typeclass instance problem because {theTypeArguments} to `{.ofConstName name}` {containMVars}. {nStuck.plural "This argument" "These arguments"} must be fully determined before Lean will try to resolve the typeclass."
+  return .some (.note m!"Lean will not try to resolve this typeclass instance problem because {theTypeArguments} to `{.ofConstName name}` {containMVars}. {plural nStuck "This argument" "These arguments"} must be fully determined before Lean will try to resolve the typeclass."
     ++ .hint' m!"Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `{MessageData.ofConstName ``Nat}`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.")
 
 /--

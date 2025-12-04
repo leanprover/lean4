@@ -240,6 +240,11 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
         let validNames ← getFoundNamedArgs
         let fnName? := if f.isConst then some f.constName! else none
         throwInvalidNamedArg namedArg fnName? validNames
+/-
+      let ctx ← readThe Term.Context
+      withTraceNode `Elab (fun _ => pure m!"throwinerror {s.f} {ctx.autoBoundImplicitContext.map (·.boundVariables.toArray)}") do
+        logInfo m!"quirky {repr s.f}  {ctx.autoBoundImplicitContext.isSome}"
+-/
       -- Help users see if this is actually due to an indentation mismatch/other parsing mishaps:
       let extra := if let some (arg : Arg) := s.args[0]? then
         .note m!"Expected a function because this term is being applied to the argument\
@@ -1338,9 +1343,9 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
             fields. The expression{indentExpr e}\nhas type{inlineExpr eType}which has no fields."
         let tupleHint ← mkTupleHint eType idx ref
         throwError m!"Invalid projection: Index `{idx}` is invalid for this structure; \
-          {numFields.plural "the only valid index is 1" s!"it must be between 1 and {numFields}"}"
+          {plural numFields "the only valid index is 1" s!"it must be between 1 and {numFields}"}"
           ++ MessageData.note m!"The expression{indentExpr e}\nhas type{inlineExpr eType}which has only \
-          {numFields} field{numFields.plural}"
+          {numFields} field{plural numFields}"
           ++ tupleHint
   | .const structName _, LVal.fieldName ref fieldName _ _ => withRef ref do
     let env ← getEnv

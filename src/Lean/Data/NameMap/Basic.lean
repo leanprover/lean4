@@ -35,6 +35,9 @@ def contains (m : NameMap α) (n : Name) : Bool := Std.TreeMap.contains m n
 
 def find? (m : NameMap α) (n : Name) : Option α := Std.TreeMap.get? m n
 
+instance : ForInNew m (NameMap α) (Name × α) :=
+  inferInstanceAs (ForInNew _ (Std.TreeMap _ _ _) ..)
+
 instance [Monad m] : ForIn m (NameMap α) (Name × α) :=
   inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) ..)
 

@@ -13,7 +13,7 @@ theorem eq_findM [Monad m] [LawfulMonad m] (p : α → m Bool) (xs : List α) :
     xs.findM? p := by
   induction xs with simp [List.findM?]
   | cons x xs ih =>
-    rw [← ih]; simp
+    rw [← ih]
     apply byCases_Bool_bind <;> simp
 
 theorem eq_findSomeM_findM [Monad m] [LawfulMonad m] (p : α → m Bool) (xss : List (List α)) :

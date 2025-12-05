@@ -110,7 +110,7 @@ public instance : LawfulSliceSize (Internal.SubarrayData α) where
 
 public theorem toArray_eq_sliceToArray {α : Type u} {s : Subarray α} :
     s.toArray = Slice.toArray s := by
-  simp [Subarray.toArray, Array.ofSubarray]
+  simp [Subarray.toArray]
 
 @[simp]
 public theorem forIn_toList {α : Type u} {s : Subarray α}
@@ -206,12 +206,12 @@ public theorem Subarray.size_eq {xs : Subarray α} :
 @[simp]
 public theorem Subarray.toArray_toList {xs : Subarray α} :
     xs.toList.toArray = xs.toArray := by
-  simp [Std.Slice.toList, Subarray.toArray, Array.ofSubarray, Std.Slice.toArray]
+  simp [Std.Slice.toList, Subarray.toArray, Std.Slice.toArray]
 
 @[simp]
 public theorem Subarray.toList_toArray {xs : Subarray α} :
     xs.toArray.toList = xs.toList := by
-  simp [Std.Slice.toList, Subarray.toArray, Array.ofSubarray, Std.Slice.toArray]
+  simp [Std.Slice.toList, Subarray.toArray, Std.Slice.toArray]
 
 @[simp]
 public theorem Subarray.length_toList {xs : Subarray α} :

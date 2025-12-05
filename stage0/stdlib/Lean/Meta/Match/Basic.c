@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Match.Basic
-// Imports: public import Lean.Meta.CollectFVars public import Lean.Meta.Match.CaseArraySizes import Lean.Meta.Match.NamedPatterns
+// Imports: public import Lean.Meta.Basic public import Lean.Meta.Tactic.FVarSubst public import Lean.Meta.CollectFVars import Lean.Meta.Match.Value import Lean.Meta.AppBuilder import Lean.Meta.Tactic.Util import Lean.Meta.Tactic.Assert import Lean.Meta.Tactic.Subst import Lean.Meta.Match.NamedPatterns
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -7878,18 +7878,42 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
+lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_FVarSubst(uint8_t builtin);
 lean_object* initialize_Lean_Meta_CollectFVars(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Match_CaseArraySizes(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Match_Value(uint8_t builtin);
+lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Util(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Assert(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Subst(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Match_NamedPatterns(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Match_Basic(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Lean_Meta_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_FVarSubst(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Meta_CollectFVars(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Match_CaseArraySizes(builtin);
+res = initialize_Lean_Meta_Match_Value(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_AppBuilder(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Util(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Assert(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Subst(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Match_NamedPatterns(builtin);

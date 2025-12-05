@@ -4149,7 +4149,7 @@ if (x_240 == 0)
 {
 lean_dec(x_233);
 lean_dec_ref(x_6);
-x_17 = x_235;
+x_17 = x_234;
 x_18 = x_236;
 x_19 = x_237;
 x_20 = x_5;
@@ -4169,7 +4169,7 @@ lean_inc(x_15);
 lean_inc_ref(x_14);
 lean_inc(x_13);
 lean_inc_ref(x_12);
-x_243 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Elab_Deriving_Ord_0__Lean_Elab_Deriving_Ord_mkMatchOld_mkAlts_spec__14___redArg(x_234, x_6, x_8, x_233, x_4, x_242, x_239, x_12, x_13, x_14, x_15);
+x_243 = l_Std_Rxo_Iterator_instIteratorLoop_loop___at___00__private_Lean_Elab_Deriving_Ord_0__Lean_Elab_Deriving_Ord_mkMatchOld_mkAlts_spec__14___redArg(x_235, x_6, x_8, x_233, x_4, x_242, x_239, x_12, x_13, x_14, x_15);
 lean_dec(x_233);
 if (lean_obj_tag(x_243) == 0)
 {
@@ -4187,7 +4187,7 @@ lean_inc(x_247);
 x_248 = lean_ctor_get(x_245, 1);
 lean_inc(x_248);
 lean_dec(x_245);
-x_17 = x_235;
+x_17 = x_234;
 x_18 = x_246;
 x_19 = x_247;
 x_20 = x_248;
@@ -4197,7 +4197,7 @@ goto block_231;
 else
 {
 uint8_t x_249; 
-lean_dec_ref(x_235);
+lean_dec_ref(x_234);
 lean_dec(x_15);
 lean_dec_ref(x_14);
 lean_dec(x_13);
@@ -4232,8 +4232,8 @@ x_258 = lean_nat_dec_lt(x_257, x_253);
 if (x_258 == 0)
 {
 lean_inc_ref(x_7);
-x_234 = x_253;
-x_235 = x_255;
+x_234 = x_255;
+x_235 = x_253;
 x_236 = x_7;
 x_237 = x_7;
 x_238 = lean_box(0);
@@ -4255,8 +4255,8 @@ lean_inc(x_262);
 x_263 = lean_ctor_get(x_261, 1);
 lean_inc(x_263);
 lean_dec(x_261);
-x_234 = x_253;
-x_235 = x_255;
+x_234 = x_255;
+x_235 = x_253;
 x_236 = x_262;
 x_237 = x_263;
 x_238 = lean_box(0);

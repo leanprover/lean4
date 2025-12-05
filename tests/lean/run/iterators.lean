@@ -254,6 +254,7 @@ example {α : Type} {m n o : Type → Type} [Monad m] [Monad n] [Monad o]
     [Std.IteratorLoop α m o]
     [Std.LawfulIteratorLoop α m n] [Std.LawfulIteratorLoop α m o]
     [Std.LawfulIteratorLoop α m o]
+    [MonadAttach n] [WeaklyLawfulMonadAttach n]
     (it : Std.IterM (α := α) m Nat) (f : Nat → n Nat) (g : Nat → Nat → o Nat) :
     (it.mapM f).foldM g init = it.foldM (fun b a => do g b (← f a)) init := by
   rw [Std.IterM.foldM_mapM]

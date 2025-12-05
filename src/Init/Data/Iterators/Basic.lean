@@ -292,6 +292,11 @@ theorem IterStep.mapIterator_id {step : IterStep α β} :
     step.mapIterator id = step := by
   cases step <;> rfl
 
+@[simp]
+theorem IterStep.mapIterator_id' {step : IterStep α β} :
+    step.mapIterator (fun x => x) = step := by
+  cases step <;> rfl
+
 /--
 A variant of `IterStep` that bundles the step together with a proof that it is "plausible".
 The plausibility predicate will later be chosen to assert that a state is a plausible successor

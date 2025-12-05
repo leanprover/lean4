@@ -6315,6 +6315,7 @@ theorem two_pow_ctz_le_toNat_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
 theorem cpopNatRec_zero_eq_self {x : BitVec w} :
     x.cpopNatRec 0 acc = acc := rfl
 
+@[simp]
 theorem cpopNatRec_succ {n : Nat} {x : BitVec w} :
     x.cpopNatRec (n + 1) acc = x.cpopNatRec n (acc + (x.getLsbD n).toNat) := rfl
 
@@ -6326,26 +6327,17 @@ theorem cpopNatRec_zero :
   · case succ n ihn =>
     simp [cpopNatRec_succ, ihn]
 
-@[simp]
 theorem add_cpopNatRec_zero {x : BitVec w} {acc n : Nat} :
-    x.cpopNatRec n 0 + acc = x.cpopNatRec n acc := by
+    x.cpopNatRec n acc = x.cpopNatRec n 0 + acc := by
   induction n generalizing acc
   · simp
   · case _ n ihn =>
-    simp only [cpopNatRec_succ]
-    rw [← ihn, ← @ihn (acc + (x.getLsbD n).toNat)]
+    simp [cpopNatRec_succ, ihn (acc := acc + (x.getLsbD n).toNat), ihn (acc := (x.getLsbD n).toNat)]
     omega
-
-@[simp]
-theorem cpopNatRec_zero_add {x : BitVec w} {acc n : Nat} :
-    acc + x.cpopNatRec n 0 = x.cpopNatRec n acc := by
-  rw [Nat.add_comm]
-  simp
 
 theorem cpopNatRec_add_eq_add_cpopNatRec {x : BitVec w} {acc n : Nat} :
     x.cpopNatRec n (acc + acc') = x.cpopNatRec n acc + acc' := by
-  rw [← add_cpopNatRec_zero (acc := acc + acc'), ← add_cpopNatRec_zero (acc := acc)]
-  omega
+  rw [add_cpopNatRec_zero (acc := acc + acc'), add_cpopNatRec_zero (acc := acc), Nat.add_assoc]
 
 theorem cpopNatRec_le {x : BitVec w} (n : Nat) :
     x.cpopNatRec n acc ≤ acc + n := by
@@ -6409,7 +6401,7 @@ theorem toNat_cpop_le (x : BitVec w) :
   exact hle
 
 @[simp]
-theorem cpopNatRec_cons_eq_cpopNatRec_of_le {x : BitVec w} {b : Bool} (hn : n ≤ w) :
+theorem cpopNatRec_cons_of_le {x : BitVec w} {b : Bool} (hn : n ≤ w) :
     (cons b x).cpopNatRec n acc = x.cpopNatRec n acc := by
   induction n generalizing acc
   · simp
@@ -6418,7 +6410,19 @@ theorem cpopNatRec_cons_eq_cpopNatRec_of_le {x : BitVec w} {b : Bool} (hn : n �
     rw [cpopNatRec_succ, ihn, getLsbD_cons]
     simp [show ¬ n = w by omega, cpopNatRec_succ]
 
-theorem cpopNatRec_concat_eq_add_cpopNatRec_of_lt {x : BitVec w} {b : Bool} (hn : 0 < n) :
+@[simp]
+theorem cpopNatRec_cons_of_lt {x : BitVec w} {b : Bool} (hn : w < n) :
+    (cons b x).cpopNatRec n acc = b.toNat + x.cpopNatRec n acc := by
+  induction n generalizing acc
+  · omega
+  · case _ n ihn =>
+    by_cases hlt : w < n
+    · rw [cpopNatRec_succ, ihn (acc := acc + ((cons b x).getLsbD n).toNat) (by omega)]
+      simp [getLsbD_cons, show ¬ n = w by omega]
+    · simp [show w = n by omega, getElem_cons,
+        cpopNatRec_add_eq_add_cpopNatRec (acc := acc) (acc' := b.toNat), Nat.add_comm]
+
+theorem cpopNatRec_concat_of_lt {x : BitVec w} {b : Bool} (hn : 0 < n) :
     (concat x b).cpopNatRec n acc = b.toNat + x.cpopNatRec (n - 1) acc := by
   induction n generalizing acc
   · omega
@@ -6442,7 +6446,7 @@ theorem toNat_cpop (x : BitVec w) :
 @[simp]
 theorem toNat_cpop_cons {x : BitVec w} {b : Bool} :
     (x.cons b).cpop.toNat = b.toNat + x.cpop.toNat := by
-  simp [toNat_cpop, cpopNatRec_succ, getElem_cons]
+  simp [toNat_cpop, getElem_cons, add_cpopNatRec_zero (acc := b.toNat), Nat.add_comm]
 
 @[simp]
 theorem cpopNatRec_setWidth_eq_of_le (x : BitVec w) (h : pos ≤ v) :

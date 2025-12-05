@@ -6506,14 +6506,14 @@ theorem cpop_reverse (x : BitVec w) :
     simp
 
 @[simp]
-theorem cpopNatRec_cast_eq_cpopNatRec_of {x : BitVec w} (p : w = v) :
+theorem cpopNatRec_cast_eq_of_eq {x : BitVec w} (p : w = v) :
     (x.cast p).cpopNatRec n = x.cpopNatRec n := by
   subst p; simp
 
 @[simp]
 theorem cpop_cast (h : w = v) (x : BitVec w) :
     (x.cast h).cpop = x.cpop.cast h := by
-  simp [cpop, cpopNatRec_cast_eq_cpopNatRec_of, h]
+  simp [cpop, cpopNatRec_cast_eq_of_eq, h]
 
 @[simp]
 theorem toNat_cpop_append {x : BitVec w} {y : BitVec u} :

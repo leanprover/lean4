@@ -162,17 +162,23 @@ def Mon.length : Mon → Nat
 def hugeFuel := 1000000
 
 def Mon.mul (m₁ m₂ : Mon) : Mon :=
-  match m₁, m₂ with
-  | m₁, .unit => m₁
-  | .unit, m₂ => m₂
-  | .mult pw₁ m₁, .mult pw₂ m₂ =>
-    bif pw₁.varLt pw₂ then
-      .mult pw₁ (mul m₁ (.mult pw₂ m₂))
-    else bif pw₂.varLt pw₁ then
-      .mult pw₂ (mul (.mult pw₁ m₁) m₂)
-    else
-      .mult { x := pw₁.x, k := pw₁.k + pw₂.k } (mul m₁ m₂)
-termination_by sizeOf m₁ + sizeOf m₂
+  -- We could use `m₁.length + m₂.length` to avoid hugeFuel
+  go hugeFuel m₁ m₂
+where
+  go (fuel : Nat) (m₁ m₂ : Mon) : Mon :=
+    match fuel with
+    | 0 => concat m₁ m₂
+    | fuel + 1 =>
+      match m₁, m₂ with
+      | m₁, .unit => m₁
+      | .unit, m₂ => m₂
+      | .mult pw₁ m₁, .mult pw₂ m₂ =>
+        bif pw₁.varLt pw₂ then
+          .mult pw₁ (go fuel m₁ (.mult pw₂ m₂))
+        else bif pw₂.varLt pw₁ then
+          .mult pw₂ (go fuel (.mult pw₁ m₁) m₂)
+        else
+          .mult { x := pw₁.x, k := pw₁.k + pw₂.k } (go fuel m₁ m₂)
 
 noncomputable def Mon.mul_k : Mon → Mon → Mon :=
   Nat.rec
@@ -1028,8 +1034,11 @@ theorem Mon.denote_mulPow_nc {α} [Semiring α] (ctx : Context α) (p : Power) (
 
 theorem Mon.denote_mul {α} [CommSemiring α] (ctx : Context α) (m₁ m₂ : Mon)
     : denote ctx (mul m₁ m₂) = m₁.denote ctx * m₂.denote ctx := by
-  fun_induction mul
-    <;> simp [denote, one_mul, mul_assoc, mul_left_comm, CommSemiring.mul_comm, *]
+  unfold mul
+  generalize hugeFuel = fuel
+  fun_induction mul.go
+    <;> simp [denote, denote_concat, one_mul,
+      mul_assoc, mul_left_comm, CommSemiring.mul_comm, *]
   next h₁ h₂ _ =>
     have := eq_of_blt_false h₁ h₂
     simp [Power.denote_eq, pow_add, this]

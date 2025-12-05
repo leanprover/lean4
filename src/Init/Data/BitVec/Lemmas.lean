@@ -6349,8 +6349,9 @@ theorem cpopNatRec_le {x : BitVec w} (n : Nat) :
     simp
     omega
 
-theorem cpopNatRec_eq_of_le {x : BitVec w} (n : Nat) (hn : w ≤ n) :
-    x.cpopNatRec n acc = x.cpopNatRec (n + k) acc := by
+@[simp]
+theorem cpopNatRec_eq_of_le {x : BitVec w} (k n : Nat) (hn : w ≤ n) :
+    x.cpopNatRec (n + k) acc = x.cpopNatRec n acc := by
   induction k
   · simp
   · case _ k ihk =>

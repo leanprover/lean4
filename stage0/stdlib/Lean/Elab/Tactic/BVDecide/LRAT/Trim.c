@@ -73,7 +73,6 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_run___redArg___close
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Tactic_BVDecide_LRAT_trim_M_run_spec__7___redArg(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_getProofStep___closed__1;
-lean_object* l_instHashableNat___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rxc_Iterator_instIteratorLoop_loop___at___00Lean_Elab_Tactic_BVDecide_LRAT_trim_mapping_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___00Lean_Elab_Tactic_BVDecide_LRAT_trim_M_run_spec__6___redArg(lean_object*, lean_object*);
 lean_object* l_instBEqOfDecidableEq___redArg(lean_object*);
@@ -88,6 +87,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_m
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___00Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findEmptyId_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Tactic_BVDecide_LRAT_trim_M_mapStep_spec__0(size_t, size_t, lean_object*, lean_object*, lean_object*);
+lean_object* l_UInt64_ofNat___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findInitialId(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rxc_Iterator_instIteratorLoop_loop___at___00Lean_Elab_Tactic_BVDecide_LRAT_trim_mapping_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BVDecide_LRAT_Trim_0__Lean_Elab_Tactic_BVDecide_LRAT_trim_useAnalysis_go___boxed(lean_object*, lean_object*, lean_object*);
@@ -1177,7 +1177,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_getProofStep__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instHashableNat___lam__0___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_UInt64_ofNat___boxed), 1, 0);
 return x_1;
 }
 }
@@ -2090,10 +2090,10 @@ block_19:
 lean_object* x_16; lean_object* x_17; 
 x_16 = l_Array_append___redArg(x_12, x_15);
 lean_dec_ref(x_15);
-x_17 = l_Array_append___redArg(x_16, x_13);
-lean_dec_ref(x_13);
+x_17 = l_Array_append___redArg(x_16, x_14);
+lean_dec_ref(x_14);
 x_1 = x_17;
-x_3 = x_14;
+x_3 = x_13;
 goto _start;
 }
 block_40:
@@ -2153,8 +2153,8 @@ if (x_34 == 0)
 {
 lean_dec(x_32);
 lean_dec_ref(x_31);
-x_13 = x_30;
-x_14 = x_20;
+x_13 = x_20;
+x_14 = x_30;
 x_15 = x_33;
 goto block_19;
 }
@@ -2166,8 +2166,8 @@ if (x_35 == 0)
 {
 lean_dec(x_32);
 lean_dec_ref(x_31);
-x_13 = x_30;
-x_14 = x_20;
+x_13 = x_20;
+x_14 = x_30;
 x_15 = x_33;
 goto block_19;
 }
@@ -2179,8 +2179,8 @@ x_37 = lean_usize_of_nat(x_32);
 lean_dec(x_32);
 x_38 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_Tactic_BVDecide_LRAT_Trim_0__Lean_Elab_Tactic_BVDecide_LRAT_trim_useAnalysis_go_spec__2(x_31, x_36, x_37, x_33);
 lean_dec_ref(x_31);
-x_13 = x_30;
-x_14 = x_20;
+x_13 = x_20;
+x_14 = x_30;
 x_15 = x_38;
 goto block_19;
 }

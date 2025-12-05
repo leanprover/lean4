@@ -415,6 +415,18 @@
     <<: *time
     cmd: lean big_match_partial.lean
 - attributes:
+    description: big_match_nat
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean big_match_nat.lean
+- attributes:
+    description: big_match_nat_split
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean big_match_nat_split.lean
+- attributes:
     description: big_beq
     tags: [other]
   run_config:

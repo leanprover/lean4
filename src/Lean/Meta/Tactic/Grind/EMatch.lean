@@ -736,6 +736,7 @@ private def checkConstraints (thm : EMatchTheorem) (gen : Nat) (proof : Expr) (a
     | .depthLt lhs n => return (← getLHS args lhs).approxDepth.toNat < n
     | .isGround lhs => let lhs ← getLHS args lhs; return !lhs.hasFVar && !lhs.hasMVar
     | .isValue lhs strict => isValue (← getLHS args lhs) strict
+    | .notValue lhs strict => return !(← isValue (← getLHS args lhs) strict)
     | .sizeLt lhs n => checkSize (← getLHS args lhs) n
     | .genLt n => return gen < n
     | .maxInsts n =>

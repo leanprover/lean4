@@ -293,3 +293,18 @@ example : f b = f c → a ≤ f a → f (f a) ≤ f (f (f a)) := by
   grind
 
 end Ex13
+
+namespace Ex14
+
+opaque f : Nat → Nat
+axiom fax : f x ≤ x
+grind_pattern fax => f x where
+  not_value x
+
+/-- trace: [grind.ematch.instance] fax: f x ≤ x -/
+#guard_msgs in
+example : f 1 = a → f 2 = b → x ≤ y → f x ≤ y := by
+  set_option trace.grind.ematch.instance true in
+  grind
+
+end Ex14

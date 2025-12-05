@@ -108,6 +108,7 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Zipper_ctorElim___boxed(lean_ob
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldrM___at___00Std_DTreeMap_Internal_Zipper_toList_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_instIteratorCollectZipperIdSigma___closed__9;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Unit_instSliceableImplUnitRioSlice(lean_object*, lean_object*);
+static lean_object* l_Std_DTreeMap_Internal_instIteratorZipperIdSigma___closed__0;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Unit_RoiSlice_instToIterator___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Zipper_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_rciIterator___redArg(lean_object*, lean_object*, lean_object*);
@@ -131,7 +132,6 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Const_instSliceableImplRiiSlice
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_instIteratorCollectZipperIdSigma___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_instSliceableImplRiiSlice___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Internal_Zipper_0__Std_DTreeMap_Internal_Impl_pruneLT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_DTreeMap_Internal_instIteratorCollectZipperIdSigma___closed__10;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_instSliceableImplRcoSlice___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_instIteratorRxcIteratorIdSigma(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Zipper_iterOfTree___redArg___boxed(lean_object*);
@@ -277,7 +277,6 @@ lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___redArg(le
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldrM___at___00Std_DTreeMap_Internal_Zipper_toList_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Const_instSliceableImplRioSlice(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_instIteratorZipperIdSigma___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Const_RccSlice_instToIterator(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_RcoSlice_instToIterator___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_instIteratorRxoIteratorIdSigma___redArg(lean_object*);
@@ -1320,19 +1319,19 @@ x_4 = l_Std_DTreeMap_Internal_Zipper_step___redArg(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_instIteratorZipperIdSigma___lam__0(lean_object* x_1) {
+static lean_object* _init_l_Std_DTreeMap_Internal_instIteratorZipperIdSigma___closed__0() {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_DTreeMap_Internal_Zipper_step___redArg(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Std_DTreeMap_Internal_Zipper_step___redArg), 1, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_instIteratorZipperIdSigma(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_DTreeMap_Internal_instIteratorZipperIdSigma___lam__0), 1, 0);
+x_3 = l_Std_DTreeMap_Internal_instIteratorZipperIdSigma___closed__0;
 return x_3;
 }
 }
@@ -1452,20 +1451,12 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_DTreeMap_Internal_instIteratorCollectZipperIdSigma___closed__10() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_DTreeMap_Internal_instIteratorZipperIdSigma___lam__0), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_instIteratorCollectZipperIdSigma(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = l_Std_DTreeMap_Internal_instIteratorCollectZipperIdSigma___closed__9;
-x_4 = l_Std_DTreeMap_Internal_instIteratorCollectZipperIdSigma___closed__10;
+x_4 = l_Std_DTreeMap_Internal_instIteratorZipperIdSigma___closed__0;
 x_5 = lean_alloc_closure((void*)(l_Std_DTreeMap_Internal_instIteratorCollectZipperIdSigma___lam__0), 7, 2);
 lean_closure_set(x_5, 0, x_4);
 lean_closure_set(x_5, 1, x_3);
@@ -4221,6 +4212,8 @@ lean_dec_ref(res);
 res = initialize_Std_Data_DTreeMap_Internal_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Std_DTreeMap_Internal_instIteratorZipperIdSigma___closed__0 = _init_l_Std_DTreeMap_Internal_instIteratorZipperIdSigma___closed__0();
+lean_mark_persistent(l_Std_DTreeMap_Internal_instIteratorZipperIdSigma___closed__0);
 l_Std_DTreeMap_Internal_instIteratorCollectZipperIdSigma___lam__0___closed__0 = _init_l_Std_DTreeMap_Internal_instIteratorCollectZipperIdSigma___lam__0___closed__0();
 lean_mark_persistent(l_Std_DTreeMap_Internal_instIteratorCollectZipperIdSigma___lam__0___closed__0);
 l_Std_DTreeMap_Internal_instIteratorCollectZipperIdSigma___closed__0 = _init_l_Std_DTreeMap_Internal_instIteratorCollectZipperIdSigma___closed__0();
@@ -4243,8 +4236,6 @@ l_Std_DTreeMap_Internal_instIteratorCollectZipperIdSigma___closed__8 = _init_l_S
 lean_mark_persistent(l_Std_DTreeMap_Internal_instIteratorCollectZipperIdSigma___closed__8);
 l_Std_DTreeMap_Internal_instIteratorCollectZipperIdSigma___closed__9 = _init_l_Std_DTreeMap_Internal_instIteratorCollectZipperIdSigma___closed__9();
 lean_mark_persistent(l_Std_DTreeMap_Internal_instIteratorCollectZipperIdSigma___closed__9);
-l_Std_DTreeMap_Internal_instIteratorCollectZipperIdSigma___closed__10 = _init_l_Std_DTreeMap_Internal_instIteratorCollectZipperIdSigma___closed__10();
-lean_mark_persistent(l_Std_DTreeMap_Internal_instIteratorCollectZipperIdSigma___closed__10);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

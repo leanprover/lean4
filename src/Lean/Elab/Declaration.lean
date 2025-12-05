@@ -327,12 +327,13 @@ def elabMutual : CommandElab := fun stx => do
         else
           throwUnknownConstantAt ident name
     let declName ← ensureNonAmbiguous ident declNames
+    recordExtraModUseFromDecl (isMeta := false) declName
     Term.applyAttributes declName attrs
     for attrName in toErase do
       Attribute.erase declName attrName
     if (← getEnv).isImportedConst declName then
-      if let some attr := attrs.find? (·.kind == .global) then
-        -- If an imported declaration is marked with a global attribute, Shake must be informed
+      if let some attr := attrs.find? (·.kind != .local) then
+        -- If an imported declaration is marked with a non-local attribute, Shake must be informed
         -- about this indirect reference
         recordIndirectModUse attr.name.toString declName
 

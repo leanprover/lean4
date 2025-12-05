@@ -16,10 +16,83 @@ import Lean.Meta.Match.SimpH
 import Lean.Meta.Match.AltTelescopes
 import Lean.Meta.Match.SolveOverlap
 import Lean.Meta.Match.NamedPatterns
+import Lean.Meta.Tactic.Rewrite
+import Lean.Meta.Constructions.SparseCasesOn
+import Lean.Meta.Constructions.SparseCasesOnEq
+import Lean.Meta.Tactic.Grind.Main
+import Lean.Meta.HasNotBit
 
 public section
 
 namespace Lean.Meta.Match
+
+register_builtin_option debug.Meta.Match.MatchEqs.grindAsSorry : Bool := {
+  defValue := false
+  descr := "When proving match equations, skip running `grind`"
+}
+
+private def rewriteGoalUsingEq (goal : MVarId) (eq : Expr) (symm : Bool := false) : MetaM MVarId := do
+  let rewriteResult ← goal.rewrite (←goal.getType) eq symm
+  goal.replaceTargetEq rewriteResult.eNew rewriteResult.eqProof
+
+private def reduceSparseCasesOn (mvarId : MVarId) : MetaM (Array MVarId) := do
+  let some (_, lhs) ← matchEqHEqLHS? (← mvarId.getType) | throwError "Target not an equality"
+  lhs.withApp fun f xs => do
+  let .const matchDeclName _  := f | throwError "Not a const application"
+  let some sparseCasesOnInfo ← getSparseCasesOnInfo matchDeclName | throwError "Not a sparse casesOn application"
+  withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} splitSparseCasesOn")) do
+  if xs.size < sparseCasesOnInfo.arity then
+    throwError "Not enough arguments for sparse casesOn application"
+  let majorIdx := sparseCasesOnInfo.majorPos
+  let major := xs[majorIdx]!
+  let some ctorInfo  ← isConstructorApp'? major
+    | throwError "Major premise is not a constructor application:{indentExpr major}"
+  if sparseCasesOnInfo.insterestingCtors.contains ctorInfo.name then
+    let mvarId' ← mvarId.modifyTargetEqLHS fun lhs =>
+      unfoldDefinition lhs
+    return #[mvarId']
+  else
+    let sparseCasesOnEqName ← getSparseCasesOnEq matchDeclName
+    let eqProof := mkConst sparseCasesOnEqName lhs.getAppFn.constLevels!
+    let eqProof := mkAppN eqProof lhs.getAppArgs[:sparseCasesOnInfo.arity]
+    let eqProof := mkApp eqProof (← mkHasNotBitProof (mkRawNatLit ctorInfo.cidx) (←  sparseCasesOnInfo.insterestingCtors.mapM (fun n => return (← getConstInfoCtor n).cidx)))
+    let mvarId' ← rewriteGoalUsingEq mvarId eqProof
+    return #[mvarId']
+
+
+
+private def splitSparseCasesOn (mvarId : MVarId) : MetaM (Array MVarId) := do
+  let some (_, lhs) ← matchEqHEqLHS? (← mvarId.getType) | throwError "Target not an equality"
+  lhs.withApp fun f xs => do
+  let .const matchDeclName _  := f | throwError "Not a const application"
+  let some sparseCasesOnInfo ← getSparseCasesOnInfo matchDeclName | throwError "Not a sparse casesOn application"
+  withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} splitSparseCasesOn")) do
+  try
+    trace[Meta.Match.matchEqs] "splitSparseCasesOn running on\n{mvarId}"
+    if xs.size < sparseCasesOnInfo.arity then
+      throwError "Not enough arguments for sparse casesOn application"
+    let majorIdx := sparseCasesOnInfo.majorPos
+    unless xs[majorIdx]!.isFVar do
+      throwError "Major premise is not a free variable:{indentExpr xs[majorIdx]!}"
+    let fvarId := xs[majorIdx]!.fvarId!
+    let subgoals ← mvarId.cases fvarId (interestingCtors? := sparseCasesOnInfo.insterestingCtors)
+    subgoals.mapM fun s => s.mvarId.withContext do
+      if s.ctorName.isNone then
+        unless s.fields.size = 1 do
+          throwError "Unexpected number of fields for catch-all branch: {s.fields}"
+        let sparseCasesOnEqName ← getSparseCasesOnEq matchDeclName
+        let some (_, lhs) ← matchEqHEqLHS? (← s.mvarId.getType) | throwError "Target not an equality"
+        let eqProof := mkConst sparseCasesOnEqName lhs.getAppFn.constLevels!
+        let eqProof := mkAppN eqProof lhs.getAppArgs[:sparseCasesOnInfo.arity]
+        let eqProof := mkApp eqProof s.fields[0]!
+        rewriteGoalUsingEq s.mvarId eqProof
+      else
+        s.mvarId.modifyTargetEqLHS fun lhs =>
+          unfoldDefinition lhs
+  catch e =>
+    trace[Meta.Match.matchEqs] "splitSparseCasesOn failed{indentD e.toMessageData}"
+    throw e
+
 
 /--
 Given an application of an matcher arm `alt` that is expecting the `numDiscrEqs`, and
@@ -43,11 +116,19 @@ where
 
 private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := mvarId.withContext do
   for localDecl in (← getLCtx) do
+    if let some (α, _lhs, β, _rhs) ← matchHEq? localDecl.type then
+      if (← isDefEq α β) then
+        let (_, mvarId') ← heqToEq mvarId localDecl.fvarId
+        if mvarId' == mvarId then
+          trace[Meta.Match.matchEqs] "substSomeVar: heqToHeq {localDecl.type}"
+          return #[mvarId']
     if let some (_, lhs, rhs) ← matchEq? localDecl.type then
       if lhs.isFVar then
         if !(← dependsOn rhs lhs.fvarId!) then
           match (← subst? mvarId lhs.fvarId!) with
-          | some mvarId => return #[mvarId]
+          | some mvarId =>
+            trace[Meta.Match.matchEqs] "substSomeVar: substituted {lhs} with {rhs}"
+            return #[mvarId]
           | none => pure ()
   throwError "substSomeVar failed"
 
@@ -63,18 +144,20 @@ the `match`-eliminator `matchDeclName`. `type` contains the type of the theorem.
 The `heqPos`/`heqNum` arguments indicate that these hypotheses are `Eq`/`HEq` hypotheses
 to substitute first; this is used for the generalized match equations.
 -/
-partial def proveCondEqThm (matchDeclName : Name) (type : Expr)
+partial def proveCondEqThm (matchDeclName : Name) (thmName : Name) (type : Expr)
   (heqPos : Nat := 0) (heqNum : Nat := 0) : MetaM Expr := withLCtx {} {} do
+  withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} proveCondEqThm {thmName}")) do
   let type ← instantiateMVars type
   let mvar0  ← mkFreshExprSyntheticOpaqueMVar type
   trace[Meta.Match.matchEqs] "proveCondEqThm {mvar0.mvarId!}"
   let mut mvarId := mvar0.mvarId!
+  let mut eqns := #[]
   if heqNum > 0 then
     mvarId := (← mvarId.introN heqPos).2
-    for _ in *...heqNum do
-      let (h, mvarId') ← mvarId.intro1
-      mvarId ← subst mvarId' h
-    trace[Meta.Match.matchEqs] "proveCondEqThm after subst{mvarId}"
+    let (hs, mvarId') ← mvarId.introN heqNum
+    eqns := hs
+    mvarId := mvarId'
+    -- trace[Meta.Match.matchEqs] "proveCondEqThm after subst{mvarId}"
   mvarId := (← mvarId.intros).2
   try mvarId.refl
   catch _ =>
@@ -91,9 +174,15 @@ where
       <|>
       (do mvarId.contradiction { genDiseq := true }; return #[])
       <|>
+      (do solveOverlap mvarId; return #[])
+      <|>
       (do let mvarId ← unfoldElimOffset mvarId; return #[mvarId])
       <|>
       (casesOnStuckLHS mvarId)
+      <|>
+      (reduceSparseCasesOn mvarId)
+      <|>
+      (splitSparseCasesOn mvarId)
       <|>
       (do let mvarId' ← simpIfTarget mvarId (useDecide := true) (useNewSemantics := true)
           if mvarId' == mvarId then throwError "simpIf failed"
@@ -105,9 +194,21 @@ where
           else
             throwError "spliIf failed")
       <|>
+      (do let mvarId' ← mvarId.heqOfEq
+          if mvarId' == mvarId then throwError "heqOfEq failed"
+          return #[mvarId'])
+      <|>
       (substSomeVar mvarId)
       <|>
-      (throwError "failed to generate equality theorems for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
+      (do if debug.Meta.Match.MatchEqs.grindAsSorry.get (← getOptions) then
+            trace[Meta.Match.matchEqs] "proveCondEqThm.go: grind_as_sorry is enabled, admitting goal"
+            mvarId.admit (synthetic := true)
+          else
+            let r ← Grind.main mvarId (← Grind.mkParams {})
+            if r.hasFailed then throwError "grind failed"
+          return #[])
+      <|>
+      (throwError "failed to generate equality theorem {thmName} for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
     subgoals.forM (go · (depth+1))
 
 /--
@@ -201,7 +302,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
           let thmType ← mkArrowN hs thmType
           let thmType ← mkForallFVars (params ++ #[motive] ++ ys ++ alts) thmType
           let thmType ← unfoldNamedPattern thmType
-          let thmVal ← proveCondEqThm matchDeclName thmType
+          let thmVal ← proveCondEqThm matchDeclName thmName thmType
           addDecl <| Declaration.thmDecl {
             name        := thmName
             levelParams := constInfo.levelParams
@@ -271,6 +372,7 @@ def genMatchCongrEqnsImpl (matchDeclName : Name) : MetaM (Array Name) := do
   return matchCongrEqnsExt.getState (asyncMode := .async .asyncEnv) (asyncDecl := firstEqnName) (← getEnv) |>.find! matchDeclName
 where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
   withConfig (fun c => { c with etaStruct := .none }) do
+  trace[Meta.Match.matchEqs] "genMatchCongrEqnsImpl on {matchDeclName}"
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
   let some matchInfo ← getMatcherInfo? matchDeclName | throwError "`{matchDeclName}` is not a matcher function"
@@ -287,6 +389,7 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
     for i in *...alts.size do
       let altInfo := matchInfo.altInfos[i]!
       let thmName := (Name.str baseName congrEqnThmSuffixBase).appendIndexAfter idx
+      trace[Meta.Match.matchEqs] "genMatchCongrEqnsImpl working on {thmName}"
       eqnNames := eqnNames.push thmName
       let notAlt ← do
         let alt := alts[i]!
@@ -302,9 +405,15 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
           let mut hs := #[]
           for overlappedBy in matchInfo.overlaps.overlapping i do
             let notAlt := notAlts[overlappedBy]!
-            let h ← instantiateForall notAlt patterns
-            if let some h ← simpH? h patterns.size then
-              hs := hs.push h
+            -- We want these assumptions to be general during the proof (discrs)
+            -- so that contradiction can recognize them,
+            -- but specific in the final theorem (patterns)
+            -- so that they match the splitter
+            let h ← instantiateForall notAlt discrs
+            -- if let some h ← simpH? h patterns.size then
+              -- hs := hs.push h
+            -- TODO: We still should simplify them before creating the declaration
+            hs := hs.push h
           trace[Meta.Match.matchEqs] "hs: {hs}"
           let mut notAlt := mkConst ``False
           for discr in discrs.toArray.reverse, pattern in patterns.reverse do
@@ -317,7 +426,7 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
           let thmType ← Match.unfoldNamedPattern thmType
           -- Here we prove the theorem from scratch. One could likely also use the (non-generalized)
           -- match equation theorem after subst'ing the `heqs`.
-          let thmVal ← Match.proveCondEqThm matchDeclName thmType
+          let thmVal ← Match.proveCondEqThm matchDeclName thmName thmType
             (heqPos := params.size + 1 + discrs.size + alts.size + altVars.size) (heqNum := heqs.size)
           unless (← getEnv).contains thmName do
             addDecl <| Declaration.thmDecl {

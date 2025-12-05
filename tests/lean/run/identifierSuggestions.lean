@@ -22,8 +22,8 @@ error: Invalid field `test0`: The environment does not contain `String.test0`, s
   "abc"
 of type `String`
 
-Hint: Perhaps you meant one of these in place of `String.test0`:
-  [apply] `String.foo`: "abc".foo
+Hint: Perhaps you meant `String.foo` in place of `String.test0`:
+  "abc".t̵e̵s̵t̵0̵f̲o̲o̲
 -/
 #guard_msgs in
 #check "abc".test0
@@ -118,8 +118,8 @@ error: Invalid field `toNum`: The environment does not contain `Foo.Bar.toNum`, 
   Foo.Bar.three
 of type `Foo.Bar`
 
-Hint: Perhaps you meant one of these in place of `Foo.Bar.toNum`:
-  [apply] `Foo.Bar.toNat`: Foo.Bar.three.toNat
+Hint: Perhaps you meant `Foo.Bar.toNat` in place of `Foo.Bar.toNum`:
+  Foo.Bar.three.t̵o̵N̵u̵m̵t̲o̲N̲a̲t̲
 -/
 #guard_msgs in
 #eval Foo.Bar.three.toNum
@@ -129,8 +129,8 @@ error: Invalid field `toStr`: The environment does not contain `Foo.Bar.toStr`, 
   Foo.Bar.two
 of type `Foo.Bar`
 
-Hint: Perhaps you meant one of these in place of `Foo.Bar.toStr`:
-  [apply] `Foo.Bar.toString`: Foo.Bar.two.toString
+Hint: Perhaps you meant `Foo.Bar.toString` in place of `Foo.Bar.toStr`:
+  Foo.Bar.two.t̵o̵S̵t̵r̵t̲o̲S̲t̲r̲i̲n̲g̲
 -/
 #guard_msgs in
 #eval Foo.Bar.two.toStr
@@ -273,8 +273,8 @@ error: Invalid field `not`: The environment does not contain `MyBool.not`, so it
   MyBool.tt
 of type `MyBool`
 
-Hint: Perhaps you meant one of these in place of `MyBool.not`:
-  [apply] `MyBool.swap`: MyBool.tt.swap
+Hint: Perhaps you meant `MyBool.swap` in place of `MyBool.not`:
+  MyBool.tt.n̵o̵t̵s̲w̲a̲p̲
 -/
 #guard_msgs in
 example := MyBool.tt.not

@@ -43,9 +43,9 @@ builtin_initialize identifierSuggestionForAttr : PersistentEnvExtension
       unless kind == AttributeKind.global do throwAttrMustBeGlobal `suggest_for kind
       let altSyntaxIds : Array Syntax ← match stx with
         | -- Attributes parsed _after_ the suggest_for notation is added
-          .node _ ``suggest_for #[.atom _ "suggest_for", .node _ `null ids] => logInfo m!"Route 1"; pure ids
+          .node _ ``suggest_for #[.atom _ "suggest_for", .node _ `null ids] => pure ids
         | -- Attributes parsed _before the suggest_for notation is added
-          .node _ ``Parser.Attr.simple #[.ident _ _ `suggest_for [], .node _ `null #[id]] => logInfo m!"Route 2"; pure #[id]
+          .node _ ``Parser.Attr.simple #[.ident _ _ `suggest_for [], .node _ `null #[id]] => pure #[id]
         | _ => throwError "Invalid `[suggest_for]` attribute syntax {repr stx}"
       modifyEnv (ext.addEntry · (decl, altSyntaxIds.map (·.getId)))
   }

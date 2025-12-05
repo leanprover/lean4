@@ -6327,7 +6327,7 @@ theorem cpopNatRec_zero :
   · case succ n ihn =>
     simp [cpopNatRec_succ, ihn]
 
-theorem cpopNatRec_eq_add {x : BitVec w} {acc n : Nat} :
+theorem cpopNatRec_eq_add {x : BitVec w} {n : Nat} (acc : Nat):
     x.cpopNatRec n acc = x.cpopNatRec n 0 + acc := by
   induction n generalizing acc
   · simp

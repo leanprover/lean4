@@ -6512,7 +6512,7 @@ theorem cpopNatRec_cast_eq_of_eq {x : BitVec w} (p : w = v) :
   subst p; simp
 
 @[simp]
-theorem cpop_cast (h : w = v) (x : BitVec w) :
+theorem cpop_cast (x : BitVec w) (h : w = v) :
     (x.cast h).cpop = x.cpop.cast h := by
   simp [cpop, cpopNatRec_cast_eq_of_eq, h]
 

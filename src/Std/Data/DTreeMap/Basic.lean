@@ -1057,7 +1057,7 @@ instance [LawfulEqCmp cmp] [∀ k, BEq (β k)] : BEq (DTreeMap α β cmp) := ⟨
 /-- Internal implementation detail of the hash map. -/
 def Const.beq {β : Type v} [BEq β] (t₁ t₂ : DTreeMap α (fun _ => β) cmp) : Bool :=
   letI : Ord α := ⟨cmp⟩; Internal.Impl.Const.beq t₁.inner t₂.inner
-  
+
 /--
 Computes the difference of the given tree maps.
 This function always iterates through the smaller map.

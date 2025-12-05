@@ -290,9 +290,9 @@ theorem denote_blastAddVec
                                       (blastExtract aig
                                           { w := old_length * w, vec := old_layer, start := (2 * iter_num + 1) * w }).vec
                                     else blastConst aig 0#w).cast
-                                  (by sorry) }).vec.append
-                    (new_layer.cast (by sorry)))
-          = (blastAdd (blastExtract aig { w := old_length * w, vec := old_layer, start := 2 * iter_num * w }).aig
+                                  (by apply LawfulVecOperator.le_size) }).vec.append
+                    (new_layer.cast (by apply LawfulVecOperator.le_size))).get idx hidx
+          = ((blastAdd (blastExtract aig { w := old_length * w, vec := old_layer, start := 2 * iter_num * w }).aig
                             {
                               lhs :=
                                 (blastExtract aig
@@ -302,10 +302,16 @@ theorem denote_blastAddVec
                                       (blastExtract aig
                                           { w := old_length * w, vec := old_layer, start := (2 * iter_num + 1) * w }).vec
                                     else blastConst aig 0#w).cast
-                                  (by sorry).vec.append
-                    (new_layer.cast (by sorry)) := by sorry
+                                  (by apply LawfulVecOperator.le_size) }).vec.append
+                    (new_layer.cast (by apply LawfulVecOperator.le_size))).get idx (by
+                    omega) := by
+                  congr
+                  ·
+
+                    sorry
+                  · exact heq_of_eqRec_eq (congrArg (LT.lt idx) hc2) rfl
+      rw [this]
       let bvRes:= BitVec.pps_layer 0 old_layer_bv 0#(0 * w) (by omega) (by omega)
-      rw [denote_append]
 
       sorry
   · case _ hgen' =>

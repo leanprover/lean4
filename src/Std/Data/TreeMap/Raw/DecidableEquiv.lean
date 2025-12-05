@@ -6,7 +6,7 @@ Authors: Wojciech Różowski
 module
 
 prelude
-public import Std.Data.DTreeMap.Basic
+
 public import Std.Data.DTreeMap.DecidableEquiv
 public import Std.Data.TreeMap.Raw.Basic
 

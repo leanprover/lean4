@@ -377,6 +377,7 @@ instance {α : Type u} {β : α → Type v} [DecidableEq α] [Hashable α] [∀ 
 namespace Const
 
 variable {β : Type v}
+
 @[inline, inherit_doc DHashMap.beq]
 def beq [EquivBEq α] [LawfulHashable α] [BEq β] (m₁ m₂ : ExtDHashMap α fun _ => β) : Bool :=
   lift₂ (fun x y : DHashMap α fun _ => β => DHashMap.Const.beq x y) (fun _ _ _ _ => DHashMap.Const.Equiv.beq_congr) m₁ m₂

@@ -6507,17 +6507,17 @@ theorem cpop_reverse (x : BitVec w) :
     simp
 
 @[simp]
-theorem cpopNatRec_cast_eq_cpopNatRec_of_eq {x : BitVec w} (p : w = v) :
+theorem cpopNatRec_cast_eq_cpopNatRec_of {x : BitVec w} (p : w = v) :
     (x.cast p).cpopNatRec n = x.cpopNatRec n := by
   subst p; simp
 
 @[simp]
 theorem cpop_cast (h : w = v) (x : BitVec w) :
     (x.cast h).cpop = x.cpop.cast h := by
-  simp [cpop, cpopNatRec_cast_eq_cpopNatRec_of_eq, h]
+  simp [cpop, cpopNatRec_cast_eq_cpopNatRec_of, h]
 
 @[simp]
-theorem toNat_cpop_append_eq {x : BitVec w} {y : BitVec u} :
+theorem toNat_cpop_append {x : BitVec w} {y : BitVec u} :
     (x ++ y).cpop.toNat = x.cpop.toNat + y.cpop.toNat := by
   induction w generalizing u
   case zero =>
@@ -6526,13 +6526,13 @@ theorem toNat_cpop_append_eq {x : BitVec w} {y : BitVec u} :
     rw [← cons_msb_setWidth x, toNat_cpop_cons, cons_append, cpop_cast, toNat_cast,
       toNat_cpop_cons, ihw, ← Nat.add_assoc]
 
-theorem cpop_append_eq {x : BitVec w} {y : BitVec u} :
+theorem cpop_append {x : BitVec w} {y : BitVec u} :
     (x ++ y).cpop = x.cpop.setWidth (w + u) + y.cpop.setWidth (w + u) := by
   apply eq_of_toNat_eq
   have := toNat_cpop_le x
   have := toNat_cpop_le y
   have := Nat.lt_pow_self (n := w + u) (a := 2) (by omega)
-  simp only [toNat_cpop_append_eq, toNat_add, toNat_setWidth, Nat.add_mod_mod, Nat.mod_add_mod]
+  simp only [toNat_cpop_append, toNat_add, toNat_setWidth, Nat.add_mod_mod, Nat.mod_add_mod]
   rw [Nat.mod_eq_of_lt (by omega)]
 
 end BitVec

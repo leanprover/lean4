@@ -924,6 +924,17 @@ def inter [TransCmp cmp] (m₁ m₂ : ExtDTreeMap α β cmp) : ExtDTreeMap α β
 
 instance [TransCmp cmp] : Inter (ExtDTreeMap α β cmp) := ⟨inter⟩
 
+@[inline, inherit_doc DTreeMap.diff]
+def diff [TransCmp cmp] (m₁ m₂ : ExtDTreeMap α β cmp) : ExtDTreeMap α β cmp := lift₂ (fun x y : DTreeMap α β cmp => mk (x.diff y))
+  (fun a b c d equiv₁ equiv₂ => by
+    simp only [DTreeMap.diff_eq, mk'.injEq]
+    apply Quotient.sound
+    apply DTreeMap.Equiv.diff_congr
+    . exact equiv₁
+    . exact equiv₂) m₁ m₂
+
+instance [TransCmp cmp] : SDiff (ExtDTreeMap α β cmp) := ⟨diff⟩
+
 instance [TransCmp cmp] [Repr α] [(a : α) → Repr (β a)] : Repr (ExtDTreeMap α β cmp) where
   reprPrec m prec := Repr.addAppParen ("Std.ExtDTreeMap.ofList " ++ repr m.toList) prec
 

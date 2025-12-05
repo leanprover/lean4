@@ -535,6 +535,11 @@ def inter [TransCmp cmp] (t₁ t₂ : ExtTreeMap α β cmp) : ExtTreeMap α β c
 
 instance [TransCmp cmp] : Inter (ExtTreeMap α β cmp) := ⟨inter⟩
 
+@[inline, inherit_doc ExtDTreeMap.diff]
+def diff [TransCmp cmp] (t₁ t₂ : ExtTreeMap α β cmp) : ExtTreeMap α β cmp := ⟨ExtDTreeMap.diff t₁.inner t₂.inner⟩
+
+instance [TransCmp cmp] : SDiff (ExtTreeMap α β cmp) := ⟨diff⟩
+
 @[inline, inherit_doc ExtDTreeMap.eraseMany]
 def eraseMany [TransCmp cmp] {ρ} [ForIn Id ρ α] (t : ExtTreeMap α β cmp) (l : ρ) : ExtTreeMap α β cmp :=
   ⟨t.inner.eraseMany l⟩

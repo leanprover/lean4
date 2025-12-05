@@ -18,17 +18,18 @@ def requestToByteArray (req : Request (Array Chunk)) (chunked := false) : IO Byt
 
 /-- Send raw byte stream through a mock connection and return the response data. -/
 def sendRawBytes (pair : Mock.Client × Mock.Server) (data : ByteArray)
-    (onRequest : Request Body → Async (Response Body)) : IO ByteArray := Async.block do
+    (onRequest : Request Body → ContextAsync (Response Body)) : IO ByteArray := Async.block do
   let (client, server) := pair
 
   client.send data
   Std.Http.Server.serveConnection server onRequest (config := { lingeringTimeout := 3000 })
+  |>.run (← Context.new)
 
   let res ← client.recv?
   pure <| res.getD .empty
 
 def testSizeLimit (pair : Mock.Client × Mock.Server) : IO Unit := do
-  let handler := fun (req : Request Body) => do
+  let handler : Request Body → ContextAsync (Response Body) := fun (req : Request Body) => do
     let mut size := 0
     for i in req.body do
       size := size + i.size

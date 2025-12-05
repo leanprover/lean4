@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
+public import Std.Internal.Async.Context
 public import Std.Internal.Http.Data.Body.Length
 public import Std.Internal.Http.Data.Body.ByteStream
 
@@ -74,21 +75,19 @@ instance : Coe ByteArray Body where
 instance : Coe Body.ByteStream Body where
   coe := .stream
 
-/--
-Iterate over the body content in chunks, processing each ByteArray chunk with the given step function.
--/
-@[inline]
-protected partial def forIn
-  {β : Type} (body : Body) (acc : β)
-  (step : Chunk → β → Async (ForInStep β)) :
-  Async β := do
+instance : ForIn Async Body Chunk where
+  forIn body acc step :=
     match body with
     | .zero => pure acc
     | .bytes data => return (← step (Chunk.mk data #[]) acc).value
     | .stream stream' => ByteStream.forIn stream' acc step
 
-instance : ForIn Async Body Chunk where
-  forIn := Body.forIn
+instance : ForIn ContextAsync Body Chunk where
+  forIn body acc step :=
+    match body with
+    | .zero => pure acc
+    | .bytes data => return (← step (Chunk.mk data #[]) acc).value
+    | .stream stream' => ByteStream.forIn' stream' acc step
 
 /--
 Collect all data from the body into a single `ByteArray`. This reads the entire body content into memory,

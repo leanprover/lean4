@@ -297,6 +297,51 @@
     cmd: lean -Dlinter.all=false --run identifier_completion_runner.lean
     parse_output: true
 - attributes:
+    description: format (flatten)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: bash -c "ulimit -s unlimited && ./fmtFlatten.lean.out 16000"
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh fmtFlatten.lean
+- attributes:
+    description: format (concat)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: bash -c "ulimit -s unlimited && ./fmtConcat.lean.out 50000"
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh fmtConcat.lean
+- attributes:
+    description: format (sexpr full)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: bash -c "ulimit -s unlimited && ./fmtSExprFull.lean.out 15"
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh fmtSExprFull.lean
+- attributes:
+    description: format (fill-sep)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: bash -c "ulimit -s unlimited && ./fmtFillSep.lean.out 10000"
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh fmtFillSep.lean
+- attributes:
+    description: format (json)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: bash -c "ulimit -s unlimited && ./fmtJson.lean.out"
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh fmtJson.lean
+- attributes:
     description: liasolver
     tags: [other]
   run_config:

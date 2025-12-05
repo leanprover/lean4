@@ -889,6 +889,7 @@ where
     | .num k' => acc.insert (k*k' % c) m
     | .add k' m' p => go p (acc.insert (k*k' % c) (m.mul_nc m'))
 
+@[semireducible]
 def Poly.combineC (p₁ p₂ : Poly) (c : Nat) : Poly := match p₁, p₂ with
   | .num k₁, .num k₂ => .num ((k₁ + k₂) % c)
   | .num k₁, .add k₂ m₂ p₂ => addConstC (.add k₂ m₂ p₂) k₁ c

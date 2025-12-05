@@ -11,14 +11,14 @@ mutual
 end
 
 /--
-info: def Ex1.isEven : Nat → Bool :=
+info: @[irreducible] def Ex1.isEven : Nat → Bool :=
 fun a => isEven._mutual (PSum.inl a)
 -/
 #guard_msgs in
 #print isEven
 
 /--
-info: def Ex1.isOdd : Nat → Bool :=
+info: @[irreducible] def Ex1.isOdd : Nat → Bool :=
 fun a => isEven._mutual (PSum.inr a)
 -/
 #guard_msgs in

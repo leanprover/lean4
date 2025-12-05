@@ -66,6 +66,7 @@ not a sequence of Unicode scalar values.
 def ByteArray.utf8Decode? (b : ByteArray) : Option (Array Char) :=
   go 0 #[] (by simp)
 where
+  @[semireducible]
   go (i : Nat) (acc : Array Char) (hi : i ≤ b.size) : Option (Array Char) :=
     if i < b.size then
       match h : utf8DecodeChar? b i with
@@ -80,6 +81,7 @@ where
 def ByteArray.validateUTF8 (b : @& ByteArray) : Bool :=
   go 0 (by simp)
 where
+  @[semireducible]
   go (i : Nat) (hi : i ≤ b.size) : Bool :=
     if hi : i < b.size then
       match h : validateUTF8At b i with

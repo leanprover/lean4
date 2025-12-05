@@ -6,16 +6,17 @@ Authors: Fady Adal
 module
 
 prelude
-public import Init.Data.BitVec.Basic
-public import Init.Data.BitVec.Folds
-public import Init.Data.List.Basic
 public import Init.Data.Array.Basic
 public import Init.Data.Array.Lemmas
 public import Init.Data.Array.OfFn
+public import Init.Data.BitVec.Basic
+public import Init.Data.BitVec.Folds
+public import Init.Data.BitVec.Lemmas
+public import Init.Data.ByteArray.Basic
 public import Init.Data.Function
+public import Init.Data.List.Basic
 public import Init.Data.Vector.Basic
 public import Init.Data.Vector.Lemmas
-public import Init.Data.BitVec.Lemmas
 
 public section
 
@@ -664,5 +665,79 @@ theorem toVector_concat (x : BitVec w) (b : Bool) :
 
 theorem toList_toVectorLE (x : BitVec w) : x.toVectorLE.toList = x.toListLE := by
   simp [Vector.toList, toVectorLE]
+
+/-! ## ByteArray conversions -/
+
+/--
+Convert a bitvector to a byte array (little-endian).
+
+The byte at index 0 contains bits 0-7 (the least significant byte).
+If the width is not a multiple of 8, the most significant bits of the last byte are zero-padded.
+
+Examples:
+* `(0x1234#16).toBytesLE.data = #[0x34, 0x12]`
+* `(0xAB#8).toBytesLE.data = #[0xAB]`
+* `(0b101#3).toBytesLE.data = #[0b00000101]`
+-/
+def toBytesLE (x : BitVec w) : ByteArray :=
+  let numBytes := (w + 7) / 8
+  ByteArray.mk <| Array.ofFn fun (i : Fin numBytes) =>
+    ((x >>> (i.val * 8)).toNat &&& 0xFF).toUInt8
+
+/--
+Convert a bitvector to a byte array (big-endian).
+
+The byte at index 0 contains the most significant 8 bits.
+If the width is not a multiple of 8, the most significant bits of the first byte are zero-padded.
+
+Examples:
+* `(0x1234#16).toBytesBE.data = #[0x12, 0x34]`
+* `(0xAB#8).toBytesBE.data = #[0xAB]`
+* `(0b101#3).toBytesBE.data = #[0b00000101]`
+-/
+def toBytesBE (x : BitVec w) : ByteArray :=
+  let numBytes := (w + 7) / 8
+  let xn := x.toNat
+  ByteArray.mk <| Array.ofFn fun (i : Fin numBytes) =>
+    let shift := (numBytes - 1 - i) * 8
+    UInt8.ofNat ((xn >>> shift) &&& 0xFF)
+
+@[local simp]
+theorem size_toBytesLE (x : BitVec w) : x.toBytesLE.size = (w + 7) / 8 := by
+  simp [toBytesLE, ByteArray.size]
+
+@[local simp]
+theorem size_toBytesBE (x : BitVec w) : x.toBytesBE.size = (w + 7) / 8 := by
+  simp [toBytesBE, ByteArray.size]
+
+/--
+Build a bitvector from a byte array (little-endian).
+
+The byte at index 0 becomes bits 0-7 (the least significant byte).
+
+Examples:
+* `ofBytesLE (ByteArray.mk #[0x34, 0x12]) = 0x1234#16`
+* `ofBytesLE (ByteArray.mk #[0xAB]) = 0xAB#8`
+* `ofBytesLE (ByteArray.mk #[0xFF, 0x0F]) = 0xFFF#16`
+-/
+def ofBytesLE (bytes : ByteArray) : BitVec (bytes.size * 8) :=
+  let w := bytes.size * 8
+  (List.range bytes.size).foldl (init := (0 : BitVec w)) fun acc i =>
+    acc ||| (BitVec.ofNat w bytes[i]!.toNat <<< (i * 8))
+
+/--
+Build a bitvector from a byte array (big-endian).
+
+The byte at index 0 becomes the most significant 8 bits.
+
+Examples:
+* `ofBytesBE (ByteArray.mk #[0x12, 0x34]) = 0x1234#16`
+* `ofBytesBE (ByteArray.mk #[0xAB]) = 0xAB#8`
+* `ofBytesBE (ByteArray.mk #[0x0F, 0xFF]) = 0xFFF#16`
+-/
+def ofBytesBE (bytes : ByteArray) : BitVec (bytes.size * 8) :=
+  let w := bytes.size * 8
+  (List.range bytes.size).foldl (init := (0 : BitVec w)) fun acc i =>
+    acc ||| (BitVec.ofNat w bytes[i]!.toNat <<< (w - i * 8 - 8))
 
 end BitVec

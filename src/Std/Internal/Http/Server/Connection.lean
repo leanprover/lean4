@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Internal.Async.TCP
+public import Std.Internal.Async.Context
 public import Std.Internal.Http.Transport
 public import Std.Internal.Http.Protocol.H1
 public import Std.Internal.Http.Server.Config
@@ -51,6 +52,7 @@ private inductive Recv
   | channel (x : Option Chunk)
   | response (x : (Except Error (Response Body)))
   | timeout
+  | shutdown
 
 private def receiveWithTimeout
     [Transport α]
@@ -59,18 +61,20 @@ private def receiveWithTimeout
     (channel : Option Body.ByteStream)
     (response : Option (Std.Promise (Except Error (Response Body))))
     (timeoutMs : Millisecond.Offset)
-    (req : Timestamp)
-    (all : Timestamp) : Async Recv := do
-
-  let now ← Timestamp.now
-  let timeToRequest := (req - now).toMilliseconds
-  let timeToAll := (all - now).toMilliseconds
+    (keepAliveTimeoutMs : Option Millisecond.Offset)
+    (connectionContext : Context) : Async Recv := do
 
   let mut baseSelectables := #[
     .case (← Selector.sleep timeoutMs) (fun _ => pure .timeout),
-    .case (← Selector.sleep timeToRequest) (fun _ => pure .timeout),
-    .case (← Selector.sleep timeToAll) (fun _ => pure .timeout)
+    .case connectionContext.doneSelector (fun _ => do
+      let reason ← connectionContext.getCancellationReason
+      match reason with
+      | some .deadline => pure .timeout
+      | _ => pure .shutdown)
   ]
+
+  if let some keepAliveTimeout := keepAliveTimeoutMs then
+    baseSelectables := baseSelectables.push (.case (← Selector.sleep keepAliveTimeout) (fun _ => pure .timeout))
 
   if let some socket := socket then
     baseSelectables := baseSelectables.push (.case (Transport.recvSelector socket expect) (Recv.bytes · |> pure))
@@ -90,30 +94,42 @@ private def processNeedMoreData
     (expect : Option Nat)
     (response : Option (Std.Promise (Except Error (Response Body))))
     (channel : Option Body.ByteStream)
-    (req : Timestamp)
-    (all : Timestamp) : Async Recv := do
+    (timeout : Millisecond.Offset)
+    (keepAliveTimeout : Option Millisecond.Offset)
+    (connectionContext : Context) : Async Recv := do
   try
     let expectedBytes := expect
       |>.getD config.defaultPayloadBytes
       |>.min config.maximumRecvSize
       |>.toUInt64
 
-    receiveWithTimeout socket expectedBytes channel response config.lingeringTimeout req all
+    receiveWithTimeout socket expectedBytes channel response timeout keepAliveTimeout connectionContext
   catch _ =>
     pure .timeout
+
+private def handleError (machine : H1.Machine .receiving) (status : Status) (waitingResponse : Bool) : H1.Machine .receiving × Bool :=
+  if machine.isWaitingMessage ∧ waitingResponse then
+    let machine := machine.send { status, headers := .empty |>.insert (.new "connection") (.new "close") }
+      |>.userClosedBody
+      |>.closeReader
+      |>.noMoreInput
+    (machine, false)
+  else
+    (machine.closeWriter.noMoreInput, waitingResponse)
 
 private def handle
     [Transport α]
     (connection : Connection α)
     (config : Config)
-    (handler : Request Body → Async (Response Body)) : Async Unit := do
+    (connectionContext : Context)
+    (handler : Request Body → ContextAsync (Response Body)) : Async Unit := do
 
   let mut machine := connection.machine
   let socket := connection.socket
 
   let mut requestStream ← Body.ByteStream.emptyWithCapacity
-  let mut requestTimer := (← Timestamp.now) + config.requestTimeout.val
-  let mut connectionTimer := (← Timestamp.now) + config.keepAliveTimeout.val
+  let mut keepAliveTimeout := some config.keepAliveTimeout.val
+  let mut currentTimeout := config.keepAliveTimeout.val
 
   let mut response ← Std.Promise.new
   let mut respStream := none
@@ -145,11 +161,13 @@ private def handle
 
       | .endHeaders head =>
         waitingResponse := true
+        currentTimeout := config.lingeringTimeout
+        keepAliveTimeout := none
 
         if let some length := Protocol.H1.Machine.getMessageSize head then
           requestStream.setKnownSize (some length)
 
-        let newResponse := handler { head, body := (.stream requestStream) }
+        let newResponse := handler { head, body := (.stream requestStream) } connectionContext
         let task ← newResponse.asTask
 
         BaseIO.chainTask task fun x => discard <| response.resolve x
@@ -161,10 +179,11 @@ private def handle
           requestStream.close
 
       | .next => do
-        requestTimer := (← Timestamp.now) + config.requestTimeout.val
         requestStream ← Body.ByteStream.emptyWithCapacity
         response ← Std.Promise.new
         respStream := none
+        keepAliveTimeout := some config.keepAliveTimeout.val
+        currentTimeout := config.keepAliveTimeout.val
 
       | .failed _ =>
         pure ()
@@ -180,7 +199,7 @@ private def handle
       needAnswer := false
       needBody := false
 
-      match ← processNeedMoreData config socket expectData answer respStream requestTimer connectionTimer with
+      match ← processNeedMoreData config socket expectData answer respStream currentTimeout keepAliveTimeout connectionContext with
       | .bytes (some bs) =>
         machine := machine.feed bs
 
@@ -196,26 +215,20 @@ private def handle
 
       | .timeout =>
         machine := machine.closeReader
-        if machine.isWaitingMessage ∧ waitingResponse then
-          waitingResponse := false
-          machine := machine.send { status := .requestTimeout, headers := .empty |>.insert (.new "connection") (.new "close") }
-          machine := machine.userClosedBody
-          machine := machine.noMoreInput
-          respStream := none
-        else
-          machine := machine.closeWriter
-          |>.noMoreInput
+        let (newMachine, newWaitingResponse) := handleError machine .requestTimeout waitingResponse
+        machine := newMachine
+        waitingResponse := newWaitingResponse
+        respStream := none
+
+      | .shutdown =>
+        let (newMachine, newWaitingResponse) := handleError machine .serviceUnavailable waitingResponse
+        machine := newMachine
+        waitingResponse := newWaitingResponse
 
       | .response (.error _) =>
-        if machine.isWaitingMessage ∧ waitingResponse then
-          waitingResponse := false
-          machine := machine.send { status := .internalServerError, headers := .empty |>.insert (.new "connection") (.new "close") }
-          machine := machine.userClosedBody
-          machine := machine.closeReader
-          machine := machine.noMoreInput
-        else
-          machine := machine.closeWriter
-          |>.noMoreInput
+        let (newMachine, newWaitingResponse) := handleError machine .internalServerError waitingResponse
+        machine := newMachine
+        waitingResponse := newWaitingResponse
 
       | .response (.ok res) =>
         machine := machine.send res.head
@@ -261,8 +274,9 @@ while true do
   background (serveConnection client onRequest onFailure config)
 ```
 -/
-def serveConnection [Transport t] (client : t) (onRequest : Request Body → Async (Response Body)) (config : Config) : Async Unit := do
-  Connection.mk client { config := config.toH1Config }
-  |>.handle config onRequest
+def serveConnection [Transport t] (client : t) (onRequest : Request Body → ContextAsync (Response Body)) (config : Config) : ContextAsync Unit := do
+  ContextAsync.fork do
+    Connection.mk client { config := config.toH1Config }
+    |>.handle config (← ContextAsync.getContext) onRequest
 
 end Std.Http.Server

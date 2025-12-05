@@ -40,9 +40,9 @@ connection tracking and shutdown coordination.
 structure Server where
 
   /--
-  The cancellation token used for shutting down all connections and the server.
+  The context used for shutting down all connections and the server.
   -/
-  cancellation : Std.CancellationToken
+  context : Std.Context
 
   /--
   Active HTTP connections
@@ -65,11 +65,11 @@ namespace Server
 Create a new `Server` structure with an optional configuration.
 -/
 def new (config : Std.Http.Config := {}) : IO Server := do
-  let cancellation ← Std.CancellationToken.new
+  let context ← Std.Context.new
   let activeConnections ← Std.Mutex.new 0
   let shutdownPromise : IO.Promise Unit ← IO.Promise.new
 
-  return { cancellation, activeConnections, shutdownPromise, config }
+  return { context, activeConnections, shutdownPromise, config }
 
 /--
 Triggers cancellation of all requests and the accept loop in the server. This function should be used
@@ -77,7 +77,7 @@ in conjunction with `waitShutdown` to properly coordinate the shutdown sequence.
 -/
 @[inline]
 def shutdown (s : Server) : Async Unit :=
-  s.cancellation.cancel
+  s.context.cancel .shutdown
 
 /--
 Waits for the server to shut down. Blocks until another task or async operation calls the `shutdown` function.
@@ -92,7 +92,7 @@ This is a convenience function combining `shutdown` and then `waitShutdown`.
 -/
 @[inline]
 def shutdownAndWait (s : Server) : Async Unit := do
-  s.cancellation.cancel
+  s.context.cancel .shutdown
   s.waitShutdown
 
 @[inline]
@@ -104,7 +104,7 @@ private def frameCancellation (s : Server) (action : Async α) : Async α := do
   s.activeConnections.atomically do
     modify (· - 1)
 
-    if (← get) = 0 ∧ (← s.cancellation.isCancelled) then
+    if (← get) = 0 ∧ (← s.context.isCancelled) then
       s.shutdownPromise.resolve ()
 
   return result
@@ -115,7 +115,7 @@ and TCP connections, and returns a `Server` structure that can be used to cancel
 -/
 def serve
     (addr : Net.SocketAddress)
-    (onRequest : Request Body → Async (Response Body))
+    (onRequest : Request Body → ContextAsync (Response Body))
     (config : Config := {}) (backlog : UInt32 := 128) : Async Server := do
 
   let httpServer ← Server.new config
@@ -126,9 +126,9 @@ def serve
 
   background do
     frameCancellation httpServer do
-      while not (← httpServer.cancellation.isCancelled) do
+      while not (← httpServer.context.isCancelled) do
         let client ← server.accept
-        background (frameCancellation httpServer (serveConnection client onRequest config))
+        background (frameCancellation httpServer (serveConnection client onRequest config httpServer.context))
 
   return httpServer
 

@@ -1095,7 +1095,7 @@ grind_pattern div_pow_of_pos => a ^ n where
   guard n > 0
 
 grind_pattern Nat.pow_pos => a ^ n where
-  not_value a -- Avoid excessive `BitVec` theorem instantiation (See `grind_lint_bitvec.lean`)
+  not_value n
   guard a > 0
 
 protected theorem pow_add' (a m n : Nat) : a ^ (m + n) = a ^ n * a ^ m := by

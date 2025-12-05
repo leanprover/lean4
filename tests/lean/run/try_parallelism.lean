@@ -16,9 +16,9 @@ public meta import Lean.Elab.Tactic.Try
 
 open Lean Meta Elab Tactic Try
 
--- A goal that built-in tactics won't solve
-inductive ParallelTestGoal : Prop where
-  | mk : ParallelTestGoal
+-- An opaque goal that built-in tactics (including solve_by_elim) won't solve
+opaque ParallelTestGoal : Prop
+axiom parallelTestGoalHolds : ParallelTestGoal
 
 -- Magic seed value to signal parallelism
 meta def magicSeed : Nat := 314159265
@@ -29,14 +29,14 @@ elab "wait_and_check_seed" : tactic => do
   let gen ← IO.stdGenRef.get
   let expected := mkStdGen magicSeed
   if gen.s1 == expected.s1 && gen.s2 == expected.s2 then
-    evalTactic (← `(tactic| exact ParallelTestGoal.mk))
+    evalTactic (← `(tactic| exact parallelTestGoalHolds))
   else
     throwError "seed not changed (sequential execution detected)"
 
 -- Tactic that immediately sets seed and succeeds
 elab "set_seed_and_succeed" : tactic => do
   IO.setRandSeed magicSeed
-  evalTactic (← `(tactic| exact ParallelTestGoal.mk))
+  evalTactic (← `(tactic| exact parallelTestGoalHolds))
 
 -- Register both tactics as user suggestions
 -- High priority tactic: reset seed first (to ensure clean state), then return waiting tactic

@@ -547,7 +547,7 @@ x_45 = lean_st_ref_get(x_44);
 x_46 = lean_st_ref_get(x_43);
 x_47 = lean_ctor_get(x_46, 0);
 lean_inc_ref(x_47);
-lean_dec_ref(x_46);
+lean_dec(x_46);
 x_48 = l_Lean_Parser_SyntaxStack_back(x_23);
 lean_dec_ref(x_23);
 x_49 = lean_box(0);
@@ -614,7 +614,7 @@ x_63 = lean_st_ref_get(x_43);
 lean_dec(x_43);
 x_64 = lean_ctor_get(x_63, 6);
 lean_inc_ref(x_64);
-lean_dec_ref(x_63);
+lean_dec(x_63);
 x_65 = l_Lean_MessageLog_hasErrors(x_64);
 if (x_65 == 0)
 {
@@ -639,7 +639,7 @@ x_67 = lean_st_ref_get(x_43);
 lean_dec(x_43);
 x_68 = lean_ctor_get(x_67, 6);
 lean_inc_ref(x_68);
-lean_dec_ref(x_67);
+lean_dec(x_67);
 x_69 = l_Lean_MessageLog_hasErrors(x_68);
 if (x_69 == 0)
 {
@@ -861,7 +861,7 @@ x_144 = lean_st_ref_get(x_143);
 x_145 = lean_st_ref_get(x_142);
 x_146 = lean_ctor_get(x_145, 0);
 lean_inc_ref(x_146);
-lean_dec_ref(x_145);
+lean_dec(x_145);
 x_147 = l_Lean_Parser_SyntaxStack_back(x_121);
 lean_dec_ref(x_121);
 x_148 = lean_box(0);
@@ -932,7 +932,7 @@ x_162 = lean_st_ref_get(x_142);
 lean_dec(x_142);
 x_163 = lean_ctor_get(x_162, 6);
 lean_inc_ref(x_163);
-lean_dec_ref(x_162);
+lean_dec(x_162);
 x_164 = l_Lean_MessageLog_hasErrors(x_163);
 if (x_164 == 0)
 {

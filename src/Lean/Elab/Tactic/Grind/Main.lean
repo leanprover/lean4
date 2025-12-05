@@ -100,8 +100,7 @@ where
       else if kind == ``defEq then
         elabDefEq xs cnstr[0] cnstr[2]
       else if kind == ``genLt then
-        let (_, lhs) ← findLHS xs cnstr[1]
-        return .genLt lhs cnstr[3].toNat
+        return .genLt cnstr[2].toNat
       else if kind == ``sizeLt then
         let (_, lhs) ← findLHS xs cnstr[1]
         return .sizeLt lhs cnstr[3].toNat
@@ -109,13 +108,19 @@ where
         let (_, lhs) ← findLHS xs cnstr[1]
         return .depthLt lhs cnstr[3].toNat
       else if kind == ``maxInsts then
-        return .maxInsts cnstr[1].toNat
+        return .maxInsts cnstr[2].toNat
       else if kind == ``isValue then
         let (_, lhs) ← findLHS xs cnstr[1]
         return .isValue lhs false
       else if kind == ``isStrictValue then
         let (_, lhs) ← findLHS xs cnstr[1]
         return .isValue lhs true
+      else if kind == ``notValue then
+        let (_, lhs) ← findLHS xs cnstr[1]
+        return .notValue lhs false
+      else if kind == ``notStrictValue then
+        let (_, lhs) ← findLHS xs cnstr[1]
+        return .notValue lhs true
       else if kind == ``isGround then
         let (_, lhs) ← findLHS xs cnstr[1]
         return .isGround lhs
@@ -343,10 +348,10 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
         -- let saved ← saveState
         match (← finish.run goal) with
         | .closed seq =>
-          let configCtx' := filterSuggestionsFromGrindConfig configStx
-          let tacs ← Grind.mkGrindOnlyTactics configCtx' seq
+          let configStx' := filterSuggestionsFromGrindConfig configStx
+          let tacs ← Grind.mkGrindOnlyTactics configStx' seq
           let seq := Grind.Action.mkGrindSeq seq
-          let tac ← `(tactic| grind => $seq:grindSeq)
+          let tac ← `(tactic| grind $configStx':optConfig => $seq:grindSeq)
           let tacs := tacs.push tac
           return tacs
         | .stuck gs =>

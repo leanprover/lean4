@@ -79,9 +79,11 @@ instance : Std.Iterators.Finite (ForwardCharPredSearcher p s) Id :=
 instance : Std.Iterators.IteratorLoop (ForwardCharPredSearcher p s) Id Id :=
   .defaultImplementation
 
+@[default_instance]
 instance {p : Char → Bool} : ToForwardSearcher p (ForwardCharPredSearcher p) where
   toSearcher := iter p
 
+@[default_instance]
 instance {p : Char → Bool} : ForwardPattern p := .defaultImplementation
 
 instance {p : Char → Prop} [DecidablePred p] : ToForwardSearcher p (ForwardCharPredSearcher p) where
@@ -153,9 +155,11 @@ instance : Std.Iterators.Finite (BackwardCharPredSearcher s) Id :=
 instance : Std.Iterators.IteratorLoop (BackwardCharPredSearcher s) Id Id :=
   .defaultImplementation
 
+@[default_instance]
 instance {p : Char → Bool} : ToBackwardSearcher p BackwardCharPredSearcher where
   toSearcher := iter p
 
+@[default_instance]
 instance {p : Char → Bool} : BackwardPattern p := ToBackwardSearcher.defaultImplementation
 
 instance {p : Char → Prop} [DecidablePred p] : ToBackwardSearcher p BackwardCharPredSearcher where

@@ -141,6 +141,19 @@ partial def waitForILeans (waitForILeansId : RequestID := 0) (target : DocumentU
     | _ =>
       pure ()
 
+partial def waitForWatchdogILeans (waitForILeansId : RequestID := 0) : IpcM Unit := do
+  writeRequest ⟨waitForILeansId, "$/lean/waitForILeans", WaitForILeansParams.mk none none⟩
+  while true do
+    match (← readMessage) with
+    | .response id _ =>
+      if id == waitForILeansId then
+        return
+    | .responseError id _ msg _ =>
+      if id == waitForILeansId then
+        throw $ userError s!"Waiting for ILeans failed: {msg}"
+    | _ =>
+      pure ()
+
 /--
 Waits for a diagnostic notification with a specific message to be emitted. Discards all received
 messages, so should not be combined with `collectDiagnostics`.

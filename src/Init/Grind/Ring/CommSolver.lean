@@ -174,6 +174,53 @@ def Mon.mul (m₁ m₂ : Mon) : Mon :=
       .mult { x := pw₁.x, k := pw₁.k + pw₂.k } (mul m₁ m₂)
 termination_by sizeOf m₁ + sizeOf m₂
 
+noncomputable def Mon.mul_k : Mon → Mon → Mon :=
+  Nat.rec
+    (fun m₁ m₂ => concat m₁ m₂)
+    (fun _ ih m₁ m₂ =>
+      Mon.rec (t := m₂)
+        m₁
+        (fun pw₂ m₂' _ => Mon.rec (t := m₁)
+          m₂
+          (fun pw₁ m₁' _ =>
+            Bool.rec (t := pw₁.varLt pw₂)
+              (Bool.rec (t := pw₂.varLt pw₁)
+                (.mult { x := pw₁.x, k := Nat.add pw₁.k pw₂.k } (ih m₁' m₂'))
+                (.mult pw₂ (ih (.mult pw₁ m₁') m₂')))
+              (.mult pw₁ (ih m₁' (.mult pw₂ m₂'))))))
+    hugeFuel
+
+theorem Mon.mul_k_eq_mul : Mon.mul_k m₁ m₂ = Mon.mul m₁ m₂ := by
+  unfold mul_k mul
+  generalize hugeFuel = fuel
+  fun_induction mul.go
+  · rfl
+  · rfl
+  case case3 m₂ _ =>
+    cases m₂
+    · contradiction
+    · dsimp
+  case case4 fuel pw₁ m₁ pw₂ m₂ h ih =>
+    dsimp only
+    rw [h]
+    dsimp only
+    rw [ih]
+  case case5 fuel pw₁ m₁ pw₂ m₂ h₁ h₂ ih =>
+    dsimp only
+    rw [h₁]
+    dsimp only
+    rw [h₂]
+    dsimp only
+    rw [ih]
+  case case6 fuel pw₁ m₁ pw₂ m₂ h₁ h₂ ih =>
+    dsimp only
+    rw [h₁]
+    dsimp only
+    rw [h₂]
+    dsimp only
+    rw [ih]
+    rfl
+
 def Mon.mul_nc (m₁ m₂ : Mon) : Mon :=
   match m₁ with
   | .unit          => m₂
@@ -183,6 +230,28 @@ def Mon.mul_nc (m₁ m₂ : Mon) : Mon :=
 def Mon.degree : Mon → Nat
   | .unit => 0
   | .mult pw m => pw.k + degree m
+
+noncomputable def Mon.degree_k : Mon → Nat :=
+  Nat.rec
+    (fun m => m.degree)
+    (fun _ ih m =>
+      Mon.rec (t := m)
+        0
+        (fun pw m' _ => Nat.add pw.k (ih m')))
+    hugeFuel
+
+theorem Mon.degree_k_eq_degree : Mon.degree_k m = Mon.degree m := by
+  unfold degree_k
+  generalize hugeFuel = fuel
+  induction fuel generalizing m with
+  | zero => rfl
+  | succ fuel ih =>
+    conv => rhs; unfold degree
+    split
+    · rfl
+    · dsimp only
+      rw [← ih]
+      rfl
 
 def Var.revlex (x y : Var) : Ordering :=
   bif x.blt y then .gt
@@ -264,7 +333,7 @@ noncomputable def Mon.grevlex_k (m₁ m₂ : Mon) : Ordering :=
   Bool.rec
     (Bool.rec .gt .lt (Nat.blt m₁.degree m₂.degree))
     (revlex_k m₁ m₂)
-    (Nat.beq m₁.degree m₂.degree)
+    (Nat.beq m₁.degree_k m₂.degree_k)
 
 theorem Mon.revlex_k_eq_revlex (m₁ m₂ : Mon) : m₁.revlex_k m₂ = m₁.revlex m₂ := by
   unfold revlex_k revlex
@@ -296,18 +365,18 @@ theorem Mon.grevlex_k_eq_grevlex (m₁ m₂ : Mon) : m₁.grevlex_k m₂ = m₁.
   next h =>
     have h₁ : Nat.blt m₁.degree m₂.degree = true := by simp [h]
     have h₂ : Nat.beq m₁.degree m₂.degree = false := by rw [← Bool.not_eq_true, Nat.beq_eq]; omega
-    simp [h₁, h₂]
+    simp [degree_k_eq_degree, h₁, h₂]
   next h =>
     split
     next h' =>
       have h₂ : Nat.beq m₁.degree m₂.degree = true := by rw [Nat.beq_eq, h']
-      simp [h₂]
+      simp [degree_k_eq_degree, h₂]
     next h' =>
       have h₁ : Nat.blt m₁.degree m₂.degree = false := by
         rw [← Bool.not_eq_true, Nat.blt_eq]; assumption
       have h₂ : Nat.beq m₁.degree m₂.degree = false := by
         rw [← Bool.not_eq_true, Nat.beq_eq]; assumption
-      simp [h₁, h₂]
+      simp [degree_k_eq_degree, h₁, h₂]
 
 inductive Poly where
   | num (k : Int)
@@ -475,7 +544,7 @@ noncomputable def Poly.mulMon_k (k : Int) (m : Mon) (p : Poly) : Poly :=
     (Bool.rec
       (Poly.rec
         (fun k' => Bool.rec (.add (Int.mul k k') m (.num 0)) (.num 0) (Int.beq' k' 0))
-        (fun k' m' _ ih => .add (Int.mul k k') (m.mul m') ih)
+        (fun k' m' _ ih => .add (Int.mul k k') (m.mul_k m') ih)
         p)
       (p.mulConst_k k)
       (Mon.beq' m .unit))
@@ -505,7 +574,7 @@ noncomputable def Poly.mulMon_k (k : Int) (m : Mon) (p : Poly) : Poly :=
         next =>
           have h : Int.beq' k 0 = false := by simp [*]
           simp [h]
-      next ih => simp [← ih]
+      next ih => simp [← ih, Mon.mul_k_eq_mul]
 
 def Poly.mulMon_nc (k : Int) (m : Mon) (p : Poly) : Poly :=
   bif k == 0 then

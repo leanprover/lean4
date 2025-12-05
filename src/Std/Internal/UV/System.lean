@@ -138,7 +138,7 @@ opaque cwd : IO String
 Changes the current working directory.
 -/
 @[extern "lean_uv_chdir"]
-opaque chdir : String → IO Unit
+opaque chdir : @& String → IO Unit
 
 /--
 Gets the path to the current user's home directory.

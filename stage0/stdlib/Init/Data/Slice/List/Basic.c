@@ -26,7 +26,6 @@ LEAN_EXPORT lean_object* l_instSliceableListNatListSlice(lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableListSliceNat__2(lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableListNatListSlice__6___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableListNatListSlice__7___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instSliceableListNatListSlice__2___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableListSliceNat__3___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableListSliceNat__6___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableListNatListSlice__1___lam__0___boxed(lean_object*, lean_object*);
@@ -49,7 +48,6 @@ LEAN_EXPORT lean_object* l_instSliceableListNatListSlice__8(lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableListSliceNat__5___lam__0___boxed(lean_object*, lean_object*);
 static lean_object* l_List_toSlice___redArg___closed__0;
 LEAN_EXPORT lean_object* l_instSliceableListNatListSlice__5___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instSliceableListNatListSlice__2___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_toSlice___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableListNatListSlice__3___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableListSliceNat___lam__0(lean_object*, lean_object*);
@@ -61,6 +59,7 @@ LEAN_EXPORT lean_object* l_instSliceableListSliceNat__6(lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableListSliceNat__1(lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableListSliceNat__2___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableListSliceNat__3___lam__0___boxed(lean_object*, lean_object*);
+static lean_object* l_instSliceableListNatListSlice__2___closed__0;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableListSliceNat__5___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableListNatListSlice___lam__0___boxed(lean_object*, lean_object*);
@@ -138,16 +137,6 @@ x_5 = l_List_toSlice___redArg(x_2, x_3, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_List_toSlice___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_List_toSlice___redArg(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_1);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_List_toSlice___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -156,6 +145,16 @@ x_5 = l_List_toSlice(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_2);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_List_toSlice___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_List_toSlice___redArg(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_1);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_List_toUnboundedSlice___redArg(lean_object* x_1, lean_object* x_2) {
@@ -178,15 +177,6 @@ x_4 = l_List_toUnboundedSlice___redArg(x_2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_List_toUnboundedSlice___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_List_toUnboundedSlice___redArg(x_1, x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_List_toUnboundedSlice___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -194,6 +184,15 @@ lean_object* x_4;
 x_4 = l_List_toUnboundedSlice(x_1, x_2, x_3);
 lean_dec(x_2);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_List_toUnboundedSlice___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_List_toUnboundedSlice___redArg(x_1, x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_instSliceableListNatListSlice___lam__0(lean_object* x_1, lean_object* x_2) {
@@ -261,28 +260,19 @@ x_2 = lean_alloc_closure((void*)(l_instSliceableListNatListSlice__1___lam__0___b
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_instSliceableListNatListSlice__2___lam__0(lean_object* x_1, lean_object* x_2) {
+static lean_object* _init_l_instSliceableListNatListSlice__2___closed__0() {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_List_toUnboundedSlice___redArg(x_1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_instSliceableListNatListSlice__2___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_instSliceableListNatListSlice__2___lam__0(x_1, x_2);
-lean_dec(x_1);
-return x_3;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_List_toUnboundedSlice___redArg___boxed), 2, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_instSliceableListNatListSlice__2(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSliceableListNatListSlice__2___lam__0___boxed), 2, 0);
+x_2 = l_instSliceableListNatListSlice__2___closed__0;
 return x_2;
 }
 }
@@ -959,6 +949,8 @@ l_List_toSlice___redArg___closed__0 = _init_l_List_toSlice___redArg___closed__0(
 lean_mark_persistent(l_List_toSlice___redArg___closed__0);
 l_List_toSlice___redArg___closed__1 = _init_l_List_toSlice___redArg___closed__1();
 lean_mark_persistent(l_List_toSlice___redArg___closed__1);
+l_instSliceableListNatListSlice__2___closed__0 = _init_l_instSliceableListNatListSlice__2___closed__0();
+lean_mark_persistent(l_instSliceableListNatListSlice__2___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

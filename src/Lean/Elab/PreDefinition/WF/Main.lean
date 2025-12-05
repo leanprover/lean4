@@ -53,16 +53,14 @@ def wfRecursion (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDe
     -- No termination_by here, so use GuessLex to infer one
     guessLex preDefs unaryPreDefProcessed fixedParamPerms argsPacker
 
-  let (preDefNonRec, useNatRec) ← forallBoundedTelescope unaryPreDef.type fixedParamPerms.numFixed fun fixedArgs type => do
+  let preDefNonRec ← forallBoundedTelescope unaryPreDef.type fixedParamPerms.numFixed fun fixedArgs type => do
     let type ← whnfForall type
     unless type.isForall do
       throwError "wfRecursion: expected unary function type: {type}"
     let packedArgType := type.bindingDomain!
     elabWFRel (preDefs.map (·.declName)) unaryPreDef.declName fixedParamPerms fixedArgs argsPacker packedArgType wf fun wfRel => do
       trace[Elab.definition.wf] "wfRel: {wfRel}"
-
       let useNatRec := (← isNatLtWF wfRel).isSome
-
       -- Warn about likely unwanted reducibility attributes
       unless useNatRec do
         preDefs.forM fun preDef =>
@@ -78,7 +76,7 @@ def wfRecursion (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDe
       let value ← unfoldDeclsFrom envNew value
       -- Make sure we remember invoked tactics
       modifyEnv (copyExtraModUses envNew)
-      return ({ unaryPreDefProcessed with value }, useNatRec)
+      return { unaryPreDefProcessed with value }
 
   trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"
   let preDefsNonrec ← preDefsFromUnaryNonRec fixedParamPerms argsPacker preDefs preDefNonRec
@@ -98,7 +96,7 @@ def wfRecursion (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDe
   -- must happen before `addPreDefAttributes` enables realizations for the top-level functions,
   -- which may need to use realizations on `preDefNonRec`
   enableRealizationsForConst preDefNonRec.declName
-  Mutual.addPreDefAttributes preDefs (irredByDefault := !useNatRec)
+  Mutual.addPreDefAttributes preDefs
 
 builtin_initialize registerTraceClass `Elab.definition.wf
 

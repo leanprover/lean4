@@ -2764,15 +2764,6 @@ x_6 = l_Std_Rcc_instDecidableMemOfDecidableLE___redArg(x_2, x_3, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Rcc_instDecidableMemOfDecidableLE___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Std_Rcc_instDecidableMemOfDecidableLE___redArg(x_1, x_2, x_3);
-x_5 = lean_box(x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Rcc_instDecidableMemOfDecidableLE___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -2780,6 +2771,15 @@ uint8_t x_6; lean_object* x_7;
 x_6 = l_Std_Rcc_instDecidableMemOfDecidableLE(x_1, x_2, x_3, x_4, x_5);
 x_7 = lean_box(x_6);
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Rcc_instDecidableMemOfDecidableLE___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Std_Rcc_instDecidableMemOfDecidableLE___redArg(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Rco_instMembershipOfLEOfLT(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2828,15 +2828,6 @@ x_8 = l_Std_Rco_instDecidableMemOfDecidableLEOfDecidableLT___redArg(x_2, x_3, x_
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Rco_instDecidableMemOfDecidableLEOfDecidableLT___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; lean_object* x_6; 
-x_5 = l_Std_Rco_instDecidableMemOfDecidableLEOfDecidableLT___redArg(x_1, x_2, x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Rco_instDecidableMemOfDecidableLEOfDecidableLT___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -2846,21 +2837,21 @@ x_9 = lean_box(x_8);
 return x_9;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Rco_instDecidableMemOfDecidableLEOfDecidableLT___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; lean_object* x_6; 
+x_5 = l_Std_Rco_instDecidableMemOfDecidableLEOfDecidableLT___redArg(x_1, x_2, x_3, x_4);
+x_6 = lean_box(x_5);
+return x_6;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Rci_instMembershipOfLE(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
 x_3 = lean_box(0);
 return x_3;
-}
-}
-LEAN_EXPORT uint8_t l_Std_Rci_instDecidableMemOfDecidableLE___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; uint8_t x_5; 
-x_4 = lean_apply_2(x_3, x_1, x_2);
-x_5 = lean_unbox(x_4);
-return x_5;
 }
 }
 LEAN_EXPORT uint8_t l_Std_Rci_instDecidableMemOfDecidableLE(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -2872,12 +2863,12 @@ x_7 = lean_unbox(x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Rci_instDecidableMemOfDecidableLE___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT uint8_t l_Std_Rci_instDecidableMemOfDecidableLE___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Std_Rci_instDecidableMemOfDecidableLE___redArg(x_1, x_2, x_3);
-x_5 = lean_box(x_4);
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_apply_2(x_3, x_1, x_2);
+x_5 = lean_unbox(x_4);
 return x_5;
 }
 }
@@ -2888,6 +2879,15 @@ uint8_t x_6; lean_object* x_7;
 x_6 = l_Std_Rci_instDecidableMemOfDecidableLE(x_1, x_2, x_3, x_4, x_5);
 x_7 = lean_box(x_6);
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Rci_instDecidableMemOfDecidableLE___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Std_Rci_instDecidableMemOfDecidableLE___redArg(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Roc_instMembershipOfLEOfLT(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2936,15 +2936,6 @@ x_8 = l_Std_Roc_instDecidableMemOfDecidableLEOfDecidableLT___redArg(x_2, x_3, x_
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Roc_instDecidableMemOfDecidableLEOfDecidableLT___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; lean_object* x_6; 
-x_5 = l_Std_Roc_instDecidableMemOfDecidableLEOfDecidableLT___redArg(x_1, x_2, x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Roc_instDecidableMemOfDecidableLEOfDecidableLT___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -2952,6 +2943,15 @@ uint8_t x_8; lean_object* x_9;
 x_8 = l_Std_Roc_instDecidableMemOfDecidableLEOfDecidableLT(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 x_9 = lean_box(x_8);
 return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Roc_instDecidableMemOfDecidableLEOfDecidableLT___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; lean_object* x_6; 
+x_5 = l_Std_Roc_instDecidableMemOfDecidableLEOfDecidableLT___redArg(x_1, x_2, x_3, x_4);
+x_6 = lean_box(x_5);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Roo_instMembershipOfLT(lean_object* x_1, lean_object* x_2) {
@@ -3001,15 +3001,6 @@ x_6 = l_Std_Roo_instDecidableMemOfDecidableLT___redArg(x_2, x_3, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Roo_instDecidableMemOfDecidableLT___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Std_Roo_instDecidableMemOfDecidableLT___redArg(x_1, x_2, x_3);
-x_5 = lean_box(x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Roo_instDecidableMemOfDecidableLT___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -3019,21 +3010,21 @@ x_7 = lean_box(x_6);
 return x_7;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Roo_instDecidableMemOfDecidableLT___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Std_Roo_instDecidableMemOfDecidableLT___redArg(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Roi_instMembershipOfLT(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
 x_3 = lean_box(0);
 return x_3;
-}
-}
-LEAN_EXPORT uint8_t l_Std_Roi_instDecidableMemOfDecidableLT___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; uint8_t x_5; 
-x_4 = lean_apply_2(x_3, x_1, x_2);
-x_5 = lean_unbox(x_4);
-return x_5;
 }
 }
 LEAN_EXPORT uint8_t l_Std_Roi_instDecidableMemOfDecidableLT(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -3045,12 +3036,12 @@ x_7 = lean_unbox(x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Roi_instDecidableMemOfDecidableLT___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT uint8_t l_Std_Roi_instDecidableMemOfDecidableLT___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Std_Roi_instDecidableMemOfDecidableLT___redArg(x_1, x_2, x_3);
-x_5 = lean_box(x_4);
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_apply_2(x_3, x_1, x_2);
+x_5 = lean_unbox(x_4);
 return x_5;
 }
 }
@@ -3063,21 +3054,21 @@ x_7 = lean_box(x_6);
 return x_7;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Roi_instDecidableMemOfDecidableLT___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Std_Roi_instDecidableMemOfDecidableLT___redArg(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Ric_instMembershipOfLE(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
 x_3 = lean_box(0);
 return x_3;
-}
-}
-LEAN_EXPORT uint8_t l_Std_Ric_instDecidableMemOfDecidableLE___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; uint8_t x_5; 
-x_4 = lean_apply_2(x_3, x_2, x_1);
-x_5 = lean_unbox(x_4);
-return x_5;
 }
 }
 LEAN_EXPORT uint8_t l_Std_Ric_instDecidableMemOfDecidableLE(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -3089,12 +3080,12 @@ x_7 = lean_unbox(x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Ric_instDecidableMemOfDecidableLE___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT uint8_t l_Std_Ric_instDecidableMemOfDecidableLE___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Std_Ric_instDecidableMemOfDecidableLE___redArg(x_1, x_2, x_3);
-x_5 = lean_box(x_4);
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_apply_2(x_3, x_2, x_1);
+x_5 = lean_unbox(x_4);
 return x_5;
 }
 }
@@ -3107,21 +3098,21 @@ x_7 = lean_box(x_6);
 return x_7;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Ric_instDecidableMemOfDecidableLE___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Std_Ric_instDecidableMemOfDecidableLE___redArg(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Rio_instMembershipOfLT(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
 x_3 = lean_box(0);
 return x_3;
-}
-}
-LEAN_EXPORT uint8_t l_Std_Rio_instDecidableMemOfDecidableLT___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; uint8_t x_5; 
-x_4 = lean_apply_2(x_3, x_2, x_1);
-x_5 = lean_unbox(x_4);
-return x_5;
 }
 }
 LEAN_EXPORT uint8_t l_Std_Rio_instDecidableMemOfDecidableLT(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -3133,12 +3124,12 @@ x_7 = lean_unbox(x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Rio_instDecidableMemOfDecidableLT___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT uint8_t l_Std_Rio_instDecidableMemOfDecidableLT___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Std_Rio_instDecidableMemOfDecidableLT___redArg(x_1, x_2, x_3);
-x_5 = lean_box(x_4);
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_apply_2(x_3, x_2, x_1);
+x_5 = lean_unbox(x_4);
 return x_5;
 }
 }
@@ -3149,6 +3140,15 @@ uint8_t x_6; lean_object* x_7;
 x_6 = l_Std_Rio_instDecidableMemOfDecidableLT(x_1, x_2, x_3, x_4, x_5);
 x_7 = lean_box(x_6);
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Rio_instDecidableMemOfDecidableLT___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Std_Rio_instDecidableMemOfDecidableLT___redArg(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Rii_instMembership(lean_object* x_1) {

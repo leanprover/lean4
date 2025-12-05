@@ -487,10 +487,9 @@ public structure S
 def S.s := 1
 
 /--
-error: Invalid field `s`: The environment does not contain `S.s`
+error: Invalid field `s`: The environment does not contain `S.s`, so it is not possible to project the field `s` from an expression
   s
-has type
-  S
+of type `S`
 
 Note: A private declaration `S.s` (from the current module) exists but would need to be public to access here.
 -/

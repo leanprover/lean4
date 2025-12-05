@@ -318,7 +318,7 @@ This function uses an `UpwardEnumerable α` instance.
 
 If no other implementation is provided in UpwardEnumerable instance, succMany? repeatedly applies succ?.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def UpwardEnumerable.succMany {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α]
     (n : Nat) (a : α) :=

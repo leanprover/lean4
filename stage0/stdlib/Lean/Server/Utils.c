@@ -133,20 +133,20 @@ x_4 = l_IO_throwServerError___redArg(x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_IO_throwServerError___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_IO_throwServerError___redArg(x_1);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_IO_throwServerError___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
 x_4 = l_IO_throwServerError(x_1, x_2);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_IO_throwServerError___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_IO_throwServerError___redArg(x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___lam__0(lean_object* x_1, lean_object* x_2, uint8_t x_3, size_t x_4) {

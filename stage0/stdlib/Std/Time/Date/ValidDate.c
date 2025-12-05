@@ -308,15 +308,6 @@ x_4 = l_Std_Time_instDecidableEqValidDate___redArg(x_2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_instDecidableEqValidDate___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_Std_Time_instDecidableEqValidDate___redArg(x_1, x_2);
-x_4 = lean_box(x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_instDecidableEqValidDate___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -325,6 +316,15 @@ x_4 = lean_unbox(x_1);
 x_5 = l_Std_Time_instDecidableEqValidDate(x_4, x_2, x_3);
 x_6 = lean_box(x_5);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_instDecidableEqValidDate___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Std_Time_instDecidableEqValidDate___redArg(x_1, x_2);
+x_4 = lean_box(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT uint8_t l_Std_Time_instOrdValidDate___lam__0(lean_object* x_1, lean_object* x_2) {
@@ -475,16 +475,6 @@ x_7 = l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go___r
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; lean_object* x_6; 
-x_5 = lean_unbox(x_1);
-x_6 = l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go___redArg(x_5, x_2, x_3, x_4);
-lean_dec(x_2);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -493,6 +483,16 @@ x_7 = lean_unbox(x_1);
 x_8 = l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go(x_7, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_2);
 return x_8;
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_unbox(x_1);
+x_6 = l___private_Std_Time_Date_ValidDate_0__Std_Time_ValidDate_ofOrdinal_go___redArg(x_5, x_2, x_3, x_4);
+lean_dec(x_2);
+return x_6;
 }
 }
 static lean_object* _init_l_Std_Time_ValidDate_ofOrdinal___closed__0() {

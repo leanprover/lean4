@@ -12,6 +12,8 @@ public import Lean.Elab.BindersUtil
 public import Lean.Elab.PatternVar
 public import Lean.Elab.Quotation.Precheck
 public import Lean.Elab.SyntheticMVars
+import Lean.Meta.Match.Value
+import Lean.Meta.Match.NamedPatterns
 
 public section
 

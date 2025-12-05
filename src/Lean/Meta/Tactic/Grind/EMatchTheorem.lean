@@ -380,7 +380,7 @@ inductive EMatchTheoremConstraint where
   | /--
     Instantiates the theorem only if its generation is less than `n`
     -/
-    genLt (lhs : Nat) (n : Nat)
+    genLt (n : Nat)
   | /--
     Constraints of the form `is_ground x`. Instantiates the theorem only if
     `x` is ground term.
@@ -406,6 +406,11 @@ inductive EMatchTheoremConstraint where
     Similar to `guard`, but checks whether `e` is implied by asserting `¬e`.
     -/
     check (e : Expr)
+  | /--
+    Constraints of the form `not_value x` and `not_strict_value x`.
+    They are the negations of `is_value x` and `is_strict_value x`.
+    -/
+    notValue (bvarIdx : Nat) (strict : Bool)
   deriving Inhabited, Repr, BEq
 
 /-- A theorem for heuristic instantiation based on E-matching. -/
@@ -794,19 +799,19 @@ private def checkCoverage (thmProof : Expr) (numParams : Nat) (bvarsFound : Std.
             fvarsFound := update fvarsFound xType
             processed := processed.insert fvarId
             modified := true
-          else if (← isProp xType) then
-            -- If `x` is a proposition, and all theorem variables in `x`s type have already been found
-            -- add it to `fvarsFound` and mark it as processed.
-            if checkTypeFVars thmVars fvarsFound xType then
-              fvarsFound := fvarsFound.insert fvarId
-              processed := processed.insert fvarId
-              modified := true
           else if (← fvarId.getDecl).binderInfo matches .instImplicit then
             -- If `x` is instance implicit, check whether
             -- we have found all free variables needed to synthesize instance
             if (← canBeSynthesized thmVars fvarsFound xType) then
               fvarsFound := fvarsFound.insert fvarId
               fvarsFound := update fvarsFound xType
+              processed := processed.insert fvarId
+              modified := true
+          else if (← isProp xType) then
+            -- If `x` is a proposition, and all theorem variables in `x`s type have already been found
+            -- add it to `fvarsFound` and mark it as processed.
+            if checkTypeFVars thmVars fvarsFound xType then
+              fvarsFound := fvarsFound.insert fvarId
               processed := processed.insert fvarId
               modified := true
       if fvarsFound.size == numParams then

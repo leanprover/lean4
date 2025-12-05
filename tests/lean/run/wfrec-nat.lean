@@ -6,6 +6,7 @@ set_option warn.sorry false
 
 namespace T1
 
+@[semireducible]
 def foo : List α → Nat
   | [] => 0
   | _::xs => 1 + (foo xs)
@@ -31,7 +32,7 @@ end T1
 -- Variant where the fuel does not line up
 
 namespace T2
-def foo : List α → Nat
+@[semireducible] def foo : List α → Nat
   | [] => 0
   | _::xs => 1 + (foo xs)
 termination_by xs => 2 * xs.length
@@ -76,17 +77,17 @@ end T3
 
 namespace T4
 
-def foo (b : Bool) : Nat → Nat
+@[semireducible] def foo (b : Bool) : Nat → Nat
   | 0 => 0
   | n+1 => 1 + foo b n
 termination_by n => n
 
-def bar (b : Bool) : Nat → Nat
+@[semireducible] def bar (b : Bool) : Nat → Nat
   | 0 => 0
   | n+1 => cond b 1 2 + bar b n
 termination_by n => n
 
-def baz : Nat → Nat
+@[semireducible] def baz : Nat → Nat
   | 0 => 0
   | n+1 => 1 + baz n
 termination_by n => n

@@ -13,6 +13,8 @@ namespace GrindCnstr
 
 def isValue := leading_parser nonReservedSymbol "is_value " >> ident >> optional ";"
 def isStrictValue := leading_parser nonReservedSymbol "is_strict_value " >> ident >> optional ";"
+def notValue := leading_parser nonReservedSymbol "not_value " >> ident >> optional ";"
+def notStrictValue := leading_parser nonReservedSymbol "not_strict_value " >> ident >> optional ";"
 def isGround := leading_parser nonReservedSymbol "is_ground " >> ident >> optional ";"
 def sizeLt := leading_parser nonReservedSymbol "size " >> ident >> " < " >> numLit >> optional ";"
 def depthLt := leading_parser nonReservedSymbol "depth " >> ident >> " < " >> numLit >> optional ";"
@@ -27,7 +29,7 @@ end GrindCnstr
 
 open GrindCnstr in
 def grindPatternCnstr : Parser :=
-  isValue <|> isStrictValue <|> isGround <|> sizeLt <|> depthLt <|> genLt <|> maxInsts
+  isValue <|> isStrictValue <|> notValue <|> notStrictValue <|> isGround <|> sizeLt <|> depthLt <|> genLt <|> maxInsts
   <|> guard <|> GrindCnstr.check <|> notDefEq <|> defEq
 
 def grindPatternCnstrs : Parser := leading_parser "where " >> many1Indent (ppLine >> grindPatternCnstr)
@@ -91,6 +93,10 @@ and binder types are ignored when computing the size.
 a literal (`Nat`, `Int`, `String`, etc.), or a lambda `fun x => t`.
 
 - `is_strict_value x`: Similar to `is_value`, but without lambdas.
+
+- `not_value x`: The term bound to `x` is a **not** value (see `is_value`).
+
+- `not_strict_value x`: Similar to `not_value`, but without lambdas.
 
 - `gen < n`: The theorem instance has generation less than `n`. Recall that each term is assigned a
 generation, and terms produced by theorem instantiation have a generation that is one greater than

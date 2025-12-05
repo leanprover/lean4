@@ -1700,6 +1700,10 @@ structure LibrarySearchConfig where
   /-- If true, use `try?` as a discharger for subgoals that cannot be closed
   by `solve_by_elim` alone. -/
   try? : Bool := false
+  /-- If true (the default), star-indexed lemmas (with overly-general discrimination keys
+  like `[*]`) are searched as a fallback when no concrete-keyed lemmas are found.
+  Use `-star` to disable this fallback. -/
+  star : Bool := true
 
 /--
 Searches environment for definitions or theorems that can solve the goal using `exact`
@@ -1711,6 +1715,7 @@ ways to resolve the goal, and one wants to guide which lemma is used.
 
 Use `+grind` to enable `grind` as a fallback discharger for subgoals.
 Use `+try?` to enable `try?` as a fallback discharger for subgoals.
+Use `-star` to disable fallback to star-indexed lemmas (like `Empty.elim`, `And.left`).
 -/
 syntax (name := exact?) "exact?" optConfig (" using " (colGt ident),+)? : tactic
 
@@ -1723,6 +1728,7 @@ used when closing the goal.
 
 Use `+grind` to enable `grind` as a fallback discharger for subgoals.
 Use `+try?` to enable `try?` as a fallback discharger for subgoals.
+Use `-star` to disable fallback to star-indexed lemmas.
 -/
 syntax (name := apply?) "apply?" optConfig (" using " (colGt term),+)? : tactic
 

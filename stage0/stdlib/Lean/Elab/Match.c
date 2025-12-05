@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Match
-// Imports: public import Lean.Meta.Match.Match public import Lean.Meta.GeneralizeVars public import Lean.Elab.BindersUtil public import Lean.Elab.PatternVar public import Lean.Elab.Quotation.Precheck public import Lean.Elab.SyntheticMVars import Lean.Meta.Match.NamedPatterns
+// Imports: public import Lean.Meta.Match.Match public import Lean.Meta.GeneralizeVars public import Lean.Elab.BindersUtil public import Lean.Elab.PatternVar public import Lean.Elab.Quotation.Precheck public import Lean.Elab.SyntheticMVars import Lean.Meta.Match.Value import Lean.Meta.Match.NamedPatterns
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20246,7 +20246,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_ToDepElimPattern_mkPatternRefMap_go___redArg___lam__0___closed__2;
 x_2 = lean_unsigned_to_nat(44u);
-x_3 = lean_unsigned_to_nat(451u);
+x_3 = lean_unsigned_to_nat(452u);
 x_4 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_ToDepElimPattern_mkPatternRefMap_go___redArg___lam__0___closed__1;
 x_5 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_ToDepElimPattern_mkPatternRefMap_go___redArg___lam__0___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -23582,7 +23582,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_ToDepElimPattern_mkPatternRefMap_go___redArg___lam__0___closed__2;
 x_2 = lean_unsigned_to_nat(44u);
-x_3 = lean_unsigned_to_nat(616u);
+x_3 = lean_unsigned_to_nat(617u);
 x_4 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_ToDepElimPattern_toPattern___closed__0;
 x_5 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_ToDepElimPattern_mkPatternRefMap_go___redArg___lam__0___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -41897,7 +41897,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_isMatchUnit_x3f___closed__1;
 x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(1056u);
+x_3 = lean_unsigned_to_nat(1057u);
 x_4 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_isMatchUnit_x3f___closed__0;
 x_5 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_ToDepElimPattern_mkPatternRefMap_go___redArg___lam__0___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -50547,6 +50547,7 @@ lean_object* initialize_Lean_Elab_BindersUtil(uint8_t builtin);
 lean_object* initialize_Lean_Elab_PatternVar(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Quotation_Precheck(uint8_t builtin);
 lean_object* initialize_Lean_Elab_SyntheticMVars(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Match_Value(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Match_NamedPatterns(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Match(uint8_t builtin) {
@@ -50569,6 +50570,9 @@ res = initialize_Lean_Elab_Quotation_Precheck(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_SyntheticMVars(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Match_Value(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Match_NamedPatterns(builtin);

@@ -245,7 +245,9 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
         .note m!"Expected a function because this term is being applied to the argument\
           {indentD <| toMessageData arg}"
       else .nil
-      throwError "Function expected at{indentExpr s.f}\nbut this term has type{indentExpr fType}{extra}"
+      throwError "Function expected at{indentExpr s.f}\nbut this term has type{indentExpr fType}\
+        {extra}\
+        {← hintAutoImplicitFailure s.f}"
 
 /-- Normalize and return the function type. -/
 private def normalizeFunType : M Expr := do

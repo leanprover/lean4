@@ -115,6 +115,12 @@ where
       else if kind == ``isStrictValue then
         let (_, lhs) ← findLHS xs cnstr[1]
         return .isValue lhs true
+      else if kind == ``notValue then
+        let (_, lhs) ← findLHS xs cnstr[1]
+        return .notValue lhs false
+      else if kind == ``notStrictValue then
+        let (_, lhs) ← findLHS xs cnstr[1]
+        return .notValue lhs true
       else if kind == ``isGround then
         let (_, lhs) ← findLHS xs cnstr[1]
         return .isGround lhs

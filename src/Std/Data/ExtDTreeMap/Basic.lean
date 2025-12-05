@@ -924,6 +924,49 @@ def inter [TransCmp cmp] (m₁ m₂ : ExtDTreeMap α β cmp) : ExtDTreeMap α β
 
 instance [TransCmp cmp] : Inter (ExtDTreeMap α β cmp) := ⟨inter⟩
 
+@[inline, inherit_doc DTreeMap.beq]
+def beq [LawfulEqCmp cmp] [TransCmp cmp] [∀ k, BEq (β k)] (m₁ m₂ : ExtDTreeMap α β cmp) : Bool := lift₂ (fun x y : DTreeMap α β cmp => x.beq y)
+  (fun _ _ _ _ => DTreeMap.Equiv.beq_congr) m₁ m₂
+
+instance [LawfulEqCmp cmp] [TransCmp cmp] [∀ k, BEq (β k)] : BEq (ExtDTreeMap α β cmp) := ⟨beq⟩
+
+instance [LawfulEqCmp cmp] [TransCmp cmp] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] : ReflBEq (ExtDTreeMap α β cmp) where
+  rfl {a} := by
+    induction a
+    case mk a =>
+      apply DTreeMap.Equiv.beq <| DTreeMap.Equiv.rfl
+
+instance [LawfulEqCmp cmp] [TransCmp cmp] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] : LawfulBEq (ExtDTreeMap α β cmp) where
+  eq_of_beq {a} {b} hyp := by
+    induction a
+    case mk a =>
+      induction b
+      case mk b =>
+        apply sound <| DTreeMap.equiv_of_beq hyp
+
+namespace Const
+variable {β : Type v}
+
+@[inline, inherit_doc DTreeMap.beq]
+def beq [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] (m₁ m₂ : ExtDTreeMap α (fun _ => β) cmp) : Bool := lift₂ (fun x y : DTreeMap α (fun _ => β) cmp => DTreeMap.Const.beq x y)
+  (fun _ _ _ _ => DTreeMap.Const.Equiv.beq_congr) m₁ m₂
+
+theorem beq_of_eq [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] [ReflBEq β] (m₁ m₂ : ExtDTreeMap α (fun _ => β) cmp) (h : m₁ = m₂) : Const.beq m₁ m₂ := by
+  induction m₁
+  case mk a =>
+    induction m₂
+    case mk b =>
+      exact DTreeMap.Const.Equiv.beq <| exact h
+
+theorem eq_of_beq [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] [LawfulBEq β] (m₁ m₂ : ExtDTreeMap α (fun _ => β) cmp) (h : Const.beq m₁ m₂) : m₁ = m₂ := by
+  induction m₁
+  case mk a =>
+    induction m₂
+    case mk b =>
+      exact sound <| DTreeMap.Const.equiv_of_beq h
+
+end Const
+
 instance [TransCmp cmp] [Repr α] [(a : α) → Repr (β a)] : Repr (ExtDTreeMap α β cmp) where
   reprPrec m prec := Repr.addAppParen ("Std.ExtDTreeMap.ofList " ++ repr m.toList) prec
 

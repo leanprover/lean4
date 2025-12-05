@@ -2879,6 +2879,34 @@ theorem get!_inter_of_not_mem_left [TransCmp cmp] [Inhabited β]
 
 end Const
 
+section BEq
+variable {m₁ m₂ : DTreeMap α β cmp} [∀ k, BEq (β k)] [LawfulEqCmp cmp] [TransCmp cmp]
+
+theorem Equiv.beq [∀ k, ReflBEq (β k)] (h : m₁ ~m m₂) : m₁ == m₂ :=
+  Impl.Equiv.beq m₁.2 m₂.2 h.1
+
+theorem equiv_of_beq [∀ k, LawfulBEq (β k)] (h : m₁ == m₂) : m₁ ~m m₂ :=
+  ⟨@Impl.equiv_of_beq _ _ ⟨cmp⟩ m₁.1 m₂.1 _ _ _ _ m₁.2 m₂.2 h⟩
+
+theorem Equiv.beq_congr {m₃ m₄ : DTreeMap α β cmp} : m₁ ~m m₃ → m₂ ~m m₄ → (m₁ == m₂) = (m₃ == m₄) := fun h1 h2 =>
+  @Impl.Equiv.beq_congr _ _ ⟨cmp⟩ m₁.1 m₂.1 _ _ _ m₃.1 m₄.1 m₁.2 m₂.2 m₃.2 m₄.2 h1.1 h2.1
+
+end BEq
+
+section
+variable {β : Type v} {m₁ m₂ : DTreeMap α (fun _ => β) cmp} [BEq β]
+
+theorem Const.Equiv.beq [TransCmp cmp] [ReflBEq β] (h : m₁ ~m m₂) : DTreeMap.Const.beq m₁ m₂ := by
+  apply Impl.Const.Equiv.beq m₁.2 m₂.2 h.1
+
+theorem Const.equiv_of_beq [TransCmp cmp] [LawfulEqCmp cmp] [LawfulBEq β] (h : Const.beq m₁ m₂) : m₁ ~m m₂ :=
+  ⟨@Impl.Const.equiv_of_beq α ⟨cmp⟩ β m₁.1 m₂.1 _ _ _ _ m₁.2 m₂.2 h⟩
+
+theorem Const.Equiv.beq_congr [TransCmp cmp] [LawfulEqCmp cmp] {m₃ m₄ : DTreeMap α (fun _ => β) cmp} : m₁ ~m m₃ → m₂ ~m m₄ → Const.beq m₁ m₂ = Const.beq m₃ m₄ := fun h1 h2 =>
+  @Impl.Const.Equiv.beq_congr α ⟨cmp⟩ β m₁.1 m₂.1 _ _ m₃.1 m₄.1 _ m₁.2 m₂.2 m₃.2 m₄.2 h1.1 h2.1
+
+end
+
 section Diff
 
 variable {t₁ t₂ : DTreeMap α β cmp}
@@ -5351,10 +5379,10 @@ theorem forM_eq [TransCmp cmp] [Monad m] [LawfulMonad m] {f : (a : α) × β a �
   h.1.forM_eq t₁.2 t₂.2
 
 theorem any_eq [TransCmp cmp] {p : (a : α) → β a → Bool} (h : t₁ ~m t₂) : t₁.any p = t₂.any p := by
-  simp only [any, h.forIn_eq]
+  simp only [any, Impl.any, ForIn.forIn, h.1.forIn_eq t₁.2 t₂.2]
 
 theorem all_eq [TransCmp cmp] {p : (a : α) → β a → Bool} (h : t₁ ~m t₂) : t₁.all p = t₂.all p := by
-  simp only [all, h.forIn_eq]
+  simp only [all, Impl.all, ForIn.forIn, h.1.forIn_eq t₁.2 t₂.2]
 
 theorem minKey?_eq [TransCmp cmp] (h : t₁ ~m t₂) : t₁.minKey? = t₂.minKey? :=
   h.1.minKey?_eq t₁.2 t₂.2

@@ -463,7 +463,6 @@ theorem denote_go
     rw [hcasteq]
     simp [hpar]
 
-end blastCpop
 
 
 @[simp]
@@ -476,45 +475,26 @@ theorem denote_blastCpop (aig : AIG α) (xc : RefVec aig w) (x : BitVec w) (assi
     generalize hgen : blastCpop aig xc = res
     unfold blastCpop at hgen
     rw [BitVec.cpop_eq_pps]
+
     split at hgen
-    · rw [← hgen]
-      let initAcc := blastConst (w := 0) aig 0
-      let res1 := blastExtractAndExtendPopulate aig 0 xc initAcc (by omega)
-      let aig1 := res.aig
-      sorry
-    · sorry
-  -- rw [BitVec.popCount_eq_popCountParSum]
-  -- split at hgen
-  -- · rw [← hgen]
-  --   let initAcc := blastConst (w := 0) aig 0
-  --   let res1 := blastExtractAndExtendPopulate aig 0 xc initAcc (by omega)
-  --   let aig1 := res.aig
-  --   have extendedBits := res.vec
-  --   let initAcc := 0#0
-  --   let bvRes := BitVec.extractAndExtendPopulateAux 0 x initAcc (by omega) (by intros; omega)
-  --   rw [denote_go (parSumBv := bvRes.val)]
-  --   · unfold BitVec.popCountParSum
-  --     simp [show 1 < w by omega, bvRes, initAcc]
-  --   · intros idx hidx
-  --     rw [denote_blastExtractAndExtendPopulate]
-  --     · simp
-  --     · intros idx hidx
-  --       apply hx
-  -- · split at hgen
-  --   · rw [← hgen]
-  --     have hw1: w = 1 := by omega
-  --     simp [BitVec.popCountParSum]
-  --     conv =>
-  --       rhs
-  --       simp [hw1]
-  --     apply hx
-  --   · rw [← hgen]
-  --     have hw0: w = 0 := by omega
-  --     simp [BitVec.popCountParSum]
-  --     conv =>
-  --       rhs
-  --       simp [hw0]
-  --     omega
+    · intros idx hidx
+      rw [← hgen]
+      simp
+      rw [denote_go (l_bv := BitVec.extractAndExtendPopulate w x)]
+      · simp [show ¬ w = 0 by omega]
+      · omega
+      · intros idx hidx
+        rw [denote_blastExtractAndExtendPopulate]
+        · omega
+        · exact hx
+    · split at hgen
+      · rw [← hgen]
+        have : w = 1 := by omega
+        subst this
+        simp [BitVec.pps, BitVec.extractAndExtendPopulate, BitVec.extractAndExtendPopulateAux, hx]
+      · simp [show w = 0 by omega]
+
+end blastCpop
 
 end bitblast
 end BVExpr

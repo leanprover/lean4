@@ -23,7 +23,7 @@ function in every iteration. Concretely, the following operations are provided:
 * `Iter.fold`, the analogue of `List.foldl`
 * `Iter.foldM`, the analogue of `List.foldlM`
 
-These operations are implemented using the `IteratorLoop` and `IteratorLoopPartial` typeclasses.
+These operations are implemented using the `IteratorLoop` type class.
 -/
 
 namespace Std.Iterators

@@ -26,7 +26,7 @@ function in every iteration. Concretely, the following operations are provided:
   be used to apply the monadic effects of the iterator.
 
 Some producers and combinators provide specialized implementations. These are captured by the
-`IteratorLoop` and `IteratorLoopPartial` typeclasses. They should be implemented by all
+`IteratorLoop` type class. They should be implemented by all
 types of iterators. A default implementation is provided. The typeclass `LawfulIteratorLoop`
 asserts that an `IteratorLoop` instance equals the default implementation.
 -/

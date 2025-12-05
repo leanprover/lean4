@@ -1843,36 +1843,29 @@ theorem isEmpty_of_isEmpty_insertMany [EquivBEq α] [LawfulHashable α]
 section BEq
 variable {m₁ m₂ : DHashMap α β} [LawfulBEq α] [∀ k, BEq (β k)]
 
-theorem Equiv.beq [∀ k, ReflBEq (β k)] (h : m₁ ~m m₂) : m₁ == m₂ := by
-  simp [BEq.beq]
-  apply Raw₀.Equiv.beq m₁.2 m₂.2 h.1
+theorem Equiv.beq [∀ k, ReflBEq (β k)] (h : m₁ ~m m₂) : m₁ == m₂ :=
+  Raw₀.Equiv.beq m₁.2 m₂.2 h.1
 
-theorem equiv_of_beq [∀ k, LawfulBEq (β k)] (h : m₁ == m₂) : m₁ ~m m₂ := by
-  constructor
-  have := @Raw₀.equiv_of_beq α β _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _ m₁.2 m₂.2 h
-  simp only at this
-  exact this
+theorem equiv_of_beq [∀ k, LawfulBEq (β k)] (h : m₁ == m₂) : m₁ ~m m₂ :=
+  ⟨Raw₀.equiv_of_beq m₁.2 m₂.2 h⟩
 
-theorem Equiv.beq_congr {m₃ m₄ : DHashMap α β} : m₁ ~m m₃ → m₂ ~m m₄ → (m₁ == m₂) = (m₃ == m₄) := by
-  intro h1 h2
-  exact @Raw₀.Equiv.beq_congr α β _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ ⟨m₃.1, m₃.2.size_buckets_pos⟩ ⟨m₄.1, m₄.2.size_buckets_pos⟩ m₁.2 m₂.2 m₃.2 m₄.2 h1.1 h2.1
+theorem Equiv.beq_congr {m₃ m₄ : DHashMap α β} : m₁ ~m m₃ → m₂ ~m m₄ → (m₁ == m₂) = (m₃ == m₄) :=
+  fun h1 h2 => Raw₀.Equiv.beq_congr m₁.2 m₂.2 m₃.2 m₄.2 h1.1 h2.1
+
 end BEq
 
 section
 variable {β : Type v} {m₁ m₂ : DHashMap α (fun _ => β)} [BEq β]
 
-theorem Const.Equiv.beq [LawfulHashable α] [EquivBEq α] [ReflBEq β] (h : m₁ ~m m₂) : DHashMap.Const.beq m₁ m₂ := by
-  apply Raw₀.Const.Equiv.beq m₁.2 m₂.2 h.1
+theorem Const.Equiv.beq [EquivBEq α] [LawfulHashable α] [ReflBEq β] (h : m₁ ~m m₂) : DHashMap.Const.beq m₁ m₂ :=
+  Raw₀.Const.Equiv.beq m₁.2 m₂.2 h.1
 
-theorem Const.equiv_of_beq [LawfulBEq α] [LawfulBEq β] (h : Const.beq m₁ m₂) : m₁ ~m m₂ := by
-  constructor
-  have := @Raw₀.Const.equiv_of_beq α _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ _ m₁.2 m₂.2 h
-  simp only at this
-  exact this
+theorem Const.equiv_of_beq [LawfulBEq α] [LawfulBEq β] (h : Const.beq m₁ m₂) : m₁ ~m m₂ :=
+  ⟨Raw₀.Const.equiv_of_beq m₁.2 m₂.2 h⟩
 
-theorem Const.Equiv.beq_congr [LawfulBEq α] {m₃ m₄ : DHashMap α (fun _ => β)} : m₁ ~m m₃ → m₂ ~m m₄ → Const.beq m₁ m₂ = Const.beq m₃ m₄ := by
-  intro h1 h2
-  exact @Raw₀.Const.Equiv.beq_congr α _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ ⟨m₃.1, m₃.2.size_buckets_pos⟩ ⟨m₄.1, m₄.2.size_buckets_pos⟩ _ m₁.2 m₂.2 m₃.2 m₄.2 h1.1 h2.1
+theorem Const.Equiv.beq_congr [EquivBEq α] [LawfulHashable α] {m₃ m₄ : DHashMap α (fun _ => β)} : m₁ ~m m₃ → m₂ ~m m₄ → Const.beq m₁ m₂ = Const.beq m₃ m₄ :=
+  fun h1 h2 => Raw₀.Const.Equiv.beq_congr m₁.2 m₂.2 m₃.2 m₄.2 h1.1 h2.1
+
 end
 
 section Union

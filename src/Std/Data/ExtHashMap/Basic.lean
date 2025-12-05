@@ -249,18 +249,17 @@ def union [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtHashMap α β) : Ext
 
 instance [EquivBEq α] [LawfulHashable α] : Union (ExtHashMap α β) := ⟨union⟩
 
-@[inline, inherit_doc ExtDHashMap.beq]
-def beq [LawfulBEq α] [BEq β] (m₁ m₂ : ExtHashMap α β) : Bool := ExtDHashMap.Const.beq m₁.inner m₂.inner
+instance [EquivBEq α] [LawfulHashable α] [BEq β] : BEq (ExtHashMap α β) where
+  beq m₁ m₂ := ExtDHashMap.Const.beq m₁.inner m₂.inner
 
-instance [LawfulBEq α] [BEq β] : BEq (ExtHashMap α β) := ⟨beq⟩
-
-instance [LawfulBEq α] [BEq β] [ReflBEq β] : ReflBEq (ExtHashMap α β) where
-  rfl := by intro a; apply ExtDHashMap.Const.beq_of_eq; rfl
+instance [EquivBEq α] [LawfulHashable α] [BEq β] [ReflBEq β] : ReflBEq (ExtHashMap α β) where
+  rfl := ExtDHashMap.Const.beq_of_eq _ _ rfl
 
 instance [LawfulBEq α] [BEq β] [LawfulBEq β] : LawfulBEq (ExtHashMap α β) where
-  eq_of_beq {a} {b} hyp := by
-    have ⟨a⟩ := a
-    have ⟨b⟩ := b
+  eq_of_beq {a} {b} hyp :=
+  by
+    have ⟨_⟩ := a
+    have ⟨_⟩ := b
     simp only [mk.injEq] at |- hyp
     exact ExtDHashMap.Const.eq_of_beq _ _ hyp
 

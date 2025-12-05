@@ -722,11 +722,23 @@ private def isFirstPatternVar (alt : Alt) : Bool :=
   | .var _ :: _ => true
   | _           => false
 
+private def Pattern.isRefutable : Pattern → Bool
+  | .var _           => false
+  | .inaccessible _  => false
+  | .as _ p _        => p.isRefutable
+  | .arrayLit ..     => true
+  | .ctor ..         => true
+  | .val ..          => true
+
+private def triviallyComplete (p : Problem) : Bool :=
+  !p.alts.isEmpty && p.alts.getLast!.patterns.all (!·.isRefutable)
+
 private def processValue (p : Problem) : MetaM (Array Problem) := do
   trace[Meta.Match.match] "value step"
   let x :: xs := p.vars | unreachable!
   let values := collectValues p
-  let subgoals ← caseValues p.mvarId x.fvarId! values
+  let needHyps := !triviallyComplete p || p.alts.any (!·.notAltIdxs.isEmpty)
+  let subgoals ← caseValues p.mvarId x.fvarId! values (needHyps := needHyps)
   subgoals.mapIdxM fun i subgoal => do
     trace[Meta.Match.match] "processValue subgoal\n{MessageData.ofGoal subgoal.mvarId}"
     if h : i < values.size then
@@ -899,14 +911,6 @@ private def moveToFront (p : Problem) (i : Nat) : Problem :=
     }
   else
     p
-
-def Pattern.isRefutable : Pattern → Bool
-  | .var _           => false
-  | .inaccessible _  => false
-  | .as _ p _        => p.isRefutable
-  | .arrayLit ..     => true
-  | .ctor ..         => true
-  | .val ..          => true
 
 /--
 Returns the index of the first pattern in the first alternative that is refutable

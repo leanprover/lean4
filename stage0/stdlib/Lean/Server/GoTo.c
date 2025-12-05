@@ -89,7 +89,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_throwErrorAt___at___00L
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Server_locationLinksFromImport___redArg___closed__9;
 static lean_object* l_Lean_Server_instFromJsonGoToKind_fromJson___closed__0;
-static lean_object* l_Lean_Server_GoToKind_determineTargetExprs___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Server_locationLinksFromOptionInfo___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_locationLinksDefault_defaultDeclNames___redArg___closed__3;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_locationLinksDefault_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -210,7 +209,6 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instToJsonGoToKind;
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_locationLinksFromBinder_binderInfo_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_GoToKind_determineTargetExprs___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Server_GoToKind_determineTargetExprs(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_orElseLazy___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Server_locationLinksDefault_spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -287,7 +285,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
 uint8_t l_Lean_isPrivateName(lean_object*);
 lean_object* l_Lean_Elab_Info_range_x3f(lean_object*);
-lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_findModuleOf_x3f___at___00__private_Lean_Server_GoTo_0__Lean_Server_locationLinksFromDecl_declMod_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___redArg___closed__18;
 LEAN_EXPORT lean_object* l_Lean_Server_locationLinksOfInfo___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -327,7 +324,6 @@ lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean
 LEAN_EXPORT lean_object* l_Lean_Server_locationLinksFromImport___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_GoToKind_ctorElim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_locationLinksFromErrorNameInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_GoToKind_determineTargetExprs___closed__6;
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_GoToKind_definition_elim___redArg(lean_object*);
 static lean_object* l_Lean_Server_instFromJsonGoToKind_fromJson___closed__2;
@@ -1614,9 +1610,9 @@ static lean_object* _init_l_Lean_Server_GoToKind_determineTargetExprs___closed__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(4u);
-x_2 = lean_unsigned_to_nat(8u);
-x_3 = lean_nat_mul(x_2, x_1);
+x_1 = lean_box(0);
+x_2 = lean_unsigned_to_nat(16u);
+x_3 = lean_mk_array(x_2, x_1);
 return x_3;
 }
 }
@@ -1624,36 +1620,7 @@ static lean_object* _init_l_Lean_Server_GoToKind_determineTargetExprs___closed__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(3u);
-x_2 = l_Lean_Server_GoToKind_determineTargetExprs___closed__0;
-x_3 = lean_nat_div(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Server_GoToKind_determineTargetExprs___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Server_GoToKind_determineTargetExprs___closed__1;
-x_2 = l_Nat_nextPowerOfTwo(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Server_GoToKind_determineTargetExprs___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Server_GoToKind_determineTargetExprs___closed__2;
-x_3 = lean_mk_array(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Server_GoToKind_determineTargetExprs___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Server_GoToKind_determineTargetExprs___closed__3;
+x_1 = l_Lean_Server_GoToKind_determineTargetExprs___closed__0;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -1661,7 +1628,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Server_GoToKind_determineTargetExprs___closed__5() {
+static lean_object* _init_l_Lean_Server_GoToKind_determineTargetExprs___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1670,7 +1637,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Server_GoToKind_determineTargetExprs___closed__6() {
+static lean_object* _init_l_Lean_Server_GoToKind_determineTargetExprs___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2289,10 +2256,10 @@ x_11 = l_Lean_instantiateMVars___at___00Lean_Server_GoToKind_determineTargetExpr
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
 lean_dec_ref(x_11);
-x_13 = l_Lean_Server_GoToKind_determineTargetExprs___closed__4;
+x_13 = l_Lean_Server_GoToKind_determineTargetExprs___closed__1;
 x_14 = lean_st_mk_ref(x_13);
 x_15 = lean_alloc_closure((void*)(l_Lean_Server_GoToKind_determineTargetExprs___lam__0___boxed), 7, 0);
-x_16 = l_Lean_Server_GoToKind_determineTargetExprs___closed__5;
+x_16 = l_Lean_Server_GoToKind_determineTargetExprs___closed__2;
 x_17 = l_Lean_ForEachExpr_visit___at___00Lean_Server_GoToKind_determineTargetExprs_spec__1(x_15, x_12, x_14, x_16, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_17) == 0)
 {
@@ -2389,7 +2356,7 @@ if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 x_35 = lean_ctor_get(x_33, 0);
-x_36 = l_Lean_Server_GoToKind_determineTargetExprs___closed__6;
+x_36 = l_Lean_Server_GoToKind_determineTargetExprs___closed__3;
 x_37 = lean_array_push(x_36, x_35);
 lean_ctor_set(x_33, 0, x_37);
 return x_33;
@@ -2400,7 +2367,7 @@ lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41;
 x_38 = lean_ctor_get(x_33, 0);
 lean_inc(x_38);
 lean_dec(x_33);
-x_39 = l_Lean_Server_GoToKind_determineTargetExprs___closed__6;
+x_39 = l_Lean_Server_GoToKind_determineTargetExprs___closed__3;
 x_40 = lean_array_push(x_39, x_38);
 x_41 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_41, 0, x_40);
@@ -9825,12 +9792,6 @@ l_Lean_Server_GoToKind_determineTargetExprs___closed__2 = _init_l_Lean_Server_Go
 lean_mark_persistent(l_Lean_Server_GoToKind_determineTargetExprs___closed__2);
 l_Lean_Server_GoToKind_determineTargetExprs___closed__3 = _init_l_Lean_Server_GoToKind_determineTargetExprs___closed__3();
 lean_mark_persistent(l_Lean_Server_GoToKind_determineTargetExprs___closed__3);
-l_Lean_Server_GoToKind_determineTargetExprs___closed__4 = _init_l_Lean_Server_GoToKind_determineTargetExprs___closed__4();
-lean_mark_persistent(l_Lean_Server_GoToKind_determineTargetExprs___closed__4);
-l_Lean_Server_GoToKind_determineTargetExprs___closed__5 = _init_l_Lean_Server_GoToKind_determineTargetExprs___closed__5();
-lean_mark_persistent(l_Lean_Server_GoToKind_determineTargetExprs___closed__5);
-l_Lean_Server_GoToKind_determineTargetExprs___closed__6 = _init_l_Lean_Server_GoToKind_determineTargetExprs___closed__6();
-lean_mark_persistent(l_Lean_Server_GoToKind_determineTargetExprs___closed__6);
 l_Lean_Server_getInstanceProjectionArg_x3f___redArg___closed__0 = _init_l_Lean_Server_getInstanceProjectionArg_x3f___redArg___closed__0();
 lean_mark_persistent(l_Lean_Server_getInstanceProjectionArg_x3f___redArg___closed__0);
 l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_findModuleOf_x3f___at___00__private_Lean_Server_GoTo_0__Lean_Server_locationLinksFromDecl_declMod_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___redArg___closed__0 = _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_findModuleOf_x3f___at___00__private_Lean_Server_GoTo_0__Lean_Server_locationLinksFromDecl_declMod_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___redArg___closed__0();

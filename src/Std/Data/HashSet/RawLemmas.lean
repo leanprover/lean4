@@ -817,7 +817,7 @@ theorem isEmpty_of_isEmpty_insertMany [EquivBEq α] [LawfulHashable α] (h : m.W
 section
 variable {m₁ m₂ : Raw α}
 
-theorem Equiv.beq [LawfulHashable α] [EquivBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁ ~m m₂ → beq m₁ m₂ :=
+theorem Equiv.beq [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁ ~m m₂ → beq m₁ m₂ :=
   fun hyp => HashMap.Raw.Equiv.beq h₁.1 h₂.1 hyp.1
 
 theorem equiv_of_beq [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁ == m₂ → m₁ ~m m₂ :=

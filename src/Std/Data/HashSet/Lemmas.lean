@@ -785,7 +785,7 @@ end
 section
 variable {m₁ m₂ : HashSet α}
 
-theorem Equiv.beq [LawfulHashable α] [EquivBEq α] (h : m₁ ~m m₂) : m₁ == m₂ :=
+theorem Equiv.beq [EquivBEq α] [LawfulHashable α] (h : m₁ ~m m₂) : m₁ == m₂ :=
   HashMap.Equiv.beq h.1
 
 theorem equiv_of_beq [LawfulBEq α] (h : m₁ == m₂) : m₁ ~m m₂ :=

@@ -258,8 +258,8 @@ instance [EquivBEq α] [LawfulHashable α] [BEq β] [ReflBEq β] : ReflBEq (ExtH
 instance [LawfulBEq α] [BEq β] [LawfulBEq β] : LawfulBEq (ExtHashMap α β) where
   eq_of_beq {a} {b} hyp :=
   by
-    have ⟨a⟩ := a
-    have ⟨b⟩ := b
+    have ⟨_⟩ := a
+    have ⟨_⟩ := b
     simp only [mk.injEq] at |- hyp
     exact ExtDHashMap.Const.eq_of_beq _ _ hyp
 

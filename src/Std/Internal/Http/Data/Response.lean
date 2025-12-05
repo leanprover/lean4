@@ -136,7 +136,7 @@ def body (builder : Builder) (body : t) : Response t :=
 /--
 Builds and returns the final HTTP Response with a stream builder
 -/
-def stream (builder : Builder) (body : Body.ByteStream → Async Unit) : Async (Response Body) := do
+def stream (builder : Builder) (body : Body.ByteStream → ContextAsync Unit) : ContextAsync (Response Body) := do
   let stream ← Body.ByteStream.empty
   background (body stream)
   return { head := builder.head, body := stream }

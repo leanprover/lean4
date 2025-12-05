@@ -161,6 +161,30 @@ protected partial def forIn
 instance : ForIn Async ByteStream Chunk where
   forIn := Std.Http.Body.ByteStream.forIn
 
+/--
+Iterate over the body content in chunks, processing each chunk with the given step function.
+-/
+@[inline]
+protected partial def forIn'
+    {β : Type} (stream : ByteStream) (acc : β)
+    (step : Chunk → β → ContextAsync (ForInStep β)) : ContextAsync β := do
+
+  let rec @[specialize] loop (stream : ByteStream) (acc : β) : ContextAsync β := do
+    if let some chunk ← stream.recv then
+      match ← step chunk acc with
+      | .done res => return res
+      | .yield res => loop stream res
+    else
+      return acc
+
+  loop stream acc
+
+instance : ForIn Async ByteStream Chunk where
+  forIn := Std.Http.Body.ByteStream.forIn
+
+instance : ForIn ContextAsync ByteStream Chunk where
+  forIn := Std.Http.Body.ByteStream.forIn'
+
 instance : IO.AsyncRead ByteStream (Option Chunk) where
   read stream := stream.recv
 

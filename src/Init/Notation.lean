@@ -645,7 +645,8 @@ adding an annotation `@[suggest_for Z.bar]` to `def Z.foo` will suggest `X.Y.Z.f
 replacement for `Z.foo`. If your intent is to suggest `X.Y.Z.foo` as a replacement for
 `X.Y.Z.bar`, you must instead use the annotation `@[suggest_for X.Y.Z.bar]`.
 -/
-syntax (name := suggest_for) "suggest_for" (ppSpace ident)+ : attr
+syntax (name := suggest_for) "suggest_for" (ppSpace ident)* : attr
+
 
 /--
 The `@[coe]` attribute on a function (which should also appear in a

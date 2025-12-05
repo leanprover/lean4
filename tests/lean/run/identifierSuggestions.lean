@@ -16,6 +16,16 @@ public def otherBaz (x: String) := x.length + 1
 @[suggest_for _root_.String.test2]
 public def Nat.otherBar (x: String) := x.length + 1
 
+attribute [suggest_for X] Nat.otherBar
+namespace X
+@[suggest_for Maybe]
+inductive Option (α : Type u) where
+  /-- No value. -/
+  | none : Option α
+  /-- Some value of type `α`. -/
+  | some (val : α) : Option α
+end X
+
 @[suggest_for Maybe]
 inductive Optiond (α : Type u) where
   /-- No value. -/

@@ -2854,7 +2854,7 @@ Optional values, which are either `some` around a value from the underlying type
 `Option` can represent nullable types or computations that might fail. In the codomain of a function
 type, it can also represent partiality.
 -/
-inductive Option (α : Type u) where
+@[suggest_for Maybe] inductive Option (α : Type u) where
   /-- No value. -/
   | none : Option α
   /-- Some value of type `α`. -/

@@ -22,12 +22,11 @@ builtin_initialize identifierSuggestionForAttr : ParametricAttribute (Name × Ar
     name := `suggest_for,
     descr := "suggest other (incorrect, not-existing) identifiers that someone might use when they actually want this definition",
     getParam := fun trueDeclName stx => do
-      let `(attr| suggest_for $altNames:ident*) := stx
-        | throwError m!"Invalid `[suggest_for]` attribute syntax {repr stx}"
-      let ns := trueDeclName.getPrefix
-      return (trueDeclName, altNames.map (·.getId))
+      logInfo m!"suggest_for syntax is... {repr stx}"
+      return (trueDeclName, #[])
     }
 
+@[suggest_for me you]
 public def getSuggestions [Monad m] [MonadEnv m] (fullName : Name) : m (Array Name) := do
   let mut possibleReplacements := #[]
   let (_, allSuggestions) := identifierSuggestionForAttr.ext.getState (← getEnv)
@@ -49,7 +48,7 @@ where
 
 /--
 Throw an unknown constant error message, potentially suggesting alternatives using
-{name}`suggest_for` attributes. (Like {name}`throwUnknownConstantAt` but with suggestions.)
+{lit}`suggest_for` attributes. (Like {name}`throwUnknownConstantAt` but with suggestions.)
 
 The "Unknown constant `<id>`" message will fully qualify the name, whereas the
 -/

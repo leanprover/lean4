@@ -1971,8 +1971,8 @@ theorem Equiv.beq [TransCmp cmp] [ReflBEq β] (h : m₁ ~m m₂) : m₁ == m₂ 
 theorem equiv_of_beq [TransCmp cmp] [LawfulEqCmp cmp] [LawfulBEq β] (h : m₁ == m₂) : m₁ ~m m₂ :=
   ⟨DTreeMap.Const.equiv_of_beq h⟩
 
-theorem Equiv.beq_congr [TransCmp cmp] [LawfulEqCmp cmp] {m₃ m₄ : TreeMap α β cmp} : m₁ ~m m₃ → m₂ ~m m₄ → (m₁ == m₂) = (m₃ == m₄) := fun h1 h2 =>
-  DTreeMap.Const.Equiv.beq_congr h1.1 h2.1
+theorem Equiv.beq_congr [TransCmp cmp] {m₃ m₄ : TreeMap α β cmp} (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : (m₁ == m₂) = (m₃ == m₄) :=
+  DTreeMap.Const.Equiv.beq_congr w₁.1 w₂.1
 
 end
 

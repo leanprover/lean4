@@ -4870,15 +4870,15 @@ end BEq
 
 section
 
-variable {β : Type v} {m₁ m₂ : Impl α (fun _ => β)}
+variable {β : Type v} [BEq β] {m₁ m₂ : Impl α (fun _ => β)}
 
-theorem Const.Equiv.beq [TransOrd α] [BEq β] [ReflBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁.Equiv m₂ → Const.beq m₁ m₂ := by
+theorem Const.Equiv.beq [TransOrd α] [ReflBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁.Equiv m₂ → Const.beq m₁ m₂ := by
   simp_to_model using List.Const.beqModel_eq_true_of_perm
 
-theorem Const.equiv_of_beq [TransOrd α] [LawfulEqOrd α] [BEq β] [LawfulBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : Const.beq m₁ m₂ = true → m₁.Equiv m₂ := by
+theorem Const.equiv_of_beq [TransOrd α] [LawfulEqOrd α] [LawfulBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : Const.beq m₁ m₂ = true → m₁.Equiv m₂ := by
   simp_to_model using List.Const.perm_of_beqModel
 
-theorem Const.Equiv.beq_congr [TransOrd α] [LawfulEqOrd α] {m₃ m₄ : Impl α (fun _ => β)} [BEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) :
+theorem Const.Equiv.beq_congr [TransOrd α] {m₃ m₄ : Impl α (fun _ => β)} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) :
     m₁.Equiv m₃ → m₂.Equiv m₄ → Const.beq m₁ m₂ = Const.beq m₃ m₄ := by
   simp_to_model using List.Const.beqModel_congr
 end

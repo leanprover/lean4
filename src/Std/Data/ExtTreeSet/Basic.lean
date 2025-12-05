@@ -529,23 +529,16 @@ def inter [TransCmp cmp] (t₁ t₂ : ExtTreeSet α cmp) : ExtTreeSet α cmp := 
 
 instance [TransCmp cmp] : Inter (ExtTreeSet α cmp) := ⟨inter⟩
 
-@[inline, inherit_doc ExtTreeMap.beq]
-def beq [TransCmp cmp] [LawfulEqCmp cmp] (m₁ m₂ : ExtTreeSet α cmp) : Bool := ExtDTreeMap.Const.beq m₁.inner.inner m₂.inner.inner
-
-instance [TransCmp cmp] [LawfulEqCmp cmp] : BEq (ExtTreeSet α cmp) := ⟨beq⟩
+instance [TransCmp cmp] [LawfulEqCmp cmp] : BEq (ExtTreeSet α cmp) where
+  beq m₁ m₂ := ExtDTreeMap.Const.beq m₁.inner.inner m₂.inner.inner
 
 instance [TransCmp cmp] [LawfulEqCmp cmp] : ReflBEq (ExtTreeSet α cmp) where
-  rfl := by
-    intro a
-    cases a
-    case mk a =>
-      apply ExtDTreeMap.Const.beq_of_eq
-      rfl
+  rfl := ExtDTreeMap.Const.beq_of_eq _ _ rfl
 
 instance [TransCmp cmp] [LawfulEqCmp cmp] : LawfulBEq (ExtTreeSet α cmp) where
   eq_of_beq {a} {b} hyp := by
-    have ⟨⟨a⟩⟩ := a
-    have ⟨⟨b⟩⟩ := b
+    have ⟨⟨_⟩⟩ := a
+    have ⟨⟨_⟩⟩ := b
     simp only [mk.injEq, ExtTreeMap.mk.injEq] at |- hyp
     exact ExtDTreeMap.Const.eq_of_beq _ _ hyp
 

@@ -535,18 +535,16 @@ def inter [TransCmp cmp] (t₁ t₂ : ExtTreeMap α β cmp) : ExtTreeMap α β c
 
 instance [TransCmp cmp] : Inter (ExtTreeMap α β cmp) := ⟨inter⟩
 
-@[inline, inherit_doc ExtDTreeMap.beq]
-def beq [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] (m₁ m₂ : ExtTreeMap α β cmp) : Bool := ExtDTreeMap.Const.beq m₁.inner m₂.inner
+instance [TransCmp cmp] [BEq β] : BEq (ExtTreeMap α β cmp) where
+  beq m₁ m₂ := ExtDTreeMap.Const.beq m₁.inner m₂.inner
 
-instance [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] : BEq (ExtTreeMap α β cmp) := ⟨beq⟩
-
-instance [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] [ReflBEq β] : ReflBEq (ExtTreeMap α β cmp) where
-  rfl := by intro a; apply ExtDTreeMap.Const.beq_of_eq; rfl
+instance [TransCmp cmp] [BEq β] [ReflBEq β] : ReflBEq (ExtTreeMap α β cmp) where
+  rfl := ExtDTreeMap.Const.beq_of_eq _ _ rfl
 
 instance [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] [LawfulBEq β] : LawfulBEq (ExtTreeMap α β cmp) where
   eq_of_beq {a} {b} hyp := by
-    have ⟨a⟩ := a
-    have ⟨b⟩ := b
+    have ⟨_⟩ := a
+    have ⟨_⟩ := b
     simp only [mk.injEq]
     exact ExtDTreeMap.Const.eq_of_beq _ _ hyp
 

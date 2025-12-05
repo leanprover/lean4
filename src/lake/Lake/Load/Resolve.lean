@@ -190,7 +190,7 @@ private def updateAndMaterializeDep
   if let some entry ← fetch? dep.name then
     entry.materialize ws.lakeEnv ws.dir ws.relPkgsDir
   else
-    let inherited := pkg != ws.root
+    let inherited := !pkg.isRoot
     /-
     NOTE: A path dependency inherited from another dependency's manifest
     will always be of the form a `./<relPath>` (i.e., be relative to its
@@ -432,7 +432,7 @@ public def Workspace.materializeDeps
       let result ← entry.materialize ws.lakeEnv ws.dir relPkgsDir
       loadDepPackage wsIdx result dep.opts leanOpts reconfigure
     else
-      if pkg == ws.root then
+      if pkg.isRoot then
         error <|
           s!"dependency '{dep.name}' not in manifest; \
           use `lake update {dep.name}` to add it"

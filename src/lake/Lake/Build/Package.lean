@@ -107,7 +107,7 @@ private def Package.recBuildExtraDepTargets (self : Package) : FetchM (Job Unit)
   withRegisterJob s!"{self.baseName}:extraDep" do
   let mut job := Job.nil s!"@{self.baseName}:extraDep"
   -- Fetch build cache if this package is a dependency
-  if self != (← getRootPackage) then
+  unless self.isRoot do
     job := job.add (← self.maybeFetchBuildCacheWithWarning)
   -- Build this package's extra dep targets
   for target in self.extraDepTargets do
@@ -209,24 +209,24 @@ Perform a build job after first checking for an (optional) cached build
 for the package (e.g., from Reservoir or GitHub).
 -/
 public def Package.afterBuildCacheAsync (self : Package) (build : JobM (Job α)) : FetchM (Job α) := do
-  if self != (← getRootPackage) then
+  if self.isRoot then
+    build
+  else
     (← self.maybeFetchBuildCache).bindM fun _ => do
       setTrace nilTrace -- ensure both branches start with the same trace
       build
-  else
-    build
 
 /--
  Perform a build after first checking for an (optional) cached build
  for the package (e.g., from Reservoir or GitHub).
 -/
 public def Package.afterBuildCacheSync (self : Package) (build : JobM α) : FetchM (Job α) := do
-  if self != (← getRootPackage) then
+  if self.isRoot then
+    Job.async build
+  else
     (← self.maybeFetchBuildCache).mapM fun _  => do
       setTrace nilTrace -- ensure both branches start with the same trace
       build
-  else
-    Job.async build
 
 /--
 A name-configuration map for the initial set of

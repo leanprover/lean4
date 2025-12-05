@@ -92,7 +92,7 @@ deriving Inhabited
 namespace Package
 
 public instance : Hashable Package where hash pkg := hash pkg.keyName
-public instance : BEq Package where beq p1 p2 := p1.keyName == p2.keyName
+public instance : BEq Package where beq p1 p2 := p1.wsIdx == p2.wsIdx
 
 /-- Pretty prints the package's name. Used when outputting package names. -/
 @[inline] public def prettyName (self : Package) : String :=
@@ -151,6 +151,10 @@ public structure PostUpdateHookDecl where
   deriving TypeName
 
 namespace Package
+
+/-- Returns whether this package is root package of the workspace. -/
+@[inline] public def isRoot (self : Package) : Bool  :=
+  self.wsIdx == 0
 
 /-- **For internal use.** Whether this package is Lean itself.  -/
 @[inline] public def bootstrap (self : Package) : Bool  :=

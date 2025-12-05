@@ -5,14 +5,14 @@ open Lean.Fmt
 def traditional : Doc :=
   .join #[
     .text "function append(first,second,third){",
-    .indented 4 (
+    .indented 4 true (
       let f : Doc := .text "first +"
       let s : Doc := .text "second +"
       let t : Doc := .text "third"
       .join #[
         .nl,
         .text "return ",
-        .maybeFlattened (.indented 4 (.join #[f, .nl, s, .nl, t]))]
+        .maybeFlattened (.indented 4 true (.join #[f, .nl, s, .nl, t]))]
     ),
     .nl,
     .text "}"
@@ -84,8 +84,8 @@ partial def SExpr.pretty' (s : SExpr) : Doc :=
   | .leaf v => .text v
   | .node [] => .text "()"
   | .node (f :: args) =>
-    let fp := f.pretty
-    let argsp := args.toArray.map pretty
+    let fp := f.pretty'
+    let argsp := args.toArray.map pretty'
     .oneOf #[
       .join #[
         .text "(",
@@ -106,11 +106,36 @@ partial def SExpr.pretty' (s : SExpr) : Doc :=
       ]
     ]
 
+partial def SExpr.pretty'' (s : SExpr) : Doc :=
+  match s with
+  | .leaf v => .text v
+  | .node [] => .text "()"
+  | .node (f :: args) =>
+    let fp := f.pretty''
+    let argsp := args.toArray.map pretty''
+    .oneOf #[
+      .join #[
+        .text "(",
+        .nested (.joinUsing .hardNl (#[fp] ++ argsp)),
+        .text ")"
+      ],
+      .flattened (
+        .join #[
+          .text "(",
+          .nested (.joinUsing (.text " ") (#[fp] ++ argsp)),
+          .text ")"
+        ]
+      )
+    ]
+
 def testSExpr (e : SExpr) (width : Nat) (pre : String := "") : IO Unit := do
   test e.pretty width pre
 
 def testSExpr' (e : SExpr) (width : Nat) : IO Unit := do
   test e.pretty' width
+
+def testSExpr'' (e : SExpr) (width : Nat) (pre : String := "") : IO Unit := do
+  test e.pretty'' width pre
 
 def sExpr1 : SExpr :=
   .node ["+", .node ["foo", "1", "2"], .node ["bar", "2", "3"], .node ["baz", "3", "4"]]
@@ -199,11 +224,27 @@ hello: ((abcde ((a b c d)
 
 /--
 info:
+hello: ((abcde
+  ((a b c d)
+    (a b c d)
+    (a b c d)
+    (a b c d)))
+  (abcdefgh
+    ((a b c d)
+      (a b c d)
+      (a b c d)
+      (a b c d))))
+-/
+#guard_msgs in
+#eval testSExpr'' sExpr5 (20 + pre1.length) pre1
+
+/--
+info:
 abc
 def
 -/
 #guard_msgs in
-#eval test (.indented 4 (.unindented (.joinUsing .hardNl #[.text "abc", .text "def"]))) 80
+#eval test (.indented 4 true (.unindented (.joinUsing .hardNl #[.text "abc", .text "def"]))) 80
 
 /--
 info:
@@ -211,7 +252,7 @@ abc
     def
 -/
 #guard_msgs in
-#eval test (.indented 4 (.joinUsing .hardNl #[.text "abc", .text "def"])) 80
+#eval test (.indented 4 true (.joinUsing .hardNl #[.text "abc", .text "def"])) 80
 
 /--
 info:

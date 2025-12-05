@@ -26,6 +26,11 @@ public section
 
 namespace Lean.Meta.Match
 
+register_builtin_option debug.Meta.Match.MatchEqs.grindAsSorry : Bool := {
+  defValue := false
+  descr := "When proving match equations, skip running `grind`"
+}
+
 private def rewriteGoalUsingEq (goal : MVarId) (eq : Expr) (symm : Bool := false) : MetaM MVarId := do
   let rewriteResult ← goal.rewrite (←goal.getType) eq symm
   goal.replaceTargetEq rewriteResult.eNew rewriteResult.eqProof
@@ -114,8 +119,9 @@ private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := mvarId.with
     if let some (α, _lhs, β, _rhs) ← matchHEq? localDecl.type then
       if (← isDefEq α β) then
         let (_, mvarId') ← heqToEq mvarId localDecl.fvarId
-        trace[Meta.Match.matchEqs] "substSomeVar: heqToHeq {localDecl.type}"
-        return #[mvarId']
+        if mvarId' == mvarId then
+          trace[Meta.Match.matchEqs] "substSomeVar: heqToHeq {localDecl.type}"
+          return #[mvarId']
     if let some (_, lhs, rhs) ← matchEq? localDecl.type then
       if lhs.isFVar then
         if !(← dependsOn rhs lhs.fvarId!) then
@@ -194,8 +200,12 @@ where
       <|>
       (substSomeVar mvarId)
       <|>
-      (do let r ← Grind.main mvarId (← Grind.mkParams {})
-          if r.hasFailed then throwError "grind failed"
+      (do if debug.Meta.Match.MatchEqs.grindAsSorry.get (← getOptions) then
+            trace[Meta.Match.matchEqs] "proveCondEqThm.go: grind_as_sorry is enabled, admitting goal"
+            mvarId.admit (synthetic := true)
+          else
+            let r ← Grind.main mvarId (← Grind.mkParams {})
+            if r.hasFailed then throwError "grind failed"
           return #[])
       <|>
       (throwError "failed to generate equality theorem {thmName} for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
@@ -362,6 +372,7 @@ def genMatchCongrEqnsImpl (matchDeclName : Name) : MetaM (Array Name) := do
   return matchCongrEqnsExt.getState (asyncMode := .async .asyncEnv) (asyncDecl := firstEqnName) (← getEnv) |>.find! matchDeclName
 where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
   withConfig (fun c => { c with etaStruct := .none }) do
+  trace[Meta.Match.matchEqs] "genMatchCongrEqnsImpl on {matchDeclName}"
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
   let some matchInfo ← getMatcherInfo? matchDeclName | throwError "`{matchDeclName}` is not a matcher function"
@@ -378,6 +389,7 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
     for i in *...alts.size do
       let altInfo := matchInfo.altInfos[i]!
       let thmName := (Name.str baseName congrEqnThmSuffixBase).appendIndexAfter idx
+      trace[Meta.Match.matchEqs] "genMatchCongrEqnsImpl working on {thmName}"
       eqnNames := eqnNames.push thmName
       let notAlt ← do
         let alt := alts[i]!

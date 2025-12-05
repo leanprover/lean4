@@ -11,6 +11,7 @@ import all Std.Data.DHashMap.Internal.Defs
 public import Std.Data.DHashMap.Internal.WF
 import all Std.Data.DHashMap.Raw
 import all Std.Data.DHashMap.Basic
+import all Std.Data.DHashMap.RawDef
 meta import Std.Data.DHashMap.Basic
 
 public section
@@ -162,7 +163,10 @@ private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (T
      ⟨`getEntry?, (``getEntry?_eq_getEntry?, #[`(getEntry?_of_perm _)])⟩,
      ⟨`getEntryD, (``getEntryD_eq_getEntryD, #[`(getEntryD_of_perm _)])⟩,
      ⟨`getEntry!, (``getEntry!_eq_getEntry!, #[`(getEntry!_of_perm _)])⟩,
+     ⟨`all, (``Raw.all_eq_all_toListModel, #[])⟩,
      ⟨`toList, (``Raw.toList_eq_toListModel, #[])⟩,
+     ⟨`Const.beq, (``Raw₀.Const.beq_eq_beqModel, #[])⟩,
+     ⟨`beq, (``beq_eq_beqModel, #[])⟩,
      ⟨`keys, (``Raw.keys_eq_keys_toListModel, #[`(perm_keys_congr_left)])⟩,
      ⟨`Const.toList, (``Raw.Const.toList_eq_toListModel_map, #[`(perm_map_congr_left)])⟩,
      ⟨`foldM, (``Raw.foldM_eq_foldlM_toListModel, #[])⟩,
@@ -1453,16 +1457,7 @@ theorem any_eq_false [LawfulBEq α] {p : (a : α) → β a → Bool} (h : m.1.WF
 omit [Hashable α] [BEq α] in
 theorem all_toList {p : (a : α) → β a → Bool} :
     m.1.toList.all (fun x => p x.1 x.2) = m.1.all p := by
-  simp only [Raw.all, ForIn.forIn, Bool.not_eq_true, bind_pure_comp, map_pure, Id.run_bind]
-  rw [forIn_eq_forIn_toList, forIn_eq_forIn']
-  induction m.val.toList with
-  | nil => simp
-  | cons hd tl ih =>
-    simp only [forIn'_eq_forIn, List.all_cons]
-    by_cases h : p hd.fst hd.snd = false
-    · simp [h]
-    · simp only [forIn'_eq_forIn] at ih
-      simp [h, ih]
+  simp_to_model
 
 omit [Hashable α] [BEq α] in
 theorem all_eq_not_any_not {p : (a : α) → β a → Bool} :
@@ -2590,8 +2585,37 @@ end Const
 
 end insertMany
 
-section Union
+section BEq
+variable {m₁ m₂ : Raw₀ α β} [LawfulBEq α] [∀ k, BEq (β k)]
 
+theorem Equiv.beq [∀ k, ReflBEq (β k)] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : m₁.1.Equiv m₂.1 → beq m₁ m₂ := by
+  simp_to_model using List.beqModel_eq_true_of_perm
+
+theorem equiv_of_beq [∀ k, LawfulBEq (β k)] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : beq m₁ m₂ = true → m₁.1.Equiv m₂.1 := by
+  simp_to_model using List.perm_of_beqModel
+
+theorem Equiv.beq_congr {m₃ m₄ : Raw₀ α β} (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (h₄ : m₄.val.WF) :
+    m₁.1.Equiv m₃.1 → m₂.1.Equiv m₄.1 → Raw₀.beq m₁ m₂ = Raw₀.beq m₃ m₄ := by
+  simp_to_model using List.beqModel_congr
+
+end BEq
+
+section
+
+variable {β : Type v} {m₁ m₂ : Raw₀ α (fun _ => β)}
+
+theorem Const.Equiv.beq [LawfulHashable α] [EquivBEq α] [BEq β] [ReflBEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : m₁.1.Equiv m₂.1 → Const.beq m₁ m₂ := by
+  simp_to_model using List.Const.beqModel_eq_true_of_perm
+
+theorem Const.equiv_of_beq [LawfulBEq α] [BEq β] [LawfulBEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : beq m₁ m₂ = true → m₁.1.Equiv m₂.1 := by
+  simp_to_model using List.Const.perm_of_beqModel
+
+theorem Const.Equiv.beq_congr [EquivBEq α] [LawfulHashable α] {m₃ m₄ : Raw₀ α (fun _ => β)} [BEq β] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) (h₃ : m₃.val.WF) (h₄ : m₄.val.WF) :
+    m₁.1.Equiv m₃.1 → m₂.1.Equiv m₄.1 → Const.beq m₁ m₂ = Const.beq m₃ m₄ := by
+  simp_to_model using List.Const.beqModel_congr
+end
+
+section Union
 variable (m₁ m₂ : Raw₀ α β)
 
 variable {m₁ m₂}
@@ -5110,6 +5134,17 @@ theorem toList_map {α : Type u} (m : Raw₀ α fun _ => β)
 end Const
 
 end map
+
+end Raw₀
+
+namespace Raw₀
+
+/-- Internal implementation detail -/
+def decidableEquiv [DecidableEq α] [Hashable α] [∀ k, DecidableEq (β k)] (m₁ m₂ : Raw₀ α β) (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : Decidable (m₁.1.Equiv m₂.1) := by
+  apply decidable_of_iff (Raw₀.beq m₁ m₂ = true)
+  constructor
+  · apply Raw₀.equiv_of_beq h₁ h₂
+  · apply Raw₀.Equiv.beq h₁ h₂
 
 end Raw₀
 

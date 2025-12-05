@@ -16,6 +16,13 @@ public def otherBaz (x: String) := x.length + 1
 @[suggest_for _root_.String.test2]
 public def Nat.otherBar (x: String) := x.length + 1
 
+@[suggest_for Maybe]
+inductive Optiond (α : Type u) where
+  /-- No value. -/
+  | none : Optiond α
+  /-- Some value of type `α`. -/
+  | some (val : α) : Optiond α
+
 -- Single suggested replacement
 /--
 error: Invalid field `test0`: The environment does not contain `String.test0`, so it is not possible to project the field `test0` from an expression

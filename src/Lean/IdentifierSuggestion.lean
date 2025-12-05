@@ -23,7 +23,7 @@ builtin_initialize identifierSuggestionForAttr : ParametricAttribute (Name × Ar
     descr := "suggest other (incorrect, not-existing) identifiers that someone might use when they actually want this definition",
     getParam := fun trueDeclName stx => do
       let `(attr| suggest_for $altNames:ident*) := stx
-        | throwError "Invalid `[suggest_for]` attribute syntax"
+        | throwError "Invalid `[suggest_for]` attribute syntax {repr stx}"
       let ns := trueDeclName.getPrefix
       return (trueDeclName, altNames.map (·.getId))
     }

@@ -529,10 +529,10 @@ def inter [TransCmp cmp] (t₁ t₂ : ExtTreeSet α cmp) : ExtTreeSet α cmp := 
 
 instance [TransCmp cmp] : Inter (ExtTreeSet α cmp) := ⟨inter⟩
 
-instance [TransCmp cmp] [LawfulEqCmp cmp] : BEq (ExtTreeSet α cmp) where
+instance [TransCmp cmp] : BEq (ExtTreeSet α cmp) where
   beq m₁ m₂ := ExtDTreeMap.Const.beq m₁.inner.inner m₂.inner.inner
 
-instance [TransCmp cmp] [LawfulEqCmp cmp] : ReflBEq (ExtTreeSet α cmp) where
+instance [TransCmp cmp] : ReflBEq (ExtTreeSet α cmp) where
   rfl := ExtDTreeMap.Const.beq_of_eq _ _ rfl
 
 instance [TransCmp cmp] [LawfulEqCmp cmp] : LawfulBEq (ExtTreeSet α cmp) where

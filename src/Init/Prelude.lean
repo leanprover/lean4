@@ -2840,13 +2840,14 @@ instance : DecidableEq Char :=
     | isFalse h => isFalse (Char.ne_of_val_ne h)
 
 /-- Returns the number of bytes required to encode this `Char` in UTF-8. -/
-@[suggest_for size]
+-- @[suggest_for A.me]
 def Char.utf8Size (c : Char) : Nat :=
   let v := c.val
   ite (LE.le v (UInt32.ofNatLT 0x7F (of_decide_eq_true rfl))) 1
     (ite (LE.le v (UInt32.ofNatLT 0x7FF (of_decide_eq_true rfl))) 2
       (ite (LE.le v (UInt32.ofNatLT 0xFFFF (of_decide_eq_true rfl))) 3 4))
 
+-- @[suggest_for Z.Foo A.bar A.baz]
 /--
 Optional values, which are either `some` around a value from the underlying type or `none`.
 
@@ -2860,6 +2861,9 @@ inductive Option (α : Type u) where
   | some (val : α) : Option α
 
 attribute [unbox] Option
+
+-- attribute [suggest_for A B C] Option
+-- attribute [suggest_for X] Char
 
 export Option (none some)
 

@@ -6,9 +6,10 @@ Authors: Paul Reichert
 module
 
 prelude
+public import Init.WF
 import Init.Classical
 import Init.Ext
-public import Init.NotationExtra
+import Init.NotationExtra
 
 set_option doc.verso true
 set_option linter.missingDocs true

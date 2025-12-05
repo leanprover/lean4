@@ -1855,7 +1855,7 @@ end BEq
 section
 variable {β : Type v} {m₁ m₂ : DHashMap α (fun _ => β)} [BEq β]
 
-theorem Const.Equiv.beq [LawfulHashable α] [EquivBEq α] [ReflBEq β] (h : m₁ ~m m₂) : DHashMap.Const.beq m₁ m₂ :=
+theorem Const.Equiv.beq [EquivBEq α] [LawfulHashable α] [ReflBEq β] (h : m₁ ~m m₂) : DHashMap.Const.beq m₁ m₂ :=
   Raw₀.Const.Equiv.beq m₁.2 m₂.2 h.1
 
 theorem Const.equiv_of_beq [LawfulBEq α] [LawfulBEq β] (h : Const.beq m₁ m₂) : m₁ ~m m₂ :=

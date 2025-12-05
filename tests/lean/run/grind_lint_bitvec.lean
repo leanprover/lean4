@@ -7,13 +7,11 @@ import Lean.Elab.Tactic.Grind.LintExceptions
 #guard_msgs in
 #grind_lint inspect (min := 30) BitVec.msb_replicate
 
--- TODO: Reduce limit after we add support for `no_value` constraint
 -- `BitVec.msb_signExtend` is reasonable at 22.
 #guard_msgs in
-#grind_lint inspect (min := 26)  BitVec.msb_signExtend
+#grind_lint inspect (min := 22)  BitVec.msb_signExtend
 
 /-! Check BitVec namespace: -/
 
--- TODO: Reduce limit after we add support for `no_value` constraint. It was `20`
 #guard_msgs in
-#grind_lint check (min := 23) in BitVec
+#grind_lint check (min := 20) in BitVec

@@ -1,7 +1,8 @@
 import Std.Internal.Http
 import Std.Internal.Async
+import Std.Internal.Async.Timer
 
-open Std.Internal.IO.Async
+open Std.Internal.IO Async
 open Std Http
 
 structure TestCase where
@@ -10,7 +11,7 @@ structure TestCase where
   /-- The HTTP request to send -/
   request : Request (Array Chunk)
   /-- Handler function to process the request -/
-  handler : Request Body → Async (Response Body)
+  handler : Request Body → ContextAsync (Response Body)
   /-- Expected response string -/
   expected : String
   /-- Whether to use chunked encoding -/
@@ -27,20 +28,21 @@ def toByteArray (req : Request (Array Chunk)) (chunked := false) : IO ByteArray 
 
 /-- Send multiple requests through a mock connection and return the response data. -/
 def sendRequests (client : Mock.Client) (server : Mock.Server) (reqs : Array (Request (Array Chunk)))
-    (onRequest : Request Body → Async (Response Body))
+    (onRequest : Request Body → ContextAsync (Response Body))
     (chunked : Bool := false) : IO ByteArray := Async.block do
   let mut data := .empty
   for req in reqs do data := data ++ (← toByteArray req chunked)
 
   client.send data
   Std.Http.Server.serveConnection server onRequest (config := { lingeringTimeout := 3000 })
+    |>.run (← Context.new)
 
   let res ← client.recv?
   pure <| res.getD .empty
 
 /-- Run a single test case, comparing actual response against expected response. -/
 def runTest (name : String) (client : Mock.Client) (server : Mock.Server) (req : Request (Array Chunk))
-    (handler : Request Body → Async (Response Body)) (expected : String) (chunked : Bool := false) :
+    (handler : Request Body → ContextAsync (Response Body)) (expected : String) (chunked : Bool := false) :
     IO Unit := do
   let response ← sendRequests client server #[req] handler chunked
   let responseData := String.fromUTF8! response
@@ -270,10 +272,10 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.body #[]
 
   handler := fun _ => do
-    let largeBody := String.mk (List.replicate 1000 'X')
+    let largeBody := String.ofList (List.replicate 1000 'X')
     return Response.ok largeBody
 
-  expected := s!"HTTP/1.1 200 OK\x0d\nContent-Length: 1000\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n{String.mk (List.replicate 1000 'X')}"
+  expected := s!"HTTP/1.1 200 OK\x0d\nContent-Length: 1000\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n{String.ofList (List.replicate 1000 'X')}"
 }
 
 #eval runTestCase {

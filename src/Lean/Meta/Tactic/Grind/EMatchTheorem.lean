@@ -406,6 +406,11 @@ inductive EMatchTheoremConstraint where
     Similar to `guard`, but checks whether `e` is implied by asserting `¬e`.
     -/
     check (e : Expr)
+  | /--
+    Constraints of the form `not_value x` and `not_strict_value x`.
+    They are the negations of `is_value x` and `is_strict_value x`.
+    -/
+    notValue (bvarIdx : Nat) (strict : Bool)
   deriving Inhabited, Repr, BEq
 
 /-- A theorem for heuristic instantiation based on E-matching. -/

@@ -817,14 +817,14 @@ theorem isEmpty_of_isEmpty_insertMany [EquivBEq α] [LawfulHashable α] (h : m.W
 section
 variable {m₁ m₂ : Raw α}
 
-theorem Equiv.beq [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁ ~m m₂ → beq m₁ m₂ :=
-  fun hyp => HashMap.Raw.Equiv.beq h₁.1 h₂.1 hyp.1
+theorem Equiv.beq [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁ ~m m₂) : beq m₁ m₂ :=
+  HashMap.Raw.Equiv.beq h₁.1 h₂.1 h.1
 
-theorem equiv_of_beq [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁ == m₂ → m₁ ~m m₂ :=
-  fun hyp => ⟨HashMap.Raw.equiv_of_beq h₁.1 h₂.1 hyp⟩
+theorem equiv_of_beq [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁ == m₂) : m₁ ~m m₂ :=
+  ⟨HashMap.Raw.equiv_of_beq h₁.1 h₂.1 h⟩
 
-theorem Equiv.beq_congr [EquivBEq α] [LawfulHashable α] {m₃ m₄ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) : m₁ ~m m₃ → m₂ ~m m₄ → (m₁ == m₂) = (m₃ == m₄) :=
-  fun hyp1 hyp2 => HashMap.Raw.Equiv.beq_congr h₁.1 h₂.1 h₃.1 h₄.1 hyp1.1 hyp2.1
+theorem Equiv.beq_congr [EquivBEq α] [LawfulHashable α] {m₃ m₄ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : (m₁ == m₂) = (m₃ == m₄) :=
+  HashMap.Raw.Equiv.beq_congr h₁.1 h₂.1 h₃.1 h₄.1 w₁.1 w₂.1
 
 end
 

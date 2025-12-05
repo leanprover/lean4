@@ -156,16 +156,8 @@ instance Drop.instIteratorCollect {n : Type w → Type w'} [Monad m] [Monad n] [
     IteratorCollect (Drop α m β) m n :=
   .defaultImplementation
 
-instance Drop.instIteratorCollectPartial {n : Type w → Type w'} [Monad m] [Monad n] [Iterator α m β] :
-    IteratorCollectPartial (Drop α m β) m n :=
-  .defaultImplementation
-
 instance Drop.instIteratorLoop {n : Type x → Type x'} [Monad m] [Monad n] [Iterator α m β] :
     IteratorLoop (Drop α m β) m n :=
-  .defaultImplementation
-
-instance Drop.instIteratorLoopPartial {n : Type x → Type x'} [Monad m] [Monad n] [Iterator α m β] :
-    IteratorLoopPartial (Drop α m β) m n :=
   .defaultImplementation
 
 end Std.Iterators

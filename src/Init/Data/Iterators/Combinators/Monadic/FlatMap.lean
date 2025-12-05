@@ -33,7 +33,7 @@ public structure Flatten (α α₂ β : Type w) (m) where
 /--
 Internal iterator combinator that is used to implement all `flatMap` variants
 -/
-@[always_inline]
+@[always_inline, inline]
 def IterM.flattenAfter {α α₂ β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
     (it₁ : IterM (α := α) m (IterM (α := α₂) m β)) (it₂ : Option (IterM (α := α₂) m β)) :=
@@ -75,7 +75,7 @@ iterator.
 
 For each value emitted by the outer iterator `it₁`, this combinator calls `f`.
 -/
-@[always_inline]
+@[always_inline, inline]
 public def IterM.flatMapAfterM {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β] [Iterator α₂ m γ]
     (f : β → m (IterM (α := α₂) m γ)) (it₁ : IterM (α := α) m β) (it₂ : Option (IterM (α := α₂) m γ)) :=
@@ -114,7 +114,7 @@ This combinator incurs an additional O(1) cost with each output of `it` or an in
 
 For each value emitted by the outer iterator `it`, this combinator calls `f`.
 -/
-@[always_inline, expose]
+@[always_inline, inline, expose]
 public def IterM.flatMapM {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β] [Iterator α₂ m γ]
     (f : β → m (IterM (α := α₂) m γ)) (it : IterM (α := α) m β) :=
@@ -156,7 +156,7 @@ iterator.
 
 For each value emitted by the outer iterator `it₁`, this combinator calls `f`.
 -/
-@[always_inline]
+@[always_inline, inline]
 public def IterM.flatMapAfter {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β] [Iterator α₂ m γ]
     (f : β → IterM (α := α₂) m γ) (it₁ : IterM (α := α) m β) (it₂ : Option (IterM (α := α₂) m γ)) :=
@@ -195,7 +195,7 @@ This combinator incurs an additional O(1) cost with each output of `it` or an in
 
 For each value emitted by the outer iterator `it`, this combinator calls `f`.
 -/
-@[always_inline, expose]
+@[always_inline, inline, expose]
 public def IterM.flatMap {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β] [Iterator α₂ m γ]
     (f : β → IterM (α := α₂) m γ) (it : IterM (α := α) m β) :=
@@ -370,16 +370,8 @@ public instance Flatten.instIteratorCollect [Monad m] [Monad n] [Iterator α m (
     [Iterator α₂ m β] : IteratorCollect (Flatten α α₂ β m) m n :=
   .defaultImplementation
 
-public instance Flatten.instIteratorCollectPartial [Monad m] [Monad n] [Iterator α m (IterM (α := α₂) m β)]
-    [Iterator α₂ m β] : IteratorCollectPartial (Flatten α α₂ β m) m n :=
-  .defaultImplementation
-
 public instance Flatten.instIteratorLoop [Monad m] [Monad n] [Iterator α m (IterM (α := α₂) m β)]
     [Iterator α₂ m β] : IteratorLoop (Flatten α α₂ β m) m n :=
-  .defaultImplementation
-
-public instance Flatten.instIteratorLoopPartial [Monad m] [Monad n] [Iterator α m (IterM (α := α₂) m β)]
-    [Iterator α₂ m β] : IteratorLoopPartial (Flatten α α₂ β m) m n :=
   .defaultImplementation
 
 end Std.Iterators

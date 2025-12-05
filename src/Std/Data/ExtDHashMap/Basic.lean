@@ -387,7 +387,7 @@ namespace Const
 
 variable {β : Type v}
 @[inline, inherit_doc DHashMap.beq]
-def beq [LawfulBEq α] [BEq β] (m₁ m₂ : ExtDHashMap α fun _ => β) : Bool := lift₂ (fun x y : DHashMap α fun _ => β => DHashMap.Const.beq x y)
+def beq [EquivBEq α] [LawfulHashable α] [BEq β] (m₁ m₂ : ExtDHashMap α fun _ => β) : Bool := lift₂ (fun x y : DHashMap α fun _ => β => DHashMap.Const.beq x y)
   (fun _ _ _ _ => DHashMap.Const.Equiv.beq_congr) m₁ m₂
 
 theorem beq_of_eq [LawfulBEq α] [BEq β] [ReflBEq β] (m₁ m₂ : ExtDHashMap α fun _ => β) (h : m₁ = m₂) : Const.beq m₁ m₂ := by

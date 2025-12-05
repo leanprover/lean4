@@ -1868,9 +1868,9 @@ theorem Const.equiv_of_beq [LawfulBEq α] [LawfulBEq β] (h : Const.beq m₁ m�
   simp only at this
   exact this
 
-theorem Const.Equiv.beq_congr [LawfulBEq α] {m₃ m₄ : DHashMap α (fun _ => β)} : m₁ ~m m₃ → m₂ ~m m₄ → Const.beq m₁ m₂ = Const.beq m₃ m₄ := by
+theorem Const.Equiv.beq_congr [EquivBEq α] [LawfulHashable α] {m₃ m₄ : DHashMap α (fun _ => β)} : m₁ ~m m₃ → m₂ ~m m₄ → Const.beq m₁ m₂ = Const.beq m₃ m₄ := by
   intro h1 h2
-  exact @Raw₀.Const.Equiv.beq_congr α _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ ⟨m₃.1, m₃.2.size_buckets_pos⟩ ⟨m₄.1, m₄.2.size_buckets_pos⟩ _ m₁.2 m₂.2 m₃.2 m₄.2 h1.1 h2.1
+  exact @Raw₀.Const.Equiv.beq_congr α _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ ⟨m₃.1, m₃.2.size_buckets_pos⟩ ⟨m₄.1, m₄.2.size_buckets_pos⟩ _ m₁.2 m₂.2 m₃.2 m₄.2 h1.1 h2.1
 end
 
 section Union

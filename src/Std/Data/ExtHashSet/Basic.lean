@@ -205,7 +205,7 @@ def union [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtHashSet α) : ExtHas
 instance [EquivBEq α] [LawfulHashable α] : Union (ExtHashSet α) := ⟨union⟩
 
 @[inline, inherit_doc ExtHashMap.beq]
-def beq [LawfulBEq α] (m₁ m₂ : ExtHashSet α) : Bool := ExtDHashMap.Const.beq m₁.inner.inner m₂.inner.inner
+def beq [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtHashSet α) : Bool := ExtDHashMap.Const.beq m₁.inner.inner m₂.inner.inner
 
 instance [LawfulBEq α] : BEq (ExtHashSet α) := ⟨beq⟩
 

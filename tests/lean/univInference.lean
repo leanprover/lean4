@@ -89,4 +89,20 @@ inductive Stx
 def ex7 (h : Stx = Nat) : True :=
   trivial
 
+namespace Sorry
+set_option warn.sorry false
+
+-- Used to have an 'accidental higher universe' error.
+-- The `sorry` now triggers allowing approximate solutions to the constraint `u ≤ ?_ + 1`.
+inductive Sorry1 where
+  | x (a : Array Sorry1)
+  | y (b : sorry)
+
+-- Used to have an 'invalid universe level in constructor' error.
+-- The `sorry` now triggers allowing approximate solutions to the constraint `?u ≤ ?v + k`.
+inductive Sorry2 : Type where
+  | y (b : sorry)
+
+end Sorry
+
 end Induct

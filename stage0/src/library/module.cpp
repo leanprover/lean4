@@ -32,6 +32,8 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 
 #ifdef LEAN_WINDOWS
 #include <windows.h>
+#include <io.h>
+#include <fcntl.h>
 #else
 #include <sys/mman.h>
 #include <unistd.h>
@@ -45,6 +47,31 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #endif
 
 namespace lean {
+
+/** Trivial RAII wrapper for file descriptors so we don't have to worry about `close` management. */
+class file_descriptor {
+private:
+    int m_fd;
+public:
+    explicit file_descriptor(int fd) : m_fd(fd) {}
+
+    // It should not be copyable
+    file_descriptor(const file_descriptor&) = delete;
+    file_descriptor& operator=(const file_descriptor&) = delete;
+
+    file_descriptor(file_descriptor&& other) noexcept : m_fd(other.m_fd) {
+        other.m_fd = -1;
+    }
+
+    ~file_descriptor() {
+        if (m_fd != -1) {
+            close(m_fd);
+        }
+    }
+
+    int get() const { return m_fd; }
+    operator bool() const { return m_fd != -1; }
+};
 
 /** On-disk format of a .olean file. */
 struct olean_header {
@@ -169,7 +196,10 @@ extern "C" LEAN_EXPORT object * lean_save_module_data_parts(b_obj_arg mod, b_obj
 
 struct module_file {
     std::string m_fname;
-    std::ifstream m_in;
+    file_descriptor m_fd;
+#ifdef LEAN_WINDOWS
+    HANDLE m_handle;  // store the original Windows for mmap
+#endif
     char * m_base_addr;
     size_t m_size;
     char * m_buffer;
@@ -184,22 +214,40 @@ extern "C" LEAN_EXPORT object * lean_read_module_data_parts(b_obj_arg ofnames, o
     for (auto const & fname : fnames) {
         std::string olean_fn = fname.to_std_string();
         try {
-            std::ifstream in(olean_fn, std::ios_base::binary);
-            if (in.fail()) {
-                return io_result_mk_error((sstream() << "failed to open file '" << olean_fn << "'").str());
+#ifdef LEAN_WINDOWS
+            // Use CreateFile with proper sharing flags, then convert to POSIX fd for shared code
+            // `FILE_SHARE_DELETE` is necessary to allow the file to (be marked to) be deleted while in use
+            HANDLE h_file = CreateFile(olean_fn.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+            if (h_file == INVALID_HANDLE_VALUE) {
+                return io_result_mk_error((sstream() << "failed to open file '" << olean_fn << "': " << GetLastError()).str());
             }
+            int raw_fd = _open_osfhandle((intptr_t)h_file, _O_RDONLY);
+            if (raw_fd == -1) {
+                CloseHandle(h_file);
+                return io_result_mk_error((sstream() << "failed to convert handle to fd for '" << olean_fn << "'").str());
+            }
+            file_descriptor fd(raw_fd);
+#else
+            file_descriptor fd(open(olean_fn.c_str(), O_RDONLY));
+            if (!fd) {
+                return io_result_mk_error((sstream() << "failed to open file '" << olean_fn << "': " << strerror(errno)).str());
+            }
+#endif
+
             /* Get file size */
-            in.seekg(0, in.end);
-            size_t size = in.tellg();
-            in.seekg(0);
+            struct stat st;
+            if (fstat(fd.get(), &st) == -1) {
+                return io_result_mk_error((sstream() << "failed to stat file '" << olean_fn << "': " << strerror(errno)).str());
+            }
+            size_t size = st.st_size;
 
             olean_header default_header = {};
             olean_header header;
-            if (!in.read(reinterpret_cast<char *>(&header), sizeof(header))
+            if (read(fd.get(), &header, sizeof(header)) != sizeof(header)
                 || memcmp(header.marker, default_header.marker, sizeof(header.marker)) != 0) {
                 return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
             }
-            in.seekg(0);
+            lseek(fd.get(), 0, SEEK_SET);
             if (header.version != default_header.version || header.flags != default_header.flags
 #ifdef LEAN_CHECK_OLEAN_VERSION
                 || strncmp(header.githash, LEAN_GITHASH, sizeof(header.githash)) != 0
@@ -208,7 +256,11 @@ extern "C" LEAN_EXPORT object * lean_read_module_data_parts(b_obj_arg ofnames, o
                 return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "', incompatible header").str());
             }
             char * base_addr = reinterpret_cast<char *>(header.base_addr);
-            files.push_back({olean_fn, std::move(in), base_addr, size, nullptr, nullptr});
+#ifdef LEAN_WINDOWS
+            files.push_back({olean_fn, std::move(fd), h_file, base_addr, size, nullptr, nullptr});
+#else
+            files.push_back({olean_fn, std::move(fd), base_addr, size, nullptr, nullptr});
+#endif
         } catch (exception & ex) {
             return io_result_mk_error((sstream() << "failed to read '" << olean_fn << "': " << ex.what()).str());
         }
@@ -224,18 +276,15 @@ extern "C" LEAN_EXPORT object * lean_read_module_data_parts(b_obj_arg ofnames, o
         char * base_addr = file.m_base_addr;
         try {
 #ifdef LEAN_WINDOWS
-            // `FILE_SHARE_DELETE` is necessary to allow the file to (be marked to) be deleted while in use
-            HANDLE h_olean_fn = CreateFile(olean_fn.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-            if (h_olean_fn == INVALID_HANDLE_VALUE) {
-                return io_result_mk_error((sstream() << "failed to open '" << olean_fn << "': " << GetLastError()).str());
-            }
+            // Use the stored handle that was created with proper sharing flags
+            HANDLE h_olean_fn = file.m_handle;
             HANDLE h_map = CreateFileMapping(h_olean_fn, NULL, PAGE_READONLY, 0, 0, NULL);
-            if (h_olean_fn == NULL) {
+            if (h_map == NULL) {
                 return io_result_mk_error((sstream() << "failed to map '" << olean_fn << "': " << GetLastError()).str());
             }
             char * buffer = static_cast<char *>(MapViewOfFileEx(h_map, FILE_MAP_READ, 0, 0, 0, base_addr));
             lean_always_assert(CloseHandle(h_map));
-            lean_always_assert(CloseHandle(h_olean_fn));
+            // NOTE: no need to close `h_olean_fn` as it's owned by `file.m_fd`
             if (!buffer) {
                 is_mmap = false;
                 break;
@@ -244,16 +293,13 @@ extern "C" LEAN_EXPORT object * lean_read_module_data_parts(b_obj_arg ofnames, o
                 lean_always_assert(UnmapViewOfFile(base_addr));
             };
 #else
-            int fd = open(olean_fn.c_str(), O_RDONLY);
-            if (fd == -1) {
-                return io_result_mk_error((sstream() << "failed to open '" << olean_fn << "': " << strerror(errno)).str());
-            }
+            int fd = file.m_fd.get();
+            // NOTE: `file.m_fd` does NOT need to outlive `buffer` after this call
             char * buffer = static_cast<char *>(mmap(base_addr, file.m_size, PROT_READ, MAP_PRIVATE, fd, 0));
             if (buffer == MAP_FAILED) {
                 is_mmap = false;
                 break;
             }
-            close(fd);
             size_t size = file.m_size;
             file.m_free_data = [=]() {
                 lean_always_assert(munmap(buffer, size) == 0);
@@ -287,11 +333,9 @@ extern "C" LEAN_EXPORT object * lean_read_module_data_parts(b_obj_arg ofnames, o
             std::string const & olean_fn = file.m_fname;
             try {
                 file.m_buffer = big_buffer + (file.m_base_addr - files[0].m_base_addr);
-                file.m_in.read(file.m_buffer, file.m_size);
-                if (!file.m_in) {
+                if (read(file.m_fd.get(), file.m_buffer, file.m_size) != static_cast<ssize_t>(file.m_size)) {
                     return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "'").str());
                 }
-                file.m_in.close();
             } catch (exception & ex) {
                 return io_result_mk_error((sstream() << "failed to read '" << olean_fn << "': " << ex.what()).str());
             }

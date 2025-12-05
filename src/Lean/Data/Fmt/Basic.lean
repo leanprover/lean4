@@ -225,17 +225,25 @@ inductive Doc where
   | flattened (d : Doc)
   /--
   Adds `n` to the current level of indentation within an inner document.
+  Multiple `indented` nodes with `isCumulative = false` will only increase the level of indentation
+  once per line, which is useful to request that an inner document needs to be indented if it
+  is broken over to another line, without these requests doubling up over multiple nested documents,
+  all of which may need to be indented once if they are all on separate lines, but should not be
+  indented several times if they end up on the same line. For non-cumulative `indented n ..` nodes
+  on the same line, the innermost `n` is used.
 
   When rendering a newline, the formatter produces an amount of spaces corresponding to the
-  current level of indentation after the newline.
+  current level of indentation
+  (i.e. the level of cumulative indentation + the level of non-cumulative indetation)
+  after the newline.
 
-  Example:
+  Examples:
 
   ```
-  indented 2
+  indented 2 true
     (append
       (text "a")
-      (indented 2
+      (indented 2 true
         (append
           (append
             (text "b")
@@ -245,10 +253,50 @@ inductive Doc where
   produces
   ```
   ab
+      c
+  ```
+  ---
+  ```
+  indented 2 false
+    (append
+      (text "a")
+      (append
+        (text "b")
+        (indented 2 false
+          (append
+            (newline (some " "))
+            (text "c")))))
+  ```
+  produces
+  ```
+  ab
     c
   ```
+  ---
+  ```
+  indented 2 false
+    (append
+      (text "a")
+      (append
+        (newline (some " "))
+        (append
+          (text "b")
+          (indented 2 false
+            (append
+              (newline (some " "))
+              (text "c"))))))
+  ```
+  produces
+  ```
+  a
+    b
+      c
+  ```
   -/
-  | indented (n : Nat) (d : Doc)
+  -- Non-cumulative indentation does not exist in the Racket implementation, but it is very useful
+  -- when formatting Lean documents, as each line break in a nested term should only increase the
+  -- level of indentation by 1.
+  | indented (n : Nat) (isCumulative : Bool) (d : Doc)
   /--
   Sets the current level of indentation within an inner document to the current column position
   at the position where the `aligned` is rendered.
@@ -408,7 +456,7 @@ with
     | .newline .. => some 1
     | .text _
     | .flattened _ => some 0
-    | .indented _ d
+    | .indented _ _ d
     | .aligned d
     | .unindented d
     | .full d => maxNewlineCount? d
@@ -425,7 +473,7 @@ with
     | .newline ..
     | .text _ => memoHeightLimit
     | .flattened d
-    | .indented _ d
+    | .indented _ _ d
     | .aligned d
     | .unindented d
     | .full d =>
@@ -475,6 +523,78 @@ Equivalent to `newline none`.
 -/
 def Doc.hardNl : Doc :=
   .newline none
+
+/--
+Ensures that the level of indentation of an inner document is increased by 2 spaces after a newline.
+Multiple `nested` nodes on the same line only increase the level of indentation once.
+
+Examples:
+
+```
+nested
+  (append
+    (text "a")
+    (append
+      (text "b")
+      (nested
+        (append
+          nl
+          (text "c")))))
+```
+produces
+```
+ab
+  c
+```
+---
+```
+nested
+  (append
+    (text "a")
+    (append
+      nl
+      (append
+        (text "b")
+        (nested
+          (append
+            nl
+            (text "c"))))))
+```
+produces
+```
+a
+  b
+    c
+```
+-/
+def Doc.nested (d : Doc) : Doc :=
+  .indented 2 false d
+
+/--
+Increases the level of indentation of an inner document by 2 spaces after a newline.
+Multiple `hardNested` nodes on the same line each increase the level of indentation by 2.
+
+Example:
+
+```
+hardNested
+  (append
+    (text "a")
+    (hardNested
+      (append
+        (append
+          (text "b")
+          nl)
+        (text "c"))))
+```
+produces
+```
+ab
+    c
+```
+-/
+def Doc.hardNested (d : Doc) : Doc :=
+  .indented 2 true d
 
 /--
 Designates a document that can be rendered to one of several alternatives.

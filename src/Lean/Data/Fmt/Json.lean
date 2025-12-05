@@ -38,7 +38,7 @@ partial def format (j : Json) : Doc :=
     else
       .join #[
         .text "[",
-        .indented 2
+        .hardNested
           (.append
             .hardNl
             (.joinUsing
@@ -51,7 +51,7 @@ partial def format (j : Json) : Doc :=
     let pairs := kv.toArray.map fun (k, v) => formatKvPair k v
     .join #[
       .text "{",
-      .indented 2
+      .hardNested
         (.append
           .hardNl
           (.joinUsing
@@ -74,7 +74,7 @@ where
         .text "\"",
         .text k,
         .text "\":",
-        .indented 2 (.append .hardNl v')
+        .hardNested (.append .hardNl v')
       ]
       .either f1 f2
     else

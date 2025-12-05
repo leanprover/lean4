@@ -91,9 +91,9 @@ where
     | .failure
     | .text .. =>
       return d
-    | .indented n d =>
+    | .indented n c d =>
       let d ← goMemoized d isFlattened
-      return .indented n d
+      return .indented n c d
     | .aligned d =>
       let d ← goMemoized d isFlattened
       return .aligned d
@@ -192,6 +192,16 @@ structure Measure (τ : Type) where
   -/
   cost : τ
   /--
+  Level of indentation after the rendering represented by this measure.
+  Non-cumulative indentation is persisted after a newline by increasing the level of indentation.
+  -/
+  indentation : Nat
+  /--
+  Level of non-cumulative indentation after the rendering represented by this measure.
+  Set to 0 after a newline.
+  -/
+  nonCumulativeIndentation : Nat
+  /--
   Writer monad that produces the rendering that this measure presents.
   -/
   output : StateM String Unit
@@ -209,9 +219,19 @@ def Measure.dominates (m1 m2 : Measure τ) : Bool :=
 def Measure.append (m1 m2 : Measure τ) : Measure τ where
   lastLineLength := m2.lastLineLength
   cost := m1.cost + m2.cost
+  indentation := m2.indentation
+  nonCumulativeIndentation := m2.nonCumulativeIndentation
   output := do
     m1.output
     m2.output
+
+/-- Adjusts the indentation and non-cumulative indentation of a measure. -/
+def Measure.adjustIndentation (m : Measure τ) (newIndentation : Nat)
+    (newNonCumulativeIndentation : Nat) : Measure τ := { m with
+  indentation := newIndentation
+  nonCumulativeIndentation := newNonCumulativeIndentation
+}
+
 
 /-- Runs the writer monad of a measure, printing its rendering to a string. -/
 def Measure.print (m : Measure τ) : String :=
@@ -261,16 +281,23 @@ inductive TaintedMeasure (τ : Type) where
   /--
   Append a document to the rendering of a tainted measure. Resolving this tainted measure amounts to
   resolving the tainted measure on the left, resolving the document on the right in the column
-  position after resolving the tainted measure on the left and with the given indentation and
+  position after resolving the tainted measure on the left and with the given
   fullness state, picking a measure from the set of measures of the resolution on the right
   and then appending those.
   -/
-  | taintedAppend (tm1 : TaintedMeasure τ) (d2 : Doc) (indentation : Nat) (fullness : FullnessState) (maxNewlineCount? : Option Nat)
+  | taintedAppend (tm1 : TaintedMeasure τ) (d2 : Doc) (fullness : FullnessState)
+    (maxNewlineCount? : Option Nat)
   /--
   Append a tainted measure to a regular measure. Resolving this tainted measure amounts to simply
   resolving the tainted measure on the right and appending it to the measure on the left.
   -/
   | appendTainted (m1 : Measure τ) (tm2 : TaintedMeasure τ) (maxNewlineCount? : Option Nat)
+  /--
+  Change the level of indentation of a tainted measure. Resolving this tainted measure amounts to
+  resolving the tainted measure and adjusting the resulting indentation levels.
+  -/
+  | adjustTaintedIndentation (tm : TaintedMeasure τ)
+    (newIndentation newNonCumulativeIndentation : Nat) (maxNewlineCount? : Option Nat)
   /--
   Resolve a tainted measure for a given resolution context to a regular measure.
   Amounts to resolving the given document in the given context, picking a measure from the set of
@@ -282,13 +309,15 @@ inductive TaintedMeasure (τ : Type) where
   top level node, so this will process the top-level node of the document and then recurse with
   potentially tainted child documents until eventually the full tainted measure is resolved.
   -/
-  | resolveTainted (d : Doc) (columnPos : Nat) (indentation : Nat) (fullness : FullnessState) (maxNewlineCount? : Option Nat)
+  | resolveTainted (d : Doc) (columnPos : Nat) (indentation nonCumulativeIndentation : Nat)
+    (fullness : FullnessState) (maxNewlineCount? : Option Nat)
 
 /-- Approximation for the maximum amount of newlines in the rendering of a tainted measure. -/
 def TaintedMeasure.maxNewlineCount? : TaintedMeasure τ → Option Nat
   | .mergeTainted (maxNewlineCount? := n) .. => n
   | .taintedAppend (maxNewlineCount? := n) .. => n
   | .appendTainted (maxNewlineCount? := n) .. => n
+  | .adjustTaintedIndentation (maxNewlineCount? := n) .. => n
   | .resolveTainted (maxNewlineCount? := n) .. => n
 
 /--
@@ -383,17 +412,31 @@ def MeasureSet.merge (ms1 ms2 : MeasureSet τ) (prunable : Bool) : MeasureSet τ
     .set (ms1.merge ms2)
 
 /--
+Adjusts all indentations in a set of measures according to `Measure.adjustIndentation` and
+`TaintedMeasure.adjustTaintedIndentation`.
+-/
+def MeasureSet.adjustIndentation (m : MeasureSet τ) (newIndentation : Nat)
+    (newNonCumulativeIndentation : Nat) : MeasureSet τ :=
+  match m with
+  | .set ms =>
+    .set <| ms.map (·.adjustIndentation newIndentation newNonCumulativeIndentation)
+  | .tainted tm => .tainted
+    (.adjustTaintedIndentation tm newIndentation newNonCumulativeIndentation tm.maxNewlineCount?)
+
+/--
 Memoization key for sets of measures produced by the formatter.
 Includes the full context that uniquely determines a set of measures:
 - A pointer to the document that is being formatted
 - The column position at which the document is being formatted
 - The current level of indentation within which the document is being formatted
+- The current level of non-cumulative indentation within which the document is being formatted
 - The fullness state surrounding the document
 -/
 structure SetCacheKey where
   docPtr : USize
   columnPos : Nat
   indentation : Nat
+  nonCumulativeIndentation : Nat
   fullness : FullnessState
   deriving BEq, Hashable
 
@@ -455,23 +498,26 @@ def ResolverM.run (f : ResolverM σ τ α) : ST σ α :=
   f.run' {}
 
 @[inline]
-def getCachedSet? (d : Doc) (columnPos indentation : Nat) (fullness : FullnessState) :
+def getCachedSet? (d : Doc) (columnPos indentation nonCumulativeIndentation : Nat)
+    (fullness : FullnessState) :
     ResolverM σ τ (Option (MeasureSet τ)) := do
   return (← get).setCache.get? {
     docPtr := unsafe ptrAddrUnsafe d
     columnPos
     indentation
+    nonCumulativeIndentation
     fullness
   }
 
 @[inline]
-def setCachedSet (d : Doc) (columnPos indentation : Nat) (fullness : FullnessState)
-    (set : MeasureSet τ) : ResolverM σ τ Unit :=
+def setCachedSet (d : Doc) (columnPos indentation nonCumulativeIndentation : Nat)
+    (fullness : FullnessState) (set : MeasureSet τ) : ResolverM σ τ Unit :=
   modify fun state => { state with
     setCache := state.setCache.insert {
         docPtr := unsafe ptrAddrUnsafe d
         columnPos
         indentation
+        nonCumulativeIndentation
         fullness
       } set
   }
@@ -526,7 +572,7 @@ def setCachedFailing (d : Doc) (fullness : FullnessState) : ResolverM σ τ Unit
   }
 
 def Resolver (σ τ : Type) :=
-  (d : Doc) → (columnPos indentation : Nat) → (fullness : FullnessState) →
+  (d : Doc) → (columnPos indentation nonCumulativeIndentation : Nat) → (fullness : FullnessState) →
     ResolverM σ τ (MeasureSet τ)
 
 /--
@@ -534,22 +580,24 @@ Checks whether we have a memoized result for a given resolution context and if s
 Otherwise, `f` is evaluated and the result is memoized if `Doc.shouldMemoize` is true.
 -/
 @[specialize]
-def Resolver.memoize (f : Resolver σ τ) : Resolver σ τ := fun d columnPos indentation fullness => do
-  if ← isFailing d fullness then
-    return .set []
-  if columnPos > Cost.optimalityCutoffWidth τ || indentation > Cost.optimalityCutoffWidth τ
-      || ! d.shouldMemoize then
-    let r ← f d columnPos indentation fullness
+def Resolver.memoize (f : Resolver σ τ) : Resolver σ τ :=
+  fun d columnPos indentation nonCumulativeIndentation fullness => do
+    if ← isFailing d fullness then
+      return .set []
+    if columnPos > Cost.optimalityCutoffWidth τ || indentation > Cost.optimalityCutoffWidth τ
+        || ! d.shouldMemoize then
+      let r ← f d columnPos indentation nonCumulativeIndentation fullness
+      if r matches .set [] then
+        setCachedFailing d fullness
+      return r
+    if let some cachedSet ←
+        getCachedSet? d columnPos indentation nonCumulativeIndentation fullness then
+      return cachedSet
+    let r ← f d columnPos indentation nonCumulativeIndentation fullness
+    setCachedSet d columnPos indentation nonCumulativeIndentation fullness r
     if r matches .set [] then
       setCachedFailing d fullness
     return r
-  if let some cachedSet ← getCachedSet? d columnPos indentation fullness then
-    return cachedSet
-  let r ← f d columnPos indentation fullness
-  setCachedSet d columnPos indentation fullness r
-  if r matches .set [] then
-    setCachedFailing d fullness
-  return r
 
 mutual
 
@@ -562,52 +610,78 @@ exceeds the optimality cutoff width, which (together with not memoizing the root
 we can use this function to resolve tainted documents to non-tainted ones in the resolver for
 tainted measures.
 -/
-partial def MeasureSet.resolveCore : Resolver σ τ := fun d columnPos indentation fullness => do
-  match d with
-  | .failure =>
-    return .set []
-  | .newline .. =>
-    return .set [{
-      lastLineLength := indentation
-      cost := Cost.newlineCost indentation
-      output := modify fun out =>
-         out ++ "\n" |>.pushn ' ' indentation
-    }]
-  | .text s =>
-    return .set [{
-      lastLineLength := columnPos + s.length
-      cost := Cost.textCost columnPos s.length
-      output := modify fun out =>
-        out ++ s
-    }]
-  | .flattened _ =>
-    -- Eliminated during pre-processing.
-    unreachable!
-  | .indented n d =>
-    resolve d columnPos (indentation + n) fullness
-  | .aligned d =>
-    resolve d columnPos columnPos fullness
-  | .unindented d =>
-    resolve d columnPos 0 fullness
-  | .full d =>
-    -- The failure condition of `full` ensures that `fullness.isFullAfter` is true when we reach
-    -- this point. However, within `full`, the `full` node imposes no constraints, so we case-split
-    -- on `fullness.isFullAfter` here.
-    let set1 ← resolve d columnPos indentation (fullness.setFullAfter false)
-    let set2 ← resolve d columnPos indentation (fullness.setFullAfter true)
-    return .merge set1 set2 (prunable := false)
-  | .either d1 d2 =>
-    let set1 ← resolve d1 columnPos indentation fullness
-    let set2 ← resolve d2 columnPos indentation fullness
-    return .merge set1 set2 (prunable := false)
-  | .append d1 d2 =>
-    -- We can't tell whether the line at the end of `d1` will be full in advance, which decides
-    -- whether we need to set `isFullAfter` on the left side of the `append` and `isFullBefore`
-    -- on the right side of the `append`, so we case-split on these two alternatives and then
-    -- later prune subtrees that are inconsistent with the given fullness state.
-    let set1 ← analyzeAppend d d1 d2 columnPos indentation fullness false
-    let set2 ← analyzeAppend d d1 d2 columnPos indentation fullness true
-    return .merge set1 set2 (prunable := false)
+partial def MeasureSet.resolveCore : Resolver σ τ :=
+  fun d columnPos indentation nonCumulativeIndentation fullness => do
+    match d with
+    | .failure =>
+      return .set []
+    | .newline .. =>
+      let lineIndentation := indentation + nonCumulativeIndentation
+      return .set [{
+        lastLineLength := lineIndentation
+        cost := Cost.newlineCost lineIndentation
+        -- Persist the non-cumulative indentation so that the following newlines use it.
+        indentation := indentation + nonCumulativeIndentation
+        -- Reset the level of non-cumulative indentation so that the next non-cumulative `indented`
+        -- can increase the level of indentation again.
+        nonCumulativeIndentation := 0
+        output := modify fun out =>
+          out ++ "\n" |>.pushn ' ' lineIndentation
+      }]
+    | .text s =>
+      return .set [{
+        lastLineLength := columnPos + s.length
+        cost := Cost.textCost columnPos s.length
+        indentation
+        nonCumulativeIndentation
+        output := modify fun out =>
+          out ++ s
+      }]
+    | .flattened _ =>
+      -- Eliminated during pre-processing.
+      unreachable!
+    | .indented n isCumulative d =>
+      let ms ←
+        if isCumulative then
+          -- Increases the over-all level of indentation, which (if present) is spent from
+          -- the non-cumulative level of indentation.
+          -- This ensures that an outer non-cumulative `indented` will not duplicate the indentation
+          -- of an inner cumulative `intended`.
+          resolve d columnPos (indentation + n) (nonCumulativeIndentation - n) fullness
+        else
+          -- Sets the level of non-cumulative indentation to `n`.
+          -- In a chain of nested non-cumulative `indent`s, the innermost `n` is used.
+          resolve d columnPos indentation n fullness
+      return ms.adjustIndentation indentation nonCumulativeIndentation
+    | .aligned d =>
+      -- Sets the level of indentation to `columnPos` and resets the level of
+      -- non-cumulative indentation, as the alignment dictates the level of indentation in `d`.
+      let ms ← resolve d columnPos columnPos 0 fullness
+      return ms.adjustIndentation indentation nonCumulativeIndentation
+    | .unindented d =>
+      let ms ← resolve d columnPos 0 0 fullness
+      return ms.adjustIndentation indentation nonCumulativeIndentation
+    | .full d =>
+      -- The failure condition of `full` ensures that `fullness.isFullAfter` is true when we reach
+      -- this point. However, within `full`, the `full` node imposes no constraints, so we case-split
+      -- on `fullness.isFullAfter` here.
+      let set1 ← resolve d columnPos indentation nonCumulativeIndentation
+        (fullness.setFullAfter false)
+      let set2 ← resolve d columnPos indentation nonCumulativeIndentation
+        (fullness.setFullAfter true)
+      return .merge set1 set2 (prunable := false)
+    | .either d1 d2 =>
+      let set1 ← resolve d1 columnPos indentation nonCumulativeIndentation fullness
+      let set2 ← resolve d2 columnPos indentation nonCumulativeIndentation fullness
+      return .merge set1 set2 (prunable := false)
+    | .append d1 d2 =>
+      -- We can't tell whether the line at the end of `d1` will be full in advance, which decides
+      -- whether we need to set `isFullAfter` on the left side of the `append` and `isFullBefore`
+      -- on the right side of the `append`, so we case-split on these two alternatives and then
+      -- later prune subtrees that are inconsistent with the given fullness state.
+      let set1 ← analyzeAppend d d1 d2 columnPos indentation nonCumulativeIndentation fullness false
+      let set2 ← analyzeAppend d d1 d2 columnPos indentation nonCumulativeIndentation fullness true
+      return .merge set1 set2 (prunable := false)
 where
   /--
   Resolves `d1` to a measure set, then resolves `d2` with each of the column positions in the
@@ -615,17 +689,17 @@ where
   resolving `d1`.
   At the end, the invariants for sets of measures (documented at `MeasureSet.Set`) are enforced.
   -/
-  analyzeAppend (d d1 d2 : Doc) (columnPos indentation : Nat) (fullness : FullnessState)
-      (isMidFull : Bool) : ResolverM σ τ (MeasureSet τ) := do
+  analyzeAppend (d d1 d2 : Doc) (columnPos indentation nonCumulativeIndentation : Nat)
+      (fullness : FullnessState) (isMidFull : Bool) : ResolverM σ τ (MeasureSet τ) := do
     let fullness1 := fullness.setFullAfter isMidFull
     let fullness2 := fullness.setFullBefore isMidFull
-    let set1 ← resolve d1 columnPos indentation fullness1
+    let set1 ← resolve d1 columnPos indentation nonCumulativeIndentation fullness1
     match set1 with
     | .tainted tm1 =>
-      return .tainted (.taintedAppend tm1 d2 indentation fullness2 d.maxNewlineCount?)
+      return .tainted (.taintedAppend tm1 d2 fullness2 d.maxNewlineCount?)
     | .set ms1 =>
       ms1.foldrM (init := MeasureSet.set []) fun m1 acc => do
-        let set2 ← resolve d2 m1.lastLineLength indentation fullness2
+        let set2 ← resolve d2 m1.lastLineLength m1.indentation m1.nonCumulativeIndentation fullness2
         let m1Result : MeasureSet τ :=
           match set2 with
           | .tainted tm2 =>
@@ -666,18 +740,22 @@ where
 /--
 Determines the set of measures for a given resolution context and memoizes all nodes along the way.
 -/
-partial def MeasureSet.resolve : Resolver σ τ := Resolver.memoize fun d columnPos indentation fullness => do
-  -- Lifting both the memoization of the root node and the taintedness check out to
-  -- `MeasureSet.resolve` ensures that we can use `resolveCore` to resolve `resolveTainted` nodes
-  -- in the resolver for tainted measures.
-  let columnPos' :=
-    if let .text s := d then
-      columnPos + s.length
-    else
-      columnPos
-  if columnPos' > Cost.optimalityCutoffWidth τ || indentation > Cost.optimalityCutoffWidth τ then
-    return .tainted (.resolveTainted d columnPos indentation fullness d.maxNewlineCount?)
-  return ← resolveCore d columnPos indentation fullness
+partial def MeasureSet.resolve : Resolver σ τ := Resolver.memoize
+  fun d columnPos indentation nonCumulativeIndentation fullness => do
+    -- Lifting both the memoization of the root node and the taintedness check out to
+    -- `MeasureSet.resolve` ensures that we can use `resolveCore` to resolve `resolveTainted` nodes
+    -- in the resolver for tainted measures.
+    let columnPos' :=
+      if let .text s := d then
+        columnPos + s.length
+      else
+        columnPos
+    if columnPos' > Cost.optimalityCutoffWidth τ ||
+        indentation + nonCumulativeIndentation > Cost.optimalityCutoffWidth τ then
+      return .tainted
+        (.resolveTainted d columnPos indentation nonCumulativeIndentation fullness
+          d.maxNewlineCount?)
+    return ← resolveCore d columnPos indentation nonCumulativeIndentation fullness
 
 end
 
@@ -704,48 +782,54 @@ def TaintedResolver.memoize (f : TaintedResolver σ τ) : TaintedResolver σ τ 
 
 mutual
 
-partial def TaintedMeasure.resolve? : TaintedResolver σ τ := TaintedResolver.memoize fun tm => do
-  match tm with
-  | .mergeTainted tm1 tm2 _ =>
-    -- We need to try both alternatives here when the first alternative fails.
-    -- However, such failures only depend on the document and the surrounding fullness state,
-    -- so this will never try more than 4 separate alternatives per document overall,
-    -- which bounds the time complexity of the tainted resolver.
-    let some m1 ← tm1.resolve?
-      | let m2? ← tm2.resolve?
-        return m2?
-    return some m1
-  | .taintedAppend tm d indentation fullness _ =>
-    let some m1 ← tm.resolve?
-      | return none
-    let ms2 ← MeasureSet.resolve d m1.lastLineLength indentation fullness
-    let some m2 ← ms2.extractAtMostOne?
-      | return none
-    return some <| m1.append m2
-  | .appendTainted m1 tm2 _ =>
-    let some m2 ← tm2.resolve?
-      | return none
-    return some <| m1.append m2
-  | .resolveTainted d columnPos indentation fullness _ =>
-    -- If we used `resolve` instead of `resolveCore` here, we would just again obtain a tainted
-    -- measure, and the mutual recursion between `MeasureSet.extractAtMostOne?` and
-    -- `TaintedMeasure.resolve?` would make no progress.
-    -- Using `resolveCore`, which does not perform taintedness checks and does not memoize the
-    -- result of resolving the root node, ensures that we make progress on the root node.
-    -- This resolution may again produce tainted measures for the children of `d`, which will then
-    -- be resolved recursively.
-    let ms ← MeasureSet.resolveCore d columnPos indentation fullness
-    let m? ← ms.extractAtMostOne?
-    if m?.isNone then
-      setCachedFailing d fullness
-    return m?
+partial def TaintedMeasure.resolve? : TaintedResolver σ τ := TaintedResolver.memoize
+  fun tm => do
+    match tm with
+    | .mergeTainted tm1 tm2 _ =>
+      -- We need to try both alternatives here when the first alternative fails.
+      -- However, such failures only depend on the document and the surrounding fullness state,
+      -- so this will never try more than 4 separate alternatives per document overall,
+      -- which bounds the time complexity of the tainted resolver.
+      let some m1 ← tm1.resolve?
+        | let m2? ← tm2.resolve?
+          return m2?
+      return some m1
+    | .taintedAppend tm d fullness _ =>
+      let some m1 ← tm.resolve?
+        | return none
+      let ms2 ← MeasureSet.resolve d m1.lastLineLength m1.indentation m1.nonCumulativeIndentation fullness
+      let some m2 ← ms2.extractAtMostOne?
+        | return none
+      return some <| m1.append m2
+    | .appendTainted m1 tm2 _ =>
+      let some m2 ← tm2.resolve?
+        | return none
+      return some <| m1.append m2
+    | .adjustTaintedIndentation tm newIndentation newNonCumulativeIndentation _ =>
+      let some m ← tm.resolve?
+        | return none
+      return some <| m.adjustIndentation newIndentation newNonCumulativeIndentation
+    | .resolveTainted d columnPos indentation nonCumulativeIndentation fullness _ =>
+      -- If we used `resolve` instead of `resolveCore` here, we would just again obtain a tainted
+      -- measure, and the mutual recursion between `MeasureSet.extractAtMostOne?` and
+      -- `TaintedMeasure.resolve?` would make no progress.
+      -- Using `resolveCore`, which does not perform taintedness checks and does not memoize the
+      -- result of resolving the root node, ensures that we make progress on the root node.
+      -- This resolution may again produce tainted measures for the children of `d`, which will then
+      -- be resolved recursively.
+      let ms ← MeasureSet.resolveCore d columnPos indentation nonCumulativeIndentation fullness
+      let m? ← ms.extractAtMostOne?
+      if m?.isNone then
+        setCachedFailing d fullness
+      return m?
 
 /--
 Yields the measure in a non-tainted measure set with the lowest cost and amongst measures with the
 lowest cost, the one with the largest last line length.
 For a tainted measure, resolves the tainted measure to a regular measure.
 -/
-partial def MeasureSet.extractAtMostOne? (ms : MeasureSet τ) : ResolverM σ τ (Option (Measure τ)) := do
+partial def MeasureSet.extractAtMostOne? (ms : MeasureSet τ) :
+    ResolverM σ τ (Option (Measure τ)) := do
   match ms with
   | .tainted tm =>
     tm.resolve?
@@ -762,8 +846,8 @@ def resolve? (d : Doc) (offset : Nat) : Option (Measure τ) := runST fun _ => Re
   -- We cannot tell in advance whether the last line of `d` will be full, so we case split on
   -- `isFullAfter` of the fullness state and later prune subtrees of the search
   -- when we notice that they are inconsistent with the actual document.
-  let ms1 ← MeasureSet.resolve d offset 0 (.mk false false)
-  let ms2 ← MeasureSet.resolve d offset 0 (.mk false true)
+  let ms1 ← MeasureSet.resolve d offset 0 0 (.mk false false)
+  let ms2 ← MeasureSet.resolve d offset 0 0 (.mk false true)
   let ms := ms1.merge ms2 (prunable := false)
   ms.extractAtMostOne?
 

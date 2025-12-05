@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import json
+import subprocess
 from pathlib import Path
 from typing import Iterable
 
@@ -39,7 +40,23 @@ def measure_lines(topic: str, paths: Iterable[Path]) -> None:
     print_result(f"{topic}//lines", total)
 
 
+def measure_symbols() -> None:
+    maximum = 0
+    for path in STAGE3_LEAN.glob("**/*.so"):
+        result = subprocess.run(
+            ["nm", "--extern-only", "--defined-only", path],
+            capture_output=True,
+            encoding="utf-8",
+            check=True,
+        )
+        count = len(result.stdout.splitlines())
+        maximum = max(maximum, count)
+        print_result(f"size/file/{path.name}//dynamic symbols", count)
+    print_result("size/all/.so//max dynamic symbols", maximum)
+
+
 if __name__ == "__main__":
+    measure_symbols()
     measure_bytes(
         "size/libleanshared.so",
         [STAGE3_LEAN / "libleanshared.so"],

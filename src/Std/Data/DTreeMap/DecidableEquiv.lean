@@ -1,0 +1,25 @@
+/-
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Wojciech Różowski
+-/
+module
+
+prelude
+public import Std.Data.DTreeMap.Internal.Lemmas
+public import Std.Data.DTreeMap.Raw
+
+public section
+
+/-!
+# Decidable equivalence for `DTreeMap`
+-/
+
+open Std.DTreeMap.Internal.Impl
+
+namespace Std.DTreeMap
+
+instance {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} [TransCmp cmp] [LawfulEqCmp cmp] [DecidableEq α] [∀ k, DecidableEq (β k)] {t₁ t₂ : DTreeMap α β cmp} : Decidable (t₁ ~m t₂) :=
+  let : Ord α := ⟨cmp⟩; let : Decidable (t₁.inner ~m t₂.inner) := decidableEquiv t₁.1 t₂.1 t₁.2 t₂.2; decidable_of_iff (t₁.inner ~m t₂.inner) ⟨fun h => ⟨h⟩, fun h => h.1⟩
+
+end Std.DTreeMap

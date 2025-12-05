@@ -10373,4 +10373,12 @@ end Const
 
 end map
 
+section
+
+/-- Internal implementation detail -/
+def decidableEquiv {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] [LawfulEqOrd α] [DecidableEq α] [∀ k, DecidableEq (β k)] (t₁ t₂ : Impl α β) (h₁ : t₁.WF) (h₂ : t₂.WF) : Decidable (t₁.Equiv t₂) :=
+  decidable_of_iff (beq t₁ t₂ = true) ⟨equiv_of_beq h₁ h₂, Equiv.beq h₁ h₂⟩
+
+end
+
 end Std.DTreeMap.Internal.Impl

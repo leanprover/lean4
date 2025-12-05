@@ -869,5 +869,57 @@ def clz (x : BitVec w) : BitVec w := clzAuxRec x (w - 1)
 
 /-- Count the number of trailing zeros. -/
 def ctz (x : BitVec w) : BitVec w := (x.reverse).clz
+/-- Defining the values of `x` -/
+
+def popCountAuxAnd (x : BitVec w) (n : Nat) :=
+  match n with
+  | 0 => x
+  | n' + 1 => popCountAuxAnd (x &&& (x - 1)) n'
+def auxAdd (vecIn : List (BitVec w)) (currSum : List (BitVec w)) (addedNodes inputNodes : Nat): List (BitVec w) :=
+  match h : w/2 - addedNodes with
+  | 0 => currSum
+  | n + 1 =>
+      let sum := vecIn.get ⟨(addedNodes * 2), by sorry⟩ + vecIn.get ⟨(addedNodes * 2 + 1), by sorry⟩
+      let currSum := currSum.insert sum
+      auxAdd vecIn currSum (addedNodes + 1) inputNodes
+  termination_by (w - addedNodes)
+
+-- /-- Tail-recursive definition of parrallel sum prefix. At each iteration, we construct a new vector containing the results of summing each couple of elements in the initial vector. -/
+-- def parPrefixSum
+--       (validNodes : Nat) (parSum : BitVec (validNodes * w))
+--       (hin : 1 < w) (hval : validNodes ≤ w) (hval' : 0 < validNodes) : BitVec w :=
+--   if hlt : 1 < validNodes then
+--     let initAcc := 0#0
+--     have hcastZero : 0 = 0 / 2 * w := by omega
+--     sorry
+--     -- let ⟨res, proof⟩ := addVecAux 0 validNodes (by sorry) parSum  (hcastZero▸initAcc) (by sorry) (by omega) (by omega) (by omega)
+--     -- parPrefixSum ((validNodes+1)/2) res hin (by omega) (by omega)
+--   else
+--     have hcast : validNodes * w = w := by
+--       simp [show validNodes = 1 by omega]
+--     hcast▸parSum
+
+
+-- /-- We express `popCount` as the result of parallel prefix sum. -/
+-- def popCountParSum {x : BitVec w} : BitVec w :=
+--   if hw : 1 < w then
+--     let initAcc := 0#0
+--     let res := sorry -- extractAndExtendPopulateAux 0 x initAcc (by omega)
+--     parPrefixSum w res hw (by omega) (by omega)
+--   else
+--     if hw' : 0 < w then x
+--       else 0#w
+
+/-- Tail-recursive definition of popcount.
+ The bitwidth of `x` explictly boundspop the number of recursions,
+ thus bounding the depth of the circuit as well correctness of def -/
+def popCountAuxRec (x : BitVec w) (r : BitVec v) (n : Nat) :=
+  match h : (w - n) with
+  | 0 => r
+  | n' + 1 => x.popCountAuxRec (r + (x.extractLsb' n 1).zeroExtend v) (n + 1)
+termination_by (w - n)
+
+/-- Count the number of bits with value `1` in a bitvec -/
+def popCount {w : Nat} (x : BitVec w) : BitVec w := BitVec.popCountAuxRec x 0#w 0
 
 end BitVec

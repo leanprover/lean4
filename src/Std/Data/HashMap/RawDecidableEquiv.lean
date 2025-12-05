@@ -18,6 +18,6 @@ public section
 namespace Std.HashMap.Raw
 
 instance {α : Type u} {β : Type v} [DecidableEq α] [Hashable α] [DecidableEq β] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : Decidable (m₁.Equiv m₂) :=
-  letI : Decidable (m₁.1.Equiv m₂.1) := DHashMap.Raw.instDecidableEquivOfDecidableEqOfWF h₁.out h₂.out; decidable_of_iff _ ⟨fun h => ⟨h⟩, fun h => h.1⟩
+  let : Decidable (m₁.1.Equiv m₂.1) := DHashMap.Raw.instDecidableEquivOfDecidableEqOfWF h₁.out h₂.out; decidable_of_iff _ ⟨fun h => ⟨h⟩, fun h => h.1⟩
 
 end Std.HashMap.Raw

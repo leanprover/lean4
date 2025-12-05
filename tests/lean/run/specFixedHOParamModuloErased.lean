@@ -1,5 +1,5 @@
 /--
-trace: [Compiler.specialize.info] pmap [true, true, false, true]
+trace: [Compiler.specialize.info] pmap: preliminary: [[N, N, O, H]], fixed mask: [true, true, false, true]
 [Compiler.specialize.info] pmap [N, N, O, H]
 -/
 #guard_msgs in

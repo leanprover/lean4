@@ -529,17 +529,25 @@ where
     Term.levelMVarToParam type (except := fun mvarId => univToInfer? == some mvarId)
 
 private structure AccLevelState where
+  /-- The minimal solution so far; `?r := max ...levels...`. -/
   levels : Array Level := #[]
-  /-- When we encounter `u ≤ ?r + k` with `k > 0`, we add `(u, k)` to the "bad levels".
-  We use this to compute what the universe "should" have been. -/
-  badLevels : Array (Level × Nat) := #[]
+  /-- When we encounter `u ≤ ?r + k` with `k > 0`, we add `(u, k)` to the "unsolved levels".
+  We use this to compute what the universe "should" have been if they remain unsatisfied in the end. -/
+  unsolvedLevels : Array (Level × Nat) := #[]
 
 private def AccLevelState.push (acc : AccLevelState) (u : Level) (offset : Nat) (approx : Bool) : AccLevelState :=
   if offset == 0 || approx then
     { acc with levels := if acc.levels.contains u then acc.levels else acc.levels.push u }
   else
     let p := (u, offset)
-    { acc with badLevels := if acc.badLevels.contains p then acc.badLevels else acc.badLevels.push p }
+    { acc with unsolvedLevels := if acc.unsolvedLevels.contains p then acc.unsolvedLevels else acc.unsolvedLevels.push p }
+
+/--
+The unsolved level constraints that are not satisfied, now that we have collected the minimal solution.
+-/
+private def AccLevelState.badLevels (acc : AccLevelState) : Array (Level × Nat) :=
+  let r := Level.mkNaryMax acc.levels.toList
+  acc.unsolvedLevels.filter fun (u, k) => !Level.geq (r.addOffset k) u
 
 /--
 Auxiliary function for `updateResultingUniverse`.
@@ -623,12 +631,13 @@ Auxiliary function for `updateResultingUniverse`. Computes a list of levels `l�
 -/
 private def collectUniverses (views : Array InductiveView) (r : Level) (rOffset : Nat) (numParams : Nat) (indTypes : List InductiveType) : TermElabM (Array Level) := do
   let (_, acc) ← go |>.run {}
-  if !acc.badLevels.isEmpty then
+  let badLevels := acc.badLevels
+  if !badLevels.isEmpty then
     withViewTypeRef views do
       let goodPart := Level.addOffset (Level.mkNaryMax acc.levels.toList) rOffset
-      let badPart := Level.mkNaryMax (acc.badLevels.toList.map fun (u, k) => Level.max (Level.ofNat rOffset) (Level.addOffset u (rOffset - k)))
+      let badPart := Level.mkNaryMax (badLevels.toList.map fun (u, k) => Level.max (Level.ofNat rOffset) (Level.addOffset u (rOffset - k)))
       let inferred := (Level.max goodPart badPart).normalize
-      let badConstraints := acc.badLevels.map fun (u, k) => indentD m!"{u} ≤ {Level.addOffset r k}"
+      let badConstraints := badLevels.map fun (u, k) => indentD m!"{u} ≤ {Level.addOffset r k}"
       throwError "Resulting type is of the form{indentD <| mkSort (Level.addOffset r rOffset)}\n\
         but the universes of constructor arguments suggest that this could accidentally be a higher universe than necessary. \
         Explicitly providing a resulting type will silence this error. \

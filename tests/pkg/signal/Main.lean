@@ -1,8 +1,8 @@
-import Std.Internal.Async.Signal
-import Std.Internal.Async.Select
-import Std.Internal.Async
+import Std.Async.Signal
+import Std.Async.Select
+import Std.Async
 
-open Std.Internal.IO.Async
+open Std Async
 
 def assertBEq [BEq α] [Repr α] (actual expected : α) : IO Unit := do
   unless actual == expected do
@@ -12,10 +12,10 @@ def assertBEq [BEq α] [Repr α] (actual expected : α) : IO Unit := do
 def select (signal1 signal2 signal3 signal4 : Signal.Waiter) : Async Signal := do
 
   let t ← Selectable.one #[
-    .case (← signal1.selector) (fun _ => pure (Task.pure (.ok Signal.sigint))),
-    .case (← signal2.selector) (fun _ => pure (Task.pure (.ok Signal.sighup))),
-    .case (← signal3.selector) (fun _ => pure (Task.pure (.ok Signal.sigquit))),
-    .case (← signal4.selector) (fun _ => pure (Task.pure (.ok Signal.sigusr1))),
+    .case signal1.selector (fun _ => pure (Task.pure Signal.sigint)),
+    .case signal2.selector (fun _ => pure (Task.pure Signal.sighup)),
+    .case signal3.selector (fun _ => pure (Task.pure Signal.sigquit)),
+    .case signal4.selector (fun _ => pure (Task.pure Signal.sigusr1)),
   ]
 
   let signal ← await t

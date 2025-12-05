@@ -8292,8 +8292,7 @@ instance [Ord α] [OrientedOrd α] [TransOrd α] [Std.LawfulEqOrd α] [LE α] [M
         apply Or.elim h <;> simp [a_le_b]
 
 instance [Ord α] [TransOrd α] [LE α] [Min α] [Std.LawfulOrderOrd α] [Std.LawfulOrderMin α] [Std.LawfulOrderLeftLeaningMin α] : Associative (min : α → α → α) where
-  assoc := by
-    intro a b c
+  assoc a b c := by
     apply Or.elim <| MinEqOr.min_eq_or a b
     case left =>
       intro h1

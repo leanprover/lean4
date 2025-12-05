@@ -6316,7 +6316,7 @@ theorem cpopNatRec_zero_eq_self {x : BitVec w} :
     x.cpopNatRec 0 acc = acc := rfl
 
 theorem cpopNatRec_succ {n : Nat} {x : BitVec w} :
-    x.cpopNatRec (n + 1) acc = x.cpopNatRec n (acc + (x.getLsbD n).toNat):= rfl
+    x.cpopNatRec (n + 1) acc = x.cpopNatRec n (acc + (x.getLsbD n).toNat) := rfl
 
 @[simp]
 theorem cpopNatRec_zero :

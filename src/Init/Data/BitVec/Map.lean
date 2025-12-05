@@ -6,7 +6,7 @@ Authors: Fady Adal
 module
 
 prelude
-public import Init.Data.BitVec.OfFn
+public import Init.Data.BitVec.Conversions
 
 public section
 
@@ -32,7 +32,7 @@ Examples:
 * `nil.map f = nil`
 -/
 def map (x : BitVec w) (f : Bool → Bool) : BitVec w :=
-  ofFn (fun i => f x[i])
+  ofFnLE (fun i => f x[i])
 
 @[simp]
 theorem map_nil (f : Bool → Bool) : map nil f = nil := by
@@ -41,7 +41,7 @@ theorem map_nil (f : Bool → Bool) : map nil f = nil := by
 @[simp]
 theorem getElem_map (x : BitVec w) (f : Bool → Bool) (i : Nat) (h : i < w) :
     (x.map f)[i] = f x[i] := by
-  simp [map, getElem_ofFn]
+  simp [map, getElem_ofFnLE]
 
 theorem getLsbD_map (x : BitVec w) (f : Bool → Bool) (i : Nat) :
     (x.map f).getLsbD i = if h : i < w then f x[i] else false := by
@@ -78,7 +78,7 @@ Examples:
 * `nil.mapIdx f = nil`
 -/
 def mapIdx (x : BitVec w) (f : Fin w → Bool → Bool) : BitVec w :=
-  ofFn (fun i => f i x[i])
+  ofFnLE (fun i => f i x[i])
 
 @[simp]
 theorem mapIdx_nil (f : Fin 0 → Bool → Bool) : mapIdx nil f = nil := by
@@ -87,7 +87,7 @@ theorem mapIdx_nil (f : Fin 0 → Bool → Bool) : mapIdx nil f = nil := by
 @[simp]
 theorem getElem_mapIdx (x : BitVec w) (f : Fin w → Bool → Bool) (i : Nat) (h : i < w) :
     (x.mapIdx f)[i] = f ⟨i, h⟩ x[i] := by
-  simp [mapIdx, getElem_ofFn]
+  simp [mapIdx, getElem_ofFnLE]
 
 theorem getLsbD_mapIdx (x : BitVec w) (f : Fin w → Bool → Bool) (i : Nat) :
     (x.mapIdx f).getLsbD i = if h : i < w then f ⟨i, h⟩ x[i] else false := by
@@ -114,7 +114,7 @@ Examples:
 * `x.zipWith (fun a b => a ^^ b) y = x ^^^ y`
 -/
 def zipWith (f : Bool → Bool → Bool) (x y : BitVec w) : BitVec w :=
-  ofFn (fun i => f x[i] y[i])
+  ofFnLE (fun i => f x[i] y[i])
 
 @[simp]
 theorem zipWith_nil (f : Bool → Bool → Bool) : zipWith f nil nil = nil := by
@@ -123,7 +123,7 @@ theorem zipWith_nil (f : Bool → Bool → Bool) : zipWith f nil nil = nil := by
 @[simp]
 theorem getElem_zipWith (f : Bool → Bool → Bool) (x y : BitVec w) (i : Nat) (h : i < w) :
     (zipWith f x y)[i] = f x[i] y[i] := by
-  simp [zipWith, getElem_ofFn]
+  simp [zipWith, getElem_ofFnLE]
 
 theorem getLsbD_zipWith (f : Bool → Bool → Bool) (x y : BitVec w) (i : Nat) :
     (zipWith f x y).getLsbD i = if h : i < w then f x[i] y[i] else false := by

@@ -13,7 +13,7 @@ public import Init.Data.BitVec.Bitblast
 public import Init.Data.BitVec.Decidable
 public import Init.Data.BitVec.Lemmas
 public import Init.Data.BitVec.Folds
-public import Init.Data.BitVec.OfFn
+public import Init.Data.BitVec.Conversions
 public import Init.Data.BitVec.Count
 public import Init.Data.BitVec.Map
 public import Init.Data.BitVec.Hamming

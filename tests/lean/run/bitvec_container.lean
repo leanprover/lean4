@@ -40,29 +40,59 @@ open BitVec
 #guard foldlIdx (fun acc _ _ => acc + 1) 0 0b1111#4 = 4
 #guard foldlIdx (fun acc i b => (i.val, b) :: acc) [] nil = []
 
-/-! ## OfFn module tests -/
+/-! ## Conversions module tests -/
 
--- ofFn tests
-#guard ofFn (fun i : Fin 4 => i.val % 2 == 0) = 0b0101#4
-#guard ofFn (fun _ : Fin 4 => true) = 0b1111#4
-#guard ofFn (fun _ : Fin 4 => false) = 0b0000#4
-#guard ofFn (fun _ : Fin 0 => false) = nil
+-- ofFnLE tests
+#guard ofFnLE (fun i : Fin 4 => i.val % 2 == 0) = 0b0101#4
+#guard ofFnLE (fun _ : Fin 4 => true) = 0b1111#4
+#guard ofFnLE (fun _ : Fin 4 => false) = 0b0000#4
+#guard ofFnLE (fun _ : Fin 0 => false) = nil
 
--- toList tests
-#guard toList 0b1010#4 = [false, true, false, true]
-#guard toList 0b1111#4 = [true, true, true, true]
-#guard toList 0b0000#4 = [false, false, false, false]
-#guard toList nil = []
+-- ofFnBE tests
+#guard ofFnBE (fun i : Fin 4 => i.val % 2 == 0) = 0b1010#4
+#guard ofFnBE (fun _ : Fin 4 => true) = 0b1111#4
+#guard ofFnBE (fun _ : Fin 4 => false) = 0b0000#4
+#guard ofFnBE (fun _ : Fin 0 => false) = nil
 
--- toArray tests
-#guard toArray 0b1010#4 = #[false, true, false, true]
-#guard toArray 0b1111#4 = #[true, true, true, true]
-#guard toArray nil = #[]
+-- toListLE tests
+#guard toListLE 0b1010#4 = [false, true, false, true]
+#guard toListLE 0b1111#4 = [true, true, true, true]
+#guard toListLE 0b0000#4 = [false, false, false, false]
+#guard toListLE nil = []
+
+-- toListBE tests (already existed)
+#guard toListBE 0b1010#4 = [true, false, true, false]
+#guard toListBE 0b1111#4 = [true, true, true, true]
+#guard toListBE 0b0000#4 = [false, false, false, false]
+#guard toListBE nil = []
+
+-- toArrayLE tests
+#guard toArrayLE 0b1010#4 = #[false, true, false, true]
+#guard toArrayLE 0b1111#4 = #[true, true, true, true]
+#guard toArrayLE nil = #[]
+
+-- toArrayBE tests
+#guard toArrayBE 0b1010#4 = #[true, false, true, false]
+#guard toArrayBE 0b1111#4 = #[true, true, true, true]
+#guard toArrayBE nil = #[]
+
+-- toVectorLE tests
+#guard toVectorLE 0b1010#4 = #v[false, true, false, true]
+#guard toVectorLE 0b1111#4 = #v[true, true, true, true]
+#guard toVectorLE nil = #v[]
+
+-- toVectorBE tests
+#guard toVectorBE 0b1010#4 = #v[true, false, true, false]
+#guard toVectorBE 0b1111#4 = #v[true, true, true, true]
+#guard toVectorBE nil = #v[]
 
 -- Roundtrip properties
-#guard ofBoolListLE (toList 0b1010#4) = 0b1010#4
-#guard ofArray 4 (toArray 0b1010#4) = 0b1010#4
-#guard ofVector (toVector 0b1010#4) = 0b1010#4
+#guard ofBoolListLE (toListLE 0b1010#4) = 0b1010#4
+#guard ofBoolListBE (toListBE 0b1010#4) = 0b1010#4
+#guard ofArrayLE 4 (toArrayLE 0b1010#4) = 0b1010#4
+#guard ofArrayBE 4 (toArrayBE 0b1010#4) = 0b1010#4
+#guard ofVectorLE (toVectorLE 0b1010#4) = 0b1010#4
+#guard ofVectorBE (toVectorBE 0b1010#4) = 0b1010#4
 
 /-! ## Count module tests -/
 
@@ -159,7 +189,7 @@ open BitVec
       let mapped := map x not
       popcount mapped = 0
 
-#guard let x := ofFn (fun i : Fin 8 => i.val < 4)
+#guard let x := ofFnLE (fun i : Fin 8 => i.val < 4)
       popcount x = 4
 
 -- Complex predicate: count true bits at even positions
@@ -179,7 +209,7 @@ open BitVec
 #guard hammingDist nil nil = 0
 #guard parity nil = false
 #guard map nil id = nil
-#guard toList nil = []
+#guard toListLE nil = []
 
 -- Single bit vectors
 #guard popcount 0b1#1 = 1

@@ -7638,7 +7638,7 @@ theorem beqModel_eq_true_of_perm [BEq α] [LawfulBEq α] [LawfulBEq α] [∀ k, 
   rw [beqModel, if_neg (by simpa using hyp.length_eq)]
   simp only [List.all_eq_true]
   intro ⟨k,v⟩ mem
-  have hv := @getValueCast_of_mem α β _ _ l₁ ⟨k,v⟩ mem
+  have hv := getValueCast_of_mem mem
   have hc := containsKey_of_mem mem
   apply beq_of_eq
   simp only at |- hc hv
@@ -7662,90 +7662,56 @@ theorem Const.beqModel_eq_true_of_perm {β : Type v} [BEq α] [EquivBEq α] [BEq
   · exact hl₁
   · exact hc
 
-theorem perm_of_beqModel [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
-    beqModel l₁ l₂ → l₁.Perm l₂ := by
-  rw [beqModel]
-  split
-  case isTrue => intro; contradiction
-  case isFalse he =>
-    simp only [ne_eq, Decidable.not_not] at he
-    simp only [List.all_eq_true, beq_iff_eq]
-    intro hyp
-    apply getValueCast?_ext hl₁ hl₂
-    intro a
-    have hyp2 : ∀ (a : α) (h : containsKey a l₁), (getValueCast? a l₂ == getValueCast? a l₁) = true := by
+theorem perm_of_beqModel [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) : beqModel l₁ l₂ → l₁.Perm l₂ := by
+  simp only [beqModel, ne_eq, ite_not, Bool.if_false_right, Bool.and_eq_true, decide_eq_true_eq,
+    List.all_eq_true, beq_iff_eq, and_imp]
+  intro he hyp
+  apply getValueCast?_ext hl₁ hl₂
+  intro a
+  have hyp2 : ∀ (a : α) (h : containsKey a l₁), (getValueCast? a l₂ == getValueCast? a l₁) = true := by
       intro a mem
       rw [getValueCast?_eq_some_getValueCast mem]
       apply beq_of_eq
-      specialize hyp ⟨a, getValueCast a l₁ mem⟩
-      specialize hyp (by apply List.getValueCast_mem)
-      simp only at hyp
-      rw [hyp]
-    by_cases hc₁ : containsKey a l₁
+      specialize hyp ⟨a, getValueCast a l₁ mem⟩ (List.getValueCast_mem mem)
+      simpa using hyp
+  by_cases hc₁ : containsKey a l₁
+  case pos =>
+    exact eq_of_beq <| BEq.symm <| hyp2 _ hc₁
+  case neg =>
+    rw [Bool.not_eq_true] at hc₁
+    by_cases hc₂ : containsKey a l₂
     case pos =>
-      apply eq_of_beq
-      apply BEq.symm
-      apply hyp2
-      exact hc₁
+      suffices (∀ (a : α), containsKey a l₁ = true → containsKey a l₂ = true) by
+        rw [containsKey_of_length_eq hl₁ hl₂ he.symm this a hc₂] at hc₁
+        contradiction
+      intro k' mem
+      apply List.containsKey_of_getValueCast?_eq_some
+      simpa [getValueCast?_eq_some_getValueCast mem] using eq_of_beq <| hyp2 k' mem
     case neg =>
-      rw [Bool.not_eq_true] at hc₁
-      by_cases hc₂ : containsKey a l₂
-      case pos =>
-        suffices (∀ (a : α), containsKey a l₁ = true → containsKey a l₂ = true) by
-          rw [@containsKey_of_length_eq α β _ _ l₁ l₂ hl₁ hl₂ he.symm this a hc₂] at hc₁
-          contradiction
-        intro k' mem
-        have := eq_of_beq <| hyp2 k' mem
-        rw [getValueCast?_eq_some_getValueCast mem] at this
-        apply List.containsKey_of_getValueCast?_eq_some
-        exact this
-      case neg =>
-        rw [Bool.not_eq_true] at hc₂
-        rw [getValueCast?_eq_none hc₁, getValueCast?_eq_none hc₂]
+      rw [Bool.not_eq_true] at hc₂
+      rw [getValueCast?_eq_none hc₁, getValueCast?_eq_none hc₂]
 
 theorem beqModel_congr [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] {l₁ l₂ l₃ l₄ : List ((a : α) × β a)}
     (hl : DistinctKeys l₂) (p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel l₁ l₂ = beqModel l₃ l₄ := by
-  rw [beqModel]
-  split
-  case isTrue h =>
-    rw [ne_eq] at h
-    rw [beqModel]
-    simp only [ne_eq, ite_not, Bool.if_false_right, Bool.false_eq, Bool.and_eq_false_imp,
-      decide_eq_true_eq]
-    intro hyp
-    rw [Perm.length_eq p₁, Perm.length_eq p₂] at h
-    contradiction
-  case isFalse h =>
-    rw [beqModel]
-    rw [Perm.length_eq p₁, Perm.length_eq p₂] at h
-    simp only [h, ↓reduceIte]
-    have : fun (x : (a : α) × β a) => getValueCast? x.fst l₂ == some x.snd = fun x => getValueCast? x.fst l₄ == some x.snd := by
-      ext x
-      rw [getValueCast?_of_perm hl p₂]
-    rw [this]
-    apply List.Perm.all_eq p₁
+  simp only [beqModel, ne_eq, ite_not, Bool.if_false_right, Perm.length_eq p₁, Perm.length_eq p₂]
+  suffices h : (l₁.all fun x => getValueCast? x.fst l₂ == some x.snd) = (l₃.all fun x => getValueCast? x.fst l₄ == some x.snd) by simp [h]
+  conv =>
+    lhs
+    rhs
+    ext x
+    rw [getValueCast?_of_perm hl p₂]
+  apply List.Perm.all_eq p₁
 
 theorem Const.beqModel_congr {β : Type v} [BEq α] [EquivBEq α] [BEq β] {l₁ l₂ l₃ l₄ : List ((_ : α) × β)}
     (hl : DistinctKeys l₂) (p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel l₁ l₂ = beqModel l₃ l₄ := by
-  rw [beqModel]
-  split
-  case isTrue h =>
-    rw [ne_eq] at h
-    rw [beqModel]
-    simp only [ne_eq, ite_not, Bool.if_false_right, Bool.false_eq, Bool.and_eq_false_imp,
-      decide_eq_true_eq]
-    intro hyp
-    rw [Perm.length_eq p₁, Perm.length_eq p₂] at h
-    contradiction
-  case isFalse h =>
-    rw [beqModel]
-    rw [Perm.length_eq p₁, Perm.length_eq p₂] at h
-    simp only [h, ↓reduceIte]
-    have : fun (x : (_ : α) × β) => getValue? x.fst l₂ == some x.snd = fun x => getValue? x.fst l₄ == some x.snd := by
-      ext x
-      rw [getValue?_of_perm hl p₂]
-    rw [this]
-    apply List.Perm.all_eq p₁
+  simp only [beqModel, ne_eq, ite_not, Bool.if_false_right, Perm.length_eq p₁, Perm.length_eq p₂]
+  suffices h : (l₁.all fun x => getValue? x.fst l₂ == some x.snd) = (l₃.all fun x => getValue? x.fst l₄ == some x.snd) by simp [h]
+  conv =>
+    lhs
+    rhs
+    ext x
+    rw [getValue?_of_perm hl p₂]
+  apply List.Perm.all_eq p₁
 
 theorem beqModel_eq_constBeqModel {β : Type v} [BEq α] [LawfulBEq α] [BEq β] {l₁ l₂ : List ((_ : α) × β)} : beqModel l₁ l₂ = Const.beqModel l₁ l₂ := by
   rw [beqModel, Const.beqModel]
@@ -7757,10 +7723,7 @@ theorem Const.perm_of_beqModel {β : Type v} [BEq α] [LawfulBEq α] [BEq β] [L
     beqModel l₁ l₂ → l₁.Perm l₂ := by
   rw [← beqModel_eq_constBeqModel]
   intro hyp
-  apply List.perm_of_beqModel
-  · exact hl₁
-  · exact hl₂
-  · exact hyp
+  apply List.perm_of_beqModel hl₁ hl₂ hyp
 
 namespace Const
 

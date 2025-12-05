@@ -185,4 +185,12 @@ theorem decide_eq_false {p : Prop} {_ : Decidable p} : p = False → decide p = 
 theorem of_lookahead (p : Prop) (h : (¬ p) → False) : p = True := by
   simp at h; simp [h]
 
+/-! Nat propagators -/
+
+theorem Nat.and_congr {a b : Nat} {k₁ k₂ k : Nat} (h₁ : a = k₁) (h₂ : b = k₂) : k == k₁ &&& k₂ → a &&& b = k := by simp_all
+theorem Nat.xor_congr {a b : Nat} {k₁ k₂ k : Nat} (h₁ : a = k₁) (h₂ : b = k₂) : k == k₁ ^^^ k₂ → a ^^^ b = k := by simp_all
+theorem Nat.or_congr {a b : Nat} {k₁ k₂ k : Nat} (h₁ : a = k₁) (h₂ : b = k₂) : k == k₁ ||| k₂ → a ||| b = k := by simp_all
+theorem Nat.shiftLeft_congr {a b : Nat} {k₁ k₂ k : Nat} (h₁ : a = k₁) (h₂ : b = k₂) : k == k₁ <<< k₂ → a <<< b = k := by simp_all
+theorem Nat.shiftRight_congr {a b : Nat} {k₁ k₂ k : Nat} (h₁ : a = k₁) (h₂ : b = k₂) : k == k₁ >>> k₂ → a >>> b = k := by simp_all
+
 end Lean.Grind

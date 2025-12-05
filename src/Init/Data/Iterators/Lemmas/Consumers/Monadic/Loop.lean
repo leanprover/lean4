@@ -19,24 +19,24 @@ theorem IterM.DefaultConsumers.forIn'_eq_match_step {α β : Type w} {m : Type w
     {lift : ∀ γ δ, (γ → n δ) → m γ → n δ} {γ : Type x}
     {it : IterM (α := α) m β} {init : γ}
     {P hP}
-    (plausible_forInStep : β → γ → ForInStep γ → Prop)
-    {f : (b : β) → P b → (c : γ) → n (Subtype (plausible_forInStep b c))}
-    (wf : IteratorLoop.WellFounded α m plausible_forInStep) :
-    IterM.DefaultConsumers.forIn' lift γ plausible_forInStep it init P hP f =
+    (PlausibleForInStep : β → γ → ForInStep γ → Prop)
+    {f : (b : β) → P b → (c : γ) → n (Subtype (PlausibleForInStep b c))}
+    (wf : IteratorLoop.WellFounded α m PlausibleForInStep) :
+    IterM.DefaultConsumers.forIn' lift γ PlausibleForInStep it init P hP f =
       (lift _ _ · it.step) (fun s =>
           match s.inflate with
           | .yield it' out h => do
             match ← f out (hP _ <| .direct ⟨_, h⟩) init with
             | ⟨.yield c, _⟩ =>
-              IterM.DefaultConsumers.forIn' lift _ plausible_forInStep it' c P
+              IterM.DefaultConsumers.forIn' lift _ PlausibleForInStep it' c P
                 (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') f
             | ⟨.done c, _⟩ => return c
           | .skip it' h =>
-            IterM.DefaultConsumers.forIn' lift _ plausible_forInStep it' init P
+            IterM.DefaultConsumers.forIn' lift _ PlausibleForInStep it' init P
               (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') f
           | .done _ => return init) := by
   haveI : Nonempty γ := ⟨init⟩
-  rw [forIn', Internal.extrinsicFix₃_eq]
+  rw [forIn', WellFounded.extrinsicFix₃_eq_apply]
   · congr; ext step
     cases step.inflate using PlausibleIterStep.casesOn
     · simp only
@@ -59,7 +59,7 @@ theorem IterM.DefaultConsumers.forIn'_eq_wf {m : Type w → Type w'} {α : Type 
     forIn' lift γ Pl it init P hP f =
       forIn'.wf lift γ Pl wf it init P hP f := by
   haveI : Nonempty γ := ⟨init⟩
-  rw [forIn', Internal.extrinsicFix₃_eq_wellFoundedFix]; rotate_left
+  rw [forIn', WellFounded.extrinsicFix₃_eq_fix]; rotate_left
   · apply InvImage.wf
     exact wf
   · fun_induction forIn'.wf lift γ Pl wf it init P hP f

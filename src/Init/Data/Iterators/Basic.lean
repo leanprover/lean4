@@ -703,18 +703,6 @@ def IterM.TerminationMeasures.Finite.Rel
     TerminationMeasures.Finite α m → TerminationMeasures.Finite α m → Prop :=
   Relation.TransGen <| InvImage IterM.IsPlausibleSuccessorOf IterM.TerminationMeasures.Finite.it
 
-/--
-The relation of plausible successors on `IterM.TerminationMeasures.Finite`. It is well-founded
-if there is a `Finite` instance.
--/
-@[expose]
-def IterM.TerminationMeasures.Finite.RelExtrinsic
-    {α : Type w} {m : Type w → Type w'} {β : Type w}
-    (R : IterM (α := α) m β → IterM (α := α) m β → Prop)
-    [Iterator α m β] :
-    TerminationMeasures.Finite α m → TerminationMeasures.Finite α m → Prop :=
-  Relation.TransGen <| InvImage R IterM.TerminationMeasures.Finite.it
-
 instance {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     [Finite α m] : WellFoundedRelation (IterM.TerminationMeasures.Finite α m) where
   rel := IterM.TerminationMeasures.Finite.Rel

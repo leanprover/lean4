@@ -11,7 +11,7 @@ public import Init.Data.Iterators.Consumers.Access
 import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 public import Init.Data.Range.Polymorphic.PRange
 public import Init.Data.List.Sublist
-public import Init.Internal.ExtrinsicTermination
+public import Init.WFExtrinsicFix
 
 set_option doc.verso true
 
@@ -457,7 +457,7 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LE α] [DecidableLE α
         (upperBound : α) (acc : γ) (next : α) (h : LargeEnough next)
         (f : (out : α) → LargeEnough out → out ≤ upperBound → (c : γ) → n (Subtype (Pl out c))) : n γ :=
       haveI : Nonempty γ := ⟨acc⟩
-      Internal.extrinsicFix₃ (C₃ := fun _ _ _ => n γ) (InvImage (IteratorLoop.rel _ Id Pl) (fun x => (⟨Rxc.Iterator.mk (some x.1) upperBound⟩, x.2.1)))
+      WellFounded.extrinsicFix₃ (C₃ := fun _ _ _ => n γ) (InvImage (IteratorLoop.rel _ Id Pl) (fun x => (⟨Rxc.Iterator.mk (some x.1) upperBound⟩, x.2.1)))
         (fun next acc (h : LargeEnough next) G => do
           if hu : next ≤ upperBound then
             match ← f next h hu acc with
@@ -521,7 +521,7 @@ private theorem Iterator.instIteratorLoop.loop_eq_wf [UpwardEnumerable α] [LE �
     loop γ Pl LargeEnough hl upperBound acc next hn f =
       loop.wf (α := α) (n := n) γ Pl wf LargeEnough hl upperBound acc next hn f := by
   haveI : Nonempty γ := ⟨acc⟩
-  rw [loop, Internal.extrinsicFix₃_eq_wellFoundedFix]; rotate_left
+  rw [loop, WellFounded.extrinsicFix₃_eq_fix]; rotate_left
   · exact InvImage.wf _ wf
   · fun_induction loop.wf γ Pl wf LargeEnough hl upperBound acc  next hn f
     · rw [WellFounded.fix_eq]
@@ -1038,7 +1038,7 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LT α] [DecidableLT α
         (upperBound : α) (acc : γ) (next : α) (h : LargeEnough next)
         (f : (out : α) → LargeEnough out → out < upperBound → (c : γ) → n (Subtype (Pl out c))) : n γ :=
       haveI : Nonempty γ := ⟨acc⟩
-      Internal.extrinsicFix₃ (C₃ := fun _ _ _ => n γ) (InvImage (IteratorLoop.rel _ Id Pl) (fun x => (⟨Rxo.Iterator.mk (some x.1) upperBound⟩, x.2.1)))
+      WellFounded.extrinsicFix₃ (C₃ := fun _ _ _ => n γ) (InvImage (IteratorLoop.rel _ Id Pl) (fun x => (⟨Rxo.Iterator.mk (some x.1) upperBound⟩, x.2.1)))
         (fun next acc (h : LargeEnough next) G => do
           if hu : next < upperBound then
             match ← f next h hu acc with
@@ -1097,7 +1097,7 @@ private theorem Iterator.instIteratorLoop.loop_eq_wf [UpwardEnumerable α] [LT �
     loop γ Pl LargeEnough hl upperBound acc next hn f =
       loop.wf (α := α) (n := n) γ Pl wf LargeEnough hl upperBound acc next hn f := by
   haveI : Nonempty γ := ⟨acc⟩
-  rw [loop, Internal.extrinsicFix₃_eq_wellFoundedFix]; rotate_left
+  rw [loop, WellFounded.extrinsicFix₃_eq_fix]; rotate_left
   · exact InvImage.wf _ wf
   · fun_induction loop.wf γ Pl wf LargeEnough hl upperBound acc  next hn f
     · rw [WellFounded.fix_eq]
@@ -1526,7 +1526,7 @@ instance Iterator.instIteratorLoop [UpwardEnumerable α] [LawfulUpwardEnumerable
         (acc : γ) (next : α) (h : LargeEnough next)
         (f : (out : α) → LargeEnough out → (c : γ) → n (Subtype (Pl out c))) : n γ :=
       haveI : Nonempty γ := ⟨acc⟩
-      Internal.extrinsicFix₃ (C₃ := fun _ _ _ => n γ) (InvImage (IteratorLoop.rel _ Id Pl) (fun x => (⟨Rxi.Iterator.mk (some x.1)⟩, x.2.1)))
+      WellFounded.extrinsicFix₃ (C₃ := fun _ _ _ => n γ) (InvImage (IteratorLoop.rel _ Id Pl) (fun x => (⟨Rxi.Iterator.mk (some x.1)⟩, x.2.1)))
         (fun next acc (h : LargeEnough next) G => do
           match ← f next h acc with
           | ⟨.yield acc', h'⟩ =>
@@ -1578,7 +1578,7 @@ private theorem Iterator.instIteratorLoop.loop_eq_wf [UpwardEnumerable α]
     loop γ Pl LargeEnough hl acc next hn f =
       loop.wf (α := α) (n := n) γ Pl wf LargeEnough hl acc next hn f := by
   haveI : Nonempty γ := ⟨acc⟩
-  rw [loop, Internal.extrinsicFix₃_eq_wellFoundedFix]; rotate_left
+  rw [loop, WellFounded.extrinsicFix₃_eq_fix]; rotate_left
   · exact InvImage.wf _ wf
   · fun_induction loop.wf γ Pl wf LargeEnough hl acc  next hn f
     · rw [WellFounded.fix_eq]

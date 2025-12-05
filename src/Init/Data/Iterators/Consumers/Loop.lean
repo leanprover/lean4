@@ -117,7 +117,7 @@ It is equivalent to `it.toList.foldlM`.
 
 This function is deprecated. Instead of `it.allowNontermination.foldM`, use `it.foldM`.
 -/
-@[always_inline, inline]
+@[always_inline, inline, deprecated Iter.foldM (since := "2025-12-04")]
 def Iter.Partial.foldM {m : Type x → Type x'} [Monad m]
     {α : Type w} {β : Type w} {γ : Type x} [Iterator α Id β]
     [IteratorLoop α Id m] (f : γ → β → m γ)
@@ -160,7 +160,7 @@ It is equivalent to `it.toList.foldl`.
 
 This function is deprecated. Instead of `it.allowNontermination.fold`, use `it.fold`.
 -/
-@[always_inline, inline]
+@[always_inline, inline, deprecated Iter.fold (since := "2025-12-04")]
 def Iter.Partial.fold {α : Type w} {β : Type w} {γ : Type x} [Iterator α Id β]
     [IteratorLoop α Id Id] (f : γ → β → γ)
     (init : γ) (it : Iter.Partial (α := α) β) : γ :=
@@ -375,7 +375,7 @@ Almost! 5
 some 10
 ```
 -/
-@[inline, deprecated Iter.findSomeM? (since := "2025-10-21")]
+@[inline, deprecated Iter.findSomeM? (since := "2025-12-04")]
 def Iter.Partial.findSomeM? {α β : Type w} {γ : Type x} {m : Type x → Type w'} [Monad m]
     [Iterator α Id β] [IteratorLoop α Id m] (it : Iter.Partial (α := α) β)
     (f : β → m (Option γ)) :
@@ -449,7 +449,7 @@ Examples:
  * `[7, 6, 5, 8, 1, 2, 6].iter.allowNontermination.findSome? (fun x => if x < 5 then some (10 * x) else none) = some 10`
  * `[7, 6, 5, 8, 1, 2, 6].iter.allowNontermination.findSome? (fun x => if x < 1 then some (10 * x) else none) = none`
 -/
-@[inline, deprecated Iter.findSome? (since := "2025-10-21")]
+@[inline, deprecated Iter.findSome? (since := "2025-12-04")]
 def Iter.Partial.findSome? {α β : Type w} {γ : Type x} [Iterator α Id β]
     [IteratorLoop α Id Id] (it : Iter.Partial (α := α) β) (f : β → Option γ) :
     Option γ :=
@@ -534,7 +534,7 @@ Almost! 5
 some 1
 ```
 -/
-@[inline, deprecated Iter.findM? (since := "2025-10-21")]
+@[inline, deprecated Iter.findM? (since := "2025-12-04")]
 def Iter.Partial.findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α Id β]
     [IteratorLoop α Id m] (it : Iter.Partial (α := α) β) (f : β → m (ULift Bool)) :
     m (Option β) :=
@@ -605,7 +605,7 @@ Examples:
 * `[7, 6, 5, 8, 1, 2, 6].iter.allowNontermination.find? (· < 5) = some 1`
 * `[7, 6, 5, 8, 1, 2, 6].iter.allowNontermination.find? (· < 1) = none`
 -/
-@[inline, deprecated Iter.find? (since := "2025-10-21")]
+@[inline, deprecated Iter.find? (since := "2025-12-04")]
 def Iter.Partial.find? {α β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
     (it : Iter.Partial (α := α) β) (f : β → Bool) : Option β :=
   it.it.find? f

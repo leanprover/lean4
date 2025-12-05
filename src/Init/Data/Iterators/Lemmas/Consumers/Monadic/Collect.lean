@@ -11,7 +11,7 @@ public import Init.Data.Iterators.Lemmas.Monadic.Basic
 public import Init.Data.Iterators.Consumers.Monadic.Collect
 import all Init.Data.Iterators.Consumers.Monadic.Collect
 import all Init.Data.Iterators.Consumers.Monadic.Total
-import all Init.Internal.ExtrinsicTermination
+import all Init.WFExtrinsicFix
 
 public section
 
@@ -30,7 +30,7 @@ private theorem IterM.DefaultConsumers.toArrayMapped.go_eq [Monad n]
       | .skip it' => go lift f it' acc
       | .done => return acc) := by
   letI : MonadLift m n := ⟨lift (δ := _)⟩
-  rw [toArrayMapped.go, extrinsicFix₂_eq]
+  rw [toArrayMapped.go, WellFounded.extrinsicFix₂_eq_apply]
   · simp only
     apply bind_congr; intro step
     cases step.inflate using PlausibleIterStep.casesOn
@@ -41,35 +41,6 @@ private theorem IterM.DefaultConsumers.toArrayMapped.go_eq [Monad n]
   · simp only [show (IterM.finitelyManySteps! = IterM.finitelyManySteps) by rfl]
     apply InvImage.wf
     exact WellFoundedRelation.wf
-
--- private theorem IterM.DefaultConsumers.toArrayMapped.go_eq [Monad n] [MonadAttach n]
---     [Iterator α m β] [LawfulMonad n] [Finite α m] {acc : Array γ} :
---     letI : MonadLift m n := ⟨lift (δ := _)⟩
---     go lift f it acc (m := m) = (do
---       match (← it.step).inflate.val with
---       | .yield it' out => go lift f it' (acc.push (← f out))
---       | .skip it' => go lift f it' acc
---       | .done => return acc) := by
---   letI : MonadLift m n := ⟨lift (δ := _)⟩
---   rw [toArrayMapped.go, extrinsicFix₂_eq]
---   · simp only
---     simp only [← MonadAttach.map_val_attach (x := liftM it.step), map_eq_pure_bind, bind_assoc]
---     apply bind_congr; rintro ⟨step, hs⟩
---     simp only [pure_bind]
---     cases step.inflate using PlausibleIterStep.casesOn
---     · simp only [← MonadAttach.map_val_attach (x := f _), map_eq_pure_bind, bind_assoc]
---       apply bind_congr; intro fx
---       simp [go]
---     · simp [go]
---     · simp
---   · apply Subrelation.wf (r := InvImage WellFoundedRelation.rel (·.1.finitelyManySteps))
---     · intro x' x h
---       apply Relation.TransGen.single
---       match h with
---       | Or.inl ⟨out, h, h'⟩ => exact ⟨_, rfl, h⟩
---       | Or.inr ⟨h, h'⟩ => exact ⟨_, rfl, h⟩
---     · apply InvImage.wf
---       exact WellFoundedRelation.wf
 
 private theorem IterM.DefaultConsumers.toArrayMapped.go.aux₁ [Monad n] [LawfulMonad n]
     [Iterator α m β] [Finite α m] {b : γ} {bs : Array γ} :
@@ -195,7 +166,7 @@ private theorem IterM.toListRev.go_eq [Monad m] [LawfulMonad m] [Iterator α m �
       | .yield it' out => go it' (out :: bs)
       | .skip it' => go it' bs
       | .done => return bs) := by
-  rw [go, extrinsicFix₂_eq]
+  rw [go, WellFounded.extrinsicFix₂_eq_apply]
   · apply bind_congr; intro step
     cases step.inflate using PlausibleIterStep.casesOn <;> simp [go]
   · simp only [show (IterM.finitelyManySteps! = IterM.finitelyManySteps) by rfl]

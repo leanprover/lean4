@@ -18,6 +18,6 @@ public section
 namespace Std.HashMap
 
 instance {α : Type u} {β : Type v} [DecidableEq α] [Hashable α] [DecidableEq β] (m₁ m₂ : HashMap α β) : Decidable (m₁ ~m m₂) :=
-  @decidable_of_iff _ _ ⟨fun h => ⟨h⟩, fun h => h.1⟩ <| DHashMap.instDecidableEquivOfDecidableEq m₁.inner m₂.inner
+  decidable_of_iff _ ⟨fun h => ⟨h⟩, fun h => h.1⟩
 
 end Std.HashMap

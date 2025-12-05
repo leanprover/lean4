@@ -218,7 +218,7 @@ instance [LawfulBEq α] : LawfulBEq (ExtHashSet α) where
     exact ExtDHashMap.Const.eq_of_beq _ _ hyp
 
 instance {α : Type u} [DecidableEq α] [Hashable α] : DecidableEq (ExtHashSet α) :=
-  fun m₁ m₂ => decidable_of_iff (m₁ == m₂) ⟨by simp, by simp⟩
+  fun _ _ => decidable_of_iff _ beq_iff_eq
 
 /--
 Computes the intersection of the given hash sets.

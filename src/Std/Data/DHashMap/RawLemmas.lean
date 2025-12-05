@@ -3782,7 +3782,7 @@ end BEq
 section
 variable {β : Type v} {m₁ m₂ : Raw α (fun _ => β)}
 
-theorem Const.Equiv.beq [LawfulHashable α] [EquivBEq α] [BEq β] [ReflBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁ ~m m₂ → beq m₁ m₂ := by
+theorem Const.Equiv.beq [EquivBEq α] [LawfulHashable α] [BEq β] [ReflBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁ ~m m₂ → beq m₁ m₂ := by
   simp_to_raw
   intro h
   exact Raw₀.Const.Equiv.beq h₁ h₂ h
@@ -3790,7 +3790,7 @@ theorem Const.Equiv.beq [LawfulHashable α] [EquivBEq α] [BEq β] [ReflBEq β] 
 theorem Const.equiv_of_beq [LawfulBEq α] [BEq β] [LawfulBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : beq m₁ m₂ = true → m₁ ~m m₂ := by
   simp_to_raw using Raw₀.Const.equiv_of_beq
 
-theorem Const.Equiv.beq_congr [LawfulBEq α] [BEq β] {m₃ m₄ : Raw  α (fun _ => β)} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF)  :
+theorem Const.Equiv.beq_congr [EquivBEq α] [LawfulHashable α] [BEq β] {m₃ m₄ : Raw  α (fun _ => β)} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF)  :
     m₁ ~m m₃ → m₂ ~m m₄ → Raw.Const.beq m₁ m₂ = Raw.Const.beq m₃ m₄ := by
   simp_to_raw
   intro w1 w2

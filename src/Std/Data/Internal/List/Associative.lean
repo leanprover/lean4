@@ -7725,7 +7725,7 @@ theorem beqModel_congr [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] {l₁ l₂ l�
     rw [this]
     apply List.Perm.all_eq p₁
 
-theorem Const.beqModel_congr {β : Type v} [BEq α] [LawfulBEq α] [BEq β] {l₁ l₂ l₃ l₄ : List ((_ : α) × β)}
+theorem Const.beqModel_congr {β : Type v} [BEq α] [EquivBEq α] [BEq β] {l₁ l₂ l₃ l₄ : List ((_ : α) × β)}
     (hl : DistinctKeys l₂) (p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel l₁ l₂ = beqModel l₃ l₄ := by
   rw [beqModel]
   split

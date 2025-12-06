@@ -26,7 +26,5 @@ theorem mkFreshN2_spec2 (n : Nat) :
     mkFreshN2 n
     ⦃post⟨fun r => ⌜r.Nodup⌝, fun _ => ⌜False⌝, fun _msg state => ⌜state.counter = state.limit⌝⟩⦄ := by
   mvcgen [mkFreshN2] invariants
-  · post⟨fun ⟨xs, acc⟩ state => ⌜(∀ n ∈ acc, n < state.counter) ∧ acc.toList.Nodup⌝,
-         fun _ => ⌜False⌝,
-         fun _msg state => ⌜state.counter = state.limit⌝⟩
+  · fun xs acc state => ⌜(∀ n ∈ acc, n < state.counter) ∧ acc.toList.Nodup⌝
   with grind

@@ -30,5 +30,4 @@ public import Std.Data.TreeMap.Raw
 public import Std.Data.TreeSet.Raw
 
 public import Std.Data.Iterators
-
-@[expose] public section
+public import Std.Data.ByteSlice

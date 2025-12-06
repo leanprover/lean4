@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Grind.Ordered.Ring
-public import Init.Data.Int.Lemmas
 
 open Std
 

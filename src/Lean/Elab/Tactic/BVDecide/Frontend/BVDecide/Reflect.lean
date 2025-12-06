@@ -9,7 +9,6 @@ prelude
 public import Std.Data.HashMap
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
 public import Lean.Meta.AppBuilder
-public import Lean.ToExpr
 public import Lean.Data.RArray
 
 public section

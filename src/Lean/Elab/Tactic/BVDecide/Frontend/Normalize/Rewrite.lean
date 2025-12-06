@@ -6,9 +6,7 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Lean.Elab.Tactic.Simp
 public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
-public import Lean.Elab.Tactic.BVDecide.Frontend.Attr
 
 public section
 

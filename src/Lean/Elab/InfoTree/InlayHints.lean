@@ -16,7 +16,7 @@ open Lean
 
 structure InlayHintLinkLocation where
   module : Name
-  range  : String.Range
+  range  : Lean.Syntax.Range
 
 structure InlayHintLabelPart where
   value     : String
@@ -32,12 +32,12 @@ inductive InlayHintKind where
   | parameter
 
 structure InlayHintTextEdit where
-  range   : String.Range
+  range   : Lean.Syntax.Range
   newText : String
   deriving BEq
 
 structure InlayHintInfo where
-  position     : String.Pos
+  position     : String.Pos.Raw
   label        : InlayHintLabel
   kind?        : Option InlayHintKind := none
   textEdits    : Array InlayHintTextEdit := #[]

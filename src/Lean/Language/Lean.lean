@@ -11,10 +11,8 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Lean.Language.Basic
 public import Lean.Language.Util
 public import Lean.Language.Lean.Types
-public import Lean.Parser.Module
 public import Lean.Elab.Import
 
 public section
@@ -239,7 +237,7 @@ open Lean.Parser
 /-- Lean-specific processing context. -/
 structure LeanProcessingContext extends ProcessingContext where
   /-- Position of the first file difference if there was a previous invocation. -/
-  firstDiffPos? : Option String.Pos
+  firstDiffPos? : Option String.Pos.Raw
 
 /-- Monad transformer holding all relevant data for Lean processing. -/
 abbrev LeanProcessingT m := ReaderT LeanProcessingContext m
@@ -267,7 +265,7 @@ def LeanProcessingM.run (act : LeanProcessingM α) (oldInputCtx? : Option InputC
 Returns true if there was a previous run and the given position is before any textual change
 compared to it.
 -/
-def isBeforeEditPos (pos : String.Pos) : LeanProcessingM Bool := do
+def isBeforeEditPos (pos : String.Pos.Raw) : LeanProcessingM Bool := do
   return (← read).firstDiffPos?.any (pos < ·)
 
 /--
@@ -287,6 +285,8 @@ simple uses, these can be computed eagerly without looking at the imports.
 structure SetupImportsResult where
   /-- Module name of the file being processed. -/
   mainModuleName : Name
+  /-- Package name of the file being processed (if any). -/
+  package? : Option PkgId := none
   /-- Whether the file is participating in the module system. -/
   isModule : Bool
   /-- Direct imports of the file being processed. -/
@@ -299,6 +299,28 @@ structure SetupImportsResult where
   importArts : NameMap ImportArtifacts := {}
   /-- Lean plugins to load as part of the environment setup. -/
   plugins : Array System.FilePath := #[]
+
+/--
+Parses an option value from a string and inserts it into `opts`.
+The type of the option is determined from `decl`.
+-/
+def setOption (opts : Options) (decl : OptionDecl) (name : Name) (val : String)  : IO Options := do
+  match decl.defValue with
+  | .ofBool _ =>
+    match val with
+    | "true"  => return opts.insert name true
+    | "false" => return opts.insert name false
+    | _ =>
+      throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
+        it must be true/false"
+  | .ofNat _ =>
+    let some val := val.toNat?
+      | throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
+          it must be a natural number"
+    return opts.insert name val
+  | .ofString _ => return opts.insert name val
+  | _ => throw <| .userError s!"invalid -D parameter, configuration option '{name}' \
+            cannot be set in the command line, use set_option command"
 
 /--
 Parses values of options registered during import and left by the C++ frontend as strings.
@@ -317,31 +339,16 @@ def reparseOptions (opts : Options) : IO Options := do
       | unless weak do
           throw <| .userError s!"invalid -D parameter, unknown configuration option '{name}'
 
-If the option is defined in this library, use '-D{`weak ++ name}' to set it conditionally"
+If the option is defined in a library, use '-D{`weak ++ name}' to set it conditionally"
 
     let .ofString val := val
       | opts' := opts'.insert name val  -- Already parsed
 
-    match decl.defValue with
-    | .ofBool _ =>
-      match val with
-      | "true"  => opts' := opts'.insert name true
-      | "false" => opts' := opts'.insert name false
-      | _ =>
-        throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
-          it must be true/false"
-    | .ofNat _ =>
-      let some val := val.toNat?
-        | throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
-            it must be a natural number"
-      opts' := opts'.insert name val
-    | .ofString _ => opts' := opts'.insert name val
-    | _ => throw <| .userError s!"invalid -D parameter, configuration option '{name}' \
-              cannot be set in the command line, use set_option command"
+    opts' ← setOption opts' decl name val
 
   return opts'
 
-private def getNiceCommandStartPos? (stx : Syntax) : Option String.Pos := do
+private def getNiceCommandStartPos? (stx : Syntax) : Option String.Pos.Raw := do
   let mut stx := stx
   if stx[0].isOfKind ``Command.declModifiers then
     -- modifiers are morally before the actual declaration
@@ -495,7 +502,7 @@ where
       -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
       let (headerEnv, msgLog) ← Elab.processHeaderCore (leakEnv := true)
         stx.startPos setup.imports setup.isModule setup.opts .empty ctx.toInputContext
-        setup.trustLevel setup.plugins setup.mainModuleName setup.importArts
+        setup.trustLevel setup.plugins setup.mainModuleName setup.package? setup.importArts
       let stopTime := (← IO.monoNanosNow).toFloat / 1000000000
       let diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
       if msgLog.hasErrors then
@@ -743,7 +750,7 @@ where
         -- We're definitely off the fast-forwarding path now
         parseCmd none parserState cmdState next (sync := false) elabCmdCancelTk ctx
 
-  doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos)
+  doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos.Raw)
       (snap : SnapshotBundle DynamicSnapshot) (cancelTk : IO.CancelToken) :
       LeanProcessingM Command.State := do
     let ctx ← read

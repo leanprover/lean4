@@ -9,7 +9,6 @@ prelude
 public import Std.Do.SPred.DerivedLaws
 public import Std.Tactic.Do.ProofMode
 public import Lean.SubExpr
-public import Lean.Meta.Basic
 public import Lean.Elab.Tactic.Basic
 
 public section

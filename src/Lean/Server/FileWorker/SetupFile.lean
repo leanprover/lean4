@@ -6,10 +6,8 @@ Authors: Sebastian Ullrich, Marc Huisinga
 module
 
 prelude
-public import Init.System.IO
 public import Lean.Server.Utils
 public import Lean.Util.LakePath
-public import Lean.LoadDynlib
 public import Lean.Server.ServerTask
 
 public section
@@ -53,7 +51,7 @@ partial def runLakeSetupFile
       processStderr (acc ++ line)
   let stderr ← ServerTask.IO.asTask (processStderr "")
 
-  let stdout := String.trim (← lakeProc.stdout.readToEnd)
+  let stdout := String.trimAscii (← lakeProc.stdout.readToEnd) |>.copy
   let stderr ← IO.ofExcept stderr.get
   let exitCode ← lakeProc.wait
   return ⟨spawnArgs, exitCode, stdout, stderr⟩

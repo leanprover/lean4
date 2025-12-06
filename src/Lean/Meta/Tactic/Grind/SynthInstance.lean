@@ -5,8 +5,8 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.SynthInstance
 public import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.SynthInstance
 public section
 namespace Lean.Meta.Grind
 /--

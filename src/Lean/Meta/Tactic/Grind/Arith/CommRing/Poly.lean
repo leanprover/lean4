@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Ring.Poly
+public import Init.Grind.Ring.CommSolver
 public section
 namespace Lean.Grind.CommRing
 
@@ -200,6 +200,10 @@ def Poly.isZero : Poly → Bool
   | .num 0 => true
   | _ => false
 
+def Poly.getConst : Poly → Int
+  | .num k => k
+  | .add _ _ p => p.getConst
+
 def Poly.checkCoeffs : Poly → Bool
   | .num _ => true
   | .add k _ p => k != 0 && checkCoeffs p
@@ -236,5 +240,46 @@ def Poly.size : Poly → Nat
 def Poly.length : Poly → Nat
   | .num _ => 0
   | .add _ _ p => 1 + p.length
+
+def Power.toExpr (pw : Power) : Expr :=
+  if pw.k == 1 then
+    .var pw.x
+  else
+    .pow (.var pw.x) pw.k
+
+def Mon.toExpr (m : Mon) : Expr :=
+  match m with
+  | .unit => .num 1
+  | .mult pw m => go m pw.toExpr
+where
+  go (m : Mon) (acc : Expr) : Expr :=
+    match m with
+    | .unit => acc
+    | .mult pw m => go m (.mul acc pw.toExpr)
+
+def Poly.toExpr (p : Poly) : Expr :=
+  match p with
+  | .num k => .num k
+  | .add k m p => go p (goTerm k m)
+where
+  goTerm (k : Int) (m : Mon) : Expr :=
+    if k == 1 then
+      m.toExpr
+    else
+      .mul (.num k) m.toExpr
+
+  go (p : Poly) (acc : Expr) : Expr :=
+    match p with
+    | .num 0 => acc
+    | .num k => .add acc (.num k)
+    | .add k m p => go p (.add acc (goTerm k m))
+
+def Poly.maxDegreeOf (p : Poly) (x : Var) : Nat :=
+  go p 0
+where
+  go (p : Poly) (max : Nat) : Nat :=
+    match p with
+    | .num _ => max
+    | .add _ m p => go p (Nat.max max (m.degreeOf x))
 
 end Lean.Grind.CommRing

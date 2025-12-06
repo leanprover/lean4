@@ -1,0 +1,4 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.anon
+   (Lean.Doc.Syntax.arg_num (num "42")))
+All input consumed.

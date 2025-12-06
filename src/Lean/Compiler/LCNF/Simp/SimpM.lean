@@ -11,10 +11,7 @@ public import Lean.Compiler.LCNF.Renaming
 public import Lean.Compiler.LCNF.ElimDead
 public import Lean.Compiler.LCNF.AlphaEqv
 public import Lean.Compiler.LCNF.PrettyPrinter
-public import Lean.Compiler.LCNF.Bind
-public import Lean.Compiler.LCNF.Internalize
 public import Lean.Compiler.LCNF.Simp.JpCases
-public import Lean.Compiler.LCNF.Simp.DiscrM
 public import Lean.Compiler.LCNF.Simp.FunDeclInfo
 public import Lean.Compiler.LCNF.Simp.Config
 

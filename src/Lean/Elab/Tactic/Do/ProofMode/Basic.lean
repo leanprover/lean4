@@ -7,7 +7,6 @@ module
 
 prelude
 public import Std.Tactic.Do.Syntax
-public import Lean.Meta.Basic
 public import Lean.Elab.Tactic.Do.ProofMode.MGoal
 
 public section
@@ -37,7 +36,7 @@ def mStart (goal : Expr) : MetaM MStartResult := do
 def mStartMVar (mvar : MVarId) : MetaM (MVarId × MGoal) := mvar.withContext do
   let goal ← instantiateMVars <| ← mvar.getType
   unless ← isProp goal do
-    throwError "type mismatch\n{← mkHasTypeButIsExpectedMsg (← inferType goal) (mkSort .zero)}"
+    throwError "The goal type of `{mkMVar mvar}` is not a proposition. It has type `{← inferType goal}`."
 
   let result ← mStart goal
   if let some proof := result.proof? then
@@ -48,10 +47,13 @@ def mStartMVar (mvar : MVarId) : MetaM (MVarId × MGoal) := mvar.withContext do
   else
     return (mvar, result.goal)
 
-@[builtin_tactic Lean.Parser.Tactic.mstart]
-def elabMStart : Tactic | _ => do
-  let (mvar, _) ← mStartMVar (← getMainGoal)
+def mStartMainGoal : TacticM (MVarId × MGoal) := do
+  let (mvar, goal) ← mStartMVar (← getMainGoal)
   replaceMainGoal [mvar]
+  return (mvar, goal)
+
+@[builtin_tactic Lean.Parser.Tactic.mstart]
+def elabMStart : Tactic | _ => discard mStartMainGoal
 
 @[builtin_tactic Lean.Parser.Tactic.mstop]
 def elabMStop : Tactic | _ => do

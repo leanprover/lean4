@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Nat.Basic
 public import Init.Data.Nat.Div.Basic
-public import Init.Coe
 
 public section
 
@@ -140,5 +138,13 @@ Returns `true` if the `(n+1)`th least significant bit is `1`, or `false` if it i
 @[expose] def testBit (m n : Nat) : Bool :=
   -- `1 &&& n` is faster than `n &&& 1` for big `n`.
   1 &&& (m >>> n) != 0
+
+/--
+Asserts that the `(n+1)`th least significant bit of `m` is not set.
+
+(This definition is used by Lean internally for compact bitmaps.)
+-/
+@[expose, reducible] protected def hasNotBit (m n : Nat) : Prop :=
+  Nat.land 1 (Nat.shiftRight m n) ≠ 1
 
 end Nat

@@ -4,11 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Ordered.Linarith
 public import Lean.Meta.Tactic.Grind.VarRename
-
 namespace Lean.Grind.Linarith
 open Lean.Meta.Grind
 

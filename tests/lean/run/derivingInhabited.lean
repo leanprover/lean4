@@ -55,7 +55,7 @@ deriving Inhabited
 
 /--
 info: private def instInhabitedA : Inhabited A :=
-{ default := defaultA✝ }
+{ default := instInhabitedA.default }
 -/
 #guard_msgs in
 #print instInhabitedA
@@ -66,7 +66,7 @@ public structure PrivField where
   private a : Nat
 deriving Inhabited
 
-/-- info: defaultPrivField✝ -/
+/-- info: instInhabitedPrivField.default -/
 #guard_msgs in
 #with_exporting
 #reduce (default : PrivField)

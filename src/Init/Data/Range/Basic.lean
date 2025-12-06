@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Meta
 public import Init.Omega
 
 public section
@@ -44,7 +43,7 @@ universe u v
   have := range.step_pos
   loop init range.start (by simp)
 
-instance : ForIn' m Range Nat inferInstance where
+instance [Monad m] : ForIn' m Range Nat inferInstance where
   forIn' := Range.forIn'
 
 -- No separate `ForIn` instance is required because it can be derived from `ForIn'`.
@@ -60,7 +59,7 @@ instance : ForIn' m Range Nat inferInstance where
   have := range.step_pos
   loop range.start
 
-instance : ForM m Range Nat where
+instance [Monad m] : ForM m Range Nat where
   forM := Range.forM
 
 syntax:max "[" withoutPosition(":" term) "]" : term

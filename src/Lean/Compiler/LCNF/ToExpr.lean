@@ -103,7 +103,9 @@ partial def Code.toExprM (code : Code) : ToExprM Expr := do
   | .unreach type => return mkApp (mkConst ``lcUnreachable) (← abstractM type)
   | .cases c =>
     let alts ← c.alts.mapM fun
-      | .alt _ params k => withParams params do mkLambdaM params (← k.toExprM)
+      | .alt ctorName params k => do
+        let body ← withParams params do mkLambdaM params (← k.toExprM)
+        return mkApp (mkConst ctorName) body
       | .default k => k.toExprM
     return mkAppN (mkConst `cases) (#[← c.discr.toExprM] ++ alts)
 end

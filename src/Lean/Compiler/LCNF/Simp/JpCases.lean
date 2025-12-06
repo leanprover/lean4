@@ -7,9 +7,7 @@ module
 
 prelude
 public import Lean.Compiler.LCNF.DependsOn
-public import Lean.Compiler.LCNF.InferType
 public import Lean.Compiler.LCNF.Internalize
-public import Lean.Compiler.LCNF.Simp.Basic
 public import Lean.Compiler.LCNF.Simp.DiscrM
 
 public section

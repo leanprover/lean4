@@ -87,27 +87,6 @@ class PartialOrder (α : Type u) extends Preorder α where
 
 end Mathlib.Init.Order.Defs
 
-section Mathlib.Init.Function
-
-universe u₁ u₂
-
-namespace Function
-
-variable {α : Sort u₁} {β : Sort u₂}
-
-def Injective (f : α → β) : Prop :=
-  ∀ ⦃a₁ a₂⦄, f a₁ = f a₂ → a₁ = a₂
-
-def LeftInverse (g : β → α) (f : α → β) : Prop :=
-  ∀ x, g (f x) = x
-
-def HasLeftInverse (f : α → β) : Prop :=
-  ∃ finv : β → α, LeftInverse finv f
-
-end Function
-
-end Mathlib.Init.Function
-
 section Mathlib.Init.Set
 
 set_option autoImplicit true

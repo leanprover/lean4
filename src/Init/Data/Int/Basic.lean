@@ -31,7 +31,7 @@ This file defines the `Int` type as well as
 Division and modulus operations are defined in `Init.Data.Int.DivMod.Basic`.
 -/
 
-set_option genInjectivity false in
+set_option genCtorIdx false in
 /--
 The integers.
 
@@ -80,7 +80,10 @@ protected theorem zero_ne_one : (0 : Int) ≠ 1 := nofun
 
 /-! ## Coercions -/
 
-@[simp] theorem ofNat_eq_coe : Int.ofNat n = Nat.cast n := rfl
+@[simp] theorem ofNat_eq_natCast (n : Nat) : Int.ofNat n = n := rfl
+
+@[deprecated ofNat_eq_natCast (since := "2025-10-29")]
+theorem ofNat_eq_coe : Int.ofNat n = Nat.cast n := rfl
 
 @[simp] theorem ofNat_zero : ((0 : Nat) : Int) = 0 := rfl
 
@@ -275,7 +278,11 @@ set_option bootstrap.genMatcherCode false in
 def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
   match m with
   | ofNat m => isTrue <| NonNeg.mk m
-  | -[_ +1] => isFalse <| fun h => nomatch h
+  | -[i +1] => isFalse <| fun h =>
+    have : ∀ j, (j = -[i +1]) → NonNeg j → False := fun _ hj hnn =>
+      Int.NonNeg.casesOn (motive := fun j _ => j = -[i +1] → False) hnn
+        (fun _ h => Int.noConfusion h) hj
+    this -[i +1] rfl h
 
 /-- Decides whether `a ≤ b`.
 
@@ -313,7 +320,7 @@ the logical model.
 Examples:
  * `(7 : Int).natAbs = 7`
  * `(0 : Int).natAbs = 0`
- * `((-11 : Int).natAbs = 11`
+ * `(-11 : Int).natAbs = 11`
 -/
 @[extern "lean_nat_abs", expose]
 def natAbs (m : @& Int) : Nat :=
@@ -321,7 +328,7 @@ def natAbs (m : @& Int) : Nat :=
   | ofNat m => m
   | -[m +1] => m.succ
 
-gen_injective_theorems% Int
+attribute [gen_constructor_elims] Int
 
 /-! ## sign -/
 
@@ -369,9 +376,6 @@ def toNat? : Int → Option Nat
   | (n : Nat) => some n
   | -[_+1] => none
 
-@[deprecated toNat? (since := "2025-03-11"), inherit_doc toNat?]
-abbrev toNat' := toNat?
-
 /-! ## divisibility -/
 
 /--
@@ -392,9 +396,9 @@ Examples:
 * `(0 : Int) ^ 10 = 0`
 * `(-7 : Int) ^ 3 = -343`
 -/
-protected def pow (m : Int) : Nat → Int
-  | 0      => 1
-  | succ n => Int.pow m n * m
+protected def pow : Int → Nat → Int
+  | (m : Nat), n => Int.ofNat (m ^ n)
+  | m@-[_+1], n => if n % 2 = 0 then Int.ofNat (m.natAbs ^ n) else - Int.ofNat (m.natAbs ^ n)
 
 instance : NatPow Int where
   pow := Int.pow

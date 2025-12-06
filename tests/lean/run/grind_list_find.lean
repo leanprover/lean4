@@ -8,7 +8,7 @@ theorem findSome?_isSome_iff {f : α → Option β} {l : List α} :
     (l.findSome? f).isSome ↔ ∃ x, x ∈ l ∧ (f x).isSome := by
   induction l with grind
 
-attribute [grind] Option.isSome_iff_ne_none -- Can we add this?
+attribute [grind! ←] Option.isSome_iff_ne_none -- Can we add this?
 
 theorem Sublist.findSome?_eq_none {l₁ l₂ : List α} (h : l₁ <+ l₂) :
     l₂.findSome? f = none → l₁.findSome? f = none := by

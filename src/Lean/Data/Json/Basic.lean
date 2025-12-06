@@ -10,8 +10,11 @@ prelude
 public import Init.Data.Range
 public import Init.Data.OfScientific
 public import Init.Data.Hashable
-public import Init.Data.ToString.Macro
 public import Std.Data.TreeMap.Raw.Basic
+public import Init.Data.Ord.String
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Nat
+import Init.Data.String.TakeDrop
 
 public section
 
@@ -111,7 +114,7 @@ protected def toString : JsonNumber → String
       s!"{sign}{left}"
     else
       let right := e' + m % e'
-        |>.repr.toSubstring.drop 1
+        |>.repr.toRawSubstring.drop 1
         |>.dropRightWhile (fun c => c = '0')
         |>.toString
       let exp := if exp = 0 then "" else "e" ++ exp.repr

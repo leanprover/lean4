@@ -18,7 +18,7 @@ Example from #6655. This used to suggest `simp only [e, d]`.
 -/
 /--
 info: Try this:
-  simp only [e]
+  [apply] simp only [e]
 ---
 trace: α : Type
 c : α → α
@@ -43,7 +43,7 @@ Example from #6655. This used to suggest `simp only [d]`.
 -/
 /--
 info: Try this:
-  simp only
+  [apply] simp only
 ---
 warning: declaration uses 'sorry'
 -/
@@ -62,7 +62,7 @@ Example from comments of #6655. This used to suggest `simp only [Int.add_sub_can
 -/
 /--
 info: Try this:
-  simp only [Int.add_sub_cancel]
+  [apply] simp only [Int.add_sub_cancel]
 -/
 #guard_msgs in
 example (a b : Int) : a + b - b = a := by
@@ -77,10 +77,10 @@ This used to suggest `simp only [a, b] ` and `simp only [a, b]`
 -/
 /--
 info: Try this:
-  simp only [a]
+  [apply] simp only [a]
 ---
 info: Try this:
-  simp only
+  [apply] simp only
 -/
 #guard_msgs in
 example : True := by
@@ -96,7 +96,7 @@ Test that there is still a deficiency. This should say `simp only [e]`.
 -/
 /--
 info: Try this:
-  simp only [e, c]
+  [apply] simp only [e, c]
 ---
 trace: α : Type
 b : α → α

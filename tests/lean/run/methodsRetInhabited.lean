@@ -1,5 +1,7 @@
-open Lean
+module
+import all Init.Prelude
 
+open Lean
 def exec (x : MacroM α) : Option α :=
   match x {
       quotContext := `Expander

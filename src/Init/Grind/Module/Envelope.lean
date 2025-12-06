@@ -227,7 +227,7 @@ theorem toQ_add (a b : α) : toQ (a + b) = toQ a + toQ b := by
 theorem toQ_zero : toQ (0 : α) = 0 := by
   simp; apply Quot.sound; simp
 
-theorem toQ_smul (n : Nat) (a : α) : toQ (n • a) = (↑n : Int) • toQ a := by
+theorem toQ_smul (n : Nat) (a : α) : toQ (n • a) = n • toQ a := by
   simp; apply Quot.sound; simp
 
 /-!
@@ -317,6 +317,29 @@ instance [LE α] [IsPreorder α] [OrderedAdd α] : IsPreorder (OfNatModule.Q α)
     have : a₂ + c₁ + (b₁ + b₂) = a₂ + b₁ + (b₂ + c₁) := by ac_rfl
     rw [this]; clear this
     exact OrderedAdd.add_le_add h₁ h₂
+
+instance [LE α] [IsPartialOrder α] [OrderedAdd α] : IsPartialOrder (OfNatModule.Q α) where
+  le_antisymm a b h₁ h₂ := by
+    induction a using Q.ind with | _ a
+    induction b using Q.ind with | _ b
+    rcases a with ⟨a₁, a₂⟩; rcases b with ⟨b₁, b₂⟩
+    simp only [mk_le_mk] at h₁ h₂
+    rw [AddCommMonoid.add_comm b₁ a₂, AddCommMonoid.add_comm b₂ a₁] at h₂
+    have := IsPartialOrder.le_antisymm _ _ h₁ h₂
+    apply Quot.sound
+    simp; exists 0
+    rw [this]
+
+instance [LE α] [IsLinearPreorder α] [OrderedAdd α] : IsLinearPreorder (OfNatModule.Q α) where
+  le_total a b := by
+    induction a using Q.ind with | _ a
+    induction b using Q.ind with | _ b
+    rcases a with ⟨a₁, a₂⟩; rcases b with ⟨b₁, b₂⟩
+    simp only [mk_le_mk]
+    rw [AddCommMonoid.add_comm b₁ a₂, AddCommMonoid.add_comm b₂ a₁]
+    apply le_total
+
+instance [LE α] [IsLinearOrder α] [OrderedAdd α] : IsLinearOrder (OfNatModule.Q α) where
 
 attribute [-simp] Q.mk
 

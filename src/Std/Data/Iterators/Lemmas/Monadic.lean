@@ -7,5 +7,3 @@ module
 
 prelude
 public import Init.Data.Iterators.Lemmas.Monadic.Basic
-
-@[expose] public section

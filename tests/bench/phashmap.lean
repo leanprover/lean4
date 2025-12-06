@@ -29,7 +29,7 @@ instance [Pure m] : Std.Iterators.Iterator RandomIterator m UInt64 where
     | .skip _ => False
     | .done => False
   step := fun ⟨it⟩ =>
-    pure ⟨.yield (iterRandM <| (it.state + (1 : UInt64)) * (3_787_392_781 : UInt64)) it.state, by trivial⟩
+    pure (.deflate ⟨.yield (iterRandM <| (it.state + (1 : UInt64)) * (3_787_392_781 : UInt64)) it.state, by trivial⟩)
 
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (RandomIterator) m n :=
   .defaultImplementation

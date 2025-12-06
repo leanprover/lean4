@@ -133,6 +133,11 @@ theorem ofList_eq [BEq α] [Hashable α] {l : List ((a : α) × β a)} :
   simp only [Raw.ofList, Raw.insertMany, (Raw.WF.empty).size_buckets_pos ∅, ↓reduceDIte]
   congr
 
+theorem ofArray_eq [BEq α] [Hashable α] {a : Array ((a : α) × β a)} :
+    Raw.ofArray a = Raw₀.insertMany Raw₀.emptyWithCapacity a := by
+  simp only [Raw.ofArray, Raw.insertMany, (Raw.WF.empty).size_buckets_pos ∅, ↓reduceDIte]
+  congr
+
 theorem alter_eq [BEq α] [LawfulBEq α] [Hashable α] {m : Raw α β} (h : m.WF) {k : α} {f : Option (β k) → Option (β k)} :
     m.alter k f = Raw₀.alter ⟨m, h.size_buckets_pos⟩ k f := by
   simp [Raw.alter, h.size_buckets_pos]
@@ -140,6 +145,18 @@ theorem alter_eq [BEq α] [LawfulBEq α] [Hashable α] {m : Raw α β} (h : m.WF
 theorem modify_eq [BEq α] [LawfulBEq α] [Hashable α] {m : Raw α β} (h : m.WF) {k : α} {f : β k → β k} :
     m.modify k f = Raw₀.modify ⟨m, h.size_buckets_pos⟩ k f := by
   simp [Raw.modify, h.size_buckets_pos]
+
+theorem union_eq [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    m₁.union m₂ = Raw₀.union ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩ := by
+  simp [Raw.union, h₁.size_buckets_pos, h₂.size_buckets_pos]
+
+theorem inter_eq [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    m₁.inter m₂ = Raw₀.inter ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩ := by
+  simp [Raw.inter, h₁.size_buckets_pos, h₂.size_buckets_pos]
+
+theorem diff_eq [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    m₁.diff m₂ = Raw₀.diff ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩ := by
+  simp [Raw.diff, h₁.size_buckets_pos, h₂.size_buckets_pos]
 
 section
 
@@ -154,6 +171,11 @@ theorem Const.ofList_eq [BEq α] [Hashable α] {l : List (α × β)} :
   simp only [Raw.Const.ofList, Raw.Const.insertMany, (Raw.WF.empty).size_buckets_pos ∅, ↓reduceDIte]
   congr
 
+theorem Const.ofArray_eq [BEq α] [Hashable α] {a : Array (α × β)} :
+    Raw.Const.ofArray a = Raw₀.Const.insertMany Raw₀.emptyWithCapacity a := by
+  simp only [Raw.Const.ofArray, Raw.Const.insertMany, (Raw.WF.empty).size_buckets_pos ∅, ↓reduceDIte]
+  congr
+
 theorem Const.insertManyIfNewUnit_eq {ρ : Type w} [ForIn Id ρ α] [BEq α] [Hashable α]
     {m : Raw α (fun _ => Unit)} {l : ρ} (h : m.WF):
     Raw.Const.insertManyIfNewUnit m l = Raw₀.Const.insertManyIfNewUnit ⟨m, h.size_buckets_pos⟩ l := by
@@ -162,6 +184,12 @@ theorem Const.insertManyIfNewUnit_eq {ρ : Type w} [ForIn Id ρ α] [BEq α] [Ha
 theorem Const.unitOfList_eq [BEq α] [Hashable α] {l : List α} :
     Raw.Const.unitOfList l = Raw₀.Const.insertManyIfNewUnit Raw₀.emptyWithCapacity l := by
   simp only [Raw.Const.unitOfList, Raw.Const.insertManyIfNewUnit, (Raw.WF.empty).size_buckets_pos ∅,
+    ↓reduceDIte]
+  congr
+
+theorem Const.unitOfArray_eq [BEq α] [Hashable α] {a : Array α} :
+    Raw.Const.unitOfArray a = Raw₀.Const.insertManyIfNewUnit Raw₀.emptyWithCapacity a := by
+  simp only [Raw.Const.unitOfArray, Raw.Const.insertManyIfNewUnit, (Raw.WF.empty).size_buckets_pos ∅,
     ↓reduceDIte]
   congr
 

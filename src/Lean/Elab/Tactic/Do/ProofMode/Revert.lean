@@ -6,7 +6,6 @@ Authors: Lars König, Mario Carneiro, Sebastian Graf
 module
 
 prelude
-public import Std.Tactic.Do.Syntax
 public import Lean.Elab.Tactic.Do.ProofMode.Focus
 public import Lean.Elab.Tactic.Do.ProofMode.Basic
 
@@ -95,7 +94,7 @@ def elabMRevert : Tactic
     return m)
   replaceMainGoal (← goals.get)
   | `(tactic| mrevert ∀ $[$n]?) => do
-  let (mvar, goal) ← mStartMVar (← getMainGoal)
+  let (mvar, goal) ← mStartMainGoal
   mvar.withContext do
   let n := ((·.getNat) <$> n).getD 1
   let goals ← IO.mkRef []

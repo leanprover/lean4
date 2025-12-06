@@ -6,11 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Tactic.Apply
-public import Lean.Meta.Tactic.Cases
 public import Lean.Meta.Tactic.Rename
-public import Lean.Elab.SyntheticMVars
-public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.TerminationMeasure
 public import Lean.Elab.PreDefinition.FixedParams
 public import Lean.Meta.ArgsPacker

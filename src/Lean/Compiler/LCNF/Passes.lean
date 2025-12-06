@@ -6,15 +6,10 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Lean.Compiler.LCNF.PassManager
 public import Lean.Compiler.LCNF.PullLetDecls
 public import Lean.Compiler.LCNF.CSE
-public import Lean.Compiler.LCNF.Simp
-public import Lean.Compiler.LCNF.PullFunDecls
-public import Lean.Compiler.LCNF.ReduceJpArity
 public import Lean.Compiler.LCNF.JoinPoints
 public import Lean.Compiler.LCNF.Specialize
-public import Lean.Compiler.LCNF.PhaseExt
 public import Lean.Compiler.LCNF.ToMono
 public import Lean.Compiler.LCNF.LambdaLifting
 public import Lean.Compiler.LCNF.FloatLetIn
@@ -39,6 +34,13 @@ def init : Pass where
     return decls
   phase := .base
   shouldAlwaysRunCheck := true
+
+def checkMeta : Pass where
+  name  := `checkMeta
+  run   := fun decls => do
+    decls.forM LCNF.checkMeta
+    return decls
+  phase := .base
 
 -- Helper pass used for debugging purposes
 def trace (phase := Phase.base) : Pass where
@@ -71,6 +73,9 @@ open Pass
 def builtinPassManager : PassManager := {
   basePasses := #[
     init,
+    -- Check meta accesses now before optimizations may obscure references. This check should stay in
+    -- `lean` if some compilation is moved out.
+    Pass.checkMeta,
     pullInstances,
     cse (shouldElimFunDecls := false),
     simp,
@@ -85,7 +90,11 @@ def builtinPassManager : PassManager := {
     -/
     simp { etaPoly := true, inlinePartial := true, implementedBy := true } (occurrence := 1),
     eagerLambdaLifting,
+    -- Should be as early as possible but after `eagerLambdaLifting` to make sure instances are
+    -- checked without nested functions whose bodies specialization does not require access to.
+    checkTemplateVisibility,
     specialize,
+    findJoinPoints (occurrence := 1),
     simp (occurrence := 2),
     cse (shouldElimFunDecls := false) (occurrence := 1),
     saveBase, -- End of base phase
@@ -149,6 +158,7 @@ builtin_initialize
     add   := fun declName stx kind => do
       Attribute.Builtin.ensureNoArgs stx
       unless kind == AttributeKind.global do throwAttrMustBeGlobal `cpass kind
+      ensureAttrDeclIsMeta `cpass declName kind
       discard <| addPass declName
     applicationTime := .afterCompilation
   }

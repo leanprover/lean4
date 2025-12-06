@@ -7,7 +7,6 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Nat.TakeDrop
 public import Init.Data.List.Nat.Erase
 
 public section
@@ -69,9 +68,12 @@ theorem getElem?_modifyHead {l : List α} {f : α → α} {i} :
 @[simp, grind =] theorem tail_modifyHead {f : α → α} {l : List α} :
     (l.modifyHead f).tail = l.tail := by cases l <;> simp
 
-@[simp, grind =] theorem take_modifyHead {f : α → α} {l : List α} {i} :
+@[simp] theorem take_modifyHead {f : α → α} {l : List α} {i} :
     (l.modifyHead f).take i = (l.take i).modifyHead f := by
   cases l <;> cases i <;> simp
+
+grind_pattern take_modifyHead => (l.modifyHead f).take i where
+  i =/= 0
 
 @[simp] theorem drop_modifyHead_of_pos {f : α → α} {l : List α} {i} (h : 0 < i) :
     (l.modifyHead f).drop i = l.drop i := by
@@ -104,7 +106,9 @@ theorem eraseIdx_eq_modifyTailIdx : ∀ i (l : List α), eraseIdx l i = l.modify
   | _+1, [] => rfl
   | _+1, _ :: _ => congrArg (cons _) (eraseIdx_eq_modifyTailIdx _ _)
 
-@[simp, grind =] theorem length_modifyTailIdx (f : List α → List α) (H : ∀ l, (f l).length = l.length) :
+-- This is not suitable as a `@[grind =]` lemma:
+-- as soon as it is instantiated the hypothesis `H` causes an infinite chain of instantiations.
+@[simp] theorem length_modifyTailIdx (f : List α → List α) (H : ∀ l, (f l).length = l.length) :
     ∀ (l : List α) i, (l.modifyTailIdx i f).length = l.length
   | _, 0 => H _
   | [], _+1 => rfl
@@ -176,7 +180,7 @@ theorem modifyHead_eq_modify_zero (f : α → α) (l : List α) :
   | n, [], _+1 => by cases n <;> rfl
   | 0, _ :: l, j+1 => by cases h : l[j]? <;> simp [h, modify]
   | i+1, a :: l, j+1 => by
-    simp only [modify_succ_cons, getElem?_cons_succ, Nat.reduceEqDiff, Option.map_eq_map]
+    simp only [modify_succ_cons, getElem?_cons_succ, Option.map_eq_map]
     refine (getElem?_modify f i l j).trans ?_
     cases h' : l[j]? <;> by_cases h : i = j <;>
       simp [h, Option.map]
@@ -214,7 +218,6 @@ theorem modify_eq_self {f : α → α} {i} {l : List α} (h : l.length ≤ i) :
     intro h
     omega
 
-@[grind =]
 theorem modify_modify_eq (f g : α → α) (i) (l : List α) :
     (l.modify i f).modify i g = l.modify i (g ∘ f) := by
   apply ext_getElem
@@ -222,6 +225,9 @@ theorem modify_modify_eq (f g : α → α) (i) (l : List α) :
   · intro m h₁ h₂
     simp only [getElem_modify, Function.comp_apply]
     split <;> simp
+
+grind_pattern modify_modify_eq => (l.modify i f).modify i g where
+  l =/= []
 
 theorem modify_modify_ne (f g : α → α) {i j} (l : List α) (h : i ≠ j) :
     (l.modify i f).modify j g = (l.modify j g).modify i f := by

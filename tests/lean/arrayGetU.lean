@@ -1,5 +1,5 @@
 def f (a : Array Nat) (i : Nat) (v : Nat) (h : i < a.size) : Array Nat :=
-  a.set i (a.get i h + v)
+  a.set i (a[i] + v)
 
 set_option pp.proofs true
 

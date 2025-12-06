@@ -6,11 +6,7 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide
 public import Lean.Elab.Tactic.BVDecide.Frontend.BVCheck
-public import Lean.Elab.Tactic.BVDecide.LRAT.Trim
-public import Lean.Meta.Tactic.TryThis
-public import Std.Tactic.BVDecide.Syntax
 
 public section
 

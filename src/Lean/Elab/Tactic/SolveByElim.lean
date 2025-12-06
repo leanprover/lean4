@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Tactic.SolveByElim
 public import Lean.Elab.Tactic.Config
+public import Lean.LibrarySuggestions.Basic
 
 public section
 
@@ -108,6 +109,21 @@ def evalSolveByElim : Tactic
     else
       pure [← getMainGoal]
     let cfg ← elabConfig cfg
+    -- Add library suggestions if +suggestions is enabled
+    let add ← if cfg.suggestions then
+      let mainGoal ← getMainGoal
+      let suggestions ← LibrarySuggestions.select mainGoal { caller := some "solve_by_elim" }
+      let suggestionTerms ← suggestions.toList.filterMapM fun s => do
+        -- Only include suggestions for constants that exist
+        let env ← getEnv
+        if env.contains s.name then
+          let ident := mkCIdentFrom (← getRef) s.name (canonical := true)
+          return some (⟨ident⟩ : Term)
+        else
+          return none
+      pure (add ++ suggestionTerms)
+    else
+      pure add
     let [] ← processSyntax cfg o.isSome star add remove use goals |
       throwError "Internal error: `solve_by_elim` unexpectedly returned subgoals"
     pure ()

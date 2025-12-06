@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
-import Lean.Meta.Tactic.Grind.Arith.CommRing.GetSet
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 
@@ -31,16 +30,16 @@ private def checkPoly (p : Poly) : RingM Unit := do
 
 private def checkBasis : RingM Unit := do
   let mut x := 0
-  for c in (← getRing).basis do
+  for c in (← getCommRing).basis do
     checkPoly c.p
     x := x + 1
 
 private def checkQueue : RingM Unit := do
-  for c in (← getRing).queue do
+  for c in (← getCommRing).queue do
     checkPoly c.p
 
 private def checkDiseqs : RingM Unit := do
-  for c in (← getRing).diseqs do
+  for c in (← getCommRing).diseqs do
     checkPoly c.d.p
 
 private def checkRingInvs : RingM Unit := do

@@ -6,10 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time.Internal
 public import Init.System.IO
-public import Std.Time.Time
-public import Std.Time.Date
 public import Std.Time.Duration
 
 public section

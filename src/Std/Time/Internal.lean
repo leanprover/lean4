@@ -8,5 +8,3 @@ module
 prelude
 public import Std.Time.Internal.Bounded
 public import Std.Time.Internal.UnitVal
-
-public section

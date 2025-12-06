@@ -6,12 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
-public import Init.Data.Iterators.Consumers
 public import Std.Data.Iterators.Producers.Monadic.Array
 public import Std.Data.Iterators.Lemmas.Consumers.Monadic
 public import Std.Data.Iterators.Lemmas.Producers.Monadic.List
-public import Std.Data.Iterators.Lemmas.Equivalence.Basic
 
 @[expose] public section
 
@@ -31,7 +28,7 @@ theorem _root_.Array.iterM_eq_iterFromIdxM {array : Array β} :
   rfl
 
 theorem _root_.Array.step_iterFromIdxM {array : Array β} {pos : Nat} :
-    (array.iterFromIdxM m pos).step = (pure <| if h : pos < array.size then
+    (array.iterFromIdxM m pos).step = (pure <| .deflate <| if h : pos < array.size then
         .yield
           (array.iterFromIdxM m (pos + 1))
           array[pos]
@@ -41,7 +38,7 @@ theorem _root_.Array.step_iterFromIdxM {array : Array β} {pos : Nat} :
   rfl
 
 theorem _root_.Array.step_iterM {array : Array β} :
-    (array.iterM m).step = (pure <| if h : 0 < array.size then
+    (array.iterM m).step = (pure <| .deflate <| if h : 0 < array.size then
         .yield
           (array.iterFromIdxM m 1)
           array[0]

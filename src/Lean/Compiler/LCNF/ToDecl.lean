@@ -6,11 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Transform
-public import Lean.Meta.Match.MatcherInfo
-public import Lean.Compiler.ExternAttr
 public import Lean.Compiler.InitAttr
-public import Lean.Compiler.ImplementedByAttr
 public import Lean.Compiler.LCNF.ToLCNF
 
 public section
@@ -53,10 +49,9 @@ partial def inlineMatchers (e : Expr) : CoreM Expr :=
         return .visit (← Meta.mkLambdaFVars xs (mkAppN e xs))
     else
       let mut args := e.getAppArgs
-      let numAlts := info.numAlts
       let altNumParams := info.altNumParams
       let rec inlineMatcher (i : Nat) (args : Array Expr) (letFVars : Array Expr) : MetaM Expr := do
-        if h : i < numAlts then
+        if h : i < altNumParams.size then
           let altIdx := i + info.getFirstAltPos
           let numParams := altNumParams[i]
           let alt ← normalizeAlt args[altIdx]! numParams

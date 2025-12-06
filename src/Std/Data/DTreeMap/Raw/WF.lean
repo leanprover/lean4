@@ -8,7 +8,6 @@ module
 prelude
 import Std.Data.DTreeMap.Internal.Lemmas
 public import Std.Data.DTreeMap.Raw.AdditionalOperations
-public import Std.Data.DTreeMap.Raw.Basic
 
 @[expose] public section
 
@@ -157,5 +156,17 @@ theorem constModify {a f} {t : Raw α β cmp} (h : t.WF) :
 theorem constMergeWith {mergeFn} {t₁ t₂ : Raw α β cmp} (h : t₁.WF) :
     (Const.mergeWith mergeFn t₁ t₂).WF :=
   ⟨h.out.constMergeWith!⟩
+
+theorem union [TransCmp cmp] {t₁ t₂ : Raw α β cmp} (h₁ : t₁.WF) (h₂ : t₂.WF):
+    (t₁ ∪ t₂).WF :=
+  ⟨Impl.WF.union! h₁.out h₂.out⟩
+
+theorem inter [TransCmp cmp] {t₁ t₂ : Raw α β cmp} (h₁ : t₁.WF) :
+    (t₁ ∩ t₂).WF :=
+  ⟨Impl.WF.inter! h₁.out⟩
+
+theorem diff [TransCmp cmp] {t₁ t₂ : Raw α β cmp} (h₁ : t₁.WF) :
+    (t₁ \ t₂).WF :=
+  ⟨Impl.WF.diff! h₁.out⟩
 
 end Std.DTreeMap.Raw.WF.Const

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Int.DivMod.Lemmas
+import Init.LawfulBEqTactics
 
 public section
 
@@ -37,11 +38,7 @@ inductive IntInterval : Type where
     io (hi : Int)
   | /-- The infinite interval `(-∞, ∞)`. -/
     ii
-  deriving BEq, DecidableEq, Inhabited
-
-instance : LawfulBEq IntInterval where
-   rfl := by intro a; cases a <;> simp_all! [BEq.beq]
-   eq_of_beq := by intro a b; cases a <;> cases b <;> simp_all! [BEq.beq]
+  deriving BEq, ReflBEq, LawfulBEq, DecidableEq, Inhabited
 
 namespace IntInterval
 

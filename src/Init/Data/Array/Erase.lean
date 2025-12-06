@@ -6,11 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
 public import Init.Data.Array.Lemmas
-public import Init.Data.List.Nat.Erase
-public import Init.Data.List.Nat.Basic
 
 public section
 
@@ -91,7 +88,7 @@ theorem mem_of_mem_eraseP {xs : Array α} : a ∈ xs.eraseP p → a ∈ xs := by
   rcases xs with ⟨xs⟩
   simpa using List.mem_of_mem_eraseP
 
-@[simp, grind] theorem mem_eraseP_of_neg {xs : Array α} (pa : ¬p a) : a ∈ xs.eraseP p ↔ a ∈ xs := by
+@[simp, grind =] theorem mem_eraseP_of_neg {xs : Array α} (pa : ¬p a) : a ∈ xs.eraseP p ↔ a ∈ xs := by
   rcases xs with ⟨xs⟩
   simpa using List.mem_eraseP_of_neg pa
 
@@ -142,24 +139,15 @@ theorem eraseP_replicate {n : Nat} {a : α} {p : α → Bool} :
   simp only [← List.toArray_replicate, List.eraseP_toArray, List.eraseP_replicate]
   split <;> simp
 
-@[deprecated eraseP_replicate (since := "2025-03-18")]
-abbrev eraseP_mkArray := @eraseP_replicate
-
 @[simp] theorem eraseP_replicate_of_pos {n : Nat} {a : α} (h : p a) :
     (replicate n a).eraseP p = replicate (n - 1) a := by
   simp only [← List.toArray_replicate, List.eraseP_toArray]
   simp [h]
 
-@[deprecated eraseP_replicate_of_pos (since := "2025-03-18")]
-abbrev eraseP_mkArray_of_pos := @eraseP_replicate_of_pos
-
 @[simp] theorem eraseP_replicate_of_neg {n : Nat} {a : α} (h : ¬p a) :
     (replicate n a).eraseP p = replicate n a := by
   simp only [← List.toArray_replicate, List.eraseP_toArray]
   simp [h]
-
-@[deprecated eraseP_replicate_of_neg (since := "2025-03-18")]
-abbrev eraseP_mkArray_of_neg := @eraseP_replicate_of_neg
 
 theorem eraseP_eq_iff {p} {xs : Array α} :
     xs.eraseP p = ys ↔
@@ -240,7 +228,7 @@ theorem mem_of_mem_erase {a b : α} {xs : Array α} (h : a ∈ xs.erase b) : a �
   rcases xs with ⟨xs⟩
   simpa using List.mem_of_mem_erase (by simpa using h)
 
-@[simp, grind] theorem mem_erase_of_ne [LawfulBEq α] {a b : α} {xs : Array α} (ab : a ≠ b) :
+@[simp, grind =] theorem mem_erase_of_ne [LawfulBEq α] {a b : α} {xs : Array α} (ab : a ≠ b) :
     a ∈ xs.erase b ↔ a ∈ xs :=
   erase_eq_eraseP b xs ▸ mem_eraseP_of_neg (mt eq_of_beq ab.symm)
 
@@ -271,7 +259,7 @@ theorem erase_append [LawfulBEq α] {a : α} {xs ys : Array α} :
     (xs ++ ys).erase a = if a ∈ xs then xs.erase a ++ ys else xs ++ ys.erase a := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
-  simp only [List.append_toArray, List.erase_toArray, List.erase_append, mem_toArray]
+  simp only [List.append_toArray, List.erase_toArray, List.erase_append, List.mem_toArray]
   split <;> simp
 
 @[grind =]
@@ -280,9 +268,6 @@ theorem erase_replicate [LawfulBEq α] {n : Nat} {a b : α} :
   simp only [← List.toArray_replicate, List.erase_toArray]
   simp only [List.erase_replicate, beq_iff_eq, List.toArray_replicate]
   split <;> simp
-
-@[deprecated erase_replicate (since := "2025-03-18")]
-abbrev erase_mkArray := @erase_replicate
 
 -- The arguments `a b` are explicit,
 -- so they can be specified to prevent `simp` repeatedly applying the lemma.
@@ -311,18 +296,19 @@ theorem erase_eq_iff [LawfulBEq α] {a : α} {xs : Array α} :
   simp only [← List.toArray_replicate, List.erase_toArray]
   simp
 
-@[deprecated erase_replicate_self (since := "2025-03-18")]
-abbrev erase_mkArray_self := @erase_replicate_self
-
 @[simp] theorem erase_replicate_ne [LawfulBEq α] {a b : α} (h : !b == a) :
     (replicate n a).erase b = replicate n a := by
   rw [erase_of_not_mem]
   simp_all
 
-@[deprecated erase_replicate_ne (since := "2025-03-18")]
-abbrev erase_mkArray_ne := @erase_replicate_ne
-
 end erase
+
+/-! ### eraseIdxIfInBounds -/
+
+@[grind =]
+theorem eraseIdxIfInBounds_eq {xs : Array α} {i : Nat} :
+    xs.eraseIdxIfInBounds i = if h : i < xs.size then xs.eraseIdx i else xs := by
+  simp [eraseIdxIfInBounds]
 
 /-! ### eraseIdx -/
 
@@ -424,9 +410,6 @@ theorem eraseIdx_replicate {n : Nat} {a : α} {k : Nat} {h} :
   simp at h
   simp only [← List.toArray_replicate, List.eraseIdx_toArray]
   simp [List.eraseIdx_replicate, h]
-
-@[deprecated eraseIdx_replicate (since := "2025-03-18")]
-abbrev eraseIdx_mkArray := @eraseIdx_replicate
 
 theorem mem_eraseIdx_iff_getElem {x : α} {xs : Array α} {k} {h} : x ∈ xs.eraseIdx k h ↔ ∃ i w, i ≠ k ∧ xs[i]'w = x := by
   rcases xs with ⟨xs⟩

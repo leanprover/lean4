@@ -7,7 +7,7 @@ We don't expect to modify the default tactics often, and it should be a matter o
 from #guard_msgs.
 -/
 
-set_option guard_msgs.diff true
+set_option linter.tactic.docsOnAlt true
 
 /-- Finishing tactics that are intended to completely close a goal -/
 register_tactic_tag finishing "finishing"
@@ -51,7 +51,7 @@ syntax (name := nonTacticTm) "nonTactic" : term
 
 syntax (name := nonTacticTm') "nonTactic'" : term
 
-/-- error: `nonTacticTm'` is not a tactic -/
+/-- error: `nonTacticTm'` is not a tactic (it is in the category `term`) -/
 #guard_msgs in
 attribute [tactic_alt my_trivial] nonTacticTm'
 
@@ -106,7 +106,11 @@ tactic_extension very_trivial
 
 /-! Check that warnings are issued if alternatives have their own docstrings -/
 
-/-- warning: Docstring for `tacticAnother` will be ignored because it is an alternative -/
+/--
+warning: Documentation is ignored on a tactic alternative.
+
+Note: This linter can be disabled with `set_option linter.tactic.docsOnAlt false`
+-/
 #guard_msgs in
 /-- Docs -/
 @[tactic_alt my_trivial]
@@ -115,7 +119,11 @@ syntax "another" : tactic
 /-- Docs -/
 syntax (name := yetAnother) "yetAnother" : tactic
 
-/-- warning: Docstring for `yetAnother` will be ignored because it is an alternative -/
+/--
+warning: Documentation for `yetAnother` is ignored because it is a tactic alternative.
+
+Note: This linter can be disabled with `set_option linter.tactic.docsOnAlt false`
+-/
 #guard_msgs in
 attribute [tactic_alt my_trivial] «yetAnother»
 

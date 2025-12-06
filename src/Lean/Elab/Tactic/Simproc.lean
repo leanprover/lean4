@@ -7,11 +7,7 @@ module
 
 prelude
 public import Init.Simproc
-public import Lean.ReservedNameAction
 public import Lean.Meta.Tactic.Simp.Simproc
-public import Lean.Elab.Binders
-public import Lean.Elab.SyntheticMVars
-public import Lean.Elab.Term
 public import Lean.Elab.Command
 
 public section

@@ -6,9 +6,7 @@ Authors: Lars König
 module
 
 prelude
-public import Lean.Data.Options
 public import Lean.MonadEnv
-public import Lean.Log
 
 public section
 

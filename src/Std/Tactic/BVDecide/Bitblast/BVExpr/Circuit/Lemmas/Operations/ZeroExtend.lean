@@ -40,12 +40,12 @@ theorem go_get_aux (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWidth
   · dsimp only at hgo
     split at hgo
     · rw [← hgo]
-      intros
-      rw [go_get_aux]
+      intro hfoo
+      rw [go_get_aux (hfoo := hfoo)]; case hidx => omega
       rw [AIG.RefVec.get_push_ref_lt]
     · rw [← hgo]
-      intros
-      rw [go_get_aux]
+      intro hfoo
+      rw [go_get_aux (hfoo := hfoo)]; case hidx => omega
       rw [AIG.RefVec.get_push_ref_lt]
   · dsimp only at hgo
     rw [← hgo]
@@ -108,7 +108,7 @@ theorem go_denote_eq (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWid
         rw [heq] at hsplit
         simp only [hsplit, ↓reduceDIte]
         rw [← hgo]
-        rw [go_get]
+        rw [go_get]; case hidx => omega
         rw [AIG.RefVec.get_push_ref_eq']
         · rw [go_denote_mem_prefix]
           · simp [heq]
@@ -118,7 +118,7 @@ theorem go_denote_eq (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWid
         rw [heq] at hsplit
         simp only [hsplit, ↓reduceDIte]
         rw [← hgo]
-        rw [go_get]
+        rw [go_get]; case hidx => omega
         rw [AIG.RefVec.get_push_ref_eq']
         · rw [go_denote_mem_prefix]
           · simp only [Ref.cast_eq]

@@ -9,6 +9,7 @@ prelude
 public import Lean.ScopedEnvExtension
 import Lean.Compiler.InitAttr
 import Lean.Compiler.IR.CompilerM
+import Lean.ExtraModUses
 
 public section
 
@@ -43,10 +44,12 @@ structure Def (γ : Type) where
   evalKey (builtin : Bool) (stx : Syntax) : AttrM Key := private_decl% (do
     let stx ← Attribute.Builtin.getIdent stx
     let kind := stx.getId
-    if (← getEnv).contains kind && (← Elab.getInfoState).enabled then
-      Elab.addConstInfo stx kind none
+    if (← getEnv).contains kind then
+      recordExtraModUseFromDecl (isMeta := false) kind
+      if (← Elab.getInfoState).enabled then
+        Elab.addConstInfo stx kind none
     pure kind)
-  onAdded (builtin : Bool) (declName : Name) : AttrM Unit := pure ()
+  onAdded (builtin : Bool) (declName : Name) (key : Key) : AttrM Unit := pure ()
   deriving Inhabited
 
 structure OLeanEntry where
@@ -56,6 +59,7 @@ structure OLeanEntry where
   deriving Inhabited
 
 structure AttributeEntry (γ : Type) extends OLeanEntry where
+  isBuiltin : Bool
   /-- Recall that we cannot store `γ` into .olean files because it is a closure.
      Given `OLeanEntry.declName`, we convert it into a `γ` by using the unsafe function `evalConstCheck`. -/
   value : γ
@@ -96,7 +100,7 @@ def ExtensionState.insert (s : ExtensionState γ) (v : AttributeEntry γ) :  Ext
 }
 
 def addBuiltin (attr : KeyedDeclsAttribute γ) (key : Key) (declName : Name) (value : γ) : IO Unit :=
-  attr.tableRef.modify fun m => m.insert { key, declName, value }
+  attr.tableRef.modify fun m => m.insert { key, declName, value, isBuiltin := true }
 
 def mkStateOfTable (table : Table γ) : ExtensionState γ := {
   table
@@ -116,7 +120,7 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact de
     ofOLeanEntry := fun _ entry => do
       let ctx ← read
       match ctx.env.evalConstCheck γ ctx.opts df.valueTypeName entry.declName with
-      | Except.ok f     => return { toOLeanEntry := entry, value := f }
+      | Except.ok f     => return { toOLeanEntry := entry, value := f, isBuiltin := false }
       | Except.error ex => throw (IO.userError ex)
     addEntry     := fun s e => s.insert e
     toOLeanEntry := (·.toOLeanEntry)
@@ -139,7 +143,7 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact de
             /- builtin_initialize @addBuiltin $(mkConst valueTypeName) $(mkConst attrDeclName) $(key) $(declName) $(mkConst declName) -/
             let val := mkAppN (mkConst ``addBuiltin) #[mkConst df.valueTypeName, mkConst attrDeclName, toExpr key, toExpr declName, mkConst declName]
             declareBuiltin declName val
-            df.onAdded true declName
+            df.onAdded true declName key
         | _ => throwUnexpectedType
       applicationTime := AttributeApplicationTime.afterCompilation
     }
@@ -152,12 +156,13 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact de
       let s ← s.erase df.name declName
       modifyEnv fun env => ext.modifyState env fun _ => s
     add             := fun declName stx attrKind => do
+      ensureAttrDeclIsMeta attrDeclName declName attrKind
       let key ← df.evalKey false stx
       match IR.getSorryDep (← getEnv) declName with
       | none =>
         let val ← evalConstCheck γ df.valueTypeName declName
-        ext.add { key := key, declName := declName, value := val } attrKind
-        df.onAdded false declName
+        ext.add { key := key, declName := declName, value := val, isBuiltin := true } attrKind
+        df.onAdded false declName key
       | _ =>
         -- If the declaration contains `sorry`, we skip `evalConstCheck` to avoid unnecessary bizarre error message
         pure ()

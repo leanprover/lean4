@@ -1,5 +1,18 @@
 import Std.Data.Iterators
 
+/-
+This benchmark measures the performance of iterators. The file starts with various function
+declarations. The functions are then called from `main`.
+
+The benchmark is run in three settings.
+
+* The runtime of the compiled program is measured in `iterators (compiled)`.
+* The time taken to interpret the script, including running `main`, is measured in
+  `iterators (interpreted)`.
+* The time taken to interpret the script, without running `main`, is measured in
+  `interators (elab)`.
+-/
+
 /- definitions -/
 
 def sum₁ (xs : Array Nat) : Nat :=
@@ -43,24 +56,24 @@ def numDivisors (n : Nat) := (1...=n).iter
 
 def isPrime (n : Nat) := numDivisors n == 2
 
-def primes (n : Nat) := (*...* : Std.PRange _ Nat).iter.take n
+def primes (n : Nat) := (*...* : Std.Rii Nat).iter.take n
   |>.filter isPrime
   |>.toList
 
 end Primes
 
 def printEveryNth (xs : List Nat) (n : Nat) : IO Unit := do
-  for x in xs, i in (*...* : Std.PRange _ Nat) do
+  for x in xs, i in (*...* : Std.Rii Nat) do
     if i % n = 0 then
       IO.println s!"xs[{i}] = {x}"
 
 def printEveryNthSliceBased (xs : Array Nat) (n : Nat) : IO Unit := do
-  for x in xs[*...*], i in (*...* : Std.PRange _ Nat) do
+  for x in xs[*...*], i in (*...* : Std.Rii Nat) do
     if i % n = 0 then
       IO.println s!"xs[{i}] = {x}"
 
 def longChainOfCombinators (xs : Array Nat) : Nat :=
-  xs.iter.zip (2...* : Std.PRange _ Nat).iter
+  xs.iter.zip (2...*).iter
     |>.filter (fun | (_, i) => i % 2 = 0)
     |>.attachWith (fun _ => True) (fun _ _ => .intro)
     |>.map (fun x => x.1.2)
@@ -69,38 +82,31 @@ def longChainOfCombinators (xs : Array Nat) : Nat :=
     |>.takeWhile (fun x => x < 5000000)
     |>.fold (init := 0) (· + ·)
 
-/- evaluations -/
-
 def xs : Array Nat := (*...100000).iter.toArray
 
 def l : List Nat := (*...100000).iter.toList
 
-#eval sum₁ xs
+/- evaluations -/
 
-#eval sum₂ xs
+@[noinline]
+def run' (f : Unit → α) : IO α := do
+  return f ()
 
-#eval isolatedMap xs
+notation "run " t => (fun _ => ()) <$> run' fun _ => t
 
-#eval isolatedFilterMap xs
-
-#eval isolatedTake xs 1000000
-
-#eval isolatedDrop xs 100000
-
-#eval isolatedTakeWhile xs
-
-#eval isolatedDropWhile xs
-
-#eval isolatedZip xs xs
-
-#eval isolatedSteppedRange 1000000
-
-#eval longChainOfCombinators xs
-
-#eval (*...1000000).iter.fold (init := 0) (· + ·)
-
-#eval primes 3000
-
-#eval printEveryNth l 10000
-
-#eval printEveryNthSliceBased xs 10000
+def main : IO Unit := do
+  run sum₁ xs
+  run sum₂ xs
+  run isolatedMap xs
+  run isolatedFilterMap xs
+  run isolatedTake xs 1000000
+  run isolatedDrop xs 1000000
+  run isolatedTakeWhile xs
+  run isolatedDropWhile xs
+  run isolatedZip xs xs
+  run isolatedSteppedRange 1000000
+  run longChainOfCombinators xs
+  run (*...1000000).iter.fold (init := 0) (· + ·)
+  run primes 3000
+  printEveryNth l 10000
+  printEveryNthSliceBased xs 10000

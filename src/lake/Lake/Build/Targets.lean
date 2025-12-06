@@ -55,12 +55,6 @@ public def TargetDecl.fetchJob (self : TargetDecl) : FetchM OpaqueJob :=  do
   (pkg : Package) (self : PackageFacetDecl) [FamilyOut FacetOut self.name α]
 : FetchM (Job α) := fetch <| pkg.facetCore self.name
 
-/-- Fetch the build job of a package facet. -/
-@[deprecated "Deprecated without replacement." (since := "2025-03-17")]
-public def PackageFacetConfig.fetchJob
-  (pkg : Package) (self : PackageFacetConfig name)
-: FetchM OpaqueJob := return (← fetch <| pkg.facet self.name).toOpaque
-
 /-- Fetch the build job of a library facet. -/
 public def Package.fetchFacetJob
   (name : Name) (self : Package)
@@ -73,12 +67,6 @@ public def Package.fetchFacetJob
 @[inline] public protected def ModuleFacetDecl.fetch
   (mod : Module) (self : ModuleFacetDecl) [FamilyOut FacetOut self.name α]
 : FetchM (Job α) := fetch <| mod.facetCore self.name
-
-/-- Fetch the build job of a module facet. -/
-@[deprecated "Deprecated without replacement." (since := "2025-03-17")]
-public def ModuleFacetConfig.fetchJob
-  (mod : Module) (self : ModuleFacetConfig name)
-: FetchM OpaqueJob := return (← fetch <| mod.facet self.name).toOpaque
 
 /-- Fetch the build job of a module facet. -/
 public def Module.fetchFacetJob (name : Name) (self : Module) : FetchM OpaqueJob :=
@@ -95,12 +83,6 @@ public def Module.fetchFacetJob (name : Name) (self : Module) : FetchM OpaqueJob
 @[inline] public protected def LibraryFacetDecl.fetch
   (lib : LeanLib) (self : LibraryFacetDecl) [FamilyOut FacetOut self.name α]
 : FetchM (Job α) := fetch <| lib.facetCore self.name
-
-/-- Fetch the build job of a library facet. -/
-@[deprecated "Deprecated without replacement," (since := "2025-03-17")]
-public def LibraryFacetConfig.fetchJob
-  (lib : LeanLib) (self : LibraryFacetConfig name)
-: FetchM OpaqueJob := return (← fetch <| lib.facet self.name).toOpaque
 
 /-- Fetch the build job of a library facet. -/
 public def LeanLib.fetchFacetJob

@@ -28,12 +28,16 @@ variable {m : Type u → Type v} {ps : PostShape.{u}}
 -/
 class WPMonad (m : Type u → Type v) (ps : outParam PostShape.{u}) [Monad m]
   extends LawfulMonad m, WP m ps where
+  /-- `WP.wp` preserves `pure`. -/
   wp_pure : ∀ {α} (a : α), wp (pure a) = pure a
+  /-- `WP.wp` preserves `bind`. -/
   wp_bind : ∀ {α β} (x : m α) (f : α → m β), wp (do let a ← x; f a) = do let a ← wp x; wp (f a)
 
+/-- `WP.wp` preserves `map`. -/
 theorem WPMonad.wp_map [Monad m] [WPMonad m ps] (f : α → β) (x : m α) :
   wp (f <$> x) = f <$> wp x := by simp [← bind_pure_comp, wp_pure, wp_bind]
 
+/-- `WP.wp` preserves `seq`. -/
 theorem WPMonad.wp_seq [Monad m] [WPMonad m ps] (f : m (α → β)) (x : m α) :
   wp (f <*> x) = wp f <*> wp x := by simp [← bind_map, wp_map, wp_bind]
 
@@ -68,6 +72,18 @@ instance ExceptT.instWPMonad [Monad m] [WPMonad m ps] : WPMonad (ExceptT ε m) (
     case error a => simp [wp_pure]
     case ok a => rfl
 
+instance OptionT.instWPMonad [Monad m] [WPMonad m ps] : WPMonad (OptionT m) (.except PUnit ps) where
+  wp_pure a := by ext; simp only [wp, pure, OptionT.pure, OptionT.mk, WPMonad.wp_pure,
+    PredTrans.pure, PredTrans.pushOption_apply]
+  wp_bind x f := by
+    ext Q
+    simp only [wp, bind, OptionT.bind, OptionT.mk, WPMonad.wp_bind, PredTrans.bind, PredTrans.pushOption_apply]
+    congr
+    ext b
+    cases b
+    case none => simp [wp_pure]
+    case some a => rfl
+
 instance EStateM.instWPMonad : WPMonad (EStateM ε σ) (.except ε (.arg σ .pure)) where
   wp_pure a := by simp only [wp, pure, EStateM.pure, PredTrans.pure]
   wp_bind x f := by
@@ -77,6 +93,10 @@ instance EStateM.instWPMonad : WPMonad (EStateM ε σ) (.except ε (.arg σ .pur
     cases (x s) <;> rfl
 
 instance Except.instWPMonad : WPMonad (Except ε) (.except ε .pure) where
+  wp_pure a := rfl
+  wp_bind x f := by cases x <;> rfl
+
+instance Option.instWPMonad : WPMonad Option (.except PUnit .pure) where
   wp_pure a := rfl
   wp_bind x f := by cases x <;> rfl
 

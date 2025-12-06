@@ -8,13 +8,10 @@ module
 
 prelude
 public import Lean.Meta.Basic
-import Lean.AddDecl
-import Lean.Meta.AppBuilder
 import Lean.Meta.CompletionName
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.NatTable
 import Lean.Elab.App
-import Lean.Meta.Tactic.Simp.SimpTheorems
 import Lean.Meta.Tactic.Simp.Attr
 
 namespace Lean
@@ -207,6 +204,7 @@ def mkConstructorElim (indName : Name) : MetaM Unit := do
       (hints       := ReducibilityHints.abbrev)
     ))
     modifyEnv fun env => markAuxRecursor env declName
+    modifyEnv fun env => markSparseCasesOn env declName
     modifyEnv fun env => addToCompletionBlackList env declName
     modifyEnv fun env => addProtected env declName
     Elab.Term.elabAsElim.setTag declName
@@ -223,9 +221,11 @@ public def mkCtorElim (indName : Name) : MetaM Unit := do
   let recInfo ← getConstInfo (mkRecName indName)
   unless recInfo.levelParams.length > indVal.levelParams.length do return
 
-  mkCtorElimType indName
-  mkIndCtorElim indName
-  mkConstructorElim indName
+  -- Expose if indName is not private
+  withExporting (isExporting := ! isPrivateName indName) do
+    mkCtorElimType indName
+    mkIndCtorElim indName
+    mkConstructorElim indName
 
 
 /--

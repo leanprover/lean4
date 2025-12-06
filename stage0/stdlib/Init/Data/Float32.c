@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Float32
-// Imports: Init.Core Init.Data.Int.Basic Init.Data.ToString.Basic Init.Data.Float
+// Imports: public import Init.Data.Float
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -136,7 +136,6 @@ float cbrtf(float);
 LEAN_EXPORT lean_object* l_instMinFloat32;
 LEAN_EXPORT lean_object* l_Float32_isInf___boxed(lean_object*);
 float lean_uint32_to_float32(uint32_t);
-LEAN_EXPORT lean_object* l_Float32_ctorIdx___boxed(lean_object*);
 double lean_float32_to_float(float);
 LEAN_EXPORT lean_object* l_Float32_log2___boxed(lean_object*);
 static lean_object* l_instNegFloat32___closed__0;
@@ -154,12 +153,21 @@ float ceilf(float);
 LEAN_EXPORT lean_object* l_USize_toFloat32___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Float32_cbrt___boxed(lean_object*);
 float lean_usize_to_float32(size_t);
-LEAN_EXPORT lean_object* l_Float32_ctorIdx(float);
 LEAN_EXPORT lean_object* l_Float32_pow___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_float32Spec___lam__0(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_float32Spec___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; uint8_t x_5; lean_object* x_6; 
+x_4 = lean_unbox(x_1);
+x_5 = l_float32Spec___lam__0(x_4, x_2, x_3);
+x_6 = lean_box(x_5);
+return x_6;
 }
 }
 static lean_object* _init_l_float32Spec() {
@@ -177,16 +185,6 @@ lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);
 lean_ctor_set(x_5, 2, x_3);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_float32Spec___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; uint8_t x_5; lean_object* x_6; 
-x_4 = lean_unbox(x_1);
-x_5 = l_float32Spec___lam__0(x_4, x_2, x_3);
-x_6 = lean_box(x_5);
-return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Float32_add___boxed(lean_object* x_1, lean_object* x_2) {
@@ -989,14 +987,6 @@ return x_1;
 }
 }
 }
-static lean_object* _init_l_instMinFloat32() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instMinFloat32___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_instMinFloat32___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1008,6 +998,14 @@ lean_dec_ref(x_2);
 x_5 = l_instMinFloat32___lam__0(x_3, x_4);
 x_6 = lean_box_float32(x_5);
 return x_6;
+}
+}
+static lean_object* _init_l_instMinFloat32() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instMinFloat32___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
 LEAN_EXPORT float l_instMaxFloat32___lam__0(float x_1, float x_2) {
@@ -1025,14 +1023,6 @@ return x_2;
 }
 }
 }
-static lean_object* _init_l_instMaxFloat32() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instMaxFloat32___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_instMaxFloat32___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1044,6 +1034,14 @@ lean_dec_ref(x_2);
 x_5 = l_instMaxFloat32___lam__0(x_3, x_4);
 x_6 = lean_box_float32(x_5);
 return x_6;
+}
+}
+static lean_object* _init_l_instMaxFloat32() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instMaxFloat32___lam__0___boxed), 2, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Float32_scaleB___boxed(lean_object* x_1, lean_object* x_2) {
@@ -1080,43 +1078,13 @@ x_4 = lean_box_float32(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Float32_ctorIdx(float x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Float32_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-float x_2; lean_object* x_3; 
-x_2 = lean_unbox_float32(x_1);
-lean_dec_ref(x_1);
-x_3 = l_Float32_ctorIdx(x_2);
-return x_3;
-}
-}
-lean_object* initialize_Init_Core(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Int_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_ToString_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Float(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Float(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Float32(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Float32(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Core(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Int_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_ToString_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Float(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Float(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_float32Spec = _init_l_float32Spec();

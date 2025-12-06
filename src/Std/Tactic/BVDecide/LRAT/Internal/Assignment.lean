@@ -6,7 +6,6 @@ Authors: Josh Clune
 module
 
 prelude
-public import Init.ByCases
 public import Std.Tactic.BVDecide.LRAT.Internal.Entails
 public import Std.Tactic.BVDecide.LRAT.Internal.PosFin
 public import Init.Grind

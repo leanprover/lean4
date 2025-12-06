@@ -8,5 +8,3 @@ module
 prelude
 public import Lean.Data.Xml.Basic
 public import Lean.Data.Xml.Parser
-
-public section

@@ -6,10 +6,8 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lake.Build.Data
 public import Lake.Build.Job.Basic
 public import Lake.Build.ModuleArtifacts
-public import Lake.Config.Dynlib
 meta import all Lake.Build.Data
 
 /-!
@@ -76,12 +74,15 @@ public structure ModuleImportInfo where
   allTransTrace : BuildTrace
   /-- Transitive import trace for an `import` of the module without the module system enabled. -/
   legacyTransTrace : BuildTrace
+  deriving Inhabited
 
 /-- **For internal use only.** Information about the imports of this module. -/
 builtin_facet importInfo : Module => ModuleImportInfo
 
 /-- Information useful to importers of a module. -/
 public structure ModuleExportInfo where
+  /-- The trace of the module's source file. -/
+  srcTrace : BuildTrace
   /-- Artifacts directly needed for an `import` of the module with the module system enabled. -/
   arts : ImportArtifacts
   /-- The trace of the module's public olean. -/
@@ -103,6 +104,7 @@ public structure ModuleExportInfo where
   allTransTrace : BuildTrace
   /-- Transitive import trace for an `import` of the module without the module system enabled. -/
   legacyTransTrace : BuildTrace
+  deriving Inhabited
 
 /-- **For internal use only.** Information useful to importers of this module. -/
 builtin_facet exportInfo : Module => ModuleExportInfo

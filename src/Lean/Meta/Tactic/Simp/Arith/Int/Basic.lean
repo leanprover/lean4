@@ -8,8 +8,6 @@ module
 prelude
 public import Init.Data.Int.Linear
 public import Lean.Util.SortExprs
-public import Lean.Meta.Check
-public import Lean.Meta.Offset
 public import Lean.Meta.IntInstTesters
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.KExprMap

@@ -15,15 +15,13 @@ namespace Lean
 
 register_builtin_option profiler : Bool := {
   defValue := false
-  group    := "profiler"
   descr    := "show exclusive execution times of various Lean components
-  
+
 See also `trace.profiler` for an alternative profiling system with structured output."
 }
 
 register_builtin_option profiler.threshold : Nat := {
   defValue := 100
-  group    := "profiler"
   descr    := "threshold in milliseconds, profiling times under threshold will not be reported individually"
 }
 

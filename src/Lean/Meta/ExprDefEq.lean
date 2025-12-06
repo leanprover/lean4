@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Offset
 public import Lean.Meta.UnificationHint
 public import Lean.Util.OccursCheck
 
@@ -16,13 +15,11 @@ namespace Lean.Meta
 
 register_builtin_option backward.isDefEq.lazyProjDelta : Bool := {
   defValue := true
-  group    := "backward compatibility"
   descr    := "use lazy delta reduction when solving unification constrains of the form `(f a).i =?= (g b).i`"
 }
 
 register_builtin_option backward.isDefEq.lazyWhnfCore : Bool := {
   defValue := true
-  group    := "backward compatibility"
   descr    := "specifies transparency mode when normalizing constraints of the form `(f a).i =?= s`, if `true` only reducible definitions and instances are unfolded when reducing `f a`. Otherwise, the default setting is used"
 }
 
@@ -156,13 +153,13 @@ def isDefEqNat (s t : Expr) : MetaM LBool := do
     | none,   some t => isDefEq s t
     | none,   none   => pure LBool.undef
 
-/-- Support for constraints of the form `("..." =?= String.mk cs)` -/
+/-- Support for constraints of the form `("..." =?= String.ofList cs)` -/
 def isDefEqStringLit (s t : Expr) : MetaM LBool := do
   let isDefEq (s t) : MetaM LBool := toLBoolM <| Meta.isExprDefEqAux s t
-  if s.isStringLit && t.isAppOf ``String.mk then
-    isDefEq s.toCtorIfLit t
-  else if s.isAppOf `String.mk && t.isStringLit then
-    isDefEq s t.toCtorIfLit
+  if s.isStringLit && t.isAppOf ``String.ofList then
+    isDefEq (← s.toCtorIfLit) t
+  else if s.isAppOf ``String.ofList && t.isStringLit then
+    isDefEq s (← t.toCtorIfLit)
   else
     pure LBool.undef
 

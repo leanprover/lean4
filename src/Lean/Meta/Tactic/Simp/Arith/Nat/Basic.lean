@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Util.SortExprs
 public import Lean.Meta.KExprMap
-import Lean.Meta.Offset
 import Lean.Data.RArray
 import Lean.Meta.AppBuilder
 import Lean.Meta.NatInstTesters

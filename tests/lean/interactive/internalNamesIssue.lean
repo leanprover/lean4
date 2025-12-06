@@ -8,4 +8,4 @@ def bla (x : Nat) : Nat :=
 end Foo
 
 #check Foo.
-         --^ textDocument/completion
+         --^ completion

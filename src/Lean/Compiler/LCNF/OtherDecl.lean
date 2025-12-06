@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Compiler.LCNF.BaseTypes
 public import Lean.Compiler.LCNF.MonoTypes
 
 public section

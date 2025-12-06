@@ -1,6 +1,7 @@
 module
 
 import all Lean.Meta.Hint
+meta import Lean.Meta.Hint
 
 /-! # Word-level diffs in hint suggestions
 

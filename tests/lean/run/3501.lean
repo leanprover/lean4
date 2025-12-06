@@ -1,6 +1,6 @@
 /--
 info: Try this:
-  simp only [Nat.reduceMul, a]
+  [apply] simp only [Nat.reduceMul, a]
 -/
 #guard_msgs in
 example : True := by

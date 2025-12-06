@@ -27,13 +27,13 @@ register_error_explanation testPkg.foo2 {
 }
 
 #check throwNamedError testPkg
-                            --^ textDocument/completion
+                            --^ completion
 #check throwNamedError testPkg.
-                             --^ textDocument/completion
+                             --^ completion
 #check throwNamedError testPkg.f
-                              --^ textDocument/completion
+                              --^ completion
 #check throwNamedError testPkg.f "test"
-                              --^ textDocument/completion
+                              --^ completion
 
 #check throwNamedError testPkg.foo2
                              --^ textDocument/hover

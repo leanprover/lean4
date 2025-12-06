@@ -6,7 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lake.Build.Facets
 public import Lake.Config.Package
 meta import all Lake.Build.Data
 
@@ -36,19 +35,7 @@ public inductive BuildInfo
 public abbrev Package.key (self : Package) : BuildKey :=
   .package self.name
 
-@[deprecated Package.key (since := "2025-03-28")]
-public abbrev Package.buildKey (self : Package) : BuildKey :=
-  .package self.name
-
-@[deprecated BuildKey.facet (since := "2025-03-28")]
-public abbrev Package.facetBuildKey (facet : Name) (self : Package) : BuildKey :=
-  self.key.facet facet
-
 public abbrev Package.targetKey (target : Name) (self : Package) : BuildKey :=
-  .packageTarget self.name target
-
-@[deprecated Package.targetKey (since := "2025-03-28")]
-public abbrev Package.targetBuildKey (target : Name) (self : Package) : BuildKey :=
   .packageTarget self.name target
 
 /-! ### Build Info to Key -/

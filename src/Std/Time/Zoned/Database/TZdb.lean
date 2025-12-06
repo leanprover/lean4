@@ -6,10 +6,8 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time.DateTime
-public import Std.Time.Zoned.TimeZone
-public import Std.Time.Zoned.ZoneRules
 public import Std.Time.Zoned.Database.Basic
+import Init.Data.String.TakeDrop
 
 public section
 
@@ -68,8 +66,8 @@ def idFromPath (path : System.FilePath) : Option String := do
   let last₁ ← res[res.size - 2]?
 
   if last₁ = "zoneinfo"
-    then some <| last.trim
-    else some <| last₁.trim ++ "/" ++ last.trim
+    then some <| last.trimAscii.copy
+    else some <| last₁.trimAscii.copy ++ "/" ++ last.trimAscii
 
 /--
 Retrieves the timezone rules from the local timezone data file.

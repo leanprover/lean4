@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Std.Data.DTreeMap.Raw.Basic
 public import Std.Data.DTreeMap.AdditionalOperations
 
 @[expose] public section

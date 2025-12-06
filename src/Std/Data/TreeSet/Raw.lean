@@ -9,5 +9,5 @@ prelude
 public import Std.Data.TreeSet.Raw.Basic
 public import Std.Data.TreeSet.Raw.Lemmas
 public import Std.Data.TreeSet.Raw.WF
-
-@[expose] public section
+public import Std.Data.TreeSet.Raw.Iterator
+public import Std.Data.TreeSet.Raw.Slice

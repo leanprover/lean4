@@ -1,0 +1,9 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.header
+   "header("
+   (num "0")
+   ")"
+   "{"
+   [(Lean.Doc.Syntax.text (str "\"Header!\""))]
+   "}")
+All input consumed.

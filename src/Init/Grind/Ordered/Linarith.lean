@@ -5,14 +5,13 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Grind.Ordered.Module
 public import Init.Grind.Ordered.Ring
 public import Init.Grind.Ring.Field
 public import Init.Data.Ord.Basic
 import all Init.Data.Ord.Basic
 public import Init.Data.AC
 import all Init.Data.AC
-public import Init.Data.RArray
+import Init.LawfulBEqTactics
 
 @[expose] public section
 
@@ -40,10 +39,10 @@ inductive Expr where
 
 abbrev Context (α : Type u) := RArray α
 
-def Var.denote {α} (ctx : Context α) (v : Var) : α :=
+abbrev Var.denote {α} (ctx : Context α) (v : Var) : α :=
   ctx.get v
 
-def Expr.denote {α} [IntModule α] (ctx : Context α) : Expr → α
+abbrev Expr.denote {α} [IntModule α] (ctx : Context α) : Expr → α
   | zero      => 0
   | .var v    => v.denote ctx
   | .add a b  => denote ctx a + denote ctx b
@@ -55,27 +54,27 @@ def Expr.denote {α} [IntModule α] (ctx : Context α) : Expr → α
 inductive Poly where
   | nil
   | add (k : Int) (v : Var) (p : Poly)
-  deriving BEq, Repr
+  deriving BEq, ReflBEq, LawfulBEq, Repr
 
-def Poly.denote {α} [IntModule α] (ctx : Context α) (p : Poly) : α :=
+abbrev Poly.denote {α} [IntModule α] (ctx : Context α) (p : Poly) : α :=
   match p with
   | .nil => 0
   | .add k v p => k • v.denote ctx + denote ctx p
 
+abbrev Poly.denote'.go {α} [IntModule α] (ctx : Context α) (r : α) (p : Poly) : α :=
+    match p with
+    | .nil => r
+    | .add 1 v p => go ctx (r + v.denote ctx) p
+    | .add k v p => go ctx (r + k • v.denote ctx) p
+
 /--
 Similar to `Poly.denote`, but produces a denotation better for normalization.
 -/
-def Poly.denote' {α} [IntModule α] (ctx : Context α) (p : Poly) : α :=
+abbrev Poly.denote' {α} [IntModule α] (ctx : Context α) (p : Poly) : α :=
   match p with
   | .nil => 0
-  | .add 1 v p => go (v.denote ctx) p
-  | .add k v p => go (k • v.denote ctx) p
-where
-  go (r : α)  (p : Poly) : α :=
-    match p with
-    | .nil => r
-    | .add 1 v p => go (r + v.denote ctx) p
-    | .add k v p => go (r + k • v.denote ctx) p
+  | .add 1 v p => denote'.go ctx (v.denote ctx) p
+  | .add k v p => denote'.go ctx (k • v.denote ctx) p
 
 -- Helper instance for `ac_rfl`
 local instance {α} [IntModule α] : Std.Associative (· + · : α → α → α) where
@@ -84,6 +83,8 @@ local instance {α} [IntModule α] : Std.Associative (· + · : α → α → α
 local instance {α} [IntModule α] : Std.Commutative (· + · : α → α → α) where
   comm := AddCommMonoid.add_comm
 
+set_option allowUnsafeReducibility true in
+attribute [semireducible] Poly.denote' Poly.denote'.go in
 private theorem Poly.denote'_go_eq_denote {α} [IntModule α] (ctx : Context α) (p : Poly) (r : α) : denote'.go ctx r p = p.denote ctx + r := by
   induction r, p using denote'.go.induct ctx <;> simp [denote'.go, denote]
   next ih => rw [ih]; ac_rfl
@@ -122,26 +123,22 @@ def Poly.append (p₁ p₂ : Poly) : Poly :=
   | .nil => p₂
   | .add k x p₁ => .add k x (append p₁ p₂)
 
-def Poly.combine' (fuel : Nat) (p₁ p₂ : Poly) : Poly :=
-  match fuel with
-  | 0 => p₁.append p₂
-  | fuel + 1 => match p₁, p₂ with
+def Poly.combine (p₁ p₂ : Poly) : Poly :=
+  match p₁, p₂ with
     | .nil, p₂ => p₂
     | p₁, .nil => p₁
     | .add a₁ x₁ p₁, .add a₂ x₂ p₂ =>
       bif Nat.beq x₁ x₂ then
         let a := a₁ + a₂
         bif a == 0 then
-          combine' fuel p₁ p₂
+          combine p₁ p₂
         else
-          .add a x₁ (combine' fuel p₁ p₂)
+          .add a x₁ (combine p₁ p₂)
       else bif Nat.blt x₂ x₁ then
-        .add a₁ x₁ (combine' fuel p₁ (.add a₂ x₂ p₂))
+        .add a₁ x₁ (combine p₁ (.add a₂ x₂ p₂))
       else
-        .add a₂ x₂ (combine' fuel (.add a₁ x₁ p₁) p₂)
-
-def Poly.combine (p₁ p₂ : Poly) : Poly :=
-  combine' 100000000 p₁ p₂
+        .add a₂ x₂ (combine (.add a₁ x₁ p₁) p₂)
+  termination_by sizeOf p₁ + sizeOf p₂
 
 /-- Converts the given expression into a polynomial. -/
 def Expr.toPoly' (e : Expr) : Poly :=
@@ -204,17 +201,14 @@ theorem Poly.denote_append {α} [IntModule α] (ctx : Context α) (p₁ p₂ : P
 
 attribute [local simp] Poly.denote_append
 
-theorem Poly.denote_combine' {α} [IntModule α] (ctx : Context α) (fuel : Nat) (p₁ p₂ : Poly) : (p₁.combine' fuel p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
-  fun_induction p₁.combine' fuel p₂ <;>
+theorem Poly.denote_combine {α} [IntModule α] (ctx : Context α) (p₁ p₂ : Poly) : (p₁.combine p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
+  fun_induction p₁.combine p₂ <;>
     simp_all +zetaDelta [denote]
   next h _ =>
     rw [Int.add_comm] at h
     rw [add_left_comm, add_assoc, ← add_assoc, ← add_zsmul, h, zero_zsmul, zero_add]
   next => rw [add_zsmul]; ac_rfl
   all_goals ac_rfl
-
-theorem Poly.denote_combine {α} [IntModule α] (ctx : Context α) (p₁ p₂ : Poly) : (p₁.combine p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
-  simp [combine, denote_combine']
 
 attribute [local simp] Poly.denote_combine
 
@@ -233,18 +227,6 @@ theorem Expr.denote_norm {α} [IntModule α] (ctx : Context α) (e : Expr) : e.n
   simp [norm, toPoly', Expr.denote_toPoly'_go, Poly.denote]
 
 attribute [local simp] Expr.denote_norm
-
-instance : LawfulBEq Poly where
-  eq_of_beq {a} := by
-    induction a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
-    next ih =>
-      intro _ _ h
-      exact ih h
-  rfl := by
-    intro a
-    induction a <;> simp! [BEq.beq]
-    assumption
-
 attribute [local simp] Poly.denote'_eq_denote
 
 def Poly.leadCoeff (p : Poly) : Int :=

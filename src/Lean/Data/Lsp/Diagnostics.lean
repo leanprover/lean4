@@ -10,7 +10,6 @@ prelude
 public import Lean.Data.Lsp.Basic
 public import Lean.Data.Lsp.Utf16
 
-public import Lean.Message
 
 public section
 
@@ -117,7 +116,7 @@ structure DiagnosticRelatedInformation where
 /-- Represents a diagnostic, such as a compiler error or warning. Diagnostic objects are only valid in the scope of a resource.
 
 LSP accepts a `Diagnostic := DiagnosticWith String`.
-The infoview also accepts `InteractiveDiagnostic := DiagnosticWith (TaggedText MsgEmbed)`.
+The infoview also accepts `InteractiveDiagnostic := DiagnosticWith InteractiveMessage`.
 
 [reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#diagnostic) -/
 structure DiagnosticWith (α : Type) where

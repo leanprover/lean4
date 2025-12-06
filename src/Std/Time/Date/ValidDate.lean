@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time.Date.Unit.Day
 public import Std.Time.Date.Unit.Month
 import all Std.Time.Date.Unit.Month
 
@@ -14,7 +13,6 @@ public section
 
 namespace Std
 namespace Time
-open Std.Internal
 open Internal
 open Month.Ordinal
 

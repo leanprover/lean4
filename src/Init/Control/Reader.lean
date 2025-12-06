@@ -8,8 +8,6 @@ The Reader monad transformer for passing immutable State.
 module
 
 prelude
-public import Init.Control.Basic
-public import Init.Control.Id
 public import Init.Control.Except
 
 public section

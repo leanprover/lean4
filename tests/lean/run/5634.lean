@@ -18,7 +18,6 @@ htrue : True
 ---
 error: unsolved goals
 htrue : True
-h✝ : False
 ⊢ False
 -/
 #guard_msgs in
@@ -35,7 +34,6 @@ context:
 ⊢ False
 ---
 error: unsolved goals
-h✝ : False
 ⊢ False
 -/
 #guard_msgs in
@@ -88,14 +86,14 @@ Regression test: make sure `simpa?` reports lemmas for both the goal and the `us
 
 /--
 info: Try this:
-  simpa only [id] using h
+  [apply] simpa only [id] using h
 -/
 #guard_msgs in example (p : Prop) (h : p) : id p := by
   simpa? only [id] using h
 
 /--
 info: Try this:
-  simpa only [id] using h
+  [apply] simpa only [id] using h
 -/
 #guard_msgs in example (p : Prop) (h : id p) : p := by
   simpa? only [id] using h

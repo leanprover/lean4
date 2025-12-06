@@ -7,8 +7,6 @@ module
 
 prelude
 public import Lean.Util.CollectMVars
-public import Lean.Meta.Basic
-public import Lean.Meta.InferType
 public import Lean.Meta.DecLevel
 
 public section

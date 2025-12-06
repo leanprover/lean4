@@ -38,7 +38,7 @@ def constructorNameAsVariable : Linter where
       | return
 
     let infoTrees := (← get).infoState.trees.toArray
-    let warnings : IO.Ref (Std.HashMap String.Range (Syntax × Name × Name)) ← IO.mkRef {}
+    let warnings : IO.Ref (Std.HashMap Lean.Syntax.Range (Syntax × Name × Name)) ← IO.mkRef {}
 
     for tree in infoTrees do
       tree.visitM' (postNode := fun ci info _ => do

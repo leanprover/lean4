@@ -641,7 +641,7 @@ Batched version of `Lean.LocalContext.findFromUserName?`.
 Finds the visible local declarations for each of the given `userNames` up to a certain `start`
 index exclusively, if any.
 -/
-def findFromUserNames (lctx : LocalContext) (userNames : Std.HashSet Name) (start := 0) : Array LocalDecl :=
+def findFromUserNames (lctx : LocalContext) (userNames : Std.HashMap Name α) (start := 0) : Array LocalDecl :=
   Array.reverse <| Id.run <| ExceptT.runCatch do
     let (_, _, acc) ← lctx.foldrM (init := (userNames, lctx.numIndices, #[])) fun decl (userNames, num, acc) => do
       if userNames.isEmpty then throw acc -- stop when we found all user names

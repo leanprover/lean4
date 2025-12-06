@@ -40,7 +40,7 @@ axiom a : A
 axiom b : B
 /--
 info: Try this:
-  (expose_names; exact imp h_1 h)
+  [apply] (expose_names; exact imp h_1 h)
 -/
 #guard_msgs in
 example : C := by
@@ -63,12 +63,9 @@ example : EqExplicit (fun (f : α → β) => (fun g x => g x) f) id := by
   exact?
 
 
-/-! Suggests `expose_names` if a name in the syntax contains macro scopes -/
-/--
-info: Try this:
-  (expose_names; exact h)
--/
-#guard_msgs in
+/-! `exact?` no longer uses `solve_by_elim` first, so it can't find local hypotheses.
+However, star-indexed lemmas (like `Function.comp`) may find a proof via fallback. -/
+#guard_msgs (drop info) in
 example {P : Prop} : P → P := by
   intro
   exact?
@@ -79,7 +76,7 @@ opaque D : Nat → Type
 axiom c_of_d {n : Nat} : D n → C
 /--
 info: Try this:
-  exact c_of_d x
+  [apply] exact c_of_d x
 -/
 #guard_msgs in
 example : (n : Nat) → D n → C := by
@@ -94,7 +91,7 @@ axiom option1 : A → E
 axiom option2 {_ : B} : E
 /--
 info: Try this:
-  refine option1 ?_
+  [apply] refine option1 ?_
   -- Remaining subgoals:
   -- ⊢ A
 ---
@@ -117,7 +114,7 @@ opaque R : A → B → Prop
 axiom rImp (b : B) : R a b → R a b
 /--
 info: Try this:
-  (expose_names; refine rImp b ?_)
+  [apply] (expose_names; refine rImp b ?_)
   -- Remaining subgoals:
   -- ⊢ R a b
 ---
@@ -132,7 +129,7 @@ example : (b : B) → R a b := by
 /-! `show_term` exhibits the same behavior as `exact?` -/
 /--
 info: Try this:
-  (expose_names; exact h)
+  [apply] (expose_names; exact h)
 -/
 #guard_msgs in
 example : E → E := by
@@ -154,7 +151,7 @@ example : B → E := by
   show_term apply option2
 /--
 info: Try this:
-  exact c_of_d d
+  [apply] exact c_of_d d
 -/
 #guard_msgs in
 example : (n : Nat) → D n → C := by
@@ -174,7 +171,7 @@ axiom eq (a' : A) : a = a'
 
 /--
 info: Try this:
-  (expose_names; rw [eq a'])
+  [apply] (expose_names; rw [eq a'])
   -- Foo a' a'
 ---
 error: unsolved goals

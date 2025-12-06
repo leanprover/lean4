@@ -148,3 +148,14 @@ example : True := by induction 1 with done
                                 --^ $/lean/plainGoal
 
 end
+
+section
+
+example (f : Nat → Nat) (n : Nat) (hf : ∀ x, f x = x + 0 + 1) : f n + 0 = 1 + n := by
+  simpa [Nat.add_zero, Nat.add_comm] using hf n
+--^ $/lean/plainGoal
+ --^ $/lean/plainGoal
+                                       --^ $/lean/plainGoal
+                                         --^ $/lean/plainGoal
+
+end

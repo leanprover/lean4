@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Data.HashSet
 public import Init.Data.Vector.Basic
+public import Init.Data.Hashable
 
 @[expose] public section
 
@@ -484,6 +485,7 @@ where
       let lval := go lhs.gate decls assign (by omega) h2
       let rval := go rhs.gate decls assign (by omega) h2
       xor lval lhs.invert && xor rval rhs.invert
+  termination_by (x, 0) -- Don't allow reduction, we have large concrete gate entries
 
 /--
 Denotation of an `AIG` at a specific `Entrypoint`.

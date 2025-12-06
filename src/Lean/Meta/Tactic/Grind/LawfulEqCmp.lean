@@ -4,22 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.SynthInstance
-
+import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Tactic.Grind.SynthInstance
 public section
-
+namespace Lean.Meta.Grind
 /-!
 Support for type class `LawfulEqCmp`.
 -/
 /-
-Note: we will have similar support for `Associative` and `Commutative`. In the future, we should have
+**Note**: we will have similar support for `Associative` and `Commutative`. In the future, we should have
 a mechanism for letting users to install their own handlers.
 -/
-
-namespace Lean.Meta.Grind
 
 /--
 If `op` implements `LawfulEqCmp`, then returns the proof term for

@@ -6,8 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time.Internal
-public import Std.Time.Date.Unit.Day
 public import Std.Time.Date.Unit.Month
 
 public section
@@ -15,7 +13,6 @@ public section
 namespace Std
 namespace Time
 namespace Year
-open Std.Internal
 open Internal
 
 set_option linter.all true

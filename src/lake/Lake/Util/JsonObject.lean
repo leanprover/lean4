@@ -37,17 +37,20 @@ public instance : ToJson JsonObject := ⟨JsonObject.toJson⟩
 
 public instance : FromJson JsonObject := ⟨JsonObject.fromJson?⟩
 
-@[inline] public nonrec def insert [ToJson α] (obj : JsonObject) (prop : String) (val : α) : JsonObject :=
-  obj.insert prop (toJson val)
+public def insertJson (obj : JsonObject) (prop : String) (val : Json) : JsonObject :=
+  obj.insert prop (toJson val) -- specializes `insert`
+
+@[inline] public def insert [ToJson α] (obj : JsonObject) (prop : String) (val : α) : JsonObject :=
+  obj.insertJson prop (toJson val)
 
 @[inline] public def insertSome [ToJson α] (obj : JsonObject) (prop : String) (val? : Option α) : JsonObject :=
   if let some val := val? then obj.insert prop val else obj
 
 public nonrec def erase (obj : JsonObject) (prop : String) : JsonObject :=
-  inline <| obj.erase prop
+  obj.erase prop -- specializes `erase`
 
-@[inline] public def getJson? (obj : JsonObject) (prop : String) : Option Json :=
-  obj.get? prop
+public def getJson? (obj : JsonObject) (prop : String) : Option Json :=
+  obj.get? prop -- specializes `get?`
 
 @[inline] public def get [FromJson α] (obj : JsonObject) (prop : String) : Except String α :=
   match obj.getJson? prop with

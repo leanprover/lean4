@@ -22,10 +22,10 @@
                 "buildType": {
                     "type": "string",
                     "enum": [
-                        "debug",
-                        "relWithDebInfo",
-                        "minSizeRel",
-                        "release"
+                        "debug", "Debug",
+                        "relWithDebInfo", "RelWithDebInfo",
+                        "minSizeRel", "MinSizeRel",
+                        "release", "Release"
                     ],
                     "default": "release",
                     "description": "The mode in which the modules should be built."
@@ -192,6 +192,11 @@
                             "type": "boolean",
                             "default": false,
                             "description": "Whether static and shared binaries of this library should be prefixed with `lib` on Windows.\n\nUnlike Unix, Windows does not require native libraries to start with `lib` and, by convention, they usually do not. However, for consistent naming across all platforms, users may wish to enable this.\n\nDefaults to `false`."
+                        },
+                        "allowImportAll": {
+                            "type": "boolean",
+                            "default": false,
+                            "description": "Whether downstream packages can `import all` modules of this library.\n\nIf enabled, downstream users will be able to access the `private` internals of modules, including definition bodies not marked as `@[expose]`. This may also, in the future, prevent compiler optimization which rely on `private` definitions being inaccessible outside their own package."
                         },
                         "needs": {
                             "type": "array",
@@ -451,9 +456,18 @@
                     "default": false,
                     "description": "Whether native libraries (of this package) should be prefixed with `lib` on Windows.\n\nUnlike Unix, Windows does not require native libraries to start with `lib` and, by convention, they usually do not. However, for consistent naming across all platforms, users may wish to enable this."
                 },
+                "allowImportAll": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether downstream packages can `import all` modules of this package.\n\nIf enabled, downstream users will be able to access the `private` internals of modules, including definition bodies not marked as `@[expose]`. This may also, in the future, prevent compiler optimization which rely on `private` definitions being inaccessible outside their own package."
+                },
                 "enableArtifactCache": {
                     "type": "boolean",
                     "description": "Whether to enables Lake's local, offline artifact cache for the package.\n\nArtifacts (i.e., build products) of packages will be shared across local copies by storing them in a cache associated with the Lean toolchain.\nThis can significantly reduce initial build times and disk space usage when working with multiple copies of large projects or large dependencies.\n\nAs a caveat, build targets which support the artifact cache will not be stored in their usual location within the build directory. Thus, projects with custom build scripts that rely on specific location of artifacts may wish to disable this feature.\n\nIf not set, the cache will be disabled by default unless the `LAKE_ARTIFACT_CACHE` environment variable is set to true."
+                },
+                "restoreAllArtifacts": {
+                    "type": "boolean",
+                    "description": "Whether, when the local artifact cache is enabled, Lake should copy all cached artifacts into the build directory. This ensures the build results are available to external consumers who expect them in the build directory."
                 },
                 "srcDir": {
                     "type": "string",

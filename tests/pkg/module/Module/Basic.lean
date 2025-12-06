@@ -1,5 +1,10 @@
 module
 
+meta import Init.Dynamic
+meta import Init.System.IO
+public import Lean.PrettyPrinter.Delaborator.Basic
+public meta import Lean.PrettyPrinter.Delaborator.Basic
+
 public axiom testSorry : α
 
 /-! Module docstring -/
@@ -34,12 +39,39 @@ info: @[reducible, expose] def fabbrev : Nat :=
 #guard_msgs in
 #print fabbrev
 
+/-- A non-exposed function type. -/
+public def Fun := Nat → Nat
+
+/-! The compiler should check it has sufficient information about types available. -/
+
+/--
+error: Compilation failed, locally inferred compilation type differs from type that would be inferred in other modules. Some of the following definitions may need to be `@[expose]`d to fix this mismatch: ⏎
+  Fun ↦ 1
+This is a current compiler limitation for `module`s that may be lifted in the future.
+-/
+#guard_msgs in
+public def Fun.mk (f : Nat → Nat) : Fun := f
+
 #guard_msgs(drop warning) in
 /-- A theorem. -/
 public theorem t : f = 1 := testSorry
 
 /-- A private definition. -/
 def fpriv := 1
+
+public section
+/-- Examples are always private. -/
+example : fpriv = 1 := rfl
+
+/--
+error: Unknown identifier `fpriv`
+
+Note: A private declaration `fpriv` (from the current module) exists but would need to be public to access here.
+-/
+#guard_msgs in
+/-- ...unless explicitly marked `public`. -/
+public example : fpriv = 1 := rfl
+end
 
 /--
 error: Unknown identifier `fpriv`
@@ -49,10 +81,21 @@ Note: A private declaration `fpriv` (from the current module) exists but would n
 #guard_msgs in
 public theorem tpriv : fpriv = 1 := rfl
 
+/-! Type inference should not be able to smuggle out private references. -/
+
+/--
+error: Unknown constant `_private.Module.Basic.0.fpriv`
+
+Note: A private declaration `fpriv` (from the current module) exists but would need to be public to access here.
+-/
+#guard_msgs in
+public def inferredPrivRef := (rfl : fpriv = 1)
+
 public class X
 
 /-- A local instance of a public class. -/
 instance : X := ⟨⟩
+
 
 -- Check that the theorem types are checked in exported context, where `f` is not defeq to `1`
 -- (but `fexp` is)
@@ -64,6 +107,9 @@ has type
   Vector Unit 1
 but is expected to have type
   Vector Unit f
+
+Note: The following definitions were not unfolded because their definition is not exposed:
+  f ↦ 1
 -/
 #guard_msgs in
 public theorem v (x : Vector Unit f) (y : Vector Unit 1) : x = y := testSorry
@@ -137,6 +183,7 @@ is not definitionally equal to the right-hand side
 #guard_msgs in
 @[defeq] public theorem not_rfl : f = 2 := testSorry
 
+/-- A private definition. -/
 def priv := 2
 
 /-! Private decls should not be accessible in exported contexts. -/
@@ -212,7 +259,7 @@ info: private theorem f_struct.eq_unfold : f_struct = fun x =>
 -/
 #guard_msgs(pass trace, all) in #print sig f_struct.eq_unfold
 
-/-- info: private theorem f_wfrec.eq_1 : ∀ (x : Nat), f_wfrec 0 x = x -/
+/-- info: @[defeq] private theorem f_wfrec.eq_1 : ∀ (x : Nat), f_wfrec 0 x = x -/
 #guard_msgs(pass trace, all) in #print sig f_wfrec.eq_1
 
 /--
@@ -232,7 +279,7 @@ info: private theorem f_wfrec.eq_unfold : f_wfrec = fun x x_1 =>
 -/
 #guard_msgs in #print sig f_wfrec.eq_unfold
 
-/-- info: theorem f_exp_wfrec.eq_1 : ∀ (x : Nat), f_exp_wfrec 0 x = x -/
+/-- info: @[defeq] theorem f_exp_wfrec.eq_1 : ∀ (x : Nat), f_exp_wfrec 0 x = x -/
 #guard_msgs in #print sig f_exp_wfrec.eq_1
 
 /--
@@ -276,6 +323,15 @@ constructor:
 #guard_msgs in
 #with_exporting
 #check { x := 1 : StructWithPrivateField }
+
+#check (⟨1⟩ : StructWithPrivateField)
+
+/--
+error: Invalid `⟨...⟩` notation: Constructor for `StructWithPrivateField` is marked as private
+-/
+#guard_msgs in
+#with_exporting
+#check (⟨1⟩ : StructWithPrivateField)
 
 #check StructWithPrivateField.x
 
@@ -349,15 +405,108 @@ constructor:
 section
 set_option pp.oneline true
 /--
-info: private def OptParamStruct.pauto._autoParam : Lean.Syntax :=
+info: private meta def OptParamStruct.pauto._autoParam : Lean.Syntax :=
 Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Tactic.tacticSeq [...]
 -/
 #guard_msgs in
 #print OptParamStruct.pauto._autoParam
 /--
-info: @[expose] def OptParamStruct.auto._autoParam : Lean.Syntax :=
+info: @[expose] meta def OptParamStruct.auto._autoParam : Lean.Syntax :=
 Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Tactic.tacticSeq [...]
 -/
 #guard_msgs in
 #print OptParamStruct.auto._autoParam
 end
+
+/-! `deriving` should derive `meta` defs on `meta` structures. -/
+meta structure Foo where
+deriving TypeName
+
+/--
+info: private meta def instTypeNameFoo : TypeName Foo :=
+inst✝
+-/
+#guard_msgs in
+#print instTypeNameFoo
+
+public meta def pubMeta := 1
+
+/-! `#eval` should accept `meta` and non-`meta`. -/
+
+meta def fmeta := 1
+
+/-- info: 2 -/
+#guard_msgs in
+#eval f + fmeta
+
+/-! Prop `instance`s should have direct access to the private scope. -/
+
+public class PropClass : Prop where
+  proof : True
+
+theorem privTrue : True := trivial
+public instance : PropClass := ⟨privTrue⟩
+
+/-! Meta defs should only be exposed explicitly. -/
+
+@[expose] section
+public meta def msec := 1
+@[expose] public meta def msecexp := 1
+end
+
+/--
+info: meta def msec : Nat :=
+<not imported>
+-/
+#guard_msgs in
+#with_exporting
+#print msec
+
+/--
+info: @[expose] meta def msecexp : Nat :=
+1
+-/
+#guard_msgs in
+#with_exporting
+#print msecexp
+
+attribute [simp] f_struct
+
+/-! `[inherit_doc]` should work independently of visibility. -/
+
+@[inherit_doc priv] public def pubInheritDoc := 1
+
+/-! `initialize` should be run even if imported IR-only. -/
+
+public initialize initialized : Nat ← pure 5
+
+/-! Error message on private dot notation access. -/
+
+public structure S
+
+def S.s := 1
+
+/--
+error: Invalid field `s`: The environment does not contain `S.s`, so it is not possible to project the field `s` from an expression
+  s
+of type `S`
+
+Note: A private declaration `S.s` (from the current module) exists but would need to be public to access here.
+-/
+#guard_msgs in
+@[expose] public def useS (s : S) := s.s
+
+/- `meta` should trump `noncomputable`. -/
+
+noncomputable section
+/-- error: Invalid `meta` definition `m`, `S.s` not marked `meta` -/
+#guard_msgs in
+meta def m := S.s
+end
+
+-- setup for `Imported`
+public meta def delab : Lean.PrettyPrinter.Delaborator.Delab :=
+  default
+
+public def noMetaDelab : Lean.PrettyPrinter.Delaborator.Delab :=
+  default

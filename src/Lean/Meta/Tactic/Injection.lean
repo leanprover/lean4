@@ -6,12 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.AppBuilder
-public import Lean.Meta.MatchUtil
-public import Lean.Meta.Tactic.Clear
 public import Lean.Meta.Tactic.Subst
-public import Lean.Meta.Tactic.Assert
-public import Lean.Meta.Tactic.Intro
 
 public section
 
@@ -42,7 +37,9 @@ def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCor
         match (← isConstructorApp'? a), (← isConstructorApp'? b) with
         | some aCtor, some bCtor =>
           -- We use the default transparency because `a` and `b` may be builtin literals.
+          trace[Meta.Tactic.injection] "applying noConfusion to {← inferType prf} at\n{mvarId}"
           let val ← withTransparency .default <| mkNoConfusion target prf
+          trace[Meta.Tactic.injection] "got no-confusion principle{indentExpr val}\nof type{indentExpr (← inferType val)}"
           if aCtor.name != bCtor.name then
             mvarId.assign val
             return InjectionResultCore.solved
@@ -61,8 +58,12 @@ def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCor
               /- Recall that `noConfusion` does not include equalities for
                  propositions since they are trivial due to proof irrelevance. -/
               let numPropFields ← getCtorNumPropFields aCtor
-              return InjectionResultCore.subgoal mvarId (aCtor.numFields - numPropFields)
-            | _ => throwTacticEx `injection mvarId "ill-formed noConfusion auxiliary construction"
+              let numNonPropFields := aCtor.numFields - numPropFields
+              trace[Meta.Tactic.injection] "subgoal with {numNonPropFields} fields:\n{mvarId}"
+              return InjectionResultCore.subgoal mvarId numNonPropFields
+            | _ =>
+              trace[Meta.Tactic.injection] "ill-formed noConfusion auxiliary construction with type:{indentExpr valType}"
+              throwTacticEx `injection mvarId "ill-formed noConfusion auxiliary construction"
         | _, _ => throwTacticEx `injection mvarId "equality of constructor applications expected"
     let prf := mkFVar fvarId
     if let some (α, a, β, b) := type.heq? then
@@ -78,7 +79,7 @@ inductive InjectionResult where
   | subgoal (mvarId : MVarId) (newEqs : Array FVarId) (remainingNames : List Name)
 
 
-def injectionIntro (mvarId : MVarId) (numEqs : Nat) (newNames : List Name) (tryToClear := true) : MetaM InjectionResult :=
+def injectionIntro (mvarId : MVarId) (numEqs : Nat) (newNames : List Name) (tryToClear := true) : MetaM InjectionResult := do
   let rec go : Nat → MVarId → Array FVarId → List Name → MetaM InjectionResult
     | 0, mvarId, fvarIds, remainingNames =>
       return InjectionResult.subgoal mvarId fvarIds remainingNames
@@ -90,6 +91,7 @@ def injectionIntro (mvarId : MVarId) (numEqs : Nat) (newNames : List Name) (tryT
       let (fvarId, mvarId) ← mvarId.intro1
       let (fvarId, mvarId) ← heqToEq mvarId fvarId tryToClear
       go n mvarId (fvarIds.push fvarId) []
+  trace[Meta.Tactic.injection] "introducing {numEqs} new equalities at\n{mvarId}"
   go numEqs mvarId #[] newNames
 
 def injection (mvarId : MVarId) (fvarId : FVarId) (newNames : List Name := []) : MetaM InjectionResult := do
@@ -144,3 +146,6 @@ where
       else cont
 
 end Lean.Meta
+
+builtin_initialize
+  Lean.registerTraceClass `Meta.Tactic.injection

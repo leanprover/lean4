@@ -4,6 +4,7 @@
   | 100  => 2
   | 1000 => 3
   | x+1  => f x
+termination_by structural x
 
 /-- info: f.eq_1 : f 0 = 1 -/
 #guard_msgs in

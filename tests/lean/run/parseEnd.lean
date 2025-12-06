@@ -17,7 +17,7 @@ elab d:docComment "test" : command => do
 
   let endPos := input.prev <| input.prev endPos
 
-  if h : endPos ≤ input.endPos then
+  if h : endPos ≤ input.rawEndPos then
     let ictx := mkInputContext input (← getFileName) (endPos := endPos) (endPos_valid := h)
     let env ← getEnv
     let s := { mkParserState input with pos }

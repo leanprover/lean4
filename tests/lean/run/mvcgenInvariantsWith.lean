@@ -94,7 +94,7 @@ theorem test_with_pretac {m : Option Nat} (h : m = some 4) :
   (match m with
   | some n => (set n : StateM Nat PUnit)
   | none => set 0)
-  ⦃⇓ r s => ⌜s = 4⌝⦄ := by
+  ⦃⇓ _ s => ⌜s = 4⌝⦄ := by
   mvcgen with simp_all
 
 theorem test_with_cases {m : Option Nat} (h : m = some 4) :
@@ -102,7 +102,7 @@ theorem test_with_cases {m : Option Nat} (h : m = some 4) :
   (match m with
   | some n => (set n : StateM Nat PUnit)
   | none => set 0)
-  ⦃⇓ r s => ⌜s = 4⌝⦄ := by
+  ⦃⇓ _ s => ⌜s = 4⌝⦄ := by
   mvcgen
   with
   | vc1 => grind
@@ -113,7 +113,7 @@ theorem test_with_pretac_cases {m : Option Nat} (h : m = some 4) :
   (match m with
   | some n => (set n : StateM Nat PUnit)
   | none => set 0)
-  ⦃⇓ r s => ⌜s = 4⌝⦄ := by
+  ⦃⇓ _ s => ⌜s = 4⌝⦄ := by
   mvcgen
   with simp -- `simp` is a no-op on some goals, but it should not fail
   | vc1 => grind
@@ -193,3 +193,29 @@ theorem nodup_twice_missing_two_invariants (l : List Int) : nodup_twice l ↔ l.
   mvcgen
   invariants
   with grind
+
+def copy (l : List Nat) : Id (Array Nat) := do
+  let mut acc := #[]
+  for x in l do
+    acc := acc.push x
+  return acc
+
+set_option warn.sorry false in
+theorem copy_labelled_invariants (l : List Nat) : ⦃⌜True⌝⦄ copy l ⦃⇓ r => ⌜r = l.toArray⌝⦄ := by
+  mvcgen [copy] invariants
+  | inv1 acc => ⇓ ⟨xs, letMuts⟩ => ⌜acc = l.toArray⌝
+  with admit
+
+set_option warn.sorry false in
+theorem copy_labelled_invariants_noname (l : List Nat) : ⦃⌜True⌝⦄ copy l ⦃⇓ r => ⌜r = l.toArray⌝⦄ := by
+  mvcgen [copy] invariants
+  | _ acc => ⇓ ⟨xs, letMuts⟩ => ⌜acc = l.toArray⌝
+  with admit
+
+/-- error: Alternation between labelled and bulleted invariants is not supported. -/
+#guard_msgs in
+theorem copy_labelled_invariants_dontmix (l : List Nat) : ⦃⌜True⌝⦄ copy l ⦃⇓ r => ⌜r = l.toArray⌝⦄ := by
+  mvcgen [copy] invariants
+  · ⇓ ⟨xs, letMuts⟩ => ⌜True⌝
+  | _ acc => ⇓ ⟨xs, letMuts⟩ => ⌜acc = l.toArray⌝
+  with admit

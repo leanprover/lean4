@@ -1,6 +1,6 @@
 - attributes:
-    description: stdlib
-    tags: [slow]
+    description: Init.Prelude async
+    tags: [other]
     time: &time
       #runner: time
       # alternative config: use `perf stat` for extended properties
@@ -18,137 +18,94 @@
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: |
-      set -euxo pipefail
-      bash -c 'set -eo pipefail; find ${BUILD:-../build/release}/stage3 -name "*.olean" -delete; lakeprof record make -C ${BUILD:-../build/release}/stage3 -j$(nproc) 2>&1 | ../tests/bench/accumulate_profile.py'
-      lakeprof report -p | awk '{if ($3) cum = $3} END {print "longest build path: " cum}'
-      lakeprof report -r | awk '{if ($3) cum = $3} END {print "longest rebuild path: " cum}'
-    max_runs: 2
-    parse_output: true
-  # initialize stage3 cmake + warmup
-  build_config:
-    cmd: |
-      bash -c 'make -C ${BUILD:-../build/release} stage3 -j$(nproc)'
-- attributes:
-    description: stdlib size
-    tags: [deterministic, fast]
-  run_config:
-    cwd: ../../
-    cmd: |
-      set -euxo pipefail
-      echo -n 'lines: '
-      find src -name '*.lean' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'bytes .olean: '
-      find ${BUILD:-build/release}/stage3/lib/lean -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'bytes .olean.server: '
-      find ${BUILD:-build/release}/stage3/lib/lean -name '*.olean.server' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'bytes .olean.private: '
-      find ${BUILD:-build/release}/stage3/lib/lean -name '*.olean.private' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'bytes .ir: '
-      find ${BUILD:-build/release}/stage3/lib/lean -name '*.ir' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'lines C: '
-      find ${BUILD:-build/release}/stage3/lib/temp -name '*.c' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'lines C++: '
-      find src \( -name '*.h' -o -name '*.cpp' \) -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'max dynamic symbols: '
-      find ${BUILD:-build/release}/stage3/lib/lean -name '*.so' -exec bash -c 'nm --extern-only --defined-only {} | wc -l' \; | sort --reverse --numeric-sort | head -n1
-    max_runs: 1
-    runner: output
-- attributes:
-    description: Init size
-    tags: [deterministic, fast]
-  run_config:
-    cwd: ../../
-    cmd: |
-      set -euxo pipefail
-      echo -n 'bytes .olean: '
-      find ${BUILD:-build/release}/stage3/lib/lean/Init -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'bytes .olean.server: '
-      find ${BUILD:-build/release}/stage3/lib/lean/Init -name '*.olean.server' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'bytes .olean.private: '
-      find ${BUILD:-build/release}/stage3/lib/lean/Init -name '*.olean.private' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
-    max_runs: 1
-    runner: output
-- attributes:
-    description: libleanshared.so
-    tags: [deterministic, fast]
-  run_config:
-    cmd: |
-      set -eu
-      echo -n 'binary size: '
-      wc -c ${BUILD:-../../build/release}/stage3/lib/lean/libleanshared.so | cut -d' ' -f 1
-    max_runs: 1
-    runner: output
-- attributes:
-    description: Init.Prelude async
-    tags: [fast]
-  run_config:
-    <<: *time
-    cwd: ../../src
     cmd: lean -Dexperimental.module=true Init/Prelude.lean
 - attributes:
     description: Init.Data.List.Sublist async
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cwd: ../../src
     cmd: lean -Dexperimental.module=true Init/Data/List/Sublist.lean
 - attributes:
     description: Std.Data.Internal.List.Associative
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cwd: ../../src
     cmd: lean -Dexperimental.module=true Std/Data/Internal/List/Associative.lean
 - attributes:
     description: Std.Data.DHashMap.Internal.RawLemmas
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cwd: ../../src
     cmd: lean -Dexperimental.module=true Std/Data/DHashMap/Internal/RawLemmas.lean
 - attributes:
     description: Init.Data.BitVec.Lemmas
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cwd: ../../src
     cmd: lean -Dexperimental.module=true Init/Data/BitVec/Lemmas.lean
 - attributes:
     description: Init.Data.List.Sublist re-elab -j4
+    tags: [other]
   run_config:
     <<: *time
     cwd: ../../src
     cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/List/Sublist.lean 10 -j4 -Dexperimental.module=true
     max_runs: 2
+    parse_output: true
 - attributes:
     description: Init.Data.BitVec.Lemmas re-elab
+    tags: [other]
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/BitVec/Lemmas.lean 2 -j4 -Dexperimental.module=true
+    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/BitVec/Lemmas.lean 3 -j4 -Dexperimental.module=true
     max_runs: 2
+    parse_output: true
+- attributes:
+    description: Init.Data.List.Sublist re-elab -j4 (watchdog rss)
+    tags: [other]
+  run_config:
+    <<: *time
+    cwd: ../../src
+    cmd: lean --run ../script/benchReelabWatchdogRss.lean lean Init/Data/List/Sublist.lean 10 -j4 -Dexperimental.module=true
+    max_runs: 2
+    parse_output: true
+# This benchmark uncovered the promise cycle in `realizeConst` (#11328)
+- attributes:
+    description: Init.Data.List.Basic re-elab
+    tags: [other]
+  run_config:
+    <<: *time
+    cwd: ../../src
+    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/List/Basic.lean 10 -j4 -Dexperimental.module=true
+    max_runs: 2
+    parse_output: true
 - attributes:
     description: import Lean
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cwd: ../../src
     cmd: lean Lean.lean
 - attributes:
     description: tests/compiler
-    tags: [deterministic, slow]
+    tags: [other]
   run_config:
     cwd: ../compiler/
     cmd: |
       set -eu
+      for f in *.lean; do ../bench/compile.sh $f > /dev/null; done
       printf 'sum binary sizes: '
-      for f in *.lean; do ../bench/compile.sh $f; printf '%s\0' "$f.out"; done | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      for f in *.lean; do printf '%s\0' "$f.out"; done | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
     max_runs: 1
     runner: output
 - attributes:
     description: tests/bench/ interpreted
-    tags: [slow]
+    tags: [other]
   run_config:
     <<: *time
     cmd: |
@@ -162,7 +119,7 @@
     max_runs: 2
 - attributes:
     description: binarytrees
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: ./binarytrees.lean.out 21
@@ -170,7 +127,7 @@
     cmd: ./compile.sh binarytrees.lean
 - attributes:
     description: binarytrees.st
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: ./binarytrees.st.lean.out 21
@@ -178,7 +135,7 @@
     cmd: ./compile.sh binarytrees.st.lean
 - attributes:
     description: const_fold
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: bash -c "ulimit -s unlimited && ./const_fold.lean.out 23"
@@ -186,7 +143,7 @@
     cmd: ./compile.sh const_fold.lean
 - attributes:
     description: deriv
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: ./deriv.lean.out 10
@@ -194,7 +151,7 @@
     cmd: ./compile.sh deriv.lean
 - attributes:
     description: lake build clean
-    tags: [slow]
+    tags: [other]
   run_config:
     <<: *time
     cmd: |
@@ -218,7 +175,7 @@
       "
 - attributes:
     description: lake build no-op
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: |
@@ -239,7 +196,7 @@
       "
 - attributes:
     description: lake config elab
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: |
@@ -252,7 +209,7 @@
     cmd: cp inundation/lakefile.lean inundation/lakefile-rc.lean
 - attributes:
     description: lake config import
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: |
@@ -270,7 +227,7 @@
       "
 - attributes:
     description: lake config tree
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: |
@@ -285,7 +242,7 @@
       lake -dinundation/test/tree update
 - attributes:
     description: lake env
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: |
@@ -298,7 +255,7 @@
     cmd: lake -dinundation env true
 - attributes:
     description: lake startup
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: |
@@ -309,13 +266,23 @@
       "
 - attributes:
     description: language server startup
-    tags: [fast]
+    tags: [other]
+  build_config:
+    cmd: ./compile.sh server_startup.lean
   run_config:
     <<: *time
-    cmd: lean -Dlinter.all=false --run server_startup.lean
+    cmd: ./server_startup.lean.out
+- attributes:
+    description: language server startup with ileans
+    tags: [other]
+  build_config:
+    cmd: ./compile.sh watchdogRss.lean
+  run_config:
+    <<: *time
+    cmd: ./watchdogRss.lean.out
 - attributes:
     description: ilean roundtrip
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: ./ilean_roundtrip.lean.out 200000
@@ -324,14 +291,14 @@
     cmd: ./compile.sh ilean_roundtrip.lean
 - attributes:
     description: identifier auto-completion
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean -Dlinter.all=false --run identifier_completion_runner.lean
     parse_output: true
 - attributes:
     description: liasolver
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: ./liasolver.lean.out ex-50-50-1.leq
@@ -339,7 +306,7 @@
     cmd: ./compile.sh liasolver.lean
 - attributes:
     description: parser
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: ./parser.lean.out ../../src/Init/Prelude.lean 50
@@ -347,7 +314,7 @@
     cmd: ./compile.sh parser.lean
 - attributes:
     description: qsort
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: ./qsort.lean.out 400
@@ -355,7 +322,7 @@
     cmd: ./compile.sh qsort.lean
 - attributes:
     description: rbmap
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: ./rbmap.lean.out 2000000
@@ -363,7 +330,7 @@
     cmd: ./compile.sh rbmap.lean
 - attributes:
     description: rbmap_1
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: ./rbmap_checkpoint.lean.out 2000000 1
@@ -371,7 +338,7 @@
     cmd: ./compile.sh rbmap_checkpoint.lean
 - attributes:
     description: rbmap_10
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: ./rbmap_checkpoint.lean.out 2000000 10
@@ -379,7 +346,7 @@
     cmd: ./compile.sh rbmap_checkpoint.lean
 - attributes:
     description: rbmap_fbip
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: ./rbmap_fbip.lean.out 2000000
@@ -387,7 +354,7 @@
     cmd: ./compile.sh rbmap_fbip.lean
 - attributes:
     description: rbmap_library
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: ./rbmap_library.lean.out 2000000
@@ -395,79 +362,97 @@
     cmd: ./compile.sh rbmap_library.lean
 - attributes:
     description: reduceMatch
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean reduceMatch.lean
 - attributes:
     description: simp_arith1
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean simp_arith1.lean
 - attributes:
     description: simp_bubblesort_256
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean simp_bubblesort_256.lean
 - attributes:
     description: simp_local
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean simp_local.lean
 - attributes:
     description: simp_subexpr
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean simp_subexpr.lean
 - attributes:
     description: simp_congr
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean --tstack=16384 simp_congr.lean
 - attributes:
     description: mut_rec_wf
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean mut_rec_wf.lean
 - attributes:
     description: big_match
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean big_match.lean
 - attributes:
+    description: big_match_partial
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean big_match_partial.lean
+- attributes:
+    description: big_match_nat
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean big_match_nat.lean
+- attributes:
+    description: big_match_nat_split
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean big_match_nat_split.lean
+- attributes:
     description: big_beq
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean big_beq.lean
 - attributes:
     description: big_beq_rec
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean big_beq_rec.lean
 - attributes:
     description: big_deceq
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean big_deceq.lean
 - attributes:
     description: big_deceq_rec
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean big_deceq_rec.lean
 - attributes:
     description: nat_repr
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: ./nat_repr.lean.out 5000
@@ -475,7 +460,7 @@
     cmd: ./compile.sh nat_repr.lean
 - attributes:
     description: unionfind
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
     cmd: ./unionfind.lean.out 3000000
@@ -483,33 +468,33 @@
     cmd: ./compile.sh unionfind.lean
 - attributes:
     description: workspaceSymbols
-    tags: [fast, suite]
+    tags: [other]
   run_config:
     <<: *time
-    cmd: lean workspaceSymbols.lean
+    cmd: lean -Dexperimental.module=true workspaceSymbols.lean
     max_runs: 2
 - attributes:
     description: bv_decide_realworld
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean bv_decide_realworld.lean
 - attributes:
     description: bv_decide_mul
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean bv_decide_mul.lean
 - attributes:
     description: bv_decide_mod
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean bv_decide_mod.lean
     max_runs: 2
 - attributes:
     description: bv_decide_inequality.lean
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean bv_decide_inequality.lean
@@ -517,43 +502,43 @@
     max_runs: 2
 - attributes:
     description: bv_decide_large_aig.lean
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean bv_decide_large_aig.lean
 - attributes:
     description: bv_decide_rewriter.lean
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean bv_decide_rewriter.lean
 - attributes:
     description: big_do
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean big_do.lean
 - attributes:
     description: big_omega.lean
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean big_omega.lean
 - attributes:
     description: big_omega.lean MT
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean big_omega.lean -Dinternal.cmdlineSnapshots=false
 - attributes:
     description: omega_stress.lean async
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean omega_stress.lean
 - attributes:
     description: channel.lean
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: ./channel.lean.out
@@ -562,26 +547,50 @@
     cmd: ./compile.sh channel.lean
 - attributes:
     description: riscv-ast.lean
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean riscv-ast.lean
     max_runs: 2
 - attributes:
-    description: iterators
-    tags: [fast]
+    description: iterators (compiled)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: ./iterators.lean.out
+  build_config:
+    cmd: ./compile.sh iterators.lean
+- attributes:
+    description: iterators (interpreted)
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean --run iterators.lean
+- attributes:
+    description: iterators (elab)
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean iterators.lean
 - attributes:
-    description: workspaceSymbols with new ranges
-    tags: [fast]
+    description: sigma iterator
+    tags: [other]
   run_config:
     <<: *time
-    cmd: lean workspaceSymbolsNewRanges.lean
+    cmd: ./sigmaIterator.lean.out
+  build_config:
+    cmd: ./compile.sh sigmaIterator.lean
+- attributes:
+    description: workspaceSymbols with new ranges
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: ./workspaceSymbolsNewRanges.lean.out
+  build_config:
+    cmd: ./compile.sh workspaceSymbolsNewRanges.lean
 - attributes:
     description: hashmap.lean
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: ./hashmap.lean.out 11 10000
@@ -590,7 +599,7 @@
     cmd: ./compile.sh hashmap.lean
 - attributes:
     description: treemap.lean
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: ./treemap.lean.out 11 10000
@@ -599,7 +608,7 @@
     cmd: ./compile.sh treemap.lean
 - attributes:
     description: phashmap.lean
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: ./phashmap.lean.out 11 10000
@@ -608,19 +617,19 @@
     cmd: ./compile.sh phashmap.lean
 - attributes:
     description: grind_bitvec2.lean
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean -Dexperimental.module=true ../lean/run/grind_bitvec2.lean
 - attributes:
     description: grind_list2.lean
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean -Dexperimental.module=true ../lean/run/grind_list2.lean
 - attributes:
     description: grind_ring_5.lean
-    tags: [fast]
+    tags: [other]
   run_config:
     <<: *time
     cmd: lean -Dexperimental.module=true ../lean/run/grind_ring_5.lean

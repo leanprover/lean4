@@ -158,7 +158,7 @@ variable [BEq α] [LawfulBEq α] in
 -- `getElem` and `getElem?`
 
 variable (h : n < m) (w) in
-#check_tactic (replicate m x)[n]'w ~> x by simp [h]
+#check_tactic (replicate m x)[n]'w ~> x by simp
 
 variable (h : n < m) in
 #check_tactic (replicate m x)[n]? ~> some x by simp [h]
@@ -292,10 +292,10 @@ variable {p : α → Bool} (w : ¬ p x) (h : 0 < n) in
 #check_simp (replicate (n+1) x).findSome? (fun x => some x) ~> some x
 #check_simp (replicate (n+1) x).findSome? (fun _ => (none : Option β)) ~> none
 
-variable {f : α → Option β} (w : (f x).isSome) in
-#check_tactic (replicate (n+1) x).findSome? f ~> f x by simp [w]
+variable {f : α → Option β} in
+#check_tactic (replicate (n+1) x).findSome? f ~> f x by simp
 variable {f : α → Option β} (w : (f x).isNone) in
-#check_tactic (replicate (n+1) x).findSome? f ~> none by simp_all [w]
+#check_tactic (replicate (n+1) x).findSome? f ~> none by simp_all
 
 variable (h : 0 < n) in
 #check_tactic (replicate n x).findSome? (fun x => some x) ~> some x by simp [h]
@@ -303,9 +303,9 @@ variable (h : 0 < n) in
 #check_tactic (replicate n x).findSome? (fun _ => (none : Option β)) ~> none by simp [h]
 
 variable {f : α → Option β} (w : (f x).isSome) (h : 0 < n) in
-#check_tactic (replicate n x).findSome? f ~> f x by simp [w, h]
+#check_tactic (replicate n x).findSome? f ~> f x by simp [h]
 variable {f : α → Option β} (w : (f x).isNone) (h : 0 < n) in
-#check_tactic (replicate n x).findSome? f ~> none by simp_all [w, h]
+#check_tactic (replicate n x).findSome? f ~> none by simp_all
 
 -- lookup
 
@@ -465,8 +465,10 @@ example : (List.range 1).sum = 0 := by simp
 /-! ## ofFn -/
 
 example (f : Fin 3 → Nat) : List.ofFn f = [f 0, f 1, f 2] := rfl
+
 -- Out of place, but lets check that `Fin.foldl` is semireducible too.
-example (f : Fin 3 → Nat) : Fin.foldl 3 (fun acc i => f i :: acc) [] = [f 2, f 1, f 0] := rfl
+-- Well, no longer the case
+-- example (f : Fin 3 → Nat) : Fin.foldl 3 (fun acc i => f i :: acc) [] = [f 2, f 1, f 0] := rfl
 
 /-! ## Monadic operations -/
 

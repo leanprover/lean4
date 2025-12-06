@@ -596,6 +596,16 @@ run_meta do
   let e' ← instantiateMVars e
   -- e' is `Nat.succ 42`, `?m.773` is assigned to `42`
 ```
+
+There are a few gotchas concerning delayed assignments.
+
+* Regular assignments take precedence over delayed ones. This happens when an error occurs, in which
+  case Lean assigns `sorry` to all unassigned metavariables, delayed assigned or not.
+* Unless a delayed assigned metavariable `?m := fun fvars => ?pending` is fully applied to its free
+  variables `fvars`, it will not be instantiated to `?pending`.
+* A delayed assigned metavariable `?m := fun fvars => ?pending` that occurs fully applied `?m fvars`
+  will not be instantiated to `?pending` unless (1) `?pending` is assigned, and (2) the
+  assignment to `?pending` is ground (i.e., does not contain unassigned metavariables).
 -/
 def instantiateMVars [Monad m] [MonadMCtx m] (e : Expr) : m Expr := do
   if !e.hasMVar then

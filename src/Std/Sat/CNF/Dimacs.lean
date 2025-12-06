@@ -6,7 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Sat.CNF.Basic
 public import Std.Sat.CNF.RelabelFin
 
 public section

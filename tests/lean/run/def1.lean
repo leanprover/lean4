@@ -1,4 +1,4 @@
-
+set_option linter.unusedVariables false
 
 inductive BV : Nat → Type
 | nil  : BV 0

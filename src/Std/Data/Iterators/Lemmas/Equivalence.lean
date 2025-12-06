@@ -9,5 +9,3 @@ prelude
 public import Std.Data.Iterators.Lemmas.Equivalence.HetT
 public import Std.Data.Iterators.Lemmas.Equivalence.Basic
 public import Std.Data.Iterators.Lemmas.Equivalence.StepCongr
-
-@[expose] public section

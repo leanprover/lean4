@@ -7,7 +7,6 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Data.Lsp.Basic
 public import Lean.Data.Lsp.TextSync
 public import Lean.Server.Rpc.Basic
 
@@ -64,8 +63,8 @@ an ILean finalization notification for the worker and the document version desig
 Used for test stability in tests that use the .ileans.
 -/
 structure WaitForILeansParams where
-  uri     : DocumentUri
-  version : Nat
+  uri?     : Option DocumentUri := none
+  version? : Option Nat := none
   deriving FromJson, ToJson
 
 structure WaitForILeans where
@@ -126,6 +125,13 @@ structure PlainTermGoal where
   deriving FromJson, ToJson
 
 structure ModuleHierarchyOptions where
+  deriving FromJson, ToJson
+
+structure HighlightMatchesOptions where
+  deriving FromJson, ToJson
+
+structure RpcOptions where
+  highlightMatchesProvider? : Option HighlightMatchesOptions := none
   deriving FromJson, ToJson
 
 structure LeanModule where

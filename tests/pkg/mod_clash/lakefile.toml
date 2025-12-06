@@ -1,0 +1,13 @@
+name = "test"
+
+[[lean_lib]]
+name = "Test"
+leanOptions.experimental.module = true
+
+[[require]]
+name = "depA"
+path = "depA"
+
+[[require]]
+name = "depB"
+path = "depB"

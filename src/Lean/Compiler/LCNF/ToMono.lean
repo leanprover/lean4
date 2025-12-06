@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Compiler.ExternAttr
 public import Lean.Compiler.ImplementedByAttr
-public import Lean.Compiler.LCNF.MonoTypes
 public import Lean.Compiler.LCNF.InferType
 public import Lean.Compiler.NoncomputableAttr
 

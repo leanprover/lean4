@@ -6,7 +6,6 @@ Authors: Henrik Böving, Sofia Rodrigues
 module
 
 prelude
-public import Init.System.IO
 public import Init.System.Promise
 public import Init.Data.SInt
 public import Std.Net
@@ -139,7 +138,7 @@ opaque cwd : IO String
 Changes the current working directory.
 -/
 @[extern "lean_uv_chdir"]
-opaque chdir : String → IO Unit
+opaque chdir : @& String → IO Unit
 
 /--
 Gets the path to the current user's home directory.

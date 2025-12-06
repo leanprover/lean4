@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.System.IO
+import Init.Data.ByteArray.Extra
 
 public section
 universe u

@@ -43,7 +43,7 @@ class rb_tree : private CMP {
         node():m_ptr(nullptr) {}
         node(node_cell * ptr):m_ptr(ptr) { if (m_ptr) ptr->inc_ref(); }
         node(node const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
-        node(node && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
+        node(node && s) noexcept:m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
         ~node() { if (m_ptr) m_ptr->dec_ref(); }
         node & operator=(node const & n) { LEAN_COPY_REF(n); }
         node & operator=(node&& n) { LEAN_MOVE_REF(n); }
@@ -385,7 +385,7 @@ class rb_tree : private CMP {
 public:
     rb_tree(CMP const & cmp = CMP()):CMP(cmp) {}
     rb_tree(rb_tree const & s):CMP(s), m_root(s.m_root) {}
-    rb_tree(rb_tree && s):CMP(s), m_root(s.m_root) {}
+    rb_tree(rb_tree && s) noexcept:CMP(s), m_root(s.m_root) {}
     explicit rb_tree(buffer<T> const & s) {
         for (auto const & v : s)
             insert(v);

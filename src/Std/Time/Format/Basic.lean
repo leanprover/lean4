@@ -6,11 +6,9 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Internal.Parsec
-public import Std.Time.Date
-public import Std.Time.Time
 public import Std.Time.Zoned
-public import Std.Time.DateTime
+import Init.Data.String.TakeDrop
+import Init.Data.String.Search
 
 public section
 
@@ -447,7 +445,7 @@ private def parseMod (constructor : α → Modifier) (classify : Nat → Option 
   let len := p.length
   match classify len with
   | some res => pure (constructor res)
-  | none => fail s!"invalid quantity of characters for '{p.get 0}'"
+  | none => fail s!"invalid quantity of characters for '{p.front}'"
 
 private def parseText (constructor : Text → Modifier) (p : String) : Parser Modifier :=
   parseMod constructor Text.classify p
@@ -471,16 +469,16 @@ private def parseOffsetO (constructor : OffsetO → Modifier) (p : String) : Par
   parseMod constructor OffsetO.classify p
 
 private def parseZoneId (p : String) : Parser Modifier :=
-  if p.length = 2 then pure .V else fail s!"invalid quantity of characters for '{p.get 0}'"
+  if p.length = 2 then pure .V else fail s!"invalid quantity of characters for '{p.front}'"
 
 private def parseNumberText (constructor : (Number ⊕ Text) → Modifier) (p : String) : Parser Modifier :=
   parseMod constructor classifyNumberText p
 
 private def parseZoneName (constructor : ZoneName → Modifier) (p : String) : Parser Modifier :=
   let len := p.length
-  match ZoneName.classify (p.get 0) len with
+  match ZoneName.classify (p.front) len with
   | some res => pure (constructor res)
-  | none => fail s!"invalid quantity of characters for '{p.get 0}'"
+  | none => fail s!"invalid quantity of characters for '{p.front}'"
 
 private def parseModifier : Parser Modifier
   := (parseText Modifier.G =<< many1Chars (pchar 'G'))
@@ -558,7 +556,7 @@ instance : Coe TimeZone Awareness where
   coe := .only
 
 set_option linter.missingDocs false in  -- TODO
-@[simp]
+@[simp, expose /- for codegen -/]
 def type (x : Awareness) : Type :=
   match x with
   | .any => ZonedDateTime
@@ -629,7 +627,7 @@ private def pad (size : Nat)  (n : Int) (cut : Bool := false) : String :=
 
   let numStr := toString n
   if numStr.length > size then
-    sign ++ if cut then numStr.drop (numStr.length - size) else numStr
+    sign ++ if cut then numStr.drop (numStr.length - size) |>.copy else numStr
   else
     sign ++ leftPad size '0' numStr
 
@@ -638,7 +636,7 @@ private def rightTruncate (size : Nat)  (n : Int) (cut : Bool := false) : String
 
   let numStr := toString n
   if numStr.length > size then
-    sign ++ if cut then numStr.take size else numStr
+    sign ++ if cut then numStr.take size |>.copy else numStr
   else
     sign ++ rightPad size '0' numStr
 
@@ -771,6 +769,7 @@ private def toIsoString (offset : Offset) (withMinutes : Bool) (withSeconds : Bo
   data
 
 set_option linter.missingDocs false in  -- TODO
+@[expose /- for codegen -/]
 def TypeFormat : Modifier → Type
   | .G _ => Year.Era
   | .y _ => Year.Offset
@@ -1273,7 +1272,7 @@ private def formatPartWithDate (date : DateTime tz) (part : FormatPart) : String
   | .string s => s
 
 set_option linter.missingDocs false in  -- TODO
-@[simp]
+@[simp, expose /- for codegen -/]
 def FormatType (result : Type) : FormatString → Type
   | .modifier entry :: xs => (TypeFormat entry) → (FormatType result xs)
   | .string _ :: xs => (FormatType result xs)

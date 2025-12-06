@@ -8,5 +8,3 @@ module
 prelude
 public import Lean.Data.NameMap.Basic
 public import Lean.Data.NameMap.AdditionalOperations
-
-public section

@@ -6,8 +6,6 @@ Authors: Mario Carneiro, Markus Himmel
 module
 
 prelude
-public import Init.Data.Int.Basic
-public import Init.Data.Nat.Gcd
 public import Init.Data.Nat.Lcm
 public import Init.Data.Int.DivMod.Lemmas
 public import Init.Data.Int.Pow

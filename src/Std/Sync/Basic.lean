@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.System.IO
-public import Init.Control.StateRef
 
 @[expose] public section
 

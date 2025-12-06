@@ -7,10 +7,7 @@ module
 
 prelude
 public import Lean.Elab.InfoTree
-public import Lean.Message
-public import Lean.Server.Rpc.Basic
 public import Lean.Server.InfoUtils
-public import Lean.Widget.Types
 
 public section
 

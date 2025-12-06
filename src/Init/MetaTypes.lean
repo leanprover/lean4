@@ -94,7 +94,7 @@ structure Config where
   -/
   decide            : Bool := false
   /--
-  When `true` (default: `false`), unfolds definitions.
+  When `true` (default: `false`), unfolds applications of functions defined by pattern matching, when one of the patterns applies.
   This can be enabled using the `simp!` syntax.
   -/
   autoUnfold        : Bool := false
@@ -208,7 +208,7 @@ structure Config where
   /--  When `true` (default: `false`), simplifies simple arithmetic expressions. -/
   arith             : Bool := false
   /--
-  When `true` (default: `false`), unfolds definitions.
+  When `true` (default: `false`), unfolds applications of functions defined by pattern matching, when one of the patterns applies.
   This can be enabled using the `simp!` syntax.
   -/
   autoUnfold        : Bool := false
@@ -290,6 +290,11 @@ structure Config where
   When `true` (default: `true`), the `^` simprocs generate an warning it the exponents are too big.
   -/
   warnExponents : Bool := true
+  /--
+  If `suggestions` is `true`, `simp?` will invoke the currently configured library suggestion engine on the current goal,
+  and attempt to use the resulting suggestions as parameters to the `simp` tactic.
+  -/
+  suggestions : Bool := false
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`

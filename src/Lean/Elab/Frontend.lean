@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Language.Lean
-public import Lean.Util.Profile
 public import Lean.Server.References
 public import Lean.Util.Profiler
 
@@ -18,7 +17,7 @@ namespace Lean.Elab.Frontend
 structure State where
   commandState : Command.State
   parserState  : Parser.ModuleParserState
-  cmdPos       : String.Pos
+  cmdPos       : String.Pos.Raw
   commands     : Array Syntax := #[]
 deriving Nonempty
 
@@ -46,10 +45,7 @@ def setCommandState (commandState : Command.State) : FrontendM Unit :=
 
 def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit := do
   runCommandElabM do
-    let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
     Command.elabCommandTopLevel stx
-    let mut msgs := (← get).messages
-    modify ({ · with messages := initMsgs ++ msgs })
 
 def updateCmdPos : FrontendM Unit := do
   modify fun s => { s with cmdPos := s.parserState.pos }
@@ -161,6 +157,7 @@ def runFrontend
       liftM <| setup.dynlibs.forM Lean.loadDynlib
       return .ok {
         trustLevel
+        package? := setup.package?
         mainModuleName := setup.name
         isModule := strictOr setup.isModule stx.isModule
         imports := setup.imports?.getD stx.imports
@@ -202,10 +199,12 @@ def runFrontend
   if let some ileanFileName := ileanFileName? then
     let trees := snaps.getAll.flatMap (match ·.infoTree? with | some t => #[t] | _ => #[])
     let references := Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false)
+    let (moduleRefs, decls) ← references.toLspModuleRefs
     let ilean := {
       module        := mainModuleName
       directImports := Server.collectImports ⟨snap.stx⟩
-      references    := ← references.toLspModuleRefs
+      references    := moduleRefs
+      decls
       : Lean.Server.Ilean
     }
     IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean

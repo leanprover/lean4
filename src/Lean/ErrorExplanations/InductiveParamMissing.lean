@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.ErrorExplanation
+meta import Lean.ErrorExplanation
 
 public section
 
@@ -23,7 +24,7 @@ between indices and parameters.
 
 # Examples
 
-## Omitting parameter in argument to higher-order predicate
+## Omitting Parameter in Argument to Higher-Order Predicate
 
 ```lean broken
 inductive List.All {α : Type u} (P : α → Prop) : List α → Prop

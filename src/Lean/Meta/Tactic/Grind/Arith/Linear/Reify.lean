@@ -4,13 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.Tactic.Grind.Simp
-public import Lean.Meta.Tactic.Grind.Arith.Linear.Var
-
+public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Arith.Linear.Var
 public section
-
 namespace Lean.Meta.Grind.Arith.Linear
 
 def isAddInst (struct : Struct) (inst : Expr) : Bool :=
@@ -41,17 +39,17 @@ Converts a Lean `IntModule` expression `e` into a `LinExpr`
 If `skipVar` is `true`, then the result is `none` if `e` is not an interpreted `IntModule` term.
 We use `skipVar := false` when processing inequalities, and `skipVar := true` for equalities and disequalities
 -/
-partial def reify? (e : Expr) (skipVar : Bool) : LinearM (Option LinExpr) := do
+partial def reify? (e : Expr) (skipVar : Bool) (generation : Nat := 0) : LinearM (Option LinExpr) := do
   match_expr e with
   | HAdd.hAdd _ _ _ i a b =>
-    if isAddInst (← getStruct  ) i then return some (.add (← go a) (← go b)) else asTopVar e
+    if isAddInst (← getStruct) i then return some (.add (← go a) (← go b)) else asTopVar e
   | HSub.hSub _ _ _ i a b =>
-    if isSubInst (← getStruct  ) i then return some (.sub (← go a) (← go b)) else asTopVar e
+    if isSubInst (← getStruct) i then return some (.sub (← go a) (← go b)) else asTopVar e
   | HSMul.hSMul _ _ _ i a b =>
     let some r ← processSMul i a b | asTopVar e
     return some r
   | Neg.neg _ i a =>
-    if isNegInst (← getStruct  ) i then return some (.neg (← go a)) else asTopVar e
+    if isNegInst (← getStruct) i then return some (.neg (← go a)) else asTopVar e
   | Zero.zero _ i =>
     if isZeroInst (← getStruct) i then return some .zero else asTopVar e
   | OfNat.ofNat _ _ _ =>
@@ -63,10 +61,14 @@ partial def reify? (e : Expr) (skipVar : Bool) : LinearM (Option LinExpr) := do
       return some (← toVar e)
 where
   toVar (e : Expr) : LinearM LinExpr := do
-    return .var (← mkVar e)
+    if (← alreadyInternalized e) then
+      return .var (← mkVar e)
+    else
+      internalize e generation
+      return .var (← mkVar e)
   asVar (e : Expr) : LinearM LinExpr := do
     reportInstIssue e
-    return .var (← mkVar e)
+    toVar e
   asTopVar (e : Expr) : LinearM (Option LinExpr) := do
     reportInstIssue e
     if skipVar then

@@ -10,5 +10,3 @@ prelude
 public import Lean.Server.Rpc.Basic
 public import Lean.Server.Rpc.Deriving
 public import Lean.Server.Rpc.RequestHandling
-
-public section

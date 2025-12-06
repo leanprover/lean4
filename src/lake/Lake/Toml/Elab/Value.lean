@@ -42,9 +42,9 @@ def decodeDecNum (s : String) : Nat :=
 
 def decodeSign (s : String) : Bool × String :=
   if s.front == '-' then
-    (true, s.drop 1)
+    (true, s.drop 1 |>.copy)
   else if s.front == '+' then
-    (false, s.drop 1)
+    (false, s.drop 1 |>.copy)
   else
     (false, s)
 
@@ -67,7 +67,7 @@ def decodeMantissa (s : String) : Nat × Nat :=
   (m, if e ≥ s.length then 0 else e)
 
 def decodeFrExp (s : String) : Nat × Int :=
-  match s.split (fun c => c == 'E' || c == 'e') with
+  match s.split (fun c => c == 'E' || c == 'e') |>.toStringList with
   | [m, exp] =>
     let exp := decodeDecInt exp
     let (m, dotExp) := decodeMantissa m
@@ -122,22 +122,22 @@ def elabDateTime (x : TSyntax ``dateTime) : CoreM DateTime := do
 --------------------------------------------------------------------------------
 
 def elabLiteralString (x : TSyntax ``literalString) : CoreM String := do
-  return (← elabLit x "literalString").drop 1 |>.dropRight 1
+  return (← elabLit x "literalString").drop 1 |>.dropEnd 1 |>.copy
 
-def decodeHexDigits (s : Substring) : Nat :=
+def decodeHexDigits (s : Substring.Raw) : Nat :=
   s.foldl (init := 0) fun n c => n*16 + decodeHexDigit c
 
-partial def elabBasicStringCore (lit : String) (i : String.Pos := 0) (out := "") : CoreM String := do
-  if h : lit.atEnd i then
+partial def elabBasicStringCore (lit : String) (i : String.Pos.Raw := 0) (out := "") : CoreM String := do
+  if h : i.atEnd lit then
     return out
   else
-    let curr := lit.get' i h
-    let i := lit.next' i h
+    let curr := i.get' lit h
+    let i := i.next' lit h
     if curr == '\\' then
-      if h : lit.atEnd i then
+      if h : i.atEnd lit then
         return out
       else
-        let curr := lit.get' i h
+        let curr := i.get' lit h
         let elabUnicodeEscape escape :=
           let val := decodeHexDigits escape
           if h : val.isValidChar then
@@ -145,41 +145,42 @@ partial def elabBasicStringCore (lit : String) (i : String.Pos := 0) (out := "")
             elabBasicStringCore lit escape.stopPos (out.push ch)
           else
             throwError "invalid unicode escape `{escape}`"
+        let next := i.next' lit h
         match curr with
-        | 'b'  => elabBasicStringCore lit (lit.next' i h) (out.push '\x08')
-        | 't'  => elabBasicStringCore lit (lit.next' i h) (out.push '\t')
-        | 'n'  => elabBasicStringCore lit (lit.next' i h) (out.push '\n')
-        | 'f'  => elabBasicStringCore lit (lit.next' i h) (out.push '\x0C')
-        | 'r'  => elabBasicStringCore lit (lit.next' i h) (out.push '\r')
-        | '\"' => elabBasicStringCore lit (lit.next' i h) (out.push '"')
-        | '\\' => elabBasicStringCore lit (lit.next' i h) (out.push '\\')
-        | 'u'  => elabUnicodeEscape (Substring.mk lit (lit.next' i h) lit.endPos |>.take 4)
-        | 'U'  => elabUnicodeEscape (Substring.mk lit (lit.next' i h) lit.endPos |>.take 8)
+        | 'b'  => elabBasicStringCore lit next (out.push '\x08')
+        | 't'  => elabBasicStringCore lit next (out.push '\t')
+        | 'n'  => elabBasicStringCore lit next (out.push '\n')
+        | 'f'  => elabBasicStringCore lit next (out.push '\x0C')
+        | 'r'  => elabBasicStringCore lit next (out.push '\r')
+        | '\"' => elabBasicStringCore lit next (out.push '"')
+        | '\\' => elabBasicStringCore lit next (out.push '\\')
+        | 'u'  => elabUnicodeEscape (Substring.Raw.mk lit next lit.rawEndPos |>.take 4)
+        | 'U'  => elabUnicodeEscape (Substring.Raw.mk lit next lit.rawEndPos |>.take 8)
         | _ =>
-          let i := Substring.mk lit i lit.endPos |>.trimLeft |>.startPos
+          let i := Substring.Raw.mk lit i lit.rawEndPos |>.trimLeft |>.startPos
           elabBasicStringCore lit i out
     else
       elabBasicStringCore lit i (out.push curr)
 
 def elabBasicString (x : TSyntax ``basicString) : CoreM String := do
   let spelling ← elabLit x "basic string"
-  withRef x <| elabBasicStringCore (spelling.drop 1 |>.dropRight 1)
+  withRef x <| elabBasicStringCore (spelling.drop 1 |>.dropEnd 1 |>.copy)
 
 def dropInitialNewline (s : String) : String :=
   if s.front == '\r' then
-    s.drop 2
+    s.drop 2 |>.copy
   else if s.front == '\n' then
-    s.drop 1
+    s.drop 1 |>.copy
   else
     s
 
 def elabMlLiteralString (x : TSyntax ``mlLiteralString) : CoreM String := do
   let spelling ← elabLit x "multi-line literal string"
-  return dropInitialNewline (spelling.drop 3 |>.dropRight 3)
+  return dropInitialNewline (spelling.drop 3 |>.dropEnd 3 |>.copy)
 
 def elabMlBasicString (x : TSyntax ``mlBasicString) : CoreM String := do
   let spelling ← elabLit x "multi-line basic string"
-  withRef x <| elabBasicStringCore (dropInitialNewline (spelling.drop 3 |>.dropRight 3))
+  withRef x <| elabBasicStringCore (dropInitialNewline (spelling.drop 3 |>.dropEnd 3 |>.copy))
 
 def elabString (x : TSyntax ``string) : CoreM String := do
   match x with

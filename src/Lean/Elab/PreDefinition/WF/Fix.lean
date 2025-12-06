@@ -9,9 +9,7 @@ prelude
 public import Lean.Data.Array
 public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.WF.Basic
-public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.ArgsPacker
-public import Lean.Meta.ForEachExpr
 public import Lean.Meta.Match.MatcherApp.Transform
 public import Lean.Meta.Tactic.Cleanup
 public import Lean.Util.HasConstCache
@@ -103,10 +101,10 @@ where
       | some matcherApp =>
         if let some matcherApp ← matcherApp.addArg? F then
           let altsNew ← matcherApp.alts.zipWithM (bs := matcherApp.altNumParams) fun alt numParams =>
-            lambdaBoundedTelescope alt numParams fun xs altBody => do
-              unless xs.size = numParams do
+            lambdaBoundedTelescope alt (numParams + 1) fun xs altBody => do
+              unless xs.size = (numParams + 1) do
                 throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
-              let FAlt := xs[numParams - 1]!
+              let FAlt := xs[numParams]!
               let altBody' ← loop FAlt altBody
               mkLambdaFVars xs altBody'
           return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
@@ -223,8 +221,10 @@ def solveDecreasingGoals (funNames : Array Name) (argsPacker : ArgsPacker) (decr
           let type ← goal.getType
           let some ref := getRecAppSyntax? (← goal.getType)
             | throwError "MVar not annotated as a recursive call:{indentExpr type}"
+          goal.setType type.mdataExpr!
           withRef ref <| applyDefaultDecrTactic goal
       | some decrTactic => withRef decrTactic.ref do
+        goals.forM fun goal => do goal.setType (← goal.getType).mdataExpr!
         unless goals.isEmpty do -- unlikely to be empty
           -- make info from `runTactic` available
           goals.forM fun goal => pushInfoTree (.hole goal)
@@ -237,21 +237,32 @@ def solveDecreasingGoals (funNames : Array Name) (argsPacker : ArgsPacker) (decr
             Term.reportUnsolvedGoals remainingGoals
   instantiateMVars value
 
+def isNatLtWF (wfRel : Expr) : MetaM (Option Expr) := do
+  match_expr wfRel with
+  | invImage _ β f wfRelβ =>
+    unless (← isDefEq β (mkConst ``Nat)) do return none
+    unless (← isDefEq wfRelβ (mkConst ``Nat.lt_wfRel)) do return none
+    return f
+  | _ => return none
+
 def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsPacker)
-    (wfRel : Expr) (funNames : Array Name) (decrTactics : Array (Option DecreasingBy))
-    (opaqueProof : Bool) : TermElabM Expr := do
+    (wfRel : Expr) (funNames : Array Name) (decrTactics : Array (Option DecreasingBy)) :
+    TermElabM Expr := do
   let type ← instantiateForall preDef.type prefixArgs
   let (wfFix, varName) ← forallBoundedTelescope type (some 1) fun x type => do
     let x := x[0]!
+    let varName ← x.fvarId!.getUserName -- See comment below.
     let α ← inferType x
     let u ← getLevel α
     let v ← getLevel type
     let motive ← mkLambdaFVars #[x] type
-    let rel := mkProj ``WellFoundedRelation 0 wfRel
-    let wf  := mkProj ``WellFoundedRelation 1 wfRel
-    let wf ← if opaqueProof then mkAppM `Lean.opaqueId #[wf] else pure wf
-    let varName ← x.fvarId!.getUserName -- See comment below.
-    return (mkApp4 (mkConst ``WellFounded.fix [u, v]) α motive rel wf, varName)
+    if let some measure ← isNatLtWF wfRel then
+      return (mkApp3 (mkConst `WellFounded.Nat.fix [u, v]) α motive measure, varName)
+    else
+      let rel := mkProj ``WellFoundedRelation 0 wfRel
+      let wf  := mkProj ``WellFoundedRelation 1 wfRel
+      let wf ← mkAppM `Lean.opaqueId #[wf]
+      return (mkApp4 (mkConst ``WellFounded.fix [u, v]) α motive rel wf, varName)
   forallBoundedTelescope (← whnf (← inferType wfFix)).bindingDomain! (some 2) fun xs _ => do
     let x   := xs[0]!
     -- Remark: we rename `x` here to make sure we preserve the variable name in the

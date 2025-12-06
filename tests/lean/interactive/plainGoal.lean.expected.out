@@ -185,3 +185,24 @@ null
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 146, "character": 34}}
 {"rendered": "```lean\nx✝ : Nat\n⊢ True\n```", "goals": ["x✝ : Nat\n⊢ True"]}
+{"textDocument": {"uri": "file:///plainGoal.lean"},
+ "position": {"line": 154, "character": 2}}
+{"rendered":
+ "```lean\nf : Nat → Nat\nn : Nat\nhf : ∀ (x : Nat), f x = x + 0 + 1\n⊢ f n + 0 = 1 + n\n```",
+ "goals":
+ ["f : Nat → Nat\nn : Nat\nhf : ∀ (x : Nat), f x = x + 0 + 1\n⊢ f n + 0 = 1 + n"]}
+{"textDocument": {"uri": "file:///plainGoal.lean"},
+ "position": {"line": 154, "character": 3}}
+{"rendered":
+ "```lean\nf : Nat → Nat\nn : Nat\nhf : ∀ (x : Nat), f x = x + 0 + 1\n⊢ f n = n + 1\n```",
+ "goals":
+ ["f : Nat → Nat\nn : Nat\nhf : ∀ (x : Nat), f x = x + 0 + 1\n⊢ f n = n + 1"]}
+{"textDocument": {"uri": "file:///plainGoal.lean"},
+ "position": {"line": 154, "character": 41}}
+{"rendered":
+ "```lean\nf : Nat → Nat\nn : Nat\nhf : ∀ (x : Nat), f x = x + 0 + 1\n⊢ f n = n + 1\n```",
+ "goals":
+ ["f : Nat → Nat\nn : Nat\nhf : ∀ (x : Nat), f x = x + 0 + 1\n⊢ f n = n + 1"]}
+{"textDocument": {"uri": "file:///plainGoal.lean"},
+ "position": {"line": 154, "character": 43}}
+{"rendered": "no goals", "goals": []}

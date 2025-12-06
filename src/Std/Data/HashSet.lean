@@ -7,6 +7,6 @@ module
 
 prelude
 public import Std.Data.HashSet.Basic
+public import Std.Data.HashSet.Iterator
 public import Std.Data.HashSet.Lemmas
-
-@[expose] public section
+public import Std.Data.HashSet.IteratorLemmas

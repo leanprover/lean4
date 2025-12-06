@@ -8,5 +8,3 @@ module
 prelude
 public import Std.Time.Date.Basic
 public import Std.Time.Date.PlainDate
-
-public section

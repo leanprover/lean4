@@ -6,8 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.InferType
 public import Lean.Meta.Sorry
+import Lean.AddDecl
 
 public section
 
@@ -194,6 +194,24 @@ def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
     throwError "invalid {declKind} declaration, term{indentExpr v}\nhas type{indentExpr vType}\nbut is expected to have type{indentExpr t}"
   | _ => unreachable!
 
+/-- Adds note about definitions not unfolded because of the module system, if any. -/
+def mkUnfoldAxiomsNote (givenType expectedType : Expr) : MetaM MessageData := do
+  let env ← getEnv
+  if env.header.isModule then
+    let origDiag := (← get).diag
+    try
+      let _ ← observing <| withOptions (diagnostics.set · true)  <| isDefEq givenType expectedType
+      let blocked := (← get).diag.unfoldAxiomCounter.toList.filterMap fun (n, count) => do
+        let count := count - origDiag.unfoldAxiomCounter.findD n 0
+        guard <| count > 0 && getOriginalConstKind? env n matches some .defn
+        return m!"{.ofConstName n} ↦ {count}"
+      if !blocked.isEmpty then
+        return MessageData.note m!"The following definitions were not unfolded because \
+          their definition is not exposed:{indentD <| .joinSep blocked Format.line}"
+    finally
+      modify ({ · with diag := origDiag })
+  return .nil
+
 /--
 Return error message "has type{givenType}\nbut is expected to have type{expectedType}"
 Adds the type’s types unless they are defeq.
@@ -206,13 +224,13 @@ def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr)
     (trailing? : Option MessageData := none) (trailingExprs : Array Expr := #[])
     : MetaM MessageData := do
   return MessageData.ofLazyM (es := #[givenType, expectedType] ++ trailingExprs) do
-    try
+    let mut msg ← (try
       let givenTypeType ← inferType givenType
       let expectedTypeType ← inferType expectedType
       if (← isDefEqGuarded givenTypeType expectedTypeType) then
         let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
         let trailing := trailing?.map (m!"\n" ++ ·) |>.getD .nil
-        return m!"has type{indentExpr givenType}\n\
+        pure m!"has type{indentExpr givenType}\n\
           but is expected to have type{indentExpr expectedType}{trailing}"
       else
         let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
@@ -220,12 +238,13 @@ def mkHasTypeButIsExpectedMsg (givenType expectedType : Expr)
         let trailing := match trailing? with
           | none => inlineExprTrailing expectedTypeType
           | some trailing => inlineExpr expectedTypeType ++ trailing
-        return m!"has type{indentExpr givenType}\nof sort{inlineExpr givenTypeType}\
+        pure m!"has type{indentExpr givenType}\nof sort{inlineExpr givenTypeType}\
           but is expected to have type{indentExpr expectedType}\nof sort{trailing}"
     catch _ =>
       let (givenType, expectedType) ← addPPExplicitToExposeDiff givenType expectedType
       let trailing := trailing?.map (m!"\n" ++ ·) |>.getD .nil
-      return m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}{trailing}"
+      pure m!"has type{indentExpr givenType}\nbut is expected to have type{indentExpr expectedType}{trailing}")
+    return msg ++ (← mkUnfoldAxiomsNote givenType expectedType)
 
 def throwAppTypeMismatch (f a : Expr) : MetaM α := do
   -- Clarify that `a` is "last" only if it may be confused with some preceding argument; otherwise,
@@ -326,6 +345,16 @@ def isTypeCorrect (e : Expr) : MetaM Bool := do
     pure true
   catch _ =>
     pure false
+
+/--
+Throw an exception if `e` cannot be type checked using the kernel.
+This function is used for debugging purposes only.
+-/
+def checkWithKernel (e : Expr) : MetaM Unit := do
+  let e ← instantiateExprMVars e
+  match Kernel.check (← getEnv) (← getLCtx) e with
+  | .ok .. => return ()
+  | .error ex => throwError "kernel type checker failed at{indentExpr e}\nwith error message\n{ex.toMessageData (← getOptions)}"
 
 builtin_initialize
   registerTraceClass `Meta.check

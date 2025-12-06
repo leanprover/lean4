@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Grind.Ordered.Ring
 public import Init.GrindInstances.Ring.Rat
-public import Init.Data.Rat.Lemmas
 
 public section
 

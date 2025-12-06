@@ -35,7 +35,7 @@ def contains (m : NameMap α) (n : Name) : Bool := Std.TreeMap.contains m n
 
 def find? (m : NameMap α) (n : Name) : Option α := Std.TreeMap.get? m n
 
-instance : ForIn m (NameMap α) (Name × α) :=
+instance [Monad m] : ForIn m (NameMap α) (Name × α) :=
   inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) ..)
 
 /-- `filter f m` returns the `NameMap` consisting of all
@@ -54,7 +54,7 @@ def insert (s : NameSet) (n : Name) : NameSet := Std.TreeSet.insert s n
 def contains (s : NameSet) (n : Name) : Bool := Std.TreeSet.contains s n
 abbrev subset : NameSet -> NameSet -> Bool := Std.TreeSet.subset
 abbrev diff (t₁ t₂ : NameSet) : NameSet := Std.TreeSet.diff t₁ t₂
-instance : ForIn m NameSet Name :=
+instance [Monad m] : ForIn m NameSet Name :=
   inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
 /-- The union of two `NameSet`s. -/

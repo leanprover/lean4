@@ -20,5 +20,3 @@ public import Std.Sat.AIG.RefVec
 public import Std.Sat.AIG.RefVecOperator
 public import Std.Sat.AIG.LawfulVecOperator
 public import Std.Sat.AIG.If
-
-@[expose] public section

@@ -12,7 +12,7 @@ jobs:
       - name: Check awaiting-manual label
         id: check-awaiting-manual-label
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const { labels, number: prNumber } = context.payload.pull_request;

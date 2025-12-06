@@ -220,27 +220,27 @@ example (h1 : a ∘ b = c ∘ d) (h2 : b ∘ e = d ∘ f) :
 
 example (a b c d e f : Int) (h1 : max a b = max c d) (h2 : max b e = max d f) :
     max c (max d e) = max (max a d) f := by
-  grind -cutsat only
+  grind -lia only
 
 example (a b c d e f g h : Nat) :
     max a b = max c d → max b e = max d f → max b g = max d h →
     max (max c d) (max f g) = max (max c d) (max h e) := by
-  grind -cutsat only
+  grind -lia only
 
 example (a b c d e f g h : Nat) :
     max a b = max c d → max b e = max (max d 0) f → max b g = max d h →
     max (max c d) (max f g) = max (max c d) (max (max 0 h) e) := by
-  grind -cutsat only
+  grind -lia only
 
 example (a b c d e f g h : Nat) :
     max a b = max c d → max b e = max d f → max b g = max d h →
     max (max f d) (max c g) = max (max e d) (max h c) := by
-  grind -cutsat only
+  grind -lia only
 
 example (a b c d e f g h : Nat) :
     max a b = max c d → max b e = max d f → max b g = max d h →
     max (max f d) (max c g) = max (max e (max d (max b (max c e)))) h := by
-  grind -cutsat only
+  grind -lia only
 
 example {α} (op : α → α → α) [Std.Associative op] [Std.Commutative op] (a b c d : α)
     : op a b = op b c → op c c = op d c →

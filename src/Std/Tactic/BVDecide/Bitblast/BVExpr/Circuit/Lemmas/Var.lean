@@ -39,12 +39,11 @@ theorem go_get_aux (aig : AIG BVBit) (a : Nat) (curr : Nat) (hcurr : curr ≤ w)
   · dsimp only at hgo
     rw [← hgo]
     intro hfoo
-    rw [go_get_aux]
-    rw [AIG.RefVec.get_push_ref_lt]
+    rw [go_get_aux (hidx := Nat.lt_succ_of_lt hidx)]
+    rw [AIG.RefVec.get_push_ref_lt (hidx := hidx)]
     · simp only [Ref.cast, Ref.mk.injEq]
       rw [AIG.RefVec.get_cast]
-      · simp
-      · assumption
+      simp
     · apply go_le_size
   · dsimp only at hgo
     rw [← hgo]
@@ -99,7 +98,7 @@ theorem go_denote_eq (aig : AIG BVBit) (a : Nat) (assign : Assignment) (curr : N
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       rw [← hgo]
-      rw [go_get]
+      rw [go_get]; case hidx => omega
       rw [AIG.RefVec.get_push_ref_eq']
       · rw [← heq]
         rw [go_denote_mem_prefix]

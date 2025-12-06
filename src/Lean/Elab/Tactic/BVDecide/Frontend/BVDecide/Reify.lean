@@ -6,7 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.ReifiedBVLogical
 public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.ReifiedLemmas
 
 public section

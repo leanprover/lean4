@@ -7,8 +7,8 @@ module
 
 prelude
 public import Lean.Parser.Module
-public import Lean.CoreM
 meta import Lean.Parser.Module
+import Lean.Compiler.ModPkgExt
 
 public section
 
@@ -18,7 +18,7 @@ namespace Lean.Elab
 
 abbrev HeaderSyntax := TSyntax ``Parser.Module.header
 
-def HeaderSyntax.startPos (header : HeaderSyntax) : String.Pos :=
+def HeaderSyntax.startPos (header : HeaderSyntax) : String.Pos.Raw :=
   header.raw.getPos?.getD 0
 
 def HeaderSyntax.isModule (header : HeaderSyntax) : Bool :=
@@ -43,10 +43,11 @@ def HeaderSyntax.toModuleHeader (stx : HeaderSyntax) : ModuleHeader where
 abbrev headerToImports := @HeaderSyntax.imports
 
 def processHeaderCore
-    (startPos : String.Pos) (imports : Array Import) (isModule : Bool)
+    (startPos : String.Pos.Raw) (imports : Array Import) (isModule : Bool)
     (opts : Options) (messages : MessageLog) (inputCtx : Parser.InputContext)
     (trustLevel : UInt32 := 0) (plugins : Array System.FilePath := #[]) (leakEnv := false)
-    (mainModule := Name.anonymous) (arts : NameMap ImportArtifacts := {})
+    (mainModule := Name.anonymous) (package? : Option PkgId := none)
+    (arts : NameMap ImportArtifacts := {})
     : IO (Environment × MessageLog) := do
   let level := if isModule then
     if Elab.inServer.get opts then
@@ -64,7 +65,8 @@ def processHeaderCore
     let env ← mkEmptyEnvironment
     let pos := inputCtx.fileMap.toPosition startPos
     pure (env, messages.add { fileName := inputCtx.fileName, data := toString e, pos := pos })
-  return (env.setMainModule mainModule, messages)
+  let env := env.setMainModule mainModule |>.setModulePackage package?
+  return (env, messages)
 
 /--
 Elaborates the given header syntax into an environment.

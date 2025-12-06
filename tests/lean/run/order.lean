@@ -1,8 +1,6 @@
 
 import Init.Data.Order.PackageFactories
 
-open Std
-
 variable {α : Type u}
 
 opaque X : Type := Unit
@@ -17,44 +15,44 @@ attribute [scoped instance] instLE
 @[scoped instance] opaque instDecidableLE : DecidableLE X := sorry
 
 #guard_msgs(error, drop warning) in
-@[instance] opaque instTotal : Total (α := X) (· ≤ ·) := sorry
+@[instance] opaque instTotal : Std.Total (α := X) (· ≤ ·) := sorry
 
 #guard_msgs(error, drop warning) in
-@[instance] opaque instAntisymm : Antisymm (α := X) (· ≤ ·) := sorry
+@[instance] opaque instAntisymm : Std.Antisymm (α := X) (· ≤ ·) := sorry
 
 #guard_msgs(error, drop warning) in
 @[instance] opaque instTrans : Trans (α := X) (· ≤ ·) (· ≤ ·) (· ≤ ·) := sorry
 
 namespace LinearOrderPackage
 
-scoped instance packageOfLE : LinearOrderPackage X := .ofLE X
+scoped instance packageOfLE : Std.LinearOrderPackage X := .ofLE X
 
-example : instLE = (inferInstanceAs (PreorderPackage X)).toLE := rfl
-example : IsLinearOrder X := inferInstance
-example : LawfulOrderLT X := inferInstance
-example : LawfulOrderOrd X := inferInstance
-example : LawfulOrderMin X := inferInstance
-example : LawfulOrderMax X := inferInstance
-example : LawfulOrderLeftLeaningMin X := inferInstance
-example : LawfulOrderLeftLeaningMax X := inferInstance
+example : instLE = (inferInstanceAs (Std.PreorderPackage X)).toLE := rfl
+example : Std.IsLinearOrder X := inferInstance
+example : Std.LawfulOrderLT X := inferInstance
+example : Std.LawfulOrderOrd X := inferInstance
+example : Std.LawfulOrderMin X := inferInstance
+example : Std.LawfulOrderMax X := inferInstance
+example : Std.LawfulOrderLeftLeaningMin X := inferInstance
+example : Std.LawfulOrderLeftLeaningMax X := inferInstance
 
 end LinearOrderPackage
 
 namespace LinearPreorderPackage
 
-scoped instance packageOfLE : LinearPreorderPackage X := .ofLE X
+scoped instance packageOfLE : Std.LinearPreorderPackage X := .ofLE X
 
 scoped instance instMin : Min X := .leftLeaningOfLE X
 scoped instance instMax : Max X := .leftLeaningOfLE X
 
-example : instLE = (inferInstanceAs (LinearPreorderPackage X)).toLE := rfl
-example : IsLinearPreorder X := inferInstance
-example : LawfulOrderLT X := inferInstance
-example : LawfulOrderOrd X := inferInstance
-example : LawfulOrderMin X := inferInstance
-example : LawfulOrderMax X := inferInstance
-example : LawfulOrderLeftLeaningMin X := inferInstance
-example : LawfulOrderLeftLeaningMax X := inferInstance
+example : instLE = (inferInstanceAs (Std.LinearPreorderPackage X)).toLE := rfl
+example : Std.IsLinearPreorder X := inferInstance
+example : Std.LawfulOrderLT X := inferInstance
+example : Std.LawfulOrderOrd X := inferInstance
+example : Std.LawfulOrderMin X := inferInstance
+example : Std.LawfulOrderMax X := inferInstance
+example : Std.LawfulOrderLeftLeaningMin X := inferInstance
+example : Std.LawfulOrderLeftLeaningMax X := inferInstance
 
 end LinearPreorderPackage
 
@@ -62,7 +60,7 @@ end X
 
 section
 
-def packageWithoutSynthesizableInstances : LinearOrderPackage X := .ofLE X {
+def packageWithoutSynthesizableInstances : Std.LinearOrderPackage X := .ofLE X {
   le := X.instLE
   decidableLE := X.instDecidableLE }
 
@@ -72,7 +70,7 @@ section
 
 attribute [local instance] X.LinearOrderPackage.packageOfLE
 
-def packageWithoutSynthesizableInstances' : LinearOrderPackage X := .ofLE X {
+def packageWithoutSynthesizableInstances' : Std.LinearOrderPackage X := .ofLE X {
   le := X.instLE
   decidableLE := X.instDecidableLE
 }
@@ -92,30 +90,30 @@ this✝ : LT α := inferInstance
 ⊢ ∀ (a b : α), a < b ↔ a ≤ b ∧ ¬b ≤ a
 -/
 #guard_msgs in
-def packageOfLEOfLT1 [LE α] [DecidableLE α] [LT α] : PreorderPackage α := .ofLE α {
+def packageOfLEOfLT1 [LE α] [DecidableLE α] [LT α] : Std.PreorderPackage α := .ofLE α {
   le_refl := sorry
   le_trans := sorry }
 
 def packageOfLEOfLT2 [LE α] [DecidableLE α] [LT α] (h : ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a) :
-    PreorderPackage α := .ofLE α {
+    Std.PreorderPackage α := .ofLE α {
   lt_iff := h
   le_refl := sorry
   le_trans := sorry }
 
 namespace OrdTests
 
-section
+section WithoutSynthesizableInstances
 
 #guard_msgs(error, drop warning) in
 opaque _root_.X.instOrd : Ord X := sorry
 
 #guard_msgs(error, drop warning) in
-opaque _root_.X.instTransOrd : haveI := X.instOrd; TransOrd X := sorry
+opaque _root_.X.instTransOrd : haveI := X.instOrd; Std.TransOrd X := sorry
 
 #guard_msgs(error, drop warning) in
-opaque _root_.X.instLawfulEqOrd : haveI := X.instOrd; LawfulEqOrd X := sorry
+opaque _root_.X.instLawfulEqOrd : haveI := X.instOrd; Std.LawfulEqOrd X := sorry
 
-def packageWithoutSynthesizableInstances : LinearOrderPackage X := .ofOrd X {
+def packageWithoutSynthesizableInstances : Std.LinearOrderPackage X := .ofOrd X {
   ord := X.instOrd
   transOrd := X.instTransOrd
   eq_of_compare := by
@@ -124,6 +122,14 @@ def packageWithoutSynthesizableInstances : LinearOrderPackage X := .ofOrd X {
     letI := X.instOrd
     exact X.instLawfulEqOrd.eq_of_compare }
 
-end
+end WithoutSynthesizableInstances
+
+section WithSynthesizableInstances
+
+attribute [scoped instance] X.instOrd X.instTransOrd X.instLawfulEqOrd
+
+def packageWithSynthesizableInstances : Std.LinearOrderPackage X := .ofOrd X
+
+end WithSynthesizableInstances
 
 end OrdTests

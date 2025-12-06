@@ -6,7 +6,6 @@ Authors: Kim Morrison, Henrik Böving
 module
 
 prelude
-public import Lean.Util.Trace
 public import Lean.Elab.Tactic.Simp
 public import Std.Tactic.BVDecide.Syntax
 

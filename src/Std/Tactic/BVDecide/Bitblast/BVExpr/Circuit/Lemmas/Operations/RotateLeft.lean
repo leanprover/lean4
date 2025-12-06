@@ -39,9 +39,9 @@ theorem go_get_aux (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
   split
   · dsimp only
     split
-    · rw [go_get_aux]
+    · rw [go_get_aux]; case hidx => omega
       rw [AIG.RefVec.get_push_ref_lt]
-    · rw [go_get_aux]
+    · rw [go_get_aux]; case hidx => omega
       rw [AIG.RefVec.get_push_ref_lt]
   · dsimp only
     simp only [RefVec.get, Ref.mk.injEq]
@@ -69,14 +69,14 @@ theorem go_get (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
     | inl heq =>
       split
       · split
-        · rw [go_get_aux]
+        · rw [go_get_aux]; case hidx => omega
           rw [AIG.RefVec.get_push_ref_eq']
           · simp [heq]
           · omega
         · omega
       · split
         · omega
-        · rw [go_get_aux]
+        · rw [go_get_aux]; case hidx => omega
           rw [AIG.RefVec.get_push_ref_eq']
           · simp [heq]
           · omega

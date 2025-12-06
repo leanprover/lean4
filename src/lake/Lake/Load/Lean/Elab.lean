@@ -15,7 +15,7 @@ import Lake.DSL.Extensions
 import Lake.DSL.Attributes
 import Lake.Load.Config
 import Lake.Build.Trace
-import Lake.Util.Log
+import Lake.Util.JsonObject
 
 /-! # Lean Configuration Elaborator
 
@@ -60,7 +60,7 @@ public def configModuleName : Name := `lakefile
 
 /-- Elaborate `configFile` with the given package directory and options. -/
 def elabConfigFile
-  (pkgDir : FilePath) (lakeOpts : NameMap String)
+  (pkgName : Name) (pkgDir : FilePath) (lakeOpts : NameMap String)
   (leanOpts := Options.empty) (configFile := pkgDir / defaultLeanConfigFile)
 : LogIO Environment := do
 
@@ -72,6 +72,7 @@ def elabConfigFile
   let env := env.setMainModule configModuleName
 
   -- Configure extensions
+  let env := nameExt.setState env pkgName
   let env := dirExt.setState env pkgDir
   let env := optsExt.setState env lakeOpts
 
@@ -163,6 +164,7 @@ where
     |>.insert ``IR.declMapExt
 
 structure ConfigTrace where
+  name : Name
   platform : String
   leanHash : String
   configHash : Hash
@@ -177,9 +179,12 @@ toolchain). Otherwise, elaborate the configuration and save it to the `.olean`.
 public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
   let some configName := FilePath.mk <$> cfg.configFile.fileName
     | error "invalid configuration file name"
-  let olean := cfg.lakeDir / configName.withExtension "olean"
-  let traceFile := cfg.lakeDir / configName.withExtension "olean.trace"
-  let lockFile := cfg.lakeDir / configName.withExtension "olean.lock"
+  let pkgName := cfg.pkgName.toString (escape := false)
+  let configDir := cfg.lakeDir / "config" / pkgName
+  IO.FS.createDirAll configDir
+  let olean := configDir / configName.withExtension "olean"
+  let traceFile := configDir / configName.withExtension "olean.trace"
+  let lockFile := configDir / configName.withExtension "olean.lock"
   /-
   Remark:
   To prevent race conditions between the `.olean` and its trace file
@@ -240,9 +245,9 @@ public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
     | .ok _ | .error (.noFileOrDirectory ..) =>
       h.putStrLn <| Json.pretty <| toJson
         {platform := System.Platform.target, leanHash := cfg.lakeEnv.leanGithash,
-          configHash, options := lakeOpts : ConfigTrace}
+          configHash, name := cfg.pkgName, options := lakeOpts : ConfigTrace}
       h.truncate
-      let env ← elabConfigFile cfg.pkgDir lakeOpts cfg.leanOpts cfg.configFile
+      let env ← elabConfigFile cfg.pkgName cfg.pkgDir lakeOpts cfg.leanOpts cfg.configFile
       Lean.writeModule env olean
       h.unlock
       return env
@@ -256,17 +261,28 @@ public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
     else
       h.lock (exclusive := false)
       let contents ← h.readToEnd
-      let .ok (trace : ConfigTrace) := Json.parse contents >>= fromJson?
-        | error "compiled configuration is invalid; run with '-R' to reconfigure"
-      let upToDate :=
-        (← olean.pathExists) ∧ trace.platform = System.Platform.target ∧
-        trace.leanHash = cfg.lakeEnv.leanGithash ∧ trace.configHash = configHash
-      if upToDate then
-        let env ← importConfigFileCore olean cfg.leanOpts
-        h.unlock
-        return env
-      else
-        elabConfig (← acquireTrace h) trace.options
+      let errMsg := "compiled configuration is invalid; run with '-R' to reconfigure"
+      match Json.parse contents with
+      | .ok json =>
+        match fromJson? json with
+        | .ok (trace : ConfigTrace) =>
+          let upToDate :=
+            (← olean.pathExists) ∧ trace.name = cfg.pkgName ∧ trace.configHash = configHash ∧
+            trace.platform = System.Platform.target ∧ trace.leanHash = cfg.lakeEnv.leanGithash
+          if upToDate then
+            let env ← importConfigFileCore olean cfg.leanOpts
+            h.unlock
+            return env
+          else
+            elabConfig (← acquireTrace h) trace.options
+        | .error _ => -- trace has unexpected format, try to just read the one necessary field
+          match JsonObject.fromJson? json >>= (·.get "options") with
+          | .ok (opts : NameMap String) =>
+            elabConfig (← acquireTrace h) opts
+          | .error _ =>
+            error errMsg
+      | .error _ =>
+        error errMsg
   if (← traceFile.pathExists) then
     validateTrace <| ← IO.FS.Handle.mk traceFile .read
   else

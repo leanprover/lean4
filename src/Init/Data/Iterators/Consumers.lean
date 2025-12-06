@@ -13,5 +13,3 @@ public import Init.Data.Iterators.Consumers.Loop
 public import Init.Data.Iterators.Consumers.Partial
 
 public import Init.Data.Iterators.Consumers.Stream
-
-public section

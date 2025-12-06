@@ -418,8 +418,16 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
         · exact Or.inr hf
     · simp only [Prod.exists, Bool.exists_bool, not_exists, not_or, unit] at hl
       split
-      next some_eq_none => grind
-      next l _ _ heq => grind [cases Bool]
+      next some_eq_none => simp at some_eq_none
+      next l _ _ heq =>
+        simp only [Option.some.injEq] at heq
+        rw [heq] at hl
+        specialize hl l.1
+        simp only [DefaultClause.mk.injEq, List.cons.injEq, and_true] at hl
+        by_cases hl2 : l.2
+        · simp only [← hl2, not_true, and_false] at hl
+        · simp only [Bool.not_eq_true] at hl2
+          simp only [← hl2, not_true, false_and] at hl
       · have deleteOne_f_rw : deleteOne f id = ⟨Array.set! f.clauses id none, f.rupUnits, f.ratUnits, f.assignments⟩ := by
           simp only [deleteOne]
           grind
@@ -438,7 +446,23 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
             have idx_in_bounds : idx < List.length (List.set f.clauses.toList id none) := by
               grind
             apply Exists.intro ⟨idx, idx_in_bounds⟩
-            grind [unit]
+            by_cases id = idx
+            · next id_eq_idx =>
+              exfalso
+              have idx_in_bounds2 : idx < f.clauses.size := by
+                conv => rhs; rw [List.size_toArray]
+                exact hbound
+              simp only [id_eq_idx, getElem!_def, idx_in_bounds2, Array.getElem?_eq_getElem, ←
+                Array.getElem_toList] at heq
+              rw [hidx] at heq
+              simp only [Option.some.injEq] at heq
+              rw [← heq] at hl
+              specialize hl i
+              simp only [unit, DefaultClause.mk.injEq, List.cons.injEq, Prod.mk.injEq, true_and, and_true,
+                Bool.not_eq_false, Bool.not_eq_true] at hl
+              by_cases b_val : b <;> simp [b_val] at hl
+            · next id_ne_idx =>
+              simp [id_ne_idx]; grind only [= Array.getElem_toList]
           · exact hf
         · exact Or.inr hf
 

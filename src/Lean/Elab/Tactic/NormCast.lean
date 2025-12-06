@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Meta.Tactic.NormCast
 public import Lean.Elab.Tactic.Conv.Simp
-public import Lean.Elab.ElabRules
 
 public section
 

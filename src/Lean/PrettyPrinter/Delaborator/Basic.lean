@@ -7,10 +7,10 @@ module
 
 prelude
 public import Lean.KeyedDeclsAttribute
-public import Lean.PrettyPrinter.Delaborator.Options
-public import Lean.PrettyPrinter.Delaborator.SubExpr
 public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
 import Lean.Elab.InfoTree.Main
+meta import Init.Data.ToString.Name
+import Lean.ExtraModUses
 
 public section
 
@@ -118,6 +118,7 @@ unsafe builtin_initialize delabAttribute : KeyedDeclsAttribute Delab ←
       if (← Elab.getInfoState).enabled && kind.getRoot == `app then
         let c := kind.replacePrefix `app .anonymous
         if (← getEnv).contains c then
+          recordExtraModUseFromDecl (isMeta := false) c
           Elab.addConstInfo stx c none
       pure kind
   }
@@ -267,12 +268,13 @@ def withAnnotateTermInfoUnlessAnnotated (d : Delab) : Delab := do
 Gets an name based on `suggestion` that is unused in the local context.
 Erases macro scopes.
 If `pp.safeShadowing` is true, then the name is allowed to shadow a name in the local context
-if the name does not appear in `body`.
+if the name does not appear in `body` or in the `avoid` set.
+(The `avoid` set is assumed to be a subset of the names used by the local context.)
 
 If `preserveName` is false, then returns the name, possibly with fresh macro scopes added.
 If `suggestion` has macro scopes then the result does as well.
 -/
-def getUnusedName (suggestion : Name) (body : Expr) (preserveName : Bool := false) : DelabM Name := do
+def getUnusedName (suggestion : Name) (body : Expr) (preserveName : Bool := false) (avoid : NameSet := {}) : DelabM Name := do
   let (hasScopes, suggestion) :=
     if suggestion.isAnonymous then
       -- Use a nicer binder name than `[anonymous]`. We probably shouldn't do this in all LocalContext use cases, so do it here.
@@ -284,7 +286,7 @@ def getUnusedName (suggestion : Name) (body : Expr) (preserveName : Bool := fals
     return suggestion
   else if preserveName then
     withFreshMacroScope <| MonadQuotation.addMacroScope suggestion
-  else if (← getPPOption getPPSafeShadowing) && !bodyUsesSuggestion lctx suggestion then
+  else if (← getPPOption getPPSafeShadowing) && !avoid.contains suggestion && !bodyUsesSuggestion lctx suggestion then
     return suggestion
   else
     return lctx.getUnusedName suggestion
@@ -311,11 +313,15 @@ Enters the body of the current expression, which must be a lambda or forall.
 The binding variable is passed to `d` as `Syntax`, and it is an identifier that has been annotated with the fvar expression
 for the variable.
 
+If `pp.safeShadowing` is true, then the name is allowed to shadow a name in the local context
+if the name does not appear in the body or in the `avoid` set.
+(The `avoid` set is assumed to be a subset of the names used by the local context.)
+
 If `preserveName` is `false` (the default), gives the binder an unused name.
 Otherwise, it tries to preserve the textual form of the name, preserving whether it is hygienic.
 -/
-def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) (preserveName := false) : DelabM α := do
-  let n ← getUnusedName (← getExpr).bindingName! (← getExpr).bindingBody! (preserveName := preserveName)
+def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) (preserveName := false) (avoid : NameSet := {}) : DelabM α := do
+  let n ← getUnusedName (← getExpr).bindingName! (← getExpr).bindingBody! (preserveName := preserveName) (avoid := avoid)
   withBindingBody' n (mkAnnotatedIdent n) (d ·)
 
 inductive OmissionReason
@@ -463,7 +469,9 @@ unsafe builtin_initialize appUnexpanderAttribute : KeyedDeclsAttribute Unexpande
     descr := "Register an unexpander for applications of a given constant.",
     valueTypeName := `Lean.PrettyPrinter.Unexpander
     evalKey := fun _ stx => do
-      Elab.realizeGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)
+      let id ← Elab.realizeGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)
+      recordExtraModUseFromDecl (isMeta := false) id
+      return id
   }
 
 end Delaborator

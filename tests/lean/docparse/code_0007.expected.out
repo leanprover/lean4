@@ -1,0 +1,7 @@
+Failure @4 (⟨1, 4⟩): expected '`' to close inline code
+Final stack:
+  (Lean.Doc.Syntax.code
+   "`"
+   (str "\"foo\"")
+   <missing>)
+Remaining: ""

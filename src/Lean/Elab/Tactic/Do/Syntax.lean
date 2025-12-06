@@ -6,10 +6,9 @@ Authors: Lars König, Mario Carneiro, Sebastian Graf
 module
 
 prelude
-public import Init.NotationExtra
 public import Lean.Elab.BuiltinNotation
-public import Std.Do.PostCond
 public import Std.Do.Triple.Basic
+import Std.Do.SPred.Notation.Basic
 
 public section
 

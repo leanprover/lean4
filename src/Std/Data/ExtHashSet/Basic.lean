@@ -194,6 +194,37 @@ appearance.
   ⟨m.inner.insertManyIfNewUnit l⟩
 
 /--
+Computes the union of the given hash sets.
+
+This function always merges the smaller set into the larger set, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline]
+def union [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtHashSet α) : ExtHashSet α := ⟨ExtHashMap.union m₁.inner m₂.inner⟩
+
+instance [EquivBEq α] [LawfulHashable α] : Union (ExtHashSet α) := ⟨union⟩
+
+/--
+Computes the intersection of the given hash sets.
+
+This function always iterates through the smaller set.
+-/
+@[inline]
+def inter [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtHashSet α) : ExtHashSet α := ⟨ExtHashMap.inter m₁.inner m₂.inner⟩
+
+instance [EquivBEq α] [LawfulHashable α] : Inter (ExtHashSet α) := ⟨inter⟩
+
+/--
+Computes the difference of the given hash sets.
+
+This function always iterates through the smaller set.
+-/
+@[inline]
+def diff [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtHashSet α) : ExtHashSet α := ⟨ExtHashMap.diff m₁.inner m₂.inner⟩
+
+instance [EquivBEq α] [LawfulHashable α] : SDiff (ExtHashSet α) := ⟨diff⟩
+
+/--
 Creates a hash set from an array of elements. Note that unlike repeatedly calling `insert`, if the
 collection contains multiple elements that are equal (with regard to `==`), then the last element
 in the collection will be present in the returned hash set.

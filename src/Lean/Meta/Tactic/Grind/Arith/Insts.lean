@@ -4,13 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.EvalNum
 public import Lean.Meta.Tactic.Grind.SynthInstance
-
+import Init.Grind.Ring
 public section
-
 namespace Lean.Meta.Grind.Arith
 
 def getIsCharInst? (u : Level) (type : Expr) (semiringInst : Expr) : GoalM (Option (Expr × Nat)) := do withNewMCtxDepth do

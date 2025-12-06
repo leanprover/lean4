@@ -8,5 +8,3 @@ module
 prelude
 public import Std.Do.Triple.Basic
 public import Std.Do.Triple.SpecLemmas
-
-@[expose] public section

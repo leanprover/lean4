@@ -1,0 +1,11 @@
+Failure @2 (⟨2, 0⟩): ':'; expected %%% (at line beginning) or expected column at least 1
+Final stack:
+  [(Lean.Doc.Syntax.ul
+    "ul{"
+    [(Lean.Doc.Syntax.li
+      "*"
+      [(Lean.Doc.Syntax.metadata_block
+        <missing>
+        <missing>)
+       <missing>])])]
+Remaining: "abc"

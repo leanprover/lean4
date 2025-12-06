@@ -50,14 +50,10 @@ partial_fixpoint monotonicity
 
 -- Tactics
 
-/--
-info: Try this:
-  exact fun x y a x => a (x + 1)
--/
 #guard_msgs in
 def nullary6 (x : Nat) : Option Unit := nullary6 (x + 1)
 partial_fixpoint monotonicity by
-  exact?
+  solve_by_elim
 
 #guard_msgs in
 def nullary7 (x : Nat) : Option Unit := nullary7 (x + 1)

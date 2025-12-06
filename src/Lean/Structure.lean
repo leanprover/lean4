@@ -8,8 +8,6 @@ Helper functions for retrieving structure information.
 module
 
 prelude
-public import Init.Control.Option
-public import Lean.Environment
 public import Lean.ProjFns
 public import Lean.Exception
 

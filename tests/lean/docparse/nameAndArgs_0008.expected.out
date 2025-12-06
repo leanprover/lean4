@@ -1,0 +1,8 @@
+Success! Final stack:
+ • `leanExample
+ • [(Lean.Doc.Syntax.anon
+      (Lean.Doc.Syntax.arg_ident `context))
+     (Lean.Doc.Syntax.anon
+      (Lean.Doc.Syntax.arg_ident `more))]
+
+All input consumed.

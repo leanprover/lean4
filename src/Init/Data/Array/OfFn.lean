@@ -6,11 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
-public import Init.Data.Array.Lemmas
 public import Init.Data.Array.Monadic
-public import Init.Data.List.OfFn
 public import Init.Data.List.FinRange
 
 public section

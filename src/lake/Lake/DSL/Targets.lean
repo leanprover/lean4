@@ -130,11 +130,10 @@ def expandTargetCommand : Macro := fun stx => do
   let attr ← `(Term.attrInstance| «target»)
   let attrs := #[attr] ++ expandAttrs attrs?
   let name := Name.quoteFrom id id.getId
-  let pkgName := mkIdentFrom id (packageDeclName.str "name")
   let pkg ← expandOptSimpleBinder pkg?
-  `(family_def $id : CustomOut ($pkgName, $name) := $ty
+  `(family_def $id : CustomOut (__name__, $name) := $ty
     $[$doc?]? abbrev $id :=
-      Lake.DSL.mkTargetDecl $ty $pkgName $name (fun $pkg => $defn)
+      Lake.DSL.mkTargetDecl $ty __name__ $name (fun $pkg => $defn)
     $[$wds?:whereDecls]?
     @[$attrs,*] def configDecl : ConfigDecl := $(id).toConfigDecl)
 
@@ -165,12 +164,11 @@ def mkConfigDeclDef
   let targetAttr ← `(Term.attrInstance| «target»)
   let kindAttr ← `(Term.attrInstance| $attrId:ident)
   let attrs := #[targetAttr, kindAttr] ++ expandAttrs attrs?
-  let pkg ← mkIdentFromRef (packageDeclName.str "name")
   let declTy ← mkIdentFromRef delTyName.typeName
   let kind := Name.quoteFrom (← getRef) kind
-  `(family_def $id : CustomOut ($pkg, $name) := ConfigTarget $kind
+  `(family_def $id : CustomOut (__name__, $name) := ConfigTarget $kind
     $[$doc?]? abbrev $id : $declTy :=
-      Lake.DSL.mkConfigDecl $pkg $name $kind $configId
+      Lake.DSL.mkConfigDecl __name__ $name $kind $configId
     @[$attrs,*] def configDecl : ConfigDecl := $(id).toConfigDecl
   )
 
@@ -228,12 +226,11 @@ def expandExternLibCommand : Macro := fun stx => do
   let attr2 ← `(Term.attrInstance| «extern_lib»)
   let attrs := #[attr1, attr2] ++ expandAttrs attrs?
   let id := expandIdentOrStrAsIdent nameStx
-  let pkgName := mkIdentFrom kw (packageDeclName.str "name")
   let targetId := mkIdentFrom id <| id.getId.modifyBase (· ++ `static)
   let name := Name.quoteFrom id id.getId
   let kind := Name.quoteFrom kw ExternLib.configKind
   `(target $targetId:ident $[$pkg?]? : FilePath := $defn $[$wds?:whereDecls]?
-    family_def $id : CustomOut ($pkgName, $name) := ConfigTarget $kind
+    family_def $id : CustomOut (__name__, $name) := ConfigTarget $kind
     $[$doc?:docComment]? def $id : ExternLibDecl :=
-      Lake.DSL.mkExternLibDecl $pkgName $name
+      Lake.DSL.mkExternLibDecl __name__ $name
     @[$attrs,*] def configDecl : ConfigDecl := $(id).toConfigDecl)

@@ -5,18 +5,16 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.Arith.Util
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.Linear.Var
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public section
 namespace Lean.Meta.Grind.Arith.Linear
 /-!
 Helper functions for converting reified terms back into their denotations.
 -/
-
 variable [Monad M] [MonadGetStruct M] [MonadError M]
 
 def _root_.Lean.Grind.Linarith.Poly.denoteExpr (p : Poly) : M Expr := do

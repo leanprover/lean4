@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Elab.Notation
-public import Lean.Util.Diff
 public import Lean.Server.CodeActions.Attr
 
 public section
@@ -167,7 +166,7 @@ def WhitespaceMode.apply (mode : WhitespaceMode) (s : String) : String :=
   match mode with
   | .exact => s
   | .normalized => s.replace "\n" " "
-  | .lax => String.intercalate " " <| (s.split Char.isWhitespace).filter (!·.isEmpty)
+  | .lax => " ".toSlice.intercalate <| (s.split Char.isWhitespace).filter (!·.isEmpty) |>.toList
 
 /--
 Applies a message ordering mode.
@@ -180,9 +179,8 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
 @[builtin_command_elab Lean.guardMsgsCmd] def elabGuardMsgs : CommandElab
   | `(command| $[$dc?:docComment]? #guard_msgs%$tk $(spec?)? in $cmd) => do
     let expected : String := (← dc?.mapM (getDocStringText ·)).getD ""
-        |>.trim |> removeTrailingWhitespaceMarker
+        |>.trimAscii |>.copy |> removeTrailingWhitespaceMarker
     let { whitespace, ordering, filterFn, reportPositions } ← parseGuardMsgsSpec spec?
-    let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
     -- do not forward snapshot as we don't want messages assigned to it to leak outside
     withReader ({ · with snap? := none }) do
       -- The `#guard_msgs` command is special-cased in `elabCommandTopLevel` to ensure linters only run once.
@@ -200,7 +198,7 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
       match filterFn msg with
       | .check       => toCheck := toCheck.add msg
       | .drop        => pure ()
-      | pass => toPassthrough := toPassthrough.add msg
+      | .pass => toPassthrough := toPassthrough.add msg
     let map ← getFileMap
     let reportPos? :=
       if reportPositions then
@@ -208,16 +206,16 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
       else none
     let strings ← toCheck.toList.mapM (messageToString · reportPos?)
     let strings := ordering.apply strings
-    let res := "---\n".intercalate strings |>.trim
+    let res := "---\n".intercalate strings |>.trimAscii |>.copy
     if whitespace.apply expected == whitespace.apply res then
       -- Passed. Only put toPassthrough messages back on the message log
-      modify fun st => { st with messages := initMsgs ++ toPassthrough }
+      modify fun st => { st with messages := toPassthrough }
     else
       -- Failed. Put all the messages back on the message log and add an error
-      modify fun st => { st with messages := initMsgs ++ msgs }
+      modify fun st => { st with messages := msgs }
       let feedback :=
         if guard_msgs.diff.get (← getOptions) then
-          let diff := Diff.diff (expected.split (· == '\n')).toArray (res.split (· == '\n')).toArray
+          let diff := Diff.diff (expected.split '\n').toStringArray (res.split '\n').toStringArray
           Diff.linesToString diff
         else res
       logErrorAt tk m!"❌️ Docstring on `#guard_msgs` does not match generated message:\n\n{feedback}"
@@ -235,7 +233,7 @@ def guardMsgsCodeAction : CommandCodeAction := fun _ _ _ node => do
   let some (stx, res) := res | return #[]
   let doc ← readDoc
   let eager := {
-    title := "Update #guard_msgs with tactic output"
+    title := "Update #guard_msgs with generated message"
     kind? := "quickfix"
     isPreferred? := true
   }

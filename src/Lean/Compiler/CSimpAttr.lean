@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.ScopedEnvExtension
 public import Lean.Util.Recognizers
-public import Lean.Util.ReplaceExpr
 
 public section
 
@@ -74,6 +73,7 @@ private def initFn :=
     descr := "simplification theorem for the compiler"
     add   := fun declName stx attrKind => do
       Attribute.Builtin.ensureNoArgs stx
+      ensureAttrDeclIsPublic `csimp declName attrKind
       discard <| add declName attrKind
   }
 

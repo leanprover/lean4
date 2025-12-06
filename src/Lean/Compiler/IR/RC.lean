@@ -311,21 +311,25 @@ private def isPersistent : Expr → Bool
   | .fap _ xs => xs.isEmpty -- all global constants are persistent objects
   | _         => false
 
-/-- Return true iff `v` at runtime is a scalar value stored in a tagged pointer.
-   We do not need RC operations for this kind of value. -/
-private def typeForScalarBoxedInTaggedPtr? (v : Expr) : Option IRType :=
-  match v with
-  | .ctor c _ =>
-    some c.type
-  | .lit (.num n) =>
-    if n ≤ maxSmallNat then
-      some .tagged
-    else
-      some .tobject
-  | _ => none
+/--
+If `v` is a value that does not need ref counting return `.tagged` so it is never ref counted,
+otherwise `origt` unmodified.
+-/
+private def refineTypeForExpr (v : Expr) (origt : IRType) : IRType :=
+  if origt.isScalar then
+    origt
+  else
+    match v with
+    | .ctor c _ => c.type
+    | .lit (.num n) =>
+      if n ≤ maxSmallNat then
+        .tagged
+      else
+        origt
+    | _ => origt
 
 private def updateVarInfo (ctx : Context) (x : VarId) (t : IRType) (v : Expr) : Context :=
-  let type := typeForScalarBoxedInTaggedPtr? v |>.getD t
+  let type := refineTypeForExpr v t
   let isPossibleRef := type.isPossibleRef
   let isDefiniteRef := type.isDefiniteRef
   { ctx with
@@ -345,6 +349,10 @@ private def addDecIfNeeded (ctx : Context) (x : VarId) (b : FnBody) (bLiveVars :
   else b
 
 private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b : FnBody) (bLiveVars : LiveVars) : FnBody × LiveVars :=
+  -- `z` can be unused in `b` so we might have to drop it. Note that we do not remove the let
+  -- because we are in the impure phase of the compiler so `v` can have side effects that we don't
+  -- want to loose.
+  let b := addDecIfNeeded ctx z b bLiveVars
   let b := match v with
     | .ctor _ ys | .reuse _ _ _ ys | .pap _ ys =>
       addIncBeforeConsumeAll ctx ys (.vdecl z t v b) bLiveVars

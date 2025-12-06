@@ -6,10 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Structure
 public import Lean.Meta.SynthInstance
-public import Lean.Meta.Check
 public import Lean.Meta.DecLevel
+import Lean.Meta.SameCtorUtils
+import Lean.Data.Array
 
 public section
 
@@ -476,9 +476,56 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
   | none           => throwAppBuilderException `noConfusion ("equality expected" ++ hasTypeMsg h type)
   | some (α, a, b) =>
     let α ← whnfD α
-    matchConstInduct α.getAppFn (fun _ => throwAppBuilderException `noConfusion ("inductive type expected" ++ indentExpr α)) fun v us => do
+    matchConstInduct α.getAppFn (fun _ => throwAppBuilderException `noConfusion ("inductive type expected" ++ indentExpr α)) fun indVal us => do
       let u ← getLevel target
-      return mkAppN (mkConst (Name.mkStr v.name "noConfusion") (u :: us)) (α.getAppArgs ++ #[target, a, b, h])
+      if let some (ctorA, ys1) ← constructorApp'? a then
+       if let some (ctorB, ys2) ← constructorApp'? b then
+        -- Different constructors: Use use `ctorIdx`
+        if ctorA.cidx ≠ ctorB.cidx then
+          let ctorIdxName := Name.mkStr indVal.name "ctorIdx"
+          if (← hasConst ctorIdxName) && (← hasConst `noConfusion_of_Nat) then
+            let ctorIdx := mkAppN (mkConst ctorIdxName us) α.getAppArgs
+            let v ← getLevel α
+            return mkApp2 (mkConst ``False.elim [u]) target <|
+              mkAppN (mkConst `noConfusion_of_Nat [v]) #[α, ctorIdx, a, b, h]
+          else
+            throwError "mkNoConfusion: Missing {ctorIdxName} or {`noConfusion_of_Nat}"
+        else
+          -- Same constructors: use per-constructor noConfusion
+          -- Nullary constructors, the construction is trivial
+          if ctorA.numFields = 0 then
+            return ← withLocalDeclD `P target fun P => mkLambdaFVars #[P] P
+
+          let noConfusionName := ctorA.name.str "noConfusion"
+          unless (← hasConst noConfusionName) do
+            throwError "mkNoConfusion: Missing {noConfusionName}"
+          let noConfusionNameInfo ← getConstVal noConfusionName
+
+          let xs := α.getAppArgs[:ctorA.numParams]
+          let noConfusion := mkAppN (mkConst noConfusionName (u :: us)) xs
+          let fields1 : Array Expr := ys1[ctorA.numParams:]
+          let fields2 : Array Expr := ys2[ctorA.numParams:]
+          let mut e := mkAppN noConfusion (#[target] ++ fields1 ++ fields2)
+          let arity := noConfusionNameInfo.type.getNumHeadForalls
+          -- Index equalities expected. Can be less than `indVal.numIndices` when this constructor
+          -- has fixed indices.
+          assert! arity ≥ xs.size + fields1.size + fields2.size + 3
+          let numIndEqs := arity - (xs.size + fields1.size + fields2.size + 3) -- 3 for `target`, `h` and the continuation
+          for _ in [:numIndEqs] do
+            let eq ← whnf (← whnfForall (← inferType e)).bindingDomain!
+            if let some (_,i,_,_) := eq.heq? then
+              e := mkApp e (← mkHEqRefl i)
+            else if let some (_,i,_) := eq.eq? then
+              e := mkApp e (← mkEqRefl i)
+            else
+              throwError "mkNoConfusion: unexpected equality `{eq}` as next argument to{inlineExpr (← inferType e)}"
+          let eq := (← whnfForall (← inferType e)).bindingDomain!
+          if eq.isHEq then
+            e := mkApp e (← mkHEqOfEq h)
+          else
+            e := mkApp e h
+          return e
+      throwError "mkNoConfusion: No manifest constructors in {a} = {b}"
 
 /-- Given a `monad` and `e : α`, makes `pure e`.-/
 def mkPure (monad : Expr) (e : Expr) : MetaM Expr :=

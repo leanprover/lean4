@@ -37,7 +37,7 @@ theorem go_get_aux (aig : AIG α) (input : RefVec aig w) (lo : Nat) (curr : Nat)
   split at hgo
   · dsimp only at hgo
     rw [← hgo]
-    rw [go_get_aux]
+    rw [go_get_aux]; case hidx1 => omega
     rw [AIG.RefVec.get_push_ref_lt]
   · dsimp only at hgo
     rw [← hgo]
@@ -62,7 +62,7 @@ theorem go_get (aig : AIG α) (input : RefVec aig w) (lo : Nat) (curr : Nat)
   · rw [← hgo]
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
-      rw [go_get_aux]
+      rw [go_get_aux]; case hidx1 => omega
       rw [AIG.RefVec.get_push_ref_eq']
       · simp [heq]
       · simp [heq]

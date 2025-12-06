@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Power2
-// Imports: Init.Data.Nat.Linear
+// Imports: public import Init.Data.Nat.Linear
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -49,15 +49,6 @@ x_4 = l___private_Init_Data_Nat_Power2_0__Nat_nextPowerOfTwo_go___redArg(x_1, x_
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Power2_0__Nat_nextPowerOfTwo_go___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l___private_Init_Data_Nat_Power2_0__Nat_nextPowerOfTwo_go___redArg(x_1, x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Power2_0__Nat_nextPowerOfTwo_go___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -65,6 +56,15 @@ lean_object* x_4;
 x_4 = l___private_Init_Data_Nat_Power2_0__Nat_nextPowerOfTwo_go(x_1, x_2, x_3);
 lean_dec(x_1);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Power2_0__Nat_nextPowerOfTwo_go___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l___private_Init_Data_Nat_Power2_0__Nat_nextPowerOfTwo_go___redArg(x_1, x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Nat_nextPowerOfTwo(lean_object* x_1) {
@@ -85,13 +85,13 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Nat_Power2(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Nat_Power2(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Nat_Linear(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Nat_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

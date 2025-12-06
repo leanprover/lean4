@@ -48,7 +48,7 @@ variable {_ : BEq α} {_ : Hashable α}
 @[inline] def contains (s : PersistentHashSet α) (a : α) : Bool :=
   s.set.contains a
 
-@[inline] def foldM {β : Type v} {m : Type v → Type v} [Monad m] (f : β → α → m β) (init : β) (s : PersistentHashSet α) : m β :=
+@[inline] def foldM {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (s : PersistentHashSet α) : m β :=
   s.set.foldlM (init := init) fun d a _ => f d a
 
 @[inline] def fold {β : Type v} (f : β → α → β) (init : β) (s : PersistentHashSet α) : β :=
@@ -61,7 +61,7 @@ protected def forIn {_ : BEq α} {_ : Hashable α} [Monad m]
     (s : PersistentHashSet α) (init : σ) (f : α → σ → m (ForInStep σ)) : m σ := do
   PersistentHashMap.forIn s.set init fun p s => f p.1 s
 
-instance {_ : BEq α} {_ : Hashable α} : ForIn m (PersistentHashSet α) α where
+instance {_ : BEq α} {_ : Hashable α} [Monad m] : ForIn m (PersistentHashSet α) α where
   forIn := PersistentHashSet.forIn
 
 end PersistentHashSet

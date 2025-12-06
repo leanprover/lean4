@@ -2,7 +2,7 @@ opaque f : Nat → Nat
 
 /--
 info: Try this:
-  simp only [h1, x]
+  [apply] simp only [h1, x]
 ---
 warning: declaration uses 'sorry'
 -/
@@ -16,7 +16,7 @@ example (a : Nat) : True := by
 
 /--
 info: Try this:
-  simp only [this, x]
+  [apply] simp only [this, x]
 ---
 warning: declaration uses 'sorry'
 -/

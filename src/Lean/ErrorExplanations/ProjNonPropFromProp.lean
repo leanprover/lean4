@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.ErrorExplanation
+meta import Lean.ErrorExplanation
 
 public section
 
@@ -24,7 +25,7 @@ such elimination is only valid if the resulting value is also in `Prop`; if it i
 
 # Examples
 
-## Attempting to use index projection on existential proof
+## Attempting to Use Index Projection on Existential Proof
 
 ```lean broken
 example (a : Nat) (h : ∃ x : Nat, x > a + 1) : ∃ x : Nat, x > 0 :=

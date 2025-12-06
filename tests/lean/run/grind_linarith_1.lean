@@ -66,7 +66,13 @@ example [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [Ordere
 
 -- Test misconfigured instances
 /--
-trace: [grind.issues] type has `LE` and `LT`, but the `LT` instance is not lawful, failed to synthesize
+trace: [grind.issues] type has `LE`, but is not a partial order, failed to synthesize
+      IsPartialOrder α
+[grind.issues] type has `LE`, but is not a linear preorder, failed to synthesize
+      IsLinearPreorder α
+[grind.issues] type has `LE` and `LT`, but the `LT` instance is not lawful, failed to synthesize
+      LawfulOrderLT α
+[grind.issues] type has `LE` and `LT`, but the `LT` instance is not lawful, failed to synthesize
       LawfulOrderLT α
 [grind.issues] type has `LE`, but is not a partial order, failed to synthesize
       IsPartialOrder α
@@ -166,8 +172,8 @@ trace: [grind.linarith.assert] -3 • y + 2 • x + One.one ≤ 0
 [grind.linarith.assert] Zero.zero < 0
 -/
 #guard_msgs (trace) in
-set_option trace.grind.cutsat.assert true in -- cutsat should **not** process the following constraints
+set_option trace.grind.lia.assert true in -- cutsat should **not** process the following constraints
 set_option trace.grind.linarith.assert true in -- linarith should take over
 set_option trace.grind.linarith.assert.store false in
 example (x y z : Int) (h1 : 2 * x < 3 * y) (h2 : -4 * x + 2 * z < 0) : ¬ 12*y - 4* z < 0 := by
-  grind -cutsat
+  grind -lia

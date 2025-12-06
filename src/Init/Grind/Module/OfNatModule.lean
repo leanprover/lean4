@@ -4,13 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-import Init.Grind.Module.Envelope
-
-open Std
-
+public import Init.Grind.Module.Envelope
+public section
 namespace Lean.Grind.IntModule.OfNatModule
+open Std
 
 /-!
 Support for `NatModule` in the `grind` linear arithmetic module.
@@ -44,8 +42,7 @@ theorem add_congr {α} [NatModule α] {a b : α} {a' b' : Q α}
     (h₁ : toQ a = a') (h₂ : toQ b = b') : toQ (a + b) = a' + b' := by
   rw [toQ_add, h₁, h₂]
 
-theorem smul_congr {α} [NatModule α] (n : Nat) (a : α) (i : Int) (a' : Q α)
-    (h₁ : ↑n == i) (h₂ : toQ a = a') : toQ (n • a) = i • a' := by
-  simp at h₁; rw [← h₁, ← h₂, toQ_smul]
+theorem smul_congr {α} [NatModule α] (n : Nat) (a : α) (a' : Q α) (h : toQ a = a') : toQ (n • a) = n • a' := by
+  rw [← h, toQ_smul]
 
 end Lean.Grind.IntModule.OfNatModule

@@ -7,10 +7,7 @@ module
 
 prelude
 public import Lean.Elab.App
-public import Lean.Elab.Command
-public import Lean.Elab.DeclarationRange
 public import Lean.Elab.DeclNameGen
-public meta import Lean.Parser.Command
 
 public section
 
@@ -164,9 +161,10 @@ def processDefDeriving (view : DerivingClassView) (decl : Expr) : TermElabM Unit
   let decl ← whnfCore decl
   let .const declName _ := decl.getAppFn
     | throwError "Failed to delta derive instance, expecting a term of the form `C ...` where `C` is a constant, given{indentExpr decl}"
-  -- When the definition is private, the deriving handler will need access to the private scope,
-  -- and we make sure to put the instance in the private scope.
-  withoutExporting (when := isPrivateName declName) do
+  let exposed := (← getEnv).setExporting true |>.find? declName |>.any (·.hasValue)
+  -- When the definition body is private, the deriving handler will need access to the private scope,
+  -- and the instance body will automatically be private as well.
+  withExporting (isExporting := exposed) do
   let ConstantInfo.defnInfo info ← getConstInfo declName
     | throwError "Failed to delta derive instance, `{.ofConstName declName}` is not a definition."
   let value := info.value.beta decl.getAppArgs
@@ -225,6 +223,7 @@ example, `deriving instance Foo for Bar, Baz` invokes ``fooHandler #[`Bar, `Baz]
 def registerDerivingHandler (className : Name) (handler : DerivingHandler) : IO Unit := do
   unless (← initializing) do
     throw (IO.userError "failed to register deriving handler, it can only be registered during initialization")
+  Term.registerDerivableClass className
   derivingHandlersRef.modify fun m => match m.find? className with
     | some handlers => m.insert className (handler :: handlers)
     | none => m.insert className [handler]
@@ -262,7 +261,9 @@ def getOptDerivingClasses (optDeriving : Syntax) : CoreM (Array DerivingClassVie
   | `(Parser.Command.optDeriving| deriving $[$classes],*) => classes.mapM DerivingClassView.ofSyntax
   | _ => return #[]
 
-def DerivingClassView.applyHandlers (view : DerivingClassView) (declNames : Array Name) : CommandElabM Unit :=
+def DerivingClassView.applyHandlers (view : DerivingClassView) (declNames : Array Name) : CommandElabM Unit := do
+  let env ← getEnv
+  withScope (fun sc => { sc with isMeta := sc.isMeta || declNames.all (isMarkedMeta env) }) do
   withRef view.ref do
     applyDerivingHandlers (setExpose := view.hasExpose) (← liftCoreM <| view.getClassName) declNames
 

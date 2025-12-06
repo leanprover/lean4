@@ -1,0 +1,12 @@
+name = "scripts"
+leanOptions = { experimental.module = true }
+
+[[lean_exe]]
+name = "modulize"
+root = "Modulize"
+
+[[lean_exe]]
+name = "shake"
+root = "Shake"
+# needed by `Lake.loadWorkspace`
+supportInterpreter = true

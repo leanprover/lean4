@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Lift
-// Imports: Init.System.IO
+// Imports: public import Init.System.IO
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -21,6 +21,7 @@ LEAN_EXPORT lean_object* l_Lake_instMonadLiftTStateTOfMonadOfMonadStateOf__lake_
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftTReaderTOfBindOfMonadReaderOf__lake___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftTOptionOfAlternative__lake___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftTOptionTOfMonadOfAlternative__lake___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_EIO_toBaseIO___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftTIdOfPure__lake(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftTExceptTOfMonadOfMonadExceptOf__lake___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftTEIOOfMonadOfMonadExceptOfOfBaseIO__lake___redArg(lean_object*, lean_object*, lean_object*);
@@ -37,7 +38,6 @@ LEAN_EXPORT lean_object* l_Lake_instMonadLiftTOptionOfAlternative__lake___redArg
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftTIdOfPure__lake___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftTReaderTOfBindOfMonadReaderOf__lake___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftTExceptOfPureOfMonadExceptOf__lake___redArg(lean_object*, lean_object*);
-lean_object* l_EIO_toBaseIO(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftTEIOOfMonadOfMonadExceptOfOfBaseIO__lake___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftTEIOOfMonadOfMonadExceptOfOfBaseIO__lake(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftTOfMonadLift__lake(lean_object*, lean_object*, lean_object*);
@@ -101,15 +101,6 @@ x_4 = l_Lake_instAlternativeOfMonadOfMonadExceptOfPUnit__lake___redArg(x_2, x_3)
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instAlternativeOfMonadOfMonadExceptOfPUnit__lake___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_instAlternativeOfMonadOfMonadExceptOfPUnit__lake___redArg(x_1, x_2);
-lean_dec_ref(x_1);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_instAlternativeOfMonadOfMonadExceptOfPUnit__lake___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -117,6 +108,15 @@ lean_object* x_4;
 x_4 = l_Lake_instAlternativeOfMonadOfMonadExceptOfPUnit__lake(x_1, x_2, x_3);
 lean_dec_ref(x_2);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instAlternativeOfMonadOfMonadExceptOfPUnit__lake___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lake_instAlternativeOfMonadOfMonadExceptOfPUnit__lake___redArg(x_1, x_2);
+lean_dec_ref(x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftTOfMonadLift__lake___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -476,7 +476,7 @@ LEAN_EXPORT lean_object* l_Lake_instMonadLiftTEIOOfMonadOfMonadExceptOfOfBaseIO_
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_6 = lean_alloc_closure((void*)(l_EIO_toBaseIO), 4, 3);
+x_6 = lean_alloc_closure((void*)(l_EIO_toBaseIO___boxed), 4, 3);
 lean_closure_set(x_6, 0, lean_box(0));
 lean_closure_set(x_6, 1, lean_box(0));
 lean_closure_set(x_6, 2, x_5);
@@ -520,13 +520,13 @@ x_6 = l_Lake_instMonadLiftTEIOOfMonadOfMonadExceptOfOfBaseIO__lake___redArg(x_3,
 return x_6;
 }
 }
-lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_System_IO(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Util_Lift(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Util_Lift(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_System_IO(builtin, lean_io_mk_world());
+res = initialize_Init_System_IO(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

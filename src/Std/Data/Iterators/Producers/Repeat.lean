@@ -38,7 +38,7 @@ instance : Iterator (RepeatIterator α f) Id α where
     | .yield it' out => out = it.internalState.next ∧ it' = ⟨⟨f it.internalState.next⟩⟩
     | .skip _ => False
     | .done => False
-  step it := pure <| .yield ⟨⟨f it.internalState.next⟩⟩ it.internalState.next (by simp)
+  step it := pure <| .deflate <| .yield ⟨⟨f it.internalState.next⟩⟩ it.internalState.next (by simp)
 
 /--
 Creates an infinite iterator from an initial value `init` and a function `f : α → α`.

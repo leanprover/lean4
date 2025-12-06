@@ -1,0 +1,23 @@
+Success! Final stack:
+  [(Lean.Doc.Syntax.dl
+    "dl{"
+    [(Lean.Doc.Syntax.desc
+      ":"
+      [(Lean.Doc.Syntax.text
+        (str "\" an excellent idea\""))]
+      "=>"
+      [(Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.text
+          (str "\"Let's say more!\""))]
+        "}")])
+     (Lean.Doc.Syntax.desc
+      ":"
+      [(Lean.Doc.Syntax.text (str "\" more\""))]
+      "=>"
+      [(Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.text (str "\"stuff\""))]
+        "}")])]
+    "}")]
+All input consumed.

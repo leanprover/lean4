@@ -7,9 +7,9 @@
 /.github/ @kim-em
 /RELEASES.md @kim-em
 /src/kernel/ @leodemoura
-/src/library/compiler/ @zwarich
+/src/library/compiler/ @hargoniX
 /src/lake/ @tydeu
-/src/Lean/Compiler/ @leodemoura @zwarich
+/src/Lean/Compiler/ @leodemoura @hargoniX
 /src/Lean/Data/Lsp/ @mhuisi
 /src/Lean/Elab/Deriving/ @kim-em
 /src/Lean/Elab/Tactic/ @kim-em

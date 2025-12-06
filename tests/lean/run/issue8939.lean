@@ -11,7 +11,7 @@ public inductive AckFuel : (n m : Nat) → Type where
 namespace Test1
 /--
 info: Try this:
-  termination_by structural x _ x => x
+  [apply] termination_by structural x _ x => x
 -/
 #guard_msgs in
 public def ackermann_fuel : (n m : Nat) → (fuel : AckFuel n m) → Nat
@@ -25,7 +25,7 @@ end Test1
 namespace Test2
 /--
 info: Try this:
-  termination_by structural x _ x => x
+  [apply] termination_by structural x _ x => x
 -/
 #guard_msgs in
 public def ackermann_fuel : (n m : Nat) → (fuel : AckFuel n m) → Nat
@@ -39,7 +39,7 @@ end Test2
 namespace Test3
 /--
 info: Try this:
-  termination_by structural x _ x => x
+  [apply] termination_by structural x _ x => x
 -/
 #guard_msgs in
 @[expose] public def ackermann_fuel : (n m : Nat) → (fuel : AckFuel n m) → Nat

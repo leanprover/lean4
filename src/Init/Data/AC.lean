@@ -7,7 +7,6 @@ Authors: Dany Fabian
 module
 
 prelude
-public import Init.Classical
 public import Init.ByCases
 
 @[expose] public section

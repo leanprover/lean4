@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Internal.Parsec
 public import Lean.Data.Xml.Basic
+import Init.Data.String.Search
 
 public section
 
@@ -153,7 +154,7 @@ def SystemLiteral : Parser String :=
 /-- https://www.w3.org/TR/xml/#NT-PubidChar -/
 def PubidChar : Parser LeanChar :=
   asciiLetter <|> digit <|> endl <|> attempt do
-  let c ← any
+  let c : _root_.Char := ← any
   if "-'()+,./:=?;!*#@$_%".contains c then pure c else fail "PublidChar expected"
 
 /-- https://www.w3.org/TR/xml/#NT-PubidLiteral -/

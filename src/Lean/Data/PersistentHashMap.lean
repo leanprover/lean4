@@ -356,6 +356,40 @@ def toList {_ : BEq α} {_ : Hashable α} (m : PersistentHashMap α β) : List (
 def toArray {_ : BEq α} {_ : Hashable α} (m : PersistentHashMap α β) : Array (α × β) :=
   m.foldl (init := #[]) fun ps k v => ps.push (k, v)
 
+/-
+TODO: Fix the bug in here. Does not terminate, apparently
+@[inline]
+protected partial def forInNew {_ : BEq α} {_ : Hashable α}
+    (map : PersistentHashMap α β) (init : σ) (kcons : α → β → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  let rec @[specialize] loop [Nonempty (m δ)] (knil : σ → m δ) : Node α β → σ → m δ
+    | Node.collision keys vals heq, acc =>
+      let rec traverse [Nonempty (m δ)] (i : Nat) (acc : σ) : m δ := do
+        if h : i < keys.size then
+          let k := keys[i]
+          have : i < vals.size := heq ▸ h
+          let v := vals[i]
+          kcons k v (traverse (i+1)) acc
+        else
+          knil acc
+      traverse 0 acc
+    | Node.entries entries, acc =>
+      forInNew entries acc (kbreak := knil) fun entry kcontinue acc =>
+        match entry with
+        | Entry.null      => kcontinue acc
+        | Entry.entry k v => kcons k v kcontinue acc
+        | Entry.ref node  => loop kcontinue node acc
+  haveI : Nonempty (m δ) := ⟨knil init⟩
+  loop knil map.root init
+-/
+
+@[inline]
+protected partial def forInNew {m : Type w → Type w'} {_ : BEq α} {_ : Hashable α}
+    (map : PersistentHashMap α β) (init : σ) (kcons : α → β → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  forInNew map.toArray init (fun (a, b) => kcons a b) knil
+
+instance {_ : BEq α} {_ : Hashable α} : ForInNew m (PersistentHashMap α β) (α × β) where
+  forInNew t init kcons knil := PersistentHashMap.forInNew t init (fun a b => kcons (a, b)) knil
+
 structure Stats where
   numNodes      : Nat := 0
   numNull       : Nat := 0

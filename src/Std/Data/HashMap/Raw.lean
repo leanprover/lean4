@@ -219,9 +219,16 @@ instance [BEq α] [Hashable α] : GetElem? (Raw α β) α β (fun m a => a ∈ m
     (f : (a : α) → β → m PUnit) (b : Raw α β) : m PUnit :=
   b.inner.forM f
 
+@[inline, inherit_doc DHashMap.Raw.forInNew] def forInNew {m : Type w → Type w'} {σ γ : Type w}
+    (b : Raw α β) (init : σ) (kcons : (a : α) → β → (σ → m γ) → σ → m γ) (knil : σ → m γ)  : m γ :=
+  b.inner.forInNew init kcons knil
+
 @[inline, inherit_doc DHashMap.Raw.forIn] def forIn {m : Type w → Type w'} [Monad m] {γ : Type w}
     (f : (a : α) → β → γ → m (ForInStep γ)) (init : γ) (b : Raw α β) : m γ :=
   b.inner.forIn f init
+
+instance {m : Type w → Type w'} : ForInNew m (Raw α β) (α × β) where
+  forInNew m init kcons knil := m.forInNew init (fun a b => kcons (a, b)) knil
 
 instance {m : Type w → Type w'} [Monad m] : ForM m (Raw α β) (α × β) where
   forM m f := m.forM (fun a b => f (a, b))

@@ -260,7 +260,7 @@ def getLED (t : Raw α cmp) (k : α) (fallback : α) : α :=
 def getLTD (t : Raw α cmp) (k : α) (fallback : α) : α :=
   TreeMap.Raw.getKeyLTD t.inner k fallback
 
-variable {δ : Type w} {m : Type w → Type w₂} [Monad m]
+variable {δ σ : Type w} {m : Type w → Type w₂} [Monad m]
 
 @[inline, inherit_doc TreeSet.empty]
 def filter (f : α → Bool) (t : Raw α cmp) : Raw α cmp :=
@@ -286,16 +286,23 @@ def foldr (f : (a : α) → δ → δ) (init : δ) (t : Raw α cmp) : δ :=
 def partition (f : (a : α) → Bool) (t : Raw α cmp) : Raw α cmp × Raw α cmp :=
   let p := t.inner.partition fun a _ => f a; (⟨p.1⟩, ⟨p.2⟩)
 
-@[inline, inherit_doc TreeSet.empty]
+@[inline, inherit_doc TreeSet.forM]
 def forM (f : α → m PUnit) (t : Raw α cmp) : m PUnit :=
   t.inner.forM (fun a _ => f a)
 
-@[inline, inherit_doc TreeSet.empty]
+@[inline, inherit_doc TreeSet.forInNew]
+def forInNew (t : Raw α cmp) (init : σ) (kcons : α → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  t.inner.forInNew init (fun a _ => kcons a) knil
+
+@[inline, inherit_doc TreeSet.forIn]
 def forIn (f : α → δ → m (ForInStep δ)) (init : δ) (t : Raw α cmp) : m δ :=
   t.inner.forIn (fun a _ c => f a c) init
 
 instance [Monad m] : ForM m (Raw α cmp) α where
   forM t f := t.forM f
+
+instance : ForInNew m (Raw α cmp) α where
+  forInNew t init kcons knil := t.forInNew init kcons knil
 
 instance [Monad m] : ForIn m (Raw α cmp) α where
   forIn t init f := t.forIn (fun a acc => f a acc) init

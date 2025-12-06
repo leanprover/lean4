@@ -203,12 +203,20 @@ order.
   b.inner.forM (fun a _ => f a)
 
 /-- Support for the `for` loop construct in `do` blocks. -/
+@[inline] def forInNew {m : Type v → Type w} {σ β : Type v}
+    (b : Raw α) (init : σ) (kcons : α → (σ → m β) → σ → m β) (knil : σ → m β): m β :=
+  b.inner.forInNew init (fun a _ => kcons a) knil
+
+/-- Support for the `for` loop construct in `do` blocks. -/
 @[inline] def forIn {m : Type v → Type w} [Monad m] {β : Type v} (f : α → β → m (ForInStep β))
     (init : β) (b : Raw α) : m β :=
   b.inner.forIn (fun a _ acc => f a acc) init
 
 instance {m : Type v → Type w} [Monad m] : ForM m (Raw α) α where
   forM m f := m.forM f
+
+instance {m : Type v → Type w} : ForInNew m (Raw α) α where
+  forInNew m init kcons knil := m.forInNew init kcons knil
 
 instance {m : Type v → Type w} [Monad m] : ForIn m (Raw α) α where
   forIn m init f := m.forIn f init

@@ -275,6 +275,19 @@ theorem forIn_eq_forIn_toListModel {δ : Type w} {l : Raw α β} {m : Type w →
       · simp
       · simpa using ih'
 
+theorem all_eq_all_toListModel {p : (a: α) → β a → Bool} {m : Raw α β} :
+    m.all p = (toListModel m.buckets).all (fun x => p x.1 x.2) := by
+  simp only [Raw.all, ForIn.forIn, Bool.not_eq_true, bind_pure_comp, map_pure, Id.run_bind]
+  rw [forIn_eq_forIn_toListModel, ← toList_eq_toListModel, forIn_eq_forIn']
+  induction m.toList with
+  | nil => simp only [all_nil, forIn'_nil, Id.run_pure]
+  | cons hd tl ih =>
+    simp only [forIn'_eq_forIn, List.all_cons]
+    by_cases h : p hd.fst hd.snd = false
+    · simp [h]
+    · simp only [forIn'_eq_forIn] at ih
+      simp [h, ih]
+
 end Raw
 
 namespace Raw₀
@@ -1583,5 +1596,14 @@ theorem Const.wf_insertManyIfNewUnit₀ [BEq α] [Hashable α] [EquivBEq α] [La
     {ρ : Type w} [ForIn Id ρ α] {m : Raw α (fun _ => Unit)} {h : 0 < m.buckets.size}
     {l : ρ} (h' : m.WF) : (Const.insertManyIfNewUnit ⟨m, h⟩ l).1.1.WF :=
   (Raw₀.Const.insertManyIfNewUnit ⟨m, h⟩ l).2 _ Raw.WF.insertIfNew₀ h'
+
+theorem beq_eq_beqModel [BEq α] [LawfulBEq α] [Hashable α] [∀ k, BEq (β k)] {m₁ m₂ : Raw₀ α β}  (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1) :
+    beq m₁ m₂ = beqModel (toListModel m₁.1.buckets) (toListModel m₂.1.buckets) := by
+  simp [beq, beqModel, Raw.size_eq_length h₁, Raw.size_eq_length h₂, Raw.all_eq_all_toListModel,
+    get?_eq_getValueCast? h₂]
+
+theorem Const.beq_eq_beqModel {β : Type v} [BEq α] [PartialEquivBEq α] [Hashable α] [LawfulHashable α] [BEq β] {m₁ m₂ : Raw₀ α (fun _ => β)} (h₁ : Raw.WFImp m₁.1) (h₂ : Raw.WFImp m₂.1) :
+    beq m₁ m₂ = Const.beqModel (toListModel m₁.1.buckets) (toListModel m₂.1.buckets) := by
+  simp [beq, Const.beqModel, Raw.size_eq_length h₁, Raw.size_eq_length h₂, Raw.all_eq_all_toListModel, get?_eq_getValue? h₂]
 
 end Raw₀

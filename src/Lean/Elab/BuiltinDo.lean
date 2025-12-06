@@ -188,7 +188,6 @@ def LetOrReassign.registerReassignAliasInfo (letOrReassign : LetOrReassign) (var
       if let some baseId := mutVarDefs[var.getId]? then
         let id := (← getFVarFromUserName var.getId).fvarId!
         if id != baseId then
-          trace[Elab.do] "registering alias info for {var.getId}: {mkFVar id} -> {mkFVar baseId}"
           pushInfoLeaf <| .ofFVarAliasInfo { userName := var.getId, id, baseId }
 
 def elabDoLetOrReassignWith (hint : MessageData) (letOrReassign : LetOrReassign) (vars : Array Ident)
@@ -406,7 +405,6 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   else
     elabDoMatchExprNoMeta discr alts dec
 where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts) (dec : DoElemCont) : DoElabM Expr := do
-  let mγ ← mkMonadicType (← read).doBlockResultType
   dec.withDuplicableCont fun dec => do
     let rec elabMatch i (altsArr : Array (TSyntax ``Term.matchExprAlt)) := do
       if h : i < altsArr.size then
@@ -418,8 +416,13 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
             elabMatch (i + 1) (altsArr.set i (← `(matchExprAltExpr| | $pattern => $rhs)))
         | _ => throwUnsupportedSyntax
       else
-        let alts : TSyntax ``Term.matchExprAlts := ⟨alts.raw.modifyArg 0 fun node => node.setArgs altsArr⟩
-        Term.elabTerm (← `(match_expr $discr with $alts)) mγ (catchExPostpone := false)
+        trace[Elab.do] "elseSeq: {repr alts.raw[1][3]}"
+        let elseSeq := alts.raw[1][3]
+        doElabToSyntax m!"match_expr else alternative" (ref := elseSeq) (elabDoSeq ⟨elseSeq⟩ dec) fun rhs => do
+          let alts : TSyntax ``Term.matchExprAlts := ⟨alts.raw.modifyArg 0 fun node => node.setArgs altsArr⟩
+          let alts : TSyntax ``Term.matchExprAlts := ⟨alts.raw.modifyArg 1 (·.setArg 3 rhs)⟩
+          let mγ ← mkMonadicType (← read).doBlockResultType
+          Term.elabTerm (← `(match_expr $discr with $alts)) mγ (catchExPostpone := false)
     elabMatch 0 (alts.raw[0].getArgs.map (⟨·⟩))
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetExpr] def elabDoLetExpr : DoElab := fun stx dec => do

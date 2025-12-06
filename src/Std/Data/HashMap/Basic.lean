@@ -283,14 +283,14 @@ instance [BEq α] [Hashable α] : Inter (HashMap α β) := ⟨inter⟩
 
 instance [BEq α] [Hashable α] : SDiff (HashMap α β) := ⟨diff⟩
 
-section Unverified
-
-/-! We currently do not provide lemmas for the functions below. -/
-
 @[inline, inherit_doc DHashMap.partition] def partition (f : α → β → Bool)
     (m : HashMap α β) : HashMap α β × HashMap α β :=
   let ⟨l, r⟩ := m.inner.partition f
   ⟨⟨l⟩, ⟨r⟩⟩
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
 
 @[inline, inherit_doc DHashMap.values] def values (m : HashMap α β) : List β :=
   m.inner.values

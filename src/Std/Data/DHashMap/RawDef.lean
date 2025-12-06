@@ -79,6 +79,9 @@ map in some order.
 @[inline] def forIn [Monad m] (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (b : Raw α β) : m δ :=
   ForIn.forIn b.buckets init (fun bucket acc => bucket.forInStep acc f)
 
+instance : ForInNew m (Raw α β) ((a : α) × β a) where
+  forInNew m init kcons knil := m.forInNew init (fun a b => kcons ⟨a, b⟩) knil
+
 instance [Monad m] : ForM m (Raw α β) ((a : α) × β a) where
   forM m f := m.forM (fun a b => f ⟨a, b⟩)
 

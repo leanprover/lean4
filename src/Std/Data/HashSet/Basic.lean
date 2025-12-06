@@ -196,6 +196,11 @@ order.
     β :=
   m.inner.fold (fun b a _ => f b a) init
 
+/-- Support for the `for` loop construct in `do` blocks. -/
+@[inline] def forInNew {m : Type v → Type w} {β σ : Type v}
+    (b : HashSet α) (init : σ) (kcons : α → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
+  b.inner.forInNew init (fun a _ acc => kcons a acc) knil
+
 /-- Carries out a monadic action on each element in the hash set in some order. -/
 @[inline] def forM {m : Type v → Type w} [Monad m] (f : α → m PUnit)
     (b : HashSet α) : m PUnit :=
@@ -205,6 +210,9 @@ order.
 @[inline] def forIn {m : Type v → Type w} [Monad m] {β : Type v}
     (f : α → β → m (ForInStep β)) (init : β) (b : HashSet α) : m β :=
   b.inner.forIn (fun a _ acc => f a acc) init
+
+instance [BEq α] [Hashable α] {m : Type v → Type w} [Monad m] : ForInNew m (HashSet α) α where
+  forInNew := forInNew
 
 instance [BEq α] [Hashable α] {m : Type v → Type w} [Monad m] : ForM m (HashSet α) α where
   forM m f := m.forM f

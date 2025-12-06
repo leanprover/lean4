@@ -232,7 +232,10 @@ but it is also produced by `MacroM` which implemented in the prelude, and intern
 been defined yet.
 -/
 def Exception.isMaxRecDepth (ex : Exception) : Bool :=
-  ex matches error _ (.tagged `runtime.maxRecDepth _)
+  if let Exception.error _ msg := ex then
+    msg.stripNestedTags.kind == `runtime.maxRecDepth
+  else
+    false
 
 /--
 Increment the current recursion depth and then execute `x`.

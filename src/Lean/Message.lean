@@ -457,6 +457,23 @@ and `throwNamedError`.
 def MessageData.tagWithErrorName (msg : MessageData) (name : Name) : MessageData :=
   .tagged (kindOfErrorName name) msg
 
+/-- Strip the `` `nested`` prefix components added to tags by `throwNestedTacticEx`. -/
+def MessageData.stripNestedTags : MessageData → MessageData
+  | .withContext ctx msg => .withContext ctx msg.stripNestedTags
+  | .withNamingContext ctx msg => .withNamingContext ctx msg.stripNestedTags
+  | .tagged n msg => .tagged (stripNestedNamePrefix n) msg
+  | msg => msg
+where
+  stripNestedNamePrefix : Name → Name
+  | .anonymous => .anonymous
+  | .str p s =>
+    let p' := stripNestedNamePrefix p
+    if p'.isAnonymous && s == "nested" then
+      .anonymous
+    else
+      .str p' s
+  | .num p n => .num (stripNestedNamePrefix p) n
+
 /--
 If the provided name is labeled as a diagnostic name, removes the label and returns the
 corresponding diagnostic name.

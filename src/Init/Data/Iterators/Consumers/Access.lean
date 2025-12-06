@@ -26,14 +26,22 @@ it is not possible to formally verify the behavior of the partial variant.
 @[specialize]
 def Iter.atIdxSlow? {α β} [Iterator α Id β] [Productive α Id]
     (n : Nat) (it : Iter (α := α) β) : Option β :=
-  match it.step with
-  | .yield it' out _ =>
+  match hs : it.step with
+  | .yield it' out =>
     match n with
     | 0 => some out
     | k + 1 => it'.atIdxSlow? k
-  | .skip it' _ => it'.atIdxSlow? n
-  | .done _ => none
+  | .skip it' => it'.atIdxSlow? n
+  | .done => none
 termination_by (n, it.finitelyManySkips)
+decreasing_by
+  · simp_wf
+    apply Prod.Lex.left
+    exact Nat.lt_succ_self _
+  · simp_wf
+    apply Prod.Lex.right
+    apply TerminationMeasures.Productive.rel_of_skip
+    sorry
 
 /--
 If possible, takes `n` steps with the iterator `it` and
@@ -47,12 +55,12 @@ its behavior. If the iterator has a `Productive` instance, consider using `Iter.
 partial def Iter.Partial.atIdxSlow? {α β} [Iterator α Id β] [Monad Id]
     (n : Nat) (it : Iter.Partial (α := α) β) : Option β := do
   match it.it.step with
-  | .yield it' out _ =>
+  | .yield it' out =>
     match n with
     | 0 => some out
     | k + 1 => (⟨it'⟩ : Iter.Partial (α := α) β).atIdxSlow? k
-  | .skip it' _ => (⟨it'⟩ : Iter.Partial (α := α) β).atIdxSlow? n
-  | .done _ => none
+  | .skip it' => (⟨it'⟩ : Iter.Partial (α := α) β).atIdxSlow? n
+  | .done => none
 
 @[always_inline, inline, inherit_doc IterM.atIdx?]
 def Iter.atIdx? {α β} [Iterator α Id β] [Productive α Id] [IteratorAccess α Id]

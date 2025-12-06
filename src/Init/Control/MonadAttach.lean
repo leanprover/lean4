@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Control.Basic
 
-public class MonadAttach (m : Type u → Type v) [Monad m] where
+public class MonadAttach (m : Type u → Type v) where
   CanReturn {α : Type u} : m α → α → Prop
   attach {α : Type u} (x : m α) : m (Subtype (CanReturn x))
 

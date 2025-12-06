@@ -132,14 +132,14 @@ variable (pat : ρ) [ToForwardSearcher pat σ]
 def defaultStartsWith (s : Slice) : Bool :=
   let searcher := ToForwardSearcher.toSearcher pat s
   match searcher.step with
-  | .yield _ (.matched start ..) _ => s.startPos = start
+  | .yield _ (.matched start ..) => s.startPos = start
   | _ => false
 
 @[specialize pat]
 def defaultDropPrefix? (s : Slice) : Option s.Pos :=
   let searcher := ToForwardSearcher.toSearcher pat s
   match searcher.step with
-  | .yield _ (.matched _ endPos) _ => some endPos
+  | .yield _ (.matched _ endPos) => some endPos
   | _ => none
 
 @[always_inline, inline]
@@ -191,14 +191,14 @@ variable (pat : ρ) [ToBackwardSearcher pat σ]
 def defaultEndsWith (s : Slice) : Bool :=
   let searcher := ToBackwardSearcher.toSearcher pat s
   match searcher.step with
-  | .yield _ (.matched _ endPos) _ => s.endPos = endPos
+  | .yield _ (.matched _ endPos) => s.endPos = endPos
   | _ => false
 
 @[specialize pat]
 def defaultDropSuffix? (s : Slice) : Option s.Pos :=
   let searcher := ToBackwardSearcher.toSearcher pat s
   match searcher.step with
-  | .yield _ (.matched startPos _) _ => some startPos
+  | .yield _ (.matched startPos _) => some startPos
   | _ => none
 
 @[always_inline, inline]

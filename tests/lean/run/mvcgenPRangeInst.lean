@@ -23,7 +23,7 @@ theorem foo_eq (l : List Nat) : foo l = l.length := by
   apply Id.of_wp_run_eq h
   mvcgen
   case inv1 =>
-    exact ⇓⟨xs, out⟩ => ⌜True⌝
+    exact fun xs out => ⌜True⌝
   case vc1 => sorry
   case vc2 => sorry
   case vc3 => sorry
@@ -36,7 +36,7 @@ theorem bar_eq (n : Nat) : bar n = n := by
   case inv1 =>
     -- Invalid match expression: The type of pattern variable 'xs' contains metavariables:
     -- (0...n).toList.Cursor
-    exact ⇓⟨xs, out⟩ => ⌜True⌝
+    exact fun xs out => ⌜True⌝
   case vc1 => sorry
   case vc2 => sorry
   case vc3 => sorry
@@ -46,7 +46,7 @@ theorem bar_eq' (n : Nat) : bar n = n := by
   apply Id.of_wp_run_eq h
   mvcgen
   case inv1 =>
-    exact ⇓⟨xs, out⟩ => ⌜True⌝
+    exact fun xs out => ⌜True⌝
   case vc1 => sorry
   case vc2 => sorry
   case vc3 => sorry

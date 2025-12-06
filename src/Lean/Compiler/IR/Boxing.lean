@@ -280,7 +280,10 @@ def tryCorrectVDeclType (ty : IRType) (e : Expr) : M IRType :=
   match e with
   | .fap f _ => do
     let decl ← getDecl f
-    return decl.resultType
+    match decl.name with
+    | ``FloatArray.size | ``ByteArray.size | ``Array.size | ``String.length | ``String.utf8ByteSize
+    | ``String.Pos.next | ``UInt8.toNat | ``UInt16.toNat => return .tagged
+    | _ => return decl.resultType
   | .pap .. => return .object
   | .uproj .. => return .usize
   | .ctor .. | .reuse .. | .ap .. | .lit .. | .sproj .. | .proj .. | .reset .. =>

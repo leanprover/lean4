@@ -127,7 +127,7 @@ jobs:
               description: "${{ github.repository_owner }}/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-${{ env.SHORT_SHA }}",
             });
 
-      - name: Add label
+      - name: Add toolchain-available label
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         uses: actions/github-script@v8
         with:
@@ -514,6 +514,18 @@ jobs:
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
         run: |
           git push origin lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}
+
+      - name: Add mathlib4-nightly-available label
+        if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              issue_number: ${{ steps.workflow-info.outputs.pullRequestNumber }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['mathlib4-nightly-available']
+            })
 
       # We next automatically create a reference manual branch using this toolchain.
       # Reference manual CI will be responsible for reporting back success or failure

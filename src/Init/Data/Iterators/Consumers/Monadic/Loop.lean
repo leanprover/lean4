@@ -39,14 +39,15 @@ section Typeclasses
 
 /--
 Relation that needs to be well-formed in order for a loop over an iterator to terminate.
-It is assumed that the `plausible_forInStep` predicate relates the input and output of the
+It is assumed that the `PlausibleForInStep` predicate relates the input and output of the
 stepper function.
 -/
 @[expose]
-def IteratorLoop.rel (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
-    {γ : Type x} (plausible_forInStep : β → γ → ForInStep γ → Prop)
+def IteratorLoop.rel (α : Type w) (m : Type w → Type w') {β : Type w} [MonadAttach m]
+    [Iterator α m β] {γ : Type x} {P : β → Prop}
+    (PlausibleForInStep : (b : β) → P b → γ → ForInStep γ → Prop)
     (p' p : IterM (α := α) m β × γ) : Prop :=
-  (∃ b, p.1.IsPlausibleStep (.yield p'.1 b) ∧ plausible_forInStep b p.2 (.yield p'.2)) ∨
+  (∃ b hb, p.1.IsPlausibleStep (.yield p'.1 b) ∧ PlausibleForInStep b hb p.2 (.yield p'.2)) ∨
     (p.1.IsPlausibleStep (.skip p'.1) ∧ p'.2 = p.2)
 
 /--
@@ -54,8 +55,9 @@ Asserts that `IteratorLoop.rel` is well-founded.
 -/
 @[expose]
 def IteratorLoop.WellFounded (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
-    {γ : Type x} (plausible_forInStep : β → γ → ForInStep γ → Prop) : Prop :=
-    _root_.WellFounded (IteratorLoop.rel α m plausible_forInStep)
+    [MonadAttach m] {γ : Type x} {P : β → Prop}
+    (PlausibleForInStep : (b : β) → P b → γ → ForInStep γ → Prop) : Prop :=
+    _root_.WellFounded (IteratorLoop.rel α m PlausibleForInStep)
 
 /--
 `IteratorLoop α m` provides efficient implementations of loop-based consumers for `α`-based
@@ -68,26 +70,26 @@ They can, however, assume that consumers that require an instance will work for 
 provided by the standard library.
 -/
 @[ext]
-class IteratorLoop (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
-    (n : Type x → Type x') where
+class IteratorLoop (α : Type w) (m : Type w → Type w') {β : Type w} [MonadAttach m]
+    [Iterator α m β] (n : Type x → Type x') where
   forIn : ∀ (_liftBind : (γ : Type w) → (δ : Type x) → (γ → n δ) → m γ → n δ) (γ : Type x),
-      (plausible_forInStep : β → γ → ForInStep γ → Prop) →
       (it : IterM (α := α) m β) → γ →
-      ((b : β) → it.IsPlausibleIndirectOutput b → (c : γ) → n (Subtype (plausible_forInStep b c))) →
+      ((b : β) → it.IsPlausibleIndirectOutput b → (c : γ) → n (ForInStep γ)) →
       n γ
 
 end Typeclasses
 
 /-- Internal implementation detail of the iterator library. -/
-structure IteratorLoop.WithWF (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
-    {γ : Type x} (PlausibleForInStep : β → γ → ForInStep γ → Prop)
+structure IteratorLoop.WithWF (α : Type w) (m : Type w → Type w') {β : Type w}
+    [MonadAttach m] [Iterator α m β] {γ : Type x} {P : β → Prop}
+    (PlausibleForInStep : (b : β) → P b → γ → ForInStep γ → Prop)
     (hwf : IteratorLoop.WellFounded α m PlausibleForInStep) where
   it : IterM (α := α) m β
   acc : γ
 
 instance IteratorLoop.WithWF.instWellFoundedRelation
-    (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
-    {γ : Type x} (PlausibleForInStep : β → γ → ForInStep γ → Prop)
+    (α : Type w) (m : Type w → Type w') {β : Type w} [MonadAttach m] [Iterator α m β]
+    {γ : Type x} {P : β → Prop} (PlausibleForInStep : (b : β) → P b → γ → ForInStep γ → Prop)
     (hwf : IteratorLoop.WellFounded α m PlausibleForInStep) :
     WellFoundedRelation (WithWF α m PlausibleForInStep hwf) where
   rel := InvImage (IteratorLoop.rel α m PlausibleForInStep) (fun x => (x.it, x.acc))
@@ -98,52 +100,53 @@ This is the loop implementation of the default instance `IteratorLoop.defaultImp
 -/
 @[always_inline, inline, expose]
 def IterM.DefaultConsumers.forIn' {m : Type w → Type w'} {α : Type w} {β : Type w}
-    [Iterator α m β]
-    {n : Type x → Type x'} [Monad n]
+    [MonadAttach m] [Iterator α m β]
+    {n : Type x → Type x'} [Monad n] [MonadAttach n]
     (lift : ∀ γ δ, (γ → n δ) → m γ → n δ) (γ : Type x)
-    (PlausibleForInStep : β → γ → ForInStep γ → Prop)
     (it : IterM (α := α) m β) (init : γ)
     (P : β → Prop) (hP : ∀ b, it.IsPlausibleIndirectOutput b → P b)
-    (f : (b : β) → P b → (c : γ) → n (Subtype (PlausibleForInStep b c))) : n γ :=
+    (f : (b : β) → P b → (c : γ) → n (ForInStep γ)) : n γ :=
   haveI : Nonempty γ := ⟨init⟩
+  letI PlausibleForInStep b hb c := MonadAttach.CanReturn (f b hb c)
   WellFounded.extrinsicFix₃ (C₃ := fun _ _ _ => n γ) (InvImage (IteratorLoop.rel α m PlausibleForInStep) (fun x => (x.1, x.2.1)))
-    (fun it acc (hP : ∀ b, it.IsPlausibleIndirectOutput b → P b) recur => (lift _ _ · it.step) fun s => do
-      match s.inflate with
-      | .yield it' out h =>
-        match ← f out (hP out <| .direct ⟨_, h⟩) acc with
-        | ⟨.yield c, h'⟩ => recur it' c (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') (Or.inl ⟨out, ‹_›, ‹_›⟩)
-        | ⟨.done c, h⟩ => return c
-      | .skip it' h => recur it' acc (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') (Or.inr ⟨‹_›, rfl⟩)
-      | .done _ => return acc) it init hP
+    (fun it acc (hP : ∀ b, it.IsPlausibleIndirectOutput b → P b) recur => (lift _ _ · (MonadAttach.attach it.step)) fun s => do
+      match s with
+      | ⟨.yield it' out, h⟩ =>
+        have hout := hP out (.direct ⟨_, h⟩)
+        match ← (MonadAttach.attach <| (f out hout) acc) with
+        | ⟨.yield c, h'⟩ => recur it' c (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') (Or.inl ⟨out, hout, h, h'⟩)
+        | ⟨.done c, _⟩ => return c
+      | ⟨.skip it', h⟩ => recur it' acc (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') (Or.inr ⟨h, rfl⟩)
+      | ⟨.done, _⟩ => return acc) it init hP
 
 /--
 This is the loop implementation of the default instance `IteratorLoop.defaultImplementation`.
 -/
 @[specialize, expose]
 def IterM.DefaultConsumers.forIn'.wf {m : Type w → Type w'} {α : Type w} {β : Type w}
-    [Iterator α m β] {n : Type x → Type x'} [Monad n]
+    [Iterator α m β] {n : Type x → Type x'} [MonadAttach m] [Monad n] [MonadAttach n]
     (lift : ∀ γ δ, (γ → n δ) → m γ → n δ) (γ : Type x)
-    (PlausibleForInStep : β → γ → ForInStep γ → Prop)
-    (wf : IteratorLoop.WellFounded α m PlausibleForInStep)
     (it : IterM (α := α) m β) (init : γ)
     (P : β → Prop) (hP : ∀ b, it.IsPlausibleIndirectOutput b → P b)
-    (f : (b : β) → P b → (c : γ) → n (Subtype (PlausibleForInStep b c))) : n γ :=
+    (f : (b : β) → P b → (c : γ) → n (ForInStep γ))
+    (wf : IteratorLoop.WellFounded α m (fun b hb c => MonadAttach.CanReturn (f b hb c))) : n γ :=
   haveI : WellFounded _ := wf
-  (lift _ _ · it.step) fun s =>
-    match s.inflate with
-    | .yield it' out h => do
-      match ← f out (hP _ <| .direct ⟨_, h⟩) init with
+  (lift _ _ · (MonadAttach.attach it.step)) fun s =>
+    match s with
+    | ⟨.yield it' out, h⟩ => do
+      have hout := hP out (.direct ⟨_, h⟩)
+      match ← MonadAttach.attach (f out hout init) with
       | ⟨.yield c, _⟩ =>
-        IterM.DefaultConsumers.forIn'.wf lift _ PlausibleForInStep wf it' c P
-          (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') f
+        IterM.DefaultConsumers.forIn'.wf lift _ it' c P
+          (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') f wf
       | ⟨.done c, _⟩ => return c
-    | .skip it' h =>
-      IterM.DefaultConsumers.forIn'.wf lift _ PlausibleForInStep wf it' init P
-          (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') f
-    | .done _ => return init
+    | ⟨.skip it', h⟩ =>
+      IterM.DefaultConsumers.forIn'.wf lift _ it' init P
+          (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') f wf
+    | ⟨.done, _⟩ => return init
 termination_by IteratorLoop.WithWF.mk it init (hwf := wf)
 decreasing_by
-  · exact Or.inl ⟨out, ‹_›, ‹_›⟩
+  · exact Or.inl ⟨out, hout, ‹_›, ‹_›⟩
   · exact Or.inr ⟨‹_›, rfl⟩
 
 /--
@@ -153,38 +156,39 @@ implementations are possible and should be used instead.
 -/
 @[always_inline, inline, expose]
 def IteratorLoop.defaultImplementation {α : Type w} {m : Type w → Type w'} {n : Type x → Type x'}
-    [Monad n] [Iterator α m β] :
+    [MonadAttach m] [Monad n] [MonadAttach n] [Iterator α m β] :
     IteratorLoop α m n where
-  forIn lift γ Pl it init := IterM.DefaultConsumers.forIn' lift γ Pl it init _ (fun _ => id)
+  forIn lift γ it init := IterM.DefaultConsumers.forIn' lift γ it init _ (fun _ => id)
 
+-- TODO: Does `lawful` need a `Finite` parameter?
 /--
 Asserts that a given `IteratorLoop` instance is equal to `IteratorLoop.defaultImplementation`.
 (Even though equal, the given instance might be vastly more efficient.)
 -/
 class LawfulIteratorLoop (α : Type w) (m : Type w → Type w') (n : Type x → Type x')
-    [Monad m] [Monad n] [Iterator α m β] [i : IteratorLoop α m n] where
+    [Monad m] [MonadAttach m] [Monad n] [MonadAttach n] [Iterator α m β] [i : IteratorLoop α m n] where
   lawful lift [LawfulMonadLiftBindFunction lift] γ it init
-      (Pl : β → γ → ForInStep γ → Prop) (wf : IteratorLoop.WellFounded α m Pl)
-      (f : (b : β) → it.IsPlausibleIndirectOutput b → (c : γ) → n (Subtype (Pl b c))) :
-    i.forIn lift γ Pl it init f =
-      IteratorLoop.defaultImplementation.forIn lift γ Pl it init f
+      (f : (b : β) → it.IsPlausibleIndirectOutput b → (c : γ) → n (ForInStep γ))
+      (wf : IteratorLoop.WellFounded α m (P := it.IsPlausibleIndirectOutput) (MonadAttach.CanReturn <| f · · ·)) :
+    i.forIn lift γ it init f =
+      IteratorLoop.defaultImplementation.forIn lift γ it init f
 
 instance (α : Type w) (m : Type w → Type w') (n : Type x → Type x')
-    [Monad m] [Monad n] [Iterator α m β] [Finite α m] :
+    [Monad m] [MonadAttach m] [Monad n] [MonadAttach n] [Iterator α m β] [Finite α m] :
     letI : IteratorLoop α m n := .defaultImplementation
     LawfulIteratorLoop α m n := by
   letI : IteratorLoop α m n := .defaultImplementation
   constructor; simp
 
 theorem IteratorLoop.wellFounded_of_finite {m : Type w → Type w'}
-    {α β : Type w} {γ : Type x} [Iterator α m β] [Finite α m] :
-    WellFounded α m (γ := γ) fun _ _ _ => True := by
+    {α β : Type w} {γ : Type x} {P Pl} [MonadAttach m] [Iterator α m β] [Finite α m] :
+    WellFounded α m (γ := γ) (P := P) Pl := by
   apply Subrelation.wf
     (r := InvImage IterM.TerminationMeasures.Finite.Rel (fun p => p.1.finitelyManySteps))
   · intro p' p h
     apply Relation.TransGen.single
-    obtain ⟨b, h, _⟩ | ⟨h, _⟩ := h
-    · exact ⟨.yield p'.fst b, rfl, h⟩
+    obtain ⟨b, h, h', _⟩ | ⟨h, _⟩ := h
+    · exact ⟨.yield p'.fst b, rfl, h'⟩
     · exact ⟨.skip p'.fst, rfl, h⟩
   · apply InvImage.wf
     exact WellFoundedRelation.wf
@@ -194,11 +198,10 @@ This `ForIn'`-style loop construct traverses a finite iterator using an `Iterato
 -/
 @[always_inline, inline]
 def IteratorLoop.finiteForIn' {m : Type w → Type w'} {n : Type x → Type x'}
-    {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoop α m n] [Monad n]
-    (lift : ∀ γ δ, (γ → n δ) → m γ → n δ) :
+    {α : Type w} {β : Type w} [MonadAttach m] [Iterator α m β] [IteratorLoop α m n] [Monad n]
+    [MonadAttach n] (lift : ∀ γ δ, (γ → n δ) → m γ → n δ) :
     ForIn' n (IterM (α := α) m β) β ⟨fun it out => it.IsPlausibleIndirectOutput out⟩ where
-  forIn' {γ} it init f :=
-    IteratorLoop.forIn (α := α) (m := m) lift γ (fun _ _ _ => True) it init (return ⟨← f · · ·, trivial⟩)
+  forIn' {γ} it init f := IteratorLoop.forIn lift γ it init f
 
 /--
 A `ForIn'` instance for iterators. Its generic membership relation is not easy to use,
@@ -207,56 +210,59 @@ or future library improvements will make it more comfortable.
 -/
 @[always_inline, inline]
 def IterM.instForIn' {m : Type w → Type w'} {n : Type w → Type w''}
-    {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoop α m n] [Monad n]
-    [MonadLiftT m n] :
+    {α : Type w} {β : Type w} [MonadAttach m] [Iterator α m β] [IteratorLoop α m n] [Monad n]
+    [MonadAttach n] [MonadLiftT m n] :
     ForIn' n (IterM (α := α) m β) β ⟨fun it out => it.IsPlausibleIndirectOutput out⟩ :=
   IteratorLoop.finiteForIn' (fun _ _ f x => monadLift x >>= f)
 
 instance {m : Type w → Type w'} {n : Type w → Type w''}
-    {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoop α m n]
-    [MonadLiftT m n] [Monad n] :
+    {α : Type w} {β : Type w} [MonadAttach m] [Iterator α m β] [IteratorLoop α m n]
+    [MonadLiftT m n] [Monad n] [MonadAttach n] :
     ForIn n (IterM (α := α) m β) β :=
   haveI : ForIn' n (IterM (α := α) m β) β _ := IterM.instForIn'
   instForInOfForIn'
 
 @[always_inline, inline]
 def IterM.Partial.instForIn' {m : Type w → Type w'} {n : Type w → Type w''}
-    {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoop α m n] [MonadLiftT m n] [Monad n] :
+    {α : Type w} {β : Type w} [MonadAttach m] [Iterator α m β] [IteratorLoop α m n] [MonadLiftT m n]
+    [Monad n] [MonadAttach n] :
     ForIn' n (IterM.Partial (α := α) m β) β ⟨fun it out => it.it.IsPlausibleIndirectOutput out⟩ where
   forIn' it init f :=
     haveI := @IterM.instForIn'; forIn' it.it init f
 
 @[always_inline, inline]
 def IterM.Total.instForIn' {m : Type w → Type w'} {n : Type w → Type w''}
-    {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoop α m n] [MonadLiftT m n] [Monad n]
-    [Finite α m] :
+    {α : Type w} {β : Type w} [MonadAttach m] [Iterator α m β] [IteratorLoop α m n] [MonadLiftT m n]
+    [Monad n] [MonadAttach n] [Finite α m] :
     ForIn' n (IterM.Total (α := α) m β) β ⟨fun it out => it.it.IsPlausibleIndirectOutput out⟩ where
   forIn' it init f := IterM.instForIn'.forIn' it.it init f
 
 instance {m : Type w → Type w'} {n : Type w → Type w''}
-    {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoop α m n] [MonadLiftT m n] [Monad n] :
+    {α : Type w} {β : Type w} [MonadAttach m] [Iterator α m β] [IteratorLoop α m n] [MonadLiftT m n]
+    [Monad n] [MonadAttach n] :
     ForIn n (IterM.Partial (α := α) m β) β :=
   haveI : ForIn' n (IterM.Partial (α := α) m β) β _ := IterM.Partial.instForIn'
   instForInOfForIn'
 
 instance {m : Type w → Type w'} {n : Type w → Type w''}
-    {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoop α m n] [MonadLiftT m n] [Monad n]
-    [Finite α m] :
+    {α : Type w} {β : Type w} [MonadAttach m] [Iterator α m β] [IteratorLoop α m n] [MonadLiftT m n]
+    [Monad n] [MonadAttach n] [Finite α m] :
     ForIn n (IterM.Total (α := α) m β) β :=
   haveI : ForIn' n (IterM.Total (α := α) m β) β _ := IterM.Total.instForIn'
   instForInOfForIn'
 
-instance {m : Type w → Type w'} {n : Type w → Type w''} {α : Type w} {β : Type w} [Iterator α m β]
-    [IteratorLoop α m n] [Monad n] [MonadLiftT m n] : ForM n (IterM (α := α) m β) β where
+instance {m : Type w → Type w'} {n : Type w → Type w''} {α : Type w} {β : Type w} [MonadAttach m]
+    [Iterator α m β] [IteratorLoop α m n] [Monad n] [MonadAttach n] [MonadLiftT m n] :
+    ForM n (IterM (α := α) m β) β where
   forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
 
-instance {m : Type w → Type w'} {n : Type w → Type w''} {α : Type w} {β : Type w} [Monad n]
-    [Iterator α m β] [IteratorLoop α m n] [MonadLiftT m n] :
+instance {m : Type w → Type w'} {n : Type w → Type w''} {α : Type w} {β : Type w} [MonadAttach m]
+    [Monad n] [MonadAttach n] [Iterator α m β] [IteratorLoop α m n] [MonadLiftT m n] :
     ForM n (IterM.Partial (α := α) m β) β where
   forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
 
-instance {m : Type w → Type w'} {n : Type w → Type w''} {α : Type w} {β : Type w} [Iterator α m β]
-    [IteratorLoop α m n] [Monad n] [MonadLiftT m n] [Finite α m] :
+instance {m : Type w → Type w'} {n : Type w → Type w''} {α : Type w} {β : Type w} [MonadAttach m]
+    [Iterator α m β] [IteratorLoop α m n] [Monad n] [MonadAttach n] [MonadLiftT m n] [Finite α m] :
     ForM n (IterM.Total (α := α) m β) β where
   forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
 
@@ -268,8 +274,8 @@ The monadic effects of `f` are interleaved with potential effects caused by the 
 function. Therefore, it may *not* be equivalent to `(← it.toList).foldlM`.
 -/
 @[always_inline, inline]
-def IterM.foldM {m : Type w → Type w'} {n : Type w → Type w''} [Monad n]
-    {α : Type w} {β : Type w} {γ : Type w} [Iterator α m β] [IteratorLoop α m n]
+def IterM.foldM {m : Type w → Type w'} {n : Type w → Type w''} [MonadAttach m] [Monad n]
+    [MonadAttach n] {α : Type w} {β : Type w} {γ : Type w} [Iterator α m β] [IteratorLoop α m n]
     [MonadLiftT m n]
     (f : γ → β → n γ) (init : γ) (it : IterM (α := α) m β) : n γ :=
   ForIn.forIn it init (fun x acc => ForInStep.yield <$> f acc x)
@@ -284,9 +290,9 @@ function. Therefore, it may *not* be equivalent to `it.toList.foldlM`.
 This function is deprecated. Instead of `it.allowNontermination.foldM`, use `it.foldM`.
 -/
 @[always_inline, inline, deprecated IterM.foldM (since := "2025-12-04")]
-def IterM.Partial.foldM {m : Type w → Type w'} {n : Type w → Type w'} [Monad n]
-    {α : Type w} {β : Type w} {γ : Type w} [Iterator α m β] [IteratorLoop α m n] [MonadLiftT m n]
-    (f : γ → β → n γ) (init : γ) (it : IterM.Partial (α := α) m β) : n γ :=
+def IterM.Partial.foldM {m : Type w → Type w'} {n : Type w → Type w'} [MonadAttach m] [Monad n]
+    [MonadAttach n] {α : Type w} {β : Type w} {γ : Type w} [Iterator α m β] [IteratorLoop α m n]
+    [MonadLiftT m n] (f : γ → β → n γ) (init : γ) (it : IterM.Partial (α := α) m β) : n γ :=
   ForIn.forIn it init (fun x acc => ForInStep.yield <$> f acc x)
 
 /--
@@ -300,9 +306,9 @@ This variant terminates after finitely many steps and requires a proof that the 
 finite. If such a proof is not available, consider using `IterM.foldM`.
 -/
 @[always_inline, inline]
-def IterM.Total.foldM {m : Type w → Type w'} {n : Type w → Type w'} [Monad n]
-    {α : Type w} {β : Type w} {γ : Type w} [Iterator α m β] [IteratorLoop α m n] [MonadLiftT m n]
-    [Finite α m] (f : γ → β → n γ) (init : γ) (it : IterM.Total (α := α) m β) : n γ :=
+def IterM.Total.foldM {m : Type w → Type w'} {n : Type w → Type w'} [Monad n] [MonadAttach n]
+    {α : Type w} {β : Type w} {γ : Type w} [MonadAttach m] [Iterator α m β] [IteratorLoop α m n]
+    [MonadLiftT m n] [Finite α m] (f : γ → β → n γ) (init : γ) (it : IterM.Total (α := α) m β) : n γ :=
   it.it.foldM (init := init) f
 
 /--
@@ -312,7 +318,7 @@ The accumulated value is combined with the each element of the list in order, us
 It is equivalent to `it.toList.foldl`.
 -/
 @[always_inline, inline]
-def IterM.fold {m : Type w → Type w'} {α : Type w} {β : Type w} {γ : Type w} [Monad m]
+def IterM.fold {m : Type w → Type w'} {α : Type w} {β : Type w} {γ : Type w} [Monad m] [MonadAttach m]
     [Iterator α m β] [IteratorLoop α m m] (f : γ → β → γ) (init : γ) (it : IterM (α := α) m β) :
     m γ :=
   ForIn.forIn (m := m) it init (fun x acc => pure (ForInStep.yield (f acc x)))
@@ -327,7 +333,7 @@ This function is deprecated. Instead of `it.allowNontermination.fold`, use `it.f
 -/
 @[always_inline, inline, deprecated IterM.Partial.fold (since := "2025-12-04")]
 def IterM.Partial.fold {m : Type w → Type w'} {α : Type w} {β : Type w} {γ : Type w}
-    [Monad m] [Iterator α m β] [IteratorLoop α m m] (f : γ → β → γ) (init : γ)
+    [Monad m] [MonadAttach m] [Iterator α m β] [IteratorLoop α m m] (f : γ → β → γ) (init : γ)
     (it : IterM.Partial (α := α) m β) : m γ :=
   ForIn.forIn (m := m) it init (fun x acc => pure (ForInStep.yield (f acc x)))
 
@@ -341,8 +347,8 @@ This variant terminates after finitely many steps and requires a proof that the 
 finite. If such a proof is not available, consider using `IterM.fold`.
 -/
 @[always_inline, inline]
-def IterM.Total.fold {m : Type w → Type w'} {α : Type w} {β : Type w} {γ : Type w}
-    [Monad m] [Iterator α m β] [IteratorLoop α m m] [Finite α m] (f : γ → β → γ) (init : γ)
+def IterM.Total.fold {m : Type w → Type w'} {α : Type w} {β : Type w} {γ : Type w} [Monad m]
+    [MonadAttach m] [Iterator α m β] [IteratorLoop α m m] [Finite α m] (f : γ → β → γ) (init : γ)
     (it : IterM.Total (α := α) m β) : m γ :=
   it.it.fold (init := init) f
 
@@ -351,7 +357,7 @@ Iterates over the whole iterator, applying the monadic effects of each step, dis
 emitted values.
 -/
 @[always_inline, inline]
-def IterM.drain {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
+def IterM.drain {α : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m] {β : Type w}
     [Iterator α m β] (it : IterM (α := α) m β) [IteratorLoop α m m] :
     m PUnit :=
   it.fold (γ := PUnit) (fun _ _ => .unit) .unit
@@ -363,7 +369,7 @@ emitted values.
 This function is deprecated. Instead of `it.allowNontermination.drain`, use `it.drain`.
 -/
 @[always_inline, inline, deprecated IterM.drain (since := "2025-12-04")]
-def IterM.Partial.drain {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
+def IterM.Partial.drain {α : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m] {β : Type w}
     [Iterator α m β] (it : IterM.Partial (α := α) m β) [IteratorLoop α m m] : m PUnit :=
   it.it.fold (γ := PUnit) (fun _ _ => .unit) .unit
 
@@ -375,7 +381,7 @@ This variant terminates after finitely many steps and requires a proof that the 
 finite. If such a proof is not available, consider using `IterM.drain`.
 -/
 @[always_inline, inline]
-def IterM.Total.drain {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
+def IterM.Total.drain {α : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m] {β : Type w}
     [Iterator α m β] [Finite α m] (it : IterM.Total (α := α) m β) [IteratorLoop α m m] : m PUnit :=
   it.it.drain
 
@@ -388,7 +394,7 @@ any element emitted by the iterator {name}`it`.
 examined in order of iteration.
 -/
 @[specialize]
-def IterM.anyM {α β : Type w} {m : Type w → Type w'} [Monad m]
+def IterM.anyM {α β : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m]
     [Iterator α m β] [IteratorLoop α m m]
     (p : β → m (ULift Bool)) (it : IterM (α := α) m β) : m (ULift Bool) :=
   ForIn.forIn it (ULift.up false) (fun x _ => do
@@ -408,7 +414,7 @@ examined in order of iteration.
 This function is deprecated. Instead of {lit}`it.allowNontermination.anyM`, use {lit}`it.anyM`.
 -/
 @[always_inline, inline, deprecated IterM.anyM (since := "2025-12-04")]
-def IterM.Partial.anyM {α β : Type w} {m : Type w → Type w'} [Monad m]
+def IterM.Partial.anyM {α β : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m]
     [Iterator α m β] [IteratorLoop α m m] (p : β → m (ULift Bool))
     (it : IterM.Partial (α := α) m β) : m (ULift Bool) :=
   it.it.anyM p
@@ -425,7 +431,7 @@ This variant terminates after finitely many steps and requires a proof that the 
 finite. If such a proof is not available, consider using {name}`IterM.anyM`.
 -/
 @[always_inline, inline]
-def IterM.Total.anyM {α β : Type w} {m : Type w → Type w'} [Monad m]
+def IterM.Total.anyM {α β : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m]
     [Iterator α m β] [IteratorLoop α m m] [Finite α m] (p : β → m (ULift Bool))
     (it : IterM.Total (α := α) m β) : m (ULift Bool) :=
   it.it.anyM p
@@ -439,7 +445,7 @@ any element emitted by the iterator {name}`it`.
 examined in order of iteration.
 -/
 @[inline]
-def IterM.any {α β : Type w} {m : Type w → Type w'} [Monad m]
+def IterM.any {α β : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m]
     [Iterator α m β] [IteratorLoop α m m]
     (p : β → Bool) (it : IterM (α := α) m β) : m (ULift Bool) := do
   it.anyM (fun x => pure (.up (p x)))
@@ -455,8 +461,9 @@ examined in order of iteration.
 This function is deprecated. Instead of {lit}`it.allowNontermination.any`, use {lit}`it.any`.
 -/
 @[inline, deprecated IterM.any (since := "2025-12-04")]
-def IterM.Partial.any {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
-    [IteratorLoop α m m] (p : β → Bool) (it : IterM.Partial (α := α) m β) : m (ULift Bool) := do
+def IterM.Partial.any {α β : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m]
+    [Iterator α m β] [IteratorLoop α m m] (p : β → Bool) (it : IterM.Partial (α := α) m β) :
+    m (ULift Bool) := do
   it.it.any p
 
 set_option doc.verso true in
@@ -471,7 +478,7 @@ This variant terminates after finitely many steps and requires a proof that the 
 finite. If such a proof is not available, consider using {name}`IterM.any`.
 -/
 @[inline]
-def IterM.Total.any {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+def IterM.Total.any {α β : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m] [Iterator α m β]
     [IteratorLoop α m m] [Finite α m] (p : β → Bool) (it : IterM.Total (α := α) m β) :
     m (ULift Bool) := do
   it.it.any p
@@ -485,8 +492,9 @@ all elements emitted by the iterator {name}`it`.
 examined in order of iteration.
 -/
 @[specialize]
-def IterM.allM {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β] [IteratorLoop α m m]
-    (p : β → m (ULift Bool)) (it : IterM (α := α) m β) : m (ULift Bool) := do
+def IterM.allM {α β : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m] [Iterator α m β]
+    [IteratorLoop α m m] (p : β → m (ULift Bool)) (it : IterM (α := α) m β) :
+    m (ULift Bool) := do
   ForIn.forIn it (ULift.up true) (fun x _ => do
     if (← p x).down then
       return .yield (.up true)
@@ -504,9 +512,9 @@ examined in order of iteration.
 This function is deprecated. Instead of {lit}`it.allowNontermination.allM`, use {lit}`it.allM`.
 -/
 @[always_inline, inline, deprecated IterM.allM (since := "2025-12-04")]
-def IterM.Partial.allM {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
-    [IteratorLoop α m m] (p : β → m (ULift Bool)) (it : IterM.Partial (α := α) m β) :
-    m (ULift Bool) := do
+def IterM.Partial.allM {α β : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m]
+    [Iterator α m β] [IteratorLoop α m m] (p : β → m (ULift Bool))
+    (it : IterM.Partial (α := α) m β) : m (ULift Bool) := do
   it.it.allM p
 
 set_option doc.verso true in
@@ -521,9 +529,9 @@ This variant terminates after finitely many steps and requires a proof that the 
 finite. If such a proof is not available, consider using {name}`IterM.allM`.
 -/
 @[always_inline, inline]
-def IterM.Total.allM {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
-    [IteratorLoop α m m] [Finite α m] (p : β → m (ULift Bool)) (it : IterM.Total (α := α) m β) :
-    m (ULift Bool) := do
+def IterM.Total.allM {α β : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m]
+    [Iterator α m β] [IteratorLoop α m m] [Finite α m] (p : β → m (ULift Bool))
+    (it : IterM.Total (α := α) m β) : m (ULift Bool) := do
   it.it.allM p
 
 set_option doc.verso true in
@@ -538,8 +546,8 @@ If the iterator is not finite, this function might run forever. The variant
 {lit}`it.ensureTermination.toListRev` always terminates after finitely many steps.
 -/
 @[inline]
-def IterM.all {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β] [IteratorLoop α m m]
-    (p : β → Bool) (it : IterM (α := α) m β) : m (ULift Bool) := do
+def IterM.all {α β : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m] [Iterator α m β]
+    [IteratorLoop α m m] (p : β → Bool) (it : IterM (α := α) m β) : m (ULift Bool) := do
   it.allM (fun x => pure (.up (p x)))
 
 set_option doc.verso true in
@@ -553,8 +561,9 @@ examined in order of iteration.
 This function is deprecated. Instead of {lit}`it.allowNontermination.allM`, use {lit}`it.allM`.
 -/
 @[inline, deprecated IterM.all (since := "2025-12-04")]
-def IterM.Partial.all {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
-    [IteratorLoop α m m] (p : β → Bool) (it : IterM.Partial (α := α) m β) : m (ULift Bool) := do
+def IterM.Partial.all {α β : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m]
+    [Iterator α m β] [IteratorLoop α m m] (p : β → Bool) (it : IterM.Partial (α := α) m β) :
+    m (ULift Bool) := do
   it.it.all p
 
 set_option doc.verso true in
@@ -569,7 +578,7 @@ This variant terminates after finitely many steps and requires a proof that the 
 finite. If such a proof is not available, consider using {name}`IterM.all`.
 -/
 @[inline]
-def IterM.Total.all {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+def IterM.Total.all {α β : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m] [Iterator α m β]
     [IteratorLoop α m m] [Finite α m] (p : β → Bool) (it : IterM.Total (α := α) m β) :
     m (ULift Bool) := do
   it.it.all p
@@ -602,8 +611,8 @@ some 10
 ```
 -/
 @[inline]
-def IterM.findSomeM? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
-    [IteratorLoop α m m] (it : IterM (α := α) m β) (f : β → m (Option γ)) :
+def IterM.findSomeM? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m]
+    [Iterator α m β] [IteratorLoop α m m] (it : IterM (α := α) m β) (f : β → m (Option γ)) :
     m (Option γ) :=
   ForIn.forIn it none (fun x _ => do
     match ← f x with
@@ -637,8 +646,8 @@ some 10
 ```
 -/
 @[inline, deprecated IterM.findSomeM? (since := "2025-12-04")]
-def IterM.Partial.findSomeM? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
-    [IteratorLoop α m m] (it : IterM.Partial (α := α) m β) (f : β → m (Option γ)) :
+def IterM.Partial.findSomeM? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m]
+    [Iterator α m β] [IteratorLoop α m m] (it : IterM.Partial (α := α) m β) (f : β → m (Option γ)) :
     m (Option γ) :=
   it.it.findSomeM? f
 
@@ -670,9 +679,9 @@ some 10
 ```
 -/
 @[inline]
-def IterM.Total.findSomeM? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
-    [IteratorLoop α m m] [Finite α m] (it : IterM.Total (α := α) m β) (f : β → m (Option γ)) :
-    m (Option γ) :=
+def IterM.Total.findSomeM? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m]
+    [Iterator α m β] [IteratorLoop α m m] [Finite α m] (it : IterM.Total (α := α) m β)
+    (f : β → m (Option γ)) : m (Option γ) :=
   it.it.findSomeM? f
 
 /--
@@ -690,8 +699,8 @@ Examples:
  * `([7, 6, 5, 8, 1, 2, 6].iterM Id).findSome? (fun x => if x < 1 then some (10 * x) else none) = pure none`
 -/
 @[inline]
-def IterM.findSome? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
-    [IteratorLoop α m m] (it : IterM (α := α) m β) (f : β → Option γ) :
+def IterM.findSome? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m]
+    [Iterator α m β] [IteratorLoop α m m] (it : IterM (α := α) m β) (f : β → Option γ) :
     m (Option γ) :=
   it.findSomeM? (pure <| f ·)
 
@@ -709,8 +718,8 @@ Examples:
  * `([7, 6, 5, 8, 1, 2, 6].iterM Id).allowNontermination.findSome? (fun x => if x < 1 then some (10 * x) else none) = pure none`
 -/
 @[inline, deprecated IterM.findSome? (since := "2025-12-04")]
-def IterM.Partial.findSome? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
-    [IteratorLoop α m m] (it : IterM.Partial (α := α) m β) (f : β → Option γ) :
+def IterM.Partial.findSome? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m]
+    [Iterator α m β] [IteratorLoop α m m] (it : IterM.Partial (α := α) m β) (f : β → Option γ) :
     m (Option γ) :=
   it.it.findSome? f
 
@@ -729,9 +738,9 @@ Examples:
  * `([7, 6, 5, 8, 1, 2, 6].iterM Id).ensureTermination.findSome? (fun x => if x < 1 then some (10 * x) else none) = pure none`
 -/
 @[inline]
-def IterM.Total.findSome? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
-    [IteratorLoop α m m] [Finite α m] (it : IterM.Partial (α := α) m β) (f : β → Option γ) :
-    m (Option γ) :=
+def IterM.Total.findSome? {α β γ : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m]
+    [Iterator α m β] [IteratorLoop α m m] [Finite α m] (it : IterM.Partial (α := α) m β)
+    (f : β → Option γ) : m (Option γ) :=
   it.it.findSome? f
 
 /--
@@ -762,7 +771,7 @@ some 1
 ```
 -/
 @[inline]
-def IterM.findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+def IterM.findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m] [Iterator α m β]
     [IteratorLoop α m m] (it : IterM (α := α) m β) (f : β → m (ULift Bool)) :
     m (Option β) :=
   it.findSomeM? (fun x => return if (← f x).down then some x else none)
@@ -794,9 +803,9 @@ some 1
 ```
 -/
 @[inline, deprecated IterM.findM? (since := "2025-12-04")]
-def IterM.Partial.findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
-    [IteratorLoop α m m] (it : IterM.Partial (α := α) m β) (f : β → m (ULift Bool)) :
-    m (Option β) :=
+def IterM.Partial.findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m]
+    [Iterator α m β] [IteratorLoop α m m] (it : IterM.Partial (α := α) m β)
+    (f : β → m (ULift Bool)) : m (Option β) :=
   it.it.findM? f
 
 /--
@@ -827,9 +836,9 @@ some 1
 ```
 -/
 @[inline]
-def IterM.Total.findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
-    [IteratorLoop α m m] [Finite α m] (it : IterM.Total (α := α) m β) (f : β → m (ULift Bool)) :
-    m (Option β) :=
+def IterM.Total.findM? {α β : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m]
+    [Iterator α m β] [IteratorLoop α m m] [Finite α m] (it : IterM.Total (α := α) m β)
+    (f : β → m (ULift Bool)) : m (Option β) :=
   it.it.findM? f
 
 /--
@@ -847,7 +856,7 @@ Examples:
 * `([7, 6, 5, 8, 1, 2, 6].iterM Id).find? (· < 1) = pure none`
 -/
 @[inline]
-def IterM.find? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
+def IterM.find? {α β : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m] [Iterator α m β]
     [IteratorLoop α m m] (it : IterM (α := α) m β) (f : β → Bool) :
     m (Option β) :=
   it.findM? (pure <| .up <| f ·)
@@ -866,8 +875,8 @@ Examples:
 * `([7, 6, 5, 8, 1, 2, 6].iterM Id).allowNontermination.find? (· < 1) = pure none`
 -/
 @[inline, deprecated IterM.find? (since := "2025-12-04")]
-def IterM.Partial.find? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
-    [IteratorLoop α m m] (it : IterM.Partial (α := α) m β) (f : β → Bool) :
+def IterM.Partial.find? {α β : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m]
+    [Iterator α m β] [IteratorLoop α m m] (it : IterM.Partial (α := α) m β) (f : β → Bool) :
     m (Option β) :=
   it.it.find? f
 
@@ -886,9 +895,9 @@ Examples:
 * `([7, 6, 5, 8, 1, 2, 6].iterM Id).find? (· < 1) = pure none`
 -/
 @[inline]
-def IterM.Total.find? {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
-    [IteratorLoop α m m] [Finite α m] (it : IterM.Total (α := α) m β) (f : β → Bool) :
-    m (Option β) :=
+def IterM.Total.find? {α β : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m]
+    [Iterator α m β] [IteratorLoop α m m] [Finite α m] (it : IterM.Total (α := α) m β)
+    (f : β → Bool) : m (Option β) :=
   it.it.find? f
 
 section Count
@@ -901,7 +910,7 @@ Steps through the whole iterator, counting the number of outputs emitted.
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
 @[always_inline, inline]
-def IterM.count {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+def IterM.count {α : Type w} {m : Type w → Type w'} {β : Type w} [MonadAttach m] [Iterator α m β]
     [IteratorLoop α m m] [Monad m] (it : IterM (α := α) m β) : m (ULift Nat) :=
   it.fold (init := .up 0) fun acc _ => .up (acc.down + 1)
 
@@ -913,7 +922,7 @@ Steps through the whole iterator, counting the number of outputs emitted.
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
 @[always_inline, inline, deprecated IterM.count (since := "2025-10-29")]
-def IterM.size {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+def IterM.size {α : Type w} {m : Type w → Type w'} {β : Type w} [MonadAttach m] [Iterator α m β]
     [IteratorLoop α m m] [Monad m] (it : IterM (α := α) m β) : m (ULift Nat) :=
   it.count
 
@@ -926,7 +935,8 @@ This function's runtime is linear in the number of steps taken by the iterator.
 -/
 @[always_inline, inline, deprecated IterM.count (since := "2025-12-04")]
 def IterM.Partial.count {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
-    [IteratorLoop α m m] [Monad m] (it : IterM.Partial (α := α) m β) : m (ULift Nat) :=
+    [Monad m] [MonadAttach m] [IteratorLoop α m m] (it : IterM.Partial (α := α) m β) :
+    m (ULift Nat) :=
   it.it.fold (init := .up 0) fun acc _ => .up (acc.down + 1)
 
 /--
@@ -937,8 +947,9 @@ Steps through the whole iterator, counting the number of outputs emitted.
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
 @[always_inline, inline, deprecated IterM.Partial.count (since := "2025-10-29")]
-def IterM.Partial.size {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
-    [IteratorLoop α m m] [Monad m] (it : IterM.Partial (α := α) m β) : m (ULift Nat) :=
+def IterM.Partial.size {α : Type w} {m : Type w → Type w'} {β : Type w} [MonadAttach m]
+    [Iterator α m β] [IteratorLoop α m m] [Monad m] (it : IterM.Partial (α := α) m β) :
+    m (ULift Nat) :=
   it.it.count
 
 end Count

@@ -803,6 +803,20 @@ return value may be `none` if the channel was closed before it could be complete
 def recv (ch : Sync α) : BaseIO (Option α) := do
   IO.wait (← CloseableChannel.recv ch)
 
+@[specialize]
+private partial def forInNew [Inhabited (m β)] [Monad m] [MonadLiftT BaseIO m]
+    (ch : Sync α) (s : σ) (kcons : α → (σ → m β) → σ → m β) (knil : σ → m β): m β := do
+  match ← ch.recv with
+  | some a =>
+    kcons a (forInNew ch · kcons knil) s
+  | none => knil s
+
+/-- `for msg in ch.sync do ...` receives all messages in the channel until it is closed. -/
+instance [Monad m] [MonadLiftT BaseIO m] : ForInNew m (Sync α) α where
+  forInNew ch init kcons knil := private
+    haveI : Inhabited (m _) := ⟨knil init⟩
+    ch.forInNew init kcons knil
+
 private partial def forIn [Monad m] [MonadLiftT BaseIO m]
     (ch : Sync α) (f : α → β → m (ForInStep β)) : β → m β := fun b => do
   match ← ch.recv with

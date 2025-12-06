@@ -208,23 +208,20 @@ info: equations:
 theorem MTree.size.eq_1.{u_1} : ∀ {α : Type u_1} (t : MTree α),
   t.size =
     (have s := 1;
-      do
-      let r ←
-        forIn t.cs s fun css r =>
-            have s := r;
-            do
-            let r ←
-              forIn css s fun c r =>
-                  have s := r;
-                  have s := s + c.size;
-                  do
-                  pure PUnit.unit
-                  pure (ForInStep.yield s)
-            have s : Nat := r
-            pure PUnit.unit
-            pure (ForInStep.yield s)
-      have s : Nat := r
-      pure s).run
+      forInNew t.cs s
+        (fun css kcontinue s =>
+          have s := s;
+          forInNew css s
+            (fun c kcontinue s =>
+              have s := s;
+              have s := s + c.size;
+              kcontinue s)
+            fun s =>
+            have s := s;
+            kcontinue s)
+        fun s =>
+        have s := s;
+        pure s).run
 -/
 #guard_msgs in
 #print equations MTree.size

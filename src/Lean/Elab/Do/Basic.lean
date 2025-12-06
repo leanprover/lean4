@@ -48,8 +48,8 @@ structure Context where
   monadInfo : MonadInfo
   /-- The mutable variables in declaration order. -/
   mutVars : Array Ident := #[]
-  /-- The mutable variable names as a set. -/
-  mutVarsSet : Std.HashSet Name := {}
+  /-- Maps mutable variable names to their initial FVarIds. -/
+  mutVarDefs : Std.HashMap Name FVarId := {}
   /--
   The expected type of the current `do` block.
   This can be different from `earlyReturnType` in `for` loop `do` blocks, for example.
@@ -274,18 +274,20 @@ def mkBindApp (α β e k : Expr) : DoElabM Expr := do
   return mkApp4 cachedBind α β e k
 
 /-- Register the given name as that of a `mut` variable. -/
-def declareMutVar (x : Ident) : DoElabM α → DoElabM α :=
-  withReader fun ctx => { ctx with
+def declareMutVar (x : Ident) (k : DoElabM α) : DoElabM α := do
+  let id ← getFVarFromUserName x.getId
+  withReader (fun ctx => { ctx with
     mutVars := ctx.mutVars.push x,
-    mutVarsSet := ctx.mutVarsSet.insert x.getId
-  }
+    mutVarDefs := ctx.mutVarDefs.insert x.getId id.fvarId!,
+  }) k
 
 /-- Register the given names as that of `mut` variables. -/
-def declareMutVars (xs : Array Ident) : DoElabM α → DoElabM α :=
-  withReader fun ctx => { ctx with
+def declareMutVars (xs : Array Ident) (k : DoElabM α) : DoElabM α := do
+  let baseIds ← xs.mapM (getFVarFromUserName ·.getId)
+  withReader (fun ctx => { ctx with
     mutVars := ctx.mutVars ++ xs,
-    mutVarsSet := ctx.mutVarsSet.insertMany (xs.map (·.getId))
-  }
+    mutVarDefs := ctx.mutVarDefs.insertMany (xs.map (·.getId) |>.zip (baseIds.map (·.fvarId!))),
+  }) k
 
 /-- Register the given name as that of a `mut` variable if the syntax token `mut` is present. -/
 def declareMutVar? (mutTk? : Option Syntax) (x : Ident) (k : DoElabM α) : DoElabM α :=
@@ -297,7 +299,7 @@ def declareMutVars? (mutTk? : Option Syntax) (xs : Array Ident) (k : DoElabM α)
 
 /-- Throw an error if the given name is not a declared `mut` variable. -/
 def throwUnlessMutVarDeclared (x : Ident) : DoElabM Unit := do
-  unless (← read).mutVarsSet.contains x.getId do
+  unless (← read).mutVarDefs.contains x.getId do
     let xName := x.getId.simpMacroScopes
     throwErrorAt x "Variable `{xName}` cannot be mutated. Only variables declared using `let mut` can be mutated.
       If you did not intend to mutate but define `{xName}`, consider using `let {xName}` instead"
@@ -308,7 +310,7 @@ def throwUnlessMutVarsDeclared (xs : Array Ident) : DoElabM Unit := do
 
 /-- Throw an error if a declaration of the given name would shadow a `mut` variable. -/
 def checkMutVarsForShadowingOne (x : Ident) : DoElabM Unit := do
-  if (← read).mutVarsSet.contains x.getId then
+  if (← read).mutVarDefs.contains x.getId then
     throwErrorAt x "mutable variable `{x.getId.simpMacroScopes}` cannot be shadowed"
 
 /-- Throw an error if a declaration of the given name would shadow a `mut` variable. -/
@@ -354,7 +356,7 @@ The subset of `mutVars` that were reassigned in any of the `childCtxs` relative 
 def getReassignedMutVars (rootCtx : LocalContext) (mutVars : Std.HashSet Name) (childCtxs : Array LocalContext) : Std.HashSet Name := Id.run do
   let mut reassignedMutVars := Std.HashSet.emptyWithCapacity mutVars.size
   for childCtx in childCtxs do
-    let newDefs := childCtx.findFromUserNames mutVars (start := rootCtx.numIndices)
+    let newDefs := childCtx.findFromUserNames mutVars.inner (start := rootCtx.numIndices)
     reassignedMutVars := reassignedMutVars.insertMany (newDefs.map (·.userName))
   return reassignedMutVars
 
@@ -362,7 +364,7 @@ def getReassignedMutVars (rootCtx : LocalContext) (mutVars : Std.HashSet Name) (
 Adds the new reaching definitions of the given `tunneledVars` in `childCtx` relative to `rootCtx` as
 non-dependent decls.
 -/
-def addReachingDefsAsNonDep (rootCtx childCtx : LocalContext) (tunneledVars : Std.HashSet Name) : LocalContext := Id.run do
+def addReachingDefsAsNonDep (rootCtx childCtx : LocalContext) (tunneledVars : Std.HashMap Name α) : LocalContext := Id.run do
   let tunnelDecls := childCtx.findFromUserNames tunneledVars (start := rootCtx.numIndices)
   let mut rootCtx := rootCtx
   for decl in tunnelDecls do
@@ -391,7 +393,7 @@ def ContVarId.find (contVarId : ContVarId) : DoElabM ContVarInfo := do
 /-- Creates a new jump site for the continuation variable, to be synthesized later. -/
 def ContVarId.mkJump (contVarId : ContVarId) : DoElabM Expr := do
   let info ← contVarId.find
-  let lctx := addReachingDefsAsNonDep info.lctx (← getLCtx) info.tunneledVars
+  let lctx := addReachingDefsAsNonDep info.lctx (← getLCtx) info.tunneledVars.inner
   let mvar ← withLCtx' lctx (mkFreshExprMVar info.type) -- assigned by `synthesizeJumps`
   unless (← read).deadCode do -- If it's dead code, don't even bother registering the jump
     let jumps := info.jumps.push { mvar, ref := (← getRef) }
@@ -479,11 +481,13 @@ mut var definition of `y`.
 -/
 def withLCtxKeepingMutVarDefs (oldLCtx : LocalContext) (oldCtx : Context) (resultName : Name) (k : DoElabM α) : DoElabM α := do
   let oldMutVars := oldCtx.mutVars
-  let oldMutVarsSet := oldCtx.mutVarsSet
-  let newCtx := addReachingDefsAsNonDep oldLCtx (← getLCtx) (oldMutVarsSet.insert resultName)
+  let oldMutVarDefs := oldCtx.mutVarDefs
+  let oldResultDef := oldLCtx.getFromUserName! resultName
+  let oldMutVarDefs := oldMutVarDefs.insert resultName oldResultDef.fvarId
+  let newCtx := addReachingDefsAsNonDep oldLCtx (← getLCtx) oldMutVarDefs
   withLCtx' newCtx <| withReader (fun ctx => { ctx with
     mutVars := oldMutVars,
-    mutVarsSet := oldMutVarsSet
+    mutVarDefs := oldMutVarDefs
   }) k
 
 /--
@@ -599,6 +603,12 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
       let xs := reassignedDecls.map (fun d => (d.userName, d.type))
         |>.push (nondupDec.resultName, nondupDec.resultType)
       withLocalDeclsDND xs fun xs => do
+        for (decl, x) in reassignedDecls.zip xs do
+          let id := x.fvarId!
+          if let some baseId := (← read).mutVarDefs[decl.userName]? then
+            if id != baseId then
+              trace[Elab.do] "registering alias info for {decl.userName}: {mkFVar id} -> {mkFVar baseId}"
+              pushInfoLeaf <| .ofFVarAliasInfo { userName := decl.userName, id, baseId }
         mkLambdaFVars xs (← nondupDec.k)
 
     withLetDecl (← mkFreshUserName `__do_jp) joinTy joinRhs (kind := .implDetail) (nondep := true) fun jp => do

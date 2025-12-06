@@ -245,11 +245,11 @@ def elabDoLetOrReassignElse (letOrReassign : LetOrReassign) (pattern rhs : Term)
     Term.elabTerm (← `(match $rhs:term with | $pattern => $body | _ => $otherwise)) mγ (catchExPostpone := false)
 
 def elabDoIdDecl (x : Ident) (xType? : Option Term) (rhs : TSyntax `doElem) (contRef : Syntax) (k : DoElabM Expr)
-    (kind : DoElemContKind := .nonDuplicable) : DoElabM Expr := do
+    (kind : DoElemContKind := .nonDuplicable) (declKind : LocalDeclKind := .default) : DoElabM Expr := do
   let xType ← Term.elabType (xType?.getD (mkHole x))
   let lctx ← getLCtx
   let ctx ← read
-  elabDoElem rhs <| .mk (kind := kind) (ref := contRef) x.getId xType do
+  elabDoElem rhs <| .mk (kind := kind) (declKind := declKind) (ref := contRef) x.getId xType do
     withLCtxKeepingMutVarDefs lctx ctx x.getId do
       Term.addLocalVarInfo x (← getFVarFromUserName x.getId)
       k
@@ -269,7 +269,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
       (kind := dec.kind) (contRef := dec.ref)
   | `(doPatDecl| $pattern:term ← $rhs $[| $otherwise?]?) =>
     let x ← Term.mkFreshIdent pattern
-    elabDoIdDecl x none rhs (contRef := pattern) do
+    elabDoIdDecl x none rhs (contRef := pattern) (declKind := .implDetail) do
       match letOrReassign, otherwise? with
       | .let mutTk?, none =>
         elabDoElem (← `(doElem| let $[mut%$mutTk?]? $pattern:term := $x)) dec
@@ -351,7 +351,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
       | `(doIfCond|let $pat ← $rhs) =>
         checkMutVarsForShadowing (← getPatternVarsEx pat)
         let x ← Term.mkFreshIdent pat
-        elabDoIdDecl x none (← `(doElem| $rhs:term)) (contRef := pat) do
+        elabDoIdDecl x none (← `(doElem| $rhs:term)) (contRef := pat) (declKind := .implDetail) do
           Term.elabTerm (← `(match $x:term with | $pat => $then_ | _ => $else_)) mγ (catchExPostpone := false)
       | _ => throwUnsupportedSyntax
     else
@@ -388,7 +388,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   let `(doMatchExpr| match_expr $[(meta := false)%$metaFalseTk?]? $discr:term with $alts) := stx | throwUnsupportedSyntax
   if metaFalseTk?.isNone then -- i.e., implicitly (meta := true)
     let x ← Term.mkFreshIdent discr
-    elabDoIdDecl x none (← `(doElem| instantiateMVars $discr)) (contRef := dec.ref) do
+    elabDoIdDecl x none (← `(doElem| instantiateMVars $discr)) (contRef := dec.ref) (declKind := .implDetail) do
       elabDoMatchExprNoMeta x alts dec
   else
     elabDoMatchExprNoMeta discr alts dec
@@ -423,7 +423,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
 @[builtin_doElem_elab Lean.Parser.Term.doLetMetaExpr] def elabDoLetMetaExpr : DoElab := fun stx dec => do
   let `(doLetMetaExpr| let_expr $pattern:matchExprPat ← $rhs:term | $otherwise) := stx | throwUnsupportedSyntax
   let x ← Term.mkFreshIdent pattern
-  elabDoIdDecl x none (← `(doElem| instantiateMVars $rhs)) (contRef := dec.ref) do
+  elabDoIdDecl x none (← `(doElem| instantiateMVars $rhs)) (contRef := dec.ref) (declKind := .implDetail) do
     elabDoLetExpr (← `(doElem| let_expr $pattern:matchExprPat := $x | $otherwise)) dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doUnless] def elabDoUnless : DoElab := fun stx dec => do

@@ -172,6 +172,8 @@ structure DoElemCont where
   branches of a `match` or `if`.
   -/
   kind : DoElemContKind := .nonDuplicable
+  /-- An optional hint for trace messages. -/
+  ref : Syntax := .missing
 deriving Inhabited
 
 /--
@@ -245,6 +247,7 @@ def DoElemCont.mkPure (resultType : Expr) : TermElabM DoElemCont := do
         return ← mkFreshExprMVar (← mkMonadicType resultType)
       mkPureApp resultType (← getFVarFromUserName r),
     kind := .duplicable
+    ref := .missing
   }
 
 /-- The cached `@Bind.bind m instBind` expression. -/
@@ -483,7 +486,7 @@ Return `$e >>= fun ($dec.resultName : $dec.resultType) => $(← dec.k)`, cancell
 the bind if `$(← dec.k)` is `pure $dec.resultName`.
 -/
 def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := do
-  mkBindCancellingPure dec.resultName dec.resultType e (fun _ => dec.k)
+  mkBindCancellingPure dec.resultName dec.resultType e fun _ => withRef? dec.ref dec.k
 
 /--
 Return `let $k.resultName : PUnit := PUnit.unit; $(← k.k)`, ensuring that the result type of `k.k`
@@ -492,33 +495,37 @@ is `PUnit` and then immediately zeta-reduce the `let`.
 def DoElemCont.continueWithUnit (dec : DoElemCont) : DoElabM Expr := do
   let unit ← mkPUnitUnit
   discard <| Term.ensureHasType dec.resultType unit
-  mapLetDeclZeta dec.resultName (← mkPUnit) unit (nondep := true) (kind := .implDetail) (fun _ => dec.k)
+  mapLetDeclZeta dec.resultName (← mkPUnit) unit (nondep := true) (kind := .implDetail) fun _ =>
+    withRef? dec.ref dec.k
 
 partial def withSynthesizeForDo (k : DoElabM α) : DoElabM α :=
   controlAtTermElabM fun runInBase => do
     let pendingMVarsSaved := (← get).pendingMVars
     modify fun s => { s with pendingMVars := [] }
-    try
-      let a ← runInBase k
+    try runInBase do
+      let a ← k
       synth
       return a
     finally
       modify fun s => { s with pendingMVars := s.pendingMVars ++ pendingMVarsSaved }
 where
-  isPostponedSyntheticMVar (mvarId : MVarId) : TermElabM Bool := do
+  isPostponedSyntheticMVarOfMonadicType (mvarId : MVarId) : DoElabM Bool := do
     let some decl ← Term.getSyntheticMVarDecl? mvarId | return false
-    return decl.kind matches .postponed ..
+    let .postponed .. := decl.kind | return false
+    let α ← mkFreshResultType
+    let mα ← mkMonadicType α
+    return ← withNewMCtxDepth (isDefEq (← mvarId.getType) mα) -- Not relevant if
 
-  getSomeSyntheticMVarsRef : TermElabM Syntax := do
-    for mvarId in (← get).pendingMVars do
+  getSomeSyntheticMVarsRef : DoElabM Syntax := do
+    for mvarId in (← liftM (m := TermElabM) get).pendingMVars do
       if let some decl ← Term.getSyntheticMVarDecl? mvarId then
         if decl.stx.getPos?.isSome then
           return decl.stx
     return .missing
-  synth : TermElabM Unit := do
-    let rec loop (_ : Unit) : TermElabM Unit := do
+  synth : DoElabM Unit := do
+    let rec loop (_ : Unit) : DoElabM Unit := do
       withRef (← getSomeSyntheticMVarsRef) <| withIncRecDepth do
-        if ← (← get).pendingMVars.anyM isPostponedSyntheticMVar then
+        if ← (← liftM (m := TermElabM) get).pendingMVars.anyM isPostponedSyntheticMVarOfMonadicType then
           if ← Term.synthesizeSyntheticMVarsStep (postponeOnError := true) (runTactics := false) then
             loop ()
           Term.tryPostpone
@@ -760,10 +767,12 @@ def withRefinedExpectedType (ty? : Option Expr) (k : DoElabM α) : DoElabM α :=
   let returnCont ← DoElemCont.mkPure resultType
   let contInfo := { (← read).contInfo.toContInfo with returnCont }
   withReader (fun ctx => { ctx with doBlockResultType := resultType, contInfo := contInfo.toContInfoRef }) k
+  -- withReader id k
 
-def doElabToSyntax (hint : MessageData) (doElab : DoElabM Expr) (k : Term → DoElabM α) : DoElabM α :=
+def doElabToSyntax (hint : MessageData) (doElab : DoElabM Expr) (k : Term → DoElabM α) (ref : Syntax := .missing) : DoElabM α :=
   controlAtTermElabM fun runInBase =>
-    Term.elabToSyntax (hint? := hint) (runInBase <| withRefinedExpectedType · doElab) (runInBase ∘ k)
+    Term.elabToSyntax (hint? := hint) (ref := ref)
+      (runInBase <| withRefinedExpectedType · doElab) (runInBase ∘ k)
 
 /--
   Backtrackable state for the `TermElabM` monad.
@@ -968,7 +977,7 @@ partial def elabDoElems1 (doElems : Array (TSyntax `doElem)) (cont : DoElemCont)
   let back := doElems.back
   let unit ← mkPUnit
   let r ← mkFreshUserName `r
-  doElems.pop.foldr (init := elabDoElem back cont) fun el k => elabDoElem el (.mk r unit k .nonDuplicable)
+  doElems.pop.foldr (init := elabDoElem back cont) fun el k => elabDoElem el (.mk r unit k .nonDuplicable el)
 end
 
 def elabDoSeq (doSeq : TSyntax ``Lean.Parser.Term.doSeq) (cont : DoElemCont) : DoElabM Expr := do
@@ -986,7 +995,7 @@ def elabDo : Term.TermElab := fun e expectedType? => do
   let `(do $doSeq) := e | throwError "unexpected `do` block syntax{indentD e}"
   Term.tryPostponeIfNoneOrMVar expectedType?
   let ctx ← mkContext expectedType?
-  let cont ← DoElemCont.mkPure ctx.doBlockResultType
+  let cont ← DoElemCont.mkPure ctx.doBlockResultType -- same as `($(← returnCont) $resultName)
   let res ← elabDoSeq doSeq cont |>.run ctx |>.run' {}
   Term.synthesizeSyntheticMVars
   let res ← instantiateMVars res

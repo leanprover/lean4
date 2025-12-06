@@ -27,15 +27,15 @@ private def PartialBuildKey.fetchInCoreAux
     return ⟨.module modName, cast (by simp) <| Job.pure mod⟩
   | .package pkgName =>
     let pkg ← resolveTargetPackageD pkgName
-    return ⟨.package pkg.name, cast (by simp) <| Job.pure pkg⟩
+    return ⟨.package pkg.keyName, cast (by simp) <| Job.pure pkg⟩
   | .packageModule pkgName modName =>
     let pkg ← resolveTargetPackageD pkgName
     let some mod := pkg.findTargetModule? modName
-      | error s!"invalid target '{root}': module target '{modName}' not found in package '{pkg.name}'"
-    return ⟨.packageModule pkg.name modName, cast (by simp) <| Job.pure mod⟩
+      | error s!"invalid target '{root}': module target '{modName}' not found in package '{pkg.prettyName}'"
+    return ⟨.packageModule pkg.keyName modName, cast (by simp) <| Job.pure mod⟩
   | .packageTarget pkgName target =>
     let pkg ← resolveTargetPackageD pkgName
-    let key := BuildKey.packageTarget pkg.name target
+    let key := BuildKey.packageTarget pkg.keyName target
     if facetless then
       if let some decl := pkg.findTargetDecl? target then
         if h : decl.kind.isAnonymous then
@@ -48,7 +48,7 @@ private def PartialBuildKey.fetchInCoreAux
           let info := BuildInfo.facet key decl.kind tgt facet
           return ⟨key.facet facet, ← info.fetch⟩
       else
-        error s!"invalid target '{root}': target not found in package '{pkg.name}'"
+        error s!"invalid target '{root}': target not found in package '{pkg.prettyName}'"
     else
       let job ← (pkg.target target).fetch
       return ⟨key, cast (by simp) job⟩
@@ -67,10 +67,15 @@ private def PartialBuildKey.fetchInCoreAux
         return ⟨.facet target facet, cast (by simp) job⟩
 where
   @[inline] resolveTargetPackageD  (name : Name) : FetchM Package := do
-    if name.isAnonymous then
-      pure defaultPkg
-    else
-      let some pkg ← findPackage? name
+    match name with
+    | .anonymous =>
+      return defaultPkg
+    | p@(.num ..) =>
+      let some pkg ← findPackageByKey? p
+        | error s!"invalid target '{root}': package '{name}' not found in workspace"
+      return pkg
+    | p =>
+      let some pkg ← findPackageByName? p
         | error s!"invalid target '{root}': package '{name}' not found in workspace"
       return pkg
 

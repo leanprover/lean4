@@ -101,8 +101,8 @@ public instance : BEq Package where beq p1 p2 := p1.wsIdx == p2.wsIdx
 public instance : QueryJson Package := ⟨(toJson ·.keyName)⟩
 public instance : QueryText Package := ⟨(·.prettyName)⟩
 
-@[deprecated "Use `keyName` or `prettyName` instead" (since := "2025-12-03")]
-public abbrev name := @keyName
+@[deprecated "Use `baseName`, `keyName`, or `prettyName` instead" (since := "2025-12-03")]
+public abbrev name := @baseName
 
 /-- The (unscoped) name of the package as it appears in Reservoir URLs (before URI-encoding). -/
 @[inline] public def reservoirName (self : Package) : String :=

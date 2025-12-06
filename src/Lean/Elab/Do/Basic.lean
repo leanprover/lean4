@@ -482,9 +482,8 @@ mut var definition of `y`.
 def withLCtxKeepingMutVarDefs (oldLCtx : LocalContext) (oldCtx : Context) (resultName : Name) (k : DoElabM α) : DoElabM α := do
   let oldMutVars := oldCtx.mutVars
   let oldMutVarDefs := oldCtx.mutVarDefs
-  let oldResultDef := oldLCtx.getFromUserName! resultName
-  let oldMutVarDefs := oldMutVarDefs.insert resultName oldResultDef.fvarId
-  let newCtx := addReachingDefsAsNonDep oldLCtx (← getLCtx) oldMutVarDefs
+  let tunneledDefs := oldMutVarDefs.insert resultName ⟨`unused⟩  -- tunneledDefs is used as a set, so the FVarId doesn't matter
+  let newCtx := addReachingDefsAsNonDep oldLCtx (← getLCtx) tunneledDefs
   withLCtx' newCtx <| withReader (fun ctx => { ctx with
     mutVars := oldMutVars,
     mutVarDefs := oldMutVarDefs
@@ -607,7 +606,6 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
           let id := x.fvarId!
           if let some baseId := (← read).mutVarDefs[decl.userName]? then
             if id != baseId then
-              trace[Elab.do] "registering alias info for {decl.userName}: {mkFVar id} -> {mkFVar baseId}"
               pushInfoLeaf <| .ofFVarAliasInfo { userName := decl.userName, id, baseId }
         mkLambdaFVars xs (← nondupDec.k)
 

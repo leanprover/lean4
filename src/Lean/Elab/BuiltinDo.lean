@@ -180,11 +180,24 @@ def LetOrReassign.checkMutVars (letOrReassign : LetOrReassign) (vars : Array Ide
   | .reassign => throwUnlessMutVarsDeclared vars
   | _         => checkMutVarsForShadowing vars
 
+@[inline]
+def LetOrReassign.registerReassignAliasInfo (letOrReassign : LetOrReassign) (vars : Array Ident) : DoElabM Unit := do
+  if letOrReassign matches .reassign then
+    let mutVarDefs := (← read).mutVarDefs
+    for var in vars do
+      if let some baseId := mutVarDefs[var.getId]? then
+        let id := (← getFVarFromUserName var.getId).fvarId!
+        if id != baseId then
+          trace[Elab.do] "registering alias info for {var.getId}: {mkFVar id} -> {mkFVar baseId}"
+          pushInfoLeaf <| .ofFVarAliasInfo { userName := var.getId, id, baseId }
+
 def elabDoLetOrReassignWith (hint : MessageData) (letOrReassign : LetOrReassign) (vars : Array Ident)
     (dec : DoElemCont) (elabBody : (body : Term) → TermElabM Expr) : DoElabM Expr := do
   -- letOrReassign.checkMutVars vars -- Should be done by the caller!
   let elabCont : DoElabM Expr := do
-    declareMutVars? letOrReassign.getLetMutTk? vars dec.continueWithUnit
+    declareMutVars? letOrReassign.getLetMutTk? vars do
+      letOrReassign.registerReassignAliasInfo vars
+      dec.continueWithUnit
   doElabToSyntax hint elabCont fun body => elabBody body
 
 def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDecl)

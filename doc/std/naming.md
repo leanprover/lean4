@@ -48,7 +48,7 @@ theorem List.reverse_sublist : l₁.reverse <+ l₂.reverse ↔ l₁ <+ l₂ := 
 
 Notice that the second theorem does not have a hypothesis of type `List.Sublist l` for some `l`, so the name `List.Sublist.reverse_iff` would be incorrect.
 
-The advantage of placing results in a namespace like `List.Sublist` is that it enables generalized projection notation, i.e., given `h : l₁ <+ l₂`,
+The advantage of placing results in a namespace like `List.Sublist` is that it enables generalized field notation, i.e., given `h : l₁ <+ l₂`,
 one can write `h.reverse` to obtain a proof of `l₁.reverse <+ l₂.reverse`. Thinking about which dot notations are convenient can act as a guideline
 for deciding where to place a theorem, and is, on occasion, a good reason to duplicate a theorem into multiple namespaces.
 

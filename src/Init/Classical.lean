@@ -200,7 +200,7 @@ end Classical
 export Classical (imp_iff_right_iff imp_and_neg_imp_iff and_or_imp not_imp)
 
 /-- Extract an element from an existential statement, using `Classical.choose`. -/
--- This enables projection notation.
+-- This enables generalized field notation (as seen in `Exists.choose_spec`)
 @[reducible] noncomputable def Exists.choose {p : α → Prop} (P : ∃ a, p a) : α := Classical.choose P
 
 /-- Show that an element extracted from `P : ∃ a, p a` using `P.choose` satisfies `p`. -/

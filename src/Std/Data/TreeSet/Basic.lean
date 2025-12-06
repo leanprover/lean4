@@ -437,6 +437,22 @@ def any (t : TreeSet α cmp) (p : α → Bool) : Bool :=
 def all (t : TreeSet α cmp) (p : α → Bool) : Bool :=
   t.inner.all (fun a _ => p a)
 
+/--
+`t₁.subset t₂` means that every element of `t₁` is also an element of `t₂`, ignoring multiplicity.
+-/
+@[inline]
+def subset (t₁ t₂ : TreeSet α cmp) : Bool :=
+  t₁.all (t₂.contains ·)
+
+/--
+`t₁.diff t₂` returns a new `TreeSet` containing all elements of `t₁`
+that are not present in `t₂`. Effectively, it removes from `t₁`
+every element found in `t₂`.
+-/
+@[inline]
+def diff (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
+  t₂.foldl .erase t₁
+
 /-- Transforms the tree set into a list of elements in ascending order. -/
 @[inline]
 def toList (t : TreeSet α cmp) : List α :=
@@ -502,14 +518,6 @@ def inter (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
   ⟨TreeMap.inter t₁.inner t₂.inner⟩
 
 instance : Inter (TreeSet α cmp) := ⟨inter⟩
-
-/--
-Computes the difference of the given tree sets.
-
-This function always iterates through the smaller set.
--/
-def diff (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
-  ⟨TreeMap.diff t₁.inner t₂.inner⟩
 
 instance : SDiff (TreeSet α cmp) := ⟨diff⟩
 

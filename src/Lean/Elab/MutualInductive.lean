@@ -529,17 +529,25 @@ where
     Term.levelMVarToParam type (except := fun mvarId => univToInfer? == some mvarId)
 
 private structure AccLevelState where
+  /-- The minimal solution so far; `?r := max ...levels...`. -/
   levels : Array Level := #[]
-  /-- When we encounter `u ≤ ?r + k` with `k > 0`, we add `(u, k)` to the "bad levels".
-  We use this to compute what the universe "should" have been. -/
-  badLevels : Array (Level × Nat) := #[]
+  /-- When we encounter `u ≤ ?r + k` with `k > 0`, we add `(u, k)` to the "unsolved levels".
+  We use this to compute what the universe "should" have been if they remain unsatisfied in the end. -/
+  unsolvedLevels : Array (Level × Nat) := #[]
 
-private def AccLevelState.push (acc : AccLevelState) (u : Level) (offset : Nat) : AccLevelState :=
-  if offset == 0 then
+private def AccLevelState.push (acc : AccLevelState) (u : Level) (offset : Nat) (approx : Bool) : AccLevelState :=
+  if offset == 0 || approx then
     { acc with levels := if acc.levels.contains u then acc.levels else acc.levels.push u }
   else
     let p := (u, offset)
-    { acc with badLevels := if acc.badLevels.contains p then acc.badLevels else acc.badLevels.push p }
+    { acc with unsolvedLevels := if acc.unsolvedLevels.contains p then acc.unsolvedLevels else acc.unsolvedLevels.push p }
+
+/--
+The unsolved level constraints that are not satisfied, now that we have collected the minimal solution.
+-/
+private def AccLevelState.badLevels (acc : AccLevelState) : Array (Level × Nat) :=
+  let r := Level.mkNaryMax acc.levels.toList
+  acc.unsolvedLevels.filter fun (u, k) => !Level.geq (r.addOffset k) u
 
 /--
 Auxiliary function for `updateResultingUniverse`.
@@ -554,8 +562,17 @@ inductive I (α : Sort u) : Type _ where
 This is likely a mistake. The correct solution would be `Type (max u 1)` rather than `Type (u + 1)`,
 but by this point it is impossible to rectify. So, for `u ≤ ?r + 1` we record the pair of `u` and `1`
 so that we can inform the user what they should have probably used instead.
+
+If there is a `sorry`, we allow approximate solutions.
+This avoids counterintuitive errors on the following inductive type,
+which yields an error due to `sorry : Sort ?u` giving only a `?u ≤ ?_ + 1` constraint:
+```
+inductive Sorry1 where
+  | x (a : Array Sorry1)
+  | y (b : sorry)
+```
 -/
-private def accLevel (u : Level) (r : Level) (rOffset : Nat) : ExceptT MessageData (StateT AccLevelState Id) Unit := do
+private def accLevel (u : Level) (r : Level) (rOffset : Nat) (approx : Bool) : ExceptT MessageData (StateT AccLevelState Id) Unit := do
   go u rOffset
 where
   go (u : Level) (rOffset : Nat) : ExceptT MessageData (StateT AccLevelState Id) Unit := do
@@ -571,15 +588,17 @@ where
         /- `f(?r) = ?r + k`. -/
         throw m!"In the constraint `{u} ≤ {Level.addOffset r rOffset}`, the level metavariable `{r}` appears in both sides"
       else
-        modify fun acc => acc.push u rOffset
+        modify fun acc => acc.push u rOffset approx
 
 /--
 Auxiliary function for `updateResultingUniverse`. Applies `accLevel` to the given constructor parameter.
 -/
 private def accLevelAtCtor (ctorParam : Expr) (r : Level) (rOffset : Nat) : StateT AccLevelState TermElabM Unit := do
   let type ← inferType ctorParam
+  -- Heuristic: if the constructor parameter contains a sorry, then allow approximate solutions. See `accLevel` docstring.
+  let approx := type.hasSorry
   let u ← instantiateLevelMVars (← getLevel type)
-  match (← modifyGet fun s => accLevel u r rOffset |>.run |>.run s) with
+  match (← modifyGet fun s => accLevel u r rOffset approx |>.run |>.run s) with
   | .ok _ => pure ()
   | .error msg =>
     throwError "Failed to infer universe level for resulting type due to the constructor argument `{ctorParam}`: {msg}"
@@ -612,12 +631,13 @@ Auxiliary function for `updateResultingUniverse`. Computes a list of levels `l�
 -/
 private def collectUniverses (views : Array InductiveView) (r : Level) (rOffset : Nat) (numParams : Nat) (indTypes : List InductiveType) : TermElabM (Array Level) := do
   let (_, acc) ← go |>.run {}
-  if !acc.badLevels.isEmpty then
+  let badLevels := acc.badLevels
+  if !badLevels.isEmpty then
     withViewTypeRef views do
       let goodPart := Level.addOffset (Level.mkNaryMax acc.levels.toList) rOffset
-      let badPart := Level.mkNaryMax (acc.badLevels.toList.map fun (u, k) => Level.max (Level.ofNat rOffset) (Level.addOffset u (rOffset - k)))
+      let badPart := Level.mkNaryMax (badLevels.toList.map fun (u, k) => Level.max (Level.ofNat rOffset) (Level.addOffset u (rOffset - k)))
       let inferred := (Level.max goodPart badPart).normalize
-      let badConstraints := acc.badLevels.map fun (u, k) => indentD m!"{u} ≤ {Level.addOffset r k}"
+      let badConstraints := badLevels.map fun (u, k) => indentD m!"{u} ≤ {Level.addOffset r k}"
       throwError "Resulting type is of the form{indentD <| mkSort (Level.addOffset r rOffset)}\n\
         but the universes of constructor arguments suggest that this could accidentally be a higher universe than necessary. \
         Explicitly providing a resulting type will silence this error. \
@@ -728,14 +748,25 @@ private partial def propagateUniversesToConstructors (numParams : Nat) (indTypes
   unless u.isZero do
     let r := u.getLevelOffset
     let k := u.getOffset
-    indTypes.forM fun indType => indType.ctors.forM fun ctor =>
-      forallTelescopeReducing ctor.type fun ctorArgs _ => do
-        for ctorArg in ctorArgs[numParams...*] do
-          let type ← inferType ctorArg
-          let v := (← instantiateLevelMVars (← getLevel type)).normalize
-          if v.hasMVar then
-            if r matches .param .. | .zero then
-              discard <| observing? <| propagateConstraint v r k
+    if r matches .param .. | .zero then
+      indTypes.forM fun indType => indType.ctors.forM fun ctor =>
+        forallTelescopeReducing ctor.type fun ctorArgs _ => do
+          for ctorArg in ctorArgs[numParams...*] do
+            let type ← inferType ctorArg
+            /-
+            Heuristic: if the constructor parameter contains a sorry, then allow approximate solutions.
+            If there is a `sorry`, we allow approximate solutions.
+            This avoids counterintuitive errors on the following inductive type,
+            which yields an error due to `sorry : Sort ?u` giving only a `?u ≤ 1` constraint:
+            ```
+            inductive Sorry2 : Type where
+              | y (b : sorry)
+            ```
+            -/
+            let approx := type.hasSorry
+            let v := (← instantiateLevelMVars (← getLevel type)).normalize
+            if v.hasMVar then
+              discard <| observing? <| propagateConstraint v r k approx
 where
   /--
   Solves for metavariables in `v` that are fully determined by the constraint `v ≤ r + k`,
@@ -746,19 +777,19 @@ where
   For example, `v ≤ max a b` could be satisfied by either constraint `v ≤ a` or `v ≤ b`.
   We do not need to handle the case where `r` is a metavariable, which is instead `updateResultingUniverse`.
   -/
-  propagateConstraint (v : Level) (r : Level) (k : Nat) : MetaM Unit := do
+  propagateConstraint (v : Level) (r : Level) (k : Nat) (approx : Bool) : MetaM Unit := do
     match v, k with
     | .zero,     _   => pure ()
     | .succ _,   0   => throwError "Internal error: Generated an impossible universe constraint `{v} ≤ 0`"
-    | .succ u,   k+1 => propagateConstraint u r k
-    | .max u v,  k   => propagateConstraint u r k; propagateConstraint v r k
+    | .succ u,   k+1 => propagateConstraint u r k approx
+    | .max u v,  k   => propagateConstraint u r k approx; propagateConstraint v r k approx
     /-
     Given `imax u v ≤ r + k`, then certainly `v ≤ r + k`.
     If this then implies `v` is never zero, then we can also impose `u ≤ r + k`,
     however, this never happens since the metavariable assignments are all of the form `?m := p` or `?m := 0`,
     and so `v` cannot become never zero.
     -/
-    | .imax _ v, k   => propagateConstraint v r k
+    | .imax _ v, k   => propagateConstraint v r k approx
     /-
     `p ≤ r + k` is satisfied iff `r` is also a parameter and it is equal to `p`.
     -/
@@ -768,10 +799,11 @@ where
     -/
     | .mvar id,  k   =>
       if let some v' ← getLevelMVarAssignment? id then
-        propagateConstraint v'.normalize r k
-      else if k == 0 then
-        /- Constrained, so assign. -/
-        assignLevelMVar id r
+        propagateConstraint v'.normalize r k approx
+      else if k == 0 || approx then
+        /- Constrained, so assign. If approximate solutions allowed, use the least solution. -/
+        unless ← isLevelDefEq v r do
+          throwError m!"Could not unify universe levels {v} and {r}"
       else
         /- Underconstrained, but not an error. -/
         pure ()

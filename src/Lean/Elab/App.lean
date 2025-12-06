@@ -1426,9 +1426,9 @@ where
         MessageData.hint (ref? := ref)
           m!"Perhaps you meant `{.ofConstName suggestions[0]}` in place of `{fullName}`:"
           (suggestions.map fun suggestion => {
-            preInfo? := .some s!"{e}.",
+            preInfo? := .some ".",
             suggestion := suggestion.getString!,
-            toCodeActionTitle? := .some (s!"Suggested replacement: {e}.{·}"),
+            toCodeActionTitle? := .some (s!"Suggested replacement: .{·}"),
             diffGranularity := .all,
           })
       else
@@ -1436,9 +1436,9 @@ where
           m!"Perhaps you meant one of these in place of `{fullName}`:"
           (suggestions.map fun suggestion => {
             suggestion := suggestion.getString!,
-            toCodeActionTitle? := .some (s!"Suggested replacement: {e}.{·}"),
+            toCodeActionTitle? := .some (s!"Suggested replacement: .{·}"),
             diffGranularity := .all,
-            messageData? := .some m!"`{.ofConstName suggestion}`: {e}.{suggestion.getString!}",
+            messageData? := .some m!"`{.ofConstName suggestion}`",
           })
 
     -- By using `mkUnknownIdentifierMessage`, the tag `Lean.unknownIdentifierMessageTag` is

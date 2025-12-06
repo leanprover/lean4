@@ -343,6 +343,31 @@
                 ]
             }
         },
+        "gitSpecification": {
+            "type": [
+                "string",
+                "object"
+            ],
+            "anyOf": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "url": {
+                            "type": "string"
+                        },
+                        "subDir": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "url"
+                    ]
+                }
+            ]
+        },
         "dependencyConfig": {
             "type": "object",
             "properties": {
@@ -355,7 +380,7 @@
                     "description": "A dependency on the local filesystem, specified by its path."
                 },
                 "git": {
-                    "type": "string",
+                    "$ref": "#/definitions/gitSpecification",
                     "description": "A dependency in a Git repository, specified by its URL."
                 },
                 "subDir": {

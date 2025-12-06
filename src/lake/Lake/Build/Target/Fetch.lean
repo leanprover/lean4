@@ -83,7 +83,7 @@ where
 /--
 Fetches the target specified by this key, resolving gaps as needed.
 
-* A missing package (i.e., `Name.anoanmoyus`) is filled in with `defaultPkg`.
+* A missing package (i.e., `Name.anonymous`) is filled in with `defaultPkg`.
 * Facets are qualified by the their input target's kind, and missing facets
   are replaced by their kind's `default`.
 * Package targets ending in `moduleTargetIndicator` are converted to module package targets.

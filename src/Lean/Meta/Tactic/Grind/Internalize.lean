@@ -61,7 +61,7 @@ def addCongrTable (e : Expr) : GoalM Unit := do
       pushEqHEq e e' congrPlaceholderProof
     if (← swapCgrRepr e e') then
       /-
-      Recall that `isDiseq` and `mkDiseqProof?` are implemented using the the congruence table.
+      Recall that `isDiseq` and `mkDiseqProof?` are implemented using the congruence table.
       So, if `e` is an equality `a = b`, and is the equivalence class of `False`, but `e'` is not,
       we **must** make `e` the representative of the congruence class.
       The equivalence classes of `e` and `e'` will be merged eventually since we used `pushEqHEq` above,

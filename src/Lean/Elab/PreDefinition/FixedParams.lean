@@ -307,7 +307,7 @@ def FixedParamPerm.isFixed (perm : FixedParamPerm) (i : Nat) : Bool :=
   perm[i]?.join.isSome
 
 /--
-Brings the fixed parameters from `type`, which should the the type of the `funIdx`'s function, into
+Brings the fixed parameters from `type`, which should be the type of the `funIdx`'s function, into
 scope.
 -/
 private partial def FixedParamPerm.forallTelescopeImpl (perm : FixedParamPerm)

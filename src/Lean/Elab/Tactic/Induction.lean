@@ -49,7 +49,7 @@ def getAltName? (alt : Syntax) : Option Name :=
   else
     let ident := head[1]
     if ident.isOfKind identKind then some ident.getId.eraseMacroScopes else none
-/-- Returns true if the the alternative is for a wildcard, and that the wildcard is not due to a syntax error. -/
+/-- Returns true if the alternative is for a wildcard, and that the wildcard is not due to a syntax error. -/
 def isAltWildcard (altStx : Syntax) : Bool :=
   getAltName? altStx == some `_
 /-- Returns the `inductionAlt` `ident <|> hole` -/
@@ -233,7 +233,7 @@ public partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag :
 
 /--
 Given a goal `... targets ... |- C[targets, complexArgs]` associated with `mvarId`,
-where `complexArgs` are the the complex (i.e. non-target) arguments to the motive in the conclusion
+where `complexArgs` are the complex (i.e. non-target) arguments to the motive in the conclusion
 of the eliminator, construct `motiveArg := fun targets rs => C[targets, rs]`
 
 This checks if the type of the complex arguments match what's expected by the motive, and

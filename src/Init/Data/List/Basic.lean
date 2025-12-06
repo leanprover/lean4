@@ -2252,7 +2252,7 @@ def eraseReps {α} [BEq α] (as : List α) : List α := eraseRepsBy (· == ·) a
 /-! ### span -/
 
 /--
-Splits a list into the the longest initial segment for which `p` returns `true`, paired with the
+Splits a list into the longest initial segment for which `p` returns `true`, paired with the
 remainder of the list.
 
 `O(|l|)`.

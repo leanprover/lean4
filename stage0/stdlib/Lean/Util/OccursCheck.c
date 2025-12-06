@@ -34,7 +34,6 @@ static lean_object* l___private_Lean_Util_OccursCheck_0__Lean_occursCheck_visitM
 static lean_object* l___private_Lean_Util_OccursCheck_0__Lean_occursCheck_visitMVar___redArg___closed__1;
 lean_object* l_ExceptT_instMonad___lam__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_OccursCheck_0__Lean_occursCheck_visit___redArg___lam__6___closed__1;
-lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_occursCheck___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_OccursCheck_0__Lean_occursCheck_visit___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_DHashMap_Internal_Raw_u2080_contains___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -55,16 +54,11 @@ lean_object* l_ExceptT_instMonad___lam__7(lean_object*, lean_object*, lean_objec
 LEAN_EXPORT lean_object* l___private_Lean_Util_OccursCheck_0__Lean_occursCheck_visitMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_lift(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_OccursCheck_0__Lean_occursCheck_visit___redArg___lam__6___closed__0;
-lean_object* lean_nat_mul(lean_object*, lean_object*);
-lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 lean_object* l_Lean_instMonadMCtxOfMonadLift___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_instMonad___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_occursCheck___redArg___closed__3;
-static lean_object* l_Lean_occursCheck___redArg___closed__4;
 lean_object* l_ExceptT_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_hash___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_occursCheck___redArg___lam__0(lean_object*, uint8_t, uint8_t, lean_object*);
-static lean_object* l_Lean_occursCheck___redArg___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Util_OccursCheck_0__Lean_occursCheck_visitMVar___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_occursCheck___redArg___closed__1;
 lean_object* l_StateT_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1259,9 +1253,9 @@ static lean_object* _init_l_Lean_occursCheck___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(4u);
-x_2 = lean_unsigned_to_nat(8u);
-x_3 = lean_nat_mul(x_2, x_1);
+x_1 = lean_box(0);
+x_2 = lean_unsigned_to_nat(16u);
+x_3 = lean_mk_array(x_2, x_1);
 return x_3;
 }
 }
@@ -1269,36 +1263,7 @@ static lean_object* _init_l_Lean_occursCheck___redArg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(3u);
-x_2 = l_Lean_occursCheck___redArg___closed__0;
-x_3 = lean_nat_div(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_occursCheck___redArg___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_occursCheck___redArg___closed__1;
-x_2 = l_Nat_nextPowerOfTwo(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_occursCheck___redArg___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_occursCheck___redArg___closed__2;
-x_3 = lean_mk_array(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_occursCheck___redArg___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_occursCheck___redArg___closed__3;
+x_1 = l_Lean_occursCheck___redArg___closed__0;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -1342,7 +1307,7 @@ x_16 = lean_alloc_closure((void*)(l_Lean_occursCheck___redArg___lam__0___boxed),
 lean_closure_set(x_16, 0, x_11);
 lean_closure_set(x_16, 1, x_14);
 lean_closure_set(x_16, 2, x_15);
-x_17 = l_Lean_occursCheck___redArg___closed__4;
+x_17 = l_Lean_occursCheck___redArg___closed__1;
 x_18 = l___private_Lean_Util_OccursCheck_0__Lean_occursCheck_visit___redArg(x_1, x_2, x_3, x_4, x_17);
 x_19 = lean_apply_4(x_12, lean_box(0), lean_box(0), x_18, x_16);
 return x_19;
@@ -1380,12 +1345,6 @@ l_Lean_occursCheck___redArg___closed__0 = _init_l_Lean_occursCheck___redArg___cl
 lean_mark_persistent(l_Lean_occursCheck___redArg___closed__0);
 l_Lean_occursCheck___redArg___closed__1 = _init_l_Lean_occursCheck___redArg___closed__1();
 lean_mark_persistent(l_Lean_occursCheck___redArg___closed__1);
-l_Lean_occursCheck___redArg___closed__2 = _init_l_Lean_occursCheck___redArg___closed__2();
-lean_mark_persistent(l_Lean_occursCheck___redArg___closed__2);
-l_Lean_occursCheck___redArg___closed__3 = _init_l_Lean_occursCheck___redArg___closed__3();
-lean_mark_persistent(l_Lean_occursCheck___redArg___closed__3);
-l_Lean_occursCheck___redArg___closed__4 = _init_l_Lean_occursCheck___redArg___closed__4();
-lean_mark_persistent(l_Lean_occursCheck___redArg___closed__4);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

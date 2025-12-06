@@ -13,13 +13,13 @@ public section
 /-!
 # Http
 
-A "low-level" HTTP 1.1 Server and Client implementation for Lean. It is designed to be used with or without the
+A "low-level" HTTP 1.1 Server implementation for Lean. It is designed to be used with or without the
 `Async` library if you want to implement a custom `Connection`.
 
 # Overview
 
-This module of the standard library defines many concepts related to the HTTP protocol
-and its semantics in a sans I/O format.
+This module of the standard library defines many concepts related to the HTTP protocol and its semantics
+in a sans I/O format.
 
 **sans I/O** means that the core logic of the library doesn’t perform any actual input/output itself,
 it just defines how data *should* be processed. This separation allows the protocol implementation
@@ -44,14 +44,15 @@ import Std.Internal.Async
 open Std.Internal.IO.Async
 open Std Http
 
-def handler (req : Request Body) : Async (Response Body) := do
+def handler (req : Request Body) : ContextAsync (Response Body) := do
   let some data ← req.body.collectString
     | return Response.badRequest "expected a utf8 body"
 
   return Response.ok ("hi, " ++ data)
 
 def mainAsync : Async Unit := do
-  let server ← Server.serve (.v4 (.mk (.ofParts 0 0 0 0) 8080)) handler
+  let address := .v4 (.mk (.ofParts 0 0 0 0) 8080)
+  let server ← Server.serve address handler
   server.waitShutdown
 
 def main := mainAsync.block
@@ -84,7 +85,7 @@ import Std.Internal.Async
 open Std.Internal.IO.Async
 open Std Http
 
-def handler (req : Request Body) : Async (Response Body) := do
+def handler (req : Request Body) : ContextAsync (Response Body) := do
   let some data ← req.body.collectString
     | return Response.badRequest "expected a utf8 body"
 

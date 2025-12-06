@@ -23,9 +23,11 @@ inductive SpecParamInfo where
   -/
   | fixedInst
   /--
-  A parameter that is a function and is fixed in recursive declarations. If the user tags a declaration
-  with `@[specialize]` without specifying which arguments should be specialized, Lean will specialize
-  `.fixedHO` arguments in addition to `.fixedInst`.
+  A parameter that is a function and is fixed in recursive declarations, or a parameter the type of
+  which is the polymorphic return type `α` of the declaration and which could be instantiated to a
+  function.
+  If the user tags a declaration with `@[specialize]` without specifying which arguments should be
+  specialized, Lean will specialize `.fixedHO` arguments in addition to `.fixedInst`.
   -/
   | fixedHO
   /--
@@ -142,6 +144,17 @@ private def hasFwdDeps (decl : Decl) (paramsInfo : Array SpecParamInfo) (j : Nat
         return true
   return false
 
+def isFixedPolymorphicReturnType (decl : Decl) (type : Expr) (specInfos : Array SpecParamInfo) : CompilerM Bool := do
+--  logInfo m!"isFixedPolymorphicReturnType: {decl.name}, {type}, {specInfos}"
+  let some idx := decl.params.findIdx? fun p => type == p.toExpr
+    | return false
+  let α := decl.params[idx]!.toExpr
+  let retTy ← instantiateForall decl.type <| decl.params.map (mkFVar ·.fvarId)
+--  logInfo m!"isFixedPolymorphicReturnType2: {decl.name}, {α}, {retTy}"
+  if specInfos[idx]! matches .fixedNeutral && retTy == α then
+    return true
+  return false
+
 /--
 Save parameter information for `decls`.
 
@@ -158,8 +171,11 @@ def saveSpecParamInfo (decls : Array Decl) : CompilerM Unit := do
       let specArgs? := getSpecializationArgs? (← getEnv) decl.name
       let contains (i : Nat) : Bool := specArgs?.getD #[] |>.contains i
       let mut paramsInfo : Array SpecParamInfo := #[]
+--      logInfo m!"decl.type: {decl.name} {decl.params.map fun p => (mkFVar p.fvarId, p.type)} {decl.type}"
       for h :i in *...decl.params.size do
         let param := decl.params[i]
+  --      let b ← isFixedPolymorphicReturnType decl param.type paramsInfo
+  --      logInfo m!"isFixedPolymorphicReturnType: {b}"
         let info ←
           if contains i then
             pure .user
@@ -178,7 +194,7 @@ def saveSpecParamInfo (decls : Array Decl) : CompilerM Unit := do
           specify which arguments must be specialized besides instances. In this case, we try to specialize
           any "fixed higher-order argument"
           -/
-          else if specArgs? == some #[] && param.type matches .forallE .. then
+          else if specArgs? == some #[] && (param.type matches .forallE ..  || (← isFixedPolymorphicReturnType decl param.type paramsInfo)) then
             pure .fixedHO
           else
             pure .other

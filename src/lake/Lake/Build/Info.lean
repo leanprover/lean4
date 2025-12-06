@@ -33,10 +33,10 @@ public inductive BuildInfo
 /-! ### Build Key Helper Constructors -/
 
 public abbrev Package.key (self : Package) : BuildKey :=
-  .package self.name
+  .package self.keyName
 
 public abbrev Package.targetKey (target : Name) (self : Package) : BuildKey :=
-  .packageTarget self.name target
+  .packageTarget self.keyName target
 
 /-! ### Build Info to Key -/
 
@@ -50,7 +50,7 @@ public instance : ToString BuildInfo := ⟨(toString ·.key)⟩
 /-! ### Instances for deducing data types of `BuildInfo` keys -/
 
 public instance (priority := low) {p : NPackage n} : FamilyDef BuildData
-  (.customTarget p.toPackage.name t) (CustomData n t) := ⟨by simp⟩
+  (.customTarget p.toPackage.keyName t) (CustomData n t) := ⟨by simp⟩
 
 public instance {p : NPackage n} [FamilyOut (CustomData n) t α]
 : FamilyDef BuildData (BuildInfo.key (.target p.toPackage t)) α where

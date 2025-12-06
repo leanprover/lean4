@@ -41,5 +41,5 @@ public hydrate_opaque_type OpaqueTargetConfig TargetConfig pkgName name
 public abbrev TargetDecl := KConfigDecl .anonymous
 
 /-- Try to find a target configuration in the package with the given name . -/
-public def Package.findTargetConfig? (name : Name) (self : Package) : Option (TargetConfig self.name name) :=
+public def Package.findTargetConfig? (name : Name) (self : Package) : Option (TargetConfig self.keyName name) :=
   self.targetDeclMap.get? name |>.bind (·.targetConfig?)

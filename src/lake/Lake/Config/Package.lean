@@ -24,8 +24,12 @@ public nonempty_type OpaquePostUpdateHook (pkg : Name)
 
 /-- A Lake package -- its location plus its configuration. -/
 public structure Package where
-  /-- The name of the package. -/
-  name : Name
+  /-- The index of the package in the workspace. Used to disambiguate packages with the same name. -/
+  wsIdx : Nat
+  /-- The assigned name of the package. -/
+  baseName : Name
+  /-- The package identifier used in target keys and configuration types. -/
+  keyName : Name := baseName.num wsIdx
   /-- The name specified by the package. -/
   origName : Name
   /-- The absolute path to the package's directory. -/
@@ -33,7 +37,7 @@ public structure Package where
   /-- The path to the package's directory relative to the workspace. -/
   relDir : FilePath
   /-- The package's user-defined configuration. -/
-  config : PackageConfig name origName
+  config : PackageConfig keyName origName
   /-- The absolute path to the package's configuration file. -/
   configFile : FilePath
   /-- The path to the package's configuration file (relative to `dir`). -/
@@ -47,9 +51,9 @@ public structure Package where
   /-- Dependency configurations for the package. -/
   depConfigs : Array Dependency := #[]
   /-- Target configurations in the order declared by the package. -/
-  targetDecls : Array (PConfigDecl name) := #[]
+  targetDecls : Array (PConfigDecl keyName) := #[]
   /-- Name-declaration map of target configurations in the package. -/
-  targetDeclMap : DNameMap (NConfigDecl name) :=
+  targetDeclMap : DNameMap (NConfigDecl keyName) :=
     targetDecls.foldl (fun m d => m.insert d.name (.mk d rfl)) {}
   /--
   The names of the package's targets to build by default
@@ -64,10 +68,10 @@ public structure Package where
   -/
   defaultScripts : Array Script := #[]
   /-- Post-`lake update` hooks for the package. -/
-  postUpdateHooks : Array (OpaquePostUpdateHook name) := #[]
+  postUpdateHooks : Array (OpaquePostUpdateHook keyName) := #[]
   /-- The package's `buildArchive`/`buildArchive?` configuration. -/
   buildArchive : String :=
-    if let some n := config.buildArchive then n else defaultBuildArchive name
+    if let some n := config.buildArchive then n else defaultBuildArchive baseName
   /-- The driver used for `lake test` when this package is the workspace root. -/
   testDriver : String := config.testDriver
   /-- The driver used for `lake lint` when this package is the workspace root. -/
@@ -85,8 +89,26 @@ public structure Package where
 
 deriving Inhabited
 
-public instance : Hashable Package where hash pkg := hash pkg.name
-public instance : BEq Package where beq p1 p2 := p1.name == p2.name
+namespace Package
+
+public instance : Hashable Package where hash pkg := hash pkg.keyName
+public instance : BEq Package where beq p1 p2 := p1.wsIdx == p2.wsIdx
+
+/-- Pretty prints the package's name. Used when outputting package names. -/
+@[inline] public def prettyName (self : Package) : String :=
+  self.baseName.toString (escape := false)
+
+public instance : QueryJson Package := ⟨(toJson ·.keyName)⟩
+public instance : QueryText Package := ⟨(·.prettyName)⟩
+
+@[deprecated "Use `baseName`, `keyName`, or `prettyName` instead" (since := "2025-12-03")]
+public abbrev name := @baseName
+
+/-- The (unscoped) name of the package as it appears in Reservoir URLs (before URI-encoding). -/
+@[inline] public def reservoirName (self : Package) : String :=
+  self.origName.toString (escape := false)
+
+end Package
 
 public abbrev PackageSet := Std.HashSet Package
 @[inline] public def PackageSet.empty : PackageSet := ∅
@@ -94,17 +116,22 @@ public abbrev PackageSet := Std.HashSet Package
 public abbrev OrdPackageSet := OrdHashSet Package
 @[inline] public def OrdPackageSet.empty : OrdPackageSet := OrdHashSet.empty
 
-public instance : ToJson Package := ⟨(toJson ·.name)⟩
-public instance : ToString Package := ⟨(·.name.toString)⟩
-
 /-- A package with a name known at type-level. -/
 public structure NPackage (n : Name) extends Package where
-  name_eq : toPackage.name = n
+  keyName_eq : toPackage.keyName = n
 
-attribute [simp] NPackage.name_eq
+namespace NPackage
+
+set_option linter.deprecated false in
+@[deprecated keyName_eq (since := "2025-12-03")]
+public theorem name_eq {self : NPackage n} : self.toPackage.keyName = n := self.keyName_eq
+
+attribute [simp] NPackage.keyName_eq
 
 public instance : CoeOut (NPackage n) Package := ⟨NPackage.toPackage⟩
-public instance : CoeDep Package pkg (NPackage pkg.name) := ⟨⟨pkg, rfl⟩⟩
+public instance : CoeDep Package pkg (NPackage pkg.keyName) := ⟨⟨pkg, rfl⟩⟩
+
+end NPackage
 
 /--
 The type of a post-update hooks monad.
@@ -124,6 +151,10 @@ public structure PostUpdateHookDecl where
   deriving TypeName
 
 namespace Package
+
+/-- Returns whether this package is root package of the workspace. -/
+@[inline] public def isRoot (self : Package) : Bool  :=
+  self.wsIdx == 0
 
 /-- **For internal use.** Whether this package is Lean itself.  -/
 @[inline] public def bootstrap (self : Package) : Bool  :=
@@ -357,10 +388,10 @@ The package's `buildDir` joined with its `nativeLibDir` configuration.
 
 /-- The directory within the Lake cache were package-scoped files are stored. -/
 public def cacheScope (self : Package) :=
-  self.name.toString (escape := false)
+  self.baseName.toString (escape := false)
 
 /-- Try to find a target configuration in the package with the given name. -/
-public def findTargetDecl? (name : Name) (self : Package) : Option (NConfigDecl self.name name) :=
+public def findTargetDecl? (name : Name) (self : Package) : Option (NConfigDecl self.keyName name) :=
   self.targetDeclMap.get? name
 
 /-- Whether the given module is considered local to the package. -/

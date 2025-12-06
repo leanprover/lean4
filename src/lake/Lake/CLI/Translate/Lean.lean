@@ -350,7 +350,7 @@ protected def InputDirConfig.mkCommand
 
 @[inline] def Package.mkTargetCommands
   (pkg : Package) (defaultTargets : NameSet) (kind : Name)
-  (mkCommand : {n : Name} → ConfigType kind pkg.name n → Bool → Command)
+  (mkCommand : {n : Name} → ConfigType kind pkg.keyName n → Bool → Command)
 : Array Command :=
   pkg.targetDecls.filterMap fun t => (t.config? kind).map fun cfg =>
     mkCommand cfg (defaultTargets.contains t.name)
@@ -359,7 +359,7 @@ protected def InputDirConfig.mkCommand
 
 /-- Create a Lean module that encodes the declarative configuration of the package. -/
 public def Package.mkLeanConfig (pkg : Package) : TSyntax ``module := Unhygienic.run do
-  let pkgConfig : PackageConfig pkg.name pkg.origName :=
+  let pkgConfig : PackageConfig pkg.keyName pkg.origName :=
     {pkg.config with testDriver := pkg.testDriver, lintDriver := pkg.lintDriver}
   let defaultTargets := pkg.defaultTargets.foldl NameSet.insert NameSet.empty
   `(module|

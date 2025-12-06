@@ -64,7 +64,7 @@ public def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError P
   if spec.isEmpty then
     return ws.root
   else
-    match ws.findPackage? <| stringToLegalOrSimpleName spec with
+    match ws.findPackageByName? <| stringToLegalOrSimpleName spec with
     | some pkg => return pkg
     | none => throw <| CliError.unknownPackage spec
 
@@ -82,7 +82,7 @@ def resolveModuleTarget
       throw <| CliError.unknownFacet "module" facet
 
 def resolveCustomTarget
-  (pkg : Package) (name facet : Name) (config : TargetConfig pkg.name name)
+  (pkg : Package) (name facet : Name) (config : TargetConfig pkg.keyName name)
 : Except CliError BuildSpec :=
   if !facet.isAnonymous then
     throw <| CliError.invalidFacet name facet
@@ -91,7 +91,7 @@ def resolveCustomTarget
 
 def resolveConfigDeclTarget
   (ws : Workspace) (pkg : Package)
-  {target : Name} (decl : NConfigDecl pkg.name target) (facet : Name)
+  {target : Name} (decl : NConfigDecl pkg.keyName target) (facet : Name)
 : Except CliError (Array BuildSpec) := do
   if h : decl.kind.isAnonymous then
     Array.singleton <$> resolveCustomTarget pkg target facet (decl.targetConfig h)
@@ -100,7 +100,7 @@ def resolveConfigDeclTarget
     if let some config := ws.findFacetConfig? (decl.kind ++ facet) then
       let tgt := decl.mkConfigTarget pkg
       let tgt := cast (by simp [decl.target_eq_type h]) tgt
-      let info := BuildInfo.facet (.packageTarget pkg.name decl.name) decl.kind tgt config.name
+      let info := BuildInfo.facet (.packageTarget pkg.keyName decl.name) decl.kind tgt config.name
       return #[mkConfigBuildSpec info config rfl]
     else
       throw <| CliError.unknownFacet decl.kind.toString facet
@@ -146,7 +146,7 @@ def resolveTargetInPackage
   else if let some mod := pkg.findTargetModule? target then
     Array.singleton <$> resolveModuleTarget ws mod facet
   else
-    throw <| CliError.missingTarget pkg.name (target.toString false)
+    throw <| CliError.missingTarget pkg.baseName (target.toString false)
 
 def resolveDefaultPackageTarget
   (ws : Workspace) (pkg : Package)
@@ -170,7 +170,7 @@ def resolveTargetInWorkspace
 : Except CliError (Array BuildSpec) :=
   if let some ⟨pkg, decl⟩ := ws.findTargetDecl? target then
     resolveConfigDeclTarget ws pkg decl facet
-  else if let some pkg := ws.findPackage? target then
+  else if let some pkg := ws.findPackageByName? target then
     resolvePackageTarget ws pkg facet
   else if let some mod := ws.findTargetModule? target then
     Array.singleton <$> resolveModuleTarget ws mod facet

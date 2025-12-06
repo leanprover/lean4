@@ -256,7 +256,7 @@ public def Workspace.runFetchM
   if let some outputsFile := cfg.outputsFile? then
     let logger := .stream out outLv useAnsi
     unless ws.isRootArtifactCacheEnabled do
-      logger.logEntry <| .warning s!"{ws.root.name}: \
+      logger.logEntry <| .warning s!"{ws.root.prettyName}: \
         the artifact cache is not enabled for this package, so the artifacts described \
         by the mappings produced by `-o` will not necessarily be available in the cache."
     if let some ref := ws.root.outputsRef? then

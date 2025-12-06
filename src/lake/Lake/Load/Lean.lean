@@ -28,9 +28,11 @@ The resulting package does not yet include any dependencies.
 -/
 public def loadLeanConfig (cfg : LoadConfig) : LogIO (Package × Environment) := do
   let configEnv ← importConfigFile cfg
-  let ⟨name, origName, config⟩ ← IO.ofExcept <| PackageDecl.loadFromEnv configEnv cfg.leanOpts
+  let ⟨keyName, origName, config⟩ ← IO.ofExcept <| PackageDecl.loadFromEnv configEnv cfg.leanOpts
+  let baseName := if cfg.pkgName.isAnonymous then origName else cfg.pkgName
   let pkg : Package := {
-    name, origName, config
+    wsIdx := cfg.pkgIdx
+    baseName, keyName, origName, config
     dir := cfg.pkgDir
     relDir := cfg.relPkgDir
     configFile := cfg.configFile

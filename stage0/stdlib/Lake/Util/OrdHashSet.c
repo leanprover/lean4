@@ -47,7 +47,6 @@ LEAN_EXPORT lean_object* l_Lake_OrdHashSet_foldr___boxed(lean_object*, lean_obje
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_forIn___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t);
-lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_instForInOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_appendArray(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -73,7 +72,6 @@ LEAN_EXPORT lean_object* l_Lake_OrdHashSet_forM___lam__0(lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_foldl___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_foldl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_insert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_OrdHashSet_empty___closed__5;
 static lean_object* l_Lake_OrdHashSet_empty___closed__1;
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_instEmptyCollection___redArg___boxed(lean_object*, lean_object*);
@@ -87,10 +85,8 @@ static lean_object* l_Lake_OrdHashSet_empty___closed__3;
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_instForInOfMonad___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_foldlM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-lean_object* lean_nat_mul(lean_object*, lean_object*);
 static lean_object* l_Lake_OrdHashSet_appendArray___redArg___closed__6;
 static lean_object* l_Lake_OrdHashSet_appendArray___redArg___closed__3;
-lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_instAppend(lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_mkEmpty(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -111,10 +107,8 @@ LEAN_EXPORT lean_object* l_Lake_OrdHashSet_empty(lean_object*, lean_object*, lea
 static lean_object* l_Lake_OrdHashSet_appendArray___redArg___closed__9;
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_instHAppendArray___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_instForInOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_OrdHashSet_empty___closed__4;
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_all___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_OrdHashSet_any___lam__0(lean_object*, lean_object*);
-static lean_object* l_Lake_OrdHashSet_empty___closed__6;
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_instHAppendArray(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_forIn___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -160,9 +154,9 @@ static lean_object* _init_l_Lake_OrdHashSet_empty___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(4u);
-x_2 = lean_unsigned_to_nat(8u);
-x_3 = lean_nat_mul(x_2, x_1);
+x_1 = lean_box(0);
+x_2 = lean_unsigned_to_nat(16u);
+x_3 = lean_mk_array(x_2, x_1);
 return x_3;
 }
 }
@@ -170,36 +164,7 @@ static lean_object* _init_l_Lake_OrdHashSet_empty___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(3u);
-x_2 = l_Lake_OrdHashSet_empty___closed__0;
-x_3 = lean_nat_div(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lake_OrdHashSet_empty___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lake_OrdHashSet_empty___closed__1;
-x_2 = l_Nat_nextPowerOfTwo(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lake_OrdHashSet_empty___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lake_OrdHashSet_empty___closed__2;
-x_3 = lean_mk_array(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lake_OrdHashSet_empty___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lake_OrdHashSet_empty___closed__3;
+x_1 = l_Lake_OrdHashSet_empty___closed__0;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -207,7 +172,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_OrdHashSet_empty___closed__5() {
+static lean_object* _init_l_Lake_OrdHashSet_empty___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -215,12 +180,12 @@ x_1 = l_Array_empty(lean_box(0));
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_OrdHashSet_empty___closed__6() {
+static lean_object* _init_l_Lake_OrdHashSet_empty___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lake_OrdHashSet_empty___closed__5;
-x_2 = l_Lake_OrdHashSet_empty___closed__4;
+x_1 = l_Lake_OrdHashSet_empty___closed__2;
+x_2 = l_Lake_OrdHashSet_empty___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -231,7 +196,7 @@ LEAN_EXPORT lean_object* l_Lake_OrdHashSet_empty(lean_object* x_1, lean_object* 
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lake_OrdHashSet_empty___closed__6;
+x_4 = l_Lake_OrdHashSet_empty___closed__3;
 return x_4;
 }
 }
@@ -285,7 +250,7 @@ LEAN_EXPORT lean_object* l_Lake_OrdHashSet_mkEmpty___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lake_OrdHashSet_empty___closed__4;
+x_2 = l_Lake_OrdHashSet_empty___closed__1;
 x_3 = lean_mk_empty_array_with_capacity(x_1);
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_2);
@@ -1537,12 +1502,6 @@ l_Lake_OrdHashSet_empty___closed__2 = _init_l_Lake_OrdHashSet_empty___closed__2(
 lean_mark_persistent(l_Lake_OrdHashSet_empty___closed__2);
 l_Lake_OrdHashSet_empty___closed__3 = _init_l_Lake_OrdHashSet_empty___closed__3();
 lean_mark_persistent(l_Lake_OrdHashSet_empty___closed__3);
-l_Lake_OrdHashSet_empty___closed__4 = _init_l_Lake_OrdHashSet_empty___closed__4();
-lean_mark_persistent(l_Lake_OrdHashSet_empty___closed__4);
-l_Lake_OrdHashSet_empty___closed__5 = _init_l_Lake_OrdHashSet_empty___closed__5();
-lean_mark_persistent(l_Lake_OrdHashSet_empty___closed__5);
-l_Lake_OrdHashSet_empty___closed__6 = _init_l_Lake_OrdHashSet_empty___closed__6();
-lean_mark_persistent(l_Lake_OrdHashSet_empty___closed__6);
 l_Lake_OrdHashSet_appendArray___redArg___closed__6 = _init_l_Lake_OrdHashSet_appendArray___redArg___closed__6();
 lean_mark_persistent(l_Lake_OrdHashSet_appendArray___redArg___closed__6);
 l_Lake_OrdHashSet_appendArray___redArg___closed__5 = _init_l_Lake_OrdHashSet_appendArray___redArg___closed__5();

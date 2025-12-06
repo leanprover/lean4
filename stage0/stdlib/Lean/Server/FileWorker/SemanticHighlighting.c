@@ -140,7 +140,6 @@ lean_object* l_Lean_Server_ServerTask_mapCheap___redArg(lean_object*, lean_objec
 uint64_t lean_string_hash(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleSemanticTokensDidChange(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_ofRange(lean_object*, uint8_t);
-static lean_object* l_Lean_Server_FileWorker_dbgShowTokens___closed__5;
 static lean_object* l___private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_collectVersoTokens_go___closed__8;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 extern lean_object* l_Lean_Server_requestHandlers;
@@ -305,7 +304,6 @@ static lean_object* l___private_Lean_Server_FileWorker_SemanticHighlighting_0__L
 static size_t l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_Server_registerLspRequestHandler___at___00__private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn_00___x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__0_spec__2_spec__2___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_dbgShowTokens(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_collectVersoTokens_go___closed__52;
-static lean_object* l_Lean_Server_FileWorker_dbgShowTokens___closed__4;
 static lean_object* l___private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_collectVersoTokens_go___closed__73;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_Server_FileWorker_keywordSemanticTokenMap_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_filterMapM___at___00Lean_Server_FileWorker_computeAbsoluteLspSemanticTokens_spec__0___closed__0;
@@ -470,7 +468,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_registerPartialStatefulLspRequestHandler_
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___00Lean_Server_registerLspRequestHandler___at___00__private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_initFn_00___x40_Lean_Server_FileWorker_SemanticHighlighting_3469202329____hygCtx___hyg_2__spec__0_spec__5___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_collectVersoTokens_go___closed__45;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_computeSemanticTokens___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_HandleOverlapState_untilToken_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_instInhabitedSemanticTokensState_default;
@@ -577,7 +574,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrid
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_isVersoKind___boxed(lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___00Lean_Server_FileWorker_dbgShowTokens_spec__10___redArg___closed__1;
 uint64_t l_Lean_Lsp_instHashablePosition_hash(lean_object*);
-static lean_object* l_Lean_Server_FileWorker_dbgShowTokens___closed__3;
 static lean_object* _init_l_Lean_Server_FileWorker_noHighlightKinds___closed__0() {
 _start:
 {
@@ -12144,9 +12140,9 @@ static lean_object* _init_l_Lean_Server_FileWorker_dbgShowTokens___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(4u);
-x_2 = lean_unsigned_to_nat(8u);
-x_3 = lean_nat_mul(x_2, x_1);
+x_1 = lean_box(0);
+x_2 = lean_unsigned_to_nat(16u);
+x_3 = lean_mk_array(x_2, x_1);
 return x_3;
 }
 }
@@ -12154,36 +12150,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_dbgShowTokens___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(3u);
-x_2 = l_Lean_Server_FileWorker_dbgShowTokens___closed__0;
-x_3 = lean_nat_div(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Server_FileWorker_dbgShowTokens___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Server_FileWorker_dbgShowTokens___closed__1;
-x_2 = l_Nat_nextPowerOfTwo(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Server_FileWorker_dbgShowTokens___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Server_FileWorker_dbgShowTokens___closed__2;
-x_3 = lean_mk_array(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Server_FileWorker_dbgShowTokens___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Server_FileWorker_dbgShowTokens___closed__3;
+x_1 = l_Lean_Server_FileWorker_dbgShowTokens___closed__0;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -12191,7 +12158,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Server_FileWorker_dbgShowTokens___closed__5() {
+static lean_object* _init_l_Lean_Server_FileWorker_dbgShowTokens___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -12215,7 +12182,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_3 = lean_unsigned_to_nat(0u);
-x_4 = l_Lean_Server_FileWorker_dbgShowTokens___closed__4;
+x_4 = l_Lean_Server_FileWorker_dbgShowTokens___closed__1;
 x_5 = lean_array_size(x_2);
 x_6 = 0;
 x_7 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_dbgShowTokens_spec__9___redArg(x_1, x_2, x_5, x_6, x_4);
@@ -12223,7 +12190,7 @@ x_8 = lean_ctor_get(x_7, 1);
 lean_inc_ref(x_8);
 lean_dec_ref(x_7);
 x_9 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_dbgShowTokens___lam__0___boxed), 2, 0);
-x_10 = l_Lean_Server_FileWorker_dbgShowTokens___closed__5;
+x_10 = l_Lean_Server_FileWorker_dbgShowTokens___closed__2;
 x_15 = lean_box(0);
 x_16 = lean_array_get_size(x_8);
 x_17 = lean_nat_dec_lt(x_3, x_16);
@@ -16194,12 +16161,6 @@ l_Lean_Server_FileWorker_dbgShowTokens___closed__1 = _init_l_Lean_Server_FileWor
 lean_mark_persistent(l_Lean_Server_FileWorker_dbgShowTokens___closed__1);
 l_Lean_Server_FileWorker_dbgShowTokens___closed__2 = _init_l_Lean_Server_FileWorker_dbgShowTokens___closed__2();
 lean_mark_persistent(l_Lean_Server_FileWorker_dbgShowTokens___closed__2);
-l_Lean_Server_FileWorker_dbgShowTokens___closed__3 = _init_l_Lean_Server_FileWorker_dbgShowTokens___closed__3();
-lean_mark_persistent(l_Lean_Server_FileWorker_dbgShowTokens___closed__3);
-l_Lean_Server_FileWorker_dbgShowTokens___closed__4 = _init_l_Lean_Server_FileWorker_dbgShowTokens___closed__4();
-lean_mark_persistent(l_Lean_Server_FileWorker_dbgShowTokens___closed__4);
-l_Lean_Server_FileWorker_dbgShowTokens___closed__5 = _init_l_Lean_Server_FileWorker_dbgShowTokens___closed__5();
-lean_mark_persistent(l_Lean_Server_FileWorker_dbgShowTokens___closed__5);
 l_Lean_Server_FileWorker_instImpl___closed__0_00___x40_Lean_Server_FileWorker_SemanticHighlighting_607881837____hygCtx___hyg_7_ = _init_l_Lean_Server_FileWorker_instImpl___closed__0_00___x40_Lean_Server_FileWorker_SemanticHighlighting_607881837____hygCtx___hyg_7_();
 lean_mark_persistent(l_Lean_Server_FileWorker_instImpl___closed__0_00___x40_Lean_Server_FileWorker_SemanticHighlighting_607881837____hygCtx___hyg_7_);
 l_Lean_Server_FileWorker_instImpl___closed__1_00___x40_Lean_Server_FileWorker_SemanticHighlighting_607881837____hygCtx___hyg_7_ = _init_l_Lean_Server_FileWorker_instImpl___closed__1_00___x40_Lean_Server_FileWorker_SemanticHighlighting_607881837____hygCtx___hyg_7_();

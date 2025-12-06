@@ -133,7 +133,6 @@ lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 static lean_object* l_Std_Sat_AIG___aux__Std__Sat__AIG__Basic______macroRules__Std__Sat__AIG__term_u27e6___x2c___x2c___u27e7__1___closed__19;
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Std_Sat_AIG_toGraphviz_go___redArg___closed__0;
-lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_getConstant___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_instDecidableEqFanin___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG___aux__Std__Sat__AIG__Basic______macroRules__Std__Sat__AIG__term_u27e6___x2c___x2c___u27e7__1___closed__15;
@@ -164,7 +163,6 @@ static lean_object* l_Std_Sat_AIG_term_u27e6___x2c___x2c___u27e7___closed__4;
 static lean_object* l_Std_Sat_AIG_toGraphviz___redArg___closed__2;
 static lean_object* l_Std_Sat_AIG_unexpandDenote___closed__16;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_Cache_insert___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_Sat_AIG_Cache_empty___closed__2;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkAtom___redArg(lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_unexpandDenote___closed__0;
 LEAN_EXPORT uint64_t l_Std_Sat_AIG_instHashableDecl_hash(lean_object*, lean_object*, lean_object*);
@@ -225,7 +223,6 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_Decl_ctorElim___redArg(lean_object*, lean
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_Cache_empty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_toGraphviz___redArg___closed__6;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_Cache_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_Sat_AIG_Cache_empty___closed__3;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_Fanin_mk___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_lxor(lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_term_u27e6___x2c___u27e7___closed__12;
@@ -270,7 +267,6 @@ static lean_object* l_Std_Sat_AIG_term_u27e6___x2c___u27e7___closed__16;
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_unexpandDenote___closed__14;
 static lean_object* l_Std_Sat_AIG_toGraphviz_go___redArg___closed__2;
-static lean_object* l_Std_Sat_AIG_Cache_empty___closed__4;
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG___aux__Std__Sat__AIG__Basic______macroRules__Std__Sat__AIG__term_u27e6___x2c___x2c___u27e7__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_toGraphviz___redArg___closed__8;
@@ -286,7 +282,6 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkConst(lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_denote_go___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_unexpandDenote___closed__10;
 static lean_object* l_Std_Sat_AIG_instReprFanin_repr___redArg___closed__7;
-lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_empty___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_instReprFanin_repr___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toGraphviz___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1466,9 +1461,9 @@ static lean_object* _init_l_Std_Sat_AIG_Cache_empty___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(4u);
-x_2 = lean_unsigned_to_nat(8u);
-x_3 = lean_nat_mul(x_2, x_1);
+x_1 = lean_box(0);
+x_2 = lean_unsigned_to_nat(16u);
+x_3 = lean_mk_array(x_2, x_1);
 return x_3;
 }
 }
@@ -1476,36 +1471,7 @@ static lean_object* _init_l_Std_Sat_AIG_Cache_empty___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(3u);
-x_2 = l_Std_Sat_AIG_Cache_empty___closed__0;
-x_3 = lean_nat_div(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_Sat_AIG_Cache_empty___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Sat_AIG_Cache_empty___closed__1;
-x_2 = l_Nat_nextPowerOfTwo(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Std_Sat_AIG_Cache_empty___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Std_Sat_AIG_Cache_empty___closed__2;
-x_3 = lean_mk_array(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_Sat_AIG_Cache_empty___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_Sat_AIG_Cache_empty___closed__3;
+x_1 = l_Std_Sat_AIG_Cache_empty___closed__0;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -1517,7 +1483,7 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_Cache_empty(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Std_Sat_AIG_Cache_empty___closed__4;
+x_5 = l_Std_Sat_AIG_Cache_empty___closed__1;
 return x_5;
 }
 }
@@ -1751,7 +1717,7 @@ static lean_object* _init_l_Std_Sat_AIG_empty___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_Sat_AIG_Cache_empty___closed__4;
+x_1 = l_Std_Sat_AIG_Cache_empty___closed__1;
 x_2 = l_Std_Sat_AIG_empty___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -3559,7 +3525,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Std_Sat_AIG_Cache_empty___closed__2;
+x_2 = lean_unsigned_to_nat(16u);
 x_3 = lean_mk_array(x_2, x_1);
 return x_3;
 }
@@ -7094,12 +7060,6 @@ l_Std_Sat_AIG_Cache_empty___closed__0 = _init_l_Std_Sat_AIG_Cache_empty___closed
 lean_mark_persistent(l_Std_Sat_AIG_Cache_empty___closed__0);
 l_Std_Sat_AIG_Cache_empty___closed__1 = _init_l_Std_Sat_AIG_Cache_empty___closed__1();
 lean_mark_persistent(l_Std_Sat_AIG_Cache_empty___closed__1);
-l_Std_Sat_AIG_Cache_empty___closed__2 = _init_l_Std_Sat_AIG_Cache_empty___closed__2();
-lean_mark_persistent(l_Std_Sat_AIG_Cache_empty___closed__2);
-l_Std_Sat_AIG_Cache_empty___closed__3 = _init_l_Std_Sat_AIG_Cache_empty___closed__3();
-lean_mark_persistent(l_Std_Sat_AIG_Cache_empty___closed__3);
-l_Std_Sat_AIG_Cache_empty___closed__4 = _init_l_Std_Sat_AIG_Cache_empty___closed__4();
-lean_mark_persistent(l_Std_Sat_AIG_Cache_empty___closed__4);
 l_Std_Sat_AIG_empty___closed__0 = _init_l_Std_Sat_AIG_empty___closed__0();
 lean_mark_persistent(l_Std_Sat_AIG_empty___closed__0);
 l_Std_Sat_AIG_empty___closed__1 = _init_l_Std_Sat_AIG_empty___closed__1();

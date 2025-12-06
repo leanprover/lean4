@@ -174,6 +174,8 @@ structure DoElemCont where
   kind : DoElemContKind := .nonDuplicable
   /-- An optional hint for trace messages. -/
   ref : Syntax := .missing
+  /-- How `resultName` should be introduced. Useful to say `.implDetail`. -/
+  declKind : LocalDeclKind := .default
 deriving Inhabited
 
 /--
@@ -248,6 +250,8 @@ def DoElemCont.mkPure (resultType : Expr) : TermElabM DoElemCont := do
       mkPureApp resultType (← getFVarFromUserName r),
     kind := .duplicable
     ref := .missing
+    declKind := .implDetail  -- Does not matter much, because `mkPureApp` does not do
+                             -- type class synthesis.
   }
 
 /-- The cached `@Bind.bind m instBind` expression. -/
@@ -322,9 +326,10 @@ def synthUsingDefEq (msg : String) (expected : Expr) (actual : Expr) : DoElabM U
 /--
 Has the effect of ``e >>= fun (x : eResultTy) => $(← k `(x))``.
 -/
-def mkBindCancellingPure (x : Name) (eResultTy e : Expr) (k : Expr → DoElabM Expr) : DoElabM Expr := do
+def mkBindCancellingPure (x : Name) (eResultTy e : Expr) (k : Expr → DoElabM Expr) (declKind : LocalDeclKind := .default) : DoElabM Expr := do
   -- The .ofBinderName below is mainly to interpret `__do_lift` binders as implementation details.
-  withLocalDecl x .default eResultTy (kind := .ofBinderName x) fun x => do
+  let declKind := if declKind matches .default then .ofBinderName x else declKind
+  withLocalDecl x .default eResultTy (kind := declKind) fun x => do
     let body ← k x
     let body' := body.consumeMData
     if body.isAppOfArity ``Pure.pure 4 && body'.getArg! 3 == x then
@@ -486,7 +491,8 @@ Return `$e >>= fun ($dec.resultName : $dec.resultType) => $(← dec.k)`, cancell
 the bind if `$(← dec.k)` is `pure $dec.resultName`.
 -/
 def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := do
-  mkBindCancellingPure dec.resultName dec.resultType e fun _ => withRef? dec.ref dec.k
+  mkBindCancellingPure dec.resultName dec.resultType e (declKind := dec.declKind) fun _ =>
+    withRef? dec.ref dec.k
 
 /--
 Return `let $k.resultName : PUnit := PUnit.unit; $(← k.k)`, ensuring that the result type of `k.k`
@@ -495,7 +501,7 @@ is `PUnit` and then immediately zeta-reduce the `let`.
 def DoElemCont.continueWithUnit (dec : DoElemCont) : DoElabM Expr := do
   let unit ← mkPUnitUnit
   discard <| Term.ensureHasType dec.resultType unit
-  mapLetDeclZeta dec.resultName (← mkPUnit) unit (nondep := true) (kind := .implDetail) fun _ =>
+  mapLetDeclZeta dec.resultName (← mkPUnit) unit (nondep := true) (kind := dec.declKind) fun _ =>
     withRef? dec.ref dec.k
 
 partial def withSynthesizeForDo (k : DoElabM α) : DoElabM α :=
@@ -924,25 +930,31 @@ def expandNestedActions (doElem : TSyntax `doElem) : DoElabM (Array (TSyntax `do
     let (doElem, doElemsNew) ← (expandNestedActionsAux baseId false false doElem).run #[]
     return (doElemsNew, ⟨doElem⟩)
 
+private def withTermInfoContext' (elaborator : Name) (stx : Syntax) (expectedType : Expr) (x : DoElabM Expr) : DoElabM Expr :=
+  controlAtTermElabM fun runInBase =>
+    Term.withTermInfoContext' elaborator stx (expectedType? := expectedType) (runInBase x)
+
 private def elabDoElemFns (stx : TSyntax `doElem) (cont : DoElemCont)
     (fns : List (KeyedDeclsAttribute.AttributeEntry DoElab)) : DoElabM Expr := do
   let s ← saveState
   match fns with
   | [] => throwError "unexpected `do` element syntax{indentD stx}"
   | elabFn :: elabFns =>
-    try
-      elabFn.value stx cont
-    catch ex => match ex with
-      | .internal id _ =>
-        if id == unsupportedSyntaxExceptionId then
-          s.restore
-          elabDoElemFns stx cont elabFns
-        else if id == postponeExceptionId then
-          -- s.restore -- TODO: figure out if this is the right thing to do
-          throw ex
-        else
-          throw ex
-      | _ => throw ex
+      let expectedType ← mkMonadicType (← read).doBlockResultType
+      withTermInfoContext' elabFn.declName stx (expectedType := expectedType) do
+        try
+          elabFn.value stx cont
+        catch ex => match ex with
+          | .internal id _ =>
+            if id == unsupportedSyntaxExceptionId then
+              s.restore
+              elabDoElemFns stx cont elabFns
+            else if id == postponeExceptionId then
+              -- s.restore -- TODO: figure out if this is the right thing to do
+              throw ex
+            else
+              throw ex
+          | _ => throw ex
 
 mutual
 partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) : DoElabM Expr := do
@@ -951,16 +963,17 @@ partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) : DoElabM Exp
   checkSystem "do element elaborator"
   profileitM Exception "do element elaborator" (decl := k) (← getOptions) <|
   withRef stx <| withIncRecDepth <| withFreshMacroScope <| do
+  let mγ ← mkMonadicType (← read).doBlockResultType
   if (← read).deadCode then
     logWarningAt stx "This `do` element and its control-flow region are dead code. Consider removing it."
-    return ← mkFreshExprMVar (← mkMonadicType (← read).doBlockResultType)
+    return ← mkFreshExprMVar mγ
   let env ← getEnv
   let result ← match (← liftMacroM (expandMacroImpl? env stx)) with
-  | some (_decl, stxNew?) =>
+  | some (decl, stxNew?) =>
     let stxNew ← liftMacroM <| liftExcept stxNew?
-    -- withTermInfoContext' decl stx (expectedType? := expectedType?) <|
-    Term.withMacroExpansion stx stxNew <|
-      withRef stxNew <| elabDoElem ⟨stxNew⟩ cont
+    withTermInfoContext' decl stx mγ <|
+      Term.withMacroExpansion stx stxNew <|
+        withRef stxNew <| elabDoElem ⟨stxNew⟩ cont
   | none =>
     let (liftedElems, doElem) ← expandNestedActions stx
     if liftedElems.isEmpty then
@@ -977,7 +990,8 @@ partial def elabDoElems1 (doElems : Array (TSyntax `doElem)) (cont : DoElemCont)
   let back := doElems.back
   let unit ← mkPUnit
   let r ← mkFreshUserName `r
-  doElems.pop.foldr (init := elabDoElem back cont) fun el k => elabDoElem el (.mk r unit k .nonDuplicable el)
+  let mkCont el k := DoElemCont.mk r unit k .nonDuplicable el .implDetail
+  doElems.pop.foldr (init := elabDoElem back cont) fun el k => elabDoElem el (mkCont el k)
 end
 
 def elabDoSeq (doSeq : TSyntax ``Lean.Parser.Term.doSeq) (cont : DoElemCont) : DoElabM Expr := do

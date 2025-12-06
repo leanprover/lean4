@@ -529,7 +529,7 @@ public def assemble₂ (w x : UInt8) : Option Char :=
   else
     let r := assemble₂Unchecked w x
     if r < 0x80 then
-      none -- overlong encodinlg
+      none -- overlong encoding
     else
       some ⟨r, ?onemore⟩
 where finally

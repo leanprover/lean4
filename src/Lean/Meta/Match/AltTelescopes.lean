@@ -15,8 +15,8 @@ import Lean.Meta.AppBuilder
 public section
 
 /-!
-This module has telescope functions for macher alts. They are primariliy used
-in `Match.MatchEqs`, but also in `MatcherApp.Transform`, hence the sparate module.
+This module has telescope functions for matcher alts. They are primarily used
+in `Match.MatchEqs`, but also in `MatcherApp.Transform`, hence the separate module.
 -/
 
 namespace Lean.Meta.Match

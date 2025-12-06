@@ -111,7 +111,7 @@ builtin_initialize registerReservedNamePredicate fun env n => Id.run do
   if let some (declName, suffix) := declFromEqLikeName env n then
     -- The reserved name predicate has to be precise, as `resolveExact`
     -- will believe it. So make sure that `n` is exactly the name we expect,
-    -- including the privat prefix.
+    -- including the private prefix.
     n == mkEqLikeNameFor env declName suffix
   else
     false

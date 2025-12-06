@@ -516,7 +516,7 @@ def buildInductionCase (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr)
 Like `mkLambdaFVars (usedOnly := true)`, but
 
  * silently skips expression in `xs` that are not `.isFVar`
- * also skips let-bound variabls
+ * also skips let-bound variables
  * returns a mask (same size as `xs`) indicating which variables have been abstracted
    (`true` means was abstracted).
 

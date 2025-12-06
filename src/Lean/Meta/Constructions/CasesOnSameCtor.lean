@@ -23,7 +23,7 @@ namespace Lean
 open Meta
 
 /--
-Helper for `mkCasesOnSameCtor` that constructs a heterogenous matcher (indices may differ)
+Helper for `mkCasesOnSameCtor` that constructs a heterogeneous matcher (indices may differ)
 and does not include the equality proof in the motive (so it's not a the shape of a matcher) yet.
 -/
 public def mkCasesOnSameCtorHet (declName : Name) (indName : Name) : MetaM Unit := do
@@ -128,7 +128,7 @@ this module can be dropped.
 
 Note that for some data types where the indices determine the constructor (e.g. `Vec`), this leads
 to less efficient code than the normal matcher, as this needs to read the constructor tag on both
-arguments, wheras the normal matcher produces code that reads just the first argument’s tag, and
+arguments, whereas the normal matcher produces code that reads just the first argument’s tag, and
 then boldly reads the second argument’s fields.
 -/
 public def mkCasesOnSameCtor (declName : Name) (indName : Name) : MetaM Unit := do

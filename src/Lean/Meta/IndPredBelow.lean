@@ -15,7 +15,7 @@ import Lean.Meta.Tactic.SolveByElim
 # The `below` and `brecOn` constructions for inductive predicates
 
 This module defines the `below` and `brecOn` constructions for inductive predicates.
-While the `brecOn` construction for inductive predicates is structurally indentical to the one for
+While the `brecOn` construction for inductive predicates is structurally identical to the one for
 regular types apart from only eliminating to propositions, the `below` construction is changed
 since it is unlike for types not possible to eliminate proofs of inductive predicates to `Prop`s
 containing nested proofs. Instead, each `below` declaration is defined as an inductive type with one

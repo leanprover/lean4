@@ -35,14 +35,14 @@ def Overlaps.overlapping (o : Overlaps) (overlapped : Nat) : Array Nat :=
   | none   => #[]
 
 /--
-Informatino about the parameter structure for the alternative of a matcher or splitter.
+Information about the parameter structure for the alternative of a matcher or splitter.
 -/
 structure AltParamInfo where
-  /-- Actual fields (not incuding discr eqns) -/
+  /-- Actual fields (not including discr eqns) -/
   numFields : Nat
   /-- Overlap assumption (for splitters only) -/
   numOverlaps : Nat
-  /-- Whether this alternatie has an artifcial `Unit` parameter -/
+  /-- Whether this alternative has an artificial `Unit` parameter -/
   hasUnitThunk : Bool
 deriving Inhabited, Repr, BEq
 

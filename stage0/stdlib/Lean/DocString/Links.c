@@ -1989,8 +1989,8 @@ if (x_73 == 0)
 {
 lean_dec(x_72);
 lean_dec_ref(x_69);
-x_2 = x_70;
-x_3 = x_36;
+x_2 = x_36;
+x_3 = x_70;
 x_4 = x_71;
 goto block_14;
 }
@@ -2002,8 +2002,8 @@ lean_dec(x_72);
 x_75 = 0;
 x_76 = l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00Lean_manualLink_spec__4(x_69, x_74, x_75, x_71);
 lean_dec_ref(x_69);
-x_2 = x_70;
-x_3 = x_36;
+x_2 = x_36;
+x_3 = x_70;
 x_4 = x_76;
 goto block_14;
 }
@@ -2015,11 +2015,11 @@ block_14:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_5 = lean_box(0);
 x_6 = l_List_mapTR_loop___at___00Lean_manualLink_spec__2(x_4, x_5);
-x_7 = l_String_intercalate(x_2, x_6);
-lean_dec_ref(x_2);
-x_8 = l_Lean_manualLink___closed__4;
-x_9 = lean_string_append(x_8, x_3);
+x_7 = l_String_intercalate(x_3, x_6);
 lean_dec_ref(x_3);
+x_8 = l_Lean_manualLink___closed__4;
+x_9 = lean_string_append(x_8, x_2);
+lean_dec_ref(x_2);
 x_10 = l_Lean_manualLink___closed__5;
 x_11 = lean_string_append(x_9, x_10);
 x_12 = lean_string_append(x_11, x_7);

@@ -1,0 +1,15 @@
+name = "foo"
+version = "0.1.0"
+defaultTargets = ["foo"]
+
+[[require]]
+name = "dependency"
+git = { url = "https://github.com/User/package", subDir = "subdirectory", extra="this should not exist" }
+rev = "main"
+
+[[lean_lib]]
+name = "Foo"
+
+[[lean_exe]]
+name = "foo"
+root = "Main"

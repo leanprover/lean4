@@ -344,10 +344,6 @@
             }
         },
         "gitSpecification": {
-            "type": [
-                "string",
-                "object"
-            ],
             "anyOf": [
                 {
                     "type": "string"

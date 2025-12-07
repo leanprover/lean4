@@ -13,8 +13,10 @@ public import Init.Data.BitVec.Basic
 public import Init.Data.BitVec.Folds
 public import Init.Data.BitVec.Lemmas
 public import Init.Data.ByteArray.Basic
+public import Init.Data.ByteArray.Lemmas
 public import Init.Data.Function
 public import Init.Data.List.Basic
+public import Init.Data.UInt.Lemmas
 public import Init.Data.Vector.Basic
 public import Init.Data.Vector.Lemmas
 
@@ -53,6 +55,7 @@ theorem ofFnLE_nil (f : Fin 0 → Bool) : ofFnLE f = nil := by
   contradiction
 
 
+@[simp]
 theorem getElem_ofFnLE (f : Fin w → Bool) (i : Nat) (h : i < w) :
   (ofFnLE f)[i] = f ⟨i, h⟩ := by
     unfold ofFnLE
@@ -86,6 +89,7 @@ theorem ofFnBE_nil (f : Fin 0 → Bool) : ofFnBE f = nil := by
   ext
   contradiction
 
+@[simp]
 theorem getElem_ofFnBE (f : Fin w → Bool) (i : Nat) (h : i < w) :
   (ofFnBE f)[i] = f ⟨w - 1 - i, by omega⟩ := by
     simp [ofFnBE, getElem_ofFnLE]
@@ -528,14 +532,6 @@ theorem toArray_ofFn (f : Fin w → Bool) : (ofFnLE f).toArrayLE = Array.ofFn f 
   ext <;> simp [getElem_ofFnLE]
 
 /--
-Building a bitvector from its own indexing function is the identity.
--/
-@[simp]
-theorem ofFnLE_getElem (x : BitVec w) : ofFnLE (fun i => x[i]) = x := by
-  ext i
-  simp [getElem_ofFnLE]
-
-/--
 Convert a bitvector to a vector of bools (LSB first).
 
 The resulting vector has the least significant bit at index 0.
@@ -660,7 +656,6 @@ theorem toVectorLE_nil : toVectorLE nil = #v[] := by
 theorem toVector_concat (x : BitVec w) (b : Bool) :
   toVectorLE (concat x b) = Vector.mk (#[b] ++ x.toArrayLE) (by simp +arith) := by
     apply Vector.ext
-    intro i
     simp [toVectorLE, Vector.getElem_mk]
 
 theorem toList_toVectorLE (x : BitVec w) : x.toVectorLE.toList = x.toListLE := by
@@ -682,7 +677,7 @@ Examples:
 def toBytesLE (x : BitVec w) : ByteArray :=
   let numBytes := (w + 7) / 8
   ByteArray.mk <| Array.ofFn fun (i : Fin numBytes) =>
-    ((x >>> (i.val * 8)).toNat &&& 0xFF).toUInt8
+    UInt8.ofBitVec (ofFnLE fun (j : Fin 8) => x.getLsbD (i.val * 8 + j.val))
 
 /--
 Convert a bitvector to a byte array (big-endian).
@@ -697,10 +692,8 @@ Examples:
 -/
 def toBytesBE (x : BitVec w) : ByteArray :=
   let numBytes := (w + 7) / 8
-  let xn := x.toNat
   ByteArray.mk <| Array.ofFn fun (i : Fin numBytes) =>
-    let shift := (numBytes - 1 - i) * 8
-    UInt8.ofNat ((xn >>> shift) &&& 0xFF)
+    UInt8.ofBitVec (BitVec.ofFnLE fun (j : Fin 8) => x.getLsbD ((numBytes - 1 - i.val) * 8 + j.val))
 
 @[local simp]
 theorem size_toBytesLE (x : BitVec w) : x.toBytesLE.size = (w + 7) / 8 := by
@@ -721,9 +714,7 @@ Examples:
 * `ofBytesLE (ByteArray.mk #[0xFF, 0x0F]) = 0xFFF#16`
 -/
 def ofBytesLE (bytes : ByteArray) : BitVec (bytes.size * 8) :=
-  let w := bytes.size * 8
-  (List.range bytes.size).foldl (init := (0 : BitVec w)) fun acc i =>
-    acc ||| (BitVec.ofNat w bytes[i]!.toNat <<< (i * 8))
+  ofFnLE fun i => bytes[i.val / 8].toBitVec[i.val % 8]
 
 /--
 Build a bitvector from a byte array (big-endian).
@@ -736,8 +727,127 @@ Examples:
 * `ofBytesBE (ByteArray.mk #[0x0F, 0xFF]) = 0xFFF#16`
 -/
 def ofBytesBE (bytes : ByteArray) : BitVec (bytes.size * 8) :=
-  let w := bytes.size * 8
-  (List.range bytes.size).foldl (init := (0 : BitVec w)) fun acc i =>
-    acc ||| (BitVec.ofNat w bytes[i]!.toNat <<< (w - i * 8 - 8))
+  ofFnLE fun i => bytes[bytes.size - 1 - i.val / 8].toBitVec[i.val % 8]
 
+theorem getElem_toBytesLE (x : BitVec w) (i : Nat) (h : i < (w + 7) / 8) :
+  x.toBytesLE[i]'(size_toBytesLE _ ▸ h) =
+  UInt8.ofBitVec (ofFnLE fun (j : Fin 8) => x.getLsbD (i * 8 + j)) := by
+    simp [toBytesLE, ByteArray.getElem_eq_getElem_data]
+
+theorem getElem_toBytesBE (x : BitVec w) (i : Nat) (h : i < (w + 7) / 8) :
+  x.toBytesBE[i]'(size_toBytesBE _ ▸ h) =
+  UInt8.ofBitVec (ofFnLE fun (j : Fin 8) => x.getLsbD (((w + 7) / 8 - 1 - i) * 8 + j)) := by
+    simp [toBytesBE, ByteArray.getElem_eq_getElem_data]
+
+/-! ### Bit access lemmas -/
+
+theorem getElem_ofBytesLE (bytes : ByteArray) (j : Nat) (h : j < bytes.size * 8) :
+  (ofBytesLE bytes)[j] = bytes[j / 8].toBitVec[j % 8] := by
+    simp [ofBytesLE]
+
+theorem getElem_ofBytesBE (bytes : ByteArray) (j : Nat) (h : j < bytes.size * 8) :
+  (ofBytesBE bytes)[j] = bytes[bytes.size - 1 - j / 8].toBitVec[j % 8] := by
+    simp [ofBytesBE]
+
+/-! ### Round-trip theorems -/
+
+@[simp]
+theorem toBytesLE_ofBytesLE (bytes : ByteArray) :
+    (ofBytesLE bytes).toBytesLE = bytes := by
+  ext1
+  apply Array.ext
+  · simp only [ByteArray.size_data, size_toBytesLE]
+    omega
+  · intro i hi hi'
+    rw [
+      ←ByteArray.getElem_eq_getElem_data,
+      getElem_toBytesLE (h := by simp_all),
+      UInt8.eq_iff_toBitVec_eq]
+    ext j
+    simp only [getElem_ofFnLE]
+    have : i * 8 + j < bytes.size * 8 := by
+      simp_all only [ByteArray.size_data, size_toBytesLE]
+      omega
+    simp [getLsbD_eq_getElem this, getElem_ofBytesLE]
+    congr <;> omega
+
+
+@[simp]
+theorem toBytesBE_ofBytesBE (bytes : ByteArray) :
+    (ofBytesBE bytes).toBytesBE = bytes := by
+  ext1
+  apply Array.ext
+  · simp [size_toBytesBE]
+    omega
+  · intro i hi hi'
+    rw [
+      ←ByteArray.getElem_eq_getElem_data,
+      getElem_toBytesBE (h := by simp_all),
+      UInt8.eq_iff_toBitVec_eq]
+    apply eq_of_getLsbD_eq
+    intro j hj
+    have sz_eq : (bytes.size * 8 + 7) / 8 = bytes.size :=
+      Nat.div_eq_of_lt_le (by omega) (by omega)
+    have : ((bytes.size * 8 + 7) / 8 - 1 - i) * 8 + j < bytes.size * 8 := by
+      rw [sz_eq]
+      have : i < bytes.size := hi'
+      omega
+    simp [getLsbD_eq_getElem this, getElem_ofBytesBE]
+    simp only [sz_eq]
+    have idx_eq : bytes.size - 1 - ((bytes.size - 1 - i) * 8 + j) / 8 = i := calc
+      bytes.size - 1 - ((bytes.size - 1 - i) * 8 + j) / 8
+      _ = bytes.size - 1 - (bytes.size - 1 - i) := by
+        congr 1
+        exact Nat.div_eq_of_lt_le (by omega) (by omega)
+      _ = i := by
+        have : i < bytes.size := hi'
+        omega
+    simp [idx_eq, hj, ByteArray.getElem_eq_getElem_data, Nat.mod_eq_of_lt hj]
+
+@[simp]
+theorem ofBytesLE_toBytesLE (x : BitVec w) :
+    ofBytesLE x.toBytesLE = x.zeroExtend (x.toBytesLE.size * 8) := by
+  apply eq_of_getLsbD_eq
+  intro i hi
+  rw [size_toBytesLE] at hi
+  simp only [ofBytesLE, getLsbD_ofFnLE, size_toBytesLE]
+  rw [dif_pos hi]
+  have h_idx : i / 8 < (w + 7) / 8 := by
+    apply Nat.div_lt_of_lt_mul
+    rw [Nat.mul_comm]
+    exact hi
+  rw [getElem_toBytesLE (h := h_idx)]
+  simp only [getElem_ofFnLE]
+  have : i / 8 * 8 + i % 8 = i := by omega
+  rw [this]
+  simp [zeroExtend, hi]
+
+@[simp]
+theorem ofBytesBE_toBytesBE (x : BitVec w) :
+    ofBytesBE x.toBytesBE = x.zeroExtend (x.toBytesBE.size * 8) := by
+  apply eq_of_getLsbD_eq
+  intro i hi
+  simp only [ofBytesBE, getLsbD_ofFnLE]
+  rw [dif_pos hi]
+  have h_idx : x.toBytesBE.size - 1 - i / 8 < (w + 7) / 8 := by
+    rw [size_toBytesBE]
+    have : i / 8 < (w + 7) / 8 := by
+      apply Nat.div_lt_of_lt_mul
+      rw [Nat.mul_comm]
+      rw [size_toBytesBE] at hi
+      exact hi
+    omega
+  rw [getElem_toBytesBE (h := h_idx)]
+  simp only [getElem_ofFnLE]
+  have : ((w + 7) / 8 - 1 - ((w + 7) / 8 - 1 - i / 8)) * 8 + i % 8 = i := by
+    rw [size_toBytesBE] at hi
+    have : i / 8 < (w + 7) / 8 := by
+      apply Nat.div_lt_of_lt_mul
+      rw [Nat.mul_comm]
+      exact hi
+    omega
+  rw [size_toBytesBE]
+  rw [this]
+  rw [size_toBytesBE] at hi
+  simp [zeroExtend, hi]
 end BitVec

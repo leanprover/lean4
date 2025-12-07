@@ -10,6 +10,7 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Sub
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Eq
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Append
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ZeroExtend
 public import Std.Sat.AIG.If
 
@@ -114,27 +115,25 @@ def blastAddVec (aig : AIG α)
   (old_layer : AIG.RefVec aig (old_length * w))
   (new_layer : AIG.RefVec aig (iter_num * w))
   (hold : 2 * (iter_num - 1) < old_length) :
-   AIG.RefVecEntry α (((old_length + 1) / 2) * w) :=
+   AIG.RefVecEntry α ((old_length+ 1)/2 * w) :=
   if  hlen : 0 < old_length - (iter_num * 2) then
-    -- rhs
-    let op2 := if h : 2 * iter_num + 1 < old_length then
-                let targetExtract : ExtractTarget aig w := {vec := old_layer, start := (2 * iter_num + 1) * w}
-                let res := blastExtract aig targetExtract
-                let aig := res.aig
-                have := AIG.LawfulVecOperator.le_size (f := blastExtract) (input := targetExtract)
-                let old_layer := old_layer.cast this
-                let new_layer := new_layer.cast this
-                res.vec
-              else blastConst aig (w := w) 0
     -- lhs
     let targetExtract : ExtractTarget aig w := {vec := old_layer, start := 2 * iter_num * w}
     let res := blastExtract aig targetExtract
     let aig := res.aig
-    let op1 := res.vec
+    let op1 : aig.RefVec w := res.vec
     have := AIG.LawfulVecOperator.le_size (f := blastExtract) ..
     let old_layer := old_layer.cast (aig2 := aig) this
     let new_layer := new_layer.cast (aig2 := aig) this
-    let op2 := op2.cast (aig2 := aig) this
+    -- rhs
+    let targetExtract : ExtractTarget aig w := {vec := old_layer, start := (2 * iter_num + 1) * w}
+    let res := blastExtract aig targetExtract
+    let aig := res.aig
+    let op2 : aig.RefVec w := res.vec
+    have := AIG.LawfulVecOperator.le_size (f := blastExtract) (input := targetExtract)
+    let old_layer := old_layer.cast this
+    let new_layer := new_layer.cast this
+    let op1 := op1.cast (aig2 := aig) this
     -- add
     let res := blastAdd aig ⟨op1, op2⟩
     let aig := res.aig
@@ -145,12 +144,17 @@ def blastAddVec (aig : AIG α)
     let op1 := op1.cast this
     let op2 := op2.cast this
     have hcast : w + iter_num * w = (iter_num + 1) * w:= by simp [Nat.add_mul]; omega
-    let new_layer' := hcast▸(add.append new_layer)
-    blastAddVec aig (iter_num + 1) old_layer (hcast▸new_layer') (by omega)
+    let targetAppend : AppendTarget aig ((iter_num + 1) * w ) :=
+        {lhs := add, rhs := new_layer, h := by omega}
+    let res := blastAppend (aig := aig) (target:= targetAppend)
+    let aig := res.aig
+    let new_layer' := res.vec
+    have := AIG.LawfulVecOperator.le_size (f := blastAppend) ..
+    let old_layer := old_layer.cast this
+    blastAddVec aig (iter_num + 1) old_layer new_layer' (by omega)
   else
-    have : old_length - iter_num * 2 = 0 := by omega
-    have hcast: iter_num = ((old_length) + 1) / 2 := by omega
-    ⟨aig, hcast▸new_layer⟩
+    have h : iter_num = (old_length + 1) / 2 := by omega
+    ⟨aig, h ▸ new_layer⟩
 
 theorem addVec_le_size (aig : AIG α) (old_length iter_num: Nat)
       (old_layer : AIG.RefVec aig (old_length * w)) (new_layer : AIG.RefVec aig (iter_num * w))

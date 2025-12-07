@@ -403,7 +403,7 @@ Examples:
 Checks whether the substring can be interpreted as the decimal representation of a natural number.
 
 A substring can be interpreted as a decimal natural number if it is not empty and all the characters
-in it are digits. Underscores (`_`) are allowed as digit separators for readability, but cannot appear
+in it are digits. Underscores ({lit}`_`) are allowed as digit separators for readability, but cannot appear
 at the start, at the end, or consecutively.
 
 Use `Substring.toNat?` to convert such a substring to a natural number.
@@ -429,7 +429,7 @@ Checks whether the substring can be interpreted as the decimal representation of
 returning the number if it can.
 
 A substring can be interpreted as a decimal natural number if it is not empty and all the characters
-in it are digits. Underscores (`_`) are allowed as digit separators and are ignored during parsing.
+in it are digits. Underscores ({lit}`_`) are allowed as digit separators and are ignored during parsing.
 
 Use `Substring.isNat` to check whether the substring is such a substring.
 -/

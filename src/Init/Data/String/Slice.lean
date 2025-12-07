@@ -1249,7 +1249,7 @@ def foldr {α : Type u} (f : Char → α → α) (init : α) (s : Slice) : α :=
 Checks whether the slice can be interpreted as the decimal representation of a natural number.
 
 A slice can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits. Underscores (`_`) are allowed as digit separators for readability, but cannot appear
+it are digits. Underscores ({lit}`_`) are allowed as digit separators for readability, but cannot appear
 at the start, at the end, or consecutively.
 
 Use {name (scope := "Init.Data.String.Slice")}`toNat?` or
@@ -1293,7 +1293,7 @@ Interprets a slice as the decimal representation of a natural number, returning 
 {name}`none` if the slice does not contain a decimal natural number.
 
 A slice can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits. Underscores (`_`) are allowed as digit separators and are ignored during parsing.
+it are digits. Underscores ({lit}`_`) are allowed as digit separators and are ignored during parsing.
 
 Use {name}`isNat` to check whether {name}`toNat?` would return {name}`some`.
 {name (scope := "Init.Data.String.Slice")}`toNat!` is an alternative that panics instead of
@@ -1322,7 +1322,7 @@ Interprets a slice as the decimal representation of a natural number, returning 
 slice does not contain a decimal natural number.
 
 A slice can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits. Underscores (`_`) are allowed as digit separators and are ignored during parsing.
+it are digits. Underscores ({lit}`_`) are allowed as digit separators and are ignored during parsing.
 
 Use {name}`isNat` to check whether {name}`toNat!` would return a value. {name}`toNat?` is a safer
 alternative that returns {name}`none` instead of panicking when the string is not a natural number.

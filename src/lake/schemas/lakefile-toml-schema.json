@@ -344,25 +344,8 @@
             }
         },
         "gitSpecification": {
-            "anyOf": [
-                {
-                    "type": "string"
-                },
-                {
-                    "type": "object",
-                    "properties": {
-                        "url": {
-                            "type": "string"
-                        },
-                        "subDir": {
-                            "type": "string"
-                        }
-                    },
-                    "required": [
-                        "url"
-                    ]
-                }
-            ],
+            "type": ["string", "object"],
+            "default": "",
             "description": "A dependency in a Git repository, specified by its URL."
         },
         "dependencyConfig": {

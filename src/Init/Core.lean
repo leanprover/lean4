@@ -1614,7 +1614,7 @@ theorem Nat.succ.injEq (u v : Nat) : (u.succ = v.succ) = (u = v) :=
 /-! # Prop lemmas -/
 
 /-- *Ex falso* for negation: from `¬a` and `a` anything follows. This is the same as `absurd` with
-the arguments flipped, but it is in the `Not` namespace so that projection notation can be used. -/
+the arguments flipped, but it is in the `Not` namespace so that generalized field notation can be used. -/
 def Not.elim {α : Sort _} (H1 : ¬a) (H2 : a) : α := absurd H2 H1
 
 /-- Non-dependent eliminator for `And`. -/

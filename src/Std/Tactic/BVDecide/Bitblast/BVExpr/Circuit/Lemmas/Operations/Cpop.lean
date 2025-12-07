@@ -95,44 +95,7 @@ theorem blastExtractAndExtend_denote_mem_prefix {w : Nat} (aig : AIG α) (curr :
   · intros
     apply extractAndExtend_le_size
 
-theorem BitVec.getLsbD_extractAndExtend_of_le_of_lt (w idx currIdx : Nat) (hw : 0 < w) (x : BitVec w)
-    (_hcurr : currIdx < w)
-    (hlt : idx < w * (currIdx + 1)) (hle : w * currIdx ≤ idx) :
-    (BitVec.zeroExtend w (BitVec.extractLsb' currIdx 1 x)).getLsbD (idx - w * currIdx) =
-    (BitVec.extractAndExtendPopulate w x).getLsbD idx := by
-  unfold BitVec.extractAndExtendPopulate
-  have ⟨res, proof⟩ := BitVec.extractAndExtendPopulateAux 0 w x (BitVec.cast (by omega) 0#0) (by omega) (by omega)
-  simp [Nat.mul_add] at hlt
-  simp [show idx - w * currIdx < w by omega]
-  by_cases h2 : idx - w * currIdx = 0
-  · have hidx : idx = currIdx * w := by rw [Nat.mul_comm]; omega
-    simp [h2]
-    simp [hidx]
-    specialize proof currIdx
-    have : res.getLsbD (currIdx * w) = (BitVec.extractLsb' (currIdx * w) w res)[0] := by
-      simp
-    simp [this, proof]
-  · have hidx : ∃ j, idx = currIdx * w + j := by
-      refine Nat.exists_eq_add_of_le (by rw [Nat.mul_comm]; omega)
-    obtain ⟨j, hj⟩ := hidx
-    simp [h2]
-    rw [hj]
-    specialize proof currIdx
-    have : res.getLsbD (currIdx * w + j) = (BitVec.extractLsb' (currIdx * w) w res).getLsbD j := by
-      simp
-      intros ht
-      by_cases hlt : j < w
-      · omega
-      · rw [Nat.mul_comm] at hj
-        omega
-    rw [this]
-    rw [proof]
-    simp
-    intros hj' hj''
-    subst hj''
-    simp
-    rw [Nat.mul_comm] at hj
-    omega
+
 
 theorem denote_blastExtractAndExtendPopulate
   (assign : α → Bool)

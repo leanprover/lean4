@@ -1249,7 +1249,8 @@ def foldr {α : Type u} (f : Char → α → α) (init : α) (s : Slice) : α :=
 Checks whether the slice can be interpreted as the decimal representation of a natural number.
 
 A slice can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits.
+it are digits. Underscores (`_`) are allowed as digit separators for readability, but cannot appear
+at the start, at the end, or consecutively.
 
 Use {name (scope := "Init.Data.String.Slice")}`toNat?` or
 {name (scope := "Init.Data.String.Slice")}`toNat!` to convert such a slice to a natural number.
@@ -1260,21 +1261,39 @@ Examples:
  * {lean}`"5".toSlice.isNat = true`
  * {lean}`"05".toSlice.isNat = true`
  * {lean}`"587".toSlice.isNat = true`
+ * {lean}`"1_000".toSlice.isNat = true`
+ * {lean}`"100_000_000".toSlice.isNat = true`
  * {lean}`"-587".toSlice.isNat = false`
  * {lean}`" 5".toSlice.isNat = false`
  * {lean}`"2+3".toSlice.isNat = false`
  * {lean}`"0xff".toSlice.isNat = false`
+ * {lean}`"_123".toSlice.isNat = false`
+ * {lean}`"123_".toSlice.isNat = false`
+ * {lean}`"12__34".toSlice.isNat = false`
 -/
 @[inline]
 def isNat (s : Slice) : Bool :=
-  !s.isEmpty && s.all Char.isDigit
+  if s.isEmpty then
+    false
+  else
+    -- Track: isFirst, lastWasUnderscore, lastCharWasDigit, valid
+    let result := s.foldl (fun (isFirst, lastWasUnderscore, lastCharWasDigit, valid) c =>
+      let isDigit := c.isDigit
+      let isUnderscore := c = '_'
+      let newValid := valid && (isDigit || isUnderscore) &&
+                      !(isFirst && isUnderscore) &&  -- Cannot start with underscore
+                      !(lastWasUnderscore && isUnderscore)  -- No consecutive underscores
+      (false, isUnderscore, isDigit, newValid))
+      (true, false, false, true)
+    -- Must be valid and last character must have been a digit (not underscore)
+    result.2.2.2 && result.2.2.1
 
 /--
 Interprets a slice as the decimal representation of a natural number, returning it. Returns
 {name}`none` if the slice does not contain a decimal natural number.
 
 A slice can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits.
+it are digits. Underscores (`_`) are allowed as digit separators and are ignored during parsing.
 
 Use {name}`isNat` to check whether {name}`toNat?` would return {name}`some`.
 {name (scope := "Init.Data.String.Slice")}`toNat!` is an alternative that panics instead of
@@ -1285,6 +1304,8 @@ Examples:
  * {lean}`"0".toSlice.toNat? = some 0`
  * {lean}`"5".toSlice.toNat? = some 5`
  * {lean}`"587".toSlice.toNat? = some 587`
+ * {lean}`"1_000".toSlice.toNat? = some 1000`
+ * {lean}`"100_000_000".toSlice.toNat? = some 100000000`
  * {lean}`"-587".toSlice.toNat? = none`
  * {lean}`" 5".toSlice.toNat? = none`
  * {lean}`"2+3".toSlice.toNat? = none`
@@ -1292,7 +1313,7 @@ Examples:
 -/
 def toNat? (s : Slice) : Option Nat :=
   if s.isNat then
-    some <| s.foldl (fun n c => n * 10 + (c.toNat - '0'.toNat)) 0
+    some <| s.foldl (fun n c => if c = '_' then n else n * 10 + (c.toNat - '0'.toNat)) 0
   else
     none
 
@@ -1301,7 +1322,7 @@ Interprets a slice as the decimal representation of a natural number, returning 
 slice does not contain a decimal natural number.
 
 A slice can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits.
+it are digits. Underscores (`_`) are allowed as digit separators and are ignored during parsing.
 
 Use {name}`isNat` to check whether {name}`toNat!` would return a value. {name}`toNat?` is a safer
 alternative that returns {name}`none` instead of panicking when the string is not a natural number.
@@ -1310,10 +1331,11 @@ Examples:
  * {lean}`"0".toSlice.toNat! = 0`
  * {lean}`"5".toSlice.toNat! = 5`
  * {lean}`"587".toSlice.toNat! = 587`
+ * {lean}`"1_000".toSlice.toNat! = 1000`
 -/
 def toNat! (s : Slice) : Nat :=
   if s.isNat then
-    s.foldl (fun n c => n * 10 + (c.toNat - '0'.toNat)) 0
+    s.foldl (fun n c => if c = '_' then n else n * 10 + (c.toNat - '0'.toNat)) 0
   else
     panic! "Nat expected"
 

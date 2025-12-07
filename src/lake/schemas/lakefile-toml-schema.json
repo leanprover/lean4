@@ -362,7 +362,8 @@
                         "url"
                     ]
                 }
-            ]
+            ],
+            "description": "A dependency in a Git repository, specified by its URL."
         },
         "dependencyConfig": {
             "type": "object",
@@ -376,8 +377,7 @@
                     "description": "A dependency on the local filesystem, specified by its path."
                 },
                 "git": {
-                    "$ref": "#/definitions/gitSpecification",
-                    "description": "A dependency in a Git repository, specified by its URL."
+                    "$ref": "#/definitions/gitSpecification"
                 },
                 "subDir": {
                     "type": "string",

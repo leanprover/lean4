@@ -211,6 +211,56 @@ where
       (throwError "failed to generate equality theorem {thmName} for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
     subgoals.forM (go · (depth+1))
 
+private partial def proveCongrEqThm (matchDeclName : Name) (thmName : Name) (mvarId : MVarId) : MetaM Unit := do
+  withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} proveCondEqThm {thmName}")) do
+  let mvarId ← mvarId.deltaTarget (· == matchDeclName)
+  go mvarId 0
+where
+  go (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do
+    trace[Meta.Match.matchEqs] "proveCondEqThm.go {mvarId}"
+    let mvarId ← mvarId.modifyTargetEqLHS whnfCore
+    let subgoals ←
+      (do mvarId.refl; return #[])
+      <|>
+      (do mvarId.contradiction { genDiseq := true }; return #[])
+      <|>
+      (do solveOverlap mvarId; return #[])
+      <|>
+      (do let mvarId ← unfoldElimOffset mvarId; return #[mvarId])
+      <|>
+      (casesOnStuckLHS mvarId)
+      <|>
+      (reduceSparseCasesOn mvarId)
+      <|>
+      (splitSparseCasesOn mvarId)
+      <|>
+      (do let mvarId' ← simpIfTarget mvarId (useDecide := true) (useNewSemantics := true)
+          if mvarId' == mvarId then throwError "simpIf failed"
+          return #[mvarId'])
+      <|>
+      (do if let some (s₁, s₂) ← splitIfTarget? mvarId (useNewSemantics := true) then
+            let mvarId₁ ← trySubst s₁.mvarId s₁.fvarId
+            return #[mvarId₁, s₂.mvarId]
+          else
+            throwError "spliIf failed")
+      <|>
+      (do let mvarId' ← mvarId.heqOfEq
+          if mvarId' == mvarId then throwError "heqOfEq failed"
+          return #[mvarId'])
+      <|>
+      (substSomeVar mvarId)
+      <|>
+      (do if debug.Meta.Match.MatchEqs.grindAsSorry.get (← getOptions) then
+            trace[Meta.Match.matchEqs] "proveCondEqThm.go: grind_as_sorry is enabled, admitting goal"
+            mvarId.admit (synthetic := true)
+          else
+            let r ← Grind.main mvarId (← Grind.mkParams {})
+            if r.hasFailed then throwError "grind failed"
+          return #[])
+      <|>
+      (throwError "failed to generate equality theorem {thmName} for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
+    subgoals.forM (go · (depth+1))
+
 /--
   Create new alternatives (aka minor premises) by replacing `discrs` with `patterns` at `alts`.
   Recall that `alts` depends on `discrs` when `numDiscrEqs > 0`, where `numDiscrEqs` is the number of discriminants
@@ -370,7 +420,7 @@ def genMatchCongrEqnsImpl (matchDeclName : Name) : MetaM (Array Name) := do
   let firstEqnName := .str baseName congrEqn1ThmSuffix
   realizeConst matchDeclName firstEqnName (go baseName)
   return matchCongrEqnsExt.getState (asyncMode := .async .asyncEnv) (asyncDecl := firstEqnName) (← getEnv) |>.find! matchDeclName
-where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
+where go baseName :=
   withConfig (fun c => { c with etaStruct := .none }) do
   trace[Meta.Match.matchEqs] "genMatchCongrEqnsImpl on {matchDeclName}"
   let constInfo ← getConstInfo matchDeclName
@@ -388,7 +438,7 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
     let mut idx := 1
     for i in *...alts.size do
       let altInfo := matchInfo.altInfos[i]!
-      let thmName := (Name.str baseName congrEqnThmSuffixBase).appendIndexAfter idx
+      let thmName := (baseName.str congrEqnThmSuffixBase).appendIndexAfter idx
       trace[Meta.Match.matchEqs] "genMatchCongrEqnsImpl working on {thmName}"
       eqnNames := eqnNames.push thmName
       let notAlt ← do
@@ -399,35 +449,58 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
         assert! patterns.size == discrs.size
         for discr in discrs, pattern in patterns do
           let heqType ← mkEqHEq discr pattern
-          heqsTypes := heqsTypes.push ((`heq).appendIndexAfter (heqsTypes.size + 1), heqType)
-        withLocalDeclsDND heqsTypes fun heqs => do
+          heqsTypes := heqsTypes.push heqType
+        withLocalDeclsDND' `heq heqsTypes fun heqs => do
           let rhs ← Match.mkAppDiscrEqs (mkAppN alt args) heqs numDiscrEqs
-          let mut hs := #[]
+          let mut hs_discr := #[] -- overlap assumptions applied to discriminants (used in proof)
+          let mut hs_pat := #[]   -- overlap assumptions applied to pattern (exposed in theorem)
           for overlappedBy in matchInfo.overlaps.overlapping i do
             let notAlt := notAlts[overlappedBy]!
             -- We want these assumptions to be general during the proof (discrs)
             -- so that contradiction can recognize them,
             -- but specific in the final theorem (patterns)
             -- so that they match the splitter
-            let h ← instantiateForall notAlt discrs
-            -- if let some h ← simpH? h patterns.size then
-              -- hs := hs.push h
-            -- TODO: We still should simplify them before creating the declaration
-            hs := hs.push h
-          trace[Meta.Match.matchEqs] "hs: {hs}"
-          let mut notAlt := mkConst ``False
-          for discr in discrs.toArray.reverse, pattern in patterns.reverse do
-            notAlt ← mkArrow (← mkEqHEq discr pattern) notAlt
-          notAlt ← mkForallFVars (discrs ++ altVars) notAlt
+            let hdiscr ← instantiateForall notAlt discrs
+            let hpat ← instantiateForall notAlt patterns
+            -- TODO: How to use simpH and still manage to prove the things below?
+            -- if let some hpat ← simpH? hpat patterns.size then
+            hs_discr := hs_discr.push hdiscr
+            hs_pat := hs_pat.push hpat
+          trace[Meta.Match.matchEqs] "hs (abstract): {hs_discr}"
+          trace[Meta.Match.matchEqs] "hs (concrete): {hs_pat}"
+          withLocalDeclsDND' `hnot hs_pat fun hs_pat => do
           let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
           let thmType ← mkHEq lhs rhs
-          let thmType ← mkArrowN hs thmType
-          let thmType ← mkForallFVars (params ++ #[motive] ++ discrs ++ alts ++ altVars ++ heqs) thmType
-          let thmType ← Match.unfoldNamedPattern thmType
-          -- Here we prove the theorem from scratch. One could likely also use the (non-generalized)
-          -- match equation theorem after subst'ing the `heqs`.
-          let thmVal ← Match.proveCondEqThm matchDeclName thmName thmType
-            (heqPos := params.size + 1 + discrs.size + alts.size + altVars.size) (heqNum := heqs.size)
+          let thmType ← Match.unfoldNamedPattern thmType -- TODO: Do we need to apply this to assumptions?
+          let thmVal  ← mkFreshExprSyntheticOpaqueMVar thmType
+          let mut mvarId := thmVal.mvarId!
+          -- Replace the overlap assumptions applied to the patters with the the
+          -- overlap assumptions applied to the abstract discrs
+          for h_pat in hs_pat, h_discr in hs_discr do
+            mvarId ← withTraceNode `Meta.Match.matchEqs
+              (msg := (return m!"{exceptEmoji ·} deriving {h_discr} from {← inferType h_pat} using {heqs}")) do
+               mvarId.withContext do
+                let userName ← h_pat.fvarId!.getUserName
+                let prf ← mkFreshExprSyntheticOpaqueMVar h_discr
+                let mut mvarId' := prf.mvarId!
+                trace[Meta.Match.matchEqs] "before subst: {mvarId'}"
+                mvarId' := (← mvarId'.revert #[h_pat.fvarId!]).2
+                mvarId' := (← mvarId'.revert (heqs.map (·.fvarId!)) (preserveOrder := true)).2
+                -- TODO (perf): We could clear lots of things here
+                for _ in [:heqs.size] do
+                  let (fvarId, mvarId'') ← mvarId'.intro1
+                  mvarId' ← subst mvarId'' fvarId
+                trace[Meta.Match.matchEqs] "after subst: {mvarId'}"
+                let (fvarId, mvarId'') ← mvarId'.intro1
+                mvarId''.assign (mkFVar fvarId)
+                let prf ← instantiateMVars prf
+                check prf
+                let mvarId := (← mvarId.note userName prf h_discr).2
+                mvarId.clear h_pat.fvarId!
+          proveCongrEqThm matchDeclName thmName mvarId
+          let thmVal ← instantiateMVars thmVal
+          let thmType ← mkForallFVars (params ++ #[motive] ++ discrs ++ alts ++ altVars ++ heqs ++ hs_pat) thmType
+          let thmVal ← mkLambdaFVars (params ++ #[motive] ++ discrs ++ alts ++ altVars ++ heqs ++ hs_pat) thmVal
           unless (← getEnv).contains thmName do
             addDecl <| Declaration.thmDecl {
               name        := thmName
@@ -435,6 +508,11 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
               type        := thmType
               value       := thmVal
             }
+          -- Calculate the overlap proposition for this alternative
+          let mut notAlt := mkConst ``False
+          for discr in discrs.toArray.reverse, pattern in patterns.reverse do
+            notAlt ← mkArrow (← mkEqHEq discr pattern) notAlt
+          notAlt ← mkForallFVars (discrs ++ altVars) notAlt
           return notAlt
       notAlts := notAlts.push notAlt
       idx := idx + 1

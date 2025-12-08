@@ -26,6 +26,9 @@ info: private theorem natToBin3.match_1.congr_eq_1.{u_1} : ∀ (motive : (x : Na
 #guard_msgs(pass trace, all) in
 #print sig natToBin3.match_1.congr_eq_1
 
+-- set_option trace.Meta.Match.matchEqs true
+-- set_option trace.Kernel true
+-- set_option Elab.async false
 
 def f : List Nat → List Nat → Nat
   | _, 1 :: _ :: _ => 1
@@ -44,27 +47,40 @@ info: private theorem f.match_1.eq_2.{u_1} : ∀ (motive : List Nat → List Nat
       | x, x_2 => h_3 x x_2) =
       h_2 x a tail
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #print sig f.match_1.eq_2
 
 /--
-error: Failed to realize constant f.match_1.congr_eq_2:
-  failed to generate equality theorem _private.lean.run.issue11342.0.f.match_1.congr_eq_2 for `match` expression `f.match_1`
-  case cons.isTrue.cons
-  motive✝ : List Nat → List Nat → Sort u_1
-  h_1✝ : (x : List Nat) → (head : Nat) → (tail : List Nat) → motive✝ x (1 :: head :: tail)
-  h_2✝ : (x : List Nat) → (a : Nat) → (tail : List Nat) → motive✝ x (a :: tail)
-  h_3✝ : (x x_1 : List Nat) → motive✝ x x_1
-  x✝¹ : List Nat
-  a✝ : Nat
-  tail✝¹ : List Nat
-  x✝ : ∀ (x : List Nat) (head : Nat) (tail : List Nat), x✝¹ = x → a✝ :: tail✝¹ = 1 :: head :: tail → False
-  head✝ : Nat
-  tail✝ : List Nat
-  heq_2✝ : 1 :: head✝ :: tail✝ = a✝ :: tail✝¹
-  ⊢ h_1✝ x✝¹ head✝ tail✝ ≍ h_2✝ x✝¹ a✝ tail✝¹
----
-error: Unknown constant `f.match_1.congr_eq_2`
+info: private theorem f.match_1.congr_eq_2.{u_1} : ∀ (motive : List Nat → List Nat → Sort u_1) (x x_1 : List Nat)
+  (h_1 : (x : List Nat) → (head : Nat) → (tail : List Nat) → motive x (1 :: head :: tail))
+  (h_2 : (x : List Nat) → (a : Nat) → (tail : List Nat) → motive x (a :: tail))
+  (h_3 : (x x_2 : List Nat) → motive x x_2) (x_2 : List Nat) (a : Nat) (tail : List Nat),
+  x = x_2 →
+    x_1 = a :: tail →
+      (∀ (x : List Nat) (head : Nat) (tail_1 : List Nat), x_2 = x → a :: tail = 1 :: head :: tail_1 → False) →
+        (match x, x_1 with
+          | x, 1 :: head :: tail => h_1 x head tail
+          | x, a :: tail => h_2 x a tail
+          | x, x_3 => h_3 x x_3) ≍
+          h_2 x_2 a tail
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #print sig f.match_1.congr_eq_2
+
+/--
+info: private theorem f.match_1.congr_eq_3.{u_1} : ∀ (motive : List Nat → List Nat → Sort u_1) (x x_1 : List Nat)
+  (h_1 : (x : List Nat) → (head : Nat) → (tail : List Nat) → motive x (1 :: head :: tail))
+  (h_2 : (x : List Nat) → (a : Nat) → (tail : List Nat) → motive x (a :: tail))
+  (h_3 : (x x_2 : List Nat) → motive x x_2) (x_2 x_3 : List Nat),
+  x = x_2 →
+    x_1 = x_3 →
+      (∀ (x : List Nat) (head : Nat) (tail : List Nat), x_2 = x → x_3 = 1 :: head :: tail → False) →
+        (∀ (x : List Nat) (a : Nat) (tail : List Nat), x_2 = x → x_3 = a :: tail → False) →
+          (match x, x_1 with
+            | x, 1 :: head :: tail => h_1 x head tail
+            | x, a :: tail => h_2 x a tail
+            | x, x_4 => h_3 x x_4) ≍
+            h_3 x_2 x_3
+-/
+#guard_msgs(pass trace, all) in
+#print sig f.match_1.congr_eq_3

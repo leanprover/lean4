@@ -8,6 +8,7 @@ module
 prelude
 public import Lake.Util.Log
 public import Lake.Util.Exit
+import all Init.System.ST
 
 namespace Lake
 
@@ -20,6 +21,12 @@ Supports IO, logging, and `exit`.
 public instance : Monad MainM := inferInstanceAs (Monad (EIO ExitCode))
 public instance : MonadFinally MainM := inferInstanceAs (MonadFinally (EIO ExitCode))
 public instance : MonadLift BaseIO MainM := inferInstanceAs (MonadLift BaseIO (EIO ExitCode))
+
+/- Adaption of `LawfulMonad` for `EST` from batteries. -/
+public instance : LawfulMonad MainM := .mk' _
+  (id_map := fun x => funext fun v => by dsimp [Functor.map, EST.bind]; cases x v <;> rfl)
+  (pure_bind := fun x f => rfl)
+  (bind_assoc := fun f g x => funext fun v => by dsimp [Bind.bind, EST.bind]; cases f v <;> rfl)
 
 namespace MainM
 

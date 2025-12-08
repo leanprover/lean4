@@ -14,11 +14,11 @@ def checkParse (ver expected : String) : IO Unit :=  do
 
 def checkMatch (range : String) (accepts rejects : Array String) : IO Unit :=  do
   let range ← IO.ofExcept <| VerRange.parse range
-  accepts.forM fun s => do
+  for s in accepts do
     let ver ← IO.ofExcept <| StdVer.parse s
     unless range.test ver do
       throw <| IO.userError s!"invalid reject: expected\n  '{range}'\nto accept\n  '{s}'"
-  rejects.forM fun s => do
+  for s in rejects do
     let ver ← IO.ofExcept <| StdVer.parse s
     if range.test ver then
       throw <| IO.userError s!"invalid accept: expected\n  '{range}'\nto reject\n  '{s}'"

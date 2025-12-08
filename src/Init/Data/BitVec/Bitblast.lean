@@ -3175,7 +3175,7 @@ theorem addRecAux_setWidth_extractAndExtend {x : BitVec w} (hn : n ≤ w) (hv : 
       omega
     · simp [hk0]
 
-theorem th3 {x : BitVec w} (h : n ≤ w) (hw : 1 < w) (hv : v < w) (hn : n ≤ m):
+theorem addRecAux_extractAndExtendPopulate_setWidth {x : BitVec w} (h : n ≤ w) (hv : v < w) (hn : n ≤ m):
     (extractAndExtendPopulate v (setWidth m x)).addRecAux n 0#v = (extractAndExtendPopulate v x).addRecAux n 0#v := by
   induction n generalizing v m
   · case _ =>
@@ -3237,7 +3237,7 @@ theorem addRecAux_extractAndExtendPopulate_setWidth_eq {x : BitVec (w + 1)} (h :
         have hext2 := extractLsb'_extractAndExtendPopulate_eq (w := w + 1) (len := w) (i := w) (x := x)
         have hext1 := extractLsb'_extractAndExtendPopulate_eq (w := w) (len := w) (i := w) (x := (x.setWidth w))
         congr 1
-        · rw [th3 (by omega) (by omega) (by omega) (by omega)]
+        · rw [addRecAux_extractAndExtendPopulate_setWidth (by omega) (by omega) (by omega)]
         · rw [hext1, hext2]
           ext k hk
           simp
@@ -3272,7 +3272,7 @@ theorem addRecAux_extractAndExtendPopulateAux_le_of_le {x : BitVec w} (hn : n �
           omega
         rw [Nat.mod_eq_of_lt (b := 2 ^ ((w + 1 + 1))) (by omega)]
         omega
-      simp only [toNat_add, -extractLsb'_toNat, add_mod_mod, ge_iff_le]
+      simp only [toNat_add, ge_iff_le]
       rw [Nat.mod_eq_of_lt]
       · omega
       · have := Nat.lt_two_pow_self (n := w + 1 + 1)
@@ -3314,7 +3314,7 @@ theorem addRecAux_extractAndExtendPopulateAux_le_of_le' {x : BitVec w} (h : n < 
   · case _ n ihn =>
     simp
     rw [← addRecAux_zero_add]
-    simp only [toNat_add, -extractLsb'_toNat, add_mod_mod]
+    simp only [toNat_add]
     have : (extractLsb' (n * v) v (extractAndExtendPopulate v x)).toNat ≤ 1 := by
       rw [extractLsb'_extractAndExtendPopulate_eq]
       simp
@@ -3345,7 +3345,7 @@ theorem toNat_addRecAux_extractAndExtendPopulate {x : BitVec w} (hn : n ≤ w) (
     conv =>
       rhs
       rw [← addRecAux_zero_add]
-    simp only [toNat_add, ihn (by omega), -extractLsb'_toNat, add_mod_mod]
+    simp only [toNat_add, ihn (by omega)]
     rw [extractLsb'_extractAndExtendPopulate_eq]
     rw [extractLsb'_extractAndExtendPopulate_eq]
     rcases v with _|v
@@ -3387,8 +3387,7 @@ theorem setWidth_addRecAux_estractAndExtendPopuate_of_le {x : BitVec (w' + 1)} (
       · simp [setWidth_add_eq_mod]
         rw [ihn hle]
         apply eq_of_toNat_eq
-        simp only [toNat_umod, toNat_add, toNat_setWidth, -extractLsb'_toNat, add_mod_mod,
-          toNat_twoPow]
+        simp only [toNat_umod, toNat_add, toNat_setWidth, add_mod_mod, toNat_twoPow]
         rw [extractLsb'_extractAndExtendPopulate_eq]
         have := addRecAux_extractAndExtendPopulateAux_le_of_le (x := x) (n := n') (by omega)
         have hbool : extractLsb' n' 1 (setWidth (w' + 1) x) = BitVec.ofBool ((setWidth (w' + 1) x).getLsbD n') := by
@@ -3419,7 +3418,13 @@ theorem setWidth_addRecAux_estractAndExtendPopuate_of_le {x : BitVec (w' + 1)} (
           rw [Nat.mod_eq_of_lt]
           · rw [hbool']
             cases ht : x.getLsbD n'
-            <;> simp [show n' < w' + 1 + 1 by omega, show n' < w' + 1 by omega, ← getLsbD_eq_getElem, ht]
+            · simp only [getLsbD_setWidth, show n' < w' + 1 by omega, decide_true, ht,
+              Bool.and_false, ofBool_false, ofNat_eq_ofNat, truncate_eq_setWidth, setWidth_zero,
+              toNat_ofNat, zero_mod, Nat.add_zero]
+            · simp only [getLsbD_setWidth, show n' < w' + 1 by omega, decide_true, ht,
+              Bool.and_self, ofBool_true, ofNat_eq_ofNat, truncate_eq_setWidth, toNat_setWidth,
+              toNat_ofNat, Nat.pow_one, mod_succ, zero_lt_succ, one_mod_two_pow,
+              Nat.lt_add_left_iff_pos]
           · have h2 : ((extractAndExtendPopulate (w' + 1 + 1) x).addRecAux n' 0#(w' + 1 + 1)).toNat +
                   (zeroExtend (w' + 1 + 1) (extractLsb' n' 1 x)).toNat ≤ n' + 1 := by
                 rw [hbool']
@@ -3498,7 +3503,7 @@ theorem setWidth_addRecAux_estractAndExtendPopuate_of_le {x : BitVec (w' + 1)} (
               · rw [Nat.mod_eq_of_lt]
                 · rw [Nat.add_assoc]
                   congr 1
-                  · rw [th3 (by omega) (by omega) (by omega) (by omega)]
+                  · rw [addRecAux_extractAndExtendPopulate_setWidth (by omega) (by omega) (by omega)]
                     rw [toNat_addRecAux_extractAndExtendPopulate (by omega) (by omega) (by omega) (by omega)]
                   · rw [heq14Nat, heq23Nat, Nat.add_comm]
                 · omega

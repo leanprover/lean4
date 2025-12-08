@@ -223,12 +223,11 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
     split at hres
     all_goals
       rw [← hres]
-      sorry
-      -- dsimp only
-      -- apply Cache.Inv_cast
-      -- · apply LawfulVecOperator.isPrefix_aig
-      -- · apply goCache_Inv_of_Inv
-      --   exact hinv
+      dsimp only
+      apply Cache.Inv_cast
+      · apply LawfulVecOperator.isPrefix_aig
+      · apply goCache_Inv_of_Inv
+        exact hinv
   · rw [← hres]
     dsimp only
     apply Cache.Inv_cast
@@ -390,61 +389,58 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
         rw [goCache_denote_eq]
         apply goCache_Inv_of_Inv
         exact hinv
-  · sorry
-    -- dsimp only at hres
-    -- split at hres
-    -- · rw [← hres]
-    --   simp only [denote_blastNot, eval_un, BVUnOp.eval_not, hidx, BitVec.getLsbD_eq_getElem,
-    --     BitVec.getElem_not, Bool.not_eq_eq_eq_not, Bool.not_not]
-    --   rw [goCache_denote_eq]
-    --   · apply BitVec.getLsbD_eq_getElem
-    --   · exact hinv
-    -- · rw [← hres]
-    --   simp only [denote_blastRotateLeft, eval_un, BVUnOp.eval_rotateLeft, hidx,
-    --     BitVec.getLsbD_eq_getElem, BitVec.getElem_rotateLeft]
-    --   split
-    --   all_goals
-    --     rw [goCache_denote_eq]
-    --     · apply BitVec.getLsbD_eq_getElem
-    --     · exact hinv
-    -- · rw [← hres]
-    --   simp only [denote_blastRotateRight, eval_un, BVUnOp.eval_rotateRight, hidx,
-    --     BitVec.getLsbD_eq_getElem, BitVec.getElem_rotateRight]
-    --   split
-    --   all_goals
-    --     rw [goCache_denote_eq]
-    --     · apply BitVec.getLsbD_eq_getElem
-    --     · exact hinv
-    -- · rw [← hres]
-    --   simp only [denote_blastArithShiftRightConst, eval_un, BVUnOp.eval_arithShiftRightConst, hidx,
-    --     BitVec.getLsbD_eq_getElem, BitVec.getElem_sshiftRight]
-    --   split
-    --   · rw [goCache_denote_eq]
-    --     · apply BitVec.getLsbD_eq_getElem
-    --     · exact hinv
-    --   · rw [goCache_denote_eq]
-    --     · simp [BitVec.msb_eq_getLsbD_last]
-    --     · exact hinv
-    -- · rw [← hres]
-    --   simp only [denote_blastReverse, eval_un, BVUnOp.eval_reverse, hidx, BitVec.getLsbD_eq_getElem,
-    --     BitVec.getElem_reverse, BitVec.getMsbD_eq_getLsbD, decide_true, Bool.true_and]
-    --   rw [goCache_denote_eq]
-    --   exact hinv
-    -- · rw [← hres]
-    --   simp only [eval_un, BVUnOp.eval_clz, BitVec.clz]
-    --   rw [denote_blastClz]
-    --   intro idx hidx
-    --   rw [goCache_denote_eq]
-    --   exact hinv
-  -- next h =>
-  --   · rw [← hres]
-  --     simp only [eval_un, BVUnOp.eval_popCount]
-  --     sorry
-  --     -- rw [blastPopCount.denote_blastPopCount]
-  --     -- intros idx hidx
-  --     -- rw [goCache_denote_eq]
-  --     -- exact hinv
-  · next h =>
+  · dsimp only at hres
+    split at hres
+    · rw [← hres]
+      simp only [denote_blastNot, eval_un, BVUnOp.eval_not, hidx, BitVec.getLsbD_eq_getElem,
+        BitVec.getElem_not, Bool.not_eq_eq_eq_not, Bool.not_not]
+      rw [goCache_denote_eq]
+      · apply BitVec.getLsbD_eq_getElem
+      · exact hinv
+    · rw [← hres]
+      simp only [denote_blastRotateLeft, eval_un, BVUnOp.eval_rotateLeft, hidx,
+        BitVec.getLsbD_eq_getElem, BitVec.getElem_rotateLeft]
+      split
+      all_goals
+        rw [goCache_denote_eq]
+        · apply BitVec.getLsbD_eq_getElem
+        · exact hinv
+    · rw [← hres]
+      simp only [denote_blastRotateRight, eval_un, BVUnOp.eval_rotateRight, hidx,
+        BitVec.getLsbD_eq_getElem, BitVec.getElem_rotateRight]
+      split
+      all_goals
+        rw [goCache_denote_eq]
+        · apply BitVec.getLsbD_eq_getElem
+        · exact hinv
+    · rw [← hres]
+      simp only [denote_blastArithShiftRightConst, eval_un, BVUnOp.eval_arithShiftRightConst, hidx,
+        BitVec.getLsbD_eq_getElem, BitVec.getElem_sshiftRight]
+      split
+      · rw [goCache_denote_eq]
+        · apply BitVec.getLsbD_eq_getElem
+        · exact hinv
+      · rw [goCache_denote_eq]
+        · simp [BitVec.msb_eq_getLsbD_last]
+        · exact hinv
+    · rw [← hres]
+      simp only [denote_blastReverse, eval_un, BVUnOp.eval_reverse, hidx, BitVec.getLsbD_eq_getElem,
+        BitVec.getElem_reverse, BitVec.getMsbD_eq_getLsbD, decide_true, Bool.true_and]
+      rw [goCache_denote_eq]
+      exact hinv
+    · rw [← hres]
+      simp only [eval_un, BVUnOp.eval_clz, BitVec.clz]
+      rw [denote_blastClz]
+      intro idx hidx
+      rw [goCache_denote_eq]
+      exact hinv
+    · rw [← hres]
+      simp only [eval_un, BVUnOp.eval_cpop, BitVec.cpop]
+      rw [denote_blastCpop]
+      intro idx hidx
+      rw [goCache_denote_eq]
+      exact hinv
+  next h =>
     subst h
     rw [← hres]
     simp only [denote_blastAppend, RefVec.get_cast, Ref.cast_eq, eval_append, BitVec.getLsbD_append]

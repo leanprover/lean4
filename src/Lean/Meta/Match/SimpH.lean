@@ -90,6 +90,8 @@ def processNextEq : M Bool := do
             -- return false -- If the constructors are different, we can discard the hypothesis even if it a heterogeneous equality
         | _,_ => pure ()
         if (← isDefEq lhs rhs) then
+          let mvarId ← s.mvarId.clear eq
+          modify fun s => { s with mvarId }
           return true
         if rhs.isFVar && s.xs.contains rhs.fvarId! then
           substRHS eq rhs.fvarId!

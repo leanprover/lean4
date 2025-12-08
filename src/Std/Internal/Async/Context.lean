@@ -221,6 +221,14 @@ instance : MonadAsync AsyncTask ContextAsync where
 
 end ContextAsync
 
+/--
+Returns a selector that completes when the current context is cancelled.
+This is useful for selecting on cancellation alongside other asynchronous operations.
+-/
+def Selector.cancelled : ContextAsync (Selector Unit) := do
+  let selector ← ContextAsync.getContext
+  return selector.doneSelector
+
 end Async
 end IO
 end Internal

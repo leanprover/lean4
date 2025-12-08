@@ -105,9 +105,7 @@ def append (l : HeaderValue) (r : HeaderValue) : HeaderValue :=
   ⟨l.value ++ r.value, ?_⟩
 where finally
   unfold isValidHeaderValue
-  rw [String.toList_append]
-  rw [List.all_append]
-  rw [Bool.and_eq_true]
+  rw [String.toList_append, List.all_append, Bool.and_eq_true]
   constructor
   · exact l.validHeaderValue
   · exact r.validHeaderValue

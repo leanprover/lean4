@@ -90,8 +90,8 @@ instance : ForIn ContextAsync Body Chunk where
     | .stream stream' => ByteStream.forIn' stream' acc step
 
 /--
-Collect all data from the body into a single `ByteArray`. This reads the entire body content into memory,
-so use with caution for large bodies as it may consume significant memory.
+Collect all data from the body into a single `ByteArray`. This reads the entire body content into memory
+and consumes significant memory for large bodies.
 -/
 def collectByteArray (body : Body) : Async ByteArray := do
   let mut result := .empty
@@ -99,9 +99,9 @@ def collectByteArray (body : Body) : Async ByteArray := do
   return result
 
 /--
-Collect all data from the body into a single `String`. This reads the entire body content into memory,
-so use with caution for large bodies as it may consume significant memory. If it is a valid UTF-8 string
-then it will return `some` otherwise `none`.
+Collect all data from the body into a single `String`. This reads the entire body content into memory
+and consumes significant memory for large bodies. Returns `some` if the data is valid UTF-8, otherwise
+`none`.
 -/
 def collectString (body : Body) : Async (Option String) := do
   let mut result := .empty

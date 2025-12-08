@@ -336,7 +336,10 @@ def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : M
 /-- Put some data inside the input of the machine. -/
 @[inline]
 def feed (machine : Machine ty) (data : ByteArray) : Machine ty :=
-  { machine with reader := machine.reader.feed data }
+  if machine.isReaderClosed then
+    machine
+  else
+    { machine with reader := machine.reader.feed data }
 
 /-- Signal that reader is not going to receive any more messages. -/
 @[inline]

@@ -20,7 +20,7 @@ URI scheme (e.g., "http", "https", "ftp").
 abbrev Scheme := String
 
 /--
-User information component that usually contains the username and password.
+User information component containing the username and password.
 -/
 abbrev UserInfo := String
 
@@ -29,7 +29,7 @@ Host component of a URI, supporting domain names and IP addresses.
 -/
 inductive Host
   /--
-  A registered name (typically a domain name).
+  A registered name (e.g., a domain name).
   -/
   | name (name : String)
 
@@ -58,7 +58,7 @@ instance : Repr Host where
     | Host.ipv6 a => repr "ipv6" (toString a)
 
 /--
-TCP number port.
+TCP port number.
 -/
 abbrev Port := UInt16
 
@@ -70,7 +70,7 @@ on the network.
 -/
 structure Authority where
   /--
-  Optional user information like user and password.
+  Optional user information such as username and password.
   -/
   userInfo: Option UserInfo := none
 
@@ -162,12 +162,12 @@ inductive RequestTarget where
   | absoluteForm (uri : URI)
 
   /--
-  Request target using the authority-form, typically for CONNECT requests.
+  Request target using the authority-form (used for CONNECT requests).
   -/
   | authorityForm (authority : URI.Authority)
 
   /--
-  Asterisk-form request target, typically used with OPTIONS requests.
+  Asterisk-form request target (used with OPTIONS requests).
   -/
   | asteriskForm
 deriving Inhabited, Repr
@@ -223,8 +223,8 @@ private def byteToHex (b : UInt8) : ByteArray :=
   ByteArray.mk #['%'.toUInt8, hi, lo]
 
 /--
-Encodes a string as a URI component by percent-encoding all characters
---/
+Encodes a string as a URI component by percent-encoding all characters.
+-/
 def encodeURIComponent (s : String) : ByteArray :=
   s.toUTF8.foldl (init := ByteArray.emptyWithCapacity s.utf8ByteSize) fun acc c =>
     if isUnreserved c then  acc.push c else acc.append (byteToHex c)

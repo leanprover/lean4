@@ -13,7 +13,7 @@ public section
 /-!
 # Length
 
-This module defines the `Length` structure, that represents the Content-Length or Transfer-Encoding
+This module defines the `Length` type, that represents the Content-Length or Transfer-Encoding
 of an HTTP Request or response.
 -/
 

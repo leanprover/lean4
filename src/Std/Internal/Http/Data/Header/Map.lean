@@ -44,7 +44,7 @@ deriving Repr, Inhabited
 namespace Headers
 
 /--
-Tries to retrieve the `HeaderValue` for the given key.
+Retrieves the `HeaderValue` for the given key.
 Returns `none` if the header is absent.
 -/
 @[inline]
@@ -53,7 +53,7 @@ def get (headers : Headers) (name : HeaderName) : Option HeaderValue :=
   |>.map (.joinCommaSep)
 
 /--
-Tries to retrieve the `HeaderValue` for the given key.
+Retrieves all `HeaderValue` entries for the given key.
 Returns `none` if the header is absent.
 -/
 @[inline]
@@ -61,7 +61,7 @@ def getAll? (headers : Headers) (name : HeaderName) : Option (Array HeaderValue)
   headers.data.get? name
 
 /--
-Tries to check if the entry is present in the `Headers`
+Checks if the entry is present in the `Headers`.
 -/
 @[inline]
 def hasEntry (headers : Headers) (name : HeaderName) (value : String) : Bool :=
@@ -70,7 +70,7 @@ def hasEntry (headers : Headers) (name : HeaderName) (value : String) : Bool :=
   |>.isSome
 
 /--
-Tries to retrieve the last header value for the given key.
+Retrieves the last header value for the given key.
 Returns `none` if the header is absent.
 -/
 @[inline]
@@ -80,7 +80,7 @@ def getLast? (headers : Headers) (name : HeaderName) : Option HeaderValue :=
 
 
 /--
-Like `get?`, but returns an empty HashSet if absent.
+Like `get?`, but returns a default value if absent.
 -/
 @[inline]
 def getD (headers : Headers) (name : HeaderName) (d : HeaderValue) : HeaderValue :=

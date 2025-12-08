@@ -24,7 +24,7 @@ namespace Std.Http.RequestTarget
 set_option linter.all true
 
 /--
-Attempt to parse a `RequestTarget` from the given string.
+Attempts to parse a `RequestTarget` from the given string.
 -/
 @[inline]
 def parse? (string : String) : Option RequestTarget :=
@@ -32,7 +32,7 @@ def parse? (string : String) : Option RequestTarget :=
 
 
 /--
-Parse a `RequestTarget` from the given string. Panics if parsing fails. Use `parse?`
+Parses a `RequestTarget` from the given string. Panics if parsing fails. Use `parse?`
 if you need a safe option-returning version.
 -/
 @[inline]

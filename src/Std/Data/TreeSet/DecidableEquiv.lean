@@ -20,6 +20,7 @@ open Std.TreeMap
 namespace Std.TreeSet
 
 instance {α : Type u} {cmp : α → α → Ordering} [TransCmp cmp] [LawfulEqCmp cmp] [DecidableEq α] {t₁ t₂ : TreeSet α cmp} : Decidable (t₁ ~m t₂) :=
-  let : Ord α := ⟨cmp⟩; decidable_of_iff (t₁.inner ~m t₂.inner) ⟨fun h => ⟨h⟩, fun h => h.1⟩
+  let : Ord α := ⟨cmp⟩;
+  decidable_of_iff _ ⟨fun h => ⟨h⟩, fun h => h.1⟩
 
 end Std.TreeSet

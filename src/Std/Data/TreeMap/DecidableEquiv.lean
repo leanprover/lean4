@@ -12,7 +12,7 @@ public import Std.Data.TreeMap.Basic
 public section
 
 /-!
-# Decidable equivalence for `DTreeMap`
+# Decidable equivalence for `TreeMap`
 -/
 
 open Std.DTreeMap
@@ -20,6 +20,7 @@ open Std.DTreeMap
 namespace Std.TreeMap
 
 instance {α : Type u} {β : Type v} {cmp : α → α → Ordering} [TransCmp cmp] [LawfulEqCmp cmp] [DecidableEq α] [DecidableEq β] {t₁ t₂ : TreeMap α β cmp} : Decidable (t₁ ~m t₂) :=
-  let : Ord α := ⟨cmp⟩; decidable_of_iff (t₁.inner ~m t₂.inner) ⟨fun h => ⟨h⟩, fun h => h.1⟩
+  let : Ord α := ⟨cmp⟩;
+  decidable_of_iff _ ⟨fun h => ⟨h⟩, fun h => h.1⟩
 
 end Std.TreeMap

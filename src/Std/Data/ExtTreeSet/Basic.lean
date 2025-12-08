@@ -542,7 +542,7 @@ instance [TransCmp cmp] [LawfulEqCmp cmp] : LawfulBEq (ExtTreeSet α cmp) where
     simp only [mk.injEq, ExtTreeMap.mk.injEq] at |- hyp
     exact ExtDTreeMap.Const.eq_of_beq _ _ hyp
 
-instance {α : Type u} {cmp: α → α → Ordering} [DecidableEq α] [LawfulEqCmp cmp] [TransCmp cmp] : DecidableEq (ExtTreeSet α cmp) :=
+instance {α : Type u} {cmp : α → α → Ordering} [DecidableEq α] [LawfulEqCmp cmp] [TransCmp cmp] : DecidableEq (ExtTreeSet α cmp) :=
   fun _ _ => decidable_of_iff _ beq_iff_eq
 
 /--

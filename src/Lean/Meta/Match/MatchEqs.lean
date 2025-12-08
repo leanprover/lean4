@@ -409,6 +409,7 @@ def genMatchCongrEqnsImpl (matchDeclName : Name) : MetaM (Array Name) := do
   realizeConst matchDeclName firstEqnName (go baseName)
   return matchCongrEqnsExt.getState (asyncMode := .async .asyncEnv) (asyncDecl := firstEqnName) (← getEnv) |>.find! matchDeclName
 where go baseName :=
+  withoutExporting do
   withConfig (fun c => { c with etaStruct := .none }) do
   trace[Meta.Match.matchEqs] "genMatchCongrEqnsImpl on {matchDeclName}"
   let constInfo ← getConstInfo matchDeclName

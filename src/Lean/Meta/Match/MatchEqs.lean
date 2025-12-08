@@ -140,29 +140,17 @@ private def unfoldElimOffset (mvarId : MVarId) : MetaM MVarId := do
 /--
 Helper method for proving a conditional equational theorem associated with an alternative of
 the `match`-eliminator `matchDeclName`. `type` contains the type of the theorem.
-
-The `heqPos`/`heqNum` arguments indicate that these hypotheses are `Eq`/`HEq` hypotheses
-to substitute first; this is used for the generalized match equations.
 -/
-partial def proveCondEqThm (matchDeclName : Name) (thmName : Name) (type : Expr)
-  (heqPos : Nat := 0) (heqNum : Nat := 0) : MetaM Expr := withLCtx {} {} do
+partial def proveCondEqThm (matchDeclName : Name) (thmName : Name) (type : Expr) : MetaM Expr := withLCtx {} {} do
   withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} proveCondEqThm {thmName}")) do
   let type ← instantiateMVars type
   let mvar0  ← mkFreshExprSyntheticOpaqueMVar type
   trace[Meta.Match.matchEqs] "proveCondEqThm {mvar0.mvarId!}"
   let mut mvarId := mvar0.mvarId!
-  let mut eqns := #[]
-  if heqNum > 0 then
-    mvarId := (← mvarId.introN heqPos).2
-    let (hs, mvarId') ← mvarId.introN heqNum
-    eqns := hs
-    mvarId := mvarId'
-    -- trace[Meta.Match.matchEqs] "proveCondEqThm after subst{mvarId}"
   mvarId := (← mvarId.intros).2
   try mvarId.refl
   catch _ =>
     mvarId ← mvarId.deltaTarget (· == matchDeclName)
-    mvarId ← mvarId.heqOfEq
     go mvarId 0
   instantiateMVars mvar0
 where

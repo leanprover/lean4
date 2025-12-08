@@ -26,6 +26,35 @@ info: private theorem natToBin3.match_1.congr_eq_1.{u_1} : ∀ (motive : (x : Na
 #guard_msgs(pass trace, all) in
 #print sig natToBin3.match_1.congr_eq_1
 
+/--
+error: Failed to realize constant natToBin3.match_1.eq_1:
+  failed to generate equality theorem _private.lean.run.issue11342.0.natToBin3.match_1.eq_2 for `match` expression `natToBin3.match_1`
+  motive✝ : (x : Nat) → Parity x → Sort u_1
+  j✝ : Nat
+  h_1✝ : (x : Parity 0) → motive✝ 0 x
+  h_2✝ : (j : Nat) → motive✝ (double j) (Parity.even j)
+  h_3✝ : (j : Nat) → motive✝ (double j).succ (Parity.odd j)
+  x✝ : ∀ (x : Parity 0), double j✝ = 0 → Parity.even j✝ ≍ x → False
+  ⊢ natToBin3._sparseCasesOn_1 (motive := fun x => (x_1 : Parity x) → motive✝ x x_1) (double j✝) (fun x => h_1✝ x)
+        (fun h x =>
+          Parity.casesOn (motive := fun a x_1 => double j✝ = a → x ≍ x_1 → motive✝ (double j✝) x) x
+            (fun n h_1 =>
+              Eq.ndrec (motive := fun x =>
+                Nat.hasNotBit 1 x.ctorIdx → (x_1 : Parity x) → x_1 ≍ Parity.even n → motive✝ x x_1)
+                (fun h x h_2 => ⋯ ▸ h_2✝ n) ⋯ h x)
+            (fun n h_1 =>
+              Eq.ndrec (motive := fun x =>
+                Nat.hasNotBit 1 x.ctorIdx → (x_1 : Parity x) → x_1 ≍ Parity.odd n → motive✝ x x_1)
+                (fun h x h_2 => ⋯ ▸ h_3✝ n) ⋯ h x)
+            ⋯ ⋯)
+        (Parity.even j✝) =
+      h_2✝ j✝
+---
+error: Unknown constant `natToBin3.match_1.eq_1`
+-/
+#guard_msgs(pass trace, all) in
+#print sig natToBin3.match_1.eq_1
+
 -- set_option trace.Meta.Match.matchEqs true
 -- set_option trace.Kernel true
 -- set_option Elab.async false

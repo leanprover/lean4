@@ -8250,8 +8250,9 @@ theorem containsKey_minKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l
   obtain ⟨e, ⟨hm, _⟩, rfl⟩ := hkm
   exact containsKey_of_mem hm
 
-theorem minKey?_eq_min?_keys [Ord α] [TransOrd α] [Std.LawfulEqOrd α] [LE α] [Std.LawfulOrderOrd α] [Min α] [Std.LawfulOrderLeftLeaningMin α]
-    (l : List ((a : α) × β a)) :
+theorem minKey?_eq_min?_keys [Ord α] [TransOrd α]
+    [LawfulEqOrd α] [LE α] [LawfulOrderOrd α] [Min α]
+    [LawfulOrderLeftLeaningMin α] (l : List ((a : α) × β a)) :
     minKey? l = (List.keys l).min? := by
   have : IsLinearOrder α := IsLinearOrder.of_ord
   rw [keys_eq_map]
@@ -8270,7 +8271,7 @@ theorem minKey?_eq_min?_keys [Ord α] [TransOrd α] [Std.LawfulEqOrd α] [LE α]
         simp only [Bool.not_eq_true, Ordering.isLE_eq_false] at hyp
         simp only [Commutative.comm h.fst w.fst]
         rw [LawfulOrderLeftLeaningMin.min_eq_left _ _ <|
-            (LawfulOrderOrd.isGE_compare _ _).1 (Ordering.isGE_of_eq_gt ‹_›)]
+            (LawfulOrderOrd.isGE_compare _ _).1 (Ordering.isGE_of_eq_gt hyp)]
 
 theorem minKey?_eraseKey_eq_iff_beq_minKey?_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {k} {l : List ((a : α) × β a)} (hd : DistinctKeys l) :

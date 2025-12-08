@@ -147,7 +147,7 @@ public theorem max_eq_if_isGE_compare {α : Type u} [Ord α] [LE α] {_ : Max α
     {a b : α} : max a b = if (compare a b).isGE then a else b := by
   open Classical in simp [max_eq_if, isGE_compare]
 
-theorem min_le_min [LE α] [Min α] [Std.LawfulOrderLeftLeaningMin α] [IsLinearOrder α] (a b : α) : min a b ≤ min b a := by
+private theorem min_le_min [LE α] [Min α] [Std.LawfulOrderLeftLeaningMin α] [IsLinearOrder α] (a b : α) : min a b ≤ min b a := by
   apply (LawfulOrderInf.le_min_iff (min a b) b a).2
   rw [And.comm]
   by_cases h : a ≤ b

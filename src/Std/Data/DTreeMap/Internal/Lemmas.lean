@@ -6136,7 +6136,10 @@ theorem minKey?_mem [TransOrd α] (h : t.WF) {km} :
     km ∈ t := by
   simp_to_model [minKey?, contains] using List.containsKey_minKey?
 
-theorem minKey?_eq_min?_keys [TransOrd α] [Min α] [LE α] [Std.LawfulOrderOrd α] [Std.LawfulOrderMin α] [Std.LawfulOrderLeftLeaningMin α] [LawfulEqOrd α] (h : t.WF) :
+theorem minKey?_eq_min?_keys [TransOrd α] [Min α]
+    [LE α] [LawfulOrderOrd α] [LawfulOrderMin α]
+    [LawfulOrderLeftLeaningMin α] [LawfulEqOrd α]
+    (h : t.WF) :
     t.minKey? = t.keys.min? := by
   simp_to_model using List.minKey?_eq_min?_keys
 

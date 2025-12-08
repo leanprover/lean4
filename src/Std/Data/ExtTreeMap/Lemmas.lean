@@ -2344,7 +2344,9 @@ theorem minKey?_mem [TransCmp cmp] {km} :
     (hkm : t.minKey? = some km) → km ∈ t :=
   ExtDTreeMap.minKey?_mem
 
-theorem minKey?_eq_min?_keys [TransCmp cmp] [Min α] [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α] [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp] :
+theorem minKey?_eq_min?_keys [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α]
+    [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp] :
     t.minKey? = t.keys.min? :=
   ExtDTreeMap.minKey?_eq_min?_keys
 

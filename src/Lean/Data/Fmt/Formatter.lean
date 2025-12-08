@@ -825,7 +825,7 @@ partial def TaintedMeasure.resolve? : TaintedResolver σ τ := TaintedResolver.m
 
 /--
 Yields the measure in a non-tainted measure set with the lowest cost and amongst measures with the
-lowest cost, the one with the largest last line length.
+lowest cost, the one with the smallest last line length.
 For a tainted measure, resolves the tainted measure to a regular measure.
 -/
 partial def MeasureSet.extractAtMostOne? (ms : MeasureSet τ) :

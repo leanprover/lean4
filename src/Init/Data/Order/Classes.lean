@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Core
-public import Init.Classical
 
 namespace Std
 

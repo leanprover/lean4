@@ -14,7 +14,8 @@ import all Std.Data.Internal.List.Defs
 public import Init.Data.Order.Ord
 import Init.Data.Subtype.Order
 public import Init.Data.Order.ClassesExtra
-
+public import Init.Data.Order.Lemmas
+public import Init.Data.Order.LemmasExtra
 public section
 
 /-!
@@ -8250,125 +8251,30 @@ theorem containsKey_minKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l
   obtain ⟨e, ⟨hm, _⟩, rfl⟩ := hkm
   exact containsKey_of_mem hm
 
-
-public theorem Std.LawfulOrderOrd.le_trans [Ord α] [TransOrd α] [LE α] [LawfulOrderOrd α] {a b c : α} : a ≤ b → b ≤ c → a ≤ c := by
-  intro h1 h2
-  exact (LawfulOrderOrd.isLE_compare a c).1 <| TransOrd.isLE_trans ((LawfulOrderOrd.isLE_compare a b).2 h1) ((LawfulOrderOrd.isLE_compare b c).2 h2)
-
-instance [Ord α] [OrientedOrd α] [LE α] [Std.LawfulOrderOrd α] : Std.Total (LE.le : α → α → Prop) where
-  total a b := by
-    rw [← LawfulOrderOrd.isLE_compare a b, ← LawfulOrderOrd.isLE_compare b a, OrientedOrd.eq_swap, Ordering.isLE_swap]
-    generalize h : (compare b a) = x
-    cases x <;> simp
-
-instance [LE α] [Min α] [Std.LawfulOrderMin α] : IdempotentOp (min : α → α → α) where
-  idempotent a := by
-    apply Or.elim <| MinEqOr.min_eq_or a a <;> (intro; trivial)
-
-instance [Ord α] [OrientedOrd α] [TransOrd α] [Std.LawfulEqOrd α] [LE α] [Min α] [Std.LawfulOrderOrd α] [Std.LawfulOrderMin α] [Std.LawfulOrderLeftLeaningMin α] : Commutative (min : α → α → α) where
+instance [LE α] [Min α] [Std.LawfulOrderLeftLeaningMin α] [IsLinearOrder α] : Commutative (min : α → α → α) where
   comm a b := by
-    by_cases a_le_b : a ≤ b
-    case pos =>
-      rw [LawfulOrderLeftLeaningMin.min_eq_left a b a_le_b]
-      symm
-      by_cases a_eq_b : a = b
+    have w₁ : min a b ≤ min b a := by
+      apply (LawfulOrderInf.le_min_iff (min a b) b a).2
+      rw [And.comm]
+      by_cases h : a ≤ b
       case pos =>
-        simp [a_eq_b, IdempotentOp.idempotent]
+        simp [LawfulOrderLeftLeaningMin.min_eq_left, h, le_refl]
       case neg =>
-        apply LawfulOrderLeftLeaningMin.min_eq_right
-        intro b_le_a
-        have w1 := (LawfulOrderOrd.isLE_compare a b).2 a_le_b
-        have w2 := (LawfulOrderOrd.isLE_compare b a).2 b_le_a
-        exact a_eq_b <| (LawfulEqOrd.compare_eq_iff_eq).1 <| OrientedCmp.isLE_antisymm w1 w2
-    case neg =>
-      rw [LawfulOrderLeftLeaningMin.min_eq_right a b a_le_b]
-      symm
-      by_cases a_eq_b : a = b
+        simp [LawfulOrderLeftLeaningMin.min_eq_right _ _ h, le_of_not_ge h, le_refl]
+    have w₂ : min b a ≤ min a b := by
+      apply (LawfulOrderInf.le_min_iff (min b a) a b).2
+      rw [And.comm]
+      by_cases h : b ≤ a
       case pos =>
-        simp [a_eq_b, IdempotentOp.idempotent]
+        simp [LawfulOrderLeftLeaningMin.min_eq_left, h, le_refl]
       case neg =>
-        apply LawfulOrderLeftLeaningMin.min_eq_left
-        have h : a ≤ b ∨ b ≤ a := by simp [Total.total]
-        apply Or.elim h <;> simp [a_le_b]
+        simp [LawfulOrderLeftLeaningMin.min_eq_right _ _ h, le_of_not_ge h, le_refl]
+    apply le_antisymm w₁ w₂
 
-instance [Ord α] [TransOrd α] [LE α] [Min α] [Std.LawfulOrderOrd α] [Std.LawfulOrderMin α] [Std.LawfulOrderLeftLeaningMin α] : Associative (min : α → α → α) where
-  assoc a b c := by
-    apply Or.elim <| MinEqOr.min_eq_or a b
-    case left =>
-      intro h1
-      by_cases hab : (a = b)
-      case pos =>
-        simp only [hab, IdempotentOp.idempotent]
-        apply Or.elim <| MinEqOr.min_eq_or b c
-        case left =>
-          intro h2
-          simp [h2, IdempotentOp.idempotent]
-        case right =>
-          intro h3
-          simp [h3]
-      case neg =>
-        rw [h1]
-        apply Or.elim <| MinEqOr.min_eq_or b c
-        case left =>
-          intro h2
-          rw [h2, h1]
-          by_cases hbc : b = c
-          case pos =>
-            rw [← hbc, h1]
-          case neg =>
-            apply LawfulOrderLeftLeaningMin.min_eq_left a c
-            apply Std.LawfulOrderOrd.le_trans (Std.LawfulOrderLeftLeaningMin.le_of_min_eq a b h1 hab)
-            exact Std.LawfulOrderLeftLeaningMin.le_of_min_eq b c h2 hbc
-        case right =>
-          intro h2
-          rw [h2]
-    case right =>
-      intro h1
-      rw [h1]
-      by_cases hab : (a = b)
-      case pos =>
-        rw [hab]
-        apply Or.elim <| MinEqOr.min_eq_or b c
-        case left =>
-          intro h2
-          rw [h2]
-          simp [IdempotentOp.idempotent]
-        case right =>
-          intro h2
-          simp [h2]
-      case neg =>
-        by_cases hbc : (b = c)
-        case pos =>
-          simp [← hbc, IdempotentOp.idempotent, h1]
-        case neg =>
-          apply Or.elim <| MinEqOr.min_eq_or b c
-          case left =>
-            intro h2
-            rw [h2, h1]
-          case right =>
-            intro h2
-            rw [h2]
-            apply Or.elim <| MinEqOr.min_eq_or a c
-            case left =>
-              intro h3
-              apply Classical.byContradiction
-              rw [h3]
-              intro hn
-              have c_le_b : c ≤ b ∨ b ≤ c := by simp [Total.total]
-              simp [Std.LawfulOrderLeftLeaningMin.not_le_of_min_eq _ _ h2 hbc] at c_le_b
-              suffices a_le_b : a ≤ b by
-                simp [LawfulOrderLeftLeaningMin.min_eq_left a b a_le_b] at h1
-                exact hab h1
-              apply (LawfulOrderOrd.isLE_compare _ _).1
-              apply TransOrd.isLE_trans ((LawfulOrderOrd.isLE_compare a c).2 ?_) ((LawfulOrderOrd.isLE_compare c b).2 c_le_b)
-              exact Std.LawfulOrderLeftLeaningMin.le_of_min_eq a c h3 (Ne.symm hn)
-            case right =>
-              intro h3
-              simp [h3]
-
-theorem minKey?_eq_map_fst_min? [Ord α] [OrientedOrd α] [TransOrd α] [Std.LawfulEqOrd α] [LE α] [Min α] [Std.LawfulOrderOrd α] [Std.LawfulOrderMin α] [Std.LawfulOrderLeftLeaningMin α]
+theorem minKey?_eq_map_fst_min? [Ord α] [TransOrd α] [Std.LawfulEqOrd α] [LE α] [Std.LawfulOrderOrd α] [Min α] [Std.LawfulOrderLeftLeaningMin α]
     (l : List ((a : α) × β a)) :
     minKey? l = (l.map Sigma.fst).min? := by
+  have : IsLinearOrder α := IsLinearOrder.of_ord
   induction l
   case nil =>
     simp [minKey?_of_isEmpty]

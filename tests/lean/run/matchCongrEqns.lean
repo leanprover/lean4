@@ -132,11 +132,11 @@ noncomputable def myNamedPatternTest (x : List Bool) : Bool :=
 /--
 info: myNamedPatternTest.match_1.congr_eq_1.{u_1} (motive : List Bool → Sort u_1) (x✝ : List Bool)
   (h_1 : (x' : List Bool) → (x : Bool) → (xs : List Bool) → x' = x :: xs → x✝ = x :: xs → motive (x :: xs))
-  (h_2 : (x' : List Bool) → x✝ = x' → motive x') (x : Bool) (xs : List Bool) (heq_1 : x✝ = x :: xs) :
+  (h_2 : (x' : List Bool) → x✝ = x' → motive x') (x : Bool) (xs : List Bool) (heq : x✝ = x :: xs) :
   (match hx : x✝ with
     | x'@hx':(x :: xs) => h_1 x' x xs hx' hx
     | x' => h_2 x' hx) ≍
-    h_1 (x :: xs) x xs ⋯ heq_1
+    h_1 (x :: xs) x xs ⋯ heq
 -/
 #guard_msgs(pass trace, all) in
 #check myNamedPatternTest.match_1.congr_eq_1

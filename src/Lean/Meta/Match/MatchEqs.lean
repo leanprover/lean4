@@ -453,7 +453,7 @@ where go baseName :=
           let thmVal ← withLocalDeclsDND' `hnot hs_discr fun hs_discrs => do
             let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
             let thmType ← mkHEq lhs rhs
-            let thmType ← Match.unfoldNamedPattern thmType -- TODO: Do we need to apply this to assumptions?
+            let thmType ← unfoldNamedPattern thmType
             let thmVal  ← mkFreshExprSyntheticOpaqueMVar thmType
             let mvarId := thmVal.mvarId!
             proveCongrEqThm matchDeclName thmName mvarId
@@ -483,6 +483,7 @@ where go baseName :=
             mkLambdaFVars xs (← instantiateMVars thmVal)
           let thmVal ← mkLambdaFVars (params ++ #[motive] ++ discrs ++ alts ++ altVars ++ heqs) thmVal
           let thmType ← inferType thmVal
+          let thmType ← unfoldNamedPattern thmType
           unless (← getEnv).contains thmName do
             addDecl <| Declaration.thmDecl {
               name        := thmName

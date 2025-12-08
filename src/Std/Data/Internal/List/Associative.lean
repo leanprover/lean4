@@ -8250,10 +8250,11 @@ theorem containsKey_minKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l
   obtain ⟨e, ⟨hm, _⟩, rfl⟩ := hkm
   exact containsKey_of_mem hm
 
-theorem minKey?_eq_min?_map_fst [Ord α] [TransOrd α] [Std.LawfulEqOrd α] [LE α] [Std.LawfulOrderOrd α] [Min α] [Std.LawfulOrderLeftLeaningMin α]
+theorem minKey?_eq_min?_keys [Ord α] [TransOrd α] [Std.LawfulEqOrd α] [LE α] [Std.LawfulOrderOrd α] [Min α] [Std.LawfulOrderLeftLeaningMin α]
     (l : List ((a : α) × β a)) :
-    minKey? l = (l.map Sigma.fst).min? := by
+    minKey? l = (List.keys l).min? := by
   have : IsLinearOrder α := IsLinearOrder.of_ord
+  rw [keys_eq_map]
   induction l with
   | nil => simp [minKey?_of_isEmpty]
   | cons h t ih =>

@@ -3847,6 +3847,10 @@ theorem contains_minKey? [TransCmp cmp] (h : t.WF) {km} :
     t.contains km :=
   Impl.contains_minKey? h
 
+theorem minKey?_eq_min?_keys [TransCmp cmp] [Min α] [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α] [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp] (h : t.WF) :
+    t.minKey? = t.keys.min? :=
+  Impl.minKey?_eq_min?_keys h.out
+
 theorem minKey?_mem [TransCmp cmp] (h : t.WF) {km} :
     (hkm : t.minKey? = some km) →
     km ∈ t:=

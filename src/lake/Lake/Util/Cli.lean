@@ -30,7 +30,7 @@ public def Arg := String
 public abbrev MonadArg (m) := MonadReaderOf Arg m
 
 /-- A List of command line arguments. -/
-@[expose] public def ArgList := List Arg
+@[expose] public def ArgList := List String
 
 public noncomputable instance : SizeOf ArgList := inferInstanceAs (SizeOf (List String))
 
@@ -56,7 +56,37 @@ public instance  [MonadStateOf ArgList m] : MonadArgs m where
   takeArg? := modifyGet fun | [] => (none, []) | arg :: args => (some arg, args)
   takeArgs := modifyGet fun args => (args, [])
 
-/-- A monad transformer to equip a monad with a state that monotonically decreasing in size. -/
+/-- A monad transformer to equip a monad with a command-line argument list. -/
+@[expose] -- for codegen
+public abbrev ArgsT := StateT ArgList
+
+namespace ArgsT
+
+/--
+Executes an action in the underlying monad {lean}`m` with the added state of a command-line
+argument list. It returns the monadic value paired with the final argument list.
+-/
+public abbrev run (self : ArgsT m α) (args : List String) : m (α × List String) :=
+  StateT.run self args
+
+/--
+Executes an action in the underlying monad {lean}`m` with the added state of a command-line
+argument list. It returns the monadic value, discarding any remaining arguments list.
+-/
+public abbrev run' [Functor m] (self : ArgsT m α) (args : List String) : m α :=
+  StateT.run' self args
+
+@[simp] public theorem run_getArgs {as : List String} [Monad m]  :
+  StateT.run (σ := ArgList) (m := m) getArgs as = pure (as, as)
+:= by rfl
+
+@[simp] public theorem run_takeArgs {as : List String} [Monad m] :
+  StateT.run (σ := ArgList) (m := m) takeArgs as = pure (as, [])
+:= by rfl
+
+end ArgsT
+
+/-- A monad transformer to equip a monad with a state that monotonically non-increasing in size. -/
 @[expose] -- for codegen
 public def MonoStateT (σ : Type u) [SizeOf σ] (m : Type max u v → Type w) (α : Type v) :=
   (s : σ) → m (α × {s' : σ // sizeOf s' ≤ sizeOf s})
@@ -120,17 +150,17 @@ public protected def get [SizeOf σ] [Pure m] : MonoStateT σ m σ :=
 
 end MonoStateT
 
-/-- A monad transformer to equip a monad with an argument list. -/
-public abbrev ArgsT (m : Type → Type v) := MonoStateT ArgList m
+/-- A monad transformer to equip a monad with a monotonically non-increasing argument list. -/
+public abbrev MonoArgsT (m : Type → Type v) := MonoStateT ArgList m
 
-namespace ArgsT
+namespace MonoArgsT
 
 @[inline, always_inline, inherit_doc MonadArgs.getArgs]
-public protected def get [Pure m] : ArgsT m (List String) :=
+public protected def get [Pure m] : MonoArgsT m (List String) :=
   MonoStateT.get
 
 @[inline, always_inline, inherit_doc MonadArgs.takeArg?]
-public protected def takeArg? [Monad  m] : ArgsT m (Option String) :=
+public protected def takeArg? [Monad  m] : MonoArgsT m (Option String) :=
   MonoStateT.modifyGet fun
     | [] => (none, ⟨[], Nat.le_refl _⟩)
     | arg :: args => (some arg, ⟨args, mono_cons⟩)
@@ -138,7 +168,7 @@ where
   mono_cons {a} {as : List String} : sizeOf as ≤ sizeOf (a :: as) := by simp
 
 @[inline, always_inline, inherit_doc MonadArgs.takeArgs]
-public protected def takeArgs [Monad  m] : ArgsT m (List String) :=
+public protected def takeArgs [Monad  m] : MonoArgsT m (List String) :=
    MonoStateT.modifyGet fun args => (args, ⟨[], mono_nil⟩)
 where
   mono_nil {as : List String} : sizeOf ([] : List String) ≤ sizeOf as := by
@@ -147,12 +177,12 @@ where
     · simp only [List.nil.sizeOf_spec, List.cons.sizeOf_spec]
       omega
 
-public instance [Monad m] : MonadArgs (ArgsT m) where
-  getArgs := ArgsT.get
-  takeArg? := ArgsT.takeArg?
-  takeArgs :=  ArgsT.takeArgs
+public instance [Monad m] : MonadArgs (MonoArgsT m) where
+  getArgs := MonoArgsT.get
+  takeArg? := MonoArgsT.takeArg?
+  takeArgs :=  MonoArgsT.takeArgs
 
-end ArgsT
+end MonoArgsT
 
 /-! ## Monadic Argument Parsing Utilities -/
 
@@ -192,6 +222,17 @@ If no argument is available, returns {lean}`none`.
   else
     return none
 
+@[simp] public theorem ArgsT.run_takeArg?_nil
+  [Monad m] [LawfulMonad m] {_ : MonadParseArg α (ArgsT m)} :
+  StateT.run (σ := ArgList) (m := m) takeArg? [] = pure ((none : Option α), [])
+:= by simp [takeArg?, MonadArgs.takeArg?]
+
+@[simp] public theorem ArgsT.run_takeArg?_cons
+  [Monad m] [LawfulMonad m] [MonadParseArg α (ArgsT m)] :
+  StateT.run (σ := ArgList) (m := m) (α := Option α) takeArg? (a :: as) =
+  StateT.run (σ := ArgList) (some <$> parseArg a) as
+:= by simp [takeArg?, MonadArgs.takeArg?]
+
 /--
 Removes and returns the head of the remaining argument list, parsing the argument into {lean}`α`.
 
@@ -201,6 +242,11 @@ If no argument is available, returns {lean}`default`.
   [Monad m] [MonadArgs m] [MonadParseArg α m] (default : α)
 : m α := return (← takeArg?).getD default
 
+@[simp] public theorem takeArgD_eq_getD_takeArg?
+  [Monad m] [LawfulMonad m] [MonadArgs m] [MonadParseArg α m] :
+  takeArgD (α := α) (m := m) d = (·.getD d) <$> takeArg?
+:= by simp [takeArgD]
+
 /--
 Removes and returns the head of the remaining argument list, parsing the argument into {lean}`α`.
 
@@ -209,10 +255,22 @@ If no argument is available,, errors using {name}`throwExpectedArg` with {lean}`
 @[inline] public def takeArg
   [Monad m] [MonadArgs m] [MonadParseArg α m] [MonadThrowExpectedArg m] (descr : String)
 : m α := do
-  if let some arg ← takeArg? then
+  if let some arg ← MonadArgs.takeArg? then
     parseArg arg
   else
     throwExpectedArg descr
+
+@[simp] public theorem ArgsT.run_takeArg_nil
+  [Monad m] [LawfulMonad m] [MonadParseArg α (ArgsT m)] [MonadThrowExpectedArg m] :
+  StateT.run (σ := ArgList) (m := m) (α := α) (takeArg d) [] =
+  ((·, [])) <$> throwExpectedArg (m := m) d
+:= by simp [takeArg, MonadArgs.takeArg?, throwExpectedArg]
+
+@[simp] public theorem ArgsT.run_takeArg_cons
+  [Monad m] [LawfulMonad m] [MonadParseArg α (ArgsT m)] {_ : MonadThrowExpectedArg m} :
+  StateT.run (σ := ArgList) (m := m) (α := α) (takeArg d) (a :: as) =
+  StateT.run (σ := ArgList) (parseArg a) as
+:= by simp [takeArg, MonadArgs.takeArg?]
 
 /-! ## Argument Handler Type -/
 
@@ -226,7 +284,7 @@ public def ArgHandler (m : Type → Type v) :=
   read
 
 /-- A monad transformer to equip a monad with a command line argument. -/
-public abbrev ArgT (m) := ReaderT Arg <| ArgsT m
+public abbrev ArgT (m) := ReaderT Arg <| MonoArgsT m
 
 /--
 Construct an argument handler from a monadic action.
@@ -260,7 +318,7 @@ public structure IsArg (arg : String) : Prop where
 namespace IsOpt
 
 /-- A decision procedure for determining if {lean}`arg` is an option. -/
-public def dec (arg : String) : Decidable (IsOpt arg) :=
+@[reducible, expose] public def dec (arg : String) : Decidable (IsOpt arg) :=
   if h0 : arg.startPos = arg.endPos then
     isFalse fun ⟨_, _, _⟩ => by contradiction
   else
@@ -274,11 +332,14 @@ public def dec (arg : String) : Decidable (IsOpt arg) :=
 
 public instance instDecidable {arg : String} : Decidable (IsOpt arg) := dec arg
 
+public theorem ne_empty {arg} (h : IsOpt arg) : arg ≠ "" :=
+  String.startPos_eq_endPos_iff.subst h.startPos_ne_endPos
+
 public theorem not_isArg {arg} (h : IsOpt arg) : ¬ IsArg arg :=
   fun h' => h'.not_isOpt h
 
-public theorem ne_empty {arg} (h : IsOpt arg) : arg ≠ "" :=
-  String.startPos_eq_endPos_iff.subst h.startPos_ne_endPos
+public theorem ne_of_isArg (ha : IsOpt a) (hb : IsArg b) : a ≠ b :=
+  fun heq => ha.not_isArg.elim (heq ▸ hb)
 
 public theorem offset_next_startPos (h : IsOpt a) :
   (a.startPos.next h.startPos_ne_endPos).offset = ⟨1⟩
@@ -334,7 +395,7 @@ end IsOpt
 namespace IsArg
 
 /-- A decision procedure for determining if {lean}`arg` is an non-option command line argument. -/
-public def dec (arg : String) : Decidable (IsArg arg) :=
+@[reducible, expose] public def dec (arg : String) : Decidable (IsArg arg) :=
   if h0 : arg.startPos = arg.endPos then
     isFalse fun h => h.ne_empty (String.startPos_eq_endPos_iff.mp h0)
   else
@@ -348,6 +409,9 @@ public def dec (arg : String) : Decidable (IsArg arg) :=
       isTrue ⟨ne_empty, fun h => hc h.get_startPos⟩
 
 public instance instDecidable {arg : String} : Decidable (IsArg arg) := dec arg
+
+public theorem ne_of_isOpt (ha : IsArg a) (hb : IsOpt b) : a ≠ b :=
+  fun heq => ha.not_isOpt.elim (heq ▸ hb)
 
 public theorem startPos_ne_endPos (h : IsArg a) : a.startPos ≠ a.endPos :=
   String.startPos_eq_endPos_iff.symm.subst h.ne_empty
@@ -378,7 +442,7 @@ public def OptArg := Option String.Slice
 public abbrev MonadOptArg (m) := MonadReaderOf OptArg m
 
 /-- A monad transformer to equip a monad with a command line option and optional argument. -/
-public abbrev OptT (m) := ReaderT Opt <| ReaderT OptArg <| ArgsT m
+public abbrev OptT (m) := ReaderT Opt <| ReaderT OptArg <| MonoArgsT m
 
 /-- The character of a command line short option (e.g., {lit}`x` of {lit}`-x`). -/
 @[expose] -- for codegen
@@ -636,11 +700,11 @@ public def processLeadingOptions
     return args
 termination_by args
 
-public theorem processLeadingOptions_nil [Monad m] :
+@[simp] public theorem processLeadingOptions_nil [Monad m] :
   processLeadingOptions (m := m) [] f = pure []
 := by unfold processLeadingOptions; simp
 
-public theorem processLeadingOptions_cons_empty [Monad m] :
+@[simp] public theorem processLeadingOptions_cons_empty [Monad m] :
   processLeadingOptions (m := m) ("" :: as) f = processLeadingOptions as f
 := by conv => {lhs; unfold processLeadingOptions}; simp
 
@@ -674,11 +738,11 @@ public theorem processLeadingOptions_cons_of_isArg [Monad m] (h : IsArg a) :
   termination_by args
   loop args
 
-public theorem processArgs_nil [Monad m] :
+@[simp] public theorem processArgs_nil [Monad m] :
   processArgs (m := m) [] optH argH = pure ()
 := by unfold processArgs processArgs.loop; simp
 
-public theorem processArgs_cons_empty [Monad m] :
+@[simp] public theorem processArgs_cons_empty [Monad m] :
   processArgs (m := m) ("" :: as) optH argH = processArgs as optH argH
 := by
   unfold processArgs

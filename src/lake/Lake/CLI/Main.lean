@@ -142,13 +142,17 @@ export LakeOptions (mkLoadConfig mkBuildConfig)
 
 abbrev CliMainM := ExceptT CliError MainM
 abbrev CliStateM := StateT LakeOptions CliMainM
-abbrev CliM := StateT ArgList CliStateM
+abbrev CliM := ArgsT CliStateM
 
-def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
+@[inline] def CliMainM.run (self : CliMainM α) : BaseIO ExitCode := do
+  MainM.run <| (ExceptT.run self) >>= fun | .ok a => pure a | .error e => error e.toString
+
+@[inline] def CliStateM.run (self : CliStateM α) (args : List String) : BaseIO ExitCode := do
   let (elanInstall?, leanInstall?, lakeInstall?) ← findInstall?
-  let main := self.run' args |>.run' {args, elanInstall?, leanInstall?, lakeInstall?}
-  let main := main.run >>= fun | .ok a => pure a | .error e => error e.toString
-  main.run
+  StateT.run' self {args, elanInstall?, leanInstall?, lakeInstall?} |>.run
+
+@[inline] def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
+  StateT.run' self args |>.run args
 
 def CliStateM.runLogIO (x : LogIO α) : CliStateM α := do
   MainM.runLogIO x (← get).toLogConfig
@@ -159,6 +163,11 @@ def CliStateM.runLoggerIO (x : LoggerIO α) : CliStateM α := do
   MainM.runLoggerIO x (← get).toLogConfig
 
 instance (priority := low) : MonadLift LoggerIO CliStateM := ⟨CliStateM.runLoggerIO⟩
+
+def CliStateM.runIO (x : IO α) : CliStateM α := do
+  MainM.runLogIO x (← get).toLogConfig
+
+instance (priority := low) : MonadLift IO CliStateM := ⟨CliStateM.runIO⟩
 
 @[inline] def throwMissingArg (arg : String) : CliM α := do
   throw <| CliError.missingArg arg
@@ -200,7 +209,7 @@ def noArgsRem (act : CliStateM α) : CliM α := do
 
 /-! ## Option Parsing -/
 
-def getWantsHelp : CliStateM Bool :=
+@[inline] def getWantsHelp : CliStateM Bool :=
   (·.wantsHelp) <$> get
 
 def setConfigOpt (kvPair : String.Slice) : CliStateM PUnit :=
@@ -336,6 +345,10 @@ def processLakeOptions : CliM PUnit := fun args => do
 def processLeadingLakeOptions : CliM PUnit := fun args => do
   let args ← processLeadingOptions args lakeOption -- specializes `processLeadingOptions`
   return (⟨⟩, args)
+
+theorem run_processLeadingLakeOptions {as} :
+  StateT.run processLeadingLakeOptions as = (⟨(), ·⟩) <$> processLeadingOptions as lakeOption
+:= by rfl
 
 /-! ## Actions -/
 
@@ -961,19 +974,46 @@ def lake : CliM PUnit := do
   match (← getArgs) with
   | [] => IO.println usage
   | ["--version"] => IO.println uiVersionString
-  | _ => -- normal CLI
-    processLeadingLakeOptions -- between `lake` and command
-    if let some cmd ← takeArg? then
-      processLeadingLakeOptions -- between `lake <cmd>` and args
-      if (← getWantsHelp) then
-        IO.println <| help cmd
-      else
-        lakeCli cmd
+  | _ => go -- normal CLI
+where @[inline] go := do
+  processLeadingLakeOptions -- between `lake` and command
+  if let some cmd ← takeArg? then
+    processLeadingLakeOptions -- between `lake <cmd>` and args
+    if (← getWantsHelp) then
+      IO.println <| help cmd
     else
-      if (← getWantsHelp) then
-        IO.println usage
-      else
-        throw <| CliError.missingCommand
+      lakeCli cmd
+  else
+    if (← getWantsHelp) then
+      IO.println usage
+    else
+      throw <| CliError.missingCommand
 
 public def cli (args : List String) : BaseIO ExitCode :=
-  inline <| (lake).run args
+  (lake).run args
+
+/- CLI sanity check -/
+
+theorem run_lake_cons_of_ne_version (h : a ≠ "--version") :
+  StateT.run lake (a :: as) = StateT.run lake.go (a :: as)
+:= by
+  simp only [lake, StateT.run_bind, ArgsT.run_getArgs, pure_bind]
+  split
+  · contradiction
+  · next h_eq => simp [h] at h_eq
+  · rfl
+
+theorem cli_of_isArg (h : IsArg cmd) :
+  cli [cmd] = (StateT.run' (lakeCli cmd) []).run [cmd]
+:= by
+  have ne_version : cmd ≠ "--version" := h.ne_of_isOpt (by decide)
+  simp only [cli, CliM.run, CliStateM.run, StateT.run'_eq]
+  simp only [run_lake_cons_of_ne_version ne_version, lake.go, getWantsHelp]
+  simp [processLeadingOptions_cons_of_isArg h, run_processLeadingLakeOptions, parseArg]
+
+theorem cli_help :
+  cli ["help"] = (CliStateM.runIO <| IO.println usage).run ["help"]
+:= by
+  have isArg_help : IsArg "help" := by decide
+  have lakeCli_help : lakeCli "help" = lake.help := by rfl
+  simp [cli_of_isArg isArg_help, lakeCli_help, lake.help, monadLift, MonadLift.monadLift]

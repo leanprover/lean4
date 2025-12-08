@@ -3047,8 +3047,8 @@ end Const
 section BEq
 variable {m₁ m₂ : Raw α β cmp} [∀ k, BEq (β k)] [LawfulEqCmp cmp] [TransCmp cmp]
 
-theorem Equiv.beq [∀ k, ReflBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁ ~m m₂ → beq m₁ m₂ :=
-  fun h => Impl.Equiv.beq h₁ h₂ h.1
+theorem Equiv.beq [∀ k, ReflBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁ ~m m₂) : beq m₁ m₂ :=
+  Impl.Equiv.beq h₁ h₂ h.1
 
 theorem equiv_of_beq [∀ k, LawfulBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : beq m₁ m₂ = true → m₁ ~m m₂ := fun hyp =>
   let : Ord α := ⟨cmp⟩; ⟨Impl.equiv_of_beq h₁.1 h₂.1 hyp⟩

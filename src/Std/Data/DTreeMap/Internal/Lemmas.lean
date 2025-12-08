@@ -4881,6 +4881,7 @@ theorem Const.equiv_of_beq [TransOrd α] [LawfulEqOrd α] [LawfulBEq β] (h₁ :
 theorem Const.Equiv.beq_congr [TransOrd α] {m₃ m₄ : Impl α (fun _ => β)} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) :
     m₁.Equiv m₃ → m₂.Equiv m₄ → Const.beq m₁ m₂ = Const.beq m₃ m₄ := by
   simp_to_model using List.Const.beqModel_congr
+
 end
 
 section Diff

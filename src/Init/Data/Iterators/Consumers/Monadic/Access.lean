@@ -43,7 +43,7 @@ inductive IterM.IsPlausibleNthOutputStep {α β : Type w} {m : Type w → Type w
   | skip {it it' : IterM (α := α) m β} {step} : it.IsPlausibleStep (.skip it') →
       it'.IsPlausibleNthOutputStep n step → it.IsPlausibleNthOutputStep n step
 
-theorem IterM.not_isPlausibleNthOutputStep_yield {α β : Type w} {m : Type w → Type w'}
+theorem IterM.not_isPlausibleNthOutputStep_skip {α β : Type w} {m : Type w → Type w'}
     [MonadAttach m] [Iterator α m β] {n : Nat} {it it' : IterM (α := α) m β} :
     ¬ it.IsPlausibleNthOutputStep n (.skip it') := by
   intro h
@@ -66,10 +66,16 @@ is guaranteed to plausible in the sense of `IterM.IsPlausibleNthOutputStep`.
 
 This class is experimental and users of the iterator API should not explicitly depend on it.
 -/
-class IteratorAccess (α : Type w) (m : Type w → Type w') {β : Type w} [MonadAttach m]
+class IteratorAccess (α : Type w) (m : Type w → Type w') {β : Type w}
     [Iterator α m β] where
   nextAtIdx? (it : IterM (α := α) m β) (n : Nat) :
-    m (PlausibleIterStep (it.IsPlausibleNthOutputStep n))
+    m (IterM.Step (α := α) m β)
+
+class LawfulIteratorAccess (α : Type w) (m : Type w → Type w') {β : Type w}
+    [MonadAttach m] [Iterator α m β] [IteratorAccess α m] where
+  isPlausibleNthOutputStep_of_canReturn {it : IterM (α := α) m β} {n : Nat} {s} :
+    MonadAttach.CanReturn (IteratorAccess.nextAtIdx? it n) s → it.IsPlausibleNthOutputStep n s
+  -- TODO: correctness
 
 /--
 Returns the step in which `it` yields its `n`-th element, or `.done` if it terminates earlier.
@@ -84,8 +90,8 @@ This function is only available for iterators that explicitly support it by impl
 the `IteratorAccess` typeclass.
 -/
 @[always_inline, inline]
-def IterM.nextAtIdx? [MonadAttach m] [Iterator α m β] [IteratorAccess α m] (it : IterM (α := α) m β)
-    (n : Nat) : m (PlausibleIterStep (it.IsPlausibleNthOutputStep n)) :=
+def IterM.nextAtIdx? [Iterator α m β] [IteratorAccess α m] (it : IterM (α := α) m β)
+    (n : Nat) : m (IterM.Step (α := α) m β) :=
   IteratorAccess.nextAtIdx? it n
 
 /--
@@ -101,7 +107,7 @@ the `IteratorAccess` typeclass.
 @[always_inline, inline]
 def IterM.atIdx? [MonadAttach m] [Iterator α m β] [IteratorAccess α m] [Monad m]
     (it : IterM (α := α) m β) (n : Nat) : m (Option β) := do
-  match (← IteratorAccess.nextAtIdx? it n).val with
+  match ← IteratorAccess.nextAtIdx? it n with
   | .yield _ out => return some out
   | .skip _ => return none
   | .done => return none

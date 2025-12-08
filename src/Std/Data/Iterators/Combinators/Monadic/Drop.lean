@@ -57,28 +57,17 @@ does not drop any elements anymore.
 def IterM.drop (n : Nat) (it : IterM (α := α) m β) :=
   toIterM (Drop.mk n it) m β
 
-inductive Drop.PlausibleStep [Iterator α m β] (it : IterM (α := Drop α m β) m β) :
-    (step : IterStep (IterM (α := Drop α m β) m β) β) → Prop where
-  | drop : ∀ {it' out k}, it.internalState.inner.IsPlausibleStep (.yield it' out) →
-      it.internalState.remaining = k + 1 → PlausibleStep it (.skip (it'.drop k))
-  | skip : ∀ {it'}, it.internalState.inner.IsPlausibleStep (.skip it') →
-      PlausibleStep it (.skip (it'.drop it.internalState.remaining))
-  | done : it.internalState.inner.IsPlausibleStep .done → PlausibleStep it .done
-  | yield : ∀ {it' out}, it.internalState.inner.IsPlausibleStep (.yield it' out) →
-      it.internalState.remaining = 0 → PlausibleStep it (.yield (it'.drop 0) out)
-
 instance Drop.instIterator [Monad m] [Iterator α m β] : Iterator (Drop α m β) m β where
-  IsPlausibleStep := Drop.PlausibleStep
   step it := do
-    match (← it.internalState.inner.step).inflate with
-    | .yield it' out h =>
+    match ← it.internalState.inner.step with
+    | .yield it' out =>
       match h' : it.internalState.remaining with
-      | 0 => pure <| .deflate <| .yield (it'.drop 0) out (.yield h h')
-      | k + 1 => pure <| .deflate <| .skip (it'.drop k) (.drop h h')
-    | .skip it' h =>
-      pure <| .deflate <| .skip (it'.drop it.internalState.remaining) (.skip h)
-    | .done h =>
-      pure <| .deflate <| .done (.done h)
+      | 0 => return .yield (it'.drop 0) out
+      | k + 1 => return .skip (it'.drop k)
+    | .skip it' =>
+      return .skip (it'.drop it.internalState.remaining)
+    | .done =>
+      return .done
 
 private def Drop.FiniteRel (m : Type w → Type w') [Iterator α m β] [Finite α m] :
     IterM (α := Drop α m β) m β → IterM (α := Drop α m β) m β → Prop :=

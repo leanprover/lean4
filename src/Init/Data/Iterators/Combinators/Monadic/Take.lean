@@ -10,6 +10,7 @@ public import Init.Data.Nat.Lemmas
 public import Init.Data.Iterators.Consumers.Monadic.Collect
 public import Init.Data.Iterators.Consumers.Monadic.Loop
 public import Init.Data.Iterators.Internal.Termination
+import Init.Control.Lawful.MonadAttach.Lemmas
 
 @[expose] public section
 
@@ -25,7 +26,7 @@ variable {α : Type w} {m : Type w → Type w'} {β : Type w}
 The internal state of the `IterM.take` iterator combinator.
 -/
 @[unbox]
-structure Take (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
+structure Take (α : Type w) (m : Type w → Type w') {β : Type w} [MonadAttach m] [Iterator α m β] where
   /--
   Internal implementation detail of the iterator library.
   Caution: For `take n`, `countdown` is `n + 1`.
@@ -64,7 +65,7 @@ it.take 3   ---a--⊥
 This combinator incurs an additional O(1) cost with each output of `it`.
 -/
 @[always_inline, inline]
-def IterM.take [Iterator α m β] (n : Nat) (it : IterM (α := α) m β) :=
+def IterM.take [MonadAttach m] [Iterator α m β] (n : Nat) (it : IterM (α := α) m β) :=
   toIterM (Take.mk (n + 1) it (Or.inl <| Nat.zero_lt_succ _)) m β
 
 /--
@@ -90,17 +91,18 @@ it.toTake   ---a----b---c--d-e--⊥
 This combinator incurs an additional O(1) cost with each output of `it`.
 -/
 @[always_inline, inline]
-def IterM.toTake [Iterator α m β] [Finite α m] (it : IterM (α := α) m β) :=
+def IterM.toTake [MonadAttach m] [Iterator α m β] [Finite α m] (it : IterM (α := α) m β) :=
   toIterM (Take.mk 0 it (Or.inr inferInstance)) m β
 
 theorem IterM.take.surjective_of_zero_lt {α : Type w} {m : Type w → Type w'} {β : Type w}
-    [Iterator α m β] (it : IterM (α := Take α m) m β) (h : 0 < it.internalState.countdown) :
+    [MonadAttach m] [Iterator α m β] (it : IterM (α := Take α m) m β)
+    (h : 0 < it.internalState.countdown) :
     ∃ (it₀ : IterM (α := α) m β) (k : Nat), it = it₀.take k := by
   refine ⟨it.internalState.inner, it.internalState.countdown - 1, ?_⟩
   simp only [take, Nat.sub_add_cancel (m := 1) (n := it.internalState.countdown) (by omega)]
   rfl
 
-inductive Take.PlausibleStep [Iterator α m β] (it : IterM (α := Take α m) m β) :
+inductive Take.PlausibleStep [MonadAttach m] [Iterator α m β] (it : IterM (α := Take α m) m β) :
     (step : IterStep (IterM (α := Take α m) m β) β) → Prop where
   | yield : ∀ {it' out}, it.internalState.inner.IsPlausibleStep (.yield it' out) →
       (h : it.internalState.countdown ≠ 1) → PlausibleStep it (.yield ⟨it.internalState.countdown - 1, it', it.internalState.finite.imp_left (by omega)⟩ out)
@@ -111,19 +113,18 @@ inductive Take.PlausibleStep [Iterator α m β] (it : IterM (α := Take α m) m 
       PlausibleStep it .done
 
 @[always_inline, inline]
-instance Take.instIterator [Monad m] [Iterator α m β] : Iterator (Take α m) m β where
-  IsPlausibleStep := Take.PlausibleStep
-  step it :=
+instance Take.instIterator [Monad m] [MonadAttach m] [Iterator α m β] : Iterator (Take α m) m β where
+  step it := do
     if h : it.internalState.countdown = 1 then
-      pure <| .deflate <| .done (.depleted h)
+      return .done
     else do
-      match (← it.internalState.inner.step).inflate with
-      | .yield it' out h' =>
-        pure <| .deflate <| .yield ⟨it.internalState.countdown - 1, it', (it.internalState.finite.imp_left (by omega))⟩ out (.yield h' h)
-      | .skip it' h' => pure <| .deflate <| .skip ⟨it.internalState.countdown, it', it.internalState.finite⟩ (.skip h' h)
-      | .done h' => pure <| .deflate <| .done (.done h')
+      match ← it.internalState.inner.step with
+      | .yield it' out =>
+        return .yield ⟨it.internalState.countdown - 1, it', (it.internalState.finite.imp_left (by omega))⟩ out
+      | .skip it' => return .skip ⟨it.internalState.countdown, it', it.internalState.finite⟩
+      | .done => return .done
 
-def Take.Rel (m : Type w → Type w') [Monad m] [Iterator α m β] [Productive α m] :
+def Take.Rel (m : Type w → Type w') [Monad m] [MonadAttach m] [Iterator α m β] [Productive α m] :
     IterM (α := Take α m) m β → IterM (α := Take α m) m β → Prop :=
   open scoped Classical in
   if _ : Finite α m then
@@ -133,14 +134,14 @@ def Take.Rel (m : Type w → Type w') [Monad m] [Iterator α m β] [Productive �
     InvImage (Prod.Lex Nat.lt_wfRel.rel IterM.TerminationMeasures.Productive.Rel)
       (fun it => (it.internalState.countdown, it.internalState.inner.finitelyManySkips))
 
-theorem Take.rel_of_countdown [Monad m] [Iterator α m β] [Productive α m]
+theorem Take.rel_of_countdown [Monad m] [MonadAttach m] [Iterator α m β] [Productive α m]
     {it it' : IterM (α := Take α m) m β}
     (h : it'.internalState.countdown < it.internalState.countdown) : Take.Rel m it' it := by
   simp only [Rel]
   split <;> exact Prod.Lex.left _ _ h
 
-theorem Take.rel_of_inner [Monad m] [Iterator α m β] [Productive α m] {remaining : Nat}
-    {it it' : IterM (α := α) m β}
+theorem Take.rel_of_inner [Monad m] [MonadAttach m] [Iterator α m β] [Productive α m]
+    {remaining : Nat} {it it' : IterM (α := α) m β}
     (h : it'.finitelyManySkips.Rel it.finitelyManySkips) :
     Take.Rel m (it'.take remaining) (it.take remaining) := by
   simp only [Rel]
@@ -148,7 +149,7 @@ theorem Take.rel_of_inner [Monad m] [Iterator α m β] [Productive α m] {remain
   · exact Prod.Lex.right _ (.of_productive h)
   · exact Prod.Lex.right _ h
 
-theorem Take.rel_of_zero_of_inner [Monad m] [Iterator α m β]
+theorem Take.rel_of_zero_of_inner [Monad m] [MonadAttach m] [Iterator α m β]
     {it it' : IterM (α := Take α m) m β}
     (h : it.internalState.countdown = 0) (h' : it'.internalState.countdown = 0)
     (h'' : haveI := it.internalState.finite.resolve_left (by omega); it'.internalState.inner.finitelyManySteps.Rel it.internalState.inner.finitelyManySteps) :
@@ -158,8 +159,9 @@ theorem Take.rel_of_zero_of_inner [Monad m] [Iterator α m β]
   simp only [Rel, this, ↓reduceDIte, InvImage, h, h']
   exact Prod.Lex.right _ h''
 
-private def Take.instFinitenessRelation [Monad m] [Iterator α m β]
-    [Productive α m] :
+private def Take.instFinitenessRelation
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Iterator α m β] [Productive α m] :
     FinitenessRelation (Take α m) m where
   rel := Take.Rel m
   wf := by
@@ -172,43 +174,52 @@ private def Take.instFinitenessRelation [Monad m] [Iterator α m β]
       · exact WellFoundedRelation.wf
   subrelation {it it'} h := by
     obtain ⟨step, h, h'⟩ := h
-    cases h'
-    case yield it' out k h' h'' =>
+    simp only [IterM.IsPlausibleStep, Iterator.step] at h'
+    split at h'
+    · cases LawfulMonadAttach.eq_of_canReturn_pure h'
       cases h
-      cases it.internalState.finite
-      · apply rel_of_countdown
-        simp only
-        omega
-      · by_cases h : it.internalState.countdown = 0
-        · simp only [h, Nat.zero_le, Nat.sub_eq_zero_of_le]
-          apply rel_of_zero_of_inner h rfl
-          exact .single ⟨_, rfl, h'⟩
-        · apply rel_of_countdown
-          simp only
-          omega
-    case skip it' out k h' h'' =>
-      cases h
-      by_cases h : it.internalState.countdown = 0
-      · simp only [h]
-        apply Take.rel_of_zero_of_inner h rfl
-        exact .single ⟨_, rfl, h'⟩
-      · obtain ⟨it, k, rfl⟩ := IterM.take.surjective_of_zero_lt it (by omega)
-        apply Take.rel_of_inner
-        exact IterM.TerminationMeasures.Productive.rel_of_skip h'
-    case done _ =>
-      cases h
-    case depleted _ =>
-      cases h
+    · obtain ⟨step, hs, h'⟩ := LawfulMonadAttach.canReturn_bind_imp' h'
+      cases step, hs using PlausibleIterStep.casesOn'
+      · by_cases h'' : it.internalState.countdown = 0
+        · simp only at h'
+          cases LawfulMonadAttach.eq_of_canReturn_pure h'
+          cases h
+          simp only [h'']
+          apply rel_of_zero_of_inner h'' rfl
+          exact .single ⟨_, rfl, ‹_›⟩
+        · replace h₁ := LawfulMonadAttach.eq_of_canReturn_pure h'
+          cases h₁
+          cases h
+          apply rel_of_countdown
+          simp only; omega
+      · by_cases h'' : it.internalState.countdown = 0
+        · cases LawfulMonadAttach.eq_of_canReturn_pure h'
+          cases h
+          simp only [h'']
+          apply Take.rel_of_zero_of_inner h'' rfl
+          exact .single ⟨_, rfl, ‹_›⟩
+        · replace h₁ := LawfulMonadAttach.eq_of_canReturn_pure h'
+          cases h₁
+          cases h
+          obtain ⟨it, k, rfl⟩ := IterM.take.surjective_of_zero_lt it (by omega)
+          apply Take.rel_of_inner
+          exact IterM.TerminationMeasures.Productive.rel_of_skip ‹_›
+      · cases LawfulMonadAttach.eq_of_canReturn_pure h'
+        cases h
 
-instance Take.instFinite [Monad m] [Iterator α m β] [Productive α m] :
+instance Take.instFinite
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Iterator α m β] [Productive α m] :
     Finite (Take α m) m :=
   by exact Finite.of_finitenessRelation instFinitenessRelation
 
-instance Take.instIteratorCollect {n : Type w → Type w'} [Monad m] [Monad n] [Iterator α m β] :
+instance Take.instIteratorCollect {n : Type w → Type w'}
+    [Monad m] [MonadAttach m] [Monad n] [Iterator α m β] :
     IteratorCollect (Take α m) m n :=
   .defaultImplementation
 
-instance Take.instIteratorLoop {n : Type x → Type x'} [Monad m] [Monad n] [Iterator α m β] :
+instance Take.instIteratorLoop {n : Type x → Type x'}
+    [Monad m] [MonadAttach m] [Monad n] [MonadAttach n] [Iterator α m β] :
     IteratorLoop (Take α m) m n :=
   .defaultImplementation
 

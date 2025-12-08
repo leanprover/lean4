@@ -22,6 +22,6 @@ instance {α β} [Iterator α Id β] [Productive α Id] [IteratorAccess α Id] :
   where finally
     case noskip =>
       revert h
-      exact IterM.not_isPlausibleNthOutputStep_yield
+      exact IterM.not_isPlausibleNthOutputStep_skip
 
 end Std.Iterators

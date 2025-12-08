@@ -34,11 +34,7 @@ structure RepeatIterator (α : Type u) (f : α → α) where
 
 @[always_inline, inline]
 instance : Iterator (RepeatIterator α f) Id α where
-  IsPlausibleStep it
-    | .yield it' out => out = it.internalState.next ∧ it' = ⟨⟨f it.internalState.next⟩⟩
-    | .skip _ => False
-    | .done => False
-  step it := pure <| .deflate <| .yield ⟨⟨f it.internalState.next⟩⟩ it.internalState.next (by simp)
+  step it := .yield ⟨⟨f it.internalState.next⟩⟩ it.internalState.next
 
 /--
 Creates an infinite iterator from an initial value `init` and a function `f : α → α`.
@@ -68,7 +64,8 @@ instance RepeatIterator.instProductive :
     Productive (RepeatIterator α f) Id := by
   exact Productive.of_productivenessRelation instProductivenessRelation
 
-instance RepeatIterator.instIteratorLoop {α : Type w} {f : α → α} {n : Type w → Type w'} [Monad n] :
+instance RepeatIterator.instIteratorLoop {α : Type w} {f : α → α} {n : Type w → Type w'}
+    [Monad n] [MonadAttach n] :
     IteratorLoop (RepeatIterator α f) Id n :=
   .defaultImplementation
 

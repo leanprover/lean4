@@ -342,6 +342,21 @@ abbrev PlausibleIterStep.casesOn {IsPlausibleStep : IterStep α β → Prop}
   | .skip it' h => skip it' h
   | .done h => done h
 
+/--
+A more convenient `cases` eliminator for `PlausibleIterStep`.
+-/
+@[elab_as_elim]
+abbrev PlausibleIterStep.casesOn' {IsPlausibleStep : IterStep α β → Prop}
+    {motive : (step : IterStep α β) → IsPlausibleStep step → Sort x} (step : IterStep α β)
+    (h : IsPlausibleStep step)
+    (yield : ∀ it' out h, motive (.yield it' out) h)
+    (skip : ∀ it' h, motive (.skip it') h)
+    (done : ∀ h, motive .done h) : motive step h :=
+  match step with
+  | .yield it' out => yield it' out h
+  | .skip it' => skip it' h
+  | .done => done h
+
 end IterStep
 
 /--
@@ -388,7 +403,7 @@ The type of the step object returned by `IterM.step`, containing an `IterStep`
 and a proof that this is a plausible step for the given iterator.
 -/
 @[expose]
-abbrev IterM.Step {α : Type w} (m : Type w → Type w') (β : Type w) [Iterator α m β] [MonadAttach m] :=
+abbrev IterM.Step {α : Type w} (m : Type w → Type w') (β : Type w) [Iterator α m β] :=
   IterStep (IterM (α := α) m β) β
 
 /--
@@ -397,7 +412,7 @@ succeeding iterator. If this function is used recursively, termination can somet
 the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
 -/
 @[always_inline, inline, expose]
-def IterM.step {α : Type w} {m : Type w → Type w'} {β : Type w} [MonadAttach m] [Iterator α m β]
+def IterM.step {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     (it : IterM (α := α) m β) : m (IterM.Step (α := α) m β) :=
   Iterator.step it
 

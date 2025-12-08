@@ -474,11 +474,11 @@ to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
   xs.toArray.allM p
 
 /-- Returns `true` if `p` returns `true` for any element of the vector. -/
-@[inline, expose] def any (xs : Vector α n) (p : α → Bool) : Bool :=
+@[inline, expose, suggest_for Vector.some] def any (xs : Vector α n) (p : α → Bool) : Bool :=
   xs.toArray.any p
 
 /-- Returns `true` if `p` returns `true` for all elements of the vector. -/
-@[inline, expose] def all (xs : Vector α n) (p : α → Bool) : Bool :=
+@[inline, expose, suggest_for Vector.every] def all (xs : Vector α n) (p : α → Bool) : Bool :=
   xs.toArray.all p
 
 /-- Count the number of elements of a vector that satisfy the predicate `p`. -/

@@ -1365,13 +1365,13 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       -- inheritance, nor `import all`.
       (declHint := (mkPrivateName env structName).mkStr fieldName)
 
-  | .forallE .., LVal.fieldName ref fieldName suffix? _fullRef =>
+  | .forallE .., LVal.fieldName ref fieldName suffix? fullRef =>
     let fullName := Name.str `Function fieldName
     if (← getEnv).contains fullName then
       return LValResolution.const `Function `Function fullName
     match e.getAppFn, suffix? with
     | Expr.const c _, some suffix =>
-      throwUnknownConstantWithSuggestions (c ++ suffix)
+      throwUnknownConstantWithSuggestions (c ++ suffix) (ref? := some fullRef)
     | _, _ =>
       throwInvalidFieldAt ref fieldName fullName
   | .forallE .., .fieldIdx .. =>
@@ -1396,8 +1396,8 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
 
   | _, _ =>
     match e.getAppFn, lval with
-    | Expr.const c _, .fieldName _ref _fieldName (some suffix) _fullRef =>
-      throwUnknownConstantWithSuggestions (c ++ suffix)
+    | Expr.const c _, .fieldName _ref _fieldName (some suffix) fullRef =>
+      throwUnknownConstantWithSuggestions (c ++ suffix) (ref? := some fullRef)
     | _, .fieldName .. =>
       throwNamedError lean.invalidField m!"Invalid field notation: Field projection operates on \
         types of the form `C ...` where C is a constant. The expression{indentExpr e}\nhas \

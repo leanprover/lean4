@@ -64,15 +64,15 @@ Throw an unknown constant error message, potentially suggesting alternatives usi
 
 The "Unknown constant `<id>`" message will fully qualify the name, whereas the
 -/
-public def throwUnknownConstantWithSuggestions (constName : Name) : CoreM α := do
+public def throwUnknownConstantWithSuggestions (constName : Name) (ref? : Option Syntax := .none) : CoreM α := do
   let suggestions ← getSuggestions constName
-  let ref ← getRef
+  let ref := ref?.getD (← getRef)
   let hint ← if suggestions.size = 0 then
       pure MessageData.nil
     else
       -- Modify suggestions to have the same structure as the user-provided identifier, but only
       -- if that doesn't cause ambiguity.
-      let rawId := (← getRef).getId
+      let rawId := ref.getId
       let env ← getEnv
       let ns ← getCurrNamespace
       let openDecls ← getOpenDecls
@@ -86,7 +86,8 @@ public def throwUnknownConstantWithSuggestions (constName : Name) : CoreM α := 
               candidate
 
       let alternative := if h : suggestions.size = 1 then m!"`{.ofConstName suggestions[0]}`" else m!"one of these"
-      m!"Perhaps you meant {alternative} in place of `{.ofName rawId}`:".hint (suggestions.map fun suggestion =>
+      let inPlaceOfThis := if rawId.isAnonymous then .nil else m!" in place of `{.ofName rawId}`"
+      m!"Perhaps you meant {alternative}{inPlaceOfThis}:".hint (suggestions.map fun suggestion =>
         let modified := modifySuggestion suggestion
         {
           suggestion := s!"{modified}",

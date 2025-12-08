@@ -505,7 +505,7 @@ Examples:
  * {lean}`"tea".toSlice.contains (fun (c : Char) => c == 'X') = false`
  * {lean}`"coffee tea water".toSlice.contains "tea" = true`
 -/
-@[specialize pat]
+@[specialize pat, suggest_for String.Slice.some]
 def contains (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
   let searcher := ToForwardSearcher.toSearcher pat s
   searcher.any (· matches .matched ..)

@@ -429,7 +429,6 @@ x_14 = l_Lake_realConfigFile(x_13);
 x_15 = lean_string_utf8_byte_size(x_14);
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_nat_dec_eq(x_15, x_16);
-lean_dec(x_15);
 if (x_17 == 0)
 {
 uint8_t x_18; 
@@ -705,7 +704,6 @@ x_51 = lean_array_get_size(x_28);
 x_52 = lean_nat_dec_lt(x_50, x_51);
 if (x_52 == 0)
 {
-lean_dec(x_51);
 x_30 = lean_box(0);
 goto block_49;
 }
@@ -715,7 +713,6 @@ uint8_t x_53;
 x_53 = lean_nat_dec_le(x_51, x_51);
 if (x_53 == 0)
 {
-lean_dec(x_51);
 x_30 = lean_box(0);
 goto block_49;
 }
@@ -728,7 +725,6 @@ x_56 = lean_box(1);
 x_57 = lean_box(0);
 x_58 = 0;
 x_59 = lean_usize_of_nat(x_51);
-lean_dec(x_51);
 x_60 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_serve_spec__1(x_56, x_54, x_55, x_28, x_58, x_59, x_57);
 lean_dec_ref(x_60);
 x_30 = lean_box(0);

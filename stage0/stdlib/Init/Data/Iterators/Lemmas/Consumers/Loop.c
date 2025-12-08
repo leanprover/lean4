@@ -224,7 +224,7 @@ _start:
 lean_object* x_10; 
 x_10 = l___private_Init_Data_Iterators_Lemmas_Consumers_Loop_0__Std_Iterators_IterM_DefaultConsumers_forIn_x27__eq__match__step_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_5);
-lean_dec(x_4);
+lean_dec(x_3);
 return x_10;
 }
 }

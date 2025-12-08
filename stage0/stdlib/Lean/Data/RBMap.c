@@ -8088,7 +8088,6 @@ x_8 = l_Lean_RBMap_fromArray___closed__9;
 x_9 = lean_nat_dec_lt(x_6, x_7);
 if (x_9 == 0)
 {
-lean_dec(x_7);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 return x_5;
@@ -8099,7 +8098,6 @@ uint8_t x_10;
 x_10 = lean_nat_dec_le(x_7, x_7);
 if (x_10 == 0)
 {
-lean_dec(x_7);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 return x_5;
@@ -8111,7 +8109,6 @@ x_11 = lean_alloc_closure((void*)(l_Lean_RBMap_fromArray___lam__0), 3, 1);
 lean_closure_set(x_11, 0, x_4);
 x_12 = 0;
 x_13 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
 x_14 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_8, x_11, x_3, x_12, x_13, x_5);
 return x_14;
 }
@@ -8129,7 +8126,6 @@ x_6 = l_Lean_RBMap_fromArray___closed__9;
 x_7 = lean_nat_dec_lt(x_4, x_5);
 if (x_7 == 0)
 {
-lean_dec(x_5);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 return x_3;
@@ -8140,7 +8136,6 @@ uint8_t x_8;
 x_8 = lean_nat_dec_le(x_5, x_5);
 if (x_8 == 0)
 {
-lean_dec(x_5);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 return x_3;
@@ -8152,7 +8147,6 @@ x_9 = lean_alloc_closure((void*)(l_Lean_RBMap_fromArray___lam__0), 3, 1);
 lean_closure_set(x_9, 0, x_2);
 x_10 = 0;
 x_11 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
 x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_9, x_1, x_10, x_11, x_3);
 return x_12;
 }

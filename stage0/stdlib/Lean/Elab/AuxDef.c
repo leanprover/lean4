@@ -1066,7 +1066,6 @@ x_185 = lean_array_get_size(x_184);
 x_186 = lean_nat_dec_lt(x_165, x_185);
 if (x_186 == 0)
 {
-lean_dec(x_185);
 lean_dec_ref(x_184);
 x_112 = x_172;
 x_113 = x_167;
@@ -1088,7 +1087,6 @@ uint8_t x_187;
 x_187 = lean_nat_dec_le(x_185, x_185);
 if (x_187 == 0)
 {
-lean_dec(x_185);
 lean_dec_ref(x_184);
 x_112 = x_172;
 x_113 = x_167;
@@ -1108,7 +1106,6 @@ else
 {
 size_t x_188; lean_object* x_189; 
 x_188 = lean_usize_of_nat(x_185);
-lean_dec(x_185);
 x_189 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Command_elabAuxDef_spec__4(x_184, x_183, x_188, x_181);
 lean_dec_ref(x_184);
 x_112 = x_172;

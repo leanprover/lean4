@@ -320,7 +320,6 @@ lean_object* x_2; lean_object* x_3; uint8_t x_4;
 x_2 = lean_string_utf8_byte_size(x_1);
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_nat_dec_eq(x_2, x_3);
-lean_dec(x_2);
 return x_4;
 }
 }
@@ -342,7 +341,6 @@ x_2 = lean_string_utf8_byte_size(x_1);
 lean_dec_ref(x_1);
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_nat_dec_eq(x_2, x_3);
-lean_dec(x_2);
 return x_4;
 }
 }
@@ -1251,7 +1249,6 @@ _start:
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_string_utf8_byte_size(x_1);
 x_4 = lean_nat_dec_eq(x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }

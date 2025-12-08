@@ -184,7 +184,6 @@ x_35 = lean_array_get_size(x_26);
 x_36 = l_Lean_RecursorVal_getMajorIdx(x_34);
 lean_dec_ref(x_34);
 x_37 = lean_nat_dec_le(x_35, x_36);
-lean_dec(x_35);
 if (x_37 == 0)
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; uint8_t x_41; 
@@ -251,7 +250,6 @@ x_47 = lean_array_get_size(x_26);
 x_48 = l_Lean_RecursorVal_getMajorIdx(x_46);
 lean_dec_ref(x_46);
 x_49 = lean_nat_dec_le(x_47, x_48);
-lean_dec(x_47);
 if (x_49 == 0)
 {
 lean_object* x_50; lean_object* x_51; lean_object* x_52; uint8_t x_53; 
@@ -323,7 +321,6 @@ lean_inc(x_59);
 lean_dec(x_58);
 x_60 = lean_array_get_size(x_26);
 x_61 = lean_nat_dec_lt(x_59, x_60);
-lean_dec(x_60);
 if (x_61 == 0)
 {
 lean_object* x_62; 
@@ -402,7 +399,6 @@ x_81 = lean_array_get_size(x_72);
 x_82 = l_Lean_RecursorVal_getMajorIdx(x_80);
 lean_dec_ref(x_80);
 x_83 = lean_nat_dec_le(x_81, x_82);
-lean_dec(x_81);
 if (x_83 == 0)
 {
 lean_object* x_84; lean_object* x_85; lean_object* x_86; uint8_t x_87; 
@@ -481,7 +477,6 @@ lean_inc(x_96);
 lean_dec(x_95);
 x_97 = lean_array_get_size(x_72);
 x_98 = lean_nat_dec_lt(x_96, x_97);
-lean_dec(x_97);
 if (x_98 == 0)
 {
 lean_object* x_99; lean_object* x_100; 

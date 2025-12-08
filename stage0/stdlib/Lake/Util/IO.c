@@ -228,7 +228,6 @@ x_3 = l_Lake_resolvePath(x_1);
 x_4 = lean_string_utf8_byte_size(x_3);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_nat_dec_eq(x_4, x_5);
-lean_dec(x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; 

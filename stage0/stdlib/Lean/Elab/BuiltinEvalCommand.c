@@ -4160,14 +4160,12 @@ x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
-lean_dec(x_4);
 return x_5;
 }
 else
 {
 if (x_5 == 0)
 {
-lean_dec(x_4);
 return x_5;
 }
 else
@@ -4175,7 +4173,6 @@ else
 size_t x_6; size_t x_7; uint8_t x_8; 
 x_6 = 0;
 x_7 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_8 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00__private_Lean_Elab_BuiltinEvalCommand_0__Lean_Elab_Command_addAndCompileExprForEval_spec__4_spec__4(x_2, x_1, x_6, x_7);
 return x_8;
 }
@@ -28598,7 +28595,6 @@ if (lean_is_exclusive(x_29)) {
 x_73 = lean_string_utf8_byte_size(x_31);
 x_74 = lean_unsigned_to_nat(0u);
 x_75 = lean_nat_dec_eq(x_73, x_74);
-lean_dec(x_73);
 if (x_75 == 0)
 {
 lean_object* x_76; lean_object* x_77; lean_object* x_78; 
@@ -28901,7 +28897,6 @@ if (lean_is_exclusive(x_109)) {
 x_139 = lean_string_utf8_byte_size(x_111);
 x_140 = lean_unsigned_to_nat(0u);
 x_141 = lean_nat_dec_eq(x_139, x_140);
-lean_dec(x_139);
 if (x_141 == 0)
 {
 lean_object* x_142; lean_object* x_143; lean_object* x_144; 

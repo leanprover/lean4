@@ -635,7 +635,6 @@ x_40 = l___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo(x_2, x_16, 
 x_63 = lean_unsigned_to_nat(0u);
 x_64 = lean_array_get_size(x_18);
 x_65 = lean_nat_dec_lt(x_63, x_64);
-lean_dec(x_64);
 if (x_65 == 0)
 {
 x_54 = x_65;
@@ -724,7 +723,6 @@ lean_dec(x_16);
 x_67 = lean_unsigned_to_nat(0u);
 x_68 = lean_array_get_size(x_18);
 x_69 = lean_nat_dec_lt(x_67, x_68);
-lean_dec(x_68);
 if (x_69 == 0)
 {
 x_21 = x_69;

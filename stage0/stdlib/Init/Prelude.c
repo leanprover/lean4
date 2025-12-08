@@ -5407,7 +5407,6 @@ _start:
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_array_get_size(x_2);
 x_6 = lean_nat_dec_lt(x_3, x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 lean_inc(x_4);
@@ -5428,7 +5427,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_2, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_inc(x_3);
@@ -5743,7 +5741,6 @@ _start:
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_array_get_size(x_1);
 x_6 = lean_nat_dec_lt(x_3, x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 lean_dec(x_3);
@@ -5848,7 +5845,6 @@ _start:
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_array_get_size(x_1);
 x_6 = lean_nat_dec_lt(x_3, x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 lean_dec(x_3);
@@ -5925,7 +5921,6 @@ goto block_8;
 }
 else
 {
-lean_dec(x_9);
 x_4 = x_3;
 goto block_8;
 }
@@ -11552,7 +11547,6 @@ lean_object* x_3; lean_object* x_4; uint8_t x_5;
 x_3 = lean_ctor_get(x_1, 2);
 x_4 = lean_array_get_size(x_3);
 x_5 = lean_nat_dec_lt(x_2, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; 
@@ -11670,7 +11664,6 @@ lean_object* x_13; lean_object* x_14; uint8_t x_15;
 x_13 = lean_array_get_size(x_3);
 x_14 = lean_unsigned_to_nat(1u);
 x_15 = lean_nat_dec_eq(x_13, x_14);
-lean_dec(x_13);
 x_5 = x_15;
 goto block_10;
 }
@@ -11860,7 +11853,6 @@ _start:
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_array_get_size(x_1);
 x_4 = lean_nat_dec_lt(x_2, x_3);
-lean_dec(x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -12136,7 +12128,6 @@ x_5 = lean_nat_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; 
-lean_dec(x_4);
 lean_dec(x_3);
 x_6 = lean_box(0);
 return x_6;
@@ -12146,7 +12137,6 @@ else
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_7 = lean_box(0);
 x_8 = lean_nat_sub(x_4, x_3);
-lean_dec(x_4);
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_sub(x_8, x_9);
 lean_dec(x_8);
@@ -14222,7 +14212,6 @@ lean_object* x_7; lean_object* x_8; uint8_t x_9;
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_get_size(x_5);
 x_9 = lean_nat_dec_lt(x_7, x_8);
-lean_dec(x_8);
 if (x_9 == 0)
 {
 return x_9;

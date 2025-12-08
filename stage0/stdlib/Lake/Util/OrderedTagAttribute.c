@@ -1826,14 +1826,12 @@ x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
-lean_dec(x_4);
 return x_5;
 }
 else
 {
 if (x_5 == 0)
 {
-lean_dec(x_4);
 return x_5;
 }
 else
@@ -1841,7 +1839,6 @@ else
 size_t x_6; size_t x_7; uint8_t x_8; 
 x_6 = 0;
 x_7 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_8 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lake_OrderedTagAttribute_hasTag_spec__0_spec__0(x_2, x_1, x_6, x_7);
 return x_8;
 }
@@ -1890,7 +1887,6 @@ x_17 = lean_array_get_size(x_15);
 x_18 = lean_nat_dec_lt(x_16, x_17);
 if (x_18 == 0)
 {
-lean_dec(x_17);
 lean_dec_ref(x_15);
 return x_18;
 }
@@ -1899,7 +1895,6 @@ else
 lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 x_19 = lean_unsigned_to_nat(1u);
 x_20 = lean_nat_sub(x_17, x_19);
-lean_dec(x_17);
 x_21 = lean_nat_dec_le(x_16, x_20);
 if (x_21 == 0)
 {
@@ -2027,7 +2022,6 @@ x_16 = lean_array_get_size(x_14);
 x_17 = lean_nat_dec_lt(x_15, x_16);
 if (x_17 == 0)
 {
-lean_dec(x_16);
 lean_dec_ref(x_14);
 x_10 = x_6;
 goto block_13;
@@ -2038,7 +2032,6 @@ uint8_t x_18;
 x_18 = lean_nat_dec_le(x_16, x_16);
 if (x_18 == 0)
 {
-lean_dec(x_16);
 lean_dec_ref(x_14);
 x_10 = x_6;
 goto block_13;
@@ -2048,7 +2041,6 @@ else
 size_t x_19; size_t x_20; lean_object* x_21; 
 x_19 = 0;
 x_20 = lean_usize_of_nat(x_16);
-lean_dec(x_16);
 x_21 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_OrderedTagAttribute_getAllEntries_spec__0(x_14, x_19, x_20, x_6);
 lean_dec_ref(x_14);
 x_10 = x_21;

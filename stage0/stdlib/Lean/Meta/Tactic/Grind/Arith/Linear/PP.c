@@ -881,7 +881,6 @@ lean_object* x_19; lean_object* x_20; uint8_t x_21;
 x_19 = lean_array_get_size(x_17);
 x_20 = lean_unsigned_to_nat(1u);
 x_21 = lean_nat_dec_eq(x_19, x_20);
-lean_dec(x_19);
 if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
@@ -929,7 +928,6 @@ lean_object* x_31; lean_object* x_32; uint8_t x_33;
 x_31 = lean_array_get_size(x_29);
 x_32 = lean_unsigned_to_nat(1u);
 x_33 = lean_nat_dec_eq(x_31, x_32);
-lean_dec(x_31);
 if (x_33 == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 

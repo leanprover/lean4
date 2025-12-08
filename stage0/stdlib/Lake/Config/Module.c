@@ -451,8 +451,6 @@ x_5 = lean_nat_dec_le(x_4, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; 
-lean_dec(x_4);
-lean_dec(x_3);
 lean_dec_ref(x_2);
 x_6 = lean_box(0);
 return x_6;
@@ -465,8 +463,6 @@ x_8 = lean_string_memcmp(x_2, x_1, x_7, x_7, x_4);
 if (x_8 == 0)
 {
 lean_object* x_9; 
-lean_dec(x_4);
-lean_dec(x_3);
 lean_dec_ref(x_2);
 x_9 = lean_box(0);
 return x_9;
@@ -474,14 +470,12 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-lean_inc(x_3);
 lean_inc_ref(x_2);
 x_10 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_10, 0, x_2);
 lean_ctor_set(x_10, 1, x_7);
 lean_ctor_set(x_10, 2, x_3);
 x_11 = l_String_Slice_pos_x21(x_10, x_4);
-lean_dec(x_4);
 lean_dec_ref(x_10);
 x_12 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_12, 0, x_2);
@@ -530,7 +524,6 @@ x_5 = lean_nat_dec_le(x_4, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; 
-lean_dec(x_3);
 lean_dec_ref(x_1);
 x_6 = lean_box(0);
 return x_6;
@@ -545,7 +538,6 @@ if (x_9 == 0)
 {
 lean_object* x_10; 
 lean_dec(x_8);
-lean_dec(x_3);
 lean_dec_ref(x_1);
 x_10 = lean_box(0);
 return x_10;
@@ -626,7 +618,6 @@ x_5 = lean_nat_dec_le(x_4, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; 
-lean_dec(x_3);
 lean_dec_ref(x_1);
 x_6 = lean_box(0);
 return x_6;
@@ -641,7 +632,6 @@ if (x_9 == 0)
 {
 lean_object* x_10; 
 lean_dec(x_8);
-lean_dec(x_3);
 lean_dec_ref(x_1);
 x_10 = lean_box(0);
 return x_10;
@@ -1002,7 +992,6 @@ x_10 = lean_array_get_size(x_7);
 x_11 = lean_nat_dec_lt(x_8, x_10);
 if (x_11 == 0)
 {
-lean_dec(x_10);
 lean_dec_ref(x_7);
 lean_dec_ref(x_2);
 x_3 = x_9;
@@ -1014,7 +1003,6 @@ uint8_t x_12;
 x_12 = lean_nat_dec_le(x_10, x_10);
 if (x_12 == 0)
 {
-lean_dec(x_10);
 lean_dec_ref(x_7);
 lean_dec_ref(x_2);
 x_3 = x_9;
@@ -1026,7 +1014,6 @@ lean_object* x_13; size_t x_14; size_t x_15; lean_object* x_16;
 x_13 = l_Lake_Package_findModule_x3f___closed__2;
 x_14 = 0;
 x_15 = lean_usize_of_nat(x_10);
-lean_dec(x_10);
 x_16 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Package_findModule_x3f_spec__1(x_13, x_2, x_7, x_14, x_15, x_9);
 lean_dec_ref(x_7);
 x_3 = x_16;
@@ -1557,7 +1544,6 @@ x_8 = lean_nat_dec_lt(x_5, x_6);
 if (x_8 == 0)
 {
 lean_object* x_9; 
-lean_dec(x_6);
 lean_dec_ref(x_4);
 lean_dec_ref(x_1);
 x_9 = lean_alloc_ctor(0, 1, 0);
@@ -1571,7 +1557,6 @@ x_10 = lean_nat_dec_le(x_6, x_6);
 if (x_10 == 0)
 {
 lean_object* x_11; 
-lean_dec(x_6);
 lean_dec_ref(x_4);
 lean_dec_ref(x_1);
 x_11 = lean_alloc_ctor(0, 1, 0);
@@ -1584,7 +1569,6 @@ lean_object* x_12; size_t x_13; size_t x_14; lean_object* x_15;
 x_12 = lean_box(0);
 x_13 = 0;
 x_14 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_15 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_LeanLib_getModuleArray_spec__3(x_1, x_4, x_13, x_14, x_12, x_7);
 lean_dec_ref(x_4);
 if (lean_obj_tag(x_15) == 0)
@@ -1751,7 +1735,6 @@ else
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_array_get_size(x_2);
 x_8 = lean_nat_dec_le(x_4, x_7);
-lean_dec(x_7);
 if (x_8 == 0)
 {
 lean_dec_ref(x_1);
@@ -1778,7 +1761,6 @@ lean_inc_ref(x_3);
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_array_get_size(x_3);
 x_6 = l_Array_filterMapM___at___00Lake_LeanLib_rootModules_spec__0(x_1, x_3, x_4, x_5);
-lean_dec(x_5);
 lean_dec_ref(x_3);
 return x_6;
 }

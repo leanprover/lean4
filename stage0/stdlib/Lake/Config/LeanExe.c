@@ -286,7 +286,6 @@ x_6 = l_Lake_Package_leanExes___closed__10;
 x_7 = lean_nat_dec_lt(x_3, x_5);
 if (x_7 == 0)
 {
-lean_dec(x_5);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 return x_4;
@@ -297,7 +296,6 @@ uint8_t x_8;
 x_8 = lean_nat_dec_le(x_5, x_5);
 if (x_8 == 0)
 {
-lean_dec(x_5);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 return x_4;
@@ -311,7 +309,6 @@ lean_closure_set(x_10, 0, x_9);
 lean_closure_set(x_10, 1, x_1);
 x_11 = 0;
 x_12 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
 x_13 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_10, x_2, x_11, x_12, x_4);
 return x_13;
 }
@@ -1299,7 +1296,6 @@ x_11 = lean_array_get_size(x_8);
 x_12 = lean_nat_dec_lt(x_9, x_11);
 if (x_12 == 0)
 {
-lean_dec(x_11);
 x_3 = x_10;
 goto block_7;
 }
@@ -1309,7 +1305,6 @@ uint8_t x_13;
 x_13 = lean_nat_dec_le(x_11, x_11);
 if (x_13 == 0)
 {
-lean_dec(x_11);
 x_3 = x_10;
 goto block_7;
 }
@@ -1319,7 +1314,6 @@ lean_object* x_14; size_t x_15; size_t x_16; lean_object* x_17;
 x_14 = l_Lake_LeanExe_keyword;
 x_15 = 0;
 x_16 = lean_usize_of_nat(x_11);
-lean_dec(x_11);
 lean_inc_ref(x_2);
 x_17 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Package_findTargetModule_x3f_spec__1(x_14, x_2, x_8, x_15, x_16, x_10);
 x_3 = x_17;
@@ -1502,7 +1496,6 @@ x_23 = lean_array_get_size(x_7);
 x_24 = lean_nat_dec_lt(x_21, x_23);
 if (x_24 == 0)
 {
-lean_dec(x_23);
 x_8 = x_22;
 goto block_20;
 }
@@ -1512,7 +1505,6 @@ uint8_t x_25;
 x_25 = lean_nat_dec_le(x_23, x_23);
 if (x_25 == 0)
 {
-lean_dec(x_23);
 x_8 = x_22;
 goto block_20;
 }
@@ -1522,7 +1514,6 @@ lean_object* x_26; size_t x_27; size_t x_28; lean_object* x_29;
 x_26 = l_Lake_Package_findModuleBySrc_x3f___closed__1;
 x_27 = 0;
 x_28 = lean_usize_of_nat(x_23);
-lean_dec(x_23);
 lean_inc_ref(x_2);
 x_29 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Package_findTargetModule_x3f_spec__1(x_26, x_2, x_7, x_27, x_28, x_22);
 x_8 = x_29;
@@ -1553,7 +1544,6 @@ x_13 = lean_array_get_size(x_7);
 x_14 = lean_nat_dec_lt(x_11, x_13);
 if (x_14 == 0)
 {
-lean_dec(x_13);
 lean_dec_ref(x_7);
 lean_dec_ref(x_2);
 x_3 = x_12;
@@ -1565,7 +1555,6 @@ uint8_t x_15;
 x_15 = lean_nat_dec_le(x_13, x_13);
 if (x_15 == 0)
 {
-lean_dec(x_13);
 lean_dec_ref(x_7);
 lean_dec_ref(x_2);
 x_3 = x_12;
@@ -1577,7 +1566,6 @@ lean_object* x_16; size_t x_17; size_t x_18; lean_object* x_19;
 x_16 = l_Lake_LeanExe_keyword;
 x_17 = 0;
 x_18 = lean_usize_of_nat(x_13);
-lean_dec(x_13);
 x_19 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Package_findTargetModule_x3f_spec__1(x_16, x_2, x_7, x_17, x_18, x_12);
 lean_dec_ref(x_7);
 x_3 = x_19;

@@ -1592,7 +1592,6 @@ else
 lean_object* x_9; uint8_t x_10; 
 x_9 = lean_array_get_size(x_1);
 x_10 = lean_nat_dec_le(x_3, x_9);
-lean_dec(x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; 
@@ -1786,7 +1785,6 @@ x_11 = lean_unsigned_to_nat(0u);
 x_12 = lean_array_get_size(x_10);
 lean_inc_ref(x_7);
 x_13 = l_Array_filterMapM___at___00Lean_Elab_Term_MatchExpr_getParams_spec__0(x_10, x_11, x_12, x_7, x_8);
-lean_dec(x_12);
 lean_dec_ref(x_10);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)

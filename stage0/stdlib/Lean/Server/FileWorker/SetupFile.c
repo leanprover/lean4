@@ -1350,7 +1350,6 @@ x_58 = lean_nat_dec_lt(x_56, x_57);
 if (x_58 == 0)
 {
 lean_object* x_59; 
-lean_dec(x_57);
 x_59 = l_Lean_Server_FileWorker_FileSetupResult_ofSuccess(x_54);
 return x_59;
 }
@@ -1361,7 +1360,6 @@ x_60 = lean_nat_dec_le(x_57, x_57);
 if (x_60 == 0)
 {
 lean_object* x_61; 
-lean_dec(x_57);
 x_61 = l_Lean_Server_FileWorker_FileSetupResult_ofSuccess(x_54);
 return x_61;
 }
@@ -1371,7 +1369,6 @@ lean_object* x_62; size_t x_63; size_t x_64; lean_object* x_65;
 x_62 = lean_box(0);
 x_63 = 0;
 x_64 = lean_usize_of_nat(x_57);
-lean_dec(x_57);
 x_65 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_FileWorker_setupFile_spec__0(x_55, x_63, x_64, x_62);
 if (lean_obj_tag(x_65) == 0)
 {

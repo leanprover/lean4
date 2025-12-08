@@ -5899,7 +5899,6 @@ lean_dec(x_10);
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_unsigned_to_nat(4u);
 x_14 = lean_nat_mul(x_11, x_13);
-lean_dec(x_11);
 x_15 = lean_unsigned_to_nat(3u);
 x_16 = lean_nat_div(x_14, x_15);
 lean_dec(x_14);

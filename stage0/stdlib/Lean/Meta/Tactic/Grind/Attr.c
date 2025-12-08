@@ -2292,7 +2292,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_2, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_dec(x_2);
@@ -3211,7 +3210,6 @@ x_10 = lean_uint64_shift_right(x_8, x_9);
 x_11 = lean_uint64_xor(x_8, x_10);
 x_12 = lean_uint64_to_usize(x_11);
 x_13 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_14 = 1;
 x_15 = lean_usize_sub(x_13, x_14);
 x_16 = lean_usize_land(x_12, x_15);
@@ -4090,7 +4088,6 @@ lean_inc_ref(x_16);
 lean_dec_ref(x_15);
 x_17 = lean_array_get_size(x_16);
 x_18 = lean_nat_dec_lt(x_14, x_17);
-lean_dec(x_17);
 if (x_18 == 0)
 {
 lean_dec_ref(x_16);

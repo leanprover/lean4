@@ -76,7 +76,6 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = l_Lake_lpad___closed__0;
 x_5 = lean_string_length(x_1);
 x_6 = lean_nat_sub(x_3, x_5);
-lean_dec(x_5);
 x_7 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00Lake_lpad_spec__0(x_2, x_6, x_4);
 x_8 = lean_string_append(x_7, x_1);
 return x_8;
@@ -110,7 +109,6 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_string_length(x_1);
 x_5 = lean_nat_sub(x_3, x_4);
-lean_dec(x_4);
 x_6 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00Lake_lpad_spec__0(x_2, x_5, x_1);
 return x_6;
 }
@@ -237,9 +235,7 @@ _start:
 {
 lean_object* x_2; uint8_t x_3; 
 x_2 = lean_string_utf8_byte_size(x_1);
-lean_inc(x_2);
 x_3 = l___private_Init_Data_Nat_Fold_0__Nat_allTR_loop___at___00Lake_isHex_spec__0___redArg(x_1, x_2, x_2);
-lean_dec(x_2);
 return x_3;
 }
 }

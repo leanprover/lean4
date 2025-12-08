@@ -6049,7 +6049,6 @@ x_61 = l___private_Lake_Load_Manifest_0__Lake_Manifest_getVersion___closed__8;
 x_62 = lean_unsigned_to_nat(0u);
 x_63 = lean_string_utf8_byte_size(x_60);
 x_64 = l___private_Lake_Util_Version_0__Lake_runVerParse(lean_box(0), x_60, x_61, x_62, x_63);
-lean_dec(x_63);
 if (lean_obj_tag(x_64) == 0)
 {
 uint8_t x_65; 

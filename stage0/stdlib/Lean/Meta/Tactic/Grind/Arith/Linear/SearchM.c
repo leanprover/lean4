@@ -336,7 +336,6 @@ x_9 = lean_ctor_get(x_2, 6);
 x_10 = lean_ctor_get(x_2, 7);
 x_11 = lean_array_get_size(x_3);
 x_12 = lean_nat_dec_lt(x_1, x_11);
-lean_dec(x_11);
 if (x_12 == 0)
 {
 return x_2;

@@ -1705,7 +1705,6 @@ x_5 = l_Lean_instToExprInt8_mkNat___closed__2;
 x_6 = l_Lean_instToExprInt8___lam__0___closed__2;
 x_7 = lean_int8_to_int(x_1);
 x_8 = lean_int_neg(x_7);
-lean_dec(x_7);
 x_9 = l_Int_toNat(x_8);
 lean_dec(x_8);
 x_10 = l_Lean_instToExprInt8_mkNat(x_9);
@@ -1717,7 +1716,6 @@ else
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_12 = lean_int8_to_int(x_1);
 x_13 = l_Int_toNat(x_12);
-lean_dec(x_12);
 x_14 = l_Lean_instToExprInt8_mkNat(x_13);
 return x_14;
 }
@@ -1858,7 +1856,6 @@ x_5 = l_Lean_instToExprInt16_mkNat___closed__2;
 x_6 = l_Lean_instToExprInt16___lam__0___closed__2;
 x_7 = lean_int16_to_int(x_1);
 x_8 = lean_int_neg(x_7);
-lean_dec(x_7);
 x_9 = l_Int_toNat(x_8);
 lean_dec(x_8);
 x_10 = l_Lean_instToExprInt16_mkNat(x_9);
@@ -1870,7 +1867,6 @@ else
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_12 = lean_int16_to_int(x_1);
 x_13 = l_Int_toNat(x_12);
-lean_dec(x_12);
 x_14 = l_Lean_instToExprInt16_mkNat(x_13);
 return x_14;
 }

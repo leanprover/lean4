@@ -4928,7 +4928,6 @@ x_165 = lean_string_append(x_163, x_164);
 x_166 = lean_string_utf8_byte_size(x_161);
 x_167 = lean_unsigned_to_nat(0u);
 x_168 = lean_nat_dec_eq(x_166, x_167);
-lean_dec(x_166);
 if (x_168 == 0)
 {
 lean_object* x_169; 

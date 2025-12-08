@@ -177,7 +177,6 @@ lean_closure_set(x_2, 0, x_1);
 x_3 = lean_array_get_size(x_1);
 lean_dec_ref(x_1);
 x_4 = l_Lean_RArray_ofFn___redArg(x_3, x_2);
-lean_dec(x_3);
 return x_4;
 }
 }

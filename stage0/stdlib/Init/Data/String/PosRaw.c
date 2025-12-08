@@ -77,7 +77,6 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_string_utf8_byte_size(x_2);
 x_4 = lean_nat_sub(x_1, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -202,7 +201,6 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_string_utf8_byte_size(x_1);
 x_4 = lean_nat_add(x_3, x_2);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -230,7 +228,6 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_string_utf8_byte_size(x_2);
 x_4 = lean_nat_add(x_1, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }

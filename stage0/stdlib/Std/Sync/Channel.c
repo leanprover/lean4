@@ -12775,7 +12775,6 @@ x_9 = lean_nat_dec_lt(x_6, x_7);
 if (x_9 == 0)
 {
 lean_object* x_10; 
-lean_dec(x_7);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
@@ -12790,7 +12789,6 @@ x_11 = lean_nat_dec_le(x_7, x_7);
 if (x_11 == 0)
 {
 lean_object* x_12; 
-lean_dec(x_7);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
@@ -12806,7 +12804,6 @@ lean_closure_set(x_13, 0, x_1);
 lean_closure_set(x_13, 1, x_3);
 x_14 = 0;
 x_15 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
 x_16 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_2, x_13, x_4, x_14, x_15, x_8);
 x_17 = lean_apply_1(x_16, lean_box(0));
 return x_17;

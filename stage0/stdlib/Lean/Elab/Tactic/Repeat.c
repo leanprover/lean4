@@ -272,7 +272,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_2, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_dec(x_2);
@@ -1327,7 +1326,6 @@ x_30 = lean_nat_dec_lt(x_15, x_29);
 if (x_30 == 0)
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; 
-lean_dec(x_29);
 lean_dec(x_22);
 lean_dec(x_21);
 lean_dec(x_19);
@@ -1353,7 +1351,6 @@ uint8_t x_34;
 x_34 = lean_nat_dec_le(x_29, x_29);
 if (x_34 == 0)
 {
-lean_dec(x_29);
 lean_dec(x_21);
 lean_dec(x_11);
 lean_dec_ref(x_10);
@@ -1372,7 +1369,6 @@ else
 size_t x_35; size_t x_36; lean_object* x_37; lean_object* x_38; 
 x_35 = 0;
 x_36 = lean_usize_of_nat(x_29);
-lean_dec(x_29);
 x_37 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Meta_repeat_x27Core___at___00Lean_Meta_repeat_x27___at___00Lean_Elab_Tactic_evalRepeat_x27_spec__1_spec__1_spec__8(x_21, x_35, x_36, x_16, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_11);
 lean_dec_ref(x_10);

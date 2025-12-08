@@ -4134,7 +4134,6 @@ x_22 = lean_array_get_size(x_20);
 x_23 = lean_nat_dec_lt(x_21, x_22);
 if (x_23 == 0)
 {
-lean_dec(x_22);
 lean_dec_ref(x_20);
 lean_free_object(x_4);
 goto _start;
@@ -4143,7 +4142,6 @@ else
 {
 if (x_23 == 0)
 {
-lean_dec(x_22);
 lean_dec_ref(x_20);
 lean_free_object(x_4);
 goto _start;
@@ -4153,7 +4151,6 @@ else
 size_t x_26; size_t x_27; uint8_t x_28; 
 x_26 = 0;
 x_27 = lean_usize_of_nat(x_22);
-lean_dec(x_22);
 x_28 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Data_Lsp_Ipc_0__Lean_Lsp_Ipc_waitForMessage_loop_spec__0(x_1, x_20, x_26, x_27);
 lean_dec_ref(x_20);
 if (x_28 == 0)
@@ -4249,7 +4246,6 @@ x_50 = lean_array_get_size(x_48);
 x_51 = lean_nat_dec_lt(x_49, x_50);
 if (x_51 == 0)
 {
-lean_dec(x_50);
 lean_dec_ref(x_48);
 goto _start;
 }
@@ -4257,7 +4253,6 @@ else
 {
 if (x_51 == 0)
 {
-lean_dec(x_50);
 lean_dec_ref(x_48);
 goto _start;
 }
@@ -4266,7 +4261,6 @@ else
 size_t x_54; size_t x_55; uint8_t x_56; 
 x_54 = 0;
 x_55 = lean_usize_of_nat(x_50);
-lean_dec(x_50);
 x_56 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Data_Lsp_Ipc_0__Lean_Lsp_Ipc_waitForMessage_loop_spec__0(x_1, x_48, x_54, x_55);
 lean_dec_ref(x_48);
 if (x_56 == 0)

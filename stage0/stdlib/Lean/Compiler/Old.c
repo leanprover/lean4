@@ -101,7 +101,6 @@ x_4 = l_Lean_Compiler_isEagerLambdaLiftingName___closed__0;
 x_5 = lean_string_utf8_byte_size(x_3);
 x_6 = l_Lean_Compiler_isEagerLambdaLiftingName___closed__1;
 x_7 = lean_nat_dec_le(x_6, x_5);
-lean_dec(x_5);
 if (x_7 == 0)
 {
 x_1 = x_2;

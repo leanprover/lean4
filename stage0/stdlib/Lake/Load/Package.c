@@ -132,7 +132,6 @@ x_6 = l_Lake_resolvePath(x_5);
 x_7 = lean_string_utf8_byte_size(x_6);
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_nat_dec_eq(x_7, x_8);
-lean_dec(x_7);
 if (x_9 == 0)
 {
 lean_dec_ref(x_1);
@@ -311,7 +310,6 @@ x_24 = l_Lake_resolvePath(x_12);
 x_25 = lean_string_utf8_byte_size(x_24);
 x_26 = lean_unsigned_to_nat(0u);
 x_27 = lean_nat_dec_eq(x_25, x_26);
-lean_dec(x_25);
 if (x_27 == 0)
 {
 lean_object* x_28; lean_object* x_29; uint8_t x_30; 
@@ -545,7 +543,6 @@ x_85 = l_Lake_joinRelative(x_10, x_84);
 x_86 = lean_string_utf8_byte_size(x_82);
 x_87 = lean_unsigned_to_nat(0u);
 x_88 = lean_nat_dec_eq(x_86, x_87);
-lean_dec(x_86);
 if (x_88 == 0)
 {
 uint8_t x_89; lean_object* x_90; 
@@ -708,7 +705,6 @@ lean_inc_ref(x_85);
 x_127 = l_Lake_resolvePath(x_85);
 x_128 = lean_string_utf8_byte_size(x_127);
 x_129 = lean_nat_dec_eq(x_128, x_87);
-lean_dec(x_128);
 if (x_129 == 0)
 {
 lean_object* x_130; lean_object* x_131; 

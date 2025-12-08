@@ -270,7 +270,6 @@ x_12 = lean_uint64_shift_right(x_10, x_11);
 x_13 = lean_uint64_xor(x_10, x_12);
 x_14 = lean_uint64_to_usize(x_13);
 x_15 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_16 = 1;
 x_17 = lean_usize_sub(x_15, x_16);
 x_18 = lean_usize_land(x_14, x_17);
@@ -321,7 +320,6 @@ x_13 = lean_uint64_shift_right(x_11, x_12);
 x_14 = lean_uint64_xor(x_11, x_13);
 x_15 = lean_uint64_to_usize(x_14);
 x_16 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
 x_17 = 1;
 x_18 = lean_usize_sub(x_16, x_17);
 x_19 = lean_usize_land(x_15, x_18);
@@ -452,7 +450,6 @@ x_4 = lean_nat_dec_lt(x_2, x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; 
-lean_dec(x_3);
 x_5 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_5, 0, x_2);
 lean_ctor_set(x_5, 1, x_1);
@@ -465,7 +462,6 @@ x_6 = lean_nat_dec_le(x_3, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; 
-lean_dec(x_3);
 x_7 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_7, 0, x_2);
 lean_ctor_set(x_7, 1, x_1);
@@ -476,7 +472,6 @@ else
 size_t x_8; size_t x_9; lean_object* x_10; lean_object* x_11; 
 x_8 = 0;
 x_9 = lean_usize_of_nat(x_3);
-lean_dec(x_3);
 x_10 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_DHashMap_Internal_withComputedSize_spec__0___redArg(x_1, x_8, x_9, x_2);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
@@ -1251,7 +1246,6 @@ x_13 = lean_nat_div(x_11, x_12);
 lean_dec(x_11);
 x_14 = lean_array_get_size(x_9);
 x_15 = lean_nat_dec_le(x_13, x_14);
-lean_dec(x_14);
 lean_dec(x_13);
 if (x_15 == 0)
 {
@@ -1326,7 +1320,6 @@ x_13 = lean_nat_div(x_11, x_12);
 lean_dec(x_11);
 x_14 = lean_array_get_size(x_9);
 x_15 = lean_nat_dec_le(x_13, x_14);
-lean_dec(x_14);
 lean_dec(x_13);
 if (x_15 == 0)
 {
@@ -1518,7 +1511,6 @@ x_16 = lean_nat_div(x_14, x_15);
 lean_dec(x_14);
 x_17 = lean_array_get_size(x_12);
 x_18 = lean_nat_dec_le(x_16, x_17);
-lean_dec(x_17);
 lean_dec(x_16);
 if (x_18 == 0)
 {
@@ -1744,7 +1736,6 @@ x_16 = lean_nat_div(x_14, x_15);
 lean_dec(x_14);
 x_17 = lean_array_get_size(x_12);
 x_18 = lean_nat_dec_le(x_16, x_17);
-lean_dec(x_17);
 lean_dec(x_16);
 if (x_18 == 0)
 {

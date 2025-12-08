@@ -3360,7 +3360,6 @@ x_28 = lean_array_get_size(x_2);
 x_29 = lean_nat_dec_lt(x_27, x_28);
 if (x_29 == 0)
 {
-lean_dec(x_28);
 x_16 = lean_box(0);
 goto block_21;
 }
@@ -3370,7 +3369,6 @@ uint8_t x_30;
 x_30 = lean_nat_dec_le(x_28, x_28);
 if (x_30 == 0)
 {
-lean_dec(x_28);
 x_16 = lean_box(0);
 goto block_21;
 }
@@ -3380,7 +3378,6 @@ lean_object* x_31; size_t x_32; size_t x_33; lean_object* x_34;
 x_31 = lean_box(0);
 x_32 = 0;
 x_33 = lean_usize_of_nat(x_28);
-lean_dec(x_28);
 lean_inc_ref(x_5);
 x_34 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Meta_Tactic_Cleanup_0__Lean_Meta_cleanupCore_collectUsed_spec__0(x_2, x_32, x_33, x_31, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_34) == 0)
@@ -3579,7 +3576,6 @@ x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_1, 1);
 x_8 = lean_array_get_size(x_6);
 x_9 = lean_nat_dec_lt(x_2, x_8);
-lean_dec(x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -3626,7 +3622,6 @@ lean_inc(x_19);
 lean_dec(x_1);
 x_21 = lean_array_get_size(x_19);
 x_22 = lean_nat_dec_lt(x_2, x_21);
-lean_dec(x_21);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; 
@@ -3694,7 +3689,6 @@ _start:
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_get_size(x_2);
 x_7 = lean_nat_dec_lt(x_4, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_dec(x_4);
@@ -3738,7 +3732,6 @@ x_10 = lean_usize_land(x_2, x_9);
 x_11 = lean_usize_to_nat(x_10);
 x_12 = lean_array_get_size(x_6);
 x_13 = lean_nat_dec_lt(x_11, x_12);
-lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_dec(x_11);
@@ -5295,7 +5288,6 @@ x_53 = l___private_Lean_Meta_Tactic_Cleanup_0__Lean_Meta_cleanupCore___lam__0___
 x_54 = lean_nat_dec_lt(x_25, x_52);
 if (x_54 == 0)
 {
-lean_dec(x_52);
 lean_dec(x_24);
 lean_dec(x_17);
 x_26 = x_53;
@@ -5307,7 +5299,6 @@ uint8_t x_55;
 x_55 = lean_nat_dec_le(x_52, x_52);
 if (x_55 == 0)
 {
-lean_dec(x_52);
 lean_dec(x_24);
 lean_dec(x_17);
 x_26 = x_53;
@@ -5318,7 +5309,6 @@ else
 size_t x_56; size_t x_57; lean_object* x_58; 
 x_56 = 0;
 x_57 = lean_usize_of_nat(x_52);
-lean_dec(x_52);
 x_58 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Meta_Tactic_Cleanup_0__Lean_Meta_cleanupCore_spec__14(x_17, x_24, x_56, x_57, x_53);
 lean_dec(x_24);
 lean_dec(x_17);

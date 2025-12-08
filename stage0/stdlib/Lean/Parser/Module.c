@@ -6163,7 +6163,6 @@ x_8 = lean_box(0);
 x_9 = lean_nat_dec_lt(x_6, x_7);
 if (x_9 == 0)
 {
-lean_dec(x_7);
 lean_dec_ref(x_5);
 lean_dec_ref(x_1);
 lean_ctor_set(x_2, 0, x_8);
@@ -6175,7 +6174,6 @@ uint8_t x_10;
 x_10 = lean_nat_dec_le(x_7, x_7);
 if (x_10 == 0)
 {
-lean_dec(x_7);
 lean_dec_ref(x_5);
 lean_dec_ref(x_1);
 lean_ctor_set(x_2, 0, x_8);
@@ -6187,7 +6185,6 @@ size_t x_11; size_t x_12; lean_object* x_13;
 lean_free_object(x_2);
 x_11 = 0;
 x_12 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
 x_13 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentArray_forMAux___at___00Lean_PersistentArray_forM___at___00Lean_MessageLog_forM___at___00__private_Lean_Parser_Module_0__Lean_Parser_testParseModuleAux_parse_spec__2_spec__2_spec__2_spec__2(x_1, x_5, x_11, x_12, x_8);
 lean_dec_ref(x_5);
 return x_13;
@@ -6207,7 +6204,6 @@ x_18 = lean_nat_dec_lt(x_15, x_16);
 if (x_18 == 0)
 {
 lean_object* x_19; 
-lean_dec(x_16);
 lean_dec_ref(x_14);
 lean_dec_ref(x_1);
 x_19 = lean_alloc_ctor(0, 1, 0);
@@ -6221,7 +6217,6 @@ x_20 = lean_nat_dec_le(x_16, x_16);
 if (x_20 == 0)
 {
 lean_object* x_21; 
-lean_dec(x_16);
 lean_dec_ref(x_14);
 lean_dec_ref(x_1);
 x_21 = lean_alloc_ctor(0, 1, 0);
@@ -6233,7 +6228,6 @@ else
 size_t x_22; size_t x_23; lean_object* x_24; 
 x_22 = 0;
 x_23 = lean_usize_of_nat(x_16);
-lean_dec(x_16);
 x_24 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentArray_forMAux___at___00Lean_PersistentArray_forM___at___00Lean_MessageLog_forM___at___00__private_Lean_Parser_Module_0__Lean_Parser_testParseModuleAux_parse_spec__2_spec__2_spec__2_spec__2(x_1, x_14, x_22, x_23, x_17);
 lean_dec_ref(x_14);
 return x_24;
@@ -6255,7 +6249,6 @@ x_29 = lean_box(0);
 x_30 = lean_nat_dec_lt(x_27, x_28);
 if (x_30 == 0)
 {
-lean_dec(x_28);
 lean_dec_ref(x_26);
 lean_dec_ref(x_1);
 lean_ctor_set_tag(x_2, 0);
@@ -6268,7 +6261,6 @@ uint8_t x_31;
 x_31 = lean_nat_dec_le(x_28, x_28);
 if (x_31 == 0)
 {
-lean_dec(x_28);
 lean_dec_ref(x_26);
 lean_dec_ref(x_1);
 lean_ctor_set_tag(x_2, 0);
@@ -6281,7 +6273,6 @@ size_t x_32; size_t x_33; lean_object* x_34;
 lean_free_object(x_2);
 x_32 = 0;
 x_33 = lean_usize_of_nat(x_28);
-lean_dec(x_28);
 x_34 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentArray_forMAux___at___00Lean_PersistentArray_forM___at___00Lean_MessageLog_forM___at___00__private_Lean_Parser_Module_0__Lean_Parser_testParseModuleAux_parse_spec__2_spec__2_spec__2_spec__3(x_1, x_26, x_32, x_33, x_29);
 lean_dec_ref(x_26);
 return x_34;
@@ -6301,7 +6292,6 @@ x_39 = lean_nat_dec_lt(x_36, x_37);
 if (x_39 == 0)
 {
 lean_object* x_40; 
-lean_dec(x_37);
 lean_dec_ref(x_35);
 lean_dec_ref(x_1);
 x_40 = lean_alloc_ctor(0, 1, 0);
@@ -6315,7 +6305,6 @@ x_41 = lean_nat_dec_le(x_37, x_37);
 if (x_41 == 0)
 {
 lean_object* x_42; 
-lean_dec(x_37);
 lean_dec_ref(x_35);
 lean_dec_ref(x_1);
 x_42 = lean_alloc_ctor(0, 1, 0);
@@ -6327,7 +6316,6 @@ else
 size_t x_43; size_t x_44; lean_object* x_45; 
 x_43 = 0;
 x_44 = lean_usize_of_nat(x_37);
-lean_dec(x_37);
 x_45 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentArray_forMAux___at___00Lean_PersistentArray_forM___at___00Lean_MessageLog_forM___at___00__private_Lean_Parser_Module_0__Lean_Parser_testParseModuleAux_parse_spec__2_spec__2_spec__2_spec__3(x_1, x_35, x_43, x_44, x_38);
 lean_dec_ref(x_35);
 return x_45;
@@ -6363,7 +6351,6 @@ x_11 = lean_box(0);
 x_12 = lean_nat_dec_lt(x_9, x_10);
 if (x_12 == 0)
 {
-lean_dec(x_10);
 lean_dec_ref(x_5);
 lean_dec_ref(x_1);
 lean_ctor_set(x_6, 0, x_11);
@@ -6375,7 +6362,6 @@ uint8_t x_13;
 x_13 = lean_nat_dec_le(x_10, x_10);
 if (x_13 == 0)
 {
-lean_dec(x_10);
 lean_dec_ref(x_5);
 lean_dec_ref(x_1);
 lean_ctor_set(x_6, 0, x_11);
@@ -6387,7 +6373,6 @@ size_t x_14; size_t x_15; lean_object* x_16;
 lean_free_object(x_6);
 x_14 = 0;
 x_15 = lean_usize_of_nat(x_10);
-lean_dec(x_10);
 x_16 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentArray_forMAux___at___00Lean_PersistentArray_forM___at___00Lean_MessageLog_forM___at___00__private_Lean_Parser_Module_0__Lean_Parser_testParseModuleAux_parse_spec__2_spec__2_spec__2_spec__3(x_1, x_5, x_14, x_15, x_11);
 lean_dec_ref(x_5);
 return x_16;
@@ -6405,7 +6390,6 @@ x_20 = lean_nat_dec_lt(x_17, x_18);
 if (x_20 == 0)
 {
 lean_object* x_21; 
-lean_dec(x_18);
 lean_dec_ref(x_5);
 lean_dec_ref(x_1);
 x_21 = lean_alloc_ctor(0, 1, 0);
@@ -6419,7 +6403,6 @@ x_22 = lean_nat_dec_le(x_18, x_18);
 if (x_22 == 0)
 {
 lean_object* x_23; 
-lean_dec(x_18);
 lean_dec_ref(x_5);
 lean_dec_ref(x_1);
 x_23 = lean_alloc_ctor(0, 1, 0);
@@ -6431,7 +6414,6 @@ else
 size_t x_24; size_t x_25; lean_object* x_26; 
 x_24 = 0;
 x_25 = lean_usize_of_nat(x_18);
-lean_dec(x_18);
 x_26 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentArray_forMAux___at___00Lean_PersistentArray_forM___at___00Lean_MessageLog_forM___at___00__private_Lean_Parser_Module_0__Lean_Parser_testParseModuleAux_parse_spec__2_spec__2_spec__2_spec__3(x_1, x_5, x_24, x_25, x_19);
 lean_dec_ref(x_5);
 return x_26;

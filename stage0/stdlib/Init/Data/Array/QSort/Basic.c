@@ -1340,7 +1340,6 @@ if (x_14 == 0)
 lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_20; 
 x_15 = lean_unsigned_to_nat(1u);
 x_16 = lean_nat_sub(x_12, x_15);
-lean_dec(x_12);
 x_20 = lean_nat_dec_le(x_4, x_16);
 if (x_20 == 0)
 {
@@ -1376,7 +1375,6 @@ goto block_11;
 }
 else
 {
-lean_dec(x_12);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
@@ -1417,7 +1415,6 @@ if (x_13 == 0)
 lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_19; 
 x_14 = lean_unsigned_to_nat(1u);
 x_15 = lean_nat_sub(x_11, x_14);
-lean_dec(x_11);
 x_19 = lean_nat_dec_le(x_3, x_15);
 if (x_19 == 0)
 {
@@ -1453,7 +1450,6 @@ goto block_10;
 }
 else
 {
-lean_dec(x_11);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
@@ -1526,7 +1522,6 @@ lean_closure_set(x_7, 0, x_1);
 lean_closure_set(x_7, 1, x_6);
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_sub(x_3, x_8);
-lean_dec(x_3);
 x_15 = lean_nat_dec_le(x_4, x_9);
 if (x_15 == 0)
 {
@@ -1563,7 +1558,6 @@ return x_13;
 }
 else
 {
-lean_dec(x_3);
 lean_dec_ref(x_1);
 return x_2;
 }

@@ -4048,7 +4048,6 @@ x_23 = lean_array_get_size(x_1);
 x_24 = lean_nat_dec_lt(x_22, x_23);
 if (x_24 == 0)
 {
-lean_dec(x_23);
 x_10 = x_9;
 goto block_21;
 }
@@ -4058,7 +4057,6 @@ uint8_t x_25;
 x_25 = lean_nat_dec_le(x_23, x_23);
 if (x_25 == 0)
 {
-lean_dec(x_23);
 x_10 = x_9;
 goto block_21;
 }
@@ -4067,7 +4065,6 @@ else
 size_t x_26; size_t x_27; lean_object* x_28; 
 x_26 = 0;
 x_27 = lean_usize_of_nat(x_23);
-lean_dec(x_23);
 x_28 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Meta_getFVarSetToGeneralize_spec__7(x_1, x_26, x_27, x_9);
 x_10 = x_28;
 goto block_21;

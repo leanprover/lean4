@@ -488,10 +488,8 @@ lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_4 = lean_array_get_size(x_1);
 x_5 = lean_array_get_size(x_2);
 x_6 = lean_nat_dec_eq(x_4, x_5);
-lean_dec(x_4);
 if (x_6 == 0)
 {
-lean_dec(x_5);
 lean_dec_ref(x_2);
 return x_6;
 }
@@ -822,10 +820,8 @@ lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_4 = lean_array_get_size(x_1);
 x_5 = lean_array_get_size(x_2);
 x_6 = lean_nat_dec_eq(x_4, x_5);
-lean_dec(x_4);
 if (x_6 == 0)
 {
-lean_dec(x_5);
 lean_dec_ref(x_2);
 return x_6;
 }
@@ -1167,7 +1163,6 @@ _start:
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_get_size(x_1);
 x_7 = lean_nat_dec_lt(x_4, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; uint8_t x_9; 
@@ -1246,8 +1241,6 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_5 = lean_array_get_size(x_2);
 x_6 = lean_array_get_size(x_1);
 x_7 = lean_nat_dec_eq(x_5, x_6);
-lean_dec(x_6);
-lean_dec(x_5);
 if (x_7 == 0)
 {
 lean_dec(x_4);
@@ -1376,7 +1369,6 @@ if (x_4 == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_12; 
 x_5 = lean_unsigned_to_nat(1u);
 x_6 = lean_nat_sub(x_2, x_5);
-lean_dec(x_2);
 x_12 = lean_nat_dec_le(x_3, x_6);
 if (x_12 == 0)
 {
@@ -1413,7 +1405,6 @@ return x_10;
 }
 else
 {
-lean_dec(x_2);
 return x_1;
 }
 }
@@ -1557,8 +1548,6 @@ lean_object* x_46; lean_object* x_47; uint8_t x_48;
 x_46 = lean_array_get_size(x_40);
 x_47 = lean_array_get_size(x_37);
 x_48 = lean_nat_dec_eq(x_46, x_47);
-lean_dec(x_47);
-lean_dec(x_46);
 if (x_48 == 0)
 {
 lean_dec_ref(x_41);
@@ -1775,8 +1764,6 @@ lean_object* x_88; lean_object* x_89; uint8_t x_90;
 x_88 = lean_array_get_size(x_82);
 x_89 = lean_array_get_size(x_79);
 x_90 = lean_nat_dec_eq(x_88, x_89);
-lean_dec(x_89);
-lean_dec(x_88);
 if (x_90 == 0)
 {
 lean_dec_ref(x_83);
@@ -1930,8 +1917,6 @@ lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_4 = lean_array_get_size(x_1);
 x_5 = lean_array_get_size(x_2);
 x_6 = lean_nat_dec_eq(x_4, x_5);
-lean_dec(x_5);
-lean_dec(x_4);
 if (x_6 == 0)
 {
 lean_dec(x_3);
@@ -2332,8 +2317,6 @@ lean_object* x_18; lean_object* x_19; uint8_t x_20;
 x_18 = lean_array_get_size(x_14);
 x_19 = lean_array_get_size(x_10);
 x_20 = lean_nat_dec_eq(x_18, x_19);
-lean_dec(x_19);
-lean_dec(x_18);
 if (x_20 == 0)
 {
 lean_dec_ref(x_16);
@@ -2384,7 +2367,6 @@ _start:
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_array_get_size(x_3);
 x_8 = lean_nat_dec_lt(x_5, x_7);
-lean_dec(x_7);
 if (x_8 == 0)
 {
 uint8_t x_9; 

@@ -6024,7 +6024,6 @@ x_17 = l_Lean_Syntax_getArgs(x_1);
 x_18 = lean_array_get_size(x_17);
 lean_dec_ref(x_17);
 x_19 = lean_nat_sub(x_18, x_8);
-lean_dec(x_18);
 x_20 = lean_nat_dec_eq(x_4, x_19);
 lean_dec(x_19);
 if (x_20 == 0)
@@ -6431,7 +6430,6 @@ x_10 = l_Lean_Syntax_getArgs(x_9);
 x_11 = lean_array_get_size(x_10);
 x_12 = lean_unsigned_to_nat(0u);
 x_25 = lean_mk_empty_array_with_capacity(x_11);
-lean_inc(x_11);
 x_26 = l_Array_mapFinIdxM_map___at___00Lean_Parser_sepByIndent_formatter_spec__1___redArg(x_9, x_10, x_11, x_12, x_25);
 lean_dec_ref(x_10);
 lean_dec(x_9);
@@ -6439,7 +6437,6 @@ x_27 = lean_array_get_size(x_26);
 x_28 = lean_nat_dec_lt(x_12, x_27);
 if (x_28 == 0)
 {
-lean_dec(x_27);
 lean_dec_ref(x_26);
 x_13 = x_28;
 goto block_24;
@@ -6448,7 +6445,6 @@ else
 {
 if (x_28 == 0)
 {
-lean_dec(x_27);
 lean_dec_ref(x_26);
 x_13 = x_28;
 goto block_24;
@@ -6458,7 +6454,6 @@ else
 size_t x_29; size_t x_30; uint8_t x_31; 
 x_29 = 0;
 x_30 = lean_usize_of_nat(x_27);
-lean_dec(x_27);
 x_31 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Parser_sepByIndent_formatter_spec__4(x_26, x_29, x_30);
 lean_dec_ref(x_26);
 x_13 = x_31;
@@ -6468,7 +6463,6 @@ goto block_24;
 block_24:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-lean_inc(x_11);
 x_14 = l_List_range(x_11);
 x_15 = l_List_reverse___redArg(x_14);
 x_16 = lean_box(0);
@@ -7949,7 +7943,6 @@ x_24 = lean_array_get_size(x_22);
 x_25 = lean_unsigned_to_nat(1u);
 x_26 = lean_nat_sub(x_24, x_25);
 x_27 = lean_nat_dec_lt(x_26, x_24);
-lean_dec(x_24);
 if (x_27 == 0)
 {
 lean_dec(x_26);

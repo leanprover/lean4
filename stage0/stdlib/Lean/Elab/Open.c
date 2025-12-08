@@ -799,7 +799,6 @@ lean_object* x_12; lean_object* x_13; uint8_t x_14;
 x_12 = lean_array_get_size(x_1);
 x_13 = lean_unsigned_to_nat(1u);
 x_14 = lean_nat_dec_eq(x_12, x_13);
-lean_dec(x_12);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; uint8_t x_17; 
@@ -998,7 +997,6 @@ lean_dec(x_17);
 if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-lean_dec(x_16);
 lean_dec(x_13);
 lean_dec_ref(x_11);
 lean_dec(x_8);
@@ -1022,7 +1020,6 @@ x_23 = lean_alloc_closure((void*)(l_Lean_Elab_OpenDecl_resolveNameUsingNamespace
 lean_closure_set(x_23, 0, x_15);
 x_31 = lean_unsigned_to_nat(1u);
 x_32 = lean_nat_dec_eq(x_16, x_31);
-lean_dec(x_16);
 if (x_32 == 0)
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; 
@@ -2847,7 +2844,6 @@ x_115 = l_Lean_Elab_OpenDecl_resolveNameUsingNamespacesCore___redArg___lam__9___
 x_116 = lean_nat_dec_lt(x_45, x_114);
 if (x_116 == 0)
 {
-lean_dec(x_114);
 lean_dec_ref(x_112);
 x_51 = x_113;
 goto block_111;
@@ -2858,7 +2854,6 @@ uint8_t x_117;
 x_117 = lean_nat_dec_le(x_114, x_114);
 if (x_117 == 0)
 {
-lean_dec(x_114);
 lean_dec_ref(x_112);
 x_51 = x_113;
 goto block_111;
@@ -2877,7 +2872,6 @@ lean_ctor_set(x_122, 0, x_121);
 lean_ctor_set(x_122, 1, x_113);
 x_123 = 0;
 x_124 = lean_usize_of_nat(x_114);
-lean_dec(x_114);
 x_125 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_115, x_120, x_112, x_123, x_124, x_122);
 x_126 = lean_ctor_get(x_125, 1);
 lean_inc(x_126);

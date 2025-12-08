@@ -413,7 +413,7 @@ Use `Substring.toNat?` to convert such a substring to a natural number.
     false
   else
     -- Track: isFirst, lastWasUnderscore, lastCharWasDigit, valid
-    let result := s.foldl (fun (isFirst, lastWasUnderscore, lastCharWasDigit, valid) c =>
+    let result := s.foldl (fun (isFirst, lastWasUnderscore, _lastCharWasDigit, valid) c =>
       let isDigit := c.isDigit
       let isUnderscore := c = '_'
       let newValid := valid && (isDigit || isUnderscore) &&

@@ -511,7 +511,10 @@ This function always merges the smaller map into the larger map, so the expected
 
 instance [BEq α] [Hashable α] : Inter (Raw α β) := ⟨inter⟩
 
-/-- Internal implementation detail of the hash map. -/
+/--
+Compares two hash maps using Boolean equality on keys and values.
+Returns `true` if the maps contain the same key-value pairs, `false` otherwise.
+-/
 def beq [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] (m₁ m₂ : Raw α β) : Bool :=
     if h₁ : 0 < m₁.buckets.size then
       if h₂ : 0 < m₂.buckets.size then
@@ -523,8 +526,7 @@ def beq [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] (m₁ m₂ : R
 
 instance [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] : BEq (Raw α β) := ⟨beq⟩
 
-/-- Internal implementation detail of the hash map. -/
-def Const.beq {β : Type v} [BEq α] [Hashable α] [BEq β] (m₁ m₂ : Raw α (fun _ => β)) : Bool :=
+@[inherit_doc DHashMap.Raw.beq] def Const.beq {β : Type v} [BEq α] [Hashable α] [BEq β] (m₁ m₂ : Raw α (fun _ => β)) : Bool :=
    if h₁ : 0 < m₁.buckets.size then
       if h₂ : 0 < m₂.buckets.size then
         Raw₀.Const.beq ⟨m₁, h₁⟩ ⟨m₂, h₂⟩

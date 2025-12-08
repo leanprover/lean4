@@ -240,14 +240,8 @@ private def handle
           machine := machine.setKnownSize (size.getD .chunked)
           respStream := some stream
 
-  let (_, output) := machine.takeOutput
-
-  if output.size > 0 then
-    Transport.sendAll socket output.data
-
   if let some res := respStream then
-    if ¬ (← res.isClosed) then
-      res.close
+    if ¬ (← res.isClosed) then res.close
 
 end Connection
 

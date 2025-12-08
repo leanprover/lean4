@@ -45,9 +45,6 @@ deriving Inhabited
 
 namespace Body
 
-instance : EmptyCollection Body where
-  emptyCollection := Body.zero
-
 /--
 Get content length of a body (if known).
 -/
@@ -74,6 +71,9 @@ instance : Coe ByteArray Body where
 
 instance : Coe Body.ByteStream Body where
   coe := .stream
+
+instance : EmptyCollection Body where
+  emptyCollection := Body.zero
 
 instance : ForIn Async Body Chunk where
   forIn body acc step :=

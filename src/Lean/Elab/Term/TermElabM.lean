@@ -1865,6 +1865,14 @@ def elabType (stx : Syntax) : TermElabM Expr := do
   let type ← elabTerm stx (mkSort u)
   withRef stx <| ensureType type
 
+builtin_initialize autoBoundsExtension : SimplePersistentEnvExtension (String × String) (Array (String × String)) ←
+  registerSimplePersistentEnvExtension {
+    addEntryFn      := Array.push
+    addImportedFn   := Array.flatten
+  }
+
+public def getAutoBoundsAll [Monad m] [MonadEnv m] : m (Array (String × String)) := do return autoBoundsExtension.getState (← getEnv)
+
 /--
   Enable auto-bound implicits, and execute `k` while catching auto bound implicit exceptions. When an exception is caught,
   a new local declaration is created, registered, and `k` is tried to be executed again. -/
@@ -1880,6 +1888,9 @@ partial def withAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
       catch
         | ex => match isAutoBoundImplicitLocalException? ex with
           | some n =>
+            let filename ← getFileName
+            -- logInfo m!"{filename},{n.toString}"
+            modifyEnv (fun env => autoBoundsExtension.addEntry env (filename, n.toString) )
             -- Restore state, declare `n`, and try again
             s.restore (restoreInfo := true)
             withLocalDecl n .implicit (← mkFreshTypeMVar) fun x => do

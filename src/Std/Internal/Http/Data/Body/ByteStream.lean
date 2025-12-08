@@ -9,7 +9,6 @@ prelude
 public import Std.Sync
 public import Init.Data.Vector
 public import Std.Internal.Async
-public import Std.Internal.Async.IO
 public import Std.Internal.Http.Internal
 public import Std.Internal.Http.Data.Chunk
 public import Std.Internal.Http.Data.Body.Length
@@ -19,9 +18,9 @@ public section
 /-!
 # ByteStream
 
-This module defines the `ByteStream` structure, which represents a channel for reading and
-writing sequences of bytes. It provides utilities for efficiently processing byte arrays
-in a streaming fashion, including support for chunk extensions.
+A `ByteStream` represents an asynchronous channel for streaming byte data in chunks. It provides an
+interface for producers and consumers to exchange byte arrays with optional chunk metadata (extensions),
+aking it suitable for HTTP chunked transfer encoding and other streaming scenarios.
 -/
 
 namespace Std.Http.Body
@@ -55,16 +54,14 @@ def empty : Async ByteStream :=
   emptyWithCapacity
 
 /--
-Tries to receive a chunk from the stream.
-Returns `some` with a chunk when data is available, or `none` when the stream is closed
-or no data is available.
+Tries to receive a chunk from the stream. Returns `some` with a chunk when data is available, or `none`
+hen the stream is closed or no data is available.
 -/
 def tryRecv (stream : ByteStream) : Async (Option Chunk) := do
   stream.channel.tryRecv
 
 /--
-Receives (reads) a chunk from the stream.
-Returns `none` if the stream is closed and no data is available.
+Receives (reads) a chunk from the stream. Returns `none` if the stream is closed and no data is available.
 -/
 def recv (stream : ByteStream) : Async (Option Chunk) := do
   let task ← stream.channel.recv

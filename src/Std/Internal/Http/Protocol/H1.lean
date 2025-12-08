@@ -551,7 +551,7 @@ partial def processRead (machine : Machine dir) : Machine dir :=
           machine
 
   | .needChunkedBody ext 0 =>
-    let (machine, result) := parseWith machine (parseLastChunkBody machine.config) (limit := some 1)
+    let (machine, result) := parseWith machine (parseLastChunkBody machine.config) (limit := some 2)
 
     match result with
     | some _ =>

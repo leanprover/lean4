@@ -103,8 +103,8 @@ info: private theorem f.match_1.congr_eq_3.{u_1} : ∀ (motive : List Nat → Li
   (h_3 : (x x_2 : List Nat) → motive x x_2) (x_2 x_3 : List Nat),
   x = x_2 →
     x_1 = x_3 →
-      (∀ (head : Nat) (tail : List Nat), x_1 = 1 :: head :: tail → False) →
-        (∀ (a : Nat) (tail : List Nat), x_1 = a :: tail → False) →
+      (∀ (head : Nat) (tail : List Nat), x_3 = 1 :: head :: tail → False) →
+        (∀ (a : Nat) (tail : List Nat), x_3 = a :: tail → False) →
           (match x, x_1 with
             | x, 1 :: head :: tail => h_1 x head tail
             | x, a :: tail => h_2 x a tail
@@ -113,3 +113,23 @@ info: private theorem f.match_1.congr_eq_3.{u_1} : ∀ (motive : List Nat → Li
 -/
 #guard_msgs(pass trace, all) in
 #print sig f.match_1.congr_eq_3
+
+-- set_option trace.Meta.Match.matchEqs true
+
+set_option linter.unusedVariables false in
+def testMe (n : Nat) : Bool :=
+  match _ : n - 2 with
+  | 0 => true
+  | m => false
+
+/--
+info: private theorem testMe.match_1.congr_eq_2.{u_1} : ∀ (motive : Nat → Sort u_1) (x : Nat) (h_1 : x = 0 → motive 0)
+  (h_2 : (m : Nat) → x = m → motive m) (m : Nat) (heq : x = m),
+  (m = 0 → False) →
+    (match h : x with
+      | 0 => h_1 h
+      | m => h_2 m h) ≍
+      h_2 m heq
+-/
+#guard_msgs(pass trace, all) in
+#print sig testMe.match_1.congr_eq_2

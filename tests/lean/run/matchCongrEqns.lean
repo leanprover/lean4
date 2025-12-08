@@ -23,11 +23,11 @@ info: myTest.match_1.splitter.{u_1, u_2} {α : Type u_1} (motive : List α → S
 /--
 info: myTest.match_1.congr_eq_1.{u_1, u_2} {α : Type u_1} (motive : List α → Sort u_2) (x✝ : List α)
   (h_1 : (a : α) → (dc : List α) → x✝ = a :: dc → motive (a :: dc)) (h_2 : (x' : List α) → x✝ = x' → motive x') (a : α)
-  (dc : List α) (heq_1 : x✝ = a :: dc) :
+  (dc : List α) (heq : x✝ = a :: dc) :
   (match h : x✝ with
     | a :: dc => h_1 a dc h
     | x' => h_2 x' h) ≍
-    h_1 a dc heq_1
+    h_1 a dc heq
 -/
 #guard_msgs(pass trace, all) in
 #check myTest.match_1.congr_eq_1
@@ -35,12 +35,11 @@ info: myTest.match_1.congr_eq_1.{u_1, u_2} {α : Type u_1} (motive : List α →
 /--
 info: myTest.match_1.congr_eq_2.{u_1, u_2} {α : Type u_1} (motive : List α → Sort u_2) (x✝ : List α)
   (h_1 : (a : α) → (dc : List α) → x✝ = a :: dc → motive (a :: dc)) (h_2 : (x' : List α) → x✝ = x' → motive x')
-  (x' : List α) (heq_1 : x✝ = x') :
-  (∀ (a : α) (dc : List α), x' = a :: dc → False) →
-    (match h : x✝ with
-      | a :: dc => h_1 a dc h
-      | x' => h_2 x' h) ≍
-      h_2 x' heq_1
+  (x' : List α) (heq : x✝ = x') (hnot : ∀ (a : α) (dc : List α), x' = a :: dc → False) :
+  (match h : x✝ with
+    | a :: dc => h_1 a dc h
+    | x' => h_2 x' h) ≍
+    h_2 x' heq
 -/
 #guard_msgs(pass trace, all) in
 #check myTest.match_1.congr_eq_2
@@ -80,8 +79,7 @@ def matchOptionUnit (o? : Option Unit) : Bool := Id.run do
 
 /--
 info: matchOptionUnit.match_1.congr_eq_1.{u_1} (motive : Option Unit → Sort u_1) (o?✝ : Option Unit)
-  (h_1 : (val : Unit) → motive (some val)) (h_2 : (x : Option Unit) → motive x) (val✝ : Unit)
-  (heq_1 : o?✝ = some val✝) :
+  (h_1 : (val : Unit) → motive (some val)) (h_2 : (x : Option Unit) → motive x) (val✝ : Unit) (heq : o?✝ = some val✝) :
   (match o?✝ with
     | some val => h_1 ()
     | x => h_2 x) ≍
@@ -151,12 +149,11 @@ def testMe (n : Nat) : Bool :=
 
 /--
 info: testMe.match_1.congr_eq_2.{u_1} (motive : Nat → Sort u_1) (x✝ : Nat) (h_1 : x✝ = 0 → motive 0)
-  (h_2 : (m : Nat) → x✝ = m → motive m) (m : Nat) (heq_1 : x✝ = m) :
-  (m = 0 → False) →
-    (match h : x✝ with
-      | 0 => h_1 h
-      | m => h_2 m h) ≍
-      h_2 m heq_1
+  (h_2 : (m : Nat) → x✝ = m → motive m) (m : Nat) (heq : x✝ = m) (hnot : m = 0 → False) :
+  (match h : x✝ with
+    | 0 => h_1 h
+    | m => h_2 m h) ≍
+    h_2 m heq
 -/
 #guard_msgs(pass trace, all) in
 #check testMe.match_1.congr_eq_2

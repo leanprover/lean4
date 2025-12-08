@@ -432,7 +432,8 @@ where go baseName :=
       eqnNames := eqnNames.push thmName
       let notAlt ← do
         let alt := alts[i]!
-        Match.forallAltVarsTelescope (← inferType alt) altInfo fun altVars args _mask altResultType => do
+        let altType ← inferType alt
+        Match.forallAltVarsTelescope altType altInfo fun altVars args _mask altResultType => do
         let patterns ← forallTelescope altResultType fun _ t => pure t.getAppArgs
         let mut heqsTypes := #[]
         assert! patterns.size == discrs.size
@@ -470,7 +471,9 @@ where go baseName :=
             mvarId' ← mvarId'.tryClearMany <| (#[motive] ++ alts ++ heqs).map (·.fvarId!)
             for _ in [:heqs.size] do
               let (fvarId, mvarId'') ← mvarId'.intro1
-              mvarId' ← subst mvarId'' fvarId
+              -- important to substitute the fvar on the LHS, so do not use `substEq`
+              let (fvarId, mvarId'') ← heqToEq mvarId'' fvarId
+              (_, mvarId') ← substCore (symm := false) (clearH := true) mvarId'' fvarId
             trace[Meta.Match.matchEqs] "after subst: {mvarId'}"
             let r ← simpH mvarId' discrs.size
             trace[Meta.Match.matchEqs] "after simpH: {r}"

@@ -1817,7 +1817,7 @@ on each other, with names derived from the given template by adding a numeric su
 -/
 def withLocalDeclsDND' [Inhabited α] (baseName : Name) (types : Array Expr) (k : (xs : Array Expr) → n α) (kind : LocalDeclKind := .default) : n α := do
   let declInfos := types.mapIdx fun i type =>
-    let n := if types.size = 1 then baseName else baseName.appendIndexAfter i
+    let n := if types.size = 1 then baseName else baseName.appendIndexAfter (i + 1)
     (n, type)
   withLocalDeclsDND declInfos k (kind := kind)
 

@@ -4,7 +4,7 @@ opaque R : (n m : Int) → Type
 
 axiom mkR : Nat → R n m
 
-set_option trace.Meta.FunInd true
+-- set_option trace.Meta.FunInd true
 
 noncomputable def d : ∀ (n m : Int), R n m
   | .ofNat n, .ofNat m => mkR 0

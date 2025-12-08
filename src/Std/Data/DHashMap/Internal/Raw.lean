@@ -159,9 +159,9 @@ theorem beq_eq [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] {m₁ m
   simp [Raw.beq, h₁.size_buckets_pos, h₂.size_buckets_pos]
 
 theorem Const.beq_eq {β : Type v} [BEq α] [Hashable α] [BEq β] {m₁ m₂ : Raw α (fun _ => β)} (h₁ : m₁.WF) (h₂ : m₂.WF) :
-     Raw.Const.beq m₁ m₂ = Raw₀.Const.beq ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩ := by
+    Raw.Const.beq m₁ m₂ = Raw₀.Const.beq ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩ := by
   simp [Raw.Const.beq, h₁.size_buckets_pos, h₂.size_buckets_pos]
-  
+
 theorem diff_eq [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) :
     m₁.diff m₂ = Raw₀.diff ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩ := by
   simp [Raw.diff, h₁.size_buckets_pos, h₂.size_buckets_pos]

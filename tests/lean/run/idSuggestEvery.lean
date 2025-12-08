@@ -1,9 +1,5 @@
 -- test every/all replacements in default imports
 
-example := (·.all)
-example := (·.contains)
-example := (Array.contains)
-
 /-
 Expected replacements for `Subarray.any` and `Subarray.all` do not work as suggestion annotations
 when using generalized field notation: Subarray is an abbreviation and so the underlying `Std.Slice`

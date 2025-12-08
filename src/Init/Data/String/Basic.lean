@@ -264,7 +264,7 @@ Examples:
 * `"abc".length = 3`
 * `"L∃∀N".length = 4`
 -/
-@[extern "lean_string_length", expose]
+@[extern "lean_string_length", expose, tagged_return]
 def String.length (b : @& String) : Nat :=
   b.toList.length
 
@@ -1652,7 +1652,7 @@ def Slice.pos! (s : Slice) (off : String.Pos.Raw) : s.Pos :=
 
 /-- Advances a valid position on a string to the next valid position, given a proof that the
 position is not the past-the-end position, which guarantees that such a position exists. -/
-@[expose, extern "lean_string_utf8_next_fast"]
+@[expose, extern "lean_string_utf8_next_fast", tagged_return]
 def Pos.next {s : @& String} (pos : @& s.Pos) (h : pos ≠ s.endPos) : s.Pos :=
   ofToSlice (Slice.Pos.next pos.toSlice (ne_of_apply_ne Pos.ofToSlice (by simpa)))
 
@@ -2656,7 +2656,7 @@ This is a legacy function. The recommended alternative is `String.Pos.next`, com
 Example:
 * `let abc := "abc"; abc.get (abc.next' 0 (by decide)) = 'b'`
 -/
-@[extern "lean_string_utf8_next_fast", expose]
+@[extern "lean_string_utf8_next_fast", expose, tagged_return]
 def Pos.Raw.next' (s : @& String) (p : @& Pos.Raw) (h : ¬ p.atEnd s) : Pos.Raw :=
   let c := p.get s
   p + c

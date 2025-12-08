@@ -3799,6 +3799,10 @@ theorem minKey?_mem [TransCmp cmp] {km} :
     km ∈ t :=
   t.inductionOn fun _ => DTreeMap.minKey?_mem
 
+theorem minKey?_eq_min?_keys [TransCmp cmp] [Min α] [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α] [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp] :
+    t.minKey? = t.keys.min? :=
+  t.inductionOn fun _ => DTreeMap.minKey?_eq_min?_keys
+
 theorem isSome_minKey?_of_contains [TransCmp cmp] {k} :
     (hc : t.contains k) → t.minKey?.isSome :=
   t.inductionOn fun _ => DTreeMap.isSome_minKey?_of_contains

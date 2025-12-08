@@ -50,7 +50,7 @@ structure Context where
 namespace Context
 
 /--
-Create a new root cancellation context.
+Creates a new root cancellation context.
 -/
 def new : BaseIO Context := do
   let token ← Std.CancellationToken.new
@@ -61,7 +61,7 @@ def new : BaseIO Context := do
   }
 
 /--
-Fork a child context from a parent. If the parent is already cancelled, returns the parent context.
+Forks a child context from a parent. If the parent is already cancelled, returns the parent context.
 Otherwise, creates a new child that will be cancelled when the parent is cancelled.
 -/
 def fork (root : Context) : BaseIO Context := do
@@ -81,7 +81,7 @@ def fork (root : Context) : BaseIO Context := do
     return { state := root.state, token, id := newId }
 
 /--
-Recursively cancel a context and all its children with the given reason.
+Recursively cancels a context and all its children with the given reason.
 -/
 private partial def cancelChildren (state : ContextState) (id : UInt64) (reason : CancellationReason) : BaseIO ContextState := do
   let mut state := state
@@ -98,7 +98,7 @@ private partial def cancelChildren (state : ContextState) (id : UInt64) (reason 
   pure { state with tokens := state.tokens.erase id }
 
 /--
-Cancel this context and all child contexts with the given reason.
+Cancels this context and all child contexts with the given reason.
 -/
 def cancel (x : Context) (reason : CancellationReason) : BaseIO Unit := do
   if ← x.token.isCancelled then
@@ -110,21 +110,21 @@ def cancel (x : Context) (reason : CancellationReason) : BaseIO Unit := do
     set st
 
 /--
-Check if the context is cancelled.
+Checks if the context is cancelled.
 -/
 @[inline]
 def isCancelled (x : Context) : BaseIO Bool := do
   x.token.isCancelled
 
 /--
-Get the cancellation reason if the context is cancelled.
+Returns the cancellation reason if the context is cancelled.
 -/
 @[inline]
 def getCancellationReason (x : Context) : BaseIO (Option CancellationReason) := do
   x.token.getCancellationReason
 
 /--
-Wait for cancellation. Returns a task that completes when the context is cancelled.
+Waits for cancellation. Returns a task that completes when the context is cancelled.
 -/
 @[inline]
 def done (x : Context) : IO (AsyncTask Unit) :=

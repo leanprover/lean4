@@ -3589,12 +3589,9 @@ theorem length_le_length_of_containsKey [BEq α] [EquivBEq α]
     have hc := h hd.1 (by rw [containsKey_cons_self])
     suffices tl.length ≤ (eraseKey hd.1 l₂).length by
       rw [List.length_eraseKey, hc] at this
-      simp at this
-      simp
-      have : l₂.length > 0 := by
-        cases l₂
-        case nil => simp at hc
-        case cons => simp
+      simp only [↓reduceIte] at this
+      simp only [List.length_cons, ge_iff_le]
+      have : l₂.length > 0 := by cases l₂ <;> simp_all
       omega
     apply ih
     · rw [List.distinctKeys_cons_iff] at dl₁
@@ -3621,7 +3618,7 @@ theorem containsKey_of_length_eq [BEq α] [EquivBEq α] {l₁ l₂ : List ((a : 
   intro a ha
   apply Classical.byContradiction
   intro hb
-  simp at hb
+  simp only [Bool.not_eq_true] at hb
   suffices l₁.length < l₂.length by omega
   suffices l₁.length ≤ (eraseKey a l₂).length ∧ 1 + (eraseKey a l₂).length = l₂.length by omega
   apply And.intro
@@ -3640,9 +3637,9 @@ theorem containsKey_of_length_eq [BEq α] [EquivBEq α] {l₁ l₂ : List ((a : 
       exact mem₂
   · simp only [length_eraseKey, ha, ↓reduceIte]
     have : l₂.length > 0 := by
-      cases l₂
-      · simp at ha
-      · simp
+      cases l₂ with
+      | nil => simp at ha
+      | _ => simp
     omega
 
 section
@@ -7633,7 +7630,7 @@ theorem isEmpty_filter_key_iff [BEq α] [EquivBEq α] {f : α → Bool}
     simp only [getKey, getKey?_eq_getEntry?, this] at h
     exact h
 
-theorem beqModel_eq_true_of_perm [BEq α] [LawfulBEq α] [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁) : l₁.Perm l₂ → beqModel l₁ l₂ := by
+theorem beqModel_eq_true_of_perm [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁) : l₁.Perm l₂ → beqModel l₁ l₂ := by
   intro hyp
   rw [beqModel, if_neg (by simpa using hyp.length_eq)]
   simp only [List.all_eq_true]

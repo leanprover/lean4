@@ -505,6 +505,7 @@ instance : Inter (TreeSet α cmp) := ⟨inter⟩
 
 /--
 Compares two tree sets using Boolean equality on keys.
+
 Returns `true` if the sets contain the same keys, `false` otherwise.
 -/
 def beq (t₁ t₂ : TreeSet α cmp) : Bool :=

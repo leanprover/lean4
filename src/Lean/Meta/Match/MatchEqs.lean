@@ -429,11 +429,11 @@ where go baseName :=
   let numDiscrEqs := matchInfo.getNumDiscrEqs
   forallTelescopeReducing constInfo.type fun xs _matchResultType => do
     let mut eqnNames := #[]
-    let params := xs[*...matchInfo.numParams]
-    let motive := xs[matchInfo.getMotivePos]!
-    let alts   := xs[(xs.size - matchInfo.numAlts)...*]
-    let firstDiscrIdx := matchInfo.numParams + 1
-    let discrs := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
+    let params : Array Expr := xs[*...matchInfo.numParams]
+    let motive              := xs[matchInfo.getMotivePos]!
+    let alts   : Array Expr := xs[(xs.size - matchInfo.numAlts)...*]
+    let firstDiscrIdx       := matchInfo.numParams + 1
+    let discrs : Array Expr := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
     let mut notAlts := #[]
     let mut idx := 1
     for i in *...alts.size do
@@ -486,7 +486,8 @@ where go baseName :=
                 trace[Meta.Match.matchEqs] "before subst: {mvarId'}"
                 mvarId' := (← mvarId'.revert #[h_pat.fvarId!]).2
                 mvarId' := (← mvarId'.revert (heqs.map (·.fvarId!)) (preserveOrder := true)).2
-                -- TODO (perf): We could clear lots of things here
+                -- always good to clear before substing
+                mvarId' ← mvarId'.tryClearMany <| (#[motive] ++ alts ++ heqs ++ hs_pat).map (·.fvarId!)
                 for _ in [:heqs.size] do
                   let (fvarId, mvarId'') ← mvarId'.intro1
                   mvarId' ← subst mvarId'' fvarId
@@ -510,7 +511,7 @@ where go baseName :=
             }
           -- Calculate the overlap proposition for this alternative
           let mut notAlt := mkConst ``False
-          for discr in discrs.toArray.reverse, pattern in patterns.reverse do
+          for discr in discrs.reverse, pattern in patterns.reverse do
             notAlt ← mkArrow (← mkEqHEq discr pattern) notAlt
           notAlt ← mkForallFVars (discrs ++ altVars) notAlt
           return notAlt

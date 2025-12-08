@@ -362,6 +362,7 @@ instance [BEq α] [Hashable α] : SDiff (DHashMap α β) := ⟨diff⟩
 
 /--
 Compares two hash maps using Boolean equality on keys and values.
+
 Returns `true` if the maps contain the same key-value pairs, `false` otherwise.
 -/
 def beq [LawfulBEq α] [∀ k, BEq (β k)] (a b : DHashMap α β) : Bool :=

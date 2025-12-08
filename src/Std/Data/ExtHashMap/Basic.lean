@@ -263,7 +263,7 @@ instance [LawfulBEq α] [BEq β] [LawfulBEq β] : LawfulBEq (ExtHashMap α β) w
     simp only [mk.injEq] at |- hyp
     exact ExtDHashMap.Const.eq_of_beq _ _ hyp
 
-instance {α : Type u} {β : α → Type v} [DecidableEq α] [Hashable α] [∀ k, DecidableEq (β k)] : DecidableEq (ExtDHashMap α β) :=
+instance {α : Type u} {β : Type v} [DecidableEq α] [Hashable α] [DecidableEq β] : DecidableEq (ExtHashMap α β) :=
   fun _ _ => decidable_of_iff _ beq_iff_eq
 
 @[inline, inherit_doc ExtDHashMap.inter]

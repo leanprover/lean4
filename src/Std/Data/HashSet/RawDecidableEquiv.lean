@@ -15,12 +15,12 @@ public section
 # Decidable equivalence for `HashSet.Raw`
 -/
 
-
 open Std.HashMap.Raw
 
 namespace Std.HashSet.Raw
 
 instance instDecidableEquiv {α : Type u} [DecidableEq α] [Hashable α] {m₁ m₂ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) : Decidable (m₁ ~m m₂) :=
-  let : Decidable (m₁.1 ~m m₂.1) := HashMap.Raw.instDecidableEquiv h₁.out h₂.out; decidable_of_iff _ ⟨fun h => ⟨h⟩, fun h => h.1⟩
+  let : Decidable (m₁.1 ~m m₂.1) := HashMap.Raw.instDecidableEquiv h₁.out h₂.out;
+  decidable_of_iff _ ⟨fun h => ⟨h⟩, fun h => h.1⟩
 
 end Std.HashSet.Raw

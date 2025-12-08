@@ -5339,6 +5339,5 @@ theorem toList_map {m : DHashMap α fun _ => β}
 end Const
 
 end map
-
 attribute [simp] contains_eq_false_iff_not_mem
 end Std.DHashMap

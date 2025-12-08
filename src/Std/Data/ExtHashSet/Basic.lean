@@ -211,7 +211,7 @@ instance [EquivBEq α] [LawfulHashable α] : ReflBEq (ExtHashSet α) where
   rfl := ExtDHashMap.Const.beq_of_eq _ _ rfl
 
 instance [LawfulBEq α] : LawfulBEq (ExtHashSet α) where
-  eq_of_beq {a} {b} hyp  := by
+  eq_of_beq {a} {b} hyp := by
     have ⟨⟨_⟩⟩ := a
     have ⟨⟨_⟩⟩ := b
     simp only [mk.injEq, ExtHashMap.mk.injEq] at |- hyp

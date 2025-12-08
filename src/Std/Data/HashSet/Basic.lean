@@ -262,7 +262,8 @@ instance [BEq α] [Hashable α] : Inter (HashSet α) := ⟨inter⟩
 
 /--
 Compares two hash sets using Boolean equality on keys.
-Returns `true` if the sets contain the same keys pairs, `false` otherwise.
+
+Returns `true` if the sets contain the same keys, `false` otherwise.
 -/
 def beq [BEq α] (m₁ m₂ : HashSet α) : Bool :=
   HashMap.beq m₁.inner m₂.inner

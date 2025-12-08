@@ -441,56 +441,44 @@ where go baseName :=
           heqsTypes := heqsTypes.push heqType
         withLocalDeclsDND' `heq heqsTypes fun heqs => do
           let rhs ← Match.mkAppDiscrEqs (mkAppN alt args) heqs numDiscrEqs
-          let mut hs_discr := #[] -- overlap assumptions applied to discriminants (used in proof)
-          let mut hs_pat := #[]   -- overlap assumptions applied to pattern (exposed in theorem)
-          for overlappedBy in matchInfo.overlaps.overlapping i do
-            let notAlt := notAlts[overlappedBy]!
-            -- We want these assumptions to be general during the proof (discrs)
-            -- so that contradiction can recognize them,
-            -- but specific in the final theorem (patterns)
-            -- so that they match the splitter
-            let hdiscr ← instantiateForall notAlt discrs
-            let hpat ← instantiateForall notAlt patterns
-            -- TODO: How to use simpH and still manage to prove the things below?
-            -- if let some hpat ← simpH? hpat patterns.size then
-            hs_discr := hs_discr.push hdiscr
-            hs_pat := hs_pat.push hpat
+          let overlappedBys : Array Nat := matchInfo.overlaps.overlapping i
+          let hs_discr ← overlappedBys.mapM fun overlappedBy => do
+            -- we need to start with the overlap assumptions applid to the abstract
+            -- discriminants, so that they are picked up reliably by `contradiction`
+            -- We later simplify them to expose the them applied to the patterns
+            -- to match what the splitter provides
+            instantiateForall notAlts[overlappedBy]! discrs
           trace[Meta.Match.matchEqs] "hs (abstract): {hs_discr}"
-          trace[Meta.Match.matchEqs] "hs (concrete): {hs_pat}"
-          withLocalDeclsDND' `hnot hs_pat fun hs_pat => do
-          let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
-          let thmType ← mkHEq lhs rhs
-          let thmType ← Match.unfoldNamedPattern thmType -- TODO: Do we need to apply this to assumptions?
-          let thmVal  ← mkFreshExprSyntheticOpaqueMVar thmType
-          let mut mvarId := thmVal.mvarId!
-          -- Replace the overlap assumptions applied to the patters with the the
-          -- overlap assumptions applied to the abstract discrs
-          for h_pat in hs_pat, h_discr in hs_discr do
-            mvarId ← withTraceNode `Meta.Match.matchEqs
-              (msg := (return m!"{exceptEmoji ·} deriving {h_discr} from {← inferType h_pat} using {heqs}")) do
-               mvarId.withContext do
-                let userName ← h_pat.fvarId!.getUserName
-                let prf ← mkFreshExprSyntheticOpaqueMVar h_discr
-                let mut mvarId' := prf.mvarId!
-                trace[Meta.Match.matchEqs] "before subst: {mvarId'}"
-                mvarId' := (← mvarId'.revert #[h_pat.fvarId!]).2
-                mvarId' := (← mvarId'.revert (heqs.map (·.fvarId!)) (preserveOrder := true)).2
-                -- always good to clear before substing
-                mvarId' ← mvarId'.tryClearMany <| (#[motive] ++ alts ++ heqs ++ hs_pat).map (·.fvarId!)
-                for _ in [:heqs.size] do
-                  let (fvarId, mvarId'') ← mvarId'.intro1
-                  mvarId' ← subst mvarId'' fvarId
-                trace[Meta.Match.matchEqs] "after subst: {mvarId'}"
-                let (fvarId, mvarId'') ← mvarId'.intro1
-                mvarId''.assign (mkFVar fvarId)
-                let prf ← instantiateMVars prf
-                check prf
-                let mvarId := (← mvarId.note userName prf h_discr).2
-                mvarId.clear h_pat.fvarId!
-          proveCongrEqThm matchDeclName thmName mvarId
+          let thmVal ← withLocalDeclsDND' `hnot hs_discr fun hs_discrs => do
+            let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
+            let thmType ← mkHEq lhs rhs
+            let thmType ← Match.unfoldNamedPattern thmType -- TODO: Do we need to apply this to assumptions?
+            let thmVal  ← mkFreshExprSyntheticOpaqueMVar thmType
+            let mvarId := thmVal.mvarId!
+            proveCongrEqThm matchDeclName thmName mvarId
+            let thmVal ← mkExpectedTypeHint thmVal thmType
+            let thmVal ← instantiateMVars thmVal
+            mkLambdaFVars hs_discrs thmVal
+          -- Now we simplify the overlap assumptions
+          let hs_discr ← hs_discr.mapM mkFreshExprSyntheticOpaqueMVar
+          let thmVal := mkAppN thmVal hs_discr
+          let hs_pat : Array MVarId ← hs_discr.mapM fun h_discr => do
+            let mut mvarId' := h_discr.mvarId!
+            trace[Meta.Match.matchEqs] "before subst: {mvarId'}"
+            mvarId' := (← mvarId'.revert (heqs.map (·.fvarId!)) (preserveOrder := true)).2
+            -- always good to clear before substing
+            mvarId' ← mvarId'.tryClearMany <| (#[motive] ++ alts ++ heqs).map (·.fvarId!)
+            for _ in [:heqs.size] do
+              let (fvarId, mvarId'') ← mvarId'.intro1
+              mvarId' ← subst mvarId'' fvarId
+            trace[Meta.Match.matchEqs] "after subst: {mvarId'}"
+            pure mvarId'
           let thmVal ← instantiateMVars thmVal
-          let thmType ← mkForallFVars (params ++ #[motive] ++ discrs ++ alts ++ altVars ++ heqs ++ hs_pat) thmType
-          let thmVal ← mkLambdaFVars (params ++ #[motive] ++ discrs ++ alts ++ altVars ++ heqs ++ hs_pat) thmVal
+          let thmVal ← withLocalDeclsDND' `hnot (← hs_pat.mapM (·.getType)) fun xs => do
+            for h_pat in hs_pat, x in xs do h_pat.assign x
+            mkLambdaFVars xs (← instantiateMVars thmVal)
+          let thmVal ← mkLambdaFVars (params ++ #[motive] ++ discrs ++ alts ++ altVars ++ heqs) thmVal
+          let thmType ← inferType thmVal
           unless (← getEnv).contains thmName do
             addDecl <| Declaration.thmDecl {
               name        := thmName

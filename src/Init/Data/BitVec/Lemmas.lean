@@ -6403,7 +6403,7 @@ theorem cpop_zero :
 
 theorem toNat_cpop_le (x : BitVec w) :
     x.cpop.toNat ≤ w := by
-  have hlt := Nat.lt_pow_self (a := 2) (n := w) (by omega)
+  have hlt := Nat.lt_two_pow_self (n := w)
   have hle := cpopNatRec_zero_le (x := x) (n := w)
   simp only [cpop, toNat_ofNat, ge_iff_le]
   rw [Nat.mod_eq_of_lt (by omega)]
@@ -6450,7 +6450,7 @@ theorem toNat_cpop (x : BitVec w) :
     x.cpop.toNat = x.cpopNatRec w 0 := by
   have := cpopNatRec_zero_le x w
   have := toNat_cpop_le x
-  have := @Nat.lt_pow_self w 2 (by omega)
+  have := Nat.lt_two_pow_self (n := w)
   rw [cpop, toNat_ofNat, Nat.mod_eq_of_lt]
   omega
 
@@ -6486,7 +6486,7 @@ theorem cpop_cons {x : BitVec w} {b : Bool} :
 theorem cpop_concat {x : BitVec w} {b : Bool} :
     (x.concat b).cpop = b.toNat + x.cpop.setWidth (w + 1) := by
   have := cpopNatRec_zero_le (x := x) (n := w)
-  have := Nat.lt_pow_self (a := 2) (n := w) (by omega)
+  have := Nat.lt_two_pow_self (n := w)
   rw [cpop, cpop, cpopNatRec_concat_of_lt,
     Nat.add_one_sub_one, natCast_eq_ofNat, ofNat_add]
   congr
@@ -6497,7 +6497,7 @@ theorem cpop_concat {x : BitVec w} {b : Bool} :
 theorem toNat_cpop_concat {x : BitVec w} {b : Bool} :
     (x.concat b).cpop.toNat = b.toNat + x.cpop.toNat := by
   have := toNat_cpop_le (x := x)
-  have := Nat.lt_pow_self (a := 2) (n := w + 1) (by omega)
+  have := Nat.lt_two_pow_self (n := w + 1)
   simp only [cpop_concat, natCast_eq_ofNat, toNat_add, toNat_ofNat, toNat_setWidth, Nat.lt_add_one,
     toNat_mod_cancel_of_lt, Nat.mod_add_mod]
   rw [Nat.mod_eq_of_lt]
@@ -6542,7 +6542,7 @@ theorem cpop_append {x : BitVec w} {y : BitVec u} :
   apply eq_of_toNat_eq
   have := toNat_cpop_le x
   have := toNat_cpop_le y
-  have := Nat.lt_pow_self (n := w + u) (a := 2) (by omega)
+  have := Nat.lt_two_pow_self (n := w + u)
   simp only [toNat_cpop_append, toNat_add, toNat_setWidth, Nat.add_mod_mod, Nat.mod_add_mod]
   rw [Nat.mod_eq_of_lt (by omega)]
 

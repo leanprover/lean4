@@ -75,5 +75,6 @@ theorem countP_diff (hl : Subperm l₂ l₁) (p : α → Bool) :
     List.Perm.subperm_left,
     List.Sublist.subperm,
     List.Subperm.perm_of_length_le,
-    List.Perm.countP_congr
+    List.Perm.countP_congr,
+    List.countP_eq_length_filter
   ]

@@ -501,8 +501,7 @@ def inter (t₁ t₂ : TreeMap α β cmp) : TreeMap α β cmp :=
 
 instance : Inter (TreeMap α β cmp) := ⟨inter⟩
 
-/-- Internal implementation detail of the hash map. -/
-def beq [BEq β] (t₁ t₂ : TreeMap α β cmp) : Bool :=
+@[inherit_doc DTreeMap.beq] def beq [BEq β] (t₁ t₂ : TreeMap α β cmp) : Bool :=
   letI : Ord α := ⟨cmp⟩; DTreeMap.Const.beq t₁.inner t₂.inner
 
 instance [BEq β] : BEq (TreeMap α β cmp) := ⟨beq⟩

@@ -503,7 +503,10 @@ def inter (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
 
 instance : Inter (TreeSet α cmp) := ⟨inter⟩
 
-/-- Internal implementation detail of the hash map. -/
+/--
+Compares two tree sets using Boolean equality on keys.
+Returns `true` if the sets contain the same keys, `false` otherwise.
+-/
 def beq (t₁ t₂ : TreeSet α cmp) : Bool :=
   letI : Ord α := ⟨cmp⟩; TreeMap.beq t₁.inner t₂.inner
 

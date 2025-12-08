@@ -728,16 +728,15 @@ def inter (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
 
 instance : Inter (Raw α β cmp) := ⟨inter⟩
 
-/-- Internal implementation detail of the hash map. -/
-def beq [LawfulEqCmp cmp] [∀ k, BEq (β k)] (t₁ t₂ : Raw α β cmp) : Bool :=
+
+@[inherit_doc DTreeMap.beq] def beq [LawfulEqCmp cmp] [∀ k, BEq (β k)] (t₁ t₂ : Raw α β cmp) : Bool :=
   letI : Ord α := ⟨cmp⟩; t₁.inner.beq t₂.inner
 
 instance [LawfulEqCmp cmp] [∀ k, BEq (β k)] : BEq (Raw α β cmp) := ⟨beq⟩
 
-/-- Internal implementation detail of the hash map. -/
-def Const.beq {β : Type v} [BEq β] (t₁ t₂ : Raw α (fun _ => β) cmp) : Bool :=
+@[inherit_doc DTreeMap.beq] def Const.beq {β : Type v} [BEq β] (t₁ t₂ : Raw α (fun _ => β) cmp) : Bool :=
   letI : Ord α := ⟨cmp⟩; Internal.Impl.Const.beq t₁.inner t₂.inner
-  
+
 /--
 Computes the diffrence of the given tree maps.
 This function always iteraters through the smaller map.

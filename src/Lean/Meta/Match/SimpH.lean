@@ -86,7 +86,8 @@ def processNextEq : M Bool := do
         match (← isConstructorApp? lhs), (← isConstructorApp? rhs) with
         | some lhsCtor, some rhsCtor =>
           if lhsCtor.name != rhsCtor.name then
-            return false -- If the constructors are different, we can discard the hypothesis even if it a heterogeneous equality
+            throwError "unreachable?"
+            -- return false -- If the constructors are different, we can discard the hypothesis even if it a heterogeneous equality
         | _,_ => pure ()
         if (← isDefEq lhs rhs) then
           return true
@@ -104,7 +105,8 @@ def processNextEq : M Bool := do
           match (← isConstructorApp? lhs), (← isConstructorApp? rhs) with
           | some lhsCtor, some rhsCtor =>
             if lhsCtor.name != rhsCtor.name then
-              return false -- If the constructors are different, we can discard the hypothesis even if it a heterogeneous equality
+              throwError "unreachable, too?"
+              -- return false -- If the constructors are different, we can discard the hypothesis even if it a heterogeneous equality
             else if (← trySubstVarsAndContradiction s.mvarId) then
               return false
           | _, _ =>
@@ -139,20 +141,27 @@ end SimpH
 -/
 public partial def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := withDefault do
   let numVars ← forallTelescope h fun ys _ => pure (ys.size - numEqs)
-  let mvarId := (← mkFreshExprSyntheticOpaqueMVar h).mvarId!
+  let prf ← mkFreshExprSyntheticOpaqueMVar h
+  let mvarId := prf.mvarId!
+  let mvarId ← mvarId.tryClearMany (← getLCtx).getFVarIds
   let (xs, mvarId) ← mvarId.introN numVars
   let (eqs, mvarId) ← mvarId.introN numEqs
   let (r, s) ← SimpH.go |>.run { mvarId, xs := xs.toList, eqs := eqs.toList }
   if r then
     s.mvarId.withContext do
-      let eqs := s.eqsNew.reverse.toArray.map mkFVar
-      let mut r ← mkForallFVars eqs (mkConst ``False)
+      let eqs := s.eqsNew.reverse.toArray
+      let mvarId := s.mvarId
+      let mvarId := (← mvarId.revert eqs).2
       /- We only include variables in `xs` if there is a dependency. -/
-      for x in s.xs.reverse do
-        if (← dependsOn r x) then
-          r ← mkForallFVars #[mkFVar x] r
+      let r ← mvarId.getType
+      mvarId.withContext do
+      let xs ← s.xs.toArray.reverse.filterM (dependsOn r ·)
+      let mvarId := (← mvarId.revert xs).2
+      let r ← mvarId.getType
       trace[Meta.Match.matchEqs] "simplified hypothesis{indentExpr r}"
-      check r
       return some r
   else
+    let prf ← instantiateMVars prf
+    if prf.hasMVar then
+      throwError "simpH failed, but proof is incomplete:{indentExpr prf}"
     return none

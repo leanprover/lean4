@@ -1049,7 +1049,7 @@ def inter (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
 instance : Inter (DTreeMap α β cmp) := ⟨inter⟩
 
 /--
-Compares two tree maps for equality using Boolean equality on keys and values.
+Compares two tree maps using Boolean equality on keys and values.
 Returns `true` if the maps contain the same key-value pairs, `false` otherwise.
 -/
 def beq [LawfulEqCmp cmp] [∀ k, BEq (β k)] (t₁ t₂ : DTreeMap α β cmp) : Bool :=

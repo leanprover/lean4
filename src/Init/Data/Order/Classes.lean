@@ -146,17 +146,6 @@ public class LawfulOrderLeftLeaningMin (α : Type u) [Min α] [LE α] where
   min_eq_left : ∀ a b : α, a ≤ b → min a b = a
   min_eq_right : ∀ a b : α, ¬ a ≤ b → min a b = b
 
-public theorem LawfulOrderLeftLeaningMin.le_of_min_eq [LE α] [Min α] [LawfulOrderLeftLeaningMin α] (a b : α) (h1 : min a b = a) (h2 : a ≠ b) : a ≤ b := by
-  apply Classical.byContradiction
-  intro hyp
-  rw [LawfulOrderLeftLeaningMin.min_eq_right a b hyp, eq_comm] at h1
-  exact h2 h1
-
-public theorem LawfulOrderLeftLeaningMin.not_le_of_min_eq [LE α] [Min α] [LawfulOrderLeftLeaningMin α] (a b : α) (h1 : min a b = b) (h2 : a ≠ b) : ¬a ≤ b := by
-  intro hyp
-  rw [LawfulOrderLeftLeaningMin.min_eq_left a b hyp] at h1
-  exact h2 h1
-
 end Min
 
 section Max

@@ -403,8 +403,7 @@ mutual
     trace[Compiler.specialize.candidate] "{e.toExpr}, {specEntry}"
     let paramsInfo := specEntry.paramsInfo
     let (argMask, params, decls) ← Collector.collect paramsInfo args
-    let targetArgs := argMask.filterMap id
-    let keyBody := .const declName us targetArgs
+    let keyBody := .const declName us (argMask.filterMap id)
     let (key, levelParamsNew) ← mkKey params decls keyBody
     trace[Compiler.specialize.candidate] "key: {key}"
     assert! !key.hasLooseBVars
@@ -421,6 +420,11 @@ mutual
           | .type .. | .erased => return false
           | .fvar fvar => do
             if let some param ← findParam? fvar then
+              /-
+              For now we only allow recursive specialization on non class parameters, reason:
+              We can encounter situations where we repeatedly re-abstract over type classes
+              recursively and would end up in a loop because of that.
+              -/
               return (param.type matches .forallE ..) && !(← isArrowClass? param.type).isSome
             else
               return false
@@ -500,7 +504,7 @@ def updateLocalSpecParamInfo : SpecializeM Unit := do
   for entry in infos do
     if let some mask := (← get).parentMasks[entry.declName]? then
       let maskInfo info :=
-        mask.zipWith info (f := fun b i => if i.causesSpecialization && !b then .other else i)
+        mask.zipWith info (f := fun b i => if !b && i.causesSpecialization then .other else i)
       let entry := { entry with paramsInfo := maskInfo entry.paramsInfo }
       modify fun s => {
         s with
@@ -509,24 +513,22 @@ def updateLocalSpecParamInfo : SpecializeM Unit := do
 
   trace[Compiler.specialize.step] m!"Info for next round: {(← get).localSpecParamInfo.toList}"
 
-def endOfLoop : SpecializeM Unit := do
-  for (declName, paramsInfo) in (← get).localSpecParamInfo do
-    if paramsInfo.any SpecParamInfo.causesSpecialization then
-      trace[Compiler.specialize.info] "{declName} {paramsInfo}"
-      modifyEnv fun env => specExtension.addEntry env {
-        declName,
-        paramsInfo,
-        alreadySpecialized := true
-      }
-
 partial def loop (round : Nat := 0) : SpecializeM Unit := do
   let targets ← modifyGet (fun s => (s.workingDecls, { s with workingDecls := #[] }))
+  let limit := (← getConfig).maxRecSpecialize
   if targets.isEmpty then
     trace[Compiler.specialize.step] m!"Termination after {round} rounds"
-    endOfLoop
+    for (declName, paramsInfo) in (← get).localSpecParamInfo do
+      if paramsInfo.any SpecParamInfo.causesSpecialization then
+        trace[Compiler.specialize.info] "{declName} {paramsInfo}"
+        modifyEnv fun env => specExtension.addEntry env {
+          declName,
+          paramsInfo,
+          alreadySpecialized := true
+        }
     return ()
-  else if round > (← getConfig).maxRecSpecialize then
-    throwError "Lost in specialization"
+  else if round > limit then
+    throwError m!"Exceeded recursive specialization limit ({limit}), consider increasing it with `set_option compiler.maxRecSpecialize {limit}`"
 
   trace[Compiler.specialize.step] m!"Round: {round}"
   for decl in targets do

@@ -127,7 +127,7 @@ end SimpH
   Recall that each equation contains additional hypotheses to ensure the associated case was not taken by previous cases.
   We have one hypothesis for each previous case.
 -/
-public partial def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := withDefault do
+public partial def simpHWithProof? (h : Expr) (numEqs : Nat) : MetaM (Option Expr × Expr) := withDefault do
   let numVars ← forallTelescope h fun ys _ => pure (ys.size - numEqs)
   let prf ← mkFreshExprSyntheticOpaqueMVar h
   let mvarId := prf.mvarId!
@@ -138,18 +138,23 @@ public partial def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := wit
   if r then
     s.mvarId.withContext do
       let eqs := s.eqsNew.reverse.toArray
-      let mvarId := s.mvarId
-      let mvarId := (← mvarId.revert eqs).2
+      let mvarId' := s.mvarId
+      let mvarId' := (← mvarId'.revert eqs).2
       /- We only include variables in `xs` if there is a dependency. -/
-      let r ← mvarId.getType
-      mvarId.withContext do
+      let r ← mvarId'.getType
+      mvarId'.withContext do
       let xs ← s.xs.toArray.reverse.filterM (dependsOn r ·)
-      let mvarId := (← mvarId.revert xs).2
-      let r ← mvarId.getType
+      let mvarId' := (← mvarId'.revert xs).2
+      let r ← mvarId'.getType
       trace[Meta.Match.matchEqs] "simplified hypothesis{indentExpr r}"
-      return some r
+      let prf ← instantiateMVars prf
+      let prf ← mkLambdaFVars (binderInfoForMVars := .default) #[mkMVar mvarId'] prf
+      return (some r, prf)
   else
     let prf ← instantiateMVars prf
     if prf.hasMVar then
       throwError "simpH failed, but proof is incomplete:{indentExpr prf}"
-    return none
+    return (none, prf)
+
+public def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := do
+  return (← simpHWithProof? h numEqs).1

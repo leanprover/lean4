@@ -122,15 +122,12 @@ end SimpH
 
 
 /--
-  Auxiliary method for simplifying equational theorem hypotheses.
-
-  Recall that each equation contains additional hypotheses to ensure the associated case was not taken by previous cases.
-  We have one hypothesis for each previous case.
+Like `simpH?`, but works directly on a goal corresponding to the unsimplified equational theorem
+hypothesis, and either closes it or returns a residual goal whose type is the simplified equational
+theorem hypothesis.
 -/
-public partial def simpHWithProof? (h : Expr) (numEqs : Nat) : MetaM (Option Expr × Expr) := withDefault do
-  let numVars ← forallTelescope h fun ys _ => pure (ys.size - numEqs)
-  let prf ← mkFreshExprSyntheticOpaqueMVar h
-  let mvarId := prf.mvarId!
+public partial def simpH (mvarId : MVarId) (numEqs : Nat) : MetaM (Option MVarId) := withDefault do
+  let numVars ← forallTelescope (← mvarId.getType) fun ys _ => pure (ys.size - numEqs)
   let mvarId ← mvarId.tryClearMany (← getLCtx).getFVarIds
   let (xs, mvarId) ← mvarId.introN numVars
   let (eqs, mvarId) ← mvarId.introN numEqs
@@ -145,16 +142,19 @@ public partial def simpHWithProof? (h : Expr) (numEqs : Nat) : MetaM (Option Exp
       mvarId'.withContext do
       let xs ← s.xs.toArray.reverse.filterM (dependsOn r ·)
       let mvarId' := (← mvarId'.revert xs).2
-      let r ← mvarId'.getType
-      trace[Meta.Match.matchEqs] "simplified hypothesis{indentExpr r}"
-      let prf ← instantiateMVars prf
-      let prf ← mkLambdaFVars (binderInfoForMVars := .default) #[mkMVar mvarId'] prf
-      return (some r, prf)
+      return (some mvarId')
   else
-    let prf ← instantiateMVars prf
-    if prf.hasMVar then
-      throwError "simpH failed, but proof is incomplete:{indentExpr prf}"
-    return (none, prf)
+    return none
 
+/--
+  Auxiliary method for simplifying equational theorem hypotheses.
+
+  Recall that each equation contains additional hypotheses to ensure the associated case was not taken by previous cases.
+  We have one hypothesis for each previous case.
+-/
 public def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := do
-  return (← simpHWithProof? h numEqs).1
+  let prf ← mkFreshExprSyntheticOpaqueMVar h
+  match (← simpH prf.mvarId! numEqs) with
+  | none   => return none
+  | some mvarId' =>
+    return some (← mvarId'.getType)

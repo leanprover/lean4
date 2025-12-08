@@ -181,7 +181,7 @@ theorem denote_blastAddVec
   (new_layer : AIG.RefVec aig (iter_num * w))
   (hold' : 2 * (iter_num - 1) < old_length)
   (old_layer_bv : BitVec (old_length * w))
-  (hval : 0 < l_length)
+  (_hval : 0 < l_length)
   (hw : 0 < w)
   -- the bits added already denote to the corresponding entry in acc
   (hold : ∀ (idx : Nat) (hidx : idx < old_length * w),

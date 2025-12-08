@@ -5,7 +5,7 @@
    "type": "git",
    "subDir": "backend",
    "scope": "",
-   "rev": "d7c744c5c8bd63477c013344f723b679cdb289b2",
+   "rev": "c19abde9101b29eb1e30d0d9d9e24ec2714f25b6",
    "name": "grove",
    "manifestFile": "lake-manifest.json",
    "inputRev": "master",

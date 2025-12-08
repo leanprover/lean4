@@ -513,25 +513,20 @@ instance [BEq α] [Hashable α] : Inter (Raw α β) := ⟨inter⟩
 
 /--
 Compares two hash maps using Boolean equality on keys and values.
+
 Returns `true` if the maps contain the same key-value pairs, `false` otherwise.
 -/
 def beq [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] (m₁ m₂ : Raw α β) : Bool :=
-    if h₁ : 0 < m₁.buckets.size then
-      if h₂ : 0 < m₂.buckets.size then
-        Raw₀.beq ⟨m₁, h₁⟩ ⟨m₂, h₂⟩
-      else
-        false
+    if h : 0 < m₁.buckets.size ∧ 0 < m₂.buckets.size then
+      Raw₀.beq ⟨m₁, h.1⟩ ⟨m₂, h.2⟩
     else
       false
 
 instance [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] : BEq (Raw α β) := ⟨beq⟩
 
 @[inherit_doc DHashMap.Raw.beq] def Const.beq {β : Type v} [BEq α] [Hashable α] [BEq β] (m₁ m₂ : Raw α (fun _ => β)) : Bool :=
-   if h₁ : 0 < m₁.buckets.size then
-      if h₂ : 0 < m₂.buckets.size then
-        Raw₀.Const.beq ⟨m₁, h₁⟩ ⟨m₂, h₂⟩
-      else
-        false
+   if h : 0 < m₁.buckets.size ∧ 0 < m₂.buckets.size then
+        Raw₀.Const.beq ⟨m₁, h.1⟩ ⟨m₂, h.2⟩
     else
       false
 

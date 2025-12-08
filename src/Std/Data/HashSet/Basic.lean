@@ -260,7 +260,10 @@ This function always iterates through the smaller set, so the expected runtime i
 instance [BEq α] [Hashable α] : Inter (HashSet α) := ⟨inter⟩
 
 
-/-- Internal implementation detail of the hash map. -/
+/--
+Compares two hash sets using Boolean equality on keys.
+Returns `true` if the sets contain the same keys pairs, `false` otherwise.
+-/
 def beq [BEq α] (m₁ m₂ : HashSet α) : Bool :=
   HashMap.beq m₁.inner m₂.inner
 

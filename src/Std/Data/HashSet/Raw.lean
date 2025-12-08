@@ -244,7 +244,10 @@ This function always merges the smaller set into the larger set, so the expected
 instance [BEq α] [Hashable α] : Inter (Raw α) := ⟨inter⟩
 
 
-/-- Internal implementation detail of the hash map. -/
+/--
+Compares two hash sets using Boolean equality on keys.
+Returns `true` if the sets contain the same keys pairs, `false` otherwise.
+-/
 def beq [BEq α] [Hashable α] (m₁ m₂ : Raw α) : Bool :=
   HashMap.Raw.beq m₁.inner m₂.inner
 

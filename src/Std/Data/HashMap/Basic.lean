@@ -278,8 +278,7 @@ instance [BEq α] [Hashable α] : Union (HashMap α β) := ⟨union⟩
 
 instance [BEq α] [Hashable α] : Inter (HashMap α β) := ⟨inter⟩
 
-/-- Internal implementation detail of the hash map. -/
-def beq {β : Type v} [BEq α] [BEq β] (m₁ m₂ : HashMap α β) : Bool :=
+@[inherit_doc DHashMap.beq] def beq {β : Type v} [BEq α] [BEq β] (m₁ m₂ : HashMap α β) : Bool :=
   DHashMap.Const.beq m₁.inner m₂.inner
 
 instance [BEq α] [BEq β] : BEq (HashMap α β) := ⟨beq⟩

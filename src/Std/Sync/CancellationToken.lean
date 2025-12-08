@@ -95,13 +95,13 @@ structure CancellationToken where
 namespace CancellationToken
 
 /--
-Create a new cancellation token.
+Creates a new cancellation token.
 -/
 def new : BaseIO CancellationToken := do
   return { state := ← Std.Mutex.new { reason := none, consumers := ∅ } }
 
 /--
-Cancel the token with the given reason, notifying all currently waiting consumers.
+Cancels the token with the given reason, notifying all currently waiting consumers.
 Once cancelled, the token remains cancelled.
 -/
 def cancel (x : CancellationToken) (reason : CancellationReason := .cancel) : BaseIO Unit := do
@@ -124,7 +124,7 @@ def cancel (x : CancellationToken) (reason : CancellationReason := .cancel) : Ba
     set st
 
 /--
-Check if the token is cancelled.
+Checks if the token is cancelled.
 -/
 def isCancelled (x : CancellationToken) : BaseIO Bool := do
   x.state.atomically do
@@ -132,7 +132,7 @@ def isCancelled (x : CancellationToken) : BaseIO Bool := do
     return st.reason.isSome
 
 /--
-Get the cancellation reason if the token is cancelled.
+Gets the cancellation reason if the token is cancelled.
 -/
 def getCancellationReason (x : CancellationToken) : BaseIO (Option CancellationReason) := do
   x.state.atomically do
@@ -140,7 +140,7 @@ def getCancellationReason (x : CancellationToken) : BaseIO (Option CancellationR
     return st.reason
 
 /--
-Wait for cancellation. Returns a task that completes when cancelled,
+Waits for cancellation. Returns a task that completes when cancelled.
 -/
 def wait (x : CancellationToken) : IO (AsyncTask Unit) :=
   x.state.atomically do
@@ -158,7 +158,7 @@ def wait (x : CancellationToken) : IO (AsyncTask Unit) :=
       | none => throw (IO.userError "cancellation token dropped")
 
 /--
-Creates a selector that waits for cancellation
+Creates a selector that waits for cancellation.
 -/
 def selector (token : CancellationToken) : Selector Unit := {
   tryFn := do

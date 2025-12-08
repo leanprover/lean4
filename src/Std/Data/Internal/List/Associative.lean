@@ -14,7 +14,6 @@ import all Std.Data.Internal.List.Defs
 public import Init.Data.Order.Ord
 import Init.Data.Subtype.Order
 public import Init.Data.Order.ClassesExtra
-public import Init.Data.Order.Lemmas
 public import Init.Data.Order.LemmasExtra
 public section
 
@@ -8251,50 +8250,26 @@ theorem containsKey_minKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l
   obtain ⟨e, ⟨hm, _⟩, rfl⟩ := hkm
   exact containsKey_of_mem hm
 
-instance [LE α] [Min α] [Std.LawfulOrderLeftLeaningMin α] [IsLinearOrder α] : Commutative (min : α → α → α) where
-  comm a b := by
-    have w₁ : min a b ≤ min b a := by
-      apply (LawfulOrderInf.le_min_iff (min a b) b a).2
-      rw [And.comm]
-      by_cases h : a ≤ b
-      case pos =>
-        simp [LawfulOrderLeftLeaningMin.min_eq_left, h, le_refl]
-      case neg =>
-        simp [LawfulOrderLeftLeaningMin.min_eq_right _ _ h, le_of_not_ge h, le_refl]
-    have w₂ : min b a ≤ min a b := by
-      apply (LawfulOrderInf.le_min_iff (min b a) a b).2
-      rw [And.comm]
-      by_cases h : b ≤ a
-      case pos =>
-        simp [LawfulOrderLeftLeaningMin.min_eq_left, h, le_refl]
-      case neg =>
-        simp [LawfulOrderLeftLeaningMin.min_eq_right _ _ h, le_of_not_ge h, le_refl]
-    apply le_antisymm w₁ w₂
-
-theorem minKey?_eq_map_fst_min? [Ord α] [TransOrd α] [Std.LawfulEqOrd α] [LE α] [Std.LawfulOrderOrd α] [Min α] [Std.LawfulOrderLeftLeaningMin α]
+theorem minKey?_eq_min?_map_fst [Ord α] [TransOrd α] [Std.LawfulEqOrd α] [LE α] [Std.LawfulOrderOrd α] [Min α] [Std.LawfulOrderLeftLeaningMin α]
     (l : List ((a : α) × β a)) :
     minKey? l = (l.map Sigma.fst).min? := by
   have : IsLinearOrder α := IsLinearOrder.of_ord
-  induction l
-  case nil =>
-    simp [minKey?_of_isEmpty]
-  case cons h t ih =>
-    rw [minKey?, minEntry?_cons, minEntry?, Option.map_some, List.map_cons]
+  induction l with
+  | nil => simp [minKey?_of_isEmpty]
+  | cons h t ih =>
+    rw [minKey?, minEntry?_cons, minEntry?, Option.map_some, List.map_cons, List.min?_cons]
     split
-    case h_1 _ heq =>
-      simp [← ih, minKey?, minEntry?, heq]
-    case h_2 _ w heq =>
-      simp only [List.min?_cons, Option.some.injEq, ← ih, minKey?, minEntry?, heq, min, Option.map_some, Option.elim_some]
+    · simp only [← ih, minKey?, minEntry?, Option.map_none, Option.elim_none, *]
+    · simp only [Option.some.injEq, ← ih, minKey?, minEntry?, *, min, Option.map_some,
+                 Option.elim_some]
       split
-      case isTrue hyp =>
-        rw [LawfulOrderLeftLeaningMin.min_eq_left h.fst w.fst <| (LawfulOrderOrd.isLE_compare h.fst w.fst).1 hyp]
-      case isFalse hyp =>
+      · rw [LawfulOrderLeftLeaningMin.min_eq_left _ _ <|
+            (LawfulOrderOrd.isLE_compare _ _).1 ‹_›]
+      · rename_i w _ hyp
         simp only [Bool.not_eq_true, Ordering.isLE_eq_false] at hyp
-        suffices goal : w.fst = min w.fst h.fst by
-          simpa only [Commutative.comm] using goal
-        refine (LawfulOrderLeftLeaningMin.min_eq_left _ _ ?_).symm
-        apply (LawfulOrderOrd.isGE_compare h.fst w.fst).1
-        exact Ordering.isGE_of_eq_gt hyp
+        simp only [Commutative.comm h.fst w.fst]
+        rw [LawfulOrderLeftLeaningMin.min_eq_left _ _ <|
+            (LawfulOrderOrd.isGE_compare _ _).1 (Ordering.isGE_of_eq_gt ‹_›)]
 
 theorem minKey?_eraseKey_eq_iff_beq_minKey?_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {k} {l : List ((a : α) × β a)} (hd : DistinctKeys l) :

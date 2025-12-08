@@ -19,45 +19,57 @@ namespace Internal
 namespace IO
 namespace Async
 
+/-!
+# Asynchronous Context
+
+This module provides `ContextAsync`, a monad for asynchronous computations with built-in
+cancellation support.
+-/
+
 /--
-An asynchronous computation with cancellation support via a `Context`.
+An asynchronous computation with cancellation support via a `Context`. `ContextAsync α` is equivalent
+to `ReaderT Context Async α`, providing a `Context` value through async computations.
 -/
 @[expose] abbrev ContextAsync (α : Type) := ReaderT Context Async α
 
 namespace ContextAsync
 
 /--
-Run a `ContextAsync` computation with a given context.
+Runs a `ContextAsync` computation with a given context. Typically the context is created with
+`Context.new` or `Context.fork`.
 -/
 @[inline]
 protected def run (ctx : Context) (x : ContextAsync α) : Async α :=
   x ctx
 
 /--
-Create a `ContextAsync` from an `Async` computation.
+Lifts an `Async` computation into `ContextAsync`.
+The lifted computation ignores the context and won't respect cancellation.
 -/
 @[inline]
 protected def lift (x : Async α) : ContextAsync α :=
   fun _ => x
 
 /--
-Get the current context.
+Returns the current context for inspection or to pass to other functions.
 -/
 @[inline]
 def getContext : ContextAsync Context :=
   fun ctx => pure ctx
 
 /--
-Fork a child context and run a computation within it.
+Forks a child context, runs a computation within it, and cancels the child context afterwards.
+The child inherits parent's cancellation, but cancelling the child doesn't affect the parent.
 -/
 @[inline]
 def fork (x : ContextAsync α) : ContextAsync α :=
   fun parent => do
     let child ← Context.fork parent
-    x child
+    try x child finally child.cancel .cancel
 
 /--
-Check if the current context is cancelled.
+Checks if the current context is cancelled. Returns `true` if the context (or any ancestor) has been cancelled.
+Long-running operations should periodically check this and exit gracefully when cancelled.
 -/
 @[inline]
 def isCancelled : ContextAsync Bool := do
@@ -65,7 +77,8 @@ def isCancelled : ContextAsync Bool := do
   ctx.isCancelled
 
 /--
-Get the cancellation reason if the context is cancelled.
+Gets the cancellation reason if the context is cancelled. Returns `some reason` if cancelled, `none` otherwise,
+allowing you to distinguish between different cancellation types.
 -/
 @[inline]
 def getCancellationReason : ContextAsync (Option CancellationReason) := do
@@ -73,7 +86,8 @@ def getCancellationReason : ContextAsync (Option CancellationReason) := do
   ctx.getCancellationReason
 
 /--
-Cancel the current context with the given reason.
+Cancels the current context with the given reason, cascading to all child contexts.
+Cancellation is cooperative, operations must explicitly check `isCancelled` or use `awaitCancellation` to respond.
 -/
 @[inline]
 def cancel (reason : CancellationReason) : ContextAsync Unit := do
@@ -81,7 +95,7 @@ def cancel (reason : CancellationReason) : ContextAsync Unit := do
   ctx.cancel reason
 
 /--
-Wait for the current context to be cancelled.
+Returns a selector that completes when the current context is cancelled.
 -/
 @[inline]
 def doneSelector : ContextAsync (Selector Unit) := do
@@ -89,7 +103,7 @@ def doneSelector : ContextAsync (Selector Unit) := do
   return ctx.doneSelector
 
 /--
-Wait for the current context to be cancelled.
+Waits for the current context to be cancelled.
 -/
 @[inline]
 def awaitCancellation : ContextAsync Unit := do
@@ -98,8 +112,8 @@ def awaitCancellation : ContextAsync Unit := do
   await task
 
 /--
-Run two computations concurrently and return both results. If either fails or is cancelled,
-both are cancelled.
+Runs two computations concurrently and returns both results.
+If either fails or is cancelled, both are cancelled immediately and the exception is propagated.
 -/
 @[inline, specialize]
 def concurrently (x : ContextAsync α) (y : ContextAsync β)
@@ -108,8 +122,8 @@ def concurrently (x : ContextAsync α) (y : ContextAsync β)
   Async.concurrently (x ctx) (y ctx) prio
 
 /--
-Run two computations concurrently and return the result of the first to complete.
-The loser's context is cancelled.
+Runs two computations concurrently and returns the result of the first to complete.
+Each runs in its own child context; when either completes, the other is cancelled immediately.
 -/
 @[inline, specialize]
 def race [Inhabited α] (x : ContextAsync α) (y : ContextAsync α)
@@ -129,8 +143,8 @@ def race [Inhabited α] (x : ContextAsync α) (y : ContextAsync α)
   pure result
 
 /--
-Run all computations concurrently and collect results. If any fails or is cancelled,
-all are cancelled.
+Runs all computations concurrently and collects results in the same order.
+If any computation fails, all others are cancelled and the exception is propagated.
 -/
 @[inline, specialize]
 def concurrentlyAll (xs : Array (ContextAsync α))
@@ -139,9 +153,9 @@ def concurrentlyAll (xs : Array (ContextAsync α))
   Async.concurrentlyAll (xs.map (· ctx)) prio
 
 /--
-Run all computations concurrently and return the first result. All losers are cancelled.
+Runs all computations concurrently and returns the first result.
+Each computation gets its own child context; the first successful result wins and all others are cancelled.
 -/
-@[inline, specialize]
 def raceAll [ForM ContextAsync c (ContextAsync α)] (xs : c)
     (prio := Task.Priority.default) : ContextAsync α := do
   let parent ← getContext
@@ -150,27 +164,27 @@ def raceAll [ForM ContextAsync c (ContextAsync α)] (xs : c)
   ForM.forM xs fun x => do
     let ctx ← Context.fork parent
     let task ← async (x ctx) prio
+
     background do
       try
         let result ← await task
-        -- Cancel parent to stop other tasks
-        parent.cancel .cancel
         promise.resolve (.ok result)
       catch e =>
-        -- Only set error if promise not already resolved
         discard $ promise.resolve (.error e)
 
   let result ← await promise
+  parent.cancel .cancel
   Async.ofExcept result
 
 /--
-Run a computation in the background with its own forked context.
+Runs a computation in the background with its own forked context, returning immediately.
+The task continues even after the parent completes but is cancelled when the parent context is cancelled.
 -/
 @[inline]
 def background (x : ContextAsync α) (prio := Task.Priority.default) : ContextAsync Unit := do
   let parent ← getContext
   let child ← Context.fork parent
-  Async.background (x child) prio
+  Async.background (x child *> child.cancel .cancel) prio
 
 instance : Functor ContextAsync where
   map f x := fun ctx => f <$> x ctx

@@ -20,7 +20,7 @@ public section
 
 A `ByteStream` represents an asynchronous channel for streaming byte data in chunks. It provides an
 interface for producers and consumers to exchange byte arrays with optional chunk metadata (extensions),
-aking it suitable for HTTP chunked transfer encoding and other streaming scenarios.
+making it suitable for HTTP chunked transfer encoding and other streaming scenarios.
 -/
 
 namespace Std.Http.Body
@@ -54,8 +54,8 @@ def empty : Async ByteStream :=
   emptyWithCapacity
 
 /--
-Tries to receive a chunk from the stream. Returns `some` with a chunk when data is available, or `none`
-hen the stream is closed or no data is available.
+Attempts to receive a chunk from the stream. Returns `some` with a chunk when data is available, or `none`
+when the stream is closed or no data is available.
 -/
 def tryRecv (stream : ByteStream) : Async (Option Chunk) := do
   stream.channel.tryRecv
@@ -89,9 +89,9 @@ def write (stream : ByteStream) (data : ByteArray) (extensions : Array (String �
   if data.isEmpty then
     return
 
-  let chunk : Chunk := { data := data, extensions := extensions }
+  let chunk := { data := data, extensions := extensions }
   let task ← stream.channel.send chunk
-  let task : AsyncTask _ := task.map (Except.mapError (fun x => userError (toString x)))
+  let task := task.map (Except.mapError (fun x => userError (toString x)))
   Async.ofAsyncTask task
 
 /--
@@ -99,7 +99,7 @@ Writes a complete chunk with extensions to the stream.
 -/
 def writeChunk (stream : ByteStream) (chunk : Chunk) : Async Unit := do
   let task ← stream.channel.send chunk
-  let task : AsyncTask _ := task.map (Except.mapError (fun x => userError (toString x)))
+  let task := task.map (Except.mapError (fun x => userError (toString x)))
   Async.ofAsyncTask task
 
 /--
@@ -112,7 +112,7 @@ def getKnownSize (stream : ByteStream) : Async (Option Body.Length) := do
 
 /--
 Sets the known size of the stream.
-This is typically used when the total expected size is known ahead of time.
+Use this when the total expected size is known ahead of time.
 -/
 def setKnownSize (stream : ByteStream) (size : Option Body.Length) : Async Unit := do
   stream.knownSize.atomically do

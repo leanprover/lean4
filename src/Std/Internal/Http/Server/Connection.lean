@@ -140,108 +140,118 @@ private def handle
   let mut expectData := none
   let mut waitingResponse := false
 
-  while ¬machine.halted do
-    let (newMachine, step) := machine.step
-    machine := newMachine
+  try
+    while ¬machine.halted do
+      let (newMachine, step) := machine.step
+      machine := newMachine
 
-    if step.output.size > 0 then
-      Transport.sendAll socket step.output.data
+      if step.output.size > 0 then
+        try
+          Transport.sendAll socket step.output.data
+        catch _ =>
+          break
 
-    for event in step.events do
-      match event with
-      | .needMoreData expect => do
-        requiresData := true
-        expectData := expect
+      for event in step.events do
+        match event with
+        | .needMoreData expect => do
+          requiresData := true
+          expectData := expect
 
-      | .needBody => do
-        needBody := true
+        | .needBody => do
+          needBody := true
 
-      | .needAnswer =>
-        needAnswer := true
+        | .needAnswer =>
+          needAnswer := true
 
-      | .endHeaders head =>
-        waitingResponse := true
-        currentTimeout := config.lingeringTimeout
-        keepAliveTimeout := none
+        | .endHeaders head =>
+          waitingResponse := true
+          currentTimeout := config.lingeringTimeout
+          keepAliveTimeout := none
 
-        if let some length := Protocol.H1.Machine.getMessageSize head then
-          requestStream.setKnownSize (some length)
+          if let some length := Protocol.H1.Machine.getMessageSize head then
+            requestStream.setKnownSize (some length)
 
-        let newResponse := handler { head, body := (.stream requestStream) } connectionContext
-        let task ← newResponse.asTask
+          let newResponse := handler { head, body := (.stream requestStream) } connectionContext
+          let task ← newResponse.asTask
 
-        BaseIO.chainTask task fun x => discard <| response.resolve x
+          BaseIO.chainTask task fun x => discard <| response.resolve x
 
-      | .gotData final ext data =>
-        requestStream.writeChunk { data := data.toByteArray, extensions := ext }
+        | .gotData final ext data =>
+          requestStream.writeChunk { data := data.toByteArray, extensions := ext }
 
-        if final then
-          requestStream.close
+          if final then
+            requestStream.close
 
-      | .next => do
-        requestStream ← Body.ByteStream.emptyWithCapacity
-        response ← Std.Promise.new
-        respStream := none
-        keepAliveTimeout := some config.keepAliveTimeout.val
-        currentTimeout := config.keepAliveTimeout.val
+        | .next => do
+          requestStream ← Body.ByteStream.emptyWithCapacity
+          response ← Std.Promise.new
+          respStream := none
+          keepAliveTimeout := some config.keepAliveTimeout.val
+          currentTimeout := config.keepAliveTimeout.val
 
-      | .failed _ =>
-        pure ()
+        | .failed _ =>
+          pure ()
 
-      | .close =>
-        pure ()
+        | .close =>
+          pure ()
 
-    if requiresData ∨ needAnswer ∨ respStream.isSome then
-      let socket := if requiresData then some socket else none
-      let answer := if needAnswer then some response else none
+      if requiresData ∨ needAnswer ∨ respStream.isSome then
+        let socket := some socket
+        let answer := if needAnswer then some response else none
 
-      requiresData := false
-      needAnswer := false
-      needBody := false
+        requiresData := false
+        needAnswer := false
+        needBody := false
 
-      match ← processNeedMoreData config socket expectData answer respStream currentTimeout keepAliveTimeout connectionContext with
-      | .bytes (some bs) =>
-        machine := machine.feed bs
+        match ← processNeedMoreData config socket expectData answer respStream currentTimeout keepAliveTimeout connectionContext with
+        | .bytes (some bs) =>
+          machine := machine.feed bs
 
-      | .bytes none =>
-        machine := machine.noMoreInput
+        | .bytes none =>
+          machine := machine.noMoreInput
 
-      | .channel (some chunk) =>
-        machine := machine.sendData #[chunk]
+        | .channel (some chunk) =>
+          machine := machine.sendData #[chunk]
 
-      | .channel none =>
-        machine := machine.userClosedBody
-        respStream := none
+        | .channel none =>
+          machine := machine.userClosedBody
+          respStream := none
 
-      | .timeout =>
-        machine := machine.closeReader
-        let (newMachine, newWaitingResponse) := handleError machine .requestTimeout waitingResponse
-        machine := newMachine
-        waitingResponse := newWaitingResponse
-        respStream := none
+        | .timeout =>
+          machine := machine.closeReader
+          let (newMachine, newWaitingResponse) := handleError machine .requestTimeout waitingResponse
+          machine := newMachine
+          waitingResponse := newWaitingResponse
+          respStream := none
 
-      | .shutdown =>
-        let (newMachine, newWaitingResponse) := handleError machine .serviceUnavailable waitingResponse
-        machine := newMachine
-        waitingResponse := newWaitingResponse
+        | .shutdown =>
+          let (newMachine, newWaitingResponse) := handleError machine .serviceUnavailable waitingResponse
+          machine := newMachine
+          waitingResponse := newWaitingResponse
 
-      | .response (.error _) =>
-        let (newMachine, newWaitingResponse) := handleError machine .internalServerError waitingResponse
-        machine := newMachine
-        waitingResponse := newWaitingResponse
+        | .response (.error _) =>
+          let (newMachine, newWaitingResponse) := handleError machine .internalServerError waitingResponse
+          machine := newMachine
+          waitingResponse := newWaitingResponse
 
-      | .response (.ok res) =>
-        machine := machine.send res.head
-        match res.body with
-        | .bytes data => machine := machine.sendData #[Chunk.mk data #[]] |>.userClosedBody
-        | .zero => machine := machine.userClosedBody
-        | .stream stream => do
-          let size ← stream.getKnownSize
-          machine := machine.setKnownSize (size.getD .chunked)
-          respStream := some stream
+        | .response (.ok res) =>
+          machine := machine.send res.head
+          match res.body with
+          | .bytes data => machine := machine.sendData #[Chunk.mk data #[]] |>.userClosedBody
+          | .zero => machine := machine.userClosedBody
+          | .stream stream => do
+            let size ← stream.getKnownSize
+            machine := machine.setKnownSize (size.getD .chunked)
+            respStream := some stream
+  finally
+    if ¬ (← connectionContext.isCancelled) then
+      connectionContext.cancel .cancel
 
-  if let some res := respStream then
-    if ¬ (← res.isClosed) then res.close
+    if ¬ (← requestStream.isClosed) then
+      requestStream.close
+
+    if let some res := respStream then
+      if ¬ (← res.isClosed) then res.close
 
 end Connection
 

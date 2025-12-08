@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.Consumers.Monadic
+import Init.Control.Lawful.MonadAttach.Lemmas
 
 public section
 
@@ -84,51 +85,68 @@ def Types.ULiftIterator.Monadic.modifyStep (step : IterStep (IterM (α := α) m 
 
 instance Types.ULiftIterator.instIterator [Iterator α m β] [Monad n] :
     Iterator (ULiftIterator α m n β lift) n (ULift β) where
-  IsPlausibleStep it step :=
-    ∃ step', it.internalState.inner.IsPlausibleStep step' ∧
-      step = ULiftIterator.Monadic.modifyStep step'
   step it := do
-    let step := (← (lift it.internalState.inner.step).run).down
-    return .deflate ⟨Monadic.modifyStep step.inflate.val, ?hp⟩
-  where finally
-    case hp => exact ⟨step.inflate.val, step.inflate.property, rfl⟩
+    (Monadic.modifyStep ·.down) <$> (lift it.internalState.inner.step).run
 
-def Types.ULiftIterator.instFinitenessRelation [Iterator α m β] [Finite α m] [Monad n] :
+def Types.ULiftIterator.instFinitenessRelation
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad n] [LawfulMonad n] [MonadAttach n] [LawfulMonadAttach n]
+    [Iterator α m β] [Finite α m] [Internal.LawfulMonadLiftFunction lift] :
     FinitenessRelation (ULiftIterator α m n β lift) n where
   rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.inner.finitelyManySteps)
   wf := InvImage.wf _ WellFoundedRelation.wf
-  subrelation h := by
-    rcases h with ⟨_, hs, step, hp, rfl⟩
-    cases step <;> cases hs
-    · apply IterM.TerminationMeasures.Finite.rel_of_yield
-      exact hp
-    · apply IterM.TerminationMeasures.Finite.rel_of_skip
-      exact hp
+  subrelation {it it'} h := by
+    rcases h with ⟨_, hs, h⟩
+    simp only [IterM.IsPlausibleStep, Iterator.step, ← LawfulMonadAttach.map_attach (x := it.internalState.inner.step),
+      Internal.LawfulMonadLiftFunction.lift_map, ULiftT.run, instMonadULiftT] at h
+    simp only [Function.comp_apply, bind_pure_comp, Functor.map_map] at h
+    obtain ⟨⟨step⟩, hstep, rfl⟩ := LawfulMonadAttach.canReturn_map_imp' h
+    cases step using PlausibleIterStep.casesOn
+    · cases hs
+      exact IterM.TerminationMeasures.Finite.rel_of_yield ‹_›
+    · cases hs
+      exact IterM.TerminationMeasures.Finite.rel_of_skip ‹_›
+    · cases hs
 
-instance Types.ULiftIterator.instFinite [Iterator α m β] [Finite α m] [Monad n] :
+instance Types.ULiftIterator.instFinite
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad n] [LawfulMonad n] [MonadAttach n] [LawfulMonadAttach n]
+    [Iterator α m β] [Finite α m] [Internal.LawfulMonadLiftFunction lift] :
     Finite (ULiftIterator α m n β lift) n :=
   .of_finitenessRelation instFinitenessRelation
 
-def Types.ULiftIterator.instProductivenessRelation [Iterator α m β] [Productive α m] [Monad n] :
+def Types.ULiftIterator.instProductivenessRelation
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad n] [LawfulMonad n] [MonadAttach n] [LawfulMonadAttach n]
+    [Iterator α m β] [Productive α m] [Internal.LawfulMonadLiftFunction lift] :
     ProductivenessRelation (ULiftIterator α m n β lift) n where
   rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.inner.finitelyManySkips)
   wf := InvImage.wf _ WellFoundedRelation.wf
-  subrelation h := by
-    rcases h with ⟨step, hp, hs⟩
-    cases step <;> cases hs
-    apply IterM.TerminationMeasures.Productive.rel_of_skip
-    exact hp
+  subrelation {it it'} h := by
+    simp only [IterM.IsPlausibleSkipSuccessorOf, IterM.IsPlausibleStep, Iterator.step, ← LawfulMonadAttach.map_attach (x := it.internalState.inner.step),
+      Internal.LawfulMonadLiftFunction.lift_map, ULiftT.run, instMonadULiftT] at h
+    simp only [Function.comp_apply, bind_pure_comp, Functor.map_map] at h
+    obtain ⟨⟨step⟩, hstep, h⟩ := LawfulMonadAttach.canReturn_map_imp' h
+    cases step using PlausibleIterStep.casesOn
+    · cases h
+    · cases h
+      exact IterM.TerminationMeasures.Productive.rel_of_skip ‹_›
+    · cases h
 
-instance Types.ULiftIterator.instProductive [Iterator α m β] [Productive α m] [Monad n] :
+instance Types.ULiftIterator.instProductive
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad n] [LawfulMonad n] [MonadAttach n] [LawfulMonadAttach n]
+    [Iterator α m β] [Productive α m] [Internal.LawfulMonadLiftFunction lift] :
     Productive (ULiftIterator α m n β lift) n :=
   .of_productivenessRelation instProductivenessRelation
 
-instance Types.ULiftIterator.instIteratorLoop {o : Type x → Type x'} [Monad n] [Monad o]
-    [Iterator α m β] :
+instance Types.ULiftIterator.instIteratorLoop {o : Type x → Type x'}
+    [Monad n] [MonadAttach n] [Monad o] [MonadAttach o] [Iterator α m β] :
     IteratorLoop (ULiftIterator α m n β lift) n o :=
   .defaultImplementation
 
-instance Types.ULiftIterator.instIteratorCollect [Monad n] [Monad o] [Iterator α m β] :
+instance Types.ULiftIterator.instIteratorCollect
+    [Monad n] [MonadAttach n] [Monad o] [Iterator α m β] :
     IteratorCollect (ULiftIterator α m n β lift) n o :=
   .defaultImplementation
 

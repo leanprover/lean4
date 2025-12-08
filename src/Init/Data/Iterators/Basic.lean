@@ -394,6 +394,16 @@ abbrev IterM.Step {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator
   PlausibleIterStep it.IsPlausibleStep
 
 /--
+Makes a single step with the given iterator `it`, potentially emitting a value and providing a
+succeeding iterator. If this function is used recursively, termination can sometimes be proved with
+the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
+-/
+@[always_inline, inline, expose]
+def IterM.step {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    (it : IterM (α := α) m β) : m (Shrink it.Step) :=
+  Iterator.step it
+
+/--
 Asserts that a certain output value could plausibly be emitted by the given iterator in its next
 step.
 -/
@@ -419,16 +429,6 @@ given iterator `it` while no value is emitted (see `IterStep.skip`).
 def IterM.IsPlausibleSkipSuccessorOf {α : Type w} {m : Type w → Type w'} {β : Type w}
     [Iterator α m β] (it' it : IterM (α := α) m β) : Prop :=
   it.IsPlausibleStep (.skip it')
-
-/--
-Makes a single step with the given iterator `it`, potentially emitting a value and providing a
-succeeding iterator. If this function is used recursively, termination can sometimes be proved with
-the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
--/
-@[always_inline, inline, expose]
-def IterM.step {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
-    (it : IterM (α := α) m β) : m (Shrink it.Step) :=
-  Iterator.step it
 
 end Monadic
 
@@ -715,6 +715,15 @@ Termination measure to be used in well-founded recursive functions recursing ove
 @[expose]
 def IterM.finitelyManySteps {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     [Finite α m] (it : IterM (α := α) m β) : IterM.TerminationMeasures.Finite α m :=
+  ⟨it⟩
+
+/--
+Termination measure to be used in well-founded recursive functions recursing over a finite iterator
+(see also `Finite`).
+-/
+@[expose]
+def IterM.finitelyManySteps! {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
+    (it : IterM (α := α) m β) : IterM.TerminationMeasures.Finite α m :=
   ⟨it⟩
 
 /--

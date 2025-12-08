@@ -221,25 +221,11 @@ instance {α β γ : Type w} {m : Type w → Type w'}
     IteratorCollect (FilterMap α m n lift f) n o :=
   .defaultImplementation
 
-instance {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} {o : Type w → Type x} [Monad n] [Monad o] [Iterator α m β]
-    {lift : ⦃α : Type w⦄ → m α → n α}
-    {f : β → PostconditionT n (Option γ)} [Finite α m] :
-    IteratorCollectPartial (FilterMap α m n lift f) n o :=
-  .defaultImplementation
-
 instance FilterMap.instIteratorLoop {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type x → Type x'}
     [Monad n] [Monad o] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
-    {f : β → PostconditionT n (Option γ)} [Finite α m] :
-    IteratorLoop (FilterMap α m n lift f) n o :=
-  .defaultImplementation
-
-instance FilterMap.instIteratorLoopPartial {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} {o : Type x → Type x'}
-    [Monad n] [Monad o] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} :
-    IteratorLoopPartial (FilterMap α m n lift f) n o :=
+    IteratorLoop (FilterMap α m n lift f) n o :=
   .defaultImplementation
 
 /--
@@ -249,7 +235,7 @@ instance FilterMap.instIteratorLoopPartial {α β γ : Type w} {m : Type w → T
 instance Map.instIteratorCollect {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type w → Type x} [Monad n] [Monad o] [Iterator α m β]
     {lift₁ : ⦃α : Type w⦄ → m α → n α}
-    {f : β → PostconditionT n γ} [IteratorCollect α m o] [Finite α m] :
+    {f : β → PostconditionT n γ} [IteratorCollect α m o] :
     IteratorCollect (Map α m n lift₁ f) n o where
   toArrayMapped lift₂ _ g it :=
     letI : MonadLift m n := ⟨lift₁ (α := _)⟩
@@ -259,30 +245,11 @@ instance Map.instIteratorCollect {α β γ : Type w} {m : Type w → Type w'}
       (fun x => do g (← (f x).operation))
       it.internalState.inner (m := m)
 
-@[no_expose]
-instance Map.instIteratorCollectPartial {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} {o : Type w → Type x} [Monad n] [Monad o] [Iterator α m β]
-    {lift₁ : ⦃α : Type w⦄ → m α → n α}
-    {f : β → PostconditionT n γ} [IteratorCollectPartial α m o] :
-    IteratorCollectPartial (Map α m n lift₁ f) n o where
-  toArrayMappedPartial lift₂ _ g it :=
-    IteratorCollectPartial.toArrayMappedPartial
-      (lift := fun ⦃_⦄ a => lift₂ (lift₁ a))
-      (fun x => do g (← lift₂ (f x).operation))
-      it.internalState.inner (m := m)
-
 instance Map.instIteratorLoop {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type x → Type x'} [Monad n] [Monad o] [Iterator α m β]
     {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n γ} :
     IteratorLoop (Map α m n lift f) n o :=
-  .defaultImplementation
-
-instance Map.instIteratorLoopPartial {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} {o : Type x → Type x'} [Monad n] [Monad o] [Iterator α m β]
-    {lift : ⦃α : Type w⦄ → m α → n α}
-    {f : β → PostconditionT n γ} :
-    IteratorLoopPartial (Map α m n lift f) n o :=
   .defaultImplementation
 
 /--

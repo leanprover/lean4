@@ -47,6 +47,8 @@ builtin_initialize identifierSuggestionForAttr : PersistentEnvExtension
         | -- Attributes parsed _before the suggest_for notation is added
           .node _ ``Parser.Attr.simple #[.ident _ _ `suggest_for [], .node _ `null #[id]] => pure #[id]
         | _ => throwError "Invalid `[suggest_for]` attribute syntax {repr stx}"
+      if isPrivateName decl then
+        throwError "Cannot make suggestions for private names"
       modifyEnv (ext.addEntry · (decl, altSyntaxIds.map (·.getId)))
   }
 

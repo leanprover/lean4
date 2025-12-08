@@ -3178,43 +3178,213 @@ theorem addRecAux_extractAndExtendPopulateAux_le_of_le {x : BitVec w} (hn : n �
       · have := Nat.lt_two_pow_self (n := w + 1 + 1)
         omega
 
-theorem thm1 {x : BitVec (w' + 1)} (hn : n ≤ w'):
-    (extractAndExtendPopulate (w' + 1) x).addRecAux n 0#(w' + 1) =
-    ((extractAndExtendPopulate w' x).addRecAux n 0#w').setWidth (w' + 1) := by
+theorem addRecAux_extractAndExtendPopulateAux_le_of_le_of_lt {x : BitVec (w + 1)} (hn : n ≤ w) :
+    ((extractAndExtendPopulate w x).addRecAux n 0#w).toNat ≤ n := by
+  induction n
+  · case zero =>
+    simp
+  · case succ n ihn =>
+    rcases w with _|_|w
+    · omega
+    · simp [show n = 0 by omega]
+      have := mod_lt (y := 2) (x := (extractAndExtendPopulate 1 x).toNat)
+      omega
+    · rw [addRecAux_succ]
+      rw [←addRecAux_zero_add]
+      rw [toNat_add]
+      have : (0#(w + 1 + 1) + extractLsb' (n * (w + 1 + 1)) (w + 1 + 1) (extractAndExtendPopulate (w + 1 + 1) x)).toNat ≤ 1 := by
+        rw [extractLsb'_extractAndExtendPopulate_eq]
+        simp
+        have := mod_lt (y := 2) (x := x.toNat >>> n)
+        rw [Nat.mod_eq_of_lt]
+        omega
+        omega
+      rw [Nat.mod_eq_of_lt]
+      · omega
+      · have := Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := w + 1) (by omega)
+        have := Nat.lt_two_pow_self (n := w)
+        omega
+
+theorem thm4{x : BitVec (w' + 1 + 1)} (hn : n ≤ w'):
+    (extractAndExtendPopulate v (setWidth (w' + 1) x)).addRecAux n 0#v =
+    (extractAndExtendPopulate v x).addRecAux n 0#v := by
+  induction n generalizing v
+  · case zero =>
+    simp
+  · case succ n ihn =>
+    simp
+    rw [←addRecAux_zero_add]
+    conv =>
+      rhs
+      rw [←addRecAux_zero_add]
+    by_cases hle : n ≤ w'
+    · rw [ihn hle]
+      simp [extractLsb'_extractAndExtendPopulate_eq]
+      ext k hk
+      by_cases hk : k = 0
+      · simp [hk]
+        omega
+      · simp [hk]
+    · have : n = w' + 1 := by omega
+      subst this
+      rw [←addRecAux_zero_add]
+      conv =>
+        rhs
+        rw [←addRecAux_zero_add]
+      induction v
+      · case _ =>
+        omega
+      · case _ v' ihv' =>
+        congr 1
+        ·
+
+
+
+          sorry
+        · ext k hk
+          simp
+          omega
+
+theorem thm5 {x : BitVec (w' + 1 + 1)} (hn : n ≤ w') :
+    ((extractAndExtendPopulate (w' + 1) x).addRecAux n 0#(w' + 1)).toNat =
+  ((extractAndExtendPopulate (w' + 1 + 1) x).addRecAux n 0#(w' + 1 + 1)).toNat := by sorry
+
+theorem thm1 {x : BitVec (w' + 1)} (hn : n ≤ w') :
+    setWidth (w' + 1) ((extractAndExtendPopulate w' (setWidth w' x)).addRecAux n 0#w') =
+    (extractAndExtendPopulate (w' + 1) x).addRecAux n 0#(w' + 1) := by
   induction n generalizing w'
   · simp
   · case _ n' ihn =>
-    by_cases hle : n' ≤ w'
-    · simp
+    rcases w' with _|w'
+    · omega
+    · simp [addRecAux_succ]
       rw [← addRecAux_zero_add]
-      conv =>
-        rhs
+      by_cases hle : n' ≤ w' + 1
+      · simp [setWidth_add_eq_mod]
+        rw [ihn hle]
+        apply eq_of_toNat_eq
+        simp only [toNat_umod, toNat_add, toNat_setWidth, -extractLsb'_toNat, add_mod_mod,
+          toNat_twoPow]
+        rw [extractLsb'_extractAndExtendPopulate_eq]
+        have := addRecAux_extractAndExtendPopulateAux_le_of_le (x := x) (n := n') (by omega)
+        have hbool : extractLsb' n' 1 (setWidth (w' + 1) x) = BitVec.ofBool ((setWidth (w' + 1) x).getLsbD n') := by
+          ext k hk
+          simp [show k = 0 by omega]
+        rw [hbool]
+        have : (zeroExtend (w' + 1) (ofBool ((setWidth (w' + 1) x).getLsbD n'))).toNat ≤ 1 := by
+          cases (setWidth (w' + 1) x).getLsbD n'
+          <;> simp
+        have := Nat.lt_two_pow_self (n := w' + 1 + 1)
+        have hw' := Nat.lt_two_pow_self (n := w' + 1)
+        have := Nat.lt_two_pow_self (n := n' + 1)
+        have := Nat.pow_lt_pow_of_lt (a := 2) (n := w' + 1) (m := w' + 1 + 1)
+        have := Nat.pow_lt_pow_of_lt (a := 2) (n := n' + 1) (m := w' + 1 + 1)
+        have := Nat.pow_le_pow_of_le (a := 2) (n := n' + 1) (m := w' + 1)
+        rw [Nat.mod_eq_of_lt]
+        · rw [Nat.mod_eq_of_lt]
+          rw [extractLsb'_extractAndExtendPopulate_eq]
+          conv =>
+            rhs
+            rw [← addRecAux_zero_add]
+          rw [toNat_add]
+          have hbool' : zeroExtend (w' + 1 + 1) (extractLsb' n' 1 x) = zeroExtend (w' + 1 + 1) (BitVec.ofBool (x.getLsbD n')) := by
+              ext k hk
+              simp
+              by_cases hk0 : k = 0
+              <;> simp [hk0]
+          rw [Nat.mod_eq_of_lt]
+          · rw [hbool']
+            cases ht : x.getLsbD n'
+            <;> simp [show n' < w' + 1 + 1 by omega, show n' < w' + 1 by omega, ← getLsbD_eq_getElem, ht]
+          · have h2 : ((extractAndExtendPopulate (w' + 1 + 1) x).addRecAux n' 0#(w' + 1 + 1)).toNat +
+                  (zeroExtend (w' + 1 + 1) (extractLsb' n' 1 x)).toNat ≤ n' + 1 := by
+                rw [hbool']
+                cases x.getLsbD n'
+                <;> simp
+                <;> omega
+            have h3 : n' + 1 < 2 ^ (w' + 1) % 2 ^ (w' + 1 + 1) := by
+              rw [Nat.mod_eq_of_lt (by omega)]
+              exact Nat.lt_of_le_of_lt hn hw'
+            omega
+          omega
+        · rw [Nat.mod_eq_of_lt]
+          have h2 : ((extractAndExtendPopulate (w' + 1 + 1) x).addRecAux n' 0#(w' + 1 + 1)).toNat +
+                  (zeroExtend (w' + 1) (ofBool ((setWidth (w' + 1) x).getLsbD n'))).toNat ≤ n' + 1 := by
+                  omega
+          have h1 : n' + 1 < 2 ^ (w' + 1 + 1) := by
+            omega
+          have h3 : n' + 1 < 2 ^ (w' + 1) % 2 ^ (w' + 1 + 1) := by
+            rw [Nat.mod_eq_of_lt (by omega)]
+            exact Nat.lt_of_le_of_lt hn hw'
+          exact Nat.lt_of_le_of_lt h2 h3
+          omega
+      · have : n' = w' + 1 := by omega
+        subst this
+        simp
+        rw [extractLsb'_extractAndExtendPopulate_eq]
+        rw [extractLsb'_extractAndExtendPopulate_eq]
+        rw [extractLsb'_extractAndExtendPopulate_eq]
+        rw [extractLsb'_extractAndExtendPopulate_eq]
         rw [← addRecAux_zero_add]
-      rw [ihn hle]
-      have hext1 := extractLsb'_extractAndExtendPopulate_eq (w := w' + 1) (len := w' + 1) (i := n') (x := x)
-      rw [hext1]
-      have hext2 := extractLsb'_extractAndExtendPopulate_eq (w := w' + 1) (len := w') (i := n') (x := x)
-      rw [hext2]
-      simp
-      apply eq_of_toNat_eq
-      simp only [toNat_add, -toNat_setWidth, Nat.lt_add_one, toNat_mod_cancel_of_lt,
-        -extractLsb'_toNat, Nat.pow_one, add_mod_mod]
-
-      sorry
-    · simp [show n' = w' + 1 by omega]
-      have hext1 := extractLsb'_extractAndExtendPopulate_eq (w := w' + 1) (len := w' + 1) (i := w') (x := x)
-      rw [hext1]
-      have hext2 := extractLsb'_extractAndExtendPopulate_eq (w := w' + 1) (len := w') (i := w') (x := x)
-      rw [hext2]
-      simp
-      rw [← addRecAux_zero_add]
-      conv =>
-        rhs
-        rw [← addRecAux_zero_add]
-
-
-
-      sorry
+        conv =>
+          rhs
+          rw [← addRecAux_zero_add]
+        apply eq_of_toNat_eq
+        have hbool1 : extractLsb' w' 1 (setWidth (w' + 1) x) =
+                      BitVec.ofBool (x.getLsbD w') := by
+                    ext k hk
+                    simp [show k = 0 by omega]
+        have hbool2 : zeroExtend (w' + 1) (extractLsb' (w' + 1) 1 (setWidth (w' + 1) x)) =
+                      zeroExtend (w' + 1) (BitVec.ofBool (x.getLsbD (w' + 1))) := by
+                    ext k hk
+                    simp
+                    omega
+        have hbool3 : zeroExtend (w' + 1 + 1) (extractLsb' (w' + 1) 1 x) =
+                      zeroExtend (w' + 1 + 1) (BitVec.ofBool (x.getLsbD (w' + 1))) := by
+                    ext k hk
+                    simp
+                    omega
+        have hbool4 : zeroExtend (w' + 1 + 1) (extractLsb' w' 1 x) =
+                      zeroExtend (w' + 1 + 1) (BitVec.ofBool (x.getLsbD w')) := by
+                    ext k hk
+                    simp
+                    omega
+        have heq14Nat : (zeroExtend (w' + 1) (BitVec.ofBool (x.getLsbD w'))).toNat =
+                        (zeroExtend (w' + 1 + 1) (BitVec.ofBool (x.getLsbD w'))).toNat := by
+                      simp
+                      cases x.getLsbD w'
+                      <;> simp
+        have heq23Nat : (zeroExtend (w' + 1) (BitVec.ofBool (x.getLsbD (w' + 1)))).toNat =
+                    (zeroExtend (w' + 1 + 1) (BitVec.ofBool (x.getLsbD (w' + 1)))).toNat := by
+                  simp
+                  cases x[w' + 1]
+                  <;> simp
+        have := addRecAux_extractAndExtendPopulateAux_le_of_le (x := setWidth (w' + 1) x) (n := w')
+                (by omega)
+        rw [hbool1, hbool2, hbool3, hbool4]
+        rw [toNat_setWidth]
+        rw [toNat_add]
+        rw [toNat_add]
+        rw [toNat_add]
+        rw [toNat_add]
+        rw [Nat.mod_eq_of_lt]
+        · rw [Nat.mod_eq_of_lt]
+          · rw [Nat.mod_eq_of_lt]
+            · rw [Nat.mod_eq_of_lt]
+              · rw [Nat.mod_eq_of_lt]
+                · rw [Nat.add_assoc]
+                  congr 1
+                  · simp [thm4, thm5]
+                  · rw [heq14Nat, heq23Nat, Nat.add_comm]
+                · omega
+              · omega
+            · omega
+          · rw [Nat.mod_eq_of_lt]
+            <;> omega
+        · rw [Nat.mod_eq_of_lt]
+          · rw [Nat.mod_eq_of_lt]
+            <;> omega
+          · omega
 
 
 theorem cpop_eq_recursive_addition {x : BitVec w} :
@@ -3247,7 +3417,8 @@ theorem cpop_eq_recursive_addition {x : BitVec w} :
     rw [this]
     rw [ihw']
     congr 1
-    · rw [thm1 (by omega), addRecAux_extractAndExtendPopulate_setWidth_eq (by omega)]
+    ·
+      rw [thm1 (by omega), addRecAux_extractAndExtendPopulate_setWidth_eq (by omega)]
     · rw [hext]
       simp
       have : x[w'].toNat ≤ 1 := by cases x[w'] <;> simp

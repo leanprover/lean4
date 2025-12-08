@@ -95,7 +95,8 @@ inductive MyProd where
 /--
 error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
 
-Hint: `MyProd.construct` is similar
+Hint: Using `MyProd.construct` would be valid:
+  [apply] `MyProd.construct`
 -/
 #guard_msgs in
 def ctorSuggestion1 (pair : MyProd) : Nat :=

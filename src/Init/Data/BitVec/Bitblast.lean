@@ -3149,6 +3149,35 @@ theorem addRecAux_extractAndExtendPopulate_setWidth_eq {x : BitVec (w + 1)} (h :
         omega
       · simp [hk0]
 
+theorem addRecAux_extractAndExtendPopulateAux_le_of_le {x : BitVec w} (hn : n ≤ w) :
+    ((extractAndExtendPopulate w x).addRecAux n 0#w).toNat ≤ n := by
+  induction n
+  · case zero =>
+    simp
+  · case succ n ihn =>
+    rcases w with _|_|w
+    · omega
+    · simp
+      have : n = 0 := by omega
+      subst this
+      simp
+      omega
+    · simp [addRecAux_succ]
+      rw [← addRecAux_zero_add]
+      have : (extractLsb' (n * (w + 1 + 1)) (w + 1 + 1) (extractAndExtendPopulate (w + 1 + 1) x)).toNat ≤ 1 := by
+        rw [extractLsb'_extractAndExtendPopulate_eq (x := x) (w := (w + 1 + 1)) (i := n) (len := (w + 1 + 1))]
+        simp
+        have := mod_lt (y := 2) (x := x.toNat >>> n) (by omega)
+        have : 2 < 2 ^ ((w + 1 + 1)) := by
+          omega
+        rw [Nat.mod_eq_of_lt (b := 2 ^ ((w + 1 + 1))) (by omega)]
+        omega
+      simp only [toNat_add, -extractLsb'_toNat, add_mod_mod, ge_iff_le]
+      rw [Nat.mod_eq_of_lt]
+      · omega
+      · have := Nat.lt_two_pow_self (n := w + 1 + 1)
+        omega
+
 theorem thm1 {x : BitVec (w' + 1)} (hn : n ≤ w'):
     (extractAndExtendPopulate (w' + 1) x).addRecAux n 0#(w' + 1) =
     ((extractAndExtendPopulate w' x).addRecAux n 0#w').setWidth (w' + 1) := by
@@ -3168,7 +3197,8 @@ theorem thm1 {x : BitVec (w' + 1)} (hn : n ≤ w'):
       rw [hext2]
       simp
       apply eq_of_toNat_eq
-      simp
+      simp only [toNat_add, -toNat_setWidth, Nat.lt_add_one, toNat_mod_cancel_of_lt,
+        -extractLsb'_toNat, Nat.pow_one, add_mod_mod]
 
       sorry
     · simp [show n' = w' + 1 by omega]

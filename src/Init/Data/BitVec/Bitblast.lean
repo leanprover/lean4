@@ -3278,8 +3278,6 @@ theorem addRecAux_extractAndExtendPopulateAux_le_of_le {x : BitVec w} (hn : n �
       · have := Nat.lt_two_pow_self (n := w + 1 + 1)
         omega
 
-
-
 theorem addRecAux_extractAndExtendPopulateAux_le_of_le_of_lt {x : BitVec (w + 1)} (hn : n ≤ w) :
     ((extractAndExtendPopulate w x).addRecAux n 0#w).toNat ≤ n := by
   induction n

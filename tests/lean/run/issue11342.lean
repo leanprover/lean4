@@ -86,7 +86,7 @@ info: private theorem f.match_1.congr_eq_2.{u_1} : ∀ (motive : List Nat → Li
   (h_3 : (x x_2 : List Nat) → motive x x_2) (x_2 : List Nat) (a : Nat) (tail : List Nat),
   x = x_2 →
     x_1 = a :: tail →
-      (∀ (x_3 : List Nat) (head : Nat) (tail_1 : List Nat), x = x_3 → a :: tail = 1 :: head :: tail_1 → False) →
+      (∀ (head : Nat) (tail_1 : List Nat), a = 1 → tail = head :: tail_1 → False) →
         (match x, x_1 with
           | x, 1 :: head :: tail => h_1 x head tail
           | x, a :: tail => h_2 x a tail
@@ -103,8 +103,8 @@ info: private theorem f.match_1.congr_eq_3.{u_1} : ∀ (motive : List Nat → Li
   (h_3 : (x x_2 : List Nat) → motive x x_2) (x_2 x_3 : List Nat),
   x = x_2 →
     x_1 = x_3 →
-      (∀ (x_4 : List Nat) (head : Nat) (tail : List Nat), x = x_4 → x_1 = 1 :: head :: tail → False) →
-        (∀ (x_4 : List Nat) (a : Nat) (tail : List Nat), x = x_4 → x_1 = a :: tail → False) →
+      (∀ (head : Nat) (tail : List Nat), x_1 = 1 :: head :: tail → False) →
+        (∀ (a : Nat) (tail : List Nat), x_1 = a :: tail → False) →
           (match x, x_1 with
             | x, 1 :: head :: tail => h_1 x head tail
             | x, a :: tail => h_2 x a tail

@@ -7695,29 +7695,16 @@ theorem beqModel_congr [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] {l₁ l₂ l�
     (hl : DistinctKeys l₂) (p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel l₁ l₂ = beqModel l₃ l₄ := by
   simp only [beqModel, ne_eq, ite_not, Bool.if_false_right, Perm.length_eq p₁, Perm.length_eq p₂]
   suffices h : (l₁.all fun x => getValueCast? x.fst l₂ == some x.snd) = (l₃.all fun x => getValueCast? x.fst l₄ == some x.snd) by simp [h]
-  conv =>
-    lhs
-    rhs
-    ext x
-    rw [getValueCast?_of_perm hl p₂]
-  apply List.Perm.all_eq p₁
+  simp [getValueCast?_of_perm hl p₂, List.Perm.all_eq p₁]
 
 theorem Const.beqModel_congr {β : Type v} [BEq α] [EquivBEq α] [BEq β] {l₁ l₂ l₃ l₄ : List ((_ : α) × β)}
     (hl : DistinctKeys l₂) (p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel l₁ l₂ = beqModel l₃ l₄ := by
   simp only [beqModel, ne_eq, ite_not, Bool.if_false_right, Perm.length_eq p₁, Perm.length_eq p₂]
   suffices h : (l₁.all fun x => getValue? x.fst l₂ == some x.snd) = (l₃.all fun x => getValue? x.fst l₄ == some x.snd) by simp [h]
-  conv =>
-    lhs
-    rhs
-    ext x
-    rw [getValue?_of_perm hl p₂]
-  apply List.Perm.all_eq p₁
+  simp [getValue?_of_perm hl p₂, List.Perm.all_eq p₁]
 
 theorem beqModel_eq_constBeqModel {β : Type v} [BEq α] [LawfulBEq α] [BEq β] {l₁ l₂ : List ((_ : α) × β)} : beqModel l₁ l₂ = Const.beqModel l₁ l₂ := by
-  rw [beqModel, Const.beqModel]
-  congr
-  ext x
-  rw [getValue?_eq_getValueCast?]
+  simp [beqModel, Const.beqModel, getValue?_eq_getValueCast?]
 
 theorem Const.perm_of_beqModel {β : Type v} [BEq α] [LawfulBEq α] [BEq β] [LawfulBEq β] {l₁ l₂ : List ((_ : α) × β)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
     beqModel l₁ l₂ → l₁.Perm l₂ := by

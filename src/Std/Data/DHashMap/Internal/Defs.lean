@@ -498,6 +498,7 @@ def beq [BEq α] [LawfulBEq α] [Hashable α] [∀ k, BEq (β k)] (m₁ m₂ : R
 @[inline] def diff [BEq α] [Hashable α] (m₁ m₂ : Raw₀ α β) : Raw₀ α β :=
   if m₁.1.size ≤ m₂.1.size then m₁.filter (fun k _ => !m₂.contains k) else (eraseManyEntries m₁ m₂.1).1
 
+
 section
 
 variable {β : Type v}

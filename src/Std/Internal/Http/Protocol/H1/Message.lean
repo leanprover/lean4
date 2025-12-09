@@ -56,6 +56,11 @@ def Message.Head.version (m : Message.Head dir) : Version :=
   | .receiving => Request.Head.version m
   | .sending => Response.Head.version m
 
+@[inline]
+def Message.Head.shouldKeepAlive (message : Message.Head dir) : Bool :=
+  ¬message.headers.hasEntry (.new "Connection") "close"
+  ∧ message.version = .v11
+
 instance : Repr (Message.Head dir) :=
   match dir with
   | .receiving => inferInstanceAs (Repr Request.Head)

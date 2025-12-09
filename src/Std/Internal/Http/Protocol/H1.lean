@@ -76,7 +76,7 @@ structure Machine (dir : Direction) where
   /--
   If the connection will be kept alive after the message.
   -/
-  keepAlive : Bool := false
+  keepAlive : Bool := config.enableKeepAlive
 
   /--
   Whether a forced flush has been requested by the user.
@@ -133,23 +133,14 @@ private def setFailure (machine : Machine dir) (error : H1.Error) : Machine dir 
 
 @[inline]
 private def updateKeepAlive (machine : Machine dir) (should : Bool) : Machine dir :=
-  { machine with keepAlive := should ∧ machine.reader.messageCount < machine.config.maxMessages }
+  { machine with keepAlive := machine.keepAlive ∧ should }
 
 -- Helper Functions
-
-@[inline]
-private def hasConnectionClose (headers : Headers) : Bool :=
-  headers.getLast? (.new "Connection") |>.map (·.is "close") |>.getD false
-
-@[inline]
-def shouldKeepAlive (message : Message.Head dir) : Bool :=
-  ¬message.headers.hasEntry (.new "Connection") "close" ∧ message.version = .v11
 
 private def extractBodyLengthFromHeaders (headers : Headers) : Option Body.Length :=
   match (headers.get (.new "Content-Length"), headers.hasEntry (.new "Transfer-Encoding") "chunked") with
   | (some cl, false) => cl.value.toNat? >>= (some ∘ Body.Length.fixed)
-  | (none, true) => some Body.Length.chunked
-  | (some _, true) => some Body.Length.chunked
+  | (_, true) => some Body.Length.chunked
   | _ => none
 
 def getMessageSize (req : Message.Head dir) : Option Body.Length := do
@@ -229,16 +220,14 @@ private def parseWith (machine : Machine dir) (parser : Parser α) (limit : Opti
 -- Message Processing
 
 private def resetForNextMessage (machine : Machine ty) : Machine ty :=
-  let newMessageCount := machine.reader.messageCount + 1
-  let shouldKeepAlive := machine.keepAlive && newMessageCount < machine.config.maxMessages
 
-  if shouldKeepAlive then
+  if machine.keepAlive then
     { machine with
       reader := {
         state := .needStartLine,
         input := machine.reader.input,
         messageHead := {},
-        messageCount := newMessageCount
+        messageCount := machine.reader.messageCount + 1
       },
       writer := {
         userData := .empty,
@@ -254,12 +243,17 @@ private def resetForNextMessage (machine : Machine ty) : Machine ty :=
     }
   else
     machine.addEvent .close
+    |>.setWriterState .closed
+    |>.setReaderState .closed
 
+/-
+This function processes the message we are receiving
+-/
 private def processHeaders (machine : Machine dir) : Machine dir :=
-  let shouldKeepAlive := shouldKeepAlive machine.reader.messageHead
-  let hasClose := hasConnectionClose machine.reader.messageHead.headers
+  let machine := machine.updateKeepAlive (machine.reader.messageCount + 1 < machine.config.maxMessages)
 
-  let machine := updateKeepAlive machine (shouldKeepAlive ∧ ¬hasClose)
+  let shouldKeepAlive : Bool := machine.reader.messageHead.shouldKeepAlive
+  let machine := updateKeepAlive machine shouldKeepAlive
 
   match getMessageSize machine.reader.messageHead with
   | none => machine.setFailure .badMessage
@@ -269,23 +263,19 @@ private def processHeaders (machine : Machine dir) : Machine dir :=
       | .chunked => .needChunkedSize
 
       let machine := machine.addEvent (.endHeaders machine.reader.messageHead)
-      let machine := if hasClose then { machine with keepAlive := false } else machine
 
       machine.setReaderState size
       |>.setWriterState .waitingHeaders
       |>.addEvent .needAnswer
 
+/--
+This processes the message we are sending.
+-/
 def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : Machine dir :=
+  let machine := machine.updateKeepAlive (machine.reader.messageCount + 1 < machine.config.maxMessages)
 
-  let hasClose := hasConnectionClose messageHead.headers
-
-  let hasClose :=
-    if dir == .receiving then
-      hasClose ∨ hasConnectionClose machine.reader.messageHead.headers
-    else
-      hasClose
-
-  let machine := { machine with keepAlive := ¬hasClose }
+  let shouldKeepAlive := messageHead.shouldKeepAlive
+  let machine := machine.updateKeepAlive shouldKeepAlive
   let size := Writer.determineTransferMode machine.writer
 
   let headers :=
@@ -333,7 +323,7 @@ def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : M
     state
   })
 
-/-- Put some data inside the input of the machine. -/
+/--Put some data inside the input of the machine. -/
 @[inline]
 def feed (machine : Machine ty) (data : ByteArray) : Machine ty :=
   if machine.isReaderClosed then
@@ -341,37 +331,36 @@ def feed (machine : Machine ty) (data : ByteArray) : Machine ty :=
   else
     { machine with reader := machine.reader.feed data }
 
-/-- Signal that reader is not going to receive any more messages. -/
+/--Signal that reader is not going to receive any more messages. -/
 @[inline]
 def closeReader (machine : Machine dir) : Machine dir :=
   machine.modifyReader ({ · with noMoreInput := true })
 
-/-- Signal that the writer cannot send more messages because the socket closed. -/
+/--Signal that the writer cannot send more messages because the socket closed. -/
 @[inline]
 def closeWriter (machine : Machine dir) : Machine dir :=
   machine.modifyWriter ({ · with state := .closed, userClosedBody := true })
 
-/-- Signal that the user is not sending data anymore. -/
+/--Signal that the user is not sending data anymore. -/
 @[inline]
 def userClosedBody (machine : Machine dir) : Machine dir :=
   machine.modifyWriter ({ · with userClosedBody := true })
 
-/-- Signal that the socket is not sending data anymore. -/
+/--Signal that the socket is not sending data anymore. -/
 @[inline]
 def noMoreInput (machine : Machine dir) : Machine dir :=
   machine.modifyReader ({ · with noMoreInput := true })
 
-/-- Set a known size for the message body. -/
+/--Set a known size for the message body. -/
 @[inline]
 def setKnownSize (machine : Machine dir) (size : Body.Length) : Machine dir :=
   machine.modifyWriter (fun w => { w with knownSize := w.knownSize.or (some size) })
 
-/-- Send the head of a message to the machine. -/
+/--Send the head of a message to the machine. -/
 @[inline]
 def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir :=
   if machine.isWaitingMessage then
     let machine := machine.modifyWriter ({ · with messageHead := message, sentMessage := true })
-    let machine := machine.updateKeepAlive (shouldKeepAlive message)
 
     let machine :=
       if machine.writer.knownSize.isNone then
@@ -385,7 +374,7 @@ def send (machine : Machine dir) (message : Message.Head dir.swap) : Machine dir
   else
     machine
 
-/-- Send data to the socket. -/
+/--Send data to the socket. -/
 @[inline]
 def sendData (machine : Machine dir) (data : Array Chunk) : Machine dir :=
   if data.isEmpty then
@@ -393,28 +382,18 @@ def sendData (machine : Machine dir) (data : Array Chunk) : Machine dir :=
   else
     machine.modifyWriter (fun writer => { writer with userData := writer.userData ++ data })
 
-/-- Get all the events of the machine. -/
+/--Get all the events of the machine. -/
 @[inline]
 def takeEvents (machine : Machine dir) : Machine dir × Array (Event dir) :=
   ({ machine with events := #[] }, machine.events)
 
-/-- Take all the accumulated output to send to the socket. -/
+/--Take all the accumulated output to send to the socket. -/
 @[inline]
 def takeOutput (machine : Machine dir) : Machine dir × ChunkedBuffer :=
   let output := machine.writer.outputData
   ({ machine with writer := { machine.writer with outputData := .empty } }, output)
 
-/-- Signal that it can start receiving another request. -/
-@[inline]
-def startNextCycle (machine : Machine dir) : Machine dir :=
-  if machine.keepAlive &&
-     machine.reader.state == .complete &&
-     machine.writer.state == .complete then
-    resetForNextMessage machine
-  else
-    machine
-
-/-- Process the writer part of the machine. -/
+/--Process the writer part of the machine. -/
 partial def processWrite (machine : Machine dir) : Machine dir :=
   match machine.writer.state with
   | .pending =>
@@ -480,12 +459,13 @@ partial def processWrite (machine : Machine dir) : Machine dir :=
   | .closed =>
       machine
 
-/-- Handle the failed state for the reader. -/
+/--Handle the failed state for the reader. -/
 private def handleReaderFailed (machine : Machine dir) (error : H1.Error) : Machine dir :=
   let machine : Machine dir :=
     match dir with
     | .receiving => machine
        |>.setWriterState .waitingHeaders
+       |>.disableKeepAlive
        |>.send { status := .badRequest } |>.userClosedBody
     | .sending => machine
 
@@ -493,9 +473,8 @@ private def handleReaderFailed (machine : Machine dir) (error : H1.Error) : Mach
   |>.setReaderState .closed
   |>.addEvent (.failed error)
   |>.setError error
-  |>.disableKeepAlive
 
-/-- Process the reader part of the machine. -/
+/--Process the reader part of the machine. -/
 partial def processRead (machine : Machine dir) : Machine dir :=
   match machine.reader.state with
   | .needStartLine =>
@@ -618,7 +597,9 @@ partial def processRead (machine : Machine dir) : Machine dir :=
   | .failed error =>
       handleReaderFailed machine error
 
-/-- Execute one step of the state machine. -/
+/--
+Execute one step of the state machine.
+-/
 def step (machine : Machine dir) : Machine dir × StepResult dir :=
   let machine := machine.processRead.processWrite
   let (machine, events) := machine.takeEvents

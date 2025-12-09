@@ -58,7 +58,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
       | some (_, a, b) =>
         /-
           Remark: we do not check `isDefeq` here because we would fail to substitute equalities
-          such as `x = t` and `t = x` when `x` and `t` are proofs (proof irrelanvance).
+          such as `x = t` and `t = x` when `x` and `t` are proofs (proof irrelevance).
         -/
         /- Remark: we use `let rec` here because otherwise the compiler would generate an insane amount of code.
           We can remove the `rec` after we fix the eagerly inlining issue in the compiler. -/

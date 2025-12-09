@@ -163,7 +163,6 @@ LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___00Lean_throwUnkn
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_PropagatorAttr_0__Lean_Meta_Grind_initFn___closed__0_00___x40_Lean_Meta_Tactic_Grind_PropagatorAttr_2283482573____hygCtx___hyg_2_;
-static lean_object* l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__5;
 LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_filterFieldList___at___00__private_Lean_ResolveName_0__Lean_resolveGlobalConstCore___at___00Lean_resolveGlobalConst___at___00Lean_resolveGlobalConstNoOverload___at___00__private_Lean_Meta_Tactic_Grind_PropagatorAttr_0__Lean_Meta_Grind_addBuiltin_spec__0_spec__0_spec__0_spec__8_spec__10_spec__10_spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_filterFieldList___at___00__private_Lean_ResolveName_0__Lean_resolveGlobalConstCore___at___00Lean_resolveGlobalConst___at___00Lean_resolveGlobalConstNoOverload___at___00__private_Lean_Meta_Tactic_Grind_PropagatorAttr_0__Lean_Meta_Grind_addBuiltin_spec__0_spec__0_spec__0_spec__8_spec__10_spec__10_spec__10_spec__10___redArg___closed__1;
@@ -187,7 +186,6 @@ LEAN_EXPORT lean_object* l_Lean_withExporting___at___00Lean_withoutExporting___a
 static lean_object* l_Lean_ensureNonAmbiguous___at___00Lean_resolveGlobalConstNoOverload___at___00__private_Lean_Meta_Tactic_Grind_PropagatorAttr_0__Lean_Meta_Grind_addBuiltin_spec__0_spec__21___closed__1;
 lean_object* lean_mk_io_user_error(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_registerBuiltinUpwardPropagator___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__4;
 LEAN_EXPORT lean_object* l_Lean_withoutExporting___at___00__private_Lean_Meta_Tactic_Grind_PropagatorAttr_0__Lean_Meta_Grind_addBuiltin_spec__27(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_PropagatorAttr_0__Lean_Meta_Grind_addBuiltin___closed__13;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_Meta_Grind_PropagatorMap_insert_spec__0_spec__1(lean_object*, lean_object*);
@@ -232,7 +230,6 @@ LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at___00Lean_throwErro
 LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_filterFieldList___at___00__private_Lean_ResolveName_0__Lean_resolveGlobalConstCore___at___00Lean_resolveGlobalConst___at___00Lean_resolveGlobalConstNoOverload___at___00__private_Lean_Meta_Tactic_Grind_PropagatorAttr_0__Lean_Meta_Grind_addBuiltin_spec__0_spec__0_spec__0_spec__8_spec__10_spec__10___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_Meta_Grind_PropagatorMap_insert_spec__6(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_foldl___at___00List_toString___at___00Lean_ensureNonAmbiguous___at___00Lean_resolveGlobalConstNoOverload___at___00__private_Lean_Meta_Tactic_Grind_PropagatorAttr_0__Lean_Meta_Grind_addBuiltin_spec__0_spec__21_spec__23_spec__23___closed__0;
-static lean_object* l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__3;
 LEAN_EXPORT lean_object* l_Lean_preprocessSyntaxAndResolve___at___00Lean_resolveGlobalConst___at___00Lean_resolveGlobalConstNoOverload___at___00__private_Lean_Meta_Tactic_Grind_PropagatorAttr_0__Lean_Meta_Grind_addBuiltin_spec__0_spec__0_spec__18___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_filterFieldList___at___00__private_Lean_ResolveName_0__Lean_resolveGlobalConstCore___at___00Lean_resolveGlobalConst___at___00Lean_resolveGlobalConstNoOverload___at___00__private_Lean_Meta_Tactic_Grind_PropagatorAttr_0__Lean_Meta_Grind_addBuiltin_spec__0_spec__0_spec__0_spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_withExporting___at___00Lean_withoutExporting___at___00__private_Lean_Meta_Tactic_Grind_PropagatorAttr_0__Lean_Meta_Grind_addBuiltin_spec__27_spec__27___redArg___closed__2;
@@ -296,7 +293,6 @@ uint8_t l_Lean_isPrivateName(lean_object*);
 static lean_object* l_Lean_ensureNonAmbiguous___at___00Lean_resolveGlobalConstNoOverload___at___00__private_Lean_Meta_Tactic_Grind_PropagatorAttr_0__Lean_Meta_Grind_addBuiltin_spec__0_spec__21___closed__2;
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_filterFieldList___at___00__private_Lean_ResolveName_0__Lean_resolveGlobalConstCore___at___00Lean_resolveGlobalConst___at___00Lean_resolveGlobalConstNoOverload___at___00__private_Lean_Meta_Tactic_Grind_PropagatorAttr_0__Lean_Meta_Grind_addBuiltin_spec__0_spec__0_spec__0_spec__8_spec__10_spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 static lean_object* l_Lean_ensureNonAmbiguous___at___00Lean_resolveGlobalConstNoOverload___at___00__private_Lean_Meta_Tactic_Grind_PropagatorAttr_0__Lean_Meta_Grind_addBuiltin_spec__0_spec__21___closed__5;
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConstNoOverload___at___00__private_Lean_Meta_Tactic_Grind_PropagatorAttr_0__Lean_Meta_Grind_addBuiltin_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
@@ -950,9 +946,9 @@ static lean_object* _init_l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_defa
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(4u);
-x_2 = lean_unsigned_to_nat(8u);
-x_3 = lean_nat_mul(x_2, x_1);
+x_1 = lean_box(0);
+x_2 = lean_unsigned_to_nat(16u);
+x_3 = lean_mk_array(x_2, x_1);
 return x_3;
 }
 }
@@ -960,9 +956,11 @@ static lean_object* _init_l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_defa
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(3u);
-x_2 = l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__0;
-x_3 = lean_nat_div(x_2, x_1);
+x_1 = l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__0;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
@@ -971,37 +969,6 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__1;
-x_2 = l_Nat_nextPowerOfTwo(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__2;
-x_3 = lean_mk_array(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__3;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__4;
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -1012,7 +979,7 @@ static lean_object* _init_l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_defa
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__5;
+x_1 = l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__2;
 return x_1;
 }
 }
@@ -1028,7 +995,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn_00___x40_Lean_Meta_Tactic_Grin
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__5;
+x_2 = l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__2;
 x_3 = lean_st_mk_ref(x_2);
 x_4 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_4, 0, x_3);
@@ -5999,12 +5966,6 @@ l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__1 = _init_l_
 lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__1);
 l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__2 = _init_l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__2();
 lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__2);
-l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__3 = _init_l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__3();
-lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__3);
-l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__4 = _init_l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__4();
-lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__4);
-l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__5 = _init_l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__5();
-lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default___closed__5);
 l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default = _init_l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default();
 lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedBuiltinPropagators_default);
 l_Lean_Meta_Grind_instInhabitedBuiltinPropagators = _init_l_Lean_Meta_Grind_instInhabitedBuiltinPropagators();

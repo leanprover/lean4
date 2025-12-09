@@ -884,7 +884,7 @@ deriving TypeName
 /--
 Elaborates a sequence of Lean commands as examples.
 
-To make examples self-contained, elaboration ignores the surrouncing section scopes. Modifications
+To make examples self-contained, elaboration ignores the surrounding section scopes. Modifications
 to the environment are preserved during a single documentation comment, and discarded afterwards.
 
 The named argument `name` allows a name to be assigned to the code block; any messages created by
@@ -1271,7 +1271,7 @@ def «set_option» (option : Ident) (value : DataValue) : DocM (Block ElabInline
   return .empty
 
 /--
-Constructs a link to the Lean langauge reference. Two positional arguments are expected:
+Constructs a link to the Lean language reference. Two positional arguments are expected:
  * `domain` should be one of the valid domains, such as `section`.
  * `name` should be the content's canonical name in the domain.
 -/
@@ -1468,7 +1468,7 @@ def suggestSyntax (code : StrLit) : DocM (Array CodeSuggestion) := do
   for (catName, _) in cats do
     try
       let stx ← parseStrLit (whitespace >> (categoryParser catName 0).fn) code
-      -- Many syntax categories admit identifers, so the false postitive rate is high
+      -- Many syntax categories admit identifiers, so the false positive rate is high
       unless onlyIdent stx do
         candidates := candidates.push catName
     catch | _ => pure ()

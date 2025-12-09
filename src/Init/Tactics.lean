@@ -1004,7 +1004,7 @@ You can use `with` to provide the variables names for each constructor.
 syntax (name := cases) "cases " elimTarget,+ (" using " term)? (inductionAlts)? : tactic
 
 /--
-The `fun_induction` tactic is a convenience wrapper around the `induction` tactic to use the the
+The `fun_induction` tactic is a convenience wrapper around the `induction` tactic to use the
 functional induction principle.
 
 The tactic invocation

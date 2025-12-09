@@ -24,7 +24,7 @@ public structure BuildConfig extends LogConfig where
   verbosity : Verbosity := .normal
   /-- Whether to print a message when the build finishes successfully (if not quiet). -/
   showSuccess : Bool := false
-  /-- File to save input-to-output mappings from the build of the worksoace's root -/
+  /-- File to save input-to-output mappings from the build of the workspace's root -/
   outputsFile? : Option FilePath := none
 
 /--

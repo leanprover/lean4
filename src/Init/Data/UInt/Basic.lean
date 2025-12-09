@@ -517,7 +517,7 @@ protected def UInt32.shiftRight (a b : UInt32) : UInt32 := ⟨a.toBitVec >>> (UI
 Strict inequality of 32-bit unsigned integers, defined as inequality of the corresponding
 natural numbers. Usually accessed via the `<` operator.
 -/
--- These need to be exposed as `Init.Prelude` already has an instance for bootstrapping puproses and
+-- These need to be exposed as `Init.Prelude` already has an instance for bootstrapping purposes and
 -- they should be defeq
 @[expose] protected def UInt32.lt (a b : UInt32) : Prop := a.toBitVec < b.toBitVec
 /--

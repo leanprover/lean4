@@ -173,7 +173,7 @@ References from `@[grind]` are tracked (here `List.append` from Init.Prelude)
 attribute [grind =] List.append
 
 /--
-info: Entries: [import Init.Grind.Attr, public import Init.Prelude]
+info: Entries: [import Init.Grind.Attr, public import Init.Prelude, import Init.Prelude]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses

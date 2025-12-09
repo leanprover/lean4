@@ -1420,15 +1420,26 @@ where
     -- Possible alternatives provided with `@[suggest_for]` annotations
     let suggestions := (← Lean.getSuggestions fullName).filter (·.getPrefix = fullName.getPrefix)
     let suggestForHint ←
-      if suggestions.size = 0 then
+      if h : suggestions.size = 0 then
         pure .nil
+      else if suggestions.size = 1 then
+        MessageData.hint (ref? := ref)
+          m!"Perhaps you meant `{.ofConstName suggestions[0]}` in place of `{fullName}`:"
+          (suggestions.map fun suggestion => {
+            preInfo? := .some s!"{e}.",
+            suggestion := suggestion.getString!,
+            toCodeActionTitle? := .some (s!"Suggested replacement: {e}.{·}"),
+            diffGranularity := .all,
+          })
       else
-        m!"Perhaps you meant one of these in place of `{fullName}`:".hint (suggestions.map fun suggestion => {
-          suggestion := suggestion.getString!,
-          toCodeActionTitle? := .some (s!"Suggested replacement: {e}.{·}"),
-          diffGranularity := .all,
-          messageData? := .some m!"`{.ofConstName suggestion}`: {e}.{suggestion.getString!}",
-        }) ref
+        MessageData.hint (ref? := ref)
+          m!"Perhaps you meant one of these in place of `{fullName}`:"
+          (suggestions.map fun suggestion => {
+            suggestion := suggestion.getString!,
+            toCodeActionTitle? := .some (s!"Suggested replacement: {e}.{·}"),
+            diffGranularity := .all,
+            messageData? := .some m!"`{.ofConstName suggestion}`: {e}.{suggestion.getString!}",
+          })
 
     -- By using `mkUnknownIdentifierMessage`, the tag `Lean.unknownIdentifierMessageTag` is
     -- incorporated within the message, as required for the "import unknown identifier" code action.

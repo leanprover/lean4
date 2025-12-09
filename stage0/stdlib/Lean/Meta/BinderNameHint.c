@@ -40,9 +40,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 uint64_t l_Lean_ExprStructEq_hash(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lean_Meta_BinderNameHint_0__Lean_Expr_resolveBinderNameHint_go_spec__0_spec__1_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Expr_resolveBinderNameHint___closed__4;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Expr_resolveBinderNameHint___closed__5;
 lean_object* l_StateT_instMonad___lam__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00__private_Lean_Meta_BinderNameHint_0__Lean_Expr_resolveBinderNameHint_go_spec__6_spec__6___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_panic___at___00__private_Lean_Meta_BinderNameHint_0__Lean_exitScope_spec__0___closed__0;
@@ -121,7 +119,6 @@ lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_Meta_BinderNameHint_0__Lean_Expr_resolveBinderNameHint_go_spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_BinderNameHint_0__Lean_makeFresh(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lean_Meta_BinderNameHint_0__Lean_Expr_resolveBinderNameHint_go_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00__private_Lean_Meta_BinderNameHint_0__Lean_Expr_resolveBinderNameHint_go_spec__6___redArg___boxed(lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00__private_Lean_Meta_BinderNameHint_0__Lean_Expr_resolveBinderNameHint_go_spec__6_spec__6___redArg(lean_object*, lean_object*);
@@ -133,7 +130,6 @@ lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_st_ref_set(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___at___00__private_Lean_Meta_BinderNameHint_0__Lean_Expr_resolveBinderNameHint_go_spec__0___redArg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Expr_resolveBinderNameHint___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_BinderNameHint_0__Lean_Expr_resolveBinderNameHint_go___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_headBeta(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -2279,9 +2275,9 @@ static lean_object* _init_l_Lean_Expr_resolveBinderNameHint___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(4u);
-x_2 = lean_unsigned_to_nat(8u);
-x_3 = lean_nat_mul(x_2, x_1);
+x_1 = lean_box(0);
+x_2 = lean_unsigned_to_nat(16u);
+x_3 = lean_mk_array(x_2, x_1);
 return x_3;
 }
 }
@@ -2289,36 +2285,7 @@ static lean_object* _init_l_Lean_Expr_resolveBinderNameHint___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(3u);
-x_2 = l_Lean_Expr_resolveBinderNameHint___closed__0;
-x_3 = lean_nat_div(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Expr_resolveBinderNameHint___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_resolveBinderNameHint___closed__1;
-x_2 = l_Nat_nextPowerOfTwo(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Expr_resolveBinderNameHint___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Expr_resolveBinderNameHint___closed__2;
-x_3 = lean_mk_array(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Expr_resolveBinderNameHint___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Expr_resolveBinderNameHint___closed__3;
+x_1 = l_Lean_Expr_resolveBinderNameHint___closed__0;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -2326,7 +2293,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Expr_resolveBinderNameHint___closed__5() {
+static lean_object* _init_l_Lean_Expr_resolveBinderNameHint___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2339,9 +2306,9 @@ LEAN_EXPORT lean_object* l_Lean_Expr_resolveBinderNameHint(lean_object* x_1, lea
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = l_Lean_Expr_resolveBinderNameHint___closed__4;
+x_5 = l_Lean_Expr_resolveBinderNameHint___closed__1;
 x_6 = lean_st_mk_ref(x_5);
-x_7 = l_Lean_Expr_resolveBinderNameHint___closed__5;
+x_7 = l_Lean_Expr_resolveBinderNameHint___closed__2;
 lean_inc(x_6);
 x_8 = l___private_Lean_Meta_BinderNameHint_0__Lean_Expr_resolveBinderNameHint_go(x_1, x_6, x_7, x_2, x_3);
 if (lean_obj_tag(x_8) == 0)
@@ -2461,12 +2428,6 @@ l_Lean_Expr_resolveBinderNameHint___closed__1 = _init_l_Lean_Expr_resolveBinderN
 lean_mark_persistent(l_Lean_Expr_resolveBinderNameHint___closed__1);
 l_Lean_Expr_resolveBinderNameHint___closed__2 = _init_l_Lean_Expr_resolveBinderNameHint___closed__2();
 lean_mark_persistent(l_Lean_Expr_resolveBinderNameHint___closed__2);
-l_Lean_Expr_resolveBinderNameHint___closed__3 = _init_l_Lean_Expr_resolveBinderNameHint___closed__3();
-lean_mark_persistent(l_Lean_Expr_resolveBinderNameHint___closed__3);
-l_Lean_Expr_resolveBinderNameHint___closed__4 = _init_l_Lean_Expr_resolveBinderNameHint___closed__4();
-lean_mark_persistent(l_Lean_Expr_resolveBinderNameHint___closed__4);
-l_Lean_Expr_resolveBinderNameHint___closed__5 = _init_l_Lean_Expr_resolveBinderNameHint___closed__5();
-lean_mark_persistent(l_Lean_Expr_resolveBinderNameHint___closed__5);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

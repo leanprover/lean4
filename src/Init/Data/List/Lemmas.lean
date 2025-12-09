@@ -77,7 +77,7 @@ Further results, which first require developing further automation around `Nat`,
 * `Init.Data.List.Nat.TakeDrop`: `List.take` and `List.drop`
 
 Also
-* `Init.Data.List.Monadic` for addiation lemmas about `List.mapM` and `List.forM`.
+* `Init.Data.List.Monadic` for additional lemmas about `List.mapM` and `List.forM`.
 
 -/
 

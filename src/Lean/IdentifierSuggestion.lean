@@ -17,35 +17,46 @@ namespace Lean
 
 set_option doc.verso true
 
-builtin_initialize identifierSuggestionForAttr : ParametricAttribute (Name × Array Name) ←
-  registerParametricAttribute {
+
+builtin_initialize identifierSuggestionForAttr : PersistentEnvExtension
+    (Name × Array Name) /- *Store* mappings from incorrect names to corrections (identifiers that exist) -/
+    (Name × Array Name) /- *Add* mappings from existing functions to possible incorrect namings -/
+    (NameMap NameSet) /- *Use* mapping from incorrect names to corrections (identifiers that exist) -/ ←
+  let ext ← registerPersistentEnvExtension {
+    mkInitial := pure {},
+    addImportedFn := fun modules => pure <|
+      modules.foldl (init := {}) fun accum entries =>
+        entries.foldl (init := accum) fun accum (altName, trueNames) =>
+          accum.alter altName (fun old => trueNames.foldl (β := NameSet) (init := old.getD ∅) fun accum trueName =>
+            accum.insert trueName),
+    addEntryFn := fun table (trueName, altNames) =>
+      altNames.foldl (init := table) fun accum alt =>
+        accum.alter alt (·.getD {} |>.insert trueName)
+    exportEntriesFn table := table.toArray.map fun (altName, trueNames) =>
+      (altName, trueNames.toArray)
+  }
+
+  registerBuiltinAttribute {
     name := `suggest_for,
     descr := "suggest other (incorrect, not-existing) identifiers that someone might use when they actually want this definition",
-    getParam := fun trueDeclName stx => do
-      let `(attr| suggest_for $altNames:ident*) := stx
-        | throwError "Invalid `[suggest_for]` attribute syntax"
-      let ns := trueDeclName.getPrefix
-      return (trueDeclName, altNames.map (·.getId))
-    }
+    add (decl : Name) (stx : Syntax) (kind : AttributeKind) := do
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal `suggest_for kind
+      let altSyntaxIds : Array Syntax ← match stx with
+        | -- Attributes parsed _after_ the suggest_for notation is added
+          .node _ ``suggest_for #[.atom _ "suggest_for", .node _ `null ids] => pure ids
+        | -- Attributes parsed _before the suggest_for notation is added
+          .node _ ``Parser.Attr.simple #[.ident _ _ `suggest_for [], .node _ `null #[id]] => pure #[id]
+        | _ => throwError "Invalid `[suggest_for]` attribute syntax {repr stx}"
+      modifyEnv (ext.addEntry · (decl, altSyntaxIds.map (·.getId)))
+  }
+
+  return ext
 
 public def getSuggestions [Monad m] [MonadEnv m] (fullName : Name) : m (Array Name) := do
-  let mut possibleReplacements := #[]
-  let (_, allSuggestions) := identifierSuggestionForAttr.ext.getState (← getEnv)
-  for (_, trueName, suggestions) in allSuggestions do
-    for suggestion in suggestions do
-      if fullName = suggestion then
-        possibleReplacements := possibleReplacements.push trueName
-  return possibleReplacements.qsort (lt := lt)
-where
-  -- Ensure the result of getSuggestions is stable (if arbitrary)
-  lt : Name -> Name -> Bool
-    | .anonymous, _ => false
-    | .str _ _, .anonymous => true
-    | .num _ _, .anonymous => true
-    | .str _ _, .num _ _ => true
-    | .num _ _, .str _ _ => false
-    | .num a n, .num b m => n < m || n == m && lt a b
-    | .str a s1, .str b s2 => s1 < s2 || s1 == s2 && lt a b
+  return identifierSuggestionForAttr.getState (← getEnv)
+    |>.find? fullName
+    |>.getD {}
+    |>.toArray
 
 /--
 Throw an unknown constant error message, potentially suggesting alternatives using

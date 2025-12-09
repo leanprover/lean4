@@ -140,9 +140,20 @@ private def handle
   let mut expectData := none
   let mut waitingResponse := false
 
+  let mut repeated := 0
+
   try
     while ¬machine.halted do
       let (newMachine, step) := machine.step
+
+      match newMachine.reader.state, newMachine.writer.state with
+      | .complete, .complete =>
+        if repeated > 5 then
+          break
+        else
+          repeated := repeated + 1
+      | _, _ => repeated := 0
+
       machine := newMachine
 
       if step.output.size > 0 then

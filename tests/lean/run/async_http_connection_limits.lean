@@ -29,6 +29,7 @@ def toByteArray (req : Request (Array Chunk)) (chunked := false) : IO ByteArray 
 def sendRequests (client : Mock.Client) (server : Mock.Server) (reqs : Array (Request (Array Chunk)))
     (onRequest : Request Body → ContextAsync (Response Body))
     (chunked : Bool := false) : IO ByteArray := Async.block do
+
   let mut data := .empty
   for req in reqs do data := data ++ (← toByteArray req chunked)
 
@@ -125,9 +126,8 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   handler := fun req => do
     return Response.ok (toString (toString req.head.uri).length)
 
-  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }
-
 
 #eval runTestCase {
   name := "Header long"
@@ -143,7 +143,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   handler := fun req => do
     return Response.ok (toString (toString req.head.uri).length)
 
-  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }
 
 #eval runTestCase {
@@ -164,7 +164,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   handler := fun _ => do
     return Response.ok "success"
 
-  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }
 
 #eval runTestCase {
@@ -201,5 +201,5 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   handler := fun _ => do
     return Response.ok "success"
 
-  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }

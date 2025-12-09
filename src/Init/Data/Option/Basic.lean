@@ -22,12 +22,12 @@ instance instDecidableEq {α} [inst : DecidableEq α] : DecidableEq (Option α) 
   match a with
   | none => match b with
     | none => .isTrue rfl
-    | some _ => .isFalse Option.noConfusion
+    | some _ => .isFalse (fun h => Option.noConfusion rfl (heq_of_eq h))
   | some a => match b with
-    | none => .isFalse Option.noConfusion
+    | none => .isFalse (fun h => Option.noConfusion rfl (heq_of_eq h))
     | some b => match inst a b with
       | .isTrue h => .isTrue (h ▸ rfl)
-      | .isFalse n => .isFalse (Option.noConfusion · n)
+      | .isFalse n => .isFalse (fun h => Option.noConfusion rfl (heq_of_eq h) (fun h' => absurd (eq_of_heq h') n))
 
 /--
 Equality with `none` is decidable even if the wrapped type does not have decidable equality.
@@ -37,7 +37,7 @@ instance decidableEqNone (o : Option α) : Decidable (o = none) :=
     compatibility with the `DecidableEq` instance. -/
   match o with
   | none => .isTrue rfl
-  | some _ => .isFalse Option.noConfusion
+  | some _ => .isFalse (fun h => Option.noConfusion rfl (heq_of_eq h))
 
 /--
 Equality with `none` is decidable even if the wrapped type does not have decidable equality.
@@ -47,7 +47,7 @@ instance decidableNoneEq (o : Option α) : Decidable (none = o) :=
     compatibility with the `DecidableEq` instance. -/
   match o with
   | none => .isTrue rfl
-  | some _ => .isFalse Option.noConfusion
+  | some _ => .isFalse (fun h => Option.noConfusion rfl (heq_of_eq h))
 
 deriving instance BEq for Option
 

@@ -220,13 +220,16 @@ def mkSpecAttr (ext : SpecExtension) : AttributeImpl where
   add   := fun declName stx attrKind => do
     let go : MetaM Unit := do
       let info ← getAsyncConstInfo declName
-      let prio ← if stx.getKind = ``Lean.Parser.Attr.spec then getAttrParamOptPrio stx[3] else getAttrParamOptPrio stx[1]
+      -- let prio ← if stx.getKind = ``Lean.Parser.Attr.spec then getAttrParamOptPrio stx[3] else getAttrParamOptPrio stx[1]
+      let prio ← getAttrParamOptPrio stx[1]
       try
         ext.addSpecTheoremFromConst declName prio attrKind
       catch _ =>
       let impl ← getBuiltinAttributeImpl `mvcgen_simp
       try
-        impl.add declName stx attrKind
+        let newStx ← `(attr| mvcgen_simp)
+        let newStx := newStx.raw.setArg 3 stx[1]
+        impl.add declName newStx attrKind
       catch e =>
       trace[Elab.Tactic.Do.specAttr] "Reason for failure to apply spec attribute: {e.toMessageData}"
       throwError "Invalid 'spec': target was neither a Hoare triple specification nor a 'simp' lemma"

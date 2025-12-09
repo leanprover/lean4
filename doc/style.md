@@ -138,7 +138,7 @@ quotes from literature, even if they make a point very well. Many
 members of our audience do not have English as a first language and
 are not familiar with US or European culture.
 
-Some fake grammar rules may be ignored. To split infinitives is
+Some fake grammar rules may be ignored. To boldly split infinitives is
 perfectly acceptable in English. And it’s OK to start a sentence with
 a conjunction if that has the right impact. But do consider alternate
 formulations that won’t annoy some readers.

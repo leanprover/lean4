@@ -2469,10 +2469,8 @@ x_49 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_33, x_46, x_48);
 x_50 = lean_array_get_size(x_49);
 x_51 = lean_array_get_size(x_5);
 x_52 = lean_nat_dec_eq(x_50, x_51);
-lean_dec(x_51);
 if (x_52 == 0)
 {
-lean_dec(x_50);
 lean_dec_ref(x_49);
 lean_dec_ref(x_35);
 lean_dec_ref(x_34);

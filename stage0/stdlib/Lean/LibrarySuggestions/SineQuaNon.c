@@ -848,7 +848,6 @@ x_13 = lean_array_get_size(x_11);
 x_14 = lean_nat_dec_lt(x_12, x_13);
 if (x_14 == 0)
 {
-lean_dec(x_13);
 lean_dec(x_11);
 x_5 = x_4;
 goto block_9;
@@ -859,7 +858,6 @@ uint8_t x_15;
 x_15 = lean_nat_dec_le(x_13, x_13);
 if (x_15 == 0)
 {
-lean_dec(x_13);
 lean_dec(x_11);
 x_5 = x_4;
 goto block_9;
@@ -869,7 +867,6 @@ else
 size_t x_16; size_t x_17; lean_object* x_18; 
 x_16 = 0;
 x_17 = lean_usize_of_nat(x_13);
-lean_dec(x_13);
 x_18 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_mkStateFromImportedEntries___at___00Lean_LibrarySuggestions_SineQuaNon_initFn_00___x40_Lean_LibrarySuggestions_SineQuaNon_830398421____hygCtx___hyg_2__spec__0_spec__0(x_11, x_16, x_17, x_4);
 lean_dec(x_11);
 x_5 = x_18;
@@ -901,7 +898,6 @@ x_4 = lean_array_get_size(x_2);
 x_5 = lean_nat_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
-lean_dec(x_4);
 return x_1;
 }
 else
@@ -910,7 +906,6 @@ uint8_t x_6;
 x_6 = lean_nat_dec_le(x_4, x_4);
 if (x_6 == 0)
 {
-lean_dec(x_4);
 return x_1;
 }
 else
@@ -918,7 +913,6 @@ else
 size_t x_7; size_t x_8; lean_object* x_9; 
 x_7 = 0;
 x_8 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_9 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_mkStateFromImportedEntries___at___00Lean_LibrarySuggestions_SineQuaNon_initFn_00___x40_Lean_LibrarySuggestions_SineQuaNon_830398421____hygCtx___hyg_2__spec__0_spec__1(x_2, x_7, x_8, x_1);
 return x_9;
 }
@@ -1898,7 +1892,6 @@ else
 lean_object* x_8; uint8_t x_9; 
 x_8 = lean_array_get_size(x_3);
 x_9 = lean_nat_dec_le(x_5, x_8);
-lean_dec(x_8);
 if (x_9 == 0)
 {
 return x_6;
@@ -2077,7 +2070,6 @@ else
 lean_object* x_13; uint8_t x_14; 
 x_13 = lean_array_get_size(x_2);
 x_14 = lean_nat_dec_le(x_4, x_13);
-lean_dec(x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; 
@@ -2206,7 +2198,6 @@ lean_dec(x_15);
 x_19 = lean_unsigned_to_nat(0u);
 x_20 = lean_array_get_size(x_11);
 x_21 = l_Array_filterMapM___at___00__private_Lean_LibrarySuggestions_SineQuaNon_0__Lean_LibrarySuggestions_SineQuaNon_triggerSymbols_spec__0(x_18, x_11, x_19, x_20, x_3, x_4, x_5, x_6);
-lean_dec(x_20);
 lean_dec(x_11);
 lean_dec(x_18);
 if (lean_obj_tag(x_21) == 0)
@@ -2263,7 +2254,6 @@ block_32:
 {
 lean_object* x_30; lean_object* x_31; 
 x_30 = l_Array_filterMapM___at___00__private_Lean_LibrarySuggestions_SineQuaNon_0__Lean_LibrarySuggestions_SineQuaNon_triggerSymbols_spec__2(x_29, x_2, x_22, x_19, x_28);
-lean_dec(x_28);
 lean_dec(x_22);
 if (lean_is_scalar(x_23)) {
  x_31 = lean_alloc_ctor(0, 1, 0);
@@ -4222,7 +4212,6 @@ x_17 = l___private_Lean_LibrarySuggestions_SineQuaNon_0__Lean_LibrarySuggestions
 x_18 = lean_nat_dec_lt(x_15, x_16);
 if (x_18 == 0)
 {
-lean_dec(x_16);
 lean_dec(x_8);
 x_10 = x_17;
 goto block_14;
@@ -4233,7 +4222,6 @@ uint8_t x_19;
 x_19 = lean_nat_dec_le(x_16, x_16);
 if (x_19 == 0)
 {
-lean_dec(x_16);
 lean_dec(x_8);
 x_10 = x_17;
 goto block_14;
@@ -4246,7 +4234,6 @@ lean_inc_ref(x_20);
 lean_dec(x_8);
 x_21 = 0;
 x_22 = lean_usize_of_nat(x_16);
-lean_dec(x_16);
 x_23 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_LibrarySuggestions_SineQuaNon_0__Lean_LibrarySuggestions_SineQuaNon_prepareTriggers_spec__11(x_20, x_1, x_21, x_22, x_17);
 x_10 = x_23;
 goto block_14;
@@ -4696,7 +4683,6 @@ _start:
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_get_size(x_2);
 x_7 = lean_nat_dec_lt(x_4, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_dec(x_4);
@@ -4733,7 +4719,6 @@ x_6 = lean_array_get_size(x_4);
 x_7 = lean_nat_dec_lt(x_5, x_6);
 if (x_7 == 0)
 {
-lean_dec(x_6);
 lean_dec(x_1);
 return x_3;
 }
@@ -4743,7 +4728,6 @@ uint8_t x_8;
 x_8 = lean_nat_dec_le(x_6, x_6);
 if (x_8 == 0)
 {
-lean_dec(x_6);
 lean_dec(x_1);
 return x_3;
 }
@@ -4752,7 +4736,6 @@ else
 size_t x_9; size_t x_10; lean_object* x_11; 
 x_9 = 0;
 x_10 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_PersistentHashMap_foldl___at___00Lean_PersistentHashMap_toArray___at___00Lean_LibrarySuggestions_SineQuaNon_initFn_00___x40_Lean_LibrarySuggestions_SineQuaNon_3150116579____hygCtx___hyg_2__spec__0_spec__0_spec__0_spec__0_spec__0___redArg(x_1, x_4, x_9, x_10, x_3);
 return x_11;
 }
@@ -5388,7 +5371,6 @@ x_13 = lean_array_get_size(x_11);
 x_14 = lean_nat_dec_lt(x_12, x_13);
 if (x_14 == 0)
 {
-lean_dec(x_13);
 lean_dec(x_11);
 x_5 = x_4;
 goto block_9;
@@ -5399,7 +5381,6 @@ uint8_t x_15;
 x_15 = lean_nat_dec_le(x_13, x_13);
 if (x_15 == 0)
 {
-lean_dec(x_13);
 lean_dec(x_11);
 x_5 = x_4;
 goto block_9;
@@ -5409,7 +5390,6 @@ else
 size_t x_16; size_t x_17; lean_object* x_18; 
 x_16 = 0;
 x_17 = lean_usize_of_nat(x_13);
-lean_dec(x_13);
 x_18 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_LibrarySuggestions_SineQuaNon_0__Lean_LibrarySuggestions_SineQuaNon_sineQuaNonTriggerMap_spec__0(x_11, x_16, x_17, x_4);
 lean_dec(x_11);
 x_5 = x_18;
@@ -5461,7 +5441,6 @@ x_20 = lean_array_get_size(x_17);
 x_21 = lean_nat_dec_lt(x_19, x_20);
 if (x_21 == 0)
 {
-lean_dec(x_20);
 lean_dec(x_17);
 x_6 = x_18;
 goto block_10;
@@ -5472,7 +5451,6 @@ uint8_t x_22;
 x_22 = lean_nat_dec_le(x_20, x_20);
 if (x_22 == 0)
 {
-lean_dec(x_20);
 lean_dec(x_17);
 x_6 = x_18;
 goto block_10;
@@ -5482,7 +5460,6 @@ else
 size_t x_23; size_t x_24; lean_object* x_25; 
 x_23 = 0;
 x_24 = lean_usize_of_nat(x_20);
-lean_dec(x_20);
 x_25 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_LibrarySuggestions_SineQuaNon_0__Lean_LibrarySuggestions_SineQuaNon_sineQuaNonTriggerMap_spec__1(x_17, x_23, x_24, x_18);
 lean_dec(x_17);
 x_6 = x_25;
@@ -11110,7 +11087,6 @@ _start:
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; double x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_70; uint8_t x_71; 
 x_70 = lean_array_get_size(x_7);
 x_71 = lean_nat_dec_le(x_1, x_70);
-lean_dec(x_70);
 if (x_71 == 0)
 {
 lean_object* x_72; 
@@ -11349,7 +11325,6 @@ x_47 = lean_nat_dec_lt(x_45, x_46);
 if (x_47 == 0)
 {
 double x_48; 
-lean_dec(x_46);
 lean_dec(x_44);
 x_48 = lean_unbox_float(x_38);
 x_14 = x_31;
@@ -11371,7 +11346,6 @@ x_49 = lean_nat_dec_le(x_46, x_46);
 if (x_49 == 0)
 {
 double x_50; 
-lean_dec(x_46);
 lean_dec(x_44);
 x_50 = lean_unbox_float(x_38);
 x_14 = x_31;
@@ -11394,7 +11368,6 @@ lean_ctor_set(x_51, 0, x_5);
 lean_ctor_set(x_51, 1, x_6);
 x_52 = 0;
 x_53 = lean_usize_of_nat(x_46);
-lean_dec(x_46);
 x_54 = lean_unbox_float(x_38);
 x_55 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_LibrarySuggestions_SineQuaNon_0__Lean_LibrarySuggestions_SineQuaNon_sineQuaNon_go_spec__3___redArg(x_3, x_54, x_2, x_4, x_44, x_52, x_53, x_51, x_33);
 lean_dec(x_44);

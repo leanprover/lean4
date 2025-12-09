@@ -2869,7 +2869,6 @@ block_19:
 {
 if (x_13 == 0)
 {
-lean_dec(x_11);
 return x_3;
 }
 else
@@ -2877,7 +2876,6 @@ else
 if (x_1 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-lean_dec(x_11);
 x_14 = l___private_Lake_Toml_Grammar_0__Lake_Toml_timeTailFn_timeOffsetFn___closed__0;
 x_15 = lean_box(0);
 x_16 = l_Lean_Parser_ParserState_mkUnexpectedError(x_3, x_14, x_15, x_12);
@@ -2922,7 +2920,6 @@ else
 if (x_1 == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; 
-lean_dec(x_11);
 x_26 = l___private_Lake_Toml_Grammar_0__Lake_Toml_timeTailFn_timeOffsetFn___closed__0;
 x_27 = lean_box(0);
 x_28 = l_Lean_Parser_ParserState_mkUnexpectedError(x_3, x_26, x_27, x_21);
@@ -2989,7 +2986,6 @@ block_52:
 {
 if (x_47 == 0)
 {
-lean_dec(x_46);
 return x_39;
 }
 else
@@ -2997,7 +2993,6 @@ else
 if (x_1 == 0)
 {
 lean_object* x_48; lean_object* x_49; 
-lean_dec(x_46);
 x_48 = l___private_Lake_Toml_Grammar_0__Lake_Toml_timeTailFn_timeOffsetFn___closed__0;
 x_49 = l_Lean_Parser_ParserState_mkUnexpectedError(x_39, x_48, x_37, x_43);
 return x_49;
@@ -3037,7 +3032,6 @@ else
 if (x_1 == 0)
 {
 lean_object* x_58; lean_object* x_59; 
-lean_dec(x_46);
 x_58 = l___private_Lake_Toml_Grammar_0__Lake_Toml_timeTailFn_timeOffsetFn___closed__0;
 x_59 = l_Lean_Parser_ParserState_mkUnexpectedError(x_39, x_58, x_37, x_43);
 return x_59;
@@ -3260,7 +3254,6 @@ else
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_28; lean_object* x_29; uint8_t x_30; 
 lean_inc(x_3);
 x_18 = lean_string_utf8_next_fast(x_6, x_3);
-lean_inc(x_18);
 x_19 = l_Lean_Parser_ParserState_setPos(x_2, x_18);
 x_20 = l_Lake_Toml_timeFn(x_7, x_1, x_19);
 x_28 = lean_ctor_get(x_20, 4);
@@ -3275,7 +3268,6 @@ else
 {
 if (x_15 == 0)
 {
-lean_dec(x_18);
 lean_dec(x_3);
 return x_20;
 }
@@ -3290,7 +3282,6 @@ lean_object* x_21; uint8_t x_22;
 x_21 = lean_ctor_get(x_20, 2);
 lean_inc(x_21);
 x_22 = lean_nat_dec_eq(x_21, x_18);
-lean_dec(x_18);
 lean_dec(x_21);
 if (x_22 == 0)
 {

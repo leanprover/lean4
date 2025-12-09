@@ -1314,6 +1314,16 @@ where
     | none => 0
     | some (_, p2) => prodArity p2 + 1
 
+/--
+For a fieldname `fieldName`, locate all the environment constants with that name
+-/
+private def reverseFieldLookup (env : Environment) (fieldName : String) :=
+  env.constants.fold (init := #[]) (fun accum name _ =>
+      match name with
+      | .str _ s => if s = fieldName && !name.isInternal then accum.push name else accum
+      | _ => accum)
+    |>.qsort (lt := Name.lt)
+
 private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM LValResolution := do
   match eType.getAppFn, lval with
   | .const structName _, LVal.fieldIdx ref idx =>
@@ -1379,11 +1389,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       has function type{inlineExprTrailing eType}"
 
   | .mvar .., .fieldName _ fieldName _ _ =>
-    let possibleConstants := (← getEnv).constants.fold (fun accum name _ =>
-      match name with
-      | .str _ s => if s = fieldName && !name.isInternal then accum.push name else accum
-      | _ => accum) #[]
-    let hint := match possibleConstants with
+    let hint := match reverseFieldLookup (← getEnv) fieldName with
       | #[] => MessageData.nil
       | #[opt] => .hint' m!"Consider replacing the field projection `.{fieldName}` with a call to the function `{.ofConstName opt}`."
       | opts => .hint' m!"Consider replacing the field projection with a call to one of the following:\
@@ -1428,7 +1434,7 @@ where
           (suggestions.map fun suggestion => {
             preInfo? := .some s!"{e}.",
             suggestion := suggestion.getString!,
-            toCodeActionTitle? := .some (s!"Suggested replacement: {e}.{·}"),
+            toCodeActionTitle? := .some (s!"Change to {e}.{·}"),
             diffGranularity := .all,
           })
       else
@@ -1436,8 +1442,7 @@ where
           m!"Perhaps you meant one of these in place of `{fullName}`:"
           (suggestions.map fun suggestion => {
             suggestion := suggestion.getString!,
-            toCodeActionTitle? := .some (s!"Suggested replacement: {e}.{·}"),
-            diffGranularity := .all,
+            toCodeActionTitle? := .some (s!"Change to {e}.{·}"),
             messageData? := .some m!"`{.ofConstName suggestion}`: {e}.{suggestion.getString!}",
           })
 
@@ -1765,8 +1770,17 @@ private partial def resolveDottedIdentFn (idRef : Syntax) (id : Name) (expectedT
   withForallBody expectedType fun resultType => do
     go resultType expectedType #[]
 where
-  throwNoExpectedType :=
-    throwNamedError lean.invalidDottedIdent "Invalid dotted identifier notation: The expected type of `.{id}` could not be determined"
+  throwNoExpectedType := do
+    let hint ← match reverseFieldLookup (← getEnv) (id.getString!) with
+      | #[] => pure MessageData.nil
+      | suggestions =>
+        let oneOfThese := if h : suggestions.size = 1 then m!"`{.ofConstName suggestions[0]}" else m!"one of these"
+        m!"Using {oneOfThese} would be unambiguous:".hint (suggestions.map fun suggestion => {
+          suggestion := mkIdent suggestion
+          toCodeActionTitle? := .some (s!"Change to {·}")
+          messageData? := .some m!"`{.ofConstName suggestion}`",
+        })
+    throwNamedError lean.invalidDottedIdent (m!"Invalid dotted identifier notation: The expected type of `.{id}` could not be determined" ++ hint)
   /-- A weak version of forallTelescopeReducing that only uses whnfCore, to avoid unfolding definitions except by `unfoldDefinition?` below. -/
   withForallBody {α} (type : Expr) (k : Expr → TermElabM α) : TermElabM α := do
     let type ← whnfCoreUnfoldingAnnotations type

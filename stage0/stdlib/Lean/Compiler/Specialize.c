@@ -1718,7 +1718,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_3, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; 
@@ -1832,14 +1831,12 @@ x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
-lean_dec(x_4);
 return x_5;
 }
 else
 {
 if (x_5 == 0)
 {
-lean_dec(x_4);
 return x_5;
 }
 else
@@ -1847,7 +1844,6 @@ else
 size_t x_6; size_t x_7; uint8_t x_8; 
 x_6 = 0;
 x_7 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_8 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00__private_Lean_Compiler_Specialize_0__Lean_Compiler_elabSpecArgs_spec__1_spec__1(x_2, x_1, x_6, x_7);
 return x_8;
 }
@@ -2172,7 +2168,6 @@ x_39 = lean_nat_dec_le(x_38, x_37);
 if (x_39 == 0)
 {
 uint8_t x_40; 
-lean_dec(x_38);
 x_40 = l_Array_contains___at___00__private_Lean_Compiler_Specialize_0__Lean_Compiler_elabSpecArgs_spec__1(x_30, x_37);
 if (x_40 == 0)
 {
@@ -2462,7 +2457,6 @@ lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_33;
 lean_dec_ref(x_19);
 x_28 = lean_unsigned_to_nat(1u);
 x_29 = lean_nat_sub(x_26, x_28);
-lean_dec(x_26);
 x_33 = lean_nat_dec_le(x_16, x_29);
 if (x_33 == 0)
 {
@@ -2497,7 +2491,6 @@ goto block_25;
 }
 else
 {
-lean_dec(x_26);
 lean_dec(x_20);
 lean_dec(x_15);
 return x_19;

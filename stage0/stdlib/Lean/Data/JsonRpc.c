@@ -6280,7 +6280,6 @@ x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_string_utf8_byte_size(x_2);
 x_5 = lean_nat_dec_eq(x_3, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 uint32_t x_6; uint32_t x_7; uint8_t x_8; 
@@ -7198,7 +7197,6 @@ x_20 = lean_ctor_get(x_2, 0);
 x_21 = lean_ctor_get(x_2, 1);
 x_22 = lean_string_utf8_byte_size(x_20);
 x_23 = lean_nat_dec_eq(x_21, x_22);
-lean_dec(x_22);
 if (x_23 == 0)
 {
 uint8_t x_24; 
@@ -7235,7 +7233,6 @@ x_32 = lean_ctor_get(x_29, 0);
 x_33 = lean_ctor_get(x_29, 1);
 x_34 = lean_string_utf8_byte_size(x_32);
 x_35 = lean_nat_dec_eq(x_33, x_34);
-lean_dec(x_34);
 if (x_35 == 0)
 {
 uint8_t x_36; 
@@ -7589,7 +7586,6 @@ x_111 = lean_ctor_get(x_109, 0);
 x_112 = lean_ctor_get(x_109, 1);
 x_156 = lean_string_utf8_byte_size(x_111);
 x_157 = lean_nat_dec_eq(x_112, x_156);
-lean_dec(x_156);
 if (x_157 == 0)
 {
 x_113 = x_59;
@@ -7648,7 +7644,6 @@ x_124 = lean_ctor_get(x_122, 0);
 x_125 = lean_ctor_get(x_122, 1);
 x_126 = lean_string_utf8_byte_size(x_124);
 x_127 = lean_nat_dec_eq(x_125, x_126);
-lean_dec(x_126);
 if (x_127 == 0)
 {
 lean_inc(x_125);
@@ -7691,7 +7686,6 @@ x_130 = lean_ctor_get(x_129, 0);
 x_131 = lean_ctor_get(x_129, 1);
 x_132 = lean_string_utf8_byte_size(x_130);
 x_133 = lean_nat_dec_eq(x_131, x_132);
-lean_dec(x_132);
 if (x_133 == 0)
 {
 lean_inc(x_131);
@@ -7774,7 +7768,6 @@ x_145 = lean_ctor_get(x_143, 0);
 x_146 = lean_ctor_get(x_143, 1);
 x_147 = lean_string_utf8_byte_size(x_145);
 x_148 = lean_nat_dec_eq(x_146, x_147);
-lean_dec(x_147);
 if (x_148 == 0)
 {
 lean_inc(x_146);
@@ -7891,7 +7884,6 @@ x_169 = lean_ctor_get(x_163, 0);
 x_170 = lean_ctor_get(x_163, 1);
 x_171 = lean_string_utf8_byte_size(x_169);
 x_172 = lean_nat_dec_eq(x_170, x_171);
-lean_dec(x_171);
 if (x_172 == 0)
 {
 if (x_57 == 0)
@@ -7931,7 +7923,6 @@ x_181 = lean_ctor_get(x_179, 0);
 x_182 = lean_ctor_get(x_179, 1);
 x_183 = lean_string_utf8_byte_size(x_181);
 x_184 = lean_nat_dec_eq(x_182, x_183);
-lean_dec(x_183);
 if (x_184 == 0)
 {
 uint8_t x_185; 
@@ -7964,7 +7955,6 @@ x_193 = lean_ctor_get(x_191, 0);
 x_194 = lean_ctor_get(x_191, 1);
 x_195 = lean_string_utf8_byte_size(x_193);
 x_196 = lean_nat_dec_eq(x_194, x_195);
-lean_dec(x_195);
 if (x_196 == 0)
 {
 uint8_t x_197; 
@@ -8035,7 +8025,6 @@ x_214 = lean_ctor_get(x_202, 0);
 x_215 = lean_ctor_get(x_202, 1);
 x_216 = lean_string_utf8_byte_size(x_214);
 x_217 = lean_nat_dec_eq(x_215, x_216);
-lean_dec(x_216);
 if (x_217 == 0)
 {
 if (x_209 == 0)
@@ -8290,7 +8279,6 @@ x_265 = lean_ctor_get(x_253, 0);
 x_266 = lean_ctor_get(x_253, 1);
 x_267 = lean_string_utf8_byte_size(x_265);
 x_268 = lean_nat_dec_eq(x_266, x_267);
-lean_dec(x_267);
 if (x_268 == 0)
 {
 if (x_260 == 0)
@@ -8445,7 +8433,6 @@ x_288 = lean_ctor_get(x_287, 0);
 x_289 = lean_ctor_get(x_287, 1);
 x_290 = lean_string_utf8_byte_size(x_288);
 x_291 = lean_nat_dec_eq(x_289, x_290);
-lean_dec(x_290);
 if (x_291 == 0)
 {
 lean_object* x_292; lean_object* x_293; lean_object* x_294; lean_object* x_295; 
@@ -8522,7 +8509,6 @@ x_310 = lean_ctor_get(x_296, 0);
 x_311 = lean_ctor_get(x_296, 1);
 x_312 = lean_string_utf8_byte_size(x_310);
 x_313 = lean_nat_dec_eq(x_311, x_312);
-lean_dec(x_312);
 if (x_313 == 0)
 {
 if (x_303 == 0)
@@ -8718,7 +8704,6 @@ x_342 = lean_ctor_get(x_340, 0);
 x_343 = lean_ctor_get(x_340, 1);
 x_344 = lean_string_utf8_byte_size(x_342);
 x_345 = lean_nat_dec_eq(x_343, x_344);
-lean_dec(x_344);
 if (x_345 == 0)
 {
 lean_object* x_346; lean_object* x_347; lean_object* x_348; lean_object* x_349; 
@@ -8805,7 +8790,6 @@ x_364 = lean_ctor_get(x_350, 0);
 x_365 = lean_ctor_get(x_350, 1);
 x_366 = lean_string_utf8_byte_size(x_364);
 x_367 = lean_nat_dec_eq(x_365, x_366);
-lean_dec(x_366);
 if (x_367 == 0)
 {
 if (x_357 == 0)
@@ -9002,7 +8986,6 @@ x_393 = lean_ctor_get(x_392, 0);
 x_394 = lean_ctor_get(x_392, 1);
 x_395 = lean_string_utf8_byte_size(x_393);
 x_396 = lean_nat_dec_eq(x_394, x_395);
-lean_dec(x_395);
 if (x_396 == 0)
 {
 lean_object* x_397; lean_object* x_398; lean_object* x_399; lean_object* x_400; 
@@ -9043,7 +9026,6 @@ x_403 = lean_ctor_get(x_401, 0);
 x_404 = lean_ctor_get(x_401, 1);
 x_405 = lean_string_utf8_byte_size(x_403);
 x_406 = lean_nat_dec_eq(x_404, x_405);
-lean_dec(x_405);
 if (x_406 == 0)
 {
 lean_object* x_407; lean_object* x_408; lean_object* x_409; lean_object* x_410; 
@@ -9130,7 +9112,6 @@ x_425 = lean_ctor_get(x_411, 0);
 x_426 = lean_ctor_get(x_411, 1);
 x_427 = lean_string_utf8_byte_size(x_425);
 x_428 = lean_nat_dec_eq(x_426, x_427);
-lean_dec(x_427);
 if (x_428 == 0)
 {
 if (x_418 == 0)
@@ -9369,7 +9350,6 @@ x_463 = lean_ctor_get(x_461, 0);
 x_464 = lean_ctor_get(x_461, 1);
 x_465 = lean_string_utf8_byte_size(x_463);
 x_466 = lean_nat_dec_eq(x_464, x_465);
-lean_dec(x_465);
 if (x_466 == 0)
 {
 lean_object* x_467; lean_object* x_468; lean_object* x_469; lean_object* x_470; 
@@ -9411,7 +9391,6 @@ x_473 = lean_ctor_get(x_471, 0);
 x_474 = lean_ctor_get(x_471, 1);
 x_475 = lean_string_utf8_byte_size(x_473);
 x_476 = lean_nat_dec_eq(x_474, x_475);
-lean_dec(x_475);
 if (x_476 == 0)
 {
 lean_object* x_477; lean_object* x_478; lean_object* x_479; lean_object* x_480; 
@@ -9498,7 +9477,6 @@ x_495 = lean_ctor_get(x_481, 0);
 x_496 = lean_ctor_get(x_481, 1);
 x_497 = lean_string_utf8_byte_size(x_495);
 x_498 = lean_nat_dec_eq(x_496, x_497);
-lean_dec(x_497);
 if (x_498 == 0)
 {
 if (x_488 == 0)
@@ -10142,7 +10120,6 @@ x_603 = lean_ctor_get(x_601, 0);
 x_604 = lean_ctor_get(x_601, 1);
 x_625 = lean_string_utf8_byte_size(x_603);
 x_626 = lean_nat_dec_eq(x_604, x_625);
-lean_dec(x_625);
 if (x_626 == 0)
 {
 x_605 = x_553;
@@ -10210,7 +10187,6 @@ x_614 = lean_ctor_get(x_612, 0);
 x_615 = lean_ctor_get(x_612, 1);
 x_616 = lean_string_utf8_byte_size(x_614);
 x_617 = lean_nat_dec_eq(x_615, x_616);
-lean_dec(x_616);
 if (x_617 == 0)
 {
 lean_inc(x_615);
@@ -10328,7 +10304,6 @@ x_638 = lean_ctor_get(x_632, 0);
 x_639 = lean_ctor_get(x_632, 1);
 x_640 = lean_string_utf8_byte_size(x_638);
 x_641 = lean_nat_dec_eq(x_639, x_640);
-lean_dec(x_640);
 if (x_641 == 0)
 {
 if (x_551 == 0)
@@ -10377,7 +10352,6 @@ x_648 = lean_ctor_get(x_646, 0);
 x_649 = lean_ctor_get(x_646, 1);
 x_650 = lean_string_utf8_byte_size(x_648);
 x_651 = lean_nat_dec_eq(x_649, x_650);
-lean_dec(x_650);
 if (x_651 == 0)
 {
 lean_object* x_652; lean_object* x_653; lean_object* x_654; lean_object* x_655; 
@@ -10419,7 +10393,6 @@ x_658 = lean_ctor_get(x_656, 0);
 x_659 = lean_ctor_get(x_656, 1);
 x_660 = lean_string_utf8_byte_size(x_658);
 x_661 = lean_nat_dec_eq(x_659, x_660);
-lean_dec(x_660);
 if (x_661 == 0)
 {
 lean_object* x_662; lean_object* x_663; lean_object* x_664; lean_object* x_665; 
@@ -10506,7 +10479,6 @@ x_680 = lean_ctor_get(x_666, 0);
 x_681 = lean_ctor_get(x_666, 1);
 x_682 = lean_string_utf8_byte_size(x_680);
 x_683 = lean_nat_dec_eq(x_681, x_682);
-lean_dec(x_682);
 if (x_683 == 0)
 {
 if (x_673 == 0)
@@ -10885,7 +10857,6 @@ x_729 = lean_ctor_get(x_726, 0);
 x_730 = lean_ctor_get(x_726, 1);
 x_731 = lean_string_utf8_byte_size(x_729);
 x_732 = lean_nat_dec_eq(x_730, x_731);
-lean_dec(x_731);
 if (x_732 == 0)
 {
 lean_object* x_733; lean_object* x_734; lean_object* x_735; lean_object* x_736; uint8_t x_737; lean_object* x_738; lean_object* x_739; lean_object* x_746; lean_object* x_752; uint8_t x_753; 
@@ -11236,7 +11207,6 @@ x_805 = lean_ctor_get(x_803, 0);
 x_806 = lean_ctor_get(x_803, 1);
 x_827 = lean_string_utf8_byte_size(x_805);
 x_828 = lean_nat_dec_eq(x_806, x_827);
-lean_dec(x_827);
 if (x_828 == 0)
 {
 x_807 = x_755;
@@ -11304,7 +11274,6 @@ x_816 = lean_ctor_get(x_814, 0);
 x_817 = lean_ctor_get(x_814, 1);
 x_818 = lean_string_utf8_byte_size(x_816);
 x_819 = lean_nat_dec_eq(x_817, x_818);
-lean_dec(x_818);
 if (x_819 == 0)
 {
 lean_inc(x_817);
@@ -11422,7 +11391,6 @@ x_840 = lean_ctor_get(x_834, 0);
 x_841 = lean_ctor_get(x_834, 1);
 x_842 = lean_string_utf8_byte_size(x_840);
 x_843 = lean_nat_dec_eq(x_841, x_842);
-lean_dec(x_842);
 if (x_843 == 0)
 {
 if (x_753 == 0)
@@ -11471,7 +11439,6 @@ x_850 = lean_ctor_get(x_848, 0);
 x_851 = lean_ctor_get(x_848, 1);
 x_852 = lean_string_utf8_byte_size(x_850);
 x_853 = lean_nat_dec_eq(x_851, x_852);
-lean_dec(x_852);
 if (x_853 == 0)
 {
 lean_object* x_854; lean_object* x_855; lean_object* x_856; lean_object* x_857; 
@@ -11513,7 +11480,6 @@ x_860 = lean_ctor_get(x_858, 0);
 x_861 = lean_ctor_get(x_858, 1);
 x_862 = lean_string_utf8_byte_size(x_860);
 x_863 = lean_nat_dec_eq(x_861, x_862);
-lean_dec(x_862);
 if (x_863 == 0)
 {
 lean_object* x_864; lean_object* x_865; lean_object* x_866; lean_object* x_867; 
@@ -11600,7 +11566,6 @@ x_882 = lean_ctor_get(x_868, 0);
 x_883 = lean_ctor_get(x_868, 1);
 x_884 = lean_string_utf8_byte_size(x_882);
 x_885 = lean_nat_dec_eq(x_883, x_884);
-lean_dec(x_884);
 if (x_885 == 0)
 {
 if (x_875 == 0)

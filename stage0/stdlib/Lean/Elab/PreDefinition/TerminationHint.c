@@ -2407,7 +2407,6 @@ x_13 = lean_nat_dec_lt(x_2, x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
-lean_dec(x_12);
 lean_dec_ref(x_6);
 lean_dec(x_2);
 lean_dec(x_1);

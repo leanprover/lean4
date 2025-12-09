@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Iterators.Consumers
-// Imports: public import Init.Data.Iterators.Consumers.Monadic public import Init.Data.Iterators.Consumers.Access public import Init.Data.Iterators.Consumers.Collect public import Init.Data.Iterators.Consumers.Loop public import Init.Data.Iterators.Consumers.Partial public import Init.Data.Iterators.Consumers.Stream
+// Imports: public import Init.Data.Iterators.Consumers.Monadic public import Init.Data.Iterators.Consumers.Access public import Init.Data.Iterators.Consumers.Collect public import Init.Data.Iterators.Consumers.Loop public import Init.Data.Iterators.Consumers.Partial public import Init.Data.Iterators.Consumers.Total public import Init.Data.Iterators.Consumers.Stream
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,7 @@ lean_object* initialize_Init_Data_Iterators_Consumers_Access(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers_Collect(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers_Loop(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers_Partial(uint8_t builtin);
+lean_object* initialize_Init_Data_Iterators_Consumers_Total(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers_Stream(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Iterators_Consumers(uint8_t builtin) {
@@ -37,6 +38,9 @@ res = initialize_Init_Data_Iterators_Consumers_Loop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers_Partial(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Iterators_Consumers_Total(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers_Stream(builtin);

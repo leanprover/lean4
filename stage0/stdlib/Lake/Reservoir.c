@@ -3933,7 +3933,6 @@ x_21 = l_Lake_RegistryVer_fromJson_x3f___closed__4;
 x_22 = lean_unsigned_to_nat(0u);
 x_23 = lean_string_utf8_byte_size(x_20);
 x_24 = l___private_Lake_Util_Version_0__Lake_runVerParse(lean_box(0), x_20, x_21, x_22, x_23);
-lean_dec(x_23);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_25; 

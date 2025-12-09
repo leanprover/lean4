@@ -3909,7 +3909,6 @@ x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_1, 1);
 x_8 = lean_array_get_size(x_6);
 x_9 = lean_nat_dec_lt(x_2, x_8);
-lean_dec(x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -3956,7 +3955,6 @@ lean_inc(x_19);
 lean_dec(x_1);
 x_21 = lean_array_get_size(x_19);
 x_22 = lean_nat_dec_lt(x_2, x_21);
-lean_dec(x_21);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; 
@@ -4024,7 +4022,6 @@ _start:
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_get_size(x_2);
 x_7 = lean_nat_dec_lt(x_4, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_dec(x_4);
@@ -4068,7 +4065,6 @@ x_10 = lean_usize_land(x_2, x_9);
 x_11 = lean_usize_to_nat(x_10);
 x_12 = lean_array_get_size(x_6);
 x_13 = lean_nat_dec_lt(x_11, x_12);
-lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_dec(x_11);
@@ -6686,7 +6682,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_2, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_dec(x_2);
@@ -7428,7 +7423,6 @@ x_26 = lean_nat_dec_lt(x_11, x_25);
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; 
-lean_dec(x_25);
 lean_dec(x_18);
 lean_dec(x_17);
 lean_dec(x_15);
@@ -7450,7 +7444,6 @@ uint8_t x_30;
 x_30 = lean_nat_dec_le(x_25, x_25);
 if (x_30 == 0)
 {
-lean_dec(x_25);
 lean_dec(x_17);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -7465,7 +7458,6 @@ else
 size_t x_31; size_t x_32; lean_object* x_33; lean_object* x_34; 
 x_31 = 0;
 x_32 = lean_usize_of_nat(x_25);
-lean_dec(x_25);
 x_33 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Meta_repeat_x27Core___at___00Lean_Meta_repeat1_x27___at___00__private_Lean_Meta_Tactic_SolveByElim_0__Lean_Meta_SolveByElim_solveByElim_run_spec__0_spec__0_spec__6(x_17, x_31, x_32, x_12, x_4, x_5, x_6, x_7);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -10497,7 +10489,6 @@ x_98 = lean_array_get_size(x_64);
 x_99 = lean_nat_dec_lt(x_97, x_98);
 if (x_99 == 0)
 {
-lean_dec(x_98);
 lean_dec(x_64);
 x_34 = lean_box(0);
 x_35 = x_51;
@@ -10515,7 +10506,6 @@ uint8_t x_100;
 x_100 = lean_nat_dec_le(x_98, x_98);
 if (x_100 == 0)
 {
-lean_dec(x_98);
 lean_dec(x_64);
 x_34 = lean_box(0);
 x_35 = x_51;
@@ -10531,7 +10521,6 @@ else
 {
 size_t x_101; lean_object* x_102; 
 x_101 = lean_usize_of_nat(x_98);
-lean_dec(x_98);
 x_102 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Meta_SolveByElim_mkAssumptionSet_spec__6(x_64, x_62, x_101, x_96);
 lean_dec(x_64);
 x_34 = lean_box(0);

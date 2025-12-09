@@ -11,21 +11,26 @@ import Init.SimpLemmas
 
 @[expose] public section
 
+set_option linter.missingDocs true
+
 /-! # State-indexed values -/
 
 namespace Std.Do
 
 /--
-  A value indexed by a curried tuple of states.
-  ```
-  example : SVal [Nat, Bool] String = (Nat → Bool → String) := rfl
-  ```
+A value indexed by a curried tuple of states.
+
+Example:
+```
+example : SVal [Nat, Bool] String = (Nat → Bool → String) := rfl
+```
 -/
 abbrev SVal (σs : List (Type u)) (α : Type u) : Type u := match σs with
   | [] => α
   | σ :: σs => σ → SVal σs α
 
-/- Note about the reducibility of SVal:
+/-
+Note about the reducibility of SVal:
 We need SVal to be reducible, otherwise type inference fails for `Triple`.
 This is tracked in #8074. There is a fix in #9015, but it regresses Mathlib.
 -/
@@ -43,14 +48,14 @@ instance : Inhabited (StateTuple []) where
 instance [Inhabited σ] [Inhabited (StateTuple σs)] : Inhabited (StateTuple (σ :: σs)) where
   default := (default, default)
 
-/-- Curry a function taking a `StateTuple` into an `SVal`. -/
+/-- Curries a function taking a `StateTuple` into an `SVal`. -/
 def curry {σs : List (Type u)} (f : StateTuple σs → α) : SVal σs α := match σs with
   | [] => f ⟨⟩
   | _ :: _ => fun s => curry (fun s' => f (s, s'))
 @[simp, grind =] theorem curry_nil {f : StateTuple [] → α} : curry f = f ⟨⟩ := rfl
 @[simp, grind =] theorem curry_cons {σ : Type u} {σs : List (Type u)} {f : StateTuple (σ::σs) → α} {s : σ} : curry f s = curry (fun s' => f (s, s')) := rfl
 
-/-- Uncurry an `SVal` into a function taking a `StateTuple`. -/
+/-- Uncurries an `SVal` into a function taking a `StateTuple`. -/
 def uncurry {σs : List (Type u)} (f : SVal σs α) : StateTuple σs → α := match σs with
   | [] => fun _ => f
   | _ :: _ => fun (s, t) => uncurry (f s) t
@@ -63,7 +68,12 @@ def uncurry {σs : List (Type u)} (f : SVal σs α) : StateTuple σs → α := m
 instance [Inhabited α] : Inhabited (SVal σs α) where
   default := curry fun _ => default
 
+/--
+Auxiliary type class used by `SVal.getThe` to construct a projection from a list of state types to
+one of the component states.
+-/
 class GetTy (σ : Type u) (σs : List (Type u)) where
+  /-- A projection from the types `σs` of type `σ`. -/
   get : SVal σs σ
 
 instance : GetTy σ (σ :: σs) where
@@ -72,7 +82,7 @@ instance : GetTy σ (σ :: σs) where
 instance [GetTy σ₁ σs] : GetTy σ₁ (σ₂ :: σs) where
   get := fun _ => GetTy.get
 
-/-- Get the top-most state of type `σ` from an `SVal`. -/
+/-- Gets the top-most state of type `σ` from an `SVal`. -/
 def getThe {σs : List (Type u)} (σ : Type u) [GetTy σ σs] : SVal σs σ := GetTy.get
 @[simp, grind =] theorem getThe_here {σs : List (Type u)} (σ : Type u) (s : σ) : getThe (σs := σ::σs) σ s = curry (fun _ => s) := rfl
 @[simp, grind =] theorem getThe_there {σs : List (Type u)} [GetTy σ σs] (σ' : Type u) (s : σ') : getThe (σs := σ'::σs) σ s = getThe (σs := σs) σ := rfl

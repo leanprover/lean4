@@ -568,7 +568,6 @@ lean_dec(x_14);
 lean_inc(x_15);
 x_17 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort(lean_box(0), x_12, x_10, x_9, x_15, x_15, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_15);
-lean_dec(x_10);
 return x_17;
 }
 else
@@ -576,14 +575,12 @@ else
 lean_object* x_18; 
 x_18 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort(lean_box(0), x_12, x_10, x_9, x_15, x_14, lean_box(0), lean_box(0), lean_box(0));
 lean_dec(x_14);
-lean_dec(x_10);
 return x_18;
 }
 }
 }
 else
 {
-lean_dec(x_10);
 lean_dec_ref(x_4);
 return x_9;
 }
@@ -839,7 +836,6 @@ _start:
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_get_size(x_2);
 x_7 = lean_nat_dec_lt(x_4, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; 
@@ -896,7 +892,6 @@ x_7 = lean_array_get_size(x_5);
 x_8 = lean_nat_dec_lt(x_6, x_7);
 if (x_8 == 0)
 {
-lean_dec(x_7);
 lean_dec_ref(x_5);
 lean_dec_ref(x_1);
 lean_ctor_set_tag(x_2, 1);
@@ -909,7 +904,6 @@ uint8_t x_9;
 x_9 = lean_nat_dec_le(x_7, x_7);
 if (x_9 == 0)
 {
-lean_dec(x_7);
 lean_dec_ref(x_5);
 lean_dec_ref(x_1);
 lean_ctor_set_tag(x_2, 1);
@@ -922,7 +916,6 @@ size_t x_10; size_t x_11; lean_object* x_12;
 lean_free_object(x_2);
 x_10 = 0;
 x_11 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
 x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_PersistentHashMap_forIn___at___00Lean_Meta_collectAboveThreshold___at___00Lean_Meta_mkDiagSummary_spec__1_spec__1_spec__1_spec__1_spec__1___redArg(x_1, x_5, x_10, x_11, x_3);
 lean_dec_ref(x_5);
 return x_12;
@@ -941,7 +934,6 @@ x_16 = lean_nat_dec_lt(x_14, x_15);
 if (x_16 == 0)
 {
 lean_object* x_17; 
-lean_dec(x_15);
 lean_dec_ref(x_13);
 lean_dec_ref(x_1);
 x_17 = lean_alloc_ctor(1, 1, 0);
@@ -955,7 +947,6 @@ x_18 = lean_nat_dec_le(x_15, x_15);
 if (x_18 == 0)
 {
 lean_object* x_19; 
-lean_dec(x_15);
 lean_dec_ref(x_13);
 lean_dec_ref(x_1);
 x_19 = lean_alloc_ctor(1, 1, 0);
@@ -967,7 +958,6 @@ else
 size_t x_20; size_t x_21; lean_object* x_22; 
 x_20 = 0;
 x_21 = lean_usize_of_nat(x_15);
-lean_dec(x_15);
 x_22 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_PersistentHashMap_forIn___at___00Lean_Meta_collectAboveThreshold___at___00Lean_Meta_mkDiagSummary_spec__1_spec__1_spec__1_spec__1_spec__1___redArg(x_1, x_13, x_20, x_21, x_3);
 lean_dec_ref(x_13);
 return x_22;
@@ -2637,7 +2627,6 @@ if (x_10 == 0)
 lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_18; 
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_sub(x_9, x_11);
-lean_dec(x_9);
 x_18 = lean_nat_dec_le(x_6, x_12);
 if (x_18 == 0)
 {
@@ -2674,7 +2663,6 @@ return x_16;
 }
 else
 {
-lean_dec(x_9);
 lean_dec_ref(x_4);
 return x_8;
 }
@@ -3454,7 +3442,6 @@ _start:
 lean_object* x_11; uint8_t x_12; 
 x_11 = lean_array_get_size(x_2);
 x_12 = lean_nat_dec_lt(x_4, x_11);
-lean_dec(x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -3544,7 +3531,6 @@ x_13 = lean_nat_dec_lt(x_11, x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; 
-lean_dec(x_12);
 lean_dec_ref(x_10);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -3564,7 +3550,6 @@ x_15 = lean_nat_dec_le(x_12, x_12);
 if (x_15 == 0)
 {
 lean_object* x_16; 
-lean_dec(x_12);
 lean_dec_ref(x_10);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -3583,7 +3568,6 @@ size_t x_17; size_t x_18; lean_object* x_19;
 lean_free_object(x_2);
 x_17 = 0;
 x_18 = lean_usize_of_nat(x_12);
-lean_dec(x_12);
 x_19 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_PersistentHashMap_forIn___at___00Lean_Meta_mkDiagSynthPendingFailure_spec__1_spec__1_spec__1_spec__1___redArg(x_1, x_10, x_17, x_18, x_3, x_4, x_5, x_6, x_7);
 lean_dec_ref(x_10);
 return x_19;
@@ -3602,7 +3586,6 @@ x_23 = lean_nat_dec_lt(x_21, x_22);
 if (x_23 == 0)
 {
 lean_object* x_24; lean_object* x_25; 
-lean_dec(x_22);
 lean_dec_ref(x_20);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -3622,7 +3605,6 @@ x_26 = lean_nat_dec_le(x_22, x_22);
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; 
-lean_dec(x_22);
 lean_dec_ref(x_20);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -3640,7 +3622,6 @@ else
 size_t x_29; size_t x_30; lean_object* x_31; 
 x_29 = 0;
 x_30 = lean_usize_of_nat(x_22);
-lean_dec(x_22);
 x_31 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_PersistentHashMap_forIn___at___00Lean_Meta_mkDiagSynthPendingFailure_spec__1_spec__1_spec__1_spec__1___redArg(x_1, x_20, x_29, x_30, x_3, x_4, x_5, x_6, x_7);
 lean_dec_ref(x_20);
 return x_31;

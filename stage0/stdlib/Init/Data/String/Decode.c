@@ -1326,7 +1326,6 @@ x_4 = lean_nat_dec_lt(x_2, x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; 
-lean_dec(x_3);
 x_5 = lean_box(0);
 return x_5;
 }
@@ -1360,7 +1359,6 @@ x_20 = lean_uint8_dec_eq(x_19, x_15);
 if (x_20 == 0)
 {
 lean_object* x_21; 
-lean_dec(x_3);
 x_21 = lean_box(0);
 return x_21;
 }
@@ -1370,7 +1368,6 @@ lean_object* x_22; lean_object* x_23; uint8_t x_24;
 x_22 = lean_unsigned_to_nat(3u);
 x_23 = lean_nat_add(x_2, x_22);
 x_24 = lean_nat_dec_lt(x_23, x_3);
-lean_dec(x_3);
 if (x_24 == 0)
 {
 lean_object* x_25; 
@@ -1485,7 +1482,6 @@ lean_object* x_69; lean_object* x_70; uint8_t x_71;
 x_69 = lean_unsigned_to_nat(2u);
 x_70 = lean_nat_add(x_2, x_69);
 x_71 = lean_nat_dec_lt(x_70, x_3);
-lean_dec(x_3);
 if (x_71 == 0)
 {
 lean_object* x_72; 
@@ -1592,7 +1588,6 @@ lean_object* x_109; lean_object* x_110; uint8_t x_111;
 x_109 = lean_unsigned_to_nat(1u);
 x_110 = lean_nat_add(x_2, x_109);
 x_111 = lean_nat_dec_lt(x_110, x_3);
-lean_dec(x_3);
 if (x_111 == 0)
 {
 lean_object* x_112; 
@@ -1648,7 +1643,6 @@ return x_130;
 else
 {
 uint32_t x_131; lean_object* x_132; lean_object* x_133; 
-lean_dec(x_3);
 x_131 = lean_uint8_to_uint32(x_6);
 x_132 = lean_box_uint32(x_131);
 x_133 = lean_alloc_ctor(1, 1, 0);
@@ -1676,7 +1670,6 @@ x_3 = lean_byte_array_size(x_1);
 x_4 = lean_nat_dec_lt(x_2, x_3);
 if (x_4 == 0)
 {
-lean_dec(x_3);
 return x_4;
 }
 else
@@ -1708,7 +1701,6 @@ x_18 = lean_uint8_land(x_5, x_17);
 x_19 = lean_uint8_dec_eq(x_18, x_14);
 if (x_19 == 0)
 {
-lean_dec(x_3);
 return x_19;
 }
 else
@@ -1717,7 +1709,6 @@ lean_object* x_20; lean_object* x_21; uint8_t x_22;
 x_20 = lean_unsigned_to_nat(3u);
 x_21 = lean_nat_add(x_2, x_20);
 x_22 = lean_nat_dec_lt(x_21, x_3);
-lean_dec(x_3);
 if (x_22 == 0)
 {
 lean_dec(x_21);
@@ -1816,7 +1807,6 @@ lean_object* x_59; lean_object* x_60; uint8_t x_61;
 x_59 = lean_unsigned_to_nat(2u);
 x_60 = lean_nat_add(x_2, x_59);
 x_61 = lean_nat_dec_lt(x_60, x_3);
-lean_dec(x_3);
 if (x_61 == 0)
 {
 lean_dec(x_60);
@@ -1905,7 +1895,6 @@ lean_object* x_90; lean_object* x_91; uint8_t x_92;
 x_90 = lean_unsigned_to_nat(1u);
 x_91 = lean_nat_add(x_2, x_90);
 x_92 = lean_nat_dec_lt(x_91, x_3);
-lean_dec(x_3);
 if (x_92 == 0)
 {
 lean_dec(x_91);
@@ -1943,7 +1932,6 @@ return x_106;
 }
 else
 {
-lean_dec(x_3);
 return x_9;
 }
 }
@@ -2076,7 +2064,6 @@ x_20 = lean_uint8_dec_eq(x_19, x_15);
 x_21 = lean_unsigned_to_nat(3u);
 x_22 = lean_nat_add(x_2, x_21);
 x_23 = lean_nat_dec_lt(x_22, x_4);
-lean_dec(x_4);
 x_24 = lean_unsigned_to_nat(1u);
 x_25 = lean_nat_add(x_2, x_24);
 x_26 = lean_byte_array_fget(x_1, x_25);
@@ -2124,7 +2111,6 @@ lean_object* x_60; lean_object* x_61; uint8_t x_62; lean_object* x_63; lean_obje
 x_60 = lean_unsigned_to_nat(2u);
 x_61 = lean_nat_add(x_2, x_60);
 x_62 = lean_nat_dec_lt(x_61, x_4);
-lean_dec(x_4);
 x_63 = lean_unsigned_to_nat(1u);
 x_64 = lean_nat_add(x_2, x_63);
 x_65 = lean_byte_array_fget(x_1, x_64);
@@ -2172,7 +2158,6 @@ lean_object* x_91; lean_object* x_92; uint8_t x_93; uint8_t x_94; uint8_t x_95; 
 x_91 = lean_unsigned_to_nat(1u);
 x_92 = lean_nat_add(x_2, x_91);
 x_93 = lean_nat_dec_lt(x_92, x_4);
-lean_dec(x_4);
 x_94 = lean_byte_array_fget(x_1, x_92);
 lean_dec(x_92);
 x_95 = lean_uint8_land(x_94, x_13);
@@ -2194,7 +2179,6 @@ return x_105;
 else
 {
 uint32_t x_108; 
-lean_dec(x_4);
 x_108 = lean_uint8_to_uint32(x_6);
 return x_108;
 }
@@ -2233,7 +2217,6 @@ x_19 = lean_uint8_dec_eq(x_18, x_14);
 x_20 = lean_unsigned_to_nat(3u);
 x_21 = lean_nat_add(x_2, x_20);
 x_22 = lean_nat_dec_lt(x_21, x_3);
-lean_dec(x_3);
 x_23 = lean_unsigned_to_nat(1u);
 x_24 = lean_nat_add(x_2, x_23);
 x_25 = lean_byte_array_fget(x_1, x_24);
@@ -2281,7 +2264,6 @@ lean_object* x_59; lean_object* x_60; uint8_t x_61; lean_object* x_62; lean_obje
 x_59 = lean_unsigned_to_nat(2u);
 x_60 = lean_nat_add(x_2, x_59);
 x_61 = lean_nat_dec_lt(x_60, x_3);
-lean_dec(x_3);
 x_62 = lean_unsigned_to_nat(1u);
 x_63 = lean_nat_add(x_2, x_62);
 x_64 = lean_byte_array_fget(x_1, x_63);
@@ -2329,7 +2311,6 @@ lean_object* x_90; lean_object* x_91; uint8_t x_92; uint8_t x_93; uint8_t x_94; 
 x_90 = lean_unsigned_to_nat(1u);
 x_91 = lean_nat_add(x_2, x_90);
 x_92 = lean_nat_dec_lt(x_91, x_3);
-lean_dec(x_3);
 x_93 = lean_byte_array_fget(x_1, x_91);
 lean_dec(x_91);
 x_94 = lean_uint8_land(x_93, x_12);
@@ -2351,7 +2332,6 @@ return x_104;
 else
 {
 uint32_t x_107; 
-lean_dec(x_3);
 x_107 = lean_uint8_to_uint32(x_5);
 return x_107;
 }

@@ -3207,7 +3207,7 @@ x_11 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___redArg(x_8, x_6, x_4, x_3
 x_12 = lean_array_fget_borrowed(x_2, x_3);
 if (lean_obj_tag(x_12) == 2)
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; uint8_t x_19; uint8_t x_43; lean_object* x_50; lean_object* x_51; uint8_t x_52; 
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; uint8_t x_19; uint8_t x_43; lean_object* x_50; lean_object* x_51; uint8_t x_52; 
 x_13 = lean_ctor_get(x_12, 0);
 x_14 = lean_ctor_get(x_12, 1);
 x_15 = lean_unsigned_to_nat(1u);
@@ -3239,7 +3239,7 @@ lean_inc(x_16);
 x_23 = l_Nat_reprFast(x_16);
 x_24 = lean_string_append(x_22, x_23);
 lean_dec_ref(x_23);
-x_25 = l_Std_Sat_AIG_toGraphviz_invEdgeStyle(x_18);
+x_25 = l_Std_Sat_AIG_toGraphviz_invEdgeStyle(x_17);
 x_26 = lean_string_append(x_24, x_25);
 lean_dec_ref(x_25);
 x_27 = l_Std_Sat_AIG_toGraphviz_go___redArg___closed__2;
@@ -3247,8 +3247,8 @@ x_28 = lean_string_append(x_26, x_27);
 x_29 = lean_string_append(x_28, x_20);
 lean_dec_ref(x_20);
 x_30 = lean_string_append(x_29, x_21);
-lean_inc(x_17);
-x_31 = l_Nat_reprFast(x_17);
+lean_inc(x_18);
+x_31 = l_Nat_reprFast(x_18);
 x_32 = lean_string_append(x_30, x_31);
 lean_dec_ref(x_31);
 x_33 = l_Std_Sat_AIG_toGraphviz_invEdgeStyle(x_19);
@@ -3265,7 +3265,7 @@ x_40 = lean_ctor_get(x_38, 1);
 lean_inc(x_40);
 lean_dec_ref(x_38);
 x_1 = x_39;
-x_3 = x_17;
+x_3 = x_18;
 x_4 = x_40;
 goto _start;
 }
@@ -3281,15 +3281,15 @@ if (x_47 == 0)
 {
 uint8_t x_48; 
 x_48 = 1;
-x_17 = x_44;
-x_18 = x_43;
+x_17 = x_43;
+x_18 = x_44;
 x_19 = x_48;
 goto block_42;
 }
 else
 {
-x_17 = x_44;
-x_18 = x_43;
+x_17 = x_43;
+x_18 = x_44;
 x_19 = x_9;
 goto block_42;
 }
@@ -3715,7 +3715,6 @@ x_22 = lean_array_get_size(x_21);
 x_23 = lean_nat_dec_lt(x_8, x_22);
 if (x_23 == 0)
 {
-lean_dec(x_22);
 lean_dec_ref(x_21);
 lean_dec_ref(x_5);
 lean_dec_ref(x_1);
@@ -3728,7 +3727,6 @@ uint8_t x_24;
 x_24 = lean_nat_dec_le(x_22, x_22);
 if (x_24 == 0)
 {
-lean_dec(x_22);
 lean_dec_ref(x_21);
 lean_dec_ref(x_5);
 lean_dec_ref(x_1);
@@ -3746,7 +3744,6 @@ lean_closure_set(x_26, 0, x_20);
 lean_closure_set(x_26, 1, x_25);
 x_27 = 0;
 x_28 = lean_usize_of_nat(x_22);
-lean_dec(x_22);
 x_29 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_20, x_26, x_21, x_27, x_28, x_7);
 x_13 = x_29;
 goto block_19;

@@ -90,8 +90,7 @@ public def throwUnknownConstantWithSuggestions (constName : Name) : CoreM α := 
         let modified := modifySuggestion suggestion
         {
           suggestion := s!"{modified}",
-          toCodeActionTitle? := .some (s!"Suggested replacement: {·}"),
-          diffGranularity := .all,
-          -- messageData? := .some m!"replace `{.ofName rawId}` with `{.ofName modified}`",
+          toCodeActionTitle? := .some (s!"Change to {·}"),
+          messageData? := .some m!"`{.ofConstName suggestion}`",
         }) ref
   throwUnknownIdentifierAt (declHint := constName) ref (m!"Unknown constant `{.ofConstName constName}`" ++ hint)

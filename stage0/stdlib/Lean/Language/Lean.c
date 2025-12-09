@@ -3513,7 +3513,6 @@ x_66 = lean_ctor_get(x_65, 1);
 lean_inc_ref(x_66);
 x_67 = lean_string_utf8_byte_size(x_64);
 x_68 = lean_nat_dec_eq(x_67, x_14);
-lean_dec(x_67);
 if (x_68 == 0)
 {
 lean_object* x_69; uint8_t x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; 
@@ -3737,7 +3736,6 @@ x_139 = lean_ctor_get(x_138, 1);
 lean_inc_ref(x_139);
 x_140 = lean_string_utf8_byte_size(x_137);
 x_141 = lean_nat_dec_eq(x_140, x_87);
-lean_dec(x_140);
 if (x_141 == 0)
 {
 lean_object* x_142; uint8_t x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; 
@@ -7953,7 +7951,6 @@ x_203 = lean_array_get_size(x_201);
 x_204 = lean_nat_dec_lt(x_202, x_203);
 if (x_204 == 0)
 {
-lean_dec(x_203);
 lean_dec_ref(x_201);
 x_9 = x_182;
 x_10 = x_185;
@@ -7966,7 +7963,6 @@ uint8_t x_205;
 x_205 = lean_nat_dec_le(x_203, x_203);
 if (x_205 == 0)
 {
-lean_dec(x_203);
 lean_dec_ref(x_201);
 x_9 = x_182;
 x_10 = x_185;
@@ -7979,7 +7975,6 @@ lean_object* x_206; size_t x_207; size_t x_208; lean_object* x_209;
 x_206 = lean_box(0);
 x_207 = 0;
 x_208 = lean_usize_of_nat(x_203);
-lean_dec(x_203);
 x_209 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Language_Lean_0__Lean_Language_Lean_process_parseCmd_spec__8___redArg(x_201, x_207, x_208, x_206);
 lean_dec_ref(x_201);
 x_9 = x_182;

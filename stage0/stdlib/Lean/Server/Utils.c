@@ -1054,7 +1054,6 @@ x_10 = lean_string_utf8_extract(x_6, x_9, x_7);
 lean_dec(x_7);
 x_11 = lean_string_utf8_byte_size(x_6);
 x_12 = lean_string_utf8_extract(x_6, x_8, x_11);
-lean_dec(x_11);
 lean_dec(x_8);
 x_13 = l_String_crlfToLf(x_3);
 x_14 = lean_string_append(x_10, x_13);
@@ -1144,7 +1143,6 @@ x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
-lean_dec(x_4);
 return x_2;
 }
 else
@@ -1153,7 +1151,6 @@ uint8_t x_6;
 x_6 = lean_nat_dec_le(x_4, x_4);
 if (x_6 == 0)
 {
-lean_dec(x_4);
 return x_2;
 }
 else
@@ -1161,7 +1158,6 @@ else
 size_t x_7; size_t x_8; lean_object* x_9; 
 x_7 = 0;
 x_8 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_9 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_foldDocumentChanges_spec__0(x_1, x_7, x_8, x_2);
 return x_9;
 }
@@ -1289,7 +1285,6 @@ x_6 = l_Lean_FileMap_utf8PosToLspPos(x_4, x_2);
 x_7 = lean_string_utf8_byte_size(x_5);
 lean_inc_ref(x_4);
 x_8 = l_Lean_FileMap_utf8PosToLspPos(x_4, x_7);
-lean_dec(x_7);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_6);
 lean_ctor_set(x_9, 1, x_8);
@@ -1419,7 +1414,6 @@ x_5 = lean_nat_dec_le(x_4, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; 
-lean_dec(x_3);
 lean_dec_ref(x_1);
 x_6 = lean_box(0);
 return x_6;
@@ -1432,7 +1426,6 @@ x_8 = lean_string_memcmp(x_1, x_2, x_7, x_7, x_4);
 if (x_8 == 0)
 {
 lean_object* x_9; 
-lean_dec(x_3);
 lean_dec_ref(x_1);
 x_9 = lean_box(0);
 return x_9;
@@ -1440,7 +1433,6 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-lean_inc(x_3);
 lean_inc_ref(x_1);
 x_10 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_10, 0, x_1);

@@ -997,7 +997,6 @@ goto block_24;
 }
 else
 {
-lean_dec(x_27);
 x_20 = x_26;
 goto block_24;
 }
@@ -3006,7 +3005,6 @@ goto block_47;
 }
 else
 {
-lean_dec(x_70);
 x_9 = x_59;
 x_10 = x_64;
 x_11 = x_57;
@@ -6722,7 +6720,6 @@ x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_string_utf8_byte_size(x_15);
 x_18 = lean_unsigned_to_nat(2u);
 x_19 = lean_nat_sub(x_17, x_18);
-lean_dec(x_17);
 x_20 = lean_string_utf8_extract(x_15, x_16, x_19);
 lean_dec(x_19);
 lean_dec_ref(x_15);

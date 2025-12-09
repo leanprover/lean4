@@ -1409,7 +1409,6 @@ x_28 = lean_ctor_get(x_25, 0);
 x_29 = lean_array_get_size(x_1);
 x_30 = lean_nat_add(x_29, x_27);
 lean_dec(x_27);
-lean_dec(x_29);
 x_31 = l_Array_append___redArg(x_1, x_28);
 lean_dec_ref(x_28);
 lean_ctor_set(x_25, 0, x_31);
@@ -1431,7 +1430,6 @@ lean_dec(x_25);
 x_37 = lean_array_get_size(x_1);
 x_38 = lean_nat_add(x_37, x_32);
 lean_dec(x_32);
-lean_dec(x_37);
 x_39 = l_Array_append___redArg(x_1, x_33);
 lean_dec_ref(x_33);
 x_40 = lean_alloc_ctor(0, 3, 1);
@@ -1471,7 +1469,6 @@ if (lean_is_exclusive(x_41)) {
 x_48 = lean_array_get_size(x_1);
 x_49 = lean_nat_add(x_48, x_42);
 lean_dec(x_42);
-lean_dec(x_48);
 x_50 = l_Array_append___redArg(x_1, x_43);
 lean_dec_ref(x_43);
 if (lean_is_scalar(x_47)) {
@@ -1990,7 +1987,6 @@ x_7 = lean_ctor_get_uint8(x_3, sizeof(void*)*3);
 x_8 = lean_string_utf8_byte_size(x_6);
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = lean_nat_dec_eq(x_8, x_9);
-lean_dec(x_8);
 if (x_10 == 0)
 {
 lean_dec_ref(x_2);
@@ -2039,7 +2035,6 @@ x_6 = lean_ctor_get_uint8(x_2, sizeof(void*)*3);
 x_7 = lean_string_utf8_byte_size(x_5);
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_nat_dec_eq(x_7, x_8);
-lean_dec(x_7);
 if (x_9 == 0)
 {
 lean_dec_ref(x_1);

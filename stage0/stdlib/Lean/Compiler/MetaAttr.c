@@ -572,7 +572,6 @@ if (x_9 == 0)
 lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_17; 
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_sub(x_8, x_10);
-lean_dec(x_8);
 x_17 = lean_nat_dec_le(x_1, x_11);
 if (x_17 == 0)
 {
@@ -610,7 +609,6 @@ return x_15;
 }
 else
 {
-lean_dec(x_8);
 lean_dec(x_1);
 return x_7;
 }
@@ -931,7 +929,6 @@ x_22 = lean_array_get_size(x_20);
 x_23 = lean_nat_dec_lt(x_21, x_22);
 if (x_23 == 0)
 {
-lean_dec(x_22);
 lean_dec_ref(x_20);
 return x_6;
 }
@@ -940,7 +937,6 @@ else
 lean_object* x_24; lean_object* x_25; uint8_t x_26; 
 x_24 = lean_unsigned_to_nat(1u);
 x_25 = lean_nat_sub(x_22, x_24);
-lean_dec(x_22);
 x_26 = lean_nat_dec_le(x_21, x_25);
 if (x_26 == 0)
 {
@@ -1223,7 +1219,6 @@ if (x_19 == 0)
 lean_object* x_20; uint8_t x_21; 
 x_20 = lean_array_get_size(x_6);
 x_21 = lean_nat_dec_lt(x_18, x_20);
-lean_dec(x_20);
 if (x_21 == 0)
 {
 lean_object* x_22; uint8_t x_23; 

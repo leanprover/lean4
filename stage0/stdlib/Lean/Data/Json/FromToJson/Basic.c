@@ -1290,7 +1290,6 @@ x_13 = lean_ctor_get(x_3, 0);
 x_14 = lean_array_get_size(x_13);
 x_15 = lean_unsigned_to_nat(2u);
 x_16 = lean_nat_dec_eq(x_14, x_15);
-lean_dec(x_14);
 if (x_16 == 0)
 {
 lean_dec_ref(x_2);
@@ -3225,7 +3224,6 @@ return x_35;
 }
 else
 {
-lean_dec(x_17);
 lean_dec(x_3);
 return x_15;
 }
@@ -3296,7 +3294,6 @@ return x_53;
 }
 else
 {
-lean_dec(x_43);
 lean_dec(x_3);
 return x_41;
 }

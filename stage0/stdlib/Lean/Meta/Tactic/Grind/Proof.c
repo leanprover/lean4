@@ -2904,7 +2904,6 @@ if (x_35 == 0)
 lean_object* x_36; uint8_t x_37; 
 x_36 = lean_array_get_size(x_1);
 x_37 = lean_nat_dec_lt(x_21, x_36);
-lean_dec(x_36);
 if (x_37 == 0)
 {
 lean_object* x_38; lean_object* x_39; 
@@ -9243,7 +9242,6 @@ lean_dec_ref(x_16);
 x_18 = lean_ctor_get(x_17, 2);
 x_19 = lean_array_get_size(x_18);
 x_20 = lean_nat_dec_eq(x_19, x_3);
-lean_dec(x_19);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 

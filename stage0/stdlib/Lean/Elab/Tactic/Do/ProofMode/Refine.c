@@ -1206,7 +1206,6 @@ lean_object* x_3; lean_object* x_4; uint8_t x_5;
 x_3 = lean_unsigned_to_nat(3u);
 x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_le(x_3, x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -3741,7 +3740,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_2, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_dec(x_2);
@@ -4362,7 +4360,6 @@ x_10 = lean_uint64_shift_right(x_8, x_9);
 x_11 = lean_uint64_xor(x_8, x_10);
 x_12 = lean_uint64_to_usize(x_11);
 x_13 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_14 = 1;
 x_15 = lean_usize_sub(x_13, x_14);
 x_16 = lean_usize_land(x_12, x_15);
@@ -4408,7 +4405,6 @@ lean_inc_ref(x_20);
 lean_dec_ref(x_19);
 x_21 = lean_array_get_size(x_20);
 x_22 = lean_nat_dec_lt(x_18, x_21);
-lean_dec(x_21);
 if (x_22 == 0)
 {
 lean_dec_ref(x_20);
@@ -5036,7 +5032,6 @@ x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_1, 1);
 x_8 = lean_array_get_size(x_6);
 x_9 = lean_nat_dec_lt(x_2, x_8);
-lean_dec(x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -5083,7 +5078,6 @@ lean_inc(x_19);
 lean_dec(x_1);
 x_21 = lean_array_get_size(x_19);
 x_22 = lean_nat_dec_lt(x_2, x_21);
-lean_dec(x_21);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; 
@@ -5151,7 +5145,6 @@ _start:
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_get_size(x_2);
 x_7 = lean_nat_dec_lt(x_4, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_dec(x_4);
@@ -5195,7 +5188,6 @@ x_10 = lean_usize_land(x_2, x_9);
 x_11 = lean_usize_to_nat(x_10);
 x_12 = lean_array_get_size(x_6);
 x_13 = lean_nat_dec_lt(x_11, x_12);
-lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_dec(x_11);
@@ -7149,7 +7141,6 @@ x_72 = lean_array_get_size(x_24);
 x_73 = lean_nat_dec_lt(x_26, x_72);
 if (x_73 == 0)
 {
-lean_dec(x_72);
 lean_dec(x_24);
 x_29 = x_71;
 x_30 = lean_box(0);
@@ -7161,7 +7152,6 @@ lean_object* x_74; lean_object* x_75; size_t x_76; lean_object* x_77; lean_objec
 x_74 = lean_box(0);
 x_75 = l_Lean_Elab_Tactic_Do_ProofMode_elabMExists___closed__23;
 x_76 = lean_usize_of_nat(x_72);
-lean_dec(x_72);
 x_77 = l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00Lean_Elab_Tactic_Do_ProofMode_elabMExists_spec__1(x_74, x_11, x_12, x_13, x_75, x_24, x_76, x_22, x_71, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_24);
 x_78 = lean_ctor_get(x_77, 0);

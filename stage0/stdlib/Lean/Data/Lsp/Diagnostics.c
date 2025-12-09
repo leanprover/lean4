@@ -5977,10 +5977,8 @@ x_7 = lean_ctor_get(x_2, 0);
 x_8 = lean_array_get_size(x_6);
 x_9 = lean_array_get_size(x_7);
 x_10 = lean_nat_dec_eq(x_8, x_9);
-lean_dec(x_9);
 if (x_10 == 0)
 {
-lean_dec(x_8);
 return x_10;
 }
 else
@@ -6062,10 +6060,8 @@ x_7 = lean_ctor_get(x_2, 0);
 x_8 = lean_array_get_size(x_6);
 x_9 = lean_array_get_size(x_7);
 x_10 = lean_nat_dec_eq(x_8, x_9);
-lean_dec(x_9);
 if (x_10 == 0)
 {
-lean_dec(x_8);
 return x_10;
 }
 else
@@ -6145,10 +6141,8 @@ x_7 = lean_ctor_get(x_2, 0);
 x_8 = lean_array_get_size(x_6);
 x_9 = lean_array_get_size(x_7);
 x_10 = lean_nat_dec_eq(x_8, x_9);
-lean_dec(x_9);
 if (x_10 == 0)
 {
-lean_dec(x_8);
 return x_10;
 }
 else
@@ -6449,10 +6443,8 @@ lean_object* x_11; lean_object* x_12; uint8_t x_13;
 x_11 = lean_array_get_size(x_5);
 x_12 = lean_array_get_size(x_8);
 x_13 = lean_nat_dec_eq(x_11, x_12);
-lean_dec(x_12);
 if (x_13 == 0)
 {
-lean_dec(x_11);
 return x_13;
 }
 else

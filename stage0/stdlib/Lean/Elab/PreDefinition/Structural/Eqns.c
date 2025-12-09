@@ -931,7 +931,6 @@ x_42 = lean_array_get_size(x_4);
 x_43 = lean_nat_dec_le(x_41, x_42);
 if (x_43 == 0)
 {
-lean_dec(x_42);
 lean_dec(x_41);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
@@ -979,7 +978,6 @@ else
 {
 uint8_t x_54; 
 lean_dec_ref(x_47);
-lean_dec(x_42);
 lean_dec(x_41);
 lean_dec(x_9);
 lean_dec_ref(x_8);
@@ -1209,7 +1207,6 @@ x_42 = lean_array_get_size(x_4);
 x_43 = lean_nat_dec_le(x_41, x_42);
 if (x_43 == 0)
 {
-lean_dec(x_42);
 lean_dec(x_41);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
@@ -1257,7 +1254,6 @@ else
 {
 uint8_t x_54; 
 lean_dec_ref(x_47);
-lean_dec(x_42);
 lean_dec(x_41);
 lean_dec(x_9);
 lean_dec_ref(x_8);
@@ -5264,7 +5260,6 @@ x_113 = lean_nat_dec_lt(x_68, x_111);
 if (x_113 == 0)
 {
 lean_object* x_114; 
-lean_dec(x_111);
 lean_dec(x_109);
 lean_dec_ref(x_108);
 lean_dec(x_107);
@@ -5286,7 +5281,6 @@ x_115 = lean_nat_dec_le(x_111, x_111);
 if (x_115 == 0)
 {
 lean_object* x_116; 
-lean_dec(x_111);
 lean_dec(x_109);
 lean_dec_ref(x_108);
 lean_dec(x_107);
@@ -5307,7 +5301,6 @@ size_t x_117; size_t x_118; lean_object* x_119;
 lean_dec(x_104);
 x_117 = 0;
 x_118 = lean_usize_of_nat(x_111);
-lean_dec(x_111);
 x_119 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkProof_go_spec__2(x_3, x_105, x_117, x_118, x_112, x_106, x_107, x_108, x_109);
 lean_dec(x_105);
 return x_119;
@@ -5674,7 +5667,6 @@ x_186 = lean_nat_dec_lt(x_68, x_184);
 if (x_186 == 0)
 {
 lean_object* x_187; 
-lean_dec(x_184);
 lean_dec(x_182);
 lean_dec_ref(x_181);
 lean_dec(x_180);
@@ -5696,7 +5688,6 @@ x_188 = lean_nat_dec_le(x_184, x_184);
 if (x_188 == 0)
 {
 lean_object* x_189; 
-lean_dec(x_184);
 lean_dec(x_182);
 lean_dec_ref(x_181);
 lean_dec(x_180);
@@ -5717,7 +5708,6 @@ size_t x_190; size_t x_191; lean_object* x_192;
 lean_dec(x_177);
 x_190 = 0;
 x_191 = lean_usize_of_nat(x_184);
-lean_dec(x_184);
 x_192 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkProof_go_spec__2(x_3, x_178, x_190, x_191, x_185, x_179, x_180, x_181, x_182);
 lean_dec(x_178);
 return x_192;

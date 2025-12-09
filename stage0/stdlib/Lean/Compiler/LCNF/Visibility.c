@@ -414,7 +414,6 @@ x_21 = lean_array_get_size(x_19);
 x_22 = lean_nat_dec_lt(x_20, x_21);
 if (x_22 == 0)
 {
-lean_dec(x_21);
 lean_dec_ref(x_19);
 return x_2;
 }
@@ -424,7 +423,6 @@ uint8_t x_23;
 x_23 = lean_nat_dec_le(x_21, x_21);
 if (x_23 == 0)
 {
-lean_dec(x_21);
 lean_dec_ref(x_19);
 return x_2;
 }
@@ -433,7 +431,6 @@ else
 size_t x_24; size_t x_25; lean_object* x_26; 
 x_24 = 0;
 x_25 = lean_usize_of_nat(x_21);
-lean_dec(x_21);
 x_26 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_collectUsedDecls_spec__0(x_19, x_24, x_25, x_2);
 lean_dec_ref(x_19);
 return x_26;
@@ -2883,7 +2880,6 @@ x_178 = lean_ctor_get(x_154, 3);
 lean_inc_ref(x_178);
 x_179 = lean_array_get_size(x_178);
 x_180 = lean_nat_dec_lt(x_152, x_179);
-lean_dec(x_179);
 if (x_180 == 0)
 {
 lean_dec_ref(x_178);
@@ -3007,7 +3003,6 @@ x_207 = lean_ctor_get(x_184, 3);
 lean_inc_ref(x_207);
 x_208 = lean_array_get_size(x_207);
 x_209 = lean_nat_dec_lt(x_152, x_208);
-lean_dec(x_208);
 if (x_209 == 0)
 {
 lean_dec_ref(x_207);
@@ -4079,7 +4074,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_2, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_dec(x_2);
@@ -4207,7 +4201,6 @@ _start:
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_array_get_size(x_1);
 x_6 = lean_nat_dec_lt(x_3, x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; 
@@ -5397,7 +5390,6 @@ x_10 = lean_uint64_shift_right(x_8, x_9);
 x_11 = lean_uint64_xor(x_8, x_10);
 x_12 = lean_uint64_to_usize(x_11);
 x_13 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_14 = 1;
 x_15 = lean_usize_sub(x_13, x_14);
 x_16 = lean_usize_land(x_12, x_15);
@@ -6165,7 +6157,6 @@ lean_inc_ref(x_18);
 lean_dec_ref(x_17);
 x_19 = lean_array_get_size(x_18);
 x_20 = lean_nat_dec_lt(x_16, x_19);
-lean_dec(x_19);
 if (x_20 == 0)
 {
 lean_dec_ref(x_18);
@@ -6586,7 +6577,6 @@ lean_inc_ref(x_99);
 lean_dec_ref(x_98);
 x_100 = lean_array_get_size(x_99);
 x_101 = lean_nat_dec_lt(x_54, x_100);
-lean_dec(x_100);
 if (x_101 == 0)
 {
 lean_dec_ref(x_99);
@@ -7061,7 +7051,6 @@ lean_inc_ref(x_99);
 lean_dec_ref(x_98);
 x_100 = lean_array_get_size(x_99);
 x_101 = lean_nat_dec_lt(x_54, x_100);
-lean_dec(x_100);
 if (x_101 == 0)
 {
 lean_dec_ref(x_99);

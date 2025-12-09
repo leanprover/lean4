@@ -2494,7 +2494,6 @@ x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_1, 1);
 x_8 = lean_array_get_size(x_6);
 x_9 = lean_nat_dec_lt(x_2, x_8);
-lean_dec(x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -2541,7 +2540,6 @@ lean_inc(x_19);
 lean_dec(x_1);
 x_21 = lean_array_get_size(x_19);
 x_22 = lean_nat_dec_lt(x_2, x_21);
-lean_dec(x_21);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; 
@@ -2609,7 +2607,6 @@ _start:
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_get_size(x_2);
 x_7 = lean_nat_dec_lt(x_4, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_dec(x_4);
@@ -2653,7 +2650,6 @@ x_10 = lean_usize_land(x_2, x_9);
 x_11 = lean_usize_to_nat(x_10);
 x_12 = lean_array_get_size(x_6);
 x_13 = lean_nat_dec_lt(x_11, x_12);
-lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_dec(x_11);
@@ -3300,7 +3296,6 @@ _start:
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_array_get_size(x_1);
 x_4 = lean_nat_dec_lt(x_2, x_3);
-lean_dec(x_3);
 if (x_4 == 0)
 {
 uint8_t x_5; 
@@ -4029,7 +4024,6 @@ lean_inc_ref(x_128);
 lean_dec_ref(x_127);
 x_129 = lean_array_get_size(x_128);
 x_130 = lean_nat_dec_eq(x_129, x_99);
-lean_dec(x_129);
 if (x_130 == 0)
 {
 lean_free_object(x_123);
@@ -4296,7 +4290,6 @@ goto block_97;
 }
 else
 {
-lean_dec(x_191);
 x_51 = x_110;
 x_52 = x_104;
 x_53 = x_102;
@@ -4367,7 +4360,6 @@ lean_inc_ref(x_204);
 lean_dec_ref(x_203);
 x_205 = lean_array_get_size(x_204);
 x_206 = lean_nat_dec_eq(x_205, x_99);
-lean_dec(x_205);
 if (x_206 == 0)
 {
 lean_dec_ref(x_115);
@@ -4557,7 +4549,6 @@ goto block_97;
 }
 else
 {
-lean_dec(x_239);
 x_51 = x_110;
 x_52 = x_104;
 x_53 = x_102;
@@ -5041,7 +5032,6 @@ x_397 = lean_array_get_size(x_396);
 x_398 = lean_mk_empty_array_with_capacity(x_397);
 lean_inc_ref(x_348);
 x_399 = l_Array_mapFinIdxM_map___at___00Lean_Elab_Tactic_Conv_evalPattern_spec__13___redArg(x_396, x_397, x_99, x_398, x_342, x_343, x_344, x_345, x_346, x_347, x_348, x_349);
-lean_dec(x_397);
 lean_dec_ref(x_396);
 if (lean_obj_tag(x_399) == 0)
 {
@@ -5104,7 +5094,6 @@ goto block_340;
 }
 else
 {
-lean_dec(x_401);
 x_279 = x_380;
 x_280 = x_345;
 x_281 = x_346;

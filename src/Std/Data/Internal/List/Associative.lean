@@ -6945,6 +6945,22 @@ theorem insertEntry_perm_filter [BEq α] [EquivBEq α]
         rw [containsKey_cons, heq] at eq
         simpa
 
+theorem insertEntryIfNew_perm_of_containsKey_eq_false [BEq α] [EquivBEq α]
+    (k : α) {l : List ((_ : α) × Unit)} (hc : containsKey k l = false):
+    (insertEntryIfNew k () l).Perm <| ⟨k, ()⟩ :: l := by
+  simp [insertEntryIfNew, hc]
+
+theorem insertEntryIfNew_perm_of_containsKey [BEq α] [EquivBEq α]
+    (k : α) {l : List ((_ : α) × Unit)} (hc : containsKey k l):
+    (insertEntryIfNew k () l).Perm <| l := by
+  simp [insertEntryIfNew, hc]
+
+theorem insertEntryIfNew_perm [BEq α] [EquivBEq α]
+    (k : α) {l : List ((_ : α) × Unit)} :
+    (insertEntryIfNew k () l).Perm <| if (containsKey k l) then l else ⟨k, ()⟩ :: l := by
+  simp only [insertEntryIfNew]
+  by_cases h : containsKey k l <;> simp [h]
+
 theorem Const.containsKey_filterMap_iff {β : Type v} {γ : Type w}
     [BEq α] [EquivBEq α]
     {f : α → β → Option γ}

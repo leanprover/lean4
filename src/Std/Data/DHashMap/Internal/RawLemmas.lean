@@ -402,7 +402,7 @@ theorem get_insert_self [LawfulBEq α] (h : m.1.WF) {k : α} {v : β k} :
     (m.insert k v).get k (contains_insert_self _ h) = v := by
   simp_to_model [insert, get] using List.getValueCast_insertEntry_self
 
-theorem insert_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} {v : β k} :
+theorem insert_toList_perm [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} {v : β k} :
     (m.insert k v).1.toList.Perm (⟨k, v⟩ :: m.1.toList.filter (¬k == ·.1)) := by
   simp_to_model
   refine List.Perm.trans (toListModel_insert (by wf_trivial)) ?_
@@ -446,6 +446,17 @@ theorem get_eq_get [LawfulBEq α] (h : m.1.WF) {a : α} {h} : get m a h = m.get 
 theorem get_congr [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a b : α} (hab : a == b) {h'} :
     get m a h' = get m b ((contains_congr _ h hab).symm.trans h') := by
   simp_to_model [Const.get] using List.getValue_congr
+
+end Const
+
+namespace Const
+
+variable (m : Raw₀ α (fun _ => Unit)) (h : m.1.WF)
+
+theorem insertIfNew_toList_perm [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
+    (m.insertIfNew k ()).1.toList.Perm (if m.contains k then m.1.toList else ⟨k, ()⟩ :: m.1.toList) := by
+  simp_to_model
+  exact List.Perm.trans (toListModel_insertIfNew (by wf_trivial)) (List.insertEntryIfNew_perm _)
 
 end Const
 

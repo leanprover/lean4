@@ -302,7 +302,7 @@ theorem get?_eq_some [LawfulBEq α] (h : m.WF) {k : α} (h' : k ∈ m) :
 
 theorem toList_insert_perm [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
     (m.insert k).toList.Perm (if k ∈ m then m.toList else k :: m.toList) :=
-  HashMap.Raw.keys_insertIfNew_perm h.out
+  HashMap.Raw.keys_insertIfNew_perm (v := ()) h.out
 
 @[simp, grind =]
 theorem get_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {h'} :

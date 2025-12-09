@@ -451,10 +451,10 @@ theorem Const.toList_insert_perm {β : Type v} {m : Raw α (fun _ => β)} [Equiv
     (Const.toList (m.insert k v)).Perm ((k, v) :: (Const.toList m).filter (¬k == ·.1)) := by
   simp_to_raw using Raw₀.Const.toList_insert_perm ⟨m, _⟩
 
-theorem Const.keys_insertIfNew_perm {m : Raw α (fun _ => Unit)} [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
-    (m.insertIfNew k ()).keys.Perm (if k ∈ m then m.keys else k :: m.keys) := by
+theorem keys_insertIfNew_perm [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β k} :
+    (m.insertIfNew k v).keys.Perm (if k ∈ m then m.keys else k :: m.keys) := by
   simp only [Membership.mem]
-  simp_to_raw using Raw₀.Const.keys_insertIfNew_perm ⟨m, _⟩
+  simp_to_raw using Raw₀.keys_insertIfNew_perm ⟨m, _⟩
 
 @[simp, grind =]
 theorem get_erase [LawfulBEq α] (h : m.WF) {k a : α} {h'} :

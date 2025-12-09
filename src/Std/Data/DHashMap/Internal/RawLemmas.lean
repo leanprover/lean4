@@ -404,7 +404,7 @@ theorem get_insert_self [LawfulBEq α] (h : m.1.WF) {k : α} {v : β k} :
 
 theorem toList_insert_perm [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} {v : β k} :
     (m.insert k v).1.toList.Perm (⟨k, v⟩ :: m.1.toList.filter (¬k == ·.1)) := by
-  simp_to_model using List.Perm.trans (toListModel_insert (by wf_trivial)) <| List.insertEntry_perm_filter _ _ _
+  simp_to_model using List.Perm.trans (toListModel_insert _) <| List.insertEntry_perm_filter _ _ _
 
 theorem Const.toList_insert_perm {β : Type v} (m : Raw₀ α (fun _ => β)) [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} {v : β} :
     (Raw.Const.toList (m.insert k v).1).Perm ((k, v) :: (Raw.Const.toList m.1).filter (¬k == ·.1)) := by
@@ -413,14 +413,14 @@ theorem Const.toList_insert_perm {β : Type v} (m : Raw₀ α (fun _ => β)) [Eq
   apply List.Perm.trans <| List.Const.map_insertEntry_perm_filter_map _ _ (by wf_trivial)
   simp
 
-theorem Const.keys_insertIfNew_perm (m : Raw₀ α (fun _ => Unit)) [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
-    (m.insertIfNew k ()).1.keys.Perm (if m.contains k then m.1.keys else k :: m.1.keys) := by
+theorem keys_insertIfNew_perm [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} {v : β k}:
+    (m.insertIfNew k v).1.keys.Perm (if m.contains k then m.1.keys else k :: m.1.keys) := by
   simp_to_model
   apply List.Perm.trans
-  · simp only [keys_eq_map]
-    apply List.Perm.map _ <|  toListModel_insertIfNew (by wf_trivial)
+  simp only [keys_eq_map]
+  apply List.Perm.map _ <| toListModel_insertIfNew (by wf_trivial)
   simp only [← keys_eq_map]
-  apply List.Const.keys_insertEntryIfNew_perm
+  apply List.keys_insertEntryIfNew_perm
 
 @[simp]
 theorem get_erase [LawfulBEq α] (h : m.1.WF) {k a : α} {h'} :

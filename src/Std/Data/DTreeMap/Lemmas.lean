@@ -364,9 +364,9 @@ theorem Const.toList_insert_perm {β : Type v} {t : DTreeMap α (fun _ => β) cm
     (Const.toList (t.insert k v)).Perm (⟨k, v⟩ :: (Const.toList t).filter (¬k == ·.1)) :=
   Impl.Const.toList_insert_perm t.2
 
-theorem Const.keys_insertIfNew_perm {t : DTreeMap α (fun _ => Unit) cmp} [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] {k : α} :
-    (t.insertIfNew k ()).keys.Perm (if k ∈ t then t.keys else k :: t.keys) :=
-  Impl.Const.keys_insertIfNew_perm t.2
+theorem keys_insertIfNew_perm [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] {k : α} {v : β k} :
+    (t.insertIfNew k v).keys.Perm (if k ∈ t then t.keys else k :: t.keys) :=
+  Impl.keys_insertIfNew_perm t.2
 
 @[simp]
 theorem get_insert_self [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {v : β k} :

@@ -291,7 +291,7 @@ theorem toList_insert_perm [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] (h : t.WF)
 
 theorem keys_insertIfNew_perm {t : Raw α Unit cmp} [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] (h : t.WF) {k : α} :
     (t.insertIfNew k ()).keys.Perm (if k ∈ t then t.keys else k :: t.keys) :=
-  DTreeMap.Raw.Const.keys_insertIfNew_perm h
+  DTreeMap.Raw.keys_insertIfNew_perm h
 
 @[simp]
 theorem getElem_insert_self [TransCmp cmp] (h : t.WF) {k : α} {v : β} :

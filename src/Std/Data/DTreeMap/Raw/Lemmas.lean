@@ -358,9 +358,9 @@ theorem Const.toList_insert_perm {β : Type v} {t : Raw α (fun _ => β) cmp} [B
     (Const.toList (t.insert k v)).Perm (⟨k, v⟩ :: (Const.toList t).filter (¬k == ·.1)) :=
   Impl.Const.insert!_toList_perm h
 
-theorem Const.keys_insertIfNew_perm {t : Raw α (fun _ => Unit) cmp} [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] (h : t.WF) {k : α} :
-    (t.insertIfNew k ()).keys.Perm (if k ∈ t then t.keys else k :: t.keys) :=
-  Impl.Const.keys_insertIfNew!_perm h
+theorem keys_insertIfNew_perm [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] (h : t.WF) {k : α} {v : β k} :
+    (t.insertIfNew k v).keys.Perm (if k ∈ t then t.keys else k :: t.keys) :=
+  Impl.keys_insertIfNew!_perm h
 
 @[grind =] theorem get_insert [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} {v : β k} {h₁} :
     (t.insert k v).get a h₁ =

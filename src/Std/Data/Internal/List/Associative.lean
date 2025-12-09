@@ -6964,9 +6964,9 @@ theorem Const.map_insertEntry_perm_filter_map {β : Type v} [BEq α] [EquivBEq �
       simp [heq]
       apply ih hl.1
 
-theorem Const.keys_insertEntryIfNew_perm [BEq α] [EquivBEq α]
-    (k : α) {l : List ((_ : α) × Unit)} :
-    (keys <| insertEntryIfNew k () l).Perm <| if (containsKey k l) then keys l else k :: keys l := by
+theorem keys_insertEntryIfNew_perm [BEq α] [EquivBEq α]
+    (k : α) (v : β k) {l : List ((a : α) × β a)} :
+    (keys <| insertEntryIfNew k v l).Perm <| if (containsKey k l) then keys l else k :: keys l := by
   simp only [insertEntryIfNew]
   by_cases h : containsKey k l <;> simp [h]
 

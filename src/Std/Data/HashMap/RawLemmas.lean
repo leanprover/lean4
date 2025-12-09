@@ -327,9 +327,9 @@ theorem toList_insert_perm [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α}
     (m.insert k v).toList.Perm (⟨k, v⟩ :: m.toList.filter (¬k == ·.1)) :=
   DHashMap.Raw.Const.toList_insert_perm h.out
 
-theorem keys_insertIfNew_perm {m : Raw α Unit} [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
-    (m.insertIfNew k ()).keys.Perm (if k ∈ m then m.keys else k :: m.keys) :=
-  DHashMap.Raw.Const.keys_insertIfNew_perm h.out
+theorem keys_insertIfNew_perm [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β} :
+    (m.insertIfNew k v).keys.Perm (if k ∈ m then m.keys else k :: m.keys) :=
+  DHashMap.Raw.keys_insertIfNew_perm h.out
 
 @[simp]
 theorem getElem_insert_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β} :

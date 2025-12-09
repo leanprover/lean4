@@ -1,3 +1,5 @@
+import Lean.Elab.CheckTactic
+
 set_option autoImplicit false -- For compatibility with downstream projects, so we can retest after Mathlib.
 set_option relaxedAutoImplicit false
 

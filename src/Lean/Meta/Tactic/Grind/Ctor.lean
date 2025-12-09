@@ -72,10 +72,7 @@ private def propagateCtorHetero (a b : Expr) : GoalM Unit := do
   unless ctorVal₁.induct == ctorVal₂.induct do return ()
   let params₁ := args₁[*...ctorVal₁.numParams]
   let params₂ := args₂[*...ctorVal₂.numParams]
-  let fields₁ := args₁[ctorVal₁.numParams...*]
-  let fields₂ := args₂[ctorVal₂.numParams...*]
-  if h : params₁.size ≠ params₂.size then return () else
-  unless (← params₁.size.allM fun i h => isDefEq params₁[i] params₂[i]) do return ()
+  if  params₁.size ≠ params₂.size then return () else
   unless us₁.length == us₂.length do return ()
   unless (← us₁.zip us₂ |>.allM fun (u₁, u₂) => isLevelDefEq u₁ u₂) do return ()
   let gen := max (← getGeneration a) (← getGeneration b)
@@ -83,17 +80,17 @@ private def propagateCtorHetero (a b : Expr) : GoalM Unit := do
     let hinjDeclName := mkHInjectiveTheoremNameFor ctorName₁
     unless (← getEnv).containsOnBranch hinjDeclName do
       let _ ← executeReservedNameAction hinjDeclName
-    let proof := mkAppN (mkConst hinjDeclName us₁) params₁
-    let proof := mkAppN (mkAppN proof fields₁) fields₂
+    let proof := mkConst hinjDeclName us₁
+    let proof := mkAppN (mkAppN proof args₁) args₂
     addNewRawFact proof (← inferType proof) gen (.inj (.decl hinjDeclName))
   else
     let some indices₁ ← getCtorAppIndices? a | return ()
     let some indices₂ ← getCtorAppIndices? b | return ()
     let noConfusionName := ctorVal₁.induct.str "noConfusion"
-    let noConfusion := mkAppN (mkConst noConfusionName (0 :: us₁)) params₁
+    let noConfusion := mkConst noConfusionName (0 :: us₁)
     let noConfusion := mkApp noConfusion (← getFalseExpr)
-    let noConfusion := mkApp (mkAppN noConfusion indices₁) a
-    let noConfusion := mkApp (mkAppN noConfusion indices₂) b
+    let noConfusion := mkApp (mkAppN noConfusion (params₁ ++ indices₁)) a
+    let noConfusion := mkApp (mkAppN noConfusion (params₂ ++ indices₂)) b
     let proof := noConfusion
     addNewRawFact proof (← inferType proof) gen (.inj (.decl noConfusionName))
 

@@ -777,7 +777,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = lean_ctor_get(x_2, 2);
 x_8 = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lake_registerOrderedTagAttribute_spec__0_spec__0___closed__2;
 x_9 = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lake_registerOrderedTagAttribute_spec__0_spec__0___closed__6;
@@ -1233,7 +1233,7 @@ lean_object* x_14; lean_object* x_15; lean_object* x_16;
 x_14 = lean_st_ref_get(x_8);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc_ref(x_15);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_16 = l_Lean_Environment_getModuleIdxFor_x3f(x_15, x_4);
 lean_dec_ref(x_15);
 if (lean_obj_tag(x_16) == 0)
@@ -1871,7 +1871,7 @@ x_8 = lean_ctor_get(x_7, 2);
 x_9 = lean_box(0);
 x_10 = l_Lean_PersistentEnvExtension_getState___redArg(x_4, x_6, x_2, x_8, x_9);
 x_11 = l_Array_contains___at___00Lake_OrderedTagAttribute_hasTag_spec__0(x_10, x_3);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 return x_11;
 }
 else
@@ -1987,7 +1987,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l_Array_append___redArg(x_4, x_6);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = 1;
 x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;
@@ -2060,7 +2060,7 @@ block_13:
 lean_object* x_11; lean_object* x_12; 
 x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_12 = l_Array_append___redArg(x_10, x_11);
 lean_dec(x_11);
 return x_12;

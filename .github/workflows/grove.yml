@@ -65,6 +65,7 @@ jobs:
           workflow: ci.yml
           path: artifacts
           name: "build-Linux release"
+          allow_forks: true
           name_is_regexp: true
 
       - name: Unpack toolchain

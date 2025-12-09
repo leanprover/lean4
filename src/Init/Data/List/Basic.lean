@@ -1607,8 +1607,8 @@ such element is found.
 `O(|l|)`.
 
 Examples:
-* `[7, 6, 5, 8, 1, 2, 6].find? (· < 5) = some 2`
-* `[7, 6, 5, 8, 1, 2, 6].find? (· < 1) = none`
+* `[7, 6, 5, 8, 1, 2, 6].findRev? (· < 5) = some 2`
+* `[7, 6, 5, 8, 1, 2, 6].findRev? (· < 1) = none`
 -/
 def findRev? (p : α → Bool) : List α → Option α
   | []    => none
@@ -2252,7 +2252,7 @@ def eraseReps {α} [BEq α] (as : List α) : List α := eraseRepsBy (· == ·) a
 /-! ### span -/
 
 /--
-Splits a list into the the longest initial segment for which `p` returns `true`, paired with the
+Splits a list into the longest initial segment for which `p` returns `true`, paired with the
 remainder of the list.
 
 `O(|l|)`.

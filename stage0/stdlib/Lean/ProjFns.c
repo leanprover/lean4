@@ -597,7 +597,7 @@ lean_inc_ref(x_1);
 x_14 = l_Lean_Environment_contains(x_1, x_13, x_11);
 if (x_14 == 0)
 {
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_6 = x_5;
 goto block_10;
 }

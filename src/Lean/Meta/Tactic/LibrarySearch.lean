@@ -8,7 +8,11 @@ module
 prelude
 public import Lean.Meta.LazyDiscrTree
 public import Lean.Meta.Tactic.SolveByElim
+public import Lean.Meta.Tactic.Grind.Main
 public import Lean.Util.Heartbeats
+import Init.Grind.Util
+import Init.Try
+import Lean.Elab.Tactic.Basic
 
 public section
 
@@ -37,15 +41,77 @@ builtin_initialize registerTraceClass `Tactic.librarySearch.lemmas
 open SolveByElim
 
 /--
+A discharger that tries `grind` on the goal.
+The proof is wrapped in `Grind.Marker` so that suggestions display `(by grind)`
+instead of the complex grind proof term.
+Returns `some []` if grind succeeds, `none` otherwise (leaving the goal as a subgoal).
+-/
+def grindDischarger (mvarId : MVarId) : MetaM (Option (List MVarId)) := do
+  try
+    -- Apply the marker wrapper, creating a subgoal for grind to solve
+    let type ← mvarId.getType
+    let u ← getLevel type
+    let markerExpr := mkApp (.const ``Lean.Grind.Marker [u]) type
+    let [subgoal] ← mvarId.apply markerExpr
+      | return none
+    -- Solve the subgoal with grind
+    let params ← Grind.mkParams {}
+    let result ← Grind.main subgoal params
+    if result.hasFailed then
+      return none
+    else
+      return some []
+  catch _ =>
+    return none
+
+/--
+A discharger that tries `try?` on the goal.
+The proof is wrapped in `Try.Marker` so that suggestions display `(by try?)`
+instead of the complex proof term.
+Returns `some []` if try? succeeds, `none` otherwise (leaving the goal as a subgoal).
+-/
+def tryDischarger (mvarId : MVarId) : MetaM (Option (List MVarId)) := do
+  try
+    -- Apply the marker wrapper, creating a subgoal for try? to solve
+    let type ← mvarId.getType
+    let u ← getLevel type
+    let markerExpr := mkApp (.const ``Lean.Try.Marker [u]) type
+    let [subgoal] ← mvarId.apply markerExpr
+      | return none
+    -- Run try? via TacticM to solve the subgoal
+    -- We suppress the "Try this" messages since we're using try? as a discharger
+    let tacStx ← `(tactic| try?)
+    let remainingGoals ← Elab.Term.TermElabM.run' <| Elab.Tactic.run subgoal do
+      -- Suppress info messages from try?
+      let initialLog ← Core.getMessageLog
+      Elab.Tactic.evalTactic tacStx
+      Core.setMessageLog initialLog
+    if remainingGoals.isEmpty then
+      return some []
+    else
+      return none
+  catch _ =>
+    return none
+
+/--
 Wrapper for calling `Lean.Meta.SolveByElim.solveByElim with
 appropriate arguments for library search.
+
+If `grind` is true, `grind` will be used as a fallback discharger for subgoals
+that cannot be closed by other means.
+If `try?` is true, `try?` will be used as a fallback discharger (via grind internally).
 -/
-def solveByElim (required : List Expr) (exfalso : Bool) (goals : List MVarId) (maxDepth : Nat) := do
+def solveByElim (required : List Expr) (exfalso : Bool) (goals : List MVarId)
+    (maxDepth : Nat) (grind : Bool := false) (try? : Bool := false) := do
   let cfg : SolveByElimConfig :=
     { maxDepth, exfalso := exfalso, symm := true, commitIndependentGoals := true,
       transparency := ← getTransparency,
       -- `constructor` has been observed to significantly slow down `exact?` in Mathlib.
       constructor := false }
+  -- Add grind or try? as a fallback discharger (tried after intro/constructor fail)
+  let cfg := if try? then cfg.withDischarge tryDischarger
+             else if grind then cfg.withDischarge grindDischarger
+             else cfg
   let ⟨lemmas, ctx⟩ ← SolveByElim.mkAssumptionSet false false [] [] #[]
   let cfg := if !required.isEmpty then cfg.requireUsingAll required else cfg
   SolveByElim.solveByElim cfg lemmas ctx goals
@@ -113,11 +179,33 @@ initialization performance.
 -/
 private def constantsPerImportTask : Nat := 6500
 
-/-- Create function for finding relevant declarations. -/
-def libSearchFindDecls : Expr → MetaM (Array (Name × DeclMod)) :=
+/-- Environment extension for caching star-indexed lemmas.
+    Used for fallback when primary search finds nothing for fvar-headed goals. -/
+private builtin_initialize starLemmasExt : EnvExtension (IO.Ref (Option (Array (Name × DeclMod)))) ←
+  registerEnvExtension (IO.mkRef .none)
+
+/-- Create function for finding relevant declarations.
+    Also captures dropped entries in starLemmasExt for fallback search. -/
+def libSearchFindDecls (ty : Expr) : MetaM (Array (Name × DeclMod)) := do
+  let _ : Inhabited (IO.Ref (Option (Array (Name × DeclMod)))) := ⟨← IO.mkRef none⟩
+  let droppedRef := starLemmasExt.getState (←getEnv)
   findMatches ext addImport
       (droppedKeys := droppedKeys)
       (constantsPerTask := constantsPerImportTask)
+      (droppedEntriesRef := some droppedRef)
+      ty
+
+/-- Get star-indexed lemmas (lazily computed during tree initialization). -/
+def getStarLemmas : MetaM (Array (Name × DeclMod)) := do
+  let _ : Inhabited (IO.Ref (Option (Array (Name × DeclMod)))) := ⟨← IO.mkRef none⟩
+  let ref := starLemmasExt.getState (←getEnv)
+  match ←ref.get with
+  | some lemmas => return lemmas
+  | none =>
+    -- If star lemmas aren't cached yet, trigger tree initialization by searching for a dummy type
+    -- This will populate starLemmasExt as a side effect
+    let _ ← libSearchFindDecls (mkConst ``True)
+    pure ((←ref.get).getD #[])
 
 /--
 Return an action that returns true when the remaining heartbeats is less
@@ -275,27 +363,40 @@ def tryOnEach
 private def librarySearch' (goal : MVarId)
     (tactic : List MVarId → MetaM (List MVarId))
     (allowFailure : MVarId → MetaM Bool)
-    (leavePercentHeartbeats : Nat) :
+    (leavePercentHeartbeats : Nat)
+    (includeStar : Bool := true) :
     MetaM (Option (Array (List MVarId × MetavarContext))) := do
   withTraceNode `Tactic.librarySearch (return m!"{librarySearchEmoji ·} {← goal.getType}") do
   profileitM Exception "librarySearch" (← getOptions) do
-    -- Create predicate that returns true when running low on heartbeats.
-    let candidates ← librarySearchSymm libSearchFindDecls goal
     let cfg : ApplyConfig := { allowSynthFailures := true }
     let shouldAbort ← mkHeartbeatCheck leavePercentHeartbeats
     let act := fun cand => do
         if ←shouldAbort then
           abortSpeculation
         librarySearchLemma cfg tactic allowFailure cand
-    tryOnEach act candidates
+    -- First pass: search with droppedKeys (excludes star-indexed lemmas)
+    let candidates ← librarySearchSymm libSearchFindDecls goal
+    match ← tryOnEach act candidates with
+    | none => return none  -- Found a complete solution
+    | some results =>
+      -- Only do star fallback if:
+      -- 1. No results from primary search
+      -- 2. includeStar is true
+      if !results.isEmpty || !includeStar then
+        return some results
+      -- Second pass: try star-indexed lemmas (those with [*] or [Eq,*,*,*] keys)
+      -- No need for librarySearchSymm since getStarLemmas ignores the goal type
+      let starLemmas ← getStarLemmas
+      if starLemmas.isEmpty then return some results
+      let mctx ← getMCtx
+      let starCandidates := starLemmas.map ((goal, mctx), ·)
+      tryOnEach act starCandidates
 
 /--
-Tries to solve the goal either by:
-* calling `tactic true`
-* or applying a library lemma then calling `tactic false` on the resulting goals.
+Tries to solve the goal by applying a library lemma
+then calling `tactic` on the resulting goals.
 
-Typically here `tactic` is `solveByElim`,
-with the `Bool` flag indicating whether it may retry with `exfalso`.
+Typically here `tactic` is `solveByElim`.
 
 If it successfully closes the goal, returns `none`.
 Otherwise, it returns `some a`, where `a : Array (List MVarId × MetavarContext)`,
@@ -309,13 +410,13 @@ unless the goal was completely solved.)
 this is not currently tracked.)
 -/
 def librarySearch (goal : MVarId)
-    (tactic : Bool → List MVarId → MetaM (List MVarId) :=
-      fun initial g => solveByElim [] (maxDepth := 6) (exfalso := initial) g)
+    (tactic : List MVarId → MetaM (List MVarId) :=
+      fun g => solveByElim [] (maxDepth := 6) (exfalso := false) g)
     (allowFailure : MVarId → MetaM Bool := fun _ => pure true)
-    (leavePercentHeartbeats : Nat := 10) :
+    (leavePercentHeartbeats : Nat := 10)
+    (includeStar : Bool := true) :
     MetaM (Option (Array (List MVarId × MetavarContext))) := do
-  (tactic true [goal] *> pure none) <|>
-  librarySearch' goal (tactic false) allowFailure leavePercentHeartbeats
+  librarySearch' goal tactic allowFailure leavePercentHeartbeats includeStar
 
 end LibrarySearch
 

@@ -856,7 +856,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_ensureJob___redArg___closed__7;
 x_2 = lean_unsigned_to_nat(46u);
-x_3 = lean_unsigned_to_nat(212u);
+x_3 = lean_unsigned_to_nat(185u);
 x_4 = l_Lake_ensureJob___redArg___closed__6;
 x_5 = l_Lake_ensureJob___redArg___closed__5;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -904,7 +904,7 @@ x_72 = lean_st_ref_get(x_12);
 lean_dec(x_12);
 x_73 = lean_ctor_get(x_72, 0);
 lean_inc_ref(x_73);
-lean_dec_ref(x_72);
+lean_dec(x_72);
 x_90 = lean_string_validate_utf8(x_73);
 if (x_90 == 0)
 {

@@ -53,12 +53,6 @@ def wfRecursion (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDe
     -- No termination_by here, so use GuessLex to infer one
     guessLex preDefs unaryPreDefProcessed fixedParamPerms argsPacker
 
-  -- Warn about likely unwanted reducibility attributes
-  preDefs.forM fun preDef =>
-    preDef.modifiers.attrs.forM fun a => do
-      if a.name = `reducible || a.name = `semireducible then
-        logWarningAt a.stx s!"marking functions defined by well-founded recursion as `{a.name}` is not effective"
-
   let preDefNonRec ← forallBoundedTelescope unaryPreDef.type fixedParamPerms.numFixed fun fixedArgs type => do
     let type ← whnfForall type
     unless type.isForall do
@@ -66,6 +60,14 @@ def wfRecursion (docCtx : LocalContext × LocalInstances) (preDefs : Array PreDe
     let packedArgType := type.bindingDomain!
     elabWFRel (preDefs.map (·.declName)) unaryPreDef.declName fixedParamPerms fixedArgs argsPacker packedArgType wf fun wfRel => do
       trace[Elab.definition.wf] "wfRel: {wfRel}"
+      let useNatRec := (← isNatLtWF wfRel).isSome
+      -- Warn about likely unwanted reducibility attributes
+      unless useNatRec do
+        preDefs.forM fun preDef =>
+          preDef.modifiers.attrs.forM fun a => do
+            if a.name = `reducible || a.name = `semireducible then
+              logWarningAt a.stx s!"marking functions defined by well-founded recursion as `{a.name}` is not effective"
+
       let (value, envNew) ← withoutModifyingEnv' do
         addAsAxiom unaryPreDef
         let value ← mkFix unaryPreDefProcessed fixedArgs argsPacker wfRel (preDefs.map (·.declName)) (preDefs.map (·.termination.decreasingBy?))

@@ -275,17 +275,8 @@ instance DropWhile.instIteratorCollect [Monad m] [Monad n] [Iterator α m β] [P
     IteratorCollect (DropWhile α m β P) m n :=
   .defaultImplementation
 
-instance DropWhile.instIteratorCollectPartial [Monad m] [Monad n] [Iterator α m β] {P} :
-    IteratorCollectPartial (DropWhile α m β P) m n :=
-  .defaultImplementation
-
 instance DropWhile.instIteratorLoop [Monad m] [Monad n] [Iterator α m β] :
     IteratorLoop (DropWhile α m β P) m n :=
-  .defaultImplementation
-
-instance DropWhile.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]
-    [IteratorLoopPartial α m n] [MonadLiftT m n] {P} :
-    IteratorLoopPartial (DropWhile α m β P) m n :=
   .defaultImplementation
 
 end Std.Iterators

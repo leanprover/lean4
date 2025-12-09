@@ -1246,7 +1246,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9;
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_IR_UniqueIds_checkId(x_7, x_4);
 x_9 = !lean_is_exclusive(x_8);
 if (x_9 == 0)
@@ -1652,7 +1652,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l_Lean_IR_Alt_body(x_6);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_IR_UniqueIds_checkFnBody(x_7, x_4);
 x_9 = !lean_is_exclusive(x_8);
 if (x_9 == 0)
@@ -2967,7 +2967,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_array_uget(x_1, x_2);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_add(x_5, x_9);
 x_11 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_IR_UniqueIds_checkId_spec__1___redArg(x_8, x_5, x_4);

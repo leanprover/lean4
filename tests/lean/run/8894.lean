@@ -1,3 +1,5 @@
+set_option warn.sorry false
+
 open Lean.Order
 
 def A : Type := Prop
@@ -16,12 +18,10 @@ instance : Lean.Order.PartialOrder B where
   rel_antisymm := sorry
 
 instance : Lean.Order.CCPO A where
-  csup := sorry
-  csup_spec := sorry
+  has_csup := sorry
 
 instance : Lean.Order.CCPO B where
-  csup := sorry
-  csup_spec := sorry
+  has_csup := sorry
 
 /--
 error: Could not prove 'tick' to be monotone in its recursive calls:

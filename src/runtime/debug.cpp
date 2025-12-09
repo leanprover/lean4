@@ -59,6 +59,12 @@ void enable_debug(char const * tag) {
     g_enabled_debug_tags->insert(tag);
 }
 
+/* enableDebug (tag : @& String) : BaseIO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_internal_enable_debug(b_lean_obj_arg tag) {
+    enable_debug(lean_string_cstr(tag));
+    return lean_box(0);
+}
+
 void disable_debug(char const * tag) {
     if (g_enabled_debug_tags)
         g_enabled_debug_tags->erase(tag);

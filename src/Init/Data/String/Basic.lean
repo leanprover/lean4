@@ -64,103 +64,73 @@ not a sequence of Unicode scalar values.
 -/
 @[inline, expose]
 def ByteArray.utf8Decode? (b : ByteArray) : Option (Array Char) :=
-  go (b.size + 1) 0 #[] (by simp) (by simp)
+  go 0 #[] (by simp)
 where
-  go (fuel : Nat) (i : Nat) (acc : Array Char) (hi : i ≤ b.size) (hf : b.size - i < fuel) : Option (Array Char) :=
-    match fuel, hf with
-    | fuel + 1, _ =>
-      if i = b.size then
-        some acc
-      else
-        match h : utf8DecodeChar? b i with
-        | none => none
-        | some c => go fuel (i + c.utf8Size) (acc.push c)
-            (le_size_of_utf8DecodeChar?_eq_some h)
-            (have := c.utf8Size_pos; have := le_size_of_utf8DecodeChar?_eq_some h; by omega)
-  termination_by structural fuel
+  @[semireducible]
+  go (i : Nat) (acc : Array Char) (hi : i ≤ b.size) : Option (Array Char) :=
+    if i < b.size then
+      match h : utf8DecodeChar? b i with
+      | none => none
+      | some c => go (i + c.utf8Size) (acc.push c) (le_size_of_utf8DecodeChar?_eq_some h)
+    else
+      some acc
+  termination_by b.size - i
+  decreasing_by have := c.utf8Size_pos; omega
 
 @[expose, extern "lean_string_validate_utf8"]
 def ByteArray.validateUTF8 (b : @& ByteArray) : Bool :=
-  go (b.size + 1) 0 (by simp) (by simp)
+  go 0 (by simp)
 where
-  go (fuel : Nat) (i : Nat) (hi : i ≤ b.size) (hf : b.size - i < fuel) : Bool :=
-    match fuel, hf with
-    | fuel + 1, _ =>
-      if hi : i = b.size then
-        true
-      else
-        match h : validateUTF8At b i with
-        | false => false
-        | true => go fuel (i + b[i].utf8ByteSize (isUTF8FirstByte_of_validateUTF8At h))
-            ?_ ?_
-  termination_by structural fuel
+  @[semireducible]
+  go (i : Nat) (hi : i ≤ b.size) : Bool :=
+    if hi : i < b.size then
+      match h : validateUTF8At b i with
+      | false => false
+      | true => go (i + b[i].utf8ByteSize (isUTF8FirstByte_of_validateUTF8At h)) ?_
+    else
+      true
+  termination_by b.size - i
+  decreasing_by
+    have := b[i].utf8ByteSize_pos (isUTF8FirstByte_of_validateUTF8At h); omega
 finally
   all_goals rw [ByteArray.validateUTF8At_eq_isSome_utf8DecodeChar?] at h
   · rw [← ByteArray.utf8Size_utf8DecodeChar (h := h)]
     exact add_utf8Size_utf8DecodeChar_le_size
-  · rw [← ByteArray.utf8Size_utf8DecodeChar (h := h)]
-    have := add_utf8Size_utf8DecodeChar_le_size (h := h)
-    have := (b.utf8DecodeChar i h).utf8Size_pos
-    omega
 
-theorem ByteArray.isSome_utf8Decode?Go_eq_validateUTF8Go {b : ByteArray} {fuel : Nat}
-    {i : Nat} {acc : Array Char} {hi : i ≤ b.size} {hf : b.size - i < fuel} :
-    (utf8Decode?.go b fuel i acc hi hf).isSome = validateUTF8.go b fuel i hi hf := by
+theorem ByteArray.isSome_utf8Decode?Go_eq_validateUTF8Go {b : ByteArray}
+    {i : Nat} {acc : Array Char} {hi : i ≤ b.size} :
+    (utf8Decode?.go b i acc hi).isSome = validateUTF8.go b i hi := by
   fun_induction utf8Decode?.go with
-  | case1 => simp [validateUTF8.go]
-  | case2 i acc hi fuel hf h₁ h₂ =>
-    simp only [Option.isSome_none, validateUTF8.go, h₁, ↓reduceDIte, Bool.false_eq]
+  | case1 i acc hi h₁ h₂ =>
+    unfold validateUTF8.go
+    simp only [Option.isSome_none, ↓reduceDIte, Bool.false_eq, h₁]
     split
     · rfl
     · rename_i heq
       simp [validateUTF8At_eq_isSome_utf8DecodeChar?, h₂] at heq
-  | case3 i acc hi fuel hf h₁ c h₂ ih =>
-    simp [validateUTF8.go, h₁]
+  | case2 i acc hi h₁ c h₂ ih =>
+    unfold validateUTF8.go
+    simp only [↓reduceDIte, ih, h₁]
     split
     · rename_i heq
       simp [validateUTF8At_eq_isSome_utf8DecodeChar?, h₂] at heq
-    · rw [ih]
-      congr
+    · congr
       rw [← ByteArray.utf8Size_utf8DecodeChar (h := by simp [h₂])]
       simp [utf8DecodeChar, h₂]
+  | case3 => unfold validateUTF8.go; simp [*]
 
 theorem ByteArray.isSome_utf8Decode?_eq_validateUTF8 {b : ByteArray} :
     b.utf8Decode?.isSome = b.validateUTF8 :=
   b.isSome_utf8Decode?Go_eq_validateUTF8Go
 
-theorem ByteArray.utf8Decode?.go.congr {b b' : ByteArray} {fuel fuel' i i' : Nat} {acc acc' : Array Char} {hi hi' hf hf'}
-    (hbb' : b = b') (hii' : i = i') (hacc : acc = acc') :
-    ByteArray.utf8Decode?.go b fuel i acc hi hf = ByteArray.utf8Decode?.go b' fuel' i' acc' hi' hf' := by
-  subst hbb' hii' hacc
-  fun_induction ByteArray.utf8Decode?.go b fuel i acc hi hf generalizing fuel' with
-  | case1 =>
-    rw [go.eq_def]
-    split
-    simp
-  | case2 =>
-    rw [go.eq_def]
-    split <;> split
-    · simp_all
-    · split <;> simp_all
-  | case3 =>
-    conv => rhs; rw [go.eq_def]
-    split <;> split
-    · simp_all
-    · split
-      · simp_all
-      · rename_i c₁ hc₁ ih _ _ _ _ _ c₂ hc₂
-        obtain rfl : c₁ = c₂ := by rw [← Option.some_inj, ← hc₁, ← hc₂]
-        apply ih
-
 @[simp]
 theorem ByteArray.utf8Decode?_empty : ByteArray.empty.utf8Decode? = some #[] := by
   simp [utf8Decode?, utf8Decode?.go]
 
-private theorem ByteArray.isSome_utf8Decode?go_iff {b : ByteArray} {fuel i : Nat} {hi : i ≤ b.size} {hf} {acc : Array Char} :
-    (ByteArray.utf8Decode?.go b fuel i acc hi hf).isSome ↔ IsValidUTF8 (b.extract i b.size) := by
+private theorem ByteArray.isSome_utf8Decode?go_iff {b : ByteArray} {hi : i ≤ b.size} {acc : Array Char} :
+    (ByteArray.utf8Decode?.go b i acc hi).isSome ↔ IsValidUTF8 (b.extract i b.size) := by
   fun_induction ByteArray.utf8Decode?.go with
-  | case1 => simp
-  | case2 fuel i hi hf acc h₁ h₂ =>
+  | case1 i hi acc h₁ h₂ =>
     simp only [Option.isSome_none, Bool.false_eq_true, false_iff]
     rintro ⟨l, hl⟩
     have : l ≠ [] := by
@@ -170,7 +140,7 @@ private theorem ByteArray.isSome_utf8Decode?go_iff {b : ByteArray} {fuel i : Nat
     rw [← l.cons_head_tail this] at hl
     rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract, hl, List.utf8DecodeChar?_utf8Encode_cons] at h₂
     simp at h₂
-  | case3 i acc hi fuel hf h₁ c h₂ ih =>
+  | case2 i acc hi h₁ c h₂ ih =>
     rw [ih]
     have h₂' := h₂
     rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract] at h₂'
@@ -179,6 +149,9 @@ private theorem ByteArray.isSome_utf8Decode?go_iff {b : ByteArray} {fuel i : Nat
       (le_size_of_utf8DecodeChar?_eq_some h₂)] at hl ⊢
     rw [ByteArray.append_inj_left hl (by have := le_size_of_utf8DecodeChar?_eq_some h₂; simp; omega),
       ← List.utf8Encode_singleton, isValidUTF8_utf8Encode_singleton_append_iff]
+  | case3 i =>
+    have : i = b.size  := by omega
+    simp [*]
 
 theorem ByteArray.isSome_utf8Decode?_iff {b : ByteArray} :
     b.utf8Decode?.isSome ↔ IsValidUTF8 b := by
@@ -291,7 +264,7 @@ Examples:
 * `"abc".length = 3`
 * `"L∃∀N".length = 4`
 -/
-@[extern "lean_string_length", expose]
+@[extern "lean_string_length", expose, tagged_return]
 def String.length (b : @& String) : Nat :=
   b.toList.length
 
@@ -305,27 +278,21 @@ theorem String.length_toList {s : String} : s.toList.length = s.length := (rfl)
 @[deprecated String.length_toList (since := "2025-10-30")]
 theorem String.length_data {b : String} : b.toList.length = b.length := (rfl)
 
-private theorem ByteArray.utf8Decode?go_eq_utf8Decode?go_extract {b : ByteArray} {fuel i : Nat} {hi : i ≤ b.size} {hf} {acc : Array Char} :
-    utf8Decode?.go b fuel i acc hi hf = (utf8Decode?.go (b.extract i b.size) fuel 0 #[] (by simp) (by simp [hf])).map (acc ++ ·) := by
-  fun_cases utf8Decode?.go b fuel i acc hi hf with
-  | case1 =>
-      rw [utf8Decode?.go]
-      simp only [size_extract, Nat.le_refl, Nat.min_eq_left, Nat.zero_add, List.push_toArray,
-        List.nil_append]
-      rw [if_pos (by omega)]
-      simp
-  | case2 fuel hf₁ h₁ h₂ hf₂ =>
+private theorem ByteArray.utf8Decode?go_eq_utf8Decode?go_extract {b : ByteArray} {hi : i ≤ b.size} {acc : Array Char} :
+    utf8Decode?.go b i acc hi = (utf8Decode?.go (b.extract i b.size) 0 #[] (by simp)).map (acc ++ ·) := by
+  fun_cases utf8Decode?.go b i acc hi with
+  | case1 h₁ h₂ =>
     rw [utf8Decode?.go]
     simp only [size_extract, Nat.le_refl, Nat.min_eq_left, Nat.zero_add, List.push_toArray,
       List.nil_append]
-    rw [if_neg (by omega)]
+    rw [if_pos (by omega)]
     rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract] at h₂
     split <;> simp_all
-  | case3 fuel hf₁ h₁ c h₂ hf₂ =>
+  | case2 h₁ c h₂ =>
     conv => rhs; rw [utf8Decode?.go]
     simp only [size_extract, Nat.le_refl, Nat.min_eq_left, Nat.zero_add, List.push_toArray,
       List.nil_append]
-    rw [if_neg (by omega)]
+    rw [if_pos (by omega)]
     rw [utf8DecodeChar?_eq_utf8DecodeChar?_extract] at h₂
     split
     · simp_all
@@ -338,20 +305,25 @@ private theorem ByteArray.utf8Decode?go_eq_utf8Decode?go_extract {b : ByteArray}
       simp only [size_extract, Nat.le_refl, Nat.min_eq_left, Option.map_map, ByteArray.extract_extract]
       have : (fun x => acc ++ x) ∘ (fun x => #[c] ++ x) = fun x => acc.push c ++ x := by funext; simp
       simp [(by omega : i + (b.size - i) = b.size), this]
-termination_by fuel
+  | case3 =>
+      rw [utf8Decode?.go]
+      simp only [size_extract, Nat.le_refl, Nat.min_eq_left, Nat.zero_add, List.push_toArray,
+        List.nil_append]
+      rw [if_neg (by omega)]
+      simp
+termination_by b.size - i
 
 theorem ByteArray.utf8Decode?_utf8Encode_singleton_append {l : ByteArray} {c : Char} :
     ([c].utf8Encode ++ l).utf8Decode? = l.utf8Decode?.map (#[c] ++ ·) := by
   rw [utf8Decode?, utf8Decode?.go,
-    if_neg (by simp [List.utf8Encode_singleton]; have := c.utf8Size_pos; omega)]
+    if_pos (by simp [List.utf8Encode_singleton]; have := c.utf8Size_pos; omega)]
   split
   · simp_all [List.utf8DecodeChar?_utf8Encode_singleton_append]
   · rename_i d h
     obtain rfl : c = d := by simpa [List.utf8DecodeChar?_utf8Encode_singleton_append] using h
     rw [utf8Decode?go_eq_utf8Decode?go_extract, utf8Decode?]
     simp only [List.push_toArray, List.nil_append, Nat.zero_add]
-    congr 1
-    apply ByteArray.utf8Decode?.go.congr _ rfl rfl
+    congr 2
     apply extract_append_eq_right _ (by simp)
     simp [List.utf8Encode_singleton]
 
@@ -824,16 +796,25 @@ The region of `s` from `b` (inclusive) to `e` (exclusive) is copied to a newly-a
 
 If `b`'s offset is greater than or equal to that of `e`, then the resulting string is `""`.
 
+If possible, prefer `String.slice`, which avoids the allocation.
 -/
 @[extern "lean_string_utf8_extract"]
-def Pos.extract {s : @& String} (b e : @& s.Pos) : String where
+def extract {s : @& String} (b e : @& s.Pos) : String where
   toByteArray := s.toByteArray.extract b.offset.byteIdx e.offset.byteIdx
   isValidUTF8 := b.isValidUTF8_extract e
+
+@[deprecated String.extract (since := "2025-12-01")]
+def Pos.extract {s : String} (b e : @& s.Pos) : String :=
+  s.extract b e
+
+@[simp]
+theorem toByteArray_extract {s : String} {b e : s.Pos} :
+    (s.extract b e).toByteArray = s.toByteArray.extract b.offset.byteIdx e.offset.byteIdx := (rfl)
 
 /-- Creates a `String` from a `String.Slice` by copying the bytes. -/
 @[inline]
 def Slice.copy (s : Slice) : String :=
-  s.startInclusive.extract s.endExclusive
+  s.str.extract s.startInclusive s.endExclusive
 
 theorem Slice.toByteArray_copy {s : Slice} :
     s.copy.toByteArray = s.str.toByteArray.extract s.startInclusive.offset.byteIdx s.endExclusive.offset.byteIdx := (rfl)
@@ -1196,7 +1177,7 @@ position. -/
 def Slice.Pos.get? {s : Slice} (pos : s.Pos) : Option Char :=
   if h : pos = s.endPos then none else some (pos.get h)
 
-/-- Returns the byte at the given position in the string, or panicks if the position is the end
+/-- Returns the byte at the given position in the string, or panics if the position is the end
 position. -/
 @[expose]
 def Slice.Pos.get! {s : Slice} (pos : s.Pos) : Char :=
@@ -1387,54 +1368,58 @@ theorem Pos.offset_ofCopy {s : Slice} {pos : s.copy.Pos} : pos.ofCopy.offset = p
 
 /-- Given a slice `s` and a position on `s`, obtain the corresponding position on `s.copy.` -/
 @[inline]
-def Slice.Pos.toCopy {s : Slice} (pos : s.Pos) : s.copy.Pos where
+def Slice.Pos.copy {s : Slice} (pos : s.Pos) : s.copy.Pos where
   offset := pos.offset
   isValid := Pos.Raw.isValid_copy_iff.2 pos.isValidForSlice
 
-@[simp]
-theorem Slice.Pos.offset_toCopy {s : Slice} {pos : s.Pos} : pos.toCopy.offset = pos.offset := (rfl)
+@[deprecated Slice.Pos.copy (since := "2025-12-01")]
+def Slice.Pos.toCopy {s : Slice} (pos : s.Pos) : s.copy.Pos :=
+  pos.copy
 
 @[simp]
-theorem Slice.Pos.ofCopy_toCopy {s : Slice} {pos : s.Pos} : pos.toCopy.ofCopy = pos :=
+theorem Slice.Pos.offset_copy {s : Slice} {pos : s.Pos} : pos.copy.offset = pos.offset := (rfl)
+
+@[simp]
+theorem Slice.Pos.ofCopy_copy {s : Slice} {pos : s.Pos} : pos.copy.ofCopy = pos :=
   Slice.Pos.ext (by simp)
 
 @[simp]
-theorem Pos.toCopy_ofCopy {s : Slice} {pos : s.copy.Pos} : pos.ofCopy.toCopy = pos :=
+theorem Pos.copy_ofCopy {s : Slice} {pos : s.copy.Pos} : pos.ofCopy.copy = pos :=
   Pos.ext (by simp)
 
 theorem Pos.ofCopy_inj {s : Slice} {pos pos' : s.copy.Pos} : pos.ofCopy = pos'.ofCopy ↔ pos = pos' :=
-  ⟨fun h => by simpa using congrArg Slice.Pos.toCopy h, (· ▸ rfl)⟩
+  ⟨fun h => by simpa using congrArg Slice.Pos.copy h, (· ▸ rfl)⟩
 
 @[simp]
-theorem Slice.startPos_copy {s : Slice} : s.copy.startPos = s.startPos.toCopy :=
+theorem Slice.startPos_copy {s : Slice} : s.copy.startPos = s.startPos.copy :=
   String.Pos.ext (by simp)
 
 @[simp]
-theorem Slice.endPos_copy {s : Slice} : s.copy.endPos = s.endPos.toCopy :=
+theorem Slice.endPos_copy {s : Slice} : s.copy.endPos = s.endPos.copy :=
   String.Pos.ext (by simp)
 
-theorem Slice.Pos.get_toCopy {s : Slice} {pos : s.Pos} (h) :
-    pos.toCopy.get h = pos.get (by rintro rfl; simp at h) := by
+theorem Slice.Pos.get_copy {s : Slice} {pos : s.Pos} (h) :
+    pos.copy.get h = pos.get (by rintro rfl; simp at h) := by
   rw [String.Pos.get, Slice.Pos.get_eq_utf8DecodeChar, Slice.Pos.get_eq_utf8DecodeChar]
-  simp only [str_toSlice, toByteArray_copy, startInclusive_toSlice, startPos_copy, offset_toCopy,
+  simp only [str_toSlice, toByteArray_copy, startInclusive_toSlice, startPos_copy, offset_copy,
     Slice.offset_startPos, Pos.Raw.byteIdx_zero, Pos.offset_toSlice, Nat.zero_add]
   rw [ByteArray.utf8DecodeChar_eq_utf8DecodeChar_extract]
   conv => lhs; congr; rw [ByteArray.extract_extract]
   conv => rhs; rw [ByteArray.utf8DecodeChar_eq_utf8DecodeChar_extract]
   exact ByteArray.utf8DecodeChar_extract_congr _ _ _
 
-theorem Slice.Pos.get_eq_get_toCopy {s : Slice} {pos : s.Pos} {h} :
-    pos.get h = pos.toCopy.get (ne_of_apply_ne Pos.ofCopy (by simp [h])) :=
-  (get_toCopy _).symm
+theorem Slice.Pos.get_eq_get_copy {s : Slice} {pos : s.Pos} {h} :
+    pos.get h = pos.copy.get (ne_of_apply_ne Pos.ofCopy (by simp [h])) :=
+  (get_copy _).symm
 
-theorem Slice.Pos.byte_toCopy {s : Slice} {pos : s.Pos} (h) :
-    pos.toCopy.byte h = pos.byte (by rintro rfl; simp at h) := by
+theorem Slice.Pos.byte_copy {s : Slice} {pos : s.Pos} (h) :
+    pos.copy.byte h = pos.byte (by rintro rfl; simp at h) := by
   rw [String.Pos.byte, Slice.Pos.byte, Slice.Pos.byte]
   simp [getUTF8Byte, String.getUTF8Byte, toByteArray_copy, ByteArray.getElem_extract]
 
-theorem Slice.Pos.byte_eq_byte_toCopy {s : Slice} {pos : s.Pos} {h} :
-    pos.byte h = pos.toCopy.byte (ne_of_apply_ne Pos.ofCopy (by simp [h])) :=
-  (byte_toCopy _).symm
+theorem Slice.Pos.byte_eq_byte_copy {s : Slice} {pos : s.Pos} {h} :
+    pos.byte h = pos.copy.byte (ne_of_apply_ne Pos.ofCopy (by simp [h])) :=
+  (byte_copy _).symm
 
 /-- Given a position in `s.sliceFrom p₀`, obtain the corresponding position in `s`. -/
 @[inline]
@@ -1521,7 +1506,7 @@ theorem Slice.Pos.copy_eq_append_get {s : Slice} {pos : s.Pos} (h : pos ≠ s.en
     ∃ t₁ t₂ : String, s.copy = t₁ ++ singleton (pos.get h) ++ t₂ ∧ t₁.utf8ByteSize = pos.offset.byteIdx := by
   obtain ⟨t₂, ht₂⟩ := (s.sliceFrom pos).copy.eq_singleton_append (by simpa [← Pos.ofCopy_inj, ← ofSliceFrom_inj])
   refine ⟨(s.sliceTo pos).copy, t₂, ?_, by simp⟩
-  simp only [Slice.startPos_copy, get_toCopy, get_eq_get_ofSliceFrom, ofSliceFrom_startPos] at ht₂
+  simp only [Slice.startPos_copy, get_copy, get_eq_get_ofSliceFrom, ofSliceFrom_startPos] at ht₂
   rw [append_assoc, ← ht₂, ← copy_eq_copy_sliceTo]
 
 theorem Slice.Pos.utf8ByteSize_byte {s : Slice} {pos : s.Pos} {h : pos ≠ s.endPos} :
@@ -1667,7 +1652,7 @@ def Slice.pos! (s : Slice) (off : String.Pos.Raw) : s.Pos :=
 
 /-- Advances a valid position on a string to the next valid position, given a proof that the
 position is not the past-the-end position, which guarantees that such a position exists. -/
-@[expose, extern "lean_string_utf8_next_fast"]
+@[expose, extern "lean_string_utf8_next_fast", tagged_return]
 def Pos.next {s : @& String} (pos : @& s.Pos) (h : pos ≠ s.endPos) : s.Pos :=
   ofToSlice (Slice.Pos.next pos.toSlice (ne_of_apply_ne Pos.ofToSlice (by simpa)))
 
@@ -1751,8 +1736,8 @@ theorem Pos.offset_cast {s t : String} {pos : s.Pos} {h : s = t} :
 theorem Pos.cast_rfl {s : String} {pos : s.Pos} : pos.cast rfl = pos :=
   Pos.ext (by simp)
 
-theorem Pos.toCopy_toSlice_eq_cast {s : String} (p : s.Pos) :
-    p.toSlice.toCopy = p.cast copy_toSlice.symm :=
+theorem Pos.copy_toSlice_eq_cast {s : String} (p : s.Pos) :
+    p.toSlice.copy = p.cast copy_toSlice.symm :=
   Pos.ext (by simp)
 
 /-- Given a byte position within a string slice, obtains the smallest valid position that is
@@ -2435,6 +2420,35 @@ def Pos.slice! {s : String} (pos : s.Pos) (p₀ p₁ : s.Pos) :
     (s.slice! p₀ p₁).Pos :=
   Slice.Pos.slice! pos.toSlice _ _
 
+theorem extract_eq_copy_slice {s : String} (p₀ p₁ : s.Pos) (h : p₀ ≤ p₁) :
+    s.extract p₀ p₁ = (s.slice p₀ p₁ h).copy := by
+  simp [← toByteArray_inj, Slice.toByteArray_copy]
+
+/--
+Copies a region of a slice to a new string.
+
+The region of `s` from `b` (inclusive) to `e` (exclusive) is copied to a newly-allocated `String`.
+
+If `b`'s offset is greater than or equal to that of `e`, then the resulting string is `""`.
+
+If possible, prefer `Slice.slice`, which avoids the allocation.
+-/
+@[inline]
+def Slice.extract (s : Slice) (p₀ p₁ : s.Pos) : String :=
+  s.str.extract p₀.str p₁.str
+
+@[simp]
+theorem Slice.Pos.str_le_str_iff {s : Slice} {p q : s.Pos} : p.str ≤ q.str ↔ p ≤ q := by
+  simp [String.Pos.le_iff, Slice.Pos.le_iff, Pos.Raw.le_iff]
+
+@[simp]
+theorem Slice.Pos.str_lt_str_iff {s : Slice} {p q : s.Pos} : p.str < q.str ↔ p < q := by
+  simp [String.Pos.lt_iff, Slice.Pos.lt_iff, Pos.Raw.lt_iff]
+
+theorem Slice.extract_eq_copy_slice {s : Slice} (p₀ p₁ : s.Pos) (h : p₀ ≤ p₁) :
+    s.extract p₀ p₁ = (s.slice p₀ p₁ h).copy := by
+  simp [← toByteArray_inj, Slice.toByteArray_copy, Slice.extract]
+
 /--
 Advances the position `p` `n` times.
 
@@ -2642,7 +2656,7 @@ This is a legacy function. The recommended alternative is `String.Pos.next`, com
 Example:
 * `let abc := "abc"; abc.get (abc.next' 0 (by decide)) = 'b'`
 -/
-@[extern "lean_string_utf8_next_fast", expose]
+@[extern "lean_string_utf8_next_fast", expose, tagged_return]
 def Pos.Raw.next' (s : @& String) (p : @& Pos.Raw) (h : ¬ p.atEnd s) : Pos.Raw :=
   let c := p.get s
   p + c
@@ -2733,10 +2747,6 @@ where
   go₂ : List Char → Pos.Raw → Pos.Raw → List Char
     | [],    _, _ => []
     | c::cs, i, e => if i = e then [] else c :: go₂ cs (i + c) e
-
-@[extern "lean_string_utf8_extract", expose, deprecated Pos.Raw.extract (since := "2025-10-14")]
-def extract : (@& String) → (@& Pos.Raw) → (@& Pos.Raw) → String
-  | s, b, e => Pos.Raw.extract s b e
 
 def Pos.Raw.offsetOfPosAux (s : String) (pos : Pos.Raw) (i : Pos.Raw) (offset : Nat) : Nat :=
   if i >= pos then offset

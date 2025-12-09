@@ -116,7 +116,7 @@ lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* 
 x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_6 = lean_get_reducibility_status(x_5, x_1);
 x_7 = lean_box(x_6);
 x_8 = lean_alloc_ctor(0, 1, 0);
@@ -346,7 +346,7 @@ x_40 = 3;
 x_41 = l_Lean_Meta_instBEqTransparencyMode_beq(x_6, x_40);
 if (x_41 == 0)
 {
-lean_dec_ref(x_33);
+lean_dec(x_33);
 lean_dec(x_27);
 x_34 = x_41;
 goto block_39;
@@ -356,7 +356,7 @@ else
 lean_object* x_42; uint8_t x_43; 
 x_42 = lean_ctor_get(x_33, 0);
 lean_inc_ref(x_42);
-lean_dec_ref(x_33);
+lean_dec(x_33);
 x_43 = lean_is_instance(x_42, x_27);
 x_34 = x_43;
 goto block_39;
@@ -758,7 +758,7 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = l_Lean_Name_isAnonymous(x_2);
 if (x_7 == 0)
 {
@@ -1001,11 +1001,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -1278,7 +1278,7 @@ lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10;
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = 0;
 lean_inc(x_1);
 x_10 = l_Lean_Environment_findAsync_x3f(x_8, x_1, x_9);
@@ -1810,7 +1810,7 @@ lean_object* x_7; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_objec
 x_11 = lean_st_ref_get(x_5);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc_ref(x_12);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_13 = 0;
 lean_inc(x_1);
 x_14 = l_Lean_Environment_find_x3f(x_12, x_1, x_13);

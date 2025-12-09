@@ -154,6 +154,7 @@ deriving Inhabited, BEq, Repr
 structure EffectiveImport extends Import where
   /-- Phases for which the import's IR is available. -/
   irPhases : IRPhases
+deriving Inhabited
 
 /-- Environment fields that are not used often. -/
 structure EnvironmentHeader where
@@ -2403,7 +2404,7 @@ Evaluates the given declaration under the given environment to a value of the gi
 This function is only safe to use if the type matches the declaration's type in the environment
 and if `enableInitializersExecution` has been used before importing any modules.
 
-If `checkMeta` is true (the default), the function checks that all referenced imported contants are
+If `checkMeta` is true (the default), the function checks that all referenced imported constants are
 marked or imported as `meta` or otherwise fails with an error. It should only be set to `false` in
 cases where it is acceptable for code to work only in the language server, where more IR is loaded,
 such as in `#eval`.

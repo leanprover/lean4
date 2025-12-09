@@ -27,8 +27,14 @@ protected theorem dvd_trans {a b c : Nat} (h₁ : a ∣ b) (h₂ : b ∣ c) : a 
 protected theorem dvd_mul_left_of_dvd {a b : Nat} (h : a ∣ b) (c : Nat) : a ∣ c * b :=
   Nat.dvd_trans h (Nat.dvd_mul_left _ _)
 
+grind_pattern Nat.dvd_mul_left_of_dvd => a ∣ b, c * b where
+  guard a ∣ b
+
 protected theorem dvd_mul_right_of_dvd {a b : Nat} (h : a ∣ b) (c : Nat) : a ∣ b * c :=
   Nat.dvd_trans h (Nat.dvd_mul_right _ _)
+
+grind_pattern Nat.dvd_mul_right_of_dvd => a ∣ b, b * c where
+  guard a ∣ b
 
 protected theorem eq_zero_of_zero_dvd {a : Nat} (h : 0 ∣ a) : a = 0 :=
   let ⟨c, H'⟩ := h; H'.trans c.zero_mul

@@ -72,7 +72,6 @@ static lean_object* l_Lean_Meta_AbstractNestedProofs_isNonTrivialProof___lam__0_
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___00Lean_Meta_AbstractNestedProofs_isNonTrivialProof_spec__1(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_AbstractNestedProofs_isNonTrivialProof___lam__0___closed__1;
 static lean_object* l_Lean_Meta_abstractNestedProofs___closed__1;
-static lean_object* l_Lean_Meta_abstractNestedProofs___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_AbstractNestedProofs_visit___lam__2(uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_ptr_addr(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
@@ -99,7 +98,6 @@ LEAN_EXPORT lean_object* l_Lean_withExporting___at___00Lean_withoutExporting___a
 LEAN_EXPORT lean_object* l_Lean_Meta_abstractProof___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaLetTelescope___at___00Lean_Meta_AbstractNestedProofs_visit_spec__16___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_Meta_AbstractNestedProofs_visit_spec__1_spec__2_spec__2___redArg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_abstractNestedProofs___closed__2;
 LEAN_EXPORT lean_object* l_Lean_withoutExporting___at___00Lean_Meta_AbstractNestedProofs_isNonTrivialProof_spec__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_abstractProof___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
@@ -109,7 +107,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_AbstractNestedProofs_visit___lam__3(uint8_t
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_AbstractNestedProofs_visit_spec__9_spec__9_spec__11___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Meta_AbstractNestedProofs_visit_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_inferType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_abstractNestedProofs___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_abstractProof___redArg___lam__0(lean_object*, uint8_t, lean_object*, uint8_t, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_lambdaTelescopeImp(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_Meta_AbstractNestedProofs_visit_spec__1_spec__5___redArg(lean_object*, lean_object*, lean_object*);
@@ -176,7 +173,6 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___00Lean_Meta_AbstractNestedProofs_isNonTrivialProof_spec__1___redArg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withExporting___at___00Lean_withoutExporting___at___00Lean_Meta_AbstractNestedProofs_isNonTrivialProof_spec__2_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_AbstractNestedProofs_visit___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasSorry(lean_object*);
@@ -432,7 +428,7 @@ uint8_t x_7; uint8_t x_8; lean_object* x_13; uint8_t x_14;
 x_7 = 1;
 x_13 = lean_array_uget(x_3, x_4);
 x_14 = l_Lean_Expr_isAtomic(x_13);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 if (x_14 == 0)
 {
 x_8 = x_1;
@@ -780,7 +776,7 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; uint8_t x_1
 x_8 = lean_st_ref_get(x_6);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc_ref(x_9);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_10 = lean_ctor_get_uint8(x_9, sizeof(void*)*8);
 lean_dec_ref(x_9);
 x_11 = lean_st_ref_take(x_6);
@@ -1325,7 +1321,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object*
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_alloc_closure((void*)(l_Lean_Meta_AbstractNestedProofs_isNonTrivialProof___lam__0___boxed), 7, 2);
 lean_closure_set(x_9, 0, x_1);
 lean_closure_set(x_9, 1, x_8);
@@ -2083,7 +2079,7 @@ lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; uint8_t x
 x_10 = lean_st_ref_get(x_8);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc_ref(x_11);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*8);
 lean_dec_ref(x_11);
 x_13 = lean_st_ref_take(x_8);
@@ -2985,7 +2981,7 @@ else
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_44; 
 x_31 = lean_array_uget(x_2, x_4);
 x_32 = l_Lean_Expr_fvarId_x21(x_31);
-lean_dec_ref(x_31);
+lean_dec(x_31);
 lean_inc_ref(x_8);
 lean_inc(x_32);
 x_44 = l_Lean_FVarId_getDecl___redArg(x_32, x_8, x_10, x_11);
@@ -3153,11 +3149,11 @@ x_41 = lean_ctor_get(x_34, 1);
 lean_inc_ref(x_34);
 lean_inc(x_41);
 x_42 = l_Lean_PersistentHashMap_insert___at___00Lean_Meta_AbstractNestedProofs_visit_spec__9___redArg(x_36, x_41, x_34);
-x_19 = x_38;
+x_19 = lean_box(0);
 x_20 = x_42;
-x_21 = x_37;
-x_22 = lean_box(0);
-x_23 = x_34;
+x_21 = x_34;
+x_22 = x_38;
+x_23 = x_37;
 x_24 = x_40;
 goto block_28;
 }
@@ -3176,13 +3172,13 @@ block_28:
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 x_25 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_25, 0, x_23);
-x_26 = l_Lean_PersistentArray_set___redArg(x_21, x_24, x_25);
+lean_ctor_set(x_25, 0, x_21);
+x_26 = l_Lean_PersistentArray_set___redArg(x_23, x_24, x_25);
 lean_dec(x_24);
 x_27 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_27, 0, x_20);
 lean_ctor_set(x_27, 1, x_26);
-lean_ctor_set(x_27, 2, x_19);
+lean_ctor_set(x_27, 2, x_22);
 x_13 = x_27;
 x_14 = lean_box(0);
 goto block_18;
@@ -3691,7 +3687,7 @@ if (x_19 == 0)
 lean_object* x_20; lean_object* x_21; 
 x_20 = lean_st_ref_get(x_3);
 x_21 = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_Meta_AbstractNestedProofs_visit_spec__7___redArg(x_20, x_1);
-lean_dec_ref(x_20);
+lean_dec(x_20);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; 
@@ -4325,9 +4321,9 @@ static lean_object* _init_l_Lean_Meta_abstractNestedProofs___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(4u);
-x_2 = lean_unsigned_to_nat(8u);
-x_3 = lean_nat_mul(x_2, x_1);
+x_1 = lean_box(0);
+x_2 = lean_unsigned_to_nat(16u);
+x_3 = lean_mk_array(x_2, x_1);
 return x_3;
 }
 }
@@ -4335,36 +4331,7 @@ static lean_object* _init_l_Lean_Meta_abstractNestedProofs___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(3u);
-x_2 = l_Lean_Meta_abstractNestedProofs___closed__0;
-x_3 = lean_nat_div(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_abstractNestedProofs___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_abstractNestedProofs___closed__1;
-x_2 = l_Nat_nextPowerOfTwo(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_abstractNestedProofs___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Meta_abstractNestedProofs___closed__2;
-x_3 = lean_mk_array(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_abstractNestedProofs___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_abstractNestedProofs___closed__3;
+x_1 = l_Lean_Meta_abstractNestedProofs___closed__0;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -4396,7 +4363,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 lean_free_object(x_8);
-x_12 = l_Lean_Meta_abstractNestedProofs___closed__4;
+x_12 = l_Lean_Meta_abstractNestedProofs___closed__1;
 x_13 = lean_st_mk_ref(x_12);
 lean_inc(x_13);
 x_14 = l_Lean_Meta_AbstractNestedProofs_visit(x_1, x_2, x_13, x_3, x_4, x_5, x_6);
@@ -4409,7 +4376,7 @@ if (x_15 == 0)
 lean_object* x_16; 
 x_16 = lean_st_ref_get(x_13);
 lean_dec(x_13);
-lean_dec_ref(x_16);
+lean_dec(x_16);
 return x_14;
 }
 else
@@ -4420,7 +4387,7 @@ lean_inc(x_17);
 lean_dec(x_14);
 x_18 = lean_st_ref_get(x_13);
 lean_dec(x_13);
-lean_dec_ref(x_18);
+lean_dec(x_18);
 x_19 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_19, 0, x_17);
 return x_19;
@@ -4453,7 +4420,7 @@ lean_dec(x_20);
 if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_22 = l_Lean_Meta_abstractNestedProofs___closed__4;
+x_22 = l_Lean_Meta_abstractNestedProofs___closed__1;
 x_23 = lean_st_mk_ref(x_22);
 lean_inc(x_23);
 x_24 = l_Lean_Meta_AbstractNestedProofs_visit(x_1, x_2, x_23, x_3, x_4, x_5, x_6);
@@ -4471,7 +4438,7 @@ if (lean_is_exclusive(x_24)) {
 }
 x_27 = lean_st_ref_get(x_23);
 lean_dec(x_23);
-lean_dec_ref(x_27);
+lean_dec(x_27);
 if (lean_is_scalar(x_26)) {
  x_28 = lean_alloc_ctor(0, 1, 0);
 } else {
@@ -4577,12 +4544,6 @@ l_Lean_Meta_abstractNestedProofs___closed__0 = _init_l_Lean_Meta_abstractNestedP
 lean_mark_persistent(l_Lean_Meta_abstractNestedProofs___closed__0);
 l_Lean_Meta_abstractNestedProofs___closed__1 = _init_l_Lean_Meta_abstractNestedProofs___closed__1();
 lean_mark_persistent(l_Lean_Meta_abstractNestedProofs___closed__1);
-l_Lean_Meta_abstractNestedProofs___closed__2 = _init_l_Lean_Meta_abstractNestedProofs___closed__2();
-lean_mark_persistent(l_Lean_Meta_abstractNestedProofs___closed__2);
-l_Lean_Meta_abstractNestedProofs___closed__3 = _init_l_Lean_Meta_abstractNestedProofs___closed__3();
-lean_mark_persistent(l_Lean_Meta_abstractNestedProofs___closed__3);
-l_Lean_Meta_abstractNestedProofs___closed__4 = _init_l_Lean_Meta_abstractNestedProofs___closed__4();
-lean_mark_persistent(l_Lean_Meta_abstractNestedProofs___closed__4);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

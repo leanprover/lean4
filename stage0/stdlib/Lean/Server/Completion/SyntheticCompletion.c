@@ -2838,7 +2838,7 @@ else
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_array_uget(x_3, x_5);
 x_9 = l_Lean_PersistentArray_findSomeMAux___at___00Lean_PersistentArray_findSomeM_x3f___at___00__private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findOutermostContextInfo_x3f_go_spec__0_spec__0(x_8);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 if (lean_obj_tag(x_9) == 1)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -3474,7 +3474,7 @@ x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_15 = 1;
 x_26 = lean_unsigned_to_nat(2u);
 x_27 = lean_nat_mod(x_14, x_26);

@@ -60,7 +60,6 @@ LEAN_EXPORT uint8_t l_Std_Time_Millisecond_instDecidableEqOffset(lean_object*, l
 static lean_object* l_Std_Time_Millisecond_instInhabitedOffset___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_Millisecond_instDecidableEqOffset___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Millisecond_instLTOrdinal;
-lean_object* l_Std_Time_Internal_UnitVal_instNeg___lam__0___boxed(lean_object*);
 static lean_object* l_Std_Time_Millisecond_instInhabitedOrdinal___closed__2;
 LEAN_EXPORT lean_object* l_Std_Time_Millisecond_instAddOffset;
 LEAN_EXPORT lean_object* l_Std_Time_Millisecond_instLTOffset;
@@ -76,6 +75,7 @@ static lean_object* l_Std_Time_Millisecond_instInhabitedOffset___closed__2;
 LEAN_EXPORT lean_object* l_Std_Time_Millisecond_instDecidableLeOffset___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Millisecond_instInhabitedOrdinal___closed__0;
 static lean_object* l_Std_Time_Millisecond_instOfNatOrdinal___closed__0;
+lean_object* l_Int_neg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Millisecond_instOfNatOffset(lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* l_instOrdInt___lam__0___boxed(lean_object*, lean_object*);
@@ -501,7 +501,7 @@ static lean_object* _init_l_Std_Time_Millisecond_instNegOffset___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_Time_Internal_UnitVal_instNeg___lam__0___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Int_neg___boxed), 1, 0);
 return x_1;
 }
 }

@@ -10,6 +10,8 @@ public import Std.Do.PredTrans
 
 @[expose] public section
 
+set_option linter.missingDocs true
+
 /-!
 # Weakest precondition interpretation
 
@@ -44,9 +46,10 @@ universe u v
 variable {m : Type u → Type v}
 
 /--
-  A weakest precondition interpretation of a monadic program `x : m α` in terms of a
-  predicate transformer `PredTrans ps α`.
-  The monad `m` determines `ps : PostShape`. See the module comment for more details.
+A weakest precondition interpretation of a monadic program `x : m α` in terms of a predicate
+transformer `PredTrans ps α`. The monad `m` determines `ps : PostShape`.
+
+For practical reasoning, an instance of `WPMonad m ps` is typically needed in addition to `WP m ps`.
 -/
 class WP (m : Type u → Type v) (ps : outParam PostShape.{u}) where
   /-- Interpret a monadic program `x : m α` in terms of a predicate transformer `PredTrans ps α`. -/
@@ -60,6 +63,9 @@ macro_rules
   | `(wp⟦$x:term⟧) => `((WP.wp $x).apply)
   | `(wp⟦$x:term : $ty⟧) => `((WP.wp ($x : $ty)).apply)
 
+/--
+An unexpander for the `wp⟦...⟧` notation, causing it to be shown correctly in the pretty printer.
+-/
 @[app_unexpander PredTrans.apply]
 protected meta def unexpandWP : Lean.PrettyPrinter.Unexpander
   | `($_ $e) => match e with

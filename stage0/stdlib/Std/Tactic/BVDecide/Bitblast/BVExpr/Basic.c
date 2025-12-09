@@ -4155,8 +4155,8 @@ goto block_24;
 block_15:
 {
 uint64_t x_10; uint64_t x_11; uint64_t x_12; uint64_t x_13; lean_object* x_14; 
-x_10 = lean_uint64_mix_hash(x_8, x_9);
-x_11 = lean_uint64_mix_hash(x_7, x_10);
+x_10 = lean_uint64_mix_hash(x_7, x_9);
+x_11 = lean_uint64_mix_hash(x_8, x_10);
 x_12 = lean_uint64_mix_hash(x_6, x_11);
 x_13 = lean_uint64_mix_hash(x_5, x_12);
 x_14 = lean_alloc_ctor(3, 3, 9);
@@ -4176,8 +4176,8 @@ case 0:
 {
 uint64_t x_18; 
 x_18 = lean_ctor_get_uint64(x_4, sizeof(void*)*2);
-x_7 = x_16;
-x_8 = x_17;
+x_7 = x_17;
+x_8 = x_16;
 x_9 = x_18;
 goto block_15;
 }
@@ -4185,8 +4185,8 @@ case 1:
 {
 uint64_t x_19; 
 x_19 = lean_ctor_get_uint64(x_4, sizeof(void*)*2);
-x_7 = x_16;
-x_8 = x_17;
+x_7 = x_17;
+x_8 = x_16;
 x_9 = x_19;
 goto block_15;
 }
@@ -4194,8 +4194,8 @@ case 3:
 {
 uint64_t x_20; 
 x_20 = lean_ctor_get_uint64(x_4, sizeof(void*)*3);
-x_7 = x_16;
-x_8 = x_17;
+x_7 = x_17;
+x_8 = x_16;
 x_9 = x_20;
 goto block_15;
 }
@@ -4203,8 +4203,8 @@ case 4:
 {
 uint64_t x_21; 
 x_21 = lean_ctor_get_uint64(x_4, sizeof(void*)*3);
-x_7 = x_16;
-x_8 = x_17;
+x_7 = x_17;
+x_8 = x_16;
 x_9 = x_21;
 goto block_15;
 }
@@ -4212,8 +4212,8 @@ case 5:
 {
 uint64_t x_22; 
 x_22 = lean_ctor_get_uint64(x_4, sizeof(void*)*5);
-x_7 = x_16;
-x_8 = x_17;
+x_7 = x_17;
+x_8 = x_16;
 x_9 = x_22;
 goto block_15;
 }
@@ -4221,8 +4221,8 @@ default:
 {
 uint64_t x_23; 
 x_23 = lean_ctor_get_uint64(x_4, sizeof(void*)*4);
-x_7 = x_16;
-x_8 = x_17;
+x_7 = x_17;
+x_8 = x_16;
 x_9 = x_23;
 goto block_15;
 }
@@ -5165,7 +5165,7 @@ x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_8 = lean_nat_dec_eq(x_6, x_1);
 if (x_8 == 0)
 {

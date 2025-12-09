@@ -50,7 +50,6 @@ LEAN_EXPORT lean_object* l_Std_HashMap_Raw_getKey___boxed(lean_object*, lean_obj
 lean_object* l_Prod_repr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_instForIn_x27InferInstanceMembershipOfMonad___redArg(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-static lean_object* l_Std_HashMap_Raw_instEmptyCollection___closed__3;
 static lean_object* l_Std_HashMap_Raw_term___x7em___00__closed__12;
 LEAN_EXPORT uint8_t l_Std_HashMap_Raw_instDecidableMem___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_alter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -92,7 +91,6 @@ LEAN_EXPORT lean_object* l_Std_HashMap_Raw_valuesArray(lean_object*, lean_object
 static lean_object* l_Std_HashMap_Raw_term___x7em___00__closed__2;
 static lean_object* l_Std_HashMap_Raw_instRepr___redArg___lam__2___closed__0;
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_instDecidableMem___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_HashMap_Raw_instEmptyCollection___closed__2;
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_getD___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_getKeyD___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_containsThenInsertIfNew(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -113,7 +111,6 @@ lean_object* l_Std_DHashMap_Internal_Raw_u2080_getKey_x3f___redArg(lean_object*,
 lean_object* l_Std_DHashMap_Raw_Internal_numBuckets___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_any___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_size___redArg(lean_object*);
-static lean_object* l_Std_HashMap_Raw_instEmptyCollection___closed__4;
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_DHashMap_Raw_instDecidableMem___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_HashMap_Raw___aux__Std__Data__HashMap__Raw______macroRules__Std__HashMap__Raw__term___x7em____1___closed__14;
@@ -410,9 +407,9 @@ static lean_object* _init_l_Std_HashMap_Raw_instEmptyCollection___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(4u);
-x_2 = lean_unsigned_to_nat(8u);
-x_3 = lean_nat_mul(x_2, x_1);
+x_1 = lean_box(0);
+x_2 = lean_unsigned_to_nat(16u);
+x_3 = lean_mk_array(x_2, x_1);
 return x_3;
 }
 }
@@ -420,36 +417,7 @@ static lean_object* _init_l_Std_HashMap_Raw_instEmptyCollection___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(3u);
-x_2 = l_Std_HashMap_Raw_instEmptyCollection___closed__0;
-x_3 = lean_nat_div(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_HashMap_Raw_instEmptyCollection___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
-x_2 = l_Nat_nextPowerOfTwo(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Std_HashMap_Raw_instEmptyCollection___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Std_HashMap_Raw_instEmptyCollection___closed__2;
-x_3 = lean_mk_array(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_HashMap_Raw_instEmptyCollection___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_HashMap_Raw_instEmptyCollection___closed__3;
+x_1 = l_Std_HashMap_Raw_instEmptyCollection___closed__0;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -461,7 +429,7 @@ LEAN_EXPORT lean_object* l_Std_HashMap_Raw_instEmptyCollection(lean_object* x_1,
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_HashMap_Raw_instEmptyCollection___closed__4;
+x_3 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
 return x_3;
 }
 }
@@ -469,7 +437,7 @@ LEAN_EXPORT lean_object* l_Std_HashMap_Raw_instInhabited(lean_object* x_1, lean_
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_HashMap_Raw_instEmptyCollection___closed__4;
+x_3 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
 return x_3;
 }
 }
@@ -984,7 +952,7 @@ static lean_object* _init_l_Std_HashMap_Raw_instSingletonProdOfBEqOfHashable___r
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_HashMap_Raw_instEmptyCollection___closed__3;
+x_1 = l_Std_HashMap_Raw_instEmptyCollection___closed__0;
 x_2 = lean_array_get_size(x_1);
 return x_2;
 }
@@ -1008,7 +976,7 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec_ref(x_3);
-x_6 = l_Std_HashMap_Raw_instEmptyCollection___closed__4;
+x_6 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
 x_7 = l_Std_HashMap_Raw_instSingletonProdOfBEqOfHashable___redArg___lam__0___closed__1;
 if (x_7 == 0)
 {
@@ -3294,7 +3262,7 @@ LEAN_EXPORT lean_object* l_Std_HashMap_Raw_ofList(lean_object* x_1, lean_object*
 _start:
 {
 lean_object* x_6; uint8_t x_7; 
-x_6 = l_Std_HashMap_Raw_instEmptyCollection___closed__4;
+x_6 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
 x_7 = l_Std_HashMap_Raw_instSingletonProdOfBEqOfHashable___redArg___lam__0___closed__1;
 if (x_7 == 0)
 {
@@ -3316,7 +3284,7 @@ LEAN_EXPORT lean_object* l_Std_HashMap_Raw_ofList___redArg(lean_object* x_1, lea
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = l_Std_HashMap_Raw_instEmptyCollection___closed__4;
+x_4 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
 x_5 = l_Std_HashMap_Raw_instSingletonProdOfBEqOfHashable___redArg___lam__0___closed__1;
 if (x_5 == 0)
 {
@@ -3356,7 +3324,7 @@ LEAN_EXPORT lean_object* l_Std_HashMap_Raw_unitOfList(lean_object* x_1, lean_obj
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
-x_5 = l_Std_HashMap_Raw_instEmptyCollection___closed__4;
+x_5 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
 x_6 = l_Std_HashMap_Raw_instSingletonProdOfBEqOfHashable___redArg___lam__0___closed__1;
 if (x_6 == 0)
 {
@@ -3378,7 +3346,7 @@ LEAN_EXPORT lean_object* l_Std_HashMap_Raw_unitOfList___redArg(lean_object* x_1,
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = l_Std_HashMap_Raw_instEmptyCollection___closed__4;
+x_4 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
 x_5 = l_Std_HashMap_Raw_instSingletonProdOfBEqOfHashable___redArg___lam__0___closed__1;
 if (x_5 == 0)
 {
@@ -3418,7 +3386,7 @@ LEAN_EXPORT lean_object* l_Std_HashMap_Raw_ofArray(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_6; uint8_t x_7; 
-x_6 = l_Std_HashMap_Raw_instEmptyCollection___closed__4;
+x_6 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
 x_7 = l_Std_HashMap_Raw_instSingletonProdOfBEqOfHashable___redArg___lam__0___closed__1;
 if (x_7 == 0)
 {
@@ -3440,7 +3408,7 @@ LEAN_EXPORT lean_object* l_Std_HashMap_Raw_ofArray___redArg(lean_object* x_1, le
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = l_Std_HashMap_Raw_instEmptyCollection___closed__4;
+x_4 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
 x_5 = l_Std_HashMap_Raw_instSingletonProdOfBEqOfHashable___redArg___lam__0___closed__1;
 if (x_5 == 0)
 {
@@ -3475,7 +3443,7 @@ lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
 lean_dec_ref(x_3);
-x_13 = l_Std_HashMap_Raw_instEmptyCollection___closed__4;
+x_13 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
 return x_13;
 }
 else
@@ -3503,7 +3471,7 @@ lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
-x_10 = l_Std_HashMap_Raw_instEmptyCollection___closed__4;
+x_10 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
 return x_10;
 }
 else
@@ -3531,7 +3499,7 @@ lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
 lean_dec_ref(x_3);
-x_13 = l_Std_HashMap_Raw_instEmptyCollection___closed__4;
+x_13 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
 return x_13;
 }
 else
@@ -3559,7 +3527,7 @@ lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
-x_10 = l_Std_HashMap_Raw_instEmptyCollection___closed__4;
+x_10 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
 return x_10;
 }
 else
@@ -4303,7 +4271,7 @@ x_12 = 0;
 x_13 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_5, x_6, x_10, x_11, x_12, x_8);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 if (lean_obj_tag(x_14) == 0)
 {
 uint8_t x_15; 
@@ -4344,7 +4312,7 @@ x_10 = 0;
 x_11 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_3, x_4, x_8, x_9, x_10, x_6);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 uint8_t x_13; 
@@ -4440,7 +4408,7 @@ x_12 = 0;
 x_13 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_5, x_6, x_10, x_11, x_12, x_8);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 if (lean_obj_tag(x_14) == 0)
 {
 uint8_t x_15; 
@@ -4481,7 +4449,7 @@ x_10 = 0;
 x_11 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_3, x_4, x_8, x_9, x_10, x_6);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 uint8_t x_13; 
@@ -4984,7 +4952,7 @@ if (x_9 == 0)
 lean_object* x_10; 
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
-x_10 = l_Std_HashMap_Raw_instEmptyCollection___closed__4;
+x_10 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
 return x_10;
 }
 else
@@ -5009,7 +4977,7 @@ if (x_6 == 0)
 lean_object* x_7; 
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
-x_7 = l_Std_HashMap_Raw_instEmptyCollection___closed__4;
+x_7 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
 return x_7;
 }
 else
@@ -5034,7 +5002,7 @@ if (x_9 == 0)
 lean_object* x_10; 
 lean_dec_ref(x_5);
 lean_dec(x_4);
-x_10 = l_Std_HashMap_Raw_instEmptyCollection___closed__4;
+x_10 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
 return x_10;
 }
 else
@@ -5059,7 +5027,7 @@ if (x_6 == 0)
 lean_object* x_7; 
 lean_dec_ref(x_2);
 lean_dec(x_1);
-x_7 = l_Std_HashMap_Raw_instEmptyCollection___closed__4;
+x_7 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
 return x_7;
 }
 else
@@ -5084,7 +5052,7 @@ if (x_8 == 0)
 lean_object* x_9; 
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
-x_9 = l_Std_HashMap_Raw_instEmptyCollection___closed__4;
+x_9 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
 return x_9;
 }
 else
@@ -5109,7 +5077,7 @@ if (x_6 == 0)
 lean_object* x_7; 
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
-x_7 = l_Std_HashMap_Raw_instEmptyCollection___closed__4;
+x_7 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
 return x_7;
 }
 else
@@ -5670,7 +5638,7 @@ LEAN_EXPORT lean_object* l_Std_HashMap_Raw_unitOfArray(lean_object* x_1, lean_ob
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
-x_5 = l_Std_HashMap_Raw_instEmptyCollection___closed__4;
+x_5 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
 x_6 = l_Std_HashMap_Raw_instSingletonProdOfBEqOfHashable___redArg___lam__0___closed__1;
 if (x_6 == 0)
 {
@@ -5692,7 +5660,7 @@ LEAN_EXPORT lean_object* l_Std_HashMap_Raw_unitOfArray___redArg(lean_object* x_1
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = l_Std_HashMap_Raw_instEmptyCollection___closed__4;
+x_4 = l_Std_HashMap_Raw_instEmptyCollection___closed__1;
 x_5 = l_Std_HashMap_Raw_instSingletonProdOfBEqOfHashable___redArg___lam__0___closed__1;
 if (x_5 == 0)
 {
@@ -5875,12 +5843,6 @@ l_Std_HashMap_Raw_instEmptyCollection___closed__0 = _init_l_Std_HashMap_Raw_inst
 lean_mark_persistent(l_Std_HashMap_Raw_instEmptyCollection___closed__0);
 l_Std_HashMap_Raw_instEmptyCollection___closed__1 = _init_l_Std_HashMap_Raw_instEmptyCollection___closed__1();
 lean_mark_persistent(l_Std_HashMap_Raw_instEmptyCollection___closed__1);
-l_Std_HashMap_Raw_instEmptyCollection___closed__2 = _init_l_Std_HashMap_Raw_instEmptyCollection___closed__2();
-lean_mark_persistent(l_Std_HashMap_Raw_instEmptyCollection___closed__2);
-l_Std_HashMap_Raw_instEmptyCollection___closed__3 = _init_l_Std_HashMap_Raw_instEmptyCollection___closed__3();
-lean_mark_persistent(l_Std_HashMap_Raw_instEmptyCollection___closed__3);
-l_Std_HashMap_Raw_instEmptyCollection___closed__4 = _init_l_Std_HashMap_Raw_instEmptyCollection___closed__4();
-lean_mark_persistent(l_Std_HashMap_Raw_instEmptyCollection___closed__4);
 l_Std_HashMap_Raw_term___x7em___00__closed__0 = _init_l_Std_HashMap_Raw_term___x7em___00__closed__0();
 lean_mark_persistent(l_Std_HashMap_Raw_term___x7em___00__closed__0);
 l_Std_HashMap_Raw_term___x7em___00__closed__1 = _init_l_Std_HashMap_Raw_term___x7em___00__closed__1();

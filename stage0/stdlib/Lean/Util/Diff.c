@@ -68,7 +68,6 @@ LEAN_EXPORT lean_object* l_Lean_Diff_Action_noConfusion(lean_object*, uint8_t, u
 static lean_object* l_Lean_Diff_lcs___redArg___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Diff_Action_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
-lean_object* lean_nat_div(lean_object*, lean_object*);
 static lean_object* l_Lean_Diff_lcs___redArg___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Diff_Action_insert_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_diff___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -110,7 +109,6 @@ LEAN_EXPORT lean_object* l_Lean_Diff_diff___redArg___lam__2___boxed(lean_object*
 LEAN_EXPORT lean_object* l___private_Lean_Util_Diff_0__Lean_Diff_matchSuffix_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Diff_linesToString___redArg___closed__0;
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Diff_lcs___redArg___closed__14;
 LEAN_EXPORT lean_object* l_Lean_Diff_diff___redArg___lam__5(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_PRange_instUpwardEnumerableNat;
 LEAN_EXPORT lean_object* l_Lean_Diff_instToStringAction___lam__0___boxed(lean_object*);
@@ -136,15 +134,12 @@ LEAN_EXPORT lean_object* l_Lean_Diff_Action_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_diff___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Diff_Action_linePrefix___closed__1;
 static lean_object* l_Lean_Diff_diff___redArg___closed__1;
-static lean_object* l_Lean_Diff_lcs___redArg___closed__16;
 LEAN_EXPORT lean_object* l_Lean_Diff_instBEqAction_beq___boxed(lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_instBEqAction;
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
-lean_object* lean_nat_mul(lean_object*, lean_object*);
-lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_Action_insert_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Diff_lcs___redArg___closed__3;
@@ -157,7 +152,6 @@ LEAN_EXPORT lean_object* l_Lean_Diff_lcs___redArg(lean_object*, lean_object*, le
 LEAN_EXPORT lean_object* l_Lean_Diff_Action_noConfusion___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_matchPrefix(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
-static lean_object* l_Lean_Diff_lcs___redArg___closed__15;
 lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_Histogram_addLeft(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2014,9 +2008,9 @@ static lean_object* _init_l_Lean_Diff_lcs___redArg___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(4u);
-x_2 = lean_unsigned_to_nat(8u);
-x_3 = lean_nat_mul(x_2, x_1);
+x_1 = lean_box(0);
+x_2 = lean_unsigned_to_nat(16u);
+x_3 = lean_mk_array(x_2, x_1);
 return x_3;
 }
 }
@@ -2024,36 +2018,7 @@ static lean_object* _init_l_Lean_Diff_lcs___redArg___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(3u);
-x_2 = l_Lean_Diff_lcs___redArg___closed__12;
-x_3 = lean_nat_div(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Diff_lcs___redArg___closed__14() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Diff_lcs___redArg___closed__13;
-x_2 = l_Nat_nextPowerOfTwo(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Diff_lcs___redArg___closed__15() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Diff_lcs___redArg___closed__14;
-x_3 = lean_mk_array(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Diff_lcs___redArg___closed__16() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Diff_lcs___redArg___closed__15;
+x_1 = l_Lean_Diff_lcs___redArg___closed__12;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -2126,7 +2091,7 @@ lean_closure_set(x_59, 2, x_2);
 x_60 = l_Lean_Diff_lcs___redArg___closed__11;
 x_67 = l_Subarray_size___redArg(x_14);
 x_68 = lean_unsigned_to_nat(0u);
-x_69 = l_Lean_Diff_lcs___redArg___closed__16;
+x_69 = l_Lean_Diff_lcs___redArg___closed__13;
 x_70 = lean_nat_dec_lt(x_68, x_67);
 if (x_70 == 0)
 {
@@ -3136,7 +3101,7 @@ x_30 = lean_ctor_get(x_29, 1);
 lean_inc(x_30);
 x_31 = lean_ctor_get(x_29, 0);
 lean_inc(x_31);
-lean_dec_ref(x_29);
+lean_dec(x_29);
 x_32 = !lean_is_exclusive(x_30);
 if (x_32 == 0)
 {
@@ -3160,7 +3125,7 @@ lean_ctor_set(x_35, 0, x_33);
 x_39 = l___private_Init_While_0__Lean_Loop_forIn_loop(lean_box(0), lean_box(0), x_24, x_38, x_35);
 x_40 = lean_ctor_get(x_39, 1);
 lean_inc(x_40);
-lean_dec_ref(x_39);
+lean_dec(x_39);
 return x_40;
 }
 else
@@ -3178,7 +3143,7 @@ lean_ctor_set(x_43, 1, x_41);
 x_44 = l___private_Init_While_0__Lean_Loop_forIn_loop(lean_box(0), lean_box(0), x_24, x_42, x_43);
 x_45 = lean_ctor_get(x_44, 1);
 lean_inc(x_45);
-lean_dec_ref(x_44);
+lean_dec(x_44);
 return x_45;
 }
 }
@@ -3220,7 +3185,7 @@ lean_ctor_set(x_54, 1, x_51);
 x_55 = l___private_Init_While_0__Lean_Loop_forIn_loop(lean_box(0), lean_box(0), x_24, x_53, x_54);
 x_56 = lean_ctor_get(x_55, 1);
 lean_inc(x_56);
-lean_dec_ref(x_55);
+lean_dec(x_55);
 return x_56;
 }
 }
@@ -3432,12 +3397,6 @@ l_Lean_Diff_lcs___redArg___closed__12 = _init_l_Lean_Diff_lcs___redArg___closed_
 lean_mark_persistent(l_Lean_Diff_lcs___redArg___closed__12);
 l_Lean_Diff_lcs___redArg___closed__13 = _init_l_Lean_Diff_lcs___redArg___closed__13();
 lean_mark_persistent(l_Lean_Diff_lcs___redArg___closed__13);
-l_Lean_Diff_lcs___redArg___closed__14 = _init_l_Lean_Diff_lcs___redArg___closed__14();
-lean_mark_persistent(l_Lean_Diff_lcs___redArg___closed__14);
-l_Lean_Diff_lcs___redArg___closed__15 = _init_l_Lean_Diff_lcs___redArg___closed__15();
-lean_mark_persistent(l_Lean_Diff_lcs___redArg___closed__15);
-l_Lean_Diff_lcs___redArg___closed__16 = _init_l_Lean_Diff_lcs___redArg___closed__16();
-lean_mark_persistent(l_Lean_Diff_lcs___redArg___closed__16);
 l_Lean_Diff_diff___redArg___closed__0 = _init_l_Lean_Diff_diff___redArg___closed__0();
 lean_mark_persistent(l_Lean_Diff_diff___redArg___closed__0);
 l_Lean_Diff_diff___redArg___closed__1 = _init_l_Lean_Diff_diff___redArg___closed__1();

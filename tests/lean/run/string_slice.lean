@@ -240,3 +240,12 @@ end
 
 #guard ("".toSlice.split "").toList == ["".toSlice, "".toSlice]
 #guard ("abc".toSlice.split "").toList == ["".toSlice, "a".toSlice, "b".toSlice, "c".toSlice, "".toSlice]
+
+#guard " ".find (·.isWhitespace) = " ".startPos
+#guard " ".find (· = ' ') = " ".startPos
+#guard " ".startsWith (·.isWhitespace) = true
+#guard " ".startsWith (· = ' ') = true
+#guard " ".revFind? (·.isWhitespace) = some " ".startPos
+#guard " ".revFind? (· = ' ') = some " ".startPos
+#guard " ".endsWith (·.isWhitespace) = true
+#guard " ".endsWith (· = ' ') = true

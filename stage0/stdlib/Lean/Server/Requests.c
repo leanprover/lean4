@@ -8372,7 +8372,7 @@ goto block_9;
 else
 {
 lean_dec(x_13);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_5 = x_4;
 goto block_9;
 }
@@ -8430,7 +8430,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_obj
 x_2 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__4;
 x_3 = lean_st_ref_get(x_2);
 x_4 = l_Lean_PersistentHashMap_toArray___at___00Lean_Server_partialLspRequestHandlerMethods_spec__0___redArg(x_3);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_array_get_size(x_4);
 x_7 = l_Array_filterMapM___at___00Lean_Server_partialLspRequestHandlerMethods_spec__6(x_4, x_5, x_6);

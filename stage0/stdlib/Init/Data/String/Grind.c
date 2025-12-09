@@ -62,6 +62,7 @@ static lean_object* l_String_Internal___aux__Init__Data__String__Grind______macr
 static lean_object* l_String_Internal___aux__Init__Data__String__Grind______macroRules__String__Internal__tacticOrder__1___closed__52;
 static lean_object* l_String_Internal___aux__Init__Data__String__Grind______macroRules__String__Internal__tacticOrder__1___closed__7;
 static lean_object* l_String_Internal___aux__Init__Data__String__Grind______macroRules__String__Internal__tacticOrder__1___closed__18;
+static lean_object* l_String_Pos_Raw_instToIntCiOfNatInt___closed__0;
 static lean_object* l_String_Internal___aux__Init__Data__String__Grind______macroRules__String__Internal__tacticOrder__1___closed__80;
 static lean_object* l_String_Internal___aux__Init__Data__String__Grind______macroRules__String__Internal__tacticOrder__1___closed__26;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
@@ -70,7 +71,6 @@ lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_
 static lean_object* l_String_Internal___aux__Init__Data__String__Grind______macroRules__String__Internal__tacticOrder__1___closed__28;
 static lean_object* l_String_Internal___aux__Init__Data__String__Grind______macroRules__String__Internal__tacticOrder__1___closed__14;
 static lean_object* l_String_Internal___aux__Init__Data__String__Grind______macroRules__String__Internal__tacticOrder__1___closed__65;
-static lean_object* l_String_Pos_instToIntCoOfNatIntHAddCastUtf8ByteSize___closed__0;
 static lean_object* l_String_Internal___aux__Init__Data__String__Grind______macroRules__String__Internal__tacticOrder__1___closed__29;
 static lean_object* l_String_Internal___aux__Init__Data__String__Grind______macroRules__String__Internal__tacticOrder__1___closed__23;
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -90,7 +90,6 @@ static lean_object* l_String_Internal___aux__Init__Data__String__Grind______macr
 static lean_object* l_String_Internal___aux__Init__Data__String__Grind______macroRules__String__Internal__tacticOrder__1___closed__43;
 static lean_object* l_String_Internal___aux__Init__Data__String__Grind______macroRules__String__Internal__tacticOrder__1___closed__22;
 static lean_object* l_String_Internal___aux__Init__Data__String__Grind______macroRules__String__Internal__tacticOrder__1___closed__85;
-LEAN_EXPORT lean_object* l_String_Pos_Raw_instToIntCiOfNatInt___lam__0(lean_object*);
 static lean_object* l_String_Internal___aux__Init__Data__String__Grind______macroRules__String__Internal__tacticOrder__1___closed__20;
 static lean_object* l_String_Internal___aux__Init__Data__String__Grind______macroRules__String__Internal__tacticOrder__1___closed__13;
 LEAN_EXPORT lean_object* l_String_Slice_Pos_instToIntCoOfNatIntHAddCastUtf8ByteSize(lean_object*);
@@ -1431,27 +1430,19 @@ return x_134;
 }
 }
 }
-LEAN_EXPORT lean_object* l_String_Pos_Raw_instToIntCiOfNatInt___lam__0(lean_object* x_1) {
+static lean_object* _init_l_String_Pos_Raw_instToIntCiOfNatInt___closed__0() {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_instNatCastInt___lam__0(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instNatCastInt___lam__0), 1, 0);
+return x_1;
 }
 }
 static lean_object* _init_l_String_Pos_Raw_instToIntCiOfNatInt() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_Pos_Raw_instToIntCiOfNatInt___lam__0), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_String_Pos_instToIntCoOfNatIntHAddCastUtf8ByteSize___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_Pos_Raw_instToIntCiOfNatInt___lam__0), 1, 0);
+x_1 = l_String_Pos_Raw_instToIntCiOfNatInt___closed__0;
 return x_1;
 }
 }
@@ -1459,7 +1450,7 @@ LEAN_EXPORT lean_object* l_String_Pos_instToIntCoOfNatIntHAddCastUtf8ByteSize(le
 _start:
 {
 lean_object* x_2; 
-x_2 = l_String_Pos_instToIntCoOfNatIntHAddCastUtf8ByteSize___closed__0;
+x_2 = l_String_Pos_Raw_instToIntCiOfNatInt___closed__0;
 return x_2;
 }
 }
@@ -1476,7 +1467,7 @@ LEAN_EXPORT lean_object* l_String_Slice_Pos_instToIntCoOfNatIntHAddCastUtf8ByteS
 _start:
 {
 lean_object* x_2; 
-x_2 = l_String_Pos_instToIntCoOfNatIntHAddCastUtf8ByteSize___closed__0;
+x_2 = l_String_Pos_Raw_instToIntCiOfNatInt___closed__0;
 return x_2;
 }
 }
@@ -1704,10 +1695,10 @@ l_String_Internal___aux__Init__Data__String__Grind______macroRules__String__Inte
 lean_mark_persistent(l_String_Internal___aux__Init__Data__String__Grind______macroRules__String__Internal__tacticOrder__1___closed__91);
 l_String_Internal___aux__Init__Data__String__Grind______macroRules__String__Internal__tacticOrder__1___closed__92 = _init_l_String_Internal___aux__Init__Data__String__Grind______macroRules__String__Internal__tacticOrder__1___closed__92();
 lean_mark_persistent(l_String_Internal___aux__Init__Data__String__Grind______macroRules__String__Internal__tacticOrder__1___closed__92);
+l_String_Pos_Raw_instToIntCiOfNatInt___closed__0 = _init_l_String_Pos_Raw_instToIntCiOfNatInt___closed__0();
+lean_mark_persistent(l_String_Pos_Raw_instToIntCiOfNatInt___closed__0);
 l_String_Pos_Raw_instToIntCiOfNatInt = _init_l_String_Pos_Raw_instToIntCiOfNatInt();
 lean_mark_persistent(l_String_Pos_Raw_instToIntCiOfNatInt);
-l_String_Pos_instToIntCoOfNatIntHAddCastUtf8ByteSize___closed__0 = _init_l_String_Pos_instToIntCoOfNatIntHAddCastUtf8ByteSize___closed__0();
-lean_mark_persistent(l_String_Pos_instToIntCoOfNatIntHAddCastUtf8ByteSize___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

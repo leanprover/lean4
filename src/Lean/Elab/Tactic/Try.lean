@@ -25,7 +25,7 @@ namespace Try
 
 /-!
 `evalSuggest` is a `evalTactic` variant that returns suggestions after executing a tactic built using
-combinatiors such as `first`, `attempt_all`, `<;>`, `;`, and `try`.
+combinators such as `first`, `attempt_all`, `<;>`, `;`, and `try`.
 -/
 
 /-- Returns `true` if `fvarId` has an accessible name. -/
@@ -61,7 +61,7 @@ def evalSuggestExact : TacticM (TSyntax `tactic) := do
   let mvarId :: mvarIds ← getGoals
     | throwError "no goals"
   mvarId.withContext do
-    let tactic := fun exfalso => LibrarySearch.solveByElim [] (exfalso := exfalso) (maxDepth := 6)
+    let tactic := fun goals => LibrarySearch.solveByElim [] (exfalso := false) goals (maxDepth := 6)
     let allowFailure := fun _ => return false
     let .none ← LibrarySearch.librarySearch mvarId tactic allowFailure
       | throwError "`exact?` failed"
@@ -295,7 +295,7 @@ meta def elabRegisterTryTactic : Command.CommandElab := fun stx => do
 
   -- Generate a unique name based on a hash of the tactic syntax
   let tacHash := hash tacStx.prettyPrint.pretty
-  let name := Name.mkSimple s!"auxTryTactic{tacHash}"
+  let name := Name.mkSimple s!"_auxTryTactic{tacHash}"
 
   -- Generate code that parses the tactic at runtime
   let prioStx := Syntax.mkNumLit (toString prio)
@@ -886,7 +886,7 @@ private def mkAtomicWithSuggestionsStx : CoreM (TSyntax `tactic) :=
 
 /-- `simple` tactics -/
 private def mkSimpleTacStx : CoreM (TSyntax `tactic) :=
-  `(tactic| attempt_all | rfl | assumption)
+  `(tactic| first | (attempt_all | rfl | assumption) | solve_by_elim)
 
 /-! Function induction generators -/
 

@@ -82,3 +82,18 @@ macro "∎" : tactic => `(tactic| try?)
 /-- `∎` (typed as `\qed`) is a macro that expands to `by try? (wrapWithBy := true)` in term mode.
     The `wrapWithBy` config option causes suggestions to be prefixed with `by`. -/
 macro "∎" : term => `(by try? (wrapWithBy := true))
+
+namespace Lean.Try
+
+/--
+Marker for try?-solved subproofs in `exact? +try?` suggestions.
+When `exact?` uses try? as a discharger, it wraps the proof in this marker
+so that the unexpander can replace it with `(by try?)` in the suggestion.
+-/
+@[inline] def Marker {α : Sort u} (a : α) : α := a
+
+@[app_unexpander Marker]
+meta def markerUnexpander : PrettyPrinter.Unexpander := fun _ => do
+  `(by try?)
+
+end Lean.Try

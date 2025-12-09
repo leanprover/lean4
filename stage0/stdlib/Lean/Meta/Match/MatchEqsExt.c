@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Match.MatchEqsExt
-// Imports: public import Lean.Meta.Basic public import Lean.Meta.Match.Basic import Lean.Meta.Eqns
+// Imports: public import Lean.Meta.Basic public import Lean.Meta.Match.Basic public import Lean.Meta.Match.MatcherInfo import Lean.Meta.Eqns
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -80,6 +80,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Match_initFn___lam__0_00___x40_Lean_Meta_Ma
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Match_registerMatchEqns_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Match_isMatchEqnTheorem___closed__0;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at___00Lean_PersistentHashMap_insertAtCollisionNode___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Match_registerMatchEqns_spec__0_spec__0_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_get_congr_match_equations_for(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentHashMap_empty___at___00Lean_Meta_Match_instInhabitedMatchEqnsExtState_default_spec__0___closed__0;
 static lean_object* l_Lean_Meta_Match_instReprMatchEqns_repr___redArg___closed__7;
 static lean_object* l_Lean_Meta_Match_instReprMatchEqns_repr___redArg___closed__14;
@@ -105,6 +106,7 @@ static lean_object* l_Lean_Meta_Match_instInhabitedMatchEqnsExtState_default___c
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_instInhabitedMatchEqnsExtState_default;
 static lean_object* l_Array_Array_repr___at___00Lean_Meta_Match_instReprMatchEqns_repr_spec__0___closed__8;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Match_genMatchCongrEqns___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkCollisionNode___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Array_Array_repr___at___00Lean_Meta_Match_instReprMatchEqns_repr_spec__0_spec__3(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -1800,6 +1802,14 @@ x_7 = lean_get_match_equations_for(x_1, x_2, x_3, x_4, x_5);
 return x_7;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Meta_Match_genMatchCongrEqns___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = lean_get_congr_match_equations_for(x_1, x_2, x_3, x_4, x_5);
+return x_7;
+}
+}
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAtAux___at___00Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_Meta_Match_isMatchEqnTheorem_spec__0_spec__0_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1967,7 +1977,7 @@ lean_inc(x_2);
 x_9 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_6, x_7, x_1, x_8, x_2);
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = l_Lean_PersistentHashMap_contains___at___00Lean_Meta_Match_isMatchEqnTheorem_spec__0___redArg(x_10, x_2);
 lean_dec(x_2);
 return x_11;
@@ -2062,6 +2072,7 @@ return x_6;
 }
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Match_Basic(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Match_MatcherInfo(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Eqns(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Match_MatchEqsExt(uint8_t builtin) {
@@ -2072,6 +2083,9 @@ res = initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Match_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Match_MatcherInfo(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Eqns(builtin);

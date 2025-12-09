@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_zpad(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_split___at___00Lake_Toml_DateTime_ofString_x3f_spec__0___boxed(lean_object*);
 static lean_object* l_Lake_Toml_DateTime_instToString___closed__0;
@@ -120,7 +121,6 @@ extern lean_object* l_Lake_instInhabitedDate_default;
 LEAN_EXPORT uint8_t l_String_Slice_contains___at___00Lake_Toml_DateTime_ofString_x3f_spec__2___redArg(lean_object*);
 lean_object* l_String_Slice_Pos_prev_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_instToString;
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_localTime_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_offsetDateTime_elim___redArg(lean_object*, lean_object*);

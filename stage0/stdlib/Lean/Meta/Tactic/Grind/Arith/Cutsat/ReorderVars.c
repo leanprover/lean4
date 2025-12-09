@@ -906,7 +906,7 @@ lean_dec_ref(x_6);
 x_12 = lean_array_uget(x_3, x_5);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc_ref(x_13);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_14 = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_ReorderVars_0__Lean_Meta_Grind_Arith_Cutsat_collectVarInfo_visitPoly___redArg(x_13, x_7);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
@@ -979,7 +979,7 @@ lean_dec_ref(x_6);
 x_12 = lean_array_uget(x_3, x_5);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc_ref(x_13);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_14 = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_ReorderVars_0__Lean_Meta_Grind_Arith_Cutsat_collectVarInfo_visitPoly___redArg(x_13, x_7);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
@@ -1278,7 +1278,7 @@ lean_dec_ref(x_6);
 x_20 = lean_array_uget(x_3, x_5);
 x_21 = lean_ctor_get(x_20, 0);
 lean_inc_ref(x_21);
-lean_dec_ref(x_20);
+lean_dec(x_20);
 x_22 = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_ReorderVars_0__Lean_Meta_Grind_Arith_Cutsat_collectVarInfo_visitPoly___redArg(x_21, x_7);
 x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);
@@ -1851,7 +1851,7 @@ lean_dec_ref(x_6);
 x_20 = lean_array_uget(x_3, x_5);
 x_21 = lean_ctor_get(x_20, 0);
 lean_inc_ref(x_21);
-lean_dec_ref(x_20);
+lean_dec(x_20);
 x_22 = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_ReorderVars_0__Lean_Meta_Grind_Arith_Cutsat_collectVarInfo_visitPoly___redArg(x_21, x_7);
 x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);
@@ -2226,8 +2226,8 @@ if (x_51 == 0)
 {
 lean_object* x_52; 
 x_52 = l_outOfBounds___redArg(x_50);
-x_24 = x_48;
-x_25 = lean_box(0);
+x_24 = lean_box(0);
+x_25 = x_48;
 x_26 = x_52;
 goto block_33;
 }
@@ -2236,8 +2236,8 @@ else
 lean_object* x_53; 
 lean_inc_ref(x_40);
 x_53 = l_Lean_PersistentArray_get_x21___redArg(x_50, x_40, x_5);
-x_24 = x_48;
-x_25 = lean_box(0);
+x_24 = lean_box(0);
+x_25 = x_48;
 x_26 = x_53;
 goto block_33;
 }
@@ -2328,7 +2328,7 @@ lean_inc(x_28);
 lean_dec(x_27);
 x_29 = lean_nat_abs(x_28);
 lean_dec(x_28);
-x_30 = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_ReorderVars_0__Lean_Meta_Grind_Arith_Cutsat_updateDvd___redArg(x_29, x_5, x_24);
+x_30 = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_ReorderVars_0__Lean_Meta_Grind_Arith_Cutsat_updateDvd___redArg(x_29, x_5, x_25);
 x_31 = lean_ctor_get(x_30, 0);
 lean_inc(x_31);
 lean_dec_ref(x_30);
@@ -2344,7 +2344,7 @@ else
 {
 lean_dec(x_26);
 x_18 = x_1;
-x_19 = x_24;
+x_19 = x_25;
 x_20 = lean_box(0);
 goto block_23;
 }
@@ -4376,7 +4376,7 @@ x_17 = lean_usize_shift_right(x_11, x_16);
 x_18 = lean_nat_add(x_4, x_13);
 lean_dec(x_4);
 lean_inc(x_9);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_19 = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Grind_Arith_Cutsat_reorderDiseqSplits_spec__0_spec__0___redArg(x_5, x_17, x_1, x_8, x_9);
 x_4 = x_18;
 x_5 = x_19;
@@ -5121,11 +5121,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -6573,7 +6573,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00Lean_Meta_Grind_Arith_Cutsat_reorderVars_spec__27_spec__27_spec__27(x_6, x_4);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = 1;
 x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;
@@ -6596,7 +6596,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l_Lean_PersistentArray_toArray___redArg(x_6);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Array_append___redArg(x_4, x_7);
 lean_dec_ref(x_7);
 x_9 = 1;
@@ -6690,7 +6690,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00Lean_Meta_Grind_Arith_Cutsat_reorderVars_spec__34_spec__34_spec__34(x_6, x_4);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = 1;
 x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;
@@ -6713,7 +6713,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l_Lean_PersistentArray_toArray___redArg(x_6);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Array_append___redArg(x_4, x_7);
 lean_dec_ref(x_7);
 x_9 = 1;
@@ -6807,7 +6807,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00Lean_Meta_Grind_Arith_Cutsat_reorderVars_spec__41_spec__41_spec__41(x_6, x_4);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = 1;
 x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;

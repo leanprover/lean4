@@ -298,6 +298,14 @@ def withSplitSource [MonadControlT GrindM m] [Monad m] (splitSource : SplitSourc
 def getConfig : GrindM Grind.Config :=
   return (← readThe Context).config
 
+/--
+Runs `k` with the transparency setting specified by `Config.reducible`.
+Uses reducible transparency if `reducible` is `true`, otherwise default transparency.
+-/
+abbrev withGTransparency [MonadControlT MetaM n] [MonadLiftT GrindM n] [Monad n] (k : n α) : n α := do
+  let m := if (← getConfig).reducible then .reducible else .default
+  withTransparency m k
+
 /-- Returns the internalized `True` constant.  -/
 def getTrueExpr : GrindM Expr := do
   return (← readThe Context).trueExpr
@@ -1025,7 +1033,7 @@ def markTheoremInstance (proof : Expr) (assignment : Array Expr) : GoalM Bool :=
 /-- Adds a new fact `prop` with proof `proof` to the queue for preprocessing and the assertion. -/
 def addNewRawFact (proof : Expr) (prop : Expr) (generation : Nat) (splitSource : SplitSource) : GoalM Unit := do
   if grind.debug.get (← getOptions) then
-    unless (← withReducible <| isDefEq (← inferType proof) prop) do
+    unless (← withGTransparency <| isDefEq (← inferType proof) prop) do
       throwError "`grind` internal error, trying to assert{indentExpr prop}\n\
         with proof{indentExpr proof}\nwhich has type{indentExpr (← inferType proof)}\n\
         which is not definitionally equal with `reducible` transparency setting}"
@@ -1182,7 +1190,7 @@ def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
       throwError "`grind` internal error, rhs of new equality has not been internalized{indentExpr rhs}"
     if proof != congrPlaceholderProof && proof != eqCongrSymmPlaceholderProof then
       let expectedType ← if isHEq then mkHEq lhs rhs else mkEq lhs rhs
-      unless (← withReducible <| isDefEq (← inferType proof) expectedType) do
+      unless (← withGTransparency <| isDefEq (← inferType proof) expectedType) do
         throwError "`grind` internal error, trying to assert equality{indentExpr expectedType}\n\
             with proof{indentExpr proof}\nwhich has type{indentExpr (← inferType proof)}\n\
             which is not definitionally equal with `reducible` transparency setting}"

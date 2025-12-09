@@ -124,7 +124,7 @@ def rewriteManualLinksCore (s : String) : Id (Array (Lean.Syntax.Range × String
       iter' := iter'.next h'
       if urlChar c' && ¬iter'.IsAtEnd then
         continue
-      match rw (start.extract pre') with
+      match rw (s.extract start pre') with
       | .error err =>
         errors := errors.push (⟨pre.offset, pre'.offset⟩, err)
         out := out.push c

@@ -196,7 +196,7 @@ def setConfigOpt (kvPair : String) : CliM PUnit :=
     if h : pos.IsAtEnd then
       (kvPair.toName, "")
     else
-      (kvPair.startPos.extract pos |>.toName, (pos.next h).extract kvPair.endPos)
+      (kvPair.extract kvPair.startPos pos |>.toName, kvPair.extract (pos.next h) kvPair.endPos)
   modifyThe LakeOptions fun opts =>
     {opts with configOpts := opts.configOpts.insert key val}
 
@@ -433,11 +433,11 @@ protected def get : CliM PUnit := do
       let ok ← ws.packages.foldlM (start := 1) (init := true) (m := LoggerIO) fun ok pkg => do
         try
           if pkg.scope.isEmpty then
-            logInfo s!"{pkg.name}: skipping non-Reservoir dependency`"
+            logInfo s!"{pkg.prettyName}: skipping non-Reservoir dependency`"
           else
             let platform := cachePlatform pkg platform
             let toolchain := cacheToolchain pkg toolchain
-            let remoteScope := s!"{pkg.scope}/{pkg.name.toString (escape := false)}"
+            let remoteScope := s!"{pkg.scope}/{pkg.prettyName}"
             let map ← findOutputs cache service pkg remoteScope opts platform toolchain
             service.downloadOutputArtifacts map cache pkg.cacheScope remoteScope opts.forceDownload
           return ok
@@ -457,7 +457,7 @@ where
   findOutputs cache service pkg remoteScope opts platform toolchain : LoggerIO CacheMap := do
     let repo := GitRepo.mk pkg.dir
     if (← repo.hasDiff) then
-      logWarning s!"{pkg.name}: package has changes; \
+      logWarning s!"{pkg.prettyName}: package has changes; \
         only artifacts for committed code will be downloaded"
       if .warning ≤ opts.failLv then
         failure
@@ -492,7 +492,7 @@ protected def put : CliM PUnit := do
   let service := service.withRepoScope opts.repoScope
   let repo := GitRepo.mk pkg.dir
   if (← repo.hasDiff) then
-    logWarning s!"{pkg.name}: package has changes; \
+    logWarning s!"{pkg.prettyName}: package has changes; \
       artifacts will be uploaded for the most recent commit"
     if .warning ≤ opts.failLv then
       exit 1
@@ -751,9 +751,9 @@ protected def clean : CliM PUnit := do
     ws.clean
   else
     let pkgs ← pkgSpecs.mapM fun pkgSpec =>
-      match ws.findPackage? <| stringToLegalOrSimpleName pkgSpec with
+      match ws.findPackageByName? <| stringToLegalOrSimpleName pkgSpec with
       | none => throw <| .unknownPackage pkgSpec
-      | some pkg => pure pkg.toPackage
+      | some pkg => pure pkg
     pkgs.forM (·.clean)
 
 protected def script : CliM PUnit := do
@@ -857,7 +857,7 @@ protected def reservoirConfig : CliM PUnit := do
   let readmeFile :=
     if (← pkg.readmeFile.pathExists) then some pkg.relReadmeFile else none
   let cfg : ReservoirConfig := {
-    name := pkg.name.toString
+    name := pkg.baseName.toString
     version := pkg.version
     versionTags := repoTags.filter pkg.versionTags.matches
     description := pkg.description

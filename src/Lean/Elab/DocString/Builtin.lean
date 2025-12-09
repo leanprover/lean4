@@ -522,7 +522,6 @@ private def givenContents : ParserFn :=
        optionalFn (symbolFn ":" >> termParser.fn)))
     (symbolFn ",")
 
-
 /--
 A metavariable to be discussed in the remainder of the docstring.
 
@@ -600,6 +599,98 @@ def given (type : Option StrLit := none) (typeIsMeta : flag false) («show» : f
           if let some ⟨b', e'⟩ := stx[2][1].getRange? then
             pure <| s!"{String.Pos.Raw.extract text.source b e} : {String.Pos.Raw.extract text.source b' e'}"
           else pure <| String.Pos.Raw.extract text.source b e
+        else
+          failed := true
+          break
+      outStrs := outStrs.push thisStr
+    if failed then
+      return .code s.getString
+    else
+      return outStrs.map Inline.code
+        |>.toList |>.intersperse (Inline.text ", ") |>.toArray
+        |> Inline.concat
+  else return .empty
+
+private def givenInstanceContents : ParserFn :=
+  whitespace >>
+  sepBy1Fn false
+    (nodeFn nullKind
+     (optionalFn (atomicFn (identFn >> symbolFn ":")) >>
+       termParser.fn))
+    (symbolFn ",")
+
+/--
+An instance metavariable to be discussed in the remainder of the docstring.
+
+This is similar to {given}, but the resulting variable is marked for instance synthesis
+(with `BinderInfo.instImplicit`), and the name is optional.
+
+There are two syntaxes that can be used:
+ * `` {givenInstance}`T` `` establishes an unnamed instance of type `T`.
+ * `` {givenInstance}`x : T` `` establishes a named instance `x` of type `T`.
+
+Additionally, the contents of the code literal can be repeated, with comma separators.
+
+If the `show` flag is `false` (default `true`), then the instance is not shown in the docstring.
+-/
+@[builtin_doc_role]
+def givenInstance («show» : flag true) (xs : TSyntaxArray `inline) :
+    DocM (Inline ElabInline) := do
+  let s ← onlyCode xs
+
+  let stxs ← parseStrLit givenInstanceContents s
+  let stxs := stxs.getArgs.mapIdx Prod.mk |>.filterMap fun (n, s) =>
+    if n % 2 = 0 then some s else none
+  let mut lctx ← getLCtx
+  let mut localInstances ← Meta.getLocalInstances
+  let mut instCounter := 0
+  for stx in stxs do
+    let nameColonOpt := stx[0][0]
+    let tyStx := stx[1]
+
+    let ty' : Expr ← elabType tyStx
+    let class? ← Meta.isClass? ty'
+    let some className := class?
+      | throwError m!"Expected a type class, but got `{.ofExpr ty'}`"
+
+    -- Generate a fresh name if no name is provided
+    let (userName, hasUserName) ←
+      if nameColonOpt.isMissing then
+        instCounter := instCounter + 1
+        let n ← mkFreshUserName (`inst ++ className)
+        pure (n, false)
+      else
+        pure (nameColonOpt.getId, true)
+
+    let fv ← mkFreshFVarId
+    lctx := lctx.mkLocalDecl fv userName ty' BinderInfo.instImplicit
+    localInstances := localInstances.push { fvar := .fvar fv, className }
+
+    if hasUserName then
+      addTermInfo' nameColonOpt[0] (.fvar fv)
+        (lctx? := some lctx) (isBinder := true) (expectedType? := some ty')
+
+  modify fun st => { st with lctx, localInstances }
+
+  if «show» then
+    let text ← getFileMap
+    let mut outStrs := #[]
+    let mut failed := false
+    for stx in stxs do
+      let nameColonOpt := stx[0][0]
+      let thisStr ←
+        if let some ⟨b', e'⟩ := stx[1].getRange? then
+          -- Has type annotation
+          if nameColonOpt.isMissing then
+            -- No name, just show type
+            pure <| String.Pos.Raw.extract text.source b' e'
+          else
+            -- Has name and type, nameColonOpt is `identFn >> symbolFn ":"`
+            if let some ⟨b, e⟩ := nameColonOpt[0].getRange? then
+              pure <| s!"{b.extract text.source e} : {b'.extract text.source e'}"
+            else
+              failed := true
+              break
         else
           failed := true
           break
@@ -793,7 +884,7 @@ deriving TypeName
 /--
 Elaborates a sequence of Lean commands as examples.
 
-To make examples self-contained, elaboration ignores the surrouncing section scopes. Modifications
+To make examples self-contained, elaboration ignores the surrounding section scopes. Modifications
 to the environment are preserved during a single documentation comment, and discarded afterwards.
 
 The named argument `name` allows a name to be assigned to the code block; any messages created by
@@ -1180,7 +1271,7 @@ def «set_option» (option : Ident) (value : DataValue) : DocM (Block ElabInline
   return .empty
 
 /--
-Constructs a link to the Lean langauge reference. Two positional arguments are expected:
+Constructs a link to the Lean language reference. Two positional arguments are expected:
  * `domain` should be one of the valid domains, such as `section`.
  * `name` should be the content's canonical name in the domain.
 -/
@@ -1377,7 +1468,7 @@ def suggestSyntax (code : StrLit) : DocM (Array CodeSuggestion) := do
   for (catName, _) in cats do
     try
       let stx ← parseStrLit (whitespace >> (categoryParser catName 0).fn) code
-      -- Many syntax categories admit identifers, so the false postitive rate is high
+      -- Many syntax categories admit identifiers, so the false positive rate is high
       unless onlyIdent stx do
         candidates := candidates.push catName
     catch | _ => pure ()

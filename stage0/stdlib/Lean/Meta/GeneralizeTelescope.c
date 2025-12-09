@@ -530,11 +530,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -706,10 +706,10 @@ block_66:
 {
 if (x_41 == 0)
 {
-lean_inc_ref(x_40);
 lean_inc_ref(x_39);
-x_26 = x_39;
-x_27 = x_40;
+lean_inc_ref(x_40);
+x_26 = x_40;
+x_27 = x_39;
 x_28 = x_42;
 x_29 = x_43;
 x_30 = x_44;
@@ -774,10 +774,10 @@ return x_62;
 }
 else
 {
-lean_inc_ref(x_40);
 lean_inc_ref(x_39);
-x_26 = x_39;
-x_27 = x_40;
+lean_inc_ref(x_40);
+x_26 = x_40;
+x_27 = x_39;
 x_28 = x_42;
 x_29 = x_43;
 x_30 = x_44;
@@ -872,8 +872,8 @@ block_34:
 lean_object* x_33; 
 x_33 = l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___closed__1;
 x_10 = x_33;
-x_11 = x_26;
-x_12 = x_27;
+x_11 = x_27;
+x_12 = x_26;
 x_13 = x_28;
 x_14 = x_29;
 x_15 = x_30;
@@ -1033,7 +1033,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_instantiateMVarsCore(x_7, x_1);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);

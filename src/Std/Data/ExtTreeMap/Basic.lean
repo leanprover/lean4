@@ -152,7 +152,7 @@ def get [TransCmp cmp] (t : ExtTreeMap α β cmp) (a : α) (h : a ∈ t) : β :=
   ExtDTreeMap.Const.get t.inner a h
 
 @[inline, inherit_doc ExtDTreeMap.Const.get!]
-def get! [TransCmp cmp] (t : ExtTreeMap α β cmp) (a : α) [Inhabited β] : β :=
+def get! [TransCmp cmp] [Inhabited β] (t : ExtTreeMap α β cmp) (a : α) : β :=
   ExtDTreeMap.Const.get! t.inner a
 
 @[inline, inherit_doc ExtDTreeMap.Const.getD]
@@ -534,6 +534,11 @@ instance [TransCmp cmp] : Union (ExtTreeMap α β cmp) := ⟨union⟩
 def inter [TransCmp cmp] (t₁ t₂ : ExtTreeMap α β cmp) : ExtTreeMap α β cmp := ⟨ExtDTreeMap.inter t₁.inner t₂.inner⟩
 
 instance [TransCmp cmp] : Inter (ExtTreeMap α β cmp) := ⟨inter⟩
+
+@[inline, inherit_doc ExtDTreeMap.diff]
+def diff [TransCmp cmp] (t₁ t₂ : ExtTreeMap α β cmp) : ExtTreeMap α β cmp := ⟨ExtDTreeMap.diff t₁.inner t₂.inner⟩
+
+instance [TransCmp cmp] : SDiff (ExtTreeMap α β cmp) := ⟨diff⟩
 
 @[inline, inherit_doc ExtDTreeMap.eraseMany]
 def eraseMany [TransCmp cmp] {ρ} [ForIn Id ρ α] (t : ExtTreeMap α β cmp) (l : ρ) : ExtTreeMap α β cmp :=

@@ -1902,6 +1902,202 @@ theorem isEmpty_inter_iff [TransCmp cmp] :
 
 end Inter
 
+section Diff
+
+variable {t₁ t₂ : ExtTreeMap α β cmp}
+
+@[simp]
+theorem diff_eq [TransCmp cmp] : t₁.diff t₂ = t₁ \ t₂ := by
+  simp only [SDiff.sdiff]
+
+/- contains -/
+@[simp]
+theorem contains_diff [TransCmp cmp] {k : α} :
+    (t₁ \ t₂).contains k = (t₁.contains k && !t₂.contains k) :=
+  ExtDTreeMap.contains_diff
+
+/- mem -/
+@[simp]
+theorem mem_diff_iff [TransCmp cmp] {k : α} :
+    k ∈ t₁ \ t₂ ↔ k ∈ t₁ ∧ k ∉ t₂ :=
+  ExtDTreeMap.mem_diff_iff
+
+theorem not_mem_diff_of_not_mem_left [TransCmp cmp] {k : α}
+    (not_mem : k ∉ t₁) :
+    k ∉ t₁ \ t₂ :=
+  ExtDTreeMap.not_mem_diff_of_not_mem_left not_mem
+
+theorem not_mem_diff_of_mem_right [TransCmp cmp] {k : α}
+    (mem : k ∈ t₂) :
+    k ∉ t₁ \ t₂ :=
+  ExtDTreeMap.not_mem_diff_of_mem_right mem
+
+/- get? -/
+theorem get?_diff [TransCmp cmp] {k : α} :
+    (t₁ \ t₂).get? k =
+    if k ∈ t₂ then none else t₁.get? k :=
+  ExtDTreeMap.Const.get?_diff
+
+theorem get?_diff_of_not_mem_right [TransCmp cmp]
+    {k : α} (not_mem : k ∉ t₂) :
+    (t₁ \ t₂).get? k = t₁.get? k :=
+  ExtDTreeMap.Const.get?_diff_of_not_mem_right not_mem
+
+theorem get?_diff_of_not_mem_left [TransCmp cmp]
+    {k : α} (not_mem : k ∉ t₁) :
+    (t₁ \ t₂).get? k = none :=
+  ExtDTreeMap.Const.get?_diff_of_not_mem_left not_mem
+
+theorem get?_diff_of_mem_right [TransCmp cmp]
+    {k : α} (mem : k ∈ t₂) :
+    (t₁ \ t₂).get? k = none :=
+  ExtDTreeMap.Const.get?_diff_of_mem_right mem
+
+/- get -/
+theorem get_diff [TransCmp cmp]
+    {k : α} {h_mem : k ∈ t₁ \ t₂} :
+    (t₁ \ t₂).get k h_mem =
+    t₁.get k (mem_diff_iff.1 h_mem).1 :=
+  ExtDTreeMap.Const.get_diff
+
+/- getD -/
+theorem getD_diff [TransCmp cmp] {k : α} {fallback : β} :
+    (t₁ \ t₂).getD k fallback =
+    if k ∈ t₂ then fallback else t₁.getD k fallback :=
+  ExtDTreeMap.Const.getD_diff
+
+theorem getD_diff_of_not_mem_right [TransCmp cmp]
+    {k : α} {fallback : β} (not_mem : k ∉ t₂) :
+    (t₁ \ t₂).getD k fallback = t₁.getD k fallback :=
+  ExtDTreeMap.Const.getD_diff_of_not_mem_right not_mem
+
+theorem getD_diff_of_mem_right [TransCmp cmp]
+    {k : α} {fallback : β} (mem : k ∈ t₂) :
+    (t₁ \ t₂).getD k fallback = fallback :=
+  ExtDTreeMap.Const.getD_diff_of_mem_right mem
+
+theorem getD_diff_of_not_mem_left [TransCmp cmp]
+    {k : α} {fallback : β} (not_mem : k ∉ t₁) :
+    (t₁ \ t₂).getD k fallback = fallback :=
+  ExtDTreeMap.Const.getD_diff_of_not_mem_left not_mem
+
+/- get! -/
+theorem get!_diff [TransCmp cmp] {k : α} [Inhabited β] :
+    (t₁ \ t₂).get! k =
+    if k ∈ t₂ then default else t₁.get! k :=
+  ExtDTreeMap.Const.get!_diff
+
+theorem get!_diff_of_not_mem_right [TransCmp cmp]
+    {k : α} [Inhabited β] (not_mem : k ∉ t₂) :
+    (t₁ \ t₂).get! k = t₁.get! k :=
+  ExtDTreeMap.Const.get!_diff_of_not_mem_right not_mem
+
+theorem get!_diff_of_mem_right [TransCmp cmp]
+    {k : α} [Inhabited β] (mem : k ∈ t₂) :
+    (t₁ \ t₂).get! k = default :=
+  ExtDTreeMap.Const.get!_diff_of_mem_right mem
+
+theorem get!_diff_of_not_mem_left [TransCmp cmp]
+    {k : α} [Inhabited β] (not_mem : k ∉ t₁) :
+    (t₁ \ t₂).get! k = default :=
+  ExtDTreeMap.Const.get!_diff_of_not_mem_left not_mem
+
+/- getKey? -/
+theorem getKey?_diff [TransCmp cmp] {k : α} :
+    (t₁ \ t₂).getKey? k =
+    if k ∈ t₂ then none else t₁.getKey? k :=
+  ExtDTreeMap.getKey?_diff
+
+theorem getKey?_diff_of_not_mem_right [TransCmp cmp]
+    {k : α} (not_mem : k ∉ t₂) :
+    (t₁ \ t₂).getKey? k = t₁.getKey? k :=
+  ExtDTreeMap.getKey?_diff_of_not_mem_right not_mem
+
+theorem getKey?_diff_of_not_mem_left [TransCmp cmp]
+    {k : α} (not_mem : k ∉ t₁) :
+    (t₁ \ t₂).getKey? k = none :=
+  ExtDTreeMap.getKey?_diff_of_not_mem_left not_mem
+
+theorem getKey?_diff_of_mem_right [TransCmp cmp]
+    {k : α} (mem : k ∈ t₂) :
+    (t₁ \ t₂).getKey? k = none :=
+  ExtDTreeMap.getKey?_diff_of_mem_right mem
+
+/- getKey -/
+theorem getKey_diff [TransCmp cmp]
+    {k : α} {h_mem : k ∈ t₁ \ t₂} :
+    (t₁ \ t₂).getKey k h_mem =
+    t₁.getKey k (mem_diff_iff.1 h_mem).1 :=
+  ExtDTreeMap.getKey_diff
+
+/- getKeyD -/
+theorem getKeyD_diff [TransCmp cmp] {k fallback : α} :
+    (t₁ \ t₂).getKeyD k fallback =
+    if k ∈ t₂ then fallback else t₁.getKeyD k fallback :=
+  ExtDTreeMap.getKeyD_diff
+
+theorem getKeyD_diff_of_not_mem_right [TransCmp cmp]
+    {k fallback : α} (not_mem : k ∉ t₂) :
+    (t₁ \ t₂).getKeyD k fallback = t₁.getKeyD k fallback :=
+  ExtDTreeMap.getKeyD_diff_of_not_mem_right not_mem
+
+theorem getKeyD_diff_of_mem_right [TransCmp cmp]
+    {k fallback : α} (mem : k ∈ t₂) :
+    (t₁ \ t₂).getKeyD k fallback = fallback :=
+  ExtDTreeMap.getKeyD_diff_of_mem_right mem
+
+theorem getKeyD_diff_of_not_mem_left [TransCmp cmp]
+    {k fallback : α} (not_mem : k ∉ t₁) :
+    (t₁ \ t₂).getKeyD k fallback = fallback :=
+  ExtDTreeMap.getKeyD_diff_of_not_mem_left not_mem
+
+/- getKey! -/
+theorem getKey!_diff [TransCmp cmp] [Inhabited α] {k : α} :
+    (t₁ \ t₂).getKey! k =
+    if k ∈ t₂ then default else t₁.getKey! k :=
+  ExtDTreeMap.getKey!_diff
+
+theorem getKey!_diff_of_not_mem_right [TransCmp cmp] [Inhabited α]
+    {k : α} (not_mem : k ∉ t₂) :
+    (t₁ \ t₂).getKey! k = t₁.getKey! k :=
+  ExtDTreeMap.getKey!_diff_of_not_mem_right not_mem
+
+theorem getKey!_diff_of_mem_right [TransCmp cmp] [Inhabited α]
+    {k : α} (mem : k ∈ t₂) :
+    (t₁ \ t₂).getKey! k = default :=
+  ExtDTreeMap.getKey!_diff_of_mem_right mem
+
+theorem getKey!_diff_of_not_mem_left [TransCmp cmp] [Inhabited α]
+    {k : α} (not_mem : k ∉ t₁) :
+    (t₁ \ t₂).getKey! k = default :=
+  ExtDTreeMap.getKey!_diff_of_not_mem_left not_mem
+
+/- size -/
+theorem size_diff_le_size_left [TransCmp cmp] :
+    (t₁ \ t₂).size ≤ t₁.size :=
+  ExtDTreeMap.size_diff_le_size_left
+
+theorem size_diff_eq_size_left [TransCmp cmp]
+    (h : ∀ (a : α), a ∈ t₁ → a ∉ t₂) :
+    (t₁ \ t₂).size = t₁.size :=
+  ExtDTreeMap.size_diff_eq_size_left h
+
+theorem size_diff_add_size_inter_eq_size_left [TransCmp cmp] :
+    (t₁ \ t₂).size + (t₁ ∩ t₂).size = t₁.size :=
+  ExtDTreeMap.size_diff_add_size_inter_eq_size_left
+
+/- isEmpty -/
+@[simp]
+theorem isEmpty_diff_left [TransCmp cmp] (h : t₁.isEmpty) :
+    (t₁ \ t₂).isEmpty = true :=
+  ExtDTreeMap.isEmpty_diff_left h
+
+theorem isEmpty_diff_iff [TransCmp cmp] :
+    (t₁ \ t₂).isEmpty ↔ ∀ k, k ∈ t₁ → k ∈ t₂ :=
+  ExtDTreeMap.isEmpty_diff_iff
+
+end Diff
+
 section Alter
 
 theorem alter_eq_empty_iff_erase_eq_empty [TransCmp cmp] {k : α}

@@ -1310,7 +1310,7 @@ if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
 x_15 = lean_array_fget_borrowed(x_3, x_6);
-lean_inc_ref(x_15);
+lean_inc(x_15);
 x_16 = lean_array_push(x_5, x_15);
 x_7 = x_16;
 goto block_12;
@@ -1372,7 +1372,7 @@ x_8 = lean_array_uget(x_3, x_5);
 lean_inc_ref(x_1);
 x_9 = lean_array_get_borrowed(x_1, x_2, x_8);
 lean_dec(x_8);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 x_10 = lean_array_push(x_6, x_9);
 x_11 = 1;
 x_12 = lean_usize_add(x_5, x_11);

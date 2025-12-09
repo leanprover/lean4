@@ -1533,7 +1533,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_instantiateMVarsCore(x_7, x_1);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
@@ -2763,7 +2763,7 @@ x_21 = lean_usize_sub(x_20, x_19);
 x_22 = lean_usize_land(x_6, x_21);
 x_23 = 5;
 x_24 = lean_usize_sub(x_7, x_23);
-lean_inc_ref(x_18);
+lean_inc(x_18);
 lean_inc(x_2);
 x_25 = l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00Lean_LocalContext_foldlM___at___00Lean_Meta_ppGoal_spec__0_spec__0_spec__0(x_1, x_2, x_3, x_4, x_18, x_22, x_24, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_25) == 0)
@@ -3866,7 +3866,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9;
 x_7 = lean_st_ref_get(x_3);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = l_Lean_MetavarContext_findDecl_x3f(x_8, x_1);
 if (lean_obj_tag(x_9) == 0)
 {

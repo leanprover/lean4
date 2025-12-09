@@ -2441,6 +2441,7 @@ x_4 = l_Std_Time_Weekday_ofNat_x21___closed__3;
 x_5 = lean_box(x_3);
 x_6 = l_panic___redArg(x_5, x_4);
 x_7 = lean_unbox(x_6);
+lean_dec(x_6);
 return x_7;
 }
 else

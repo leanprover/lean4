@@ -21,6 +21,7 @@ gen_injective_theorems% Syntax.SepArray
 gen_injective_theorems% Syntax.TSepArray
 gen_injective_theorems% Try.Config
 gen_injective_theorems% Parser.Tactic.DecideConfig
+gen_injective_theorems% Parser.Tactic.LibrarySearchConfig
 -/
 #guard_msgs in
 run_meta

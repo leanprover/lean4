@@ -766,11 +766,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -1038,7 +1038,7 @@ if (x_5 == 0)
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_uget(x_2, x_3);
 x_7 = lean_expr_eqv(x_1, x_6);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 if (x_7 == 0)
 {
 size_t x_8; size_t x_9; 
@@ -1390,7 +1390,7 @@ if (lean_is_scalar(x_24)) {
 }
 lean_ctor_set(x_37, 0, x_36);
 x_38 = 0;
-x_39 = l_Lean_Meta_forallBoundedTelescope___at___00Lean_Elab_TerminationMeasure_elab_spec__0___redArg(x_34, x_37, x_26, x_38, x_38, x_29, x_30, x_33, x_28, x_27, x_32);
+x_39 = l_Lean_Meta_forallBoundedTelescope___at___00Lean_Elab_TerminationMeasure_elab_spec__0___redArg(x_34, x_37, x_26, x_38, x_38, x_33, x_28, x_31, x_30, x_29, x_32);
 return x_39;
 }
 block_51:
@@ -1400,13 +1400,13 @@ if (lean_obj_tag(x_8) == 0)
 lean_object* x_48; lean_object* x_49; 
 x_48 = l_Lean_Elab_TerminationMeasure_elab___lam__1___closed__3;
 x_49 = l_panic___at___00Lean_Elab_TerminationMeasure_elab_spec__1(x_48);
-x_27 = x_45;
-x_28 = x_44;
-x_29 = x_41;
-x_30 = x_42;
-x_31 = lean_box(0);
+x_27 = lean_box(0);
+x_28 = x_42;
+x_29 = x_45;
+x_30 = x_44;
+x_31 = x_43;
 x_32 = x_46;
-x_33 = x_43;
+x_33 = x_41;
 x_34 = x_49;
 goto block_40;
 }
@@ -1416,13 +1416,13 @@ lean_object* x_50;
 x_50 = lean_ctor_get(x_8, 0);
 lean_inc(x_50);
 lean_dec_ref(x_8);
-x_27 = x_45;
-x_28 = x_44;
-x_29 = x_41;
-x_30 = x_42;
-x_31 = lean_box(0);
+x_27 = lean_box(0);
+x_28 = x_42;
+x_29 = x_45;
+x_30 = x_44;
+x_31 = x_43;
 x_32 = x_46;
-x_33 = x_43;
+x_33 = x_41;
 x_34 = x_50;
 goto block_40;
 }

@@ -308,7 +308,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t 
 x_3 = lean_st_ref_get(x_1);
 x_4 = lean_ctor_get(x_3, 7);
 lean_inc_ref(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_5 = lean_ctor_get(x_4, 2);
 lean_inc_ref(x_5);
 lean_dec_ref(x_4);
@@ -423,7 +423,7 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14;
 x_11 = lean_st_ref_get(x_1);
 x_12 = lean_ctor_get(x_11, 7);
 lean_inc_ref(x_12);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_13 = lean_ctor_get(x_12, 2);
 lean_inc_ref(x_13);
 lean_dec_ref(x_12);
@@ -659,7 +659,7 @@ lean_object* x_10; lean_object* x_11; uint8_t x_12;
 x_10 = lean_st_ref_get(x_8);
 x_11 = lean_ctor_get(x_10, 7);
 lean_inc_ref(x_11);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*3);
 lean_dec_ref(x_11);
 if (x_12 == 0)
@@ -1250,11 +1250,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -1390,7 +1390,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_24 = lean_st_ref_get(x_8);
 x_25 = lean_ctor_get(x_24, 0);
 lean_inc_ref(x_25);
-lean_dec_ref(x_24);
+lean_dec(x_24);
 x_26 = lean_box(0);
 x_27 = l___private_Lake_DSL_Config_0__Lake_DSL_elabNameConst___closed__0;
 x_28 = 1;
@@ -1919,7 +1919,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_18; lean_object* x_19; lean
 x_10 = lean_st_ref_get(x_8);
 x_18 = lean_ctor_get(x_10, 0);
 lean_inc_ref(x_18);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 x_19 = l___private_Lake_DSL_Config_0__Lake_DSL_elabDirConst___closed__0;
 x_20 = lean_ctor_get(x_19, 2);
 lean_inc(x_20);
@@ -2770,7 +2770,7 @@ lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean
 x_21 = lean_st_ref_get(x_8);
 x_22 = lean_ctor_get(x_21, 0);
 lean_inc_ref(x_22);
-lean_dec_ref(x_21);
+lean_dec(x_21);
 x_23 = l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__2;
 x_24 = lean_ctor_get(x_23, 2);
 lean_inc(x_24);

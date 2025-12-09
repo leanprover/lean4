@@ -939,9 +939,7 @@ theorem HEq.subst {p : (T : Sort u) → T → Prop} (h₁ : a ≍ b) (h₂ : p �
 @[symm] theorem HEq.symm (h : a ≍ b) : b ≍ a :=
   h.rec (HEq.refl a)
 
-/-- Propositionally equal terms are also heterogeneously equal. -/
-theorem heq_of_eq (h : a = a') : a ≍ a' :=
-  Eq.subst h (HEq.refl a)
+
 
 /-- Heterogeneous equality is transitive. -/
 theorem HEq.trans (h₁ : a ≍ b) (h₂ : b ≍ c) : a ≍ c :=
@@ -1370,7 +1368,7 @@ instance {α : Type u} {p : α → Prop} [BEq α] [LawfulBEq α] : LawfulBEq {x 
 instance {α : Sort u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
   fun ⟨a, h₁⟩ ⟨b, h₂⟩ =>
     if h : a = b then isTrue (by subst h; exact rfl)
-    else isFalse (fun h' => Subtype.noConfusion h' (fun h' => absurd h' h))
+    else isFalse (fun h' => Subtype.noConfusion rfl .rfl (heq_of_eq h') (fun h' => absurd (eq_of_heq h') h))
 
 end Subtype
 
@@ -1429,8 +1427,8 @@ instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
     | isTrue e₁ =>
       match decEq b b' with
       | isTrue e₂  => isTrue (e₁ ▸ e₂ ▸ rfl)
-      | isFalse n₂ => isFalse fun h => Prod.noConfusion h fun _   e₂' => absurd e₂' n₂
-    | isFalse n₁ => isFalse fun h => Prod.noConfusion h fun e₁' _   => absurd e₁' n₁
+      | isFalse n₂ => isFalse fun h => Prod.noConfusion rfl rfl (heq_of_eq h) fun _   e₂' => absurd (eq_of_heq e₂') n₂
+    | isFalse n₁ => isFalse fun h => Prod.noConfusion rfl rfl (heq_of_eq h) fun e₁' _   => absurd (eq_of_heq e₁') n₁
 
 instance [BEq α] [BEq β] : BEq (α × β) where
   beq := fun (a₁, b₁) (a₂, b₂) => a₁ == a₂ && b₁ == b₂

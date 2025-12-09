@@ -496,6 +496,10 @@ theorem eq_of_heq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
       h₁.rec (fun _ => rfl)
   this α α a a' h rfl
 
+/-- Propositionally equal terms are also heterogeneously equal. -/
+theorem heq_of_eq (h : Eq a a') : HEq a a' :=
+  Eq.subst h (HEq.refl a)
+
 /--
 The product type, usually written `α × β`. Product types are also called pair or tuple types.
 Elements of this type are pairs in which the first element is an `α` and the second element is a
@@ -2330,7 +2334,7 @@ def BitVec.decEq (x y : BitVec w) : Decidable (Eq x y) :=
   | ⟨n⟩, ⟨m⟩ =>
     dite (Eq n m)
       (fun h => isTrue (h ▸ rfl))
-      (fun h => isFalse (fun h' => BitVec.noConfusion h' (fun h' => absurd h' h)))
+      (fun h => isFalse (fun h' => BitVec.noConfusion rfl (heq_of_eq h') (fun h' => absurd (eq_of_heq h') h)))
 
 instance : DecidableEq (BitVec w) := BitVec.decEq
 
@@ -2921,15 +2925,15 @@ instance {α} : Inhabited (List α) where
 /-- Implements decidable equality for `List α`, assuming `α` has decidable equality. -/
 protected def List.hasDecEq {α : Type u} [DecidableEq α] : (a b : List α) → Decidable (Eq a b)
   | nil,       nil       => isTrue rfl
-  | cons _ _, nil        => isFalse (fun h => List.noConfusion h)
-  | nil,       cons _ _  => isFalse (fun h => List.noConfusion h)
+  | cons _ _, nil        => isFalse (fun h => List.noConfusion rfl (heq_of_eq h))
+  | nil,       cons _ _  => isFalse (fun h => List.noConfusion rfl (heq_of_eq h))
   | cons a as, cons b bs =>
     match decEq a b with
     | isTrue hab  =>
       match List.hasDecEq as bs with
       | isTrue habs  => isTrue (hab ▸ habs ▸ rfl)
-      | isFalse nabs => isFalse (fun h => List.noConfusion h (fun _ habs => absurd habs nabs))
-    | isFalse nab => isFalse (fun h => List.noConfusion h (fun hab _ => absurd hab nab))
+      | isFalse nabs => isFalse (fun h => List.noConfusion rfl (heq_of_eq h) (fun _ habs => absurd (eq_of_heq habs) nabs))
+    | isFalse nab => isFalse (fun h => List.noConfusion rfl (heq_of_eq h) (fun hab _ => absurd (eq_of_heq hab)   nab))
 
 instance {α : Type u} [DecidableEq α] : DecidableEq (List α) := fun xs ys =>
   /-
@@ -2939,16 +2943,16 @@ instance {α : Type u} [DecidableEq α] : DecidableEq (List α) := fun xs ys =>
   match xs with
   | .nil => match ys with
     | .nil => isTrue rfl
-    | .cons _ _ => isFalse List.noConfusion
+    | .cons _ _ => isFalse (fun h => List.noConfusion rfl (heq_of_eq h))
   | .cons a as => match ys with
-    | .nil => isFalse List.noConfusion
+    | .nil => isFalse (fun h => List.noConfusion rfl (heq_of_eq h))
     | .cons b bs =>
       match decEq a b with
       | isTrue hab =>
         match List.hasDecEq as bs with
         | isTrue habs  => isTrue (hab ▸ habs ▸ rfl)
-        | isFalse nabs => isFalse (List.noConfusion · (fun _ habs => absurd habs nabs))
-      | isFalse nab => isFalse (List.noConfusion · (fun hab _ => absurd hab nab))
+        | isFalse nabs => isFalse (fun h => List.noConfusion rfl (heq_of_eq h) (fun _ habs => absurd (eq_of_heq habs) nabs))
+      | isFalse nab => isFalse (fun h => List.noConfusion rfl (heq_of_eq h) (fun hab _ => absurd (eq_of_heq hab)   nab))
 
 /--
 Equality with `List.nil` is decidable even if the underlying type does not have decidable equality.
@@ -2956,7 +2960,7 @@ Equality with `List.nil` is decidable even if the underlying type does not have 
 instance List.instDecidableNilEq (a : List α) : Decidable (Eq List.nil a) :=
   match a with
   | .nil => isTrue rfl
-  | .cons _ _ => isFalse List.noConfusion
+  | .cons _ _ => isFalse (fun h => List.noConfusion rfl (heq_of_eq h))
 
 /--
 Equality with `List.nil` is decidable even if the underlying type does not have decidable equality.
@@ -2964,7 +2968,7 @@ Equality with `List.nil` is decidable even if the underlying type does not have 
 instance List.instDecidableEqNil (a : List α) : Decidable (Eq a List.nil) :=
   match a with
   | .nil => isTrue rfl
-  | .cons _ _ => isFalse List.noConfusion
+  | .cons _ _ => isFalse (fun h => List.noConfusion rfl (heq_of_eq h))
 
 /--
 The length of a list.

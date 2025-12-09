@@ -1422,7 +1422,7 @@ theorem union_insert_right_equiv_union_insert [EquivBEq α] [LawfulHashable α] 
 
 /- getElem? -/
 theorem getElem?_union [EquivBEq α] [LawfulHashable α] {k : α} :
-    (m₁ ∪ m₂)[k]? = (m₂[k]?).or (m₁[k]?) :=
+    (m₁ ∪ m₂)[k]? = m₂[k]?.or m₁[k]? :=
   @DHashMap.Const.get?_union _ _ _ _ m₁.inner m₂.inner _ _ k
 
 theorem getElem?_union_of_not_mem_left [EquivBEq α] [LawfulHashable α]
@@ -1505,7 +1505,7 @@ theorem getD_union_of_not_mem_right [EquivBEq α] [LawfulHashable α]
 
 /- getElem! -/
 theorem getElem!_union [EquivBEq α] [LawfulHashable α] {k : α} [Inhabited β] :
-    (m₁ ∪ m₂)[k]! = m₂.getD k (m₁[k]!) :=
+    (m₁ ∪ m₂)[k]! = m₂.getD k m₁[k]! :=
   @DHashMap.Const.get!_union _ _ _ _ m₁.inner m₂.inner _ _ _ k
 
 theorem getElem!_union_of_not_mem_left [EquivBEq α] [LawfulHashable α]
@@ -2001,7 +2001,7 @@ theorem Equiv.diff_congr {m₃ m₄ : HashMap α β} [EquivBEq α] [LawfulHashab
 @[simp]
 theorem getElem_diff [EquivBEq α] [LawfulHashable α]
     {k : α} {h_mem : k ∈ m₁ \ m₂} :
-    (m₁ \ m₂)[k]'h_mem = m₁[k]'((mem_diff_iff.1 h_mem).1) :=
+    (m₁ \ m₂)[k]'h_mem = m₁[k]'(mem_diff_iff.1 h_mem).1 :=
   @DHashMap.Const.get_diff _ _ _ _ m₁.inner m₂.inner _ _ k h_mem
 
 /- get -/

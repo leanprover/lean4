@@ -6945,19 +6945,28 @@ theorem insertEntry_perm_filter [BEq α] [EquivBEq α]
         rw [containsKey_cons, heq] at eq
         simpa
 
-theorem insertEntryIfNew_perm_of_containsKey_eq_false [BEq α] [EquivBEq α]
-    (k : α) {l : List ((_ : α) × Unit)} (hc : containsKey k l = false):
-    (insertEntryIfNew k () l).Perm <| ⟨k, ()⟩ :: l := by
-  simp [insertEntryIfNew, hc]
+theorem Const.map_insertEntry_perm_filter_map {β : Type v} [BEq α] [EquivBEq α]
+    (k : α) (v : β) {l : List ((_ : α) × β)} (hl : DistinctKeys l) :
+    (List.map (fun x => (x.fst, x.snd)) (insertEntry k v l)).Perm <|
+      (k, v) :: List.filter (fun x => !k == x.fst) (List.map (fun x => (x.fst, x.snd)) l) := by
+  apply Perm.trans <| Perm.map _ (insertEntry_perm_filter _ _ hl)
+  simp only [Bool.not_eq_true, Bool.decide_eq_false, List.map_cons, List.perm_cons]
+  induction l with
+  | nil => simp
+  | cons h t ih =>
+    simp only [List.filter_cons, Bool.not_eq_eq_eq_not, Bool.not_true, List.map_cons]
+    rw [distinctKeys_cons_iff] at hl
+    by_cases heq : (k == h.fst)
+    case pos =>
+      simp only [heq, Bool.true_eq_false, ↓reduceIte]
+      apply ih hl.1
+    case neg =>
+      simp [heq]
+      apply ih hl.1
 
-theorem insertEntryIfNew_perm_of_containsKey [BEq α] [EquivBEq α]
-    (k : α) {l : List ((_ : α) × Unit)} (hc : containsKey k l):
-    (insertEntryIfNew k () l).Perm <| l := by
-  simp [insertEntryIfNew, hc]
-
-theorem insertEntryIfNew_perm [BEq α] [EquivBEq α]
+theorem Const.keys_insertEntryIfNew_perm [BEq α] [EquivBEq α]
     (k : α) {l : List ((_ : α) × Unit)} :
-    (insertEntryIfNew k () l).Perm <| if (containsKey k l) then l else ⟨k, ()⟩ :: l := by
+    (keys <| insertEntryIfNew k () l).Perm <| if (containsKey k l) then keys l else k :: keys l := by
   simp only [insertEntryIfNew]
   by_cases h : containsKey k l <;> simp [h]
 

@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Control.MonadAttach
 public import Init.Control.Lawful.Lemmas
+public import Init.Control.Lawful.MonadLift.Lemmas
 
 public theorem LawfulMonadAttach.canReturn_bind_imp' [Monad m] [LawfulMonad m]
     [MonadAttach m] [LawfulMonadAttach m]
@@ -43,3 +44,12 @@ public theorem LawfulMonadAttach.canReturn_map_imp' [Monad m] [LawfulMonad m]
   intro h
   obtain ⟨a, h, h'⟩ := canReturn_bind_imp' h
   exact ⟨a, h, eq_of_canReturn_pure h'⟩
+
+public theorem LawfulMonadAttach.canReturn_liftM_imp'
+    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [LawfulMonadAttach n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n] {x : m α} {a : α} :
+    MonadAttach.CanReturn (liftM (n := n) x) a → MonadAttach.CanReturn x a := by
+  intro h
+  simp only [← LawfulMonadAttach.map_attach (x := x), liftM_map] at h
+  exact canReturn_map_imp h

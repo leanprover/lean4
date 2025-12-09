@@ -69,3 +69,7 @@ warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 example {α : Sort u} (h : Empty) : α := by exact? +all
+
+/-- error: `exact?` could not close the goal. -/
+#guard_msgs in
+example {α : Sort u} (h : Empty) : α := by exact? +all -star

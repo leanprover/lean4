@@ -685,8 +685,8 @@ theorem Const.keys_insertIfNew_perm {t : Impl α (fun _ => Unit)} [BEq α] [Tran
     (t.insertIfNew k () h.balanced).1.keys.Perm (if t.contains k then t.keys else k :: t.keys) := by
   simp_to_model
   apply List.Perm.trans
-  · simp only [List.keys_eq_map]
-    apply List.Perm.map _ <| toListModel_insertIfNew _ h.ordered
+  simp only [List.keys_eq_map]
+  apply List.Perm.map _ <| toListModel_insertIfNew _ h.ordered
   simp only [← List.keys_eq_map]
   apply List.Perm.trans
   apply List.Const.keys_insertEntryIfNew_perm

@@ -404,7 +404,7 @@ theorem get_insert_self [LawfulBEq α] (h : m.1.WF) {k : α} {v : β k} :
 
 theorem toList_insert_perm [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} {v : β k} :
     (m.insert k v).1.toList.Perm (⟨k, v⟩ :: m.1.toList.filter (¬k == ·.1)) := by
-  simp_to_model using List.Perm.trans (toListModel_insert (by wf_trivial)) <| List.insertEntry_perm_filter _ _ (by wf_trivial)
+  simp_to_model using List.Perm.trans (toListModel_insert (by wf_trivial)) <| List.insertEntry_perm_filter _ _ _
 
 theorem Const.toList_insert_perm {β : Type v} (m : Raw₀ α (fun _ => β)) [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} {v : β} :
     (Raw.Const.toList (m.insert k v).1).Perm ((k, v) :: (Raw.Const.toList m.1).filter (¬k == ·.1)) := by
@@ -461,7 +461,6 @@ theorem get_congr [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a b : α} (hab
   simp_to_model [Const.get] using List.getValue_congr
 
 end Const
-
 
 theorem get!_emptyWithCapacity [LawfulBEq α] {a : α} [Inhabited (β a)] {c} :
     (emptyWithCapacity c : Raw₀ α β).get! a = default := by

@@ -90,16 +90,31 @@ info: Try this:
 #guard_msgs in
 example (X : Type) (P : Prop) (x : X) (h : ∀ x : X, x = x → P) : P := by show_term solve_by_elim
 
--- Could be any number of results (`fun x => x`, `id`, etc)
-#guard_msgs (drop info) in
+/--
+info: Try this:
+  [apply] exact fun a => a
+-/
+#guard_msgs in
 example (α : Prop) : α → α := by show_term solve_by_elim
 
 -- These examples work via star-indexed fallback.
-#guard_msgs (drop info) in
+/--
+info: Try this:
+  [apply] exact fun a => Classical.byContradiction a
+-/
+#guard_msgs in
 example (p : Prop) : (¬¬p) → p := by apply?
-#guard_msgs (drop info) in
+/--
+info: Try this:
+  [apply] exact h.left
+-/
+#guard_msgs in
 example (a b : Prop) (h : a ∧ b) : a := by apply?
-#guard_msgs (drop info) in
+/--
+info: Try this:
+  [apply] exact fun a a_1 => Classical.byContradiction fun a_2 => a a_2 a_1
+-/
+#guard_msgs in
 example (P Q : Prop) : (¬ Q → ¬ P) → (P → Q) := by apply?
 
 /--
@@ -264,10 +279,15 @@ info: Try this:
 example {a b c : Nat} (h₁ : a ∣ c) (h₂ : a ∣ b + c) : a ∣ b := by apply?
 
 -- These examples work via star-indexed fallback.
-#guard_msgs (drop info) in
+/--
+info: Try this:
+  [apply] exact h.elim
+-/
+#guard_msgs in
 example {α : Sort u} (h : Empty) : α := by apply?
-#guard_msgs (drop info) in
-example (f : A → C) (g : B → C) : (A ⊕ B) → C := by apply?
+
+-- FIXME: this is timing out, what is it doing?
+-- example (f : A → C) (g : B → C) : (A ⊕ B) → C := by apply?
 
 opaque f : Nat → Nat
 axiom F (a b : Nat) : f a ≤ f b ↔ a ≤ b

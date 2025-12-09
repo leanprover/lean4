@@ -377,7 +377,7 @@ where
           let ctorIdx := mkConst (mkCtorIdxName enumName) us
           mkLambdaFVars #[P, x, y] (← mkAppM ``noConfusionTypeEnum #[ctorIdx, P, x, y])
       let declName  := Name.mkStr enumName "noConfusionType"
-      addAndCompile <| Declaration.defnDecl {
+      addDecl <| Declaration.defnDecl {
         name        := declName
         levelParams := v :: info.levelParams
         type        := declType
@@ -406,7 +406,7 @@ where
         else
           mkAppOptM ``noConfusionEnum #[none, none, none, ctorIdx, P, x, y, h]
       let declName  := Name.mkStr enumName "noConfusion"
-      addAndCompile <| Declaration.defnDecl {
+      addDecl <| Declaration.defnDecl {
         name        := declName
         levelParams := v :: info.levelParams
         type        := declType

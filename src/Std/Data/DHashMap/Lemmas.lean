@@ -384,13 +384,13 @@ theorem get_insert_self [LawfulBEq α] {k : α} {v : β k} :
     (m.insert k v).get k mem_insert_self = v :=
   Raw₀.get_insert_self ⟨m.1, _⟩ m.2
 
-theorem insert_toList_perm [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
+theorem toList_insert_perm [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
     (m.insert k v).toList.Perm (⟨k, v⟩ :: m.toList.filter (¬k == ·.1)) :=
-  Raw₀.insert_toList_perm ⟨m.1, _⟩ m.2
+  Raw₀.toList_insert_perm ⟨m.1, _⟩ m.2
 
-theorem Const.insert_toList_perm {β : Type v} {m : DHashMap α (fun _ => β)} [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
+theorem Const.toList_insert_perm {β : Type v} {m : DHashMap α (fun _ => β)} [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
     (Const.toList (m.insert k v)).Perm (⟨k, v⟩ :: (Const.toList m).filter (¬k == ·.1)) :=
-  Raw₀.Const.insert_toList_perm ⟨m.1, _⟩ m.2
+  Raw₀.Const.toList_insert_perm ⟨m.1, _⟩ m.2
 
 theorem Const.keys_insertIfNew_perm {m : DHashMap α (fun _ => Unit)} [EquivBEq α] [LawfulHashable α] {k : α} :
     (m.insertIfNew k ()).keys.Perm (if k ∈ m then m.keys else k :: m.keys) :=
@@ -400,6 +400,7 @@ theorem Const.keys_insertIfNew_perm {m : DHashMap α (fun _ => Unit)} [EquivBEq 
 theorem get_erase [LawfulBEq α] {k a : α} {h'} :
     (m.erase k).get a h' = m.get a (mem_of_mem_erase h') :=
   Raw₀.get_erase ⟨m.1, _⟩ m.2
+
 
 theorem get?_eq_some_get [LawfulBEq α] {a : α} (h) : m.get? a = some (m.get a h) :=
   Raw₀.get?_eq_some_get ⟨m.1, _⟩ m.2

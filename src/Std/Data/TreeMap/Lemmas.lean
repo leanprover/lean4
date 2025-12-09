@@ -293,8 +293,8 @@ theorem getElem?_congr [TransCmp cmp] {a b : α} (hab : cmp a b = .eq) :
       else get t a (mem_of_mem_insert h₁ h₂) :=
   DTreeMap.Const.get_insert
 
-theorem insert_toList_perm [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] {k : α} {v : β} :
-    (t.insert k v).toList.Perm (⟨k, v⟩ :: t.toList.filter (¬k == ·.1)) := DTreeMap.Const.insert_toList_perm
+theorem toList_insert_perm [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] {k : α} {v : β} :
+    (t.insert k v).toList.Perm (⟨k, v⟩ :: t.toList.filter (¬k == ·.1)) := DTreeMap.Const.toList_insert_perm
 
 theorem keys_insertIfNew_perm {t : TreeMap α Unit cmp} [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] {k : α} :
     (t.insertIfNew k ()).keys.Perm (if k ∈ t then t.keys else k :: t.keys) :=

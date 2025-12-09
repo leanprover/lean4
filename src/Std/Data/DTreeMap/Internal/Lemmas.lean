@@ -660,7 +660,7 @@ theorem get_insert! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {v : β
         t.get a (contains_of_contains_insert! h h₁ h₂) := by
   simpa only [insert_eq_insert!] using get_insert h (h₁ := by simpa [insert_eq_insert!])
 
-theorem insert_toList_perm [BEq α] [TransOrd α] [LawfulBEqOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem toList_insert_perm [BEq α] [TransOrd α] [LawfulBEqOrd α] (h : t.WF) {k : α} {v : β k} :
     (t.insert k v h.balanced).1.toList.Perm (⟨k, v⟩ :: t.toList.filter (¬k == ·.1)) := by
   simp_to_model
   refine List.Perm.trans (toListModel_insert _ h.ordered) <| List.Perm.trans (List.insertEntry_perm_filter _ _ h.ordered.distinctKeys) ?_
@@ -668,9 +668,9 @@ theorem insert_toList_perm [BEq α] [TransOrd α] [LawfulBEqOrd α] (h : t.WF) {
 
 theorem insert!_toList_perm [BEq α] [TransOrd α] [LawfulBEqOrd α] (h : t.WF) {k : α} {v : β k} :
     (t.insert! k v).toList.Perm (⟨k, v⟩ :: t.toList.filter (¬k == ·.1)) := by
-  simpa only [insert_eq_insert!] using insert_toList_perm h
+  simpa only [insert_eq_insert!] using toList_insert_perm h
 
-theorem Const.insert_toList_perm {β : Type v} {t : Impl α (fun _ => β)} [BEq α] [TransOrd α] [LawfulBEqOrd α] (h : t.WF) {k : α} {v : β} :
+theorem Const.toList_insert_perm {β : Type v} {t : Impl α (fun _ => β)} [BEq α] [TransOrd α] [LawfulBEqOrd α] (h : t.WF) {k : α} {v : β} :
     (Const.toList (t.insert k v h.balanced).1).Perm (⟨k, v⟩ :: (Const.toList t).filter (¬k == ·.1)) := by
   simp_to_model
   apply List.Perm.trans <| List.Perm.map _ <| toListModel_insert _ h.ordered
@@ -679,7 +679,7 @@ theorem Const.insert_toList_perm {β : Type v} {t : Impl α (fun _ => β)} [BEq 
 
 theorem Const.insert!_toList_perm {β : Type v} {t : Impl α (fun _ => β)} [BEq α] [TransOrd α] [LawfulBEqOrd α] (h : t.WF) {k : α} {v : β} :
     (Const.toList (t.insert! k v)).Perm (⟨k, v⟩ :: (Const.toList t).filter (¬k == ·.1)) := by
-  simpa only [insert_eq_insert!] using Const.insert_toList_perm h
+  simpa only [insert_eq_insert!] using Const.toList_insert_perm h
 
 theorem Const.keys_insertIfNew_perm {t : Impl α (fun _ => Unit)} [BEq α] [TransOrd α] [LawfulBEqOrd α] (h : t.WF) {k : α} :
     (t.insertIfNew k () h.balanced).1.keys.Perm (if t.contains k then t.keys else k :: t.keys) := by

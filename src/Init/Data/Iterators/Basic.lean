@@ -10,6 +10,7 @@ public import Init.Classical
 public import Init.Ext
 
 set_option doc.verso true
+set_option linter.missingDocs true
 
 public section
 
@@ -352,7 +353,18 @@ In order to allow intrinsic termination proofs when iterating with the `step` fu
 step object is bundled with a proof that it is a "plausible" step for the given current iterator.
 -/
 class Iterator (α : Type w) (m : Type w → Type w') (β : outParam (Type w)) where
+  /--
+  The plausibility relation restricts the steps that are allowed from an iterator.
+
+  Plausibility relates an iterator to potential steps. Because steps include successor iterators, it
+  also relates an iterator to its potential successor iterators. This allows the set of potential
+  steps to be narrowed drastically, which can make many proofs possible.
+  -/
   IsPlausibleStep : IterM (α := α) m β → IterStep (IterM (α := α) m β) β → Prop
+  /--
+  Takes a single step of iteration, which either yields a value, skips a step, or terminates
+  iteration.
+  -/
   step : (it : IterM (α := α) m β) → m (Shrink <| PlausibleIterStep <| IsPlausibleStep it)
 
 section Monadic
@@ -449,8 +461,10 @@ number of steps.
 -/
 inductive IterM.IsPlausibleIndirectOutput {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
     : IterM (α := α) m β → β → Prop where
+  /-- The output is plausible in the next step of iteration. -/
   | direct {it : IterM (α := α) m β} {out : β} : it.IsPlausibleOutput out →
       it.IsPlausibleIndirectOutput out
+  /-- The output is plausible in some future step of iteration. -/
   | indirect {it it' : IterM (α := α) m β} {out : β} : it'.IsPlausibleSuccessorOf it →
       it'.IsPlausibleIndirectOutput out → it.IsPlausibleIndirectOutput out
 
@@ -460,7 +474,12 @@ finitely many steps. This relation is reflexive.
 -/
 inductive IterM.IsPlausibleIndirectSuccessorOf {α β : Type w} {m : Type w → Type w'}
     [Iterator α m β] : IterM (α := α) m β → IterM (α := α) m β → Prop where
+  /-- Every step is a plausible indirect successor of itself. -/
   | refl (it : IterM (α := α) m β) : it.IsPlausibleIndirectSuccessorOf it
+  /--
+  Every plausible indirect successor of a plausible successor is itself a plausible indirect
+  successor.
+  -/
   | cons_right {it'' it' it : IterM (α := α) m β} (h' : it''.IsPlausibleIndirectSuccessorOf it')
       (h : it'.IsPlausibleSuccessorOf it) : it''.IsPlausibleIndirectSuccessorOf it
 
@@ -585,8 +604,10 @@ number of steps.
 -/
 inductive Iter.IsPlausibleIndirectOutput {α β : Type w} [Iterator α Id β] :
     Iter (α := α) β → β → Prop where
+  /-- The output is plausible in the next step of iteration. -/
   | direct {it : Iter (α := α) β} {out : β} : it.IsPlausibleOutput out →
       it.IsPlausibleIndirectOutput out
+  /-- The output is plausible in some future step of iteration. -/
   | indirect {it it' : Iter (α := α) β} {out : β} : it'.IsPlausibleSuccessorOf it →
       it'.IsPlausibleIndirectOutput out → it.IsPlausibleIndirectOutput out
 
@@ -617,7 +638,12 @@ finitely many steps. This relation is reflexive.
 -/
 inductive Iter.IsPlausibleIndirectSuccessorOf {α : Type w} {β : Type w} [Iterator α Id β] :
     Iter (α := α) β → Iter (α := α) β → Prop where
+  /-- Every step is a plausible indirect successor of itself. -/
   | refl (it : Iter (α := α) β) : IsPlausibleIndirectSuccessorOf it it
+  /--
+  Every plausible indirect successor of a plausible successor is itself a plausible indirect
+  successor.
+  -/
   | cons_right {it'' it' it : Iter (α := α) β} (h' : it''.IsPlausibleIndirectSuccessorOf it')
       (h : it'.IsPlausibleSuccessorOf it) : it''.IsPlausibleIndirectSuccessorOf it
 
@@ -691,6 +717,7 @@ recursion over finite iterators. See also `IterM.finitelyManySteps` and `Iter.fi
 -/
 structure IterM.TerminationMeasures.Finite
     (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
+  /-- The wrapped finite iterator that will be used as a termination measure. -/
   it : IterM (α := α) m β
 
 /--
@@ -816,6 +843,7 @@ recursion over productive iterators. See also `IterM.finitelyManySkips` and `Ite
 -/
 structure IterM.TerminationMeasures.Productive
     (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
+  /-- The wrapped productive iterator that will be used as a termination measure. -/
   it : IterM (α := α) m β
 
 /--
@@ -917,6 +945,7 @@ library.
 -/
 class LawfulDeterministicIterator (α : Type w) (m : Type w → Type w') [Iterator α m β]
     where
+  /-- Every iterator state has a unique plausible successor. -/
   isPlausibleStep_eq_eq : ∀ it : IterM (α := α) m β, ∃ step, it.IsPlausibleStep = (· = step)
 
 end Iterators

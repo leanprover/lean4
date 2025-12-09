@@ -9,6 +9,8 @@ prelude
 public import Init.Data.Option.Lemmas
 public import Init.Data.Order.Classes
 
+set_option linter.missingDocs true
+
 public section
 
 namespace Std.PRange
@@ -240,12 +242,14 @@ This propositional typeclass ensures that `UpwardEnumerable.succ?` will never re
 In other words, it ensures that there will always be a successor.
 -/
 class InfinitelyUpwardEnumerable (α : Type u) [UpwardEnumerable α] where
+  /-- Every element has a successor. -/
   isSome_succ? : ∀ a : α, (UpwardEnumerable.succ? a).isSome
 
 /--
 This propositional typeclass ensures that `UpwardEnumerable.succ?` is injective.
 -/
 class LinearlyUpwardEnumerable (α : Type u) [UpwardEnumerable α] where
+  /-- `UpwardEnumerable.succ?` is injective. -/
   eq_of_succ?_eq : ∀ a b : α, UpwardEnumerable.succ? a = UpwardEnumerable.succ? b → a = b
 
 theorem UpwardEnumerable.isSome_succ? {α : Type u} [UpwardEnumerable α]
@@ -430,6 +434,9 @@ protected theorem UpwardEnumerable.le_iff {α : Type u} [LE α] [UpwardEnumerabl
     [LawfulUpwardEnumerableLE α] {a b : α} : a ≤ b ↔ UpwardEnumerable.LE a b :=
   LawfulUpwardEnumerableLE.le_iff a b
 
+/--
+The `≤` relation that results from a lawfully upward enumerable type is transitive if it is lawful.
+-/
 def UpwardEnumerable.instLETransOfLawfulUpwardEnumerableLE {α : Type u} [LE α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] :
     Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) where
@@ -494,11 +501,17 @@ protected theorem UpwardEnumerable.lt_succ_iff {α : Type u} [UpwardEnumerable �
       ← succMany?_eq_some_iff_succMany] at hn
     exact ⟨n, hn⟩
 
+/--
+The `<` relation that results from a lawfully upward enumerable type is transitive if it is lawful.
+-/
 def UpwardEnumerable.instLTTransOfLawfulUpwardEnumerableLT {α : Type u} [LT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] :
     Trans (α := α) (· < ·) (· < ·) (· < ·) where
   trans := by simpa [UpwardEnumerable.lt_iff] using @UpwardEnumerable.lt_trans
 
+/--
+The `≤` and `<` relations that results from a lawfully upward enumerable type are compatible.
+-/
 def UpwardEnumerable.instLawfulOrderLTOfLawfulUpwardEnumerableLT {α : Type u} [LT α] [LE α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [LawfulUpwardEnumerableLE α] :
@@ -531,6 +544,9 @@ theorem UpwardEnumerable.isSome_least? {α : Type u} [UpwardEnumerable α] [Leas
   obtain ⟨_, h, _⟩ := least?_le (α := α) (a := Classical.ofNonempty)
   simp [h]
 
+/--
+Returns the least element of an upward enumerable type.
+-/
 def UpwardEnumerable.least [UpwardEnumerable α] [Least? α] [LawfulUpwardEnumerableLeast? α]
     [hn : Nonempty α] : α :=
   least?.get isSome_least?

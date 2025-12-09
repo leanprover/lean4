@@ -6898,6 +6898,53 @@ theorem containsKey_filter_iff [BEq α] [LawfulBEq α]
   simp only [containsKey_filter hl, Option.any_eq_true, getValueCast,
     Option.exists_eq_some_and_iff, containsKey_eq_isSome_getValueCast?]
 
+theorem insertEntry_perm_filter [BEq α] [EquivBEq α]
+    (k : α) (v : β k) {l : List ((a : α) × β a)} (hl : DistinctKeys l) :
+    (insertEntry k v l).Perm <| ⟨k, v⟩ :: l.filter (¬k == ·.1) := by
+  rw [insertEntry]
+  by_cases eq : containsKey k l
+  case neg =>
+    simp only [eq, cond_false, Bool.not_eq_true, Bool.decide_eq_false, List.perm_cons]
+    suffices (List.filter (fun x => !k == x.fst) l) = l by rw [this]
+    simp only [List.filter_eq_self, Bool.not_eq_eq_eq_not, Bool.not_true]
+    intro ⟨e₁,e₂⟩ mem
+    simp only
+    by_cases h : (k == e₁)
+    case pos =>
+      rw [containsKey_congr h] at eq
+      rw [containsKey_of_mem mem] at eq
+      contradiction
+    case neg => simp [h]
+  case pos =>
+    simp only [eq, cond_true, Bool.not_eq_true, Bool.decide_eq_false]
+    induction l
+    case nil => simp at eq
+    case cons h t ih =>
+      simp only [replaceEntry, List.filter_cons, Bool.not_eq_eq_eq_not, Bool.not_true]
+      rw [distinctKeys_cons_iff] at hl
+      by_cases heq : (h.fst == k)
+      case pos =>
+        simp only [heq, cond_true, BEq.symm heq, Bool.true_eq_false, ↓reduceIte, List.perm_cons]
+        suffices (List.filter (fun x => !k == x.fst) t) = t by rw [this]
+        simp only [List.filter_eq_self, Bool.not_eq_eq_eq_not, Bool.not_true]
+        intro ⟨e₁, e₂⟩ mem
+        by_cases heq2 : (k == e₁)
+        case neg => simp [heq2]
+        case pos =>
+          replace hl := hl.2
+          have ce := containsKey_of_mem mem
+          simp only at ce
+          rw [containsKey_congr <| BEq.trans heq heq2, ce] at hl
+          contradiction
+      case neg =>
+        simp only [Bool.not_eq_true] at heq
+        simp [BEq.symm_false, heq]
+        apply Perm.trans ?_ (by apply Perm.swap)
+        simp only [List.perm_cons]
+        apply ih hl.1
+        rw [containsKey_cons, heq] at eq
+        simpa
+
 theorem Const.containsKey_filterMap_iff {β : Type v} {γ : Type w}
     [BEq α] [EquivBEq α]
     {f : α → β → Option γ}

@@ -405,12 +405,9 @@ theorem get_insert_self [LawfulBEq α] (h : m.1.WF) {k : α} {v : β k} :
 theorem insert_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} {v : β k} :
     (m.insert k v).1.toList.Perm (⟨k, v⟩ :: m.1.toList.filter (¬k == ·.1)) := by
   simp_to_model
-  apply List.Perm.trans
-  · apply toListModel_insert (by wf_trivial)
-  sorry
-
-
-
+  refine List.Perm.trans (toListModel_insert (by wf_trivial)) ?_
+  apply List.insertEntry_perm_filter
+  · wf_trivial
 
 @[simp]
 theorem get_erase [LawfulBEq α] (h : m.1.WF) {k a : α} {h'} :

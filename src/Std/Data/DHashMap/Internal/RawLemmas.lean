@@ -413,7 +413,7 @@ theorem Const.toList_insert_perm {β : Type v} (m : Raw₀ α (fun _ => β)) [Eq
   apply List.Perm.trans <| List.Const.map_insertEntry_perm_filter_map _ _ (by wf_trivial)
   simp
 
-theorem keys_insertIfNew_perm [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} {v : β k}:
+theorem keys_insertIfNew_perm [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} {v : β k} :
     (m.insertIfNew k v).1.keys.Perm (if m.contains k then m.1.keys else k :: m.1.keys) := by
   simp_to_model
   apply List.Perm.trans

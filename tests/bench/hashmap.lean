@@ -264,6 +264,50 @@ def compareAnyBench : IO Unit := do
 
 end anyTests
 
+section partitionTests
+
+def Std.HashSet.partition' {α : Type} [BEq α] [Hashable α] (m : Std.HashSet α) (p : α → Bool) := (m.filter p, m.filter (fun x => ! p x))
+
+def benchNativePartition (size : Nat) (p : Nat) : IO Float := do
+    let mut set := Std.HashSet.emptyWithCapacity (α := Nat) size
+    let checks := size
+    timeNanos checks do
+      let (l, r) := set.partition (fun x => x % p == 0)
+      if l.size + r.size != set.size
+      then throw <| .userError "Fail"
+
+def benchFilterPartition (size : Nat) (p : Nat) : IO Float := do
+    let mut set := Std.HashSet.emptyWithCapacity (α := Nat) size
+    let checks := size
+    timeNanos checks do
+      let (l, r) := set.partition' (fun x => x % p == 0)
+      if l.size + r.size != set.size
+      then throw <| .userError "Fail"
+
+def evalPartition := do
+  let mut nativeBetter := 0
+  let mut filterBetter := 0
+
+  for size in [100, 1000, 10000, 100000, 1000000] do
+    for p in testPrimes do
+      let time1 ← benchNativePartition size p
+      let time2 ← benchFilterPartition size p
+
+      IO.println s!"Native scenario size: {size} prime : {p} time {time1}"
+      IO.println s!"Filter scenario size: {size} prime : {p} time {time2}"
+
+      if time1 ≤ time2 then
+        nativeBetter := nativeBetter + 1
+      else
+        filterBetter := filterBetter + 1
+
+  IO.println s!"Native function better: {nativeBetter}"
+  IO.println s!"Filter function better: {filterBetter}"
+
+#eval evalPartition
+
+end partitionTests
+
 def main (args : List String) : IO Unit := do
   let seed := args[0]!.toNat!.toUInt64
   let size := args[1]!.toNat!

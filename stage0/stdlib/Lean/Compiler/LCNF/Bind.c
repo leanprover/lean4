@@ -1951,7 +1951,6 @@ x_3 = l_Lean_Compiler_LCNF_getArrowArity(x_1);
 x_4 = lean_array_get_size(x_2);
 x_5 = lean_nat_dec_lt(x_4, x_3);
 lean_dec(x_3);
-lean_dec(x_4);
 return x_5;
 }
 }

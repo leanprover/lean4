@@ -371,10 +371,8 @@ x_10 = lean_string_append(x_3, x_9);
 x_11 = lean_string_utf8_byte_size(x_7);
 x_12 = lean_string_utf8_byte_size(x_10);
 x_13 = lean_nat_dec_le(x_12, x_11);
-lean_dec(x_11);
 if (x_13 == 0)
 {
-lean_dec(x_12);
 lean_dec_ref(x_10);
 x_4 = x_8;
 goto block_6;
@@ -384,7 +382,6 @@ else
 lean_object* x_14; uint8_t x_15; 
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_string_memcmp(x_7, x_10, x_14, x_14, x_12);
-lean_dec(x_12);
 lean_dec_ref(x_10);
 x_4 = x_15;
 goto block_6;

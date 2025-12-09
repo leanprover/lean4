@@ -1979,7 +1979,6 @@ x_17 = lean_nat_dec_lt(x_9, x_16);
 if (x_17 == 0)
 {
 lean_object* x_18; 
-lean_dec(x_16);
 x_18 = l_Lean_expandBracketedBindersAux(x_8, x_15, x_3, x_4, x_5);
 lean_dec_ref(x_15);
 return x_18;
@@ -1989,7 +1988,6 @@ else
 if (x_17 == 0)
 {
 lean_object* x_19; 
-lean_dec(x_16);
 x_19 = l_Lean_expandBracketedBindersAux(x_8, x_15, x_3, x_4, x_5);
 lean_dec_ref(x_15);
 return x_19;
@@ -1999,7 +1997,6 @@ else
 size_t x_20; size_t x_21; uint8_t x_22; 
 x_20 = 0;
 x_21 = lean_usize_of_nat(x_16);
-lean_dec(x_16);
 x_22 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_expandExplicitBinders_spec__0(x_12, x_14, x_15, x_20, x_21);
 if (x_22 == 0)
 {
@@ -13105,7 +13102,6 @@ x_81 = lean_array_get_size(x_79);
 x_82 = lean_nat_dec_lt(x_8, x_81);
 if (x_82 == 0)
 {
-lean_dec(x_81);
 lean_dec_ref(x_79);
 x_10 = x_80;
 goto block_77;
@@ -13116,7 +13112,6 @@ uint8_t x_83;
 x_83 = lean_nat_dec_le(x_81, x_81);
 if (x_83 == 0)
 {
-lean_dec(x_81);
 lean_dec_ref(x_79);
 x_10 = x_80;
 goto block_77;
@@ -13130,7 +13125,6 @@ lean_ctor_set(x_85, 0, x_84);
 lean_ctor_set(x_85, 1, x_80);
 x_86 = 0;
 x_87 = lean_usize_of_nat(x_81);
-lean_dec(x_81);
 x_88 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__3(x_5, x_79, x_86, x_87, x_85);
 lean_dec_ref(x_79);
 x_89 = lean_ctor_get(x_88, 1);
@@ -13273,7 +13267,6 @@ x_69 = lean_nat_dec_lt(x_8, x_17);
 if (x_69 == 0)
 {
 lean_object* x_70; 
-lean_dec(x_17);
 lean_dec(x_14);
 lean_dec_ref(x_2);
 x_70 = lean_alloc_ctor(0, 2, 0);
@@ -13285,7 +13278,6 @@ else
 {
 size_t x_71; lean_object* x_72; uint8_t x_73; 
 x_71 = lean_usize_of_nat(x_17);
-lean_dec(x_17);
 x_72 = l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00__aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__2___redArg(x_14, x_71, x_12, x_16, x_2, x_3);
 lean_dec(x_14);
 x_73 = !lean_is_exclusive(x_72);

@@ -622,13 +622,11 @@ x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
 lean_dec_ref(x_12);
 x_14 = l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg(x_1, x_2, x_3, x_13, x_10, x_9);
-lean_dec(x_9);
 return x_14;
 }
 else
 {
 uint8_t x_15; 
-lean_dec(x_9);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_15 = !lean_is_exclusive(x_12);
@@ -651,7 +649,6 @@ return x_17;
 else
 {
 lean_object* x_18; lean_object* x_19; 
-lean_dec(x_9);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_18 = l_mkNatLookupTable___closed__3;

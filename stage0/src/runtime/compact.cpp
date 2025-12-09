@@ -290,7 +290,12 @@ void object_compactor::insert_mpz(object * o) {
     size_t data_sz = sizeof(mpn_digit) * to_mpz(o)->m_value.m_size;
     size_t sz      = sizeof(mpz_object) + data_sz;
     mpz_object * new_o = (mpz_object *)alloc(sz);
-    memcpy(new_o, to_mpz(o), sizeof(mpz_object));
+    // Manually copy the `mpz_object` to ensure `mpz` struct padding is left as
+    // zero as prepared by `object_compactor::alloc`. `memcpy` would copy the
+    // padding and lead to non-deterministic outputs.
+    new_o->m_header = to_mpz(o)->m_header;
+    new_o->m_value.m_sign = to_mpz(o)->m_value.m_sign;
+    new_o->m_value.m_size = to_mpz(o)->m_value.m_size;
     lean_set_non_heap_header((lean_object*)new_o, sz, LeanMPZ, 0);
     void * data = reinterpret_cast<char*>(new_o) + sizeof(mpz_object);
     memcpy(data, to_mpz(o)->m_value.m_digits, data_sz);

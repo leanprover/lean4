@@ -910,7 +910,6 @@ x_10 = lean_uint64_shift_right(x_8, x_9);
 x_11 = lean_uint64_xor(x_8, x_10);
 x_12 = lean_uint64_to_usize(x_11);
 x_13 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_14 = 1;
 x_15 = lean_usize_sub(x_13, x_14);
 x_16 = lean_usize_land(x_12, x_15);
@@ -944,7 +943,6 @@ x_11 = lean_uint64_shift_right(x_9, x_10);
 x_12 = lean_uint64_xor(x_9, x_11);
 x_13 = lean_uint64_to_usize(x_12);
 x_14 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
 x_15 = 1;
 x_16 = lean_usize_sub(x_14, x_15);
 x_17 = lean_usize_land(x_13, x_16);
@@ -1066,7 +1064,6 @@ x_20 = lean_box(0);
 x_21 = lean_nat_dec_lt(x_18, x_19);
 if (x_21 == 0)
 {
-lean_dec(x_19);
 lean_dec_ref(x_17);
 lean_ctor_set_tag(x_10, 0);
 lean_ctor_set(x_10, 0, x_20);
@@ -1078,7 +1075,6 @@ uint8_t x_22;
 x_22 = lean_nat_dec_le(x_19, x_19);
 if (x_22 == 0)
 {
-lean_dec(x_19);
 lean_dec_ref(x_17);
 lean_ctor_set_tag(x_10, 0);
 lean_ctor_set(x_10, 0, x_20);
@@ -1090,7 +1086,6 @@ size_t x_23; size_t x_24; lean_object* x_25;
 lean_free_object(x_10);
 x_23 = 0;
 x_24 = lean_usize_of_nat(x_19);
-lean_dec(x_19);
 x_25 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointFinder_eraseCandidate_spec__6(x_17, x_23, x_24, x_20, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec_ref(x_17);
 return x_25;
@@ -1119,7 +1114,6 @@ x_35 = lean_nat_dec_lt(x_32, x_33);
 if (x_35 == 0)
 {
 lean_object* x_36; 
-lean_dec(x_33);
 lean_dec_ref(x_31);
 x_36 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_36, 0, x_34);
@@ -1132,7 +1126,6 @@ x_37 = lean_nat_dec_le(x_33, x_33);
 if (x_37 == 0)
 {
 lean_object* x_38; 
-lean_dec(x_33);
 lean_dec_ref(x_31);
 x_38 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_38, 0, x_34);
@@ -1143,7 +1136,6 @@ else
 size_t x_39; size_t x_40; lean_object* x_41; 
 x_39 = 0;
 x_40 = lean_usize_of_nat(x_33);
-lean_dec(x_33);
 x_41 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointFinder_eraseCandidate_spec__6(x_31, x_39, x_40, x_34, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec_ref(x_31);
 return x_41;
@@ -2168,7 +2160,6 @@ x_16 = lean_nat_dec_lt(x_13, x_14);
 if (x_16 == 0)
 {
 lean_object* x_17; 
-lean_dec(x_14);
 lean_dec_ref(x_12);
 lean_dec(x_8);
 lean_dec_ref(x_7);
@@ -2188,7 +2179,6 @@ x_18 = lean_nat_dec_le(x_14, x_14);
 if (x_18 == 0)
 {
 lean_object* x_19; 
-lean_dec(x_14);
 lean_dec_ref(x_12);
 lean_dec(x_8);
 lean_dec_ref(x_7);
@@ -2206,7 +2196,6 @@ else
 size_t x_20; size_t x_21; lean_object* x_22; 
 x_20 = 0;
 x_21 = lean_usize_of_nat(x_14);
-lean_dec(x_14);
 x_22 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_LetValue_forFVarM___at___00__private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointFinder_removeCandidatesInLetValue_spec__0_spec__0(x_1, x_12, x_20, x_21, x_15, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec_ref(x_12);
 return x_22;
@@ -2244,7 +2233,6 @@ x_30 = lean_box(0);
 x_31 = lean_nat_dec_lt(x_28, x_29);
 if (x_31 == 0)
 {
-lean_dec(x_29);
 lean_dec_ref(x_24);
 lean_dec(x_8);
 lean_dec_ref(x_7);
@@ -2262,7 +2250,6 @@ uint8_t x_32;
 x_32 = lean_nat_dec_le(x_29, x_29);
 if (x_32 == 0)
 {
-lean_dec(x_29);
 lean_dec_ref(x_24);
 lean_dec(x_8);
 lean_dec_ref(x_7);
@@ -2280,7 +2267,6 @@ size_t x_33; size_t x_34; lean_object* x_35;
 lean_free_object(x_25);
 x_33 = 0;
 x_34 = lean_usize_of_nat(x_29);
-lean_dec(x_29);
 x_35 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_LetValue_forFVarM___at___00__private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointFinder_removeCandidatesInLetValue_spec__0_spec__0(x_1, x_24, x_33, x_34, x_30, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec_ref(x_24);
 return x_35;
@@ -2298,7 +2284,6 @@ x_39 = lean_nat_dec_lt(x_36, x_37);
 if (x_39 == 0)
 {
 lean_object* x_40; 
-lean_dec(x_37);
 lean_dec_ref(x_24);
 lean_dec(x_8);
 lean_dec_ref(x_7);
@@ -2318,7 +2303,6 @@ x_41 = lean_nat_dec_le(x_37, x_37);
 if (x_41 == 0)
 {
 lean_object* x_42; 
-lean_dec(x_37);
 lean_dec_ref(x_24);
 lean_dec(x_8);
 lean_dec_ref(x_7);
@@ -2336,7 +2320,6 @@ else
 size_t x_43; size_t x_44; lean_object* x_45; 
 x_43 = 0;
 x_44 = lean_usize_of_nat(x_37);
-lean_dec(x_37);
 x_45 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_LetValue_forFVarM___at___00__private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointFinder_removeCandidatesInLetValue_spec__0_spec__0(x_1, x_24, x_43, x_44, x_38, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec_ref(x_24);
 return x_45;
@@ -2440,7 +2423,6 @@ x_12 = lean_uint64_shift_right(x_10, x_11);
 x_13 = lean_uint64_xor(x_10, x_12);
 x_14 = lean_uint64_to_usize(x_13);
 x_15 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_16 = 1;
 x_17 = lean_usize_sub(x_15, x_16);
 x_18 = lean_usize_land(x_14, x_17);
@@ -2471,7 +2453,6 @@ x_31 = lean_uint64_shift_right(x_29, x_30);
 x_32 = lean_uint64_xor(x_29, x_31);
 x_33 = lean_uint64_to_usize(x_32);
 x_34 = lean_usize_of_nat(x_25);
-lean_dec(x_25);
 x_35 = 1;
 x_36 = lean_usize_sub(x_34, x_35);
 x_37 = lean_usize_land(x_33, x_36);
@@ -2582,7 +2563,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_array_get_size(x_2);
 x_5 = lean_nat_dec_lt(x_1, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_dec_ref(x_2);
@@ -2613,7 +2593,6 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_obj
 x_2 = lean_array_get_size(x_1);
 x_3 = lean_unsigned_to_nat(2u);
 x_4 = lean_nat_mul(x_2, x_3);
-lean_dec(x_2);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_box(0);
 x_7 = lean_mk_array(x_4, x_6);
@@ -2649,7 +2628,6 @@ x_13 = lean_uint64_shift_right(x_11, x_12);
 x_14 = lean_uint64_xor(x_11, x_13);
 x_15 = lean_uint64_to_usize(x_14);
 x_16 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
 x_17 = 1;
 x_18 = lean_usize_sub(x_16, x_17);
 x_19 = lean_usize_land(x_15, x_18);
@@ -2673,7 +2651,6 @@ x_29 = lean_nat_div(x_27, x_28);
 lean_dec(x_27);
 x_30 = lean_array_get_size(x_25);
 x_31 = lean_nat_dec_le(x_29, x_30);
-lean_dec(x_30);
 lean_dec(x_29);
 if (x_31 == 0)
 {
@@ -2719,7 +2696,6 @@ x_45 = lean_uint64_shift_right(x_43, x_44);
 x_46 = lean_uint64_xor(x_43, x_45);
 x_47 = lean_uint64_to_usize(x_46);
 x_48 = lean_usize_of_nat(x_39);
-lean_dec(x_39);
 x_49 = 1;
 x_50 = lean_usize_sub(x_48, x_49);
 x_51 = lean_usize_land(x_47, x_50);
@@ -2743,7 +2719,6 @@ x_61 = lean_nat_div(x_59, x_60);
 lean_dec(x_59);
 x_62 = lean_array_get_size(x_57);
 x_63 = lean_nat_dec_le(x_61, x_62);
-lean_dec(x_62);
 lean_dec(x_61);
 if (x_63 == 0)
 {
@@ -2858,7 +2833,6 @@ x_12 = lean_uint64_shift_right(x_10, x_11);
 x_13 = lean_uint64_xor(x_10, x_12);
 x_14 = lean_uint64_to_usize(x_13);
 x_15 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_16 = 1;
 x_17 = lean_usize_sub(x_15, x_16);
 x_18 = lean_usize_land(x_14, x_17);
@@ -2892,7 +2866,6 @@ x_31 = lean_nat_div(x_29, x_30);
 lean_dec(x_29);
 x_32 = lean_array_get_size(x_27);
 x_33 = lean_nat_dec_le(x_31, x_32);
-lean_dec(x_32);
 lean_dec(x_31);
 if (x_33 == 0)
 {
@@ -2928,7 +2901,6 @@ x_42 = lean_nat_div(x_40, x_41);
 lean_dec(x_40);
 x_43 = lean_array_get_size(x_38);
 x_44 = lean_nat_dec_le(x_42, x_43);
-lean_dec(x_43);
 lean_dec(x_42);
 if (x_44 == 0)
 {
@@ -3107,7 +3079,6 @@ x_12 = lean_uint64_shift_right(x_10, x_11);
 x_13 = lean_uint64_xor(x_10, x_12);
 x_14 = lean_uint64_to_usize(x_13);
 x_15 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_16 = 1;
 x_17 = lean_usize_sub(x_15, x_16);
 x_18 = lean_usize_land(x_14, x_17);
@@ -3724,7 +3695,6 @@ goto block_79;
 }
 else
 {
-lean_dec(x_29);
 lean_dec(x_26);
 lean_dec(x_25);
 lean_dec(x_24);
@@ -3762,7 +3732,6 @@ if (x_35 == 0)
 lean_object* x_36; 
 lean_free_object(x_32);
 lean_dec(x_34);
-lean_dec(x_29);
 x_36 = l___private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointFinder_eraseCandidate(x_26, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -3781,7 +3750,6 @@ lean_inc(x_37);
 lean_dec(x_34);
 x_38 = lean_nat_dec_eq(x_29, x_37);
 lean_dec(x_37);
-lean_dec(x_29);
 if (x_38 == 0)
 {
 lean_object* x_39; 
@@ -3887,7 +3855,6 @@ if (x_56 == 0)
 {
 lean_object* x_57; 
 lean_dec(x_55);
-lean_dec(x_29);
 x_57 = l___private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointFinder_eraseCandidate(x_26, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -3906,7 +3873,6 @@ lean_inc(x_58);
 lean_dec(x_55);
 x_59 = lean_nat_dec_eq(x_29, x_58);
 lean_dec(x_58);
-lean_dec(x_29);
 if (x_59 == 0)
 {
 lean_object* x_60; 
@@ -4002,7 +3968,6 @@ else
 {
 lean_object* x_77; lean_object* x_78; 
 lean_dec(x_32);
-lean_dec(x_29);
 lean_dec(x_26);
 lean_dec(x_25);
 lean_dec(x_23);
@@ -4331,7 +4296,6 @@ x_135 = lean_nat_dec_lt(x_132, x_133);
 if (x_135 == 0)
 {
 lean_object* x_136; 
-lean_dec(x_133);
 lean_dec_ref(x_131);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -4350,7 +4314,6 @@ x_137 = lean_nat_dec_le(x_133, x_133);
 if (x_137 == 0)
 {
 lean_object* x_138; 
-lean_dec(x_133);
 lean_dec_ref(x_131);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -4367,7 +4330,6 @@ else
 size_t x_139; size_t x_140; lean_object* x_141; 
 x_139 = 0;
 x_140 = lean_usize_of_nat(x_133);
-lean_dec(x_133);
 x_141 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointFinder_find_go_spec__4(x_131, x_139, x_140, x_134, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec_ref(x_131);
 return x_141;
@@ -4391,7 +4353,6 @@ x_147 = lean_box(0);
 x_148 = lean_nat_dec_lt(x_145, x_146);
 if (x_148 == 0)
 {
-lean_dec(x_146);
 lean_dec_ref(x_144);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -4409,7 +4370,6 @@ uint8_t x_149;
 x_149 = lean_nat_dec_le(x_146, x_146);
 if (x_149 == 0)
 {
-lean_dec(x_146);
 lean_dec_ref(x_144);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -4427,7 +4387,6 @@ size_t x_150; size_t x_151; lean_object* x_152;
 lean_free_object(x_1);
 x_150 = 0;
 x_151 = lean_usize_of_nat(x_146);
-lean_dec(x_146);
 x_152 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointFinder_find_go_spec__5(x_144, x_150, x_151, x_147, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec_ref(x_144);
 return x_152;
@@ -4450,7 +4409,6 @@ x_158 = lean_nat_dec_lt(x_155, x_156);
 if (x_158 == 0)
 {
 lean_object* x_159; 
-lean_dec(x_156);
 lean_dec_ref(x_154);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -4469,7 +4427,6 @@ x_160 = lean_nat_dec_le(x_156, x_156);
 if (x_160 == 0)
 {
 lean_object* x_161; 
-lean_dec(x_156);
 lean_dec_ref(x_154);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -4486,7 +4443,6 @@ else
 size_t x_162; size_t x_163; lean_object* x_164; 
 x_162 = 0;
 x_163 = lean_usize_of_nat(x_156);
-lean_dec(x_156);
 x_164 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointFinder_find_go_spec__5(x_154, x_162, x_163, x_157, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec_ref(x_154);
 return x_164;
@@ -4818,7 +4774,6 @@ x_10 = lean_uint64_shift_right(x_8, x_9);
 x_11 = lean_uint64_xor(x_8, x_10);
 x_12 = lean_uint64_to_usize(x_11);
 x_13 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_14 = 1;
 x_15 = lean_usize_sub(x_13, x_14);
 x_16 = lean_usize_land(x_12, x_15);
@@ -6491,7 +6446,6 @@ x_47 = lean_array_get_size(x_44);
 x_48 = lean_nat_dec_lt(x_45, x_47);
 if (x_48 == 0)
 {
-lean_dec(x_47);
 x_8 = x_46;
 x_9 = lean_box(0);
 goto block_43;
@@ -6502,7 +6456,6 @@ uint8_t x_49;
 x_49 = lean_nat_dec_le(x_47, x_47);
 if (x_49 == 0)
 {
-lean_dec(x_47);
 x_8 = x_46;
 x_9 = lean_box(0);
 goto block_43;
@@ -6514,7 +6467,6 @@ x_50 = l___private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPoint
 x_51 = l___private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointFinder_findCandidate_x3f___closed__1;
 x_52 = 0;
 x_53 = lean_usize_of_nat(x_47);
-lean_dec(x_47);
 x_54 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_JoinPointFinder_replace_spec__2(x_50, x_51, x_44, x_52, x_53, x_46, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_54) == 0)
 {
@@ -6884,7 +6836,6 @@ x_11 = lean_uint64_shift_right(x_9, x_10);
 x_12 = lean_uint64_xor(x_9, x_11);
 x_13 = lean_uint64_to_usize(x_12);
 x_14 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
 x_15 = 1;
 x_16 = lean_usize_sub(x_14, x_15);
 x_17 = lean_usize_land(x_13, x_16);
@@ -7324,7 +7275,6 @@ x_20 = lean_array_get_size(x_1);
 x_21 = lean_nat_dec_lt(x_19, x_20);
 if (x_21 == 0)
 {
-lean_dec(x_20);
 x_13 = x_12;
 x_14 = lean_box(0);
 goto block_17;
@@ -7335,7 +7285,6 @@ uint8_t x_22;
 x_22 = lean_nat_dec_le(x_20, x_20);
 if (x_22 == 0)
 {
-lean_dec(x_20);
 x_13 = x_12;
 x_14 = lean_box(0);
 goto block_17;
@@ -7345,7 +7294,6 @@ else
 size_t x_23; size_t x_24; lean_object* x_25; 
 x_23 = 0;
 x_24 = lean_usize_of_nat(x_20);
-lean_dec(x_20);
 x_25 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_JoinPointContextExtender_withNewCandidates_spec__0___redArg(x_1, x_23, x_24, x_12, x_5);
 if (lean_obj_tag(x_25) == 0)
 {
@@ -7814,7 +7762,6 @@ x_29 = lean_array_get_size(x_26);
 x_30 = lean_nat_dec_lt(x_28, x_29);
 if (x_30 == 0)
 {
-lean_dec(x_29);
 lean_dec_ref(x_26);
 x_14 = x_27;
 goto block_22;
@@ -7825,7 +7772,6 @@ uint8_t x_31;
 x_31 = lean_nat_dec_le(x_29, x_29);
 if (x_31 == 0)
 {
-lean_dec(x_29);
 lean_dec_ref(x_26);
 x_14 = x_27;
 goto block_22;
@@ -7835,7 +7781,6 @@ else
 size_t x_32; size_t x_33; lean_object* x_34; 
 x_32 = 0;
 x_33 = lean_usize_of_nat(x_29);
-lean_dec(x_29);
 x_34 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_JoinPointContextExtender_mergeJpContextIfNecessary_spec__2(x_26, x_32, x_33, x_27);
 lean_dec_ref(x_26);
 x_14 = x_34;
@@ -10313,7 +10258,6 @@ x_38 = lean_array_get_size(x_35);
 x_39 = lean_nat_dec_lt(x_37, x_38);
 if (x_39 == 0)
 {
-lean_dec(x_38);
 lean_dec_ref(x_35);
 x_23 = x_36;
 goto block_32;
@@ -10324,7 +10268,6 @@ uint8_t x_40;
 x_40 = lean_nat_dec_le(x_38, x_38);
 if (x_40 == 0)
 {
-lean_dec(x_38);
 lean_dec_ref(x_35);
 x_23 = x_36;
 goto block_32;
@@ -10334,7 +10277,6 @@ else
 size_t x_41; size_t x_42; lean_object* x_43; 
 x_41 = 0;
 x_42 = lean_usize_of_nat(x_38);
-lean_dec(x_38);
 x_43 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_JoinPointContextExtender_mergeJpContextIfNecessary_spec__2(x_35, x_41, x_42, x_36);
 lean_dec_ref(x_35);
 x_23 = x_43;
@@ -10360,7 +10302,6 @@ x_28 = lean_unsigned_to_nat(0u);
 x_29 = lean_nat_dec_lt(x_28, x_27);
 if (x_29 == 0)
 {
-lean_dec(x_27);
 x_18 = x_26;
 x_19 = x_6;
 goto block_22;
@@ -10369,7 +10310,6 @@ else
 {
 size_t x_30; lean_object* x_31; 
 x_30 = lean_usize_of_nat(x_27);
-lean_dec(x_27);
 x_31 = l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00__private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointContextExtender_extend_go_spec__7(x_26, x_30, x_25, x_6);
 x_18 = x_26;
 x_19 = x_31;
@@ -10833,7 +10773,6 @@ x_107 = lean_array_get_size(x_104);
 x_108 = lean_nat_dec_lt(x_106, x_107);
 if (x_108 == 0)
 {
-lean_dec(x_107);
 lean_dec_ref(x_104);
 x_87 = x_105;
 goto block_101;
@@ -10844,7 +10783,6 @@ uint8_t x_109;
 x_109 = lean_nat_dec_le(x_107, x_107);
 if (x_109 == 0)
 {
-lean_dec(x_107);
 lean_dec_ref(x_104);
 x_87 = x_105;
 goto block_101;
@@ -10853,7 +10791,6 @@ else
 {
 size_t x_110; lean_object* x_111; 
 x_110 = lean_usize_of_nat(x_107);
-lean_dec(x_107);
 x_111 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_JoinPointContextExtender_mergeJpContextIfNecessary_spec__2(x_104, x_83, x_110, x_105);
 lean_dec_ref(x_104);
 x_87 = x_111;
@@ -13908,7 +13845,6 @@ x_69 = lean_array_get_size(x_68);
 x_70 = lean_nat_dec_lt(x_66, x_69);
 if (x_70 == 0)
 {
-lean_dec(x_69);
 lean_dec_ref(x_68);
 lean_dec(x_8);
 lean_dec_ref(x_7);
@@ -13926,7 +13862,6 @@ uint8_t x_71;
 x_71 = lean_nat_dec_le(x_69, x_69);
 if (x_71 == 0)
 {
-lean_dec(x_69);
 lean_dec_ref(x_68);
 lean_dec(x_8);
 lean_dec_ref(x_7);
@@ -13943,7 +13878,6 @@ else
 size_t x_72; size_t x_73; lean_object* x_74; 
 x_72 = 0;
 x_73 = lean_usize_of_nat(x_69);
-lean_dec(x_69);
 lean_inc(x_3);
 lean_inc(x_33);
 x_74 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointCommonArgs_reduce_goAnalyze_spec__7___redArg(x_33, x_68, x_72, x_73, x_67, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
@@ -14041,7 +13975,6 @@ x_87 = lean_box(0);
 x_88 = lean_nat_dec_lt(x_85, x_86);
 if (x_88 == 0)
 {
-lean_dec(x_86);
 lean_dec_ref(x_84);
 lean_dec(x_8);
 lean_dec_ref(x_7);
@@ -14060,7 +13993,6 @@ uint8_t x_89;
 x_89 = lean_nat_dec_le(x_86, x_86);
 if (x_89 == 0)
 {
-lean_dec(x_86);
 lean_dec_ref(x_84);
 lean_dec(x_8);
 lean_dec_ref(x_7);
@@ -14079,7 +14011,6 @@ size_t x_90; size_t x_91; lean_object* x_92;
 lean_free_object(x_1);
 x_90 = 0;
 x_91 = lean_usize_of_nat(x_86);
-lean_dec(x_86);
 x_92 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointCommonArgs_reduce_goAnalyze_spec__8(x_84, x_90, x_91, x_87, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec_ref(x_84);
 return x_92;
@@ -14102,7 +14033,6 @@ x_98 = lean_nat_dec_lt(x_95, x_96);
 if (x_98 == 0)
 {
 lean_object* x_99; 
-lean_dec(x_96);
 lean_dec_ref(x_94);
 lean_dec(x_8);
 lean_dec_ref(x_7);
@@ -14122,7 +14052,6 @@ x_100 = lean_nat_dec_le(x_96, x_96);
 if (x_100 == 0)
 {
 lean_object* x_101; 
-lean_dec(x_96);
 lean_dec_ref(x_94);
 lean_dec(x_8);
 lean_dec_ref(x_7);
@@ -14140,7 +14069,6 @@ else
 size_t x_102; size_t x_103; lean_object* x_104; 
 x_102 = 0;
 x_103 = lean_usize_of_nat(x_96);
-lean_dec(x_96);
 x_104 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointCommonArgs_reduce_goAnalyze_spec__8(x_94, x_102, x_103, x_97, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec_ref(x_94);
 return x_104;
@@ -15025,7 +14953,6 @@ goto block_117;
 else
 {
 uint8_t x_125; 
-lean_dec(x_97);
 lean_dec(x_95);
 lean_dec(x_6);
 lean_dec_ref(x_5);
@@ -15078,8 +15005,6 @@ lean_inc(x_104);
 lean_dec_ref(x_103);
 x_105 = lean_array_get_size(x_98);
 x_106 = lean_nat_dec_eq(x_105, x_97);
-lean_dec(x_97);
-lean_dec(x_105);
 if (x_106 == 0)
 {
 lean_object* x_107; 
@@ -15185,7 +15110,6 @@ goto block_89;
 else
 {
 lean_dec_ref(x_98);
-lean_dec(x_97);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -15198,7 +15122,6 @@ return x_103;
 else
 {
 lean_dec_ref(x_98);
-lean_dec(x_97);
 lean_dec(x_95);
 lean_dec(x_6);
 lean_dec_ref(x_5);
@@ -15415,7 +15338,6 @@ x_173 = l___private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPoin
 x_174 = lean_nat_dec_lt(x_171, x_172);
 if (x_174 == 0)
 {
-lean_dec(x_172);
 lean_dec_ref(x_170);
 lean_dec(x_2);
 x_160 = x_173;
@@ -15427,7 +15349,6 @@ uint8_t x_175;
 x_175 = lean_nat_dec_le(x_172, x_172);
 if (x_175 == 0)
 {
-lean_dec(x_172);
 lean_dec_ref(x_170);
 lean_dec(x_2);
 x_160 = x_173;
@@ -15441,7 +15362,6 @@ x_177 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at___00__private_Lean_Compi
 lean_dec(x_2);
 x_178 = 0;
 x_179 = lean_usize_of_nat(x_172);
-lean_dec(x_172);
 x_180 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointCommonArgs_reduce_goReduce_spec__3(x_177, x_170, x_178, x_179, x_173);
 lean_dec_ref(x_170);
 lean_dec(x_177);

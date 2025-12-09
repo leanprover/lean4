@@ -345,7 +345,6 @@ x_11 = lean_unsigned_to_nat(0u);
 x_12 = lean_nat_dec_lt(x_11, x_10);
 if (x_12 == 0)
 {
-lean_dec(x_10);
 lean_dec_ref(x_4);
 return x_6;
 }
@@ -353,7 +352,6 @@ else
 {
 size_t x_13; size_t x_14; lean_object* x_15; 
 x_13 = lean_usize_of_nat(x_10);
-lean_dec(x_10);
 x_14 = 0;
 x_15 = l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00__private_Init_Data_List_Impl_0__List_eraseTR_go___at___00__private_Lean_Meta_Match_SimpH_0__Lean_Meta_Match_SimpH_substRHS_spec__2_spec__2(x_4, x_13, x_14, x_6);
 lean_dec_ref(x_4);
@@ -5076,7 +5074,6 @@ _start:
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_9 = lean_array_get_size(x_2);
 x_10 = lean_nat_sub(x_9, x_1);
-lean_dec(x_9);
 x_11 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
 return x_11;

@@ -7048,7 +7048,6 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean
 x_58 = lean_array_get_size(x_2);
 x_59 = lean_unsigned_to_nat(0u);
 x_60 = lean_nat_dec_eq(x_58, x_59);
-lean_dec(x_58);
 if (x_60 == 0)
 {
 lean_object* x_61; lean_object* x_62; 

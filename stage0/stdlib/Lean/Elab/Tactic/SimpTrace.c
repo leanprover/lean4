@@ -1181,7 +1181,6 @@ x_12 = l_Lean_Elab_Tactic_filterSuggestionsFromSimpConfig___redArg___closed__0;
 x_13 = lean_nat_dec_lt(x_3, x_11);
 if (x_13 == 0)
 {
-lean_dec(x_11);
 lean_dec_ref(x_10);
 x_5 = x_12;
 goto block_9;
@@ -1192,7 +1191,6 @@ uint8_t x_14;
 x_14 = lean_nat_dec_le(x_11, x_11);
 if (x_14 == 0)
 {
-lean_dec(x_11);
 lean_dec_ref(x_10);
 x_5 = x_12;
 goto block_9;
@@ -1202,7 +1200,6 @@ else
 size_t x_15; size_t x_16; lean_object* x_17; 
 x_15 = 0;
 x_16 = lean_usize_of_nat(x_11);
-lean_dec(x_11);
 x_17 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Tactic_filterSuggestionsFromSimpConfig_spec__0(x_14, x_3, x_10, x_15, x_16, x_12);
 lean_dec_ref(x_10);
 x_5 = x_17;

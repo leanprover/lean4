@@ -794,7 +794,6 @@ x_8 = lean_nat_add(x_5, x_7);
 lean_dec(x_7);
 x_9 = lean_byte_array_size(x_4);
 x_10 = lean_nat_dec_le(x_8, x_9);
-lean_dec(x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; 
@@ -948,7 +947,6 @@ if (x_6 == 0)
 {
 lean_object* x_7; 
 lean_dec(x_2);
-lean_inc(x_4);
 x_7 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_7, 0, x_1);
 lean_ctor_set(x_7, 1, x_4);
@@ -968,7 +966,6 @@ return x_8;
 else
 {
 uint8_t x_9; 
-lean_dec(x_4);
 x_9 = lean_nat_dec_le(x_2, x_3);
 if (x_9 == 0)
 {
@@ -1033,7 +1030,6 @@ return x_11;
 else
 {
 lean_object* x_12; 
-lean_dec(x_6);
 x_12 = l_ByteArray_toByteSlice(x_1, x_7, x_9);
 return x_12;
 }
@@ -1085,7 +1081,6 @@ return x_9;
 else
 {
 lean_object* x_10; 
-lean_dec(x_6);
 x_10 = l_ByteArray_toByteSlice(x_1, x_7, x_4);
 return x_10;
 }
@@ -1167,7 +1162,6 @@ return x_11;
 else
 {
 lean_object* x_12; 
-lean_dec(x_6);
 x_12 = l_ByteArray_toByteSlice(x_1, x_8, x_9);
 return x_12;
 }
@@ -1231,7 +1225,6 @@ return x_9;
 else
 {
 lean_object* x_10; 
-lean_dec(x_6);
 x_10 = l_ByteArray_toByteSlice(x_1, x_7, x_4);
 return x_10;
 }
@@ -1306,7 +1299,6 @@ return x_8;
 else
 {
 lean_object* x_9; 
-lean_dec(x_4);
 x_9 = l_ByteArray_toByteSlice(x_1, x_3, x_6);
 return x_9;
 }
@@ -1346,7 +1338,6 @@ return x_6;
 else
 {
 lean_object* x_7; 
-lean_dec(x_4);
 x_7 = l_ByteArray_toByteSlice(x_1, x_3, x_2);
 return x_7;
 }

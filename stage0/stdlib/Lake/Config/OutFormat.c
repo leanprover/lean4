@@ -412,7 +412,6 @@ x_4 = l_List_foldl___redArg(x_1, x_3, x_2);
 x_5 = lean_unsigned_to_nat(1u);
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_string_utf8_byte_size(x_4);
-lean_inc(x_7);
 lean_inc(x_4);
 x_8 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_8, 0, x_4);
@@ -554,7 +553,6 @@ x_14 = l_Lake_instToTextArray___redArg___lam__1___closed__9;
 x_15 = lean_nat_dec_lt(x_12, x_13);
 if (x_15 == 0)
 {
-lean_dec(x_13);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_3 = x_11;
@@ -566,7 +564,6 @@ uint8_t x_16;
 x_16 = lean_nat_dec_le(x_13, x_13);
 if (x_16 == 0)
 {
-lean_dec(x_13);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_3 = x_11;
@@ -577,7 +574,6 @@ else
 size_t x_17; size_t x_18; lean_object* x_19; 
 x_17 = 0;
 x_18 = lean_usize_of_nat(x_13);
-lean_dec(x_13);
 x_19 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_14, x_1, x_2, x_17, x_18, x_11);
 x_3 = x_19;
 goto block_10;
@@ -589,7 +585,6 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_unsigned_to_nat(1u);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_string_utf8_byte_size(x_3);
-lean_inc(x_6);
 lean_inc_ref(x_3);
 x_7 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_7, 0, x_3);
@@ -1080,7 +1075,6 @@ x_6 = lean_array_get_size(x_2);
 x_7 = lean_nat_dec_lt(x_5, x_6);
 if (x_7 == 0)
 {
-lean_dec(x_6);
 return x_4;
 }
 else
@@ -1089,7 +1083,6 @@ uint8_t x_8;
 x_8 = lean_nat_dec_le(x_6, x_6);
 if (x_8 == 0)
 {
-lean_dec(x_6);
 return x_4;
 }
 else
@@ -1097,7 +1090,6 @@ else
 size_t x_9; size_t x_10; lean_object* x_11; 
 x_9 = 0;
 x_10 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_ppModuleHeader_spec__0(x_3, x_2, x_9, x_10, x_4);
 return x_11;
 }

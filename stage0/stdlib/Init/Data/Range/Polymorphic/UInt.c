@@ -153,7 +153,6 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_3 = lean_uint8_to_nat(x_2);
 x_4 = lean_nat_add(x_3, x_1);
-lean_dec(x_3);
 x_5 = lean_unsigned_to_nat(256u);
 x_6 = lean_nat_dec_lt(x_4, x_5);
 if (x_6 == 0)
@@ -232,10 +231,8 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_uint8_to_nat(x_2);
 x_4 = lean_unsigned_to_nat(1u);
 x_5 = lean_nat_add(x_3, x_4);
-lean_dec(x_3);
 x_6 = lean_uint8_to_nat(x_1);
 x_7 = lean_nat_sub(x_5, x_6);
-lean_dec(x_6);
 lean_dec(x_5);
 return x_7;
 }
@@ -265,10 +262,8 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_uint8_to_nat(x_2);
 x_4 = lean_unsigned_to_nat(1u);
 x_5 = lean_nat_add(x_3, x_4);
-lean_dec(x_3);
 x_6 = lean_uint8_to_nat(x_1);
 x_7 = lean_nat_sub(x_5, x_6);
-lean_dec(x_6);
 lean_dec(x_5);
 x_8 = lean_nat_sub(x_7, x_4);
 lean_dec(x_7);
@@ -300,7 +295,6 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_2 = lean_unsigned_to_nat(256u);
 x_3 = lean_uint8_to_nat(x_1);
 x_4 = lean_nat_sub(x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -351,7 +345,6 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_3 = lean_uint16_to_nat(x_2);
 x_4 = lean_nat_add(x_3, x_1);
-lean_dec(x_3);
 x_5 = lean_unsigned_to_nat(65536u);
 x_6 = lean_nat_dec_lt(x_4, x_5);
 if (x_6 == 0)
@@ -430,10 +423,8 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_uint16_to_nat(x_2);
 x_4 = lean_unsigned_to_nat(1u);
 x_5 = lean_nat_add(x_3, x_4);
-lean_dec(x_3);
 x_6 = lean_uint16_to_nat(x_1);
 x_7 = lean_nat_sub(x_5, x_6);
-lean_dec(x_6);
 lean_dec(x_5);
 return x_7;
 }
@@ -463,10 +454,8 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_uint16_to_nat(x_2);
 x_4 = lean_unsigned_to_nat(1u);
 x_5 = lean_nat_add(x_3, x_4);
-lean_dec(x_3);
 x_6 = lean_uint16_to_nat(x_1);
 x_7 = lean_nat_sub(x_5, x_6);
-lean_dec(x_6);
 lean_dec(x_5);
 x_8 = lean_nat_sub(x_7, x_4);
 lean_dec(x_7);
@@ -498,7 +487,6 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_2 = lean_unsigned_to_nat(65536u);
 x_3 = lean_uint16_to_nat(x_1);
 x_4 = lean_nat_sub(x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }

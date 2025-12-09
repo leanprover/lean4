@@ -1829,7 +1829,6 @@ x_20 = lean_array_get_size(x_10);
 x_21 = lean_nat_dec_lt(x_19, x_20);
 if (x_21 == 0)
 {
-lean_dec(x_20);
 lean_dec(x_10);
 goto block_18;
 }
@@ -1837,7 +1836,6 @@ else
 {
 if (x_21 == 0)
 {
-lean_dec(x_20);
 lean_dec(x_10);
 goto block_18;
 }
@@ -1845,7 +1843,6 @@ else
 {
 size_t x_22; uint8_t x_23; 
 x_22 = lean_usize_of_nat(x_20);
-lean_dec(x_20);
 x_23 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Meta_mkPackedPPRodInstance_spec__1(x_10, x_8, x_22);
 if (x_23 == 0)
 {

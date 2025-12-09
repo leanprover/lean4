@@ -521,7 +521,6 @@ x_6 = l_instHashableArray___redArg___lam__1___closed__9;
 x_7 = lean_nat_dec_lt(x_4, x_5);
 if (x_7 == 0)
 {
-lean_dec(x_5);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 return x_3;
@@ -532,7 +531,6 @@ uint8_t x_8;
 x_8 = lean_nat_dec_le(x_5, x_5);
 if (x_8 == 0)
 {
-lean_dec(x_5);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 return x_3;
@@ -542,7 +540,6 @@ else
 size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12; uint64_t x_13; 
 x_9 = 0;
 x_10 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
 x_11 = l_instHashableArray___redArg___lam__1___boxed__const__1;
 x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_1, x_2, x_9, x_10, x_11);
 x_13 = lean_unbox_uint64(x_12);

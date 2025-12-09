@@ -84,7 +84,7 @@ def markNoConfusion (env : Environment) (n : Name) (info : NoConfusionInfo) : En
   noConfusionExt.insert env n info
 
 def isNoConfusion (env : Environment) (n : Name) : Bool :=
-  (noConfusionExt.find? env n).isSome
+  noConfusionExt.contains env n
 
 def getNoConfusionInfo (env : Environment) (n : Name) : NoConfusionInfo :=
   (noConfusionExt.find? env n).get!

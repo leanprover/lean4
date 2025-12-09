@@ -14,17 +14,15 @@ public import Std.Sync.Context
 
 public section
 
+/-!
+This module contains the implementation of `ContextAsync`, a monad for asynchronous computations with
+built-in cancellation support.
+-/
+
 namespace Std
 namespace Internal
 namespace IO
 namespace Async
-
-/-!
-# Asynchronous Context
-
-This module provides `ContextAsync`, a monad for asynchronous computations with built-in
-cancellation support.
--/
 
 /--
 An asynchronous computation with cancellation support via a `Context`. `ContextAsync α` is equivalent

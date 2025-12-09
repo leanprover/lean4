@@ -1144,7 +1144,7 @@ the short summary should be a full sentence in which the subject
 is an example invocation of the tactic, written in present tense
 indicative. If the example tactic invocation names parameters, then the
 short summary may refer to them. For the example invocation, prefer the
-simplest representative example. Explain more complicated forms in the
+simplest or most typical example. Explain more complicated forms in the
 variants section. If needed, abbreviate the invocation by naming part of
 the syntax and expanding it in the next sentence. The summary should be
 written as a single paragraph.
@@ -1159,11 +1159,12 @@ explanatory examples that can’t necessarily be machine checked and
 don’t fit the format.
 
 If the tactic is extensible using `macro_rules`, mention this in the
-details and give a one-line example. If the tactic provides an attribute
-or a command that allows the user to extend its behavior, the
-documentation on how to extend the tactic belongs to that attribute or
-command. In the tactic docstring, use a single sentence to refer the
-reader to this further documentation.
+details, with a link to `lean-manual://section/tactic-macro-extension`
+and give a one-line example. If the tactic provides an attribute or a
+command that allows the user to extend its behavior, the documentation
+on how to extend the tactic belongs to that attribute or command. In the
+tactic docstring, use a single sentence to refer the reader to this
+further documentation.
 
 **Variants**, if needed, should be a bulleted list describing different
 options and forms of the same tactic. The reader should be able to parse

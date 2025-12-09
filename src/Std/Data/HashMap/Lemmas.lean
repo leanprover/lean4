@@ -319,7 +319,7 @@ theorem insert_toList_perm [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
   DHashMap.Const.insert_toList_perm
 
 theorem keys_insertIfNew_perm {m : DHashMap α (fun _ => Unit)} [EquivBEq α] [LawfulHashable α] {k : α} :
-    (m.insertIfNew k ()).keys.Perm (if m.contains k then m.keys else k :: m.keys) :=
+    (m.insertIfNew k ()).keys.Perm (if k ∈ m then m.keys else k :: m.keys) :=
   DHashMap.Const.keys_insertIfNew_perm
 
 @[simp]

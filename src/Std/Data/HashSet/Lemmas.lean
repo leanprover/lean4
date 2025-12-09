@@ -289,7 +289,7 @@ theorem get?_eq_some [LawfulBEq α] {k : α} (h : k ∈ m) : m.get? k = some k :
   HashMap.getKey_insertIfNew (h₁ := h₁)
 
 theorem insert_toList_perm [EquivBEq α] [LawfulHashable α] {k : α} :
-    (m.insert k).toList.Perm (if m.contains k then m.toList else k :: m.toList) :=
+    (m.insert k).toList.Perm (if k ∈ m then m.toList else k :: m.toList) :=
   HashMap.keys_insertIfNew_perm
 
 @[simp, grind =]

@@ -78,7 +78,7 @@ Given a fixed postcondition, the *stronger* predicate transformer will yield a *
 precondition.
 -/
 def le (x y : PredTrans ps α) : Prop :=
-  ∀ Q, y.apply Q ⊢ₛ x.apply Q -- the weaker the precondition, the smaller the PredTrans
+  ∀ Q, y.apply Q ⊢ₛ x.apply Q
 instance : LE (PredTrans ps α) := ⟨le⟩
 
 /--

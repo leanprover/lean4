@@ -91,14 +91,15 @@ info: expensive.match_1.eq_2.{u_1} (motive : Expr → Expr → Sort u_1) (x✝ x
     Unit →
       motive (((sort zero.succ).app (sort zero.succ)).app (sort zero.succ))
         (((sort zero.succ).app (sort zero.succ)).app (sort zero.succ)))
-  (h_2 : (x x_1 : Expr) → motive x x_1) :
-  (x✝ = ((sort zero.succ).app (sort zero.succ)).app (sort zero.succ) →
-      x✝¹ = ((sort zero.succ).app (sort zero.succ)).app (sort zero.succ) → False) →
-    (match x✝, x✝¹ with
-      | ((sort zero.succ).app (sort zero.succ)).app (sort zero.succ),
-        ((sort zero.succ).app (sort zero.succ)).app (sort zero.succ) => h_1 ()
-      | x, x_1 => h_2 x x_1) =
-      h_2 x✝ x✝¹
+  (h_2 : (x x_1 : Expr) → motive x x_1)
+  (notAlt :
+    x✝ = ((sort zero.succ).app (sort zero.succ)).app (sort zero.succ) →
+      x✝¹ = ((sort zero.succ).app (sort zero.succ)).app (sort zero.succ) → False) :
+  (match x✝, x✝¹ with
+    | ((sort zero.succ).app (sort zero.succ)).app (sort zero.succ),
+      ((sort zero.succ).app (sort zero.succ)).app (sort zero.succ) => h_1 ()
+    | x, x_1 => h_2 x x_1) =
+    h_2 x✝ x✝¹
 -/
 #guard_msgs in
 #check expensive.match_1.eq_2

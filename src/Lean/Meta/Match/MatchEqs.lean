@@ -304,6 +304,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
     let alts   := xs[(xs.size - matchInfo.numAlts)...*]
     let firstDiscrIdx := matchInfo.numParams + 1
     let discrs := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
+    let congrEqThms ← genMatchCongrEqns matchDeclName -- TODO: Clean up
     let mut notAlts := #[]
     let mut idx := 1
     let mut splitterAltInfos := #[]
@@ -333,14 +334,28 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
         /- Recall that when we use the `h : discr`, the alternative type depends on the discriminant.
            Thus, we need to create new `alts`. -/
         withNewAlts numDiscrEqs discrs patterns alts fun alts => do
+        withLocalDeclsDND' `notAlt hs fun hs => do
           let alt := alts[i]!
           let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ patterns ++ alts)
           let rhs := mkAppN alt rhsArgs
           let thmType ← mkEq lhs rhs
-          let thmType ← mkArrowN hs thmType
-          let thmType ← mkForallFVars (params ++ #[motive] ++ ys ++ alts) thmType
+          let thmType ← mkForallFVars (params ++ #[motive] ++ ys ++ alts ++ hs) thmType
           let thmType ← unfoldNamedPattern thmType
-          let thmVal ← proveCondEqThm matchDeclName thmName thmType
+          -- let thmVal ← proveCondEqThm matchDeclName thmName thmType
+          let thmVal := mkConst congrEqThms[i]! us
+          -- We build the normal equation from the congruence equation here
+          let thmVal := mkAppN thmVal (params ++ #[motive] ++ patterns ++ alts ++ ys)
+          let eqTypes ← inferArgumentTypesN discrs.size thmVal
+          let eqProofs ← eqTypes.mapM fun eqType => do
+            let a ← mkFreshExprSyntheticOpaqueMVar eqType
+            (← a.mvarId!.heqOfEq).refl
+            pure a
+          let thmVal := mkAppN thmVal eqProofs
+          let thmVal := mkAppN thmVal hs
+          let thmVal ← mkEqOfHEq thmVal
+          let thmVal ← mkLambdaFVars (params ++ #[motive] ++ ys ++ alts ++ hs) thmVal
+          unless (← isDefEq (← inferType thmVal) thmType) do
+            throwError "TOOD: Got{indentExpr (← inferType thmVal)}\nexpected{indentExpr thmType}"
           addDecl <| Declaration.thmDecl {
             name        := thmName
             levelParams := constInfo.levelParams

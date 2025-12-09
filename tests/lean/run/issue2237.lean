@@ -31,36 +31,14 @@ info: plus.match_1.{u_1} {Γ : Context} {a : Ty} (motive : Term Γ a → Sort u_
 
 /--
 error: failed to generate equational theorem for `plus`
-  failed to generate equality theorem _private.lean.run.issue2237.0.plus.match_1.eq_4 for `match` expression `plus.match_1`
-  Γ✝ : Context
-  a✝ : Ty
-  motive✝ : Term Γ✝ a✝ → Sort u_1
-  l✝ m✝ : Term Γ✝ ✶
-  h_1✝ : (i : Lookup Γ✝ a✝) → motive✝ (Term.var i)
-  h_2✝ : (n : Term ( ✶ :: Γ✝) ✶ ) → motive✝ n.lam
-  h_3✝ : (a : Term ( ✶ :: Γ✝) ✶ ) → (m : Term Γ✝ ✶ ) → motive✝ (a.lam.ap m)
-  h_4✝ : (l m : Term Γ✝ ✶ ) → motive✝ (l.ap m)
-  x✝ : ∀ (a : Term ( ✶ :: Γ✝) ✶ ) (m : Term Γ✝ ✶ ), l✝.ap m✝ ≍ a.lam.ap m → False
-  ⊢ (⋯ ▸ fun x motive h_1 h_2 h_3 h_4 h =>
-          ⋯ ▸
-            plus._sparseCasesOn_1 (motive := fun a a_1 x => Γ✝ = a → ✶ = a_1 → l✝ ≍ x → motive (l✝.ap m✝)) l✝
-              (fun {Γ} a h =>
-                Eq.ndrec (motive := fun {Γ} => (a : Term ( ✶ :: Γ) ✶ ) → ✶ = ✶ → l✝ ≍ a.lam → motive (l✝.ap m✝))
-                  (fun a h h_5 => ⋯ ▸ h_3 a m✝) h a)
-              (fun h h_5 =>
-                Eq.ndrec (motive := fun a =>
-                  (a_1 : Term a ✶ ) → Nat.hasNotBit 2 a_1.ctorIdx → ✶ = ✶ → l✝ ≍ a_1 → motive (l✝.ap m✝))
-                  (fun a h h_6 =>
-                    Eq.ndrec (motive := fun a =>
-                      (a_1 : Term Γ✝ a) → Nat.hasNotBit 2 a_1.ctorIdx → l✝ ≍ a_1 → motive (l✝.ap m✝))
-                      (fun a h h_7 =>
-                        Eq.ndrec (motive := fun a => Nat.hasNotBit 2 a.ctorIdx → motive (l✝.ap m✝)) (fun h => h_4 l✝ m✝)
-                          ⋯ h)
-                      h_6 a h)
-                  h_5 l✝ h)
-              ⋯ ⋯ ⋯)
-        (l✝.ap m✝) motive✝ h_1✝ h_2✝ h_3✝ h_4✝ ⋯ =
-      h_4✝ l✝ m✝
+  Tactic `subst` failed: argument must be an equality proof
+  ⏎
+  Γ : Context
+  a : Ty
+  x✝ : Term Γ a
+  l m : Term Γ ✶
+  heq✝ : x✝ ≍ l.ap m
+  ⊢ ∀ (a_1 : Term ( ✶ :: Γ) ✶ ) (m : Term Γ ✶ ), x✝ ≍ a_1.lam.ap m → False
 -/
 #guard_msgs(pass trace, all) in
 #print equations plus
@@ -68,36 +46,14 @@ error: failed to generate equational theorem for `plus`
 
 /--
 error: Failed to realize constant plus.match_1.eq_1:
-  failed to generate equality theorem _private.lean.run.issue2237.0.plus.match_1.eq_4 for `match` expression `plus.match_1`
-  Γ✝ : Context
-  a✝ : Ty
-  motive✝ : Term Γ✝ a✝ → Sort u_1
-  l✝ m✝ : Term Γ✝ ✶
-  h_1✝ : (i : Lookup Γ✝ a✝) → motive✝ (Term.var i)
-  h_2✝ : (n : Term ( ✶ :: Γ✝) ✶ ) → motive✝ n.lam
-  h_3✝ : (a : Term ( ✶ :: Γ✝) ✶ ) → (m : Term Γ✝ ✶ ) → motive✝ (a.lam.ap m)
-  h_4✝ : (l m : Term Γ✝ ✶ ) → motive✝ (l.ap m)
-  x✝ : ∀ (a : Term ( ✶ :: Γ✝) ✶ ) (m : Term Γ✝ ✶ ), l✝.ap m✝ ≍ a.lam.ap m → False
-  ⊢ (⋯ ▸ fun x motive h_1 h_2 h_3 h_4 h =>
-          ⋯ ▸
-            plus._sparseCasesOn_1 (motive := fun a a_1 x => Γ✝ = a → ✶ = a_1 → l✝ ≍ x → motive (l✝.ap m✝)) l✝
-              (fun {Γ} a h =>
-                Eq.ndrec (motive := fun {Γ} => (a : Term ( ✶ :: Γ) ✶ ) → ✶ = ✶ → l✝ ≍ a.lam → motive (l✝.ap m✝))
-                  (fun a h h_5 => ⋯ ▸ h_3 a m✝) h a)
-              (fun h h_5 =>
-                Eq.ndrec (motive := fun a =>
-                  (a_1 : Term a ✶ ) → Nat.hasNotBit 2 a_1.ctorIdx → ✶ = ✶ → l✝ ≍ a_1 → motive (l✝.ap m✝))
-                  (fun a h h_6 =>
-                    Eq.ndrec (motive := fun a =>
-                      (a_1 : Term Γ✝ a) → Nat.hasNotBit 2 a_1.ctorIdx → l✝ ≍ a_1 → motive (l✝.ap m✝))
-                      (fun a h h_7 =>
-                        Eq.ndrec (motive := fun a => Nat.hasNotBit 2 a.ctorIdx → motive (l✝.ap m✝)) (fun h => h_4 l✝ m✝)
-                          ⋯ h)
-                      h_6 a h)
-                  h_5 l✝ h)
-              ⋯ ⋯ ⋯)
-        (l✝.ap m✝) motive✝ h_1✝ h_2✝ h_3✝ h_4✝ ⋯ =
-      h_4✝ l✝ m✝
+  Tactic `subst` failed: argument must be an equality proof
+  ⏎
+  Γ : Context
+  a : Ty
+  x✝ : Term Γ a
+  l m : Term Γ ✶
+  heq✝ : x✝ ≍ l.ap m
+  ⊢ ∀ (a_1 : Term ( ✶ :: Γ) ✶ ) (m : Term Γ ✶ ), x✝ ≍ a_1.lam.ap m → False
 ---
 error: Unknown constant `plus.match_1.eq_1`
 -/

@@ -46,7 +46,7 @@ theorem ext_cons {P Q : SPred (σ::σs)} : (∀ s, P s = Q s) → P = Q := funex
 
 /--
 A pure proposition `P : Prop` embedded into `SPred`.
-Prefer to use idiom bracket notation `⌜P⌝`.
+Prefer to use notation `⌜P⌝`.
 -/
 def pure {σs : List (Type u)} (P : Prop) : SPred σs := match σs with
   | [] => ULift.up P

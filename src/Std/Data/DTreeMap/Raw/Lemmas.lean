@@ -350,13 +350,17 @@ theorem get?_congr [TransCmp cmp] (h : t.WF) {a b : α} (hab : cmp a b = .eq) :
 
 end Const
 
-@[grind =] theorem get_insert [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} {v : β k} {h₁} :
-    (t.insert k v).get a h₁ =
-      if h₂ : cmp k a = .eq then
-        cast (congrArg β (LawfulEqCmp.compare_eq_iff_eq.mp h₂)) v
-      else
-        t.get a (mem_of_mem_insert h h₁ h₂) :=
-  Impl.get_insert! h
+theorem insert_toList_perm [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] (h : t.WF) {k : α} {v : β k} :
+    (t.insert k v).toList.Perm (⟨k, v⟩ :: t.toList.filter (¬k == ·.1)) :=
+  Impl.insert!_toList_perm h
+
+theorem Const.insert_toList_perm {β : Type v} {t : Raw α (fun _ => β) cmp} [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] (h : t.WF) {k : α} {v : β} :
+    (Const.toList (t.insert k v)).Perm (⟨k, v⟩ :: (Const.toList t).filter (¬k == ·.1)) :=
+  Impl.Const.insert!_toList_perm h
+
+theorem Const.keys_insertIfNew_perm {t : Raw α (fun _ => Unit) cmp} [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] (h : t.WF) {k : α} :
+    (t.insertIfNew k ()).keys.Perm (if k ∈ t then t.keys else k :: t.keys) :=
+  Impl.Const.keys_insertIfNew!_perm h
 
 @[simp]
 theorem get_insert_self [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} {v : β k} :

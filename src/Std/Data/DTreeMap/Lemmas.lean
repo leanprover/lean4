@@ -357,6 +357,17 @@ end Const
         t.get a (mem_of_mem_insert h₁ h₂) :=
   Impl.get_insert t.wf
 
+theorem insert_toList_perm [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] {k : α} {v : β k} :
+    (t.insert k v).toList.Perm (⟨k, v⟩ :: t.toList.filter (¬k == ·.1)) := Impl.insert_toList_perm t.wf
+
+theorem Const.insert_toList_perm {β : Type v} {t : DTreeMap α (fun _ => β) cmp} [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] {k : α} {v : β} :
+    (Const.toList (t.insert k v)).Perm (⟨k, v⟩ :: (Const.toList t).filter (¬k == ·.1)) :=
+  Impl.Const.insert_toList_perm t.2
+
+theorem Const.keys_insertIfNew_perm {t : DTreeMap α (fun _ => Unit) cmp} [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] {k : α} :
+    (t.insertIfNew k ()).keys.Perm (if k ∈ t then t.keys else k :: t.keys) :=
+  Impl.Const.keys_insertIfNew_perm t.2
+
 @[simp]
 theorem get_insert_self [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {v : β k} :
     (t.insert k v).get k mem_insert_self = v :=

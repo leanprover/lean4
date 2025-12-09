@@ -411,7 +411,11 @@ example : False := by apply?
 example {α : Sort u} (h : Empty) : α := by apply? -star
 
 -- With `+star`, we find `Empty.elim` via star-indexed lemma fallback.
-#guard_msgs (drop info) in
+/--
+info: Try this:
+  [apply] exact h.elim
+-/
+#guard_msgs in
 example {α : Sort u} (h : Empty) : α := by apply? +star
 
 -- Verify that `-star` doesn't break normal (non-star-indexed) lemma search.

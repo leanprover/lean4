@@ -57,3 +57,15 @@ error: `exact?` could not close the goal. Try `apply?` to see partial suggestion
 -/
 #guard_msgs in
 example (n : Nat) (h : n = n + 1) : False := by exact? +all
+
+def Empty.elim2 := @Empty.elim
+
+/--
+info: Try these:
+  [apply] exact h.elim
+  [apply] exact h.elim2
+---
+warning: declaration uses 'sorry'
+-/
+#guard_msgs in
+example {α : Sort u} (h : Empty) : α := by exact? +all

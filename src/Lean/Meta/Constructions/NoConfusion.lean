@@ -338,7 +338,7 @@ def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
             setReducibleAttribute name
             let arity := ctorInfo.numParams + 1 + 2 * ctorInfo.numFields + indVal.numIndices + 1
             let fields := kType.getNumHeadForalls
-            modifyEnv fun env => markNoConfusion env declName (.perCtor arity fields)
+            modifyEnv fun env => markNoConfusion env name (.perCtor arity fields)
 
 
 def mkNoConfusionCore (declName : Name) : MetaM Unit := do

@@ -39,7 +39,7 @@ target bark_bark : Unit := do
   bark.fetch
 
 package_facet print_name pkg : Unit := Job.async do
-  IO.println pkg.name
+  IO.println pkg.prettyName
 
 module_facet get_src mod : System.FilePath := do
   inputTextFile mod.leanFile

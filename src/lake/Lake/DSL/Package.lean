@@ -28,10 +28,11 @@ def elabPackageCommand : CommandElab := fun stx => do
   let configId : Ident ← `(pkgConfig)
   let id ← mkConfigDeclIdent nameStx?
   let origName := Name.quoteFrom id id.getId
-  let name :=
-    match nameExt.getState (← getEnv) with
+  let ⟨idx, name⟩ := nameExt.getState (← getEnv)
+  let name := match name with
     | .anonymous => origName
     | name => Name.quoteFrom id name
+  let name := Syntax.mkCApp ``Name.num #[name, quote idx]
   let ty := Syntax.mkCApp ``PackageConfig #[name, origName]
   elabConfig ``PackageConfig configId ty cfg
   let attr ← `(Term.attrInstance| «package»)

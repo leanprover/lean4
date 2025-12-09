@@ -28,7 +28,6 @@ builtin_initialize auxRecExt : TagDeclarationExtension ← mkTagDeclarationExten
 def markAuxRecursor (env : Environment) (declName : Name) : Environment :=
   auxRecExt.tag env declName
 
-@[export lean_is_aux_recursor]
 def isAuxRecursor (env : Environment) (declName : Name) : Bool :=
   auxRecExt.isTagged env declName
   -- TODO: use `markAuxRecursor` when they are defined
@@ -68,7 +67,6 @@ builtin_initialize noConfusionExt : TagDeclarationExtension ← mkTagDeclaration
 def markNoConfusion (env : Environment) (n : Name) : Environment :=
   noConfusionExt.tag env n
 
-@[export lean_is_no_confusion]
 def isNoConfusion (env : Environment) (n : Name) : Bool :=
   noConfusionExt.isTagged env n
 

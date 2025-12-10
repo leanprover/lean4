@@ -3605,7 +3605,7 @@ if (x_5 == 0)
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_uget(x_2, x_3);
 x_7 = l_Lake_Glob_matches(x_1, x_6);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 if (x_7 == 0)
 {
 size_t x_8; size_t x_9; 
@@ -3670,14 +3670,12 @@ x_13 = lean_array_get_size(x_3);
 x_14 = lean_nat_dec_lt(x_12, x_13);
 if (x_14 == 0)
 {
-lean_dec(x_13);
 goto block_11;
 }
 else
 {
 if (x_14 == 0)
 {
-lean_dec(x_13);
 goto block_11;
 }
 else
@@ -3685,7 +3683,6 @@ else
 size_t x_15; size_t x_16; uint8_t x_17; 
 x_15 = 0;
 x_16 = lean_usize_of_nat(x_13);
-lean_dec(x_13);
 x_17 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lake_LeanLibConfig_isLocalModule_spec__1(x_1, x_3, x_15, x_16);
 if (x_17 == 0)
 {
@@ -3705,14 +3702,12 @@ x_6 = lean_array_get_size(x_4);
 x_7 = lean_nat_dec_lt(x_5, x_6);
 if (x_7 == 0)
 {
-lean_dec(x_6);
 return x_7;
 }
 else
 {
 if (x_7 == 0)
 {
-lean_dec(x_6);
 return x_7;
 }
 else
@@ -3720,7 +3715,6 @@ else
 size_t x_8; size_t x_9; uint8_t x_10; 
 x_8 = 0;
 x_9 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_10 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lake_LeanLibConfig_isLocalModule_spec__0(x_1, x_4, x_8, x_9);
 return x_10;
 }
@@ -3815,7 +3809,6 @@ x_17 = lean_array_get_size(x_15);
 x_18 = lean_nat_dec_lt(x_16, x_17);
 if (x_18 == 0)
 {
-lean_dec(x_17);
 lean_dec(x_13);
 x_8 = x_6;
 goto block_12;
@@ -3824,7 +3817,6 @@ else
 {
 if (x_18 == 0)
 {
-lean_dec(x_17);
 lean_dec(x_13);
 x_8 = x_6;
 goto block_12;
@@ -3834,7 +3826,6 @@ else
 size_t x_19; size_t x_20; uint8_t x_21; 
 x_19 = 0;
 x_20 = lean_usize_of_nat(x_17);
-lean_dec(x_17);
 x_21 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lake_LeanLibConfig_isLocalModule_spec__0(x_13, x_15, x_19, x_20);
 lean_dec(x_13);
 x_8 = x_21;
@@ -3877,14 +3868,12 @@ x_13 = lean_array_get_size(x_4);
 x_14 = lean_nat_dec_lt(x_12, x_13);
 if (x_14 == 0)
 {
-lean_dec(x_13);
 goto block_11;
 }
 else
 {
 if (x_14 == 0)
 {
-lean_dec(x_13);
 goto block_11;
 }
 else
@@ -3892,7 +3881,6 @@ else
 size_t x_15; size_t x_16; uint8_t x_17; 
 x_15 = 0;
 x_16 = lean_usize_of_nat(x_13);
-lean_dec(x_13);
 x_17 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lake_LeanLibConfig_isLocalModule_spec__0(x_1, x_4, x_15, x_16);
 if (x_17 == 0)
 {
@@ -3912,14 +3900,12 @@ x_6 = lean_array_get_size(x_3);
 x_7 = lean_nat_dec_lt(x_5, x_6);
 if (x_7 == 0)
 {
-lean_dec(x_6);
 return x_7;
 }
 else
 {
 if (x_7 == 0)
 {
-lean_dec(x_6);
 return x_7;
 }
 else
@@ -3927,7 +3913,6 @@ else
 size_t x_8; size_t x_9; uint8_t x_10; 
 x_8 = 0;
 x_9 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_10 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lake_LeanLibConfig_isBuildableModule_spec__0(x_1, x_2, x_3, x_8, x_9);
 return x_10;
 }

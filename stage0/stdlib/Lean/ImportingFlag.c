@@ -109,14 +109,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_isInitializerExecutionEnabled() {
 _start:
 {
-lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Lean_enableInitializersExecution___closed__0;
 x_3 = lean_st_ref_get(x_2);
-x_4 = lean_unbox(x_3);
-x_5 = lean_box(x_4);
-x_6 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_6, 0, x_5);
-return x_6;
+x_4 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_4, 0, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_isInitializerExecutionEnabled___boxed(lean_object* x_1) {
@@ -142,22 +140,20 @@ uint8_t x_2;
 x_2 = lean_io_initializing();
 if (x_2 == 0)
 {
-lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = l_Lean_initializing___closed__0;
 x_4 = lean_st_ref_get(x_3);
-x_5 = lean_unbox(x_4);
-x_6 = lean_box(x_5);
-x_7 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_7, 0, x_6);
-return x_7;
+x_5 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_5, 0, x_4);
+return x_5;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; 
-x_8 = lean_box(x_2);
-x_9 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_9, 0, x_8);
-return x_9;
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_box(x_2);
+x_7 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_7, 0, x_6);
+return x_7;
 }
 }
 }

@@ -2,7 +2,7 @@ module
 
 /-!
 variant of issue8939 with well-founded recursion
-(Or is this just 8938 showing up with 8939 fixed? anwways, more tests don't hurt)
+(Or is this just 8938 showing up with 8939 fixed? anyways, more tests don't hurt)
 -/
 
 public axiom g : Nat → Nat → Nat

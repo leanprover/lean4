@@ -30,6 +30,12 @@ foo 31 : ?m → Unit
 foo 31 : ?m → Unit
 10488.lean:33:15-33:16: error: unexpected token '('; expected command
 10488.lean:34:14-34:19: error(lean.invalidDottedIdent): Invalid dotted identifier notation: The expected type of `.succ` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `succ`
+  [apply] `Fin.succ`
+  [apply] `Nat.succ`
+  [apply] `Std.PRange.succ`
 foo 31 sorry : Unit
 foo 31. succ : Unit
 11 : Nat
@@ -41,3 +47,8 @@ foo 31. succ : Unit
 10488.lean:41:13-41:17: error: unexpected identifier; expected ')', ',' or ':'
 bar.x.snd.snd : Nat
 { x := (2, 4, 1) }
+10488.lean:60:4-60:12: error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
+
+Hint: Using one of these would be valid:
+  [apply] `Nat.succ`
+  [apply] `Nope.succ`

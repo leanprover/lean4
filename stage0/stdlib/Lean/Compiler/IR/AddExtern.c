@@ -563,7 +563,7 @@ lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28;
 x_25 = lean_st_ref_get(x_23);
 x_26 = lean_ctor_get(x_25, 0);
 lean_inc_ref(x_26);
-lean_dec_ref(x_25);
+lean_dec(x_25);
 x_27 = l_Lean_IR_ExplicitBoxing_addBoxedVersions(x_26, x_21);
 x_28 = l_Lean_IR_explicitRC___redArg(x_27, x_23);
 if (lean_obj_tag(x_28) == 0)

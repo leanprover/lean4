@@ -182,7 +182,7 @@ x_4 = l_Lean_Elab_InfoState_substituteLazy(x_3);
 x_5 = lean_task_get_own(x_4);
 x_6 = lean_ctor_get(x_5, 2);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = lean_ctor_get(x_6, 2);
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_dec_eq(x_7, x_8);
@@ -306,7 +306,7 @@ if (x_19 == 0)
 lean_object* x_20; 
 x_20 = lean_st_ref_get(x_12);
 lean_dec(x_12);
-lean_dec_ref(x_20);
+lean_dec(x_20);
 return x_18;
 }
 else
@@ -317,7 +317,7 @@ lean_inc(x_21);
 lean_dec(x_18);
 x_22 = lean_st_ref_get(x_12);
 lean_dec(x_12);
-lean_dec_ref(x_22);
+lean_dec(x_22);
 x_23 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_23, 0, x_21);
 return x_23;

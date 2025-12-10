@@ -15,7 +15,7 @@ and that it wasn't possible to understand the identifier as a field.
 
 Lean's field notation is very powerful, but this can also make it confusing: the expression
 `color.value` can either be a single [identifier](lean-manual://section/identifiers-and-resolution),
-it can be a reference to the [field of a structure](lean-manual://section/structure-fiels), and it
+it can be a reference to the [field of a structure](lean-manual://section/structure-fields), and it
 and be a calling a function on the value `color` with
 [generalized field notation](lean-manual://section/generalized-field-notation).
 

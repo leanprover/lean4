@@ -19,7 +19,6 @@ lean_object* l_Std_Time_Duration_ofNanoseconds(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofPlainDate___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDate_toTimestampWithZone(lean_object*, lean_object*);
-lean_object* l_Std_Time_Internal_UnitVal_instNeg___lam__0(lean_object*);
 lean_object* l_Std_Time_TimeZone_LocalTimeType_getTimeZone(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_nowAt(lean_object*);
 lean_object* l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(lean_object*);
@@ -704,7 +703,7 @@ x_3 = lean_ctor_get(x_2, 1);
 x_4 = lean_thunk_get_own(x_3);
 x_5 = lean_ctor_get(x_4, 1);
 lean_inc_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 return x_5;
 }
 }
@@ -716,7 +715,7 @@ x_2 = lean_ctor_get(x_1, 1);
 x_3 = lean_thunk_get_own(x_2);
 x_4 = lean_ctor_get(x_3, 1);
 lean_inc_ref(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_4;
 }
 }
@@ -1276,13 +1275,13 @@ lean_dec(x_43);
 lean_dec(x_27);
 if (x_44 == 0)
 {
-lean_inc_ref(x_34);
+lean_inc(x_34);
 x_24 = x_34;
 goto block_26;
 }
 else
 {
-lean_inc_ref(x_38);
+lean_inc(x_38);
 x_24 = x_38;
 goto block_26;
 }
@@ -1320,7 +1319,7 @@ lean_dec_ref(x_5);
 x_9 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_6);
 lean_dec_ref(x_6);
 x_10 = l_Std_Time_TimeZone_toSeconds(x_9);
-x_11 = l_Std_Time_Internal_UnitVal_instNeg___lam__0(x_10);
+x_11 = lean_int_neg(x_10);
 x_12 = l_Std_Time_ZonedDateTime_ofPlainDate___closed__1;
 x_13 = l_Std_Time_PlainDateTime_now___closed__0;
 x_14 = lean_int_mul(x_7, x_13);
@@ -1441,13 +1440,13 @@ lean_dec(x_50);
 lean_dec(x_10);
 if (x_51 == 0)
 {
-lean_dec_ref(x_45);
+lean_dec(x_45);
 x_35 = x_41;
 goto block_37;
 }
 else
 {
-lean_dec_ref(x_41);
+lean_dec(x_41);
 x_35 = x_45;
 goto block_37;
 }
@@ -1484,7 +1483,7 @@ lean_dec_ref(x_9);
 x_20 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_17);
 lean_dec_ref(x_17);
 x_21 = l_Std_Time_TimeZone_toSeconds(x_20);
-x_22 = l_Std_Time_Internal_UnitVal_instNeg___lam__0(x_21);
+x_22 = lean_int_neg(x_21);
 x_23 = l_Std_Time_ZonedDateTime_ofPlainDate___closed__1;
 x_24 = l_Std_Time_PlainDateTime_now___closed__0;
 x_25 = lean_int_mul(x_18, x_24);
@@ -1542,7 +1541,7 @@ x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_thunk_get_own(x_2);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_4;
 }
 }
@@ -1563,7 +1562,7 @@ x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_thunk_get_own(x_2);
 x_4 = lean_ctor_get(x_3, 1);
 lean_inc_ref(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 return x_4;
 }
 }
@@ -1627,13 +1626,13 @@ lean_dec(x_46);
 lean_dec(x_30);
 if (x_47 == 0)
 {
-lean_inc_ref(x_37);
+lean_inc(x_37);
 x_27 = x_37;
 goto block_29;
 }
 else
 {
-lean_inc_ref(x_41);
+lean_inc(x_41);
 x_27 = x_41;
 goto block_29;
 }
@@ -1671,7 +1670,7 @@ lean_dec_ref(x_7);
 x_11 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_8);
 lean_dec_ref(x_8);
 x_12 = l_Std_Time_TimeZone_toSeconds(x_11);
-x_13 = l_Std_Time_Internal_UnitVal_instNeg___lam__0(x_12);
+x_13 = lean_int_neg(x_12);
 x_14 = l_Std_Time_ZonedDateTime_ofPlainDate___closed__1;
 x_15 = l_Std_Time_PlainDateTime_now___closed__0;
 x_16 = lean_int_mul(x_9, x_15);
@@ -1790,13 +1789,13 @@ lean_dec(x_38);
 lean_dec(x_22);
 if (x_39 == 0)
 {
-lean_dec_ref(x_33);
+lean_dec(x_33);
 x_19 = x_29;
 goto block_21;
 }
 else
 {
-lean_dec_ref(x_29);
+lean_dec(x_29);
 x_19 = x_33;
 goto block_21;
 }
@@ -1836,7 +1835,7 @@ x_7 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_4);
 lean_dec_ref(x_4);
 x_8 = l_Std_Time_TimeZone_toSeconds(x_7);
 lean_dec_ref(x_7);
-x_9 = l_Std_Time_Internal_UnitVal_instNeg___lam__0(x_8);
+x_9 = lean_int_neg(x_8);
 lean_dec(x_8);
 x_10 = l_Std_Time_ZonedDateTime_ofPlainDate___closed__1;
 x_11 = l_Std_Time_PlainDateTime_now___closed__0;
@@ -1904,13 +1903,13 @@ lean_dec(x_37);
 lean_dec(x_4);
 if (x_38 == 0)
 {
-lean_dec_ref(x_32);
+lean_dec(x_32);
 x_21 = x_28;
 goto block_23;
 }
 else
 {
-lean_dec_ref(x_28);
+lean_dec(x_28);
 x_21 = x_32;
 goto block_23;
 }
@@ -1964,7 +1963,7 @@ x_9 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_6);
 lean_dec_ref(x_6);
 x_10 = l_Std_Time_TimeZone_toSeconds(x_9);
 lean_dec_ref(x_9);
-x_11 = l_Std_Time_Internal_UnitVal_instNeg___lam__0(x_10);
+x_11 = lean_int_neg(x_10);
 lean_dec(x_10);
 x_12 = l_Std_Time_ZonedDateTime_ofPlainDate___closed__1;
 x_13 = l_Std_Time_PlainDateTime_now___closed__0;
@@ -2051,13 +2050,13 @@ lean_dec(x_40);
 lean_dec(x_24);
 if (x_41 == 0)
 {
-lean_dec_ref(x_35);
+lean_dec(x_35);
 x_21 = x_31;
 goto block_23;
 }
 else
 {
-lean_dec_ref(x_31);
+lean_dec(x_31);
 x_21 = x_35;
 goto block_23;
 }
@@ -2097,7 +2096,7 @@ x_9 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_6);
 lean_dec_ref(x_6);
 x_10 = l_Std_Time_TimeZone_toSeconds(x_9);
 lean_dec_ref(x_9);
-x_11 = l_Std_Time_Internal_UnitVal_instNeg___lam__0(x_10);
+x_11 = lean_int_neg(x_10);
 lean_dec(x_10);
 x_12 = l_Std_Time_ZonedDateTime_ofPlainDate___closed__1;
 x_13 = l_Std_Time_PlainDateTime_now___closed__0;
@@ -2169,13 +2168,13 @@ lean_dec(x_39);
 lean_dec(x_6);
 if (x_40 == 0)
 {
-lean_dec_ref(x_34);
+lean_dec(x_34);
 x_23 = x_30;
 goto block_25;
 }
 else
 {
-lean_dec_ref(x_30);
+lean_dec(x_30);
 x_23 = x_34;
 goto block_25;
 }
@@ -2229,7 +2228,7 @@ x_11 = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(x_8);
 lean_dec_ref(x_8);
 x_12 = l_Std_Time_TimeZone_toSeconds(x_11);
 lean_dec_ref(x_11);
-x_13 = l_Std_Time_Internal_UnitVal_instNeg___lam__0(x_12);
+x_13 = lean_int_neg(x_12);
 lean_dec(x_12);
 x_14 = l_Std_Time_ZonedDateTime_ofPlainDate___closed__1;
 x_15 = l_Std_Time_PlainDateTime_now___closed__0;

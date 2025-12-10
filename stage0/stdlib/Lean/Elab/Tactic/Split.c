@@ -441,11 +441,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -1457,7 +1457,6 @@ lean_object* x_28; lean_object* x_29; uint8_t x_30;
 x_28 = lean_array_get_size(x_3);
 x_29 = lean_unsigned_to_nat(1u);
 x_30 = lean_nat_dec_eq(x_28, x_29);
-lean_dec(x_28);
 if (x_30 == 0)
 {
 lean_object* x_31; 
@@ -1665,7 +1664,7 @@ lean_dec_ref(x_30);
 x_32 = lean_st_ref_get(x_6);
 x_33 = lean_ctor_get(x_32, 0);
 lean_inc_ref(x_33);
-lean_dec_ref(x_32);
+lean_dec(x_32);
 lean_inc(x_31);
 lean_inc_ref(x_33);
 x_34 = l_Lean_isStructure(x_33, x_31);
@@ -1685,7 +1684,6 @@ x_36 = l_Lean_getStructureFields(x_33, x_31);
 x_37 = lean_array_get_size(x_36);
 lean_dec_ref(x_36);
 x_38 = lean_nat_dec_lt(x_35, x_37);
-lean_dec(x_37);
 x_18 = x_38;
 x_19 = lean_box(0);
 goto block_29;
@@ -2200,7 +2198,6 @@ x_8 = l___private_Lean_Elab_Tactic_Split_0__Lean_Elab_Tactic_evalSplit_throwCoul
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = lean_array_get_size(x_1);
 x_11 = lean_nat_dec_lt(x_9, x_10);
-lean_dec(x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -3239,7 +3236,6 @@ lean_object* x_39; lean_object* x_40; uint8_t x_41;
 x_39 = lean_unsigned_to_nat(1u);
 x_40 = lean_array_get_size(x_26);
 x_41 = lean_nat_dec_lt(x_39, x_40);
-lean_dec(x_40);
 if (x_41 == 0)
 {
 lean_dec(x_30);
@@ -3371,7 +3367,6 @@ lean_closure_set(x_71, 0, x_70);
 x_72 = lean_unsigned_to_nat(0u);
 x_73 = lean_array_get_size(x_68);
 x_74 = lean_nat_dec_lt(x_72, x_73);
-lean_dec(x_73);
 if (x_74 == 0)
 {
 x_25 = x_71;

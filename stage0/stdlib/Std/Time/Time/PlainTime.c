@@ -26,7 +26,6 @@ LEAN_EXPORT lean_object* l_Std_Time_PlainTime_ofHours(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainTime_ofSeconds___boxed(lean_object*);
 static lean_object* l_Std_Time_PlainTime_instHSubOffset__2___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_PlainTime_instHAddOffset__2;
-lean_object* l_Std_Time_Internal_UnitVal_instNeg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainTime_subSeconds___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_instReprPlainTime_repr___redArg___closed__10;
 static lean_object* l_Std_Time_instReprPlainTime_repr___redArg___closed__20;
@@ -192,6 +191,7 @@ lean_object* lean_int_ediv(lean_object*, lean_object*);
 static lean_object* l_Std_Time_PlainTime_instHSubOffset__4___closed__0;
 static lean_object* l_Std_Time_instInhabitedPlainTime___closed__20;
 lean_object* l_Rat_ofInt(lean_object*);
+lean_object* lean_int_neg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instInhabitedPlainTime;
 LEAN_EXPORT lean_object* l_Std_Time_PlainTime_ofHours___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instReprPlainTime;
@@ -1666,7 +1666,7 @@ LEAN_EXPORT lean_object* l_Std_Time_PlainTime_subSeconds(lean_object* x_1, lean_
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_3 = l_Std_Time_Internal_UnitVal_instNeg___lam__0(x_2);
+x_3 = lean_int_neg(x_2);
 x_4 = l_Std_Time_PlainTime_toNanoseconds(x_1);
 x_5 = l_Std_Time_PlainTime_toNanoseconds___closed__2;
 x_6 = lean_int_mul(x_3, x_5);
@@ -1714,7 +1714,7 @@ LEAN_EXPORT lean_object* l_Std_Time_PlainTime_subMinutes(lean_object* x_1, lean_
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_3 = l_Std_Time_Internal_UnitVal_instNeg___lam__0(x_2);
+x_3 = lean_int_neg(x_2);
 x_4 = l_Std_Time_PlainTime_toNanoseconds(x_1);
 x_5 = l_Std_Time_PlainTime_toNanoseconds___closed__1;
 x_6 = lean_int_mul(x_3, x_5);
@@ -1762,7 +1762,7 @@ LEAN_EXPORT lean_object* l_Std_Time_PlainTime_subHours(lean_object* x_1, lean_ob
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_3 = l_Std_Time_Internal_UnitVal_instNeg___lam__0(x_2);
+x_3 = lean_int_neg(x_2);
 x_4 = l_Std_Time_PlainTime_toNanoseconds(x_1);
 x_5 = l_Std_Time_PlainTime_toNanoseconds___closed__0;
 x_6 = lean_int_mul(x_3, x_5);
@@ -1799,7 +1799,7 @@ LEAN_EXPORT lean_object* l_Std_Time_PlainTime_subNanoseconds(lean_object* x_1, l
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_Std_Time_Internal_UnitVal_instNeg___lam__0(x_2);
+x_3 = lean_int_neg(x_2);
 x_4 = l_Std_Time_PlainTime_addNanoseconds(x_1, x_3);
 return x_4;
 }
@@ -1841,7 +1841,7 @@ LEAN_EXPORT lean_object* l_Std_Time_PlainTime_subMilliseconds(lean_object* x_1, 
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_Std_Time_Internal_UnitVal_instNeg___lam__0(x_2);
+x_3 = lean_int_neg(x_2);
 x_4 = l_Std_Time_PlainTime_addMilliseconds(x_1, x_3);
 return x_4;
 }

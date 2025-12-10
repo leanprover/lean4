@@ -167,7 +167,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t 
 x_3 = lean_st_ref_get(x_1);
 x_4 = lean_ctor_get(x_3, 7);
 lean_inc_ref(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_5 = lean_ctor_get(x_4, 2);
 lean_inc_ref(x_5);
 lean_dec_ref(x_4);
@@ -328,7 +328,7 @@ lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16;
 x_13 = lean_st_ref_get(x_1);
 x_14 = lean_ctor_get(x_13, 7);
 lean_inc_ref(x_14);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_15 = lean_ctor_get(x_14, 2);
 lean_inc_ref(x_15);
 lean_dec_ref(x_14);
@@ -564,7 +564,7 @@ lean_object* x_12; lean_object* x_13; uint8_t x_14;
 x_12 = lean_st_ref_get(x_10);
 x_13 = lean_ctor_get(x_12, 7);
 lean_inc_ref(x_13);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*3);
 lean_dec_ref(x_13);
 if (x_14 == 0)
@@ -776,7 +776,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_instantiateMVarsCore(x_7, x_1);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
@@ -2048,6 +2048,7 @@ x_36 = l_Lean_Exception_isInterrupt(x_34);
 if (x_36 == 0)
 {
 uint8_t x_37; 
+lean_inc_ref(x_34);
 x_37 = l_Lean_Exception_isRuntime(x_34);
 x_29 = lean_box(0);
 x_30 = x_34;

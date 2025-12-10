@@ -48,7 +48,7 @@ The process proceeds in these steps, to guide the transformation:
 
    The `binderNameHint` preserves the user-chosen name in `f` if that is a lambda.
 
-   The `wfParam` on the right hand side ensurses that doubly-nested recursion works.
+   The `wfParam` on the right hand side ensures that doubly-nested recursion works.
 
 4. All left-over `wfParam` gadgets are removed.
 

@@ -1867,7 +1867,7 @@ def withLetDecl (name : Name) (type : Expr) (val : Expr) (k : Expr → n α) (no
 /--
 Runs `k x` with the local declaration `<name> : <type> := <val>` added to the local context, where `x` is the new free variable.
 Afterwards, the result is wrapped in the given `let`/`have` expression (according to the value of `nondep`).
-- If `usedLetOnly := true` (the default) then the the `let`/`have` is not created if the variable is unused.
+- If `usedLetOnly := true` (the default) then the `let`/`have` is not created if the variable is unused.
 -/
 def mapLetDecl [MonadLiftT MetaM n] (name : Name) (type : Expr) (val : Expr) (k : Expr → n Expr) (nondep : Bool := false) (kind : LocalDeclKind := .default) (usedLetOnly : Bool := true) : n Expr :=
   withLetDecl name type val (nondep := nondep) (kind := kind) fun x => do

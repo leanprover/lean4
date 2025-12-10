@@ -398,6 +398,17 @@ def inter [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtDHashMap α β) : Ex
 
 instance [EquivBEq α] [LawfulHashable α] : Inter (ExtDHashMap α β) := ⟨inter⟩
 
+@[inline, inherit_doc DHashMap.diff]
+def diff [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtDHashMap α β) : ExtDHashMap α β := lift₂ (fun x y : DHashMap α β => mk (x.diff y))
+  (fun a b c d equiv₁ equiv₂ => by
+    simp only [DHashMap.diff_eq, mk'.injEq]
+    apply Quotient.sound
+    apply DHashMap.Equiv.diff_congr
+    · exact equiv₁
+    · exact equiv₂) m₁ m₂
+
+instance [EquivBEq α] [LawfulHashable α] : SDiff (ExtDHashMap α β) := ⟨diff⟩
+
 @[inline, inherit_doc DHashMap.Const.unitOfArray]
 def Const.unitOfArray [BEq α] [Hashable α] (l : Array α) :
     ExtDHashMap α (fun _ => Unit) :=

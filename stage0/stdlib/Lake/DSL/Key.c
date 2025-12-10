@@ -404,7 +404,6 @@ x_10 = lean_nat_dec_lt(x_8, x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; 
-lean_dec(x_9);
 lean_dec_ref(x_7);
 lean_dec_ref(x_3);
 x_11 = lean_alloc_ctor(0, 2, 0);
@@ -419,7 +418,6 @@ x_12 = lean_nat_dec_le(x_9, x_9);
 if (x_12 == 0)
 {
 lean_object* x_13; 
-lean_dec(x_9);
 lean_dec_ref(x_7);
 lean_dec_ref(x_3);
 x_13 = lean_alloc_ctor(0, 2, 0);
@@ -431,7 +429,6 @@ else
 {
 size_t x_14; lean_object* x_15; 
 x_14 = lean_usize_of_nat(x_9);
-lean_dec(x_9);
 x_15 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_DSL_Key_0__Lake_DSL_expandFacets_spec__1___redArg(x_7, x_6, x_14, x_1, x_3, x_4);
 lean_dec_ref(x_7);
 return x_15;

@@ -23,9 +23,9 @@ namespace Lake
 @[inline] public def KConfigDecl.get
   [Monad m] [MonadError m] [MonadLake m] (self : KConfigDecl kind)
 : m (ConfigTarget kind) := do
-  let some pkg ← findPackage? self.pkg
+  let some pkg ← findPackageByKey? self.pkg
     | error s!"package of target '{self.pkg}/{self.name}' not found in workspace"
-  let config := cast (by rw [self.kind_eq, pkg.name_eq]) self.config
+  let config := cast (by rw [self.kind_eq, pkg.keyName_eq]) self.config
   return ConfigTarget.mk pkg self.name config
 
 /-! ## Package Facets & Targets -/
@@ -40,13 +40,13 @@ public def Package.fetchTargetJob
 public protected def TargetDecl.fetch
   (self : TargetDecl) [FamilyOut (CustomData self.pkg) self.name α]
 : FetchM (Job α) := do
-  let some pkg ← findPackage? self.pkg
+  let some pkg ← findPackageByKey? self.pkg
     | error s!"package '{self.pkg}' of target '{self.name}' does not exist in workspace"
   fetch <| pkg.target self.name
 
 /-- Fetch the build job of the target. -/
 public def TargetDecl.fetchJob (self : TargetDecl) : FetchM OpaqueJob :=  do
-  let some pkg ← findPackage? self.pkg
+  let some pkg ← findPackageByKey? self.pkg
     | error s!"package '{self.pkg}' of target '{self.name}' does not exist in workspace"
   return (← (pkg.target self.name).fetch).toOpaque
 

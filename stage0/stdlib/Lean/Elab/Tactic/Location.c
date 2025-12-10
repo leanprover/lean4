@@ -347,8 +347,6 @@ block_19:
 lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; 
 x_15 = lean_array_get_size(x_14);
 x_16 = lean_nat_sub(x_13, x_15);
-lean_dec(x_15);
-lean_dec(x_13);
 x_17 = lean_nat_dec_lt(x_10, x_16);
 lean_dec(x_16);
 x_18 = lean_alloc_ctor(1, 1, 1);
@@ -1011,6 +1009,7 @@ x_34 = l_Lean_Exception_isInterrupt(x_23);
 if (x_34 == 0)
 {
 uint8_t x_35; 
+lean_inc(x_23);
 x_35 = l_Lean_Exception_isRuntime(x_23);
 x_25 = x_35;
 goto block_33;
@@ -1157,7 +1156,6 @@ x_50 = lean_array_get_size(x_42);
 x_51 = lean_nat_dec_lt(x_49, x_50);
 if (x_51 == 0)
 {
-lean_dec(x_50);
 lean_dec_ref(x_2);
 x_44 = lean_box(0);
 goto block_48;
@@ -1168,7 +1166,6 @@ uint8_t x_52;
 x_52 = lean_nat_dec_le(x_50, x_50);
 if (x_52 == 0)
 {
-lean_dec(x_50);
 lean_dec_ref(x_2);
 x_44 = lean_box(0);
 goto block_48;
@@ -1179,7 +1176,6 @@ lean_object* x_53; size_t x_54; size_t x_55; lean_object* x_56;
 x_53 = lean_box(0);
 x_54 = 0;
 x_55 = lean_usize_of_nat(x_50);
-lean_dec(x_50);
 lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_10);

@@ -791,7 +791,6 @@ _start:
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_array_get_size(x_1);
 x_6 = lean_nat_dec_lt(x_3, x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; 
@@ -1083,7 +1082,7 @@ x_20 = lean_ctor_get(x_19, 10);
 if (lean_obj_tag(x_20) == 0)
 {
 uint8_t x_21; lean_object* x_22; 
-lean_dec_ref(x_19);
+lean_dec(x_19);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_21 = 0;
@@ -1094,7 +1093,7 @@ return x_15;
 else
 {
 lean_object* x_23; 
-lean_inc_ref(x_19);
+lean_inc(x_19);
 x_23 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_getAssignmentExt_x3f(x_19, x_1);
 if (lean_obj_tag(x_23) == 1)
 {
@@ -1131,7 +1130,7 @@ else
 {
 uint8_t x_31; lean_object* x_32; 
 lean_dec(x_23);
-lean_dec_ref(x_19);
+lean_dec(x_19);
 lean_dec_ref(x_2);
 x_31 = 0;
 x_32 = lean_box(x_31);
@@ -1156,7 +1155,7 @@ x_36 = lean_ctor_get(x_35, 10);
 if (lean_obj_tag(x_36) == 0)
 {
 uint8_t x_37; lean_object* x_38; lean_object* x_39; 
-lean_dec_ref(x_35);
+lean_dec(x_35);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_37 = 0;
@@ -1168,7 +1167,7 @@ return x_39;
 else
 {
 lean_object* x_40; 
-lean_inc_ref(x_35);
+lean_inc(x_35);
 x_40 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_getAssignmentExt_x3f(x_35, x_1);
 if (lean_obj_tag(x_40) == 1)
 {
@@ -1207,7 +1206,7 @@ else
 {
 uint8_t x_50; lean_object* x_51; lean_object* x_52; 
 lean_dec(x_40);
-lean_dec_ref(x_35);
+lean_dec(x_35);
 lean_dec_ref(x_2);
 x_50 = 0;
 x_51 = lean_box(x_50);

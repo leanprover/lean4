@@ -115,7 +115,6 @@ _start:
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_get_size(x_3);
 x_7 = lean_nat_dec_eq(x_4, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
@@ -169,7 +168,6 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7;
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_array_get_size(x_3);
 x_6 = lean_mk_empty_array_with_capacity(x_5);
-lean_dec(x_5);
 x_7 = l___private_Init_Data_Array_BasicAux_0__Array_mapM_x27_go___redArg(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -225,7 +223,6 @@ _start:
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_array_get_size(x_4);
 x_6 = lean_nat_dec_lt(x_3, x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 

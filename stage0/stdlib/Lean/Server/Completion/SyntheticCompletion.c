@@ -1980,7 +1980,6 @@ x_9 = lean_array_get_size(x_7);
 x_10 = lean_nat_dec_lt(x_8, x_9);
 if (x_10 == 0)
 {
-lean_dec(x_9);
 lean_dec_ref(x_7);
 return x_10;
 }
@@ -1988,7 +1987,6 @@ else
 {
 if (x_10 == 0)
 {
-lean_dec(x_9);
 lean_dec_ref(x_7);
 return x_10;
 }
@@ -1997,7 +1995,6 @@ else
 size_t x_11; size_t x_12; uint8_t x_13; 
 x_11 = 0;
 x_12 = lean_usize_of_nat(x_9);
-lean_dec(x_9);
 x_13 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_isSyntheticTacticCompletion_isCompletionAfterSemicolon_spec__0(x_2, x_7, x_11, x_12);
 lean_dec_ref(x_7);
 return x_13;
@@ -2060,7 +2057,6 @@ x_6 = lean_nat_dec_lt(x_4, x_5);
 if (x_6 == 0)
 {
 uint8_t x_7; 
-lean_dec(x_5);
 x_7 = 1;
 return x_7;
 }
@@ -2068,7 +2064,6 @@ else
 {
 if (x_6 == 0)
 {
-lean_dec(x_5);
 return x_6;
 }
 else
@@ -2076,7 +2071,6 @@ else
 size_t x_8; size_t x_9; uint8_t x_10; 
 x_8 = 0;
 x_9 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
 x_10 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_isSyntheticTacticCompletion_isEmpty_spec__0(x_3, x_8, x_9);
 if (x_10 == 0)
 {
@@ -2838,7 +2832,7 @@ else
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_array_uget(x_3, x_5);
 x_9 = l_Lean_PersistentArray_findSomeMAux___at___00Lean_PersistentArray_findSomeM_x3f___at___00__private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findOutermostContextInfo_x3f_go_spec__0_spec__0(x_8);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 if (lean_obj_tag(x_9) == 1)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -3474,7 +3468,7 @@ x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_15 = 1;
 x_26 = lean_unsigned_to_nat(2u);
 x_27 = lean_nat_mod(x_14, x_26);
@@ -3655,7 +3649,6 @@ x_27 = lean_array_get_size(x_26);
 x_28 = lean_nat_dec_lt(x_22, x_27);
 if (x_28 == 0)
 {
-lean_dec(x_27);
 lean_dec_ref(x_26);
 x_8 = x_25;
 goto block_15;
@@ -3664,7 +3657,6 @@ else
 {
 if (x_28 == 0)
 {
-lean_dec(x_27);
 lean_dec_ref(x_26);
 x_8 = x_25;
 goto block_15;
@@ -3674,7 +3666,6 @@ else
 size_t x_29; size_t x_30; uint8_t x_31; 
 x_29 = 0;
 x_30 = lean_usize_of_nat(x_27);
-lean_dec(x_27);
 x_31 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_isSyntheticStructFieldCompletion_spec__0(x_5, x_25, x_22, x_26, x_29, x_30);
 lean_dec_ref(x_26);
 if (x_31 == 0)

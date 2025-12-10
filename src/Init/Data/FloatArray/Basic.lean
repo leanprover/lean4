@@ -42,7 +42,7 @@ instance : EmptyCollection FloatArray where
 def push : FloatArray → Float → FloatArray
   | ⟨ds⟩, b => ⟨ds.push b⟩
 
-@[extern "lean_float_array_size"]
+@[extern "lean_float_array_size", tagged_return]
 def size : (@& FloatArray) → Nat
   | ⟨ds⟩ => ds.size
 

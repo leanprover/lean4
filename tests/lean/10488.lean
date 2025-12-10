@@ -51,3 +51,10 @@ structure Foo where
 def bar : Foo := {}
 #check bar.x.2.snd
 #eval { bar with x.2.snd := 1 }
+
+inductive Nope where
+  | succ : Nope -> Nope -> Nope
+  | leaf : Nope
+
+example := (match · with
+  | succ x y => 4)

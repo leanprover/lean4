@@ -237,7 +237,7 @@ lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_obje
 x_10 = lean_st_ref_get(x_8);
 x_11 = lean_ctor_get(x_10, 7);
 lean_inc_ref(x_11);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*3);
 lean_dec_ref(x_11);
 x_13 = l_Lean_Elab_enableInfoTree___at___00Lean_Elab_withEnableInfoTree___at___00Lean_Elab_Mutual_addPreDefsFromUnary_spec__4_spec__4___redArg(x_1, x_8);
@@ -671,7 +671,7 @@ if (lean_is_exclusive(x_10)) {
 }
 x_34 = lean_ctor_get(x_18, 0);
 lean_inc_ref(x_34);
-lean_dec_ref(x_18);
+lean_dec(x_18);
 x_35 = lean_alloc_closure((void*)(l_Lean_Elab_Mutual_addPreDefsFromUnary___lam__0___boxed), 1, 0);
 x_36 = lean_name_eq(x_13, x_17);
 x_37 = l_Lean_Elab_PreDefinition_filterAttrs(x_4, x_35);
@@ -783,7 +783,6 @@ x_74 = lean_box(0);
 x_75 = lean_nat_dec_lt(x_15, x_73);
 if (x_75 == 0)
 {
-lean_dec(x_73);
 lean_dec_ref(x_63);
 lean_dec(x_59);
 lean_dec(x_40);
@@ -801,7 +800,6 @@ uint8_t x_76;
 x_76 = lean_nat_dec_le(x_73, x_73);
 if (x_76 == 0)
 {
-lean_dec(x_73);
 lean_dec_ref(x_63);
 lean_dec(x_59);
 lean_dec(x_40);
@@ -819,7 +817,6 @@ size_t x_77; size_t x_78; lean_object* x_79;
 lean_free_object(x_70);
 x_77 = 0;
 x_78 = lean_usize_of_nat(x_73);
-lean_dec(x_73);
 x_79 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Mutual_addPreDefsFromUnary_spec__6(x_1, x_36, x_40, x_5, x_3, x_77, x_78, x_74, x_6, x_7, x_8, x_9, x_63, x_59);
 return x_79;
 }
@@ -835,7 +832,6 @@ x_82 = lean_nat_dec_lt(x_15, x_80);
 if (x_82 == 0)
 {
 lean_object* x_83; 
-lean_dec(x_80);
 lean_dec_ref(x_63);
 lean_dec(x_59);
 lean_dec(x_40);
@@ -855,7 +851,6 @@ x_84 = lean_nat_dec_le(x_80, x_80);
 if (x_84 == 0)
 {
 lean_object* x_85; 
-lean_dec(x_80);
 lean_dec_ref(x_63);
 lean_dec(x_59);
 lean_dec(x_40);
@@ -873,7 +868,6 @@ else
 size_t x_86; size_t x_87; lean_object* x_88; 
 x_86 = 0;
 x_87 = lean_usize_of_nat(x_80);
-lean_dec(x_80);
 x_88 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Mutual_addPreDefsFromUnary_spec__6(x_1, x_36, x_40, x_5, x_3, x_86, x_87, x_81, x_6, x_7, x_8, x_9, x_63, x_59);
 return x_88;
 }
@@ -1323,7 +1317,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12;
 x_10 = lean_array_uget(x_2, x_4);
 x_11 = lean_ctor_get(x_10, 3);
 lean_inc(x_11);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 x_12 = l_Lean_Meta_markAsRecursive___redArg(x_11, x_6);
 if (lean_obj_tag(x_12) == 0)
 {
@@ -1373,7 +1367,7 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13;
 x_11 = lean_array_uget(x_2, x_4);
 x_12 = lean_ctor_get(x_11, 3);
 lean_inc(x_12);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 lean_inc_ref(x_6);
 x_13 = l_Lean_enableRealizationsForConst(x_12, x_6, x_7);
 if (lean_obj_tag(x_13) == 0)
@@ -1469,7 +1463,7 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; lean_object* x_13;
 x_5 = lean_array_uget(x_1, x_2);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = 1;
 x_13 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Mutual_addPreDefAttributes_spec__2___closed__1;
 x_14 = lean_name_eq(x_6, x_13);
@@ -1571,7 +1565,6 @@ x_33 = lean_array_get_size(x_31);
 x_34 = lean_nat_dec_lt(x_32, x_33);
 if (x_34 == 0)
 {
-lean_dec(x_33);
 lean_dec_ref(x_31);
 goto block_30;
 }
@@ -1579,7 +1572,6 @@ else
 {
 if (x_34 == 0)
 {
-lean_dec(x_33);
 lean_dec_ref(x_31);
 goto block_30;
 }
@@ -1588,7 +1580,6 @@ else
 size_t x_35; size_t x_36; uint8_t x_37; 
 x_35 = 0;
 x_36 = lean_usize_of_nat(x_33);
-lean_dec(x_33);
 x_37 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Mutual_addPreDefAttributes_spec__2(x_31, x_35, x_36);
 lean_dec_ref(x_31);
 if (x_37 == 0)
@@ -1631,7 +1622,7 @@ else
 {
 lean_dec(x_23);
 lean_dec_ref(x_22);
-lean_dec_ref(x_21);
+lean_dec(x_21);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
@@ -1711,7 +1702,6 @@ x_33 = lean_array_get_size(x_31);
 x_34 = lean_nat_dec_lt(x_32, x_33);
 if (x_34 == 0)
 {
-lean_dec(x_33);
 lean_dec_ref(x_31);
 goto block_30;
 }
@@ -1719,7 +1709,6 @@ else
 {
 if (x_34 == 0)
 {
-lean_dec(x_33);
 lean_dec_ref(x_31);
 goto block_30;
 }
@@ -1728,7 +1717,6 @@ else
 size_t x_35; size_t x_36; uint8_t x_37; 
 x_35 = 0;
 x_36 = lean_usize_of_nat(x_33);
-lean_dec(x_33);
 x_37 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Mutual_addPreDefAttributes_spec__2(x_31, x_35, x_36);
 lean_dec_ref(x_31);
 if (x_37 == 0)
@@ -1771,7 +1759,7 @@ else
 {
 lean_dec(x_23);
 lean_dec_ref(x_22);
-lean_dec_ref(x_21);
+lean_dec(x_21);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);

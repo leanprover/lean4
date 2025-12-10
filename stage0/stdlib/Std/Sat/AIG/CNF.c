@@ -1029,7 +1029,6 @@ x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_array_get_size(x_4);
 x_6 = lean_nat_add(x_5, x_3);
-lean_dec(x_5);
 return x_6;
 }
 else

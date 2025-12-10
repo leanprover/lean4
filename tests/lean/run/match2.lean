@@ -1,7 +1,9 @@
 import Lean
 
+set_option linter.unusedVariables false
+
 def checkWithMkMatcherInput (matcher : Lean.Name) : Lean.MetaM Unit :=
-  Lean.Meta.Match.withMkMatcherInput matcher fun input => do
+  Lean.Meta.Match.withMkMatcherInput matcher (unfoldNamed := false) fun input => do
   let res ← Lean.Meta.Match.mkMatcher input
   let origMatcher ← Lean.getConstInfo matcher
   if not <| input.matcherName == matcher then

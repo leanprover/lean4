@@ -2769,7 +2769,7 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_array_get_borrowed(x_1, x_2, x_3);
-lean_inc_ref(x_6);
+lean_inc(x_6);
 x_7 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
 lean_ctor_set(x_7, 1, x_4);
@@ -2793,7 +2793,6 @@ _start:
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_7 = lean_array_get_size(x_1);
 x_8 = l_Lean_SubExpr_Pos_pushNaryArg(x_7, x_2, x_6);
-lean_dec(x_7);
 x_9 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_SubExpr_withNaryArg___redArg___lam__0___boxed), 5, 4);
 lean_closure_set(x_9, 0, x_3);
 lean_closure_set(x_9, 1, x_1);

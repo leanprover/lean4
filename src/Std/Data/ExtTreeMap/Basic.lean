@@ -547,6 +547,11 @@ instance [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] [LawfulBEq β] : LawfulBEq (E
     have ⟨_⟩ := b
     simp only [mk.injEq]
     exact ExtDTreeMap.Const.eq_of_beq _ _ hyp
+    
+@[inline, inherit_doc ExtDTreeMap.diff]
+def diff [TransCmp cmp] (t₁ t₂ : ExtTreeMap α β cmp) : ExtTreeMap α β cmp := ⟨ExtDTreeMap.diff t₁.inner t₂.inner⟩
+
+instance [TransCmp cmp] : SDiff (ExtTreeMap α β cmp) := ⟨diff⟩
 
 @[inline, inherit_doc ExtDTreeMap.eraseMany]
 def eraseMany [TransCmp cmp] {ρ} [ForIn Id ρ α] (t : ExtTreeMap α β cmp) (l : ρ) : ExtTreeMap α β cmp :=

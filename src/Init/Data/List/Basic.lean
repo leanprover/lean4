@@ -1847,6 +1847,7 @@ Examples:
 * `[2, 4, 5, 6].any (· % 2 = 0) = true`
 * `[2, 4, 5, 6].any (· % 2 = 1) = true`
 -/
+@[suggest_for List.some]
 def any : (l : List α) → (p : α → Bool) → Bool
   | [], _ => false
   | h :: t, p => p h || any t p
@@ -1866,6 +1867,7 @@ Examples:
 * `[2, 4, 6].all (· % 2 = 0) = true`
 * `[2, 4, 5, 6].all (· % 2 = 0) = false`
 -/
+@[suggest_for List.every]
 def all : List α → (α → Bool) → Bool
   | [], _ => true
   | h :: t, p => p h && all t p

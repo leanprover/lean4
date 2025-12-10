@@ -1,3 +1,5 @@
+-- test suggest_for independently of any library annotations
+
 @[suggest_for String.test0 String.test1 String.test2]
 public def String.foo (x: String) := x.length + 1
 
@@ -36,6 +38,17 @@ Hint: Perhaps you meant `String.foo` in place of `String.test0`:
 -/
 #guard_msgs in
 #check String.test0
+
+/--
+error: Unknown constant `String.test0`
+
+Hint: Perhaps you meant `String.foo` in place of `String.test0`:
+  [apply] `String.foo`
+---
+info: fun x1 x2 x3 => sorry : (x1 : ?m.1) → (x2 : ?m.5 x1) → (x3 : ?m.6 x1 x2) → ?m.7 x1 x2 x3
+-/
+#guard_msgs in
+#check (String.test0 · · ·)
 
 -- Two suggested replacements: the bar replacement is for `test1`, which does not apply
 /--

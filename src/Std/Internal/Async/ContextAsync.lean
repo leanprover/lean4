@@ -34,8 +34,7 @@ abbrev ContextAsync (α : Type) := ReaderT CancellationContext Async α
 namespace ContextAsync
 
 /--
-Runs a `ContextAsync` computation with a given context. Typically the context is created with
-`Context.new` or `Context.fork`.
+Runs a `ContextAsync` computation with a given context.
 -/
 @[inline]
 protected def run (ctx : CancellationContext) (x : ContextAsync α) : Async α :=
@@ -109,8 +108,17 @@ If either fails or is cancelled, both are cancelled immediately and the exceptio
 @[inline, specialize]
 def concurrently (x : ContextAsync α) (y : ContextAsync β)
     (prio := Task.Priority.default) : ContextAsync (α × β) := do
+
   let ctx ← getContext
-  Async.concurrently (x ctx) (y ctx) prio
+  let concurrentCtx ← ctx.fork
+
+  let childCtx1 ← concurrentCtx.fork
+  let childCtx2 ← concurrentCtx.fork
+
+  Async.concurrently
+    (try x.run childCtx1 finally concurrentCtx.cancel .cancel)
+    (try y.run childCtx2 finally concurrentCtx.cancel .cancel)
+    prio
 
 /--
 Runs two computations concurrently and returns the result of the first to complete.

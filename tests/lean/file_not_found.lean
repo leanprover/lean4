@@ -1,5 +1,5 @@
 prelude
-import Init.System.IO
+import Init.System.Files
 
 open IO.FS
 def usingIO {α} (x : IO α) : IO α := x

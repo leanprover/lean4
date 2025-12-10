@@ -75,6 +75,9 @@ def finitenessRelation : Std.Iterators.FinitenessRelation (ForwardCharPredSearch
 instance : Std.Iterators.Finite (ForwardCharPredSearcher p s) Id :=
   .of_finitenessRelation finitenessRelation
 
+instance : Std.IteratorLoopNew (ForwardCharPredSearcher p s) Id Id :=
+  .defaultImplementation
+
 instance : Std.IteratorLoop (ForwardCharPredSearcher p s) Id Id :=
   .defaultImplementation
 
@@ -150,6 +153,9 @@ def finitenessRelation : Std.Iterators.FinitenessRelation (BackwardCharPredSearc
 
 instance : Std.Iterators.Finite (BackwardCharPredSearcher s) Id :=
   .of_finitenessRelation finitenessRelation
+
+instance : Std.IteratorLoopNew (BackwardCharPredSearcher s) Id Id :=
+  .defaultImplementation
 
 instance : Std.IteratorLoop (BackwardCharPredSearcher s) Id Id :=
   .defaultImplementation

@@ -369,6 +369,10 @@ public def Flatten.instProductive [Monad m] [Iterator α m (IterM (α := α₂) 
 
 end Productive
 
+public instance Flatten.instIteratorLoopNew [Monad m] [Monad n] [Iterator α m (IterM (α := α₂) m β)]
+    [Iterator α₂ m β] [Finite α m] : IteratorLoopNew (Flatten α α₂ β m) m n :=
+  .defaultImplementation
+
 public instance Flatten.instIteratorLoop [Monad m] [Monad n] [Iterator α m (IterM (α := α₂) m β)]
     [Iterator α₂ m β] : IteratorLoop (Flatten α α₂ β m) m n :=
   .defaultImplementation

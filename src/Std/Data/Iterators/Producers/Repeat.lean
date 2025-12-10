@@ -51,6 +51,10 @@ instance RepeatIterator.instProductive :
     Productive (RepeatIterator α f) Id := by
   exact Productive.of_productivenessRelation instProductivenessRelation
 
+instance RepeatIterator.instIteratorLoopNew {α : Type w} {f : α → α} {n : Type w → Type w'} [Monad n] :
+    IteratorLoopNew (RepeatIterator α f) Id n :=
+  .defaultImplementation
+
 instance RepeatIterator.instIteratorLoop {α : Type w} {f : α → α} {n : Type w → Type w'} [Monad n] :
     IteratorLoop (RepeatIterator α f) Id n :=
   .defaultImplementation

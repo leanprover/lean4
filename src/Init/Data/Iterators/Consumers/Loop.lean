@@ -73,6 +73,26 @@ instance (α : Type w) (β : Type w) (n : Type x → Type x') [Monad n]
 An implementation of `for h : ... in ... do ...` notation for partial iterators.
 -/
 @[always_inline, inline]
+def Iter.Partial.instForInNew' {α : Type w} {β : Type w} {n : Type x → Type x'} [Monad n]
+    [Iterator α Id β] [IteratorLoopPartialNew α Id n] :
+    ForInNew' n (Iter.Partial (α := α) β) β (fun it out => it.it.IsPlausibleIndirectOutput out) where
+  forInNew' it init kcons knil :=
+    IteratorLoopPartialNew.forInNewPartial (α := α) (m := Id) (n := n) (fun _ _ f c => f c.run)
+      it.it.toIterM init
+      (fun out h acc k =>
+        kcons out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) k acc)
+      knil
+
+instance (α : Type w) (β : Type w) (n : Type x → Type x') [Monad n]
+    [Iterator α Id β] [IteratorLoopPartialNew α Id n] :
+    ForInNew n (Iter.Partial (α := α) β) β :=
+  haveI : ForInNew' n (Iter.Partial (α := α) β) β _ := Iter.Partial.instForInNew'
+  instForInNewOfForInNew'
+
+/--
+An implementation of `for h : ... in ... do ...` notation for partial iterators.
+-/
+@[always_inline, inline]
 def Iter.Partial.instForIn' {α : Type w} {β : Type w} {n : Type x → Type x'} [Monad n]
     [Iterator α Id β] [IteratorLoop α Id n] :
     ForIn' n (Iter.Partial (α := α) β) β ⟨fun it out => it.it.IsPlausibleIndirectOutput out⟩ where

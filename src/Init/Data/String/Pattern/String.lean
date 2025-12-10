@@ -252,6 +252,9 @@ private def finitenessRelation :
 instance : Std.Iterators.Finite (ForwardSliceSearcher s) Id :=
   .of_finitenessRelation finitenessRelation
 
+instance : Std.IteratorLoopNew (ForwardSliceSearcher s) Id Id :=
+  .defaultImplementation
+
 instance : Std.IteratorLoop (ForwardSliceSearcher s) Id Id :=
   .defaultImplementation
 

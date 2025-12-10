@@ -125,6 +125,22 @@ class IteratorLoopNew (α : Type w) (m : Type w → Type w') {β : Type w} [Iter
       n γ
 
 /--
+`IteratorLoopNewPartial α m` provides efficient implementations of loop-based consumers for `α`-based
+iterators. The basis is a partial, i.e. potentially nonterminating, `ForInNew` instance.
+
+This class is experimental and users of the iterator API should not explicitly depend on it.
+They can, however, assume that consumers that require an instance will work for all iterators
+provided by the standard library.
+-/
+class IteratorLoopPartialNew (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
+    (n : Type x → Type x') where
+  forInNewPartial : ∀ (_liftBind : (γ : Type w) → (δ : Type x) → (γ → n δ) → m γ → n δ) {σ γ : Type x},
+      (it : IterM (α := α) m β) → σ →
+      (kcons : (b : β) → it.IsPlausibleIndirectOutput b → (s₁ : σ) → ((s₂ : σ) → n γ) → n γ) →
+      (knil : σ → n γ) →
+      n γ
+
+/--
 `IteratorLoop α m` provides efficient implementations of loop-based consumers for `α`-based
 iterators. The basis is a `ForIn`-style loop construct.
 
@@ -181,7 +197,7 @@ instance IteratorLoop.WithWF.instWellFoundedRelation
   wf := by exact InvImage.wf _ hwf
 
 /--
-This is the loop implementation of the default instance `IteratorLoop.defaultImplementation`.
+This is the loop implementation of the default instance `IteratorLoopNew.defaultImplementation`.
 -/
 @[always_inline, inline, expose]
 def IterM.DefaultConsumers.forInNew' {m : Type w → Type w'} {α : Type w} {β : Type w}
@@ -204,6 +220,37 @@ def IterM.DefaultConsumers.forInNew' {m : Type w → Type w'} {α : Type w} {β 
       | .skip it' h =>
         recur it' acc (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') (Or.inr ⟨‹_›, rfl⟩)
       | .done _ => knil acc) it init hP
+
+/--
+`IterM.DefaultConsumers.forInNew'` for a well-founded `PlausibleTransition` relation.
+No extrinsic termination proof is required. Comes with a useful functional induction principle.
+-/
+@[specialize, expose]
+def IterM.DefaultConsumers.forInNew'.wf {m : Type w → Type w'} {α : Type w} {β : Type w}
+    [Iterator α m β] {n : Type x → Type x'}
+    (lift : ∀ γ δ, (γ → n δ) → m γ → n δ) (σ γ : Type x)
+    (PlausibleTransition : β → σ → σ → Prop)
+    (wf : IteratorLoopNew.WellFounded α m PlausibleTransition)
+    (it : IterM (α := α) m β) (init : σ)
+    (P : β → Prop) (hP : ∀ b, it.IsPlausibleIndirectOutput b → P b)
+    (kcons : (b : β) → P b → (s₁ : σ) → ((s₂ : σ) → PlausibleTransition b s₁ s₂ → n γ) → n γ)
+    (knil : σ → n γ) : n γ :=
+  haveI : WellFounded _ := wf
+  (lift _ _ · it.step) fun s =>
+    match s.inflate with
+    | .yield it' out h =>
+      let kcontinue s (_ : PlausibleTransition out init s) :=
+        forInNew'.wf lift _ _ PlausibleTransition wf it' s P
+          (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') kcons knil
+      kcons out (hP _ <| .direct ⟨_, h⟩) init kcontinue
+    | .skip it' h =>
+      forInNew'.wf lift _ _ PlausibleTransition wf it' init P
+        (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') kcons knil
+    | .done _ => knil init
+termination_by IteratorLoopNew.WithWF.mk it init (hwf := wf)
+decreasing_by
+  · exact Or.inl ⟨out, ‹_›, ‹_›⟩
+  · exact Or.inr ⟨‹_›, rfl⟩
 
 /--
 This is the loop implementation of the default instance `IteratorLoop.defaultImplementation`.
@@ -333,6 +380,22 @@ theorem IteratorLoopNew.wellFounded_of_finite {m : Type w → Type w'}
   · apply InvImage.wf
     exact WellFoundedRelation.wf
 
+/--
+This `ForInNew'`-style loop construct traverses a finite iterator using an `IteratorLoopNew` instance.
+-/
+@[always_inline, inline]
+def IteratorLoopNew.finiteForInNew' {m : Type w → Type w'} {n : Type x → Type x'}
+    {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoopNew α m n]
+    (lift : ∀ γ δ, (γ → n δ) → m γ → n δ) :
+    ForInNew' n (IterM (α := α) m β) β (fun it out => it.IsPlausibleIndirectOutput out) where
+  forInNew' {σ γ} it init kcons knil :=
+    IteratorLoopNew.forInNew (α := α) (m := m) lift σ γ (fun _ _ _ => True)
+      it init (fun out h s₁ kcontinue => kcons out h (fun s₂ => kcontinue s₂ .intro) s₁) knil
+
+instance (priority := low) [Iterator α m β] [Finite α m] [IteratorLoopNew α m n]
+    [MonadLiftT m n] [Monad n] : ForInNew' n (IterM (α := α) m β) β (fun it out => it.IsPlausibleIndirectOutput out) :=
+  IteratorLoopNew.finiteForInNew' (fun _ _ f x => monadLift x >>= f)
+
 theorem IteratorLoop.wellFounded_of_finite {m : Type w → Type w'}
     {α β : Type w} {γ : Type x} [Iterator α m β] [Finite α m] :
     WellFounded α m (γ := γ) fun _ _ _ => True := by
@@ -357,6 +420,37 @@ def IteratorLoop.finiteForInNew' {m : Type w → Type w'} {n : Type x → Type x
   forInNew' {σ γ} it init kcons knil :=
     IteratorLoopNew.forInNew (α := α) (m := m) lift σ γ (fun _ _ _ => True)
       it init (fun out h s₁ kcontinue => kcons out h (fun s₂ => kcontinue s₂ .intro) s₁) knil
+
+/--
+A `ForInNew'` instance for iterators. Its generic membership relation is not easy to use,
+so this is not marked as `instance`. This way, more convenient instances can be built on top of it
+or future library improvements will make it more comfortable.
+-/
+@[always_inline, inline]
+def IterM.instForInNew' {m : Type w → Type w'} {n : Type w → Type w''}
+    {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoopNew α m n] [Monad n] [MonadLiftT m n] :
+    ForInNew' n (IterM (α := α) m β) β (fun it out => it.IsPlausibleIndirectOutput out) :=
+  IteratorLoopNew.finiteForInNew' (fun _ _ f x => monadLift x >>= f)
+
+instance {m : Type w → Type w'} {n : Type w → Type w''}
+    {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoopNew α m n] [MonadLiftT m n] [Monad n] :
+    ForInNew n (IterM (α := α) m β) β :=
+  haveI : ForInNew' n (IterM (α := α) m β) β _ := IterM.instForInNew'
+  instForInNewOfForInNew'
+
+@[always_inline, inline]
+def IterM.Total.instForInNew' {m : Type w → Type w'} {n : Type w → Type w''}
+    {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoopNew α m n] [MonadLiftT m n] [Monad n]
+    [Finite α m] :
+    ForInNew' n (IterM.Total (α := α) m β) β (fun it out => it.it.IsPlausibleIndirectOutput out) where
+  forInNew' it init f := IterM.instForInNew'.forInNew' it.it init f
+
+instance {m : Type w → Type w'} {n : Type w → Type w''}
+    {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoopNew α m n] [MonadLiftT m n] [Monad n]
+    [Finite α m] :
+    ForInNew n (IterM.Total (α := α) m β) β :=
+  haveI : ForInNew' n (IterM.Total (α := α) m β) β _ := IterM.Total.instForInNew'
+  instForInNewOfForInNew'
 
 /--
 This `ForIn'`-style loop construct traverses a finite iterator using an `IteratorLoop` instance.

@@ -185,6 +185,9 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
 instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (SplitIterator pat s) Id :=
   .of_finitenessRelation finitenessRelation
 
+instance : Std.IteratorLoopNew (SplitIterator pat s) Id n :=
+  .defaultImplementation
+
 instance [Monad n] : Std.IteratorLoop (SplitIterator pat s) Id n :=
   .defaultImplementation
 
@@ -616,6 +619,9 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
 instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (RevSplitIterator ρ s) Id :=
   .of_finitenessRelation finitenessRelation
 
+instance [Pure m] : Std.IteratorLoopNew (RevSplitIterator ρ s) m n :=
+  .defaultImplementation
+
 instance [Monad m] [Monad n] : Std.IteratorLoop (RevSplitIterator ρ s) m n :=
   .defaultImplementation
 
@@ -887,6 +893,9 @@ private def finitenessRelation [Pure m] :
 instance [Pure m] : Std.Iterators.Finite (PosIterator s) m :=
   .of_finitenessRelation finitenessRelation
 
+instance [Pure m] : Std.IteratorLoopNew (PosIterator s) m n :=
+  .defaultImplementation
+
 instance [Monad m] [Monad n] : Std.IteratorLoop (PosIterator s) m n :=
   .defaultImplementation
 
@@ -968,6 +977,9 @@ private def finitenessRelation [Pure m] :
 instance [Pure m] : Std.Iterators.Finite (RevPosIterator s) m :=
   .of_finitenessRelation finitenessRelation
 
+instance [Pure m] : Std.IteratorLoopNew (RevPosIterator s) m n :=
+  .defaultImplementation
+
 instance [Monad m] [Monad n] : Std.IteratorLoop (RevPosIterator s) m n :=
   .defaultImplementation
 
@@ -1044,6 +1056,9 @@ private def finitenessRelation [Pure m] :
 @[no_expose]
 instance [Pure m] : Std.Iterators.Finite ByteIterator m :=
   .of_finitenessRelation finitenessRelation
+
+instance [Pure m] : Std.IteratorLoopNew ByteIterator m n :=
+  .defaultImplementation
 
 instance [Monad m] [Monad n] : Std.IteratorLoop ByteIterator m n :=
   .defaultImplementation
@@ -1122,6 +1137,9 @@ private def finitenessRelation [Pure m] :
 @[no_expose]
 instance [Pure m] : Std.Iterators.Finite RevByteIterator m :=
   .of_finitenessRelation finitenessRelation
+
+instance [Pure m] : Std.IteratorLoopNew RevByteIterator m n :=
+  .defaultImplementation
 
 instance [Monad m] [Monad n] : Std.IteratorLoop RevByteIterator m n :=
   .defaultImplementation

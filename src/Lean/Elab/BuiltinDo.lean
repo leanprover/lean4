@@ -137,11 +137,10 @@ def getDoReassignArrowVars (doReassignArrow : TSyntax ``doReassignArrow) : TermE
   let `(doReturn| return $[$e?]?) := stx | throwUnsupportedSyntax
   let returnCont ← getReturnCont
   let e ← match e? with
-    | some e => Term.elabTermEnsuringType e returnCont.resultType
+    | some e => Term.elabTermEnsuringType e (← read).doBlockResultType
     | none   => mkPUnitUnit
   dec.elabAsDeadCode -- emit dead code warnings
-  mapLetDeclZeta returnCont.resultName returnCont.resultType e fun _ =>
-    returnCont.k
+  returnCont.k e
 
 @[builtin_doElem_elab Lean.Parser.Term.doBreak] def elabDoBreak : DoElab := fun _stx dec => do
   let some breakCont := (← getBreakCont)
@@ -510,7 +509,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
       /- Recall that `@` (explicit) disables `coeAtOutParam`.
          We used `@` at `Stream` functions to make sure `resultIsOutParamSupport` is not used. -/
       let toStreamApp ← withRef ys `(@Std.toStream _ _ _ $ys)
-      let s ← Term.mkFreshIdent ys
+      let s := mkIdentFrom ys (← withFreshMacroScope <| MonadQuotation.addMacroScope `s)
       doElems := doElems.push (← `(doSeqItem| let mut $s := $toStreamApp:term))
       body ← `(doSeq|
         match @Std.Stream.next? _ _ _ $s with
@@ -565,7 +564,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
 
     -- Elaborate the loop body, which must have result type `PUnit`.
     -- The `withSynthesizeForDo` is so that we see all jump sites before continuing elaboration.
-    let body ← withSynthesizeForDo <| enterLoopBody γ (← getReturnCont) breakKVar.mkJump continueKVar.mkJump do
+    let body ← withSynthesizeForDo <| enterLoopBody breakKVar.mkJump continueKVar.mkJump do
       elabDoSeq body { dec with k := continueKVar.mkJump, kind := .duplicable }
 
     -- Compute the set of mut vars that were reassigned on the path to a back jump (`continue`).

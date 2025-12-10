@@ -131,6 +131,41 @@ def f9 (xs : List Nat) : IO (List Nat) := do
 return xs
 return xs -- warn unreachable
 
+def logErrorNames (x : MetaM Unit) : MetaM Unit := do
+  Core.setMessageLog {}
+  x
+  let log ← Core.getMessageLog
+  let mut newLog := {}
+  for msg in log.toArray do
+    newLog := newLog.add <|
+      if let some errorName := msg.errorName? then
+        { msg with data := m!"({errorName}) " ++ msg.data }
+      else
+        msg
+  Core.setMessageLog newLog
+
+set_option trace.Elab.do true in
+-- test case doLetElse
+example (x : Nat) : IO (Fin (x + 1)) := do
+  let 2 := x | return 0
+  -- the pattern match performed a substitution
+  let y : Fin 3 := ⟨1, by decide⟩
+  return y
+
+set_option trace.Elab.do true in
+-- Test: Try/catch with let mut and match refinement
+#check Id.run <| ExceptT.run (ε:=String) (α := Fin 17) doo
+  let mut x := 0
+  try
+    if true then
+      x := 10
+      let 2 := x | return 0
+      return ⟨x, by decide⟩
+    else
+      x := 5
+  catch e =>
+    x := x + 1
+  return ⟨3, by decide⟩
 end Blah
 
 set_option trace.Meta.synthInstance true in
@@ -1015,6 +1050,46 @@ info: (let x := 42;
   x := x + 13
   return x)
 
+/--
+info: (let x := 42;
+  have kbreak := fun s =>
+    let x := s;
+    let x := x + 13;
+    let x := x + 13;
+    let x := x + 13;
+    let x := x + 13;
+    pure x;
+  forInNew [1, 2, 3] x
+    (fun i kcontinue s =>
+      let x := s;
+      if x = 3 then pure x
+      else
+        if x > 10 then
+          let x := x + 3;
+          kcontinue x
+        else
+          if x < 20 then
+            let x := x * 2;
+            kbreak x
+          else
+            let x := x + i;
+            kcontinue x)
+    kbreak).run : Nat
+-/
+#guard_msgs (info) in
+#check (Id.run do
+  let mut x := 42
+  for i in [1,2,3] do
+    if x = 3 then return x
+    if x > 10 then x := x + 3; continue
+    if x < 20 then x := x * 2; break
+    x := x + i
+  x := x + 13
+  x := x + 13
+  x := x + 13
+  x := x + 13
+  return x)
+
 open Std.Do in
 set_option trace.Elab.do true in
 #check Id.run doo
@@ -1048,9 +1123,6 @@ open Std.Do in
       z := z + i
   return x + y + z
 
-set_option trace.Elab.do true in
-set_option pp.universes true in
-set_option trace.Meta.isDefEq.assign true in
 #check Id.run do
   let mut a := 0
   for x in [1,2,3], y in [3,4,5] do
@@ -1429,7 +1501,9 @@ example :
   throw (α:=Nat) "error")
 = throw (α:=Nat) "error" := by rfl
 
-#check (Id.run <| ExceptT.run (ε:=String) doo
+set_option trace.Elab.do true in
+set_option backward.do.legacy false in
+#check (Id.run <| ExceptT.run (ε:=String) do
   let mut x := 0
   try
     if true then
@@ -1440,6 +1514,21 @@ example :
       x := 5
   catch e =>
     x := x + 1)
+
+set_option trace.Elab.do true in
+-- Test: Try/catch with let mut and match refinement
+#check Id.run <| ExceptT.run (ε:=String) (α := Fin 17) doo
+  let mut x := 0
+  try
+    if true then
+      x := 10
+      let 2 := x | return 0
+      return ⟨x, by decide⟩
+    else
+      x := 5
+  catch e =>
+    x := x + 1
+  return ⟨3, by decide⟩
 
 #check (Id.run <| ExceptT.run (ε:=String) do
   let mut x := 0
@@ -1499,6 +1588,7 @@ example {s} :
     set 0
   get) := by simp
 
+set_option trace.Elab.do true in
 -- Try/catch with return, break and continue
 example :
   let f n :=
@@ -1646,7 +1736,7 @@ Postponing Monad instance resolution appropriately
 
 /--
 error: typeclass instance problem is stuck
-  Pure ?m.10
+  Pure ?m.9
 
 Note: Lean will not try to resolve this typeclass instance problem because the type argument to `Pure` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
 

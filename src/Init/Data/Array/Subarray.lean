@@ -80,6 +80,7 @@ namespace Subarray
 /--
 Computes the size of the subarray.
 -/
+@[suggest_for Subarray.length]
 def size (s : Subarray α) : Nat :=
   s.stop - s.start
 

@@ -258,3 +258,12 @@ We make the following recommendations for variable names, but without insisting 
   Descriptive names such as `start`, `stop`, `lo`, and `hi` are encouraged when they increase readability.
 * `n`, `m` are preferred for sizes, e.g. in `Vector α n` or `xs.size = n`.
 * `w` is preferred for the width of a `BitVec`.
+
+## Suggestions
+
+When names are difficult to guess due to inconsistency between standard libraries from different languages (e.g. `List.all` in most programming languages is `List.every` in JavaScript) or are subtle within Lean's standard library (`Array.size` and `Slice.size` subtly indicate a constant-time operation, whereas `List.length` and `String.length` are linear-time operations), the `suggest_for` option can be used to clue users who guess the wrong name.
+
+```lean
+@[suggest_for String.size]
+def String.length (b : @& String) : Nat := ...
+```

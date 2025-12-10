@@ -191,6 +191,9 @@ where
       (throwError "failed to generate equality theorem {thmName} for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
     subgoals.forM (go · (depth+1))
 
+private def useGrind : MetaM Bool := do
+  return ((← getEnv).getModuleIdx? `InitGrind).isSome && !debug.Meta.Match.MatchEqs.grindAsSorry.get (← getOptions)
+
 private partial def proveCongrEqThm (matchDeclName : Name) (thmName : Name) (mvarId : MVarId) : MetaM Unit := do
   withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} proveCondEqThm {thmName}")) do
   let mvarId ← mvarId.deltaTarget (· == matchDeclName)
@@ -230,12 +233,12 @@ where
       <|>
       (substSomeVar mvarId)
       <|>
-      (do if debug.Meta.Match.MatchEqs.grindAsSorry.get (← getOptions) then
-            trace[Meta.Match.matchEqs] "proveCondEqThm.go: grind_as_sorry is enabled, admitting goal"
-            mvarId.admit (synthetic := true)
-          else
+      (do if (← useGrind) then
             let r ← Grind.main mvarId (← Grind.mkParams {})
             if r.hasFailed then throwError "grind failed"
+          else
+            trace[Meta.Match.matchEqs] "proveCondEqThm.go: grind_as_sorry is enabled, admitting goal"
+            mvarId.admit (synthetic := true)
           return #[])
       <|>
       (throwError "failed to generate equality theorem {thmName} for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
@@ -296,7 +299,11 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
     let alts   := xs[(xs.size - matchInfo.numAlts)...*]
     let firstDiscrIdx := matchInfo.numParams + 1
     let discrs := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
-    let congrEqThms ← genMatchCongrEqns matchDeclName -- TODO: Clean up
+    let canUseGrind := ((← getEnv).getModuleIdx? `InitGrind).isSome
+    let congrEqThms ← if canUseGrind then
+      genMatchCongrEqns matchDeclName -- TODO: Clean up
+    else
+      pure #[]
     let mut notAlts := #[]
     let mut idx := 1
     let mut splitterAltInfos := #[]
@@ -333,8 +340,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
           let thmType ← mkEq lhs rhs
           let thmType ← mkForallFVars (params ++ #[motive] ++ ys ++ alts ++ hs) thmType
           let thmType ← unfoldNamedPattern thmType
-          let thmVal ←
-          if (← hasConst ``Classical.byContradiction) then
+          let thmVal ← if canUseGrind then
             let thmVal := mkConst congrEqThms[i]! us
             -- We build the normal equation from the congruence equation here
             let thmVal := mkAppN thmVal (params ++ #[motive] ++ patterns ++ alts ++ ys)

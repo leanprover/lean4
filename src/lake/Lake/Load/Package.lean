@@ -54,16 +54,22 @@ The resulting package does not yet include any dependencies.
 -/
 public def loadPackageCore
   (name : String) (cfg : LoadConfig)
-: LogIO (Package × Option Environment) := do
+: LogIO ({pkg : Package // pkg.wsIdx = cfg.pkgIdx} × Option Environment) := do
   if let some ext := cfg.relConfigFile.extension then
-    let cfg ←
+    let configFile ←
       if let some configFile ← resolvePath? cfg.configFile then
-        pure {cfg with configFile}
+        pure configFile
       else error s!"{name}: configuration file not found: {cfg.configFile}"
+    let cfg := {cfg with configFile}
     match ext with
-    | "lean" => (·.map id some) <$> loadLeanConfig cfg
-    | "toml" => ((·,none)) <$> loadTomlConfig cfg
-    | _ => error s!"{name}: configuration has unsupported file extension: {cfg.configFile}"
+    | "lean" =>
+      let (pkg, env) ← loadLeanConfigCore cfg
+      return (pkg, some env)
+    | "toml" =>
+      let pkg ← loadTomlConfigCore cfg
+      return ⟨pkg, none⟩
+    | _ =>
+      error s!"{name}: configuration has unsupported file extension: {cfg.configFile}"
   else
     let relLeanFile := cfg.relConfigFile.addExtension "lean"
     let relTomlFile := cfg.relConfigFile.addExtension "toml"
@@ -73,12 +79,12 @@ public def loadPackageCore
       if (← tomlFile.pathExists) then
         logInfo s!"{name}: {relLeanFile} and {relTomlFile} are both present; using {relLeanFile}"
        let cfg := {cfg with configFile, relConfigFile := relLeanFile}
-      let (pkg, env) ← loadLeanConfig cfg
+      let (pkg, env) ← loadLeanConfigCore cfg
       return (pkg, some env)
     else
       if let some configFile ← resolvePath? tomlFile then
         let cfg := {cfg with configFile, relConfigFile := relTomlFile}
-        let pkg ← loadTomlConfig cfg
+        let pkg ← loadTomlConfigCore cfg
         return (pkg, none)
       else
         error s!"{name}: no configuration file with a supported extension:\n{leanFile}\n{tomlFile}"

@@ -53,20 +53,31 @@ partial def transferHypNames (P P' : Expr) : MetaM Expr := (·.snd) <$> label (c
 def mFrameCore [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
   (goal : MGoal) (kFail : m Expr) (kSuccess : Expr /-φ:Prop-/ → Expr /-h:φ-/ → MGoal → m Expr) : m Expr := do
   let P := goal.hyps
-  let φ ← mkFreshExprMVar (mkSort .zero)
-  let P' ← mkFreshExprMVar (mkApp (mkConst ``SPred [goal.u]) goal.σs)
-  if let .some inst ← trySynthInstance (mkApp4 (mkConst ``HasFrame [goal.u]) goal.σs P P' φ) then
-    if ← isDefEq (mkConst ``True) φ then return (← kFail)
-    -- copy the name of P to P' if it is a named hypothesis
-    let P' ← transferHypNames P P'
-    let goal := { goal with hyps := P' }
-    withLocalDeclD (← liftMetaM <| mkFreshUserName `h) φ fun hφ => do
-      let prf ← kSuccess φ hφ goal
-      let prf ← mkLambdaFVars #[hφ] prf
-      let prf := mkApp7 (mkConst ``Frame.frame [goal.u]) goal.σs P P' goal.target φ inst prf
-      return prf
-  else
-    kFail
+  let φ ← mkFreshExprMVar (mkSort .zero) .synthetic
+  let P' ← mkFreshExprMVar (mkApp (mkConst ``SPred [goal.u]) goal.σs) .synthetic
+  let synthGoal := mkApp4 (mkConst ``HasFrame [goal.u]) goal.σs P P' φ
+  let inst ←
+    match ← trySynthInstance synthGoal with
+    | .some inst => pure inst
+    | .undef     =>
+      -- We give the `instHasFramePureTrueDown` instance extra support here so that it applies even
+      -- when the type class synthesis problem is stuck. This ensures we are able to frame
+      -- `?inv1 a b c : SPred []` before the user has instantiated `?inv1`.
+      if ← isDefEqGuarded (TypeList.mkNil goal.u) goal.σs then
+        liftMetaM <| φ.mvarId!.assign (mkApp2 (mkConst ``ULift.down [goal.u, 0]) (mkSort .zero) P)
+        liftMetaM <| P'.mvarId!.assign (mkApp2 (mkConst ``SPred.pure [goal.u]) goal.σs (mkConst ``True))
+        pure <| mkApp (mkConst ``instHasFramePureTrueDown [goal.u]) P
+      else return ← kFail
+    | _          => return ← kFail
+  if ← withDefault <| isDefEqGuarded (mkConst ``True) φ then return (← kFail)
+  -- copy the name of P to P' if it is a named hypothesis
+  let P' ← transferHypNames P P'
+  let goal := { goal with hyps := P' }
+  withLocalDeclD (← liftMetaM <| mkFreshUserName `h) φ fun hφ => do
+    let prf ← kSuccess φ hφ goal
+    let prf ← mkLambdaFVars #[hφ] prf
+    let prf := mkApp7 (mkConst ``Frame.frame [goal.u]) goal.σs P P' goal.target φ inst prf
+    return prf
 
 def mTryFrame [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
   (goal : MGoal) (k : MGoal → m Expr) : m Expr :=

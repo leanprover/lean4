@@ -1840,6 +1840,34 @@ theorem isEmpty_of_isEmpty_insertMany [EquivBEq α] [LawfulHashable α]
     {l : ρ} : (m.insertMany l).isEmpty → m.isEmpty :=
   Raw₀.isEmpty_of_isEmpty_insertMany ⟨m.1, _⟩ m.2
 
+section BEq
+variable {m₁ m₂ : DHashMap α β} [LawfulBEq α] [∀ k, BEq (β k)]
+
+theorem Equiv.beq [∀ k, ReflBEq (β k)] (h : m₁ ~m m₂) : m₁ == m₂ :=
+  Raw₀.Equiv.beq m₁.2 m₂.2 h.1
+
+theorem equiv_of_beq [∀ k, LawfulBEq (β k)] (h : m₁ == m₂) : m₁ ~m m₂ :=
+  ⟨Raw₀.equiv_of_beq m₁.2 m₂.2 h⟩
+
+theorem Equiv.beq_congr {m₃ m₄ : DHashMap α β} (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : (m₁ == m₂) = (m₃ == m₄) :=
+  Raw₀.Equiv.beq_congr m₁.2 m₂.2 m₃.2 m₄.2 w₁.1 w₂.1
+
+end BEq
+
+section
+variable {β : Type v} {m₁ m₂ : DHashMap α (fun _ => β)} [BEq β]
+
+theorem Const.Equiv.beq [EquivBEq α] [LawfulHashable α] [ReflBEq β] (h : m₁ ~m m₂) : DHashMap.Const.beq m₁ m₂ :=
+  Raw₀.Const.Equiv.beq m₁.2 m₂.2 h.1
+
+theorem Const.equiv_of_beq [LawfulBEq α] [LawfulBEq β] (h : Const.beq m₁ m₂) : m₁ ~m m₂ :=
+  ⟨Raw₀.Const.equiv_of_beq m₁.2 m₂.2 h⟩
+
+theorem Const.Equiv.beq_congr [EquivBEq α] [LawfulHashable α] {m₃ m₄ : DHashMap α (fun _ => β)} (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : Const.beq m₁ m₂ = Const.beq m₃ m₄ :=
+  Raw₀.Const.Equiv.beq_congr m₁.2 m₂.2 m₃.2 m₄.2 w₁.1 w₂.1
+
+end
+
 section Union
 
 variable (m₁ m₂ : DHashMap α β)

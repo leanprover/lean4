@@ -32,7 +32,7 @@ Hint: Perhaps you meant `String.foo` in place of `String.test0`:
 error: Unknown constant `String.test0`
 
 Hint: Perhaps you meant `String.foo` in place of `String.test0`:
-  S̵t̵r̵i̵n̵g̵.̵t̵e̵s̵t̵0̵S̲t̲r̲i̲n̲g̲.̲f̲o̲o̲
+  [apply] `String.foo`
 -/
 #guard_msgs in
 #check String.test0
@@ -54,8 +54,8 @@ Hint: Perhaps you meant one of these in place of `String.test1`:
 error: Unknown constant `String.test1`
 
 Hint: Perhaps you meant one of these in place of `String.test1`:
-  • S̵t̵r̵i̵n̵g̵.̵t̵e̵s̵t̵1̵S̲t̲r̲i̲n̲g̲.̲f̲o̲o̲
-  • S̵t̵r̵i̵n̵g̵.̵t̵e̵s̵t̵1̵S̲t̲r̲i̲n̲g̲.̲b̲a̲z̲
+  [apply] `String.foo`
+  [apply] `String.baz`
 -/
 #guard_msgs in
 #check String.test1
@@ -79,11 +79,11 @@ Hint: Perhaps you meant one of these in place of `String.test2`:
 error: Unknown constant `String.test2`
 
 Hint: Perhaps you meant one of these in place of `String.test2`:
-  • S̵t̵r̵i̵n̵g̵.̵t̵e̵s̵t̵2̵o̲t̲h̲e̲r̲B̲a̲z̲
-  • S̵t̵r̵i̵n̵g̵.̵t̵e̵s̵t̵2̵S̲t̲r̲i̲n̲g̲.̲f̲o̲o̲
-  • S̵t̵r̵i̵n̵g̵.̵t̵e̵s̵t̵2̵o̲t̲h̲e̲r̲F̲o̲o̲
-  • S̵t̵r̵i̵n̵g̵.̵t̵e̵s̵t̵2̵S̲t̲r̲i̲n̲g̲.̲b̲a̲z̲
-  • S̵t̵r̵i̵n̵g̵.̵t̵e̵s̵t̵2̵S̲t̲r̲i̲n̲g̲.̲b̲a̲r̲
+  [apply] `otherBaz`
+  [apply] `String.foo`
+  [apply] `otherFoo`
+  [apply] `String.baz`
+  [apply] `String.bar`
 -/
 #guard_msgs in
 #check String.test2
@@ -141,7 +141,7 @@ Hint: Perhaps you meant `Foo.Bar.toString` in place of `Foo.Bar.toStr`:
 error: Unknown constant `Foo.Bar.first`
 
 Hint: Perhaps you meant `Foo.Bar.one` in place of `Foo.Bar.first`:
-  F̵o̵o̵.̵B̵a̵r̵.̵f̵i̵r̵s̵t̵F̲o̲o̲.̲B̲a̲r̲.̲o̲n̲e̲
+  [apply] `Foo.Bar.one`
 -/
 #guard_msgs in
 #check Foo.Bar.first
@@ -161,7 +161,7 @@ namespace Foo
 error: Unknown constant `Foo.Bar.first`
 
 Hint: Perhaps you meant `Bar.one` in place of `Foo.Bar.first`:
-  F̵o̵o̵.̵B̵a̵r̵.̵f̵i̵r̵s̵t̵F̲o̲o̲.̲B̲a̲r̲.̲o̲n̲e̲
+  [apply] `Bar.one`
 -/
 #guard_msgs in
 #check Foo.Bar.first
@@ -170,7 +170,7 @@ Hint: Perhaps you meant `Bar.one` in place of `Foo.Bar.first`:
 error: Unknown constant `Foo.Bar.second`
 
 Hint: Perhaps you meant `Bar.two` in place of `Bar.second`:
-  B̵a̵r̵.̵s̵e̵c̵o̵n̵d̵B̲a̲r̲.̲t̲w̲o̲
+  [apply] `Bar.two`
 -/
 #guard_msgs in
 #check Bar.second
@@ -187,7 +187,7 @@ namespace Foo.Bar
 error: Unknown constant `Foo.Bar.first`
 
 Hint: Perhaps you meant `one` in place of `Foo.Bar.first`:
-  F̵o̵o̵.̵B̵a̵r̵.̵f̵i̵r̵s̵t̵F̲o̲o̲.̲B̲a̲r̲.̲o̲n̲e̲
+  [apply] `one`
 -/
 #guard_msgs in
 #check Foo.Bar.first
@@ -196,7 +196,7 @@ Hint: Perhaps you meant `one` in place of `Foo.Bar.first`:
 error: Unknown constant `Foo.Bar.second`
 
 Hint: Perhaps you meant `two` in place of `Bar.second`:
-  B̵a̵r̵.̵s̵e̵c̵o̵n̵d̵B̲a̲r̲.̲t̲w̲o̲
+  [apply] `two`
 -/
 #guard_msgs in
 #check Bar.second
@@ -223,12 +223,12 @@ error: overloaded, errors ⏎
   Unknown constant `Foo2.Bar.first`
   ⏎
   Hint: Perhaps you meant `Foo2.Bar.one` in place of `Bar.first`:
-    B̵a̵r̵.̵f̵i̵r̵s̵t̵F̲o̲o̲2̲.̲B̲a̲r̲.̲o̲n̲e̲
+    [apply] `Foo2.Bar.one`
   ⏎
   Unknown constant `Foo.Bar.first`
   ⏎
   Hint: Perhaps you meant `Foo.Bar.one` in place of `Bar.first`:
-    B̵a̵r̵.̵f̵i̵r̵s̵t̵F̲o̲o̲.̲B̲a̲r̲.̲o̲n̲e̲
+    [apply] `Foo.Bar.one`
 -/
 #guard_msgs in
 #eval Bar.first
@@ -242,7 +242,7 @@ open Foo2
 error: Unknown constant `Foo.Bar.first`
 
 Hint: Perhaps you meant `Bar.one` in place of `Bar.first`:
-  B̵a̵r̵.̵f̵i̵r̵s̵t̵B̲a̲r̲.̲o̲n̲e̲
+  [apply] `Bar.one`
 -/
 #guard_msgs in
 #eval Bar.first
@@ -263,7 +263,7 @@ def MyBool.swap : MyBool → MyBool
 error: Unknown constant `MyBool.true`
 
 Hint: Perhaps you meant `MyBool.tt` in place of `MyBool.true`:
-  M̵y̵B̵o̵o̵l̵.̵t̵r̵u̵e̵M̲y̲B̲o̲o̲l̲.̲t̲t̲
+  [apply] `MyBool.tt`
 -/
 #guard_msgs in
 example := MyBool.true

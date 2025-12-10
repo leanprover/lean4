@@ -687,7 +687,6 @@ x_6 = l_Lean_Server_RpcEncodable_isOptField___closed__1;
 x_7 = lean_nat_dec_le(x_6, x_5);
 if (x_7 == 0)
 {
-lean_dec(x_5);
 lean_dec_ref(x_3);
 return x_7;
 }
@@ -696,7 +695,6 @@ else
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_nat_sub(x_5, x_6);
-lean_dec(x_5);
 x_10 = lean_string_memcmp(x_3, x_4, x_9, x_8, x_6);
 lean_dec(x_9);
 lean_dec_ref(x_3);
@@ -19315,7 +19313,6 @@ x_33 = lean_mk_empty_array_with_capacity(x_3);
 x_34 = lean_nat_dec_lt(x_3, x_32);
 if (x_34 == 0)
 {
-lean_dec(x_32);
 x_13 = x_33;
 x_14 = lean_box(0);
 goto block_31;
@@ -19326,7 +19323,6 @@ uint8_t x_35;
 x_35 = lean_nat_dec_le(x_32, x_32);
 if (x_35 == 0)
 {
-lean_dec(x_32);
 x_13 = x_33;
 x_14 = lean_box(0);
 goto block_31;
@@ -19336,7 +19332,6 @@ else
 size_t x_36; size_t x_37; lean_object* x_38; 
 x_36 = 0;
 x_37 = lean_usize_of_nat(x_32);
-lean_dec(x_32);
 lean_inc(x_11);
 lean_inc_ref(x_10);
 lean_inc(x_9);
@@ -19506,7 +19501,6 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_5 = lean_array_get_size(x_1);
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_dec_eq(x_5, x_6);
-lean_dec(x_5);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 

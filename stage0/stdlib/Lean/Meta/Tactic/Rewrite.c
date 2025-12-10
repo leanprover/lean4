@@ -228,7 +228,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_2, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_dec(x_2);
@@ -739,14 +738,12 @@ x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
-lean_dec(x_4);
 return x_5;
 }
 else
 {
 if (x_5 == 0)
 {
-lean_dec(x_4);
 return x_5;
 }
 else
@@ -754,7 +751,6 @@ else
 size_t x_6; size_t x_7; uint8_t x_8; 
 x_6 = 0;
 x_7 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_8 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_MVarId_rewrite_spec__8_spec__8(x_2, x_1, x_6, x_7);
 return x_8;
 }
@@ -1521,7 +1517,6 @@ x_95 = l_Lean_MVarId_rewrite___lam__1___closed__4;
 x_96 = lean_nat_dec_lt(x_93, x_94);
 if (x_96 == 0)
 {
-lean_dec(x_94);
 lean_dec_ref(x_92);
 x_42 = x_91;
 x_43 = x_81;
@@ -1541,7 +1536,6 @@ uint8_t x_97;
 x_97 = lean_nat_dec_le(x_94, x_94);
 if (x_97 == 0)
 {
-lean_dec(x_94);
 lean_dec_ref(x_92);
 x_42 = x_91;
 x_43 = x_81;
@@ -1559,7 +1553,6 @@ else
 {
 size_t x_98; lean_object* x_99; lean_object* x_100; 
 x_98 = lean_usize_of_nat(x_94);
-lean_dec(x_94);
 x_99 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_MVarId_rewrite_spec__11(x_92, x_91, x_98, x_95, x_84, x_83, x_86, x_82);
 lean_dec_ref(x_92);
 x_100 = lean_ctor_get(x_99, 0);
@@ -2129,6 +2122,7 @@ x_249 = l_Lean_Exception_isInterrupt(x_248);
 if (x_249 == 0)
 {
 uint8_t x_250; 
+lean_inc(x_248);
 x_250 = l_Lean_Exception_isRuntime(x_248);
 x_182 = x_229;
 x_183 = x_238;
@@ -3727,7 +3721,6 @@ x_55 = lean_mk_empty_array_with_capacity(x_47);
 x_56 = lean_nat_dec_lt(x_47, x_54);
 if (x_56 == 0)
 {
-lean_dec(x_54);
 lean_dec(x_53);
 x_32 = lean_box(0);
 x_33 = x_43;
@@ -3742,7 +3735,6 @@ uint8_t x_57;
 x_57 = lean_nat_dec_le(x_54, x_54);
 if (x_57 == 0)
 {
-lean_dec(x_54);
 lean_dec(x_53);
 x_32 = lean_box(0);
 x_33 = x_43;
@@ -3755,7 +3747,6 @@ else
 {
 size_t x_58; lean_object* x_59; 
 x_58 = lean_usize_of_nat(x_54);
-lean_dec(x_54);
 x_59 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_MVarId_rewrite_spec__10(x_50, x_53, x_42, x_58, x_55);
 lean_dec(x_53);
 x_32 = lean_box(0);

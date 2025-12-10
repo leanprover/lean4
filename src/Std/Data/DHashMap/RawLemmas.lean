@@ -48,7 +48,7 @@ private meta def baseNames : Array Name :=
     ``getKey?_eq, ``getKey_eq, ``getKey!_eq, ``getKeyD_eq,
     ``insertMany_eq, ``Const.insertMany_eq, ``Const.insertManyIfNewUnit_eq, ``ofArray_eq, ``Const.ofArray_eq,
     ``ofList_eq, ``Const.ofList_eq, ``Const.unitOfList_eq, ``Const.unitOfArray_eq,
-    ``alter_eq, ``Const.alter_eq, ``modify_eq, ``Const.modify_eq, ``union_eq, ``inter_eq, ``diff_eq]
+    ``alter_eq, ``Const.alter_eq, ``modify_eq, ``Const.modify_eq, ``union_eq, ``inter_eq, ``diff_eq, ``beq_eq, ``Const.beq_eq]
 
 
 /-- Internal implementation detail of the hash map -/
@@ -3760,6 +3760,40 @@ namespace Raw
 variable [BEq α] [Hashable α]
 
 open Internal.Raw Internal.Raw₀
+
+section BEq
+variable {m₁ m₂ : Raw α β} [LawfulBEq α] [∀ k, BEq (β k)]
+
+theorem Equiv.beq [∀ k, ReflBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁ ~m m₂) : m₁ == m₂ := by
+  simp only [BEq.beq]
+  simp_to_raw using Raw₀.Equiv.beq
+
+theorem equiv_of_beq [∀ k, LawfulBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁ == m₂) : m₁ ~m m₂ := by
+  revert h
+  simp only [BEq.beq]
+  simp_to_raw using Raw₀.equiv_of_beq
+
+theorem Equiv.beq_congr {m₃ m₄ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : (m₁ == m₂) = (m₃ == m₄) := by
+  simp only [BEq.beq]
+  simp_to_raw using Raw₀.Equiv.beq_congr
+
+end BEq
+
+section
+
+variable {β : Type v} {m₁ m₂ : Raw α (fun _ => β)}
+
+theorem Const.Equiv.beq [EquivBEq α] [LawfulHashable α] [BEq β] [ReflBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁ ~m m₂) : beq m₁ m₂ := by
+  simp_to_raw using Raw₀.Const.Equiv.beq
+
+theorem Const.equiv_of_beq [LawfulBEq α] [BEq β] [LawfulBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : beq m₁ m₂ = true) : m₁ ~m m₂ := by
+  revert h
+  simp_to_raw using Raw₀.Const.equiv_of_beq
+
+theorem Const.Equiv.beq_congr [EquivBEq α] [LawfulHashable α] [BEq β] {m₃ m₄ : Raw  α (fun _ => β)} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : Raw.Const.beq m₁ m₂ = Raw.Const.beq m₃ m₄ := by
+  simp_to_raw using Raw₀.Const.Equiv.beq_congr
+
+end
 
 @[simp, grind =]
 theorem ofArray_eq_ofList (a : Array ((a : α) × (β a))) :

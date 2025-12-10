@@ -2612,7 +2612,6 @@ if (x_22 == 0)
 {
 uint8_t x_23; 
 x_23 = l_Lean_Exception_isRuntime(x_14);
-lean_dec(x_14);
 x_15 = x_23;
 goto block_21;
 }
@@ -2755,7 +2754,6 @@ x_5 = lean_nat_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
 uint8_t x_6; 
-lean_dec(x_4);
 x_6 = 1;
 return x_6;
 }
@@ -2763,7 +2761,6 @@ else
 {
 if (x_5 == 0)
 {
-lean_dec(x_4);
 return x_5;
 }
 else
@@ -2771,7 +2768,6 @@ else
 size_t x_7; size_t x_8; uint8_t x_9; 
 x_7 = 0;
 x_8 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_9 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Meta_Tactic_Grind_ForallProp_0__Lean_Meta_Grind_isNewPat_spec__1(x_2, x_1, x_7, x_8);
 if (x_9 == 0)
 {
@@ -2902,7 +2898,6 @@ x_21 = lean_nat_dec_lt(x_19, x_20);
 if (x_21 == 0)
 {
 lean_object* x_22; 
-lean_dec(x_20);
 lean_dec(x_18);
 lean_dec(x_13);
 x_22 = lean_box(x_21);
@@ -2914,7 +2909,6 @@ else
 if (x_21 == 0)
 {
 lean_object* x_23; 
-lean_dec(x_20);
 lean_dec(x_18);
 lean_dec(x_13);
 x_23 = lean_box(x_21);
@@ -2926,7 +2920,6 @@ else
 size_t x_24; size_t x_25; uint64_t x_26; uint8_t x_27; lean_object* x_28; 
 x_24 = 0;
 x_25 = lean_usize_of_nat(x_20);
-lean_dec(x_20);
 x_26 = lean_unbox_uint64(x_18);
 lean_dec(x_18);
 x_27 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Meta_Grind_checkAnchorRefsEMatchTheoremProof_spec__0(x_26, x_13, x_24, x_25);
@@ -2949,7 +2942,6 @@ x_32 = lean_nat_dec_lt(x_30, x_31);
 if (x_32 == 0)
 {
 lean_object* x_33; lean_object* x_34; 
-lean_dec(x_31);
 lean_dec(x_29);
 lean_dec(x_13);
 x_33 = lean_box(x_32);
@@ -2962,7 +2954,6 @@ else
 if (x_32 == 0)
 {
 lean_object* x_35; lean_object* x_36; 
-lean_dec(x_31);
 lean_dec(x_29);
 lean_dec(x_13);
 x_35 = lean_box(x_32);
@@ -2975,7 +2966,6 @@ else
 size_t x_37; size_t x_38; uint64_t x_39; uint8_t x_40; lean_object* x_41; lean_object* x_42; 
 x_37 = 0;
 x_38 = lean_usize_of_nat(x_31);
-lean_dec(x_31);
 x_39 = lean_unbox_uint64(x_29);
 lean_dec(x_29);
 x_40 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Meta_Grind_checkAnchorRefsEMatchTheoremProof_spec__0(x_39, x_13, x_37, x_38);
@@ -3091,7 +3081,6 @@ x_60 = lean_nat_dec_lt(x_58, x_59);
 if (x_60 == 0)
 {
 lean_object* x_61; lean_object* x_62; 
-lean_dec(x_59);
 lean_dec(x_56);
 lean_dec(x_52);
 x_61 = lean_box(x_60);
@@ -3108,7 +3097,6 @@ else
 if (x_60 == 0)
 {
 lean_object* x_63; lean_object* x_64; 
-lean_dec(x_59);
 lean_dec(x_56);
 lean_dec(x_52);
 x_63 = lean_box(x_60);
@@ -3125,7 +3113,6 @@ else
 size_t x_65; size_t x_66; uint64_t x_67; uint8_t x_68; lean_object* x_69; lean_object* x_70; 
 x_65 = 0;
 x_66 = lean_usize_of_nat(x_59);
-lean_dec(x_59);
 x_67 = lean_unbox_uint64(x_56);
 lean_dec(x_56);
 x_68 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Meta_Grind_checkAnchorRefsEMatchTheoremProof_spec__0(x_67, x_52, x_65, x_66);

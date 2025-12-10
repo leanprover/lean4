@@ -398,7 +398,6 @@ lean_dec(x_24);
 lean_dec(x_23);
 x_26 = lean_array_get_size(x_20);
 x_27 = lean_nat_dec_le(x_25, x_26);
-lean_dec(x_26);
 lean_dec(x_25);
 if (x_27 == 0)
 {
@@ -606,7 +605,6 @@ x_16 = lean_array_get_size(x_15);
 x_17 = l_Lean_Meta_Match_MatcherInfo_arity(x_9);
 x_18 = lean_nat_dec_lt(x_16, x_17);
 lean_dec(x_17);
-lean_dec(x_16);
 if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 

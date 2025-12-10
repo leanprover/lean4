@@ -172,7 +172,6 @@ x_10 = lean_uint64_shift_right(x_8, x_9);
 x_11 = lean_uint64_xor(x_8, x_10);
 x_12 = lean_uint64_to_usize(x_11);
 x_13 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_14 = 1;
 x_15 = lean_usize_sub(x_13, x_14);
 x_16 = lean_usize_land(x_12, x_15);
@@ -1058,8 +1057,6 @@ x_77 = l_Array_reverse___redArg(x_76);
 x_78 = lean_array_get_size(x_77);
 x_79 = lean_array_get_size(x_59);
 x_80 = lean_nat_dec_eq(x_78, x_79);
-lean_dec(x_79);
-lean_dec(x_78);
 if (x_80 == 0)
 {
 uint8_t x_81; 
@@ -1880,7 +1877,6 @@ _start:
 lean_object* x_9; uint8_t x_10; 
 x_9 = lean_array_get_size(x_2);
 x_10 = lean_nat_dec_lt(x_1, x_9);
-lean_dec(x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; 

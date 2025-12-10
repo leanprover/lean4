@@ -1040,7 +1040,6 @@ x_10 = lean_uint64_shift_right(x_8, x_9);
 x_11 = lean_uint64_xor(x_8, x_10);
 x_12 = lean_uint64_to_usize(x_11);
 x_13 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_14 = 1;
 x_15 = lean_usize_sub(x_13, x_14);
 x_16 = lean_usize_land(x_12, x_15);
@@ -1190,7 +1189,6 @@ x_10 = lean_uint64_shift_right(x_8, x_9);
 x_11 = lean_uint64_xor(x_8, x_10);
 x_12 = lean_uint64_to_usize(x_11);
 x_13 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_14 = 1;
 x_15 = lean_usize_sub(x_13, x_14);
 x_16 = lean_usize_land(x_12, x_15);
@@ -1319,14 +1317,12 @@ x_21 = lean_array_get_size(x_10);
 x_22 = lean_nat_dec_lt(x_20, x_21);
 if (x_22 == 0)
 {
-lean_dec(x_21);
 goto block_18;
 }
 else
 {
 if (x_22 == 0)
 {
-lean_dec(x_21);
 goto block_18;
 }
 else
@@ -1334,7 +1330,6 @@ else
 size_t x_23; size_t x_24; uint8_t x_25; 
 x_23 = 0;
 x_24 = lean_usize_of_nat(x_21);
-lean_dec(x_21);
 x_25 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Server_Logging_0__Lean_Server_Logging_isMsgAllowed_spec__3(x_19, x_4, x_7, x_10, x_23, x_24);
 if (x_25 == 0)
 {
@@ -1363,7 +1358,6 @@ x_13 = lean_array_get_size(x_10);
 x_14 = lean_nat_dec_lt(x_12, x_13);
 if (x_14 == 0)
 {
-lean_dec(x_13);
 lean_dec_ref(x_10);
 return x_4;
 }
@@ -1371,7 +1365,6 @@ else
 {
 if (x_14 == 0)
 {
-lean_dec(x_13);
 lean_dec_ref(x_10);
 return x_4;
 }
@@ -1380,7 +1373,6 @@ else
 size_t x_15; size_t x_16; uint8_t x_17; 
 x_15 = 0;
 x_16 = lean_usize_of_nat(x_13);
-lean_dec(x_13);
 x_17 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Server_Logging_0__Lean_Server_Logging_isMsgAllowed_spec__2(x_11, x_10, x_15, x_16);
 lean_dec_ref(x_10);
 if (x_17 == 0)

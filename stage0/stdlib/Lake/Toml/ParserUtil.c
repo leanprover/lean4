@@ -1297,7 +1297,6 @@ block_20:
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_15 = lean_string_utf8_byte_size(x_13);
 x_16 = lean_nat_add(x_1, x_15);
-lean_dec(x_15);
 if (lean_is_scalar(x_9)) {
  x_17 = lean_alloc_ctor(0, 4, 0);
 } else {
@@ -2952,7 +2951,6 @@ x_22 = lean_array_get_size(x_21);
 x_23 = lean_unsigned_to_nat(1u);
 x_24 = lean_nat_sub(x_22, x_23);
 x_25 = lean_nat_dec_lt(x_24, x_22);
-lean_dec(x_22);
 if (x_25 == 0)
 {
 lean_dec(x_24);
@@ -3168,7 +3166,6 @@ x_22 = lean_array_get_size(x_21);
 x_23 = lean_unsigned_to_nat(1u);
 x_24 = lean_nat_sub(x_22, x_23);
 x_25 = lean_nat_dec_lt(x_24, x_22);
-lean_dec(x_22);
 if (x_25 == 0)
 {
 lean_dec(x_24);

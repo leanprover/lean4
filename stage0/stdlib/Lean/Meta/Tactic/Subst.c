@@ -371,7 +371,6 @@ x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_1, 1);
 x_8 = lean_array_get_size(x_6);
 x_9 = lean_nat_dec_lt(x_2, x_8);
-lean_dec(x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -418,7 +417,6 @@ lean_inc(x_19);
 lean_dec(x_1);
 x_21 = lean_array_get_size(x_19);
 x_22 = lean_nat_dec_lt(x_2, x_21);
-lean_dec(x_21);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; 
@@ -486,7 +484,6 @@ _start:
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_get_size(x_2);
 x_7 = lean_nat_dec_lt(x_4, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_dec(x_4);
@@ -530,7 +527,6 @@ x_10 = lean_usize_land(x_2, x_9);
 x_11 = lean_usize_to_nat(x_10);
 x_12 = lean_array_get_size(x_6);
 x_13 = lean_nat_dec_lt(x_11, x_12);
-lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_dec(x_11);
@@ -2545,9 +2541,7 @@ block_43:
 {
 lean_object* x_39; lean_object* x_40; 
 x_39 = lean_array_get_size(x_36);
-lean_inc(x_39);
 x_40 = l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___at___00Lean_Meta_substCore_spec__2___redArg(x_6, x_7, x_8, x_36, x_39, x_39, x_9);
-lean_dec(x_39);
 lean_dec_ref(x_36);
 lean_dec(x_6);
 if (x_10 == 0)
@@ -2582,7 +2576,6 @@ block_100:
 lean_object* x_51; lean_object* x_52; lean_object* x_53; 
 x_51 = lean_array_get_size(x_8);
 x_52 = lean_nat_sub(x_51, x_6);
-lean_dec(x_51);
 lean_inc(x_49);
 lean_inc_ref(x_48);
 lean_inc(x_47);
@@ -3718,7 +3711,6 @@ x_97 = lean_array_get_size(x_82);
 lean_dec_ref(x_82);
 x_98 = lean_nat_dec_eq(x_97, x_85);
 lean_dec(x_85);
-lean_dec(x_97);
 if (x_98 == 0)
 {
 lean_dec(x_45);
@@ -8869,6 +8861,7 @@ x_30 = l_Lean_Exception_isInterrupt(x_16);
 if (x_30 == 0)
 {
 uint8_t x_31; 
+lean_inc(x_16);
 x_31 = l_Lean_Exception_isRuntime(x_16);
 x_18 = x_31;
 goto block_29;

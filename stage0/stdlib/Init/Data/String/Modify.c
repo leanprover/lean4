@@ -370,7 +370,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_string_utf8_byte_size(x_2);
 x_5 = lean_nat_dec_eq(x_3, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 uint32_t x_6; lean_object* x_7; lean_object* x_8; uint32_t x_9; lean_object* x_10; uint32_t x_11; lean_object* x_12; lean_object* x_13; 

@@ -930,10 +930,12 @@ if (x_37 == 0)
 {
 uint8_t x_38; 
 lean_inc(x_36);
+lean_inc(x_36);
 x_38 = l_Lean_Exception_isMaxHeartbeat(x_36);
 if (x_38 == 0)
 {
 uint8_t x_39; 
+lean_inc(x_36);
 x_39 = l_Lean_Exception_isMaxRecDepth(x_36);
 x_19 = x_35;
 x_20 = x_36;
@@ -4100,7 +4102,6 @@ if (x_36 == 0)
 {
 uint8_t x_37; 
 x_37 = l_Lean_Exception_isRuntime(x_31);
-lean_dec(x_31);
 x_32 = x_37;
 goto block_35;
 }
@@ -4146,7 +4147,6 @@ if (x_44 == 0)
 {
 uint8_t x_45; 
 x_45 = l_Lean_Exception_isRuntime(x_38);
-lean_dec(x_38);
 x_40 = x_45;
 goto block_43;
 }
@@ -4325,7 +4325,6 @@ if (x_100 == 0)
 {
 uint8_t x_101; 
 x_101 = l_Lean_Exception_isRuntime(x_93);
-lean_dec(x_93);
 x_96 = x_101;
 goto block_99;
 }
@@ -4568,7 +4567,6 @@ if (x_173 == 0)
 {
 uint8_t x_174; 
 x_174 = l_Lean_Exception_isRuntime(x_166);
-lean_dec(x_166);
 x_169 = x_174;
 goto block_172;
 }

@@ -3604,7 +3604,6 @@ if (x_95 == 0)
 {
 uint8_t x_96; 
 x_96 = l_Lean_Exception_isRuntime(x_39);
-lean_dec(x_39);
 x_40 = x_96;
 goto block_94;
 }
@@ -3748,7 +3747,6 @@ if (x_82 == 0)
 {
 uint8_t x_83; 
 x_83 = l_Lean_Exception_isRuntime(x_81);
-lean_dec(x_81);
 x_14 = x_64;
 x_15 = x_43;
 x_16 = lean_box(0);
@@ -3779,7 +3777,6 @@ if (x_86 == 0)
 {
 uint8_t x_87; 
 x_87 = l_Lean_Exception_isRuntime(x_84);
-lean_dec(x_84);
 x_14 = x_85;
 x_15 = x_43;
 x_16 = lean_box(0);
@@ -3895,7 +3892,6 @@ if (x_144 == 0)
 {
 uint8_t x_145; 
 x_145 = l_Lean_Exception_isRuntime(x_97);
-lean_dec(x_97);
 x_99 = x_145;
 goto block_143;
 }
@@ -4033,7 +4029,6 @@ if (x_135 == 0)
 {
 uint8_t x_136; 
 x_136 = l_Lean_Exception_isRuntime(x_132);
-lean_dec(x_132);
 x_14 = x_134;
 x_15 = x_102;
 x_16 = lean_box(0);

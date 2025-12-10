@@ -728,7 +728,6 @@ lean_object* x_10; lean_object* x_11; uint8_t x_12;
 x_10 = lean_string_utf8_byte_size(x_7);
 x_11 = lean_unsigned_to_nat(0u);
 x_12 = lean_nat_dec_eq(x_10, x_11);
-lean_dec(x_10);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 

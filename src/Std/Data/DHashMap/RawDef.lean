@@ -81,6 +81,18 @@ instance [Monad m] : ForM m (Raw α β) ((a : α) × β a) where
 instance [Monad m] : ForIn m (Raw α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
+/-- Checks if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
+@[inline] def all (m : Raw α β) (p : (a : α) → β a → Bool) : Bool := Id.run do
+  for a in m do
+    if ¬ p a.1 a.2 then return false
+  return true
+
+/-- Checks if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
+@[inline] def any (m : Raw α β) (p : (a : α) → β a → Bool) : Bool := Id.run do
+  for a in m do
+    if p a.1 a.2 then return true
+  return false
+
 end Raw
 
 end Std.DHashMap

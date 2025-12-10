@@ -1497,7 +1497,6 @@ lean_inc_ref(x_44);
 x_45 = l_Lean_Compiler_LCNF_Decl_getArity(x_40);
 x_46 = lean_array_get_size(x_27);
 x_47 = lean_nat_dec_eq(x_45, x_46);
-lean_dec(x_46);
 lean_dec(x_45);
 if (x_47 == 0)
 {
@@ -1654,7 +1653,6 @@ lean_inc_ref(x_63);
 x_64 = l_Lean_Compiler_LCNF_Decl_getArity(x_59);
 x_65 = lean_array_get_size(x_27);
 x_66 = lean_nat_dec_eq(x_64, x_65);
-lean_dec(x_65);
 lean_dec(x_64);
 if (x_66 == 0)
 {

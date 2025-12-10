@@ -28,7 +28,6 @@ LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ZoneRules_ofTimeZone(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_LocalTimeType_getTimeZone(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_instInhabitedLocalTimeType;
 LEAN_EXPORT uint8_t l_Std_Time_TimeZone_instInhabitedStdWall_default;
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_StdWall_noConfusion___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_StdWall_standard_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Std_Time_TimeZone_instReprLocalTimeType_repr___redArg___closed__18;
 static lean_object* l_Std_Time_TimeZone_instReprUTLocal_repr___closed__4;
@@ -41,7 +40,6 @@ lean_object* l_String_quote(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_instInhabitedTransition_default;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ZoneRules_findLocalTimeTypeForTimestamp(lean_object*, lean_object*);
 static lean_object* l_Std_Time_TimeZone_instReprZoneRules_repr___redArg___closed__2;
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_StdWall_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_instInhabitedZoneRules_default;
 static lean_object* l_Std_Time_TimeZone_ZoneRules_UTC___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ZoneRules_timezoneAt(lean_object*, lean_object*);
@@ -84,7 +82,6 @@ LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTLocal_ctorElim___redArg(lean_obje
 static lean_object* l_Std_Time_TimeZone_instReprZoneRules_repr___redArg___closed__7;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ZoneRules_timezoneAt___boxed(lean_object*, lean_object*);
 lean_object* l_instNatCastInt___lam__0(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTLocal_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 static lean_object* l_Std_Time_TimeZone_instReprTransition_repr___redArg___closed__6;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_StdWall_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTLocal_ut_elim(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -114,7 +111,6 @@ static lean_object* l_Std_Time_TimeZone_instReprZoneRules_repr___redArg___closed
 static lean_object* l_Array_Array_repr___at___00Std_Time_TimeZone_instReprZoneRules_repr_spec__0___closed__4;
 static lean_object* l_Std_Time_TimeZone_instReprLocalTimeType_repr___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTLocal_ctorIdx(uint8_t);
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_StdWall_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 static lean_object* l_Std_Time_TimeZone_Transition_timezoneAt___closed__0;
 static lean_object* l_Std_Time_TimeZone_instReprZoneRules_repr___redArg___closed__5;
 lean_object* lean_array_to_list(lean_object*);
@@ -122,7 +118,6 @@ LEAN_EXPORT lean_object* l_Std_Time_TimeZone_instReprUTLocal;
 lean_object* l_Array_back_x3f___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_StdWall_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Array_Array_repr___at___00Std_Time_TimeZone_instReprZoneRules_repr_spec__0___closed__8;
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTLocal_noConfusion___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_instReprUTLocal_repr___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_TimeZone_instReprZoneRules___closed__0;
 static lean_object* l_Std_Time_TimeZone_instInhabitedLocalTimeType_default___closed__0;
@@ -138,12 +133,10 @@ LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ZoneRules_fixedOffsetZone(lean_obje
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_StdWall_wall_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTLocal_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_instReprZoneRules_repr(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_StdWall_noConfusion___redArg(uint8_t, uint8_t);
 static lean_object* l_Std_Time_TimeZone_instReprUTLocal_repr___closed__1;
 static lean_object* l_Std_Time_TimeZone_instReprUTLocal___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_instInhabitedTransition;
 static lean_object* l_Std_Time_TimeZone_instReprLocalTimeType_repr___redArg___closed__14;
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTLocal_noConfusion___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Transition_timezoneAt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_instReprStdWall;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Transition_createTimeZoneFromTransition(lean_object*);
@@ -183,11 +176,8 @@ LEAN_EXPORT lean_object* l_Std_Time_TimeZone_StdWall_ctorIdx(uint8_t);
 lean_object* l_Array_findIdx_x3f_loop___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTLocal_ut_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTLocal_toCtorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTLocal_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_TimeZone_instReprLocalTimeType_repr___redArg___closed__20;
-static lean_object* l_Std_Time_TimeZone_StdWall_noConfusion___redArg___closed__0;
 static lean_object* l_Std_Time_TimeZone_instReprLocalTimeType_repr___redArg___closed__12;
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTLocal_noConfusion___redArg(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_StdWall_wall_elim___redArg___boxed(lean_object*);
 static lean_object* l_Std_Time_TimeZone_instReprLocalTimeType_repr___redArg___closed__7;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_StdWall_standard_elim___redArg___boxed(lean_object*);
@@ -205,7 +195,6 @@ lean_object* lean_int_add(lean_object*, lean_object*);
 static lean_object* l_Std_Time_TimeZone_instReprUTLocal_repr___closed__2;
 LEAN_EXPORT uint8_t l_Std_Time_TimeZone_instInhabitedUTLocal;
 static lean_object* l_Std_Time_TimeZone_Transition_timezoneAt___closed__1;
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTLocal_noConfusion___redArg___lam__0___boxed(lean_object*);
 static lean_object* l_Std_Time_TimeZone_instInhabitedZoneRules_default___closed__1;
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Std_Time_TimeZone_instReprUTLocal_repr___closed__0;
@@ -364,63 +353,6 @@ lean_object* x_2;
 x_2 = l_Std_Time_TimeZone_UTLocal_local_elim___redArg(x_1);
 lean_dec(x_1);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTLocal_noConfusion___redArg___lam__0(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTLocal_noConfusion___redArg___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Time_TimeZone_UTLocal_noConfusion___redArg___lam__0(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTLocal_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = l_Std_Time_TimeZone_UTLocal_ctorIdx(x_1);
-x_4 = l_Std_Time_TimeZone_UTLocal_ctorIdx(x_2);
-x_5 = lean_nat_dec_eq(x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
-x_6 = lean_alloc_closure((void*)(l_Std_Time_TimeZone_UTLocal_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTLocal_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_Time_TimeZone_UTLocal_noConfusion___redArg(x_2, x_3);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTLocal_noConfusion___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; uint8_t x_6; lean_object* x_7; 
-x_5 = lean_unbox(x_2);
-x_6 = lean_unbox(x_3);
-x_7 = l_Std_Time_TimeZone_UTLocal_noConfusion(x_1, x_5, x_6, x_4);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_UTLocal_noConfusion___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; lean_object* x_5; 
-x_3 = lean_unbox(x_1);
-x_4 = lean_unbox(x_2);
-x_5 = l_Std_Time_TimeZone_UTLocal_noConfusion___redArg(x_3, x_4);
-return x_5;
 }
 }
 static lean_object* _init_l_Std_Time_TimeZone_instReprUTLocal_repr___closed__0() {
@@ -734,55 +666,6 @@ lean_object* x_2;
 x_2 = l_Std_Time_TimeZone_StdWall_standard_elim___redArg(x_1);
 lean_dec(x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_Std_Time_TimeZone_StdWall_noConfusion___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_Time_TimeZone_UTLocal_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_StdWall_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = l_Std_Time_TimeZone_StdWall_ctorIdx(x_1);
-x_4 = l_Std_Time_TimeZone_StdWall_ctorIdx(x_2);
-x_5 = lean_nat_dec_eq(x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
-x_6 = l_Std_Time_TimeZone_StdWall_noConfusion___redArg___closed__0;
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_StdWall_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_Time_TimeZone_StdWall_noConfusion___redArg(x_2, x_3);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_StdWall_noConfusion___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; uint8_t x_6; lean_object* x_7; 
-x_5 = lean_unbox(x_2);
-x_6 = lean_unbox(x_3);
-x_7 = l_Std_Time_TimeZone_StdWall_noConfusion(x_1, x_5, x_6, x_4);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_TimeZone_StdWall_noConfusion___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; lean_object* x_5; 
-x_3 = lean_unbox(x_1);
-x_4 = lean_unbox(x_2);
-x_5 = l_Std_Time_TimeZone_StdWall_noConfusion___redArg(x_3, x_4);
-return x_5;
 }
 }
 static lean_object* _init_l_Std_Time_TimeZone_instReprStdWall_repr___closed__0() {
@@ -2094,7 +1977,6 @@ lean_object* x_2; lean_object* x_3; uint8_t x_4;
 x_2 = lean_array_get_size(x_1);
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_nat_dec_eq(x_2, x_3);
-lean_dec(x_2);
 if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -2463,7 +2345,6 @@ x_7 = lean_nat_sub(x_5, x_6);
 lean_dec(x_5);
 x_8 = lean_array_get_size(x_1);
 x_9 = lean_nat_dec_lt(x_7, x_8);
-lean_dec(x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; 
@@ -2493,7 +2374,6 @@ x_14 = lean_nat_sub(x_12, x_13);
 lean_dec(x_12);
 x_15 = lean_array_get_size(x_1);
 x_16 = lean_nat_dec_lt(x_14, x_15);
-lean_dec(x_15);
 if (x_16 == 0)
 {
 lean_object* x_17; 
@@ -2866,8 +2746,6 @@ l_Std_Time_TimeZone_instReprUTLocal = _init_l_Std_Time_TimeZone_instReprUTLocal(
 lean_mark_persistent(l_Std_Time_TimeZone_instReprUTLocal);
 l_Std_Time_TimeZone_instInhabitedUTLocal_default = _init_l_Std_Time_TimeZone_instInhabitedUTLocal_default();
 l_Std_Time_TimeZone_instInhabitedUTLocal = _init_l_Std_Time_TimeZone_instInhabitedUTLocal();
-l_Std_Time_TimeZone_StdWall_noConfusion___redArg___closed__0 = _init_l_Std_Time_TimeZone_StdWall_noConfusion___redArg___closed__0();
-lean_mark_persistent(l_Std_Time_TimeZone_StdWall_noConfusion___redArg___closed__0);
 l_Std_Time_TimeZone_instReprStdWall_repr___closed__0 = _init_l_Std_Time_TimeZone_instReprStdWall_repr___closed__0();
 lean_mark_persistent(l_Std_Time_TimeZone_instReprStdWall_repr___closed__0);
 l_Std_Time_TimeZone_instReprStdWall_repr___closed__1 = _init_l_Std_Time_TimeZone_instReprStdWall_repr___closed__1();

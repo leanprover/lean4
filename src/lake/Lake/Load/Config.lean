@@ -10,6 +10,8 @@ public import Lake.Config.Env
 public import Lake.Load.Manifest
 public import Lake.Util.FilePath
 
+set_option doc.verso true
+
 open System Lean
 
 namespace Lake
@@ -21,12 +23,17 @@ public structure LoadConfig where
   /--
   The CLI arguments Lake was run with.
   Used to perform a restart of Lake on a toolchain update.
-  A value of `none` means that Lake is not restartable via the CLI.
+  A value of {lean}`none` means that Lake is not restartable via the CLI.
   -/
   lakeArgs? : Option (Array String) := none
   /-- The absolute path to the root directory of the Lake workspace. -/
   wsDir : FilePath
-  /-- The assigned name of the package. If `Name.anonymous`, the package's own name will be used. -/
+  /-- The index of the package in the workspace. Used to disambiguate packages with the same name. -/
+  pkgIdx : Nat := 0
+  /--
+  The assigned name of the package.
+  If {lean}`Name.anonymous`, the package's own name will be used.
+  -/
   pkgName : Name := .anonymous
   /-- The loaded package's directory (relative to the workspace directory). -/
   relPkgDir : FilePath := "."
@@ -38,7 +45,7 @@ public structure LoadConfig where
   configFile : FilePath := pkgDir / relConfigFile
   /-- Additional package overrides for this workspace load. -/
   packageOverrides : Array PackageEntry := #[]
-  /-- A set of key-value Lake configuration options (i.e., `-K` settings). -/
+  /-- A set of key-value Lake configuration options (i.e., {lit}`-K` settings). -/
   lakeOpts : NameMap String := {}
   /-- The Lean options with which to elaborate the configuration file. -/
   leanOpts : Options := {}
@@ -47,8 +54,8 @@ public structure LoadConfig where
   /-- Whether to update dependencies when loading the workspace. -/
   updateDeps : Bool := false
   /--
-  Whether to update the workspace's `lean-toolchain` when dependencies are updated.
-  If `true` and a toolchain update occurs, Lake will need to be restarted.
+  Whether to update the workspace's {lit}`lean-toolchain` when dependencies are updated.
+  If {lean}`true` and a toolchain update occurs, Lake will need to be restarted.
   -/
   updateToolchain : Bool := true
   /-- The package's scope (e.g., in Reservoir). -/

@@ -2990,7 +2990,6 @@ x_10 = lean_uint64_shift_right(x_8, x_9);
 x_11 = lean_uint64_xor(x_8, x_10);
 x_12 = lean_uint64_to_usize(x_11);
 x_13 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_14 = 1;
 x_15 = lean_usize_sub(x_13, x_14);
 x_16 = lean_usize_land(x_12, x_15);
@@ -3091,7 +3090,6 @@ x_11 = lean_uint64_shift_right(x_9, x_10);
 x_12 = lean_uint64_xor(x_9, x_11);
 x_13 = lean_uint64_to_usize(x_12);
 x_14 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
 x_15 = 1;
 x_16 = lean_usize_sub(x_14, x_15);
 x_17 = lean_usize_land(x_13, x_16);
@@ -6154,7 +6152,6 @@ x_34 = lean_unsigned_to_nat(0u);
 x_35 = lean_nat_dec_lt(x_34, x_33);
 if (x_35 == 0)
 {
-lean_dec(x_33);
 x_19 = x_32;
 goto block_31;
 }
@@ -6162,7 +6159,6 @@ else
 {
 size_t x_36; size_t x_37; lean_object* x_38; 
 x_36 = lean_usize_of_nat(x_33);
-lean_dec(x_33);
 x_37 = 0;
 x_38 = l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00Lean_Environment_replay_spec__2(x_17, x_36, x_37, x_32);
 x_19 = x_38;

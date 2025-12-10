@@ -1085,7 +1085,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_2, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_dec(x_2);
@@ -2000,7 +1999,6 @@ x_10 = lean_uint64_shift_right(x_8, x_9);
 x_11 = lean_uint64_xor(x_8, x_10);
 x_12 = lean_uint64_to_usize(x_11);
 x_13 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_14 = 1;
 x_15 = lean_usize_sub(x_13, x_14);
 x_16 = lean_usize_land(x_12, x_15);
@@ -2046,7 +2044,6 @@ lean_inc_ref(x_18);
 lean_dec_ref(x_17);
 x_19 = lean_array_get_size(x_18);
 x_20 = lean_nat_dec_lt(x_16, x_19);
-lean_dec(x_19);
 if (x_20 == 0)
 {
 lean_dec_ref(x_18);
@@ -2308,6 +2305,7 @@ x_56 = l_Lean_Exception_isInterrupt(x_55);
 if (x_56 == 0)
 {
 uint8_t x_57; 
+lean_inc(x_55);
 x_57 = l_Lean_Exception_isRuntime(x_55);
 x_10 = x_55;
 x_11 = x_54;
@@ -2425,6 +2423,7 @@ x_69 = l_Lean_Exception_isInterrupt(x_68);
 if (x_69 == 0)
 {
 uint8_t x_70; 
+lean_inc(x_68);
 x_70 = l_Lean_Exception_isRuntime(x_68);
 x_10 = x_68;
 x_11 = x_67;
@@ -2678,6 +2677,7 @@ x_115 = l_Lean_Exception_isInterrupt(x_114);
 if (x_115 == 0)
 {
 uint8_t x_116; 
+lean_inc(x_114);
 x_116 = l_Lean_Exception_isRuntime(x_114);
 x_10 = x_114;
 x_11 = x_113;
@@ -5719,7 +5719,6 @@ x_65 = lean_array_get_size(x_62);
 x_66 = lean_nat_dec_lt(x_64, x_65);
 if (x_66 == 0)
 {
-lean_dec(x_65);
 lean_dec_ref(x_62);
 x_50 = x_63;
 goto block_54;
@@ -5730,7 +5729,6 @@ uint8_t x_67;
 x_67 = lean_nat_dec_le(x_65, x_65);
 if (x_67 == 0)
 {
-lean_dec(x_65);
 lean_dec_ref(x_62);
 x_50 = x_63;
 goto block_54;
@@ -5744,7 +5742,6 @@ lean_ctor_set(x_69, 0, x_68);
 lean_ctor_set(x_69, 1, x_63);
 x_70 = 0;
 x_71 = lean_usize_of_nat(x_65);
-lean_dec(x_65);
 x_72 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_LibrarySearch_evalExact_spec__3(x_17, x_58, x_62, x_70, x_71, x_69);
 lean_dec_ref(x_62);
 x_73 = lean_ctor_get(x_72, 1);
@@ -6259,7 +6256,6 @@ x_52 = lean_array_get_size(x_49);
 x_53 = lean_nat_dec_lt(x_51, x_52);
 if (x_53 == 0)
 {
-lean_dec(x_52);
 lean_dec_ref(x_49);
 x_35 = x_50;
 goto block_39;
@@ -6270,7 +6266,6 @@ uint8_t x_54;
 x_54 = lean_nat_dec_le(x_52, x_52);
 if (x_54 == 0)
 {
-lean_dec(x_52);
 lean_dec_ref(x_49);
 x_35 = x_50;
 goto block_39;
@@ -6284,7 +6279,6 @@ lean_ctor_set(x_56, 0, x_55);
 lean_ctor_set(x_56, 1, x_50);
 x_57 = 0;
 x_58 = lean_usize_of_nat(x_52);
-lean_dec(x_52);
 x_59 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_LibrarySearch_evalExact_spec__3(x_41, x_45, x_49, x_57, x_58, x_56);
 lean_dec_ref(x_49);
 x_60 = lean_ctor_get(x_59, 1);

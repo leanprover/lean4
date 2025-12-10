@@ -879,7 +879,6 @@ x_38 = lean_nat_add(x_36, x_37);
 lean_dec(x_36);
 x_39 = lean_nat_dec_eq(x_35, x_38);
 lean_dec(x_38);
-lean_dec(x_35);
 if (x_39 == 0)
 {
 lean_object* x_40; 
@@ -1055,7 +1054,6 @@ x_74 = lean_nat_add(x_72, x_73);
 lean_dec(x_72);
 x_75 = lean_nat_dec_eq(x_71, x_74);
 lean_dec(x_74);
-lean_dec(x_71);
 if (x_75 == 0)
 {
 lean_object* x_76; lean_object* x_77; 

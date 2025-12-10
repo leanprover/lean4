@@ -337,7 +337,6 @@ return x_13;
 else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-lean_dec(x_5);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_14 = lean_ctor_get(x_3, 0);
@@ -412,7 +411,6 @@ return x_19;
 else
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-lean_dec(x_8);
 lean_dec_ref(x_5);
 lean_dec(x_4);
 x_20 = lean_ctor_get(x_2, 0);
@@ -476,7 +474,6 @@ return x_18;
 else
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-lean_dec(x_7);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 x_19 = lean_ctor_get(x_1, 0);
@@ -593,7 +590,6 @@ block_11:
 {
 if (lean_obj_tag(x_6) == 0)
 {
-lean_dec(x_5);
 return x_6;
 }
 else
@@ -699,7 +695,6 @@ return x_14;
 else
 {
 lean_object* x_15; lean_object* x_16; 
-lean_dec(x_6);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_15 = lean_box(0);
@@ -798,7 +793,6 @@ goto block_55;
 else
 {
 lean_object* x_71; lean_object* x_72; 
-lean_dec(x_59);
 lean_dec_ref(x_18);
 x_71 = lean_box(0);
 x_72 = l_Lake_proc___lam__1(x_19, x_58, x_71, x_13);
@@ -847,7 +841,6 @@ goto block_9;
 else
 {
 lean_object* x_37; 
-lean_dec(x_5);
 lean_dec_ref(x_1);
 x_37 = lean_box(0);
 lean_ctor_set(x_20, 0, x_37);
@@ -889,7 +882,6 @@ goto block_9;
 else
 {
 lean_object* x_52; lean_object* x_53; 
-lean_dec(x_5);
 lean_dec_ref(x_1);
 x_52 = lean_box(0);
 x_53 = lean_alloc_ctor(0, 2, 0);
@@ -1000,7 +992,6 @@ return x_17;
 else
 {
 lean_object* x_18; lean_object* x_19; 
-lean_dec(x_5);
 lean_dec_ref(x_1);
 x_18 = lean_box(0);
 x_19 = lean_alloc_ctor(0, 2, 0);
@@ -1072,7 +1063,6 @@ goto block_33;
 else
 {
 lean_object* x_48; lean_object* x_49; 
-lean_dec(x_35);
 lean_dec_ref(x_8);
 x_48 = lean_box(0);
 x_49 = l_Lake_captureProc_x27___lam__0(x_9, x_48, x_34);

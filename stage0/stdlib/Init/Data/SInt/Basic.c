@@ -797,7 +797,6 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_int8_to_int(x_1);
 x_3 = l_Int_toNat(x_2);
-lean_dec(x_2);
 return x_3;
 }
 }
@@ -865,7 +864,6 @@ if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_nat_abs(x_2);
-lean_dec(x_2);
 x_6 = l_Nat_reprFast(x_5);
 return x_6;
 }
@@ -873,7 +871,6 @@ else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_7 = lean_nat_abs(x_2);
-lean_dec(x_2);
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_sub(x_7, x_8);
 lean_dec(x_7);
@@ -915,7 +912,6 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = l_Int_repr(x_3);
-lean_dec(x_3);
 x_7 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 return x_7;
@@ -924,7 +920,6 @@ else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = l_Int_repr(x_3);
-lean_dec(x_3);
 x_9 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
 x_10 = l_Repr_addAppParen(x_9, x_2);
@@ -1785,7 +1780,6 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_int16_to_int(x_1);
 x_3 = l_Int_toNat(x_2);
-lean_dec(x_2);
 return x_3;
 }
 }
@@ -1856,7 +1850,6 @@ if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_nat_abs(x_2);
-lean_dec(x_2);
 x_6 = l_Nat_reprFast(x_5);
 return x_6;
 }
@@ -1864,7 +1857,6 @@ else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_7 = lean_nat_abs(x_2);
-lean_dec(x_2);
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_sub(x_7, x_8);
 lean_dec(x_7);
@@ -1906,7 +1898,6 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = l_Int_repr(x_3);
-lean_dec(x_3);
 x_7 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 return x_7;
@@ -1915,7 +1906,6 @@ else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = l_Int_repr(x_3);
-lean_dec(x_3);
 x_9 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
 x_10 = l_Repr_addAppParen(x_9, x_2);

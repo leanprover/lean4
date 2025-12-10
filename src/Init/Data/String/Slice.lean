@@ -188,13 +188,7 @@ instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (SplitIterator 
 instance [Monad n] : Std.Iterators.IteratorCollect (SplitIterator pat s) Id n :=
   .defaultImplementation
 
-instance [Monad n] : Std.Iterators.IteratorCollectPartial (SplitIterator pat s) Id n :=
-  .defaultImplementation
-
 instance [Monad n] : Std.Iterators.IteratorLoop (SplitIterator pat s) Id n :=
-  .defaultImplementation
-
-instance [Monad n] : Std.Iterators.IteratorLoopPartial (SplitIterator pat s) Id n :=
   .defaultImplementation
 
 end SplitIterator
@@ -291,15 +285,7 @@ instance [Monad n] {s} :
   .defaultImplementation
 
 instance [Monad n] {s} :
-    Std.Iterators.IteratorCollectPartial (SplitInclusiveIterator pat s) Id n :=
-  .defaultImplementation
-
-instance [Monad n] {s} :
     Std.Iterators.IteratorLoop (SplitInclusiveIterator pat s) Id n :=
-  .defaultImplementation
-
-instance [Monad n] {s} :
-    Std.Iterators.IteratorLoopPartial (SplitInclusiveIterator pat s) Id n :=
   .defaultImplementation
 
 end SplitInclusiveIterator
@@ -640,14 +626,7 @@ instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (RevSplitIterat
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (RevSplitIterator ρ s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] :
-    Std.Iterators.IteratorCollectPartial (RevSplitIterator ρ s) m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (RevSplitIterator ρ s) m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (RevSplitIterator ρ s) m n :=
   .defaultImplementation
 
 end RevSplitIterator
@@ -921,13 +900,7 @@ instance [Pure m] : Std.Iterators.Finite (PosIterator s) m :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (PosIterator s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial (PosIterator s) m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (PosIterator s) m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (PosIterator s) m n :=
   .defaultImplementation
 
 docs_to_verso positions
@@ -1011,14 +984,7 @@ instance [Pure m] : Std.Iterators.Finite (RevPosIterator s) m :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (RevPosIterator s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] :
-    Std.Iterators.IteratorCollectPartial (RevPosIterator s) m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (RevPosIterator s) m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (RevPosIterator s) m n :=
   .defaultImplementation
 
 docs_to_verso revPositions
@@ -1098,13 +1064,7 @@ instance [Pure m] : Std.Iterators.Finite ByteIterator m :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect ByteIterator m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial ByteIterator m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop ByteIterator m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial ByteIterator m n :=
   .defaultImplementation
 
 docs_to_verso bytes
@@ -1185,13 +1145,7 @@ instance [Pure m] : Std.Iterators.Finite RevByteIterator m :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect RevByteIterator m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial RevByteIterator m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop RevByteIterator m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial RevByteIterator m n :=
   .defaultImplementation
 
 docs_to_verso revBytes

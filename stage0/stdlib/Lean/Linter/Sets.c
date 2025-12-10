@@ -1823,7 +1823,6 @@ x_133 = lean_array_get_size(x_129);
 x_134 = lean_nat_dec_lt(x_9, x_133);
 if (x_134 == 0)
 {
-lean_dec(x_133);
 lean_dec_ref(x_129);
 x_106 = x_130;
 x_107 = x_131;
@@ -1836,7 +1835,6 @@ uint8_t x_135;
 x_135 = lean_nat_dec_le(x_133, x_133);
 if (x_135 == 0)
 {
-lean_dec(x_133);
 lean_dec_ref(x_129);
 x_106 = x_130;
 x_107 = x_131;
@@ -1848,7 +1846,6 @@ else
 size_t x_136; size_t x_137; lean_object* x_138; 
 x_136 = 0;
 x_137 = lean_usize_of_nat(x_133);
-lean_dec(x_133);
 x_138 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Linter___aux__Lean__Linter__Sets______elabRules__Lean__Linter__command__Register__linter__set___x3a_x3d____1_spec__3(x_129, x_136, x_137, x_132);
 lean_dec_ref(x_129);
 x_106 = x_130;

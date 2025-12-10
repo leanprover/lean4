@@ -1525,7 +1525,6 @@ x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_array_get_size(x_3);
 x_5 = lean_nat_add(x_2, x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -1630,6 +1629,7 @@ x_63 = l_Lean_Exception_isInterrupt(x_37);
 if (x_63 == 0)
 {
 uint8_t x_64; 
+lean_inc(x_37);
 x_64 = l_Lean_Exception_isRuntime(x_37);
 x_38 = x_64;
 goto block_62;
@@ -1817,14 +1817,12 @@ x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
-lean_dec(x_4);
 return x_5;
 }
 else
 {
 if (x_5 == 0)
 {
-lean_dec(x_4);
 return x_5;
 }
 else
@@ -1832,7 +1830,6 @@ else
 size_t x_6; size_t x_7; uint8_t x_8; 
 x_6 = 0;
 x_7 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_8 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00__private_Lean_Elab_DocString_Builtin_Postponed_0__Lean_Doc_checkInlinePostponed_spec__1_spec__1(x_2, x_1, x_6, x_7);
 return x_8;
 }
@@ -5750,7 +5747,6 @@ x_47 = lean_array_get_size(x_46);
 x_48 = lean_nat_dec_lt(x_32, x_47);
 if (x_48 == 0)
 {
-lean_dec(x_47);
 lean_dec_ref(x_46);
 x_8 = lean_box(0);
 x_9 = x_30;
@@ -5767,7 +5763,6 @@ else
 {
 size_t x_49; lean_object* x_50; 
 x_49 = lean_usize_of_nat(x_47);
-lean_dec(x_47);
 x_50 = l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00Lean_Doc_checkPostponed_spec__8(x_46, x_49, x_45, x_32);
 lean_dec_ref(x_46);
 x_8 = lean_box(0);
@@ -5811,7 +5806,6 @@ x_70 = lean_array_get_size(x_69);
 x_71 = lean_nat_dec_lt(x_54, x_70);
 if (x_71 == 0)
 {
-lean_dec(x_70);
 lean_dec_ref(x_69);
 x_29 = lean_box(0);
 x_30 = x_56;
@@ -5828,7 +5822,6 @@ else
 {
 size_t x_72; lean_object* x_73; 
 x_72 = lean_usize_of_nat(x_70);
-lean_dec(x_70);
 x_73 = l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00Lean_Doc_checkPostponed_spec__8(x_69, x_72, x_68, x_54);
 lean_dec_ref(x_69);
 x_29 = lean_box(0);

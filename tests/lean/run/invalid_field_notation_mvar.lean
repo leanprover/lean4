@@ -11,16 +11,16 @@ error: Invalid field notation: Type of
 is not known; cannot resolve field `n`
 
 Hint: Consider replacing the field projection with a call to one of the following:
-  • `BitVec.DivModArgs.n`
   • `Foo.n`
+  • `BitVec.DivModArgs.n`
 ---
 error: Invalid field notation: Type of
   g
 is not known; cannot resolve field `n`
 
 Hint: Consider replacing the field projection with a call to one of the following:
-  • `BitVec.DivModArgs.n`
   • `Foo.n`
+  • `BitVec.DivModArgs.n`
 ---
 error: Invalid field notation: Type of
   f

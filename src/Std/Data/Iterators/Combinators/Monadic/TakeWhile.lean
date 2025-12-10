@@ -230,6 +230,11 @@ instance TakeWhile.instIteratorCollect [Monad m] [Monad n] [Iterator α m β] [P
     IteratorCollect (TakeWhile α m β P) m n :=
   .defaultImplementation
 
+instance TakeWhile.instIteratorLoopNew [Monad m] [Iterator α m β]
+    [IteratorLoopNew α m n] :
+    IteratorLoopNew (TakeWhile α m β P) m n :=
+  .defaultImplementation
+
 instance TakeWhile.instIteratorLoop [Monad m] [Monad n] [Iterator α m β]
     [IteratorLoop α m n] :
     IteratorLoop (TakeWhile α m β P) m n :=

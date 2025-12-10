@@ -91,6 +91,11 @@ instance Attach.instIteratorCollect {α β : Type w} {m : Type w → Type w'} [M
     IteratorCollect (Attach α m P) m n :=
   .defaultImplementation
 
+instance Attach.instIteratorLoopNew {α β : Type w} {m : Type w → Type w'} [Monad m]
+    {n : Type x → Type x'} [Monad n] {P : β → Prop} [Iterator α m β] :
+    IteratorLoopNew (Attach α m P) m n :=
+  .defaultImplementation
+
 instance Attach.instIteratorLoop {α β : Type w} {m : Type w → Type w'} [Monad m]
     {n : Type x → Type x'} [Monad n] {P : β → Prop} [Iterator α m β] :
     IteratorLoop (Attach α m P) m n :=

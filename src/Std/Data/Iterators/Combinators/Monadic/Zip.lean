@@ -315,6 +315,10 @@ instance Zip.instIteratorCollect [Monad m] [Monad n] :
     IteratorCollect (Zip α₁ m α₂ β₂) m n :=
   .defaultImplementation
 
+instance Zip.instIteratorLoopNew [Monad m] :
+    IteratorLoopNew (Zip α₁ m α₂ β₂) m n :=
+  .defaultImplementation
+
 instance Zip.instIteratorLoop [Monad m] [Monad n] :
     IteratorLoop (Zip α₁ m α₂ β₂) m n :=
   .defaultImplementation

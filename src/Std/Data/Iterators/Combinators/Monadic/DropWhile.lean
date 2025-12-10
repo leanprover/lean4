@@ -275,6 +275,10 @@ instance DropWhile.instIteratorCollect [Monad m] [Monad n] [Iterator α m β] [P
     IteratorCollect (DropWhile α m β P) m n :=
   .defaultImplementation
 
+instance DropWhile.instIteratorLoopNew [Monad m] [Iterator α m β] :
+    IteratorLoopNew (DropWhile α m β P) m n :=
+  .defaultImplementation
+
 instance DropWhile.instIteratorLoop [Monad m] [Monad n] [Iterator α m β] :
     IteratorLoop (DropWhile α m β P) m n :=
   .defaultImplementation

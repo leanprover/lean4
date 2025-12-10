@@ -61,6 +61,10 @@ instance Empty.instIteratorCollect {n : Type w → Type w''} [Monad m] [Monad n]
     IteratorCollect (Empty m β) m n :=
   .defaultImplementation
 
+instance Empty.instIteratorLoopNew {n : Type x → Type x'} [Monad m] :
+    IteratorLoopNew (Empty m β) m n :=
+  .defaultImplementation
+
 instance Empty.instIteratorLoop {n : Type x → Type x'} [Monad m] [Monad n] :
     IteratorLoop (Empty m β) m n :=
   .defaultImplementation

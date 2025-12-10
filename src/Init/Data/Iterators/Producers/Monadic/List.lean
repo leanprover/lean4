@@ -77,4 +77,9 @@ instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
     IteratorLoop (ListIterator α) m n :=
   .defaultImplementation
 
+@[always_inline, inline]
+instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
+    IteratorLoopNew (ListIterator α) m n :=
+  .defaultImplementation
+
 end Std.Iterators

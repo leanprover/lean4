@@ -75,6 +75,14 @@ def toListRev [ToIterator (Slice γ) Id α β] [Iterator α Id β]
     [Finite α Id] (s : Slice γ) : List β :=
   Internal.iter s |>.toListRev
 
+instance {γ : Type u} {β : Type v} [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β]
+    [IteratorLoopNew α Id m]
+    [Finite α Id] :
+    ForInNew m (Slice γ) β where
+  forInNew s init f :=
+    forInNew (Internal.iter s) init f
+
 instance {γ : Type u} {β : Type v} [Monad m] [ToIterator (Slice γ) Id α β]
     [Iterator α Id β]
     [IteratorLoop α Id m]

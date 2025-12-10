@@ -86,35 +86,6 @@ theorem IterM.DefaultConsumers.forIn'_eq_wf_of_finite {m : Type w → Type w'} {
       forIn'.wf lift γ (fun _ _ _ => True) IteratorLoop.wellFounded_of_finite it init P hP f := by
   apply forIn'_eq_wf
 
-theorem IterM.DefaultConsumers.forIn'_eq_forInNew' {m : Type w → Type w'} {α : Type w} {β : Type w}
-    [Iterator α m β]
-    {n : Type x → Type x'} [Monad n]
-    {lift : ∀ γ δ, (γ → n δ) → m γ → n δ} {γ : Type x}
-    {Pl : β → γ → ForInStep γ → Prop}
-    {wf : IteratorLoop.WellFounded α m Pl}
-    {it : IterM (α := α) m β} {init : γ}
-    {P : β → Prop} {hP : ∀ b, it.IsPlausibleIndirectOutput b → P b}
-    {f : (b : β) → P b → (c : γ) → n (Subtype (Pl b c))} :
-    IterM.DefaultConsumers.forIn' lift γ Pl it init P hP f =
-      IterM.DefaultConsumers.forInNew' lift γ γ _ it init P hP (fun b m c k => do
-          match ← f b m c with
-          | ⟨.yield c, h⟩ => k c h
-          | ⟨.done c, _⟩ => pure c)
-        pure := by
-  -- fun_induction IterM.DefaultConsumers.forIn' with | case1 _ _ hP ih₁ ih₂ =>
-  rw [forIn', forInNew']
-  simp
-  congr; ext step
-  congr
-  · ext it' out h
-    congr
-    ext step
-    split
-    · rw [ih₁ it' out] <;> assumption
-    · rfl
-  · ext it' h
-    rw [ih₂ it'] <;> assumption
-
 theorem IterM.forIn'_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m β] [Finite α m]
     {n : Type w → Type w''} [Monad m] [Monad n] [LawfulMonad n] [IteratorLoop α m n]
     [hl : LawfulIteratorLoop α m n]
@@ -166,6 +137,35 @@ theorem IterM.forIn_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m 
   simp only [← funext_iff] at h
   rw [← h]
 
+theorem IterM.DefaultConsumers.forInNew'_eq_forInNew' {m : Type w → Type w'} {α : Type w} {β : Type w}
+    [Iterator α m β]
+    {n : Type x → Type x'}
+    {lift : ∀ γ δ, (γ → n δ) → m γ → n δ} {σ γ : Type x}
+    {Pl : β → σ → σ → Prop}
+    {wf : IteratorLoopNew.WellFounded α m Pl}
+    {it : IterM (α := α) m β} {init : σ}
+    {P₁ : β → Prop} {hP₁ : ∀ b, it.IsPlausibleIndirectOutput b → P₁ b}
+    {P₂ : β → Prop} {hP₂ : ∀ b, it.IsPlausibleIndirectOutput b → P₂ b}
+    {kcons₁ : (b : β) → P₁ b → (s₁ : σ) → ((s₂ : σ) → Pl b s₁ s₂ → n γ) → n γ}
+    {kcons₂ : (b : β) → P₂ b → (s₁ : σ) → ((s₂ : σ) → Pl b s₁ s₂ → n γ) → n γ}
+    {knil : σ → n γ}
+    (hcons : ∀ b s k₁ k₂ (_ : ∀ s₂ h, k₁ s₂ h = k₂ s₂ h), (hP₁b : P₁ b) → (hP₂b : P₂ b) → kcons₁ b hP₁b s k₁ = kcons₂ b hP₂b s k₂) :
+    IterM.DefaultConsumers.forInNew' lift σ γ Pl it init P₁ hP₁ kcons₁ knil =
+      IterM.DefaultConsumers.forInNew' lift σ γ Pl it init P₂ hP₂ kcons₂ knil := by
+  fun_induction IterM.DefaultConsumers.forInNew' lift σ γ Pl wf it init P₁ hP₁ kcons₁ knil with
+  | case1 it init hP ih₁ ih₂ =>
+  rw [forInNew']
+  congr; ext step
+  split
+  next it' out hStep _ =>
+    apply hcons
+    intro s₂ hPl
+    exact ih₁ it' out hStep s₂ hPl
+  next it' hStep _ =>
+    exact ih₂ it' hStep
+  next =>
+    rfl
+
 theorem IterM.DefaultConsumers.forIn'_eq_forIn' {m : Type w → Type w'} {α : Type w} {β : Type w}
     [Iterator α m β]
     {n : Type x → Type x'} [Monad n] [LawfulMonad n]
@@ -195,6 +195,35 @@ termination_by IteratorLoop.WithWF.mk it init (hwf := wf)
 decreasing_by
   · exact Or.inl ⟨_, ‹_›, ‹_›⟩
   · exact Or.inr ⟨‹_›, rfl⟩
+
+theorem IterM.DefaultConsumers.forIn'_eq_forInNew' {m : Type w → Type w'} {α : Type w} {β : Type w}
+    [Iterator α m β]
+    {n : Type x → Type x'} [Monad n]
+    {lift : ∀ γ δ, (γ → n δ) → m γ → n δ} {γ : Type x}
+    {Pl : β → γ → ForInStep γ → Prop}
+    {wf : IteratorLoop.WellFounded α m Pl}
+    {it : IterM (α := α) m β} {init : γ}
+    {P : β → Prop} {hP : ∀ b, it.IsPlausibleIndirectOutput b → P b}
+    {f : (b : β) → P b → (c : γ) → n (Subtype (Pl b c))} :
+    IterM.DefaultConsumers.forIn' lift γ Pl wf it init P hP f =
+      IterM.DefaultConsumers.forInNew' lift γ γ _ (.of_old_WellFounded wf) it init P hP (fun b m c k => do
+          match ← f b m c with
+          | ⟨.yield c, h⟩ => k c h
+          | ⟨.done c, _⟩ => pure c)
+        pure := by
+  fun_induction IterM.DefaultConsumers.forIn' with | case1 _ _ hP ih₁ ih₂ =>
+  rw [forInNew']
+  simp
+  congr; ext step
+  congr
+  · ext it' out h
+    congr
+    ext step
+    split
+    · rw [ih₁ it' out] <;> assumption
+    · rfl
+  · ext it' h
+    rw [ih₂ it'] <;> assumption
 
 theorem IterM.forIn'_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
     [Finite α m] {n : Type w → Type w''} [Monad m] [Monad n] [LawfulMonad n]

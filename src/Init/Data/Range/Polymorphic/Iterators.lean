@@ -93,7 +93,7 @@ theorem _root_.Std.Rxc.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
 @[no_expose]
 instance {m} [UpwardEnumerable α]
     [LE α] [DecidableLE α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [Monad m] [Finite (Rxc.Iterator α) Id] :
+    [Finite (Rxc.Iterator α) Id] :
     ForInNew' m (Rcc α) α Membership.mem where
   forInNew' r init kcons knil := by
     haveI := Iter.instForInNew' (α := Rxc.Iterator α) (β := α) (n := m)
@@ -189,7 +189,7 @@ theorem _root_.Std.Rxo.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
 @[no_expose]
 instance {m} [UpwardEnumerable α] [LE α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
-    [Monad m] [Finite (Rxo.Iterator α) Id] :
+    [Finite (Rxo.Iterator α) Id] :
     ForInNew' m (Rco α) α Membership.mem where
   forInNew' r init kcons knil := by
     haveI := Iter.instForInNew' (α := Rxo.Iterator α) (β := α) (n := m)
@@ -284,7 +284,7 @@ theorem _root_.Std.Rxi.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
 instance {m} [UpwardEnumerable α]
     [LE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [Monad m] [Finite (Rxi.Iterator α) Id] :
+    [Finite (Rxi.Iterator α) Id] :
     ForInNew' m (Rci α) α Membership.mem where
   forInNew' r init kcons knil := by
     haveI := Iter.instForInNew' (α := Rxi.Iterator α) (β := α) (n := m)
@@ -376,7 +376,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
 instance {m} [UpwardEnumerable α]
     [LE α] [DecidableLE α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [LT α] [LawfulUpwardEnumerableLT α]
-    [Monad m] [Finite (Rxc.Iterator α) Id] :
+    [Finite (Rxc.Iterator α) Id] :
     ForInNew' m (Roc α) α Membership.mem where
   forInNew' r init kcons knil := by
     haveI := Iter.instForInNew' (α := Rxc.Iterator α) (β := α) (n := m)
@@ -467,7 +467,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
 instance {m} [UpwardEnumerable α]
     [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [Monad m] [Finite (Rxo.Iterator α) Id] :
+    [Finite (Rxo.Iterator α) Id] :
     ForInNew' m (Roo α) α Membership.mem where
   forInNew' r init kcons knil := by
     haveI := Iter.instForInNew' (α := Rxo.Iterator α) (β := α) (n := m)
@@ -554,7 +554,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
 @[no_expose]
 instance {m} [UpwardEnumerable α]
     [LT α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [Monad m] [Finite (Rxi.Iterator α) Id] :
+    [Finite (Rxi.Iterator α) Id] :
     ForInNew' m (Roi α) α Membership.mem where
   forInNew' r init kcons knil := by
     haveI := Iter.instForInNew' (α := Rxi.Iterator α) (β := α) (n := m)
@@ -639,7 +639,7 @@ instance {m} [UpwardEnumerable α]
     [LE α] [DecidableLE α] [Least? α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [LawfulUpwardEnumerableLeast? α]
-    [Monad m] [Finite (Rxc.Iterator α) Id] :
+    [Finite (Rxc.Iterator α) Id] :
     ForInNew' m (Ric α) α Membership.mem where
   forInNew' r init kcons knil := by
     haveI := Iter.instForInNew' (α := Rxc.Iterator α) (β := α) (n := m)
@@ -725,7 +725,7 @@ instance {m} [UpwardEnumerable α]
     [LT α] [DecidableLT α] [Least? α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [LawfulUpwardEnumerableLeast? α]
-    [Monad m] [Finite (Rxo.Iterator α) Id] :
+    [Finite (Rxo.Iterator α) Id] :
     ForInNew' m (Rio α) α Membership.mem where
   forInNew' r init kcons knil := by
     haveI := Iter.instForInNew' (α := Rxo.Iterator α) (β := α) (n := m)
@@ -802,7 +802,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
 @[no_expose]
 instance {m} [UpwardEnumerable α] [Least? α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
-    [Monad m] [Finite (Rxi.Iterator α) Id] :
+    [Finite (Rxi.Iterator α) Id] :
     ForInNew' m (Rii α) α Membership.mem where
   forInNew' r init kcons knil := by
     haveI := Iter.instForInNew' (α := Rxi.Iterator α) (β := α) (n := m)

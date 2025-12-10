@@ -584,9 +584,10 @@ private def saveSymbol (h : HeadIndex) : M Unit := do
 private def saveSymbolsAt (e : Expr) : M Unit := do
   e.forEach' fun e => do
     if e.isApp || e.isConst then
-      /- **Note**: We ignore function symbols that special handling in the internalizer. -/
+      /- **Note**: We ignore function symbols that have special handling in the internalizer. -/
       if let .const declName _ := e.getAppFn then
         if declName == ``OfNat.ofNat || declName == ``Grind.nestedProof
+           || declName == ``Grind.eqBwdPattern
            || declName == ``Grind.nestedDecidable || declName == ``ite then
           return false
     match e with

@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.Internal.Async.TCP
-public import Std.Internal.Async.Context
+public import Std.Internal.Async.ContextAsync
 public import Std.Internal.Http.Transport
 public import Std.Internal.Http.Protocol.H1
 public import Std.Internal.Http.Server.Config
@@ -62,7 +62,7 @@ private def receiveWithTimeout
     (response : Option (Std.Promise (Except Error (Response Body))))
     (timeoutMs : Millisecond.Offset)
     (keepAliveTimeoutMs : Option Millisecond.Offset)
-    (connectionContext : Context) : Async Recv := do
+    (connectionContext : CancellationContext) : Async Recv := do
 
   let mut baseSelectables := #[
     .case (← Selector.sleep timeoutMs) (fun _ => pure .timeout),
@@ -96,7 +96,7 @@ private def processNeedMoreData
     (channel : Option Body.ByteStream)
     (timeout : Millisecond.Offset)
     (keepAliveTimeout : Option Millisecond.Offset)
-    (connectionContext : Context) : Async Recv := do
+    (connectionContext : CancellationContext) : Async Recv := do
   try
     let expectedBytes := expect
       |>.getD config.defaultPayloadBytes
@@ -121,7 +121,7 @@ private def handle
     [Transport α]
     (connection : Connection α)
     (config : Config)
-    (connectionContext : Context)
+    (connectionContext : CancellationContext)
     (handler : Request Body → ContextAsync (Response Body)) : Async Unit := do
 
   let mut machine := connection.machine

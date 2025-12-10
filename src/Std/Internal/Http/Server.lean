@@ -42,7 +42,7 @@ structure Server where
   /--
   The context used for shutting down all connections and the server.
   -/
-  context : Std.Context
+  context : Std.CancellationContext
 
   /--
   Active HTTP connections
@@ -65,7 +65,7 @@ namespace Server
 Create a new `Server` structure with an optional configuration.
 -/
 def new (config : Std.Http.Config := {}) : IO Server := do
-  let context ← Std.Context.new
+  let context ← Std.CancellationContext.new
   let activeConnections ← Std.Mutex.new 0
   let shutdownPromise : IO.Promise Unit ← IO.Promise.new
 

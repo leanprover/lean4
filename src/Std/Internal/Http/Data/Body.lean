@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Internal.Async.Context
+public import Std.Internal.Async.ContextAsync
 public import Std.Internal.Http.Data.Body.Length
 public import Std.Internal.Http.Data.Body.ByteStream
 

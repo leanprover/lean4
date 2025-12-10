@@ -19473,7 +19473,6 @@ if (x_79 == 0)
 {
 uint8_t x_80; 
 x_80 = l_Lean_Exception_isRuntime(x_66);
-lean_dec(x_66);
 x_67 = x_80;
 goto block_78;
 }

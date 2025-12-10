@@ -13187,6 +13187,7 @@ x_76 = l_Lean_Exception_isInterrupt(x_24);
 if (x_76 == 0)
 {
 uint8_t x_77; 
+lean_inc(x_24);
 x_77 = l_Lean_Exception_isRuntime(x_24);
 x_44 = x_77;
 goto block_75;
@@ -17783,6 +17784,7 @@ x_79 = l_Lean_Exception_isInterrupt(x_77);
 if (x_79 == 0)
 {
 uint8_t x_80; 
+lean_inc_ref(x_77);
 x_80 = l_Lean_Exception_isRuntime(x_77);
 x_40 = lean_box(0);
 x_41 = x_77;
@@ -19297,6 +19299,7 @@ x_18 = l_Lean_Exception_isInterrupt(x_14);
 if (x_18 == 0)
 {
 uint8_t x_19; 
+lean_inc(x_14);
 x_19 = l_Lean_Exception_isRuntime(x_14);
 x_15 = x_19;
 goto block_17;
@@ -19368,6 +19371,7 @@ x_17 = l_Lean_Exception_isInterrupt(x_13);
 if (x_17 == 0)
 {
 uint8_t x_18; 
+lean_inc(x_13);
 x_18 = l_Lean_Exception_isRuntime(x_13);
 x_14 = x_18;
 goto block_16;
@@ -19463,6 +19467,7 @@ x_24 = l_Lean_Exception_isInterrupt(x_16);
 if (x_24 == 0)
 {
 uint8_t x_25; 
+lean_inc(x_16);
 x_25 = l_Lean_Exception_isRuntime(x_16);
 x_17 = x_25;
 goto block_23;
@@ -19608,6 +19613,7 @@ x_23 = l_Lean_Exception_isInterrupt(x_15);
 if (x_23 == 0)
 {
 uint8_t x_24; 
+lean_inc(x_15);
 x_24 = l_Lean_Exception_isRuntime(x_15);
 x_16 = x_24;
 goto block_22;
@@ -20639,7 +20645,6 @@ if (x_25 == 0)
 {
 uint8_t x_26; 
 x_26 = l_Lean_Exception_isRuntime(x_16);
-lean_dec(x_16);
 x_17 = x_26;
 goto block_24;
 }
@@ -20785,7 +20790,6 @@ if (x_24 == 0)
 {
 uint8_t x_25; 
 x_25 = l_Lean_Exception_isRuntime(x_15);
-lean_dec(x_15);
 x_16 = x_25;
 goto block_23;
 }
@@ -29074,7 +29078,6 @@ if (x_33 == 0)
 {
 uint8_t x_34; 
 x_34 = l_Lean_Exception_isRuntime(x_21);
-lean_dec(x_21);
 x_22 = x_34;
 goto block_32;
 }
@@ -29169,7 +29172,6 @@ if (x_46 == 0)
 {
 uint8_t x_47; 
 x_47 = l_Lean_Exception_isRuntime(x_35);
-lean_dec(x_35);
 x_37 = x_47;
 goto block_45;
 }
@@ -29369,7 +29371,6 @@ if (x_34 == 0)
 {
 uint8_t x_35; 
 x_35 = l_Lean_Exception_isRuntime(x_22);
-lean_dec(x_22);
 x_23 = x_35;
 goto block_33;
 }
@@ -29464,7 +29465,6 @@ if (x_47 == 0)
 {
 uint8_t x_48; 
 x_48 = l_Lean_Exception_isRuntime(x_36);
-lean_dec(x_36);
 x_38 = x_48;
 goto block_46;
 }

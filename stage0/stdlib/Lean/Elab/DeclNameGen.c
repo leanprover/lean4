@@ -8887,7 +8887,6 @@ if (x_25 == 0)
 {
 uint8_t x_26; 
 x_26 = l_Lean_Exception_isRuntime(x_19);
-lean_dec(x_19);
 x_20 = x_26;
 goto block_24;
 }

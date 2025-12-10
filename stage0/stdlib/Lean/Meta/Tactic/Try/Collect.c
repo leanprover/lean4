@@ -1907,7 +1907,6 @@ if (x_24 == 0)
 {
 uint8_t x_25; 
 x_25 = l_Lean_Exception_isRuntime(x_19);
-lean_dec(x_19);
 x_20 = x_25;
 goto block_23;
 }
@@ -1953,7 +1952,6 @@ if (x_32 == 0)
 {
 uint8_t x_33; 
 x_33 = l_Lean_Exception_isRuntime(x_26);
-lean_dec(x_26);
 x_28 = x_33;
 goto block_31;
 }

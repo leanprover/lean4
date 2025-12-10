@@ -18,8 +18,6 @@ static lean_object* l___private_Lake_Util_Version_0__Lake_VerRange_parseM___clos
 static lean_object* l_Lake_instReprSemVerCore_repr___redArg___closed__7;
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_ComparatorOp_noConfusion___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_ComparatorOp_noConfusion___redArg___lam__0(lean_object*);
 static lean_object* l_Lake_instReprSemVerCore___closed__0;
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_ctorElim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_StdVer_instLE;
@@ -196,9 +194,7 @@ LEAN_EXPORT lean_object* l_Lake_SemVerCore_instMax___lam__0___boxed(lean_object*
 static lean_object* l_Array_Array_repr___at___00Array_Array_repr___at___00Lake_instReprVerRange_repr_spec__0_spec__0___closed__7;
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_decLt___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_instReprSemVerCore_repr___redArg___closed__13;
-LEAN_EXPORT lean_object* l_Lake_ComparatorOp_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedStdVer;
-LEAN_EXPORT lean_object* l_Lake_ComparatorOp_noConfusion___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Version_0__Lake_parseVerNat___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instReprVerRange_repr___redArg___closed__6;
 static lean_object* l___private_Lake_Util_Version_0__Lake_parseSpecialDescr___closed__1;
@@ -342,7 +338,6 @@ LEAN_EXPORT lean_object* l___private_Lake_Util_Version_0__Lake_VerRange_parseM_a
 LEAN_EXPORT lean_object* l_Lake_instInhabitedStdVer_default;
 LEAN_EXPORT lean_object* l_Lake_instDecodeVersionSemVerCore;
 static lean_object* l_Lake_instOrdSemVerCore___closed__0;
-LEAN_EXPORT lean_object* l_Lake_ComparatorOp_noConfusion___redArg(uint8_t, uint8_t);
 static lean_object* l_Lake_instDecodeVersionStdVer___closed__0;
 LEAN_EXPORT lean_object* l_Lake_ComparatorOp_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_instFromJson___lam__0(lean_object*);
@@ -448,7 +443,6 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Version_0__Lake_runVerParse___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Version_0__Lake_parseSpecialDescr_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_SemVerCore_instMax;
-LEAN_EXPORT lean_object* l_Lake_ComparatorOp_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_String_dropPrefix_x3f___at___00Lake_ToolchainVer_ofString_spec__2___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_decLe___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_instReprVerComparator_repr___redArg___closed__0;
@@ -5868,63 +5862,6 @@ lean_object* x_2;
 x_2 = l_Lake_ComparatorOp_ne_elim___redArg(x_1);
 lean_dec(x_1);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_ComparatorOp_noConfusion___redArg___lam__0(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_ComparatorOp_noConfusion___redArg___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_ComparatorOp_noConfusion___redArg___lam__0(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_ComparatorOp_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = l_Lake_ComparatorOp_ctorIdx(x_1);
-x_4 = l_Lake_ComparatorOp_ctorIdx(x_2);
-x_5 = lean_nat_dec_eq(x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
-x_6 = lean_alloc_closure((void*)(l_Lake_ComparatorOp_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_ComparatorOp_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lake_ComparatorOp_noConfusion___redArg(x_2, x_3);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_ComparatorOp_noConfusion___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; uint8_t x_6; lean_object* x_7; 
-x_5 = lean_unbox(x_2);
-x_6 = lean_unbox(x_3);
-x_7 = l_Lake_ComparatorOp_noConfusion(x_1, x_5, x_6, x_4);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_ComparatorOp_noConfusion___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; lean_object* x_5; 
-x_3 = lean_unbox(x_1);
-x_4 = lean_unbox(x_2);
-x_5 = l_Lake_ComparatorOp_noConfusion___redArg(x_3, x_4);
-return x_5;
 }
 }
 static lean_object* _init_l_Lake_instReprComparatorOp_repr___closed__0() {

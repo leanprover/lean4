@@ -7653,6 +7653,7 @@ x_34 = l_Lean_Exception_isInterrupt(x_32);
 if (x_34 == 0)
 {
 uint8_t x_35; 
+lean_inc_ref(x_32);
 x_35 = l_Lean_Exception_isRuntime(x_32);
 x_21 = lean_box(0);
 x_22 = x_32;
@@ -17711,6 +17712,7 @@ x_63 = l_Lean_Exception_isInterrupt(x_34);
 if (x_63 == 0)
 {
 uint8_t x_64; 
+lean_inc(x_34);
 x_64 = l_Lean_Exception_isRuntime(x_34);
 x_35 = x_64;
 goto block_62;
@@ -17936,6 +17938,7 @@ x_93 = l_Lean_Exception_isInterrupt(x_65);
 if (x_93 == 0)
 {
 uint8_t x_94; 
+lean_inc(x_65);
 x_94 = l_Lean_Exception_isRuntime(x_65);
 x_67 = x_94;
 goto block_92;
@@ -27343,7 +27346,7 @@ lean_ctor_set(x_49, 1, x_47);
 lean_ctor_set(x_49, 2, x_33);
 lean_inc_ref(x_49);
 lean_ctor_set(x_31, 0, x_49);
-x_50 = lean_box(0);
+x_50 = lean_box(2);
 x_51 = lean_io_promise_result_opt(x_35);
 x_52 = lean_task_map(x_42, x_51, x_43, x_44);
 lean_inc(x_40);
@@ -27614,7 +27617,7 @@ lean_ctor_set(x_113, 2, x_97);
 lean_inc_ref(x_113);
 x_114 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_114, 0, x_113);
-x_115 = lean_box(0);
+x_115 = lean_box(2);
 x_116 = lean_io_promise_result_opt(x_99);
 x_117 = lean_task_map(x_106, x_116, x_107, x_108);
 lean_inc(x_104);
@@ -28638,7 +28641,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getUserGeneralizingFVarIds___closed__5;
 x_2 = lean_unsigned_to_nat(6u);
-x_3 = lean_unsigned_to_nat(582u);
+x_3 = lean_unsigned_to_nat(587u);
 x_4 = l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getUserGeneralizingFVarIds___closed__4;
 x_5 = l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getUserGeneralizingFVarIds___closed__3;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -31665,7 +31668,7 @@ if (x_10 == 0)
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_11 = l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getUserGeneralizingFVarIds___closed__3;
 x_12 = l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_inductionAltsPos___closed__4;
-x_13 = lean_unsigned_to_nat(726u);
+x_13 = lean_unsigned_to_nat(731u);
 x_14 = lean_unsigned_to_nat(4u);
 x_15 = l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_inductionAltsPos___closed__5;
 x_16 = 1;
@@ -35307,7 +35310,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Tactic_elabElimTargets___lam__0___closed__1;
 x_2 = lean_unsigned_to_nat(8u);
-x_3 = lean_unsigned_to_nat(914u);
+x_3 = lean_unsigned_to_nat(919u);
 x_4 = l_Lean_Elab_Tactic_elabElimTargets___lam__0___closed__0;
 x_5 = l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getUserGeneralizingFVarIds___closed__3;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -36201,7 +36204,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_generalizeTargets___lam__0___closed__1;
 x_2 = lean_unsigned_to_nat(6u);
-x_3 = lean_unsigned_to_nat(928u);
+x_3 = lean_unsigned_to_nat(933u);
 x_4 = l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_generalizeTargets___lam__0___closed__0;
 x_5 = l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getUserGeneralizingFVarIds___closed__3;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

@@ -8881,6 +8881,7 @@ x_51 = l_Lean_Exception_isInterrupt(x_42);
 if (x_51 == 0)
 {
 uint8_t x_52; 
+lean_inc(x_42);
 x_52 = l_Lean_Exception_isRuntime(x_42);
 x_44 = x_52;
 goto block_50;

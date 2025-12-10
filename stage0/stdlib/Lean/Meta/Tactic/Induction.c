@@ -558,7 +558,6 @@ if (x_30 == 0)
 {
 uint8_t x_31; 
 x_31 = l_Lean_Exception_isRuntime(x_24);
-lean_dec(x_24);
 x_25 = x_31;
 goto block_29;
 }

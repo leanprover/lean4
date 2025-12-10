@@ -2122,6 +2122,7 @@ x_249 = l_Lean_Exception_isInterrupt(x_248);
 if (x_249 == 0)
 {
 uint8_t x_250; 
+lean_inc(x_248);
 x_250 = l_Lean_Exception_isRuntime(x_248);
 x_182 = x_229;
 x_183 = x_238;

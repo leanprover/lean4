@@ -341,19 +341,23 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
           let thmType ← mkEq lhs rhs
           let thmType ← mkForallFVars (params ++ #[motive] ++ ys ++ alts ++ hs) thmType
           let thmType ← unfoldNamedPattern thmType
-          -- let thmVal ← proveCondEqThm matchDeclName thmName thmType
-          let thmVal := mkConst congrEqThms[i]! us
-          -- We build the normal equation from the congruence equation here
-          let thmVal := mkAppN thmVal (params ++ #[motive] ++ patterns ++ alts ++ ys)
-          let eqTypes ← inferArgumentTypesN discrs.size thmVal
-          let eqProofs ← eqTypes.mapM fun eqType => do
-            let a ← mkFreshExprSyntheticOpaqueMVar eqType
-            (← a.mvarId!.heqOfEq).refl
-            pure a
-          let thmVal := mkAppN thmVal eqProofs
-          let thmVal := mkAppN thmVal hs
-          let thmVal ← mkEqOfHEq thmVal
-          let thmVal ← mkLambdaFVars (params ++ #[motive] ++ ys ++ alts ++ hs) thmVal
+          let thmVal ←
+          if (← hasConst ``Classical.byContradiction) then
+            let thmVal := mkConst congrEqThms[i]! us
+            -- We build the normal equation from the congruence equation here
+            let thmVal := mkAppN thmVal (params ++ #[motive] ++ patterns ++ alts ++ ys)
+            let eqTypes ← inferArgumentTypesN discrs.size thmVal
+            let eqProofs ← eqTypes.mapM fun eqType => do
+              let a ← mkFreshExprSyntheticOpaqueMVar eqType
+              (← a.mvarId!.heqOfEq).refl
+              pure a
+            let thmVal := mkAppN thmVal eqProofs
+            let thmVal := mkAppN thmVal hs
+            let thmVal ← mkEqOfHEq thmVal
+            mkLambdaFVars (params ++ #[motive] ++ ys ++ alts ++ hs) thmVal
+          else
+            -- Old style
+            proveCondEqThm matchDeclName thmName thmType
           unless (← isDefEq (← inferType thmVal) thmType) do
             throwError "TOOD: Got{indentExpr (← inferType thmVal)}\nexpected{indentExpr thmType}"
           addDecl <| Declaration.thmDecl {

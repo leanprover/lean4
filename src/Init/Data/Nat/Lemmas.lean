@@ -12,6 +12,7 @@ public import Init.Data.Nat.Log2
 import all Init.Data.Nat.Log2
 public import Init.Data.Nat.Power2
 public import Init.Data.Nat.Mod
+public import Init.Data.Cast
 import Init.TacticsExtra
 import Init.BinderPredicates
 
@@ -1800,3 +1801,7 @@ instance decidableExistsFin (P : Fin n → Prop) [DecidablePred P] : Decidable (
   decidable_of_iff (∃ k, k < n ∧ ((h: k < n) → P ⟨k, h⟩))
     ⟨fun ⟨k, a⟩ => Exists.intro ⟨k, a.left⟩ (a.right a.left),
     fun ⟨i, e⟩ => Exists.intro i.val ⟨i.isLt, fun _ => e⟩⟩
+
+/-! ### cast -/
+
+@[simp, norm_cast, grind =] theorem cast_id (n : Nat) : Nat.cast n = n := rfl

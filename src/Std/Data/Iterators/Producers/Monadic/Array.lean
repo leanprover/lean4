@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Iterators.Consumers
 public import Init.Data.Iterators.Internal.Termination
-import Init.Control.Lawful.MonadAttach.Lemmas
 
 @[expose] public section
 
@@ -77,41 +76,48 @@ def _root_.Array.iterM {α : Type w} (array : Array α) (m : Type w → Type w')
 
 @[always_inline, inline]
 instance {α : Type w} [Pure m] : Iterator (ArrayIterator α) m α where
-  step it := pure (if h : it.internalState.pos < it.internalState.array.size then
+  IsPlausibleStep it
+    | .yield it' out => it.internalState.array = it'.internalState.array ∧
+      it'.internalState.pos = it.internalState.pos + 1 ∧
+      ∃ _ : it.internalState.pos < it.internalState.array.size,
+      it.internalState.array[it.internalState.pos] = out
+    | .skip _ => False
+    | .done => it.internalState.pos ≥ it.internalState.array.size
+  step it := pure <| .deflate <| if h : it.internalState.pos < it.internalState.array.size then
         .yield
           ⟨⟨it.internalState.array, it.internalState.pos + 1⟩⟩
           it.internalState.array[it.internalState.pos]
+          ⟨rfl, rfl, h, rfl⟩
       else
-        .done)
+        .done (Nat.not_lt.mp h)
 
-private def ArrayIterator.finitenessRelation
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m] :
+private def ArrayIterator.finitenessRelation [Pure m] :
     FinitenessRelation (ArrayIterator α) m where
   rel := InvImage WellFoundedRelation.rel
       (fun it => it.internalState.array.size - it.internalState.pos)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
-    obtain ⟨step, hs, h⟩ := h
-    cases LawfulMonadAttach.eq_of_canReturn_pure h
-    split at hs
-    · cases hs
-      simp only
+    obtain ⟨step, h, h'⟩ := h
+    cases step
+    · cases h
+      obtain ⟨h, h', h'', rfl⟩ := h'
+      rw [h] at h''
+      rw [h, h']
       omega
-    · nomatch hs
+    · cases h'
+    · cases h
 
-instance
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m] :
-    Finite (ArrayIterator α) m := by
+instance [Pure m] : Finite (ArrayIterator α) m := by
   exact Finite.of_finitenessRelation ArrayIterator.finitenessRelation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] [MonadAttach m] {n : Type w → Type w''} [Monad n] :
+instance {α : Type w} [Monad m] {n : Type w → Type w''} [Monad n] :
     IteratorCollect (ArrayIterator α) m n :=
   .defaultImplementation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] [MonadAttach m] {n : Type x → Type x'} [Monad n] [MonadAttach n] :
+instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
     IteratorLoop (ArrayIterator α) m n :=
   .defaultImplementation
 

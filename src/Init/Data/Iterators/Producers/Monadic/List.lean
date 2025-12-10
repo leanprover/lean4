@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Iterators.Consumers
 public import Init.Data.Iterators.Internal.Termination
-import Init.Control.Lawful.MonadAttach.Lemmas
 
 @[expose] public section
 
@@ -48,36 +47,33 @@ def _root_.List.iterM {α : Type w} (l : List α) (m : Type w → Type w') [Pure
 
 @[always_inline, inline]
 instance {α : Type w} [Pure m] : Iterator (ListIterator α) m α where
+  IsPlausibleStep it
+    | .yield it' out => it.internalState.list = out :: it'.internalState.list
+    | .skip _ => False
+    | .done => it.internalState.list = []
   step it := pure (match it with
-        | ⟨⟨[]⟩⟩ => .done
-        | ⟨⟨x :: xs⟩⟩ => .yield (toIterM ⟨xs⟩ m α) x)
+        | ⟨⟨[]⟩⟩ => .deflate ⟨.done, rfl⟩
+        | ⟨⟨x :: xs⟩⟩ => .deflate ⟨.yield (toIterM ⟨xs⟩ m α) x, rfl⟩)
 
-private def ListIterator.instFinitenessRelation
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m] :
+private def ListIterator.finitenessRelation [Pure m] :
     FinitenessRelation (ListIterator α) m where
   rel := InvImage WellFoundedRelation.rel (ListIterator.list ∘ IterM.internalState)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
-    obtain ⟨step, hs, h⟩ := h
-    cases LawfulMonadAttach.eq_of_canReturn_pure h
-    split at hs
-    · nomatch hs
-    · cases hs
-      simp
+    obtain ⟨step, h, h'⟩ := h
+    cases step <;> simp_all [IterStep.successor, IterM.IsPlausibleStep, Iterator.IsPlausibleStep]
 
-instance ListIterator.instFinite
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m] :
-    Finite (ListIterator α) m :=
-  by exact Finite.of_finitenessRelation ListIterator.instFinitenessRelation
+instance [Pure m] : Finite (ListIterator α) m :=
+  by exact Finite.of_finitenessRelation ListIterator.finitenessRelation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] [MonadAttach m] {n : Type w → Type w''} [Monad n] :
+instance {α : Type w} [Monad m] {n : Type w → Type w''} [Monad n] :
     IteratorCollect (ListIterator α) m n :=
   .defaultImplementation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] [MonadAttach m] {n : Type x → Type x'} [Monad n] [MonadAttach n] :
+instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
     IteratorLoop (ListIterator α) m n :=
   .defaultImplementation
 

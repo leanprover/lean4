@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Iterators.Consumers.Loop
 public import Init.Data.Iterators.Internal.Termination
-import Init.Control.Lawful.MonadAttach.Lemmas
 
 @[expose] public section
 
@@ -43,29 +42,26 @@ def Empty.PlausibleStep (_ : IterM (α := Empty m β) m β)
   step = .done
 
 instance Empty.instIterator [Monad m] : Iterator (Empty m β) m β where
-  step _ := return .done
+  IsPlausibleStep := Empty.PlausibleStep
+  step _ := return .deflate (.done rfl)
 
-private def Empty.instFinitenessRelation
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m] :
+private def Empty.instFinitenessRelation [Monad m] :
     FinitenessRelation (Empty m β) m where
   rel := emptyRelation
   wf := emptyWf.wf
   subrelation {it it'} h := by
     obtain ⟨step, h, h'⟩ := h
-    cases LawfulMonadAttach.eq_of_canReturn_pure h'
+    cases h'
     cases h
 
-instance Empty.instFinite
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m] :
-    Finite (Empty m β) m := by
+instance Empty.instFinite [Monad m] : Finite (Empty m β) m := by
   exact Finite.of_finitenessRelation instFinitenessRelation
 
-instance Empty.instIteratorCollect {n : Type w → Type w''} [Monad m] [MonadAttach m] [Monad n] :
+instance Empty.instIteratorCollect {n : Type w → Type w''} [Monad m] [Monad n] :
     IteratorCollect (Empty m β) m n :=
   .defaultImplementation
 
-instance Empty.instIteratorLoop {n : Type x → Type x'}
-    [Monad m] [MonadAttach m] [Monad n] [MonadAttach n] :
+instance Empty.instIteratorLoop {n : Type x → Type x'} [Monad m] [Monad n] :
     IteratorLoop (Empty m β) m n :=
   .defaultImplementation
 

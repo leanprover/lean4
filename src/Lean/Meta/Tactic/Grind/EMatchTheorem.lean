@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Theorems
 import Init.Grind.Util
+import Lean.Util.ForEachExpr
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Match.Basic
 import Lean.Meta.Tactic.TryThis
@@ -580,6 +581,21 @@ private def saveSymbol (h : HeadIndex) : M Unit := do
   unless (← get).symbolSet.contains h do
     modify fun s => { s with symbols := s.symbols.push h, symbolSet := s.symbolSet.insert h }
 
+private def saveSymbolsAt (e : Expr) : M Unit := do
+  e.forEach' fun e => do
+    if e.isApp || e.isConst then
+      /- **Note**: We ignore function symbols that special handling in the internalizer. -/
+      if let .const declName _ := e.getAppFn then
+        if declName == ``OfNat.ofNat || declName == ``Grind.nestedProof
+           || declName == ``Grind.nestedDecidable || declName == ``ite then
+          return false
+    match e with
+    | .const .. =>
+      saveSymbol e.toHeadIndex
+      return false
+    | _ =>
+      return true
+
 private def foundBVar (idx : Nat) : M Bool :=
   return (← get).bvarsFound.contains idx
 
@@ -695,7 +711,9 @@ where
       if arg.hasMVar then
         pure dontCare
       else
-        return mkGroundPattern (← expandOffsetPatterns arg)
+        let arg ← expandOffsetPatterns arg
+        saveSymbolsAt arg
+        return mkGroundPattern arg
     else match arg with
       | .bvar idx =>
         if inSupport && (← foundBVar idx) then

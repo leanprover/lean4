@@ -31,70 +31,7 @@
       {"range":
        {"start": {"line": 5, "character": 7},
         "end": {"line": 5, "character": 34}},
-       "newText": "Lean.Server.Test.Refs.test10"}]}]}},
- {"title": "Import all unambiguous unknown identifiers",
-  "kind": "quickfix",
-  "data":
-  {"providerResultIndex": 0,
-   "providerName": "unknownIdentifiers",
-   "params":
-   {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
-    "range":
-    {"start": {"line": 5, "character": 34},
-     "end": {"line": 5, "character": 34}},
-    "context": {"diagnostics": []}}}}]
-Resolution of Import all unambiguous unknown identifiers:
-{"title": "Import all unambiguous unknown identifiers",
- "kind": "quickfix",
- "edit":
- {"documentChanges":
-  [{"textDocument":
-    {"version": 1, "uri": "file:///unknownIdentifierCodeActions.lean"},
-    "edits":
-    [{"range":
-      {"start": {"line": 1, "character": 0},
-       "end": {"line": 1, "character": 0}},
-      "newText": "import Lean.Server.Test.Refs\n"},
-     {"range":
-      {"start": {"line": 5, "character": 7},
-       "end": {"line": 5, "character": 34}},
-      "newText": "Lean.Server.Test.Refs.Test1"},
-     {"range":
-      {"start": {"line": 17, "character": 7},
-       "end": {"line": 17, "character": 48}},
-      "newText": "LeanServerTestRefsTest0'"},
-     {"range":
-      {"start": {"line": 28, "character": 7},
-       "end": {"line": 28, "character": 34}},
-      "newText": "Test1"},
-     {"range":
-      {"start": {"line": 55, "character": 20},
-       "end": {"line": 55, "character": 47}},
-      "newText": "Lean.Server.Test.Refs.Test1"},
-     {"range":
-      {"start": {"line": 57, "character": 5},
-       "end": {"line": 57, "character": 32}},
-      "newText": "Lean.Server.Test.Refs.Test1"},
-     {"range":
-      {"start": {"line": 60, "character": 26},
-       "end": {"line": 60, "character": 53}},
-      "newText": "Lean.Server.Test.Refs.Test1"},
-     {"range":
-      {"start": {"line": 62, "character": 5},
-       "end": {"line": 62, "character": 32}},
-      "newText": "Lean.Server.Test.Refs.Test1"},
-     {"range":
-      {"start": {"line": 8, "character": 10},
-       "end": {"line": 8, "character": 33}},
-      "newText": "LeanServerTestRefsTest0"}]}]},
- "data":
- {"providerResultIndex": 0,
-  "providerName": "unknownIdentifiers",
-  "params":
-  {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
-   "range":
-   {"start": {"line": 5, "character": 34}, "end": {"line": 5, "character": 34}},
-   "context": {"diagnostics": []}}}}
+       "newText": "Lean.Server.Test.Refs.test10"}]}]}}]
 {"textDocument": {"uri": "file:///unknownIdentifierCodeActions.lean"},
  "range":
  {"start": {"line": 8, "character": 33}, "end": {"line": 8, "character": 33}},
@@ -168,10 +105,6 @@ Resolution of Import all unambiguous unknown identifiers:
       {"start": {"line": 1, "character": 0},
        "end": {"line": 1, "character": 0}},
       "newText": "import Lean.Server.Test.Refs\n"},
-     {"range":
-      {"start": {"line": 5, "character": 7},
-       "end": {"line": 5, "character": 34}},
-      "newText": "Lean.Server.Test.Refs.Test1"},
      {"range":
       {"start": {"line": 17, "character": 7},
        "end": {"line": 17, "character": 48}},
@@ -488,10 +421,6 @@ Resolution of Import all unambiguous unknown identifiers:
        "end": {"line": 1, "character": 0}},
       "newText": "import Lean.Server.Test.Refs\n"},
      {"range":
-      {"start": {"line": 5, "character": 7},
-       "end": {"line": 5, "character": 34}},
-      "newText": "Lean.Server.Test.Refs.Test1"},
-     {"range":
       {"start": {"line": 17, "character": 7},
        "end": {"line": 17, "character": 48}},
       "newText": "LeanServerTestRefsTest0'"},
@@ -642,10 +571,6 @@ Resolution of Import all unambiguous unknown identifiers:
        "end": {"line": 1, "character": 0}},
       "newText": "import Lean.Server.Test.Refs\n"},
      {"range":
-      {"start": {"line": 5, "character": 7},
-       "end": {"line": 5, "character": 34}},
-      "newText": "Lean.Server.Test.Refs.Test1"},
-     {"range":
       {"start": {"line": 17, "character": 7},
        "end": {"line": 17, "character": 48}},
       "newText": "LeanServerTestRefsTest0'"},
@@ -739,10 +664,6 @@ Resolution of Import all unambiguous unknown identifiers:
       {"start": {"line": 1, "character": 0},
        "end": {"line": 1, "character": 0}},
       "newText": "import Lean.Server.Test.Refs\n"},
-     {"range":
-      {"start": {"line": 5, "character": 7},
-       "end": {"line": 5, "character": 34}},
-      "newText": "Lean.Server.Test.Refs.Test1"},
      {"range":
       {"start": {"line": 17, "character": 7},
        "end": {"line": 17, "character": 48}},
@@ -838,10 +759,6 @@ Resolution of Import all unambiguous unknown identifiers:
        "end": {"line": 1, "character": 0}},
       "newText": "import Lean.Server.Test.Refs\n"},
      {"range":
-      {"start": {"line": 5, "character": 7},
-       "end": {"line": 5, "character": 34}},
-      "newText": "Lean.Server.Test.Refs.Test1"},
-     {"range":
       {"start": {"line": 17, "character": 7},
        "end": {"line": 17, "character": 48}},
       "newText": "LeanServerTestRefsTest0'"},
@@ -935,10 +852,6 @@ Resolution of Import all unambiguous unknown identifiers:
       {"start": {"line": 1, "character": 0},
        "end": {"line": 1, "character": 0}},
       "newText": "import Lean.Server.Test.Refs\n"},
-     {"range":
-      {"start": {"line": 5, "character": 7},
-       "end": {"line": 5, "character": 34}},
-      "newText": "Lean.Server.Test.Refs.Test1"},
      {"range":
       {"start": {"line": 17, "character": 7},
        "end": {"line": 17, "character": 48}},

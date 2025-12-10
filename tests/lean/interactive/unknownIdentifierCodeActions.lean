@@ -3,7 +3,7 @@ module
 
 public section
 
-#check Lean.Server.Test.Refs.Test1
+#check Lean.Server.Test.Refs.test1
                                 --^ codeAction
 
 example : LeanServerTestRefsTest0

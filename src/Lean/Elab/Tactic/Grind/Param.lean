@@ -67,7 +67,21 @@ public def addEMatchTheorem (params : Grind.Params) (id : Ident) (declName : Nam
         Grind.mkEMatchTheoremForDecl declName kind params.symPrios (minIndexable := minIndexable)
       if warn && params.ematch.containsWithSamePatterns thm.origin thm.patterns thm.cnstrs then
         warnRedundantEMatchArg params.ematch declName
-      return { params with extra := params.extra.push thm }
+      if thm.numParams == 0 && kind matches .default _ then
+        /-
+        **Note**: ignores pattern and adds ground fact directly
+        Motivation:
+        ```
+        opaque π : Rat
+        axiom pi_pos : 0 < π
+        example : π = 0 → False := by
+          grind [pi_pos]
+
+        ```
+        -/
+        return { params with extraFacts := params.extraFacts.push thm.proof }
+      else
+        return { params with extra := params.extra.push thm }
   | .defn =>
     if (← isReducible declName) then
       throwError "`{.ofConstName declName}` is a reducible definition, `grind` automatically unfolds them"

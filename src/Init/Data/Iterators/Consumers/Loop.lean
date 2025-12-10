@@ -35,16 +35,16 @@ so this is not marked as `instance`. This way, more convenient instances can be 
 or future library improvements will make it more comfortable.
 -/
 @[always_inline, inline]
-def Iter.instForInNew' {α : Type w} {β : Type w} {n : Type x → Type x'} [Monad n]
-    [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] :
+def Iter.instForInNew' {α : Type w} {β : Type w} {n : Type x → Type x'}
+    [Iterator α Id β] [Finite α Id] [IteratorLoopNew α Id n] :
     ForInNew' n (Iter (α := α) β) β (fun it out => it.IsPlausibleIndirectOutput out) where
   forInNew' it init f :=
-    IteratorLoop.finiteForInNew' (fun _ _ f c => f c.run) |>.forInNew' it.toIterM init
+    IteratorLoopNew.finiteForInNew' (fun _ _ f c => f c.run) |>.forInNew' it.toIterM init
         fun out h acc =>
           f out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc
 
-instance (α : Type w) (β : Type w) (n : Type x → Type x') [Monad n]
-    [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] :
+instance (α : Type w) (β : Type w) (n : Type x → Type x')
+    [Iterator α Id β] [Finite α Id] [IteratorLoopNew α Id n] :
     ForInNew n (Iter (α := α) β) β :=
   haveI : ForInNew' n (Iter (α := α) β) β _ := Iter.instForInNew'
   instForInNewOfForInNew'

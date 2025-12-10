@@ -2705,6 +2705,7 @@ x_44 = l_Lean_Exception_isInterrupt(x_42);
 if (x_44 == 0)
 {
 uint8_t x_45; 
+lean_inc_ref(x_42);
 x_45 = l_Lean_Exception_isRuntime(x_42);
 x_10 = lean_box(0);
 x_11 = x_42;

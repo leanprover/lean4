@@ -2612,7 +2612,6 @@ if (x_22 == 0)
 {
 uint8_t x_23; 
 x_23 = l_Lean_Exception_isRuntime(x_14);
-lean_dec(x_14);
 x_15 = x_23;
 goto block_21;
 }

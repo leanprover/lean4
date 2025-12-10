@@ -126,7 +126,6 @@ static lean_object* l_Lean_Elab_Term_Do_extendUpdatedVars___closed__0;
 static lean_object* l_Lean_Elab_Term_Do_ToTerm_returnToTerm___closed__46;
 static lean_object* l_Lean_Elab_Term_Do_ToTerm_matchNestedTermResult___closed__32;
 static lean_object* l___private_Lean_Elab_Do_Legacy_0__Lean_Elab_Term_liftMethodForbiddenBinder___closed__13;
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_ToTerm_Kind_noConfusion___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Do_mkAuxDeclFor___redArg___lam__7___closed__4;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Elab_Do_Legacy_0__Lean_Elab_Term_Do_expandDoIf_x3f_spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_ToTerm_Kind_nestedBC_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -517,7 +516,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_getDoReassignVars___boxed(lean_obje
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_ToTerm_seqToTerm(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_ToTerm_matchNestedTermResult___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_Do_Legacy_0__Lean_Elab_Term_Do_CodeBlock_toMessageData_loop_spec__3___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_ToTerm_Kind_noConfusion___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwMaxRecDepthAt___at___00Lean_Elab_liftMacroM___at___00Lean_Elab_Term_Do_concat_spec__0_spec__7___redArg(lean_object*);
 lean_object* l_Lean_Elab_Term_Quotation_getPatternVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Do_ToTerm_returnToTerm___closed__2;
@@ -1321,7 +1319,6 @@ static lean_object* l_Lean_Elab_Term_Do_ToTerm_actionTerminalToTerm___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_ToTerm_run(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_Do_ToCodeBlock_doMatchToCode_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Do_Legacy_0__Lean_Elab_Term_Do_ToCodeBlock_expandLiftMethodAux___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_ToTerm_Kind_noConfusion___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_mkAuxDeclFor___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00__private_Lean_Elab_Do_Legacy_0__Lean_Elab_Term_Do_mkTuple_spec__0___closed__0;
 lean_object* l_List_reverse___redArg(lean_object*);
@@ -1389,7 +1386,6 @@ static lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doForToCode___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_liftMacroM___at___00Lean_Elab_Term_Do_ToCodeBlock_mkForInBody_spec__0_spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Elab_Do_Legacy_0__Lean_Elab_Term_liftMethodDelimiter(lean_object*);
 static lean_object* l_Lean_Elab_Term_Do_ToTerm_breakToTerm___closed__5;
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_ToTerm_Kind_noConfusion___redArg(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___00Lean_Elab_liftMacroM___at___00Lean_Elab_Term_Do_ToCodeBlock_mkForInBody_spec__0_spec__7___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Do_ToTerm_returnToTerm___closed__47;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
@@ -1523,7 +1519,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_mkContinue(lean_object*);
 static lean_object* l___private_Lean_Elab_Do_Legacy_0__Lean_Elab_Term_getDoSeqElems___closed__0;
 static lean_object* l___private_Lean_Elab_Do_Legacy_0__Lean_Elab_Term_Do_destructTuple_destruct___closed__10;
 static lean_object* l_Lean_Elab_Term_Do_mkAuxDeclFor___redArg___lam__7___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_ToTerm_Kind_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_Code_jmp_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00__private_Lean_Elab_Do_Legacy_0__Lean_Elab_Term_Do_varsToMessageData_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_Code_ite_elim___redArg(lean_object*, lean_object*);
@@ -1702,7 +1697,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_a
 lean_object* l_Std_HashMap_instInhabited(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_ToTerm_mkJoinPoint___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Elab_Do_Legacy_0__Lean_Elab_Term_Do_expandDoIf_x3f_spec__3___redArg___closed__11;
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_ToTerm_Kind_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Do_Legacy_0__Lean_Elab_Term_Do_mkUnit___closed__21;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_Code_joinpoint_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_Do_ToCodeBlock_doLetArrowToCode_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3660,7 +3654,6 @@ if (x_17 == 0)
 {
 uint8_t x_18; 
 x_18 = l_Lean_Exception_isRuntime(x_15);
-lean_dec_ref(x_15);
 x_8 = x_14;
 x_9 = lean_box(0);
 x_10 = x_18;
@@ -18054,7 +18047,6 @@ if (x_19 == 0)
 {
 uint8_t x_20; 
 x_20 = l_Lean_Exception_isRuntime(x_12);
-lean_dec(x_12);
 x_13 = x_20;
 goto block_18;
 }
@@ -18182,7 +18174,6 @@ if (x_19 == 0)
 {
 uint8_t x_20; 
 x_20 = l_Lean_Exception_isRuntime(x_12);
-lean_dec(x_12);
 x_13 = x_20;
 goto block_18;
 }
@@ -22874,63 +22865,6 @@ lean_object* x_2;
 x_2 = l_Lean_Elab_Term_Do_ToTerm_Kind_nestedPRBC_elim___redArg(x_1);
 lean_dec(x_1);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_ToTerm_Kind_noConfusion___redArg___lam__0(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_ToTerm_Kind_noConfusion___redArg___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_Term_Do_ToTerm_Kind_noConfusion___redArg___lam__0(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_ToTerm_Kind_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = l_Lean_Elab_Term_Do_ToTerm_Kind_ctorIdx(x_1);
-x_4 = l_Lean_Elab_Term_Do_ToTerm_Kind_ctorIdx(x_2);
-x_5 = lean_nat_dec_eq(x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
-x_6 = lean_alloc_closure((void*)(l_Lean_Elab_Term_Do_ToTerm_Kind_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_ToTerm_Kind_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_Elab_Term_Do_ToTerm_Kind_noConfusion___redArg(x_2, x_3);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_ToTerm_Kind_noConfusion___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; uint8_t x_6; lean_object* x_7; 
-x_5 = lean_unbox(x_2);
-x_6 = lean_unbox(x_3);
-x_7 = l_Lean_Elab_Term_Do_ToTerm_Kind_noConfusion(x_1, x_5, x_6, x_4);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_ToTerm_Kind_noConfusion___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; lean_object* x_5; 
-x_3 = lean_unbox(x_1);
-x_4 = lean_unbox(x_2);
-x_5 = l_Lean_Elab_Term_Do_ToTerm_Kind_noConfusion___redArg(x_3, x_4);
-return x_5;
 }
 }
 static uint8_t _init_l_Lean_Elab_Term_Do_ToTerm_instInhabitedKind() {

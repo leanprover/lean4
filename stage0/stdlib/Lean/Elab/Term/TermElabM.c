@@ -9485,6 +9485,7 @@ x_45 = l_Lean_Exception_isInterrupt(x_43);
 if (x_45 == 0)
 {
 uint8_t x_46; 
+lean_inc_ref(x_43);
 x_46 = l_Lean_Exception_isRuntime(x_43);
 x_12 = lean_box(0);
 x_13 = x_43;
@@ -29747,6 +29748,7 @@ x_14 = l_Lean_Exception_isInterrupt(x_10);
 if (x_14 == 0)
 {
 uint8_t x_15; 
+lean_inc(x_10);
 x_15 = l_Lean_Exception_isRuntime(x_10);
 x_11 = x_15;
 goto block_13;
@@ -35891,6 +35893,7 @@ x_87 = l_Lean_Exception_isInterrupt(x_15);
 if (x_87 == 0)
 {
 uint8_t x_88; 
+lean_inc(x_15);
 x_88 = l_Lean_Exception_isRuntime(x_15);
 x_16 = x_88;
 goto block_86;
@@ -40422,6 +40425,7 @@ x_37 = l_Lean_Exception_isInterrupt(x_14);
 if (x_37 == 0)
 {
 uint8_t x_38; 
+lean_inc(x_14);
 x_38 = l_Lean_Exception_isRuntime(x_14);
 x_27 = x_38;
 goto block_36;
@@ -40733,6 +40737,7 @@ x_39 = l_Lean_Exception_isInterrupt(x_28);
 if (x_39 == 0)
 {
 uint8_t x_40; 
+lean_inc(x_28);
 x_40 = l_Lean_Exception_isRuntime(x_28);
 x_29 = x_40;
 goto block_38;
@@ -44697,6 +44702,7 @@ x_26 = l_Lean_Exception_isInterrupt(x_24);
 if (x_26 == 0)
 {
 uint8_t x_27; 
+lean_inc_ref(x_24);
 x_27 = l_Lean_Exception_isRuntime(x_24);
 x_12 = x_24;
 x_13 = lean_box(0);
@@ -49688,6 +49694,7 @@ x_25 = l_Lean_Exception_isInterrupt(x_20);
 if (x_25 == 0)
 {
 uint8_t x_26; 
+lean_inc(x_20);
 x_26 = l_Lean_Exception_isRuntime(x_20);
 x_21 = x_26;
 goto block_24;
@@ -49838,6 +49845,7 @@ x_52 = l_Lean_Exception_isInterrupt(x_47);
 if (x_52 == 0)
 {
 uint8_t x_53; 
+lean_inc(x_47);
 x_53 = l_Lean_Exception_isRuntime(x_47);
 x_48 = x_53;
 goto block_51;
@@ -50278,7 +50286,6 @@ if (x_27 == 0)
 {
 uint8_t x_28; 
 x_28 = l_Lean_Exception_isRuntime(x_25);
-lean_dec_ref(x_25);
 x_11 = lean_box(0);
 x_12 = x_24;
 x_13 = x_28;
@@ -51973,6 +51980,7 @@ x_72 = l_Lean_Exception_isInterrupt(x_51);
 if (x_72 == 0)
 {
 uint8_t x_73; 
+lean_inc(x_51);
 x_73 = l_Lean_Exception_isRuntime(x_51);
 x_53 = x_73;
 goto block_71;
@@ -52302,6 +52310,7 @@ x_141 = l_Lean_Exception_isInterrupt(x_120);
 if (x_141 == 0)
 {
 uint8_t x_142; 
+lean_inc(x_120);
 x_142 = l_Lean_Exception_isRuntime(x_120);
 x_122 = x_142;
 goto block_140;
@@ -59834,7 +59843,6 @@ if (x_79 == 0)
 {
 uint8_t x_80; 
 x_80 = l_Lean_Exception_isRuntime(x_76);
-lean_dec(x_76);
 x_77 = x_80;
 goto block_78;
 }
@@ -60013,7 +60021,6 @@ if (x_115 == 0)
 {
 uint8_t x_116; 
 x_116 = l_Lean_Exception_isRuntime(x_112);
-lean_dec(x_112);
 x_113 = x_116;
 goto block_114;
 }

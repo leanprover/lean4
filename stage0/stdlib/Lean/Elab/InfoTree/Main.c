@@ -5222,7 +5222,6 @@ if (x_44 == 0)
 {
 uint8_t x_45; 
 x_45 = l_Lean_Exception_isRuntime(x_42);
-lean_dec_ref(x_42);
 x_36 = x_41;
 x_37 = lean_box(0);
 x_38 = x_45;

@@ -1352,6 +1352,7 @@ x_24 = l_Lean_Exception_isInterrupt(x_22);
 if (x_24 == 0)
 {
 uint8_t x_25; 
+lean_inc_ref(x_22);
 x_25 = l_Lean_Exception_isRuntime(x_22);
 x_9 = x_21;
 x_10 = lean_box(0);
@@ -4059,6 +4060,7 @@ x_90 = l_Lean_Exception_isInterrupt(x_89);
 if (x_90 == 0)
 {
 uint8_t x_91; 
+lean_inc(x_89);
 x_91 = l_Lean_Exception_isRuntime(x_89);
 x_14 = x_89;
 x_15 = x_42;

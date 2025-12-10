@@ -1036,7 +1036,6 @@ if (x_19 == 0)
 {
 uint8_t x_20; 
 x_20 = l_Lean_Exception_isRuntime(x_17);
-lean_dec_ref(x_17);
 x_10 = x_16;
 x_11 = lean_box(0);
 x_12 = x_20;

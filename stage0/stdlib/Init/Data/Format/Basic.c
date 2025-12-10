@@ -42,7 +42,6 @@ static lean_object* l_panic___at___00__private_Init_Data_Format_Basic_0__Std_For
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_merge___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_fill(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_allOrNone_elim___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_noConfusion___redArg___lam__0___boxed(lean_object*);
 lean_object* l_StateT_instMonad___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_instMonadPrettyFormatStateMState___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -80,7 +79,6 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 static lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_instMonadPrettyFormatStateMState___closed__7;
 LEAN_EXPORT lean_object* l_Std_Format_instAppend___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Format_isNil(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_noConfusion___redArg(uint8_t, uint8_t);
 static lean_object* l_Std_Format_paren___closed__4;
 static lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__6___closed__0;
 static lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_instMonadPrettyFormatStateMState___closed__6;
@@ -89,8 +87,6 @@ lean_object* l_StateT_instMonad___lam__1(lean_object*, lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Std_Format_nest_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Format_instInhabitedFlattenBehavior_default;
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___at___00Std_Format_prettyM___at___00Std_Format_pretty_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_noConfusion___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_noConfusion___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_ctorIdx(lean_object*);
 static lean_object* l_panic___at___00__private_Init_Data_Format_Basic_0__Std_Format_be___at___00Std_Format_prettyM___at___00Std_Format_pretty_spec__0_spec__0_spec__1___closed__4;
 LEAN_EXPORT lean_object* l_Std_Format_prettyM___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -102,7 +98,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___r
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_pushGroup___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Format_instBEqFlattenAllowability_beq(lean_object*, lean_object*);
 static lean_object* l_Std_Format_sbracket___closed__5;
-LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_FlattenAllowability_disallow_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldl___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
@@ -191,7 +186,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___a
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__5(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Format_sbracket___closed__0;
 static lean_object* l_Std_Format_sbracket___closed__2;
-LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 lean_object* l_Int_toNat(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_FlattenAllowability_disallow_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
@@ -389,63 +383,6 @@ lean_object* x_2;
 x_2 = l_Std_Format_FlattenBehavior_fill_elim___redArg(x_1);
 lean_dec(x_1);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_noConfusion___redArg___lam__0(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_noConfusion___redArg___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Format_FlattenBehavior_noConfusion___redArg___lam__0(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = l_Std_Format_FlattenBehavior_ctorIdx(x_1);
-x_4 = l_Std_Format_FlattenBehavior_ctorIdx(x_2);
-x_5 = lean_nat_dec_eq(x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
-x_6 = lean_alloc_closure((void*)(l_Std_Format_FlattenBehavior_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_Format_FlattenBehavior_noConfusion___redArg(x_2, x_3);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_noConfusion___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; uint8_t x_6; lean_object* x_7; 
-x_5 = lean_unbox(x_2);
-x_6 = lean_unbox(x_3);
-x_7 = l_Std_Format_FlattenBehavior_noConfusion(x_1, x_5, x_6, x_4);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_noConfusion___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; lean_object* x_5; 
-x_3 = lean_unbox(x_1);
-x_4 = lean_unbox(x_2);
-x_5 = l_Std_Format_FlattenBehavior_noConfusion___redArg(x_3, x_4);
-return x_5;
 }
 }
 static uint8_t _init_l_Std_Format_instInhabitedFlattenBehavior_default() {

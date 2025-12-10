@@ -26,7 +26,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_withTraceNode___at___00__private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_librarySearchLemma_spec__0_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_LibrarySearch_getStarLemmas___closed__2;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_DeclMod_noConfusion___redArg___lam__0(lean_object*);
 lean_object* l_Lean_MVarId_applySymm___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_libSearchFindDecls(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_librarySearch_x27___lam__3___closed__0;
@@ -76,7 +75,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_mkHeartbeatCheck___redArg___b
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_droppedKeys;
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_abortSpeculation___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_initFn_00___x40_Lean_Meta_Tactic_LibrarySearch_956453063____hygCtx___hyg_2_();
-LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_DeclMod_noConfusion___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_mkHeartbeatCheck(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_initFn___closed__6_00___x40_Lean_Meta_Tactic_LibrarySearch_4259869437____hygCtx___hyg_2_;
 lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
@@ -187,7 +185,6 @@ lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_DeclMod_mp_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_mkLibrarySearchLemma___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_initFn___lam__0_00___x40_Lean_Meta_Tactic_LibrarySearch_956453063____hygCtx___hyg_2____boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_DeclMod_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_LibrarySearch_grindDischarger___closed__2;
 static lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_withTraceNode___at___00__private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_librarySearchLemma_spec__0_spec__1___redArg___closed__2;
@@ -205,7 +202,6 @@ lean_object* l_Lean_Meta_Grind_mkParams(lean_object*, lean_object*, lean_object*
 static lean_object* l_Lean_Meta_LibrarySearch_mkLibrarySearchLemma___lam__1___closed__1;
 lean_object* lean_st_mk_ref(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_constantsPerImportTask;
-LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_DeclMod_noConfusion___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_librarySearchSymm___lam__0(lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_initFn_00___x40_Lean_Meta_Tactic_LibrarySearch_4259869437____hygCtx___hyg_2____boxed(lean_object*);
@@ -334,7 +330,6 @@ lean_object* l_Lean_Meta_saveState___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_grindDischarger___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_librarySearchLemma___lam__0___closed__2;
 static lean_object* l___private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_initFn___closed__26_00___x40_Lean_Meta_Tactic_LibrarySearch_4259869437____hygCtx___hyg_2_;
-LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_DeclMod_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_instDecidableEqDeclMod___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
@@ -435,7 +430,6 @@ LEAN_EXPORT uint8_t l_Lean_Meta_LibrarySearch_DeclMod_ofNat(lean_object*);
 static lean_object* l_Lean_Meta_LibrarySearch_getStarLemmas___closed__0;
 static lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_withTraceNode___at___00__private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_librarySearchLemma_spec__0_spec__1___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_abortSpeculation___at___00__private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_librarySearch_x27_spec__0___redArg();
-LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_DeclMod_noConfusion___redArg(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_LibrarySearch_droppedKeys___closed__0;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at___00__private_Lean_Meta_Tactic_LibrarySearch_0__Lean_Meta_LibrarySearch_librarySearchLemma_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 double lean_float_sub(double, double);
@@ -1266,7 +1260,6 @@ if (x_16 == 0)
 {
 uint8_t x_17; 
 x_17 = l_Lean_Exception_isRuntime(x_14);
-lean_dec_ref(x_14);
 x_7 = lean_box(0);
 x_8 = x_13;
 x_9 = x_17;
@@ -1989,7 +1982,6 @@ if (x_16 == 0)
 {
 uint8_t x_17; 
 x_17 = l_Lean_Exception_isRuntime(x_14);
-lean_dec_ref(x_14);
 x_7 = lean_box(0);
 x_8 = x_13;
 x_9 = x_17;
@@ -2582,63 +2574,6 @@ lean_object* x_2;
 x_2 = l_Lean_Meta_LibrarySearch_DeclMod_mpr_elim___redArg(x_1);
 lean_dec(x_1);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_DeclMod_noConfusion___redArg___lam__0(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_DeclMod_noConfusion___redArg___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_LibrarySearch_DeclMod_noConfusion___redArg___lam__0(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_DeclMod_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = l_Lean_Meta_LibrarySearch_DeclMod_ctorIdx(x_1);
-x_4 = l_Lean_Meta_LibrarySearch_DeclMod_ctorIdx(x_2);
-x_5 = lean_nat_dec_eq(x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
-x_6 = lean_alloc_closure((void*)(l_Lean_Meta_LibrarySearch_DeclMod_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_DeclMod_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_Meta_LibrarySearch_DeclMod_noConfusion___redArg(x_2, x_3);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_DeclMod_noConfusion___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; uint8_t x_6; lean_object* x_7; 
-x_5 = lean_unbox(x_2);
-x_6 = lean_unbox(x_3);
-x_7 = l_Lean_Meta_LibrarySearch_DeclMod_noConfusion(x_1, x_5, x_6, x_4);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_LibrarySearch_DeclMod_noConfusion___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; lean_object* x_5; 
-x_3 = lean_unbox(x_1);
-x_4 = lean_unbox(x_2);
-x_5 = l_Lean_Meta_LibrarySearch_DeclMod_noConfusion___redArg(x_3, x_4);
-return x_5;
 }
 }
 LEAN_EXPORT uint8_t l_Lean_Meta_LibrarySearch_DeclMod_ofNat(lean_object* x_1) {
@@ -4494,6 +4429,7 @@ x_30 = l_Lean_Exception_isInterrupt(x_16);
 if (x_30 == 0)
 {
 uint8_t x_31; 
+lean_inc(x_16);
 x_31 = l_Lean_Exception_isRuntime(x_16);
 x_18 = x_31;
 goto block_29;
@@ -7237,7 +7173,6 @@ if (x_40 == 0)
 {
 uint8_t x_41; 
 x_41 = l_Lean_Exception_isRuntime(x_23);
-lean_dec(x_23);
 x_24 = x_41;
 goto block_39;
 }
@@ -7473,7 +7408,6 @@ if (x_70 == 0)
 {
 uint8_t x_71; 
 x_71 = l_Lean_Exception_isRuntime(x_57);
-lean_dec(x_57);
 x_58 = x_71;
 goto block_69;
 }
@@ -8079,6 +8013,7 @@ x_71 = l_Lean_Exception_isInterrupt(x_53);
 if (x_71 == 0)
 {
 uint8_t x_72; 
+lean_inc(x_53);
 x_72 = l_Lean_Exception_isRuntime(x_53);
 x_55 = x_72;
 goto block_70;

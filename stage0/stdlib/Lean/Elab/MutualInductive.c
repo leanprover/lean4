@@ -6025,6 +6025,7 @@ x_34 = l_Lean_Exception_isInterrupt(x_13);
 if (x_34 == 0)
 {
 uint8_t x_35; 
+lean_inc(x_13);
 x_35 = l_Lean_Exception_isRuntime(x_13);
 x_14 = x_35;
 goto block_33;
@@ -24968,6 +24969,7 @@ x_32 = l_Lean_Exception_isInterrupt(x_18);
 if (x_32 == 0)
 {
 uint8_t x_33; 
+lean_inc(x_18);
 x_33 = l_Lean_Exception_isRuntime(x_18);
 x_20 = x_33;
 goto block_31;

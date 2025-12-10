@@ -16,7 +16,6 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_ctorElim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintLabel_ctorIdx(lean_object*);
 static lean_object* l_Lean_Elab_instImpl___closed__0_00___x40_Lean_Elab_InfoTree_InlayHints_1870855000____hygCtx___hyg_38_;
-LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintLabel_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_instImpl___closed__2_00___x40_Lean_Elab_InfoTree_InlayHints_1870855000____hygCtx___hyg_38_;
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_ctorIdx___boxed(lean_object*);
@@ -24,7 +23,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_ctorIdx(uint8_t);
 LEAN_EXPORT uint8_t l_Lean_Elab_instBEqInlayHintTextEdit_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHint_ofCustomInfo_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_parameter_elim(lean_object*, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_noConfusion___redArg(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHint_resolveDeferred___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_parameter_elim___redArg(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
@@ -34,18 +32,14 @@ LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintLabel_ctorIdx___boxed(lean_object*
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_parameter_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHint_ofCustomInfo_x3f(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_noConfusion___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHint_resolveDeferred(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instBEqInlayHintTextEdit_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_type_elim___redArg___boxed(lean_object*);
 uint8_t l_Lean_Syntax_instBEqRange_beq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_noConfusion___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_noConfusion___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHint_toCustomInfo(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintLabel_parts_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_toCtorIdx(uint8_t);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintLabel_name_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instImpl_00___x40_Lean_Elab_InfoTree_InlayHints_1870855000____hygCtx___hyg_38_;
@@ -63,7 +57,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_ctorElim(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintLabel_name_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintLabel_parts_elim___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_instImpl___closed__1_00___x40_Lean_Elab_InfoTree_InlayHints_1870855000____hygCtx___hyg_38_;
-LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintLabel_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -291,63 +284,6 @@ lean_object* x_2;
 x_2 = l_Lean_Elab_InlayHintKind_parameter_elim___redArg(x_1);
 lean_dec(x_1);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_noConfusion___redArg___lam__0(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_noConfusion___redArg___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_InlayHintKind_noConfusion___redArg___lam__0(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = l_Lean_Elab_InlayHintKind_ctorIdx(x_1);
-x_4 = l_Lean_Elab_InlayHintKind_ctorIdx(x_2);
-x_5 = lean_nat_dec_eq(x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
-x_6 = lean_alloc_closure((void*)(l_Lean_Elab_InlayHintKind_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_Elab_InlayHintKind_noConfusion___redArg(x_2, x_3);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_noConfusion___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; uint8_t x_6; lean_object* x_7; 
-x_5 = lean_unbox(x_2);
-x_6 = lean_unbox(x_3);
-x_7 = l_Lean_Elab_InlayHintKind_noConfusion(x_1, x_5, x_6, x_4);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_noConfusion___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; lean_object* x_5; 
-x_3 = lean_unbox(x_1);
-x_4 = lean_unbox(x_2);
-x_5 = l_Lean_Elab_InlayHintKind_noConfusion___redArg(x_3, x_4);
-return x_5;
 }
 }
 LEAN_EXPORT uint8_t l_Lean_Elab_instBEqInlayHintTextEdit_beq(lean_object* x_1, lean_object* x_2) {

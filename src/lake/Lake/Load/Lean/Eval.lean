@@ -178,20 +178,24 @@ public def Package.loadFromEnv
     testDriver, lintDriver,  postUpdateHooks
   }
 
-/--
-Load module/package facets into a `Workspace` from a configuration environment.
--/
-public def Workspace.addFacetsFromEnv
-  (env : Environment) (opts : Options) (self : Workspace)
-: Except String Workspace := do
-  let mut ws := self
+/-- Load module/package facets into a `FacetConfigMap` from a configuration environment. -/
+def FacetConfigMap.addFromEnv
+  (env : Environment) (opts : Options) (self : FacetConfigMap)
+: Except String FacetConfigMap := do
+  let mut cfgs := self
   for name in moduleFacetAttr.getAllEntries env do
     let decl ← evalConstCheck env opts ModuleFacetDecl name
-    ws := ws.addModuleFacetConfig decl.config
+    cfgs := cfgs.insert decl.config.toFacetConfig
   for name in packageFacetAttr.getAllEntries env do
     let decl ← evalConstCheck env opts PackageFacetDecl name
-    ws := ws.addPackageFacetConfig decl.config
+    cfgs := cfgs.insert decl.config.toFacetConfig
   for name in libraryFacetAttr.getAllEntries env do
     let decl ← evalConstCheck env opts LibraryFacetDecl name
-    ws := ws.addLibraryFacetConfig decl.config
-  return ws
+    cfgs := cfgs.insert decl.config.toFacetConfig
+  return cfgs
+
+/-- Load module/package facets into a `Workspace` from a configuration environment. -/
+@[inline] public def Workspace.addFacetsFromEnv
+  (env : Environment) (opts : Options) (self : Workspace)
+: Except String Workspace := do
+  return {self with facetConfigs := ← self.facetConfigs.addFromEnv env opts}

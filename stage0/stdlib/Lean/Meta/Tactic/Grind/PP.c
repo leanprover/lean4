@@ -7572,7 +7572,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grin
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; size_t x_19; lean_object* x_20; uint8_t x_21; 
-x_8 = lean_ctor_get(x_1, 12);
+x_8 = lean_ctor_get(x_1, 13);
 x_9 = lean_ctor_get(x_8, 2);
 x_10 = lean_ctor_get(x_8, 3);
 x_11 = l_Lean_PersistentArray_toArray___redArg(x_9);
@@ -9471,9 +9471,9 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grin
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; uint8_t x_114; 
-x_6 = lean_ctor_get(x_2, 12);
+x_6 = lean_ctor_get(x_2, 13);
 x_7 = lean_ctor_get(x_2, 3);
-x_8 = lean_ctor_get(x_2, 14);
+x_8 = lean_ctor_get(x_2, 15);
 x_9 = lean_ctor_get(x_1, 0);
 x_10 = lean_ctor_get(x_1, 1);
 x_11 = lean_ctor_get(x_1, 2);
@@ -10188,7 +10188,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grin
 _start:
 {
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-x_8 = lean_ctor_get(x_1, 14);
+x_8 = lean_ctor_get(x_1, 15);
 lean_inc_ref(x_8);
 lean_dec_ref(x_1);
 x_9 = lean_ctor_get(x_8, 5);
@@ -10298,7 +10298,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grin
 _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_11 = lean_ctor_get(x_1, 10);
+x_11 = lean_ctor_get(x_1, 11);
 x_12 = l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_goalDiagToMessageData_go___closed__1;
 x_13 = l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_goalDiagToMessageData_go___closed__2;
 x_14 = l_Lean_PersistentArray_toArray___redArg(x_11);

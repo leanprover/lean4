@@ -2429,9 +2429,9 @@ goto block_188;
 block_181:
 {
 lean_object* x_178; lean_object* x_179; lean_object* x_180; 
-x_178 = lean_nat_add(x_176, x_177);
+x_178 = lean_nat_add(x_175, x_177);
 lean_dec(x_177);
-lean_dec(x_176);
+lean_dec(x_175);
 if (lean_is_scalar(x_172)) {
  x_179 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -2450,7 +2450,7 @@ if (lean_is_scalar(x_162)) {
 lean_ctor_set(x_180, 0, x_174);
 lean_ctor_set(x_180, 1, x_164);
 lean_ctor_set(x_180, 2, x_165);
-lean_ctor_set(x_180, 3, x_175);
+lean_ctor_set(x_180, 3, x_176);
 lean_ctor_set(x_180, 4, x_179);
 return x_180;
 }
@@ -2476,8 +2476,8 @@ if (lean_obj_tag(x_167) == 0)
 lean_object* x_186; 
 x_186 = lean_ctor_get(x_167, 0);
 lean_inc(x_186);
-x_175 = x_184;
-x_176 = x_185;
+x_175 = x_185;
+x_176 = x_184;
 x_177 = x_186;
 goto block_181;
 }
@@ -2485,8 +2485,8 @@ else
 {
 lean_object* x_187; 
 x_187 = lean_unsigned_to_nat(0u);
-x_175 = x_184;
-x_176 = x_185;
+x_175 = x_185;
+x_176 = x_184;
 x_177 = x_187;
 goto block_181;
 }
@@ -24679,10 +24679,10 @@ return x_141;
 block_14:
 {
 lean_object* x_12; lean_object* x_13; 
-x_12 = lean_st_ref_set(x_9, x_11);
-lean_dec(x_9);
+x_12 = lean_st_ref_set(x_10, x_11);
+lean_dec(x_10);
 x_13 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_13, 0, x_8);
+lean_ctor_set(x_13, 0, x_9);
 return x_13;
 }
 block_31:
@@ -24693,9 +24693,9 @@ x_19 = lean_ctor_get_uint8(x_18, sizeof(void*)*6);
 if (x_19 == 0)
 {
 lean_dec_ref(x_1);
-x_8 = x_15;
-x_9 = x_16;
-x_10 = lean_box(0);
+x_8 = lean_box(0);
+x_9 = x_15;
+x_10 = x_16;
 x_11 = x_18;
 goto block_14;
 }
@@ -24710,9 +24710,9 @@ x_21 = lean_ctor_get(x_18, 1);
 lean_inc(x_15);
 x_22 = l_Lean_PersistentHashMap_insert___at___00__private_Lean_Compiler_LCNF_ToLCNF_0__Lean_Compiler_LCNF_ToLCNF_toLCNF_visitCore_spec__0___redArg(x_21, x_1, x_15);
 lean_ctor_set(x_18, 1, x_22);
-x_8 = x_15;
-x_9 = x_16;
-x_10 = lean_box(0);
+x_8 = lean_box(0);
+x_9 = x_15;
+x_10 = x_16;
 x_11 = x_18;
 goto block_14;
 }
@@ -24742,9 +24742,9 @@ lean_ctor_set(x_30, 3, x_26);
 lean_ctor_set(x_30, 4, x_27);
 lean_ctor_set(x_30, 5, x_28);
 lean_ctor_set_uint8(x_30, sizeof(void*)*6, x_19);
-x_8 = x_15;
-x_9 = x_16;
-x_10 = lean_box(0);
+x_8 = lean_box(0);
+x_9 = x_15;
+x_10 = x_16;
 x_11 = x_30;
 goto block_14;
 }

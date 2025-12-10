@@ -3081,7 +3081,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_getLocalTheoremAnchors(lean_object* x
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_10 = lean_ctor_get(x_1, 12);
+x_10 = lean_ctor_get(x_1, 13);
 lean_inc_ref(x_10);
 lean_dec_ref(x_1);
 x_11 = lean_ctor_get(x_10, 2);

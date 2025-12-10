@@ -80,6 +80,7 @@ def empty : KVMap :=
 def isEmpty : KVMap → Bool
   | ⟨m⟩ => m.isEmpty
 
+@[suggest_for Lean.KVMap.length]
 def size (m : KVMap) : Nat :=
   m.entries.length
 

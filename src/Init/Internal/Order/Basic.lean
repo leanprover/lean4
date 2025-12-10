@@ -7,11 +7,12 @@ module
 
 prelude
 
-public import Init.System.IO  -- for `MonoBind` instance
-import all Init.Control.Except  -- for `MonoBind` instance
-import all Init.Control.StateRef  -- for `MonoBind` instance
-import all Init.Control.Option  -- for `MonoBind` instance
-import all Init.System.ST  -- for `MonoBind` instance
+public import Init.System.IO
+public import Init.Control.StateRef
+public import Init.Control.Option
+import Init.Control.Except
+import all Init.Control.StateRef
+import all Init.System.ST
 
 public section
 

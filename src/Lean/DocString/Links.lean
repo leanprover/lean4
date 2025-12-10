@@ -8,6 +8,7 @@ module
 
 prelude
 public import Lean.Syntax
+public import Init.System.Files
 import Init.Data.String.TakeDrop
 import Init.Data.String.Search
 

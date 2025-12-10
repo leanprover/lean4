@@ -6,7 +6,7 @@ Authors: Mac Malone
 module
 
 prelude
-public import Init.System.IO
+public import Init.System.Files
 
 open System
 namespace Lake

@@ -8,6 +8,7 @@ module
 
 prelude
 public import Lean.Data.Json.Printer
+public import Init.System.Files
 
 public section
 

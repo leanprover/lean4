@@ -6,7 +6,7 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Init.System.IO
+public import Init.System.Files
 public import Std.Tactic.BVDecide.LRAT.Actions
 public import Std.Internal.Parsec
 

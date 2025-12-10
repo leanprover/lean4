@@ -7,7 +7,7 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Init.System.IO
+public import Init.System.Files
 
 public section
 

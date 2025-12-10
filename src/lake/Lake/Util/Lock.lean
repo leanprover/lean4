@@ -6,7 +6,7 @@ Authors: Mac Malone, Gabriel Ebner, Sebastian Ullrich
 module
 
 prelude
-public import Init.System.IO
+public import Init.System.Files
 
 /-! # Lock File Utilities
 

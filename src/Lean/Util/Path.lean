@@ -11,7 +11,7 @@ with a directory `A/`. `import A` resolves to `path/A.olean`.
 module
 
 prelude
-public import Init.System.IO
+public import Init.System.Files
 import Init.Data.ToString.Name
 import Init.Data.String.TakeDrop
 

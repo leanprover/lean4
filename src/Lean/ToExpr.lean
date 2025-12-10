@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.ToLevel
 public import Init.Data.Rat.Basic
+public import Init.System.FilePath
 public section
 universe u
 namespace Lean

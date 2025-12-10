@@ -116,8 +116,9 @@ theorem or_exists_add_one : p 0 ∨ (Exists fun n => p (n + 1)) ↔ Exists p :=
 /-! # Helper Bool relation theorems -/
 
 @[simp] theorem beq_refl (a : Nat) : Nat.beq a a = true := by
-  induction a with simp [Nat.beq]
-  | succ a ih => simp [ih]
+  induction a with
+  | zero => rfl
+  | succ a ih => exact ih
 
 @[simp] theorem beq_eq : (Nat.beq x y = true) = (x = y) := propext <| Iff.intro Nat.eq_of_beq_eq_true (fun h => h ▸ (Nat.beq_refl x))
 @[simp] theorem ble_eq : (Nat.ble x y = true) = (x ≤ y) := propext <| Iff.intro Nat.le_of_ble_eq_true Nat.ble_eq_true_of_le

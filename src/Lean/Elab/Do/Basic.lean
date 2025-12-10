@@ -187,12 +187,24 @@ element `e`, and `dec` is the `DoElemCont` describing the elaboration of the res
 -/
 abbrev DoElab := TSyntax `doElem → DoElemCont → DoElabM Expr
 
+structure ReturnCont where
+  resultType : Expr
+  /--
+  The elaborator constructing a jump site to the return continuation,
+  given some return value. The type of this return value determines the type of the jump expression;
+  this could very well be different than the `resultType` in case an intervening `match` as refined
+  `resultType`. So `k` must *not* hardcode the type `resultType` into its definition; rather it
+  should infer the type of the return value argument.
+  -/
+  k : Expr → DoElabM Expr
+  deriving Inhabited
+
 /--
 Information about a success, `return`, `break` or `continue` continuation that will be filled in
 after the code using it has been elaborated.
 -/
 structure ContInfo where
-  returnCont : DoElemCont
+  returnCont : ReturnCont
   breakCont : Option (DoElabM Expr) := none
   continueCont : Option (DoElabM Expr) := none
 deriving Inhabited
@@ -234,6 +246,10 @@ private def getCachedPure : DoElabM Expr := do
 
 /-- The expression ``pure (α:=α) e``. -/
 def mkPureApp (α e : Expr) : DoElabM Expr := do
+  if (← read).deadCode then
+    -- There is no dead syntax here. Just return a fresh metavariable so that we don't
+    -- do the `Term.ensureHasType` check below.
+    return ← mkFreshExprMVar (← mkMonadicType α)
   let e ← Term.ensureHasType α e
   return mkApp2 (← getCachedPure) α e
 
@@ -243,16 +259,20 @@ def DoElemCont.mkPure (resultType : Expr) : TermElabM DoElemCont := do
   return {
     resultName := r,
     resultType,
-    k := do
-      if (← read).deadCode then
-        -- There is no dead syntax here. Just return a fresh metavariable.
-        return ← mkFreshExprMVar (← mkMonadicType resultType)
-      mkPureApp resultType (← getFVarFromUserName r),
+    k := do mkPureApp resultType (← getFVarFromUserName r),
     kind := .duplicable
     ref := .missing
     declKind := .implDetail  -- Does not matter much, because `mkPureApp` does not do
                              -- type class synthesis.
   }
+
+/-- Create a `ReturnCont` returning the result using `pure`. -/
+def ReturnCont.mkPure (resultType : Expr) : TermElabM ReturnCont := do
+  -- NB: we must *not* use `resultType` instead of `← inferType x` because the type of `x` may have
+  -- been refined by an intervening `match`.
+  return { resultType, k x := do
+    trace[Elab.do] "ReturnCont.mkPure: x: {x}, resultType: {resultType}"
+    mkPureApp (← inferType x) x }
 
 /-- The cached `@Bind.bind m instBind` expression. -/
 private def getCachedBind : DoElabM Expr := do
@@ -395,6 +415,7 @@ def ContVarId.mkJump (contVarId : ContVarId) : DoElabM Expr := do
   let info ← contVarId.find
   let lctx := addReachingDefsAsNonDep info.lctx (← getLCtx) info.tunneledVars.inner
   let mvar ← withLCtx' lctx (mkFreshExprMVar info.type) -- assigned by `synthesizeJumps`
+  trace[Elab.do] "mkJump: {contVarId.name}, {mvar}, {repr mvar}"
   unless (← read).deadCode do -- If it's dead code, don't even bother registering the jump
     let jumps := info.jumps.push { mvar, ref := (← getRef) }
     modify fun s => { s with contVars := s.contVars.insert contVarId { info with jumps } }
@@ -521,9 +542,12 @@ where
   isPostponedSyntheticMVarOfMonadicType (mvarId : MVarId) : DoElabM Bool := do
     let some decl ← Term.getSyntheticMVarDecl? mvarId | return false
     let .postponed .. := decl.kind | return false
+    withNewMCtxDepth do -- do not instantiate any metavariables other than α in the test!
     let α ← mkFreshResultType
     let mα ← mkMonadicType α
-    return ← withNewMCtxDepth (isDefEq (← mvarId.getType) mα) -- Not relevant if
+    let res ← isDefEq (← mvarId.getType) mα
+    -- trace[Elab.do] "isPostponedSyntheticMVarOfMonadicType: {repr mvarId}, {← mvarId.getType}, {mα}, {res}"
+    return res
 
   getSomeSyntheticMVarsRef : DoElabM Syntax := do
     for mvarId in (← liftM (m := TermElabM) get).pendingMVars do
@@ -664,7 +688,7 @@ where
       withLetDecl (← tupleVar.getUserName) sndTy snd fun r => do
         go xs r.fvarId! sndTy (letFVars |>.push x |>.push r)
 
-def getReturnCont : DoElabM DoElemCont := do
+def getReturnCont : DoElabM ReturnCont := do
   return (← read).contInfo.toContInfo.returnCont
 
 def getBreakCont : DoElabM (Option (DoElabM Expr)) := do
@@ -703,9 +727,9 @@ Prepare the context for elaborating the body of a loop.
 This includes setting the return continuation, break continuation, continue continuation, as
 well as the changed result type of the `do` block in the loop body.
 -/
-def enterLoopBody (resultType : Expr) (returnCont : DoElemCont) (breakCont continueCont : DoElabM Expr) : (body : DoElabM α) → DoElabM α :=
-  let contInfo := ContInfo.toContInfoRef { breakCont, continueCont, returnCont }
-  withReader fun ctx => { ctx with contInfo, doBlockResultType := resultType }
+def enterLoopBody (breakCont continueCont : DoElabM Expr) (body : DoElabM α) : DoElabM α := do
+  let contInfo := { (← read).contInfo.toContInfo with breakCont, continueCont }.toContInfoRef
+  withReader (fun ctx => { ctx with contInfo }) body
 
 /--
 Prepare the context for elaborating the body of a `do` block that does not support `mut` vars,
@@ -713,8 +737,8 @@ Prepare the context for elaborating the body of a `do` block that does not suppo
 -/
 def withoutControl (k : DoElabM Expr) : DoElabM Expr := do
   let error := throwError "This `do` block does not support `break`, `continue` or `return`."
-  let dec ← getReturnCont
-  let contInfo := { breakCont := error, continueCont := error, returnCont := { dec with k := error }}
+  let rc ← getReturnCont
+  let contInfo := { breakCont := error, continueCont := error, returnCont := { rc with k _ := error }}
   let contInfo := ContInfo.toContInfoRef contInfo
   withReader (fun ctx => { ctx with contInfo }) k
 
@@ -764,7 +788,7 @@ where
 /-- Create the `Context` for `do` elaboration from the given expected type of a `do` block. -/
 def mkContext (expectedType? : Option Expr) : TermElabM Context := do
   let (mi, resultType) ← extractMonadInfo expectedType?
-  let returnCont ← DoElemCont.mkPure resultType
+  let returnCont ← ReturnCont.mkPure resultType
   let contInfo := ContInfo.toContInfoRef { returnCont }
   return { monadInfo := mi, doBlockResultType := resultType, contInfo }
 
@@ -773,14 +797,23 @@ Inside a dependent `match` arm, the expected type can be refined. This function 
 new expected type and runs the action with an updated `doBlockResultType` accordingly.
 -/
 def withRefinedExpectedType (ty? : Option Expr) (k : DoElabM α) : DoElabM α := do
-  let some ty := ty? | return (← k)
+  let some ty := ty? | return ← k
   let (mi, resultType) ← extractMonadInfo ty
-  unless ← isDefEq (← read).monadInfo.m mi.m do
+  unless ← withNewMCtxDepth <| isDefEq (← read).monadInfo.m mi.m do
     throwError "The expected type {ty} changes the monad from {(← read).monadInfo.m} to {mi.m}. This is not supported by the `do` elaborator."
-  -- If we ever support more fine-grained `return`-to-`do`-label, the following will become more complicated.
-  let returnCont ← DoElemCont.mkPure resultType
-  let contInfo := { (← read).contInfo.toContInfo with returnCont }
-  withReader (fun ctx => { ctx with doBlockResultType := resultType, contInfo := contInfo.toContInfoRef }) k
+  let oldResultType := (← read).doBlockResultType
+  trace[Elab.do] "withRefinedExpectedType: monad: {(← read).monadInfo.m}, old result type: {oldResultType}, new result type: {resultType}"
+  trace[Elab.do] "Context: {(← mkFreshExprMVar resultType).mvarId!}"
+  if false && (← withNewMCtxDepth <| isDefEq oldResultType resultType) then
+    return ← k
+--  let returnCont ← getReturnCont
+--  let contResType := (← kabstract returnCont.resultType oldResultType).instantiate1 resultType
+--  trace[Elab.do] "contResType: {returnCont.resultType}"
+--  trace[Elab.do] "new contResType: {contResType}"
+--  let returnCont := { returnCont with resultType := contResType }
+--  let contInfo := { (← read).contInfo.toContInfo with returnCont }.toContInfoRef
+  trace[Elab.do] "actually withRefinedExpectedType: old result type: {oldResultType}, new result type: {resultType}"
+  withReader (fun ctx => { ctx with doBlockResultType := resultType }) k
   -- withReader id k
 
 def doElabToSyntax (hint : MessageData) (doElab : DoElabM Expr) (k : Term → DoElabM α) (ref : Syntax := .missing) : DoElabM α :=
@@ -1017,7 +1050,7 @@ def elabDo : Term.TermElab := fun e expectedType? => do
   let `(do $doSeq) := e | throwError "unexpected `do` block syntax{indentD e}"
   Term.tryPostponeIfNoneOrMVar expectedType?
   let ctx ← mkContext expectedType?
-  let cont ← DoElemCont.mkPure ctx.doBlockResultType -- same as `($(← returnCont) $resultName)
+  let cont ← DoElemCont.mkPure ctx.doBlockResultType
   let res ← elabDoSeq doSeq cont |>.run ctx |>.run' {}
   Term.synthesizeSyntheticMVars
   let res ← instantiateMVars res

@@ -93,7 +93,7 @@ where
   stM α := mkApp (mkConst ``Option [mi.u]) α
 
 def ControlStack.exceptT (exceptTWrapper casesOnWrapper : Name)
-    (getCont : DoElabM DoElemCont) (ρ : Expr) (m : ControlStack) : ControlStack where
+    (getCont : DoElabM ReturnCont) (ρ : Expr) (m : ControlStack) : ControlStack where
   description _ := m!"ExceptT ({ρ}) over {m.description ()}"
   monadInfo :=
     { mi with m := mkApp2 (mkConst exceptTWrapper [mi.u, mi.v]) ρ mi.m }
@@ -112,8 +112,8 @@ def ControlStack.exceptT (exceptTWrapper casesOnWrapper : Name)
     let k := do
       let e ← getFVarFromUserName resultName
       let outerCont ← getCont
-      let kexit ← withLocalDeclD outerCont.resultName outerCont.resultType fun r => do
-        mkLambdaFVars #[r] (← outerCont.k)
+      let kexit ← withLocalDeclD (← mkFreshUserName `r) outerCont.resultType fun r => do
+        mkLambdaFVars #[r] (← outerCont.k r)
       let ksuccess ← withLocalDeclD dec.resultName dec.resultType fun r => do
         mkLambdaFVars #[r] (← dec.k)
       let β ← mkMonadicType (← read).doBlockResultType
@@ -168,7 +168,7 @@ structure ControlLifter where
   pureKVar : ContVarId
   breakKVar : ContVarId
   continueKVar : ContVarId
-  returnCont : DoElemCont
+  returnCont : ReturnCont
   returns : IO.Ref Bool
   resultType : Expr
 
@@ -184,13 +184,14 @@ def ControlLifter.ofCont (dec : DoElemCont) : DoElabM ControlLifter := do
   let returns ← IO.mkRef false
   let breakKVar ← mkFreshContVar γ mutVars
   let continueKVar ← mkFreshContVar γ mutVars
-  let ρ := oldReturnCont.resultType
   let instMonad ← Term.mkInstMVar (mkApp (mkConst ``Monad [mi.u, mi.v]) mi.m)
   -- We can fill in `returnK` immediately because it does not influence reassigned mut vars
   let δ ← mkFreshResultType `δ
-  let returnCont := { oldReturnCont with k := do
+  let returnCont := { oldReturnCont with k r := do
     returns.set true
-    let r ← getFVarFromUserName oldReturnCont.resultName
+    -- NB: we must *not* use the outer `ρ` instead of `← inferType r` because the type of `r` may
+    -- have been refined by an intervening `match`.
+    let ρ ← inferType r
     let m' := mkApp2 (mkConst ``EarlyReturnT [mi.u, mi.v]) ρ mi.m
     discard <| isDefEq (mkApp m' δ) mγ
     return mkApp5 (mkConst ``EarlyReturnT.return [mi.u, mi.v]) ρ mi.m δ instMonad r }

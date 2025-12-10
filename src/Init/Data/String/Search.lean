@@ -324,14 +324,16 @@ Examples:
  * {lean}`"tea".contains (fun (c : Char) => c == 'X') = false`
  * {lean}`"coffee tea water".contains "tea" = true`
 -/
-@[inline] def contains (s : String) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
+@[inline, suggest_for String.some]
+def contains (s : String) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
   s.toSlice.contains pat
 
 @[export lean_string_contains]
 def Internal.containsImpl (s : String) (c : Char) : Bool :=
   String.contains s c
 
-@[inline, inherit_doc contains] def any (s : String) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
+@[inline, inherit_doc contains]
+def any (s : String) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
   s.contains pat
 
 @[export lean_string_any]
@@ -352,7 +354,7 @@ Examples:
  * {lean}`"aaaaaa".all "aa" = true`
  * {lean}`"aaaaaaa".all "aa" = false`
 -/
-@[inline] def all (s : String) (pat : ρ) [ForwardPattern pat] : Bool :=
+@[inline, suggest_for String.every] def all (s : String) (pat : ρ) [ForwardPattern pat] : Bool :=
   s.toSlice.all pat
 
 /--

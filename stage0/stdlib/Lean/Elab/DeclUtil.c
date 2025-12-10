@@ -137,11 +137,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -1250,14 +1250,12 @@ x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
-lean_dec(x_4);
 return x_5;
 }
 else
 {
 if (x_5 == 0)
 {
-lean_dec(x_4);
 return x_5;
 }
 else
@@ -1265,7 +1263,6 @@ else
 size_t x_6; size_t x_7; uint8_t x_8; 
 x_6 = 0;
 x_7 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_8 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_Elab_sortDeclLevelParams_spec__1_spec__1(x_2, x_1, x_6, x_7);
 return x_8;
 }
@@ -1459,7 +1456,6 @@ x_34 = l_Lean_Elab_sortDeclLevelParams___closed__0;
 x_35 = lean_nat_dec_lt(x_25, x_33);
 if (x_35 == 0)
 {
-lean_dec(x_33);
 lean_dec_ref(x_3);
 lean_dec(x_2);
 x_26 = x_34;
@@ -1471,7 +1467,6 @@ uint8_t x_36;
 x_36 = lean_nat_dec_le(x_33, x_33);
 if (x_36 == 0)
 {
-lean_dec(x_33);
 lean_dec_ref(x_3);
 lean_dec(x_2);
 x_26 = x_34;
@@ -1482,7 +1477,6 @@ else
 size_t x_37; size_t x_38; lean_object* x_39; 
 x_37 = 0;
 x_38 = lean_usize_of_nat(x_33);
-lean_dec(x_33);
 x_39 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_sortDeclLevelParams_spec__5(x_2, x_3, x_37, x_38, x_34);
 lean_dec_ref(x_3);
 lean_dec(x_2);
@@ -1562,7 +1556,6 @@ goto block_24;
 }
 else
 {
-lean_dec(x_27);
 x_8 = x_26;
 goto block_12;
 }

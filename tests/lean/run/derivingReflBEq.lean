@@ -61,7 +61,7 @@ info: RegularBEq.instLawfulBEqWithHEq.{u_1} {α✝ : Type u_1} {a✝ : Nat} [BEq
 error: failed to synthesize instance of type class
   BEq Foo
 
-Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+Hint: Adding the command `deriving instance BEq for RegularBEq.Foo` may allow Lean to derive the missing instance.
 -/
 #guard_msgs in
 structure Foo where
@@ -162,7 +162,7 @@ info: LinearBEq.instLawfulBEqWithHEq.{u_1} {α✝ : Type u_1} {a✝ : Nat} [BEq 
 error: failed to synthesize instance of type class
   BEq Foo
 
-Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+Hint: Adding the command `deriving instance BEq for LinearBEq.Foo` may allow Lean to derive the missing instance.
 -/
 #guard_msgs in
 structure Foo where

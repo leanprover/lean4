@@ -9,7 +9,9 @@ module
 prelude
 public import Lean.Meta.Basic
 import Lean.Meta.Tactic.Split
-import Lean.Meta.Match.MatchEqs
+import Lean.Meta.Match.Match
+import Lean.Meta.Tactic.Refl
+import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.SplitIf
 
 /-!

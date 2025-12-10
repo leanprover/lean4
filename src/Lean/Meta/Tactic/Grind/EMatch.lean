@@ -499,7 +499,11 @@ where
       -- We must add a hint because `annotateEqnTypeConds` introduces `Grind.PreMatchCond`
       -- which is not reducible.
       proof := mkExpectedPropHint proof prop
-    addTheoremInstance thm proof prop (generation+1) guards
+    /-
+    **Note**: Restores grind transparency setting because with use `withDefault` at `instantiateTheorem`.
+    -/
+    withGTransparency do
+      addTheoremInstance thm proof prop (generation+1) guards
 
 private def synthesizeInsts (mvars : Array Expr) (bis : Array BinderInfo) : OptionT M Unit := do
   let thm := (← read).thm
@@ -732,6 +736,7 @@ private def checkConstraints (thm : EMatchTheorem) (gen : Nat) (proof : Expr) (a
     | .depthLt lhs n => return (← getLHS args lhs).approxDepth.toNat < n
     | .isGround lhs => let lhs ← getLHS args lhs; return !lhs.hasFVar && !lhs.hasMVar
     | .isValue lhs strict => isValue (← getLHS args lhs) strict
+    | .notValue lhs strict => return !(← isValue (← getLHS args lhs) strict)
     | .sizeLt lhs n => checkSize (← getLHS args lhs) n
     | .genLt n => return gen < n
     | .maxInsts n =>

@@ -295,7 +295,6 @@ x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_nat_dec_lt(x_5, x_4);
 if (x_6 == 0)
 {
-lean_dec(x_4);
 lean_dec_ref(x_3);
 return x_1;
 }
@@ -303,7 +302,6 @@ else
 {
 size_t x_7; size_t x_8; lean_object* x_9; 
 x_7 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_8 = 0;
 x_9 = l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00List_foldrTR___at___00IO_AsyncList_ofList_spec__0_spec__0___redArg(x_3, x_7, x_8, x_1);
 lean_dec_ref(x_3);

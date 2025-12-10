@@ -647,7 +647,10 @@ export Core (CoreM mkFreshUserName checkSystem withCurrHeartbeats)
   This function is a bit hackish. The heartbeat exception should probably be an internal exception.
   We used a similar hack at `Exception.isMaxRecDepth` -/
 def Exception.isMaxHeartbeat (ex : Exception) : Bool :=
-  ex matches Exception.error _ (.tagged `runtime.maxHeartbeats _)
+  if let Exception.error _ msg := ex then
+    msg.stripNestedTags.kind == `runtime.maxHeartbeats
+  else
+    false
 
 /-- Creates the expression `d → b` -/
 def mkArrow (d b : Expr) : CoreM Expr :=

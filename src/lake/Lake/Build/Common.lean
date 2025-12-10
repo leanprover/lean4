@@ -499,7 +499,7 @@ public class ResolveOutputs (m : Type v → Type w) (α : Type v) where
 
 open ResolveOutputs in
 /--
-Retrieve artifacts from the Lake cache using the the outputs stored
+Retrieve artifacts from the Lake cache using the outputs stored
 in either the saved trace file or in the cached input-to-content mapping.
 
 **For internal use only.**

@@ -1445,7 +1445,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_array_get_borrowed(x_1, x_2, x_3);
-lean_inc_ref(x_4);
+lean_inc(x_4);
 return x_4;
 }
 }

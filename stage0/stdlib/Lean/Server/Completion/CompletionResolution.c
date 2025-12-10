@@ -450,7 +450,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_24; lean_o
 x_24 = lean_st_ref_get(x_6);
 x_25 = lean_ctor_get(x_24, 0);
 lean_inc_ref(x_25);
-lean_dec_ref(x_24);
+lean_dec(x_24);
 x_26 = lean_ctor_get(x_1, 0);
 x_27 = lean_ctor_get(x_1, 1);
 x_28 = lean_ctor_get(x_1, 2);
@@ -1215,7 +1215,6 @@ lean_inc(x_10);
 lean_dec_ref(x_9);
 x_11 = lean_array_get_size(x_10);
 x_12 = lean_nat_dec_lt(x_7, x_11);
-lean_dec(x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -1234,7 +1233,7 @@ x_15 = lean_ctor_get(x_14, 1);
 lean_inc_ref(x_15);
 x_16 = lean_ctor_get(x_14, 2);
 lean_inc_ref(x_16);
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_17 = l_Lean_Elab_CompletionInfo_lctx(x_16);
 lean_dec_ref(x_16);
 x_18 = lean_alloc_closure((void*)(l_Lean_Lsp_CompletionItem_resolve___boxed), 7, 2);

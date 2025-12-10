@@ -1526,7 +1526,6 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_11; uint8_t x_12; 
 x_11 = lean_array_get_size(x_1);
 x_12 = lean_nat_dec_lt(x_2, x_11);
-lean_dec(x_11);
 if (x_12 == 0)
 {
 lean_dec(x_2);
@@ -1794,7 +1793,6 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_12; lean_object* x_15; uint8_t x_16; 
 x_15 = lean_array_get_size(x_1);
 x_16 = lean_nat_dec_lt(x_3, x_15);
-lean_dec(x_15);
 if (x_16 == 0)
 {
 lean_object* x_17; 
@@ -2214,7 +2212,6 @@ if (lean_is_exclusive(x_1)) {
 }
 x_19 = lean_array_get_size(x_5);
 x_20 = lean_nat_dec_lt(x_2, x_19);
-lean_dec(x_19);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; 
@@ -2309,7 +2306,6 @@ _start:
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_get_size(x_2);
 x_7 = lean_nat_dec_lt(x_4, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_dec(x_4);
@@ -2339,7 +2335,7 @@ x_18 = lean_usize_shift_right(x_12, x_17);
 x_19 = lean_nat_add(x_4, x_14);
 lean_dec(x_4);
 lean_inc(x_9);
-lean_inc_ref(x_8);
+lean_inc(x_8);
 x_20 = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Grind_Theorems_erase_spec__4_spec__4___redArg(x_5, x_18, x_1, x_8, x_9);
 x_4 = x_19;
 x_5 = x_20;
@@ -2362,7 +2358,6 @@ x_10 = lean_usize_land(x_2, x_9);
 x_11 = lean_usize_to_nat(x_10);
 x_12 = lean_array_get_size(x_6);
 x_13 = lean_nat_dec_lt(x_11, x_12);
-lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_dec(x_11);
@@ -3130,7 +3125,6 @@ _start:
 lean_object* x_5; lean_object* x_6; lean_object* x_14; uint8_t x_15; 
 x_14 = lean_array_get_size(x_1);
 x_15 = lean_nat_dec_lt(x_3, x_14);
-lean_dec(x_14);
 if (x_15 == 0)
 {
 lean_object* x_16; 
@@ -5342,11 +5336,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -5424,7 +5418,7 @@ lean_object* x_8; lean_object* x_13; lean_object* x_14; uint8_t x_15;
 x_13 = lean_st_ref_get(x_6);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc_ref(x_14);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 lean_inc(x_2);
 x_15 = l_Lean_wasOriginallyTheorem(x_14, x_2);
 if (x_15 == 0)
@@ -5459,7 +5453,6 @@ x_33 = lean_array_get_size(x_19);
 x_34 = lean_nat_dec_lt(x_32, x_33);
 if (x_34 == 0)
 {
-lean_dec(x_33);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -5472,7 +5465,6 @@ else
 {
 if (x_34 == 0)
 {
-lean_dec(x_33);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -5486,7 +5478,6 @@ else
 size_t x_35; size_t x_36; uint8_t x_37; 
 x_35 = 0;
 x_36 = lean_usize_of_nat(x_33);
-lean_dec(x_33);
 lean_inc_ref(x_1);
 x_37 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Meta_Grind_Theorems_eraseDecl_spec__3___redArg(x_1, x_34, x_15, x_19, x_35, x_36);
 if (x_37 == 0)
@@ -5537,7 +5528,6 @@ x_23 = lean_nat_dec_lt(x_21, x_22);
 if (x_23 == 0)
 {
 lean_object* x_24; 
-lean_dec(x_22);
 lean_dec(x_19);
 if (lean_is_scalar(x_18)) {
  x_24 = lean_alloc_ctor(0, 1, 0);
@@ -5554,7 +5544,6 @@ x_25 = lean_nat_dec_le(x_22, x_22);
 if (x_25 == 0)
 {
 lean_object* x_26; 
-lean_dec(x_22);
 lean_dec(x_19);
 if (lean_is_scalar(x_18)) {
  x_26 = lean_alloc_ctor(0, 1, 0);
@@ -5569,7 +5558,6 @@ else
 size_t x_27; size_t x_28; lean_object* x_29; lean_object* x_30; 
 x_27 = 0;
 x_28 = lean_usize_of_nat(x_22);
-lean_dec(x_22);
 x_29 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Meta_Grind_Theorems_eraseDecl_spec__2___redArg(x_19, x_27, x_28, x_1);
 lean_dec(x_19);
 if (lean_is_scalar(x_18)) {
@@ -5918,7 +5906,6 @@ _start:
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_get_size(x_2);
 x_7 = lean_nat_dec_lt(x_4, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_dec(x_4);
@@ -5955,7 +5942,6 @@ x_6 = lean_array_get_size(x_4);
 x_7 = lean_nat_dec_lt(x_5, x_6);
 if (x_7 == 0)
 {
-lean_dec(x_6);
 lean_dec(x_1);
 return x_3;
 }
@@ -5965,7 +5951,6 @@ uint8_t x_8;
 x_8 = lean_nat_dec_le(x_6, x_6);
 if (x_8 == 0)
 {
-lean_dec(x_6);
 lean_dec(x_1);
 return x_3;
 }
@@ -5974,7 +5959,6 @@ else
 size_t x_9; size_t x_10; lean_object* x_11; 
 x_9 = 0;
 x_10 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_PersistentHashMap_foldl___at___00Lean_PersistentHashMap_toList___at___00Lean_PersistentHashSet_toList___at___00Lean_Meta_Grind_Theorems_getOrigins_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___redArg(x_1, x_4, x_9, x_10, x_3);
 return x_11;
 }
@@ -6550,7 +6534,7 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = l_Lean_Name_isAnonymous(x_2);
 if (x_7 == 0)
 {
@@ -7048,7 +7032,7 @@ lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10;
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = 0;
 lean_inc(x_1);
 x_10 = l_Lean_Environment_findConstVal_x3f(x_8, x_1, x_9);
@@ -7138,7 +7122,7 @@ if (lean_is_exclusive(x_7)) {
 x_17 = lean_st_ref_get(x_5);
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc_ref(x_18);
-lean_dec_ref(x_17);
+lean_dec(x_17);
 lean_inc(x_1);
 x_19 = l_Lean_wasOriginallyTheorem(x_18, x_1);
 if (x_19 == 0)

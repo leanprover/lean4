@@ -448,8 +448,8 @@ if(LLVM AND ${STAGE} GREATER 0)
     # - In particular, `host/bin/llvm-config` produces flags like `-Lllvm-host/lib/libLLVM`, while
     #   we need the path to be `-Lllvm/lib/libLLVM`. Thus, we perform this replacement here.
     string(REPLACE "llvm-host" "llvm" LEANSHARED_LINKER_FLAGS ${LEANSHARED_LINKER_FLAGS})
-    string(REPLACE "llvm-host" "llvm" LEAN_EXTRA_CXX_FLAGS ${LEAN_EXTRA_CXX_FLAGS})
-    message(VERBOSE "leanshared linker flags: '${LEANSHARED_LINKER_FLAGS}' | lean extra cxx flags '${LEAN_EXTR_CXX_FLAGS}'")
+    string(REPLACE "llvm-host" "llvm" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+    message(VERBOSE "leanshared linker flags: '${LEANSHARED_LINKER_FLAGS}' | lean extra cxx flags '${CMAKE_CXX_FLAGS}'")
 endif()
 
 # get rid of unused parts of C++ stdlib

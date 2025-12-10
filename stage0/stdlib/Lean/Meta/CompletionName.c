@@ -22,9 +22,9 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Meta_CompletionName_0__Lean_Meta_isInternalNameModuloPrivate(lean_object*);
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_is_aux_recursor(lean_object*, lean_object*);
+uint8_t l_Lean_isAuxRecursor(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_allowCompletion___boxed(lean_object*, lean_object*);
-uint8_t lean_is_no_confusion(lean_object*, lean_object*);
+uint8_t l_Lean_isNoConfusion(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_addToCompletionBlackList___closed__0;
 extern lean_object* l_Lean_privateHeader;
 static lean_object* l_Lean_Meta_initFn___closed__1_00___x40_Lean_Meta_CompletionName_3302084676____hygCtx___hyg_2_;
@@ -232,7 +232,7 @@ if (x_12 == 0)
 uint8_t x_13; 
 lean_inc(x_2);
 lean_inc_ref(x_1);
-x_13 = lean_is_aux_recursor(x_1, x_2);
+x_13 = l_Lean_isAuxRecursor(x_1, x_2);
 x_3 = x_13;
 goto block_11;
 }
@@ -248,7 +248,7 @@ if (x_3 == 0)
 uint8_t x_4; 
 lean_inc(x_2);
 lean_inc_ref(x_1);
-x_4 = lean_is_no_confusion(x_1, x_2);
+x_4 = l_Lean_isNoConfusion(x_1, x_2);
 if (x_4 == 0)
 {
 uint8_t x_5; 

@@ -72,7 +72,7 @@ LEAN_EXPORT lean_object* l_Lean_isProjectionFn___redArg(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_getProjectionFnInfo_x3f___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__0_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2_(lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* lean_add_projection_info(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_addProjectionFnInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__19;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_initFn_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2__spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
@@ -99,7 +99,7 @@ uint8_t l_Lean_MapDeclarationExtension_contains___redArg(lean_object*, lean_obje
 static lean_object* l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__3;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__21;
-LEAN_EXPORT lean_object* lean_get_projection_info(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Environment_getProjectionFnInfo_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkProjectionInfoEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_instInhabitedProjectionFunctionInfo_default___closed__0() {
 _start:
@@ -597,7 +597,7 @@ lean_inc_ref(x_1);
 x_14 = l_Lean_Environment_contains(x_1, x_13, x_11);
 if (x_14 == 0)
 {
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_6 = x_5;
 goto block_10;
 }
@@ -654,7 +654,6 @@ x_8 = l_Lean_initFn___lam__0___closed__1_00___x40_Lean_ProjFns_2268652983____hyg
 x_9 = lean_nat_dec_lt(x_6, x_7);
 if (x_9 == 0)
 {
-lean_dec(x_7);
 lean_dec_ref(x_5);
 lean_dec_ref(x_1);
 return x_8;
@@ -665,7 +664,6 @@ uint8_t x_10;
 x_10 = lean_nat_dec_le(x_7, x_7);
 if (x_10 == 0)
 {
-lean_dec(x_7);
 lean_dec_ref(x_5);
 lean_dec_ref(x_1);
 return x_8;
@@ -675,7 +673,6 @@ else
 size_t x_11; size_t x_12; lean_object* x_13; 
 x_11 = 0;
 x_12 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
 x_13 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_initFn_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2__spec__2(x_1, x_5, x_11, x_12, x_8);
 lean_dec_ref(x_5);
 return x_13;
@@ -787,7 +784,7 @@ x_1 = l_Lean_projectionFnInfoExt;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* lean_add_projection_info(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, uint8_t x_6) {
+LEAN_EXPORT lean_object* l_Lean_addProjectionFnInfo(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, uint8_t x_6) {
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
@@ -806,11 +803,11 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_6);
-x_8 = lean_add_projection_info(x_1, x_2, x_3, x_4, x_5, x_7);
+x_8 = l_Lean_addProjectionFnInfo(x_1, x_2, x_3, x_4, x_5, x_7);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* lean_get_projection_info(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Environment_getProjectionFnInfo_x3f(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
@@ -851,7 +848,7 @@ _start:
 {
 lean_object* x_3; 
 lean_inc_ref(x_1);
-x_3 = lean_get_projection_info(x_1, x_2);
+x_3 = l_Lean_Environment_getProjectionFnInfo_x3f(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; 
@@ -981,7 +978,7 @@ LEAN_EXPORT lean_object* l_Lean_getProjectionFnInfo_x3f___redArg___lam__0(lean_o
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_get_projection_info(x_3, x_1);
+x_4 = l_Lean_Environment_getProjectionFnInfo_x3f(x_3, x_1);
 x_5 = lean_apply_2(x_2, lean_box(0), x_4);
 return x_5;
 }

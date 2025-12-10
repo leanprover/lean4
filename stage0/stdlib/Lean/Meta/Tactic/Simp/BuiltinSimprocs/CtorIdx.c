@@ -626,7 +626,7 @@ lean_object* x_10; lean_object* x_14; uint8_t x_15; lean_object* x_16;
 x_10 = lean_st_ref_get(x_8);
 x_14 = lean_ctor_get(x_10, 0);
 lean_inc_ref(x_14);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 x_15 = 0;
 x_16 = l_Lean_Environment_findAsync_x3f(x_14, x_1, x_15);
 if (lean_obj_tag(x_16) == 1)
@@ -879,7 +879,6 @@ x_38 = lean_nat_add(x_36, x_37);
 lean_dec(x_36);
 x_39 = lean_nat_dec_eq(x_35, x_38);
 lean_dec(x_38);
-lean_dec(x_35);
 if (x_39 == 0)
 {
 lean_object* x_40; 
@@ -1055,7 +1054,6 @@ x_74 = lean_nat_add(x_72, x_73);
 lean_dec(x_72);
 x_75 = lean_nat_dec_eq(x_71, x_74);
 lean_dec(x_74);
-lean_dec(x_71);
 if (x_75 == 0)
 {
 lean_object* x_76; lean_object* x_77; 

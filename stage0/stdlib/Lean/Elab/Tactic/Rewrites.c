@@ -282,7 +282,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_instantiateMVarsCore(x_7, x_1);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
@@ -343,11 +343,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -3208,7 +3208,6 @@ x_83 = lean_array_get_size(x_82);
 x_84 = lean_nat_dec_lt(x_35, x_83);
 if (x_84 == 0)
 {
-lean_dec(x_83);
 lean_dec_ref(x_82);
 x_37 = x_67;
 x_38 = x_68;
@@ -3231,7 +3230,6 @@ uint8_t x_85;
 x_85 = lean_nat_dec_le(x_83, x_83);
 if (x_85 == 0)
 {
-lean_dec(x_83);
 lean_dec_ref(x_82);
 x_37 = x_67;
 x_38 = x_68;
@@ -3252,7 +3250,6 @@ else
 {
 size_t x_86; lean_object* x_87; 
 x_86 = lean_usize_of_nat(x_83);
-lean_dec(x_83);
 x_87 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Rewrites_evalExact_spec__8(x_82, x_81, x_86, x_76);
 lean_dec_ref(x_82);
 x_37 = x_67;
@@ -3469,7 +3466,6 @@ x_148 = lean_array_get_size(x_146);
 x_149 = lean_nat_dec_lt(x_35, x_148);
 if (x_149 == 0)
 {
-lean_dec(x_148);
 lean_dec_ref(x_146);
 x_110 = x_126;
 x_111 = x_132;
@@ -3490,7 +3486,6 @@ uint8_t x_150;
 x_150 = lean_nat_dec_le(x_148, x_148);
 if (x_150 == 0)
 {
-lean_dec(x_148);
 lean_dec_ref(x_146);
 x_110 = x_126;
 x_111 = x_132;
@@ -3514,7 +3509,6 @@ lean_ctor_set(x_152, 0, x_151);
 lean_ctor_set(x_152, 1, x_147);
 x_153 = 0;
 x_154 = lean_usize_of_nat(x_148);
-lean_dec(x_148);
 x_155 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Rewrites_evalExact_spec__10(x_143, x_138, x_146, x_153, x_154, x_152);
 lean_dec_ref(x_146);
 x_156 = lean_ctor_get(x_155, 1);

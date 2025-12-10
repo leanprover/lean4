@@ -675,11 +675,11 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
+lean_dec(x_7);
 x_9 = lean_st_ref_get(x_3);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_11 = lean_ctor_get(x_2, 2);
 x_12 = lean_ctor_get(x_4, 2);
 lean_inc(x_12);
@@ -1909,7 +1909,6 @@ x_12 = lean_nat_dec_lt(x_9, x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; 
-lean_dec(x_11);
 lean_dec_ref(x_6);
 lean_dec_ref(x_2);
 x_13 = lean_alloc_ctor(0, 1, 0);
@@ -1923,7 +1922,6 @@ x_14 = lean_nat_dec_le(x_11, x_11);
 if (x_14 == 0)
 {
 lean_object* x_15; 
-lean_dec(x_11);
 lean_dec_ref(x_6);
 lean_dec_ref(x_2);
 x_15 = lean_alloc_ctor(0, 1, 0);
@@ -1935,7 +1933,6 @@ else
 size_t x_16; size_t x_17; lean_object* x_18; 
 x_16 = 0;
 x_17 = lean_usize_of_nat(x_11);
-lean_dec(x_11);
 x_18 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Term_Quotation_getPatternsVars_spec__0(x_1, x_16, x_17, x_10, x_2, x_3, x_4, x_5, x_6, x_7);
 return x_18;
 }

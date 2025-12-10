@@ -17,6 +17,7 @@ static lean_object* l_Lake_instInhabitedElanInstall_default___closed__1;
 lean_object* l_Lake_instReprDynlib_repr___redArg(lean_object*);
 static lean_object* l_Lake_LakeInstall_ofLean___closed__3;
 LEAN_EXPORT lean_object* l_Lake_findLeanSysroot_x3f___boxed(lean_object*, lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instReprLeanInstall_repr___redArg___closed__30;
 static lean_object* l_Lake_LakeInstall_ofLean___closed__0;
 LEAN_EXPORT lean_object* l_Lake_leanArExe(lean_object*);
@@ -276,7 +277,6 @@ extern lean_object* l_Lake_instInhabitedDynlib_default;
 LEAN_EXPORT lean_object* l___private_Lake_Config_InstallPath_0__Lake_LeanInstall_get_getGithash(lean_object*);
 static lean_object* l_Lake_instReprElanInstall_repr___redArg___closed__0;
 static lean_object* l_Lake_leanSharedLibDir___closed__1;
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instReprLeanInstall_repr___redArg___closed__39;
 static lean_object* l_Lake_instReprElanInstall_repr___redArg___closed__15;
 static lean_object* l_Lake_instReprLeanInstall_repr___redArg___closed__12;
@@ -349,7 +349,6 @@ _start:
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_string_utf8_byte_size(x_1);
 x_4 = lean_nat_dec_eq(x_2, x_3);
-lean_dec(x_3);
 if (x_4 == 0)
 {
 uint32_t x_5; uint32_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
@@ -2071,7 +2070,6 @@ lean_object* x_2; lean_object* x_3; uint8_t x_4;
 x_2 = lean_array_get_size(x_1);
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_nat_dec_eq(x_2, x_3);
-lean_dec(x_2);
 if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 

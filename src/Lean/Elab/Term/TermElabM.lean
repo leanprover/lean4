@@ -1119,9 +1119,26 @@ If the `trace.Meta.synthInstance` option is not already set, gives a hint explai
 def useTraceSynthMsg : MessageData :=
   MessageData.lazy fun ctx =>
     if trace.Meta.synthInstance.get ctx.opts then
-      pure ""
+      pure .nil
     else
       pure <| .hint' s!"Type class instance resolution failures can be inspected with the `set_option {trace.Meta.synthInstance.name} true` command."
+
+builtin_initialize derivableRef : IO.Ref NameSet ← IO.mkRef {}
+
+/--
+Registers a deriving handler for the purpose of error message delivery in `synthesizeInstMVarCore`.
+This should only be called by `Lean.Elab.Term.registerDerivingHandler`.
+-/
+def registerDerivableClass (className : Name) : IO Unit := do
+  unless (← initializing) do
+    throw (IO.userError "failed to register derivable class, it can only be registered during initialization")
+  derivableRef.modify fun m => m.insert className
+
+/--
+Returns whether `className` has a `deriving` handler installed.
+-/
+def hasDerivingHandler (className : Name) : IO Bool := do
+  return (← derivableRef.get).contains className
 
 /--
   Try to synthesize metavariable using type class resolution.
@@ -1181,7 +1198,16 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
     if (← read).ignoreTCFailures then
       return false
     else
-      throwNamedError lean.synthInstanceFailed "failed to synthesize instance of type class{indentExpr type}{extraErrorMsg}{useTraceSynthMsg}"
+      let msg ← match type with
+        | .app (.const cls _) (.const typ _) =>
+          -- This has the structure of a `deriving`-style type class, alter feedback accordingly
+          if ← hasDerivingHandler cls then
+            pure <| extraErrorMsg ++ .hint' m!"Adding the command `deriving instance {cls} for {typ}` may allow Lean to derive the missing instance."
+          else
+            pure <| extraErrorMsg ++ useTraceSynthMsg
+        | _ =>
+            pure <| extraErrorMsg ++ useTraceSynthMsg
+      throwNamedError lean.synthInstanceFailed "failed to synthesize instance of type class{indentExpr type}{msg}"
 
 def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none)
     (mkErrorMsg? : Option (MVarId → (expectedType e : Expr) → MetaM MessageData) := none)
@@ -2142,6 +2168,16 @@ def exprToSyntax (e : Expr) : TermElabM Term := withFreshMacroScope do
   let mvar ← elabTerm result eType
   mvar.mvarId!.assign e
   return result
+
+def hintAutoImplicitFailure (exp : Expr) (expected := "a function") : TermElabM MessageData := do
+  let autoBound := (← readThe Context).autoBoundImplicitContext
+  unless autoBound.isSome && exp.isFVar && autoBound.get!.boundVariables.any (· == exp) do
+    return .nil
+  return .hint' m!"The identifier `{.ofName (← exp.fvarId!.getUserName)}` is unknown, \
+    and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly \
+    bound variable with an unknown type. \
+    However, the unknown type cannot be {expected}, and {expected} is what Lean expects here. \
+    This is often the result of a typo or a missing `import` or `open` statement."
 
 end Term
 

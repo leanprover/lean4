@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Std_Time_TimeZone_TZif_parse(lean_object*);
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_inst___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_inst___lam__2___closed__2;
@@ -74,7 +75,6 @@ static lean_object* l_Std_Time_Database_TZdb_default___closed__2;
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_readRulesFromDisk(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_ofExcept___at___00Std_Time_Database_TZdb_parseTZIfFromDisk_spec__0(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_default___closed__3;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -454,7 +454,6 @@ if (x_7 == 0)
 {
 lean_object* x_8; 
 lean_dec(x_6);
-lean_dec(x_4);
 lean_dec_ref(x_3);
 x_8 = lean_box(0);
 return x_8;
@@ -465,7 +464,6 @@ lean_object* x_9; lean_object* x_10; uint8_t x_11;
 x_9 = lean_unsigned_to_nat(2u);
 x_10 = lean_nat_sub(x_4, x_9);
 x_11 = lean_nat_dec_lt(x_10, x_4);
-lean_dec(x_4);
 if (x_11 == 0)
 {
 lean_object* x_12; 
@@ -576,7 +574,7 @@ return x_50;
 else
 {
 lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; 
-lean_dec_ref(x_14);
+lean_dec(x_14);
 x_51 = lean_unsigned_to_nat(0u);
 x_52 = lean_string_utf8_byte_size(x_13);
 x_53 = lean_alloc_ctor(0, 3, 0);

@@ -90,19 +90,17 @@ example : P fexp := by dsimp only [fexp_trfl']; exact hP1
 example : t = t := by dsimp only [trfl]
 
 /--
-error: Invalid field `eq_def`: The environment does not contain `Nat.eq_def`
+error: Invalid field `eq_def`: The environment does not contain `Nat.eq_def`, so it is not possible to project the field `eq_def` from an expression
   f
-has type
-  Nat
+of type `Nat`
 -/
 #guard_msgs in
 #check f.eq_def
 
 /--
-error: Invalid field `eq_unfold`: The environment does not contain `Nat.eq_unfold`
+error: Invalid field `eq_unfold`: The environment does not contain `Nat.eq_unfold`, so it is not possible to project the field `eq_unfold` from an expression
   f
-has type
-  Nat
+of type `Nat`
 -/
 #guard_msgs in
 #check f.eq_unfold

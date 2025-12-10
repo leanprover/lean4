@@ -685,7 +685,7 @@ def get (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get t.inner a h
 
 @[inline, inherit_doc DTreeMap.get!]
-def get! (t : DTreeMap α β cmp) (a : α) [Inhabited β] : β :=
+def get! [Inhabited β] (t : DTreeMap α β cmp) (a : α) : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get! t.inner a
 
 @[inline, inherit_doc DTreeMap.getD]
@@ -1053,6 +1053,16 @@ def inter (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.inter t₂.inner t₁.wf.balanced,  @Impl.WF.inter _ _ _ _ t₂.inner t₁.wf.balanced t₁.wf⟩
 
 instance : Inter (DTreeMap α β cmp) := ⟨inter⟩
+
+/--
+Computes the difference of the given tree maps.
+This function always iterates through the smaller map.
+-/
+def diff (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
+    letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.diff t₂.inner t₁.wf.balanced, @Impl.WF.diff α β _ t₁.inner t₁.wf t₂.inner⟩
+
+instance : SDiff (DTreeMap α β cmp) := ⟨diff⟩
+
 /--
 Erases multiple mappings from the tree map by iterating over the given collection and calling
 `erase`.
@@ -1060,7 +1070,6 @@ Erases multiple mappings from the tree map by iterating over the given collectio
 @[inline]
 def eraseMany {ρ} [ForIn Id ρ α] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.eraseMany l t.wf.balanced, t.wf.eraseMany⟩
-
 namespace Const
 
 variable {β : Type v}

@@ -61,7 +61,7 @@ static lean_object* l_Lean_declareBuiltinDocStringAndRanges___closed__17;
 lean_object* l_Lean_declareBuiltin(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_declareBuiltinDocStringAndRanges___closed__8;
 LEAN_EXPORT lean_object* l___private_Lean_BuiltinDocAttr_0__Lean_initFn___lam__0_00___x40_Lean_BuiltinDocAttr_939411776____hygCtx___hyg_2_(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-uint8_t lean_is_aux_recursor(lean_object*, lean_object*);
+uint8_t l_Lean_isAuxRecursor(lean_object*, lean_object*);
 lean_object* l_Lean_findSimpleDocString_x3f(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_declareBuiltinDocStringAndRanges___closed__16;
 static lean_object* l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_BuiltinDocAttr_0__Lean_initFn_00___x40_Lean_BuiltinDocAttr_939411776____hygCtx___hyg_2__spec__0_spec__0___closed__1;
@@ -74,7 +74,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_BuiltinDocAtt
 lean_object* lean_st_ref_get(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___at___00Lean_declareBuiltinDocStringAndRanges_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_BuiltinDocAttr_0__Lean_initFn___closed__14_00___x40_Lean_BuiltinDocAttr_939411776____hygCtx___hyg_2_;
-uint8_t lean_is_no_confusion(lean_object*, lean_object*);
+uint8_t l_Lean_isNoConfusion(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_BuiltinDocAttr_0__Lean_initFn_00___x40_Lean_BuiltinDocAttr_939411776____hygCtx___hyg_2__spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 static lean_object* l___private_Lean_BuiltinDocAttr_0__Lean_initFn___closed__20_00___x40_Lean_BuiltinDocAttr_939411776____hygCtx___hyg_2_;
@@ -156,11 +156,11 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_findDeclarationRangesCore_x3f___at___00Lean_findDeclarationRanges_x3f___at___00Lean_declareBuiltinDocStringAndRanges_spec__0_spec__1___redArg___closed__0;
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc_ref(x_9);
@@ -208,7 +208,7 @@ lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* 
 x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 x_6 = l_Lean_isRecCore(x_5, x_1);
 x_7 = lean_box(x_6);
 x_8 = lean_alloc_ctor(0, 1, 0);
@@ -239,7 +239,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_13; lean_object* x_14; lean_o
 x_13 = lean_st_ref_get(x_3);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc_ref(x_14);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 lean_inc(x_1);
 x_15 = l_Lean_isRec___at___00Lean_findDeclarationRanges_x3f___at___00Lean_declareBuiltinDocStringAndRanges_spec__0_spec__0___redArg(x_1, x_3);
 x_16 = lean_ctor_get(x_15, 0);
@@ -247,12 +247,12 @@ lean_inc(x_16);
 lean_dec_ref(x_15);
 lean_inc(x_1);
 lean_inc_ref(x_14);
-x_26 = lean_is_aux_recursor(x_14, x_1);
+x_26 = l_Lean_isAuxRecursor(x_14, x_1);
 if (x_26 == 0)
 {
 uint8_t x_27; 
 lean_inc(x_1);
-x_27 = lean_is_no_confusion(x_14, x_1);
+x_27 = l_Lean_isNoConfusion(x_14, x_1);
 x_21 = x_27;
 goto block_25;
 }
@@ -547,7 +547,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_154; lean_o
 x_154 = lean_st_ref_get(x_3);
 x_155 = lean_ctor_get(x_154, 0);
 lean_inc_ref(x_155);
-lean_dec_ref(x_154);
+lean_dec(x_154);
 x_156 = 0;
 lean_inc(x_1);
 x_157 = l_Lean_findSimpleDocString_x3f(x_155, x_1, x_156);
@@ -1062,7 +1062,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = lean_ctor_get(x_2, 2);
 x_8 = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_BuiltinDocAttr_0__Lean_initFn_00___x40_Lean_BuiltinDocAttr_939411776____hygCtx___hyg_2__spec__0_spec__0___closed__2;
 x_9 = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_BuiltinDocAttr_0__Lean_initFn_00___x40_Lean_BuiltinDocAttr_939411776____hygCtx___hyg_2__spec__0_spec__0___closed__6;

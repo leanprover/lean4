@@ -259,7 +259,7 @@ info: private theorem f_struct.eq_unfold : f_struct = fun x =>
 -/
 #guard_msgs(pass trace, all) in #print sig f_struct.eq_unfold
 
-/-- info: private theorem f_wfrec.eq_1 : ∀ (x : Nat), f_wfrec 0 x = x -/
+/-- info: @[defeq] private theorem f_wfrec.eq_1 : ∀ (x : Nat), f_wfrec 0 x = x -/
 #guard_msgs(pass trace, all) in #print sig f_wfrec.eq_1
 
 /--
@@ -279,7 +279,7 @@ info: private theorem f_wfrec.eq_unfold : f_wfrec = fun x x_1 =>
 -/
 #guard_msgs in #print sig f_wfrec.eq_unfold
 
-/-- info: theorem f_exp_wfrec.eq_1 : ∀ (x : Nat), f_exp_wfrec 0 x = x -/
+/-- info: @[defeq] theorem f_exp_wfrec.eq_1 : ∀ (x : Nat), f_exp_wfrec 0 x = x -/
 #guard_msgs in #print sig f_exp_wfrec.eq_1
 
 /--
@@ -487,10 +487,9 @@ public structure S
 def S.s := 1
 
 /--
-error: Invalid field `s`: The environment does not contain `S.s`
+error: Invalid field `s`: The environment does not contain `S.s`, so it is not possible to project the field `s` from an expression
   s
-has type
-  S
+of type `S`
 
 Note: A private declaration `S.s` (from the current module) exists but would need to be public to access here.
 -/

@@ -1834,6 +1834,9 @@ private def withNewBinderInfosImp (bs : Array (FVarId × BinderInfo)) (k : MetaM
 def withNewBinderInfos (bs : Array (FVarId × BinderInfo)) (k : n α) : n α :=
   mapMetaM (fun k => withNewBinderInfosImp bs k) k
 
+def withImplicitBinderInfos (bs : Array Expr) (k : n α) : n α :=
+  withNewBinderInfos (bs.map (·.fvarId!, BinderInfo.implicit)) k
+
 /--
  Execute `k` using a local context where any `x` in `xs` that is tagged as
  instance implicit is treated as a regular implicit. -/
@@ -1864,7 +1867,7 @@ def withLetDecl (name : Name) (type : Expr) (val : Expr) (k : Expr → n α) (no
 /--
 Runs `k x` with the local declaration `<name> : <type> := <val>` added to the local context, where `x` is the new free variable.
 Afterwards, the result is wrapped in the given `let`/`have` expression (according to the value of `nondep`).
-- If `usedLetOnly := true` (the default) then the the `let`/`have` is not created if the variable is unused.
+- If `usedLetOnly := true` (the default) then the `let`/`have` is not created if the variable is unused.
 -/
 def mapLetDecl [MonadLiftT MetaM n] (name : Name) (type : Expr) (val : Expr) (k : Expr → n Expr) (nondep : Bool := false) (kind : LocalDeclKind := .default) (usedLetOnly : Bool := true) : n Expr :=
   withLetDecl name type val (nondep := nondep) (kind := kind) fun x => do

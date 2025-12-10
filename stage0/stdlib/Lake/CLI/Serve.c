@@ -423,13 +423,12 @@ lean_object* x_6; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_
 lean_inc_ref(x_2);
 x_11 = l_Lake_resolvePath(x_2);
 x_12 = lean_ctor_get(x_1, 0);
-x_13 = lean_ctor_get(x_1, 7);
+x_13 = lean_ctor_get(x_1, 8);
 lean_inc_ref(x_13);
 x_14 = l_Lake_realConfigFile(x_13);
 x_15 = lean_string_utf8_byte_size(x_14);
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_nat_dec_eq(x_15, x_16);
-lean_dec(x_15);
 if (x_17 == 0)
 {
 uint8_t x_18; 
@@ -626,7 +625,7 @@ if (x_9 == 0)
 lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; 
 x_10 = lean_array_uget(x_4, x_5);
 x_11 = l_Lake_OutStream_logEntry(x_1, x_10, x_2, x_3);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 x_12 = 1;
 x_13 = lean_usize_add(x_5, x_12);
 x_5 = x_13;
@@ -705,7 +704,6 @@ x_51 = lean_array_get_size(x_28);
 x_52 = lean_nat_dec_lt(x_50, x_51);
 if (x_52 == 0)
 {
-lean_dec(x_51);
 x_30 = lean_box(0);
 goto block_49;
 }
@@ -715,7 +713,6 @@ uint8_t x_53;
 x_53 = lean_nat_dec_le(x_51, x_51);
 if (x_53 == 0)
 {
-lean_dec(x_51);
 x_30 = lean_box(0);
 goto block_49;
 }
@@ -728,7 +725,6 @@ x_56 = lean_box(1);
 x_57 = lean_box(0);
 x_58 = 0;
 x_59 = lean_usize_of_nat(x_51);
-lean_dec(x_51);
 x_60 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_serve_spec__1(x_56, x_54, x_55, x_28, x_58, x_59, x_57);
 lean_dec_ref(x_60);
 x_30 = lean_box(0);
@@ -805,7 +801,7 @@ x_31 = lean_ctor_get(x_27, 0);
 lean_inc(x_31);
 lean_dec_ref(x_27);
 x_32 = lean_ctor_get(x_31, 0);
-x_33 = lean_ctor_get(x_32, 4);
+x_33 = lean_ctor_get(x_32, 6);
 x_34 = lean_ctor_get(x_33, 4);
 lean_inc_ref(x_34);
 x_35 = l_Lake_Workspace_augmentedEnvVars(x_31);

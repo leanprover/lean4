@@ -6,7 +6,7 @@ This uses axiom to make it independent of specific optimization (e.g.
 for `Nat`).
 
 It generates a “list” of 128 `b`s followed by 128 `a` and uses
-bubble-sort to to sort it and compares it against the expected output. 
+bubble-sort to sort it and compares it against the expected output. 
 -/
 
 inductive V where | a | b

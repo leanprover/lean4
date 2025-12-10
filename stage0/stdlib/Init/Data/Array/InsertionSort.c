@@ -792,7 +792,6 @@ else
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_array_get_size(x_2);
 x_8 = lean_nat_dec_lt(x_3, x_7);
-lean_dec(x_7);
 if (x_8 == 0)
 {
 lean_dec(x_4);

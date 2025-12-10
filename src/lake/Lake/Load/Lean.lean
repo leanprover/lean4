@@ -22,11 +22,9 @@ open Lean
 
 namespace Lake
 
-/--
-Elaborate a Lean configuration file into a `Package`.
-The resulting package does not yet include any dependencies.
--/
-public def loadLeanConfig (cfg : LoadConfig) : LogIO (Package × Environment) := do
+/-- **For internal use only.** -/
+public def loadLeanConfigCore (cfg : LoadConfig)
+    : LogIO ({pkg : Package // pkg.wsIdx = cfg.pkgIdx} × Environment) := do
   let configEnv ← importConfigFile cfg
   let ⟨keyName, origName, config⟩ ← IO.ofExcept <| PackageDecl.loadFromEnv configEnv cfg.leanOpts
   let baseName := if cfg.pkgName.isAnonymous then origName else cfg.pkgName
@@ -40,4 +38,13 @@ public def loadLeanConfig (cfg : LoadConfig) : LogIO (Package × Environment) :=
     scope := cfg.scope
     remoteUrl := cfg.remoteUrl
   }
-  return (← pkg.loadFromEnv configEnv cfg.leanOpts, configEnv)
+  let pkg ← pkg.loadFromEnv configEnv cfg.leanOpts
+  return (⟨{pkg with wsIdx := cfg.pkgIdx}, rfl⟩, configEnv)
+
+/--
+Elaborate a Lean configuration file into a `Package`.
+The resulting package does not yet include any dependencies.
+-/
+@[inline] public def loadLeanConfig (cfg : LoadConfig) : LogIO (Package × Environment) := do
+  let (⟨pkg, _⟩, env) ← loadLeanConfigCore cfg
+  return (pkg, env)

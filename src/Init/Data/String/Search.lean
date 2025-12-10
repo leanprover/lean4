@@ -332,8 +332,7 @@ def contains (s : String) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
 def Internal.containsImpl (s : String) (c : Char) : Bool :=
   String.contains s c
 
-@[inline, inherit_doc contains]
-def any (s : String) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
+@[inline, inherit_doc contains] def any (s : String) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
   s.contains pat
 
 @[export lean_string_any]

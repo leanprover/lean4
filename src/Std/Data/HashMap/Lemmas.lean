@@ -1346,6 +1346,20 @@ theorem isEmpty_of_isEmpty_insertMany [EquivBEq α] [LawfulHashable α]
     {l : ρ} : (insertMany m l).isEmpty → m.isEmpty :=
   DHashMap.Const.isEmpty_of_isEmpty_insertMany
 
+section
+variable {β : Type v} {m₁ m₂ : HashMap α β} [BEq β]
+
+theorem Equiv.beq [EquivBEq α] [LawfulHashable α] [ReflBEq β] (h : m₁ ~m m₂) : m₁ == m₂ :=
+  DHashMap.Const.Equiv.beq h.1
+
+theorem equiv_of_beq [LawfulBEq α] [LawfulBEq β] (h : m₁ == m₂) : m₁ ~m m₂ :=
+  ⟨DHashMap.Const.equiv_of_beq h⟩
+
+theorem Equiv.beq_congr [EquivBEq α] [LawfulHashable α] {m₃ m₄ : HashMap α β} (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : (m₁ == m₂) = (m₃ == m₄) :=
+  DHashMap.Const.Equiv.beq_congr w₁.1 w₂.1
+
+end
+
 section Union
 variable {β : Type v}
 

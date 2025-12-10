@@ -574,8 +574,8 @@ def inferStep : InterpM Bool := do
   let ctx ← read
   for h : idx in *...ctx.decls.size do
     let decl := ctx.decls[idx]
-    if !decl.safe then
-      continue
+    --if !decl.safe then
+    --  continue
 
     let currentVal ← getFunVal idx
     withReader (fun ctx => { ctx with currFnIdx := idx }) do
@@ -663,7 +663,8 @@ def Decl.elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
     the constructor that we inferred for them. For more information
     refer to the docstring of `Decl.safe`.
     -/
-    if decls[i]!.safe then .bot else .top
+    .bot
+    --if decls[i]!.safe then .bot else .top
   let mut funVals := decls.size.fold (init := .empty) fun i _ p => p.push (initialVal i)
   let ctx := { decls }
   let mut state := { assignments, funVals }
@@ -676,7 +677,8 @@ def Decl.elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
     decls.size.fold (init := e) fun i _ env =>
       addFunctionSummary env decls[i].name funVals[i]!
 
-  decls.mapIdxM fun i decl => if decl.safe then elimDead assignments[i]! decl else return decl
+  --decls.mapIdxM fun i decl => if decl.safe then elimDead assignments[i]! decl else return decl
+  decls.mapIdxM fun i decl => elimDead assignments[i]! decl
 
 def elimDeadBranches : Pass :=
   { name := `elimDeadBranches, run := Decl.elimDeadBranches, phase := .mono }

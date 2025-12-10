@@ -1711,7 +1711,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_m
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Transform_0__Lean_Meta_transformWithCache_visit_visitLet___at___00__private_Lean_Meta_Transform_0__Lean_Meta_transformWithCache_visit___at___00Lean_Meta_transform___at___00__private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_zetaDeltaImplDetailsInProps_spec__1_spec__1_spec__6___lam__0(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withIncRecDepth___at___00__private_Lean_Meta_Transform_0__Lean_Meta_transformWithCache_visit___at___00Lean_Meta_transform___at___00__private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_zetaDeltaImplDetailsInProps_spec__1_spec__1_spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_throwErrorAt___at___00__private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_normalizeField_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_get_projection_info(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_getProjectionFnInfo_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___00__private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_zetaDeltaImplDetailsInProps_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_setExporting(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___00__private_Lean_Meta_Transform_0__Lean_Meta_transformWithCache_visit___at___00Lean_Meta_transform___at___00__private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_reduceFieldProjs_spec__2_spec__2_spec__11___boxed(lean_object**);
@@ -25884,7 +25884,7 @@ x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
 lean_dec(x_4);
-x_6 = lean_get_projection_info(x_5, x_1);
+x_6 = l_Lean_Environment_getProjectionFnInfo_x3f(x_5, x_1);
 x_7 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 return x_7;
@@ -45617,7 +45617,7 @@ x_16 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_16);
 lean_dec(x_9);
 lean_inc_ref(x_16);
-x_17 = lean_get_projection_info(x_16, x_14);
+x_17 = l_Lean_Environment_getProjectionFnInfo_x3f(x_16, x_14);
 if (lean_obj_tag(x_17) == 1)
 {
 lean_object* x_18; lean_object* x_19; uint8_t x_20; lean_object* x_21; 

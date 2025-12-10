@@ -37,7 +37,7 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___00Lean_initFn
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRangesCore_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___redArg___lam__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_st_ref_take(lean_object*);
-uint8_t lean_is_aux_recursor(lean_object*, lean_object*);
+uint8_t l_Lean_isAuxRecursor(lean_object*, lean_object*);
 lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_builtinDeclRanges;
 lean_object* l_Lean_Name_getPrefix(lean_object*);
@@ -45,7 +45,7 @@ LEAN_EXPORT lean_object* l_Lean_findDeclarationRangesCore_x3f___redArg___lam__1(
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*);
 static lean_object* l_Lean_initFn___lam__0___closed__1_00___x40_Lean_DeclarationRange_1661061460____hygCtx___hyg_2_;
-uint8_t lean_is_no_confusion(lean_object*, lean_object*);
+uint8_t l_Lean_isNoConfusion(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRangesCore_x3f___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn_00___x40_Lean_DeclarationRange_1661061460____hygCtx___hyg_2____boxed(lean_object*);
@@ -528,12 +528,12 @@ _start:
 uint8_t x_13; uint8_t x_17; 
 lean_inc(x_1);
 lean_inc_ref(x_7);
-x_17 = lean_is_aux_recursor(x_7, x_1);
+x_17 = l_Lean_isAuxRecursor(x_7, x_1);
 if (x_17 == 0)
 {
 uint8_t x_18; 
 lean_inc(x_1);
-x_18 = lean_is_no_confusion(x_7, x_1);
+x_18 = l_Lean_isNoConfusion(x_7, x_1);
 x_13 = x_18;
 goto block_16;
 }

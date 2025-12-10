@@ -350,7 +350,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at_
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Meta_Transform_0__Lean_Core_transform_visit___at___00Lean_Core_transform___at___00__private_Lean_Meta_WHNF_0__Lean_Meta_unfoldNestedDIte_spec__9_spec__9_spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00__private_Lean_Meta_Transform_0__Lean_Core_transform_visit___at___00Lean_Core_transform___at___00__private_Lean_Meta_WHNF_0__Lean_Meta_unfoldNestedDIte_spec__9_spec__9_spec__11(lean_object*, lean_object*, lean_object*);
-uint8_t lean_is_aux_recursor(lean_object*, lean_object*);
+uint8_t l_Lean_isAuxRecursor(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Meta_WHNF_0__Lean_Meta_unfoldNestedDIte_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_instantiateValueLevelParams(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getFunInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -445,7 +445,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_whnfEasyCases___at___00Lean_Meta_whnfHeadPr
 LEAN_EXPORT lean_object* l_Lean_Meta_withNatValue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_reduceRecMatcher_x3f___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_reduceMatcher_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_is_no_confusion(lean_object*, lean_object*);
 lean_object* l_Lean_RecursorVal_getMajorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfoCtor___at___00__private_Lean_Meta_WHNF_0__Lean_Meta_toCtorWhenStructure_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Meta_WHNF_0__Lean_Meta_unfoldNestedDIte_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -933,7 +932,7 @@ lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Lean_Meta_unfoldProjInst_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Meta_WHNF_0__Lean_Meta_unfoldNestedDIte_spec__0_spec__0_spec__0_spec__0_spec__2_spec__2___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_toCtorIfLit___closed__15;
-lean_object* lean_get_projection_info(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_getProjectionFnInfo_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_setExporting(lean_object*, uint8_t);
 static lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_isWFRec___closed__0;
 static lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_initFn___closed__13_00___x40_Lean_Meta_WHNF_4215588442____hygCtx___hyg_2_;
@@ -1763,33 +1762,16 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Meta_isAuxDef___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
 lean_dec(x_4);
-lean_inc(x_1);
-lean_inc_ref(x_5);
-x_6 = lean_is_aux_recursor(x_5, x_1);
-if (x_6 == 0)
-{
-uint8_t x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = lean_is_no_confusion(x_5, x_1);
-x_8 = lean_box(x_7);
-x_9 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_9, 0, x_8);
-return x_9;
-}
-else
-{
-lean_object* x_10; lean_object* x_11; 
-lean_dec_ref(x_5);
-lean_dec(x_1);
-x_10 = lean_box(x_6);
-x_11 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_11, 0, x_10);
-return x_11;
-}
+x_6 = l_Lean_isAuxRecursor(x_5, x_1);
+x_7 = lean_box(x_6);
+x_8 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_8, 0, x_7);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_isAuxDef(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -7776,7 +7758,7 @@ x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
 lean_dec(x_4);
-x_6 = lean_get_projection_info(x_5, x_1);
+x_6 = l_Lean_Environment_getProjectionFnInfo_x3f(x_5, x_1);
 x_7 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 return x_7;

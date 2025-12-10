@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Try.Collect
-// Imports: public import Init.Try public import Lean.Meta.Tactic.LibrarySearch public import Lean.Meta.Tactic.Grind.Cases public import Lean.Meta.Tactic.Grind.EMatchTheorem public import Lean.Meta.Tactic.FunIndCollect import Lean.Meta.Eqns
+// Imports: public import Init.Try public import Lean.Meta.Tactic.LibrarySearch public import Lean.Meta.Tactic.FunIndCollect import Lean.Meta.Eqns
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -8569,8 +8569,6 @@ return x_8;
 }
 lean_object* initialize_Init_Try(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_LibrarySearch(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Grind_Cases(uint8_t builtin);
-lean_object* initialize_Lean_Meta_Tactic_Grind_EMatchTheorem(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_FunIndCollect(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Eqns(uint8_t builtin);
 static bool _G_initialized = false;
@@ -8582,12 +8580,6 @@ res = initialize_Init_Try(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_LibrarySearch(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_Cases(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_EMatchTheorem(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_FunIndCollect(builtin);

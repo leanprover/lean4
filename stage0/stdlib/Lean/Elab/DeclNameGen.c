@@ -455,7 +455,7 @@ static lean_object* l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_NameG
 static lean_object* l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_NameGen_mkBaseNameCore_visit_x27___closed__0;
 static lean_object* l_List_foldl___at___00Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_Elab_liftMacroM___at___00Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_x27_spec__0_spec__13_spec__13_spec__13_spec__14___closed__1;
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
-lean_object* lean_get_projection_info(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_getProjectionFnInfo_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_setExporting(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_contains___at___00__private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_NameGen_mkBaseNameCore_visit_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isForall(lean_object*);
@@ -504,7 +504,7 @@ x_20 = lean_ctor_get(x_15, 0);
 lean_inc_ref(x_20);
 lean_dec(x_15);
 lean_inc_ref(x_20);
-x_21 = lean_get_projection_info(x_20, x_13);
+x_21 = l_Lean_Environment_getProjectionFnInfo_x3f(x_20, x_13);
 if (lean_obj_tag(x_21) == 1)
 {
 uint8_t x_22; 

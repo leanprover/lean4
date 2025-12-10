@@ -382,7 +382,7 @@ LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at___00Lean_Core_wrapAsyn
 static lean_object* l_Lean_Core_wrapAsyncAsSnapshot___redArg___lam__3___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00List_foldrTR___at___00__private_Lean_CoreM_0__Lean_DeclNameGenerator_mkUniqueName_curr_spec__0_spec__0(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_initFn_00___x40_Lean_CoreM_2405441116____hygCtx___hyg_4_();
-uint8_t lean_is_aux_recursor(lean_object*, lean_object*);
+uint8_t l_Lean_isAuxRecursor(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___auto_00___x40_Lean_CoreM_1099509125____hygCtx___hyg_5_;
 LEAN_EXPORT lean_object* l_Lean_Core_instantiateValueLevelParams(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instApplicativeOfMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -21327,7 +21327,7 @@ lean_inc(x_4);
 lean_dec_ref(x_3);
 lean_inc(x_4);
 lean_inc_ref(x_2);
-x_14 = lean_is_aux_recursor(x_2, x_4);
+x_14 = l_Lean_isAuxRecursor(x_2, x_4);
 if (x_14 == 0)
 {
 x_12 = x_14;

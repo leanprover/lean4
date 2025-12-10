@@ -139,7 +139,7 @@ static lean_object* l_Lean_Server_locationLinksFromImport___redArg___closed__8;
 lean_object* l_Lean_Server_documentUriFromModule_x3f(lean_object*);
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Server_locationLinksOfInfo___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_is_aux_recursor(lean_object*, lean_object*);
+uint8_t l_Lean_isAuxRecursor(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_findModuleOf_x3f___at___00__private_Lean_Server_GoTo_0__Lean_Server_locationLinksFromDecl_declMod_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_locationLinksDefault___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_GoToKind_declaration_elim___redArg___boxed(lean_object*);
@@ -168,7 +168,7 @@ LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___00Lean_throwUnknow
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_findModuleOf_x3f___at___00__private_Lean_Server_GoTo_0__Lean_Server_locationLinksFromDecl_declMod_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__2_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_GoToKind_definition_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*);
-uint8_t lean_is_no_confusion(lean_object*, lean_object*);
+uint8_t l_Lean_isNoConfusion(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_locationLinksFromCommandInfo___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_locationLinksDefault_defaultDeclNames___redArg___closed__4;
 static lean_object* l_Lean_Server_instFromJsonGoToKind___closed__0;
@@ -343,7 +343,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_GoToKind_determineTargetExprs___boxed(lea
 LEAN_EXPORT lean_object* l_Lean_Server_GoToKind_declaration_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_findModuleOf_x3f___at___00__private_Lean_Server_GoTo_0__Lean_Server_locationLinksFromDecl_declMod_x3f_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_ForEachExpr_visit___at___00Lean_Server_GoToKind_determineTargetExprs_spec__1_spec__1___redArg(lean_object*, lean_object*);
-lean_object* lean_get_projection_info(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_getProjectionFnInfo_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Environment_setExporting(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Server_GoToKind_definition_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Info_toElabInfo_x3f(lean_object*);
@@ -2492,7 +2492,7 @@ lean_dec_ref(x_5);
 x_7 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_7);
 lean_dec(x_4);
-x_8 = lean_get_projection_info(x_7, x_6);
+x_8 = l_Lean_Environment_getProjectionFnInfo_x3f(x_7, x_6);
 if (lean_obj_tag(x_8) == 1)
 {
 uint8_t x_9; 
@@ -4992,12 +4992,12 @@ lean_inc(x_19);
 lean_dec_ref(x_18);
 lean_inc(x_1);
 lean_inc_ref(x_17);
-x_29 = lean_is_aux_recursor(x_17, x_1);
+x_29 = l_Lean_isAuxRecursor(x_17, x_1);
 if (x_29 == 0)
 {
 uint8_t x_30; 
 lean_inc(x_1);
-x_30 = lean_is_no_confusion(x_17, x_1);
+x_30 = l_Lean_isNoConfusion(x_17, x_1);
 x_24 = x_30;
 goto block_28;
 }

@@ -61,8 +61,7 @@ end Typeclasses
 section ToArray
 
 def IterM.DefaultConsumers.toArrayMapped.RecursionRel {α β : Type w} {m : Type w → Type w'}
-    [MonadAttach m] [Iterator α m β] {γ : Type w} (x' x : (_ : IterM (α := α) m β) ×' Array γ) :
-    Prop :=
+    [Iterator α m β] {γ : Type w} (x' x : (_ : IterM (α := α) m β) ×' Array γ) : Prop :=
   (∃ out, x.1.IsPlausibleStep (.yield x'.1 out) ∧ ∃ fx, x'.2 = x.2.push fx) ∨
     (x.1.IsPlausibleStep (.skip x'.1) ∧ x'.2 = x.2)
 
@@ -74,7 +73,7 @@ of `f` into an array.
 -/
 @[always_inline, no_expose]
 def IterM.DefaultConsumers.toArrayMapped {α β : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [MonadAttach m] [Iterator α m β]
+    {n : Type w → Type w''} [Monad n] [Iterator α m β]
     (lift : ⦃α : Type w⦄ → m α → n α) {γ : Type w} (f : β → n γ)
     (it : IterM (α := α) m β) : n (Array γ) :=
   letI : MonadLift m n := ⟨lift (α := _)⟩
@@ -85,11 +84,11 @@ where
     letI : MonadLift m n := ⟨lift (α := _)⟩
     WellFounded.extrinsicFix₂ (C₂ := fun _ _ => n (Array γ)) (InvImage TerminationMeasures.Finite.Rel (·.1.finitelyManySteps!))
     (fun (it : IterM (α := α) m β) acc recur => do
-      match ← MonadAttach.attach it.step with
-      | ⟨.yield it' out, h⟩ =>
+      match (← it.step).inflate with
+      | .yield it' out h =>
         recur it' (acc.push (← f out)) (by exact TerminationMeasures.Finite.rel_of_yield ‹_›)
-      | ⟨.skip it', h⟩ => recur it' acc (by exact TerminationMeasures.Finite.rel_of_skip ‹_›)
-      | ⟨.done, _⟩ => return acc) it acc
+      | .skip it' h => recur it' acc (by exact TerminationMeasures.Finite.rel_of_skip ‹_›)
+      | .done _ => return acc) it acc
 
 /--
 This is the default implementation of the `IteratorCollect` class.
@@ -99,7 +98,7 @@ used instead.
 -/
 @[always_inline]
 def IteratorCollect.defaultImplementation {α β : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [MonadAttach m] [Iterator α m β] :
+    {n : Type w → Type w''} [Monad n] [Iterator α m β] :
     IteratorCollect α m n where
   toArrayMapped := IterM.DefaultConsumers.toArrayMapped
 
@@ -109,14 +108,14 @@ Asserts that a given `IteratorCollect` instance is equal to `IteratorCollect.def
 (Even though equal, the given instance might be vastly more efficient.)
 -/
 class LawfulIteratorCollect (α : Type w) (m : Type w → Type w') (n : Type w → Type w'')
-    {β : Type w} [Monad m] [Monad n] [MonadAttach m] [Iterator α m β] [i : IteratorCollect α m n] where
+    {β : Type w} [Monad m] [Monad n] [Iterator α m β] [i : IteratorCollect α m n] where
   lawful_toArrayMapped : ∀ lift [LawfulMonadLiftFunction lift] [Finite α m],
     i.toArrayMapped lift (α := α) (γ := γ)
       = IteratorCollect.defaultImplementation.toArrayMapped lift
 
 theorem LawfulIteratorCollect.toArrayMapped_eq {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad m] [Monad n] [MonadAttach m] [Iterator α m β] [Finite α m]
-    [IteratorCollect α m n] [hl : LawfulIteratorCollect α m n] {lift : ⦃δ : Type w⦄ → m δ → n δ}
+    {n : Type w → Type w''} [Monad m] [Monad n] [Iterator α m β] [Finite α m] [IteratorCollect α m n]
+    [hl : LawfulIteratorCollect α m n] {lift : ⦃δ : Type w⦄ → m δ → n δ}
     [LawfulMonadLiftFunction lift]
     {f : β → n γ} {it : IterM (α := α) m β} :
     IteratorCollect.toArrayMapped lift f it (m := m) =
@@ -124,7 +123,7 @@ theorem LawfulIteratorCollect.toArrayMapped_eq {α β γ : Type w} {m : Type w �
   rw [lawful_toArrayMapped]; rfl
 
 instance (α β : Type w) (m : Type w → Type w') (n : Type w → Type w'') [Monad n]
-    [Iterator α m β] [Monad m] [MonadAttach m] [Iterator α m β] [Finite α m] :
+    [Iterator α m β] [Monad m] [Iterator α m β] [Finite α m] :
     haveI : IteratorCollect α m n := .defaultImplementation
     LawfulIteratorCollect α m n :=
   letI : IteratorCollect α m n := .defaultImplementation
@@ -158,7 +157,7 @@ This variant terminates after finitely many steps and requires a proof that the 
 finite. If such a proof is not available, consider using `IterM.toArray`.
 -/
 @[always_inline, inline]
-def IterM.Total.toArray {α : Type w} {m : Type w → Type w'} {β : Type w} [Monad m] [MonadAttach m]
+def IterM.Total.toArray {α : Type w} {m : Type w → Type w'} {β : Type w} [Monad m]
     [Iterator α m β] [Finite α m] (it : IterM.Total (α := α) m β) [IteratorCollect α m m] :
     m (Array β) :=
   it.it.toArray
@@ -173,7 +172,7 @@ If the iterator is not finite, this function might run forever. The variant
 `it.ensureTermination.toListRev` always terminates after finitely many steps.
 -/
 @[always_inline, inline]
-def IterM.toListRev {α : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m] {β : Type w}
+def IterM.toListRev {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
     [Iterator α m β] (it : IterM (α := α) m β) : m (List β) :=
   go it []
 where
@@ -181,10 +180,10 @@ where
   go (it : IterM m β) acc :=
     WellFounded.extrinsicFix₂ (InvImage TerminationMeasures.Finite.Rel (·.1.finitelyManySteps!))
       (fun it acc recur => do
-        match ← MonadAttach.attach it.step with
-        | ⟨.yield it' out, h⟩ => recur it' (out :: acc) (TerminationMeasures.Finite.rel_of_yield h)
-        | ⟨.skip it', h⟩ => recur it' acc (TerminationMeasures.Finite.rel_of_skip h)
-        | ⟨.done, _⟩ => return acc) it acc
+        match (← it.step).inflate with
+        | .yield it' out h => recur it' (out :: acc) (TerminationMeasures.Finite.rel_of_yield h)
+        | .skip it' h => recur it' acc (TerminationMeasures.Finite.rel_of_skip h)
+        | .done _ => return acc) it acc
 
 /--
 Traverses the given iterator and stores the emitted values in reverse order in a list. Because
@@ -193,8 +192,8 @@ lists are prepend-only, this `toListRev` is usually more efficient that `toList`
 This function is deprecated. Instead of `it.allowNontermination.toListRev`, use `it.toListRev`.
 -/
 @[always_inline, inline, deprecated IterM.toListRev (since := "2025-10-23")]
-partial def IterM.Partial.toListRev {α : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m]
-    {β : Type w} [Iterator α m β] (it : IterM.Partial (α := α) m β) : m (List β) :=
+partial def IterM.Partial.toListRev {α : Type w} {m : Type w → Type w'} [Monad m] {β : Type w}
+    [Iterator α m β] (it : IterM.Partial (α := α) m β) : m (List β) :=
   it.it.toListRev
 
 /--
@@ -205,7 +204,7 @@ This variant terminates after finitely many steps and requires a proof that the 
 finite. If such a proof is not available, consider using `IterM.toListRev`.
 -/
 @[always_inline, inline]
-def IterM.Total.toListRev {α : Type w} {m : Type w → Type w'} {β : Type w} [Monad m] [MonadAttach m]
+def IterM.Total.toListRev {α : Type w} {m : Type w → Type w'} {β : Type w} [Monad m]
     [Iterator α m β] [Finite α m] (it : IterM.Total (α := α) m β) :
     m (List β) :=
   it.it.toListRev
@@ -242,7 +241,7 @@ This variant terminates after finitely many steps and requires a proof that the 
 finite. If such a proof is not available, consider using `IterM.toList`.
 -/
 @[always_inline, inline]
-def IterM.Total.toList {α : Type w} {m : Type w → Type w'} {β : Type w} [Monad m] [MonadAttach m]
+def IterM.Total.toList {α : Type w} {m : Type w → Type w'} {β : Type w} [Monad m]
     [Iterator α m β] [Finite α m] (it : IterM.Total (α := α) m β) [IteratorCollect α m m] :
     m (List β) :=
   it.it.toList

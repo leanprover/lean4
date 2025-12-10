@@ -75,7 +75,7 @@ def toListRev [ToIterator (Slice γ) Id α β] [Iterator α Id β]
     [Finite α Id] (s : Slice γ) : List β :=
   Internal.iter s |>.toListRev
 
-instance {γ : Type u} {β : Type v} [Monad m] [MonadAttach m] [ToIterator (Slice γ) Id α β]
+instance {γ : Type u} {β : Type v} [Monad m] [ToIterator (Slice γ) Id α β]
     [Iterator α Id β]
     [IteratorLoop α Id m]
     [Finite α Id] :
@@ -109,7 +109,7 @@ none
 -/
 @[always_inline, inline]
 def foldlM {γ : Type u} {β : Type v}
-    {δ : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m] (f : δ → β → m δ) (init : δ)
+    {δ : Type w} {m : Type w → Type w'} [Monad m] (f : δ → β → m δ) (init : δ)
     [ToIterator (Slice γ) Id α β] [Iterator α Id β]
     [IteratorLoop α Id m] [Finite α Id]
     (s : Slice γ) : m δ :=

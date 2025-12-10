@@ -22,14 +22,14 @@ The purpose of this class is that it implies a `Finite` instance but
 it is more convenient to implement.
 -/
 structure FinitenessRelation (α : Type w) (m : Type w → Type w') {β : Type w}
-    [MonadAttach m] [Iterator α m β] where
+    [Iterator α m β] where
   rel : (IterM (α := α) m β) → (IterM (α := α) m β) → Prop
   wf : WellFounded rel
   subrelation : ∀ {it it'}, it'.IsPlausibleSuccessorOf it → rel it' it
 
 theorem Finite.of_finitenessRelation
     {α : Type w} {m : Type w → Type w'} {β : Type w}
-    [MonadAttach m] [Iterator α m β] (r : FinitenessRelation α m) : Finite α m where
+    [Iterator α m β] (r : FinitenessRelation α m) : Finite α m where
   wf := by
     refine Subrelation.wf (r := r.rel) ?_ ?_
     · intro x y h
@@ -44,14 +44,14 @@ The purpose of this class is that it implies a `Productive` instance but
 it is more convenient to implement.
 -/
 structure ProductivenessRelation (α : Type w) (m : Type w → Type w') {β : Type w}
-    [MonadAttach m] [Iterator α m β] where
+    [Iterator α m β] where
   rel : (IterM (α := α) m β) → (IterM (α := α) m β) → Prop
   wf : WellFounded rel
   subrelation : ∀ {it it'}, it'.IsPlausibleSkipSuccessorOf it → rel it' it
 
 theorem Productive.of_productivenessRelation
     {α : Type w} {m : Type w → Type w'} {β : Type w}
-    [MonadAttach m] [Iterator α m β] (r : ProductivenessRelation α m) : Productive α m where
+    [Iterator α m β] (r : ProductivenessRelation α m) : Productive α m where
   wf := by
     refine Subrelation.wf (r := r.rel) ?_ ?_
     · intro x y h

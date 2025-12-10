@@ -93,7 +93,7 @@ theorem _root_.Std.Rxc.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
 @[no_expose]
 instance {m} [UpwardEnumerable α]
     [LE α] [DecidableLE α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [Monad m] [MonadAttach m] [Finite (Rxc.Iterator α) Id] :
+    [Monad m] [Finite (Rxc.Iterator α) Id] :
     ForIn' m (Rcc α) α inferInstance where
   forIn' r init f := by
     haveI := Iter.instForIn' (α := Rxc.Iterator α) (β := α) (n := m)
@@ -179,7 +179,7 @@ theorem _root_.Std.Rxo.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
 @[no_expose]
 instance {m} [UpwardEnumerable α] [LE α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
-    [Monad m] [MonadAttach m] [Finite (Rxo.Iterator α) Id] :
+    [Monad m] [Finite (Rxo.Iterator α) Id] :
     ForIn' m (Rco α) α inferInstance where
   forIn' r init f := by
     haveI := Iter.instForIn' (α := Rxo.Iterator α) (β := α) (n := m)
@@ -264,7 +264,7 @@ theorem _root_.Std.Rxi.Iterator.upwardEnumerableLe_of_isPlausibleIndirectOutput
 instance {m} [UpwardEnumerable α]
     [LE α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
-    [Monad m] [MonadAttach m] [Finite (Rxi.Iterator α) Id] :
+    [Monad m] [Finite (Rxi.Iterator α) Id] :
     ForIn' m (Rci α) α inferInstance where
   forIn' r init f := by
     haveI := Iter.instForIn' (α := Rxi.Iterator α) (β := α) (n := m)
@@ -345,7 +345,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
 instance {m} [UpwardEnumerable α]
     [LE α] [DecidableLE α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [LT α] [LawfulUpwardEnumerableLT α]
-    [Monad m] [MonadAttach m] [Finite (Rxc.Iterator α) Id] :
+    [Monad m] [Finite (Rxc.Iterator α) Id] :
     ForIn' m (Roc α) α inferInstance where
   forIn' r init f := by
     haveI := Iter.instForIn' (α := Rxc.Iterator α) (β := α) (n := m)
@@ -425,7 +425,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
 instance {m} [UpwardEnumerable α]
     [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [Monad m] [MonadAttach m] [Finite (Rxo.Iterator α) Id] :
+    [Monad m] [Finite (Rxo.Iterator α) Id] :
     ForIn' m (Roo α) α inferInstance where
   forIn' r init f := by
     haveI := Iter.instForIn' (α := Rxo.Iterator α) (β := α) (n := m)
@@ -501,7 +501,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
 @[no_expose]
 instance {m} [UpwardEnumerable α]
     [LT α] [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
-    [Monad m] [MonadAttach m] [Finite (Rxi.Iterator α) Id] :
+    [Monad m] [Finite (Rxi.Iterator α) Id] :
     ForIn' m (Roi α) α inferInstance where
   forIn' r init f := by
     haveI := Iter.instForIn' (α := Rxi.Iterator α) (β := α) (n := m)
@@ -576,7 +576,7 @@ instance {m} [UpwardEnumerable α]
     [LE α] [DecidableLE α] [Least? α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     [LawfulUpwardEnumerableLeast? α]
-    [Monad m] [MonadAttach m] [Finite (Rxc.Iterator α) Id] :
+    [Monad m] [Finite (Rxc.Iterator α) Id] :
     ForIn' m (Ric α) α inferInstance where
   forIn' r init f := by
     haveI := Iter.instForIn' (α := Rxc.Iterator α) (β := α) (n := m)
@@ -650,7 +650,7 @@ instance {m} [UpwardEnumerable α]
     [LT α] [DecidableLT α] [Least? α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     [LawfulUpwardEnumerableLeast? α]
-    [Monad m] [MonadAttach m] [Finite (Rxo.Iterator α) Id] :
+    [Monad m] [Finite (Rxo.Iterator α) Id] :
     ForIn' m (Rio α) α inferInstance where
   forIn' r init f := by
     haveI := Iter.instForIn' (α := Rxo.Iterator α) (β := α) (n := m)
@@ -717,7 +717,7 @@ theorem Internal.isPlausibleIndirectOutput_iter_iff
 @[no_expose]
 instance {m} [UpwardEnumerable α] [Least? α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLeast? α]
-    [Monad m] [MonadAttach m] [Finite (Rxi.Iterator α) Id] :
+    [Monad m] [Finite (Rxi.Iterator α) Id] :
     ForIn' m (Rii α) α inferInstance where
   forIn' r init f := by
     haveI := Iter.instForIn' (α := Rxi.Iterator α) (β := α) (n := m)

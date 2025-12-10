@@ -7,7 +7,6 @@ module
 
 prelude
 import Init.Data.Nat.Lemmas
-import Init.Control.Lawful.MonadAttach.Lemmas
 
 public import Init.Data.Iterators.Consumers
 import Init.Data.Iterators.Internal.Termination
@@ -28,9 +27,13 @@ public structure AssocListIterator (α : Type u) (β : α → Type v) where
   l : AssocList α β
 
 public instance : Iterator (α := AssocListIterator α β) Id ((a : α) × β a) where
+  IsPlausibleStep it
+    | .yield it' out => it.internalState.l = .cons out.1 out.2 it'.internalState.l
+    | .skip _ => False
+    | .done => it.internalState.l = .nil
   step it := pure (match it with
-        | ⟨⟨.nil⟩⟩ => .done
-        | ⟨⟨.cons k v l⟩⟩ => .yield (toIterM ⟨l⟩ Id _) ⟨k, v⟩)
+        | ⟨⟨.nil⟩⟩ => .deflate ⟨.done, rfl⟩
+        | ⟨⟨.cons k v l⟩⟩ => .deflate ⟨.yield (toIterM ⟨l⟩ Id _) ⟨k, v⟩, rfl⟩)
 
 def AssocListIterator.finitenessRelation :
     FinitenessRelation (AssocListIterator α β) Id where
@@ -38,12 +41,8 @@ def AssocListIterator.finitenessRelation :
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
-    obtain ⟨step, hs, h⟩ := h
-    cases LawfulMonadAttach.eq_of_canReturn_pure h
-    split at hs
-    · nomatch hs
-    · cases hs
-      simp
+    obtain ⟨step, h, h'⟩ := h
+    cases step <;> simp_all [IterStep.successor, IterM.IsPlausibleStep, Iterator.IsPlausibleStep]
 
 public instance : Finite (AssocListIterator α β) Id :=
   Finite.of_finitenessRelation AssocListIterator.finitenessRelation
@@ -52,8 +51,8 @@ public instance {α : Type u} {β : α → Type v} {m : Type (max u v) → Type 
     IteratorCollect (AssocListIterator α β) Id m :=
   .defaultImplementation
 
-public instance {α : Type u} {β : α → Type v} {m : Type (max u v) → Type w''}
-    [Monad m] [MonadAttach m] : IteratorLoop (AssocListIterator α β) Id m :=
+public instance {α : Type u} {β : α → Type v} {m : Type (max u v) → Type w''} [Monad m] :
+    IteratorLoop (AssocListIterator α β) Id m :=
   .defaultImplementation
 
 /--

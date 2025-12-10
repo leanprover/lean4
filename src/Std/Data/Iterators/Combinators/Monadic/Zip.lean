@@ -9,7 +9,6 @@ prelude
 public import Init.Data.Option.Lemmas
 public import Init.Data.Iterators.Consumers.Loop
 public import Init.Data.Iterators.Internal.Termination
-import Init.Control.Lawful.MonadAttach.Lemmas
 
 @[expose] public section
 
@@ -24,7 +23,7 @@ of pairs.
 namespace Std.Iterators
 open Std.Internal
 
-variable {m : Type w → Type w'} [MonadAttach m]
+variable {m : Type w → Type w'}
   {α₁ : Type w} {β₁ : Type w} [Iterator α₁ m β₁]
   {α₂ : Type w} {β₂ : Type w} [Iterator α₂ m β₂]
 
@@ -32,28 +31,58 @@ variable {m : Type w → Type w'} [MonadAttach m]
 Internal state of the `zip` combinator. Do not depend on its internals.
 -/
 @[unbox]
-structure Zip (α₁ : Type w) (m : Type w → Type w') {β₁ : Type w} [MonadAttach m] [Iterator α₁ m β₁]
-    (α₂ : Type w) (β₂ : Type w) where
+structure Zip (α₁ : Type w) (m : Type w → Type w') {β₁ : Type w} [Iterator α₁ m β₁] (α₂ : Type w) (β₂ : Type w) where
   left : IterM (α := α₁) m β₁
   memoizedLeft : (Option { out : β₁ // ∃ it : IterM (α := α₁) m β₁, it.IsPlausibleOutput out })
   right : IterM (α := α₂) m β₂
 
+/--
+`it.PlausibleStep step` is the proposition that `step` is a possible next step from the
+`zip` iterator `it`. This is mostly internally relevant, except if one needs to manually
+prove termination (`Finite` or `Productive` instances, for example) of a `zip` iterator.
+-/
+inductive Zip.PlausibleStep (it : IterM (α := Zip α₁ m α₂ β₂) m (β₁ × β₂)) :
+    IterStep (IterM (α := Zip α₁ m α₂ β₂) m (β₁ × β₂)) (β₁ × β₂) → Prop where
+  | yieldLeft (hm : it.internalState.memoizedLeft = none) {it' out}
+      (hp : it.internalState.left.IsPlausibleStep (.yield it' out)) :
+      PlausibleStep it (.skip ⟨⟨it', (some ⟨out, _, _, hp⟩), it.internalState.right⟩⟩)
+  | skipLeft (hm : it.internalState.memoizedLeft = none) {it'}
+      (hp : it.internalState.left.IsPlausibleStep (.skip it')) :
+      PlausibleStep it (.skip ⟨⟨it', none, it.internalState.right⟩⟩)
+  | doneLeft (hm : it.internalState.memoizedLeft = none)
+      (hp : it.internalState.left.IsPlausibleStep .done) :
+      PlausibleStep it .done
+  | yieldRight {out₁} (hm : it.internalState.memoizedLeft = some out₁) {it₂' out₂}
+      (hp : it.internalState.right.IsPlausibleStep (.yield it₂' out₂)) :
+      PlausibleStep it (.yield ⟨⟨it.internalState.left, none, it₂'⟩⟩ (out₁, out₂))
+  | skipRight {out₁} (hm : it.internalState.memoizedLeft = some out₁) {it₂'}
+      (hp : it.internalState.right.IsPlausibleStep (.skip it₂')) :
+      PlausibleStep it (.skip ⟨⟨it.internalState.left, (some out₁), it₂'⟩⟩)
+  | doneRight {out₁} (hm : it.internalState.memoizedLeft = some out₁)
+      (hp : it.internalState.right.IsPlausibleStep .done) :
+      PlausibleStep it .done
+
 instance Zip.instIterator [Monad m] :
     Iterator (Zip α₁ m α₂ β₂) m (β₁ × β₂) where
+  IsPlausibleStep := PlausibleStep
   step it :=
-    match it.internalState.memoizedLeft with
+    match hm : it.internalState.memoizedLeft with
     | none => do
-      match ← MonadAttach.attach it.internalState.left.step with
-      | ⟨.yield it₁' out, hp⟩ =>
-          return .skip ⟨⟨it₁', (some ⟨out, _, _, hp⟩), it.internalState.right⟩⟩
-      | ⟨.skip it₁', _⟩ => return .skip ⟨⟨it₁', none, it.internalState.right⟩⟩
-      | ⟨.done, _⟩ => return .done
+      match (← it.internalState.left.step).inflate with
+      | .yield it₁' out hp =>
+          pure <| .deflate <| .skip ⟨⟨it₁', (some ⟨out, _, _, hp⟩), it.internalState.right⟩⟩ (.yieldLeft hm hp)
+      | .skip it₁' hp =>
+          pure <| .deflate <| .skip ⟨⟨it₁', none, it.internalState.right⟩⟩ (.skipLeft hm hp)
+      | .done hp =>
+          pure <| .deflate <| .done (.doneLeft hm hp)
     | some out₁ => do
-      match ← it.internalState.right.step with
-      | .yield it₂' out₂ =>
-          return .yield ⟨⟨it.internalState.left, none, it₂'⟩⟩ (out₁, out₂)
-      | .skip it₂' => return .skip ⟨⟨it.internalState.left, (some out₁), it₂'⟩⟩
-      | .done => return .done
+      match (← it.internalState.right.step).inflate with
+      | .yield it₂' out₂ hp =>
+          pure <| .deflate <| .yield ⟨⟨it.internalState.left, none, it₂'⟩⟩ (out₁, out₂) (.yieldRight hm hp)
+      | .skip it₂' hp =>
+          pure <| .deflate <| .skip ⟨⟨it.internalState.left, (some out₁), it₂'⟩⟩ (.skipRight hm hp)
+      | .done hp =>
+          pure <| .deflate <| .done (.doneRight hm hp)
 
 /--
 Given two iterators `left` and `right`, `left.zip right` is an iterator that yields pairs of
@@ -118,9 +147,7 @@ theorem Zip.rel₁_of_right [Finite α₁ m] [Productive α₂ m]
   cases h
   exact Prod.Lex.right _ <| Prod.Lex.right _ h'
 
-def Zip.instFinitenessRelation₁
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
-    [Finite α₁ m] [Productive α₂ m] :
+def Zip.instFinitenessRelation₁ [Monad m] [Finite α₁ m] [Productive α₂ m] :
     FinitenessRelation (Zip α₁ m α₂ β₂) m where
   rel := Zip.Rel₁ m
   wf := by
@@ -132,38 +159,31 @@ def Zip.instFinitenessRelation₁
         exact emptyWf.wf
       · exact WellFoundedRelation.wf
   subrelation {it it'} h := by
-    obtain ⟨step, hs, h⟩ := h
-    simp only [IterM.IsPlausibleStep, Iterator.step] at h
-    split at h
-    · obtain ⟨step', hs', h⟩ := LawfulMonadAttach.canReturn_bind_imp' h
-      cases step' using PlausibleIterStep.casesOn
-      · cases LawfulMonadAttach.eq_of_canReturn_pure h
-        cases hs
-        apply Zip.rel₁_of_left
-        exact IterM.TerminationMeasures.Finite.rel_of_yield ‹_›
-      · cases LawfulMonadAttach.eq_of_canReturn_pure h
-        cases hs
-        apply Zip.rel₁_of_left
-        exact IterM.TerminationMeasures.Finite.rel_of_skip ‹_›
-      · cases LawfulMonadAttach.eq_of_canReturn_pure h
-        nomatch hs
-    · obtain ⟨step', hs', h⟩ := LawfulMonadAttach.canReturn_bind_imp' h
-      cases step', hs' using PlausibleIterStep.casesOn'
-      · cases LawfulMonadAttach.eq_of_canReturn_pure h
-        cases hs
-        apply Zip.rel₁_of_memoizedLeft
-        simp [Option.lt, *]
-      · cases LawfulMonadAttach.eq_of_canReturn_pure h
-        cases hs
-        apply Zip.rel₁_of_right
-        · simp_all
-        · exact IterM.TerminationMeasures.Productive.rel_of_skip ‹_›
-      · cases LawfulMonadAttach.eq_of_canReturn_pure h
-        nomatch hs
+    obtain ⟨step, h, h'⟩ := h
+    cases h'
+    case yieldLeft hm it' out hp =>
+      cases h
+      apply Zip.rel₁_of_left
+      exact IterM.TerminationMeasures.Finite.rel_of_yield ‹_›
+    case skipLeft hm it' hp =>
+      cases h
+      apply Zip.rel₁_of_left
+      exact IterM.TerminationMeasures.Finite.rel_of_skip ‹_›
+    case doneLeft hm hp =>
+      cases h
+    case yieldRight out₁ hm it₂' out₂ hp =>
+      cases h
+      apply Zip.rel₁_of_memoizedLeft
+      simp [Option.lt, hm]
+    case skipRight out₁ hm it₂' hp =>
+      cases h
+      apply Zip.rel₁_of_right
+      · simp_all
+      · exact IterM.TerminationMeasures.Productive.rel_of_skip ‹_›
+    case doneRight out₁ hm hp =>
+      cases h
 
-instance Zip.instFinite₁
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
-    [Finite α₁ m] [Productive α₂ m] :
+instance Zip.instFinite₁ [Monad m] [Finite α₁ m] [Productive α₂ m] :
     Finite (Zip α₁ m α₂ β₂) m :=
   Finite.of_finitenessRelation Zip.instFinitenessRelation₁
 
@@ -193,9 +213,7 @@ theorem Zip.rel₂_of_left [Productive α₁ m] [Finite α₂ m]
   cases h
   exact Prod.Lex.right _ <| Prod.Lex.right _ h'
 
-def Zip.instFinitenessRelation₂
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
-    [Productive α₁ m] [Finite α₂ m] :
+def Zip.instFinitenessRelation₂ [Monad m] [Productive α₁ m] [Finite α₂ m] :
     FinitenessRelation (Zip α₁ m α₂ β₂) m where
   rel := Zip.Rel₂ m
   wf := by
@@ -207,38 +225,31 @@ def Zip.instFinitenessRelation₂
         exact emptyWf.wf
       · exact WellFoundedRelation.wf
   subrelation {it it'} h := by
-    obtain ⟨step, hs, h⟩ := h
-    simp only [IterM.IsPlausibleStep, Iterator.step] at h
-    split at h
-    · obtain ⟨step', hs', h⟩ := LawfulMonadAttach.canReturn_bind_imp' h
-      cases step' using PlausibleIterStep.casesOn
-      · cases LawfulMonadAttach.eq_of_canReturn_pure h
-        cases hs
-        apply Zip.rel₂_of_memoizedLeft
-        simp_all [Option.SomeLtNone.lt]
-      · cases LawfulMonadAttach.eq_of_canReturn_pure h
-        cases hs
-        apply Zip.rel₂_of_left
-        · simp_all
-        · exact IterM.TerminationMeasures.Productive.rel_of_skip ‹_›
-      · cases LawfulMonadAttach.eq_of_canReturn_pure h
-        nomatch hs
-    · obtain ⟨step', hs', h⟩ := LawfulMonadAttach.canReturn_bind_imp' h
-      cases step', hs' using PlausibleIterStep.casesOn'
-      · cases LawfulMonadAttach.eq_of_canReturn_pure h
-        cases hs
-        apply Zip.rel₂_of_right
-        exact IterM.TerminationMeasures.Finite.rel_of_yield ‹_›
-      · cases LawfulMonadAttach.eq_of_canReturn_pure h
-        cases hs
-        apply Zip.rel₂_of_right
-        exact IterM.TerminationMeasures.Finite.rel_of_skip ‹_›
-      · cases LawfulMonadAttach.eq_of_canReturn_pure h
-        nomatch hs
+    obtain ⟨step, h, h'⟩ := h
+    cases h'
+    case yieldLeft hm it' out hp =>
+      cases h
+      apply Zip.rel₂_of_memoizedLeft
+      simp_all [Option.SomeLtNone.lt]
+    case skipLeft hm it' hp =>
+      cases h
+      apply Zip.rel₂_of_left
+      · simp_all
+      · exact IterM.TerminationMeasures.Productive.rel_of_skip ‹_›
+    case doneLeft hm hp =>
+      cases h
+    case yieldRight out₁ hm it₂' out₂ hp =>
+      cases h
+      apply Zip.rel₂_of_right
+      exact IterM.TerminationMeasures.Finite.rel_of_yield ‹_›
+    case skipRight out₁ hm it₂' hp =>
+      cases h
+      apply Zip.rel₂_of_right
+      exact IterM.TerminationMeasures.Finite.rel_of_skip ‹_›
+    case doneRight out₁ hm hp =>
+      cases h
 
-instance Zip.instFinite₂
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
-    [Productive α₁ m] [Finite α₂ m] :
+instance Zip.instFinite₂ [Monad m] [Productive α₁ m] [Finite α₂ m] :
     Finite (Zip α₁ m α₂ β₂) m :=
   Finite.of_finitenessRelation Zip.instFinitenessRelation₂
 
@@ -269,9 +280,7 @@ theorem Zip.rel₃_of_right [Productive α₁ m] [Productive α₂ m]
   cases h
   exact Prod.Lex.right _ <| Prod.Lex.right _ h'
 
-def Zip.instProductivenessRelation
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
-    [Productive α₁ m] [Productive α₂ m] :
+def Zip.instProductivenessRelation [Monad m] [Productive α₁ m] [Productive α₂ m] :
     ProductivenessRelation (Zip α₁ m α₂ β₂) m where
   rel := Zip.Rel₃ m
   wf := by
@@ -283,31 +292,22 @@ def Zip.instProductivenessRelation
       · exact WellFoundedRelation.wf
       · exact WellFoundedRelation.wf
   subrelation {it it'} h := by
-    simp only [IterM.IsPlausibleSkipSuccessorOf, IterM.IsPlausibleStep, Iterator.step] at h
-    split at h <;> rename_i heq
-    · obtain ⟨step, hs, h⟩ := LawfulMonadAttach.canReturn_bind_imp' h
-      cases step using PlausibleIterStep.casesOn
-      · cases LawfulMonadAttach.eq_of_canReturn_pure h
-        apply Zip.rel₃_of_memoizedLeft
-        simp [Option.SomeLtNone.lt, *]
-      · cases LawfulMonadAttach.eq_of_canReturn_pure h
-        obtain ⟨⟨left, memoizedLeft, right⟩⟩ := it
-        cases heq
-        apply Zip.rel₃_of_left
-        exact IterM.TerminationMeasures.Productive.rel_of_skip ‹_›
-      · nomatch LawfulMonadAttach.eq_of_canReturn_pure h
-    · obtain ⟨step, hs, h⟩ := LawfulMonadAttach.canReturn_bind_imp' h
-      cases step, hs using PlausibleIterStep.casesOn'
-      · nomatch LawfulMonadAttach.eq_of_canReturn_pure h
-      · cases LawfulMonadAttach.eq_of_canReturn_pure h
-        apply Zip.rel₃_of_right
-        · simp_all
-        · exact IterM.TerminationMeasures.Productive.rel_of_skip ‹_›
-      · nomatch LawfulMonadAttach.eq_of_canReturn_pure h
+    cases h
+    case yieldLeft hm it' out hp =>
+      apply Zip.rel₃_of_memoizedLeft
+      simp [Option.SomeLtNone.lt, hm]
+    case skipLeft hm it' hp =>
+      obtain ⟨⟨left, memoizedLeft, right⟩⟩ := it
+      simp only at hm
+      rw [hm]
+      apply Zip.rel₃_of_left
+      exact IterM.TerminationMeasures.Productive.rel_of_skip ‹_›
+    case skipRight out₁ hm it₂' hp =>
+      apply Zip.rel₃_of_right
+      · simp_all
+      · exact IterM.TerminationMeasures.Productive.rel_of_skip ‹_›
 
-instance Zip.instProductive
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
-    [Productive α₁ m] [Productive α₂ m] :
+instance Zip.instProductive [Monad m] [Productive α₁ m] [Productive α₂ m] :
     Productive (Zip α₁ m α₂ β₂) m :=
   Productive.of_productivenessRelation Zip.instProductivenessRelation
 
@@ -315,7 +315,7 @@ instance Zip.instIteratorCollect [Monad m] [Monad n] :
     IteratorCollect (Zip α₁ m α₂ β₂) m n :=
   .defaultImplementation
 
-instance Zip.instIteratorLoop [Monad m] [Monad n] [MonadAttach n] :
+instance Zip.instIteratorLoop [Monad m] [Monad n] :
     IteratorLoop (Zip α₁ m α₂ β₂) m n :=
   .defaultImplementation
 

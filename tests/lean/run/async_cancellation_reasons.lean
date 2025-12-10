@@ -60,7 +60,7 @@ def testUncancelledNoReason : Async Unit := do
 
 -- Test context cancellation with reason
 def testContextCancellation : Async Unit := do
-  let ctx ← Std.Context.new
+  let ctx ← Std.CancellationContext.new
   assert! not (← ctx.isCancelled)
 
   ctx.cancel .shutdown
@@ -73,7 +73,7 @@ def testContextCancellation : Async Unit := do
 
 -- Test context tree with different reasons
 def testContextTreeReasons : Async Unit := do
-  let root ← Std.Context.new
+  let root ← Std.CancellationContext.new
   let child1 ← root.fork
   let child2 ← root.fork
   let grandchild ← child1.fork
@@ -97,7 +97,7 @@ def testContextTreeReasons : Async Unit := do
 
 -- Test child cancellation doesn't affect parent
 def testChildCancellationIndependent : Async Unit := do
-  let root ← Std.Context.new
+  let root ← Std.CancellationContext.new
   let child ← root.fork
 
   -- Cancel child with deadline

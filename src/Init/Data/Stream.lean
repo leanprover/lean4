@@ -65,9 +65,8 @@ protected partial def Stream.forInNew {ρ α} {m : Type u → Type v} {σ β} [S
   haveI : Nonempty (m β) := ⟨knil init⟩
   visit str init
 
--- We use the default instance for iterators in Init.Data.Iterators.Consumers.Monadic.Loop instead.
--- instance (priority := low) [Stream ρ α] : ForInNew m ρ α where
---   forInNew := Stream.forInNew
+instance (priority := low) [Stream ρ α] : ForInNew m ρ α where
+  forInNew := Stream.forInNew
 
 protected partial def Stream.forIn [Stream ρ α] [Monad m] (s : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β := do
   let _ : Inhabited (m β) := ⟨pure b⟩

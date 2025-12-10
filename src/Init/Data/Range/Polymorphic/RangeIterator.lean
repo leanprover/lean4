@@ -447,7 +447,7 @@ instance Iterator.instLawfulIteratorLoopNew [UpwardEnumerable α] [LE α] [Decid
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α]
     {n : Type u → Type w} :
     LawfulIteratorLoopNew (Rxc.Iterator α) Id n where
-  lawfulNew _ := rfl
+  lawful := by simp
 
 /--
 An efficient {name}`IteratorLoop` instance:
@@ -1040,7 +1040,7 @@ instance Iterator.instLawfulIteratorLoopNew [UpwardEnumerable α] [LT α] [Decid
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     {n : Type u → Type w} :
     LawfulIteratorLoopNew (Rxo.Iterator α) Id n where
-  lawfulNew _ := rfl
+  lawful := by simp
 
 /--
 An efficient {name}`IteratorLoop` instance:
@@ -1543,7 +1543,7 @@ instance Iterator.instLawfulIteratorLoopNew [UpwardEnumerable α]
     [LawfulUpwardEnumerable α]
     {n : Type u → Type w} :
     LawfulIteratorLoopNew (Rxi.Iterator α) Id n where
-  lawfulNew _ := rfl
+  lawful := by simp
 
 /--
 An efficient {name}`IteratorLoop` instance:

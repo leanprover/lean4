@@ -666,7 +666,7 @@ theorem toList_insert_perm [BEq α] [TransOrd α] [LawfulBEqOrd α] (h : t.WF) {
   refine List.Perm.trans (toListModel_insert _ h.ordered) <| List.Perm.trans (List.insertEntry_perm_filter _ _ h.ordered.distinctKeys) ?_
   simp
 
-theorem insert!_toList_perm [BEq α] [TransOrd α] [LawfulBEqOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem toList_insert!_perm [BEq α] [TransOrd α] [LawfulBEqOrd α] (h : t.WF) {k : α} {v : β k} :
     (t.insert! k v).toList.Perm (⟨k, v⟩ :: t.toList.filter (¬k == ·.1)) := by
   simpa only [insert_eq_insert!] using toList_insert_perm h
 
@@ -677,7 +677,7 @@ theorem Const.toList_insert_perm {β : Type v} {t : Impl α (fun _ => β)} [BEq 
   apply List.Perm.trans <| List.Const.map_insertEntry_perm_filter_map _ _ h.ordered.distinctKeys
   simp
 
-theorem Const.insert!_toList_perm {β : Type v} {t : Impl α (fun _ => β)} [BEq α] [TransOrd α] [LawfulBEqOrd α] (h : t.WF) {k : α} {v : β} :
+theorem Const.toList_insert!_perm {β : Type v} {t : Impl α (fun _ => β)} [BEq α] [TransOrd α] [LawfulBEqOrd α] (h : t.WF) {k : α} {v : β} :
     (Const.toList (t.insert! k v)).Perm (⟨k, v⟩ :: (Const.toList t).filter (¬k == ·.1)) := by
   simpa only [insert_eq_insert!] using Const.toList_insert_perm h
 

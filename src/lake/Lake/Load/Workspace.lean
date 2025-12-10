@@ -28,7 +28,7 @@ Does not resolve dependencies.
 -/
 private def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
   Lean.searchPathRef.set config.lakeEnv.leanSearchPath
-  let (root, env?) ← loadPackageCore "[root]" config
+  let (root, env?) ← loadPackageCore "[root]" {config with pkgIdx := 0}
   let root := {root with outputsRef? := ← CacheRef.mk}
   let ws : Workspace := {
     root

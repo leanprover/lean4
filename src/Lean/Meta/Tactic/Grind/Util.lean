@@ -19,6 +19,18 @@ def _root_.Lean.MVarId.ensureNoMVar (mvarId : MVarId) : MetaM Unit := do
   if type.hasExprMVar then
     throwTacticEx `grind mvarId "goal contains metavariables"
 
+/--
+Instantiates metavariables occurring in the target and hypotheses.
+-/
+def _root_.Lean.MVarId.instantiateGoalMVars (mvarId : MVarId) : MetaM MVarId := do
+  mvarId.checkNotAssigned `grind
+  let mvarDecl ← mvarId.getDecl
+  let lctx ← instantiateLCtxMVars mvarDecl.lctx
+  let type ← Lean.instantiateMVars mvarDecl.type
+  let mvarNew ← mkFreshExprMVarAt lctx mvarDecl.localInstances type .syntheticOpaque mvarDecl.userName
+  mvarId.assign mvarNew
+  return mvarNew.mvarId!
+
 /-- Abstracts metavariables occurring in the target. -/
 def _root_.Lean.MVarId.abstractMVars (mvarId : MVarId) : MetaM MVarId := do
   mvarId.checkNotAssigned `grind
@@ -141,7 +153,7 @@ def eraseIrrelevantMData (e : Expr) : CoreM Expr := do
   let pre (e : Expr) := do
     match e with
     | .letE .. | .lam .. => return .done e
-    | .mdata _ e => return .continue e
+    | .mdata _ e => return .visit e
     | _ => return .continue e
   Core.transform e (pre := pre)
 

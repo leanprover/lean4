@@ -295,7 +295,7 @@ def isSingleton (t : RBMap α β cmp) : Bool :=
 @[inline] protected def forIn [Monad m] (t : RBMap α β cmp) (init : σ) (f : (α × β) → σ → m (ForInStep σ)) : m σ :=
   t.val.forIn init (fun a b acc => f (a, b) acc)
 
-instance : ForIn m (RBMap α β cmp) (α × β) where
+instance [Monad m] : ForIn m (RBMap α β cmp) (α × β) where
   forIn := RBMap.forIn
 
 @[inline] def isEmpty : RBMap α β cmp → Bool

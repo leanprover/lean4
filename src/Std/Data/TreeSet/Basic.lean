@@ -421,10 +421,10 @@ order.
 def forIn (f : α → δ → m (ForInStep δ)) (init : δ) (t : TreeSet α cmp) : m δ :=
   t.inner.forIn (fun a _ c => f a c) init
 
-instance : ForM m (TreeSet α cmp) α where
+instance [Monad m] : ForM m (TreeSet α cmp) α where
   forM t f := t.forM f
 
-instance : ForIn m (TreeSet α cmp) α where
+instance [Monad m] : ForIn m (TreeSet α cmp) α where
   forIn m init f := m.forIn (fun a acc => f a acc) init
 
 /-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
@@ -492,6 +492,26 @@ def union (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
   ⟨TreeMap.union t₁.inner t₂.inner⟩
 
 instance : Union (TreeSet α cmp) := ⟨union⟩
+
+/--
+Computes the intersection of the given tree sets.
+
+This function always iterates through the smaller set.
+-/
+def inter (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
+  ⟨TreeMap.inter t₁.inner t₂.inner⟩
+
+instance : Inter (TreeSet α cmp) := ⟨inter⟩
+
+/--
+Computes the difference of the given tree sets.
+
+This function always iterates through the smaller set.
+-/
+def diff (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
+  ⟨TreeMap.diff t₁.inner t₂.inner⟩
+
+instance : SDiff (TreeSet α cmp) := ⟨diff⟩
 
 /--
 Erases multiple items from the tree set by iterating over the given collection and calling erase.

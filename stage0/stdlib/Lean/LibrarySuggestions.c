@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.LibrarySuggestions
-// Imports: import Lean.LibrarySuggestions.Basic import Lean.LibrarySuggestions.SymbolFrequency import Lean.LibrarySuggestions.MePo import Lean.LibrarySuggestions.SineQuaNon import Lean.LibrarySuggestions.Default
+// Imports: public import Lean.LibrarySuggestions.Basic import Lean.LibrarySuggestions.SymbolFrequency import Lean.LibrarySuggestions.MePo public import Lean.LibrarySuggestions.SineQuaNon public import Lean.LibrarySuggestions.Default
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

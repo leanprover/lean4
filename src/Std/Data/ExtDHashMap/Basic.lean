@@ -351,19 +351,38 @@ def Const.insertManyIfNewUnit [EquivBEq α] [LawfulHashable α] {ρ : Type w}
     m := ⟨m.1.insertIfNew a (), fun _ init step => step (m.2 _ init step)⟩
   return m.1
 
-theorem union_congr [EquivBEq α] [LawfulHashable α] (a b c d : DHashMap α β) (h₁ : a ~m c) (h₂ : b ~m d) : a ∪ b ~m c ∪ d :=
-  DHashMap.Equiv.trans (DHashMap.union_equiv_congr_left h₁) (DHashMap.union_equiv_congr_right h₂)
-
 @[inline, inherit_doc DHashMap.union]
 def union [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtDHashMap α β) : ExtDHashMap α β := lift₂ (fun x y : DHashMap α β => mk (x.union y))
   (fun a b c d equiv₁ equiv₂ => by
     simp only [DHashMap.union_eq, mk'.injEq]
     apply Quotient.sound
-    apply union_congr
+    apply DHashMap.Equiv.union_congr
     . exact equiv₁
     . exact equiv₂) m₁ m₂
 
 instance [EquivBEq α] [LawfulHashable α] : Union (ExtDHashMap α β) := ⟨union⟩
+
+@[inline, inherit_doc DHashMap.inter]
+def inter [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtDHashMap α β) : ExtDHashMap α β := lift₂ (fun x y : DHashMap α β => mk (x.inter y))
+  (fun a b c d equiv₁ equiv₂ => by
+    simp only [DHashMap.inter_eq, mk'.injEq]
+    apply Quotient.sound
+    apply DHashMap.Equiv.inter_congr
+    · exact equiv₁
+    · exact equiv₂) m₁ m₂
+
+instance [EquivBEq α] [LawfulHashable α] : Inter (ExtDHashMap α β) := ⟨inter⟩
+
+@[inline, inherit_doc DHashMap.diff]
+def diff [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtDHashMap α β) : ExtDHashMap α β := lift₂ (fun x y : DHashMap α β => mk (x.diff y))
+  (fun a b c d equiv₁ equiv₂ => by
+    simp only [DHashMap.diff_eq, mk'.injEq]
+    apply Quotient.sound
+    apply DHashMap.Equiv.diff_congr
+    · exact equiv₁
+    · exact equiv₂) m₁ m₂
+
+instance [EquivBEq α] [LawfulHashable α] : SDiff (ExtDHashMap α β) := ⟨diff⟩
 
 @[inline, inherit_doc DHashMap.Const.unitOfArray]
 def Const.unitOfArray [BEq α] [Hashable α] (l : Array α) :

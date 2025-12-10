@@ -481,6 +481,36 @@ def eraseMany! [Ord α] {ρ : Type w} [ForIn Id ρ α] (t : Impl α β) (l : ρ)
     r := ⟨r.val.erase! a, fun h₀ h₁ => h₁ _ _ (r.2 h₀ h₁)⟩
   return r
 
+/-- A tree map obtained by erasing elements from `t`, bundled with an inductive principle. -/
+abbrev IteratedEntryErasureFrom [Ord α] (t) :=
+  { t' // ∀ {P : Impl α β → Prop}, P t → (∀ t'' a h, P t'' → P (t''.erase a h).impl) → P t' }
+
+/-- Iterate over `l` and erase all of its elements from `t`. -/
+@[inline]
+def eraseManyEntries [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) (h : t.Balanced) :
+    IteratedEntryErasureFrom t := Id.run do
+  let mut r := ⟨t, fun h _ => h⟩
+  for ⟨a, _⟩ in l do
+    let hr := r.2 h (fun t'' a h _ => (t''.erase a h).balanced_impl)
+    r := ⟨r.val.erase a hr |>.impl, fun h₀ h₁ => h₁ _ _ _ (r.2 h₀ h₁)⟩
+  return r
+
+/-- A tree map obtained by erasing elements from `t`, bundled with an inductive principle. -/
+abbrev IteratedSlowEntryErasureFrom [Ord α] (t) :=
+  { t' // ∀ {P : Impl α β → Prop}, P t → (∀ t'' a, P t'' → P (t''.erase! a)) → P t' }
+
+/--
+Slower version of `eraseManyEntries` which can be used in absence of balance information but still
+assumes the preconditions of `eraseManyEntries`, otherwise might panic.
+-/
+@[inline]
+def eraseManyEntries! [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) :
+    IteratedSlowErasureFrom t := Id.run do
+  let mut r := ⟨t, fun h _ => h⟩
+  for ⟨a, _⟩ in l do
+    r := ⟨r.val.erase! a, fun h₀ h₁ => h₁ _ _ (r.2 h₀ h₁)⟩
+  return r
+
 /-- A tree map obtained by inserting elements into `t`, bundled with an inductive principle. -/
 abbrev IteratedInsertionInto [Ord α] (t) :=
   { t' // ∀ {P : Impl α β → Prop}, P t → (∀ t'' a b h, P t'' → P (t''.insert a b h).impl) → P t' }
@@ -772,6 +802,40 @@ def filter! [Ord α] (f : (a : α) → β a → Bool) (t : Impl α β) : Impl α
     | false => link2! (filter! f l) (filter! f r)
     | true => link! k v (filter! f l) (filter! f r)
 
+/-- Internal implementation detail of the tree map -/
+@[inline]
+def interSmallerFn [Ord α] (m : Impl α β) (sofar : { t : Impl α β // t.Balanced } ) (k : α) : { res : Impl α β // res.Balanced } :=
+  match m.getEntry? k with
+  | some kv' => let ⟨val, prop, _, _⟩ := (sofar.val.insert kv'.1 kv'.2 sofar.2); ⟨val, prop⟩
+  | none => sofar
+
+/-- Internal implementation detail of the tree map -/
+def interSmaller [Ord α] (m₁ : Impl α β) (m₂ : Impl α β) : Impl α β :=
+  (m₂.foldl (fun sofar k _ => interSmallerFn m₁ sofar k) ⟨empty, balanced_empty⟩).1
+
+/-- Internal implementation detail of the hash map -/
+def inter [Ord α] (m₁ m₂ : Impl α β) (h₁ : Balanced m₁) : Impl α β :=
+  if m₁.size ≤ m₂.size then (m₁.filter (fun k _ => m₂.contains k) h₁).impl else interSmaller m₁ m₂
+
+/-- Slower version of `inter!` which can be used in the absence of balance
+information but still assumes the preconditions of `filter`, otherwise might panic. -/
+def inter! [Ord α] (m₁ m₂ : Impl α β): Impl α β :=
+  if m₁.size ≤ m₂.size then m₁.filter! (fun k _ => m₂.contains k) else interSmaller m₁ m₂
+
+/--
+Computes the difference of the given tree maps.
+This function always iterates through the smaller map.
+-/
+def diff [Ord α] (t₁ t₂ : Impl α β) (h₁ : t₁.Balanced) : Impl α β :=
+  if t₁.size ≤ t₂.size then (t₁.filter (fun p _ => !t₂.contains p) h₁).impl else (t₁.eraseManyEntries t₂ h₁)
+
+/--
+Slower version of `diff` which can be used in the absence of balance
+information but still assumes the preconditions of `diff`, otherwise might panic.
+-/
+def diff! [Ord α] (t₁ t₂ : Impl α β) : Impl α β :=
+  if t₁.size ≤ t₂.size then t₁.filter! (fun p _ => !t₂.contains p) else t₁.eraseManyEntries! t₂
+
 /--
 Changes the mapping of the key `k` by applying the function `f` to the current mapped value
 (if any). This function can be used to insert a new mapping, modify an existing one or delete it.
@@ -847,6 +911,15 @@ theorem balanced_modify [Ord α] [LawfulEqOrd α] {k f} {t : Impl α β} (ht : t
     have ihl := ihl ht.left
     have ihr := ihr ht.right
     tree_tac
+
+theorem balanced_inter [Ord α] {t₁ t₂ : Impl α β} (ht : t₁.Balanced) : (t₁.inter t₂ ht).Balanced := by
+  rw [inter]
+  split
+  · generalize (filter (fun k x => contains k t₂) t₁ ht) = m
+    exact m.balanced_impl
+  · rw [interSmaller]
+    generalize (foldl (fun sofar k x => t₁.interSmallerFn sofar k) ⟨empty, _⟩ t₂) = m
+    exact m.2
 
 /--
 Returns a map that contains all mappings of `t₁` and `t₂`. In case that both maps contain the

@@ -13,6 +13,9 @@ import all Init.Data.List.BasicAux
 public import Init.Data.List.Control
 import all Init.Data.List.Control
 public import Init.BinderPredicates
+import Init.Grind.Annotated
+
+grind_annotated "2025-01-24"
 
 public section
 
@@ -74,7 +77,7 @@ Further results, which first require developing further automation around `Nat`,
 * `Init.Data.List.Nat.TakeDrop`: `List.take` and `List.drop`
 
 Also
-* `Init.Data.List.Monadic` for addiation lemmas about `List.mapM` and `List.forM`.
+* `Init.Data.List.Monadic` for additional lemmas about `List.mapM` and `List.forM`.
 
 -/
 
@@ -250,6 +253,10 @@ theorem getElem_eq_iff {l : List α} {i : Nat} (h : i < l.length) : l[i] = x ↔
 theorem getElem_eq_getElem?_get {l : List α} {i : Nat} (h : i < l.length) :
     l[i] = l[i]?.get (by simp [h]) := by
   simp
+
+theorem getElem_eq_getD {l : List α} {i : Nat} {h : i < l.length} (fallback : α) :
+    l[i] = l.getD i fallback := by
+  rw [getElem_eq_getElem?_get, List.getD, Option.get_eq_getD]
 
 theorem getD_getElem? {l : List α} {i : Nat} {d : α} :
     l[i]?.getD d = if p : i < l.length then l[i]'p else d := by

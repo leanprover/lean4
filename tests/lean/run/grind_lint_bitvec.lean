@@ -1,5 +1,5 @@
 import Std
-import Lean.Elab.Tactic.Grind.Lint
+import Lean.Elab.Tactic.Grind.LintExceptions
 
 /-! `BitVec` exceptions -/
 
@@ -7,11 +7,11 @@ import Lean.Elab.Tactic.Grind.Lint
 #guard_msgs in
 #grind_lint inspect (min := 30) BitVec.msb_replicate
 
--- `BitVec.msb_signExtend` is reasonable at 22.
+-- `BitVec.msb_signExtend` is reasonable at 26.
 #guard_msgs in
-#grind_lint inspect (min := 25)  BitVec.msb_signExtend
+#grind_lint inspect (min := 26)  BitVec.msb_signExtend
 
 /-! Check BitVec namespace: -/
 
 #guard_msgs in
-#grind_lint check (min := 20) in BitVec
+#grind_lint check (min := 23) in BitVec

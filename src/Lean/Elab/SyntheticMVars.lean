@@ -12,6 +12,7 @@ public import Lean.Util.OccursCheck
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.AbstractNestedProofs
 public import Init.Data.List.Sort.Basic
+import all Lean.Elab.ErrorUtils
 
 public section
 
@@ -209,33 +210,6 @@ private def synthesizeUsingDefault : TermElabM Bool := do
       return true
   return false
 
-/--
-Translate zero-based indexes (0, 1, 2, ...) to ordinals ("first", "second",
-"third", ...). Not appropriate for numbers that could conceivably be larger
-than 19 in real examples.
--/
-private def toOrdinalString : Nat -> String
-  | 0 => "first"
-  | 1 => "second"
-  | 2 => "third"
-  | 3 => "fourth"
-  | 4 => "fifth"
-  | n => s!"{n+1}th"
-
-/-- Make an oxford-comma-separated list of strings. -/
-private def toOxford : List String -> String
-  | [] => ""
-  | [a] => a
-  | [a, b] => a ++ " and " ++ b
-  | [a, b, c] => a ++ ", " ++ b  ++ ", and " ++ c
-  | a :: as => a ++ ", " ++ toOxford as
-
-/- Give alternative forms of a string if the `count` is 1 or not. -/
-private def _root_.Nat.plural (count : Nat) (singular : String) (plural : String) :=
-  if count = 1 then
-    singular
-  else
-    plural
 
 def explainStuckTypeclassProblem (typeclassProblem : Expr) : TermElabM (Option MessageData) := do
 
@@ -296,7 +270,7 @@ def explainStuckTypeclassProblem (typeclassProblem : Expr) : TermElabM (Option M
     if args.length = 1 then
       "the type argument"
     else
-      s!"the {toOxford (stuckArguments.toList.map toOrdinalString)} type {nStuck.plural "argument" "arguments"}"
+      s!"the {(stuckArguments.toList.map (·.succ.toOrdinal)).toOxford} type {nStuck.plural "argument" "arguments"}"
 
   return .some (.note m!"Lean will not try to resolve this typeclass instance problem because {theTypeArguments} to `{.ofConstName name}` {containMVars}. {nStuck.plural "This argument" "These arguments"} must be fully determined before Lean will try to resolve the typeclass."
     ++ .hint' m!"Adding type annotations and supplying implicit arguments to functions can give Lean more information for typeclass resolution. For example, if you have a variable `x` that you intend to be a `{MessageData.ofConstName ``Nat}`, but Lean reports it as having an unresolved type like `?m`, replacing `x` with `(x : Nat)` can get typeclass resolution un-stuck.")

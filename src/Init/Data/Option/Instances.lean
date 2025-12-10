@@ -168,10 +168,10 @@ Examples:
   | none  , _ => pure ⟨⟩
   | some a, f => f a
 
-instance : ForM m (Option α) α :=
+instance [Monad m] : ForM m (Option α) α :=
   ⟨Option.forM⟩
 
-instance : ForIn' m (Option α) α inferInstance where
+instance [Monad m] : ForIn' m (Option α) α inferInstance where
   forIn' x init f := do
     match x with
     | none => return init

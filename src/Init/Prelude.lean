@@ -631,6 +631,8 @@ structure Subtype {α : Sort u} (p : α → Prop) where
   -/
   property : p val
 
+grind_pattern Subtype.property => self.val
+
 set_option linter.unusedVariables.funArgs false in
 /--
 Gadget for optional parameter support.
@@ -1835,6 +1837,8 @@ def Nat.ble : @& Nat → @& Nat → Bool
   | succ _, zero   => false
   | succ n, succ m => ble n m
 
+attribute [gen_constructor_elims] Bool
+
 /--
 Non-strict, or weak, inequality of natural numbers, usually accessed via the `≤` operator.
 -/
@@ -1858,9 +1862,14 @@ protected def Nat.lt (n m : Nat) : Prop :=
 instance instLTNat : LT Nat where
   lt := Nat.lt
 
-theorem Nat.not_succ_le_zero : ∀ (n : Nat), LE.le (succ n) 0 → False
-  | 0      => nofun
-  | succ _ => nofun
+theorem Nat.not_succ_le_zero (n : Nat) : LE.le (succ n) 0 → False :=
+  -- No injectivity tactic until `attribute [gen_constructor_elims] Nat`
+  have : ∀ m, Eq m 0 → LE.le (succ n) m → False := fun _ hm hle =>
+    Nat.le.casesOn (motive := fun m _ => Eq m 0 → False) hle
+      (fun h => Nat.noConfusion h)
+      (fun _ h => Nat.noConfusion h)
+      hm
+  this 0 rfl
 
 theorem Nat.not_lt_zero (n : Nat) : Not (LT.lt n 0) :=
   not_succ_le_zero n
@@ -1997,10 +2006,12 @@ protected theorem Nat.lt_of_not_le {a b : Nat} (h : Not (LE.le a b)) : LT.lt b a
 
 protected theorem Nat.add_pos_right :
     {b : Nat} → (a : Nat) → (hb : LT.lt 0 b) → LT.lt 0 (HAdd.hAdd a b)
+  | zero, _, h => (Nat.not_succ_le_zero _ h).elim
   | succ _, _, _ => Nat.zero_lt_succ _
 
 protected theorem Nat.mul_pos :
     {n m : Nat} → (hn : LT.lt 0 n) → (hm : LT.lt 0 m) → LT.lt 0 (HMul.hMul n m)
+  | _, zero, _, hb => (Nat.not_succ_le_zero _ hb).elim
   | _, succ _, ha, _ => Nat.add_pos_right _ ha
 
 protected theorem Nat.pow_pos {a : Nat} : {n : Nat} → (h : LT.lt 0 a) → LT.lt 0 (HPow.hPow a n)
@@ -2056,6 +2067,8 @@ Examples:
 protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
   | a, 0      => a
   | a, succ b => pred (Nat.sub a b)
+
+attribute [gen_constructor_elims] Nat
 
 instance instSubNat : Sub Nat where
   sub := Nat.sub
@@ -2214,9 +2227,6 @@ theorem Nat.mod_lt : (x : Nat) →  {y : Nat} → (hy : LT.lt 0 y) → LT.lt (HM
       | .isTrue _ => Nat.modCore_lt hm
       | .isFalse h => Nat.lt_of_not_le h
 
-attribute [gen_constructor_elims] Nat
-attribute [gen_constructor_elims] Bool
-
 /--
 Gets the word size of the current platform. The word size may be 64 or 32 bits.
 
@@ -2262,6 +2272,7 @@ structure Fin (n : Nat) where
   isLt : LT.lt val n
 
 attribute [coe] Fin.val
+grind_pattern Fin.isLt => self.val
 
 theorem Fin.eq_of_val_eq {n} : ∀ {i j : Fin n}, Eq i.val j.val → Eq i j
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
@@ -2920,7 +2931,40 @@ protected def List.hasDecEq {α : Type u} [DecidableEq α] : (a b : List α) →
       | isFalse nabs => isFalse (fun h => List.noConfusion h (fun _ habs => absurd habs nabs))
     | isFalse nab => isFalse (fun h => List.noConfusion h (fun hab _ => absurd hab nab))
 
-instance {α : Type u} [DecidableEq α] : DecidableEq (List α) := List.hasDecEq
+instance {α : Type u} [DecidableEq α] : DecidableEq (List α) := fun xs ys =>
+  /-
+  The first match step is expanded to make this instance
+  maximally-definitionally-equivalent to the compare-with-empty-list cases.
+  -/
+  match xs with
+  | .nil => match ys with
+    | .nil => isTrue rfl
+    | .cons _ _ => isFalse List.noConfusion
+  | .cons a as => match ys with
+    | .nil => isFalse List.noConfusion
+    | .cons b bs =>
+      match decEq a b with
+      | isTrue hab =>
+        match List.hasDecEq as bs with
+        | isTrue habs  => isTrue (hab ▸ habs ▸ rfl)
+        | isFalse nabs => isFalse (List.noConfusion · (fun _ habs => absurd habs nabs))
+      | isFalse nab => isFalse (List.noConfusion · (fun hab _ => absurd hab nab))
+
+/--
+Equality with `List.nil` is decidable even if the underlying type does not have decidable equality.
+-/
+instance List.instDecidableNilEq (a : List α) : Decidable (Eq List.nil a) :=
+  match a with
+  | .nil => isTrue rfl
+  | .cons _ _ => isFalse List.noConfusion
+
+/--
+Equality with `List.nil` is decidable even if the underlying type does not have decidable equality.
+-/
+instance List.instDecidableEqNil (a : List α) : Decidable (Eq a List.nil) :=
+  match a with
+  | .nil => isTrue rfl
+  | .cons _ _ => isFalse List.noConfusion
 
 /--
 The length of a list.
@@ -3141,7 +3185,7 @@ This is a cached value, so it is `O(1)` to access. The space allocated for an ar
 its _capacity_, is at least as large as its size, but may be larger. The capacity of an array is an
 internal detail that's not observable by Lean code.
 -/
-@[extern "lean_array_get_size"]
+@[extern "lean_array_get_size", tagged_return]
 def Array.size {α : Type u} (a : @& Array α) : Nat :=
  a.toList.length
 
@@ -3349,7 +3393,7 @@ Returns the number of bytes in the byte array.
 This is the number of bytes actually in the array, as distinct from its capacity, which is the
 amount of memory presently allocated for the array.
 -/
-@[extern "lean_byte_array_size"]
+@[extern "lean_byte_array_size", tagged_return]
 def ByteArray.size : (@& ByteArray) → Nat
   | ⟨bs⟩ => bs.size
 
@@ -3413,11 +3457,11 @@ structure String where ofByteArray ::
   /-- The bytes of the UTF-8 encoding of the string. Since strings have a special representation in
   the runtime, this function actually takes linear time and space at runtime. For efficient access
   to the string's bytes, use `String.utf8ByteSize` and `String.getUTF8Byte`. -/
-  bytes : ByteArray
+  toByteArray : ByteArray
   /-- The bytes of the string form valid UTF-8. -/
-  isValidUTF8 : ByteArray.IsValidUTF8 bytes
+  isValidUTF8 : ByteArray.IsValidUTF8 toByteArray
 
-attribute [extern "lean_string_to_utf8"] String.bytes
+attribute [extern "lean_string_to_utf8"] String.toByteArray
 attribute [extern "lean_string_from_utf8_unchecked"] String.ofByteArray
 
 /--
@@ -3432,7 +3476,7 @@ def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
   | ⟨⟨⟨s₁⟩⟩, _⟩, ⟨⟨⟨s₂⟩⟩, _⟩ =>
     dite (Eq s₁ s₂) (fun h => match s₁, s₂, h with | _, _, Eq.refl _ => isTrue rfl)
       (fun h => isFalse
-        (fun h' => h (congrArg (fun s => Array.toList (ByteArray.data (String.bytes s))) h')))
+        (fun h' => h (congrArg (fun s => Array.toList (ByteArray.data (String.toByteArray s))) h')))
 
 instance : DecidableEq String := String.decEq
 
@@ -3446,7 +3490,7 @@ be translated internally to byte positions, which takes linear time.
 A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.rawEndPos` and `p` lies on a UTF-8
 character boundary, see `String.Pos.IsValid`.
 
-There is another type, `String.ValidPos`, which bundles the validity predicate. Using `String.ValidPos`
+There is another type, `String.Pos`, which bundles the validity predicate. Using `String.Pos`
 instead of `String.Pos.Raw` is recommended because it will lead to less error handling and fewer edge cases.
 -/
 structure String.Pos.Raw where
@@ -3496,9 +3540,9 @@ The number of bytes used by the string's UTF-8 encoding.
 
 At runtime, this function takes constant time because the byte length of strings is cached.
 -/
-@[extern "lean_string_utf8_byte_size"]
+@[extern "lean_string_utf8_byte_size", tagged_return]
 def String.utf8ByteSize (s : @& String) : Nat :=
-  s.bytes.size
+  s.toByteArray.size
 
 /--
 A UTF-8 byte position that points at the end of a string, just after the last character.

@@ -35,7 +35,7 @@ message itself.
 
 # Examples
 
-## Missing import
+## Missing Import
 
 ```lean broken
 def inventory :=
@@ -56,7 +56,7 @@ The constant `Std.HashSet.ofList` is defined in the `Std.Data.HashSet.Basic` mod
 been imported in the original example. This import is suggested by the unknown identifier code
 action; once it is added, this example compiles.
 
-## Variable not in scope
+## Variable Not in Scope
 
 ```lean broken
 example (s : IO.FS.Stream) := do
@@ -80,7 +80,7 @@ not in scope. The `let`-binding on the third line is scoped to the inner `do` bl
 accessed in the outer `do` block. Moving this binding to the outer `do` block—from which it remains
 in scope in the inner block as well—resolves the issue.
 
-## Missing namespace
+## Missing Namespace
 
 ```lean broken
 inductive Color where
@@ -121,7 +121,7 @@ dotted-identifier notation `.rgb` can also be used, since the expected type of `
 `Color`. Alternatively, one can open the `Color` namespace and continue to omit the `Color` prefix
 from the identifier.
 
-## Protected constant name without namespace prefix
+## Protected Constant Name Without Namespace Prefix
 
 ```lean broken
 protected def A.x := ()
@@ -156,7 +156,7 @@ example—allows a `protected` constant to be referred to by its unqualified nam
 remainder of the namespace in which it occurs (see the manual section on
 [Namespaces and Sections](lean-manual://section/namespaces-sections) for details).
 
-## Unresolvable name inferred by dotted-identifier notation
+## Unresolvable Name Inferred by Dotted-Identifier Notation
 
 ```lean broken
 def disjoinToNat (b₁ b₂ : Bool) : Nat :=
@@ -188,11 +188,11 @@ qualified function name.
 ## Auto-bound variables
 
 ```lean broken
-set autoImplicit false in
+set_option relaxedAutoImplicit false in
 def thisBreaks (x : α₁) (y : size₁) := ()
 
-set relaxedAutoImplicit false in
-def thisBreaks (x : α₂) (y : size₂) := ()
+set_option autoImplicit false in
+def thisAlsoBreaks (x : α₂) (y : size₂) := ()
 ```
 ```output
 Unknown identifier `size₁`
@@ -206,18 +206,18 @@ Unknown identifier `size₂`
 Note: It is not possible to treat `size₂` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
 ```
 ```lean fixed (title := "Fixed (modifying options)")
-set autoImplicit true in
-def thisBreaks (x : α₁) (y : size₁) := ()
+set_option relaxedAutoImplicit true in
+def thisWorks (x : α₁) (y : size₁) := ()
 
-set relaxedAutoImplicit true in
-def thisBreaks (x : α₂) (y : size₂) := ()
+set_option autoImplicit true in
+def thisAlsoWorks (x : α₂) (y : size₂) := ()
 ```
 ```lean fixed (title := "Fixed (add implicit bindings for the unknown identifiers)")
-set autoImplicit false in
-def thisBreaks {size₁} (x : α₁) (y : size₁) := ()
+set_option relaxedAutoImplicit false in
+def thisWorks {size₁} (x : α₁) (y : size₁) := ()
 
-set relaxedAutoImplicit false in
-def thisBreaks {α₂ size₂} (x : α₂) (y : size₂) := ()
+set_option autoImplicit false in
+def thisAlsoWorks {α₂ size₂} (x : α₂) (y : size₂) := ()
 ```
 
 Lean's default behavior, when it encounters an identifier it can't identify in the type of a

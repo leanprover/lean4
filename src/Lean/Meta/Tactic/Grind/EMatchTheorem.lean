@@ -344,20 +344,73 @@ private def EMatchTheoremKind.explainFailure : EMatchTheoremKind → String
   | .default _ => "failed to find patterns"
   | .user      => unreachable!
 
-/--
-Grind patterns may have constraints of the form `lhs =/= rhs` associated with them.
-The `lhs` is one of the bound variables, and the `rhs` an abstract term that must not be definitionally
-equal to a term `t` assigned to `lhs`.
--/
-structure EMatchTheoremConstraint where
-  /-- `lhs` -/
-  bvarIdx    : Nat
+structure CnstrRHS where
   /-- Abstracted universe level param names in the `rhs` -/
   levelNames : Array Name
   /-- Number of abstracted metavariable in the `rhs` -/
   numMVars   : Nat
   /-- The actual `rhs`. -/
-  rhs        : Expr
+  expr       : Expr
+  deriving Inhabited, BEq, Repr
+
+/--
+Grind patterns may have constraints associated with them.
+-/
+inductive EMatchTheoremConstraint where
+  | /--
+    A constraint of the form `lhs =/= rhs`.
+    The `lhs` is one of the bound variables, and the `rhs` an abstract term that must not be definitionally
+    equal to a term `t` assigned to `lhs`. -/
+    notDefEq  (lhs : Nat) (rhs : CnstrRHS)
+  | /--
+    A constraint of the form `lhs =?= rhs`.
+    The `lhs` is one of the bound variables, and the `rhs` an abstract term that must be definitionally
+    equal to a term `t` assigned to `lhs`. -/
+    defEq  (lhs : Nat) (rhs : CnstrRHS)
+  | /--
+    A constraint of the form `size lhs < n`. The `lhs` is one of the bound variables.
+    The size is computed ignoring implicit terms, but sharing is not taken into account.
+    -/
+    sizeLt (lhs : Nat) (n : Nat)
+  | /--
+    A constraint of the form `depth lhs < n`. The `lhs` is one of the bound variables.
+    The depth is computed in constant time using the `approxDepth` field attached to expressions.
+    -/
+    depthLt (lhs : Nat) (n : Nat)
+  | /--
+    Instantiates the theorem only if its generation is less than `n`
+    -/
+    genLt (n : Nat)
+  | /--
+    Constraints of the form `is_ground x`. Instantiates the theorem only if
+    `x` is ground term.
+    -/
+    isGround (bvarIdx : Nat)
+  | /--
+    Constraints of the form `is_value x` and `is_strict_value x`.
+    A value is defined as
+    - A constructor fully applied to value arguments.
+    - A literal: numerals, strings, etc.
+    - A lambda. In the strict case, lambdas are not considered.
+    -/
+    isValue (bvarIdx : Nat) (strict : Bool)
+  | /--
+    Instantiates the theorem only if less than `n` instances have been generated for this theorem.
+    -/
+    maxInsts (n : Nat)
+  | /--
+    It instructs `grind` to postpone the instantiation of the theorem until `e` is known to be `true`.
+    -/
+    guard (e : Expr)
+  | /--
+    Similar to `guard`, but checks whether `e` is implied by asserting `¬e`.
+    -/
+    check (e : Expr)
+  | /--
+    Constraints of the form `not_value x` and `not_strict_value x`.
+    They are the negations of `is_value x` and `is_strict_value x`.
+    -/
+    notValue (bvarIdx : Nat) (strict : Bool)
   deriving Inhabited, Repr, BEq
 
 /-- A theorem for heuristic instantiation based on E-matching. -/
@@ -746,19 +799,19 @@ private def checkCoverage (thmProof : Expr) (numParams : Nat) (bvarsFound : Std.
             fvarsFound := update fvarsFound xType
             processed := processed.insert fvarId
             modified := true
-          else if (← isProp xType) then
-            -- If `x` is a proposition, and all theorem variables in `x`s type have already been found
-            -- add it to `fvarsFound` and mark it as processed.
-            if checkTypeFVars thmVars fvarsFound xType then
-              fvarsFound := fvarsFound.insert fvarId
-              processed := processed.insert fvarId
-              modified := true
           else if (← fvarId.getDecl).binderInfo matches .instImplicit then
             -- If `x` is instance implicit, check whether
             -- we have found all free variables needed to synthesize instance
             if (← canBeSynthesized thmVars fvarsFound xType) then
               fvarsFound := fvarsFound.insert fvarId
               fvarsFound := update fvarsFound xType
+              processed := processed.insert fvarId
+              modified := true
+          else if (← isProp xType) then
+            -- If `x` is a proposition, and all theorem variables in `x`s type have already been found
+            -- add it to `fvarsFound` and mark it as processed.
+            if checkTypeFVars thmVars fvarsFound xType then
+              fvarsFound := fvarsFound.insert fvarId
               processed := processed.insert fvarId
               modified := true
       if fvarsFound.size == numParams then
@@ -887,6 +940,13 @@ def addEMatchEqTheorem (declName : Name) : MetaM Unit := do
 /-- Returns the E-matching theorems registered in the environment. -/
 def getEMatchTheorems : CoreM EMatchTheorems :=
   return ematchTheoremsExt.getState (← getEnv)
+
+/-- Returns the scoped E-matching theorems declared in the given namespace. -/
+def getEMatchTheoremsForNamespace (namespaceName : Name) : CoreM (Array EMatchTheorem) := do
+  let stateStack := ematchTheoremsExt.ext.getState (← getEnv)
+  match stateStack.scopedEntries.map.find? namespaceName with
+  | none => return #[]
+  | some entries => return entries.toArray
 
 /-- Returns the types of `xs` that are propositions. -/
 private def getPropTypes (xs : Array Expr) : MetaM (Array Expr) :=
@@ -1087,13 +1147,11 @@ where
 
 register_builtin_option backward.grind.inferPattern : Bool := {
   defValue := false
-  group    := "backward compatibility"
   descr    := "use old E-matching pattern inference"
 }
 
 register_builtin_option backward.grind.checkInferPatternDiscrepancy : Bool := {
   defValue := false
-  group    := "backward compatibility"
   descr    := "check whether old and new pattern inference procedures infer the same pattern"
 }
 

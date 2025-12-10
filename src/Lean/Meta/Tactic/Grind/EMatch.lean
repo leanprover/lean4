@@ -461,7 +461,7 @@ macro "reportEMatchIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
 Stores new theorem instance in the state.
 Recall that new instances are internalized later, after a full round of ematching.
 -/
-private def addNewInstance (thm : EMatchTheorem) (proof : Expr) (generation : Nat) : M Unit := do
+private def addNewInstance (thm : EMatchTheorem) (proof : Expr) (generation : Nat) (guards : List TheoremGuard) : M Unit := do
   let proof ← instantiateMVars proof
   if grind.debug.proofs.get (← getOptions) then
     check proof
@@ -499,8 +499,11 @@ where
       -- We must add a hint because `annotateEqnTypeConds` introduces `Grind.PreMatchCond`
       -- which is not reducible.
       proof := mkExpectedPropHint proof prop
-    trace_goal[grind.ematch.instance] "{thm.origin.pp}: {prop}"
-    addTheoremInstance thm proof prop (generation+1)
+    /-
+    **Note**: Restores grind transparency setting because with use `withDefault` at `instantiateTheorem`.
+    -/
+    withGTransparency do
+      addTheoremInstance thm proof prop (generation+1) guards
 
 private def synthesizeInsts (mvars : Array Expr) (bis : Array BinderInfo) : OptionT M Unit := do
   let thm := (← read).thm
@@ -637,6 +640,77 @@ private abbrev withFreshNGen (x : M α) : M α := do
   finally
     setNGen ngen
 
+private def getLHS (args : Array Expr) (lhs : Nat) : MetaM Expr := do
+  unless lhs < args.size do
+    throwError "`grind` internal error, invalid variable in `grind_pattern` constraint"
+  instantiateMVars args[args.size - lhs - 1]!
+
+/--
+Checks constraints of the form `lhs =/= rhs` and `lhs =?= rhs`.
+`expectedResult` is `true` if `lhs` and `rhs` should be definitionally equal.
+-/
+private def checkDefEq (expectedResult : Bool) (levelParams : List Name) (us : List Level) (args : Array Expr) (lhs : Nat) (rhs : CnstrRHS) : GoalM Bool := do
+  let lhs ← getLHS args lhs
+  /- **Note**: We first instantiate the theorem variables and universes occurring in `rhs`. -/
+  let rhsExpr := rhs.expr.instantiateRev args
+  let rhsExpr := rhsExpr.instantiateLevelParams levelParams us
+  withNewMCtxDepth do
+    /-
+    **Note**: Recall that we have abstracted metavariables occurring in `rhs` after we elaborated it.
+    So, we must "recreate" them.
+    -/
+    let us ← rhs.levelNames.mapM fun _ => mkFreshLevelMVar
+    let rhsExpr := rhsExpr.instantiateLevelParamsArray rhs.levelNames us
+    let (_, _, rhsExpr) ← lambdaMetaTelescope rhsExpr (some rhs.numMVars)
+    /- **Note**: We used the guarded version to ensure type errors will not interrupt `grind`. -/
+    let defEq ← isDefEqGuarded lhs rhsExpr
+    return defEq == expectedResult
+
+/--
+Helper function for checking grind pattern constraints of the form `size e < threshold`
+Implicit arguments and type information in lambdas and let-expressions are ignored.
+-/
+partial def checkSize (e : Expr) (threshold : Nat) : MetaM Bool :=
+  return (← go e |>.run |>.run 0).1.isSome
+where
+  go (e : Expr) : OptionT (StateT Nat MetaM) Unit := do
+    guard ((← get) < threshold)
+    modify (·+1)
+    match e with
+    | .forallE _ d b _ => go d; go b
+    | .lam _ _ b _     => go b
+    | .letE _ _ v b _  => go v; go b
+    | .mdata _ e
+    | .proj _ _ e      => go e
+    | .app .. => e.withApp fun f args => do
+      if f.hasLooseBVars then
+        go f; args.forM go
+      else
+        let paramInfo := (← getFunInfo f).paramInfo
+        for h : i in *...args.size do
+          let arg := args[i]
+          if h : i < paramInfo.size then
+            let pinfo := paramInfo[i]
+            if pinfo.isExplicit && !pinfo.isProp then
+              go arg
+          else
+            go arg
+    | _ => return ()
+
+/-- Helper function for testing constraints of the form `is_value e` and `is_strict_value e` -/
+private partial def isValue (e : Expr) (strict : Bool) : MetaM Bool := do
+  match_expr e with
+  | Neg.neg _ _ e => isValue e strict
+  | OfNat.ofNat _ n _ => return (← getNatValue? n).isSome
+  | HDiv.hDiv _ _ _ _ a b => isValue a strict <&&> isValue b strict
+  | _ =>
+    if e.isLambda && !strict then return true
+    if (← isLitValue e) then return true
+    let some (ctorVal, args) ← constructorApp'? e | return false
+    for h : i in ctorVal.numParams...args.size do
+      unless (← isValue args[i] strict) do return false
+    return true
+
 /--
 Checks whether `vars` satisfies the `grind_pattern` constraints attached at `thm`.
 Example:
@@ -650,29 +724,54 @@ In the example above, a `map_map` instance should be added to the logical contex
 
 Remark: `proof` is used to extract the universe parameters in the proof.
 -/
-private def checkConstraints (thm : EMatchTheorem) (proof : Expr) (args : Array Expr) : MetaM Bool := do
+private def checkConstraints (thm : EMatchTheorem) (gen : Nat) (proof : Expr) (args : Array Expr) : GoalM Bool := do
   if thm.cnstrs.isEmpty then return true
   /- **Note**: Only top-level theorems have constraints. -/
   let .const declName us := proof | return true
   let info ← getConstInfo declName
   thm.cnstrs.allM fun cnstr => do
-    unless cnstr.bvarIdx < args.size do
-      throwError "`grind` internal error, invalid variable in `grind_pattern` constraint"
-    let lhs := args[args.size - cnstr.bvarIdx - 1]!
-    /- **Note**: We first instantiate the theorem variables and universes occurring in `rhs`. -/
-    let rhs := cnstr.rhs.instantiateRev args
-    let rhs := rhs.instantiateLevelParams info.levelParams us
-    withNewMCtxDepth do
+    match cnstr with
+    | .notDefEq lhs rhs => checkDefEq (expectedResult := false) info.levelParams us args lhs rhs
+    | .defEq lhs rhs => checkDefEq (expectedResult := true) info.levelParams us args lhs rhs
+    | .depthLt lhs n => return (← getLHS args lhs).approxDepth.toNat < n
+    | .isGround lhs => let lhs ← getLHS args lhs; return !lhs.hasFVar && !lhs.hasMVar
+    | .isValue lhs strict => isValue (← getLHS args lhs) strict
+    | .notValue lhs strict => return !(← isValue (← getLHS args lhs) strict)
+    | .sizeLt lhs n => checkSize (← getLHS args lhs) n
+    | .genLt n => return gen < n
+    | .maxInsts n =>
       /-
-      **Note**: Recall that we have abstracted metavariables occurring in `rhs` after we elaborated it.
-      So, we must "recreate" them.
+      **Note**: We are checking the number of instances produced in the whole proof.
+      It may be useful to bound the number of instances in the current branch.
       -/
-      let us ← cnstr.levelNames.mapM fun _ => mkFreshLevelMVar
-      let rhs := rhs.instantiateLevelParamsArray cnstr.levelNames us
-      let (_, _, rhs) ← lambdaMetaTelescope rhs (some cnstr.numMVars)
-      /- **Note**: We used the guarded version to ensure type errors will not interrupt `grind`. -/
-      let defEq ← isDefEqGuarded lhs rhs
-      return !defEq
+      return (← getEMatchTheoremNumInstances thm) + 1 < n
+    | .check _ | .guard _ => return true
+
+private def collectGuards (thm : EMatchTheorem) (proof : Expr) (args : Array Expr) : GoalM (List TheoremGuard) := do
+  if thm.cnstrs.isEmpty then return []
+  /- **Note**: Only top-level theorems have constraints. -/
+  let .const declName us := proof | return []
+  unless thm.cnstrs.any fun c => c matches .check _ | .guard _ do return []
+  let info ← getConstInfo declName
+  let mut result := #[]
+  let applySubst (e : Expr) : GoalM (Option Expr) := do
+    let e := e.instantiateRev args
+    let e := e.instantiateLevelParams info.levelParams us
+    let e ← instantiateMVars e
+    if e.hasMVar then
+      reportIssue! "guard for `{thm.origin.pp}` was skipped because it contains metavariables after theorem instantiation{indentExpr e}"
+      return none
+    return some e
+  for cnstr in thm.cnstrs do
+    match cnstr with
+    | .check e =>
+      let some e ← applySubst e | pure ()
+      result := result.push <| { e, check := true }
+    | .guard e =>
+      let some e ← applySubst e | pure ()
+      result := result.push <| { e, check := false }
+    | _ => pure ()
+  return result.toList
 
 /--
 After processing a (multi-)pattern, use the choice assignment to instantiate the proof.
@@ -692,16 +791,17 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
     return ()
   let (some _, c) ← applyAssignment mvars |>.run c | return ()
   let some _ ← synthesizeInsts mvars bis | return ()
-  if (← checkConstraints thm proof mvars) then
+  if (← checkConstraints thm c.gen proof mvars) then
+    let guards ← collectGuards thm proof mvars
     let proof := mkAppN proof mvars
     if (← mvars.allM (·.mvarId!.isAssigned)) then
-      addNewInstance thm proof c.gen
+      addNewInstance thm proof c.gen guards
     else
       let mvars ← mvars.filterM fun mvar => return !(← mvar.mvarId!.isAssigned)
       if let some mvarBad ← mvars.findM? fun mvar => return !(← isProof mvar) then
         reportEMatchIssue! "failed to instantiate {thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
       let proof ← mkLambdaFVars (binderInfoForMVars := .default) mvars (← instantiateMVars proof)
-      addNewInstance thm proof c.gen
+      addNewInstance thm proof c.gen guards
 
 /-- Process choice stack until we don't have more choices to be processed. -/
 private def processChoices : M Unit := do
@@ -822,8 +922,19 @@ Recall that the mapping is nonempty only if tracing is enabled.
 -/
 def ematch' (extraThms : Array EMatchTheorem := #[]) : GoalM (Bool × InstanceMap) := do
   let numInstances := (← get).ematch.numInstances
+  let numDelayedInstances := (← get).ematch.numDelayedInstances
   let map ← ematchCore extraThms
-  return ((← get).ematch.numInstances != numInstances, map)
+  let progress :=
+    (← get).ematch.numInstances != numInstances
+    ||
+    (← get).ematch.numDelayedInstances != numDelayedInstances
+  if (← get).ematch.numDelayedInstances != numDelayedInstances then
+    /-
+    **Note**: If delayed instances were produced, new guards may have been internalized,
+    and we may have pending facts to process.
+    -/
+    processNewFacts
+  return (progress, map)
 
 /--
 Performs one round of E-matching, and returns `true` if new instances were generated.

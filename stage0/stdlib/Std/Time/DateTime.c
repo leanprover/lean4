@@ -15,7 +15,6 @@ extern "C" {
 #endif
 static lean_object* l_Std_Time_PlainDateTime_ofPlainTime___closed__0;
 lean_object* l_Std_Time_Duration_ofNanoseconds(lean_object*);
-lean_object* l_Std_Time_Internal_UnitVal_instNeg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDate_instHSubDuration___lam__0(lean_object*, lean_object*);
 lean_object* l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(lean_object*);
 static lean_object* l_Std_Time_PlainDateTime_ofPlainTime___closed__14;
@@ -211,7 +210,7 @@ x_6 = l_Std_Time_Timestamp_ofPlainDateAssumingUTC___closed__1;
 x_7 = l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(x_2);
 x_8 = lean_int_mul(x_7, x_4);
 lean_dec(x_7);
-x_9 = l_Std_Time_Internal_UnitVal_instNeg___lam__0(x_8);
+x_9 = lean_int_neg(x_8);
 lean_dec(x_8);
 x_10 = l_Std_Time_PlainDate_instHSubDuration___lam__0___closed__0;
 x_11 = l_Std_Time_Timestamp_getTimeAssumingUTC___closed__0;
@@ -521,7 +520,7 @@ lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc(x_8);
 lean_dec_ref(x_6);
-x_9 = l_Std_Time_Internal_UnitVal_instNeg___lam__0(x_4);
+x_9 = lean_int_neg(x_4);
 lean_dec(x_4);
 x_10 = lean_int_neg(x_5);
 lean_dec(x_5);

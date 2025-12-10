@@ -26,10 +26,10 @@ namespace Lake
 /-! ### Build Key Helper Constructors -/
 
 public abbrev Module.key (self : Module) : BuildKey :=
-  .packageModule self.pkg.name self.name
+  .packageModule self.pkg.keyName self.name
 
 public abbrev ConfigTarget.key (self : ConfigTarget kind) : BuildKey :=
-  .packageTarget self.pkg.name self.name
+  .packageTarget self.pkg.keyName self.name
 
 public abbrev LeanExe.exeBuildKey (self : LeanExe) : BuildKey :=
   self.key.facet exeFacet
@@ -67,6 +67,7 @@ public structure ModuleImport extends Import where
 /-- A module's source file path plus its parsed header. -/
 public structure ModuleInput where
   path : FilePath
+  trace : BuildTrace
   header : ModuleHeader
   imports : Array ModuleImport
 

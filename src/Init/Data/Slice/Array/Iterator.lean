@@ -26,38 +26,53 @@ open Std Slice PRange Iterators
 
 variable {shape : RangeShape} {α : Type u}
 
-instance {s : Slice (Internal.SubarrayData α)} : ToIterator s Id α :=
-  .of _
-    (Rco.Internal.iter (s.internalRepresentation.start...<s.internalRepresentation.stop)
-      |>.attachWith (· < s.internalRepresentation.array.size) ?h
-      |>.uLift
-      |>.map fun | .up i => s.internalRepresentation.array[i.1])
-where finally
-  case h =>
-    simp only [Rco.Internal.isPlausibleIndirectOutput_iter_iff, Membership.mem, and_imp]
-    intro out _ h
-    have := s.internalRepresentation.stop_le_array_size
-    omega
+@[unbox]
+structure SubarrayIterator (α : Type u) where
+  xs : Subarray α
+
+@[inline, expose]
+def SubarrayIterator.step :
+    IterM (α := SubarrayIterator α) Id α → IterStep (IterM (α := SubarrayIterator α) m α) α
+  | ⟨⟨xs⟩⟩ =>
+    if h : xs.start < xs.stop then
+      have := xs.start_le_stop; have := xs.stop_le_array_size
+      .yield ⟨⟨xs.array, xs.start + 1, xs.stop, by omega, xs.stop_le_array_size⟩⟩ xs.array[xs.start]
+    else
+      .done
+
+instance : Iterator (SubarrayIterator α) Id α where
+  IsPlausibleStep it step := step = SubarrayIterator.step it
+  step it := pure <| .deflate ⟨SubarrayIterator.step it, rfl⟩
+
+private def SubarrayIterator.instFinitelessRelation : FinitenessRelation (SubarrayIterator α) Id where
+  rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.xs.stop - it.internalState.xs.start)
+  wf := InvImage.wf _ WellFoundedRelation.wf
+  subrelation {it it'} h := by
+    simp [IterM.IsPlausibleSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, step] at h
+    split at h
+    · cases h
+      simp only [InvImage, Subarray.stop, Subarray.start, WellFoundedRelation.rel, InvImage,
+        Nat.lt_wfRel, sizeOf_nat]
+      exact Nat.sub_succ_lt_self _ _ ‹_›
+    · cases h
+
+instance SubarrayIterator.instFinite : Finite (SubarrayIterator α) Id :=
+  .of_finitenessRelation instFinitelessRelation
+
+instance [Monad m] : IteratorCollect (SubarrayIterator α) Id m := .defaultImplementation
+instance [Monad m] : IteratorLoop (SubarrayIterator α) Id m := .defaultImplementation
+
+@[inline, expose]
+def Subarray.instToIterator :=
+  ToIterator.of (γ := Slice (Internal.SubarrayData α)) (β := α) (SubarrayIterator α) (⟨⟨·⟩⟩)
+attribute [instance] Subarray.instToIterator
 
 universe v w
-
-@[no_expose] instance {s : Slice (Internal.SubarrayData α)} : Iterator (ToIterator.State s Id) Id α := inferInstance
-@[no_expose] instance {s : Slice (Internal.SubarrayData α)} : Finite (ToIterator.State s Id) Id := inferInstance
-@[no_expose] instance {s : Slice (Internal.SubarrayData α)} : IteratorCollect (ToIterator.State s Id) Id Id := inferInstance
-@[no_expose] instance {s : Slice (Internal.SubarrayData α)} : LawfulIteratorCollect (ToIterator.State s Id) Id Id := inferInstance
-@[no_expose] instance {s : Slice (Internal.SubarrayData α)} : IteratorCollectPartial (ToIterator.State s Id) Id Id := inferInstance
-@[no_expose] instance {s : Slice (Internal.SubarrayData α)} {m : Type v → Type w} [Monad m] :
-    IteratorLoop (ToIterator.State s Id) Id m := inferInstance
-@[no_expose] instance {s : Slice (Internal.SubarrayData α)} {m : Type v → Type w} [Monad m] :
-    LawfulIteratorLoop (ToIterator.State s Id) Id m := inferInstance
-@[no_expose] instance {s : Slice (Internal.SubarrayData α)} {m : Type v → Type w} [Monad m] :
-    IteratorLoopPartial (ToIterator.State s Id) Id m := inferInstance
 
 instance : SliceSize (Internal.SubarrayData α) where
   size s := s.internalRepresentation.stop - s.internalRepresentation.start
 
-instance {α : Type u} {m : Type v → Type w} [Monad m] :
-    ForIn m (Subarray α) α :=
+instance {α : Type u} {m : Type v → Type w} [Monad m] : ForIn m (Subarray α) α :=
   inferInstance
 
 /-!

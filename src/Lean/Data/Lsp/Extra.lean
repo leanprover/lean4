@@ -63,8 +63,8 @@ an ILean finalization notification for the worker and the document version desig
 Used for test stability in tests that use the .ileans.
 -/
 structure WaitForILeansParams where
-  uri     : DocumentUri
-  version : Nat
+  uri?     : Option DocumentUri := none
+  version? : Option Nat := none
   deriving FromJson, ToJson
 
 structure WaitForILeans where

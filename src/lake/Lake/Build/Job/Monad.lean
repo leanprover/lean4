@@ -230,7 +230,7 @@ results of `a` and `b`. The job `c` errors if either `a` or `b` error.
 -/
 @[inline] public def zipResultWith
   [OptDataKind γ] (f : JobResult α → JobResult β → JobResult γ) (self : Job α) (other : Job β)
-  (prio := Task.Priority.default) (sync := true)
+  (prio := Task.Priority.default) (sync := false)
 : Job γ := Job.ofTask $
   self.task.bind (prio := prio) (sync := true) fun rx =>
   other.task.map (prio := prio) (sync := sync) fun ry =>
@@ -242,7 +242,7 @@ results of `a` and `b`. The job `c` errors if either `a` or `b` error.
 -/
 @[inline] public def zipWith
   [OptDataKind γ] (f : α → β → γ) (self : Job α) (other : Job β)
-  (prio := Task.Priority.default) (sync := true)
+  (prio := Task.Priority.default) (sync := false)
 : Job γ :=
   self.zipResultWith (other := other) (prio := prio) (sync := sync) fun
   | .ok a sa, .ok b sb => .ok (f a b) (sa.merge sb)
@@ -257,7 +257,7 @@ public def add (self : Job α) (other : Job β) : Job α :=
 
 /-- Merges this job with another, discarding both outputs. -/
 public def mix (self : Job α) (other : Job β) : Job Unit :=
-  self.zipWith (fun _ _ => ()) other
+  self.zipWith (sync := true) (fun _ _ => ()) other
 
 /-- Merge a `List` of jobs into one, discarding their outputs. -/
 public def mixList (jobs : List (Job α)) (traceCaption := "<collection>")  : Job Unit :=
@@ -269,10 +269,18 @@ public def mixArray (jobs : Array (Job α)) (traceCaption := "<collection>")  : 
 
 /-- Merge a `List` of jobs into one, collecting their outputs into a `List`. -/
 public def collectList (jobs : List (Job α)) (traceCaption := "<collection>") : Job (List α) :=
-  jobs.foldr (zipWith List.cons) (traceRoot [] traceCaption)
+  jobs.foldr (zipWith (sync := true) List.cons) (traceRoot [] traceCaption)
 
 /-- Merge an `Array` of jobs into one, collecting their outputs into an `Array`. -/
 public def collectArray (jobs : Array (Job α)) (traceCaption := "<collection>") : Job (Array α) :=
-  jobs.foldl (zipWith Array.push) (traceRoot (Array.mkEmpty jobs.size) traceCaption)
+  jobs.foldl (zipWith (sync := true) Array.push) (traceRoot (Array.mkEmpty jobs.size) traceCaption)
+
+private instance : Nonempty ({α : Type u} → [Nonempty α] → α) := ⟨Classical.ofNonempty⟩
+
+/-- Merge an `Vector` of jobs into one, collecting their outputs into an `Array`. -/
+public def collectVector {α : Type u} [Nonempty α] (jobs : Vector (Job α) n) (traceCaption := "<collection>") : Job (Vector α n) :=
+  let placeholder := unsafe have : Nonempty α := inferInstance; (unsafeCast () : α)
+  n.fold (init := traceRoot (Vector.replicate n placeholder) traceCaption) fun i h job =>
+    job.zipWith (sync := true) (Vector.set · i · h) jobs[i]
 
 end Job

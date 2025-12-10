@@ -3,7 +3,7 @@ def g (n : Nat) : Nat :=
     1
   else
     4 + g (n - 1)
-  termination_by n
+  termination_by (n,0)
   decreasing_by simp_wf; omega
 
 example : g 10000 = id g (id 10000) := rfl

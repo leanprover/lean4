@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Tactic.FunInd
 public import Lean.Meta.Match.MatcherApp.Transform
 import Lean.Meta.Tactic.Simp.Rewrite
+import Lean.Meta.Tactic.Assumption
 
 public section
 

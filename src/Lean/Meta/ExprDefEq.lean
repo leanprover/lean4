@@ -15,13 +15,11 @@ namespace Lean.Meta
 
 register_builtin_option backward.isDefEq.lazyProjDelta : Bool := {
   defValue := true
-  group    := "backward compatibility"
   descr    := "use lazy delta reduction when solving unification constrains of the form `(f a).i =?= (g b).i`"
 }
 
 register_builtin_option backward.isDefEq.lazyWhnfCore : Bool := {
   defValue := true
-  group    := "backward compatibility"
   descr    := "specifies transparency mode when normalizing constraints of the form `(f a).i =?= s`, if `true` only reducible definitions and instances are unfolded when reducing `f a`. Otherwise, the default setting is used"
 }
 
@@ -1755,7 +1753,7 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
            Without the proof irrelevance check, this example timeouts. Recall that:
 
            1- The elaborator has a pending list of things to do: Tactics, TC, etc.
-           2- The elaborator only tries tactics after it tried to solve pending TC problems, delayed elaboratio, etc.
+           2- The elaborator only tries tactics after it tried to solve pending TC problems, delayed elaboration, etc.
               The motivation: avoid unassigned metavariables in goals.
            3- Each pending tactic goal is represented as a metavariable. It is marked as `syntheticOpaque` to make it clear
               that it should not be assigned by unification.

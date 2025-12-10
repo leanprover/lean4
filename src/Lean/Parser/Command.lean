@@ -314,6 +314,20 @@ corresponding `end <id>` or the end of the file.
 @[builtin_command_parser] def «namespace»    := leading_parser
   "namespace " >> checkColGt >> ident
 /--
+`with_weak_namespace <id> <cmd>` changes the current namespace to `<id>` for the duration of
+executing command `<cmd>`, without causing scoped things to go out of scope.
+
+This is in contrast to `namespace <id>` which pushes a new scope and deactivates scoped entries
+from the previous namespace. `with_weak_namespace` modifies the existing scope's namespace,
+so scoped extensions remain active.
+
+This is primarily useful for defining syntax extensions that should be scoped to a different
+namespace than the current one.
+-/
+@[builtin_command_parser] def withWeakNamespace := leading_parser
+  "with_weak_namespace " >> checkColGt >> ident >> ppSpace >> checkColGt >> commandParser
+
+/--
 `end` closes a `section` or `namespace` scope. If the scope is named `<id>`, it has to be closed
 with `end <id>`. The `end` command is optional at the end of a file.
 -/

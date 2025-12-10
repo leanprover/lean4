@@ -249,6 +249,16 @@ def union [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtHashMap α β) : Ext
 
 instance [EquivBEq α] [LawfulHashable α] : Union (ExtHashMap α β) := ⟨union⟩
 
+@[inline, inherit_doc ExtDHashMap.inter]
+def inter [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtHashMap α β) : ExtHashMap α β := ⟨ExtDHashMap.inter m₁.inner m₂.inner⟩
+
+instance [EquivBEq α] [LawfulHashable α] : Inter (ExtHashMap α β) := ⟨inter⟩
+
+@[inline, inherit_doc ExtDHashMap.diff]
+def diff [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtHashMap α β) : ExtHashMap α β := ⟨ExtDHashMap.diff m₁.inner m₂.inner⟩
+
+instance [EquivBEq α] [LawfulHashable α] : SDiff (ExtHashMap α β) := ⟨diff⟩
+
 @[inline, inherit_doc ExtDHashMap.Const.unitOfArray]
 def unitOfArray [BEq α] [Hashable α] (l : Array α) :
     ExtHashMap α Unit :=

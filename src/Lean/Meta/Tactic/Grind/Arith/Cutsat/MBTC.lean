@@ -16,6 +16,10 @@ private def getAssignmentExt? (e : Expr) : GoalM (Option Rat) := do
   if let some val ← getAssignment? (← get) e then
     -- Easy case when `e : Int`
     return some val
+  /-
+  **Note**: The following code assumes that instantiated mvars occurring in types
+  have been instantiated.
+  -/
   let type ← inferType e
   if type == Int.mkType then
     -- It should have been handled in the previous getAssignment?

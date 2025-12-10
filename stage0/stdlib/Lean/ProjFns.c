@@ -48,7 +48,6 @@ static lean_object* l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* lean_mk_projection_info(lean_object*, lean_object*, lean_object*, uint8_t);
 size_t lean_usize_of_nat(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ProjectionFunctionInfo_ctorIdx(lean_object*);
 static lean_object* l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__6;
 LEAN_EXPORT lean_object* l_Lean_instReprProjectionFunctionInfo_repr___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__12;
@@ -61,7 +60,6 @@ static lean_object* l_Lean_initFn___closed__2_00___x40_Lean_ProjFns_2268652983__
 static lean_object* l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__18;
 LEAN_EXPORT uint8_t l_Lean_Environment_isProjectionFn(lean_object*, lean_object*);
 static lean_object* l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__17;
-LEAN_EXPORT lean_object* l_Lean_ProjectionFunctionInfo_ctorIdx___boxed(lean_object*);
 static lean_object* l_Lean_initFn___closed__3_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedProjectionFunctionInfo;
 static lean_object* l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__4;
@@ -74,7 +72,7 @@ LEAN_EXPORT lean_object* l_Lean_isProjectionFn___redArg(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_getProjectionFnInfo_x3f___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__0_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2_(lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* lean_add_projection_info(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_addProjectionFnInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__19;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_initFn_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2__spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
@@ -101,25 +99,8 @@ uint8_t l_Lean_MapDeclarationExtension_contains___redArg(lean_object*, lean_obje
 static lean_object* l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__3;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__21;
-LEAN_EXPORT lean_object* lean_get_projection_info(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Environment_getProjectionFnInfo_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkProjectionInfoEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ProjectionFunctionInfo_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ProjectionFunctionInfo_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_ProjectionFunctionInfo_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_instInhabitedProjectionFunctionInfo_default___closed__0() {
 _start:
 {
@@ -151,20 +132,22 @@ x_1 = l_Lean_instInhabitedProjectionFunctionInfo_default;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_instReprProjectionFunctionInfo_repr_spec__0(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_nat_to_int(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__0() {
+static lean_object* _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("{ ", 2, 2);
+x_1 = lean_mk_string_unchecked(" := ", 4, 4);
 return x_1;
+}
+}
+static lean_object* _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__4;
+x_2 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__1() {
@@ -195,24 +178,6 @@ x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
-}
-}
-static lean_object* _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" := ", 4, 4);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__4;
-x_2 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__6() {
@@ -326,11 +291,11 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__18() {
+static lean_object* _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" }", 2, 2);
+x_1 = lean_mk_string_unchecked("{ ", 2, 2);
 return x_1;
 }
 }
@@ -360,6 +325,14 @@ x_1 = l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__0;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
+}
+}
+static lean_object* _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__18() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked(" }", 2, 2);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__22() {
@@ -502,6 +475,14 @@ x_3 = l_Lean_instReprProjectionFunctionInfo_repr___redArg(x_1);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_instReprProjectionFunctionInfo_repr_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_instReprProjectionFunctionInfo_repr___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -616,7 +597,7 @@ lean_inc_ref(x_1);
 x_14 = l_Lean_Environment_contains(x_1, x_13, x_11);
 if (x_14 == 0)
 {
-lean_dec_ref(x_12);
+lean_dec(x_12);
 x_6 = x_5;
 goto block_10;
 }
@@ -673,7 +654,6 @@ x_8 = l_Lean_initFn___lam__0___closed__1_00___x40_Lean_ProjFns_2268652983____hyg
 x_9 = lean_nat_dec_lt(x_6, x_7);
 if (x_9 == 0)
 {
-lean_dec(x_7);
 lean_dec_ref(x_5);
 lean_dec_ref(x_1);
 return x_8;
@@ -684,7 +664,6 @@ uint8_t x_10;
 x_10 = lean_nat_dec_le(x_7, x_7);
 if (x_10 == 0)
 {
-lean_dec(x_7);
 lean_dec_ref(x_5);
 lean_dec_ref(x_1);
 return x_8;
@@ -694,7 +673,6 @@ else
 size_t x_11; size_t x_12; lean_object* x_13; 
 x_11 = 0;
 x_12 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
 x_13 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_initFn_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2__spec__2(x_1, x_5, x_11, x_12, x_8);
 lean_dec_ref(x_5);
 return x_13;
@@ -738,6 +716,16 @@ lean_ctor_set_uint8(x_2, 0, x_1);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__0_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_3);
+x_5 = l_Lean_initFn___lam__0_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2_(x_1, x_2, x_4);
+lean_dec(x_2);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_initFn_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2_() {
 _start:
 {
@@ -749,20 +737,20 @@ x_5 = l_Lean_mkMapDeclarationExtension___redArg(x_3, x_4, x_2);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_initFn_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2__spec__0_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_initFn_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2__spec__0_spec__0(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___00Lean_initFn_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2__spec__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_DTreeMap_Internal_Impl_foldl___at___00Lean_initFn_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2__spec__0(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_initFn_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2__spec__0_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_initFn_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2__spec__0_spec__0(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -778,16 +766,6 @@ lean_dec(x_4);
 x_8 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_initFn_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2__spec__2(x_1, x_2, x_6, x_7, x_5);
 lean_dec_ref(x_2);
 return x_8;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__0_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = lean_unbox(x_3);
-x_5 = l_Lean_initFn___lam__0_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2_(x_1, x_2, x_4);
-lean_dec(x_2);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_initFn_00___x40_Lean_ProjFns_2268652983____hygCtx___hyg_2____boxed(lean_object* x_1) {
@@ -806,7 +784,7 @@ x_1 = l_Lean_projectionFnInfoExt;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* lean_add_projection_info(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, uint8_t x_6) {
+LEAN_EXPORT lean_object* l_Lean_addProjectionFnInfo(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, uint8_t x_6) {
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
@@ -825,11 +803,11 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_6);
-x_8 = lean_add_projection_info(x_1, x_2, x_3, x_4, x_5, x_7);
+x_8 = l_Lean_addProjectionFnInfo(x_1, x_2, x_3, x_4, x_5, x_7);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* lean_get_projection_info(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Environment_getProjectionFnInfo_x3f(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
@@ -870,7 +848,7 @@ _start:
 {
 lean_object* x_3; 
 lean_inc_ref(x_1);
-x_3 = lean_get_projection_info(x_1, x_2);
+x_3 = l_Lean_Environment_getProjectionFnInfo_x3f(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; 
@@ -1000,7 +978,7 @@ LEAN_EXPORT lean_object* l_Lean_getProjectionFnInfo_x3f___redArg___lam__0(lean_o
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_get_projection_info(x_3, x_1);
+x_4 = l_Lean_Environment_getProjectionFnInfo_x3f(x_3, x_1);
 x_5 = lean_apply_2(x_2, lean_box(0), x_4);
 return x_5;
 }
@@ -1050,18 +1028,16 @@ l_Lean_instInhabitedProjectionFunctionInfo_default = _init_l_Lean_instInhabitedP
 lean_mark_persistent(l_Lean_instInhabitedProjectionFunctionInfo_default);
 l_Lean_instInhabitedProjectionFunctionInfo = _init_l_Lean_instInhabitedProjectionFunctionInfo();
 lean_mark_persistent(l_Lean_instInhabitedProjectionFunctionInfo);
-l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__0 = _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__0();
-lean_mark_persistent(l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__0);
+l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__4 = _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__4();
+lean_mark_persistent(l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__4);
+l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__5 = _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__5();
+lean_mark_persistent(l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__5);
 l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__1 = _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__1();
 lean_mark_persistent(l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__1);
 l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__2 = _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__2();
 lean_mark_persistent(l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__2);
 l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__3 = _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__3();
 lean_mark_persistent(l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__3);
-l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__4 = _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__4();
-lean_mark_persistent(l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__4);
-l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__5 = _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__5();
-lean_mark_persistent(l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__5);
 l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__6 = _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__6();
 lean_mark_persistent(l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__6);
 l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__7 = _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__7();
@@ -1086,14 +1062,16 @@ l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__16 = _init_l_Lean_
 lean_mark_persistent(l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__16);
 l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__17 = _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__17();
 lean_mark_persistent(l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__17);
-l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__18 = _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__18();
-lean_mark_persistent(l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__18);
+l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__0 = _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__0();
+lean_mark_persistent(l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__0);
 l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__19 = _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__19();
 lean_mark_persistent(l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__19);
 l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__20 = _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__20();
 lean_mark_persistent(l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__20);
 l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__21 = _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__21();
 lean_mark_persistent(l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__21);
+l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__18 = _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__18();
+lean_mark_persistent(l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__18);
 l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__22 = _init_l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__22();
 lean_mark_persistent(l_Lean_instReprProjectionFunctionInfo_repr___redArg___closed__22);
 l_Lean_instReprProjectionFunctionInfo___closed__0 = _init_l_Lean_instReprProjectionFunctionInfo___closed__0();

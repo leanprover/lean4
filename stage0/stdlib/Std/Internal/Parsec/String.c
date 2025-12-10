@@ -13,38 +13,44 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__0(lean_object*);
 static lean_object* l_Std_Internal_Parsec_String_Parser_run___redArg___closed__2;
+lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 static lean_object* l_Std_Internal_Parsec_String_digit___closed__1;
 static lean_object* l_Std_Internal_Parsec_String_asciiLetter___closed__0;
+LEAN_EXPORT uint32_t l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_skipChar___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__5___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__4(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__3___boxed(lean_object*);
 uint32_t l_String_Slice_Pos_get_x21(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__5___boxed(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__2___boxed(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 static lean_object* l_Std_Internal_Parsec_String_hexDigit___closed__1;
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__0___boxed(lean_object*);
 lean_object* l_String_Slice_Pos_next_x21(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_Parser_run___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__1(lean_object*);
 static lean_object* l_Std_Internal_Parsec_String_hexDigit___closed__0;
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
+LEAN_EXPORT uint8_t l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__3(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_hexDigit(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_pchar(uint32_t, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw;
 static lean_object* l_Std_Internal_Parsec_String_asciiLetter___closed__1;
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_digitsCore(lean_object*, lean_object*);
-LEAN_EXPORT uint32_t l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__2(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_digitToNat(uint32_t);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_digits(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_pstring(lean_object*, lean_object*);
+LEAN_EXPORT uint32_t l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__2(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_digitsCore_go___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_asciiLetter(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__3___boxed(lean_object*);
-LEAN_EXPORT uint32_t l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__5(lean_object*, lean_object*);
 extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_pchar___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_Parsec_String_pstring___closed__0;
@@ -52,17 +58,13 @@ LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_digit(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_digitToNat___boxed(lean_object*);
 lean_object* lean_string_length(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__0___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__3(lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_Parser_run(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_Parsec_String_Parser_run___redArg___closed__3;
 static lean_object* l_Std_Internal_Parsec_String_pchar___closed__1;
 static lean_object* l_Std_Internal_Parsec_String_digit___closed__0;
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__2___boxed(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
-lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_Parsec_String_Parser_run___redArg___closed__1;
 lean_object* l_String_Slice_Pos_nextn(lean_object*, lean_object*, lean_object*);
@@ -70,18 +72,16 @@ static lean_object* l_Std_Internal_Parsec_String_pchar___closed__2;
 LEAN_EXPORT lean_object* l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_skipWs(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_skipChar(uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_skipString(lean_object*, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_Parsec_String_pchar___closed__0;
 LEAN_EXPORT lean_object* l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_digitsCore_go(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_ws(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__1(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_skipWs___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_Parsec_String_Parser_run___redArg___closed__0;
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__4(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw;
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -90,7 +90,7 @@ lean_inc(x_2);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__1(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
@@ -138,7 +138,7 @@ return x_15;
 }
 }
 }
-LEAN_EXPORT uint32_t l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__2(lean_object* x_1) {
+LEAN_EXPORT uint32_t l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__2(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint32_t x_7; 
@@ -156,7 +156,7 @@ lean_dec_ref(x_6);
 return x_7;
 }
 }
-LEAN_EXPORT uint8_t l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__3(lean_object* x_1) {
+LEAN_EXPORT uint8_t l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__3(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
@@ -164,7 +164,6 @@ x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_string_utf8_byte_size(x_2);
 x_5 = lean_nat_dec_eq(x_3, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 uint8_t x_6; 
@@ -179,7 +178,7 @@ return x_7;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__4(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__4(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -211,7 +210,7 @@ return x_10;
 }
 }
 }
-LEAN_EXPORT uint32_t l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__5(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint32_t l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__5(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint32_t x_5; 
@@ -221,16 +220,55 @@ x_5 = lean_string_utf8_get_fast(x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw() {
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__0(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__2___boxed(lean_object* x_1) {
+_start:
+{
+uint32_t x_2; lean_object* x_3; 
+x_2 = l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__2(x_1);
+lean_dec_ref(x_1);
+x_3 = lean_box_uint32(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__3___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__3(x_1);
+lean_dec_ref(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__5___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint32_t x_3; lean_object* x_4; 
+x_3 = l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__5(x_1, x_2);
+lean_dec_ref(x_1);
+x_4 = lean_box_uint32(x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_1 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__0___boxed), 1, 0);
-x_2 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__1), 1, 0);
-x_3 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__2___boxed), 1, 0);
-x_4 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__3___boxed), 1, 0);
-x_5 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__4), 2, 0);
-x_6 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__5___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__0___boxed), 1, 0);
+x_2 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__1), 1, 0);
+x_3 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__2___boxed), 1, 0);
+x_4 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__3___boxed), 1, 0);
+x_5 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__4), 2, 0);
+x_6 = lean_alloc_closure((void*)(l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw___lam__5___boxed), 2, 0);
 x_7 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_7, 0, x_1);
 lean_ctor_set(x_7, 1, x_2);
@@ -239,45 +277,6 @@ lean_ctor_set(x_7, 3, x_4);
 lean_ctor_set(x_7, 4, x_5);
 lean_ctor_set(x_7, 5, x_6);
 return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__0(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__2___boxed(lean_object* x_1) {
-_start:
-{
-uint32_t x_2; lean_object* x_3; 
-x_2 = l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__2(x_1);
-lean_dec_ref(x_1);
-x_3 = lean_box_uint32(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__3___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__3(x_1);
-lean_dec_ref(x_1);
-x_3 = lean_box(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__5___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint32_t x_3; lean_object* x_4; 
-x_3 = l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw___lam__5(x_1, x_2);
-lean_dec_ref(x_1);
-x_4 = lean_box_uint32(x_3);
-return x_4;
 }
 }
 static lean_object* _init_l_Std_Internal_Parsec_String_Parser_run___redArg___closed__0() {
@@ -409,8 +408,6 @@ x_13 = lean_nat_dec_le(x_11, x_12);
 lean_dec(x_12);
 if (x_13 == 0)
 {
-lean_dec(x_11);
-lean_dec(x_10);
 goto block_7;
 }
 else
@@ -418,10 +415,8 @@ else
 lean_object* x_14; uint8_t x_15; 
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_string_memcmp(x_8, x_1, x_9, x_14, x_11);
-lean_dec(x_11);
 if (x_15 == 0)
 {
-lean_dec(x_10);
 goto block_7;
 }
 else
@@ -575,7 +570,6 @@ x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
 x_5 = lean_string_utf8_byte_size(x_3);
 x_6 = lean_nat_dec_eq(x_4, x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 uint32_t x_7; uint8_t x_8; 
@@ -666,7 +660,6 @@ x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
 x_5 = lean_string_utf8_byte_size(x_3);
 x_6 = lean_nat_dec_eq(x_4, x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 uint32_t x_7; uint8_t x_8; 
@@ -775,7 +768,6 @@ x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
 x_7 = lean_string_utf8_byte_size(x_5);
 x_8 = lean_nat_dec_eq(x_6, x_7);
-lean_dec(x_7);
 if (x_8 == 0)
 {
 uint32_t x_9; uint32_t x_10; uint8_t x_11; 
@@ -882,7 +874,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_string_utf8_byte_size(x_1);
 x_5 = lean_nat_dec_eq(x_2, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 uint32_t x_6; uint32_t x_7; uint8_t x_8; 
@@ -1030,7 +1021,6 @@ x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
 x_7 = lean_string_utf8_byte_size(x_5);
 x_8 = lean_nat_dec_eq(x_6, x_7);
-lean_dec(x_7);
 if (x_8 == 0)
 {
 uint32_t x_9; uint32_t x_10; uint8_t x_11; 
@@ -1180,7 +1170,6 @@ x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
 x_7 = lean_string_utf8_byte_size(x_5);
 x_8 = lean_nat_dec_eq(x_6, x_7);
-lean_dec(x_7);
 if (x_8 == 0)
 {
 uint32_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint32_t x_24; uint8_t x_25; 
@@ -1314,7 +1303,6 @@ x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
 x_7 = lean_string_utf8_byte_size(x_5);
 x_8 = lean_nat_dec_eq(x_6, x_7);
-lean_dec(x_7);
 if (x_8 == 0)
 {
 uint32_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint32_t x_19; uint8_t x_20; 
@@ -1403,7 +1391,6 @@ _start:
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_string_utf8_byte_size(x_1);
 x_7 = lean_nat_dec_eq(x_2, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 uint32_t x_8; uint32_t x_9; uint8_t x_10; 
@@ -1531,7 +1518,6 @@ x_9 = lean_string_utf8_extract(x_3, x_4, x_8);
 x_10 = lean_string_length(x_9);
 x_11 = lean_nat_dec_eq(x_10, x_1);
 lean_dec(x_1);
-lean_dec(x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
@@ -1593,8 +1579,8 @@ lean_dec_ref(res);
 res = initialize_Init_Data_String_Termination(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw = _init_l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw();
-lean_mark_persistent(l_Std_Internal_Parsec_String_instInputSigmaStringValidPosCharRaw);
+l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw = _init_l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw();
+lean_mark_persistent(l_Std_Internal_Parsec_String_instInputSigmaStringPosCharRaw);
 l_Std_Internal_Parsec_String_Parser_run___redArg___closed__0 = _init_l_Std_Internal_Parsec_String_Parser_run___redArg___closed__0();
 lean_mark_persistent(l_Std_Internal_Parsec_String_Parser_run___redArg___closed__0);
 l_Std_Internal_Parsec_String_Parser_run___redArg___closed__1 = _init_l_Std_Internal_Parsec_String_Parser_run___redArg___closed__1();

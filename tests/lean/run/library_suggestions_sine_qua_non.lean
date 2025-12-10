@@ -1,4 +1,6 @@
 module
+public import Lean.LibrarySuggestions.Basic
+public import Lean.LibrarySuggestions.SineQuaNon
 import all Lean.LibrarySuggestions.SineQuaNon
 import Lean.Meta.Basic
 import Std.Data.ExtHashMap

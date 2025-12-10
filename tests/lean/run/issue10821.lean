@@ -44,10 +44,9 @@ example (n : Nat) : Nat :=
 
 /--
 @ +2:4...8
-error: Invalid field `incc`: The environment does not contain `Nat.incc`
+error: Invalid field `incc`: The environment does not contain `Nat.incc`, so it is not possible to project the field `incc` from an expression
   n
-has type
-  Nat
+of type `Nat`
 -/
 #guard_msgs (positions := true) in
 example (n : Nat) : Nat :=
@@ -55,10 +54,9 @@ example (n : Nat) : Nat :=
 
 /--
 @ +2:4...8
-error: Invalid field `incc`: The environment does not contain `Nat.incc`
+error: Invalid field `incc`: The environment does not contain `Nat.incc`, so it is not possible to project the field `incc` from an expression
   n
-has type
-  Nat
+of type `Nat`
 -/
 #guard_msgs (positions := true) in
 example (n : Nat) : Nat :=

@@ -482,7 +482,6 @@ register_builtin_option linter.unusedSectionVars : Bool := {
 
 register_builtin_option debug.proofAsSorry : Bool := {
   defValue := false
-  group    := "debug"
   descr    := "replace the bodies (proofs) of theorems with `sorry`"
 }
 

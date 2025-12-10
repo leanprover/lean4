@@ -68,6 +68,7 @@ public:
     */
     friend options join(options const & opts1, options const & opts2);
 
+    object * steal() { return m_value.steal(); }
     object * to_obj_arg() const { return m_value.to_obj_arg(); }
 };
 

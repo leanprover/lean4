@@ -117,21 +117,21 @@ Examples:
  * {lean}`"red green blue".toSlice.startsWith Char.isLower = true`
 -/
 @[inline]
-def startsWith [ForwardPattern ρ] (s : Slice) (pat : ρ) : Bool :=
-  ForwardPattern.startsWith s pat
+def startsWith (s : Slice) (pat : ρ) [ForwardPattern pat] : Bool :=
+  ForwardPattern.startsWith pat s
 
-inductive SplitIterator (ρ : Type) (s : Slice) [ToForwardSearcher ρ σ] where
+inductive SplitIterator {ρ : Type} (pat : ρ) (s : Slice) [ToForwardSearcher pat σ] where
   | operating (currPos : s.Pos) (searcher : Std.Iter (α := σ s) (SearchStep s))
   | atEnd
 deriving Inhabited
 
 namespace SplitIterator
 
-variable [ToForwardSearcher ρ σ]
+variable {pat : ρ} [ToForwardSearcher pat σ]
 
 inductive PlausibleStep
 
-instance : Std.Iterators.Iterator (SplitIterator ρ s) Id Slice where
+instance : Std.Iterators.Iterator (SplitIterator pat s) Id Slice where
   IsPlausibleStep
     | ⟨.operating _ s⟩, .yield ⟨.operating _ s'⟩ _ => s'.IsPlausibleSuccessorOf s
     | ⟨.operating _ s⟩, .yield ⟨.atEnd ..⟩ _ => True
@@ -145,7 +145,7 @@ instance : Std.Iterators.Iterator (SplitIterator ρ s) Id Slice where
     | ⟨.operating currPos searcher⟩ =>
       match h : searcher.step with
       | ⟨.yield searcher' (.matched startPos endPos), hps⟩ =>
-        let slice := s.replaceStartEnd! currPos startPos
+        let slice := s.slice! currPos startPos
         let nextIt := ⟨.operating endPos searcher'⟩
         pure (.deflate ⟨.yield nextIt slice, by simp [nextIt, hps.isPlausibleSuccessor_of_yield]⟩)
       | ⟨.yield searcher' (.rejected ..), hps⟩ =>
@@ -155,16 +155,16 @@ instance : Std.Iterators.Iterator (SplitIterator ρ s) Id Slice where
         pure (.deflate ⟨.skip ⟨.operating currPos searcher'⟩,
           by simp [hps.isPlausibleSuccessor_of_skip]⟩)
       | ⟨.done, _⟩ =>
-        let slice := s.replaceStart currPos
+        let slice := s.sliceFrom currPos
         pure (.deflate ⟨.yield ⟨.atEnd⟩ slice, by simp⟩)
     | ⟨.atEnd⟩ => pure (.deflate ⟨.done, by simp⟩)
 
-private def toOption : SplitIterator ρ s → Option (Std.Iter (α := σ s) (SearchStep s))
+private def toOption : SplitIterator pat s → Option (Std.Iter (α := σ s) (SearchStep s))
   | .operating _ s => some s
   | .atEnd => none
 
 private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
-    Std.Iterators.FinitenessRelation (SplitIterator ρ s) Id where
+    Std.Iterators.FinitenessRelation (SplitIterator pat s) Id where
   rel := InvImage (Option.lt Std.Iterators.Iter.IsPlausibleSuccessorOf)
     (SplitIterator.toOption ∘ Std.Iterators.IterM.internalState)
   wf := InvImage.wf _ (Option.wellFounded_lt Std.Iterators.Finite.wf_of_id)
@@ -182,19 +182,13 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
       | ⟨.atEnd⟩, _ => simp
 
 @[no_expose]
-instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (SplitIterator ρ s) Id :=
+instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (SplitIterator pat s) Id :=
   .of_finitenessRelation finitenessRelation
 
-instance [Monad n] : Std.Iterators.IteratorCollect (SplitIterator ρ s) Id n :=
+instance [Monad n] : Std.Iterators.IteratorCollect (SplitIterator pat s) Id n :=
   .defaultImplementation
 
-instance [Monad n] : Std.Iterators.IteratorCollectPartial (SplitIterator ρ s) Id n :=
-  .defaultImplementation
-
-instance [Monad n] : Std.Iterators.IteratorLoop (SplitIterator ρ s) Id n :=
-  .defaultImplementation
-
-instance [Monad n] : Std.Iterators.IteratorLoopPartial (SplitIterator ρ s) Id n :=
+instance [Monad n] : Std.Iterators.IteratorLoop (SplitIterator pat s) Id n :=
   .defaultImplementation
 
 end SplitIterator
@@ -215,19 +209,19 @@ Examples:
  * {lean}`("baaab".toSlice.split "aa").toList == ["b".toSlice, "ab".toSlice]`
 -/
 @[specialize pat]
-def split [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Std.Iter (α := SplitIterator ρ s) Slice :=
-  { internalState := .operating s.startPos (ToForwardSearcher.toSearcher s pat) }
+def split (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : Std.Iter (α := SplitIterator pat s) Slice :=
+  { internalState := .operating s.startPos (ToForwardSearcher.toSearcher pat s) }
 
-inductive SplitInclusiveIterator (ρ : Type) (s : Slice) [ToForwardSearcher ρ σ] where
+inductive SplitInclusiveIterator {ρ : Type} (pat : ρ) (s : Slice) [ToForwardSearcher pat σ] where
   | operating (currPos : s.Pos) (searcher : Std.Iter (α := σ s) (SearchStep s))
   | atEnd
 deriving Inhabited
 
 namespace SplitInclusiveIterator
 
-variable [ToForwardSearcher ρ σ]
+variable {pat : ρ} [ToForwardSearcher pat σ]
 
-instance : Std.Iterators.Iterator (SplitInclusiveIterator ρ s) Id Slice where
+instance : Std.Iterators.Iterator (SplitInclusiveIterator pat s) Id Slice where
   IsPlausibleStep
     | ⟨.operating _ s⟩, .yield ⟨.operating _ s'⟩ _ => s'.IsPlausibleSuccessorOf s
     | ⟨.operating _ s⟩, .yield ⟨.atEnd ..⟩ _ => True
@@ -241,7 +235,7 @@ instance : Std.Iterators.Iterator (SplitInclusiveIterator ρ s) Id Slice where
     | ⟨.operating currPos searcher⟩ =>
       match h : searcher.step with
       | ⟨.yield searcher' (.matched _ endPos), hps⟩ =>
-        let slice := s.replaceStartEnd! currPos endPos
+        let slice := s.slice! currPos endPos
         let nextIt := ⟨.operating endPos searcher'⟩
         pure (.deflate ⟨.yield nextIt slice,
           by simp [nextIt, hps.isPlausibleSuccessor_of_yield]⟩)
@@ -253,18 +247,18 @@ instance : Std.Iterators.Iterator (SplitInclusiveIterator ρ s) Id Slice where
           by simp [hps.isPlausibleSuccessor_of_skip]⟩)
       | ⟨.done, _⟩ =>
         if currPos != s.endPos then
-          let slice := s.replaceStart currPos
+          let slice := s.sliceFrom currPos
           pure (.deflate ⟨.yield ⟨.atEnd⟩ slice, by simp⟩)
         else
           pure (.deflate ⟨.done, by simp⟩)
     | ⟨.atEnd⟩ => pure (.deflate ⟨.done, by simp⟩)
 
-private def toOption : SplitInclusiveIterator ρ s → Option (Std.Iter (α := σ s) (SearchStep s))
+private def toOption : SplitInclusiveIterator pat s → Option (Std.Iter (α := σ s) (SearchStep s))
   | .operating _ s => some s
   | .atEnd => none
 
 private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
-    Std.Iterators.FinitenessRelation (SplitInclusiveIterator ρ s) Id where
+    Std.Iterators.FinitenessRelation (SplitInclusiveIterator pat s) Id where
   rel := InvImage (Option.lt Std.Iterators.Iter.IsPlausibleSuccessorOf)
     (SplitInclusiveIterator.toOption ∘ Std.Iterators.IterM.internalState)
   wf := InvImage.wf _ (Option.wellFounded_lt Std.Iterators.Finite.wf_of_id)
@@ -283,23 +277,15 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
 
 @[no_expose]
 instance [Std.Iterators.Finite (σ s) Id] :
-    Std.Iterators.Finite (SplitInclusiveIterator ρ s) Id :=
+    Std.Iterators.Finite (SplitInclusiveIterator pat s) Id :=
   .of_finitenessRelation finitenessRelation
 
 instance [Monad n] {s} :
-    Std.Iterators.IteratorCollect (SplitInclusiveIterator ρ s) Id n :=
+    Std.Iterators.IteratorCollect (SplitInclusiveIterator pat s) Id n :=
   .defaultImplementation
 
 instance [Monad n] {s} :
-    Std.Iterators.IteratorCollectPartial (SplitInclusiveIterator ρ s) Id n :=
-  .defaultImplementation
-
-instance [Monad n] {s} :
-    Std.Iterators.IteratorLoop (SplitInclusiveIterator ρ s) Id n :=
-  .defaultImplementation
-
-instance [Monad n] {s} :
-    Std.Iterators.IteratorLoopPartial (SplitInclusiveIterator ρ s) Id n :=
+    Std.Iterators.IteratorLoop (SplitInclusiveIterator pat s) Id n :=
   .defaultImplementation
 
 end SplitInclusiveIterator
@@ -317,9 +303,9 @@ Examples:
  * {lean}`("baaab".toSlice.splitInclusive "aa").toList == ["baa".toSlice, "ab".toSlice]`
 -/
 @[specialize pat]
-def splitInclusive [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) :
-    Std.Iter (α := SplitInclusiveIterator ρ s) Slice :=
-  { internalState := .operating s.startPos (ToForwardSearcher.toSearcher s pat) }
+def splitInclusive (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] :
+    Std.Iter (α := SplitInclusiveIterator pat s) Slice :=
+  { internalState := .operating s.startPos (ToForwardSearcher.toSearcher pat s) }
 
 /--
 If {name}`pat` matches a prefix of {name}`s`, returns the remainder. Returns {name}`none` otherwise.
@@ -336,8 +322,8 @@ Examples:
  * {lean}`"red green blue".toSlice.dropPrefix? Char.isLower == some "ed green blue".toSlice`
 -/
 @[inline]
-def dropPrefix? [ForwardPattern ρ] (s : Slice) (pat : ρ) : Option Slice :=
-  (ForwardPattern.dropPrefix? s pat).map s.replaceStart
+def dropPrefix? (s : Slice) (pat : ρ) [ForwardPattern pat] : Option Slice :=
+  (ForwardPattern.dropPrefix? pat s).map s.sliceFrom
 
 /--
 If {name}`pat` matches a prefix of {name}`s`, returns the remainder. Returns {name}`s` unmodified
@@ -354,7 +340,7 @@ Examples:
  * {lean}`"red green blue".toSlice.dropPrefix Char.isLower == "ed green blue".toSlice`
 -/
 @[specialize pat]
-def dropPrefix [ForwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+def dropPrefix (s : Slice) (pat : ρ) [ForwardPattern pat] : Slice :=
   dropPrefix? s pat |>.getD s
 
 /--
@@ -373,11 +359,11 @@ Examples:
 * {lean}`"aaaaa".toSlice.replace "aa" "b" = "bba"`
 * {lean}`"abc".toSlice.replace "" "k" = "kakbkck"`
 -/
-def replace [ToForwardSearcher ρ σ] [ToSlice α] (s : Slice) (pattern : ρ) (replacement : α) :
+def replace [ToSlice α] (s : Slice) (pattern : ρ) [ToForwardSearcher pattern σ] (replacement : α) :
     String :=
-  (ToForwardSearcher.toSearcher s pattern).fold (init := "") (fun
+  (ToForwardSearcher.toSearcher pattern s).fold (init := "") (fun
     | sofar, .matched .. => sofar ++ ToSlice.toSlice replacement
-    | sofar, .rejected start stop => sofar ++ s.replaceStartEnd! start stop)
+    | sofar, .rejected start stop => sofar ++ s.slice! start stop)
 
 /--
 Removes the specified number of characters (Unicode code points) from the start of the slice.
@@ -391,7 +377,7 @@ Examples:
 -/
 @[inline]
 def drop (s : Slice) (n : Nat) : Slice :=
-  s.replaceStart (s.startPos.nextn n)
+  s.sliceFrom (s.startPos.nextn n)
 
 /--
 Creates a new slice that contains the longest prefix of {name}`s` for which {name}`pat` matched
@@ -404,18 +390,18 @@ Examples:
  * {lean}`"red green blue".toSlice.dropWhile (fun (_ : Char) => true) == "".toSlice`
 -/
 @[inline]
-def dropWhile [ForwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+def dropWhile (s : Slice) (pat : ρ) [ForwardPattern pat] : Slice :=
   go s.startPos
 where
   @[specialize pat]
   go (curr : s.Pos) : Slice :=
-    if let some nextCurr := ForwardPattern.dropPrefix? (s.replaceStart curr) pat then
-      if curr < Pos.ofReplaceStart nextCurr then
-        go (Pos.ofReplaceStart nextCurr)
+    if let some nextCurr := ForwardPattern.dropPrefix? pat (s.sliceFrom curr) then
+      if curr < Pos.ofSliceFrom nextCurr then
+        go (Pos.ofSliceFrom nextCurr)
       else
-        s.replaceStart curr
+        s.sliceFrom curr
     else
-      s.replaceStart curr
+      s.sliceFrom curr
   termination_by curr
 
 /--
@@ -449,7 +435,7 @@ Examples:
 -/
 @[inline]
 def take (s : Slice) (n : Nat) : Slice :=
-  s.replaceEnd (s.startPos.nextn n)
+  s.sliceTo (s.startPos.nextn n)
 
 /--
 Creates a new slice that contains the longest prefix of {name}`s` for which {name}`pat` matched
@@ -464,18 +450,18 @@ Examples:
  * {lean}`"red green blue".toSlice.takeWhile (fun (_ : Char) => true) == "red green blue".toSlice`
 -/
 @[inline]
-def takeWhile [ForwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+def takeWhile (s : Slice) (pat : ρ) [ForwardPattern pat] : Slice :=
   go s.startPos
 where
   @[specialize pat]
   go (curr : s.Pos) : Slice :=
-    if let some nextCurr := ForwardPattern.dropPrefix? (s.replaceStart curr) pat then
-      if curr < Pos.ofReplaceStart nextCurr then
-        go (Pos.ofReplaceStart nextCurr)
+    if let some nextCurr := ForwardPattern.dropPrefix? pat (s.sliceFrom curr) then
+      if curr < Pos.ofSliceFrom nextCurr then
+        go (Pos.ofSliceFrom nextCurr)
       else
-        s.replaceEnd curr
+        s.sliceTo curr
     else
-      s.replaceEnd curr
+      s.sliceTo curr
   termination_by curr
 
 /--
@@ -489,10 +475,25 @@ Examples:
  * {lean}`"tea".toSlice.find? (fun (c : Char) => c == 'X') == none`
  * {lean}`("coffee tea water".toSlice.find? "tea").map (·.get!) == some 't'`
 -/
-@[specialize pat]
-def find? [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Option s.Pos :=
-  let searcher := ToForwardSearcher.toSearcher s pat
+@[inline]
+def find? (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : Option s.Pos :=
+  let searcher := ToForwardSearcher.toSearcher pat s
   searcher.findSome? (fun | .matched startPos _ => some startPos | .rejected .. => none)
+
+/--
+Finds the position of the first match of the pattern {name}`pat` in a slice {name}`s`. If there
+is no match {lean}`s.endPos` is returned.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * {lean}`("coffee tea water".toSlice.find Char.isWhitespace).get! == ' '`
+ * {lean}`"tea".toSlice.find (fun (c : Char) => c == 'X') == "tea".toSlice.endPos`
+ * {lean}`("coffee tea water".toSlice.find "tea").get! == 't'`
+-/
+@[inline]
+def find (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : s.Pos :=
+  s.find? pat |>.getD s.endPos
 
 /--
 Checks whether a slice has a match of the pattern {name}`pat` anywhere.
@@ -505,16 +506,16 @@ Examples:
  * {lean}`"coffee tea water".toSlice.contains "tea" = true`
 -/
 @[specialize pat]
-def contains [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Bool :=
-  let searcher := ToForwardSearcher.toSearcher s pat
+def contains (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
+  let searcher := ToForwardSearcher.toSearcher pat s
   searcher.any (· matches .matched ..)
 
 @[inline, inherit_doc contains]
-def any [ToForwardSearcher ρ σ] (s : Slice) (pat : ρ) : Bool :=
+def any (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
   s.contains pat
 
 /--
-Checks whether a slice only consists of matches of the pattern {name}`pat` anywhere.
+Checks whether a slice only consists of matches of the pattern {name}`pat`.
 
 Short-circuits at the first pattern mis-match.
 
@@ -528,7 +529,7 @@ Examples:
  * {lean}`"aaaaaaa".toSlice.all "aa" = false`
 -/
 @[inline]
-def all [ForwardPattern ρ] (s : Slice) (pat : ρ) : Bool :=
+def all (s : Slice) (pat : ρ) [ForwardPattern pat] : Bool :=
   s.dropWhile pat |>.isEmpty
 
 end ForwardPatternUsers
@@ -553,10 +554,10 @@ Examples:
  * {lean}`"red green blue".toSlice.endsWith Char.isLower = true`
 -/
 @[inline]
-def endsWith [BackwardPattern ρ] (s : Slice) (pat : ρ) : Bool :=
-  BackwardPattern.endsWith s pat
+def endsWith (s : Slice) (pat : ρ) [BackwardPattern pat]  : Bool :=
+  BackwardPattern.endsWith pat s
 
-inductive RevSplitIterator (ρ : Type) (s : Slice) [ToBackwardSearcher ρ σ] where
+inductive RevSplitIterator {ρ : Type} (pat : ρ) (s : Slice) [ToBackwardSearcher pat σ] where
   | operating (currPos : s.Pos) (searcher : Std.Iter (α := σ s) (SearchStep s))
   | atEnd
 deriving Inhabited
@@ -579,7 +580,7 @@ instance [Pure m] : Std.Iterators.Iterator (RevSplitIterator ρ s) m Slice where
     | ⟨.operating currPos searcher⟩ =>
       match h : searcher.step with
       | ⟨.yield searcher' (.matched startPos endPos), hps⟩ =>
-        let slice := s.replaceStartEnd! endPos currPos
+        let slice := s.slice! endPos currPos
         let nextIt := ⟨.operating startPos searcher'⟩
         pure (.deflate ⟨.yield nextIt slice, by simp [nextIt, hps.isPlausibleSuccessor_of_yield]⟩)
       | ⟨.yield searcher' (.rejected ..), hps⟩ =>
@@ -590,7 +591,7 @@ instance [Pure m] : Std.Iterators.Iterator (RevSplitIterator ρ s) m Slice where
           by simp [hps.isPlausibleSuccessor_of_skip]⟩)
       | ⟨.done, _⟩ =>
         if currPos ≠ s.startPos then
-          let slice := s.replaceEnd currPos
+          let slice := s.sliceTo currPos
           pure (.deflate ⟨.yield ⟨.atEnd⟩ slice, by simp⟩)
         else
           pure (.deflate ⟨.done, by simp⟩)
@@ -625,14 +626,7 @@ instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (RevSplitIterat
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (RevSplitIterator ρ s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] :
-    Std.Iterators.IteratorCollectPartial (RevSplitIterator ρ s) m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (RevSplitIterator ρ s) m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (RevSplitIterator ρ s) m n :=
   .defaultImplementation
 
 end RevSplitIterator
@@ -652,9 +646,9 @@ Examples:
  * {lean}`("coffee tea water".toSlice.revSplit ' ').toList == ["water".toSlice, "tea".toSlice, "coffee".toSlice]`
 -/
 @[specialize pat]
-def revSplit [ToBackwardSearcher ρ σ] (s : Slice) (pat : ρ) :
-    Std.Iter (α := RevSplitIterator ρ s) Slice :=
-  { internalState := .operating s.endPos (ToBackwardSearcher.toSearcher s pat) }
+def revSplit (s : Slice) (pat : ρ) [ToBackwardSearcher pat σ] :
+    Std.Iter (α := RevSplitIterator pat s) Slice :=
+  { internalState := .operating s.endPos (ToBackwardSearcher.toSearcher pat s) }
 
 /--
 If {name}`pat` matches a suffix of {name}`s`, returns the remainder. Returns {name}`none` otherwise.
@@ -671,8 +665,8 @@ Examples:
  * {lean}`"red green blue".toSlice.dropSuffix? Char.isLower == some "red green blu".toSlice`
 -/
 @[inline]
-def dropSuffix? [BackwardPattern ρ] (s : Slice) (pat : ρ) : Option Slice :=
-  (BackwardPattern.dropSuffix? s pat).map s.replaceEnd
+def dropSuffix? (s : Slice) (pat : ρ) [BackwardPattern pat] : Option Slice :=
+  (BackwardPattern.dropSuffix? pat s).map s.sliceTo
 
 /--
 If {name}`pat` matches a suffix of {name}`s`, returns the remainder. Returns {name}`s` unmodified
@@ -690,7 +684,7 @@ Examples:
  * {lean}`"red green blue".toSlice.dropSuffix Char.isLower == "red green blu".toSlice`
 -/
 @[specialize pat]
-def dropSuffix [BackwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+def dropSuffix (s : Slice) (pat : ρ) [BackwardPattern pat]  : Slice :=
   dropSuffix? s pat |>.getD s
 
 /--
@@ -705,7 +699,7 @@ Examples:
 -/
 @[inline]
 def dropEnd (s : Slice) (n : Nat) : Slice :=
-  s.replaceEnd (s.endPos.prevn n)
+  s.sliceTo (s.endPos.prevn n)
 
 /--
 Creates a new slice that contains the longest suffix of {name}`s` for which {name}`pat` matched
@@ -717,18 +711,18 @@ Examples:
  * {lean}`"red green blue".toSlice.dropEndWhile (fun (_ : Char) => true) == "".toSlice`
 -/
 @[inline]
-def dropEndWhile [BackwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+def dropEndWhile (s : Slice) (pat : ρ) [BackwardPattern pat] : Slice :=
   go s.endPos
 where
   @[specialize pat]
   go (curr : s.Pos) : Slice :=
-    if let some nextCurr := BackwardPattern.dropSuffix? (s.replaceEnd curr) pat then
-      if Pos.ofReplaceEnd nextCurr < curr then
-        go (Pos.ofReplaceEnd nextCurr)
+    if let some nextCurr := BackwardPattern.dropSuffix? pat (s.sliceTo curr) then
+      if Pos.ofSliceTo nextCurr < curr then
+        go (Pos.ofSliceTo nextCurr)
       else
-        s.replaceEnd curr
+        s.sliceTo curr
     else
-      s.replaceEnd curr
+      s.sliceTo curr
   termination_by curr.down
 
 /--
@@ -762,7 +756,7 @@ Examples:
 -/
 @[inline]
 def takeEnd (s : Slice) (n : Nat) : Slice :=
-  s.replaceStart (s.endPos.prevn n)
+  s.sliceFrom (s.endPos.prevn n)
 
 /--
 Creates a new slice that contains the suffix prefix of {name}`s` for which {name}`pat` matched
@@ -776,22 +770,22 @@ Examples:
  * {lean}`"red green blue".toSlice.takeEndWhile (fun (_ : Char) => true) == "red green blue".toSlice`
 -/
 @[inline]
-def takeEndWhile [BackwardPattern ρ] (s : Slice) (pat : ρ) : Slice :=
+def takeEndWhile (s : Slice) (pat : ρ) [BackwardPattern pat] : Slice :=
   go s.endPos
 where
   @[specialize pat]
   go (curr : s.Pos) : Slice :=
-    if let some nextCurr := BackwardPattern.dropSuffix? (s.replaceEnd curr) pat then
-      if Pos.ofReplaceEnd nextCurr < curr then
-        go (Pos.ofReplaceEnd nextCurr)
+    if let some nextCurr := BackwardPattern.dropSuffix? pat (s.sliceTo curr) then
+      if Pos.ofSliceTo nextCurr < curr then
+        go (Pos.ofSliceTo nextCurr)
       else
-        s.replaceStart curr
+        s.sliceFrom curr
     else
-      s.replaceStart curr
+      s.sliceFrom curr
   termination_by curr.down
 
 /--
-Finds the position of the first match of the pattern {name}`pat` in a slice {name}`true`, starting
+Finds the position of the first match of the pattern {name}`pat` in a slice, starting
 from the end of the slice and traversing towards the start. If there is no match {name}`none` is
 returned.
 
@@ -803,8 +797,8 @@ Examples:
  * {lean}`"tea".toSlice.revFind? (fun (c : Char) => c == 'X') == none`
 -/
 @[specialize pat]
-def revFind? [ToBackwardSearcher ρ σ] (s : Slice) (pat : ρ) : Option s.Pos :=
-  let searcher := ToBackwardSearcher.toSearcher s pat
+def revFind? (s : Slice) (pat : ρ) [ToBackwardSearcher pat σ] : Option s.Pos :=
+  let searcher := ToBackwardSearcher.toSearcher pat s
   searcher.findSome? (fun | .matched startPos _ => some startPos | .rejected .. => none)
 
 end BackwardPatternUsers
@@ -906,13 +900,7 @@ instance [Pure m] : Std.Iterators.Finite (PosIterator s) m :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (PosIterator s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial (PosIterator s) m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (PosIterator s) m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (PosIterator s) m n :=
   .defaultImplementation
 
 docs_to_verso positions
@@ -996,14 +984,7 @@ instance [Pure m] : Std.Iterators.Finite (RevPosIterator s) m :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (RevPosIterator s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] :
-    Std.Iterators.IteratorCollectPartial (RevPosIterator s) m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (RevPosIterator s) m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (RevPosIterator s) m n :=
   .defaultImplementation
 
 docs_to_verso revPositions
@@ -1083,13 +1064,7 @@ instance [Pure m] : Std.Iterators.Finite ByteIterator m :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect ByteIterator m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial ByteIterator m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop ByteIterator m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial ByteIterator m n :=
   .defaultImplementation
 
 docs_to_verso bytes
@@ -1170,13 +1145,7 @@ instance [Pure m] : Std.Iterators.Finite RevByteIterator m :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect RevByteIterator m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial RevByteIterator m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop RevByteIterator m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial RevByteIterator m n :=
   .defaultImplementation
 
 docs_to_verso revBytes
@@ -1234,7 +1203,8 @@ def foldr {α : Type u} (f : Char → α → α) (init : α) (s : Slice) : α :=
 Checks whether the slice can be interpreted as the decimal representation of a natural number.
 
 A slice can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits.
+it are digits. Underscores ({lit}`_`) are allowed as digit separators for readability, but cannot appear
+at the start, at the end, or consecutively.
 
 Use {name (scope := "Init.Data.String.Slice")}`toNat?` or
 {name (scope := "Init.Data.String.Slice")}`toNat!` to convert such a slice to a natural number.
@@ -1245,21 +1215,39 @@ Examples:
  * {lean}`"5".toSlice.isNat = true`
  * {lean}`"05".toSlice.isNat = true`
  * {lean}`"587".toSlice.isNat = true`
+ * {lean}`"1_000".toSlice.isNat = true`
+ * {lean}`"100_000_000".toSlice.isNat = true`
  * {lean}`"-587".toSlice.isNat = false`
  * {lean}`" 5".toSlice.isNat = false`
  * {lean}`"2+3".toSlice.isNat = false`
  * {lean}`"0xff".toSlice.isNat = false`
+ * {lean}`"_123".toSlice.isNat = false`
+ * {lean}`"123_".toSlice.isNat = false`
+ * {lean}`"12__34".toSlice.isNat = false`
 -/
 @[inline]
 def isNat (s : Slice) : Bool :=
-  !s.isEmpty && s.all Char.isDigit
+  if s.isEmpty then
+    false
+  else
+    -- Track: isFirst, lastWasUnderscore, lastCharWasDigit, valid
+    let result := s.foldl (fun (isFirst, lastWasUnderscore, _lastCharWasDigit, valid) c =>
+      let isDigit := c.isDigit
+      let isUnderscore := c = '_'
+      let newValid := valid && (isDigit || isUnderscore) &&
+                      !(isFirst && isUnderscore) &&  -- Cannot start with underscore
+                      !(lastWasUnderscore && isUnderscore)  -- No consecutive underscores
+      (false, isUnderscore, isDigit, newValid))
+      (true, false, false, true)
+    -- Must be valid and last character must have been a digit (not underscore)
+    result.2.2.2 && result.2.2.1
 
 /--
 Interprets a slice as the decimal representation of a natural number, returning it. Returns
 {name}`none` if the slice does not contain a decimal natural number.
 
 A slice can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits.
+it are digits. Underscores ({lit}`_`) are allowed as digit separators and are ignored during parsing.
 
 Use {name}`isNat` to check whether {name}`toNat?` would return {name}`some`.
 {name (scope := "Init.Data.String.Slice")}`toNat!` is an alternative that panics instead of
@@ -1270,6 +1258,8 @@ Examples:
  * {lean}`"0".toSlice.toNat? = some 0`
  * {lean}`"5".toSlice.toNat? = some 5`
  * {lean}`"587".toSlice.toNat? = some 587`
+ * {lean}`"1_000".toSlice.toNat? = some 1000`
+ * {lean}`"100_000_000".toSlice.toNat? = some 100000000`
  * {lean}`"-587".toSlice.toNat? = none`
  * {lean}`" 5".toSlice.toNat? = none`
  * {lean}`"2+3".toSlice.toNat? = none`
@@ -1277,7 +1267,7 @@ Examples:
 -/
 def toNat? (s : Slice) : Option Nat :=
   if s.isNat then
-    some <| s.foldl (fun n c => n * 10 + (c.toNat - '0'.toNat)) 0
+    some <| s.foldl (fun n c => if c = '_' then n else n * 10 + (c.toNat - '0'.toNat)) 0
   else
     none
 
@@ -1286,7 +1276,7 @@ Interprets a slice as the decimal representation of a natural number, returning 
 slice does not contain a decimal natural number.
 
 A slice can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits.
+it are digits. Underscores ({lit}`_`) are allowed as digit separators and are ignored during parsing.
 
 Use {name}`isNat` to check whether {name}`toNat!` would return a value. {name}`toNat?` is a safer
 alternative that returns {name}`none` instead of panicking when the string is not a natural number.
@@ -1295,21 +1285,22 @@ Examples:
  * {lean}`"0".toSlice.toNat! = 0`
  * {lean}`"5".toSlice.toNat! = 5`
  * {lean}`"587".toSlice.toNat! = 587`
+ * {lean}`"1_000".toSlice.toNat! = 1000`
 -/
 def toNat! (s : Slice) : Nat :=
   if s.isNat then
-    s.foldl (fun n c => n * 10 + (c.toNat - '0'.toNat)) 0
+    s.foldl (fun n c => if c = '_' then n else n * 10 + (c.toNat - '0'.toNat)) 0
   else
     panic! "Nat expected"
 
 /--
-Returns the first character in {name}`s`. If {name}`s` is empty, {name}`none`.
+Returns the first character in {name}`s`. If {name}`s` is empty, returns {name}`none`.
 
 Examples:
 * {lean}`"abc".toSlice.front? = some 'a'`
 * {lean}`"".toSlice.front? = none`
 -/
-@[inline]
+@[inline, expose]
 def front? (s : Slice) : Option Char :=
   s.startPos.get?
 
@@ -1320,9 +1311,88 @@ Examples:
 * {lean}`"abc".toSlice.front = 'a'`
 * {lean}`"".toSlice.front = (default : Char)`
 -/
-@[inline]
+@[inline, expose]
 def front (s : Slice) : Char :=
   s.front?.getD default
+
+/--
+Checks whether the slice can be interpreted as the decimal representation of an integer.
+
+A slice can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Leading {lit}`+` characters are not allowed.
+
+Use {name (scope := "Init.Data.String.Slice")}`String.Slice.toInt?` or {name (scope := "Init.Data.String.Slice")}`String.toInt!` to convert such a string to an integer.
+
+Examples:
+ * {lean}`"".toSlice.isInt = false`
+ * {lean}`"-".toSlice.isInt = false`
+ * {lean}`"0".toSlice.isInt = true`
+ * {lean}`"-0".toSlice.isInt = true`
+ * {lean}`"5".toSlice.isInt = true`
+ * {lean}`"587".toSlice.isInt = true`
+ * {lean}`"-587".toSlice.isInt = true`
+ * {lean}`"+587".toSlice.isInt = false`
+ * {lean}`" 5".toSlice.isInt = false`
+ * {lean}`"2-3".toSlice.isInt = false`
+ * {lean}`"0xff".toSlice.isInt = false`
+-/
+def isInt (s : Slice) : Bool :=
+  if s.front = '-' then
+    (s.drop 1).isNat
+  else
+    s.isNat
+
+/--
+Interprets a slice as the decimal representation of an integer, returning it. Returns {lean}`none` if
+the string does not contain a decimal integer.
+
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Leading {lit}`+` characters are not allowed.
+
+Use {name}`Slice.isInt` to check whether {name}`Slice.toInt?` would return {lean}`some`.
+{name (scope := "Init.Data.String.Slice")}`Slice.toInt!` is an alternative that panics instead of
+returning {lean}`none` when the string is not an integer.
+
+Examples:
+ * {lean}`"".toSlice.toInt? = none`
+ * {lean}`"-".toSlice.toInt? = none`
+ * {lean}`"0".toSlice.toInt? = some 0`
+ * {lean}`"5".toSlice.toInt? = some 5`
+ * {lean}`"-5".toSlice.toInt? = some (-5)`
+ * {lean}`"587".toSlice.toInt? = some 587`
+ * {lean}`"-587".toSlice.toInt? = some (-587)`
+ * {lean}`" 5".toSlice.toInt? = none`
+ * {lean}`"2-3".toSlice.toInt? = none`
+ * {lean}`"0xff".toSlice.toInt? = none`
+-/
+def toInt? (s : Slice) : Option Int :=
+  if s.front = '-' then
+    Int.negOfNat <$> (s.drop 1).toNat?
+  else
+   Int.ofNat <$> s.toNat?
+
+/--
+Interprets a string as the decimal representation of an integer, returning it. Panics if the string
+does not contain a decimal integer.
+
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Leading `+` characters are not allowed.
+
+Use {name}`Slice.isInt` to check whether {name}`Slice.toInt!` would return a value.
+{name}`Slice.toInt?` is a safer alternative that returns {lean}`none` instead of panicking when the
+string is not an integer.
+
+Examples:
+ * {lean}`"0".toSlice.toInt! = 0`
+ * {lean}`"5".toSlice.toInt! = 5`
+ * {lean}`"587".toSlice.toInt! = 587`
+ * {lean}`"-587".toSlice.toInt! = -587`
+-/
+@[inline]
+def toInt! (s : Slice) : Int :=
+  match s.toInt? with
+  | some v => v
+  | none   => panic "Int expected"
 
 /--
 Returns the last character in {name}`s`. If {name}`s` is empty, returns {name}`none`.
@@ -1331,7 +1401,7 @@ Examples:
 * {lean}`"abc".toSlice.back? = some 'c'`
 * {lean}`"".toSlice.back? = none`
 -/
-@[inline]
+@[inline, expose]
 def back? (s : Slice) : Option Char :=
   s.endPos.prev? |>.bind (·.get?)
 
@@ -1342,7 +1412,7 @@ Examples:
 * {lean}`"abc".toSlice.back = 'c'`
 * {lean}`"".toSlice.back = (default : Char)`
 -/
-@[inline]
+@[inline, expose]
 def back (s : Slice) : Char :=
   s.back?.getD default
 

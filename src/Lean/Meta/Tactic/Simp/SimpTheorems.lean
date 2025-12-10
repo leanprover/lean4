@@ -16,7 +16,7 @@ import Lean.ExtraModUses
 public section
 
 /-!
-This module contains types to manages simp theorems and sets theirof.
+This module contains types to manages simp theorems and sets thereof.
 
 Overview of types in this module:
 
@@ -39,7 +39,7 @@ namespace Lean.Meta
 
 register_builtin_option backward.dsimp.useDefEqAttr : Bool := {
   defValue := true
-  descr    := "Use `defeq` attribute rather than checking theorem body to decide whether a theroem \
+  descr    := "Use `defeq` attribute rather than checking theorem body to decide whether a theorem \
     can be used in `dsimp` or with `implicitDefEqProofs`."
 }
 
@@ -382,8 +382,6 @@ Because some theorems lead to multiple `SimpTheorems` (in particular conjunction
 -/
 def mkSimpTheoremFromConst (declName : Name) (post := true) (inv := false)
     (prio : Nat := eval_prio default) : MetaM (Array SimpTheorem) := do
-  -- If the theorem is used definitionally, it will not be visible in the proof term.
-  recordExtraModUseFromDecl (isMeta := false) declName
   let cinfo ← getConstVal declName
   let us := cinfo.levelParams.map mkLevelParam
   let origin := .decl declName post inv

@@ -182,7 +182,7 @@ def toByteArray (s : ByteSlice) : ByteArray :=
 Comparison function
 -/
 @[extern "lean_byteslice_beq"]
-protected def beq (a b : ByteSlice) : Bool :=
+protected def beq (a b : @& ByteSlice) : Bool :=
   a.toByteArray == b.toByteArray
 
 instance : BEq ByteSlice := ⟨ByteSlice.beq⟩

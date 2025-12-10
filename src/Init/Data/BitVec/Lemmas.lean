@@ -1056,7 +1056,7 @@ theorem toInt_setWidth' {m n : Nat} (p : m ≤ n) {x : BitVec m} :
 @[simp, grind =] theorem toFin_setWidth' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
     (setWidth' p x).toFin = x.toFin.castLE (Nat.pow_le_pow_right (by omega) (by omega)) := by
   ext
-  rw [setWidth'_eq, toFin_setWidth, Fin.val_ofNat, Fin.coe_castLE, val_toFin,
+  rw [setWidth'_eq, toFin_setWidth, Fin.val_ofNat, Fin.val_castLE, val_toFin,
     Nat.mod_eq_of_lt (by apply BitVec.toNat_lt_twoPow_of_le p)]
 
 theorem toNat_setWidth_of_le {w w' : Nat} {b : BitVec w} (h : w ≤ w') : (b.setWidth w').toNat = b.toNat := by
@@ -5601,7 +5601,7 @@ theorem msb_eq_toNat {x : BitVec w}:
   simp only [msb_eq_decide, ge_iff_le]
 
 /-- Negating a bitvector created from a natural number equals
-creating a bitvector from the the negative of that number.
+creating a bitvector from the negative of that number.
 -/
 theorem neg_ofNat_eq_ofInt_neg {w : Nat} {x : Nat} :
     - BitVec.ofNat w x = BitVec.ofInt w (- x) := by

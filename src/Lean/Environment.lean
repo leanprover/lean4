@@ -71,7 +71,6 @@ paths back together.
 namespace Lean
 register_builtin_option debug.skipKernelTC : Bool := {
   defValue := false
-  group    := "debug"
   descr    := "skip kernel type checker. WARNING: setting this option to true may compromise soundness because your proofs will not be checked by the Lean kernel"
 }
 
@@ -155,6 +154,7 @@ deriving Inhabited, BEq, Repr
 structure EffectiveImport extends Import where
   /-- Phases for which the import's IR is available. -/
   irPhases : IRPhases
+deriving Inhabited
 
 /-- Environment fields that are not used often. -/
 structure EnvironmentHeader where
@@ -1719,7 +1719,7 @@ passing (a prefix of) the file names to `readModuleDataParts`. `mod` is used to 
 arbitrary but deterministic base address for `mmap`.
 -/
 @[extern "lean_save_module_data_parts"]
-opaque saveModuleDataParts (mod : @& Name) (parts : Array (System.FilePath × ModuleData)) : IO Unit
+opaque saveModuleDataParts (mod : @& Name) (parts : @& Array (System.FilePath × ModuleData)) : IO Unit
 
 /--
 Loads the module data from the given file names. The files must be (a prefix of) the result of a
@@ -2404,7 +2404,7 @@ Evaluates the given declaration under the given environment to a value of the gi
 This function is only safe to use if the type matches the declaration's type in the environment
 and if `enableInitializersExecution` has been used before importing any modules.
 
-If `checkMeta` is true (the default), the function checks that all referenced imported contants are
+If `checkMeta` is true (the default), the function checks that all referenced imported constants are
 marked or imported as `meta` or otherwise fails with an error. It should only be set to `false` in
 cases where it is acceptable for code to work only in the language server, where more IR is loaded,
 such as in `#eval`.
@@ -2444,13 +2444,17 @@ def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExistin
         else
           consts.add c
     }
-    checked := dest.checked.map fun kenv => replayKernel exts newPrivateConsts kenv |>.toOption.getD kenv
+    checked := dest.checked.map fun kenv =>
+      replayKernel
+        oldEnv.toKernelEnv.extensions newEnv.toKernelEnv.extensions exts newPrivateConsts kenv
+      |>.toOption.getD kenv
     allRealizations := dest.allRealizations.map (sync := true) fun allRealizations =>
       newPrivateConsts.foldl (init := allRealizations) fun allRealizations c =>
         allRealizations.insert c.constInfo.name c
   }
 where
-  replayKernel (exts : Array (EnvExtension EnvExtensionState)) (consts : List AsyncConst)
+  replayKernel (oldState newState : Array EnvExtensionState)
+      (exts : Array (EnvExtension EnvExtensionState)) (consts : List AsyncConst)
       (kenv : Kernel.Environment) : Except Kernel.Exception Kernel.Environment := do
     let mut kenv := kenv
     -- replay extensions first in case kernel checking needs them (`IR.declMapExt`)
@@ -2460,8 +2464,8 @@ where
           -- safety: like in `modifyState`, but that one takes an elab env instead of a kernel env
           extensions := unsafe (ext.modifyStateImpl kenv.extensions <|
             replay
-              (ext.getStateImpl oldEnv.toKernelEnv.extensions)
-              (ext.getStateImpl newEnv.toKernelEnv.extensions)
+              (ext.getStateImpl oldState)
+              (ext.getStateImpl newState)
               (consts.map (·.constInfo.name))) }
     for c in consts do
       if skipExisting && (kenv.find? c.constInfo.name).isSome then
@@ -2603,7 +2607,11 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
         { c with exts? := some <| .pure realizeEnv'.base.private.extensions }
       else c
     let exts ← EnvExtension.envExtensionsRef.get
-    let replayKernel := replayConsts.replayKernel (skipExisting := true) realizeEnv realizeEnv' exts newPrivateConsts
+    -- NOTE: We must ensure that `realizeEnv.localRealizationCtxMap` is not reachable via `res`
+    -- (such as by storing `realizeEnv` or `realizeEnv'` in a field or the closure) as `res` will be
+    -- stored in a promise in there, creating a cycle.
+    let replayKernel := replayConsts.replayKernel (skipExisting := true)
+      realizeEnv.toKernelEnv.extensions realizeEnv'.toKernelEnv.extensions exts newPrivateConsts
     let res : RealizeConstResult := { newConsts.private := newPrivateConsts, newConsts.public := newPublicConsts, replayKernel, dyn }
     pure (.mk res)
   let some res := res.get? RealizeConstResult | unreachable!

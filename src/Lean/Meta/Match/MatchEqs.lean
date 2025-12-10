@@ -188,14 +188,6 @@ where
       <|>
       (substSomeVar mvarId)
       <|>
-      (do if debug.Meta.Match.MatchEqs.grindAsSorry.get (← getOptions) then
-            trace[Meta.Match.matchEqs] "proveCondEqThm.go: grind_as_sorry is enabled, admitting goal"
-            mvarId.admit (synthetic := true)
-          else
-            let r ← Grind.main mvarId (← Grind.mkParams {})
-            if r.hasFailed then throwError "grind failed"
-          return #[])
-      <|>
       (throwError "failed to generate equality theorem {thmName} for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
     subgoals.forM (go · (depth+1))
 

@@ -89,7 +89,7 @@ where
     unless (← isEqFalse e) do return false
     return !(← isEqFalse e')
 
-private def updateIndicesFound (k : HeadIndex) : GoalM Unit := do
+def updateIndicesFound (k : HeadIndex) : GoalM Unit := do
   if (← get).indicesFound.contains k then return ()
   modify fun s => { s with indicesFound := s.indicesFound.insert k }
 

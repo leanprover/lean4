@@ -689,7 +689,7 @@ private def getPatternFn? (pattern : Expr) (inSupport : Bool) (root : Bool) (arg
 
 private partial def go (pattern : Expr) (inSupport : Bool) (root : Bool) : M Expr := do
   if let some (e, k) := isOffsetPattern? pattern then
-    let e ← goArg e inSupport .relevant
+    let e ← goArg e inSupport .relevant (isEqBwdParent := false)
     if e == dontCare then
       return dontCare
     else
@@ -697,17 +697,18 @@ private partial def go (pattern : Expr) (inSupport : Bool) (root : Bool) : M Exp
   let some f ← getPatternFn? pattern inSupport root .relevant
     | throwError "invalid pattern, (non-forbidden) application expected{indentD (ppPattern pattern)}"
   assert! f.isConst || f.isFVar
-  unless f.isConstOf ``Grind.eqBwdPattern do
+  let isEqBwd := f.isConstOf ``Grind.eqBwdPattern
+  unless isEqBwd do
     saveSymbol f.toHeadIndex
   let mut args := pattern.getAppArgs.toVector
   let patternArgKinds ← getPatternArgKinds f args.size
   for h : i in *...args.size do
     let arg := args[i]
     let argKind := patternArgKinds[i]?.getD .relevant
-    args := args.set i (← goArg arg (inSupport || argKind.isSupport) argKind)
+    args := args.set i (← goArg arg (inSupport || argKind.isSupport) argKind isEqBwd)
   return mkAppN f args.toArray
 where
-  goArg (arg : Expr) (inSupport : Bool) (argKind : PatternArgKind) : M Expr := do
+  goArg (arg : Expr) (inSupport : Bool) (argKind : PatternArgKind) (isEqBwdParent : Bool) : M Expr := do
     if !arg.hasLooseBVars then
       if arg.hasMVar then
         pure dontCare
@@ -715,7 +716,20 @@ where
         pure dontCare
       else
         let arg ← expandOffsetPatterns arg
-        saveSymbolsAt arg
+        unless isEqBwdParent do
+          /-
+          **Note**: We ignore symbols in ground patterns if the parent is the auxiliary ``Grind.eqBwdPattern
+          We do that because we want to sign an error in examples such as:
+          ```
+          theorem dummy (x : Nat) : x = x :=
+            rfl
+          -- error: invalid pattern for `dummy`
+          --  [@Lean.Grind.eqBwdPattern `[Nat] #0 #0]
+          -- the pattern does not contain constant symbols for indexing
+          attribute [grind ←=] dummy
+          ```
+          -/
+          saveSymbolsAt arg
         return mkGroundPattern arg
     else match arg with
       | .bvar idx =>

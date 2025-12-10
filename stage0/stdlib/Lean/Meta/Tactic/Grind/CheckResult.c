@@ -20,7 +20,6 @@ static lean_object* l_Lean_Meta_Grind_instReprCheckResult___closed__0;
 static lean_object* l_Lean_Meta_Grind_instReprCheckResult_repr___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_progress_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_progress_elim___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_noConfusion___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_lt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_propagated_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_ctorElim___redArg___boxed(lean_object*);
@@ -29,16 +28,12 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_closed_elim___redArg___bo
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_CheckResult_lt(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instReprCheckResult;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_none_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_noConfusion___redArg___lam__0___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Grind_instReprCheckResult_repr___closed__9;
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Lean_Meta_Grind_instReprCheckResult_repr___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_progress_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_ctorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_noConfusion___redArg(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_Grind_instReprCheckResult_repr___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instBEqCheckResult;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -51,7 +46,6 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_closed_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_none_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_closed_elim(lean_object*, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_noConfusion___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_instReprCheckResult_repr___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instBEqCheckResult_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_CheckResult_join(uint8_t, uint8_t);
@@ -294,63 +288,6 @@ lean_object* x_2;
 x_2 = l_Lean_Meta_Grind_CheckResult_closed_elim___redArg(x_1);
 lean_dec(x_1);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_noConfusion___redArg___lam__0(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_noConfusion___redArg___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_Grind_CheckResult_noConfusion___redArg___lam__0(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = l_Lean_Meta_Grind_CheckResult_ctorIdx(x_1);
-x_4 = l_Lean_Meta_Grind_CheckResult_ctorIdx(x_2);
-x_5 = lean_nat_dec_eq(x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
-x_6 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_CheckResult_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_Meta_Grind_CheckResult_noConfusion___redArg(x_2, x_3);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_noConfusion___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; uint8_t x_6; lean_object* x_7; 
-x_5 = lean_unbox(x_2);
-x_6 = lean_unbox(x_3);
-x_7 = l_Lean_Meta_Grind_CheckResult_noConfusion(x_1, x_5, x_6, x_4);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CheckResult_noConfusion___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; lean_object* x_5; 
-x_3 = lean_unbox(x_1);
-x_4 = lean_unbox(x_2);
-x_5 = l_Lean_Meta_Grind_CheckResult_noConfusion___redArg(x_3, x_4);
-return x_5;
 }
 }
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_instBEqCheckResult_beq(uint8_t x_1, uint8_t x_2) {

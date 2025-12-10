@@ -440,7 +440,7 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = l_Lean_Name_isAnonymous(x_2);
 if (x_7 == 0)
 {
@@ -683,7 +683,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = lean_ctor_get(x_2, 2);
 x_8 = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Compiler_LCNF_getCtorArity_x3f_spec__0_spec__0_spec__0_spec__0_spec__2_spec__2_spec__2___closed__2;
 x_9 = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Compiler_LCNF_getCtorArity_x3f_spec__0_spec__0_spec__0_spec__0_spec__2_spec__2_spec__2___closed__6;
@@ -975,7 +975,7 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8;
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = 0;
 lean_inc(x_1);
 x_8 = l_Lean_Environment_find_x3f(x_6, x_1, x_7);
@@ -1758,14 +1758,12 @@ x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
-lean_dec(x_4);
 return x_5;
 }
 else
 {
 if (x_5 == 0)
 {
-lean_dec(x_4);
 return x_5;
 }
 else
@@ -1773,7 +1771,6 @@ else
 size_t x_6; size_t x_7; uint8_t x_8; 
 x_6 = 0;
 x_7 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_8 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_Compiler_LCNF_isRuntimeBuiltinType_spec__0_spec__0(x_2, x_1, x_6, x_7);
 return x_8;
 }

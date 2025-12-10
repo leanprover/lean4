@@ -883,8 +883,8 @@ lean_object* x_28; lean_object* x_29;
 x_28 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_28, 0, x_9);
 lean_ctor_set(x_28, 1, x_24);
-lean_ctor_set(x_28, 2, x_25);
-lean_ctor_set(x_28, 3, x_26);
+lean_ctor_set(x_28, 2, x_26);
+lean_ctor_set(x_28, 3, x_25);
 lean_ctor_set(x_28, 4, x_27);
 if (lean_is_scalar(x_23)) {
  x_29 = lean_alloc_ctor(1, 1, 0);
@@ -903,8 +903,8 @@ if (lean_obj_tag(x_34) == 0)
 {
 lean_object* x_35; 
 x_35 = lean_box(0);
-x_25 = x_31;
-x_26 = x_32;
+x_25 = x_32;
+x_26 = x_31;
 x_27 = x_35;
 goto block_30;
 }
@@ -954,8 +954,8 @@ lean_object* x_42;
 x_42 = lean_ctor_get(x_37, 0);
 lean_inc(x_42);
 lean_dec_ref(x_37);
-x_25 = x_31;
-x_26 = x_32;
+x_25 = x_32;
+x_26 = x_31;
 x_27 = x_42;
 goto block_30;
 }
@@ -1147,7 +1147,7 @@ x_9 = l_Lake_RegistrySrc_isGit(x_8);
 if (x_9 == 0)
 {
 size_t x_10; size_t x_11; 
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_10 = 1;
 x_11 = lean_usize_add(x_5, x_10);
 {
@@ -3933,7 +3933,6 @@ x_21 = l_Lake_RegistryVer_fromJson_x3f___closed__4;
 x_22 = lean_unsigned_to_nat(0u);
 x_23 = lean_string_utf8_byte_size(x_20);
 x_24 = l___private_Lake_Util_Version_0__Lake_runVerParse(lean_box(0), x_20, x_21, x_22, x_23);
-lean_dec(x_23);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_25; 

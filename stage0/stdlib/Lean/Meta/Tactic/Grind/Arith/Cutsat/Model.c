@@ -34,7 +34,6 @@ lean_object* l_Lean_Meta_Grind_SolverExtension_getTerm___redArg(lean_object*, le
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Model_0__Lean_Meta_Grind_Arith_Cutsat_isIntNatENode___closed__2;
 uint8_t l_Lean_Expr_isApp(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forIn___at___00Lean_Meta_Grind_Arith_Cutsat_mkModel_spec__9_spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__9;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__2;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__0;
 lean_object* lean_mk_array(lean_object*, lean_object*);
@@ -75,7 +74,6 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Model_0__Lea
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__4;
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 lean_object* lean_nat_to_int(lean_object*);
-lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Model_0__Lean_Meta_Grind_Arith_Cutsat_getCutsatAssignment_x3f_spec__1___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forIn___at___00Lean_Meta_Grind_Arith_Cutsat_mkModel_spec__2_spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Model_0__Lean_Meta_Grind_Arith_Cutsat_getCutsatAssignment_x3f_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -124,17 +122,14 @@ uint64_t lean_uint64_xor(uint64_t, uint64_t);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 extern lean_object* l_instInhabitedRat;
 lean_object* l_Lean_Meta_Grind_Arith_finalizeModel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_nat_mul(lean_object*, lean_object*);
 uint64_t lean_uint64_shift_left(uint64_t, uint64_t);
 extern lean_object* l_Lean_Nat_mkType;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forInAux___at___00Lean_PersistentArray_forIn___at___00Lean_Meta_Grind_Arith_Cutsat_mkModel_spec__2_spec__2_spec__3(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forInAux___at___00Lean_PersistentArray_forIn___at___00Lean_Meta_Grind_Arith_Cutsat_mkModel_spec__2_spec__2_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Model_0__Lean_Meta_Grind_Arith_Cutsat_getCutsatAssignment_x3f_spec__1(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__8;
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Model_0__Lean_Meta_Grind_Arith_Cutsat_natCastToInt_x3f___closed__3;
@@ -160,7 +155,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 extern lean_object* l_Lean_Meta_Grind_Arith_Cutsat_cutsatExt;
 lean_object* l_instInhabitedEST___redArg(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Model_0__Lean_Meta_Grind_Arith_Cutsat_natCastToInt_x3f___closed__7;
-static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__7;
 static size_t l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00__private_Lean_Meta_Tactic_Grind_Arith_Cutsat_Model_0__Lean_Meta_Grind_Arith_Cutsat_getCutsatAssignment_x3f_spec__1_spec__1___redArg___closed__1;
 uint64_t l_Lean_Meta_Grind_hashPtrExpr_unsafe__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___00Lean_PersistentArray_forIn___at___00Lean_Meta_Grind_Arith_Cutsat_mkModel_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -638,7 +632,6 @@ _start:
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_array_get_size(x_1);
 x_6 = lean_nat_dec_lt(x_3, x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; 
@@ -2112,7 +2105,6 @@ x_10 = lean_uint64_shift_right(x_8, x_9);
 x_11 = lean_uint64_xor(x_8, x_10);
 x_12 = lean_uint64_to_usize(x_11);
 x_13 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_14 = 1;
 x_15 = lean_usize_sub(x_13, x_14);
 x_16 = lean_usize_land(x_12, x_15);
@@ -5164,9 +5156,9 @@ static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(4u);
-x_2 = lean_unsigned_to_nat(8u);
-x_3 = lean_nat_mul(x_2, x_1);
+x_1 = lean_box(0);
+x_2 = lean_unsigned_to_nat(16u);
+x_3 = lean_mk_array(x_2, x_1);
 return x_3;
 }
 }
@@ -5174,36 +5166,7 @@ static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(3u);
-x_2 = l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__0;
-x_3 = lean_nat_div(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__1;
-x_2 = l_Nat_nextPowerOfTwo(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__2;
-x_3 = lean_mk_array(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__3;
+x_1 = l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__0;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -5211,7 +5174,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__5() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -5219,7 +5182,7 @@ x_1 = lean_alloc_closure((void*)(l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__6() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -5227,7 +5190,7 @@ x_1 = lean_mk_string_unchecked("grind", 5, 5);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__7() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -5235,7 +5198,7 @@ x_1 = lean_mk_string_unchecked("lia", 3, 3);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__8() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -5243,13 +5206,13 @@ x_1 = lean_mk_string_unchecked("model", 5, 5);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__9() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__8;
-x_2 = l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__7;
-x_3 = l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__6;
+x_1 = l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__5;
+x_2 = l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__4;
+x_3 = l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__3;
 x_4 = l_Lean_Name_mkStr3(x_3, x_2, x_1);
 return x_4;
 }
@@ -5259,7 +5222,7 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_7 = lean_ctor_get(x_1, 3);
-x_8 = l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__4;
+x_8 = l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__1;
 lean_inc(x_5);
 lean_inc_ref(x_4);
 lean_inc(x_3);
@@ -5282,7 +5245,7 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14;
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
 lean_dec_ref(x_11);
-x_13 = l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__5;
+x_13 = l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__2;
 lean_inc(x_5);
 lean_inc_ref(x_4);
 lean_inc(x_3);
@@ -5294,7 +5257,7 @@ lean_object* x_15; lean_object* x_16; lean_object* x_17;
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 lean_dec_ref(x_14);
-x_16 = l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__9;
+x_16 = l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__6;
 x_17 = l_Lean_Meta_Grind_Arith_traceModel(x_16, x_15, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
 lean_dec_ref(x_4);
@@ -5494,6 +5457,14 @@ lean_dec_ref(x_4);
 return x_9;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mkModel___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_Meta_Grind_Arith_Cutsat_mkModel(x_1, x_2, x_3, x_4, x_5);
+return x_7;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forIn___at___00Lean_Meta_Grind_Arith_Cutsat_mkModel_spec__9_spec__13___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
@@ -5560,14 +5531,6 @@ lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec_ref(x_3);
 return x_14;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mkModel___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l_Lean_Meta_Grind_Arith_Cutsat_mkModel(x_1, x_2, x_3, x_4, x_5);
-return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___00Lean_PersistentArray_forIn___at___00Lean_Meta_Grind_Arith_Cutsat_mkModel_spec__2_spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
@@ -5714,12 +5677,6 @@ l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__5 = _init_l_Lean_Meta_Grind_Ari
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__5);
 l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__6 = _init_l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__6();
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__6);
-l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__7 = _init_l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__7();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__7);
-l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__8 = _init_l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__8();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__8);
-l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__9 = _init_l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__9();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Cutsat_mkModel___closed__9);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

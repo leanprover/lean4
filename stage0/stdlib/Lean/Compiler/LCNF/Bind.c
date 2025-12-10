@@ -167,7 +167,7 @@ x_8 = lean_st_ref_get(x_4);
 x_9 = lean_st_ref_get(x_2);
 x_10 = lean_ctor_get(x_8, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_11 = !lean_is_exclusive(x_9);
 if (x_11 == 0)
 {
@@ -1951,7 +1951,6 @@ x_3 = l_Lean_Compiler_LCNF_getArrowArity(x_1);
 x_4 = lean_array_get_size(x_2);
 x_5 = lean_nat_dec_lt(x_4, x_3);
 lean_dec(x_3);
-lean_dec(x_4);
 return x_5;
 }
 }

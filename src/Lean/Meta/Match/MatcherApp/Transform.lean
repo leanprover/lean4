@@ -7,8 +7,12 @@ Authors: Leonardo de Moura, Joachim Breitner
 module
 
 prelude
-public import Lean.Meta.Match
-public import Lean.Meta.Tactic.Split
+public import Lean.Meta.Match.MatcherApp.Basic
+public import Lean.Meta.Match.MatchEqsExt
+public import Lean.Meta.Match.AltTelescopes
+public import Lean.Meta.AppBuilder
+import Lean.Meta.Tactic.Split
+import Lean.Meta.Tactic.Refl
 
 public section
 

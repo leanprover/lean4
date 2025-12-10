@@ -25,7 +25,7 @@ public abbrev ExternLib := ConfigTarget ExternLib.configKind
 namespace ExternLib
 
 /-- The library's user-defined configuration. -/
-@[inline] public nonrec def config (self : ExternLib) : ExternLibConfig self.pkg.name self.name :=
+@[inline] public nonrec def config (self : ExternLib) : ExternLibConfig self.pkg.keyName self.name :=
   self.config
 
 /--

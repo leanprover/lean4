@@ -523,7 +523,6 @@ _start:
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_get_size(x_3);
 x_7 = lean_nat_dec_lt(x_2, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; 
@@ -536,7 +535,7 @@ else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; uint8_t x_14; 
 x_9 = lean_array_fget_borrowed(x_3, x_2);
-lean_inc_ref(x_9);
+lean_inc(x_9);
 x_10 = l_Lean_Compiler_LCNF_Param_applyRenaming___redArg(x_9, x_1, x_4);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
@@ -636,7 +635,6 @@ _start:
 lean_object* x_9; uint8_t x_10; 
 x_9 = lean_array_get_size(x_3);
 x_10 = lean_nat_dec_lt(x_2, x_9);
-lean_dec(x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; 

@@ -1,1 +1,2 @@
-librarySearch.lean:383:0-383:7: warning: declaration uses 'sorry'
+librarySearch.lean:375:0-375:7: warning: declaration uses 'sorry'
+librarySearch.lean:385:0-385:7: warning: declaration uses 'sorry'

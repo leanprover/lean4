@@ -29,7 +29,7 @@ theorem countP_eq_length_filter' : countP p = length ∘ filter p := by
   grind
 
 theorem countP_le_length : countP p l ≤ l.length := by
-  grind
+  induction l with grind
 
 theorem countP_append {l₁ l₂ : List α} : countP p (l₁ ++ l₂) = countP p l₁ + countP p l₂ := by
   grind
@@ -44,11 +44,11 @@ theorem countP_eq_zero {p} : countP p l = 0 ↔ ∀ a ∈ l, ¬p a := by
   induction l with grind
 
 theorem countP_eq_length {p} : countP p l = l.length ↔ ∀ a ∈ l, p a := by
-  induction l with grind
+  induction l with grind [countP_eq_length_filter]
 
 theorem countP_replicate {p : α → Bool} {a : α} {n : Nat} :
     countP p (replicate n a) = if p a then n else 0 := by
-  grind
+  induction n with grind
 
 theorem boole_getElem_le_countP {p : α → Bool} {l : List α} {i : Nat} (h : i < l.length) :
     (if p l[i] then 1 else 0) ≤ l.countP p := by
@@ -66,11 +66,9 @@ theorem countP_tail_le (l) : countP p l.tail ≤ countP p l := by grind
 
 -- See `Init.Data.List.Nat.Count` for `le_countP_tail : countP p l - 1 ≤ countP p l.tail`.
 
--- TODO Should we have `@[grind]` for `filter_filter`?
-
 theorem countP_filter {l : List α} :
     countP p (filter q l) = countP (fun a => p a && q a) l := by
-  grind [List.filter_filter]
+  induction l with grind
 
 theorem countP_true : (countP fun (_ : α) => true) = length := by
   funext l
@@ -81,23 +79,23 @@ theorem countP_false : (countP fun (_ : α) => false) = Function.const _ 0 := by
   induction l with grind
 
 theorem countP_map {p : β → Bool} {f : α → β} {l} : countP p (map f l) = countP (p ∘ f) l := by
-  grind
+  induction l with grind
 
 theorem length_filterMap_eq_countP {f : α → Option β} {l : List α} :
     (filterMap f l).length = countP (fun a => (f a).isSome) l := by
-  induction l with grind -- TODO
+  induction l with grind
 
 theorem countP_filterMap {p : β → Bool} {f : α → Option β} {l : List α} :
     countP p (filterMap f l) = countP (fun a => ((f a).map p).getD false) l := by
-  induction l with grind -- TODO
+  induction l with grind
 
 theorem countP_flatten {l : List (List α)} :
     countP p l.flatten = (l.map (countP p)).sum := by
-  grind
+  induction l with grind
 
 theorem countP_flatMap {p : β → Bool} {l : List α} {f : α → List β} :
     countP p (l.flatMap f) = sum (map (countP p ∘ f) l) := by
-  grind
+  induction l with grind
 
 theorem countP_reverse {l : List α} : countP p l.reverse = countP p l := by
   grind

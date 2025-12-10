@@ -818,6 +818,47 @@ x_5 = l_List_merge___redArg(x_2, x_3, x_4);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Basic_0__List_merge_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_8; 
+lean_dec(x_7);
+lean_dec(x_6);
+x_8 = lean_apply_1(x_5, x_4);
+return x_8;
+}
+else
+{
+lean_dec(x_5);
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_9; 
+lean_dec(x_7);
+x_9 = lean_apply_2(x_6, x_3, lean_box(0));
+return x_9;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_dec(x_6);
+x_10 = lean_ctor_get(x_3, 0);
+lean_inc(x_10);
+x_11 = lean_ctor_get(x_3, 1);
+lean_inc(x_11);
+lean_dec_ref(x_3);
+x_12 = lean_ctor_get(x_4, 0);
+lean_inc(x_12);
+x_13 = lean_ctor_get(x_4, 1);
+lean_inc(x_13);
+lean_dec_ref(x_4);
+x_14 = lean_apply_4(x_7, x_10, x_11, x_12, x_13);
+return x_14;
+}
+}
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Basic_0__List_merge_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -857,14 +898,6 @@ x_12 = lean_apply_4(x_5, x_8, x_9, x_10, x_11);
 return x_12;
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Basic_0__List_merge_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; 
-x_8 = l___private_Init_Data_List_Sort_Basic_0__List_merge_match__1_splitter___redArg(x_3, x_4, x_5, x_6, x_7);
-return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_splitInTwo___redArg(lean_object* x_1, lean_object* x_2) {

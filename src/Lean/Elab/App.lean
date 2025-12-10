@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Tactic.ElimInfo
 public import Lean.Elab.Binders
 public import Lean.Elab.RecAppSyntax
+public import Lean.IdentifierSuggestion
 import all Lean.Elab.ErrorUtils
 
 public section
@@ -244,7 +245,9 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
         .note m!"Expected a function because this term is being applied to the argument\
           {indentD <| toMessageData arg}"
       else .nil
-      throwError "Function expected at{indentExpr s.f}\nbut this term has type{indentExpr fType}{extra}"
+      throwError "Function expected at{indentExpr s.f}\nbut this term has type{indentExpr fType}\
+        {extra}\
+        {← hintAutoImplicitFailure s.f}"
 
 /-- Normalize and return the function type. -/
 private def normalizeFunType : M Expr := do
@@ -1311,6 +1314,16 @@ where
     | none => 0
     | some (_, p2) => prodArity p2 + 1
 
+/--
+For a fieldname `fieldName`, locate all the environment constants with that name
+-/
+private def reverseFieldLookup (env : Environment) (fieldName : String) :=
+  env.constants.fold (init := #[]) (fun accum name _ =>
+      match name with
+      | .str _ s => if s = fieldName && !name.isInternal then accum.push name else accum
+      | _ => accum)
+    |>.qsort (lt := Name.lt)
+
 private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM LValResolution := do
   match eType.getAppFn, lval with
   | .const structName _, LVal.fieldIdx ref idx =>
@@ -1368,7 +1381,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       return LValResolution.const `Function `Function fullName
     match e.getAppFn, suffix? with
     | Expr.const c _, some suffix =>
-      throwUnknownConstant (c ++ suffix)
+      throwUnknownConstantWithSuggestions (c ++ suffix)
     | _, _ =>
       throwInvalidFieldAt ref fieldName fullName
   | .forallE .., .fieldIdx .. =>
@@ -1376,8 +1389,13 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       has function type{inlineExprTrailing eType}"
 
   | .mvar .., .fieldName _ fieldName _ _ =>
-    throwNamedError lean.invalidField m!"Invalid field notation: Type of{indentExpr e}\nis not \
-      known; cannot resolve field `{fieldName}`"
+    let hint := match reverseFieldLookup (← getEnv) fieldName with
+      | #[] => MessageData.nil
+      | #[opt] => .hint' m!"Consider replacing the field projection `.{fieldName}` with a call to the function `{.ofConstName opt}`."
+      | opts => .hint' m!"Consider replacing the field projection with a call to one of the following:\
+          {MessageData.joinSep (opts.toList.map (indentD m!"• `{.ofConstName ·}`")) .nil}"
+    throwNamedError lean.invalidField (m!"Invalid field notation: Type of{indentExpr e}\nis not \
+      known; cannot resolve field `{fieldName}`" ++ hint)
   | .mvar .., .fieldIdx _ i  =>
     throwError m!"Invalid projection: Type of{indentExpr e}\nis not known; cannot resolve \
       projection `{i}`"
@@ -1385,7 +1403,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
   | _, _ =>
     match e.getAppFn, lval with
     | Expr.const c _, .fieldName _ref _fieldName (some suffix) _fullRef =>
-      throwUnknownConstant (c ++ suffix)
+      throwUnknownConstantWithSuggestions (c ++ suffix)
     | _, .fieldName .. =>
       throwNamedError lean.invalidField m!"Invalid field notation: Field projection operates on \
         types of the form `C ...` where C is a constant. The expression{indentExpr e}\nhas \
@@ -1404,10 +1422,34 @@ where
         m!"Invalid field `{fieldName}`: The environment does not contain `{fullName}`, so it is not \
           possible to project the field `{fieldName}` from an expression{indentExpr e}\nof \
           type{inlineExprTrailing eType}"
+
+    -- Possible alternatives provided with `@[suggest_for]` annotations
+    let suggestions := (← Lean.getSuggestions fullName).filter (·.getPrefix = fullName.getPrefix)
+    let suggestForHint ←
+      if h : suggestions.size = 0 then
+        pure .nil
+      else if suggestions.size = 1 then
+        MessageData.hint (ref? := ref)
+          m!"Perhaps you meant `{.ofConstName suggestions[0]}` in place of `{fullName}`:"
+          (suggestions.map fun suggestion => {
+            preInfo? := .some s!"{e}.",
+            suggestion := suggestion.getString!,
+            toCodeActionTitle? := .some (s!"Change to {e}.{·}"),
+            diffGranularity := .all,
+          })
+      else
+        MessageData.hint (ref? := ref)
+          m!"Perhaps you meant one of these in place of `{fullName}`:"
+          (suggestions.map fun suggestion => {
+            suggestion := suggestion.getString!,
+            toCodeActionTitle? := .some (s!"Change to {e}.{·}"),
+            messageData? := .some m!"`{.ofConstName suggestion}`: {e}.{suggestion.getString!}",
+          })
+
     -- By using `mkUnknownIdentifierMessage`, the tag `Lean.unknownIdentifierMessageTag` is
     -- incorporated within the message, as required for the "import unknown identifier" code action.
     -- The "outermost" lean.invalidField name is the only one that triggers an error explanation.
-    throwNamedErrorAt ref lean.invalidField msg
+    throwNamedErrorAt ref lean.invalidField (msg ++ suggestForHint)
 
 
 /-- whnfCore + implicit consumption.
@@ -1728,8 +1770,17 @@ private partial def resolveDottedIdentFn (idRef : Syntax) (id : Name) (expectedT
   withForallBody expectedType fun resultType => do
     go resultType expectedType #[]
 where
-  throwNoExpectedType :=
-    throwNamedError lean.invalidDottedIdent "Invalid dotted identifier notation: The expected type of `.{id}` could not be determined"
+  throwNoExpectedType := do
+    let hint ← match reverseFieldLookup (← getEnv) (id.getString!) with
+      | #[] => pure MessageData.nil
+      | suggestions =>
+        let oneOfThese := if h : suggestions.size = 1 then m!"`{.ofConstName suggestions[0]}" else m!"one of these"
+        m!"Using {oneOfThese} would be unambiguous:".hint (suggestions.map fun suggestion => {
+          suggestion := mkIdent suggestion
+          toCodeActionTitle? := .some (s!"Change to {·}")
+          messageData? := .some m!"`{.ofConstName suggestion}`",
+        })
+    throwNamedError lean.invalidDottedIdent (m!"Invalid dotted identifier notation: The expected type of `.{id}` could not be determined" ++ hint)
   /-- A weak version of forallTelescopeReducing that only uses whnfCore, to avoid unfolding definitions except by `unfoldDefinition?` below. -/
   withForallBody {α} (type : Expr) (k : Expr → TermElabM α) : TermElabM α := do
     let type ← whnfCoreUnfoldingAnnotations type

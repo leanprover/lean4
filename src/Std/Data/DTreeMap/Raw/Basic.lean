@@ -738,8 +738,8 @@ instance [LawfulEqCmp cmp] [∀ k, BEq (β k)] : BEq (Raw α β cmp) := ⟨beq�
   letI : Ord α := ⟨cmp⟩; Internal.Impl.Const.beq t₁.inner t₂.inner
 
 /--
-Computes the diffrence of the given tree maps.
-This function always iteraters through the smaller map.
+Computes the difference of the given tree maps.
+This function always iterates through the smaller map.
 -/
 def diff (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.diff! t₂.inner⟩

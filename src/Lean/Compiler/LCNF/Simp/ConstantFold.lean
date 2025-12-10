@@ -372,6 +372,7 @@ def arithmeticFolders : List (Name × Folder) := [
   (``UInt64.sub,  Folder.first #[Folder.mkBinary UInt64.sub, Folder.rightNeutral (0 : UInt64) (· - ·)]),
   -- We don't convert Nat multiplication by a power of 2 into a left shift, because the fast path
   -- for multiplication isn't any slower than a fast path for left shift that checks for overflow.
+  (``Nat.mul, Folder.first #[Folder.mkBinary Nat.mul, Folder.leftRightNeutral (1 : Nat) (· * ·), Folder.leftRightAnnihilator (0 : Nat) 0 (· * ·)]),
   (``UInt8.mul,  Folder.first #[Folder.mkBinary UInt8.mul, Folder.leftRightNeutral (1 : UInt8) (· * ·), Folder.leftRightAnnihilator (0 : UInt8) 0 (· * ·), Folder.mulShift ``UInt8.shiftLeft (UInt8.shiftLeft 1 ·) UInt8.log2]),
   (``UInt16.mul,  Folder.first #[Folder.mkBinary UInt16.mul, Folder.leftRightNeutral (1 : UInt16) (· * ·), Folder.leftRightAnnihilator (0 : UInt16) 0 (· * ·), Folder.mulShift ``UInt16.shiftLeft (UInt16.shiftLeft 1 ·) UInt16.log2]),
   (``UInt32.mul,  Folder.first #[Folder.mkBinary UInt32.mul, Folder.leftRightNeutral (1 : UInt32) (· * ·), Folder.leftRightAnnihilator (0 : UInt32) 0 (· * ·), Folder.mulShift ``UInt32.shiftLeft (UInt32.shiftLeft 1 ·) UInt32.log2]),

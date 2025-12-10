@@ -3260,7 +3260,7 @@ lean_closure_set(x_14, 2, x_12);
 x_15 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_11, x_14, x_13, x_3);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
-lean_dec_ref(x_15);
+lean_dec(x_15);
 x_5 = x_16;
 goto block_10;
 block_10:
@@ -3302,7 +3302,7 @@ lean_closure_set(x_12, 2, x_10);
 x_13 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_9, x_12, x_11, x_1);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_3 = x_14;
 goto block_8;
 block_8:
@@ -3400,7 +3400,7 @@ lean_closure_set(x_14, 2, x_13);
 x_15 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_11, x_14, x_13, x_3);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
-lean_dec_ref(x_15);
+lean_dec(x_15);
 x_5 = x_16;
 goto block_10;
 block_10:
@@ -3442,7 +3442,7 @@ lean_closure_set(x_12, 2, x_11);
 x_13 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_9, x_12, x_11, x_1);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_3 = x_14;
 goto block_8;
 block_8:
@@ -3735,9 +3735,9 @@ goto block_54;
 block_46:
 {
 lean_object* x_43; lean_object* x_44; lean_object* x_45; 
-x_43 = lean_nat_add(x_40, x_42);
+x_43 = lean_nat_add(x_41, x_42);
 lean_dec(x_42);
-lean_dec(x_40);
+lean_dec(x_41);
 if (lean_is_scalar(x_37)) {
  x_44 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -3756,7 +3756,7 @@ if (lean_is_scalar(x_27)) {
 lean_ctor_set(x_45, 0, x_39);
 lean_ctor_set(x_45, 1, x_30);
 lean_ctor_set(x_45, 2, x_31);
-lean_ctor_set(x_45, 3, x_41);
+lean_ctor_set(x_45, 3, x_40);
 lean_ctor_set(x_45, 4, x_44);
 return x_45;
 }
@@ -3782,8 +3782,8 @@ if (lean_obj_tag(x_33) == 0)
 lean_object* x_52; 
 x_52 = lean_ctor_get(x_33, 0);
 lean_inc(x_52);
-x_40 = x_51;
-x_41 = x_50;
+x_40 = x_50;
+x_41 = x_51;
 x_42 = x_52;
 goto block_46;
 }
@@ -3791,8 +3791,8 @@ else
 {
 lean_object* x_53; 
 x_53 = lean_unsigned_to_nat(0u);
-x_40 = x_51;
-x_41 = x_50;
+x_40 = x_50;
+x_41 = x_51;
 x_42 = x_53;
 goto block_46;
 }

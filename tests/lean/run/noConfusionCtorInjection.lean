@@ -6,7 +6,7 @@ inductive L (α : Type u) : Type u where
 /--
 info: theorem L.cons.inj.{u} : ∀ {α : Type u} {x : α} {xs : L α} {x_1 : α} {xs_1 : L α},
   L.cons x xs = L.cons x_1 xs_1 → x = x_1 ∧ xs = xs_1 :=
-fun {α} {x} {xs} {x_1} {xs_1} x_2 => L.cons.noConfusion x_2 fun x_eq xs_eq => ⟨x_eq, xs_eq⟩
+fun {α} {x} {xs} {x_1} {xs_1} x_2 => L.cons.noConfusion x_2 fun x_eq xs_eq => ⟨eq_of_heq x_eq, eq_of_heq xs_eq⟩
 -/
 #guard_msgs in
 #print L.cons.inj
@@ -20,7 +20,7 @@ theorem ex1 (h : L.cons x xs = L.cons y ys) : x = y ∧ xs = ys := by
 /--
 info: theorem ex1.{u_1} : ∀ {α : Type u_1} {x : α} {xs : L α} {y : α} {ys : L α},
   L.cons x xs = L.cons y ys → x = y ∧ xs = ys :=
-fun {α} {x} {xs} {y} {ys} h => L.cons.noConfusion h fun x_eq xs_eq => ⟨x_eq, xs_eq⟩
+fun {α} {x} {xs} {y} {ys} h => L.cons.noConfusion h fun x_eq xs_eq => ⟨eq_of_heq x_eq, eq_of_heq xs_eq⟩
 -/
 #guard_msgs in #print ex1
 

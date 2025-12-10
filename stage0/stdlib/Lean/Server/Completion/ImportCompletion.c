@@ -600,7 +600,6 @@ x_9 = lean_array_get_size(x_8);
 x_10 = lean_nat_dec_lt(x_5, x_9);
 if (x_10 == 0)
 {
-lean_dec(x_9);
 lean_dec_ref(x_8);
 return x_10;
 }
@@ -608,7 +607,6 @@ else
 {
 if (x_10 == 0)
 {
-lean_dec(x_9);
 lean_dec_ref(x_8);
 return x_10;
 }
@@ -617,7 +615,6 @@ else
 size_t x_11; size_t x_12; uint8_t x_13; 
 x_11 = 0;
 x_12 = lean_usize_of_nat(x_9);
-lean_dec(x_9);
 x_13 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00ImportCompletion_isImportNameCompletionRequest_spec__1(x_2, x_6, x_8, x_11, x_12);
 lean_dec_ref(x_8);
 return x_13;
@@ -840,7 +837,6 @@ x_16 = lean_array_get_size(x_15);
 x_17 = lean_nat_dec_lt(x_1, x_16);
 if (x_17 == 0)
 {
-lean_dec(x_16);
 lean_dec_ref(x_15);
 x_9 = x_7;
 goto block_13;
@@ -849,7 +845,6 @@ else
 {
 if (x_17 == 0)
 {
-lean_dec(x_16);
 lean_dec_ref(x_15);
 x_9 = x_7;
 goto block_13;
@@ -859,7 +854,6 @@ else
 size_t x_18; size_t x_19; uint8_t x_20; 
 x_18 = 0;
 x_19 = lean_usize_of_nat(x_16);
-lean_dec(x_16);
 x_20 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00ImportCompletion_isImportCmdCompletionRequest_spec__0(x_2, x_3, x_15, x_18, x_19);
 lean_dec_ref(x_15);
 x_9 = x_20;
@@ -955,7 +949,6 @@ x_9 = lean_array_get_size(x_8);
 x_10 = lean_nat_dec_lt(x_5, x_9);
 if (x_10 == 0)
 {
-lean_dec(x_9);
 lean_dec_ref(x_8);
 return x_4;
 }
@@ -963,7 +956,6 @@ else
 {
 if (x_10 == 0)
 {
-lean_dec(x_9);
 lean_dec_ref(x_8);
 return x_4;
 }
@@ -972,7 +964,6 @@ else
 size_t x_11; size_t x_12; uint8_t x_13; 
 x_11 = 0;
 x_12 = lean_usize_of_nat(x_9);
-lean_dec(x_9);
 x_13 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00ImportCompletion_isImportCmdCompletionRequest_spec__1(x_5, x_2, x_4, x_8, x_11, x_12);
 lean_dec_ref(x_8);
 if (x_13 == 0)
@@ -1753,10 +1744,8 @@ x_14 = l_Lean_Name_toString(x_13, x_1);
 x_15 = lean_string_utf8_byte_size(x_14);
 x_16 = lean_string_utf8_byte_size(x_2);
 x_17 = lean_nat_dec_le(x_16, x_15);
-lean_dec(x_15);
 if (x_17 == 0)
 {
-lean_dec(x_16);
 lean_dec_ref(x_14);
 lean_dec(x_13);
 x_7 = x_6;
@@ -1767,7 +1756,6 @@ else
 lean_object* x_18; uint8_t x_19; 
 x_18 = lean_unsigned_to_nat(0u);
 x_19 = lean_string_memcmp(x_14, x_2, x_18, x_18, x_16);
-lean_dec(x_16);
 lean_dec_ref(x_14);
 if (x_19 == 0)
 {
@@ -1935,7 +1923,6 @@ goto block_13;
 }
 else
 {
-lean_dec(x_23);
 return x_22;
 }
 }
@@ -1947,7 +1934,6 @@ x_31 = l_ImportCompletion_computePartialImportCompletions___closed__0;
 x_32 = lean_nat_dec_lt(x_20, x_30);
 if (x_32 == 0)
 {
-lean_dec(x_30);
 lean_dec_ref(x_29);
 x_21 = x_28;
 x_22 = x_31;
@@ -1959,7 +1945,6 @@ uint8_t x_33;
 x_33 = lean_nat_dec_le(x_30, x_30);
 if (x_33 == 0)
 {
-lean_dec(x_30);
 lean_dec_ref(x_29);
 x_21 = x_28;
 x_22 = x_31;
@@ -1970,7 +1955,6 @@ else
 size_t x_34; size_t x_35; lean_object* x_36; 
 x_34 = 0;
 x_35 = lean_usize_of_nat(x_30);
-lean_dec(x_30);
 x_36 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00ImportCompletion_computePartialImportCompletions_spec__1(x_18, x_29, x_34, x_35, x_31);
 lean_dec_ref(x_29);
 x_21 = x_28;
@@ -2028,7 +2012,6 @@ x_57 = l_ImportCompletion_computePartialImportCompletions___closed__0;
 x_58 = lean_nat_dec_lt(x_20, x_56);
 if (x_58 == 0)
 {
-lean_dec(x_56);
 lean_dec_ref(x_55);
 lean_dec(x_52);
 x_28 = x_38;
@@ -2041,7 +2024,6 @@ uint8_t x_59;
 x_59 = lean_nat_dec_le(x_56, x_56);
 if (x_59 == 0)
 {
-lean_dec(x_56);
 lean_dec_ref(x_55);
 lean_dec(x_52);
 x_28 = x_38;
@@ -2052,7 +2034,6 @@ else
 {
 size_t x_60; lean_object* x_61; 
 x_60 = lean_usize_of_nat(x_56);
-lean_dec(x_56);
 x_61 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00ImportCompletion_computePartialImportCompletions_spec__5(x_18, x_52, x_55, x_46, x_60, x_57);
 lean_dec_ref(x_55);
 lean_dec(x_52);
@@ -3186,7 +3167,7 @@ else
 {
 lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 x_19 = lean_array_uget(x_3, x_5);
-lean_inc_ref(x_19);
+lean_inc(x_19);
 x_20 = l_IO_FS_DirEntry_path(x_19);
 x_21 = l_System_FilePath_isDir(x_20);
 if (x_21 == 0)
@@ -3198,7 +3179,7 @@ x_24 = l_Option_instBEq_beq___at___00Lean_forEachModuleInDir___at___00ImportComp
 lean_dec(x_22);
 if (x_24 == 0)
 {
-lean_dec_ref(x_19);
+lean_dec(x_19);
 x_9 = x_1;
 x_10 = x_7;
 x_11 = lean_box(0);
@@ -3209,7 +3190,7 @@ else
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 x_25 = lean_ctor_get(x_19, 1);
 lean_inc_ref(x_25);
-lean_dec_ref(x_19);
+lean_dec(x_19);
 x_26 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00ImportCompletion_computePartialImportCompletions_spec__3___redArg___lam__0___closed__4;
 x_27 = l_System_FilePath_withExtension(x_25, x_26);
 x_28 = lean_box(0);
@@ -3242,7 +3223,7 @@ else
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 x_33 = lean_ctor_get(x_19, 1);
 lean_inc_ref(x_33);
-lean_dec_ref(x_19);
+lean_dec(x_19);
 x_34 = lean_box(0);
 x_35 = l_Lean_Name_str___override(x_34, x_33);
 lean_inc_ref(x_2);

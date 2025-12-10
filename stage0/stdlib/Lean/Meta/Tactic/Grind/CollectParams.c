@@ -191,7 +191,6 @@ x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
-lean_dec(x_4);
 lean_dec(x_2);
 return x_5;
 }
@@ -199,7 +198,6 @@ else
 {
 if (x_5 == 0)
 {
-lean_dec(x_4);
 lean_dec(x_2);
 return x_5;
 }
@@ -208,7 +206,6 @@ else
 size_t x_6; size_t x_7; uint8_t x_8; 
 x_6 = 0;
 x_7 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_8 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00__private_Lean_Meta_Tactic_Grind_CollectParams_0__Lean_Meta_Grind_Collector_pushParam_spec__0_spec__0(x_2, x_1, x_6, x_7);
 return x_8;
 }
@@ -222,7 +219,7 @@ lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 lean_inc(x_1);
 x_6 = l_Array_contains___at___00__private_Lean_Meta_Tactic_Grind_CollectParams_0__Lean_Meta_Grind_Collector_pushParam_spec__0(x_5, x_1);
 lean_dec_ref(x_5);
@@ -336,7 +333,6 @@ x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
-lean_dec(x_4);
 lean_dec(x_2);
 return x_5;
 }
@@ -344,7 +340,6 @@ else
 {
 if (x_5 == 0)
 {
-lean_dec(x_4);
 lean_dec(x_2);
 return x_5;
 }
@@ -353,7 +348,6 @@ else
 size_t x_6; size_t x_7; uint8_t x_8; 
 x_6 = 0;
 x_7 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_8 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00__private_Lean_Meta_Tactic_Grind_CollectParams_0__Lean_Meta_Grind_Collector_pushParam_spec__0_spec__0(x_2, x_1, x_6, x_7);
 return x_8;
 }
@@ -367,7 +361,7 @@ lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 1);
 lean_inc_ref(x_5);
-lean_dec_ref(x_4);
+lean_dec(x_4);
 lean_inc(x_1);
 x_6 = l_Array_contains___at___00__private_Lean_Meta_Tactic_Grind_CollectParams_0__Lean_Meta_Grind_Collector_pushAnchor_spec__0(x_5, x_1);
 lean_dec_ref(x_5);
@@ -2022,7 +2016,7 @@ lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc_ref(x_10);
 x_11 = lean_ctor_get_uint8(x_8, sizeof(void*)*2);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_12 = lean_array_size(x_10);
 x_13 = 0;
 x_14 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Meta_Tactic_Grind_CollectParams_0__Lean_Meta_Grind_collectParamsCore_spec__0___redArg(x_12, x_13, x_10, x_2);

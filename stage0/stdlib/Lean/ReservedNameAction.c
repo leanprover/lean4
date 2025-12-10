@@ -618,7 +618,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = lean_ctor_get(x_2, 2);
 x_8 = l_Lean_addMessageContextPartial___at___00__private_Lean_Util_Trace_0__Lean_addTraceNode___at___00Lean_withTraceNode___at___00Lean_executeReservedNameAction_spec__1_spec__4_spec__5___closed__2;
 x_9 = l_Lean_addMessageContextPartial___at___00__private_Lean_Util_Trace_0__Lean_addTraceNode___at___00Lean_withTraceNode___at___00Lean_executeReservedNameAction_spec__1_spec__4_spec__5___closed__6;
@@ -648,7 +648,7 @@ x_9 = lean_ctor_get(x_5, 5);
 x_10 = lean_st_ref_get(x_6);
 x_11 = lean_ctor_get(x_10, 4);
 lean_inc_ref(x_11);
-lean_dec_ref(x_10);
+lean_dec(x_10);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc_ref(x_12);
 lean_dec_ref(x_11);
@@ -886,7 +886,7 @@ lean_dec(x_5);
 x_91 = lean_st_ref_get(x_6);
 x_92 = lean_ctor_get(x_91, 4);
 lean_inc_ref(x_92);
-lean_dec_ref(x_91);
+lean_dec(x_91);
 x_93 = lean_ctor_get(x_92, 0);
 lean_inc_ref(x_93);
 lean_dec_ref(x_92);
@@ -1227,7 +1227,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t 
 x_3 = lean_st_ref_get(x_1);
 x_4 = lean_ctor_get(x_3, 4);
 lean_inc_ref(x_4);
-lean_dec_ref(x_3);
+lean_dec(x_3);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
 lean_dec_ref(x_4);
@@ -2253,8 +2253,7 @@ x_9 = lean_nat_dec_lt(x_7, x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
-lean_dec(x_8);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_2);
@@ -2268,8 +2267,7 @@ else
 if (x_9 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
-lean_dec(x_8);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_2);
@@ -2283,9 +2281,8 @@ else
 size_t x_14; size_t x_15; lean_object* x_16; 
 x_14 = 0;
 x_15 = lean_usize_of_nat(x_8);
-lean_dec(x_8);
 x_16 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_executeReservedNameAction_spec__0(x_2, x_6, x_14, x_15, x_3, x_4);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 return x_16;
 }
 }
@@ -3285,7 +3282,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = l_Lean_checkPrivateInPublic___at___00Lean_resolveGlobalName___at___00Lean_realizeGlobalName_spec__3_spec__3___closed__0;
 x_8 = l_Lean_Option_getM___at___00Lean_checkPrivateInPublic___at___00Lean_resolveGlobalName___at___00Lean_realizeGlobalName_spec__3_spec__3_spec__3___redArg(x_7, x_2);
 x_9 = lean_ctor_get(x_8, 0);
@@ -3368,14 +3365,14 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_st_ref_get(x_4);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = lean_ctor_get(x_3, 2);
 x_9 = lean_ctor_get(x_3, 6);
 x_10 = lean_ctor_get(x_3, 7);
 x_11 = lean_st_ref_get(x_4);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc_ref(x_12);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
 x_13 = l_Lean_ResolveName_resolveGlobalName(x_7, x_8, x_9, x_10, x_1);
@@ -3514,7 +3511,7 @@ x_18 = lean_ctor_get(x_9, 0);
 x_19 = lean_st_ref_get(x_6);
 x_20 = lean_ctor_get(x_19, 0);
 lean_inc_ref(x_20);
-lean_dec_ref(x_19);
+lean_dec(x_19);
 lean_inc(x_18);
 x_21 = l_Lean_Environment_contains(x_20, x_18, x_1);
 if (x_21 == 0)
@@ -3531,7 +3528,7 @@ lean_dec_ref(x_22);
 x_23 = lean_st_ref_get(x_6);
 x_24 = lean_ctor_get(x_23, 0);
 lean_inc_ref(x_24);
-lean_dec_ref(x_23);
+lean_dec(x_23);
 x_25 = l_Lean_Environment_containsOnBranch(x_24, x_18);
 x_12 = x_25;
 x_13 = lean_box(0);
@@ -3562,6 +3559,7 @@ x_42 = l_Lean_Exception_isInterrupt(x_27);
 if (x_42 == 0)
 {
 uint8_t x_43; 
+lean_inc(x_27);
 x_43 = l_Lean_Exception_isRuntime(x_27);
 x_29 = x_43;
 goto block_41;
@@ -3923,7 +3921,7 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_5 = lean_st_ref_get(x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = l_Lean_Name_isAnonymous(x_2);
 if (x_7 == 0)
 {

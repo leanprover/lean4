@@ -8,7 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Lean.Meta.Tactic.Grind.Arith.IsRelevant
-import Lean.Meta.Match.MatchEqs
+import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Beta
 import Lean.Meta.Tactic.Grind.MatchCond
@@ -17,6 +17,7 @@ import Lean.Meta.Tactic.Grind.Proof
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 import Lean.Meta.Tactic.Grind.PropagateInj
 import Lean.Meta.Tactic.Grind.FunCC
+import Lean.Util.CollectLevelParams
 public section
 namespace Lean.Meta.Grind
 
@@ -60,7 +61,7 @@ def addCongrTable (e : Expr) : GoalM Unit := do
       pushEqHEq e e' congrPlaceholderProof
     if (← swapCgrRepr e e') then
       /-
-      Recall that `isDiseq` and `mkDiseqProof?` are implemented using the the congruence table.
+      Recall that `isDiseq` and `mkDiseqProof?` are implemented using the congruence table.
       So, if `e` is an equality `a = b`, and is the equivalence class of `False`, but `e'` is not,
       we **must** make `e` the representative of the congruence class.
       The equivalence classes of `e` and `e'` will be merged eventually since we used `pushEqHEq` above,

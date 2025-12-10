@@ -19,6 +19,14 @@ open Lean.Compiler (LCNF.Alt LCNF.Arg LCNF.Code LCNF.Decl LCNF.DeclValue LCNF.LC
 
 namespace ToIR
 
+/--
+Marks an extern definition to be guaranteed to always return tagged values.
+This information is used to optimize reference counting in the compiler.
+-/
+@[builtin_doc]
+builtin_initialize taggedReturnAttr : TagAttribute ←
+  registerTagAttribute `tagged_return "mark extern definition to always return tagged values"
+
 structure BuilderState where
   vars : Std.HashMap FVarId Arg := {}
   joinPoints : Std.HashMap FVarId JoinPointId := {}
@@ -334,12 +342,20 @@ where resultTypeForArity (type : Lean.Expr) (arity : Nat) : Lean.Expr :=
 
 def lowerDecl (d : LCNF.Decl) : M (Option Decl) := do
   let params ← d.params.mapM lowerParam
-  let resultType ← lowerResultType d.type d.params.size
+  let mut resultType ← lowerResultType d.type d.params.size
+  let taggedReturn := taggedReturnAttr.hasTag (← getEnv) d.name
   match d.value with
   | .code code =>
+    if taggedReturn then
+      throwError m!"Error while compiling function '{d.name}': @[tagged_return] is only valid for extern declarations"
     let body ← lowerCode code
     pure <| some <| .fdecl d.name params resultType body {}
   | .extern externAttrData =>
+    if taggedReturn then
+      if resultType.isScalar then
+        throwError m!"@[tagged_return] on function '{d.name}' with scalar return type {resultType}"
+      else
+        resultType := .tagged
     if externAttrData.entries.isEmpty then
       -- TODO: This matches the behavior of the old compiler, but we should
       -- find a better way to handle this.

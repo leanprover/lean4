@@ -461,7 +461,10 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
      let heqType ← inferType heq
      let heqType ← instantiateMVars heqType
      match (← Meta.matchEq? heqType) with
-     | none => throwError "invalid `▸` notation, argument{indentExpr heq}\nhas type{indentExpr heqType}\nequality expected"
+     | none => throwError "invalid `▸` notation, argument{indentExpr heq}\n\
+        has type{indentExpr heqType}\n\
+        equality expected\
+        {← Term.hintAutoImplicitFailure heq (expected := "an equality")}"
      | some (α, lhs, rhs) =>
        let mut lhs := lhs
        let mut rhs := rhs

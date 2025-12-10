@@ -16,7 +16,6 @@ open String.Slice Pattern
 
 variable {ρ : Type} {σ : Slice → Type}
 variable [∀ s, Std.Iterators.Iterator (σ s) Id (SearchStep s)]
-variable [∀ s, Std.Iterators.Finite (σ s) Id]
 variable [∀ s, Std.Iterators.IteratorLoop (σ s) Id Id]
 
 @[simp]

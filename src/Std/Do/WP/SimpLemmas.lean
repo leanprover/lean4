@@ -10,6 +10,8 @@ public import Std.Do.WP.Monad
 
 @[expose] public section
 
+set_option linter.missingDocs true
+
 /-!
 # Simp lemmas for working with weakest preconditions
 

@@ -95,14 +95,14 @@ open BitVec
 #guard ofBytesBE (ByteArray.mk #[0xAB]) = 0xAB#8
 #guard ofBytesBE (ByteArray.mk #[0xDE, 0xAD, 0xBE, 0xEF]) = 0xDEADBEEF#32
 
-#guard ofBytesBE (0x1234#16).toBytesBE = 0x1234#16
-#guard ofBytesBE (0xDEADBEEF#32).toBytesBE = 0xDEADBEEF#32
-#guard ofBytesBE (0xAB#8).toBytesBE = 0xAB#8
+#guard (ofBytesBE (0x1234#16).toBytesBE).toNat = 0x1234
+#guard (ofBytesBE (0xDEADBEEF#32).toBytesBE).toNat = 0xDEADBEEF
+#guard (ofBytesBE (0xAB#8).toBytesBE).toNat = 0xAB
 
 -- Non-multiple-of-8 round trips
-#guard ofBytesBE (0xABC#12).toBytesBE = 0xABC#16
-#guard ofBytesBE (0x12345#20).toBytesBE = 0x12345#24
-#guard ofBytesBE (0b101#3).toBytesBE = 0b101#8
+#guard (ofBytesBE (0xABC#12).toBytesBE).toNat = 0xABC
+#guard (ofBytesBE (0x12345#20).toBytesBE).toNat = 0x12345
+#guard (ofBytesBE (0b101#3).toBytesBE).toNat = 0b101
 
 /-! ## Endianness differences -/
 

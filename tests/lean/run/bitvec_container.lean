@@ -89,8 +89,8 @@ open BitVec
 -- Roundtrip properties
 #guard ofBoolListLE (toListLE 0b1010#4) = 0b1010#4
 #guard ofBoolListBE (toListBE 0b1010#4) = 0b1010#4
-#guard ofArrayLE 4 (toArrayLE 0b1010#4) = 0b1010#4
-#guard ofArrayBE 4 (toArrayBE 0b1010#4) = 0b1010#4
+#guard ofArrayLE (toArrayLE 0b1010#4) = 0b1010#4
+#guard ofArrayBE (toArrayBE 0b1010#4) = 0b1010#4
 #guard ofVectorLE (toVectorLE 0b1010#4) = 0b1010#4
 #guard ofVectorBE (toVectorBE 0b1010#4) = 0b1010#4
 

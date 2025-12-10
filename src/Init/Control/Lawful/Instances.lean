@@ -25,6 +25,8 @@ namespace ExceptT
   simp [run] at h
   assumption
 
+@[simp, grind =] theorem run_mk (x : m (Except ε α)) : run (mk x : ExceptT ε m α) = x := rfl
+
 @[simp, grind =] theorem run_pure [Monad m] (x : α) : run (pure x : ExceptT ε m α) = pure (Except.ok x) := rfl
 
 @[simp, grind =] theorem run_lift  [Monad.{u, v} m] (x : m α) : run (ExceptT.lift x : ExceptT ε m α) = (Except.ok <$> x : m (Except ε α)) := rfl

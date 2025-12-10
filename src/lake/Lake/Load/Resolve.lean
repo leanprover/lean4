@@ -25,24 +25,21 @@ This module contains definitions for resolving the dependencies of a package.
 
 namespace Lake
 
-/--
-Loads the package configuration of a materialized dependency.
-Adds the facets defined in the package to the `Workspace`.
--/
+/-- Loads the package configuration of a materialized dependency. -/
 def loadDepPackage
-  (wsIdx : Nat)
+  (ws : Workspace)
   (dep : MaterializedDep)
   (lakeOpts : NameMap String)
   (leanOpts : Options) (reconfigure : Bool)
-: StateT Workspace LogIO Package := fun ws => do
+: LogIO ({pkg : Package // pkg.wsIdx = ws.packages.size} × Option Environment) := do
   let name := dep.name.toString (escape := false)
   let pkgDir := ws.dir / dep.relPkgDir
   let some pkgDir ← resolvePath? pkgDir
     | error s!"{name}: package directory not found: {pkgDir}"
-  let (pkg, env?) ← loadPackageCore name {
+  loadPackageCore name {
     lakeEnv := ws.lakeEnv
     wsDir := ws.dir
-    pkgIdx := wsIdx
+    pkgIdx := ws.packages.size
     pkgName := dep.name
     pkgDir
     relPkgDir := dep.relPkgDir
@@ -51,6 +48,18 @@ def loadDepPackage
     scope := dep.scope
     remoteUrl := dep.remoteUrl
   }
+
+/--
+Loads the package configuration of a materialized dependency.
+Adds the package and the facets defined within it to the `Workspace`.
+-/
+def addDepPackage
+  (dep : MaterializedDep)
+  (lakeOpts : NameMap String)
+  (leanOpts : Options) (reconfigure : Bool)
+: StateT Workspace LogIO Package := fun ws => do
+  let (⟨pkg, wsIdx_eq⟩, env?) ← loadDepPackage ws dep lakeOpts leanOpts reconfigure
+  let ws := ws.addPackage' pkg wsIdx_eq
   if let some env := env? then
     let ws ← IO.ofExcept <| ws.addFacetsFromEnv env leanOpts
     return (pkg, ws)
@@ -100,7 +109,7 @@ abbrev ResolveT m := DepStackT <| StateT Workspace m
 /-
 Recursively visits each node in a package's dependency graph, starting from
 the workspace package `root`. Each dependency missing from the workspace is
-resolved using the `load` function and added into the workspace.
+added to the workspace using the `resolve` function.
 
 Recursion occurs breadth-first. Each direct dependency of a package is
 resolved in reverse order before recursing to the dependencies' dependencies.
@@ -109,7 +118,7 @@ See `Workspace.updateAndMaterializeCore` for more details.
 -/
 @[inline] private def Workspace.resolveDepsCore
   [Monad m] [MonadError m] (ws : Workspace)
-  (load : Package → Dependency → Nat → StateT Workspace m Package)
+  (resolve : Package → Dependency → StateT Workspace m Package)
   (root : Package := ws.root) (stack : DepStack := {})
 : m Workspace := do
   ws.runResolveT go root stack
@@ -123,8 +132,7 @@ where
         return -- already handled in another branch
       if pkg.baseName = dep.name then
         error s!"{pkg.prettyName}: package requires itself (or a package with the same name)"
-      let depPkg ← load pkg dep ws.packages.size
-      modifyThe Workspace (·.addPackage depPkg)
+      discard <| resolve pkg dep
     -- Recursively load the dependencies' dependencies
     (← getWorkspace).packages.forM recurse start
 
@@ -311,7 +319,6 @@ def Workspace.updateAndMaterializeCore
   (updateToolchain := true)
 : LoggerIO (Workspace × NameMap PackageEntry) := UpdateT.run do
   reuseManifest ws toUpdate
-  let ws := ws.addPackage ws.root
   if updateToolchain then
     let deps := ws.root.depConfigs.reverse
     let matDeps ← deps.mapM fun dep => do
@@ -320,19 +327,18 @@ def Workspace.updateAndMaterializeCore
     ws.updateToolchain matDeps
     let start := ws.packages.size
     let ws ← (deps.zip matDeps).foldlM (init := ws) fun ws (dep, matDep) => do
-      let (depPkg, ws) ← loadUpdatedDep ws.packages.size dep matDep ws
-      let ws := ws.addPackage depPkg
+      let (_, ws) ← addUpdatedDep dep matDep ws
       return ws
     ws.packages.foldlM (init := ws) (start := start) fun ws pkg =>
-      ws.resolveDepsCore (stack := [ws.root.baseName]) updateAndLoadDep pkg
+      ws.resolveDepsCore (stack := [ws.root.baseName]) updateAndAddDep pkg
   else
-    ws.resolveDepsCore updateAndLoadDep
+    ws.resolveDepsCore updateAndAddDep
 where
-  @[inline] updateAndLoadDep pkg dep wsIdx := do
+  @[inline] updateAndAddDep pkg dep := do
     let matDep ← updateAndMaterializeDep (← getWorkspace) pkg dep
-    loadUpdatedDep wsIdx dep matDep
-  @[inline] loadUpdatedDep wsIdx dep matDep : StateT Workspace (UpdateT LoggerIO) Package  := do
-    let depPkg ← loadDepPackage wsIdx matDep dep.opts leanOpts true
+    addUpdatedDep dep matDep
+  @[inline] addUpdatedDep dep matDep : StateT Workspace (UpdateT LoggerIO) Package  := do
+    let depPkg ← addDepPackage matDep dep.opts leanOpts true
     addDependencyEntries depPkg
     return depPkg
 
@@ -425,12 +431,11 @@ public def Workspace.materializeDeps
   if pkgEntries.isEmpty && !ws.root.depConfigs.isEmpty then
     error "missing manifest; use `lake update` to generate one"
   -- Materialize all dependencies
-  let ws := ws.addPackage ws.root
-  ws.resolveDepsCore fun pkg dep wsIdx => do
+  ws.resolveDepsCore fun pkg dep => do
     let ws ← getWorkspace
     if let some entry := pkgEntries.find? dep.name then
       let result ← entry.materialize ws.lakeEnv ws.dir relPkgsDir
-      loadDepPackage wsIdx result dep.opts leanOpts reconfigure
+      addDepPackage result dep.opts leanOpts reconfigure
     else
       if pkg.isRoot then
         error <|

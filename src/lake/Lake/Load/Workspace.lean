@@ -28,14 +28,16 @@ Does not resolve dependencies.
 -/
 private def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
   Lean.searchPathRef.set config.lakeEnv.leanSearchPath
-  let (root, env?) ← loadPackageCore "[root]" {config with pkgIdx := 0}
+  let (⟨root, wsIdx_eq⟩, env?) ← loadPackageCore "[root]" {config with pkgIdx := 0}
   let root := {root with outputsRef? := ← CacheRef.mk}
   let ws : Workspace := {
     root
     lakeEnv := config.lakeEnv
     lakeArgs? := config.lakeArgs?
     facetConfigs := initFacetConfigs
+    packages_wsIdx h := by simp at h
   }
+  let ws := ws.addPackage' root wsIdx_eq
   if let some env := env? then
     IO.ofExcept <| ws.addFacetsFromEnv env config.leanOpts
   else

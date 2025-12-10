@@ -430,8 +430,9 @@ where
 
 /-! ## Root Loader -/
 
-/-- Load a `Package` from a Lake configuration file written in TOML. -/
-public def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
+/-- **For internal use only.** -/
+public def loadTomlConfigCore (cfg : LoadConfig)
+    : LogIO {pkg : Package // pkg.wsIdx = cfg.pkgIdx} := do
   let input ← IO.FS.readFile cfg.configFile
   let ictx := mkInputContext input cfg.relConfigFile.toString
   match (← loadToml ictx |>.toBaseIO) with
@@ -446,7 +447,7 @@ public def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
       let defaultTargets ← table.tryDecodeD `defaultTargets #[]
       let defaultTargets := defaultTargets.map stringToLegalOrSimpleName
       let depConfigs ← table.tryDecodeD `require #[]
-      return {
+      return ⟨{
         wsIdx, baseName, keyName, origName
         dir := cfg.pkgDir
         relDir := cfg.relPkgDir
@@ -456,7 +457,7 @@ public def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
         remoteUrl := cfg.remoteUrl
         config, depConfigs, targetDecls, targetDeclMap
         defaultTargets
-      }
+      }, rfl⟩
     if errs.isEmpty then
       return pkg
     else
@@ -465,3 +466,7 @@ public def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
         logError <| mkErrorStringWithPos ictx.fileName pos msg
   | .error log =>
     errorWithLog <| log.forM fun msg => do logError (← msg.toString)
+
+/-- Load a `Package` from a Lake configuration file written in TOML. -/
+@[inline] public def loadTomlConfig (cfg : LoadConfig) : LogIO Package := do
+  loadTomlConfigCore cfg

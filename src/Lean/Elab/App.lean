@@ -1424,7 +1424,7 @@ where
           type{inlineExprTrailing eType}"
 
     -- Possible alternatives provided with `@[suggest_for]` annotations
-    let suggestions := (← Lean.getSuggestions fullName).filter (·.getPrefix = fullName.getPrefix)
+    let suggestions := (← Lean.getSuggestions fullName).filter (·.getPrefix = fullName.getPrefix) |>.toArray
     let suggestForHint ←
       if h : suggestions.size = 0 then
         pure .nil

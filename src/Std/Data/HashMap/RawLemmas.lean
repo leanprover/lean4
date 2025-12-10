@@ -323,6 +323,14 @@ theorem getElem?_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} (
       if h₂ : k == a then v else m[a]'(mem_of_mem_insert h h₁ (Bool.eq_false_iff.2 h₂)) :=
   DHashMap.Raw.Const.get_insert (h₁ := h₁) h.out
 
+theorem toList_insert_perm [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β} :
+    (m.insert k v).toList.Perm (⟨k, v⟩ :: m.toList.filter (¬k == ·.1)) :=
+  DHashMap.Raw.Const.toList_insert_perm h.out
+
+theorem keys_insertIfNew_perm [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β} :
+    (m.insertIfNew k v).keys.Perm (if k ∈ m then m.keys else k :: m.keys) :=
+  DHashMap.Raw.keys_insertIfNew_perm h.out
+
 @[simp]
 theorem getElem_insert_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β} :
     (m.insert k v)[k]'(mem_insert_self h) = v :=

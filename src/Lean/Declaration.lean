@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Expr
+import Init.Data.Ord.UInt
 
 public section
 

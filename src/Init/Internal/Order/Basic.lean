@@ -13,6 +13,9 @@ public import Init.Control.Option
 import Init.Control.Except
 import all Init.Control.StateRef
 import all Init.System.ST
+import Init.RCases
+import Init.ByCases
+
 
 public section
 

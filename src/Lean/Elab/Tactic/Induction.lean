@@ -364,7 +364,12 @@ where
           stx := mkNullNode altStxs
           diagnostics := .empty
           inner? := none
-          finished := { stx? := mkNullNode altStxs, reportingRange := .inherit, task := finished.resultD default, cancelTk? }
+          finished := {
+            stx? := mkNullNode altStxs, task := finished.resultD default, cancelTk?
+            -- Do not cover up progress from `next` as no significant work happens after `next` and
+            -- before `finished` is resolved.
+            reportingRange := .skip
+          }
           next := Array.zipWith
             (fun stx prom => { stx? := some stx, task := prom.resultD default, cancelTk? })
             altStxs altPromises

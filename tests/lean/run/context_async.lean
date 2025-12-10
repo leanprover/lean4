@@ -6,7 +6,7 @@ open Std.Internal.IO Async
 /-- Test basic ContextAsync with getContext -/
 def testGetContext : IO Unit := do
   let res ← Async.block do
-    let ctx ← Std.Context.new
+    let ctx ← Std.CancellationContext.new
     ContextAsync.run ctx do
       let retrieved ← ContextAsync.getContext
       -- Should get the same context
@@ -26,7 +26,7 @@ info: Got same context
 /-- Test ContextAsync fork -/
 def testContextAsyncFork : IO Unit := do
   let res ← Async.block do
-    let ctx ← Std.Context.new
+    let ctx ← Std.CancellationContext.new
     ContextAsync.run ctx do
       ContextAsync.fork do
         let childCtx ← ContextAsync.getContext
@@ -47,7 +47,7 @@ info: Forked child has different ID
 /-- Test ContextAsync cancellation check -/
 def testIsCancelled : IO Unit := do
   let (before, after) ← Async.block do
-    let ctx ← Std.Context.new
+    let ctx ← Std.CancellationContext.new
     ContextAsync.run ctx do
       let before ← ContextAsync.isCancelled
       ContextAsync.cancel .cancel
@@ -66,7 +66,7 @@ info: Before: false, After: true
 /-- Test ContextAsync cancellation reason -/
 def testGetCancellationReason : IO Unit := do
   let res ← Async.block do
-    let ctx ← Std.Context.new
+    let ctx ← Std.CancellationContext.new
     ContextAsync.run ctx do
       ContextAsync.cancel (.custom "test reason")
       Async.sleep 50
@@ -87,21 +87,22 @@ def testAwaitCancellation : IO Unit := do
   let received ← Std.Mutex.new false
 
   Async.block do
-    let ctx ← Std.Context.new
+    let ctx ← Std.CancellationContext.new
     let started ← Std.Mutex.new false
 
     ContextAsync.run ctx do
-      ContextAsync.background do
-        started.atomically (set true)
-        ContextAsync.awaitCancellation
-        received.atomically (set true)
+      discard <| ContextAsync.concurrently
+        (do
+          started.atomically (set true)
+          ContextAsync.awaitCancellation
+          received.atomically (set true))
+        (do
+          -- Wait for task to start
+          while !(← started.atomically get) do
+            Async.sleep 10
 
-      -- Wait for background task to start
-      while !(← started.atomically get) do
-        Async.sleep 10
-
-      Async.sleep 100
-      ContextAsync.cancel .shutdown
+          Async.sleep 100
+          ContextAsync.cancel .shutdown)
 
     Async.sleep 200
 
@@ -117,7 +118,7 @@ info: Cancellation received
 /-- Test concurrently with both tasks succeeding -/
 def testConcurrently : IO Unit := do
   let (a, b) ← Async.block do
-    let ctx ← Std.Context.new
+    let ctx ← Std.CancellationContext.new
     ContextAsync.run ctx do
       ContextAsync.concurrently
         (do
@@ -138,7 +139,7 @@ info: Results: 42, hello
 /-- Test race with first task winning -/
 def testRace : IO Unit := do
   let result ← Async.block do
-    let ctx ← Std.Context.new
+    let ctx ← Std.CancellationContext.new
     ContextAsync.run ctx do
       ContextAsync.race
         (do
@@ -159,7 +160,7 @@ info: Winner: fast
 /-- Test concurrentlyAll -/
 def testConcurrentlyAll : IO Unit := do
   let results ← Async.block do
-    let ctx ← Std.Context.new
+    let ctx ← Std.CancellationContext.new
     ContextAsync.run ctx do
       let tasks := #[
         (do Async.sleep 50; return 1),
@@ -181,19 +182,19 @@ def testBackground : IO Unit := do
   let counter ← Std.Mutex.new 0
 
   Async.block do
-    let ctx ← Std.Context.new
+    let ctx ← Std.CancellationContext.new
     ContextAsync.run ctx do
-      -- Start background task
-      ContextAsync.background do
-        for _ in [0:10] do
-          if ← ContextAsync.isCancelled then
-            break
-          counter.atomically (modify (· + 1))
-          Async.sleep 50
-
-      -- Let it run for a bit
-      Async.sleep 150
-      ContextAsync.cancel .cancel
+      discard <| ContextAsync.concurrently
+        (do
+          for _ in [0:10] do
+            if ← ContextAsync.isCancelled then
+              break
+            counter.atomically (modify (· + 1))
+            Async.sleep 50)
+        (do
+          -- Let it run for a bit
+          Async.sleep 150
+          ContextAsync.cancel .cancel)
 
     Async.sleep 200
 
@@ -202,22 +203,24 @@ def testBackground : IO Unit := do
 
 /-- Test fork cancellation isolation -/
 def testForkCancellation : IO Unit := do
-  let parent ← Std.Context.new
+  let parent ← Std.CancellationContext.new
   let childCancelled ← Std.Mutex.new false
   let parentCancelled ← Std.Mutex.new false
 
   Async.block do
     ContextAsync.run parent do
-      ContextAsync.background do
+      discard <| ContextAsync.concurrentlyAll #[
+        (do
         ContextAsync.fork do
           let child ← ContextAsync.getContext
           Async.sleep 100
           child.cancel .cancel
-          childCancelled.atomically (set true)
-
-      Async.sleep 200
-      if ← ContextAsync.isCancelled then
-        parentCancelled.atomically (set true)
+          childCancelled.atomically (set true)),
+        (do
+        Async.sleep 200
+        if ← parent.isCancelled then
+          parentCancelled.atomically (set true))
+      ]
 
   let childWasCancelled ← childCancelled.atomically get
   let parentWasCancelled ← parentCancelled.atomically get
@@ -233,16 +236,18 @@ info: Child cancelled: true, Parent cancelled: false
 /-- Test doneSelector -/
 partial def testNestedFork : IO Unit := do
   let res ← Async.block do
-    let ctx ← Std.Context.new
+    let ctx ← Std.CancellationContext.new
 
     ContextAsync.run ctx do
       let sel ← ContextAsync.doneSelector
 
-      ContextAsync.background do
-        Async.sleep 100
-        ctx.cancel .deadline
+      let (_, result) ← ContextAsync.concurrently
+        (do
+          Async.sleep 100
+          ctx.cancel .deadline)
+        (Selectable.one #[.case sel (fun _ => pure true)])
 
-      Selectable.one #[.case sel (fun _ => pure true)]
+      return result
 
   IO.println s!"Done selector triggered: {res}"
 
@@ -255,16 +260,18 @@ info: Done selector triggered: true
 /-- Test Selector.cancelled -/
 def testSelectorCancelled : IO Unit := do
   let res ← Async.block do
-    let ctx ← Std.Context.new
+    let ctx ← Std.CancellationContext.new
 
     ContextAsync.run ctx do
-
-      ContextAsync.background do
-        Async.sleep 150
-        ctx.cancel .shutdown
-
       let sel ← Selector.cancelled
-      Selectable.one #[.case sel (fun _ => pure true)]
+
+      let (_, result) ← ContextAsync.concurrently
+        (do
+          Async.sleep 150
+          ctx.cancel .shutdown)
+        (Selectable.one #[.case sel (fun _ => pure true)])
+
+      return result
 
   IO.println s!"Selector.cancelled triggered: {res}"
 
@@ -276,18 +283,19 @@ info: Selector.cancelled triggered: true
 
 /-- Test parent cancellation propagates to children -/
 def testParentChildCancellation : IO Unit := do
-  let parent ← Std.Context.new
+  let parent ← Std.CancellationContext.new
   let childSawCancellation ← Std.Mutex.new false
 
   Async.block do
     ContextAsync.run parent do
-      ContextAsync.background do
-        ContextAsync.fork do
-          ContextAsync.awaitCancellation
-          childSawCancellation.atomically (set true)
-
-      Async.sleep 200
-      ContextAsync.cancel (.custom "parent cancel")
+      discard <| ContextAsync.concurrently
+        (do
+          ContextAsync.fork do
+            ContextAsync.awaitCancellation
+            childSawCancellation.atomically (set true))
+        (do
+          Async.sleep 200
+          ContextAsync.cancel (.custom "parent cancel"))
 
     Async.sleep 300
 
@@ -303,7 +311,7 @@ info: Child saw parent cancellation: true
 /-- Test MonadLift instances -/
 def testMonadLift : IO Unit := do
   let (msg1, msg2) ← Async.block do
-    let ctx ← Std.Context.new
+    let ctx ← Std.CancellationContext.new
     ContextAsync.run ctx do
       -- Lift from IO
       let msg1 : String := "From IO"
@@ -331,7 +339,7 @@ All lifts work
 /-- Test exception handling in ContextAsync -/
 def testExceptionHandling : IO Unit := do
   let res ← Async.block do
-    let ctx ← Std.Context.new
+    let ctx ← Std.CancellationContext.new
     ContextAsync.run ctx do
       try
         throw (IO.userError "test error")
@@ -352,7 +360,7 @@ def testTryFinally : IO Unit := do
   let cleaned ← Std.Mutex.new false
 
   Async.block do
-    let ctx ← Std.Context.new
+    let ctx ← Std.CancellationContext.new
     ContextAsync.run ctx do
       try
         ContextAsync.cancel .cancel
@@ -371,7 +379,7 @@ info: Cleanup ran: true
 
 /-- Test race with cancellation -/
 def testRaceWithCancellation : IO Unit := do
-  let ctx ← Std.Context.new
+  let ctx ← Std.CancellationContext.new
   let leftCancelled ← Std.Mutex.new false
   let rightCancelled ← Std.Mutex.new false
 
@@ -410,7 +418,7 @@ def testComplexWorkflow : IO Unit := do
   let results ← Std.Mutex.new ([] : List String)
 
   Async.block do
-    let ctx ← Std.Context.new
+    let ctx ← Std.CancellationContext.new
 
     ContextAsync.run ctx do
       -- Run multiple concurrent operations
@@ -424,13 +432,14 @@ def testComplexWorkflow : IO Unit := do
           results.atomically (modify ("B"::·))
           return 2)
 
-      -- Background task
-      ContextAsync.background do
-        Async.sleep 100
-        results.atomically (modify ("BG"::·))
-
-      Async.sleep 200
-      results.atomically (modify (s!"Sum:{a+b}"::·))
+      -- Additional concurrent task
+      discard <| ContextAsync.concurrently
+        (do
+          Async.sleep 100
+          results.atomically (modify ("BG"::·)))
+        (do
+          Async.sleep 200
+          results.atomically (modify (s!"Sum:{a+b}"::·)))
 
   let final ← results.atomically get
   IO.println s!"Results: {final.reverse}"
@@ -440,3 +449,39 @@ info: Results: [A, B, BG, Sum:3]
 -/
 #guard_msgs in
 #eval testComplexWorkflow
+
+def testConcurrentlyAllException : IO Unit := do
+  let ref ← IO.mkRef ""
+
+  try
+    Async.block do
+      let ctx ← Std.CancellationContext.new
+      ContextAsync.run ctx do
+        let tasks := #[
+          (do
+            Async.sleep 1000
+            if ← ContextAsync.isCancelled then
+              ref.set "cancelled"
+              return
+            else
+              ref.set "not cancelled"
+            Async.sleep 500
+            if ← ContextAsync.isCancelled then
+              ref.modify (· ++ ", cancelled")
+            else
+              ref.modify (· ++ ", not cancelled")),
+          (do
+            Async.sleep 250
+            throw (IO.userError "Error: Hello"))
+        ]
+        discard <| ContextAsync.concurrentlyAll tasks
+  finally
+    IO.println (← ref.get)
+
+/--
+info: cancelled
+---
+error: Error: Hello
+-/
+#guard_msgs in
+#eval testConcurrentlyAllException

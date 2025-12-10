@@ -1,5 +1,5 @@
 prelude
-import Init.System.IO
+import Init.System.Files
 import Init.Data.List.Control
 import Init.Data.ToString
 

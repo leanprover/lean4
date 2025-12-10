@@ -257,7 +257,10 @@ def mkNoConfusionCoreImp (indName : Name) : MetaM Unit := do
     (value       := e)
     (hints       := ReducibilityHints.abbrev)))
   setReducibleAttribute declName
-  modifyEnv fun env => markNoConfusion env declName
+  let arity := info.numParams + 1 + 3 * (info.numIndices + 1)
+  let lhsPos := info.numParams + 1 + info.numIndices
+  let rhsPos := info.numParams + 1 + info.numIndices + 1 + info.numIndices
+  modifyEnv fun env => markNoConfusion env declName (.regular arity lhsPos rhsPos)
   modifyEnv fun env => addProtected env declName
 
 /--
@@ -295,48 +298,47 @@ def mkNoConfusionCtors (declName : Name) : MetaM Unit := do
   for ctor in indVal.ctors do
     let ctorInfo ← getConstInfoCtor ctor
     if ctorInfo.numFields > 0 then
-      let e ←
-        forallBoundedTelescope ctorInfo.type ctorInfo.numParams fun xs t => do
-        withLocalDeclD `P (.sort v) fun P =>
-        forallBoundedTelescope t ctorInfo.numFields fun fields1 _ => do
-        forallBoundedTelescope t ctorInfo.numFields fun fields2 _ => do
-        withPrimedNames fields2 do
-        withImplicitBinderInfos (xs ++ #[P] ++ fields1 ++ fields2) do
-          let ctor1 := mkAppN (mkConst ctor us) (xs ++ fields1)
-          let ctor2 := mkAppN (mkConst ctor us) (xs ++ fields2)
-          let is1 := (← whnf (← inferType ctor1)).getAppArgsN indVal.numIndices
-          let is2 := (← whnf (← inferType ctor2)).getAppArgsN indVal.numIndices
-          withNeededEqTelescope (is1.push ctor1) (is2.push ctor2) fun eqvs eqs => do
-            -- When the kernel checks this definition, it will perform the potentially expensive
-            -- computation that `noConfusionType h` is equal to `$kType → P`
-            let kType ← mkNoConfusionCtorArg ctor P
-            let kType := kType.beta (xs ++ fields1 ++ fields2)
-            withLocalDeclD `k kType fun k => do
-              let mut e := mkConst noConfusionName (v :: us)
-              e := mkAppN e (xs ++ #[P] ++ is1 ++ #[ctor1] ++ is2 ++ #[ctor2])
-              -- eqs may have more Eq rather than HEq than expected by `noConfusion`
-              for eq in eqs do
-                let needsHEq := (← whnfForall (← inferType e)).bindingDomain!.isHEq
-                if needsHEq && (← inferType eq).isEq then
-                  e := mkApp e (← mkHEqOfEq eq)
-                else
-                  e := mkApp e eq
-              e := mkApp e k
-              e ← mkExpectedTypeHint e P
-              mkLambdaFVars (xs ++ #[P] ++ fields1 ++ fields2 ++ eqvs ++ #[k]) e
-      let name := ctor.str "noConfusion"
-      addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
-        (name        := name)
-        (levelParams := recInfo.levelParams)
-        (type        := (← inferType e))
-        (value       := e)
-        (hints       := ReducibilityHints.abbrev)
-      ))
-      setReducibleAttribute name
-      -- The compiler has special support for `noConfusion`. So lets mark this as
-      -- macroInline to not generate code for all these extra definitions, and instead
-      -- let the compiler unfold this to then put the custom code there
-      setInlineAttribute name (kind := .macroInline)
+      forallBoundedTelescope ctorInfo.type ctorInfo.numParams fun xs t => do
+      withLocalDeclD `P (.sort v) fun P =>
+      forallBoundedTelescope t ctorInfo.numFields fun fields1 _ => do
+      forallBoundedTelescope t ctorInfo.numFields fun fields2 _ => do
+      withPrimedNames fields2 do
+      withImplicitBinderInfos (xs ++ #[P] ++ fields1 ++ fields2) do
+        let ctor1 := mkAppN (mkConst ctor us) (xs ++ fields1)
+        let ctor2 := mkAppN (mkConst ctor us) (xs ++ fields2)
+        let is1 := (← whnf (← inferType ctor1)).getAppArgsN indVal.numIndices
+        let is2 := (← whnf (← inferType ctor2)).getAppArgsN indVal.numIndices
+        withNeededEqTelescope (is1.push ctor1) (is2.push ctor2) fun eqvs eqs => do
+          -- When the kernel checks this definition, it will perform the potentially expensive
+          -- computation that `noConfusionType h` is equal to `$kType → P`
+          let kType ← mkNoConfusionCtorArg ctor P
+          let kType := kType.beta (xs ++ fields1 ++ fields2)
+          withLocalDeclD `k kType fun k => do
+            let mut e := mkConst noConfusionName (v :: us)
+            e := mkAppN e (xs ++ #[P] ++ is1 ++ #[ctor1] ++ is2 ++ #[ctor2])
+            -- eqs may have more Eq rather than HEq than expected by `noConfusion`
+            for eq in eqs do
+              let needsHEq := (← whnfForall (← inferType e)).bindingDomain!.isHEq
+              if needsHEq && (← inferType eq).isEq then
+                e := mkApp e (← mkHEqOfEq eq)
+              else
+                e := mkApp e eq
+            e := mkApp e k
+            e ← mkExpectedTypeHint e P
+            e ← mkLambdaFVars (xs ++ #[P] ++ fields1 ++ fields2 ++ eqvs ++ #[k]) e
+
+            let name := ctor.str "noConfusion"
+            addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
+              (name        := name)
+              (levelParams := recInfo.levelParams)
+              (type        := (← inferType e))
+              (value       := e)
+              (hints       := ReducibilityHints.abbrev)
+            ))
+            setReducibleAttribute name
+            let arity := ctorInfo.numParams + 1 + 2 * ctorInfo.numFields + indVal.numIndices + 1
+            let fields := kType.getNumHeadForalls
+            modifyEnv fun env => markNoConfusion env declName (.perCtor arity fields)
 
 
 def mkNoConfusionCore (declName : Name) : MetaM Unit := do
@@ -413,7 +415,7 @@ where
         hints       := ReducibilityHints.abbrev
       }
       setReducibleAttribute declName
-      modifyEnv fun env => markNoConfusion env declName
+      modifyEnv fun env => markNoConfusion env declName (.regular 4 1 2)
 
 public def mkNoConfusion (declName : Name) : MetaM Unit := do
   withTraceNode `Meta.mkNoConfusion (fun _ => return m!"{declName}") do

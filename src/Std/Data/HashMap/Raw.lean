@@ -250,6 +250,11 @@ instance [BEq α] [Hashable α] : Inter (Raw α β) := ⟨inter⟩
 
 instance [BEq α] [Hashable α] : SDiff (Raw α β) := ⟨diff⟩
 
+@[inherit_doc DHashMap.Raw.beq] def beq {β : Type v} [BEq α] [Hashable α] [BEq β] (m₁ m₂ : Raw α β) : Bool :=
+  DHashMap.Raw.Const.beq m₁.inner m₂.inner
+
+instance [BEq α] [Hashable α] [BEq β] : BEq (Raw α β) := ⟨beq⟩
+
 section Unverified
 
 @[inline, inherit_doc DHashMap.Raw.filterMap] def filterMap {γ : Type w} (f : α → β → Option γ)

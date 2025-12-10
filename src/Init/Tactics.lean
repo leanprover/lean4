@@ -998,7 +998,7 @@ You can use `with` to provide the variables names for each constructor.
   uses tactic `tac₁` for the `nil` case, and `tac₂` for the `cons` case,
   and `a` and `as'` are used as names for the new variables introduced.
 - `cases h : e`, where `e` is a variable or an expression,
-  performs cases on `e` as above, but also adds a hypothesis `h : e = ...` to each hypothesis,
+  performs cases on `e` as above, but also adds a hypothesis `h : e = ...` to each goal,
   where `...` is the constructor instance for that particular case.
 -/
 syntax (name := cases) "cases " elimTarget,+ (" using " term)? (inductionAlts)? : tactic

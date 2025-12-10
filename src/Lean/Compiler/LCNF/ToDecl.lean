@@ -85,6 +85,18 @@ def getDeclInfo? (declName : Name) : CoreM (Option ConstantInfo) := do
   let env ← getEnv
   return env.find? (mkUnsafeRecName declName) <|> env.find? declName
 
+def declIsSafe (declName : Name) : CoreM Bool := do
+  let env ← getEnv
+  checkUnsafe env <&&> checkPartial env
+where
+  checkUnsafe (env : Environment) : CoreM Bool := do
+    let some info := env.find? declName | return true
+    return !info.isUnsafe
+
+  checkPartial (env : Environment) : CoreM Bool := do
+    let some info := env.find? (mkUnsafeRecName declName) | return true
+    return !info.isPartial
+
 /--
 Convert the given declaration from the Lean environment into `Decl`.
 The steps for this are roughly:
@@ -97,7 +109,7 @@ The steps for this are roughly:
 def toDecl (declName : Name) : CompilerM Decl := do
   let declName := if let some name := isUnsafeRecName? declName then name else declName
   let some info ← getDeclInfo? declName | throwError "declaration `{.ofConstName declName}` not found"
-  let safe := !info.isPartial && !info.isUnsafe
+  let safe ← declIsSafe declName
   let env ← getEnv
   let inlineAttr? := getInlineAttribute? env declName
   let paramsFromTypeBinders (expr : Expr) : CompilerM (Array Param) := do

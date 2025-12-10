@@ -3,9 +3,9 @@ example {x m n : Nat} (h : x = 4 ^ (m + 1) * n) : x % 4 = 0 := by
 
 /--
 info: Try these:
-  [apply] grind only [usr Nat.div_pow_of_pos, usr Nat.dvd_mul_right_of_dvd]
+  [apply] grind only [usr Nat.div_pow_of_pos, usr Nat.mod_eq_of_lt, usr Nat.dvd_mul_right_of_dvd]
   [apply] grind =>
-    instantiate only [usr Nat.div_pow_of_pos]
+    instantiate only [usr Nat.div_pow_of_pos, usr Nat.mod_eq_of_lt]
     instantiate only [usr Nat.dvd_mul_right_of_dvd]
     lia
 -/

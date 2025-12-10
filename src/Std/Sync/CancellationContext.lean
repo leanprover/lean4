@@ -16,22 +16,18 @@ public import Std.Internal.Async.Select
 public section
 
 /-!
-This module provides a tree-structured cancellation context called `Context` where cancelling a parent
+This module provides a tree-structured cancellation context called `CancellationToken` where cancelling a parent
 automatically cancels all child contexts.
 -/
 
 namespace Std
 open Std.Internal.IO.Async
 
-/--
-The central state structure shared by all context types.
--/
-structure ContextState where
+structure CancellationContext.State where
   /--
   Map of token IDs to optional tokens and their children.
-  `none` represents a background context that cannot be cancelled.
   -/
-  tokens : TreeMap UInt64 (Option CancellationToken × Array UInt64) := .empty
+  tokens : TreeMap UInt64 (CancellationToken × Array UInt64) := .empty
 
   /--
   Next available ID
@@ -42,20 +38,20 @@ structure ContextState where
 A cancellation context that allows multiple consumers to wait until cancellation is requested. Forms
 a tree structure where cancelling a parent cancels all children.
 -/
-structure Context where
-  state : Std.Mutex ContextState
+structure CancellationContext where
+  state : Std.Mutex CancellationContext.State
   token : CancellationToken
   id : UInt64
 
-namespace Context
+namespace CancellationContext
 
 /--
 Creates a new root cancellation context.
 -/
-def new : BaseIO Context := do
+def new : BaseIO CancellationContext := do
   let token ← Std.CancellationToken.new
   return {
-    state := ← Std.Mutex.new { tokens := .empty |>.insert 0 (some token, #[]) },
+    state := ← Std.Mutex.new { tokens := .empty |>.insert 0 (token, #[]) },
     token,
     id := 0
   }
@@ -64,43 +60,44 @@ def new : BaseIO Context := do
 Forks a child context from a parent. If the parent is already cancelled, returns the parent context.
 Otherwise, creates a new child that will be cancelled when the parent is cancelled.
 -/
-def fork (root : Context) : BaseIO Context := do
-  if ← root.token.isCancelled then
-    return root
-
-  let token ← Std.CancellationToken.new
-
+def fork (root : CancellationContext) : BaseIO CancellationContext := do
   root.state.atomically do
+    if ← root.token.isCancelled then
+      return root
+
+    let token ← Std.CancellationToken.new
+
     let st ← get
     let newId := st.id
+
     set { st with
       id := newId + 1,
-      tokens := st.tokens.insert newId (some token, #[])
+      tokens := st.tokens.insert newId (token, #[])
         |>.modify root.id (.map (·) (.push · newId))
     }
+
     return { state := root.state, token, id := newId }
 
 /--
 Recursively cancels a context and all its children with the given reason.
 -/
-private partial def cancelChildren (state : ContextState) (id : UInt64) (reason : CancellationReason) : BaseIO ContextState := do
+private partial def cancelChildren (state : CancellationContext.State) (id : UInt64) (reason : CancellationReason) : BaseIO CancellationContext.State := do
   let mut state := state
 
-  let some (tokenOpt, children) := state.tokens.get? id
+  let some (token, children) := state.tokens.get? id
     | return state
 
   for tokenId in children do
     state ← cancelChildren state tokenId reason
 
-  if let some token := tokenOpt then
-    token.cancel reason
+  token.cancel reason
 
   pure { state with tokens := state.tokens.erase id }
 
 /--
 Cancels this context and all child contexts with the given reason.
 -/
-def cancel (x : Context) (reason : CancellationReason) : BaseIO Unit := do
+def cancel (x : CancellationContext) (reason : CancellationReason) : BaseIO Unit := do
   if ← x.token.isCancelled then
     return
 
@@ -113,29 +110,29 @@ def cancel (x : Context) (reason : CancellationReason) : BaseIO Unit := do
 Checks if the context is cancelled.
 -/
 @[inline]
-def isCancelled (x : Context) : BaseIO Bool := do
+def isCancelled (x : CancellationContext) : BaseIO Bool := do
   x.token.isCancelled
 
 /--
 Returns the cancellation reason if the context is cancelled.
 -/
 @[inline]
-def getCancellationReason (x : Context) : BaseIO (Option CancellationReason) := do
+def getCancellationReason (x : CancellationContext) : BaseIO (Option CancellationReason) := do
   x.token.getCancellationReason
 
 /--
 Waits for cancellation. Returns a task that completes when the context is cancelled.
 -/
 @[inline]
-def done (x : Context) : IO (AsyncTask Unit) :=
+def done (x : CancellationContext) : IO (AsyncTask Unit) :=
   x.token.wait
 
 /--
 Creates a selector that waits for cancellation.
 -/
 @[inline]
-def doneSelector (x : Context) : Selector Unit :=
+def doneSelector (x : CancellationContext) : Selector Unit :=
   x.token.selector
 
-end Context
+end CancellationContext
 end Std

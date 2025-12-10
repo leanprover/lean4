@@ -8,9 +8,9 @@ partial def testCancelTree : IO Unit := do
   let mutex ← Std.Mutex.new 0
 
   Async.block do
-    let context ← Std.Context.new
+    let context ← Std.CancellationContext.new
 
-    let rec loop (x : Nat) (parent : Std.Context) : Async Unit := do
+    let rec loop (x : Nat) (parent : Std.CancellationContext) : Async Unit := do
       match x with
       | 0 => do
           await (← parent.done)
@@ -40,22 +40,22 @@ info: cancelled 15
 def testCancellationReasons : IO Unit := do
   let (reason1, reason2, reason3, reason4) ← Async.block do
     -- Test with .cancel reason
-    let ctx1 ← Std.Context.new
+    let ctx1 ← Std.CancellationContext.new
     ctx1.cancel .cancel
     let some reason1 ← ctx1.getCancellationReason | return (none, none, none, none)
 
     -- Test with .deadline reason
-    let ctx2 ← Std.Context.new
+    let ctx2 ← Std.CancellationContext.new
     ctx2.cancel .deadline
     let some reason2 ← ctx2.getCancellationReason | return (none, none, none, none)
 
     -- Test with .shutdown reason
-    let ctx3 ← Std.Context.new
+    let ctx3 ← Std.CancellationContext.new
     ctx3.cancel .shutdown
     let some reason3 ← ctx3.getCancellationReason | return (none, none, none, none)
 
     -- Test with custom reason
-    let ctx4 ← Std.Context.new
+    let ctx4 ← Std.CancellationContext.new
     ctx4.cancel (.custom "test error")
     let some reason4 ← ctx4.getCancellationReason | return (none, none, none, none)
 
@@ -78,7 +78,7 @@ Reason 4: custom("test error")
 /-- Test cancellation propagates reason to children -/
 def testReasonPropagation : IO Unit := do
   let (parentReason, child1Reason, child2Reason, grandchildReason) ← Async.block do
-    let parent ← Std.Context.new
+    let parent ← Std.CancellationContext.new
     let child1 ← parent.fork
     let child2 ← parent.fork
     let grandchild ← child1.fork
@@ -113,10 +113,10 @@ def testCancelInMiddle : IO Unit := do
   let cancelledCounter ← Std.Mutex.new 0
 
   let (finalCount, cancelledCount) ← Async.block do
-    let context ← Std.Context.new
+    let context ← Std.CancellationContext.new
 
     -- Worker that does work until cancelled
-    let worker (ctx : Std.Context) : Async Unit := do
+    let worker (ctx : Std.CancellationContext) : Async Unit := do
       for _ in [0:100] do
         if ← ctx.isCancelled then
           cancelledCounter.atomically (modify (· + 1))
@@ -145,7 +145,7 @@ def testCancelInMiddle : IO Unit := do
 /-- Test cancellation before forking -/
 def testCancelBeforeFork : IO Unit := do
   let (isSame, isChildCancelled) ← Async.block do
-    let ctx ← Std.Context.new
+    let ctx ← Std.CancellationContext.new
     ctx.cancel .cancel
 
     -- Fork after cancellation should return same context
@@ -168,9 +168,9 @@ partial def testDeepTreeCancellation : IO Unit := do
   let depths ← Std.Mutex.new ([] : List (Nat × Std.CancellationReason))
 
   let (count, allSameReason) ← Async.block do
-    let root ← Std.Context.new
+    let root ← Std.CancellationContext.new
 
-    let rec makeTree (depth : Nat) (ctx : Std.Context) : Async Unit := do
+    let rec makeTree (depth : Nat) (ctx : Std.CancellationContext) : Async Unit := do
       if depth == 0 then
         await (← ctx.done)
         if let some reason ← ctx.getCancellationReason then

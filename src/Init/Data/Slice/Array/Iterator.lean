@@ -60,6 +60,7 @@ instance SubarrayIterator.instFinite : Finite (SubarrayIterator α) Id :=
   .of_finitenessRelation instFinitelessRelation
 
 instance [Monad m] : IteratorCollect (SubarrayIterator α) Id m := .defaultImplementation
+instance : IteratorLoopNew (SubarrayIterator α) Id m := .defaultImplementation
 instance [Monad m] : IteratorLoop (SubarrayIterator α) Id m := .defaultImplementation
 
 @[inline, expose]
@@ -71,6 +72,9 @@ universe v w
 
 instance : SliceSize (Internal.SubarrayData α) where
   size s := s.internalRepresentation.stop - s.internalRepresentation.start
+
+instance {α : Type u} {m : Type v → Type w} [Monad m] : ForInNew m (Subarray α) α :=
+  inferInstance
 
 instance {α : Type u} {m : Type v → Type w} [Monad m] : ForIn m (Subarray α) α :=
   inferInstance

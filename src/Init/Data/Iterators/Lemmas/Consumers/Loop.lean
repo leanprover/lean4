@@ -17,6 +17,19 @@ public section
 
 namespace Std.Iterators
 
+theorem Iter.forInNew'_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
+    {m : Type x → Type x'} [IteratorLoopNew α Id m] [hl : LawfulIteratorLoopNew α Id m]
+    {σ γ : Type x} {it : Iter (α := α) β} {init : σ}
+    {kcons : (out : β) → _ → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    letI : ForInNew' m (Iter (α := α) β) β _ := Iter.instForInNew'
+    ForInNew'.forInNew' it init kcons knil =
+      IterM.DefaultConsumers.forInNew' (fun _ _ f x => f x.run) σ γ (fun _ _ _ => True)
+        IteratorLoopNew.wellFounded_of_finite it.toIterM init _ (fun _ => id)
+          (fun out h acc k => kcons out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) (k · .intro) acc)
+          knil := by
+  simp [instForInNew', ForInNew'.forInNew', IteratorLoopNew.finiteForInNew', hl.lawfulNew (fun γ δ f x => f x.run),
+    IteratorLoopNew.defaultImplementation]
+
 theorem Iter.forIn'_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
     {m : Type x → Type x'} [Monad m] [LawfulMonad m] [IteratorLoop α Id m] [hl : LawfulIteratorLoop α Id m]
     {γ : Type x} {it : Iter (α := α) β} {init : γ}
@@ -43,6 +56,7 @@ theorem Iter.forIn_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
 
 theorem Iter.forIn'_eq_forInNew' {α β : Type w} [Iterator α Id β] [Finite α Id]
     {m : Type x → Type x'} [Monad m] [LawfulMonad m] [IteratorLoop α Id m] [hl : LawfulIteratorLoop α Id m]
+    [IteratorLoopNew α Id m] [hln : LawfulIteratorLoopNew α Id m]
     {γ : Type x} {it : Iter (α := α) β} {init : γ}
     {f : (b : β) → it.IsPlausibleIndirectOutput b → γ → m (ForInStep γ)} :
     letI : ForIn' m (Iter (α := α) β) β _ := Iter.instForIn'
@@ -53,9 +67,9 @@ theorem Iter.forIn'_eq_forInNew' {α β : Type w} [Iterator α Id β] [Finite α
         | .yield s => k s
         | .done c => pure c)
       := by
-  simp [instForIn', ForIn'.forIn', IteratorLoop.finiteForIn', instForInNew', ForInNew'.forInNew', IteratorLoop.finiteForInNew',
-    IteratorLoop.defaultImplementation,
-    hl.lawful (fun γ δ f x => f x.run), hl.lawfulNew (fun γ δ f x => f x.run)]
+  simp [instForIn', ForIn'.forIn', IteratorLoop.finiteForIn', instForInNew', ForInNew'.forInNew', IteratorLoopNew.finiteForInNew',
+    IteratorLoop.defaultImplementation, IteratorLoopNew.defaultImplementation,
+    hl.lawful (fun γ δ f x => f x.run), hln.lawfulNew (fun γ δ f x => f x.run)]
   rw [IterM.DefaultConsumers.forIn'_eq_forInNew']
   simp
   congr
@@ -66,7 +80,7 @@ theorem Iter.forIn'_eq_forInNew' {α β : Type w} [Iterator α Id β] [Finite α
   cases step <;> rfl
 
 @[congr] theorem Iter.forInNew'_congr {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m]
+    [Iterator α Id β] [Finite α Id] [IteratorLoopNew α Id m]
     {it₁ it₂ : Iter (α := α) β} (w : it₁ = it₂)
     {s₁ s₂ : σ} (hs : s₁ = s₂)
     {kcons₁ : (a' : β) → _ → (σ → m γ) → σ → m γ}
@@ -82,7 +96,7 @@ theorem Iter.forIn'_eq_forInNew' {α β : Type w} [Iterator α Id β] [Finite α
   rw [← hcons, hnil]
 
 @[congr] theorem Iter.forInNew_congr {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m]
+    [Iterator α Id β] [Finite α Id] [IteratorLoopNew α Id m]
     {it₁ it₂ : Iter (α := α) β} (w : it₁ = it₂)
     {s₁ s₂ : σ} (hs : s₁ = s₂)
     {kcons₁ : (a' : β) → (σ → m γ) → σ → m γ}
@@ -142,6 +156,44 @@ theorem Iter.forIn_eq_forIn_toIterM {α β : Type w} [Iterator α Id β]
       ForIn.forIn it.toIterM init f := by
   simp [forIn_eq_forIn', forIn'_eq_forIn'_toIterM, -forIn'_eq_forIn]
 
+theorem Iter.forInNew'_eq_match_step {α β : Type w} [Iterator α Id β]
+    [Finite α Id] {m : Type x → Type x''}
+    [IteratorLoopNew α Id m] [LawfulIteratorLoopNew α Id m]
+    {σ γ : Type x} {it : Iter (α := α) β} {init : σ}
+    {kcons : (out : β) → _ → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    letI : ForInNew' m (Iter (α := α) β) β _ := Iter.instForInNew'
+    ForInNew'.forInNew' it init kcons knil =
+      match it.step with
+      | .yield it' out h =>
+        kcons out (.direct ⟨_, h⟩) (fun s => ForInNew'.forInNew' it' s
+            (fun out h'' acc => kcons out (.indirect ⟨_, rfl, h⟩ h'') acc) knil) init
+      | .skip it' h =>
+        ForInNew'.forInNew' it' init
+          (fun out h'' acc => kcons out (.indirect ⟨_, rfl, h⟩ h'') acc) knil
+      | .done _ => knil init := by
+  simp only [forInNew'_eq]
+  rw [IterM.DefaultConsumers.forInNew']
+  simp only [Iter.step]
+  cases it.toIterM.step.run.inflate using PlausibleIterStep.casesOn
+  case yield =>
+    simp only [IterM.Step.toPure_yield, PlausibleIterStep.yield, toIter_toIterM, toIterM_toIter]
+    congr; ext
+    apply IterM.DefaultConsumers.forInNew'_eq_forInNew'
+    intro out s k₁ k₂ hk hP₁out hP₂out
+    congr
+    ext
+    apply hk
+  case skip =>
+    simp only [IterM.Step.toPure_skip, PlausibleIterStep.skip, toIter_toIterM, toIterM_toIter]
+    -- Could share this proof with the case above
+    apply IterM.DefaultConsumers.forInNew'_eq_forInNew'
+    intro out s k₁ k₂ hk hP₁out hP₂out
+    congr
+    ext
+    apply hk
+  case done =>
+    rfl
+
 theorem Iter.forIn'_eq_match_step {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type x → Type x''} [Monad m] [LawfulMonad m]
     [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
@@ -196,6 +248,12 @@ theorem Iter.forIn_eq_match_step {α β : Type w} [Iterator α Id β]
       | .done _ => return init) := by
   simp only [forIn_eq_forIn']
   exact forIn'_eq_match_step
+
+private theorem Iter.forInNew'_toList.aux {ρ : Type u} {α : Type v} {σ γ : Type x} {m : Type x → Type x'}
+    {_ : Membership α ρ} [ForInNew' m ρ α Membership.mem]
+    {r s : ρ} {init : σ} {kcons : (a : α) → _ → (σ → m γ) → σ → m γ} {knil : σ → m γ} (h : r = s) :
+    forInNew' r init kcons knil = forInNew' s init (fun a h' => kcons a (h ▸ h')) knil := by
+  cases h; rfl
 
 private theorem Iter.forIn'_toList.aux {ρ : Type u} {α : Type v} {γ : Type x} {m : Type x → Type x'}
     [Monad m] {_ : Membership α ρ} [ForIn' m ρ α inferInstance]
@@ -277,6 +335,32 @@ theorem Iter.mem_toArray_iff_isPlausibleIndirectOutput {α β} [Iterator α Id �
     out ∈ it.toArray ↔ it.IsPlausibleIndirectOutput out := by
   rw [← Iter.toArray_toList, List.mem_toArray, mem_toList_iff_isPlausibleIndirectOutput]
 
+theorem Iter.forInNew'_toList {α β : Type w} [Iterator α Id β]
+    [Finite α Id] {m : Type x → Type x'}
+    [IteratorLoopNew α Id m] [LawfulIteratorLoopNew α Id m]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    [LawfulDeterministicIterator α Id]
+    {σ γ : Type x} {it : Iter (α := α) β} {init : σ}
+    {kcons : (out : β) → _ → (σ → m γ) → σ → m γ}
+    {knil : σ → m γ} :
+    letI : ForInNew' m (Iter (α := α) β) β _ := Iter.instForInNew'
+    ForInNew'.forInNew' it.toList init kcons knil = ForInNew'.forInNew' it init (fun out h => kcons out (Iter.mem_toList_iff_isPlausibleIndirectOutput.mpr h)) knil := by
+  induction it using Iter.inductSteps generalizing init with | step it ihy ihs
+  have := it.toList_eq_match_step
+  generalize hs : it.step = step at this
+  rw [forInNew'_toList.aux this]
+  rw [forInNew'_eq_match_step]
+  rw [hs]
+  cases step using PlausibleIterStep.casesOn
+  case yield h =>
+    simp only [List.forInNew'_cons]
+    congr; ext s
+    apply ihy h
+  case skip h =>
+    apply ihs h
+  case done =>
+    rfl
+
 theorem Iter.forIn'_toList {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type x → Type x'} [Monad m] [LawfulMonad m]
     [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
@@ -322,6 +406,18 @@ theorem Iter.forIn'_toArray {α β : Type w} [Iterator α Id β]
     ForIn'.forIn' it.toArray init f = ForIn'.forIn' it init (fun out h acc => f out (Iter.mem_toArray_iff_isPlausibleIndirectOutput.mpr h) acc) := by
   simp only [← Iter.toArray_toList (it := it), List.forIn'_toArray, Iter.forIn'_toList]
 
+theorem Iter.forInNew'_eq_forInNew'_toList {α β : Type w} [Iterator α Id β]
+    [Finite α Id] {m : Type x → Type x'}
+    [IteratorLoopNew α Id m] [LawfulIteratorLoopNew α Id m]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    [LawfulDeterministicIterator α Id]
+    {σ γ : Type x} {it : Iter (α := α) β} {init : σ}
+    {kcons : (out : β) → _ → (σ → m γ) → σ → m γ}
+    {knil : σ → m γ} :
+    letI : ForInNew' m (Iter (α := α) β) β _ := Iter.instForInNew'
+    ForInNew'.forInNew' it init kcons knil = ForInNew'.forInNew' it.toList init (fun out h => kcons out (Iter.mem_toList_iff_isPlausibleIndirectOutput.mp h)) knil := by
+  simp only [forInNew'_toList]
+
 theorem Iter.forIn'_eq_forIn'_toList {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type x → Type x'} [Monad m] [LawfulMonad m]
     [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
@@ -345,6 +441,31 @@ theorem Iter.forIn'_eq_forIn'_toArray {α β : Type w} [Iterator α Id β]
     ForIn'.forIn' it init f = ForIn'.forIn' it.toArray init (fun out h acc => f out (Iter.mem_toArray_iff_isPlausibleIndirectOutput.mp h) acc) := by
   simp only [forIn'_toArray]
   congr
+
+theorem Iter.forInNew_toList {α β : Type w} [Iterator α Id β]
+    [Finite α Id] {m : Type x → Type x'}
+    [IteratorLoopNew α Id m] [LawfulIteratorLoopNew α Id m]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {σ γ : Type x} {it : Iter (α := α) β} {init : σ}
+    {kcons : β → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    ForInNew.forInNew it.toList init kcons knil = ForInNew.forInNew it init kcons knil := by
+  simp only [ForInNew.forInNew]
+  -- Same proof as `forInNew'_toList`, but does not depend on `LawfulDeterministicIterator α Id`
+  induction it using Iter.inductSteps generalizing init with | step it ihy ihs
+  have := it.toList_eq_match_step
+  generalize hs : it.step = step at this
+  rw [forInNew'_toList.aux this]
+  rw [forInNew'_eq_match_step]
+  rw [hs]
+  cases step using PlausibleIterStep.casesOn
+  case yield h =>
+    simp only [List.forInNew'_cons]
+    congr; ext s
+    apply ihy h
+  case skip h =>
+    apply ihs h
+  case done =>
+    rfl
 
 theorem Iter.forIn_toList {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type x → Type x'} [Monad m] [LawfulMonad m]
@@ -461,7 +582,8 @@ theorem Iter.fold_eq_fold_toIterM {α β : Type w} {γ : Type w} [Iterator α Id
 
 @[simp]
 theorem Iter.forInNew_pure_yield_eq_fold {α β : Type w} {γ : Type x} [Iterator α Id β]
-    [Finite α Id] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id] {f : β → γ → γ} {init : γ}
+    [Finite α Id] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id] [IteratorLoopNew α Id Id]
+    [LawfulIteratorLoopNew α Id Id] {f : β → γ → γ} {init : γ}
     {it : Iter (α := α) β} :
     ForInNew.forInNew (m := Id) it init (fun c k s => k (f c s)) pure =
       pure (it.fold (fun b c => f c b) init) := by

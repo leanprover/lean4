@@ -710,6 +710,8 @@ where
     if !arg.hasLooseBVars then
       if arg.hasMVar then
         pure dontCare
+      else if (← isProof arg) then
+        pure dontCare
       else
         let arg ← expandOffsetPatterns arg
         saveSymbolsAt arg

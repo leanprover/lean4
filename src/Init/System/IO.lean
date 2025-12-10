@@ -7,8 +7,8 @@ module
 
 prelude
 public import Init.System.IOError
-public import Init.Data.Ord.UInt
 public import Init.System.ST
+public import Init.Data.Ord.Basic
 import Init.Data.List.MapIdx
 
 public section

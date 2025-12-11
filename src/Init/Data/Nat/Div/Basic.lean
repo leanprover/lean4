@@ -180,8 +180,8 @@ theorem mod_eq_of_lt {a b : Nat} (h : a < b) : a % b = a :=
   (mod_eq a b).symm ▸ this
 
 grind_pattern mod_eq_of_lt => a % b where
-  guard a < b
   not_value b
+  guard a < b
 
 @[simp] theorem one_mod_eq_zero_iff {n : Nat} : 1 % n = 0 ↔ n = 1 := by
   match n with

@@ -155,7 +155,7 @@ theorem throwing_loop_spec :
   mspec
   mspec
   case inv1 => exact fun xs r s => ⌜r ≤ 4 ∧ s = 4 ∧ r + xs.suffix.sum > 4⌝
-  case vc1 => simp [*]
+  case vc1 => simp_all
   case vc2 =>
     intros _ _ _ _ _ _ _ _ hcontinue
     mintro _
@@ -674,7 +674,7 @@ theorem max_and_sum_spec (xs : Array Nat) :
   mvcgen [max_and_sum]
   case inv1 => exact fun xs (m, s) => ⌜s ≤ m * xs.pos⌝
   all_goals simp_all
-  · intro h;
+  · rename_i h
     rw [Nat.left_distrib]
     simp +zetaDelta only [Nat.mul_one, Nat.add_le_add_iff_right]
     apply Nat.le_trans h
@@ -843,32 +843,28 @@ theorem fast_expo_correct (x n : Nat) : fast_expo x n = x^n := by
   mvcgen
   case inv1 => exact fun xs (x', y, e) => ⌜x' ^ e * y = x ^ n ∧ e ≤ n - xs.pos⌝
   all_goals simp_all
-  case vc1 b _ _ _ _ _ _ _ =>
+  case vc1 b _ _ _ _ _ _ _ _ =>
     obtain ⟨x', y, e⟩ := b
     subst_vars
     grind
-  case vc2 b _ _ _ _ _ _ _ _ =>
-    intro ih₁ _;
+  case vc2 b _ _ _ _ _ _ _ _ _ =>
     obtain ⟨x', y, e⟩ := b
     simp at *
     constructor
-    · rw [← Nat.mul_assoc, ← Nat.pow_add_one, ← ih₁]
-      have : e - 1 + 1 = e := by grind
-      rw [this]
+    · rw [← Nat.mul_assoc, ← Nat.pow_add_one]
+      grind
     · grind
-  case vc3 b _ _ _ _ _ _ _ _ =>
-    intro ih₁ _;
+  case vc3 b _ _ _ _ _ _ _ _ _ =>
     obtain ⟨x', y, e⟩ := b
     simp at *
     constructor
     · rw [← Nat.pow_two, ← Nat.pow_mul]
       grind
     · grind
-  case vc4 b =>
-    intro ih₁ ih₂;
+  case vc4 b h =>
     obtain ⟨x', y, e⟩ := b
     simp at *
-    rw [← ih₁, ih₂, Nat.pow_zero, Nat.one_mul]
+    rw [← h.1, h.2, Nat.pow_zero, Nat.one_mul]
 
 theorem same_func (x n : Nat) : fast_expo x n = naive_expo x n := by
   rw [naive_expo_correct, fast_expo_correct]

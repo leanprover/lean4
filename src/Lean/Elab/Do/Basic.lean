@@ -119,6 +119,8 @@ structure ContVarInfo where
   lctx : LocalContext
   /-- The tracked jumps to the continuation. Each contains a metavariable to be assigned later. -/
   jumps : Array ContVarJump
+  /-- Local contexts of jump sites from dead code. We do not generate an entry in `jumps` for those. -/
+  deadCodeLCtxs : Array LocalContext := #[]
 
 structure State where
   monadInstanceCache : MonadInstanceCache := {}
@@ -415,10 +417,13 @@ def ContVarId.mkJump (contVarId : ContVarId) : DoElabM Expr := do
   let info ← contVarId.find
   let lctx := addReachingDefsAsNonDep info.lctx (← getLCtx) info.tunneledVars.inner
   let mvar ← withLCtx' lctx (mkFreshExprMVar info.type) -- assigned by `synthesizeJumps`
-  trace[Elab.do] "mkJump: {contVarId.name}, {mvar}, {repr mvar}"
-  unless (← read).deadCode do -- If it's dead code, don't even bother registering the jump
-    let jumps := info.jumps.push { mvar, ref := (← getRef) }
-    modify fun s => { s with contVars := s.contVars.insert contVarId { info with jumps } }
+  let info ←
+    if (← read).deadCode then
+      pure { info with deadCodeLCtxs := info.deadCodeLCtxs.push lctx }
+    else
+      trace[Elab.do] "mkJump: {contVarId.name}, {mvar}, {repr mvar}"
+      pure { info with jumps := info.jumps.push { mvar, ref := (← getRef) } }
+  modify fun s => { s with contVars := s.contVars.insert contVarId info }
   return mvar
 
 /-- The number of jump sites allocated for the continuation variable. -/
@@ -433,10 +438,22 @@ The result of `k` is used to fill in the jump site.
 -/
 def ContVarId.synthesizeJumps (contVarId : ContVarId) (k : DoElabM Expr) : DoElabM Unit := do
   let info ← contVarId.find
-  for jump in info.jumps do
-    jump.mvar.mvarId!.withContext do withRef jump.ref do
-      let res ← k
-      synthUsingDefEq "jump site" jump.mvar res
+  if info.jumps.size > 0 then
+    for jump in info.jumps do
+      jump.mvar.mvarId!.withContext do withRef jump.ref do
+        let res ← k
+        synthUsingDefEq "jump site" jump.mvar res
+  else
+    -- cf. `DoElemCont.elabAsDeadCode`
+    let k := withNewMCtxDepth <| withReader (fun ctx => { ctx with deadCode := true }) do
+      let s ← Term.saveState
+      discard <| withTheReader Core.Context (fun ctx => { ctx with suppressElabErrors := true }) k
+      let msg ← Core.getMessageLog -- case in point! capture it
+      s.restore
+      Core.setMessageLog msg
+    match info.deadCodeLCtxs[0]? with
+    | some lctx => withLCtx' lctx k
+    | none => logInfo m!"no dead code lctx found" *> withLCtx' info.lctx k
 
 /--
 Adds the given local declaration to the local context of the metavariable of each jump site.
@@ -565,7 +582,7 @@ where
     loop ()
 
 /-- Elaborate the `DoElemCont` with the `deadCode` flag set to `true` to emit warnings. -/
-def DoElemCont.elabAsDeadCode (dec : DoElemCont) : DoElabM Unit := do
+def DoElemCont.elabAsDeadCode (dec : DoElemCont) : DoElabM Unit := withNewMCtxDepth do
   withReader (fun ctx => { ctx with deadCode := true }) do
     withLocalDecl dec.resultName .default (← mkFreshResultType) (kind := .implDetail) fun _ => do
       let s ← Term.saveState

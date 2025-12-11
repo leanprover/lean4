@@ -1269,6 +1269,34 @@ return x_8;
 }
 }
 }
+LEAN_EXPORT uint8_t l_Lean_Elab_sortDeclLevelParams___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; 
+x_4 = l_Array_contains___at___00Lean_Elab_sortDeclLevelParams_spec__1(x_1, x_3);
+if (x_4 == 0)
+{
+uint8_t x_5; 
+x_5 = l_List_elem___at___00Lean_Elab_sortDeclLevelParams_spec__0(x_3, x_2);
+if (x_5 == 0)
+{
+uint8_t x_6; 
+x_6 = 1;
+return x_6;
+}
+else
+{
+return x_4;
+}
+}
+else
+{
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
+}
+}
+}
 LEAN_EXPORT lean_object* l_List_foldl___at___00Lean_Elab_sortDeclLevelParams_spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1366,34 +1394,6 @@ x_8 = lean_usize_add(x_3, x_7);
 x_3 = x_8;
 x_5 = x_6;
 goto _start;
-}
-}
-}
-LEAN_EXPORT uint8_t l_Lean_Elab_sortDeclLevelParams___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; 
-x_4 = l_Array_contains___at___00Lean_Elab_sortDeclLevelParams_spec__1(x_1, x_3);
-if (x_4 == 0)
-{
-uint8_t x_5; 
-x_5 = l_List_elem___at___00Lean_Elab_sortDeclLevelParams_spec__0(x_3, x_2);
-if (x_5 == 0)
-{
-uint8_t x_6; 
-x_6 = 1;
-return x_6;
-}
-else
-{
-return x_4;
-}
-}
-else
-{
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
 }
 }
 }

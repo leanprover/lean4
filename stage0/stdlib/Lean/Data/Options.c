@@ -127,6 +127,7 @@ static lean_object* l_Lean_Option_registerBuiltinOption___closed__20;
 LEAN_EXPORT lean_object* l_Lean_getOptionDecls();
 LEAN_EXPORT lean_object* l_Lean_getOptionDeclsArray___boxed(lean_object*);
 static lean_object* l_Lean_instInhabitedOptionDecl_default___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Option_register___auto__1;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__6;
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__26;
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__32;
@@ -137,7 +138,6 @@ LEAN_EXPORT lean_object* l_Lean_Option_get___boxed(lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_getBoolOption(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_instForInOptionsProdNameDataValueOfMonad(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___auto_00___x40_Lean_Data_Options_1379820584____hygCtx___hyg_20_;
 lean_object* lean_mk_io_user_error(lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__23;
 LEAN_EXPORT lean_object* l_Lean_getBoolOption___redArg(lean_object*, lean_object*, lean_object*, uint8_t);
@@ -1793,7 +1793,7 @@ x_6 = l_Lean_Option_setIfNotSet___redArg(x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-static lean_object* _init_l___auto_00___x40_Lean_Data_Options_1379820584____hygCtx___hyg_20_() {
+static lean_object* _init_l_Lean_Option_register___auto__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3407,8 +3407,8 @@ l_Lean_withInPattern___redArg___lam__0___closed__0 = _init_l_Lean_withInPattern_
 lean_mark_persistent(l_Lean_withInPattern___redArg___lam__0___closed__0);
 l_Lean_withInPattern___redArg___lam__0___closed__1 = _init_l_Lean_withInPattern___redArg___lam__0___closed__1();
 lean_mark_persistent(l_Lean_withInPattern___redArg___lam__0___closed__1);
-l___auto_00___x40_Lean_Data_Options_1379820584____hygCtx___hyg_20_ = _init_l___auto_00___x40_Lean_Data_Options_1379820584____hygCtx___hyg_20_();
-lean_mark_persistent(l___auto_00___x40_Lean_Data_Options_1379820584____hygCtx___hyg_20_);
+l_Lean_Option_register___auto__1 = _init_l_Lean_Option_register___auto__1();
+lean_mark_persistent(l_Lean_Option_register___auto__1);
 l_Lean_Option_registerBuiltinOption___closed__0 = _init_l_Lean_Option_registerBuiltinOption___closed__0();
 lean_mark_persistent(l_Lean_Option_registerBuiltinOption___closed__0);
 l_Lean_Option_registerBuiltinOption___closed__1 = _init_l_Lean_Option_registerBuiltinOption___closed__1();

@@ -1013,6 +1013,15 @@ return x_6;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Elab_instToSnapshotTreeHeaderProcessedSnapshot___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Elab_instToSnapshotTreeHeaderProcessedSnapshot___lam__0(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_Elab_instToSnapshotTreeHeaderProcessedSnapshot___lam__1___closed__0() {
 _start:
 {
@@ -1099,15 +1108,6 @@ return x_16;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_instToSnapshotTreeHeaderProcessedSnapshot___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_instToSnapshotTreeHeaderProcessedSnapshot___lam__0(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Elab_instToSnapshotTreeHeaderProcessedSnapshot() {
 _start:
 {
@@ -1166,6 +1166,14 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Lean_Elab_instImpl_00___x40_Lean_Elab_DefView_2042677648____hygCtx___hyg_32_;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Elab_instToSnapshotTreeHeaderProcessedSnapshot___lam__0___boxed), 1, 0);
 return x_1;
 }
 }
@@ -1258,43 +1266,11 @@ x_7 = l_Lean_Language_SnapshotTask_map___redArg(x_3, x_1, x_4, x_5, x_6);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__0() {
+static lean_object* _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__0), 4, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__1___boxed), 4, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__2___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__3), 4, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__4___boxed), 4, 0);
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__6), 4, 0);
 return x_1;
 }
 }
@@ -1306,11 +1282,43 @@ x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__5___boxed), 4, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__6() {
+static lean_object* _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__6), 4, 0);
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__4___boxed), 4, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__3), 4, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__2___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__1___boxed), 4, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__0), 4, 0);
 return x_1;
 }
 }
@@ -1389,14 +1397,6 @@ lean_ctor_set(x_15, 0, x_9);
 lean_ctor_set(x_15, 1, x_14);
 return x_15;
 }
-}
-}
-static lean_object* _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Elab_instToSnapshotTreeHeaderProcessedSnapshot___lam__0___boxed), 1, 0);
-return x_1;
 }
 }
 static lean_object* _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot() {
@@ -7855,28 +7855,28 @@ l_Lean_Elab_instImpl_00___x40_Lean_Elab_DefView_2042677648____hygCtx___hyg_32_ =
 lean_mark_persistent(l_Lean_Elab_instImpl_00___x40_Lean_Elab_DefView_2042677648____hygCtx___hyg_32_);
 l_Lean_Elab_instTypeNameDefsParsedSnapshot = _init_l_Lean_Elab_instTypeNameDefsParsedSnapshot();
 lean_mark_persistent(l_Lean_Elab_instTypeNameDefsParsedSnapshot);
-l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__0 = _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__0();
-lean_mark_persistent(l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__0);
-l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__1 = _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__1();
-lean_mark_persistent(l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__1);
-l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__2 = _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__2();
-lean_mark_persistent(l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__2);
-l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__3 = _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__3();
-lean_mark_persistent(l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__3);
-l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__4 = _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__4();
-lean_mark_persistent(l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__4);
-l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__5 = _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__5();
-lean_mark_persistent(l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__5);
+l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___closed__0 = _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___closed__0();
+lean_mark_persistent(l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___closed__0);
 l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__6 = _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__6();
 lean_mark_persistent(l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__6);
+l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__5 = _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__5();
+lean_mark_persistent(l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__5);
+l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__4 = _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__4();
+lean_mark_persistent(l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__4);
+l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__3 = _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__3();
+lean_mark_persistent(l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__3);
+l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__2 = _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__2();
+lean_mark_persistent(l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__2);
+l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__1 = _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__1();
+lean_mark_persistent(l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__1);
+l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__0 = _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__0();
+lean_mark_persistent(l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__0);
 l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__7 = _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__7();
 lean_mark_persistent(l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__7);
 l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__8 = _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__8();
 lean_mark_persistent(l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__8);
 l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__9 = _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__9();
 lean_mark_persistent(l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___lam__2___closed__9);
-l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___closed__0 = _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___closed__0();
-lean_mark_persistent(l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot___closed__0);
 l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot = _init_l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot();
 lean_mark_persistent(l_Lean_Elab_instToSnapshotTreeDefsParsedSnapshot);
 l_Lean_Elab_instInhabitedDefView_default___closed__0 = _init_l_Lean_Elab_instInhabitedDefView_default___closed__0();

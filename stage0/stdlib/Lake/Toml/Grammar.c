@@ -1327,40 +1327,24 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lake_Toml_ParserUtil_0__Lake_Toml_repeatFn_loop___at___00__private_Lake_Toml_Grammar_0__Lake_Toml_escapeSeqFn_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Lake_Toml_Grammar_0__Lake_Toml_escapeSeqFn___lam__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_4; uint8_t x_5; 
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = lean_nat_dec_eq(x_2, x_4);
-if (x_5 == 1)
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_3 = l___private_Lake_Toml_Grammar_0__Lake_Toml_crlfAuxFn(x_1, x_2);
+x_4 = lean_ctor_get(x_3, 4);
+lean_inc(x_4);
+x_5 = lean_box(0);
+x_6 = l_Option_instBEq_beq___at___00Lake_Toml_commentFn_spec__0(x_4, x_5);
+if (x_6 == 0)
 {
-lean_dec(x_2);
 return x_3;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_6 = l_Lean_Parser_hexDigitFn(x_1, x_3);
-x_7 = lean_ctor_get(x_6, 4);
-lean_inc(x_7);
-x_8 = lean_box(0);
-x_9 = l_Option_instBEq_beq___at___00Lake_Toml_commentFn_spec__0(x_7, x_8);
-if (x_9 == 0)
-{
-lean_dec(x_2);
-return x_6;
-}
-else
-{
-lean_object* x_10; lean_object* x_11; 
-x_10 = lean_unsigned_to_nat(1u);
-x_11 = lean_nat_sub(x_2, x_10);
-lean_dec(x_2);
-x_2 = x_11;
-x_3 = x_6;
-goto _start;
-}
+lean_object* x_7; 
+x_7 = l_Lake_Toml_wsNewlineFn(x_1, x_3);
+return x_7;
 }
 }
 }
@@ -1397,24 +1381,40 @@ return x_10;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lake_Toml_Grammar_0__Lake_Toml_escapeSeqFn___lam__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lake_Toml_ParserUtil_0__Lake_Toml_repeatFn_loop___at___00__private_Lake_Toml_Grammar_0__Lake_Toml_escapeSeqFn_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_3 = l___private_Lake_Toml_Grammar_0__Lake_Toml_crlfAuxFn(x_1, x_2);
-x_4 = lean_ctor_get(x_3, 4);
-lean_inc(x_4);
-x_5 = lean_box(0);
-x_6 = l_Option_instBEq_beq___at___00Lake_Toml_commentFn_spec__0(x_4, x_5);
-if (x_6 == 0)
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = lean_nat_dec_eq(x_2, x_4);
+if (x_5 == 1)
 {
+lean_dec(x_2);
 return x_3;
 }
 else
 {
-lean_object* x_7; 
-x_7 = l_Lake_Toml_wsNewlineFn(x_1, x_3);
-return x_7;
+lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_6 = l_Lean_Parser_hexDigitFn(x_1, x_3);
+x_7 = lean_ctor_get(x_6, 4);
+lean_inc(x_7);
+x_8 = lean_box(0);
+x_9 = l_Option_instBEq_beq___at___00Lake_Toml_commentFn_spec__0(x_7, x_8);
+if (x_9 == 0)
+{
+lean_dec(x_2);
+return x_6;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; 
+x_10 = lean_unsigned_to_nat(1u);
+x_11 = lean_nat_sub(x_2, x_10);
+lean_dec(x_2);
+x_2 = x_11;
+x_3 = x_6;
+goto _start;
+}
 }
 }
 }
@@ -5386,6 +5386,26 @@ x_1 = l_Lake_Toml_trailingSep___closed__1;
 return x_1;
 }
 }
+static lean_object* _init_l_Lake_Toml_unquotedKeyFn___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("unquoted key", 12, 12);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_Toml_unquotedKeyFn___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lake_Toml_unquotedKeyFn___closed__0;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
 LEAN_EXPORT uint8_t l_Lake_Toml_unquotedKeyFn___lam__0(uint32_t x_1) {
 _start:
 {
@@ -5481,26 +5501,6 @@ else
 return x_14;
 }
 }
-}
-}
-static lean_object* _init_l_Lake_Toml_unquotedKeyFn___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unquoted key", 12, 12);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_Toml_unquotedKeyFn___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lake_Toml_unquotedKeyFn___closed__0;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Toml_unquotedKeyFn___lam__0___boxed(lean_object* x_1) {

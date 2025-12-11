@@ -16,14 +16,15 @@ extern "C" {
 static lean_object* l___private_Lake_Util_MainM_0__Lake_MainM_instAlternative___closed__0;
 LEAN_EXPORT lean_object* l_Lake_MainM_instMonadLog___lam__0(lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_failure___redArg___boxed__const__1;
+LEAN_EXPORT lean_object* l_Lake_MainM_runLogIO___redArg___lam__0(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_liftLoggerIO___redArg___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lake_MainM_toBaseIO(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_tryCatchExit___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_liftLogIO___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MainM_runLogIO___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_exit(lean_object*, uint32_t);
 uint8_t l_Lake_AnsiMode_isEnabled(lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Lake_MainM_runLoggerIO___redArg___lam__0(lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_failure___redArg();
 LEAN_EXPORT lean_object* l_Lake_MainM_orElse(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_runLoggerIO___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -55,7 +56,6 @@ LEAN_EXPORT lean_object* l_Lake_MainM_orElse___boxed(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l_Lake_instMonadFinallyMainM;
 LEAN_EXPORT lean_object* l_Lake_MainM_instMonadError___lam__0___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lake_MainM_instMonadError___lam__0___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MainM_runLogIO___lam__0(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_tryCatchExit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_MainM_liftLogIO_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_liftLoggerIO___boxed(lean_object*, lean_object*, lean_object*);
@@ -66,12 +66,12 @@ LEAN_EXPORT lean_object* l_Lake_MainM_liftLoggerIO___redArg(lean_object*);
 lean_object* l_Lake_logToStream(lean_object*, lean_object*, uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_MainM_exit___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_exit___redArg(uint32_t);
+LEAN_EXPORT lean_object* l_Lake_MainM_runLoggerIO___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_mk___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_instMonadLiftIO___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_tryCatchError___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lake_MainM_instMonadLiftLogIO;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_MainM_liftLogIO_spec__0(lean_object*, uint8_t, uint8_t, lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MainM_runLoggerIO___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_tryCatchError___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_OutStream_logEntry(lean_object*, lean_object*, uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_MainM_liftLogIO___redArg___boxed(lean_object*, lean_object*);
@@ -80,6 +80,7 @@ LEAN_EXPORT lean_object* l_Lake_MainM_liftLoggerIO___redArg___lam__0(lean_object
 LEAN_EXPORT lean_object* l_Lake_MainM_runLoggerIO___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_instMonadLog___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_instMonadExit;
+LEAN_EXPORT lean_object* l_Lake_MainM_runLogIO___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_run___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_error___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadFinallyEST___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -131,7 +132,6 @@ LEAN_EXPORT lean_object* l_Lake_MainM_error___redArg(lean_object*, uint32_t);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_toBaseIO___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_toBaseIO___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MainM_runLoggerIO___lam__0(lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_liftLogIO___redArg___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lake_MainM_mk___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_MainM_instMonadLiftLoggerIO___closed__0;
@@ -1201,7 +1201,7 @@ x_1 = lean_alloc_closure((void*)(l_Lake_MainM_instMonadLiftIO___lam__0___boxed),
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_MainM_runLogIO___lam__0(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lake_MainM_runLogIO___redArg___lam__0(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_7; 
@@ -1235,13 +1235,13 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_MainM_runLogIO___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Lake_MainM_runLogIO___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 uint8_t x_7; uint8_t x_8; lean_object* x_9; 
 x_7 = lean_unbox(x_2);
 x_8 = lean_unbox(x_3);
-x_9 = l_Lake_MainM_runLogIO___lam__0(x_1, x_7, x_8, x_4, x_5);
+x_9 = l_Lake_MainM_runLogIO___redArg___lam__0(x_1, x_7, x_8, x_4, x_5);
 lean_dec_ref(x_5);
 return x_9;
 }
@@ -1386,7 +1386,7 @@ else
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; size_t x_34; size_t x_35; lean_object* x_36; lean_object* x_37; 
 x_30 = lean_box(x_21);
 x_31 = lean_box(x_25);
-x_32 = lean_alloc_closure((void*)(l_Lake_MainM_runLogIO___lam__0___boxed), 6, 3);
+x_32 = lean_alloc_closure((void*)(l_Lake_MainM_runLogIO___redArg___lam__0___boxed), 6, 3);
 lean_closure_set(x_32, 0, x_24);
 lean_closure_set(x_32, 1, x_30);
 lean_closure_set(x_32, 2, x_31);
@@ -1564,7 +1564,7 @@ else
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; size_t x_33; size_t x_34; lean_object* x_35; lean_object* x_36; 
 x_29 = lean_box(x_20);
 x_30 = lean_box(x_24);
-x_31 = lean_alloc_closure((void*)(l_Lake_MainM_runLogIO___lam__0___boxed), 6, 3);
+x_31 = lean_alloc_closure((void*)(l_Lake_MainM_runLogIO___redArg___lam__0___boxed), 6, 3);
 lean_closure_set(x_31, 0, x_23);
 lean_closure_set(x_31, 1, x_29);
 lean_closure_set(x_31, 2, x_30);
@@ -1862,7 +1862,7 @@ x_1 = l_Lake_MainM_instMonadLiftLogIO___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_MainM_runLoggerIO___lam__0(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lake_MainM_runLoggerIO___redArg___lam__0(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_6; 
@@ -1879,13 +1879,13 @@ x_2 = lean_box_uint32(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_MainM_runLoggerIO___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lake_MainM_runLoggerIO___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; uint8_t x_7; lean_object* x_8; 
 x_6 = lean_unbox(x_2);
 x_7 = lean_unbox(x_3);
-x_8 = l_Lake_MainM_runLoggerIO___lam__0(x_1, x_6, x_7, x_4);
+x_8 = l_Lake_MainM_runLoggerIO___redArg___lam__0(x_1, x_6, x_7, x_4);
 lean_dec_ref(x_4);
 return x_8;
 }
@@ -1902,7 +1902,7 @@ lean_inc_ref(x_8);
 x_9 = l_Lake_AnsiMode_isEnabled(x_8, x_6);
 x_10 = lean_box(x_5);
 x_11 = lean_box(x_9);
-x_12 = lean_alloc_closure((void*)(l_Lake_MainM_runLoggerIO___lam__0___boxed), 5, 3);
+x_12 = lean_alloc_closure((void*)(l_Lake_MainM_runLoggerIO___redArg___lam__0___boxed), 5, 3);
 lean_closure_set(x_12, 0, x_8);
 lean_closure_set(x_12, 1, x_10);
 lean_closure_set(x_12, 2, x_11);
@@ -1972,7 +1972,7 @@ lean_inc_ref(x_7);
 x_8 = l_Lake_AnsiMode_isEnabled(x_7, x_5);
 x_9 = lean_box(x_4);
 x_10 = lean_box(x_8);
-x_11 = lean_alloc_closure((void*)(l_Lake_MainM_runLoggerIO___lam__0___boxed), 5, 3);
+x_11 = lean_alloc_closure((void*)(l_Lake_MainM_runLoggerIO___redArg___lam__0___boxed), 5, 3);
 lean_closure_set(x_11, 0, x_7);
 lean_closure_set(x_11, 1, x_9);
 lean_closure_set(x_11, 2, x_10);

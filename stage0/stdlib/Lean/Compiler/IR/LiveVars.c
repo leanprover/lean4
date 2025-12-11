@@ -4852,6 +4852,15 @@ lean_dec(x_2);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter___at___00__private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitJP_spec__1___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_DTreeMap_Internal_Impl_Const_alter___at___00__private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitJP_spec__1___redArg___lam__0(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitJP___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -4869,15 +4878,6 @@ lean_object* x_3;
 x_3 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00__private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitJP_spec__0___redArg(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter___at___00__private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitJP_spec__1___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_DTreeMap_Internal_Impl_Const_alter___at___00__private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitJP_spec__1___redArg___lam__0(x_1, x_2);
-lean_dec(x_2);
 return x_3;
 }
 }

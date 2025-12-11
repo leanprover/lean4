@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Vector_pmapImpl___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_attach(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Attach_0__Vector_attachWithImpl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Vector_pmap_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -50,6 +49,7 @@ size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Vector_attach___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Vector_pmapImpl___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Attach_0__Vector_attachWithImpl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Vector_pmapImpl___closed__5;
 LEAN_EXPORT lean_object* l_Vector_pmap(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -211,7 +211,7 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Vector_pmapImpl___lam__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Vector_pmapImpl___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -321,7 +321,7 @@ LEAN_EXPORT lean_object* l_Vector_pmapImpl(lean_object* x_1, lean_object* x_2, l
 _start:
 {
 lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; 
-x_8 = lean_alloc_closure((void*)(l_Vector_pmapImpl___lam__0), 2, 1);
+x_8 = lean_alloc_closure((void*)(l_Vector_pmapImpl___redArg___lam__0), 2, 1);
 lean_closure_set(x_8, 0, x_5);
 x_9 = l_Vector_pmapImpl___closed__9;
 x_10 = lean_array_size(x_6);
@@ -334,7 +334,7 @@ LEAN_EXPORT lean_object* l_Vector_pmapImpl___redArg(lean_object* x_1, lean_objec
 _start:
 {
 lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; 
-x_3 = lean_alloc_closure((void*)(l_Vector_pmapImpl___lam__0), 2, 1);
+x_3 = lean_alloc_closure((void*)(l_Vector_pmapImpl___redArg___lam__0), 2, 1);
 lean_closure_set(x_3, 0, x_1);
 x_4 = l_Vector_pmapImpl___closed__9;
 x_5 = lean_array_size(x_2);

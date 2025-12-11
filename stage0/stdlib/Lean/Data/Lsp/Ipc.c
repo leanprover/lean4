@@ -195,6 +195,7 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_stdout___boxed(lean_object*, lean_object
 lean_object* l_Lean_Lsp_instToJsonCallHierarchyItem_toJson(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00__private_Lean_Data_Lsp_Ipc_0__Lean_Lsp_Ipc_expandIncomingCallHierarchy_go_spec__10___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_Lsp_Ipc_shutdown_spec__4___redArg___closed__3;
+lean_object* l_instInhabitedForall___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_ipcStdioConfig;
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___redArg___closed__36;
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___redArg___closed__45;
@@ -415,7 +416,6 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_runWith___boxed(lean_object*, lean_objec
 lean_object* l_Lean_Lsp_instToJsonLeanModuleHierarchyImportedByParams_toJson(lean_object*);
 static lean_object* l_Lean_Lsp_Ipc_runWith___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_waitForILeans(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_instInhabitedForall___lam__0___boxed(lean_object*, lean_object*);
 static lean_object* l_Option_fromJson_x3f___at___00Lean_Lsp_Ipc_readResponseAs___at___00__private_Lean_Data_Lsp_Ipc_0__Lean_Lsp_Ipc_expandOutgoingCallHierarchy_go_spec__3_spec__3___closed__0;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l___private_Lean_Data_Lsp_Ipc_0__Lean_Lsp_Ipc_collectDiagnostics_loop___closed__0;
@@ -694,7 +694,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = l_panic___at___00Lean_Lsp_Ipc_shutdown_spec__3___closed__0;
-x_5 = lean_alloc_closure((void*)(l_instInhabitedForall___lam__0___boxed), 2, 1);
+x_5 = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(x_5, 0, x_4);
 x_6 = lean_panic_fn(x_5, x_1);
 x_7 = lean_apply_2(x_6, x_2, lean_box(0));
@@ -1888,9 +1888,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_readResponseAs___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_object* x_5; 
 lean_inc_ref(x_3);
 x_5 = l_Lean_Lsp_Ipc_stdout(x_3);
+if (lean_obj_tag(x_5) == 0)
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 if (lean_is_exclusive(x_5)) {
@@ -2507,6 +2510,29 @@ lean_dec(x_8);
 x_151 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_151, 0, x_150);
 return x_151;
+}
+}
+}
+else
+{
+uint8_t x_152; 
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
+lean_dec(x_1);
+x_152 = !lean_is_exclusive(x_5);
+if (x_152 == 0)
+{
+return x_5;
+}
+else
+{
+lean_object* x_153; lean_object* x_154; 
+x_153 = lean_ctor_get(x_5, 0);
+lean_inc(x_153);
+lean_dec(x_5);
+x_154 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_154, 0, x_153);
+return x_154;
 }
 }
 }
@@ -6579,9 +6605,12 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_readResponseAs___at___00__private_Lean_Data_Lsp_Ipc_0__Lean_Lsp_Ipc_expandIncomingCallHierarchy_go_spec__4(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_4; 
 lean_inc_ref(x_2);
 x_4 = l_Lean_Lsp_Ipc_stdout(x_2);
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 if (lean_is_exclusive(x_4)) {
@@ -7194,6 +7223,28 @@ lean_dec(x_7);
 x_149 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_149, 0, x_148);
 return x_149;
+}
+}
+}
+else
+{
+uint8_t x_150; 
+lean_dec_ref(x_2);
+lean_dec(x_1);
+x_150 = !lean_is_exclusive(x_4);
+if (x_150 == 0)
+{
+return x_4;
+}
+else
+{
+lean_object* x_151; lean_object* x_152; 
+x_151 = lean_ctor_get(x_4, 0);
+lean_inc(x_151);
+lean_dec(x_4);
+x_152 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_152, 0, x_151);
+return x_152;
 }
 }
 }
@@ -8100,9 +8151,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_readResponseAs___at___00Lean_Lsp_Ipc_expandIncomingCallHierarchy_spec__3(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_4; 
 lean_inc_ref(x_2);
 x_4 = l_Lean_Lsp_Ipc_stdout(x_2);
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 if (lean_is_exclusive(x_4)) {
@@ -8718,6 +8772,28 @@ return x_149;
 }
 }
 }
+else
+{
+uint8_t x_150; 
+lean_dec_ref(x_2);
+lean_dec(x_1);
+x_150 = !lean_is_exclusive(x_4);
+if (x_150 == 0)
+{
+return x_4;
+}
+else
+{
+lean_object* x_151; lean_object* x_152; 
+x_151 = lean_ctor_get(x_4, 0);
+lean_inc(x_151);
+lean_dec(x_4);
+x_152 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_152, 0, x_151);
+return x_152;
+}
+}
+}
 }
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_expandIncomingCallHierarchy(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
@@ -9229,9 +9305,12 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_readResponseAs___at___00__private_Lean_Data_Lsp_Ipc_0__Lean_Lsp_Ipc_expandOutgoingCallHierarchy_go_spec__3(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_4; 
 lean_inc_ref(x_2);
 x_4 = l_Lean_Lsp_Ipc_stdout(x_2);
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 if (lean_is_exclusive(x_4)) {
@@ -9844,6 +9923,28 @@ lean_dec(x_7);
 x_149 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_149, 0, x_148);
 return x_149;
+}
+}
+}
+else
+{
+uint8_t x_150; 
+lean_dec_ref(x_2);
+lean_dec(x_1);
+x_150 = !lean_is_exclusive(x_4);
+if (x_150 == 0)
+{
+return x_4;
+}
+else
+{
+lean_object* x_151; lean_object* x_152; 
+x_151 = lean_ctor_get(x_4, 0);
+lean_inc(x_151);
+lean_dec(x_4);
+x_152 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_152, 0, x_151);
+return x_152;
 }
 }
 }
@@ -11364,9 +11465,12 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_readResponseAs___at___00__private_Lean_Data_Lsp_Ipc_0__Lean_Lsp_Ipc_expandModuleHierarchyImports_go_spec__3(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_4; 
 lean_inc_ref(x_2);
 x_4 = l_Lean_Lsp_Ipc_stdout(x_2);
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 if (lean_is_exclusive(x_4)) {
@@ -11979,6 +12083,28 @@ lean_dec(x_7);
 x_149 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_149, 0, x_148);
 return x_149;
+}
+}
+}
+else
+{
+uint8_t x_150; 
+lean_dec_ref(x_2);
+lean_dec(x_1);
+x_150 = !lean_is_exclusive(x_4);
+if (x_150 == 0)
+{
+return x_4;
+}
+else
+{
+lean_object* x_151; lean_object* x_152; 
+x_151 = lean_ctor_get(x_4, 0);
+lean_inc(x_151);
+lean_dec(x_4);
+x_152 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_152, 0, x_151);
+return x_152;
 }
 }
 }
@@ -12740,9 +12866,12 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_readResponseAs___at___00Lean_Lsp_Ipc_expandModuleHierarchyImports_spec__3(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_4; 
 lean_inc_ref(x_2);
 x_4 = l_Lean_Lsp_Ipc_stdout(x_2);
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 if (lean_is_exclusive(x_4)) {
@@ -13355,6 +13484,28 @@ lean_dec(x_7);
 x_149 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_149, 0, x_148);
 return x_149;
+}
+}
+}
+else
+{
+uint8_t x_150; 
+lean_dec_ref(x_2);
+lean_dec(x_1);
+x_150 = !lean_is_exclusive(x_4);
+if (x_150 == 0)
+{
+return x_4;
+}
+else
+{
+lean_object* x_151; lean_object* x_152; 
+x_151 = lean_ctor_get(x_4, 0);
+lean_inc(x_151);
+lean_dec(x_4);
+x_152 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_152, 0, x_151);
+return x_152;
 }
 }
 }

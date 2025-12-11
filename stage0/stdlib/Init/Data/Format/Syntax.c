@@ -946,6 +946,14 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Syntax_instToFormat___lam__0), 1, 0);
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_Syntax_instToString___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Syntax_instToFormat___lam__0), 1, 0);
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_Syntax_instToString___lam__0___closed__0() {
 _start:
 {
@@ -962,14 +970,6 @@ x_2 = l_Lean_Syntax_instToString___lam__0___closed__0;
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = l_Std_Format_pretty(x_1, x_2, x_3, x_3);
 return x_4;
-}
-}
-static lean_object* _init_l_Lean_Syntax_instToString___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Syntax_instToFormat___lam__0), 1, 0);
-return x_1;
 }
 }
 static lean_object* _init_l_Lean_Syntax_instToString() {
@@ -1123,10 +1123,10 @@ l_Lean_Syntax_formatStxAux___closed__23 = _init_l_Lean_Syntax_formatStxAux___clo
 lean_mark_persistent(l_Lean_Syntax_formatStxAux___closed__23);
 l_Lean_Syntax_instToFormat = _init_l_Lean_Syntax_instToFormat();
 lean_mark_persistent(l_Lean_Syntax_instToFormat);
-l_Lean_Syntax_instToString___lam__0___closed__0 = _init_l_Lean_Syntax_instToString___lam__0___closed__0();
-lean_mark_persistent(l_Lean_Syntax_instToString___lam__0___closed__0);
 l_Lean_Syntax_instToString___closed__0 = _init_l_Lean_Syntax_instToString___closed__0();
 lean_mark_persistent(l_Lean_Syntax_instToString___closed__0);
+l_Lean_Syntax_instToString___lam__0___closed__0 = _init_l_Lean_Syntax_instToString___lam__0___closed__0();
+lean_mark_persistent(l_Lean_Syntax_instToString___lam__0___closed__0);
 l_Lean_Syntax_instToString = _init_l_Lean_Syntax_instToString();
 lean_mark_persistent(l_Lean_Syntax_instToString);
 return lean_io_result_mk_ok(lean_box(0));

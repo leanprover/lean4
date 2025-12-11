@@ -158,6 +158,22 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___00Lean_Meta_Grin
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Grind_initFn_00___x40_Lean_Meta_Tactic_Grind_ExtAttr_1245433972____hygCtx___hyg_2__spec__0_spec__0_spec__2___redArg(size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_add___at___00Lean_Meta_Grind_addExtAttr_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn___lam__2_00___x40_Lean_Meta_Tactic_Grind_ExtAttr_1245433972____hygCtx___hyg_2_(lean_object* x_1) {
+_start:
+{
+lean_inc_ref(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn___lam__0_00___x40_Lean_Meta_Tactic_Grind_ExtAttr_1245433972____hygCtx___hyg_2_(uint8_t x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_3, 0, x_2);
+return x_3;
+}
+}
 static size_t _init_l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Grind_initFn_00___x40_Lean_Meta_Tactic_Grind_ExtAttr_1245433972____hygCtx___hyg_2__spec__0_spec__0___redArg___closed__0() {
 _start:
 {
@@ -638,6 +654,15 @@ x_8 = l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAu
 return x_8;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn___lam__1_00___x40_Lean_Meta_Tactic_Grind_ExtAttr_1245433972____hygCtx___hyg_2_(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_box(0);
+x_4 = l_Lean_PersistentHashMap_insert___at___00Lean_Meta_Grind_initFn_00___x40_Lean_Meta_Tactic_Grind_ExtAttr_1245433972____hygCtx___hyg_2__spec__0___redArg(x_1, x_2, x_3);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_PersistentHashMap_empty___at___00Lean_Meta_Grind_initFn_00___x40_Lean_Meta_Tactic_Grind_ExtAttr_1245433972____hygCtx___hyg_2__spec__5___closed__0() {
 _start:
 {
@@ -662,31 +687,6 @@ _start:
 lean_object* x_2; 
 x_2 = l_Lean_PersistentHashMap_empty___at___00Lean_Meta_Grind_initFn_00___x40_Lean_Meta_Tactic_Grind_ExtAttr_1245433972____hygCtx___hyg_2__spec__5___closed__1;
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn___lam__0_00___x40_Lean_Meta_Tactic_Grind_ExtAttr_1245433972____hygCtx___hyg_2_(uint8_t x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_3, 0, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn___lam__1_00___x40_Lean_Meta_Tactic_Grind_ExtAttr_1245433972____hygCtx___hyg_2_(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_box(0);
-x_4 = l_Lean_PersistentHashMap_insert___at___00Lean_Meta_Grind_initFn_00___x40_Lean_Meta_Tactic_Grind_ExtAttr_1245433972____hygCtx___hyg_2__spec__0___redArg(x_1, x_2, x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn___lam__2_00___x40_Lean_Meta_Tactic_Grind_ExtAttr_1245433972____hygCtx___hyg_2_(lean_object* x_1) {
-_start:
-{
-lean_inc_ref(x_1);
-return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_Grind_initFn___closed__0_00___x40_Lean_Meta_Tactic_Grind_ExtAttr_1245433972____hygCtx___hyg_2_() {

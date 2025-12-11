@@ -912,6 +912,20 @@ x_1 = l_Lean_ScopedEnvExtension_Descr_name___autoParam___closed__28;
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_instInhabitedDescr___redArg___lam__2(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_instInhabitedDescr___redArg___lam__3(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_ScopedEnvExtension_instInhabitedDescr___redArg___lam__0___closed__0() {
 _start:
 {
@@ -969,13 +983,6 @@ lean_dec(x_1);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_instInhabitedDescr___redArg___lam__2(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_instInhabitedDescr___redArg___lam__2___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -984,13 +991,6 @@ x_3 = l_Lean_ScopedEnvExtension_instInhabitedDescr___redArg___lam__2(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_instInhabitedDescr___redArg___lam__3(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_instInhabitedDescr___redArg___lam__3___boxed(lean_object* x_1, lean_object* x_2) {
@@ -4083,6 +4083,13 @@ lean_dec_ref(x_3);
 return x_10;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_instInhabitedScopedEnvExtension_default___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_inc_ref(x_1);
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_instInhabitedScopedEnvExtension_default___redArg___closed__0() {
 _start:
 {
@@ -4133,13 +4140,6 @@ x_4 = l_Lean_instInhabitedScopedEnvExtension_default___redArg___lam__5(x_1, x_2)
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_instInhabitedScopedEnvExtension_default___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_inc_ref(x_1);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_instInhabitedScopedEnvExtension_default___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {

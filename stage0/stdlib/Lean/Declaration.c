@@ -23,7 +23,6 @@ LEAN_EXPORT lean_object* lean_mk_constructor_val(lean_object*, lean_object*, lea
 LEAN_EXPORT lean_object* lean_mk_axiom_val(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_QuotKind_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedInductiveVal_default___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Declaration_forExprM___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_beq___at___00Lean_instBEqDeclaration_beq_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ConstantInfo_ctorInfo_elim___redArg(lean_object*, lean_object*);
 lean_object* l_List_lengthTR___redArg(lean_object*);
@@ -265,6 +264,7 @@ LEAN_EXPORT lean_object* l_Lean_instInhabitedConstructorVal;
 static lean_object* l_Lean_ConstantInfo_value_x21___closed__4;
 LEAN_EXPORT lean_object* l_Lean_InductiveVal_isReflexiveEx___boxed(lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_Declaration_forExprM___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_beq___at___00Lean_instBEqConstantVal_beq_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Declaration_foldExprM___redArg___lam__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedReducibilityHints;
@@ -3744,7 +3744,7 @@ x_7 = l_Lean_Declaration_foldExprM___redArg(x_3, x_4, x_5, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Declaration_forExprM___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Declaration_forExprM___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -3756,7 +3756,7 @@ LEAN_EXPORT lean_object* l_Lean_Declaration_forExprM(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_alloc_closure((void*)(l_Lean_Declaration_forExprM___lam__0), 3, 1);
+x_5 = lean_alloc_closure((void*)(l_Lean_Declaration_forExprM___redArg___lam__0), 3, 1);
 lean_closure_set(x_5, 0, x_4);
 x_6 = lean_box(0);
 x_7 = l_Lean_Declaration_foldExprM___redArg(x_2, x_3, x_5, x_6);
@@ -3767,7 +3767,7 @@ LEAN_EXPORT lean_object* l_Lean_Declaration_forExprM___redArg(lean_object* x_1, 
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_alloc_closure((void*)(l_Lean_Declaration_forExprM___lam__0), 3, 1);
+x_4 = lean_alloc_closure((void*)(l_Lean_Declaration_forExprM___redArg___lam__0), 3, 1);
 lean_closure_set(x_4, 0, x_3);
 x_5 = lean_box(0);
 x_6 = l_Lean_Declaration_foldExprM___redArg(x_1, x_2, x_4, x_5);

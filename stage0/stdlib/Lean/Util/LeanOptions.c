@@ -3825,6 +3825,14 @@ lean_dec_ref(x_1);
 return x_6;
 }
 }
+static lean_object* _init_l_Lean_instFromJsonLeanOptions___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_instFromJsonLeanOptionValue___lam__0), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_instFromJsonLeanOptions___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -3868,14 +3876,6 @@ lean_ctor_set(x_9, 0, x_8);
 return x_9;
 }
 }
-}
-}
-static lean_object* _init_l_Lean_instFromJsonLeanOptions___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_instFromJsonLeanOptionValue___lam__0), 1, 0);
-return x_1;
 }
 }
 static lean_object* _init_l_Lean_instFromJsonLeanOptions() {

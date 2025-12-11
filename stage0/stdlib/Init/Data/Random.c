@@ -159,14 +159,6 @@ x_1 = l_stdRange___closed__0;
 return x_1;
 }
 }
-static lean_object* _init_l_instReprStdGen___lam__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("⟨", 3, 1);
-return x_1;
-}
-}
 static lean_object* _init_l_instReprStdGen___lam__0___closed__1() {
 _start:
 {
@@ -185,11 +177,11 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_instReprStdGen___lam__0___closed__3() {
+static lean_object* _init_l_instReprStdGen___lam__0___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("⟩", 3, 1);
+x_1 = lean_mk_string_unchecked("⟨", 3, 1);
 return x_1;
 }
 }
@@ -219,6 +211,14 @@ x_1 = l_instReprStdGen___lam__0___closed__0;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
+}
+}
+static lean_object* _init_l_instReprStdGen___lam__0___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("⟩", 3, 1);
+return x_1;
 }
 }
 static lean_object* _init_l_instReprStdGen___lam__0___closed__7() {
@@ -1441,20 +1441,20 @@ l_stdRange___closed__0 = _init_l_stdRange___closed__0();
 lean_mark_persistent(l_stdRange___closed__0);
 l_stdRange = _init_l_stdRange();
 lean_mark_persistent(l_stdRange);
-l_instReprStdGen___lam__0___closed__0 = _init_l_instReprStdGen___lam__0___closed__0();
-lean_mark_persistent(l_instReprStdGen___lam__0___closed__0);
 l_instReprStdGen___lam__0___closed__1 = _init_l_instReprStdGen___lam__0___closed__1();
 lean_mark_persistent(l_instReprStdGen___lam__0___closed__1);
 l_instReprStdGen___lam__0___closed__2 = _init_l_instReprStdGen___lam__0___closed__2();
 lean_mark_persistent(l_instReprStdGen___lam__0___closed__2);
-l_instReprStdGen___lam__0___closed__3 = _init_l_instReprStdGen___lam__0___closed__3();
-lean_mark_persistent(l_instReprStdGen___lam__0___closed__3);
+l_instReprStdGen___lam__0___closed__0 = _init_l_instReprStdGen___lam__0___closed__0();
+lean_mark_persistent(l_instReprStdGen___lam__0___closed__0);
 l_instReprStdGen___lam__0___closed__4 = _init_l_instReprStdGen___lam__0___closed__4();
 lean_mark_persistent(l_instReprStdGen___lam__0___closed__4);
 l_instReprStdGen___lam__0___closed__5 = _init_l_instReprStdGen___lam__0___closed__5();
 lean_mark_persistent(l_instReprStdGen___lam__0___closed__5);
 l_instReprStdGen___lam__0___closed__6 = _init_l_instReprStdGen___lam__0___closed__6();
 lean_mark_persistent(l_instReprStdGen___lam__0___closed__6);
+l_instReprStdGen___lam__0___closed__3 = _init_l_instReprStdGen___lam__0___closed__3();
+lean_mark_persistent(l_instReprStdGen___lam__0___closed__3);
 l_instReprStdGen___lam__0___closed__7 = _init_l_instReprStdGen___lam__0___closed__7();
 lean_mark_persistent(l_instReprStdGen___lam__0___closed__7);
 l_instReprStdGen = _init_l_instReprStdGen();

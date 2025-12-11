@@ -4,10 +4,32 @@ axiom pi_pos : 0 < π
 theorem two_pi_pos : 0 < 2 * π := by
   grind [pi_pos]
 
+/--
+info: Try these:
+  [apply] grind only [pi_pos]
+  [apply] grind =>
+    instantiate only [pi_pos]
+    linarith
+-/
+#guard_msgs in
+theorem two_pi_pos' : 0 < 2 * π := by
+  grind? [pi_pos]
+
 attribute [grind .] pi_pos
 
-theorem two_pi_pos' : 0 < 2 * π := by
+theorem two_pi_pos'' : 0 < 2 * π := by
   grind
+
+/--
+info: Try these:
+  [apply] grind only [pi_pos]
+  [apply] grind =>
+    instantiate only [pi_pos]
+    linarith
+-/
+#guard_msgs in
+theorem two_pi_pos''' : 0 < 2 * π := by
+  grind?
 
 def f (x : Nat) := x
 

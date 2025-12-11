@@ -329,11 +329,16 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
 deriving Inhabited
 
 /-- The package's name as specified by the author. -/
+@[deprecated "Deprecated without replacement" (since := "2025-12-10")]
 public abbrev PackageConfig.origName (_ : PackageConfig p n) := n
 
 /-- A package declaration from a configuration written in Lean. -/
 public structure PackageDecl where
-  name : Name
+  baseName : Name
+  keyName : Name
   origName : Name
-  config : PackageConfig name origName
+  config : PackageConfig keyName origName
   deriving TypeName
+
+@[deprecated PackageDecl.keyName (since := "2025-12-10")]
+public abbrev PackageDecl.name := @keyName

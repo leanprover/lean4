@@ -187,6 +187,40 @@ element `e`, and `dec` is the `DoElemCont` describing the elaboration of the res
 -/
 abbrev DoElab := TSyntax `doElem → DoElemCont → DoElabM Expr
 
+structure ReturnCont where
+  resultType : Expr
+  /--
+  The elaborator constructing a jump site to the return continuation,
+  given some return value. The type of this return value determines the type of the jump expression;
+  this could very well be different than the `resultType` in case an intervening `match` as refined
+  `resultType`. So `k` must *not* hardcode the type `resultType` into its definition; rather it
+  should infer the type of the return value argument.
+  -/
+  k : Expr → DoElabM Expr
+  deriving Inhabited
+
+/--
+Information about a success, `return`, `break` or `continue` continuation that will be filled in
+after the code using it has been elaborated.
+-/
+structure ContInfo where
+  returnCont : ReturnCont
+  breakCont : Option (DoElabM Expr) := none
+  continueCont : Option (DoElabM Expr) := none
+deriving Inhabited
+
+unsafe def ContInfo.toContInfoRefImpl (m : ContInfo) : ContInfoRef :=
+  unsafeCast m
+
+@[implemented_by ContInfo.toContInfoRefImpl]
+opaque ContInfo.toContInfoRef (m : ContInfo) : ContInfoRef
+
+unsafe def ContInfoRef.toContInfoImpl (m : ContInfoRef) : ContInfo :=
+  unsafeCast m
+
+@[implemented_by ContInfoRef.toContInfoImpl]
+opaque ContInfoRef.toContInfo (m : ContInfoRef) : ContInfo
+
 /-- Constructs `m α` from `α`. -/
 def mkMonadicType (resultType : Expr) : DoElabM Expr := do
   return mkApp (← read).monadInfo.m resultType
@@ -219,6 +253,27 @@ def mkPureApp (α e : Expr) : DoElabM Expr := do
   let e ← Term.ensureHasType α e
   return mkApp2 (← getCachedPure) α e
 
+/-- Create a `DoElemCont` returning the result using `pure`. -/
+def DoElemCont.mkPure (resultType : Expr) : TermElabM DoElemCont := do
+  let r ← mkFreshUserName `r
+  return {
+    resultName := r,
+    resultType,
+    k := do mkPureApp resultType (← getFVarFromUserName r),
+    kind := .duplicable
+    ref := .missing
+    declKind := .implDetail  -- Does not matter much, because `mkPureApp` does not do
+                             -- type class synthesis.
+  }
+
+/-- Create a `ReturnCont` returning the result using `pure`. -/
+def ReturnCont.mkPure (resultType : Expr) : TermElabM ReturnCont := do
+  -- NB: we must *not* use `resultType` instead of `← inferType x` because the type of `x` may have
+  -- been refined by an intervening `match`.
+  return { resultType, k x := do
+    trace[Elab.do] "ReturnCont.mkPure: x: {x}, resultType: {resultType}"
+    mkPureApp (← inferType x) x }
+
 /-- The cached `@Bind.bind m instBind` expression. -/
 private def getCachedBind : DoElabM Expr := do
   let s ← get
@@ -237,58 +292,6 @@ def mkBindApp (α β e k : Expr) : DoElabM Expr := do
   let k ← Term.ensureHasType (← mkArrow α (← mkMonadicType β)) k
   let cachedBind ← getCachedBind
   return mkApp4 cachedBind α β e k
-
-structure ReturnCont where
-  /--
-  The elaborator constructing a jump site to the return continuation,
-  given some return value. The type of this return value determines the type of the jump expression;
-  this could very well be different than the `resultType` in case an intervening `match` as refined
-  `resultType`. So `k` must *not* hardcode the type `resultType` into its definition; rather it
-  should infer the type of the return value argument.
-  -/
-  k : Expr → DoElabM Expr
-  deriving Inhabited
-
-/-- Create a `ReturnCont` returning the result using `pure`. -/
-def ReturnCont.mkPure : ReturnCont where
-  k x := do
-    let α := (← read).doBlockResultType
-    mkPureApp α (← Term.ensureHasType α x)
-
-/--
-Information about a success, `return`, `break` or `continue` continuation that will be filled in
-after the code using it has been elaborated.
--/
-structure ContInfo where
-  returnCont : ReturnCont := ReturnCont.mkPure
-  breakCont : Option (DoElabM Expr) := none
-  continueCont : Option (DoElabM Expr) := none
-deriving Inhabited
-
-unsafe def ContInfo.toContInfoRefImpl (m : ContInfo) : ContInfoRef :=
-  unsafeCast m
-
-@[implemented_by ContInfo.toContInfoRefImpl]
-opaque ContInfo.toContInfoRef (m : ContInfo) : ContInfoRef
-
-unsafe def ContInfoRef.toContInfoImpl (m : ContInfoRef) : ContInfo :=
-  unsafeCast m
-
-@[implemented_by ContInfoRef.toContInfoImpl]
-opaque ContInfoRef.toContInfo (m : ContInfoRef) : ContInfo
-
-/-- Create a `DoElemCont` returning the result using `pure`. -/
-def DoElemCont.mkPure (resultType : Expr) : TermElabM DoElemCont := do
-  let r ← mkFreshUserName `r
-  return {
-    resultName := r,
-    resultType,
-    k := do mkPureApp resultType (← getFVarFromUserName r),
-    kind := .duplicable
-    ref := .missing
-    declKind := .implDetail  -- Does not matter much, because `mkPureApp` does not do
-                             -- type class synthesis.
-  }
 
 /-- Register the given name as that of a `mut` variable. -/
 def declareMutVar (x : Ident) (k : DoElabM α) : DoElabM α := do
@@ -785,7 +788,8 @@ where
 /-- Create the `Context` for `do` elaboration from the given expected type of a `do` block. -/
 def mkContext (expectedType? : Option Expr) : TermElabM Context := do
   let (mi, resultType) ← extractMonadInfo expectedType?
-  let contInfo := ContInfo.toContInfoRef { }
+  let returnCont ← ReturnCont.mkPure resultType
+  let contInfo := ContInfo.toContInfoRef { returnCont }
   return { monadInfo := mi, doBlockResultType := resultType, contInfo }
 
 /--
@@ -793,14 +797,24 @@ Inside a dependent `match` arm, the expected type can be refined. This function 
 new expected type and runs the action with an updated `doBlockResultType` accordingly.
 -/
 def withRefinedExpectedType (ty? : Option Expr) (k : DoElabM α) : DoElabM α := do
-  if let some ty := ty? then
-    let oldTy ← mkMonadicType (← read).doBlockResultType
-    unless ← withNewMCtxDepth <| isDefEq oldTy ty do
-      throwError "The expected type of the `do` block changed from {indentExpr oldTy}\nto{indentExpr ty}\n\
-        This can happen due to dependent pattern matching and is not supported by the `do` elaborator.\n\
-        Consider turning dependent pattern matches into non-dependent pattern matches by specifying\n\
-          match (motive := {oldTy}) ... with"
-  k
+  let some ty := ty? | return ← k
+  let (mi, resultType) ← extractMonadInfo ty
+  unless ← withNewMCtxDepth <| isDefEq (← read).monadInfo.m mi.m do
+    throwError "The expected type {ty} changes the monad from {(← read).monadInfo.m} to {mi.m}. This is not supported by the `do` elaborator."
+  let oldResultType := (← read).doBlockResultType
+  trace[Elab.do] "withRefinedExpectedType: monad: {(← read).monadInfo.m}, old result type: {oldResultType}, new result type: {resultType}"
+  trace[Elab.do] "Context: {(← mkFreshExprMVar resultType).mvarId!}"
+  if false && (← withNewMCtxDepth <| isDefEq oldResultType resultType) then
+    return ← k
+--  let returnCont ← getReturnCont
+--  let contResType := (← kabstract returnCont.resultType oldResultType).instantiate1 resultType
+--  trace[Elab.do] "contResType: {returnCont.resultType}"
+--  trace[Elab.do] "new contResType: {contResType}"
+--  let returnCont := { returnCont with resultType := contResType }
+--  let contInfo := { (← read).contInfo.toContInfo with returnCont }.toContInfoRef
+  trace[Elab.do] "actually withRefinedExpectedType: old result type: {oldResultType}, new result type: {resultType}"
+  withReader (fun ctx => { ctx with doBlockResultType := resultType }) k
+  -- withReader id k
 
 def doElabToSyntax (hint : MessageData) (doElab : DoElabM Expr) (k : Term → DoElabM α) (ref : Syntax := .missing) : DoElabM α :=
   controlAtTermElabM fun runInBase =>

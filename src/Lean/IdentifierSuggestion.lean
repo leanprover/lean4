@@ -19,34 +19,46 @@ set_option doc.verso true
 
 public abbrev NameMapExtension := PersistentEnvExtension (Name × Array Name) (Name × Array Name) (NameMap NameSet)
 
-builtin_initialize identifierSuggestionsImpl : NameMapExtension × NameMapExtension ←
-  -- This is mostly equivalent to a standard `ParametricAttribute` implementation
-  let existingToIncorrect : NameMapExtension ← registerPersistentEnvExtension {
-    name := `Lean.identifierSuggestForAttr.existingToIncorrect
-    mkInitial := pure {},
-    addImportedFn := fun _ => pure {},
-    addEntryFn := fun table (trueName, altNames) =>
-      table.alter trueName fun old =>
-        altNames.foldl (β := NameSet) (init := old.getD {}) fun accum altName =>
-          accum.insert altName
-    exportEntriesFn table :=
-      table.toArray.map (fun (trueName, altNames) =>(trueName, altNames.toArray))
-        |>.qsort (lt := fun a b => Name.quickLt a.1 b.1)
-  }
+/--
+Create the extension mapping from existing identifiers to the incorrect alternatives for which we
+want to provide suggestions. This is mostly equivalent to a {name}`MapDeclarationExtension` or the
+extensions underlying {name}`ParametricAttribute` attributes, but it differs in allowing
+{name}`suggest_for` attributes to be assigned in files other than the ones where they were defined.
+-/
+def mkExistingToIncorrect : IO NameMapExtension := registerPersistentEnvExtension {
+  name := `Lean.identifierSuggestForAttr.existingToIncorrect
+  mkInitial := pure {},
+  addImportedFn := fun _ => pure {},
+  addEntryFn := fun table (trueName, altNames) =>
+    table.alter trueName fun old =>
+      altNames.foldl (β := NameSet) (init := old.getD {}) fun accum altName =>
+        accum.insert altName
+  exportEntriesFn table :=
+    table.toArray.map (fun (trueName, altNames) =>(trueName, altNames.toArray))
+      |>.qsort (lt := fun a b => Name.quickLt a.1 b.1)
+}
 
-  -- This indexes information the opposite of the way a `ParametricAttribute` does
-  let incorrectToExisting : NameMapExtension ← registerPersistentEnvExtension {
-    name := `Lean.identifierSuggestForAttr.incorrectToExisting
-    mkInitial := pure {},
-    addImportedFn := fun _ => pure {},
-    addEntryFn := fun table (trueName, altNames) =>
-      altNames.foldl (init := table) fun accum altName =>
-        accum.alter altName fun old =>
-          old.getD {} |>.insert trueName
-    exportEntriesFn table :=
-      table.toArray.map (fun (altName, trueNames) => (altName, trueNames.toArray))
-        |>.qsort (lt := fun a b => Name.quickLt a.1 b.1)
-  }
+/--
+Create the extension mapping incorrect identifiers to the existing identifiers we want to suggest as
+replacements. This association is the opposite of the usual mapping for {name}`ParametricAttribute`
+attributes.
+-/
+def mkIncorrectToExisting : IO NameMapExtension := registerPersistentEnvExtension {
+  name := `Lean.identifierSuggestForAttr.incorrectToExisting
+  mkInitial := pure {},
+  addImportedFn := fun _ => pure {},
+  addEntryFn := fun table (trueName, altNames) =>
+    altNames.foldl (init := table) fun accum altName =>
+      accum.alter altName fun old =>
+        old.getD {} |>.insert trueName
+  exportEntriesFn table :=
+    table.toArray.map (fun (altName, trueNames) => (altName, trueNames.toArray))
+      |>.qsort (lt := fun a b => Name.quickLt a.1 b.1)
+}
+
+builtin_initialize identifierSuggestionsImpl : NameMapExtension × NameMapExtension ←
+  let existingToIncorrect ← mkExistingToIncorrect
+  let incorrectToExisting ← mkIncorrectToExisting
 
   registerBuiltinAttribute {
     name := `suggest_for,
@@ -70,7 +82,7 @@ builtin_initialize identifierSuggestionsImpl : NameMapExtension × NameMapExtens
 
 /--
 Given a name, find all the stored correct, existing identifiers that mention that name in a
-{lit}`suggest_for` annotation.
+{name}`suggest_for` annotation.
 -/
 public def getSuggestions [Monad m] [MonadEnv m] (incorrectName : Name) : m NameSet := do
   let env ← getEnv
@@ -98,7 +110,9 @@ public def getStoredSuggestions [Monad m] [MonadEnv m] (trueName : Name) : m Nam
 Throw an unknown constant error message, potentially suggesting alternatives using
 {name}`suggest_for` attributes. (Like {name}`throwUnknownConstantAt` but with suggestions.)
 
-The "Unknown constant `<id>`" message will fully qualify the name, whereas the
+The replacement will mimic the path structure of the original as much as possible if they share a
+path prefix: if there is a suggestion for replacing `Foo.Bar.jazz` with `Foo.Bar.baz`, then
+`Bar.jazz` will be replaced by `Bar.baz` unless the resulting constant is ambiguous.
 -/
 public def throwUnknownConstantWithSuggestions (constName : Name) (ref? : Option Syntax := .none) : CoreM α := do
   let suggestions := (← getSuggestions constName).toArray

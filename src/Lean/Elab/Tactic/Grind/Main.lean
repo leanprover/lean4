@@ -234,7 +234,7 @@ def elabGrindSimpTheorems (params : Grind.Params) : MetaM Grind.Params := do
           else
             .default false
         let thm ← Grind.mkEMatchTheoremForDecl declName kind symPrios
-        params := { params with ematch := params.ematch.insert thm }
+        params := { params with extra := params.extra.push thm }
       catch _ => pure () -- Silently skip theorems that fail
     | _ => pure () -- Skip non-declaration origins (fvars, etc.)
   return params

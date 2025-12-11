@@ -8,6 +8,8 @@ Note: Expected a function because this term is being applied to the argument
   String
 
 Hint: The identifier `Maybe` is unknown, and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly bound variable with an unknown type. However, the unknown type cannot be a function, and a function is what Lean expects here. This is often the result of a typo or a missing `import` or `open` statement.
+
+Perhaps you meant `Option` in place of `Maybe`?
 unknownCannotBeComplex.lean:5:10-5:27: error: Function expected at
   Result
 but this term has type
@@ -17,6 +19,8 @@ Note: Expected a function because this term is being applied to the argument
   String
 
 Hint: The identifier `Result` is unknown, and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly bound variable with an unknown type. However, the unknown type cannot be a function, and a function is what Lean expects here. This is often the result of a typo or a missing `import` or `open` statement.
+
+Perhaps you meant `Except` in place of `Result`?
 unknownCannotBeComplex.lean:6:10-6:29: error: Function expected at
   Nonsense
 but this term has type

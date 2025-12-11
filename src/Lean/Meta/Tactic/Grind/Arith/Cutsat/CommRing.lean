@@ -22,7 +22,7 @@ CommRing interface for cutsat. We use it to normalize nonlinear polynomials.
 /-- Returns `true` if `p` contains a nonlinear monomial. -/
 def _root_.Int.Linear.Poly.isNonlinear (p : Poly) : GoalM Bool := do
   let .add _ x p := p | return false
-  if (← getVar x).isAppOf ``HMul.hMul then return true
+  if (← getVar x).isAppOf ``HMul.hMul || (← getVar x).isAppOf ``HPow.hPow then return true
   p.isNonlinear
 
 def _root_.Int.Linear.Poly.getGeneration (p : Poly) : GoalM Nat := do

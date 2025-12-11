@@ -40,6 +40,8 @@ structure Params where
   extra       : PArray EMatchTheorem := {}
   extraInj    : PArray InjectiveTheorem := {}
   extraFacts  : PArray Expr := {}
+  /-- Syntax of params that went to `extraFacts`, for `grind?` suggestions. -/
+  extraFactsSyntax : Array Syntax := {}
   funCCs      : NameSet := {}
   norm        : Simp.Context
   normProcs   : Array Simprocs

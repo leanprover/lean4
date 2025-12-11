@@ -27,10 +27,11 @@ axiom special_7 : SpecialProperty 7
 set_library_suggestions (fun _ _ => pure #[{ name := `special_7, score := 1.0 }])
 
 -- Expected: try? should find grind only [special_7]
+-- Note: Ground theorems (0 parameters) are added as facts during initialization,
+-- not via E-matching, so there's no instantiate script.
 /--
-info: Try these:
+info: Try this:
   [apply] grind only [special_7]
-  [apply] grind => instantiate only [special_7]
 -/
 #guard_msgs in
 example : SpecialProperty 7 := by
@@ -78,11 +79,11 @@ set_library_suggestions (fun _ _ => pure #[
   { name := `prop2_5, score := 0.7 }
 ])
 
--- Expected: try? should use the best applicable one
+-- Note: Both ground theorems are included since we can't track which
+-- extraFacts were actually used. This is conservative but correct.
 /--
-info: Try these:
-  [apply] grind only [prop1_5]
-  [apply] grind => instantiate only [prop1_5]
+info: Try this:
+  [apply] grind only [prop1_5, prop2_5]
 -/
 #guard_msgs in
 example : Property1 5 := by

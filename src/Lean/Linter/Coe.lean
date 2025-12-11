@@ -33,7 +33,7 @@ def shouldWarnOnDeprecatedCoercions [Monad m] [MonadOptions m] : m Bool :=
   return (← getOptions).get linter.deprecatedCoercions.name true
 
 /-- A list of coercion names that must not be used in core. -/
-def coercionsBannedInCore : List Name := [``optionCoe, ``instCoeSubarrayArray]
+def coercionsBannedInCore : Array Name := #[``optionCoe, ``instCoeSubarrayArray]
 
 /-- Validates that no coercions are used that are either deprecated or are banned in core. -/
 def coeLinter : Linter where

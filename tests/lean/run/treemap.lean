@@ -603,7 +603,7 @@ local instance : Inhabited ((_ : Nat) × Nat) where
 /--
 info: ⟨2, 4⟩
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 #eval! t.entryAtIdx 1 sorry
@@ -611,7 +611,7 @@ warning: declaration uses 'sorry'
 /--
 info: (2, 4)
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 #eval! DTreeMap.Const.entryAtIdx t 1 sorry
@@ -659,7 +659,7 @@ warning: declaration uses 'sorry'
 /--
 info: 2
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 #eval! t.keyAtIdx 1 sorry
@@ -836,7 +836,7 @@ Cannot test `getEntryLT` etc. as of writing (2025-03-25) because
 /--
 info: ⟨1, 2⟩
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 #eval! t.minEntry sorry
@@ -844,7 +844,7 @@ warning: declaration uses 'sorry'
 /--
 info: (1, 2)
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 #eval! DTreeMap.Const.minEntry t sorry
@@ -892,7 +892,7 @@ warning: declaration uses 'sorry'
 /--
 info: ⟨3, 6⟩
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 #eval! t.maxEntry sorry
@@ -900,7 +900,7 @@ warning: declaration uses 'sorry'
 /--
 info: (3, 6)
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 #eval! DTreeMap.Const.maxEntry t sorry
@@ -1493,7 +1493,7 @@ local instance : Inhabited ((_ : Nat) × Nat) where
 /--
 info: (2, 4)
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 #eval! t.entryAtIdx 1 sorry
@@ -1521,7 +1521,7 @@ warning: declaration uses 'sorry'
 /--
 info: 2
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 #eval! t.keyAtIdx 1 sorry
@@ -1641,7 +1641,7 @@ warning: declaration uses 'sorry'
 /--
 info: (1, 2)
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 #eval! t.minEntry sorry
@@ -1673,7 +1673,7 @@ warning: declaration uses 'sorry'
 /--
 info: (3, 6)
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 #eval! t.maxEntry sorry
@@ -2011,7 +2011,7 @@ def t : TreeSet Nat :=
 /--
 info: 2
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 #eval! t.atIdx 1 sorry

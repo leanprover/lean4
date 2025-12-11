@@ -10,7 +10,7 @@ h₁ : n + 1 = n'
 h₂ : v.succ ≍ v'
 ⊢ p n' v'
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example (p : (n : Nat) → Fin n → Prop)

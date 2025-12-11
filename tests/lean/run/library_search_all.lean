@@ -33,7 +33,7 @@ info: Try these:
   [apply] exact myTrue1
   [apply] exact myTrue2
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example : MyTrue := by exact? +all
@@ -46,7 +46,7 @@ info: Try these:
   [apply] exact myTrue1
   [apply] exact myTrue2
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example : MyTrue := by apply? +all
@@ -65,7 +65,7 @@ info: Try these:
   [apply] exact h.elim
   [apply] exact h.elim2
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example {α : Sort u} (h : Empty) : α := by exact? +all

@@ -180,6 +180,10 @@ theorem mod_eq_of_lt {a b : Nat} (h : a < b) : a % b = a :=
   (mod_eq a b).symm ▸ this
 
 grind_pattern mod_eq_of_lt => a % b where
+  not_value a
+  guard a < b
+
+grind_pattern mod_eq_of_lt => a % b where
   not_value b
   guard a < b
 

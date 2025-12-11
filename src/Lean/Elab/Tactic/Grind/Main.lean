@@ -188,13 +188,7 @@ def elabGrindSuggestions
     match attr with
     | .ematch kind =>
       try
-        let oldSize := params.extraFacts.size
         params ← addEMatchTheorem params (mkIdent p.name) p.name kind false (warn := false)
-        -- If the theorem went to extraFacts (ground theorem), synthesize syntax for it.
-        -- Ground theorems bypass E-matching, so we need to track them separately for suggestions.
-        if params.extraFacts.size > oldSize then
-          let stx ← `(Parser.Tactic.grindParam| $(mkIdent p.name):ident)
-          params := { params with extraFactsSyntax := params.extraFactsSyntax.push stx.raw }
       catch _ => pure () -- Don't worry if library suggestions gave bad theorems.
     | _ =>
       -- We could actually support arbitrary grind modifiers,
@@ -341,12 +335,19 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
   let config := { config with clean := false, trace, verbose, useSorry }
   let only := only.isSome
   let paramStxs := if let some params := params? then params.getElems else #[]
+  -- Extract term parameters (non-ident params) to include in the suggestion.
+  -- These are not tracked via E-matching, so we conservatively include them all.
+  -- Ident params resolve to global declarations and are tracked via E-matching.
+  -- Non-ident terms (like `show P by tac`) need to be preserved explicitly.
+  let termParamStxs : Array Grind.TParam := paramStxs.filter fun p =>
+    match p with
+    | `(Parser.Tactic.grindParam| $[$_:grindMod]? $_:ident) => false
+    | `(Parser.Tactic.grindParam| ! $[$_:grindMod]? $_:ident) => false
+    | `(Parser.Tactic.grindParam| - $_:ident) => false
+    | `(Parser.Tactic.grindParam| #$_:hexnum) => false
+    | _ => true
   let mvarId ← getMainGoal
   let params ← mkGrindParams config only paramStxs mvarId
-  -- Extract syntax of params that went to `extraFacts` (ground theorems and term arguments).
-  -- These need to be included in `grind only` suggestions since they're not tracked via E-matching.
-  let termParamStxs : Array Grind.TParam := params.extraFactsSyntax.filterMap fun s =>
-    if s.isOfKind ``Parser.Tactic.grindParam then some ⟨s⟩ else none
   Grind.withProtectedMCtx config.abstractProof mvarId fun mvarId' => do
     let (tacs, _) ← Grind.GrindTacticM.runAtGoal mvarId' params do
       let finish ← Grind.Action.mkFinish

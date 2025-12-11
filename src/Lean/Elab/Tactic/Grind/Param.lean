@@ -67,21 +67,7 @@ public def addEMatchTheorem (params : Grind.Params) (id : Ident) (declName : Nam
         Grind.mkEMatchTheoremForDecl declName kind params.symPrios (minIndexable := minIndexable)
       if warn && params.ematch.containsWithSamePatterns thm.origin thm.patterns thm.cnstrs then
         warnRedundantEMatchArg params.ematch declName
-      if thm.numParams == 0 && kind matches .default _ then
-        /-
-        **Note**: ignores pattern and adds ground fact directly
-        Motivation:
-        ```
-        opaque π : Rat
-        axiom pi_pos : 0 < π
-        example : π = 0 → False := by
-          grind [pi_pos]
-
-        ```
-        -/
-        return { params with extraFacts := params.extraFacts.push thm.proof }
-      else
-        return { params with extra := params.extra.push thm }
+      return { params with extra := params.extra.push thm }
   | .defn =>
     if (← isReducible declName) then
       throwError "`{.ofConstName declName}` is a reducible definition, `grind` automatically unfolds them"
@@ -125,10 +111,7 @@ def processParam (params : Grind.Params)
     for thm in thms do
       params := { params with extra := params.extra.push thm }
   | .ematch kind =>
-    let oldSize := params.extraFacts.size
     params ← withRef p <| addEMatchTheorem params id declName kind minIndexable
-    if params.extraFacts.size > oldSize then
-      params := { params with extraFactsSyntax := params.extraFactsSyntax.push p.raw }
   | .cases eager =>
     if incremental then throwError "`cases` parameter are not supported here"
     ensureNoMinIndexable minIndexable
@@ -156,10 +139,7 @@ def processParam (params : Grind.Params)
           -- **Note**: We should not warn if `declName` is an inductive
           params ← withRef p <| addEMatchTheorem params id ctor (.default false) minIndexable (warn := False)
     else
-      let oldSize := params.extraFacts.size
       params ← withRef p <| addEMatchTheorem params id declName (.default false) minIndexable (suggest := true)
-      if params.extraFacts.size > oldSize then
-        params := { params with extraFactsSyntax := params.extraFactsSyntax.push p.raw }
   | .symbol prio =>
     ensureNoMinIndexable minIndexable
     params := { params with symPrios := params.symPrios.insert declName prio }
@@ -225,9 +205,7 @@ def processTermParam (params : Grind.Params)
       throwError "invalid `grind` parameter, modifier is redundant since the parameter type is not a `forall`{indentExpr type}"
     unless levelParams.isEmpty do
       throwError "invalid `grind` parameter, parameter type is not a `forall` and is universe polymorphic{indentExpr type}"
-    return { params with
-      extraFacts := params.extraFacts.push proof,
-      extraFactsSyntax := params.extraFactsSyntax.push p.raw }
+    return { params with extraFacts := params.extraFacts.push proof }
 
 /--
 Elaborates `grind` parameters.

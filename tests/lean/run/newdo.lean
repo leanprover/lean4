@@ -145,6 +145,7 @@ def logErrorNames (x : MetaM Unit) : MetaM Unit := do
   Core.setMessageLog newLog
 
 set_option trace.Elab.do true in
+set_option trace.Elab.step true in
 -- test case doLetElse
 example (x : Nat) : IO (Fin (x + 1)) := do
   let 2 := x | return 0
@@ -166,6 +167,76 @@ set_option trace.Elab.do true in
   catch e =>
     x := x + 1
   return ⟨3, by decide⟩
+
+set_option backward.do.legacy true in
+#eval Id.run do
+  let mut x := 0
+  let y <- do
+    let true := false | do x := x + 3; pure 0
+    x := x + 100
+    return "unreachable"
+  if x + y < 23 then pure "ok" else pure "wrong"
+
+set_option backward.do.legacy false in
+#eval Id.run do
+  let mut x := 0
+  let y <- do
+    let true := false | do x := x + 3; pure 0
+    x := x + 100
+    return "unreachable"
+  if x + y < 23 then pure "ok" else pure "wrong"
+
+set_option backward.do.legacy false in
+#check fun (x : Nat) => Id.run (α := String) do
+  let y : Nat <-
+    match x with
+    | 0 => pure 0
+    | 1 => pure 0
+    | _ => pure 0
+  return toString y
+
+set_option backward.do.legacy false in
+#check fun (x : Nat) => Id.run (α := Fin (x + 1)) do
+  let y : Fin x <-
+    match x with
+    | 0 => pure ⟨0, by grind⟩
+    | _ => pure ⟨0, by grind⟩
+  return ⟨↑y + 1, by grind⟩
+
+set_option backward.do.legacy true in
+#eval Id.run <| ExceptT.run (ε:=String) do
+  let res ←
+    let false := true | pure true
+    throw "error"
+    return 44
+  if res then pure 23 else return 33
+
+set_option backward.do.legacy false in
+#eval Id.run <| ExceptT.run (ε:=String) do
+  let res ←
+    let false := true | pure true
+    return 44
+  if res then pure 23 else return 33
+
+set_option trace.Elab.do true in
+set_option backward.do.legacy false in
+-- Test: Try/catch with let mut and match refinement
+#eval Id.run <| ExceptT.run (ε:=String) (α := Fin 17) do
+  let mut x : Fin 11 := 0
+  let res ← try
+    if true then
+      x := 10
+      pure (0 : Fin 1)
+      -- let 2 := x | pure (0 : Fin 1)
+      -- return ⟨x, by decide⟩
+    else
+      x := 5
+      pure (0 : Fin 1)
+  catch e =>
+    x := x + 1
+    pure (0 : Fin 1)
+  let y := ↑res + ↑x + 3
+  return ⟨y, by grind⟩
 end Blah
 
 set_option trace.Meta.synthInstance true in
@@ -1975,12 +2046,13 @@ trace: [Meta.Tactic.simp] [7]
 run_meta do
   foo 5
 
-set_option backward.do.legacy true in
+set_option backward.do.legacy false in
 def bar (n : Nat) : MetaM (List Nat) := doo
   let mut result : Foo n := ⟨[7], rfl⟩
   trace[Meta.Tactic.simp] "{result.l}"
   result := ⟨List.range n, rfl⟩
   trace[Meta.Tactic.simp] "{result.l}"
+  -- match (motive := ∀ _, MetaM (List Nat)) n with
   match n with
   | 0   => result := ⟨[10], rfl⟩
   | n+1 => result := ⟨[6], rfl⟩

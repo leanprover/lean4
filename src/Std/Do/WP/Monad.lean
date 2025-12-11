@@ -11,6 +11,8 @@ import all Std.Do.WP.Basic
 
 @[expose] public section
 
+set_option linter.missingDocs true
+
 /-!
 # Monad morphisms and weakest precondition interpretations
 
@@ -24,7 +26,12 @@ universe u v
 variable {m : Type u → Type v} {ps : PostShape.{u}}
 
 /--
-  A `WP` that is also a monad morphism, preserving `pure` and `bind`. (They all are.)
+A monad with weakest preconditions (`WP`) that is also a monad morphism, preserving `pure` and
+`bind`.
+
+In practice, `mvcgen` is not useful for reasoning about programs in a monad that is without a
+`WPMonad` instance. The specification lemmas for `Pure.pure` and `Bind.bind`, as well as those for
+operators like `Functor.map`, require that their monad have a `WPMonad` instance.
 -/
 class WPMonad (m : Type u → Type v) (ps : outParam PostShape.{u}) [Monad m]
   extends LawfulMonad m, WP m ps where

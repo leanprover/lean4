@@ -960,7 +960,6 @@ goto block_66;
 else
 {
 lean_object* x_87; lean_object* x_88; 
-lean_dec(x_75);
 lean_dec_ref(x_74);
 x_87 = lean_box(0);
 x_88 = l_Lake_ensureJob___redArg___lam__2(x_67, x_87, x_3, x_4, x_5, x_6, x_7, x_71);
@@ -1036,9 +1035,7 @@ x_36 = lean_array_get_size(x_35);
 x_37 = lean_nat_dec_lt(x_17, x_36);
 if (x_37 == 0)
 {
-lean_dec(x_36);
 lean_dec(x_34);
-lean_dec(x_17);
 lean_dec(x_1);
 return x_33;
 }
@@ -1428,7 +1425,6 @@ x_13 = lean_ctor_get(x_3, 2);
 x_14 = lean_string_utf8_byte_size(x_13);
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = lean_nat_dec_eq(x_14, x_15);
-lean_dec(x_14);
 if (x_16 == 0)
 {
 lean_object* x_17; 
@@ -1503,7 +1499,6 @@ x_8 = lean_ctor_get(x_2, 2);
 x_9 = lean_string_utf8_byte_size(x_8);
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = lean_nat_dec_eq(x_9, x_10);
-lean_dec(x_9);
 if (x_11 == 0)
 {
 lean_object* x_12; 

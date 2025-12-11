@@ -1545,7 +1545,6 @@ _start:
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_array_get_size(x_1);
 x_6 = lean_nat_dec_lt(x_3, x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; 
@@ -1803,7 +1802,6 @@ x_10 = lean_uint64_shift_right(x_8, x_9);
 x_11 = lean_uint64_xor(x_8, x_10);
 x_12 = lean_uint64_to_usize(x_11);
 x_13 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_14 = 1;
 x_15 = lean_usize_sub(x_13, x_14);
 x_16 = lean_usize_land(x_12, x_15);
@@ -8777,7 +8775,6 @@ x_104 = l_Lean_Compiler_LCNF_PassManager_run___closed__7;
 x_105 = lean_nat_dec_lt(x_102, x_103);
 if (x_105 == 0)
 {
-lean_dec(x_103);
 x_39 = x_100;
 x_40 = x_104;
 x_41 = lean_box(0);
@@ -8789,7 +8786,6 @@ uint8_t x_106;
 x_106 = lean_nat_dec_le(x_103, x_103);
 if (x_106 == 0)
 {
-lean_dec(x_103);
 x_39 = x_100;
 x_40 = x_104;
 x_41 = lean_box(0);
@@ -8799,7 +8795,6 @@ else
 {
 size_t x_107; lean_object* x_108; 
 x_107 = lean_usize_of_nat(x_103);
-lean_dec(x_103);
 lean_inc(x_5);
 lean_inc_ref(x_100);
 x_108 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_PassManager_run_spec__13___redArg(x_1, x_38, x_107, x_104, x_100, x_5);

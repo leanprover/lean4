@@ -669,7 +669,6 @@ x_218 = lean_array_get_size(x_216);
 x_219 = lean_nat_dec_lt(x_217, x_218);
 if (x_219 == 0)
 {
-lean_dec(x_218);
 lean_dec_ref(x_216);
 lean_dec(x_203);
 goto block_215;
@@ -678,7 +677,6 @@ else
 {
 if (x_219 == 0)
 {
-lean_dec(x_218);
 lean_dec_ref(x_216);
 lean_dec(x_203);
 goto block_215;
@@ -691,7 +689,6 @@ lean_inc_ref(x_220);
 lean_dec(x_203);
 x_221 = 0;
 x_222 = lean_usize_of_nat(x_218);
-lean_dec(x_218);
 x_223 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Meta_evalExprCore_spec__9(x_220, x_216, x_221, x_222);
 lean_dec_ref(x_216);
 lean_dec_ref(x_220);

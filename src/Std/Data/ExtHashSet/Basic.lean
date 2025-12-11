@@ -204,6 +204,19 @@ def union [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtHashSet α) : ExtHas
 
 instance [EquivBEq α] [LawfulHashable α] : Union (ExtHashSet α) := ⟨union⟩
 
+instance [EquivBEq α] [LawfulHashable α] : BEq (ExtHashSet α) where
+  beq m₁ m₂ := ExtDHashMap.Const.beq m₁.inner.inner m₂.inner.inner
+
+instance [EquivBEq α] [LawfulHashable α] : ReflBEq (ExtHashSet α) where
+  rfl := ExtDHashMap.Const.beq_of_eq _ _ rfl
+
+instance [LawfulBEq α] : LawfulBEq (ExtHashSet α) where
+  eq_of_beq {a} {b} hyp := by
+    have ⟨⟨_⟩⟩ := a
+    have ⟨⟨_⟩⟩ := b
+    simp only [mk.injEq, ExtHashMap.mk.injEq] at |- hyp
+    exact ExtDHashMap.Const.eq_of_beq _ _ hyp
+
 /--
 Computes the intersection of the given hash sets.
 

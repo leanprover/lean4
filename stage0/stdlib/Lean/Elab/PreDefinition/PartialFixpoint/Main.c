@@ -535,7 +535,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_3, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; 
@@ -790,11 +789,9 @@ lean_dec_ref(x_2);
 x_11 = lean_array_get_size(x_1);
 x_12 = lean_array_get_size(x_10);
 x_13 = lean_nat_dec_eq(x_11, x_12);
-lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
-lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
@@ -847,7 +844,6 @@ return x_24;
 }
 else
 {
-lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
@@ -6280,6 +6276,7 @@ x_69 = l_Lean_Exception_isInterrupt(x_68);
 if (x_69 == 0)
 {
 uint8_t x_70; 
+lean_inc(x_68);
 x_70 = l_Lean_Exception_isRuntime(x_68);
 x_35 = x_59;
 x_36 = x_60;
@@ -6939,7 +6936,6 @@ else
 lean_object* x_17; uint8_t x_18; 
 x_17 = lean_array_get_size(x_7);
 x_18 = lean_nat_dec_le(x_2, x_17);
-lean_dec(x_17);
 if (x_18 == 0)
 {
 lean_object* x_19; 
@@ -9607,7 +9603,6 @@ else
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_get_size(x_1);
 x_7 = lean_nat_dec_le(x_3, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 return x_4;
@@ -11864,9 +11859,7 @@ x_14 = lean_nat_dec_eq(x_11, x_13);
 if (x_14 == 0)
 {
 lean_object* x_50; lean_object* x_51; 
-lean_dec(x_13);
 lean_dec_ref(x_12);
-lean_dec(x_11);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_50 = l_Lean_Elab_partialFixpoint___closed__2;
@@ -11879,7 +11872,6 @@ uint8_t x_52;
 x_52 = lean_nat_dec_lt(x_10, x_13);
 if (x_52 == 0)
 {
-lean_dec(x_13);
 x_15 = x_3;
 x_16 = x_4;
 x_17 = x_5;
@@ -11893,7 +11885,6 @@ else
 {
 if (x_52 == 0)
 {
-lean_dec(x_13);
 x_15 = x_3;
 x_16 = x_4;
 x_17 = x_5;
@@ -11908,7 +11899,6 @@ else
 size_t x_53; size_t x_54; uint8_t x_55; 
 x_53 = 0;
 x_54 = lean_usize_of_nat(x_13);
-lean_dec(x_13);
 x_55 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_partialFixpoint_spec__35(x_12, x_53, x_54);
 if (x_55 == 0)
 {
@@ -11966,7 +11956,6 @@ else
 {
 lean_object* x_57; lean_object* x_58; 
 lean_dec_ref(x_12);
-lean_dec(x_11);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_57 = l_Lean_Elab_partialFixpoint___closed__4;
@@ -11989,7 +11978,6 @@ lean_inc_ref(x_17);
 lean_inc(x_16);
 lean_inc_ref(x_15);
 lean_inc_ref(x_22);
-lean_inc(x_11);
 x_23 = l_Array_mapFinIdxM_map___at___00Lean_Elab_partialFixpoint_spec__11___redArg(x_12, x_2, x_11, x_10, x_22, x_15, x_16, x_17, x_18, x_19, x_20);
 if (lean_obj_tag(x_23) == 0)
 {
@@ -12059,7 +12047,6 @@ lean_dec_ref(x_17);
 lean_dec(x_16);
 lean_dec_ref(x_15);
 lean_dec_ref(x_12);
-lean_dec(x_11);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_43 = !lean_is_exclusive(x_25);
@@ -12090,7 +12077,6 @@ lean_dec_ref(x_17);
 lean_dec(x_16);
 lean_dec_ref(x_15);
 lean_dec_ref(x_12);
-lean_dec(x_11);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_46 = !lean_is_exclusive(x_23);

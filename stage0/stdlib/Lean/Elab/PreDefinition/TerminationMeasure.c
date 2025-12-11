@@ -1069,14 +1069,12 @@ x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
-lean_dec(x_4);
 return x_5;
 }
 else
 {
 if (x_5 == 0)
 {
-lean_dec(x_4);
 return x_5;
 }
 else
@@ -1084,7 +1082,6 @@ else
 size_t x_6; size_t x_7; uint8_t x_8; 
 x_6 = 0;
 x_7 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_8 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Array_contains___at___00Lean_Elab_TerminationMeasure_elab_spec__2_spec__2(x_2, x_1, x_6, x_7);
 return x_8;
 }
@@ -1381,7 +1378,6 @@ block_40:
 lean_object* x_35; lean_object* x_36; lean_object* x_37; uint8_t x_38; lean_object* x_39; 
 x_35 = lean_array_get_size(x_3);
 x_36 = lean_nat_sub(x_4, x_35);
-lean_dec(x_35);
 if (lean_is_scalar(x_24)) {
  x_37 = lean_alloc_ctor(1, 1, 0);
 } else {
@@ -1390,7 +1386,7 @@ if (lean_is_scalar(x_24)) {
 }
 lean_ctor_set(x_37, 0, x_36);
 x_38 = 0;
-x_39 = l_Lean_Meta_forallBoundedTelescope___at___00Lean_Elab_TerminationMeasure_elab_spec__0___redArg(x_34, x_37, x_26, x_38, x_38, x_33, x_28, x_31, x_30, x_29, x_32);
+x_39 = l_Lean_Meta_forallBoundedTelescope___at___00Lean_Elab_TerminationMeasure_elab_spec__0___redArg(x_34, x_37, x_26, x_38, x_38, x_28, x_31, x_30, x_29, x_32, x_27);
 return x_39;
 }
 block_51:
@@ -1400,13 +1396,13 @@ if (lean_obj_tag(x_8) == 0)
 lean_object* x_48; lean_object* x_49; 
 x_48 = l_Lean_Elab_TerminationMeasure_elab___lam__1___closed__3;
 x_49 = l_panic___at___00Lean_Elab_TerminationMeasure_elab_spec__1(x_48);
-x_27 = lean_box(0);
-x_28 = x_42;
-x_29 = x_45;
-x_30 = x_44;
-x_31 = x_43;
-x_32 = x_46;
-x_33 = x_41;
+x_27 = x_46;
+x_28 = x_41;
+x_29 = x_44;
+x_30 = x_43;
+x_31 = x_42;
+x_32 = x_45;
+x_33 = lean_box(0);
 x_34 = x_49;
 goto block_40;
 }
@@ -1416,13 +1412,13 @@ lean_object* x_50;
 x_50 = lean_ctor_get(x_8, 0);
 lean_inc(x_50);
 lean_dec_ref(x_8);
-x_27 = lean_box(0);
-x_28 = x_42;
-x_29 = x_45;
-x_30 = x_44;
-x_31 = x_43;
-x_32 = x_46;
-x_33 = x_41;
+x_27 = x_46;
+x_28 = x_41;
+x_29 = x_44;
+x_30 = x_43;
+x_31 = x_42;
+x_32 = x_45;
+x_33 = lean_box(0);
 x_34 = x_50;
 goto block_40;
 }
@@ -1667,7 +1663,6 @@ x_34 = lean_nat_dec_lt(x_4, x_33);
 if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
-lean_dec(x_33);
 lean_dec(x_7);
 x_35 = lean_nat_sub(x_3, x_4);
 lean_dec(x_4);
@@ -2174,7 +2169,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_3, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; 

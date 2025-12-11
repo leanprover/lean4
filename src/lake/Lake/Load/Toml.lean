@@ -438,14 +438,16 @@ public def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
   | .ok table =>
     let .ok pkg errs := EStateM.run (s := #[]) do
       let origName ← stringToLegalOrSimpleName <$> table.tryDecode `name
-      let name := if cfg.pkgName.isAnonymous then origName else cfg.pkgName
-      let config ← @PackageConfig.decodeToml name origName table
-      let (targetDecls, targetDeclMap) ← decodeTargetDecls name table
+      let wsIdx := cfg.pkgIdx
+      let baseName := if cfg.pkgName.isAnonymous then origName else cfg.pkgName
+      let keyName := baseName.num wsIdx
+      let config ← @PackageConfig.decodeToml keyName origName table
+      let (targetDecls, targetDeclMap) ← decodeTargetDecls keyName table
       let defaultTargets ← table.tryDecodeD `defaultTargets #[]
       let defaultTargets := defaultTargets.map stringToLegalOrSimpleName
       let depConfigs ← table.tryDecodeD `require #[]
       return {
-        name, origName
+        wsIdx, baseName, keyName, origName
         dir := cfg.pkgDir
         relDir := cfg.relPkgDir
         configFile := cfg.configFile

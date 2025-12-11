@@ -274,7 +274,7 @@ Checks whether the Boolean predicate `p` returns `true` for any character in a s
 
 Short-circuits at the first character for which `p` returns `true`.
 -/
-@[inline] def any (s : Substring.Raw) (p : Char → Bool) : Bool :=
+@[inline, suggest_for Substring.Raw.some] def any (s : Substring.Raw) (p : Char → Bool) : Bool :=
   s.toSlice?.get!.any p
 
 /--
@@ -282,7 +282,7 @@ Checks whether the Boolean predicate `p` returns `true` for every character in a
 
 Short-circuits at the first character for which `p` returns `false`.
 -/
-@[inline] def all (s : Substring.Raw) (p : Char → Bool) : Bool :=
+@[inline, suggest_for Substring.Raw.every] def all (s : Substring.Raw) (p : Char → Bool) : Bool :=
   s.toSlice?.get!.all p
 
 @[export lean_substring_all]

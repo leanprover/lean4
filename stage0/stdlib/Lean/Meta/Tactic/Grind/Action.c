@@ -545,7 +545,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Action_done___redArg(lean_object* x_1
 _start:
 {
 uint8_t x_11; 
-x_11 = lean_ctor_get_uint8(x_1, sizeof(void*)*18);
+x_11 = lean_ctor_get_uint8(x_1, sizeof(void*)*19);
 if (x_11 == 0)
 {
 lean_object* x_12; 
@@ -930,10 +930,12 @@ if (x_37 == 0)
 {
 uint8_t x_38; 
 lean_inc(x_36);
+lean_inc(x_36);
 x_38 = l_Lean_Exception_isMaxHeartbeat(x_36);
 if (x_38 == 0)
 {
 uint8_t x_39; 
+lean_inc(x_36);
 x_39 = l_Lean_Exception_isMaxRecDepth(x_36);
 x_19 = x_35;
 x_20 = x_36;
@@ -1123,7 +1125,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Action_run___lam__0(lean_object* x_1,
 _start:
 {
 uint8_t x_10; 
-x_10 = lean_ctor_get_uint8(x_1, sizeof(void*)*18);
+x_10 = lean_ctor_get_uint8(x_1, sizeof(void*)*19);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -3597,7 +3599,7 @@ lean_dec_ref(x_4);
 x_22 = lean_ctor_get(x_17, 1);
 lean_inc(x_22);
 lean_dec(x_17);
-x_23 = lean_ctor_get_uint8(x_22, sizeof(void*)*18);
+x_23 = lean_ctor_get_uint8(x_22, sizeof(void*)*19);
 if (x_23 == 0)
 {
 lean_object* x_24; 
@@ -4100,7 +4102,6 @@ if (x_36 == 0)
 {
 uint8_t x_37; 
 x_37 = l_Lean_Exception_isRuntime(x_31);
-lean_dec(x_31);
 x_32 = x_37;
 goto block_35;
 }
@@ -4146,7 +4147,6 @@ if (x_44 == 0)
 {
 uint8_t x_45; 
 x_45 = l_Lean_Exception_isRuntime(x_38);
-lean_dec(x_38);
 x_40 = x_45;
 goto block_43;
 }
@@ -4325,7 +4325,6 @@ if (x_100 == 0)
 {
 uint8_t x_101; 
 x_101 = l_Lean_Exception_isRuntime(x_93);
-lean_dec(x_93);
 x_96 = x_101;
 goto block_99;
 }
@@ -4568,7 +4567,6 @@ if (x_173 == 0)
 {
 uint8_t x_174; 
 x_174 = l_Lean_Exception_isRuntime(x_166);
-lean_dec(x_166);
 x_169 = x_174;
 goto block_172;
 }
@@ -6293,7 +6291,7 @@ lean_object* x_32; uint8_t x_33;
 x_32 = lean_ctor_get(x_31, 0);
 lean_inc(x_32);
 lean_dec_ref(x_31);
-x_33 = lean_ctor_get_uint8(x_32, sizeof(void*)*18);
+x_33 = lean_ctor_get_uint8(x_32, sizeof(void*)*19);
 if (x_33 == 0)
 {
 lean_object* x_34; 
@@ -6746,7 +6744,7 @@ lean_object* x_89; uint8_t x_90;
 x_89 = lean_ctor_get(x_88, 0);
 lean_inc(x_89);
 lean_dec_ref(x_88);
-x_90 = lean_ctor_get_uint8(x_89, sizeof(void*)*18);
+x_90 = lean_ctor_get_uint8(x_89, sizeof(void*)*19);
 if (x_90 == 0)
 {
 lean_object* x_91; 

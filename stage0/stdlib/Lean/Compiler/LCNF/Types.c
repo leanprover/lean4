@@ -3673,7 +3673,6 @@ _start:
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_array_get_size(x_1);
 x_6 = lean_nat_dec_lt(x_3, x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; 
@@ -3956,7 +3955,6 @@ _start:
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_get_size(x_2);
 x_7 = lean_nat_dec_lt(x_4, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_dec(x_4);
@@ -3993,7 +3991,6 @@ x_6 = lean_array_get_size(x_4);
 x_7 = lean_nat_dec_lt(x_5, x_6);
 if (x_7 == 0)
 {
-lean_dec(x_6);
 lean_dec(x_1);
 return x_3;
 }
@@ -4003,7 +4000,6 @@ uint8_t x_8;
 x_8 = lean_nat_dec_le(x_6, x_6);
 if (x_8 == 0)
 {
-lean_dec(x_6);
 lean_dec(x_1);
 return x_3;
 }
@@ -4012,7 +4008,6 @@ else
 size_t x_9; size_t x_10; lean_object* x_11; 
 x_9 = 0;
 x_10 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_PersistentHashMap_foldl___at___00Lean_PersistentHashMap_toList___at___00Lean_Compiler_LCNF_toLCNFType_spec__4_spec__4_spec__4_spec__4_spec__4___redArg(x_1, x_4, x_9, x_10, x_3);
 return x_11;
 }
@@ -5467,6 +5462,7 @@ x_125 = l_Lean_Exception_isInterrupt(x_124);
 if (x_125 == 0)
 {
 uint8_t x_126; 
+lean_inc(x_124);
 x_126 = l_Lean_Exception_isRuntime(x_124);
 x_93 = lean_box(0);
 x_94 = x_124;
@@ -5928,6 +5924,7 @@ x_249 = l_Lean_Exception_isInterrupt(x_248);
 if (x_249 == 0)
 {
 uint8_t x_250; 
+lean_inc(x_248);
 x_250 = l_Lean_Exception_isRuntime(x_248);
 x_218 = lean_box(0);
 x_219 = x_248;
@@ -6091,7 +6088,6 @@ if (x_276 == 0)
 {
 uint8_t x_277; 
 x_277 = l_Lean_Exception_isRuntime(x_270);
-lean_dec(x_270);
 x_271 = x_277;
 goto block_275;
 }
@@ -6466,6 +6462,7 @@ x_386 = l_Lean_Exception_isInterrupt(x_385);
 if (x_386 == 0)
 {
 uint8_t x_387; 
+lean_inc(x_385);
 x_387 = l_Lean_Exception_isRuntime(x_385);
 x_355 = lean_box(0);
 x_356 = x_385;
@@ -6632,7 +6629,6 @@ if (x_412 == 0)
 {
 uint8_t x_413; 
 x_413 = l_Lean_Exception_isRuntime(x_407);
-lean_dec(x_407);
 x_408 = x_413;
 goto block_411;
 }
@@ -7419,7 +7415,6 @@ _start:
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_array_get_size(x_1);
 x_8 = lean_nat_dec_lt(x_2, x_7);
-lean_dec(x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; 

@@ -454,7 +454,6 @@ if (x_7 == 0)
 {
 lean_object* x_8; 
 lean_dec(x_6);
-lean_dec(x_4);
 lean_dec_ref(x_3);
 x_8 = lean_box(0);
 return x_8;
@@ -465,7 +464,6 @@ lean_object* x_9; lean_object* x_10; uint8_t x_11;
 x_9 = lean_unsigned_to_nat(2u);
 x_10 = lean_nat_sub(x_4, x_9);
 x_11 = lean_nat_dec_lt(x_10, x_4);
-lean_dec(x_4);
 if (x_11 == 0)
 {
 lean_object* x_12; 

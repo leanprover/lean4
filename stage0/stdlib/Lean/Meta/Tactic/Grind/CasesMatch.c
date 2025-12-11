@@ -1081,7 +1081,6 @@ lean_dec_ref(x_8);
 x_10 = lean_array_get_size(x_2);
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_dec_eq(x_10, x_11);
-lean_dec(x_10);
 if (x_12 == 0)
 {
 size_t x_13; size_t x_14; lean_object* x_15; 
@@ -1241,7 +1240,6 @@ x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_1, 1);
 x_8 = lean_array_get_size(x_6);
 x_9 = lean_nat_dec_lt(x_2, x_8);
-lean_dec(x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -1288,7 +1286,6 @@ lean_inc(x_19);
 lean_dec(x_1);
 x_21 = lean_array_get_size(x_19);
 x_22 = lean_nat_dec_lt(x_2, x_21);
-lean_dec(x_21);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; 
@@ -1356,7 +1353,6 @@ _start:
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_get_size(x_2);
 x_7 = lean_nat_dec_lt(x_4, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_dec(x_4);
@@ -1400,7 +1396,6 @@ x_10 = lean_usize_land(x_2, x_9);
 x_11 = lean_usize_to_nat(x_10);
 x_12 = lean_array_get_size(x_6);
 x_13 = lean_nat_dec_lt(x_11, x_12);
-lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_dec(x_11);
@@ -3582,7 +3577,6 @@ return x_18;
 else
 {
 lean_object* x_51; 
-lean_dec(x_30);
 lean_dec_ref(x_29);
 lean_free_object(x_20);
 lean_dec(x_23);
@@ -3655,7 +3649,6 @@ return x_18;
 else
 {
 lean_object* x_81; 
-lean_dec(x_59);
 lean_dec_ref(x_58);
 lean_dec(x_52);
 lean_dec(x_17);
@@ -3760,7 +3753,6 @@ x_107 = lean_nat_dec_le(x_105, x_106);
 if (x_107 == 0)
 {
 lean_object* x_108; 
-lean_dec(x_106);
 lean_dec(x_105);
 lean_dec(x_103);
 lean_dec(x_101);
@@ -4028,7 +4020,6 @@ x_183 = lean_nat_dec_le(x_181, x_182);
 if (x_183 == 0)
 {
 lean_object* x_184; lean_object* x_185; 
-lean_dec(x_182);
 lean_dec(x_181);
 lean_dec(x_179);
 lean_dec(x_177);
@@ -4333,7 +4324,6 @@ return x_265;
 else
 {
 lean_object* x_266; lean_object* x_267; 
-lean_dec(x_243);
 lean_dec_ref(x_242);
 lean_dec(x_236);
 lean_dec(x_235);
@@ -4442,7 +4432,6 @@ x_293 = lean_nat_dec_le(x_291, x_292);
 if (x_293 == 0)
 {
 lean_object* x_294; lean_object* x_295; 
-lean_dec(x_292);
 lean_dec(x_291);
 lean_dec(x_289);
 lean_dec(x_287);

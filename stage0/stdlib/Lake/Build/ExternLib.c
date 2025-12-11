@@ -915,7 +915,6 @@ x_48 = lean_array_get_size(x_1);
 x_49 = lean_nat_dec_lt(x_47, x_48);
 if (x_49 == 0)
 {
-lean_dec(x_48);
 x_18 = x_46;
 goto block_45;
 }
@@ -925,7 +924,6 @@ uint8_t x_50;
 x_50 = lean_nat_dec_le(x_48, x_48);
 if (x_50 == 0)
 {
-lean_dec(x_48);
 x_18 = x_46;
 goto block_45;
 }
@@ -934,7 +932,6 @@ else
 size_t x_51; size_t x_52; uint64_t x_53; 
 x_51 = 0;
 x_52 = lean_usize_of_nat(x_48);
-lean_dec(x_48);
 x_53 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_buildLeanSharedLibOfStatic_spec__2(x_1, x_51, x_52, x_46);
 x_18 = x_53;
 goto block_45;
@@ -1209,8 +1206,8 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_
 x_9 = lean_ctor_get(x_1, 0);
 x_10 = lean_ctor_get(x_1, 1);
 lean_inc(x_10);
-x_11 = lean_ctor_get(x_9, 0);
-x_12 = lean_ctor_get(x_9, 4);
+x_11 = lean_ctor_get(x_9, 2);
+x_12 = lean_ctor_get(x_9, 6);
 lean_inc_ref(x_12);
 x_13 = l_Lake_instDataKindFilePath;
 x_14 = l_Lake_ExternLib_staticFacet;
@@ -1490,7 +1487,6 @@ x_48 = l___private_Lake_Build_ExternLib_0__Lake_computeDynlibOfShared___lam__0__
 x_49 = lean_string_utf8_byte_size(x_10);
 x_50 = l___private_Lake_Build_ExternLib_0__Lake_computeDynlibOfShared___lam__0___closed__5;
 x_51 = lean_nat_dec_le(x_50, x_49);
-lean_dec(x_49);
 if (x_51 == 0)
 {
 x_12 = x_11;
@@ -1587,7 +1583,6 @@ lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean
 x_38 = lean_unsigned_to_nat(3u);
 x_39 = lean_unsigned_to_nat(0u);
 x_40 = lean_string_utf8_byte_size(x_10);
-lean_inc(x_40);
 lean_inc(x_10);
 x_41 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_41, 0, x_10);
@@ -1596,7 +1591,6 @@ lean_ctor_set(x_41, 2, x_40);
 x_42 = l_String_Slice_Pos_nextn(x_41, x_39, x_38);
 lean_dec_ref(x_41);
 x_43 = lean_string_utf8_extract(x_10, x_42, x_40);
-lean_dec(x_40);
 lean_dec(x_42);
 lean_dec(x_10);
 x_44 = l___private_Lake_Build_ExternLib_0__Lake_computeDynlibOfShared___lam__0___closed__3;
@@ -1797,7 +1791,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_
 x_9 = lean_ctor_get(x_1, 0);
 x_10 = lean_ctor_get(x_1, 1);
 lean_inc(x_10);
-x_11 = lean_ctor_get(x_9, 0);
+x_11 = lean_ctor_get(x_9, 2);
 x_12 = l_Lake_instDataKindDynlib;
 x_13 = l_Lake_ExternLib_sharedFacet;
 lean_inc(x_10);
@@ -2019,7 +2013,7 @@ _start:
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_9 = lean_ctor_get(x_1, 0);
 x_10 = lean_ctor_get(x_1, 1);
-x_11 = lean_ctor_get(x_9, 0);
+x_11 = lean_ctor_get(x_9, 2);
 x_12 = l_Lake_ExternLib_staticFacet;
 lean_inc(x_10);
 lean_inc(x_11);

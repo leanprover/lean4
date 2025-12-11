@@ -17,23 +17,35 @@ namespace Lean
 
 set_option doc.verso true
 
+public structure IdentSuggestion where
+  existingToIncorrect : NameMap NameSet := {}
+  incorrectToExisting : NameMap NameSet := {}
+deriving Inhabited
+
+def IdentSuggestion.add (table : IdentSuggestion) (trueName : Name) (altNames : Array Name) : IdentSuggestion :=
+  { existingToIncorrect :=
+      table.existingToIncorrect.alter trueName fun old =>
+        altNames.foldl (β := NameSet) (init := old.getD {}) fun accum altName =>
+          accum.insert altName
+    incorrectToExisting :=
+      altNames.foldl (init := table.incorrectToExisting) fun accum altName =>
+        accum.alter altName fun old =>
+          old.getD {} |>.insert trueName
+  }
 
 builtin_initialize identifierSuggestionForAttr : PersistentEnvExtension
-    (Name × Array Name) /- *Store* mappings from incorrect names to corrections (identifiers that exist) -/
-    (Name × Array Name) /- *Add* mappings from existing functions to possible incorrect namings -/
-    (NameMap NameSet) /- *Use* mapping from incorrect names to corrections (identifiers that exist) -/ ←
+    (Name × Array Name) /- Mapping from existing constant to potential incorrect alternative names -/
+    (Name × Array Name) /- Mapping from existing constant to potential incorrect alternative names -/
+    IdentSuggestion /- Two directional mapping between existing identifier and alternative incorrect mappings -/ ←
   let ext ← registerPersistentEnvExtension {
     mkInitial := pure {},
     addImportedFn := fun modules => pure <|
-      modules.foldl (init := {}) fun accum entries =>
-        entries.foldl (init := accum) fun accum (altName, trueNames) =>
-          accum.alter altName (fun old => trueNames.foldl (β := NameSet) (init := old.getD ∅) fun accum trueName =>
-            accum.insert trueName),
-    addEntryFn := fun table (trueName, altNames) =>
-      altNames.foldl (init := table) fun accum alt =>
-        accum.alter alt (·.getD {} |>.insert trueName)
-    exportEntriesFn table := table.toArray.map fun (altName, trueNames) =>
-      (altName, trueNames.toArray)
+      (modules.foldl (init := {}) fun accum entries =>
+        entries.foldl (init := accum) fun accum (trueName, altNames) =>
+          accum.add trueName altNames),
+    addEntryFn := fun table (trueName, altNames) => table.add trueName altNames
+    exportEntriesFn table := table.existingToIncorrect.toArray.map fun (trueName, altNames) =>
+      (trueName, altNames.toArray)
   }
 
   registerBuiltinAttribute {
@@ -47,16 +59,32 @@ builtin_initialize identifierSuggestionForAttr : PersistentEnvExtension
         | -- Attributes parsed _before the suggest_for notation is added
           .node _ ``Parser.Attr.simple #[.ident _ _ `suggest_for [], .node _ `null #[id]] => pure #[id]
         | _ => throwError "Invalid `[suggest_for]` attribute syntax {repr stx}"
+      if isPrivateName decl then
+        throwError "Cannot make suggestions for private names"
       modifyEnv (ext.addEntry · (decl, altSyntaxIds.map (·.getId)))
   }
 
   return ext
 
-public def getSuggestions [Monad m] [MonadEnv m] (fullName : Name) : m (Array Name) := do
+/--
+Given a name, find all the stored correct, existing identifiers that mention that name in a
+{lit}`suggest_for` annotation.
+-/
+public def getSuggestions [Monad m] [MonadEnv m] (incorrectName : Name) : m NameSet := do
   return identifierSuggestionForAttr.getState (← getEnv)
-    |>.find? fullName
+    |>.incorrectToExisting
+    |>.find? incorrectName
     |>.getD {}
-    |>.toArray
+
+/--
+Given a (presumably existing) identifier, find all the {lit}`suggest_for` annotations that were given
+for that identifier.
+-/
+public def getStoredSuggestions [Monad m] [MonadEnv m] (trueName : Name) : m NameSet := do
+  return identifierSuggestionForAttr.getState (← getEnv)
+    |>.existingToIncorrect
+    |>.find? trueName
+    |>.getD {}
 
 /--
 Throw an unknown constant error message, potentially suggesting alternatives using
@@ -64,15 +92,15 @@ Throw an unknown constant error message, potentially suggesting alternatives usi
 
 The "Unknown constant `<id>`" message will fully qualify the name, whereas the
 -/
-public def throwUnknownConstantWithSuggestions (constName : Name) : CoreM α := do
-  let suggestions ← getSuggestions constName
-  let ref ← getRef
+public def throwUnknownConstantWithSuggestions (constName : Name) (ref? : Option Syntax := .none) : CoreM α := do
+  let suggestions := (← getSuggestions constName).toArray
+  let ref := ref?.getD (← getRef)
   let hint ← if suggestions.size = 0 then
       pure MessageData.nil
     else
       -- Modify suggestions to have the same structure as the user-provided identifier, but only
       -- if that doesn't cause ambiguity.
-      let rawId := (← getRef).getId
+      let rawId := ref.getId
       let env ← getEnv
       let ns ← getCurrNamespace
       let openDecls ← getOpenDecls
@@ -86,12 +114,12 @@ public def throwUnknownConstantWithSuggestions (constName : Name) : CoreM α := 
               candidate
 
       let alternative := if h : suggestions.size = 1 then m!"`{.ofConstName suggestions[0]}`" else m!"one of these"
-      m!"Perhaps you meant {alternative} in place of `{.ofName rawId}`:".hint (suggestions.map fun suggestion =>
+      let inPlaceOfThis := if rawId.isAnonymous then .nil else m!" in place of `{.ofName rawId}`"
+      m!"Perhaps you meant {alternative}{inPlaceOfThis}:".hint (suggestions.map fun suggestion =>
         let modified := modifySuggestion suggestion
         {
           suggestion := s!"{modified}",
-          toCodeActionTitle? := .some (s!"Suggested replacement: {·}"),
-          diffGranularity := .all,
-          -- messageData? := .some m!"replace `{.ofName rawId}` with `{.ofName modified}`",
+          toCodeActionTitle? := .some (s!"Change to {·}"),
+          messageData? := .some m!"`{.ofConstName suggestion}`",
         }) ref
   throwUnknownIdentifierAt (declHint := constName) ref (m!"Unknown constant `{.ofConstName constName}`" ++ hint)

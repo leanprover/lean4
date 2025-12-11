@@ -1,3 +1,5 @@
+-- test suggest_for independently of any library annotations
+
 @[suggest_for String.test0 String.test1 String.test2]
 public def String.foo (x: String) := x.length + 1
 
@@ -23,7 +25,7 @@ error: Invalid field `test0`: The environment does not contain `String.test0`, s
 of type `String`
 
 Hint: Perhaps you meant `String.foo` in place of `String.test0`:
-  "abc".t̵e̵s̵t̵0̵f̲o̲o̲
+  .t̵e̵s̵t̵0̵f̲o̲o̲
 -/
 #guard_msgs in
 #check "abc".test0
@@ -32,10 +34,21 @@ Hint: Perhaps you meant `String.foo` in place of `String.test0`:
 error: Unknown constant `String.test0`
 
 Hint: Perhaps you meant `String.foo` in place of `String.test0`:
-  S̵t̵r̵i̵n̵g̵.̵t̵e̵s̵t̵0̵S̲t̲r̲i̲n̲g̲.̲f̲o̲o̲
+  [apply] `String.foo`
 -/
 #guard_msgs in
 #check String.test0
+
+/--
+error: Unknown constant `String.test0`
+
+Hint: Perhaps you meant `String.foo` in place of `String.test0`:
+  [apply] `String.foo`
+---
+info: fun x1 x2 x3 => sorry : (x1 : ?m.1) → (x2 : ?m.5 x1) → (x3 : ?m.6 x1 x2) → ?m.7 x1 x2 x3
+-/
+#guard_msgs in
+#check (String.test0 · · ·)
 
 -- Two suggested replacements: the bar replacement is for `test1`, which does not apply
 /--
@@ -44,8 +57,8 @@ error: Invalid field `test1`: The environment does not contain `String.test1`, s
 of type `String`
 
 Hint: Perhaps you meant one of these in place of `String.test1`:
-  [apply] `String.foo`: "abc".foo
-  [apply] `String.baz`: "abc".baz
+  [apply] `String.foo`
+  [apply] `String.baz`
 -/
 #guard_msgs in
 #check "abc".test1
@@ -54,8 +67,8 @@ Hint: Perhaps you meant one of these in place of `String.test1`:
 error: Unknown constant `String.test1`
 
 Hint: Perhaps you meant one of these in place of `String.test1`:
-  • S̵t̵r̵i̵n̵g̵.̵t̵e̵s̵t̵1̵S̲t̲r̲i̲n̲g̲.̲f̲o̲o̲
-  • S̵t̵r̵i̵n̵g̵.̵t̵e̵s̵t̵1̵S̲t̲r̲i̲n̲g̲.̲b̲a̲z̲
+  [apply] `String.foo`
+  [apply] `String.baz`
 -/
 #guard_msgs in
 #check String.test1
@@ -67,9 +80,9 @@ error: Invalid field `test2`: The environment does not contain `String.test2`, s
 of type `String`
 
 Hint: Perhaps you meant one of these in place of `String.test2`:
-  [apply] `String.foo`: "abc".foo
-  [apply] `String.baz`: "abc".baz
-  [apply] `String.bar`: "abc".bar
+  [apply] `String.foo`
+  [apply] `String.baz`
+  [apply] `String.bar`
 -/
 #guard_msgs in
 #check "abc".test2
@@ -79,11 +92,11 @@ Hint: Perhaps you meant one of these in place of `String.test2`:
 error: Unknown constant `String.test2`
 
 Hint: Perhaps you meant one of these in place of `String.test2`:
-  • S̵t̵r̵i̵n̵g̵.̵t̵e̵s̵t̵2̵o̲t̲h̲e̲r̲B̲a̲z̲
-  • S̵t̵r̵i̵n̵g̵.̵t̵e̵s̵t̵2̵S̲t̲r̲i̲n̲g̲.̲f̲o̲o̲
-  • S̵t̵r̵i̵n̵g̵.̵t̵e̵s̵t̵2̵o̲t̲h̲e̲r̲F̲o̲o̲
-  • S̵t̵r̵i̵n̵g̵.̵t̵e̵s̵t̵2̵S̲t̲r̲i̲n̲g̲.̲b̲a̲z̲
-  • S̵t̵r̵i̵n̵g̵.̵t̵e̵s̵t̵2̵S̲t̲r̲i̲n̲g̲.̲b̲a̲r̲
+  [apply] `otherBaz`
+  [apply] `String.foo`
+  [apply] `otherFoo`
+  [apply] `String.baz`
+  [apply] `String.bar`
 -/
 #guard_msgs in
 #check String.test2
@@ -119,7 +132,7 @@ error: Invalid field `toNum`: The environment does not contain `Foo.Bar.toNum`, 
 of type `Foo.Bar`
 
 Hint: Perhaps you meant `Foo.Bar.toNat` in place of `Foo.Bar.toNum`:
-  Foo.Bar.three.t̵o̵N̵u̵m̵t̲o̲N̲a̲t̲
+  .t̵o̵N̵u̵m̵t̲o̲N̲a̲t̲
 -/
 #guard_msgs in
 #eval Foo.Bar.three.toNum
@@ -130,7 +143,7 @@ error: Invalid field `toStr`: The environment does not contain `Foo.Bar.toStr`, 
 of type `Foo.Bar`
 
 Hint: Perhaps you meant `Foo.Bar.toString` in place of `Foo.Bar.toStr`:
-  Foo.Bar.two.t̵o̵S̵t̵r̵t̲o̲S̲t̲r̲i̲n̲g̲
+  .t̵o̵S̵t̵r̵t̲o̲S̲t̲r̲i̲n̲g̲
 -/
 #guard_msgs in
 #eval Foo.Bar.two.toStr
@@ -141,7 +154,7 @@ Hint: Perhaps you meant `Foo.Bar.toString` in place of `Foo.Bar.toStr`:
 error: Unknown constant `Foo.Bar.first`
 
 Hint: Perhaps you meant `Foo.Bar.one` in place of `Foo.Bar.first`:
-  F̵o̵o̵.̵B̵a̵r̵.̵f̵i̵r̵s̵t̵F̲o̲o̲.̲B̲a̲r̲.̲o̲n̲e̲
+  [apply] `Foo.Bar.one`
 -/
 #guard_msgs in
 #check Foo.Bar.first
@@ -161,7 +174,7 @@ namespace Foo
 error: Unknown constant `Foo.Bar.first`
 
 Hint: Perhaps you meant `Bar.one` in place of `Foo.Bar.first`:
-  F̵o̵o̵.̵B̵a̵r̵.̵f̵i̵r̵s̵t̵F̲o̲o̲.̲B̲a̲r̲.̲o̲n̲e̲
+  [apply] `Bar.one`
 -/
 #guard_msgs in
 #check Foo.Bar.first
@@ -170,7 +183,7 @@ Hint: Perhaps you meant `Bar.one` in place of `Foo.Bar.first`:
 error: Unknown constant `Foo.Bar.second`
 
 Hint: Perhaps you meant `Bar.two` in place of `Bar.second`:
-  B̵a̵r̵.̵s̵e̵c̵o̵n̵d̵B̲a̲r̲.̲t̲w̲o̲
+  [apply] `Bar.two`
 -/
 #guard_msgs in
 #check Bar.second
@@ -187,7 +200,7 @@ namespace Foo.Bar
 error: Unknown constant `Foo.Bar.first`
 
 Hint: Perhaps you meant `one` in place of `Foo.Bar.first`:
-  F̵o̵o̵.̵B̵a̵r̵.̵f̵i̵r̵s̵t̵F̲o̲o̲.̲B̲a̲r̲.̲o̲n̲e̲
+  [apply] `one`
 -/
 #guard_msgs in
 #check Foo.Bar.first
@@ -196,7 +209,7 @@ Hint: Perhaps you meant `one` in place of `Foo.Bar.first`:
 error: Unknown constant `Foo.Bar.second`
 
 Hint: Perhaps you meant `two` in place of `Bar.second`:
-  B̵a̵r̵.̵s̵e̵c̵o̵n̵d̵B̲a̲r̲.̲t̲w̲o̲
+  [apply] `two`
 -/
 #guard_msgs in
 #check Bar.second
@@ -223,12 +236,12 @@ error: overloaded, errors ⏎
   Unknown constant `Foo2.Bar.first`
   ⏎
   Hint: Perhaps you meant `Foo2.Bar.one` in place of `Bar.first`:
-    B̵a̵r̵.̵f̵i̵r̵s̵t̵F̲o̲o̲2̲.̲B̲a̲r̲.̲o̲n̲e̲
+    [apply] `Foo2.Bar.one`
   ⏎
   Unknown constant `Foo.Bar.first`
   ⏎
   Hint: Perhaps you meant `Foo.Bar.one` in place of `Bar.first`:
-    B̵a̵r̵.̵f̵i̵r̵s̵t̵F̲o̲o̲.̲B̲a̲r̲.̲o̲n̲e̲
+    [apply] `Foo.Bar.one`
 -/
 #guard_msgs in
 #eval Bar.first
@@ -242,7 +255,7 @@ open Foo2
 error: Unknown constant `Foo.Bar.first`
 
 Hint: Perhaps you meant `Bar.one` in place of `Bar.first`:
-  B̵a̵r̵.̵f̵i̵r̵s̵t̵B̲a̲r̲.̲o̲n̲e̲
+  [apply] `Bar.one`
 -/
 #guard_msgs in
 #eval Bar.first
@@ -263,7 +276,7 @@ def MyBool.swap : MyBool → MyBool
 error: Unknown constant `MyBool.true`
 
 Hint: Perhaps you meant `MyBool.tt` in place of `MyBool.true`:
-  M̵y̵B̵o̵o̵l̵.̵t̵r̵u̵e̵M̲y̲B̲o̲o̲l̲.̲t̲t̲
+  [apply] `MyBool.tt`
 -/
 #guard_msgs in
 example := MyBool.true
@@ -274,7 +287,35 @@ error: Invalid field `not`: The environment does not contain `MyBool.not`, so it
 of type `MyBool`
 
 Hint: Perhaps you meant `MyBool.swap` in place of `MyBool.not`:
-  MyBool.tt.n̵o̵t̵s̲w̲a̲p̲
+  .n̵o̵t̵s̲w̲a̲p̲
 -/
 #guard_msgs in
 example := MyBool.tt.not
+
+/--
+error: Invalid field `not`: The environment does not contain `MyBool.not`, so it is not possible to project the field `not` from an expression
+  (fun x => if x < 3 then MyBool.tt else MyBool.ff) 4
+of type `MyBool`
+
+Hint: Perhaps you meant `MyBool.swap` in place of `MyBool.not`:
+  .n̵o̵t̵s̲w̲a̲p̲
+-/
+#guard_msgs in
+example := ((fun x => if x < 3 then MyBool.tt else .ff) 4).not
+
+
+@[suggest_for MyBool.not]
+def MyBool.justFalse : MyBool → MyBool
+  | _ => ff
+
+/--
+error: Invalid field `not`: The environment does not contain `MyBool.not`, so it is not possible to project the field `not` from an expression
+  (fun x => if x < 3 then MyBool.tt else MyBool.ff) 4
+of type `MyBool`
+
+Hint: Perhaps you meant one of these in place of `MyBool.not`:
+  [apply] `MyBool.justFalse`
+  [apply] `MyBool.swap`
+-/
+#guard_msgs in
+example := ((fun x => if x < 3 then MyBool.tt else .ff) 4).not

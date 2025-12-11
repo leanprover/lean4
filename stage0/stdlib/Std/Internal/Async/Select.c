@@ -635,7 +635,6 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_4 = lean_array_get_size(x_1);
 x_5 = lean_unsigned_to_nat(1u);
 x_6 = lean_nat_sub(x_4, x_5);
-lean_dec(x_4);
 x_7 = lean_nat_dec_lt(x_3, x_6);
 if (x_7 == 0)
 {

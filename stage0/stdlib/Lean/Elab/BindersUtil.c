@@ -265,7 +265,6 @@ x_4 = l_Lean_Syntax_getSepArgs(x_3);
 lean_dec(x_3);
 x_5 = lean_array_get_size(x_4);
 x_6 = lean_nat_dec_le(x_5, x_2);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 size_t x_7; size_t x_8; lean_object* x_9; 
@@ -492,7 +491,6 @@ x_17 = lean_array_get_size(x_14);
 x_18 = lean_nat_dec_lt(x_16, x_17);
 if (x_18 == 0)
 {
-lean_dec(x_17);
 lean_dec_ref(x_14);
 x_5 = x_15;
 goto block_12;
@@ -503,7 +501,6 @@ uint8_t x_19;
 x_19 = lean_nat_dec_le(x_17, x_17);
 if (x_19 == 0)
 {
-lean_dec(x_17);
 lean_dec_ref(x_14);
 x_5 = x_15;
 goto block_12;
@@ -517,7 +514,6 @@ lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_15);
 x_22 = 0;
 x_23 = lean_usize_of_nat(x_17);
-lean_dec(x_17);
 x_24 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Term_shouldExpandMatchAlt_spec__1(x_3, x_14, x_22, x_23, x_21);
 lean_dec_ref(x_14);
 x_25 = lean_ctor_get(x_24, 1);
@@ -539,7 +535,6 @@ lean_dec(x_8);
 x_10 = lean_array_get_size(x_9);
 lean_dec(x_9);
 x_11 = lean_nat_dec_lt(x_4, x_10);
-lean_dec(x_10);
 return x_11;
 }
 }
@@ -808,7 +803,6 @@ x_82 = lean_array_get_size(x_81);
 x_83 = lean_nat_dec_lt(x_69, x_82);
 if (x_83 == 0)
 {
-lean_dec(x_82);
 lean_dec_ref(x_81);
 lean_dec(x_71);
 lean_dec(x_70);
@@ -820,7 +814,6 @@ else
 {
 if (x_83 == 0)
 {
-lean_dec(x_82);
 lean_dec_ref(x_81);
 lean_dec(x_71);
 lean_dec(x_70);
@@ -836,7 +829,6 @@ x_85 = lean_usize_of_nat(x_82);
 x_86 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Term_expandMatchAlts_x3f_spec__0(x_81, x_84, x_85);
 if (x_86 == 0)
 {
-lean_dec(x_82);
 lean_dec_ref(x_81);
 lean_dec(x_71);
 lean_dec(x_70);
@@ -855,7 +847,6 @@ lean_dec(x_88);
 x_90 = l_Lean_Elab_Term_expandMatchAlts_x3f___closed__6;
 if (x_83 == 0)
 {
-lean_dec(x_82);
 lean_dec_ref(x_81);
 x_49 = x_71;
 x_50 = x_72;
@@ -870,7 +861,6 @@ else
 {
 uint8_t x_91; 
 x_91 = lean_nat_dec_le(x_82, x_82);
-lean_dec(x_82);
 if (x_91 == 0)
 {
 lean_dec_ref(x_81);
@@ -1273,7 +1263,6 @@ x_5 = lean_ctor_get(x_1, 2);
 x_6 = lean_unsigned_to_nat(3u);
 x_7 = lean_array_get_size(x_5);
 x_8 = lean_nat_dec_lt(x_6, x_7);
-lean_dec(x_7);
 if (x_8 == 0)
 {
 return x_1;

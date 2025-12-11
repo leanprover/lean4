@@ -1278,7 +1278,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_2, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_dec(x_2);
@@ -1412,7 +1411,6 @@ x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_1, 1);
 x_8 = lean_array_get_size(x_6);
 x_9 = lean_nat_dec_lt(x_2, x_8);
-lean_dec(x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -1459,7 +1457,6 @@ lean_inc(x_19);
 lean_dec(x_1);
 x_21 = lean_array_get_size(x_19);
 x_22 = lean_nat_dec_lt(x_2, x_21);
-lean_dec(x_21);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; 
@@ -1527,7 +1524,6 @@ _start:
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_get_size(x_2);
 x_7 = lean_nat_dec_lt(x_4, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_dec(x_4);
@@ -1571,7 +1567,6 @@ x_10 = lean_usize_land(x_2, x_9);
 x_11 = lean_usize_to_nat(x_10);
 x_12 = lean_array_get_size(x_6);
 x_13 = lean_nat_dec_lt(x_11, x_12);
-lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_dec(x_11);
@@ -2869,7 +2864,6 @@ _start:
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_array_get_size(x_1);
 x_6 = lean_nat_dec_lt(x_3, x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; 
@@ -9838,7 +9832,6 @@ _start:
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_get_size(x_2);
 x_7 = lean_nat_dec_lt(x_4, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_dec(x_4);
@@ -9875,7 +9868,6 @@ x_6 = lean_array_get_size(x_4);
 x_7 = lean_nat_dec_lt(x_5, x_6);
 if (x_7 == 0)
 {
-lean_dec(x_6);
 lean_dec(x_1);
 return x_3;
 }
@@ -9885,7 +9877,6 @@ uint8_t x_8;
 x_8 = lean_nat_dec_le(x_6, x_6);
 if (x_8 == 0)
 {
-lean_dec(x_6);
 lean_dec(x_1);
 return x_3;
 }
@@ -9894,7 +9885,6 @@ else
 size_t x_9; size_t x_10; lean_object* x_11; 
 x_9 = 0;
 x_10 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_PersistentHashMap_foldl___at___00Lean_Parser_getSyntaxNodeKinds_spec__0_spec__0_spec__0_spec__0___redArg(x_1, x_4, x_9, x_10, x_3);
 return x_11;
 }
@@ -10488,7 +10478,6 @@ return x_10;
 else
 {
 lean_object* x_11; 
-lean_dec(x_8);
 x_11 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_11, 0, x_7);
 lean_ctor_set(x_11, 1, x_2);
@@ -12704,7 +12693,6 @@ _start:
 lean_object* x_9; uint8_t x_10; 
 x_9 = lean_array_get_size(x_2);
 x_10 = lean_nat_dec_lt(x_4, x_9);
-lean_dec(x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; 
@@ -12767,7 +12755,6 @@ x_10 = lean_array_get_size(x_8);
 x_11 = lean_nat_dec_lt(x_9, x_10);
 if (x_11 == 0)
 {
-lean_dec(x_10);
 lean_dec_ref(x_8);
 lean_dec(x_5);
 lean_dec_ref(x_4);
@@ -12781,7 +12768,6 @@ uint8_t x_12;
 x_12 = lean_nat_dec_le(x_10, x_10);
 if (x_12 == 0)
 {
-lean_dec(x_10);
 lean_dec_ref(x_8);
 lean_dec(x_5);
 lean_dec_ref(x_4);
@@ -12795,7 +12781,6 @@ size_t x_13; size_t x_14; lean_object* x_15;
 lean_free_object(x_2);
 x_13 = 0;
 x_14 = lean_usize_of_nat(x_10);
-lean_dec(x_10);
 x_15 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_PersistentHashMap_forM___at___00__private_Lean_Parser_Extension_0__Lean_Parser_ParserAttribute_add_spec__1_spec__1_spec__1_spec__1___redArg(x_1, x_8, x_13, x_14, x_3, x_4, x_5);
 lean_dec_ref(x_8);
 return x_15;
@@ -12814,7 +12799,6 @@ x_19 = lean_nat_dec_lt(x_17, x_18);
 if (x_19 == 0)
 {
 lean_object* x_20; 
-lean_dec(x_18);
 lean_dec_ref(x_16);
 lean_dec(x_5);
 lean_dec_ref(x_4);
@@ -12830,7 +12814,6 @@ x_21 = lean_nat_dec_le(x_18, x_18);
 if (x_21 == 0)
 {
 lean_object* x_22; 
-lean_dec(x_18);
 lean_dec_ref(x_16);
 lean_dec(x_5);
 lean_dec_ref(x_4);
@@ -12844,7 +12827,6 @@ else
 size_t x_23; size_t x_24; lean_object* x_25; 
 x_23 = 0;
 x_24 = lean_usize_of_nat(x_18);
-lean_dec(x_18);
 x_25 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentHashMap_foldlMAux___at___00Lean_PersistentHashMap_foldlM___at___00Lean_PersistentHashMap_forM___at___00__private_Lean_Parser_Extension_0__Lean_Parser_ParserAttribute_add_spec__1_spec__1_spec__1_spec__1___redArg(x_1, x_16, x_23, x_24, x_3, x_4, x_5);
 lean_dec_ref(x_16);
 return x_25;
@@ -13014,6 +12996,7 @@ x_36 = l_Lean_Exception_isInterrupt(x_16);
 if (x_36 == 0)
 {
 uint8_t x_37; 
+lean_inc(x_16);
 x_37 = l_Lean_Exception_isRuntime(x_16);
 x_17 = x_37;
 goto block_35;
@@ -14568,7 +14551,6 @@ x_29 = lean_array_get_size(x_2);
 x_30 = lean_nat_dec_lt(x_28, x_29);
 if (x_30 == 0)
 {
-lean_dec(x_29);
 x_5 = x_4;
 goto block_27;
 }
@@ -14578,7 +14560,6 @@ uint8_t x_31;
 x_31 = lean_nat_dec_le(x_29, x_29);
 if (x_31 == 0)
 {
-lean_dec(x_29);
 x_5 = x_4;
 goto block_27;
 }
@@ -14587,7 +14568,6 @@ else
 size_t x_32; size_t x_33; lean_object* x_34; 
 x_32 = 0;
 x_33 = lean_usize_of_nat(x_29);
-lean_dec(x_29);
 x_34 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Parser_Extension_0__Lean_Parser_withNamespaces_spec__1(x_3, x_2, x_32, x_33, x_4);
 x_5 = x_34;
 goto block_27;

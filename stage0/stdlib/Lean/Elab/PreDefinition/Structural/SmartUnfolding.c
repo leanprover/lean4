@@ -2281,7 +2281,6 @@ return x_18;
 else
 {
 lean_object* x_51; 
-lean_dec(x_30);
 lean_dec_ref(x_29);
 lean_free_object(x_20);
 lean_dec(x_23);
@@ -2354,7 +2353,6 @@ return x_18;
 else
 {
 lean_object* x_81; 
-lean_dec(x_59);
 lean_dec_ref(x_58);
 lean_dec(x_52);
 lean_dec(x_17);
@@ -2459,7 +2457,6 @@ x_107 = lean_nat_dec_le(x_105, x_106);
 if (x_107 == 0)
 {
 lean_object* x_108; 
-lean_dec(x_106);
 lean_dec(x_105);
 lean_dec(x_103);
 lean_dec(x_101);
@@ -2727,7 +2724,6 @@ x_183 = lean_nat_dec_le(x_181, x_182);
 if (x_183 == 0)
 {
 lean_object* x_184; lean_object* x_185; 
-lean_dec(x_182);
 lean_dec(x_181);
 lean_dec(x_179);
 lean_dec(x_177);
@@ -3032,7 +3028,6 @@ return x_265;
 else
 {
 lean_object* x_266; lean_object* x_267; 
-lean_dec(x_243);
 lean_dec_ref(x_242);
 lean_dec(x_236);
 lean_dec(x_235);
@@ -3141,7 +3136,6 @@ x_293 = lean_nat_dec_le(x_291, x_292);
 if (x_293 == 0)
 {
 lean_object* x_294; lean_object* x_295; 
-lean_dec(x_292);
 lean_dec(x_291);
 lean_dec(x_289);
 lean_dec(x_287);
@@ -3572,7 +3566,6 @@ _start:
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_33; lean_object* x_38; uint8_t x_39; 
 x_38 = lean_array_get_size(x_9);
 x_39 = lean_nat_dec_eq(x_38, x_6);
-lean_dec(x_38);
 if (x_39 == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; uint8_t x_48; 

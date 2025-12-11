@@ -371,7 +371,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_string_utf8_byte_size(x_1);
 x_5 = lean_nat_dec_lt(x_3, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
@@ -443,7 +442,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_byte_array_size(x_2);
 x_5 = lean_nat_dec_lt(x_3, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; 
@@ -489,7 +487,6 @@ lean_object* x_6; lean_object* x_7; uint8_t x_8;
 x_6 = lean_ctor_get(x_4, 0);
 x_7 = lean_string_utf8_byte_size(x_1);
 x_8 = lean_nat_dec_lt(x_3, x_7);
-lean_dec(x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; 
@@ -525,7 +522,6 @@ lean_inc(x_16);
 lean_dec(x_4);
 x_17 = lean_string_utf8_byte_size(x_1);
 x_18 = lean_nat_dec_lt(x_3, x_17);
-lean_dec(x_17);
 if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; 
@@ -566,7 +562,6 @@ x_29 = lean_ctor_get_uint8(x_4, sizeof(void*)*2);
 x_30 = lean_ctor_get(x_4, 1);
 x_31 = lean_string_utf8_byte_size(x_1);
 x_32 = lean_nat_dec_lt(x_3, x_31);
-lean_dec(x_31);
 if (x_32 == 0)
 {
 lean_object* x_33; lean_object* x_34; 
@@ -628,7 +623,6 @@ lean_inc(x_52);
 lean_dec(x_4);
 x_55 = lean_string_utf8_byte_size(x_1);
 x_56 = lean_nat_dec_lt(x_3, x_55);
-lean_dec(x_55);
 if (x_56 == 0)
 {
 lean_object* x_57; lean_object* x_58; lean_object* x_59; 
@@ -693,7 +687,6 @@ x_79 = lean_ctor_get(x_4, 1);
 x_80 = lean_ctor_get(x_4, 2);
 x_81 = lean_string_utf8_byte_size(x_1);
 x_82 = lean_nat_dec_lt(x_3, x_81);
-lean_dec(x_81);
 if (x_82 == 0)
 {
 uint8_t x_83; 
@@ -789,7 +782,6 @@ lean_inc(x_110);
 lean_dec_ref(x_94);
 x_111 = lean_array_get_size(x_80);
 x_112 = lean_nat_dec_lt(x_110, x_111);
-lean_dec(x_111);
 if (x_112 == 0)
 {
 lean_dec(x_110);
@@ -987,7 +979,6 @@ lean_inc(x_4);
 lean_dec_ref(x_3);
 x_5 = lean_string_utf8_byte_size(x_1);
 x_6 = lean_nat_dec_lt(x_2, x_5);
-lean_dec(x_5);
 lean_dec(x_2);
 if (x_6 == 0)
 {
@@ -1012,7 +1003,6 @@ lean_inc_ref(x_10);
 lean_dec_ref(x_3);
 x_11 = lean_string_utf8_byte_size(x_1);
 x_12 = lean_nat_dec_lt(x_2, x_11);
-lean_dec(x_11);
 if (x_12 == 0)
 {
 lean_dec_ref(x_10);
@@ -1058,7 +1048,6 @@ lean_inc_ref(x_21);
 lean_dec_ref(x_3);
 x_22 = lean_string_utf8_byte_size(x_1);
 x_23 = lean_nat_dec_lt(x_2, x_22);
-lean_dec(x_22);
 if (x_23 == 0)
 {
 lean_dec_ref(x_21);
@@ -1263,7 +1252,6 @@ x_23 = lean_nat_dec_lt(x_20, x_21);
 if (x_23 == 0)
 {
 lean_object* x_24; 
-lean_dec(x_21);
 lean_dec_ref(x_18);
 x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_22);
@@ -1277,7 +1265,6 @@ x_25 = lean_nat_dec_le(x_21, x_21);
 if (x_25 == 0)
 {
 lean_object* x_26; 
-lean_dec(x_21);
 lean_dec_ref(x_18);
 x_26 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_26, 0, x_22);
@@ -1289,7 +1276,6 @@ else
 size_t x_27; size_t x_28; lean_object* x_29; 
 x_27 = 0;
 x_28 = lean_usize_of_nat(x_21);
-lean_dec(x_21);
 x_29 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Data_Trie_0__Lean_Data_Trie_values_go_spec__0___redArg(x_18, x_27, x_28, x_22, x_19);
 lean_dec_ref(x_18);
 return x_29;
@@ -1417,7 +1403,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_string_utf8_byte_size(x_1);
 x_5 = lean_nat_dec_lt(x_3, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; 

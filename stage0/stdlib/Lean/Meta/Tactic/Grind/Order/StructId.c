@@ -1643,7 +1643,6 @@ x_52 = lean_array_get_size(x_51);
 lean_dec_ref(x_51);
 x_53 = l___private_Lean_Meta_Tactic_Grind_Order_StructId_0__Lean_Meta_Grind_Order_getStructId_x3f_go_x3f___closed__8;
 x_54 = l___private_Lean_Meta_Tactic_Grind_Order_StructId_0__Lean_Meta_Grind_Order_getStructId_x3f_go_x3f___closed__10;
-lean_inc(x_52);
 x_55 = lean_alloc_ctor(0, 22, 1);
 lean_ctor_set(x_55, 0, x_52);
 lean_ctor_set(x_55, 1, x_1);
@@ -1709,7 +1708,6 @@ return x_63;
 else
 {
 uint8_t x_64; 
-lean_dec(x_52);
 lean_dec(x_25);
 x_64 = !lean_is_exclusive(x_58);
 if (x_64 == 0)
@@ -2756,7 +2754,6 @@ x_220 = lean_array_get_size(x_219);
 lean_dec_ref(x_219);
 x_221 = l___private_Lean_Meta_Tactic_Grind_Order_StructId_0__Lean_Meta_Grind_Order_getStructId_x3f_go_x3f___closed__8;
 x_222 = l___private_Lean_Meta_Tactic_Grind_Order_StructId_0__Lean_Meta_Grind_Order_getStructId_x3f_go_x3f___closed__10;
-lean_inc(x_220);
 x_223 = lean_alloc_ctor(0, 22, 1);
 lean_ctor_set(x_223, 0, x_220);
 lean_ctor_set(x_223, 1, x_1);
@@ -2813,7 +2810,6 @@ return x_229;
 else
 {
 lean_object* x_230; lean_object* x_231; lean_object* x_232; 
-lean_dec(x_220);
 lean_dec(x_193);
 x_230 = lean_ctor_get(x_226, 0);
 lean_inc(x_230);
@@ -3947,7 +3943,6 @@ x_365 = lean_array_get_size(x_364);
 lean_dec_ref(x_364);
 x_366 = l___private_Lean_Meta_Tactic_Grind_Order_StructId_0__Lean_Meta_Grind_Order_getStructId_x3f_go_x3f___closed__8;
 x_367 = l___private_Lean_Meta_Tactic_Grind_Order_StructId_0__Lean_Meta_Grind_Order_getStructId_x3f_go_x3f___closed__10;
-lean_inc(x_365);
 x_368 = lean_alloc_ctor(0, 22, 1);
 lean_ctor_set(x_368, 0, x_365);
 lean_ctor_set(x_368, 1, x_1);
@@ -4004,7 +3999,6 @@ return x_374;
 else
 {
 lean_object* x_375; lean_object* x_376; lean_object* x_377; 
-lean_dec(x_365);
 lean_dec(x_338);
 x_375 = lean_ctor_get(x_371, 0);
 lean_inc(x_375);
@@ -5192,7 +5186,6 @@ x_518 = lean_array_get_size(x_517);
 lean_dec_ref(x_517);
 x_519 = l___private_Lean_Meta_Tactic_Grind_Order_StructId_0__Lean_Meta_Grind_Order_getStructId_x3f_go_x3f___closed__8;
 x_520 = l___private_Lean_Meta_Tactic_Grind_Order_StructId_0__Lean_Meta_Grind_Order_getStructId_x3f_go_x3f___closed__10;
-lean_inc(x_518);
 x_521 = lean_alloc_ctor(0, 22, 1);
 lean_ctor_set(x_521, 0, x_518);
 lean_ctor_set(x_521, 1, x_1);
@@ -5249,7 +5242,6 @@ return x_527;
 else
 {
 lean_object* x_528; lean_object* x_529; lean_object* x_530; 
-lean_dec(x_518);
 lean_dec(x_491);
 x_528 = lean_ctor_get(x_524, 0);
 lean_inc(x_528);
@@ -6473,7 +6465,6 @@ x_675 = lean_array_get_size(x_674);
 lean_dec_ref(x_674);
 x_676 = l___private_Lean_Meta_Tactic_Grind_Order_StructId_0__Lean_Meta_Grind_Order_getStructId_x3f_go_x3f___closed__8;
 x_677 = l___private_Lean_Meta_Tactic_Grind_Order_StructId_0__Lean_Meta_Grind_Order_getStructId_x3f_go_x3f___closed__10;
-lean_inc(x_675);
 x_678 = lean_alloc_ctor(0, 22, 1);
 lean_ctor_set(x_678, 0, x_675);
 lean_ctor_set(x_678, 1, x_1);
@@ -6530,7 +6521,6 @@ return x_684;
 else
 {
 lean_object* x_685; lean_object* x_686; lean_object* x_687; 
-lean_dec(x_675);
 lean_dec(x_648);
 x_685 = lean_ctor_get(x_681, 0);
 lean_inc(x_685);
@@ -6975,7 +6965,6 @@ _start:
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_array_get_size(x_1);
 x_6 = lean_nat_dec_lt(x_3, x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; 
@@ -7198,7 +7187,6 @@ x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_1, 1);
 x_8 = lean_array_get_size(x_6);
 x_9 = lean_nat_dec_lt(x_2, x_8);
-lean_dec(x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -7245,7 +7233,6 @@ lean_inc(x_19);
 lean_dec(x_1);
 x_21 = lean_array_get_size(x_19);
 x_22 = lean_nat_dec_lt(x_2, x_21);
-lean_dec(x_21);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; 
@@ -7313,7 +7300,6 @@ _start:
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_get_size(x_2);
 x_7 = lean_nat_dec_lt(x_4, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_dec(x_4);
@@ -7357,7 +7343,6 @@ x_10 = lean_usize_land(x_2, x_9);
 x_11 = lean_usize_to_nat(x_10);
 x_12 = lean_array_get_size(x_6);
 x_13 = lean_nat_dec_lt(x_11, x_12);
-lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_dec(x_11);

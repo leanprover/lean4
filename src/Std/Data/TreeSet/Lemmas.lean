@@ -282,6 +282,10 @@ theorem get?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] {k : α} (h' : k ∈ t) :
       else t.get a (mem_of_mem_insert' h₁ h₂) :=
   TreeMap.getKey_insertIfNew
 
+theorem toList_insert_perm [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] {k : α} :
+    (t.insert k).toList.Perm (if k ∈ t then t.toList else k :: t.toList) :=
+  DTreeMap.keys_insertIfNew_perm
+
 @[simp, grind =] theorem get_erase [TransCmp cmp] {k a : α} {h'} :
     (t.erase k).get a h' = t.get a (mem_of_mem_erase h') :=
   TreeMap.getKey_erase

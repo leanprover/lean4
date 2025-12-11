@@ -11,3 +11,5 @@ public import Std.Do.SPred.SPred
 public import Std.Do.SPred.Notation
 public import Std.Do.SPred.Laws
 public import Std.Do.SPred.DerivedLaws
+
+set_option linter.missingDocs true

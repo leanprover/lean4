@@ -30,12 +30,9 @@ static lean_object* l_Lake_instInhabitedJob___closed__1;
 LEAN_EXPORT uint8_t l_Lake_instOrdJobAction_ord(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_JobAction_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_cast___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___redArg(uint8_t, uint8_t);
-LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 static lean_object* l_Lake_instReprJobAction_repr___closed__3;
 LEAN_EXPORT lean_object* l_Lake_instCoeOutJobOpaqueJob(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instOrdJobAction;
-LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___redArg___lam__0(lean_object*);
 static lean_object* l_Lake_instReprJobAction_repr___closed__7;
 LEAN_EXPORT lean_object* l_Lake_JobAction_replay_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_cast___boxed(lean_object*, lean_object*, lean_object*);
@@ -52,7 +49,6 @@ LEAN_EXPORT lean_object* l_Lake_Job_getTrace(lean_object*, lean_object*);
 static lean_object* l_Lake_instReprJobAction_repr___closed__0;
 static lean_object* l_Lake_JobAction_verb___closed__1;
 static lean_object* l_Lake_instOrdJobAction___closed__0;
-LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_instFunctor___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_JobAction_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_task_pure(lean_object*);
@@ -88,7 +84,6 @@ LEAN_EXPORT lean_object* l_Lake_Job_instPure___lam__0(lean_object*, lean_object*
 static lean_object* l_Lake_instInhabitedJob___closed__2;
 static lean_object* l_Lake_instInhabitedJobState_default___closed__3;
 LEAN_EXPORT lean_object* l___private_Lake_Build_Job_Basic_0__Lake_JobTask_toOpaqueImpl___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_instPure;
 LEAN_EXPORT uint8_t l_Lake_JobAction_instMax___lam__0(uint8_t, uint8_t);
 lean_object* l_Lake_BuildTrace_nil(lean_object*);
@@ -104,7 +99,6 @@ LEAN_EXPORT lean_object* l___private_Lake_Build_Job_Basic_0__Lake_JobTask_toOpaq
 static lean_object* l_Lake_JobAction_verb___closed__2;
 static lean_object* l_Lake_instReprJobAction_repr___closed__2;
 LEAN_EXPORT lean_object* l_Lake_JobAction_instLT;
-LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instDecidableEqJobAction___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instCoeOutJobTaskOpaqueJobTask(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_instFunctor;
@@ -397,63 +391,6 @@ lean_object* x_2;
 x_2 = l_Lake_JobAction_build_elim___redArg(x_1);
 lean_dec(x_1);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___redArg___lam__0(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___redArg___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_JobAction_noConfusion___redArg___lam__0(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = l_Lake_JobAction_ctorIdx(x_1);
-x_4 = l_Lake_JobAction_ctorIdx(x_2);
-x_5 = lean_nat_dec_eq(x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
-x_6 = lean_alloc_closure((void*)(l_Lake_JobAction_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lake_JobAction_noConfusion___redArg(x_2, x_3);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; uint8_t x_6; lean_object* x_7; 
-x_5 = lean_unbox(x_2);
-x_6 = lean_unbox(x_3);
-x_7 = l_Lake_JobAction_noConfusion(x_1, x_5, x_6, x_4);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; lean_object* x_5; 
-x_3 = lean_unbox(x_1);
-x_4 = lean_unbox(x_2);
-x_5 = l_Lake_JobAction_noConfusion___redArg(x_3, x_4);
-return x_5;
 }
 }
 static uint8_t _init_l_Lake_instInhabitedJobAction_default() {
@@ -1409,7 +1346,6 @@ x_28 = lean_ctor_get(x_25, 0);
 x_29 = lean_array_get_size(x_1);
 x_30 = lean_nat_add(x_29, x_27);
 lean_dec(x_27);
-lean_dec(x_29);
 x_31 = l_Array_append___redArg(x_1, x_28);
 lean_dec_ref(x_28);
 lean_ctor_set(x_25, 0, x_31);
@@ -1431,7 +1367,6 @@ lean_dec(x_25);
 x_37 = lean_array_get_size(x_1);
 x_38 = lean_nat_add(x_37, x_32);
 lean_dec(x_32);
-lean_dec(x_37);
 x_39 = l_Array_append___redArg(x_1, x_33);
 lean_dec_ref(x_33);
 x_40 = lean_alloc_ctor(0, 3, 1);
@@ -1471,7 +1406,6 @@ if (lean_is_exclusive(x_41)) {
 x_48 = lean_array_get_size(x_1);
 x_49 = lean_nat_add(x_48, x_42);
 lean_dec(x_42);
-lean_dec(x_48);
 x_50 = l_Array_append___redArg(x_1, x_43);
 lean_dec_ref(x_43);
 if (lean_is_scalar(x_47)) {
@@ -1990,7 +1924,6 @@ x_7 = lean_ctor_get_uint8(x_3, sizeof(void*)*3);
 x_8 = lean_string_utf8_byte_size(x_6);
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = lean_nat_dec_eq(x_8, x_9);
-lean_dec(x_8);
 if (x_10 == 0)
 {
 lean_dec_ref(x_2);
@@ -2039,7 +1972,6 @@ x_6 = lean_ctor_get_uint8(x_2, sizeof(void*)*3);
 x_7 = lean_string_utf8_byte_size(x_5);
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_nat_dec_eq(x_7, x_8);
-lean_dec(x_7);
 if (x_9 == 0)
 {
 lean_dec_ref(x_1);

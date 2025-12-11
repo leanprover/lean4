@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Theorems
 import Init.Grind.Util
+import Lean.Util.ForEachExpr
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Match.Basic
 import Lean.Meta.Tactic.TryThis
@@ -580,6 +581,22 @@ private def saveSymbol (h : HeadIndex) : M Unit := do
   unless (← get).symbolSet.contains h do
     modify fun s => { s with symbols := s.symbols.push h, symbolSet := s.symbolSet.insert h }
 
+private def saveSymbolsAt (e : Expr) : M Unit := do
+  e.forEach' fun e => do
+    if e.isApp || e.isConst then
+      /- **Note**: We ignore function symbols that have special handling in the internalizer. -/
+      if let .const declName _ := e.getAppFn then
+        if declName == ``OfNat.ofNat || declName == ``Grind.nestedProof
+           || declName == ``Grind.eqBwdPattern
+           || declName == ``Grind.nestedDecidable || declName == ``ite then
+          return false
+    match e with
+    | .const .. =>
+      saveSymbol e.toHeadIndex
+      return false
+    | _ =>
+      return true
+
 private def foundBVar (idx : Nat) : M Bool :=
   return (← get).bvarsFound.contains idx
 
@@ -672,7 +689,7 @@ private def getPatternFn? (pattern : Expr) (inSupport : Bool) (root : Bool) (arg
 
 private partial def go (pattern : Expr) (inSupport : Bool) (root : Bool) : M Expr := do
   if let some (e, k) := isOffsetPattern? pattern then
-    let e ← goArg e inSupport .relevant
+    let e ← goArg e inSupport .relevant (isEqBwdParent := false)
     if e == dontCare then
       return dontCare
     else
@@ -680,22 +697,40 @@ private partial def go (pattern : Expr) (inSupport : Bool) (root : Bool) : M Exp
   let some f ← getPatternFn? pattern inSupport root .relevant
     | throwError "invalid pattern, (non-forbidden) application expected{indentD (ppPattern pattern)}"
   assert! f.isConst || f.isFVar
-  unless f.isConstOf ``Grind.eqBwdPattern do
+  let isEqBwd := f.isConstOf ``Grind.eqBwdPattern
+  unless isEqBwd do
     saveSymbol f.toHeadIndex
   let mut args := pattern.getAppArgs.toVector
   let patternArgKinds ← getPatternArgKinds f args.size
   for h : i in *...args.size do
     let arg := args[i]
     let argKind := patternArgKinds[i]?.getD .relevant
-    args := args.set i (← goArg arg (inSupport || argKind.isSupport) argKind)
+    args := args.set i (← goArg arg (inSupport || argKind.isSupport) argKind isEqBwd)
   return mkAppN f args.toArray
 where
-  goArg (arg : Expr) (inSupport : Bool) (argKind : PatternArgKind) : M Expr := do
+  goArg (arg : Expr) (inSupport : Bool) (argKind : PatternArgKind) (isEqBwdParent : Bool) : M Expr := do
     if !arg.hasLooseBVars then
       if arg.hasMVar then
         pure dontCare
+      else if (← isProof arg) then
+        pure dontCare
       else
-        return mkGroundPattern (← expandOffsetPatterns arg)
+        let arg ← expandOffsetPatterns arg
+        unless isEqBwdParent do
+          /-
+          **Note**: We ignore symbols in ground patterns if the parent is the auxiliary ``Grind.eqBwdPattern
+          We do that because we want to sign an error in examples such as:
+          ```
+          theorem dummy (x : Nat) : x = x :=
+            rfl
+          -- error: invalid pattern for `dummy`
+          --  [@Lean.Grind.eqBwdPattern `[Nat] #0 #0]
+          -- the pattern does not contain constant symbols for indexing
+          attribute [grind ←=] dummy
+          ```
+          -/
+          saveSymbolsAt arg
+        return mkGroundPattern arg
     else match arg with
       | .bvar idx =>
         if inSupport && (← foundBVar idx) then

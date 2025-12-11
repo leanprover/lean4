@@ -2114,7 +2114,6 @@ if (x_13 == 0)
 {
 uint8_t x_14; 
 x_14 = l_Lean_Exception_isRuntime(x_9);
-lean_dec(x_9);
 x_10 = x_14;
 goto block_12;
 }
@@ -2295,7 +2294,6 @@ if (x_27 == 0)
 {
 uint8_t x_28; 
 x_28 = l_Lean_Exception_isRuntime(x_19);
-lean_dec(x_19);
 x_20 = x_28;
 goto block_26;
 }
@@ -2330,7 +2328,6 @@ if (x_24 == 0)
 {
 uint8_t x_25; 
 x_25 = l_Lean_Exception_isRuntime(x_23);
-lean_dec(x_23);
 x_8 = lean_box(0);
 x_9 = x_22;
 x_10 = x_25;
@@ -2875,7 +2872,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_2, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_dec(x_2);
@@ -3720,7 +3716,6 @@ x_10 = lean_uint64_shift_right(x_8, x_9);
 x_11 = lean_uint64_xor(x_8, x_10);
 x_12 = lean_uint64_to_usize(x_11);
 x_13 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_14 = 1;
 x_15 = lean_usize_sub(x_13, x_14);
 x_16 = lean_usize_land(x_12, x_15);
@@ -3766,7 +3761,6 @@ lean_inc_ref(x_14);
 lean_dec_ref(x_13);
 x_15 = lean_array_get_size(x_14);
 x_16 = lean_nat_dec_lt(x_12, x_15);
-lean_dec(x_15);
 if (x_16 == 0)
 {
 lean_dec_ref(x_14);

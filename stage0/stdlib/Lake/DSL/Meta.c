@@ -3953,7 +3953,6 @@ lean_inc(x_80);
 lean_dec(x_78);
 x_81 = lean_string_utf8_byte_size(x_79);
 x_82 = lean_nat_dec_eq(x_81, x_24);
-lean_dec(x_81);
 if (x_82 == 0)
 {
 lean_object* x_83; lean_object* x_84; 
@@ -4085,7 +4084,6 @@ lean_inc(x_98);
 lean_dec(x_96);
 x_99 = lean_string_utf8_byte_size(x_97);
 x_100 = lean_nat_dec_eq(x_99, x_24);
-lean_dec(x_99);
 if (x_100 == 0)
 {
 lean_object* x_101; lean_object* x_102; lean_object* x_103; 
@@ -4608,7 +4606,6 @@ lean_inc(x_203);
 lean_dec(x_201);
 x_204 = lean_string_utf8_byte_size(x_202);
 x_205 = lean_nat_dec_eq(x_204, x_151);
-lean_dec(x_204);
 if (x_205 == 0)
 {
 lean_object* x_206; lean_object* x_207; lean_object* x_208; 

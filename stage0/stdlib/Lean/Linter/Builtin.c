@@ -2860,7 +2860,6 @@ x_125 = lean_array_get_size(x_34);
 x_126 = lean_nat_dec_lt(x_21, x_125);
 if (x_126 == 0)
 {
-lean_dec(x_125);
 lean_dec(x_103);
 lean_dec(x_34);
 lean_dec_ref(x_26);
@@ -2872,7 +2871,6 @@ else
 {
 if (x_126 == 0)
 {
-lean_dec(x_125);
 lean_dec(x_103);
 lean_dec(x_34);
 lean_dec_ref(x_26);
@@ -2884,7 +2882,6 @@ else
 {
 size_t x_127; uint8_t x_128; 
 x_127 = lean_usize_of_nat(x_125);
-lean_dec(x_125);
 x_128 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Linter_suspiciousUnexpanderPatterns_spec__4(x_15, x_16, x_21, x_27, x_12, x_34, x_30, x_127);
 lean_dec(x_34);
 if (x_128 == 0)
@@ -3004,7 +3001,6 @@ x_153 = lean_array_get_size(x_151);
 x_154 = lean_nat_dec_lt(x_21, x_153);
 if (x_154 == 0)
 {
-lean_dec(x_153);
 lean_dec_ref(x_151);
 x_23 = lean_box(0);
 x_24 = x_145;
@@ -3020,7 +3016,6 @@ uint8_t x_155;
 x_155 = lean_nat_dec_le(x_153, x_153);
 if (x_155 == 0)
 {
-lean_dec(x_153);
 lean_dec_ref(x_151);
 x_23 = lean_box(0);
 x_24 = x_145;
@@ -3039,7 +3034,6 @@ lean_ctor_set(x_157, 0, x_156);
 lean_ctor_set(x_157, 1, x_152);
 x_158 = 0;
 x_159 = lean_usize_of_nat(x_153);
-lean_dec(x_153);
 x_160 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Linter_suspiciousUnexpanderPatterns_spec__11(x_147, x_151, x_158, x_159, x_157);
 lean_dec_ref(x_151);
 x_161 = lean_ctor_get(x_160, 1);

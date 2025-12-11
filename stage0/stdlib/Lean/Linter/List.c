@@ -7493,7 +7493,6 @@ x_9 = lean_array_get_size(x_7);
 x_10 = lean_nat_dec_lt(x_8, x_9);
 if (x_10 == 0)
 {
-lean_dec(x_9);
 lean_dec_ref(x_7);
 lean_dec(x_2);
 lean_dec_ref(x_1);
@@ -7506,7 +7505,6 @@ uint8_t x_11;
 x_11 = lean_nat_dec_le(x_9, x_9);
 if (x_11 == 0)
 {
-lean_dec(x_9);
 lean_dec_ref(x_7);
 lean_dec(x_2);
 lean_dec_ref(x_1);
@@ -7519,7 +7517,6 @@ size_t x_12; size_t x_13; lean_object* x_14;
 lean_free_object(x_3);
 x_12 = 0;
 x_13 = lean_usize_of_nat(x_9);
-lean_dec(x_9);
 x_14 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00__private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_foldInfoM_go___at___00Lean_Elab_InfoTree_foldInfoM___at___00Lean_Elab_InfoTree_collectTermInfoM___at___00Lean_Linter_List_binders_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1___redArg(x_1, x_2, x_7, x_12, x_13, x_4);
 lean_dec_ref(x_7);
 return x_14;
@@ -7538,7 +7535,6 @@ x_18 = lean_nat_dec_lt(x_16, x_17);
 if (x_18 == 0)
 {
 lean_object* x_19; 
-lean_dec(x_17);
 lean_dec_ref(x_15);
 lean_dec(x_2);
 lean_dec_ref(x_1);
@@ -7553,7 +7549,6 @@ x_20 = lean_nat_dec_le(x_17, x_17);
 if (x_20 == 0)
 {
 lean_object* x_21; 
-lean_dec(x_17);
 lean_dec_ref(x_15);
 lean_dec(x_2);
 lean_dec_ref(x_1);
@@ -7566,7 +7561,6 @@ else
 size_t x_22; size_t x_23; lean_object* x_24; 
 x_22 = 0;
 x_23 = lean_usize_of_nat(x_17);
-lean_dec(x_17);
 x_24 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00__private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_foldInfoM_go___at___00Lean_Elab_InfoTree_foldInfoM___at___00Lean_Elab_InfoTree_collectTermInfoM___at___00Lean_Linter_List_binders_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1___redArg(x_1, x_2, x_15, x_22, x_23, x_4);
 lean_dec_ref(x_15);
 return x_24;
@@ -7587,7 +7581,6 @@ x_28 = lean_array_get_size(x_26);
 x_29 = lean_nat_dec_lt(x_27, x_28);
 if (x_29 == 0)
 {
-lean_dec(x_28);
 lean_dec_ref(x_26);
 lean_dec(x_2);
 lean_dec_ref(x_1);
@@ -7601,7 +7594,6 @@ uint8_t x_30;
 x_30 = lean_nat_dec_le(x_28, x_28);
 if (x_30 == 0)
 {
-lean_dec(x_28);
 lean_dec_ref(x_26);
 lean_dec(x_2);
 lean_dec_ref(x_1);
@@ -7615,7 +7607,6 @@ size_t x_31; size_t x_32; lean_object* x_33;
 lean_free_object(x_3);
 x_31 = 0;
 x_32 = lean_usize_of_nat(x_28);
-lean_dec(x_28);
 x_33 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00__private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_foldInfoM_go___at___00Lean_Elab_InfoTree_foldInfoM___at___00Lean_Elab_InfoTree_collectTermInfoM___at___00Lean_Linter_List_binders_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1_spec__2___redArg(x_1, x_2, x_26, x_31, x_32, x_4);
 lean_dec_ref(x_26);
 return x_33;
@@ -7634,7 +7625,6 @@ x_37 = lean_nat_dec_lt(x_35, x_36);
 if (x_37 == 0)
 {
 lean_object* x_38; 
-lean_dec(x_36);
 lean_dec_ref(x_34);
 lean_dec(x_2);
 lean_dec_ref(x_1);
@@ -7649,7 +7639,6 @@ x_39 = lean_nat_dec_le(x_36, x_36);
 if (x_39 == 0)
 {
 lean_object* x_40; 
-lean_dec(x_36);
 lean_dec_ref(x_34);
 lean_dec(x_2);
 lean_dec_ref(x_1);
@@ -7662,7 +7651,6 @@ else
 size_t x_41; size_t x_42; lean_object* x_43; 
 x_41 = 0;
 x_42 = lean_usize_of_nat(x_36);
-lean_dec(x_36);
 x_43 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00__private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_foldInfoM_go___at___00Lean_Elab_InfoTree_foldInfoM___at___00Lean_Elab_InfoTree_collectTermInfoM___at___00Lean_Linter_List_binders_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1_spec__2___redArg(x_1, x_2, x_34, x_41, x_42, x_4);
 lean_dec_ref(x_34);
 return x_43;
@@ -7749,7 +7737,6 @@ x_23 = lean_array_get_size(x_8);
 x_24 = lean_nat_dec_lt(x_22, x_23);
 if (x_24 == 0)
 {
-lean_dec(x_23);
 lean_dec(x_22);
 lean_dec(x_20);
 lean_dec_ref(x_8);
@@ -7763,7 +7750,6 @@ uint8_t x_25;
 x_25 = lean_nat_dec_le(x_23, x_23);
 if (x_25 == 0)
 {
-lean_dec(x_23);
 lean_dec(x_22);
 lean_dec(x_20);
 lean_dec_ref(x_8);
@@ -7778,7 +7764,6 @@ lean_dec_ref(x_19);
 x_26 = lean_usize_of_nat(x_22);
 lean_dec(x_22);
 x_27 = lean_usize_of_nat(x_23);
-lean_dec(x_23);
 x_28 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00__private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_foldInfoM_go___at___00Lean_Elab_InfoTree_foldInfoM___at___00Lean_Elab_InfoTree_collectTermInfoM___at___00Lean_Linter_List_binders_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1___redArg(x_1, x_2, x_8, x_26, x_27, x_20);
 lean_dec_ref(x_8);
 return x_28;
@@ -7807,7 +7792,6 @@ x_32 = lean_array_get_size(x_30);
 x_33 = lean_nat_dec_lt(x_31, x_32);
 if (x_33 == 0)
 {
-lean_dec(x_32);
 lean_dec(x_31);
 lean_dec_ref(x_30);
 lean_dec(x_2);
@@ -7822,7 +7806,6 @@ uint8_t x_34;
 x_34 = lean_nat_dec_le(x_32, x_32);
 if (x_34 == 0)
 {
-lean_dec(x_32);
 lean_dec(x_31);
 lean_dec_ref(x_30);
 lean_dec(x_2);
@@ -7838,7 +7821,6 @@ lean_free_object(x_3);
 x_35 = lean_usize_of_nat(x_31);
 lean_dec(x_31);
 x_36 = lean_usize_of_nat(x_32);
-lean_dec(x_32);
 x_37 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00__private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_foldInfoM_go___at___00Lean_Elab_InfoTree_foldInfoM___at___00Lean_Elab_InfoTree_collectTermInfoM___at___00Lean_Linter_List_binders_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1_spec__2___redArg(x_1, x_2, x_30, x_35, x_36, x_6);
 lean_dec_ref(x_30);
 return x_37;
@@ -7857,7 +7839,6 @@ x_41 = lean_nat_dec_lt(x_39, x_40);
 if (x_41 == 0)
 {
 lean_object* x_42; 
-lean_dec(x_40);
 lean_dec(x_39);
 lean_dec_ref(x_38);
 lean_dec(x_2);
@@ -7873,7 +7854,6 @@ x_43 = lean_nat_dec_le(x_40, x_40);
 if (x_43 == 0)
 {
 lean_object* x_44; 
-lean_dec(x_40);
 lean_dec(x_39);
 lean_dec_ref(x_38);
 lean_dec(x_2);
@@ -7888,7 +7868,6 @@ size_t x_45; size_t x_46; lean_object* x_47;
 x_45 = lean_usize_of_nat(x_39);
 lean_dec(x_39);
 x_46 = lean_usize_of_nat(x_40);
-lean_dec(x_40);
 x_47 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00__private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_foldInfoM_go___at___00Lean_Elab_InfoTree_foldInfoM___at___00Lean_Elab_InfoTree_collectTermInfoM___at___00Lean_Linter_List_binders_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1_spec__2___redArg(x_1, x_2, x_38, x_45, x_46, x_6);
 lean_dec_ref(x_38);
 return x_47;
@@ -7933,7 +7912,6 @@ x_17 = lean_array_get_size(x_10);
 x_18 = lean_nat_dec_lt(x_7, x_17);
 if (x_18 == 0)
 {
-lean_dec(x_17);
 lean_dec(x_16);
 lean_dec_ref(x_10);
 lean_dec(x_2);
@@ -7946,7 +7924,6 @@ uint8_t x_19;
 x_19 = lean_nat_dec_le(x_17, x_17);
 if (x_19 == 0)
 {
-lean_dec(x_17);
 lean_dec(x_16);
 lean_dec_ref(x_10);
 lean_dec(x_2);
@@ -7959,7 +7936,6 @@ size_t x_20; size_t x_21; lean_object* x_22;
 lean_dec_ref(x_15);
 x_20 = 0;
 x_21 = lean_usize_of_nat(x_17);
-lean_dec(x_17);
 x_22 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00__private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_foldInfoM_go___at___00Lean_Elab_InfoTree_foldInfoM___at___00Lean_Elab_InfoTree_collectTermInfoM___at___00Lean_Linter_List_binders_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1_spec__2___redArg(x_1, x_2, x_10, x_20, x_21, x_16);
 lean_dec_ref(x_10);
 return x_22;
@@ -7985,7 +7961,6 @@ x_25 = lean_nat_dec_lt(x_23, x_24);
 if (x_25 == 0)
 {
 lean_object* x_26; 
-lean_dec(x_24);
 lean_dec(x_23);
 lean_dec_ref(x_10);
 lean_dec(x_2);
@@ -8001,7 +7976,6 @@ x_27 = lean_nat_dec_le(x_24, x_24);
 if (x_27 == 0)
 {
 lean_object* x_28; 
-lean_dec(x_24);
 lean_dec(x_23);
 lean_dec_ref(x_10);
 lean_dec(x_2);
@@ -8016,7 +7990,6 @@ size_t x_29; size_t x_30; lean_object* x_31;
 x_29 = lean_usize_of_nat(x_23);
 lean_dec(x_23);
 x_30 = lean_usize_of_nat(x_24);
-lean_dec(x_24);
 x_31 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00__private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_foldInfoM_go___at___00Lean_Elab_InfoTree_foldInfoM___at___00Lean_Elab_InfoTree_collectTermInfoM___at___00Lean_Linter_List_binders_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1_spec__2___redArg(x_1, x_2, x_10, x_29, x_30, x_4);
 lean_dec_ref(x_10);
 return x_31;
@@ -8044,7 +8017,6 @@ x_36 = lean_array_get_size(x_33);
 x_37 = lean_nat_dec_lt(x_7, x_36);
 if (x_37 == 0)
 {
-lean_dec(x_36);
 lean_dec(x_35);
 lean_dec_ref(x_33);
 lean_dec(x_2);
@@ -8057,7 +8029,6 @@ uint8_t x_38;
 x_38 = lean_nat_dec_le(x_36, x_36);
 if (x_38 == 0)
 {
-lean_dec(x_36);
 lean_dec(x_35);
 lean_dec_ref(x_33);
 lean_dec(x_2);
@@ -8070,7 +8041,6 @@ size_t x_39; size_t x_40; lean_object* x_41;
 lean_dec_ref(x_34);
 x_39 = 0;
 x_40 = lean_usize_of_nat(x_36);
-lean_dec(x_36);
 x_41 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at___00__private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___00Lean_PersistentArray_foldlM___at___00__private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_foldInfoM_go___at___00Lean_Elab_InfoTree_foldInfoM___at___00Lean_Elab_InfoTree_collectTermInfoM___at___00Lean_Linter_List_binders_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1_spec__2___redArg(x_1, x_2, x_33, x_39, x_40, x_35);
 lean_dec_ref(x_33);
 return x_41;
@@ -8396,7 +8366,6 @@ if (x_23 == 0)
 {
 uint8_t x_24; 
 x_24 = l_Lean_Exception_isRuntime(x_14);
-lean_dec(x_14);
 x_15 = x_24;
 goto block_22;
 }

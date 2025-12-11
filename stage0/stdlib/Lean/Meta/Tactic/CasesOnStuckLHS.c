@@ -62,7 +62,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 uint8_t l_Lean_Expr_isConst(lean_object*);
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
-lean_object* lean_get_projection_info(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_getProjectionFnInfo_x3f(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
 lean_object* l_Lean_Expr_consumeMData(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -75,7 +75,7 @@ x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
 lean_dec(x_4);
-x_6 = lean_get_projection_info(x_5, x_1);
+x_6 = l_Lean_Environment_getProjectionFnInfo_x3f(x_5, x_1);
 x_7 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 return x_7;
@@ -184,7 +184,6 @@ x_35 = lean_array_get_size(x_26);
 x_36 = l_Lean_RecursorVal_getMajorIdx(x_34);
 lean_dec_ref(x_34);
 x_37 = lean_nat_dec_le(x_35, x_36);
-lean_dec(x_35);
 if (x_37 == 0)
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; uint8_t x_41; 
@@ -251,7 +250,6 @@ x_47 = lean_array_get_size(x_26);
 x_48 = l_Lean_RecursorVal_getMajorIdx(x_46);
 lean_dec_ref(x_46);
 x_49 = lean_nat_dec_le(x_47, x_48);
-lean_dec(x_47);
 if (x_49 == 0)
 {
 lean_object* x_50; lean_object* x_51; lean_object* x_52; uint8_t x_53; 
@@ -323,7 +321,6 @@ lean_inc(x_59);
 lean_dec(x_58);
 x_60 = lean_array_get_size(x_26);
 x_61 = lean_nat_dec_lt(x_59, x_60);
-lean_dec(x_60);
 if (x_61 == 0)
 {
 lean_object* x_62; 
@@ -402,7 +399,6 @@ x_81 = lean_array_get_size(x_72);
 x_82 = l_Lean_RecursorVal_getMajorIdx(x_80);
 lean_dec_ref(x_80);
 x_83 = lean_nat_dec_le(x_81, x_82);
-lean_dec(x_81);
 if (x_83 == 0)
 {
 lean_object* x_84; lean_object* x_85; lean_object* x_86; uint8_t x_87; 
@@ -481,7 +477,6 @@ lean_inc(x_96);
 lean_dec(x_95);
 x_97 = lean_array_get_size(x_72);
 x_98 = lean_nat_dec_lt(x_96, x_97);
-lean_dec(x_97);
 if (x_98 == 0)
 {
 lean_object* x_99; lean_object* x_100; 
@@ -960,6 +955,7 @@ x_21 = l_Lean_Exception_isInterrupt(x_14);
 if (x_21 == 0)
 {
 uint8_t x_22; 
+lean_inc(x_14);
 x_22 = l_Lean_Exception_isRuntime(x_14);
 x_16 = x_22;
 goto block_20;

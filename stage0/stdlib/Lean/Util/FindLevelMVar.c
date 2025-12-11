@@ -230,7 +230,6 @@ x_8 = lean_nat_dec_lt(x_7, x_6);
 if (x_8 == 0)
 {
 lean_object* x_9; 
-lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec_ref(x_1);
 x_9 = lean_apply_1(x_2, x_4);
@@ -240,7 +239,6 @@ else
 {
 size_t x_10; size_t x_11; lean_object* x_12; 
 x_10 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_11 = 0;
 x_12 = l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00List_foldrTR___at___00Lean_FindLevelMVar_main_spec__0_spec__0(x_1, x_5, x_10, x_11, x_2, x_4);
 lean_dec_ref(x_5);

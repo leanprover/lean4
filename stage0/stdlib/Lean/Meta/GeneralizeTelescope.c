@@ -94,7 +94,6 @@ _start:
 lean_object* x_10; uint8_t x_11; 
 x_10 = lean_array_get_size(x_3);
 x_11 = lean_nat_dec_lt(x_4, x_10);
-lean_dec(x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; 
@@ -593,7 +592,6 @@ _start:
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_35; uint8_t x_36; 
 x_35 = lean_array_get_size(x_2);
 x_36 = lean_nat_dec_lt(x_3, x_35);
-lean_dec(x_35);
 if (x_36 == 0)
 {
 lean_object* x_37; 
@@ -706,10 +704,10 @@ block_66:
 {
 if (x_41 == 0)
 {
-lean_inc_ref(x_39);
 lean_inc_ref(x_40);
-x_26 = x_40;
-x_27 = x_39;
+lean_inc_ref(x_39);
+x_26 = x_39;
+x_27 = x_40;
 x_28 = x_42;
 x_29 = x_43;
 x_30 = x_44;
@@ -774,10 +772,10 @@ return x_62;
 }
 else
 {
-lean_inc_ref(x_39);
 lean_inc_ref(x_40);
-x_26 = x_40;
-x_27 = x_39;
+lean_inc_ref(x_39);
+x_26 = x_39;
+x_27 = x_40;
 x_28 = x_42;
 x_29 = x_43;
 x_30 = x_44;
@@ -872,8 +870,8 @@ block_34:
 lean_object* x_33; 
 x_33 = l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___closed__1;
 x_10 = x_33;
-x_11 = x_27;
-x_12 = x_26;
+x_11 = x_26;
+x_12 = x_27;
 x_13 = x_28;
 x_14 = x_29;
 x_15 = x_30;

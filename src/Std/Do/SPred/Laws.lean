@@ -10,6 +10,8 @@ public import Std.Do.SPred.Notation
 
 @[expose] public section
 
+set_option linter.missingDocs true
+
 namespace Std.Do.SPred
 
 /-!

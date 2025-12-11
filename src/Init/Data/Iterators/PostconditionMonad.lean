@@ -54,6 +54,11 @@ def PostconditionT.lift {α : Type w} {m : Type w → Type w'} [Functor m] (x : 
   ⟨fun _ => True, (⟨·, .intro⟩) <$> x⟩
 
 @[always_inline, inline, expose]
+def PostconditionT.attachLift {α : Type w} {m : Type w → Type w'} [Functor m] [MonadAttach m]
+    (x : m α) : PostconditionT m α :=
+  ⟨MonadAttach.CanReturn x, MonadAttach.attach x⟩
+
+@[always_inline, inline, expose]
 protected def PostconditionT.pure {m : Type w → Type w'} [Pure m] {α : Type w}
     (a : α) : PostconditionT m α :=
   ⟨fun y => a = y, pure <| ⟨a, rfl⟩⟩

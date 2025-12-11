@@ -769,13 +769,17 @@ private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx wit
 /--
   If the given syntax is a `doLetExpr` or `doLetMetaExpr`, return an equivalent `doIf` that has an `else` but no `else if`s or `if let`s.  -/
 private def expandDoLetExpr? (stx : Syntax) (doElems : List Syntax) : MacroM (Option Syntax) := match stx with
-  | `(doElem| let_expr $pat:matchExprPat := $discr:term | $elseBranch:doSeq) =>
+  | `(doElem| let_expr $pat:matchExprPat := $discr:term
+                | $elseBranch:doSeq
+              $thenBranch) =>
     return some (← `(doElem| match_expr (meta := false) $discr:term with
-                             | $pat:matchExprPat => $(mkDoSeq doElems.toArray)
+                             | $pat:matchExprPat => $(mkDoSeq (getDoSeqElems thenBranch ++ doElems).toArray)
                              | _ => $elseBranch))
-  | `(doElem| let_expr $pat:matchExprPat ← $discr:term | $elseBranch:doSeq) =>
+  | `(doElem| let_expr $pat:matchExprPat ← $discr:term
+                | $elseBranch:doSeq
+              $thenBranch) =>
     return some (← `(doElem| match_expr $discr:term with
-                             | $pat:matchExprPat => $(mkDoSeq doElems.toArray)
+                             | $pat:matchExprPat => $(mkDoSeq (getDoSeqElems thenBranch ++ doElems).toArray)
                              | _ => $elseBranch))
   | _ => return none
 
@@ -1415,7 +1419,7 @@ mutual
      where
      ```
      def doIdDecl   := leading_parser ident >> optType >> leftArrow >> doElemParser
-     def doPatDecl  := leading_parser termParser >> leftArrow >> doElemParser >> optional (" | " >> doSeq)
+     def doPatDecl  := leading_parser termParser >> leftArrow >> doElemParser >> optional ((" | " >> doSeq) >> optional doSeq)
      ```
   -/
   partial def doLetArrowToCode (doLetArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
@@ -1444,31 +1448,33 @@ mutual
           `(do let%$doLetArrow __discr ← $doElem; let%$doLetArrow $pattern:term := __discr)
         doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
       else
+        let elseSeq := optElse[1]
+        let contSeq := optElse[2][0] -- 0 unwraps the optional; if none then getDoSeqElems is empty
         let contSeq ← if isMutableLet doLetArrow then
           let vars ← (← getPatternVarsEx pattern).mapM fun var => `(doElem| let mut $var := $var)
-          pure (vars ++ doElems.toArray)
+          pure (vars ++ (getDoSeqElems contSeq).toArray)
         else
-          pure doElems.toArray
+          pure (getDoSeqElems contSeq).toArray
         let contSeq := mkDoSeq contSeq
-        let elseSeq := optElse[1]
         let auxDo ← `(do let%$doLetArrow __discr ← $doElem; match%$doLetArrow __discr with | $pattern:term => $contSeq | _ => $elseSeq)
-        doSeqToCode <| getDoSeqElems (getDoSeq auxDo)
+        doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
     else
       throwError "unexpected kind of `do` declaration"
 
   partial def doLetElseToCode (doLetElse : Syntax) (doElems : List Syntax) : M CodeBlock := do
-    -- "let " >> optional "mut " >> termParser >> " := " >> termParser >> checkColGt >> " | " >> doSeq
+    -- "let " >> optional "mut " >> termParser >> " := " >> termParser >> (checkColGt >> " | " >> doSeq) >> optional doSeq
     let pattern := doLetElse[2]
     let val     := doLetElse[4]
     let elseSeq := doLetElse[6]
+    let bodySeq := doLetElse[7][0]
     let contSeq ← if isMutableLet doLetElse then
       let vars ← (← getPatternVarsEx pattern).mapM fun var => `(doElem| let mut $var := $var)
-      pure (vars ++ doElems.toArray)
+      pure (vars ++ (getDoSeqElems bodySeq).toArray)
     else
-      pure doElems.toArray
+      pure (getDoSeqElems bodySeq).toArray
     let contSeq := mkDoSeq contSeq
-    let auxDo ← `(do match $val:term with | $pattern:term => $contSeq | _ => $elseSeq)
-    doSeqToCode <| getDoSeqElems (getDoSeq auxDo)
+    let auxDo ← `(doElem| match $val:term with | $pattern:term => $contSeq | _ => $elseSeq)
+    doSeqToCode <| auxDo :: doElems
 
   /-- Generate `CodeBlock` for `doReassignArrow; doElems`
      `doReassignArrow` is of the form

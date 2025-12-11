@@ -70,15 +70,15 @@ def notFollowedByRedefinedTermToken :=
   "let " >> optional "mut " >> letDecl
 @[builtin_doElem_parser] def doLetElse  := leading_parser
   "let " >> optional "mut " >> termParser >> " := " >> termParser >>
-  checkColGt >> " | " >> doSeq
+  (checkColGt >> " | " >> doSeq) >> optional doSeq
 
 @[builtin_doElem_parser] def doLetExpr  := leading_parser
   "let_expr " >> matchExprPat >> " := " >> termParser >>
-  checkColGt >> " | " >> doSeq
+  (checkColGt >> " | " >> doSeq) >> optional doSeq
 
 @[builtin_doElem_parser] def doLetMetaExpr  := leading_parser
   "let_expr " >> matchExprPat >> leftArrow >> termParser >>
-  checkColGt >> " | " >> doSeq
+  (checkColGt >> " | " >> doSeq) >> optional doSeq
 
 @[builtin_doElem_parser] def doLetRec   := leading_parser
   group ("let " >> nonReservedSymbol "rec ") >> letRecDecls
@@ -87,7 +87,7 @@ def doIdDecl   := leading_parser
   doElemParser
 def doPatDecl  := leading_parser
   atomic (termParser >> ppSpace >> leftArrow) >>
-  doElemParser >> optional (checkColGt >> " | " >> doSeq)
+  doElemParser >> optional ((checkColGt >> " | " >> doSeq) >> optional doSeq)
 @[builtin_doElem_parser] def doLetArrow      := leading_parser
   withPosition ("let " >> optional "mut " >> (doIdDecl <|> doPatDecl))
 
@@ -104,7 +104,8 @@ def letIdDeclNoBinders := node ``letIdDecl <|
 @[builtin_doElem_parser] def doReassign      := leading_parser
   notFollowedByRedefinedTermToken >> (letIdDeclNoBinders <|> letPatDecl)
 @[builtin_doElem_parser] def doReassignElse      := leading_parser
-  notFollowedByRedefinedTermToken >> (termParser >> " := " >> termParser >> checkColGt >> " | " >> doSeq)
+  notFollowedByRedefinedTermToken >>
+    (termParser >> " := " >> termParser >> (checkColGt >> " | " >> doSeq) >> optional doSeq)
 
 @[builtin_doElem_parser] def doReassignArrow := leading_parser
   notFollowedByRedefinedTermToken >> (doIdDecl <|> doPatDecl)

@@ -17,6 +17,16 @@ def testFoo (input : Option Nat) (expected : Nat) : IO Unit := do
 #guard_msgs in
 #eval testFoo (some 1) 1
 
+/-- info: "ok" -/
+#guard_msgs in
+#eval Id.run do
+  let mut x := 0
+  let y <- do
+    let true := false | do x := x + 3; pure 0 -- NB: this returns from the inner `do` block
+    x := x + 100
+    return "unreachable"
+  if x + y < 23 then pure "ok" else pure "wrong"
+
 def bar (x : Nat) : IO (Fin (x + 1)) := do
   let 2 := x | return 0
   -- the pattern match performed a substitution

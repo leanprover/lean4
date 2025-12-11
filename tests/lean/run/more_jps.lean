@@ -16,7 +16,19 @@ def List.forBreak_ {α : Type u} {m : Type w → Type x} [Monad m] (xs : List α
     s
 
 /--
-trace: [Compiler.saveBase] size: 25
+trace: [Compiler.saveBase] size: 9
+    def _example : Nat :=
+      let x := 42;
+      let _x.1 := 1;
+      let _x.2 := 2;
+      let _x.3 := 3;
+      let _x.4 := @List.nil _;
+      let _x.5 := @List.cons _ _x.3 _x.4;
+      let _x.6 := @List.cons _ _x.2 _x.5;
+      let _x.7 := @List.cons _ _x.1 _x.6;
+      let _x.8 := List.foldrNonTR._at_._example.spec_0 _x.7 x;
+      return _x.8
+[Compiler.saveBase] size: 25
     def List.foldrNonTR._at_._example.spec_0 x.1 _y.2 : Nat :=
       jp _jp.3 x : Nat :=
         let _x.4 := 13;
@@ -47,18 +59,6 @@ trace: [Compiler.saveBase] size: 25
             goto _jp.3 _y.2
         | Decidable.isTrue x.16 =>
           return _y.2
-[Compiler.saveBase] size: 9
-    def _example : Nat :=
-      let x := 42;
-      let _x.1 := 1;
-      let _x.2 := 2;
-      let _x.3 := 3;
-      let _x.4 := @List.nil _;
-      let _x.5 := @List.cons _ _x.3 _x.4;
-      let _x.6 := @List.cons _ _x.2 _x.5;
-      let _x.7 := @List.cons _ _x.1 _x.6;
-      let _x.8 := List.foldrNonTR._at_._example.spec_0 _x.7 x;
-      return _x.8
 -/
 #guard_msgs in
 set_option trace.Compiler.saveBase true in

@@ -86,7 +86,7 @@ def new : BaseIO (Mock.Client × Mock.Server) := do
   let first ← Std.CloseableChannel.new
   let second ← Std.CloseableChannel.new
 
-  return (⟨⟨second, first⟩⟩, ⟨⟨first, second⟩⟩)
+  return (⟨⟨first, second⟩⟩, ⟨⟨first, second⟩⟩)
 
 /--
 Receive data from a channel, joining all available data.
@@ -131,13 +131,13 @@ namespace Mock.Client
 Get the receive channel for a client (server to client direction).
 -/
 def getRecvChan (client : Mock.Client) : Std.CloseableChannel ByteArray :=
-  client.shared.clientToServer
+  client.shared.serverToClient
 
 /--
 Get the send channel for a client (client to server direction).
 -/
 def getSendChan (client : Mock.Client) : Std.CloseableChannel ByteArray :=
-  client.shared.serverToClient
+  client.shared.clientToServer
 
 /--
 Send a single ByteArray.
@@ -165,6 +165,12 @@ def tryRecv? (client : Mock.Client) (_expect : UInt64 := 0) : BaseIO (Option Byt
       | none => break
       | some chunk => result := result ++ chunk
     return some result
+
+/--
+Close the mock client, closing both directions of the connection.
+-/
+def close (client : Mock.Client) : IO Unit := do
+  client.shared.clientToServer.close
 
 end Mock.Client
 

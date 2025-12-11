@@ -189,6 +189,7 @@ private def handle
           respStream := none
           keepAliveTimeout := some config.keepAliveTimeout.val
           currentTimeout := config.keepAliveTimeout.val
+          needAnswer := false
 
         | .failed _ =>
           pure ()

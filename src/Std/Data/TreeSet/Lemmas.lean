@@ -1053,10 +1053,15 @@ theorem min?_eq_none_iff [TransCmp cmp] :
     t.min? = none ↔ t.isEmpty :=
   TreeMap.minKey?_eq_none_iff
 
-theorem min?_eq_min?_toList [TransCmp cmp] [Min α]
+@[simp] theorem min?_toList [TransCmp cmp] [Min α]
     [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α][LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp] :
-    t.min? = t.toList.min? :=
-  TreeMap.minKey?_eq_min?_keys
+    t.toList.min? = t.min? :=
+  TreeMap.min?_keys
+
+@[simp] theorem head?_toList [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α][LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp] :
+    t.toList.head? = t.min? :=
+  TreeMap.head?_keys
 
 theorem min?_eq_some_iff_get?_eq_self_and_forall [TransCmp cmp] {km} :
     t.min? = some km ↔ t.get? km = some km ∧ ∀ k ∈ t, (cmp km k).isLE :=

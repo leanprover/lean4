@@ -1115,12 +1115,19 @@ theorem min?_insert [TransCmp cmp] (h : t.WF) {k} :
       some (t.min?.elim k fun k' => if cmp k k' = .lt then k else k') :=
   TreeMap.Raw.minKey?_insertIfNew h
 
-theorem min?_eq_min?_toList [TransCmp cmp] [Min α]
+@[simp] theorem min?_toList [TransCmp cmp] [Min α]
     [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α]
     [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp]
     (h : t.WF) :
-    t.min? = t.toList.min? :=
-  TreeMap.Raw.minKey?_eq_min?_keys h
+    t.toList.min? = t.min? :=
+  TreeMap.Raw.min?_keys h
+
+@[simp] theorem head?_toList [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α]
+    [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp]
+    (h : t.WF) :
+    t.toList.head? = t.min? :=
+  TreeMap.Raw.head?_keys h
 
 theorem isSome_min?_insert [TransCmp cmp] (h : t.WF) {k} :
     (t.insert k).min?.isSome :=

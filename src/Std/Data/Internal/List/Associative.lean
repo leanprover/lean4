@@ -8251,10 +8251,10 @@ theorem containsKey_minKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l
   obtain ⟨e, ⟨hm, _⟩, rfl⟩ := hkm
   exact containsKey_of_mem hm
 
-theorem minKey?_eq_min?_keys [Ord α] [TransOrd α]
+theorem min?_keys [Ord α] [TransOrd α]
     [LawfulEqOrd α] [LE α] [LawfulOrderOrd α] [Min α]
     [LawfulOrderLeftLeaningMin α] (l : List ((a : α) × β a)) :
-    minKey? l = (List.keys l).min? := by
+    (List.keys l).min? = minKey? l := by
   have : IsLinearOrder α := IsLinearOrder.of_ord
   rw [keys_eq_map]
   induction l with
@@ -8262,8 +8262,8 @@ theorem minKey?_eq_min?_keys [Ord α] [TransOrd α]
   | cons h t ih =>
     rw [minKey?, minEntry?_cons, minEntry?, Option.map_some, List.map_cons, List.min?_cons]
     split
-    · simp only [← ih, minKey?, minEntry?, Option.map_none, Option.elim_none, *]
-    · simp only [Option.some.injEq, ← ih, minKey?, minEntry?, *, min, Option.map_some,
+    · simp only [minKey?, minEntry?, Option.map_none, Option.elim_none, *]
+    · simp only [Option.some.injEq, minKey?, minEntry?, *, min, Option.map_some,
                  Option.elim_some]
       split
       · rw [LawfulOrderLeftLeaningMin.min_eq_left _ _ <|
@@ -8273,6 +8273,22 @@ theorem minKey?_eq_min?_keys [Ord α] [TransOrd α]
         simp only [Commutative.comm h.fst w.fst]
         rw [LawfulOrderLeftLeaningMin.min_eq_left _ _ <|
             (LawfulOrderOrd.isGE_compare _ _).1 (Ordering.isGE_of_eq_gt hyp)]
+
+theorem head?_keys [Ord α] [TransOrd α]
+    [LawfulEqOrd α] [LE α] [LawfulOrderOrd α] [Min α]
+    [LawfulOrderLeftLeaningMin α] (l : List ((a : α) × β a)) (hs : l.Pairwise fun a b => compare a.1 b.1 = .lt) :
+    (List.keys l).head? = minKey? l := by
+  have sorted : List.Pairwise (fun a b => min a b = a) (keys l) := by
+    apply List.Pairwise.imp (R := fun a b => compare a b = .lt)
+    case H =>
+      intro a b hyp
+      apply LawfulOrderLeftLeaningMin.min_eq_left a b <| (LawfulOrderOrd.isLE_compare _ _).1 ?_
+      simp [hyp]
+    case a =>
+      rw [List.keys_eq_map]
+      apply List.Pairwise.map _ _ hs
+      simp
+  rw [← List.min?_eq_head? sorted, min?_keys]
 
 theorem minKey?_eraseKey_eq_iff_beq_minKey?_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {k} {l : List ((a : α) × β a)} (hd : DistinctKeys l) :

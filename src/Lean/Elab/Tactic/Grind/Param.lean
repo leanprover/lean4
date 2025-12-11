@@ -231,9 +231,17 @@ public def elabGrindParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.T
         else
           params := { params with ematch := (← params.ematch.eraseDecl declName) }
       | `(Parser.Tactic.grindParam| $[$mod?:grindMod]? $id:ident) =>
-        params ← processParam params p mod? id (minIndexable := false) (only := only) (incremental := incremental)
+        -- Check if this is dot notation on a local variable (e.g., `n.triv` for `Nat.triv n`).
+        -- If so, process as term to let elaboration resolve the dot notation properly.
+        if let some (_, _ :: _) := (← resolveLocalName id.getId) then
+          params ← processTermParam params p mod? id (minIndexable := false)
+        else
+          params ← processParam params p mod? id (minIndexable := false) (only := only) (incremental := incremental)
       | `(Parser.Tactic.grindParam| ! $[$mod?:grindMod]? $id:ident) =>
-        params ← processParam params p mod? id (minIndexable := true) (only := only) (incremental := incremental)
+        if let some (_, _ :: _) := (← resolveLocalName id.getId) then
+          params ← processTermParam params p mod? id (minIndexable := true)
+        else
+          params ← processParam params p mod? id (minIndexable := true) (only := only) (incremental := incremental)
       | `(Parser.Tactic.grindParam| $[$mod?:grindMod]? $e:term) =>
         params ← processTermParam params p mod? e (minIndexable := false)
       | `(Parser.Tactic.grindParam| ! $[$mod?:grindMod]? $e:term) =>

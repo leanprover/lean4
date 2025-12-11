@@ -97,7 +97,7 @@ partial def reifyCore? (e : Expr) (skipVar : Bool) (gen : Nat) : m (Option RingE
   | HSub.hSub _ _ _ i a b =>
     if (← isSubInst i) then return some (.sub (← go a) (← go b)) else asTopVar e
   | HPow.hPow _ _ _ i a b =>
-    let some k ← getNatValue? b | return none
+    let some k ← getNatValue? b | asTopVar e
     if (← isPowInst i) then return some (.pow (← go a) k) else asTopVar e
   | Neg.neg _ i a =>
     if (← isNegInst i) then return some (.neg (← go a)) else asTopVar e

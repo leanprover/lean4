@@ -1758,7 +1758,6 @@ where
     if env.isExporting then
       if let [(npriv, _)] ← withoutExporting <| resolveGlobalName (enableLog := false) n then
         throwUnknownNameWithSuggestions (declHint := npriv) n
-        -- throwUnknownIdentifierAt (declHint := npriv) fIdent m!"Unknown identifier `{.ofConstName n}`"
     if !(← read).autoBoundImplicitForbidden n then
       if (← read).autoBoundImplicitContext.isSome then
         let allowed := autoImplicit.get (← getOptions)
@@ -1766,11 +1765,8 @@ where
         match checkValidAutoBoundImplicitName n (allowed := allowed) (relaxed := relaxed) with
           | .ok true => throwAutoBoundImplicitLocal n
           | .ok false => throwUnknownNameWithSuggestions n
-            -- throwUnknownIdentifierAt (declHint := n) fIdent m!"Unknown identifier `{.ofConstName n}`"
           | .error msg => throwUnknownNameWithSuggestions (extraMsg := msg) n
-            -- throwUnknownIdentifierAt (declHint := n) fIdent (m!"Unknown identifier `{.ofConstName n}`" ++ msg)
     throwUnknownNameWithSuggestions n
-    -- throwUnknownIdentifierAt (declHint := n) fIdent m!"Unknown identifier `{.ofConstName n}`"
 
 /--
 Resolves `(.$id:ident)` using the expected type to infer the namespace for `id`.

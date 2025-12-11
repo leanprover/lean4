@@ -14,6 +14,7 @@ public import Lean.ResolveName
 import all Lean.Elab.ErrorUtils
 
 namespace Lean
+open Elab.Term
 
 set_option doc.verso true
 
@@ -114,7 +115,7 @@ The replacement will mimic the path structure of the original as much as possibl
 path prefix: if there is a suggestion for replacing `Foo.Bar.jazz` with `Foo.Bar.baz`, then
 `Bar.jazz` will be replaced by `Bar.baz` unless the resulting constant is ambiguous.
 -/
-public def throwUnknownNameWithSuggestions (constName : Name) (idOrConst := "identifier") (declHint := constName) (ref? : Option Syntax := .none) (extraMsg : MessageData := .nil) : CoreM α := do
+public def throwUnknownNameWithSuggestions (constName : Name) (idOrConst := "identifier") (declHint := constName) (ref? : Option Syntax := .none) (extraMsg : MessageData := .nil) : TermElabM α := do
   let suggestions := (← getSuggestions constName).toArray
   let ref := ref?.getD (← getRef)
   let hint ← if suggestions.size = 0 then

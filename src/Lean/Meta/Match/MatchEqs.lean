@@ -482,7 +482,7 @@ where go baseName :=
             let thmType ← unfoldNamedPattern thmType
             let thmVal  ← mkFreshExprSyntheticOpaqueMVar thmType
             let mvarId := thmVal.mvarId!
-            let canUseGrind := ((← getEnv).getModuleIdx? `InitGrind).isSome
+            let canUseGrind := ((← getEnv).getModuleIdx? `Init.Grind).isSome
             if canUseGrind then -- TMP
               proveCongrEqThm matchDeclName thmName mvarId
             else

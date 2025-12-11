@@ -11,9 +11,10 @@ import Init.NotationExtra
 /-!
 # Computable Acc.rec and WellFounded.fix
 
-This file exports no public definitions / theorems, but by importing it the compiler will
-be able to compile `Acc.rec` and functions that use it. For example:
+This file adds csimp theorems so that the compiler will be able to compile
+`Acc.rec`, `WellFounded.fix` and related operations.
 
+For example:
 
 Before:
 ```
@@ -36,7 +37,7 @@ After:
 prelude
 import Init.WFC
 
-def log2p1 : Nat → Nat := -- works!
+def log2p1 : Nat → Nat :=
   WellFounded.fix Nat.lt_wfRel.2 fun n IH =>
     let m := n / 2
     if h : m < n then
@@ -53,7 +54,7 @@ public instance wfRel {r : α → α → Prop} : WellFoundedRelation { val // Ac
   rel := InvImage r (·.1)
   wf  := ⟨fun ac => InvImage.accessible _ ac.2⟩
 
-/-- A computable version of `Acc.rec`. Workaround until Lean has native support for this. -/
+/-- A computable version of `Acc.rec`. -/
 @[specialize, elab_as_elim] public def recC {motive : (a : α) → Acc r a → Sort v}
     (intro : (x : α) → (h : ∀ (y : α), r y x → Acc r y) →
      ((y : α) → (hr : r y x) → motive y (h y hr)) → motive x (intro x h))
@@ -92,23 +93,6 @@ end Acc
 
 namespace WellFounded
 
-/-- Attaches to `x` the proof that `x` is accessible in the given well-founded relation.
-This can be used in recursive function definitions to explicitly use a different relation
-than the one inferred by default:
-
-```
-def otherWF : WellFounded Nat := …
-def foo (n : Nat) := …
-termination_by otherWF.wrap n
-```
--/
-public def wrap {α : Sort u} {r : α → α → Prop} (h : WellFounded r) (x : α) : {x : α // Acc r x} :=
-  ⟨_, h.apply x⟩
-
-@[simp]
-public theorem val_wrap {α : Sort u} {r : α → α → Prop} (h : WellFounded r) (x : α) :
-    (h.wrap x).val = x := (rfl)
-
 /-- A computable version of `WellFounded.fixF`. -/
 @[inline] public def fixFC {α : Sort u} {r : α → α → Prop}
     {C : α → Sort v} (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) (a : Acc r x) : C x := by
@@ -127,7 +111,7 @@ public theorem val_wrap {α : Sort u} {r : α → α → Prop} (h : WellFounded 
 termination_by hwf.wrap x
 -/
 
-/-- A computable version of `fix`. Workaround until Lean has native support for this. -/
+/-- A computable version of `fix`. -/
 @[specialize] public def fixC {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
     (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) : C x :=
   F x (fun y _ => fixC hwf F y)

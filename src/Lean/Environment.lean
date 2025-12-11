@@ -2446,14 +2446,14 @@ def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExistin
     }
     checked := dest.checked.map fun kenv =>
       replayKernel
-        oldEnv.toKernelEnv.extensions newEnv.toKernelEnv.extensions exts newPrivateConsts kenv
+        oldEnv.checked newEnv.checked exts newPrivateConsts kenv
       |>.toOption.getD kenv
     allRealizations := dest.allRealizations.map (sync := true) fun allRealizations =>
       newPrivateConsts.foldl (init := allRealizations) fun allRealizations c =>
         allRealizations.insert c.constInfo.name c
   }
 where
-  replayKernel (oldState newState : Array EnvExtensionState)
+  replayKernel (oldEnv newEnv : Task Kernel.Environment)
       (exts : Array (EnvExtension EnvExtensionState)) (consts : List AsyncConst)
       (kenv : Kernel.Environment) : Except Kernel.Exception Kernel.Environment := do
     let mut kenv := kenv
@@ -2464,8 +2464,8 @@ where
           -- safety: like in `modifyState`, but that one takes an elab env instead of a kernel env
           extensions := unsafe (ext.modifyStateImpl kenv.extensions <|
             replay
-              (ext.getStateImpl oldState)
-              (ext.getStateImpl newState)
+              (ext.getStateImpl oldEnv.get.extensions)
+              (ext.getStateImpl newEnv.get.extensions)
               (consts.map (·.constInfo.name))) }
     for c in consts do
       if skipExisting && (kenv.find? c.constInfo.name).isSome then
@@ -2611,7 +2611,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     -- (such as by storing `realizeEnv` or `realizeEnv'` in a field or the closure) as `res` will be
     -- stored in a promise in there, creating a cycle.
     let replayKernel := replayConsts.replayKernel (skipExisting := true)
-      realizeEnv.toKernelEnv.extensions realizeEnv'.toKernelEnv.extensions exts newPrivateConsts
+      realizeEnv.checked realizeEnv'.checked exts newPrivateConsts
     let res : RealizeConstResult := { newConsts.private := newPrivateConsts, newConsts.public := newPublicConsts, replayKernel, dyn }
     pure (.mk res)
   let some res := res.get? RealizeConstResult | unreachable!

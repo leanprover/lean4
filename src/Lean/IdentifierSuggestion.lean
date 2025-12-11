@@ -14,6 +14,7 @@ public import Lean.ResolveName
 import all Lean.Elab.ErrorUtils
 
 namespace Lean
+open Elab.Term
 
 set_option doc.verso true
 
@@ -107,14 +108,14 @@ public def getStoredSuggestions [Monad m] [MonadEnv m] (trueName : Name) : m Nam
     | some (_, extras) => extras.foldl (init := results) fun accum extra => accum.insert extra
 
 /--
-Throw an unknown constant error message, potentially suggesting alternatives using
-{name}`suggest_for` attributes. (Like {name}`throwUnknownConstantAt` but with suggestions.)
+Throw an unknown constant/identifier error message, potentially suggesting alternatives using
+{name}`suggest_for` attributes.
 
 The replacement will mimic the path structure of the original as much as possible if they share a
 path prefix: if there is a suggestion for replacing `Foo.Bar.jazz` with `Foo.Bar.baz`, then
 `Bar.jazz` will be replaced by `Bar.baz` unless the resulting constant is ambiguous.
 -/
-public def throwUnknownConstantWithSuggestions (constName : Name) (ref? : Option Syntax := .none) : CoreM α := do
+public def throwUnknownNameWithSuggestions (constName : Name) (idOrConst := "identifier") (declHint := constName) (ref? : Option Syntax := .none) (extraMsg : MessageData := .nil) : TermElabM α := do
   let suggestions := (← getSuggestions constName).toArray
   let ref := ref?.getD (← getRef)
   let hint ← if suggestions.size = 0 then
@@ -144,4 +145,4 @@ public def throwUnknownConstantWithSuggestions (constName : Name) (ref? : Option
           toCodeActionTitle? := .some (s!"Change to {·}"),
           messageData? := .some m!"`{.ofConstName suggestion}`",
         }) ref
-  throwUnknownIdentifierAt (declHint := constName) ref (m!"Unknown constant `{.ofConstName constName}`" ++ hint)
+  throwUnknownIdentifierAt (declHint := declHint) ref (m!"Unknown {idOrConst} `{.ofConstName constName}`" ++ extraMsg ++ hint)

@@ -253,7 +253,7 @@ def elabDoLetOrReassignElse (letOrReassign : LetOrReassign) (pattern rhs : Term)
   let mγ ← mkMonadicType γ
   doElabToSyntax m!"else case of {pattern}" otherwiseElab fun otherwise => do
   elabDoLetOrReassignWith m!"let body of {pattern}" letOrReassign vars dec fun body => do
-    Term.elabTerm (← `(match $rhs:term with | $pattern => $body | _ => $otherwise)) mγ (catchExPostpone := false)
+    Term.elabTerm (← `(match (generalizing := false) (motive := ∀ _, $(← Term.exprToSyntax mγ)) $rhs:term with | $pattern => $body | _ => $otherwise)) mγ (catchExPostpone := false)
 
 def elabDoIdDecl (x : Ident) (xType? : Option Term) (rhs : TSyntax `doElem) (contRef : Syntax) (k : DoElabM Expr)
     (kind : DoElemContKind := .nonDuplicable) (declKind : LocalDeclKind := .default) : DoElabM Expr := do
@@ -373,6 +373,14 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
 
 @[builtin_doElem_elab Lean.Parser.Term.doMatch] def elabDoMatch : DoElab := fun stx dec => do
   let `(doMatch| match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*) := stx | throwUnsupportedSyntax
+  -- We push the `DoElemCont` into each `match` alternative, altering its result type.
+  -- We *could* try and propagate the `motive` to `dec.resultType`, but that seems complicated.
+  if let `(generalizingParam| (generalizing := true)) := gen.getD ⟨.missing⟩ then
+    throwErrorAt gen.get! "Match generalization is not supported by `do` syntax. Try to express your match as a term match."
+  if let some motive := motive then
+    -- We push the `DoElemCont` into each `match` alternative, altering its result type.
+    -- We *could* try and propagate the `motive` to `dec.resultType`, but that seems complicated.
+    throwErrorAt motive "Specifying a `match` motive is not supported in `do` blocks. Try to express your match as a term match."
   -- cf. `expandMatchAlts?`
   let alts : Array (TSyntax ``Term.matchAlt) :=
     if alts.any Term.shouldExpandMatchAlt then
@@ -392,7 +400,10 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
             elabMatch (i + 1) (alts.set i (← `(matchAltExpr| | $patterns,* => $rhs)))
         | _ => throwUnsupportedSyntax
       else
-        Term.elabTerm (← `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*)) mγ (catchExPostpone := false)
+        let mut motive : Term ← Term.exprToSyntax mγ
+        for discr in discrs.getElems do
+          motive ← `(∀ _, $motive)
+        Term.elabTerm (← `(match (generalizing := false) (motive := $motive) $discrs,* with $alts:matchAlt*)) mγ (catchExPostpone := false)
     elabMatch 0 alts
 
 @[builtin_doElem_elab Lean.Parser.Term.doMatchExpr] def elabDoMatchExpr : DoElab := fun stx dec => do

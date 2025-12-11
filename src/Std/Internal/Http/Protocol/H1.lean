@@ -158,7 +158,7 @@ def getMessageSize (req : Message.Head dir) : Option Body.Length := do
     some (.fixed num)
   | (none, false) => some (.fixed 0)
   | (none, true) => some .chunked
-  | (some _, true) => some .chunked
+  | (some _, true) => none -- To avoid request smuggling!
 
 -- State Checks
 
@@ -397,7 +397,10 @@ def takeOutput (machine : Machine dir) : Machine dir × ChunkedBuffer :=
 partial def processWrite (machine : Machine dir) : Machine dir :=
   match machine.writer.state with
   | .pending =>
-      machine
+      if machine.reader.isClosed then
+        machine.closeWriter
+      else
+        machine
   | .waitingHeaders =>
       machine.addEvent .needAnswer
   | .waitingForFlush =>
@@ -586,7 +589,7 @@ partial def processRead (machine : Machine dir) : Machine dir :=
         machine
 
   | .complete =>
-      if ¬machine.keepAlive ∨ machine.reader.noMoreInput then
+      if (machine.reader.noMoreInput ∧ machine.reader.input.atEnd) ∨ ¬machine.keepAlive then
         machine.setReaderState .closed
       else
         machine

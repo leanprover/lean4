@@ -157,6 +157,21 @@ def concurrentlyAll (xs : Array (ContextAsync α))
 
   tasks.mapM await
 
+instance : MonadAsync AsyncTask ContextAsync where
+  async x prio := fun ctx => async (x ctx) prio
+
+/--
+Launches a `ContextAsync` computation in the background, discarding its result.
+
+This function starts a task that runs independently in the background. The parent computation does not wait
+for background tasks to complete. This means that if the parent finishes its execution it will cause
+the cancellation of the background functions.
+-/
+@[inline, specialize]
+def background (action : ContextAsync α) (prio := Task.Priority.default) : ContextAsync Unit := do
+  let ctx ← getContext
+  let childCtx ← ctx.fork
+  Async.background (action childCtx *> childCtx.cancel .cancel) prio
 
 /--
 Runs all computations concurrently and returns the first result.
@@ -208,9 +223,6 @@ instance [Inhabited α] : Inhabited (ContextAsync α) where
 
 instance : MonadAwait AsyncTask ContextAsync where
   await t := fun _ => await t
-
-instance : MonadAsync AsyncTask ContextAsync where
-  async x prio := fun ctx => async (x ctx) prio
 
 end ContextAsync
 

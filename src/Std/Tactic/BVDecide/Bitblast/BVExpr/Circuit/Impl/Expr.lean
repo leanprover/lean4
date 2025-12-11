@@ -296,12 +296,14 @@ end
 
 end bitblast
 
+@[grind =]
 theorem bitblast_decl_eq (aig : AIG BVBit) (input : WithCache (BVExpr w) aig) :
     ∀ (idx : Nat) (h1) (h2), (bitblast aig input).result.val.aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
   intros
   unfold bitblast
   apply bitblast.goCache_decl_eq
 
+@[grind! .]
 theorem bitblast_le_size (aig : AIG BVBit) (input : WithCache (BVExpr w) aig) :
     aig.decls.size ≤ (bitblast aig input).result.val.aig.decls.size := by
   exact (bitblast aig input).result.property

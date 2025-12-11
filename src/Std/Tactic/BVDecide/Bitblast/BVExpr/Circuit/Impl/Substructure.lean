@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Pred
+import Init.Grind
 
 @[expose] public section
 
@@ -38,77 +39,48 @@ where
       let ret := aig.mkNotCached exprRef
       have := LawfulOperator.le_size (f := mkNotCached) ..
       let cache := cache.cast this
-      have := by
-        apply LawfulOperator.le_size_of_le_aig_size (f := mkNotCached)
-        exact hexpr
-      ⟨⟨ret, this⟩, cache⟩
+      ⟨⟨ret, by grind⟩, cache⟩
     | .ite discr lhs rhs =>
       let ⟨⟨⟨aig, discrRef⟩, dextend⟩, cache⟩ := go aig discr cache
       let ⟨⟨⟨aig, lhsRef⟩, lextend⟩, cache⟩ := go aig lhs cache
       let ⟨⟨⟨aig, rhsRef⟩, rextend⟩, cache⟩ := go aig rhs cache
-      let discrRef := discrRef.cast <| by
-        dsimp only at lextend rextend ⊢
-        omega
-      let lhsRef := lhsRef.cast <| by
-        dsimp only at rextend ⊢
-        omega
-
+      let discrRef := discrRef.cast <| by lia
+      let lhsRef := lhsRef.cast <| by lia
       let input := ⟨discrRef, lhsRef, rhsRef⟩
       let ret := aig.mkIfCached input
       have := LawfulOperator.le_size (f := mkIfCached) ..
       let cache := cache.cast this
-      have := by
-        apply LawfulOperator.le_size_of_le_aig_size (f := mkIfCached)
-        dsimp only at dextend lextend rextend
-        omega
-      ⟨⟨ret, this⟩, cache⟩
+      ⟨⟨ret, by grind⟩, cache⟩
     | .gate g lhs rhs =>
       let ⟨⟨⟨aig, lhsRef⟩, lextend⟩, cache⟩ := go aig lhs cache
       let ⟨⟨⟨aig, rhsRef⟩, rextend⟩, cache⟩ := go aig rhs cache
-      let lhsRef := lhsRef.cast <| by
-        dsimp only at rextend ⊢
-        omega
+      let lhsRef := lhsRef.cast <| by lia
       let input := ⟨lhsRef, rhsRef⟩
       match g with
       | .and =>
         let ret := aig.mkAndCached input
         have := LawfulOperator.le_size (f := mkAndCached) ..
         let cache := cache.cast this
-        have := by
-          apply LawfulOperator.le_size_of_le_aig_size (f := mkAndCached)
-          dsimp only at lextend rextend
-          omega
-        ⟨⟨ret, this⟩, cache⟩
+        ⟨⟨ret, by grind⟩, cache⟩
       | .xor =>
         let ret := aig.mkXorCached input
         have := LawfulOperator.le_size (f := mkXorCached) ..
         let cache := cache.cast this
-        have := by
-          apply LawfulOperator.le_size_of_le_aig_size (f := mkXorCached)
-          dsimp only at lextend rextend
-          omega
-        ⟨⟨ret, this⟩, cache⟩
+        ⟨⟨ret, by grind⟩, cache⟩
       | .beq =>
         let ret := aig.mkBEqCached input
         have := LawfulOperator.le_size (f := mkBEqCached) ..
         let cache := cache.cast this
-        have := by
-          apply LawfulOperator.le_size_of_le_aig_size (f := mkBEqCached)
-          dsimp only at lextend rextend
-          omega
-        ⟨⟨ret, this⟩, cache⟩
+        ⟨⟨ret, by grind⟩, cache⟩
       | .or =>
         let ret := aig.mkOrCached input
         have := LawfulOperator.le_size (f := mkOrCached) ..
         let cache := cache.cast this
-        have := by
-          apply LawfulOperator.le_size_of_le_aig_size (f := mkOrCached)
-          dsimp only at lextend rextend
-          omega
-        ⟨⟨ret, this⟩, cache⟩
+        ⟨⟨ret, by grind⟩, cache⟩
 
 namespace bitblast
 
+@[grind! .]
 theorem go_le_size (aig : AIG BVBit) (expr : BVLogicalExpr) (cache : BVExpr.Cache aig) :
     aig.decls.size ≤ (go aig expr cache).result.val.aig.decls.size :=
   (go aig expr cache).result.property
@@ -135,50 +107,9 @@ theorem go_decl_eq (idx) (aig : AIG BVBit) (cache : BVExpr.Cache aig) (h : idx <
     assumption
   | ite discr lhs rhs dih lih rih =>
     simp only [go]
-    rw [AIG.LawfulOperator.decl_eq (f := mkIfCached), rih, lih, dih]
-    · apply go_lt_size_of_lt_aig_size
-      assumption
-    · apply go_lt_size_of_lt_aig_size
-      apply go_lt_size_of_lt_aig_size
-      assumption
-    · apply go_lt_size_of_lt_aig_size
-      apply go_lt_size_of_lt_aig_size
-      apply go_lt_size_of_lt_aig_size
-      assumption
+    grind
   | gate g lhs rhs lih rih =>
-    cases g with
-    | and =>
-      simp only [go]
-      rw [AIG.LawfulOperator.decl_eq (f := mkAndCached), rih, lih]
-      · apply go_lt_size_of_lt_aig_size
-        assumption
-      · apply go_lt_size_of_lt_aig_size
-        apply go_lt_size_of_lt_aig_size
-        assumption
-    | xor =>
-      simp only [go]
-      rw [AIG.LawfulOperator.decl_eq (f := mkXorCached), rih, lih]
-      · apply go_lt_size_of_lt_aig_size
-        assumption
-      · apply go_lt_size_of_lt_aig_size
-        apply go_lt_size_of_lt_aig_size
-        assumption
-    | beq =>
-      simp only [go]
-      rw [AIG.LawfulOperator.decl_eq (f := mkBEqCached), rih, lih]
-      · apply go_lt_size_of_lt_aig_size
-        assumption
-      · apply go_lt_size_of_lt_aig_size
-        apply go_lt_size_of_lt_aig_size
-        assumption
-    | or =>
-      simp only [go]
-      rw [AIG.LawfulOperator.decl_eq (f := mkOrCached), rih, lih]
-      · apply go_lt_size_of_lt_aig_size
-        assumption
-      · apply go_lt_size_of_lt_aig_size
-        apply go_lt_size_of_lt_aig_size
-        assumption
+    cases g <;> (simp only [go]; grind)
 
 theorem go_isPrefix_aig {aig : AIG BVBit} (cache : BVExpr.Cache aig) :
     IsPrefix aig.decls (go aig expr cache).result.val.aig.decls := by

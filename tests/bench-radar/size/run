@@ -18,14 +18,13 @@ def print_result(metric: str, value: float, unit: str | None = None) -> None:
     print(f"radar::measurement={json.dumps(data)}")
 
 
-def measure_bytes(topic: str, paths: Iterable[Path], files: bool = True) -> None:
+def measure_bytes(topic: str, paths: Iterable[Path]) -> None:
     amount = 0
     total = 0
     for path in paths:
         amount += 1
         total += path.stat().st_size
-    if files:
-        print_result(f"{topic}//files", amount)
+    print_result(f"{topic}//files", amount)
     print_result(f"{topic}//bytes", total, "B")
 
 
@@ -40,27 +39,29 @@ def measure_lines(topic: str, paths: Iterable[Path]) -> None:
     print_result(f"{topic}//lines", total)
 
 
-def measure_symbols() -> None:
-    maximum = 0
-    for path in STAGE3_LEAN.glob("**/*.so"):
-        result = subprocess.run(
-            ["nm", "--extern-only", "--defined-only", path],
-            capture_output=True,
-            encoding="utf-8",
-            check=True,
-        )
-        count = len(result.stdout.splitlines())
-        maximum = max(maximum, count)
-        print_result(f"size/file/{path.name}//dynamic symbols", count)
-    print_result("size/all/.so//max dynamic symbols", maximum)
+def measure_bytes_for_file(topic: str, path: Path) -> int:
+    size = path.stat().st_size
+    print_result(f"{topic}//bytes", size, "B")
+    return size
+
+
+def measure_symbols_for_file(topic: str, path: Path) -> int:
+    result = subprocess.run(
+        ["nm", "--extern-only", "--defined-only", path],
+        capture_output=True,
+        encoding="utf-8",
+        check=True,
+    )
+    count = len(result.stdout.splitlines())
+    print_result(f"{topic}//dynamic symbols", count)
+    return count
 
 
 if __name__ == "__main__":
-    measure_symbols()
-    measure_bytes(
-        "size/libleanshared.so",
-        [STAGE3_LEAN / "libleanshared.so"],
-        files=False,
+    measure_bytes_for_file("size/libleanshared.so", STAGE3_LEAN / "libleanshared.so")
+    measure_symbols_for_file("size/libleanshared.so", STAGE3_LEAN / "libleanshared.so")
+    measure_symbols_for_file(
+        "size/libLake_shared.so", STAGE3_LEAN / "libLake_shared.so"
     )
 
     # Stdlib

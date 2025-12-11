@@ -25,18 +25,20 @@ This module contains definitions for resolving the dependencies of a package.
 
 namespace Lake
 
-/-- Loads the package configuration of a materialized dependency. -/
-def loadDepPackage
-  (ws : Workspace)
+/--
+Loads the package configuration of a materialized dependency.
+Adds the package and the facets defined within it to the `Workspace`.
+-/
+def addDepPackage
   (dep : MaterializedDep)
   (lakeOpts : NameMap String)
   (leanOpts : Options) (reconfigure : Bool)
-: LogIO ({pkg : Package // pkg.wsIdx = ws.packages.size} × Option Environment) := do
+: StateT Workspace LogIO Package := fun ws => do
   let name := dep.name.toString (escape := false)
   let pkgDir := ws.dir / dep.relPkgDir
   let some pkgDir ← resolvePath? pkgDir
     | error s!"{name}: package directory not found: {pkgDir}"
-  loadPackageCore name {
+  let loadCfg : LoadConfig := {
     lakeEnv := ws.lakeEnv
     wsDir := ws.dir
     pkgIdx := ws.packages.size
@@ -48,23 +50,11 @@ def loadDepPackage
     scope := dep.scope
     remoteUrl := dep.remoteUrl
   }
-
-/--
-Loads the package configuration of a materialized dependency.
-Adds the package and the facets defined within it to the `Workspace`.
--/
-def addDepPackage
-  (dep : MaterializedDep)
-  (lakeOpts : NameMap String)
-  (leanOpts : Options) (reconfigure : Bool)
-: StateT Workspace LogIO Package := fun ws => do
-  let (⟨pkg, wsIdx_eq⟩, env?) ← loadDepPackage ws dep lakeOpts leanOpts reconfigure
-  let ws := ws.addPackage' pkg wsIdx_eq
-  if let some env := env? then
-    let ws ← IO.ofExcept <| ws.addFacetsFromEnv env leanOpts
-    return (pkg, ws)
-  else
-    return (pkg, ws)
+  let fileCfg ← loadConfig name loadCfg
+  let pkg := mkPackage loadCfg fileCfg
+  let ws := ws.addPackage' pkg wsIdx_mkPackage
+  let ws := fileCfg.facetDecls.foldl (·.addFacetConfig ·.config) ws
+  return (pkg, ws)
 
 /--
 The resolver's call stack of dependencies.

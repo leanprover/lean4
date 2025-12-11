@@ -191,9 +191,6 @@ where
       (throwError "failed to generate equality theorem {thmName} for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
     subgoals.forM (go · (depth+1))
 
-private def useGrind : MetaM Bool := do
-  return ((← getEnv).getModuleIdx? `InitGrind).isSome && !debug.Meta.Match.MatchEqs.grindAsSorry.get (← getOptions)
-
 private partial def proveCongrEqThm (matchDeclName : Name) (thmName : Name) (mvarId : MVarId) : MetaM Unit := do
   withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} proveCondEqThm {thmName}")) do
   let mvarId ← mvarId.deltaTarget (· == matchDeclName)
@@ -233,12 +230,12 @@ where
       <|>
       (substSomeVar mvarId)
       <|>
-      (do if (← useGrind) then
-            let r ← Grind.main mvarId (← Grind.mkParams {})
-            if r.hasFailed then throwError "grind failed"
-          else
+      (do if debug.Meta.Match.MatchEqs.grindAsSorry.get (← getOptions) then
             trace[Meta.Match.matchEqs] "proveCondEqThm.go: grind_as_sorry is enabled, admitting goal"
             mvarId.admit (synthetic := true)
+          else
+            let r ← Grind.main mvarId (← Grind.mkParams {})
+            if r.hasFailed then throwError "grind failed"
           return #[])
       <|>
       (throwError "failed to generate equality theorem {thmName} for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
@@ -408,6 +405,18 @@ def registerMatchCongrEqns (matchDeclName : Name) (eqnNames : Array Name) : Core
   modifyEnv fun env => matchCongrEqnsExt.modifyState env fun map =>
     map.insert matchDeclName eqnNames
 
+private def _root_.Lean.MVarId.revertAll (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+  mvarId.checkNotAssigned `revertAll
+  let mut toRevert := #[]
+  for fvarId in (← getLCtx).getFVarIds do
+    unless (← fvarId.getDecl).isAuxDecl do
+      toRevert := toRevert.push fvarId
+  mvarId.setKind .natural
+  let (_, mvarId) ← mvarId.revert toRevert
+    (preserveOrder := true)
+    (clearAuxDeclsInsteadOfRevert := true)
+  return mvarId
+
 /--
 Generate the congruence equations for the given match auxiliary declaration.
 The congruence equations have a completely unrestricted left-hand side (arbitrary discriminants),
@@ -473,7 +482,26 @@ where go baseName :=
             let thmType ← unfoldNamedPattern thmType
             let thmVal  ← mkFreshExprSyntheticOpaqueMVar thmType
             let mvarId := thmVal.mvarId!
-            proveCongrEqThm matchDeclName thmName mvarId
+            let canUseGrind := ((← getEnv).getModuleIdx? `InitGrind).isSome
+            if canUseGrind then -- TMP
+              proveCongrEqThm matchDeclName thmName mvarId
+            else
+              trace[Meta.Match.matchEqs] "proving congruence equation via normal equation"
+              let mut mvarId := mvarId
+              (_, mvarId) ← mvarId.revert (hs_discrs.map Expr.fvarId!) (preserveOrder := true)
+              (_, mvarId) ← mvarId.revert (heqs.map Expr.fvarId!) (preserveOrder := true)
+              trace[Meta.Match.matchEqs] "reverted:\n{mvarId}"
+              -- TODO: Code duplication with below
+              for _ in [:heqs.size] do
+                let (fvarId, mvarId') ← mvarId.intro1
+                -- important to substitute the fvar on the LHS, so do not use `substEq`
+                let (fvarId, mvarId') ← heqToEq mvarId' fvarId
+                (_, mvarId) ← substCore (symm := false) (clearH := true) mvarId' fvarId
+              trace[Meta.Match.matchEqs] "subst'ed:\n{mvarId}"
+              mvarId ← mvarId.revertAll
+              let thmType ← mvarId.getType'
+              trace[Meta.Match.matchEqs] "thmType: {thmType}"
+              mvarId.assign (← proveCondEqThm matchDeclName thmName thmType)
             let thmVal ← mkExpectedTypeHint thmVal thmType
             let thmVal ← instantiateMVars thmVal
             mkLambdaFVars hs_discrs thmVal

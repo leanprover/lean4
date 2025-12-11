@@ -21,16 +21,16 @@ info: myTest.match_1.splitter.{u_1, u_2} {α : Type u_1} (motive : List α → S
 #guard_msgs(pass trace, all) in
 #check myTest.match_1.splitter
 /--
-info: myTest.match_1.congr_eq_1.{u_1, u_2} {α : Type u_1} (motive : List α → Sort u_2) (x✝ : List α)
-  (h_1 : (a : α) → (dc : List α) → x✝ = a :: dc → motive (a :: dc)) (h_2 : (x' : List α) → x✝ = x' → motive x') (a : α)
-  (dc : List α) (heq : x✝ = a :: dc) :
-  (match h : x✝ with
+info: private theorem myTest.match_1.congr_eq_1.{u_1, u_2} : ∀ {α : Type u_1} (motive : List α → Sort u_2) (x : List α)
+  (h_1 : (a : α) → (dc : List α) → x = a :: dc → motive (a :: dc)) (h_2 : (x' : List α) → x = x' → motive x') (a : α)
+  (dc : List α) (heq : x = a :: dc),
+  (match h : x with
     | a :: dc => h_1 a dc h
     | x' => h_2 x' h) ≍
     h_1 a dc heq
 -/
 #guard_msgs(pass trace, all) in
-#check myTest.match_1.congr_eq_1
+#print sig myTest.match_1.congr_eq_1
 
 /--
 info: myTest.match_1.congr_eq_2.{u_1, u_2} {α : Type u_1} (motive : List α → Sort u_2) (x✝ : List α)

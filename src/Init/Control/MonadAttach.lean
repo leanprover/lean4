@@ -12,8 +12,11 @@ public class MonadAttach (m : Type u → Type v) where
   CanReturn {α : Type u} : m α → α → Prop
   attach {α : Type u} (x : m α) : m (Subtype (CanReturn x))
 
-public class LawfulMonadAttach (m : Type u → Type v) [Monad m] [MonadAttach m] where
+public class WeaklyLawfulMonadAttach (m : Type u → Type v) [Monad m] [MonadAttach m] where
   map_attach {α : Type u} {x : m α} : Subtype.val <$> MonadAttach.attach x = x
+
+public class LawfulMonadAttach (m : Type u → Type v) [Monad m] [MonadAttach m] extends
+    WeaklyLawfulMonadAttach m where
   canReturn_map_imp {α : Type u} {P : α → Prop} {x : m (Subtype P)} {a : α} :
       MonadAttach.CanReturn (Subtype.val <$> x) a → P a
 

@@ -18,12 +18,12 @@ def requestToByteArray (req : Request (Array Chunk)) (chunked := false) : IO Byt
 
 /-- Send raw byte stream through a mock connection and return the response data. -/
 def sendRawBytes (pair : Mock.Client × Mock.Server) (data : ByteArray)
-    (onRequest : Request Body → ContextAsync (Response Body)) : IO ByteArray := Async.block do
+    (onRequest : Request Body → ContextAsync (Response Body)) (config : Config := { lingeringTimeout := 3000 }) : IO ByteArray := Async.block do
   let (client, server) := pair
 
   client.send data
-  Std.Http.Server.serveConnection server onRequest (config := { lingeringTimeout := 3000 })
-  |>.run (← Context.new)
+  Std.Http.Server.serveConnection server onRequest config
+  |>.run (← CancellationContext.new)
 
   let res ← client.recv?
   pure <| res.getD .empty
@@ -294,6 +294,49 @@ def testContentNegotiation : IO Unit := do
   let responseData := String.fromUTF8! response
   IO.println s!"{responseData.quote}"
 
+def test20Requests : IO Unit := do
+  let pair ← Mock.new
+
+  let handler := fun (_ : Request Body) => do
+    return Response.new
+      |>.status .ok
+      |>.header! "Content-Type" "text/plain"
+      |>.body "OK"
+
+  -- Build 20 identical requests
+  let mut data := .empty
+  for _ in [0:20] do
+    data := data ++ (← requestToByteArray (
+      Request.new
+        |>.uri! "/test"
+        |>.method .get
+        |>.header! "Host" "localhost"
+        |>.header! "User-Agent" "TestClient/1.0"
+        |>.header! "Content-Length" "0"
+        |>.body #[.mk "".toUTF8 #[]]))
+
+  -- Add Connection: close to the last request
+  data := data ++ (← requestToByteArray (
+    Request.new
+      |>.uri! "/test"
+      |>.method .get
+      |>.header! "Host" "localhost"
+      |>.header! "User-Agent" "TestClient/1.0"
+      |>.header! "Connection" "close"
+      |>.header! "Content-Length" "0"
+      |>.body #[.mk "".toUTF8 #[]]))
+
+  let response ← sendRawBytes pair data handler { lingeringTimeout := 2000, maxRequests := 10 }
+
+  let responseData := String.fromUTF8! response
+  let responseCount := (responseData.splitOn "HTTP/1.1 200 OK").length - 1
+  IO.println s!"Sent 21 requests, received {responseCount} responses"
+
+/--
+info: Sent 21 requests, received 10 responses
+-/
+#guard_msgs in
+#eval show IO _ from do test20Requests
 
 /--
 info: "HTTP/1.1 202 Accepted\x0d\nContent-Length: 50\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: application/json\x0d\n\x0d\n{\"message\": \"JSON response\", \"status\": \"accepted\"}HTTP/1.1 200 OK\x0d\nContent-Length: 73\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: application/xml\x0d\n\x0d\n<?xml version=\"1.0\"?><response><message>XML response</message></response>"

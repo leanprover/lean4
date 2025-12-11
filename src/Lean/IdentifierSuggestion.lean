@@ -17,35 +17,35 @@ namespace Lean
 
 set_option doc.verso true
 
-public structure IdentSuggestion where
-  existingToIncorrect : NameMap NameSet := {}
-  incorrectToExisting : NameMap NameSet := {}
-deriving Inhabited
+public abbrev NameMapExtension := PersistentEnvExtension (Name × Array Name) (Name × Array Name) (NameMap NameSet)
 
-def IdentSuggestion.add (table : IdentSuggestion) (trueName : Name) (altNames : Array Name) : IdentSuggestion :=
-  { existingToIncorrect :=
-      table.existingToIncorrect.alter trueName fun old =>
+builtin_initialize identifierSuggestionsImpl : NameMapExtension × NameMapExtension ←
+  -- This is mostly equivalent to a standard `ParametricAttribute` implementation
+  let existingToIncorrect : NameMapExtension ← registerPersistentEnvExtension {
+    name := `Lean.identifierSuggestForAttr.existingToIncorrect
+    mkInitial := pure {},
+    addImportedFn := fun _ => pure {},
+    addEntryFn := fun table (trueName, altNames) =>
+      table.alter trueName fun old =>
         altNames.foldl (β := NameSet) (init := old.getD {}) fun accum altName =>
           accum.insert altName
-    incorrectToExisting :=
-      altNames.foldl (init := table.incorrectToExisting) fun accum altName =>
-        accum.alter altName fun old =>
-          old.getD {} |>.insert trueName
+    exportEntriesFn table :=
+      table.toArray.map (fun (trueName, altNames) =>(trueName, altNames.toArray))
+        |>.qsort (lt := fun a b => Name.quickLt a.1 b.1)
   }
 
-builtin_initialize identifierSuggestionForAttr : PersistentEnvExtension
-    (Name × Array Name) /- Mapping from existing constant to potential incorrect alternative names -/
-    (Name × Array Name) /- Mapping from existing constant to potential incorrect alternative names -/
-    IdentSuggestion /- Two directional mapping between existing identifier and alternative incorrect mappings -/ ←
-  let ext ← registerPersistentEnvExtension {
+  -- This indexes information the opposite of the way a `ParametricAttribute` does
+  let incorrectToExisting : NameMapExtension ← registerPersistentEnvExtension {
+    name := `Lean.identifierSuggestForAttr.incorrectToExisting
     mkInitial := pure {},
-    addImportedFn := fun modules => pure <|
-      (modules.foldl (init := {}) fun accum entries =>
-        entries.foldl (init := accum) fun accum (trueName, altNames) =>
-          accum.add trueName altNames),
-    addEntryFn := fun table (trueName, altNames) => table.add trueName altNames
-    exportEntriesFn table := table.existingToIncorrect.toArray.map fun (trueName, altNames) =>
-      (trueName, altNames.toArray)
+    addImportedFn := fun _ => pure {},
+    addEntryFn := fun table (trueName, altNames) =>
+      altNames.foldl (init := table) fun accum altName =>
+        accum.alter altName fun old =>
+          old.getD {} |>.insert trueName
+    exportEntriesFn table :=
+      table.toArray.map (fun (altName, trueNames) => (altName, trueNames.toArray))
+        |>.qsort (lt := fun a b => Name.quickLt a.1 b.1)
   }
 
   registerBuiltinAttribute {
@@ -61,30 +61,38 @@ builtin_initialize identifierSuggestionForAttr : PersistentEnvExtension
         | _ => throwError "Invalid `[suggest_for]` attribute syntax {repr stx}"
       if isPrivateName decl then
         throwError "Cannot make suggestions for private names"
-      modifyEnv (ext.addEntry · (decl, altSyntaxIds.map (·.getId)))
+      let altIds := altSyntaxIds.map (·.getId)
+      modifyEnv (existingToIncorrect.addEntry · (decl, altIds))
+      modifyEnv (incorrectToExisting.addEntry · (decl, altIds))
   }
 
-  return ext
+  return (existingToIncorrect, incorrectToExisting)
 
 /--
 Given a name, find all the stored correct, existing identifiers that mention that name in a
 {lit}`suggest_for` annotation.
 -/
 public def getSuggestions [Monad m] [MonadEnv m] (incorrectName : Name) : m NameSet := do
-  return identifierSuggestionForAttr.getState (← getEnv)
-    |>.incorrectToExisting
-    |>.find? incorrectName
-    |>.getD {}
+  let env ← getEnv
+  let { state, importedEntries } := identifierSuggestionsImpl.2.toEnvExtension.getState env
+  let localEntries := state.find? incorrectName |>.getD {}
+  return importedEntries.foldl (init := localEntries) fun results moduleEntry =>
+    match moduleEntry.binSearch (incorrectName, default) (fun a b => Name.quickLt a.1 b.1) with
+    | none => results
+    | some (_, extras) => extras.foldl (init := results) fun accum extra => accum.insert extra
 
 /--
 Given a (presumably existing) identifier, find all the {lit}`suggest_for` annotations that were given
 for that identifier.
 -/
 public def getStoredSuggestions [Monad m] [MonadEnv m] (trueName : Name) : m NameSet := do
-  return identifierSuggestionForAttr.getState (← getEnv)
-    |>.existingToIncorrect
-    |>.find? trueName
-    |>.getD {}
+  let env ← getEnv
+  let { state, importedEntries } := identifierSuggestionsImpl.1.toEnvExtension.getState env
+  let localEntries := state.find? trueName |>.getD {}
+  return importedEntries.foldl (init := localEntries) fun results moduleEntry =>
+    match moduleEntry.binSearch (trueName, default) (fun a b => Name.quickLt a.1 b.1) with
+    | none => results
+    | some (_, extras) => extras.foldl (init := results) fun accum extra => accum.insert extra
 
 /--
 Throw an unknown constant error message, potentially suggesting alternatives using

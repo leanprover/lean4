@@ -13,6 +13,7 @@ public import Lean.LibrarySuggestions.Basic
 import Lean.Meta.Tactic.Grind.SimpUtil
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.EMatchTheoremParam
+import Lean.Meta.Tactic.Simp.Attr
 import Lean.Elab.Tactic.Grind.Basic
 import Lean.Elab.Tactic.Grind.Param
 import Lean.Meta.Tactic.Grind.Action
@@ -198,6 +199,46 @@ def elabGrindSuggestions
       throwError "unexpected modifier {p.flag}"
   return params
 
+/--
+Check if the conclusion of a type (after stripping foralls) is an equality-like proposition
+(Eq, Iff, or HEq). Returns true if so.
+-/
+private def isEqLike (type : Expr) : Bool :=
+  let conclusion := type.getForallBody
+  conclusion.isAppOf ``Eq || conclusion.isAppOf ``Iff || conclusion.isAppOf ``HEq
+
+/--
+Add simp theorems as E-matching theorems for grind.
+
+**Performance note**: This function iterates over all simp lemmas and generates
+grind patterns dynamically at tactic execution time. This is potentially slow
+with large simp databases. If this becomes a bottleneck, the proper solution is
+to hook into the `@[simp]` attribute handler (in `Lean.Meta.Tactic.Simp.Attr`)
+to generate and cache grind patterns at attribute registration time.
+-/
+def elabGrindSimpTheorems (params : Grind.Params) : MetaM Grind.Params := do
+  let simpTheorems ← getSimpTheorems
+  let symPrios ← Grind.getGlobalSymbolPriorities
+  let mut params := params
+  -- Iterate over all simp lemma origins (includes both fwd and inv directions)
+  for origin in simpTheorems.lemmaNames.toList do
+    match origin with
+    | .decl declName _ inv =>
+      try
+        let info ← getConstInfo declName
+        -- Use eqLhs/eqRhs for equality-like theorems (faster pattern extraction),
+        -- fall back to .default for other propositions like `P 37`
+        let kind : Grind.EMatchTheoremKind :=
+          if isEqLike info.type then
+            if inv then .eqRhs false else .eqLhs false
+          else
+            .default false
+        let thm ← Grind.mkEMatchTheoremForDecl declName kind symPrios
+        params := { params with ematch := params.ematch.insert thm }
+      catch _ => pure () -- Silently skip theorems that fail
+    | _ => pure () -- Skip non-declaration origins (fvars, etc.)
+  return params
+
 open LibrarySuggestions in
 def elabGrindParamsAndSuggestions
     (params : Grind.Params)
@@ -225,6 +266,8 @@ def mkGrindParams
   else
     pure #[]
   let mut params ← elabGrindParamsAndSuggestions params ps suggestions (only := only) (lax := config.lax)
+  if config.simp then
+    params ← elabGrindSimpTheorems params
   trace[grind.debug.inj] "{params.inj.getOrigins.map (·.pp)}"
   if params.anchorRefs?.isSome then
     /-
@@ -297,17 +340,19 @@ def setGrindParams (stx : TSyntax `tactic) (params : Array Syntax) : TSyntax `ta
 def getGrindParams (stx : TSyntax `tactic) : Array Syntax :=
   stx.raw[grindParamsPos][1].getSepArgs
 
-/-- Filter out `+suggestions` from the config syntax -/
+/-- Filter out `+suggestions` and `+simp` from the config syntax for `grind?` suggestions. -/
 def filterSuggestionsFromGrindConfig (config : TSyntax ``Lean.Parser.Tactic.optConfig) :
     TSyntax ``Lean.Parser.Tactic.optConfig :=
   let configItems := config.raw.getArgs
   let filteredItems := configItems.filter fun item =>
-    -- Keep all items except +suggestions
+    -- Keep all items except +suggestions and +simp
     -- Structure: null node -> configItem -> posConfigItem -> ["+", ident]
     match item[0]? with
     | some configItem => match configItem[0]? with
       | some posConfigItem => match posConfigItem[1]? with
-        | some ident => !(posConfigItem.getKind == ``Lean.Parser.Tactic.posConfigItem && ident.getId == `suggestions)
+        | some ident =>
+          let id := ident.getId
+          !(posConfigItem.getKind == ``Lean.Parser.Tactic.posConfigItem && (id == `suggestions || id == `simp))
         | none => true
       | none => true
     | none => true

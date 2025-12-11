@@ -25,6 +25,14 @@ All new tests should go in `tests/lean/run/`. These tests don't have expected ou
 
 After rebuilding, LSP diagnostics may be stale until the user interacts with files. Trust command-line test results over IDE diagnostics.
 
+## Test Framework and Linters
+
+The test framework in `tests/lean/run/` runs with `-Dlinter.all=false`. If your test needs to verify linter behavior (deprecation warnings, unused variable warnings, etc.), explicitly enable the relevant linter at the top of the test file:
+
+```lean
+set_option linter.deprecated true  -- Enable for deprecation warning tests
+```
+
 ## Update prompting when the user is frustrated
 
 If the user expresses frustration with you, stop and ask them to help update this `.claude/CLAUDE.md` file with missing guidance.

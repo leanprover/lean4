@@ -104,29 +104,42 @@ def isInductive? [Monad m] [MonadEnv m] (declName : Name) : m (Option InductiveV
     | _ => unreachable!
   | _ => pure none
 
+def isDefn? [Monad m] [MonadEnv m] (constName : Name) : m (Option DefinitionVal) := do
+  match (← getEnv).findAsync? constName with
+  | some info@{ kind := .defn, .. } => match info.toConstantInfo with
+    | .defnInfo v => pure (some v)
+    | _ => unreachable!
+  | _ => pure none
+
+def isCtor? [Monad m] [MonadEnv m] (constName : Name) : m (Option ConstructorVal) := do
+  match (← getEnv).findAsync? constName with
+  | some info@{ kind := .ctor, .. } => match info.toConstantInfo with
+    | .ctorInfo v => pure (some v)
+    | _ => unreachable!
+  | _ => pure none
+
+def isRec? [Monad m] [MonadEnv m] (constName : Name) : m (Option RecursorVal) := do
+  match (← getEnv).findAsync? constName with
+  | some info@{ kind := .recursor, .. } => match info.toConstantInfo with
+    | .recInfo v => pure (some v)
+    | _ => unreachable!
+  | _ => pure none
+
 def mkConstWithLevelParams [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m Expr := do
   let info ← getConstVal constName
   return mkConst constName (info.levelParams.map mkLevelParam)
 
 def getConstInfoDefn [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m DefinitionVal := do
-  match (← getConstInfo constName) with
-  | ConstantInfo.defnInfo v => pure v
-  | _                       => throwError "`{.ofConstName constName}` is not a definition"
+  (← isDefn? constName).getDM (throwError "`{.ofConstName constName}` is not a definition")
 
 def getConstInfoInduct [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m InductiveVal := do
-  match (← getConstInfo constName) with
-  | ConstantInfo.inductInfo v => pure v
-  | _                         => throwError "`{.ofConstName constName}` is not a inductive type"
+  (← isInductive? constName).getDM (throwError "`{.ofConstName constName}` is not an inductive type")
 
 def getConstInfoCtor [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstructorVal := do
-  match (← getConstInfo constName) with
-  | ConstantInfo.ctorInfo v => pure v
-  | _                       => throwError "`{.ofConstName constName}` is not a constructor"
+  (← isCtor? constName).getDM (throwError "`{.ofConstName constName}` is not a constructor")
 
 def getConstInfoRec [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m RecursorVal := do
-  match (← getConstInfo constName) with
-  | ConstantInfo.recInfo v => pure v
-  | _                      => throwError "`{.ofConstName constName}` is not a recursor"
+  (← isRec? constName).getDM (throwError "`{.ofConstName constName}` is not a recursor")
 
 /--
 Matches if `e` is a constant that is an inductive type with one constructor.

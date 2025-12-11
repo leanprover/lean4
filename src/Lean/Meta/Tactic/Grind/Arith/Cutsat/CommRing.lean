@@ -13,6 +13,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 /-!
@@ -46,7 +47,7 @@ def _root_.Int.Linear.Poly.normCommRing? (p : Poly) : GoalM (Option (CommRing.Ri
     let e ← shareCommon (← canon e)
     let gen ← p.getGeneration
     let some re ← CommRing.reify? e (gen := gen) | return none
-    let p' := re.toPoly
+    let some p' ← re.toPolyM? | return none
     let e' ← p'.denoteExpr
     let e' ← preprocessLight e'
     -- Remark: we are reusing the `IntModule` virtual parent.

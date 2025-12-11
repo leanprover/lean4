@@ -160,7 +160,7 @@ private def mkSpecTheorem (type : Expr) (proof : SpecProof) (prio : Nat) : MetaM
   -- cf. mkSimpTheoremCore
   let type ← instantiateMVars type
   unless (← isProp type) do
-    throwError "invalid 'spec', proposition expected{indentExpr type}"
+    throwError "invalid `spec`, proposition expected{indentExpr type}"
   withNewMCtxDepth do
   let (xs, _, type) ← withSimpGlobalConfig (forallMetaTelescopeReducing type)
   let type ← whnfR type
@@ -185,7 +185,7 @@ def mkSpecTheoremFromConst (declName : Name) (prio : Nat := eval_prio default) :
   mkSpecTheorem type (.global declName) prio
 
 def mkSpecTheoremFromLocal (fvar : FVarId) (prio : Nat := eval_prio default) : MetaM SpecTheorem := do
-  let some decl ← fvar.findDecl? | throwError "invalid 'spec', local constant not found"
+  let some decl ← fvar.findDecl? | throwError "invalid `spec`, local constant not found"
   mkSpecTheorem decl.type (.local fvar) prio
 
 def mkSpecTheoremFromStx (ref : Syntax) (proof : Expr) (prio : Nat := eval_prio default) : MetaM SpecTheorem := do
@@ -225,7 +225,7 @@ def mkSpecAttr (ext : SpecExtension) : AttributeImpl where
         impl.add declName stx attrKind
       catch e =>
       trace[Elab.Tactic.Do.specAttr] "Reason for failure to apply spec attribute: {e.toMessageData}"
-      throwError "Invalid 'spec': target was neither a Hoare triple specification nor a 'simp' lemma"
+      throwError "Invalid `spec`: target was neither a Hoare triple specification nor a `simp` lemma"
     discard <| go.run {} {}
 
 builtin_initialize registerBuiltinAttribute (mkSpecAttr specAttr)

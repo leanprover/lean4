@@ -41,6 +41,9 @@ abbrev fold (f : σ → α → σ) (init : σ) (s : SSet α) : σ :=
 def toList (m : SSet α) : List α :=
   m.fold (init := []) fun es a => a::es
 
+abbrev subset (s₁ s₂ : SSet α) : Bool :=
+  s₁.all (fun k .unit => s₂.contains k)
+
 end SSet
 
 end Lean

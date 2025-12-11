@@ -103,14 +103,6 @@ namespace WellFounded
   funext α r C F x a
   rw [fixF, Acc.rec_eq_recC, fixFC]
 
-/-
-/-- A computable version of `fix`. -/
-@[specialize] public def fixC {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
-    (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) : C x :=
-  F x (fun y _ => fixC hwf F y)
-termination_by hwf.wrap x
--/
-
 /-- A computable version of `fix`. -/
 @[specialize] public def fixC {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
     (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) : C x :=

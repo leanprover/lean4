@@ -112,11 +112,11 @@ def foo (n : Nat) := …
 termination_by otherWF.wrap n
 ```
 -/
-public def wrap {α : Sort u} {r : α → α → Prop} (h : WellFounded r) (x : α) : {x : α // Acc r x} :=
+def wrap {α : Sort u} {r : α → α → Prop} (h : WellFounded r) (x : α) : {x : α // Acc r x} :=
   ⟨_, h.apply x⟩
 
 @[simp]
-public theorem val_wrap {α : Sort u} {r : α → α → Prop} (h : WellFounded r) (x : α) :
+theorem val_wrap {α : Sort u} {r : α → α → Prop} (h : WellFounded r) (x : α) :
     (h.wrap x).val = x := (rfl)
 
 end

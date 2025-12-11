@@ -136,18 +136,24 @@ def ControlStack.continueT (m : ControlStack) : ControlStack :=
 
 def ControlStack.synthesizeBreak (m : ControlStack) (kvar : ContVarId) (monadicResultType : Expr) : DoElabM Unit := do
   let mi := m.monadInfo
-  let α ← mkFreshResultType `α
+  let α ← withNewMCtxDepth do
+    let α ← mkFreshResultType `α
+    if (← kvar.jumpCount) > 0 then
+      let m' := mkApp (mkConst ``BreakT [mi.u, mi.v]) mi.m
+      discard <| isDefEq (mkApp m' α) monadicResultType
+    pure α
   kvar.synthesizeJumps do
-    let m' := mkApp (mkConst ``BreakT [mi.u, mi.v]) mi.m
-    discard <| isDefEq (mkApp m' α) monadicResultType
     m.runInBase <| mkApp3 (mkConst ``BreakT.break [mi.u, mi.v]) α mi.m m.instMonad
 
 def ControlStack.synthesizeContinue (m : ControlStack) (kvar : ContVarId) (monadicResultType : Expr) : DoElabM Unit := do
   let mi := m.monadInfo
-  let α ← mkFreshResultType `α
+  let α ← withNewMCtxDepth do
+    let α ← mkFreshResultType `α
+    if (← kvar.jumpCount) > 0 then
+      let m' := mkApp (mkConst ``ContinueT [mi.u, mi.v]) mi.m
+      discard <| isDefEq (mkApp m' α) monadicResultType
+    pure α
   kvar.synthesizeJumps do
-    let m' := mkApp (mkConst ``ContinueT [mi.u, mi.v]) mi.m
-    discard <| isDefEq (mkApp m' α) monadicResultType
     m.runInBase <| mkApp3 (mkConst ``ContinueT.continue [mi.u, mi.v]) α mi.m m.instMonad
 
 def ControlStack.synthesizePure (m : ControlStack) (resultName : Name) (pureKVar : ContVarId) : DoElabM Unit := do

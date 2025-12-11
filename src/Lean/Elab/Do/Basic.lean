@@ -792,34 +792,17 @@ def mkContext (expectedType? : Option Expr) : TermElabM Context := do
   let contInfo := ContInfo.toContInfoRef { returnCont }
   return { monadInfo := mi, doBlockResultType := resultType, contInfo }
 
-/--
-Inside a dependent `match` arm, the expected type can be refined. This function takes apart the
-new expected type and runs the action with an updated `doBlockResultType` accordingly.
--/
-def withRefinedExpectedType (ty? : Option Expr) (k : DoElabM α) : DoElabM α := do
-  let some ty := ty? | return ← k
-  let (mi, resultType) ← extractMonadInfo ty
-  unless ← withNewMCtxDepth <| isDefEq (← read).monadInfo.m mi.m do
-    throwError "The expected type {ty} changes the monad from {(← read).monadInfo.m} to {mi.m}. This is not supported by the `do` elaborator."
-  let oldResultType := (← read).doBlockResultType
-  trace[Elab.do] "withRefinedExpectedType: monad: {(← read).monadInfo.m}, old result type: {oldResultType}, new result type: {resultType}"
-  trace[Elab.do] "Context: {(← mkFreshExprMVar resultType).mvarId!}"
-  if false && (← withNewMCtxDepth <| isDefEq oldResultType resultType) then
-    return ← k
---  let returnCont ← getReturnCont
---  let contResType := (← kabstract returnCont.resultType oldResultType).instantiate1 resultType
---  trace[Elab.do] "contResType: {returnCont.resultType}"
---  trace[Elab.do] "new contResType: {contResType}"
---  let returnCont := { returnCont with resultType := contResType }
---  let contInfo := { (← read).contInfo.toContInfo with returnCont }.toContInfoRef
-  trace[Elab.do] "actually withRefinedExpectedType: old result type: {oldResultType}, new result type: {resultType}"
-  withReader (fun ctx => { ctx with doBlockResultType := resultType }) k
-  -- withReader id k
+private def checkUnchangedResultType (ty? : Option Expr) (k : DoElabM α) : DoElabM α := do
+  if let some ty := ty? then
+    let oldTy ← mkMonadicType (← read).doBlockResultType
+    unless ← withNewMCtxDepth <| isDefEqGuarded oldTy ty do
+      throwError "The expected type {ty} changed from {oldTy} to {ty}. This is not supported by the `do` elaborator."
+  k
 
 def doElabToSyntax (hint : MessageData) (doElab : DoElabM Expr) (k : Term → DoElabM α) (ref : Syntax := .missing) : DoElabM α :=
   controlAtTermElabM fun runInBase =>
     Term.elabToSyntax (hint? := hint) (ref := ref)
-      (runInBase <| withRefinedExpectedType · doElab) (runInBase ∘ k)
+      (runInBase <| checkUnchangedResultType · doElab) (runInBase ∘ k)
 
 /--
   Backtrackable state for the `TermElabM` monad.

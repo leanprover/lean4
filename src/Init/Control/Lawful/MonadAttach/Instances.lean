@@ -7,9 +7,10 @@ module
 
 prelude
 public import Init.Control.Reader
+public import Init.Control.Lawful.Instances
 public import Init.Control.Lawful.MonadAttach.Lemmas
 
-instance [Monad m] [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m] :
+public instance [Monad m] [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m] :
     LawfulMonadAttach (ReaderT ρ m) where
   map_attach := by
     simp only [Functor.map, MonadAttach.attach, Functor.map_map, LawfulMonadAttach.map_attach]
@@ -19,7 +20,7 @@ instance [Monad m] [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m] :
     rintro _ _ x a ⟨r, h⟩
     apply LawfulMonadAttach.canReturn_map_imp h
 
-instance [Monad m] [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m] :
+public instance [Monad m] [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m] :
     LawfulMonadAttach (StateT σ m) where
   map_attach := by
     intro α x
@@ -30,10 +31,10 @@ instance [Monad m] [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m] :
     simp only [Functor.map, MonadAttach.CanReturn, StateT.run, StateT.map, bind_pure_comp]
     rintro _ _ x a ⟨s, s', h⟩
     obtain ⟨a, h, h'⟩ := LawfulMonadAttach.canReturn_map_imp' h
-    cases h
+    cases h'
     exact a.1.2
 
-instance [Monad m] [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m] :
+public instance [Monad m] [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m] :
     LawfulMonadAttach (ExceptT ε m) where
   map_attach {α} x := by
     simp only [Functor.map, MonadAttach.attach, ExceptT.map]

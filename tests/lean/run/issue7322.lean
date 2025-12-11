@@ -11,7 +11,7 @@ where type of `fix`’s induction hypothese change when being refined
 in a way that makes the resulting proof term type incorrect.
 -/
 
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs in
 theorem demo (distance : Nat) (idx : Nat) (a : Fin distance) (fuel : Nat) :
     a = if hidx : idx < distance then Fin.mk idx hidx else a := by
@@ -29,13 +29,13 @@ structure Ev (p : Prop) : Type where
   isTrue : p
 
 /--
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 def bar (distance : Nat) (idx : Nat) (a : Fin distance) (fuel : Nat) :
@@ -54,7 +54,7 @@ decreasing_by sorry
 /--
 info: bar.induct (motive : Nat → Prop) (case1 : ∀ (x : Nat), (∀ (n : Nat), motive n) → motive x) (fuel : Nat) : motive fuel
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 #check bar.induct

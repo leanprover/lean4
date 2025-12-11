@@ -415,7 +415,7 @@ partial def manyAux (p : ParserFn) : ParserFn := fun c s => Id.run do
   if s.hasError then
     return if iniPos == s.pos then s.restore iniSz iniPos else s
   if iniPos == s.pos then
-    return s.mkUnexpectedError "invalid 'many' parser combinator application, parser did not consume anything"
+    return s.mkUnexpectedError "invalid `many` parser combinator application, parser did not consume anything"
   if s.stackSize > iniSz + 1 then
     s := s.mkNode nullKind iniSz
   manyAux p c s

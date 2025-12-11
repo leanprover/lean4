@@ -50,17 +50,17 @@ register_builtin_option pp.analyze.typeAscriptions : Bool := {
 
 register_builtin_option pp.analyze.trustSubst : Bool := {
   defValue := false
-  descr    := "(pretty printer analyzer) always 'pretend' applications that can delab to ▸ are 'regular'"
+  descr    := "(pretty printer analyzer) always \"pretend\" applications that can delab to ▸ are \"regular\""
 }
 
 register_builtin_option pp.analyze.trustOfNat : Bool := {
   defValue := true
-  descr    := "(pretty printer analyzer) always 'pretend' `OfNat.ofNat` applications can elab bottom-up"
+  descr    := "(pretty printer analyzer) always \"pretend\" `OfNat.ofNat` applications can elab bottom-up"
 }
 
 register_builtin_option pp.analyze.trustOfScientific : Bool := {
   defValue := true
-  descr    := "(pretty printer analyzer) always 'pretend' `OfScientific.ofScientific` applications can elab bottom-up"
+  descr    := "(pretty printer analyzer) always \"pretend\" `OfScientific.ofScientific` applications can elab bottom-up"
 }
 
 -- TODO: this is an arbitrary special case of a more general principle.

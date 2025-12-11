@@ -419,7 +419,7 @@ def categoryParserFnImpl (catName : Name) : ParserFn := fun ctx s =>
   match getCategory categories catName with
   | some cat =>
     prattParser catName cat.tables cat.behavior (mkCategoryAntiquotParserFn catName) ctx s
-  | none     => s.mkUnexpectedError ("unknown parser category '" ++ toString catName ++ "'")
+  | none     => s.mkUnexpectedError ("unknown parser category `" ++ toString catName ++ "`")
 
 builtin_initialize
   categoryParserFnRef.set categoryParserFnImpl

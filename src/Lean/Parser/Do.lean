@@ -64,7 +64,7 @@ def notFollowedByRedefinedTermToken :=
   -- If we don't add `do`, then users would have to indent `do` blocks or use `{ ... }`.
   notFollowedBy ("set_option" <|> "open" <|> "if" <|> "match" <|> "match_expr" <|> "let" <|> "let_expr" <|> "have" <|>
       "do" <|> "dbg_trace" <|> "assert!" <|> "debug_assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try")
-    "token at 'do' element"
+    "token at `do` element"
 
 @[builtin_doElem_parser] def doLet      := leading_parser
   "let " >> optional "mut " >> letDecl
@@ -152,9 +152,9 @@ def doIfCond    :=
 -- current category call)
 @[builtin_doElem_parser] def doIf := leading_parser withResetCache <| withPositionAfterLinebreak <| ppRealGroup <|
   ppRealFill (ppIndent ("if " >> doIfCond >> " then") >> ppSpace >> doSeq) >>
-  many (checkColGe "'else if' in 'do' must be indented" >>
+  many (checkColGe "`else if` in `do` must be indented" >>
     group (ppDedent ppSpace >> ppRealFill (elseIf >> doIfCond >> " then " >> doSeq))) >>
-  optional (checkColGe "'else' in 'do' must be indented" >>
+  optional (checkColGe "`else` in `do` must be indented" >>
     ppDedent ppSpace >> ppRealFill ("else " >> doSeq))
 @[builtin_doElem_parser] def doUnless := leading_parser
   "unless " >> withForbidden "do" termParser >> " do " >> doSeq
@@ -243,7 +243,7 @@ The second `notFollowedBy` prevents this problem.
 @[builtin_doElem_parser] def doExpr   := leading_parser
   notFollowedByRedefinedTermToken >> termParser >>
   notFollowedBy (symbol ":=" <|> leftArrow)
-    "unexpected token after 'expr' in 'do' block"
+    "unexpected token after `expr` in `do` block"
 @[builtin_doElem_parser] def doNested := leading_parser
   "do " >> doSeq
 

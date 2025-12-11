@@ -1067,7 +1067,7 @@ def emitSSet (builder : LLVM.Builder llvmctx) (x : VarId) (n : Nat) (offset : Na
   | IRType.uint16  => pure ("lean_ctor_set_uint16", ← LLVM.i16Type llvmctx)
   | IRType.uint32  => pure ("lean_ctor_set_uint32", ← LLVM.i32Type llvmctx)
   | IRType.uint64  => pure ("lean_ctor_set_uint64", ← LLVM.i64Type llvmctx)
-  | _              => throw s!"invalid type for 'lean_ctor_set': '{t}'"
+  | _              => throw s!"invalid type for `lean_ctor_set`: `{t}`"
   let argtys := #[ ← LLVM.voidPtrType llvmctx, ← LLVM.unsignedType llvmctx, setty]
   let retty  ← LLVM.voidType llvmctx
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
@@ -1489,9 +1489,9 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
   let d ← getDecl `main
   let xs ← match d with
    | .fdecl (xs := xs) .. => pure xs
-   | _ =>  throw "Function declaration expected for 'main'"
+   | _ =>  throw "Function declaration expected for `main`"
 
-  unless xs.size == 2 || xs.size == 1 do throw s!"Invalid main function, main expected to have '2' or '1' arguments, found '{xs.size}' arguments"
+  unless xs.size == 2 || xs.size == 1 do throw s!"Invalid main function, main expected to have `2` or `1` arguments, found `{xs.size}` arguments"
   let env ← getEnv
   let usesLeanAPI := usesModuleFrom env `Lean
   let mainTy ← LLVM.functionType (← LLVM.i64Type llvmctx)

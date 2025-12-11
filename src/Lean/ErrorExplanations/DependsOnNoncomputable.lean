@@ -63,7 +63,7 @@ def endsOrDefault (ns : List Nat) : Nat × Nat :=
   (head, tail)
 ```
 ```output
-failed to compile definition, consider marking it as 'noncomputable' because it depends on 'getOrDefault', which is 'noncomputable'
+failed to compile definition, consider marking it as `noncomputable` because it depends on `getOrDefault`, which is `noncomputable`
 ```
 ```lean fixed (title := "Fixed (computable)")
 def getOrDefault [Inhabited α] : Option α → α
@@ -96,7 +96,7 @@ def fromImage (f : Nat → Nat) (y : Nat) :=
     f 0
 ```
 ```output
-failed to compile definition, consider marking it as 'noncomputable' because it depends on 'propDecidable', which is 'noncomputable'
+failed to compile definition, consider marking it as `noncomputable` because it depends on `propDecidable`, which is `noncomputable`
 ```
 ```lean fixed
 open Classical in

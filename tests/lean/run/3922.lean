@@ -28,7 +28,7 @@ info: found a partial proof, but the corresponding tactic failed:
 
 It may be possible to correct this proof by adding type annotations, explicitly specifying implicit arguments, or eliminating unnecessary function abstractions.
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs (ordering := sorted) in
 example (a b c : Nat) (h₁ : r b a) (h₂ : r b c) : r c a := by

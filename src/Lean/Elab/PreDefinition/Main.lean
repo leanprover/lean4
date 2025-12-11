@@ -27,7 +27,7 @@ private def addAndCompilePartial
       let value ← if useSorry then
         mkLambdaFVars xs (← withRef preDef.ref <| mkLabeledSorry type (synthetic := true) (unique := true))
       else
-        let msg := m!"failed to compile 'partial' definition `{preDef.declName}`"
+        let msg := m!"failed to compile `partial` definition `{preDef.declName}`"
         liftM <| mkInhabitantFor msg xs type
       addNonRec docCtx { preDef with
         kind  := DefKind.«opaque»

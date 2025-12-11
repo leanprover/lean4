@@ -38,7 +38,7 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
         let forInInstance ← try
           mkAppM ``ForIn #[m, colType, elemType]
         catch _ =>
-          tryPostpone; throwError "failed to construct 'ForIn' instance for collection{indentExpr colType}\nand monad{indentExpr m}"
+          tryPostpone; throwError "failed to construct `ForIn` instance for collection{indentExpr colType}\nand monad{indentExpr m}"
         match (← trySynthInstance forInInstance) with
         | .some inst =>
           let forInFn ← mkConst ``forIn

@@ -101,9 +101,9 @@ private def addAndCompileExprForEval (declName : Name) (value : Expr) (allowSorr
     let axioms ← collectAxioms declName
     if axioms.contains ``sorryAx then
       throwError "\
-        aborting evaluation since the expression depends on the 'sorry' axiom, \
+        aborting evaluation since the expression depends on the `sorry` axiom, \
         which can lead to runtime instability and crashes.\n\n\
-        To attempt to evaluate anyway despite the risks, use the '#eval!' command."
+        To attempt to evaluate anyway despite the risks, use the `#eval!` command."
   return declName
 
 /--

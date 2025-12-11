@@ -220,7 +220,7 @@ where
     if (matchHeader 1 "Examples" line).isSome then
       return
     else
-      fail s!"Expected level-1 'Examples' header, but found `{line}`"
+      fail s!"Expected level-1 `Examples` header, but found `{line}`"
 
   -- We needn't `attempt` examples because they never appear in a location where backtracking is
   -- possible, and persisting the line index allows better error message placement

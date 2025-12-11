@@ -93,7 +93,7 @@ is annotated with `@[grind ←=]`, grind `will` instantiate it whenever the corr
 is assumed—this is a consequence of the fact that grind performs all proofs by contradiction.
 Ordinarily, the grind attribute does not consider the `=` symbol when generating patterns.
 -/
-syntax grindEqBwd  := patternIgnore(atomic("←" "=") <|> atomic("<-" "="))
+syntax grindEqBwd  := patternIgnore(atomic(unicode("←", "<-") "="))
 /--
 The `←` modifier instructs `grind` to select a multi-pattern from the conclusion of theorem.
 In other words, `grind` will use the theorem for backwards reasoning.
@@ -102,7 +102,7 @@ Each time it encounters a subexpression which covers an argument which was not
 previously covered, it adds that subexpression as a pattern, until all arguments have been covered.
 If `grind!` is used, then only minimal indexable subexpressions are considered.
 -/
-syntax grindBwd    := patternIgnore("←" <|> "<-") (grindGen)?
+syntax grindBwd    := unicode("←", "<-") (grindGen)?
 /--
 The `→` modifier instructs `grind` to select a multi-pattern from the hypotheses of the theorem.
 In other words, `grind` will use the theorem for forwards reasoning.
@@ -111,7 +111,7 @@ Each time it encounters a subexpression which covers an argument which was not
 previously covered, it adds that subexpression as a pattern, until all arguments have been covered.
 If `grind!` is used, then only minimal indexable subexpressions are considered.
 -/
-syntax grindFwd    := patternIgnore("→" <|> "->")
+syntax grindFwd    := unicode("→", "->")
 /--
 The `⇐` modifier instructs `grind` to select a multi-pattern by traversing the conclusion, and then
 all the hypotheses from right to left.
@@ -119,7 +119,7 @@ Each time it encounters a subexpression which covers an argument which was not
 previously covered, it adds that subexpression as a pattern, until all arguments have been covered.
 If `grind!` is used, then only minimal indexable subexpressions are considered.
 -/
-syntax grindRL     := patternIgnore("⇐" <|> "<=")
+syntax grindRL     := unicode("⇐", "<=")
 /--
 The `⇒` modifier instructs `grind` to select a multi-pattern by traversing all the hypotheses from
 left to right, followed by the conclusion.
@@ -127,7 +127,7 @@ Each time it encounters a subexpression which covers an argument which was not
 previously covered, it adds that subexpression as a pattern, until all arguments have been covered.
 If `grind!` is used, then only minimal indexable subexpressions are considered.
 -/
-syntax grindLR     := patternIgnore("⇒" <|> "=>")
+syntax grindLR     := unicode("⇒", "=>")
 /--
 The `.` modifier instructs `grind` to select a multi-pattern by traversing the conclusion of the
 theorem, and then the hypotheses from left to right. We say this is the default modifier.

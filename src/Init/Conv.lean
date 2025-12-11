@@ -265,7 +265,7 @@ resulting in `t'`, which becomes the new target subgoal. -/
 syntax (name := convConvSeq) "conv" " => " convSeq : conv
 
 /-- `· conv` focuses on the main conv goal and tries to solve it using `s`. -/
-macro dot:patternIgnore("· " <|> ". ") s:convSeq : conv => `(conv| {%$dot ($s) })
+macro dot:unicode("· ", ". ") s:convSeq : conv => `(conv| {%$dot ($s) })
 
 
 /-- `fail_if_success t` fails if the tactic `t` succeeds. -/

@@ -102,6 +102,30 @@ infixr:35 unicode(" ∨' ", " \\/' ") => Or'
 #guard_msgs in set_option pp.unicode false in #check True \/' False
 
 /-!
+Testing that core notations respond to `pp.unicode`.
+-/
+/-- info: True ∨ False : Prop -/
+#guard_msgs in set_option pp.unicode true  in #check True ∨ False
+/-- info: True \/ False : Prop -/
+#guard_msgs in set_option pp.unicode false in #check True ∨ False
+/-- info: True ∧ False : Prop -/
+#guard_msgs in set_option pp.unicode true  in #check True ∧ False
+/-- info: True /\ False : Prop -/
+#guard_msgs in set_option pp.unicode false in #check True ∧ False
+/-- info: True → False : Prop -/
+#guard_msgs in set_option pp.unicode true  in #check True → False
+/-- info: True -> False : Prop -/
+#guard_msgs in set_option pp.unicode false in #check True → False
+/-- info: 1 ≤ 2 : Prop -/
+#guard_msgs in set_option pp.unicode true  in #check 1 ≤ 2
+/-- info: 1 <= 2 : Prop -/
+#guard_msgs in set_option pp.unicode false in #check 1 ≤ 2
+/-- info: 1 ≥ 2 : Prop -/
+#guard_msgs in set_option pp.unicode true  in #check 1 ≥ 2
+/-- info: 1 >= 2 : Prop -/
+#guard_msgs in set_option pp.unicode false in #check 1 ≥ 2
+
+/-!
 Tests that used to be in `tests/lean/ppUnicode.lean`.
 -/
 /-!

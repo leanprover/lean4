@@ -11,6 +11,8 @@ if (← get) == 0 then
   throw $ IO.userError "value is zero"
 modify (· - x)
 
+set_option trace.Elab.do true in
+set_option backward.do.legacy false in
 def f1 (x : Nat) : M Nat := do
 let v ←
   try
@@ -18,6 +20,7 @@ let v ←
     return x
   catch _ =>
     return 1
+pure v
 
 def f2 (xs : List Nat) : M Nat := do
 let mut sum := 0

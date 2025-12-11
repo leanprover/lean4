@@ -3,8 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Parser.Term
+public import Lean.Parser.Term
+
+public section
 
 namespace Lean
 namespace Parser
@@ -44,6 +48,14 @@ attribute [run_builtin_parser_attribute_hooks] doSeq termBeforeDo
 builtin_initialize
   register_parser_alias doSeq
   register_parser_alias termBeforeDo
+
+def getDoElems (doSeq : TSyntax ``doSeq) : Array (TSyntax `doElem) :=
+  if doSeq.raw.getKind == ``Parser.Term.doSeqBracketed then
+    doSeq.raw[1].getArgs.map fun arg => ⟨arg[0]⟩
+  else if doSeq.raw.getKind == ``Parser.Term.doSeqIndent then
+    doSeq.raw[0].getArgs.map fun arg => ⟨arg[0]⟩
+  else
+    #[]
 
 def notFollowedByRedefinedTermToken :=
   -- Remark: we don't currently support `open` and `set_option` in `do`-blocks,
@@ -153,7 +165,7 @@ def doForDecl := leading_parser
 `break` and `continue` are supported inside `for` loops.
 `for x in e, x2 in e2, ... do s` iterates of the given collections in parallel,
 until at least one of them is exhausted.
-The types of `e2` etc. must implement the `ToStream` typeclass.
+The types of `e2` etc. must implement the `Std.ToStream` typeclass.
 -/
 @[builtin_doElem_parser] def doFor    := leading_parser
   "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq

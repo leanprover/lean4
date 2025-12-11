@@ -3,10 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Data.List.Lemmas
-import Init.Data.List.Impl
-import Std.Sat.CNF.Literal
+public import Std.Sat.CNF.Literal
+
+@[expose] public section
 
 namespace Std
 namespace Sat

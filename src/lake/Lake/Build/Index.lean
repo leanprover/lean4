@@ -3,9 +3,13 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
+public import Lake.Build.Fetch
 import Lake.Config.Monad
 import Lake.Build.Topological
+import Lake.Util.StoreInsts
 
 /-!
 # The Lake Build Index
@@ -22,12 +26,12 @@ open System (FilePath)
 namespace Lake
 
 /-- Recursive build function for anything in the Lake build index. -/
-def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) := do
+private def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) := do
   match info with
   | .target pkg target =>
     if let some decl := pkg.findTargetDecl? target then
       if h : decl.kind.isAnonymous then
-        let key := BuildKey.packageTarget pkg.name target
+        let key := BuildKey.packageTarget pkg.keyName target
         fetchOrCreate key do (decl.targetConfig h).fetchFn pkg
       else
         let kind := ⟨decl.kind, by simp [decl.target_eq_type h]⟩
@@ -51,12 +55,12 @@ def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) := 
       error s!"invalid target '{info}': unknown facet '{facet}'"
 
 /-- Recursive build function with memoization. -/
-def recFetchWithIndex : (info : BuildInfo) → RecBuildM (Job (BuildData info.key)) :=
+private def recFetchWithIndex : (info : BuildInfo) → RecBuildM (Job (BuildData info.key)) :=
  inline <| recFetchAcyclic (β := (Job <| BuildData ·.key)) BuildInfo.key recBuildWithIndex
 
 /--
 Run a recursive Lake build using the Lake build index
 and a topological / suspending scheduler.
 -/
-@[inline] def FetchT.run (x : FetchT m α) : RecBuildT m α :=
-  x recFetchWithIndex
+@[inline] public nonrec def FetchT.run (x : FetchT m α) : RecBuildT m α :=
+  x.run recFetchWithIndex

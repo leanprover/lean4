@@ -1,5 +1,6 @@
 import Std.Internal.Async.System
 import Std.Internal.Async.Process
+import Lean.Runtime
 
 open Std.Internal.IO.Async.System
 open Std.Internal.IO.Process
@@ -85,6 +86,8 @@ open Std.Internal.IO.Process
 #eval do
   if System.Platform.isWindows then
     return
+  if Lean.libUVVersion < 0x012D00 then
+    return
 
   assert! (← getGroup (GroupId.mk 240000)).isNone
 
@@ -104,4 +107,7 @@ open Std.Internal.IO.Process
   constrainedMemory
 
 #eval do
+  if Lean.libUVVersion < 0x012D00 then
+    return
+
   assert! (← availableMemory) > 0

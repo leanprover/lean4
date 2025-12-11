@@ -3,9 +3,12 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.LRAT.Internal.Entails
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+public import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+@[expose] public section
 
 /-!
 This module contains the definition of the `Formula` typeclass. It is the interface that needs to
@@ -58,8 +61,13 @@ class Formula (α : outParam (Type u)) (β : outParam (Type v)) [Clause α β] (
 
 open Formula
 
-attribute [grind] insert_iff readyForRupAdd_insert readyForRatAdd_insert
-  delete_subset readyForRupAdd_delete readyForRatAdd_delete
+attribute [grind =] insert_iff
+attribute [grind →] delete_subset
+
+grind_pattern readyForRupAdd_insert => ReadyForRupAdd (insert f c)
+grind_pattern readyForRupAdd_delete => ReadyForRupAdd (delete f arr)
+grind_pattern readyForRatAdd_insert => ReadyForRatAdd (insert f c)
+grind_pattern readyForRatAdd_delete => ReadyForRatAdd (delete f arr)
 
 attribute [grind →]
   rupAdd_result rupAdd_sound ratAdd_result ratAdd_sound

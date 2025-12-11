@@ -5,9 +5,9 @@ Updated error message to show the elaborated term rather than `h✝`
 -/
 
 /--
-error: type mismatch, term
+error: Type mismatch: After simplification, term
   hp
-after simplification has type
+ has type
   p
 but is expected to have type
   p ∧ q
@@ -17,9 +17,9 @@ example (p q : Prop) (hp : p ∧ True) : p ∧ q ∧ True := by
   simpa using hp
 
 /--
-error: type mismatch, term
+error: Type mismatch: After simplification, term
   fun x => x
-after simplification has type
+ has type
   True
 but is expected to have type
   False

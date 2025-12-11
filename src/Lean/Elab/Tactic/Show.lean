@@ -3,8 +3,12 @@ Copyright (c) 2025 Robin Arnez. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Robin Arnez
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Change
+public import Lean.Elab.Tactic.Change
+
+public section
 
 namespace Lean.Elab.Tactic
 open Meta
@@ -61,7 +65,8 @@ where
       is not definitionally equal to the target{indentExpr tgt}\n\
       (Errors for other goals omitted)"
 
-@[builtin_tactic «show»] elab_rules : tactic
+@[builtin_tactic «show»] def evalShow : Tactic
   | `(tactic| show $newType:term) => elabShow newType
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic

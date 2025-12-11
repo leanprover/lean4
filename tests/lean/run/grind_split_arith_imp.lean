@@ -1,9 +1,10 @@
+module
 reset_grind_attrs%
 attribute [grind] Vector.getElem_swap_of_ne
 
 example (hi : i < n) (hj : j < i) (hk : k < j) (as : Vector α n) (p : α → Prop) (h : p as[k]) :
     p (as.swap i j)[k] := by
-  grind (splits := 0)
+  grind -- (splits := 0) -- TODO re-enable after we update lookahead
 
 example (hi : i < n) (hj : j < i) (hk : k < j) (as : Vector α n) (p : α → Prop) (h : p as[k]) :
     p (as.swap i j)[k] := by

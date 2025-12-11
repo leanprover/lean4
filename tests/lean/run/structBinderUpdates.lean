@@ -104,9 +104,9 @@ namespace Ex4
 variable (α : Type)
 
 /--
-error: only parameters appearing in the declaration header may have their binders kinds be overridden
+error: Only parameters appearing in the declaration header may have their binders kinds be overridden
 
-If this is not intended to be an override, use a binder with a type, for example '(x : _)'.
+Hint: If this is not intended to be an override, use a binder with a type: for example, `(x : _)`
 -/
 #guard_msgs in
 class Inhabited where
@@ -118,7 +118,7 @@ end Ex4
 Here, `(α β)` is not an override since `β` is not an existing parameter, so `α` is treated as a binder.
 -/
 namespace Ex5
-/-- error: failed to infer binder type -/
+/-- error: Failed to infer type of binder `α` -/
 #guard_msgs in
 class C (α : Type) where
   f (α β) : β
@@ -128,9 +128,74 @@ end Ex5
 Here, `(α β)` is not an override since `β` is a field.
 -/
 namespace Ex6
-/-- error: failed to infer binder type -/
+/-- error: Failed to infer type of binder `α` -/
 #guard_msgs in
 class C (α : Type) where
   β : Type
   f (α β) : β
 end Ex6
+
+/-!
+## Constructor updates
+-/
+
+/-!
+Comparing natural constructor binder kinds to the updated ones.
+-/
+namespace ExC1
+
+structure WithLp (p : Nat) (V : Type) where toLp ::
+  ofLp : V
+
+/-- info: constructor ExC1.WithLp.toLp : {p : Nat} → {V : Type} → V → WithLp p V -/
+#guard_msgs in #print WithLp.toLp
+
+structure WithLp' (p : Nat) (V : Type) where toLp (p) ::
+  ofLp : V
+
+/-- info: constructor ExC1.WithLp'.toLp : (p : Nat) → {V : Type} → V → WithLp' p V -/
+#guard_msgs in #print WithLp'.toLp
+end ExC1
+
+/-!
+Checking errors
+-/
+namespace ExC2
+
+/-- error: Expecting binders that update binder kinds of type parameters. -/
+#guard_msgs in
+structure WithLp (p : Nat) (V : Type) where toLp (p : _) ::
+  ofLp : V
+
+variable (n : Nat)
+
+/--
+error: Only parameters appearing in the declaration header may have their binders kinds be overridden
+
+Hint: If this is not intended to be an override, use a binder with a type: for example, `(x : _)`
+-/
+#guard_msgs in
+structure WithLp (p : Nat) (V : Type) where toLp (n) ::
+  ofLp : V
+
+/-!
+Even if `n` is used by `ofLp`, the restriction is still in place.
+Motivation 1: the fields themselves have the same restriction, so it's for consistency.
+Motivation 2: we should be able to tell whether the param binder update is legit without looking at all the fields.
+Motivation 3: the constructor type is constructed before we know which `variable`s will be included. That would take participation of MutualInductive.
+-/
+/--
+error: Only parameters appearing in the declaration header may have their binders kinds be overridden
+
+Hint: If this is not intended to be an override, use a binder with a type: for example, `(x : _)`
+-/
+#guard_msgs in
+structure WithLp (p : Nat) (V : Type) where toLp (n) ::
+  ofLp : Fin n → V
+
+/-- error: Expecting binders that update binder kinds of type parameters. -/
+#guard_msgs in
+structure WithLp (p : Nat) (V : Type) where toLp (m : Int) ::
+  ofLp : V
+
+end ExC2

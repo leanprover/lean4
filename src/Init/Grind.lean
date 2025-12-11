@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Grind.Norm
 public import Init.Grind.Tactics
@@ -22,5 +21,10 @@ public import Init.Grind.ToInt
 public import Init.Grind.ToIntLemmas
 public import Init.Grind.Attr
 public import Init.Data.Int.OfNat -- This may not have otherwise been imported, breaking `grind` proofs.
-
-public section
+public import Init.Grind.AC
+public import Init.Grind.Injective
+public import Init.Grind.Order
+public import Init.Grind.Interactive
+public import Init.Grind.Lint
+public import Init.Grind.Annotated
+public import Init.Grind.FieldNormNum

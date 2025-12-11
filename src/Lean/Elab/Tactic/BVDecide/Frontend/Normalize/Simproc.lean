@@ -3,11 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Normalize
-import Std.Tactic.BVDecide.Syntax
-import Lean.Elab.Tactic.Simp
-import Lean.Elab.Tactic.BVDecide.Frontend.Attr
+public import Std.Tactic.BVDecide.Normalize
+public import Lean.Elab.Tactic.BVDecide.Frontend.Attr
+
+public section
 
 /-!
 This module contains implementations of simprocs used in the `bv_normalize` simp set.

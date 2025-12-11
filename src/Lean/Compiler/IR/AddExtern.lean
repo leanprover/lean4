@@ -4,15 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Cameron Zwarich
 -/
 
+module
+
 prelude
-import Lean.CoreM
-import Lean.Compiler.BorrowedAnnotation
-import Lean.Compiler.ExternAttr
-import Lean.Compiler.IR.Basic
-import Lean.Compiler.IR.Boxing
-import Lean.Compiler.IR.CompilerM
-import Lean.Compiler.IR.ToIRType
-import Lean.Compiler.LCNF.MonoTypes
+public import Lean.Compiler.IR.Boxing
+import Lean.Compiler.IR.RC
+
+public section
 
 namespace Lean.IR
 
@@ -29,10 +27,12 @@ def addExtern (declName : Name) (externAttrData : ExternAttrData) : CoreM Unit :
     type := b
     nextVarIndex := nextVarIndex + 1
   let irType ← toIRType type
-  let decl := .extern declName params irType externAttrData
-  -- TODO: Remove this code duplication once IR.CompilerM is based on CoreM.
-  Lean.modifyEnv fun env => addDeclAux env decl
-  if ExplicitBoxing.requiresBoxedVersion (← Lean.getEnv) decl then
-    Lean.modifyEnv fun env => addDeclAux env (ExplicitBoxing.mkBoxedVersion decl)
+  let decls := #[.extern declName params irType externAttrData]
+  if !isPrivateName declName then
+    modifyEnv (Compiler.LCNF.setDeclPublic · declName)
+  let decls := ExplicitBoxing.addBoxedVersions (← Lean.getEnv) decls
+  let decls ← explicitRC decls
+  logDecls `result decls
+  addDecls decls
 
 end Lean.IR

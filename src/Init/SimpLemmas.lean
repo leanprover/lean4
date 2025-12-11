@@ -144,6 +144,12 @@ theorem ite_congr {x y u v : α} {s : Decidable b} [Decidable c]
   | inl h => rw [if_pos h]; subst b; rw [if_pos h]; exact h₂ h
   | inr h => rw [if_neg h]; subst b; rw [if_neg h]; exact h₃ h
 
+theorem ite_cond_congr {α} {b c : Prop} {s : Decidable b} [Decidable c] {x y : α}
+    (h₁ : b = c) : ite b x y = ite c x y := by
+  cases Decidable.em c with
+  | inl h => rw [if_pos h]; subst b; rw [if_pos h]
+  | inr h => rw [if_neg h]; subst b; rw [if_neg h]
+
 theorem Eq.mpr_prop {p q : Prop} (h₁ : p = q) (h₂ : q)  : p  := h₁ ▸ h₂
 theorem Eq.mpr_not  {p q : Prop} (h₁ : p = q) (h₂ : ¬q) : ¬p := h₁ ▸ h₂
 
@@ -157,6 +163,13 @@ theorem dite_congr {_ : Decidable b} [Decidable c]
   cases Decidable.em c with
   | inl h => rw [dif_pos h]; subst b; rw [dif_pos h]; exact h₂ h
   | inr h => rw [dif_neg h]; subst b; rw [dif_neg h]; exact h₃ h
+
+theorem dite_cond_congr {α} {b c : Prop} {s : Decidable b} [Decidable c]
+    {x : b → α} {y : ¬ b → α} (h₁ : b = c) :
+    dite b x y = dite c (fun h => x (h₁.mpr_prop h)) (fun h => y (h₁.mpr_not h)) := by
+  cases Decidable.em c with
+  | inl h => rw [dif_pos h]; subst b; rw [dif_pos h]
+  | inr h => rw [dif_neg h]; subst b; rw [dif_neg h]
 
 @[simp] theorem ne_eq (a b : α) : (a ≠ b) = ¬(a = b) := rfl
 norm_cast_add_elim ne_eq

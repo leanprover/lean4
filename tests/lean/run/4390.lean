@@ -11,7 +11,8 @@ termination_by state
 decreasing_by sorry
 
 /--
-error: tactic 'split' failed, consider using `set_option trace.split.failure true`
+error: Tactic `split` failed: Could not split an `if` or `match` expression in the goal
+
 state : Nat
 p :
   (match h : step state with

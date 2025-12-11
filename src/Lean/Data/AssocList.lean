@@ -3,9 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Control.Id
-import Init.Data.List.Impl
+public import Init.Data.List.Impl
+
+public section
 
 universe u v w w'
 namespace Lean
@@ -17,7 +20,7 @@ inductive AssocList (α : Type u) (β : Type v) where
   deriving Inhabited
 
 namespace AssocList
-variable {α : Type u} {β : Type v} {δ : Type w} {m : Type w → Type w} [Monad m]
+variable {α : Type u} {β : Type v} {δ : Type w} {m : Type w → Type w'} [Monad m]
 
 abbrev empty : AssocList α β :=
   nil
@@ -107,7 +110,7 @@ def all (p : α → β → Bool) : AssocList α β → Bool
       | ForInStep.yield d => loop d es
   loop init as
 
-instance : ForIn m (AssocList α β) (α × β) where
+instance [Monad m] : ForIn m (AssocList α β) (α × β) where
   forIn := AssocList.forIn
 
 end Lean.AssocList

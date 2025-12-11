@@ -1,3 +1,4 @@
+module
 open Lean.Grind
 
 example {α} [CommRing α] [IsCharP α 0]

@@ -3,13 +3,17 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
+module
+
 prelude
-import Lean.Meta.Check
-import Lean.ReservedNameAction
-import Lean.AddDecl
-import Lean.Meta.Transform
-import Lean.Util.CollectFVars
-import Lean.Util.CollectMVars
+public import Lean.Meta.Check
+public import Lean.ReservedNameAction
+public import Lean.AddDecl
+public import Lean.Meta.Transform
+public import Lean.Util.CollectFVars
+public import Lean.Util.CollectMVars
+
+public section
 
 /-!
 # Transforming nondependent `let`s into `have`s
@@ -41,7 +45,7 @@ Optimizations, present and future:
   however checking for `let`s is O(n), so we only try this for expressions with a small `approxDepth`.
   (We can consider precomputing this somehow.)
   - The cache is currently responsible for the check.
-  - We also do it before entering telescopes, to avoid unnecesasry fvar overhead.
+  - We also do it before entering telescopes, to avoid unnecessary fvar overhead.
 - If we are not currently inside a `let`, then we do not need to do full typechecking.
 - We try to reuse Exprs to promote subexpression sharing.
 - We might consider not transforming lets to haves if we are in a proof that is not inside a `let`.

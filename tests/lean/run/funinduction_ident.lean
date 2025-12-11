@@ -20,7 +20,7 @@ theorem map_id (xs : List α) : map id xs = xs := by
 -- argument to `map` is `.dropped`. But since we use the unfolding lemma it doesn't anymore:
 
 /--
-error: Found more than one suitable call of 'map' in the goal. Please include the desired arguments.
+error: Found more than one suitable call of `map` in the goal. Please include the desired arguments.
 -/
 #guard_msgs in
 theorem map_map (f : α → β) (g : β → γ) xs :
@@ -38,7 +38,7 @@ theorem map_map' (f : α → β) (g : β → γ) xs :
 -- This should genuinely not work, but have a good error message
 
 /--
-error: Found more than one suitable call of 'append' in the goal. Please include the desired arguments.
+error: Found more than one suitable call of `append` in the goal. Please include the desired arguments.
 -/
 #guard_msgs in
 theorem append_assoc :
@@ -58,7 +58,7 @@ def ackermann : (Nat × Nat) → Nat
 termination_by p => p
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
 m✝ : Nat
@@ -83,7 +83,7 @@ example : P (ackermann p) := by
   fail
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
 m✝ : Nat
@@ -104,7 +104,7 @@ example : P (ackermann p) := by
   fun_cases ackermann
   fail
 
-/-- error: Could not find suitable call of 'ackermann' in the goal -/
+/-- error: Could not find suitable call of `ackermann` in the goal -/
 #guard_msgs in
 example : P (ackermann (n, m)) := by
   fun_induction ackermann
@@ -203,7 +203,7 @@ def fib : Nat → Nat
 termination_by structural x => x
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
 ⊢ P 0
@@ -224,7 +224,7 @@ example : P (fib n) := by
   fun_induction fib
   fail
 
-/-- error: Could not find suitable call of 'fib' in the goal -/
+/-- error: Could not find suitable call of `fib` in the goal -/
 #guard_msgs in
 example : n ≤ fib (n + 2) := by
   fun_induction fib
@@ -250,7 +250,7 @@ info: StructuralWithOmittedParam.fib.induct (motive : Nat → Prop) (case1 : mot
 #check fib.induct -- NB: No inc showing up
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
 inc : Nat
@@ -323,7 +323,7 @@ namespace Nonrec
 
 def foo := 1
 
-/-- error: No functional induction theorem for 'foo', or function is mutually recursive -/
+/-- error: No functional induction theorem for `foo`, or function is mutually recursive -/
 #guard_msgs in
 example : True := by
   fun_induction foo
@@ -346,7 +346,7 @@ def Tree.size_aux : List (Tree α) → Nat
   | t :: ts => size t + size_aux ts
 end
 
-/-- error: No functional induction theorem for 'Tree.size', or function is mutually recursive -/
+/-- error: No functional induction theorem for `Tree.size`, or function is mutually recursive -/
 #guard_msgs in
 example (t : Tree α) : True := by
   fun_induction Tree.size

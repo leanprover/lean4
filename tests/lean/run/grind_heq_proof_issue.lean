@@ -1,3 +1,4 @@
+module
 def f (a : α) := a
 
 example (a b : α) (x y : β) : a ≍ x → x = y → y ≍ b → f a = f b := by

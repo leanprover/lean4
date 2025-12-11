@@ -48,14 +48,14 @@ variable (fn' : Fn ((p : P) -> B.fn p -> B.fn p) ({p : P} -> B.fn p -> B.fn p))
 #check fn' Bp
 
 /--
-error: Application type mismatch: In the application
-  fn'.imp p
-the argument
+error: Application type mismatch: The argument
   p
 has type
   P
 but is expected to have type
   Bar.fn ?_
+in the application
+  fn'.imp p
 -/
 #guard_msgs in
 #check fn' p

@@ -1,3 +1,4 @@
+module
 opaque f : Nat → Nat
 opaque op : Nat → Nat → Nat
 @[grind] theorem op_comm : op x y = op y x := sorry

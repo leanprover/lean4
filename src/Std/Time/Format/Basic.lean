@@ -3,12 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Internal.Parsec
-import Std.Time.Date
-import Std.Time.Time
-import Std.Time.Zoned
-import Std.Time.DateTime
+public import Std.Time.Zoned
+import Init.Data.String.TakeDrop
+import Init.Data.String.Search
+
+public section
 
 /-!
 This module defines the `Formatter` types. It is based on the Java's `DateTimeFormatter` format.
@@ -443,7 +445,7 @@ private def parseMod (constructor : α → Modifier) (classify : Nat → Option 
   let len := p.length
   match classify len with
   | some res => pure (constructor res)
-  | none => fail s!"invalid quantity of characters for '{p.get 0}'"
+  | none => fail s!"invalid quantity of characters for '{p.front}'"
 
 private def parseText (constructor : Text → Modifier) (p : String) : Parser Modifier :=
   parseMod constructor Text.classify p
@@ -467,16 +469,16 @@ private def parseOffsetO (constructor : OffsetO → Modifier) (p : String) : Par
   parseMod constructor OffsetO.classify p
 
 private def parseZoneId (p : String) : Parser Modifier :=
-  if p.length = 2 then pure .V else fail s!"invalid quantity of characters for '{p.get 0}'"
+  if p.length = 2 then pure .V else fail s!"invalid quantity of characters for '{p.front}'"
 
 private def parseNumberText (constructor : (Number ⊕ Text) → Modifier) (p : String) : Parser Modifier :=
   parseMod constructor classifyNumberText p
 
 private def parseZoneName (constructor : ZoneName → Modifier) (p : String) : Parser Modifier :=
   let len := p.length
-  match ZoneName.classify (p.get 0) len with
+  match ZoneName.classify (p.front) len with
   | some res => pure (constructor res)
-  | none => fail s!"invalid quantity of characters for '{p.get 0}'"
+  | none => fail s!"invalid quantity of characters for '{p.front}'"
 
 private def parseModifier : Parser Modifier
   := (parseText Modifier.G =<< many1Chars (pchar 'G'))
@@ -553,13 +555,14 @@ namespace Awareness
 instance : Coe TimeZone Awareness where
   coe := .only
 
-@[simp]
-private def type (x : Awareness) : Type :=
+set_option linter.missingDocs false in  -- TODO
+@[simp, expose /- for codegen -/]
+def type (x : Awareness) : Type :=
   match x with
   | .any => ZonedDateTime
   | .only tz => DateTime tz
 
-instance : Inhabited (type aw) where
+private instance : Inhabited (type aw) where
   default := by
     simp [type]
     split <;> exact Inhabited.default
@@ -624,7 +627,7 @@ private def pad (size : Nat)  (n : Int) (cut : Bool := false) : String :=
 
   let numStr := toString n
   if numStr.length > size then
-    sign ++ if cut then numStr.drop (numStr.length - size) else numStr
+    sign ++ if cut then numStr.drop (numStr.length - size) |>.copy else numStr
   else
     sign ++ leftPad size '0' numStr
 
@@ -633,7 +636,7 @@ private def rightTruncate (size : Nat)  (n : Int) (cut : Bool := false) : String
 
   let numStr := toString n
   if numStr.length > size then
-    sign ++ if cut then numStr.take size else numStr
+    sign ++ if cut then numStr.take size |>.copy else numStr
   else
     sign ++ rightPad size '0' numStr
 
@@ -765,7 +768,9 @@ private def toIsoString (offset : Offset) (withMinutes : Bool) (withSeconds : Bo
 
   data
 
-private def TypeFormat : Modifier → Type
+set_option linter.missingDocs false in  -- TODO
+@[expose /- for codegen -/]
+def TypeFormat : Modifier → Type
   | .G _ => Year.Era
   | .y _ => Year.Offset
   | .u _ => Year.Offset
@@ -1266,8 +1271,9 @@ private def formatPartWithDate (date : DateTime tz) (part : FormatPart) : String
   | .modifier mod => formatWith mod (dateFromModifier date)
   | .string s => s
 
-@[simp]
-private def FormatType (result : Type) : FormatString → Type
+set_option linter.missingDocs false in  -- TODO
+@[simp, expose /- for codegen -/]
+def FormatType (result : Type) : FormatString → Type
   | .modifier entry :: xs => (TypeFormat entry) → (FormatType result xs)
   | .string _ :: xs => (FormatType result xs)
   | [] => result

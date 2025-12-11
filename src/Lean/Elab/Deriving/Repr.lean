@@ -3,11 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Transform
-import Lean.Meta.Inductive
-import Lean.Elab.Deriving.Basic
-import Lean.Elab.Deriving.Util
+public import Lean.Meta.Inductive
+public import Lean.Elab.Deriving.Basic
+public import Lean.Elab.Deriving.Util
+
+public section
 
 namespace Lean.Elab.Deriving.Repr
 open Lean.Parser.Term
@@ -97,9 +100,9 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
     body ← mkLet letDecls body
   let binders    := header.binders
   if ctx.usePartial then
-    `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
+    `(@[no_expose] partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
   else
-    `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
+    `(@[no_expose] def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
 
 def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]
@@ -110,7 +113,7 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
     end)
 
 private def mkReprInstanceCmd (declName : Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "repr" declName
+  let ctx ← mkContext ``Repr "repr" declName
   let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Repr #[declName])
   trace[Elab.Deriving.repr] "\n{cmds}"
   return cmds
@@ -120,8 +123,9 @@ open Command
 def mkReprInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) then
     for declName in declNames do
-      let cmds ← liftTermElabM <| mkReprInstanceCmd declName
-      cmds.forM elabCommand
+      withoutExposeFromCtors declName do
+        let cmds ← liftTermElabM <| mkReprInstanceCmd declName
+        cmds.forM elabCommand
     return true
   else
     return false

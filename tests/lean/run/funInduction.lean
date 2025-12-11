@@ -9,7 +9,7 @@ def ackermann : (Nat × Nat) → Nat
 termination_by p => p
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
 m✝ : Nat
@@ -34,7 +34,7 @@ example : P (ackermann p) := by
   fail
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
 m✝ : Nat
@@ -160,7 +160,7 @@ example : P (ackermann n m) := by
   fun_induction ackermann n m
 
 /--
-error: Expected fully applied application of 'ackermann' with 2 arguments, but found 1 arguments
+error: Expected fully applied application of `ackermann` with 2 arguments, but found 1 arguments
 -/
 #guard_msgs in
 example : P (ackermann n m) := by
@@ -212,14 +212,14 @@ example : P (ackermann inc n m) := by
   fun_induction ackermann inc n m
 
 /--
-error: Expected fully applied application of 'ackermann' with 4 arguments, but found 3 arguments
+error: Expected fully applied application of `ackermann` with 4 arguments, but found 3 arguments
 -/
 #guard_msgs in
 example : P (ackermann inc n m) := by
   fun_induction ackermann inc n
 
 /--
-error: Expected fully applied application of 'ackermann' with 4 arguments, but found 2 arguments
+error: Expected fully applied application of `ackermann` with 4 arguments, but found 2 arguments
 -/
 #guard_msgs in
 example : P (ackermann inc n m) := by
@@ -238,7 +238,7 @@ def fib : Nat → Nat
 termination_by structural x => x
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
 ⊢ P 0
@@ -292,7 +292,7 @@ info: StructuralWithOmittedParam.fib.induct (motive : Nat → Prop) (case1 : mot
 #check fib.induct -- NB: No inc showing up
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
 inc : Nat
@@ -316,7 +316,7 @@ example : P (fib 2 n) := by
   fail
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
 inc : Nat
@@ -389,7 +389,7 @@ namespace Nonrec
 
 def foo := 1
 
-/-- error: No functional induction theorem for 'foo', or function is mutually recursive -/
+/-- error: No functional induction theorem for `foo`, or function is mutually recursive -/
 #guard_msgs in
 example : True := by
   fun_induction foo
@@ -413,7 +413,7 @@ def Tree.size_aux : List (Tree α) → Nat
   | t :: ts => size t + size_aux ts
 end
 
-/-- error: No functional induction theorem for 'Tree.size', or function is mutually recursive -/
+/-- error: No functional induction theorem for `Tree.size`, or function is mutually recursive -/
 #guard_msgs in
 example (t : Tree α) : True := by
   fun_induction Tree.size t

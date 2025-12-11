@@ -3,10 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
 import Std.Data.DTreeMap.Internal.Lemmas
-import Std.Data.DTreeMap.Basic
-import Std.Data.DTreeMap.AdditionalOperations
+public import Std.Data.DTreeMap.AdditionalOperations
+
+@[expose] public section
 
 /-!
 # Dependent tree map lemmas
@@ -25,7 +28,7 @@ universe u v w w'
 namespace Std.DTreeMap
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {cmp : α → α → Ordering} {t : DTreeMap α β cmp}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 private theorem ext {t t' : DTreeMap α β cmp} : t.inner = t'.inner → t = t' := by
   cases t; cases t'; rintro rfl; rfl
@@ -49,6 +52,10 @@ theorem contains_iff_mem {k : α} : t.contains k ↔ k ∈ t :=
 theorem contains_congr [TransCmp cmp] {k k' : α} (hab : cmp k k' = .eq) :
     t.contains k = t.contains k' :=
   Impl.contains_congr t.wf hab
+
+theorem contains_eq_false_iff_not_mem {k : α} : t.contains k = false ↔ ¬k ∈ t := by
+  rw [← Bool.not_eq_true]
+  simp only [contains_iff_mem]
 
 theorem mem_congr [TransCmp cmp] {k k' : α} (hab : cmp k k' = .eq) : k ∈ t ↔ k' ∈ t :=
   Impl.mem_congr t.wf hab
@@ -250,6 +257,10 @@ theorem isSome_get?_iff_mem [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
     (t.get? a).isSome ↔ a ∈ t :=
   mem_iff_isSome_get?.symm
 
+theorem get?_eq_some_iff [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {v : β k} :
+    t.get? k = some v ↔ ∃ h, t.get k h = v :=
+  Impl.get?_eq_some_iff t.wf
+
 theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
     t.contains a = false → t.get? a = none :=
   Impl.get?_eq_none_of_contains_eq_false t.wf
@@ -303,6 +314,10 @@ theorem mem_iff_isSome_get? [TransCmp cmp] {a : α} :
     a ∈ t ↔ (get? t a).isSome :=
   Impl.Const.mem_iff_isSome_get? t.wf
 
+theorem get?_eq_some_iff [TransCmp cmp] {k : α} {v : β} :
+    get? t k = some v ↔ ∃ h, get t k h = v :=
+  Impl.Const.get?_eq_some_iff t.wf
+
 @[simp]
 theorem isSome_get?_iff_mem [TransCmp cmp] {a : α} :
     (get? t a).isSome ↔ a ∈ t :=
@@ -342,6 +357,17 @@ end Const
         t.get a (mem_of_mem_insert h₁ h₂) :=
   Impl.get_insert t.wf
 
+theorem toList_insert_perm [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] {k : α} {v : β k} :
+    (t.insert k v).toList.Perm (⟨k, v⟩ :: t.toList.filter (¬k == ·.1)) := Impl.toList_insert_perm t.wf
+
+theorem Const.toList_insert_perm {β : Type v} {t : DTreeMap α (fun _ => β) cmp} [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] {k : α} {v : β} :
+    (Const.toList (t.insert k v)).Perm (⟨k, v⟩ :: (Const.toList t).filter (¬k == ·.1)) :=
+  Impl.Const.toList_insert_perm t.2
+
+theorem keys_insertIfNew_perm [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] {k : α} {v : β k} :
+    (t.insertIfNew k v).keys.Perm (if k ∈ t then t.keys else k :: t.keys) :=
+  Impl.keys_insertIfNew_perm t.2
+
 @[simp]
 theorem get_insert_self [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {v : β k} :
     (t.insert k v).get k mem_insert_self = v :=
@@ -352,9 +378,17 @@ theorem get_erase [TransCmp cmp] [LawfulEqCmp cmp] {k a : α} {h'} :
     (t.erase k).get a h' = t.get a (mem_of_mem_erase h') :=
   Impl.get_erase t.wf
 
-theorem get?_eq_some_get [TransCmp cmp] [LawfulEqCmp cmp] {a : α} {h'} :
+theorem get?_eq_some_get [TransCmp cmp] [LawfulEqCmp cmp] {a : α} (h') :
     t.get? a = some (t.get a h') :=
   Impl.get?_eq_some_get t.wf
+
+theorem get_eq_get_get? [TransCmp cmp] [LawfulEqCmp cmp] {a : α} {h} :
+    t.get a h = (t.get? a).get (mem_iff_isSome_get?.mp h) := by
+  simp only [get?_eq_some_get h, Option.get_some]
+
+@[grind =] theorem get_get? [TransCmp cmp] [LawfulEqCmp cmp] {a : α} {h} :
+    (t.get? a).get h = t.get a (mem_iff_isSome_get?.mpr h) :=
+  get_eq_get_get?.symm
 
 namespace Const
 
@@ -376,9 +410,17 @@ theorem get_erase [TransCmp cmp] {k a : α} {h'} :
     get (t.erase k) a h' = get t a (mem_of_mem_erase h') :=
   Impl.Const.get_erase t.wf
 
-theorem get?_eq_some_get [TransCmp cmp] {a : α} {h} :
+theorem get?_eq_some_get [TransCmp cmp] {a : α} (h) :
     get? t a = some (get t a h) :=
   Impl.Const.get?_eq_some_get t.wf
+
+theorem get_eq_get_get? [TransCmp cmp] {a : α} {h} :
+    get t a h = (get? t a).get (mem_iff_isSome_get?.mp h) := by
+  simp only [get?_eq_some_get h, Option.get_some]
+
+@[grind =] theorem get_get? [TransCmp cmp] {a : α} {h} :
+    (get? t a).get h = get t a (mem_iff_isSome_get?.mpr h) :=
+  get_eq_get_get?.symm
 
 theorem get_eq_get [TransCmp cmp] [LawfulEqCmp cmp] {a : α} {h} : get t a h = t.get a h :=
   Impl.Const.get_eq_get t.wf
@@ -670,6 +712,14 @@ theorem isSome_getKey?_iff_mem [TransCmp cmp] {a : α} :
     (t.getKey? a).isSome ↔ a ∈ t :=
   mem_iff_isSome_getKey?.symm
 
+theorem mem_of_getKey?_eq_some [TransCmp cmp] {k k' : α} :
+    t.getKey? k = some k' → k' ∈ t :=
+  Impl.mem_of_getKey?_eq_some t.wf
+
+theorem getKey?_eq_some_iff [TransCmp cmp] {k k' : α} :
+    getKey? t k = some k' ↔ ∃ h, getKey t k h = k' :=
+  Impl.getKey?_eq_some_iff t.wf
+
 theorem getKey?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :
     t.contains a = false → t.getKey? a = none :=
   Impl.getKey?_eq_none_of_contains_eq_false t.wf
@@ -721,9 +771,18 @@ theorem getKey_erase [TransCmp cmp] {k a : α} {h'} :
     (t.erase k).getKey a h' = t.getKey a (mem_of_mem_erase h') :=
   Impl.getKey_erase t.wf
 
-theorem getKey?_eq_some_getKey [TransCmp cmp] {a : α} {h'} :
+theorem getKey?_eq_some_getKey [TransCmp cmp] {a : α} (h') :
     t.getKey? a = some (t.getKey a h') :=
   Impl.getKey?_eq_some_getKey t.wf
+
+theorem getKey_eq_get_getKey? [TransCmp cmp] {a : α} {h} :
+    t.getKey a h = (t.getKey? a).get (mem_iff_isSome_getKey?.mp h) := by
+  simp only [getKey?_eq_some_getKey h, Option.get_some]
+
+@[simp, grind =]
+theorem get_getKey? [TransCmp cmp] {a : α} {h} :
+    (t.getKey? a).get h = t.getKey a (mem_iff_isSome_getKey?.mpr h) :=
+  getKey_eq_get_getKey?.symm
 
 theorem compare_getKey_self [TransCmp cmp] {k : α} (h' : k ∈ t) :
     cmp (t.getKey k h') k = .eq :=
@@ -1010,6 +1069,8 @@ theorem getThenInsertIfNew?_snd [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {v : �
     (t.getThenInsertIfNew? k v).2 = t.insertIfNew k v :=
   ext <| Impl.getThenInsertIfNew?_snd t.wf
 
+theorem mem_of_get_eq [LawfulEqCmp cmp] {k : α} {v : β k} {w} (_ : t.get k w = v) : k ∈ t := w
+
 namespace Const
 
 variable {β : Type v} {t : DTreeMap α β cmp}
@@ -1046,9 +1107,16 @@ theorem mem_keys [LawfulEqCmp cmp] [TransCmp cmp] {k : α} :
     k ∈ t.keys ↔ k ∈ t :=
   Impl.mem_keys t.wf
 
+theorem mem_of_mem_keys [TransCmp cmp] {k : α} (h : k ∈ t.keys) : k ∈ t :=
+  Impl.mem_of_mem_keys t.wf h
+
 theorem distinct_keys [TransCmp cmp] :
     t.keys.Pairwise (fun a b => ¬ cmp a b = .eq) :=
   Impl.distinct_keys t.wf
+
+theorem nodup_keys [TransCmp cmp] :
+    t.keys.Nodup :=
+  t.distinct_keys.imp Std.ReflCmp.ne_of_cmp_ne_eq
 
 theorem ordered_keys [TransCmp cmp] :
     t.keys.Pairwise (fun a b => cmp a b = .lt) :=
@@ -1246,14 +1314,6 @@ theorem forMUncurried_eq_forM_toList [Monad m] [LawfulMonad m] {f : α × β →
     forMUncurried f t = (Const.toList t).forM f :=
   Impl.Const.forM_eq_forM_toList
 
-/--
-Deprecated, use `forMUncurried_eq_forM_toList` together with `forM_eq_forMUncurried` instead.
--/
-@[deprecated forMUncurried_eq_forM_toList (since := "2025-03-02")]
-theorem forM_eq_forM_toList [Monad m] [LawfulMonad m] {f : α → β → m PUnit} :
-    t.forM f = (Const.toList t).forM (fun a => f a.1 a.2) :=
-  Impl.Const.forM_eq_forM_toList
-
 theorem forIn_eq_forInUncurried [Monad m] [LawfulMonad m]
     {f : α → β → δ → m (ForInStep δ)} {init : δ} :
     t.forIn f init = forInUncurried (fun a b => f a.1 a.2 b) init t := rfl
@@ -1261,15 +1321,6 @@ theorem forIn_eq_forInUncurried [Monad m] [LawfulMonad m]
 theorem forInUncurried_eq_forIn_toList [Monad m] [LawfulMonad m]
     {f : α × β → δ → m (ForInStep δ)} {init : δ} :
     forInUncurried f init t = ForIn.forIn (Const.toList t) init f :=
-  Impl.Const.forIn_eq_forIn_toList
-
-/--
-Deprecated, use `forInUncurried_eq_forIn_toList` together with `forIn_eq_forInUncurried` instead.
--/
-@[deprecated forInUncurried_eq_forIn_toList (since := "2025-03-02")]
-theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m]
-    {f : α → β → δ → m (ForInStep δ)} {init : δ} :
-    t.forIn f init = ForIn.forIn (Const.toList t) init (fun a b => f a.1 a.2 b) :=
   Impl.Const.forIn_eq_forIn_toList
 
 end Const
@@ -2178,6 +2229,990 @@ theorem getD_unitOfList {l : List α} {k : α} {fallback : Unit} :
   Impl.Const.getD_insertManyIfNewUnit_empty_list
 
 end Const
+section Union
+
+variable {t₁ t₂ : DTreeMap α β cmp}
+
+
+@[simp]
+theorem union_eq : t₁.union t₂ = t₁ ∪ t₂ := by
+  simp only [Union.union]
+
+/- contains -/
+@[simp]
+theorem contains_union [TransCmp cmp] {k : α} :
+    (t₁ ∪ t₂).contains k = (t₁.contains k || t₂.contains k) :=
+  Impl.contains_union t₁.wf t₂.wf
+
+/- mem -/
+theorem mem_union_of_left [TransCmp cmp] {k : α} :
+    k ∈ t₁ → k ∈ t₁ ∪ t₂ :=
+  Impl.contains_union_of_left t₁.wf t₂.wf
+
+theorem mem_union_of_right [TransCmp cmp] {k : α} :
+    k ∈ t₂ → k ∈ t₁ ∪ t₂ :=
+  Impl.contains_union_of_right t₁.wf t₂.wf
+
+@[simp]
+theorem mem_union_iff [TransCmp cmp] {k : α} :
+    k ∈ t₁ ∪ t₂ ↔ k ∈ t₁ ∨ k ∈ t₂ :=
+  Impl.contains_union_iff t₁.wf t₂.wf
+
+theorem mem_of_mem_union_of_not_mem_right [TransCmp cmp] {k : α} :
+    k ∈ t₁ ∪ t₂ → ¬k ∈ t₂ → k ∈ t₁ := by
+  rw [← contains_eq_false_iff_not_mem]
+  intro mem not_mem
+  exact Impl.contains_of_contains_union_of_contains_eq_false_right t₁.wf t₂.wf mem not_mem
+
+theorem mem_of_mem_union_of_not_mem_left [TransCmp cmp]
+    {k : α} :
+    k ∈ t₁ ∪ t₂ → ¬k ∈ t₁ → k ∈ t₂ := by
+  intro mem not_mem
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact Impl.contains_of_contains_union_of_contains_eq_false_left t₁.wf t₂.wf mem not_mem
+
+
+/- Equiv -/
+theorem Equiv.union_left {t₃ : DTreeMap α β cmp} [TransCmp cmp]
+    (equiv : t₁.Equiv t₂) :
+    (t₁ ∪ t₃).Equiv (t₂ ∪ t₃) := by
+  simp only [Union.union]
+  constructor
+  have ⟨equiv⟩ := equiv
+  apply Impl.Equiv.union_left t₁.wf t₂.wf t₃.wf equiv
+
+theorem Equiv.union_right {t₃ : DTreeMap α β cmp} [TransCmp cmp]
+    (equiv : t₂.Equiv t₃) :
+    (t₁ ∪ t₂).Equiv (t₁ ∪ t₃) := by
+  simp only [Union.union]
+  constructor
+  have ⟨equiv⟩ := equiv
+  apply Impl.Equiv.union_right t₁.wf t₂.wf t₃.wf equiv
+
+theorem Equiv.union_congr {t₃ t₄ : DTreeMap α β cmp} [TransCmp cmp]
+    (equiv₁ : t₁.Equiv t₃) (equiv₂ : t₂.Equiv t₄) :
+    (t₁ ∪ t₂).Equiv (t₃ ∪ t₄) := by
+  simp only [Union.union]
+  constructor
+  apply Impl.Equiv.union_congr t₁.wf t₂.wf t₃.wf t₄.wf equiv₁.1 equiv₂.1
+
+theorem union_insert_right_equiv_insert_union [TransCmp cmp] {p : (a : α) × β a} :
+    (t₁ ∪ (t₂.insert p.fst p.snd)).Equiv ((t₁ ∪ t₂).insert p.fst p.snd) :=
+  ⟨Impl.union_insert_right_equiv_insert_union t₁.wf t₂.wf⟩
+
+/- get? -/
+theorem get?_union [TransCmp cmp] [LawfulEqCmp cmp] {k : α} :
+    (t₁ ∪ t₂).get? k = (t₂.get? k).or (t₁.get? k) := by
+  exact Impl.get?_union t₁.wf t₂.wf
+
+theorem get?_union_of_not_mem_left [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} (not_mem : ¬k ∈ t₁) :
+    (t₁ ∪ t₂).get? k = t₂.get? k := by
+  revert not_mem
+  rw [← contains_eq_false_iff_not_mem]
+  exact Impl.get?_union_of_contains_eq_false_left t₁.wf t₂.wf
+
+theorem get?_union_of_not_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} (not_mem : ¬k ∈ t₂) :
+    (t₁ ∪ t₂).get? k = t₁.get? k := by
+  revert not_mem
+  rw [← contains_eq_false_iff_not_mem]
+  exact Impl.get?_union_of_contains_eq_false_right t₁.wf t₂.wf
+
+/- get -/
+theorem get_union_of_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} (mem : k ∈ t₂) :
+    (t₁ ∪ t₂).get k (mem_union_of_right mem) = t₂.get k mem := by
+  rw [mem_iff_contains] at mem
+  revert mem
+  exact Impl.get_union_of_contains_right t₁.wf t₂.wf
+
+theorem get_union_of_not_mem_left [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} (not_mem : ¬k ∈ t₁) {h'} :
+    (t₁ ∪ t₂).get k h' = t₂.get k (mem_of_mem_union_of_not_mem_left h' not_mem) := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact Impl.get_union_of_contains_eq_false_left t₁.wf t₂.wf not_mem
+
+theorem get_union_of_not_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} (not_mem : ¬k ∈ t₂) {h'} :
+    (t₁ ∪ t₂).get k h' = t₁.get k (mem_of_mem_union_of_not_mem_right h' not_mem) := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact Impl.get_union_of_contains_eq_false_right t₁.wf t₂.wf not_mem
+
+/- getD -/
+theorem getD_union [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} {fallback : β k} :
+    (t₁ ∪ t₂).getD k fallback = t₂.getD k (t₁.getD k fallback) :=
+  Impl.getD_union t₁.wf t₂.wf
+
+theorem getD_union_of_not_mem_left [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} {fallback : β k} (not_mem : ¬k ∈ t₁) :
+    (t₁ ∪ t₂).getD k fallback = t₂.getD k fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  revert not_mem
+  exact Impl.getD_union_of_contains_eq_false_left t₁.wf t₂.wf
+
+theorem getD_union_of_not_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} {fallback : β k} (not_mem : ¬k ∈ t₂)  :
+    (t₁ ∪ t₂).getD k fallback = t₁.getD k fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact Impl.getD_union_of_contains_eq_false_right t₁.wf t₂.wf not_mem
+
+/- get! -/
+theorem get!_union [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} [Inhabited (β k)] :
+    (t₁ ∪ t₂).get! k = t₂.getD k (t₁.get! k) :=
+  Impl.get!_union t₁.wf t₂.wf
+
+theorem get!_union_of_not_mem_left [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} [Inhabited (β k)] (not_mem : ¬k ∈ t₁) :
+    (t₁ ∪ t₂).get! k = t₂.get! k := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact Impl.get!_union_of_contains_eq_false_left t₁.wf t₂.wf not_mem
+
+theorem get!_union_of_not_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} [Inhabited (β k)] (not_mem : ¬k ∈ t₂)  :
+    (t₁ ∪ t₂).get! k = t₁.get! k := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact Impl.get!_union_of_contains_eq_false_right t₁.wf t₂.wf not_mem
+
+/- getKey? -/
+theorem getKey?_union [TransCmp cmp]
+    {k : α} :
+    (t₁ ∪ t₂).getKey? k = (t₂.getKey? k).or (t₁.getKey? k) :=
+  Impl.getKey?_union t₁.wf t₂.wf
+
+theorem getKey?_union_of_not_mem_left [TransCmp cmp]
+    {k : α} (not_mem : ¬k ∈ t₁) :
+    (t₁ ∪ t₂).getKey? k = t₂.getKey? k := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact Impl.getKey?_union_of_contains_eq_false_left t₁.wf t₂.wf not_mem
+
+theorem getKey?_union_of_not_mem_right [TransCmp cmp]
+    {k : α} (not_mem : ¬k ∈ t₂) :
+    (t₁ ∪ t₂).getKey? k = t₁.getKey? k := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact Impl.getKey?_union_of_contains_eq_false_right t₁.wf t₂.wf not_mem
+
+/- getKey -/
+theorem getKey_union_of_mem_right [TransCmp cmp]
+    {k : α} (mem : k ∈ t₂) :
+    (t₁ ∪ t₂).getKey k (mem_union_of_right mem) = t₂.getKey k mem := by
+  rw [mem_iff_contains] at mem
+  exact Impl.getKey_union_of_contains_right t₁.wf t₂.wf mem
+
+theorem getKey_union_of_not_mem_left [TransCmp cmp]
+    {k : α} (not_mem : ¬k ∈ t₁) {h'} :
+    (t₁ ∪ t₂).getKey k h' = t₂.getKey k (mem_of_mem_union_of_not_mem_left h' not_mem) := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact Impl.getKey_union_of_contains_eq_false_left t₁.wf t₂.wf not_mem
+
+theorem getKey_union_of_not_mem_right [TransCmp cmp]
+    {k : α} (not_mem : ¬k ∈ t₂) {h'} :
+    (t₁ ∪ t₂).getKey k h' = t₁.getKey k (mem_of_mem_union_of_not_mem_right h' not_mem) := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact Impl.getKey_union_of_contains_eq_false_right t₁.wf t₂.wf not_mem
+
+/- getKeyD -/
+theorem getKeyD_union [TransCmp cmp] {k fallback : α} :
+    (t₁ ∪ t₂).getKeyD k fallback = t₂.getKeyD k (t₁.getKeyD k fallback) :=
+  Impl.getKeyD_union t₁.wf t₂.wf
+
+theorem getKeyD_union_of_not_mem_left [TransCmp cmp] {k fallback : α} (mem : ¬k ∈ t₁) :
+    (t₁ ∪ t₂).getKeyD k fallback = t₂.getKeyD k fallback := by
+  rw [← contains_eq_false_iff_not_mem] at mem
+  exact Impl.getKeyD_union_of_contains_eq_false_left t₁.wf t₂.wf mem
+
+theorem getKeyD_union_of_not_mem_right [TransCmp cmp] {k fallback : α} (mem : ¬k ∈ t₂) :
+    (t₁ ∪ t₂).getKeyD k fallback = t₁.getKeyD k fallback := by
+  rw [← contains_eq_false_iff_not_mem] at mem
+  exact Impl.getKeyD_union_of_contains_eq_false_right t₁.wf t₂.wf mem
+
+/- getKey! -/
+theorem getKey!_union [TransCmp cmp] [Inhabited α]
+    {k : α} :
+    (t₁ ∪ t₂).getKey! k = t₂.getKeyD k (t₁.getKey! k) :=
+  Impl.getKey!_union t₁.wf t₂.wf
+
+theorem getKey!_union_of_not_mem_left [Inhabited α]
+    [TransCmp cmp] {k : α}
+    (not_mem : ¬k ∈ t₁) :
+    (t₁ ∪ t₂).getKey! k = t₂.getKey! k := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact Impl.getKey!_union_of_contains_eq_false_left t₁.wf t₂.wf not_mem
+
+theorem getKey!_union_of_not_mem_right [Inhabited α]
+    [TransCmp cmp] {k : α}
+    (not_mem : ¬k ∈ t₂) :
+    (t₁ ∪ t₂).getKey! k = t₁.getKey! k := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact Impl.getKey!_union_of_contains_eq_false_right t₁.wf t₂.wf not_mem
+
+/- size -/
+theorem size_union_of_not_mem [TransCmp cmp] : (∀ (a : α), a ∈ t₁ → ¬a ∈ t₂) →
+    (t₁ ∪ t₂).size = t₁.size + t₂.size := by
+  intro hyp
+  simp only [← contains_eq_false_iff_not_mem] at hyp
+  exact Impl.size_union_of_not_mem t₁.wf t₂.wf hyp
+
+theorem size_left_le_size_union [TransCmp cmp] : t₁.size ≤ (t₁ ∪ t₂).size :=
+  Impl.size_left_le_size_union t₁.wf t₂.wf
+
+theorem size_right_le_size_union [TransCmp cmp] : t₂.size ≤ (t₁ ∪ t₂).size :=
+  Impl.size_right_le_size_union t₁.wf t₂.wf
+
+theorem size_union_le_size_add_size [TransCmp cmp] :
+    (t₁ ∪ t₂).size ≤ t₁.size + t₂.size :=
+  Impl.size_union_le_size_add_size t₁.wf t₂.wf
+
+/- isEmpty -/
+@[simp]
+theorem isEmpty_union [TransCmp cmp] :
+    (t₁ ∪ t₂).isEmpty = (t₁.isEmpty && t₂.isEmpty) :=
+  Impl.isEmpty_union t₁.wf t₂.wf
+
+end Union
+
+namespace Const
+
+variable {β : Type v} {t₁ t₂ : DTreeMap α (fun _ => β) cmp}
+
+theorem get?_union [TransCmp cmp] {k : α} :
+    Const.get? (t₁ ∪ t₂) k = (Const.get? t₂ k).or (Const.get? t₁ k) :=
+  Impl.Const.get?_union t₁.wf t₂.wf
+
+theorem get?_union_of_not_mem_left [TransCmp cmp]
+    {k : α} (not_mem : ¬k ∈ t₁) :
+    Const.get? (t₁ ∪ t₂) k = Const.get? t₂ k := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact Impl.Const.get?_union_of_contains_eq_false_left t₁.wf t₂.wf not_mem
+
+theorem get?_union_of_not_mem_right [TransCmp cmp]
+    {k : α} (not_mem : ¬k ∈ t₂) :
+    Const.get? (t₁ ∪ t₂) k = Const.get? t₁ k := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact Impl.Const.get?_union_of_contains_eq_false_right t₁.wf t₂.wf not_mem
+
+/- get -/
+theorem get_union_of_mem_right [TransCmp cmp]
+    {k : α} (mem : k ∈ t₂) :
+    Const.get (t₁ ∪ t₂) k (mem_union_of_right mem) = Const.get t₂ k mem := by
+  rw [mem_iff_contains] at mem
+  exact Impl.Const.get_union_of_contains_right t₁.wf t₂.wf mem
+
+theorem get_union_of_not_mem_left [TransCmp cmp]
+    {k : α} (not_mem : ¬k ∈ t₁) {h'} :
+    Const.get (t₁ ∪ t₂) k h' = Const.get t₂ k (mem_of_mem_union_of_not_mem_left h' not_mem) := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact Impl.Const.get_union_of_contains_eq_false_left t₁.wf t₂.wf not_mem
+
+theorem get_union_of_not_mem_right [TransCmp cmp]
+    {k : α} (not_mem : ¬k ∈ t₂) {h'} :
+    Const.get (t₁ ∪ t₂) k h' = Const.get t₁ k (mem_of_mem_union_of_not_mem_right h' not_mem) := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact Impl.Const.get_union_of_contains_eq_false_right t₁.wf t₂.wf not_mem
+
+/- getD -/
+theorem getD_union [TransCmp cmp] {k : α} {fallback : β} :
+    Const.getD (t₁ ∪ t₂) k fallback = Const.getD t₂ k (Const.getD t₁ k fallback) :=
+  Impl.Const.getD_union t₁.wf t₂.wf
+
+theorem getD_union_of_not_mem_left [TransCmp cmp]
+    {k : α} {fallback : β} (not_mem : ¬k ∈ t₁) :
+    Const.getD (t₁ ∪ t₂) k fallback = Const.getD t₂ k fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact Impl.Const.getD_union_of_contains_eq_false_left t₁.wf t₂.wf not_mem
+
+theorem getD_union_of_not_mem_right [TransCmp cmp]
+    {k : α} {fallback : β} (not_mem : ¬k ∈ t₂) :
+    Const.getD (t₁ ∪ t₂) k fallback = Const.getD t₁ k fallback := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact Impl.Const.getD_union_of_contains_eq_false_right t₁.wf t₂.wf not_mem
+
+/- get! -/
+theorem get!_union [TransCmp cmp] [Inhabited β] {k : α} :
+    Const.get! (t₁ ∪ t₂) k = Const.getD t₂ k (Const.get! t₁ k) := by
+  simp only [Union.union]
+  exact Impl.Const.get!_union t₁.wf t₂.wf
+
+theorem get!_union_of_not_mem_left [TransCmp cmp] [Inhabited β]
+    {k : α} (not_mem : ¬k ∈ t₁) :
+    Const.get! (t₁ ∪ t₂) k = Const.get! t₂ k := by
+  rw [← contains_eq_false_iff_not_mem] at not_mem
+  exact Impl.Const.get!_union_of_contains_eq_false_left t₁.wf t₂.wf not_mem
+
+theorem get!_union_of_not_mem_right [TransCmp cmp] [Inhabited β]
+    {k : α} (not_mem : ¬k ∈ t₂) :
+    Const.get! (t₁ ∪ t₂) k = Const.get! t₁ k := by
+  rw [← contains_eq_false_iff_not_mem ] at not_mem
+  exact Impl.Const.get!_union_of_contains_eq_false_right t₁.wf t₂.wf not_mem
+end Const
+
+section Inter
+
+variable {t₁ t₂ : DTreeMap α β cmp}
+
+@[simp]
+theorem inter_eq : t₁.inter t₂ = t₁ ∩ t₂ := by
+  simp only [Inter.inter]
+
+/- contains -/
+@[simp]
+theorem contains_inter [TransCmp cmp] {k : α} :
+    (t₁ ∩ t₂).contains k = (t₁.contains k && t₂.contains k) :=
+  Impl.contains_inter t₁.wf t₂.wf
+
+/- mem -/
+@[simp]
+theorem mem_inter_iff [TransCmp cmp] {k : α} :
+    k ∈ t₁ ∩ t₂ ↔ k ∈ t₁ ∧ k ∈ t₂ :=
+  Impl.contains_inter_iff t₁.wf t₂.wf
+
+theorem not_mem_inter_of_not_mem_left [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₁) :
+    ¬k ∈ t₁ ∩ t₂ := by
+  rw [← contains_eq_false_iff_not_mem] at h ⊢
+  exact Impl.contains_inter_eq_false_of_contains_eq_false_left t₁.wf t₂.wf h
+
+theorem not_mem_inter_of_not_mem_right [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₂) :
+    ¬k ∈ t₁ ∩ t₂ := by
+  rw [← contains_eq_false_iff_not_mem] at h ⊢
+  exact Impl.contains_inter_eq_false_of_contains_eq_false_right t₁.wf t₂.wf h
+
+/- Equiv -/
+theorem Equiv.inter_left {t₃ : DTreeMap α β cmp} [TransCmp cmp]
+    (equiv : t₁ ~m t₂) :
+    (t₁ ∩ t₃).Equiv (t₂ ∩ t₃) :=
+  ⟨Impl.Equiv.inter_left t₁.wf t₂.wf t₃.wf equiv.1⟩
+
+theorem Equiv.inter_right {t₃ : DTreeMap α β cmp} [TransCmp cmp]
+    (equiv : t₂ ~m t₃) :
+    (t₁ ∩ t₂).Equiv (t₁ ∩ t₃) :=
+  ⟨Impl.Equiv.inter_right t₁.wf t₂.wf t₃.wf equiv.1⟩
+
+theorem Equiv.inter_congr {t₃ t₄ : DTreeMap α β cmp} [TransCmp cmp]
+    (equiv₁ : t₁ ~m t₃) (equiv₂ : t₂ ~m t₄) :
+    (t₁ ∩ t₂).Equiv (t₃ ∩ t₄) :=
+  ⟨Impl.Equiv.inter_congr t₁.wf t₂.wf t₃.wf t₄.wf equiv₁.1 equiv₂.1⟩
+
+/- get? -/
+theorem get?_inter [TransCmp cmp] [LawfulEqCmp cmp] {k : α} :
+    (t₁ ∩ t₂).get? k =
+    if k ∈ t₂ then t₁.get? k else none :=
+  Impl.get?_inter t₁.wf t₂.wf
+
+theorem get?_inter_of_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} (h : k ∈ t₂) :
+    (t₁ ∩ t₂).get? k = t₁.get? k := by
+  rw [mem_iff_contains] at h
+  exact Impl.get?_inter_of_contains_right t₁.wf t₂.wf h
+
+theorem get?_inter_of_not_mem_left [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} (h : ¬k ∈ t₁) :
+    (t₁ ∩ t₂).get? k = none := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.get?_inter_of_contains_eq_false_left t₁.wf t₂.wf h
+
+theorem get?_inter_of_not_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} (h : ¬k ∈ t₂) :
+    (t₁ ∩ t₂).get? k = none := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.get?_inter_of_contains_eq_false_right t₁.wf t₂.wf h
+
+/- get -/
+@[simp]
+theorem get_inter [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} {h_mem : k ∈ t₁ ∩ t₂} :
+    (t₁ ∩ t₂).get k h_mem =
+    t₁.get k (mem_inter_iff.1 h_mem).1:=
+  Impl.get_inter t₁.wf t₂.wf
+
+/- getD -/
+theorem getD_inter [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} {fallback : β k} :
+    (t₁ ∩ t₂).getD k fallback =
+    if k ∈ t₂ then t₁.getD k fallback else fallback :=
+  Impl.getD_inter t₁.wf t₂.wf
+
+theorem getD_inter_of_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} {fallback : β k} (h : k ∈ t₂) :
+    (t₁ ∩ t₂).getD k fallback = t₁.getD k fallback := by
+  rw [mem_iff_contains] at h
+  exact Impl.getD_inter_of_contains_right t₁.wf t₂.wf h
+
+theorem getD_inter_of_not_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} {fallback : β k} (h : ¬k ∈ t₂) :
+    (t₁ ∩ t₂).getD k fallback = fallback := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.getD_inter_of_contains_eq_false_right t₁.wf t₂.wf h
+
+theorem getD_inter_of_not_mem_left [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} {fallback : β k} (h : ¬k ∈ t₁) :
+    (t₁ ∩ t₂).getD k fallback = fallback := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.getD_inter_of_contains_eq_false_left t₁.wf t₂.wf h
+
+/- get! -/
+theorem get!_inter [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} [Inhabited (β k)] :
+    (t₁ ∩ t₂).get! k =
+    if k ∈ t₂ then t₁.get! k else default :=
+  Impl.get!_inter t₁.wf t₂.wf
+
+theorem get!_inter_of_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} [Inhabited (β k)] (h : k ∈ t₂) :
+    (t₁ ∩ t₂).get! k = t₁.get! k := by
+  rw [mem_iff_contains] at h
+  exact Impl.get!_inter_of_contains_right t₁.wf t₂.wf h
+
+theorem get!_inter_of_not_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} [Inhabited (β k)] (h : ¬k ∈ t₂) :
+    (t₁ ∩ t₂).get! k = default := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.get!_inter_of_contains_eq_false_right t₁.wf t₂.wf h
+
+theorem get!_inter_of_not_mem_left [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} [Inhabited (β k)] (h : ¬k ∈ t₁) :
+    (t₁ ∩ t₂).get! k = default := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.get!_inter_of_contains_eq_false_left t₁.wf t₂.wf h
+
+/- getKey? -/
+theorem getKey?_inter [TransCmp cmp]
+    {k : α} :
+    (t₁ ∩ t₂).getKey? k =
+    if k ∈ t₂ then t₁.getKey? k else none :=
+  Impl.getKey?_inter t₁.wf t₂.wf
+
+theorem getKey?_inter_of_mem_right [TransCmp cmp]
+    {k : α} (h : k ∈ t₂) :
+    (t₁ ∩ t₂).getKey? k = t₁.getKey? k := by
+  rw [mem_iff_contains] at h
+  exact Impl.getKey?_inter_of_contains_right t₁.wf t₂.wf h
+
+theorem getKey?_inter_of_not_mem_right [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₂) :
+    (t₁ ∩ t₂).getKey? k = none := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.getKey?_inter_of_contains_eq_false_right t₁.wf t₂.wf h
+
+theorem getKey?_inter_of_not_mem_left [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₁) :
+    (t₁ ∩ t₂).getKey? k = none := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.getKey?_inter_of_contains_eq_false_left t₁.wf t₂.wf h
+
+/- getKey -/
+@[simp]
+theorem getKey_inter [TransCmp cmp]
+    {k : α} {h_mem : k ∈ t₁ ∩ t₂} :
+    (t₁ ∩ t₂).getKey k h_mem =
+    t₁.getKey k (mem_inter_iff.1 h_mem).1 :=
+  Impl.getKey_inter t₁.wf t₂.wf
+
+/- getKeyD -/
+theorem getKeyD_inter [TransCmp cmp] {k fallback : α} :
+    (t₁ ∩ t₂).getKeyD k fallback =
+    if k ∈ t₂ then t₁.getKeyD k fallback else fallback :=
+  Impl.getKeyD_inter t₁.wf t₂.wf
+
+theorem getKeyD_inter_of_mem_right [TransCmp cmp] {k fallback : α} (h : k ∈ t₂) :
+    (t₁ ∩ t₂).getKeyD k fallback = t₁.getKeyD k fallback := by
+  rw [mem_iff_contains] at h
+  exact Impl.getKeyD_inter_of_contains_right t₁.wf t₂.wf h
+
+theorem getKeyD_inter_of_not_mem_right [TransCmp cmp] {k fallback : α} (h : ¬k ∈ t₂) :
+    (t₁ ∩ t₂).getKeyD k fallback = fallback := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.getKeyD_inter_of_contains_eq_false_right t₁.wf t₂.wf h
+
+theorem getKeyD_inter_of_not_mem_left [TransCmp cmp] {k fallback : α} (h : ¬k ∈ t₁) :
+    (t₁ ∩ t₂).getKeyD k fallback = fallback := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.getKeyD_inter_of_contains_eq_false_left t₁.wf t₂.wf h
+
+/- getKey! -/
+theorem getKey!_inter [Inhabited α] [TransCmp cmp]
+    {k : α} :
+    (t₁ ∩ t₂).getKey! k =
+    if k ∈ t₂ then t₁.getKey! k else default :=
+  Impl.getKey!_inter t₁.wf t₂.wf
+
+theorem getKey!_inter_of_mem_right [Inhabited α] [TransCmp cmp]
+    {k : α} (h : k ∈ t₂) :
+    (t₁ ∩ t₂).getKey! k = t₁.getKey! k := by
+  rw [mem_iff_contains] at h
+  exact Impl.getKey!_inter_of_contains_right t₁.wf t₂.wf h
+
+theorem getKey!_inter_of_not_mem_right [Inhabited α] [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₂) :
+    (t₁ ∩ t₂).getKey! k = default := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.getKey!_inter_of_contains_eq_false_right t₁.wf t₂.wf h
+
+theorem getKey!_inter_of_not_mem_left [Inhabited α] [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₁) :
+    (t₁ ∩ t₂).getKey! k = default := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.getKey!_inter_of_contains_eq_false_left t₁.wf t₂.wf h
+
+/- size -/
+theorem size_inter_le_size_left [TransCmp cmp] :
+    (t₁ ∩ t₂).size ≤ t₁.size :=
+  Impl.size_inter_le_size_left t₁.wf t₂.wf
+
+theorem size_inter_le_size_right [TransCmp cmp] :
+    (t₁ ∩ t₂).size ≤ t₂.size :=
+  Impl.size_inter_le_size_right t₁.wf t₂.wf
+
+theorem size_inter_eq_size_left [TransCmp cmp]
+    (h : ∀ (a : α), a ∈ t₁ → a ∈ t₂) :
+    (t₁ ∩ t₂).size = t₁.size := by
+  exact Impl.size_inter_eq_size_left t₁.wf t₂.wf h
+
+theorem size_inter_eq_size_right [TransCmp cmp]
+    (h : ∀ (a : α), a ∈ t₂ → a ∈ t₁) :
+    (t₁ ∩ t₂).size = t₂.size := by
+  exact Impl.size_inter_eq_size_right t₁.wf t₂.wf h
+
+theorem size_add_size_eq_size_union_add_size_inter [TransCmp cmp] :
+    t₁.size + t₂.size = (t₁ ∪ t₂).size + (t₁ ∩ t₂).size :=
+  Impl.size_add_size_eq_size_union_add_size_inter t₁.wf t₂.wf
+
+/- isEmpty -/
+@[simp]
+theorem isEmpty_inter_left [TransCmp cmp] (h : t₁.isEmpty) :
+    (t₁ ∩ t₂).isEmpty = true :=
+  Impl.isEmpty_inter_left t₁.wf t₂.wf h
+
+@[simp]
+theorem isEmpty_inter_right [TransCmp cmp] (h : t₂.isEmpty) :
+    (t₁ ∩ t₂).isEmpty = true :=
+  Impl.isEmpty_inter_right t₁.wf t₂.wf h
+
+theorem isEmpty_inter_iff [TransCmp cmp] :
+    (t₁ ∩ t₂).isEmpty ↔ ∀ k, k ∈ t₁ → ¬k ∈ t₂ := by
+  conv =>
+    rhs
+    ext k
+    rhs
+    rw [← contains_eq_false_iff_not_mem]
+  exact Impl.isEmpty_inter_iff t₁.wf t₂.wf
+
+end Inter
+
+namespace Const
+
+variable {β : Type v} {t₁ t₂ : DTreeMap α (fun _ => β) cmp}
+
+/- get? -/
+theorem get?_inter [TransCmp cmp] {k : α} :
+    Const.get? (t₁ ∩ t₂) k =
+    if k ∈ t₂ then Const.get? t₁ k else none :=
+  Impl.Const.get?_inter t₁.wf t₂.wf
+
+theorem get?_inter_of_mem_right [TransCmp cmp]
+    {k : α} (h : k ∈ t₂) :
+    Const.get? (t₁ ∩ t₂) k = Const.get? t₁ k := by
+  rw [mem_iff_contains] at h
+  exact Impl.Const.get?_inter_of_contains_right t₁.wf t₂.wf h
+
+theorem get?_inter_of_not_mem_left [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₁) :
+    Const.get? (t₁ ∩ t₂) k = none := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.Const.get?_inter_of_contains_eq_false_left t₁.wf t₂.wf h
+
+theorem get?_inter_of_not_mem_right [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₂) :
+    Const.get? (t₁ ∩ t₂) k = none := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.Const.get?_inter_of_contains_eq_false_right t₁.wf t₂.wf h
+
+/- get -/
+@[simp]
+theorem get_inter [TransCmp cmp]
+    {k : α} {h_mem : k ∈ t₁ ∩ t₂} :
+    Const.get (t₁ ∩ t₂) k h_mem =
+    Const.get t₁ k (mem_inter_iff.1 h_mem).1 :=
+  Impl.Const.get_inter t₁.wf t₂.wf
+
+/- getD -/
+theorem getD_inter [TransCmp cmp]
+    {k : α} {fallback : β} :
+    Const.getD (t₁ ∩ t₂) k fallback =
+    if k ∈ t₂ then Const.getD t₁ k fallback else fallback :=
+  Impl.Const.getD_inter t₁.wf t₂.wf
+
+theorem getD_inter_of_mem_right [TransCmp cmp]
+    {k : α} {fallback : β} (h : k ∈ t₂) :
+    Const.getD (t₁ ∩ t₂) k fallback = Const.getD t₁ k fallback := by
+  rw [mem_iff_contains] at h
+  exact Impl.Const.getD_inter_of_contains_right t₁.wf t₂.wf h
+
+theorem getD_inter_of_not_mem_right [TransCmp cmp]
+    {k : α} {fallback : β} (h : ¬k ∈ t₂) :
+    Const.getD (t₁ ∩ t₂) k fallback = fallback := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.Const.getD_inter_of_contains_eq_false_right t₁.wf t₂.wf h
+
+theorem getD_inter_of_not_mem_left [TransCmp cmp]
+    {k : α} {fallback : β} (h : ¬k ∈ t₁) :
+    Const.getD (t₁ ∩ t₂) k fallback = fallback := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.Const.getD_inter_of_contains_eq_false_left t₁.wf t₂.wf h
+
+/- get! -/
+theorem get!_inter [TransCmp cmp] [Inhabited β]
+    {k : α} :
+    Const.get! (t₁ ∩ t₂) k =
+    if k ∈ t₂ then Const.get! t₁ k else default :=
+  Impl.Const.get!_inter t₁.wf t₂.wf
+
+theorem get!_inter_of_mem_right [TransCmp cmp] [Inhabited β]
+    {k : α} (h : k ∈ t₂) :
+    Const.get! (t₁ ∩ t₂) k = Const.get! t₁ k := by
+  rw [mem_iff_contains] at h
+  exact Impl.Const.get!_inter_of_contains_right t₁.wf t₂.wf h
+
+theorem get!_inter_of_not_mem_right [TransCmp cmp] [Inhabited β]
+    {k : α} (h : ¬k ∈ t₂) :
+    Const.get! (t₁ ∩ t₂) k = default := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.Const.get!_inter_of_contains_eq_false_right t₁.wf t₂.wf h
+
+theorem get!_inter_of_not_mem_left [TransCmp cmp] [Inhabited β]
+    {k : α} (h : ¬k ∈ t₁) :
+    Const.get! (t₁ ∩ t₂) k = default := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.Const.get!_inter_of_contains_eq_false_left t₁.wf t₂.wf h
+
+end Const
+
+section Diff
+
+variable {t₁ t₂ : DTreeMap α β cmp}
+
+@[simp]
+theorem diff_eq : t₁.diff t₂ = t₁ \ t₂ := by
+  simp only [SDiff.sdiff]
+
+/- contains -/
+@[simp]
+theorem contains_diff [TransCmp cmp] {k : α} :
+    (t₁ \ t₂).contains k = (t₁.contains k && !t₂.contains k) :=
+  Impl.contains_diff t₁.wf t₂.wf
+
+/- mem -/
+@[simp]
+theorem mem_diff_iff [TransCmp cmp] {k : α} :
+    k ∈ t₁ \ t₂ ↔ k ∈ t₁ ∧ ¬k ∈ t₂ :=
+  Impl.contains_diff_iff t₁.wf t₂.wf
+
+theorem not_mem_diff_of_not_mem_left [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₁) :
+    ¬k ∈ t₁ \ t₂ := by
+  rw [← contains_eq_false_iff_not_mem] at h ⊢
+  exact Impl.contains_diff_eq_false_of_contains_eq_false_left t₁.wf t₂.wf h
+
+theorem not_mem_diff_of_mem_right [TransCmp cmp]
+    {k : α} (h : k ∈ t₂) :
+    ¬ k ∈ t₁ \ t₂ := by
+  rw [← contains_eq_false_iff_not_mem]
+  exact Impl.contains_diff_eq_false_of_contains_right t₁.wf t₂.wf h
+
+/- Equiv -/
+theorem Equiv.diff_left {t₃ : DTreeMap α β cmp} [TransCmp cmp]
+    (equiv : t₁ ~m t₂) :
+    (t₁ \ t₃).Equiv (t₂ \ t₃) :=
+  ⟨Impl.Equiv.diff_left t₁.wf t₂.wf t₃.wf equiv.1⟩
+
+theorem Equiv.diff_right {t₃ : DTreeMap α β cmp} [TransCmp cmp]
+    (equiv : t₂ ~m t₃) :
+    (t₁ \ t₂).Equiv (t₁ \ t₃) :=
+  ⟨Impl.Equiv.diff_right t₁.wf t₂.wf t₃.wf equiv.1⟩
+
+theorem Equiv.diff_congr {t₃ t₄ : DTreeMap α β cmp} [TransCmp cmp]
+    (equiv₁ : t₁ ~m t₃) (equiv₂ : t₂ ~m t₄) :
+    (t₁ \ t₂).Equiv (t₃ \ t₄) :=
+  ⟨Impl.Equiv.diff_congr t₁.wf t₂.wf t₃.wf t₄.wf equiv₁.1 equiv₂.1⟩
+
+/- get? -/
+theorem get?_diff [TransCmp cmp] [LawfulEqCmp cmp] {k : α} :
+    (t₁ \ t₂).get? k =
+    if k ∈ t₂ then none else t₁.get? k :=
+  Impl.get?_diff t₁.wf t₂.wf
+
+theorem get?_diff_of_not_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} (h : ¬k ∈ t₂) :
+    (t₁ \ t₂).get? k = t₁.get? k := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.get?_diff_of_contains_eq_false_right t₁.wf t₂.wf h
+
+theorem get?_diff_of_not_mem_left [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} (h : ¬k ∈ t₁) :
+    (t₁ \ t₂).get? k = none := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.get?_diff_of_contains_eq_false_left t₁.wf t₂.wf h
+
+theorem get?_diff_of_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} (h : k ∈ t₂) :
+    (t₁ \ t₂).get? k = none := by
+  rw [mem_iff_contains] at h
+  exact Impl.get?_diff_of_contains_right t₁.wf t₂.wf h
+
+/- get -/
+theorem get_diff [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} {h_mem : k ∈ t₁ \ t₂} :
+    (t₁ \ t₂).get k h_mem =
+    t₁.get k (mem_diff_iff.1 h_mem).1 :=
+  Impl.get_diff t₁.wf t₂.wf
+
+/- getD -/
+theorem getD_diff [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} {fallback : β k} :
+    (t₁ \ t₂).getD k fallback =
+    if k ∈ t₂ then fallback else t₁.getD k fallback :=
+  Impl.getD_diff t₁.wf t₂.wf
+
+theorem getD_diff_of_not_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} {fallback : β k} (h : ¬k ∈ t₂) :
+    (t₁ \ t₂).getD k fallback = t₁.getD k fallback := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.getD_diff_of_contains_eq_false_right t₁.wf t₂.wf h
+
+theorem getD_diff_of_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} {fallback : β k} (h : k ∈ t₂) :
+    (t₁ \ t₂).getD k fallback = fallback := by
+  rw [mem_iff_contains] at h
+  exact Impl.getD_diff_of_contains_right t₁.wf t₂.wf h
+
+theorem getD_diff_of_not_mem_left [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} {fallback : β k} (h : ¬k ∈ t₁) :
+    (t₁ \ t₂).getD k fallback = fallback := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.getD_diff_of_contains_eq_false_left t₁.wf t₂.wf h
+
+/- get! -/
+theorem get!_diff [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} [Inhabited (β k)] :
+    (t₁ \ t₂).get! k =
+    if k ∈ t₂ then default else t₁.get! k :=
+  Impl.get!_diff t₁.wf t₂.wf
+
+theorem get!_diff_of_not_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} [Inhabited (β k)] (h : ¬k ∈ t₂) :
+    (t₁ \ t₂).get! k = t₁.get! k := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.get!_diff_of_contains_eq_false_right t₁.wf t₂.wf h
+
+theorem get!_diff_of_mem_right [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} [Inhabited (β k)] (h : k ∈ t₂) :
+    (t₁ \ t₂).get! k = default := by
+  rw [mem_iff_contains] at h
+  exact Impl.get!_diff_of_contains_right t₁.wf t₂.wf h
+
+theorem get!_diff_of_not_mem_left [TransCmp cmp] [LawfulEqCmp cmp]
+    {k : α} [Inhabited (β k)] (h : ¬k ∈ t₁) :
+    (t₁ \ t₂).get! k = default := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.get!_diff_of_contains_eq_false_left t₁.wf t₂.wf h
+
+/- getKey? -/
+theorem getKey?_diff [TransCmp cmp]
+    {k : α} :
+    (t₁ \ t₂).getKey? k =
+    if k ∈ t₂ then none else t₁.getKey? k :=
+  Impl.getKey?_diff t₁.wf t₂.wf
+
+theorem getKey?_diff_of_not_mem_right [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₂) :
+    (t₁ \ t₂).getKey? k = t₁.getKey? k := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.getKey?_diff_of_contains_eq_false_right t₁.wf t₂.wf h
+
+theorem getKey?_diff_of_not_mem_left [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₁) :
+    (t₁ \ t₂).getKey? k = none := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.getKey?_diff_of_contains_eq_false_left t₁.wf t₂.wf h
+
+theorem getKey?_diff_of_mem_right [TransCmp cmp]
+    {k : α} (h : k ∈ t₂) :
+    (t₁ \ t₂).getKey? k = none := by
+  rw [mem_iff_contains] at h
+  exact Impl.getKey?_diff_of_contains_right t₁.wf t₂.wf h
+
+/- getKey -/
+theorem getKey_diff [TransCmp cmp]
+    {k : α} {h_mem : k ∈ t₁ \ t₂} :
+    (t₁ \ t₂).getKey k h_mem =
+    t₁.getKey k (mem_diff_iff.1 h_mem).1 :=
+  Impl.getKey_diff t₁.wf t₂.wf
+
+/- getKeyD -/
+theorem getKeyD_diff [TransCmp cmp] {k fallback : α} :
+    (t₁ \ t₂).getKeyD k fallback =
+    if k ∈ t₂ then fallback else t₁.getKeyD k fallback :=
+  Impl.getKeyD_diff t₁.wf t₂.wf
+
+theorem getKeyD_diff_of_not_mem_right [TransCmp cmp] {k fallback : α} (h : ¬k ∈ t₂) :
+    (t₁ \ t₂).getKeyD k fallback = t₁.getKeyD k fallback := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.getKeyD_diff_of_contains_eq_false_right t₁.wf t₂.wf h
+
+theorem getKeyD_diff_of_mem_right [TransCmp cmp] {k fallback : α} (h : k ∈ t₂) :
+    (t₁ \ t₂).getKeyD k fallback = fallback := by
+  rw [mem_iff_contains] at h
+  exact Impl.getKeyD_diff_of_contains_right t₁.wf t₂.wf h
+
+theorem getKeyD_diff_of_not_mem_left [TransCmp cmp] {k fallback : α} (h : ¬k ∈ t₁) :
+    (t₁ \ t₂).getKeyD k fallback = fallback := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.getKeyD_diff_of_contains_eq_false_left t₁.wf t₂.wf h
+
+/- getKey! -/
+theorem getKey!_diff [Inhabited α] [TransCmp cmp]
+    {k : α} :
+    (t₁ \ t₂).getKey! k =
+    if k ∈ t₂ then default else t₁.getKey! k :=
+  Impl.getKey!_diff t₁.wf t₂.wf
+
+theorem getKey!_diff_of_not_mem_right [Inhabited α] [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₂) :
+    (t₁ \ t₂).getKey! k = t₁.getKey! k := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.getKey!_diff_of_contains_eq_false_right t₁.wf t₂.wf h
+
+theorem getKey!_diff_of_mem_right [Inhabited α] [TransCmp cmp]
+    {k : α} (h : k ∈ t₂) :
+    (t₁ \ t₂).getKey! k = default := by
+  rw [mem_iff_contains] at h
+  exact Impl.getKey!_diff_of_contains_right t₁.wf t₂.wf h
+
+theorem getKey!_diff_of_not_mem_left [Inhabited α] [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₁) :
+    (t₁ \ t₂).getKey! k = default := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.getKey!_diff_of_contains_eq_false_left t₁.wf t₂.wf h
+
+/- size -/
+theorem size_diff_le_size_left [TransCmp cmp] :
+    (t₁ \ t₂).size ≤ t₁.size :=
+  Impl.size_diff_le_size_left t₁.wf t₂.wf
+
+theorem size_diff_eq_size_left [TransCmp cmp]
+    (h : ∀ (a : α), a ∈ t₁ → ¬a ∈ t₂) :
+    (t₁ \ t₂).size = t₁.size := by
+  conv at h =>
+    ext a
+    rhs
+    rw [← contains_eq_false_iff_not_mem]
+  exact Impl.size_diff_eq_size_left t₁.wf t₂.wf h
+
+theorem size_diff_add_size_inter_eq_size_left [TransCmp cmp] :
+    (t₁ \ t₂).size + (t₁ ∩ t₂).size = t₁.size :=
+  Impl.size_diff_add_size_inter_eq_size_left t₁.wf t₂.wf
+
+/- isEmpty -/
+@[simp]
+theorem isEmpty_diff_left [TransCmp cmp] (h : t₁.isEmpty) :
+    (t₁ \ t₂).isEmpty = true :=
+  Impl.isEmpty_diff_left t₁.wf t₂.wf h
+
+theorem isEmpty_diff_iff [TransCmp cmp] :
+    (t₁ \ t₂).isEmpty ↔ ∀ k, k ∈ t₁ → k ∈ t₂ := by
+  exact Impl.isEmpty_diff_iff t₁.wf t₂.wf
+
+end Diff
+
+namespace Const
+
+variable {β : Type v} {t₁ t₂ : DTreeMap α (fun _ => β) cmp}
+
+/- get? -/
+theorem get?_diff [TransCmp cmp] {k : α} :
+    Const.get? (t₁ \ t₂) k =
+    if k ∈ t₂ then none else Const.get? t₁ k :=
+  Impl.Const.get?_diff t₁.wf t₂.wf
+
+theorem get?_diff_of_not_mem_right [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₂) :
+    Const.get? (t₁ \ t₂) k = Const.get? t₁ k := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.Const.get?_diff_of_contains_eq_false_right t₁.wf t₂.wf h
+
+theorem get?_diff_of_not_mem_left [TransCmp cmp]
+    {k : α} (h : ¬k ∈ t₁) :
+    Const.get? (t₁ \ t₂) k = none := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.Const.get?_diff_of_contains_eq_false_left t₁.wf t₂.wf h
+
+theorem get?_diff_of_mem_right [TransCmp cmp]
+    {k : α} (h : k ∈ t₂) :
+    Const.get? (t₁ \ t₂) k = none := by
+  rw [mem_iff_contains] at h
+  exact Impl.Const.get?_diff_of_contains_right t₁.wf t₂.wf h
+
+/- get -/
+theorem get_diff [TransCmp cmp]
+    {k : α} {h_mem : k ∈ t₁ \ t₂} :
+    Const.get (t₁ \ t₂) k h_mem =
+    Const.get t₁ k (mem_diff_iff.1 h_mem).1 :=
+  Impl.Const.get_diff t₁.wf t₂.wf
+
+/- getD -/
+theorem getD_diff [TransCmp cmp]
+    {k : α} {fallback : β} :
+    Const.getD (t₁ \ t₂) k fallback =
+    if k ∈ t₂ then fallback else Const.getD t₁ k fallback :=
+  Impl.Const.getD_diff t₁.wf t₂.wf
+
+theorem getD_diff_of_not_mem_right [TransCmp cmp]
+    {k : α} {fallback : β} (h : ¬k ∈ t₂) :
+    Const.getD (t₁ \ t₂) k fallback = Const.getD t₁ k fallback := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.Const.getD_diff_of_contains_eq_false_right t₁.wf t₂.wf h
+
+theorem getD_diff_of_mem_right [TransCmp cmp]
+    {k : α} {fallback : β} (h : k ∈ t₂) :
+    Const.getD (t₁ \ t₂) k fallback = fallback := by
+  rw [mem_iff_contains] at h
+  exact Impl.Const.getD_diff_of_contains_right t₁.wf t₂.wf h
+
+theorem getD_diff_of_not_mem_left [TransCmp cmp]
+    {k : α} {fallback : β} (h : ¬k ∈ t₁) :
+    Const.getD (t₁ \ t₂) k fallback = fallback := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.Const.getD_diff_of_contains_eq_false_left t₁.wf t₂.wf h
+
+/- get! -/
+theorem get!_diff [TransCmp cmp] [Inhabited β]
+    {k : α} :
+    Const.get! (t₁ \ t₂) k =
+    if k ∈ t₂ then default else Const.get! t₁ k :=
+  Impl.Const.get!_diff t₁.wf t₂.wf
+
+theorem get!_diff_of_not_mem_right [TransCmp cmp] [Inhabited β]
+    {k : α} (h : ¬k ∈ t₂) :
+    Const.get! (t₁ \ t₂) k = Const.get! t₁ k := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.Const.get!_diff_of_contains_eq_false_right t₁.wf t₂.wf h
+
+theorem get!_diff_of_mem_right [TransCmp cmp] [Inhabited β]
+    {k : α} (h : k ∈ t₂) :
+    Const.get! (t₁ \ t₂) k = default := by
+  rw [mem_iff_contains] at h
+  exact Impl.Const.get!_diff_of_contains_right t₁.wf t₂.wf h
+
+theorem get!_diff_of_not_mem_left [TransCmp cmp] [Inhabited β]
+    {k : α} (h : ¬k ∈ t₁) :
+    Const.get! (t₁ \ t₂) k = default := by
+  rw [← contains_eq_false_iff_not_mem] at h
+  exact Impl.Const.get!_diff_of_contains_eq_false_left t₁.wf t₂.wf h
+
+end Const
 
 section Alter
 
@@ -2372,17 +3407,6 @@ theorem getKey!_alter_self [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] {k : 
     {f : Option (β k) → Option (β k)} :
     (t.alter k f).getKey! k = if (f (t.get? k)).isSome then k else default :=
   Impl.getKey!_alter_self t.wf
-
-@[deprecated getKey_eq (since := "2025-01-05")]
-theorem getKey_alter [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] {k k' : α}
-    {f : Option (β k) → Option (β k)} {hc : k' ∈ t.alter k f} :
-    (t.alter k f).getKey k' hc =
-      if heq : cmp k k' = .eq then
-        k
-      else
-        haveI h' : k' ∈ t := mem_alter_of_not_compare_eq heq |>.mp hc
-        t.getKey k' h' :=
-  Impl.getKey_alter t.wf
 
 @[simp]
 theorem getKey_alter_self [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] {k : α}
@@ -2955,6 +3979,38 @@ theorem isSome_minKey?_iff_isEmpty_eq_false [TransCmp cmp] :
     (t.insert k v).minKey?.isSome :=
   Impl.isSome_minKey?_insert t.wf
 
+theorem minKey_insert_of_isEmpty [TransCmp cmp] {k v} (he : t.isEmpty) :
+    (t.insert k v).minKey isEmpty_insert = k :=
+  Impl.minKey_insert_of_isEmpty t.wf he
+
+theorem minKey?_insert_of_isEmpty [TransCmp cmp] {k v} (he : t.isEmpty) :
+    (t.insert k v).minKey? = some k :=
+  Impl.minKey?_insert_of_isEmpty t.wf he
+
+theorem minKey!_insert_of_isEmpty [TransCmp cmp] [Inhabited α] {k v} (he : t.isEmpty) :
+    (t.insert k v).minKey! = k :=
+  Impl.minKey!_insert_of_isEmpty t.wf he
+
+theorem minKeyD_insert_of_isEmpty [TransCmp cmp] {k v} (he : t.isEmpty) {fallback : α} :
+    (t.insert k v).minKeyD fallback = k :=
+  Impl.minKeyD_insert_of_isEmpty t.wf he
+
+theorem minKey_insertIfNew_of_isEmpty [TransCmp cmp] {k v} (he : t.isEmpty) :
+    (t.insertIfNew k v).minKey isEmpty_insertIfNew = k :=
+  Impl.minKey_insertIfNew_of_isEmpty t.wf he
+
+theorem minKey?_insertIfNew_of_isEmpty [TransCmp cmp] {k v} (he : t.isEmpty) :
+    (t.insertIfNew k v).minKey? = some k :=
+  Impl.minKey?_insertIfNew_of_isEmpty t.wf he
+
+theorem minKey!_insertIfNew_of_isEmpty [TransCmp cmp] [Inhabited α] {k v} (he : t.isEmpty) :
+    (t.insertIfNew k v).minKey! = k :=
+  Impl.minKey!_insertIfNew_of_isEmpty t.wf he
+
+theorem minKeyD_insertIfNew_of_isEmpty [TransCmp cmp] {k v} (he : t.isEmpty) {fallback : α} :
+    (t.insertIfNew k v).minKeyD fallback = k :=
+  Impl.minKeyD_insertIfNew_of_isEmpty t.wf he
+
 theorem minKey?_insert_le_minKey? [TransCmp cmp] {k v km kmi} :
     (hkm : t.minKey? = some km) →
     (hkmi : (t.insert k v |>.minKey? |>.get isSome_minKey?_insert) = kmi) →
@@ -3144,9 +4200,11 @@ theorem minKey_insert_le_self [TransCmp cmp] {k v} :
     t.contains (t.minKey he) :=
   Impl.contains_minKey t.wf
 
-@[grind] theorem minKey_mem [TransCmp cmp] {he} :
+theorem minKey_mem [TransCmp cmp] {he} :
     t.minKey he ∈ t :=
   Impl.minKey_mem t.wf
+
+grind_pattern minKey_mem => t.minKey he ∈ t
 
 theorem minKey_le_of_contains [TransCmp cmp] {k} (hc : t.contains k) :
     cmp (t.minKey <| isEmpty_eq_false_iff_exists_contains_eq_true.mpr ⟨k, hc⟩) k |>.isLE :=
@@ -3786,9 +4844,11 @@ theorem self_le_maxKey_insert [TransCmp cmp] {k v} :
     t.contains (t.maxKey he) :=
   Impl.contains_maxKey t.wf
 
-@[grind] theorem maxKey_mem [TransCmp cmp] {he} :
+theorem maxKey_mem [TransCmp cmp] {he} :
     t.maxKey he ∈ t :=
   Impl.maxKey_mem t.wf
+
+grind_pattern maxKey_mem => t.maxKey he ∈ t
 
 theorem le_maxKey_of_contains [TransCmp cmp] {k} (hc : t.contains k) :
     cmp k (t.maxKey <| isEmpty_eq_false_iff_exists_contains_eq_true.mpr ⟨k, hc⟩) |>.isLE :=
@@ -4569,7 +5629,7 @@ theorem mergeWith [TransCmp cmp] [LawfulEqCmp cmp] (f : (a : α) → β a → β
 
 section Const
 
-variable {β : Type v} {t₁ t₂ t₃ t₄ : DTreeMap α β cmp} {δ : Type w} {m : Type w → Type w}
+variable {β : Type v} {t₁ t₂ t₃ t₄ : DTreeMap α β cmp} {δ : Type w} {m : Type w → Type w'}
 
 theorem constGet?_eq [TransCmp cmp] {k : α} (h : t₁ ~m t₂) : Const.get? t₁ k = Const.get? t₂ k :=
   h.1.constGet?_eq t₁.2 t₂.2
@@ -4827,5 +5887,782 @@ theorem Equiv.of_keys_unit_perm {t₁ t₂ : DTreeMap α Unit cmp} : t₁.keys.P
 end Const
 
 end Equiv
+
+section filterMap
+
+variable {γ : α → Type w}
+
+@[simp, grind =]
+theorem toList_filterMap {f : (a : α) → β a → Option (γ a)} :
+    (t.filterMap f).toList =
+      t.toList.filterMap (fun p => (f p.1 p.2).map (fun x => ⟨p.1, x⟩)) :=
+  Impl.toList_filterMap t.wf
+
+@[grind =]
+theorem isEmpty_filterMap_iff [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Option (γ a)} :
+    (t.filterMap f).isEmpty = true ↔
+      ∀ (k : α) (h : k ∈ t), f k (t.get k h) = none :=
+  Impl.isEmpty_filterMap_iff t.wf
+
+theorem isEmpty_filterMap_eq_false_iff [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Option (γ a)} :
+    (t.filterMap f).isEmpty = false ↔
+      ∃ (k : α) (h : k ∈ t), (f k (t.get k h)).isSome :=
+  Impl.isEmpty_filterMap_eq_false_iff t.wf
+
+@[grind =]
+theorem contains_filterMap [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Option (γ a)} {k : α} :
+    (t.filterMap f).contains k = (t.get? k).any (f k · |>.isSome) :=
+  Impl.contains_filterMap t.wf
+
+@[grind =]
+theorem mem_filterMap [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Option (γ a)} {k : α} :
+    k ∈ t.filterMap f ↔ ∃ h, (f k (t.get k h)).isSome := by
+  simp only [mem_iff_contains, contains_filterMap, Option.any_eq_true_iff_get,
+    ← contains_eq_isSome_get?, get_get?]
+
+theorem contains_of_contains_filterMap [TransCmp cmp]
+    {f : (a : α) → β a → Option (γ a)} {k : α} :
+    (t.filterMap f).contains k = true → t.contains k = true :=
+  Impl.contains_of_contains_filterMap t.wf
+
+theorem mem_of_mem_filterMap [TransCmp cmp]
+    {f : (a : α) → β a → Option (γ a)} {k : α} :
+    k ∈ t.filterMap f → k ∈ t :=
+  Impl.contains_of_contains_filterMap t.wf
+
+theorem size_filterMap_le_size [TransCmp cmp]
+    {f : (a : α) → β a → Option (γ a)} :
+    (t.filterMap f).size ≤ t.size :=
+  Impl.size_filterMap_le_size t.wf
+
+grind_pattern size_filterMap_le_size => (t.filterMap f).size
+
+theorem size_filterMap_eq_size_iff [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Option (γ a)} :
+    (t.filterMap f).size = t.size ↔ ∀ (a : α) (h : a ∈ t), (f a (t.get a h)).isSome :=
+  Impl.size_filterMap_eq_size_iff t.wf
+
+@[simp, grind =]
+theorem get?_filterMap [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Option (γ a)} {k : α} :
+    (t.filterMap f).get? k = (t.get? k).bind (f k) :=
+  Impl.get?_filterMap t.wf
+
+theorem isSome_apply_of_mem_filterMap [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Option (γ a)} {k : α} :
+    ∀ (h' : k ∈ t.filterMap f),
+      (f k (t.get k (mem_of_mem_filterMap h'))).isSome :=
+  Impl.isSome_apply_of_contains_filterMap t.wf
+
+@[simp, grind =]
+theorem get_filterMap [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Option (γ a)} {k : α} {h'} :
+    (t.filterMap f).get k h' =
+      (f k (t.get k (mem_of_mem_filterMap h'))).get
+        (isSome_apply_of_mem_filterMap h') :=
+  Impl.get_filterMap t.wf
+
+@[simp, grind =]
+theorem get!_filterMap [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Option (γ a)} {k : α} [Inhabited (γ k)] :
+    (t.filterMap f).get! k = ((t.get? k).bind (f k)).get! :=
+  Impl.get!_filterMap t.wf
+
+@[simp, grind =]
+theorem getD_filterMap [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Option (γ a)} {k : α} {fallback : γ k} :
+    (t.filterMap f).getD k fallback = ((t.get? k).bind (f k)).getD fallback :=
+  Impl.getD_filterMap t.wf
+
+@[grind =]
+theorem getKey?_filterMap [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Option (γ a)} {k : α} :
+    (t.filterMap f).getKey? k =
+    (t.getKey? k).pfilter (fun x h' =>
+      (f x (t.get x (mem_of_getKey?_eq_some h'))).isSome) :=
+  Impl.getKey?_filterMap t.wf
+
+@[simp, grind =]
+theorem getKey_filterMap [TransCmp cmp]
+    {f : (a : α) → β a → Option (γ a)} {k : α} {h'} :
+    (t.filterMap f).getKey k h' = t.getKey k (mem_of_mem_filterMap h') :=
+  Impl.getKey_filterMap t.wf
+
+@[grind =]
+theorem getKey!_filterMap [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α]
+    {f : (a : α) → β a → Option (γ a)} {k : α} :
+    (t.filterMap f).getKey! k =
+    ((t.getKey? k).pfilter (fun x h' =>
+      (f x (t.get x (mem_of_getKey?_eq_some h'))).isSome)).get! :=
+  Impl.getKey!_filterMap t.wf
+
+@[grind =]
+theorem getKeyD_filterMap [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Option (γ a)} {k fallback : α} :
+    (t.filterMap f).getKeyD k fallback =
+    ((t.getKey? k).pfilter (fun x h' =>
+      (f x (t.get x (mem_of_getKey?_eq_some h'))).isSome)).getD fallback :=
+  Impl.getKeyD_filterMap t.wf
+
+namespace Const
+
+variable {β : Type v} {γ : Type w} {t : DTreeMap α (fun _ => β) cmp}
+
+@[grind =]
+theorem isEmpty_filterMap_iff [TransCmp cmp]
+    {f : α → β → Option γ} :
+    (t.filterMap f).isEmpty ↔ ∀ k h, f (t.getKey k h) (get t k h) = none :=
+  Impl.Const.isEmpty_filterMap_iff t.wf
+
+theorem isEmpty_filterMap_eq_false_iff [TransCmp cmp]
+    {f : α → β → Option γ} :
+    (t.filterMap f).isEmpty = false ↔ ∃ k h, (f (t.getKey k h) (get t k h)).isSome :=
+  Impl.Const.isEmpty_filterMap_eq_false_iff t.wf
+
+-- TODO: `contains_filterMap` is missing
+
+@[grind =]
+theorem mem_filterMap [TransCmp cmp]
+    {f : α → β → Option γ} {k : α} :
+    k ∈ t.filterMap f ↔ ∃ h, (f (t.getKey k h) (Const.get t k h)).isSome :=
+  Impl.Const.contains_filterMap_iff t.wf
+
+-- TODO: `size_filterMap_le_size` is missing
+
+theorem size_filterMap_eq_size_iff [TransCmp cmp]
+    {f : α → β → Option γ} :
+    (t.filterMap f).size = t.size ↔ ∀ k h, (f (t.getKey k h) (Const.get t k h)).isSome :=
+  Impl.Const.size_filterMap_eq_size_iff t.wf
+
+@[simp]
+theorem get?_filterMap [TransCmp cmp]
+    {f : α → β → Option γ} {k : α} :
+    Const.get? (t.filterMap f) k = (Const.get? t k).pbind (fun x h' =>
+      f (t.getKey k (mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))) x) :=
+  Impl.Const.get?_filterMap t.wf
+
+/-- Simpler variant of `get?_filterMap` when `LawfulEqCmp` is available. -/
+@[grind =]
+theorem get?_filterMap' [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : α → β → Option γ} {k : α} :
+    Const.get? (t.filterMap f) k = (Const.get? t k).bind fun x => f k x := by
+  simp [get?_filterMap]
+
+theorem get?_filterMap_of_getKey?_eq_some [TransCmp cmp]
+    {f : α → β → Option γ} {k k' : α} (h : t.getKey? k = some k') :
+    Const.get? (t.filterMap f) k = (Const.get? t k).bind (f k') :=
+  Impl.Const.get?_filterMap_of_getKey?_eq_some t.wf h
+
+theorem isSome_apply_of_mem_filterMap [TransCmp cmp]
+    {f : α → β → Option γ} {k : α} :
+    ∀ (h : k ∈ t.filterMap f),
+      (f (t.getKey k (mem_of_mem_filterMap h))
+        (Const.get t k (mem_of_mem_filterMap h))).isSome :=
+  Impl.Const.isSome_apply_of_contains_filterMap t.wf
+
+@[simp]
+theorem get_filterMap [TransCmp cmp]
+    {f : α → β → Option γ} {k : α} {h} :
+    Const.get (t.filterMap f) k h =
+      (f (t.getKey k (mem_of_mem_filterMap h))
+        (Const.get t k (mem_of_mem_filterMap h))).get
+          (isSome_apply_of_mem_filterMap h) :=
+  Impl.Const.get_filterMap t.wf
+
+/-- Simpler variant of `get_filterMap` when `LawfulEqCmp` is available. -/
+@[grind =]
+theorem get_filterMap' [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : α → β → Option γ} {k : α} {h} :
+    Const.get (t.filterMap f) k h =
+      (f k (Const.get t k (mem_of_mem_filterMap h))).get (by simpa using isSome_apply_of_mem_filterMap h) := by
+  simp [get_filterMap]
+
+theorem get!_filterMap [TransCmp cmp] [Inhabited γ]
+    {f : α → β → Option γ} {k : α} :
+    Const.get! (t.filterMap f) k =
+      ((Const.get? t k).pbind (fun x h' =>
+        f (t.getKey k (mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))) x)).get! :=
+  Impl.Const.get!_filterMap t.wf
+
+/-- Simpler variant of `get!_filterMap` when `LawfulEqCmp` is available. -/
+@[grind =]
+theorem get!_filterMap' [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited γ]
+    {f : α → β → Option γ} {k : α} :
+    Const.get! (t.filterMap f) k = ((Const.get? t k).bind (f k) ).get!:= by
+  simp [get!_filterMap]
+
+theorem get!_filterMap_of_getKey?_eq_some [TransCmp cmp] [Inhabited γ]
+    {f : α → β → Option γ} {k k' : α} (h : t.getKey? k = some k') :
+    Const.get! (t.filterMap f) k = ((Const.get? t k).bind (f k')).get! :=
+  Impl.Const.get!_filterMap_of_getKey?_eq_some t.wf h
+
+theorem getD_filterMap [TransCmp cmp]
+    {f : α → β → Option γ} {k : α} {fallback : γ} :
+    Const.getD (t.filterMap f) k fallback =
+      ((Const.get? t k).pbind (fun x h' =>
+      f (t.getKey k (mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))) x)).getD fallback :=
+  Impl.Const.getD_filterMap t.wf
+
+/-- Simpler variant of `getD_filterMap` when `LawfulEqCmp` is available. -/
+@[grind =]
+theorem getD_filterMap' [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : α → β → Option γ} {k : α} {fallback : γ} :
+    Const.getD (t.filterMap f) k fallback = ((Const.get? t k).bind (f k)).getD fallback := by
+  simp [getD_filterMap]
+
+theorem getD_filterMap_of_getKey?_eq_some [TransCmp cmp]
+    {f : α → β → Option γ} {k k' : α} {fallback : γ} (h : t.getKey? k = some k') :
+    Const.getD (t.filterMap f) k fallback = ((Const.get? t k).bind (f k')).getD fallback :=
+  Impl.Const.getD_filterMap_of_getKey?_eq_some t.wf h
+
+theorem toList_filterMap
+    {f : α → β → Option γ} :
+    Const.toList (t.filterMap fun k v => f k v) =
+      (Const.toList t).filterMap (fun p => (f p.1 p.2).map (fun x => (p.1, x))) :=
+  Impl.Const.toList_filterMap t.wf
+
+@[grind =]
+theorem getKey?_filterMap [TransCmp cmp]
+    {f : α → β → Option γ} {k : α} :
+    (t.filterMap f).getKey? k =
+    (t.getKey? k).pfilter (fun x h' =>
+      (f x (Const.get t x (mem_of_getKey?_eq_some h'))).isSome) :=
+  Impl.Const.getKey?_filterMap t.wf
+
+@[grind =]
+theorem getKey!_filterMap [TransCmp cmp] [Inhabited α]
+    {f : α → β → Option γ} {k : α} :
+    (t.filterMap f).getKey! k =
+    ((t.getKey? k).pfilter (fun x h' =>
+      (f x (Const.get t x (mem_of_getKey?_eq_some h'))).isSome)).get! :=
+  Impl.Const.getKey!_filterMap t.wf
+
+@[grind =]
+theorem getKeyD_filterMap [TransCmp cmp]
+    {f : α → β → Option γ} {k fallback : α} :
+    (t.filterMap f).getKeyD k fallback =
+    ((t.getKey? k).pfilter (fun x h' =>
+      (f x (Const.get t x (mem_of_getKey?_eq_some h'))).isSome)).getD fallback :=
+  Impl.Const.getKeyD_filterMap t.wf
+
+end Const
+
+end filterMap
+
+section filter
+
+theorem filterMap_equiv_filter {f : (a : α) → β a → Bool} :
+    t.filterMap (fun k => Option.guard (fun v => f k v)) ~m t.filter f :=
+  ⟨Impl.filterMap_equiv_filter t.wf⟩
+
+@[simp, grind =]
+theorem toList_filter {f : (a : α) → β a → Bool} :
+    (t.filter f).toList = t.toList.filter (fun p => f p.1 p.2) :=
+  Impl.toList_filter t.wf
+
+theorem keys_filter_key {f : α → Bool} :
+    (t.filter fun k _ => f k).keys = t.keys.filter f :=
+  Impl.keys_filter_key t.wf
+
+@[grind =]
+theorem isEmpty_filter_iff [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Bool} :
+    (t.filter f).isEmpty = true ↔
+      ∀ (k : α) (h : k ∈ t), f k (t.get k h) = false :=
+  Impl.isEmpty_filter_iff t.wf
+
+theorem isEmpty_filter_eq_false_iff [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Bool} :
+    (t.filter f).isEmpty = false ↔
+      ∃ (k : α) (h : k ∈ t), f k (t.get k h) = true :=
+  Impl.isEmpty_filter_eq_false_iff t.wf
+
+theorem isEmpty_filter_key_iff [TransCmp cmp]
+    {f : α → Bool} :
+    (t.filter (fun a _ => f a)).isEmpty ↔
+      ∀ (k : α) (h : k ∈ t), f (t.getKey k h) = false :=
+  Impl.isEmpty_filter_key_iff t.wf
+
+theorem isEmpty_filter_key_eq_false_iff [TransCmp cmp]
+    {f : α → Bool} :
+    (t.filter (fun a _ => f a)).isEmpty = false ↔
+      ∃ (k : α) (h : k ∈ t), f (t.getKey k h) :=
+  Impl.isEmpty_filter_key_eq_false_iff t.wf
+
+@[grind =]
+theorem contains_filter [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Bool} {k : α} :
+    (t.filter f).contains k = (t.get? k).any (f k) :=
+  Impl.contains_filter t.wf
+
+@[grind =]
+theorem mem_filter [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Bool} {k : α} :
+    k ∈ t.filter f ↔ ∃ h, f k (t.get k h) := by
+  simp only [mem_iff_contains, contains_filter, Option.any_eq_true_iff_get,
+    ← contains_eq_isSome_get?, get_get?]
+
+theorem mem_filter_key [TransCmp cmp]
+    {f : α → Bool} {k : α} :
+    k ∈ t.filter (fun a _ => f a) ↔ ∃ h, f (t.getKey k h) :=
+  Impl.contains_filter_key_iff t.wf
+
+theorem contains_of_contains_filter [TransCmp cmp]
+    {f : (a : α) → β a → Bool} {k : α} :
+    (t.filter f).contains k = true → t.contains k = true :=
+  Impl.contains_of_contains_filter t.wf
+
+theorem mem_of_mem_filter [TransCmp cmp]
+    {f : (a : α) → β a → Bool} {k : α} :
+    k ∈ (t.filter f) → k ∈ t :=
+  Impl.contains_of_contains_filter t.wf
+
+theorem size_filter_le_size [TransCmp cmp]
+    {f : (a : α) → β a → Bool} :
+    (t.filter f).size ≤ t.size :=
+  Impl.size_filter_le_size t.wf
+
+grind_pattern size_filter_le_size => (t.filter f).size
+
+theorem size_filter_eq_size_iff [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Bool} :
+    (t.filter f).size = t.size ↔ ∀ k h, f k (t.get k h) :=
+  Impl.size_filter_eq_size_iff t.wf
+
+theorem filter_equiv_self_iff [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Bool} :
+    t.filter f ~m t ↔ ∀ k h, f k (t.get k h) :=
+  ⟨fun h => (Impl.filter_equiv_self_iff t.wf).mp h.1,
+    fun h => ⟨(Impl.filter_equiv_self_iff t.wf).mpr h⟩⟩
+
+theorem filter_key_equiv_self_iff [TransCmp cmp]
+    {f : (a : α) → Bool} :
+    t.filter (fun k _ => f k) ~m t ↔ ∀ k h, f (t.getKey k h) :=
+  ⟨fun h => (Impl.filter_key_equiv_self_iff t.wf).mp h.1,
+    fun h => ⟨(Impl.filter_key_equiv_self_iff t.wf).mpr h⟩⟩
+
+theorem size_filter_key_eq_size_iff [TransCmp cmp]
+    {f : α → Bool} :
+    (t.filter fun k _ => f k).size = t.size ↔ ∀ (k : α) (h : k ∈ t), f (t.getKey k h) :=
+  Impl.size_filter_key_eq_size_iff t.wf
+
+@[simp, grind =]
+theorem get?_filter [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Bool} {k : α} :
+    (t.filter f).get? k = (t.get? k).filter (f k) :=
+  Impl.get?_filter t.wf
+
+@[simp, grind =]
+theorem get_filter [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Bool} {k : α} {h'} :
+    (t.filter f).get k h' = t.get k (mem_of_mem_filter h') :=
+  Impl.get_filter t.wf
+
+@[grind =]
+theorem get!_filter [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Bool} {k : α} [Inhabited (β k)] :
+    (t.filter f).get! k = ((t.get? k).filter (f k)).get! :=
+  Impl.get!_filter t.wf
+
+@[grind =]
+theorem getD_filter [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Bool} {k : α} {fallback : β k} :
+    (t.filter f).getD k fallback = ((t.get? k).filter (f k)).getD fallback :=
+  Impl.getD_filter t.wf
+
+theorem keys_filter [TransCmp cmp] [LawfulEqCmp cmp] {f : (a : α) → β a → Bool} :
+    (t.filter f).keys =
+      (t.keys.attach.filter (fun ⟨x, h'⟩ => f x (t.get x (mem_of_mem_keys h')))).unattach :=
+  Impl.keys_filter t.wf
+
+@[grind =]
+theorem getKey?_filter [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Bool} {k : α} :
+    (t.filter f).getKey? k =
+    (t.getKey? k).pfilter (fun x h' =>
+      f x (t.get x (mem_of_getKey?_eq_some h'))) :=
+  Impl.getKey?_filter t.wf
+
+theorem getKey?_filter_key [TransCmp cmp]
+    {f : α → Bool} {k : α} :
+    (t.filter fun k _ => f k).getKey? k = (t.getKey? k).filter f :=
+  Impl.getKey?_filter_key t.wf
+
+@[simp, grind =]
+theorem getKey_filter [TransCmp cmp]
+    {f : (a : α) → β a → Bool} {k : α} {h'} :
+    (t.filter f).getKey k h' = t.getKey k (mem_of_mem_filter h') :=
+  Impl.getKey_filter t.wf
+
+@[grind =]
+theorem getKey!_filter [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α]
+    {f : (a : α) → β a → Bool} {k : α} :
+    (t.filter f).getKey! k =
+    ((t.getKey? k).pfilter (fun x h' =>
+      f x (t.get x (mem_of_getKey?_eq_some h')))).get! :=
+  Impl.getKey!_filter t.wf
+
+theorem getKey!_filter_key [TransCmp cmp] [Inhabited α]
+    {f : α → Bool} {k : α} :
+    (t.filter fun k _ => f k).getKey! k = ((t.getKey? k).filter f).get! :=
+  Impl.getKey!_filter_key t.wf
+
+@[grind =]
+theorem getKeyD_filter [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → Bool} {k fallback : α} :
+    (t.filter f).getKeyD k fallback =
+    ((t.getKey? k).pfilter (fun x h' =>
+      f x (t.get x (mem_of_getKey?_eq_some h')))).getD fallback :=
+  Impl.getKeyD_filter t.wf
+
+theorem getKeyD_filter_key [TransCmp cmp]
+    {f : α → Bool} {k fallback : α} :
+    (t.filter fun k _ => f k).getKeyD k fallback = ((t.getKey? k).filter f).getD fallback :=
+  Impl.getKeyD_filter_key t.wf
+
+namespace Const
+
+variable {β : Type v} {γ : Type w} {t : DTreeMap α (fun _ => β) cmp}
+
+@[grind =]
+theorem isEmpty_filter_iff [TransCmp cmp]
+    {f : α → β → Bool} :
+    (t.filter f).isEmpty = true ↔
+      ∀ (k : α) (h : k ∈ t), f (t.getKey k h) (Const.get t k h) = false :=
+  Impl.Const.isEmpty_filter_iff t.wf
+
+theorem isEmpty_filter_eq_false_iff [TransCmp cmp]
+    {f : α → β → Bool} :
+    (t.filter f).isEmpty = false ↔
+      ∃ (k : α) (h : k ∈ t), (f (t.getKey k h) (Const.get t k h)) = true :=
+  Impl.Const.isEmpty_filter_eq_false_iff t.wf
+
+-- TODO: `contains_filter` is missing
+
+@[grind =]
+theorem mem_filter [TransCmp cmp]
+    {f : α → β → Bool} {k : α} :
+    k ∈ t.filter f ↔ ∃ (h' : k ∈ t),
+      f (t.getKey k h') (Const.get t k h') :=
+  Impl.Const.contains_filter_iff t.wf
+
+theorem size_filter_le_size [TransCmp cmp]
+    {f : α → β → Bool} :
+    (t.filter f).size ≤ t.size :=
+  Impl.Const.size_filter_le_size t.wf
+
+grind_pattern size_filter_le_size => (t.filter f).size
+
+theorem size_filter_eq_size_iff [TransCmp cmp]
+    {f : α → β → Bool} :
+    (t.filter f).size = t.size ↔ ∀ (a : α) (h : a ∈ t),
+      f (t.getKey a h) (Const.get t a h) :=
+  Impl.Const.size_filter_eq_size_iff t.wf
+
+theorem filter_equiv_self_iff [TransCmp cmp]
+    {f : α → β → Bool} :
+    t.filter f ~m t ↔ ∀ k h, f (t.getKey k h) (Const.get t k h) :=
+  ⟨fun h => (Impl.Const.filter_equiv_self_iff t.wf).mp h.1,
+    fun h => ⟨(Impl.Const.filter_equiv_self_iff t.wf).mpr h⟩ ⟩
+
+theorem get?_filter [TransCmp cmp]
+    {f : α → β → Bool} {k : α} :
+    Const.get? (t.filter f) k = (Const.get? t k).pfilter (fun x h' =>
+      f (t.getKey k (mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))) x) :=
+  Impl.Const.get?_filter t.wf
+
+/-- Simpler variant of `get?_filter` when `LawfulEqCmp` is available. -/
+@[simp, grind =]
+theorem get?_filter' [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : α → β → Bool} {k : α} :
+    Const.get? (t.filter f) k = (Const.get? t k).filter (f k) := by
+  simp [get?_filter]
+
+theorem get?_filter_of_getKey?_eq_some [TransCmp cmp]
+    {f : α → β → Bool} {k k' : α} :
+    t.getKey? k = some k' →
+      Const.get? (t.filter f) k = (Const.get? t k).filter (fun x => f k' x) :=
+  Impl.Const.get?_filter_of_getKey?_eq_some t.wf
+
+@[simp, grind =]
+theorem get_filter [TransCmp cmp]
+    {f : α → β → Bool} {k : α} {h'} :
+    Const.get (t.filter f) k h' = Const.get t k (mem_of_mem_filter h') :=
+  Impl.Const.get_filter t.wf
+
+theorem get!_filter [TransCmp cmp] [Inhabited β]
+    {f : α → β → Bool} {k : α} :
+    Const.get! (t.filter f) k =
+      ((Const.get? t k).pfilter (fun x h' =>
+      f (t.getKey k (mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))) x)).get! :=
+  Impl.Const.get!_filter t.wf
+
+/-- Simpler variant of `get!_filter` when `LawfulEqCmp` is available. -/
+@[grind =]
+theorem get!_filter' [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited β]
+    {f : α → β → Bool} {k : α} :
+    Const.get! (t.filter f) k = ((Const.get? t k).filter (f k)).get! := by
+  simp [get!_filter]
+
+theorem get!_filter_of_getKey?_eq_some [TransCmp cmp] [Inhabited β]
+    {f : α → β → Bool} {k k' : α} :
+    t.getKey? k = some k' →
+      Const.get! (t.filter f) k = ((Const.get? t k).filter (fun x => f k' x)).get! :=
+  Impl.Const.get!_filter_of_getKey?_eq_some t.wf
+
+theorem getD_filter [TransCmp cmp]
+    {f : α → β → Bool} {k : α} {fallback : β} :
+    Const.getD (t.filter f) k fallback = ((Const.get? t k).pfilter (fun x h' =>
+      f (t.getKey k (mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))) x)).getD fallback :=
+  Impl.Const.getD_filter t.wf
+
+/-- Simpler variant of `getD_filter` when `LawfulEqCmp` is available. -/
+@[grind =]
+theorem getD_filter' [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : α → β → Bool} {k : α} {fallback : β} :
+    Const.getD (t.filter f) k fallback = ((Const.get? t k).filter (f k)).getD fallback := by
+  simp [getD_filter]
+
+theorem getD_filter_of_getKey?_eq_some [TransCmp cmp]
+    {f : α → β → Bool} {k k' : α} {fallback : β} :
+    t.getKey? k = some k' →
+      Const.getD (t.filter f) k fallback =
+        ((Const.get? t k).filter (fun x => f k' x)).getD fallback :=
+  Impl.Const.getD_filter_of_getKey?_eq_some t.wf
+
+@[simp, grind =]
+theorem toList_filter {f : α → β → Bool} :
+    toList (t.filter f) =
+      (toList t).filter (fun p => f p.1 p.2) :=
+  Impl.Const.toList_filter t.wf
+
+theorem keys_filter [TransCmp cmp] {f : α → β → Bool} :
+    (t.filter f).keys =
+      (t.keys.attach.filter (fun ⟨x, h'⟩ => f x (get t x (mem_of_mem_keys h')))).unattach :=
+  Impl.Const.keys_filter t.wf
+
+@[grind =]
+theorem getKey?_filter [TransCmp cmp]
+    {f : α → β → Bool} {k : α} :
+    (t.filter f).getKey? k =
+    (t.getKey? k).pfilter (fun x h' =>
+      (f x (Const.get t x (mem_of_getKey?_eq_some h')))) :=
+  Impl.Const.getKey?_filter t.wf
+
+@[grind =]
+theorem getKey!_filter [TransCmp cmp] [Inhabited α]
+    {f : α → β → Bool} {k : α} :
+    (t.filter f).getKey! k =
+    ((t.getKey? k).pfilter (fun x h' =>
+      (f x (Const.get t x (mem_of_getKey?_eq_some h'))))).get! :=
+  Impl.Const.getKey!_filter t.wf
+
+@[grind =]
+theorem getKeyD_filter [TransCmp cmp]
+    {f : α → β → Bool} {k fallback : α} :
+    (t.filter f).getKeyD k fallback =
+    ((t.getKey? k).pfilter (fun x h' =>
+      (f x (Const.get t x (mem_of_getKey?_eq_some h'))))).getD fallback :=
+  Impl.Const.getKeyD_filter t.wf
+
+end Const
+
+end filter
+
+section map
+
+variable {γ : α → Type w} {δ : α → Type w'}
+
+theorem map_id_equiv : t.map (fun _ v => v) ~m t :=
+  ⟨Impl.map_id_equiv⟩
+
+theorem map_map_equiv {f : (a : α) → β a → γ a} {g : (a : α) → γ a → δ a} :
+    (t.map f).map g ~m t.map fun k v => g k (f k v) :=
+  ⟨Impl.map_map_equiv⟩
+
+@[simp, grind =]
+theorem toList_map {f : (a : α) → β a → γ a} :
+    (t.map f).toList = t.toList.map (fun p => ⟨p.1, f p.1 p.2⟩) :=
+  Impl.toList_map
+
+@[simp, grind =]
+theorem keys_map {f : (a : α) → β a → γ a} : (t.map f).keys = t.keys :=
+  Impl.keys_map
+
+theorem filterMap_equiv_map [TransCmp cmp]
+    {f : (a : α) → β a → γ a} :
+    (t.filterMap (fun k v => some (f k v))) ~m t.map f :=
+  ⟨Impl.filterMap_equiv_map t.wf⟩
+
+@[simp, grind =]
+theorem isEmpty_map [TransCmp cmp]
+    {f : (a : α) → β a → γ a} :
+    (t.map f).isEmpty = t.isEmpty :=
+  Impl.isEmpty_map
+
+@[grind =]
+theorem contains_map [TransCmp cmp]
+    {f : (a : α) → β a → γ a} {k : α} :
+    (t.map f).contains k = t.contains k :=
+  Impl.contains_map t.wf
+
+theorem contains_of_contains_map [TransCmp cmp]
+    {f : (a : α) → β a → γ a} {k : α} :
+    (t.map f).contains k = true → t.contains k = true :=
+  Impl.contains_of_contains_map t.wf
+
+@[simp, grind =]
+theorem mem_map [TransCmp cmp]
+    {f : (a : α) → β a → γ a} {k : α} :
+    k ∈ t.map f ↔ k ∈ t := by
+  simp only [mem_iff_contains, contains_map]
+
+theorem mem_of_mem_map [TransCmp cmp]
+    {f : (a : α) → β a → γ a} {k : α} :
+    k ∈ t.map f → k ∈ t :=
+  Impl.contains_of_contains_map t.wf
+
+@[simp, grind =]
+theorem size_map [TransCmp cmp]
+    {f : (a : α) → β a → γ a} :
+    (t.map f).size = t.size :=
+  Impl.size_map
+
+@[simp, grind =]
+theorem get?_map [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → γ a} {k : α} :
+    (t.map f).get? k = (t.get? k).map (f k) :=
+  Impl.get?_map t.wf
+
+@[simp, grind =]
+theorem get_map [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → γ a} {k : α} {h'} :
+    (t.map f).get k h' = f k (t.get k (mem_of_mem_map h')) :=
+  Impl.get_map t.wf
+
+@[grind =]
+theorem get!_map [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → γ a} {k : α} [Inhabited (γ k)] :
+    (t.map f).get! k = ((t.get? k).map (f k)).get! :=
+  Impl.get!_map t.wf
+
+@[grind =]
+theorem getD_map [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : (a : α) → β a → γ a} {k : α} {fallback : γ k} :
+    (t.map f).getD k fallback = ((t.get? k).map (f k)).getD fallback :=
+  Impl.getD_map t.wf
+
+@[simp, grind =]
+theorem getKey?_map [TransCmp cmp]
+    {f : (a : α) → β a → γ a} {k : α} :
+    (t.map f).getKey? k = t.getKey? k :=
+  Impl.getKey?_map t.wf
+
+@[simp, grind =]
+theorem getKey_map [TransCmp cmp]
+    {f : (a : α) → β a → γ a} {k : α} {h'} :
+    (t.map f).getKey k h' = t.getKey k (mem_of_mem_map h') :=
+  Impl.getKey_map t.wf
+
+@[simp, grind =]
+theorem getKey!_map [TransCmp cmp] [Inhabited α]
+    {f : (a : α) → β a → γ a} {k : α} :
+    (t.map f).getKey! k = t.getKey! k :=
+  Impl.getKey!_map t.wf
+
+@[simp, grind =]
+theorem getKeyD_map [TransCmp cmp]
+    {f : (a : α) → β a → γ a} {k fallback : α} :
+    (t.map f).getKeyD k fallback = t.getKeyD k fallback :=
+  Impl.getKeyD_map t.wf
+
+namespace Const
+
+variable {β : Type v} {γ : Type w} {t : DTreeMap α (fun _ => β) cmp}
+
+@[simp, grind =]
+theorem get?_map [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : α → β → γ} {k : α} :
+    Const.get? (t.map f) k = (Const.get? t k).map (f k) :=
+  Impl.Const.get?_map t.wf
+
+/-- Variant of `get?_map` that holds without `LawfulEqCmp`. -/
+@[simp (low)]
+theorem get?_map' [TransCmp cmp]
+    {f : α → β → γ} {k : α} :
+    Const.get? (t.map f) k = (Const.get? t k).pmap (fun v h' => f (t.getKey k h') v)
+      (fun _ h' => mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h')) :=
+  Impl.Const.get?_map' t.wf
+
+theorem get?_map_of_getKey?_eq_some [TransCmp cmp]
+    {f : α → β → γ} {k k' : α} (h : t.getKey? k = some k') :
+    Const.get? (t.map f) k = (Const.get? t k).map (f k') :=
+  Impl.Const.get?_map_of_getKey?_eq_some t.wf h
+
+@[simp, grind =]
+theorem get_map [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : α → β → γ} {k : α} {h'} :
+    Const.get (t.map f) k h' = f k (Const.get t k (mem_of_mem_map h')) :=
+  Impl.Const.get_map t.wf
+
+/-- Variant of `get_map` that holds without `LawfulEqCmp`. -/
+@[simp (low)]
+theorem get_map' [TransCmp cmp]
+    {f : α → β → γ} {k : α} {h'} :
+    Const.get (t.map f) k h' =
+      f (t.getKey k (mem_of_mem_map h')) (Const.get t k (mem_of_mem_map h')) :=
+  Impl.Const.get_map' t.wf
+
+@[grind =]
+theorem get!_map [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited γ]
+    {f : α → β → γ} {k : α} :
+    Const.get! (t.map f) k = ((Const.get? t k).map (f k)).get! :=
+  Impl.Const.get!_map t.wf
+
+/-- Variant of `get!_map` that holds without `LawfulEqCmp`. -/
+theorem get!_map' [TransCmp cmp] [Inhabited γ]
+    {f : α → β → γ} {k : α} :
+    Const.get! (t.map f) k =
+      ((get? t k).pmap (fun v h => f (t.getKey k h) v)
+        (fun _ h' => mem_iff_isSome_get?.mpr (Option.isSome_of_mem h'))).get! :=
+  Impl.Const.get!_map' t.wf
+
+theorem get!_map_of_getKey?_eq_some [TransCmp cmp] [Inhabited γ]
+    {f : α → β → γ} {k k' : α} (h : t.getKey? k = some k') :
+    Const.get! (t.map f) k = ((Const.get? t k).map (f k')).get! :=
+  Impl.Const.get!_map_of_getKey?_eq_some t.wf h
+
+@[grind =]
+theorem getD_map [TransCmp cmp] [LawfulEqCmp cmp]
+    {f : α → β → γ} {k : α} {fallback : γ} :
+    Const.getD (t.map f) k fallback = ((Const.get? t k).map (f k)).getD fallback :=
+  Impl.Const.getD_map t.wf
+
+/-- Variant of `getD_map` that holds without `LawfulEqCmp`. -/
+theorem getD_map' [TransCmp cmp]
+    {f : α → β → γ} {k : α} {fallback : γ} :
+    Const.getD (t.map f) k fallback =
+      ((get? t k).pmap (fun v h => f (t.getKey k h) v)
+        (fun _ h' => mem_iff_isSome_get?.mpr (Option.isSome_of_eq_some h'))).getD fallback :=
+  Impl.Const.getD_map' t.wf
+
+theorem getD_map_of_getKey?_eq_some [TransCmp cmp] [Inhabited γ]
+    {f : α → β → γ} {k k' : α} {fallback : γ} (h : t.getKey? k = some k') :
+    Const.getD (t.map f) k fallback = ((Const.get? t k).map (f k')).getD fallback :=
+  Impl.Const.getD_map_of_getKey?_eq_some t.wf h
+
+@[simp, grind =]
+theorem toList_map {f : α → β → γ} :
+    (Const.toList (t.map f)) =
+      (Const.toList t).map (fun p => (p.1, f p.1 p.2)) :=
+  Impl.Const.toList_map
+
+end Const
+
+end map
 
 end Std.DTreeMap

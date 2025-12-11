@@ -1,4 +1,7 @@
-import Std.Data.HashMap.Lemmas
+module
+public import Std.Data.HashMap.Lemmas
+@[expose] public section -- TODO: remove after we fix congr_eq
+
 
 -- This is a variant of the "if normalization" example, acting as a regression test for a now-fixed problem in grind.
 -- It is not a solution to the "if normalization" challenge.

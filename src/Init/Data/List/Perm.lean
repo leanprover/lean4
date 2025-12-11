@@ -6,10 +6,8 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 module
 
 prelude
-public import Init.Data.List.Pairwise
 public import Init.Data.List.Erase
-public import Init.Data.List.Find
-public import all Init.Data.List.Attach
+import all Init.Data.List.Attach
 
 public section
 
@@ -493,7 +491,7 @@ theorem Perm.pairwise {R : α → α → Prop} {l l' : List α} (hl : l ~ l') (h
 If two lists are sorted by an antisymmetric relation, and permutations of each other,
 they must be equal.
 -/
-theorem Perm.eq_of_sorted : ∀ {l₁ l₂ : List α}
+theorem Perm.eq_of_pairwise : ∀ {l₁ l₂ : List α}
     (_ : ∀ a b, a ∈ l₁ → b ∈ l₂ → le a b → le b a → a = b)
     (_ : l₁.Pairwise le) (_ : l₂.Pairwise le) (_ : l₁ ~ l₂), l₁ = l₂
   | [], [], _, _, _, _ => rfl
@@ -513,10 +511,13 @@ theorem Perm.eq_of_sorted : ∀ {l₁ l₂ : List α}
             (rel_of_pairwise_cons h₁ bm) (rel_of_pairwise_cons h₂ am)
     subst ab
     simp only [perm_cons] at h
-    have := Perm.eq_of_sorted
+    have := Perm.eq_of_pairwise
       (fun x y hx hy => w x y (mem_cons_of_mem a hx) (mem_cons_of_mem a hy))
       h₁.tail h₂.tail h
     simp_all
+
+@[deprecated Perm.eq_of_pairwise (since := "2025-10-23")]
+abbrev Perm.eq_of_sorted := @Perm.eq_of_pairwise
 
 theorem Nodup.perm {l l' : List α} (hR : l.Nodup) (hl : l ~ l') : l'.Nodup :=
   Pairwise.perm hR hl (by intro x y h h'; simp_all)
@@ -599,6 +600,12 @@ theorem sum_nat {l₁ l₂ : List Nat} (h : l₁ ~ l₂) : l₁.sum = l₂.sum :
   | cons _ _ ih => simp [ih]
   | swap => simpa [List.sum_cons] using Nat.add_left_comm ..
   | trans _ _ ih₁ ih₂ => simp [ih₁, ih₂]
+
+theorem all_eq {l₁ l₂ : List α} {f : α → Bool} (hp : l₁.Perm l₂) : l₁.all f = l₂.all f := by
+  rw [Bool.eq_iff_iff]; simp [hp.mem_iff]
+
+theorem any_eq {l₁ l₂ : List α} {f : α → Bool} (hp : l₁.Perm l₂) : l₁.any f = l₂.any f := by
+  rw [Bool.eq_iff_iff]; simp [hp.mem_iff]
 
 grind_pattern Perm.sum_nat => l₁ ~ l₂, l₁.sum
 grind_pattern Perm.sum_nat => l₁ ~ l₂, l₂.sum

@@ -6,11 +6,22 @@ import Module.Basic
 
 public def g := f
 
-/-- error: unknown identifier 'f' -/
+/--
+error: Unknown identifier `f`
+
+Note: A public declaration `f` exists but is imported privately; consider adding `public import Module.Basic`.
+-/
 #guard_msgs in
-set_option autoImplicit false in
 public theorem t2 : f = 1 := sorry
 
-/-- error: unknown identifier 'f' -/
+/--
+error: Unknown identifier `f`
+
+Note: A public declaration `f` exists but is imported privately; consider adding `public import Module.Basic`.
+-/
 #guard_msgs in
 @[expose] public def h : True := f
+
+/-! `initialize` should be run even if imported IR-only. -/
+
+public def publicDefOfPrivatelyInitialized := initialized

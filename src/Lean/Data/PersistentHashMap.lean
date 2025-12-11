@@ -3,10 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Array.BasicAux
-import Init.Data.ToString.Macro
-import Init.Data.UInt.Basic
+public import Init.Data.Array.BasicAux
+public import Init.Data.UInt.Basic
+import Init.Data.String.Basic
+
+public section
 
 namespace Lean
 universe u v w w'
@@ -300,7 +304,7 @@ protected def forIn {_ : BEq α} {_ : Hashable α} [Monad m]
   match result with
   | .ok s | .error s => pure s
 
-instance {_ : BEq α} {_ : Hashable α} : ForIn m (PersistentHashMap α β) (α × β) where
+instance {_ : BEq α} {_ : Hashable α} [Monad m] : ForIn m (PersistentHashMap α β) (α × β) where
   forIn := PersistentHashMap.forIn
 
 end

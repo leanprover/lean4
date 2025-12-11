@@ -3,17 +3,17 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.ProjFns
-import Lean.Meta.CtorRecognizer
-import Lean.Compiler.BorrowedAnnotation
-import Lean.Compiler.CSimpAttr
-import Lean.Compiler.ImplementedByAttr
-import Lean.Compiler.LCNF.Types
-import Lean.Compiler.LCNF.Bind
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.Util
-import Lean.Compiler.NeverExtractAttr
+public import Lean.Meta.AppBuilder
+public import Lean.Compiler.CSimpAttr
+public import Lean.Compiler.ImplementedByAttr
+public import Lean.Compiler.LCNF.Bind
+public import Lean.Compiler.NeverExtractAttr
+import Lean.Meta.CasesInfo
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace ToLCNF
@@ -66,7 +66,7 @@ partial def bindCases (jpDecl : FunDecl) (cases : Cases) : CompilerM Code := do
   let (alts, s) ← visitAlts cases.alts |>.run {}
   let resultType ← mkCasesResultType alts
   let result := .cases { cases with alts, resultType }
-  let result := s.fold (init := result) fun result _ altJp => .jp altJp result
+  let result := s.foldl (init := result) fun result _ altJp => .jp altJp result
   return .jp jpDecl result
 where
   visitAlts (alts : Array Alt) : BindCasesM (Array Alt) :=
@@ -99,7 +99,7 @@ where
             if binderName.getPrefix == `_alt then
               if let some funDecl ← findFun? f then
                 eraseLetDecl decl
-                if let some altJp := (← get).find? f then
+                if let some altJp := (← get).get? f then
                   /- We already have an auxiliary join point for `f`, then, we just use it. -/
                   return .jmp altJp.fvarId args
                 else
@@ -130,7 +130,7 @@ where
                   return .jmp altJp.fvarId args
           | _ => pure ()
       let k ← go k
-      if let some altJp := (← get).find? decl.fvarId then
+      if let some altJp := (← get).get? decl.fvarId then
         -- The new join point depends on this variable. Thus, we must insert it here
         modify fun s => s.erase decl.fvarId
         return .let decl (.jp altJp k)
@@ -182,7 +182,7 @@ where
         else if auxParam.type.headBeta.isForall then
           /-
           `cases` produces a function. Thus, we create a local function to store
-          result instead of a joinpoint that takes a closure.
+          result instead of a join point that takes a closure.
           -/
           eraseParam auxParam
           let auxFunDecl := { auxParam with params := #[], value := .cases cases : FunDecl }
@@ -377,7 +377,8 @@ def mustEtaExpand (env : Environment) (e : Expr) : Bool :=
   if let .const declName _ := e.getAppFn then
     match env.find? declName with
     | some (.recInfo ..) | some (.ctorInfo ..) | some (.quotInfo ..) => true
-    | _ => isCasesOnRecursor env declName || isNoConfusion env declName || env.isProjectionFn declName || declName == ``Eq.ndrec
+    | _ => isCasesOnLike env declName || isNoConfusion env declName ||
+           env.isProjectionFn declName || declName == ``Eq.ndrec
   else
     false
 
@@ -518,8 +519,14 @@ where
   /--
   Visit a `matcher`/`casesOn` alternative.
   -/
-  visitAlt (ctorName : Name) (numParams : Nat) (e : Expr) : M (Expr × Alt) := do
+  visitAlt (casesAltInfo : CasesAltInfo) (e : Expr) : M (Expr × Alt) := do
     withNewScope do
+    match casesAltInfo with
+    | .default numHyps =>
+      let c ← toCode (← visit (mkAppN e (Array.replicate numHyps erasedExpr)))
+      let altType ← c.inferType
+      return (altType, .default c)
+    | .ctor ctorName numParams =>
       let mut (ps, e) ← visitBoundedLambda e numParams
       if ps.size < numParams then
         e ← etaExpandN e (numParams - ps.size)
@@ -551,31 +558,52 @@ where
     etaIfUnderApplied e casesInfo.arity do
       let args := e.getAppArgs
       let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args[*...casesInfo.arity]))
+      let typeName := casesInfo.indName
+      let .inductInfo indVal ← getConstInfo typeName | unreachable!
       if casesInfo.numAlts == 0 then
         /- `casesOn` of an empty type. -/
         mkUnreachable resultType
+      else if ← Meta.MetaM.run' <| Meta.isInductivePredicateVal indVal then
+        assert! casesInfo.numAlts == 1
+        let numParams := indVal.numParams
+        let numIndices := indVal.numIndices
+        let .ctorInfo ctorVal ← getConstInfo indVal.ctors[0]! | unreachable!
+        let .ctor _ numCtorFields := casesInfo.altNumParams[0]! | unreachable!
+        let fieldArgs : Array Expr ←
+          Meta.MetaM.run' <| Meta.forallTelescope ctorVal.type fun params indApp => do
+            let ⟨indAppF, indAppArgs⟩ := indApp.getAppFnArgs
+            assert! indAppF == typeName
+            -- TODO: We only use `toArray` so that we get access to `findIdx?`. Remove
+            -- this when that changes.
+            let indexArgs := indAppArgs[numParams...*].toArray
+
+            let mut fieldArgs := .emptyWithCapacity numCtorFields
+            for i in *...numCtorFields do
+              let p := params[numParams + i]!
+              let fieldArg ← if let some indexIdx := indexArgs.findIdx? (· == p) then
+                pure args[numParams + 1 + indexIdx]!
+              else
+                pure <| mkLcProof (← p.fvarId!.getType)
+              fieldArgs := fieldArgs.push fieldArg
+            return fieldArgs
+        let f := args[casesInfo.altsRange.lower]!
+        let result ← visit (mkAppN f fieldArgs)
+        mkOverApplication result args casesInfo.arity
       else
         let mut alts := #[]
-        let typeName := casesInfo.declName.getPrefix
         let discr ← visitAppArg args[casesInfo.discrPos]!
-        let .inductInfo indVal ← getConstInfo typeName | unreachable!
-        match discr with
-        | .erased | .type .. =>
-          /-
-          This can happen for inductive predicates that can eliminate into type (e.g., `And`, `Iff`).
-          TODO: add support for them. Right now, we have hard-coded support for the ones defined at `Init`.
-          -/
-          throwError "unsupported `{casesInfo.declName}` application during code generation"
-        | .fvar discrFVarId =>
-          for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
-            let (altType, alt) ← visitAlt ctorName numParams args[i]!
-            resultType := joinTypes altType resultType
-            alts := alts.push alt
-          let cases : Cases := { typeName, discr := discrFVarId, resultType, alts }
-          let auxDecl ← mkAuxParam resultType
-          pushElement (.cases auxDecl cases)
-          let result := .fvar auxDecl.fvarId
-          mkOverApplication result args casesInfo.arity
+        let discrFVarId ← match discr with
+          | .fvar discrFVarId => pure discrFVarId
+          | .erased | .type .. => mkAuxLetDecl .erased
+        for i in casesInfo.altsRange, numParams in casesInfo.altNumParams do
+          let (altType, alt) ← visitAlt numParams args[i]!
+          resultType := joinTypes altType resultType
+          alts := alts.push alt
+        let cases : Cases := { typeName, discr := discrFVarId, resultType, alts }
+        let auxDecl ← mkAuxParam resultType
+        pushElement (.cases auxDecl cases)
+        let result := .fvar auxDecl.fvarId
+        mkOverApplication result args casesInfo.arity
 
   visitCtor (arity : Nat) (e : Expr) : M Arg :=
     etaIfUnderApplied e arity do
@@ -636,28 +664,38 @@ where
 
   visitNoConfusion (e : Expr) : M Arg := do
     let .const declName _ := e.getAppFn | unreachable!
+    let info := getNoConfusionInfo (← getEnv) declName
     let typeName := declName.getPrefix
-    let .inductInfo inductVal ← getConstInfo typeName | unreachable!
-    let arity := inductVal.numParams + inductVal.numIndices + 1 /- motive -/ + 2 /- lhs/rhs-/ + 1 /- equality -/
-    etaIfUnderApplied e arity do
+    etaIfUnderApplied e info.arity do
       let args := e.getAppArgs
-      let lhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 1]!
-      let rhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 2]!
-      let lhs := lhs.toCtorIfLit
-      let rhs := rhs.toCtorIfLit
-      match (← liftMetaM <| Meta.isConstructorApp? lhs), (← liftMetaM <| Meta.isConstructorApp? rhs) with
-      | some lhsCtorVal, some rhsCtorVal =>
-        if lhsCtorVal.name == rhsCtorVal.name then
-          etaIfUnderApplied e (arity+1) do
-            let major := args[arity]!
-            let major ← expandNoConfusionMajor major lhsCtorVal.numFields
-            let major := mkAppN major args[(arity+1)...*]
-            visit major
-        else
-          let type ← toLCNFType (← liftMetaM <| Meta.inferType e)
-          mkUnreachable type
-      | _, _ =>
-        throwError "code generator failed, unsupported occurrence of `{declName}`"
+      let visitMajor (numNonPropFields : Nat) := do
+        etaIfUnderApplied e (info.arity+1) do
+          let major := args[info.arity]!
+          let major ← expandNoConfusionMajor major numNonPropFields
+          let major := mkAppN major args[(info.arity+1)...*]
+          visit major
+
+      match info with
+      | .regular _ lhsPos rhsPos =>
+        let lhs ← liftMetaM do Meta.whnf args[lhsPos]!
+        let rhs ← liftMetaM do Meta.whnf args[rhsPos]!
+        let lhs ← liftMetaM lhs.toCtorIfLit
+        let rhs ← liftMetaM rhs.toCtorIfLit
+        match (← liftMetaM <| Meta.isConstructorApp? lhs), (← liftMetaM <| Meta.isConstructorApp? rhs) with
+        | some lhsCtorVal, some rhsCtorVal =>
+          if lhsCtorVal.name == rhsCtorVal.name then
+            let numNonPropFields ← liftMetaM <| Meta.forallTelescope lhsCtorVal.type fun params _ =>
+              params[lhsCtorVal.numParams...*].foldlM (init := 0) fun n param => do
+                let type ← param.fvarId!.getType
+                return if !(← Meta.isProp type) then n + 1 else n
+            visitMajor numNonPropFields
+          else
+            let type ← toLCNFType (← liftMetaM <| Meta.inferType e)
+            mkUnreachable type
+        | _, _ =>
+          throwError "code generator failed, unsupported occurrence of `{.ofConstName declName}`"
+      | .perCtor _ numNonPropFields =>
+        visitMajor numNonPropFields
 
   expandNoConfusionMajor (major : Expr) (numFields : Nat) : M Expr := do
     match numFields with
@@ -690,15 +728,13 @@ where
         visitQuotLift e
       else if declName == ``Quot.mk then
         visitCtor 3 e
-      else if declName == ``Eq.casesOn || declName == ``Eq.rec || declName == ``Eq.recOn || declName == ``Eq.ndrec then
+      else if declName == ``Eq.rec || declName == ``Eq.recOn || declName == ``Eq.ndrec then
         visitEqRec e
-      else if declName == ``HEq.casesOn || declName == ``HEq.rec || declName == ``HEq.ndrec then
+      else if declName == ``HEq.rec || declName == ``HEq.ndrec then
         visitHEqRec e
       else if declName == ``And.rec || declName == ``Iff.rec then
         visitAndIffRecCore e (minorPos := 3)
-      else if declName == ``And.casesOn || declName == ``Iff.casesOn then
-        visitAndIffRecCore e (minorPos := 4)
-      else if declName == ``False.rec || declName == ``Empty.rec || declName == ``False.casesOn || declName == ``Empty.casesOn then
+      else if declName == ``False.rec || declName == ``Empty.rec then
         visitFalseRec e
       else if declName == ``lcUnreachable then
         visitLcUnreachable e
@@ -760,9 +796,14 @@ where
     visit e
 
   visitProj (s : Name) (i : Nat) (e : Expr) : M Arg := do
-    match (← visit e) with
-    | .erased | .type .. => return .erased
-    | .fvar fvarId => letValueToArg <| .proj s i fvarId
+    if isRuntimeBuiltinType s then
+      let structInfo := getStructureInfo (← getEnv) s
+      let projExpr ← liftMetaM <| Meta.mkProjection e structInfo.fieldNames[i]!
+      visitApp projExpr
+    else
+      match (← visit e) with
+      | .erased | .type .. => return .erased
+      | .fvar fvarId => letValueToArg <| .proj s i fvarId
 
   visitLet (e : Expr) (xs : Array Expr) : M Arg := do
     match e with

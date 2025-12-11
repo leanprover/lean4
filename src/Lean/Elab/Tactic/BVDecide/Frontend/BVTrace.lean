@@ -3,12 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide
-import Lean.Elab.Tactic.BVDecide.Frontend.BVCheck
-import Lean.Elab.Tactic.BVDecide.LRAT.Trim
-import Lean.Meta.Tactic.TryThis
-import Std.Tactic.BVDecide.Syntax
+public import Lean.Elab.Tactic.BVDecide.Frontend.BVCheck
+
+public section
 
 /-!
 This module contains the implementation of `bv_decide?`.

@@ -25,6 +25,7 @@ Checking that the attaches make their way through `let`s.
 /--
 trace: α : Type u_1
 t : Tree α
+v : α := t.val
 cs : List (Tree α) := t.cs
 t' : Tree α
 h✝ : t' ∈ cs
@@ -306,7 +307,7 @@ namespace WithOptionOff
 set_option wf.preprocess false
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 α : Type u_1
 t t' : Tree α
 ⊢ sizeOf t' < sizeOf t

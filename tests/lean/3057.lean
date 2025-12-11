@@ -4,11 +4,11 @@ Fixes `#3057`
 -/
 
 mutual
-  inductive Tree : Type :=
+  inductive Tree : Type where
     | node : ListTree → Tree
     deriving Repr, DecidableEq, BEq, Hashable, Ord
 
-  inductive ListTree : Type :=
+  inductive ListTree : Type where
     | nil : ListTree
     | cons : Tree → ListTree → ListTree
     deriving Repr, DecidableEq, BEq, Hashable, Ord

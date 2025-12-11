@@ -20,7 +20,8 @@ x + x
 /--
 error: could not synthesize default value for parameter 'h' using tactics
 ---
-error: tactic 'assumption' failed
+error: Tactic `assumption` failed
+
 ⊢ 1 = 2
 -/
 #guard_msgs in example := f 1 2
@@ -37,7 +38,7 @@ structure Foo where
 /--
 error: could not synthesize default value for field 'inv' of 'Foo' using tactics
 ---
-error: tactic 'decide' proved that the proposition
+error: Tactic `decide` proved that the proposition
   "abc".length = 5
 is false
 -/

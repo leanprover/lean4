@@ -1,1 +1,6 @@
+diamond5.lean:17:32-17:35: error: `D.toC` has already been declared
+diamond5.lean:16:0-16:11: error: ❌️ Docstring on `#guard_msgs` does not match generated message:
+
+- error: 'D.toC' has already been declared
++ error: `D.toC` has already been declared
 D.toC_1 {α : Type} [self : D α] : C α

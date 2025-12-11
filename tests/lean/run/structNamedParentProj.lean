@@ -12,16 +12,16 @@ structure U where
 /-!
 Non-atomic parent projections are not allowed.
 -/
-/-- error: invalid parent projection name 'non.atomic', names must be atomic -/
+/-- error: Invalid parent projection name `non.atomic`: Name must be atomic -/
 #guard_msgs in structure S' extends non.atomic : S
 
 /-!
 Shadowing other fields is not allowed.
 -/
 /--
-error: field 'x' has already been declared
+error: Field `x` has already been declared
 
-The 'toParent : P' syntax can be used to adjust the name for the parent projection
+Hint: The `toParent : P` syntax can be used to adjust the name for the parent projection
 -/
 #guard_msgs in  structure S' extends x : S
 
@@ -29,9 +29,9 @@ The 'toParent : P' syntax can be used to adjust the name for the parent projecti
 Duplicate parent projections
 -/
 /--
-error: field 'toP' has already been declared
+error: Field `toP` has already been declared
 
-The 'toParent : P' syntax can be used to adjust the name for the parent projection
+Hint: The `toParent : P` syntax can be used to adjust the name for the parent projection
 -/
 #guard_msgs in structure S' extends toP : S, toP : T
 
@@ -41,9 +41,9 @@ Duplicate parent projections because from different namespaces
 structure NS1.S
 structure NS2.S
 /--
-error: field 'toS' has already been declared
+error: Field `toS` has already been declared
 
-The 'toParent : P' syntax can be used to adjust the name for the parent projection
+Hint: The `toParent : P` syntax can be used to adjust the name for the parent projection
 -/
 #guard_msgs in structure S' extends NS1.S, NS2.S
 
@@ -51,15 +51,15 @@ The 'toParent : P' syntax can be used to adjust the name for the parent projecti
 Duplicate parent projections, when there are overlapping fields
 -/
 /--
-error: field 'toS' has already been declared
+error: Field `toS` has already been declared
 
-The 'toParent : P' syntax can be used to adjust the name for the parent projection
+Hint: The `toParent : P` syntax can be used to adjust the name for the parent projection
 -/
 #guard_msgs in structure S' extends S, toS : U
 /--
-error: field 'toP' has already been declared
+error: Field `toP` has already been declared
 
-The 'toParent : P' syntax can be used to adjust the name for the parent projection
+Hint: The `toParent : P` syntax can be used to adjust the name for the parent projection
 -/
 #guard_msgs in structure S' extends toP : S, toP : T
 
@@ -69,18 +69,32 @@ Duplicate parent projections because from different namespaces, when there are d
 structure NS1.S' where x : Nat
 structure NS2.S' where x : Nat
 /--
-error: field 'toS'' has already been declared
+error: Field `toS'` has already been declared
 
-The 'toParent : P' syntax can be used to adjust the name for the parent projection
+Hint: The `toParent : P` syntax can be used to adjust the name for the parent projection
 -/
 #guard_msgs in structure S' extends NS1.S', NS2.S'
 
 /-!
 Field conflicts with projection
 -/
-/-- error: field 'toS' has already been declared as a projection for parent 'S' -/
+/-- error: Field `toS` has already been declared as a projection for parent `S` -/
 #guard_msgs in structure S' extends S where
   toS : Nat
+
+/-!
+Field conflicts with indirect parent projection
+-/
+structure GP where
+structure P extends toGP : GP where
+/--
+error: Field `toGP` has already been declared as a projection for an indirect parent structure `GP`
+
+Note: This projection was inherited from this structure's immediate parent `P`
+-/
+#guard_msgs in
+structure C extends P where
+  toGP : Unit
 
 /-!
 Checking that the projection name is honored.

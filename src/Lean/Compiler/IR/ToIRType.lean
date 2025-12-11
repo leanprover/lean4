@@ -3,21 +3,24 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Environment
-import Lean.Compiler.IR.Format
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.MonoTypes
-import Lean.Compiler.LCNF.Types
+public import Lean.Compiler.IR.Format
+public import Lean.Compiler.LCNF.MonoTypes
+
+public section
 
 namespace Lean
 namespace IR
 
-open Lean.Compiler (LCNF.CacheExtension LCNF.isTypeFormerType LCNF.toLCNFType LCNF.toMonoType)
+open Lean.Compiler (LCNF.CacheExtension LCNF.isTypeFormerType LCNF.toLCNFType LCNF.toMonoType
+  LCNF.TrivialStructureInfo LCNF.getOtherDeclBaseType LCNF.getParamTypes LCNF.instantiateForall
+  LCNF.Irrelevant.hasTrivialStructure?)
 
 def irTypeForEnum (numCtors : Nat) : IRType :=
   if numCtors == 1 then
-    .object
+    .tagged
   else if numCtors < Nat.pow 2 8 then
     .uint8
   else if numCtors < Nat.pow 2 16 then
@@ -25,10 +28,27 @@ def irTypeForEnum (numCtors : Nat) : IRType :=
   else if numCtors < Nat.pow 2 32 then
     .uint32
   else
-    .object
+    .tagged
 
 builtin_initialize irTypeExt : LCNF.CacheExtension Name IRType ←
   LCNF.CacheExtension.register
+
+builtin_initialize trivialStructureInfoExt :
+    LCNF.CacheExtension Name (Option LCNF.TrivialStructureInfo) ←
+  LCNF.CacheExtension.register
+
+/--
+The idea of this function is the same as in `ToMono`, however the notion of "irrelevancy" has
+changed because we now have the `void` type which can only be erased in impure context and thus at
+earliest at the conversion from mono to IR.
+-/
+def hasTrivialStructure? (declName : Name) : CoreM (Option LCNF.TrivialStructureInfo) := do
+  let isVoidType type := do
+    let type ← Meta.whnfD type
+    return type matches .proj ``Subtype 0 (.app (.const ``Void.nonemptyType []) _)
+  let irrelevantType type :=
+    Meta.isProp type <||> Meta.isTypeFormerType type <||> isVoidType type
+  LCNF.Irrelevant.hasTrivialStructure? trivialStructureInfoExt irrelevantType declName
 
 def nameToIRType (name : Name) : CoreM IRType := do
   match (← irTypeExt.find? name) with
@@ -46,48 +66,83 @@ where fillCache : CoreM IRType := do
     | ``USize => return .usize
     | ``Float => return .float
     | ``Float32 => return .float32
-    | ``lcErased => return .irrelevant
+    | ``lcErased => return .erased
+    -- `Int` is specified as an inductive type with two constructors that have relevant arguments,
+    -- but it has the same runtime representation as `Nat` and thus needs to be special-cased here.
+    | ``Int => return .tobject
+    | ``lcVoid => return .void
     | _ =>
       let env ← Lean.getEnv
-      let some (.inductInfo inductiveVal) := env.find? name | return .object
+      let some (.inductInfo inductiveVal) := env.find? name | return .tobject
       let ctorNames := inductiveVal.ctors
       let numCtors := ctorNames.length
+      let mut numScalarCtors := 0
       for ctorName in ctorNames do
         let some (.ctorInfo ctorInfo) := env.find? ctorName | unreachable!
-        let isRelevant ← Meta.MetaM.run' <|
-                         Meta.forallTelescopeReducing ctorInfo.type fun params _ => do
+        let hasRelevantField ← Meta.MetaM.run' <|
+                               Meta.forallTelescope ctorInfo.type fun params _ => do
           for field in params[ctorInfo.numParams...*] do
             let fieldType ← field.fvarId!.getType
             let lcnfFieldType ← LCNF.toLCNFType fieldType
             let monoFieldType ← LCNF.toMonoType lcnfFieldType
             if !monoFieldType.isErased then return true
           return false
-        if isRelevant then return .object
-      return irTypeForEnum numCtors
+        if !hasRelevantField then
+          numScalarCtors := numScalarCtors + 1
+      if numScalarCtors == numCtors then
+        return irTypeForEnum numCtors
+      else if numScalarCtors == 0 then
+        return .object
+      else
+        return .tobject
 
-def toIRType (type : Lean.Expr) : CoreM IRType := do
+private def isAnyProducingType (type : Lean.Expr) : Bool :=
   match type with
-  | .const name _ => nameToIRType name
+  | .const ``lcAny _ => true
+  | .forallE _ _ b _ => isAnyProducingType b
+  | _ => false
+
+partial def toIRType (type : Lean.Expr) : CoreM IRType := do
+  match type with
+  | .const name _ => visitApp name #[]
   | .app .. =>
     -- All mono types are in headBeta form.
     let .const name _ := type.getAppFn | unreachable!
-    nameToIRType name
-  | .forallE .. => return .object
+    visitApp name type.getAppArgs
+  | .forallE _ _ b _ =>
+    -- Type formers are erased, but can be used polymorphically as
+    -- an arrow type producing `lcAny`. The runtime representation of
+    -- erased values is a tagged scalar, so this means that any such
+    -- polymorphic type must be represented as `.tobject`.
+    if isAnyProducingType b then
+      return .tobject
+    else
+      return .object
   | .mdata _ b => toIRType b
   | _ => unreachable!
+where
+  visitApp (declName : Name) (args : Array Lean.Expr) : CoreM IRType := do
+    if let some info ← hasTrivialStructure? declName then
+      let ctorType ← LCNF.getOtherDeclBaseType info.ctorName []
+      let monoType ← LCNF.toMonoType (LCNF.getParamTypes (← LCNF.instantiateForall ctorType args[*...info.numParams]))[info.fieldIdx]!
+      toIRType monoType
+    else
+      nameToIRType declName
 
 inductive CtorFieldInfo where
-  | irrelevant
-  | object (i : Nat)
+  | erased
+  | object (i : Nat) (type : IRType)
   | usize  (i : Nat)
   | scalar (sz : Nat) (offset : Nat) (type : IRType)
+  | void
   deriving Inhabited
 
 namespace CtorFieldInfo
 
 def format : CtorFieldInfo → Format
-  | irrelevant => "◾"
-  | object i   => f!"obj@{i}"
+  | erased => "◾"
+  | void => "void"
+  | object i type => f!"obj@{i}:{type}"
   | usize i    => f!"usize@{i}"
   | scalar sz offset type => f!"scalar#{sz}@{offset}:{type}"
 
@@ -123,13 +178,15 @@ where fillCache := do
       let fieldType ← field.fvarId!.getType
       let lcnfFieldType ← LCNF.toLCNFType fieldType
       let monoFieldType ← LCNF.toMonoType lcnfFieldType
-      let ctorField ← match (← toIRType monoFieldType) with
-      | .object | .tobject => do
+      let irFieldType ← toIRType monoFieldType
+      let ctorField ← match irFieldType with
+      | .object | .tagged | .tobject => do
         let i := nextIdx
         nextIdx := nextIdx + 1
-        pure <| .object i
+        pure <| .object i irFieldType
       | .usize => pure <| .usize 0
-      | .irrelevant => .pure <| .irrelevant
+      | .erased => .pure <| .erased
+      | .void => .pure <| .void
       | .uint8 =>
         has1BScalar := true
         .pure <| .scalar 1 0 .uint8
@@ -156,7 +213,7 @@ where fillCache := do
       | .usize _ => do
         let i ← modifyGet fun nextIdx => (nextIdx, nextIdx + 1)
         return .usize i
-      | .object _ | .scalar .. | .irrelevant => return field
+      | .object .. | .scalar .. | .erased | .void => return field
     let numUSize := nextIdx - numObjs
     let adjustScalarsForSize (fields : Array CtorFieldInfo) (size : Nat) (nextOffset : Nat)
         : Array CtorFieldInfo × Nat :=
@@ -168,7 +225,7 @@ where fillCache := do
             return .scalar sz offset type
           else
             return field
-        | .object _ | .usize _ | .irrelevant => return field
+        | .object .. | .usize _ | .erased | .void => return field
     let mut nextOffset := 0
     if has8BScalar then
       ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 8 nextOffset

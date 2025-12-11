@@ -3,12 +3,16 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Data.RBMap
+public import Lean.Data.RBMap
+
+public section
 namespace Lean
 universe u v w
 
-def RBTree (α : Type u) (cmp : α → α → Ordering) : Type u :=
+@[expose] def RBTree (α : Type u) (cmp : α → α → Ordering) : Type u :=
   RBMap α Unit cmp
 
 instance : Inhabited (RBTree α p) where
@@ -44,7 +48,7 @@ variable {α : Type u} {β : Type v} {cmp : α → α → Ordering}
 @[inline] protected def forIn [Monad m] (t : RBTree α cmp) (init : σ) (f : α → σ → m (ForInStep σ)) : m σ :=
   t.val.forIn init (fun a _ acc => f a acc)
 
-instance : ForIn m (RBTree α cmp) α where
+instance [Monad m] : ForIn m (RBTree α cmp) α where
   forIn := RBTree.forIn
 
 @[inline] def isEmpty (t : RBTree α cmp) : Bool :=

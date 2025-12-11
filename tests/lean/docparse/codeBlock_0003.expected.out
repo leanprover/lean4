@@ -1,0 +1,8 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.codeblock
+   "```"
+   []
+   "\n"
+   (str "\"(define x 4)\\nx\\n\"")
+   "```")
+All input consumed.

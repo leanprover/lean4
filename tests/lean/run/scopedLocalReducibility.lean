@@ -2,7 +2,7 @@
 set_option allowUnsafeReducibility true
 set_option pp.mvars false
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
   ?_ = ?_
@@ -20,7 +20,7 @@ section
 end
 
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
   ?_ = ?_
@@ -36,7 +36,7 @@ namespace Boo
 end Boo
 
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
   ?_ = ?_
@@ -52,7 +52,7 @@ example : f x = x + 1 :=
   rfl
 
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
   ?_ = ?_

@@ -1,3 +1,4 @@
+module
 -- grind fails, but also produces a panic.
 
 @[grind] inductive star (R : α → α → Prop) : α → α → Prop where

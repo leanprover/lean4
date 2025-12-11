@@ -3,8 +3,16 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Ord
+public import Init.Data.Ord.Basic
+import Init.Data.String.TakeDrop
+import Init.Data.Ord.String
+import Init.Data.Ord.UInt
+import Init.Data.String.Search
+
+public section
 namespace Lean
 
 namespace Name
@@ -105,7 +113,7 @@ def hasNum : Name → Bool
 /-- The frontend does not allow user declarations to start with `_` in any of its parts.
    We use name parts starting with `_` internally to create auxiliary names (e.g., `_private`). -/
 def isInternal : Name → Bool
-  | str p s => s.get 0 == '_' || isInternal p
+  | str p s => s.front == '_' || isInternal p
   | num p _ => isInternal p
   | _       => false
 
@@ -116,7 +124,7 @@ We use name parts starting with `_` internally to create auxiliary names (e.g., 
 This function checks if any component of the name starts with `_`, or is numeric.
 -/
 def isInternalOrNum : Name → Bool
-  | .str p s => s.get 0 == '_' || isInternalOrNum p
+  | .str p s => s.front == '_' || isInternalOrNum p
   | .num _ _ => true
   | _       => false
 

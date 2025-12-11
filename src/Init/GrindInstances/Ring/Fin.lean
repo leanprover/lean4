@@ -6,10 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import all Init.Data.Zero
-public import Init.Grind.Ring.Basic
-public import all Init.GrindInstances.ToInt
-public import Init.Data.Fin.Lemmas
+import all Init.Data.Zero
+public import Init.GrindInstances.ToInt
+import all Init.GrindInstances.ToInt
 
 public section
 
@@ -68,8 +67,8 @@ theorem sub_eq_add_neg [NeZero n] (a b : Fin n) : a - b = a + -b := by
   cases a; cases b; simp [Fin.neg_def, Fin.sub_def, Fin.add_def, Nat.add_comm]
 
 private theorem neg_neg [NeZero n] (a : Fin n) : - - a = a := by
-  cases a; simp [Fin.neg_def]
-  next a h => cases a; simp; next a =>
+  obtain ⟨a, h⟩ := a; simp [Fin.neg_def]
+  cases a; simp; next a =>
    rw [Nat.self_sub_mod n (a+1)]
    have : NeZero (n - (a + 1)) := ⟨by omega⟩
    rw [Nat.self_sub_mod, Nat.sub_sub_eq_min, Nat.min_eq_right (Nat.le_of_lt h)]
@@ -124,7 +123,9 @@ instance (n : Nat) [NeZero n] : CommRing (Fin n) where
   ofNat_succ := Fin.ofNat_succ
   sub_eq_add_neg := Fin.sub_eq_add_neg
   intCast_neg := Fin.intCast_neg
-  neg_zsmul i a := by simp [intCast_neg, neg_mul]
+  neg_zsmul i a := by
+    change (((-i) : Int) : Fin n)* a = - ((i : Fin n) * a)
+    simp [intCast_neg, neg_mul]
   zsmul_natCast_eq_nsmul _ _ := rfl
 
 instance (n : Nat) [NeZero n] : IsCharP (Fin n) n := IsCharP.mk' _ _
@@ -142,7 +143,7 @@ instance [i : NeZero n] : ToInt.Pow (Fin n) (.co 0 n) where
     induction k with
     | zero =>
       match n, i with
-      | 1, _ => rfl
+      | 1, _ => simp
       | (n + 2), _ =>
         simp [IntInterval.wrap, Int.sub_zero, Int.add_zero]
         rw [Int.emod_eq_of_lt] <;> omega

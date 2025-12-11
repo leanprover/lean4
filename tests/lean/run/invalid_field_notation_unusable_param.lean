@@ -8,9 +8,9 @@ error: Invalid field notation: `Nat.bar` has a parameter with expected type
   Nat
 but it cannot be used
 
-Note: The parameter `x` of `Nat.bar` cannot be referred to by name because that function has a preceding parameter of the same name
+Note: The parameter `x` cannot be referred to by name because that function has a preceding parameter of the same name
 
-Hint: Consider rewriting this application without field notation (e.g., `C.f x` instead of `x.f`) or changing the parameter names of `Nat.bar` to avoid this conflict
+Hint: Consider rewriting this application without field notation (e.g., `C.f x` instead of `x.f`) or changing the parameter names of the function to avoid this conflict
 -/
 #guard_msgs in
 #check Nat.zero.bar
@@ -25,11 +25,11 @@ local instance : CoeFun F (fun _ => Bool → Nat → Nat) where
   coe x := fun (a : Bool) (b : Nat) => x.f a b
 
 /--
-error: Invalid field notation: `Nat.foo` has a parameter with expected type
+error: Invalid field notation: `Nat.foo.f` (coerced from `Nat.foo`) has a parameter with expected type
   Nat
 but it cannot be used
 
-Note: Field notation cannot refer to parameter `b` of `Nat.foo` by name because that constant was coerced to a function
+Note: Field notation cannot refer to parameter `b` by name because that constant was coerced to a function
 
 Hint: Consider rewriting this application without field notation (e.g., `C.f x` instead of `x.f`)
 -/
@@ -45,7 +45,7 @@ local instance : CoeFun F (fun _ => Bool → Nat → Nat) where
   coe x := fun _ _ => 0
 
 /--
-error: Invalid field notation: `Nat.foo` has a parameter with expected type
+error: Invalid field notation: `fun x x_1 => 0` (coerced from `Nat.foo`) has a parameter with expected type
   Nat
 but it cannot be used
 
@@ -53,7 +53,7 @@ Hint: Consider rewriting this application without field notation (e.g., `C.f x` 
 -/
 #guard_msgs in #check Nat.zero.foo
 
-/-- info: (fun x x => 0) true Nat.zero : Nat -/
+/-- info: (fun x x_1 => 0) true Nat.zero : Nat -/
 #guard_msgs in #check Nat.zero.foo true
 
 end

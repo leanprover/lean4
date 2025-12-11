@@ -3,12 +3,14 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Marc Huisinga
 -/
+module
+
 prelude
-import Init.System.IO
-import Lean.Server.Utils
-import Lean.Util.LakePath
-import Lean.LoadDynlib
-import Lean.Server.ServerTask
+public import Lean.Server.Utils
+public import Lean.Util.LakePath
+public import Lean.Server.ServerTask
+
+public section
 
 namespace Lean.Server.FileWorker
 
@@ -49,7 +51,7 @@ partial def runLakeSetupFile
       processStderr (acc ++ line)
   let stderr ← ServerTask.IO.asTask (processStderr "")
 
-  let stdout := String.trim (← lakeProc.stdout.readToEnd)
+  let stdout := String.trimAscii (← lakeProc.stdout.readToEnd) |>.copy
   let stderr ← IO.ofExcept stderr.get
   let exitCode ← lakeProc.wait
   return ⟨spawnArgs, exitCode, stdout, stderr⟩

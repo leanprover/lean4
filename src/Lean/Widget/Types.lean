@@ -4,8 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Server.Rpc.Basic
+public import Lean.Server.Rpc.Basic
+
+public section
 
 namespace Lean.Widget
 
@@ -40,7 +44,7 @@ or use a value of `javascript` identical to that of another definition
 annotated with `@[widget_module]`.
 This makes it possible for the infoview to load the module.
 
-See the [manual entry](https://lean-lang.org/lean4/doc/examples/widgets.lean.html)
+See the [manual entry](https://lean-lang.org/examples/1900-1-1-widgets/)
 for more information on how to use the widgets system. -/
 structure Module where
   /-- A JS [module](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)

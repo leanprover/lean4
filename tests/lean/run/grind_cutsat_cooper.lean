@@ -1,4 +1,5 @@
-import Std.Internal.Rat
+module
+
 example (x y : Int) :
     27 ≤ 11*x + 13*y →
     11*x + 13*y ≤ 45 →
@@ -17,11 +18,11 @@ abbrev problem₁ [∀ n, OfNat α n] [Neg α] [Mul α] [Sub α] [Add α] [LE α
   7*x - 9*y ≤ 4
 
 /--
-trace: [grind.cutsat.model] x := 241/154
-[grind.cutsat.model] y := 1
+trace: [grind.lia.model] x := 241/154
+[grind.lia.model] y := 1
 -/
 #guard_msgs (trace) in
-set_option trace.grind.cutsat.model true in
+set_option trace.grind.lia.model true in
 example (x y : Int) : problem₁ x y → False := by
   fail_if_success grind +qlia -- Rational counterexamples allowed
   sorry

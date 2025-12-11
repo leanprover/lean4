@@ -3,14 +3,16 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone, Siddharth Bhat
 -/
+module
+
 prelude
-import Lean.Setup
-import Lean.Data.Json
+public import Lake.Util.Log
 import Lake.Config.Dynlib
 import Lake.Util.Proc
 import Lake.Util.NativeLib
 import Lake.Util.FilePath
 import Lake.Util.IO
+import Init.Data.String.Search
 
 /-! # Common Build Actions
 Low level actions to build common Lean artifacts via the Lean toolchain.
@@ -21,7 +23,7 @@ open Lean hiding SearchPath
 
 namespace Lake
 
-def compileLeanModule
+public def compileLeanModule
   (leanFile relLeanFile : FilePath)
   (setup : ModuleSetup) (setupFile : FilePath)
   (arts : ModuleArtifacts)
@@ -55,7 +57,8 @@ def compileLeanModule
     ]
   }
   unless out.stdout.isEmpty do
-    let txt ← out.stdout.split (· == '\n') |>.foldlM (init := "") fun txt ln => do
+    let txt ← out.stdout.split '\n' |>.foldM (init := "") fun (txt : String) ln => do
+      let ln := ln.copy
       if let .ok (msg : SerialMessage) := Json.parse ln >>= fromJson? then
         unless txt.isEmpty do
           logInfo s!"stdout:\n{txt}"
@@ -69,11 +72,11 @@ def compileLeanModule
     unless txt.isEmpty do
       logInfo s!"stdout:\n{txt}"
   unless out.stderr.isEmpty do
-    logInfo s!"stderr:\n{out.stderr.trim}"
+    logInfo s!"stderr:\n{out.stderr.trimAscii}"
   if out.exitCode ≠ 0 then
     error s!"Lean exited with code {out.exitCode}"
 
-def compileO
+public def compileO
   (oFile srcFile : FilePath)
   (moreArgs : Array String := #[]) (compiler : FilePath := "cc")
 : LogIO Unit := do
@@ -83,7 +86,7 @@ def compileO
     args := #["-c", "-o", oFile.toString, srcFile.toString] ++ moreArgs
   }
 
-def mkArgs (basePath : FilePath) (args : Array String) : LogIO (Array String) := do
+public def mkArgs (basePath : FilePath) (args : Array String) : LogIO (Array String) := do
   if Platform.isWindows then
     -- Use response file to avoid potentially exceeding CLI length limits.
     let rspFile := basePath.addExtension "rsp"
@@ -100,21 +103,16 @@ def mkArgs (basePath : FilePath) (args : Array String) : LogIO (Array String) :=
   else
     return args
 
-def compileStaticLib
+public def compileStaticLib
   (libFile : FilePath) (oFiles : Array FilePath)
   (ar : FilePath := "ar") (thin := false)
 : LogIO Unit := do
   createParentDirs libFile
   -- `ar rcs` does not remove old files from the archive, so it must be deleted first
   removeFileIfExists libFile
-  /-
-  Remark: `--thin` is recommended over `T` for producing static archives.
-  Unfortunately, older versions of LLVM `ar` do not support it. Thus, either choice produces
-  tradeoffs. `T` is chosen to make Lake consistent with the Lean core's own (Make) build scripts.
-  -/
-  let flags := "rcs"
-  let flags := if thin then flags.push 'T' else flags
-  let args := #[flags, libFile.toString] ++ (← mkArgs libFile <| oFiles.map toString)
+  let args := #["rcs"]
+  let args := if thin then args.push "--thin" else args
+  let args := args.push libFile.toString ++ (← mkArgs libFile <| oFiles.map toString)
   proc {cmd := ar.toString, args}
 
 private def getMacOSXDeploymentEnv : BaseIO (Array (String × Option String)) := do
@@ -128,7 +126,7 @@ private def getMacOSXDeploymentEnv : BaseIO (Array (String × Option String)) :=
   else
     return #[]
 
-def compileSharedLib
+public def compileSharedLib
   (libFile : FilePath) (linkArgs : Array String) (linker : FilePath := "cc")
 : LogIO Unit := do
   createParentDirs libFile
@@ -138,7 +136,7 @@ def compileSharedLib
     env := ← getMacOSXDeploymentEnv
   }
 
-def compileExe
+public def compileExe
   (binFile : FilePath) (linkArgs : Array String) (linker : FilePath := "cc")
 : LogIO Unit := do
   createParentDirs binFile
@@ -149,7 +147,7 @@ def compileExe
   }
 
 /-- Download a file using `curl`, clobbering any existing file. -/
-def download
+public def download
   (url : String) (file : FilePath) (headers : Array String := #[])
 : LogIO PUnit := do
   if (← file.pathExists) then
@@ -161,7 +159,7 @@ def download
   proc (quiet := true) {cmd := "curl", args}
 
 /-- Unpack an archive `file` using `tar` into the directory `dir`. -/
-def untar (file : FilePath) (dir : FilePath) (gzip := true) : LogIO PUnit := do
+public def untar (file : FilePath) (dir : FilePath) (gzip := true) : LogIO PUnit := do
   IO.FS.createDirAll dir
   let mut opts := "-xvv"
   if gzip then
@@ -172,7 +170,7 @@ def untar (file : FilePath) (dir : FilePath) (gzip := true) : LogIO PUnit := do
   }
 
 /-- Pack a directory `dir` using `tar` into the archive `file`. -/
-def tar
+public def tar
   (dir : FilePath) (file : FilePath)
   (gzip := true) (excludePaths : Array FilePath := #[])
 : LogIO PUnit := do

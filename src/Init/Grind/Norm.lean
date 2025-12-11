@@ -4,16 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Init.SimpLemmas
-public import Init.PropLemmas
-public import Init.Classical
-public import Init.ByCases
 public import Init.Data.Int.Linear
-public import Init.Data.Int.Pow
 public import Init.Grind.Ring.Field
-
+public import Init.Data.Rat.Lemmas
+public import Init.Grind.Ring.OfScientific
 public section
 
 namespace Lean.Grind
@@ -86,6 +81,8 @@ theorem natCast_div (a b : Nat) : (NatCast.natCast (a / b) : Int) = (NatCast.nat
 theorem natCast_mod (a b : Nat) : (NatCast.natCast (a % b) : Int) = (NatCast.natCast a) % (NatCast.natCast b) := rfl
 theorem natCast_add (a b : Nat) : (NatCast.natCast (a + b : Nat) : Int) = (NatCast.natCast a : Int) + (NatCast.natCast b : Int) := rfl
 theorem natCast_mul (a b : Nat) : (NatCast.natCast (a * b : Nat) : Int) = (NatCast.natCast a : Int) * (NatCast.natCast b : Int) := rfl
+theorem natCast_pow (a b : Nat) : (NatCast.natCast (a ^ b : Nat) : Int) = (NatCast.natCast a : Int) ^ b := by simp
+theorem natCast_id (a : Nat) : NatCast.natCast a = a := rfl
 
 theorem Nat.pow_one (a : Nat) : a ^ 1 = a := by
   simp
@@ -145,12 +142,22 @@ theorem exists_and_right {α : Sort u} {p : α → Prop} {b : Prop} : (∃ x, p 
 theorem zero_sub (a : Nat) : 0 - a = 0 := by
   simp
 
+attribute [local instance] Semiring.natCast Ring.intCast
+theorem smul_nat_eq_mul {α} [Semiring α] (n : Nat) (a : α) : n • a = NatCast.natCast n * a := by
+  rw [Semiring.nsmul_eq_natCast_mul]
+
+theorem smul_int_eq_mul {α} [Ring α] (i : Int) (a : α) : i • a = Int.cast i * a := by
+  rw [Ring.zsmul_eq_intCast_mul]
+
+theorem Int.subNatNat_eq (a b : Nat) : Int.subNatNat a b = NatCast.natCast a - NatCast.natCast b := by
+  apply Int.subNatNat_eq_coe
+
 -- Remark: for additional `grind` simprocs, check `Lean/Meta/Tactic/Grind`
 init_grind_norm
   /- Pre theorems -/
   |
   /- Post theorems -/
-  iff_eq heq_eq_eq
+  iff_eq heq_eq_eq eq_self
   -- And
   and_true true_and and_false false_and and_assoc
   -- ite
@@ -174,17 +181,17 @@ init_grind_norm
   Nat.add_eq Nat.sub_eq Nat.mul_eq Nat.zero_eq Nat.le_eq
   Nat.div_zero Nat.mod_zero Nat.div_one Nat.mod_one
   Nat.sub_sub Nat.pow_zero Nat.pow_one Nat.sub_self
-  Nat.one_pow Nat.zero_sub
+  Nat.one_pow Nat.zero_sub Nat.sub_zero
   -- Int
   Int.lt_eq
   Int.emod_neg Int.ediv_neg
   Int.ediv_zero Int.emod_zero
   Int.ediv_one Int.emod_one
   Int.negSucc_eq
-  natCast_div natCast_mod
-  natCast_add natCast_mul
+  natCast_div natCast_mod natCast_id
+  natCast_add natCast_mul natCast_pow
   Int.one_pow
-  Int.pow_zero Int.pow_one
+  Int.pow_zero Int.pow_one Int.subNatNat_eq
   -- Int op folding
   Int.add_def Int.mul_def Int.ofNat_eq_coe
   Int.Linear.sub_fold Int.Linear.neg_fold
@@ -195,5 +202,19 @@ init_grind_norm
   Function.comp_const Function.true_comp Function.false_comp
   -- Field
   Field.inv_zero Field.inv_inv Field.inv_one Field.inv_neg
+  -- SMul normalizer
+  smul_int_eq_mul smul_nat_eq_mul
+  -- NatCast & IntCast for algebraic structures
+  Semiring.natCast_add
+  Semiring.natCast_pow
+  Semiring.natCast_mul
+  Ring.intCast_add
+  Ring.intCast_mul
+  Ring.intCast_pow
+  Ring.intCast_sub
+  -- OfScientific
+  LawfulOfScientific.ofScientific_def
+  -- Rationals
+  Rat.zpow_neg
 
 end Lean.Grind

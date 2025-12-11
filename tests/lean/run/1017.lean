@@ -1,6 +1,6 @@
-namespace Stream
+namespace Std.Stream
 
-variable [Stream ρ τ] (s : ρ)
+variable [Std.Stream ρ τ] (s : ρ)
 
 def take (s : ρ) : Nat → List τ × ρ
 | 0 => ([], s)
@@ -27,17 +27,17 @@ instance hasNextWF : WellFoundedRelation {s : ρ // isFinite s} where
   rel := λ s1 s2 => hasNext s2.val s1.val
   wf := ⟨λ ⟨s,h⟩ => ⟨Subtype.mk s h, by
     simp only [Subtype.forall]
-    cases h; case intro w h =>
+    cases h with | intro w h
     induction w generalizing s
     case zero =>
       intro s' h' h_next
       simp [hasNext] at h_next
-      cases h_next; case intro x h_next =>
+      cases h_next with | intro x h_next
       simp [lengthBoundedBy, isEmpty, Option.isNone, take, h_next] at h
     case succ n ih =>
       intro s' h' h_next
       simp [hasNext] at h_next
-      cases h_next; case intro x h_next =>
+      cases h_next with | intro x h_next
       simp [lengthBoundedBy, take, h_next] at h
       have := ih s' h
       exact Acc.intro (⟨s',h'⟩ : {s : ρ // isFinite s}) (by simpa only [Subtype.forall])
@@ -52,4 +52,4 @@ def mwe [Stream ρ τ] (acc : α) : {l : ρ // isFinite l} → α
       mwe acc ⟨xs, by sorry⟩
   termination_by l => l
 
-end Stream
+end Std.Stream

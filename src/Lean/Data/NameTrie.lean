@@ -3,8 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Data.PrefixTree
+public import Lean.Data.PrefixTree
+import Init.Data.Ord.String
+
+public section
 
 namespace Lean
 
@@ -29,7 +34,7 @@ def NamePart.lt : NamePart → NamePart → Bool
   | NamePart.num _, NamePart.str _ => true
   | _, _ => false
 
-def NameTrie (β : Type u) := PrefixTree NamePart β NamePart.cmp
+@[expose] def NameTrie (β : Type u) := PrefixTree NamePart β NamePart.cmp
 
 private def toKey (n : Name) : List NamePart :=
   loop n []

@@ -1,4 +1,4 @@
-import Lean
+import Lean.Elab.Term
 
 open Lean Meta Elab in
 elab "largeGoal%" : term =>

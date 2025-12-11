@@ -3,9 +3,13 @@ Copyright (c) 2022 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Mario Carneiro
 -/
+module
+
 prelude
-import Lean.Elab.Command
-import Lean.Linter.Util
+public import Lean.Elab.Command
+public import Lean.Linter.Util
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 /-! # Unused variable Linter
@@ -132,7 +136,7 @@ abbrev IgnoreFunction := Syntax → Syntax.Stack → LinterOptions → Bool
 unsafe def mkIgnoreFnImpl (constName : Name) : ImportM IgnoreFunction := do
   let { env, opts, .. } ← read
   match env.find? constName with
-  | none      => throw ↑s!"unknown constant '{constName}'"
+  | none      => throw ↑s!"Unknown constant `{constName}`"
   | some info =>
     unless info.type.isConstOf ``IgnoreFunction do
       throw ↑s!"unexpected unused_variables_ignore_fn at '{constName}', must be of type `Lean.Linter.IgnoreFunction`"
@@ -172,9 +176,12 @@ builtin_initialize
     applicationTime := .afterCompilation
     add             := fun decl stx kind => do
       Attribute.Builtin.ensureNoArgs stx
-      unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
-      unless (← getConstInfo decl).type.isConstOf ``IgnoreFunction do
-        throwError "invalid attribute '{name}', must be of type `Lean.Linter.IgnoreFunction`"
+      if !builtin then
+        ensureAttrDeclIsMeta name decl kind
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
+      let declType := (← getConstInfo decl).type
+      unless declType.isConstOf ``IgnoreFunction do
+        throwAttrDeclNotOfExpectedType name decl declType (mkConst ``Lean.Linter.IgnoreFunction)
       let env ← getEnv
       if builtin then
         let h := mkConst decl
@@ -227,7 +234,7 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
     stx.isOfKind ``Lean.Parser.Command.optDeclSig ||
     stx.isOfKind ``Lean.Parser.Command.declSig) &&
   (stack[5]? |>.any fun (stx, _) => match stx[0] with
-    | `(Lean.Parser.Command.declModifiersT| $[$_:docComment]? @[$[$attrs:attr],*] $[$vis]? $[noncomputable]?) =>
+    | `(Lean.Parser.Command.declModifiersT| $[$_:docComment]? @[$[$attrs:attr],*] $[$vis]? $[protected]? $[noncomputable]?) =>
       attrs.any (fun attr => attr.raw.isOfKind ``Parser.Attr.extern || attr matches `(attr| implemented_by $_))
     | _ => false))
 
@@ -362,11 +369,11 @@ structure References where
   the spans for `foo`, `bar`, and `baz`. Global definitions are always treated as used.
   (It would be nice to be able to detect unused global definitions but this requires more
   information than the linter framework can provide.) -/
-  constDecls : Std.HashSet String.Range := ∅
+  constDecls : Std.HashSet Lean.Syntax.Range := ∅
   /-- The collection of all local declarations, organized by the span of the declaration.
   We collapse all declarations declared at the same position into a single record using
   `FVarDefinition.aliases`. -/
-  fvarDefs : Std.HashMap String.Range FVarDefinition := ∅
+  fvarDefs : Std.HashMap Lean.Syntax.Range FVarDefinition := ∅
   /-- The set of `FVarId`s that are used directly. These may or may not be aliases. -/
   fvarUses : Std.HashSet FVarId := ∅
   /-- A mapping from alias to original FVarId. We don't guarantee that the value is not itself
@@ -379,7 +386,7 @@ structure References where
 
 /-- Collect information from the `infoTrees` into `References`.
 See `References` for more information about the return value. -/
-partial def collectReferences (infoTrees : Array Elab.InfoTree) (cmdStxRange : String.Range)
+partial def collectReferences (infoTrees : Array Elab.InfoTree) (cmdStxRange : Lean.Syntax.Range)
     (linterSets : LinterSets) :
     StateRefT References IO Unit := ReaderT.run (r := false) <| go infoTrees none
 where

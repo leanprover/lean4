@@ -1,3 +1,4 @@
+module
 def f (x : Nat) : Nat → Nat → Nat :=
   match x with
   | 0 => fun _ _ => 0

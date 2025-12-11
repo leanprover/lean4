@@ -3,13 +3,17 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.AppBuilder
-import Lean.Meta.CongrTheorems
-import Lean.Meta.Eqns
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.CongrTheorems
+public import Lean.Meta.Eqns
+public import Lean.Meta.Tactic.Simp.SimpTheorems
+public import Lean.Meta.Tactic.Simp.SimpCongrTheorems
 import Lean.Meta.Tactic.Replace
-import Lean.Meta.Tactic.Simp.SimpTheorems
-import Lean.Meta.Tactic.Simp.SimpCongrTheorems
+
+public section
 
 namespace Lean.Meta
 namespace Simp
@@ -249,9 +253,10 @@ structure Stats where
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 
-private def MethodsRef : Type := MethodsRefPointed.type
+def MethodsRef : Type := MethodsRefPointed.type
 
-instance : Nonempty MethodsRef := MethodsRefPointed.property
+instance : Nonempty MethodsRef :=
+  by exact MethodsRefPointed.property
 
 abbrev SimpM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
 
@@ -554,6 +559,13 @@ def Result.mkEqMPR (r : Simp.Result) (e : Expr) : MetaM Expr := do
   else
     Meta.mkEqMPR (← r.getProof) e
 
+/-- Construct the `Expr` `h.mp e`, from a `Simp.Result` with proof `h`. -/
+def Result.mkEqMP (r : Simp.Result) (e : Expr) : MetaM Expr := do
+  if r.proof?.isNone && r.expr == e then
+    pure e
+  else
+    Meta.mkEqMP (← r.getProof) e
+
 def mkCongrFun (r : Result) (a : Expr) : MetaM Result :=
   match r.proof? with
   | none   => return { expr := mkApp r.expr a, proof? := none }
@@ -848,7 +860,7 @@ ones that allow zeta-delta reducing fvars not in `zetaDeltaSet` (e.g. `withInfer
 This also means that `usedZetaDelta` set might be reporting fvars in `zetaDeltaSet` that weren't "used".
 -/
 private def updateUsedSimpsWithZetaDeltaCore (s : UsedSimps) (zetaDeltaSet : FVarIdSet) (usedZetaDelta : FVarIdSet) : UsedSimps :=
-  zetaDeltaSet.fold (init := s) fun s fvarId =>
+  zetaDeltaSet.foldl (init := s) fun s fvarId =>
     if usedZetaDelta.contains fvarId then
       s.insert <| .fvar fvarId
     else

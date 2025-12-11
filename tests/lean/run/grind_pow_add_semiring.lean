@@ -1,3 +1,4 @@
+module
 open Lean Grind
 
 variable [Field R]

@@ -3,10 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.TreeMap.Raw.WF
-import Std.Data.TreeSet.AdditionalOperations
-import Std.Data.TreeSet.Raw.Basic
+public import Std.Data.TreeMap.Raw.WF
+public import Std.Data.TreeSet.AdditionalOperations
+
+@[expose] public section
 
 /-!
 # Well-formedness proofs for raw tree sets
@@ -75,5 +78,17 @@ theorem ofArray [TransCmp cmp] {a : Array α} :
 theorem merge {t₁ t₂ : Raw α cmp} (h : t₁.WF) :
     (t₁.merge t₂).WF :=
   ⟨InnerWF.mergeWith h⟩
+
+theorem union [TransCmp cmp] {t₁ t₂ : Raw α cmp} (h₁ : t₁.WF) (h₂ : t₂.WF) :
+  (t₁ ∪ t₂).WF :=
+  ⟨InnerWF.union h₁ h₂⟩
+
+theorem inter [TransCmp cmp] {t₁ t₂ : Raw α cmp} (h₁ : t₁.WF) :
+    (t₁ ∩ t₂).WF :=
+  ⟨InnerWF.inter h₁⟩
+
+theorem diff [TransCmp cmp] {t₁ t₂ : Raw α cmp} (h₁ : t₁.WF) :
+    (t₁ \ t₂).WF :=
+  ⟨InnerWF.diff h₁⟩
 
 end Std.TreeSet.Raw.WF

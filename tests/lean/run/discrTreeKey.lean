@@ -44,8 +44,8 @@ open Nat List
 #check Nat.pred_succ
 #discr_tree_simp_key Nat.pred_succ
 
-#check get?_nil
-#discr_tree_simp_key get?_nil
+#check getElem?_nil
+#discr_tree_simp_key getElem?_nil
 
 #check or_cons
 #discr_tree_simp_key or_cons
@@ -60,7 +60,7 @@ open Nat List
 #discr_tree_simp_key singleton_append
 
 #check append_nil
-#discr_tree_simp_key append_eq_nil
+#discr_tree_simp_key append_eq_nil_iff
 
 #check mapM_nil
 #discr_tree_simp_key mapM_nil
@@ -76,8 +76,8 @@ open Nat List
 #check List.instDecidableMemOfLawfulBEq
 #discr_tree_key List.instDecidableMemOfLawfulBEq
 
-#check List.instForIn'InferInstanceMembership
-#discr_tree_key List.instForIn'InferInstanceMembership
+#check List.instForIn'InferInstanceMembershipOfMonad
+#discr_tree_key List.instForIn'InferInstanceMembershipOfMonad
 
 /-!
   We can also specify a term directly.

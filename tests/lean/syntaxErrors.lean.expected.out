@@ -1,2 +1,2 @@
-syntaxErrors.lean:1:7-1:33: error: parser 'withPosition' does not take two arguments
-syntaxErrors.lean:3:7-3:19: error: parser 'withPosition' is not a constant, it takes one argument
+syntaxErrors.lean:1:7-1:33: error: parser `withPosition` does not take two arguments
+syntaxErrors.lean:3:7-3:19: error: parser `withPosition` is not a constant, it takes one argument

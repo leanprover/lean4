@@ -52,11 +52,11 @@ def Nat.foo : F := { f := fun _ b => b }
 
 -- Intentionally fails:
 /--
-error: Invalid field notation: `Nat.foo` has a parameter with expected type
+error: Invalid field notation: `Nat.foo.f` (coerced from `Nat.foo`) has a parameter with expected type
   Nat
 but it cannot be used
 
-Note: Field notation cannot refer to parameter `b` of `Nat.foo` by name because that constant was coerced to a function
+Note: Field notation cannot refer to parameter `b` by name because that constant was coerced to a function
 
 Hint: Consider rewriting this application without field notation (e.g., `C.f x` instead of `x.f`)
 ---
@@ -83,7 +83,7 @@ def Bar.bar : Bar true := {}
 /-- info: fun f => (fun x => false) f : Bar false → Bool -/
 #guard_msgs in #check fun (f : Bar false) => Bar.bar false f
 /--
-error: Invalid field notation: Function `Bar.bar` does not have a usable parameter of type `Bar ...` for which to substitute `f`
+error: Invalid field notation: Function `Bar.mk` (coerced from `Bar.bar`) does not have a usable parameter of type `Bar ...` for which to substitute `f`
 
 Note: Such a parameter must be explicit, or implicit with a unique name, to be used by field notation
 ---
@@ -95,7 +95,7 @@ info: fun f => sorry : (f : Bar false) → ?_ f
 /-- info: fun f => (fun x => false) f : Bar false → Bool -/
 #guard_msgs in #check fun (f : Bar false) => Bar.bar true false f
 /--
-error: Invalid field notation: Function `Bar.bar` does not have a usable parameter of type `Bar ...` for which to substitute `f`
+error: Invalid field notation: Function `Bar.mk` (coerced from `Bar.bar`) does not have a usable parameter of type `Bar ...` for which to substitute `f`
 
 Note: Such a parameter must be explicit, or implicit with a unique name, to be used by field notation
 ---

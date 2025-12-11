@@ -99,7 +99,7 @@ open Lean PrettyPrinter Delaborator in
 Testing `@[app_delab]` error conditions.
 -/
 
-/-- error: unknown declaration 'noSuchFunction' -/
+/-- error: unknown declaration `noSuchFunction` -/
 #guard_msgs in
 open Lean PrettyPrinter Delaborator in
 @[app_delab noSuchFunction] def delabErr1 : Delab := withOverApp 0 `(id)
@@ -107,7 +107,7 @@ open Lean PrettyPrinter Delaborator in
 def A.f := 0
 def B.f := 0
 open A B
-/-- error: ambiguous declaration 'f' -/
+/-- error: ambiguous declaration `f` -/
 #guard_msgs in
 open Lean PrettyPrinter Delaborator in
 @[app_delab f] def delabErr2 : Delab := withOverApp 0 `(id)

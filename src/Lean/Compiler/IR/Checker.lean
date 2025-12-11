@@ -3,9 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.IR.CompilerM
-import Lean.Compiler.IR.Format
+public import Lean.Compiler.IR.CompilerM
+
+public section
 
 namespace Lean.IR.Checker
 
@@ -26,19 +29,23 @@ opaque getUSizeSize : Unit → Nat
 def usizeSize := getUSizeSize ()
 
 structure CheckerContext where
-  env : Environment
   localCtx : LocalContext := {}
+  currentDecl : Decl
   decls : Array Decl
 
 structure CheckerState where
   foundVars : IndexSet := {}
 
-abbrev M := ReaderT CheckerContext (ExceptT String (StateT CheckerState Id))
+abbrev M := ReaderT CheckerContext <| StateRefT CheckerState CompilerM
+
+def throwCheckerError {α : Type} (msg : String) : M α := do
+  let declName := (← read).currentDecl.name
+  throwError "failed to compile definition, compiler IR check failed at `{.ofConstName declName}`. Error: {msg}"
 
 def markIndex (i : Index) : M Unit := do
   let s ← get
   if s.foundVars.contains i then
-    throw s!"variable / joinpoint index {i} has already been used"
+    throwCheckerError s!"variable / join point index {i} has already been used"
   modify fun s => { s with foundVars := s.foundVars.insert i }
 
 def markVar (x : VarId) : M Unit :=
@@ -49,38 +56,38 @@ def markJP (j : JoinPointId) : M Unit :=
 
 def getDecl (c : Name) : M Decl := do
   let ctx ← read
-  match findEnvDecl' ctx.env c ctx.decls with
-  | none   => throw s!"depends on declaration '{c}', which has no executable code; consider marking definition as 'noncomputable'"
+  match findEnvDecl' (← getEnv) c ctx.decls with
+  | none   => throwCheckerError s!"depends on declaration '{c}', which has no executable code; consider marking definition as 'noncomputable'"
   | some d => pure d
 
 def checkVar (x : VarId) : M Unit := do
   let ctx ← read
   unless ctx.localCtx.isLocalVar x.idx || ctx.localCtx.isParam x.idx do
-   throw s!"unknown variable '{x}'"
+   throwCheckerError s!"unknown variable '{x}'"
 
 def checkJP (j : JoinPointId) : M Unit := do
   let ctx ← read
   unless ctx.localCtx.isJP j.idx do
-   throw s!"unknown join point '{j}'"
+   throwCheckerError s!"unknown join point '{j}'"
 
 def checkArg (a : Arg) : M Unit :=
   match a with
-  | Arg.var x => checkVar x
-  | _ => pure ()
+  | .var x => checkVar x
+  | .erased => pure ()
 
 def checkArgs (as : Array Arg) : M Unit :=
   as.forM checkArg
 
 @[inline] def checkEqTypes (ty₁ ty₂ : IRType) : M Unit := do
   unless ty₁ == ty₂ do
-    throw "unexpected type '{ty₁}' != '{ty₂}'"
+    throwCheckerError "unexpected type '{ty₁}' != '{ty₂}'"
 
 @[inline] def checkType (ty : IRType) (p : IRType → Bool) (suffix? : Option String := none): M Unit := do
   unless p ty do
    let mut msg := s!"unexpected type '{ty}'"
    if let some suffix := suffix? then
      msg := s!"{msg}, {suffix}"
-   throw msg
+   throwCheckerError msg
 
 def checkObjType (ty : IRType) : M Unit := checkType ty IRType.isObj "object expected"
 
@@ -90,7 +97,7 @@ def getType (x : VarId) : M IRType := do
   let ctx ← read
   match ctx.localCtx.getType x with
   | some ty => pure ty
-  | none    => throw s!"unknown variable '{x}'"
+  | none    => throwCheckerError s!"unknown variable '{x}'"
 
 @[inline] def checkVarType (x : VarId) (p : IRType → Bool) (suffix? : Option String := none) : M Unit := do
   let ty ← getType x; checkType ty p suffix?
@@ -104,13 +111,13 @@ def checkScalarVar (x : VarId) : M Unit :=
 def checkFullApp (c : FunId) (ys : Array Arg) : M Unit := do
   let decl ← getDecl c
   unless ys.size == decl.params.size do
-    throw s!"incorrect number of arguments to '{c}', {ys.size} provided, {decl.params.size} expected"
+    throwCheckerError s!"incorrect number of arguments to '{c}', {ys.size} provided, {decl.params.size} expected"
   checkArgs ys
 
 def checkPartialApp (c : FunId) (ys : Array Arg) : M Unit := do
   let decl ← getDecl c
   unless ys.size < decl.params.size do
-    throw s!"too many arguments to partial application '{c}', num. args: {ys.size}, arity: {decl.params.size}"
+    throwCheckerError s!"too many arguments to partial application '{c}', num. args: {ys.size}, arity: {decl.params.size}"
   checkArgs ys
 
 def checkExpr (ty : IRType) (e : Expr) : M Unit := do
@@ -128,11 +135,11 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
     checkFullApp f ys
   | .ctor c ys =>
     if c.cidx > maxCtorTag && c.isRef then
-      throw s!"tag for constructor '{c.name}' is too big, this is a limitation of the current runtime"
+      throwCheckerError s!"tag for constructor '{c.name}' is too big, this is a limitation of the current runtime"
     if c.size > maxCtorFields then
-      throw s!"constructor '{c.name}' has too many fields"
+      throwCheckerError s!"constructor '{c.name}' has too many fields"
     if c.ssize + c.usize * usizeSize > maxCtorScalarsSize then
-      throw s!"constructor '{c.name}' has too many scalar fields"
+      throwCheckerError s!"constructor '{c.name}' has too many scalar fields"
     if c.isRef then
       checkObjType ty
       checkArgs ys
@@ -152,6 +159,11 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
     checkObjVar x
   | .proj i x =>
     let xType ← getType x;
+    /-
+    Projections are a valid operation on `tobject`. Thus they should also
+    be a valid operation for both `object`, `tagged` and unboxed values
+    as they are subtypes.
+    -/
     match xType with
     | .object | .tobject =>
       checkObjType ty
@@ -159,8 +171,9 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
       if h : i < tys.size then
         checkEqTypes (tys[i]) ty
       else
-        throw "invalid proj index"
-    | _ => throw s!"unexpected IR type '{xType}'"
+        throwCheckerError "invalid proj index"
+    | .tagged => pure ()
+    | _ => throwCheckerError s!"unexpected IR type '{xType}'"
   | .uproj _ x =>
     checkObjVar x
     checkType ty (· == .usize)
@@ -215,8 +228,6 @@ partial def checkFnBody (fnBody : FnBody) : M Unit := do
   | .del x b =>
     checkVar x
     checkFnBody b
-  | .mdata _ b =>
-    checkFnBody b
   | .jmp j ys =>
     checkJP j
     checkArgs ys
@@ -234,10 +245,7 @@ def checkDecl : Decl → M Unit
 end Checker
 
 def checkDecl (decls : Array Decl) (decl : Decl) : CompilerM Unit := do
-  let env ← getEnv
-  match (Checker.checkDecl decl { env := env, decls := decls }).run' {} with
-  | .error msg => throwError s!"failed to compile definition, compiler IR check failed at '{decl.name}'. Error: {msg}"
-  | _ => pure ()
+  Checker.checkDecl decl { decls, currentDecl := decl } |>.run' {}
 
 def checkDecls (decls : Array Decl) : CompilerM Unit :=
   decls.forM (checkDecl decls)

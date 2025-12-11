@@ -3,11 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving, Sofia Rodrigues
 -/
+module
+
 prelude
-import Init.System.IO
-import Init.System.Promise
-import Init.Data.SInt
-import Std.Net
+public import Init.System.Promise
+public import Init.Data.SInt
+public import Std.Net
+
+@[expose] public section
 
 namespace Std
 namespace Internal
@@ -40,7 +43,7 @@ structure RUsage where
 deriving Repr, Inhabited
 
 /--
-Represents the breaskdown of CPU time usage in milliseconds.
+Represents the breakdown of CPU time usage in milliseconds.
 -/
 structure CPUTimes where
   user : UInt64
@@ -135,7 +138,7 @@ opaque cwd : IO String
 Changes the current working directory.
 -/
 @[extern "lean_uv_chdir"]
-opaque chdir : String → IO Unit
+opaque chdir : @& String → IO Unit
 
 /--
 Gets the path to the current user's home directory.

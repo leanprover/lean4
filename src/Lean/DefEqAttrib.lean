@@ -3,9 +3,15 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
+module
+
 prelude
 
-import Lean.PrettyPrinter
+public import Lean.Meta.Basic
+import Lean.Meta.Check
+import Lean.Meta.WHNF
+
+public section
 
 namespace Lean
 open Meta
@@ -62,7 +68,7 @@ need to be unfolded to prove the theorem are exported and exposed.
 builtin_initialize defeqAttr : TagAttribute ←
   registerTagAttribute `defeq "mark theorem as a definitional equality, to be used by `dsimp`"
     (validate := validateDefEqAttr) (applicationTime := .afterTypeChecking)
-    (asyncMode := .async)
+    (asyncMode := .async .mainEnv)
 
 private partial def isRflProofCore (type : Expr) (proof : Expr) : CoreM Bool := do
   match type with

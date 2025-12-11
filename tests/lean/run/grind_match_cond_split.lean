@@ -1,3 +1,5 @@
+module
+@[expose] public section -- TODO: remove after we fix congr_eq
 example (x n : Nat)
     : 0 < match x with
           | 0  => 1

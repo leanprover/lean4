@@ -123,7 +123,7 @@ namespace Ex7
 
 variable (n : Nat)
 /--
-error: cannot update binder annotation of variable 'n' to instance implicit:
+error: cannot update binder annotation of variable `n` to instance implicit:
 invalid binder annotation, type is not a class instance
   Nat
 
@@ -133,7 +133,7 @@ Note: Use the command `set_option checkBinderAnnotations false` to disable the c
 variable [n]
 variable (x)
 /--
-error: cannot update binder annotation of variable 'x' to instance implicit:
+error: cannot update binder annotation of variable `x` to instance implicit:
 variable was originally declared without an explicit type
 -/
 #guard_msgs in

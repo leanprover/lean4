@@ -4,9 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
-import Init.Dynamic
-import Lean.Data.Json
+public import Init.Dynamic
+public import Lean.Data.Json.FromToJson.Basic
+
+public section
 
 /-! Allows LSP clients to make Remote Procedure Calls to the server.
 

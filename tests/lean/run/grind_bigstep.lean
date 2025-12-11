@@ -1,3 +1,5 @@
+module
+@[expose] public section
 abbrev Variable := String
 
 def State := Variable → Nat

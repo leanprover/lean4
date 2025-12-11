@@ -6,12 +6,14 @@ Authors: Quang Dao, Paul Reichert
 module
 
 prelude
-public import all Init.Control.Option
-public import all Init.Control.Except
-public import all Init.Control.ExceptCps
-public import all Init.Control.StateRef
-public import all Init.Control.StateCps
-public import all Init.Control.Id
+import all Init.Control.Option
+import all Init.Control.Except
+public import Init.Control.ExceptCps
+import all Init.Control.ExceptCps
+import all Init.Control.StateRef
+public import Init.Control.StateCps
+import all Init.Control.StateCps
+import all Init.Control.Id
 public import Init.Control.Lawful.MonadLift.Lemmas
 public import Init.Control.Lawful.Instances
 
@@ -57,10 +59,6 @@ end ReaderT
 namespace OptionT
 
 variable [Monad m] [LawfulMonad m]
-
-@[simp]
-theorem lift_pure {α : Type u} (a : α) : OptionT.lift (pure a : m α) = pure a := by
-  simp only [OptionT.lift, OptionT.mk, bind_pure_comp, map_pure, pure, OptionT.pure]
 
 @[simp]
 theorem lift_bind {α β : Type u} (ma : m α) (f : α → m β) :

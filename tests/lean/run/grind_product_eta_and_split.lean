@@ -1,3 +1,4 @@
+module
 set_option grind.debug true
 
 def α : Type := Unit × Unit

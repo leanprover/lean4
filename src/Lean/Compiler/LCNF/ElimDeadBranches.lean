@@ -3,11 +3,12 @@ Copyright (c) 2022 Henrik Böving. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.PassManager
-import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.LCNF.InferType
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -34,7 +35,7 @@ inductive Value where
   A set of values are possible.
   -/
   | choice (vs : List Value)
-  deriving Inhabited, Repr
+  deriving Inhabited
 
 namespace Value
 
@@ -42,16 +43,35 @@ namespace Value
 def maxValueDepth := 8
 
 protected partial def beq : Value → Value → Bool
-| bot, bot => true
-| top, top => true
-| ctor i1 vs1 , ctor i2 vs2 =>
-  i1 == i2 && Array.isEqv vs1 vs2 Value.beq
-| choice vs1 , choice vs2 =>
-  let isSubset as bs := as.all (fun a => bs.any fun b => Value.beq a b)
-  isSubset vs1 vs2 && isSubset vs2 vs1
-| _, _ => false
+  | bot, bot => true
+  | top, top => true
+  | ctor i1 vs1 , ctor i2 vs2 =>
+    i1 == i2 && Array.isEqv vs1 vs2 Value.beq
+  | choice vs1 , choice vs2 =>
+    let isSubset as bs := as.all (fun a => bs.any fun b => Value.beq a b)
+    isSubset vs1 vs2 && isSubset vs2 vs1
+  | _, _ => false
 
 instance : BEq Value := ⟨Value.beq⟩
+
+protected partial def toFormat : Value → Format
+  | bot => "⊥"
+  | top => "⊤"
+  | ctor i vs =>
+    if vs.isEmpty then
+      format i
+    else
+      .paren <| format i ++ .join (vs.toList.map fun v => " " ++ Value.toFormat v)
+  | choice vs =>
+    .paren <| .joinSep (vs.map Value.toFormat) " | "
+
+instance : Repr Value where
+  reprPrec v _ := Value.toFormat v
+
+def inductValOfCtor (ctorName : Name) (env : Environment) : InductiveVal := Id.run do
+  let some (.ctorInfo info) ← env.find? ctorName | unreachable!
+  let some (.inductInfo info) ← env.find? info.induct | unreachable!
+  return info
 
 mutual
 
@@ -61,32 +81,60 @@ is a constructor that is already contained within `vs` try to detect
 the difference between these values and merge them accordingly into a
 choice node further down the tree.
 -/
-partial def addChoice (vs : List Value) (v : Value) : List Value :=
+partial def addChoice (env : Environment) (vs : List Value) (v : Value) : List Value :=
   match vs, v with
   | [], v => [v]
-  | v1@(ctor i1 _ ) :: cs, ctor i2 _ =>
+  | v1@(ctor i1 vs1) :: cs, ctor i2 vs2 =>
     if i1 == i2 then
-      (merge v1 v) :: cs
+      ctor i1 (Array.zipWith (merge env) vs1 vs2) :: cs
     else
-      v1 :: addChoice cs v
-  | _, _ => panic! "invalid addChoice"
+      v1 :: addChoice env cs v
+  | _, _ => panic! s!"invalid addChoice {repr v} into {repr vs}"
 
 /--
 Merge two values into one. `bot` is the neutral element, `top` the annihilator.
 -/
-partial def merge (v1 v2 : Value) : Value :=
-  match v1, v2 with
-  | bot, v | v, bot => v
-  | top, _ | _, top => top
-  | ctor i1 vs1, ctor i2 vs2 =>
-    if i1 == i2 then
-      ctor i1 (Array.zipWith merge vs1 vs2)
+partial def merge (env : Environment) (v1 v2 : Value) : Value :=
+  let newValue :=
+    match v1, v2 with
+    | bot, v | v, bot => v
+    | top, _ | _, top => top
+    | ctor i1 vs1, ctor i2 vs2 =>
+      if i1 == i2 then
+        ctor i1 (Array.zipWith (merge env) vs1 vs2)
+      else
+        choice [v1, v2]
+    | choice vs1, choice vs2 =>
+      choice (vs1.foldl (addChoice env) vs2)
+    | choice vs, v | v, choice vs =>
+      choice (addChoice env vs v)
+  match newValue with
+  | .top | .bot => newValue
+  | .choice vs => cleanup vs
+  | .ctor ctorName .. =>
+    if eligible newValue && inductHasNumCtors ctorName env 1 then
+      top
     else
-      choice [v1, v2]
-  | choice vs1, choice vs2 =>
-    choice (vs1.foldl addChoice vs2)
-  | choice vs, v | v, choice vs =>
-    choice (addChoice vs v)
+      newValue
+where
+  cleanup (vs : List Value) : Value := Id.run do
+    if vs.all eligible then
+      let .ctor ctorName .. := vs.head! | unreachable!
+      if inductHasNumCtors ctorName env vs.length then
+        top
+      else
+        choice vs
+    else
+      choice vs
+
+  inductHasNumCtors (ctorName : Name) (env : Environment) (n : Nat) : Bool := Id.run do
+    let induct := inductValOfCtor ctorName env
+    n == induct.numCtors
+
+  @[inline]
+  eligible (value : Value) : Bool := Id.run do
+    let .ctor _ args := value | return false
+    args.all (· == .top)
 
 end
 
@@ -105,19 +153,16 @@ where
     | remainingDepth + 1 =>
       match v with
       | ctor i vs =>
-        let typeName := i.getPrefix
-        if forbiddenTypes.contains typeName then
+        let induct := inductValOfCtor i env
+        if forbiddenTypes.contains induct.name then
           top
         else
           let cont forbiddenTypes' :=
             ctor i (vs.map (go · forbiddenTypes' remainingDepth))
-          match env.find? typeName with
-          | some (.inductInfo type) =>
-            if type.isRec then
-              cont <| forbiddenTypes.insert typeName
-            else
-              cont forbiddenTypes
-          | _ => cont forbiddenTypes
+          if induct.isRec then
+            cont <| forbiddenTypes.insert induct.name
+          else
+            cont forbiddenTypes
       | choice vs =>
         let vs := vs.map (go · forbiddenTypes remainingDepth)
         if vs.elem top then
@@ -128,7 +173,7 @@ where
 
 /-- Widening operator that guarantees termination in our abstract interpreter. -/
 def widening (env : Environment) (v1 v2 : Value) : Value :=
-  truncate env (merge v1 v2)
+  truncate env (merge env v1 v2)
 
 /--
 Check whether a certain constructor is part of a `Value` by name.
@@ -157,31 +202,24 @@ partial def getCtorArgs : Value → Name → Option (Array Value)
 
 partial def ofNat (n : Nat) : Value :=
   if n > maxValueDepth then
-    goBig n n
+    .top
   else
     goSmall n
 where
-  goBig (orig : Nat) (curr : Nat) : Value :=
-    if orig - curr == maxValueDepth then
-      .top
-    else
-      .ctor ``Nat.succ #[goBig orig (curr - 1)]
   goSmall : Nat → Value
   | 0 => .ctor ``Nat.zero #[]
   | n + 1 => .ctor ``Nat.succ #[goSmall n]
 
 def ofLCNFLit : LCNF.LitValue → Value
 | .nat n => ofNat n
+-- TODO: Make this work for other numeric literal types.
+| .uint8 _ | .uint16 _ | .uint32 _ | .uint64 _ | .usize _ => .top
 -- TODO: We could make this much more precise but the payoff is questionable
 | .str .. => .top
-| .uint8 v => ofNat (UInt8.toNat v)
-| .uint16 v => ofNat (UInt16.toNat v)
-| .uint32 v => ofNat (UInt32.toNat v)
-| .uint64 v | .usize v => ofNat (UInt64.toNat v)
 
-partial def proj : Value → Nat → Value
+partial def proj (env : Environment) : Value → Nat → Value
 | .ctor _ vs , i => vs.getD i bot
-| .choice vs, i => vs.foldl (fun r v => merge r (proj v i)) bot
+| .choice vs, i => vs.foldl (fun r v => widening env r (proj env v i)) bot
 | v, _ => v
 
 /--
@@ -253,7 +291,10 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (Name × 
   registerSimplePersistentEnvExtension {
     addImportedFn := fun _ => {}
     addEntryFn := fun s ⟨e, n⟩ => s.insert e n
-    toArrayFn := fun s => s.toArray.qsort decLt
+    exportEntriesFnEx? := some fun _ s _ => fun
+      -- preserved for non-modules, make non-persistent at some point?
+      | .private => s.toArray.qsort decLt
+      | _ => #[]
     asyncMode := .sync  -- compilation is non-parallel anyway
     replay? := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.1) (fun s ⟨e, n⟩ => s.insert e n)
   }
@@ -262,7 +303,7 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (Name × 
 Add a `Value` for a function name.
 -/
 def addFunctionSummary (env : Environment) (fid : Name) (v : Value) : Environment :=
-  functionSummariesExt.addEntry (env.addExtraName fid) (fid, v)
+  functionSummariesExt.addEntry env (fid, v)
 
 /--
 Obtain the `Value` for a function name if possible.
@@ -354,8 +395,9 @@ def findArgValue (arg : Arg) : InterpM Value := do
 Update the assignment of `var` by merging the current value with `newVal`.
 -/
 def updateVarAssignment (var : FVarId) (newVal : Value) : InterpM Unit := do
+  let env ← getEnv
   let val ← findVarValue var
-  let updatedVal := .merge val newVal
+  let updatedVal := .widening env val newVal
   modifyAssignment (·.insert var updatedVal)
 
 /--
@@ -381,10 +423,11 @@ a partial application and set the values of the remaining parameters to
 -/
 def updateFunDeclParamsAssignment (params : Array Param) (args : Array Arg) : InterpM Bool := do
   let mut ret := false
+  let env ← getEnv
   for param in params, arg in args do
     let paramVal ← findVarValue param.fvarId
     let argVal ← findArgValue arg
-    let newVal := .merge paramVal argVal
+    let newVal := .widening env paramVal argVal
     if newVal != paramVal then
       modifyAssignment (·.insert param.fvarId newVal)
       ret := true
@@ -463,7 +506,9 @@ where
   interpLetValue (letVal : LetValue) : InterpM Value := do
     match letVal with
     | .lit val => return .ofLCNFLit val
-    | .proj _ idx struct => return (← findVarValue struct).proj idx
+    | .proj _ idx struct =>
+      let env ← getEnv
+      return (← findVarValue struct).proj env idx
     | .const declName _ args =>
       let env ← getEnv
       args.forM handleFunArg
@@ -536,7 +581,9 @@ def inferStep : InterpM Bool := do
     withReader (fun ctx => { ctx with currFnIdx := idx }) do
       decl.params.forM fun p => updateVarAssignment p.fvarId .top
       match decl.value with
-      | .code code .. => interpCode code
+      | .code code .. =>
+        withTraceNode `Compiler.elimDeadBranches (fun _ => return m!"Analyzing {decl.name}") do
+          interpCode code
       | .extern .. => updateCurrFnSummary .top
     let newVal ← getFunVal idx
     if currentVal != newVal then
@@ -546,13 +593,14 @@ def inferStep : InterpM Bool := do
 /--
 Run `inferStep` until it reaches a fix point.
 -/
-partial def inferMain : InterpM Unit := do
+partial def inferMain (n : Nat := 0) : InterpM Unit := do
   let ctx ← read
   modify fun s => { s with assignments := ctx.decls.map fun _ => {} }
   let modified ← inferStep
   if modified then
-    inferMain
+    inferMain (n + 1)
   else
+    trace[Compiler.elimDeadBranches] m!"Termination after {n} steps"
     return ()
 
 /--
@@ -602,6 +650,11 @@ end UnreachableBranches
 
 open UnreachableBranches in
 def Decl.elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
+  /-
+  We sort declarations by size here to ensure that when we restart in inferStep it will mostly be
+  small declarations that get re-analyzed.
+  -/
+  let decls := decls.qsort (fun l r => (l.size, l.name.toString).lexLt (r.size, r.name.toString))
   let mut assignments := decls.map fun _ => {}
   let initialVal i :=
     /-
@@ -614,7 +667,9 @@ def Decl.elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
   let mut funVals := decls.size.fold (init := .empty) fun i _ p => p.push (initialVal i)
   let ctx := { decls }
   let mut state := { assignments, funVals }
-  (_, state) ← inferMain |>.run ctx |>.run state
+  (_, state) ←
+    withTraceNode `Compiler.elimDeadBranches (fun _ => return m!"Analyzing block: {decls.map (·.name)}")
+      inferMain |>.run ctx |>.run state
   funVals := state.funVals
   assignments := state.assignments
   modifyEnv fun e =>

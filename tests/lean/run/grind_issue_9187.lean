@@ -1,3 +1,4 @@
+module
 structure Cat (C : Type) where
   hom : C → C → Type
   comp {x y z : C} (f : hom x y) (g : hom y z) : hom x z

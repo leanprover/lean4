@@ -6,10 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-public import all Init.Data.Vector.Basic
-public import Init.Data.Vector.Lemmas
+import all Init.Data.Vector.Basic
 public import Init.Data.Vector.Monadic
-public import Init.Data.Array.OfFn
 
 public section
 

@@ -158,7 +158,7 @@ axiom funext {A : Type u} {B : A → Type v} {f g : ∀ x, B x} (p : f ~ g) : f 
 
 def propIsSet {A : Type u} (r : prop A) : hset A :=
 by {
-  intros x y p q; have g := r x; apply Id.trans;
+  intro x y p q; have g := r x; apply Id.trans;
   apply Id.symm; apply rewriteComp;
   exact (apd g p)⁻¹ ⬝ transportComposition p (g x);
   induction q; apply invComp
@@ -181,7 +181,7 @@ def ntypeIsProp : ∀ (n : hlevel) {A : Type u}, prop (is-n-type A)
 
 def propIsProp {A : Type u} : prop (prop A) :=
 by {
-  intros f g;
+  intro f g;
   apply funext; intro;
   apply funext; intro;
   apply propIsSet; assumption
@@ -190,8 +190,8 @@ by {
 def minusOneEqvProp {A : Type u} : (is-(−1)-type A) ≃ prop A :=
 by {
   apply propEquivLemma; apply ntypeIsProp; apply propIsProp;
-  { intros H a b; exact (H a b).1 };
-  { intros H a b; exists H a b; apply propIsSet H }
+  { intro H a b; exact (H a b).1 };
+  { intro H a b; exists H a b; apply propIsSet H }
 }
 
 def equivFunext {A : Type u} {η μ : A → Type v}

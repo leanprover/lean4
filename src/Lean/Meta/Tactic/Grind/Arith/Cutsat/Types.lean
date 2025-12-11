@@ -3,19 +3,17 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Init.Data.Int.Linear
-import Std.Internal.Rat
-import Lean.Data.PersistentArray
+public import Init.Data.Int.Linear
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
 import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.Arith.Util
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
-
+public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 export Int.Linear (Var Poly)
-export Std.Internal (Rat)
 
 deriving instance Hashable for Poly
 
@@ -86,11 +84,10 @@ inductive EqCnstrProof where
     `p₁` and `p₂` are the polynomials corresponding to `a` and `b`.
     -/
     core (a b : Expr) (p₁ p₂ : Poly)
-  | coreNat (a b : Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
   | coreToInt (a b : Expr) (toIntThm : Expr) (lhs rhs : Int.Linear.Expr)
   | /-- `e` is `p` -/
     defn (e : Expr) (p : Poly)
-  | defnNat (e : Int.OfNat.Expr) (x : Var) (e' : Int.Linear.Expr)
+  | defnNat (h : Expr) (x : Var) (e' : Int.Linear.Expr)
   | norm (c : EqCnstr)
   | divCoeffs (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
@@ -98,7 +95,21 @@ inductive EqCnstrProof where
   | reorder (c : EqCnstr)
   | commRingNorm (c : EqCnstr) (e : CommRing.RingExpr) (p : CommRing.Poly)
   | defnCommRing (e : Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
-  | defnNatCommRing (e : Int.OfNat.Expr) (x : Var) (e' : Int.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
+  | defnNatCommRing (h : Expr) (x : Var) (e' : Int.Linear.Expr) (p : Poly) (re : CommRing.RingExpr) (rp : CommRing.Poly) (p' : Poly)
+  | mul (a? : Option Expr) (cs : Array (Expr × Int × EqCnstr))
+  | /--
+    Linearization proof for `/`
+    - If `?y = some y`, then it is a proof for `a / b = y / k` where `c` is a proof that `b = k`
+    - If `?y = none`, then it is a proof for `a / b = a/k` where `c` is a proof that `b = k`. `a` is a numeral in this case.
+    -/
+    div (k : Int) (y? : Option Var) (c : EqCnstr)
+  | /--
+    Linearization proof for `%`
+    - If `?y = some y`, then it is a proof for `a % b = y%k` where `c` is a proof that `b = k`
+    - If `?y = none`, then it is a proof for `a % b = a%k` where `c` is a proof that `b = k`. `a` is a numeral in this case.
+    -/
+    mod (k : Int) (y? : Option Var) (c : EqCnstr)
+  | pow (ka : Int) (ca? : Option EqCnstr) (kb : Nat) (cb? : Option EqCnstr)
 
 /-- A divisibility constraint and its justification/proof. -/
 structure DvdCnstr where
@@ -148,7 +159,7 @@ inductive CooperSplitProof where
 inductive DvdCnstrProof where
   | /-- Given `e` of the form `k ∣ p` s.t. `e = True` in the core.  -/
     core (e : Expr)
-  | coreNat (e : Expr) (d : Nat) (b : Int.OfNat.Expr) (b' : Int.Linear.Expr)
+  | coreOfNat (e : Expr) (thm : Expr) (d : Nat) (a : Int.Linear.Expr)
   | norm (c : DvdCnstr)
   | divCoeffs (c : DvdCnstr)
   | solveCombine (c₁ c₂ : DvdCnstr)
@@ -170,10 +181,8 @@ structure LeCnstr where
 inductive LeCnstrProof where
   | core (e : Expr)
   | coreNeg (e : Expr) (p : Poly)
-  | coreNat (e : Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
-  | coreNatNeg (e : Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
   | coreToInt (e : Expr) (pos : Bool) (toIntThm : Expr) (lhs rhs : Int.Linear.Expr)
-  | denoteAsIntNonneg (rhs : Int.OfNat.Expr) (rhs' : Int.Linear.Expr)
+  | ofNatNonneg (a : Expr)
   | bound (h : Expr)
   | dec (h : FVarId)
   | norm (c : LeCnstr)
@@ -202,7 +211,6 @@ inductive DiseqCnstrProof where
     `p₁` and `p₂` are the polynomials corresponding to `a` and `b`.
     -/
     core (a b : Expr) (p₁ p₂ : Poly)
-  | coreNat (a b : Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
   | coreToInt (a b : Expr) (toIntThm : Expr) (lhs rhs : Int.Linear.Expr)
   | norm (c : DiseqCnstr)
   | divCoeffs (c : DiseqCnstr)
@@ -236,7 +244,7 @@ instance : Inhabited CooperSplitPred where
 instance : Inhabited CooperSplit where
   default := { pred := default, k := 0, h := .dec default }
 
-abbrev VarSet := RBTree Var compare
+abbrev VarSet := Std.TreeSet Var
 
 /-- State of the cutsat procedure. -/
 structure State where
@@ -251,13 +259,14 @@ structure State where
   justification objects contain terms using variables before the reordering.
   -/
   vars' : PArray Expr := {}
-  /-- `varVap` before variables were reordered. -/
+  /-- `varMap` before variables were reordered. -/
   varMap' : PHashMap ExprPtr Var := {}
   /--
-  Mapping from `Nat` terms to their variable. They are also marked using `markAsCutsatTerm`.
+  The field `natToIntMap` contains a mapping
+  from a `Nat`-term `e` to the pair `(e', he)`, where
+  `he : NatCast.natCast e = e'`
   -/
-  natVarMap : PHashMap ExprPtr Var := {}
-  natVars : PArray Expr := {}
+  natToIntMap : PHashMap ExprPtr (Expr × Expr) := {}
   /--
   Some `Nat` variables encode nested terms such as `b+1`.
   This is a mapping from this kind of variable to the integer variable
@@ -338,10 +347,29 @@ structure State where
   from a α-term `e` to the pair `(toInt e, α)`.
   -/
   toIntTermMap : PHashMap ExprPtr ToIntTermInfo := {}
+  -- Note: the terms in the range `toIntTermMap` may not have been internalized.
+  -- Note: we may reconsider this design decision to simplify model construction.
+  /--
+  Mapping from `a : α` (where `ToInt α`) to `toInt a` that has been internalized.
+  We use this information during model construction.
+  -/
+  toIntVarMap : PHashMap ExprPtr Expr := {}
   /--
   `usedCommRing` is `true` if the `CommRing` has been used to normalize expressions.
   -/
   usedCommRing : Bool := false
+  /--
+  Mapping from terms to variables representing nonlinear terms.
+  For example, suppose the denotation of variable `x` is the nonlinear term `a*b*c`,
+  and `y` is the nonlinear term `a / d`. Then the mapping contains the entries
+  - `a ↦ [x, y]`
+  - `b ↦ [x]`
+  - `c ↦ [x]`
+  - `d ↦ [y]`
+  -/
+  nonlinearOccs : PHashMap Var (List Var) := {}
   deriving Inhabited
+
+builtin_initialize cutsatExt : SolverExtension State ← registerSolverExtension (return {})
 
 end Lean.Meta.Grind.Arith.Cutsat

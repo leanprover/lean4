@@ -1,277 +1,286 @@
-{ goals := #[{ type := Lean.Widget.TaggedText.tag
-                         { subexprPos := "/", diffStatus? := none }
-                         (Lean.Widget.TaggedText.append
-                           #[Lean.Widget.TaggedText.tag
-                               { subexprPos := "/0", diffStatus? := none }
-                               (Lean.Widget.TaggedText.append
-                                 #[Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/0/0/1", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.text "x"),
-                                   Lean.Widget.TaggedText.text " = ",
-                                   Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/0/1", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.text "x")]),
-                             Lean.Widget.TaggedText.text " → ",
-                             Lean.Widget.TaggedText.tag
-                               { subexprPos := "/1", diffStatus? := none }
-                               (Lean.Widget.TaggedText.text "True")]),
-               isInserted? := some false,
-               isRemoved? := none,
-               hyps := #[{ type := Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.text "Nat"),
-                           names := #["x"],
-                           isInserted? := some true,
-                           isRemoved? := none }] }] }
-
-{ goals := #[{ type := Lean.Widget.TaggedText.tag
-                         { subexprPos := "/", diffStatus? := none }
-                         (Lean.Widget.TaggedText.append
-                           #[Lean.Widget.TaggedText.tag
-                               { subexprPos := "/0", diffStatus? := some "willDelete" }
-                               (Lean.Widget.TaggedText.append
-                                 #[Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/0/0/1", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.text "x"),
-                                   Lean.Widget.TaggedText.text " = ",
-                                   Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/0/1", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.text "x")]),
-                             Lean.Widget.TaggedText.text " → ",
-                             Lean.Widget.TaggedText.tag
-                               { subexprPos := "/1", diffStatus? := none }
-                               (Lean.Widget.TaggedText.text "True")]),
-               isInserted? := some false,
-               isRemoved? := none,
-               hyps := #[{ type := Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.text "Nat"),
-                           names := #["x"],
-                           isInserted? := none,
-                           isRemoved? := none }] }] }
-
-{ goals := #[{ type := Lean.Widget.TaggedText.tag
-                         { subexprPos := "/", diffStatus? := none }
-                         (Lean.Widget.TaggedText.append
-                           #[Lean.Widget.TaggedText.text "∀ (",
-                             Lean.Widget.TaggedText.tag
-                               { subexprPos := "/", diffStatus? := none }
-                               (Lean.Widget.TaggedText.text "x"),
-                             Lean.Widget.TaggedText.text " : ",
-                             Lean.Widget.TaggedText.tag
-                               { subexprPos := "/0", diffStatus? := some "willDelete" }
-                               (Lean.Widget.TaggedText.text "Nat"),
-                             Lean.Widget.TaggedText.text "), ",
-                             Lean.Widget.TaggedText.tag
-                               { subexprPos := "/1", diffStatus? := none }
-                               (Lean.Widget.TaggedText.append
-                                 #[Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/1/0", diffStatus? := some "willDelete" }
-                                     (Lean.Widget.TaggedText.append
-                                       #[Lean.Widget.TaggedText.tag
-                                           { subexprPos := "/1/0/0/1", diffStatus? := none }
-                                           (Lean.Widget.TaggedText.text "x"),
-                                         Lean.Widget.TaggedText.text " = ",
-                                         Lean.Widget.TaggedText.tag
-                                           { subexprPos := "/1/0/1", diffStatus? := none }
-                                           (Lean.Widget.TaggedText.text "x")]),
-                                   Lean.Widget.TaggedText.text " → ",
-                                   Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/1/1", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.text "True")])]),
-               isInserted? := some false,
-               isRemoved? := none,
-               hyps := #[] }] }
-
-{ goals := #[{ type := Lean.Widget.TaggedText.tag
-                         { subexprPos := "/", diffStatus? := none }
-                         (Lean.Widget.TaggedText.text "True"),
-               isInserted? := some false,
-               isRemoved? := none,
-               hyps := #[{ type := Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.text "Sort u_1"),
-                           names := #["α"],
-                           isInserted? := none,
-                           isRemoved? := none },
-                         { type := Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.text "Nat"),
-                           names := #["x", "y"],
-                           isInserted? := none,
-                           isRemoved? := none },
-                         { type := Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.append
-                                       #[Lean.Widget.TaggedText.text "∀ (",
-                                         Lean.Widget.TaggedText.tag
-                                           { subexprPos := "/", diffStatus? := none }
-                                           (Lean.Widget.TaggedText.text "a"),
-                                         Lean.Widget.TaggedText.text " : ",
-                                         Lean.Widget.TaggedText.tag
-                                           { subexprPos := "/0", diffStatus? := none }
-                                           (Lean.Widget.TaggedText.text "α"),
-                                         Lean.Widget.TaggedText.text "), ",
-                                         Lean.Widget.TaggedText.tag
-                                           { subexprPos := "/1", diffStatus? := none }
-                                           (Lean.Widget.TaggedText.append
-                                             #[Lean.Widget.TaggedText.tag
-                                                 { subexprPos := "/1/0/1", diffStatus? := none }
-                                                 (Lean.Widget.TaggedText.text "x"),
-                                               Lean.Widget.TaggedText.text " = ",
-                                               Lean.Widget.TaggedText.tag
-                                                 { subexprPos := "/1/1", diffStatus? := some "willChange" }
-                                                 (Lean.Widget.TaggedText.text "y")])]),
-                           names := #["f"],
-                           isInserted? := none,
-                           isRemoved? := none },
-                         { type := Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.append
-                                       #[Lean.Widget.TaggedText.tag
-                                           { subexprPos := "/0/1", diffStatus? := none }
-                                           (Lean.Widget.TaggedText.text "y"),
-                                         Lean.Widget.TaggedText.text " = ",
-                                         Lean.Widget.TaggedText.tag
-                                           { subexprPos := "/1", diffStatus? := none }
-                                           (Lean.Widget.TaggedText.text "x")]),
-                           names := #["h"],
-                           isInserted? := none,
-                           isRemoved? := none }] }] }
-
-{ goals := #[{ type := Lean.Widget.TaggedText.tag
-                         { subexprPos := "/", diffStatus? := none }
-                         (Lean.Widget.TaggedText.text "True"),
-               isInserted? := some false,
-               isRemoved? := none,
-               hyps := #[{ type := Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.text "Sort u_1"),
-                           names := #["α"],
-                           isInserted? := none,
-                           isRemoved? := none },
-                         { type := Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.text "Nat"),
-                           names := #["x", "y"],
-                           isInserted? := none,
-                           isRemoved? := none },
-                         { type := Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.append
-                                       #[Lean.Widget.TaggedText.text "∀ (",
-                                         Lean.Widget.TaggedText.tag
-                                           { subexprPos := "/", diffStatus? := none }
-                                           (Lean.Widget.TaggedText.text "a"),
-                                         Lean.Widget.TaggedText.text " : ",
-                                         Lean.Widget.TaggedText.tag
-                                           { subexprPos := "/0", diffStatus? := none }
-                                           (Lean.Widget.TaggedText.text "α"),
-                                         Lean.Widget.TaggedText.text "), ",
-                                         Lean.Widget.TaggedText.tag
-                                           { subexprPos := "/1", diffStatus? := none }
-                                           (Lean.Widget.TaggedText.append
-                                             #[Lean.Widget.TaggedText.tag
-                                                 { subexprPos := "/1/0/1", diffStatus? := none }
-                                                 (Lean.Widget.TaggedText.text "x"),
-                                               Lean.Widget.TaggedText.text " = ",
-                                               Lean.Widget.TaggedText.tag
-                                                 { subexprPos := "/1/1", diffStatus? := some "wasChanged" }
-                                                 (Lean.Widget.TaggedText.text "x")])]),
-                           names := #["f"],
-                           isInserted? := none,
-                           isRemoved? := none },
-                         { type := Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.append
-                                       #[Lean.Widget.TaggedText.tag
-                                           { subexprPos := "/0/1", diffStatus? := none }
-                                           (Lean.Widget.TaggedText.text "y"),
-                                         Lean.Widget.TaggedText.text " = ",
-                                         Lean.Widget.TaggedText.tag
-                                           { subexprPos := "/1", diffStatus? := none }
-                                           (Lean.Widget.TaggedText.text "x")]),
-                           names := #["h"],
-                           isInserted? := none,
-                           isRemoved? := none }] }] }
-
-{ goals := #[{ type := Lean.Widget.TaggedText.tag
-                         { subexprPos := "/", diffStatus? := some "willChange" }
-                         (Lean.Widget.TaggedText.append
-                           #[Lean.Widget.TaggedText.tag
-                               { subexprPos := "/0/1", diffStatus? := none }
-                               (Lean.Widget.TaggedText.text "True"),
-                             Lean.Widget.TaggedText.text " ∧ ",
-                             Lean.Widget.TaggedText.tag
-                               { subexprPos := "/1", diffStatus? := none }
-                               (Lean.Widget.TaggedText.text "True")]),
-               isInserted? := some false,
-               isRemoved? := none,
-               hyps := #[] }] }
-
-{ goals := #[{ type := Lean.Widget.TaggedText.tag
-                         { subexprPos := "/", diffStatus? := none }
-                         (Lean.Widget.TaggedText.text "True"),
-               isInserted? := none,
-               isRemoved? := some true,
-               hyps := #[] },
-             { type := Lean.Widget.TaggedText.tag
-                         { subexprPos := "/", diffStatus? := none }
-                         (Lean.Widget.TaggedText.text "True"),
-               isInserted? := none,
-               isRemoved? := none,
-               hyps := #[] }] }
-
-{ goals := #[{ type := Lean.Widget.TaggedText.tag
-                         { subexprPos := "/", diffStatus? := none }
-                         (Lean.Widget.TaggedText.text "True"),
-               isInserted? := none,
-               isRemoved? := some true,
-               hyps := #[] }] }
-
-{ goals := #[{ type := Lean.Widget.TaggedText.tag
-                         { subexprPos := "/", diffStatus? := none }
-                         (Lean.Widget.TaggedText.append
-                           #[Lean.Widget.TaggedText.tag
-                               { subexprPos := "/0/1", diffStatus? := none }
-                               (Lean.Widget.TaggedText.append
-                                 #[Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/0/1/0/1", diffStatus? := some "willChange" }
-                                     (Lean.Widget.TaggedText.text "x"),
-                                   Lean.Widget.TaggedText.text " + ",
-                                   Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/0/1/1", diffStatus? := some "willChange" }
-                                     (Lean.Widget.TaggedText.text "z")]),
-                             Lean.Widget.TaggedText.text " = ",
-                             Lean.Widget.TaggedText.tag
-                               { subexprPos := "/1", diffStatus? := none }
-                               (Lean.Widget.TaggedText.append
-                                 #[Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/1/0/1", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.text "z"),
-                                   Lean.Widget.TaggedText.text " + ",
-                                   Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/1/1", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.text "y")])]),
-               isInserted? := some false,
-               isRemoved? := none,
-               hyps := #[{ type := Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.text "Nat"),
-                           names := #["x", "y", "z"],
-                           isInserted? := none,
-                           isRemoved? := none },
-                         { type := Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.append
-                                       #[Lean.Widget.TaggedText.tag
-                                           { subexprPos := "/0/1", diffStatus? := none }
-                                           (Lean.Widget.TaggedText.text "y"),
-                                         Lean.Widget.TaggedText.text " = ",
-                                         Lean.Widget.TaggedText.tag
-                                           { subexprPos := "/1", diffStatus? := none }
-                                           (Lean.Widget.TaggedText.text "x")]),
-                           names := #["h"],
-                           isInserted? := none,
-                           isRemoved? := none }] }] }
-
+{"textDocument": {"uri": "file:///Diff.lean"},
+ "position": {"line": 2, "character": 4}}
+{"goals":
+ [{"type":
+   {"tag":
+    [{"subexprPos": "/", "info": {"p": "1"}},
+     {"append":
+      [{"tag":
+        [{"subexprPos": "/0", "info": {"p": "2"}},
+         {"append":
+          [{"tag":
+            [{"subexprPos": "/0/0/1", "info": {"p": "3"}}, {"text": "x"}]},
+           {"text": " = "},
+           {"tag":
+            [{"subexprPos": "/0/1", "info": {"p": "4"}}, {"text": "x"}]}]}]},
+       {"text": " → "},
+       {"tag":
+        [{"subexprPos": "/1", "info": {"p": "5"}}, {"text": "True"}]}]}]},
+   "mvarId": "[anonymous]",
+   "isInserted": false,
+   "hyps":
+   [{"type":
+     {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "Nat"}]},
+     "names": ["x"],
+     "isInserted": true,
+     "fvarIds": []}],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "6"}}]}
+{"textDocument": {"uri": "file:///Diff.lean"},
+ "position": {"line": 4, "character": 2}}
+{"goals":
+ [{"type":
+   {"tag":
+    [{"subexprPos": "/", "info": {"p": "1"}},
+     {"append":
+      [{"tag":
+        [{"subexprPos": "/0", "info": {"p": "2"}, "diffStatus": "willDelete"},
+         {"append":
+          [{"tag":
+            [{"subexprPos": "/0/0/1", "info": {"p": "3"}}, {"text": "x"}]},
+           {"text": " = "},
+           {"tag":
+            [{"subexprPos": "/0/1", "info": {"p": "4"}}, {"text": "x"}]}]}]},
+       {"text": " → "},
+       {"tag":
+        [{"subexprPos": "/1", "info": {"p": "5"}}, {"text": "True"}]}]}]},
+   "mvarId": "[anonymous]",
+   "isInserted": false,
+   "hyps":
+   [{"type":
+     {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "Nat"}]},
+     "names": ["x"],
+     "fvarIds": []}],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "6"}}]}
+{"textDocument": {"uri": "file:///Diff.lean"},
+ "position": {"line": 9, "character": 2}}
+{"goals":
+ [{"type":
+   {"tag":
+    [{"subexprPos": "/", "info": {"p": "0"}},
+     {"append":
+      [{"text": "∀ ("},
+       {"tag": [{"subexprPos": "/", "info": {"p": "1"}}, {"text": "x"}]},
+       {"text": " : "},
+       {"tag":
+        [{"subexprPos": "/0", "info": {"p": "2"}, "diffStatus": "willDelete"},
+         {"text": "Nat"}]},
+       {"text": "), "},
+       {"tag":
+        [{"subexprPos": "/1", "info": {"p": "3"}},
+         {"append":
+          [{"tag":
+            [{"subexprPos": "/1/0",
+              "info": {"p": "4"},
+              "diffStatus": "willDelete"},
+             {"append":
+              [{"tag":
+                [{"subexprPos": "/1/0/0/1", "info": {"p": "5"}},
+                 {"text": "x"}]},
+               {"text": " = "},
+               {"tag":
+                [{"subexprPos": "/1/0/1", "info": {"p": "6"}},
+                 {"text": "x"}]}]}]},
+           {"text": " → "},
+           {"tag":
+            [{"subexprPos": "/1/1", "info": {"p": "7"}},
+             {"text": "True"}]}]}]}]}]},
+   "mvarId": "[anonymous]",
+   "isInserted": false,
+   "hyps": [],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "8"}}]}
+{"textDocument": {"uri": "file:///Diff.lean"},
+ "position": {"line": 15, "character": 5}}
+{"goals":
+ [{"type":
+   {"tag": [{"subexprPos": "/", "info": {"p": "11"}}, {"text": "True"}]},
+   "mvarId": "[anonymous]",
+   "isInserted": false,
+   "hyps":
+   [{"type":
+     {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "Sort u_1"}]},
+     "names": ["α"],
+     "isType": true,
+     "fvarIds": []},
+    {"type":
+     {"tag": [{"subexprPos": "/", "info": {"p": "1"}}, {"text": "Nat"}]},
+     "names": ["x", "y"],
+     "fvarIds": []},
+    {"type":
+     {"tag":
+      [{"subexprPos": "/", "info": {"p": "2"}},
+       {"append":
+        [{"text": "∀ ("},
+         {"tag": [{"subexprPos": "/", "info": {"p": "3"}}, {"text": "a"}]},
+         {"text": " : "},
+         {"tag": [{"subexprPos": "/0", "info": {"p": "4"}}, {"text": "α"}]},
+         {"text": "), "},
+         {"tag":
+          [{"subexprPos": "/1", "info": {"p": "5"}},
+           {"append":
+            [{"tag":
+              [{"subexprPos": "/1/0/1", "info": {"p": "6"}}, {"text": "x"}]},
+             {"text": " = "},
+             {"tag":
+              [{"subexprPos": "/1/1",
+                "info": {"p": "7"},
+                "diffStatus": "willChange"},
+               {"text": "y"}]}]}]}]}]},
+     "names": ["f"],
+     "fvarIds": []},
+    {"type":
+     {"tag":
+      [{"subexprPos": "/", "info": {"p": "8"}},
+       {"append":
+        [{"tag": [{"subexprPos": "/0/1", "info": {"p": "9"}}, {"text": "y"}]},
+         {"text": " = "},
+         {"tag":
+          [{"subexprPos": "/1", "info": {"p": "10"}}, {"text": "x"}]}]}]},
+     "names": ["h"],
+     "fvarIds": []}],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "12"}}]}
+{"textDocument": {"uri": "file:///Diff.lean"},
+ "position": {"line": 20, "character": 9}}
+{"goals":
+ [{"type":
+   {"tag": [{"subexprPos": "/", "info": {"p": "11"}}, {"text": "True"}]},
+   "mvarId": "[anonymous]",
+   "isInserted": false,
+   "hyps":
+   [{"type":
+     {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "Sort u_1"}]},
+     "names": ["α"],
+     "isType": true,
+     "fvarIds": []},
+    {"type":
+     {"tag": [{"subexprPos": "/", "info": {"p": "1"}}, {"text": "Nat"}]},
+     "names": ["x", "y"],
+     "fvarIds": []},
+    {"type":
+     {"tag":
+      [{"subexprPos": "/", "info": {"p": "2"}},
+       {"append":
+        [{"text": "∀ ("},
+         {"tag": [{"subexprPos": "/", "info": {"p": "3"}}, {"text": "a"}]},
+         {"text": " : "},
+         {"tag": [{"subexprPos": "/0", "info": {"p": "4"}}, {"text": "α"}]},
+         {"text": "), "},
+         {"tag":
+          [{"subexprPos": "/1", "info": {"p": "5"}},
+           {"append":
+            [{"tag":
+              [{"subexprPos": "/1/0/1", "info": {"p": "6"}}, {"text": "x"}]},
+             {"text": " = "},
+             {"tag":
+              [{"subexprPos": "/1/1",
+                "info": {"p": "7"},
+                "diffStatus": "wasChanged"},
+               {"text": "x"}]}]}]}]}]},
+     "names": ["f"],
+     "fvarIds": []},
+    {"type":
+     {"tag":
+      [{"subexprPos": "/", "info": {"p": "8"}},
+       {"append":
+        [{"tag": [{"subexprPos": "/0/1", "info": {"p": "9"}}, {"text": "y"}]},
+         {"text": " = "},
+         {"tag":
+          [{"subexprPos": "/1", "info": {"p": "10"}}, {"text": "x"}]}]}]},
+     "names": ["h"],
+     "fvarIds": []}],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "12"}}]}
+{"textDocument": {"uri": "file:///Diff.lean"},
+ "position": {"line": 25, "character": 2}}
+{"goals":
+ [{"type":
+   {"tag":
+    [{"subexprPos": "/", "info": {"p": "0"}, "diffStatus": "willChange"},
+     {"append":
+      [{"tag": [{"subexprPos": "/0/1", "info": {"p": "1"}}, {"text": "True"}]},
+       {"text": " ∧ "},
+       {"tag":
+        [{"subexprPos": "/1", "info": {"p": "2"}}, {"text": "True"}]}]}]},
+   "mvarId": "[anonymous]",
+   "isInserted": false,
+   "hyps": [],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "3"}}]}
+{"textDocument": {"uri": "file:///Diff.lean"},
+ "position": {"line": 27, "character": 2}}
+{"goals":
+ [{"userName": "left",
+   "type": {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "True"}]},
+   "mvarId": "[anonymous]",
+   "isRemoved": true,
+   "hyps": [],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "1"}},
+  {"userName": "right",
+   "type": {"tag": [{"subexprPos": "/", "info": {"p": "2"}}, {"text": "True"}]},
+   "mvarId": "[anonymous]",
+   "hyps": [],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "3"}}]}
+{"textDocument": {"uri": "file:///Diff.lean"},
+ "position": {"line": 29, "character": 2}}
+{"goals":
+ [{"userName": "right",
+   "type": {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "True"}]},
+   "mvarId": "[anonymous]",
+   "isRemoved": true,
+   "hyps": [],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "1"}}]}
+{"textDocument": {"uri": "file:///Diff.lean"},
+ "position": {"line": 33, "character": 6}}
+{"goals":
+ [{"type":
+   {"tag":
+    [{"subexprPos": "/", "info": {"p": "4"}},
+     {"append":
+      [{"tag":
+        [{"subexprPos": "/0/1", "info": {"p": "5"}},
+         {"append":
+          [{"tag":
+            [{"subexprPos": "/0/1/0/1",
+              "info": {"p": "6"},
+              "diffStatus": "willChange"},
+             {"text": "x"}]},
+           {"text": " + "},
+           {"tag":
+            [{"subexprPos": "/0/1/1",
+              "info": {"p": "7"},
+              "diffStatus": "willChange"},
+             {"text": "z"}]}]}]},
+       {"text": " = "},
+       {"tag":
+        [{"subexprPos": "/1", "info": {"p": "8"}},
+         {"append":
+          [{"tag":
+            [{"subexprPos": "/1/0/1", "info": {"p": "9"}}, {"text": "z"}]},
+           {"text": " + "},
+           {"tag":
+            [{"subexprPos": "/1/1", "info": {"p": "10"}},
+             {"text": "y"}]}]}]}]}]},
+   "mvarId": "[anonymous]",
+   "isInserted": false,
+   "hyps":
+   [{"type":
+     {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "Nat"}]},
+     "names": ["x", "y", "z"],
+     "fvarIds": []},
+    {"type":
+     {"tag":
+      [{"subexprPos": "/", "info": {"p": "1"}},
+       {"append":
+        [{"tag": [{"subexprPos": "/0/1", "info": {"p": "2"}}, {"text": "y"}]},
+         {"text": " = "},
+         {"tag": [{"subexprPos": "/1", "info": {"p": "3"}}, {"text": "x"}]}]}]},
+     "names": ["h"],
+     "fvarIds": []}],
+   "goalPrefix": "⊢ ",
+   "ctx": {"p": "11"}}]}

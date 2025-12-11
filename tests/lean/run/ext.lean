@@ -39,7 +39,7 @@ example (f g : Nat × Nat → Nat) : f = g := by
 
 -- Check that we generate a warning if there are too many patterns.
 /--
-warning: `ext` did not consume the patterns: [j]
+warning: `ext` did not consume the patterns `j`
 
 Note: This linter can be disabled with `set_option linter.unusedRCasesPattern false`
 -/
@@ -151,9 +151,9 @@ More informative error (issue #4758)
 -/
 
 /--
-error: Failed to generate an 'ext_iff' theorem from 'weird_prod_ext': argument f is not a proof, which is not supported for arguments after p and q
+error: Failed to generate an `ext_iff` theorem from `weird_prod_ext`: Argument `f` is not a proof, but all arguments after `p` and `q` must be proofs
 
-Try '@[ext (iff := false)]' to prevent generating an 'ext_iff' theorem.
+Hint: Try `@[ext (iff := false)]` to prevent generating an `ext_iff` theorem.
 ---
 warning: declaration uses 'sorry'
 -/
@@ -165,9 +165,9 @@ theorem weird_prod_ext (p q : α × β)
   p = q := sorry
 
 /--
-error: Failed to generate an 'ext_iff' theorem from 'ext'': argument h1 is depended upon, which is not supported for arguments after p and q
+error: Failed to generate an `ext_iff` theorem from `ext'`: Argument `h1` is depended upon by a subsequent argument, which is not supported for arguments after `p` and `q`
 
-Try '@[ext (iff := false)]' to prevent generating an 'ext_iff' theorem.
+Hint: Try `@[ext (iff := false)]` to prevent generating an `ext_iff` theorem.
 -/
 #guard_msgs in
 @[ext]

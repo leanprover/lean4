@@ -3,25 +3,30 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
+public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind.Util
-import Lean.Util.PtrSet
-import Lean.Meta.Transform
-import Lean.Meta.Basic
-import Lean.Meta.InferType
 import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.Util
-
+public section
 namespace Lean.Meta.Grind
 
-private abbrev M := StateRefT (Std.HashMap ExprPtr Expr) MetaM
+private abbrev M := StateRefT (Std.HashMap ExprPtr Expr) GrindM
 
 def isMarkedSubsingletonConst (e : Expr) : Bool := Id.run do
   let .const declName _ := e | false
   return declName == ``Grind.nestedProof || declName == ``Grind.nestedDecidable
 
 def isMarkedSubsingletonApp (e : Expr) : Bool :=
-  isMarkedSubsingletonConst e.getAppFn
+  /-
+  Remark: we must check `e`s arity because we may have over-applied `Grind.nestedProof` applications.
+  These over-applied applications have to be re-marked. Here is an example from test `grind_over_applied_nestedProof.lean`
+  ```
+  ‹∀ (a : Option α), x = some a → ∀ (a_2 : α), a = some a_2 → p a_2› val (join_pmap_eq_pmap_join._proof_1_2 val h_1))
+  ```
+  -/
+  isMarkedSubsingletonConst e.getAppFn && e.getAppNumArgs == 2
 
 /-- Returns `some p` if `e` is of the form `Decidable p` -/
 private def isDecidable (e : Expr) : MetaM (Option Expr) := do
@@ -35,7 +40,7 @@ Recall that the congruence closure module has special support for them.
 -/
 -- TODO: consider other subsingletons in the future? We decided to not support them to avoid the overhead of
 -- synthesizing `Subsingleton` instances.
-partial def markNestedSubsingletons (e : Expr) : MetaM Expr := do
+partial def markNestedSubsingletons (e : Expr) : GrindM Expr := do profileitM Exception "grind mark subsingleton" (← getOptions) do
   visit e |>.run' {}
 where
   visit (e : Expr) : M Expr := do
@@ -87,6 +92,10 @@ where
 
   preprocess (e : Expr) : M Expr := do
     /-
+    **Note**: We must use `instantiateMVars` here because this function is called using the result of `inferType`.
+    -/
+    let e ← instantiateMVars e
+    /-
     We must unfold reducible constants occurring in `prop` because the congruence closure
     module in `grind` assumes they have been expanded.
     See `grind_mark_nested_proofs_bug.lean` for an example.
@@ -102,7 +111,7 @@ where
     let e ← foldProjs e
     normalizeLevels e
 
-def markNestedProof (e : Expr) : M Expr := do
+private def markNestedProof (e : Expr) : M Expr := do
   let prop ← inferType e
   let prop ← markNestedSubsingletons.preprocess prop
   return mkApp2 (mkConst ``Grind.nestedProof) prop e
@@ -110,7 +119,7 @@ def markNestedProof (e : Expr) : M Expr := do
 /--
 Given a proof `e`, mark it with `Lean.Grind.nestedProof`
 -/
-def markProof (e : Expr) : MetaM Expr := do
+def markProof (e : Expr) : GrindM Expr := do
   if e.isAppOf ``Grind.nestedProof then
     return e -- `e` is already marked
   else

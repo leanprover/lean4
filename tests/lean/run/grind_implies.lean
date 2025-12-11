@@ -1,10 +1,11 @@
+module
 set_option trace.grind.eqc true
 set_option trace.grind.internalize true
 
 /--
-trace: [grind.internalize] p → q
-[grind.internalize] p
-[grind.internalize] q
+trace: [grind.internalize] [0] p
+[grind.internalize] [0] q
+[grind.internalize] [0] p → q
 [grind.eqc] (p → q) = True
 [grind.eqc] p = True
 [grind.eqc] (p → q) = q
@@ -15,9 +16,9 @@ example (p q : Prop) : (p → q) → p → q := by
   grind
 
 /--
-trace: [grind.internalize] p → q
-[grind.internalize] p
-[grind.internalize] q
+trace: [grind.internalize] [0] p
+[grind.internalize] [0] q
+[grind.internalize] [0] p → q
 [grind.eqc] (p → q) = True
 [grind.eqc] q = False
 [grind.eqc] p = False
@@ -28,12 +29,12 @@ example (p q : Prop) : (p → q) → ¬q → ¬p := by
   grind
 
 /--
-trace: [grind.internalize] (p → q) = r
-[grind.internalize] Prop
-[grind.internalize] p → q
-[grind.internalize] p
-[grind.internalize] q
-[grind.internalize] r
+trace: [grind.internalize] [0] r
+[grind.internalize] [0] p
+[grind.internalize] [0] q
+[grind.internalize] [0] (p → q) = r
+[grind.internalize] [0] Prop
+[grind.internalize] [0] p → q
 [grind.eqc] ((p → q) = r) = True
 [grind.eqc] (p → q) = r
 [grind.eqc] p = False
@@ -46,12 +47,12 @@ example (p q : Prop) : (p → q) = r → ¬p → r := by
 
 
 /--
-trace: [grind.internalize] (p → q) = r
-[grind.internalize] Prop
-[grind.internalize] p → q
-[grind.internalize] p
-[grind.internalize] q
-[grind.internalize] r
+trace: [grind.internalize] [0] r
+[grind.internalize] [0] p
+[grind.internalize] [0] q
+[grind.internalize] [0] (p → q) = r
+[grind.internalize] [0] Prop
+[grind.internalize] [0] p → q
 [grind.eqc] ((p → q) = r) = True
 [grind.eqc] (p → q) = r
 [grind.eqc] q = True
@@ -63,12 +64,12 @@ example (p q : Prop) : (p → q) = r → q → r := by
   grind
 
 /--
-trace: [grind.internalize] (p → q) = r
-[grind.internalize] Prop
-[grind.internalize] p → q
-[grind.internalize] p
-[grind.internalize] q
-[grind.internalize] r
+trace: [grind.internalize] [0] r
+[grind.internalize] [0] p
+[grind.internalize] [0] q
+[grind.internalize] [0] (p → q) = r
+[grind.internalize] [0] Prop
+[grind.internalize] [0] p → q
 [grind.eqc] ((p → q) = r) = True
 [grind.eqc] (p → q) = r
 [grind.eqc] q = False
@@ -81,12 +82,12 @@ example (p q : Prop) : (p → q) = r → ¬q → r → ¬p := by
   grind
 
 /--
-trace: [grind.internalize] (p → q) = r
-[grind.internalize] Prop
-[grind.internalize] p → q
-[grind.internalize] p
-[grind.internalize] q
-[grind.internalize] r
+trace: [grind.internalize] [0] r
+[grind.internalize] [0] p
+[grind.internalize] [0] q
+[grind.internalize] [0] (p → q) = r
+[grind.internalize] [0] Prop
+[grind.internalize] [0] p → q
 [grind.eqc] ((p → q) = r) = True
 [grind.eqc] (p → q) = r
 [grind.eqc] q = False

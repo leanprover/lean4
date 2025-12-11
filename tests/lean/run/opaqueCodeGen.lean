@@ -13,7 +13,7 @@ opaque f : Nat → Nat :=
 
 /--
 trace: [Compiler.result] size: 0
-    def g a._@.opaqueCodeGen._hyg.1 a._@.opaqueCodeGen._hyg.2 : Nat :=
+    def g a._@._internal._hyg.1 a._@._internal._hyg.2 : Nat :=
       extern
 -/
 #guard_msgs in

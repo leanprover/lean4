@@ -1,3 +1,5 @@
+module
+public section
 opaque f : Nat → Nat
 
 @[grind] theorem fthm : f (f x) = f x := sorry

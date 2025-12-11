@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.ReplaceExpr
+public import Lean.Util.ReplaceExpr
+
+public section
 
 namespace Lean.Expr
 

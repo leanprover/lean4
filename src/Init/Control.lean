@@ -16,5 +16,3 @@ public import Init.Control.Option
 public import Init.Control.Lawful
 public import Init.Control.StateCps
 public import Init.Control.ExceptCps
-
-public section

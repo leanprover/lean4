@@ -3,9 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.Basic
-import Lean.Compiler.LCNF.Types
+public import Lean.Compiler.LCNF.Basic
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace FixedParams
@@ -78,7 +81,7 @@ abbrev abort : FixParamM α := do
   throw ()
 
 def evalFVar (fvarId : FVarId) : FixParamM AbsValue := do
-  let some val := (← read).assignment.find? fvarId | return .top
+  let some val := (← read).assignment.get? fvarId | return .top
   return val
 
 def evalArg (arg : Arg) : FixParamM AbsValue := do
@@ -109,7 +112,7 @@ partial def isEquivalentFunDecl? (decl : FunDecl) : FixParamM (Option Nat) := do
   if args.size != decl.params.size then return none
   let .return retFVarId := k | return none
   if retFVarId != fvarId then return none
-  let some (.val funIdx) := (← read).assignment.find? funFvarId | return none
+  let some (.val funIdx) := (← read).assignment.get? funFvarId | return none
   for h : i in [:decl.params.size] do
     let param := decl.params[i]
     -- TODO: Eliminate this dynamic bounds check.
@@ -138,10 +141,10 @@ partial def evalApp (declName : Name) (args : Array Arg) : FixParamM Unit := do
     -- Recursive call to the function being analyzed
     for h : i in *...main.params.size do
       if _h : i < args.size then
-        have : i < main.params.size := h.2
+        have : i < main.params.size := h
         let param := main.params[i]
         let val ← evalArg args[i]
-        unless val == .val i || (val == .erased && param.type.isErased) do
+        unless val == .val i || val == .erased do
           -- Found non fixed argument
           -- Remark: if the argument is erased and the type of the parameter is erased we assume it is a fixed "propositonal" parameter.
           modify fun s => { s with fixed := s.fixed.set! i false }

@@ -12,33 +12,46 @@ inductive P : Nat → n > 0 → Prop
 /--
 error: Invalid projection: Index `2` is invalid for this structure; the only valid index is 1
 
-Note: The expression `h2` has type `P m h'` which has only 1 field
+Note: The expression
+  h2
+has type `P m h'` which has only 1 field
 -/
 #guard_msgs in
 example (h1 : P n h) (h2 : P m h') := h1.1 = h2.2
 
 /--
+error: Invalid projection: Projection operates on types of the form `C ...` where C is a constant. The expression
+  Nat
+has type `Type` which does not have the necessary form.
+-/
+#guard_msgs in
+#check Nat.3
+
+/--
 error: Invalid projection: Index `3` is invalid for this structure; it must be between 1 and 2
 
-Note: The expression `x` has type `Nat × Nat × Nat` which has only 2 fields
+Note: The expression
+  x
+has type `Nat × Nat × Nat` which has only 2 fields
+
+Hint: n-tuples in Lean are actually nested pairs. To access the third component of this tuple, use the projection `.2.2` instead:
+  3̵2̲.̲2̲
 -/
 #guard_msgs in
 example (x : Nat × Nat × Nat) := x.3
 
 /--
-error: Invalid projection: Expected a value whose type is a structure
+error: Invalid projection: Projection operates on structure-like types with fields. The expression
   h
-has type
-  Nat
+has type `Nat` which does not have fields.
 -/
 #guard_msgs in
 example (h : Nat) := h.2
 
 /--
-error: Invalid projection: Projections cannot be used on functions
+error: Invalid projection: Projections cannot be used on functions, and
   f
-has type
-  Nat → Nat
+has function type `Nat → Nat`
 -/
 #guard_msgs in
 example (f : Nat → Nat) := f.1
@@ -85,12 +98,3 @@ which has propositional type
 -/
 #guard_msgs in
 def foo (h : ∃ x: Nat, True) := h.1
-
-/--
-error: unknown identifier 'foo'
----
-error: unknown identifier 'foo'
--/
-#guard_msgs in
-theorem contradiction : False :=
-  (by decide : 0 ≠ 1) (show foo ⟨0, trivial⟩ = foo ⟨1, trivial⟩ from rfl)

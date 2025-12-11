@@ -1,3 +1,4 @@
+module
 axiom R : Type
 instance : Lean.Grind.CommRing R := sorry
 

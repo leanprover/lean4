@@ -3,8 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.GlobalInstances
+public import Lean.Meta.GlobalInstances
+
+public section
 
 namespace Lean.Meta
 
@@ -54,6 +58,7 @@ def getUnfoldableConstNoEx? (constName : Name) : MetaM (Option ConstantInfo) := 
   match (← getEnv).find? constName with
   | some (info@(.thmInfo _))  => getTheoremInfo info
   | some (info@(.defnInfo _)) => if (← canUnfold info) then return info else return none
+  | some (.axiomInfo _)       => recordUnfoldAxiom constName; return none
   | _                         => return none
 
 end Meta

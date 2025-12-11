@@ -3,10 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Data.Name
-import Lean.Data.Options
-import Lean.Data.Format
+public import Lean.Data.Format
+
+public section
 
 namespace Lean
 /-! Remark: `MonadQuotation` class is part of the `Init` package and loaded by default since it is used in the builtin command `macro`. -/
@@ -35,7 +37,7 @@ instance : MonadQuotation Unhygienic where
   getRef              := return (← read).ref
   withRef             := fun ref => withReader ({ · with ref := ref })
   getCurrMacroScope   := return (← read).scope
-  getMainModule       := pure `UnhygienicMain
+  getContext          := pure `UnhygienicMain
   withFreshMacroScope := fun x => do
     let fresh ← modifyGet fun n => (n, n + 1)
     withReader ({ · with scope := fresh}) x
@@ -67,7 +69,6 @@ private def mkInaccessibleUserName (unicode : Bool) : Name → Name
 
 register_builtin_option pp.sanitizeNames : Bool := {
   defValue := true
-  group    := "pp"
   descr    := "add suffix to shadowed/inaccessible variables when pretty printing"
 }
 

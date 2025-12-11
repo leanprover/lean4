@@ -3,13 +3,14 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Meta.Eqns
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Rfl
-import Lean.Meta.Tactic.Intro
-import Lean.Meta.Tactic.Apply
-import Lean.DefEqAttrib
+public import Lean.Meta.Eqns
+public import Lean.Meta.Tactic.Rfl
+public import Lean.Meta.Tactic.Intro
+
+public section
 
 namespace Lean.Meta
 

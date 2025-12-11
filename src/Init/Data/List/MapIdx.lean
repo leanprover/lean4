@@ -7,10 +7,7 @@ Authors: Kim Morrison, Mario Carneiro
 module
 
 prelude
-public import Init.Data.Array.Lemmas
 public import Init.Data.List.Nat.Range
-public import Init.Data.List.OfFn
-public import Init.Data.Fin.Lemmas
 public import Init.Data.Option.Attach
 
 public section
@@ -61,7 +58,7 @@ proof that the index is valid.
 `List.mapIdxM` is a variant that does not provide the function with evidence that the index is
 valid.
 -/
-@[inline] def mapFinIdxM [Monad m] (as : List α) (f : (i : Nat) → α → (h : i < as.length) → m β) : m (List β) :=
+@[inline, expose] def mapFinIdxM [Monad m] (as : List α) (f : (i : Nat) → α → (h : i < as.length) → m β) : m (List β) :=
   go as #[] (by simp)
 where
   /-- Auxiliary for `mapFinIdxM`:
@@ -78,7 +75,7 @@ found, returning the list of results.
 `List.mapFinIdxM` is a variant that additionally provides the function with a proof that the index
 is valid.
 -/
-@[inline] def mapIdxM [Monad m] (f : Nat → α → m β) (as : List α) : m (List β) := go as #[] where
+@[inline, expose] def mapIdxM [Monad m] (f : Nat → α → m β) (as : List α) : m (List β) := go as #[] where
   /-- Auxiliary for `mapIdxM`:
   `mapIdxM.go [a₀, a₁, ...] acc = acc.toList ++ [f acc.size a₀, f (acc.size + 1) a₁, ...]` -/
   @[specialize] go : List α → Array β → m (List β)
@@ -182,8 +179,7 @@ theorem mapFinIdx_eq_zipIdx_map {l : List α} {f : (i : Nat) → α → (h : i <
         f i x (by rw [mk_mem_zipIdx_iff_getElem?, getElem?_eq_some_iff] at m; exact m.1) := by
   apply ext_getElem <;> simp
 
-@[deprecated mapFinIdx_eq_zipIdx_map (since := "2025-01-21")]
-abbrev mapFinIdx_eq_zipWithIndex_map := @mapFinIdx_eq_zipIdx_map
+
 
 @[simp]
 theorem mapFinIdx_eq_nil_iff {l : List α} {f : (i : Nat) → α → (h : i < l.length) → β} :
@@ -220,7 +216,7 @@ theorem mapFinIdx_eq_cons_iff {l : List α} {b : β} {f : (i : Nat) → α → (
   cases l with
   | nil => simp
   | cons x l' =>
-    simp only [mapFinIdx_cons, cons.injEq, 
+    simp only [mapFinIdx_cons, cons.injEq,
       ]
     constructor
     · rintro ⟨rfl, rfl⟩
@@ -384,8 +380,7 @@ theorem mapIdx_eq_zipIdx_map {l : List α} {f : Nat → α → β} :
   simp only [getElem?_mapIdx, Option.map, getElem?_map, getElem?_zipIdx]
   split <;> simp
 
-@[deprecated mapIdx_eq_zipIdx_map (since := "2025-01-21")]
-abbrev mapIdx_eq_enum_map := @mapIdx_eq_zipIdx_map
+
 
 @[simp, grind =]
 theorem mapIdx_cons {l : List α} {a : α} :
@@ -506,7 +501,7 @@ theorem mapIdx_eq_mapIdx_iff {l : List α} :
     (mapIdx f l).getLast? = (getLast? l).map (f (l.length - 1)) := by
   cases l
   · simp
-  · rw [getLast?_eq_getLast, getLast?_eq_getLast, getLast_mapIdx] <;> simp
+  · rw [getLast?_eq_some_getLast, getLast?_eq_some_getLast, getLast_mapIdx] <;> simp
 
 @[simp, grind =] theorem mapIdx_mapIdx {l : List α} {f : Nat → α → β} {g : Nat → β → γ} :
     (l.mapIdx f).mapIdx g = l.mapIdx (fun i => g i ∘ f i) := by

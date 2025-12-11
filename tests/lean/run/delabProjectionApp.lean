@@ -184,3 +184,36 @@ set_option pp.notation false in
 set_option pp.notation false in set_option pp.fieldNotation.generalized false in
 /-- info: ∀ {α : Type} (s t : MySet α), MySet.MySubset s t : Prop -/
 #guard_msgs in #check ∀ {α : Type} (s t : MySet α), s ⊆⊆ t
+
+/-!
+Private definition on public type.
+-/
+private def Char.MyIsA (c : Char) : Prop := c = 'A'
+
+/-- info: ∀ (c : Char), c.MyIsA : Prop -/
+#guard_msgs in #check ∀ (c : Char), c.MyIsA
+
+/-!
+Public definition on public type.
+-/
+def Char.MyIsA' (c : Char) : Prop := c = 'A'
+
+/-- info: ∀ (c : Char), c.MyIsA' : Prop -/
+#guard_msgs in #check ∀ (c : Char), c.MyIsA'
+
+/-!
+Private definition on private type.
+-/
+private structure Char'
+private def Char'.MyIsA (_ : Char') : Prop := true
+
+/-- info: ∀ (c : Char'), c.MyIsA : Prop -/
+#guard_msgs in #check ∀ (c : Char'), c.MyIsA
+
+/-!
+Public definition on private type.
+-/
+def Char'.MyIsA' (_ : Char') : Prop := true
+
+/-- info: ∀ (c : Char'), c.MyIsA' : Prop -/
+#guard_msgs in #check ∀ (c : Char'), c.MyIsA'

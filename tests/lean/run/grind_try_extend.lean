@@ -1,15 +1,20 @@
-import Lean
+module
+public import Lean
+public meta import Lean.Elab.Tactic
 
 open Lean Meta Elab Tactic Try
 
 -- Install a `TryTactic` handler for `assumption`
-@[try_tactic assumption]
-def evalTryApply : TryTactic := fun tac => do
+@[local try_tactic assumption]
+meta def evalTryApply : TryTactic := fun tac => do
   -- We just use the default implementation, but return a different tactic.
   evalAssumption tac
   `(tactic| (trace "worked"; assumption))
 
-/-- info: Try this: · trace "worked"; assumption -/
+/--
+info: Try this:
+  [apply] · trace "worked"; assumption
+-/
 #guard_msgs (info) in
 example (h : False) : False := by
   try? (max := 1) -- at most one solution
@@ -19,12 +24,12 @@ example (h : False) : False := by
 elab stx:"my_try?" : tactic => do
   -- Things to try
   let toTry ← `(tactic| attempt_all | assumption | apply True | rfl)
-  evalAndSuggest stx toTry
+  evalAndSuggest stx toTry (originalMaxHeartbeats := 10^8)
 
 /--
 info: Try these:
-• · trace "worked"; assumption
-• rfl
+  [apply] · trace "worked"; assumption
+  [apply] rfl
 -/
 #guard_msgs (info) in
 example (a : Nat) (h : a = a) : a = a := by

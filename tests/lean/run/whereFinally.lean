@@ -1,3 +1,7 @@
+module
+
+public section
+
 example (i j : Nat) (xs : Array Nat) (hi : i < xs.size) (hj: j < xs.size) :=
   match i with
   | 0 => x
@@ -113,3 +117,11 @@ def hole_decreasing_does_not_exist (i : Nat) (xs : Array Nat) (h : i < xs.size) 
 where finally
   case hole => exact h
 | decreasing => skip
+
+/-! `where finally` should open a private scope. -/
+
+private theorem priv : True := .intro
+
+@[expose] def pub : True := ?_
+where finally
+  exact priv

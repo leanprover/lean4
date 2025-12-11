@@ -90,7 +90,7 @@ local macro "repeat_mul" n:num "with" x:term  : term =>
 This test showcases that the runtime of `bv_ac_nf` is not a bottleneck:
 * Testing with 100 as the repetition amount runs in about 200ms with `skipKernelTC` set,
     or ~3.3 seconds without (c.q. 2.3s for `ac_rfl`), and
-* Putting in 125 for the repetition amount wil give a `maximum recursion depth has been reached`
+* Putting in 125 for the repetition amount will give a `maximum recursion depth has been reached`
     error thrown by simp anyway, so the runtime is not a limiting factor to begin with.
 -/
 set_option debug.skipKernelTC true in

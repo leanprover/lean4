@@ -1,3 +1,4 @@
+module
 example {x y : Nat} (_ : x + y > 10) (_ : x < 5) (_ : y < 5) : False := by grind
 example {x y : Nat} (_ : x + y > 10) (_ : 2 * x < 11) (_ : y < 5) : False := by grind
 example {x y : Nat} (_ : 2 * x + 4 * y = 5) : False := by grind

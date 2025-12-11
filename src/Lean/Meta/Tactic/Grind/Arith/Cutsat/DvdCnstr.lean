@@ -3,14 +3,20 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Simp.Arith.Int
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
+import Init.Data.Int.OfNat
+import Init.Grind.Propagator
+import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
-
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
+import Lean.Meta.NatInstTesters
+public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 def DvdCnstr.norm (c : DvdCnstr) : DvdCnstr :=
@@ -34,7 +40,7 @@ def DvdCnstr.applyEq (a : Int) (x : Var) (c₁ : EqCnstr) (b : Int) (c₂ : DvdC
   let q := c₂.p
   let d := Int.ofNat (a * c₂.d).natAbs
   let p := (q.mul a |>.combine (p.mul (-b)))
-  trace[grind.debug.cutsat.subst] "{← getVar x}, {← c₁.pp}, {← c₂.pp}"
+  trace[grind.debug.lia.subst] "{← getVar x}, {← c₁.pp}, {← c₂.pp}"
   return { d, p, h := .subst x c₁ c₂ }
 
 partial def DvdCnstr.applySubsts (c : DvdCnstr) : GoalM DvdCnstr := withIncRecDepth do
@@ -46,14 +52,14 @@ partial def DvdCnstr.applySubsts (c : DvdCnstr) : GoalM DvdCnstr := withIncRecDe
 /-- Asserts divisibility constraint. -/
 partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
   if (← inconsistent) then return ()
-  trace[grind.cutsat.assert] "{← c.pp}"
+  trace[grind.lia.assert] "{← c.pp}"
   let c ← c.norm.applySubsts
   if c.isUnsat then
-    trace[grind.cutsat.assert.unsat] "{← c.pp}"
+    trace[grind.lia.assert.unsat] "{← c.pp}"
     setInconsistent (.dvd c)
     return ()
   if c.isTrivial then
-    trace[grind.cutsat.assert.trivial] "{← c.pp}"
+    trace[grind.lia.assert.trivial] "{← c.pp}"
     return ()
   let d₁ := c.d
   let .add a₁ x p₁ := c.p | c.throwUnexpected
@@ -81,7 +87,7 @@ partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
     let elim := { d, p := a₂_p₁.combine a₁_p₂, h := .solveElim c c' : DvdCnstr }
     elim.assert
   else
-    trace[grind.cutsat.assert.store] "{← c.pp}"
+    trace[grind.lia.assert.store] "{← c.pp}"
     c.p.updateOccs
     modify' fun s => { s with dvds := s.dvds.set x (some c) }
 
@@ -97,30 +103,33 @@ def propagateIntDvd (e : Expr) : GoalM Unit := do
   let_expr Dvd.dvd _ inst a b ← e | return ()
   unless (← isInstDvdInt inst) do return ()
   let some d ← getIntValue? a
-    | reportIssue! "non-linear divisibility constraint found{indentExpr e}"
-      return ()
+    | reportIssue! "non-linear divisibility constraint found{indentExpr e}"; return ()
   if (← isEqTrue e) then
     let p ← toPoly b
     let c := { d, p, h := .core e : DvdCnstr }
     c.assertCore
   else if (← isEqFalse e) then
-    pushNewFact <| mkApp4 (mkConst ``Int.Linear.of_not_dvd) a b reflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
+    pushNewFact <| mkApp4 (mkConst ``Int.Linear.of_not_dvd) a b eagerReflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
 
 def propagateNatDvd (e : Expr) : GoalM Unit := do
-  let some (d, b) ← Int.OfNat.toIntDvd? e | return ()
-  let gen ← getGeneration e
-  let ctx ← getNatVars
-  let b' ← toLinearExpr (← b.denoteAsIntExpr ctx) gen
-  let p := b'.norm
+  let_expr Dvd.dvd _ inst d₀ a := e | return ()
+  unless (← isInstDvdNat inst) do return ()
+  let some d ← getNatValue? d₀
+    | reportIssue! "non-linear divisibility constraint found{indentExpr e}"; return ()
   if (← isEqTrue e) then
-    let c := { d, p, h := .coreNat e d b b' : DvdCnstr }
+    let (d', h₁) ← natToInt d₀
+    let (a', h₂) ← natToInt a
+    let gen ← getGeneration e
+    let e' ← toLinearExpr a' gen
+    let p := e'.norm
+    let thm := mkApp6 (mkConst ``Nat.ToInt.of_dvd) d₀ a d' a' h₁ h₂
+    let c := { d, p, h := .coreOfNat e thm d e' : DvdCnstr }
     c.assertCore
   else if (← isEqFalse e) then
-    let_expr Dvd.dvd _ _ a b ← e | return ()
-    pushNewFact <| mkApp3 (mkConst ``Nat.emod_pos_of_not_dvd) a b (mkOfEqFalseCore e (← mkEqFalseProof e))
+    pushNewFact <| mkApp3 (mkConst ``Nat.emod_pos_of_not_dvd) d₀ a (mkOfEqFalseCore e (← mkEqFalseProof e))
 
 builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do
-  unless (← getConfig).cutsat do return ()
+  unless (← getConfig).lia do return ()
   let_expr Dvd.dvd α _ _ _ ← e | return ()
   if α.isConstOf ``Nat then
     propagateNatDvd e

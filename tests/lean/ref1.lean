@@ -10,7 +10,7 @@ n.forM $ fun i _ => do
 
 def showArrayRef (r : IO.Ref (Array Nat)) : IO Unit := do
 let a ← r.swap ∅;
-a.size.forM (fun i _ => IO.println ("[" ++ toString i ++ "]: " ++ toString (a.get! i)));
+a.size.forM (fun i _ => IO.println ("[" ++ toString i ++ "]: " ++ toString a[i]!));
 discard $ r.swap a;
 pure ()
 

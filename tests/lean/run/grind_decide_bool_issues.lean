@@ -1,3 +1,4 @@
+module
 reset_grind_attrs%
 
 example {P Q : Prop} [Decidable P] [Decidable Q] : (decide P || decide Q) = decide (P ∨ Q) := by grind

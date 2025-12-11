@@ -3,11 +3,18 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joseph Rotella
 -/
+module
+
 prelude
 
-import Lean.Message
-import Lean.EnvExtension
-import Lean.DocString.Links
+public import Lean.Message
+public import Lean.EnvExtension
+public import Lean.DocString.Links
+import Init.Data.String.TakeDrop
+import Init.Data.String.Extra
+import Init.Data.String.Search
+
+public section
 
 namespace Lean
 
@@ -80,18 +87,18 @@ where
   stringContents : Parser String := attempt do
     let escaped := pchar '\\' *> pchar '"'
     let cs ← many (notFollowedBy (pchar '"') *> (escaped <|> any))
-    return String.mk cs.toList
+    return String.ofList cs.toList
 
   /--
   Parses all input up to the next whitespace. If `nonempty` is `true`, fails if there is no input
   prior to the next whitespace.
   -/
   upToWs (nonempty : Bool) : Parser String := fun it =>
-    let it' := it.find fun c => c.isWhitespace
-    if nonempty && it'.pos == it.pos then
-      .error it' "Expected a nonempty string"
+    let it' := (it.2.find? fun (c : Char) => c.isWhitespace).getD it.1.endPos
+    if nonempty && it' == it.2 then
+      .error ⟨_, it'⟩ (.other "Expected a nonempty string")
     else
-      .success it' (it.extract it')
+      .success ⟨_, it'⟩ (it.1.slice! it.2 it').copy
 
   /-- Parses a named attribute, and returns its name and value. -/
   namedAttr : Parser (String × String) := attempt do
@@ -145,10 +152,10 @@ deriving Repr, Inhabited
 
 /-- Creates an iterator for validation from the raw contents of an error explanation. -/
 private def ValidationState.ofSource (input : String) : ValidationState where
-  lines := input.splitOn "\n"
+  lines := input.split '\n'
+    |>.filter (!·.trimAscii.isEmpty)
+    |>.toStringArray
     |>.zipIdx
-    |>.filter (!·.1.trim.isEmpty)
-    |>.toArray
 
 -- Workaround to account for the fact that `Input` expects "EOF" to be a valid position
 private def ValidationState.get (s : ValidationState) :=
@@ -176,7 +183,7 @@ private abbrev ValidationM := Parsec ValidationState
 private def ValidationM.run (p : ValidationM α) (input : String) : Except (Nat × String) α :=
   match p (.ofSource input) with
   | .success _ res => Except.ok res
-  | .error s err  => Except.error (s.getLineNumber, err)
+  | .error s err  => Except.error (s.getLineNumber, toString err)
 
 /--
 Matches `p` as many times as possible, followed by EOF. If `p` cannot be matched prior to the end
@@ -251,9 +258,9 @@ where
     let (_, closing) ← fence numTicks
       <|> fail s!"Missing closing code fence for block with header '{infoString}'"
     -- Validate code block:
-    unless closing.trim.isEmpty do
+    unless closing.trimAscii.isEmpty do
       fail s!"Expected a closing code fence, but found the nonempty info string `{closing}`"
-    let info ← match ErrorExplanation.CodeInfo.parse infoString with
+    let info ← match ErrorExplanation.CodeInfo.parse infoString.copy with
       | .ok i => pure i
       | .error s =>
         fail s
@@ -270,7 +277,7 @@ where
   fence (ticksToClose : Option Nat := none) := attempt do
     let line ← any
     if line.startsWith "```" then
-      let numTicks := line.takeWhile (· == '`') |>.length
+      let numTicks := line.takeWhile (· == '`') |>.utf8ByteSize -- this makes sense because we know the slice consists only of ticks
       match ticksToClose with
       | none => return (numTicks, line.drop numTicks)
       | some n =>
@@ -286,7 +293,7 @@ where
   labelingExampleErrors {α} (header : String) (x : ValidationM α) : ValidationM α := fun s =>
     match x s with
     | res@(.success ..) => res
-    | .error s' msg => .error s' s!"Example '{header}' is malformed: {msg}"
+    | .error s' msg => .error s' (.other s!"Example '{header}' is malformed: {msg}")
 
   /--
   If `line` is a level-`level` header and, if `title?` is non-`none`, its title is `title?`,
@@ -294,11 +301,11 @@ where
   `none` if `line` is not a header of the appropriate form.
   -/
   matchHeader (level : Nat) (title? : Option String) (line : String) : Option String := do
-    let octsEndPos := line.nextWhile (· == '#') 0
+    let octsEndPos := String.Pos.Raw.nextWhile line (· == '#') 0
     guard (octsEndPos.byteIdx == level)
-    guard (line.get octsEndPos == ' ')
-    let titleStartPos := line.next octsEndPos
-    let title := Substring.mk line titleStartPos line.endPos |>.toString
+    guard (octsEndPos.get line == ' ')
+    let titleStartPos := octsEndPos.next line
+    let title := Substring.Raw.mk line titleStartPos line.rawEndPos |>.toString
     let titleMatches : Bool := match title? with
       | some expectedTitle => title == expectedTitle
       | none => true

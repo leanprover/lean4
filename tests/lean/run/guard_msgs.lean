@@ -3,16 +3,16 @@ import Lean.Elab.Command
 set_option guard_msgs.diff false
 
 #guard_msgs in
-/-- error: unknown identifier 'x' -/
+/-- error: Unknown identifier `x` -/
 #guard_msgs in
 example : α := x
 
 /--
-error: unknown identifier 'x'
+error: Unknown identifier `x`
 ---
 error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
-error: unknown identifier 'x'
+error: Unknown identifier `x`
 -/
 #guard_msgs in
 #guard_msgs in
@@ -42,19 +42,19 @@ example : α := sorry
 example : α := sorry
 
 #guard_msgs in
-/-- error: unknown identifier 'x' -/
+/-- error: Unknown identifier `x` -/
 #guard_msgs(error, drop warning) in
 example : α := x
 
 #guard_msgs in
 /--
-error: failed to synthesize
+error: failed to synthesize instance of type class
   OfNat α 22
 numerals are polymorphic in Lean, but the numeral `22` cannot be used in a context where the expected type is
   α
 due to the absence of the instance above
 
-Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
 #guard_msgs(error) in
 example : α := 22
@@ -348,3 +348,54 @@ run_meta trace[debug] "a trace"
 run_meta trace[debug] "a trace"
 
 end Trace
+
+section Positions
+
+open Lean
+
+/--
+@ +1:0...7
+info: foo
+-/
+#guard_msgs (positions := true) in
+run_cmd logInfo m!"foo"
+
+syntax logRange := &"from_here" &"to_here"
+syntax "#log" (&"here" <|> logRange) : command
+
+elab_rules : command
+| `(#log here%$tk)     => logInfoAt tk "foo"
+| `(#log $tk:logRange) => logInfoAt tk "foo"
+
+/--
+@ +0:40...44
+info: foo
+-/
+#guard_msgs (positions := true) in #log here
+
+/--
+@ +3:7...11
+info: foo
+-/
+#guard_msgs (positions := true) in
+
+
+#log   here
+
+/--
+@ +3:7...+4:9
+info: foo
+-/
+#guard_msgs (positions := true) in
+
+
+#log   from_here
+  to_here
+
+/--
+info: foo
+-/
+#guard_msgs (positions := false) in
+run_cmd logInfo m!"foo"
+
+end Positions

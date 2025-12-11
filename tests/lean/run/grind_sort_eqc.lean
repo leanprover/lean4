@@ -1,3 +1,4 @@
+module
 opaque f [Inhabited α] : α → α
 theorem feq [Inhabited α] [Add α] [One α] (x : α) : f x = f (f x) + 1 := sorry
 opaque g [Inhabited α] : α → α → α
@@ -69,23 +70,32 @@ h_2 : ¬f (f x) = g x x
   [eqc] Equivalence classes
     [eqc] {x, g x x}
     [eqc] {z, g y z}
-    [eqc] {g z y, g y x}
     [eqc] {0, f x + -1 * f (f x) + -1, f (f x) + -1 * f (f (f x)) + -1, f (f (f x)) + -1 * f (f (f (f x))) + -1}
+    [eqc] {g z y, g y x}
+    [eqc] {f x + -1 * f (f x), f (f x) + -1 * f (f (f x)), f (f (f x)) + -1 * f (f (f (f x)))}
   [ematch] E-matching patterns
     [thm] feq: [@f #4 #3 #0]
     [thm] geq: [@g #2 #1 #0 #0]
   [cutsat] Assignment satisfying linear constraints
-    [assign] x := 5
+    [assign] x := 2
     [assign] z := 3
-    [assign] y := 2
+    [assign] y := 4
     [assign] f x := 1
     [assign] f (f x) := 0
-    [assign] g x x := 5
-    [assign] g z y := 4
-    [assign] g y x := 4
+    [assign] g x x := 2
+    [assign] g z y := 5
+    [assign] g y x := 5
     [assign] g y z := 3
     [assign] f (f (f x)) := -1
     [assign] f (f (f (f x))) := -2
+  [assoc] Operator `HAdd.hAdd`
+    [basis] Basis
+      [_] f (f (f x)) + -1 * f (f (f (f x))) = f x + -1 * f (f x)
+      [_] f (f x) + -1 * f (f (f x)) = f x + -1 * f (f x)
+      [_] f x + (-1 * f (f x) + -1) = 0
+    [properties] Properties
+      [_] commutative
+      [_] identity: `0`
   [limits] Thresholds reached
     [limit] maximum term generation has been reached, threshold: `(gen := 2)`
 [grind] Diagnostics

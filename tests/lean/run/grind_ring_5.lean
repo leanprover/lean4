@@ -1,5 +1,5 @@
+module
 open Lean.Grind
-
 
 example {α} [CommRing α] [IsCharP α 0] (d t c : α) (d_inv PSO3_inv : α)
   (Δ40 : d^2 * (d + t - d * t - 2) *

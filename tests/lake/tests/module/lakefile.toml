@@ -1,0 +1,14 @@
+name = "test"
+defaultTargets = ["Test"]
+leanOptions.experimental.module = true
+
+[[lean_lib]]
+name = "Test"
+globs = "Test.+"
+
+[[lean_lib]]
+name = "ErrorTest"
+
+[[require]]
+name = "dep"
+path = "dep"

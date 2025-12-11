@@ -5,7 +5,7 @@ def f (x : Nat) := x + 1
 example : f x = x + 1 := rfl
 
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
   ?_ = ?_
@@ -21,7 +21,7 @@ example : f x = x + 1 := rfl
 seal f
 
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
   ?_ = ?_

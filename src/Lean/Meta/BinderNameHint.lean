@@ -4,11 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
 
-import Lean.Util.FindExpr
-import Lean.Meta.Basic
-import Init.BinderNameHint
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean
 

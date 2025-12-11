@@ -13,14 +13,13 @@ instance : OfNat Foo n := ⟨⟨n⟩⟩
 -- should fail fast; exact heartbeat count at time of writing is 31
 set_option maxHeartbeats 310
 /--
-error: tactic 'decide' failed for proposition
+error: Tactic `decide` failed for proposition
   ((mul 4 1).mul 1).mul 1 = 4
-since its 'Decidable' instance
+because its `Decidable` instance
   instDecidableEqFoo (((mul 4 1).mul 1).mul 1) 4
-did not reduce to 'isTrue' or 'isFalse'.
+did not reduce to `isTrue` or `isFalse`.
 
-After unfolding the instances 'decEqFoo✝', 'instDecidableEqFoo', 'instDecidableEqNat', and
-'Nat.decEq', reduction got stuck at the 'Decidable' instance
+After unfolding the instances `instDecidableEqFoo`, `instDecidableEqNat`, `Nat.decEq`, and `instDecidableEqFoo.decEq`, reduction got stuck at the `Decidable` instance
   match h : (((mul 4 1).mul 1).mul 1).num.beq 4 with
   | true => isTrue ⋯
   | false => isFalse ⋯
@@ -34,14 +33,13 @@ example : ((Foo.mul 4 1).mul 1).mul 1 = 4 := by decide
 
 -- should not succeed (and fail fast); exact heartbeat count at time of writing is 21
 /--
-error: tactic 'decide' failed for proposition
+error: Tactic `decide` failed for proposition
   ((add 4 1).add 1).add 1 = 4
-since its 'Decidable' instance
+because its `Decidable` instance
   instDecidableEqFoo (((add 4 1).add 1).add 1) 4
-did not reduce to 'isTrue' or 'isFalse'.
+did not reduce to `isTrue` or `isFalse`.
 
-After unfolding the instances 'decEqFoo✝', 'instDecidableEqFoo', 'instDecidableEqNat', and
-'Nat.decEq', reduction got stuck at the 'Decidable' instance
+After unfolding the instances `instDecidableEqFoo`, `instDecidableEqNat`, `Nat.decEq`, and `instDecidableEqFoo.decEq`, reduction got stuck at the `Decidable` instance
   match h : (((add 4 1).add 1).add 1).num.beq 4 with
   | true => isTrue ⋯
   | false => isFalse ⋯

@@ -3,8 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joseph Rotella
 -/
+module
+
 prelude
-import Lean.ErrorExplanation
+public import Lean.ErrorExplanation
+meta import Lean.ErrorExplanation
+
+public section
 
 /--
 This error indicates that dotted identifier notation was used in an invalid or unsupported context.
@@ -18,7 +23,7 @@ universe (e.g., `Prop` or `Type`), as dotted-identifier notation is not supporte
 
 # Examples
 
-## Insufficient type information
+## Insufficient Type Information
 
 ```lean broken
 def reverseDuplicate (xs : List α) :=
@@ -41,7 +46,7 @@ resolves: if the return type is  `T`, then Lean will (attempt to) resolve `.reve
 `T.reverse` whose return type is `T`—even if `T.reverse` does not take an argument of type
 `List α`.
 
-## Dotted identifier where type universe expected
+## Dotted Identifier Where Type Universe Expected
 
 ```lean broken
 example (n : Nat) :=

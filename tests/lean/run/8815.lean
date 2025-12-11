@@ -7,18 +7,18 @@ set_option linter.unusedVariables false
 
 example (P Q : Prop) (hQ : Q) (hP : P) : P := by simp [*, -hQ]
 
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #guard_msgs in example (P Q : Prop) (hQ : Q) (hP : P) : P := by simp [*, -hP]
 
-/-- error: unknown constant 'hQ' -/
+/-- error: Unknown constant `hQ` -/
 #guard_msgs in example (P Q : Prop) (hQ : Q) (hP : P) : P := by simp [-hQ, *]
 
 #guard_msgs in example (P Q : Prop) (hQ : Q) (hP : P) : P := by simp_all [-hQ]
 
 /--
-error: unknown constant 'hQ'
+error: Unknown constant `hQ`
 ---
-error: simp made no progress
+error: `simp` made no progress
 -/
 #guard_msgs in example (P Q : Prop) (hQ : Q) (hP : P) : P := by simp [-hQ]
 
@@ -34,7 +34,7 @@ example : f 0 > 0 := by simp!
 
 
 -- NB: simp! disables all warnings, not just for declarations to unfold
--- Mild bug, but not a regresion.
+-- Mild bug, but not a regression.
 
 /--
 error: unsolved goals
@@ -43,9 +43,9 @@ error: unsolved goals
 #guard_msgs in example : f 0 > 0 := by simp! [-f, -a_thm]
 
 /--
-warning: 'f' does not have [simp] attribute
+warning: `f` does not have the `[simp]` attribute
 ---
-warning: 'a_thm' does not have [simp] attribute
+warning: `a_thm` does not have the `[simp]` attribute
 ---
 error: unsolved goals
 ⊢ 0 < f 0
@@ -55,7 +55,7 @@ error: unsolved goals
 
 
 /--
-error: invalid 'simp', proposition expected
+error: Invalid simp theorem: Expected a proposition, but found
   Type 32
 -/
 #guard_msgs in

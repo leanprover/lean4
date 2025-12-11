@@ -3,36 +3,36 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lean.Message
-import Lean.Exception
-import Lean.Parser.Basic
+public import Lean.Parser.Basic
 
 open Lean Parser
 
 namespace Lake
 
-def mkParserErrorMessage (ictx : InputContext) (s : ParserState) (e : Parser.Error) : Message where
+public def mkParserErrorMessage (ictx : InputContext) (s : ParserState) (e : Parser.Error) : Message where
   fileName := ictx.fileName
   pos := ictx.fileMap.toPosition s.pos
   endPos := none
   keepFullRange := true
   data := toString e
 
-def mkExceptionMessage (ictx : InputContext) (e : Exception) : Message where
+public def mkExceptionMessage (ictx : InputContext) (e : Exception) : Message where
   fileName := ictx.fileName
   pos := ictx.fileMap.toPosition <| e.getRef.getPos?.getD 0
   endPos := ictx.fileMap.toPosition <$> e.getRef.getTailPos?
   data := e.toMessageData
 
-def mkMessageNoPos (ictx : InputContext) (data : MessageData) (severity := MessageSeverity.error) : Message where
+public def mkMessageNoPos (ictx : InputContext) (data : MessageData) (severity := MessageSeverity.error) : Message where
   fileName := ictx.fileName
   pos := ictx.fileMap.toPosition 0
   endPos := none
   severity := severity
   data := data
 
-def mkMessageStringCore
+public def mkMessageStringCore
   (severity : MessageSeverity)
   (fileName caption body : String)
   (pos : Position) (endPos? : Option Position := none)
@@ -53,11 +53,11 @@ def mkMessageStringCore
     str := str ++ "\n"
   return str
 
-def mkMessageString (msg : Message) (includeEndPos := false) (infoWithPos := false) : BaseIO String := do
+public def mkMessageString (msg : Message) (includeEndPos := false) (infoWithPos := false) : BaseIO String := do
   let endPos? := if includeEndPos then msg.endPos else none
   let s ← msg.data.toString
   return mkMessageStringCore msg.severity msg.fileName msg.caption s msg.pos endPos? infoWithPos
 
-def mkMessageLogString (log : MessageLog) : BaseIO String :=
+public def mkMessageLogString (log : MessageLog) : BaseIO String :=
   log.toList.foldlM (init := "") fun s m => do
     return s ++ (← mkMessageString m (infoWithPos := true))

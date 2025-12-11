@@ -9,5 +9,5 @@ example {α : Type u}
     ∀ ⦃s t : Set (Sigma f)⦄,
         g s = g t → cast hU (g s).snd = cast hU (g t).snd :=
 by
-  intros g s t h
+  intro g s t h
   congr -- reduces to `(g s).snd = (g t).snd`, not `g s = g t`

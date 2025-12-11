@@ -28,7 +28,7 @@ termination_by structural fuel
 --   Lean.logInfo m!"{repr x}"
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 x y fuel x✝ fuel✝ : Nat
 hfuel✝ : x✝ < fuel✝.succ
@@ -49,7 +49,7 @@ protected theorem divCore_eq_div : Bug.divCore x y fuel h = 42 := by
   fail
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 case case1
 x y fuel x✝ fuel✝ : Nat
 hfuel✝ : x✝ < fuel✝.succ

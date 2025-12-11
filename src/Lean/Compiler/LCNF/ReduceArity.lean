@@ -3,11 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.Internalize
+public import Lean.Compiler.LCNF.Internalize
+
+public section
 
 namespace Lean.Compiler.LCNF
 /-!
@@ -55,7 +56,7 @@ structure Context where
   params : FVarIdSet
 
 structure State where
-  used : FVarIdSet := {}
+  used : FVarIdHashSet := {}
 
 abbrev FindUsedM := ReaderT Context <| StateRefT State CompilerM
 
@@ -106,7 +107,7 @@ partial def visit (code : Code) : FindUsedM Unit := do
   | .return fvarId => visitFVar fvarId
   | .unreach _ => return ()
 
-def collectUsedParams (decl : Decl) : CompilerM FVarIdSet := do
+def collectUsedParams (decl : Decl) : CompilerM FVarIdHashSet := do
   let params := decl.params.foldl (init := {}) fun s p => s.insert p.fvarId
   let (_, { used, .. }) ← decl.value.forCodeM visit |>.run { decl, params } |>.run {}
   return used
@@ -127,10 +128,12 @@ partial def reduce (code : Code) : ReduceM Code := do
   | .let decl k =>
     let .const declName _ args := decl.value | do return code.updateLet! decl (← reduce k)
     unless declName == (← read).declName do return code.updateLet! decl (← reduce k)
+    let mask := (← read).paramMask
     let mut argsNew := #[]
-    for used in (← read).paramMask, arg in args do
-      if used then
-        argsNew := argsNew.push arg
+    for h : i in *...args.size do
+      -- keep over-application
+      if mask.getD i true then
+        argsNew := argsNew.push args[i]
     let decl ← decl.updateValue (.const (← read).auxDeclName [] argsNew)
     return code.updateLet! decl (← reduce k)
   | .fun decl k | .jp decl k =>

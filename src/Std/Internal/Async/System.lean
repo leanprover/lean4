@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time
-import Std.Internal.UV.System
-import Std.Data.HashMap
+public import Std.Time
+public import Std.Internal.UV.System
+public import Std.Data.HashMap
+
+public section
 
 /-!
 This module contains all system related functions and environment variables
@@ -227,7 +231,7 @@ def getUpTime : IO Second.Offset := do
   return .ofNat <| UInt64.toNat (← UV.System.uptime)
 
 /--
-Ghe current high-resolution timestamp in nanoseconds. It is relative to an arbitrary time in the past.
+The current high-resolution timestamp in nanoseconds. It is relative to an arbitrary time in the past.
 -/
 @[inline]
 def getHighResolutionTime : IO Nanosecond.Offset := do

@@ -8,16 +8,16 @@ instance: GetElem (Vect n A) Nat A (λ _ i => i < n) where
 
 set_option pp.mvars false
 /--
-error: type mismatch
+error: Type mismatch
   xm[i]
 has type
   Vect m A
 but is expected to have type
   A
 ---
-error: type mismatch, term
+error: Type mismatch: After simplification, term
   ih
-after simplification has type
+ has type
   i < as.length
 of sort `Prop` but is expected to have type
   ?_

@@ -1,7 +1,10 @@
+module
+@[expose] public section -- TODO: remove after we fix congr_eq
 inductive Vec (α : Type u) : Nat → Type u
   | nil : Vec α 0
   | cons : α → Vec α n → Vec α (n+1)
 
+-- The `grind` tactics fail without this `[expose]`
 def h (v w : Vec α n) : Nat :=
   match v, w with
   | _, .cons _ (.cons _ _) => 20

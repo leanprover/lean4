@@ -5,13 +5,15 @@ Authors: Daniel Selsam, Leonardo de Moura
 
 Type class instance synthesizer using tabled resolution.
 -/
+module
+
 prelude
-import Init.Data.Array.InsertionSort
-import Lean.Meta.Basic
-import Lean.Meta.Instances
-import Lean.Meta.AbstractMVars
-import Lean.Meta.Check
-import Lean.Util.Profile
+public import Init.Data.Array.InsertionSort
+public import Lean.Meta.Instances
+public import Lean.Meta.AbstractMVars
+public import Lean.Meta.Check
+
+public section
 
 namespace Lean.Meta
 
@@ -27,7 +29,6 @@ register_builtin_option synthInstance.maxSize : Nat := {
 
 register_builtin_option backward.synthInstance.canonInstances : Bool := {
   defValue := true
-  group    := "backward compatibility"
   descr := "use optimization that relies on 'morally canonical' instances during type class resolution"
 }
 
@@ -212,9 +213,13 @@ def getInstances (type : Expr) : MetaM (Array Instance) := do
       -- Most instances have default priority.
       let result := result.insertionSort fun e₁ e₂ => e₁.priority < e₂.priority
       let erasedInstances ← getErasedInstances
+      let env ← getEnv
       let mut result ← result.filterMapM fun e => match e.val with
         | .const constName us =>
           if erasedInstances.contains constName then
+            return none
+          else if env.isExporting && !env.contains constName then
+            -- private instances must not leak into public scope
             return none
           else
             return some {
@@ -709,7 +714,7 @@ private def assignOutParams (type : Expr) (result : Expr) : MetaM Bool := do
   return defEq
 
 /--
-Auxiliary function for converting the `AbstractMVarsResult` returned by `SynthIntance.main` into an `Expr`.
+Auxiliary function for converting the `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.
 -/
 private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVarsResult) : MetaM (Option Expr) := do
   let some abstResult := abstResult? | return none
@@ -745,7 +750,7 @@ private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVa
   return some result
 
 /--
-Auxiliary function for converting a cached `AbstractMVarsResult` returned by `SynthIntance.main` into an `Expr`.
+Auxiliary function for converting a cached `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.
 This function tries to avoid the potentially expensive `check` at `applyCachedAbstractResult?`.
 -/
 private def applyCachedAbstractResult? (type : Expr) (abstResult? : Option AbstractMVarsResult) : MetaM (Option Expr) := do
@@ -855,9 +860,13 @@ private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <|
               mvarId.assign val
               return true
 
+register_builtin_option trace.Meta.synthInstance : Bool := {
+  defValue := false
+  descr := "track the backtracking attempt to synthesize type class instances"
+}
+
 builtin_initialize
   registerTraceClass `Meta.synthPending
-  registerTraceClass `Meta.synthInstance
   registerTraceClass `Meta.synthInstance.instances (inherited := true)
   registerTraceClass `Meta.synthInstance.tryResolve (inherited := true)
   registerTraceClass `Meta.synthInstance.answer (inherited := true)

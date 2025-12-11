@@ -3,19 +3,17 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.ImplementedByAttr
-import Lean.Compiler.LCNF.ElimDead
-import Lean.Compiler.LCNF.AlphaEqv
-import Lean.Compiler.LCNF.PrettyPrinter
-import Lean.Compiler.LCNF.Bind
-import Lean.Compiler.LCNF.Simp.FunDeclInfo
-import Lean.Compiler.LCNF.Simp.InlineCandidate
-import Lean.Compiler.LCNF.Simp.InlineProj
-import Lean.Compiler.LCNF.Simp.Used
-import Lean.Compiler.LCNF.Simp.DefaultAlt
-import Lean.Compiler.LCNF.Simp.SimpValue
-import Lean.Compiler.LCNF.Simp.ConstantFold
+public import Lean.Compiler.LCNF.Simp.InlineCandidate
+public import Lean.Compiler.LCNF.Simp.InlineProj
+public import Lean.Compiler.LCNF.Simp.Used
+public import Lean.Compiler.LCNF.Simp.DefaultAlt
+public import Lean.Compiler.LCNF.Simp.SimpValue
+public import Lean.Compiler.LCNF.Simp.ConstantFold
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Simp
@@ -77,7 +75,7 @@ def etaPolyApp? (letDecl : LetDecl) : OptionT SimpM FunDecl := do
   guard <| (← read).config.etaPoly
   let .const declName us args := letDecl.value | failure
   let some info := (← getEnv).find? declName | failure
-  guard <| hasLocalInst info.type
+  guard <| (← hasLocalInst info.type)
   guard <| !(← Meta.isInstance declName)
   let some decl ← getDecl? declName | failure
   guard <| decl.getArity > args.size
@@ -146,22 +144,18 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
         else
           addFVarSubst fvarId result
           simp k
+      markSimplified
       if oneExitPointQuick code then
         -- TODO: if `k` is small, we should also inline it here
-        markSimplified
         code.bind fun fvarId' => do
           markUsedFVar fvarId'
           simpK fvarId'
-      -- else if info.ifReduce then
-      --  eraseCode code
-      --  return none
       else
-        markSimplified
         let expectedType ← inferAppType info.fType info.args[*...info.arity]
         if expectedType.headBeta.isForall then
           /-
           If `code` returns a function, we create an auxiliary local function declaration (and eta-expand it)
-          instead of creating a joinpoint that takes a closure as an argument.
+          instead of creating a join point that takes a closure as an argument.
           -/
           let auxFunDecl ← mkAuxFunDecl #[] code
           let auxFunDecl ← auxFunDecl.etaExpand
@@ -342,6 +336,18 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
               params.forM (eraseParam ·)
               markSimplified
               return k
+        if alts.all (·.getCode matches .unreach ..) then
+          alts.forM (liftM <| ·.getParams.forM eraseParam)
+          markSimplified
+          return .unreach resultType
+        /-
+        We considered handling a case where we drop a cases if it only has one non-unreachable
+        branch and doesn't rely on the params of that branch here. However, this has the potential
+        to hinder reuse in later passes as we loose information about the shape of a variable. We
+        might be able to reintroduce this at a later point if we track this information different
+        from cases.
+        -/
+
         markUsedFVar discr
         return code.updateCases! resultType discr alts
 end

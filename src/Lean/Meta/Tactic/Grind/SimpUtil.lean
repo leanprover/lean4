@@ -3,8 +3,9 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Simp.Simproc
+public import Lean.Meta.Tactic.Simp.Simproc
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.MatchCond
@@ -12,7 +13,9 @@ import Lean.Meta.Tactic.Grind.ForallProp
 import Lean.Meta.Tactic.Grind.Arith.Simproc
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.List
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Core
-
+import Lean.Meta.Tactic.Grind.Util
+import Init.Grind.Norm
+public section
 namespace Lean.Meta.Grind
 
 builtin_initialize normExt : SimpExtension ← mkSimpExt
@@ -52,7 +55,7 @@ builtin_simproc_decl simpEq (@Eq _ _ _) := fun e => do
       return .visit { expr := e', proof? := mkApp2 (mkConst ``Grind.bool_eq_to_prop) lhs rhs }
     return .continue
   | _ =>
-    if (← isDefEq lhs rhs) then
+    if lhs == rhs then
       let u := f.constLevels!
       return .done { expr := mkConst ``True, proof? := mkApp2 (mkConst ``eq_self u) α lhs }
     else if rhs == mkConst ``True then
@@ -134,6 +137,9 @@ builtin_simproc_decl reduceCtorEqCheap (_ = _) := fun e => do
   withLocalDeclD `h e fun h =>
     return .done { expr := mkConst ``False, proof? := (← withDefault <| mkEqFalse' (← mkLambdaFVars #[h] (← mkNoConfusion (mkConst ``False) h))) }
 
+builtin_dsimproc_decl unfoldReducibleSimproc (_) := fun e => do
+  unfoldReducibleStep e
+
 /-- Returns the array of simprocs used by `grind`. -/
 protected def getSimprocs : MetaM (Array Simprocs) := do
   let s ← Simp.getSEvalSimprocs
@@ -161,6 +167,7 @@ protected def getSimprocs : MetaM (Array Simprocs) := do
   let s ← s.add ``simpOr (post := true)
   let s ← s.add ``simpDIte (post := true)
   let s ← s.add ``pushNot (post := false)
+  let s ← s.add ``unfoldReducibleSimproc (post := false)
   return #[s]
 
 private def addDeclToUnfold (s : SimpTheorems) (declName : Name) : MetaM SimpTheorems := do
@@ -178,7 +185,16 @@ protected def getSimpContext (config : Grind.Config) : MetaM Simp.Context := do
   thms ← addDeclToUnfold thms ``Bool.xor
   thms ← addDeclToUnfold thms ``Ne
   Simp.mkContext
-    (config := { arith := true, zeta := config.zeta, zetaDelta := config.zetaDelta, catchRuntime := false })
+    (config :=
+      { arith := true
+        zeta := config.zeta
+        zetaDelta := config.zetaDelta
+        -- Use `OfNat.ofNat` and `Neg.neg` for representing bitvec literals
+        bitVecOfNat := false
+        catchRuntime := false
+        warnExponents := false
+        -- `implicitDefEqProofs := true` a recurrent source of performance problems in the kernel
+        implicitDefEqProofs := false })
     (simpTheorems := #[thms])
     (congrTheorems := (← getSimpCongrTheorems))
 

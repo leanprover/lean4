@@ -86,12 +86,12 @@ These tests find least common subsequences.
 
 /-- info: #["A", "A"] -/
 #guard_msgs in
-#eval lcs ("A,A,B".split (·==',') |>.toArray).toSubarray ("A,A,X".split (·==',') |>.toArray).toSubarray
+#eval lcs ("A,A,B".split (·==',') |>.toStringArray).toSubarray ("A,A,X".split (·==',') |>.toStringArray).toSubarray
 
 /-- info: #["A", "D", "E", "F"] -/
 #guard_msgs in
-#eval lcs ("A,C,D,E,F,G".split (·==',') |>.toArray).toSubarray ("A,Y,Z,D,E,F".split (·==',') |>.toArray).toSubarray
+#eval lcs ("A,C,D,E,F,G".split (·==',') |>.toStringArray).toSubarray ("A,Y,Z,D,E,F".split (·==',') |>.toStringArray).toSubarray
 
 /-- info: #["A", "A", "D", "E", "F"] -/
 #guard_msgs in
-#eval lcs ("A,A,B,C,D,E,F,G".split (·==',') |>.toArray).toSubarray ("A,A,X,Y,Z,D,E,F".split (·==',') |>.toArray).toSubarray
+#eval lcs ("A,A,B,C,D,E,F,G".split (·==',') |>.toStringArray).toSubarray ("A,A,X,Y,Z,D,E,F".split (·==',') |>.toStringArray).toSubarray

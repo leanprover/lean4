@@ -3,11 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Carry
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Not
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Ult
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Carry
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Not
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Ult
+
+@[expose] public section
 
 /-!
 This module contains the verification of the bitblaster for `BitVec.ult` from `Impl.Operations.Ult`.
@@ -35,7 +38,8 @@ theorem mkUlt_denote_eq (aig : AIG α) (lhs rhs : BitVec w) (input : BinaryRefVe
   · simp
   · dsimp only
     intro idx hidx
-    rw [AIG.LawfulVecOperator.denote_mem_prefix (f := BVExpr.bitblast.blastNot)]
+    rw [AIG.LawfulVecOperator.denote_mem_prefix (f := BVExpr.bitblast.blastNot) (h := ?h)]
+    case h => simp [Ref.hgate]
     apply hleft
   · dsimp only
     intro idx hidx

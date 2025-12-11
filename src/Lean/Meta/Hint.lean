@@ -4,19 +4,115 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joseph Rotella
 -/
 
+module
+
 prelude
 
-import Lean.CoreM
-import Lean.Data.Lsp.Utf16
-import Lean.Message
-import Lean.Meta.TryThis
-import Lean.Util.Diff
-import Lean.Widget.Types
-import Lean.PrettyPrinter
+public import Lean.Meta.TryThis
+public import Lean.Util.Diff
+
+public section
 
 namespace Lean.Meta.Hint
 
 open Elab Tactic PrettyPrinter TryThis
+
+/--
+A widget for a clickable link (or icon) that inserts text into the document at a given position.
+
+The props to this widget are of the following form:
+```json
+{
+  "range": {
+    "start": {"line": 100, "character": 0},
+    "end":   {"line": 100, "character": 5}
+  },
+  "suggestion": "hi",
+  "acceptSuggestionProps": {
+    "kind": "text",
+    "hoverText": "Displayed on hover",
+    "linkText": "Displayed as the text of the link"
+  }
+}
+```
+... or the following form, where `codiconName` is one of the icons at
+https://microsoft.github.io/vscode-codicons/dist/codicon.html and `gaps` determines
+whether there are clickable spaces surrounding the icon:
+```json
+{
+  "range": {
+    "start": {"line": 100, "character": 0},
+    "end":   {"line": 100, "character": 5}
+  },
+  "suggestion": "hi",
+  "acceptSuggestionProps": {
+    "kind": "icon",
+    "hoverText": "Displayed on hover",
+    "codiconName": "search",
+    "gaps": true
+  }
+}
+```
+
+Note: we cannot add the `builtin_widget_module` attribute here because that would require importing
+`Lean.Widget.UserWidget`, which in turn imports much of `Lean.Elab` -- the module where we want to
+be able to use this widget. Instead, we register the attribute post-hoc when we declare the regular
+"Try This" widget in `Lean.Meta.Tactic.TryThis`.
+-/
+def textInsertionWidget : Widget.Module where
+  javascript := "
+import * as React from 'react';
+import { EditorContext, EnvPosContext } from '@leanprover/infoview';
+
+const e = React.createElement;
+export default function ({ range, suggestion, acceptSuggestionProps }) {
+  const pos = React.useContext(EnvPosContext)
+  const editorConnection = React.useContext(EditorContext)
+  function onClick() {
+    editorConnection.api.applyEdit({
+      changes: { [pos.uri]: [{ range, newText: suggestion }] }
+    })
+  }
+
+  if (acceptSuggestionProps.kind === 'text') {
+    return e('span', {
+        onClick,
+        title: acceptSuggestionProps.hoverText,
+        className: 'link pointer dim font-code',
+        style: { color: 'var(--vscode-textLink-foreground)' }
+      },
+      acceptSuggestionProps.linkText)
+  } else if (acceptSuggestionProps.kind === 'icon') {
+    if (acceptSuggestionProps.gaps) {
+      const icon = e('span', {
+        className: `codicon codicon-${acceptSuggestionProps.codiconName}`,
+        style: {
+          verticalAlign: 'sub',
+          fontSize: 'var(--vscode-editor-font-size)'
+        }
+      })
+      return e('span', {
+        onClick,
+        title: acceptSuggestionProps.hoverText,
+        className: `link pointer dim font-code`,
+        style: { color: 'var(--vscode-textLink-foreground)' }
+      }, ' ', icon, ' ')
+    } else {
+      return e('span', {
+        onClick,
+        title: acceptSuggestionProps.hoverText,
+        className: `link pointer dim font-code codicon codicon-${acceptSuggestionProps.codiconName}`,
+        style: {
+          color: 'var(--vscode-textLink-foreground)',
+          verticalAlign: 'sub',
+          fontSize: 'var(--vscode-editor-font-size)'
+        }
+      })
+    }
+
+  }
+  throw new Error('Unexpected `acceptSuggestionProps` kind: ' + acceptSuggestionProps.kind)
+}"
 
 /--
 A widget for rendering code action suggestions in error messages. Generally, this widget should not
@@ -48,16 +144,19 @@ def tryThisDiffWidget : Widget.Module where
   javascript := "
 import * as React from 'react';
 import { EditorContext, EnvPosContext } from '@leanprover/infoview';
+
 const e = React.createElement;
 export default function ({ diff, range, suggestion }) {
   const pos = React.useContext(EnvPosContext)
   const editorConnection = React.useContext(EditorContext)
-  const insStyle = { className: 'information' }
+  const insStyle = {
+    style: { color: 'var(--vscode-textLink-foreground)' }
+  }
   const delStyle = {
-    style: { color: 'var(--vscode-errorForeground)', textDecoration: 'line-through' }
+    style: { color: 'var(--vscode-editorError-foreground)', textDecoration: 'line-through' }
   }
   const defStyle = {
-    style: { color: 'var(--vscode-textLink-foreground)' }
+    style: { color: 'var(--vscode-editor-foreground)' }
   }
   function onClick() {
     editorConnection.api.applyEdit({
@@ -97,8 +196,8 @@ such as `b̵a̵c̲h̲e̲e̲rs̲`.
 -/
 private def mkDiffString (ds : Array (Diff.Action × String)) : String :=
   let rangeStrs := ds.map fun
-    | (.insert, s) => String.mk (s.data.flatMap ([·, '\u0332'])) -- U+0332 Combining Low Line
-    | (.delete, s) => String.mk (s.data.flatMap ([·, '\u0335'])) -- U+0335 Combining Short Stroke Overlay
+    | (.insert, s) => String.ofList (s.toList.flatMap ([·, '\u0332'])) -- U+0332 Combining Low Line
+    | (.delete, s) => String.ofList (s.toList.flatMap ([·, '\u0335'])) -- U+0335 Combining Short Stroke Overlay
     | (.skip  , s) => s
   rangeStrs.foldl (· ++ ·) ""
 
@@ -115,19 +214,33 @@ inductive DiffGranularity where
   entire suggestion.
   -/
   | all
+  /--
+  No diff: Shows no deletion of the existing source, only an insertion of the suggestion.
+  -/
+  | none
 
 /--
 A code action suggestion associated with a hint in a message.
 
-Refer to `TryThis.Suggestion`. This extends that structure with the following fields:
-* `span?`: the span at which this suggestion should apply. This allows a single hint to suggest
-  modifications at different locations. If `span?` is not specified, then the syntax reference
-  provided to `MessageData.hint` will be used.
-* `diffGranularity`: the granularity at which the diff for this suggestion should be rendered in the
-  Infoview. See `DiffMode` for the possible granularities. This is `.auto` by default.
+Refer to `TryThis.Suggestion`. This extends that structure with several fields specific to inline
+hints.
 -/
 structure Suggestion extends toTryThisSuggestion : TryThis.Suggestion where
+  /--
+  The span at which this suggestion should apply. This allows a single hint to suggest modifications
+  at different locations. If `span?` is not specified, then the syntax reference provided to
+  `MessageData.hint` will be used.
+  -/
   span? : Option Syntax := none
+  /--
+  The syntax to render in the inline diff preview. This syntax must have valid position information
+  and must contain the span at which the edit occurs.
+  -/
+  previewSpan? : Option Syntax := none
+  /--
+  The granularity at which the diff for this suggestion should be rendered in the Infoview. See
+  `DiffMode` for the possible granularities. This is `.auto` by default.
+  -/
   diffGranularity : DiffGranularity := .auto
 
 instance : Coe TryThis.SuggestionText Suggestion where
@@ -145,6 +258,7 @@ Guarantees that all actions in the output will be maximally grouped; that is, in
 -/
 partial def readableDiff (s s' : String) (granularity : DiffGranularity := .auto) : Array (Diff.Action × String) :=
   match granularity with
+  | .none => #[(.insert, s')]
   | .char => charDiff
   | .word => wordDiff
   | .all => maxDiff
@@ -163,7 +277,7 @@ partial def readableDiff (s s' : String) (granularity : DiffGranularity := .auto
     -- front and back, or at a single interior point. This will always be fairly readable (and
     -- splitting by a larger unit would likely only be worse)
     if charArrDiff.size ≤ 3 || approxEditDistance ≤ maxCharDiffDistance then
-      charArrDiff.map fun (act, cs) => (act, String.mk cs.toList)
+      charArrDiff.map fun (act, cs) => (act, String.ofList cs.toList)
     else if approxEditDistance ≤ maxWordDiffDistance then
       wordDiff
     else
@@ -261,14 +375,14 @@ where
 
   /-- Given a `Char` diff, produces an equivalent `String` diff, joining actions of the same kind. -/
   joinCharDiff (d : Array (Diff.Action × Char)) :=
-    joinEdits d |>.map fun (act, cs) => (act, String.mk cs.toList)
+    joinEdits d |>.map fun (act, cs) => (act, String.ofList cs.toList)
 
   maxDiff :=
     #[(.delete, s), (.insert, s')]
 
   mkWhitespaceDiff (oldWs newWs : String) :=
     if !oldWs.contains '\n' then
-      Diff.diff oldWs.data.toArray newWs.data.toArray |> joinCharDiff
+      Diff.diff oldWs.toList.toArray newWs.toList.toArray |> joinCharDiff
     else
       #[(.skip, newWs)]
 
@@ -278,17 +392,17 @@ where
   splitWords (s : String) : Array String × Array String :=
     splitWordsAux s 0 0 #[] #[]
 
-  splitWordsAux (s : String) (b : String.Pos) (i : String.Pos) (r ws : Array String) : Array String × Array String :=
-    if h : s.atEnd i then
-      (r.push (s.extract b i), ws)
+  splitWordsAux (s : String) (b : String.Pos.Raw) (i : String.Pos.Raw) (r ws : Array String) : Array String × Array String :=
+    if h : i.atEnd s then
+      (r.push (String.Pos.Raw.extract s b i), ws)
     else
-      have := Nat.sub_lt_sub_left (Nat.gt_of_not_le (mt decide_eq_true h)) (String.lt_next s _)
-      if (s.get i).isWhitespace then
-        let skipped := (Substring.mk s i s.endPos).takeWhile (·.isWhitespace)
+      have := Nat.sub_lt_sub_left (Nat.gt_of_not_le (mt decide_eq_true h)) (String.Pos.Raw.lt_next s _)
+      if (i.get s).isWhitespace then
+        let skipped := (Substring.Raw.mk s i s.rawEndPos).takeWhile (·.isWhitespace)
         let i' := skipped.stopPos
-        splitWordsAux s i' i' (r.push (s.extract b i)) (ws.push (s.extract i i'))
+        splitWordsAux s i' i' (r.push (String.Pos.Raw.extract s b i)) (ws.push (String.Pos.Raw.extract s i i'))
       else
-        splitWordsAux s b (s.next i) r ws
+        splitWordsAux s b (i.next s) r ws
 
   joinEdits {α} (ds : Array (Diff.Action × α)) : Array (Diff.Action × Array α) :=
     ds.foldl (init := #[]) fun acc (act, c) =>
@@ -307,40 +421,86 @@ where
 Creates message data corresponding to a `HintSuggestions` collection and adds the corresponding info
 leaf.
 -/
-def mkSuggestionsMessage (suggestions : Array Suggestion)
-    (ref : Syntax)
-    (codeActionPrefix? : Option String) : CoreM MessageData := do
+def mkSuggestionsMessage (suggestions : Array Suggestion) (ref : Syntax)
+    (codeActionPrefix? : Option String) (forceList : Bool) : CoreM MessageData := do
   let mut msg := m!""
   for suggestion in suggestions do
-    if let some range := (suggestion.span?.getD ref).getRange? then
-      let { info, suggestions := suggestionArr, range := lspRange } ←
-        processSuggestions ref range #[suggestion.toTryThisSuggestion] codeActionPrefix?
-      pushInfoLeaf info
-      -- The following access is safe because
-      -- `suggestionsArr = #[suggestion.toTryThisSuggestion].map ...` (see `processSuggestions`)
-      let suggestionText := suggestionArr[0]!.2.1
-      let map ← getFileMap
-      let rangeContents := Substring.mk map.source range.start range.stop |>.toString
-      let edits := readableDiff rangeContents suggestionText suggestion.diffGranularity
-      let diffJson := mkDiffJson edits
-      let json := json% {
-        diff: $diffJson,
-        suggestion: $suggestionText,
-        range: $lspRange
+    let some range := suggestion.span?.getD ref |>.getRange?
+      | continue
+    let edit ← suggestion.processEdit range
+    let suggestionText := edit.newText
+    let ref := Syntax.ofRange <| ref.getRange?.getD range
+    let codeActionTitleOverride? := suggestion.toCodeActionTitle?.map (· suggestionText)
+    let codeActionTitle := codeActionTitleOverride?.getD <| (codeActionPrefix?.getD "Try this: ") ++ suggestionText
+    let info := Info.ofCustomInfo {
+      stx := ref
+      value := Dynamic.mk {
+        edit
+        suggestion := suggestion.toTryThisSuggestion
+        codeActionTitle
+        : TryThisInfo
       }
-      let preInfo := suggestion.preInfo?.getD ""
-      let postInfo := suggestion.postInfo?.getD ""
-      let widget := MessageData.ofWidget {
-          id := ``tryThisDiffWidget
-          javascriptHash := tryThisDiffWidget.javascriptHash
-          props := return json
-        } (suggestion.messageData?.getD (mkDiffString edits))
-      let widgetMsg := m!"{preInfo}{widget}{postInfo}"
-      let suggestionMsg := if suggestions.size == 1 then
-        m!"\n{widgetMsg}"
+    }
+    pushInfoLeaf info
+    let map ← getFileMap
+    let rangeContents := String.Pos.Raw.extract map.source range.start range.stop
+    let edits ← do
+      if let some msgData := suggestion.messageData? then
+        pure #[(.insert, toString <| ← msgData.format)]
       else
-        m!"\n" ++ MessageData.nest 2 m!"• {widgetMsg}"
-      msg := msg ++ MessageData.nestD suggestionMsg
+        pure <| readableDiff rangeContents suggestionText suggestion.diffGranularity
+    let mut edits := edits
+    if let some previewRange := suggestion.previewSpan? >>= Syntax.getRange? then
+      if previewRange.includes range then
+        let map ← getFileMap
+        if previewRange.start < range.start then
+          edits := #[(.skip, (String.Pos.Raw.extract map.source previewRange.start range.start))] ++ edits
+        if range.stop < previewRange.stop then
+          edits := edits.push (.skip, (String.Pos.Raw.extract map.source range.stop previewRange.stop))
+    let preInfo := suggestion.preInfo?.getD ""
+    let postInfo := suggestion.postInfo?.getD ""
+    let isDiffSuggestion :=
+      ! (suggestion.diffGranularity matches .none) && suggestion.messageData?.isNone
+        || suggestion.previewSpan?.isSome
+    let suggestionMsg :=
+      if ! isDiffSuggestion then
+        let applyButton := MessageData.ofWidget {
+          id := ``textInsertionWidget
+          javascriptHash := textInsertionWidget.javascriptHash
+          props := return json% {
+            range: $edit.range,
+            suggestion: $suggestionText,
+            acceptSuggestionProps: {
+              kind: "text",
+              hoverText: "Apply suggestion",
+              linkText: "[apply]"
+            }
+          }
+        } "[apply]"
+        m!"\n{applyButton} {preInfo}{toMessageData suggestion}{postInfo}"
+      else
+        let diffJson := mkDiffJson edits
+        let json := json% {
+          diff: $diffJson,
+          suggestion: $suggestionText,
+          range: $edit.range
+        }
+        let diffString :=
+          if suggestion.diffGranularity matches .none then
+            edits.foldl (· ++ ·.2) ""
+          else
+            mkDiffString edits
+        let diffWidget := MessageData.ofWidget {
+            id := ``tryThisDiffWidget
+            javascriptHash := tryThisDiffWidget.javascriptHash
+            props := return json
+          } diffString
+        let msg := m!"{preInfo}{diffWidget}{postInfo}"
+        if suggestions.size == 1 && !forceList then
+          m!"\n{msg}"
+        else
+          m!"\n" ++ MessageData.nest 2 m!"• {msg}"
+    msg := msg ++ MessageData.nestD suggestionMsg
   return msg
 
 /--
@@ -356,11 +516,13 @@ The arguments are as follows:
   suggestions that specify it.
 * `codeActionPrefix?`: if specified, text to display in place of "Try this: " in the code action
   label
+* `forceList`: if `true`, suggestions will be displayed as a bulleted list even if there is only one.
 -/
 def _root_.Lean.MessageData.hint (hint : MessageData)
     (suggestions : Array Suggestion) (ref? : Option Syntax := none)
     (codeActionPrefix? : Option String := none)
+    (forceList : Bool := false)
     : CoreM MessageData := do
   let ref := ref?.getD (← getRef)
-  let suggs ← mkSuggestionsMessage suggestions ref codeActionPrefix?
+  let suggs ← mkSuggestionsMessage suggestions ref codeActionPrefix? forceList
   return .tagged `hint (m!"\n\nHint: " ++ hint ++ suggs)

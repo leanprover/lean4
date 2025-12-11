@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.HashMap.Basic
+public import Std.Data.HashMap.Basic
+
+@[expose] public section
 
 /-!
 # Hash sets
@@ -21,7 +25,7 @@ nested inductive types.
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v
+universe u v w
 
 variable {α : Type u} {_ : BEq α} {_ : Hashable α}
 
@@ -63,9 +67,6 @@ capacity.
 -/
 @[inline] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) : HashSet α :=
   ⟨HashMap.emptyWithCapacity capacity⟩
-
-@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
-abbrev empty := @emptyWithCapacity
 
 instance [BEq α] [Hashable α] : EmptyCollection (HashSet α) where
   emptyCollection := emptyWithCapacity
@@ -186,7 +187,7 @@ in the collection will be present in the returned hash set.
 Monadically computes a value by folding the given function over the elements in the hash set in some
 order.
 -/
-@[inline] def foldM {m : Type v → Type v} [Monad m] {β : Type v}
+@[inline] def foldM {m : Type v → Type w} [Monad m] {β : Type v}
     (f : β → α → m β) (init : β) (b : HashSet α) : m β :=
   b.inner.foldM (fun b a _ => f b a) init
 
@@ -196,19 +197,19 @@ order.
   m.inner.fold (fun b a _ => f b a) init
 
 /-- Carries out a monadic action on each element in the hash set in some order. -/
-@[inline] def forM {m : Type v → Type v} [Monad m] (f : α → m PUnit)
+@[inline] def forM {m : Type v → Type w} [Monad m] (f : α → m PUnit)
     (b : HashSet α) : m PUnit :=
   b.inner.forM (fun a _ => f a)
 
 /-- Support for the `for` loop construct in `do` blocks. -/
-@[inline] def forIn {m : Type v → Type v} [Monad m] {β : Type v}
+@[inline] def forIn {m : Type v → Type w} [Monad m] {β : Type v}
     (f : α → β → m (ForInStep β)) (init : β) (b : HashSet α) : m β :=
   b.inner.forIn (fun a _ acc => f a acc) init
 
-instance [BEq α] [Hashable α] {m : Type v → Type v} : ForM m (HashSet α) α where
+instance [BEq α] [Hashable α] {m : Type v → Type w} [Monad m] : ForM m (HashSet α) α where
   forM m f := m.forM f
 
-instance [BEq α] [Hashable α] {m : Type v → Type v} : ForIn m (HashSet α) α where
+instance [BEq α] [Hashable α] {m : Type v → Type w} [Monad m] : ForIn m (HashSet α) α where
   forIn m init f := m.forIn f init
 
 /-- Removes all elements from the hash set for which the given function returns `false`. -/
@@ -227,6 +228,59 @@ appearance.
     HashSet α :=
   ⟨m.inner.insertManyIfNewUnit l⟩
 
+/-- Transforms the hash set into an array of elements in some order. -/
+@[inline] def toArray (m : HashSet α) : Array α :=
+  m.inner.keysArray
+
+/-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
+@[inline] def all (m : HashSet α) (p : α → Bool) : Bool := m.inner.all (fun x _ => p x)
+
+/-- Check if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
+@[inline] def any (m : HashSet α) (p : α → Bool) : Bool := m.inner.any (fun x _ => p x)
+/--
+Computes the union of the given hash sets.
+
+This function always merges the smaller set into the larger set, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashSet α) : HashSet α :=
+  ⟨HashMap.union m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : Union (HashSet α) := ⟨union⟩
+
+/--
+Computes the intersection of the given hash sets. The result will only contain entries from the first map.
+
+This function always iterates through the smaller set, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def inter [BEq α] [Hashable α] (m₁ m₂ : HashSet α) : HashSet α :=
+  ⟨HashMap.inter m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : Inter (HashSet α) := ⟨inter⟩
+
+
+/--
+Compares two hash sets using Boolean equality on keys.
+
+Returns `true` if the sets contain the same keys, `false` otherwise.
+-/
+def beq [BEq α] (m₁ m₂ : HashSet α) : Bool :=
+  HashMap.beq m₁.inner m₂.inner
+
+instance [BEq α] : BEq (HashSet α) := ⟨beq⟩
+
+/--
+Computes the difference of the given hash sets.
+
+This function always iterates through the smaller set, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def diff [BEq α] [Hashable α] (m₁ m₂ : HashSet α) : HashSet α :=
+  ⟨HashMap.diff m₁.inner m₂.inner⟩
+
+instance [BEq α] [Hashable α] : SDiff (HashSet α) := ⟨diff⟩
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -236,23 +290,6 @@ section Unverified
   let ⟨l, r⟩ := m.inner.partition fun a _ => f a
   ⟨⟨l⟩, ⟨r⟩⟩
 
-/-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
-@[inline] def all (m : HashSet α) (p : α → Bool) : Bool := Id.run do
-  for a in m do
-    if ¬ p a then return false
-  return true
-
-/-- Check if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
-@[inline] def any (m : HashSet α) (p : α → Bool) : Bool := Id.run do
-  for a in m do
-    if p a then return true
-  return false
-
-
-/-- Transforms the hash set into an array of elements in some order. -/
-@[inline] def toArray (m : HashSet α) : Array α :=
-  m.inner.keysArray
-
 /--
 Creates a hash set from an array of elements. Note that unlike repeatedly calling `insert`, if the
 collection contains multiple elements that are equal (with regard to `==`), then the last element
@@ -260,12 +297,6 @@ in the collection will be present in the returned hash set.
 -/
 @[inline] def ofArray [BEq α] [Hashable α] (l : Array α) : HashSet α :=
   ⟨HashMap.unitOfArray l⟩
-
-/-- Computes the union of the given hash sets, by traversing `m₂` and inserting its elements into `m₁`. -/
-@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashSet α) : HashSet α :=
-  m₂.fold (init := m₁) fun acc x => acc.insert x
-
-instance [BEq α] [Hashable α] : Union (HashSet α) := ⟨union⟩
 
 /--
 Returns the number of buckets in the internal representation of the hash set. This function may

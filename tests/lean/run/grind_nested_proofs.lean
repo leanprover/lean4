@@ -1,9 +1,11 @@
-import Lean.Meta.Tactic.Grind
+module
+meta import Lean.Meta.Tactic.Grind
+#exit -- TODO: reenable after we add support for running code in interactive mode
 
 def f (α : Type) [Add α] (a : α) := a + a + a
 
 open Lean Meta Grind in
-def fallback : Fallback := do
+meta def fallback : Fallback := do
   let nodes ← filterENodes fun e => return e.self.isAppOf ``Lean.Grind.nestedProof
   trace[Meta.debug] "{nodes.toList.map (·.self)}"
   let nodes ← filterENodes fun e => return e.self.isApp && e.self.isAppOf ``GetElem.getElem

@@ -4,16 +4,16 @@ with errors
 failed to infer structural recursion:
 no parameters suitable for structural recursion
 
-well-founded recursion cannot be used, 'unsound' does not take any (non-fixed) arguments
+well-founded recursion cannot be used, `unsound` does not take any (non-fixed) arguments
 sanitychecks.lean:4:8-4:32: error: 'partial' theorems are not allowed, 'partial' is a code generation directive
 sanitychecks.lean:7:7-7:31: error: 'unsafe' theorems are not allowed
 sanitychecks.lean:10:0-10:23: error: failed to synthesize
   Inhabited False
 
 Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
-sanitychecks.lean:18:12-18:20: error: invalid use of 'partial', 'Foo.unsound3' is not a function
+sanitychecks.lean:18:12-18:20: error: invalid use of `partial`, `Foo.unsound3` is not a function
   False
-sanitychecks.lean:20:0-20:54: error: failed to compile 'partial' definition 'Foo.unsound4', could not prove that the type
+sanitychecks.lean:20:0-20:54: error: failed to compile 'partial' definition `Foo.unsound4`, could not prove that the type
   ∀ (x : Unit), False
 is nonempty.
 

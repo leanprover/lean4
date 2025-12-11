@@ -6,10 +6,13 @@ Authors: Paul Reichert
 module
 
 prelude
-public import all Init.Data.Iterators.Combinators.Attach
-public import all Init.Data.Iterators.Combinators.Monadic.Attach
+public import Init.Data.Iterators.Combinators.Attach
+import all Init.Data.Iterators.Combinators.Attach
+import all Init.Data.Iterators.Combinators.Monadic.Attach
 public import Init.Data.Iterators.Lemmas.Combinators.Monadic.Attach
 public import Init.Data.Iterators.Lemmas.Consumers.Collect
+public import Init.Data.Iterators.Lemmas.Consumers.Loop
+public import Init.Data.Array.Attach
 
 public section
 
@@ -67,5 +70,27 @@ theorem Iter.unattach_toArray_attachWith [Iterator α Id β]
     [LawfulIteratorCollect α Id Id] :
     (it.attachWith P hP).toListRev.unattach = it.toListRev := by
   simp [toListRev_eq]
+
+@[simp]
+theorem Iter.toArray_attachWith [Iterator α Id β]
+    {it : Iter (α := α) β} {hP}
+    [Finite α Id] [IteratorCollect α Id Id]
+    [LawfulIteratorCollect α Id Id] :
+    (it.attachWith P hP).toArray = it.toArray.attachWith P
+        (fun out h => hP out (isPlausibleIndirectOutput_of_mem_toArray h)) := by
+  suffices (it.attachWith P hP).toArray.toList = (it.toArray.attachWith P
+      (fun out h => hP out (isPlausibleIndirectOutput_of_mem_toArray h))).toList by
+    simpa only [Array.toList_inj]
+  simp [Iter.toList_toArray]
+
+@[simp]
+theorem Iter.count_attachWith [Iterator α Id β]
+    {it : Iter (α := α) β} {hP}
+    [Finite α Id] [IteratorLoop α Id Id]
+    [LawfulIteratorLoop α Id Id] :
+    (it.attachWith P hP).count = it.count := by
+  letI : IteratorCollect α Id Id := .defaultImplementation
+  rw [← Iter.length_toList_eq_count, toList_attachWith]
+  simp
 
 end Std.Iterators

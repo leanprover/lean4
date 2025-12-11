@@ -9,8 +9,12 @@ def f1 (x : Option Nat) (y : Nat) : Nat :=
   else
     0
 
+set_option compiler.checkTypes false -- disabled due to type checking withCtor
+
 inductive Ty where
  | c1 | c2 | c3 | c4 | c5
+
+set_option compiler.checkTypes true
 
 def f2 (a b : Ty) (n : Nat) : Nat :=
   let x := match a with

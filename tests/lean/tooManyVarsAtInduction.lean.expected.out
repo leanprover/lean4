@@ -1,2 +1,2 @@
-tooManyVarsAtInduction.lean:3:2-3:31: error: Too many variable names provided at alternative 'succ': 4 provided, but 2 expected
-tooManyVarsAtInduction.lean:8:2-8:22: error: Too many variable names provided at alternative 'succ': 2 provided, but 1 expected
+tooManyVarsAtInduction.lean:3:2-3:31: error: Too many variable names provided at alternative `succ`: 4 provided, but 2 expected
+tooManyVarsAtInduction.lean:8:2-8:22: error: Too many variable names provided at alternative `succ`: 2 provided, but 1 expected

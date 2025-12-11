@@ -3,8 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Attributes
+public import Lean.Attributes
+
+public section
 
 namespace Lean
 
@@ -171,7 +175,7 @@ private def init :=
     add   := fun decl stx kind => do
       let env ← getEnv
       Attribute.Builtin.ensureNoArgs stx
-      unless kind == AttributeKind.global do throwError "invalid attribute 'class', must be global"
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal `class kind
       let env ← ofExcept (addClass env decl)
       setEnv env
   }

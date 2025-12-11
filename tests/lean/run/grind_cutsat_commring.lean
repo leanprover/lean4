@@ -1,6 +1,7 @@
-open Lean.Grind
+module
+open Std Lean.Grind
 
-variable [CommRing R] [LinearOrder R] [OrderedRing R]
+variable [CommRing R] [LE R] [LT R] [LawfulOrderLT R] [IsLinearOrder R] [OrderedRing R]
 example (a b : R) (h : 0 ≤ a * b) : 0 ≤ b * a := by grind
 example (a b : R) (h : 7 ≤ a * b) : 7 ≤ b * a := by grind
 

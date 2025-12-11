@@ -1,3 +1,4 @@
+module
 opaque f (a : Nat) : Nat × Bool
 
 example (a b : Nat) : (f a).1 = (f b).1 → (f a).2 = (f b).2 → f a = f b := by

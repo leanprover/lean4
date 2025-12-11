@@ -3,17 +3,18 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Grind.ProveEq
+import Lean.Meta.Tactic.Grind.Arith.Util
+public import Lean.Meta.Tactic.Grind.Arith.Linear.Util
+import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
-import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 import Lean.Meta.Tactic.Grind.Arith.Linear.Var
-
+public section
 namespace Lean.Meta.Grind.Arith.Linear
 /-!
 Helper functions for converting reified terms back into their denotations.
 -/
-
 variable [Monad M] [MonadGetStruct M] [MonadError M]
 
 def _root_.Lean.Grind.Linarith.Poly.denoteExpr (p : Poly) : M Expr := do

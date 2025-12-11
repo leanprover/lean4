@@ -1,4 +1,4 @@
-calcErrors.lean:7:30-7:33: error: type mismatch
+calcErrors.lean:7:30-7:33: error: Type mismatch
   rfl
 has type
   ?m = ?m

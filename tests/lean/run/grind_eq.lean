@@ -1,3 +1,4 @@
+module
 opaque g : Nat → Nat
 
 set_option trace.Meta.debug true
@@ -17,6 +18,7 @@ set_option trace.grind.assert true
 trace: [grind.assert] f (y + 1) = a
 [grind.assert] ¬a = g (f y)
 [grind.ematch.instance] f.eq_2: f y.succ = g (f y)
+[grind.ematch.instance] f.eq_1: f 0 = 10
 [grind.assert] f (y + 1) = g (f y)
 -/
 #guard_msgs (trace) in
@@ -65,13 +67,13 @@ theorem appV_assoc (a : Vector α n) (b : Vector α m) (c : Vector α n') :
         appV a (appV b c) ≍ appV (appV a b) c := sorry
 
 /--
-trace: [grind.assert] x1 = appV a_2 b
+trace: [grind.assert] x1 = appV a b
 [grind.assert] x2 = appV x1 c
 [grind.assert] x3 = appV b c
-[grind.assert] x4 = appV a_2 x3
+[grind.assert] x4 = appV a x3
 [grind.assert] ¬x2 ≍ x4
-[grind.ematch.instance] appV_assoc: appV a_2 (appV b c) ≍ appV (appV a_2 b) c
-[grind.assert] appV a_2 (appV b c) ≍ appV (appV a_2 b) c
+[grind.ematch.instance] appV_assoc: appV a (appV b c) ≍ appV (appV a b) c
+[grind.assert] appV a (appV b c) ≍ appV (appV a b) c
 -/
 #guard_msgs (trace) in
 example : x1 = appV a b → x2 = appV x1 c → x3 = appV b c → x4 = appV a x3 → x2 ≍ x4 := by
@@ -91,4 +93,16 @@ example (p : Prop) (h₁ h₂ : Decidable p) : h₁ = h₂ := by
   grind
 
 example (p q : Prop) (h₁ : Decidable p) (h₂ : Decidable (p ∧ q)) : (p ↔ q) → h₁ ≍ h₂ := by
+  grind
+
+example (a₁ a₂ : α) (b₁ b₂ : β) : a₁ ≍ b₁ → a₂ ≍ b₂ → (a₁ = a₂) = (b₁ = b₂) := by
+  grind
+
+example (a₁ a₂ : α) (b₁ b₂ : β) : a₁ ≍ b₁ → a₂ ≍ b₂ → (a₁ = a₂) = (b₂ = b₁) := by
+  grind
+
+example (a₁ a₂ : α) (b₁ b₂ : β) : a₁ ≍ b₁ → a₂ ≍ b₂ → (a₁ = a₂) ≍ (b₁ = b₂) := by
+  grind
+
+example (a₁ a₂ : α) (b₁ b₂ : β) : a₁ ≍ b₁ → a₂ ≍ b₂ → (a₁ = a₂) ≍ (b₂ = b₁) := by
   grind

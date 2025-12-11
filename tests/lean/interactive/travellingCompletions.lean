@@ -6,7 +6,7 @@ import Lean
 def Foo.aaaaaaaa := 1
 
 #eval ([1,2,3].map λ c => Foo.aaaaaaa).length
-                                   --^ textDocument/completion
+                                   --^ completion
 
 
 
@@ -19,11 +19,11 @@ structure Foo where
 
 example (f : Foo) : Nat × Nat :=
   ⟨f.x.foobar, f.x.f⟩
-                  --^ textDocument/completion
+                  --^ completion
 
 example (b : Bar) : Nat × Nat :=
   ⟨b.foobar, b.f⟩
-              --^ textDocument/completion
+              --^ completion
 
 
 
@@ -37,8 +37,8 @@ theorem Prod.continuousAdd {X Y : Type} : ContinuousAdd (X × Y) := ⟨⟩
 
 example : (ContinuousSMul Nat (Nat × Nat)) ∧ (ContinuousAdd (Nat × Nat)) := by
   exact ⟨Prod.continuousSMul, Prod.continuous⟩
-                                           --^ textDocument/completion
+                                           --^ completion
 
 example : True ∧ True := by
   exact ⟨trivial, True.in⟩
-                       --^ textDocument/completion
+                       --^ completion

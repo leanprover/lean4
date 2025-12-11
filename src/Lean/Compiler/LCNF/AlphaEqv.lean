@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.Basic
+public import Lean.Compiler.LCNF.Basic
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -17,7 +21,7 @@ namespace AlphaEqv
 abbrev EqvM := ReaderM (FVarIdMap FVarId)
 
 def eqvFVar (fvarId₁ fvarId₂ : FVarId) : EqvM Bool := do
-  let fvarId₂ := (← read).find? fvarId₂ |>.getD fvarId₂
+  let fvarId₂ := (← read).get? fvarId₂ |>.getD fvarId₂
   return fvarId₁ == fvarId₂
 
 def eqvType (e₁ e₂ : Expr) : EqvM Bool := do

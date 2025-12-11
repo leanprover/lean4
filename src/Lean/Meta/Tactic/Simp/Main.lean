@@ -3,15 +3,18 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Transform
-import Lean.Meta.Tactic.Replace
-import Lean.Meta.Tactic.UnifyEq
-import Lean.Meta.Tactic.Simp.Rewrite
-import Lean.Meta.Tactic.Simp.Diagnostics
-import Lean.Meta.Match.Value
-import Lean.Meta.LetToHave
-import Lean.Util.CollectLooseBVars
+public import Lean.Meta.Tactic.Replace
+public import Lean.Meta.Tactic.Simp.Rewrite
+public import Lean.Meta.Tactic.Simp.Diagnostics
+public import Lean.Meta.Match.Value
+public import Lean.Util.CollectLooseBVars
+import Lean.PrettyPrinter
+import Lean.ExtraModUses
+
+public section
 
 namespace Lean.Meta
 namespace Simp
@@ -158,7 +161,7 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
        || (smartUnfolding.get options && (← getEnv).contains (mkSmartUnfoldingNameFor fName)) then
       unfoldDefinitionAny? e
     else
-      -- `We are not unfolding partial applications, and `fName` does not have smart unfolding support.
+      -- We are not unfolding partial applications, and `fName` does not have smart unfolding support.
       -- Thus, we must check whether the arity of the function >= number of arguments.
       let some cinfo := (← getEnv).find? fName | return none
       let some value := cinfo.value? | return none
@@ -237,7 +240,7 @@ where
     | e => k xs e
 
 /--
-We use `withNewlemmas` whenever updating the local context.
+We use `withNewLemmas` whenever updating the local context.
 -/
 def withNewLemmas {α} (xs : Array Expr) (f : SimpM α) : SimpM α := do
   if (← getConfig).contextual then
@@ -348,7 +351,7 @@ def simpForall (e : Expr) : SimpM Result := withParent e do
             : (∀ a : p₁, q₁ a) = (∀ a : p₂, q₂ a)
         ```
         Remark: we should consider whether we want to add congruence lemma support for arbitrary `forall`-expressions.
-        Then, the theroem above can be marked as `@[congr]` and the following code deleted.
+        Then, the theorem above can be marked as `@[congr]` and the following code deleted.
         -/
         let p₁ := domain
         let p₂ := rd.expr
@@ -487,24 +490,30 @@ Computes which `have`s in the telescope are fixed and which are unused.
 The length of the unused array may be less than the number of `have`s: use `unused.getD i true`.
 -/
 def HaveTelescopeInfo.computeFixedUsed (info : HaveTelescopeInfo) (keepUnused : Bool) :
-    MetaM (Std.HashSet Nat × Array Bool) := do
+    MetaM (Array Bool × Array Bool) := do
+  let fixed ← go info.bodyTypeDeps
   if keepUnused then
-    return (info.bodyTypeDeps, #[])
-  let numHaves := info.haveInfo.size
-  let updateArrayFromBackDeps (arr : Array Bool) (s : Std.HashSet Nat) : Array Bool :=
+    return (fixed, #[])
+  else
+    let used ← go info.bodyDeps
+    return (fixed, used)
+where
+  updateArrayFromBackDeps (arr : Array Bool) (s : Std.HashSet Nat) : Array Bool :=
     s.fold (init := arr) fun arr idx => arr.set! idx true
-  let mut used : Array Bool := Array.replicate numHaves false
-  -- Initialize `used` with the body's dependencies.
-  -- There is no need to consider `info.bodyTypeDeps` in this computation.
-  used := updateArrayFromBackDeps used info.bodyDeps
-  -- For each used `have`, in reverse order, update `used`.
-  for i in *...numHaves do
-    let idx := numHaves - i - 1
-    if used[idx]! then
-      let hinfo := info.haveInfo[idx]!
-      used := updateArrayFromBackDeps used hinfo.typeBackDeps
-      used := updateArrayFromBackDeps used hinfo.valueBackDeps
-  return (info.bodyTypeDeps, used)
+  go init : MetaM (Array Bool) := do
+    let numHaves := info.haveInfo.size
+    let mut used : Array Bool := Array.replicate numHaves false
+    -- Initialize `used` with the body's dependencies.
+    -- There is no need to consider `info.bodyTypeDeps` in this computation.
+    used := updateArrayFromBackDeps used init
+    -- For each used `have`, in reverse order, update `used`.
+    for i in *...numHaves do
+      let idx := numHaves - i - 1
+      if used[idx]! then
+        let hinfo := info.haveInfo[idx]!
+        used := updateArrayFromBackDeps used hinfo.typeBackDeps
+        used := updateArrayFromBackDeps used hinfo.valueBackDeps
+    return used
 
 /--
 Auxiliary structure used to represent the return value of `simpHaveTelescopeAux`.
@@ -613,7 +622,7 @@ by detecting a `simpHaveTelescope` proofs and removing the type hint.
 -/
 def simpHaveTelescope (e : Expr) : SimpM Result := do
   Prod.fst <$> withTraceNode `Debug.Meta.Tactic.simp (fun
-      | .ok (_, used, fixed, modified) => pure m!"{checkEmoji} have telescope; used: {used}; fixed: {fixed.toArray}; modified: {modified}"
+      | .ok (_, used, fixed, modified) => pure m!"{checkEmoji} have telescope; used: {used}; fixed: {fixed}; modified: {modified}"
       | .error ex => pure m!"{crossEmoji} {ex.toMessageData}") do
     let info ← getHaveTelescopeInfo e
     assert! !info.haveInfo.isEmpty
@@ -630,7 +639,7 @@ where
   Note also that we don't enter the body's local context all at once, since we need to be sure that
   when we simplify values they have their correct local context.
   -/
-  simpHaveTelescopeAux (info : HaveTelescopeInfo) (fixed : Std.HashSet Nat) (used : Array Bool) (e : Expr) (i : Nat) (xs : Array Expr) : SimpM SimpHaveResult := do
+  simpHaveTelescopeAux (info : HaveTelescopeInfo) (fixed : Array Bool) (used : Array Bool) (e : Expr) (i : Nat) (xs : Array Expr) : SimpM SimpHaveResult := do
     if h : i < info.haveInfo.size then
       let hinfo := info.haveInfo[i]
       -- `x` and `val` are the fvar and value with respect to the local context.
@@ -668,7 +677,7 @@ where
           let proof := mkApp6 (mkConst ``have_unused' us) t exprType v expr expr
             (mkApp2 (mkConst ``Eq.refl [info.level]) exprType expr)
           return { expr, exprType, exprInit, exprResult, proof, modified := true }
-      else if fixed.contains i then
+      else if fixed.getD i true then
         /-
         Fixed `have` (like `CongrArgKind.fixed`): dsimp the value and simp the body.
         The variable appears in the type of the body.
@@ -710,6 +719,7 @@ where
         withExistingLocalDecls [hinfo.decl] <| withNewLemmas #[x] do
           let rb ← simpHaveTelescopeAux info fixed used b (i + 1) (xs.push x)
           let expr := mkApp (mkLambda n .default t rb.expr) v'
+          assert! !rb.exprType.hasLooseBVar 0
           let exprType := rb.exprType.lowerLooseBVars 1 1
           let exprInit := mkApp (mkLambda n .default t rb.exprInit) v
           let exprResult := mkHave n t v' rb.exprResult
@@ -1010,7 +1020,7 @@ partial def simpLoop (e : Expr) : SimpM Result := withIncRecDepth do
     if let some result := cache.find? e then
       return result
   if (← get).numSteps > cfg.maxSteps then
-    throwError "simp failed, maximum number of steps exceeded"
+    throwError "`simp` failed: maximum number of steps exceeded"
   else
     checkSystem "simp"
     modify fun s => { s with numSteps := s.numSteps + 1 }
@@ -1060,15 +1070,29 @@ def simpImpl (e : Expr) : SimpM Result := withIncRecDepth do
   else
     x
 
+/--
+For `rfl` theorems and simprocs, there might not be an explicit reference in the proof term, so
+we record (all non-builtin) usages explicitly.
+-/
+private def recordSimpUses (s : State) : MetaM Unit := do
+  for (thm, _) in s.usedTheorems.map do
+    if let .decl declName .. := thm then
+      if !(← isBuiltinSimproc declName) then
+        recordExtraModUseFromDecl (isMeta := false) declName
+
 def mainCore (e : Expr) (ctx : Context) (s : State := {}) (methods : Methods := {}) : MetaM (Result × State) := do
-  SimpM.run ctx s methods <| withCatchingRuntimeEx <| simp e
+  let (r, s) ← SimpM.run ctx s methods <| withCatchingRuntimeEx <| simp e
+  recordSimpUses s
+  return (r, s)
 
 def main (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Result × Stats) := do
   let (r, s) ← mainCore e ctx { stats with } methods
   return (r, { s with })
 
 def dsimpMainCore (e : Expr) (ctx : Context) (s : State := {}) (methods : Methods := {}) : MetaM (Expr × State) := do
-  SimpM.run ctx s methods <| withCatchingRuntimeEx <| dsimp e
+  let (r, s) ← SimpM.run ctx s methods <| withCatchingRuntimeEx <| dsimp e
+  recordSimpUses s
+  return (r, s)
 
 def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Expr × Stats) := do
   let (r, s) ← dsimpMainCore e ctx { stats with } methods
@@ -1135,10 +1159,6 @@ def applySimpResult (mvarId : MVarId) (val : Expr) (type : Expr) (r : Simp.Resul
         return some ((← mkExpectedTypeHint val r.expr), r.expr)
       else
         return some (val, r.expr)
-
-@[deprecated applySimpResult (since := "2025-03-26")]
-def applySimpResultToProp (mvarId : MVarId) (proof : Expr) (prop : Expr) (r : Simp.Result) (mayCloseGoal := true) : MetaM (Option (Expr × Expr)) :=
-  applySimpResult mvarId proof prop r mayCloseGoal
 
 def applySimpResultToFVarId (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Result) (mayCloseGoal : Bool) : MetaM (Option (Expr × Expr)) := do
   let localDecl ← fvarId.getDecl
@@ -1226,7 +1246,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray :=
     let toClear := fvarIdsToSimp.filter fun fvarId => !replaced.contains fvarId
     mvarIdNew ← mvarIdNew.tryClearMany toClear
     if ctx.config.failIfUnchanged && mvarId == mvarIdNew then
-      throwError "simp made no progress"
+      throwError "`simp` made no progress"
     return (some (fvarIdsNew, mvarIdNew), stats)
 
 def simpTargetStar (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (discharge? : Option Simp.Discharge := none)
@@ -1275,7 +1295,7 @@ def dsimpGoal (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray :
         mvarIdNew ← mvarIdNew.replaceTargetDefEq targetNew
       pure () -- FIXME: bug in do notation if this is removed?
     if ctx.config.failIfUnchanged && mvarId == mvarIdNew then
-      throwError "dsimp made no progress"
+      throwError "`dsimp` made no progress"
     return (some mvarIdNew, stats)
 
 end Lean.Meta

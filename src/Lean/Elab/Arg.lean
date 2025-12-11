@@ -3,8 +3,12 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Term
+public import Lean.Elab.Term
+
+public section
 
 namespace Lean.Elab.Term
 
@@ -37,7 +41,7 @@ instance : ToMessageData Arg where
   with the same name. -/
 def addNamedArg (namedArgs : Array NamedArg) (namedArg : NamedArg) : MetaM (Array NamedArg) := do
   if namedArgs.any (namedArg.name == ·.name) then
-    throwError "argument '{namedArg.name}' was already set"
+    throwErrorAt namedArg.ref "Argument `{namedArg.name}` was already set"
   return namedArgs.push namedArg
 
 partial def expandArgs (args : Array Syntax) : MetaM (Array NamedArg × Array Arg × Bool) := do

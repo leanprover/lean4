@@ -34,7 +34,7 @@ warning: declaration uses 'sorry'
 example (b : Bool) : if b then have unused := (); True else False := by
   simp (config := Lean.Meta.Simp.neutralConfig); trace_state; sorry
 
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #guard_msgs in
 example (b : Bool) : if b then have unused := (); True else False := by
   simp (config := Lean.Meta.Simp.neutralConfig) only; trace_state; sorry

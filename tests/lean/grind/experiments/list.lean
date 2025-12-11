@@ -872,7 +872,7 @@ theorem flatMap_eq_foldl {f : α → List β} {l : List α} :
   intro l'
   induction l generalizing l'
   · grind
-  · next ih => rw [flatMap_cons, ← append_assoc, ih, foldl_cons]
+  next ih => rw [flatMap_cons, ← append_assoc, ih, foldl_cons]
 
 /-! ### replicate -/
 

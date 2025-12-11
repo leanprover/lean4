@@ -1,3 +1,4 @@
+module
 reset_grind_attrs%
 example {l : List α} {f : β → α → β} {b : β} :
     l.foldl f b = l.reverse.foldr (fun x y => f y x) b := by

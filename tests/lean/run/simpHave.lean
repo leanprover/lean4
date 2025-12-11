@@ -27,14 +27,14 @@ example (n : Nat) (h : n = 5) :
   simp [h]
 
 /-! Turning off zeta reduction of lets -/
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #guard_msgs in
 example (n : Nat) (h : n = 5) :
     let x := 1; let _y := 2; let _z := 3; let w := 4; x + w = n := by
   simp -zeta -zetaUnused -letToHave only
 
 /-! Turning off zeta reduction of lets. Lets can only be dsimped. -/
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #guard_msgs in
 example (n : Nat) (h : n = 5) :
     let x := 1; let _y := 2; let _z := 3; let w := 4; x + w = n := by
@@ -100,12 +100,12 @@ example (n : Nat) (h : n = 5) :
   simp [h]
 
 /-! Turning off zeta reduction of haves, including with specific `zetaHave` option. -/
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #guard_msgs in
 example (n : Nat) (h : n = 5) :
     have x := 1; have _y := 2; have _z := 3; have w := 4; x + w = n := by
   simp -zeta -zetaUnused only
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #guard_msgs in
 example (n : Nat) (h : n = 5) :
     have x := 1; have _y := 2; have _z := 3; have w := 4; x + w = n := by
@@ -172,7 +172,7 @@ def fix1 (n : Nat) : Fin (n + 1) := 0
 /-!
 Fixed because appears in type of body.
 -/
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #guard_msgs in
 example (n : Nat) (h : n = 5) :
     (have a := n + 1; fix1 a) = 0 := by
@@ -456,7 +456,7 @@ example (n : Nat) (h : n = 1) :
 /-!
 Non-fixed tests: modifying and not modifying value and body.
 -/
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #guard_msgs in
 example (n : Nat) (h : n = 1) :
     (have m := n; m) = 1 := by
@@ -504,7 +504,7 @@ example (n : Nat) (h : n = 1) :
 /-!
 Fixed tests: modifying and not modifying body (with simp) and value (with dsimp)
 -/
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #guard_msgs in
 example (n : Nat) (h : n = 1) :
     (have m := n; fix1 m) = 1 := by
@@ -522,7 +522,7 @@ example (n : Nat) (h : n = 0) :
   simp -zeta
   trace_state
   simp [h, fix1]
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #guard_msgs in
 example (n : Nat) (h : n = 0) :
     (have m := 0 + n; fix1 m) = n := by

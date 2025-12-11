@@ -1,6 +1,6 @@
 # Lean Build Bootstrapping
 
-Since version 4, Lean is a partially bootstrapped program: most parts of the
+Lean is a bootstrapped program: the
 frontend and compiler are written in Lean itself and thus need to be built before
 building Lean itself - which is needed to again build those parts. This cycle is
 broken by using pre-built C files checked into the repository (which ultimately
@@ -72,6 +72,14 @@ update the archived C source code of the stage 0 compiler in `stage0/src`.
 
 The github repository will automatically update stage0 on `master` once
 `src/stdlib_flags.h` and `stage0/src/stdlib_flags.h` are out of sync.
+To trigger this, modify `stage0/src/stdlib_flags.h` (e.g., by adding or changing
+a comment). When `update-stage0` runs, it will overwrite `stage0/src/stdlib_flags.h`
+with the contents of `src/stdlib_flags.h`, bringing them back in sync.
+
+NOTE: A full rebuild of stage 1 will only be triggered when the *committed* contents of `stage0/` are changed.
+Thus if you change files in it manually instead of through `update-stage0-commit` (see below) or fetching updates from git, you either need to commit those changes first or run `make -C build/release clean-stdlib`.
+The same is true for further stages except that a rebuild of them is retriggered on any committed change, not just to a specific directory.
+Thus when debugging e.g. stage 2 failures, you can resume the build from these failures on but may want to explicitly call `clean-stdlib` to either observe changes from `.olean` files of modules that built successfully or to check that you did not break modules that built successfully at some prior point.
 
 If you have write access to the lean4 repository, you can also manually
 trigger that process, for example to be able to use new features in the compiler itself.
@@ -82,13 +90,13 @@ gh workflow run update-stage0.yml
 ```
 
 Leaving stage0 updates to the CI automation is preferable, but should you need
-to do it locally, you can use `make update-stage0-commit` in `build/release` to
-update `stage0` from `stage1` or `make -C stageN update-stage0-commit` to
+to do it locally, you can use `make -C build/release update-stage0-commit` to
+update `stage0` from `stage1` or `make -C build/release/stageN update-stage0-commit` to
 update from another stage. This command will automatically stage the updated files
-and introduce a commit,so make sure to commit your work before that.
+and introduce a commit, so make sure to commit your work before that.
 
 If you rebased the branch (either onto a newer version of `master`, or fixing
-up some commits prior to the stage0 update, recreate the stage0 update commits.
+up some commits prior to the stage0 update), recreate the stage0 update commits.
 The script `script/rebase-stage0.sh` can be used for that.
 
 The CI should prevent PRs with changes to stage0 (besides `stdlib_flags.h`)

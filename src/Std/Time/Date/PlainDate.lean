@@ -3,14 +3,17 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.Internal
-import Std.Time.Date.Basic
-import Std.Internal.Rat
+public import Std.Time.Date.Basic
+import all Std.Time.Date.Unit.Month
+import all Std.Time.Date.Unit.Year
+
+public section
 
 namespace Std
 namespace Time
-open Std.Internal
 open Std.Time
 open Internal
 open Lean

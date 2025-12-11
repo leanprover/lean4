@@ -1,3 +1,4 @@
+module
 open BitVec
 
 example (x : BitVec (w+1)) : (cons x.msb (x.setWidth w)) = x := by

@@ -1,3 +1,4 @@
+module
 open Prod
 
 theorem swap_swap : ∀ x : α × β, swap (swap x) = x

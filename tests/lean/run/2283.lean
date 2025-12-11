@@ -32,7 +32,7 @@ instance hasLimitsOfSize : HasLimitsOfSize.{v} (Type max v u) := sorry
 
 set_option pp.mvars false
 /--
-error: type mismatch
+error: Type mismatch
   limit.π sorry sorry
 has type
   sorry

@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Classes.Ord.Basic
-import Std.Data.DTreeMap.Internal.Def
-import Std.Data.Internal.Cut
+public import Std.Data.DTreeMap.Internal.Def
+public import Std.Data.Internal.Cut
+import Init.Data.List.Pairwise
+
+@[expose] public section
 
 /-!
 # `Ordered` predicate

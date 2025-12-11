@@ -3,8 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.Util
+
+public section
 
 namespace Lean.Meta
 
@@ -67,13 +71,12 @@ namespace Lean.Meta
             if newType.isForall then
               loop (i+1) lctx fvars fvars.size s newType
             else
-              throwTacticEx `introN mvarId "insufficient number of binders"
+              throwTacticEx `introN mvarId <| m!"There are no additional binders or `let` bindings in the goal to introduce"
   let (fvars, mvarId) ← loop n lctx #[] 0 s mvarType
   return (fvars.map Expr.fvarId!, mvarId)
 
 register_builtin_option tactic.hygienic : Bool := {
   defValue := true
-  group    := "tactic"
   descr    := "make sure tactics are hygienic"
 }
 
@@ -157,6 +160,23 @@ This will fail if there is nothing to introduce, ie when the goal
 does not start with a forall, lambda or let. -/
 abbrev _root_.Lean.MVarId.intro1P (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
   intro1Core mvarId true
+
+/--
+Given a goal `... |- β → α`, returns a goal `... ⊢ α`.
+Like `intro h; clear h`, but without ever appending to the local context.
+-/
+def _root_.Lean.MVarId.intro1_ (mvarId : MVarId) : MetaM MVarId := do
+  mvarId.withContext do
+    let target ← mvarId.getType'
+    match target with
+    | .forallE n β α bi =>
+      if α.hasLooseBVars then
+        throwError "intro1_: expected arrow type\n{mvarId}"
+      let tag ← mvarId.getTag
+      let newMVar ← mkFreshExprSyntheticOpaqueMVar α tag
+      mvarId.assign (.lam n β newMVar bi)
+      return newMVar.mvarId!
+    | _ => throwError "intro1_: expected arrow type\n{mvarId}"
 
 /--
 Calculate the number of new hypotheses that would be created by `intros`,

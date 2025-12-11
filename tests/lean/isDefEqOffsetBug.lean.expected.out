@@ -1,4 +1,4 @@
-isDefEqOffsetBug.lean:19:2-19:7: error: type mismatch
+isDefEqOffsetBug.lean:19:2-19:7: error: Type mismatch
   rfl
 has type
   ?m = ?m

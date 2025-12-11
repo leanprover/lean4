@@ -3,9 +3,15 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.Toml.Encode
-import Lake.Config.Package
+public import Lake.Toml.Encode
+public import Lake.Config.Package
+meta import Lake.Config.LeanLibConfig
+meta import Lake.Config.LeanExeConfig
+meta import Lake.Config.InputFileConfig
+meta import Lake.Config.PackageConfig
 
 /-! # TOML Translation
 
@@ -40,27 +46,27 @@ instance [enc : EncodeField σ name α] [BEq α] [field : ConfigField σ name α
 
 /-! ## Value Encoders -/
 
-instance : ToToml LeanVer := ⟨(toToml <| toString ·)⟩
-instance : ToToml BuildType := ⟨(toToml ·.toString)⟩
-instance : ToToml Glob := ⟨(toToml ·.toString)⟩
+public instance : ToToml LeanVer := ⟨(toToml <| toString ·)⟩
+public instance : ToToml BuildType := ⟨(toToml ·.toString)⟩
+public instance : ToToml Glob := ⟨(toToml ·.toString)⟩
 
-instance : ToToml Backend := ⟨(toToml ·.toString)⟩
+public instance : ToToml Backend := ⟨(toToml ·.toString)⟩
 
-instance : SmartInsert Backend where
+public instance : SmartInsert Backend where
   smartInsert k v t := match v with | .default => t | v => t.insert k (toToml v)
 
-def Toml.encodeLeanOptionValue (v : LeanOptionValue) : Value :=
+public def Toml.encodeLeanOptionValue (v : LeanOptionValue) : Value :=
   match v with
   | .ofString s => toToml s
   | .ofBool b => toToml b
   | .ofNat n => toToml n
 
-instance : ToToml LeanOptionValue := ⟨encodeLeanOptionValue⟩
+public instance : ToToml LeanOptionValue := ⟨encodeLeanOptionValue⟩
 
-def Toml.encodeLeanOptions (opts : Array LeanOption) : Table :=
+public def Toml.encodeLeanOptions (opts : Array LeanOption) : Table :=
   opts.foldl (init := {}) fun vs ⟨k,v⟩ => vs.insert k (toToml v)
 
-instance : ToToml (Array LeanOption) where
+public instance : ToToml (Array LeanOption) where
   toToml opts := .table .missing <| encodeLeanOptions opts
 
 @[inline] private def encodeSingleton? [ToToml? α] (name : Name) (a : α) : Option Value :=
@@ -68,8 +74,8 @@ instance : ToToml (Array LeanOption) where
 
 mutual
 
-partial def Pattern.toToml? [ToToml? β] (p : Pattern α β) : Option Value :=
-  have : ToToml? (PatternDescr α β) := ⟨PattternDescr.toToml?⟩
+public partial def Pattern.toToml? [ToToml? β] (p : Pattern α β) : Option Value :=
+  have : ToToml? (PatternDescr α β) := ⟨PatternDescr.toToml?⟩
   match p.name with
   | .anonymous =>
     p.descr?.bind toToml?
@@ -80,7 +86,7 @@ partial def Pattern.toToml? [ToToml? β] (p : Pattern α β) : Option Value :=
   | n =>
     toToml <| Table.empty.insert `preset n
 
-partial def PattternDescr.toToml?
+public partial def PatternDescr.toToml?
   [ToToml? β] (p : PatternDescr α β) : Option Value
 :=
   have : ToToml? (Pattern α β) := ⟨Pattern.toToml?⟩
@@ -92,10 +98,10 @@ partial def PattternDescr.toToml?
 
 end
 
-instance [ToToml? β] : ToToml? (Pattern α β) := ⟨Pattern.toToml?⟩
-instance [ToToml? β] : ToToml? (PatternDescr α β) := ⟨PattternDescr.toToml?⟩
+public instance [ToToml? β] : ToToml? (Pattern α β) := ⟨Pattern.toToml?⟩
+public instance [ToToml? β] : ToToml? (PatternDescr α β) := ⟨PatternDescr.toToml?⟩
 
-protected def StrPatDescr.toToml (p : StrPatDescr) : Value :=
+public protected def StrPatDescr.toToml (p : StrPatDescr) : Value :=
   match p with
   | .mem xs => toToml xs
   | .startsWith affix => toToml <| Table.empty.insert `startsWith (toToml affix)
@@ -103,7 +109,7 @@ protected def StrPatDescr.toToml (p : StrPatDescr) : Value :=
 
 instance : ToToml StrPatDescr := ⟨StrPatDescr.toToml⟩
 
-protected def PathPatDescr.toToml? (p : PathPatDescr) : Option Value :=
+public protected def PathPatDescr.toToml? (p : PathPatDescr) : Option Value :=
   match p with
   | .path p => encodeSingleton? `path p
   | .extension p => encodeSingleton? `extension p
@@ -111,7 +117,7 @@ protected def PathPatDescr.toToml? (p : PathPatDescr) : Option Value :=
 
 instance : ToToml? PathPatDescr := ⟨PathPatDescr.toToml?⟩
 
-def encodeFacets (facets : Array Name) : Value :=
+public def encodeFacets (facets : Array Name) : Value :=
   toToml <| facets.map (toToml <| Name.eraseHead ·)
 
 instance : EncodeField (LeanLibConfig n) `defaultFacets (Array Name) := ⟨encodeFacets⟩
@@ -122,7 +128,7 @@ instance : ToToml (Target α) := ⟨(toToml ·.key.toString)⟩
 
 /-! ## Dependency Configuration Encoders -/
 
-protected def Dependency.toToml (dep : Dependency) (t : Table  := {}) : Table :=
+public protected def Dependency.toToml (dep : Dependency) (t : Table  := {}) : Table :=
   let t := t
     |>.insert `name dep.name
     |>.insertD `scope dep.scope ""
@@ -137,19 +143,22 @@ protected def Dependency.toToml (dep : Dependency) (t : Table  := {}) : Table :=
         |>.smartInsert `subDir subDir?
     else
       t
-  t.smartInsert `options <| dep.opts.fold (·.insert · ·) Table.empty
+  t.smartInsert `options <| dep.opts.foldl (·.insert · ·) Table.empty
 
-instance : ToToml Dependency := ⟨(toToml ·.toToml)⟩
+public instance : ToToml Dependency := ⟨(toToml ·.toToml)⟩
 
 /-! ## Package & Target Configuration Encoders -/
 
-private def genToToml
+private meta def genToToml
   (cmds : Array Command)
-  (tyName : Name) [info : ConfigInfo tyName] (takesName : Bool)
+  (tyName : Name) [info : ConfigInfo tyName]
   (exclude : Array Name := #[])
 : MacroM (Array Command) := do
-  let val ← if takesName then `(t.insert `name $(mkIdent `n)) else `(t)
-  let ty := if takesName then Syntax.mkCApp tyName #[mkIdent `n] else mkCIdent tyName
+  let val ← if info.arity == 0 then `(t) else
+    `(t.insert `name $(mkIdent <| .mkSimple s!"x_{info.arity}"))
+  let tyArgs := info.arity.fold (init := Array.emptyWithCapacity info.arity) fun i _ as =>
+    as.push (mkIdent <| .mkSimple s!"x_{i+1}")
+  let ty := Syntax.mkCApp tyName tyArgs
   let val ← info.fields.foldlM (init := val) fun val {name, canonical, ..} => do
     if !canonical || exclude.contains name then
       return val
@@ -164,31 +173,31 @@ private def genToToml
 local macro "gen_toml_encoders%" : command => do
   let cmds := #[]
   -- Targets
-  let cmds ← genToToml cmds ``LeanConfig false
-  let cmds ← genToToml cmds ``LeanLibConfig true
+  let cmds ← genToToml cmds ``LeanConfig
+  let cmds ← genToToml cmds ``LeanLibConfig
     (exclude := #[`nativeFacets])
-  let cmds ← genToToml cmds ``LeanExeConfig true
+  let cmds ← genToToml cmds ``LeanExeConfig
     (exclude := #[`nativeFacets])
-  let cmds ← genToToml cmds ``InputFileConfig true
-  let cmds ← genToToml cmds ``InputDirConfig true
+  let cmds ← genToToml cmds ``InputFileConfig
+  let cmds ← genToToml cmds ``InputDirConfig
   -- Package
-  let cmds ← genToToml cmds ``WorkspaceConfig false
-  let cmds ← genToToml cmds ``PackageConfig true
+  let cmds ← genToToml cmds ``WorkspaceConfig
+  let cmds ← genToToml cmds ``PackageConfig
   return ⟨mkNullNode cmds⟩
 
 gen_toml_encoders%
 
 @[inline] def Package.mkTomlTargets
   (pkg : Package) (kind : Name)
-  (toToml : {n : Name} → ConfigType kind pkg.name n → Table)
+  (toToml : {n : Name} → ConfigType kind pkg.keyName n → Table)
 : Array Table :=
   pkg.targetDecls.filterMap (·.config? kind |>.map toToml)
 
 /-! ## Root Encoder -/
 
 /-- Create a TOML table that encodes the declarative configuration of the package. -/
-def Package.mkTomlConfig (pkg : Package) (t : Table := {}) : Table :=
-  let cfg : PackageConfig pkg.name :=
+public def Package.mkTomlConfig (pkg : Package) (t : Table := {}) : Table :=
+  let cfg : PackageConfig pkg.keyName pkg.origName :=
     {pkg.config with testDriver := pkg.testDriver, lintDriver := pkg.lintDriver}
   cfg.toToml t
   |>.smartInsert `defaultTargets pkg.defaultTargets

@@ -1,3 +1,4 @@
+module
 variable {R : Type} [Lean.Grind.CommRing R]
 -- My real code uses CommRing from Mathlib instead, and sees the same behavior.
 

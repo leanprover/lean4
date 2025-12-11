@@ -3,13 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Transform
-import Lean.Meta.Match.MatcherInfo
-import Lean.Compiler.ExternAttr
-import Lean.Compiler.InitAttr
-import Lean.Compiler.ImplementedByAttr
-import Lean.Compiler.LCNF.ToLCNF
+public import Lean.Compiler.InitAttr
+public import Lean.Compiler.LCNF.ToLCNF
+
+public section
 
 namespace Lean.Compiler.LCNF
 /--
@@ -49,10 +49,9 @@ partial def inlineMatchers (e : Expr) : CoreM Expr :=
         return .visit (← Meta.mkLambdaFVars xs (mkAppN e xs))
     else
       let mut args := e.getAppArgs
-      let numAlts := info.numAlts
       let altNumParams := info.altNumParams
       let rec inlineMatcher (i : Nat) (args : Array Expr) (letFVars : Array Expr) : MetaM Expr := do
-        if h : i < numAlts then
+        if h : i < altNumParams.size then
           let altIdx := i + info.getFirstAltPos
           let numParams := altNumParams[i]
           let alt ← normalizeAlt args[altIdx]! numParams
@@ -86,6 +85,18 @@ def getDeclInfo? (declName : Name) : CoreM (Option ConstantInfo) := do
   let env ← getEnv
   return env.find? (mkUnsafeRecName declName) <|> env.find? declName
 
+def declIsNotUnsafe (declName : Name) : CoreM Bool := do
+  let env ← getEnv
+  let some info := env.find? declName | return true
+  if info.isUnsafe then
+    return false
+  else
+    if info matches .opaqueInfo .. then
+      -- check if its a partial def
+      return env.find? (Compiler.mkUnsafeRecName declName) |>.isNone
+    else
+      return true
+
 /--
 Convert the given declaration from the Lean environment into `Decl`.
 The steps for this are roughly:
@@ -97,8 +108,8 @@ The steps for this are roughly:
 -/
 def toDecl (declName : Name) : CompilerM Decl := do
   let declName := if let some name := isUnsafeRecName? declName then name else declName
-  let some info ← getDeclInfo? declName | throwError "declaration `{declName}` not found"
-  let safe := !info.isPartial && !info.isUnsafe
+  let some info ← getDeclInfo? declName | throwError "declaration `{.ofConstName declName}` not found"
+  let safe ← declIsNotUnsafe declName
   let env ← getEnv
   let inlineAttr? := getInlineAttribute? env declName
   let paramsFromTypeBinders (expr : Expr) : CompilerM (Array Param) := do
@@ -121,7 +132,7 @@ def toDecl (declName : Name) : CompilerM Decl := do
     let params ← paramsFromTypeBinders type
     return { name := declName, params, type, value := .extern { entries := [] }, levelParams := info.levelParams, safe, inlineAttr? }
   else
-    let some value := info.value? (allowOpaque := true) | throwError "declaration `{declName}` does not have a value"
+    let some value := info.value? (allowOpaque := true) | throwError "declaration `{.ofConstName declName}` does not have a value"
     let (type, value) ← Meta.MetaM.run' do
       let type  ← toLCNFType info.type
       let value ← Meta.lambdaTelescope value fun xs body => do Meta.mkLambdaFVars xs (← Meta.etaExpand body)

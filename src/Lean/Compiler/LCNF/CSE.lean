@@ -3,11 +3,14 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.ToExpr
-import Lean.Compiler.LCNF.PassManager
-import Lean.Compiler.NeverExtractAttr
+public import Lean.Compiler.LCNF.ToExpr
+public import Lean.Compiler.LCNF.PassManager
+public import Lean.Compiler.NeverExtractAttr
+
+public section
 
 namespace Lean.Compiler.LCNF
 

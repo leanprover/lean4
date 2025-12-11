@@ -2,7 +2,7 @@ set_option debug.proofAsSorry true
 set_option pp.mvars false
 
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
   ?_ = ?_

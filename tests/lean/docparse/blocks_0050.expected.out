@@ -1,0 +1,18 @@
+Success! Final stack:
+  [(Lean.Doc.Syntax.para
+    "para{"
+    [(Lean.Doc.Syntax.link
+      "["
+      [(Lean.Doc.Syntax.text (str "\"My link\""))]
+      "]"
+      (Lean.Doc.Syntax.ref
+       "["
+       (str "\"lean\"")
+       "]"))]
+    "}")
+   (Lean.Doc.Syntax.link_ref
+    "["
+    (str "\"lean\"")
+    "]:"
+    (str "\"https://lean-lang.org\""))]
+All input consumed.

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sat.AIG.LawfulOperator
-// Imports: Std.Sat.AIG.Basic
+// Imports: public import Std.Sat.AIG.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -34,7 +34,7 @@ lean_dec(x_4);
 lean_dec(x_2);
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_7 = lean_apply_2(x_3, x_6, lean_box(0));
 return x_7;
 }
@@ -47,7 +47,7 @@ x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_1, 1);
 lean_inc(x_9);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_10 = lean_apply_3(x_4, x_8, x_9, lean_box(0));
 return x_10;
 }
@@ -62,13 +62,13 @@ x_7 = l___private_Std_Sat_AIG_LawfulOperator_0__Std_Sat_AIG_toGraphviz_go_match_
 return x_7;
 }
 }
-lean_object* initialize_Std_Sat_AIG_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Sat_AIG_Basic(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Sat_AIG_LawfulOperator(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Sat_AIG_LawfulOperator(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Sat_AIG_Basic(builtin, lean_io_mk_world());
+res = initialize_Std_Sat_AIG_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

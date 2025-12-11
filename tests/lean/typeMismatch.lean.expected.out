@@ -1,10 +1,10 @@
-typeMismatch.lean:7:0-7:13: error: type mismatch
+typeMismatch.lean:7:0-7:13: error: Type mismatch
   IO.println ""
 has type
   IO Unit
 but is expected to have type
   IO Nat
-typeMismatch.lean:12:0-12:16: error: type mismatch
+typeMismatch.lean:12:0-12:16: error: Type mismatch
   Meta.isDefEq x x
 has type
   MetaM Bool

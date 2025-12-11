@@ -1,3 +1,4 @@
+module
 theorem dummy (x : Nat) : x = x :=
   rfl
 

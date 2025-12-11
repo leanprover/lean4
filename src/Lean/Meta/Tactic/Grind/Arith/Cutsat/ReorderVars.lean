@@ -3,12 +3,15 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Inv
-
+public section
 namespace Lean.Meta.Grind.Arith.Cutsat
-
 /-! Collect variable information -/
 
 structure VarInfo where
@@ -159,8 +162,8 @@ def reorderVars : GoalM Unit := do
   for c in dvds do c.assert
   for c in ineqs do c.assert
   for c in diseqs do c.assert
-  trace[grind.debug.cutsat.search.reorder] "new2old: {new2old}"
-  trace[grind.debug.cutsat.search.reorder] "old2new: {old2new}"
+  trace[grind.debug.lia.search.reorder] "new2old: {new2old}"
+  trace[grind.debug.lia.search.reorder] "old2new: {old2new}"
   checkInvariants
 
 end Lean.Meta.Grind.Arith.Cutsat

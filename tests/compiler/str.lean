@@ -1,22 +1,22 @@
-def showChars : Nat → String → String.Pos → IO Unit
+def showChars : Nat → String → String.Pos.Raw → IO Unit
 | 0,     _, _   => pure ()
 | n+1,   s, idx => do
-  unless s.atEnd idx  do
-    IO.println (">> " ++ toString (s.get idx)) *>
-    showChars n s (s.next idx)
+  unless idx.atEnd s  do
+    IO.println (">> " ++ toString (idx.get s)) *>
+    showChars n s (idx.next s)
 
 def main : IO UInt32 :=
 let s₁             := "hello α_world_β";
-let b : String.Pos := 0;
-let e              := s₁.endPos;
-IO.println (s₁.extract b e) *>
-IO.println (s₁.extract (b+ "  ") e) *>
-IO.println (s₁.extract (b+ "  ") (e-⟨1⟩)) *>
-IO.println (s₁.extract (b+⟨2⟩) (e-⟨2⟩)) *>
-IO.println (s₁.extract (b+⟨7⟩) e) *>
-IO.println (s₁.extract (b+⟨8⟩) e) *>
+let b : String.Pos.Raw := 0;
+let e              := s₁.rawEndPos;
+IO.println (b.extract s₁ e) *>
+IO.println ((b+ "  ").extract s₁ e) *>
+IO.println ((b+ "  ").extract s₁ (e.unoffsetBy ⟨1⟩)) *>
+IO.println ((b.offsetBy ⟨2⟩).extract s₁ (e.unoffsetBy ⟨2⟩)) *>
+IO.println ((b.offsetBy ⟨7⟩).extract s₁ e) *>
+IO.println ((b.offsetBy ⟨8⟩).extract s₁ e) *>
 IO.println (toString e) *>
-IO.println (repr "   aaa   ".trim) *>
+IO.println (repr "   aaa   ".trimAscii.copy) *>
 showChars s₁.length s₁ 0  *>
 IO.println ("abc".isPrefixOf "abcd") *>
 IO.println ("abcd".isPrefixOf "abcd") *>

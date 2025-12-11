@@ -3,15 +3,25 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.AddDecl
-import Lean.Meta.Basic
-import Lean.DefEqAttrib
+public import Lean.AddDecl
+public import Lean.DefEqAttrib
+
+public section
 
 namespace Lean.Meta
 
+structure AuxLemmaKey where
+  type : Expr
+  -- When an aux lemma is created in a private context and thus has a private name, we must not
+  -- reuse it in an exported context.
+  isPrivate : Bool
+deriving BEq, Hashable
+
 structure AuxLemmas where
-  lemmas : PHashMap Expr (Name × List Name) := {}
+  lemmas : PHashMap AuxLemmaKey (Name × List Name) := {}
   deriving Inhabited
 
 builtin_initialize auxLemmasExt : EnvExtension AuxLemmas ←
@@ -29,9 +39,10 @@ builtin_initialize auxLemmasExt : EnvExtension AuxLemmas ←
   users. For example, `simp` preprocessor may convert a lemma into multiple ones.
 -/
 def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) (kind? : Option Name := none)
-    (cache := true) (inferRfl := false) : MetaM Name := do
+    (cache := true) (inferRfl := false) (forceExpose := false) : MetaM Name := do
   let env ← getEnv
   let s := auxLemmasExt.getState env
+  let key := { type, isPrivate := !env.isExporting }
   let mkNewAuxLemma := do
     let auxName ← mkAuxDeclName (kind := kind?.getD `_proof)
     let decl :=
@@ -48,15 +59,20 @@ def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) (kind? : O
           name := auxName
           levelParams, type, value
         }
-    addDecl decl
+    addDecl (forceExpose := forceExpose) decl
     if inferRfl then
       inferDefEqAttr auxName
-    modifyEnv fun env => auxLemmasExt.modifyState env fun ⟨lemmas⟩ => ⟨lemmas.insert type (auxName, levelParams)⟩
+    modifyEnv fun env => auxLemmasExt.modifyState env fun ⟨lemmas⟩ => ⟨lemmas.insert key (auxName, levelParams)⟩
     return auxName
   if cache then
-    if let some (name, levelParams') := s.lemmas.find? type then
+    if let some (name, levelParams') := s.lemmas.find? key then
       if levelParams == levelParams' then
         return name
+    -- private contexts may reuse public matchers
+    if key.isPrivate then
+      if let some (name, levelParams') := s.lemmas.find? { key with isPrivate := false } then
+        if levelParams == levelParams' then
+          return name
   mkNewAuxLemma
 
 end Lean.Meta

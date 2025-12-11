@@ -60,7 +60,12 @@ structure C extends B where
 
 -- This first example does not work because the default values at `C` are the only ones considered.
 /--
-error: fields missing: 'y', 'z'
+error: Fields missing: `y`, `z`
+
+Hint: Add missing fields:
+  ⏎
+  ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲y̲ ̲:̲=̲ ̲_̲
+  ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲z̲ ̲:̲=̲ ̲_̲
 ---
 info: { x := 1, y := sorry, z := sorry } : C
 -/
@@ -71,7 +76,7 @@ info: { x := 1, y := sorry, z := sorry } : C
 #guard_msgs in #check { z := 1 : C }
 
 -- This first example does not work because the default values at `C` are the only ones considered.
-/-- error: fields missing: 'y', 'z' -/
+/-- error: Fields missing: `y`, `z` -/
 #guard_msgs in
 def test1 : C where
   x := 1
@@ -220,10 +225,14 @@ structure S where
 variable (x : Fin 3)
 
 /--
-error: fields missing: 'n'
+error: Fields missing: `n`
 
-field 'n' must be explicitly provided, its synthesized value is
+Field `n` must be explicitly provided; its synthesized value is
   3
+
+Hint: Add missing fields:
+  ⏎
+  ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲ ̲n̲ ̲:̲=̲ ̲3̲
 ---
 info: { n := 3, m := x } : S
 -/

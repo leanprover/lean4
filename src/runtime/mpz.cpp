@@ -304,7 +304,7 @@ void display(std::ostream & out, __mpz_struct const * v) {
         mpz_get_str(buffer, 10, v);
         out << buffer;
     } else {
-        std::unique_ptr<char> buffer(new char[sz]);
+        std::unique_ptr<char[]> buffer(new char[sz]);
         mpz_get_str(buffer.get(), 10, v);
         out << buffer.get();
     }

@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Data.UInt.BasicAux
 
-public section
+@[expose] public section
 
 /-- Determines if the given integer is a valid [Unicode scalar value](https://www.unicode.org/glossary/#unicode_scalar_value).
 

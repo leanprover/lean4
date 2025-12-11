@@ -1,4 +1,4 @@
-1079.lean:3:2-3:7: error: Alternative 'isFalse' has not been provided
+1079.lean:3:2-3:7: error: Alternative `isFalse` has not been provided
 [Meta.Tactic.simp.rewrite] h:1000:
       m
     ==>

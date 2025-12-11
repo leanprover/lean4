@@ -3,8 +3,12 @@ Copyright (c) 2025 Robin Arnez. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Robin Arnez, Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.ExtTreeMap.Basic
+public import Std.Data.ExtTreeMap.Basic
+
+@[expose] public section
 
 /-!
 # Extensional tree sets
@@ -442,16 +446,12 @@ order.
 def forIn [TransCmp cmp] (f : α → δ → m (ForInStep δ)) (init : δ) (t : ExtTreeSet α cmp) : m δ :=
   t.inner.forIn (fun a _ c => f a c) init
 
-/-
-Note: We ignore the monad instance provided by `forM` / `forIn` and instead use the one from the
-instance in order to get the `LawfulMonad m` assumption
--/
 
-instance [TransCmp cmp] [inst : Monad m] [LawfulMonad m] : ForM m (ExtTreeSet α cmp) α where
-  forM t f := @forM _ _ _ inst _ _ f t
+instance [TransCmp cmp] [Monad m] [LawfulMonad m] : ForM m (ExtTreeSet α cmp) α where
+  forM t f := forM f t
 
-instance [TransCmp cmp] [inst : Monad m] [LawfulMonad m] : ForIn m (ExtTreeSet α cmp) α where
-  forIn m init f := @forIn _ _ _ _ inst _ _ f init m
+instance [TransCmp cmp] [Monad m] [LawfulMonad m] : ForIn m (ExtTreeSet α cmp) α where
+  forIn m init f := forIn f init m
 
 /-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
 @[inline]
@@ -507,6 +507,37 @@ appearance.
 @[inline]
 def insertMany [TransCmp cmp] {ρ} [ForIn Id ρ α] (t : ExtTreeSet α cmp) (l : ρ) : ExtTreeSet α cmp :=
   ⟨ExtTreeMap.insertManyIfNewUnit t.inner l⟩
+
+/--
+Computes the union of the given tree sets. If both maps contain elements that are equal according
+to the comparison function, the element contained in the second argument will appear in the result.
+
+This function always merges the smaller set into the larger set.
+-/
+@[inline]
+def union [TransCmp cmp] (t₁ t₂ : ExtTreeSet α cmp) : ExtTreeSet α cmp := ⟨ExtTreeMap.union t₁.inner t₂.inner⟩
+
+instance [TransCmp cmp] : Union (ExtTreeSet α cmp) := ⟨union⟩
+
+/--
+Computes the intersection of the given tree sets.
+
+This function always iterates through the smaller set.
+-/
+@[inline]
+def inter [TransCmp cmp] (t₁ t₂ : ExtTreeSet α cmp) : ExtTreeSet α cmp := ⟨ExtTreeMap.inter t₁.inner t₂.inner⟩
+
+instance [TransCmp cmp] : Inter (ExtTreeSet α cmp) := ⟨inter⟩
+
+/--
+Computes the difference of the given tree sets.
+
+This function always iterates through the smaller set.
+-/
+@[inline]
+def diff [TransCmp cmp] (t₁ t₂ : ExtTreeSet α cmp) : ExtTreeSet α cmp := ⟨ExtTreeMap.diff t₁.inner t₂.inner⟩
+
+instance [TransCmp cmp] : SDiff (ExtTreeSet α cmp) := ⟨diff⟩
 
 /--
 Erases multiple items from the tree set by iterating over the given collection and calling erase.

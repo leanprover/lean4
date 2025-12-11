@@ -8,8 +8,6 @@ The State monad transformer.
 module
 
 prelude
-public import Init.Control.Basic
-public import Init.Control.Id
 public import Init.Control.Except
 
 public section
@@ -26,6 +24,12 @@ of a value and a state.
 -/
 @[expose] def StateT (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
   σ → m (α × σ)
+
+/--
+Interpret `σ → m (α × σ)` as an element of `StateT σ m α`.
+-/
+@[always_inline, inline, expose]
+def StateT.mk {σ : Type u} {m : Type u → Type v} {α : Type u} (x : σ → m (α × σ)) : StateT σ m α := x
 
 /--
 Executes an action from a monad with added state in the underlying monad `m`. Given an initial

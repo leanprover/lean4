@@ -3,13 +3,13 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Init.Grind.Ordered.Linarith
-import Lean.ToExpr
-
+public import Init.Grind.Ordered.Linarith
+public import Lean.ToExpr
+public section
 namespace Lean.Meta.Grind.Arith.Linear
 open Grind.Linarith
-
 /-!
 `ToExpr` instances for `Linarith.Poly` types.
 -/

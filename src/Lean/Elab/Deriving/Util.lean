@@ -3,16 +3,20 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Parser.Term
-import Lean.Elab.Term
+public import Lean.Elab.Command
+import Lean.Elab.DeclNameGen
+
+public section
 
 namespace Lean.Elab.Deriving
-open Meta
+open Meta Command
 
-def implicitBinderF := Parser.Term.implicitBinder
-def instBinderF     := Parser.Term.instBinder
-def explicitBinderF := Parser.Term.explicitBinder
+meta def implicitBinderF := Parser.Term.implicitBinder
+meta def instBinderF     := Parser.Term.instBinder
+meta def explicitBinderF := Parser.Term.explicitBinder
 
 /-- Make fresh, hygienic names for every parameter and index of an inductive declaration.
 
@@ -61,24 +65,57 @@ def mkInstImplicitBinders (className : Name) (indVal : InductiveVal) (argNames :
         pure ()
     return binders
 
-structure Context where
-  typeInfos   : Array InductiveVal
-  auxFunNames : Array Name
-  usePartial  : Bool
-
-def mkContext (fnPrefix : String) (typeName : Name) : TermElabM Context := do
+/--
+Removes any `[expose]` section attributes when running `cont` if `typeName` has private ctors.
+-/
+def withoutExposeFromCtors (typeName : Name) (cont : CommandElabM α) : CommandElabM α := do
+  -- TODO: some duplication with `mkContext` but it is in `TermElabM`; should it be?
   let indVal ← getConstInfoInduct typeName
   let mut typeInfos := #[]
   for typeName in indVal.all do
     typeInfos := typeInfos.push (← getConstInfoInduct typeName)
-  let mut auxFunNames := #[]
+  if typeInfos.any (·.ctors.any isPrivateName) then
+    if !isPrivateName typeName then
+      -- The topmost scope should be the one from the `deriving` command itself
+      if (← getScope).attrs.any (· matches `(Parser.Term.attrInstance| expose)) then
+        throwError "cannot use `deriving ... @[expose]` with `{.ofConstName typeName}` as it has one or more private constructors"
+    withScope (fun sc => { sc with
+        attrs := sc.attrs.filter (!· matches `(Parser.Term.attrInstance| expose)) }) cont
+  else cont
+
+structure Context where
+  instName    : Name
+  typeInfos   : Array InductiveVal
+  auxFunNames : Array Name
+  usePartial  : Bool
+
+/--
+Anticipates the default instance name for a derived instance.
+-/
+def mkInstName (className indName : Name) : TermElabM Name := do
+  let indVal ← getConstInfoInduct indName
+  let argNames     ← mkInductArgNames indVal
+  let binders      ← mkImplicitBinders argNames
+  let indType      ← mkInductiveApp indVal argNames
+  let type         ← `($(mkCIdent className) $indType)
+  NameGen.mkBaseNameWithSuffix' "inst" (binders.map (·.raw)) type
+
+def mkContext (className : Name) (fnPrefix : String) (typeName : Name) (supportsRec := true ): TermElabM Context := do
+  let indVal ← getConstInfoInduct typeName
+  let mut typeInfos := #[]
   for typeName in indVal.all do
-    match typeName.eraseMacroScopes with
-    | .str _ t => auxFunNames := auxFunNames.push (← mkFreshUserName <| Name.mkSimple <| fnPrefix ++ t)
-    | _        => auxFunNames := auxFunNames.push (← mkFreshUserName `instFn)
-  trace[Elab.Deriving.beq] "{auxFunNames}"
-  let usePartial := indVal.isNested || typeInfos.size > 1
+    typeInfos := typeInfos.push (← getConstInfoInduct typeName)
+  let instName ← mkInstName className typeName
+  let mut auxFunNames := #[]
+  if indVal.all.length = 1 then
+    auxFunNames := auxFunNames.push (instName ++ .mkSimple fnPrefix)
+  else
+    for i in [:indVal.all.length] do
+      auxFunNames := auxFunNames.push (instName ++ .mkSimple s!"{fnPrefix}_{i+1}")
+  trace[Elab.Deriving] "instName: {instName} auxFunNames: {auxFunNames}"
+  let usePartial := indVal.isNested || typeInfos.size > 1 || (indVal.isRec && !supportsRec)
   return {
+    instName    := instName
     typeInfos   := typeInfos
     auxFunNames := auxFunNames
     usePartial  := usePartial
@@ -121,7 +158,7 @@ def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (
       let mut val      := mkIdent auxFunName
       if useAnonCtor then
         val ← `(⟨$val⟩)
-      let instCmd ← `(instance $binders:implicitBinder* : $type := $val)
+      let instCmd ← `(instance $(mkIdent ctx.instName):ident $binders:implicitBinder* : $type := $val)
       instances := instances.push instCmd
   return instances
 

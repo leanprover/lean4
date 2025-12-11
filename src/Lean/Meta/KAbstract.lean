@@ -3,15 +3,19 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.HeadIndex
-import Lean.Meta.Basic
+public import Lean.HeadIndex
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean.Meta
 
 /--
 Abstract occurrences of `p` in `e`. We detect subterms equivalent to `p` using key-matching.
-That is, only perform `isDefEq` tests when the head symbol of substerm is equivalent to head symbol of `p`.
+That is, only perform `isDefEq` tests when the head symbol of subterm is equivalent to head symbol of `p`.
 
 By default, all occurrences are abstracted,
 but this behavior can be controlled using the `occs` parameter.

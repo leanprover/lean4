@@ -34,7 +34,7 @@ number of parameters: 0
 fields:
   private IO.CancelToken.ref✝ : IO.Ref Bool
 constructor:
-  IO.CancelToken.mk (ref : IO.Ref Bool) : IO.CancelToken
+  private IO.CancelToken.mk✝ (ref : IO.Ref Bool) : IO.CancelToken
 -/
 #guard_msgs in
 #print IO.CancelToken
@@ -59,9 +59,9 @@ constructor:
 info: class TypeName.{u} (α : Type u) : Type
 number of parameters: 1
 fields:
-  private TypeName.data✝ : (TypeNameData✝ α).type
+  private TypeName.data✝ : (TypeNameData α).type
 constructor:
-  private TypeName.mk'✝.{u} {α : Type u} (data : (TypeNameData✝ α).type) : TypeName α
+  private TypeName.mk'✝.{u} {α : Type u} (data : (TypeNameData α).type) : TypeName α
 -/
 #guard_msgs in
 #print TypeName

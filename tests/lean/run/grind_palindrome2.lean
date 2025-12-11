@@ -1,3 +1,4 @@
+module
 def IsPalindrome (xs : Array Nat) : Prop := xs.reverse = xs
 
 def checkPalin1 (xs : Array Nat) : Bool :=

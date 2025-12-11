@@ -8,8 +8,6 @@ The Reader monad transformer for passing immutable State.
 module
 
 prelude
-public import Init.Control.Basic
-public import Init.Control.Id
 public import Init.Control.Except
 
 public section
@@ -52,4 +50,4 @@ instance ReaderT.tryFinally [MonadFinally m] : MonadFinally (ReaderT ρ m) where
 A monad with access to a read-only value of type `ρ`. The value can be locally overridden by
 `withReader`, but it cannot be mutated.
 -/
-@[reducible] def ReaderM (ρ : Type u) := ReaderT ρ Id
+abbrev ReaderM (ρ : Type u) := ReaderT ρ Id

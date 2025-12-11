@@ -1,3 +1,5 @@
+module
+@[expose] public section -- TODO: remove after we fix congr_eq
 def g (xs : List α) (ys : List α) :=
   match xs, ys with
   | [], _         => ys

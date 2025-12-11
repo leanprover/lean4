@@ -3,13 +3,37 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Init.Grind.Ring.Basic
-import Lean.Meta.SynthInstance
-import Lean.Meta.Basic
-import Std.Internal.Rat
-
+public import Init.Grind.Ring.Basic
+public import Lean.Meta.SynthInstance
+public import Init.Data.Rat.Basic
+public section
 namespace Lean.Meta.Grind.Arith
+
+/-- Returns `true` if `e` is a numeral and has type `Nat`. -/
+def isNatNum (e : Expr) : Bool := Id.run do
+  let_expr OfNat.ofNat _ _ inst := e | false
+  let_expr instOfNatNat _ := inst | false
+  true
+
+/-- Returns `true` if `e` is a nonnegative numeral and has type `Int`. -/
+def isNonnegIntNum (e : Expr) : Bool := Id.run do
+  let_expr OfNat.ofNat _ _ inst := e | false
+  let_expr instOfNat _ := inst | false
+  true
+
+/-- Returns `true` if `e` is a numeral and has type `Int`. -/
+def isIntNum (e : Expr) : Bool :=
+  match_expr e with
+  | Neg.neg _ inst e => Id.run do
+    let_expr Int.instNegInt := inst | false
+    isNonnegIntNum e
+  | _ => isNonnegIntNum e
+
+/-- Returns `true` if `e` is a numeral supported by cutsat. -/
+def isNum (e : Expr) : Bool :=
+  isNatNum e || isIntNum e
 
 /-- Returns `true` if `e` is of the form `Nat` -/
 def isNatType (e : Expr) : Bool :=
@@ -55,17 +79,6 @@ def isNatNum? (e : Expr) : Option Nat := Id.run do
   let .lit (.natVal k) := k | none
   some k
 
-def isSupportedType (e : Expr) : Bool :=
-  isNatType e || isIntType e
-
-partial def isRelevantPred (e : Expr) : Bool :=
-  match_expr e with
-  | Not p => isRelevantPred p
-  | LE.le α _ _ _ => isSupportedType α
-  | Eq α _ _ => isSupportedType α
-  | Dvd.dvd α _ _ _ => isSupportedType α
-  | _ => false
-
 def isArithTerm (e : Expr) : Bool :=
   match_expr e with
   | HAdd.hAdd _ _ _ _ _ _ => true
@@ -74,8 +87,11 @@ def isArithTerm (e : Expr) : Bool :=
   | HDiv.hDiv _ _ _ _ _ _ => true
   | HMod.hMod _ _ _ _ _ _ => true
   | HPow.hPow _ _ _ _ _ _ => true
+  | HSMul.hSMul _ _ _ _ _ _ => true
   | Neg.neg _ _ _ => true
   | OfNat.ofNat _ _ _ => true
+  | NatCast.natCast _ _ _ => true
+  | IntCast.intCast _ _ _ => true
   | _ => false
 
 /-- Quote `e` using `「` and `」` if `e` is an arithmetic term that is being treated as a variable. -/
@@ -95,8 +111,6 @@ partial def gcdExt (a b : Int) : Int × Int × Int :=
   else
     let (g, α, β) := gcdExt b (a % b)
     (g, β, α - (a / b) * β)
-
-open Std.Internal
 
 -- TODO: PArray.shrink and PArray.resize
 partial def shrink (a : PArray Rat) (sz : Nat) : PArray Rat :=
@@ -142,7 +156,7 @@ internalizing auxiliary expressions created by `toIntModuleExpr`.
 The function `toIntModuleExpr` converts a `CommRing` polynomial into
 a `IntModule` expression. We don't want this auxiliary expression to be
 internalized by the `CommRing` module since it uses a nonstandard encoding
-with `@HMul.hMul Int α α`, a virtual `One.one` constant, etc.
+with `@HSMul.hSMul Int α α`, a virtual `One.one` constant, etc.
  -/
 def getIntModuleVirtualParent : Expr :=
   mkConst ``____intModuleMarker____

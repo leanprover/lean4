@@ -3,22 +3,23 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Offset
-import Lean.Meta.UnificationHint
-import Lean.Util.OccursCheck
+public import Lean.Meta.UnificationHint
+public import Lean.Util.OccursCheck
+
+public section
 
 namespace Lean.Meta
 
 register_builtin_option backward.isDefEq.lazyProjDelta : Bool := {
   defValue := true
-  group    := "backward compatibility"
   descr    := "use lazy delta reduction when solving unification constrains of the form `(f a).i =?= (g b).i`"
 }
 
 register_builtin_option backward.isDefEq.lazyWhnfCore : Bool := {
   defValue := true
-  group    := "backward compatibility"
   descr    := "specifies transparency mode when normalizing constraints of the form `(f a).i =?= s`, if `true` only reducible definitions and instances are unfolded when reducing `f a`. Otherwise, the default setting is used"
 }
 
@@ -152,13 +153,13 @@ def isDefEqNat (s t : Expr) : MetaM LBool := do
     | none,   some t => isDefEq s t
     | none,   none   => pure LBool.undef
 
-/-- Support for constraints of the form `("..." =?= String.mk cs)` -/
+/-- Support for constraints of the form `("..." =?= String.ofList cs)` -/
 def isDefEqStringLit (s t : Expr) : MetaM LBool := do
   let isDefEq (s t) : MetaM LBool := toLBoolM <| Meta.isExprDefEqAux s t
-  if s.isStringLit && t.isAppOf ``String.mk then
-    isDefEq s.toCtorIfLit t
-  else if s.isAppOf `String.mk && t.isStringLit then
-    isDefEq s t.toCtorIfLit
+  if s.isStringLit && t.isAppOf ``String.ofList then
+    isDefEq (← s.toCtorIfLit) t
+  else if s.isAppOf ``String.ofList && t.isStringLit then
+    isDefEq s (← t.toCtorIfLit)
   else
     pure LBool.undef
 
@@ -327,7 +328,7 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
   This method also updates the set of local instances, and invokes
   the continuation `k` with the updated set.
 
-  We can't use `withNewLocalInstances` because the `isDeq fvarType d₂`
+  We can't use `withNewLocalInstances` because the `isDefEq fvarType d₂`
   may use local instances. -/
 @[specialize] partial def isDefEqBindingDomain (fvars : Array Expr) (ds₂ : Array Expr) (k : MetaM Bool) : MetaM Bool :=
   let rec loop (i : Nat) := do
@@ -702,8 +703,8 @@ private def cache (e r : Expr) : CheckAssignmentM Unit := do
   modify fun s => { s with cache := s.cache.insert e r }
 
 instance : MonadCache Expr Expr CheckAssignmentM where
-  findCached? := findCached?
-  cache       := cache
+  findCached? := private findCached?
+  cache       := private cache
 
 private def addAssignmentInfo (msg : MessageData) : CheckAssignmentM MessageData := do
   let ctx ← read
@@ -1441,7 +1442,7 @@ private def unfoldDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : MetaM LBool 
   Otherwise, use `unfoldDefEq`
 
   Auxiliary method for isDefEqDelta -/
-private def unfoldReducibeDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : MetaM LBool := do
+private def unfoldReducibleDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : MetaM LBool := do
   if (← shouldReduceReducibleOnly) then
     unfoldDefEq tInfo sInfo t s
   else
@@ -1458,7 +1459,7 @@ private def unfoldReducibeDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : Meta
   This is an auxiliary method for isDefEqDelta.
   If `t` is a (non-class) projection function application and `s` is not ==> `isDefEqRight t (unfold s)`
   If `s` is a (non-class) projection function application and `t` is not ==> `isDefEqRight (unfold t) s`
-  Otherwise, use `unfoldReducibeDefEq`
+  Otherwise, use `unfoldReducibleDefEq`
 
   One motivation for the heuristic above is unification problems such as
   ```
@@ -1489,7 +1490,7 @@ private partial def unfoldNonProjFnDefEq (tInfo sInfo : ConstantInfo) (t s : Exp
   else  match tProjInfo?, sProjInfo? with
     | some _, none => unfold s (unfoldDefEq tInfo sInfo t s) fun s => isDefEqRight sInfo.name t s
     | none, some _ => unfold t (unfoldDefEq tInfo sInfo t s) fun t => isDefEqLeft tInfo.name t s
-    | _, _ => unfoldReducibeDefEq tInfo sInfo t s
+    | _, _ => unfoldReducibleDefEq tInfo sInfo t s
 where
   packedInstanceOf? (projInfo? : Option ProjectionFunctionInfo) (e : Expr) (declName : Name) : MetaM (Option Expr) := do
     let some { fromClass := true, .. } := projInfo? | return none -- It is not a class projection
@@ -1514,7 +1515,7 @@ where
   Remark: 4&5 are implemented by `unfoldNonProjFnDefEq`
   6- If `t` is reducible and `s` is not => then unfold `t` and continue.
   7- If `s` is reducible and `t` is not => then unfold `s` and continue
-  Remark: 6&7 are implemented by `unfoldReducibeDefEq`
+  Remark: 6&7 are implemented by `unfoldReducibleDefEq`
   8- If `t` and `s` do not contain metavariables, then use heuristic used in the Kernel.
      Implemented by `unfoldDefEq`
   9- If `headSymbol (unfold t) == headSymbol s`, then unfold t and continue.
@@ -1752,7 +1753,7 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
            Without the proof irrelevance check, this example timeouts. Recall that:
 
            1- The elaborator has a pending list of things to do: Tactics, TC, etc.
-           2- The elaborator only tries tactics after it tried to solve pending TC problems, delayed elaboratio, etc.
+           2- The elaborator only tries tactics after it tried to solve pending TC problems, delayed elaboration, etc.
               The motivation: avoid unassigned metavariables in goals.
            3- Each pending tactic goal is represented as a metavariable. It is marked as `syntheticOpaque` to make it clear
               that it should not be assigned by unification.

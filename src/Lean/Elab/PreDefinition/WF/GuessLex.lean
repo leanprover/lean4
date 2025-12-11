@@ -3,22 +3,23 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Util.HasConstCache
-import Lean.Meta.Match.MatcherApp.Transform
-import Lean.Meta.Tactic.Cleanup
+public import Lean.Util.HasConstCache
+public import Lean.Meta.Match.MatcherApp.Transform
+public import Lean.Meta.Tactic.Cleanup
+public import Lean.Meta.Tactic.TryThis
+public import Lean.Meta.ArgsPacker
+public import Lean.Elab.PreDefinition.Mutual
+public import Lean.Elab.PreDefinition.Structural.Basic
+public import Lean.Elab.PreDefinition.TerminationMeasure
+public import Lean.Elab.PreDefinition.FixedParams
+public import Lean.Elab.PreDefinition.WF.Basic
+public import Lean.Data.Array
 import Lean.Meta.Tactic.Refl
-import Lean.Meta.Tactic.TryThis
-import Lean.Meta.ArgsPacker
-import Lean.Elab.Quotation
-import Lean.Elab.RecAppSyntax
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Mutual
-import Lean.Elab.PreDefinition.Structural.Basic
-import Lean.Elab.PreDefinition.TerminationMeasure
-import Lean.Elab.PreDefinition.FixedParams
-import Lean.Elab.PreDefinition.WF.Basic
-import Lean.Data.Array
+
+public section
 
 
 /-!
@@ -26,7 +27,7 @@ This module finds lexicographic termination measures for well-founded recursion.
 
 Starting with basic measures (`sizeOf xᵢ` for all parameters `xᵢ`), and complex measures
 (e.g. `e₂ - e₁` if `e₁ < e₂` is found in the context of a recursive call) it tries all combinations
-until it finds one where all proof obligations go through with the given tactic (`decerasing_by`),
+until it finds one where all proof obligations go through with the given tactic (`decreasing_by`),
 if given, or the default `decreasing_tactic`.
 
 For mutual recursion, a single measure is not just one parameter, but one from each recursive
@@ -164,13 +165,13 @@ def mayOmitSizeOf (is_mutual : Bool) (args : Array Expr) (x : Expr) : MetaM Bool
     catch _ =>
       pure false
 
-/-- Sets the user names for the given freevars in `xs`. -/
+/-- Sets the user names for the given free variables in `xs`. -/
 def withUserNames {α} (xs : Array Expr) (ns : Array Name) (k : MetaM α) : MetaM α := do
   let mut lctx ←  getLCtx
   for x in xs, n in ns do lctx := lctx.setUserName x.fvarId! n
   withLCtx' lctx k
 
-/-- Create one measure for each (eligible) parameter of the given predefintion.  -/
+/-- Create one measure for each (eligible) parameter of the given predefinition.  -/
 def simpleMeasures (preDefs : Array PreDefinition) (fixedParamPerms : FixedParamPerms)
     (userVarNamess : Array (Array Name)) : MetaM (Array (Array BasicMeasure)) := do
   let is_mutual : Bool := preDefs.size > 1
@@ -806,10 +807,10 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
   let recCalls := filterSubsumed recCalls
 
   -- For every function, the measures we want to use
-  -- (One for each non-forbiddend arg)
-  let basicMeassures₁ ← simpleMeasures preDefs fixedParamPerms userVarNamess
-  let basicMeassures₂ ← complexMeasures preDefs fixedParamPerms userVarNamess recCalls
-  let basicMeasures := Array.zipWith (· ++ ·) basicMeassures₁ basicMeassures₂
+  -- (One for each non-forbidden arg)
+  let basicMeasures₁ ← simpleMeasures preDefs fixedParamPerms userVarNamess
+  let basicMeasures₂ ← complexMeasures preDefs fixedParamPerms userVarNamess recCalls
+  let basicMeasures := Array.zipWith (· ++ ·) basicMeasures₁ basicMeasures₂
 
   -- The list of measures, including the measures that order functions.
   -- The function ordering measures come last

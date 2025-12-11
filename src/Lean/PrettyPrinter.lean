@@ -3,14 +3,19 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
+public import Lean.PrettyPrinter.Delaborator.Basic
 import Lean.PrettyPrinter.Delaborator
 import Lean.PrettyPrinter.Parenthesizer
 import Lean.PrettyPrinter.Formatter
-import Lean.Parser.Module
-import Lean.ParserCompiler
-import Lean.Util.NumObjs
-import Lean.Util.ShareCommon
+public import Lean.Parser.Module
+public import Lean.ParserCompiler
+public import Lean.Util.NumObjs
+public import Lean.Util.ShareCommon
+
+public section
 
 namespace Lean.PrettyPrinter
 
@@ -28,7 +33,6 @@ def ppUsing (e : Expr) (delab : Expr → MetaM Term) : MetaM Format := do
 
 register_builtin_option pp.exprSizes : Bool := {
   defValue := false
-  group    := "pp"
   descr    := "(pretty printer) prefix each embedded expression with its sizes in the format \
     (size disregarding sharing/size with sharing/size with max sharing)"
 }
@@ -63,7 +67,6 @@ def ppConstNameWithInfos (constName : Name) : MetaM FormatWithInfos := do
     let stx := (sanitizeSyntax stx).run' { options := (← getOptions) }
     formatCategory `term stx
 
-@[export lean_pp_expr]
 def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : IO Format :=
   Prod.fst <$> ((withOptions (fun _ => opts) <| ppExpr e).run' { lctx := lctx } { mctx := mctx }).toIO
     { fileName := "<PrettyPrinter>", fileMap := default }

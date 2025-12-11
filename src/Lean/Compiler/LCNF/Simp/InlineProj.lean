@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.Simp.SimpM
+public import Lean.Compiler.LCNF.Simp.SimpM
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Simp
@@ -71,7 +75,7 @@ where
         let some decl ← getDecl? declName | failure
         match decl.value with
         | .code code =>
-          guard (decl.getArity == args.size)
+          guard (!decl.recursive && decl.getArity == args.size)
           let params := decl.instantiateParamsLevelParams us
           let code := code.instantiateValueLevelParams decl.levelParams us
           let code ← betaReduce params code args (mustInline := true)

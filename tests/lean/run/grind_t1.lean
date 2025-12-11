@@ -1,3 +1,4 @@
+module
 example (a b : List Nat) : a = [] → b = [2] → a = b → False := by
   grind
 
@@ -185,6 +186,7 @@ example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
 trace: [grind.assert] ∀ (a : α), a ∈ b → p a
 [grind.ematch.pattern] h₁: [@Membership.mem `[α] `[List α] `[List.instMembership] `[b] #1]
 [grind.ematch.pattern] h₁: [p #1]
+[grind.assert] ∃ a, a ∈ b ∧ ¬p a
 [grind.assert] w ∈ b
 [grind.assert] ¬p w
 [grind.ematch.instance] h₁: w ∈ b → p w
@@ -375,7 +377,8 @@ h_1 : b = true
   [eqc] True propositions
     [prop] b = true
   [eqc] Equivalence classes
-    [eqc] {a, 10, if b = true then 10 else 20}
+    [eqc] {a, 10}
+      [eqc] {if b = true then 10 else 20}
     [eqc] {b, true}
   [cutsat] Assignment satisfying linear constraints
     [assign] a := 10

@@ -1,5 +1,4 @@
 import Std.Data.Iterators
-import Std.Data.Iterators.Producers.Empty
 
 section ListIteratorBasic
 
@@ -15,13 +14,25 @@ section ListIteratorBasic
 #guard_msgs in
 #eval [1, 2, 3].iter.toList
 
+/-- info: [1, 2, 3] -/
+#guard_msgs in
+#eval [1, 2, 3].iter.ensureTermination.toList
+
+/-- info: [3, 2, 1] -/
+#guard_msgs in
+#eval [1, 2, 3].iter.toListRev
+
+/-- info: [3, 2, 1] -/
+#guard_msgs in
+#eval [1, 2, 3].iter.ensureTermination.toListRev
+
 /-- info: #[1, 2, 3] -/
 #guard_msgs in
 #eval [1, 2, 3].iter.toArray
 
-/-- info: [1, 2, 3] -/
+/-- info: #[1, 2, 3] -/
 #guard_msgs in
-#eval [1, 2, 3].iter |>.allowNontermination.toList
+#eval [1, 2, 3].iter.ensureTermination.toArray
 
 /-- info: ([1, 2, 3].iterM IO).toList : IO (List Nat) -/
 #guard_msgs in
@@ -228,6 +239,25 @@ example : ([1, 2, 3].iter.map (· * 2)).toList = [2, 4, 6] := by
 example : ([1, 2, 3].iter.filter (· % 2 = 0)).toList = [2] := by
   simp
 
+example : ([1, 2, 3].iter.map (· * 2)).fold (init := 0) (· + ·) = 12 := by
+  rw [Std.Iterators.Iter.fold_map, ← Std.Iterators.Iter.foldl_toList]
+  simp
+
+-- This test ensures that the `foldM_mapM` lemma is applicable without producing
+-- monad-lifting diamonds. The test is so abstract because using three concrete monads and
+-- liftings between them would make the test too complicated.
+example {α : Type} {m n o : Type → Type} [Monad m] [Monad n] [Monad o]
+    [LawfulMonad m] [LawfulMonad n] [LawfulMonad o]
+    [MonadLift m n] [MonadLift n o] [LawfulMonadLift m n] [LawfulMonadLift n o]
+    [Std.Iterators.Iterator α m Nat] [Std.Iterators.Finite α m]
+    [Std.Iterators.IteratorLoop α m n] [Std.Iterators.IteratorLoop α m o]
+    [Std.Iterators.IteratorLoop α m o]
+    [Std.Iterators.LawfulIteratorLoop α m n] [Std.Iterators.LawfulIteratorLoop α m o]
+    [Std.Iterators.LawfulIteratorLoop α m o]
+    (it : Std.Iterators.IterM (α := α) m Nat) (f : Nat → n Nat) (g : Nat → Nat → o Nat) :
+    (it.mapM f).foldM g init = it.foldM (fun b a => do g b (← f a)) init := by
+  rw [Std.Iterators.IterM.foldM_mapM]
+
 /--
 info: Lean
 is
@@ -324,3 +354,38 @@ example : (Std.Iterators.Iter.empty Nat).toList = [] := by
   simp
 
 end Empty
+
+section Termination
+
+example := positives.toList
+example := positives.toListRev
+example := positives.toArray
+
+/--
+error: failed to synthesize instance of type class
+  Std.Iterators.Finite (Std.Iterators.RepeatIterator Nat fun x => x + 1) Id
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+-/
+#guard_msgs in
+example := positives.ensureTermination.toList
+
+/--
+error: failed to synthesize instance of type class
+  Std.Iterators.Finite (Std.Iterators.RepeatIterator Nat fun x => x + 1) Id
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+-/
+#guard_msgs in
+example := positives.ensureTermination.toListRev
+
+/--
+error: failed to synthesize instance of type class
+  Std.Iterators.Finite (Std.Iterators.RepeatIterator Nat fun x => x + 1) Id
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+-/
+#guard_msgs in
+example := positives.ensureTermination.toArray
+
+end Termination

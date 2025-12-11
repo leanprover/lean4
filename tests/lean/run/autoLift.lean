@@ -19,7 +19,7 @@ set_option autoLift false
 
 set_option pp.mvars false in
 /--
-info: type mismatch
+info: Type mismatch
   f
 has type
   IO Nat

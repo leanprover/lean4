@@ -1,4 +1,4 @@
-matchErrorLocation.lean:5:10-5:14: error: type mismatch
+matchErrorLocation.lean:5:10-5:14: error: Type mismatch
   h he
 has type
   False

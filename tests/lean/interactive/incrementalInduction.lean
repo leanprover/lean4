@@ -70,3 +70,11 @@ theorem cases (n : Nat) : True := by
     dbg_trace "c 2"
                 --^ sync
                 --^ insert: ".5"
+
+-- RESET
+/-!
+Regression test: make sure the dependent elimination error appears on `cases`
+-/
+example (f : Nat → Nat) (n : Nat) (h : f n = n) := by
+  cases h
+  --^ collectDiagnostics

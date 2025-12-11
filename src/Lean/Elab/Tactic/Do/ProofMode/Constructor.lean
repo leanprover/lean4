@@ -3,9 +3,13 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
+module
+
 prelude
-import Std.Tactic.Do.Syntax
-import Lean.Elab.Tactic.Do.ProofMode.MGoal
+public import Std.Tactic.Do.Syntax
+public import Lean.Elab.Tactic.Do.ProofMode.MGoal
+
+public section
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do

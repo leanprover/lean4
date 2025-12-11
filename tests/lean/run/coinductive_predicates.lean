@@ -8,14 +8,19 @@ def infseq_fixpoint {α} (R : α → α → Prop) (x : α) :
   infseq R x = ∃ y, R x y ∧ infseq R y := by
     rw [infseq]
 
-#check infseq.coinduct
-
 -- The associated coinduction principle
+
 /--
-info: infseq.coinduct.{u_1} {α : Sort u_1} (R : α → α → Prop) (x : α → Prop) (y : ∀ (x_1 : α), x x_1 → ∃ y, R x_1 y ∧ x y)
-  (x✝ : α) : x x✝ → infseq R x✝
+info: infseq.coinduct.{u_1} {α : Sort u_1} (R : α → α → Prop) (pred : α → Prop)
+  (hyp : ∀ (a : α), pred a → ∃ y, R a y ∧ pred y) (a✝ : α) : pred a✝ → infseq R a✝
 -/
 #guard_msgs in #check infseq.coinduct
+
+/--
+error: Unknown constant `infseq.mutual_induct`
+-/
+#guard_msgs in
+#check infseq.mutual_induct
 
 -- Simple proof by coinduction
 theorem cycle_infseq {R : α → α → Prop} (x : α) : R x x → infseq R x := by
@@ -35,8 +40,8 @@ def star_ind (tr : α → α → Prop) (q₁ q₂ : α) : Prop :=
 inductive_fixpoint
 
 /--
-info: star_ind.induct.{u_1} {α : Sort u_1} (tr : α → α → Prop) (q₂ : α) (x : α → Prop)
-  (y : ∀ (x_1 : α), (∃ z, x_1 = q₂ ∨ tr x_1 z ∧ x z) → x x_1) (x✝ : α) : (fun q₁ => star_ind tr q₁ q₂) x✝ → x x✝
+info: star_ind.induct.{u_1} {α : Sort u_1} (tr : α → α → Prop) (q₂ : α) (pred : α → Prop)
+  (hyp : ∀ (q₁ : α), (∃ z, q₁ = q₂ ∨ tr q₁ z ∧ pred z) → pred q₁) (q₁ : α) : (fun q₁ => star_ind tr q₁ q₂) q₁ → pred q₁
 -/
 #guard_msgs in #check star_ind.induct
 
@@ -57,13 +62,13 @@ theorem star_implies_star' (R : α → α → Prop) : ∀ a b : α, star R a b �
 
 -- More elaborate example from Xavier Leroy's compiler verification course
 theorem star_one (R : α → α → Prop)  : ∀ a b : α, R a b → star R a b := by
-  intros a b Rab
+  intro a b Rab
   apply star.star_step
   exact Rab
   apply star.star_refl
 
 theorem star_trans {α} (R : α → α → Prop) : ∀ (a b : α), star R a b → ∀ c : α, star R b c → star R a c := by
-  intros a b sab
+  intro a b sab
   intro c
   intro sbc
   induction sab
@@ -139,7 +144,7 @@ theorem infseq_coinduction_principle_2:
       apply plus_star
       exact h₁
       exact h₂
-    case y =>
+    case hyp =>
       intro a0 h₂
       apply Exists.elim h₂
       intro a1 ⟨ h₃ , h₄ ⟩
@@ -165,12 +170,12 @@ def language_equivalent (automaton : DFA Q A) (q₁ q₂ : Q)  : Prop :=
 coinductive_fixpoint
 
 /--
-info: language_equivalent.coinduct {Q A : Type} (automaton : DFA Q A) (x : Q → Q → Prop)
-  (y :
-    ∀ (x_1 x_2 : Q),
-      x x_1 x_2 →
-        (automaton x_1).fst = (automaton x_2).fst ∧ ∀ (a : A), x ((automaton x_1).snd a) ((automaton x_2).snd a))
-  (x✝ x✝¹ : Q) : x x✝ x✝¹ → language_equivalent automaton x✝ x✝¹
+info: language_equivalent.coinduct {Q A : Type} (automaton : DFA Q A) (pred : Q → Q → Prop)
+  (hyp :
+    ∀ (q₁ q₂ : Q),
+      pred q₁ q₂ →
+        (automaton q₁).fst = (automaton q₂).fst ∧ ∀ (a : A), pred ((automaton q₁).snd a) ((automaton q₂).snd a))
+  (q₁ q₂ : Q) : pred q₁ q₂ → language_equivalent automaton q₁ q₂
 -/
 #guard_msgs in
 #check language_equivalent.coinduct

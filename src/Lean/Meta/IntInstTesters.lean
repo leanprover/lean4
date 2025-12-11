@@ -3,8 +3,12 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean.Meta
 /-!
@@ -56,5 +60,13 @@ def isInstLTInt (e : Expr) : MetaM Bool := do
 def isInstLEInt (e : Expr) : MetaM Bool := do
   let_expr Int.instLEInt ← e | return false
   return true
-
+def isInstNatPowInt (e : Expr) : MetaM Bool := do
+  let_expr Int.instNatPow ← e | return false
+  return true
+def isInstPowInt (e : Expr) : MetaM Bool := do
+  let_expr instPowNat _ i ← e | return false
+  isInstNatPowInt i
+def isInstHPowInt (e : Expr) : MetaM Bool := do
+  let_expr instHPow _ _ i ← e | return false
+  isInstPowInt i
 end Lean.Meta

@@ -1,5 +1,5 @@
 Bla.foo == "world" : Bool
-private.lean:14:12-14:15: error: private declaration 'Bla.foo' has already been declared
+private.lean:14:12-14:15: error: private declaration `Bla.foo` has already been declared
 foo == 0 : Bool
 Bla.foo : String
 Boo.Bla.boo == "world" : Bool
@@ -8,6 +8,6 @@ Boo.Bla.boo == "world" : Bool
 Boo.boo == 100 : Bool
 Boo.Bla.boo == "world" : Bool
 Boo.boo == 100 : Bool
-Nat.mul10 x : Nat
-private.lean:65:12-65:13: error: a non-private declaration 'y' has already been declared
-private.lean:68:4-68:5: error: a private declaration 'z' has already been declared
+x.mul10 : Nat
+private.lean:65:12-65:13: error: a non-private declaration `y` has already been declared
+private.lean:68:4-68:5: error: a private declaration `z` has already been declared

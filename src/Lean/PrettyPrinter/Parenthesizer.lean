@@ -3,12 +3,17 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Parser.Extension
-import Lean.Parser.StrInterpolation
-import Lean.ParserCompiler.Attribute
-import Lean.PrettyPrinter.Basic
-import Lean.PrettyPrinter.Delaborator.Options
+public import Lean.Parser.Extension
+public import Lean.Parser.StrInterpolation
+public import Lean.ParserCompiler.Attribute
+public import Lean.PrettyPrinter.Basic
+public import Lean.PrettyPrinter.Delaborator.Options
+import Lean.ExtraModUses
+
+public section
 
 
 /-!
@@ -134,9 +139,11 @@ unsafe builtin_initialize parenthesizerAttribute : KeyedDeclsAttribute Parenthes
       -- `isValidSyntaxNodeKind` is updated only in the next stage for new `[builtin*Parser]`s, but we try to
       -- synthesize a parenthesizer for it immediately, so we just check for a declaration in this case
       unless (builtin && (env.find? id).isSome) || Parser.isValidSyntaxNodeKind env id do
-        throwError "invalid [parenthesizer] argument, unknown syntax kind '{id}'"
-      if (← getEnv).contains id && (← Elab.getInfoState).enabled then
-        Elab.addConstInfo stx id none
+        throwError "Invalid `[parenthesizer]` argument: Unknown syntax kind `{id}`"
+      if (← getEnv).contains id then
+        recordExtraModUseFromDecl (isMeta := false) id
+        if (← Elab.getInfoState).enabled then
+          Elab.addConstInfo stx id none
       pure id
   }
 
@@ -163,16 +170,18 @@ unsafe builtin_initialize categoryParenthesizerAttribute : KeyedDeclsAttribute C
       let stx ← Attribute.Builtin.getIdent stx
       let id := stx.getId
       let some cat := (Parser.parserExtension.getState env).categories.find? id
-        | throwError "invalid [category_parenthesizer] argument, unknown parser category '{toString id}'"
-      if (← Elab.getInfoState).enabled && (← getEnv).contains cat.declName then
-        Elab.addConstInfo stx cat.declName none
+        | throwError "Invalid `[category_parenthesizer]` argument: Unknown parser category `{toString id}`"
+      if (← getEnv).contains cat.declName then
+        recordExtraModUseFromDecl (isMeta := false) cat.declName
+        if (← Elab.getInfoState).enabled then
+          Elab.addConstInfo stx cat.declName none
       pure id
   }
 
 /--
 Registers a parenthesizer for a parser combinator.
 
-`@[combinator_parenthesizer c]` registers a declaration of type `Lean.PrettyPrinter.Parenthesizer`
+`@[combinator_parenthesizer c, expose]` registers a declaration of type `Lean.PrettyPrinter.Parenthesizer`
 for the `Parser` declaration `c`. Note that, unlike with `@[parenthesizer]`, this is not a node kind
 since combinators usually do not introduce their own node kinds. The tagged declaration may
 optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is
@@ -215,7 +224,7 @@ def visitArgs (x : ParenthesizerM Unit) : ParenthesizerM Unit := do
 -- so give a trivial implementation.
 instance : MonadQuotation ParenthesizerM := {
   getCurrMacroScope   := pure default
-  getMainModule       := pure default
+  getContext          := pure default
   withFreshMacroScope := fun x => x
 }
 
@@ -247,14 +256,14 @@ def maybeParenthesize (cat : Name) (canJuxtapose : Bool) (mkParen : Syntax → S
       let mut stx ← getCur
       -- Move leading/trailing whitespace of `stx` outside of parentheses
       if let SourceInfo.original _ pos trail endPos := stx.getHeadInfo then
-        stx := stx.setHeadInfo (SourceInfo.original "".toSubstring pos trail endPos)
+        stx := stx.setHeadInfo (SourceInfo.original "".toRawSubstring pos trail endPos)
       if let SourceInfo.original lead pos _ endPos := stx.getTailInfo then
-        stx := stx.setTailInfo (SourceInfo.original lead pos "".toSubstring endPos)
+        stx := stx.setTailInfo (SourceInfo.original lead pos "".toRawSubstring endPos)
       let mut stx' := mkParen stx
       if let SourceInfo.original lead pos _ endPos := stx.getHeadInfo then
-        stx' := stx'.setHeadInfo (SourceInfo.original lead pos "".toSubstring endPos)
+        stx' := stx'.setHeadInfo (SourceInfo.original lead pos "".toRawSubstring endPos)
       if let SourceInfo.original _ pos trail endPos := stx.getTailInfo then
-        stx' := stx'.setTailInfo (SourceInfo.original "".toSubstring pos trail endPos)
+        stx' := stx'.setTailInfo (SourceInfo.original "".toRawSubstring pos trail endPos)
       trace[PrettyPrinter.parenthesize] "parenthesized: {stx'.formatStx none}"
       setCur stx'
       goLeft
@@ -277,7 +286,7 @@ def visitToken : Parenthesizer := do
   modify fun st => { st with contPrec := none, contCat := Name.anonymous, visitedToken := true }
   goLeft
 
-@[combinator_parenthesizer orelse] partial def orelse.parenthesizer (p1 p2 : Parenthesizer) : Parenthesizer := do
+@[combinator_parenthesizer orelse, expose] partial def orelse.parenthesizer (p1 p2 : Parenthesizer) : Parenthesizer := do
   let stx ← getCur
   -- `orelse` may produce `choice` nodes for antiquotations
   if stx.getKind == `choice then
@@ -288,10 +297,10 @@ def visitToken : Parenthesizer := do
     -- them in turn. Uses the syntax traverser non-linearly!
     p1 <|> p2
 
-@[combinator_parenthesizer recover]
+@[combinator_parenthesizer recover, expose]
 def recover.parenthesizer (p : PrettyPrinter.Parenthesizer) : PrettyPrinter.Parenthesizer := p
 
-@[combinator_parenthesizer recover']
+@[combinator_parenthesizer recover', expose]
 def recover'.parenthesizer (p : PrettyPrinter.Parenthesizer) : PrettyPrinter.Parenthesizer := p
 
 -- `mkAntiquot` is quite complex, so we'd rather have its parenthesizer synthesized below the actual parser definition.
@@ -318,7 +327,7 @@ unsafe def parenthesizerForKindUnsafe (k : SyntaxNodeKind) : Parenthesizer := do
 @[implemented_by parenthesizerForKindUnsafe]
 opaque parenthesizerForKind (k : SyntaxNodeKind) : Parenthesizer
 
-@[combinator_parenthesizer withAntiquot]
+@[combinator_parenthesizer withAntiquot, expose]
 def withAntiquot.parenthesizer (antiP p : Parenthesizer) : Parenthesizer := do
   let stx ← getCur
   -- early check as minor optimization that also cleans up the backtrack traces
@@ -327,14 +336,14 @@ def withAntiquot.parenthesizer (antiP p : Parenthesizer) : Parenthesizer := do
   else
     p
 
-@[combinator_parenthesizer withAntiquotSuffixSplice]
+@[combinator_parenthesizer withAntiquotSuffixSplice, expose]
 def withAntiquotSuffixSplice.parenthesizer (_ : SyntaxNodeKind) (p suffix : Parenthesizer) : Parenthesizer := do
   if (← getCur).isAntiquotSuffixSplice then
     visitArgs <| suffix *> p
   else
     p
 
-@[combinator_parenthesizer tokenWithAntiquot]
+@[combinator_parenthesizer tokenWithAntiquot, expose]
 def tokenWithAntiquot.parenthesizer (p : Parenthesizer) : Parenthesizer := do
   if (← getCur).isTokenAntiquot then
     visitArgs p
@@ -351,7 +360,7 @@ partial def parenthesizeCategoryCore (cat : Name) (_prec : Nat) : Parenthesizer 
       withAntiquot.parenthesizer (mkAntiquot.parenthesizer' cat.toString cat (isPseudoKind := true)) (parenthesizerForKind stx.getKind)
     modify fun st => { st with contCat := cat }
 
-@[combinator_parenthesizer categoryParser]
+@[combinator_parenthesizer categoryParser, expose]
 def categoryParser.parenthesizer (cat : Name) (prec : Nat) : Parenthesizer := do
   let env ← getEnv
   match categoryParenthesizerAttribute.getValues env cat with
@@ -360,7 +369,7 @@ def categoryParser.parenthesizer (cat : Name) (prec : Nat) : Parenthesizer := do
   -- In this case this node will never be parenthesized since we don't know which parentheses to use.
   | _    => parenthesizeCategoryCore cat prec
 
-@[combinator_parenthesizer parserOfStack]
+@[combinator_parenthesizer parserOfStack, expose]
 def parserOfStack.parenthesizer (offset : Nat) (_prec : Nat := 0) : Parenthesizer := do
   let st ← get
   let stx := st.stxTrav.parents.back!.getArg (st.stxTrav.idxs.back! - offset)
@@ -397,27 +406,27 @@ def level.parenthesizer : CategoryParenthesizer | prec => do
 def rawStx.parenthesizer : CategoryParenthesizer | _ => do
   goLeft
 
-@[combinator_parenthesizer error]
+@[combinator_parenthesizer error, expose]
 def error.parenthesizer (_msg : String) : Parenthesizer :=
   pure ()
 
-@[combinator_parenthesizer errorAtSavedPos]
+@[combinator_parenthesizer errorAtSavedPos, expose]
 def errorAtSavedPos.parenthesizer (_msg : String) (_delta : Bool) : Parenthesizer :=
   pure ()
 
-@[combinator_parenthesizer atomic]
+@[combinator_parenthesizer atomic, expose]
 def atomic.parenthesizer (p : Parenthesizer) : Parenthesizer :=
   p
 
-@[combinator_parenthesizer lookahead]
+@[combinator_parenthesizer lookahead, expose]
 def lookahead.parenthesizer (_ : Parenthesizer) : Parenthesizer :=
   pure ()
 
-@[combinator_parenthesizer notFollowedBy]
+@[combinator_parenthesizer notFollowedBy, expose]
 def notFollowedBy.parenthesizer (_ : Parenthesizer) : Parenthesizer :=
   pure ()
 
-@[combinator_parenthesizer andthen]
+@[combinator_parenthesizer andthen, expose]
 def andthen.parenthesizer (p1 p2 : Parenthesizer) : Parenthesizer :=
   p2 *> p1
 
@@ -428,19 +437,19 @@ def checkKind (k : SyntaxNodeKind) : Parenthesizer := do
     -- HACK; see `orelse.parenthesizer`
     throwBacktrack
 
-@[combinator_parenthesizer node]
+@[combinator_parenthesizer node, expose]
 def node.parenthesizer (k : SyntaxNodeKind) (p : Parenthesizer) : Parenthesizer := do
   checkKind k
   visitArgs p
 
-@[combinator_parenthesizer checkPrec]
+@[combinator_parenthesizer checkPrec, expose]
 def checkPrec.parenthesizer (prec : Nat) : Parenthesizer :=
   addPrecCheck prec
 
-@[combinator_parenthesizer withFn]
+@[combinator_parenthesizer withFn, expose]
 def withFn.parenthesizer (_ : ParserFn → ParserFn) (p : Parenthesizer) : Parenthesizer := p
 
-@[combinator_parenthesizer leadingNode]
+@[combinator_parenthesizer leadingNode, expose]
 def leadingNode.parenthesizer (k : SyntaxNodeKind) (prec : Nat) (p : Parenthesizer) : Parenthesizer := do
   node.parenthesizer k p
   addPrecCheck prec
@@ -449,7 +458,7 @@ def leadingNode.parenthesizer (k : SyntaxNodeKind) (prec : Nat) (p : Parenthesiz
   -- into a trailing one.
   modify fun st => { st with contPrec := Nat.min (Parser.maxPrec-1) prec }
 
-@[combinator_parenthesizer trailingNode]
+@[combinator_parenthesizer trailingNode, expose]
 def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec lhsPrec : Nat) (p : Parenthesizer) : Parenthesizer := do
   checkKind k
   visitArgs do
@@ -463,33 +472,45 @@ def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec lhsPrec : Nat) (p : Pa
     -- parser is calling us.
     categoryParser.parenthesizer ctx.cat lhsPrec
 
-@[combinator_parenthesizer rawCh] def rawCh.parenthesizer (_ch : Char) := visitToken
+@[combinator_parenthesizer rawCh, expose] def rawCh.parenthesizer (_ch : Char) := visitToken
 
-@[combinator_parenthesizer symbolNoAntiquot] def symbolNoAntiquot.parenthesizer (_sym : String) := visitToken
-@[combinator_parenthesizer unicodeSymbolNoAntiquot] def unicodeSymbolNoAntiquot.parenthesizer (_sym _asciiSym : String) := visitToken
+@[combinator_parenthesizer symbolNoAntiquot, expose] def symbolNoAntiquot.parenthesizer (sym : String) := do
+  let stx ← getCur
+  if stx.isToken sym then
+    visitToken
+  else
+    trace[PrettyPrinter.parenthesize.backtrack] "unexpected syntax '{format stx}', expected symbol '{sym}'"
+    throwBacktrack
+@[combinator_parenthesizer nonReservedSymbolNoAntiquot, expose] def nonReservedSymbolNoAntiquot.parenthesizer := symbolNoAntiquot.parenthesizer
+@[combinator_parenthesizer unicodeSymbolNoAntiquot, expose] def unicodeSymbolNoAntiquot.parenthesizer (sym asciiSym : String) (_preserveForPP : Bool) := do
+  let stx ← getCur
+  if stx.isToken sym || stx.isToken asciiSym then
+    visitToken
+  else
+    trace[PrettyPrinter.parenthesize.backtrack] "unexpected syntax '{format stx}', expected symbol '{sym}' or '{asciiSym}'"
+    throwBacktrack
 
-@[combinator_parenthesizer identNoAntiquot] def identNoAntiquot.parenthesizer := do checkKind identKind; visitToken
-@[combinator_parenthesizer rawIdentNoAntiquot] def rawIdentNoAntiquot.parenthesizer := visitToken
-@[combinator_parenthesizer identEq] def identEq.parenthesizer (_id : Name) := visitToken
-@[combinator_parenthesizer nonReservedSymbolNoAntiquot] def nonReservedSymbolNoAntiquot.parenthesizer (_sym : String) (_includeIdent : Bool) := visitToken
+@[combinator_parenthesizer identNoAntiquot, expose] def identNoAntiquot.parenthesizer := do checkKind identKind; visitToken
+@[combinator_parenthesizer rawIdentNoAntiquot, expose] def rawIdentNoAntiquot.parenthesizer := visitToken
+@[combinator_parenthesizer identEq, expose] def identEq.parenthesizer (_id : Name) := visitToken
 
-@[combinator_parenthesizer charLitNoAntiquot] def charLitNoAntiquot.parenthesizer := visitToken
-@[combinator_parenthesizer strLitNoAntiquot] def strLitNoAntiquot.parenthesizer := visitToken
-@[combinator_parenthesizer nameLitNoAntiquot] def nameLitNoAntiquot.parenthesizer := visitToken
-@[combinator_parenthesizer numLitNoAntiquot] def numLitNoAntiquot.parenthesizer := visitToken
-@[combinator_parenthesizer scientificLitNoAntiquot] def scientificLitNoAntiquot.parenthesizer := visitToken
-@[combinator_parenthesizer fieldIdx] def fieldIdx.parenthesizer := visitToken
+@[combinator_parenthesizer charLitNoAntiquot, expose] def charLitNoAntiquot.parenthesizer := visitToken
+@[combinator_parenthesizer strLitNoAntiquot, expose] def strLitNoAntiquot.parenthesizer := visitToken
+@[combinator_parenthesizer nameLitNoAntiquot, expose] def nameLitNoAntiquot.parenthesizer := visitToken
+@[combinator_parenthesizer numLitNoAntiquot, expose] def numLitNoAntiquot.parenthesizer := visitToken
+@[combinator_parenthesizer scientificLitNoAntiquot, expose] def scientificLitNoAntiquot.parenthesizer := visitToken
+@[combinator_parenthesizer fieldIdx, expose] def fieldIdx.parenthesizer := visitToken
 
-@[combinator_parenthesizer manyNoAntiquot]
+@[combinator_parenthesizer manyNoAntiquot, expose]
 def manyNoAntiquot.parenthesizer (p : Parenthesizer) : Parenthesizer := do
   let stx ← getCur
   visitArgs $ stx.getArgs.size.forM fun _ _ => p
 
-@[combinator_parenthesizer many1NoAntiquot]
+@[combinator_parenthesizer many1NoAntiquot, expose]
 def many1NoAntiquot.parenthesizer (p : Parenthesizer) : Parenthesizer := do
   manyNoAntiquot.parenthesizer p
 
-@[combinator_parenthesizer many1Unbox]
+@[combinator_parenthesizer many1Unbox, expose]
 def many1Unbox.parenthesizer (p : Parenthesizer) : Parenthesizer := do
   let stx ← getCur
   if stx.getKind == nullKind then
@@ -497,44 +518,44 @@ def many1Unbox.parenthesizer (p : Parenthesizer) : Parenthesizer := do
   else
     p
 
-@[combinator_parenthesizer optionalNoAntiquot]
+@[combinator_parenthesizer optionalNoAntiquot, expose]
 def optionalNoAntiquot.parenthesizer (p : Parenthesizer) : Parenthesizer := do
   visitArgs p
 
-@[combinator_parenthesizer sepByNoAntiquot]
+@[combinator_parenthesizer sepByNoAntiquot, expose]
 def sepByNoAntiquot.parenthesizer (p pSep : Parenthesizer) : Parenthesizer := do
   let stx ← getCur
   visitArgs <| (List.range stx.getArgs.size).reverse.forM fun i => if i % 2 == 0 then p else pSep
 
-@[combinator_parenthesizer sepBy1NoAntiquot] def sepBy1NoAntiquot.parenthesizer := sepByNoAntiquot.parenthesizer
+@[combinator_parenthesizer sepBy1NoAntiquot, expose] def sepBy1NoAntiquot.parenthesizer := sepByNoAntiquot.parenthesizer
 
-@[combinator_parenthesizer withPosition] def withPosition.parenthesizer (p : Parenthesizer) : Parenthesizer := do
+@[combinator_parenthesizer withPosition, expose] def withPosition.parenthesizer (p : Parenthesizer) : Parenthesizer := do
   -- We assume the formatter will indent syntax sufficiently such that parenthesizing a `withPosition` node is never necessary
   modify fun st => { st with contPrec := none }
   p
-@[combinator_parenthesizer withPositionAfterLinebreak] def withPositionAfterLinebreak.parenthesizer (p : Parenthesizer) : Parenthesizer :=
+@[combinator_parenthesizer withPositionAfterLinebreak, expose] def withPositionAfterLinebreak.parenthesizer (p : Parenthesizer) : Parenthesizer :=
   -- TODO: improve?
   withPosition.parenthesizer p
 
-@[combinator_parenthesizer withoutInfo] def withoutInfo.parenthesizer (p : Parenthesizer) : Parenthesizer := p
+@[combinator_parenthesizer withoutInfo, expose] def withoutInfo.parenthesizer (p : Parenthesizer) : Parenthesizer := p
 
-@[combinator_parenthesizer checkStackTop] def checkStackTop.parenthesizer : Parenthesizer := pure ()
-@[combinator_parenthesizer checkWsBefore] def checkWsBefore.parenthesizer : Parenthesizer := pure ()
-@[combinator_parenthesizer checkNoWsBefore] def checkNoWsBefore.parenthesizer : Parenthesizer := pure ()
-@[combinator_parenthesizer checkLinebreakBefore] def checkLinebreakBefore.parenthesizer : Parenthesizer := pure ()
-@[combinator_parenthesizer checkTailWs] def checkTailWs.parenthesizer : Parenthesizer := pure ()
-@[combinator_parenthesizer checkColEq] def checkColEq.parenthesizer : Parenthesizer := pure ()
-@[combinator_parenthesizer checkColGe] def checkColGe.parenthesizer : Parenthesizer := pure ()
-@[combinator_parenthesizer checkColGt] def checkColGt.parenthesizer : Parenthesizer := pure ()
-@[combinator_parenthesizer checkLineEq] def checkLineEq.parenthesizer : Parenthesizer := pure ()
-@[combinator_parenthesizer eoi] def eoi.parenthesizer : Parenthesizer := pure ()
-@[combinator_parenthesizer checkNoImmediateColon] def checkNoImmediateColon.parenthesizer : Parenthesizer := pure ()
-@[combinator_parenthesizer skip] def skip.parenthesizer : Parenthesizer := pure ()
+@[combinator_parenthesizer checkStackTop, expose] def checkStackTop.parenthesizer : Parenthesizer := pure ()
+@[combinator_parenthesizer checkWsBefore, expose] def checkWsBefore.parenthesizer : Parenthesizer := pure ()
+@[combinator_parenthesizer checkNoWsBefore, expose] def checkNoWsBefore.parenthesizer : Parenthesizer := pure ()
+@[combinator_parenthesizer checkLinebreakBefore, expose] def checkLinebreakBefore.parenthesizer : Parenthesizer := pure ()
+@[combinator_parenthesizer checkTailWs, expose] def checkTailWs.parenthesizer : Parenthesizer := pure ()
+@[combinator_parenthesizer checkColEq, expose] def checkColEq.parenthesizer : Parenthesizer := pure ()
+@[combinator_parenthesizer checkColGe, expose] def checkColGe.parenthesizer : Parenthesizer := pure ()
+@[combinator_parenthesizer checkColGt, expose] def checkColGt.parenthesizer : Parenthesizer := pure ()
+@[combinator_parenthesizer checkLineEq, expose] def checkLineEq.parenthesizer : Parenthesizer := pure ()
+@[combinator_parenthesizer eoi, expose] def eoi.parenthesizer : Parenthesizer := pure ()
+@[combinator_parenthesizer checkNoImmediateColon, expose] def checkNoImmediateColon.parenthesizer : Parenthesizer := pure ()
+@[combinator_parenthesizer skip, expose] def skip.parenthesizer : Parenthesizer := pure ()
 
-@[combinator_parenthesizer pushNone] def pushNone.parenthesizer : Parenthesizer := goLeft
-@[combinator_parenthesizer hygieneInfoNoAntiquot] def hygieneInfoNoAntiquot.parenthesizer : Parenthesizer := goLeft
+@[combinator_parenthesizer pushNone, expose] def pushNone.parenthesizer : Parenthesizer := goLeft
+@[combinator_parenthesizer hygieneInfoNoAntiquot, expose] def hygieneInfoNoAntiquot.parenthesizer : Parenthesizer := goLeft
 
-@[combinator_parenthesizer interpolatedStr]
+@[combinator_parenthesizer interpolatedStr, expose]
 def interpolatedStr.parenthesizer (p : Parenthesizer) : Parenthesizer := do
   visitArgs $ (← getCur).getArgs.reverse.forM fun chunk =>
     if chunk.isOfKind interpolatedStrLitKind then
@@ -542,7 +563,9 @@ def interpolatedStr.parenthesizer (p : Parenthesizer) : Parenthesizer := do
     else
       p
 
-@[combinator_parenthesizer _root_.ite, macro_inline] def ite {_ : Type} (c : Prop) [Decidable c] (t e : Parenthesizer) : Parenthesizer :=
+@[combinator_parenthesizer hexnumNoAntiquot, expose] def hexnum.parenthesizer := visitToken
+
+@[combinator_parenthesizer _root_.ite, expose, macro_inline] def ite {_ : Type} (c : Prop) [Decidable c] (t e : Parenthesizer) : Parenthesizer :=
   if c then t else e
 
 open Parser

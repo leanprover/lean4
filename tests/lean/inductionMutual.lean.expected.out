@@ -1,1 +1,3 @@
-inductionMutual.lean:11:2-11:14: error: 'induction' tactic does not support mutually inductive types, the eliminator 'A.rec' has multiple motives
+inductionMutual.lean:11:2-11:14: error: The `induction` tactic does not support the type `A` because it is mutually inductive
+
+Hint: Consider using the `cases` tactic instead

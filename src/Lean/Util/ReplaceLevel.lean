@@ -3,8 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Expr
+public import Lean.Expr
+
+public section
 
 namespace Lean
 namespace Level
@@ -55,8 +59,10 @@ unsafe def replaceUnsafeM (f? : Level → Option Level) (size : USize) (e : Expr
         | e                      => pure e
   visit e
 
+private def notAnExpr : Unit × Unit := ⟨⟨⟩, ⟨⟩⟩
+
 unsafe def initCache : State :=
-  { keys    := .replicate cacheSize.toNat (cast lcProof ()), -- `()` is not a valid `Expr`
+  { keys    := .replicate cacheSize.toNat (cast lcProof notAnExpr), -- `notAnExpr` is not a valid `Expr`
     results := .replicate cacheSize.toNat default }
 
 unsafe def replaceUnsafe (f? : Level → Option Level) (e : Expr) : Expr :=

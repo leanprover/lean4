@@ -3,10 +3,12 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
-import Lake.Util.Cycle
-import Lake.Util.Store
-import Lake.Util.EquipT
+public import Lake.Util.Cycle
+public import Lake.Util.Store
+public import Lake.Util.EquipT
 
 /-!
 # Topological / Suspending Recursive Builder
@@ -34,11 +36,11 @@ describing what to fetch and produces some output `b : β a` (dependently
 typed) or `b : B` (not) describing what was fetched. All build functions are
 fetch functions, but not all fetch functions need build something.
 -/
-abbrev DFetchFn (α : Type u) (β : α → Type v) (m : Type v → Type w) :=
+public abbrev DFetchFn (α : Type u) (β : α → Type v) (m : Type v → Type w) :=
   (a : α) → m (β a)
 
 /-- A `DFetchFn` that is not dependently typed. -/
-abbrev FetchFn (α : Type u) (β : Type v) (m : Type v → Type w) :=
+public abbrev FetchFn (α : Type u) (β : Type v) (m : Type v → Type w) :=
   α → m β
 
 /-!
@@ -47,11 +49,11 @@ we equip the monad `m` with a fetch function of its own.
 -/
 
 /-- A transformer that equips a monad with a `DFetchFn`. -/
-abbrev DFetchFnT (α : Type u) (β : α → Type v) (m : Type v → Type w) :=
+public abbrev DFetchFnT (α : Type u) (β : α → Type v) (m : Type v → Type w) :=
   EquipT (DFetchFn α β m) m
 
 /-- A `DFetchFnT` that is not dependently typed. -/
-abbrev FetchFnT (α : Type u) (β : Type v) (m : Type v → Type w) :=
+public abbrev FetchFnT (α : Type u) (β : Type v) (m : Type v → Type w) :=
   DFetchFnT α (fun _ => β) m
 
 /-!
@@ -63,17 +65,17 @@ A `DFetchFn` that utilizes another `DFetchFn` equipped to the monad to
 fetch values. It is thus usually implemented recursively via some variation
 of the `recFetch` function below, hence the "rec" in both names.
 -/
-abbrev DRecFetchFn (α : Type u) (β : α → Type v) (m : Type v → Type w) :=
+public abbrev DRecFetchFn (α : Type u) (β : α → Type v) (m : Type v → Type w) :=
   DFetchFn α β (DFetchFnT α β m)
 
 /-- A `DRecFetchFn` that is not dependently typed. -/
-abbrev RecFetchFn (α : Type u) (β : Type v) (m : Type v → Type w) :=
+public abbrev RecFetchFn (α : Type u) (β : Type v) (m : Type v → Type w) :=
   α → FetchFnT α β m β
 
 /-- A `DFetchFn` that provides its base `DRecFetchFn` with itself. -/
-@[specialize] partial def recFetch
-[(α : Type u) → Nonempty (m α)] (fetch : DRecFetchFn α β m) : DFetchFn α β m :=
-  fun a => fetch a (recFetch fetch)
+@[specialize] public partial def recFetch
+  [(α : Type u) → Nonempty (m α)] (fetch : DRecFetchFn α β m)
+: DFetchFn α β m := fun a => fetch a |>.run (recFetch fetch)
 
 /-!
 The basic `recFetch` can fail to terminate in a variety of ways,
@@ -89,18 +91,18 @@ We use `keyOf` to the derive the unique key of a fetch from its descriptor
 `a : α`. We do this because descriptors may not be comparable and/or contain
 more information than necessary to determine uniqueness.
 -/
-@[specialize] def recFetchAcyclic
+@[specialize] public def recFetchAcyclic
   [BEq κ] [Monad m] [MonadCycle κ m]
   (keyOf : α → κ) (fetch : DRecFetchFn α β m)
 : DFetchFn α β m :=
-  recFetch fun a recurse => guardCycle (keyOf a) do
+  recFetch fun a => .mk fun recurse => guardCycle (keyOf a) do
     /-
     NOTE: We provide the stack directly to `recurse` rather than
     using the version in the monad to prevent it being overridden by
     the `fetch` function (and thereby potentially produce a cycle).
     -/
     let stack ← getCallStack
-    fetch a fun a => withCallStack stack (recurse a)
+    fetch a |>.run fun a => withCallStack stack (recurse a)
 
 /-!
 When building, we usually do not want to build the same thing twice during
@@ -113,9 +115,9 @@ future fetches. This is what `recFetchMemoize` below does.
 `recFetchAcyclic` augmented with a `MonadDStore` to
 memoize fetch results and thus avoid computing the same result twice.
 -/
-@[specialize] def recFetchMemoize
+@[specialize] public def recFetchMemoize
   [BEq κ] [Monad m] [MonadCycle κ m] [MonadDStore κ β m]
-  (keyOf : α → κ) (fetch : DRecFetchFn α (fun a => β (keyOf a)) m)
+  (keyOf : α → κ) (compute : DRecFetchFn α (fun a => β (keyOf a)) m)
 : DFetchFn α (fun a => β (keyOf a)) m :=
-  inline <| recFetchAcyclic keyOf fun a recurse =>
-    fetchOrCreate (keyOf a) do fetch a recurse
+  inline <| recFetchAcyclic keyOf fun a =>
+    fetchOrCreate (keyOf a) (compute a)

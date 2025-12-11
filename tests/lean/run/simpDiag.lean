@@ -42,7 +42,7 @@ trace: [simp] Diagnostics
     [simp] ack.eq_1 ↦ 508, succeeded: 508
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---
-error: tactic 'simp' failed, nested error:
+error: Tactic `simp` failed with a nested error:
 maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit
 use `set_option diagnostics true` to get diagnostic information

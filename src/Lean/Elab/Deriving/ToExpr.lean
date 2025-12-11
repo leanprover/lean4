@@ -3,12 +3,11 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
+module
+
 prelude
-import Lean.Meta.Transform
 import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
-import Lean.ToLevel
-import Lean.ToExpr
 
 /-!
 # `ToExpr` deriving handler
@@ -168,9 +167,9 @@ def mkAuxFunction (ctx : Deriving.Context) (i : Nat) : TermElabM Command := do
     | _ => throwError "(internal error) expecting inst binder"
   let binders := header.binders.pop ++ levelBinders ++ #[← addLevels header.binders.back!]
   if ctx.usePartial then
-    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Expr := $body:term)
+    `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Expr := $body:term)
   else
-    `(private         def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Expr := $body:term)
+    `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Expr := $body:term)
 
 /--
 Creates all the auxiliary functions (using `mkAuxFunction`) for the (mutual) inductive type(s).
@@ -186,7 +185,8 @@ open TSyntax.Compat in
 /--
 Assuming all of the auxiliary definitions exist,
 creates all the `instance` commands for the `ToExpr` instances for the (mutual) inductive type(s).
-This is a modified copy of `Lean.Elab.Deriving.mkInstanceCmds` to account for `ToLevel` instances.
+This is a modified copy of `Lean.Elab.Deriving.mkInstanceCmds` to account for `ToLevel` instances
+parameters.
 -/
 def mkInstanceCmds (ctx : Deriving.Context) (typeNames : Array Name) :
     TermElabM (Array Command) := do
@@ -202,7 +202,8 @@ def mkInstanceCmds (ctx : Deriving.Context) (typeNames : Array Name) :
       let binders      := binders ++ levelBinders
       let indType      ← updateIndType indVal (← mkInductiveApp indVal argNames)
       let toTypeExpr   ← mkToTypeExpr indVal argNames
-      let instCmd ← `(instance $binders:implicitBinder* : ToExpr $indType where
+      let instName     ← mkInstName ``ToExpr indVal.name
+      let instCmd ← `(instance $(mkIdent instName):ident $binders:implicitBinder* : ToExpr $indType where
                         toExpr := $(mkIdent auxFunName) $toLevelInsts*
                         toTypeExpr := $toTypeExpr)
       instances := instances.push instCmd
@@ -212,7 +213,7 @@ def mkInstanceCmds (ctx : Deriving.Context) (typeNames : Array Name) :
 Returns all the commands necessary to construct the `ToExpr` instances.
 -/
 def mkToExprInstanceCmds (declNames : Array Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "toExpr" declNames[0]!
+  let ctx ← mkContext ``ToExpr "toExpr" declNames[0]!
   let cmds := #[← mkAuxFunctions ctx] ++ (← mkInstanceCmds ctx declNames)
   trace[Elab.Deriving.toExpr] "\n{cmds}"
   return cmds

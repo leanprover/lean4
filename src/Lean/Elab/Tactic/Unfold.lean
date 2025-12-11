@@ -3,10 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Unfold
-import Lean.Elab.Tactic.Basic
-import Lean.Elab.Tactic.Location
+public import Lean.Meta.Tactic.Unfold
+public import Lean.Elab.Tactic.Location
+
+public section
 
 namespace Lean.Elab.Tactic
 open Meta
@@ -36,7 +39,7 @@ where
       withLocation loc (unfoldLocalDecl declName) (unfoldTarget declName) (throwTacticEx `unfold · m!"did not unfold '{declName}'")
     | .fvar declFVarId =>
       unless ← declFVarId.isLetVar do
-        throwError "tactic 'unfold' failed, local variable '{Expr.fvar declFVarId}' has no definition"
+        throwError "Tactic `unfold` failed: Local variable `{Expr.fvar declFVarId}` has no definition"
       withLocation loc (zetaDeltaLocalDecl declFVarId) (zetaDeltaTarget declFVarId) (throwTacticEx `unfold · m!"did not unfold '{e}'")
     | _ => throwTacticEx `unfold (← getMainGoal) m!"expression {e} is not a global or local constant"
 

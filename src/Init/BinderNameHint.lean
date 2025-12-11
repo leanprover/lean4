@@ -7,7 +7,6 @@ Authors: Joachim Breitner
 module
 
 prelude
-public import Init.Prelude
 public import Init.Tactics
 
 public section
@@ -39,7 +38,7 @@ This gadget is supported by
 * `simp`, `dsimp` and `rw` in the right-hand-side of an equation
 * `simp` in the assumptions of congruence rules
 
-It is ineffective in other positions (hyptheses of rewrite rules) or when used by other tactics
+It is ineffective in other positions (hypotheses of rewrite rules) or when used by other tactics
 (e.g. `apply`).
 -/
 @[simp ↓, expose]

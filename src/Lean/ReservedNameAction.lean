@@ -3,8 +3,12 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.CoreM
+public import Lean.CoreM
+
+public section
 
 namespace Lean
 
@@ -14,7 +18,7 @@ The action returns `true` if it "handled" the given name.
 
 Remark: usually when one install a reserved name predicate, an associated action is also installed.
 -/
-def ReservedNameAction := Name → CoreM Bool
+@[expose] def ReservedNameAction := Name → CoreM Bool
 
 private builtin_initialize reservedNameActionsRef : IO.Ref (Array ReservedNameAction) ← IO.mkRef #[]
 

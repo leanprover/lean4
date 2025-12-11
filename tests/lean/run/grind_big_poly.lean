@@ -1,3 +1,4 @@
+module
 /--
 trace: [grind.issues] maximum recursion depth has been reached
     use `set_option maxRecDepth <num>` to increase limit

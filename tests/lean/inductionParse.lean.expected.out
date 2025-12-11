@@ -1,2 +1,2 @@
-inductionParse.lean:4:2-4:11: error: Alternative 'zero' has not been provided
-inductionParse.lean:4:2-4:11: error: Alternative 'succ' has not been provided
+inductionParse.lean:4:2-4:11: error: Alternative `zero` has not been provided
+inductionParse.lean:4:2-4:11: error: Alternative `succ` has not been provided

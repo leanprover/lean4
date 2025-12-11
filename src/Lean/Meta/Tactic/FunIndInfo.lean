@@ -4,10 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.ScopedEnvExtension
-import Lean.ReservedNameAction
+public import Lean.Meta.Basic
+public import Lean.ReservedNameAction
+
+public section
 
 /-!
 This module defines the data structure and environment extension to remember how to map the

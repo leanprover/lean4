@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Core
 public import Init.Classical
 
 public section
@@ -19,7 +18,7 @@ def nestedProof (p : Prop) {h : p} : p := h
 /-- A helper gadget for annotating nested decidable instances in goals. -/
 -- Remark: we currently have special gadgets for the two most common subsingletons in Lean, and are the only
 -- currently supported in `grind`. We may add a generic `nestedSubsingleton` inn the future.
-def nestedDecidable {p : Prop} (h : Decidable p) : Decidable p := h
+@[expose] def nestedDecidable {p : Prop} (h : Decidable p) : Decidable p := h
 
 /--
 Gadget for marking `match`-expressions that should not be reduced by the `grind` simplifier, but the discriminants should be normalized.
@@ -58,7 +57,7 @@ abbrev MatchCond (p : Prop) : Prop := p
 Similar to `MatchCond`, but not reducible. We use it to ensure `simp`
 will not eliminate it. After we apply `simp`, we replace it with `MatchCond`.
 -/
-def PreMatchCond (p : Prop) : Prop := p
+@[expose] def PreMatchCond (p : Prop) : Prop := p
 
 theorem nestedProof_congr (p q : Prop) (h : p = q) (hp : p) (hq : q) : @nestedProof p hp ≍ @nestedProof q hq := by
   subst h; apply HEq.refl
@@ -122,5 +121,16 @@ See comment at `alreadyNorm`
 -/
 theorem em (p : Prop) : alreadyNorm p ∨ alreadyNorm (¬ p) :=
   Classical.em p
+
+/--
+Marker for grind-solved subproofs in `exact? +grind` suggestions.
+When `exact?` uses grind as a discharger, it wraps the proof in this marker
+so that the unexpander can replace it with `(by grind)` in the suggestion.
+-/
+@[inline] def Marker {α : Sort u} (a : α) : α := a
+
+@[app_unexpander Marker]
+meta def markerUnexpander : PrettyPrinter.Unexpander := fun _ => do
+  `(by grind)
 
 end Lean.Grind

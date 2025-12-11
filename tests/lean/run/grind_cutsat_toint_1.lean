@@ -1,3 +1,4 @@
+module
 example (a b c : Fin 11) : a ≤ b → b ≤ c → a ≤ c := by
   grind
 
@@ -80,17 +81,39 @@ example (a : Fin 2) : a ≠ 0 → a ≠ 1 → False := by
   grind
 
 /--
-trace: [grind.cutsat.model] a := 2
-[grind.cutsat.model] b := 0
+trace: [grind.lia.model] a := 2
+[grind.lia.model] b := 0
 -/
 #guard_msgs (drop error, trace) in
-set_option trace.grind.cutsat.model true in
+set_option trace.grind.lia.model true in
 example (a b : Fin 3) : a > 0 → a ≠ b → a + b ≠ 0 → a + b ≠ 1 → False := by
   grind
 
 -- We use `↑a` when pretty printing `ToInt.toInt a`
-/-- trace: [grind.debug.ring.basis] ↑a + ↑b + -3 * ((↑a + ↑b) / 3) + -1 * ((↑a + ↑b) % 3) = 0 -/
+/-- trace: [grind.debug.ring.basis] ↑a + ↑b + -1 * ((↑a + ↑b) % 3) + -3 * ((↑a + ↑b) / 3) = 0 -/
 #guard_msgs (drop error, trace) in
 set_option trace.grind.debug.ring.basis true in
 example (a b : Fin 3) : a > 0 → a ≠ b → a + b ≠ 0 → a + b ≠ 1 → False := by
+  grind
+
+example (p : Nat) (heq : p = 0) (n : Fin (p + 1)) : n = 0 := by
+  grind
+
+example (p : Nat) (heq : p = 1) (n : Fin (p + 1)) : n = 0 ∨ n = 1 := by
+  grind
+
+example (p d : Nat) (n : Fin (p + 1)) : 2 ≤ p → p ≤ d + 1 → d = 1 → n = 0 ∨ n = 1 ∨ n = 2 := by
+  grind
+
+example (s : Nat)
+  (i j : Fin (s + 1)) (hn : i ≠ j) (hl : ¬i < j) : j < i := by
+  grind
+
+example {n : Nat} (j : Fin (n + 1)) : j ≤ j := by
+  grind
+
+example {n : Nat} (x y : Fin ((n + 1) + 1)) (h₂ : ¬x = y) (h : ¬x < y) : y < x := by
+  grind
+
+example {n m : Nat} (x : BitVec n) : 2 ≤ n → n ≤ m → m = 2 → x = 0 ∨ x = 1 ∨ x = 2 ∨ x = 3 := by
   grind

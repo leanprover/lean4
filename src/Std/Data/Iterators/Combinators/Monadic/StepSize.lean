@@ -3,12 +3,15 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Iterators.Basic
-import Init.Data.Iterators.Internal.Termination
-import Init.Data.Iterators.Consumers.Monadic.Access
-import Init.Data.Iterators.Consumers.Monadic.Collect
-import Init.Data.Iterators.Consumers.Monadic.Loop
+public import Init.Data.Iterators.Internal.Termination
+public import Init.Data.Iterators.Consumers.Monadic.Access
+public import Init.Data.Iterators.Consumers.Monadic.Collect
+public import Init.Data.Iterators.Consumers.Monadic.Loop
+
+@[expose] public section
 
 /-!
 This module implements a combinator that only yields every `n`-th element of another iterator.
@@ -29,7 +32,7 @@ instance [Iterator α m β] [IteratorAccess α m] [Monad m] :
         (step.mapIterator (Types.StepSizeIterator.inner ∘ IterM.internalState)) ∧
       ∀ it' out, step = .yield it' out →
         it'.internalState.n = it.internalState.n ∧ it'.internalState.nextIdx = it.internalState.n
-  step it := (fun s => ⟨s.1.mapIterator (⟨⟨it.internalState.n, it.internalState.n, ·⟩⟩), by
+  step it := (fun s => .deflate ⟨s.1.mapIterator (⟨⟨it.internalState.n, it.internalState.n, ·⟩⟩), by
       simp only [IterStep.mapIterator_mapIterator]
       refine cast ?_ s.property
       rw (occs := [1]) [← IterStep.mapIterator_id (step := s.val)]
@@ -136,29 +139,9 @@ instance Types.StepSizeIterator.instIteratorCollect {m n} [Iterator α m β]
     IteratorCollect (Types.StepSizeIterator α m β) m n :=
   .defaultImplementation
 
-instance Types.StepSizeIterator.instIteratorCollectPartial {m n} [Iterator α m β]
-    [IteratorAccess α m] [Monad m] [Monad n] :
-    IteratorCollectPartial (Types.StepSizeIterator α m β) m n :=
-  .defaultImplementation
-
 instance Types.StepSizeIterator.instIteratorLoop {m n} [Iterator α m β]
     [IteratorAccess α m] [Monad m] [Monad n] :
     IteratorLoop (Types.StepSizeIterator α m β) m n :=
-  .defaultImplementation
-
-instance Types.StepSizeIterator.instIteratorLoopPartial {m n} [Iterator α m β]
-    [IteratorAccess α m] [Monad m] [Monad n] :
-    IteratorLoopPartial (Types.StepSizeIterator α m β) m n :=
-  .defaultImplementation
-
-instance Types.StepSizeIterator.instIteratorSize {m} [Iterator α m β]
-    [IteratorAccess α m] [Monad m] [Finite (Types.StepSizeIterator α m β) m] :
-    IteratorSize (Types.StepSizeIterator α m β) m :=
-  .defaultImplementation
-
-instance Types.StepSizeIterator.instIteratorSizePartial {m} [Iterator α m β]
-    [IteratorAccess α m] [Monad m] :
-    IteratorSizePartial (Types.StepSizeIterator α m β) m :=
   .defaultImplementation
 
 end Std.Iterators

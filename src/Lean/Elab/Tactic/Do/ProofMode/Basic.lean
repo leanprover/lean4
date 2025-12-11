@@ -3,10 +3,13 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
+module
+
 prelude
-import Lean.Meta
-import Std.Tactic.Do.Syntax
-import Lean.Elab.Tactic.Do.ProofMode.MGoal
+public import Std.Tactic.Do.Syntax
+public import Lean.Elab.Tactic.Do.ProofMode.MGoal
+
+public section
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do SPred.Tactic
@@ -22,7 +25,7 @@ def mStart (goal : Expr) : MetaM MStartResult := do
     return { goal := mgoal }
 
   let u ← mkFreshLevelMVar
-  let σs ← mkFreshExprMVar (σs.mkType u)
+  let σs ← mkFreshExprMVar (TypeList.mkType u)
   let P ← mkFreshExprMVar (mkApp (mkConst ``SPred [u]) σs)
   let inst ← synthInstance (mkApp3 (mkConst ``PropAsSPredTautology [u]) goal σs P)
   let u ← instantiateLevelMVars u
@@ -33,7 +36,7 @@ def mStart (goal : Expr) : MetaM MStartResult := do
 def mStartMVar (mvar : MVarId) : MetaM (MVarId × MGoal) := mvar.withContext do
   let goal ← instantiateMVars <| ← mvar.getType
   unless ← isProp goal do
-    throwError "type mismatch\n{← mkHasTypeButIsExpectedMsg (← inferType goal) (mkSort .zero)}"
+    throwError "The goal type of `{mkMVar mvar}` is not a proposition. It has type `{← inferType goal}`."
 
   let result ← mStart goal
   if let some proof := result.proof? then
@@ -44,10 +47,13 @@ def mStartMVar (mvar : MVarId) : MetaM (MVarId × MGoal) := mvar.withContext do
   else
     return (mvar, result.goal)
 
-@[builtin_tactic Lean.Parser.Tactic.mstart]
-def elabMStart : Tactic | _ => do
-  let (mvar, _) ← mStartMVar (← getMainGoal)
+def mStartMainGoal : TacticM (MVarId × MGoal) := do
+  let (mvar, goal) ← mStartMVar (← getMainGoal)
   replaceMainGoal [mvar]
+  return (mvar, goal)
+
+@[builtin_tactic Lean.Parser.Tactic.mstart]
+def elabMStart : Tactic | _ => discard mStartMainGoal
 
 @[builtin_tactic Lean.Parser.Tactic.mstop]
 def elabMStop : Tactic | _ => do

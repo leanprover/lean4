@@ -3,9 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.Basic
-import Std.Sat.AIG.Lemmas
+public import Std.Sat.AIG.Lemmas
+
+@[expose] public section
 
 namespace Std
 namespace Sat
@@ -40,7 +43,7 @@ theorem relabel_atom {decls : Array (Decl α)} {r : α → β} {hidx : idx < dec
   unfold relabel at h
   split at h
   · contradiction
-  · next x heq =>
+  next x heq =>
     injection h with h
     exists x
     simp [heq, h]
@@ -158,11 +161,11 @@ theorem relabel_unsat_iff_of_Nonempty [Nonempty α] {aig : AIG α} {r : α → �
     · intro a hmem
       simp only [Function.comp_apply, g]
       split
-      · next h =>
+      next h =>
         rcases Exists.choose_spec h with ⟨_, heq⟩
         specialize hinj _ _ (by assumption) (by assumption) heq
         simp [hinj]
-      · next h =>
+      next h =>
         simp only [not_exists, not_and] at h
         specialize h a hmem
         contradiction

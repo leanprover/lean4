@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.DateTime
-import Std.Time.Zoned.TimeZone
+public import Std.Time.DateTime
+public import Std.Time.Zoned.TimeZone
+
+public section
 
 namespace Std
 namespace Time

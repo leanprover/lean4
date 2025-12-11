@@ -119,7 +119,7 @@ theorem filter_filter :
   refine filter.induct_unfolding p (motive := fun xs r => filter q r = filter (fun x => p x && q x) xs) ?case1 ?case2 ?case3 xs
   case case1 => rfl
   case case2 =>
-    intros x xs hp ih
+    intro x xs hp ih
     by_cases hq : q x
     case pos => simp [*, filter]
     case neg => simp [*, filter]

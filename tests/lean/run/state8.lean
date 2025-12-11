@@ -67,5 +67,5 @@ def f : States → States → States
 | s7, s7 => s0
 set_option maxHeartbeats 0
 example : ∀ x y z, f (f (f s0 x) y) z = f (f x z) (f y z) := by
- intros x y z
+ intro x y z
  cases x <;> cases y <;> cases z <;> rfl

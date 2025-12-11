@@ -117,7 +117,7 @@ example (p : Nat × Nat) : True :=
 `+postponeValue`, example from `Lean.Elab.Term.Do.ToTerm.mkJoinPoint`.
 -/
 /--
-error: type mismatch
+error: Type mismatch
   jp ()
 has type
   IO (IO.Ref Bool)
@@ -135,7 +135,7 @@ def f (x : Nat) : IO Unit :=
     else
       jp ()
 /--
-error: type mismatch
+error: Type mismatch
   IO.mkRef true
 has type
   BaseIO (IO.Ref Bool)

@@ -6,8 +6,6 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 module
 
 prelude
-public import Init.Conv
-public import Init.NotationExtra
 public import Init.PropLemmas
 
 public section
@@ -19,7 +17,7 @@ open Nat
 /-! ## Definitions of basic functions -/
 
 theorem subNatNat_of_sub_eq_zero {m n : Nat} (h : n - m = 0) : subNatNat m n = ↑(m - n) := by
-  rw [subNatNat, h, ofNat_eq_coe]
+  rw [subNatNat, h, ofNat_eq_natCast]
 
 theorem subNatNat_of_sub_eq_succ {m n k : Nat} (h : n - m = succ k) : subNatNat m n = -[k+1] := by
   rw [subNatNat, h]
@@ -40,7 +38,7 @@ theorem ofNat_succ (n : Nat) : (succ n : Int) = n + 1 := rfl
 
 theorem neg_ofNat_zero : -((0 : Nat) : Int) = 0 := rfl
 theorem neg_ofNat_succ (n : Nat) : -(succ n : Int) = -[n+1] := rfl
-theorem neg_negSucc (n : Nat) : -(-[n+1]) = succ n := rfl
+@[simp] theorem neg_negSucc (n : Nat) : -(-[n+1]) = ((n + 1 : Nat) : Int) := rfl
 
 theorem negOfNat_eq : negOfNat n = -ofNat n := rfl
 
@@ -76,15 +74,23 @@ theorem negSucc_inj : negSucc m = negSucc n ↔ m = n := ⟨negSucc.inj, fun H =
 
 theorem negSucc_eq (n : Nat) : -[n+1] = -((n : Int) + 1) := rfl
 
-@[deprecated negSucc_eq (since := "2025-03-11")]
-theorem negSucc_coe (n : Nat) : -[n+1] = -↑(n + 1) := rfl
-
 @[simp] theorem negSucc_ne_zero (n : Nat) : -[n+1] ≠ 0 := nofun
 
 @[simp] theorem zero_ne_negSucc (n : Nat) : 0 ≠ -[n+1] := nofun
 
 @[simp, norm_cast] theorem cast_ofNat_Int :
   (Nat.cast (no_index (OfNat.ofNat n)) : Int) = OfNat.ofNat n := rfl
+
+@[simp] theorem beq'_eq (a b : Int) : Int.beq' a b = (a = b) := by
+  cases a <;> cases b <;> simp [Int.beq', ofNat_inj]
+
+@[simp] theorem beq'_ne (a b : Int) : (Int.beq' a b = false) = (a ≠ b) := by
+  rw [Ne, ← beq'_eq, Bool.not_eq_true]
+
+theorem beq'_eq_beq (a b : Int) : (Int.beq' a b) = (a == b) := by
+  have h : (Int.beq' a b = true) = (a == b) := by simp
+  have : ∀ {a b : Bool}, (a = true) = (b = true) → a = b := by intro a b; cases a <;> cases b <;> simp
+  exact this h
 
 /- ## neg -/
 
@@ -123,7 +129,7 @@ theorem subNatNat_elim (m n : Nat) (motive : Nat → Nat → Int → Prop)
 
 theorem subNatNat_add_left : subNatNat (m + n) m = n := by
   unfold subNatNat
-  rw [Nat.sub_eq_zero_of_le (Nat.le_add_right ..), Nat.add_sub_cancel_left, ofNat_eq_coe]
+  rw [Nat.sub_eq_zero_of_le (Nat.le_add_right ..), Nat.add_sub_cancel_left, ofNat_eq_natCast]
 
 theorem subNatNat_add_right : subNatNat m (m + n + 1) = negSucc n := by
   simp [subNatNat, Nat.add_assoc, Nat.add_sub_cancel_left]
@@ -344,16 +350,12 @@ protected theorem add_sub_assoc (a b c : Int) : a + b - c = a + (b - c) := by
     change ofNat (n - succ m) = subNatNat n (succ m)
     rw [subNatNat, Nat.sub_eq_zero_of_le h]
 
-@[deprecated negSucc_eq (since := "2025-03-11")]
-theorem negSucc_coe' (n : Nat) : -[n+1] = -↑n - 1 := by
-  rw [Int.sub_eq_add_neg, ← Int.neg_add]; rfl
-
 protected theorem subNatNat_eq_coe {m n : Nat} : subNatNat m n = ↑m - ↑n := by
   apply subNatNat_elim m n fun m n i => i = m - n
-  · intros i n
+  · intro i n
     rw [Int.natCast_add, Int.sub_eq_add_neg, Int.add_assoc, Int.add_left_comm,
       Int.add_right_neg, Int.add_zero]
-  · intros i n
+  · intro i n
     simp only [negSucc_eq, natCast_add, ofNat_one, Int.sub_eq_add_neg, Int.neg_add, ← Int.add_assoc]
     rw [Int.add_neg_eq_sub (a := n), ← ofNat_sub, Nat.sub_self, ofNat_zero, Int.zero_add]
     apply Nat.le_refl
@@ -550,10 +552,13 @@ protected theorem mul_eq_zero {a b : Int} : a * b = 0 ↔ a = 0 ∨ b = 0 := by
   exact match a, b, h with
   | .ofNat 0, _, _ => by simp
   | _, .ofNat 0, _ => by simp
-  | .ofNat (a+1), .negSucc b, h => by cases h
+  | .ofNat (_+1), .negSucc _, h => by cases h
 
 protected theorem mul_ne_zero {a b : Int} (a0 : a ≠ 0) (b0 : b ≠ 0) : a * b ≠ 0 :=
   Or.rec a0 b0 ∘ Int.mul_eq_zero.mp
+
+instance {a b : Int} [NeZero a] [NeZero b] : NeZero (a * b) :=
+  ⟨Int.mul_ne_zero (NeZero.ne _) (NeZero.ne _)⟩
 
 @[simp] protected theorem mul_ne_zero_iff {a b : Int} : a * b ≠ 0 ↔ a ≠ 0 ∧ b ≠ 0 := by
   rw [ne_eq, Int.mul_eq_zero, not_or, ne_eq]
@@ -594,7 +599,5 @@ but it is convenient to have these earlier, for users who only need `Nat` and `I
 protected theorem natCast_zero : ((0 : Nat) : Int) = (0 : Int) := rfl
 
 protected theorem natCast_one : ((1 : Nat) : Int) = (1 : Int) := rfl
-
-@[simp, norm_cast] theorem natAbs_cast (n : Nat) : natAbs ↑n = n := rfl
 
 end Int

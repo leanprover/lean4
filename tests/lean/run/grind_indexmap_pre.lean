@@ -1,3 +1,4 @@
+module
 -- This is a companion file for `grind_indexmap.lean`,
 -- showing what an outline of this file might look like before any proofs are written.
 

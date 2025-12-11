@@ -3,12 +3,10 @@ import Lean.AddDecl
 
 open Lean
 
-set_option debug.skipKernelTC true
-
 def buildSyntheticEnv : Lean.CoreM Unit := do
   for i in [0:100000] do
     let name := s!"Long.And.Hopefully.Unique.Name.foo{i}".toName
-    addDecl <| Declaration.opaqueDecl {
+    let env' ← ofExceptKernelException <| (← getEnv).addDeclCore (cancelTk? := none) 0 <| .opaqueDecl {
       name := name
       levelParams := []
       type := .const `Nat []
@@ -16,6 +14,7 @@ def buildSyntheticEnv : Lean.CoreM Unit := do
       isUnsafe := false
       all := [name]
     }
+    setEnv env'
     addDocStringCore name "A synthetic doc-string"
 
 #eval buildSyntheticEnv

@@ -4,13 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
 module
-
 prelude
 public import Init.Notation
-
 public section
 set_option linter.missingDocs true -- keep it documented
-
 namespace Lean.Parser.Tactic
 
 /--
@@ -33,14 +30,16 @@ For each hypothesis to be introduced, the remaining main goal's target type must
 be a `let` or function type.
 
 * `intro` by itself introduces one anonymous hypothesis, which can be accessed
-  by e.g. `assumption`.
+  by e.g. `assumption`. It is equivalent to `intro _`.
 * `intro x y` introduces two hypotheses and names them. Individual hypotheses
-  can be anonymized via `_`, or matched against a pattern:
+  can be anonymized via `_`, given a type ascription, or matched against a pattern:
   ```lean
   -- ... ⊢ α × β → ...
   intro (a, b)
   -- ..., a : α, b : β ⊢ ...
   ```
+* `intro rfl` is short for `intro h; subst h`, if `h` is an equality where the left-hand or right-hand side
+  is a variable.
 * Alternatively, `intro` can be combined with pattern matching much like `fun`:
   ```lean
   intro
@@ -51,54 +50,27 @@ be a `let` or function type.
 syntax (name := intro) "intro" notFollowedBy("|") (ppSpace colGt term:max)* : tactic
 
 /--
-Introduces zero or more hypotheses, optionally naming them.
+`intros` repeatedly applies `intro` to introduce zero or more hypotheses
+until the goal is no longer a *binding expression*
+(i.e., a universal quantifier, function type, implication, or `have`/`let`),
+without performing any definitional reductions (no unfolding, beta, eta, etc.).
+The introduced hypotheses receive inaccessible (hygienic) names.
 
-- `intros` is equivalent to repeatedly applying `intro`
-  until the goal is not an obvious candidate for `intro`, which is to say
-  that so long as the goal is a `let` or a pi type (e.g. an implication, function, or universal quantifier),
-  the `intros` tactic will introduce an anonymous hypothesis.
-  This tactic does not unfold definitions.
+`intros x y z` is equivalent to `intro x y z` and exists only for historical reasons.
+The `intro` tactic should be preferred in this case.
 
-- `intros x y ...` is equivalent to `intro x y ...`,
-  introducing hypotheses for each supplied argument and unfolding definitions as necessary.
-  Each argument can be either an identifier or a `_`.
-  An identifier indicates a name to use for the corresponding introduced hypothesis,
-  and a `_` indicates that the hypotheses should be introduced anonymously.
+## Properties and relations
+
+- `intros` succeeds even when it introduces no hypotheses.
+
+- `repeat intro` is like `intros`, but it performs definitional reductions
+  to expose binders, and as such it may introduce more hypotheses than `intros`.
+
+- `intros` is equivalent to `intro _ _ … _`,
+  with the fewest trailing `_` placeholders needed so that the goal is no longer a binding expression.
+  The trailing introductions do not perform any definitional reductions.
 
 ## Examples
-
-Basic properties:
-```lean
-def AllEven (f : Nat → Nat) := ∀ n, f n % 2 = 0
-
--- Introduces the two obvious hypotheses automatically
-example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
-  intros
-  /- Tactic state
-     f✝ : Nat → Nat
-     a✝ : AllEven f✝
-     ⊢ AllEven fun k => f✝ (k + 1) -/
-  sorry
-
--- Introduces exactly two hypotheses, naming only the first
-example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
-  intros g _
-  /- Tactic state
-     g : Nat → Nat
-     a✝ : AllEven g
-     ⊢ AllEven fun k => g (k + 1) -/
-  sorry
-
--- Introduces exactly three hypotheses, which requires unfolding `AllEven`
-example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
-  intros f h n
-  /- Tactic state
-     f : Nat → Nat
-     h : AllEven f
-     n : Nat
-     ⊢ (fun k => f (k + 1)) n % 2 = 0 -/
-  apply h
-```
 
 Implications:
 ```lean
@@ -111,7 +83,7 @@ example (p q : Prop) : p → q → p := by
   assumption
 ```
 
-Let bindings:
+Let-bindings:
 ```lean
 example : let n := 1; let k := 2; n + k = 3 := by
   intros
@@ -119,6 +91,19 @@ example : let n := 1; let k := 2; n + k = 3 := by
      k✝ : Nat := 2
      ⊢ n✝ + k✝ = 3 -/
   rfl
+```
+
+Does not unfold definitions:
+```lean
+def AllEven (f : Nat → Nat) := ∀ n, f n % 2 = 0
+
+example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
+  intros
+  /- Tactic state
+     f✝ : Nat → Nat
+     a✝ : AllEven f✝
+     ⊢ AllEven fun k => f✝ (k + 1) -/
+  sorry
 ```
 -/
 syntax (name := intros) "intros" (ppSpace colGt (ident <|> hole))* : tactic
@@ -448,8 +433,8 @@ macro "rfl'" : tactic => `(tactic| set_option smartUnfolding false in with_unfol
 /--
 `ac_rfl` proves equalities up to application of an associative and commutative operator.
 ```
-instance : Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
-instance : Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
+instance : Std.Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
+instance : Std.Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
 
 example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by ac_rfl
 ```
@@ -489,7 +474,7 @@ syntax negConfigItem := " -" noWs ident
 
 As a special case, `(config := ...)` sets the entire configuration.
 -/
-syntax valConfigItem := atomic(" (" notFollowedBy(&"discharger" <|> &"disch") (ident <|> &"config")) " := " withoutPosition(term) ")"
+syntax valConfigItem := atomic(" (" notFollowedBy(&"discharger" <|> &"disch") ident " := ") withoutPosition(term) ")"
 /-- A configuration item for a tactic configuration. -/
 syntax configItem := posConfigItem <|> negConfigItem <|> valConfigItem
 
@@ -713,7 +698,7 @@ A `simpArg` is either a `*`, `-lemma` or a simp lemma specification
 meta def simpArg := simpStar.binary `orelse (simpErase.binary `orelse simpLemma)
 
 /-- A simp args list is a list of `simpArg`. This is the main argument to `simp`. -/
-syntax simpArgs := " [" simpArg,* "]"
+syntax simpArgs := " [" simpArg,*,? "]"
 
 /--
 A `dsimpArg` is similar to `simpArg`, but it does not have the `simpStar` form
@@ -722,7 +707,7 @@ because it does not make sense to use hypotheses in `dsimp`.
 meta def dsimpArg := simpErase.binary `orelse simpLemma
 
 /-- A dsimp args list is a list of `dsimpArg`. This is the main argument to `dsimp`. -/
-syntax dsimpArgs := " [" dsimpArg,* "]"
+syntax dsimpArgs := " [" dsimpArg,*,? "]"
 
 /-- The common arguments of `simp?` and `simp?!`. -/
 syntax simpTraceArgsRest := optConfig (discharger)? (&" only")? (simpArgs)? (ppSpace location)?
@@ -817,7 +802,9 @@ It makes sure the "continuation" `?_` is the main goal after refining.
 macro "refine_lift " e:term : tactic => `(tactic| focus (refine no_implicit_lambda% $e; rotate_right))
 
 /--
-The `have` tactic is for adding hypotheses to the local context of the main goal.
+The `have` tactic is for adding opaque definitions and hypotheses to the local context of the main goal.
+The definitions forget their associated value and cannot be unfolded, unlike definitions added by the `let` tactic.
+
 * `have h : t := e` adds the hypothesis `h : t` if `e` is a term of type `t`.
 * `have h := e` uses the type of `e` for `t`.
 * `have : t := e` and `have := e` use `this` for the name of the hypothesis.
@@ -826,8 +813,23 @@ The `have` tactic is for adding hypotheses to the local context of the main goal
   It is convenient for types that have only one applicable constructor.
   For example, given `h : p ∧ q ∧ r`, `have ⟨h₁, h₂, h₃⟩ := h` produces the
   hypotheses `h₁ : p`, `h₂ : q`, and `h₃ : r`.
+* The syntax `have (eq := h) pat := e` is equivalent to `match h : e with | pat => _`,
+  which adds the equation `h : e = pat` to the local context.
+
+The tactic supports all the same syntax variants and options as the `have` term.
+
+## Properties and relations
+
+* It is not possible to unfold a variable introduced using `have`, since the definition's value is forgotten.
+  The `let` tactic introduces definitions that can be unfolded.
+* The `have h : t := e` is like doing `let h : t := e; clear_value h`.
+* The `have` tactic is preferred for propositions, and `let` is preferred for non-propositions.
+* Sometimes `have` is used for non-propositions to ensure that the variable is never unfolded,
+  which may be important for performance reasons.
+    Consider using the equivalent `let +nondep` to indicate the intent.
+
 -/
-syntax "have " letConfig letDecl : tactic
+syntax "have" letConfig letDecl : tactic
 macro_rules
   -- special case: when given a nested `by` block, move it outside of the `refine` to enable
   -- incrementality
@@ -870,6 +872,8 @@ macro "suffices " d:sufficesDecl : tactic => `(tactic| refine_lift suffices $d; 
 
 /--
 The `let` tactic is for adding definitions to the local context of the main goal.
+The definition can be unfolded, unlike definitions introduced by `have`.
+
 * `let x : t := e` adds the definition `x : t := e` if `e` is a term of type `t`.
 * `let x := e` uses the type of `e` for `t`.
 * `let : t := e` and `let := e` use `this` for the name of the hypothesis.
@@ -878,8 +882,22 @@ The `let` tactic is for adding definitions to the local context of the main goal
   It is convenient for types that let only one applicable constructor.
   For example, given `p : α × β × γ`, `let ⟨x, y, z⟩ := p` produces the
   local variables `x : α`, `y : β`, and `z : γ`.
+* The syntax `let (eq := h) pat := e` is equivalent to `match h : e with | pat => _`,
+  which adds the equation `h : e = pat` to the local context.
+
+The tactic supports all the same syntax variants and options as the `let` term.
+
+## Properties and relations
+
+* Unlike `have`, it is possible to unfold definitions introduced using `let`, using tactics
+  such as `simp`, `dsimp`, `unfold`, and `subst`.
+* The `clear_value` tactic turns a `let` definition into a `have` definition after the fact.
+  The tactic might fail if the local context depends on the value of the variable.
+* The `let` tactic is preferred for data (non-propositions).
+* Sometimes `have` is used for non-propositions to ensure that the variable is never unfolded,
+  which may be important for performance reasons.
 -/
-macro "let " c:letConfig d:letDecl : tactic => `(tactic| refine_lift let $c:letConfig $d:letDecl; ?_)
+macro "let" c:letConfig d:letDecl : tactic => `(tactic| refine_lift let $c:letConfig $d:letDecl; ?_)
 
 /-- `let rec f : t := e` adds a recursive definition `f` to the current goal.
 The syntax is the same as term-mode `let rec`. -/
@@ -890,24 +908,21 @@ macro_rules
 /-- Similar to `refine_lift`, but using `refine'` -/
 macro "refine_lift' " e:term : tactic => `(tactic| focus (refine' no_implicit_lambda% $e; rotate_right))
 /-- Similar to `have`, but using `refine'` -/
-macro (name := tacticHave') "have' " c:letConfig d:letDecl : tactic => `(tactic| refine_lift' have $c:letConfig $d:letDecl; ?_)
-set_option linter.missingDocs false in -- OK, because `tactic_alt` causes inheritance of docs
-macro (priority := high) "have'" x:ident " := " p:term : tactic => `(tactic| have' $x:ident : _ := $p)
-attribute [tactic_alt tacticHave'] «tacticHave'_:=_»
+macro (name := tacticHave') "have'" c:letConfig d:letDecl : tactic => `(tactic| refine_lift' have $c:letConfig $d:letDecl; ?_)
 /-- Similar to `let`, but using `refine'` -/
-macro "let' " c:letConfig d:letDecl : tactic => `(tactic| refine_lift' let $c:letConfig $d:letDecl; ?_)
+macro "let'" c:letConfig d:letDecl : tactic => `(tactic| refine_lift' let $c:letConfig $d:letDecl; ?_)
 
 /--
 The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`
 where `foo` is a constructor of the inductive type and `a b c` are the arguments
 to the constructor.
 -/
-syntax inductionAltLHS := withPosition("| " (("@"? ident) <|> hole) (colGt (ident <|> hole))*)
+syntax inductionAltLHS := ppDedent(ppLine) withPosition("| " (("@"? ident) <|> hole) (colGt (ident <|> hole))*)
 /--
 In induction alternative, which can have 1 or more cases on the left
 and `_`, `?_`, or a tactic sequence after the `=>`.
 -/
-syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ (" => " (hole <|> syntheticHole <|> tacticSeq))?
+syntax inductionAlt  := inductionAltLHS+ (" => " (hole <|> syntheticHole <|> tacticSeq))?
 /--
 After `with`, there is an optional tactic that runs on all branches, and
 then a list of alternatives.
@@ -983,13 +998,13 @@ You can use `with` to provide the variables names for each constructor.
   uses tactic `tac₁` for the `nil` case, and `tac₂` for the `cons` case,
   and `a` and `as'` are used as names for the new variables introduced.
 - `cases h : e`, where `e` is a variable or an expression,
-  performs cases on `e` as above, but also adds a hypothesis `h : e = ...` to each hypothesis,
+  performs cases on `e` as above, but also adds a hypothesis `h : e = ...` to each goal,
   where `...` is the constructor instance for that particular case.
 -/
 syntax (name := cases) "cases " elimTarget,+ (" using " term)? (inductionAlts)? : tactic
 
 /--
-The `fun_induction` tactic is a convenience wrapper around the `induction` tactic to use the the
+The `fun_induction` tactic is a convenience wrapper around the `induction` tactic to use the
 functional induction principle.
 
 The tactic invocation
@@ -1007,7 +1022,7 @@ The form
 ```
 fun_induction f
 ```
-(with no arguments to `f`) searches the goal for an unique eligible application of `f`, and uses
+(with no arguments to `f`) searches the goal for a unique eligible application of `f`, and uses
 these arguments. An application of `f` is eligible if it is saturated and the arguments that will
 become targets are free variables.
 
@@ -1040,7 +1055,7 @@ The form
 ```
 fun_cases f
 ```
-(with no arguments to `f`) searches the goal for an unique eligible application of `f`, and uses
+(with no arguments to `f`) searches the goal for a unique eligible application of `f`, and uses
 these arguments. An application of `f` is eligible if it is saturated and the arguments that will
 become targets are free variables.
 
@@ -1117,7 +1132,7 @@ For a `match` expression with `n` cases, the `split` tactic generates at most `n
 For example, given `n : Nat`, and a target `if n = 0 then Q else R`, `split` will generate
 one goal with hypothesis `n = 0` and target `Q`, and a second goal with hypothesis
 `¬n = 0` and target `R`.  Note that the introduced hypothesis is unnamed, and is commonly
-renamed used the `case` or `next` tactics.
+renamed using the `case` or `next` tactics.
 
 - `split` will split the goal (target).
 - `split at h` will split the hypothesis `h`.
@@ -1545,8 +1560,8 @@ syntax (name := normCastAddElim) "norm_cast_add_elim" ident : command
   list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`
   can also be used, to signify the target of the goal.
 ```
-instance : Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
-instance : Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
+instance : Std.Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
+instance : Std.Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
 
 example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by
  ac_nf
@@ -1676,14 +1691,37 @@ syntax (name := applyRules) "apply_rules" optConfig (&" only")? (args)? (using_)
 end SolveByElim
 
 /--
+Configuration for the `exact?` and `apply?` tactics.
+-/
+structure LibrarySearchConfig where
+  /-- If true, use `grind` as a discharger for subgoals that cannot be closed
+  by `solve_by_elim` alone. -/
+  grind : Bool := false
+  /-- If true, use `try?` as a discharger for subgoals that cannot be closed
+  by `solve_by_elim` alone. -/
+  try? : Bool := false
+  /-- If true (the default), star-indexed lemmas (with overly-general discrimination keys
+  like `[*]`) are searched as a fallback when no concrete-keyed lemmas are found.
+  Use `-star` to disable this fallback. -/
+  star : Bool := true
+  /-- If true, collect all successful lemmas instead of stopping at the first complete solution.
+  Use `+all` to enable this behavior. -/
+  all : Bool := false
+
+/--
 Searches environment for definitions or theorems that can solve the goal using `exact`
 with conditions resolved by `solve_by_elim`.
 
 The optional `using` clause provides identifiers in the local context that must be
 used by `exact?` when closing the goal.  This is most useful if there are multiple
 ways to resolve the goal, and one wants to guide which lemma is used.
+
+Use `+grind` to enable `grind` as a fallback discharger for subgoals.
+Use `+try?` to enable `try?` as a fallback discharger for subgoals.
+Use `-star` to disable fallback to star-indexed lemmas (like `Empty.elim`, `And.left`).
+Use `+all` to collect all successful lemmas instead of stopping at the first.
 -/
-syntax (name := exact?) "exact?" (" using " (colGt ident),+)? : tactic
+syntax (name := exact?) "exact?" optConfig (" using " (colGt ident),+)? : tactic
 
 /--
 Searches environment for definitions or theorems that can refine the goal using `apply`
@@ -1691,8 +1729,13 @@ with conditions resolved when possible with `solve_by_elim`.
 
 The optional `using` clause provides identifiers in the local context that must be
 used when closing the goal.
+
+Use `+grind` to enable `grind` as a fallback discharger for subgoals.
+Use `+try?` to enable `try?` as a fallback discharger for subgoals.
+Use `-star` to disable fallback to star-indexed lemmas.
+Use `+all` to collect all successful lemmas instead of stopping at the first.
 -/
-syntax (name := apply?) "apply?" (" using " (colGt term),+)? : tactic
+syntax (name := apply?) "apply?" optConfig (" using " (colGt term),+)? : tactic
 
 /--
 Syntax for excluding some names, e.g. `[-my_lemma, -my_theorem]`.
@@ -1744,11 +1787,12 @@ as well as tactics such as `next`, `case`, and `rename_i`.
 syntax (name := exposeNames) "expose_names" : tactic
 
 /--
-`#suggest_premises` will suggest premises for the current goal, using the currently registered premise selector.
+`#suggestions` will suggest relevant theorems from the library for the current goal,
+using the currently registered library suggestion engine.
 
 The suggestions are printed in the order of their confidence, from highest to lowest.
 -/
-syntax (name := suggestPremises) "suggest_premises" : tactic
+syntax (name := suggestions) "suggestions" : tactic
 
 /--
 Close fixed-width `BitVec` and `Bool` goals by obtaining a proof from an external SAT solver and
@@ -1992,6 +2036,13 @@ macro (name := mrevertMacro) (priority:=low) "mrevert" : tactic =>
 
 
 /--
+`mrename_i` is like `rename_i`, but names inaccessible stateful hypotheses in a `Std.Do.SPred` goal.
+-/
+macro (name := mrenameIMacro) (priority:=low) "mrename_i" : tactic =>
+  Macro.throwError "to use `mrename_i`, please include `import Std.Tactic.Do`"
+
+
+/--
 `mspecialize` is like `specialize`, but operating on a stateful `Std.Do.SPred` goal.
 It specializes a hypothesis from the stateful context with hypotheses from either the pure
 or stateful context or pure terms.
@@ -2043,6 +2094,16 @@ a bit differently.
 -/
 macro (name := mstopMacro) (priority:=low) "mstop" : tactic =>
   Macro.throwError "to use `mstop`, please include `import Std.Tactic.Do`"
+
+
+/--
+Leaves the stateful proof mode of `Std.Do.SPred`, tries to eta-expand through all definitions
+related to the logic of the `Std.Do.SPred` and gently simplifies the resulting pure Lean
+proposition. This is often the right thing to do after `mvcgen` in order for automation to prove
+the goal.
+-/
+macro (name := mleaveMacro) (priority:=low) "mleave" : tactic =>
+  Macro.throwError "to use `mleave`, please include `import Std.Tactic.Do`"
 
 
 /--
@@ -2106,7 +2167,7 @@ macro (name := mintroMacro) (priority:=low) "mintro" : tactic =>
 `mspec` is an `apply`-like tactic that applies a Hoare triple specification to the target of the
 stateful goal.
 
-Given a stateful goal `H ⊢ₛ wp⟦prog⟧.apply Q'`, `mspec foo_spec` will instantiate
+Given a stateful goal `H ⊢ₛ wp⟦prog⟧ Q'`, `mspec foo_spec` will instantiate
 `foo_spec : ... → ⦃P⦄ foo ⦃Q⦄`, match `foo` against `prog` and produce subgoals for
 the verification conditions `?pre : H ⊢ₛ P` and `?post : Q ⊢ₚ Q'`.
 
@@ -2115,11 +2176,12 @@ the verification conditions `?pre : H ⊢ₛ P` and `?post : Q ⊢ₚ Q'`.
 * If `?pre` or `?post` follow by `.rfl`, then they are discharged automatically.
 * `?post` is automatically simplified into constituent `⊢ₛ` entailments on
   success and failure continuations.
-* `?pre` and `?post.*` goals introduce their stateful hypothesis as `h`.
+* `?pre` and `?post.*` goals introduce their stateful hypothesis under an inaccessible name.
+  You can give it a name with the `mrename_i` tactic.
 * Any uninstantiated MVar arising from instantiation of `foo_spec` becomes a new subgoal.
 * If the target of the stateful goal looks like `fun s => _` then `mspec` will first `mintro ∀s`.
 * If `P` has schematic variables that can be instantiated by doing `mintro ∀s`, for example
-  `foo_spec : ∀(n:Nat), ⦃⌜n = ‹Nat›ₛ⌝⦄ foo ⦃Q⦄`, then `mspec` will do `mintro ∀s` first to
+  `foo_spec : ∀(n:Nat), ⦃fun s => ⌜n = s⌝⦄ foo ⦃Q⦄`, then `mspec` will do `mintro ∀s` first to
   instantiate `n = s`.
 * Right before applying the spec, the `mframe` tactic is used, which has the following effect:
   Any hypothesis `Hᵢ` in the goal `h₁:H₁, h₂:H₂, ..., hₙ:Hₙ ⊢ₛ T` that is
@@ -2140,12 +2202,16 @@ macro (name := mspecMacro) (priority:=low) "mspec" : tactic =>
 `mvcgen` will break down a Hoare triple proof goal like `⦃P⦄ prog ⦃Q⦄` into verification conditions,
 provided that all functions used in `prog` have specifications registered with `@[spec]`.
 
+### Verification Conditions and specifications
+
 A verification condition is an entailment in the stateful logic of `Std.Do.SPred`
 in which the original program `prog` no longer occurs.
 Verification conditions are introduced by the `mspec` tactic; see the `mspec` tactic for what they
 look like.
 When there's no applicable `mspec` spec, `mvcgen` will try and rewrite an application
 `prog = f a b c` with the simp set registered via `@[spec]`.
+
+### Features
 
 When used like `mvcgen +noLetElim [foo_spec, bar_def, instBEqFloat]`, `mvcgen` will additionally
 
@@ -2155,11 +2221,68 @@ When used like `mvcgen +noLetElim [foo_spec, bar_def, instBEqFloat]`, `mvcgen` w
 * unfold any method of the `instBEqFloat : BEq Float` instance in `prog`.
 * it will no longer substitute away `let`-expressions that occur at most once in `P`, `Q` or `prog`.
 
-Furthermore, `mvcgen` tries to close trivial verification conditions by `SPred.entails.rfl` or
-the tactic sequence `try (mpure_intro; trivial)`. The variant `mvcgen_no_trivial` does not do this.
+### Config options
 
-For debugging purposes there is also `mvcgen_step 42` which will do at most 42 VC generation
-steps. This is useful for bisecting issues with the generated VCs.
+`+noLetElim` is just one config option of many. Check out `Lean.Elab.Tactic.Do.VCGen.Config` for all
+options. Of particular note is `stepLimit = some 42`, which is useful for bisecting bugs in
+`mvcgen` and tracing its execution.
+
+### Extended syntax
+
+Often, `mvcgen` will be used like this:
+```
+mvcgen [...]
+case inv1 => by exact I1
+case inv2 => by exact I2
+all_goals (mleave; try grind)
+```
+There is special syntax for this:
+```
+mvcgen [...] invariants
+· I1
+· I2
+with grind
+```
+When `I1` and `I2` need to refer to inaccessibles (`mvcgen` will introduce a lot of them for program
+variables), you can use case label syntax:
+```
+mvcgen [...] invariants
+| inv1 _ acc _ => I1 acc
+| _ => I2
+with grind
+```
+This is more convenient than the equivalent `· by rename_i _ acc _; exact I1 acc`.
+
+### Invariant suggestions
+
+`mvcgen` will suggest invariants for you if you use the `invariants?` keyword.
+```
+mvcgen [...] invariants?
+```
+This is useful if you do not recall the exact syntax to construct invariants.
+Furthermore, it will suggest a concrete invariant encoding "this holds at the start of the loop and
+this must hold at the end of the loop" by looking at the corresponding VCs.
+Although the suggested invariant is a good starting point, it is too strong and requires users to
+interpolate it such that the inductive step can be proved. Example:
+```
+def mySum (l : List Nat) : Nat := Id.run do
+  let mut acc := 0
+  for x in l do
+    acc := acc + x
+  return acc
+
+/--
+info: Try this:
+  invariants
+    · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = 0 ∨ xs.suffix = [] ∧ letMuts = l.sum⌝
+-/
+#guard_msgs (info) in
+theorem mySum_suggest_invariant (l : List Nat) : mySum l = l.sum := by
+  generalize h : mySum l = r
+  apply Id.of_wp_run_eq h
+  mvcgen invariants?
+  all_goals admit
+```
 -/
 macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
   Macro.throwError "to use `mvcgen`, please include `import Std.Tactic.Do`"
@@ -2223,8 +2346,26 @@ Theorems tagged with the `wf_preprocess` attribute are used during the processin
 by well-founded recursion. They are applied to the function's body to add additional hypotheses,
 such as replacing `if c then _ else _` with `if h : c then _ else _` or `xs.map` with
 `xs.attach.map`. Also see `wfParam`.
+
+Warning: These rewrites are only applied to the declaration for the purpose of the logical
+definition, but do not affect the compiled code. In particular they can cause a function definition
+that diverges as compiled to be accepted without an explicit `partial` keyword, for example if they
+remove irrelevant subterms or change the evaluation order by hiding terms under binders. Therefore
+avoid tagging theorems with `[wf_preprocess]` unless they preserve also operational behavior.
 -/
 syntax (name := wf_preprocess) "wf_preprocess" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+
+/--
+Theorems tagged with the `method_specs_simp` attribute are used by `@[method_specs]` to further
+rewrite the theorem statement. This is primarily used to rewrite type class methods further to
+the desired user-visible form, e.g. from `Append.append` to `HAppend.hAppend`, which has the familiar
+notation associated.
+
+The `method_specs` theorems are created on demand (using the realizable constant feature). Thus,
+this simp set should behave the same in all modules. Do not add theorems to it except in the module
+defining the thing you are rewriting.
+-/
+syntax (name := method_specs_simp) "method_specs_simp" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
 
 /-- The possible `norm_cast` kinds: `elim`, `move`, or `squash`. -/
 syntax normCastLabel := &"elim" <|> &"move" <|> &"squash"

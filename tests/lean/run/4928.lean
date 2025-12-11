@@ -1,5 +1,5 @@
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 z : Nat
 ⊢ z - 1 < z
 -/
@@ -9,7 +9,7 @@ termination_by z
 decreasing_by fail
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 x : List Nat
 ⊢ sizeOf x.tail < sizeOf x
 -/
@@ -19,7 +19,7 @@ termination_by x
 decreasing_by fail
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 x : List Nat
 ⊢ x.tail.length < x.length
 -/
@@ -29,7 +29,7 @@ termination_by x.length
 decreasing_by fail
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 x : List Nat
 ⊢ x.tail.length < x.length
 -/
@@ -44,9 +44,9 @@ decreasing_by fail
 end
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 x : List Nat
-⊢ (invImage (fun x => PSum.casesOn x (fun x => x.length) fun x => x.length) sizeOfWFRel).1 (PSum.inr x.tail)
+⊢ InvImage (fun x1 x2 => x1 < x2) (fun x => PSum.casesOn x (fun x => x.length) fun x => x.length) (PSum.inr x.tail)
     (PSum.inl x)
 -/
 #guard_msgs in

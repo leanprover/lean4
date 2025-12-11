@@ -1,3 +1,5 @@
+module
+@[expose] public section -- TODO: remove after we fix congr_eq
 /-
 `grind` is inspired by automated reasoning techniques developed in the world of Satisfiability Modulo Theories (SMT).
 

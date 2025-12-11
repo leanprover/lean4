@@ -1,5 +1,7 @@
-import Lean.Meta.Tactic.Grind
-
+module
+public meta import Lean.Meta.Tactic.Grind
+#exit -- TODO: reenable after we add support for running code in interactive mode
+public section
 set_option grind.debug true
 
 class Semigroup (α : Type u) extends Mul α where
@@ -45,14 +47,25 @@ theorem left_comm [CommMonoid α] (a b c : α) : a * (b * c) = b * (a * c) := by
   rw [← Semigroup.mul_assoc, CommMonoid.mul_comm a b, Semigroup.mul_assoc]
 
 open Lean Meta Elab Tactic Grind in
-def fallback : Fallback := do
+meta def fallback : Fallback := do
   let nodes ← filterENodes fun e => return e.self.isApp && e.self.isAppOf ``HMul.hMul
   trace[Meta.debug] "{nodes.map (·.self) |>.qsort Expr.lt}"
   (← get).mvarId.admit
 
 set_option trace.Meta.debug true
 
-/-- trace: [Meta.debug] [a * (b * c), b * c, d * (b * c)] -/
+/--
+trace: [Meta.debug] [↑a * ↑b,
+     ↑a * (↑b * ↑c),
+     ↑b * ↑c,
+     ↑d * (↑b * ↑c),
+     -1 * (↑b * ↑c * ↑d),
+     ↑a * ↑b * ↑c,
+     ↑b * ↑c * ↑d,
+     a * (b * c),
+     b * c,
+     d * (b * c)]
+-/
 #guard_msgs (trace) in
 example (a b c d : Nat) : b * (a * c) = d * (b * c) → False := by
   rw [left_comm] -- Introduces a new (non-canonical) instance for `Mul Nat`

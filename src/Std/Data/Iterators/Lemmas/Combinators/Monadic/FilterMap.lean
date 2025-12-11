@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
-import Std.Data.Iterators.Lemmas.Equivalence.StepCongr
+public import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
+public import Std.Data.Iterators.Lemmas.Equivalence.StepCongr
+
+@[expose] public section
 
 namespace Std.Iterators
 open Std.Internal
@@ -64,9 +68,8 @@ theorem stepAsHetT_filterMapWithPostcondition [Monad m] [LawfulMonad m] [Monad n
       PlausibleIterStep.yield, PlausibleIterStep.done, bind_assoc]
     apply bind_congr
     intro step
-    cases step using PlausibleIterStep.casesOn
-    · simp only [bind_assoc, bind, HetT.prun_bind, HetT.property_ofPostconditionT,
-        HetT.prun_ofPostconditionT]
+    cases step.inflate using PlausibleIterStep.casesOn
+    · simp only [bind_assoc, bind, HetT.prun_bind, HetT.prun_ofPostconditionT]
       apply bind_congr
       rintro ⟨out, _⟩
       cases out <;> simp [pure]

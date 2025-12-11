@@ -15,7 +15,7 @@ theorem Note.self_containsNote_lowerSemitone_self (n : Note) :
   simp [Note.containsNote, Note.lowerSemitone]
 
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
   ?_ = ?_

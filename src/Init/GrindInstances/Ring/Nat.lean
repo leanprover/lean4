@@ -7,7 +7,8 @@ module
 
 prelude
 public import Init.Grind.Ordered.Ring
-public import Init.Data.Int.Lemmas
+
+open Std
 
 public section
 
@@ -29,10 +30,12 @@ instance : CommSemiring Nat where
   pow_succ _ _ := by rfl
   ofNat_succ _ := by rfl
 
-instance : Preorder Nat where
+instance : IsPreorder Nat where
   le_refl := by omega
   le_trans := by omega
-  lt_iff_le_not_le := by omega
+
+instance : LawfulOrderLT Nat where
+  lt_iff := by omega
 
 instance : OrderedRing Nat where
   add_le_left_iff := by omega

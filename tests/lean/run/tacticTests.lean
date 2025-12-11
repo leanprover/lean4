@@ -36,12 +36,12 @@ theorem ex6 {m n : Nat} : Le m.succ n.succ → Le m n := by
   revert m
   induction n with
   | zero =>
-    intros m h;
+    intro m h;
     cases h with
     | base => apply Le.base
     | succ n h => exact absurd h (ex4 _)
   | succ n ih =>
-    intros m h
+    intro m h
     have aux := ih (m := m)
     cases ex5 h with
     | inl h =>

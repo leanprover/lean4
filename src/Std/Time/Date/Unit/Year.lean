@@ -3,16 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.Internal
-import Std.Internal.Rat
-import Std.Time.Date.Unit.Day
-import Std.Time.Date.Unit.Month
+public import Std.Time.Date.Unit.Month
+
+public section
 
 namespace Std
 namespace Time
 namespace Year
-open Std.Internal
 open Internal
 
 set_option linter.all true
@@ -36,7 +36,7 @@ instance : ToString Era where
 /--
 `Offset` represents a year offset, defined as an `Int`.
 -/
-def Offset : Type := Int
+@[expose] def Offset : Type := Int
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
 instance {x y : Offset} : Decidable (x ≤ y) :=

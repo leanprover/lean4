@@ -3,13 +3,13 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Hashable
-import Init.Data.Int
-import Lean.Data.KVMap
-import Lean.Data.SMap
-import Lean.Level
-import Std.Data.HashSet.Basic
+public import Init.Data.Hashable
+public import Lean.Level
+
+public section
 
 namespace Lean
 
@@ -65,7 +65,7 @@ def bar ⦃x : Nat⦄ : Nat := x
 #check bar -- bar : ⦃x : Nat⦄ → Nat
 ```
 
-See also [the Lean manual](https://lean-lang.org/lean4/doc/expressions.html#implicit-arguments).
+See also [the Lean Language Reference](https://lean-lang.org/doc/reference/latest/Terms/Functions/#implicit-functions).
 -/
 inductive BinderInfo where
   /-- Default binder annotation, e.g. `(x : α)` -/
@@ -74,7 +74,7 @@ inductive BinderInfo where
   | implicit
   /-- Strict implicit binder annotation, e.g., `{{ x : α }}` -/
   | strictImplicit
-  /-- Local instance binder annotataion, e.g., `[Decidable α]` -/
+  /-- Local instance binder annotation, e.g., `[Decidable α]` -/
   | instImplicit
   deriving Inhabited, BEq, Repr
 
@@ -128,7 +128,7 @@ Cached hash code, cached results, and other data for `Expr`.
 Remark: this is mostly an internal datastructure used to implement `Expr`,
 most will never have to use it.
 -/
-def Expr.Data := UInt64
+@[expose] def Expr.Data := UInt64
 
 instance: Inhabited Expr.Data :=
   inferInstanceAs (Inhabited UInt64)
@@ -214,34 +214,40 @@ instance : Repr FVarId where
 
 /--
 A set of unique free variable identifiers.
-This is a persistent data structure implemented using red-black trees. -/
-def FVarIdSet := RBTree FVarId (Name.quickCmp ·.name ·.name)
+This is a persistent data structure implemented using `Std.TreeSet`. -/
+@[expose] def FVarIdSet := Std.TreeSet FVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
-instance : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (RBTree ..) ..)
+instance [Monad m] : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
 def FVarIdSet.insert (s : FVarIdSet) (fvarId : FVarId) : FVarIdSet :=
-  RBTree.insert s fvarId
+  Std.TreeSet.insert s fvarId
 
 def FVarIdSet.union (vs₁ vs₂ : FVarIdSet) : FVarIdSet :=
-  vs₁.fold (init := vs₂) (·.insert ·)
+  vs₁.foldl (init := vs₂) (·.insert ·)
+
+def FVarIdSet.ofList (l : List FVarId) : FVarIdSet :=
+  Std.TreeSet.ofList l _
+
+def FVarIdSet.ofArray (l : Array FVarId) : FVarIdSet :=
+  Std.TreeSet.ofArray l _
 
 /--
 A set of unique free variable identifiers implemented using hashtables.
 Hashtables are faster than red-black trees if they are used linearly.
 They are not persistent data-structures. -/
-def FVarIdHashSet := Std.HashSet FVarId
+@[expose] def FVarIdHashSet := Std.HashSet FVarId
   deriving Inhabited, EmptyCollection
 
 /--
 A mapping from free variable identifiers to values of type `α`.
-This is a persistent data structure implemented using red-black trees. -/
-def FVarIdMap (α : Type) := RBMap FVarId α (Name.quickCmp ·.name ·.name)
+This is a persistent data structure implemented using `Std.TreeMap`. -/
+@[expose] def FVarIdMap (α : Type) := Std.TreeMap FVarId α (Name.quickCmp ·.name ·.name)
 
 def FVarIdMap.insert (s : FVarIdMap α) (fvarId : FVarId) (a : α) : FVarIdMap α :=
-  RBMap.insert s fvarId a
+  Std.TreeMap.insert s fvarId a
 
-instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (RBMap ..))
+instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (Std.TreeMap _ _ _))
 
 instance : Inhabited (FVarIdMap α) where
   default := {}
@@ -254,22 +260,28 @@ structure MVarId where
 instance : Repr MVarId where
   reprPrec n p := reprPrec n.name p
 
-def MVarIdSet := RBTree MVarId (Name.quickCmp ·.name ·.name)
+@[expose] def MVarIdSet := Std.TreeSet MVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
 def MVarIdSet.insert (s : MVarIdSet) (mvarId : MVarId) : MVarIdSet :=
-  RBTree.insert s mvarId
+  Std.TreeSet.insert s mvarId
 
-instance : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (RBTree ..) ..)
+def MVarIdSet.ofList (l : List MVarId) : MVarIdSet :=
+  Std.TreeSet.ofList l _
 
-def MVarIdMap (α : Type) := RBMap MVarId α (Name.quickCmp ·.name ·.name)
+def MVarIdSet.ofArray (l : Array MVarId) : MVarIdSet :=
+  Std.TreeSet.ofArray l _
+
+instance [Monad m] : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
+
+@[expose] def MVarIdMap (α : Type) := Std.TreeMap MVarId α (Name.quickCmp ·.name ·.name)
 
 def MVarIdMap.insert (s : MVarIdMap α) (mvarId : MVarId) (a : α) : MVarIdMap α :=
-  RBMap.insert s mvarId a
+  Std.TreeMap.insert s mvarId a
 
-instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (RBMap ..))
+instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (Std.TreeMap _ _ _))
 
-instance : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (RBMap ..) ..)
+instance [Monad m] : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) ..)
 
 instance : Inhabited (MVarIdMap α) where
   default := {}
@@ -647,7 +659,7 @@ def mkProj (structName : Name) (idx : Nat) (struct : Expr) : Expr :=
 /--
 `.app f a` is now the preferred form.
 -/
-@[match_pattern] def mkApp (f a : Expr) : Expr :=
+@[match_pattern, expose] def mkApp (f a : Expr) : Expr :=
   .app f a
 
 /--
@@ -678,21 +690,21 @@ def mkSimpleThunk (type : Expr) : Expr :=
 @[inline] def mkHave (x : Name) (t : Expr) (v : Expr) (b : Expr) : Expr :=
   .letE x t v b true
 
-@[match_pattern] def mkAppB (f a b : Expr) := mkApp (mkApp f a) b
-@[match_pattern] def mkApp2 (f a b : Expr) := mkAppB f a b
-@[match_pattern] def mkApp3 (f a b c : Expr) := mkApp (mkAppB f a b) c
-@[match_pattern] def mkApp4 (f a b c d : Expr) := mkAppB (mkAppB f a b) c d
-@[match_pattern] def mkApp5 (f a b c d e : Expr) := mkApp (mkApp4 f a b c d) e
-@[match_pattern] def mkApp6 (f a b c d e₁ e₂ : Expr) := mkAppB (mkApp4 f a b c d) e₁ e₂
-@[match_pattern] def mkApp7 (f a b c d e₁ e₂ e₃ : Expr) := mkApp3 (mkApp4 f a b c d) e₁ e₂ e₃
-@[match_pattern] def mkApp8 (f a b c d e₁ e₂ e₃ e₄ : Expr) := mkApp4 (mkApp4 f a b c d) e₁ e₂ e₃ e₄
-@[match_pattern] def mkApp9 (f a b c d e₁ e₂ e₃ e₄ e₅ : Expr) := mkApp5 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅
-@[match_pattern] def mkApp10 (f a b c d e₁ e₂ e₃ e₄ e₅ e₆ : Expr) := mkApp6 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅ e₆
+@[match_pattern, expose] def mkAppB (f a b : Expr) := mkApp (mkApp f a) b
+@[match_pattern, expose] def mkApp2 (f a b : Expr) := mkAppB f a b
+@[match_pattern, expose] def mkApp3 (f a b c : Expr) := mkApp (mkAppB f a b) c
+@[match_pattern, expose] def mkApp4 (f a b c d : Expr) := mkAppB (mkAppB f a b) c d
+@[match_pattern, expose] def mkApp5 (f a b c d e : Expr) := mkApp (mkApp4 f a b c d) e
+@[match_pattern, expose] def mkApp6 (f a b c d e₁ e₂ : Expr) := mkAppB (mkApp4 f a b c d) e₁ e₂
+@[match_pattern, expose] def mkApp7 (f a b c d e₁ e₂ e₃ : Expr) := mkApp3 (mkApp4 f a b c d) e₁ e₂ e₃
+@[match_pattern, expose] def mkApp8 (f a b c d e₁ e₂ e₃ e₄ : Expr) := mkApp4 (mkApp4 f a b c d) e₁ e₂ e₃ e₄
+@[match_pattern, expose] def mkApp9 (f a b c d e₁ e₂ e₃ e₄ e₅ : Expr) := mkApp5 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅
+@[match_pattern, expose] def mkApp10 (f a b c d e₁ e₂ e₃ e₄ e₅ e₆ : Expr) := mkApp6 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅ e₆
 
 /--
 `.lit l` is now the preferred form.
 -/
-def mkLit (l : Literal) : Expr :=
+@[match_pattern, expose] def mkLit (l : Literal) : Expr :=
   .lit l
 
 /--
@@ -700,7 +712,7 @@ Return the "raw" natural number `.lit (.natVal n)`.
 This is not the default representation used by the Lean frontend.
 See `mkNatLit`.
 -/
-def mkRawNatLit (n : Nat) : Expr :=
+@[match_pattern, expose] def mkRawNatLit (n : Nat) : Expr :=
   mkLit (.natVal n)
 
 /--
@@ -708,12 +720,12 @@ Return a natural number literal used in the frontend. It is a `OfNat.ofNat` appl
 Recall that all theorems and definitions containing numeric literals are encoded using
 `OfNat.ofNat` applications in the frontend.
 -/
-def mkNatLit (n : Nat) : Expr :=
+@[match_pattern, expose] def mkNatLit (n : Nat) : Expr :=
   let r := mkRawNatLit n
   mkApp3 (mkConst ``OfNat.ofNat [levelZero]) (mkConst ``Nat) r (mkApp (mkConst ``instOfNatNat) r)
 
 /-- Return the string literal `.lit (.strVal s)` -/
-def mkStrLit (s : String) : Expr :=
+@[match_pattern, expose] def mkStrLit (s : String) : Expr :=
   mkLit (.strVal s)
 
 @[export lean_expr_mk_bvar] def mkBVarEx : Nat → Expr := mkBVar
@@ -853,7 +865,7 @@ def isFVarOf : Expr → FVarId → Bool
   | _, _ => false
 
 /-- Return `true` if the given expression is a forall-expression aka (dependent) arrow. -/
-def isForall : Expr → Bool
+@[expose] def isForall : Expr → Bool
   | forallE .. => true
   | _          => false
 
@@ -940,17 +952,29 @@ def isCharLit : Expr → Bool
   | app (const c _) a => c == ``Char.ofNat && a.isRawNatLit
   | _                 => false
 
+/--
+If the expression is a constant, return that name.
+Otherwise panic.
+-/
 def constName! : Expr → Name
   | const n _ => n
   | _         => panic! "constant expected"
 
+/--
+If the expression is a constant, return that name.
+Otherwise return `Option.none`.
+-/
 def constName? : Expr → Option Name
   | const n _ => some n
   | _         => none
 
-/-- If the expression is a constant, return that name. Otherwise return `Name.anonymous`. -/
+/--
+If the expression is a constant, return that name.
+Otherwise return `Name.anonymous`.
+-/
 def constName (e : Expr) : Name :=
   e.constName?.getD Name.anonymous
+
 
 def constLevels! : Expr → List Level
   | const _ ls => ls
@@ -1250,7 +1274,7 @@ def getRevArg!' : Expr → Nat → Expr
   getRevArg! e (n - i - 1)
 
 /-- Similar to `getArg!`, but skips mdata -/
-@[inline] def getArg!' (e : Expr) (i : Nat) (n := e.getAppNumArgs) : Expr :=
+@[inline] def getArg!' (e : Expr) (i : Nat) (n := e.getAppNumArgs') : Expr :=
   getRevArg!' e (n - i - 1)
 
 /-- Given `f a₀ a₁ ... aₙ`, returns the `i`th argument or returns `v₀` if out of bounds. -/
@@ -1329,7 +1353,7 @@ def inferImplicit (e : Expr) (numParams : Nat) (considerRange : Bool) : Expr :=
   | e, _ => e
 
 /--
-Uses `newBinderInfos` to update the binder infos of the first `numParams` foralls.
+Uses `binderInfos?` to update the binder infos of the corresponding forall expressions.
 -/
 def updateForallBinderInfos (e : Expr) (binderInfos? : List (Option BinderInfo)) : Expr :=
   match e, binderInfos? with
@@ -1337,6 +1361,21 @@ def updateForallBinderInfos (e : Expr) (binderInfos? : List (Option BinderInfo))
     let b  := updateForallBinderInfos b binderInfos?
     let bi := newBi?.getD bi
     Expr.forallE n d b bi
+  | e, _ => e
+
+/--
+Uses `binderNames?` to update the binder names of the corresponding lambda and forall expressions.
+-/
+def updateBinderNames (e : Expr) (binderNames? : List (Option Name)) : Expr :=
+  match e, binderNames? with
+  | Expr.forallE n d b bi, newN? :: binderNames? =>
+    let b := updateBinderNames b binderNames?
+    let n := newN?.getD n
+    Expr.forallE n d b bi
+  | Expr.lam n d b bi, newN? :: binderNames? =>
+    let b := updateBinderNames b binderNames?
+    let n := newN?.getD n
+    Expr.lam n d b bi
   | e, _ => e
 
 /--
@@ -1423,7 +1462,9 @@ opaque instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (subst : @& 
 with `xs` ordered from outermost to innermost de Bruijn index.
 
 For example, `e := f x y` with `xs := #[x, y]` goes to `f #1 #0`,
-whereas `e := f x y` with `xs := #[y, x]` goes to `f #0 #1`. -/
+whereas `e := f x y` with `xs := #[y, x]` goes to `f #0 #1`.
+
+Careful, this function does not instantiate assigned meta variables. -/
 @[extern "lean_expr_abstract"]
 opaque abstract (e : @& Expr) (xs : @& Array Expr) : Expr
 
@@ -1646,6 +1687,13 @@ def isOptParam (e : Expr) : Bool :=
 /-- Return `true` if `e` is of the form `autoParam _ _` -/
 def isAutoParam (e : Expr) : Bool :=
   e.isAppOfArity ``autoParam 2
+
+/-- Returns `true` if `e` is an application of one of the type annotation gadgets. This does not check that the application has the correct arity. -/
+def isTypeAnnotation (e : Expr) : Bool :=
+  if let .const c _ := e.getAppFn then
+    c == ``outParam || c == ``semiOutParam || c == ``optParam || c == ``autoParam
+  else
+    false
 
 /--
 Remove `outParam`, `optParam`, and `autoParam` applications/annotations from `e`.
@@ -1932,7 +1980,7 @@ def setPPFunBinderTypes (e : Expr) (flag : Bool) :=
   e.setOption `pp.funBinderTypes flag
 
 /--
-Annotate `e` with `pp.explicit := flag`
+Annotate `e` with `pp.numericTypes := flag`
 The delaborator uses `pp` options.
 -/
 def setPPNumericTypes (e : Expr) (flag : Bool) :=
@@ -2155,9 +2203,9 @@ def mkAndN : List Expr → Expr
   | [] => mkConst ``True
   | [p] => p
   | p :: ps => mkAnd p (mkAndN ps)
-/-- Return `Classical.em p` -/
+/-- Returns `Classical.em p` -/
 def mkEM (p : Expr) : Expr := mkApp (mkConst ``Classical.em) p
-/-- Return `p ↔ q` -/
+/-- Returns `p ↔ q` -/
 def mkIff (p q : Expr) : Expr := mkApp2 (mkConst ``Iff) p q
 
 /-! Constants for Nat typeclasses. -/
@@ -2235,9 +2283,10 @@ private def natEqPred : Expr :=
 def mkNatEq (a b : Expr) : Expr :=
   mkApp2 natEqPred a b
 
-/-- Given `a b : Prop`, return `a = b` -/
+private def propEq := mkApp (mkConst ``Eq [1]) (mkSort 0)
+/-- Given `a b : Prop`, returns `a = b` -/
 def mkPropEq (a b : Expr) : Expr :=
-  mkApp3 (mkConst ``Eq [levelOne]) (mkSort levelZero) a b
+  mkApp2 propEq a b
 
 /-! Constants for Int typeclasses. -/
 namespace Int
@@ -2320,7 +2369,7 @@ def mkIntDiv (a b : Expr) : Expr :=
 def mkIntMod (a b : Expr) : Expr :=
   mkApp2 intModFn a b
 
-/-- Given `a : Int`, returns `NatCast.natCast a` -/
+/-- Given `a : Nat`, returns `NatCast.natCast (R := Int) a` -/
 def mkIntNatCast (a : Expr) : Expr :=
   mkApp intNatCastFn a
 
@@ -2334,6 +2383,13 @@ private def intLEPred : Expr :=
 /-- Given `a b : Int`, returns `a ≤ b` -/
 def mkIntLE (a b : Expr) : Expr :=
   mkApp2 intLEPred a b
+
+private def intLTPred : Expr :=
+  mkApp2 (mkConst ``LT.lt [0]) Int.mkType Int.mkInstLT
+
+/-- Given `a b : Int`, returns `a < b` -/
+def mkIntLT (a b : Expr) : Expr :=
+  mkApp2 intLTPred a b
 
 private def intEqPred : Expr :=
   mkApp (mkConst ``Eq [1]) Int.mkType
@@ -2356,5 +2412,14 @@ def mkIntLit (n : Int) : Expr :=
 
 def reflBoolTrue : Expr :=
   mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.true)
+
+def reflBoolFalse : Expr :=
+  mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.false)
+
+def eagerReflBoolTrue : Expr :=
+  mkApp2 (mkConst ``eagerReduce [0]) (mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) (mkConst ``Bool.true) (mkConst ``Bool.true)) reflBoolTrue
+
+def eagerReflBoolFalse : Expr :=
+  mkApp2 (mkConst ``eagerReduce [0]) (mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) (mkConst ``Bool.false) (mkConst ``Bool.false)) reflBoolFalse
 
 end Lean

@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Server.Completion.SyntheticCompletion
+public import Lean.Server.Completion.SyntheticCompletion
+
+public section
 
 namespace Lean.Server.Completion
 open Elab
@@ -36,8 +40,8 @@ where
       stx₁.eqWithInfo stx₂
     | .errorName stx₁ .., .errorName stx₂ .. =>
       stx₁.eqWithInfo stx₂
-    | .endSection stx₁ scopeNames₁, .endSection stx₂ scopeNames₂ =>
-      stx₁.eqWithInfo stx₂ && scopeNames₁ == scopeNames₂
+    | .endSection stx₁ .., .endSection stx₂ .. =>
+      stx₁.eqWithInfo stx₂
     | .tactic stx₁, .tactic stx₂ =>
       stx₁.eqWithInfo stx₂
     | _, _ =>
@@ -45,7 +49,7 @@ where
 
 def findCompletionInfosAt
     (fileMap  : FileMap)
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (cmdStx   : Syntax)
     (infoTree : InfoTree)
     : Array ContextualizedCompletionInfo × Bool := Id.run do
@@ -65,13 +69,13 @@ where
       : Array ContextualizedCompletionInfo := Id.run do
     let .ofCompletionInfo completionInfo := info
       | return best
-    if ! info.occursInOrOnBoundary hoverPos then
+    if ! containsHoverPos completionInfo then
       return best
     let headPos := info.pos?.get!
     let tailPos := info.tailPos?.get!
     let hoverInfo :=
       if hoverPos < tailPos then
-        HoverInfo.inside (hoverPos - headPos).byteIdx
+        HoverInfo.inside (headPos.byteDistance hoverPos)
       else
         HoverInfo.after
     let ⟨headPosLine, _⟩ := fileMap.toPosition headPos
@@ -79,6 +83,17 @@ where
     if headPosLine != hoverLine || headPosLine != tailPosLine then
       return best
     return best.push { hoverInfo, ctx, info := completionInfo }
+  containsHoverPos (i : CompletionInfo) : Bool := Id.run do
+    if let .option stx := i then
+      if stx[1].isMissing then
+        let some range := stx.getRangeWithTrailing? (canonicalOnly := true)
+          | return false
+        return range.contains hoverPos (includeStop := false)
+    if let .endSection stx none .. := i then
+      let some range := stx.getRangeWithTrailing? (canonicalOnly := true)
+        | return false
+      return range.contains hoverPos (includeStop := false)
+    return Info.ofCompletionInfo i |>.occursInOrOnBoundary hoverPos
 
 private def computePrioritizedCompletionPartitions
     (items : Array (ContextualizedCompletionInfo × Nat))
@@ -124,7 +139,7 @@ user. We choose priorities by the following rules:
 -/
 def findPrioritizedCompletionPartitionsAt
     (fileMap  : FileMap)
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (cmdStx   : Syntax)
     (infoTree : InfoTree)
     : Array (Array (ContextualizedCompletionInfo × Nat)) × Bool :=

@@ -3,9 +3,13 @@ Copyright (c) 2021 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison, Mario Carneiro
 -/
+module
+
 prelude
-import Lean.Elab.ElabRules
-import Lean.Meta.Tactic.TryThis
+public import Lean.Elab.ElabRules
+public import Lean.Meta.Tactic.TryThis
+
+public section
 
 namespace Lean.Elab.Tactic.ShowTerm
 open Lean Elab Term Tactic Meta.Tactic.TryThis Parser.Tactic

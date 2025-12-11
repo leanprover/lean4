@@ -6,7 +6,7 @@
         let x_4 : obj := proj[0] x_1;
         let x_5 : obj := proj[1] x_1;
         block_6 (x_7 : u8) :=
-          case x_7 : obj of
+          case x_7 : u8 of
           Bool.false →
             let x_8 : obj := Lean.Expr.app._override x_2 x_5;
             ret x_8
@@ -15,7 +15,7 @@
         let x_9 : usize := ptrAddrUnsafe ◾ x_4;
         let x_10 : usize := ptrAddrUnsafe ◾ x_2;
         let x_11 : u8 := USize.decEq x_9 x_10;
-        case x_11 : obj of
+        case x_11 : u8 of
         Bool.false →
           jmp block_6 x_11
         Bool.true →

@@ -19,6 +19,13 @@ partial def unparen : Syntax → Syntax
   | `(level|($stx')) => unparenAux stx $ unparen stx'
   | _ => stx.modifyArgs $ Array.map unparen
 
+def clearHygieneInfo (stx : Syntax) : Syntax :=
+  Id.run <| stx.replaceM fun s => do
+    if s.isOfKind hygieneInfoKind then
+      return some <| s.setArg 0 (mkIdent .anonymous)
+    else
+      return none
+
 unsafe def main (args : List String) : IO Unit := do
 let (debug, f) : Bool × String := match args with
   | [f, "-d"] => (true, f)
@@ -40,10 +47,10 @@ cmds.forM $ fun cmd => do
 
 def check (stx : Syntax) : CoreM Unit := do
 let stx' := unparen stx;
-let stx' ← PrettyPrinter.parenthesizeTerm stx';
+let stx' ← clearHygieneInfo <$> PrettyPrinter.parenthesizeTerm stx';
 let f ← PrettyPrinter.formatTerm stx';
 IO.println f;
-if (stx != stx') then
+if (clearHygieneInfo stx != stx') then
   throwError "reparenthesization failed"
 
 open Lean

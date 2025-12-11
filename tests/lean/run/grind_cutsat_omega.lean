@@ -1,3 +1,4 @@
+module
 example (_ : (1 : Int) < (0 : Int)) : False := by grind
 example (_ : (0 : Int) < (0 : Int)) : False := by grind
 example (_ : (0 : Int) < (1 : Int)) : True := by grind
@@ -236,10 +237,24 @@ example (x y : Nat) (_ : 2 ≤ x) (_ : x ≤ 3) (_ : 2 ≤ y) (_ : y ≤ 3) :
 example : 2^7 < 165 := by grind
 example (x : Nat) (_ : x % 2^7 < 3) : x % 128 < 5 := by grind
 
-set_option debug.skipKernelTC true in -- TODO: kernel deep recursion
 example (a : Nat) :
     (((a + (2 ^ 64 - 1)) % 2 ^ 64 + 1) * 8 - 1 - (a + (2 ^ 64 - 1)) % 2 ^ 64 * 8 + 1) = 8 := by
   grind
 
 example (z : Int) : z.toNat = 0 ↔ z ≤ 0 := by grind
 example (x : Int) (h : Int.negSucc 0 < x ∧ x < 1) : x = 0 := by grind
+
+-- From Mathlib.Order.RelSeries
+theorem RelSeries.inductionOn.extracted_3 (p : Nat) (heq : p = 0) (n : Fin (p + 1)) : n = 0 := by
+  grind
+
+theorem LTSeries.length_lt_card.extracted_1 (s : Nat) (i j : Fin (s + 1)) (hn : i ≠ j) (hl : ¬i < j) : j < i := by
+  grind
+
+-- From Mathlib.AlgebraicTopology.SimplexCategory.Basic
+theorem SimplexCategory.mkOfLe_refl.extracted_1 {n : Nat} (j : Fin (n + 1)) : j ≤ j := by
+  grind
+
+theorem SimplexCategory.eq_σ_comp_of_not_injective.extracted_1 {n : Nat}
+    (x y : Fin ((n + 1) + 1)) (h₂ : ¬x = y) (h : ¬x < y) : y < x := by
+  omega

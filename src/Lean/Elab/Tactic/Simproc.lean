@@ -3,14 +3,14 @@ Copyright (c) 2023 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Simproc
-import Lean.ReservedNameAction
-import Lean.Meta.Tactic.Simp.Simproc
-import Lean.Elab.Binders
-import Lean.Elab.SyntheticMVars
-import Lean.Elab.Term
-import Lean.Elab.Command
+public import Init.Simproc
+public import Lean.Meta.Tactic.Simp.Simproc
+public import Lean.Elab.Command
+
+public section
 
 namespace Lean.Elab
 
@@ -32,7 +32,8 @@ def checkSimprocType (declName : Name) : CoreM Bool := do
   match decl.type with
   | .const ``Simproc _ => pure false
   | .const ``DSimproc _ => pure true
-  | _ => throwError "unexpected type at '{declName}', 'Simproc' expected"
+  | _ => throwError "Unexpected type for simproc pattern: Expected `{.ofConstName ``Simproc}` or \
+          `{.ofConstName ``DSimproc}`, but `{declName}` has type{indentExpr decl.type}"
 
 namespace Command
 

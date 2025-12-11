@@ -2,5 +2,5 @@ patvar.lean:3:0-3:22: error: Missing cases:
 (List.cons _ _)
 patvar.lean:10:0-10:16: error: Missing cases:
 (List.cons _ _)
-patvar.lean:14:2-14:9: error: Invalid pattern variable: Variable name must be atomic, but 'foo.bar' has multiple components
-patvar.lean:17:2-17:9: error: Invalid pattern variable: Variable name must be atomic, but 'foo.bar' has multiple components
+patvar.lean:14:2-14:9: error: Invalid pattern variable: Variable name must be atomic, but `foo.bar` has multiple components
+patvar.lean:17:2-17:9: error: Invalid pattern variable: Variable name must be atomic, but `foo.bar` has multiple components

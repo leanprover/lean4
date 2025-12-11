@@ -60,15 +60,15 @@ Custom monad
 
 abbrev MyMonad := ReaderT Nat IO
 /--
-error: unable to synthesize 'MonadEval' instance to adapt
+error: unable to synthesize `MonadEval` instance to adapt
   MyMonad Nat
-to 'IO' or 'Lean.Elab.Command.CommandElabM'.
+to `IO` or `Lean.Elab.Command.CommandElabM`.
 -/
 #guard_msgs in #eval (pure 2 : MyMonad Nat)
 
 -- Note that there is no "this is due to..." diagonostic in this case.
 /--
-error: could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
+error: could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type
   MyMonad (Nat → Nat)
 -/
 #guard_msgs in #eval (pure id : MyMonad (Nat → _))
@@ -81,7 +81,7 @@ instance : MonadEval MyMonad IO where
 
 -- Note that now we have a MonadEval instance, it doesn't mention MyMonad in the error.
 /--
-error: could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
+error: could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type
   Nat → Nat
 -/
 #guard_msgs in #eval (pure id : MyMonad (Nat → _))
@@ -89,7 +89,7 @@ error: could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
 /-!
 Elaboration error, does not attempt to evaluate.
 -/
-/-- error: unknown identifier 'x' -/
+/-- error: Unknown identifier `x` -/
 #guard_msgs in #eval 2 + x
 
 /-!

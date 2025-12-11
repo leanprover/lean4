@@ -3,15 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Internal.Rat
-import Std.Time.Internal
-import Std.Time.Time.Unit.Nanosecond
+public import Std.Time.Time.Unit.Nanosecond
+
+public section
 
 namespace Std
 namespace Time
 namespace Millisecond
-open Std.Internal
 open Internal
 
 set_option linter.all true
@@ -19,7 +20,7 @@ set_option linter.all true
 /--
 `Ordinal` represents a bounded value for milliseconds, ranging from 0 to 999 milliseconds.
 -/
-def Ordinal := Bounded.LE 0 999
+@[expose] def Ordinal := Bounded.LE 0 999
 deriving Repr, DecidableEq, LE, LT
 
 instance : OfNat Ordinal n :=
@@ -43,7 +44,7 @@ instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 0 _
 /--
 `Offset` represents a duration offset in milliseconds.
 -/
-def Offset : Type := UnitVal (1 / 1000)
+@[expose] def Offset : Type := UnitVal (1 / 1000)
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
 instance {x y : Offset} : Decidable (x ≤ y) :=

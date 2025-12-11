@@ -3,10 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Syntax
-import Lean.Elab.AuxDef
-import Lean.Elab.BuiltinNotation
+public import Lean.Elab.Syntax
+public import Lean.Elab.AuxDef
+public import Lean.Elab.BuiltinNotation
+
+public section
 
 namespace Lean.Elab.Command
 open Lean.Syntax
@@ -41,15 +45,30 @@ private partial def antiquote (vars : Array Syntax) : Syntax → Syntax
 def expandNotationItemIntoSyntaxItem : TSyntax ``notationItem → MacroM (TSyntax `stx)
   | `(notationItem| $_:ident$[:$prec?]?) => `(stx| term $[:$prec?]?)
   | `(notationItem| $s:str)              => `(stx| $s:str)
-  | _                                    => Macro.throwUnsupported
+  -- TODO(kmill): use after stage0 update
+  -- | `(notationItem| $u:unicodeAtom)      => `(stx| $u:unicodeAtom)
+  -- | _                                    => Macro.throwUnsupported
+  | stx =>
+    if stx.raw.isOfKind ``Parser.Syntax.unicodeAtom then
+      return ⟨stx.raw⟩
+    else
+      Macro.throwUnsupported
 
 /-- Convert `notation` command lhs item into a pattern element -/
 def expandNotationItemIntoPattern (stx : Syntax) : MacroM Syntax :=
   let k := stx.getKind
-  if k == `Lean.Parser.Command.identPrec then
+  if k == ``Lean.Parser.Command.identPrec then
     return mkAntiquotNode stx[0] (kind := `term) (isPseudoKind := true)
   else if k == strLitKind then
     strLitToPattern stx
+  else if k == ``Parser.Syntax.unicodeAtom then
+    let preserveForPP := !stx[4].isNone
+    if preserveForPP then
+      -- Use the ascii atom for the pattern; that way delaboration gives the ASCII version,
+      -- which is the preferred form according to `ParserDescr.unicodeSymbol`.
+      strLitToPattern stx[3]
+    else
+      strLitToPattern stx[1]
   else
     Macro.throwUnsupported
 
@@ -62,7 +81,7 @@ def removeParenthesesAux (parens body : Syntax) : Syntax :=
 
 partial def removeParentheses (stx : Syntax) : MacroM Syntax := do
   match stx with
-  | `(($e)) => pure $ removeParenthesesAux stx (←removeParentheses $ (←Term.expandCDot? e).getD e)
+  | `(($h:hygieneInfo $e)) => pure $ removeParenthesesAux stx (← removeParentheses $ (← Term.expandCDot? e h.getHygieneInfo).getD e)
   | _ =>
     match stx with
     | .node info kind args => pure $ .node info kind (←args.mapM removeParentheses)
@@ -107,54 +126,39 @@ def mkUnexpander (attrKind : TSyntax ``attrKind) (pat qrhs : Term) : OptionT Mac
   -- The reference is attached to the syntactic representation of the called function itself, not the entire function application
   let lhs ← `($$f:ident)
   let lhs := Syntax.mkApp lhs (.mk args)
-  `(@[$attrKind app_unexpander $(mkIdent c)]
+  let vis := Parser.Command.visibility.ofAttrKind attrKind
+  `(@[$attrKind app_unexpander $(mkIdent c)] $vis:visibility
     aux_def unexpand $(mkIdent c) : Lean.PrettyPrinter.Unexpander := fun
       | `($lhs)             => withRef f `($pat)
       | _                   => throw ())
 
-private def expandNotationAux (ref : Syntax) (currNamespace : Name)
-    (doc? : Option (TSyntax ``docComment))
-    (attrs? : Option (TSepArray ``attrInstance ","))
-    (attrKind : TSyntax ``attrKind)
-    (prec? : Option Prec) (name? : Option Ident) (prio? : Option Prio)
-    (items : Array (TSyntax ``notationItem)) (rhs : Term) : MacroM Syntax := do
-  let prio ← evalOptPrio prio?
-  -- build parser
-  let syntaxParts ← items.mapM expandNotationItemIntoSyntaxItem
-  let cat := mkIdentFrom ref `term
-  let name ←
-    match name? with
-    | some name => pure name.getId
-    | none => addMacroScopeIfLocal (← mkNameFromParserSyntax `term (mkNullNode syntaxParts)) attrKind
-  -- build macro rules
-  let vars := items.filter fun item => item.raw.getKind == ``identPrec
-  let vars := vars.map fun var => var.raw[0]
-  let qrhs := ⟨antiquote vars rhs⟩
-  let attrs? := addInheritDocDefault rhs attrs?
-  let patArgs ← items.mapM expandNotationItemIntoPattern
-  /- The command `syntax [<kind>] ...` adds the current namespace to the syntax node kind.
-     So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
-  let fullName := currNamespace ++ name
-  let pat : Term := ⟨mkNode fullName patArgs⟩
-  let stxDecl ← `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
-    syntax $[: $prec?]? (name := $(name?.getD (mkIdent name))) (priority := $(quote prio)) $[$syntaxParts]* : $cat)
-  let macroDecl ← `(macro_rules | `($pat) => ``($qrhs))
-  let macroDecls ←
+@[builtin_command_elab Lean.Parser.Command.notation] def elabNotation : CommandElab
+  | ref@`($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
+      notation $[: $prec?]? $[(name := $name?)]? $[(priority := $prio?)]? $items* => $rhs) => do
+    let attrs? := addInheritDocDefault rhs attrs?
+    let prio ← liftMacroM <| evalOptPrio prio?
+    -- build parser
+    let syntaxParts ← liftMacroM <| items.mapM expandNotationItemIntoSyntaxItem
+    let cat := mkIdentFrom ref `term
+    let kind ← elabSyntax (← `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
+      syntax $[: $prec?]? $[(name := $name?)]? (priority := $(quote prio)) $[$syntaxParts]* : $cat))
+    -- build macro rules
+    let vars := items.filter fun item => item.raw.getKind == ``identPrec
+    let vars := vars.map fun var => var.raw[0]
+    let qrhs := ⟨antiquote vars rhs⟩
+    let patArgs ← liftMacroM <| items.mapM expandNotationItemIntoPattern
+    let pat : Term := ⟨mkNode kind patArgs⟩
+    let macroDecl ← `($attrKind:attrKind macro_rules | `($pat) => ``($qrhs))
     if isLocalAttrKind attrKind then
       -- Make sure the quotation pre-checker takes section variables into account for local notation.
-      `(section set_option quotPrecheck.allowSectionVars true $macroDecl end)
+      let opts ← getOptions
+      let opts := Term.Quotation.quotPrecheck.allowSectionVars.set opts true
+      withScope (fun sc => { sc with opts }) do
+        elabCommand macroDecl
     else
-      pure ⟨mkNullNode #[macroDecl]⟩
-  match (← mkUnexpander attrKind pat qrhs |>.run) with
-  | some delabDecl => return mkNullNode #[stxDecl, macroDecls, delabDecl]
-  | none           => return mkNullNode #[stxDecl, macroDecls]
-
-@[builtin_macro Lean.Parser.Command.notation] def expandNotation : Macro
-  | stx@`($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
-      notation $[: $prec?]? $[(name := $name?)]? $[(priority := $prio?)]? $items* => $rhs) => do
-    -- trigger scoped checks early and only once
-    let _ ← toAttributeKind attrKind
-    expandNotationAux stx (← Macro.getCurrNamespace) doc? attrs? attrKind prec? name? prio? items rhs
-  | _ => Macro.throwUnsupported
+      elabCommand macroDecl
+    if let some delabDecl := (← liftMacroM <| mkUnexpander attrKind pat qrhs |>.run) then
+      elabCommand delabDecl
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Command

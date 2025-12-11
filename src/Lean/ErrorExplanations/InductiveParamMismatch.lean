@@ -3,8 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joseph Rotella
 -/
+module
+
 prelude
-import Lean.ErrorExplanation
+public import Lean.ErrorExplanation
+meta import Lean.ErrorExplanation
+
+public section
 
 /--
 This error occurs when a parameter of an inductive type is not uniform in an inductive
@@ -21,7 +26,7 @@ parameters to indices.
 
 # Examples
 
-## Vector length index as a parameter
+## Vector Length Index as a Parameter
 
 ```lean broken
 inductive Vec (α : Type) (n : Nat) : Type where
@@ -36,7 +41,7 @@ The provided argument
 is not definitionally equal to the expected parameter
   n
 
-Note: The value of parameter 'n' must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
+Note: The value of parameter `n` must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
 ```
 ```lean fixed
 inductive Vec (α : Type) : Nat → Type where

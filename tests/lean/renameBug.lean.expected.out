@@ -1,1 +1,1 @@
-renameBug.lean:3:13-3:14: error: unknown identifier 'c'
+renameBug.lean:3:13-3:14: error(lean.unknownIdentifier): Unknown identifier `c`

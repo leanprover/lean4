@@ -3,11 +3,12 @@ Copyright (c) 2021 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.KeyedDeclsAttribute
-import Lean.Parser.Command  -- for `precheckedQuot`
-import Lean.Elab.Term
-import Lean.Elab.Quotation.Util
+public import Lean.Elab.Quotation.Util
+
+public section
 
 namespace Lean.Elab.Term.Quotation
 open Lean.Elab.Term
@@ -65,13 +66,15 @@ partial def precheck : Precheck := fun stx => do
   if let some stx' ← liftMacroM <| expandMacro? stx then
     precheck stx'
     return
-  throwErrorAt stx "no macro or `[quot_precheck]` instance for syntax kind '{stx.getKind}' found{indentD stx}
+  throwErrorAt stx "no macro or `[quot_precheck]` instance for syntax kind `{stx.getKind}` found{indentD stx}
 This means we cannot eagerly check your notation/quotation for unbound identifiers; you can use `set_option quotPrecheck false` to disable this check."
 where
   hasQuotedIdent
     | Syntax.ident .. => true
     | stx =>
       if stx.isAnyAntiquot then
+        false
+      else if stx.isOfKind hygieneInfoKind then
         false
       else
         stx.getArgs.any hasQuotedIdent
@@ -107,7 +110,8 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
         if quotPrecheck.allowSectionVars.get (← getOptions) && (← isSectionVariable e) then
           return
       | _ => pure ()
-    throwError "unknown identifier '{val}' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check."
+    throwError m!"Unknown identifier `{val}` at quotation precheck"
+      ++ .note "You can use `set_option quotPrecheck false` to disable this check."
   | _ => throwUnsupportedSyntax
 
 @[builtin_quot_precheck Lean.Parser.Term.app] def precheckApp : Precheck
@@ -174,6 +178,9 @@ section ExpressionTree
 @[builtin_quot_precheck Lean.Parser.Term.unop] def precheckUnop : Precheck
   | `(unop% $f $a) => do precheck f; precheck a
   | _ => throwUnsupportedSyntax
+
+@[builtin_quot_precheck Lean.Parser.Term.hygieneInfo] def precheckHygieneInfo : Precheck
+  | _ => pure ()
 
 end ExpressionTree
 

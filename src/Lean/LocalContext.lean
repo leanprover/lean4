@@ -3,11 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Nat.Control
-import Lean.Data.PersistentArray
-import Lean.Expr
-import Lean.Hygiene
+public import Init.Data.Nat.Control
+public import Lean.Data.PersistentArray
+public import Lean.Expr
+
+public section
 
 namespace Lean
 
@@ -70,7 +73,8 @@ inductive LocalDecl where
     `ldecl`s are `cdecl`s (for example, when reverting variables). As a consequence, nondep `ldecl`s may
     have type-incorrect values. This design decision allows metaprograms to not have to think about nondep `ldecl`s,
     so long as `LocalDecl` values are consumed through `LocalDecl.isLet` and `LocalDecl.value?` with `(allowNondep := false)`.
-    **Rule:** never use `(generalizeNondepLet := false)` in `mkBinding`-family functions within a local context you do not own.
+    **Rule:** never use `(generalizeNondepLet := false)` in `mkBinding`-family functions
+    on a local context entry you did not create.
     See `LocalDecl.setNondep` for some additional discussion.
   - Where then do nondep ldecls come from? Common functions are `Meta.mapLetDecl`, `Meta.withLetDecl`, and `Meta.letTelescope`.
     The `have` term syntax makes use of a nondep ldecl as well.
@@ -391,6 +395,11 @@ def findFromUserName? (lctx : LocalContext) (userName : Name) : Option LocalDecl
     | none      => none
     | some decl => if decl.userName == userName then some decl else none
 
+def getFromUserName! (lctx : LocalContext) (userName : Name) : LocalDecl :=
+  match lctx.findFromUserName? userName with
+  | some decl => decl
+  | none      => panic! s!"unknown local declaration `{userName}`"
+
 def usesUserName (lctx : LocalContext) (userName : Name) : Bool :=
   (lctx.findFromUserName? userName).isSome
 
@@ -426,15 +435,30 @@ def renameUserName (lctx : LocalContext) (fromName : Name) (toName : Name) : Loc
         auxDeclToFullName }
 
 /--
-  Low-level function for updating the local context.
-  Assumptions about `f`, the resulting nested expressions must be definitionally equal to their original values,
-  the `index` nor `fvarId` are modified.  -/
+Low-level function for updating the local context.
+Assumptions about `f`, the resulting nested expressions must be definitionally equal to their original values,
+and neither the `index` nor `fvarId` are modified.
+-/
 @[inline] def modifyLocalDecl (lctx : LocalContext) (fvarId : FVarId) (f : LocalDecl → LocalDecl) : LocalContext :=
   match lctx with
   | { fvarIdToDecl := map, decls := decls, auxDeclToFullName } =>
     match lctx.find? fvarId with
     | none      => lctx
     | some decl =>
+      let decl := f decl
+      { fvarIdToDecl := map.insert decl.fvarId decl
+        decls        := decls.set decl.index decl
+        auxDeclToFullName }
+
+/--
+Low-level function for updating every declaration in the local context.
+Assumptions about `f`, the resulting nested expressions must be definitionally equal to their original values,
+and neither the `index` nor `fvarId` are modified.
+-/
+def modifyLocalDecls (lctx : LocalContext) (f : LocalDecl → LocalDecl) : LocalContext :=
+  lctx.decls.foldl (init := lctx) fun
+    | lctx, none => lctx
+    | { fvarIdToDecl := map, decls := decls, auxDeclToFullName }, some decl =>
       let decl := f decl
       { fvarIdToDecl := map.insert decl.fvarId decl
         decls        := decls.set decl.index decl
@@ -482,7 +506,7 @@ def getAt? (lctx : LocalContext) (i : Nat) : Option LocalDecl :=
     | none      => pure none
     | some decl => f decl
 
-instance : ForIn m LocalContext LocalDecl where
+instance [Monad m] : ForIn m LocalContext LocalDecl where
   forIn lctx init f := lctx.decls.forIn init fun d? b => match d? with
     | none   => return ForInStep.yield b
     | some d => f d b
@@ -611,6 +635,22 @@ def sortFVarsByContextOrder (lctx : LocalContext) (hyps : Array FVarId) : Array 
     | none => (0, fvarId)
     | some ldecl => (ldecl.index, fvarId)
   hyps.qsort (fun h i => h.fst < i.fst) |>.map (·.snd)
+
+/--
+Batched version of `Lean.LocalContext.findFromUserName?`.
+Finds the visible local declarations for each of the given `userNames` up to a certain `start`
+index exclusively, if any.
+-/
+def findFromUserNames (lctx : LocalContext) (userNames : Std.HashSet Name) (start := 0) : Array LocalDecl :=
+  Array.reverse <| Id.run <| ExceptT.runCatch do
+    let (_, _, acc) ← lctx.foldrM (init := (userNames, lctx.numIndices, #[])) fun decl (userNames, num, acc) => do
+      if userNames.isEmpty then throw acc -- stop when we found all user names
+      if num ≤ start then throw acc         -- stop when we reached the start index
+      if userNames.contains decl.userName then
+        pure (userNames.erase decl.userName, num - 1, acc.push decl)
+      else
+        pure (userNames, num - 1, acc)
+    return acc.reverse
 
 end LocalContext
 

@@ -52,6 +52,7 @@ def sort_sections_order():
     return [
         "Language",
         "Library",
+        "Tactics",
         "Compiler",
         "Pretty Printing",
         "Documentation",

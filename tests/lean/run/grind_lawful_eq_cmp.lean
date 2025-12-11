@@ -1,3 +1,4 @@
+module
 import Std
 
 example (f : α → α → Ordering) [Std.LawfulEqCmp f] (a b c : α) : b = c → f a b = o → o = .eq → a = c := by

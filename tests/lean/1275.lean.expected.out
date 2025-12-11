@@ -1,7 +1,7 @@
 fun x => do
   let info ← MonadRef.mkInfoFromRefPos
   let scp ← getCurrMacroScope
-  let mainModule ← getMainModule
+  let quotCtx ← MonadQuotation.getContext
   pure
       {
         raw :=
@@ -12,7 +12,7 @@ true
 fun x => do
   let info ← MonadRef.mkInfoFromRefPos
   let scp ← getCurrMacroScope
-  let mainModule ← getMainModule
+  let quotCtx ← MonadQuotation.getContext
   pure
       {
         raw :=

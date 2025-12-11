@@ -801,7 +801,7 @@ info: Mutual_Induct.even.mutual_induct (motive1 motive2 : Nat → Prop) (case1 :
 
 -- The .mutual_induct only exists on the first declaration:
 
-/-- error: unknown constant 'Mutual_Induct.odd.mutual_induct' -/
+/-- error: Unknown constant `Mutual_Induct.odd.mutual_induct` -/
 #guard_msgs in
 #check odd.mutual_induct
 
@@ -815,11 +815,11 @@ def nonmutual : Nat → Bool
   | 0 => true
   | n+1 => nonmutual n
 
-/-- error: unknown constant 'Mutual_Induct.nonmutual.mutual_induct' -/
+/-- error: Unknown constant `Mutual_Induct.nonmutual.mutual_induct` -/
 #guard_msgs in
 #check nonmutual.mutual_induct
 
-/-- error: unknown constant 'id.mutual_induct' -/
+/-- error: Unknown constant `id.mutual_induct` -/
 #guard_msgs in
 set_option pp.mvars false in
 #check id.mutual_induct

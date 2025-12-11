@@ -3,11 +3,14 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
 prelude
-import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Lean.Meta.Tactic.Grind.Arith.Util
-
+import Lean.Meta.Tactic.Simp.Arith.Int.Simp
+public section
 namespace Int.Linear
+
 def Poly.isZero : Poly → Bool
   | .num 0 => true
   | _ => false
@@ -29,10 +32,10 @@ end Int.Linear
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 def get' : GoalM State := do
-  return (← get).arith.cutsat
+  cutsatExt.getState
 
 @[inline] def modify' (f : State → State) : GoalM Unit := do
-  modify fun s => { s with arith.cutsat := f s.arith.cutsat }
+  cutsatExt.modifyState f
 
 /-- Returns `true` if the cutsat state is inconsistent. -/
 def inconsistent : GoalM Bool := do
@@ -214,6 +217,14 @@ Returns `.true` if `c` is satisfied by the current partial model,
 def DiseqCnstr.satisfied (c : DiseqCnstr) : GoalM LBool := do
   let some v ← c.p.eval? | return .undef
   return v != 0 |>.toLBool
+
+/--
+Returns `.true` if `c` is satisfied by the current partial model,
+`.undef` if `c` contains unassigned variables, and `.false` otherwise.
+-/
+def EqCnstr.satisfied (c : EqCnstr) : GoalM LBool := do
+  let some v ← c.p.eval? | return .undef
+  return v == 0 |>.toLBool
 
 /--
 Given a polynomial `p`, returns `some (x, k, c)` if `p` contains the monomial `k*x`,

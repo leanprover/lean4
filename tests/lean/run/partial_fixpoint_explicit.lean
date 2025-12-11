@@ -11,7 +11,7 @@ partial_fixpoint monotonicity sorry
 
 set_option pp.mvars.anonymous false in
 /--
-error: don't know how to synthesize placeholder for argument 'a'
+error: don't know how to synthesize placeholder for argument `a`
 context:
 ⊢ Lean.Order.monotone fun f x => f (x + 1)
 -/
@@ -28,7 +28,7 @@ partial_fixpoint monotonicity fun _ _ a _ => a _
 -- Type error
 
 /--
-error: type mismatch
+error: Type mismatch
   ()
 has type
   Unit
@@ -50,11 +50,10 @@ partial_fixpoint monotonicity
 
 -- Tactics
 
-/-- info: Try this: exact fun x y a x => a (x + 1) -/
 #guard_msgs in
 def nullary6 (x : Nat) : Option Unit := nullary6 (x + 1)
 partial_fixpoint monotonicity by
-  exact?
+  solve_by_elim
 
 #guard_msgs in
 def nullary7 (x : Nat) : Option Unit := nullary7 (x + 1)

@@ -13,7 +13,7 @@ public section
 /-!
 # Lemmas about `List.countP` and `List.count`.
 
-Because we mark `countP_eq_length_filter` and `count_eq_countP` with `@[grind _=_]`,
+Because we mark `countP_eq_length_filter` with `@[grind =]`,
 we don't need many other `@[grind]` annotations here.
 -/
 
@@ -29,7 +29,7 @@ section countP
 
 variable {p q : α → Bool}
 
-@[simp] theorem countP_nil : countP p [] = 0 := rfl
+@[simp, grind =] theorem countP_nil : countP p [] = 0 := rfl
 
 protected theorem countP_go_eq_add {l} : countP.go p l n = n + countP.go p l 0 := by
   induction l generalizing n with
@@ -47,6 +47,7 @@ protected theorem countP_go_eq_add {l} : countP.go p l n = n + countP.go p l 0 :
 @[simp] theorem countP_cons_of_neg {l} (pa : ¬p a) : countP p (a :: l) = countP p l := by
   simp [countP, countP.go, pa]
 
+@[grind =]
 theorem countP_cons {a : α} {l : List α} : countP p (a :: l) = countP p l + if p a then 1 else 0 := by
   by_cases h : p a <;> simp [h]
 
@@ -66,7 +67,6 @@ theorem length_eq_countP_add_countP (p : α → Bool) {l : List α} : length l =
       · rfl
       · simp [h]
 
-@[grind _=_]  -- This to quite aggressive, as it introduces `filter` based reasoning whenever we see `countP`.
 theorem countP_eq_length_filter {l : List α} : countP p l = (filter p l).length := by
   induction l with
   | nil => rfl
@@ -75,7 +75,8 @@ theorem countP_eq_length_filter {l : List α} : countP p l = (filter p l).length
     then rw [countP_cons_of_pos h, ih, filter_cons_of_pos h, length]
     else rw [countP_cons_of_neg h, ih, filter_cons_of_neg h]
 
-@[grind =]
+grind_pattern countP_eq_length_filter => l.countP p, l.filter p
+
 theorem countP_eq_length_filter' : countP p = length ∘ filter p := by
   funext l
   apply countP_eq_length_filter
@@ -223,7 +224,7 @@ variable [BEq α]
 
 @[simp, grind =] theorem count_nil {a : α} : count a [] = 0 := rfl
 
-@[grind]
+@[grind =]
 theorem count_cons {a b : α} {l : List α} :
     count a (b :: l) = count a l + if b == a then 1 else 0 := by
   simp [count, countP_cons]
@@ -237,7 +238,7 @@ theorem count_eq_countP' {a : α} : count a = countP (· == a) := by
 theorem count_eq_length_filter {a : α} {l : List α} : count a l = (filter (· == a) l).length := by
   simp [count, countP_eq_length_filter]
 
-@[grind]
+@[grind =]
 theorem count_tail : ∀ {l : List α} {a : α},
       l.tail.count a = l.count a - if l.head? == some a then 1 else 0
   | [], a => by simp
@@ -380,7 +381,7 @@ theorem count_filterMap {α} [BEq β] {b : β} {f : α → Option β} {l : List 
 theorem count_flatMap {α} [BEq β] {l : List α} {f : α → List β} {x : β} :
     count x (l.flatMap f) = sum (map (count x ∘ f) l) := countP_flatMap
 
-@[grind]
+@[grind =]
 theorem count_erase {a b : α} :
     ∀ {l : List α}, count a (l.erase b) = count a l - if b == a then 1 else 0
   | [] => by simp

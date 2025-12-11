@@ -78,6 +78,5 @@ instance : LawfulMonadAttach Id where
     intro _ _ x _ h
     cases h
     exact x.run.2
-  map_some_inj := Option.some.inj
 
 end Id

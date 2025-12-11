@@ -33,6 +33,7 @@ An `IO` monad that cannot throw exceptions.
 
 instance : Monad BaseIO := inferInstanceAs (Monad (ST IO.RealWorld))
 instance : MonadFinally BaseIO := inferInstanceAs (MonadFinally (ST IO.RealWorld))
+instance : MonadAttach BaseIO := inferInstanceAs (MonadAttach (ST IO.RealWorld))
 
 @[always_inline, inline]
 def BaseIO.map (f : α → β) (x : BaseIO α) : BaseIO β :=
@@ -88,6 +89,7 @@ def EIO.catchExceptions (act : EIO ε α) (h : ε → BaseIO α) : BaseIO α :=
 
 instance : Monad (EIO ε) := inferInstanceAs (Monad (EST ε IO.RealWorld))
 instance : MonadFinally (EIO ε) := inferInstanceAs (MonadFinally (EST ε IO.RealWorld))
+instance : MonadAttach (EIO ε) := inferInstanceAs (MonadAttach (EST ε IO.RealWorld))
 instance : MonadExceptOf ε (EIO ε) := inferInstanceAs (MonadExceptOf ε (EST ε IO.RealWorld))
 instance : OrElse (EIO ε α) := ⟨MonadExcept.orElse⟩
 instance [Inhabited ε] : Inhabited (EIO ε α) := inferInstanceAs (Inhabited (EST ε IO.RealWorld α))

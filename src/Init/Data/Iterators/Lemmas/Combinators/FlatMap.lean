@@ -135,11 +135,16 @@ public theorem Iter.step_flatMapAfterM {α : Type w} {β : Type w} {α₂ : Type
   simp only [flatMapAfterM, IterM.step_flatMapAfterM, Iter.step_mapM]
   split
   · split
-    · simp [*]
-      rw [← LawfulMonadAttach.some_map_inj_iff]
+    · rename_i out _ _
+      simp only [bind_pure_comp, bind_map_left, Shrink.inflate_deflate, *]
+      rw [← map_inj_right (f := some) (by simp)]
       simp only [map_eq_pure_bind, bind_assoc]
-      simp only [LawfulMonadAttach.bind_attach_of_nonempty]
-
+      have {α : Type _} {x : m α} : x = MonadAttach.attach (pure out) >>= (fun _ => x) := by
+        rw (occs := [1]) [show x = pure out >>= (fun _ => x) by simp]
+        conv => lhs; rw [← LawfulMonadAttach.map_attach (x := pure out)]
+        simp
+      refine Eq.trans ?_ this.symm
+      simp only [LawfulMonadAttach.bind_attach_of_nonempty (x := pure out), pure_bind]
     · simp [*]
     · simp [*]
   · rfl

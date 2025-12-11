@@ -61,14 +61,6 @@ public theorem LawfulMonadAttach.attach_bind_val
     MonadAttach.attach x >>= (fun a => f a.val) = x >>= f := by
   conv => rhs; simp only [← map_attach (x := x), bind_map_left]
 
-public theorem LawfulMonadAttach.some_map_inj_iff
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
-    {x y : m α} :
-    some <$> x = some <$> y ↔ x = y := by
-  apply Iff.intro
-  · exact LawfulMonadAttach.map_some_inj
-  · simp
-
 public theorem LawfulMonadAttach.bind_attach_of_nonempty
     [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m] [Nonempty (m β)]
     {x : m α} {f : Subtype (MonadAttach.CanReturn x) → m β} :

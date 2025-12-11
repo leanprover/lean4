@@ -456,10 +456,10 @@ namespace EStateM
     EStateM.run (get : EStateM ε σ σ) s = .ok s s := rfl
 
 @[simp, grind =] theorem run_set (s₁ s₂ : σ) :
-    EStateM.run (set s₁ : EStateM ε σ PUnit) s₂ = .ok () s₁ := rfl
+    EStateM.run (set s₁ : EStateM ε σ PUnit) s₂ = .ok .unit s₁ := rfl
 
 @[simp, grind =] theorem run_modify (f : σ → σ) (s : σ) :
-    EStateM.run (modify f : EStateM ε σ PUnit) s = .ok () (f s) := rfl
+    EStateM.run (modify f : EStateM ε σ PUnit) s = .ok .unit (f s) := rfl
 
 @[simp, grind =] theorem run_modifyGet (f : σ → α × σ) (s : σ) :
     EStateM.run (modifyGet f : EStateM ε σ α) s = .ok (f s).1 (f s).2 := rfl

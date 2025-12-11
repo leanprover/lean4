@@ -112,7 +112,7 @@ def ControlStack.exceptT (exceptTWrapper casesOnWrapper : Name)
     let k := do
       let e ← getFVarFromUserName resultName
       let outerCont ← getCont
-      let kexit ← withLocalDeclD (← mkFreshUserName `r) resultType fun r => do
+      let kexit ← withLocalDeclD (← mkFreshUserName `r) outerCont.resultType fun r => do
         mkLambdaFVars #[r] (← outerCont.k r)
       let ksuccess ← withLocalDeclD dec.resultName dec.resultType fun r => do
         mkLambdaFVars #[r] (← dec.k)
@@ -184,6 +184,7 @@ def ControlLifter.ofCont (dec : DoElemCont) : DoElabM ControlLifter := do
   -- γ is the result type of the `try` block. It is `stM m (t m)` for whatever `t` is necessary
   -- to restore reassigned mut vars, early `return`, `break` and `continue`.
   let γ ← mkFreshResultType `γ
+  let mγ ← mkMonadicType γ
   let mutVars := (← read).mutVars |>.map (·.getId)
   let pureKVar ← mkFreshContVar γ (mutVars.push dec.resultName)
   let returns ← IO.mkRef false
@@ -198,10 +199,7 @@ def ControlLifter.ofCont (dec : DoElemCont) : DoElabM ControlLifter := do
     -- have been refined by an intervening `match`.
     let ρ ← inferType r
     let m' := mkApp2 (mkConst ``EarlyReturnT [mi.u, mi.v]) ρ mi.m
-    -- It is important we read the result type only here, because it might have been refined by an
-    -- intervening `match`.
-    let γ := (← read).doBlockResultType
-    discard <| isDefEq (mkApp m' δ) (← mkMonadicType γ)
+    discard <| isDefEq (mkApp m' δ) mγ
     return mkApp5 (mkConst ``EarlyReturnT.return [mi.u, mi.v]) ρ mi.m δ instMonad r }
   return {
     mutVars,
@@ -242,9 +240,8 @@ def ControlLifter.synthesizeConts (l : ControlLifter)
   let stateT := stateT?.getD (reassignedMutVars.size > 0)
   let earlyReturnT ← earlyReturnT?.getDM l.returns.get
   let mut controlStack := ControlStack.base l.monadInfo l.instMonad
-  let ρ := (← read).doBlockResultType -- This is the old one, outside the lifting
   if earlyReturnT then
-    controlStack := ControlStack.earlyReturnT ρ controlStack
+    controlStack := ControlStack.earlyReturnT l.returnCont.resultType controlStack
   if stateT then
     let tys ← reassignedMutVars.mapM fun v => return (← getLocalDeclFromUserName v).type
     let σ ← mkProdN tys

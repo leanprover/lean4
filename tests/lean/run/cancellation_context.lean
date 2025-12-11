@@ -27,7 +27,7 @@ partial def testCancelTree : IO Unit := do
     context.cancel .cancel
     Async.sleep 1000
 
-  assert! (← context.countAliveTokens) == 1
+  assert! (← context.countAliveTokens) == 0
   let size ← mutex.atomically get
   IO.println s!"cancelled {size}"
 

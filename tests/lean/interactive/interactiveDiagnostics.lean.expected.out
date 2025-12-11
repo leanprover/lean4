@@ -5,7 +5,7 @@
    "severity": 2,
    "range":
    {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 7}},
-   "message": "declaration uses 'sorry'",
+   "message": "declaration uses `sorry`",
    "fullRange":
    {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 7}}},
   {"source": "Lean 4",

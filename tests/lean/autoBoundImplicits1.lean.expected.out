@@ -1,6 +1,6 @@
 myid 10 : Nat
 myid true : Bool
-autoBoundImplicits1.lean:16:4-16:11: warning: declaration uses 'sorry'
+autoBoundImplicits1.lean:16:4-16:11: warning: declaration uses `sorry`
 autoBoundImplicits1.lean:20:25-20:29: error(lean.unknownIdentifier): Unknown identifier `size`
 
 Note: It is not possible to treat `size` as an implicitly bound variable here because it has multiple characters while the `relaxedAutoImplicit` option is set to `false`.

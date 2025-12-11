@@ -132,7 +132,7 @@ Try this: simp (discharger := sorry) only [Nat.sub_add_cancel]
       x = x
     ==>
       True
-simp_trace.lean:86:0-86:7: warning: declaration uses 'sorry'
+simp_trace.lean:86:0-86:7: warning: declaration uses `sorry`
 Try this: simp only [bla, h] at *
 [Meta.Tactic.simp.rewrite] unfold bla, bla x ==> match h x with
     | Sum.inl (y, z) => y + z

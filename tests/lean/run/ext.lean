@@ -155,7 +155,7 @@ error: Failed to generate an `ext_iff` theorem from `weird_prod_ext`: Argument `
 
 Hint: Try `@[ext (iff := false)]` to prevent generating an `ext_iff` theorem.
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 @[ext]

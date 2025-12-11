@@ -47,15 +47,24 @@ where
     this ▸ s
 termination_by newWidth - curr
 
+@[grind! .]
+theorem blastExtract_le_size (aig : AIG α) (input : ExtractTarget aig w) :
+    aig.decls.size ≤ (blastExtract aig input).aig.decls.size := by
+  intros
+  unfold blastExtract
+  simp
+
+@[grind =]
+theorem blastExtract_decl_eq (aig : AIG α) (input : ExtractTarget aig w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (blastExtract aig input).aig.decls.size) :
+    (blastExtract aig input).aig.decls[idx] = aig.decls[idx]'h1 := by
+  intros
+  unfold blastExtract
+  simp
+
 instance : AIG.LawfulVecOperator α ExtractTarget blastExtract where
-  le_size := by
-    intros
-    unfold blastExtract
-    simp
-  decl_eq := by
-    intros
-    unfold blastExtract
-    simp
+  le_size := blastExtract_le_size
+  decl_eq := blastExtract_decl_eq
 
 end bitblast
 end BVExpr

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Sat.AIG.Cached
+import Init.Grind
 
 @[expose] public section
 
@@ -55,6 +56,7 @@ theorem mkAtomCached_miss_aig (aig : AIG α) (hcache : aig.cache.get? (.atom var
 The AIG produced by `AIG.mkAtomCached` agrees with the input AIG on all indices that are valid for
 both.
 -/
+@[grind =]
 theorem mkAtomCached_decl_eq (aig : AIG α) (var : α) (idx : Nat) {h : idx < aig.decls.size}
     {hbound} :
     (aig.mkAtomCached var).aig.decls[idx]'hbound = aig.decls[idx] := by
@@ -72,12 +74,11 @@ theorem mkAtomCached_decl_eq (aig : AIG α) (var : α) (idx : Nat) {h : idx < ai
 /--
 `AIG.mkAtomCached` never shrinks the underlying AIG.
 -/
+@[grind! .]
 theorem mkAtomCached_le_size (aig : AIG α) (var : α) :
     aig.decls.size ≤ (aig.mkAtomCached var).aig.decls.size := by
   dsimp only [mkAtomCached]
-  split
-  · simp
-  · simp +arith
+  grind
 
 instance : LawfulOperator α (fun _ => α) mkAtomCached where
   le_size := mkAtomCached_le_size
@@ -138,6 +139,7 @@ theorem mkGateCached.go_le_size (aig : AIG α) (input : BinaryInput aig) :
 /--
 `AIG.mkGateCached` never shrinks the underlying AIG.
 -/
+@[grind! .]
 theorem mkGateCached_le_size (aig : AIG α) (input : BinaryInput aig) :
     aig.decls.size ≤ (aig.mkGateCached input).aig.decls.size := by
   dsimp only [mkGateCached]
@@ -147,52 +149,20 @@ theorem mkGateCached_le_size (aig : AIG α) (input : BinaryInput aig) :
 
 theorem mkGateCached.go_decl_eq (aig : AIG α) (input : BinaryInput aig) :
     ∀ (idx : Nat) (h1) (h2), (go aig input).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
-    generalize hres : go aig input = res
-    unfold go at hres
-    dsimp only at hres
-    split at hres
-    · rw [← hres]
-      intros
-      simp
-    · split at hres
-      · rw [← hres]
-        simp
-      · rw [← hres]
-        simp
-      · rw [← hres]
-        intros
-        simp
-      · rw [← hres]
-        intros
-        simp
-      · split at hres
-        · split at hres
-          · rw [← hres]
-            intros
-            simp
-          · rw [← hres]
-            intros
-            simp
-        · rw [← hres]
-          dsimp only
-          intro idx h1 h2
-          rw [Array.getElem_push]
-          simp [h2]
+  generalize hres : go aig input = res
+  unfold go at hres
+  grind
 
 /--
 The AIG produced by `AIG.mkGateCached` agrees with the input AIG on all indices that are valid for
 both.
 -/
+@[grind =]
 theorem mkGateCached_decl_eq (aig : AIG α) (input : BinaryInput aig) :
     ∀ (idx : Nat) (h1) (h2), (aig.mkGateCached input).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
-    generalize hres : mkGateCached aig input = res
-    unfold mkGateCached at hres
-    dsimp only at hres
-    split at hres
-    all_goals
-      rw [← hres]
-      intros
-      rw [mkGateCached.go_decl_eq]
+  generalize hres : mkGateCached aig input = res
+  unfold mkGateCached at hres
+  grind [mkGateCached.go_decl_eq]
 
 instance : LawfulOperator α BinaryInput mkGateCached where
   le_size := mkGateCached_le_size

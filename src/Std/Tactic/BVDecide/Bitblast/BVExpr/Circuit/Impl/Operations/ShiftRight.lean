@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
 public import Std.Sat.AIG.If
+import Init.Grind
 
 @[expose] public section
 
@@ -78,15 +79,24 @@ theorem blastShiftRightConst.go_decl_eq (aig : AIG α) (distance : Nat) (input :
   · simp [← hgo]
 termination_by w - curr
 
+@[grind! .]
+theorem blastShiftRightConst_le_size (aig : AIG α) (input : aig.ShiftTarget w) :
+    aig.decls.size ≤ (blastShiftRightConst aig input).aig.decls.size := by
+  intros
+  unfold blastShiftRightConst
+  apply blastShiftRightConst.go_le_size
+
+@[grind =]
+theorem blastShiftRightConst_decl_eq (aig : AIG α) (input : aig.ShiftTarget w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (blastShiftRightConst aig input).aig.decls.size) :
+    (blastShiftRightConst aig input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold blastShiftRightConst
+  apply blastShiftRightConst.go_decl_eq
+
 instance : AIG.LawfulVecOperator α AIG.ShiftTarget blastShiftRightConst where
-  le_size := by
-    intros
-    unfold blastShiftRightConst
-    apply blastShiftRightConst.go_le_size
-  decl_eq := by
-    intros
-    unfold blastShiftRightConst
-    apply blastShiftRightConst.go_decl_eq
+  le_size := blastShiftRightConst_le_size
+  decl_eq := blastShiftRightConst_decl_eq
 
 def blastArithShiftRightConst (aig : AIG α) (target : AIG.ShiftTarget aig w) :
     AIG.RefVecEntry α w :=
@@ -108,15 +118,20 @@ where
     hcurr ▸ s
 termination_by w - curr
 
+@[grind! .]
+theorem blastArithShiftRightConst_le_size (aig : AIG α) (input : aig.ShiftTarget w) :
+    aig.decls.size ≤ (blastArithShiftRightConst aig input).aig.decls.size := by
+  simp [blastArithShiftRightConst]
+
+@[grind =]
+theorem blastArithShiftRightConst_decl_eq (aig : AIG α) (input : aig.ShiftTarget w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (blastArithShiftRightConst aig input).aig.decls.size) :
+    (blastArithShiftRightConst aig input).aig.decls[idx] = aig.decls[idx]'h1 := by
+  simp [blastArithShiftRightConst]
+
 instance : AIG.LawfulVecOperator α AIG.ShiftTarget blastArithShiftRightConst where
-  le_size := by
-    intros
-    unfold blastArithShiftRightConst
-    simp
-  decl_eq := by
-    intros
-    unfold blastArithShiftRightConst
-    simp
+  le_size := blastArithShiftRightConst_le_size
+  decl_eq := blastArithShiftRightConst_decl_eq
 
 structure TwoPowShiftTarget (aig : AIG α) (w : Nat) where
   n : Nat
@@ -140,25 +155,24 @@ def twoPowShift (aig : AIG α) (target : TwoPowShiftTarget aig w) : AIG.RefVecEn
   else
     ⟨aig, lhs⟩
 
+@[grind! .]
+theorem twoPowShift_le_size (aig : AIG α) (input : TwoPowShiftTarget aig w) :
+    aig.decls.size ≤ (twoPowShift aig input).aig.decls.size := by
+  intros
+  unfold twoPowShift
+  grind
+
+@[grind =]
+theorem twoPowShift_decl_eq (aig : AIG α) (input : TwoPowShiftTarget aig w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (twoPowShift aig input).aig.decls.size) :
+    (twoPowShift aig input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold twoPowShift
+  grind
+
 instance : AIG.LawfulVecOperator α TwoPowShiftTarget twoPowShift where
-  le_size := by
-    intros
-    unfold twoPowShift
-    dsimp only
-    split
-    · apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.ite)
-      apply AIG.LawfulVecOperator.le_size (f := blastShiftRightConst)
-    · simp
-  decl_eq := by
-    intros
-    unfold twoPowShift
-    dsimp only
-    split
-    · rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
-      rw [AIG.LawfulVecOperator.decl_eq (f := blastShiftRightConst)]
-      apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastShiftRightConst)
-      assumption
-    · simp
+  le_size := twoPowShift_le_size
+  decl_eq := twoPowShift_decl_eq
 
 end blastShiftRight
 
@@ -189,6 +203,7 @@ where
       ⟨aig, acc⟩
   termination_by n - 1 - curr
 
+@[grind! .]
 theorem blastShiftRight.go_le_size (aig : AIG α) (distance : AIG.RefVec aig n) (curr : Nat)
     (acc : AIG.RefVec aig w) :
     aig.decls.size ≤ (go aig distance curr acc).aig.decls.size := by
@@ -200,6 +215,7 @@ theorem blastShiftRight.go_le_size (aig : AIG α) (distance : AIG.RefVec aig n) 
   · simp
 termination_by n - 1 - curr
 
+@[grind =]
 theorem blastShiftRight.go_decl_eq (aig : AIG α) (distance : AIG.RefVec aig n) (curr : Nat)
     (acc : AIG.RefVec aig w) :
     ∀ (idx : Nat) (h1) (h2),
@@ -217,26 +233,24 @@ theorem blastShiftRight.go_decl_eq (aig : AIG α) (distance : AIG.RefVec aig n) 
   · simp [← hgo]
 termination_by n - 1 - curr
 
+@[grind! .]
+theorem blastShiftRight_le_size (aig : AIG α) (input : aig.ArbitraryShiftTarget w) :
+    aig.decls.size ≤ (blastShiftRight aig input).aig.decls.size := by
+  intros
+  unfold blastShiftRight
+  grind
+
+@[grind =]
+theorem blastShiftRight_decl_eq (aig : AIG α) (input : aig.ArbitraryShiftTarget w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (blastShiftRight aig input).aig.decls.size) :
+    (blastShiftRight aig input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold blastShiftRight
+  grind
 
 instance : AIG.LawfulVecOperator α AIG.ArbitraryShiftTarget blastShiftRight where
-  le_size := by
-    intros
-    unfold blastShiftRight
-    dsimp only
-    split
-    · simp
-    · refine Nat.le_trans ?_ (by apply blastShiftRight.go_le_size)
-      apply AIG.LawfulVecOperator.le_size (f := blastShiftRight.twoPowShift)
-  decl_eq := by
-    intros
-    unfold blastShiftRight
-    dsimp only
-    split
-    · simp
-    · rw [blastShiftRight.go_decl_eq]
-      rw [AIG.LawfulVecOperator.decl_eq (f := blastShiftRight.twoPowShift)]
-      apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastShiftRight.twoPowShift)
-      assumption
+  le_size := blastShiftRight_le_size
+  decl_eq := blastShiftRight_decl_eq
 
 namespace blastArithShiftRight
 
@@ -254,25 +268,24 @@ def twoPowShift (aig : AIG α) (target : TwoPowShiftTarget aig w) : AIG.RefVecEn
   else
     ⟨aig, lhs⟩
 
-instance : AIG.LawfulVecOperator α TwoPowShiftTarget twoPowShift where
-  le_size := by
-    intros
-    unfold twoPowShift
-    dsimp only
-    split
-    · apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.ite)
-      apply AIG.LawfulVecOperator.le_size (f := blastArithShiftRightConst)
-    · simp
-  decl_eq := by
-    intros
-    unfold twoPowShift
-    dsimp only
-    split
-    · rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
-      rw [AIG.LawfulVecOperator.decl_eq (f := blastArithShiftRightConst)]
-      apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastArithShiftRightConst)
-      assumption
-    · simp
+@[grind! .]
+theorem twoPowShift_le_size (aig : AIG α) (input : TwoPowShiftTarget aig w) :
+    aig.decls.size ≤ (twoPowShift aig input).aig.decls.size := by
+  intros
+  unfold twoPowShift
+  grind
+
+@[grind =]
+theorem twoPowShift_decl_eq (aig : AIG α) (input : TwoPowShiftTarget aig w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (twoPowShift aig input).aig.decls.size) :
+    (twoPowShift aig input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold twoPowShift
+  grind
+
+instance res : AIG.LawfulVecOperator α TwoPowShiftTarget twoPowShift where
+  le_size := twoPowShift_le_size
+  decl_eq := twoPowShift_decl_eq
 
 end blastArithShiftRight
 
@@ -303,6 +316,7 @@ where
       ⟨aig, acc⟩
   termination_by n - 1 - curr
 
+@[grind! .]
 theorem blastArithShiftRight.go_le_size (aig : AIG α) (distance : AIG.RefVec aig n) (curr : Nat)
     (acc : AIG.RefVec aig w) :
     aig.decls.size ≤ (go aig distance curr acc).aig.decls.size := by
@@ -314,6 +328,7 @@ theorem blastArithShiftRight.go_le_size (aig : AIG α) (distance : AIG.RefVec ai
   · simp
 termination_by n - 1 - curr
 
+@[grind =]
 theorem blastArithShiftRight.go_decl_eq (aig : AIG α) (distance : AIG.RefVec aig n) (curr : Nat)
     (acc : AIG.RefVec aig w) :
     ∀ (idx : Nat) (h1) (h2),
@@ -325,32 +340,28 @@ theorem blastArithShiftRight.go_decl_eq (aig : AIG α) (distance : AIG.RefVec ai
   · rw [← hgo]
     intros
     rw [blastArithShiftRight.go_decl_eq]
-    rw [AIG.LawfulVecOperator.decl_eq (f := blastArithShiftRight.twoPowShift)]
-    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastArithShiftRight.twoPowShift)
-    assumption
+    all_goals grind
   · simp [← hgo]
 termination_by n - 1 - curr
 
+@[grind! .]
+theorem blastArithShiftRight_le_size (aig : AIG α) (input : aig.ArbitraryShiftTarget w) :
+    aig.decls.size ≤ (blastArithShiftRight aig input).aig.decls.size := by
+  intros
+  unfold blastArithShiftRight
+  grind
+
+@[grind =]
+theorem blastArithShiftRight_decl_eq (aig : AIG α) (input : aig.ArbitraryShiftTarget w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (blastArithShiftRight aig input).aig.decls.size) :
+    (blastArithShiftRight aig input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold blastArithShiftRight
+  grind
 
 instance : AIG.LawfulVecOperator α AIG.ArbitraryShiftTarget blastArithShiftRight where
-  le_size := by
-    intros
-    unfold blastArithShiftRight
-    dsimp only
-    split
-    · simp
-    · refine Nat.le_trans ?_ (by apply blastArithShiftRight.go_le_size)
-      apply AIG.LawfulVecOperator.le_size (f := blastArithShiftRight.twoPowShift)
-  decl_eq := by
-    intros
-    unfold blastArithShiftRight
-    dsimp only
-    split
-    · simp
-    · rw [blastArithShiftRight.go_decl_eq]
-      rw [AIG.LawfulVecOperator.decl_eq (f := blastArithShiftRight.twoPowShift)]
-      apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastArithShiftRight.twoPowShift)
-      assumption
+  le_size := blastArithShiftRight_le_size
+  decl_eq := blastArithShiftRight_decl_eq
 
 end bitblast
 end BVExpr

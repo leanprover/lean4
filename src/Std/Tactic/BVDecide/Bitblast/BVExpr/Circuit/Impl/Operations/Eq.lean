@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Sat.AIG.RefVecOperator
+import Init.Grind
 
 @[expose] public section
 
@@ -28,21 +29,24 @@ def mkEq (aig : AIG α) (pair : AIG.BinaryRefVec aig w) : AIG.Entrypoint α :=
   let bits := res.vec
   AIG.RefVec.fold aig bits AIG.mkAndCached
 
+@[grind! .]
+theorem mkEq_le_size (aig : AIG α) (input : aig.BinaryRefVec w) :
+    aig.decls.size ≤ (mkEq aig input).aig.decls.size := by
+  intros
+  unfold mkEq
+  grind
+
+@[grind =]
+theorem mkEq_decl_eq (aig : AIG α) (input : aig.BinaryRefVec w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (mkEq aig input).aig.decls.size) :
+    (mkEq aig input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold mkEq
+  grind
+
 instance {w : Nat} : AIG.LawfulOperator α (AIG.BinaryRefVec · w) mkEq where
-  le_size := by
-    intros
-    unfold mkEq
-    dsimp only
-    apply AIG.RefVec.fold_le_size_of_le_aig_size
-    apply AIG.RefVec.zip_le_size
-  decl_eq := by
-    intros
-    unfold mkEq
-    dsimp only
-    rw [AIG.RefVec.fold_decl_eq]
-    rw [AIG.RefVec.zip_decl_eq]
-    apply AIG.RefVec.zip_lt_size_of_lt_aig_size
-    assumption
+  le_size := mkEq_le_size
+  decl_eq := mkEq_decl_eq
 
 end BVPred
 

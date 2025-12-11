@@ -47,16 +47,25 @@ where
     hcurr ▸ s
 termination_by w - curr
 
+@[grind! .]
+theorem blastRotateLeft_le_size (aig : AIG α) (input : aig.ShiftTarget w) :
+    aig.decls.size ≤ (blastRotateLeft aig input).aig.decls.size := by
+  intros
+  unfold blastRotateLeft
+  dsimp only
+  omega
+
+@[grind =]
+theorem blastRotateLeft_decl_eq (aig : AIG α) (input : aig.ShiftTarget w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (blastRotateLeft aig input).aig.decls.size) :
+    (blastRotateLeft aig input).aig.decls[idx] = aig.decls[idx]'h1 := by
+  intros
+  unfold blastRotateLeft
+  dsimp only
+
 instance : AIG.LawfulVecOperator α AIG.ShiftTarget blastRotateLeft where
-  le_size := by
-    intros
-    unfold blastRotateLeft
-    dsimp only
-    omega
-  decl_eq := by
-    intros
-    unfold blastRotateLeft
-    dsimp only
+  le_size := blastRotateLeft_le_size
+  decl_eq := blastRotateLeft_decl_eq
 
 end bitblast
 end BVExpr

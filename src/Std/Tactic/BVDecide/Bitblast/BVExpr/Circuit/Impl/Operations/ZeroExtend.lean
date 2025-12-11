@@ -79,15 +79,24 @@ termination_by newWidth - curr
 
 end blastZeroExtend
 
+@[grind! .]
+theorem blastZeroExtend_le_size (aig : AIG α) (input : aig.ExtendTarget w) :
+    aig.decls.size ≤ (blastZeroExtend aig input).aig.decls.size := by
+  intros
+  unfold blastZeroExtend
+  apply blastZeroExtend.go_le_size
+
+@[grind =]
+theorem blastZeroExtend_decl_eq (aig : AIG α) (input : aig.ExtendTarget w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (blastZeroExtend aig input).aig.decls.size) :
+    (blastZeroExtend aig input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold blastZeroExtend
+  apply blastZeroExtend.go_decl_eq
+
 instance : AIG.LawfulVecOperator α AIG.ExtendTarget blastZeroExtend where
-  le_size := by
-    intros
-    unfold blastZeroExtend
-    apply blastZeroExtend.go_le_size
-  decl_eq := by
-    intros
-    unfold blastZeroExtend
-    apply blastZeroExtend.go_decl_eq
+  le_size := blastZeroExtend_le_size
+  decl_eq := blastZeroExtend_decl_eq
 
 end bitblast
 end BVExpr

@@ -54,6 +54,7 @@ theorem fold.go_le_size {aig : AIG α} (acc : Ref aig) (idx : Nat) (s : RefVec a
   · simp
   termination_by len - idx
 
+@[grind! .]
 theorem fold_le_size {aig : AIG α} (vec : RefVec aig len)
     (func : (aig : AIG α) → BinaryInput aig → Entrypoint α)
     [LawfulOperator α BinaryInput func] :
@@ -81,6 +82,7 @@ theorem fold.go_decl_eq {aig : AIG α} (acc : Ref aig) (i : Nat) (s : RefVec aig
     simp
 termination_by len - i
 
+@[grind =]
 theorem fold_decl_eq {aig : AIG α} (vec : RefVec aig len)
     (func : (aig : AIG α) → BinaryInput aig → Entrypoint α) [LawfulOperator α BinaryInput func] :
     ∀ idx (h1 : idx < aig.decls.size) (h2),

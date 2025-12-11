@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Sat.AIG.LawfulVecOperator
+import Init.Grind
 
 @[expose] public section
 
@@ -60,32 +61,24 @@ def mkIfCached (aig : AIG α) (input : TernaryInput aig) : Entrypoint α :=
     apply AIG.LawfulOperator.le_size (f := mkNotCached)
   aig.mkOrCached ⟨lhsRef, rhsRef⟩
 
+@[grind! .]
+theorem mkIfCached_le_size (aig : AIG α) (input : aig.TernaryInput) :
+    aig.decls.size ≤ (aig.mkIfCached input).aig.decls.size := by
+  intros
+  unfold mkIfCached
+  grind
+
+@[grind =]
+theorem mkIfCached_decl_eq (aig : AIG α) (input : aig.TernaryInput) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (aig.mkIfCached input).aig.decls.size) :
+    (aig.mkIfCached input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold mkIfCached
+  grind
+
 instance : LawfulOperator α TernaryInput mkIfCached where
-  le_size := by
-    intros
-    unfold mkIfCached
-    dsimp only
-    apply LawfulOperator.le_size_of_le_aig_size (f := mkOrCached)
-    apply LawfulOperator.le_size_of_le_aig_size (f := mkAndCached)
-    apply LawfulOperator.le_size_of_le_aig_size (f := mkNotCached)
-    apply LawfulOperator.le_size (f := mkAndCached)
-  decl_eq := by
-    intros
-    unfold mkIfCached
-    dsimp only
-    rw [LawfulOperator.decl_eq (f := mkOrCached)]
-    rw [LawfulOperator.decl_eq (f := mkAndCached)]
-    rw [LawfulOperator.decl_eq (f := mkNotCached)]
-    rw [LawfulOperator.decl_eq (f := mkAndCached)]
-    · apply LawfulOperator.lt_size_of_lt_aig_size (f := mkAndCached)
-      omega
-    · apply LawfulOperator.lt_size_of_lt_aig_size (f := mkNotCached)
-      apply LawfulOperator.lt_size_of_lt_aig_size (f := mkAndCached)
-      omega
-    · apply LawfulOperator.lt_size_of_lt_aig_size (f := mkAndCached)
-      apply LawfulOperator.lt_size_of_lt_aig_size (f := mkNotCached)
-      apply LawfulOperator.lt_size_of_lt_aig_size (f := mkAndCached)
-      omega
+  le_size := mkIfCached_le_size
+  decl_eq := mkIfCached_decl_eq
 
 theorem if_as_bool (d l r : Bool) : (if d then l else r) = ((d && l) || (!d && r))  := by
   revert d l r
@@ -172,15 +165,25 @@ termination_by w - curr
 
 end ite
 
+@[grind! .]
+theorem ite_le_size (aig : AIG α) (input : IfInput aig w) :
+    aig.decls.size ≤ (ite aig input).aig.decls.size := by
+  intros
+  unfold ite
+  apply ite.go_le_size
+
+
+@[grind =]
+theorem ite_decl_eq (aig : AIG α) (input : IfInput aig w) (idx : Nat) (h1 : idx < aig.decls.size)
+    (h2 : idx < (ite aig input).aig.decls.size) :
+    (ite aig input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold ite
+  rw [ite.go_decl_eq]
+
 instance : LawfulVecOperator α IfInput ite where
-  le_size := by
-    intros
-    unfold ite
-    apply ite.go_le_size
-  decl_eq := by
-    intros
-    unfold ite
-    rw [ite.go_decl_eq]
+  le_size := ite_le_size
+  decl_eq := ite_decl_eq
 
 namespace ite
 

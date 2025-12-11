@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Carry
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Not
+import Init.Grind
 
 @[expose] public section
 
@@ -38,26 +39,24 @@ def mkUlt (aig : AIG α) (pair : AIG.BinaryRefVec aig w) : AIG.Entrypoint α :=
   let overflowRef := res.ref
   aig.mkNotCached overflowRef
 
+@[grind! .]
+theorem mkUlt_le_size (aig : AIG α) (input : aig.BinaryRefVec w) :
+    aig.decls.size ≤ (mkUlt aig input).aig.decls.size := by
+  intros
+  unfold mkUlt
+  grind
+
+@[grind =]
+theorem mkUlt_decl_eq (aig : AIG α) (input : aig.BinaryRefVec w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (mkUlt aig input).aig.decls.size) :
+    (mkUlt aig input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold mkUlt
+  grind
+
 instance {w : Nat} : AIG.LawfulOperator α (AIG.BinaryRefVec · w) mkUlt where
-  le_size := by
-    intros
-    unfold mkUlt
-    dsimp only
-    apply AIG.LawfulOperator.le_size_of_le_aig_size (f := AIG.mkNotCached)
-    apply AIG.LawfulOperator.le_size_of_le_aig_size (f := BVExpr.bitblast.mkOverflowBit)
-    apply AIG.LawfulVecOperator.le_size (f := BVExpr.bitblast.blastNot)
-  decl_eq := by
-    intros
-    unfold mkUlt
-    dsimp only
-    rw [AIG.LawfulOperator.decl_eq (f := AIG.mkNotCached)]
-    rw [AIG.LawfulOperator.decl_eq (f := BVExpr.bitblast.mkOverflowBit)]
-    rw [AIG.LawfulVecOperator.decl_eq (f := BVExpr.bitblast.blastNot)]
-    · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast.blastNot)
-      assumption
-    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast.mkOverflowBit)
-      apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast.blastNot)
-      assumption
+  le_size := mkUlt_le_size
+  decl_eq := mkUlt_decl_eq
 
 end BVPred
 

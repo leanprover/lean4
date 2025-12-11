@@ -9,6 +9,7 @@ prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Not
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
+import Init.Grind
 
 @[expose] public section
 
@@ -34,21 +35,24 @@ def blastNeg (aig : AIG α) (input : AIG.RefVec aig w) : AIG.RefVecEntry α w :=
 
   blastAdd aig ⟨notInput, one⟩
 
+@[grind! .]
+theorem blastNeg_le_size (aig : AIG α) (input : aig.RefVec w) :
+    aig.decls.size ≤ (blastNeg aig input).aig.decls.size := by
+  intros
+  unfold blastNeg
+  grind
+
+@[grind =]
+theorem blastNeg_decl_eq (aig : AIG α) (input : aig.RefVec w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (blastNeg aig input).aig.decls.size) :
+    (blastNeg aig input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold blastNeg
+  grind
+
 instance : AIG.LawfulVecOperator α AIG.RefVec blastNeg where
-  le_size := by
-    intros
-    unfold blastNeg
-    dsimp only
-    apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := blastAdd)
-    apply AIG.LawfulVecOperator.le_size (f := blastNot)
-  decl_eq := by
-    intros
-    unfold blastNeg
-    dsimp only
-    rw [AIG.LawfulVecOperator.decl_eq (f := blastAdd)]
-    rw [AIG.LawfulVecOperator.decl_eq (f := blastNot)]
-    · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastNot)
-      assumption
+  le_size := blastNeg_le_size
+  decl_eq := blastNeg_decl_eq
 
 end bitblast
 end BVExpr

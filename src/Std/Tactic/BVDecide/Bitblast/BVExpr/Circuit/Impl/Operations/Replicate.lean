@@ -46,9 +46,20 @@ where
       this ▸ s
   termination_by n - curr
 
+@[grind! .]
+theorem blastReplicate_le_size (aig : AIG α) (input : ReplicateTarget aig w) :
+    aig.decls.size ≤ (blastReplicate aig input).aig.decls.size := by
+  simp [blastReplicate]
+
+@[grind =]
+theorem blastReplicate_decl_eq (aig : AIG α) (input : ReplicateTarget aig w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (blastReplicate aig input).aig.decls.size) :
+    (blastReplicate aig input).aig.decls[idx] = aig.decls[idx]'h1 := by
+  simp [blastReplicate]
+
 instance : AIG.LawfulVecOperator α ReplicateTarget blastReplicate where
-  le_size := by simp [blastReplicate]
-  decl_eq := by simp [blastReplicate]
+  le_size := blastReplicate_le_size
+  decl_eq := blastReplicate_decl_eq
 
 end bitblast
 end BVExpr

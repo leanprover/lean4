@@ -37,9 +37,20 @@ def blastAppend (aig : AIG α) (target : AppendTarget aig newWidth) :
   let combined := rhs.append lhs
   ⟨aig, h ▸ combined⟩
 
+@[grind! .]
+theorem blastAppend_le_size (aig : AIG α) (input : AppendTarget aig w) :
+    aig.decls.size ≤ (blastAppend aig input).aig.decls.size := by
+  simp [blastAppend]
+
+@[grind =]
+theorem blastAppend_decl_eq (aig : AIG α) (input : AppendTarget aig w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (blastAppend aig input).aig.decls.size) :
+    (blastAppend aig input).aig.decls[idx] = aig.decls[idx]'h1 := by
+  simp [blastAppend]
+
 instance : AIG.LawfulVecOperator α AppendTarget blastAppend where
-  le_size := by simp [blastAppend]
-  decl_eq := by simp [blastAppend]
+  le_size := blastAppend_le_size
+  decl_eq := blastAppend_decl_eq
 
 end bitblast
 end BVExpr

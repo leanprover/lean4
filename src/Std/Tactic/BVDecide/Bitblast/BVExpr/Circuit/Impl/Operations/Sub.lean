@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Neg
+import Init.Grind
 
 @[expose] public section
 
@@ -32,20 +33,24 @@ def blastSub (aig : AIG α) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry �
 
   blastAdd aig ⟨lhs, negRhs⟩
 
-instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastSub where
-  le_size := by
-    intros
-    unfold blastSub
-    apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := blastAdd)
-    apply AIG.LawfulVecOperator.le_size (f := blastNeg)
-  decl_eq := by
-    intros
-    unfold blastSub
-    rw [AIG.LawfulVecOperator.decl_eq (f := blastAdd)]
-    rw [AIG.LawfulVecOperator.decl_eq (f := blastNeg)]
-    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastNeg)
-    assumption
+@[grind! .]
+theorem blastSub_le_size (aig : AIG α) (input : aig.BinaryRefVec w) :
+    aig.decls.size ≤ (blastSub aig input).aig.decls.size := by
+  intros
+  unfold blastSub
+  grind
 
+@[grind =]
+theorem blastSub_decl_eq (aig : AIG α) (input : aig.BinaryRefVec w) (idx : Nat)
+   (h1 : idx < aig.decls.size) (h2 : idx < (blastSub aig input).aig.decls.size) :
+   (blastSub aig input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold blastSub
+  grind
+
+instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastSub where
+  le_size := blastSub_le_size
+  decl_eq := blastSub_decl_eq
 
 end bitblast
 end BVExpr

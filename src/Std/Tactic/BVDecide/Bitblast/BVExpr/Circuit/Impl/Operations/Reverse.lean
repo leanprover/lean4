@@ -28,9 +28,20 @@ def blastReverse (aig : AIG α) (s : AIG.RefVec aig w) : AIG.RefVecEntry α w :=
   let ⟨refs, hrefs⟩ := s
   ⟨aig, ⟨refs.reverse, by simp [hrefs]⟩⟩
 
+@[grind! .]
+theorem blastReverse_le_size (aig : AIG α) (input : aig.RefVec w) :
+    aig.decls.size ≤ (blastReverse aig input).aig.decls.size := by
+  simp [blastReverse]
+
+@[grind =]
+theorem blastReverse_decl_eq (aig : AIG α) (input : aig.RefVec w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (blastReverse aig input).aig.decls.size) :
+    (blastReverse aig input).aig.decls[idx] = aig.decls[idx]'h1 := by
+  simp [blastReverse]
+
 instance : AIG.LawfulVecOperator α AIG.RefVec blastReverse where
-  le_size := by simp [blastReverse]
-  decl_eq := by simp [blastReverse]
+  le_size := blastReverse_le_size
+  decl_eq := blastReverse_decl_eq
 
 end bitblast
 end BVExpr

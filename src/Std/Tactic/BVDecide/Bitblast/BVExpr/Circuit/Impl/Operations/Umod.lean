@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
+import Init.Grind
 
 @[expose] public section
 
@@ -45,24 +46,24 @@ def blastUmod (aig : AIG α) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry 
 
   AIG.RefVec.ite aig ⟨discr, lhs, modRes⟩
 
+@[grind! .]
+theorem blastUmod_le_size (aig : AIG α) (input : aig.BinaryRefVec w) :
+    aig.decls.size ≤ (blastUmod aig input).aig.decls.size := by
+  intros
+  unfold blastUmod
+  grind
+
+@[grind =]
+theorem blastUmod_decl_eq (aig : AIG α) (input : aig.BinaryRefVec w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (blastUmod aig input).aig.decls.size) :
+    (blastUmod aig input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold blastUmod
+  grind
+
 instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastUmod where
-  le_size := by
-    intros
-    unfold blastUmod
-    apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.ite)
-    refine Nat.le_trans ?_ (by apply blastUdiv.go_le_size)
-    apply AIG.LawfulOperator.le_size (f := BVPred.mkEq)
-  decl_eq := by
-    intros
-    unfold blastUmod
-    rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
-    rw [blastUdiv.go_decl_eq]
-    rw [AIG.LawfulOperator.decl_eq (f := BVPred.mkEq)]
-    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkEq)
-      assumption
-    · refine Nat.le_trans ?_ (by apply blastUdiv.go_le_size)
-      apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkEq)
-      assumption
+  le_size := blastUmod_le_size
+  decl_eq := blastUmod_decl_eq
 
 end bitblast
 end BVExpr

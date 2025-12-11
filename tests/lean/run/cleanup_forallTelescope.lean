@@ -29,7 +29,7 @@ def f (x := 0) (_ : x = x := by rfl) : Nat := x+1
 
 
 /--
-info: (x : optParam Nat 0) → autoParam (x = x) _auto✝ → Nat
+info: (x : optParam Nat 0) → autoParam (x = x) f._auto_1 → Nat
 ---
 (x : Nat) → x = x → Nat
 -/

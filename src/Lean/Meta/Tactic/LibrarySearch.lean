@@ -385,8 +385,10 @@ private def librarySearch' (goal : MVarId)
       -- Only do star fallback if:
       -- 1. No complete solutions from primary search (when collectAll, check for empty remaining)
       -- 2. includeStar is true
+      -- When collectAll = false, any result means we should skip star fallback (return partial).
+      -- When collectAll = true, we continue to star lemmas unless we have a complete solution.
       let hasCompleteSolution := results.any (·.1.isEmpty)
-      if hasCompleteSolution || !results.isEmpty || !includeStar then
+      if hasCompleteSolution || (!collectAll && !results.isEmpty) || !includeStar then
         return some results
       -- Second pass: try star-indexed lemmas (those with [*] or [Eq,*,*,*] keys)
       -- No need for librarySearchSymm since getStarLemmas ignores the goal type
@@ -394,7 +396,9 @@ private def librarySearch' (goal : MVarId)
       if starLemmas.isEmpty then return some results
       let mctx ← getMCtx
       let starCandidates := starLemmas.map ((goal, mctx), ·)
-      tryOnEach act starCandidates collectAll
+      match ← tryOnEach act starCandidates collectAll with
+      | none => return none  -- Found complete solution from star lemmas
+      | some starResults => return some (results ++ starResults)
 
 /--
 Tries to solve the goal by applying a library lemma

@@ -485,3 +485,9 @@ info: Try this:
 example {A B : Bool} : (A = B) = (A ↔ B) := by apply? -star
 
 end MinusStar
+
+-- Test that `+all` includes star-indexed lemmas even when partial results exist from primary search.
+-- `Empty.elim` is star-indexed (polymorphic result type).
+-- This verifies the fix for the bug where star fallback was skipped when partial results existed.
+#guard_msgs (drop info) in
+example {α : Sort u} (h : Empty) : α := by apply? +all

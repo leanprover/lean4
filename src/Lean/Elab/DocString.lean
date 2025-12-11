@@ -86,6 +86,9 @@ structure State where
   -/
   lctx : LocalContext
   /--
+  -/
+  localInstances : LocalInstances
+  /--
   The options.
 
   The `MonadLift TermElabM DocM` instance runs the lifted action with these options, so elaboration
@@ -129,10 +132,10 @@ instance : MonadStateOf State DocM :=
 
 instance : MonadLift TermElabM DocM where
   monadLift act := private DocM.mk fun _ _ st' => do
-    let {openDecls, lctx, options, ..} := (← st'.get)
+    let {openDecls, lctx, options, localInstances, ..} := (← st'.get)
     let v ←
       withTheReader Core.Context (fun ρ => { ρ with openDecls, options }) <|
-      withTheReader Meta.Context (fun ρ => { ρ with lctx }) <|
+      withTheReader Meta.Context (fun ρ => { ρ with lctx, localInstances }) <|
       act
     return v
 
@@ -144,16 +147,19 @@ private builtin_initialize modDocstringStateExt : EnvExtension (Option ModuleDoc
   registerEnvExtension (pure none)
 
 private def getModState
-    [Monad m] [MonadEnv m] [MonadLiftT IO m] [MonadLCtx m]
+    [Monad m] [MonadEnv m] [MonadLiftT IO m] [MonadLiftT MetaM m] [MonadLCtx m]
     [MonadResolveName m] [MonadOptions m] : m ModuleDocstringState := do
   if let some st := modDocstringStateExt.getState (← getEnv) then
     return st
   else
-    let lctx ← getLCtx
-    let openDecls ← getOpenDecls
-    let options ← getOptions
     let scopes := [{header := "", isPublic := true}]
-    let st : ModuleDocstringState := { scopes, openDecls, lctx, options, scopedExts := #[] }
+    let openDecls ← getOpenDecls
+    let lctx ← getLCtx
+    let localInstances ← Meta.getLocalInstances
+    let options ← getOptions
+    let scopedExts := #[]
+    let st : ModuleDocstringState :=
+      { scopes, openDecls, lctx, localInstances, options, scopedExts }
     modifyEnv fun env =>
       modDocstringStateExt.setState env st
     return st
@@ -197,7 +203,7 @@ def DocM.exec (declName : Name) (binders : Syntax) (act : DocM α)
       let options ← getOptions
       let scopes := [{header := "", isPublic := true}]
       let ((v, _), _) ← withTheReader Meta.Context (fun ρ => { ρ with localInstances }) <|
-        act.run { suggestionMode } |>.run {} |>.run { scopes, openDecls, lctx, options }
+        act.run { suggestionMode } |>.run {} |>.run { scopes, openDecls, lctx, localInstances, options }
       pure v
     finally
       scopedEnvExtensionsRef.set sc
@@ -272,7 +278,7 @@ where
     ids.getArgs.mapM fun x =>
       if x.getKind == identKind || x.getKind == ``hole then
         pure (some x)
-      else throwErrorAt x "identifer or `_` expected"
+      else throwErrorAt x "identifier or `_` expected"
 
 
 set_option linter.unusedVariables false in

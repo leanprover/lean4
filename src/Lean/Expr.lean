@@ -218,7 +218,7 @@ This is a persistent data structure implemented using `Std.TreeSet`. -/
 @[expose] def FVarIdSet := Std.TreeSet FVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
-instance : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
+instance [Monad m] : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
 def FVarIdSet.insert (s : FVarIdSet) (fvarId : FVarId) : FVarIdSet :=
   Std.TreeSet.insert s fvarId
@@ -272,7 +272,7 @@ def MVarIdSet.ofList (l : List MVarId) : MVarIdSet :=
 def MVarIdSet.ofArray (l : Array MVarId) : MVarIdSet :=
   Std.TreeSet.ofArray l _
 
-instance : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
+instance [Monad m] : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
 @[expose] def MVarIdMap (α : Type) := Std.TreeMap MVarId α (Name.quickCmp ·.name ·.name)
 
@@ -281,7 +281,7 @@ def MVarIdMap.insert (s : MVarIdMap α) (mvarId : MVarId) (a : α) : MVarIdMap �
 
 instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (Std.TreeMap _ _ _))
 
-instance : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) ..)
+instance [Monad m] : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) ..)
 
 instance : Inhabited (MVarIdMap α) where
   default := {}
@@ -952,17 +952,29 @@ def isCharLit : Expr → Bool
   | app (const c _) a => c == ``Char.ofNat && a.isRawNatLit
   | _                 => false
 
+/--
+If the expression is a constant, return that name.
+Otherwise panic.
+-/
 def constName! : Expr → Name
   | const n _ => n
   | _         => panic! "constant expected"
 
+/--
+If the expression is a constant, return that name.
+Otherwise return `Option.none`.
+-/
 def constName? : Expr → Option Name
   | const n _ => some n
   | _         => none
 
-/-- If the expression is a constant, return that name. Otherwise return `Name.anonymous`. -/
+/--
+If the expression is a constant, return that name.
+Otherwise return `Name.anonymous`.
+-/
 def constName (e : Expr) : Name :=
   e.constName?.getD Name.anonymous
+
 
 def constLevels! : Expr → List Level
   | const _ ls => ls

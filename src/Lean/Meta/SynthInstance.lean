@@ -861,7 +861,6 @@ private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <|
               return true
 
 register_builtin_option trace.Meta.synthInstance : Bool := {
-  group := "trace"
   defValue := false
   descr := "track the backtracking attempt to synthesize type class instances"
 }

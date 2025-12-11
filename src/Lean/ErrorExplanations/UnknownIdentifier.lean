@@ -188,11 +188,11 @@ qualified function name.
 ## Auto-bound variables
 
 ```lean broken
-set autoImplicit false in
+set_option relaxedAutoImplicit false in
 def thisBreaks (x : α₁) (y : size₁) := ()
 
-set relaxedAutoImplicit false in
-def thisBreaks (x : α₂) (y : size₂) := ()
+set_option autoImplicit false in
+def thisAlsoBreaks (x : α₂) (y : size₂) := ()
 ```
 ```output
 Unknown identifier `size₁`
@@ -206,18 +206,18 @@ Unknown identifier `size₂`
 Note: It is not possible to treat `size₂` as an implicitly bound variable here because the `autoImplicit` option is set to `false`.
 ```
 ```lean fixed (title := "Fixed (modifying options)")
-set autoImplicit true in
-def thisBreaks (x : α₁) (y : size₁) := ()
+set_option relaxedAutoImplicit true in
+def thisWorks (x : α₁) (y : size₁) := ()
 
-set relaxedAutoImplicit true in
-def thisBreaks (x : α₂) (y : size₂) := ()
+set_option autoImplicit true in
+def thisAlsoWorks (x : α₂) (y : size₂) := ()
 ```
 ```lean fixed (title := "Fixed (add implicit bindings for the unknown identifiers)")
-set autoImplicit false in
-def thisBreaks {size₁} (x : α₁) (y : size₁) := ()
+set_option relaxedAutoImplicit false in
+def thisWorks {size₁} (x : α₁) (y : size₁) := ()
 
-set relaxedAutoImplicit false in
-def thisBreaks {α₂ size₂} (x : α₂) (y : size₂) := ()
+set_option autoImplicit false in
+def thisAlsoWorks {α₂ size₂} (x : α₂) (y : size₂) := ()
 ```
 
 Lean's default behavior, when it encounters an identifier it can't identify in the type of a

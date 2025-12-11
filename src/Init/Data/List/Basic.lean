@@ -301,7 +301,7 @@ Examples:
 def getLast : ∀ (as : List α), as ≠ [] → α
   | [],       h => absurd rfl h
   | [a],      _ => a
-  | _::b::as, _ => getLast (b::as) (fun h => List.noConfusion h)
+  | _::b::as, _ => getLast (b::as) (fun h => List.noConfusion rfl (heq_of_eq h))
 
 /-! ### getLast? -/
 
@@ -318,7 +318,7 @@ Examples:
 -/
 def getLast? : List α → Option α
   | []    => none
-  | a::as => some (getLast (a::as) (fun h => List.noConfusion h))
+  | a::as => some (getLast (a::as) (fun h => List.noConfusion rfl (heq_of_eq h)))
 
 @[simp, grind =] theorem getLast?_nil : @getLast? α [] = none := rfl
 
@@ -337,7 +337,7 @@ Examples:
 -/
 def getLastD : (as : List α) → (fallback : α) → α
   | [],   a₀ => a₀
-  | a::as, _ => getLast (a::as) (fun h => List.noConfusion h)
+  | a::as, _ => getLast (a::as) (fun h => List.noConfusion rfl (heq_of_eq h))
 
 -- These aren't `simp` lemmas since we always simplify `getLastD` in terms of `getLast?`.
 theorem getLastD_nil {a : α} : getLastD [] a = a := rfl
@@ -1607,8 +1607,8 @@ such element is found.
 `O(|l|)`.
 
 Examples:
-* `[7, 6, 5, 8, 1, 2, 6].find? (· < 5) = some 2`
-* `[7, 6, 5, 8, 1, 2, 6].find? (· < 1) = none`
+* `[7, 6, 5, 8, 1, 2, 6].findRev? (· < 5) = some 2`
+* `[7, 6, 5, 8, 1, 2, 6].findRev? (· < 1) = none`
 -/
 def findRev? (p : α → Bool) : List α → Option α
   | []    => none
@@ -1847,6 +1847,7 @@ Examples:
 * `[2, 4, 5, 6].any (· % 2 = 0) = true`
 * `[2, 4, 5, 6].any (· % 2 = 1) = true`
 -/
+@[suggest_for List.some]
 def any : (l : List α) → (p : α → Bool) → Bool
   | [], _ => false
   | h :: t, p => p h || any t p
@@ -1866,6 +1867,7 @@ Examples:
 * `[2, 4, 6].all (· % 2 = 0) = true`
 * `[2, 4, 5, 6].all (· % 2 = 0) = false`
 -/
+@[suggest_for List.every]
 def all : List α → (α → Bool) → Bool
   | [], _ => true
   | h :: t, p => p h && all t p
@@ -2252,7 +2254,7 @@ def eraseReps {α} [BEq α] (as : List α) : List α := eraseRepsBy (· == ·) a
 /-! ### span -/
 
 /--
-Splits a list into the the longest initial segment for which `p` returns `true`, paired with the
+Splits a list into the longest initial segment for which `p` returns `true`, paired with the
 remainder of the list.
 
 `O(|l|)`.

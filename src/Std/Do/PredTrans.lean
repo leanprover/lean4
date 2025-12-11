@@ -11,6 +11,8 @@ public import Std.Do.PostCond
 
 @[expose] public section
 
+set_option linter.missingDocs true
+
 /-!
 # Predicate transformers for arbitrary postcondition shapes
 
@@ -54,9 +56,9 @@ def PredTrans.Conjunctive.mono (t : PostCond α ps → Assertion ps) (h : PredTr
   exact SPred.and_elim_r
 
 /--
-  The type of predicate transformers for a given `ps : PostShape` and return type `α : Type`.
-  A predicate transformer `x : PredTrans ps α` is a function that takes a postcondition
-  `Q : PostCond α ps` and returns a precondition `x.apply Q : Assertion ps`.
+The type of predicate transformers for a given `ps : PostShape` and return type `α : Type`. A
+predicate transformer `x : PredTrans ps α` is a function that takes a postcondition `Q : PostCond α
+ps` and returns a precondition `x.apply Q : Assertion ps`.
  -/
 @[ext]
 structure PredTrans (ps : PostShape) (α : Type u) : Type u where
@@ -72,16 +74,23 @@ theorem mono (t : PredTrans ps α) : Monotonic t.apply :=
   Conjunctive.mono t.apply t.conjunctive
 
 /--
-  Given a fixed postcondition, the *stronger* predicate transformer will yield a
-  *weaker* precondition.
+Given a fixed postcondition, the *stronger* predicate transformer will yield a *weaker*
+precondition.
 -/
 def le (x y : PredTrans ps α) : Prop :=
-  ∀ Q, y.apply Q ⊢ₛ x.apply Q -- the weaker the precondition, the smaller the PredTrans
+  ∀ Q, y.apply Q ⊢ₛ x.apply Q
 instance : LE (PredTrans ps α) := ⟨le⟩
 
+/--
+The identity predicate transformer that transforms the postcondition's assertion about the return
+value into an assertion about `a`.
+-/
 def pure (a : α) : PredTrans ps α :=
   { apply := fun Q => Q.1 a, conjunctive := by intro _ _; simp }
 
+/--
+Sequences two predicate transformers by composing them.
+-/
 def bind (x : PredTrans ps α) (f : α → PredTrans ps β) : PredTrans ps β :=
   { apply := fun Q => x.apply (fun a => (f a).apply Q, Q.2),
     conjunctive := by
@@ -135,7 +144,14 @@ instance instLawfulMonad : LawfulMonad (PredTrans ps) :=
     (pure_bind := by simp +unfoldPartialApp [Bind.bind, bind, Pure.pure, pure])
     (bind_assoc := by simp +unfoldPartialApp [Bind.bind, bind])
 
--- The interpretation of `StateT σ (PredTrans ps) α` into `PredTrans (.arg σ ps) α`.
+/--
+Adds the ability to make assertions about a state of type `σ` to a predicate transformer with
+postcondition shape `ps`, resulting in postcondition shape `.arg σ ps`. This is done by
+interpreting `StateT σ (PredTrans ps) α` into `PredTrans (.arg σ ps) α`.
+
+This can be used to for all kinds of state-like effects, including reader effects or append-only
+states, by interpreting them as states.
+-/
 -- Think: modifyGetM
 def pushArg {σ : Type u} (x : StateT σ (PredTrans ps) α) : PredTrans (.arg σ ps) α where
   apply := fun Q s => (x s).apply (fun (a, s) => Q.1 a s, Q.2)
@@ -146,7 +162,14 @@ def pushArg {σ : Type u} (x : StateT σ (PredTrans ps) α) : PredTrans (.arg σ
     dsimp only [SPred.and_cons, ExceptConds.and]
     rw [← ((x s).conjunctive _ _).to_eq]
 
--- The interpretation of `ExceptT ε (PredTrans ps) α` into `PredTrans (.except ε ps) α`
+/--
+Adds the ability to make assertions about exceptions of type `ε` to a predicate transformer with
+postcondition shape `ps`, resulting in postcondition shape `.except ε ps`. This is done by
+interpreting `ExceptT ε (PredTrans ps) α` into `PredTrans (.except ε ps) α`.
+
+This can be used for all kinds of exception-like effects, such as early termination, by interpreting
+them as exceptions.
+-/
 def pushExcept {ps : PostShape} {α ε} (x : ExceptT ε (PredTrans ps) α) : PredTrans (.except ε ps) α where
   apply Q := x.apply (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2)
   conjunctive := by
@@ -158,6 +181,12 @@ def pushExcept {ps : PostShape} {α ε} (x : ExceptT ε (PredTrans ps) α) : Pre
     ext x
     cases x <;> simp
 
+/--
+Adds the ability to make assertions about early termination to a predicate transformer with
+postcondition shape `ps`, resulting in postcondition shape `.except PUnit ps`. This is done by
+interpreting `OptionT (PredTrans ps) α` into `PredTrans (.except PUnit ps) α`, which models the type
+`Option` as being equivalent to `Except PUnit`.
+-/
 def pushOption {ps : PostShape} {α} (x : OptionT (PredTrans ps) α) : PredTrans (.except PUnit ps) α where
   apply Q := x.apply (fun | .some a => Q.1 a | .none => Q.2.1 ⟨⟩, Q.2.2)
   conjunctive := by
@@ -170,19 +199,19 @@ def pushOption {ps : PostShape} {α} (x : OptionT (PredTrans ps) α) : PredTrans
     cases x <;> simp
 
 @[simp]
-def pushArg_apply {ps} {α σ : Type u} {Q : PostCond α (.arg σ ps)} (f : σ → PredTrans ps (α × σ)) :
+theorem pushArg_apply {ps} {α σ : Type u} {Q : PostCond α (.arg σ ps)} (f : σ → PredTrans ps (α × σ)) :
   (pushArg f).apply Q = fun s => (f s).apply (fun ⟨a, s⟩ => Q.1 a s, Q.2) := rfl
 
 @[simp]
-def pushExcept_apply {ps} {α ε : Type u} {Q : PostCond α (.except ε ps)} (x : PredTrans ps (Except ε α)) :
+theorem pushExcept_apply {ps} {α ε : Type u} {Q : PostCond α (.except ε ps)} (x : PredTrans ps (Except ε α)) :
   (pushExcept x).apply Q = x.apply (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2) := rfl
 
 @[simp]
-def pushOption_apply {ps} {α : Type u} {Q : PostCond α (.except PUnit ps)} (x : PredTrans ps (Option α)) :
+theorem pushOption_apply {ps} {α : Type u} {Q : PostCond α (.except PUnit ps)} (x : PredTrans ps (Option α)) :
   (pushOption x).apply Q = x.apply (fun | .some a => Q.1 a | .none => Q.2.1 ⟨⟩, Q.2.2) := rfl
 
-def dite_apply {ps} {Q : PostCond α ps} (c : Prop) [Decidable c] (t : c → PredTrans ps α) (e : ¬ c → PredTrans ps α) :
+theorem dite_apply {ps} {Q : PostCond α ps} (c : Prop) [Decidable c] (t : c → PredTrans ps α) (e : ¬ c → PredTrans ps α) :
   (if h : c then t h else e h).apply Q = if h : c then (t h).apply Q else (e h).apply Q := by split <;> rfl
 
-def ite_apply {ps} {Q : PostCond α ps} (c : Prop) [Decidable c] (t : PredTrans ps α) (e : PredTrans ps α) :
+theorem ite_apply {ps} {Q : PostCond α ps} (c : Prop) [Decidable c] (t : PredTrans ps α) (e : PredTrans ps α) :
   (if c then t else e).apply Q = if c then t.apply Q else e.apply Q := by split <;> rfl

@@ -8,7 +8,7 @@ prelude
 public import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Lean.Meta.Tactic.Grind.Arith.IsRelevant
-import Lean.Meta.Match.MatchEqs
+import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Beta
 import Lean.Meta.Tactic.Grind.MatchCond
@@ -17,6 +17,7 @@ import Lean.Meta.Tactic.Grind.Proof
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 import Lean.Meta.Tactic.Grind.PropagateInj
 import Lean.Meta.Tactic.Grind.FunCC
+import Lean.Util.CollectLevelParams
 public section
 namespace Lean.Meta.Grind
 
@@ -60,7 +61,7 @@ def addCongrTable (e : Expr) : GoalM Unit := do
       pushEqHEq e e' congrPlaceholderProof
     if (← swapCgrRepr e e') then
       /-
-      Recall that `isDiseq` and `mkDiseqProof?` are implemented using the the congruence table.
+      Recall that `isDiseq` and `mkDiseqProof?` are implemented using the congruence table.
       So, if `e` is an equality `a = b`, and is the equivalence class of `False`, but `e'` is not,
       we **must** make `e` the representative of the congruence class.
       The equivalence classes of `e` and `e'` will be merged eventually since we used `pushEqHEq` above,
@@ -88,12 +89,17 @@ where
     unless (← isEqFalse e) do return false
     return !(← isEqFalse e')
 
+def updateIndicesFound (k : HeadIndex) : GoalM Unit := do
+  if (← get).indicesFound.contains k then return ()
+  modify fun s => { s with indicesFound := s.indicesFound.insert k }
+
 /--
 Given an application `e` of the form `f a_1 ... a_n`,
 adds entry `f ↦ e` to `appMap`. Recall that `appMap` is a multi-map.
 -/
 private def updateAppMap (e : Expr) : GoalM Unit := do
   let key := e.toHeadIndex
+  updateIndicesFound key
   trace_goal[grind.debug.appMap] "{e} => {repr key}"
   modify fun s => { s with
     appMap := if let some es := s.appMap.find? key then
@@ -279,10 +285,10 @@ private def activateTheoremsCore [TheoremLike α] (declName : Name)
       let origin := TheoremLike.getOrigin thm
       trace_goal[grind.debug.theorem.activate] "`{declName}` => `{origin.key}`"
       unless s.isErased origin do
-        let appMap  := (← get).appMap
-        let symbols := TheoremLike.getSymbols thm
-        let symbols := symbols.filter fun sym => !appMap.contains sym
-        let thm     := TheoremLike.setSymbols thm symbols
+        let indicesFound := (← get).indicesFound
+        let symbols      := TheoremLike.getSymbols thm
+        let symbols      := symbols.filter fun sym => !indicesFound.contains sym
+        let thm          := TheoremLike.setSymbols thm symbols
         match symbols with
         | [] =>
           trace_goal[grind.debug.theorem.activate] "`{origin.key}`"
@@ -514,6 +520,7 @@ where
     | .lit .. =>
       mkENode e generation
     | .const declName _ =>
+      updateIndicesFound (.const declName)
       mkENode e generation
       activateTheorems declName generation
     | .mvar .. =>

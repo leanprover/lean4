@@ -16,7 +16,7 @@ This modules defines the `CasesInfo` data structure and functions to obtain it.
 It contains information about the structure of casesOn-like functions, namely of
 
 * Plain `.casesOn` (one alternative per constructor)
-* Per-constructor eliminiations (with side condition, one alternative only)
+* Per-constructor eliminations (with side condition, one alternative only)
 * Sparse cases-on (only some constructors, with a catch-all)
 
 It recognizes `.casesOn` by using `isCasesOnRecursor` (name + `isAuxDecl` env ext), and the others
@@ -26,7 +26,7 @@ It is used in particular by the code generator to replace calls to such function
 `cases` construct.
 
 The `getSparseCasesInfo?` function calculates the `CasesInfo` from the type of the declaration, and
-makes certian assumptions about their shapes. If this is too fragile, the `sparseCasesOn` env
+makes certain assumptions about their shapes. If this is too fragile, the `sparseCasesOn` env
 extension could carry more information from which the shape can be calculated..
 -/
 

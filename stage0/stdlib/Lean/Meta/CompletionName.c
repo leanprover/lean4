@@ -18,21 +18,22 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_CompletionName_0__Lean_Meta_isBla
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn_00___x40_Lean_Meta_CompletionName_3302084676____hygCtx___hyg_2____boxed(lean_object*);
 static lean_object* l___private_Lean_Meta_CompletionName_0__Lean_Meta_isInternalNameModuloPrivate___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn_00___x40_Lean_Meta_CompletionName_3302084676____hygCtx___hyg_2_();
+lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Meta_CompletionName_0__Lean_Meta_isInternalNameModuloPrivate(lean_object*);
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_is_aux_recursor(lean_object*, lean_object*);
+uint8_t l_Lean_isAuxRecursor(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_allowCompletion___boxed(lean_object*, lean_object*);
-uint8_t lean_is_no_confusion(lean_object*, lean_object*);
+uint8_t l_Lean_isNoConfusion(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_addToCompletionBlackList___closed__0;
 extern lean_object* l_Lean_privateHeader;
 static lean_object* l_Lean_Meta_initFn___closed__1_00___x40_Lean_Meta_CompletionName_3302084676____hygCtx___hyg_2_;
 LEAN_EXPORT uint8_t l___private_Lean_Meta_CompletionName_0__Lean_Meta_isBlacklisted(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
+lean_object* l_String_Slice_Pos_get_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_CompletionName_0__Lean_Meta_isInternalNameModuloPrivate___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_allowCompletion(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_completionBlackListExt;
-uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* l_Lean_TagDeclarationExtension_tag(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn___closed__3_00___x40_Lean_Meta_CompletionName_3302084676____hygCtx___hyg_2_;
@@ -125,33 +126,35 @@ _start:
 switch (lean_obj_tag(x_1)) {
 case 1:
 {
-lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_7; uint32_t x_8; uint32_t x_9; uint8_t x_10; 
+lean_object* x_2; lean_object* x_3; uint8_t x_4; uint32_t x_7; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
-x_7 = lean_unsigned_to_nat(0u);
-x_8 = lean_string_utf8_get(x_3, x_7);
-x_9 = 95;
-x_10 = lean_uint32_dec_eq(x_8, x_9);
-if (x_10 == 0)
+x_14 = lean_unsigned_to_nat(0u);
+x_15 = lean_string_utf8_byte_size(x_3);
+lean_inc_ref(x_3);
+x_16 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_16, 0, x_3);
+lean_ctor_set(x_16, 1, x_14);
+lean_ctor_set(x_16, 2, x_15);
+x_17 = l_String_Slice_Pos_get_x3f(x_16, x_14);
+lean_dec_ref(x_16);
+if (lean_obj_tag(x_17) == 0)
 {
-x_4 = x_10;
-goto block_6;
+uint32_t x_18; 
+x_18 = 65;
+x_7 = x_18;
+goto block_13;
 }
 else
 {
-lean_object* x_11; uint8_t x_12; 
-x_11 = l___private_Lean_Meta_CompletionName_0__Lean_Meta_isInternalNameModuloPrivate___closed__0;
-x_12 = lean_name_eq(x_1, x_11);
-if (x_12 == 0)
-{
-x_4 = x_10;
-goto block_6;
-}
-else
-{
-x_1 = x_2;
-goto _start;
-}
+lean_object* x_19; uint32_t x_20; 
+x_19 = lean_ctor_get(x_17, 0);
+lean_inc(x_19);
+lean_dec_ref(x_17);
+x_20 = lean_unbox_uint32(x_19);
+lean_dec(x_19);
+x_7 = x_20;
+goto block_13;
 }
 block_6:
 {
@@ -165,19 +168,46 @@ else
 return x_4;
 }
 }
+block_13:
+{
+uint32_t x_8; uint8_t x_9; 
+x_8 = 95;
+x_9 = lean_uint32_dec_eq(x_7, x_8);
+if (x_9 == 0)
+{
+x_4 = x_9;
+goto block_6;
+}
+else
+{
+lean_object* x_10; uint8_t x_11; 
+x_10 = l___private_Lean_Meta_CompletionName_0__Lean_Meta_isInternalNameModuloPrivate___closed__0;
+x_11 = lean_name_eq(x_1, x_10);
+if (x_11 == 0)
+{
+x_4 = x_9;
+goto block_6;
+}
+else
+{
+x_1 = x_2;
+goto _start;
+}
+}
+}
 }
 case 2:
 {
-lean_object* x_14; 
-x_14 = lean_ctor_get(x_1, 0);
-x_1 = x_14;
+lean_object* x_21; 
+x_21 = lean_ctor_get(x_1, 0);
+x_1 = x_21;
 goto _start;
 }
 default: 
 {
-uint8_t x_16; 
-x_16 = 0;
-return x_16;
+uint8_t x_23; 
+x_23 = 0;
+return x_23;
 }
 }
 }
@@ -202,7 +232,7 @@ if (x_12 == 0)
 uint8_t x_13; 
 lean_inc(x_2);
 lean_inc_ref(x_1);
-x_13 = lean_is_aux_recursor(x_1, x_2);
+x_13 = l_Lean_isAuxRecursor(x_1, x_2);
 x_3 = x_13;
 goto block_11;
 }
@@ -218,7 +248,7 @@ if (x_3 == 0)
 uint8_t x_4; 
 lean_inc(x_2);
 lean_inc_ref(x_1);
-x_4 = lean_is_no_confusion(x_1, x_2);
+x_4 = l_Lean_isNoConfusion(x_1, x_2);
 if (x_4 == 0)
 {
 uint8_t x_5; 

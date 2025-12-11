@@ -104,14 +104,6 @@ lean_dec(x_2);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_BuildInfo_target_elim___redArg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_BuildInfo_ctorElim___redArg(x_1, x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_target_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -120,7 +112,7 @@ x_5 = l_Lake_BuildInfo_ctorElim___redArg(x_2, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_BuildInfo_facet_elim___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_BuildInfo_target_elim___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -136,11 +128,19 @@ x_5 = l_Lake_BuildInfo_ctorElim___redArg(x_2, x_4);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l_Lake_BuildInfo_facet_elim___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lake_BuildInfo_ctorElim___redArg(x_1, x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_Package_key(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = lean_ctor_get(x_1, 0);
+x_2 = lean_ctor_get(x_1, 2);
 lean_inc(x_2);
 x_3 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -160,7 +160,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_targetKey(lean_object* x_1, lean_object*
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = lean_ctor_get(x_2, 0);
+x_3 = lean_ctor_get(x_2, 2);
 lean_inc(x_3);
 x_4 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_4, 0, x_3);
@@ -188,7 +188,7 @@ if (x_2 == 0)
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_1, 0);
-x_4 = lean_ctor_get(x_3, 0);
+x_4 = lean_ctor_get(x_3, 2);
 lean_inc(x_4);
 lean_dec_ref(x_3);
 lean_ctor_set_tag(x_1, 3);
@@ -203,7 +203,7 @@ x_6 = lean_ctor_get(x_1, 1);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_dec(x_1);
-x_7 = lean_ctor_get(x_5, 0);
+x_7 = lean_ctor_get(x_5, 2);
 lean_inc(x_7);
 lean_dec_ref(x_5);
 x_8 = lean_alloc_ctor(3, 2, 0);

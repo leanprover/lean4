@@ -16,7 +16,7 @@ import Lean.ExtraModUses
 public section
 
 /-!
-This module contains types to manages simp theorems and sets theirof.
+This module contains types to manages simp theorems and sets thereof.
 
 Overview of types in this module:
 
@@ -39,7 +39,7 @@ namespace Lean.Meta
 
 register_builtin_option backward.dsimp.useDefEqAttr : Bool := {
   defValue := true
-  descr    := "Use `defeq` attribute rather than checking theorem body to decide whether a theroem \
+  descr    := "Use `defeq` attribute rather than checking theorem body to decide whether a theorem \
     can be used in `dsimp` or with `implicitDefEqProofs`."
 }
 

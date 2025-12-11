@@ -339,7 +339,7 @@ where
               go (i+1) (rhss.push rhs) (eqs.push none) hyps
             | .subsingletonInst =>
               -- The `lhs` does not need to instance implicit since it can be inferred from the LHS
-              withNewBinderInfos #[(lhss[i]!.fvarId!, .implicit)] do
+              withImplicitBinderInfos #[lhss[i]!] do
                 let lhs := lhss[i]!
                 let lhsType ← inferType lhs
                 let rhsType := lhsType.replaceFVars (lhss[*...rhss.size]) rhss

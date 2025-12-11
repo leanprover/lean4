@@ -25,6 +25,8 @@ namespace ExceptT
   simp [run] at h
   assumption
 
+@[simp, grind =] theorem run_mk (x : m (Except ε α)) : run (mk x : ExceptT ε m α) = x := rfl
+
 @[simp, grind =] theorem run_pure [Monad m] (x : α) : run (pure x : ExceptT ε m α) = pure (Except.ok x) := rfl
 
 @[simp, grind =] theorem run_lift  [Monad.{u, v} m] (x : m α) : run (ExceptT.lift x : ExceptT ε m α) = (Except.ok <$> x : m (Except ε α)) := rfl
@@ -232,6 +234,9 @@ namespace ReaderT
   simp [run] at h
   exact funext h
 
+@[simp, grind =] theorem run_mk (x : ρ → m α) (ctx : ρ) : run (.mk x : ReaderT ρ m α) ctx = x ctx :=
+  rfl
+
 @[simp, grind =] theorem run_pure [Monad m] (a : α) (ctx : ρ) : (pure a : ReaderT ρ m α).run ctx = pure a := rfl
 
 @[simp, grind =] theorem run_bind [Monad m] (x : ReaderT ρ m α) (f : α → ReaderT ρ m β) (ctx : ρ)
@@ -292,6 +297,9 @@ namespace StateT
 
 @[ext, grind ext] theorem ext {x y : StateT σ m α} (h : ∀ s, x.run s = y.run s) : x = y :=
   funext h
+
+@[simp, grind =] theorem run_mk [Monad m] (x : σ → m (α × σ)) (s : σ) : run (.mk x) s = x s :=
+  rfl
 
 @[simp, grind =] theorem run'_eq [Monad m] (x : StateT σ m α) (s : σ) : run' x s = (·.1) <$> run x s :=
   rfl

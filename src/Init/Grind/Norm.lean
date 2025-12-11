@@ -8,6 +8,7 @@ prelude
 public import Init.Data.Int.Linear
 public import Init.Grind.Ring.Field
 public import Init.Data.Rat.Lemmas
+public import Init.Grind.Ring.OfScientific
 public section
 
 namespace Lean.Grind
@@ -81,6 +82,7 @@ theorem natCast_mod (a b : Nat) : (NatCast.natCast (a % b) : Int) = (NatCast.nat
 theorem natCast_add (a b : Nat) : (NatCast.natCast (a + b : Nat) : Int) = (NatCast.natCast a : Int) + (NatCast.natCast b : Int) := rfl
 theorem natCast_mul (a b : Nat) : (NatCast.natCast (a * b : Nat) : Int) = (NatCast.natCast a : Int) * (NatCast.natCast b : Int) := rfl
 theorem natCast_pow (a b : Nat) : (NatCast.natCast (a ^ b : Nat) : Int) = (NatCast.natCast a : Int) ^ b := by simp
+theorem natCast_id (a : Nat) : NatCast.natCast a = a := rfl
 
 theorem Nat.pow_one (a : Nat) : a ^ 1 = a := by
   simp
@@ -183,7 +185,7 @@ init_grind_norm
   Int.ediv_zero Int.emod_zero
   Int.ediv_one Int.emod_one
   Int.negSucc_eq
-  natCast_div natCast_mod
+  natCast_div natCast_mod natCast_id
   natCast_add natCast_mul natCast_pow
   Int.one_pow
   Int.pow_zero Int.pow_one
@@ -207,7 +209,9 @@ init_grind_norm
   Ring.intCast_mul
   Ring.intCast_pow
   Ring.intCast_sub
+  -- OfScientific
+  LawfulOfScientific.ofScientific_def
   -- Rationals
-  Rat.ofScientific_def_eq_if Rat.zpow_neg
+  Rat.zpow_neg
 
 end Lean.Grind

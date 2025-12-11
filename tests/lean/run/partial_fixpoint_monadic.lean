@@ -6,10 +6,10 @@ Testing `partial_fixpoint` with monad transformers
 Using an `Option`-based monad
 -/
 
-abbrev M1 := ReaderT String (StateT String.Pos Option)
+abbrev M1 := ReaderT String (StateT String.Pos.Raw Option)
 
 def parseAll1 (x : M1 α) : M1 (List α) := do
-  if (← read).atEnd (← get) then
+  if String.Pos.Raw.atEnd (← read) (← get) then
     return []
   let val ← x
   let list ← parseAll1 x
@@ -26,7 +26,7 @@ theorem parseAll1.eq_1 : ∀ {α : Type} (x : M1 α),
       let val ← x
       let list ← parseAll1 x
       pure (val :: list)
-    if __do_lift.atEnd __do_lift_1 = true then pure []
+    if String.Pos.Raw.atEnd __do_lift __do_lift_1 = true then pure []
       else do
         let y ← pure PUnit.unit
         __do_jp y
@@ -37,10 +37,10 @@ theorem parseAll1.eq_1 : ∀ {α : Type} (x : M1 α),
 Using an `IO`-based monad
 -/
 
-abbrev M2 := ReaderT String (StateRefT String.Pos IO)
+abbrev M2 := ReaderT String (StateRefT String.Pos.Raw IO)
 
 def parseAll2 (x : M2 α) : M2 (List α) := do
-  if (← read).atEnd (← get) then
+  if String.Pos.Raw.atEnd (← read) (← get) then
     return []
   let val ← x
   let list ← parseAll2 x
@@ -57,7 +57,7 @@ theorem parseAll2.eq_1 : ∀ {α : Type} (x : M2 α),
       let val ← x
       let list ← parseAll2 x
       pure (val :: list)
-    if __do_lift.atEnd __do_lift_1 = true then pure []
+    if String.Pos.Raw.atEnd __do_lift __do_lift_1 = true then pure []
       else do
         let y ← pure PUnit.unit
         __do_jp y

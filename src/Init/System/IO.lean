@@ -566,8 +566,19 @@ Waits until any of the tasks in the list has finished, then return its result.
   return tasks[0].get
 
 /--
+Given a non-empty list of tasks, wait for the first to complete.
+Return the value and the list of remaining tasks.
+-/
+def waitAny' (tasks : List (Task α)) (h : 0 < tasks.length := by exact Nat.zero_lt_succ _) :
+    BaseIO (α × List (Task α)) := do
+  let (i, a) ← IO.waitAny
+    (tasks.mapIdx fun i t => t.map (sync := true) fun a => (i, a))
+    (by simp_all)
+  return (a, tasks.eraseIdx i)
+
+/--
 Returns the number of _heartbeats_ that have occurred during the current thread's execution. The
-heartbeat count is the number of “small” memory allocations performed in a thread.
+heartbeat count is the number of "small" memory allocations performed in a thread.
 
 Heartbeats used to implement timeouts that are more deterministic across different hardware.
 -/
@@ -826,7 +837,7 @@ Encountering an EOF does not close a handle. Subsequent reads may block and retu
 -/
 @[extern "lean_io_prim_handle_read"] opaque read (h : @& Handle) (bytes : USize) : IO ByteArray
 /--
-Writes the provided bytes to the the handle.
+Writes the provided bytes to the handle.
 
 Writing to a handle is typically buffered, and may not immediately modify the file on disk. Use
 `IO.FS.Handle.flush` to write changes to buffers to the associated device.

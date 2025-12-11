@@ -50,7 +50,7 @@ public configuration InputDirConfig (name : Name) where
   text : Bool := false
   /-
   Includes only the files from the directory
-  whose paths statisify the pattern.
+  whose paths satisfy the pattern.
 
   Defaults to including every file.
   -/

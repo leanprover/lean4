@@ -60,9 +60,7 @@ instance SubarrayIterator.instFinite : Finite (SubarrayIterator α) Id :=
   .of_finitenessRelation instFinitelessRelation
 
 instance [Monad m] : IteratorCollect (SubarrayIterator α) Id m := .defaultImplementation
-instance [Monad m] : IteratorCollectPartial (SubarrayIterator α) Id m := .defaultImplementation
 instance [Monad m] : IteratorLoop (SubarrayIterator α) Id m := .defaultImplementation
-instance [Monad m] : IteratorLoopPartial (SubarrayIterator α) Id m := .defaultImplementation
 
 @[inline, expose]
 def Subarray.instToIterator :=

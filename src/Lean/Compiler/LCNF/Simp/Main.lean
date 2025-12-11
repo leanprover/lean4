@@ -336,6 +336,18 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
               params.forM (eraseParam ·)
               markSimplified
               return k
+        if alts.all (·.getCode matches .unreach ..) then
+          alts.forM (liftM <| ·.getParams.forM eraseParam)
+          markSimplified
+          return .unreach resultType
+        /-
+        We considered handling a case where we drop a cases if it only has one non-unreachable
+        branch and doesn't rely on the params of that branch here. However, this has the potential
+        to hinder reuse in later passes as we loose information about the shape of a variable. We
+        might be able to reintroduce this at a later point if we track this information different
+        from cases.
+        -/
+
         markUsedFVar discr
         return code.updateCases! resultType discr alts
 end

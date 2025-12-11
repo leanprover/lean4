@@ -116,7 +116,7 @@ macro:max x:term noWs "[" i:term "]" noWs "?" : term => `(getElem? $x $i)
 
 /--
 The syntax `arr[i]!` gets the `i`'th element of the collection `arr` and
-panics `i` is out of bounds.
+panics if `i` is out of bounds.
 -/
 macro:max x:term noWs "[" i:term "]" noWs "!" : term => `(getElem! $x $i)
 
@@ -239,6 +239,9 @@ theorem some_eq_getElem?_iff [GetElem? cont idx elem dom] [LawfulGetElem cont id
 theorem getElem_of_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     {c : cont} {i : idx} [Decidable (dom c i)] (h : c[i]? = some e) : Exists fun h : dom c i => c[i] = e :=
   getElem?_eq_some_iff.mp h
+
+theorem of_getElem_eq [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    {c : cont} {i : idx} [Decidable (dom c i)] {h} (_ : c[i] = e) : dom c i := h
 
 @[simp] theorem some_getElem_eq_getElem?_iff [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     {c : cont} {i : idx} [Decidable (dom c i)] (h : dom c i):

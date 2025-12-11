@@ -25,9 +25,9 @@ An iterator over the characters (Unicode code points) in a `String`. Typically c
 `String.iter`.
 
 This is a no-longer-supported legacy API that will be removed in a future release. You should use
-`String.ValidPos` instead, which is similar, but safer. To iterate over a string `s`, start with
-`p : s.startValidPos`, advance it using `p.next`, access the current character using `p.get` and
-check if the position is at the end using `p = s.endValidPos` or `p.IsAtEnd`.
+`String.Pos` instead, which is similar, but safer. To iterate over a string `s`, start with
+`p : s.startPos`, advance it using `p.next`, access the current character using `p.get` and
+check if the position is at the end using `p = s.endPos` or `p.IsAtEnd`.
 
 String iterators pair a string with a valid byte index. This allows efficient character-by-character
 processing of strings while avoiding the need to manually ensure that byte indices are used with the
@@ -57,9 +57,9 @@ structure Iterator where
 /-- Creates an iterator at the beginning of the string.
 
 This is a no-longer-supported legacy API that will be removed in a future release. You should use
-`String.ValidPos` instead, which is similar, but safer. To iterate over a string `s`, start with
-`p : s.startValidPos`, advance it using `p.next`, access the current character using `p.get` and
-check if the position is at the end using `p = s.endValidPos` or `p.IsAtEnd`.
+`String.Pos` instead, which is similar, but safer. To iterate over a string `s`, start with
+`p : s.startPos`, advance it using `p.next`, access the current character using `p.get` and
+check if the position is at the end using `p = s.endPos` or `p.IsAtEnd`.
 -/
 @[inline] def mkIterator (s : String) : Iterator :=
   ⟨s, 0⟩
@@ -95,9 +95,9 @@ def pos := Iterator.i
 Gets the character at the iterator's current position.
 
 This is a no-longer-supported legacy API that will be removed in a future release. You should use
-`String.ValidPos` instead, which is similar, but safer. To iterate over a string `s`, start with
-`p : s.startValidPos`, advance it using `p.next`, access the current character using `p.get` and
-check if the position is at the end using `p = s.endValidPos` or `p.IsAtEnd`.
+`String.Pos` instead, which is similar, but safer. To iterate over a string `s`, start with
+`p : s.startPos`, advance it using `p.next`, access the current character using `p.get` and
+check if the position is at the end using `p = s.endPos` or `p.IsAtEnd`.
 
 A run-time bounds check is performed. Use `String.Iterator.curr'` to avoid redundant bounds checks.
 
@@ -110,9 +110,9 @@ If the position is invalid, returns `(default : Char)`.
 Moves the iterator's position forward by one character, unconditionally.
 
 This is a no-longer-supported legacy API that will be removed in a future release. You should use
-`String.ValidPos` instead, which is similar, but safer. To iterate over a string `s`, start with
-`p : s.startValidPos`, advance it using `p.next`, access the current character using `p.get` and
-check if the position is at the end using `p = s.endValidPos` or `p.IsAtEnd`.
+`String.Pos` instead, which is similar, but safer. To iterate over a string `s`, start with
+`p : s.startPos`, advance it using `p.next`, access the current character using `p.get` and
+check if the position is at the end using `p = s.endPos` or `p.IsAtEnd`.
 
 It is only valid to call this function if the iterator is not at the end of the string (i.e.
 if `Iterator.atEnd` is `false`); otherwise, the resulting iterator will be invalid.

@@ -476,17 +476,6 @@ only those mappings where the function returns `some` value.
 @[inline] def keysArray (m : Raw α β) : Array α :=
   m.fold (fun acc k _ => acc.push k) (.emptyWithCapacity m.size)
 
-/-- Checks if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
-@[inline] def all (m : Raw α β) (p : (a : α) → β a → Bool) : Bool := Id.run do
-  for a in m do
-    if ¬ p a.1 a.2 then return false
-  return true
-
-/-- Checks if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
-@[inline] def any (m : Raw α β) (p : (a : α) → β a → Bool) : Bool := Id.run do
-  for a in m do
-    if p a.1 a.2 then return true
-  return false
 /--
 Computes the union of the given hash maps. If a key appears in both maps, the entry contained in
 the second argument will appear in the result.
@@ -522,7 +511,41 @@ This function always merges the smaller map into the larger map, so the expected
 
 instance [BEq α] [Hashable α] : Inter (Raw α β) := ⟨inter⟩
 
+/--
+Compares two hash maps using Boolean equality on keys and values.
 
+Returns `true` if the maps contain the same key-value pairs, `false` otherwise.
+-/
+def beq [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] (m₁ m₂ : Raw α β) : Bool :=
+  if h : 0 < m₁.buckets.size ∧ 0 < m₂.buckets.size then
+    Raw₀.beq ⟨m₁, h.1⟩ ⟨m₂, h.2⟩
+  else
+    false
+
+instance [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] : BEq (Raw α β) := ⟨beq⟩
+
+@[inherit_doc DHashMap.Raw.beq] def Const.beq {β : Type v} [BEq α] [Hashable α] [BEq β] (m₁ m₂ : Raw α (fun _ => β)) : Bool :=
+  if h : 0 < m₁.buckets.size ∧ 0 < m₂.buckets.size then
+      Raw₀.Const.beq ⟨m₁, h.1⟩ ⟨m₂, h.2⟩
+  else
+    false
+
+/--
+Computes the difference of the given hash maps.
+
+This function always iterates through the smaller map, so the expected runtime is
+`O(min(m₁.size, m₂.size))`.
+-/
+@[inline] def diff [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
+  if h₁ : 0 < m₁.buckets.size then
+    if h₂ : 0 < m₂.buckets.size then
+      Raw₀.diff ⟨m₁, h₁⟩ ⟨m₂, h₂⟩
+    else
+      m₁
+  else
+    m₂
+
+instance [BEq α] [Hashable α] : SDiff (Raw α β) := ⟨diff⟩
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -547,6 +570,18 @@ appearance.
     (m : Raw α β) (l : ρ) : Raw α β :=
   if h : 0 < m.buckets.size then
     (Raw₀.insertMany ⟨m, h⟩ l).1
+  else m -- will never happen for well-formed inputs
+
+/--
+Erases multiple keys from the hash map by iterating over the given collection and calling
+`erase` on each key. The values in the collection are ignored; only the keys are used for erasure.
+If the same key appears multiple times in the collection, subsequent erasures have no effect after
+the first one removes the key.
+-/
+@[inline] def eraseManyEntries [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
+    (m : Raw α β) (l : ρ) : Raw α β :=
+  if h : 0 < m.buckets.size then
+    (Raw₀.eraseManyEntries ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
 
 @[inline, inherit_doc Raw.insertMany] def Const.insertMany {β : Type v} [BEq α] [Hashable α]
@@ -607,8 +642,17 @@ occurrence takes precedence. -/
 @[inline] def ofList [BEq α] [Hashable α] (l : List ((a : α) × β a)) : Raw α β :=
   insertMany ∅ l
 
+/-- Creates a hash map from an array of mappings. If the same key appears multiple times, the last
+occurrence takes precedence. -/
+@[inline] def ofArray [BEq α] [Hashable α] (l : Array ((a : α) × β a)) : Raw α β :=
+  insertMany ∅ l
+
 @[inline, inherit_doc Raw.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
     (l : List (α × β)) : Raw α (fun _ => β) :=
+  Const.insertMany ∅ l
+
+@[inline, inherit_doc Raw.ofArray] def Const.ofArray {β : Type v} [BEq α] [Hashable α]
+    (l : Array (α × β)) : Raw α (fun _ => β) :=
   Const.insertMany ∅ l
 
 /-- Creates a hash map from a list of keys, associating the value `()` with each key.
@@ -760,6 +804,18 @@ theorem WF.Const.unitOfList [BEq α] [Hashable α] {l : List α} :
     (Const.unitOfList l : Raw α (fun _ => Unit)).WF :=
   Const.insertManyIfNewUnit WF.empty
 
+theorem WF.ofArray [BEq α] [Hashable α] {a : Array ((a : α) × β a)} :
+    (ofArray a : Raw α β).WF :=
+  .insertMany WF.empty
+
+theorem WF.Const.ofArray {β : Type v} [BEq α] [Hashable α] {a : Array (α × β)} :
+    (Const.ofArray a : Raw α (fun _ => β)).WF :=
+  Const.insertMany WF.empty
+
+theorem WF.Const.unitOfArray [BEq α] [Hashable α] {a : Array α} :
+    (Const.unitOfArray a : Raw α (fun _ => Unit)).WF :=
+  Const.insertManyIfNewUnit WF.empty
+
 theorem WF.union₀ [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (Raw₀.union ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩).val.WF := by
   simp only [Raw₀.union]
   split
@@ -767,14 +823,22 @@ theorem WF.union₀ [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.
   . exact (Raw₀.insertMany ⟨m₁, h₁.size_buckets_pos⟩ m₂).2 _ WF.insert₀ h₁
 
 theorem WF.union [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ ∪ m₂ : Raw α β).WF := by
-  simp only [Union.union]
-  simp [Std.DHashMap.Raw.union, h₁.size_buckets_pos, h₂.size_buckets_pos]
+  simp [Union.union, Std.DHashMap.Raw.union, h₁.size_buckets_pos, h₂.size_buckets_pos]
   exact WF.union₀ h₁ h₂
 
 theorem WF.inter [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ ∩ m₂ : Raw α β).WF := by
-  simp only [Inter.inter]
-  simp [Std.DHashMap.Raw.inter, h₁.size_buckets_pos, h₂.size_buckets_pos]
+  simp [Inter.inter, Std.DHashMap.Raw.inter, h₁.size_buckets_pos, h₂.size_buckets_pos]
   exact WF.inter₀ h₁ h₂
+
+theorem WF.diff₀ [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (Raw₀.diff ⟨m₁, h₁.size_buckets_pos⟩ ⟨m₂, h₂.size_buckets_pos⟩).val.WF := by
+  simp only [Raw₀.diff]
+  split
+  . exact @WF.filter₀ α β _ _ m₁ h₁.size_buckets_pos (fun k x => !Raw₀.contains ⟨m₂, h₂.size_buckets_pos⟩ k) h₁
+  . exact (Raw₀.eraseManyEntries ⟨m₁, h₁.size_buckets_pos⟩ m₂).2 _ WF.erase₀ h₁
+
+theorem WF.diff [BEq α] [Hashable α] {m₁ m₂ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ \ m₂ : Raw α β).WF := by
+  simp [SDiff.sdiff, Std.DHashMap.Raw.diff, h₁.size_buckets_pos, h₂.size_buckets_pos]
+  exact WF.diff₀ h₁ h₂
 
 end WF
 

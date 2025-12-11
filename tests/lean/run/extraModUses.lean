@@ -69,7 +69,7 @@ Is rev mod use: false
 recommended_spelling "id" for "id" in [id]
 
 /--
-info: Entries: [import Init.Prelude]
+info: Entries: [import Init.Core, import Init.Prelude]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses
@@ -173,8 +173,8 @@ References from `@[grind]` are tracked (here `List.append` from Init.Prelude)
 attribute [grind =] List.append
 
 /--
-info: Entries: [import Init.Grind.Attr, public import Init.Prelude]
-Is rev mod use: true
+info: Entries: [import Init.Grind.Attr, public import Init.Prelude, import Init.Prelude]
+Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses
 
@@ -201,7 +201,7 @@ Simp theorems (especially defeq ones) are tracked (here `Nat.pow_succ` from Init
 def test7 : 2 ^ 8 = 256 := by simp [Nat.pow_succ]
 
 /--
-info: Entries: [import Init.Tactics, import Init.Data.Nat.Basic, import Init.SimpLemmas, import Init.Notation]
+info: Entries: [import Init.Tactics, import Init.Data.Nat.Lemmas, import Init.Data.Nat.Basic, import Init.SimpLemmas, import Init.Notation]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses

@@ -12,6 +12,8 @@ public import Lean.Elab.BindersUtil
 public import Lean.Elab.PatternVar
 public import Lean.Elab.Quotation.Precheck
 public import Lean.Elab.SyntheticMVars
+import Lean.Meta.Match.Value
+import Lean.Meta.Match.NamedPatterns
 
 public section
 
@@ -215,7 +217,7 @@ def Vec.map' (f : α → β) (xs : Vec α n) : Vec β n :=
 We had to include `n` and the `_`s because the type of `xs` depends on `n`.
 Moreover, `nil` and `cons a as` have different types.
 This was quite tedious. So, we have implemented an automatic "discriminant refinement procedure".
-The procedure is based on the observation that we get a type error whenenver we forget to include `_`s
+The procedure is based on the observation that we get a type error whenever we forget to include `_`s
 and the indices a discriminant depends on. So, we catch the exception, check whether the type of the discriminant
 is an indexed family, and add their indices as new discriminants.
 

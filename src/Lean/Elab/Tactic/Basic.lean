@@ -290,6 +290,8 @@ where
           withReader ({ · with elaborator := evalFn.declName }) do
           withTacticInfoContext stx do
             evalFn.value stx
+            if !evalFn.isBuiltin then
+              recordExtraModUseFromDecl (isMeta := true) evalFn.declName
         catch ex => handleEx s failures ex (eval s evalFns)
 
 def throwNoGoalsToBeSolved : TacticM α :=

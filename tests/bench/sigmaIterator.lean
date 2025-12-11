@@ -110,19 +110,9 @@ instance SigmaIterator.instIteratorCollect {γ : Type w} {α : γ → Type w}
     IteratorCollect (SigmaIterator γ α) m n :=
   .defaultImplementation
 
-instance SigmaIterator.instIteratorCollectPartial {γ : Type w} {α : γ → Type w}
-    [∀ x : γ, Iterator (α x) m β] [Monad m] [Monad n] :
-    IteratorCollectPartial (SigmaIterator γ α) m n :=
-  .defaultImplementation
-
 instance SigmaIterator.instIteratorLoop {γ : Type w} {α : γ → Type w}
     [∀ x : γ, Iterator (α x) m β] [Monad m] [Monad n] :
     IteratorLoop (SigmaIterator γ α) m n :=
-  .defaultImplementation
-
-instance SigmaIterator.instIteratorLoopPartial {γ : Type w} {α : γ → Type w}
-    [∀ x : γ, Iterator (α x) m β] [Monad m] [Monad n] :
-    IteratorLoopPartial (SigmaIterator γ α) m n :=
   .defaultImplementation
 
 end Types
@@ -180,7 +170,7 @@ def f._at_.g.spec_0._redArg _x.1 _x.2 _x.3 it : Nat :=
 ```
 -/
 def g : Nat := Id.run do
-  (*...2000000).iter.filter (fun _ => True)
+  (*...30000000).iter.filter (fun _ => True)
     |>.sigma (α := fun _ => _) (param := 0)
     |> f (acc := 0)
 

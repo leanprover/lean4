@@ -6,7 +6,7 @@ def main : IO Unit := do
     let hIn ← Ipc.stdin
     hIn.write (←FS.readBinFile "server_startup.log")
     hIn.flush
-    let initResp ← Ipc.readResponseAs 0 InitializeResult
+    let _ ← Ipc.readResponseAs 0 InitializeResult
     Ipc.writeNotification ⟨"initialized", InitializedParams.mk⟩
 
     Ipc.shutdown 1

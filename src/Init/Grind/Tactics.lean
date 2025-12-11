@@ -299,8 +299,18 @@ syntax (name := grindTrace)
 
 It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `cutsat` solver.
 Please use `grind` instead if you need additional capabilities.
+
+**Deprecated**: Use `lia` instead.
 -/
 syntax (name := cutsat) "cutsat" optConfig : tactic
+
+/--
+`lia` solves linear integer arithmetic goals.
+
+It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `cutsat` solver.
+Please use `grind` instead if you need additional capabilities.
+-/
+syntax (name := lia) "lia" optConfig : tactic
 
 /--
 `grobner` solves goals that can be phrased as polynomial equations (with further polynomial equations as hypotheses)

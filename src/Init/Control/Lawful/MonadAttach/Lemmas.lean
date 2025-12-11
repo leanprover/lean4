@@ -21,8 +21,8 @@ public theorem LawfulMonadAttach.canReturn_bind_imp' [Monad m] [LawfulMonad m]
       let b ← MonadAttach.attach (f a)
       return ⟨b.1, a.1, a.2, b.2⟩ : m (Subtype P)))) := by
     simp only [map_bind, map_pure]
-    simp only [bind_pure_comp, LawfulMonadAttach.map_attach]
-    rw (occs := [1]) [← LawfulMonadAttach.map_attach (x := x)]
+    simp only [bind_pure_comp, WeaklyLawfulMonadAttach.map_attach]
+    rw (occs := [1]) [← WeaklyLawfulMonadAttach.map_attach (x := x)]
     simp
   rw [h'] at h
   have := LawfulMonadAttach.canReturn_map_imp h
@@ -52,31 +52,31 @@ public theorem LawfulMonadAttach.canReturn_liftM_imp'
     [MonadLiftT m n] [LawfulMonadLiftT m n] {x : m α} {a : α} :
     MonadAttach.CanReturn (liftM (n := n) x) a → MonadAttach.CanReturn x a := by
   intro h
-  simp only [← LawfulMonadAttach.map_attach (x := x), liftM_map] at h
+  simp only [← WeaklyLawfulMonadAttach.map_attach (x := x), liftM_map] at h
   exact canReturn_map_imp h
 
-public theorem LawfulMonadAttach.attach_bind_val
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+public theorem WeaklyLawfulMonadAttach.attach_bind_val
+    [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
     {x : m α} {f : α → m β} :
     MonadAttach.attach x >>= (fun a => f a.val) = x >>= f := by
   conv => rhs; simp only [← map_attach (x := x), bind_map_left]
 
-public theorem LawfulMonadAttach.bind_attach_of_nonempty
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m] [Nonempty (m β)]
+public theorem WeaklyLawfulMonadAttach.bind_attach_of_nonempty
+    [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m] [Nonempty (m β)]
     {x : m α} {f : Subtype (MonadAttach.CanReturn x) → m β} :
     open scoped Classical in
     MonadAttach.attach x >>= f = x >>= (fun a => if ha : MonadAttach.CanReturn x a then f ⟨a, ha⟩ else Classical.ofNonempty) := by
-  conv => rhs; simp +singlePass only [← LawfulMonadAttach.map_attach (x := x)]
+  conv => rhs; simp +singlePass only [← map_attach (x := x)]
   simp [Subtype.property]
 
-public theorem LawfulMonadAttach.attach_bind_eq_pbind
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+public theorem MonadAttach.attach_bind_eq_pbind
+    [Monad m] [MonadAttach m]
     {x : m α} {f : Subtype (MonadAttach.CanReturn x) → m β} :
     MonadAttach.attach x >>= f = MonadAttach.pbind x (fun a ha => f ⟨a, ha⟩) := by
   simp [MonadAttach.pbind]
 
-public theorem LawfulMonadAttach.pbind_eq_bind
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+public theorem WeaklyLawfulMonadAttach.pbind_eq_bind
+    [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
     {x : m α} {f : α → m β} :
     MonadAttach.pbind x (fun a _ => f a) = x >>= f := by
   conv => rhs; rw [← map_attach (x := x)]

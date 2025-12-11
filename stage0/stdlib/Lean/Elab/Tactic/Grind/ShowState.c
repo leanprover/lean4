@@ -487,7 +487,7 @@ _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_11 = lean_st_ref_get(x_2);
-x_12 = lean_ctor_get(x_11, 10);
+x_12 = lean_ctor_get(x_11, 11);
 lean_inc_ref(x_12);
 lean_dec(x_11);
 x_13 = l_Lean_PersistentArray_toArray___redArg(x_12);

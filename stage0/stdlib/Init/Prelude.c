@@ -308,6 +308,7 @@ LEAN_EXPORT lean_object* l_Lean_Name_casesOn___override(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_Macro_addMacroScope(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_flatMap___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instInhabitedNat;
+LEAN_EXPORT lean_object* l_ReaderT_mk(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_of_nat_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Eq_ndrec___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHOrElseOfOrElse___redArg___lam__0(lean_object*, lean_object*, lean_object*);
@@ -1060,6 +1061,7 @@ static lean_object* l_EStateM_instMonadStateOf___closed__2;
 static lean_object* l_USize_size___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Syntax_node_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_namedPattern___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_ReaderT_mk___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Char_utf8Size(uint32_t);
 LEAN_EXPORT lean_object* l_letFun(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_instMonadQuotationMacroM___lam__0(lean_object*, lean_object*);
@@ -7054,6 +7056,22 @@ lean_closure_set(x_2, 1, lean_box(0));
 lean_closure_set(x_2, 2, x_1);
 lean_closure_set(x_2, 3, lean_box(0));
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_ReaderT_mk(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = lean_apply_1(x_4, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_ReaderT_mk___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_apply_1(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_instInhabitedReaderT(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

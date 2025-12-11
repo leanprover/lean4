@@ -7716,8 +7716,8 @@ if (x_11 == 0)
 lean_object* x_12; lean_object* x_13; 
 lean_dec_ref(x_1);
 x_12 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_12, 0, x_8);
-lean_ctor_set(x_12, 1, x_9);
+lean_ctor_set(x_12, 0, x_9);
+lean_ctor_set(x_12, 1, x_10);
 x_13 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
 return x_13;
@@ -7725,8 +7725,8 @@ return x_13;
 else
 {
 lean_object* x_14; 
+lean_dec_ref(x_10);
 lean_dec_ref(x_9);
-lean_dec_ref(x_8);
 x_14 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_14, 0, x_1);
 return x_14;
@@ -7739,8 +7739,8 @@ if (x_19 == 0)
 lean_object* x_20; lean_object* x_21; 
 lean_dec_ref(x_1);
 x_20 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_20, 0, x_16);
-lean_ctor_set(x_20, 1, x_17);
+lean_ctor_set(x_20, 0, x_17);
+lean_ctor_set(x_20, 1, x_18);
 x_21 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_21, 0, x_20);
 return x_21;
@@ -7748,8 +7748,8 @@ return x_21;
 else
 {
 lean_object* x_22; 
+lean_dec_ref(x_18);
 lean_dec_ref(x_17);
-lean_dec_ref(x_16);
 x_22 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_22, 0, x_1);
 return x_22;
@@ -7800,9 +7800,9 @@ x_44 = lean_ptr_addr(x_40);
 x_45 = lean_usize_dec_eq(x_43, x_44);
 if (x_45 == 0)
 {
-x_8 = x_38;
-x_9 = x_40;
-x_10 = lean_box(0);
+x_8 = lean_box(0);
+x_9 = x_38;
+x_10 = x_40;
 x_11 = x_45;
 goto block_15;
 }
@@ -7812,9 +7812,9 @@ size_t x_46; size_t x_47; uint8_t x_48;
 x_46 = lean_ptr_addr(x_41);
 x_47 = lean_ptr_addr(x_38);
 x_48 = lean_usize_dec_eq(x_46, x_47);
-x_8 = x_38;
-x_9 = x_40;
-x_10 = lean_box(0);
+x_8 = lean_box(0);
+x_9 = x_38;
+x_10 = x_40;
 x_11 = x_48;
 goto block_15;
 }
@@ -7832,9 +7832,9 @@ x_53 = lean_ptr_addr(x_49);
 x_54 = lean_usize_dec_eq(x_52, x_53);
 if (x_54 == 0)
 {
-x_16 = x_38;
-x_17 = x_49;
-x_18 = lean_box(0);
+x_16 = lean_box(0);
+x_17 = x_38;
+x_18 = x_49;
 x_19 = x_54;
 goto block_23;
 }
@@ -7844,9 +7844,9 @@ size_t x_55; size_t x_56; uint8_t x_57;
 x_55 = lean_ptr_addr(x_50);
 x_56 = lean_ptr_addr(x_38);
 x_57 = lean_usize_dec_eq(x_55, x_56);
-x_16 = x_38;
-x_17 = x_49;
-x_18 = lean_box(0);
+x_16 = lean_box(0);
+x_17 = x_38;
+x_18 = x_49;
 x_19 = x_57;
 goto block_23;
 }

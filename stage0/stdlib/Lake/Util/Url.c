@@ -1623,8 +1623,8 @@ x_16 = 3;
 x_17 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set_uint8(x_17, sizeof(void*)*1, x_16);
-x_18 = lean_array_push(x_10, x_17);
-x_5 = x_11;
+x_18 = lean_array_push(x_11, x_17);
+x_5 = x_12;
 x_6 = x_18;
 x_7 = lean_box(0);
 goto block_9;
@@ -1633,8 +1633,8 @@ block_25:
 {
 lean_object* x_23; lean_object* x_24; 
 x_23 = l_Lake_getUrl_x3f___closed__2;
-x_24 = lean_array_push(x_20, x_23);
-x_5 = x_21;
+x_24 = lean_array_push(x_21, x_23);
+x_5 = x_22;
 x_6 = x_24;
 x_7 = lean_box(0);
 goto block_9;
@@ -1649,8 +1649,8 @@ x_32 = 3;
 x_33 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_33, 0, x_31);
 lean_ctor_set_uint8(x_33, sizeof(void*)*1, x_32);
-x_34 = lean_array_push(x_26, x_33);
-x_5 = x_27;
+x_34 = lean_array_push(x_27, x_33);
+x_5 = x_28;
 x_6 = x_34;
 x_7 = lean_box(0);
 goto block_9;
@@ -1659,11 +1659,11 @@ block_96:
 {
 if (lean_obj_tag(x_41) == 0)
 {
+lean_dec(x_39);
 lean_dec_ref(x_38);
-lean_dec(x_36);
-x_20 = x_37;
-x_21 = x_40;
-x_22 = lean_box(0);
+x_20 = lean_box(0);
+x_21 = x_36;
+x_22 = x_40;
 goto block_25;
 }
 else
@@ -1680,7 +1680,7 @@ if (x_45 == 0)
 {
 lean_object* x_46; uint8_t x_47; 
 lean_free_object(x_41);
-lean_dec(x_36);
+lean_dec(x_39);
 x_46 = lean_unsigned_to_nat(404u);
 x_47 = lean_nat_dec_eq(x_43, x_46);
 if (x_47 == 0)
@@ -1701,7 +1701,7 @@ x_55 = 3;
 x_56 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_56, 0, x_54);
 lean_ctor_set_uint8(x_56, sizeof(void*)*1, x_55);
-x_57 = lean_array_push(x_37, x_56);
+x_57 = lean_array_push(x_36, x_56);
 x_5 = x_40;
 x_6 = x_57;
 x_7 = lean_box(0);
@@ -1716,7 +1716,7 @@ lean_dec_ref(x_38);
 x_58 = lean_box(0);
 x_59 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_59, 0, x_58);
-lean_ctor_set(x_59, 1, x_37);
+lean_ctor_set(x_59, 1, x_36);
 return x_59;
 }
 }
@@ -1731,7 +1731,7 @@ lean_dec_ref(x_38);
 x_61 = lean_string_utf8_byte_size(x_60);
 x_62 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_62, 0, x_60);
-lean_ctor_set(x_62, 1, x_36);
+lean_ctor_set(x_62, 1, x_39);
 lean_ctor_set(x_62, 2, x_61);
 x_63 = l_String_Slice_trimAscii(x_62);
 lean_dec_ref(x_62);
@@ -1749,7 +1749,7 @@ lean_dec_ref(x_64);
 lean_ctor_set(x_41, 0, x_67);
 x_68 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_68, 0, x_41);
-lean_ctor_set(x_68, 1, x_37);
+lean_ctor_set(x_68, 1, x_36);
 return x_68;
 }
 }
@@ -1764,7 +1764,7 @@ x_71 = lean_nat_dec_eq(x_69, x_70);
 if (x_71 == 0)
 {
 lean_object* x_72; uint8_t x_73; 
-lean_dec(x_36);
+lean_dec(x_39);
 x_72 = lean_unsigned_to_nat(404u);
 x_73 = lean_nat_dec_eq(x_69, x_72);
 if (x_73 == 0)
@@ -1785,7 +1785,7 @@ x_81 = 3;
 x_82 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_82, 0, x_80);
 lean_ctor_set_uint8(x_82, sizeof(void*)*1, x_81);
-x_83 = lean_array_push(x_37, x_82);
+x_83 = lean_array_push(x_36, x_82);
 x_5 = x_40;
 x_6 = x_83;
 x_7 = lean_box(0);
@@ -1800,7 +1800,7 @@ lean_dec_ref(x_38);
 x_84 = lean_box(0);
 x_85 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_85, 0, x_84);
-lean_ctor_set(x_85, 1, x_37);
+lean_ctor_set(x_85, 1, x_36);
 return x_85;
 }
 }
@@ -1815,7 +1815,7 @@ lean_dec_ref(x_38);
 x_87 = lean_string_utf8_byte_size(x_86);
 x_88 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_88, 0, x_86);
-lean_ctor_set(x_88, 1, x_36);
+lean_ctor_set(x_88, 1, x_39);
 lean_ctor_set(x_88, 2, x_87);
 x_89 = l_String_Slice_trimAscii(x_88);
 lean_dec_ref(x_88);
@@ -1834,7 +1834,7 @@ x_94 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_94, 0, x_93);
 x_95 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_95, 0, x_94);
-lean_ctor_set(x_95, 1, x_37);
+lean_ctor_set(x_95, 1, x_36);
 return x_95;
 }
 }
@@ -1844,15 +1844,15 @@ block_112:
 {
 lean_object* x_103; lean_object* x_104; 
 x_103 = l_Lake_getUrl_x3f___closed__6;
-x_104 = l_Lake_JsonObject_getJson_x3f(x_99, x_103);
-lean_dec(x_99);
+x_104 = l_Lake_JsonObject_getJson_x3f(x_97, x_103);
+lean_dec(x_97);
 if (lean_obj_tag(x_104) == 0)
 {
+lean_dec(x_101);
 lean_dec_ref(x_100);
-lean_dec(x_97);
-x_20 = x_98;
-x_21 = x_102;
-x_22 = lean_box(0);
+x_20 = lean_box(0);
+x_21 = x_98;
+x_22 = x_102;
 goto block_25;
 }
 else
@@ -1865,17 +1865,17 @@ x_106 = l_Option_fromJson_x3f___at___00Lake_getUrl_x3f_spec__0(x_105);
 if (lean_obj_tag(x_106) == 0)
 {
 lean_object* x_107; lean_object* x_108; lean_object* x_109; 
+lean_dec(x_101);
 lean_dec_ref(x_100);
-lean_dec(x_97);
 x_107 = lean_ctor_get(x_106, 0);
 lean_inc(x_107);
 lean_dec_ref(x_106);
 x_108 = l_Lake_getUrl_x3f___closed__7;
 x_109 = lean_string_append(x_108, x_107);
 lean_dec(x_107);
-x_10 = x_98;
-x_11 = x_102;
-x_12 = lean_box(0);
+x_10 = lean_box(0);
+x_11 = x_98;
+x_12 = x_102;
 x_13 = x_109;
 goto block_19;
 }
@@ -1884,14 +1884,14 @@ else
 if (lean_obj_tag(x_106) == 0)
 {
 lean_object* x_110; 
+lean_dec(x_101);
 lean_dec_ref(x_100);
-lean_dec(x_97);
 x_110 = lean_ctor_get(x_106, 0);
 lean_inc(x_110);
 lean_dec_ref(x_106);
-x_10 = x_98;
-x_11 = x_102;
-x_12 = lean_box(0);
+x_10 = lean_box(0);
+x_11 = x_98;
+x_12 = x_102;
 x_13 = x_110;
 goto block_19;
 }
@@ -1901,10 +1901,10 @@ lean_object* x_111;
 x_111 = lean_ctor_get(x_106, 0);
 lean_inc(x_111);
 lean_dec_ref(x_106);
-x_36 = x_97;
-x_37 = x_98;
+x_36 = x_98;
+x_37 = lean_box(0);
 x_38 = x_100;
-x_39 = lean_box(0);
+x_39 = x_101;
 x_40 = x_102;
 x_41 = x_111;
 goto block_96;
@@ -1953,9 +1953,9 @@ lean_dec(x_125);
 x_129 = lean_ctor_get(x_128, 0);
 lean_inc(x_129);
 lean_dec_ref(x_128);
-x_26 = x_126;
-x_27 = x_124;
-x_28 = lean_box(0);
+x_26 = lean_box(0);
+x_27 = x_126;
+x_28 = x_124;
 x_29 = x_129;
 goto block_35;
 }
@@ -1973,9 +1973,9 @@ lean_dec(x_125);
 x_132 = lean_ctor_get(x_131, 0);
 lean_inc(x_132);
 lean_dec_ref(x_131);
-x_26 = x_126;
-x_27 = x_124;
-x_28 = lean_box(0);
+x_26 = lean_box(0);
+x_27 = x_126;
+x_28 = x_124;
 x_29 = x_132;
 goto block_35;
 }
@@ -1991,9 +1991,9 @@ if (lean_obj_tag(x_135) == 0)
 {
 lean_dec(x_133);
 lean_dec(x_125);
-x_20 = x_126;
-x_21 = x_124;
-x_22 = lean_box(0);
+x_20 = lean_box(0);
+x_21 = x_126;
+x_22 = x_124;
 goto block_25;
 }
 else
@@ -2006,11 +2006,11 @@ x_137 = l_Option_fromJson_x3f___at___00Lake_getUrl_x3f_spec__0(x_136);
 if (lean_obj_tag(x_137) == 0)
 {
 lean_dec_ref(x_137);
-x_97 = x_118;
+x_97 = x_133;
 x_98 = x_126;
-x_99 = x_133;
+x_99 = lean_box(0);
 x_100 = x_125;
-x_101 = lean_box(0);
+x_101 = x_118;
 x_102 = x_124;
 goto block_112;
 }
@@ -2019,11 +2019,11 @@ else
 if (lean_obj_tag(x_137) == 0)
 {
 lean_dec_ref(x_137);
-x_97 = x_118;
+x_97 = x_133;
 x_98 = x_126;
-x_99 = x_133;
+x_99 = lean_box(0);
 x_100 = x_125;
-x_101 = lean_box(0);
+x_101 = x_118;
 x_102 = x_124;
 goto block_112;
 }
@@ -2034,10 +2034,10 @@ lean_dec(x_133);
 x_138 = lean_ctor_get(x_137, 0);
 lean_inc(x_138);
 lean_dec_ref(x_137);
-x_36 = x_118;
-x_37 = x_126;
+x_36 = x_126;
+x_37 = lean_box(0);
 x_38 = x_125;
-x_39 = lean_box(0);
+x_39 = x_118;
 x_40 = x_124;
 x_41 = x_138;
 goto block_96;

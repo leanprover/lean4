@@ -38,3 +38,10 @@ example : 0 = 0 := by
 example : 0 = 0 := by
   have h : 1 = 1 := rfl
   grind only [h]
+
+-- Checks that dot notation on a local variable for a global theorem is accepted.
+-- `n.triv` means `Nat.triv n`, not a local hypothesis.
+theorem Nat.triv (n : Nat) : n = n := rfl
+
+example (n : Nat) : n = n := by
+  grind [n.triv]

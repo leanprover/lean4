@@ -443,6 +443,19 @@ theorem get_insert_self [LawfulBEq α] (h : m.WF) {k : α} {v : β k} :
     (m.insert k v).get k (mem_insert_self h) = v := by
   simp_to_raw using Raw₀.get_insert_self ⟨m, _⟩
 
+theorem toList_insert_perm [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β k} :
+    (m.insert k v).toList.Perm (⟨k, v⟩ :: m.toList.filter (¬k == ·.1)) := by
+  simp_to_raw using Raw₀.toList_insert_perm ⟨m, _⟩
+
+theorem Const.toList_insert_perm {β : Type v} {m : Raw α (fun _ => β)} [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β} :
+    (Const.toList (m.insert k v)).Perm ((k, v) :: (Const.toList m).filter (¬k == ·.1)) := by
+  simp_to_raw using Raw₀.Const.toList_insert_perm ⟨m, _⟩
+
+theorem keys_insertIfNew_perm [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β k} :
+    (m.insertIfNew k v).keys.Perm (if k ∈ m then m.keys else k :: m.keys) := by
+  simp only [Membership.mem]
+  simp_to_raw using Raw₀.keys_insertIfNew_perm ⟨m, _⟩
+
 @[simp, grind =]
 theorem get_erase [LawfulBEq α] (h : m.WF) {k a : α} {h'} :
     (m.erase a).get k h' = m.get k (mem_of_mem_erase h h') := by

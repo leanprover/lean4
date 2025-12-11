@@ -435,4 +435,9 @@ theorem all_unattach {p : α → Prop} {o : Option { x // p x }} {q : α → Boo
     o.unattach.all q = o.all (q ∘ Subtype.val) := by
   cases o <;> simp
 
+@[always_inline]
+instance : MonadAttach Option where
+  CanReturn x a := x = some a
+  attach x := x.attach
+
 end Option

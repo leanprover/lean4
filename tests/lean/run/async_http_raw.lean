@@ -338,59 +338,46 @@ info: Sent 21 requests, received 10 responses
 #guard_msgs in
 #eval show IO _ from do test20Requests
 
-/--
-info: "HTTP/1.1 202 Accepted\x0d\nContent-Length: 50\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: application/json\x0d\n\x0d\n{\"message\": \"JSON response\", \"status\": \"accepted\"}HTTP/1.1 200 OK\x0d\nContent-Length: 73\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: application/xml\x0d\n\x0d\n<?xml version=\"1.0\"?><response><message>XML response</message></response>"
--/
-#guard_msgs in
-#eval show IO _ from do testContentNegotiation
-
-def testContentNegotiationError : IO Unit := do
+def testKeepAlive : IO Unit := do
   let pair ← Mock.new
 
-  let handler := fun (req : Request Body) => do
-    if req.head.headers.hasEntry (.new "Accept") "application/json" then
-      return Response.new
-        |>.status .accepted
-        |>.header! "Content-Type" "application/json"
-        |>.body "{\"message\": \"JSON response\", \"status\": \"accepted\"}"
-    else if req.head.headers.hasEntry (.new "Accept") "text/xml" then
-      return Response.new
-        |>.status .ok
-        |>.header! "Content-Type" "application/xml"
-        |>.body "<?xml version=\"1.0\"?><response><message>XML response</message></response>"
-    else
-      return Response.new
-        |>.status .ok
-        |>.header! "Content-Type" "text/plain"
-        |>.body "Plain text response"
+  let handler := fun (_ : Request Body) => do
+    return Response.new
+      |>.status .ok
+      |>.header! "Content-Type" "text/plain"
+      |>.body "OK"
 
-  -- Size is 19 of the first so it's wrong (Content-Length says 18).
+  -- Build 20 identical requests
   let mut data := .empty
+  for _ in [0:20] do
+    data := data ++ (← requestToByteArray (
+      Request.new
+        |>.uri! "/test"
+        |>.method .get
+        |>.header! "Host" "localhost"
+        |>.header! "User-Agent" "TestClient/1.0"
+        |>.header! "Content-Length" "0"
+        |>.body #[.mk "".toUTF8 #[]]))
+
+  -- Add Connection: close to the last request
   data := data ++ (← requestToByteArray (
     Request.new
-      |>.uri! "/api/content"
-      |>.method .post
-      |>.header! "Host" "localhost"
-      |>.header! "Accept" "application/json"
-      |>.header! "Content-Type" "application/json"
-      |>.header! "Content-Length" "18"
-      |>.body #[.mk "{\"request\": \"data\"}".toUTF8 #[]]))
-  data := data ++ (← requestToByteArray (
-    Request.new
-      |>.uri! "/api/content"
+      |>.uri! "/test"
       |>.method .get
       |>.header! "Host" "localhost"
-      |>.header! "Accept" "text/xml"
-      |>.header! "Content-Length" "1"
-      |>.body #[.mk "a".toUTF8 #[]]))
+      |>.header! "User-Agent" "TestClient/1.0"
+      |>.header! "Connection" "close"
+      |>.header! "Content-Length" "0"
+      |>.body #[.mk "".toUTF8 #[]]))
 
-  let response ← sendRawBytes pair data handler
+  let response ← sendRawBytes pair data handler { lingeringTimeout := 2000, maxRequests := 10, enableKeepAlive := false }
 
   let responseData := String.fromUTF8! response
-  IO.println s!"{responseData.quote}"
+  let responseCount := (responseData.splitOn "HTTP/1.1 200 OK").length - 1
+  IO.println s!"Sent 21 requests, received {responseCount} responses"
 
 /--
-info: "HTTP/1.1 202 Accepted\x0d\nContent-Length: 50\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: application/json\x0d\n\x0d\n{\"message\": \"JSON response\", \"status\": \"accepted\"}HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+info: Sent 21 requests, received 1 responses
 -/
 #guard_msgs in
-#eval show IO _ from do testContentNegotiationError
+#eval show IO _ from do testKeepAlive

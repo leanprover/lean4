@@ -117,7 +117,7 @@ returned `Option` value.
 def IterM.filterMapWithPostcondition {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
     [MonadLiftT m n] [Iterator α m β] (f : β → PostconditionT n (Option γ))
     (it : IterM (α := α) m β) : IterM (α := FilterMap α m n (fun ⦃_⦄ => monadLift) f) n γ :=
-  IterM.InternalCombinators.filterMap (fun ⦃_⦄ => monadLift) f it
+  IterM.InternalCombinators.filterMap (n := n) (fun ⦃_⦄ => monadLift) f it
 
 /--
 `it.PlausibleStep step` is the proposition that `step` is a possible next step from the
@@ -387,9 +387,9 @@ returned `Option` value.
 -/
 @[inline, expose]
 def IterM.filterMapM {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
-    [Iterator α m β] [Monad n] [MonadLiftT m n]
+    [Iterator α m β] [Monad n] [MonadAttach n] [MonadLiftT m n]
     (f : β → n (Option γ)) (it : IterM (α := α) m β) :=
-  (it.filterMapWithPostcondition (fun b => PostconditionT.lift (f b)) : IterM n γ)
+  (it.filterMapWithPostcondition (fun b => PostconditionT.attachLift (f b)) : IterM n γ)
 
 /--
 If `it` is an iterator, then `it.mapM f` is another iterator that applies a monadic
@@ -427,8 +427,8 @@ For each value emitted by the base iterator `it`, this combinator calls `f`.
 -/
 @[inline, expose]
 def IterM.mapM {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} [Iterator α m β]
-    [Monad n] [MonadLiftT m n] (f : β → n γ) (it : IterM (α := α) m β) :=
-  (it.mapWithPostcondition (fun b => PostconditionT.lift (f b)) : IterM n γ)
+    [Monad n] [MonadAttach n] [MonadLiftT m n] (f : β → n γ) (it : IterM (α := α) m β) :=
+  (it.mapWithPostcondition (fun b => PostconditionT.attachLift (f b)) : IterM n γ)
 
 /--
 If `it` is an iterator, then `it.filterM f` is another iterator that applies a monadic
@@ -467,9 +467,9 @@ For each value emitted by the base iterator `it`, this combinator calls `f`.
 -/
 @[inline, expose]
 def IterM.filterM {α β : Type w} {m : Type w → Type w'} {n : Type w → Type w''} [Iterator α m β]
-    [Monad n] [MonadLiftT m n] (f : β → n (ULift Bool)) (it : IterM (α := α) m β) :=
+    [Monad n] [MonadAttach n] [MonadLiftT m n] (f : β → n (ULift Bool)) (it : IterM (α := α) m β) :=
   (it.filterMapWithPostcondition
-    (fun b => (PostconditionT.lift (f b)).map (if ·.down = true then some b else none)) : IterM n β)
+    (fun b => (PostconditionT.attachLift (f b)).map (if ·.down = true then some b else none)) : IterM n β)
 
 /--
 If `it` is an iterator, then `it.filterMap f` is another iterator that applies a function `f` to all

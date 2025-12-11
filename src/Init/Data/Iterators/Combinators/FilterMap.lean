@@ -211,7 +211,7 @@ returned `Option` value.
 -/
 @[always_inline, inline, expose]
 def Iter.filterMapM {α β γ : Type w} [Iterator α Id β] {m : Type w → Type w'}
-    [Monad m] (f : β → m (Option γ)) (it : Iter (α := α) β) :=
+    [Monad m] [MonadAttach m] (f : β → m (Option γ)) (it : Iter (α := α) β) :=
   (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.filterMapM f : IterM m γ)
 
 /--
@@ -248,7 +248,7 @@ For each value emitted by the base iterator `it`, this combinator calls `f`.
 -/
 @[always_inline, inline, expose]
 def Iter.filterM {α β : Type w} [Iterator α Id β] {m : Type w → Type w'}
-    [Monad m] (f : β → m (ULift Bool)) (it : Iter (α := α) β) :=
+    [Monad m] [MonadAttach m] (f : β → m (ULift Bool)) (it : Iter (α := α) β) :=
   (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.filterM f : IterM m β)
 
 /--
@@ -287,7 +287,7 @@ For each value emitted by the base iterator `it`, this combinator calls `f`.
 -/
 @[always_inline, inline, expose]
 def Iter.mapM {α β γ : Type w} [Iterator α Id β] {m : Type w → Type w'}
-    [Monad m] (f : β → m γ) (it : Iter (α := α) β) :=
+    [Monad m] [MonadAttach m] (f : β → m γ) (it : Iter (α := α) β) :=
   (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.mapM f : IterM m γ)
 
 @[always_inline, inline, inherit_doc IterM.filterMap, expose]

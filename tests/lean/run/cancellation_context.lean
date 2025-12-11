@@ -6,9 +6,9 @@ open Std.Internal.IO Async
 /-- Test basic tree cancellation -/
 partial def testCancelTree : IO Unit := do
   let mutex ← Std.Mutex.new 0
+  let context ← Std.CancellationContext.new
 
   Async.block do
-    let context ← Std.CancellationContext.new
 
     let rec loop (x : Nat) (parent : Std.CancellationContext) : Async Unit := do
       match x with
@@ -27,6 +27,7 @@ partial def testCancelTree : IO Unit := do
     context.cancel .cancel
     Async.sleep 1000
 
+  assert! (← context.countAliveTokens) == 1
   let size ← mutex.atomically get
   IO.println s!"cancelled {size}"
 
@@ -38,24 +39,25 @@ info: cancelled 15
 
 /-- Test cancellation with different reasons -/
 def testCancellationReasons : IO Unit := do
+  let ctx ← Std.CancellationContext.new
   let (reason1, reason2, reason3, reason4) ← Async.block do
     -- Test with .cancel reason
-    let ctx1 ← Std.CancellationContext.new
+    let ctx1 ← ctx.fork
     ctx1.cancel .cancel
     let some reason1 ← ctx1.getCancellationReason | return (none, none, none, none)
 
     -- Test with .deadline reason
-    let ctx2 ← Std.CancellationContext.new
+    let ctx2 ← ctx.fork
     ctx2.cancel .deadline
     let some reason2 ← ctx2.getCancellationReason | return (none, none, none, none)
 
     -- Test with .shutdown reason
-    let ctx3 ← Std.CancellationContext.new
+    let ctx3 ← ctx.fork
     ctx3.cancel .shutdown
     let some reason3 ← ctx3.getCancellationReason | return (none, none, none, none)
 
     -- Test with custom reason
-    let ctx4 ← Std.CancellationContext.new
+    let ctx4 ← ctx.fork
     ctx4.cancel (.custom "test error")
     let some reason4 ← ctx4.getCancellationReason | return (none, none, none, none)
 
@@ -65,6 +67,8 @@ def testCancellationReasons : IO Unit := do
   if let some r2 := reason2 then IO.println s!"Reason 2: {r2}"
   if let some r3 := reason3 then IO.println s!"Reason 3: {r3}"
   if let some r4 := reason4 then IO.println s!"Reason 4: {r4}"
+
+  assert! (← ctx.countAliveTokens) == 1
 
 /--
 info: Reason 1: cancel
@@ -201,3 +205,47 @@ info: Cancelled 31 nodes, all with same reason: true
 -/
 #guard_msgs in
 #eval testDeepTreeCancellation
+
+/-- Test counting alive tokens -/
+def testCountAliveTokens : IO Unit := do
+  let (count0, count1, count2, count3, count4) ← Async.block do
+    let root ← Std.CancellationContext.new
+    let count0 ← root.countAliveTokens -- Root only
+
+    -- Fork 3 children
+    let child1 ← root.fork
+    let child2 ← root.fork
+    let _child3 ← root.fork
+    let count1 ← root.countAliveTokens -- Root + 3 children = 4
+
+    -- Cancel one child (and its subtree)
+    child1.cancel .cancel
+    Async.sleep 100
+    let count2 ← root.countAliveTokens -- Root + 2 children = 3
+
+    -- Fork a grandchild from child2
+    let _grandchild ← child2.fork
+    let count3 ← root.countAliveTokens -- Root + 2 children + 1 grandchild = 4
+
+    -- Cancel root (should cancel everything)
+    root.cancel .cancel
+    Async.sleep 100
+    let count4 ← root.countAliveTokens -- All cancelled = 0
+
+    return (count0, count1, count2, count3, count4)
+
+  IO.println s!"Initial (root only): {count0}"
+  IO.println s!"After forking 3 children: {count1}"
+  IO.println s!"After cancelling 1 child: {count2}"
+  IO.println s!"After forking grandchild: {count3}"
+  IO.println s!"After cancelling root: {count4}"
+
+/--
+info: Initial (root only): 1
+After forking 3 children: 4
+After cancelling 1 child: 3
+After forking grandchild: 4
+After cancelling root: 0
+-/
+#guard_msgs in
+#eval testCountAliveTokens

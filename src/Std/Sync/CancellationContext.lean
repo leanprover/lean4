@@ -134,5 +134,19 @@ Creates a selector that waits for cancellation.
 def doneSelector (x : CancellationContext) : Selector Unit :=
   x.token.selector
 
+private partial def countAliveTokensRec (state : CancellationContext.State) (id : UInt64) : Nat :=
+  match state.tokens.get? id with
+  | none => 0
+  | some (_, children) => 1 + children.foldl (fun acc childId => acc + countAliveTokensRec state childId) 0
+
+/--
+Counts the number of alive (non-cancelled) tokens in the context tree, including
+this context and all its descendants.
+-/
+def countAliveTokens (x : CancellationContext) : BaseIO Nat := do
+  x.state.atomically do
+    let st ← get
+    return countAliveTokensRec st x.id
+
 end CancellationContext
 end Std

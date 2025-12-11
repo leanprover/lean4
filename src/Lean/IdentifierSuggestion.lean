@@ -146,3 +146,20 @@ public def throwUnknownNameWithSuggestions (constName : Name) (idOrConst := "ide
           messageData? := .some m!"`{.ofConstName suggestion}`",
         }) ref
   throwUnknownIdentifierAt (declHint := declHint) ref (m!"Unknown {idOrConst} `{.ofConstName constName}`" ++ extraMsg ++ hint)
+
+public def Elab.Term.hintAutoImplicitFailure (exp : Expr) (expected := "a function") : TermElabM MessageData := do
+  let autoBound := (← readThe Context).autoBoundImplicitContext
+  unless autoBound.isSome && exp.isFVar && autoBound.get!.boundVariables.any (· == exp) do
+    return .nil
+  let name ← exp.fvarId!.getUserName
+  let baseMessage := m!"The identifier `{.ofName name}` is unknown, \
+    and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly \
+    bound variable with an unknown type. \
+    However, the unknown type cannot be {expected}, and {expected} is what Lean expects here. \
+    This is often the result of a typo or a missing `import` or `open` statement."
+  let suggestionExtra : MessageData := match (← getSuggestions name).toList with
+    | [] => .nil
+    | [opt] => Format.line ++ Format.line ++ m!"Perhaps you meant `{.ofConstName opt}` in place of `{.ofName name}`?"
+    | opts =>  Format.line ++ Format.line ++ m!"Perhaps you meant one of these in place of `{.ofName name}`:" ++
+        .joinSep (opts.map (indentD m!"• `{.ofConstName ·}`")) .nil
+  return MessageData.hint' (baseMessage ++ suggestionExtra)

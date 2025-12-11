@@ -2152,16 +2152,6 @@ def exprToSyntax (e : Expr) : TermElabM Term := withFreshMacroScope do
   mvar.mvarId!.assign e
   return result
 
-def hintAutoImplicitFailure (exp : Expr) (expected := "a function") : TermElabM MessageData := do
-  let autoBound := (← readThe Context).autoBoundImplicitContext
-  unless autoBound.isSome && exp.isFVar && autoBound.get!.boundVariables.any (· == exp) do
-    return .nil
-  return .hint' m!"The identifier `{.ofName (← exp.fvarId!.getUserName)}` is unknown, \
-    and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly \
-    bound variable with an unknown type. \
-    However, the unknown type cannot be {expected}, and {expected} is what Lean expects here. \
-    This is often the result of a typo or a missing `import` or `open` statement."
-
 end Term
 
 open Term in

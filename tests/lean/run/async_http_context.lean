@@ -10,7 +10,7 @@ def testCancelSlowHandler : IO Unit := do
   let res ← Async.block do
     let (client, server) ← Mock.new
 
-    let ctx ← Context.new
+    let ctx ← CancellationContext.new
 
     -- Start the server in the background
     background do
@@ -47,7 +47,7 @@ def testServerShutdownDuringRequest : IO Unit := do
   let res ← Async.block do
     let (client, server) ← Mock.new
 
-    let ctx ← Context.new
+    let ctx ← CancellationContext.new
 
     -- Start the server
     background do
@@ -81,7 +81,7 @@ info: (some ("HTTP/1.1 503 Service Unavailable\x0d\nContent-Length: 0\x0d\nconne
 def testCancelDuringStreaming : IO Unit := Async.block do
   let (client, server) ← Mock.new
 
-  let ctx ← Context.new
+  let ctx ← CancellationContext.new
 
   -- Start the server with a streaming handler
   background do
@@ -115,11 +115,11 @@ def testCancelDuringStreaming : IO Unit := Async.block do
 
 #eval testCancelDuringStreaming
 
-/-- Test that Context.fork creates cancellable child contexts -/
+/-- Test that CancellationContext.fork creates cancellable child contexts -/
 def testContextFork : IO Unit := Async.block do
   let (client, server) ← Mock.new
 
-  let parentCtx ← Context.new
+  let parentCtx ← CancellationContext.new
 
   -- Start the server with forked contexts
   background do
@@ -147,7 +147,7 @@ def testContextFork : IO Unit := Async.block do
 def testRaceWithCancellation : IO Unit := Async.block do
   let (client, server) ← Mock.new
 
-  let ctx ← Context.new
+  let ctx ← CancellationContext.new
 
   -- Start server with a race condition
   background do
@@ -178,7 +178,7 @@ def testRaceWithCancellation : IO Unit := Async.block do
 def testHandlerChecksCancellation : IO Unit := Async.block do
   let (client, server) ← Mock.new
 
-  let ctx ← Context.new
+  let ctx ← CancellationContext.new
 
   -- Start server with handler that checks cancellation
   background do
@@ -212,7 +212,7 @@ def testMultipleConcurrentRequestsWithCancel : IO Unit := Async.block do
   let (client1, server1) ← Mock.new
   let (client2, server2) ← Mock.new
 
-  let ctx ← Context.new
+  let ctx ← CancellationContext.new
 
   -- Start two server connections
   background do
@@ -246,7 +246,7 @@ def testMultipleConcurrentRequestsWithCancel : IO Unit := Async.block do
 def testDeadlineCancellation : IO Unit := Async.block do
   let (client, server) ← Mock.new
 
-  let ctx ← Context.new
+  let ctx ← CancellationContext.new
 
   -- Start server
   background do
@@ -277,7 +277,7 @@ def testDeadlineCancellation : IO Unit := Async.block do
 def testCompletedRequestNotAffected : IO Unit := Async.block do
   let (client, server) ← Mock.new
 
-  let ctx ← Context.new
+  let ctx ← CancellationContext.new
 
   -- Start server with fast handler
   background do

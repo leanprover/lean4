@@ -35,7 +35,7 @@ def sendRequests (client : Mock.Client) (server : Mock.Server) (reqs : Array (Re
 
   client.send data
   Std.Http.Server.serveConnection server onRequest (config := { lingeringTimeout := 3000 })
-    |>.run (← Context.new)
+    |>.run (← CancellationContext.new)
 
   let res ← client.recv?
   pure <| res.getD .empty

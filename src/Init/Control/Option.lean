@@ -112,6 +112,12 @@ instance (ε : Type u) [MonadExceptOf ε m] : MonadExceptOf ε (OptionT m) where
   throw e           := OptionT.mk <| throwThe ε e
   tryCatch x handle := OptionT.mk <| tryCatchThe ε x handle
 
+instance [MonadAttach m] : MonadAttach (OptionT m) where
+  CanReturn x a := MonadAttach.CanReturn x.run (some a)
+  attach x := .mk ((fun
+      | ⟨some a, h⟩ => some ⟨a, h⟩
+      | ⟨none, _⟩ => none) <$> MonadAttach.attach x.run)
+
 end OptionT
 
 instance [Monad m] : MonadControl m (OptionT m) where

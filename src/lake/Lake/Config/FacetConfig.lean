@@ -84,6 +84,9 @@ public structure NamedConfigDecl (β : Name → Type u) where
   name : Name
   config : β name
 
+/-- A facet declaration from a configuration file. -/
+public abbrev FacetDecl := NamedConfigDecl FacetConfig
+
 /-- A module facet's declarative configuration. -/
 public abbrev ModuleFacetConfig := KFacetConfig Module.facetKind
 

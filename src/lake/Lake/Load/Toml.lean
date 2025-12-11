@@ -8,10 +8,12 @@ module
 prelude
 public import Lake.Util.Log
 public import Lake.Config.Package
+public import Lake.Config.LakefileConfig
 public import Lake.Load.Config
 public import Lake.Toml.Decode
 import Lake.Toml.Load
 import Lean.Parser.Extension
+import Lake.Build.Infos
 meta import Lake.Config.Package
 
 open Lean Parser
@@ -408,7 +410,8 @@ private def decodeTargetDecls
   let r ← go r InputDir.keyword InputDir.configKind InputDirConfig.decodeToml
   return r
 where
-  go r kw kind (decode : {n : Name} → Table → DecodeM (ConfigType kind pkg n)) := do
+  go r kw kind (decode : {n : Name} → Table → DecodeM (ConfigType kind pkg n))
+      (h : DataType kind = OpaqueConfigTarget kind := by simp) := do
     let some tableArrayVal := t.find? kw | return r
     let some vals ← tryDecode? tableArrayVal.decodeValueArray | return r
     vals.foldlM (init := r) fun r val => do
@@ -424,15 +427,16 @@ where
       else
         let config ← @decode name t
         let decl : NConfigDecl pkg name :=
-          -- Safety: By definition, config kind = facet kind for declarative configurations.
-          unsafe {pkg, name, kind, config, wf_data := lcProof}
+          -- Safety: By definition, for declarative configurations, the type of a package target
+          -- is its configuration's data kind (i.e., `CustomData pkg name = DataType kind`).
+          -- In the equivalent Lean configuration, this would hold by type family axiom.
+          unsafe {pkg, name, kind, config, wf_data := fun _ => ⟨lcProof, h⟩}
         return (decls.push decl.toPConfigDecl, map.insert name decl)
 
 /-! ## Root Loader -/
 
-/-- **For internal use only.** -/
-public def loadTomlConfigCore (cfg : LoadConfig)
-    : LogIO {pkg : Package // pkg.wsIdx = cfg.pkgIdx} := do
+/-- Load a Lake configuration from a file written in TOML. -/
+public def loadTomlConfig (cfg : LoadConfig) : LogIO LakefileConfig := do
   let input ← IO.FS.readFile cfg.configFile
   let ictx := mkInputContext input cfg.relConfigFile.toString
   match (← loadToml ictx |>.toBaseIO) with
@@ -443,21 +447,12 @@ public def loadTomlConfigCore (cfg : LoadConfig)
       let baseName := if cfg.pkgName.isAnonymous then origName else cfg.pkgName
       let keyName := baseName.num wsIdx
       let config ← @PackageConfig.decodeToml keyName origName table
+      let pkgDecl := {baseName, keyName, origName, config : PackageDecl}
       let (targetDecls, targetDeclMap) ← decodeTargetDecls keyName table
       let defaultTargets ← table.tryDecodeD `defaultTargets #[]
       let defaultTargets := defaultTargets.map stringToLegalOrSimpleName
       let depConfigs ← table.tryDecodeD `require #[]
-      return ⟨{
-        wsIdx, baseName, keyName, origName
-        dir := cfg.pkgDir
-        relDir := cfg.relPkgDir
-        configFile := cfg.configFile
-        relConfigFile := cfg.relConfigFile
-        scope := cfg.scope
-        remoteUrl := cfg.remoteUrl
-        config, depConfigs, targetDecls, targetDeclMap
-        defaultTargets
-      }, rfl⟩
+      return {pkgDecl, depConfigs, targetDecls, targetDeclMap, defaultTargets}
     if errs.isEmpty then
       return pkg
     else
@@ -466,7 +461,3 @@ public def loadTomlConfigCore (cfg : LoadConfig)
         logError <| mkErrorStringWithPos ictx.fileName pos msg
   | .error log =>
     errorWithLog <| log.forM fun msg => do logError (← msg.toString)
-
-/-- Load a `Package` from a Lake configuration file written in TOML. -/
-@[inline] public def loadTomlConfig (cfg : LoadConfig) : LogIO Package := do
-  loadTomlConfigCore cfg

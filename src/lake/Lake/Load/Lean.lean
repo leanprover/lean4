@@ -6,8 +6,8 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lean.Environment
 public import Lake.Config.Package
+public import Lake.Config.LakefileConfig
 public import Lake.Load.Config
 import Lake.Load.Lean.Elab
 import Lake.Load.Lean.Eval
@@ -22,29 +22,7 @@ open Lean
 
 namespace Lake
 
-/-- **For internal use only.** -/
-public def loadLeanConfigCore (cfg : LoadConfig)
-    : LogIO ({pkg : Package // pkg.wsIdx = cfg.pkgIdx} × Environment) := do
+/-- Elaborate a Lake configuration file written in Lean and extract the Lake configuration.  -/
+public def loadLeanConfig  (cfg : LoadConfig) : LogIO LakefileConfig := do
   let configEnv ← importConfigFile cfg
-  let ⟨keyName, origName, config⟩ ← IO.ofExcept <| PackageDecl.loadFromEnv configEnv cfg.leanOpts
-  let baseName := if cfg.pkgName.isAnonymous then origName else cfg.pkgName
-  let pkg : Package := {
-    wsIdx := cfg.pkgIdx
-    baseName, keyName, origName, config
-    dir := cfg.pkgDir
-    relDir := cfg.relPkgDir
-    configFile := cfg.configFile
-    relConfigFile := cfg.relConfigFile
-    scope := cfg.scope
-    remoteUrl := cfg.remoteUrl
-  }
-  let pkg ← pkg.loadFromEnv configEnv cfg.leanOpts
-  return (⟨{pkg with wsIdx := cfg.pkgIdx}, rfl⟩, configEnv)
-
-/--
-Elaborate a Lean configuration file into a `Package`.
-The resulting package does not yet include any dependencies.
--/
-@[inline] public def loadLeanConfig (cfg : LoadConfig) : LogIO (Package × Environment) := do
-  let (⟨pkg, _⟩, env) ← loadLeanConfigCore cfg
-  return (pkg, env)
+  LakefileConfig.loadFromEnv configEnv cfg.leanOpts

@@ -8,6 +8,7 @@ module
 prelude
 public import Lake.Load.Config
 public import Lake.Config.Package
+public import Lake.Config.LakefileConfig
 import Lake.Util.IO
 import Lake.Load.Lean
 import Lake.Load.Toml
@@ -22,6 +23,36 @@ open Lean
 open System (FilePath)
 
 namespace Lake
+
+/--
+**For interal use only.**
+Constructo a package from the configuration defined in its Lake configuration file
+and the load configuaration.
+-/
+public def mkPackage (loadCfg : LoadConfig) (fileCfg : LakefileConfig) : Package :=
+  let wsIdx := loadCfg.pkgIdx
+  let {pkgDecl, targetDecls, targetDeclMap, postUpdateHooks, ..} := fileCfg
+  let {baseName, keyName, origName, config} := pkgDecl
+  {
+    wsIdx, baseName, keyName, origName, config
+    dir := loadCfg.pkgDir
+    relDir := loadCfg.relPkgDir
+    configFile := loadCfg.configFile
+    relConfigFile := loadCfg.relConfigFile
+    scope := loadCfg.scope
+    remoteUrl := loadCfg.remoteUrl
+    depConfigs := fileCfg.depConfigs
+    targetDecls := targetDecls
+    targetDeclMap := targetDeclMap
+    defaultTargets := fileCfg.defaultTargets
+    scripts := fileCfg.scripts
+    defaultScripts := fileCfg.defaultScripts
+    postUpdateHooks := postUpdateHooks
+    testDriver := fileCfg.lintDriver
+    lintDriver := fileCfg.testDriver
+  }
+
+public theorem wsIdx_mkPackage : (mkPackage l f).wsIdx = l.pkgIdx := by rfl
 
 /--
 Return whether a configuration file with the given name
@@ -48,13 +79,10 @@ public def realConfigFile (cfgFile : FilePath) : BaseIO FilePath := do
     else
       resolvePath (cfgFile.addExtension "toml")
 
-/--
-Loads a Lake package configuration (either Lean or TOML).
-The resulting package does not yet include any dependencies.
--/
-public def loadPackageCore
+/-- **For internal use only.** Loads a Lake configuration (either Lean or TOML). -/
+public def loadConfig
   (name : String) (cfg : LoadConfig)
-: LogIO ({pkg : Package // pkg.wsIdx = cfg.pkgIdx} × Option Environment) := do
+: LogIO LakefileConfig := do
   if let some ext := cfg.relConfigFile.extension then
     let configFile ←
       if let some configFile ← resolvePath? cfg.configFile then
@@ -62,14 +90,9 @@ public def loadPackageCore
       else error s!"{name}: configuration file not found: {cfg.configFile}"
     let cfg := {cfg with configFile}
     match ext with
-    | "lean" =>
-      let (pkg, env) ← loadLeanConfigCore cfg
-      return (pkg, some env)
-    | "toml" =>
-      let pkg ← loadTomlConfigCore cfg
-      return ⟨pkg, none⟩
-    | _ =>
-      error s!"{name}: configuration has unsupported file extension: {cfg.configFile}"
+    | "lean" => loadLeanConfig cfg
+    | "toml" => loadTomlConfig cfg
+    | _ => error s!"{name}: configuration has unsupported file extension: {cfg.configFile}"
   else
     let relLeanFile := cfg.relConfigFile.addExtension "lean"
     let relTomlFile := cfg.relConfigFile.addExtension "toml"
@@ -78,18 +101,27 @@ public def loadPackageCore
     if let some configFile ← resolvePath? leanFile then
       if (← tomlFile.pathExists) then
         logInfo s!"{name}: {relLeanFile} and {relTomlFile} are both present; using {relLeanFile}"
-       let cfg := {cfg with configFile, relConfigFile := relLeanFile}
-      let (pkg, env) ← loadLeanConfigCore cfg
-      return (pkg, some env)
+      loadLeanConfig {cfg with configFile, relConfigFile := relLeanFile}
     else
       if let some configFile ← resolvePath? tomlFile then
-        let cfg := {cfg with configFile, relConfigFile := relTomlFile}
-        let pkg ← loadTomlConfigCore cfg
-        return (pkg, none)
+        loadTomlConfig {cfg with configFile, relConfigFile := relTomlFile}
       else
         error s!"{name}: no configuration file with a supported extension:\n{leanFile}\n{tomlFile}"
 
+/--
+**For internal use only.**
+Loads a Lake package configuration (either Lean or TOML).
+The resulting package does not yet include any dependencies.
+-/
+@[inline] public def loadPackageCore
+  (name : String) (cfg : LoadConfig)
+: LogIO {pkg : Package // pkg.wsIdx = cfg.pkgIdx} := do
+  let fileCfg ← loadConfig name cfg
+  let pkg := mkPackage cfg fileCfg
+  return ⟨pkg, wsIdx_mkPackage⟩
+
 /-- Loads a Lake package as a single independent object (without dependencies). -/
-public def loadPackage (config : LoadConfig) : LogIO Package := do
-  Lean.searchPathRef.set config.lakeEnv.leanSearchPath
-  (·.1) <$> loadPackageCore "[root]" config
+public def loadPackage (cfg : LoadConfig) : LogIO Package := do
+  Lean.searchPathRef.set cfg.lakeEnv.leanSearchPath
+  let fileCfg ← loadConfig "[root]" cfg
+  return mkPackage cfg fileCfg

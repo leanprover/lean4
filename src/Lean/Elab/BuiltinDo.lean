@@ -137,7 +137,7 @@ def getDoReassignArrowVars (doReassignArrow : TSyntax ``doReassignArrow) : TermE
   let `(doReturn| return $[$e?]?) := stx | throwUnsupportedSyntax
   let returnCont ← getReturnCont
   let e ← match e? with
-    | some e => Term.elabTermEnsuringType e (← read).doBlockResultType
+    | some e => Term.elabTerm e none -- It's the job of the return cont to type-check this
     | none   => mkPUnitUnit
   dec.elabAsDeadCode -- emit dead code warnings
   returnCont.k e

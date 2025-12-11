@@ -26,7 +26,7 @@ def Param.toMono (param : Param) : ToMonoM Param := do
   param.update (← toMonoType param.type)
 
 def throwNoncomputableError {α : Type} (declName : Name) : ToMonoM α :=
-  throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{.ofConstName declName}', which is 'noncomputable'"
+  throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition, consider marking it as `noncomputable` because it depends on `{.ofConstName declName}`, which is `noncomputable`"
 
 def checkFVarUse (fvarId : FVarId) : ToMonoM Unit := do
   if let some declName := (← get).noncomputableVars.get? fvarId then

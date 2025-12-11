@@ -55,11 +55,11 @@ where
       setGoals newGoals
   simpleError (p tgt : Expr) : MetaM MessageData := do
     return m!"\
-      'show' tactic failed, pattern{indentExpr p}\n\
+      `show` tactic failed, pattern{indentExpr p}\n\
       is not definitionally equal to target{indentExpr tgt}"
   manyError (p tgt : Expr) : MetaM MessageData := do
     return m!"\
-      'show' tactic failed, no goals unify with the given pattern.\n\
+      `show` tactic failed, no goals unify with the given pattern.\n\
       \n\
       In the first goal, the pattern{indentExpr p}\n\
       is not definitionally equal to the target{indentExpr tgt}\n\

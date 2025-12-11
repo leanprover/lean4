@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lake.Config.Workspace
+public import Lake.Config.LakefileConfig
 import Lean.DocString
 import Lake.DSL.AttributesCore
 
@@ -75,39 +76,40 @@ private def mkOrdTagMap
     return map.insert declName <| ← f declName
 
 /-- Load a `PackageDecl` from a configuration environment. -/
-public def PackageDecl.loadFromEnv
+private def PackageDecl.loadFromEnv
   (env : Environment) (opts := Options.empty)
 : Except String PackageDecl := do
   let declName ←
     match packageAttr.getAllEntries env |>.toList with
     | [] => error s!"configuration file is missing a `package` declaration"
-    | [name] => pure name
+    | [keyName] => pure keyName
     | _ => error s!"configuration file has multiple `package` declarations"
   evalConstCheck env opts _ declName
 
-/--
-Load the optional elements of a `Package` from the Lean environment.
-This is done after loading its core configuration but before resolving
-its dependencies.
--/
-public def Package.loadFromEnv
-  (self : Package) (env : Environment) (opts : Options)
-: LogIO Package := do
+/-- Load a Lake configuration from a configuration file's environment. -/
+public def LakefileConfig.loadFromEnv
+  (env : Environment) (opts : Options)
+: LogIO LakefileConfig := do
+
+  -- load package declaration
+  let pkgDecl ← IO.ofExcept <| PackageDecl.loadFromEnv env opts
+  let prettyName := pkgDecl.baseName.toString (escape := false)
+  let keyName := pkgDecl.keyName
 
   -- load target, script, hook, and driver configurations
   let constTargetMap ← IO.ofExcept <| mkOrdTagMap env targetAttr fun name => do
     evalConstCheck env opts ConfigDecl name
   let targetDecls ← constTargetMap.toArray.mapM fun decl => do
-    if h : decl.pkg = self.keyName then
+    if h : decl.pkg = keyName then
       return .mk decl h
     else
       error s!"\
         target '{decl.name}' was defined in package '{decl.pkg}', \
-        but registered under '{self.keyName}'"
+        but registered under '{keyName}'"
   let targetDeclMap ← targetDecls.foldlM (init := {}) fun m decl => do
     if let some orig := m.get? decl.name then
       error s!"\
-        {self.prettyName}: target '{decl.name}' was already defined as a '{orig.kind}', \
+        {prettyName}: target '{decl.name}' was already defined as a '{orig.kind}', \
         but then redefined as a '{decl.kind}'"
     else
       return m.insert decl.name (.mk decl rfl)
@@ -125,21 +127,21 @@ public def Package.loadFromEnv
       return exeRoots
   let defaultTargets ← defaultTargetAttr.getAllEntries env |>.mapM fun name =>
     if let some decl := constTargetMap.find? name then pure decl.name else
-      error s!"{self.prettyName}: package is missing target '{name}' marked as a default"
+      error s!"{prettyName}: package is missing target '{name}' marked as a default"
   let scripts ← mkTagMap env scriptAttr fun scriptName => do
-    let name := self.prettyName ++ "/" ++ scriptName.toString (escape := false)
+    let name := prettyName ++ "/" ++ scriptName.toString (escape := false)
     let fn ← IO.ofExcept <| evalConstCheck env opts ScriptFn scriptName
     return {name, fn, doc? := ← findDocString? env scriptName : Script}
   let defaultScripts ← defaultScriptAttr.getAllEntries env |>.mapM fun name =>
     if let some script := scripts.get? name then pure script else
-      error s!"{self.prettyName}: package is missing script '{name}' marked as a default"
+      error s!"{prettyName}: package is missing script '{name}' marked as a default"
   let postUpdateHooks ← postUpdateAttr.getAllEntries env |>.mapM fun name =>
     match evalConstCheck env opts PostUpdateHookDecl name with
     | .ok decl =>
-      if h : decl.pkg = self.keyName then
-        return OpaquePostUpdateHook.mk ⟨cast (by rw [h, keyName]) decl.fn⟩
+      if h : decl.pkg = keyName then
+        return OpaquePostUpdateHook.mk ⟨cast (by rw [h]) decl.fn⟩
       else
-        error s!"post-update hook was defined in '{decl.pkg}', but was registered in '{self.keyName}'"
+        error s!"post-update hook was defined in '{decl.pkg}', but was registered in '{keyName}'"
     | .error e => error e
   let depConfigs ← IO.ofExcept <| packageDepAttr.getAllEntries env |>.mapM fun name =>
     evalConstCheck env opts Dependency name
@@ -149,60 +151,54 @@ public def Package.loadFromEnv
     else if scripts.contains name then
       pure name
     else
-      error s!"{self.prettyName}: package is missing script or target '{name}' marked as a test driver"
+      error s!"{prettyName}: package is missing script or target '{name}' marked as a test driver"
   let testDriver ←
     if testDrivers.size > 1 then
-      error s!"{self.prettyName}: only one script, executable, or library can be tagged @[test_driver]"
+      error s!"{prettyName}: only one script, executable, or library can be tagged @[test_driver]"
     else if h : testDrivers.size > 0 then
-      if self.config.testDriver.isEmpty then
+      if pkgDecl.config.testDriver.isEmpty then
         pure (testDrivers[0]'h |>.toString)
       else
-        error s!"{self.prettyName}: cannot both set testDriver and use @[test_driver]"
+        error s!"{prettyName}: cannot both set testDriver and use @[test_driver]"
     else
-      pure self.config.testDriver
+      pure pkgDecl.config.testDriver
   let lintDrivers ← lintDriverAttr.getAllEntries env |>.mapM fun name =>
     if let some decl := constTargetMap.find? name then
       pure decl.name
     else if scripts.contains name then
       pure name
     else
-      error s!"{self.prettyName}: package is missing script or target '{name}' marked as a lint driver"
+      error s!"{prettyName}: package is missing script or target '{name}' marked as a lint driver"
   let lintDriver ←
     if lintDrivers.size > 1 then
-      error s!"{self.prettyName}: only one script or executable can be tagged @[lint_driver]"
+      error s!"{prettyName}: only one script or executable can be tagged @[lint_driver]"
     else if h : lintDrivers.size > 0 then
-      if self.config.lintDriver.isEmpty then
+      if pkgDecl.config.lintDriver.isEmpty then
         pure (lintDrivers[0]'h |>.toString)
       else
-        error s!"{self.prettyName}: cannot both set lintDriver and use @[lint_driver]"
+        error s!"{prettyName}: cannot both set lintDriver and use @[lint_driver]"
     else
-      pure self.config.lintDriver
+      pure pkgDecl.config.lintDriver
+
+  -- load facets
+  let facetDecls ← IO.ofExcept do
+    let mut decls : Array FacetDecl := #[]
+    for name in moduleFacetAttr.getAllEntries env do
+      let decl ← evalConstCheck env opts ModuleFacetDecl name
+      decls :=  decls.push {decl with config := decl.config.toFacetConfig}
+    for name in packageFacetAttr.getAllEntries env do
+      let decl ← evalConstCheck env opts PackageFacetDecl name
+      decls := decls.push  {decl with config := decl.config.toFacetConfig}
+    for name in libraryFacetAttr.getAllEntries env do
+      let decl ← evalConstCheck env opts LibraryFacetDecl name
+      decls := decls.push  {decl with config := decl.config.toFacetConfig}
+    return decls
 
   -- Fill in the Package
-  return {self with
-    depConfigs, targetDecls, targetDeclMap
-    defaultTargets, scripts, defaultScripts
-    testDriver, lintDriver,  postUpdateHooks
+  return {
+    pkgDecl, depConfigs, facetDecls,
+    targetDecls, targetDeclMap, defaultTargets,
+    scripts, defaultScripts,
+    testDriver, lintDriver,
+    postUpdateHooks,
   }
-
-/-- Load module/package facets into a `FacetConfigMap` from a configuration environment. -/
-def FacetConfigMap.addFromEnv
-  (env : Environment) (opts : Options) (self : FacetConfigMap)
-: Except String FacetConfigMap := do
-  let mut cfgs := self
-  for name in moduleFacetAttr.getAllEntries env do
-    let decl ← evalConstCheck env opts ModuleFacetDecl name
-    cfgs := cfgs.insert decl.config.toFacetConfig
-  for name in packageFacetAttr.getAllEntries env do
-    let decl ← evalConstCheck env opts PackageFacetDecl name
-    cfgs := cfgs.insert decl.config.toFacetConfig
-  for name in libraryFacetAttr.getAllEntries env do
-    let decl ← evalConstCheck env opts LibraryFacetDecl name
-    cfgs := cfgs.insert decl.config.toFacetConfig
-  return cfgs
-
-/-- Load module/package facets into a `Workspace` from a configuration environment. -/
-@[inline] public def Workspace.addFacetsFromEnv
-  (env : Environment) (opts : Options) (self : Workspace)
-: Except String Workspace := do
-  return {self with facetConfigs := ← self.facetConfigs.addFromEnv env opts}

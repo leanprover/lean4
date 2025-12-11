@@ -21,6 +21,13 @@ structure Config where
   /-- If `suggestions` is `true`, `grind` will invoke the currently configured library suggestion engine on the current goal,
   and add attempt to use the resulting suggestions as additional parameters to the `grind` tactic. -/
   suggestions : Bool := false
+  /--
+  If `simp` is `true`, `grind` will use all `@[simp]` lemmas as E-matching theorems.
+  This generates grind patterns dynamically at tactic execution time, which may be slow
+  with large simp databases. If performance becomes an issue, the proper solution is to
+  hook into the `@[simp]` attribute handler to generate and cache patterns at registration time.
+  -/
+  simp : Bool := false
   /-- Maximum number of case-splits in a proof search branch. It does not include splits performed during normalization. -/
   splits : Nat := 9
   /-- Maximum number of E-matching (aka heuristic theorem instantiation) rounds before each case split. -/

@@ -17,7 +17,7 @@ public section
 
 namespace Std.HashSet
 
-instance {α : Type u} [DecidableEq α] [Hashable α] (m₁ m₂ : HashSet α) : Decidable (m₁ ~m m₂) :=
+instance {α : Type u} [BEq α] [LawfulBEq α] [Hashable α] (m₁ m₂ : HashSet α) : Decidable (m₁ ~m m₂) :=
   decidable_of_iff _ ⟨fun h => ⟨h⟩, fun h => h.1⟩
 
 end Std.HashSet

@@ -188,7 +188,7 @@ where
     subgoals.forM (go · (depth+1))
 
 private partial def proveCongrEqThm (matchDeclName : Name) (thmName : Name) (mvarId : MVarId) : MetaM Unit := do
-  withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} proveCondEqThm {thmName}")) do
+  withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} proveCongrEqThm {thmName}")) do
   let mvarId ← mvarId.deltaTarget (· == matchDeclName)
   go mvarId 0
 where
@@ -219,8 +219,6 @@ where
             return #[mvarId₁, s₂.mvarId]
           else
             throwError "spliIf failed")
-      <|>
-      (substSomeVar mvarId)
       <|>
       (do if debug.Meta.Match.MatchEqs.grindAsSorry.get (← getOptions) then
             trace[Meta.Match.matchEqs] "proveCondEqThm.go: grind_as_sorry is enabled, admitting goal"

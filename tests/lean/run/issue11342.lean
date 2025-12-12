@@ -105,8 +105,6 @@ info: private theorem f.match_1.congr_eq_3.{u_1} : ∀ (motive : List Nat → Li
 #guard_msgs(pass trace, all) in
 #print sig f.match_1.congr_eq_3
 
--- set_option trace.Meta.Match.matchEqs true
-
 set_option linter.unusedVariables false in
 def testMe (n : Nat) : Bool :=
   match _ : n - 2 with
@@ -114,13 +112,12 @@ def testMe (n : Nat) : Bool :=
   | m => false
 
 /--
-info: private theorem testMe.match_1.congr_eq_2.{u_1} : ∀ (motive : Nat → Sort u_1) (x : Nat) (h_1 : x = 0 → motive 0)
-  (h_2 : (m : Nat) → x = m → motive m) (m : Nat) (heq : x = m),
-  (m = 0 → False) →
-    (match h : x with
-      | 0 => h_1 h
-      | m => h_2 m h) ≍
-      h_2 m heq
+info: private theorem testMe.match_1.congr_eq_1.{u_1} : ∀ (motive : Nat → Sort u_1) (x : Nat) (h_1 : x = 0 → motive 0)
+  (h_2 : (m : Nat) → x = m → motive m) (heq : x = 0),
+  (match h : x with
+    | 0 => h_1 h
+    | m => h_2 m h) ≍
+    h_1 heq
 -/
 #guard_msgs(pass trace, all) in
-#print sig testMe.match_1.congr_eq_2
+#print sig testMe.match_1.congr_eq_1

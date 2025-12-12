@@ -895,6 +895,8 @@ lean_dec_ref(x_74);
 lean_inc_ref(x_60);
 x_75 = l_Lean_MessageData_ofExpr(x_60);
 x_76 = l_Lean_addTrace___at___00Lean_Meta_Grind_propagateProjEq_spec__2___redArg(x_70, x_75, x_65, x_66, x_67, x_68);
+if (lean_obj_tag(x_76) == 0)
+{
 lean_dec_ref(x_76);
 x_36 = x_60;
 x_37 = x_61;
@@ -905,6 +907,22 @@ x_41 = x_67;
 x_42 = x_68;
 x_43 = lean_box(0);
 goto block_59;
+}
+else
+{
+lean_dec(x_68);
+lean_dec_ref(x_67);
+lean_dec(x_66);
+lean_dec_ref(x_65);
+lean_dec_ref(x_63);
+lean_dec(x_61);
+lean_dec_ref(x_60);
+lean_dec_ref(x_34);
+lean_dec(x_33);
+lean_dec(x_19);
+lean_dec(x_18);
+return x_76;
+}
 }
 else
 {
@@ -1406,6 +1424,8 @@ lean_dec_ref(x_172);
 lean_inc_ref(x_158);
 x_173 = l_Lean_MessageData_ofExpr(x_158);
 x_174 = l_Lean_addTrace___at___00Lean_Meta_Grind_propagateProjEq_spec__2___redArg(x_168, x_173, x_163, x_164, x_165, x_166);
+if (lean_obj_tag(x_174) == 0)
+{
 lean_dec_ref(x_174);
 x_134 = x_158;
 x_135 = x_159;
@@ -1416,6 +1436,22 @@ x_139 = x_165;
 x_140 = x_166;
 x_141 = lean_box(0);
 goto block_157;
+}
+else
+{
+lean_dec(x_166);
+lean_dec_ref(x_165);
+lean_dec(x_164);
+lean_dec_ref(x_163);
+lean_dec_ref(x_161);
+lean_dec(x_159);
+lean_dec_ref(x_158);
+lean_dec_ref(x_132);
+lean_dec(x_131);
+lean_dec(x_19);
+lean_dec(x_18);
+return x_174;
+}
 }
 else
 {
@@ -2038,6 +2074,8 @@ lean_dec_ref(x_288);
 lean_inc_ref(x_274);
 x_289 = l_Lean_MessageData_ofExpr(x_274);
 x_290 = l_Lean_addTrace___at___00Lean_Meta_Grind_propagateProjEq_spec__2___redArg(x_284, x_289, x_279, x_280, x_281, x_282);
+if (lean_obj_tag(x_290) == 0)
+{
 lean_dec_ref(x_290);
 x_250 = x_274;
 x_251 = x_275;
@@ -2048,6 +2086,22 @@ x_255 = x_281;
 x_256 = x_282;
 x_257 = lean_box(0);
 goto block_273;
+}
+else
+{
+lean_dec(x_282);
+lean_dec_ref(x_281);
+lean_dec(x_280);
+lean_dec_ref(x_279);
+lean_dec_ref(x_277);
+lean_dec(x_275);
+lean_dec_ref(x_274);
+lean_dec_ref(x_248);
+lean_dec(x_247);
+lean_dec(x_231);
+lean_dec(x_230);
+return x_290;
+}
 }
 else
 {

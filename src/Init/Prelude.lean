@@ -1197,6 +1197,7 @@ This type is special-cased by both the kernel and the compiler, and overridden w
 implementation. Both use a fast arbitrary-precision arithmetic library (usually
 [GMP](https://gmplib.org/)); at runtime, `Nat` values that are sufficiently small are unboxed.
 -/
+@[suggest_for ℕ]
 inductive Nat where
   /--
   Zero, the smallest natural number.
@@ -2856,6 +2857,7 @@ Optional values, which are either `some` around a value from the underlying type
 `Option` can represent nullable types or computations that might fail. In the codomain of a function
 type, it can also represent partiality.
 -/
+@[suggest_for Maybe, suggest_for Optional, suggest_for Nullable]
 inductive Option (α : Type u) where
   /-- No value. -/
   | none : Option α
@@ -3939,6 +3941,7 @@ value of type `α`.
 the `pure` operation is `Except.ok` and the `bind` operation returns the first encountered
 `Except.error`.
 -/
+@[suggest_for Result, suggest_for Exception, suggest_for Either]
 inductive Except (ε : Type u) (α : Type v) where
   /-- A failure value of type `ε` -/
   | error : ε → Except ε α
@@ -4046,6 +4049,12 @@ ordinary actions in `m`.
 -/
 def ReaderT (ρ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
   ρ → m α
+
+/--
+Interpret `ρ → m α` as an element of `ReaderT ρ m α`.
+-/
+@[always_inline, inline]
+def ReaderT.mk {ρ : Type u} {m : Type u → Type v} {α : Type u} (x : ρ → m α) : ReaderT ρ m α := x
 
 instance (ρ : Type u) (m : Type u → Type v) (α : Type u) [Inhabited (m α)] : Inhabited (ReaderT ρ m α) where
   default := fun _ => default

@@ -1269,6 +1269,34 @@ return x_8;
 }
 }
 }
+LEAN_EXPORT uint8_t l_Lean_Elab_sortDeclLevelParams___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; 
+x_4 = l_Array_contains___at___00Lean_Elab_sortDeclLevelParams_spec__1(x_1, x_3);
+if (x_4 == 0)
+{
+uint8_t x_5; 
+x_5 = l_List_elem___at___00Lean_Elab_sortDeclLevelParams_spec__0(x_3, x_2);
+if (x_5 == 0)
+{
+uint8_t x_6; 
+x_6 = 1;
+return x_6;
+}
+else
+{
+return x_4;
+}
+}
+else
+{
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
+}
+}
+}
 LEAN_EXPORT lean_object* l_List_foldl___at___00Lean_Elab_sortDeclLevelParams_spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1366,34 +1394,6 @@ x_8 = lean_usize_add(x_3, x_7);
 x_3 = x_8;
 x_5 = x_6;
 goto _start;
-}
-}
-}
-LEAN_EXPORT uint8_t l_Lean_Elab_sortDeclLevelParams___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; 
-x_4 = l_Array_contains___at___00Lean_Elab_sortDeclLevelParams_spec__1(x_1, x_3);
-if (x_4 == 0)
-{
-uint8_t x_5; 
-x_5 = l_List_elem___at___00Lean_Elab_sortDeclLevelParams_spec__0(x_3, x_2);
-if (x_5 == 0)
-{
-uint8_t x_6; 
-x_6 = 1;
-return x_6;
-}
-else
-{
-return x_4;
-}
-}
-else
-{
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
 }
 }
 }
@@ -1496,8 +1496,8 @@ return x_11;
 block_18:
 {
 lean_object* x_17; 
-lean_dec(x_15);
-x_17 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Elab_sortDeclLevelParams_spec__4___redArg(x_14, x_13, x_16);
+lean_dec(x_13);
+x_17 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Elab_sortDeclLevelParams_spec__4___redArg(x_15, x_14, x_16);
 lean_dec(x_16);
 x_8 = x_17;
 goto block_12;
@@ -1505,23 +1505,23 @@ goto block_12;
 block_24:
 {
 uint8_t x_23; 
-x_23 = lean_nat_dec_le(x_22, x_19);
+x_23 = lean_nat_dec_le(x_22, x_20);
 if (x_23 == 0)
 {
-lean_dec(x_19);
+lean_dec(x_20);
 lean_inc(x_22);
-x_13 = x_22;
-x_14 = x_21;
-x_15 = x_20;
+x_13 = x_19;
+x_14 = x_22;
+x_15 = x_21;
 x_16 = x_22;
 goto block_18;
 }
 else
 {
-x_13 = x_22;
-x_14 = x_21;
-x_15 = x_20;
-x_16 = x_19;
+x_13 = x_19;
+x_14 = x_22;
+x_15 = x_21;
+x_16 = x_20;
 goto block_18;
 }
 }
@@ -1539,16 +1539,16 @@ x_31 = lean_nat_dec_le(x_25, x_30);
 if (x_31 == 0)
 {
 lean_inc(x_30);
-x_19 = x_30;
-x_20 = x_27;
+x_19 = x_27;
+x_20 = x_30;
 x_21 = x_26;
 x_22 = x_30;
 goto block_24;
 }
 else
 {
-x_19 = x_30;
-x_20 = x_27;
+x_19 = x_27;
+x_20 = x_30;
 x_21 = x_26;
 x_22 = x_25;
 goto block_24;

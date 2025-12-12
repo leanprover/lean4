@@ -503,6 +503,11 @@ def inter (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
 
 instance : Inter (Raw α β cmp) := ⟨inter⟩
 
+@[inherit_doc DTreeMap.beq] def beq [BEq β] (t₁ t₂ : Raw α β cmp) : Bool :=
+  letI : Ord α := ⟨cmp⟩; DTreeMap.Raw.Const.beq t₁.inner t₂.inner
+
+instance [BEq β] : BEq (Raw α β cmp) := ⟨beq⟩
+
 @[inline, inherit_doc DTreeMap.Raw.diff]
 def diff (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
   ⟨DTreeMap.Raw.diff t₁.inner t₂.inner⟩

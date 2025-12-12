@@ -1301,6 +1301,16 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Position_instToString___lam__0), 1, 0);
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_Position_instToExpr___closed__0() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_instFromJsonPosition_fromJson___closed__2;
+x_3 = l_Lean_mkConst(x_2, x_1);
+return x_3;
+}
+}
 static lean_object* _init_l_Lean_Position_instToExpr___lam__0___closed__0() {
 _start:
 {
@@ -1357,16 +1367,6 @@ x_9 = lean_array_push(x_8, x_6);
 x_10 = l_Lean_mkAppN(x_4, x_9);
 lean_dec_ref(x_9);
 return x_10;
-}
-}
-static lean_object* _init_l_Lean_Position_instToExpr___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_instFromJsonPosition_fromJson___closed__2;
-x_3 = l_Lean_mkConst(x_2, x_1);
-return x_3;
 }
 }
 static lean_object* _init_l_Lean_Position_instToExpr() {
@@ -2018,6 +2018,8 @@ l_Lean_Position_instToFormat = _init_l_Lean_Position_instToFormat();
 lean_mark_persistent(l_Lean_Position_instToFormat);
 l_Lean_Position_instToString = _init_l_Lean_Position_instToString();
 lean_mark_persistent(l_Lean_Position_instToString);
+l_Lean_Position_instToExpr___closed__0 = _init_l_Lean_Position_instToExpr___closed__0();
+lean_mark_persistent(l_Lean_Position_instToExpr___closed__0);
 l_Lean_Position_instToExpr___lam__0___closed__0 = _init_l_Lean_Position_instToExpr___lam__0___closed__0();
 lean_mark_persistent(l_Lean_Position_instToExpr___lam__0___closed__0);
 l_Lean_Position_instToExpr___lam__0___closed__1 = _init_l_Lean_Position_instToExpr___lam__0___closed__1();
@@ -2026,8 +2028,6 @@ l_Lean_Position_instToExpr___lam__0___closed__2 = _init_l_Lean_Position_instToEx
 lean_mark_persistent(l_Lean_Position_instToExpr___lam__0___closed__2);
 l_Lean_Position_instToExpr___lam__0___closed__3 = _init_l_Lean_Position_instToExpr___lam__0___closed__3();
 lean_mark_persistent(l_Lean_Position_instToExpr___lam__0___closed__3);
-l_Lean_Position_instToExpr___closed__0 = _init_l_Lean_Position_instToExpr___closed__0();
-lean_mark_persistent(l_Lean_Position_instToExpr___closed__0);
 l_Lean_Position_instToExpr = _init_l_Lean_Position_instToExpr();
 lean_mark_persistent(l_Lean_Position_instToExpr);
 l_Lean_instInhabitedFileMap_default___closed__0 = _init_l_Lean_instInhabitedFileMap_default___closed__0();

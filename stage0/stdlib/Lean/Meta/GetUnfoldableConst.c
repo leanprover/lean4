@@ -265,9 +265,12 @@ return x_9;
 }
 case 1:
 {
-lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+lean_object* x_10; lean_object* x_11; 
 x_10 = l_Lean_ConstantInfo_name(x_2);
 x_11 = l_Lean_isIrreducible___at___00__private_Lean_Meta_GetUnfoldableConst_0__Lean_Meta_canUnfoldDefault_spec__0(x_10, x_3, x_4);
+if (lean_obj_tag(x_11) == 0)
+{
+uint8_t x_12; 
 x_12 = !lean_is_exclusive(x_11);
 if (x_12 == 0)
 {
@@ -320,12 +323,20 @@ return x_26;
 }
 }
 }
+else
+{
+return x_11;
+}
+}
 default: 
 {
-lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; uint8_t x_32; 
+lean_object* x_27; lean_object* x_28; 
 x_27 = l_Lean_ConstantInfo_name(x_2);
 lean_inc(x_27);
 x_28 = l_Lean_isReducible___at___00__private_Lean_Meta_GetUnfoldableConst_0__Lean_Meta_canUnfoldDefault_spec__2(x_27, x_3, x_4);
+if (lean_obj_tag(x_28) == 0)
+{
+lean_object* x_29; lean_object* x_30; uint8_t x_31; uint8_t x_32; 
 x_29 = lean_ctor_get(x_28, 0);
 lean_inc(x_29);
 if (lean_is_exclusive(x_28)) {
@@ -401,6 +412,12 @@ if (lean_is_scalar(x_30)) {
 }
 lean_ctor_set(x_45, 0, x_44);
 return x_45;
+}
+}
+else
+{
+lean_dec(x_27);
+return x_28;
 }
 }
 }

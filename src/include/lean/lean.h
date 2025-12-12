@@ -2064,7 +2064,7 @@ static inline uint8_t lean_int8_div(uint8_t a1, uint8_t a2) {
     int8_t rhs = (int8_t)a2;
     if (rhs == 0) return 0;
     // Widen to 16-bit to avoid x86 idiv overflow trap on INT8_MIN / -1
-    return (uint8_t)(int8_t)((int16_t)lhs / (int16_t)rhs);
+    return (uint8_t)((int16_t)lhs / (int16_t)rhs);
 }
 
 static inline uint8_t lean_int8_mod(uint8_t a1, uint8_t a2) {
@@ -2072,7 +2072,7 @@ static inline uint8_t lean_int8_mod(uint8_t a1, uint8_t a2) {
     int8_t rhs = (int8_t)a2;
     if (rhs == 0) return (uint8_t)lhs;
     // Widen to 16-bit to avoid x86 idiv overflow trap on INT8_MIN % -1
-    return (uint8_t)(int8_t)((int16_t)lhs % (int16_t)rhs);
+    return (uint8_t)((int16_t)lhs % (int16_t)rhs);
 }
 
 static inline uint8_t lean_int8_land(uint8_t a1, uint8_t a2) {
@@ -2215,7 +2215,7 @@ static inline uint16_t lean_int16_div(uint16_t a1, uint16_t a2) {
     int16_t rhs = (int16_t)a2;
     if (rhs == 0) return 0;
     // Widen to 32-bit to avoid x86 idiv overflow trap on INT16_MIN / -1
-    return (uint16_t)(int16_t)((int32_t)lhs / (int32_t)rhs);
+    return (uint16_t)((int32_t)lhs / (int32_t)rhs);
 }
 
 static inline uint16_t lean_int16_mod(uint16_t a1, uint16_t a2) {
@@ -2223,7 +2223,7 @@ static inline uint16_t lean_int16_mod(uint16_t a1, uint16_t a2) {
     int16_t rhs = (int16_t)a2;
     if (rhs == 0) return (uint16_t)lhs;
     // Widen to 32-bit to avoid x86 idiv overflow trap on INT16_MIN % -1
-    return (uint16_t)(int16_t)((int32_t)lhs % (int32_t)rhs);
+    return (uint16_t)((int32_t)lhs % (int32_t)rhs);
 }
 
 static inline uint16_t lean_int16_land(uint16_t a1, uint16_t a2) {
@@ -2365,7 +2365,7 @@ static inline uint32_t lean_int32_div(uint32_t a1, uint32_t a2) {
     int32_t rhs = (int32_t)a2;
     if (rhs == 0) return 0;
     // Widen to 64-bit to avoid x86 idiv overflow trap on INT32_MIN / -1
-    return (uint32_t)(int32_t)((int64_t)lhs / (int64_t)rhs);
+    return (uint32_t)((int64_t)lhs / (int64_t)rhs);
 }
 
 static inline uint32_t lean_int32_mod(uint32_t a1, uint32_t a2) {
@@ -2373,7 +2373,7 @@ static inline uint32_t lean_int32_mod(uint32_t a1, uint32_t a2) {
     int32_t rhs = (int32_t)a2;
     if (rhs == 0) return (uint32_t)lhs;
     // Widen to 64-bit to avoid x86 idiv overflow trap on INT32_MIN % -1
-    return (uint32_t)(int32_t)((int64_t)lhs % (int64_t)rhs);
+    return (uint32_t)((int64_t)lhs % (int64_t)rhs);
 }
 
 static inline uint32_t lean_int32_land(uint32_t a1, uint32_t a2) {

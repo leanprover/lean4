@@ -1381,7 +1381,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       return LValResolution.const `Function `Function fullName
     match e.getAppFn, suffix? with
     | Expr.const c _, some suffix =>
-      throwUnknownConstantWithSuggestions (ref? := fullRef) (c ++ suffix)
+      throwUnknownNameWithSuggestions (idOrConst := "constant")  (ref? := fullRef) (c ++ suffix)
     | _, _ =>
       throwInvalidFieldAt ref fieldName fullName
   | .forallE .., .fieldIdx .. =>
@@ -1403,7 +1403,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
   | _, _ =>
     match e.getAppFn, lval with
     | Expr.const c _, .fieldName _ref _fieldName (some suffix) fullRef =>
-      throwUnknownConstantWithSuggestions (ref? := fullRef) (c ++ suffix)
+      throwUnknownNameWithSuggestions (idOrConst := "constant") (ref? := fullRef) (c ++ suffix)
     | _, .fieldName .. =>
       throwNamedError lean.invalidField m!"Invalid field notation: Field projection operates on \
         types of the form `C ...` where C is a constant. The expression{indentExpr e}\nhas \
@@ -1748,8 +1748,25 @@ private def elabAppFnId (fIdent : Syntax) (fExplicitUnivs : List Level) (lvals :
     (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool)
     (acc : Array (TermElabResult Expr)) :
     TermElabM (Array (TermElabResult Expr)) := do
-  let fRes ← withRef fIdent <| resolveName' fIdent fExplicitUnivs expectedType?
+  let (n, fRes) ← withRef fIdent <| resolveName' fIdent fExplicitUnivs expectedType?
+  if fRes.isEmpty then throwUnknownIdWithSuggestions n
   elabAppFnResolutions fIdent fRes lvals namedArgs args expectedType? explicit ellipsis overloaded acc
+where
+  throwUnknownIdWithSuggestions (n : Name) := withRef fIdent do
+    let env ← getEnv
+    -- check for scope errors before trying auto implicits
+    if env.isExporting then
+      if let [(npriv, _)] ← withoutExporting <| resolveGlobalName (enableLog := false) n then
+        throwUnknownNameWithSuggestions (declHint := npriv) n
+    if !(← read).autoBoundImplicitForbidden n then
+      if (← read).autoBoundImplicitContext.isSome then
+        let allowed := autoImplicit.get (← getOptions)
+        let relaxed := relaxedAutoImplicit.get (← getOptions)
+        match checkValidAutoBoundImplicitName n (allowed := allowed) (relaxed := relaxed) with
+          | .ok true => throwAutoBoundImplicitLocal n
+          | .ok false => throwUnknownNameWithSuggestions n
+          | .error msg => throwUnknownNameWithSuggestions (extraMsg := msg) n
+    throwUnknownNameWithSuggestions n
 
 /--
 Resolves `(.$id:ident)` using the expected type to infer the namespace for `id`.

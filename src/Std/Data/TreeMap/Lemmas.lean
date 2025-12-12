@@ -2077,6 +2077,21 @@ theorem isEmpty_inter_iff [TransCmp cmp] :
 
 end Inter
 
+section
+
+variable {β : Type v} {m₁ m₂ : TreeMap α β cmp} [BEq β]
+
+theorem Equiv.beq [TransCmp cmp] [ReflBEq β] (h : m₁ ~m m₂) : m₁ == m₂ :=
+  DTreeMap.Const.Equiv.beq h.1
+
+theorem equiv_of_beq [TransCmp cmp] [LawfulEqCmp cmp] [LawfulBEq β] (h : m₁ == m₂) : m₁ ~m m₂ :=
+  ⟨DTreeMap.Const.equiv_of_beq h⟩
+
+theorem Equiv.beq_congr [TransCmp cmp] {m₃ m₄ : TreeMap α β cmp} (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : (m₁ == m₂) = (m₃ == m₄) :=
+  DTreeMap.Const.Equiv.beq_congr w₁.1 w₂.1
+
+end
+
 section Diff
 
 variable {t₁ t₂ : TreeMap α β cmp}
@@ -2882,6 +2897,18 @@ theorem minKey?_insertIfNew_le_self [TransCmp cmp] {k v kmi} :
 theorem minKey?_modify [TransCmp cmp] {k f} :
     (t.modify k f).minKey? = t.minKey?.map fun km => if cmp km k = .eq then k else km :=
   DTreeMap.Const.minKey?_modify
+
+@[simp] theorem min?_keys [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α]
+    [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp] :
+    t.keys.min? = t.minKey? :=
+  DTreeMap.min?_keys
+
+@[simp] theorem head?_keys [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α]
+    [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp] :
+    t.keys.head? = t.minKey? :=
+  DTreeMap.head?_keys
 
 @[simp, grind =]
 theorem minKey?_modify_eq_minKey? [TransCmp cmp] [LawfulEqCmp cmp] {k f} :

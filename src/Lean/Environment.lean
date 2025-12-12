@@ -2503,6 +2503,10 @@ unsafe def evalConstCheck (α) (env : Environment) (opts : Options) (typeName : 
     | _ => throwUnexpectedType typeName constName
 
 def hasUnsafe (env : Environment) (e : Expr) : Bool :=
+  -- This line should not affect the result value but it avoids potential blocking in `isUnsafe` as
+  -- there is a fast path for theorems, so we want to make sure we do not perceive them merely as
+  -- axioms (for imported theorems this does not matter as there is nothing to block on).
+  let env := env.setExporting false
   let c? := e.find? fun e => match e with
     | Expr.const c _ =>
       match env.findAsync? c with

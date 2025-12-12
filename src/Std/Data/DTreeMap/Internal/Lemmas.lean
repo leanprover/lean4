@@ -9,6 +9,7 @@ prelude
 public import Std.Data.HashMap.Basic
 meta import Std.Data.HashMap.Basic
 public import Std.Data.DTreeMap.Internal.WF.Lemmas
+public import Init.Data.Order.ClassesExtra
 
 @[expose] public section
 
@@ -100,6 +101,8 @@ private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (T
      ⟨`getKeyD, (``getKeyD_eq_getKeyD, #[``(getKeyD_of_perm _)])⟩,
      ⟨`getKey!, (``getKey!_eq_getKey!, #[``(getKey!_of_perm _)])⟩,
      ⟨`toList, (``toList_eq_toListModel, #[])⟩,
+     ⟨`beq, (``beq_eq_beqModel, #[])⟩,
+     ⟨`Const.beq, (``Internal.Impl.Const.beq_eq_beqModel, #[])⟩,
      ⟨`keys, (``keys_eq_keys, #[])⟩,
      ⟨`Const.toList, (``Const.toList_eq_toListModel_map, #[])⟩,
      ⟨`foldlM, (``foldlM_eq_foldlM_toListModel, #[])⟩,
@@ -4887,6 +4890,37 @@ theorem get!_inter!_of_contains_eq_false_left [TransOrd α] [Inhabited β] (h₁
 
 end Const
 
+section BEq
+variable {m₁ m₂ : Impl α β} [TransOrd α] [LawfulEqOrd α] [∀ k, BEq (β k)]
+
+theorem Equiv.beq [∀ k, ReflBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁.Equiv m₂ → beq m₁ m₂ := by
+  simp_to_model using List.beqModel_eq_true_of_perm
+
+theorem equiv_of_beq [∀ k, LawfulBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : beq m₁ m₂ = true → m₁.Equiv m₂ := by
+  simp_to_model using List.perm_of_beqModel
+
+theorem Equiv.beq_congr {m₃ m₄ : Impl α β} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) :
+    m₁.Equiv m₃ → m₂.Equiv m₄ → (Impl.beq m₁ m₂) = (Impl.beq m₃ m₄) := by
+  simp_to_model using List.beqModel_congr
+
+end BEq
+
+section
+
+variable {β : Type v} [BEq β] {m₁ m₂ : Impl α (fun _ => β)}
+
+theorem Const.Equiv.beq [TransOrd α] [ReflBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁.Equiv m₂ → Const.beq m₁ m₂ := by
+  simp_to_model using List.Const.beqModel_eq_true_of_perm
+
+theorem Const.equiv_of_beq [TransOrd α] [LawfulEqOrd α] [LawfulBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : Const.beq m₁ m₂ = true → m₁.Equiv m₂ := by
+  simp_to_model using List.Const.perm_of_beqModel
+
+theorem Const.Equiv.beq_congr [TransOrd α] {m₃ m₄ : Impl α (fun _ => β)} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) :
+    m₁.Equiv m₃ → m₂.Equiv m₄ → Const.beq m₁ m₂ = Const.beq m₃ m₄ := by
+  simp_to_model using List.Const.beqModel_congr
+
+end
+
 section Diff
 
 variable {m₁ m₂ : Impl α β}
@@ -6896,6 +6930,20 @@ theorem minKey?_mem [TransOrd α] (h : t.WF) {km} :
     (hkm : t.minKey? = some km) →
     km ∈ t := by
   simp_to_model [minKey?, contains] using List.containsKey_minKey?
+
+theorem min?_keys [TransOrd α] [Min α]
+    [LE α] [LawfulOrderOrd α] [LawfulOrderMin α]
+    [LawfulOrderLeftLeaningMin α] [LawfulEqOrd α]
+    (h : t.WF) :
+    t.keys.min? = t.minKey? := by
+  simp_to_model using List.min?_keys
+
+theorem head?_keys [TransOrd α] [Min α]
+    [LE α] [LawfulOrderOrd α] [LawfulOrderMin α]
+    [LawfulOrderLeftLeaningMin α] [LawfulEqOrd α]
+    (h : t.WF) :
+    t.keys.head? = t.minKey? := by
+  simp_to_model using List.head?_keys _ h.ordered
 
 theorem isSome_minKey?_of_contains [TransOrd α] (h : t.WF) {k} :
     (hc : t.contains k) → t.minKey?.isSome := by

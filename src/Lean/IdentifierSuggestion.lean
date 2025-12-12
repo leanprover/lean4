@@ -14,6 +14,7 @@ public import Lean.ResolveName
 import all Lean.Elab.ErrorUtils
 
 namespace Lean
+open Elab.Term
 
 set_option doc.verso true
 
@@ -107,14 +108,14 @@ public def getStoredSuggestions [Monad m] [MonadEnv m] (trueName : Name) : m Nam
     | some (_, extras) => extras.foldl (init := results) fun accum extra => accum.insert extra
 
 /--
-Throw an unknown constant error message, potentially suggesting alternatives using
-{name}`suggest_for` attributes. (Like {name}`throwUnknownConstantAt` but with suggestions.)
+Throw an unknown constant/identifier error message, potentially suggesting alternatives using
+{name}`suggest_for` attributes.
 
 The replacement will mimic the path structure of the original as much as possible if they share a
 path prefix: if there is a suggestion for replacing `Foo.Bar.jazz` with `Foo.Bar.baz`, then
 `Bar.jazz` will be replaced by `Bar.baz` unless the resulting constant is ambiguous.
 -/
-public def throwUnknownConstantWithSuggestions (constName : Name) (ref? : Option Syntax := .none) : CoreM α := do
+public def throwUnknownNameWithSuggestions (constName : Name) (idOrConst := "identifier") (declHint := constName) (ref? : Option Syntax := .none) (extraMsg : MessageData := .nil) : TermElabM α := do
   let suggestions := (← getSuggestions constName).toArray
   let ref := ref?.getD (← getRef)
   let hint ← if suggestions.size = 0 then
@@ -144,4 +145,21 @@ public def throwUnknownConstantWithSuggestions (constName : Name) (ref? : Option
           toCodeActionTitle? := .some (s!"Change to {·}"),
           messageData? := .some m!"`{.ofConstName suggestion}`",
         }) ref
-  throwUnknownIdentifierAt (declHint := constName) ref (m!"Unknown constant `{.ofConstName constName}`" ++ hint)
+  throwUnknownIdentifierAt (declHint := declHint) ref (m!"Unknown {idOrConst} `{.ofConstName constName}`" ++ extraMsg ++ hint)
+
+public def Elab.Term.hintAutoImplicitFailure (exp : Expr) (expected := "a function") : TermElabM MessageData := do
+  let autoBound := (← readThe Context).autoBoundImplicitContext
+  unless autoBound.isSome && exp.isFVar && autoBound.get!.boundVariables.any (· == exp) do
+    return .nil
+  let name ← exp.fvarId!.getUserName
+  let baseMessage := m!"The identifier `{.ofName name}` is unknown, \
+    and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly \
+    bound variable with an unknown type. \
+    However, the unknown type cannot be {expected}, and {expected} is what Lean expects here. \
+    This is often the result of a typo or a missing `import` or `open` statement."
+  let suggestionExtra : MessageData := match (← getSuggestions name).toList with
+    | [] => .nil
+    | [opt] => Format.line ++ Format.line ++ m!"Perhaps you meant `{.ofConstName opt}` in place of `{.ofName name}`?"
+    | opts =>  Format.line ++ Format.line ++ m!"Perhaps you meant one of these in place of `{.ofName name}`:" ++
+        .joinSep (opts.map (indentD m!"• `{.ofConstName ·}`")) .nil
+  return MessageData.hint' (baseMessage ++ suggestionExtra)

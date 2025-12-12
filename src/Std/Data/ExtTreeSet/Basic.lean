@@ -529,6 +529,19 @@ def inter [TransCmp cmp] (t₁ t₂ : ExtTreeSet α cmp) : ExtTreeSet α cmp := 
 
 instance [TransCmp cmp] : Inter (ExtTreeSet α cmp) := ⟨inter⟩
 
+instance [TransCmp cmp] : BEq (ExtTreeSet α cmp) where
+  beq m₁ m₂ := ExtDTreeMap.Const.beq m₁.inner.inner m₂.inner.inner
+
+instance [TransCmp cmp] : ReflBEq (ExtTreeSet α cmp) where
+  rfl := ExtDTreeMap.Const.beq_of_eq _ _ rfl
+
+instance [TransCmp cmp] [LawfulEqCmp cmp] : LawfulBEq (ExtTreeSet α cmp) where
+  eq_of_beq {a} {b} hyp := by
+    have ⟨⟨_⟩⟩ := a
+    have ⟨⟨_⟩⟩ := b
+    simp only [mk.injEq, ExtTreeMap.mk.injEq] at |- hyp
+    exact ExtDTreeMap.Const.eq_of_beq _ _ hyp
+    
 /--
 Computes the difference of the given tree sets.
 

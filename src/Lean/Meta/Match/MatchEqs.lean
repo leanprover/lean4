@@ -113,15 +113,8 @@ where
     else
       return e
 
-
 private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := mvarId.withContext do
   for localDecl in (← getLCtx) do
-    if let some (α, _lhs, β, _rhs) ← matchHEq? localDecl.type then
-      if (← isDefEq α β) then
-        let (_, mvarId') ← heqToEq mvarId localDecl.fvarId
-        if mvarId' == mvarId then
-          trace[Meta.Match.matchEqs] "substSomeVar: heqToHeq {localDecl.type}"
-          return #[mvarId']
     if let some (_, lhs, rhs) ← matchEq? localDecl.type then
       if lhs.isFVar then
         if !(← dependsOn rhs lhs.fvarId!) then
@@ -227,17 +220,14 @@ where
           else
             throwError "spliIf failed")
       <|>
-      (do let mvarId' ← mvarId.heqOfEq
-          if mvarId' == mvarId then throwError "heqOfEq failed"
-          return #[mvarId'])
+      (substSomeVar mvarId)
       <|>
       (do if debug.Meta.Match.MatchEqs.grindAsSorry.get (← getOptions) then
             trace[Meta.Match.matchEqs] "proveCondEqThm.go: grind_as_sorry is enabled, admitting goal"
             mvarId.admit (synthetic := true)
           else
-            profileitM Exception "grind in matcheqs" (← getOptions) do
-              let r ← Grind.main mvarId (← Grind.mkParams {})
-              if r.hasFailed then throwError "grind failed"
+            let r ← Grind.main mvarId (← Grind.mkParams {})
+            if r.hasFailed then throwError "grind failed"
           return #[])
       <|>
       (throwMatchEqnFailedMessage matchDeclName thmName mvarId)

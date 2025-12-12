@@ -193,4 +193,6 @@ theorem Nat.or_congr {a b : Nat} {k₁ k₂ k : Nat} (h₁ : a = k₁) (h₂ : b
 theorem Nat.shiftLeft_congr {a b : Nat} {k₁ k₂ k : Nat} (h₁ : a = k₁) (h₂ : b = k₂) : k == k₁ <<< k₂ → a <<< b = k := by simp_all
 theorem Nat.shiftRight_congr {a b : Nat} {k₁ k₂ k : Nat} (h₁ : a = k₁) (h₂ : b = k₂) : k == k₁ >>> k₂ → a >>> b = k := by simp_all
 
+theorem Nat.hasNotBit_congr {a b : Nat} {k₁ k₂ : Nat} {k : Bool} (h₁ : a = k₁) (h₂ : b = k₂) : k == Nat.hasNotBit k₁ k₂ → Nat.hasNotBit a b = k := by simp_all
+
 end Lean.Grind

@@ -1,6 +1,6 @@
 prelude
 import Init.Guard
-import Init.WFC
+import Init.WFComputable
 
 -- Test wellfounded fix call is executable
 def log2p1 : Nat → Nat :=

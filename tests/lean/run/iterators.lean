@@ -363,7 +363,7 @@ example := positives.toArray
 
 /--
 error: failed to synthesize instance of type class
-  Std.Iterators.Finite (Std.Iterators.RepeatIterator Nat fun x => x + 1) Id
+  Std.Iterators.Finite (Std.Iterators.Types.RepeatIterator Nat fun x => x + 1) Id
 
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
@@ -372,7 +372,7 @@ example := positives.ensureTermination.toList
 
 /--
 error: failed to synthesize instance of type class
-  Std.Iterators.Finite (Std.Iterators.RepeatIterator Nat fun x => x + 1) Id
+  Std.Iterators.Finite (Std.Iterators.Types.RepeatIterator Nat fun x => x + 1) Id
 
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/
@@ -381,7 +381,7 @@ example := positives.ensureTermination.toListRev
 
 /--
 error: failed to synthesize instance of type class
-  Std.Iterators.Finite (Std.Iterators.RepeatIterator Nat fun x => x + 1) Id
+  Std.Iterators.Finite (Std.Iterators.Types.RepeatIterator Nat fun x => x + 1) Id
 
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 -/

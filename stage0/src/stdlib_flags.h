@@ -1,6 +1,7 @@
 #include "util/options.h"
 
 // this comment has been updated 1 time(s)
+// dear CI, please do a stage0 update after merging my PR so that the coercion linter becomes active
 namespace lean {
 options get_default_options() {
     options opts;

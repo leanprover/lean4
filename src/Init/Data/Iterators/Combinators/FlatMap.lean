@@ -30,7 +30,7 @@ namespace Std.Iterators
 public def Iter.flatMapAfterM {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m] [Iterator α Id β] [Iterator α₂ m γ]
     (f : β → m (IterM (α := α₂) m γ)) (it₁ : Iter (α := α) β) (it₂ : Option (IterM (α := α₂) m γ)) :=
-  ((it₁.mapM pure).flatMapAfterM f it₂ : IterM m γ)
+  ((it₁.mapWithPostcondition pure).flatMapAfterM f it₂ : IterM m γ)
 
 @[always_inline, expose, inherit_doc IterM.flatMapM]
 public def Iter.flatMapM {α : Type w} {β : Type w} {α₂ : Type w}

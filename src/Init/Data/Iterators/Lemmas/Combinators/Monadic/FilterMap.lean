@@ -318,6 +318,62 @@ theorem foo [Monad m] [MonadAttach m] (x : m (Option α)) (f : (_ : _) → _ →
   · simp only [Bool.not_eq_true, Option.isSome_eq_false_iff, Option.isNone_iff_eq_none] at heq
     simp_all
 
+@[elab_as_elim]
+private def _root_.Subtype.casesOn' := @Subtype.casesOn
+
+private def _root_.Option.pelim' {α : Type u_1} (t : Option α) {β :  Sort u_2}
+    (n : t = none → β) (s : (val : α) → t = some val → β) : β :=
+  match t with
+  | some a => s a rfl
+  | none => n rfl
+
+private theorem foo' [Monad m] (x : PostconditionT m (Option α)) (f : Subtype x.Property → m β) :
+    (x.operation >>= f) = x.operation >>= (fun a => a.casesOn' fun a ha => if h : a.isSome then f ⟨some (a.get h), (by simpa using ha)⟩ else f ⟨none, (by simp_all)⟩) := by
+  intros
+  congr
+  ext y
+  cases y
+  simp_all [Subtype.casesOn']
+
+private theorem foo'' [Monad m] [LawfulMonad m] {P : α → Prop} (x : m (Subtype P)) (f : α → m β) :
+    x >>= (fun a => a.casesOn' fun a _ => f a) = (Subtype.val <$> x) >>= f := by
+  simp [Subtype.casesOn']
+
+private theorem foo''' [Monad m] [LawfulMonad m] {P : Option α → Prop} (x : m (Subtype P)) (f : Subtype P → m β) :
+    x >>= f = x >>= (fun a => a.casesOn' fun (a : Option α) ha => a.pelim' (fun h => f ⟨none, by simp_all⟩) (fun a h => f ⟨some a, by simp_all⟩)) := by
+  apply bind_congr; intro x
+  rcases x with ⟨_ | ⟨a⟩⟩
+  all_goals simp [Subtype.casesOn', Option.pelim']
+
+theorem IterM.toList_mapWithPostcondition_eq_filterMapWithPostcondition {α β γ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
+    [MonadLiftT m n][LawfulMonadLiftT m n]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m n] [LawfulIteratorCollect α m n]
+    {f : β → PostconditionT n γ} {it : IterM (α := α) m β} :
+    (it.mapWithPostcondition f).toList = (it.filterMapWithPostcondition (PostconditionT.map some <| f ·)).toList := by
+  simp only [toList_eq_toList_defaultImplementation]; rfl
+
+theorem IterM.toList_filterMapM_eq_toList_filterMapWithPostcondition {α β γ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''}
+    [Monad m] [LawfulMonad m] [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
+    [MonadLiftT m n][LawfulMonadLiftT m n]
+    [Iterator α m β] [Finite α m]
+    {f : β → n (Option γ)} {it : IterM (α := α) m β} :
+    (it.filterMapM f).toList =
+      (it.filterMapWithPostcondition fun b => .attachLift (f b)).toList := by
+  rfl
+
+theorem IterM.toList_mapM_eq_toList_mapWithPostcondition {α β γ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''}
+    [Monad m] [LawfulMonad m] [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
+    [MonadLiftT m n][LawfulMonadLiftT m n]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m n] [LawfulIteratorCollect α m n]
+    {f : β → n γ} {it : IterM (α := α) m β} :
+    (it.mapM f).toList =
+      (it.mapWithPostcondition fun b => .attachLift (f b)).toList := by
+  rfl
+
 theorem IterM.toList_mapM_eq_toList_filterMapM {α β γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
     [Monad m] [LawfulMonad m] [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
@@ -348,6 +404,114 @@ theorem IterM.toList_map_eq_toList_filterMapM {α β γ : Type w} {m : Type w �
   congr <;> simp
 
 @[simp]
+private theorem IterM.toList_filterMapWithPostcondition_filterMapWithPostcondition'
+    {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m]
+    {f : β → PostconditionT n (Option γ)} {g : γ → PostconditionT o (Option δ)}
+    {fg : β → PostconditionT o (Option δ)}
+    {it : IterM (α := α) m β}
+    (h : ∀ b, (fg b).run = do match ← (f b).run with | none => return none | some fb => (g fb).run) :
+    letI : MonadLift n o := ⟨monadLift⟩
+    ((it.filterMapWithPostcondition f).filterMapWithPostcondition g).toList =
+      (it.filterMapWithPostcondition (n := o) fg).toList := by
+  induction it using IterM.inductSteps with | step it ihy ihs
+  letI : MonadLift n o := ⟨monadLift⟩
+  haveI : LawfulMonadLift n o := ⟨by simp [this], by simp [this]⟩
+  rw [toList_eq_match_step, toList_eq_match_step, step_filterMapWithPostcondition,
+    bind_assoc, step_filterMapWithPostcondition, step_filterMapWithPostcondition]
+  simp only [bind_assoc, liftM_bind]
+  apply bind_congr; intro step
+  split
+  · simp only [bind_assoc, liftM_bind]
+    rw [PostconditionT.operation_eq_map_mk_operation, liftM_map, bind_map_left]
+    simp
+    conv =>
+      rhs
+      rw [foo']
+      simp only [pure_bind, Shrink.inflate_deflate]
+      rw [foo'']
+    conv =>
+      lhs
+      rw [foo''']
+      simp only [liftM_pure, pure_bind, Shrink.inflate_deflate, bind_assoc]
+      simp +singlePass only [foo']
+      simp only [pure_bind, Shrink.inflate_deflate]
+      simp only [foo'']
+      rw [← liftM_map]
+    simp only [← PostconditionT.run_eq_map, h, bind_assoc, Option.pelim']
+    apply bind_congr; intro fx
+    split <;> simp [ihy ‹_›]
+  · simp [ihs ‹_›]
+  · simp
+
+@[simp]
+theorem IterM.toList_filterMapWithPostcondition_filterMapWithPostcondition {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Monad m] [LawfulMonad m]
+    [Monad n] [LawfulMonad n]
+    [Monad o] [LawfulMonad o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m]
+    {f : β → PostconditionT n (Option γ)} {g : γ → PostconditionT o (Option δ)}
+    {it : IterM (α := α) m β} :
+    haveI : MonadLift n o := ⟨monadLift⟩
+    ((it.filterMapWithPostcondition f).filterMapWithPostcondition g).toList =
+      (it.filterMapWithPostcondition (n := o) (fun b => do
+        match ← (f b) with
+        | none => return none
+        | some fb => g fb)).toList := by
+  apply toList_filterMapWithPostcondition_filterMapWithPostcondition'
+  intro b
+  simp only [PostconditionT.run_bind']
+  simp only [liftM, monadLift, MonadLift.monadLift, monadLift_self, PostconditionT.run_eq_map,
+    bind_map_left, liftM_map]
+  apply bind_congr; intro fx
+  split <;> simp [*]
+
+@[simp]
+theorem IterM.toList_mapWithPostcondition_mapWithPostcondition {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Monad m] [LawfulMonad m]
+    [Monad n] [LawfulMonad n]
+    [Monad o] [LawfulMonad o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m n] [LawfulIteratorCollect α m n]
+    [IteratorCollect α m o] [LawfulIteratorCollect α m o]
+    {f : β → PostconditionT n γ} {g : γ → PostconditionT o δ}
+    {it : IterM (α := α) m β} :
+    haveI : MonadLift n o := ⟨monadLift⟩
+    ((it.mapWithPostcondition f).mapWithPostcondition g).toList =
+      (it.mapWithPostcondition (n := o) (f · >>= g)).toList := by
+  simp only [toList_mapWithPostcondition_eq_filterMapWithPostcondition]
+  apply toList_filterMapWithPostcondition_filterMapWithPostcondition'
+  intro b
+  simp [liftM, monadLift, MonadLift.monadLift, PostconditionT.run_eq_map, PostconditionT.operation_bind']
+
+@[simp]
+theorem IterM.toList_filterMapM_filterMapWithPostcondition {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Monad m] [LawfulMonad m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
+    [Monad o] [MonadAttach o] [LawfulMonad o] [WeaklyLawfulMonadAttach o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    {f : β → PostconditionT n (Option γ)} {g : γ → o (Option δ)}
+    {it : IterM (α := α) m β} :
+    haveI : MonadLift n o := ⟨monadLift⟩
+    ((it.filterMapWithPostcondition f).filterMapM g).toList =
+      (it.filterMapM (n := o) (fun b => do
+        match ← (f b).run with
+        | none => return none
+        | some fb => g fb)).toList := by
+  apply toList_filterMapWithPostcondition_filterMapWithPostcondition'
+  intro b
+  simp only [PostconditionT.attachLift, PostconditionT.run_eq_map, WeaklyLawfulMonadAttach.map_attach]
+  rfl
+
+@[simp]
 theorem IterM.toList_filterMapM_filterMapM {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     [Monad m] [LawfulMonad m]
@@ -363,31 +527,10 @@ theorem IterM.toList_filterMapM_filterMapM {α β γ δ : Type w}
         match ← f b with
         | none => return none
         | some fb => g fb)).toList := by
-  induction it using IterM.inductSteps with | step it ihy ihs
-  letI : MonadLift n o := ⟨monadLift⟩
-  haveI : LawfulMonadLift n o := ⟨by simp [this], by simp [this]⟩
-  rw [toList_eq_match_step, toList_eq_match_step, step_filterMapM,
-    bind_assoc, step_filterMapM, step_filterMapM]
-  simp only [bind_assoc, liftM_bind]
-  apply bind_congr; intro step
-  split
-  · simp only [bind_assoc, liftM_bind]
-    conv =>
-      rhs
-      simp only [MonadAttach.attach_bind_eq_pbind]
-      rw [foo]
-      simp only [bind_pure_comp, pure_bind, Shrink.inflate_deflate,
-        WeaklyLawfulMonadAttach.pbind_eq_bind, bind_assoc]
-      rw [← WeaklyLawfulMonadAttach.map_attach (x := f _), liftM_map, bind_map_left]
-    apply bind_congr; intro fx
-    split
-    · simp [ihy ‹_›]
-    · simp only [liftM_pure, pure_bind, bind_assoc, Shrink.inflate_deflate]
-      conv => rhs; rw [← WeaklyLawfulMonadAttach.map_attach (x := g _), bind_map_left]
-      apply bind_congr; intro gx
-      split <;> simp [ihy ‹_›]
-  · simp [ihs ‹_›]
-  · simp
+  apply toList_filterMapWithPostcondition_filterMapWithPostcondition'
+  intro b
+  simp only [PostconditionT.attachLift, PostconditionT.run_eq_map, WeaklyLawfulMonadAttach.map_attach]
+  rfl
 
 @[simp]
 theorem IterM.toList_filterMapM_mapM {α β γ δ : Type w}
@@ -401,29 +544,12 @@ theorem IterM.toList_filterMapM_mapM {α β γ δ : Type w}
     haveI : MonadLift n o := ⟨monadLift⟩
     ((it.mapM f).filterMapM g).toList =
       (it.filterMapM (n := o) (fun b => do g (← f b))).toList := by
-  induction it using IterM.inductSteps with | step it ihy ihs
-  letI : MonadLift n o := ⟨monadLift⟩
-  haveI : LawfulMonadLift n o := ⟨by simp [this], by simp [this]⟩
-  rw [toList_eq_match_step, toList_eq_match_step, step_filterMapM,
-    bind_assoc, step_filterMapM, step_mapM]
-  simp only [bind_assoc, liftM_bind]
-  apply bind_congr; intro step
-  split
-  · simp only [bind_assoc, liftM_bind]
-    conv =>
-      rhs
-      simp only [MonadAttach.attach_bind_eq_pbind]
-      rw [foo]
-      simp only [bind_pure_comp, pure_bind, Shrink.inflate_deflate,
-        WeaklyLawfulMonadAttach.pbind_eq_bind, bind_assoc]
-      rw [← WeaklyLawfulMonadAttach.map_attach (x := f _), liftM_map, bind_map_left]
-    apply bind_congr; intro fx
-    conv => rhs; rw [← WeaklyLawfulMonadAttach.map_attach (x := g _), bind_map_left]
-    simp only [liftM_pure, bind_pure_comp, pure_bind, Shrink.inflate_deflate, bind_assoc]
-    apply bind_congr; intro gx
-    split <;> simp [ihy ‹_›]
-  · simp [ihs ‹_›]
-  · simp
+  apply toList_filterMapWithPostcondition_filterMapWithPostcondition'
+  intro b
+  simp only [PostconditionT.attachLift, PostconditionT.run_eq_map, WeaklyLawfulMonadAttach.map_attach,
+    PostconditionT.operation_map]
+  conv => lhs; simp only [← WeaklyLawfulMonadAttach.map_attach (x := f _)]
+  simp
 
 @[simp]
 theorem IterM.toList_filterMapM_map {α β γ δ : Type w}
@@ -504,6 +630,60 @@ theorem IterM.toList_map_mapM {α β γ δ : Type w}
   simp only [toList_mapM_eq_toList_filterMapM, toList_map_eq_toList_filterMapM,
     toList_filterMapM_mapM]
   congr <;> simp
+
+theorem IterM.toList_filterMapWithPostcondition {α β γ : Type w} {m : Type w → Type w'}
+    [Monad m] [LawfulMonad m]
+    [Iterator α Id β] [IteratorCollect α Id m] [LawfulIteratorCollect α Id m] [Finite α Id]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {f : β → PostconditionT m (Option γ)} (it : IterM (α := α) Id β) :
+    (it.filterMapWithPostcondition f).toList = it.toList.run.filterMapM (fun x => (f x).run) := by
+  induction it using IterM.inductSteps
+  rename_i it ihy ihs
+  rw [IterM.toList_eq_match_step, IterM.toList_eq_match_step]
+  simp only [step_filterMapWithPostcondition]
+  simp only [liftM, monadLift, pure_bind]
+  split <;> rename_i heq
+  · have := congrArg (fun x => pure (f := Id) (Shrink.deflate x)) heq
+    simp only [Shrink.deflate_inflate, Id.pure_run] at this
+    simp only [bind_pure_comp, bind_assoc, PostconditionT.run_eq_map, this, pure_bind,
+      Shrink.inflate_deflate, Id.run_map, List.filterMapM_cons, bind_map_left]
+    apply bind_congr; intro a
+    split
+    · simp [ihy ‹_›, PostconditionT.run_eq_map]
+    · simp [ihy ‹_›, PostconditionT.run_eq_map]
+  · simp [ihs ‹_›, heq]
+  · simp [heq]
+
+theorem IterM.toList_mapWithPostcondition {α β γ : Type w} {m : Type w → Type w'}
+    [Monad m] [LawfulMonad m] [Iterator α Id β] [IteratorCollect α Id m]
+    [LawfulIteratorCollect α Id m] [Finite α Id]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {f : β → PostconditionT m γ} (it : IterM (α := α) Id β) :
+    (it.mapWithPostcondition f).toList = it.toList.run.mapM (fun x => (f x).run) := by
+  induction it using IterM.inductSteps
+  rename_i it ihy ihs
+  rw [IterM.toList_eq_match_step, IterM.toList_eq_match_step]
+  simp only [step_mapWithPostcondition]
+  simp only [liftM, monadLift, pure_bind]
+  split <;> rename_i heq
+  · have := congrArg (fun x => pure (f := Id) (Shrink.deflate x)) heq
+    simp only [Shrink.deflate_inflate, Id.pure_run] at this
+    simp only [bind_pure_comp, PostconditionT.run_eq_map, this, pure_bind,
+      Shrink.inflate_deflate, Id.run_map, bind_map_left, List.mapM_cons]
+    apply bind_congr; intro a
+    simp [ihy ‹_›, PostconditionT.run_eq_map]
+  · simp [ihs ‹_›, heq]
+  · simp [heq]
+
+theorem IterM.toList_mapM {α β γ : Type w} {m : Type w → Type w'}
+    [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
+    [Iterator α Id β] [IteratorCollect α Id m]
+    [LawfulIteratorCollect α Id m] [Finite α Id]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {f : β → m γ} (it : IterM (α := α) Id β) :
+    (it.mapM f).toList = it.toList.run.mapM f := by
+  simp [toList_mapM_eq_toList_mapWithPostcondition, toList_mapWithPostcondition,
+    PostconditionT.attachLift, PostconditionT.run_eq_map, WeaklyLawfulMonadAttach.map_attach]
 
 theorem IterM.toList_filterMap {α β γ : Type w} {m : Type w → Type w'}
     [Monad m] [LawfulMonad m]
@@ -710,6 +890,16 @@ theorem IterM.toArray_map_eq_toArray_mapM {α β γ : Type w}
     (it.map f).toArray = (it.mapM fun b => pure (f b)).toArray := by
   simp [← toArray_toList, toList_map_eq_toList_mapM]
 
+theorem IterM.toArray_mapM_eq_toArray_mapWithPostcondition {α β γ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''}
+    [Monad m] [LawfulMonad m] [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
+    [MonadLiftT m n][LawfulMonadLiftT m n]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m n] [LawfulIteratorCollect α m n]
+    {f : β → n γ} {it : IterM (α := α) m β} :
+    (it.mapM f).toArray =
+      (it.mapWithPostcondition fun b => .attachLift (f b)).toArray := by
+  rfl
+
 theorem IterM.toArray_mapM_eq_toArray_filterMapM {α β γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''}
     [Monad m] [LawfulMonad m]
@@ -726,6 +916,38 @@ theorem IterM.toArray_map_eq_toArray_filterMapM {α β γ : Type w}
     {f : β → γ} {it : IterM (α := α) m β} :
     (it.map f).toArray = (it.filterMapM fun b => pure (some (f b))).toArray := by
   simp [← toArray_toList, toList_map_eq_toList_filterMapM]
+
+theorem IterM.toArray_mapWithPostcondition {α β γ : Type w} {m : Type w → Type w'}
+    [Monad m] [LawfulMonad m] [Iterator α Id β] [IteratorCollect α Id m]
+    [LawfulIteratorCollect α Id m] [Finite α Id]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {f : β → PostconditionT m γ} (it : IterM (α := α) Id β) :
+    (it.mapWithPostcondition f).toArray = it.toArray.run.mapM (fun x => (f x).run) := by
+  induction it using IterM.inductSteps
+  rename_i it ihy ihs
+  rw [IterM.toArray_eq_match_step, IterM.toArray_eq_match_step]
+  simp only [step_mapWithPostcondition]
+  simp only [liftM, monadLift, pure_bind]
+  split <;> rename_i heq
+  · have := congrArg (fun x => pure (f := Id) (Shrink.deflate x)) heq
+    simp only [Shrink.deflate_inflate, Id.pure_run] at this
+    simp only [bind_pure_comp, PostconditionT.run_eq_map, this, pure_bind,
+      Shrink.inflate_deflate, Id.run_map, bind_map_left]
+    simp [Array.mapM_eq_mapM_toList]
+    apply bind_congr; intro a
+    simp [ihy ‹_›, PostconditionT.run_eq_map, Array.mapM_eq_mapM_toList]
+  · simp [ihs ‹_›, heq]
+  · simp [heq]
+
+theorem IterM.toArray_mapM {α β γ : Type w} {m : Type w → Type w'}
+    [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
+    [Iterator α Id β] [IteratorCollect α Id m]
+    [LawfulIteratorCollect α Id m] [Finite α Id]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {f : β → m γ} (it : IterM (α := α) Id β) :
+    (it.mapM f).toArray = it.toArray.run.mapM f := by
+  simp [toArray_mapM_eq_toArray_mapWithPostcondition, toArray_mapWithPostcondition,
+    PostconditionT.attachLift, PostconditionT.run_eq_map, WeaklyLawfulMonadAttach.map_attach]
 
 theorem IterM.toArray_filterMap {α β γ : Type w} {m : Type w → Type w'}
     [Monad m] [LawfulMonad m]
@@ -745,6 +967,40 @@ theorem IterM.toArray_filter {α : Type w} {m : Type w → Type w'} [Monad m] [L
     {f : β → Bool} {it : IterM (α := α) m β} :
     (it.filter f).toArray = Array.filter f <$> it.toArray := by
   simp [← toArray_toList, toList_filter]
+
+@[simp]
+theorem IterM.toArray_filterMapWithPostcondition_filterMapWithPostcondition {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Monad m] [LawfulMonad m]
+    [Monad n] [LawfulMonad n]
+    [Monad o] [LawfulMonad o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m]
+    {f : β → PostconditionT n (Option γ)} {g : γ → PostconditionT o (Option δ)}
+    {it : IterM (α := α) m β} :
+    haveI : MonadLift n o := ⟨monadLift⟩
+    ((it.filterMapWithPostcondition f).filterMapWithPostcondition g).toArray =
+      (it.filterMapWithPostcondition (n := o) (fun b => do
+        match ← (f b) with
+        | none => return none
+        | some fb => g fb)).toArray := by
+  simp [← toArray_toList]
+
+@[simp]
+theorem IterM.toArray_mapWithPostcondition_mapWithPostcondition {α β γ δ : Type w}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Monad m] [LawfulMonad m]
+    [Monad n] [LawfulMonad n]
+    [Monad o] [LawfulMonad o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m] [IteratorCollect α m n] [LawfulIteratorCollect α m n]
+    [IteratorCollect α m o] [LawfulIteratorCollect α m o]
+    {f : β → PostconditionT n γ} {g : γ → PostconditionT o δ}
+    {it : IterM (α := α) m β} :
+    haveI : MonadLift n o := ⟨monadLift⟩
+    ((it.mapWithPostcondition f).mapWithPostcondition g).toArray =
+      (it.mapWithPostcondition (n := o) (f · >>= g)).toArray := by
+  simp [← toArray_toList]
 
 @[simp]
 theorem IterM.toArray_filterMapM_filterMapM {α β γ δ : Type w}

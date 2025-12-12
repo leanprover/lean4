@@ -17,16 +17,13 @@ open Std.Internal
 
 public theorem Flatten.IsPlausibleStep.outerYield_flatMapM_pure {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'}
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m] [Iterator α Id β]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m] [Iterator α Id β]
     [Iterator α₂ m γ]
     {f : β → m (IterM (α := α₂) m γ)} {it₁ it₁' : Iter (α := α) β} {it₂' b}
     (h : it₁.IsPlausibleStep (.yield it₁' b)) (h' : MonadAttach.CanReturn (f b) it₂') :
     (it₁.flatMapAfterM f none).IsPlausibleStep (.skip (it₁'.flatMapAfterM f (some it₂'))) := by
-  apply outerYield_flatMapM
-  · rw [show f b = (pure b) >>= f by simp] at h'
-    obtain ⟨a, ha, h'⟩ := LawfulMonadAttach.canReturn_bind_imp' h'
-    cases LawfulMonadAttach.eq_of_canReturn_pure ha
-    exact .yieldSome h (out' := b) (by simp [PostconditionT.attachLift, PostconditionT.bind, ha])
+  apply outerYield_flatMapM (b := b)
+  · exact FilterMap.PlausibleStep.yieldSome h (by simp)
   · exact h'
 
 public theorem Flatten.IsPlausibleStep.outerSkip_flatMapM_pure {α : Type w} {β : Type w} {α₂ : Type w}
@@ -113,7 +110,7 @@ public theorem Flatten.IsPlausibleStep.innerDone_flatMap_pure {α : Type w} {β 
 
 public theorem Iter.step_flatMapAfterM {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'}
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m] [Iterator α Id β] [Iterator α₂ m γ]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m] [Iterator α Id β] [Iterator α₂ m γ]
     {f : β → m (IterM (α := α₂) m γ)} {it₁ : Iter (α := α) β} {it₂ : Option (IterM (α := α₂) m γ)} :
   (it₁.flatMapAfterM f it₂).step = (do
     match it₂ with
@@ -132,26 +129,15 @@ public theorem Iter.step_flatMapAfterM {α : Type w} {β : Type w} {α₂ : Type
         return .deflate (.skip (it₁.flatMapAfterM f (some it₂')) (.innerSkip_flatMapM_pure h))
       | .done h =>
         return .deflate (.skip (it₁.flatMapAfterM f none) (.innerDone_flatMapM_pure h))) := by
-  simp only [flatMapAfterM, IterM.step_flatMapAfterM, Iter.step_mapM]
+  simp only [flatMapAfterM, IterM.step_flatMapAfterM, Iter.step_mapWithPostcondition,
+    PostconditionT.operation_pure]
   split
-  · split
-    · rename_i out _ _
-      simp only [bind_pure_comp, bind_map_left, Shrink.inflate_deflate, *]
-      rw [← map_inj_right (f := some) (by simp)]
-      simp only [map_eq_pure_bind, bind_assoc]
-      have {α : Type _} {x : m α} : x = MonadAttach.attach (pure out) >>= (fun _ => x) := by
-        rw (occs := [1]) [show x = pure out >>= (fun _ => x) by simp]
-        conv => lhs; rw [← LawfulMonadAttach.map_attach (x := pure out)]
-        simp
-      refine Eq.trans ?_ this.symm
-      simp only [LawfulMonadAttach.bind_attach_of_nonempty (x := pure out), pure_bind]
-    · simp [*]
-    · simp [*]
+  · split <;> simp [*]
   · rfl
 
 public theorem Iter.step_flatMapM {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'}
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
     [Iterator α Id β] [Iterator α₂ m γ]
     {f : β → m (IterM (α := α₂) m γ)} {it₁ : Iter (α := α) β} :
   (it₁.flatMapM f).step = (do
@@ -197,7 +183,7 @@ public theorem Iter.step_flatMap {α : Type w} {β : Type w} {α₂ : Type w}
   simp [flatMap, step_flatMapAfter]
 
 public theorem Iter.toList_flatMapAfterM {α α₂ β γ : Type w} {m : Type w → Type w'}
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
     [Iterator α Id β] [Iterator α₂ m γ] [Finite α Id] [Finite α₂ m]
     [IteratorCollect α Id m] [IteratorCollect α₂ m m]
     [LawfulIteratorCollect α Id m] [LawfulIteratorCollect α₂ m m]
@@ -209,15 +195,11 @@ public theorem Iter.toList_flatMapAfterM {α α₂ β γ : Type w} {m : Type w �
       | some it₂ => return (← it₂.toList) ++
           (← List.flatten <$> (it₁.mapM fun b => do (← f b).toList).toList) := by
   simp only [flatMapAfterM, IterM.toList_flatMapAfterM]
-  split
-  · simp only [mapM, IterM.toList_mapM_mapM, monadLift_self]
-    congr <;> simp
-  · apply bind_congr; intro step
-    simp only [mapM, IterM.toList_mapM_mapM, monadLift_self, bind_pure_comp, Functor.map_map]
-    congr <;> simp
+  letI : IteratorCollect α Id Id := .defaultImplementation
+  split <;> simp [IterM.toList_mapM_eq_toList_mapWithPostcondition]
 
 public theorem Iter.toArray_flatMapAfterM {α α₂ β γ : Type w} {m : Type w → Type w'}
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
     [Iterator α Id β] [Iterator α₂ m γ] [Finite α Id] [Finite α₂ m]
     [IteratorCollect α Id m] [IteratorCollect α₂ m m]
     [LawfulIteratorCollect α Id m] [LawfulIteratorCollect α₂ m m]
@@ -229,15 +211,11 @@ public theorem Iter.toArray_flatMapAfterM {α α₂ β γ : Type w} {m : Type w 
       | some it₂ => return (← it₂.toArray) ++
           (← Array.flatten <$> (it₁.mapM fun b => do (← f b).toArray).toArray) := by
   simp only [flatMapAfterM, IterM.toArray_flatMapAfterM]
-  split
-  · simp only [mapM, IterM.toArray_mapM_mapM, monadLift_self]
-    congr <;> simp
-  · apply bind_congr; intro step
-    simp only [mapM, IterM.toArray_mapM_mapM, monadLift_self, bind_pure_comp, Functor.map_map]
-    congr <;> simp
+  letI : IteratorCollect α Id Id := .defaultImplementation
+  split <;> simp [IterM.toArray_mapM_eq_toArray_mapWithPostcondition]
 
 public theorem Iter.toList_flatMapM {α α₂ β γ : Type w} {m : Type w → Type w'}
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
     [Iterator α Id β] [Iterator α₂ m γ] [Finite α Id] [Finite α₂ m]
     [IteratorCollect α Id m] [IteratorCollect α₂ m m]
     [LawfulIteratorCollect α Id m] [LawfulIteratorCollect α₂ m m]
@@ -247,7 +225,7 @@ public theorem Iter.toList_flatMapM {α α₂ β γ : Type w} {m : Type w → Ty
   simp [flatMapM, toList_flatMapAfterM]
 
 public theorem Iter.toArray_flatMapM {α α₂ β γ : Type w} {m : Type w → Type w'}
-    [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m]
+    [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
     [Iterator α Id β] [Iterator α₂ m γ] [Finite α Id] [Finite α₂ m]
     [IteratorCollect α Id m] [IteratorCollect α₂ m m]
     [LawfulIteratorCollect α Id m] [LawfulIteratorCollect α₂ m m]

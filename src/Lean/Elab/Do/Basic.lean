@@ -43,6 +43,33 @@ def ContInfoRef : Type := ContInfoRefPointed.type
 instance : Nonempty ContInfoRef :=
   by exact ContInfoRefPointed.property
 
+/-- Whether a code block is alive or dead. -/
+inductive CodeLiveness where
+  /-- We inferred the code is semantically dead and don't need to elaborate it at all. -/
+  | deadSyntactically
+  /-- We inferred the code is semantically dead, but we need to elaborate it to produce a program. -/
+  | deadSemantically
+  /-- The code is alive. (Or it is dead, but we failed to prove it so.)  -/
+  | alive
+
+instance : ToString CodeLiveness where
+  toString
+    | .alive => "alive"
+    | .deadSyntactically => "deadSyntactically"
+    | .deadSemantically => "deadSemantically"
+
+instance : ToMessageData CodeLiveness where
+  toMessageData l := toString l
+
+/-- The least upper bound of two code livenesses. -/
+def CodeLiveness.lub (a b : CodeLiveness) : CodeLiveness :=
+  match a, b with
+  | .alive, _ => .alive
+  | _, .alive => .alive
+  | .deadSyntactically, _ => b
+  | _, .deadSyntactically => a
+  | _, _ => a
+
 structure Context where
   /-- Inferred and cached information about the monad. -/
   monadInfo : MonadInfo
@@ -58,9 +85,9 @@ structure Context where
   /-- Information about `return`, `break` and `continue` continuations. -/
   contInfo : ContInfoRef
   /--
-  Whether the current `do` element is dead code. `elabDoElem` will emit a warning if this is `true`.
+  Whether the current `do` element is dead code. `elabDoElem` will emit a warning if not `.alive`.
   -/
-  deadCode : Bool := false
+  deadCode : CodeLiveness := .alive
 
 structure MonadInstanceCache where
   /-- The inferred `Pure` instance of `(← read).monadInfo.m`. -/
@@ -119,8 +146,8 @@ structure ContVarInfo where
   lctx : LocalContext
   /-- The tracked jumps to the continuation. Each contains a metavariable to be assigned later. -/
   jumps : Array ContVarJump
-  /-- Local contexts of jump sites from dead code. We do not generate an entry in `jumps` for those. -/
-  deadCodeLCtxs : Array LocalContext := #[]
+  /-- The least upper bound of the dead code flag at all jump sites. -/
+  deadCode : CodeLiveness := .deadSyntactically
 
 structure State where
   monadInstanceCache : MonadInstanceCache := {}
@@ -248,7 +275,7 @@ private def getCachedPure : DoElabM Expr := do
 
 /-- The expression ``pure (α:=α) e``. -/
 def mkPureApp (α e : Expr) : DoElabM Expr := do
-  if (← read).deadCode then
+  if (← read).deadCode matches .deadSyntactically then
     -- There is no dead syntax here. Just return a fresh metavariable so that we don't
     -- do the `Term.ensureHasType` check below.
     return ← mkFreshExprMVar (← mkMonadicType α)
@@ -371,6 +398,9 @@ in the `TermElabM` result. This makes it possible to run multiple `DoElabM` comp
 def controlAtTermElabM (k : (runInBase : ∀ {β}, DoElabM β → TermElabM β) → TermElabM α) : DoElabM α := fun ctx ref => do
   k (· ctx ref)
 
+def withDeadCode (deadCode : CodeLiveness) (k : DoElabM α) : DoElabM α := do
+  withReader (fun ctx => { ctx with deadCode }) k
+
 /--
 The subset of `mutVars` that were reassigned in any of the `childCtxs` relative to the given
 `rootCtx`.
@@ -417,19 +447,19 @@ def ContVarId.mkJump (contVarId : ContVarId) : DoElabM Expr := do
   let info ← contVarId.find
   let lctx := addReachingDefsAsNonDep info.lctx (← getLCtx) info.tunneledVars.inner
   let mvar ← withLCtx' lctx (mkFreshExprMVar info.type) -- assigned by `synthesizeJumps`
-  let info ←
-    if (← read).deadCode then
-      pure { info with deadCodeLCtxs := info.deadCodeLCtxs.push lctx }
-    else
-      trace[Elab.do] "mkJump: {contVarId.name}, {mvar}, {repr mvar}"
-      pure { info with jumps := info.jumps.push { mvar, ref := (← getRef) } }
-  modify fun s => { s with contVars := s.contVars.insert contVarId info }
+  trace[Elab.do] "mkJump: {contVarId.name}, {mvar}, {repr mvar}, deadCode: {(← read).deadCode}"
+  -- If it's dead syntactically, don't even bother registering the jump
+  let deadCode := (← read).deadCode
+  unless deadCode matches .deadSyntactically do
+    let jumps := info.jumps.push { mvar, ref := (← getRef) }
+    let info := { info with jumps, deadCode := info.deadCode.lub deadCode }
+    modify fun s => { s with contVars := s.contVars.insert contVarId { info with jumps } }
   return mvar
 
-/-- The number of jump sites allocated for the continuation variable. -/
+/-- The number of non-syntactically dead jump sites allocated for the continuation variable. -/
 def ContVarId.jumpCount (contVarId : ContVarId) : DoElabM Nat := do
   let info ← contVarId.find
-  return info.jumps.size
+  return info.jumps |>.size
 
 /--
 Synthesize the jump sites for the continuation variable.
@@ -438,22 +468,19 @@ The result of `k` is used to fill in the jump site.
 -/
 def ContVarId.synthesizeJumps (contVarId : ContVarId) (k : DoElabM Expr) : DoElabM Unit := do
   let info ← contVarId.find
-  if info.jumps.size > 0 then
-    for jump in info.jumps do
-      jump.mvar.mvarId!.withContext do withRef jump.ref do
-        let res ← k
-        synthUsingDefEq "jump site" jump.mvar res
-  else
-    -- cf. `DoElemCont.elabAsDeadCode`
-    let k := withNewMCtxDepth <| withReader (fun ctx => { ctx with deadCode := true }) do
-      let s ← Term.saveState
-      discard <| withTheReader Core.Context (fun ctx => { ctx with suppressElabErrors := true }) k
-      let msg ← Core.getMessageLog -- case in point! capture it
-      s.restore
-      Core.setMessageLog msg
-    match info.deadCodeLCtxs[0]? with
-    | some lctx => withLCtx' lctx k
-    | none => logInfo m!"no dead code lctx found" *> withLCtx' info.lctx k
+  for jump in info.jumps do
+    jump.mvar.mvarId!.withContext do
+    withRef jump.ref do
+    withDeadCode info.deadCode do
+      let res ← k
+      synthUsingDefEq "jump site" jump.mvar res
+
+/--
+Get the least upper bound of the dead code flags at all jump sites.
+-/
+def ContVarId.getDeadCode (contVarId : ContVarId) : DoElabM CodeLiveness := do
+  let info ← contVarId.find
+  return info.deadCode
 
 /--
 Adds the given local declaration to the local context of the metavariable of each jump site.
@@ -581,15 +608,16 @@ where
           Term.tryPostpone
     loop ()
 
-/-- Elaborate the `DoElemCont` with the `deadCode` flag set to `true` to emit warnings. -/
-def DoElemCont.elabAsDeadCode (dec : DoElemCont) : DoElabM Unit := withNewMCtxDepth do
-  withReader (fun ctx => { ctx with deadCode := true }) do
-    withLocalDecl dec.resultName .default (← mkFreshResultType) (kind := .implDetail) fun _ => do
-      let s ← Term.saveState
-      discard <| dec.k
-      let msg ← Core.getMessageLog -- case in point! capture it
-      s.restore
-      Core.setMessageLog msg
+/-- Elaborate the `DoElemCont` with the `deadCode` flag set to `deadSyntactically` to emit warnings. -/
+def DoElemCont.elabAsSyntacticallyDeadCode (dec : DoElemCont) : DoElabM Unit :=
+  withNewMCtxDepth do
+  withDeadCode .deadSyntactically do
+  withLocalDecl dec.resultName .default (← mkFreshResultType) (kind := .implDetail) fun _ => do
+    let s ← Term.saveState
+    discard <| dec.k
+    let msg ← Core.getMessageLog -- case in point! capture it
+    s.restore
+    Core.setMessageLog msg
 
 /--
 Call `caller` with a duplicable proxy of `dec`.
@@ -616,7 +644,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
   if jumpCount = 0 then
     -- Do nothing. No MVar needs to be assigned. However, do elaborate the continuation as dead code
     -- for warnings.
-    nondupDec.elabAsDeadCode
+    nondupDec.elabAsSyntacticallyDeadCode
     Term.ensureHasType mγ e
   else if jumpCount = 1 then
     -- Linear use of the continuation. Do not introduce a join point; just emit the continuation
@@ -1005,9 +1033,11 @@ partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) : DoElabM Exp
   profileitM Exception "do element elaborator" (decl := k) (← getOptions) <|
   withRef stx <| withIncRecDepth <| withFreshMacroScope <| do
   let mγ ← mkMonadicType (← read).doBlockResultType
-  if (← read).deadCode then
+  if (← read).deadCode matches .deadSyntactically then
     logWarningAt stx "This `do` element and its control-flow region are dead code. Consider removing it."
-    return ← mkFreshExprMVar mγ
+    return ← mkFreshExprMVar mγ (userName := `deadCode)
+  if (← read).deadCode matches .deadSemantically then
+    logWarningAt stx "This `do` element and its control-flow region are dead code. Consider refactoring your code to remove it."
   let env ← getEnv
   let result ← match (← liftMacroM (expandMacroImpl? env stx)) with
   | some (decl, stxNew?) =>
@@ -1032,13 +1062,11 @@ partial def elabDoElems1 (doElems : Array (TSyntax `doElem)) (cont : DoElemCont)
   let unit ← mkPUnit
   let r ← mkFreshUserName `r
   let mkCont el k := DoElemCont.mk r unit k .nonDuplicable el .implDetail
-  doElems.pop.foldr (init := elabDoElem back cont) fun el k => elabDoElem el (mkCont el k)
+  let (_, res) := doElems.pop.foldr (init := (back, elabDoElem back cont)) fun el (prev, k) => (el, elabDoElem el (mkCont prev k))
+  res
 end
 
 def elabDoSeq (doSeq : TSyntax ``Lean.Parser.Term.doSeq) (cont : DoElemCont) : DoElabM Expr := do
-  if (← read).deadCode then
-    logWarningAt doSeq "This `do` sequence is dead code. Consider removing it."
-    return ← mkFreshExprMVar (← mkMonadicType (← read).doBlockResultType)
   elabDoElems1 (Lean.Parser.Term.getDoElems doSeq) cont
 
 @[builtin_doElem_elab doElemNoNestedAction] def elabDoElemNoNestedAction : DoElab := fun stx cont => do

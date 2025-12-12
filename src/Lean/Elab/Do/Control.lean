@@ -254,4 +254,7 @@ def ControlLifter.synthesizeConts (l : ControlLifter)
 
 def ControlLifter.restoreCont (l : ControlLifter) : DoElabM DoElemCont := do
   let controlStack ← l.synthesizeConts
-  controlStack.restoreCont l.successCont
+  -- The success continuation `l.successCont` is dead code iff `l.pureKVar` is.
+  -- However, we need to generate code for it, so we relax its flag to `.deadSemantically`.
+  let deadCode := (← l.pureKVar.getDeadCode).lub .deadSemantically
+  controlStack.restoreCont { l.successCont with k := withDeadCode deadCode l.successCont.k }

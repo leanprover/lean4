@@ -11,8 +11,6 @@ if (← get) == 0 then
   throw $ IO.userError "value is zero"
 modify (· - x)
 
-set_option trace.Elab.do true in
-set_option backward.do.legacy false in
 def f1 (x : Nat) : M Nat := do
 let v ←
   try

@@ -19,9 +19,7 @@ import Lean.Meta.Tactic.Grind.SynthInstance
 public section
 namespace Lean.Meta.Grind
 /--
-If `parent` is a projection-application `proj_i c`,
-check whether the root of the equivalence class containing `c` is a constructor-application `ctor ... a_i ...`.
-If so, internalize the term `proj_i (ctor ... a_i ...)` and add the equality `proj_i (ctor ... a_i ...) = a_i`.
+Propagation for implication
 -/
 def propagateForallPropUp (e : Expr) : GoalM Unit := do
   let .forallE n p q bi := e | return ()

@@ -277,7 +277,7 @@ def le_lt_combine_cert (p₁ p₂ p₃ : Poly) : Bool :=
 
 theorem le_lt_combine {α} [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] (ctx : Context α) (p₁ p₂ p₃ : Poly)
     : le_lt_combine_cert p₁ p₂ p₃ → p₁.denote' ctx ≤ 0 → p₂.denote' ctx < 0 → p₃.denote' ctx < 0 := by
-  simp [-Int.natAbs_pos, -Int.ofNat_pos, le_lt_combine_cert]; intro hp _ h₁ h₂; subst p₃; simp
+  simp [-Int.natAbs_pos, -Int.natCast_pos, le_lt_combine_cert]; intro hp _ h₁ h₂; subst p₃; simp
   replace h₁ := zsmul_nonpos (coe_natAbs_nonneg p₂.leadCoeff) h₁
   replace h₂ := zsmul_neg_iff (↑p₁.leadCoeff.natAbs) h₂ |>.mpr hp
   exact le_add_lt h₁ h₂
@@ -289,7 +289,7 @@ def lt_lt_combine_cert (p₁ p₂ p₃ : Poly) : Bool :=
 
 theorem lt_lt_combine {α} [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] (ctx : Context α) (p₁ p₂ p₃ : Poly)
     : lt_lt_combine_cert p₁ p₂ p₃ → p₁.denote' ctx < 0 → p₂.denote' ctx < 0 → p₃.denote' ctx < 0 := by
-  simp [-Int.natAbs_pos, -Int.ofNat_pos, lt_lt_combine_cert]; intro hp₁ hp₂ _ h₁ h₂; subst p₃; simp
+  simp [-Int.natAbs_pos, -Int.natCast_pos, lt_lt_combine_cert]; intro hp₁ hp₂ _ h₁ h₂; subst p₃; simp
   replace h₁ := zsmul_neg_iff (↑p₂.leadCoeff.natAbs) h₁ |>.mpr hp₁
   replace h₂ := zsmul_neg_iff (↑p₁.leadCoeff.natAbs) h₂ |>.mpr hp₂
   exact lt_add_lt h₁ h₂

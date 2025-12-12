@@ -81,10 +81,7 @@ theorem lt.dest {a b : Int} (h : a < b) : ∃ n : Nat, a + Nat.succ n = b :=
 @[simp, norm_cast] theorem ofNat_lt {n m : Nat} : (↑n : Int) < ↑m ↔ n < m := by
   rw [lt_iff_add_one_le, ← natCast_succ, ofNat_le]; rfl
 
-@[simp, norm_cast] theorem natCast_pos {n : Nat} : (0 : Int) < n ↔ 0 < n := ofNat_lt
-
-@[deprecated natCast_pos (since := "2025-05-13"), simp high]
-theorem ofNat_pos {n : Nat} : 0 < (↑n : Int) ↔ 0 < n := ofNat_lt
+@[simp high, norm_cast] theorem natCast_pos {n : Nat} : (0 : Int) < n ↔ 0 < n := ofNat_lt
 
 @[simp]
 theorem natCast_nonneg (n : Nat) : 0 ≤ (n : Int) := ⟨_⟩
@@ -92,6 +89,8 @@ theorem natCast_nonneg (n : Nat) : 0 ≤ (n : Int) := ⟨_⟩
 @[deprecated natCast_nonneg (since := "2025-10-26")]
 theorem ofNat_zero_le (n : Nat) : 0 ≤ (↑n : Int) := ofNat_le.2 n.zero_le
 
+-- This was still being used in `omega` as of 2025-12-12,
+-- so we're keeping this for another month.
 @[deprecated natCast_nonneg (since := "2025-05-13")]
 theorem ofNat_nonneg (n : Nat) : 0 ≤ (n : Int) := ⟨_⟩
 

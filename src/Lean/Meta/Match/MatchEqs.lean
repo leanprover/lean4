@@ -144,7 +144,7 @@ partial def proveCondEqThmByRefl  (type : Expr) : MetaM (Option Expr) := observi
   instantiateMVars mvar0
 
 private def throwMatchEqnFailedMessage (matchDeclName : Name) (thmName : Name) (mvarId : MVarId) : MetaM α := do
-  trace[Meta.Match.matchEqs] "proveCondEqThm gave up at:\n{mvarId}"
+  trace[Meta.Match.matchEqs] "gave up at:\n{mvarId}"
   throwError m!"failed to generate equality theorem {thmName} for `match` expression `{matchDeclName}`" ++
     .hint' "It may help to include indices of inductive types as discriminants in the `match` expression."
 
@@ -200,7 +200,7 @@ private partial def proveCongrEqThm (matchDeclName : Name) (thmName : Name) (mva
   go mvarId 0
 where
   go (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do
-    trace[Meta.Match.matchEqs] "proveCondEqThm.go {mvarId}"
+    trace[Meta.Match.matchEqs] "proveCongrEqThm.go {mvarId}"
     let mvarId ← mvarId.modifyTargetEqLHS whnfCore
     let subgoals ←
       (do mvarId.refl; return #[])
@@ -429,13 +429,14 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
     let alts   := xs[(xs.size - matchInfo.numAlts)...*]
     let firstDiscrIdx := matchInfo.numParams + 1
     let discrs := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
-    let canUseGrind := ((← getEnv).getModuleIdx? `InitGrind).isSome
+    let canUseGrind := ((← getEnv).getModuleIdx? `Init.Grind).isSome
     let mut notAlts := #[]
     let mut splitterAltInfos := #[]
     let mut altArgMasks := #[] -- masks produced by `forallAltTelescope`
     for i in *...alts.size do
-      let altInfo := matchInfo.altInfos[i]!
       let thmName := Name.str baseName eqnThmSuffixBase |>.appendIndexAfter (i + 1)
+      trace[Meta.Match.matchEqs] "proving {thmName}"
+      let altInfo := matchInfo.altInfos[i]!
       eqnNames := eqnNames.push thmName
       let (notAlt, splitterAltInfo, argMask) ←
           forallAltTelescope (← inferType alts[i]!) altInfo numDiscrEqs
@@ -467,8 +468,10 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
           let thmType ← unfoldNamedPattern thmType
           let thmVal ←
             if let some thmVal ← proveCondEqThmByRefl thmType then
+              trace[Meta.Match.matchEqs] "proved equation {thmName} by refl"
               pure thmVal
             else if canUseGrind then
+              trace[Meta.Match.matchEqs] "proving via congr eqn"
               let congrEqThm ← genMatchCongrEqn matchDeclName i
               let thmVal := mkConst congrEqThm us
               -- We build the normal equation from the congruence equation here
@@ -483,6 +486,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
               let thmVal ← mkEqOfHEq thmVal
               mkLambdaFVars (params ++ #[motive] ++ ys ++ alts ++ hs) thmVal
             else
+              trace[Meta.Match.matchEqs] "falling back to old style"
               -- Old style
               proveCondEqThm matchDeclName thmName thmType
           addDecl <| Declaration.thmDecl {
@@ -498,6 +502,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
     let splitterMatchInfo : MatcherInfo := { matchInfo with altInfos := splitterAltInfos }
 
     let needsSplitter := !matchInfo.overlaps.isEmpty || (constInfo.type.find? (isNamedPattern )).isSome
+    trace[Meta.Match.matchEqs] "needsSplitter: {needsSplitter}"
 
     if needsSplitter then
       withMkMatcherInput matchDeclName (unfoldNamed := true) fun matcherInput => do

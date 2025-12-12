@@ -547,13 +547,13 @@ instance [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] [LawfulBEq β] : LawfulBEq (E
     have ⟨_⟩ := b
     simp only [mk.injEq]
     exact ExtDTreeMap.Const.eq_of_beq _ _ hyp
-    
+
 @[inline, inherit_doc ExtDTreeMap.diff]
 def diff [TransCmp cmp] (t₁ t₂ : ExtTreeMap α β cmp) : ExtTreeMap α β cmp := ⟨ExtDTreeMap.diff t₁.inner t₂.inner⟩
 
 instance [TransCmp cmp] : SDiff (ExtTreeMap α β cmp) := ⟨diff⟩
 
-instance {α : Type u} {β : Type v} {cmp : α → α → Ordering} [DecidableEq α] [LawfulEqCmp cmp] [TransCmp cmp] [DecidableEq β] : DecidableEq (ExtTreeMap α β cmp) :=
+instance {α : Type u} {β : Type v} {cmp : α → α → Ordering} [BEq α] [LawfulBEq α] [LawfulBEqCmp cmp] [TransCmp cmp] [BEq β] [LawfulBEq β] : DecidableEq (ExtTreeMap α β cmp) :=
   fun _ _ => decidable_of_iff _ beq_iff_eq
 
 @[inline, inherit_doc ExtDTreeMap.eraseMany]

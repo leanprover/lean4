@@ -19,7 +19,7 @@ open Std.DTreeMap.Internal.Impl
 
 namespace Std.DTreeMap
 
-instance {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} [TransCmp cmp] [LawfulEqCmp cmp] [DecidableEq α] [∀ k, DecidableEq (β k)] {t₁ t₂ : DTreeMap α β cmp} : Decidable (t₁ ~m t₂) :=
+instance {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} [TransCmp cmp] [BEq α] [LawfulBEq α] [LawfulBEqCmp cmp] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] {t₁ t₂ : DTreeMap α β cmp} : Decidable (t₁ ~m t₂) :=
   let : Ord α := ⟨cmp⟩;
   let : Decidable (t₁.inner ~m t₂.inner) := decidableEquiv t₁.1 t₂.1 t₁.2 t₂.2;
   decidable_of_iff _ ⟨fun h => ⟨h⟩, fun h => h.1⟩

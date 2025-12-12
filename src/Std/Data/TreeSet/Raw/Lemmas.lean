@@ -1691,11 +1691,6 @@ theorem max?_erase_le_max? [TransCmp cmp] (h : t.WF) {k km kme} :
     t.max? = t.toList.getLast? :=
   TreeMap.Raw.maxKey?_eq_getLast?_keys h
 
-@[deprecated max?_eq_getLast?_toList (since := "2025-05-23")]
-theorem max?_eq_head?_toList [TransCmp cmp] (h : t.WF) :
-    t.max? = t.toList.getLast? :=
-  TreeMap.Raw.maxKey?_eq_getLast?_keys h
-
 theorem max?_eq_some_max! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) :
     t.max? = some t.max! :=
   TreeMap.Raw.maxKey?_eq_some_maxKey! h he

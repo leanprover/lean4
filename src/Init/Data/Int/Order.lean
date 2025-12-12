@@ -83,17 +83,11 @@ theorem lt.dest {a b : Int} (h : a < b) : ∃ n : Nat, a + Nat.succ n = b :=
 
 @[simp, norm_cast] theorem natCast_pos {n : Nat} : (0 : Int) < n ↔ 0 < n := ofNat_lt
 
-@[deprecated natCast_pos (since := "2025-05-13"), simp high]
-theorem ofNat_pos {n : Nat} : 0 < (↑n : Int) ↔ 0 < n := ofNat_lt
-
 @[simp]
 theorem natCast_nonneg (n : Nat) : 0 ≤ (n : Int) := ⟨_⟩
 
 @[deprecated natCast_nonneg (since := "2025-10-26")]
 theorem ofNat_zero_le (n : Nat) : 0 ≤ (↑n : Int) := ofNat_le.2 n.zero_le
-
-@[deprecated natCast_nonneg (since := "2025-05-13")]
-theorem ofNat_nonneg (n : Nat) : 0 ≤ (n : Int) := ⟨_⟩
 
 theorem ofNat_succ_pos (n : Nat) : 0 < (succ n : Int) := ofNat_lt.2 <| Nat.succ_pos _
 

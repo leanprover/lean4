@@ -52,7 +52,7 @@ def PartialContextInfo.mergeIntoOuter?
   | .autoImplicitCtx _, none =>
     panic! "Unexpected incomplete InfoTree context info."
   | .commandCtx innerInfo, some outer =>
-    some { outer with toCommandContextInfo := innerInfo }
+    some { outer with toCommandContextInfo := { innerInfo with cmdEnv? := outer.cmdEnv? <|> innerInfo.cmdEnv? } }
   | .parentDeclCtx innerParentDecl, some outer =>
     some { outer with parentDecl? := innerParentDecl }
   | .autoImplicitCtx innerAutoImplicits, some outer =>

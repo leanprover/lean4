@@ -23,6 +23,38 @@ that a cancellation has occurred.
 namespace Std
 open Std.Internal.IO.Async
 
+/--
+Reasons for cancellation.
+-/
+inductive CancellationReason where
+  /--
+  Cancelled due to a deadline or timeout
+  -/
+  | deadline
+
+  /--
+  Cancelled due to shutdown
+  -/
+  | shutdown
+
+  /--
+  Explicitly cancelled
+  -/
+  | cancel
+
+  /--
+  Custom cancellation reason
+  -/
+  | custom (msg : String)
+  deriving Repr, BEq
+
+instance : ToString CancellationReason where
+  toString
+    | .deadline => "deadline"
+    | .shutdown => "shutdown"
+    | .cancel => "cancel"
+    | .custom msg => s!"custom(\"{msg}\")"
+
 inductive CancellationToken.Consumer where
   | normal (promise : IO.Promise Unit)
   | select (finished : Waiter Unit)
@@ -44,9 +76,9 @@ The central state structure for a `CancellationToken`.
 -/
 structure CancellationToken.State where
   /--
-  Whether this token has been cancelled.
+  The cancellation reason if cancelled, none otherwise.
   -/
-  cancelled : Bool
+  reason : Option CancellationReason
 
   /--
   Consumers that are blocked waiting for cancellation.
@@ -63,24 +95,24 @@ structure CancellationToken where
 namespace CancellationToken
 
 /--
-Create a new cancellation token.
+Creates a new cancellation token.
 -/
 def new : BaseIO CancellationToken := do
-  return { state := ← Std.Mutex.new { cancelled := false, consumers := ∅ } }
+  return { state := ← Std.Mutex.new { reason := none, consumers := ∅ } }
 
 /--
-Cancel the token, notifying all currently waiting consumers with `true`.
+Cancels the token with the given reason, notifying all currently waiting consumers.
 Once cancelled, the token remains cancelled.
 -/
-def cancel (x : CancellationToken) : BaseIO Unit := do
+def cancel (x : CancellationToken) (reason : CancellationReason := .cancel) : BaseIO Unit := do
   x.state.atomically do
     let mut st ← get
 
-    if st.cancelled then
+    if st.reason.isSome then
       return
 
     let mut remainingConsumers := st.consumers
-    st := { cancelled := true, consumers := ∅ }
+    st := { reason := some reason, consumers := ∅ }
 
     while true do
       if let some (consumer, rest) := remainingConsumers.dequeue? then
@@ -92,21 +124,29 @@ def cancel (x : CancellationToken) : BaseIO Unit := do
     set st
 
 /--
-Check if the token is cancelled.
+Checks if the token is cancelled.
 -/
 def isCancelled (x : CancellationToken) : BaseIO Bool := do
   x.state.atomically do
     let st ← get
-    return st.cancelled
+    return st.reason.isSome
 
 /--
-Wait for cancellation. Returns a task that completes when cancelled,
+Gets the cancellation reason if the token is cancelled.
+-/
+def getCancellationReason (x : CancellationToken) : BaseIO (Option CancellationReason) := do
+  x.state.atomically do
+    let st ← get
+    return st.reason
+
+/--
+Waits for cancellation. Returns a task that completes when cancelled.
 -/
 def wait (x : CancellationToken) : IO (AsyncTask Unit) :=
   x.state.atomically do
     let st ← get
 
-    if st.cancelled then
+    if st.reason.isSome then
       return Task.pure (.ok ())
 
     let promise ← IO.Promise.new
@@ -118,7 +158,7 @@ def wait (x : CancellationToken) : IO (AsyncTask Unit) :=
       | none => throw (IO.userError "cancellation token dropped")
 
 /--
-Creates a selector that waits for cancellation
+Creates a selector that waits for cancellation.
 -/
 def selector (token : CancellationToken) : Selector Unit := {
   tryFn := do
@@ -131,7 +171,7 @@ def selector (token : CancellationToken) : Selector Unit := {
     token.state.atomically do
       let st ← get
 
-      if st.cancelled then
+      if st.reason.isSome then
         discard <| waiter.race (return false) (fun promise => do
           promise.resolve (.ok ())
           return true)

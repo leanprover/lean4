@@ -31,9 +31,19 @@ info: plus.match_1.{u_1} {Γ : Context} {a : Ty} (motive : Term Γ a → Sort u_
 
 /--
 error: failed to generate equational theorem for `plus`
-  failed to generate equality theorem _private.lean.run.issue2237.0.plus.match_1.eq_2 for `match` expression `plus.match_1`
+  Tactic `rfl` failed: equality expected
+    n.lam ≍ n.lam
   ⏎
-  Hint: It may help to include indices of inductive types as discriminants in the `match` expression.
+  Γ : Context
+  a : Ty
+  motive : Term Γ a → Sort u_1
+  x✝ : Term Γ a
+  h_1 : (i : Lookup Γ a) → motive (Term.var i)
+  h_2 : (n : Term ( ✶ :: Γ) ✶ ) → motive n.lam
+  h_3 : (a : Term ( ✶ :: Γ) ✶ ) → (m : Term Γ ✶ ) → motive (a.lam.ap m)
+  h_4 : (l m : Term Γ ✶ ) → motive (l.ap m)
+  n : Term ( ✶ :: Γ) ✶
+  ⊢ n.lam ≍ n.lam
 -/
 #guard_msgs(pass trace, all) in
 #print equations plus
@@ -41,9 +51,19 @@ error: failed to generate equational theorem for `plus`
 
 /--
 error: Failed to realize constant plus.match_1.eq_1:
-  failed to generate equality theorem _private.lean.run.issue2237.0.plus.match_1.eq_2 for `match` expression `plus.match_1`
+  Tactic `rfl` failed: equality expected
+    n.lam ≍ n.lam
   ⏎
-  Hint: It may help to include indices of inductive types as discriminants in the `match` expression.
+  Γ : Context
+  a : Ty
+  motive : Term Γ a → Sort u_1
+  x✝ : Term Γ a
+  h_1 : (i : Lookup Γ a) → motive (Term.var i)
+  h_2 : (n : Term ( ✶ :: Γ) ✶ ) → motive n.lam
+  h_3 : (a : Term ( ✶ :: Γ) ✶ ) → (m : Term Γ ✶ ) → motive (a.lam.ap m)
+  h_4 : (l m : Term Γ ✶ ) → motive (l.ap m)
+  n : Term ( ✶ :: Γ) ✶
+  ⊢ n.lam ≍ n.lam
 ---
 error: Unknown constant `plus.match_1.eq_1`
 -/

@@ -2609,7 +2609,10 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     let exts ← EnvExtension.envExtensionsRef.get
     -- NOTE: We must ensure that `realizeEnv.localRealizationCtxMap` is not reachable via `res`
     -- (such as by storing `realizeEnv` or `realizeEnv'` in a field or the closure) as `res` will be
-    -- stored in a promise in there, creating a cycle.
+    -- stored in a promise in there, creating a cycle. The closures stored in
+    -- `realizeEnv(').checked` should uphold this property as they are only concerned about the
+    -- kernel env but this cannot directly be enforced or checked except through the leak sanitizer
+    -- CI build.
     let replayKernel := replayConsts.replayKernel (skipExisting := true)
       realizeEnv.checked realizeEnv'.checked exts newPrivateConsts
     let res : RealizeConstResult := { newConsts.private := newPrivateConsts, newConsts.public := newPublicConsts, replayKernel, dyn }

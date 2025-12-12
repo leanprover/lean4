@@ -143,6 +143,11 @@ partial def proveCondEqThmByRefl  (type : Expr) : MetaM (Option Expr) := observi
   (← mvar0.mvarId!.intros).2.refl
   instantiateMVars mvar0
 
+private def throwMatchEqnFailedMessage (matchDeclName : Name) (thmName : Name) (mvarId : MVarId) : MetaM α := do
+  trace[Meta.Match.matchEqs] "proveCondEqThm gave up at:\n{mvarId}"
+  throwError m!"failed to generate equality theorem {thmName} for `match` expression `{matchDeclName}`" ++
+    .hint' "It may help to include indices of inductive types as discriminants in the `match` expression."
+
 /--
 Helper method for proving a conditional equational theorem associated with an alternative of
 the `match`-eliminator `matchDeclName`. `type` contains the type of the theorem.
@@ -186,7 +191,7 @@ where
       <|>
       (substSomeVar mvarId)
       <|>
-      (throwError "failed to generate equality theorem {thmName} for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
+      (throwMatchEqnFailedMessage matchDeclName thmName mvarId)
     subgoals.forM (go · (depth+1))
 
 private partial def proveCongrEqThm (matchDeclName : Name) (thmName : Name) (mvarId : MVarId) : MetaM Unit := do
@@ -236,7 +241,7 @@ where
             if r.hasFailed then throwError "grind failed"
           return #[])
       <|>
-      (throwError "failed to generate equality theorem {thmName} for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
+      (throwMatchEqnFailedMessage matchDeclName thmName mvarId)
     subgoals.forM (go · (depth+1))
 
 /--

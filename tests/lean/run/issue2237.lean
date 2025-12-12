@@ -31,14 +31,9 @@ info: plus.match_1.{u_1} {Γ : Context} {a : Ty} (motive : Term Γ a → Sort u_
 
 /--
 error: failed to generate equational theorem for `plus`
-  Tactic `subst` failed: argument must be an equality proof
+  failed to generate equality theorem _private.lean.run.issue2237.0.plus.match_1.eq_2 for `match` expression `plus.match_1`
   ⏎
-  Γ : Context
-  a : Ty
-  x✝ : Term Γ a
-  l m : Term Γ ✶
-  heq✝ : x✝ ≍ l.ap m
-  ⊢ ∀ (a_1 : Term ( ✶ :: Γ) ✶ ) (m : Term Γ ✶ ), x✝ ≍ a_1.lam.ap m → False
+  Hint: It may help to include indices of inductive types as discriminants in the `match` expression.
 -/
 #guard_msgs(pass trace, all) in
 #print equations plus
@@ -46,14 +41,9 @@ error: failed to generate equational theorem for `plus`
 
 /--
 error: Failed to realize constant plus.match_1.eq_1:
-  Tactic `subst` failed: argument must be an equality proof
+  failed to generate equality theorem _private.lean.run.issue2237.0.plus.match_1.eq_2 for `match` expression `plus.match_1`
   ⏎
-  Γ : Context
-  a : Ty
-  x✝ : Term Γ a
-  l m : Term Γ ✶
-  heq✝ : x✝ ≍ l.ap m
-  ⊢ ∀ (a_1 : Term ( ✶ :: Γ) ✶ ) (m : Term Γ ✶ ), x✝ ≍ a_1.lam.ap m → False
+  Hint: It may help to include indices of inductive types as discriminants in the `match` expression.
 ---
 error: Unknown constant `plus.match_1.eq_1`
 -/

@@ -73,7 +73,7 @@ info: private theorem f.match_1.eq_2.{u_1} : ∀ (motive : List Nat → List Nat
     (match x, a :: tail with
       | x, 1 :: head :: tail => h_1 x head tail
       | x, a :: tail => h_2 x a tail
-      | x, x_2 => h_3 x x_2) =
+      | x, x_1 => h_3 x x_1) =
       h_2 x a tail
 -/
 #guard_msgs(pass trace, all) in
@@ -133,22 +133,3 @@ info: private theorem testMe.match_1.congr_eq_2.{u_1} : ∀ (motive : Nat → So
 -/
 #guard_msgs(pass trace, all) in
 #print sig testMe.match_1.congr_eq_2
-
-
-inductive Vector' (α : Type u): Nat → Type u where
-| nil : Vector' α 0
-| cons (head : α) (tail : Vector' α n) : Vector' α (n+1)
-
-namespace Vector'
-
-  def nth : ∀{n}, Vector' α n → Fin n → α
-  | n+1, cons x xs, ⟨  0, _⟩ => x
-  | n+1, cons x xs, ⟨k+1, h⟩ => xs.nth ⟨k, sorry⟩
-
-  def snoc : ∀{n : Nat} (xs : Vector' α n) (x : α), Vector' α (n+1)
-  | _, nil,    x' => cons x' nil
-  | _, cons x xs, x' => cons x (snoc xs x')
-
-  #print sig nth.match_1.congr_eq_2
-  #print sig nth.match_1.eq_2
-end

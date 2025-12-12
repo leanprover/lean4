@@ -371,6 +371,9 @@ instance [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] : ReflBEq (E
 instance [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] : LawfulBEq (ExtDHashMap α β) where
   eq_of_beq {m₁} {m₂} := m₁.inductionOn₂ m₂ fun _ _ hyp => sound <| DHashMap.equiv_of_beq hyp
 
+instance {α : Type u} {β : α → Type v} [BEq α] [LawfulBEq α] [Hashable α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] : DecidableEq (ExtDHashMap α β) :=
+  fun _ _ => decidable_of_iff _ beq_iff_eq
+
 namespace Const
 
 variable {β : Type v}

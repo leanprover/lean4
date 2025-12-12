@@ -18,15 +18,13 @@ open Elab.Term
 
 set_option doc.verso true
 
-public abbrev NameMapExtension := PersistentEnvExtension (Name × Array Name) (Name × Array Name) (NameMap NameSet)
-
 /--
 Create the extension mapping from existing identifiers to the incorrect alternatives for which we
 want to provide suggestions. This is mostly equivalent to a {name}`MapDeclarationExtension` or the
 extensions underlying {name}`ParametricAttribute` attributes, but it differs in allowing
 {name}`suggest_for` attributes to be assigned in files other than the ones where they were defined.
 -/
-def mkExistingToIncorrect : IO NameMapExtension := registerPersistentEnvExtension {
+def mkExistingToIncorrect : IO (PersistentEnvExtension (Name × Array Name) (Name × Array Name) (NameMap NameSet)) := registerPersistentEnvExtension {
   name := `Lean.identifierSuggestForAttr.existingToIncorrect
   mkInitial := pure {},
   addImportedFn := fun _ => pure {},
@@ -44,7 +42,7 @@ Create the extension mapping incorrect identifiers to the existing identifiers w
 replacements. This association is the opposite of the usual mapping for {name}`ParametricAttribute`
 attributes.
 -/
-def mkIncorrectToExisting : IO NameMapExtension := registerPersistentEnvExtension {
+def mkIncorrectToExisting : IO (PersistentEnvExtension (Name × Array Name) (Name × Array Name) (NameMap NameSet)) := registerPersistentEnvExtension {
   name := `Lean.identifierSuggestForAttr.incorrectToExisting
   mkInitial := pure {},
   addImportedFn := fun _ => pure {},
@@ -57,7 +55,7 @@ def mkIncorrectToExisting : IO NameMapExtension := registerPersistentEnvExtensio
       |>.qsort (lt := fun a b => Name.quickLt a.1 b.1)
 }
 
-builtin_initialize identifierSuggestionsImpl : NameMapExtension × NameMapExtension ←
+builtin_initialize identifierSuggestionsImpl : (PersistentEnvExtension (Name × Array Name) (Name × Array Name) (NameMap NameSet)) × (PersistentEnvExtension (Name × Array Name) (Name × Array Name) (NameMap NameSet)) ←
   let existingToIncorrect ← mkExistingToIncorrect
   let incorrectToExisting ← mkIncorrectToExisting
 

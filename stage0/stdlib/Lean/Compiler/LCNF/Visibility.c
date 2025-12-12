@@ -6248,7 +6248,7 @@ lean_object* x_28; size_t x_29; size_t x_30; lean_object* x_31;
 x_28 = lean_box(0);
 x_29 = lean_array_size(x_27);
 x_30 = 0;
-x_31 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_recordExtraModUseFromDecl___at___00__private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_checkTemplateVisibility_go_spec__3_spec__9(x_14, x_24, x_1, x_28, x_27, x_29, x_30, x_28, x_26, x_4, x_5, x_6, x_7);
+x_31 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_recordExtraModUseFromDecl___at___00__private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_checkTemplateVisibility_go_spec__3_spec__9(x_14, x_24, x_1, x_28, x_27, x_29, x_30, x_28, x_25, x_4, x_5, x_6, x_7);
 lean_dec_ref(x_27);
 lean_dec_ref(x_14);
 if (lean_obj_tag(x_31) == 0)
@@ -6345,8 +6345,8 @@ if (lean_obj_tag(x_55) == 0)
 {
 lean_object* x_56; 
 x_56 = l_Lean_recordExtraModUseFromDecl___at___00__private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_checkTemplateVisibility_go_spec__3___closed__3;
-x_25 = lean_box(0);
-x_26 = x_50;
+x_25 = x_50;
+x_26 = lean_box(0);
 x_27 = x_56;
 goto block_43;
 }
@@ -6356,8 +6356,8 @@ lean_object* x_57;
 x_57 = lean_ctor_get(x_55, 0);
 lean_inc(x_57);
 lean_dec_ref(x_55);
-x_25 = lean_box(0);
-x_26 = x_50;
+x_25 = x_50;
+x_26 = lean_box(0);
 x_27 = x_57;
 goto block_43;
 }

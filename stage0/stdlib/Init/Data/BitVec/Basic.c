@@ -86,14 +86,12 @@ LEAN_EXPORT lean_object* l_BitVec_or___boxed(lean_object*, lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_BitVec_sshiftRight___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_ushiftRight___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_fill___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_getLsb_x27___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_append___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_and___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_signExtend___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_xor___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_BitVec_getLsbD___redArg(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_BitVec_getMsb_x27(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_hash___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_umod___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_unexpandBitVecOfNat(lean_object*, lean_object*, lean_object*);
@@ -138,7 +136,6 @@ LEAN_EXPORT lean_object* l_BitVec_not(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_zero(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_BitVec_term_____x23_x27_____00__closed__4;
-LEAN_EXPORT uint8_t l_BitVec_getLsb_x27(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instHShiftLeftNat(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_ssubOverflow___boxed(lean_object*, lean_object*, lean_object*);
@@ -156,7 +153,6 @@ LEAN_EXPORT lean_object* l_BitVec_getMsbD___boxed(lean_object*, lean_object*, le
 LEAN_EXPORT lean_object* l_BitVec_smtSDiv(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_and___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_sshiftRight_x27(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_getLsb_x27___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_ofNat(lean_object*, lean_object*);
 static lean_object* l_BitVec_term_____x23_x27_____00__closed__6;
 LEAN_EXPORT lean_object* l_BitVec_extractLsb___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -296,7 +292,6 @@ LEAN_EXPORT lean_object* l_BitVec_ule___redArg___boxed(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_BitVec_instPowNat___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_BitVec_ofBool___closed__1;
-LEAN_EXPORT uint8_t l_BitVec_getLsb_x27___redArg(lean_object*, lean_object*);
 static lean_object* l_BitVec_BitVec_repr___closed__2;
 LEAN_EXPORT lean_object* l_BitVec_and___redArg(lean_object*, lean_object*);
 static lean_object* l_BitVec___aux__Init__Data__BitVec__Basic______macroRules__BitVec__term_____x23______1___closed__8;
@@ -351,7 +346,6 @@ LEAN_EXPORT lean_object* l_BitVec_udiv___boxed(lean_object*, lean_object*, lean_
 static lean_object* l_BitVec_term_____x23_____00__closed__0;
 LEAN_EXPORT lean_object* l_BitVec_concat___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_BitVec_ult(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_getMsb_x27___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_sshiftRight_x27___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_BitVec_repr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instComplement(lean_object*);
@@ -501,45 +495,6 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT uint8_t l_BitVec_getLsb_x27(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; 
-x_4 = l_Nat_testBit(x_2, x_3);
-return x_4;
-}
-}
-LEAN_EXPORT uint8_t l_BitVec_getLsb_x27___redArg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = l_Nat_testBit(x_1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_BitVec_getLsb_x27___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_BitVec_getLsb_x27(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-x_5 = lean_box(x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_BitVec_getLsb_x27___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_BitVec_getLsb_x27___redArg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-x_4 = lean_box(x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_BitVec_getLsb_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -591,31 +546,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = l_BitVec_getMsb(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-x_5 = lean_box(x_4);
-return x_5;
-}
-}
-LEAN_EXPORT uint8_t l_BitVec_getMsb_x27(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_4 = lean_unsigned_to_nat(1u);
-x_5 = lean_nat_sub(x_1, x_4);
-x_6 = lean_nat_sub(x_5, x_3);
-lean_dec(x_5);
-x_7 = l_Nat_testBit(x_2, x_6);
-lean_dec(x_6);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_BitVec_getMsb_x27___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_BitVec_getMsb_x27(x_1, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);

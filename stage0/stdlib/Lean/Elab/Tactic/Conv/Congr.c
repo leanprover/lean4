@@ -295,7 +295,6 @@ lean_object* l_Lean_Meta_mkEq(lean_object*, lean_object*, lean_object*, lean_obj
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_Conv_congrImplies___closed__4;
 static lean_object* l_Lean_Elab_Tactic_Conv_congrFunN___lam__0___closed__1;
-lean_object* l_Array_ofSubarray___redArg(lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Tactic_Conv_evalExt_spec__0___redArg___closed__2;
 static lean_object* l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_Conv_congrArgN_applyArgs___closed__0;
@@ -350,6 +349,7 @@ static lean_object* l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalFun___regBuiltin_Lean_Elab_Tactic_Conv_evalFun_declRange__3();
 static lean_object* l_Lean_Elab_Tactic_Conv_evalLhs___regBuiltin_Lean_Elab_Tactic_Conv_evalLhs_declRange__3___closed__4;
 static lean_object* l_Lean_Elab_Tactic_Conv_evalFun___regBuiltin_Lean_Elab_Tactic_Conv_evalFun_declRange__3___closed__3;
+lean_object* l_Subarray_toArray___redArg(lean_object*);
 static lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_Conv_mkCongrArgZeroThm_spec__2___redArg___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Elab_Tactic_Conv_evalFun_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalRhs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2951,7 +2951,7 @@ block_72:
 lean_object* x_52; lean_object* x_53; lean_object* x_54; 
 x_52 = l_Array_toSubarray___redArg(x_3, x_50, x_51);
 lean_inc_ref(x_52);
-x_53 = l_Array_ofSubarray___redArg(x_52);
+x_53 = l_Subarray_toArray___redArg(x_52);
 lean_inc(x_42);
 lean_inc_ref(x_48);
 lean_inc(x_46);
@@ -11041,7 +11041,7 @@ lean_dec(x_38);
 lean_inc(x_43);
 lean_inc_ref(x_4);
 x_44 = l_Array_toSubarray___redArg(x_4, x_32, x_43);
-x_45 = l_Array_ofSubarray___redArg(x_44);
+x_45 = l_Subarray_toArray___redArg(x_44);
 x_46 = l_Lean_mkAppN(x_3, x_45);
 lean_dec_ref(x_45);
 x_47 = lean_nat_dec_le(x_43, x_32);
@@ -11241,7 +11241,7 @@ lean_dec(x_87);
 lean_inc(x_89);
 lean_inc_ref(x_4);
 x_90 = l_Array_toSubarray___redArg(x_4, x_86, x_89);
-x_91 = l_Array_ofSubarray___redArg(x_90);
+x_91 = l_Subarray_toArray___redArg(x_90);
 x_92 = l_Lean_mkAppN(x_3, x_91);
 lean_dec_ref(x_91);
 x_93 = lean_array_get_size(x_4);
@@ -11352,7 +11352,7 @@ block_19:
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_15 = l_Array_toSubarray___redArg(x_4, x_13, x_14);
-x_16 = l_Array_ofSubarray___redArg(x_15);
+x_16 = l_Subarray_toArray___redArg(x_15);
 x_17 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_17, 0, x_12);
 lean_ctor_set(x_17, 1, x_16);
@@ -11364,7 +11364,7 @@ block_28:
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 x_24 = l_Array_toSubarray___redArg(x_4, x_22, x_23);
-x_25 = l_Array_ofSubarray___redArg(x_24);
+x_25 = l_Subarray_toArray___redArg(x_24);
 x_26 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_26, 0, x_20);
 lean_ctor_set(x_26, 1, x_25);

@@ -759,7 +759,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___at___00Lea
 static lean_object* l_Lean_Elab_Command_elabUniverse___regBuiltin_Lean_Elab_Command_elabUniverse_declRange__3___closed__6;
 static lean_object* l_Lean_Elab_Command_elabOmit___regBuiltin_Lean_Elab_Command_elabOmit__1___closed__0;
 static lean_object* l_Lean_Elab_Command_elabExit___regBuiltin_Lean_Elab_Command_elabExit__1___closed__2;
-lean_object* l_Array_ofSubarray___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_Elab_Command_elabModuleDoc_spec__0_spec__0_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabSection___regBuiltin_Lean_Elab_Command_elabSection_declRange__3___closed__6;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Elab_BuiltinCommand_0__Lean_Elab_Command_elabWhere_describeOpenDecls_spec__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -907,6 +906,7 @@ static lean_object* l___private_Lean_Elab_SetOption_0__Lean_Elab_validateOptionV
 uint8_t l_Lean_Syntax_isIdent(lean_object*);
 static lean_object* l_Lean_Elab_Command_elabUniverse___regBuiltin_Lean_Elab_Command_elabUniverse_declRange__3___closed__4;
 static lean_object* l_Lean_Elab_Command_elabVersion___redArg___closed__4;
+lean_object* l_Subarray_toArray___redArg(lean_object*);
 static lean_object* l_Lean_Elab_Command_elabNamespace___regBuiltin_Lean_Elab_Command_elabNamespace_declRange__3___closed__3;
 static lean_object* l_Lean_Elab_Command_elabExit___regBuiltin_Lean_Elab_Command_elabExit_declRange__3___closed__6;
 static lean_object* l_Lean_Elab_Command_elabOpen___closed__0;
@@ -33132,7 +33132,7 @@ x_8 = l_Lean_Syntax_getArgs(x_7);
 x_9 = lean_unsigned_to_nat(3u);
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = l_Array_toSubarray___redArg(x_8, x_10, x_9);
-x_12 = l_Array_ofSubarray___redArg(x_11);
+x_12 = l_Subarray_toArray___redArg(x_11);
 lean_inc(x_7);
 x_13 = l_Lean_Syntax_setArgs(x_7, x_12);
 x_14 = lean_alloc_ctor(5, 1, 0);

@@ -214,7 +214,9 @@ where
           else
             throwError "spliIf failed")
       <|>
-      (do solveOverlap mvarId; return #[])
+      (do solveOverlap mvarId
+          trace[Meta.Match.matchEqs] "solved with overlap"
+          return #[])
       <|>
       (do if debug.Meta.Match.MatchEqs.grindAsSorry.get (← getOptions) then
             trace[Meta.Match.matchEqs] "proveCondEqThm.go: grind_as_sorry is enabled, admitting goal"
@@ -222,6 +224,7 @@ where
           else
             let r ← Grind.main mvarId (← Grind.mkParams {})
             if r.hasFailed then throwError "grind failed"
+            trace[Meta.Match.matchEqs] "solved with grind"
           return #[])
       <|>
       (throwMatchEqnFailedMessage matchDeclName thmName mvarId)

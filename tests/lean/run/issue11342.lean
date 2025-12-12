@@ -121,3 +121,32 @@ info: private theorem testMe.match_1.congr_eq_1.{u_1} : ∀ (motive : Nat → So
 -/
 #guard_msgs(pass trace, all) in
 #print sig testMe.match_1.congr_eq_1
+
+ structure DefaultClause (n : Nat) where
+  a : List (Fin n)
+  b : a.Nodup
+  c : a.Nodup
+
+-- set_option  trace.Meta.Match.matchEqs true
+
+def deleteOne {n : Nat} (f : Option (DefaultClause n))  : Nat :=
+  match f with
+    | none => 0
+    | some ⟨[_l], _, _⟩ => 1
+    | some _ => 2
+
+/--
+info: private theorem deleteOne.match_1.congr_eq_3.{u_1} : ∀ {n : Nat} (motive : Option (DefaultClause n) → Sort u_1)
+  (f : Option (DefaultClause n)) (h_1 : Unit → motive none)
+  (h_2 : (_l : Fin n) → (b c : [_l].Nodup) → motive (some { a := [_l], b := b, c := c }))
+  (h_3 : (val : DefaultClause n) → motive (some val)) (val : DefaultClause n),
+  f = some val →
+    (∀ (_l : Fin n) (b c : [_l].Nodup), val = { a := [_l], b := b, c := c } → False) →
+      (match f with
+        | none => h_1 ()
+        | some { a := [_l], b := b, c := c } => h_2 _l b c
+        | some val => h_3 val) ≍
+        h_3 val
+-/
+#guard_msgs in
+#print sig deleteOne.match_1.congr_eq_3

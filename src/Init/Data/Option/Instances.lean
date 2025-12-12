@@ -171,6 +171,13 @@ Examples:
 instance [Monad m] : ForM m (Option α) α :=
   ⟨Option.forM⟩
 
+@[inline, expose]
+instance : ForInNew' m (Option α) α Membership.mem where
+  forInNew' x init kcons knil :=
+    match x with
+    | none => knil init
+    | some a => kcons a rfl knil init
+
 instance [Monad m] : ForIn' m (Option α) α inferInstance where
   forIn' x init f := do
     match x with

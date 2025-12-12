@@ -487,7 +487,7 @@ abbrev IteratedEntryErasureFrom [Ord α] (t) :=
 
 /-- Iterate over `l` and erase all of its elements from `t`. -/
 @[inline]
-def eraseManyEntries [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) (h : t.Balanced) :
+def eraseManyEntries [Ord α] {ρ : Type w} [ForIn.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] [ForInNew.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) (h : t.Balanced) :
     IteratedEntryErasureFrom t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for ⟨a, _⟩ in l do
@@ -504,7 +504,7 @@ Slower version of `eraseManyEntries` which can be used in absence of balance inf
 assumes the preconditions of `eraseManyEntries`, otherwise might panic.
 -/
 @[inline]
-def eraseManyEntries! [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) :
+def eraseManyEntries! [Ord α] {ρ : Type w} [ForIn.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] [ForInNew.{w, max u v, max u v, max u v} Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) :
     IteratedSlowErasureFrom t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for ⟨a, _⟩ in l do

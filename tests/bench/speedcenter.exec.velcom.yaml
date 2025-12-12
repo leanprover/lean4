@@ -474,6 +474,13 @@
     cmd: lean workspaceSymbols.lean
     max_runs: 2
 - attributes:
+    description: charactersIn
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean charactersIn.lean
+    max_runs: 2
+- attributes:
     description: bv_decide_realworld
     tags: [other]
   run_config:

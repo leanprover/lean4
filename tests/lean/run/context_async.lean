@@ -3,47 +3,6 @@ import Std.Sync
 
 open Std.Internal.IO Async
 
-/-- Test basic ContextAsync with getContext -/
-def testGetContext : IO Unit := do
-  let res ← Async.block do
-    let ctx ← Std.CancellationContext.new
-    ContextAsync.run ctx do
-      let retrieved ← ContextAsync.getContext
-      -- Should get the same context
-      if ctx.id == retrieved.id then
-        return "Got same context"
-      else
-        return "ERROR: Different context"
-
-  IO.println res
-
-/--
-info: Got same context
--/
-#guard_msgs in
-#eval testGetContext
-
-/-- Test ContextAsync fork -/
-def testContextAsyncFork : IO Unit := do
-  let res ← Async.block do
-    let ctx ← Std.CancellationContext.new
-    ContextAsync.run ctx do
-      ContextAsync.fork do
-        let childCtx ← ContextAsync.getContext
-        -- Child should have different ID
-        if ctx.id != childCtx.id then
-          return "Forked child has different ID"
-        else
-          return "ERROR: Same ID"
-
-  IO.println res
-
-/--
-info: Forked child has different ID
--/
-#guard_msgs in
-#eval testContextAsyncFork
-
 /-- Test ContextAsync cancellation check -/
 def testIsCancelled : IO Unit := do
   let (before, after) ← Async.block do
@@ -109,11 +68,50 @@ def testAwaitCancellation : IO Unit := do
   let _ ← received.atomically get
   IO.println "Cancellation received"
 
+
+def testSelectorCancellationFail : IO Unit := do
+  let received ← Std.Mutex.new false
+
+  let result ← Async.block do
+    let ctx ← Std.CancellationContext.new
+    let started ← Std.Mutex.new false
+
+
+    let result ← do
+      try
+        ContextAsync.run ctx do
+        discard <| ContextAsync.concurrently
+          (do
+            started.atomically (set true)
+            let res ← Selectable.one #[
+              .case (← ContextAsync.doneSelector) (fun _ => pure true),
+              .case (← Selector.sleep 2000) (fun _ => pure false)
+            ]
+            received.atomically (set res))
+          (do
+            throw (.userError "failed")
+            return ())
+        return Except.ok ()
+      catch err =>
+        return Except.error err
+
+    Async.sleep 500
+
+    return result
+
+  let _ ← received.atomically get
+  IO.println "Cancellation received"
+
+  if let Except.error err := result then
+    throw err
+
 /--
 info: Cancellation received
+---
+error: failed
 -/
 #guard_msgs in
-#eval testAwaitCancellation
+#eval testSelectorCancellationFail
 
 /-- Test concurrently with both tasks succeeding -/
 def testConcurrently : IO Unit := do
@@ -211,7 +209,6 @@ def testForkCancellation : IO Unit := do
     ContextAsync.run parent do
       discard <| ContextAsync.concurrentlyAll #[
         (do
-        ContextAsync.fork do
           let child ← ContextAsync.getContext
           Async.sleep 100
           child.cancel .cancel
@@ -290,7 +287,7 @@ def testParentChildCancellation : IO Unit := do
     ContextAsync.run parent do
       discard <| ContextAsync.concurrently
         (do
-          ContextAsync.fork do
+
             ContextAsync.awaitCancellation
             childSawCancellation.atomically (set true))
         (do
@@ -423,11 +420,11 @@ def testComplexWorkflow : IO Unit := do
     ContextAsync.run ctx do
       -- Run multiple concurrent operations
       let (a, b) ← ContextAsync.concurrently
-        (ContextAsync.fork do
+        (do
           Async.sleep 50
           results.atomically (modify ("A"::·))
           return 1)
-        (ContextAsync.fork do
+        (do
           Async.sleep 75
           results.atomically (modify ("B"::·))
           return 2)

@@ -355,6 +355,12 @@ private def getNiceCommandStartPos? (stx : Syntax) : Option String.Pos.Raw := do
     stx := stx[1]
   stx.getPos?
 
+/-- No-op, deprecated -/
+register_builtin_option experimental.module : Bool := {
+  defValue := false
+  descr := "no-op, deprecated"
+}
+
 /--
 Entry point of the Lean language processor.
 

@@ -159,8 +159,11 @@ alphabet are returned unchanged.
 
 The lowercase ASCII letters are the following: `abcdefghijklmnopqrstuvwxyz`.
 -/
+@[inline]
 def toUpper (c : Char) : Char :=
-  let n := toNat c;
-  if n >= 97 ∧ n <= 122 then ofNat (n - 32) else c
+  if c.val >= 97 ∧ c.val <= 122 then
+    ⟨c.val - (32 : UInt32), test⟩
+  else
+    c
 
 end Char

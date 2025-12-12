@@ -216,7 +216,18 @@ This function is overridden at runtime with an efficient implementation.
 -/
 @[extern "lean_uint32_add"]
 protected def UInt32.add (a b : UInt32) : UInt32 := ⟨a.toBitVec + b.toBitVec⟩
+
+/--
+Subtracts one 32-bit unsigned integer from another, wrapping around on underflow. Usually accessed
+via the `-` operator.
+
+This function is overridden at runtime with an efficient implementation.
+-/
+@[extern "lean_uint32_sub"]
+protected def UInt32.sub (a b : UInt32) : UInt32 := ⟨a.toBitVec - b.toBitVec⟩
+
 instance : Add UInt32       := ⟨UInt32.add⟩
+instance : Sub UInt32       := ⟨UInt32.sub⟩
 
 /-- Converts a `UInt64` into the corresponding `Fin UInt64.size`. -/
 def UInt64.toFin (x : UInt64) : Fin UInt64.size := x.toBitVec.toFin

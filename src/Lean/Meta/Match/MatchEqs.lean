@@ -196,12 +196,6 @@ where
     trace[Meta.Match.matchEqs] "proveCongrEqThm.go {mvarId}"
     let mvarId ← mvarId.modifyTargetEqLHS whnfCore
     let subgoals ←
-      (do mvarId.refl; return #[])
-      <|>
-      (do mvarId.contradiction { genDiseq := true }; return #[])
-      <|>
-      (do solveOverlap mvarId; return #[])
-      <|>
       (do let mvarId ← unfoldElimOffset mvarId; return #[mvarId])
       <|>
       (casesOnStuckLHS mvarId)
@@ -219,6 +213,8 @@ where
             return #[mvarId₁, s₂.mvarId]
           else
             throwError "spliIf failed")
+      <|>
+      (do solveOverlap mvarId; return #[])
       <|>
       (do if debug.Meta.Match.MatchEqs.grindAsSorry.get (← getOptions) then
             trace[Meta.Match.matchEqs] "proveCondEqThm.go: grind_as_sorry is enabled, admitting goal"

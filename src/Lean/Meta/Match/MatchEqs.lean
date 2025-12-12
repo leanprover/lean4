@@ -343,7 +343,7 @@ where go thmName :=
           if canUseGrind then -- TMP
             proveCongrEqThm matchDeclName thmName mvarId
           else
-            trace[Meta.Match.matchEqs] "proving congruence equation via normal equation"
+            trace[Meta.Match.matchEqs] "proving congruence equation via normal equation generation"
             let mut mvarId := mvarId
             (_, mvarId) ← mvarId.revert (hs_discrs.map Expr.fvarId!) (preserveOrder := true)
             (_, mvarId) ← mvarId.revert (heqs.map Expr.fvarId!) (preserveOrder := true)
@@ -354,6 +354,9 @@ where go thmName :=
               -- important to substitute the fvar on the LHS, so do not use `substEq`
               let (fvarId, mvarId') ← heqToEq mvarId' fvarId
               (_, mvarId) ← substCore (symm := false) (clearH := true) mvarId' fvarId
+            let (xs, mvarId') ← mvarId.intros
+            mvarId ← mvarId'.heqOfEq
+            mvarId := (← mvarId.revert xs).2
             trace[Meta.Match.matchEqs] "subst'ed:\n{mvarId}"
             mvarId ← mvarId.revertAll
             let thmType ← mvarId.getType'

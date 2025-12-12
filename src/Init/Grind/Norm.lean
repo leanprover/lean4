@@ -200,8 +200,6 @@ init_grind_norm
   -- Function composition
   Function.const_apply Function.comp_apply Function.const_comp
   Function.comp_const Function.true_comp Function.false_comp
-  -- Field
-  Field.inv_zero Field.inv_inv Field.inv_one Field.inv_neg
   -- SMul normalizer
   smul_int_eq_mul smul_nat_eq_mul
   -- NatCast & IntCast for algebraic structures
@@ -216,5 +214,10 @@ init_grind_norm
   LawfulOfScientific.ofScientific_def
   -- Rationals
   Rat.zpow_neg
+  -- Field
+  Field.inv_zero Field.inv_inv Field.inv_one Field.inv_neg
+  -- Semiring
+  Semiring.one_mul Semiring.mul_one
+  Semiring.zero_mul Semiring.mul_zero
 
 end Lean.Grind

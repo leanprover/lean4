@@ -296,12 +296,11 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
     let discrs := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
     let canUseGrind := ((← getEnv).getModuleIdx? `InitGrind).isSome
     let mut notAlts := #[]
-    let mut idx := 1
     let mut splitterAltInfos := #[]
     let mut altArgMasks := #[] -- masks produced by `forallAltTelescope`
     for i in *...alts.size do
       let altInfo := matchInfo.altInfos[i]!
-      let thmName := Name.str baseName eqnThmSuffixBase |>.appendIndexAfter idx
+      let thmName := Name.str baseName eqnThmSuffixBase |>.appendIndexAfter (i + 1)
       eqnNames := eqnNames.push thmName
       let (notAlt, splitterAltInfo, argMask) ←
           forallAltTelescope (← inferType alts[i]!) altInfo numDiscrEqs
@@ -361,7 +360,6 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
       notAlts := notAlts.push notAlt
       splitterAltInfos := splitterAltInfos.push splitterAltInfo
       altArgMasks := altArgMasks.push argMask
-      idx := idx + 1
     let splitterMatchInfo : MatcherInfo := { matchInfo with altInfos := splitterAltInfos }
 
     let needsSplitter := !matchInfo.overlaps.isEmpty || (constInfo.type.find? (isNamedPattern )).isSome
@@ -413,6 +411,17 @@ private def _root_.Lean.MVarId.revertAll (mvarId : MVarId) : MetaM MVarId := mva
     (clearAuxDeclsInsteadOfRevert := true)
   return mvarId
 
+private def genNotAltType (matchInfo : MatcherInfo) (discrs : Array Expr) (alts : Array Expr) (i : Nat) : MetaM Expr := do
+  let alt := alts[i]!
+  let altInfo := matchInfo.altInfos[i]!
+  let altType ← inferType alt
+  Match.forallAltVarsTelescope altType altInfo fun altVars _args _mask altResultType => do
+    let patterns ← forallTelescope altResultType fun _ t => pure t.getAppArgs
+    let mut notAlt := mkConst ``False
+    for discr in discrs.reverse, pattern in patterns.reverse do
+      notAlt ← mkArrow (← mkEqHEq discr pattern) notAlt
+    mkForallFVars altVars notAlt
+
 /--
 Generate the congruence equations for the given match auxiliary declaration.
 The congruence equations have a completely unrestricted left-hand side (arbitrary discriminants),
@@ -445,14 +454,13 @@ where go baseName :=
     let alts   : Array Expr := xs[(xs.size - matchInfo.numAlts)...*]
     let firstDiscrIdx       := matchInfo.numParams + 1
     let discrs : Array Expr := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
-    let mut notAlts := #[]
     let mut idx := 1
     for i in *...alts.size do
       let altInfo := matchInfo.altInfos[i]!
       let thmName := (baseName.str congrEqnThmSuffixBase).appendIndexAfter idx
       trace[Meta.Match.matchEqs] "genMatchCongrEqnsImpl working on {thmName}"
       eqnNames := eqnNames.push thmName
-      let notAlt ← do
+      do
         let alt := alts[i]!
         let altType ← inferType alt
         Match.forallAltVarsTelescope altType altInfo fun altVars args _mask altResultType => do
@@ -470,7 +478,7 @@ where go baseName :=
             -- discriminants, so that they are picked up reliably by `contradiction`
             -- We later simplify them to expose the them applied to the patterns
             -- to match what the splitter provides
-            instantiateForall notAlts[overlappedBy]! discrs
+            genNotAltType matchInfo discrs alts overlappedBy
           trace[Meta.Match.matchEqs] "hs (abstract): {hs_discr}"
           let thmVal ← withLocalDeclsDND' `hnot hs_discr fun hs_discrs => do
             let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
@@ -532,13 +540,6 @@ where go baseName :=
               type        := thmType
               value       := thmVal
             }
-          -- Calculate the overlap proposition for this alternative
-          let mut notAlt := mkConst ``False
-          for discr in discrs.reverse, pattern in patterns.reverse do
-            notAlt ← mkArrow (← mkEqHEq discr pattern) notAlt
-          notAlt ← mkForallFVars (discrs ++ altVars) notAlt
-          return notAlt
-      notAlts := notAlts.push notAlt
       idx := idx + 1
     registerMatchCongrEqns matchDeclName eqnNames
 

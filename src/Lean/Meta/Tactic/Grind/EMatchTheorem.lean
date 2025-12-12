@@ -687,28 +687,59 @@ private def getPatternFn? (pattern : Expr) (inSupport : Bool) (root : Bool) (arg
     | _ =>
       return none
 
+/--
+Helper type used during pattern normalization.
+When normalizing a sub-pattern `p`, we store the kind of the parent pattern
+using this enumeration type.
+-/
+private inductive ParentKind where
+  | /-- No special treatment needed. -/
+    regular
+  | /--
+    The parent pattern is the gadget `Grind.eqBwdPattern`.
+    In this case, we do not collect the symbols in ground children pattern.
+    -/
+    eqBwdPattern
+  | /--
+    The parent pattern is the gadget `Grind.genPattern` and `Grind.genHEqPattern`.
+    These gadgets assume the arguments are variables (see: `isGenPattern?`).
+    Thus, during normalization we must not replace them with `dontCare`.
+    -/
+    genPattern
+
+private def toParentKind (f : Expr) : ParentKind :=
+  match f with
+  | .const declName _ =>
+    if declName == ``Grind.eqBwdPattern then
+      .eqBwdPattern
+    else if declName == ``Grind.genHEqPattern || declName == ``Grind.genPattern then
+      .genPattern
+    else
+      .regular
+  | _ => .regular
+
 private partial def go (pattern : Expr) (inSupport : Bool) (root : Bool) : M Expr := do
   if let some (e, k) := isOffsetPattern? pattern then
-    let e ← goArg e inSupport .relevant (isEqBwdParent := false)
-    if e == dontCare then
+    let e ← goArg e inSupport .relevant .regular
+    if isPatternDontCare e then
       return dontCare
     else
       return mkOffsetPattern e k
   let some f ← getPatternFn? pattern inSupport root .relevant
     | throwError "invalid pattern, (non-forbidden) application expected{indentD (ppPattern pattern)}"
   assert! f.isConst || f.isFVar
-  let isEqBwd := f.isConstOf ``Grind.eqBwdPattern
-  unless isEqBwd do
+  let parentKind := toParentKind f
+  if parentKind matches .regular then
     saveSymbol f.toHeadIndex
   let mut args := pattern.getAppArgs.toVector
   let patternArgKinds ← getPatternArgKinds f args.size
   for h : i in *...args.size do
     let arg := args[i]
     let argKind := patternArgKinds[i]?.getD .relevant
-    args := args.set i (← goArg arg (inSupport || argKind.isSupport) argKind isEqBwd)
+    args := args.set i (← goArg arg (inSupport || argKind.isSupport) argKind parentKind)
   return mkAppN f args.toArray
 where
-  goArg (arg : Expr) (inSupport : Bool) (argKind : PatternArgKind) (isEqBwdParent : Bool) : M Expr := do
+  goArg (arg : Expr) (inSupport : Bool) (argKind : PatternArgKind) (parentKind : ParentKind) : M Expr := do
     if !arg.hasLooseBVars then
       if arg.hasMVar then
         pure dontCare
@@ -716,7 +747,7 @@ where
         pure dontCare
       else
         let arg ← expandOffsetPatterns arg
-        unless isEqBwdParent || inSupport do
+        if !inSupport && parentKind matches .regular then
           /-
           **Note**: We ignore symbols in ground patterns if the parent is the auxiliary ``Grind.eqBwdPattern
           We do that because we want to sign an error in examples such as:
@@ -733,7 +764,8 @@ where
         return mkGroundPattern arg
     else match arg with
       | .bvar idx =>
-        if inSupport && (← foundBVar idx) then
+        -- **Note** See comment at `ParentKind.genPattern`.
+        if inSupport && (← foundBVar idx) && !parentKind matches .genPattern then
           pure dontCare
         else
           saveBVar idx

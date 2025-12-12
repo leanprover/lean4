@@ -61,5 +61,3 @@ builtin_grind_propagator propagateNatShiftLeft ↑HShiftLeft.hShiftLeft :=
   propagateNatBinOp ``HShiftLeft.hShiftLeft ``Grind.Nat.shiftLeft_congr (· <<< ·)
 builtin_grind_propagator propagateNatShiftRight ↑HShiftRight.hShiftRight :=
   propagateNatBinOp ``HShiftRight.hShiftRight ``Grind.Nat.shiftRight_congr (· >>> ·)
-
-end Lean.Meta.Grind

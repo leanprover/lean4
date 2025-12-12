@@ -76,12 +76,11 @@ public def mkCtorIdx (indName : Name) : MetaM Unit :=
         (levelParams := info.levelParams)
         (type        := declType)
         (value       := declValue)
-        (hints       := ReducibilityHints.abbrev)
+        (hints       := ReducibilityHints.regular 0)
       )
       addDecl decl
       modifyEnv fun env => addToCompletionBlackList env declName
       modifyEnv fun env => addProtected env declName
-      setReducibleAttribute declName
       if info.numCtors = 1 then
         setInlineAttribute declName .macroInline
       compileDecl decl

@@ -4,6 +4,8 @@ opaque R : (n m : Int) → Type
 
 axiom mkR : Nat → R n m
 
+-- set_option trace.Meta.FunInd true
+
 noncomputable def d : ∀ (n m : Int), R n m
   | .ofNat n, .ofNat m => mkR 0
   | .negSucc n, .negSucc m => mkR 0
@@ -28,7 +30,7 @@ case refine_4
 case refine_5
 ⊢ ∀ (a a_1 : Nat), (a = 0 → a_1 = 0 → False) → ¬Int.negSucc a + 1 = ↑a_1 → mkR 0 = mkR 0
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 example : (n m : Int) → (hnm : n + 1 ≠ m) → d n m = mkR 0 := by
   refine d.fun_cases_unfolding (motive := fun n m r => (n + 1 ≠ m) → r = mkR 0)
     ?_ ?_ ?_ ?_ ?_ <;> dsimp

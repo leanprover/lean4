@@ -15,6 +15,15 @@ info: test._sparseCasesOn_1.{u} {motive : Lean.Expr → Sort u} (t : Lean.Expr)
 #guard_msgs in
 #check test._sparseCasesOn_1
 
+/--
+info: theorem test._sparseCasesOn_1.else_eq.{u} : ∀ {motive : Lean.Expr → Sort u} (t : Lean.Expr)
+  (fvar : (fvarId : Lean.FVarId) → motive (Lean.Expr.fvar fvarId)) (sort : (u : Lean.Level) → motive (Lean.Expr.sort u))
+  («else» : Nat.hasNotBit 10 t.ctorIdx → motive t) (h : Nat.hasNotBit 10 t.ctorIdx),
+  test._sparseCasesOn_1 t fvar sort «else» = «else» h
+-/
+#guard_msgs in
+#print sig test._sparseCasesOn_1.else_eq
+
 /-- error: mkSparseCasesOn: unexpected number of universe parameters in `Or.casesOn` -/
 #guard_msgs in
 run_meta
@@ -29,7 +38,7 @@ set_option trace.Compiler.saveBase true
 
 /--
 trace: [Compiler.saveBase] size: 7
-    def testDecl motive t fvar sort x.1 : motive lcAny :=
+    def testDecl motive t fvar sort else.1 : motive lcAny :=
       cases t : motive lcAny
       | Lean.Expr.fvar fvarId =>
         let _x.2 := fvar fvarId;
@@ -38,7 +47,7 @@ trace: [Compiler.saveBase] size: 7
         let _x.3 := sort u;
         return _x.3
       | _ =>
-        let _x.4 := x.1 _;
+        let _x.4 := else.1 _;
         return _x.4
 -/
 #guard_msgs in

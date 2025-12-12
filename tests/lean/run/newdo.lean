@@ -144,8 +144,15 @@ def logErrorNames (x : MetaM Unit) : MetaM Unit := do
         msg
   Core.setMessageLog newLog
 
-set_option trace.Elab.do true in
-set_option trace.Elab.step true in
+/--
+error: Type mismatch
+  y
+has type
+  Fin 3
+but is expected to have type
+  Fin (x + 1)
+-/
+#guard_msgs in
 -- test case doLetElse
 example (x : Nat) : IO (Fin (x + 1)) := do
   let 2 := x | return 0
@@ -195,10 +202,61 @@ set_option backward.do.legacy false in
     | _ => pure 0
   return toString y
 
-set_option backward.do.legacy false in
-#check fun (x : Nat) => Id.run (α := Fin (x + 1)) do
+/--
+error: The expected type ⏎
+  Id (Fin (x + 1))
+changed to ⏎
+  Id (Fin (0 + 1))
+This is not supported by the `do` elaborator. If there's a surrounding `match`, try `(generalizing := false)`.
+---
+error: The expected type ⏎
+  Id (Fin (x + 1))
+changed to ⏎
+  Id (Fin (x✝ + 1))
+This is not supported by the `do` elaborator. If there's a surrounding `match`, try `(generalizing := false)`.
+---
+warning: This `do` element and its control-flow region are dead code. Consider removing it.
+-/
+#guard_msgs in
+example (x : Nat) := Id.run (α := Fin (x + 1)) do
   let y : Fin x <-
     match x with
+    | 0 => pure ⟨0, by grind⟩
+    | _ => pure ⟨0, by grind⟩
+  return ⟨↑y + 1, by grind⟩
+
+/--
+error: `grind` failed
+case grind
+x : Nat
+h : x = 0
+⊢ False
+[grind] Goal diagnostics
+  [facts] Asserted facts
+    [prop] x = 0
+  [eqc] Equivalence classes
+    [eqc] {x, 0}
+  [cutsat] Assignment satisfying linear constraints
+    [assign] x := 0
+---
+error: `grind` failed
+case grind
+x x_1 : Nat
+h : x = 0
+⊢ False
+[grind] Goal diagnostics
+  [facts] Asserted facts
+    [prop] x = 0
+  [eqc] Equivalence classes
+    [eqc] {x, 0}
+  [cutsat] Assignment satisfying linear constraints
+    [assign] x := 0
+    [assign] x_1 := 1
+-/
+#guard_msgs in
+example (x : Nat) := Id.run (α := Fin (x + 1)) do
+  let y : Fin x <-
+    match (generalizing := false) x with
     | 0 => pure ⟨0, by grind⟩
     | _ => pure ⟨0, by grind⟩
   return ⟨↑y + 1, by grind⟩
@@ -247,6 +305,13 @@ set_option backward.do.legacy false in
   let cfg := (← read).config
   return cfg.beta) : MetaM Bool)
 
+example [Monad m] : ForIn' m (Option α) α inferInstance where
+  forIn' x init f := do
+    match x with
+    | none => return init
+    | some a =>
+      match ← f a rfl init with
+      | .done r | .yield r => return r
 
 elab_rules : doElem <= dec
   | `(doElem| for $x:ident in $xs invariant $cursorBinder $stateBinders* => $body do $doSeq) => do
@@ -987,7 +1052,7 @@ trace: [Compiler.saveBase] size: 8
         let _x.8 := Nat.add _x.7 head.5;
         let _x.9 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _y.2 tail.6 _x.8;
         return _x.9
-[Compiler.saveBase] size: 20
+[Compiler.saveBase] size: 19
     def List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_2.spec_2 z l s : Nat :=
       cases l : Nat
       | List.nil =>
@@ -1007,13 +1072,12 @@ trace: [Compiler.saveBase] size: 8
         let _x.12 := Nat.add _x.11 z;
         let _x.13 := 1;
         let _x.14 := Nat.sub _x.12 _x.13;
-        let _x.15 := Nat.mul z _x.14;
-        let _x.16 := Nat.add head.2 _x.15;
-        let _x.17 := @List.nil _;
-        let _x.18 := List.range'TR.go z _x.14 _x.16 _x.17;
-        let _x.19 := List.forInNew'._at_.Do._example.spec_0 _x.9 _f.4 _x.18 _x.8;
-        return _x.19
-[Compiler.saveBase] size: 20
+        let _x.15 := Nat.add head.2 _x.14;
+        let _x.16 := @List.nil _;
+        let _x.17 := List.range'TR.go z _x.14 _x.15 _x.16;
+        let _x.18 := List.forInNew'._at_.Do._example.spec_0 _x.9 _f.4 _x.17 _x.8;
+        return _x.18
+[Compiler.saveBase] size: 19
     def List.forInNew'._at_.Do._example.spec_2 z l s : Nat :=
       cases l : Nat
       | List.nil =>
@@ -1033,12 +1097,11 @@ trace: [Compiler.saveBase] size: 8
         let _x.12 := Nat.add _x.11 z;
         let _x.13 := 1;
         let _x.14 := Nat.sub _x.12 _x.13;
-        let _x.15 := Nat.mul z _x.14;
-        let _x.16 := Nat.add head.2 _x.15;
-        let _x.17 := @List.nil _;
-        let _x.18 := List.range'TR.go z _x.14 _x.16 _x.17;
-        let _x.19 := List.forInNew'._at_.Do._example.spec_0 _x.9 _f.4 _x.18 _x.8;
-        return _x.19
+        let _x.15 := Nat.add head.2 _x.14;
+        let _x.16 := @List.nil _;
+        let _x.17 := List.range'TR.go z _x.14 _x.15 _x.16;
+        let _x.18 := List.forInNew'._at_.Do._example.spec_0 _x.9 _f.4 _x.17 _x.8;
+        return _x.18
 [Compiler.saveBase] size: 10
     def Do._example : Nat :=
       let x := 42;
@@ -1807,7 +1870,7 @@ Postponing Monad instance resolution appropriately
 
 /--
 error: typeclass instance problem is stuck
-  Pure ?m.9
+  Pure ?m.8
 
 Note: Lean will not try to resolve this typeclass instance problem because the type argument to `Pure` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
 

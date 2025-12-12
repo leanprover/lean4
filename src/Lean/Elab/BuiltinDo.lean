@@ -139,19 +139,19 @@ def getDoReassignArrowVars (doReassignArrow : TSyntax ``doReassignArrow) : TermE
   let e ← match e? with
     | some e => Term.elabTermEnsuringType e returnCont.resultType
     | none   => mkPUnitUnit
-  dec.elabAsDeadCode -- emit dead code warnings
+  dec.elabAsSyntacticallyDeadCode -- emit dead code warnings
   returnCont.k e
 
 @[builtin_doElem_elab Lean.Parser.Term.doBreak] def elabDoBreak : DoElab := fun _stx dec => do
   let some breakCont := (← getBreakCont)
     | throwError "`break` must be nested inside a loop"
-  dec.elabAsDeadCode -- emit dead code warnings
+  dec.elabAsSyntacticallyDeadCode -- emit dead code warnings
   breakCont
 
 @[builtin_doElem_elab Lean.Parser.Term.doContinue] def elabDoContinue : DoElab := fun _stx dec => do
   let some continueCont := (← getContinueCont)
     | throwError "`continue` must be nested inside a loop"
-  dec.elabAsDeadCode -- emit dead code warnings
+  dec.elabAsSyntacticallyDeadCode -- emit dead code warnings
   continueCont
 
 @[builtin_doElem_elab Lean.Parser.Term.doExpr] def elabDoExpr : DoElab := fun stx dec => do
@@ -643,7 +643,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
     if needBreakJoin then
       mkLetFVars (generalizeNondepLet := false) #[kbreak] app
     else
-      return (← elimMVarDeps #[kbreak] app).replaceFVar kbreak breakRhs
+      return (← app.abstractM #[kbreak]).instantiate1 breakRhs
 
 private def elabDoCatch (lifter : ControlLifter) (body : Expr) (catch_ : TSyntax ``doCatch) : DoElabM Expr := do
   let mi := (← read).monadInfo

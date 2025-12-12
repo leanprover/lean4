@@ -196,10 +196,10 @@ where
     trace[Meta.Match.matchEqs] "proveCongrEqThm.go {mvarId}"
     let mvarId ← mvarId.modifyTargetEqLHS whnfCore
     let subgoals ←
-      (do solveOverlap mvarId
-          trace[Meta.Match.matchEqs] "solved by solveOverlap"
-          return #[])
-      <|>
+      -- (do solveOverlap mvarId
+      --     trace[Meta.Match.matchEqs] "solved by solveOverlap"
+      --     return #[])
+      -- <|>
       (do let mvarId ← unfoldElimOffset mvarId; return #[mvarId])
       <|>
       (casesOnStuckLHS mvarId)

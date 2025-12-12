@@ -1,24 +1,30 @@
-opaque double (n : Nat) : Nat
 
-inductive Parity : Nat -> Type
+inductive N : Type where
+| zero : N
+| succ (n : N) : N
+
+opaque double (n : N) : N := .zero
+
+inductive Parity : N -> Type
 | even (n) : Parity (double n)
-| odd  (n) : Parity (Nat.succ (double n))
+| odd  (n) : Parity (N.succ (double n))
 
 -- set_option trace.Meta.Match.matchEqs true
 
-partial def natToBin3 : (n : Nat) → Parity n →  List Bool
-| 0, _             => []
+
+partial def natToBin3 : (n : N) → Parity n →  List Bool
+| .zero, _             => []
 | _, Parity.even j => [false, false]
 | _, Parity.odd  j => [true, true]
 
 /--
-info: private theorem natToBin3.match_1.congr_eq_1.{u_1} : ∀ (motive : (x : Nat) → Parity x → Sort u_1) (x : Nat)
-  (x_1 : Parity x) (h_1 : (x : Parity 0) → motive 0 x) (h_2 : (j : Nat) → motive (double j) (Parity.even j))
-  (h_3 : (j : Nat) → motive (double j).succ (Parity.odd j)) (x_2 : Parity 0),
-  x = 0 →
+info: private theorem natToBin3.match_1.congr_eq_1.{u_1} : ∀ (motive : (x : N) → Parity x → Sort u_1) (x : N) (x_1 : Parity x)
+  (h_1 : (x : Parity N.zero) → motive N.zero x) (h_2 : (j : N) → motive (double j) (Parity.even j))
+  (h_3 : (j : N) → motive (double j).succ (Parity.odd j)) (x_2 : Parity N.zero),
+  x = N.zero →
     x_1 ≍ x_2 →
       (match x, x_1 with
-        | 0, x => h_1 x
+        | N.zero, x => h_1 x
         | .(double j), Parity.even j => h_2 j
         | .((double j).succ), Parity.odd j => h_3 j) ≍
         h_1 x_2
@@ -30,14 +36,16 @@ info: private theorem natToBin3.match_1.congr_eq_1.{u_1} : ∀ (motive : (x : Na
 error: Failed to realize constant natToBin3.match_1.eq_1:
   failed to solve overlap assumption, unsolved subgoal
     case x
-    motive : (x : Nat) → Parity x → Sort ?u.191
-    h_1 : (x : Parity 0) → motive 0 x
-    h_2 : (j : Nat) → (∀ (x : Parity 0), double j = 0 → Parity.even j ≍ x → False) → motive (double j) (Parity.even j)
-    h_3 : (j : Nat) → motive (double j).succ (Parity.odd j)
-    n✝ : Nat
+    motive : (x : N) → Parity x → Sort ?u.191
+    h_1 : (x : Parity N.zero) → motive N.zero x
+    h_2 :
+      (j : N) →
+        (∀ (x : Parity N.zero), double j = N.zero → Parity.even j ≍ x → False) → motive (double j) (Parity.even j)
+    h_3 : (j : N) → motive (double j).succ (Parity.odd j)
+    n✝ : N
     h✝ : Nat.hasNotBit 1 (double n✝).ctorIdx
-    x✝² : Parity 0
-    x✝¹ : double n✝ = 0
+    x✝² : Parity N.zero
+    x✝¹ : double n✝ = N.zero
     x✝ : Parity.even n✝ ≍ x✝²
     ⊢ False
 ---

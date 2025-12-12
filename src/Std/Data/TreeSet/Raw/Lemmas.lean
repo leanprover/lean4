@@ -10,6 +10,7 @@ import Std.Data.TreeMap.Raw.Lemmas
 import Std.Data.DTreeMap.Raw.Lemmas
 public import Std.Data.TreeSet.Raw.Basic
 public import Init.Data.List.BasicAux
+public import Init.Data.Order.ClassesExtra
 
 @[expose] public section
 
@@ -1279,6 +1280,20 @@ theorem min?_insert [TransCmp cmp] (h : t.WF) {k} :
     (t.insert k).min? =
       some (t.min?.elim k fun k' => if cmp k k' = .lt then k else k') :=
   TreeMap.Raw.minKey?_insertIfNew h
+
+@[simp] theorem min?_toList [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α]
+    [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp]
+    (h : t.WF) :
+    t.toList.min? = t.min? :=
+  TreeMap.Raw.min?_keys h
+
+@[simp] theorem head?_toList [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α]
+    [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp]
+    (h : t.WF) :
+    t.toList.head? = t.min? :=
+  TreeMap.Raw.head?_keys h
 
 theorem isSome_min?_insert [TransCmp cmp] (h : t.WF) {k} :
     (t.insert k).min?.isSome :=

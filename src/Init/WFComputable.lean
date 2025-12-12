@@ -14,15 +14,10 @@ import Init.NotationExtra
 This file adds csimp theorems so that the compiler will be able to compile
 `Acc.rec`, `WellFounded.fix` and related operations.
 
-For example:
+Without this change, the following code will fail to compile as
+`WellFounded.fix` is noncomputable.
 
-Before:
 ```
-prelude
-import Init.WF
-
--- failed to compile definition, consider marking it as 'noncomputable'
--- because it depends on 'WellFounded.fix', and it does not have executable code
 def log2p1 : Nat → Nat :=
   WellFounded.fix Nat.lt_wfRel.2 fun n IH =>
     let m := n / 2
@@ -31,21 +26,6 @@ def log2p1 : Nat → Nat :=
     else
       0
 ```
-
-After:
-```
-prelude
-import Init.WFC
-
-def log2p1 : Nat → Nat :=
-  WellFounded.fix Nat.lt_wfRel.2 fun n IH =>
-    let m := n / 2
-    if h : m < n then
-      IH m h + 1
-    else
-      0
-
-#eval log2p1 4   -- 3
 -/
 
 namespace Acc

@@ -228,7 +228,7 @@ match parity n with
 error: Invalid match expression: This pattern contains metavariables:
   (a, b)
 ---
-info: fun x => ?m.3 : ?m.12 × ?m.13 → ?m.12
+info: fun x => sorry : ?m.12 × ?m.13 → ?m.12
 -/
 #guard_msgs in
 #check fun (a, b) => a -- Error type of pattern variable contains metavariables

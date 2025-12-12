@@ -447,6 +447,26 @@ end StateT
 
 /-! # EStateM -/
 
+namespace EStateM
+
+@[simp, grind =] theorem run_pure (a : α) (s : σ) :
+    EStateM.run (pure a : EStateM ε σ α) s = .ok a s := rfl
+
+@[simp, grind =] theorem run_get (s : σ) :
+    EStateM.run (get : EStateM ε σ σ) s = .ok s s := rfl
+
+@[simp, grind =] theorem run_set (s₁ s₂ : σ) :
+    EStateM.run (set s₁ : EStateM ε σ PUnit) s₂ = .ok .unit s₁ := rfl
+
+@[simp, grind =] theorem run_modify (f : σ → σ) (s : σ) :
+    EStateM.run (modify f : EStateM ε σ PUnit) s = .ok .unit (f s) := rfl
+
+@[simp, grind =] theorem run_modifyGet (f : σ → α × σ) (s : σ) :
+    EStateM.run (modifyGet f : EStateM ε σ α) s = .ok (f s).1 (f s).2 := rfl
+
+@[simp, grind =] theorem run_throw (e : ε) (s : σ):
+    EStateM.run (throw e : EStateM ε σ PUnit) s = .error e s := rfl
+
 instance : LawfulMonad (EStateM ε σ) := .mk'
   (id_map := fun x => funext <| fun s => by
     dsimp only [EStateM.instMonad, EStateM.map]
@@ -460,3 +480,5 @@ instance : LawfulMonad (EStateM ε σ) := .mk'
     | .ok _ _ => rfl
     | .error _ _ => rfl)
   (map_const := fun _ _ => rfl)
+
+end EStateM

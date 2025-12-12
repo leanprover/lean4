@@ -66,3 +66,12 @@ public instance [Monad m] [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m] 
     congr 1
     apply bind_congr; intro a
     split <;> simp
+
+section
+attribute [local instance] MonadAttach.trivial
+
+public instance [Monad m] [LawfulMonad m] :
+    WeaklyLawfulMonadAttach m where
+  map_attach := by simp [MonadAttach.attach]
+
+end

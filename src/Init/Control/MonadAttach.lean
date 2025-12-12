@@ -24,3 +24,8 @@ public def MonadAttach.pbind
     [Monad m] [MonadAttach m]
     (x : m α) (f : (a : α) → MonadAttach.CanReturn x a → m β) : m β :=
   MonadAttach.attach x >>= (fun ⟨a, ha⟩ => f a ha)
+
+@[expose]
+public protected def MonadAttach.trivial {m : Type u → Type v} [Monad m] : MonadAttach m where
+  CanReturn _ _ := True
+  attach x := (⟨·, .intro⟩) <$> x

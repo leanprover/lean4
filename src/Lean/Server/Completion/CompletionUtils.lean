@@ -11,8 +11,28 @@ public import Lean.Meta.WHNF
 public section
 
 partial def String.charactersIn (a b : String) : Bool :=
-  go ⟨0⟩ ⟨0⟩
+  goFastScalar ⟨0⟩ ⟨0⟩
 where
+  goFastScalar (aPos bPos : String.Pos.Raw) : Bool :=
+    if ha : ¬aPos < a.rawEndPos then
+      true
+    else if hb : ¬bPos < b.rawEndPos then
+      false
+    else
+      let aByte := a.getUTF8Byte aPos (by simpa using ha)
+      let bByte := b.getUTF8Byte bPos (by simpa using hb)
+      let aWrong := (aByte &&& 0x80 != 0)
+      let bWrong := (bByte &&& 0x80 != 0)
+      if aWrong || bWrong then
+        go aPos bPos
+      else
+        let bPos := ⟨bPos.byteIdx + 1⟩
+        if aByte.toAsciiLower == bByte.toAsciiLower then
+          let aPos := ⟨aPos.byteIdx + 1⟩
+          goFastScalar aPos bPos
+        else
+          goFastScalar aPos bPos
+
   go (aPos bPos : String.Pos.Raw) : Bool :=
     if ha : aPos.atEnd a then
       true

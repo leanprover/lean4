@@ -410,18 +410,6 @@ theorem IteratorLoop.wellFounded_of_finite {m : Type w → Type w'}
     exact WellFoundedRelation.wf
 
 /--
-This `ForIn'`-style loop construct traverses a finite iterator using an `IteratorLoop` instance.
--/
-@[always_inline, inline]
-def IteratorLoop.finiteForInNew' {m : Type w → Type w'} {n : Type x → Type x'}
-    {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoopNew α m n]
-    (lift : ∀ γ δ, (γ → n δ) → m γ → n δ) :
-    ForInNew' n (IterM (α := α) m β) β (fun it out => it.IsPlausibleIndirectOutput out) where
-  forInNew' {σ γ} it init kcons knil :=
-    IteratorLoopNew.forInNew (α := α) (m := m) lift σ γ (fun _ _ _ => True)
-      it init (fun out h s₁ kcontinue => kcons out h (fun s₂ => kcontinue s₂ .intro) s₁) knil
-
-/--
 A `ForInNew'` instance for iterators. Its generic membership relation is not easy to use,
 so this is not marked as `instance`. This way, more convenient instances can be built on top of it
 or future library improvements will make it more comfortable.
@@ -450,6 +438,19 @@ instance {m : Type w → Type w'} {n : Type w → Type w''}
     [Finite α m] :
     ForInNew n (IterM.Total (α := α) m β) β :=
   haveI : ForInNew' n (IterM.Total (α := α) m β) β _ := IterM.Total.instForInNew'
+  instForInNewOfForInNew'
+
+@[always_inline, inline]
+def IterM.Partial.instForInNew' {m : Type w → Type w'} {n : Type w → Type w''}
+    {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoopNew α m n] [MonadLiftT m n] [Monad n] :
+    ForInNew' n (IterM.Partial (α := α) m β) β (fun it out => it.it.IsPlausibleIndirectOutput out) where
+  forInNew' it init f :=
+    haveI := @IterM.instForInNew'; forInNew' it.it init f
+
+instance {m : Type w → Type w'} {n : Type w → Type w''}
+    {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoopNew α m n] [MonadLiftT m n] [Monad n] :
+    ForInNew n (IterM.Partial (α := α) m β) β :=
+  haveI : ForInNew' n (IterM.Partial (α := α) m β) β _ := IterM.Partial.instForInNew'
   instForInNewOfForInNew'
 
 /--

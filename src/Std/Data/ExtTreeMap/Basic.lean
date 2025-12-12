@@ -553,7 +553,7 @@ def diff [TransCmp cmp] (t₁ t₂ : ExtTreeMap α β cmp) : ExtTreeMap α β cm
 
 instance [TransCmp cmp] : SDiff (ExtTreeMap α β cmp) := ⟨diff⟩
 
-instance {α : Type u} {β : Type v} {cmp : α → α → Ordering} [BEq α] [LawfulBEq α] [LawfulBEqCmp cmp] [TransCmp cmp] [BEq β] [LawfulBEq β] : DecidableEq (ExtTreeMap α β cmp) :=
+instance {α : Type u} {β : Type v} {cmp : α → α → Ordering} [LawfulEqCmp cmp] [TransCmp cmp] [BEq β] [LawfulBEq β] : DecidableEq (ExtTreeMap α β cmp) :=
   fun _ _ => decidable_of_iff _ beq_iff_eq
 
 @[inline, inherit_doc ExtDTreeMap.eraseMany]

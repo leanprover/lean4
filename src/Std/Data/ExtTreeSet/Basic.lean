@@ -552,7 +552,7 @@ def diff [TransCmp cmp] (t₁ t₂ : ExtTreeSet α cmp) : ExtTreeSet α cmp := �
 
 instance [TransCmp cmp] : SDiff (ExtTreeSet α cmp) := ⟨diff⟩
 
-instance {α : Type u} {cmp : α → α → Ordering} [BEq α] [LawfulBEq α] [LawfulBEqCmp cmp] [TransCmp cmp] : DecidableEq (ExtTreeSet α cmp) :=
+instance {α : Type u} {cmp : α → α → Ordering} [LawfulEqCmp cmp] [TransCmp cmp] : DecidableEq (ExtTreeSet α cmp) :=
   fun _ _ => decidable_of_iff _ beq_iff_eq
 
 /--

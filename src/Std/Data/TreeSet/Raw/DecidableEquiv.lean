@@ -20,7 +20,7 @@ open Std.TreeMap.Raw
 
 namespace Std.TreeSet.Raw
 
-instance instDecidableEquiv {α : Type u} {cmp : α → α → Ordering} [TransCmp cmp] [BEq α] [LawfulBEq α] [LawfulBEqCmp cmp] {t₁ t₂ : Raw α cmp} (h₁ : t₁.WF) (h₂ : t₂.WF) : Decidable (t₁ ~m t₂) :=
+instance instDecidableEquiv {α : Type u} {cmp : α → α → Ordering} [TransCmp cmp] [LawfulEqCmp cmp] {t₁ t₂ : Raw α cmp} (h₁ : t₁.WF) (h₂ : t₂.WF) : Decidable (t₁ ~m t₂) :=
   let : Ord α := ⟨cmp⟩;
   let : Decidable (t₁.inner ~m t₂.inner) := TreeMap.Raw.instDecidableEquiv h₁ h₂;
   decidable_of_iff _ ⟨fun h => ⟨h⟩, fun h => h.1⟩

@@ -19,7 +19,7 @@ open Std.DTreeMap
 
 namespace Std.TreeMap
 
-instance {α : Type u} {β : Type v} {cmp : α → α → Ordering} [TransCmp cmp] [BEq α] [LawfulBEq α] [LawfulBEqCmp cmp] [BEq β] [LawfulBEq β] {t₁ t₂ : TreeMap α β cmp} : Decidable (t₁ ~m t₂) :=
+instance {α : Type u} {β : Type v} {cmp : α → α → Ordering} [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] [LawfulBEq β] {t₁ t₂ : TreeMap α β cmp} : Decidable (t₁ ~m t₂) :=
   let : Ord α := ⟨cmp⟩;
   decidable_of_iff _ ⟨fun h => ⟨h⟩, fun h => h.1⟩
 

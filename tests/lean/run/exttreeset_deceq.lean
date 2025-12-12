@@ -15,7 +15,7 @@ instance : BEq A where
 
 instance : TransOrd A := sorry
 
-instance : LawfulBEqOrd A := sorry
+instance : LawfulEqOrd A := sorry
 
 @[simp]
 theorem A.beq_eq {x y : A} : (x == y) = (x.b == y.b && x.a == y.a) := rfl

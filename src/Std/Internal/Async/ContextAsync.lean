@@ -154,16 +154,6 @@ def concurrentlyAll (xs : Array (ContextAsync α))
   tasks.mapM await
 
 /--
-`MonadAsync` instance for `ContextAsync` that launches async computations with child contexts.
-
-**Note:** Forking the context here is not strictly needed, it already forks it for every async task.
--/
-instance : MonadAsync AsyncTask ContextAsync where
-  async x prio := fun ctx => do
-    let childCtx ← ctx.fork
-    async (try x childCtx finally childCtx.cancel .cancel) prio
-
-/--
 Launches a `ContextAsync` computation in the background, discarding its result.
 
 This function starts a task that runs independently in the background. The parent computation does not wait
@@ -203,6 +193,26 @@ def raceAll [ForM ContextAsync c (ContextAsync α)] (xs : c)
   let result ← await promise
   parent.cancel .cancel
   Async.ofExcept result
+
+/--
+Launches a `ContextAsync` computation as an asynchronous task with a forked child context.
+The child context is automatically cancelled when the task completes or fails.
+
+**Note:** Forking the context here is not strictly needed, it already forks it for every async task.
+-/
+@[inline, specialize]
+def async (x : ContextAsync α) (prio := Task.Priority.default) : ContextAsync (AsyncTask α) :=
+  fun ctx => do
+    let childCtx ← ctx.fork
+    Async.async (try x childCtx finally childCtx.cancel .cancel) prio
+
+/--
+`MonadAsync` instance for `ContextAsync` that launches async computations with child contexts.
+
+**Note:** Forking the context here is not strictly needed, it already forks it for every async task.
+-/
+instance : MonadAsync AsyncTask ContextAsync where
+  async x prio := ContextAsync.async x prio
 
 instance : Functor ContextAsync where
   map f x := fun ctx => f <$> x ctx

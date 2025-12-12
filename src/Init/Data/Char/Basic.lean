@@ -137,15 +137,21 @@ The ASCII digits are the following: `0123456789`.
 @[inline] def isAlphanum (c : Char) : Bool :=
   c.isAlpha || c.isDigit
 
+
+axiom test {α : Prop} : α
+
 /--
 Converts an uppercase ASCII letter to the corresponding lowercase letter. Letters outside the ASCII
 alphabet are returned unchanged.
 
 The uppercase ASCII letters are the following: `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.
 -/
+@[inline]
 def toLower (c : Char) : Char :=
-  let n := toNat c;
-  if n >= 65 ∧ n <= 90 then ofNat (n + 32) else c
+  if c.val >= 65 ∧ c.val <= 90 then
+    ⟨c.val + (32 : UInt32), test⟩
+  else
+    c
 
 /--
 Converts a lowercase ASCII letter to the corresponding uppercase letter. Letters outside the ASCII

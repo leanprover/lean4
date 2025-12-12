@@ -207,6 +207,17 @@ theorem UInt32.lt_ofNatLT_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UIn
   simp only [(· < ·), BitVec.toNat, ofNatLT, BitVec.ofNatLT, ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat,
     Fin.ofNat, Nat.mod_eq_of_lt h2, imp_self]
 
+
+/--
+Adds two 32-bit unsigned integers, wrapping around on overflow. Usually accessed via the `+`
+operator.
+
+This function is overridden at runtime with an efficient implementation.
+-/
+@[extern "lean_uint32_add"]
+protected def UInt32.add (a b : UInt32) : UInt32 := ⟨a.toBitVec + b.toBitVec⟩
+instance : Add UInt32       := ⟨UInt32.add⟩
+
 /-- Converts a `UInt64` into the corresponding `Fin UInt64.size`. -/
 def UInt64.toFin (x : UInt64) : Fin UInt64.size := x.toBitVec.toFin
 

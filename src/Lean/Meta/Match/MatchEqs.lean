@@ -137,6 +137,12 @@ private def unfoldElimOffset (mvarId : MVarId) : MetaM MVarId := do
     throwError "goal's target does not contain `Nat.elimOffset`"
   mvarId.deltaTarget (· == ``Nat.elimOffset)
 
+partial def proveCondEqThmByRefl  (type : Expr) : MetaM (Option Expr) := observing? <| withLCtx {} {} do
+  let type ← instantiateMVars type
+  let mvar0  ← mkFreshExprSyntheticOpaqueMVar type
+  (← mvar0.mvarId!.intros).2.refl
+  instantiateMVars mvar0
+
 /--
 Helper method for proving a conditional equational theorem associated with an alternative of
 the `match`-eliminator `matchDeclName`. `type` contains the type of the theorem.
@@ -148,10 +154,8 @@ partial def proveCondEqThm (matchDeclName : Name) (thmName : Name) (type : Expr)
   trace[Meta.Match.matchEqs] "proveCondEqThm {mvar0.mvarId!}"
   let mut mvarId := mvar0.mvarId!
   mvarId := (← mvarId.intros).2
-  try mvarId.refl
-  catch _ =>
-    mvarId ← mvarId.deltaTarget (· == matchDeclName)
-    go mvarId 0
+  mvarId ← mvarId.deltaTarget (· == matchDeclName)
+  go mvarId 0
   instantiateMVars mvar0
 where
   go (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do
@@ -337,22 +341,25 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
           let thmType ← mkEq lhs rhs
           let thmType ← mkForallFVars (params ++ #[motive] ++ ys ++ alts ++ hs) thmType
           let thmType ← unfoldNamedPattern thmType
-          let thmVal ← if canUseGrind then
-            let thmVal := mkConst congrEqThms[i]! us
-            -- We build the normal equation from the congruence equation here
-            let thmVal := mkAppN thmVal (params ++ #[motive] ++ patterns ++ alts ++ ys)
-            let eqTypes ← inferArgumentTypesN discrs.size thmVal
-            let eqProofs ← eqTypes.mapM fun eqType => do
-              let a ← mkFreshExprSyntheticOpaqueMVar eqType
-              (← a.mvarId!.heqOfEq).refl
-              pure a
-            let thmVal := mkAppN thmVal eqProofs
-            let thmVal := mkAppN thmVal hs
-            let thmVal ← mkEqOfHEq thmVal
-            mkLambdaFVars (params ++ #[motive] ++ ys ++ alts ++ hs) thmVal
-          else
-            -- Old style
-            proveCondEqThm matchDeclName thmName thmType
+          let thmVal ←
+            if let some thmVal ← proveCondEqThmByRefl thmType then
+              pure thmVal
+            else if canUseGrind then
+              let thmVal := mkConst congrEqThms[i]! us
+              -- We build the normal equation from the congruence equation here
+              let thmVal := mkAppN thmVal (params ++ #[motive] ++ patterns ++ alts ++ ys)
+              let eqTypes ← inferArgumentTypesN discrs.size thmVal
+              let eqProofs ← eqTypes.mapM fun eqType => do
+                let a ← mkFreshExprSyntheticOpaqueMVar eqType
+                (← a.mvarId!.heqOfEq).refl
+                pure a
+              let thmVal := mkAppN thmVal eqProofs
+              let thmVal := mkAppN thmVal hs
+              let thmVal ← mkEqOfHEq thmVal
+              mkLambdaFVars (params ++ #[motive] ++ ys ++ alts ++ hs) thmVal
+            else
+              -- Old style
+              proveCondEqThm matchDeclName thmName thmType
           unless (← isDefEq (← inferType thmVal) thmType) do
             throwError "TOOD: Got{indentExpr (← inferType thmVal)}\nexpected{indentExpr thmType}"
           addDecl <| Declaration.thmDecl {

@@ -288,11 +288,11 @@ def testParentChildCancellation : IO Unit := do
       discard <| ContextAsync.concurrently
         (do
 
-            ContextAsync.awaitCancellation
+            await (← parent.done)
             childSawCancellation.atomically (set true))
         (do
           Async.sleep 200
-          ContextAsync.cancel (.custom "parent cancel"))
+          parent.cancel (.custom "parent cancel"))
 
     Async.sleep 300
 

@@ -92,10 +92,8 @@ def awaitCancellation : ContextAsync Unit := do
   await task
 
 /--
-Runs two computations concurrently and returns both results.
-If either fails or is cancelled, both are cancelled immediately and the exception is propagated.
-
-**Note:** Forking contexts in this function is not strictly needed, as it forks the context for each task.
+Runs two computations concurrently and returns both results. Each computation runs in its own child context;
+if either fails or is cancelled, both are cancelled immediately and the exception is propagated.
 -/
 @[inline, specialize]
 def concurrently (x : ContextAsync α) (y : ContextAsync β)
@@ -107,16 +105,17 @@ def concurrently (x : ContextAsync α) (y : ContextAsync β)
   let childCtx1 ← concurrentCtx.fork
   let childCtx2 ← concurrentCtx.fork
 
-  Async.concurrently
-    (try x.run childCtx1 finally concurrentCtx.cancel .cancel)
-    (try y.run childCtx2 finally concurrentCtx.cancel .cancel)
+  let result ← Async.concurrently
+    (try x.run childCtx1 catch err => do concurrentCtx.cancel .cancel; throw err finally childCtx1.cancel .cancel)
+    (try y.run childCtx2 catch err => do concurrentCtx.cancel .cancel; throw err finally childCtx2.cancel .cancel)
     prio
 
-/--
-Runs two computations concurrently and returns the result of the first to complete.
-Each runs in its own child context; when either completes, the other is cancelled immediately.
+  concurrentCtx.cancel .cancel
+  return result
 
-**Note:** Forking contexts in this function is not strictly needed, as it forks the context for each task.
+/--
+Runs two computations concurrently and returns the result of the first to complete. Each computation runs
+in its own child context; when either completes, the other is cancelled immediately.
 -/
 @[inline, specialize]
 def race [Inhabited α] (x : ContextAsync α) (y : ContextAsync α)
@@ -136,10 +135,8 @@ def race [Inhabited α] (x : ContextAsync α) (y : ContextAsync α)
   pure result
 
 /--
-Runs all computations concurrently and collects results in the same order.
-If any computation fails, all others are cancelled and the exception is propagated.
-
-**Note:** Forking contexts in this function is not strictly needed, as it forks the context for each task.
+Runs all computations concurrently and collects results in the same order. Each runs in its own child context;
+if any computation fails, all others are cancelled and the exception is propagated.
 -/
 @[inline, specialize]
 def concurrentlyAll (xs : Array (ContextAsync α))
@@ -149,18 +146,23 @@ def concurrentlyAll (xs : Array (ContextAsync α))
 
   let tasks : Array (AsyncTask α) ← xs.mapM fun ctxAsync => do
     let childCtx ← concurrentCtx.fork
-    async (prio := prio) (try ctxAsync.run childCtx finally concurrentCtx.cancel .cancel)
+    async (prio := prio)
+      (try
+        ctxAsync.run childCtx
+      catch err => do
+        concurrentCtx.cancel .cancel;
+        throw err
+      finally
+        childCtx.cancel .cancel)
 
-  tasks.mapM await
-
+  let result ← tasks.mapM await
+  return result
 /--
 Launches a `ContextAsync` computation in the background, discarding its result.
 
-This function starts a task that runs independently in the background. The parent computation does not wait
+The computation runs independently in the background in its own child context. The parent computation does not wait
 for background tasks to complete. This means that if the parent finishes its execution it will cause
 the cancellation of the background functions.
-
-**Note:** Forking the context here is not strictly needed as background tasks forks the context.
 -/
 @[inline, specialize]
 def background (action : ContextAsync α) (prio := Task.Priority.default) : ContextAsync Unit := do
@@ -169,10 +171,8 @@ def background (action : ContextAsync α) (prio := Task.Priority.default) : Cont
   Async.background (action childCtx *> childCtx.cancel .cancel) prio
 
 /--
-Runs all computations concurrently and returns the first result.
-Each computation gets its own child context; the first successful result wins and all others are cancelled.
-
-**Note:** Forking contexts in this function is not strictly needed, as it forks the context for each task.
+Runs all computations concurrently and returns the first result. Each computation runs in its own child context;
+when the first completes successfully, all others are cancelled immediately.
 -/
 def raceAll [ForM ContextAsync c (ContextAsync α)] (xs : c)
     (prio := Task.Priority.default) : ContextAsync α := do
@@ -197,8 +197,6 @@ def raceAll [ForM ContextAsync c (ContextAsync α)] (xs : c)
 /--
 Launches a `ContextAsync` computation as an asynchronous task with a forked child context.
 The child context is automatically cancelled when the task completes or fails.
-
-**Note:** Forking the context here is not strictly needed, it already forks it for every async task.
 -/
 @[inline, specialize]
 def async (x : ContextAsync α) (prio := Task.Priority.default) : ContextAsync (AsyncTask α) :=
@@ -206,11 +204,6 @@ def async (x : ContextAsync α) (prio := Task.Priority.default) : ContextAsync (
     let childCtx ← ctx.fork
     Async.async (try x childCtx finally childCtx.cancel .cancel) prio
 
-/--
-`MonadAsync` instance for `ContextAsync` that launches async computations with child contexts.
-
-**Note:** Forking the context here is not strictly needed, it already forks it for every async task.
--/
 instance : MonadAsync AsyncTask ContextAsync where
   async x prio := ContextAsync.async x prio
 

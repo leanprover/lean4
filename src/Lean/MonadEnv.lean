@@ -130,16 +130,16 @@ def mkConstWithLevelParams [Monad m] [MonadEnv m] [MonadError m] (constName : Na
   return mkConst constName (info.levelParams.map mkLevelParam)
 
 def getConstInfoDefn [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m DefinitionVal := do
-  (← isDefn? constName).getDM (throwError "`{.ofConstName constName}` is not a definition")
+  (← inline <| isDefn? constName).getDM (throwError "`{.ofConstName constName}` is not a definition")
 
 def getConstInfoInduct [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m InductiveVal := do
-  (← isInductive? constName).getDM (throwError "`{.ofConstName constName}` is not an inductive type")
+  (← inline <| isInductive? constName).getDM (throwError "`{.ofConstName constName}` is not an inductive type")
 
 def getConstInfoCtor [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstructorVal := do
-  (← isCtor? constName).getDM (throwError "`{.ofConstName constName}` is not a constructor")
+  (← inline <| isCtor? constName).getDM (throwError "`{.ofConstName constName}` is not a constructor")
 
 def getConstInfoRec [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m RecursorVal := do
-  (← isRec? constName).getDM (throwError "`{.ofConstName constName}` is not a recursor")
+  (← inline <| isRec? constName).getDM (throwError "`{.ofConstName constName}` is not a recursor")
 
 /--
 Matches if `e` is a constant that is an inductive type with one constructor.

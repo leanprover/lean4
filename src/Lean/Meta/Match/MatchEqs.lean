@@ -196,6 +196,10 @@ where
     trace[Meta.Match.matchEqs] "proveCongrEqThm.go {mvarId}"
     let mvarId ← mvarId.modifyTargetEqLHS whnfCore
     let subgoals ←
+      (do solveOverlap mvarId
+          trace[Meta.Match.matchEqs] "solved by solveOverlap"
+          return #[])
+      <|>
       (do let mvarId ← unfoldElimOffset mvarId; return #[mvarId])
       <|>
       (casesOnStuckLHS mvarId)
@@ -214,17 +218,17 @@ where
           else
             throwError "spliIf failed")
       <|>
-      (do solveOverlap mvarId
-          trace[Meta.Match.matchEqs] "solved with overlap"
-          return #[])
-      <|>
       (do if debug.Meta.Match.MatchEqs.grindAsSorry.get (← getOptions) then
             trace[Meta.Match.matchEqs] "proveCondEqThm.go: grind_as_sorry is enabled, admitting goal"
             mvarId.admit (synthetic := true)
           else
             let r ← Grind.main mvarId (← Grind.mkParams {})
             if r.hasFailed then throwError "grind failed"
-            trace[Meta.Match.matchEqs] "solved with grind"
+            trace[Meta.Match.matchEqs] "solved by grind"
+          return #[])
+      <|>
+      (do mvarId.contradiction { genDiseq := true }
+          trace[Meta.Match.matchEqs] "solved by contradiction"
           return #[])
       <|>
       (throwMatchEqnFailedMessage matchDeclName thmName mvarId)

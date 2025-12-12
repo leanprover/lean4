@@ -148,5 +148,5 @@ info: private theorem deleteOne.match_1.congr_eq_3.{u_1} : ∀ {n : Nat} (motive
         | some val => h_3 val) ≍
         h_3 val
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #print sig deleteOne.match_1.congr_eq_3

@@ -185,6 +185,7 @@ grind_pattern mod_eq_of_lt => a % b where
 
 grind_pattern mod_eq_of_lt => a % b where
   not_value b
+  is_value a -- Prevent overlapping work with the above `grind_pattern`
   guard a < b
 
 @[simp] theorem one_mod_eq_zero_iff {n : Nat} : 1 % n = 0 ↔ n = 1 := by

@@ -231,14 +231,13 @@ where
           if mvarId' == mvarId then throwError "heqOfEq failed"
           return #[mvarId'])
       <|>
-      (substSomeVar mvarId)
-      <|>
       (do if debug.Meta.Match.MatchEqs.grindAsSorry.get (← getOptions) then
             trace[Meta.Match.matchEqs] "proveCondEqThm.go: grind_as_sorry is enabled, admitting goal"
             mvarId.admit (synthetic := true)
           else
-            let r ← Grind.main mvarId (← Grind.mkParams {})
-            if r.hasFailed then throwError "grind failed"
+            profileitM Exception "grind in matcheqs" (← getOptions) do
+              let r ← Grind.main mvarId (← Grind.mkParams {})
+              if r.hasFailed then throwError "grind failed"
           return #[])
       <|>
       (throwMatchEqnFailedMessage matchDeclName thmName mvarId)
@@ -368,21 +367,23 @@ where go thmName :=
         -- Now we simplify the overlap assumptions
         let hs_discr ← hs_discr.mapM mkFreshExprSyntheticOpaqueMVar
         let thmVal := mkAppN thmVal hs_discr
-        let hs_pat : Array MVarId ← hs_discr.filterMapM fun h_discr => do
-          let mut mvarId' := h_discr.mvarId!
-          trace[Meta.Match.matchEqs] "before subst: {mvarId'}"
-          mvarId' := (← mvarId'.revert (heqs.map (·.fvarId!)) (preserveOrder := true)).2
-          -- always good to clear before substing
-          mvarId' ← mvarId'.tryClearMany <| (#[motive] ++ alts ++ heqs).map (·.fvarId!)
-          for _ in [:heqs.size] do
-            let (fvarId, mvarId'') ← mvarId'.intro1
-            -- important to substitute the fvar on the LHS, so do not use `substEq`
-            let (fvarId, mvarId'') ← heqToEq mvarId'' fvarId
-            (_, mvarId') ← substCore (symm := false) (clearH := true) mvarId'' fvarId
-          trace[Meta.Match.matchEqs] "after subst: {mvarId'}"
-          let r ← simpH mvarId' discrs.size
-          trace[Meta.Match.matchEqs] "after simpH: {r}"
-          pure r
+        let hs_pat : Array MVarId ←
+          withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} simplify overlap assumptions")) do
+          hs_discr.filterMapM fun h_discr => do
+            let mut mvarId' := h_discr.mvarId!
+            trace[Meta.Match.matchEqs] "before subst: {mvarId'}"
+            mvarId' := (← mvarId'.revert (heqs.map (·.fvarId!)) (preserveOrder := true)).2
+            -- always good to clear before substing
+            mvarId' ← mvarId'.tryClearMany <| (#[motive] ++ alts ++ heqs).map (·.fvarId!)
+            for _ in [:heqs.size] do
+              let (fvarId, mvarId'') ← mvarId'.intro1
+              -- important to substitute the fvar on the LHS, so do not use `substEq`
+              let (fvarId, mvarId'') ← heqToEq mvarId'' fvarId
+              (_, mvarId') ← substCore (symm := false) (clearH := true) mvarId'' fvarId
+            trace[Meta.Match.matchEqs] "after subst: {mvarId'}"
+            let r ← simpH mvarId' discrs.size
+            trace[Meta.Match.matchEqs] "after simpH: {r}"
+            pure r
         let thmVal ← withLocalDeclsDND' `hnot (← hs_pat.mapM (·.getType)) fun xs => do
           for h_pat in hs_pat, x in xs do h_pat.assign x
           mkLambdaFVars xs (← instantiateMVars thmVal)

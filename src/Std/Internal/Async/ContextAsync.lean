@@ -34,11 +34,21 @@ abbrev ContextAsync (α : Type) := ReaderT CancellationContext Async α
 namespace ContextAsync
 
 /--
-Runs a `ContextAsync` computation with a given context.
+Runs a `ContextAsync` computation with a given context. See also `ContextAsync.run` for running with a new
+context that automatically cancels after execution.
 -/
 @[inline]
-protected def run (ctx : CancellationContext) (x : ContextAsync α) : Async α :=
+protected def runIn (ctx : CancellationContext) (x : ContextAsync α) : Async α :=
   x ctx
+
+/--
+Runs a `ContextAsync` computation with a new context that cancels after the execution of the computation.
+See also `ContextAsync.runIn` for running with an existing context.
+-/
+@[inline]
+protected def run (x : ContextAsync α) : Async α := do
+  let ctx ← CancellationContext.new
+  x ctx <* ctx.cancel .cancel
 
 /--
 Returns the current context for inspection or to pass to other functions.
@@ -106,8 +116,8 @@ def concurrently (x : ContextAsync α) (y : ContextAsync β)
   let childCtx2 ← concurrentCtx.fork
 
   let result ← Async.concurrently
-    (try x.run childCtx1 catch err => do concurrentCtx.cancel .cancel; throw err finally childCtx1.cancel .cancel)
-    (try y.run childCtx2 catch err => do concurrentCtx.cancel .cancel; throw err finally childCtx2.cancel .cancel)
+    (try x childCtx1 catch err => do concurrentCtx.cancel .cancel; throw err finally childCtx1.cancel .cancel)
+    (try y childCtx2 catch err => do concurrentCtx.cancel .cancel; throw err finally childCtx2.cancel .cancel)
     prio
 
   concurrentCtx.cancel .cancel
@@ -148,27 +158,41 @@ def concurrentlyAll (xs : Array (ContextAsync α))
     let childCtx ← concurrentCtx.fork
     async (prio := prio)
       (try
-        ctxAsync.run childCtx
+        ctxAsync childCtx
       catch err => do
-        concurrentCtx.cancel .cancel;
+        concurrentCtx.cancel .cancel
         throw err
       finally
         childCtx.cancel .cancel)
 
   let result ← tasks.mapM await
   return result
+
 /--
 Launches a `ContextAsync` computation in the background, discarding its result.
 
 The computation runs independently in the background in its own child context. The parent computation does not wait
 for background tasks to complete. This means that if the parent finishes its execution it will cause
-the cancellation of the background functions.
+the cancellation of the background functions. See also `disown` for launching tasks that continue independently
+even after parent cancellation.
 -/
 @[inline, specialize]
 def background (action : ContextAsync α) (prio := Task.Priority.default) : ContextAsync Unit := do
   let ctx ← getContext
   let childCtx ← ctx.fork
   Async.background (action childCtx *> childCtx.cancel .cancel) prio
+
+/--
+Launches a `ContextAsync` computation in the background, discarding its result. It's Similar to `background`,
+but the child context is not automatically cancelled when the action completes. This allows the disowned
+computation to continue running independently, even if the parent context is cancelled. The child context
+will remain alive as long as the computation needs it. See also `background` for launching tasks that are
+cancelled when the parent finishes.
+-/
+@[inline, specialize]
+def disown (action : ContextAsync α) (prio := Task.Priority.default) : ContextAsync Unit := do
+  let childCtx ← CancellationContext.new
+  Async.background (action childCtx) prio
 
 /--
 Runs all computations concurrently and returns the first result. Each computation runs in its own child context;

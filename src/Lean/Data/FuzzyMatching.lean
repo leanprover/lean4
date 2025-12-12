@@ -18,6 +18,7 @@ public import Init.Data.Option.Coe
 public import Init.Data.Range
 import Init.Data.SInt.Basic
 import Init.Data.String.Basic
+import Lean.Server.Completion.CompletionUtils
 
 public section
 
@@ -271,7 +272,7 @@ def fuzzyMatchScore? (pattern word : String) : Option Float := Id.run do
     return some 1
   if pattern.length > word.length then
     return none
-  if !(containsInOrderLower pattern word) then
+  if !(pattern.charactersIn word) then
     return none
 
   let some score := fuzzyMatchCore pattern word (stringInfo pattern) (stringInfo word)

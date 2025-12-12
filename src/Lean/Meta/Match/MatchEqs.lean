@@ -166,8 +166,6 @@ where
       <|>
       (do mvarId.contradiction { genDiseq := true }; return #[])
       <|>
-      (do solveOverlap mvarId; return #[])
-      <|>
       (do let mvarId ← unfoldElimOffset mvarId; return #[mvarId])
       <|>
       (casesOnStuckLHS mvarId)
@@ -185,10 +183,6 @@ where
             return #[mvarId₁, s₂.mvarId]
           else
             throwError "spliIf failed")
-      <|>
-      (do let mvarId' ← mvarId.heqOfEq
-          if mvarId' == mvarId then throwError "heqOfEq failed"
-          return #[mvarId'])
       <|>
       (substSomeVar mvarId)
       <|>

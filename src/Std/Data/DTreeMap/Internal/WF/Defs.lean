@@ -76,7 +76,7 @@ theorem WF.balanced [Ord α] {t : Impl α β} (h : WF t) : t.Balanced := by
   case constModify ih => exact Const.balanced_modify ih
   case inter ih => exact balanced_inter ih
 
-theorem WF.eraseManyEntries [Ord α] {ρ} [ForIn Id ρ ((a : α) × β a)] {t : Impl α β} {l : ρ} {h} (hwf : WF t) :
+theorem WF.eraseManyEntries [Ord α] {ρ} [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)] {t : Impl α β} {l : ρ} {h} (hwf : WF t) :
     WF (t.eraseManyEntries l h).val :=
   (t.eraseManyEntries l h).2 hwf fun _ _ _ hwf' => hwf'.erase
 

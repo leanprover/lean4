@@ -1,5 +1,4 @@
 name = "scripts"
-leanOptions = { experimental.module = true }
 
 [[lean_exe]]
 name = "modulize"

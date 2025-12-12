@@ -355,12 +355,6 @@ private def getNiceCommandStartPos? (stx : Syntax) : Option String.Pos.Raw := do
     stx := stx[1]
   stx.getPos?
 
-/-- Allow use of module system -/
-register_builtin_option experimental.module : Bool := {
-  defValue := false
-  descr := "Allow use of module system (experimental)"
-}
-
 /--
 Entry point of the Lean language processor.
 
@@ -494,11 +488,6 @@ where
 
       let startTime := (← IO.monoNanosNow).toFloat / 1000000000
       let mut opts := setup.opts
-      -- HACK: no better way to enable in core with `USE_LAKE` off
-      if setup.mainModuleName.getRoot ∈ [`Init, `Std, `Lean, `Lake, `LakeMain] then
-        opts := experimental.module.setIfNotSet opts true
-      if !stx.raw[0].isNone && !experimental.module.get opts then
-        throw <| IO.Error.userError "`module` keyword is experimental and not enabled here"
       -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
       let (headerEnv, msgLog) ← Elab.processHeaderCore (leakEnv := true)
         stx.startPos setup.imports setup.isModule setup.opts .empty ctx.toInputContext

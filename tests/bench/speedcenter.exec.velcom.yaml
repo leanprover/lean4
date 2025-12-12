@@ -18,42 +18,42 @@
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: lean -Dexperimental.module=true Init/Prelude.lean
+    cmd: lean Init/Prelude.lean
 - attributes:
     description: Init.Data.List.Sublist async
     tags: [other]
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: lean -Dexperimental.module=true Init/Data/List/Sublist.lean
+    cmd: lean Init/Data/List/Sublist.lean
 - attributes:
     description: Std.Data.Internal.List.Associative
     tags: [other]
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: lean -Dexperimental.module=true Std/Data/Internal/List/Associative.lean
+    cmd: lean Std/Data/Internal/List/Associative.lean
 - attributes:
     description: Std.Data.DHashMap.Internal.RawLemmas
     tags: [other]
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: lean -Dexperimental.module=true Std/Data/DHashMap/Internal/RawLemmas.lean
+    cmd: lean Std/Data/DHashMap/Internal/RawLemmas.lean
 - attributes:
     description: Init.Data.BitVec.Lemmas
     tags: [other]
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: lean -Dexperimental.module=true Init/Data/BitVec/Lemmas.lean
+    cmd: lean Init/Data/BitVec/Lemmas.lean
 - attributes:
     description: Init.Data.List.Sublist re-elab -j4
     tags: [other]
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/List/Sublist.lean 10 -j4 -Dexperimental.module=true
+    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/List/Sublist.lean 10 -j4
     max_runs: 2
     parse_output: true
 - attributes:
@@ -62,7 +62,7 @@
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/BitVec/Lemmas.lean 3 -j4 -Dexperimental.module=true
+    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/BitVec/Lemmas.lean 3 -j4
     max_runs: 2
     parse_output: true
 - attributes:
@@ -71,7 +71,7 @@
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: lean --run ../script/benchReelabWatchdogRss.lean lean Init/Data/List/Sublist.lean 10 -j4 -Dexperimental.module=true
+    cmd: lean --run ../script/benchReelabWatchdogRss.lean lean Init/Data/List/Sublist.lean 10 -j4
     max_runs: 2
     parse_output: true
 # This benchmark uncovered the promise cycle in `realizeConst` (#11328)
@@ -81,7 +81,7 @@
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/List/Basic.lean 10 -j4 -Dexperimental.module=true
+    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/List/Basic.lean 10 -j4
     max_runs: 2
     parse_output: true
 - attributes:
@@ -471,7 +471,7 @@
     tags: [other]
   run_config:
     <<: *time
-    cmd: lean -Dexperimental.module=true workspaceSymbols.lean
+    cmd: lean workspaceSymbols.lean
     max_runs: 2
 - attributes:
     description: bv_decide_realworld
@@ -620,16 +620,16 @@
     tags: [other]
   run_config:
     <<: *time
-    cmd: lean -Dexperimental.module=true ../lean/run/grind_bitvec2.lean
+    cmd: lean ../lean/run/grind_bitvec2.lean
 - attributes:
     description: grind_list2.lean
     tags: [other]
   run_config:
     <<: *time
-    cmd: lean -Dexperimental.module=true ../lean/run/grind_list2.lean
+    cmd: lean ../lean/run/grind_list2.lean
 - attributes:
     description: grind_ring_5.lean
     tags: [other]
   run_config:
     <<: *time
-    cmd: lean -Dexperimental.module=true ../lean/run/grind_ring_5.lean
+    cmd: lean ../lean/run/grind_ring_5.lean

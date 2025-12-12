@@ -1,5 +1,4 @@
 name = "dep"
-leanOptions.experimental.module = true
 
 [[lean_lib]]
 name = "Dep.NoImportAll"

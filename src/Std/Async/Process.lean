@@ -13,11 +13,9 @@ public import Std.Data.HashMap
 public section
 
 open Std Time
-open System
+open System Internal
 
 namespace Std
-namespace Internal
-namespace IO
 namespace Process
 
 /--
@@ -237,6 +235,4 @@ def availableMemory : IO UInt64 :=
   UV.System.availableMemory
 
 end Process
-end IO
-end Internal
 end Std

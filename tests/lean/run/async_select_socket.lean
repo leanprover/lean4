@@ -1,6 +1,6 @@
-import Std.Internal.Async.Timer
-import Std.Internal.Async.TCP
-import Std.Internal.Async.UDP
+import Std.Async.Timer
+import Std.Async.TCP
+import Std.Async.UDP
 
 #exit -- TODO: remove `#exit` after nondet issue is resolved.
 

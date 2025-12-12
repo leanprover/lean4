@@ -8,14 +8,12 @@ module
 prelude
 public import Std.Time
 public import Std.Internal.UV.Timer
-public import Std.Internal.Async.Select
+public import Std.Async.Select
 
 public section
 
 
 namespace Std
-namespace Internal
-namespace IO
 namespace Async
 
 /--
@@ -168,6 +166,4 @@ def stop (i : Interval) : IO Unit :=
 end Interval
 
 end Async
-end IO
-end Internal
 end Std

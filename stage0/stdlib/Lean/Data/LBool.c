@@ -23,8 +23,8 @@ LEAN_EXPORT lean_object* l_Lean_LBool_true_elim(lean_object*, uint8_t, lean_obje
 LEAN_EXPORT lean_object* l_Lean_LBool_true_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_false_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_toLBoolM___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_false_elim(lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_toLBoolM___redArg___lam__0(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_toLBoolM(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_true_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_undef_elim___redArg(lean_object*);
@@ -47,13 +47,13 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_LBool_instToString___closed__0;
 LEAN_EXPORT lean_object* l_Lean_LBool_ctorElim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_ctorElim___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_toLBoolM___lam__0(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_LBool_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_LBool_toString___closed__1;
 LEAN_EXPORT lean_object* l_Lean_LBool_undef_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_LBool_toString___closed__0;
 LEAN_EXPORT lean_object* l_toLBoolM___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_undef_elim___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_toLBoolM___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_ctorElim(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqLBool_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqLBool;
@@ -454,7 +454,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_toLBoolM___lam__0(lean_object* x_1, uint8_t x_2) {
+LEAN_EXPORT lean_object* l_toLBoolM___redArg___lam__0(lean_object* x_1, uint8_t x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; lean_object* x_5; 
@@ -464,12 +464,12 @@ x_5 = lean_apply_2(x_1, lean_box(0), x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_toLBoolM___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_toLBoolM___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-x_4 = l_toLBoolM___lam__0(x_1, x_3);
+x_4 = l_toLBoolM___redArg___lam__0(x_1, x_3);
 return x_4;
 }
 }
@@ -485,7 +485,7 @@ lean_dec_ref(x_2);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
 lean_dec_ref(x_4);
-x_7 = lean_alloc_closure((void*)(l_toLBoolM___lam__0___boxed), 2, 1);
+x_7 = lean_alloc_closure((void*)(l_toLBoolM___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(x_7, 0, x_6);
 x_8 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_3, x_7);
 return x_8;
@@ -503,7 +503,7 @@ lean_dec_ref(x_1);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec_ref(x_3);
-x_6 = lean_alloc_closure((void*)(l_toLBoolM___lam__0___boxed), 2, 1);
+x_6 = lean_alloc_closure((void*)(l_toLBoolM___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(x_6, 0, x_5);
 x_7 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_2, x_6);
 return x_7;

@@ -190,11 +190,48 @@ x_11 = l_Lean_instantiateMVars___at___00Lean_Meta_Grind_Arith_getIsCharInst_x3f_
 return x_11;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__0() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean", 4, 4);
+x_1 = lean_mk_string_unchecked("Nat", 3, 3);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__0;
+x_2 = l_Lean_Name_mkStr1(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__1;
+x_3 = l_Lean_mkConst(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__2;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("IsCharP", 7, 7);
 return x_1;
 }
 }
@@ -206,11 +243,11 @@ x_1 = lean_mk_string_unchecked("Grind", 5, 5);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__2() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("IsCharP", 7, 7);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -559,43 +596,6 @@ return x_75;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Nat", 3, 3);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__0;
-x_2 = l_Lean_Name_mkStr1(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__1;
-x_3 = l_Lean_mkConst(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__2;
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15, lean_object* x_16) {
 _start:
 {
@@ -665,6 +665,14 @@ x_13 = l_Lean_Meta_withNewMCtxDepth___at___00Lean_Meta_Grind_Arith_getIsCharInst
 return x_13;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
+_start:
+{
+lean_object* x_13; 
+x_13 = l_Lean_Meta_Grind_Arith_getIsCharInst_x3f(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+return x_13;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___00Lean_Meta_Grind_Arith_getIsCharInst_x3f_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -672,14 +680,6 @@ lean_object* x_4;
 x_4 = l_Lean_instantiateMVars___at___00Lean_Meta_Grind_Arith_getIsCharInst_x3f_spec__0___redArg(x_1, x_2);
 lean_dec(x_2);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
-_start:
-{
-lean_object* x_13; 
-x_13 = l_Lean_Meta_Grind_Arith_getIsCharInst_x3f(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-return x_13;
 }
 }
 static lean_object* _init_l_Lean_Meta_Grind_Arith_getNoZeroDivInst_x3f___redArg___closed__0() {
@@ -866,14 +866,6 @@ lean_dec_ref(res);
 res = initialize_Init_Grind_Ring(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__0 = _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__0();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__0);
-l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__1 = _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__1();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__1);
-l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__2 = _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__2();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__2);
-l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__3 = _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__3();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__3);
 l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__0 = _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__0();
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__0);
 l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__1 = _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__1();
@@ -882,6 +874,14 @@ l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__2 = _init_l_Lean_Meta_Grind_
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__2);
 l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__3 = _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__3();
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___closed__3);
+l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__2 = _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__2();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__2);
+l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__1 = _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__1();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__1);
+l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__0 = _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__0();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__0);
+l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__3 = _init_l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__3();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_getIsCharInst_x3f___lam__0___closed__3);
 l_Lean_Meta_Grind_Arith_getNoZeroDivInst_x3f___redArg___closed__0 = _init_l_Lean_Meta_Grind_Arith_getNoZeroDivInst_x3f___redArg___closed__0();
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_getNoZeroDivInst_x3f___redArg___closed__0);
 l_Lean_Meta_Grind_Arith_getNoZeroDivInst_x3f___redArg___closed__1 = _init_l_Lean_Meta_Grind_Arith_getNoZeroDivInst_x3f___redArg___closed__1();

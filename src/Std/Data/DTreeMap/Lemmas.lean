@@ -357,6 +357,17 @@ end Const
         t.get a (mem_of_mem_insert h₁ h₂) :=
   Impl.get_insert t.wf
 
+theorem toList_insert_perm [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] {k : α} {v : β k} :
+    (t.insert k v).toList.Perm (⟨k, v⟩ :: t.toList.filter (¬k == ·.1)) := Impl.toList_insert_perm t.wf
+
+theorem Const.toList_insert_perm {β : Type v} {t : DTreeMap α (fun _ => β) cmp} [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] {k : α} {v : β} :
+    (Const.toList (t.insert k v)).Perm (⟨k, v⟩ :: (Const.toList t).filter (¬k == ·.1)) :=
+  Impl.Const.toList_insert_perm t.2
+
+theorem keys_insertIfNew_perm [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] {k : α} {v : β k} :
+    (t.insertIfNew k v).keys.Perm (if k ∈ t then t.keys else k :: t.keys) :=
+  Impl.keys_insertIfNew_perm t.2
+
 @[simp]
 theorem get_insert_self [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {v : β k} :
     (t.insert k v).get k mem_insert_self = v :=
@@ -4045,6 +4056,16 @@ theorem contains_minKey? [TransCmp cmp] {km} :
     (hkm : t.minKey? = some km) →
     t.contains km :=
   Impl.contains_minKey? t.wf
+
+@[simp] theorem min?_keys [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α] [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp] :
+    t.keys.min? = t.minKey? :=
+  Impl.min?_keys t.wf
+
+@[simp] theorem head?_keys [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α] [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp] :
+    t.keys.head? = t.minKey? :=
+  Impl.head?_keys t.wf
 
 theorem minKey?_mem [TransCmp cmp] {km} :
     (hkm : t.minKey? = some km) →

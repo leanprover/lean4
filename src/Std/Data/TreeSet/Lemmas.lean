@@ -282,6 +282,10 @@ theorem get?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] {k : α} (h' : k ∈ t) :
       else t.get a (mem_of_mem_insert' h₁ h₂) :=
   TreeMap.getKey_insertIfNew
 
+theorem toList_insert_perm [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] {k : α} :
+    (t.insert k).toList.Perm (if k ∈ t then t.toList else k :: t.toList) :=
+  DTreeMap.keys_insertIfNew_perm
+
 @[simp, grind =] theorem get_erase [TransCmp cmp] {k a : α} {h'} :
     (t.erase k).get a h' = t.get a (mem_of_mem_erase h') :=
   TreeMap.getKey_erase
@@ -1213,6 +1217,16 @@ theorem min?_of_isEmpty [TransCmp cmp] :
 theorem min?_eq_none_iff [TransCmp cmp] :
     t.min? = none ↔ t.isEmpty :=
   TreeMap.minKey?_eq_none_iff
+
+@[simp] theorem min?_toList [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α][LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp] :
+    t.toList.min? = t.min? :=
+  TreeMap.min?_keys
+
+@[simp] theorem head?_toList [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α][LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp] :
+    t.toList.head? = t.min? :=
+  TreeMap.head?_keys
 
 theorem min?_eq_some_iff_get?_eq_self_and_forall [TransCmp cmp] {km} :
     t.min? = some km ↔ t.get? km = some km ∧ ∀ k ∈ t, (cmp km k).isLE :=

@@ -1375,13 +1375,13 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       -- inheritance, nor `import all`.
       (declHint := (mkPrivateName env structName).mkStr fieldName)
 
-  | .forallE .., LVal.fieldName ref fieldName suffix? _fullRef =>
+  | .forallE .., LVal.fieldName ref fieldName suffix? fullRef =>
     let fullName := Name.str `Function fieldName
     if (← getEnv).contains fullName then
       return LValResolution.const `Function `Function fullName
     match e.getAppFn, suffix? with
     | Expr.const c _, some suffix =>
-      throwUnknownConstantWithSuggestions (c ++ suffix)
+      throwUnknownNameWithSuggestions (idOrConst := "constant")  (ref? := fullRef) (c ++ suffix)
     | _, _ =>
       throwInvalidFieldAt ref fieldName fullName
   | .forallE .., .fieldIdx .. =>
@@ -1402,8 +1402,8 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
 
   | _, _ =>
     match e.getAppFn, lval with
-    | Expr.const c _, .fieldName _ref _fieldName (some suffix) _fullRef =>
-      throwUnknownConstantWithSuggestions (c ++ suffix)
+    | Expr.const c _, .fieldName _ref _fieldName (some suffix) fullRef =>
+      throwUnknownNameWithSuggestions (idOrConst := "constant") (ref? := fullRef) (c ++ suffix)
     | _, .fieldName .. =>
       throwNamedError lean.invalidField m!"Invalid field notation: Field projection operates on \
         types of the form `C ...` where C is a constant. The expression{indentExpr e}\nhas \
@@ -1424,7 +1424,7 @@ where
           type{inlineExprTrailing eType}"
 
     -- Possible alternatives provided with `@[suggest_for]` annotations
-    let suggestions := (← Lean.getSuggestions fullName).filter (·.getPrefix = fullName.getPrefix)
+    let suggestions := (← Lean.getSuggestions fullName).filter (·.getPrefix = fullName.getPrefix) |>.toArray
     let suggestForHint ←
       if h : suggestions.size = 0 then
         pure .nil
@@ -1432,9 +1432,9 @@ where
         MessageData.hint (ref? := ref)
           m!"Perhaps you meant `{.ofConstName suggestions[0]}` in place of `{fullName}`:"
           (suggestions.map fun suggestion => {
-            preInfo? := .some s!"{e}.",
+            preInfo? := .some s!".",
             suggestion := suggestion.getString!,
-            toCodeActionTitle? := .some (s!"Change to {e}.{·}"),
+            toCodeActionTitle? := .some (s!"Change to .{·}"),
             diffGranularity := .all,
           })
       else
@@ -1442,8 +1442,8 @@ where
           m!"Perhaps you meant one of these in place of `{fullName}`:"
           (suggestions.map fun suggestion => {
             suggestion := suggestion.getString!,
-            toCodeActionTitle? := .some (s!"Change to {e}.{·}"),
-            messageData? := .some m!"`{.ofConstName suggestion}`: {e}.{suggestion.getString!}",
+            toCodeActionTitle? := .some (s!"Change to .{·}"),
+            messageData? := .some m!"`{.ofConstName suggestion}`",
           })
 
     -- By using `mkUnknownIdentifierMessage`, the tag `Lean.unknownIdentifierMessageTag` is
@@ -1748,8 +1748,25 @@ private def elabAppFnId (fIdent : Syntax) (fExplicitUnivs : List Level) (lvals :
     (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool)
     (acc : Array (TermElabResult Expr)) :
     TermElabM (Array (TermElabResult Expr)) := do
-  let fRes ← withRef fIdent <| resolveName' fIdent fExplicitUnivs expectedType?
+  let (n, fRes) ← withRef fIdent <| resolveName' fIdent fExplicitUnivs expectedType?
+  if fRes.isEmpty then throwUnknownIdWithSuggestions n
   elabAppFnResolutions fIdent fRes lvals namedArgs args expectedType? explicit ellipsis overloaded acc
+where
+  throwUnknownIdWithSuggestions (n : Name) := withRef fIdent do
+    let env ← getEnv
+    -- check for scope errors before trying auto implicits
+    if env.isExporting then
+      if let [(npriv, _)] ← withoutExporting <| resolveGlobalName (enableLog := false) n then
+        throwUnknownNameWithSuggestions (declHint := npriv) n
+    if !(← read).autoBoundImplicitForbidden n then
+      if (← read).autoBoundImplicitContext.isSome then
+        let allowed := autoImplicit.get (← getOptions)
+        let relaxed := relaxedAutoImplicit.get (← getOptions)
+        match checkValidAutoBoundImplicitName n (allowed := allowed) (relaxed := relaxed) with
+          | .ok true => throwAutoBoundImplicitLocal n
+          | .ok false => throwUnknownNameWithSuggestions n
+          | .error msg => throwUnknownNameWithSuggestions (extraMsg := msg) n
+    throwUnknownNameWithSuggestions n
 
 /--
 Resolves `(.$id:ident)` using the expected type to infer the namespace for `id`.

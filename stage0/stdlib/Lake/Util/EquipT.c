@@ -14,11 +14,10 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_EquipT_instApplicative___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_EquipT_seq___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_instMonadFinallyOfMonad(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_EquipT_tryCatch___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_map___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_instMonadExceptOf___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_EquipT_compose___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_mk___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_instAlternative___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_failure___redArg(lean_object*);
@@ -51,9 +50,10 @@ LEAN_EXPORT lean_object* l_Lake_EquipT_instFunctor(lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Lake_EquipT_instInhabited___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_instMonadLift(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_instSeq___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_EquipT_seq___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_instBind___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_run(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_EquipT_bind___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_EquipT_compose___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_instMonad(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_mk(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_instFunctor___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -71,24 +71,24 @@ LEAN_EXPORT lean_object* l_Lake_EquipT_failure___boxed(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lake_EquipT_lift(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_lift___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_instPure___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_EquipT_tryFinally_x27___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_instAlternative___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_pure___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_tryCatch(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_instApplicative(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_instAlternative___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_instInhabited___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_EquipT_tryCatch___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_tryCatch___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_instInhabited(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_orElse(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_instApplicative___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_EquipT_tryFinally_x27___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_instFunctor___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_instMonadExceptOf___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_instMonadFinallyOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_seq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_instSeq___redArg(lean_object*);
 static lean_object* l_Lake_EquipT_instApplicative___redArg___lam__3___closed__0;
+LEAN_EXPORT lean_object* l_Lake_EquipT_bind___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_throw___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_compose(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_instMonadExceptOf___redArg(lean_object*);
@@ -303,7 +303,7 @@ x_4 = l_Lake_EquipT_instPure___redArg(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_EquipT_compose___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lake_EquipT_compose___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
@@ -317,7 +317,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 lean_inc(x_9);
-x_10 = lean_alloc_closure((void*)(l_Lake_EquipT_compose___lam__0), 3, 2);
+x_10 = lean_alloc_closure((void*)(l_Lake_EquipT_compose___redArg___lam__0), 3, 2);
 lean_closure_set(x_10, 0, x_8);
 lean_closure_set(x_10, 1, x_9);
 x_11 = lean_apply_1(x_7, x_9);
@@ -330,7 +330,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 lean_inc(x_4);
-x_5 = lean_alloc_closure((void*)(l_Lake_EquipT_compose___lam__0), 3, 2);
+x_5 = lean_alloc_closure((void*)(l_Lake_EquipT_compose___redArg___lam__0), 3, 2);
 lean_closure_set(x_5, 0, x_3);
 lean_closure_set(x_5, 1, x_4);
 x_6 = lean_apply_1(x_2, x_4);
@@ -338,7 +338,7 @@ x_7 = lean_apply_2(x_1, x_6, x_5);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_EquipT_seq___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lake_EquipT_seq___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
@@ -352,7 +352,7 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 lean_inc(x_8);
-x_9 = lean_alloc_closure((void*)(l_Lake_EquipT_seq___lam__0), 3, 2);
+x_9 = lean_alloc_closure((void*)(l_Lake_EquipT_seq___redArg___lam__0), 3, 2);
 lean_closure_set(x_9, 0, x_7);
 lean_closure_set(x_9, 1, x_8);
 x_10 = lean_apply_1(x_6, x_8);
@@ -365,7 +365,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 lean_inc(x_4);
-x_5 = lean_alloc_closure((void*)(l_Lake_EquipT_seq___lam__0), 3, 2);
+x_5 = lean_alloc_closure((void*)(l_Lake_EquipT_seq___redArg___lam__0), 3, 2);
 lean_closure_set(x_5, 0, x_3);
 lean_closure_set(x_5, 1, x_4);
 x_6 = lean_apply_1(x_2, x_4);
@@ -568,7 +568,7 @@ x_4 = l_Lake_EquipT_instApplicative___redArg(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_EquipT_bind___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lake_EquipT_bind___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -581,7 +581,7 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 lean_inc(x_8);
-x_9 = lean_alloc_closure((void*)(l_Lake_EquipT_bind___lam__0), 3, 2);
+x_9 = lean_alloc_closure((void*)(l_Lake_EquipT_bind___redArg___lam__0), 3, 2);
 lean_closure_set(x_9, 0, x_7);
 lean_closure_set(x_9, 1, x_8);
 x_10 = lean_apply_1(x_6, x_8);
@@ -594,7 +594,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 lean_inc(x_4);
-x_5 = lean_alloc_closure((void*)(l_Lake_EquipT_bind___lam__0), 3, 2);
+x_5 = lean_alloc_closure((void*)(l_Lake_EquipT_bind___redArg___lam__0), 3, 2);
 lean_closure_set(x_5, 0, x_3);
 lean_closure_set(x_5, 1, x_4);
 x_6 = lean_apply_1(x_2, x_4);
@@ -790,7 +790,7 @@ x_8 = lean_ctor_get(x_4, 2);
 lean_inc(x_8);
 lean_dec_ref(x_4);
 lean_inc(x_7);
-x_9 = lean_alloc_closure((void*)(l_Lake_EquipT_seq___lam__0), 3, 2);
+x_9 = lean_alloc_closure((void*)(l_Lake_EquipT_seq___redArg___lam__0), 3, 2);
 lean_closure_set(x_9, 0, x_6);
 lean_closure_set(x_9, 1, x_7);
 x_10 = lean_apply_1(x_5, x_7);
@@ -806,7 +806,7 @@ x_5 = lean_ctor_get(x_1, 2);
 lean_inc(x_5);
 lean_dec_ref(x_1);
 lean_inc(x_4);
-x_6 = lean_alloc_closure((void*)(l_Lake_EquipT_seq___lam__0), 3, 2);
+x_6 = lean_alloc_closure((void*)(l_Lake_EquipT_seq___redArg___lam__0), 3, 2);
 lean_closure_set(x_6, 0, x_3);
 lean_closure_set(x_6, 1, x_4);
 x_7 = lean_apply_1(x_2, x_4);
@@ -927,7 +927,7 @@ lean_dec(x_7);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_EquipT_tryCatch___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lake_EquipT_tryCatch___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -943,7 +943,7 @@ x_9 = lean_ctor_get(x_5, 1);
 lean_inc(x_9);
 lean_dec_ref(x_5);
 lean_inc(x_8);
-x_10 = lean_alloc_closure((void*)(l_Lake_EquipT_tryCatch___lam__0), 3, 2);
+x_10 = lean_alloc_closure((void*)(l_Lake_EquipT_tryCatch___redArg___lam__0), 3, 2);
 lean_closure_set(x_10, 0, x_7);
 lean_closure_set(x_10, 1, x_8);
 x_11 = lean_apply_1(x_6, x_8);
@@ -959,7 +959,7 @@ x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
 lean_dec_ref(x_1);
 lean_inc(x_4);
-x_6 = lean_alloc_closure((void*)(l_Lake_EquipT_tryCatch___lam__0), 3, 2);
+x_6 = lean_alloc_closure((void*)(l_Lake_EquipT_tryCatch___redArg___lam__0), 3, 2);
 lean_closure_set(x_6, 0, x_3);
 lean_closure_set(x_6, 1, x_4);
 x_7 = lean_apply_1(x_2, x_4);
@@ -1034,7 +1034,7 @@ x_5 = l_Lake_EquipT_instMonadExceptOf___redArg(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_EquipT_tryFinally_x27___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lake_EquipT_tryFinally_x27___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -1047,7 +1047,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 lean_inc(x_9);
-x_10 = lean_alloc_closure((void*)(l_Lake_EquipT_tryFinally_x27___lam__0), 3, 2);
+x_10 = lean_alloc_closure((void*)(l_Lake_EquipT_tryFinally_x27___redArg___lam__0), 3, 2);
 lean_closure_set(x_10, 0, x_8);
 lean_closure_set(x_10, 1, x_9);
 x_11 = lean_apply_1(x_7, x_9);
@@ -1060,7 +1060,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 lean_inc(x_4);
-x_5 = lean_alloc_closure((void*)(l_Lake_EquipT_tryFinally_x27___lam__0), 3, 2);
+x_5 = lean_alloc_closure((void*)(l_Lake_EquipT_tryFinally_x27___redArg___lam__0), 3, 2);
 lean_closure_set(x_5, 0, x_3);
 lean_closure_set(x_5, 1, x_4);
 x_6 = lean_apply_1(x_2, x_4);

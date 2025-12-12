@@ -271,7 +271,7 @@ theorem getElem?_congr [TransCmp cmp] {a b : α} (hab : cmp a b = .eq) :
 @[grind =] theorem getElem_insert [TransCmp cmp] {k a : α} {v : β} {h₁} :
     (t.insert k v)[a]'h₁ =
       if h₂ : cmp k a = .eq then v
-      else get t a (mem_of_mem_insert h₁ h₂) :=
+      else t[a]'(mem_of_mem_insert h₁ h₂) :=
   ExtDTreeMap.Const.get_insert (h₁ := h₁)
 
 @[simp]
@@ -386,7 +386,7 @@ theorem getD_erase_self [TransCmp cmp] {k : α} {fallback : β} :
   ExtDTreeMap.Const.getD_erase_self
 
 theorem getElem?_eq_some_getD_of_contains [TransCmp cmp] {a : α} {fallback : β} :
-    t.contains a = true → get? t a = some (getD t a fallback) :=
+    t.contains a = true → t[a]? = some (getD t a fallback) :=
   ExtDTreeMap.Const.get?_eq_some_getD_of_contains
 
 theorem getElem?_eq_some_getD [TransCmp cmp] {a : α} {fallback : β} :
@@ -743,7 +743,7 @@ theorem size_insertIfNew_le [TransCmp cmp] {k : α} {v : β} :
 
 @[simp, grind =]
 theorem getThenInsertIfNew?_fst [TransCmp cmp] {k : α} {v : β} :
-    (getThenInsertIfNew? t k v).1 = get? t k :=
+    (getThenInsertIfNew? t k v).1 = t[k]? :=
   ExtDTreeMap.Const.getThenInsertIfNew?_fst
 
 @[simp, grind =]
@@ -1071,7 +1071,7 @@ theorem getElem_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α]
     (contains : (l.map Prod.fst).contains k = false)
     {h'} :
     (t.insertMany l)[k]'h' =
-    t.get k (mem_of_mem_insertMany_list h' contains) :=
+    t[k]'(mem_of_mem_insertMany_list h' contains) :=
   ExtDTreeMap.Const.get_insertMany_list_of_contains_eq_false contains (h' := h')
 
 theorem getElem_insertMany_list_of_mem [TransCmp cmp]
@@ -1086,7 +1086,7 @@ theorem getElem!_insertMany_list_of_contains_eq_false [TransCmp cmp]
     [BEq α] [LawfulBEqCmp cmp]
     {l : List (α × β)} {k : α} [Inhabited β]
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
-    (t.insertMany l)[k]! = t.get! k :=
+    (t.insertMany l)[k]! = t[k]! :=
   ExtDTreeMap.Const.get!_insertMany_list_of_contains_eq_false contains_eq_false
 
 theorem getElem!_insertMany_list_of_mem [TransCmp cmp]
@@ -1553,27 +1553,58 @@ theorem union_insert_right_eq_insert_union [TransCmp cmp] {p : (_ : α) × β} :
   simp only [union, insert, ExtDTreeMap.union_eq, mk.injEq]
   exact ExtDTreeMap.union_insert_right_eq_insert_union
 
+/- getElem? -/
+theorem getElem?_union [TransCmp cmp] {k : α} :
+    (t₁ ∪ t₂)[k]? = (t₂[k]?).or (t₁[k]?) :=
+  ExtDTreeMap.Const.get?_union
+
+theorem getElem?_union_of_not_mem_left [TransCmp cmp]
+    {k : α} (not_mem : ¬k ∈ t₁) :
+    (t₁ ∪ t₂)[k]? = t₂[k]? :=
+  ExtDTreeMap.Const.get?_union_of_not_mem_left not_mem
+
+theorem getElem?_union_of_not_mem_right [TransCmp cmp]
+    {k : α} (not_mem : ¬k ∈ t₂) :
+    (t₁ ∪ t₂)[k]? = t₁[k]? :=
+  ExtDTreeMap.Const.get?_union_of_not_mem_right not_mem
+
 /- get? -/
+@[deprecated getElem?_union (since := "2025-12-10")]
 theorem get?_union [TransCmp cmp] {k : α} :
     (t₁ ∪ t₂).get? k = (t₂.get? k).or (t₁.get? k) :=
   ExtDTreeMap.Const.get?_union
 
+@[deprecated getElem?_union_of_not_mem_left (since := "2025-12-10")]
 theorem get?_union_of_not_mem_left [TransCmp cmp]
     {k : α} (not_mem : ¬k ∈ t₁) :
     (t₁ ∪ t₂).get? k = t₂.get? k :=
   ExtDTreeMap.Const.get?_union_of_not_mem_left not_mem
 
+@[deprecated getElem?_union_of_not_mem_right (since := "2025-12-10")]
 theorem get?_union_of_not_mem_right [TransCmp cmp]
     {k : α} (not_mem : ¬k ∈ t₂) :
     (t₁ ∪ t₂).get? k = t₁.get? k :=
   ExtDTreeMap.Const.get?_union_of_not_mem_right not_mem
 
+/- getElem -/
+theorem getElem_union_of_mem_right [TransCmp cmp]
+    {k : α} (mem : k ∈ t₂) :
+    (t₁ ∪ t₂)[k]'(mem_union_of_right mem) = t₂[k]'mem :=
+  ExtDTreeMap.Const.get_union_of_mem_right mem
+
+theorem getElem_union_of_not_mem_left [TransCmp cmp]
+    {k : α} (not_mem : ¬k ∈ t₁) {h'} :
+    (t₁ ∪ t₂)[k]'h' = t₂[k]'(mem_of_mem_union_of_not_mem_left h' not_mem) :=
+  ExtDTreeMap.Const.get_union_of_not_mem_left not_mem (h' := h')
+
 /- get -/
+@[deprecated getElem_union_of_mem_right (since := "2025-12-10")]
 theorem get_union_of_mem_right [TransCmp cmp]
     {k : α} (mem : k ∈ t₂) :
     (t₁ ∪ t₂).get k (mem_union_of_right mem) = t₂.get k mem :=
   ExtDTreeMap.Const.get_union_of_mem_right mem
 
+@[deprecated getElem_union_of_not_mem_left (since := "2025-12-10")]
 theorem get_union_of_not_mem_left [TransCmp cmp]
     {k : α} (not_mem : ¬k ∈ t₁) {h'} :
     (t₁ ∪ t₂).get k h' = t₂.get k (mem_of_mem_union_of_not_mem_left h' not_mem) :=
@@ -1594,16 +1625,33 @@ theorem getD_union_of_not_mem_right [TransCmp cmp]
     (t₁ ∪ t₂).getD k fallback = t₁.getD k fallback :=
   ExtDTreeMap.Const.getD_union_of_not_mem_right not_mem
 
+/- getElem! -/
+theorem getElem!_union [TransCmp cmp] {k : α} [Inhabited β] :
+    (t₁ ∪ t₂)[k]! = t₂.getD k (t₁[k]!) :=
+  ExtDTreeMap.Const.get!_union
+
+theorem getElem!_union_of_not_mem_left [TransCmp cmp]
+    {k : α} [Inhabited β] (not_mem : ¬k ∈ t₁) :
+    (t₁ ∪ t₂)[k]! = t₂[k]! :=
+  ExtDTreeMap.Const.get!_union_of_not_mem_left not_mem
+
+theorem getElem!_union_of_not_mem_right [TransCmp cmp] {k : α} [Inhabited β] (not_mem : ¬k ∈ t₂)  :
+    (t₁ ∪ t₂)[k]! = t₁[k]! :=
+  ExtDTreeMap.Const.get!_union_of_not_mem_right not_mem
+
 /- get! -/
+@[deprecated getElem!_union (since := "2025-12-10")]
 theorem get!_union [TransCmp cmp] {k : α} [Inhabited β] :
     (t₁ ∪ t₂).get! k = t₂.getD k (t₁.get! k) :=
   ExtDTreeMap.Const.get!_union
 
+@[deprecated getElem!_union_of_not_mem_left (since := "2025-12-10")]
 theorem get!_union_of_not_mem_left [TransCmp cmp]
     {k : α} [Inhabited β] (not_mem : ¬k ∈ t₁) :
     (t₁ ∪ t₂).get! k = t₂.get! k :=
   ExtDTreeMap.Const.get!_union_of_not_mem_left not_mem
 
+@[deprecated getElem!_union_of_not_mem_right (since := "2025-12-10")]
 theorem get!_union_of_not_mem_right [TransCmp cmp] {k : α} [Inhabited β] (not_mem : ¬k ∈ t₂)  :
     (t₁ ∪ t₂).get! k = t₁.get! k :=
   ExtDTreeMap.Const.get!_union_of_not_mem_right not_mem
@@ -1720,33 +1768,62 @@ theorem not_mem_inter_of_not_mem_right [TransCmp cmp] {k : α}
     k ∉ t₁ ∩ t₂ :=
   ExtDTreeMap.not_mem_inter_of_not_mem_right not_mem
 
-/- get? -/
-theorem get?_inter [TransCmp cmp] {k : α} :
-    (t₁ ∩ t₂).get? k =
-    if k ∈ t₂ then t₁.get? k else none :=
+/- getElem? -/
+theorem getElem?_inter [TransCmp cmp] {k : α} :
+    (t₁ ∩ t₂)[k]? = if k ∈ t₂ then t₁[k]? else none :=
   ExtDTreeMap.Const.get?_inter
 
+theorem getElem?_inter_of_mem_right [TransCmp cmp]
+    {k : α} (mem : k ∈ t₂) :
+    (t₁ ∩ t₂)[k]? = t₁[k]? :=
+  ExtDTreeMap.Const.get?_inter_of_mem_right mem
+
+theorem getElem?_inter_of_not_mem_left [TransCmp cmp]
+    {k : α} (not_mem : k ∉ t₁) :
+    (t₁ ∩ t₂)[k]? = none :=
+  ExtDTreeMap.Const.get?_inter_of_not_mem_left not_mem
+
+theorem getElem?_inter_of_not_mem_right [TransCmp cmp]
+    {k : α} (not_mem : k ∉ t₂) :
+    (t₁ ∩ t₂)[k]? = none :=
+  ExtDTreeMap.Const.get?_inter_of_not_mem_right not_mem
+
+/- get? -/
+@[deprecated getElem?_inter (since := "2025-12-10")]
+theorem get?_inter [TransCmp cmp] {k : α} :
+    (t₁ ∩ t₂).get? k = if k ∈ t₂ then t₁.get? k else none :=
+  ExtDTreeMap.Const.get?_inter
+
+@[deprecated getElem?_inter_of_mem_right (since := "2025-12-10")]
 theorem get?_inter_of_mem_right [TransCmp cmp]
     {k : α} (mem : k ∈ t₂) :
     (t₁ ∩ t₂).get? k = t₁.get? k :=
   ExtDTreeMap.Const.get?_inter_of_mem_right mem
 
+@[deprecated getElem?_inter_of_not_mem_left (since := "2025-12-10")]
 theorem get?_inter_of_not_mem_left [TransCmp cmp]
     {k : α} (not_mem : k ∉ t₁) :
     (t₁ ∩ t₂).get? k = none :=
   ExtDTreeMap.Const.get?_inter_of_not_mem_left not_mem
 
+@[deprecated getElem?_inter_of_not_mem_right (since := "2025-12-10")]
 theorem get?_inter_of_not_mem_right [TransCmp cmp]
     {k : α} (not_mem : k ∉ t₂) :
     (t₁ ∩ t₂).get? k = none :=
   ExtDTreeMap.Const.get?_inter_of_not_mem_right not_mem
 
-/- get -/
+/- getElem -/
 @[simp]
+theorem getElem_inter [TransCmp cmp]
+    {k : α} {h_mem : k ∈ t₁ ∩ t₂} :
+    (t₁ ∩ t₂)[k]'h_mem = t₁[k]'(mem_inter_iff.1 h_mem).1 :=
+  ExtDTreeMap.Const.get_inter (h_mem := h_mem)
+
+/- get -/
+@[deprecated getElem_inter (since := "2025-12-10")]
 theorem get_inter [TransCmp cmp]
     {k : α} {h_mem : k ∈ t₁ ∩ t₂} :
-    (t₁ ∩ t₂).get k h_mem =
-    t₁.get k (mem_inter_iff.1 h_mem).1 :=
+    (t₁ ∩ t₂).get k h_mem = t₁.get k (mem_inter_iff.1 h_mem).1 :=
   ExtDTreeMap.Const.get_inter
 
 /- getD -/
@@ -1770,22 +1847,45 @@ theorem getD_inter_of_not_mem_left [TransCmp cmp]
     (t₁ ∩ t₂).getD k fallback = fallback :=
   ExtDTreeMap.Const.getD_inter_of_not_mem_left not_mem
 
-/- get! -/
-theorem get!_inter [TransCmp cmp] {k : α} [Inhabited β] :
-    (t₁ ∩ t₂).get! k =
-    if k ∈ t₂ then t₁.get! k else default :=
+/- getElem! -/
+theorem getElem!_inter [TransCmp cmp] {k : α} [Inhabited β] :
+    (t₁ ∩ t₂)[k]! = if k ∈ t₂ then t₁[k]! else default :=
   ExtDTreeMap.Const.get!_inter
 
+theorem getElem!_inter_of_mem_right [TransCmp cmp]
+    {k : α} [Inhabited β] (mem : k ∈ t₂) :
+    (t₁ ∩ t₂)[k]! = t₁[k]! :=
+  ExtDTreeMap.Const.get!_inter_of_mem_right mem
+
+theorem getElem!_inter_of_not_mem_right [TransCmp cmp]
+    {k : α} [Inhabited β] (not_mem : k ∉ t₂) :
+    (t₁ ∩ t₂)[k]! = default :=
+  ExtDTreeMap.Const.get!_inter_of_not_mem_right not_mem
+
+theorem getElem!_inter_of_not_mem_left [TransCmp cmp]
+    {k : α} [Inhabited β] (not_mem : k ∉ t₁) :
+    (t₁ ∩ t₂)[k]! = default :=
+  ExtDTreeMap.Const.get!_inter_of_not_mem_left not_mem
+
+/- get! -/
+@[deprecated getElem!_inter (since := "2025-12-10")]
+theorem get!_inter [TransCmp cmp] {k : α} [Inhabited β] :
+    (t₁ ∩ t₂).get! k = if k ∈ t₂ then t₁.get! k else default :=
+  ExtDTreeMap.Const.get!_inter
+
+@[deprecated getElem!_inter_of_mem_right (since := "2025-12-10")]
 theorem get!_inter_of_mem_right [TransCmp cmp]
     {k : α} [Inhabited β] (mem : k ∈ t₂) :
     (t₁ ∩ t₂).get! k = t₁.get! k :=
   ExtDTreeMap.Const.get!_inter_of_mem_right mem
 
+@[deprecated getElem!_inter_of_not_mem_right (since := "2025-12-10")]
 theorem get!_inter_of_not_mem_right [TransCmp cmp]
     {k : α} [Inhabited β] (not_mem : k ∉ t₂) :
     (t₁ ∩ t₂).get! k = default :=
   ExtDTreeMap.Const.get!_inter_of_not_mem_right not_mem
 
+@[deprecated getElem!_inter_of_not_mem_left (since := "2025-12-10")]
 theorem get!_inter_of_not_mem_left [TransCmp cmp]
     {k : α} [Inhabited β] (not_mem : k ∉ t₁) :
     (t₁ ∩ t₂).get! k = default :=
@@ -1932,32 +2032,61 @@ theorem not_mem_diff_of_mem_right [TransCmp cmp] {k : α}
     k ∉ t₁ \ t₂ :=
   ExtDTreeMap.not_mem_diff_of_mem_right mem
 
-/- get? -/
-theorem get?_diff [TransCmp cmp] {k : α} :
-    (t₁ \ t₂).get? k =
-    if k ∈ t₂ then none else t₁.get? k :=
+/- getElem? -/
+theorem getElem?_diff [TransCmp cmp] {k : α} :
+    (t₁ \ t₂)[k]? = if k ∈ t₂ then none else t₁[k]? :=
   ExtDTreeMap.Const.get?_diff
 
+theorem getElem?_diff_of_not_mem_right [TransCmp cmp]
+    {k : α} (not_mem : k ∉ t₂) :
+    (t₁ \ t₂)[k]? = t₁[k]? :=
+  ExtDTreeMap.Const.get?_diff_of_not_mem_right not_mem
+
+theorem getElem?_diff_of_not_mem_left [TransCmp cmp]
+    {k : α} (not_mem : k ∉ t₁) :
+    (t₁ \ t₂)[k]? = none :=
+  ExtDTreeMap.Const.get?_diff_of_not_mem_left not_mem
+
+theorem getElem?_diff_of_mem_right [TransCmp cmp]
+    {k : α} (mem : k ∈ t₂) :
+    (t₁ \ t₂)[k]? = none :=
+  ExtDTreeMap.Const.get?_diff_of_mem_right mem
+
+/- get? -/
+@[deprecated getElem?_diff (since := "2025-12-10")]
+theorem get?_diff [TransCmp cmp] {k : α} :
+    (t₁ \ t₂).get? k = if k ∈ t₂ then none else t₁.get? k :=
+  ExtDTreeMap.Const.get?_diff
+
+@[deprecated getElem?_diff_of_not_mem_right (since := "2025-12-10")]
 theorem get?_diff_of_not_mem_right [TransCmp cmp]
     {k : α} (not_mem : k ∉ t₂) :
     (t₁ \ t₂).get? k = t₁.get? k :=
   ExtDTreeMap.Const.get?_diff_of_not_mem_right not_mem
 
+@[deprecated getElem?_diff_of_not_mem_left (since := "2025-12-10")]
 theorem get?_diff_of_not_mem_left [TransCmp cmp]
     {k : α} (not_mem : k ∉ t₁) :
     (t₁ \ t₂).get? k = none :=
   ExtDTreeMap.Const.get?_diff_of_not_mem_left not_mem
 
+@[deprecated getElem?_diff_of_mem_right (since := "2025-12-10")]
 theorem get?_diff_of_mem_right [TransCmp cmp]
     {k : α} (mem : k ∈ t₂) :
     (t₁ \ t₂).get? k = none :=
   ExtDTreeMap.Const.get?_diff_of_mem_right mem
 
+/- getElem -/
+theorem getElem_diff [TransCmp cmp]
+    {k : α} {h_mem : k ∈ t₁ \ t₂} :
+    (t₁ \ t₂)[k]'h_mem = t₁[k]'(mem_diff_iff.1 h_mem).1 :=
+  ExtDTreeMap.Const.get_diff (h_mem := h_mem)
+
 /- get -/
+@[deprecated getElem_diff (since := "2025-12-10")]
 theorem get_diff [TransCmp cmp]
     {k : α} {h_mem : k ∈ t₁ \ t₂} :
-    (t₁ \ t₂).get k h_mem =
-    t₁.get k (mem_diff_iff.1 h_mem).1 :=
+    (t₁ \ t₂).get k h_mem = t₁.get k (mem_diff_iff.1 h_mem).1 :=
   ExtDTreeMap.Const.get_diff
 
 /- getD -/
@@ -1981,22 +2110,45 @@ theorem getD_diff_of_not_mem_left [TransCmp cmp]
     (t₁ \ t₂).getD k fallback = fallback :=
   ExtDTreeMap.Const.getD_diff_of_not_mem_left not_mem
 
-/- get! -/
-theorem get!_diff [TransCmp cmp] {k : α} [Inhabited β] :
-    (t₁ \ t₂).get! k =
-    if k ∈ t₂ then default else t₁.get! k :=
+/- getElem! -/
+theorem getElem!_diff [TransCmp cmp] {k : α} [Inhabited β] :
+    (t₁ \ t₂)[k]! = if k ∈ t₂ then default else t₁[k]! :=
   ExtDTreeMap.Const.get!_diff
 
+theorem getElem!_diff_of_not_mem_right [TransCmp cmp]
+    {k : α} [Inhabited β] (not_mem : k ∉ t₂) :
+    (t₁ \ t₂)[k]! = t₁[k]! :=
+  ExtDTreeMap.Const.get!_diff_of_not_mem_right not_mem
+
+theorem getElem!_diff_of_mem_right [TransCmp cmp]
+    {k : α} [Inhabited β] (mem : k ∈ t₂) :
+    (t₁ \ t₂)[k]! = default :=
+  ExtDTreeMap.Const.get!_diff_of_mem_right mem
+
+theorem getElem!_diff_of_not_mem_left [TransCmp cmp]
+    {k : α} [Inhabited β] (not_mem : k ∉ t₁) :
+    (t₁ \ t₂)[k]! = default :=
+  ExtDTreeMap.Const.get!_diff_of_not_mem_left not_mem
+
+/- get! -/
+@[deprecated getElem!_diff (since := "2025-12-10")]
+theorem get!_diff [TransCmp cmp] {k : α} [Inhabited β] :
+    (t₁ \ t₂).get! k = if k ∈ t₂ then default else t₁.get! k :=
+  ExtDTreeMap.Const.get!_diff
+
+@[deprecated getElem!_diff_of_not_mem_right (since := "2025-12-10")]
 theorem get!_diff_of_not_mem_right [TransCmp cmp]
     {k : α} [Inhabited β] (not_mem : k ∉ t₂) :
     (t₁ \ t₂).get! k = t₁.get! k :=
   ExtDTreeMap.Const.get!_diff_of_not_mem_right not_mem
 
+@[deprecated getElem!_diff_of_mem_right (since := "2025-12-10")]
 theorem get!_diff_of_mem_right [TransCmp cmp]
     {k : α} [Inhabited β] (mem : k ∈ t₂) :
     (t₁ \ t₂).get! k = default :=
   ExtDTreeMap.Const.get!_diff_of_mem_right mem
 
+@[deprecated getElem!_diff_of_not_mem_left (since := "2025-12-10")]
 theorem get!_diff_of_not_mem_left [TransCmp cmp]
     {k : α} [Inhabited β] (not_mem : k ∉ t₁) :
     (t₁ \ t₂).get! k = default :=
@@ -2102,12 +2254,12 @@ section Alter
 
 theorem alter_eq_empty_iff_erase_eq_empty [TransCmp cmp] {k : α}
     {f : Option β → Option β} :
-    alter t k f = ∅ ↔ t.erase k = ∅ ∧ f (get? t k) = none := by
+    alter t k f = ∅ ↔ t.erase k = ∅ ∧ f t[k]? = none := by
   simpa only [ext_iff] using ExtDTreeMap.Const.alter_eq_empty_iff_erase_eq_empty
 
 @[simp]
 theorem alter_eq_empty_iff [TransCmp cmp] {k : α} {f : Option β → Option β} :
-    alter t k f = ∅ ↔ (t = ∅ ∨ (t.size = 1 ∧ k ∈ t)) ∧ (f (get? t k)) = none := by
+    alter t k f = ∅ ↔ (t = ∅ ∨ (t.size = 1 ∧ k ∈ t)) ∧ (f t[k]?) = none := by
   simpa only [ext_iff] using ExtDTreeMap.Const.alter_eq_empty_iff
 
 @[grind =]
@@ -2540,6 +2692,18 @@ theorem minKey?_mem [TransCmp cmp] {km} :
     (hkm : t.minKey? = some km) → km ∈ t :=
   ExtDTreeMap.minKey?_mem
 
+@[simp] theorem min?_keys [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α]
+    [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp] :
+    t.keys.min? = t.minKey? :=
+  ExtDTreeMap.min?_keys
+
+@[simp] theorem head?_keys [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α]
+    [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp] :
+    t.keys.head? = t.minKey? :=
+  ExtDTreeMap.head?_keys
+
 theorem isSome_minKey?_of_contains [TransCmp cmp] {k} :
     (hc : t.contains k) → t.minKey?.isSome :=
   ExtDTreeMap.isSome_minKey?_of_contains
@@ -2922,7 +3086,7 @@ theorem ordCompare_minKey!_modify_eq [Ord α] [TransOrd α] {t : ExtTreeMap α �
 theorem minKey!_alter_eq_self [TransCmp cmp] [Inhabited α] {k f}
     (he : alter t k f ≠ ∅) :
     (alter t k f).minKey! = k ↔
-      (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (cmp k k').isLE :=
+      (f t[k]?).isSome ∧ ∀ k', k' ∈ t → (cmp k k').isLE :=
   ExtDTreeMap.Const.minKey!_alter_eq_self (mt ext he)
 
 theorem minKey?_eq_some_minKeyD [TransCmp cmp] (he : t ≠ ∅) {fallback} :
@@ -3049,7 +3213,7 @@ theorem ordCompare_minKeyD_modify_eq [Ord α] [TransOrd α] {t : ExtTreeMap α �
 theorem minKeyD_alter_eq_self [TransCmp cmp] {k f}
     (he : alter t k f ≠ ∅) {fallback} :
     (alter t k f |>.minKeyD fallback) = k ↔
-      (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (cmp k k').isLE :=
+      (f t[k]?).isSome ∧ ∀ k', k' ∈ t → (cmp k k').isLE :=
   ExtDTreeMap.Const.minKeyD_alter_eq_self (mt ext he)
 
 end Min
@@ -3499,7 +3663,7 @@ theorem ordCompare_maxKey!_modify_eq [Ord α] [TransOrd α] {t : ExtTreeMap α �
 theorem maxKey!_alter_eq_self [TransCmp cmp] [Inhabited α] {k f}
     (he : alter t k f ≠ ∅) :
     (alter t k f).maxKey! = k ↔
-      (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (cmp k' k).isLE :=
+      (f t[k]?).isSome ∧ ∀ k', k' ∈ t → (cmp k' k).isLE :=
   ExtDTreeMap.Const.maxKey!_alter_eq_self (mt ext he)
 
 theorem maxKey?_eq_some_maxKeyD [TransCmp cmp] (he : t ≠ ∅) {fallback} :
@@ -3626,7 +3790,7 @@ theorem ordCompare_maxKeyD_modify_eq [Ord α] [TransOrd α] {t : ExtTreeMap α �
 theorem maxKeyD_alter_eq_self [TransCmp cmp] {k f}
     (he : alter t k f ≠ ∅) {fallback} :
     (alter t k f |>.maxKeyD fallback) = k ↔
-      (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (cmp k' k).isLE :=
+      (f t[k]?).isSome ∧ ∀ k', k' ∈ t → (cmp k' k).isLE :=
   ExtDTreeMap.Const.maxKeyD_alter_eq_self (mt ext he)
 
 end Max
@@ -3877,12 +4041,12 @@ grind_pattern size_filter_le_size => (t.filter f).size
 
 theorem size_filter_eq_size_iff [TransCmp cmp]
     {f : α → β → Bool} :
-    (t.filter f).size = t.size ↔ ∀ k h, f (t.getKey k h) (t.get k h) :=
+    (t.filter f).size = t.size ↔ ∀ k h, f (t.getKey k h) (t[k]'h) :=
   ExtDTreeMap.Const.size_filter_eq_size_iff
 
 theorem filter_eq_self_iff [TransCmp cmp]
     {f : α → β → Bool} :
-    t.filter f = t ↔ ∀ k h, f (t.getKey k h) (t.get k h) :=
+    t.filter f = t ↔ ∀ k h, f (t.getKey k h) (t[k]'h) :=
   ext_iff.trans ExtDTreeMap.Const.filter_eq_self_iff
 
 @[simp]
@@ -3953,7 +4117,7 @@ theorem getD_filter_of_getKey?_eq_some [TransCmp cmp]
 
 theorem keys_filter [TransCmp cmp] {f : α → β → Bool} :
     (t.filter f).keys =
-      (t.keys.attach.filter (fun ⟨x, h'⟩ => f x (get t x (mem_of_mem_keys h')))).unattach :=
+      (t.keys.attach.filter (fun ⟨x, h'⟩ => f x (t[x]'(mem_of_mem_keys h')))).unattach :=
   ExtDTreeMap.Const.keys_filter
 
 @[grind =]

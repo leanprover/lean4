@@ -973,6 +973,14 @@ x_1 = l_System_FilePath_instDiv___closed__0;
 return x_1;
 }
 }
+LEAN_EXPORT uint8_t l_String_Slice_revFind_x3f___at___00__private_Init_System_FilePath_0__System_FilePath_posOfLastSep_spec__0___lam__0(lean_object* x_1, uint32_t x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = l_List_elem___at___00System_FilePath_normalize_spec__0(x_2, x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00String_Slice_revFind_x3f___at___00__private_Init_System_FilePath_0__System_FilePath_posOfLastSep_spec__0_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1094,14 +1102,6 @@ _start:
 lean_object* x_8; 
 x_8 = l_WellFounded_opaqueFix_u2083___at___00String_Slice_revFind_x3f___at___00__private_Init_System_FilePath_0__System_FilePath_posOfLastSep_spec__0_spec__0___redArg(x_1, x_2, x_5, x_6);
 return x_8;
-}
-}
-LEAN_EXPORT uint8_t l_String_Slice_revFind_x3f___at___00__private_Init_System_FilePath_0__System_FilePath_posOfLastSep_spec__0___lam__0(lean_object* x_1, uint32_t x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = l_List_elem___at___00System_FilePath_normalize_spec__0(x_2, x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_String_Slice_revFind_x3f___at___00__private_Init_System_FilePath_0__System_FilePath_posOfLastSep_spec__0___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
@@ -1325,13 +1325,13 @@ return x_14;
 block_22:
 {
 uint8_t x_19; 
-x_19 = l_List_elem___at___00System_FilePath_normalize_spec__0(x_18, x_17);
-lean_dec(x_17);
+x_19 = l_List_elem___at___00System_FilePath_normalize_spec__0(x_18, x_16);
+lean_dec(x_16);
 if (x_19 == 0)
 {
 lean_object* x_20; 
 x_20 = lean_unsigned_to_nat(3u);
-x_3 = x_16;
+x_3 = x_17;
 x_4 = x_20;
 goto block_15;
 }
@@ -1339,7 +1339,7 @@ else
 {
 lean_object* x_21; 
 x_21 = lean_unsigned_to_nat(1u);
-x_3 = x_16;
+x_3 = x_17;
 x_4 = x_21;
 goto block_15;
 }
@@ -1372,8 +1372,8 @@ if (lean_obj_tag(x_29) == 0)
 {
 uint32_t x_30; 
 x_30 = 65;
-x_16 = x_23;
-x_17 = x_25;
+x_16 = x_25;
+x_17 = x_23;
 x_18 = x_30;
 goto block_22;
 }
@@ -1385,8 +1385,8 @@ lean_inc(x_31);
 lean_dec_ref(x_29);
 x_32 = lean_unbox_uint32(x_31);
 lean_dec(x_31);
-x_16 = x_23;
-x_17 = x_25;
+x_16 = x_25;
+x_17 = x_23;
 x_18 = x_32;
 goto block_22;
 }

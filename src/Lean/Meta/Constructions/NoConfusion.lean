@@ -262,9 +262,9 @@ def mkNoConfusionCoreImp (indName : Name) : MetaM Unit := do
     (value       := e)
     (hints       := ReducibilityHints.abbrev)))
   setReducibleAttribute declName
-  let arity := info.numParams + 1 + 3 * (info.numIndices + 1)
-  let lhsPos := info.numParams + 1 + info.numIndices
-  let rhsPos := info.numParams + 1 + info.numIndices + 1 + info.numIndices
+  let arity  := 1 + 3 * (info.numParams + info.numIndices + 1)
+  let lhsPos := 1 + info.numParams + info.numIndices
+  let rhsPos := 1 + 2 * info.numParams + 2 * info.numIndices + 1
   modifyEnv fun env => markNoConfusion env declName (.regular arity lhsPos rhsPos)
   modifyEnv fun env => addProtected env declName
 

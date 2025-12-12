@@ -933,6 +933,9 @@ instance [LawfulEqCmp cmp] [TransCmp cmp] [∀ k, BEq (β k)] [∀ k, ReflBEq (�
 instance [LawfulEqCmp cmp] [TransCmp cmp] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] : LawfulBEq (ExtDTreeMap α β cmp) where
   eq_of_beq {a} {b} := a.inductionOn₂ b fun _ _ h => sound <| DTreeMap.equiv_of_beq h
 
+instance {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} [TransCmp cmp] [LawfulEqCmp cmp] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] : DecidableEq (ExtDTreeMap α β cmp) :=
+  fun _ _ => decidable_of_iff _ beq_iff_eq
+
 namespace Const
 
 variable {β : Type v}

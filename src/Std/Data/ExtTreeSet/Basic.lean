@@ -541,7 +541,7 @@ instance [TransCmp cmp] [LawfulEqCmp cmp] : LawfulBEq (ExtTreeSet α cmp) where
     have ⟨⟨_⟩⟩ := b
     simp only [mk.injEq, ExtTreeMap.mk.injEq] at |- hyp
     exact ExtDTreeMap.Const.eq_of_beq _ _ hyp
-    
+
 /--
 Computes the difference of the given tree sets.
 
@@ -551,6 +551,9 @@ This function always iterates through the smaller set.
 def diff [TransCmp cmp] (t₁ t₂ : ExtTreeSet α cmp) : ExtTreeSet α cmp := ⟨ExtTreeMap.diff t₁.inner t₂.inner⟩
 
 instance [TransCmp cmp] : SDiff (ExtTreeSet α cmp) := ⟨diff⟩
+
+instance {α : Type u} {cmp : α → α → Ordering} [LawfulEqCmp cmp] [TransCmp cmp] : DecidableEq (ExtTreeSet α cmp) :=
+  fun _ _ => decidable_of_iff _ beq_iff_eq
 
 /--
 Erases multiple items from the tree set by iterating over the given collection and calling erase.

@@ -357,8 +357,6 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
             else
               -- Old style
               proveCondEqThm matchDeclName thmName thmType
-          unless (← isDefEq (← inferType thmVal) thmType) do
-            throwError "TOOD: Got{indentExpr (← inferType thmVal)}\nexpected{indentExpr thmType}"
           addDecl <| Declaration.thmDecl {
             name        := thmName
             levelParams := constInfo.levelParams

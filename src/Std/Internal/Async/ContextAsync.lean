@@ -167,7 +167,6 @@ def concurrentlyAll (xs : Array (ContextAsync α))
 
   let result ← tasks.mapM await
   return result
-
 /--
 Launches a `ContextAsync` computation in the background, discarding its result.
 

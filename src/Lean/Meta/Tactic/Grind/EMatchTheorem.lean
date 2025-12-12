@@ -716,7 +716,7 @@ where
         pure dontCare
       else
         let arg ← expandOffsetPatterns arg
-        unless isEqBwdParent do
+        unless isEqBwdParent || inSupport do
           /-
           **Note**: We ignore symbols in ground patterns if the parent is the auxiliary ``Grind.eqBwdPattern
           We do that because we want to sign an error in examples such as:

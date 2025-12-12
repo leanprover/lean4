@@ -1,6 +1,5 @@
 name = "test"
 defaultTargets = ["Test"]
-leanOptions.experimental.module = true
 
 [[lean_lib]]
 name = "Test"

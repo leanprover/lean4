@@ -301,10 +301,6 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
     let firstDiscrIdx := matchInfo.numParams + 1
     let discrs := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
     let canUseGrind := ((← getEnv).getModuleIdx? `InitGrind).isSome
-    let congrEqThms ← if canUseGrind then
-      genMatchCongrEqns matchDeclName -- TODO: Clean up
-    else
-      pure #[]
     let mut notAlts := #[]
     let mut idx := 1
     let mut splitterAltInfos := #[]
@@ -345,6 +341,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
             if let some thmVal ← proveCondEqThmByRefl thmType then
               pure thmVal
             else if canUseGrind then
+              let congrEqThms ← genMatchCongrEqns matchDeclName -- using laziness of realizeConst
               let thmVal := mkConst congrEqThms[i]! us
               -- We build the normal equation from the congruence equation here
               let thmVal := mkAppN thmVal (params ++ #[motive] ++ patterns ++ alts ++ ys)

@@ -104,13 +104,11 @@ public def LakefileConfig.loadFromEnv
     if h : decl.pkg = keyName then
       return .mk decl h
     else
-      error s!"\
-        target '{decl.name}' was defined in package '{decl.pkg}', \
+      error s!"target '{decl.name}' was defined in package '{decl.pkg}', \
         but registered under '{keyName}'"
   let targetDeclMap ← targetDecls.foldlM (init := {}) fun m decl => do
     if let some orig := m.get? decl.name then
-      error s!"\
-        {prettyName}: target '{decl.name}' was already defined as a '{orig.kind}', \
+      error s!"{prettyName}: target '{decl.name}' was already defined as a '{orig.kind}', \
         but then redefined as a '{decl.kind}'"
     else
       return m.insert decl.name (.mk decl rfl)
@@ -136,38 +134,38 @@ public def LakefileConfig.loadFromEnv
     evalConstCheck env opts Dependency name
   let testDrivers ← testDriverAttr.getAllEntries env |>.mapM fun name =>
     if let some decl := constTargetMap.find? name then
-      pure decl.name
+      return decl.name
     else if scripts.contains name then
-      pure name
+      return name
     else
       error s!"{prettyName}: package is missing script or target '{name}' marked as a test driver"
-  let testDriver ←
+  let testDriver ← id do
     if testDrivers.size > 1 then
       error s!"{prettyName}: only one script, executable, or library can be tagged @[test_driver]"
     else if h : testDrivers.size > 0 then
       if pkgDecl.config.testDriver.isEmpty then
-        pure (testDrivers[0]'h |>.toString)
+        return (testDrivers[0]'h |>.toString)
       else
         error s!"{prettyName}: cannot both set testDriver and use @[test_driver]"
     else
-      pure pkgDecl.config.testDriver
+      return pkgDecl.config.testDriver
   let lintDrivers ← lintDriverAttr.getAllEntries env |>.mapM fun name =>
     if let some decl := constTargetMap.find? name then
-      pure decl.name
+      return decl.name
     else if scripts.contains name then
-      pure name
+      return name
     else
       error s!"{prettyName}: package is missing script or target '{name}' marked as a lint driver"
-  let lintDriver ←
+  let lintDriver ← id do
     if lintDrivers.size > 1 then
       error s!"{prettyName}: only one script or executable can be tagged @[lint_driver]"
     else if h : lintDrivers.size > 0 then
       if pkgDecl.config.lintDriver.isEmpty then
-        pure (lintDrivers[0]'h |>.toString)
+        return (lintDrivers[0]'h |>.toString)
       else
         error s!"{prettyName}: cannot both set lintDriver and use @[lint_driver]"
     else
-      pure pkgDecl.config.lintDriver
+      return pkgDecl.config.lintDriver
 
   -- load facets
   let facetDecls ← IO.ofExcept do

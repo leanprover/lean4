@@ -1291,9 +1291,9 @@ def delabPProdMk : Delab := delabPProdMkCore ``PProd.mk
 @[builtin_delab app.MProd.mk]
 def delabMProdMk : Delab := delabPProdMkCore ``MProd.mk
 
-@[builtin_delab app.Std.Range.mk]
+@[builtin_delab app.Std.Legacy.Range.mk]
 def delabRange : Delab := whenPPOption getPPNotation do
-  -- Std.Range.mk : (start : Nat) → (stop : Nat) → (step : Nat) → 0 < step → Std.Range
+  -- Std.Legacy.Range.mk : (start : Nat) → (stop : Nat) → (step : Nat) → 0 < step → Std.Legacy.Range
   guard <| (← getExpr).getAppNumArgs == 4
   -- `none` if the start is `0`
   let start? ← withNaryArg 0 do

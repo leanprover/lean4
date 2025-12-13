@@ -13,6 +13,8 @@ public import Std.Data.Internal.List.Defs
 import all Std.Data.Internal.List.Defs
 public import Init.Data.Order.Ord
 import Init.Data.Subtype.Order
+public import Init.Data.Order.ClassesExtra
+public import Init.Data.Order.LemmasExtra
 
 public section
 
@@ -257,6 +259,10 @@ end
   | ⟨k, v⟩ :: l => if h : k == a then some (cast (congrArg β (eq_of_beq h)) v)
       else getValueCast? a l
 
+/-- Internal implementation detail of the hash map -/
+def beqModel [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] (l₁ l₂ : List ((a : α) × β a)) :=
+  if l₁.length ≠ l₂.length then false else (l₁.all fun x => getValueCast? x.fst l₂ == some x.snd)
+
 @[simp] theorem getValueCast?_nil [BEq α] [LawfulBEq α] {a : α} :
     getValueCast? a ([] : List ((a : α) × β a)) = none := rfl
 theorem getValueCast?_cons [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k} :
@@ -284,6 +290,10 @@ theorem getValue?_eq_getValueCast? [BEq α] [LawfulBEq α] {β : Type v} {l : Li
 section
 
 variable {β : Type v}
+
+/-- Internal implementation detail of the hash map -/
+def Const.beqModel [BEq α] [BEq β] (l₁ l₂ : List ((_ : α) × β)) :=
+  if l₁.length ≠ l₂.length then false else (l₁.all fun x => getValue? x.fst l₂ == some x.snd)
 
 /-- This is a strange dependent version of `Option.map` in which the mapping function is allowed to
 "know" about the option that is being mapped. This happens to be useful in this file (see
@@ -3568,6 +3578,71 @@ theorem insertList_insertEntry_right_equiv_insertEntry_insertList [BEq α] [Equi
   split
   . simp only [Option.some_or]
   . rw [@getEntry?_insertList α β _ _ l toInsert distinct_l (DistinctKeys_impl_Pairwise_distinct distinct_toInsert) a]
+
+theorem length_le_length_of_containsKey [BEq α] [EquivBEq α]
+    {l₁ l₂ : List ((a : α) × β a)}
+    (dl₁ : DistinctKeys l₁)
+    (dl₂ : DistinctKeys l₂)
+    (h : ∀ a, containsKey a l₁ → containsKey a l₂) :
+    l₁.length ≤ l₂.length := by
+  induction l₁ generalizing l₂ with
+  | nil => simp
+  | cons hd tl ih =>
+    have hc := h hd.1 (by rw [containsKey_cons_self])
+    suffices tl.length ≤ (eraseKey hd.1 l₂).length by
+      rw [List.length_eraseKey, hc] at this
+      simp only [↓reduceIte] at this
+      simp only [List.length_cons, ge_iff_le]
+      have : l₂.length > 0 := by cases l₂ <;> simp_all
+      omega
+    apply ih
+    · rw [List.distinctKeys_cons_iff] at dl₁
+      exact dl₁.1
+    · exact DistinctKeys.eraseKey dl₂
+    · intro a mem
+      rw [containsKey_eraseKey]
+      · simp only [Bool.and_eq_true, Bool.not_eq_eq_eq_not, Bool.not_true]
+        apply And.intro
+        · rw [List.distinctKeys_cons_iff] at dl₁
+          apply Classical.byContradiction
+          intro hyp
+          simp only [Bool.not_eq_false] at hyp
+          rw [containsKey_congr hyp] at dl₁
+          rw [dl₁.2] at mem
+          contradiction
+        · specialize h a
+          rw [containsKey_cons] at h
+          apply h
+          simp [mem]
+      · exact dl₂
+
+theorem containsKey_of_length_eq [BEq α] [EquivBEq α] {l₁ l₂ : List ((a : α) × β a)} (dl₁ : DistinctKeys l₁) (dl₂ : DistinctKeys l₂) (hl : l₂.length = l₁.length) (hs : ∀ (a : α), containsKey a l₁ → containsKey a l₂)  : ∀ (a : α), containsKey a l₂ → containsKey a l₁ := by
+  intro a ha
+  apply Classical.byContradiction
+  intro hb
+  simp only [Bool.not_eq_true] at hb
+  suffices l₁.length < l₂.length by omega
+  suffices l₁.length ≤ (eraseKey a l₂).length ∧ 1 + (eraseKey a l₂).length = l₂.length by omega
+  apply And.intro
+  · apply length_le_length_of_containsKey dl₁ (DistinctKeys.eraseKey dl₂)
+    intro a₂ mem₂
+    rw [containsKey_eraseKey dl₂]
+    simp only [Bool.and_eq_true, Bool.not_eq_eq_eq_not, Bool.not_true]
+    apply And.intro
+    · apply Classical.byContradiction
+      intro hyp
+      simp only [Bool.not_eq_false] at hyp
+      rw [containsKey_congr hyp] at hb
+      rw [hb] at mem₂
+      contradiction
+    · apply hs
+      exact mem₂
+  · simp only [length_eraseKey, ha, ↓reduceIte]
+    have : l₂.length > 0 := by
+      cases l₂ with
+      | nil => simp at ha
+      | _ => simp
+    omega
 
 section
 
@@ -6898,6 +6973,78 @@ theorem containsKey_filter_iff [BEq α] [LawfulBEq α]
   simp only [containsKey_filter hl, Option.any_eq_true, getValueCast,
     Option.exists_eq_some_and_iff, containsKey_eq_isSome_getValueCast?]
 
+theorem insertEntry_perm_filter [BEq α] [EquivBEq α]
+    (k : α) (v : β k) {l : List ((a : α) × β a)} (hl : DistinctKeys l) :
+    (insertEntry k v l).Perm <| ⟨k, v⟩ :: l.filter (¬k == ·.1) := by
+  rw [insertEntry]
+  by_cases eq : containsKey k l
+  case neg =>
+    simp only [eq, cond_false, Bool.not_eq_true, Bool.decide_eq_false, List.perm_cons]
+    suffices (List.filter (fun x => !k == x.fst) l) = l by rw [this]
+    simp only [List.filter_eq_self, Bool.not_eq_eq_eq_not, Bool.not_true]
+    intro ⟨e₁,e₂⟩ mem
+    simp only
+    by_cases h : (k == e₁)
+    case pos =>
+      rw [containsKey_congr h] at eq
+      rw [containsKey_of_mem mem] at eq
+      contradiction
+    case neg => simp [h]
+  case pos =>
+    simp only [eq, cond_true, Bool.not_eq_true, Bool.decide_eq_false]
+    induction l
+    case nil => simp at eq
+    case cons h t ih =>
+      simp only [replaceEntry, List.filter_cons, Bool.not_eq_eq_eq_not, Bool.not_true]
+      rw [distinctKeys_cons_iff] at hl
+      by_cases heq : (h.fst == k)
+      case pos =>
+        simp only [heq, cond_true, BEq.symm heq, Bool.true_eq_false, ↓reduceIte, List.perm_cons]
+        suffices (List.filter (fun x => !k == x.fst) t) = t by rw [this]
+        simp only [List.filter_eq_self, Bool.not_eq_eq_eq_not, Bool.not_true]
+        intro ⟨e₁, e₂⟩ mem
+        by_cases heq2 : (k == e₁)
+        case neg => simp [heq2]
+        case pos =>
+          replace hl := hl.2
+          have ce := containsKey_of_mem mem
+          simp only at ce
+          rw [containsKey_congr <| BEq.trans heq heq2, ce] at hl
+          contradiction
+      case neg =>
+        simp only [Bool.not_eq_true] at heq
+        simp [BEq.symm_false, heq]
+        apply Perm.trans ?_ (by apply Perm.swap)
+        simp only [List.perm_cons]
+        apply ih hl.1
+        rw [containsKey_cons, heq] at eq
+        simpa
+
+theorem Const.map_insertEntry_perm_filter_map {β : Type v} [BEq α] [EquivBEq α]
+    (k : α) (v : β) {l : List ((_ : α) × β)} (hl : DistinctKeys l) :
+    (List.map (fun x => (x.fst, x.snd)) (insertEntry k v l)).Perm <|
+      (k, v) :: List.filter (fun x => !k == x.fst) (List.map (fun x => (x.fst, x.snd)) l) := by
+  apply Perm.trans <| Perm.map _ (insertEntry_perm_filter _ _ hl)
+  simp only [Bool.not_eq_true, Bool.decide_eq_false, List.map_cons, List.perm_cons]
+  induction l with
+  | nil => simp
+  | cons h t ih =>
+    simp only [List.filter_cons, Bool.not_eq_eq_eq_not, Bool.not_true, List.map_cons]
+    rw [distinctKeys_cons_iff] at hl
+    by_cases heq : (k == h.fst)
+    case pos =>
+      simp only [heq, Bool.true_eq_false, ↓reduceIte]
+      apply ih hl.1
+    case neg =>
+      simp [heq]
+      apply ih hl.1
+
+theorem keys_insertEntryIfNew_perm [BEq α] [EquivBEq α]
+    (k : α) (v : β k) {l : List ((a : α) × β a)} :
+    (keys <| insertEntryIfNew k v l).Perm <| if (containsKey k l) then keys l else k :: keys l := by
+  simp only [insertEntryIfNew]
+  by_cases h : containsKey k l <;> simp [h]
+
 theorem Const.containsKey_filterMap_iff {β : Type v} {γ : Type w}
     [BEq α] [EquivBEq α]
     {f : α → β → Option γ}
@@ -7556,6 +7703,85 @@ theorem isEmpty_filter_key_iff [BEq α] [EquivBEq α] {f : α → Bool}
     specialize h k (containsKey_eq_isSome_getEntry?.trans (Option.isSome_of_eq_some this))
     simp only [getKey, getKey?_eq_getEntry?, this] at h
     exact h
+
+theorem beqModel_eq_true_of_perm [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁) : l₁.Perm l₂ → beqModel l₁ l₂ := by
+  intro hyp
+  rw [beqModel, if_neg (by simpa using hyp.length_eq)]
+  simp only [List.all_eq_true]
+  intro ⟨k,v⟩ mem
+  have hv := getValueCast_of_mem mem
+  have hc := containsKey_of_mem mem
+  apply beq_of_eq
+  simp only at |- hc hv
+  rw [← hv, ← getValueCast?_eq_some_getValueCast]
+  · symm
+    apply getValueCast?_of_perm hl₁ hyp
+  · exact hl₁
+
+theorem Const.beqModel_eq_true_of_perm {β : Type v} [BEq α] [EquivBEq α] [BEq β] [ReflBEq β] {l₁ l₂ : List ((_ : α) × β )} (hl₁ : DistinctKeys l₁) : l₁.Perm l₂ → Const.beqModel l₁ l₂ := by
+  intro hyp
+  rw [beqModel, if_neg (by simpa using hyp.length_eq)]
+  simp only [List.all_eq_true]
+  intro ⟨k,v⟩ mem
+  have hv := @getValue_of_mem α β _ _ l₁ ⟨k,v⟩ mem
+  have hc := containsKey_of_mem mem
+  apply beq_of_eq
+  simp only at |- hc hv
+  rw [← hv, ← getValue?_eq_some_getValue]
+  · symm
+    apply getValue?_of_perm hl₁ hyp
+  · exact hl₁
+  · exact hc
+
+theorem perm_of_beqModel [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) : beqModel l₁ l₂ → l₁.Perm l₂ := by
+  simp only [beqModel, ne_eq, ite_not, Bool.if_false_right, Bool.and_eq_true, decide_eq_true_eq,
+    List.all_eq_true, beq_iff_eq, and_imp]
+  intro he hyp
+  apply getValueCast?_ext hl₁ hl₂
+  intro a
+  have hyp2 : ∀ (a : α) (h : containsKey a l₁), (getValueCast? a l₂ == getValueCast? a l₁) = true := by
+      intro a mem
+      rw [getValueCast?_eq_some_getValueCast mem]
+      apply beq_of_eq
+      specialize hyp ⟨a, getValueCast a l₁ mem⟩ (List.getValueCast_mem mem)
+      simpa using hyp
+  by_cases hc₁ : containsKey a l₁
+  case pos =>
+    exact eq_of_beq <| BEq.symm <| hyp2 _ hc₁
+  case neg =>
+    rw [Bool.not_eq_true] at hc₁
+    by_cases hc₂ : containsKey a l₂
+    case pos =>
+      suffices (∀ (a : α), containsKey a l₁ = true → containsKey a l₂ = true) by
+        rw [containsKey_of_length_eq hl₁ hl₂ he.symm this a hc₂] at hc₁
+        contradiction
+      intro k' mem
+      apply List.containsKey_of_getValueCast?_eq_some
+      simpa [getValueCast?_eq_some_getValueCast mem] using eq_of_beq <| hyp2 k' mem
+    case neg =>
+      rw [Bool.not_eq_true] at hc₂
+      rw [getValueCast?_eq_none hc₁, getValueCast?_eq_none hc₂]
+
+theorem beqModel_congr [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] {l₁ l₂ l₃ l₄ : List ((a : α) × β a)}
+    (hl : DistinctKeys l₂) (p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel l₁ l₂ = beqModel l₃ l₄ := by
+  simp only [beqModel, ne_eq, ite_not, Bool.if_false_right, Perm.length_eq p₁, Perm.length_eq p₂]
+  suffices h : (l₁.all fun x => getValueCast? x.fst l₂ == some x.snd) = (l₃.all fun x => getValueCast? x.fst l₄ == some x.snd) by simp [h]
+  simp [getValueCast?_of_perm hl p₂, List.Perm.all_eq p₁]
+
+theorem Const.beqModel_congr {β : Type v} [BEq α] [EquivBEq α] [BEq β] {l₁ l₂ l₃ l₄ : List ((_ : α) × β)}
+    (hl : DistinctKeys l₂) (p₁ : l₁.Perm l₃) (p₂ : l₂.Perm l₄) : beqModel l₁ l₂ = beqModel l₃ l₄ := by
+  simp only [beqModel, ne_eq, ite_not, Bool.if_false_right, Perm.length_eq p₁, Perm.length_eq p₂]
+  suffices h : (l₁.all fun x => getValue? x.fst l₂ == some x.snd) = (l₃.all fun x => getValue? x.fst l₄ == some x.snd) by simp [h]
+  simp [getValue?_of_perm hl p₂, List.Perm.all_eq p₁]
+
+theorem beqModel_eq_constBeqModel {β : Type v} [BEq α] [LawfulBEq α] [BEq β] {l₁ l₂ : List ((_ : α) × β)} : beqModel l₁ l₂ = Const.beqModel l₁ l₂ := by
+  simp [beqModel, Const.beqModel, getValue?_eq_getValueCast?]
+
+theorem Const.perm_of_beqModel {β : Type v} [BEq α] [LawfulBEq α] [BEq β] [LawfulBEq β] {l₁ l₂ : List ((_ : α) × β)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
+    beqModel l₁ l₂ → l₁.Perm l₂ := by
+  rw [← beqModel_eq_constBeqModel]
+  intro hyp
+  apply List.perm_of_beqModel hl₁ hl₂ hyp
 
 namespace Const
 
@@ -8248,6 +8474,45 @@ theorem containsKey_minKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l
   simp only [minKey?, Option.map_eq_some_iff, minEntry?_eq_some_iff _ hd] at hkm
   obtain ⟨e, ⟨hm, _⟩, rfl⟩ := hkm
   exact containsKey_of_mem hm
+
+theorem min?_keys [Ord α] [TransOrd α]
+    [LawfulEqOrd α] [LE α] [LawfulOrderOrd α] [Min α]
+    [LawfulOrderLeftLeaningMin α] (l : List ((a : α) × β a)) :
+    (List.keys l).min? = minKey? l := by
+  have : IsLinearOrder α := IsLinearOrder.of_ord
+  rw [keys_eq_map]
+  induction l with
+  | nil => simp [minKey?_of_isEmpty]
+  | cons h t ih =>
+    rw [minKey?, minEntry?_cons, minEntry?, Option.map_some, List.map_cons, List.min?_cons]
+    split
+    · simp only [minKey?, minEntry?, Option.map_none, Option.elim_none, *]
+    · simp only [Option.some.injEq, minKey?, minEntry?, *, min, Option.map_some,
+                 Option.elim_some]
+      split
+      · rw [LawfulOrderLeftLeaningMin.min_eq_left _ _ <|
+            (LawfulOrderOrd.isLE_compare _ _).1 ‹_›]
+      · rename_i w _ hyp
+        simp only [Bool.not_eq_true, Ordering.isLE_eq_false] at hyp
+        simp only [Commutative.comm h.fst w.fst]
+        rw [LawfulOrderLeftLeaningMin.min_eq_left _ _ <|
+            (LawfulOrderOrd.isGE_compare _ _).1 (Ordering.isGE_of_eq_gt hyp)]
+
+theorem head?_keys [Ord α] [TransOrd α]
+    [LawfulEqOrd α] [LE α] [LawfulOrderOrd α] [Min α]
+    [LawfulOrderLeftLeaningMin α] (l : List ((a : α) × β a)) (hs : l.Pairwise fun a b => compare a.1 b.1 = .lt) :
+    (List.keys l).head? = minKey? l := by
+  have sorted : List.Pairwise (fun a b => min a b = a) (keys l) := by
+    apply List.Pairwise.imp (R := fun a b => compare a b = .lt)
+    case H =>
+      intro a b hyp
+      apply LawfulOrderLeftLeaningMin.min_eq_left a b <| (LawfulOrderOrd.isLE_compare _ _).1 ?_
+      simp [hyp]
+    case a =>
+      rw [List.keys_eq_map]
+      apply List.Pairwise.map _ _ hs
+      simp
+  rw [← List.min?_eq_head? sorted, min?_keys]
 
 theorem minKey?_eraseKey_eq_iff_beq_minKey?_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {k} {l : List ((a : α) × β a)} (hd : DistinctKeys l) :

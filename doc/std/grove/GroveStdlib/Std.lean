@@ -15,7 +15,7 @@ namespace GroveStdlib
 namespace Std
 
 def introduction : Node :=
-  .text "Welcome to the interactive Lean standard library outline!"
+  .text ⟨"introduction", "Welcome to the interactive Lean standard library outline!"⟩
 
 end Std
 

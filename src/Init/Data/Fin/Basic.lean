@@ -56,10 +56,6 @@ theorem Internal.ofNat_eq_ofNat {n : Nat} {hn} {a : Nat} :
   letI : NeZero n := ⟨Nat.pos_iff_ne_zero.1 hn⟩
   Fin.Internal.ofNat n hn a = Fin.ofNat n a := rfl
 
-@[deprecated Fin.ofNat (since := "2025-05-28")]
-protected def ofNat' (n : Nat) [NeZero n] (a : Nat) : Fin n :=
-  Fin.ofNat n a
-
 -- We provide this because other similar types have a `toNat` function, but `simp` rewrites
 -- `i.toNat` to `i.val`.
 /--

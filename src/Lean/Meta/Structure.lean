@@ -128,7 +128,7 @@ Each projection `x.i` can be either a native projection or from a projection fun
 -/
 def etaStruct? (e : Expr) (p : Name → Bool) : MetaM (Option Expr) := do
   let .const ctor _ := e.getAppFn | return none
-  let some (ConstantInfo.ctorInfo fVal) := (← getEnv).find? ctor | return none
+  let some fVal ← isCtor? ctor | return none
   unless p fVal.induct do return none
   unless 0 < fVal.numFields && e.getAppNumArgs == fVal.numParams + fVal.numFields do return none
   let args := e.getAppArgs

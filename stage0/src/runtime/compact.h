@@ -53,6 +53,7 @@ public:
     void operator()(object * o);
     size_t size() const { return static_cast<char*>(m_end) - static_cast<char*>(m_begin); }
     void const * data() const { return m_begin; }
+    // Allocate `sz` bytes of zeroed memory.
     void * alloc(size_t sz);
 };
 

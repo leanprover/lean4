@@ -1210,10 +1210,6 @@ Any zeta-delta reductions recorded while executing `x` will *not* persist when l
   mapMetaM fun x =>
     withFreshCache <| withReader (fun ctx => { ctx with trackZetaDelta := true }) <| withResetZetaDeltaFVarIds x
 
-@[deprecated withTrackingZetaDelta (since := "2025-06-12")]
-def resetZetaDeltaFVarIds : MetaM Unit :=
-  modify fun s => { s with zetaDeltaFVarIds := {} }
-
 /--
 `withTrackingZetaDeltaSet s x` executes `x` in a context where `zetaDeltaFVarIds` has been temporarily cleared.
 - If `s` is nonempty, zeta-delta tracking is enabled and `zetaDeltaSet := s`.
@@ -1867,7 +1863,7 @@ def withLetDecl (name : Name) (type : Expr) (val : Expr) (k : Expr → n α) (no
 /--
 Runs `k x` with the local declaration `<name> : <type> := <val>` added to the local context, where `x` is the new free variable.
 Afterwards, the result is wrapped in the given `let`/`have` expression (according to the value of `nondep`).
-- If `usedLetOnly := true` (the default) then the the `let`/`have` is not created if the variable is unused.
+- If `usedLetOnly := true` (the default) then the `let`/`have` is not created if the variable is unused.
 -/
 def mapLetDecl [MonadLiftT MetaM n] (name : Name) (type : Expr) (val : Expr) (k : Expr → n Expr) (nondep : Bool := false) (kind : LocalDeclKind := .default) (usedLetOnly : Bool := true) : n Expr :=
   withLetDecl name type val (nondep := nondep) (kind := kind) fun x => do
@@ -2673,7 +2669,8 @@ where
         let _ : MonadExceptOf _ MetaM := MonadAlwaysExcept.except
         observing do
           withDeclNameForAuxNaming constName do
-            realize
+            withoutExporting (when := isPrivateName constName) do
+              realize
           -- Meta code working on a non-exported declaration should usually do so inside
           -- `withoutExporting` but we're lenient here in case this call is the only one that needs
           -- the setting.

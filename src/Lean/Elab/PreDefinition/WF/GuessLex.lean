@@ -807,7 +807,7 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
   let recCalls := filterSubsumed recCalls
 
   -- For every function, the measures we want to use
-  -- (One for each non-forbiddend arg)
+  -- (One for each non-forbidden arg)
   let basicMeasures₁ ← simpleMeasures preDefs fixedParamPerms userVarNamess
   let basicMeasures₂ ← complexMeasures preDefs fixedParamPerms userVarNamess recCalls
   let basicMeasures := Array.zipWith (· ++ ·) basicMeasures₁ basicMeasures₂

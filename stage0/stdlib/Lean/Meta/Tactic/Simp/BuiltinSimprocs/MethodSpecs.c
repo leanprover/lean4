@@ -193,7 +193,6 @@ lean_inc(x_31);
 lean_dec_ref(x_30);
 x_32 = lean_array_get_size(x_31);
 x_33 = lean_nat_dec_eq(x_32, x_2);
-lean_dec(x_32);
 if (x_33 == 0)
 {
 lean_object* x_34; lean_object* x_35; 

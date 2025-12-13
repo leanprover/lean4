@@ -61,16 +61,8 @@ instance Empty.instIteratorCollect {n : Type w → Type w''} [Monad m] [Monad n]
     IteratorCollect (Empty m β) m n :=
   .defaultImplementation
 
-instance Empty.instIteratorCollectPartial {n : Type w → Type w''} [Monad m] [Monad n] :
-    IteratorCollectPartial (Empty m β) m n :=
-  .defaultImplementation
-
 instance Empty.instIteratorLoop {n : Type x → Type x'} [Monad m] [Monad n] :
     IteratorLoop (Empty m β) m n :=
-  .defaultImplementation
-
-instance Empty.instIteratorLoopPartial {n : Type x → Type x'} [Monad m] [Monad n] :
-    IteratorLoopPartial (Empty m β) m n :=
   .defaultImplementation
 
 end Std.Iterators

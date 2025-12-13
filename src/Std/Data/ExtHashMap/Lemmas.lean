@@ -1409,27 +1409,58 @@ theorem union_insert_right_eq_insert_union [EquivBEq α] [LawfulHashable α] {p 
   simp only [union, insert, ExtDHashMap.union_eq, mk.injEq]
   exact ExtDHashMap.union_insert_right_eq_insert_union
 
+/- getElem? -/
+theorem getElem?_union [EquivBEq α] [LawfulHashable α] {k : α} :
+    (m₁ ∪ m₂)[k]? = (m₂[k]?).or (m₁[k]?) :=
+  ExtDHashMap.Const.get?_union
+
+theorem getElem?_union_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : ¬k ∈ m₁) :
+    (m₁ ∪ m₂)[k]? = m₂[k]? :=
+  ExtDHashMap.Const.get?_union_of_not_mem_left not_mem
+
+theorem getElem?_union_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : ¬k ∈ m₂) :
+    (m₁ ∪ m₂)[k]? = m₁[k]? :=
+  ExtDHashMap.Const.get?_union_of_not_mem_right not_mem
+
 /- get? -/
+@[deprecated getElem?_union (since := "2025-12-10")]
 theorem get?_union [EquivBEq α] [LawfulHashable α] {k : α} :
     (m₁ ∪ m₂).get? k = (m₂.get? k).or (m₁.get? k) :=
   ExtDHashMap.Const.get?_union
 
+@[deprecated getElem?_union_of_not_mem_left (since := "2025-12-10")]
 theorem get?_union_of_not_mem_left [EquivBEq α] [LawfulHashable α]
     {k : α} (not_mem : ¬k ∈ m₁) :
     (m₁ ∪ m₂).get? k = m₂.get? k :=
   ExtDHashMap.Const.get?_union_of_not_mem_left not_mem
 
+@[deprecated getElem?_union_of_not_mem_right (since := "2025-12-10")]
 theorem get?_union_of_not_mem_right [EquivBEq α] [LawfulHashable α]
     {k : α} (not_mem : ¬k ∈ m₂) :
     (m₁ ∪ m₂).get? k = m₁.get? k :=
   ExtDHashMap.Const.get?_union_of_not_mem_right not_mem
 
+/- getElem -/
+theorem getElem_union_of_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (mem : k ∈ m₂) :
+    (m₁ ∪ m₂)[k]'(mem_union_of_right mem) = m₂[k]'mem :=
+  ExtDHashMap.Const.get_union_of_mem_right mem
+
+theorem getElem_union_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : ¬k ∈ m₁) {h'} :
+    (m₁ ∪ m₂)[k]'h' = m₂[k]'(mem_of_mem_union_of_not_mem_left h' not_mem) :=
+  ExtDHashMap.Const.get_union_of_not_mem_left not_mem (h' := h')
+
 /- get -/
+@[deprecated getElem_union_of_mem_right (since := "2025-12-10")]
 theorem get_union_of_mem_right [EquivBEq α] [LawfulHashable α]
     {k : α} (mem : k ∈ m₂) :
     (m₁ ∪ m₂).get k (mem_union_of_right mem) = m₂.get k mem :=
   ExtDHashMap.Const.get_union_of_mem_right mem
 
+@[deprecated getElem_union_of_not_mem_left (since := "2025-12-10")]
 theorem get_union_of_not_mem_left [EquivBEq α] [LawfulHashable α]
     {k : α} (not_mem : ¬k ∈ m₁) {h'} :
     (m₁ ∪ m₂).get k h' = m₂.get k (mem_of_mem_union_of_not_mem_left h' not_mem) :=
@@ -1450,16 +1481,33 @@ theorem getD_union_of_not_mem_right [EquivBEq α] [LawfulHashable α]
     (m₁ ∪ m₂).getD k fallback = m₁.getD k fallback :=
   ExtDHashMap.Const.getD_union_of_not_mem_right not_mem
 
+/- getElem! -/
+theorem getElem!_union [EquivBEq α] [LawfulHashable α] {k : α} [Inhabited β] :
+    (m₁ ∪ m₂)[k]! = m₂.getD k (m₁[k]!) :=
+  ExtDHashMap.Const.get!_union
+
+theorem getElem!_union_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k : α} [Inhabited β] (not_mem : ¬k ∈ m₁) :
+    (m₁ ∪ m₂)[k]! = m₂[k]! :=
+  ExtDHashMap.Const.get!_union_of_not_mem_left not_mem
+
+theorem getElem!_union_of_not_mem_right [EquivBEq α] [LawfulHashable α] {k : α} [Inhabited β] (not_mem : ¬k ∈ m₂)  :
+    (m₁ ∪ m₂)[k]! = m₁[k]! :=
+  ExtDHashMap.Const.get!_union_of_not_mem_right not_mem
+
 /- get! -/
+@[deprecated getElem!_union (since := "2025-12-10")]
 theorem get!_union [EquivBEq α] [LawfulHashable α] {k : α} [Inhabited β] :
     (m₁ ∪ m₂).get! k = m₂.getD k (m₁.get! k) :=
   ExtDHashMap.Const.get!_union
 
+@[deprecated getElem!_union_of_not_mem_left (since := "2025-12-10")]
 theorem get!_union_of_not_mem_left [EquivBEq α] [LawfulHashable α]
     {k : α} [Inhabited β] (not_mem : ¬k ∈ m₁) :
     (m₁ ∪ m₂).get! k = m₂.get! k :=
   ExtDHashMap.Const.get!_union_of_not_mem_left not_mem
 
+@[deprecated getElem!_union_of_not_mem_right (since := "2025-12-10")]
 theorem get!_union_of_not_mem_right [EquivBEq α] [LawfulHashable α] {k : α} [Inhabited β] (not_mem : ¬k ∈ m₂)  :
     (m₁ ∪ m₂).get! k = m₁.get! k :=
   ExtDHashMap.Const.get!_union_of_not_mem_right not_mem
@@ -1579,33 +1627,62 @@ theorem not_mem_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α] {k : α
     k ∉ m₁ ∩ m₂ :=
   ExtDHashMap.not_mem_inter_of_not_mem_right not_mem
 
-/- get? -/
-theorem get?_inter [EquivBEq α] [LawfulHashable α] {k : α} :
-    (m₁ ∩ m₂).get? k =
-    if k ∈ m₂ then m₁.get? k else none :=
+/- getElem? -/
+theorem getElem?_inter [EquivBEq α] [LawfulHashable α] {k : α} :
+    (m₁ ∩ m₂)[k]? = if k ∈ m₂ then m₁[k]? else none :=
   ExtDHashMap.Const.get?_inter
 
+theorem getElem?_inter_of_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (mem : k ∈ m₂) :
+    (m₁ ∩ m₂)[k]? = m₁[k]? :=
+  ExtDHashMap.Const.get?_inter_of_mem_right mem
+
+theorem getElem?_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : k ∉ m₁) :
+    (m₁ ∩ m₂)[k]? = none :=
+  ExtDHashMap.Const.get?_inter_of_not_mem_left not_mem
+
+theorem getElem?_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : k ∉ m₂) :
+    (m₁ ∩ m₂)[k]? = none :=
+  ExtDHashMap.Const.get?_inter_of_not_mem_right not_mem
+
+/- get? -/
+@[deprecated getElem?_inter (since := "2025-12-10")]
+theorem get?_inter [EquivBEq α] [LawfulHashable α] {k : α} :
+    (m₁ ∩ m₂).get? k = if k ∈ m₂ then m₁.get? k else none :=
+  ExtDHashMap.Const.get?_inter
+
+@[deprecated getElem?_inter_of_mem_right (since := "2025-12-10")]
 theorem get?_inter_of_mem_right [EquivBEq α] [LawfulHashable α]
     {k : α} (mem : k ∈ m₂) :
     (m₁ ∩ m₂).get? k = m₁.get? k :=
   ExtDHashMap.Const.get?_inter_of_mem_right mem
 
+@[deprecated getElem?_inter_of_not_mem_left (since := "2025-12-10")]
 theorem get?_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α]
     {k : α} (not_mem : k ∉ m₁) :
     (m₁ ∩ m₂).get? k = none :=
   ExtDHashMap.Const.get?_inter_of_not_mem_left not_mem
 
+@[deprecated getElem?_inter_of_not_mem_right (since := "2025-12-10")]
 theorem get?_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α]
     {k : α} (not_mem : k ∉ m₂) :
     (m₁ ∩ m₂).get? k = none :=
   ExtDHashMap.Const.get?_inter_of_not_mem_right not_mem
 
-/- get -/
+/- getElem -/
 @[simp]
+theorem getElem_inter [EquivBEq α] [LawfulHashable α]
+    {k : α} {h_mem : k ∈ m₁ ∩ m₂} :
+    (m₁ ∩ m₂)[k]'h_mem = m₁[k]'(mem_inter_iff.1 h_mem).1 :=
+  ExtDHashMap.Const.get_inter (h_mem := h_mem)
+
+/- get -/
+@[deprecated getElem_inter (since := "2025-12-10")]
 theorem get_inter [EquivBEq α] [LawfulHashable α]
     {k : α} {h_mem : k ∈ m₁ ∩ m₂} :
-    (m₁ ∩ m₂).get k h_mem =
-    m₁.get k (mem_inter_iff.1 h_mem).1 :=
+    (m₁ ∩ m₂).get k h_mem = m₁.get k (mem_inter_iff.1 h_mem).1 :=
   ExtDHashMap.Const.get_inter
 
 /- getD -/
@@ -1629,22 +1706,45 @@ theorem getD_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α]
     (m₁ ∩ m₂).getD k fallback = fallback :=
   ExtDHashMap.Const.getD_inter_of_not_mem_left not_mem
 
-/- get! -/
-theorem get!_inter [EquivBEq α] [LawfulHashable α] {k : α} [Inhabited β] :
-    (m₁ ∩ m₂).get! k =
-    if k ∈ m₂ then m₁.get! k else default :=
+/- getElem! -/
+theorem getElem!_inter [EquivBEq α] [LawfulHashable α] {k : α} [Inhabited β] :
+    (m₁ ∩ m₂)[k]! = if k ∈ m₂ then m₁[k]! else default :=
   ExtDHashMap.Const.get!_inter
 
+theorem getElem!_inter_of_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} [Inhabited β] (mem : k ∈ m₂) :
+    (m₁ ∩ m₂)[k]! = m₁[k]! :=
+  ExtDHashMap.Const.get!_inter_of_mem_right mem
+
+theorem getElem!_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} [Inhabited β] (not_mem : k ∉ m₂) :
+    (m₁ ∩ m₂)[k]! = default :=
+  ExtDHashMap.Const.get!_inter_of_not_mem_right not_mem
+
+theorem getElem!_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k : α} [Inhabited β] (not_mem : k ∉ m₁) :
+    (m₁ ∩ m₂)[k]! = default :=
+  ExtDHashMap.Const.get!_inter_of_not_mem_left not_mem
+
+/- get! -/
+@[deprecated getElem!_inter (since := "2025-12-10")]
+theorem get!_inter [EquivBEq α] [LawfulHashable α] {k : α} [Inhabited β] :
+    (m₁ ∩ m₂).get! k = if k ∈ m₂ then m₁.get! k else default :=
+  ExtDHashMap.Const.get!_inter
+
+@[deprecated getElem!_inter_of_mem_right (since := "2025-12-10")]
 theorem get!_inter_of_mem_right [EquivBEq α] [LawfulHashable α]
     {k : α} [Inhabited β] (mem : k ∈ m₂) :
     (m₁ ∩ m₂).get! k = m₁.get! k :=
   ExtDHashMap.Const.get!_inter_of_mem_right mem
 
+@[deprecated getElem!_inter_of_not_mem_right (since := "2025-12-10")]
 theorem get!_inter_of_not_mem_right [EquivBEq α] [LawfulHashable α]
     {k : α} [Inhabited β] (not_mem : k ∉ m₂) :
     (m₁ ∩ m₂).get! k = default :=
   ExtDHashMap.Const.get!_inter_of_not_mem_right not_mem
 
+@[deprecated getElem!_inter_of_not_mem_left (since := "2025-12-10")]
 theorem get!_inter_of_not_mem_left [EquivBEq α] [LawfulHashable α]
     {k : α} [Inhabited β] (not_mem : k ∉ m₁) :
     (m₁ ∩ m₂).get! k = default :=
@@ -1760,6 +1860,207 @@ theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] :
   ExtDHashMap.isEmpty_inter_iff
 
 end Inter
+
+section Diff
+
+variable (m₁ m₂ : ExtHashMap α β)
+
+variable {m₁ m₂}
+
+@[simp]
+theorem diff_eq [EquivBEq α] [LawfulHashable α] : m₁.diff m₂ = m₁ \ m₂ := by
+  simp only [SDiff.sdiff]
+
+/- contains -/
+@[simp]
+theorem contains_diff [EquivBEq α] [LawfulHashable α]
+    {k : α} :
+    (m₁ \ m₂).contains k = (m₁.contains k && !m₂.contains k) :=
+  ExtDHashMap.contains_diff
+
+/- mem -/
+@[simp]
+theorem mem_diff_iff [EquivBEq α] [LawfulHashable α] {k : α} :
+    k ∈ m₁ \ m₂ ↔ k ∈ m₁ ∧ k ∉ m₂ :=
+  ExtDHashMap.mem_diff_iff
+
+theorem not_mem_diff_of_not_mem_left [EquivBEq α] [LawfulHashable α] {k : α}
+    (not_mem : k ∉ m₁) :
+    k ∉ m₁ \ m₂ :=
+  ExtDHashMap.not_mem_diff_of_not_mem_left not_mem
+
+theorem not_mem_diff_of_mem_right [EquivBEq α] [LawfulHashable α] {k : α}
+    (mem : k ∈ m₂) :
+    k ∉ m₁ \ m₂ :=
+  ExtDHashMap.not_mem_diff_of_mem_right mem
+
+/- get? -/
+theorem get?_diff [EquivBEq α] [LawfulHashable α] {k : α} :
+    (m₁ \ m₂).get? k =
+    if k ∈ m₂ then none else m₁.get? k :=
+  ExtDHashMap.Const.get?_diff
+
+theorem get?_diff_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : k ∉ m₂) :
+    (m₁ \ m₂).get? k = m₁.get? k :=
+  ExtDHashMap.Const.get?_diff_of_not_mem_right not_mem
+
+theorem get?_diff_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : k ∉ m₁) :
+    (m₁ \ m₂).get? k = none :=
+  ExtDHashMap.Const.get?_diff_of_not_mem_left not_mem
+
+theorem get?_diff_of_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (mem : k ∈ m₂) :
+    (m₁ \ m₂).get? k = none :=
+  ExtDHashMap.Const.get?_diff_of_mem_right mem
+
+/- get -/
+@[simp]
+theorem get_diff [EquivBEq α] [LawfulHashable α]
+    {k : α} {h_mem : k ∈ m₁ \ m₂} :
+    (m₁ \ m₂).get k h_mem =
+    m₁.get k (mem_diff_iff.1 h_mem).1 :=
+  ExtDHashMap.Const.get_diff
+
+/- getD -/
+theorem getD_diff [EquivBEq α] [LawfulHashable α] {k : α} {fallback : β} :
+    (m₁ \ m₂).getD k fallback =
+    if k ∈ m₂ then fallback else m₁.getD k fallback :=
+  ExtDHashMap.Const.getD_diff
+
+theorem getD_diff_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} {fallback : β} (not_mem : k ∉ m₂) :
+    (m₁ \ m₂).getD k fallback = m₁.getD k fallback :=
+  ExtDHashMap.Const.getD_diff_of_not_mem_right not_mem
+
+theorem getD_diff_of_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} {fallback : β} (mem : k ∈ m₂) :
+    (m₁ \ m₂).getD k fallback = fallback :=
+  ExtDHashMap.Const.getD_diff_of_mem_right mem
+
+theorem getD_diff_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k : α} {fallback : β} (not_mem : k ∉ m₁) :
+    (m₁ \ m₂).getD k fallback = fallback :=
+  ExtDHashMap.Const.getD_diff_of_not_mem_left not_mem
+
+/- get! -/
+theorem get!_diff [EquivBEq α] [LawfulHashable α] {k : α} [Inhabited β] :
+    (m₁ \ m₂).get! k =
+    if k ∈ m₂ then default else m₁.get! k :=
+  ExtDHashMap.Const.get!_diff
+
+theorem get!_diff_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} [Inhabited β] (not_mem : k ∉ m₂) :
+    (m₁ \ m₂).get! k = m₁.get! k :=
+  ExtDHashMap.Const.get!_diff_of_not_mem_right not_mem
+
+theorem get!_diff_of_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} [Inhabited β] (mem : k ∈ m₂) :
+    (m₁ \ m₂).get! k = default :=
+  ExtDHashMap.Const.get!_diff_of_mem_right mem
+
+theorem get!_diff_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k : α} [Inhabited β] (not_mem : k ∉ m₁) :
+    (m₁ \ m₂).get! k = default :=
+  ExtDHashMap.Const.get!_diff_of_not_mem_left not_mem
+
+/- getKey? -/
+theorem getKey?_diff [EquivBEq α] [LawfulHashable α] {k : α} :
+    (m₁ \ m₂).getKey? k =
+    if k ∈ m₂ then none else m₁.getKey? k :=
+  ExtDHashMap.getKey?_diff
+
+theorem getKey?_diff_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : k ∉ m₂) :
+    (m₁ \ m₂).getKey? k = m₁.getKey? k :=
+  ExtDHashMap.getKey?_diff_of_not_mem_right not_mem
+
+theorem getKey?_diff_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k : α} (not_mem : k ∉ m₁) :
+    (m₁ \ m₂).getKey? k = none :=
+  ExtDHashMap.getKey?_diff_of_not_mem_left not_mem
+
+theorem getKey?_diff_of_mem_right [EquivBEq α] [LawfulHashable α]
+    {k : α} (mem : k ∈ m₂) :
+    (m₁ \ m₂).getKey? k = none :=
+  ExtDHashMap.getKey?_diff_of_mem_right mem
+
+/- getKey -/
+@[simp]
+theorem getKey_diff [EquivBEq α] [LawfulHashable α]
+    {k : α} {h_mem : k ∈ m₁ \ m₂} :
+    (m₁ \ m₂).getKey k h_mem =
+    m₁.getKey k (mem_diff_iff.1 h_mem).1 :=
+  ExtDHashMap.getKey_diff
+
+/- getKeyD -/
+theorem getKeyD_diff [EquivBEq α] [LawfulHashable α] {k fallback : α} :
+    (m₁ \ m₂).getKeyD k fallback =
+    if k ∈ m₂ then fallback else m₁.getKeyD k fallback :=
+  ExtDHashMap.getKeyD_diff
+
+theorem getKeyD_diff_of_not_mem_right [EquivBEq α] [LawfulHashable α]
+    {k fallback : α} (not_mem : k ∉ m₂) :
+    (m₁ \ m₂).getKeyD k fallback = m₁.getKeyD k fallback :=
+  ExtDHashMap.getKeyD_diff_of_not_mem_right not_mem
+
+theorem getKeyD_diff_of_mem_right [EquivBEq α] [LawfulHashable α]
+    {k fallback : α} (mem : k ∈ m₂) :
+    (m₁ \ m₂).getKeyD k fallback = fallback :=
+  ExtDHashMap.getKeyD_diff_of_mem_right mem
+
+theorem getKeyD_diff_of_not_mem_left [EquivBEq α] [LawfulHashable α]
+    {k fallback : α} (not_mem : k ∉ m₁) :
+    (m₁ \ m₂).getKeyD k fallback = fallback :=
+  ExtDHashMap.getKeyD_diff_of_not_mem_left not_mem
+
+/- getKey! -/
+theorem getKey!_diff [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α} :
+    (m₁ \ m₂).getKey! k =
+    if k ∈ m₂ then default else m₁.getKey! k :=
+  ExtDHashMap.getKey!_diff
+
+theorem getKey!_diff_of_not_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    {k : α} (not_mem : k ∉ m₂) :
+    (m₁ \ m₂).getKey! k = m₁.getKey! k :=
+  ExtDHashMap.getKey!_diff_of_not_mem_right not_mem
+
+theorem getKey!_diff_of_mem_right [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    {k : α} (mem : k ∈ m₂) :
+    (m₁ \ m₂).getKey! k = default :=
+  ExtDHashMap.getKey!_diff_of_mem_right mem
+
+theorem getKey!_diff_of_not_mem_left [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    {k : α} (not_mem : k ∉ m₁) :
+    (m₁ \ m₂).getKey! k = default :=
+  ExtDHashMap.getKey!_diff_of_not_mem_left not_mem
+
+/- size -/
+theorem size_diff_le_size_left [EquivBEq α] [LawfulHashable α] :
+    (m₁ \ m₂).size ≤ m₁.size :=
+  ExtDHashMap.size_diff_le_size_left
+
+theorem size_diff_eq_size_left [EquivBEq α] [LawfulHashable α]
+    (h : ∀ (a : α), a ∈ m₁ → a ∉ m₂) :
+    (m₁ \ m₂).size = m₁.size :=
+  ExtDHashMap.size_diff_eq_size_left h
+
+theorem size_diff_add_size_inter_eq_size_left [EquivBEq α] [LawfulHashable α] :
+    (m₁ \ m₂).size + (m₁ ∩ m₂).size = m₁.size :=
+  ExtDHashMap.size_diff_add_size_inter_eq_size_left
+
+/- isEmpty -/
+@[simp]
+theorem isEmpty_diff_left [EquivBEq α] [LawfulHashable α] (h : m₁.isEmpty) :
+    (m₁ \ m₂).isEmpty = true :=
+  ExtDHashMap.isEmpty_diff_left h
+
+theorem isEmpty_diff_iff [EquivBEq α] [LawfulHashable α] :
+    (m₁ \ m₂).isEmpty ↔ ∀ k, k ∈ m₁ → k ∈ m₂ :=
+  ExtDHashMap.isEmpty_diff_iff
+
+end Diff
 
 section Alter
 
@@ -2289,12 +2590,12 @@ grind_pattern size_filter_le_size => (m.filter f).size
 
 theorem size_filter_eq_size_iff [EquivBEq α] [LawfulHashable α]
     {f : α → β → Bool} :
-    (m.filter f).size = m.size ↔ ∀ k h, f (m.getKey k h) (m.get k h) :=
+    (m.filter f).size = m.size ↔ ∀ k h, f (m.getKey k h) (m[k]'h) :=
   ExtDHashMap.Const.size_filter_eq_size_iff
 
 theorem filter_eq_self_iff [EquivBEq α] [LawfulHashable α]
     {f : α → β → Bool} :
-    m.filter f = m ↔ ∀ k h, f (m.getKey k h) (m.get k h) :=
+    m.filter f = m ↔ ∀ k h, f (m.getKey k h) (m[k]'h) :=
   ext_iff.trans ExtDHashMap.Const.filter_eq_self_iff
 
 theorem getElem?_filter [EquivBEq α] [LawfulHashable α]

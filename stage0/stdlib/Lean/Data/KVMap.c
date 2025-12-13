@@ -156,6 +156,7 @@ extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_Lean_instCoeStringDataValue___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KVMap_instValueName___lam__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KVMap_setBool(lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_KVMap_forIn___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instReprDataValue_repr___closed__10;
 LEAN_EXPORT lean_object* l_Lean_KVMap_instToString;
 static lean_object* l_Lean_KVMap_instValueName___closed__0;
@@ -201,7 +202,6 @@ LEAN_EXPORT lean_object* l_Prod_repr___at___00List_repr___at___00Lean_instReprKV
 LEAN_EXPORT uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_instCoeNameDataValue;
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_KVMap_forIn___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* l_List_toString___redArg(lean_object*, lean_object*);
@@ -3267,7 +3267,7 @@ x_8 = l_Lean_KVMap_insertCore(x_1, x_2, x_7);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_KVMap_forIn___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_KVMap_forIn___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
@@ -3279,7 +3279,7 @@ LEAN_EXPORT lean_object* l_Lean_KVMap_forIn(lean_object* x_1, lean_object* x_2, 
 _start:
 {
 lean_object* x_7; lean_object* x_8; 
-x_7 = lean_alloc_closure((void*)(l_Lean_KVMap_forIn___lam__0), 4, 1);
+x_7 = lean_alloc_closure((void*)(l_Lean_KVMap_forIn___redArg___lam__0), 4, 1);
 lean_closure_set(x_7, 0, x_6);
 x_8 = l_List_forIn_x27_loop___redArg(x_3, x_7, x_4, x_5);
 return x_8;
@@ -3289,7 +3289,7 @@ LEAN_EXPORT lean_object* l_Lean_KVMap_forIn___redArg(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = lean_alloc_closure((void*)(l_Lean_KVMap_forIn___lam__0), 4, 1);
+x_5 = lean_alloc_closure((void*)(l_Lean_KVMap_forIn___redArg___lam__0), 4, 1);
 lean_closure_set(x_5, 0, x_4);
 x_6 = l_List_forIn_x27_loop___redArg(x_1, x_5, x_2, x_3);
 return x_6;
@@ -3858,6 +3858,14 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_KVMap_instValueBool___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_instCoeBoolDataValue___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_KVMap_instValueBool___lam__1(lean_object* x_1) {
 _start:
 {
@@ -3876,14 +3884,6 @@ lean_object* x_5;
 x_5 = lean_box(0);
 return x_5;
 }
-}
-}
-static lean_object* _init_l_Lean_KVMap_instValueBool___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_instCoeBoolDataValue___lam__0___boxed), 1, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_KVMap_instValueBool___lam__1___boxed(lean_object* x_1) {
@@ -3905,6 +3905,14 @@ x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
+}
+}
+static lean_object* _init_l_Lean_KVMap_instValueNat___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_instCoeNatDataValue___lam__0), 1, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_KVMap_instValueNat___lam__1(lean_object* x_1) {
@@ -3939,14 +3947,6 @@ return x_5;
 }
 }
 }
-static lean_object* _init_l_Lean_KVMap_instValueNat___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_instCoeNatDataValue___lam__0), 1, 0);
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_KVMap_instValueNat() {
 _start:
 {
@@ -3957,6 +3957,14 @@ x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
+}
+}
+static lean_object* _init_l_Lean_KVMap_instValueInt___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_instCoeIntDataValue___lam__0), 1, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_KVMap_instValueInt___lam__1(lean_object* x_1) {
@@ -3991,14 +3999,6 @@ return x_5;
 }
 }
 }
-static lean_object* _init_l_Lean_KVMap_instValueInt___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_instCoeIntDataValue___lam__0), 1, 0);
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_KVMap_instValueInt() {
 _start:
 {
@@ -4009,6 +4009,14 @@ x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
+}
+}
+static lean_object* _init_l_Lean_KVMap_instValueName___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_instCoeNameDataValue___lam__0), 1, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_KVMap_instValueName___lam__1(lean_object* x_1) {
@@ -4043,14 +4051,6 @@ return x_5;
 }
 }
 }
-static lean_object* _init_l_Lean_KVMap_instValueName___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_instCoeNameDataValue___lam__0), 1, 0);
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_KVMap_instValueName() {
 _start:
 {
@@ -4061,6 +4061,14 @@ x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
+}
+}
+static lean_object* _init_l_Lean_KVMap_instValueString___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_instCoeStringDataValue___lam__0), 1, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_KVMap_instValueString___lam__1(lean_object* x_1) {
@@ -4095,14 +4103,6 @@ return x_5;
 }
 }
 }
-static lean_object* _init_l_Lean_KVMap_instValueString___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_instCoeStringDataValue___lam__0), 1, 0);
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_KVMap_instValueString() {
 _start:
 {
@@ -4113,6 +4113,14 @@ x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
+}
+}
+static lean_object* _init_l_Lean_KVMap_instValueSyntax___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_instCoeSyntaxDataValue___lam__0), 1, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_KVMap_instValueSyntax___lam__1(lean_object* x_1) {
@@ -4145,14 +4153,6 @@ lean_dec_ref(x_1);
 x_5 = lean_box(0);
 return x_5;
 }
-}
-}
-static lean_object* _init_l_Lean_KVMap_instValueSyntax___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_instCoeSyntaxDataValue___lam__0), 1, 0);
-return x_1;
 }
 }
 static lean_object* _init_l_Lean_KVMap_instValueSyntax() {

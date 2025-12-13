@@ -569,7 +569,6 @@ x_6 = l_Lake_instToTomlArray___redArg___lam__1___closed__9;
 x_7 = lean_nat_dec_lt(x_3, x_5);
 if (x_7 == 0)
 {
-lean_dec(x_5);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 return x_4;
@@ -580,7 +579,6 @@ uint8_t x_8;
 x_8 = lean_nat_dec_le(x_5, x_5);
 if (x_8 == 0)
 {
-lean_dec(x_5);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 return x_4;
@@ -592,7 +590,6 @@ x_9 = lean_alloc_closure((void*)(l_Lake_Toml_encodeArray_x3f___redArg___lam__0),
 lean_closure_set(x_9, 0, x_1);
 x_10 = 0;
 x_11 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
 x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_9, x_2, x_10, x_11, x_4);
 return x_12;
 }
@@ -885,7 +882,6 @@ lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_4 = lean_string_utf8_byte_size(x_2);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_nat_dec_eq(x_4, x_5);
-lean_dec(x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 

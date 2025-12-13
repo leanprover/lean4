@@ -26,6 +26,12 @@ of a value and a state.
   σ → m (α × σ)
 
 /--
+Interpret `σ → m (α × σ)` as an element of `StateT σ m α`.
+-/
+@[always_inline, inline, expose]
+def StateT.mk {σ : Type u} {m : Type u → Type v} {α : Type u} (x : σ → m (α × σ)) : StateT σ m α := x
+
+/--
 Executes an action from a monad with added state in the underlying monad `m`. Given an initial
 state, it returns a value paired with the final state.
 -/

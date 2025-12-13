@@ -57,7 +57,7 @@ Converts an 8-bit unsigned integer to an arbitrary-precision natural number.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint8_to_nat"]
+@[extern "lean_uint8_to_nat", tagged_return]
 def UInt8.toNat (n : UInt8) : Nat := n.toBitVec.toNat
 
 instance UInt8.instOfNat : OfNat UInt8 n := ⟨UInt8.ofNat n⟩
@@ -108,7 +108,7 @@ Converts a 16-bit unsigned integer to an arbitrary-precision natural number.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint16_to_nat"]
+@[extern "lean_uint16_to_nat", tagged_return]
 def UInt16.toNat (n : UInt16) : Nat := n.toBitVec.toNat
 /--
 Converts 16-bit unsigned integers to 8-bit unsigned integers. Wraps around on overflow.

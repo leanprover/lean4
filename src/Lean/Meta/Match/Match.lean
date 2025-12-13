@@ -17,6 +17,8 @@ import Lean.Meta.Match.SimpH
 import Lean.Meta.Match.SolveOverlap
 import Lean.Meta.HasNotBit
 import Lean.Data.Array
+import Lean.Meta.Match.CaseArraySizes
+import Lean.Meta.Match.CaseValues
 import Lean.Meta.Match.NamedPatterns
 
 public section
@@ -786,8 +788,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
         | _             => true
       let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst
       let fallthrough := p.fallthrough.map (·.applyFVarSubst subst)
-      return { mvarId := subgoal.mvarId, alts := newAlts, vars := newVars, examples, fallthrough }
-
+      return { p with mvarId := subgoal.mvarId, alts := newAlts, vars := newVars, examples, fallthrough }
 
 private def processDivide (p : Problem) (i : Nat) : StateRefT State MetaM (Array Problem) := do
   let mvarType ← p.mvarId.getType
@@ -856,11 +857,15 @@ private def isFirstPatternVar (alt : Alt) : Bool :=
   | .var _ :: _ => true
   | _           => false
 
+private def triviallyComplete (p : Problem) : Bool :=
+  !p.alts.isEmpty && p.alts.getLast!.patterns.all (!·.isRefutable)
+
 private def processValue (p : Problem) : MetaM (Array Problem) := do
   trace[Meta.Match.match] "value step"
   let x :: xs := p.vars | unreachable!
   let values := collectValues p
-  let subgoals ← caseValues p.mvarId x.fvarId! values (substNewEqs := true)
+  let needHyps := !triviallyComplete p || p.alts.any (!·.notAltIdxs.isEmpty)
+  let subgoals ← caseValues p.mvarId x.fvarId! values (needHyps := needHyps)
   subgoals.mapIdxM fun i subgoal => do
     trace[Meta.Match.match] "processValue subgoal\n{MessageData.ofGoal subgoal.mvarId}"
     if h : i < values.size then

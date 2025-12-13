@@ -61,7 +61,7 @@ def addCongrTable (e : Expr) : GoalM Unit := do
       pushEqHEq e e' congrPlaceholderProof
     if (← swapCgrRepr e e') then
       /-
-      Recall that `isDiseq` and `mkDiseqProof?` are implemented using the the congruence table.
+      Recall that `isDiseq` and `mkDiseqProof?` are implemented using the congruence table.
       So, if `e` is an equality `a = b`, and is the equivalence class of `False`, but `e'` is not,
       we **must** make `e` the representative of the congruence class.
       The equivalence classes of `e` and `e'` will be merged eventually since we used `pushEqHEq` above,
@@ -89,12 +89,17 @@ where
     unless (← isEqFalse e) do return false
     return !(← isEqFalse e')
 
+def updateIndicesFound (k : HeadIndex) : GoalM Unit := do
+  if (← get).indicesFound.contains k then return ()
+  modify fun s => { s with indicesFound := s.indicesFound.insert k }
+
 /--
 Given an application `e` of the form `f a_1 ... a_n`,
 adds entry `f ↦ e` to `appMap`. Recall that `appMap` is a multi-map.
 -/
 private def updateAppMap (e : Expr) : GoalM Unit := do
   let key := e.toHeadIndex
+  updateIndicesFound key
   trace_goal[grind.debug.appMap] "{e} => {repr key}"
   modify fun s => { s with
     appMap := if let some es := s.appMap.find? key then
@@ -280,10 +285,10 @@ private def activateTheoremsCore [TheoremLike α] (declName : Name)
       let origin := TheoremLike.getOrigin thm
       trace_goal[grind.debug.theorem.activate] "`{declName}` => `{origin.key}`"
       unless s.isErased origin do
-        let appMap  := (← get).appMap
-        let symbols := TheoremLike.getSymbols thm
-        let symbols := symbols.filter fun sym => !appMap.contains sym
-        let thm     := TheoremLike.setSymbols thm symbols
+        let indicesFound := (← get).indicesFound
+        let symbols      := TheoremLike.getSymbols thm
+        let symbols      := symbols.filter fun sym => !indicesFound.contains sym
+        let thm          := TheoremLike.setSymbols thm symbols
         match symbols with
         | [] =>
           trace_goal[grind.debug.theorem.activate] "`{origin.key}`"
@@ -464,6 +469,20 @@ private def useFunCongrAtFn (f : Expr) : GrindM Bool := do
   let .const declName _ := f | return true
   useFunCongrAtDecl declName
 
+private def internalizeLiteral (e : Expr) (generation : Nat) (parent? : Option Expr) : GoalM Unit := do
+  -- We do not want to internalize the components of a literal value.
+  mkENode e generation
+  Solvers.internalize e parent?
+  /-
+  **Note**: Functions used to construct literals may be used for indexing theorem.
+  `OfNat.ofNat` is not used for indexing, but `BitVec.ofNat` is.
+  **Note**: We should revise whether we should normalize `BitVec.ofNat` to `OfNat.ofNat` in `grind`.
+  -/
+  if let .const declName _ := e.getAppFn then
+    unless declName == ``OfNat.ofNat do
+      updateIndicesFound (.const declName)
+      activateTheorems declName generation
+
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do
   if (← alreadyInternalized e) then
@@ -515,6 +534,7 @@ where
     | .lit .. =>
       mkENode e generation
     | .const declName _ =>
+      updateIndicesFound (.const declName)
       mkENode e generation
       activateTheorems declName generation
     | .mvar .. =>
@@ -529,9 +549,7 @@ where
       mkENode' e generation
     | .app .. =>
       if (← isLitValue e) then
-        -- We do not want to internalize the components of a literal value.
-        mkENode e generation
-        Solvers.internalize e parent?
+        internalizeLiteral e generation parent?
       else if e.isAppOfArity ``Grind.MatchCond 1 then
         internalizeMatchCond e generation
       else e.withApp fun f args => do

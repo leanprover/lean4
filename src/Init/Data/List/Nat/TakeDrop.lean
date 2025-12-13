@@ -137,9 +137,6 @@ theorem take_append {l₁ l₂ : List α} {i : Nat} :
       congr 1
       omega
 
-@[deprecated take_append (since := "2025-06-16")]
-abbrev take_append_eq_append_take := @take_append
-
 theorem take_append_of_le_length {l₁ l₂ : List α} {i : Nat} (h : i ≤ l₁.length) :
     (l₁ ++ l₂).take i = l₁.take i := by
   simp [take_append, Nat.sub_eq_zero_of_le h]
@@ -317,9 +314,6 @@ theorem drop_append {l₁ l₂ : List α} {i : Nat} :
     · simp only [cons_append, drop_succ_cons, length_cons, append_cancel_left_eq, *]
       congr 1
       omega
-
-@[deprecated drop_append (since := "2025-06-16")]
-abbrev drop_append_eq_append_drop := @drop_append
 
 theorem drop_append_of_le_length {l₁ l₂ : List α} {i : Nat} (h : i ≤ l₁.length) :
     (l₁ ++ l₂).drop i = l₁.drop i ++ l₂ := by

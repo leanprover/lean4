@@ -37,7 +37,6 @@ lean_object* lean_array_to_list(lean_object*);
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_pmapImpl___closed__5;
 static lean_object* l_Array_pmapImpl___closed__7;
-LEAN_EXPORT lean_object* l_Array_pmapImpl___lam__0(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Attach_0__Array_attachWithImpl(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_unattach___redArg(lean_object*);
@@ -58,6 +57,7 @@ lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, l
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_pmapImpl___redArg___lam__0(lean_object*, lean_object*);
 static lean_object* l_Array_pmapImpl___closed__8;
 LEAN_EXPORT lean_object* l_Array_pmap___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Array_pmap_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -202,7 +202,7 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Array_pmapImpl___lam__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Array_pmapImpl___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -312,7 +312,7 @@ LEAN_EXPORT lean_object* l_Array_pmapImpl(lean_object* x_1, lean_object* x_2, le
 _start:
 {
 lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
-x_7 = lean_alloc_closure((void*)(l_Array_pmapImpl___lam__0), 2, 1);
+x_7 = lean_alloc_closure((void*)(l_Array_pmapImpl___redArg___lam__0), 2, 1);
 lean_closure_set(x_7, 0, x_4);
 x_8 = l_Array_pmapImpl___closed__9;
 x_9 = lean_array_size(x_5);
@@ -325,7 +325,7 @@ LEAN_EXPORT lean_object* l_Array_pmapImpl___redArg(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; 
-x_3 = lean_alloc_closure((void*)(l_Array_pmapImpl___lam__0), 2, 1);
+x_3 = lean_alloc_closure((void*)(l_Array_pmapImpl___redArg___lam__0), 2, 1);
 lean_closure_set(x_3, 0, x_1);
 x_4 = l_Array_pmapImpl___closed__9;
 x_5 = lean_array_size(x_2);

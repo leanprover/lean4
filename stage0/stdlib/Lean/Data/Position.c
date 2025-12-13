@@ -1301,6 +1301,16 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Position_instToString___lam__0), 1, 0);
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_Position_instToExpr___closed__0() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_instFromJsonPosition_fromJson___closed__2;
+x_3 = l_Lean_mkConst(x_2, x_1);
+return x_3;
+}
+}
 static lean_object* _init_l_Lean_Position_instToExpr___lam__0___closed__0() {
 _start:
 {
@@ -1357,16 +1367,6 @@ x_9 = lean_array_push(x_8, x_6);
 x_10 = l_Lean_mkAppN(x_4, x_9);
 lean_dec_ref(x_9);
 return x_10;
-}
-}
-static lean_object* _init_l_Lean_Position_instToExpr___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_instFromJsonPosition_fromJson___closed__2;
-x_3 = l_Lean_mkConst(x_2, x_1);
-return x_3;
 }
 }
 static lean_object* _init_l_Lean_Position_instToExpr() {
@@ -1433,7 +1433,6 @@ x_2 = lean_ctor_get(x_1, 1);
 x_3 = lean_array_get_size(x_2);
 x_4 = lean_unsigned_to_nat(1u);
 x_5 = lean_nat_sub(x_3, x_4);
-lean_dec(x_3);
 return x_5;
 }
 }
@@ -1704,7 +1703,6 @@ block_23:
 if (x_8 == 0)
 {
 uint8_t x_9; 
-lean_dec(x_7);
 x_9 = l_Array_isEmpty___redArg(x_4);
 if (x_9 == 0)
 {
@@ -1755,7 +1753,6 @@ lean_object* x_20; lean_object* x_21; lean_object* x_22;
 lean_inc_ref(x_3);
 x_20 = lean_unsigned_to_nat(1u);
 x_21 = lean_nat_sub(x_7, x_20);
-lean_dec(x_7);
 x_22 = l___private_Lean_Data_Position_0__Lean_FileMap_toPosition_loop(x_1, x_2, x_3, x_4, x_5, x_21);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
@@ -1790,7 +1787,6 @@ x_15 = lean_nat_sub(x_3, x_14);
 lean_dec(x_3);
 x_16 = lean_array_get_size(x_6);
 x_17 = lean_nat_dec_lt(x_15, x_16);
-lean_dec(x_16);
 if (x_17 == 0)
 {
 uint8_t x_18; 
@@ -1857,7 +1853,6 @@ x_4 = lean_unsigned_to_nat(1u);
 x_5 = lean_nat_sub(x_2, x_4);
 x_6 = lean_array_get_size(x_3);
 x_7 = lean_nat_dec_lt(x_5, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; 
@@ -2023,6 +2018,8 @@ l_Lean_Position_instToFormat = _init_l_Lean_Position_instToFormat();
 lean_mark_persistent(l_Lean_Position_instToFormat);
 l_Lean_Position_instToString = _init_l_Lean_Position_instToString();
 lean_mark_persistent(l_Lean_Position_instToString);
+l_Lean_Position_instToExpr___closed__0 = _init_l_Lean_Position_instToExpr___closed__0();
+lean_mark_persistent(l_Lean_Position_instToExpr___closed__0);
 l_Lean_Position_instToExpr___lam__0___closed__0 = _init_l_Lean_Position_instToExpr___lam__0___closed__0();
 lean_mark_persistent(l_Lean_Position_instToExpr___lam__0___closed__0);
 l_Lean_Position_instToExpr___lam__0___closed__1 = _init_l_Lean_Position_instToExpr___lam__0___closed__1();
@@ -2031,8 +2028,6 @@ l_Lean_Position_instToExpr___lam__0___closed__2 = _init_l_Lean_Position_instToEx
 lean_mark_persistent(l_Lean_Position_instToExpr___lam__0___closed__2);
 l_Lean_Position_instToExpr___lam__0___closed__3 = _init_l_Lean_Position_instToExpr___lam__0___closed__3();
 lean_mark_persistent(l_Lean_Position_instToExpr___lam__0___closed__3);
-l_Lean_Position_instToExpr___closed__0 = _init_l_Lean_Position_instToExpr___closed__0();
-lean_mark_persistent(l_Lean_Position_instToExpr___closed__0);
 l_Lean_Position_instToExpr = _init_l_Lean_Position_instToExpr();
 lean_mark_persistent(l_Lean_Position_instToExpr);
 l_Lean_instInhabitedFileMap_default___closed__0 = _init_l_Lean_instInhabitedFileMap_default___closed__0();

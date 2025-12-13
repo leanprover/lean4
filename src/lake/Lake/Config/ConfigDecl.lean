@@ -138,10 +138,10 @@ public abbrev ExternLibDecl := KConfigDecl ExternLib.configKind
     (self : NConfigDecl p n) : Option (OpaqueTargetConfig p n) :=
   cast (by rw [self.name_eq]) self.toPConfigDecl.opaqueTargetConfig?
 
-/-- A input file declaration from a configuration written in Lean. -/
+/-- An input file declaration from a configuration written in Lean. -/
 public abbrev InputFileDecl := KConfigDecl InputFile.configKind
 
-/-- A inpurt directory declaration from a configuration written in Lean. -/
+/-- An input directory declaration from a configuration written in Lean. -/
 public abbrev InputDirDecl := KConfigDecl InputDir.configKind
 
 public instance : TypeName LeanLibDecl := unsafe (.mk _ ``LeanLibDecl)

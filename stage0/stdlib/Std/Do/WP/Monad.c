@@ -22,7 +22,6 @@ lean_object* l_Std_Do_Except_instWP(lean_object*);
 lean_object* l_Std_Do_EStateM_instWP(lean_object*, lean_object*);
 lean_object* l_Std_Do_ReaderT_instWP___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_Do_Option_instWP;
-LEAN_EXPORT lean_object* l_Std_Do_WPMonad_ctorIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_Option_instWPMonad;
 lean_object* l_Std_Do_OptionT_instWP___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_Id_instWPMonad;
@@ -37,7 +36,6 @@ LEAN_EXPORT lean_object* l___private_Std_Do_WP_Monad_0__OptionT_bind_match__1_sp
 LEAN_EXPORT lean_object* l_Std_Do_ReaderT_instWPMonad___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_WP_Monad_0__ExceptT_bindCont_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Do_ExceptT_instWP___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_WPMonad_ctorIdx(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_ExceptT_instWPMonad___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_OptionT_instWPMonad___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_WP_Monad_0__EStateM_bind_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
@@ -58,25 +56,6 @@ static lean_object* l_Std_Do_EStateM_instWPMonad___closed__0;
 LEAN_EXPORT lean_object* l___private_Std_Do_WP_Monad_0__Std_Do_EStateM_instWP_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_ExceptT_instWPMonad___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_State_instWPMonad(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Do_WPMonad_ctorIdx(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_unsigned_to_nat(0u);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Do_WPMonad_ctorIdx___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_Do_WPMonad_ctorIdx(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-lean_dec_ref(x_3);
-lean_dec(x_2);
-return x_5;
-}
-}
 static lean_object* _init_l_Std_Do_Id_instWPMonad___closed__0() {
 _start:
 {
@@ -93,15 +72,6 @@ x_1 = l_Std_Do_Id_instWPMonad___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Do_StateT_instWPMonad___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Do_StateT_instWP___redArg___lam__1), 4, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Do_StateT_instWPMonad(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -109,6 +79,15 @@ lean_object* x_6;
 x_6 = lean_alloc_closure((void*)(l_Std_Do_StateT_instWP___redArg___lam__1), 4, 1);
 lean_closure_set(x_6, 0, x_5);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_StateT_instWPMonad___redArg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Std_Do_StateT_instWP___redArg___lam__1), 4, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Do_StateT_instWPMonad___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -121,16 +100,6 @@ lean_dec(x_2);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Do_ReaderT_instWPMonad___redArg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_Do_ReaderT_instWP___redArg___lam__2), 5, 2);
-lean_closure_set(x_3, 0, x_2);
-lean_closure_set(x_3, 1, x_1);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Do_ReaderT_instWPMonad(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -139,6 +108,16 @@ x_6 = lean_alloc_closure((void*)(l_Std_Do_ReaderT_instWP___redArg___lam__2), 5, 
 lean_closure_set(x_6, 0, x_5);
 lean_closure_set(x_6, 1, x_2);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_ReaderT_instWPMonad___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Std_Do_ReaderT_instWP___redArg___lam__2), 5, 2);
+lean_closure_set(x_3, 0, x_2);
+lean_closure_set(x_3, 1, x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Do_ReaderT_instWPMonad___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -216,15 +195,6 @@ x_7 = l___private_Std_Do_WP_Monad_0__Std_Do_PredTrans_pushExcept_match__1_splitt
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Do_ExceptT_instWPMonad___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Do_ExceptT_instWP___redArg___lam__0), 4, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Do_ExceptT_instWPMonad(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -232,6 +202,15 @@ lean_object* x_6;
 x_6 = lean_alloc_closure((void*)(l_Std_Do_ExceptT_instWP___redArg___lam__0), 4, 1);
 lean_closure_set(x_6, 0, x_5);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_ExceptT_instWPMonad___redArg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Std_Do_ExceptT_instWP___redArg___lam__0), 4, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Do_ExceptT_instWPMonad___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -306,15 +285,6 @@ x_6 = l___private_Std_Do_WP_Monad_0__Std_Do_PredTrans_pushOption_match__1_splitt
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Do_OptionT_instWPMonad___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Do_OptionT_instWP___redArg___lam__0), 4, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Do_OptionT_instWPMonad(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -322,6 +292,15 @@ lean_object* x_5;
 x_5 = lean_alloc_closure((void*)(l_Std_Do_OptionT_instWP___redArg___lam__0), 4, 1);
 lean_closure_set(x_5, 0, x_4);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_OptionT_instWPMonad___redArg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Std_Do_OptionT_instWP___redArg___lam__0), 4, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Do_OptionT_instWPMonad___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

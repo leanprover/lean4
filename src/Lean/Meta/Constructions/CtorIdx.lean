@@ -46,7 +46,7 @@ public def mkCtorIdx (indName : Name) : MetaM Unit :=
 
     let us := info.levelParams.map mkLevelParam
     forallBoundedTelescope info.type (info.numParams + info.numIndices) fun xs _ => do
-      withNewBinderInfos (xs.map (⟨·.fvarId!, .implicit⟩)) do
+    withImplicitBinderInfos xs do
       let params : Array Expr := xs[:info.numParams]
       let indices : Array Expr := xs[info.numParams:]
       let indType := mkAppN (mkConst indName us) xs
@@ -71,16 +71,20 @@ public def mkCtorIdx (indName : Name) : MetaM Unit :=
             value := mkApp value alt
           pure value
         mkLambdaFVars (xs.push x) value
-      addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
+      let decl := .defnDecl (← mkDefinitionValInferringUnsafe
         (name        := declName)
         (levelParams := info.levelParams)
         (type        := declType)
         (value       := declValue)
         (hints       := ReducibilityHints.abbrev)
-      ))
+      )
+      addDecl decl
       modifyEnv fun env => addToCompletionBlackList env declName
       modifyEnv fun env => addProtected env declName
       setReducibleAttribute declName
+      if info.numCtors = 1 then
+        setInlineAttribute declName .macroInline
+      compileDecl decl
 
       -- Deprecated alias for enumeration types (which used to have `toCtorIdx`)
       if (← isEnumType indName) then

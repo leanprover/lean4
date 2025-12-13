@@ -8,7 +8,7 @@ module
 prelude
 public import Std.Time.Zoned
 import Init.Data.String.TakeDrop
-import Init.Data.String.Extra
+import Init.Data.String.Search
 
 public section
 

@@ -185,9 +185,13 @@ structure TryThisInfo : Type where
 of spaces by which the line that first includes `range` is initially indented, and `column` is the
 column `range` starts at in that line. -/
 def getIndentAndColumn (map : FileMap) (range : Lean.Syntax.Range) : Nat × Nat :=
-  let start := map.source.findLineStart range.start
-  let body := map.source.findAux (· ≠ ' ') range.start start
-  (start.byteDistance body, start.byteDistance range.start)
+  let rangeStart := map.source.pos! range.start
+  let start := findLineStart rangeStart
+  let body := (map.source.slice! start rangeStart).find (fun c => c != ' ') |>.str.offset
+  (start.offset.byteDistance body, start.offset.byteDistance range.start)
+where
+  findLineStart {s : String} (p : s.Pos) : s.Pos :=
+    p.revFind? '\n' |>.map (·.next!) |>.getD s.startPos
 
 /--
 An option allowing the user to customize the ideal input width. Defaults to 100.

@@ -191,12 +191,12 @@ def getWantsHelp : CliStateM Bool :=
   (·.wantsHelp) <$> get
 
 def setConfigOpt (kvPair : String) : CliM PUnit :=
-  let pos := kvPair.posOf '='
+  let pos := kvPair.find '='
   let (key, val) :=
-    if pos = kvPair.rawEndPos then
+    if h : pos.IsAtEnd then
       (kvPair.toName, "")
     else
-      (String.Pos.Raw.extract kvPair 0 pos |>.toName, String.Pos.Raw.extract kvPair (pos.next kvPair) kvPair.rawEndPos)
+      (kvPair.extract kvPair.startPos pos |>.toName, kvPair.extract (pos.next h) kvPair.endPos)
   modifyThe LakeOptions fun opts =>
     {opts with configOpts := opts.configOpts.insert key val}
 

@@ -3555,11 +3555,6 @@ theorem mem_of_back? {xs : Array α} {a : α} (h : xs.back? = some a) : a ∈ xs
   rcases ys with ⟨ys⟩
   simp only [List.append_toArray, List.back_toArray, List.getLast_append, List.isEmpty_iff,
     List.isEmpty_toArray]
-  split
-  · rw [dif_pos]
-    simpa only [List.isEmpty_toArray]
-  · rw [dif_neg]
-    simpa only [List.isEmpty_toArray]
 
 theorem back_append_right {xs ys : Array α} (h : 0 < ys.size) :
     (xs ++ ys).back (by simp; omega) = ys.back h := by
@@ -3971,28 +3966,29 @@ theorem getElem_modify_of_ne {xs : Array α} {i : Nat} (h : i ≠ j)
 
 /-! ### swap -/
 
-@[simp] theorem getElem_swap_right {xs : Array α} {i j : Nat} {hi hj} :
-    (xs.swap i j hi hj)[j]'(by simpa using hj) = xs[i] := by
-  simp [swap_def]
-
-@[simp] theorem getElem_swap_left {xs : Array α} {i j : Nat} {hi hj} :
-    (xs.swap i j hi hj)[i]'(by simpa using hi) = xs[j] := by
-  simp +contextual [swap_def, getElem_set]
-
-@[simp] theorem getElem_swap_of_ne {xs : Array α} {i j : Nat} {hi hj} (hp : k < xs.size)
-    (hi' : k ≠ i) (hj' : k ≠ j) : (xs.swap i j hi hj)[k]'(xs.size_swap .. |>.symm ▸ hp) = xs[k] := by
-  simp [swap_def, getElem_set, hi'.symm, hj'.symm]
-
-theorem getElem_swap' {xs : Array α} {i j : Nat} {hi hj} {k : Nat} (hk : k < xs.size) :
-    (xs.swap i j hi hj)[k]'(by simp_all) = if k = i then xs[j] else if k = j then xs[i] else xs[k] := by
-  split
-  · simp_all only [getElem_swap_left]
-  · split <;> simp_all
-
 @[grind =]
 theorem getElem_swap {xs : Array α} {i j : Nat} (hi hj) {k : Nat} (hk : k < (xs.swap i j hi hj).size) :
     (xs.swap i j hi hj)[k] = if k = i then xs[j] else if k = j then xs[i] else xs[k]'(by simp_all) := by
-  apply getElem_swap'
+  simp only [swap_def, getElem_set, eq_comm (a := k)]
+  split <;> split <;> simp_all
+
+@[simp] theorem getElem_swap_right {xs : Array α} {i j : Nat} {hi hj} :
+    (xs.swap i j hi hj)[j]'(by simpa using hj) = xs[i] := by
+  simp +contextual [getElem_swap]
+
+@[simp] theorem getElem_swap_left {xs : Array α} {i j : Nat} {hi hj} :
+    (xs.swap i j hi hj)[i]'(by simpa using hi) = xs[j] := by
+  simp [getElem_swap]
+
+@[simp] theorem getElem_swap_of_ne {xs : Array α} {i j : Nat} {hi hj}
+    {h : k < (xs.swap i j hi hj).size} (hi' : k ≠ i) (hj' : k ≠ j) :
+    (xs.swap i j hi hj)[k] = xs[k]'(by simp_all) := by
+  simp [getElem_swap, hi', hj']
+
+@[deprecated getElem_swap (since := "2025-10-10")]
+theorem getElem_swap' {xs : Array α} {i j : Nat} {hi hj} {k : Nat} (hk : k < xs.size) :
+    (xs.swap i j hi hj)[k]'(by simp_all) = if k = i then xs[j] else if k = j then xs[i] else xs[k] :=
+  getElem_swap _ _ _
 
 @[simp] theorem swap_swap {xs : Array α} {i j : Nat} (hi hj) :
     (xs.swap i j hi hj).swap i j ((xs.size_swap ..).symm ▸ hi) ((xs.size_swap ..).symm ▸ hj) = xs := by
@@ -4013,8 +4009,66 @@ theorem swap_comm {xs : Array α} {i j : Nat} (hi hj) : xs.swap i j hi hj = xs.s
     · split <;> simp_all
     · split <;> simp_all
 
+/-! ### swapIfInBounds -/
+
+@[grind =] theorem swapIfInBounds_def {xs : Array α} {i j : Nat} :
+    xs.swapIfInBounds i j = if h₁ : i < xs.size then
+  if h₂ : j < xs.size then swap xs i j else xs else xs := rfl
+
 @[simp, grind =] theorem size_swapIfInBounds {xs : Array α} {i j : Nat} :
-    (xs.swapIfInBounds i j).size = xs.size := by unfold swapIfInBounds; split <;> (try split) <;> simp [size_swap]
+    (xs.swapIfInBounds i j).size = xs.size := by
+  unfold swapIfInBounds; split <;> (try split) <;> simp [size_swap]
+
+@[grind =] theorem getElem_swapIfInBounds {xs : Array α} {i j k : Nat}
+    (hk : k < (xs.swapIfInBounds i j).size) :
+    (xs.swapIfInBounds i j)[k] =
+    if h₁ : k = i ∧ j < xs.size then xs[j]'h₁.2 else if h₂ : k = j ∧ i < xs.size then xs[i]'h₂.2
+    else xs[k]'(by simp_all) := by
+  rw [size_swapIfInBounds] at hk
+  unfold swapIfInBounds
+  split <;> rename_i hi
+  · split <;> rename_i hj
+    · simp only [hi, hj, and_true]
+      exact getElem_swap _ _ _
+    · simp only [hi, hj, and_true, and_false, dite_false]
+      split <;> simp_all
+  · simp only [hi, and_false, dite_false]
+    split <;> simp_all
+
+@[simp]
+theorem getElem_swapIfInBounds_of_size_le_left {xs : Array α} {i j k : Nat} (hi : xs.size ≤ i)
+    (hk : k < (xs.swapIfInBounds i j).size) :
+    (xs.swapIfInBounds i j)[k] = xs[k]'(Nat.lt_of_lt_of_eq hk size_swapIfInBounds) := by
+  have h₁ : k ≠ i := Nat.ne_of_lt <| Nat.lt_of_lt_of_le hk <|
+    Nat.le_trans (Nat.le_of_eq (size_swapIfInBounds)) hi
+  have h₂ : ¬ (i < xs.size) := Nat.not_lt_of_le hi
+  simp [getElem_swapIfInBounds, h₁, h₂]
+
+@[simp]
+theorem getElem_swapIfInBounds_of_size_le_right {xs : Array α} {i j k : Nat} (hj : xs.size ≤ j)
+    (hk : k < (xs.swapIfInBounds i j).size) :
+    (xs.swapIfInBounds i j)[k] = xs[k]'(Nat.lt_of_lt_of_eq hk size_swapIfInBounds) := by
+  have h₁ : ¬ (j < xs.size) := Nat.not_lt_of_le hj
+  have h₂ : k ≠ j := Nat.ne_of_lt <| Nat.lt_of_lt_of_le hk <|
+    Nat.le_trans (Nat.le_of_eq (size_swapIfInBounds)) hj
+  simp [getElem_swapIfInBounds, h₁, h₂]
+
+@[simp]
+theorem getElem_swapIfInBounds_left {xs : Array α} {i j : Nat} (hj : j < xs.size)
+    (hi : i < (xs.swapIfInBounds i j).size) : (xs.swapIfInBounds i j)[i] = xs[j] := by
+  simp [getElem_swapIfInBounds, hj]
+
+@[simp]
+theorem getElem_swapIfInBounds_right {xs : Array α} {i j : Nat} (hi : i < xs.size)
+    (hj : j < (xs.swapIfInBounds i j).size) :
+    (xs.swapIfInBounds i j)[j] = xs[i] := by
+  simp +contextual [getElem_swapIfInBounds, hi]
+
+@[simp]
+theorem getElem_swapIfInBounds_of_ne_of_ne {xs : Array α} {i j k : Nat} (hi : k ≠ i) (hj : k ≠ j)
+    (hk : k < (xs.swapIfInBounds i j).size) :
+    (xs.swapIfInBounds i j)[k] = xs[k]'(Nat.lt_of_lt_of_eq hk size_swapIfInBounds) := by
+  simp [getElem_swapIfInBounds, hi, hj]
 
 /-! ### swapAt -/
 
@@ -4275,6 +4329,10 @@ theorem size_uset {xs : Array α} {v : α} {i : USize} (h : i.toNat < xs.size) :
 
 theorem getElem!_eq_getD [Inhabited α] {xs : Array α} {i} : xs[i]! = xs.getD i default := by
   rfl
+
+theorem getElem_eq_getD {xs : Array α} {i} {h : i < xs.size} (fallback : α) :
+    xs[i]'h = xs.getD i fallback := by
+  rw [getD_eq_getD_getElem?, getElem_eq_getElem?_get, Option.get_eq_getD]
 
 /-! # mem -/
 

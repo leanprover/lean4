@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.String.Substring
 import Init.Data.String.TakeDrop
+import Init.Data.String.Search
 
 /-!
 Here we give the. implementation of `Name.toString`. There is also a private implementation in

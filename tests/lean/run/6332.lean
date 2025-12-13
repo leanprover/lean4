@@ -128,7 +128,7 @@ deriving Inhabited, BEq
 
 open Tile
 
-def solve (mat : Matrix Tile) (guard : Nat × Nat) := do
+def solve (mat : Matrix Tile) (guard : Nat × Nat) : IO Unit := do
   let mut mat := mat
   let mut pos := guard + (1 : Nat)
   let mut dir : Offset × Offset := (-1, 0)

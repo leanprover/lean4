@@ -15,13 +15,11 @@ namespace Lean.Meta
 
 register_builtin_option backward.isDefEq.lazyProjDelta : Bool := {
   defValue := true
-  group    := "backward compatibility"
   descr    := "use lazy delta reduction when solving unification constrains of the form `(f a).i =?= (g b).i`"
 }
 
 register_builtin_option backward.isDefEq.lazyWhnfCore : Bool := {
   defValue := true
-  group    := "backward compatibility"
   descr    := "specifies transparency mode when normalizing constraints of the form `(f a).i =?= s`, if `true` only reducible definitions and instances are unfolded when reducing `f a`. Otherwise, the default setting is used"
 }
 

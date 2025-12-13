@@ -77,7 +77,7 @@ x_12 = l_System_FilePath_pathExists(x_11);
 if (x_12 == 0)
 {
 size_t x_13; size_t x_14; 
-lean_dec_ref(x_11);
+lean_dec(x_11);
 x_13 = 1;
 x_14 = lean_usize_add(x_6, x_13);
 lean_inc_ref(x_1);

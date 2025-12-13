@@ -130,7 +130,7 @@ fun motive x x_1 x_2 x_3 x_4 h_1 h_2 h_3 h_4 h_5 h_6 =>
 -- Just testing the backwards compatibility option
 
 set_option match.ignoreUnusedAlts true in
-set_option backwards.match.rowMajor false in
+set_option backward.match.rowMajor false in
 def testOld (a : List Nat) : Nat :=
   match a with
   | _ => 3

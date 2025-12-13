@@ -216,7 +216,7 @@ def get [Ord α] (t : Impl α δ) (k : α) (hlk : t.contains k = true) : δ :=
     | .eq => v'
 
 /-- Returns the value for the key `k`, or panics if such a key does not exist. -/
-def get! [Ord α] (t : Impl α δ) (k : α) [Inhabited δ] : δ :=
+def get! [Ord α] [Inhabited δ] (t : Impl α δ) (k : α) : δ :=
   match t with
   | .leaf => panic! "Key is not present in map"
   | .inner _ k' v' l r =>
@@ -290,7 +290,7 @@ def forIn {m} [Monad m] (f : (a : α) → β a → δ → m (ForInStep δ)) (ini
   | ForInStep.done d => return d
   | ForInStep.yield d => return d
 
-instance : ForIn m (Impl α β) ((a : α) × β a) where
+instance [Monad m] : ForIn m (Impl α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
 /-- Returns a `List` of the keys in order. -/

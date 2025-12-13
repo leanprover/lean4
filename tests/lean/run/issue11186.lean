@@ -5,8 +5,9 @@
 error: Failed to compile pattern matching: Stuck at
   remaining variables: [x✝:(String)]
   alternatives:
-    [bytes✝:(ByteArray),
-     isValidUTF8✝:(bytes✝.IsValidUTF8)] |- [(String.ofByteArray bytes✝ isValidUTF8✝)] => h_1 bytes✝ isValidUTF8✝
+    [toByteArray✝:(ByteArray),
+     isValidUTF8✝:(toByteArray✝.IsValidUTF8)] |- [(String.ofByteArray toByteArray✝ isValidUTF8✝)] => h_1 toByteArray✝
+      isValidUTF8✝
     [] |- ["Eek"] => h_2 ()
     [x✝:(String)] |- [x✝] => h_3 x✝
   examples:_

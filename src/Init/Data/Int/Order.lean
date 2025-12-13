@@ -377,6 +377,15 @@ protected theorem le_iff_lt_add_one {a b : Int} : a ≤ b ↔ a < b + 1 := by
 
 @[grind =] protected theorem max_def (n m : Int) : max n m = if n ≤ m then m else n := rfl
 
+end Int
+namespace Lean.Meta.Grind.Lia
+
+scoped grind_pattern Int.min_def => min n m
+scoped grind_pattern Int.max_def => max n m
+
+end Lean.Meta.Grind.Lia
+namespace Int
+
 @[simp] protected theorem neg_min_neg (a b : Int) : min (-a) (-b) = -max a b := by
   rw [Int.min_def, Int.max_def]
   simp

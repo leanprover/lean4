@@ -10,10 +10,9 @@ no fields.
 structure MyEmpty where
 
 /--
-error: Invalid projection: Projections are not supported on this type because it has no fields
+error: Invalid projection: Projection operates on structure-like types with fields. The expression
   { }
-has type
-  MyEmpty
+has type `MyEmpty` which has no fields.
 -/
 #guard_msgs in
 #check (MyEmpty.mk).1
@@ -22,10 +21,9 @@ inductive T where
   | a
 
 /--
-error: Invalid projection: Projections are not supported on this type because it has no fields
+error: Invalid projection: Projection operates on structure-like types with fields. The expression
   T.a
-has type
-  T
+has type `T` which has no fields.
 -/
 #guard_msgs in
 #check (T.a).1

@@ -30,11 +30,12 @@ Build function definitions for a module's builtin facets.
 private def Module.recFetchInput (mod : Module) : FetchM (Job ModuleInput) := Job.async do
   let path := mod.leanFile
   let contents ← IO.FS.readFile path
-  setTrace {caption := path.toString, mtime := ← getMTime path, hash := .ofText contents}
+  let trace := {caption := path.toString, mtime := ← getMTime path, hash := .ofText contents}
+  setTrace trace
   let header ← Lean.parseImports' contents path.toString
   let imports ← header.imports.mapM fun imp => do
     return ⟨imp, (← findModule? imp.module)⟩
-  return {path, header, imports}
+  return {path, header, imports, trace}
 
 /-- The `ModuleFacetConfig` for the builtin `inputFacet`. -/
 public def Module.inputFacetConfig : ModuleFacetConfig inputFacet :=
@@ -261,25 +262,37 @@ private def ModuleImportInfo.nil (modName : Name) : ModuleImportInfo where
   allTransTrace := .nil s!"{modName} transitive imports (all)"
   legacyTransTrace := .nil s!"{modName} transitive imports (legacy)"
 
+private def ModuleExportInfo.disambiguationHash
+  (self : ModuleExportInfo) (nonModule : Bool) (imp : Import)
+: Hash :=
+  if nonModule then
+    self.legacyTransTrace.hash.mix self.allArtsTrace.hash
+  else if imp.importAll then
+    self.allTransTrace.hash.mix self.allArtsTrace.hash
+  else if imp.isMeta then
+    self.metaTransTrace.hash.mix self.metaArtsTrace.hash
+  else
+    self.transTrace.hash.mix self.artsTrace.hash
+
 private def ModuleImportInfo.addImport
   (info : ModuleImportInfo) (nonModule : Bool)
-  (mod : Module) (imp : Import) (expInfo : ModuleExportInfo)
+  (imp : Import) (expInfo : ModuleExportInfo)
 : ModuleImportInfo :=
   let info :=
     if nonModule then
       {info with
-        directArts := info.directArts.insert mod.name expInfo.allArts
+        directArts := info.directArts.insert imp.module expInfo.allArts
         trace := info.trace.mix expInfo.legacyTransTrace |>.mix expInfo.allArtsTrace.withoutInputs
       }
     else if imp.importAll then
       {info with
-        directArts := info.directArts.insert mod.name expInfo.allArts
+        directArts := info.directArts.insert imp.module expInfo.allArts
         trace := info.trace.mix expInfo.allTransTrace |>.mix expInfo.allArtsTrace.withoutInputs
       }
     else
       let info :=
-        if !info.directArts.contains mod.name then -- do not demote `import all`
-          {info with directArts := info.directArts.insert mod.name expInfo.arts}
+        if !info.directArts.contains imp.module  then -- do not demote `import all`
+          {info with directArts := info.directArts.insert imp.module expInfo.arts}
         else
           info
       if imp.isMeta then
@@ -338,6 +351,12 @@ private def ModuleImportInfo.addImport
   else
     info
 
+private def Package.discriminant (self : Package) :=
+  if self.version == {} then
+    self.name.toString
+  else
+    s!"{self.name}@{self.version}"
+
 private def fetchImportInfo
   (fileName : String) (pkgName modName : Name) (header : ModuleHeader)
 : FetchM (Job ModuleImportInfo) := do
@@ -348,13 +367,51 @@ private def fetchImportInfo
     if modName = imp.module then
       logError s!"{fileName}: module imports itself"
       return .error
-    let some mod ← findModule? imp.module
-      | return s
-    if imp.importAll && !mod.allowImportAll && pkgName != mod.pkg.name then
-      logError s!"{fileName}: cannot 'import all' across packages"
-      return .error
-    let importJob ← mod.exportInfo.fetch
-    return s.zipWith (·.addImport nonModule mod imp ·) importJob
+    let mods ← findModules imp.module
+    let n := mods.size
+    if h : n = 0 then
+      return s
+    else if n = 1 then -- common fast path
+      let mod := mods[0]
+      if imp.importAll && !mod.allowImportAll && pkgName != mod.pkg.name then
+        logError s!"{fileName}: cannot `import all` \
+          the module `{imp.module}` from the package `{mod.pkg.discriminant}`"
+        return .error
+      let importJob ← mod.exportInfo.fetch
+      return s.zipWith (sync := true) (·.addImport nonModule imp ·) importJob
+    else
+      let isImportable (mod) :=
+        mod.allowImportAll || pkgName == mod.pkg.name
+      let allImportable :=
+        if imp.importAll then
+          mods.all isImportable
+        else true
+      unless allImportable do
+        let msg := s!"{fileName}: cannot `import all` the module `{imp.module}` \
+          from the following packages:"
+        let msg := mods.foldl (init := msg) fun msg mod =>
+          if isImportable mod then
+            msg
+          else
+            s!"{msg}\n  {mod.pkg.discriminant}"
+        logError msg
+        return .error
+      let mods : Vector Module n := .mk mods rfl
+      let expInfosJob ← Job.collectVector <$> mods.mapM (·.exportInfo.fetch)
+      s.bindM (sync := true) fun impInfo => do
+      expInfosJob.mapM (sync := true) fun expInfos => do
+        let expInfo := expInfos[0]
+        let impHash := expInfo.disambiguationHash nonModule imp
+        let allEquiv := expInfos.toArray.all (start := 1) fun expInfo =>
+          impHash == expInfo.disambiguationHash nonModule imp
+        unless allEquiv do
+          let msg := s!"{fileName}: could not disambiguate the module `{imp.module}`; \
+            multiple packages provide distinct definitions:"
+          let msg := n.fold (init := msg) fun i h s =>
+            let hash := expInfos[i].disambiguationHash nonModule imp
+            s!"{s}\n  {mods[i].pkg.discriminant} (hash: {hash})"
+          error msg
+        return impInfo.addImport nonModule imp expInfo
 
 /-- The `ModuleFacetConfig` for the builtin `importInfoFacet`. -/
 public def Module.importInfoFacetConfig : ModuleFacetConfig importInfoFacet :=
@@ -374,13 +431,13 @@ private def noIRError :=
 /-- Computes the import artifacts and transitive import trace of a module's imports. -/
 private def Module.computeExportInfo (mod : Module) : FetchM (Job ModuleExportInfo) := do
   (← mod.leanArts.fetch).mapM (sync := true) fun arts => do
-    let header ← (← mod.header.fetch).await
+    let input ← (← mod.input.fetch).await
     let importInfo ← (← mod.importInfo.fetch).await
     let artsTrace := BuildTrace.nil s!"{mod.name}:importArts"
     let metaArtsTrace := BuildTrace.nil s!"{mod.name}:importArts (meta)"
     let allArtsTrace := BuildTrace.nil s!"{mod.name}:importAllArts"
     let olean := arts.olean
-    if header.isModule then
+    if input.header.isModule then
       let some oleanServer := arts.oleanServer?
         | error noServerOLeanError
       let some ir := arts.ir?
@@ -388,6 +445,7 @@ private def Module.computeExportInfo (mod : Module) : FetchM (Job ModuleExportIn
       let some oleanPrivate := arts.oleanPrivate?
         | error noPrivateOLeanError
       return {
+        srcTrace := input.trace
         arts := .ofArray #[olean.path, ir.path, oleanServer.path]
         artsTrace := artsTrace.mix olean.trace
         metaArtsTrace := metaArtsTrace.mix olean.trace |>.mix ir.trace
@@ -401,6 +459,7 @@ private def Module.computeExportInfo (mod : Module) : FetchM (Job ModuleExportIn
       }
     else
       return {
+        srcTrace := input.trace
         arts := ⟨#[olean.path]⟩
         artsTrace := artsTrace.mix olean.trace
         metaArtsTrace := metaArtsTrace.mix olean.trace

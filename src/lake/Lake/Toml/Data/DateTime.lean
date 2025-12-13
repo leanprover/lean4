@@ -69,7 +69,7 @@ public def ofString? (t : String) : Option Time := do
     match s.split '.' |>.toList with
     | [s,f] =>
       let time ← ofValid? (← h.toNat?) (← m.toNat?) (← s.toNat?)
-      return {time with fracExponent := f.copy.length-1, fracMantissa := ← f.toNat?}
+      return {time with fracExponent := f.positions.count-1, fracMantissa := ← f.toNat?}
     | [s] =>
       ofValid? (← h.toNat?) (← m.toNat?) (← s.toNat?)
     | _ => none

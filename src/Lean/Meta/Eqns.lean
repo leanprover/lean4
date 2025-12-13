@@ -150,9 +150,13 @@ def registerGetEqnsFn (f : GetEqnsFn) : IO Unit := do
     throw (IO.userError "failed to register equation getter, this kind of extension can only be registered during initialization")
   getEqnsFnsRef.modify (f :: ·)
 
-/-- Returns `true` iff `declName` is a definition and its type is not a proposition. -/
+/-- Returns `true` iff `declName` is a definition and its type is not a proposition.
+    Returns `false` for matchers since their equations are handled by `Lean.Meta.Match.MatchEqs`. -/
 private def shouldGenerateEqnThms (declName : Name) : MetaM Bool := do
   if let some { kind := .defn, sig, .. } := (← getEnv).findAsync? declName then
+    -- Matcher equations are handled separately in Lean.Meta.Match.MatchEqs
+    if isMatcherCore (← getEnv) declName then
+      return false
     return !(← isProp sig.get.type)
   else
     return false

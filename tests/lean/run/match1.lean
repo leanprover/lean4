@@ -145,7 +145,7 @@ match n, parity n with
 | _, Parity.even j => false :: natToBin j
 | _, Parity.odd  j => true  :: natToBin j
 
-set_option backwards.match.sparseCases false in
+set_option backward.match.sparseCases false in
 /--
 error: Tactic `cases` failed with a nested error:
 Dependent elimination failed: Failed to solve equation

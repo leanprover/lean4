@@ -54,7 +54,8 @@ private def isPropagateBetaTarget (e : Expr) : GoalM Bool := do
 where
   go (f : Expr) : GoalM Bool := do
     if let some root ← getRootENode? f then
-      return root.hasLambdas
+      if root.hasLambdas then
+        return true
     let .app f _ := f | return false
     go f
 

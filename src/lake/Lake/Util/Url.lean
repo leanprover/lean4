@@ -10,6 +10,7 @@ public import Lake.Util.Log
 import Lake.Util.JsonObject
 import Lake.Util.Proc
 import Init.Data.String.TakeDrop
+import Init.Data.String.Search
 
 open Lean
 

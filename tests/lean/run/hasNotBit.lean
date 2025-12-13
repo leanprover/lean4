@@ -30,13 +30,6 @@ elab "refl0" : tactic =>
   Lean.Elab.Tactic.closeMainGoalUsing `refl0 fun _ _ =>
     Lean.Meta.mkEqRefl (Lean.mkRawNatLit 0)
 
-/--
-error: (kernel) declaration type mismatch, '_example' has type
-  ∀ {α : Type u_1} {x : α}, 0 = 0
-but it is expected to have type
-  ∀ {α : Type u_1} {x : α}, Nat.land 1 (Nat.shiftRight 8 [x].ctorIdx) = 0
--/
-#guard_msgs in
 example : Nat.land 1 (Nat.shiftRight 8 ([x].ctorIdx)) = 0 := by
   refl0
 
@@ -45,13 +38,6 @@ elab "eagerrefl0" : tactic =>
   Lean.Elab.Tactic.closeMainGoalUsing `refl0 fun _ _ => do
     Lean.Meta.mkAppM `eagerReduce #[← Lean.Meta.mkEqRefl (Lean.mkRawNatLit 0)]
 
-/--
-error: (kernel) declaration type mismatch, '_example' has type
-  ∀ {α : Type u_1} {x : α}, 0 = 0
-but it is expected to have type
-  ∀ {α : Type u_1} {x : α}, Nat.land 1 (Nat.shiftRight 8 [x].ctorIdx) = 0
--/
-#guard_msgs in
 example : Nat.land 1 (Nat.shiftRight 8 ([x].ctorIdx)) = 0 := by
   eagerrefl0
 
@@ -61,15 +47,6 @@ elab "eagerrefl0'" : tactic =>
     let u ← getLevel goal
     return mkApp2 (mkConst ``eagerReduce [u]) goal (← mkEqRefl (mkRawNatLit 0))
 
-/--
-error: (kernel) application type mismatch
-  eagerReduce (Eq.refl 0)
-argument has type
-  0 = 0
-but function has type
-  Nat.land 1 (Nat.shiftRight 8 [x].ctorIdx) = 0 → Nat.land 1 (Nat.shiftRight 8 [x].ctorIdx) = 0
--/
-#guard_msgs in
 example : Nat.land 1 (Nat.shiftRight 8 ([x].ctorIdx)) = 0 := by
   eagerrefl0'
 

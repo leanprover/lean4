@@ -47,6 +47,7 @@ public import Lean.Meta.Tactic.Grind.EMatchAction
 public import Lean.Meta.Tactic.Grind.Filter
 public import Lean.Meta.Tactic.Grind.CollectParams
 public import Lean.Meta.Tactic.Grind.Finish
+public import Lean.Meta.Tactic.Grind.FunCC
 public section
 namespace Lean
 
@@ -60,6 +61,7 @@ builtin_initialize registerTraceClass `grind.ematch
 builtin_initialize registerTraceClass `grind.ematch.pattern
 builtin_initialize registerTraceClass `grind.ematch.instance
 builtin_initialize registerTraceClass `grind.ematch.instance.assignment
+builtin_initialize registerTraceClass `grind.ematch.instance.delayed
 builtin_initialize registerTraceClass `grind.eqResolution
 builtin_initialize registerTraceClass `grind.issues
 builtin_initialize registerTraceClass `grind.simp

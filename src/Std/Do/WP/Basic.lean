@@ -78,20 +78,20 @@ instance Id.instWP : WP Id .pure where
   wp x := PredTrans.pure x.run
 
 instance StateT.instWP [WP m ps] : WP (StateT σ m) (.arg σ ps) where
-  wp x := PredTrans.pushArg (fun s => wp (x s))
+  wp x := PredTrans.pushArg (.mk fun s => wp (x.run s))
 
 instance ReaderT.instWP [WP m ps] : WP (ReaderT ρ m) (.arg ρ ps) where
-  wp x := PredTrans.pushArg (fun s => (·, s) <$> wp (x s))
+  wp x := PredTrans.pushArg (.mk fun s => (·, s) <$> wp (x.run s))
 
 instance ExceptT.instWP [WP m ps] : WP (ExceptT ε m) (.except ε ps) where
-  wp x := PredTrans.pushExcept (wp x)
+  wp x := PredTrans.pushExcept (.mk <| wp x.run)
 
 instance OptionT.instWP [WP m ps] : WP (OptionT m) (.except PUnit ps) where
-  wp x := PredTrans.pushOption (wp x)
+  wp x := PredTrans.pushOption (.mk <| wp x.run)
 
 instance EStateM.instWP : WP (EStateM ε σ) (.except ε (.arg σ .pure)) where
   wp x := -- Could define as PredTrans.mkExcept (PredTrans.modifyGetM (fun s => pure (EStateM.Result.toExceptState (x s))))
-    { apply := fun Q s => match x s with
+    { apply := fun Q s => match x.run s with
         | .ok a s' => Q.1 a s'
         | .error e s' => Q.2.1 e s'
       conjunctive := by
@@ -99,17 +99,17 @@ instance EStateM.instWP : WP (EStateM ε σ) (.except ε (.arg σ .pure)) where
         apply SPred.bientails.of_eq
         ext s
         dsimp
-        cases (x s) <;> simp
+        cases (x.run s) <;> simp
     }
 
 instance State.instWP : WP (StateM σ) (.arg σ .pure) :=
   inferInstanceAs (WP (StateT σ Id) (.arg σ .pure))
 instance Reader.instWP : WP (ReaderM ρ) (.arg ρ .pure) :=
   inferInstanceAs (WP (ReaderT ρ Id) (.arg ρ .pure))
-instance Except.instWP : WP (Except ε) (.except ε .pure) :=
-  inferInstanceAs (WP (ExceptT ε Id) (.except ε .pure))
-instance Option.instWP : WP Option (.except PUnit .pure) :=
-  inferInstanceAs (WP (OptionT Id) (.except PUnit .pure))
+instance Except.instWP : WP (Except ε) (.except ε .pure) where
+  wp x := wp (.mk (pure x) : ExceptT ε Id _)
+instance Option.instWP : WP Option (.except PUnit .pure) where
+  wp x := wp (.mk (pure x) : OptionT Id _)
 
 /--
 Adequacy lemma for `Id.run`.
@@ -151,7 +151,7 @@ Useful if you want to prove a property about an expression `prog : Except ε α`
 theorem Except.of_wp {α} {prog : Except ε α} (P : Except ε α → Prop) :
     (⊢ₛ wp⟦prog⟧ post⟨fun a => ⌜P (.ok a)⌝, fun e => ⌜P (.error e)⌝⟩) → P prog := by
   intro hspec
-  simp only [wp, PredTrans.pushExcept_apply, PredTrans.pure_apply] at hspec
+  simp only [wp, PredTrans.pushExcept_apply, ExceptT.run_mk, PredTrans.pure_apply] at hspec
   split at hspec
   case h_1 a s' heq => rw[← heq] at hspec; exact hspec True.intro
   case h_2 e s' heq => rw[← heq] at hspec; exact hspec True.intro

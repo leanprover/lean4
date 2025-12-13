@@ -227,18 +227,18 @@ attribute [spec] liftM instMonadLiftTOfMonadLift instMonadLiftT
 @[spec]
 theorem Spec.monadMap_StateT [Monad m] [WP m ps]
     (f : ∀{β}, m β → m β) {α} (x : StateT σ m α) (Q : PostCond α (.arg σ ps)) :
-    Triple (MonadFunctor.monadMap (m:=m) f x) (spred(fun s => wp⟦f (x.run s)⟧ (fun (a, s) => Q.1 a s, Q.2))) spred(Q) := .rfl
+    Triple (monadMap (m:=m) f x) (spred(fun s => wp⟦f (x.run s)⟧ (fun (a, s) => Q.1 a s, Q.2))) spred(Q) := .rfl
 
 @[spec]
 theorem Spec.monadMap_ReaderT [Monad m] [WP m ps]
     (f : ∀{β}, m β → m β) {α} (x : ReaderT ρ m α) (Q : PostCond α (.arg ρ ps)) :
-    Triple (MonadFunctor.monadMap (m:=m) f x) (spred(fun s => wp⟦f (x.run s)⟧ (fun a => Q.1 a s, Q.2))) spred(Q) := .rfl
+    Triple (monadMap (m:=m) f x) (spred(fun s => wp⟦f (x.run s)⟧ (fun a => Q.1 a s, Q.2))) spred(Q) := .rfl
 
 @[spec]
 theorem Spec.monadMap_ExceptT [Monad m] [WP m ps]
     (f : ∀{β}, m β → m β) {α} (x : ExceptT ε m α) (Q : PostCond α (.except ε ps)) :
   Triple (ps:=.except ε ps)
-    (MonadFunctor.monadMap (m:=m) f x)
+    (monadMap (m:=m) f x)
     (wp⟦f x.run⟧ (fun e => e.casesOn Q.2.1 Q.1, Q.2.2))
     Q := by simp [Triple]
 
@@ -246,7 +246,7 @@ theorem Spec.monadMap_ExceptT [Monad m] [WP m ps]
 theorem Spec.monadMap_OptionT [Monad m] [WP m ps]
     (f : ∀{β}, m β → m β) {α} (x : OptionT m α) (Q : PostCond α (.except PUnit ps)) :
   Triple (ps:=.except PUnit ps)
-    (MonadFunctor.monadMap (m:=m) f x)
+    (monadMap (m:=m) f x)
     (wp⟦f x.run⟧ (fun o => o.casesOn (Q.2.1 ⟨⟩) Q.1, Q.2.2))
     Q := by simp [Triple]
 

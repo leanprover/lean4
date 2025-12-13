@@ -47,8 +47,8 @@ Sequences two potentially-failing actions. The second action is run only if the 
 -/
 @[always_inline, inline, expose]
 protected def bind (x : OptionT m α) (f : α → OptionT m β) : OptionT m β := OptionT.mk do
-  match (← x) with
-  | some a => f a
+  match (← x.run) with
+  | some a => (f a).run
   | none   => pure none
 
 /--
@@ -70,9 +70,9 @@ instance {m : Type u → Type v} [Pure m] : Inhabited (OptionT m α) where
 Recovers from failures. Typically used via the `<|>` operator.
 -/
 @[always_inline, inline, expose] protected def orElse (x : OptionT m α) (y : Unit → OptionT m α) : OptionT m α := OptionT.mk do
-  match (← x) with
+  match (← x.run) with
   | some a => pure (some a)
-  | _      => y ()
+  | _      => (y ()).run
 
 /--
 A recoverable failure.
@@ -101,7 +101,7 @@ instance : MonadFunctor m (OptionT m) := ⟨fun f x => f x⟩
 Handles failures by treating them as exceptions of type `Unit`.
 -/
 @[always_inline, inline, expose] protected def tryCatch (x : OptionT m α) (handle : PUnit → OptionT m α) : OptionT m α := OptionT.mk do
-  let some a ← x | handle ⟨⟩
+  let some a ← x.run | (handle ⟨⟩).run
   pure <| some a
 
 instance : MonadExceptOf PUnit (OptionT m) where
@@ -110,7 +110,7 @@ instance : MonadExceptOf PUnit (OptionT m) where
 
 instance (ε : Type u) [MonadExceptOf ε m] : MonadExceptOf ε (OptionT m) where
   throw e           := OptionT.mk <| throwThe ε e
-  tryCatch x handle := OptionT.mk <| tryCatchThe ε x handle
+  tryCatch x handle := OptionT.mk <| tryCatchThe ε x.run (handle · |>.run)
 
 end OptionT
 

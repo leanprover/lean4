@@ -406,22 +406,6 @@ instance : Min UInt16 := minOfLe
 def UInt32.ofInt (x : Int) : UInt32 := ofNat (x % 2 ^ 32).toNat
 
 /--
-Adds two 32-bit unsigned integers, wrapping around on overflow. Usually accessed via the `+`
-operator.
-
-This function is overridden at runtime with an efficient implementation.
--/
-@[extern "lean_uint32_add"]
-protected def UInt32.add (a b : UInt32) : UInt32 := ⟨a.toBitVec + b.toBitVec⟩
-/--
-Subtracts one 32-bit unsigned integer from another, wrapping around on underflow. Usually accessed
-via the `-` operator.
-
-This function is overridden at runtime with an efficient implementation.
--/
-@[extern "lean_uint32_sub"]
-protected def UInt32.sub (a b : UInt32) : UInt32 := ⟨a.toBitVec - b.toBitVec⟩
-/--
 Multiplies two 32-bit unsigned integers, wrapping around on overflow.  Usually accessed via the `*`
 operator.
 
@@ -526,8 +510,6 @@ natural numbers. Usually accessed via the `≤` operator.
 -/
 @[expose] protected def UInt32.le (a b : UInt32) : Prop := a.toBitVec ≤ b.toBitVec
 
-instance : Add UInt32       := ⟨UInt32.add⟩
-instance : Sub UInt32       := ⟨UInt32.sub⟩
 instance : Mul UInt32       := ⟨UInt32.mul⟩
 instance : Pow UInt32 Nat   := ⟨UInt32.pow⟩
 instance : Mod UInt32       := ⟨UInt32.mod⟩

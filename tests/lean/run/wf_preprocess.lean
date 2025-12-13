@@ -145,7 +145,7 @@ structure MTree (α : Type u) where
 
 -- set_option trace.Elab.definition.wf true in
 /--
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 ---
 trace: α : Type u_1
 t : MTree α
@@ -243,7 +243,7 @@ inductive Expression where
 | object: List (String × Expression) → Expression
 
 /--
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 ---
 trace: L : List (String × Expression)
 x : String × Expression
@@ -284,7 +284,7 @@ inductive Expression where
 | object: List (String × Expression) → Expression
 
 /--
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 ---
 trace: L : List (String × Expression)
 x : String × Expression
@@ -325,7 +325,7 @@ namespace List
     (wfParam xs).zipWith f ys = xs.attach.unattach.zipWith f ys := by
   simp [wfParam]
 
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs (warning) in
 @[wf_preprocess] theorem List.zipWith_unattach {P : α → Prop} {xs : List (Subtype P)} {ys : List β} {f : α → β → γ} :
     xs.unattach.zipWith f ys = xs.zipWith (fun ⟨x, h⟩ y =>

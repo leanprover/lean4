@@ -44,7 +44,7 @@ theorem kernel_declaration_meta_variables (x y z : Option Int) : (x = y) ↔ (x 
 /-!
 Regression test: `all_goals` still respects recovery state.
 -/
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs in
 example (x y z : Option Int) : (x = y) ↔ (x = z) := by
   apply Iff.elim

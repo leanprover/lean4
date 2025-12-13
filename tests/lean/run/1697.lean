@@ -12,7 +12,7 @@ error: aborting evaluation since the expression depends on the 'sorry' axiom, wh
 
 To attempt to evaluate anyway despite the risks, use the '#eval!' command.
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 #eval #[1,2,3][2]'sorry
@@ -20,7 +20,7 @@ warning: declaration uses 'sorry'
 /--
 info: 3
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 #eval! #[1,2,3][2]'sorry
@@ -33,7 +33,7 @@ normal circumstances this actually works with the output below, but the `Linux D
 catches it and complains. Maybe too bold to have this in the test suite.
 
 /--
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 ---
 info: 3
 -/

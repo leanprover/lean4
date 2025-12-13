@@ -1,4 +1,4 @@
-435.lean:3:0-3:7: warning: declaration uses 'sorry'
+435.lean:3:0-3:7: warning: declaration uses `sorry`
 435.lean:5:21-5:23: error: Unknown identifier `op` at quotation precheck
 
 Note: You can use `set_option quotPrecheck false` to disable this check.

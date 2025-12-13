@@ -16,7 +16,7 @@ a x y : BitVec 64
 h : 128 = 128
 ⊢ write 16 a (x ++ y) s = aux
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example (a x y : BitVec 64)

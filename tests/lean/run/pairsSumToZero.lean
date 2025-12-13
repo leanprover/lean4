@@ -90,7 +90,7 @@ trace: l : List Int
       true ↔
     List.ExistsPair (fun a b => a + b = 0) l
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 theorem pairsSumToZero_correct_directly (l : List Int) : pairsSumToZero l ↔ l.ExistsPair (fun a b => a + b = 0) := by

@@ -1,4 +1,4 @@
-unknownCannotBeComplex.lean:3:0-3:7: warning: declaration uses 'sorry'
+unknownCannotBeComplex.lean:3:0-3:7: warning: declaration uses `sorry`
 unknownCannotBeComplex.lean:4:10-4:22: error: Function expected at
   Maybe
 but this term has type
@@ -45,7 +45,7 @@ Note: It is not possible to treat `MetaM` as an implicitly bound variable here b
 unknownCannotBeComplex.lean:13:10-13:18: error(lean.unknownIdentifier): Unknown identifier `Nonsense`
 
 Note: It is not possible to treat `Nonsense` as an implicitly bound variable here because it has multiple characters while the `relaxedAutoImplicit` option is set to `false`.
-unknownCannotBeComplex.lean:15:0-15:7: warning: declaration uses 'sorry'
+unknownCannotBeComplex.lean:15:0-15:7: warning: declaration uses `sorry`
 unknownCannotBeComplex.lean:16:68-16:74: error: invalid `▸` notation, argument
   h
 has type

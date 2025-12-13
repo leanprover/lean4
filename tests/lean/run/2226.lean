@@ -11,7 +11,7 @@ variable (A : Nat) (B : by skip)
 def foo :=
   A = B
 
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs in
 def boo :=
   B

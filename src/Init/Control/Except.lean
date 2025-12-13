@@ -332,6 +332,5 @@ instance ExceptT.finally {m : Type u → Type v} {ε : Type u} [MonadFinally m] 
 
 instance [Monad m] [MonadAttach m] : MonadAttach (ExceptT ε m) where
   CanReturn x a := MonadAttach.CanReturn (m := m) x (.ok a)
-  attach x :=
-    show m (Except ε _) from
+  attach x := show m (Except ε _) from
       (fun ⟨a, h⟩ => match a with | .ok a => .ok ⟨a, h⟩ | .error e => .error e) <$> MonadAttach.attach (m := m) x

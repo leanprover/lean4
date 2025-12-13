@@ -8,7 +8,9 @@ module
 prelude
 public import Init.Control.Reader
 public import Init.Control.Lawful.Instances
-public import Init.Control.Lawful.MonadAttach.Lemmas
+public import Init.Data.Option.Attach
+import Init.Control.Lawful.MonadAttach.Lemmas
+import Init.Data.Option.Lemmas
 
 public instance [Monad m] [LawfulMonad m] [MonadAttach m] [WeaklyLawfulMonadAttach m] :
     WeaklyLawfulMonadAttach (ReaderT ρ m) where
@@ -67,7 +69,43 @@ public instance [Monad m] [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m] 
     apply bind_congr; intro a
     split <;> simp
 
+public instance : LawfulMonadAttach Option where
+  map_attach {α} x := by simp [MonadAttach.attach]
+  canReturn_map_imp {α P x a} := by
+    cases x
+    · simp [MonadAttach.CanReturn]
+    · simp +contextual [MonadAttach.CanReturn, eq_comm, Subtype.property]
+
+public instance [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m] :
+    WeaklyLawfulMonadAttach (OptionT m) where
+  map_attach {α} x := by
+    apply OptionT.ext
+    conv => rhs; rw [← WeaklyLawfulMonadAttach.map_attach (x := x.run)]
+    simp only [Functor.map, OptionT.bind, OptionT.mk, MonadAttach.attach, map_eq_pure_bind, bind_assoc]
+    apply bind_congr; intro a
+    match a with
+    | ⟨some a, _⟩ => simp [OptionT.pure, OptionT.mk]
+    | ⟨none, _⟩ => simp
+
+public instance [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m] :
+    LawfulMonadAttach (OptionT m) where
+  canReturn_map_imp {α P x a} h := by
+    simp only [MonadAttach.CanReturn, OptionT.run_map] at h
+    have := LawfulMonadAttach.canReturn_map_imp' h
+    simp only [Option.map_eq_some_iff] at this
+    obtain ⟨_, _, a, rfl, rfl⟩ := this
+    exact a.property
+
+public instance [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m] :
+    WeaklyLawfulMonadAttach (StateRefT' ω σ m) :=
+  inferInstanceAs (WeaklyLawfulMonadAttach (ReaderT _ _))
+
+public instance [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m] :
+    LawfulMonadAttach (StateRefT' ω σ m) :=
+  inferInstanceAs (LawfulMonadAttach (ReaderT _ _))
+
 section
+
 attribute [local instance] MonadAttach.trivial
 
 public instance [Monad m] [LawfulMonad m] :

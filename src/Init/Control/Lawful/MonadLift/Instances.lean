@@ -63,8 +63,7 @@ variable [Monad m] [LawfulMonad m]
 @[simp]
 theorem lift_bind {α β : Type u} (ma : m α) (f : α → m β) :
     OptionT.lift (ma >>= f) = OptionT.lift ma >>= (fun a => OptionT.lift (f a)) := by
-  simp only [instMonad, OptionT.bind, OptionT.mk, OptionT.lift, bind_pure_comp, bind_map_left,
-    map_bind]
+  simp only [OptionT.lift, bind_pure_comp, map_bind, instMonad, OptionT.bind, run_mk, bind_map_left]
 
 instance : LawfulMonadLift m (OptionT m) where
   monadLift_pure := lift_pure
@@ -98,14 +97,8 @@ end ExceptT
 namespace StateRefT'
 
 instance {ω σ : Type} {m : Type → Type} [Monad m] : LawfulMonadLift m (StateRefT' ω σ m) where
-  monadLift_pure _ := by
-    simp only [MonadLift.monadLift, pure]
-    unfold StateRefT'.lift ReaderT.pure
-    simp only
-  monadLift_bind _ _ := by
-    simp only [MonadLift.monadLift, bind]
-    unfold StateRefT'.lift ReaderT.bind
-    simp only
+  monadLift_pure _ := rfl
+  monadLift_bind _ _ := rfl
 
 end StateRefT'
 

@@ -39,12 +39,12 @@ end ReaderT
 
 instance : MonadControl m (ReaderT ρ m) where
   stM      := id
-  liftWith f ctx := f fun x => x ctx
+  liftWith f := .mk fun ctx => f fun x => x.run ctx
   restoreM x _ := x
 
 @[always_inline]
 instance ReaderT.tryFinally [MonadFinally m] : MonadFinally (ReaderT ρ m) where
-  tryFinally' x h ctx := tryFinally' (x ctx) (fun a? => h a? ctx)
+  tryFinally' x h := .mk fun ctx => tryFinally' (x.run ctx) (fun a? => h a? |>.run ctx)
 
 /--
 A monad with access to a read-only value of type `ρ`. The value can be locally overridden by

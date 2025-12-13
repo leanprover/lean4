@@ -154,13 +154,13 @@ states, by interpreting them as states.
 -/
 -- Think: modifyGetM
 def pushArg {σ : Type u} (x : StateT σ (PredTrans ps) α) : PredTrans (.arg σ ps) α where
-  apply := fun Q s => (x s).apply (fun (a, s) => Q.1 a s, Q.2)
+  apply := fun Q s => (x.run s).apply (fun (a, s) => Q.1 a s, Q.2)
   conjunctive := by
     intro Q₁ Q₂
     apply SPred.bientails.of_eq
     ext s
     dsimp only [SPred.and_cons, ExceptConds.and]
-    rw [← ((x s).conjunctive _ _).to_eq]
+    rw [← ((x.run s).conjunctive _ _).to_eq]
 
 /--
 Adds the ability to make assertions about exceptions of type `ε` to a predicate transformer with
@@ -171,12 +171,12 @@ This can be used for all kinds of exception-like effects, such as early terminat
 them as exceptions.
 -/
 def pushExcept {ps : PostShape} {α ε} (x : ExceptT ε (PredTrans ps) α) : PredTrans (.except ε ps) α where
-  apply Q := x.apply (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2)
+  apply Q := x.run.apply (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2)
   conjunctive := by
     intro Q₁ Q₂
     apply SPred.bientails.of_eq
     dsimp
-    rw[← (x.conjunctive _ _).to_eq]
+    rw[← (x.run.conjunctive _ _).to_eq]
     congr
     ext x
     cases x <;> simp
@@ -188,27 +188,27 @@ interpreting `OptionT (PredTrans ps) α` into `PredTrans (.except PUnit ps) α`,
 `Option` as being equivalent to `Except PUnit`.
 -/
 def pushOption {ps : PostShape} {α} (x : OptionT (PredTrans ps) α) : PredTrans (.except PUnit ps) α where
-  apply Q := x.apply (fun | .some a => Q.1 a | .none => Q.2.1 ⟨⟩, Q.2.2)
+  apply Q := x.run.apply (fun | .some a => Q.1 a | .none => Q.2.1 ⟨⟩, Q.2.2)
   conjunctive := by
     intro Q₁ Q₂
     apply SPred.bientails.of_eq
     dsimp
-    rw[← (x.conjunctive _ _).to_eq]
+    rw[← (x.run.conjunctive _ _).to_eq]
     congr
     ext x
     cases x <;> simp
 
 @[simp]
-theorem pushArg_apply {ps} {α σ : Type u} {Q : PostCond α (.arg σ ps)} (f : σ → PredTrans ps (α × σ)) :
-  (pushArg f).apply Q = fun s => (f s).apply (fun ⟨a, s⟩ => Q.1 a s, Q.2) := rfl
+theorem pushArg_apply {ps} {α σ : Type u} {Q : PostCond α (.arg σ ps)} (f : StateT σ (PredTrans ps) α) :
+  (pushArg f).apply Q = fun s => (f.run s).apply (fun ⟨a, s⟩ => Q.1 a s, Q.2) := rfl
 
 @[simp]
-theorem pushExcept_apply {ps} {α ε : Type u} {Q : PostCond α (.except ε ps)} (x : PredTrans ps (Except ε α)) :
-  (pushExcept x).apply Q = x.apply (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2) := rfl
+theorem pushExcept_apply {ps} {α ε : Type u} {Q : PostCond α (.except ε ps)} (x : ExceptT ε (PredTrans ps) α) :
+  (pushExcept x).apply Q = x.run.apply (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2) := rfl
 
 @[simp]
-theorem pushOption_apply {ps} {α : Type u} {Q : PostCond α (.except PUnit ps)} (x : PredTrans ps (Option α)) :
-  (pushOption x).apply Q = x.apply (fun | .some a => Q.1 a | .none => Q.2.1 ⟨⟩, Q.2.2) := rfl
+theorem pushOption_apply {ps} {α : Type u} {Q : PostCond α (.except PUnit ps)} (x : OptionT (PredTrans ps) α) :
+  (pushOption x).apply Q = x.run.apply (fun | .some a => Q.1 a | .none => Q.2.1 ⟨⟩, Q.2.2) := rfl
 
 theorem dite_apply {ps} {Q : PostCond α ps} (c : Prop) [Decidable c] (t : c → PredTrans ps α) (e : ¬ c → PredTrans ps α) :
   (if h : c then t h else e h).apply Q = if h : c then (t h).apply Q else (e h).apply Q := by split <;> rfl

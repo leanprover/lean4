@@ -469,19 +469,68 @@ private def useFunCongrAtFn (f : Expr) : GrindM Bool := do
   let .const declName _ := f | return true
   useFunCongrAtDecl declName
 
-private def internalizeLiteral (e : Expr) (generation : Nat) (parent? : Option Expr) : GoalM Unit := do
-  -- We do not want to internalize the components of a literal value.
+/--
+Returns true if `e` is a nonparametric literal.
+For example, `BitVec` and `Fin` are parametric literals, but `Nat` is not.
+-/
+private def isNonParametricLitValue (e : Expr) : MetaM Bool := do
+  if (← getNatValue? e).isSome then return true
+  if (← getIntValue? e).isSome then return true
+  if (getStringValue? e).isSome then return true
+  if (← getCharValue? e).isSome then return true
+  if (← getUInt8Value? e).isSome then return true
+  if (← getUInt16Value? e).isSome then return true
+  if (← getUInt32Value? e).isSome then return true
+  if (← getUInt64Value? e).isSome then return true
+  return false
+
+/--
+Internalizer for nonparametric literals (see `isNonParametricLitValue`).
+For this kind of literal, we do **not** internalize its children nor
+we activate theorems associated with their function symbol.
+This is relevant because we do not want to internalize, for example,
+the raw natural value in `OfNat.ofNat`. We also do not want to normalize
+the `2` in the integer literal `-2`.
+
+We used to use this optimization for parametric literals too. However,
+it triggered a bug during E-matching because we could have patterns of
+the form ``[P #0 (@OfNat.ofNat (Fin _) `[0] _)]``. See issue #11545.
+
+We still have support for parametric `OfNat.ofNat` literals since we don't
+want to internalize the raw natural value there. See `internalizeOfNatFinBitVecLiteral`.
+-/
+private def internalizeNonParametricLiteral (e : Expr) (generation : Nat) (parent? : Option Expr) : GoalM Unit := do
   mkENode e generation
   Solvers.internalize e parent?
-  /-
-  **Note**: Functions used to construct literals may be used for indexing theorem.
-  `OfNat.ofNat` is not used for indexing, but `BitVec.ofNat` is.
-  **Note**: We should revise whether we should normalize `BitVec.ofNat` to `OfNat.ofNat` in `grind`.
-  -/
-  if let .const declName _ := e.getAppFn then
-    unless declName == ``OfNat.ofNat do
-      updateIndicesFound (.const declName)
-      activateTheorems declName generation
+
+/--
+Returns `true` if `e` is a `OfNat.ofNat` literal of type `BitVec _` or `Fin _`.
+-/
+private def isOfNatFinBitVecLiteral (e : Expr) : MetaM Bool := do
+  let_expr OfNat.ofNat α _ _ := e | return false
+  match_expr α with
+  | BitVec _ => return (← getBitVecValue? e).isSome
+  | Fin _ => return (← getFinValue? e).isSome
+  | _ => return false
+
+/--
+Internalizer for parametric `OfNat.ofNat` literals (see `isOfNatFinBitVecLiteral`).
+For this kind of literal, we do **not** internalize its nested raw literal, but
+we do internalize the type and instance to address issue #11545.
+For example, we can have patterns of the form ``[P #0 (@OfNat.ofNat (Fin _) `[0] _)]``.
+
+**Note**: `BitVec.ofNat` were previously internalized using `internalizeNonParametricLiteral`,
+but it created problems when indexing theorems because `BitVec.ofNat` was not activated.
+We now internalize this kind of application as a regular one.
+-/
+private def internalizeOfNatFinBitVecLiteral (e : Expr) (generation : Nat) (parent? : Option Expr) : GoalM Unit := do
+  mkENode e generation
+  Solvers.internalize e parent?
+  let_expr OfNat.ofNat α _ inst := e | return ()
+  internalize α generation e
+  internalize inst generation e
+  registerParent e α
+  registerParent e inst
 
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do
@@ -548,8 +597,10 @@ where
       reportIssue! "unexpected kernel projection term during internalization{indentExpr e}\n`grind` uses a pre-processing step that folds them as projection applications, the pre-processor failed to fold this term"
       mkENode' e generation
     | .app .. =>
-      if (← isLitValue e) then
-        internalizeLiteral e generation parent?
+      if (← isNonParametricLitValue e) then
+        internalizeNonParametricLiteral e generation parent?
+      else if (← isOfNatFinBitVecLiteral e) then
+        internalizeOfNatFinBitVecLiteral e generation parent?
       else if e.isAppOfArity ``Grind.MatchCond 1 then
         internalizeMatchCond e generation
       else e.withApp fun f args => do

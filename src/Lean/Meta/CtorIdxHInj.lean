@@ -27,20 +27,18 @@ private partial def mkHInjectiveTheorem? (thmName : Name) (indVal : InductiveVal
     withImplicitBinderInfos xs1 do
     withImplicitBinderInfos xs2 do
     withPrimedNames xs2 do
-      let t1 := mkAppN (mkConst indVal.name us) xs1
-      let t2 := mkAppN (mkConst indVal.name us) xs2
-      withLocalDeclD `x  t1 fun x1 =>
-      withLocalDeclD `x' t2 fun x2 => do
-        let ctorIdxApp1 := mkAppN (mkConst (mkCtorIdxName indVal.name) us) (xs1.push x1)
-        let ctorIdxApp2 := mkAppN (mkConst (mkCtorIdxName indVal.name) us) (xs2.push x2)
-        let mut thmType ← mkEq ctorIdxApp1 ctorIdxApp2
-        for a1 in (xs1.push x1).reverse, a2 in (xs2.push x2).reverse do
-          if (← isProof a1) then
-            continue
-          let name := (← a1.fvarId!.getUserName).appendAfter "_eq"
-          let eq ← mkEqHEq a1 a2
-          thmType := mkForall name .default eq thmType
-        mkForallFVars (xs1.push x1 ++ xs2.push x2) thmType
+    withLocalDeclD `x  (mkAppN (mkConst indVal.name us) xs1) fun x1 => do
+    withLocalDeclD `x' (mkAppN (mkConst indVal.name us) xs2) fun x2 => do
+      let ctorIdxApp1 := mkAppN (mkConst (mkCtorIdxName indVal.name) us) (xs1.push x1)
+      let ctorIdxApp2 := mkAppN (mkConst (mkCtorIdxName indVal.name) us) (xs2.push x2)
+      let mut thmType ← mkEq ctorIdxApp1 ctorIdxApp2
+      for a1 in (xs1.push x1).reverse, a2 in (xs2.push x2).reverse do
+        if (← isProof a1) then
+          continue
+        let name := (← a1.fvarId!.getUserName).appendAfter "_eq"
+        let eq ← mkEqHEq a1 a2
+        thmType := mkForall name .default eq thmType
+      mkForallFVars (xs1.push x1 ++ xs2.push x2) thmType
 
   let thmVal ← mkFreshExprSyntheticOpaqueMVar thmType
   let mut mvarId := thmVal.mvarId!

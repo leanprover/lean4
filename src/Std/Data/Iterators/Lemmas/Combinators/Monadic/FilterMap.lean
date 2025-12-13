@@ -151,7 +151,7 @@ theorem IterM.Equiv.mapWithPostcondition {α₁ α₂ β γ : Type w}
 
 theorem IterM.Equiv.filterMapM {α₁ α₂ β γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} [Monad m] [LawfulMonad m]
-    [Monad n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → n (Option γ)} {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
     (h : IterM.Equiv ita itb) :
@@ -160,7 +160,7 @@ theorem IterM.Equiv.filterMapM {α₁ α₂ β γ : Type w}
 
 theorem IterM.Equiv.filterM {α₁ α₂ β : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} [Monad m] [LawfulMonad m]
-    [Monad n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → n (ULift Bool)} {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
     (h : IterM.Equiv ita itb) :
@@ -169,7 +169,7 @@ theorem IterM.Equiv.filterM {α₁ α₂ β : Type w}
 
 theorem IterM.Equiv.mapM {α₁ α₂ β γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} [Monad m] [LawfulMonad m]
-    [Monad n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → n γ} {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
     (h : IterM.Equiv ita itb) :

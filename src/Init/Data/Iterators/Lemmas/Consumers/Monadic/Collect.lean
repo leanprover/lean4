@@ -83,6 +83,11 @@ theorem IterM.toArray_ensureTermination [Monad m] [Iterator α m β] [Finite α 
     it.ensureTermination.toArray = it.toArray :=
   (rfl)
 
+theorem IterM.toArray_eq_toArray_defaultImplementation [Monad m] [LawfulMonad m] [Iterator α m β]
+    [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m] {it : IterM (α := α) m β} :
+    it.toArray = (haveI : IteratorCollect α m m := .defaultImplementation; it.toArray) := by
+  simp only [IterM.toArray, LawfulIteratorCollect.toArrayMapped_eq]
+
 theorem IterM.toArray_eq_match_step [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
     [IteratorCollect α m m] [LawfulIteratorCollect α m m] :
     it.toArray = (do
@@ -130,6 +135,11 @@ theorem IterM.toArray_toList_ensureTermination [Monad m] [LawfulMonad m] [Iterat
     [IteratorCollect α m m] {it : IterM (α := α) m β} :
     List.toArray <$> it.ensureTermination.toList = it.toArray := by
   rw [toList_ensureTermination, toArray_toList]
+
+theorem IterM.toList_eq_toList_defaultImplementation [Monad m] [LawfulMonad m] [Iterator α m β]
+    [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m] {it : IterM (α := α) m β} :
+    it.toList = (haveI : IteratorCollect α m m := .defaultImplementation; it.toList) := by
+  simp only [IterM.toList, toArray_eq_toArray_defaultImplementation]
 
 theorem IterM.toList_eq_match_step [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
     [IteratorCollect α m m] [LawfulIteratorCollect α m m] {it : IterM (α := α) m β} :

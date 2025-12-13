@@ -75,6 +75,13 @@ instance [Monad m] : MonadLift m (ExceptCpsT σ m) where
 instance [Inhabited ε] : Inhabited (ExceptCpsT ε m α) where
   default := fun _ _ k₂ => k₂ default
 
+/--
+For continuation monads, it is not possible to provide a computable `MonadAttach` instance that
+actually adds information about the return value. Therefore, this instance always attaches a proof
+of `True`.
+-/
+instance : MonadAttach (ExceptCpsT ε m) := .trivial
+
 @[simp] theorem run_pure [Monad m] : run (pure x : ExceptCpsT ε m α) = pure (Except.ok x) := rfl
 
 @[simp] theorem run_lift {α ε : Type u} [Monad m] (x : m α) : run (ExceptCpsT.lift x : ExceptCpsT ε m α) = (x >>= fun a => pure (Except.ok a) : m (Except ε α)) := rfl

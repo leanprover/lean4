@@ -32,7 +32,8 @@ def propagateCtorIdxUp (e : Expr) : GoalM Unit := e.withApp fun f xs => do
       let aType ← whnfD (← inferType a)
       let bType ← whnfD (← inferType b)
       assert! aType.isAppOfArity indInfo.name (indInfo.numParams + indInfo.numIndices)
-      assert! bType.isAppOfArity indInfo.name (indInfo.numParams + indInfo.numIndices)
+      -- both types should be headed by the same type former
+      unless bType.isAppOfArity indInfo.name (indInfo.numParams + indInfo.numIndices) do return
       let us := aType.getAppFn.constLevels!
       let hinjName := mkCtorIdxHInjTheoremNameFor indInfo.name
       unless (← getEnv).containsOnBranch hinjName do

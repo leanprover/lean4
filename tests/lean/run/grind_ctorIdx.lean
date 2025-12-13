@@ -61,7 +61,13 @@ example (hα : α = α') (_ : double n = double m)
     xs.ctorIdx = 1 := by
   grind
 
--- Some tests provided by clause
+-- Heteogeneous equality where the sides are not headed by the same type constructor
+
+example (h : Bool = Nat) (x : Bool) (heq : x ≍ Nat.succ n) : x.ctorIdx = 0 := by
+  fail_if_success grind
+  sorry
+
+-- Some tests provided by claude
 
 -- Test 1: Multiple ctorIdx comparisons with different constructors
 example (t1 t2 : T) (h1 : t1 = .con1 10) (h2 : t2 = .con2) : t1.ctorIdx ≠ t2.ctorIdx := by

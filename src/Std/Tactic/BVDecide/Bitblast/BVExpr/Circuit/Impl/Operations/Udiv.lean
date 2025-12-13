@@ -11,6 +11,7 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Eq
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Ult
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ZeroExtend
 public import Std.Sat.AIG.If
+import Init.Grind
 
 public section
 
@@ -40,17 +41,24 @@ def blastShiftConcat (aig : AIG α) (input : ShiftConcatInput aig w) : AIG.RefVe
   let new := bit.append lhs
   blastZeroExtend aig ⟨1 + w, new⟩
 
-instance : AIG.LawfulVecOperator α ShiftConcatInput blastShiftConcat where
-  le_size := by
-    intros
-    unfold blastShiftConcat
-    dsimp only
-    apply AIG.LawfulVecOperator.le_size (f := blastZeroExtend)
-  decl_eq := by
-    intros
-    unfold blastShiftConcat
-    dsimp only
-    rw [AIG.LawfulVecOperator.decl_eq (f := blastZeroExtend)]
+@[grind! .]
+theorem blastShiftConcat_le_size (aig : AIG α) (input : ShiftConcatInput aig w) :
+    aig.decls.size ≤ (blastShiftConcat aig input).aig.decls.size := by
+  intros
+  unfold blastShiftConcat
+  grind
+
+@[grind =]
+theorem blastShiftConcat_decl_eq (aig : AIG α) (input : ShiftConcatInput aig w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (blastShiftConcat aig input).aig.decls.size) :
+    (blastShiftConcat aig input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold blastShiftConcat
+  grind
+
+instance inst : AIG.LawfulVecOperator α ShiftConcatInput blastShiftConcat where
+  le_size := blastShiftConcat_le_size
+  decl_eq := blastShiftConcat_decl_eq
 
 structure BlastDivSubtractShiftOutput (old : AIG α) (w : Nat) where
   aig : AIG α
@@ -123,28 +131,13 @@ def blastDivSubtractShift (aig : AIG α) (n d : AIG.RefVec aig w) (wn wr : Nat)
   let nextR := res.vec
   have := AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite) ..
   let nextQ := nextQ.cast this
-  have := by
-    apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.ite)
-    apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.ite)
-    apply AIG.LawfulOperator.le_size_of_le_aig_size (f := BVPred.mkUlt)
-    apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := blastSub)
-    apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := blastShiftConcat)
-    apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := blastShiftConcat)
-    apply AIG.LawfulVecOperator.le_size (f := blastShiftConcat)
-  ⟨aig, wn, wr, nextQ, nextR, this⟩
+  ⟨aig, wn, wr, nextQ, nextR, by grind⟩
 
 theorem blastDivSubtractShift_le_size (aig : AIG α)
      (n d : AIG.RefVec aig w) (wn wr : Nat) (q r : AIG.RefVec aig w) :
     aig.decls.size ≤ (blastDivSubtractShift aig n d wn wr q r).aig.decls.size := by
   unfold blastDivSubtractShift
-  dsimp only
-  apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.ite)
-  apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.ite)
-  apply AIG.LawfulOperator.le_size_of_le_aig_size (f := BVPred.mkUlt)
-  apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := blastSub)
-  apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := blastUdiv.blastShiftConcat)
-  apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := blastUdiv.blastShiftConcat)
-  apply AIG.LawfulVecOperator.le_size (f := blastUdiv.blastShiftConcat)
+  grind
 
 theorem blastDivSubtractShift_decl_eq (aig : AIG α) (n d : AIG.RefVec aig w) (wn wr : Nat)
     (q r : AIG.RefVec aig w) :
@@ -154,41 +147,7 @@ theorem blastDivSubtractShift_decl_eq (aig : AIG α) (n d : AIG.RefVec aig w) (w
   unfold blastDivSubtractShift at hres
   dsimp only at hres
   rw [← hres]
-  intros
-  rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
-  rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
-  rw [AIG.LawfulOperator.decl_eq (f := BVPred.mkUlt)]
-  rw [AIG.LawfulVecOperator.decl_eq (f := blastSub)]
-  rw [AIG.LawfulVecOperator.decl_eq (f := blastUdiv.blastShiftConcat)]
-  rw [AIG.LawfulVecOperator.decl_eq (f := blastUdiv.blastShiftConcat)]
-  rw [AIG.LawfulVecOperator.decl_eq (f := blastUdiv.blastShiftConcat)]
-  · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastUdiv.blastShiftConcat)
-    assumption
-  · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastUdiv.blastShiftConcat)
-    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastUdiv.blastShiftConcat)
-    assumption
-  · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastUdiv.blastShiftConcat)
-    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastUdiv.blastShiftConcat)
-    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastUdiv.blastShiftConcat)
-    assumption
-  · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastSub)
-    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastUdiv.blastShiftConcat)
-    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastUdiv.blastShiftConcat)
-    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastUdiv.blastShiftConcat)
-    assumption
-  · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkUlt)
-    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastSub)
-    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastUdiv.blastShiftConcat)
-    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastUdiv.blastShiftConcat)
-    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastUdiv.blastShiftConcat)
-    assumption
-  · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
-    apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkUlt)
-    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastSub)
-    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastUdiv.blastShiftConcat)
-    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastUdiv.blastShiftConcat)
-    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastUdiv.blastShiftConcat)
-    assumption
+  grind
 
 structure BlastUdivOutput (old : AIG α) (w : Nat) where
   aig : AIG α
@@ -216,15 +175,11 @@ def go (aig : AIG α) (curr : Nat) (n d : AIG.RefVec aig w)
     let r := res.r
     have := by
       refine Nat.le_trans ?_ res.hle
-      apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.ite)
-      apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.ite)
-      apply AIG.LawfulOperator.le_size_of_le_aig_size (f := BVPred.mkUlt)
-      apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := blastSub)
-      apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := blastShiftConcat)
-      apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := blastShiftConcat)
-      apply AIG.LawfulVecOperator.le_size (f := blastShiftConcat)
+      clear aig q r res
+      grind
     ⟨aig, q, r, this⟩
 
+@[grind! .]
 theorem go_le_size (aig : AIG α) (curr : Nat) (n d : AIG.RefVec aig w) (wn wr : Nat)
     (q r : AIG.RefVec aig w) :
     aig.decls.size ≤ (go aig curr n d wn wr q r).aig.decls.size := by
@@ -235,6 +190,7 @@ theorem go_le_size (aig : AIG α) (curr : Nat) (n d : AIG.RefVec aig w) (wn wr :
   · refine Nat.le_trans ?_ (by apply go_le_size)
     apply blastUdiv.blastDivSubtractShift_le_size
 
+@[grind =]
 theorem go_decl_eq (aig : AIG α) (curr : Nat) (n d : AIG.RefVec aig w) (wn wr : Nat)
     (q r : AIG.RefVec aig w) :
     ∀ (idx : Nat) (h1) (h2),
@@ -275,24 +231,24 @@ def blastUdiv (aig : AIG α) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry 
 
   AIG.RefVec.ite aig ⟨discr, zero, divRes⟩
 
+@[grind! .]
+theorem blastUdiv_le_size (aig : AIG α) (input : aig.BinaryRefVec w) :
+    aig.decls.size ≤ (blastUdiv aig input).aig.decls.size := by
+  intros
+  unfold blastUdiv
+  grind
+  
+@[grind =]
+theorem blastUdiv_decl_eq (aig : AIG α) (input : aig.BinaryRefVec w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (blastUdiv aig input).aig.decls.size) :
+    (blastUdiv aig input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold blastUdiv
+  grind
+
 instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastUdiv where
-  le_size := by
-    intros
-    unfold blastUdiv
-    apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.ite)
-    refine Nat.le_trans ?_ (by apply blastUdiv.go_le_size)
-    apply AIG.LawfulOperator.le_size (f := BVPred.mkEq)
-  decl_eq := by
-    intros
-    unfold blastUdiv
-    rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
-    rw [blastUdiv.go_decl_eq]
-    rw [AIG.LawfulOperator.decl_eq (f := BVPred.mkEq)]
-    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkEq)
-      assumption
-    · refine Nat.le_trans ?_ (by apply blastUdiv.go_le_size)
-      apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkEq)
-      assumption
+  le_size := blastUdiv_le_size
+  decl_eq := blastUdiv_decl_eq
 
 end bitblast
 end BVExpr

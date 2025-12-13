@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
+import Init.Grind
 
 @[expose] public section
 
@@ -81,17 +82,26 @@ theorem go_decl_eq {aig : AIG α} {cin} {lhs rhs : AIG.RefVec aig w} :
   · simp [← hgo]
 termination_by w - curr
 
+@[grind! .]
+theorem mkOverflowBit_le_size (aig : AIG α) (input : OverflowInput aig) :
+    aig.decls.size ≤ (mkOverflowBit aig input).aig.decls.size := by
+  intros
+  unfold mkOverflowBit
+  dsimp only
+  apply go_le_size
+
+@[grind =]
+theorem mkOverflowBit_decl_eq (aig : AIG α) (input : OverflowInput aig) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (mkOverflowBit aig input).aig.decls.size) :
+    (mkOverflowBit aig input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold mkOverflowBit
+  dsimp only
+  rw [go_decl_eq]
+
 instance : AIG.LawfulOperator α OverflowInput mkOverflowBit where
-  le_size := by
-    intros
-    unfold mkOverflowBit
-    dsimp only
-    apply go_le_size
-  decl_eq := by
-    intros
-    unfold mkOverflowBit
-    dsimp only
-    rw [go_decl_eq]
+  le_size := mkOverflowBit_le_size
+  decl_eq := mkOverflowBit_decl_eq
 
 end mkOverflowBit
 

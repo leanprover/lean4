@@ -5,7 +5,6 @@ import Lean
 
 -- Restore the options to a pristine state
 set_option internal.cmdlineSnapshots false
-set_option experimental.module false
 set_option Elab.inServer false
 
 /-- info: -- In root namespace with initial scope -/

@@ -102,6 +102,7 @@ lean_object* lean_st_mk_ref(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_tryOne_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_ofExcept___at___00Std_Internal_IO_Async_Selectable_one_spec__1___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_combine___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__5___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__0(lean_object*, lean_object*);
 static lean_object* l_randNat___at___00__private_Std_Internal_Async_Select_0__Std_Internal_IO_Async_shuffleIt_go_spec__0___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed(lean_object*, lean_object*);
@@ -127,6 +128,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_tryOne_spec__0___redArg___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_one___redArg___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_combine___redArg___lam__1(lean_object*, lean_object*);
+static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__5___closed__0;
 extern lean_object* l_stdRange;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__0(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_IO_ofExcept___at___00Std_Internal_IO_Async_Selectable_one_spec__1(lean_object*, lean_object*);
@@ -163,9 +165,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_one___redArg___lam__9___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_combine_spec__1___redArg___lam__4(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__3___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_Internal_IO_Async_Selectable_one___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_one___redArg(lean_object*);
-static lean_object* l_Std_Internal_IO_Async_Selectable_one___redArg___closed__5;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__0___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_tryOne___redArg___lam__0(lean_object*);
@@ -1683,7 +1683,7 @@ x_7 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00S
 return x_7;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Selectable_one___redArg___closed__0() {
+static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__5___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1697,7 +1697,7 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Un
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Internal_IO_Async_Selectable_one___redArg___closed__0;
+x_1 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__5___closed__0;
 x_2 = lean_task_pure(x_1);
 return x_2;
 }
@@ -1807,11 +1807,11 @@ x_5 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00S
 return x_5;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Selectable_one___redArg___closed__1() {
+static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__5___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Internal_IO_Async_Selectable_one___redArg___closed__0;
+x_1 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__5___closed__0;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -1854,7 +1854,7 @@ x_12 = lean_io_promise_result_opt(x_1);
 x_13 = lean_unsigned_to_nat(0u);
 x_14 = lean_io_bind_task(x_12, x_2, x_13, x_3);
 lean_dec_ref(x_14);
-x_15 = l_Std_Internal_IO_Async_Selectable_one___redArg___closed__1;
+x_15 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__5___closed__1;
 x_16 = 0;
 x_17 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), x_13, x_16, x_15, x_4);
 return x_17;
@@ -2936,7 +2936,7 @@ x_4 = l_Std_Internal_IO_Async_Selectable_one___redArg___lam__9(x_1, x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Selectable_one___redArg___closed__2() {
+static lean_object* _init_l_Std_Internal_IO_Async_Selectable_one___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -2944,31 +2944,31 @@ x_1 = lean_mk_string_unchecked("Selectable.one requires at least one Selectable"
 return x_1;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Selectable_one___redArg___closed__3() {
+static lean_object* _init_l_Std_Internal_IO_Async_Selectable_one___redArg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Internal_IO_Async_Selectable_one___redArg___closed__2;
+x_1 = l_Std_Internal_IO_Async_Selectable_one___redArg___closed__0;
 x_2 = lean_alloc_ctor(18, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Selectable_one___redArg___closed__4() {
+static lean_object* _init_l_Std_Internal_IO_Async_Selectable_one___redArg___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Internal_IO_Async_Selectable_one___redArg___closed__3;
+x_1 = l_Std_Internal_IO_Async_Selectable_one___redArg___closed__1;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Selectable_one___redArg___closed__5() {
+static lean_object* _init_l_Std_Internal_IO_Async_Selectable_one___redArg___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Internal_IO_Async_Selectable_one___redArg___closed__4;
+x_1 = l_Std_Internal_IO_Async_Selectable_one___redArg___closed__2;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -2990,7 +2990,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Selectable_one___redArg___lam__9___boxed), 3, 1);
 lean_closure_set(x_6, 0, x_4);
-x_7 = l_Std_Internal_IO_Async_Selectable_one___redArg___closed__1;
+x_7 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__5___closed__1;
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), x_8, x_5, x_7, x_6);
 return x_9;
@@ -3000,7 +3000,7 @@ else
 lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; 
 x_10 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Selectable_one___redArg___lam__9___boxed), 3, 1);
 lean_closure_set(x_10, 0, x_4);
-x_11 = l_Std_Internal_IO_Async_Selectable_one___redArg___closed__5;
+x_11 = l_Std_Internal_IO_Async_Selectable_one___redArg___closed__3;
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = 0;
 x_14 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), x_12, x_13, x_11, x_10);
@@ -3101,6 +3101,14 @@ x_3 = l_IO_ofExcept___at___00Std_Internal_IO_Async_Selectable_one_spec__1___redA
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_one___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Internal_IO_Async_Selectable_one___redArg(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -3123,14 +3131,6 @@ x_9 = lean_unbox_usize(x_5);
 lean_dec(x_5);
 x_10 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__3___redArg(x_1, x_2, x_3, x_8, x_9, x_6);
 return x_10;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_one___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Internal_IO_Async_Selectable_one___redArg(x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
@@ -4010,7 +4010,7 @@ x_7 = lean_box(x_3);
 x_8 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Selectable_tryOne___redArg___lam__3___boxed), 4, 2);
 lean_closure_set(x_8, 0, x_7);
 lean_closure_set(x_8, 1, x_6);
-x_9 = l_Std_Internal_IO_Async_Selectable_one___redArg___closed__1;
+x_9 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__5___closed__1;
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), x_10, x_3, x_9, x_8);
 return x_11;
@@ -4672,7 +4672,7 @@ x_12 = lean_io_promise_result_opt(x_1);
 x_13 = lean_unsigned_to_nat(0u);
 x_14 = lean_io_bind_task(x_12, x_2, x_13, x_3);
 lean_dec_ref(x_14);
-x_15 = l_Std_Internal_IO_Async_Selectable_one___redArg___closed__1;
+x_15 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__5___closed__1;
 x_16 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), x_13, x_3, x_15, x_4);
 return x_16;
 }
@@ -5225,7 +5225,7 @@ else
 {
 lean_object* x_57; lean_object* x_58; 
 lean_dec_ref(x_1);
-x_57 = l_Std_Internal_IO_Async_Selectable_one___redArg___closed__3;
+x_57 = l_Std_Internal_IO_Async_Selectable_one___redArg___closed__1;
 x_58 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_58, 0, x_57);
 return x_58;
@@ -5303,14 +5303,6 @@ x_11 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00
 return x_11;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Internal_IO_Async_Selectable_combine___redArg(x_1);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_combine_spec__1___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -5322,6 +5314,14 @@ x_12 = lean_unbox_usize(x_7);
 lean_dec(x_7);
 x_13 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_combine_spec__1___redArg(x_1, x_10, x_3, x_4, x_5, x_11, x_12, x_8);
 return x_13;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Internal_IO_Async_Selectable_combine___redArg(x_1);
+return x_3;
 }
 }
 lean_object* initialize_Init_Data_Random(uint8_t builtin);
@@ -5345,22 +5345,22 @@ l_randNat___at___00__private_Std_Internal_Async_Select_0__Std_Internal_IO_Async_
 lean_mark_persistent(l_randNat___at___00__private_Std_Internal_Async_Select_0__Std_Internal_IO_Async_shuffleIt_go_spec__0___closed__0);
 l_Std_Internal_IO_Async_Selectable_one___redArg___lam__7___closed__0 = _init_l_Std_Internal_IO_Async_Selectable_one___redArg___lam__7___closed__0();
 lean_mark_persistent(l_Std_Internal_IO_Async_Selectable_one___redArg___lam__7___closed__0);
-l_Std_Internal_IO_Async_Selectable_one___redArg___closed__0 = _init_l_Std_Internal_IO_Async_Selectable_one___redArg___closed__0();
-lean_mark_persistent(l_Std_Internal_IO_Async_Selectable_one___redArg___closed__0);
+l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__5___closed__0 = _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__5___closed__0();
+lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__5___closed__0);
 l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__4___closed__0 = _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__4___closed__0();
 lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__4___closed__0);
-l_Std_Internal_IO_Async_Selectable_one___redArg___closed__1 = _init_l_Std_Internal_IO_Async_Selectable_one___redArg___closed__1();
-lean_mark_persistent(l_Std_Internal_IO_Async_Selectable_one___redArg___closed__1);
+l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__5___closed__1 = _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__5___closed__1();
+lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__5___closed__1);
 l_Std_Internal_IO_Async_Selectable_one___redArg___lam__2___closed__0 = _init_l_Std_Internal_IO_Async_Selectable_one___redArg___lam__2___closed__0();
 lean_mark_persistent(l_Std_Internal_IO_Async_Selectable_one___redArg___lam__2___closed__0);
+l_Std_Internal_IO_Async_Selectable_one___redArg___closed__0 = _init_l_Std_Internal_IO_Async_Selectable_one___redArg___closed__0();
+lean_mark_persistent(l_Std_Internal_IO_Async_Selectable_one___redArg___closed__0);
+l_Std_Internal_IO_Async_Selectable_one___redArg___closed__1 = _init_l_Std_Internal_IO_Async_Selectable_one___redArg___closed__1();
+lean_mark_persistent(l_Std_Internal_IO_Async_Selectable_one___redArg___closed__1);
 l_Std_Internal_IO_Async_Selectable_one___redArg___closed__2 = _init_l_Std_Internal_IO_Async_Selectable_one___redArg___closed__2();
 lean_mark_persistent(l_Std_Internal_IO_Async_Selectable_one___redArg___closed__2);
 l_Std_Internal_IO_Async_Selectable_one___redArg___closed__3 = _init_l_Std_Internal_IO_Async_Selectable_one___redArg___closed__3();
 lean_mark_persistent(l_Std_Internal_IO_Async_Selectable_one___redArg___closed__3);
-l_Std_Internal_IO_Async_Selectable_one___redArg___closed__4 = _init_l_Std_Internal_IO_Async_Selectable_one___redArg___closed__4();
-lean_mark_persistent(l_Std_Internal_IO_Async_Selectable_one___redArg___closed__4);
-l_Std_Internal_IO_Async_Selectable_one___redArg___closed__5 = _init_l_Std_Internal_IO_Async_Selectable_one___redArg___closed__5();
-lean_mark_persistent(l_Std_Internal_IO_Async_Selectable_one___redArg___closed__5);
 l_Std_Internal_IO_Async_Selectable_tryOne___redArg___lam__0___closed__0 = _init_l_Std_Internal_IO_Async_Selectable_tryOne___redArg___lam__0___closed__0();
 lean_mark_persistent(l_Std_Internal_IO_Async_Selectable_tryOne___redArg___lam__0___closed__0);
 l_Std_Internal_IO_Async_Selectable_tryOne___redArg___lam__0___closed__1 = _init_l_Std_Internal_IO_Async_Selectable_tryOne___redArg___lam__0___closed__1();

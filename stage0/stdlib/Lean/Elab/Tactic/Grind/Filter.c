@@ -288,21 +288,6 @@ x_13 = l_Lean_throwErrorAt___at___00__private_Lean_Elab_Tactic_Grind_Filter_0__L
 return x_13;
 }
 }
-LEAN_EXPORT uint8_t l___private_Lean_Elab_Tactic_Grind_Filter_0__Lean_Elab_Tactic_Grind_elabFilter_go___lam__0(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; 
-x_5 = lean_nat_dec_eq(x_4, x_1);
-if (x_5 == 0)
-{
-return x_2;
-}
-else
-{
-return x_3;
-}
-}
-}
 LEAN_EXPORT uint8_t l___private_Lean_Elab_Tactic_Grind_Filter_0__Lean_Elab_Tactic_Grind_elabFilter_go___lam__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -316,6 +301,14 @@ _start:
 {
 uint8_t x_3; 
 x_3 = lean_nat_dec_le(x_2, x_1);
+return x_3;
+}
+}
+LEAN_EXPORT uint8_t l___private_Lean_Elab_Tactic_Grind_Filter_0__Lean_Elab_Tactic_Grind_elabFilter_go___lam__3(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = lean_nat_dec_eq(x_2, x_1);
 return x_3;
 }
 }
@@ -335,12 +328,19 @@ x_3 = lean_nat_dec_lt(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT uint8_t l___private_Lean_Elab_Tactic_Grind_Filter_0__Lean_Elab_Tactic_Grind_elabFilter_go___lam__3(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l___private_Lean_Elab_Tactic_Grind_Filter_0__Lean_Elab_Tactic_Grind_elabFilter_go___lam__0(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
 _start:
 {
-uint8_t x_3; 
-x_3 = lean_nat_dec_eq(x_2, x_1);
+uint8_t x_5; 
+x_5 = lean_nat_dec_eq(x_4, x_1);
+if (x_5 == 0)
+{
+return x_2;
+}
+else
+{
 return x_3;
+}
 }
 }
 static lean_object* _init_l___private_Lean_Elab_Tactic_Grind_Filter_0__Lean_Elab_Tactic_Grind_elabFilter_go___closed__0() {

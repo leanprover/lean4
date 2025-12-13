@@ -924,6 +924,33 @@ def inter [TransCmp cmp] (m₁ m₂ : ExtDTreeMap α β cmp) : ExtDTreeMap α β
 
 instance [TransCmp cmp] : Inter (ExtDTreeMap α β cmp) := ⟨inter⟩
 
+instance [LawfulEqCmp cmp] [TransCmp cmp] [∀ k, BEq (β k)] : BEq (ExtDTreeMap α β cmp) where
+  beq := lift₂ (fun x y : DTreeMap α β cmp => x.beq y) fun _ _ _ _ => DTreeMap.Equiv.beq_congr
+
+instance [LawfulEqCmp cmp] [TransCmp cmp] [∀ k, BEq (β k)] [∀ k, ReflBEq (β k)] : ReflBEq (ExtDTreeMap α β cmp) where
+  rfl {a} := a.inductionOn fun _ => DTreeMap.Equiv.beq <| DTreeMap.Equiv.rfl
+
+instance [LawfulEqCmp cmp] [TransCmp cmp] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] : LawfulBEq (ExtDTreeMap α β cmp) where
+  eq_of_beq {a} {b} := a.inductionOn₂ b fun _ _ h => sound <| DTreeMap.equiv_of_beq h
+
+instance {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} [TransCmp cmp] [LawfulEqCmp cmp] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] : DecidableEq (ExtDTreeMap α β cmp) :=
+  fun _ _ => decidable_of_iff _ beq_iff_eq
+
+namespace Const
+
+variable {β : Type v}
+
+@[inline, inherit_doc DTreeMap.beq]
+def beq [TransCmp cmp] [BEq β] (m₁ m₂ : ExtDTreeMap α (fun _ => β) cmp) : Bool := lift₂ (fun x y : DTreeMap α (fun _ => β) cmp => DTreeMap.Const.beq x y)
+  (fun _ _ _ _ => DTreeMap.Const.Equiv.beq_congr) m₁ m₂
+
+theorem beq_of_eq [TransCmp cmp] [BEq β] [ReflBEq β] (m₁ m₂ : ExtDTreeMap α (fun _ => β) cmp) : m₁ = m₂ → Const.beq m₁ m₂ :=
+  m₁.inductionOn₂ m₂ fun _ _ h => DTreeMap.Const.Equiv.beq <| exact h
+
+theorem eq_of_beq [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] [LawfulBEq β] (m₁ m₂ : ExtDTreeMap α (fun _ => β) cmp) : Const.beq m₁ m₂ → m₁ = m₂ :=
+  m₁.inductionOn₂ m₂ fun _ _ h => sound <| DTreeMap.Const.equiv_of_beq h
+
+end Const
 @[inline, inherit_doc DTreeMap.diff]
 def diff [TransCmp cmp] (m₁ m₂ : ExtDTreeMap α β cmp) : ExtDTreeMap α β cmp := lift₂ (fun x y : DTreeMap α β cmp => mk (x.diff y))
   (fun a b c d equiv₁ equiv₂ => by

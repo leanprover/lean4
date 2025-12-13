@@ -855,6 +855,14 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_Meta_Grind_instCoeFunVarRenameForallVar___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_UInt64_ofNat___boxed), 1, 0);
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_Meta_Grind_instCoeFunVarRenameForallVar___lam__0___closed__0() {
 _start:
 {
@@ -884,14 +892,6 @@ lean_inc(x_7);
 lean_dec_ref(x_5);
 return x_7;
 }
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_instCoeFunVarRenameForallVar___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt64_ofNat___boxed), 1, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instCoeFunVarRenameForallVar___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1337,10 +1337,10 @@ l_Lean_Meta_Grind_collectMapVars___redArg___closed__9 = _init_l_Lean_Meta_Grind_
 lean_mark_persistent(l_Lean_Meta_Grind_collectMapVars___redArg___closed__9);
 l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Meta_Grind_FoundVars_toArray_spec__0___redArg___closed__0 = _init_l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Meta_Grind_FoundVars_toArray_spec__0___redArg___closed__0();
 lean_mark_persistent(l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Meta_Grind_FoundVars_toArray_spec__0___redArg___closed__0);
-l_Lean_Meta_Grind_instCoeFunVarRenameForallVar___lam__0___closed__0 = _init_l_Lean_Meta_Grind_instCoeFunVarRenameForallVar___lam__0___closed__0();
-lean_mark_persistent(l_Lean_Meta_Grind_instCoeFunVarRenameForallVar___lam__0___closed__0);
 l_Lean_Meta_Grind_instCoeFunVarRenameForallVar___closed__0 = _init_l_Lean_Meta_Grind_instCoeFunVarRenameForallVar___closed__0();
 lean_mark_persistent(l_Lean_Meta_Grind_instCoeFunVarRenameForallVar___closed__0);
+l_Lean_Meta_Grind_instCoeFunVarRenameForallVar___lam__0___closed__0 = _init_l_Lean_Meta_Grind_instCoeFunVarRenameForallVar___lam__0___closed__0();
+lean_mark_persistent(l_Lean_Meta_Grind_instCoeFunVarRenameForallVar___lam__0___closed__0);
 l_Lean_Meta_Grind_instCoeFunVarRenameForallVar = _init_l_Lean_Meta_Grind_instCoeFunVarRenameForallVar();
 lean_mark_persistent(l_Lean_Meta_Grind_instCoeFunVarRenameForallVar);
 l_Lean_Meta_Grind_mkVarRename___closed__0 = _init_l_Lean_Meta_Grind_mkVarRename___closed__0();

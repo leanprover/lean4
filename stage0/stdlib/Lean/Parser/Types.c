@@ -225,7 +225,6 @@ LEAN_EXPORT lean_object* l_Lean_Parser_instInhabitedInputContext;
 LEAN_EXPORT lean_object* l_Lean_Parser_instInhabitedError;
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_Parser_withCacheFn_spec__2_spec__2___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_InputContext_input(lean_object*);
-LEAN_EXPORT lean_object* l___auto_00___x40_Lean_Parser_Types_1434432364____hygCtx___hyg_7_;
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Types_0__String_Pos_Raw_get_x3f_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_FirstTokens_toStr___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_instInhabitedParser;
@@ -291,6 +290,7 @@ LEAN_EXPORT lean_object* l_List_foldl___at___00List_toString___at___00Lean_Parse
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_toString___at___00Lean_Parser_FirstTokens_toStr_spec__0___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Parser_InputContext_mk___auto__1;
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_Parser_withCacheFn_spec__2_spec__3___redArg(lean_object*);
@@ -1391,7 +1391,7 @@ x_1 = l_Lean_Parser_instInhabitedInputContext___closed__3;
 return x_1;
 }
 }
-static lean_object* _init_l___auto_00___x40_Lean_Parser_Types_1434432364____hygCtx___hyg_7_() {
+static lean_object* _init_l_Lean_Parser_InputContext_mk___auto__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2395,9 +2395,9 @@ block_25:
 {
 lean_object* x_24; 
 lean_dec(x_22);
-x_24 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Parser_Error_toString_spec__1___redArg(x_19, x_21, x_23);
+x_24 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Parser_Error_toString_spec__1___redArg(x_18, x_21, x_23);
 lean_dec(x_23);
-x_8 = x_18;
+x_8 = x_19;
 x_9 = x_20;
 x_10 = x_24;
 goto block_17;
@@ -2451,8 +2451,8 @@ if (x_45 == 0)
 {
 lean_inc(x_44);
 x_26 = x_44;
-x_27 = x_37;
-x_28 = x_39;
+x_27 = x_39;
+x_28 = x_37;
 x_29 = x_36;
 x_30 = x_40;
 x_31 = x_44;
@@ -2461,8 +2461,8 @@ goto block_33;
 else
 {
 x_26 = x_44;
-x_27 = x_37;
-x_28 = x_39;
+x_27 = x_39;
+x_28 = x_37;
 x_29 = x_36;
 x_30 = x_40;
 x_31 = x_41;
@@ -6930,8 +6930,8 @@ l_Lean_Parser_instInhabitedInputContext___closed__3 = _init_l_Lean_Parser_instIn
 lean_mark_persistent(l_Lean_Parser_instInhabitedInputContext___closed__3);
 l_Lean_Parser_instInhabitedInputContext = _init_l_Lean_Parser_instInhabitedInputContext();
 lean_mark_persistent(l_Lean_Parser_instInhabitedInputContext);
-l___auto_00___x40_Lean_Parser_Types_1434432364____hygCtx___hyg_7_ = _init_l___auto_00___x40_Lean_Parser_Types_1434432364____hygCtx___hyg_7_();
-lean_mark_persistent(l___auto_00___x40_Lean_Parser_Types_1434432364____hygCtx___hyg_7_);
+l_Lean_Parser_InputContext_mk___auto__1 = _init_l_Lean_Parser_InputContext_mk___auto__1();
+lean_mark_persistent(l_Lean_Parser_InputContext_mk___auto__1);
 l_Lean_Parser_instBEqCacheableParserContext___closed__0 = _init_l_Lean_Parser_instBEqCacheableParserContext___closed__0();
 lean_mark_persistent(l_Lean_Parser_instBEqCacheableParserContext___closed__0);
 l_Lean_Parser_instBEqCacheableParserContext = _init_l_Lean_Parser_instBEqCacheableParserContext();

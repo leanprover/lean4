@@ -1209,14 +1209,23 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
             pure <| extraErrorMsg ++ useTraceSynthMsg
       throwNamedError lean.synthInstanceFailed "failed to synthesize instance of type class{indentExpr type}{msg}"
 
+structure CoeExpansionTrace where
+  expandedCoeDecls : List Name
+deriving TypeName
+
 def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none)
     (mkErrorMsg? : Option (MVarId → (expectedType e : Expr) → MetaM MessageData) := none)
     (mkImmedErrorMsg? : Option ((errorMsg? : Option MessageData) → (expectedType e : Expr) → MetaM MessageData) := none) : TermElabM Expr := do
   withTraceNode `Elab.coe (fun _ => return m!"adding coercion for {e} : {← inferType e} =?= {expectedType}") do
   try
     withoutMacroStackAtErr do
-      match ← coerce? e expectedType with
-      | .some eNew => return eNew
+      match ← coerceCollectingNames? e expectedType with
+      | .some (eNew, expandedCoeDecls) =>
+        pushInfoLeaf (.ofCustomInfo {
+          stx := ← getRef
+          value := Dynamic.mk <| CoeExpansionTrace.mk expandedCoeDecls
+        })
+        return eNew
       | .none => failure
       | .undef =>
         let mvarAux ← mkFreshExprMVar expectedType MetavarKind.syntheticOpaque
@@ -2081,40 +2090,23 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved
   if let some (e, projs) := preresolved.findSome? fun (n, projs) => ctx.sectionFVars.find? n |>.map (·, projs) then
     return [(e, projs)]  -- section variables should shadow global decls
   if preresolved.isEmpty then
-    process (← realizeGlobalName n)
+    mkConsts (← realizeGlobalName n) explicitLevels
   else
-    process preresolved
-where
-  process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do
-    if !candidates.isEmpty then
-      return (← mkConsts candidates explicitLevels)
-    let env ← getEnv
-    -- check for scope errors before trying auto implicits
-    if env.isExporting then
-      if let [(npriv, _)] ← withoutExporting <| resolveGlobalName (enableLog := false) n then
-        throwUnknownIdentifierAt (declHint := npriv) stx m!"Unknown identifier `{.ofConstName n}`"
-    if !(← read).autoBoundImplicitForbidden n then
-      if (← read).autoBoundImplicitContext.isSome then
-        let allowed := autoImplicit.get (← getOptions)
-        let relaxed := relaxedAutoImplicit.get (← getOptions)
-        match checkValidAutoBoundImplicitName n (allowed := allowed) (relaxed := relaxed) with
-          | .ok true => throwAutoBoundImplicitLocal n
-          | .ok false => throwUnknownIdentifierAt (declHint := n) stx m!"Unknown identifier `{.ofConstName n}`"
-          | .error msg => throwUnknownIdentifierAt (declHint := n) stx (m!"Unknown identifier `{.ofConstName n}`" ++ msg)
-    throwUnknownIdentifierAt (declHint := n) stx m!"Unknown identifier `{.ofConstName n}`"
+    mkConsts preresolved explicitLevels
 
 /--
   Similar to `resolveName`, but creates identifiers for the main part and each projection with position information derived from `ident`.
   Example: Assume resolveName `v.head.bla.boo` produces `(v.head, ["bla", "boo"])`, then this method produces
   `(v.head, id, [f₁, f₂])` where `id` is an identifier for `v.head`, and `f₁` and `f₂` are identifiers for fields `"bla"` and `"boo"`. -/
-def resolveName' (ident : Syntax) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × Syntax × List Syntax)) := do
-  match ident with
-  | .ident _ _ n preresolved =>
-    let r ← resolveName ident n preresolved explicitLevels expectedType?
-    r.mapM fun (c, fields) => do
-      let ids := ident.identComponents (nFields? := fields.length)
-      return (c, ids.head!, ids.tail!)
-  | _ => throwError "identifier expected"
+def resolveName' (ident : Syntax) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (Name × List (Expr × Syntax × List Syntax)) := do
+  let .ident _ _ n preresolved := ident
+    | throwError "identifier expected"
+  let r ← resolveName ident n preresolved explicitLevels expectedType?
+  let rc ← r.mapM fun (c, fields) => do
+    let ids := ident.identComponents (nFields? := fields.length)
+    return (c, ids.head!, ids.tail!)
+  return (n, rc)
+
 
 def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (Option Expr) := withRef stx do
   match stx with
@@ -2168,16 +2160,6 @@ def exprToSyntax (e : Expr) : TermElabM Term := withFreshMacroScope do
   let mvar ← elabTerm result eType
   mvar.mvarId!.assign e
   return result
-
-def hintAutoImplicitFailure (exp : Expr) (expected := "a function") : TermElabM MessageData := do
-  let autoBound := (← readThe Context).autoBoundImplicitContext
-  unless autoBound.isSome && exp.isFVar && autoBound.get!.boundVariables.any (· == exp) do
-    return .nil
-  return .hint' m!"The identifier `{.ofName (← exp.fvarId!.getUserName)}` is unknown, \
-    and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly \
-    bound variable with an unknown type. \
-    However, the unknown type cannot be {expected}, and {expected} is what Lean expects here. \
-    This is often the result of a typo or a missing `import` or `open` statement."
 
 end Term
 

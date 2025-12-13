@@ -15,14 +15,14 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_ofM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_iterM___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_ofM___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_ofM___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_of___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_of___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_iterM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_of___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_of(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_iter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_iter___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_ofM___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_iterM(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -55,7 +55,7 @@ x_3 = lean_apply_1(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_ofM___lam__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_ofM___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -67,7 +67,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_ofM(lean_object* x_1, lean_o
 _start:
 {
 lean_object* x_6; 
-x_6 = lean_alloc_closure((void*)(l_Std_Iterators_ToIterator_ofM___lam__0), 2, 1);
+x_6 = lean_alloc_closure((void*)(l_Std_Iterators_ToIterator_ofM___redArg___lam__0), 2, 1);
 lean_closure_set(x_6, 0, x_5);
 return x_6;
 }
@@ -76,12 +76,12 @@ LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_ofM___redArg(lean_object* x_
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Iterators_ToIterator_ofM___lam__0), 2, 1);
+x_2 = lean_alloc_closure((void*)(l_Std_Iterators_ToIterator_ofM___redArg___lam__0), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_of___lam__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_of___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -93,7 +93,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_of(lean_object* x_1, lean_ob
 _start:
 {
 lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_Std_Iterators_ToIterator_of___lam__0), 2, 1);
+x_5 = lean_alloc_closure((void*)(l_Std_Iterators_ToIterator_of___redArg___lam__0), 2, 1);
 lean_closure_set(x_5, 0, x_4);
 return x_5;
 }
@@ -102,7 +102,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_ToIterator_of___redArg(lean_object* x_1
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Iterators_ToIterator_of___lam__0), 2, 1);
+x_2 = lean_alloc_closure((void*)(l_Std_Iterators_ToIterator_of___redArg___lam__0), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }

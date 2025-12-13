@@ -301,7 +301,7 @@ Examples:
 def getLast : ∀ (as : List α), as ≠ [] → α
   | [],       h => absurd rfl h
   | [a],      _ => a
-  | _::b::as, _ => getLast (b::as) (fun h => List.noConfusion h)
+  | _::b::as, _ => getLast (b::as) (fun h => List.noConfusion rfl (heq_of_eq h))
 
 /-! ### getLast? -/
 
@@ -318,7 +318,7 @@ Examples:
 -/
 def getLast? : List α → Option α
   | []    => none
-  | a::as => some (getLast (a::as) (fun h => List.noConfusion h))
+  | a::as => some (getLast (a::as) (fun h => List.noConfusion rfl (heq_of_eq h)))
 
 @[simp, grind =] theorem getLast?_nil : @getLast? α [] = none := rfl
 
@@ -337,7 +337,7 @@ Examples:
 -/
 def getLastD : (as : List α) → (fallback : α) → α
   | [],   a₀ => a₀
-  | a::as, _ => getLast (a::as) (fun h => List.noConfusion h)
+  | a::as, _ => getLast (a::as) (fun h => List.noConfusion rfl (heq_of_eq h))
 
 -- These aren't `simp` lemmas since we always simplify `getLastD` in terms of `getLast?`.
 theorem getLastD_nil {a : α} : getLastD [] a = a := rfl
@@ -1847,6 +1847,7 @@ Examples:
 * `[2, 4, 5, 6].any (· % 2 = 0) = true`
 * `[2, 4, 5, 6].any (· % 2 = 1) = true`
 -/
+@[suggest_for List.some]
 def any : (l : List α) → (p : α → Bool) → Bool
   | [], _ => false
   | h :: t, p => p h || any t p
@@ -1866,6 +1867,7 @@ Examples:
 * `[2, 4, 6].all (· % 2 = 0) = true`
 * `[2, 4, 5, 6].all (· % 2 = 0) = false`
 -/
+@[suggest_for List.every]
 def all : List α → (α → Bool) → Bool
   | [], _ => true
   | h :: t, p => p h && all t p

@@ -900,6 +900,7 @@ x_111 = l_Lean_Exception_isInterrupt(x_110);
 if (x_111 == 0)
 {
 uint8_t x_112; 
+lean_inc(x_110);
 x_112 = l_Lean_Exception_isRuntime(x_110);
 x_71 = x_110;
 x_72 = lean_box(0);
@@ -977,6 +978,7 @@ x_124 = l_Lean_Exception_isInterrupt(x_123);
 if (x_124 == 0)
 {
 uint8_t x_125; 
+lean_inc(x_123);
 x_125 = l_Lean_Exception_isRuntime(x_123);
 x_38 = x_123;
 x_39 = x_94;
@@ -1547,6 +1549,7 @@ x_315 = l_Lean_Exception_isInterrupt(x_314);
 if (x_315 == 0)
 {
 uint8_t x_316; 
+lean_inc(x_314);
 x_316 = l_Lean_Exception_isRuntime(x_314);
 x_71 = x_314;
 x_72 = lean_box(0);
@@ -1624,6 +1627,7 @@ x_328 = l_Lean_Exception_isInterrupt(x_327);
 if (x_328 == 0)
 {
 uint8_t x_329; 
+lean_inc(x_327);
 x_329 = l_Lean_Exception_isRuntime(x_327);
 x_38 = x_327;
 x_39 = x_298;
@@ -2154,6 +2158,50 @@ x_11 = l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_MVarId_elabFalseOrByCont
 return x_11;
 }
 }
+static lean_object* _init_l_Lean_MVarId_elabFalseOrByContra___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_MVarId_elabFalseOrByContra___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Parser", 6, 6);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_MVarId_elabFalseOrByContra___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_MVarId_elabFalseOrByContra___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("falseOrByContra", 15, 15);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_MVarId_elabFalseOrByContra___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Lean_MVarId_elabFalseOrByContra___closed__3;
+x_2 = l_Lean_MVarId_elabFalseOrByContra___closed__2;
+x_3 = l_Lean_MVarId_elabFalseOrByContra___closed__1;
+x_4 = l_Lean_MVarId_elabFalseOrByContra___closed__0;
+x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_MVarId_elabFalseOrByContra___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -2254,50 +2302,6 @@ lean_ctor_set(x_26, 0, x_25);
 return x_26;
 }
 }
-}
-}
-static lean_object* _init_l_Lean_MVarId_elabFalseOrByContra___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean", 4, 4);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MVarId_elabFalseOrByContra___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Parser", 6, 6);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MVarId_elabFalseOrByContra___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MVarId_elabFalseOrByContra___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("falseOrByContra", 15, 15);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MVarId_elabFalseOrByContra___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_MVarId_elabFalseOrByContra___closed__3;
-x_2 = l_Lean_MVarId_elabFalseOrByContra___closed__2;
-x_3 = l_Lean_MVarId_elabFalseOrByContra___closed__1;
-x_4 = l_Lean_MVarId_elabFalseOrByContra___closed__0;
-x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_MVarId_elabFalseOrByContra___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {

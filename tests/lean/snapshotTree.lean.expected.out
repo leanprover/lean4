@@ -1,0 +1,78 @@
+[Elab.snapshotTree] Lean.Language.Lean.process.parseCmd<no range> 
+  [Elab.snapshotTree] Lean.Language.instInhabitedDynamicSnapshot⟨13, 0⟩-⟨13, 39⟩ 
+  [Elab.snapshotTree] Lean.Language.Lean.process.parseCmd⟨13, 0⟩-⟨13, 39⟩ 
+  [Elab.snapshotTree] Lean.Language.Lean.process.parseCmd⟨13, 0⟩-⟨13, 39⟩ 
+  [Elab.snapshotTree] Lean.Elab.Command.runLintersAsync<range inherited> 
+[Elab.snapshotTree] Lean.Language.Lean.process.parseCmd<no range> 
+  [Elab.snapshotTree] Lean.Elab.Command.elabMutualDef⟨14, 0⟩-⟨24, 13⟩ 
+    [Elab.snapshotTree] _private.Lean.Elab.MutualDef.0.Lean.Elab.Term.elabHeaders⟨14, 0⟩-⟨24, 13⟩ 
+      [Elab.snapshotTree] Lean.Parser.Tactic.sleep⟨15, 2⟩-⟨24, 13⟩ 
+        [Elab.snapshotTree] ⟨15, 2⟩-⟨15, 9⟩ 
+          [Elab.snapshotTree] <range inherited> 
+        [Elab.snapshotTree] Lean.Elab.Tactic.evalSepTactics.goEven<no range> 
+        [Elab.snapshotTree] Lean.Parser.Tactic.sleep⟨16, 2⟩-⟨24, 13⟩ 
+          [Elab.snapshotTree] ⟨16, 2⟩-⟨16, 11⟩ 
+            [Elab.snapshotTree] <range inherited> 
+          [Elab.snapshotTree] Lean.Elab.Tactic.evalSepTactics.goEven<no range> 
+          [Elab.snapshotTree] Lean.cdot⟨17, 2⟩-⟨24, 13⟩ 
+            [Elab.snapshotTree] Lean.Parser.Tactic.«tacticNext_=>_»⟨17, 2⟩-⟨24, 13⟩ 
+              [Elab.snapshotTree] Lean.Elab.Tactic.evalTactic.expandEval⟨17, 4⟩-⟨24, 13⟩ 
+                [Elab.snapshotTree] Lean.Elab.Tactic.evalTactic.expandEval<no range> 
+                [Elab.snapshotTree] Lean.Parser.Tactic.induction<range inherited> 
+                  [Elab.snapshotTree] _private.Lean.Elab.Tactic.Induction.0.Lean.Elab.Tactic.ElimApp.evalAlts.goWithInfo⟨18, 4⟩-⟨24, 13⟩ 
+                    [Elab.snapshotTree] _private.Lean.Elab.Tactic.Induction.0.Lean.Elab.Tactic.ElimApp.evalAlts.goWithInfo<no range> 
+                    [Elab.snapshotTree] Lean.Parser.Tactic.sleep⟨19, 4⟩-⟨21, 13⟩ 
+                      [Elab.snapshotTree] ⟨20, 6⟩-⟨20, 15⟩ 
+                        [Elab.snapshotTree] <range inherited> 
+                      [Elab.snapshotTree] Lean.Elab.Tactic.evalSepTactics.goEven<no range> 
+                      [Elab.snapshotTree] Lean.Parser.Tactic.tacticTrivial⟨21, 6⟩-⟨21, 13⟩ 
+                        [Elab.snapshotTree] Lean.Elab.Tactic.evalTactic.expandEval⟨21, 6⟩-⟨21, 13⟩ 
+                          [Elab.snapshotTree] Lean.Elab.Tactic.evalTactic.expandEval<no range> 
+                          [Elab.snapshotTree] Lean.Parser.Tactic.apply<range inherited> 
+                            [Elab.snapshotTree] <range inherited> 
+                              [Elab.snapshotTree] <range inherited> 
+                            [Elab.snapshotTree] <no range> 
+                            [Elab.snapshotTree] <range inherited> 
+                              [Elab.snapshotTree] <range inherited> 
+                        [Elab.snapshotTree] Lean.Elab.Tactic.evalSepTactics.goEven<no range> 
+                        [Elab.snapshotTree] <no range> 
+                          [Elab.snapshotTree] <range inherited> 
+                    [Elab.snapshotTree] Lean.Parser.Tactic.sleep⟨22, 4⟩-⟨24, 13⟩ 
+                      [Elab.snapshotTree] ⟨23, 6⟩-⟨23, 15⟩ 
+                        [Elab.snapshotTree] <range inherited> 
+                      [Elab.snapshotTree] Lean.Elab.Tactic.evalSepTactics.goEven<no range> 
+                      [Elab.snapshotTree] Lean.Parser.Tactic.tacticTrivial⟨24, 6⟩-⟨24, 13⟩ 
+                        [Elab.snapshotTree] Lean.Elab.Tactic.evalTactic.expandEval⟨24, 6⟩-⟨24, 13⟩ 
+                          [Elab.snapshotTree] Lean.Elab.Tactic.evalTactic.expandEval<no range> 
+                          [Elab.snapshotTree] Lean.Parser.Tactic.apply<range inherited> 
+                            [Elab.snapshotTree] <range inherited> 
+                              [Elab.snapshotTree] <range inherited> 
+                            [Elab.snapshotTree] <no range> 
+                            [Elab.snapshotTree] <range inherited> 
+                              [Elab.snapshotTree] <range inherited> 
+                        [Elab.snapshotTree] Lean.Elab.Tactic.evalSepTactics.goEven<no range> 
+                        [Elab.snapshotTree] <no range> 
+                          [Elab.snapshotTree] <range inherited> 
+                  [Elab.snapshotTree] Lean.Elab.Tactic.evalSepTactics.goEven<no range> 
+                  [Elab.snapshotTree] <no range> 
+                    [Elab.snapshotTree] <range inherited> 
+              [Elab.snapshotTree] Lean.Elab.Tactic.evalSepTactics.goEven<no range> 
+              [Elab.snapshotTree] <no range> 
+                [Elab.snapshotTree] <range inherited> 
+            [Elab.snapshotTree] Lean.Elab.Tactic.evalSepTactics.goEven<no range> 
+            [Elab.snapshotTree] <no range> 
+              [Elab.snapshotTree] <range inherited> 
+      [Elab.snapshotTree] _private.Lean.Elab.MutualDef.0.Lean.Elab.Term.elabFunValues⟨14, 0⟩-⟨14, 0⟩ 
+  [Elab.snapshotTree] Lean.Language.Lean.process.parseCmd⟨14, 0⟩-⟨24, 13⟩ 
+  [Elab.snapshotTree] Lean.Language.Lean.process.parseCmd⟨14, 0⟩-⟨24, 13⟩ 
+  [Elab.snapshotTree] <no range> 
+  [Elab.snapshotTree] <no range> 
+  [Elab.snapshotTree] _private.Lean.Elab.MutualDef.0.Lean.Elab.Term.logGoalsAccomplishedSnapshotTask<no range> 
+      • Goals accomplished!
+      
+  [Elab.snapshotTree] Lean.Elab.Command.runLintersAsync<range inherited> 
+[Elab.snapshotTree] Lean.Language.Lean.process.parseCmd<no range> 
+  [Elab.snapshotTree] Lean.Language.instInhabitedDynamicSnapshot⟨25, 0⟩-⟨25, 0⟩ 
+  [Elab.snapshotTree] Lean.Language.Lean.process.parseCmd⟨25, 0⟩-⟨25, 0⟩ 
+  [Elab.snapshotTree] Lean.Language.Lean.process.parseCmd⟨25, 0⟩-⟨25, 0⟩ 
+  [Elab.snapshotTree] Lean.Elab.Command.runLintersAsync<range inherited> 

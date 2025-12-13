@@ -19,7 +19,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___box
 lean_object* l_List_lengthTR___redArg(lean_object*);
 static lean_object* l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__1;
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__6___closed__0;
+static lean_object* l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__10___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMatcherInfo_x3f___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isApp(lean_object*);
@@ -40,7 +40,6 @@ lean_object* l_Lean_Meta_Match_MatcherInfo_numAlts(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
-lean_object* l_Array_ofSubarray___redArg(lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -50,6 +49,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f(lean_object*, lean_obje
 lean_object* l_Lean_getConstInfo___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_extract___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__4;
+lean_object* l_Subarray_toArray___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__4___closed__0;
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
@@ -194,7 +194,7 @@ x_8 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_7, x_5);
 return x_8;
 }
 }
-static lean_object* _init_l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__6___closed__0() {
+static lean_object* _init_l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__10___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -231,10 +231,10 @@ lean_ctor_set(x_17, 3, x_4);
 lean_ctor_set(x_17, 4, x_5);
 lean_ctor_set(x_17, 5, x_16);
 x_18 = lean_array_mk(x_6);
-x_19 = l_Array_ofSubarray___redArg(x_1);
-x_20 = l_Array_ofSubarray___redArg(x_2);
-x_21 = l_Array_ofSubarray___redArg(x_7);
-x_22 = l_Array_ofSubarray___redArg(x_8);
+x_19 = l_Subarray_toArray___redArg(x_1);
+x_20 = l_Subarray_toArray___redArg(x_2);
+x_21 = l_Subarray_toArray___redArg(x_7);
+x_22 = l_Subarray_toArray___redArg(x_8);
 x_23 = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(x_23, 0, x_17);
 lean_ctor_set(x_23, 1, x_9);
@@ -379,7 +379,7 @@ x_13 = lean_ctor_get(x_10, 2);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_10, 4);
 lean_inc(x_14);
-x_15 = l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__6___closed__0;
+x_15 = l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__10___closed__0;
 x_16 = l_Lean_Expr_getAppNumArgs(x_1);
 lean_inc(x_16);
 x_17 = lean_mk_array(x_16, x_15);
@@ -548,17 +548,17 @@ x_17 = lean_nat_add(x_16, x_10);
 lean_inc(x_17);
 lean_inc_ref(x_3);
 x_18 = l_Array_toSubarray___redArg(x_3, x_16, x_17);
-x_19 = l_Array_ofSubarray___redArg(x_18);
+x_19 = l_Subarray_toArray___redArg(x_18);
 x_20 = l_Lean_Meta_Match_MatcherInfo_numAlts(x_1);
 x_21 = lean_nat_add(x_17, x_20);
 lean_dec(x_20);
 lean_inc(x_21);
 lean_inc_ref(x_3);
 x_22 = l_Array_toSubarray___redArg(x_3, x_17, x_21);
-x_23 = l_Array_ofSubarray___redArg(x_22);
+x_23 = l_Subarray_toArray___redArg(x_22);
 x_24 = lean_array_get_size(x_3);
 x_25 = l_Array_toSubarray___redArg(x_3, x_21, x_24);
-x_26 = l_Array_ofSubarray___redArg(x_25);
+x_26 = l_Subarray_toArray___redArg(x_25);
 x_27 = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(x_27, 0, x_1);
 lean_ctor_set(x_27, 1, x_6);
@@ -593,7 +593,7 @@ lean_dec(x_7);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 lean_dec_ref(x_8);
-x_10 = l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__6___closed__0;
+x_10 = l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__10___closed__0;
 x_11 = l_Lean_Expr_getAppNumArgs(x_1);
 lean_inc(x_11);
 x_12 = lean_mk_array(x_11, x_10);
@@ -902,8 +902,8 @@ l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__1 = _init_l_Lean_Met
 lean_mark_persistent(l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__1);
 l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__4 = _init_l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__4();
 lean_mark_persistent(l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__4);
-l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__6___closed__0 = _init_l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__6___closed__0();
-lean_mark_persistent(l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__6___closed__0);
+l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__10___closed__0 = _init_l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__10___closed__0();
+lean_mark_persistent(l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__10___closed__0);
 l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__4___closed__0 = _init_l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__4___closed__0();
 lean_mark_persistent(l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__4___closed__0);
 l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__5___closed__0 = _init_l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__5___closed__0();

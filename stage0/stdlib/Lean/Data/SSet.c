@@ -33,11 +33,11 @@ LEAN_EXPORT lean_object* l_List_toSSet(lean_object*, lean_object*, lean_object*,
 lean_object* l_Lean_SMap_instInhabited(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SSet_empty___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldl___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_SSet_forM___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SSet_fold___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SSet_forM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SSet_switch(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SSet_instInhabited___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_SSet_forM___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SSet_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_repr___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_SMap_forM___redArg(lean_object*, lean_object*, lean_object*);
@@ -47,7 +47,6 @@ LEAN_EXPORT lean_object* l_instReprSSet___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_instReprSSet(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_fold___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SSet_toList___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_SSet_fold___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SSet_forM___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SSet_instInhabited___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SSet_empty___redArg(lean_object*, lean_object*);
@@ -67,6 +66,7 @@ LEAN_EXPORT lean_object* l_Lean_SSet_switch___redArg(lean_object*);
 static lean_object* l_instReprSSet___redArg___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_Lean_SSet_switch___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SSet_contains___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_SSet_fold___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_switch___redArg(lean_object*);
 static lean_object* l_List_toSSet___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Lean_SSet_instInhabited(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -193,7 +193,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_SSet_forM___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_SSet_forM___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -205,7 +205,7 @@ LEAN_EXPORT lean_object* l_Lean_SSet_forM(lean_object* x_1, lean_object* x_2, le
 _start:
 {
 lean_object* x_8; lean_object* x_9; 
-x_8 = lean_alloc_closure((void*)(l_Lean_SSet_forM___lam__0), 3, 1);
+x_8 = lean_alloc_closure((void*)(l_Lean_SSet_forM___redArg___lam__0), 3, 1);
 lean_closure_set(x_8, 0, x_7);
 x_9 = l_Lean_SMap_forM___redArg(x_5, x_6, x_8);
 return x_9;
@@ -215,7 +215,7 @@ LEAN_EXPORT lean_object* l_Lean_SSet_forM___redArg(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_alloc_closure((void*)(l_Lean_SSet_forM___lam__0), 3, 1);
+x_4 = lean_alloc_closure((void*)(l_Lean_SSet_forM___redArg___lam__0), 3, 1);
 lean_closure_set(x_4, 0, x_3);
 x_5 = l_Lean_SMap_forM___redArg(x_1, x_2, x_4);
 return x_5;
@@ -257,7 +257,7 @@ lean_dec_ref(x_2);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_SSet_fold___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_SSet_fold___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
@@ -269,7 +269,7 @@ LEAN_EXPORT lean_object* l_Lean_SSet_fold(lean_object* x_1, lean_object* x_2, le
 _start:
 {
 lean_object* x_8; lean_object* x_9; 
-x_8 = lean_alloc_closure((void*)(l_Lean_SSet_fold___lam__0), 4, 1);
+x_8 = lean_alloc_closure((void*)(l_Lean_SSet_fold___redArg___lam__0), 4, 1);
 lean_closure_set(x_8, 0, x_5);
 x_9 = l_Lean_SMap_fold___redArg(x_8, x_6, x_7);
 return x_9;
@@ -279,7 +279,7 @@ LEAN_EXPORT lean_object* l_Lean_SSet_fold___redArg(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_alloc_closure((void*)(l_Lean_SSet_fold___lam__0), 4, 1);
+x_4 = lean_alloc_closure((void*)(l_Lean_SSet_fold___redArg___lam__0), 4, 1);
 lean_closure_set(x_4, 0, x_1);
 x_5 = l_Lean_SMap_fold___redArg(x_4, x_2, x_3);
 return x_5;

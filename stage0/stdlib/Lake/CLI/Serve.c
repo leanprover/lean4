@@ -726,9 +726,35 @@ x_57 = lean_box(0);
 x_58 = 0;
 x_59 = lean_usize_of_nat(x_51);
 x_60 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_serve_spec__1(x_56, x_54, x_55, x_28, x_58, x_59, x_57);
+if (lean_obj_tag(x_60) == 0)
+{
 lean_dec_ref(x_60);
 x_30 = lean_box(0);
 goto block_49;
+}
+else
+{
+uint8_t x_61; 
+lean_dec(x_29);
+lean_dec(x_28);
+lean_dec(x_27);
+lean_dec_ref(x_1);
+x_61 = !lean_is_exclusive(x_60);
+if (x_61 == 0)
+{
+return x_60;
+}
+else
+{
+lean_object* x_62; lean_object* x_63; 
+x_62 = lean_ctor_get(x_60, 0);
+lean_inc(x_62);
+lean_dec(x_60);
+x_63 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_63, 0, x_62);
+return x_63;
+}
+}
 }
 }
 block_24:

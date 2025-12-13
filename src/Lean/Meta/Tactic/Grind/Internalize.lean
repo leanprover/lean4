@@ -531,6 +531,12 @@ private def internalizeOfNatFinBitVecLiteral (e : Expr) (generation : Nat) (pare
   internalize inst generation e
   registerParent e α
   registerParent e inst
+  /-
+  **Note**: We must activate `OfNat.ofNat` because of patterns such as
+  ``[P #0 (@OfNat.ofNat (Fin _) `[0] _)]``
+  -/
+  updateIndicesFound (.const ``OfNat.ofNat)
+  activateTheorems ``OfNat.ofNat generation
 
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do

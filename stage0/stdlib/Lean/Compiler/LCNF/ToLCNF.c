@@ -333,7 +333,6 @@ static lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknow
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___00Lean_Compiler_LCNF_ToLCNF_bindCases_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_ToLCNF_liftMetaM___closed__7;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToLCNF_0__Lean_Compiler_LCNF_ToLCNF_toLCNF_visitLcUnreachable___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_ofSubarray___redArg(lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Compiler_LCNF_ToLCNF_0__Lean_Compiler_LCNF_ToLCNF_toLCNF_visitProjFn_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___redArg___closed__1;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_ToLCNF_0__Lean_Compiler_LCNF_ToLCNF_toLCNF_visitCore___closed__0;
@@ -382,6 +381,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToLCNF_0__Lean_Compiler_
 static lean_object* l___private_Lean_Compiler_LCNF_ToLCNF_0__Lean_Compiler_LCNF_ToLCNF_toLCNF_visitApp___closed__4;
 lean_object* lean_expr_lower_loose_bvars(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_ToLCNF_0__Lean_Compiler_LCNF_ToLCNF_toLCNF_visitLambda___lam__0___closed__1;
+lean_object* l_Subarray_toArray___redArg(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_mkAuxJpDecl_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ToLCNF_instInhabitedElement_default;
 static lean_object* l_Lean_Compiler_LCNF_ToLCNF_mkLcProof___closed__0;
@@ -15394,7 +15394,7 @@ x_25 = lean_array_push(x_24, x_21);
 x_26 = l_Lean_Expr_beta(x_22, x_25);
 x_27 = lean_array_get_size(x_16);
 x_28 = l_Array_toSubarray___redArg(x_16, x_10, x_27);
-x_29 = l_Array_ofSubarray___redArg(x_28);
+x_29 = l_Subarray_toArray___redArg(x_28);
 x_30 = l_Lean_mkAppN(x_26, x_29);
 lean_dec_ref(x_29);
 x_31 = lean_alloc_closure((void*)(l___private_Lean_Compiler_LCNF_ToLCNF_0__Lean_Compiler_LCNF_ToLCNF_toLCNF_visit___boxed), 7, 1);
@@ -18015,7 +18015,7 @@ block_23:
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_19 = lean_mk_empty_array_with_capacity(x_2);
 x_20 = l_Array_toSubarray___redArg(x_16, x_17, x_18);
-x_21 = l_Array_ofSubarray___redArg(x_20);
+x_21 = l_Subarray_toArray___redArg(x_20);
 x_22 = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Compiler_LCNF_ToLCNF_0__Lean_Compiler_LCNF_ToLCNF_toLCNF_visitCases_spec__1___redArg(x_2, x_3, x_7, x_21, x_4, x_5, x_6, x_19, x_9, x_10, x_11, x_12);
 lean_dec(x_12);
 lean_dec_ref(x_11);
@@ -19300,7 +19300,7 @@ x_21 = l_Lean_Expr_getAppFn(x_2);
 x_22 = lean_unsigned_to_nat(0u);
 lean_inc(x_10);
 x_23 = l_Array_toSubarray___redArg(x_19, x_22, x_10);
-x_24 = l_Array_ofSubarray___redArg(x_23);
+x_24 = l_Subarray_toArray___redArg(x_23);
 x_25 = l_Lean_mkAppN(x_21, x_24);
 lean_dec_ref(x_24);
 x_26 = lean_alloc_closure((void*)(l___private_Lean_Compiler_LCNF_ToLCNF_0__Lean_Compiler_LCNF_ToLCNF_toLCNF_visitCases___lam__2___boxed), 9, 3);
@@ -19848,7 +19848,7 @@ block_19:
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_15 = l_Array_toSubarray___redArg(x_3, x_13, x_14);
-x_16 = l_Array_ofSubarray___redArg(x_15);
+x_16 = l_Subarray_toArray___redArg(x_15);
 x_17 = l_Lean_mkAppN(x_12, x_16);
 lean_dec_ref(x_16);
 x_18 = l___private_Lean_Compiler_LCNF_ToLCNF_0__Lean_Compiler_LCNF_ToLCNF_toLCNF_visit(x_17, x_5, x_6, x_7, x_8, x_9);

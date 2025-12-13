@@ -352,10 +352,6 @@ theorem filter_eq [DecidableEq α] {l : List α} (a : α) : l.filter (· = a) = 
   · simpa only [count_replicate_self] using h.count_le a
   · exact ((replicate_sublist_replicate a).2 h).trans <| filter_beq a ▸ filter_sublist
 
-@[deprecated replicate_sublist_iff (since := "2025-05-26")]
-theorem le_count_iff_replicate_sublist {l : List α} : n ≤ count a l ↔ replicate n a <+ l :=
-  replicate_sublist_iff.symm
-
 theorem replicate_count_eq_of_count_eq_length {l : List α} (h : count a l = length l) :
     replicate (count a l) a = l :=
   (replicate_sublist_iff.mpr (Nat.le_refl _)).eq_of_length <| length_replicate.trans h

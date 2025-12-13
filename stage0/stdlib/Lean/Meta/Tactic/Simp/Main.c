@@ -662,7 +662,6 @@ lean_object* l_ST_Prim_mkRef___boxed(lean_object*, lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_mkFreshFVarId___at___00__private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_getHaveTelescopeInfo_collect_spec__10(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_toHeadIndex(lean_object*);
-lean_object* l_Array_ofSubarray___redArg(lean_object*);
 lean_object* l_Lean_Meta_Simp_getSimpCongrTheorems___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_simpGoal___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_simpForall___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -773,6 +772,7 @@ static lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknow
 static lean_object* l_Lean_throwMaxRecDepthAt___at___00__private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_reduce_spec__0___redArg___closed__1;
 static lean_object* l_Lean_Meta_simpGoal___lam__0___closed__1;
 lean_object* lean_expr_lower_loose_bvars(lean_object*, lean_object*, lean_object*);
+lean_object* l_Subarray_toArray___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at___00__private_Lean_Meta_Transform_0__Lean_Meta_transformWithCache_visit_visitLet___at___00__private_Lean_Meta_Transform_0__Lean_Meta_transformWithCache_visit___at___00__private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_dsimpImpl_spec__0_spec__7_spec__7___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withExistingLocalDecls___at___00__private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_simpHaveTelescope_simpHaveTelescopeAux_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitM___at___00Lean_Meta_simpCore_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -36673,7 +36673,7 @@ block_362:
 {
 lean_object* x_360; lean_object* x_361; 
 x_360 = l_Array_toSubarray___redArg(x_353, x_358, x_359);
-x_361 = l_Array_ofSubarray___redArg(x_360);
+x_361 = l_Subarray_toArray___redArg(x_360);
 x_278 = x_341;
 x_279 = x_350;
 x_280 = x_351;
@@ -36750,7 +36750,7 @@ x_392 = lean_unsigned_to_nat(0u);
 lean_inc(x_382);
 lean_inc_ref(x_390);
 x_393 = l_Array_toSubarray___redArg(x_390, x_392, x_382);
-x_394 = l_Array_ofSubarray___redArg(x_393);
+x_394 = l_Subarray_toArray___redArg(x_393);
 x_395 = l_Lean_mkAppN(x_391, x_394);
 lean_dec_ref(x_394);
 x_396 = lean_array_get_size(x_390);
@@ -37829,7 +37829,7 @@ block_733:
 {
 lean_object* x_731; lean_object* x_732; 
 x_731 = l_Array_toSubarray___redArg(x_724, x_729, x_730);
-x_732 = l_Array_ofSubarray___redArg(x_731);
+x_732 = l_Subarray_toArray___redArg(x_731);
 x_669 = x_712;
 x_670 = x_721;
 x_671 = x_722;
@@ -37906,7 +37906,7 @@ x_763 = lean_unsigned_to_nat(0u);
 lean_inc(x_753);
 lean_inc_ref(x_761);
 x_764 = l_Array_toSubarray___redArg(x_761, x_763, x_753);
-x_765 = l_Array_ofSubarray___redArg(x_764);
+x_765 = l_Subarray_toArray___redArg(x_764);
 x_766 = l_Lean_mkAppN(x_762, x_765);
 lean_dec_ref(x_765);
 x_767 = lean_array_get_size(x_761);

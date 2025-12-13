@@ -204,7 +204,6 @@ lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkProof_go___lam__1___closed__10;
 lean_object* l_Lean_Meta_mkCongrArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_ofSubarray___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_set___at___00__private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkUnfoldEq_doRealize_spec__3(lean_object*, lean_object*, uint8_t);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkProof___closed__0;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
@@ -245,6 +244,7 @@ static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkProof_goUnfold___lam__2___closed__2;
 extern lean_object* l_Lean_diagnostics;
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkProof_goUnfold___lam__2___closed__0;
+lean_object* l_Subarray_toArray___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at___00__private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkUnfoldEq_doRealize_spec__4___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Util_Trace_0__Lean_addTraceNode___at___00Lean_withTraceNode___at___00__private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkProof_go_spec__4_spec__6_spec__6___boxed(lean_object*, lean_object*, lean_object*);
 static double l_Lean_withTraceNode___at___00__private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkProof_go_spec__4___redArg___closed__2;
@@ -730,7 +730,7 @@ LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___00Lean_Expr_withAppAux___
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_10 = l_Array_ofSubarray___redArg(x_1);
+x_10 = l_Subarray_toArray___redArg(x_1);
 lean_inc_ref(x_4);
 x_11 = l_Lean_mkAppN(x_4, x_10);
 lean_dec_ref(x_10);
@@ -950,7 +950,7 @@ x_44 = lean_unsigned_to_nat(0u);
 lean_inc(x_41);
 lean_inc_ref(x_4);
 x_45 = l_Array_toSubarray___redArg(x_4, x_44, x_41);
-x_46 = l_Array_ofSubarray___redArg(x_45);
+x_46 = l_Subarray_toArray___redArg(x_45);
 x_47 = l_Lean_mkAppN(x_3, x_46);
 lean_dec_ref(x_46);
 lean_inc(x_9);
@@ -1226,7 +1226,7 @@ x_44 = lean_unsigned_to_nat(0u);
 lean_inc(x_41);
 lean_inc_ref(x_4);
 x_45 = l_Array_toSubarray___redArg(x_4, x_44, x_41);
-x_46 = l_Array_ofSubarray___redArg(x_45);
+x_46 = l_Subarray_toArray___redArg(x_45);
 x_47 = l_Lean_mkAppN(x_3, x_46);
 lean_dec_ref(x_46);
 lean_inc(x_9);

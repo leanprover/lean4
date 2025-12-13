@@ -321,7 +321,6 @@ lean_object* l_ST_Prim_mkRef___boxed(lean_object*, lean_object*, lean_object*, l
 static lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_getFixedParamsInfo_spec__6___redArg___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Elab_instReprFixedParamPerms_repr___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_ofSubarray___redArg(lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_FixedParams_0__Lean_Elab_FixedParamPerm_instantiateLambda_go___lam__1___closed__1;
 uint8_t l_Option_instDecidableEq___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_addTrace___at___00Lean_Elab_getFixedParamsInfo_spec__2___closed__1;
@@ -382,6 +381,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_transform___at___00Lean_Elab_getFixedParams
 static lean_object* l_Lean_Elab_instReprFixedParamPerms_repr___redArg___closed__4;
 lean_object* l_Array_range(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at___00Lean_Elab_getParamRevDeps_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Subarray_toArray___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_Elab_FixedParamPerms_erase_spec__9_spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_FixedParams_0__initFn___closed__10_00___x40_Lean_Elab_PreDefinition_FixedParams_791000795____hygCtx___hyg_2_;
 static lean_object* l_Lean_exprDependsOn___at___00Lean_Elab_getParamRevDeps_spec__0___redArg___closed__1;
@@ -17099,7 +17099,7 @@ block_12:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_9 = l_Array_toSubarray___redArg(x_3, x_7, x_8);
-x_10 = l_Array_ofSubarray___redArg(x_9);
+x_10 = l_Subarray_toArray___redArg(x_9);
 x_11 = l_Array_append___redArg(x_6, x_10);
 lean_dec_ref(x_10);
 return x_11;

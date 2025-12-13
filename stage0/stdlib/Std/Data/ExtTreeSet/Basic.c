@@ -46,6 +46,7 @@ LEAN_EXPORT lean_object* l_Std_ExtTreeSet_any___redArg___lam__0(lean_object*, le
 lean_object* l_Std_DTreeMap_Internal_Impl_keyAtIdx_x21___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_instSingletonOfTransCmp___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_erase(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_ExtTreeSet_instBEqOfTransCmp___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_ExtTreeSet_getGE_x21___closed__2;
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_getGED___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_ExtTreeSet_isEmpty___redArg(lean_object*);
@@ -119,6 +120,7 @@ LEAN_EXPORT lean_object* l_Std_ExtTreeSet_atIdx_x3f(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_inter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_maxD___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_instReprOfTransCmp___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_ExtTreeSet_instBEqOfTransCmp(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_instForMOfTransCmpOfLawfulMonad___redArg(lean_object*);
 static lean_object* l_Std_ExtTreeSet___auto__1___closed__25;
 static lean_object* l_Std_ExtTreeSet_foldr___closed__5;
@@ -127,6 +129,7 @@ LEAN_EXPORT lean_object* l_Std_ExtTreeSet_merge___redArg___lam__0___boxed(lean_o
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_atIdx___redArg(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_minKey_x21___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_max_x21___redArg(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_ExtTreeSet_instBEqOfTransCmp___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_instForInOfTransCmpOfLawfulMonad(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_partition___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_toList___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -170,6 +173,7 @@ LEAN_EXPORT lean_object* l_Std_ExtTreeSet_size(lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Std_ExtTreeSet_ofList_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_minKey___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_maxD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instBEqOfDecidableEq___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_min(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_maxKeyD___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_get_x21(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -197,13 +201,17 @@ LEAN_EXPORT lean_object* l_Std_ExtTreeSet_min_x21___boxed(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_insertMany___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_getLED___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_atIdx_x21___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_ExtTreeSet_instDecidableEqOfLawfulEqCmpOfTransCmp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_getLE_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_ExtTreeSet_instDecidableEqOfLawfulEqCmpOfTransCmp___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_getGED___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_atIdx_x3f___redArg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_ExtTreeSet_instBEqOfTransCmp___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_toList(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_filter___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_partition(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_getKey_x3f___redArg(lean_object*, lean_object*, lean_object*);
+uint8_t l_Std_DTreeMap_Internal_Impl_Const_beq___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_ofArray___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_ExtTreeSet___auto__1___closed__19;
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_getGE_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -278,6 +286,8 @@ LEAN_EXPORT lean_object* l_Std_ExtTreeSet_filter___boxed(lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_insertMany(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_getGE_x21(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_ExtTreeSet_instDecidableEqOfLawfulEqCmpOfTransCmp___redArg___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_ExtTreeSet_instBEqOfTransCmp___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_getD___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_instInterOfTransCmp___redArg(lean_object*);
 static lean_object* l_Std_ExtTreeSet___auto__1___closed__12;
@@ -332,6 +342,7 @@ LEAN_EXPORT lean_object* l_Std_ExtTreeSet_insert(lean_object*, lean_object*, lea
 static lean_object* l_Std_ExtTreeSet___auto__1___closed__2;
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_size___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_forIn___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instDecidableEqPUnit___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_filter(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_forIn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -345,6 +356,7 @@ LEAN_EXPORT lean_object* l_Std_ExtTreeSet_foldr___redArg___lam__0(lean_object*, 
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_instSingletonOfTransCmp___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_getLT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_ExtTreeSet_instDecidableEqOfLawfulEqCmpOfTransCmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_ExtTreeSet___auto__1___closed__6;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_getD___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3356,9 +3368,9 @@ goto block_54;
 block_46:
 {
 lean_object* x_43; lean_object* x_44; lean_object* x_45; 
-x_43 = lean_nat_add(x_41, x_42);
+x_43 = lean_nat_add(x_40, x_42);
 lean_dec(x_42);
-lean_dec(x_41);
+lean_dec(x_40);
 if (lean_is_scalar(x_37)) {
  x_44 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -3377,7 +3389,7 @@ if (lean_is_scalar(x_27)) {
 lean_ctor_set(x_45, 0, x_39);
 lean_ctor_set(x_45, 1, x_30);
 lean_ctor_set(x_45, 2, x_31);
-lean_ctor_set(x_45, 3, x_40);
+lean_ctor_set(x_45, 3, x_41);
 lean_ctor_set(x_45, 4, x_44);
 return x_45;
 }
@@ -3403,8 +3415,8 @@ if (lean_obj_tag(x_33) == 0)
 lean_object* x_52; 
 x_52 = lean_ctor_get(x_33, 0);
 lean_inc(x_52);
-x_40 = x_50;
-x_41 = x_51;
+x_40 = x_51;
+x_41 = x_50;
 x_42 = x_52;
 goto block_46;
 }
@@ -3412,8 +3424,8 @@ else
 {
 lean_object* x_53; 
 x_53 = lean_unsigned_to_nat(0u);
-x_40 = x_50;
-x_41 = x_51;
+x_40 = x_51;
+x_41 = x_50;
 x_42 = x_53;
 goto block_46;
 }
@@ -3831,9 +3843,9 @@ goto block_156;
 block_149:
 {
 lean_object* x_146; lean_object* x_147; lean_object* x_148; 
-x_146 = lean_nat_add(x_143, x_145);
+x_146 = lean_nat_add(x_144, x_145);
 lean_dec(x_145);
-lean_dec(x_143);
+lean_dec(x_144);
 if (lean_is_scalar(x_140)) {
  x_147 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -3852,7 +3864,7 @@ if (lean_is_scalar(x_130)) {
 lean_ctor_set(x_148, 0, x_142);
 lean_ctor_set(x_148, 1, x_132);
 lean_ctor_set(x_148, 2, x_133);
-lean_ctor_set(x_148, 3, x_144);
+lean_ctor_set(x_148, 3, x_143);
 lean_ctor_set(x_148, 4, x_147);
 return x_148;
 }
@@ -3878,8 +3890,8 @@ if (lean_obj_tag(x_135) == 0)
 lean_object* x_154; 
 x_154 = lean_ctor_get(x_135, 0);
 lean_inc(x_154);
-x_143 = x_153;
-x_144 = x_152;
+x_143 = x_152;
+x_144 = x_153;
 x_145 = x_154;
 goto block_149;
 }
@@ -3887,8 +3899,8 @@ else
 {
 lean_object* x_155; 
 x_155 = lean_unsigned_to_nat(0u);
-x_143 = x_153;
-x_144 = x_152;
+x_143 = x_152;
+x_144 = x_153;
 x_145 = x_155;
 goto block_149;
 }
@@ -4690,6 +4702,50 @@ lean_closure_set(x_2, 2, lean_box(0));
 return x_2;
 }
 }
+static lean_object* _init_l_Std_ExtTreeSet_instBEqOfTransCmp___redArg___lam__0___closed__0() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_alloc_closure((void*)(l_instDecidableEqPUnit___boxed), 2, 0);
+x_2 = l_instBEqOfDecidableEq___redArg(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT uint8_t l_Std_ExtTreeSet_instBEqOfTransCmp___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = l_Std_ExtTreeSet_instBEqOfTransCmp___redArg___lam__0___closed__0;
+x_5 = l_Std_DTreeMap_Internal_Impl_Const_beq___redArg(x_1, x_4, x_2, x_3);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_ExtTreeSet_instBEqOfTransCmp___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Std_ExtTreeSet_instBEqOfTransCmp___redArg___lam__0(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_ExtTreeSet_instBEqOfTransCmp___redArg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Std_ExtTreeSet_instBEqOfTransCmp___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_ExtTreeSet_instBEqOfTransCmp(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_ExtTreeSet_instBEqOfTransCmp___redArg(x_2);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_diff(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -4726,6 +4782,41 @@ lean_closure_set(x_2, 0, lean_box(0));
 lean_closure_set(x_2, 1, x_1);
 lean_closure_set(x_2, 2, lean_box(0));
 return x_2;
+}
+}
+LEAN_EXPORT uint8_t l_Std_ExtTreeSet_instDecidableEqOfLawfulEqCmpOfTransCmp___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = l_Std_ExtTreeSet_instBEqOfTransCmp___redArg___lam__0___closed__0;
+x_5 = l_Std_DTreeMap_Internal_Impl_Const_beq___redArg(x_1, x_4, x_2, x_3);
+return x_5;
+}
+}
+LEAN_EXPORT uint8_t l_Std_ExtTreeSet_instDecidableEqOfLawfulEqCmpOfTransCmp(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+uint8_t x_7; 
+x_7 = l_Std_ExtTreeSet_instDecidableEqOfLawfulEqCmpOfTransCmp___redArg(x_2, x_5, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_ExtTreeSet_instDecidableEqOfLawfulEqCmpOfTransCmp___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+uint8_t x_7; lean_object* x_8; 
+x_7 = l_Std_ExtTreeSet_instDecidableEqOfLawfulEqCmpOfTransCmp(x_1, x_2, x_3, x_4, x_5, x_6);
+x_8 = lean_box(x_7);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Std_ExtTreeSet_instDecidableEqOfLawfulEqCmpOfTransCmp___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Std_ExtTreeSet_instDecidableEqOfLawfulEqCmpOfTransCmp___redArg(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_ExtTreeSet_eraseMany___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -4940,6 +5031,8 @@ l_Std_ExtTreeSet_ofArray___auto__1 = _init_l_Std_ExtTreeSet_ofArray___auto__1();
 lean_mark_persistent(l_Std_ExtTreeSet_ofArray___auto__1);
 l_Std_ExtTreeSet_merge___redArg___lam__0___closed__0 = _init_l_Std_ExtTreeSet_merge___redArg___lam__0___closed__0();
 lean_mark_persistent(l_Std_ExtTreeSet_merge___redArg___lam__0___closed__0);
+l_Std_ExtTreeSet_instBEqOfTransCmp___redArg___lam__0___closed__0 = _init_l_Std_ExtTreeSet_instBEqOfTransCmp___redArg___lam__0___closed__0();
+lean_mark_persistent(l_Std_ExtTreeSet_instBEqOfTransCmp___redArg___lam__0___closed__0);
 l_Std_ExtTreeSet_instReprOfTransCmp___redArg___closed__0 = _init_l_Std_ExtTreeSet_instReprOfTransCmp___redArg___closed__0();
 lean_mark_persistent(l_Std_ExtTreeSet_instReprOfTransCmp___redArg___closed__0);
 l_Std_ExtTreeSet_instReprOfTransCmp___redArg___lam__1___closed__0 = _init_l_Std_ExtTreeSet_instReprOfTransCmp___redArg___lam__1___closed__0();

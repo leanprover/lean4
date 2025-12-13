@@ -721,7 +721,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabValueOf___boxed(lean_object*, lean
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabEnsureExpectedType___regBuiltin_Lean_Elab_Term_elabEnsureExpectedType_declRange__3();
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabTypeOf___regBuiltin_Lean_Elab_Term_elabTypeOf_declRange__3___boxed(lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_ofSubarray___redArg(lean_object*);
 static lean_object* l_Lean_Elab_Term_elabWaitIfTypeMVar___regBuiltin_Lean_Elab_Term_elabWaitIfTypeMVar__1___closed__1;
 static lean_object* l_Lean_Elab_Term_elabNoImplicitLambda___regBuiltin_Lean_Elab_Term_elabNoImplicitLambda_declRange__3___closed__4;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Term_elabDoubleQuotedName_spec__0_spec__7_spec__7___redArg___boxed(lean_object*, lean_object*);
@@ -863,6 +862,7 @@ LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at___00Lean_getConstVal__
 extern lean_object* l_Lean_diagnostics;
 uint8_t l_Lean_Syntax_isIdent(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabProp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Subarray_toArray___redArg(lean_object*);
 extern lean_object* l_Lean_scopedEnvExtensionsRef;
 static lean_object* l_Lean_Elab_Term_elabQuotedName___regBuiltin_Lean_Elab_Term_elabQuotedName__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabNumLit___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -32517,7 +32517,7 @@ x_11 = l_Lean_Syntax_getArgs(x_10);
 x_12 = lean_unsigned_to_nat(3u);
 x_13 = lean_unsigned_to_nat(0u);
 x_14 = l_Array_toSubarray___redArg(x_11, x_13, x_12);
-x_15 = l_Array_ofSubarray___redArg(x_14);
+x_15 = l_Subarray_toArray___redArg(x_14);
 lean_inc(x_10);
 x_16 = l_Lean_Syntax_setArgs(x_10, x_15);
 x_17 = lean_alloc_ctor(5, 1, 0);

@@ -1932,16 +1932,16 @@ return x_69;
 else
 {
 lean_dec_ref(x_39);
-x_15 = x_37;
-x_16 = x_36;
+x_15 = x_36;
+x_16 = x_37;
 goto block_24;
 }
 }
 else
 {
 lean_dec_ref(x_39);
-x_15 = x_37;
-x_16 = x_36;
+x_15 = x_36;
+x_16 = x_37;
 goto block_24;
 }
 }
@@ -2001,12 +2001,12 @@ block_24:
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_17 = l___private_Lean_DocString_Links_0__Lean_rw___closed__0;
-x_18 = lean_string_append(x_17, x_15);
-lean_dec_ref(x_15);
+x_18 = lean_string_append(x_17, x_16);
+lean_dec_ref(x_16);
 x_19 = l___private_Lean_DocString_Links_0__Lean_rw___closed__1;
 x_20 = lean_string_append(x_18, x_19);
-x_21 = l_List_toString___at___00__private_Lean_DocString_Links_0__Lean_rw_spec__0(x_16);
-lean_dec(x_16);
+x_21 = l_List_toString___at___00__private_Lean_DocString_Links_0__Lean_rw_spec__0(x_15);
+lean_dec(x_15);
 x_22 = lean_string_append(x_20, x_21);
 lean_dec_ref(x_21);
 x_23 = lean_alloc_ctor(0, 1, 0);

@@ -234,7 +234,6 @@ lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Structural_tryAllArgs_spec__7___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00Lean_Elab_Structural_nonIndicesFirst_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_ofSubarray___redArg(lean_object*);
 static lean_object* l_Lean_Elab_Structural_prettyParameterSet___closed__5;
 static lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_Structural_getRecArgInfos_spec__2___redArg___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Structural_prettyParameterSet_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -280,6 +279,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_FindRecA
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_prettyRecArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Structural_IndGroupInst_isDefEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_dedup___at___00Lean_Elab_Structural_inductiveGroups_spec__1_spec__2_spec__2___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Subarray_toArray___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at___00Lean_Elab_Structural_prettyRecArg_spec__0(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at___00Lean_Elab_Structural_prettyRecArg_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_idxOfAux___at___00Array_finIdxOf_x3f___at___00Array_idxOf_x3f___at___00Lean_Elab_Structural_getRecArgInfo_spec__5_spec__5_spec__5(lean_object*, lean_object*, lean_object*);
@@ -4968,7 +4968,7 @@ block_215:
 {
 lean_object* x_199; lean_object* x_200; lean_object* x_201; uint8_t x_202; 
 x_199 = l_Array_toSubarray___redArg(x_191, x_197, x_198);
-x_200 = l_Array_ofSubarray___redArg(x_199);
+x_200 = l_Subarray_toArray___redArg(x_199);
 x_201 = lean_array_get_size(x_200);
 x_202 = lean_nat_dec_lt(x_189, x_201);
 lean_dec(x_189);
@@ -5140,7 +5140,7 @@ x_243 = lean_unsigned_to_nat(0u);
 lean_inc(x_235);
 lean_inc_ref(x_242);
 x_244 = l_Array_toSubarray___redArg(x_242, x_243, x_235);
-x_245 = l_Array_ofSubarray___redArg(x_244);
+x_245 = l_Subarray_toArray___redArg(x_244);
 x_246 = lean_array_get_size(x_242);
 x_247 = lean_nat_dec_le(x_235, x_243);
 if (x_247 == 0)

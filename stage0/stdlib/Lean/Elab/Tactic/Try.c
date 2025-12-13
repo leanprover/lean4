@@ -773,7 +773,6 @@ uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ResolveName_0__Lean_resolveGlobalConstCore___at___00Lean_resolveGlobalConst___at___00__private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_evalSuggestSimpAllTrace_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_preprocessSyntaxAndResolve___at___00Lean_resolveGlobalConst___at___00__private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_evalSuggestSimpAllTrace_spec__0_spec__15___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_merge_x3f(lean_object*, lean_object*);
-lean_object* l_Array_ofSubarray___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_throwEvalAndSuggestFailed___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_mkSeq___redArg(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Try_elabRegisterTryTactic___closed__144;
@@ -926,6 +925,7 @@ LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_E
 static lean_object* l___private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_addSuggestions___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Try_evalAndSuggest(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_mkSeq___redArg___closed__0;
+lean_object* l_Subarray_toArray___redArg(lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_mkChainResult___closed__10;
 static lean_object* l_Lean_Elab_Tactic_Try_evalSuggestExact___lam__2___closed__15;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_evalSuggestGrindTrace_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -35090,7 +35090,7 @@ x_20 = l___private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_getSuggestions(x
 x_21 = lean_unsigned_to_nat(0u);
 lean_inc(x_19);
 x_22 = l_Array_toSubarray___redArg(x_20, x_21, x_19);
-x_23 = l_Array_ofSubarray___redArg(x_22);
+x_23 = l_Subarray_toArray___redArg(x_22);
 x_24 = l_Array_isEmpty___redArg(x_23);
 if (x_24 == 0)
 {
@@ -43125,7 +43125,7 @@ x_22 = l___private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_getSuggestions(x
 x_23 = lean_unsigned_to_nat(0u);
 lean_inc(x_21);
 x_24 = l_Array_toSubarray___redArg(x_22, x_23, x_21);
-x_25 = l_Array_ofSubarray___redArg(x_24);
+x_25 = l_Subarray_toArray___redArg(x_24);
 x_26 = l_Array_isEmpty___redArg(x_25);
 if (x_26 == 0)
 {
@@ -43225,7 +43225,7 @@ x_51 = l___private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_getSuggestions(x
 x_52 = lean_unsigned_to_nat(0u);
 lean_inc(x_50);
 x_53 = l_Array_toSubarray___redArg(x_51, x_52, x_50);
-x_54 = l_Array_ofSubarray___redArg(x_53);
+x_54 = l_Subarray_toArray___redArg(x_53);
 x_55 = l_Array_isEmpty___redArg(x_54);
 if (x_55 == 0)
 {

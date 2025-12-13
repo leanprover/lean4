@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.TreeSet
-// Imports: public import Std.Data.TreeSet.Basic public import Std.Data.TreeSet.AdditionalOperations public import Std.Data.TreeSet.Lemmas public import Std.Data.TreeSet.Iterator public import Std.Data.TreeSet.Slice
+// Imports: public import Std.Data.TreeSet.Basic public import Std.Data.TreeSet.AdditionalOperations public import Std.Data.TreeSet.Lemmas public import Std.Data.TreeSet.Iterator public import Std.Data.TreeSet.Slice public import Std.Data.TreeSet.DecidableEquiv
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,7 @@ lean_object* initialize_Std_Data_TreeSet_AdditionalOperations(uint8_t builtin);
 lean_object* initialize_Std_Data_TreeSet_Lemmas(uint8_t builtin);
 lean_object* initialize_Std_Data_TreeSet_Iterator(uint8_t builtin);
 lean_object* initialize_Std_Data_TreeSet_Slice(uint8_t builtin);
+lean_object* initialize_Std_Data_TreeSet_DecidableEquiv(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_TreeSet(uint8_t builtin) {
 lean_object * res;
@@ -36,6 +37,9 @@ res = initialize_Std_Data_TreeSet_Iterator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_TreeSet_Slice(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_TreeSet_DecidableEquiv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

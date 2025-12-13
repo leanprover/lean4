@@ -5158,4 +5158,12 @@ end map
 
 end Raw₀
 
+namespace Raw₀
+
+/-- Internal implementation detail -/
+def decidableEquiv [BEq α] [LawfulBEq α] [Hashable α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] (m₁ m₂ : Raw₀ α β) (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) : Decidable (m₁.1.Equiv m₂.1) :=
+  decidable_of_iff _ ⟨Raw₀.equiv_of_beq h₁ h₂, Raw₀.Equiv.beq h₁ h₂⟩
+
+end Raw₀
+
 end Std.DHashMap.Internal

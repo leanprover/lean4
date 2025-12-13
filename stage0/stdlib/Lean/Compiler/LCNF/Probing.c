@@ -165,7 +165,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_a
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Probe_filter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Probe_countUniqueSorted___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_ofSubarray___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Probe_filterByFunDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Probe_filterByFunDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Probe_runGlobally___redArg(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -194,6 +193,7 @@ static lean_object* l___private_Lean_Compiler_LCNF_Probing_0__Lean_Compiler_LCNF
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_LCNF_Probing_0__Lean_Compiler_LCNF_Probe_getJps_start_spec__1___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Probe_sum___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_Probing_0__Lean_Compiler_LCNF_Probe_initFn___closed__17_00___x40_Lean_Compiler_LCNF_Probing_4008565020____hygCtx___hyg_2_;
+lean_object* l_Subarray_toArray___redArg(lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_Probing_0__Lean_Compiler_LCNF_Probe_initFn___closed__9_00___x40_Lean_Compiler_LCNF_Probing_4008565020____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Probe_countUnique___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Probe_map___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -11325,7 +11325,7 @@ block_14:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_11 = l_Array_toSubarray___redArg(x_3, x_9, x_10);
-x_12 = l_Array_ofSubarray___redArg(x_11);
+x_12 = l_Subarray_toArray___redArg(x_11);
 x_13 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
 return x_13;
@@ -11357,7 +11357,7 @@ block_9:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = l_Array_toSubarray___redArg(x_2, x_4, x_5);
-x_7 = l_Array_ofSubarray___redArg(x_6);
+x_7 = l_Subarray_toArray___redArg(x_6);
 x_8 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
 return x_8;
@@ -11392,7 +11392,7 @@ _start:
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = l_Array_toSubarray___redArg(x_3, x_9, x_2);
-x_11 = l_Array_ofSubarray___redArg(x_10);
+x_11 = l_Subarray_toArray___redArg(x_10);
 x_12 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_12, 0, x_11);
 return x_12;
@@ -11404,7 +11404,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = l_Array_toSubarray___redArg(x_2, x_4, x_1);
-x_6 = l_Array_ofSubarray___redArg(x_5);
+x_6 = l_Subarray_toArray___redArg(x_5);
 x_7 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 return x_7;

@@ -20,13 +20,9 @@ theorem lt_of_getMsbD {x : BitVec w} {i : Nat} : getMsbD x i = true → i < w :=
 
 theorem getElem?_eq_getElem {l : BitVec w} {n} (h : n < w) : l[n]? = some l[n] := by grind
 
--- TODO: when removing this deprecated theorem,
--- remove the `_root_` prefixes appearing below.
-@[deprecated _root_.getElem?_eq_some_iff (since := "2025-06-19")]
 theorem getElem?_eq_some_iff {l : BitVec w} :
     l[n]? = some a ↔ ∃ h : n < w, l[n] = a := by grind
 
-@[deprecated _root_.some_eq_getElem?_iff (since := "2025-06-19")]
 theorem some_eq_getElem?_iff {l : BitVec w} :
     some a = l[n]? ↔ ∃ h : n < w, l[n] = a := by grind
 
@@ -108,7 +104,6 @@ theorem getMsbD_eq_getLsbD (x : BitVec w) (i : Nat) :
     x.getMsbD i = (decide (i < w) && x.getLsbD (w - 1 - i)) := by
   grind [getMsbD]
 
-@[deprecated getMsb_eq_getLsb (since := "2025-06-17")]
 theorem getMsb'_eq_getLsb' (x : BitVec w) (i : Nat) : x.getMsbD i = (decide (i < w) && x.getLsbD (w - 1 - i)) := by
   rw [getMsbD, getLsbD]
 

@@ -301,6 +301,7 @@ static lean_object* l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap
 static lean_object* l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_queryMap___closed__155;
 static lean_object* l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_queryMap___lam__11___closed__1;
 static lean_object* l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticWf__trivial__1___closed__106;
+uint8_t l_Std_DHashMap_Internal_Raw_u2080_beq___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_modifyMap___closed__68;
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticSimp__to__model_x5b___x5dUsing____1_spec__6___redArg___closed__7;
 static lean_object* l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_queryMap___closed__32;
@@ -344,6 +345,7 @@ static lean_object* l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHas
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticSimp__to__model_x5b___x5dUsing____1_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticWf__trivial__1___closed__57;
 static lean_object* l_Std_DHashMap_Internal_Raw_u2080_tacticWf__trivial___closed__2;
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_decidableEquiv___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_queryMap___lam__5___closed__6;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00Std_DHashMap_Internal_Raw_u2080_insertMany___at___00__private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_modifyMap_spec__0_spec__6___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_queryMap___closed__47;
@@ -465,6 +467,7 @@ static lean_object* l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHas
 static lean_object* l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_modifyMap___closed__88;
 static lean_object* l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_queryMap___closed__55;
 static lean_object* l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_queryMap___closed__37;
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_decidableEquiv___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mkArray2___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_get_x3f___at___00Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticSimp__to__model_x5b___x5dUsing____1_spec__0___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticWf__trivial__1___closed__72;
@@ -509,6 +512,7 @@ static lean_object* l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap
 static lean_object* l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticEmpty__1___closed__11;
 static lean_object* l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticEmpty__1___closed__14;
 static lean_object* l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_queryMap___closed__46;
+LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_decidableEquiv___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_modifyMap___closed__6;
 static lean_object* l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticWf__trivial__1___closed__129;
 static lean_object* l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticWf__trivial__1___closed__121;
@@ -715,6 +719,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___00Std
 static lean_object* l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticWf__trivial__1___closed__52;
 static lean_object* l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_modifyMap___closed__66;
 static lean_object* l___private_Std_Data_DHashMap_Internal_RawLemmas_0__Std_DHashMap_Internal_Raw_u2080_modifyMap___closed__58;
+LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_decidableEquiv(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_Internal_Raw_u2080_tacticSimp__to__model_x5b___x5dUsing___00__closed__27;
 lean_object* l_Lean_mkAtom(lean_object*);
 static lean_object* l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticWf__trivial__1___closed__59;
@@ -13589,6 +13594,40 @@ _start:
 lean_object* x_6; 
 x_6 = l___private_Std_Data_DHashMap_Internal_RawLemmas_0__List_forIn_x27__cons_match__1_splitter___redArg(x_3, x_4, x_5);
 return x_6;
+}
+}
+LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_decidableEquiv(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
+_start:
+{
+uint8_t x_12; 
+x_12 = l_Std_DHashMap_Internal_Raw_u2080_beq___redArg(x_3, x_5, x_6, x_8, x_9);
+return x_12;
+}
+}
+LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_decidableEquiv___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; 
+x_6 = l_Std_DHashMap_Internal_Raw_u2080_beq___redArg(x_1, x_2, x_3, x_4, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_decidableEquiv___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
+_start:
+{
+uint8_t x_12; lean_object* x_13; 
+x_12 = l_Std_DHashMap_Internal_Raw_u2080_decidableEquiv(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+x_13 = lean_box(x_12);
+return x_13;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_decidableEquiv___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; lean_object* x_7; 
+x_6 = l_Std_DHashMap_Internal_Raw_u2080_decidableEquiv___redArg(x_1, x_2, x_3, x_4, x_5);
+x_7 = lean_box(x_6);
+return x_7;
 }
 }
 lean_object* initialize_Std_Data_Internal_List_Associative(uint8_t builtin);

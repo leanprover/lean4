@@ -579,9 +579,6 @@ where
   updateLemmaNames (s : PHashSet Origin) : PHashSet Origin :=
     s.insert e.origin
 
-@[deprecated SimpTheorems.addSimpTheorem (since := "2025-06-17")]
-def addSimpTheoremEntry := SimpTheorems.addSimpTheorem
-
 def SimpTheorems.addDeclToUnfoldCore (d : SimpTheorems) (declName : Name) : SimpTheorems :=
   { d with toUnfold := d.toUnfold.insert declName }
 

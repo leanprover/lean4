@@ -70,6 +70,7 @@ LEAN_EXPORT lean_object* l_Std_ExtDHashMap_Const_get___boxed(lean_object*, lean_
 static lean_object* l_Std_ExtDHashMap_instEmptyCollection___closed__0;
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_isEmpty___redArg___boxed(lean_object*);
 static lean_object* l_Std_ExtDHashMap_Const_unitOfArray___closed__1;
+LEAN_EXPORT uint8_t l_Std_ExtDHashMap_instDecidableEqOfLawfulBEq___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_getKey_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertMany___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_Const_alter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -125,6 +126,7 @@ uint8_t l_Std_DHashMap_Internal_Raw_u2080_contains___redArg(lean_object*, lean_o
 lean_object* l_Std_DHashMap_Raw_instForInSigmaOfMonad___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_Const_get_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_getKey_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_ExtDHashMap_instDecidableEqOfLawfulBEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_size___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_insertIfNew(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_getKey_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -170,8 +172,10 @@ LEAN_EXPORT lean_object* l_Std_ExtDHashMap_get_x21___redArg___boxed(lean_object*
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_size(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_diff___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_union___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_ExtDHashMap_instDecidableEqOfLawfulBEq___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_getD___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_lift_u2082(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_ExtDHashMap_instDecidableEqOfLawfulBEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_ExtDHashMap_instEmptyCollection___closed__1;
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_isEmpty___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDHashMap_pliftOn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2926,6 +2930,40 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Std_ExtDHashMap_instBEqOfLawfulBEq___redArg(x_3, x_4, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT uint8_t l_Std_ExtDHashMap_instDecidableEqOfLawfulBEq(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+_start:
+{
+uint8_t x_10; 
+x_10 = l_Std_DHashMap_Internal_Raw_u2080_beq___redArg(x_3, x_5, x_6, x_8, x_9);
+return x_10;
+}
+}
+LEAN_EXPORT uint8_t l_Std_ExtDHashMap_instDecidableEqOfLawfulBEq___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; 
+x_6 = l_Std_DHashMap_Internal_Raw_u2080_beq___redArg(x_1, x_2, x_3, x_4, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_ExtDHashMap_instDecidableEqOfLawfulBEq___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+_start:
+{
+uint8_t x_10; lean_object* x_11; 
+x_10 = l_Std_ExtDHashMap_instDecidableEqOfLawfulBEq(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+x_11 = lean_box(x_10);
+return x_11;
+}
+}
+LEAN_EXPORT lean_object* l_Std_ExtDHashMap_instDecidableEqOfLawfulBEq___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; lean_object* x_7; 
+x_6 = l_Std_ExtDHashMap_instDecidableEqOfLawfulBEq___redArg(x_1, x_2, x_3, x_4, x_5);
+x_7 = lean_box(x_6);
 return x_7;
 }
 }

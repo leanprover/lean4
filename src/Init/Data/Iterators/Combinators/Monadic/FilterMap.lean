@@ -373,12 +373,8 @@ it.filterMapM     ---a'-----c'-------⊥
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For example, if `f` never returns `none`, then
 this combinator will preserve productiveness. If `f` is an `ExceptT` monad and will always fail,
-then `it.filterMapM` will be finite even if `it` isn't. In the first case, consider
-using the `map`/`mapM`/`mapWithPostcondition` combinators instead, which provide more instances out of
-the box.
-
-If that does not help, the more general combinator `it.filterMapWithPostcondition f` makes it
-possible to manually prove `Finite` and `Productive` instances depending on the concrete choice of `f`.
+then `it.filterMapM` will be finite even if `it` isn't. In such cases, the termination proof needs
+to be done manually.
 
 **Performance:**
 
@@ -416,10 +412,8 @@ it.mapM     ---a'--b'--c'--d'-e'----⊥
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For example, if `f` is an `ExceptT` monad and
-will always fail, then `it.mapM` will be finite even if `it` isn't.
-
-If that does not help, the more general combinator `it.mapWithPostcondition f` makes it possible to
-manually prove `Finite` and `Productive` instances depending on the concrete choice of `f`.
+will always fail, then `it.mapM` will be finite even if `it` isn't. In such cases, the termination
+proof needs to be done manually.
 
 **Performance:**
 
@@ -456,10 +450,7 @@ it.filterM     ---a-----c-------⊥
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For example, if `f` is an `ExceptT` monad and
 will always fail, then `it.filterWithPostcondition` will be finite -- and productive -- even if `it`
-isn't.
-
-In such situations, the more general combinator `it.filterWithPostcondition f` makes it possible to
-manually prove `Finite` and `Productive` instances depending on the concrete choice of `f`.
+isn't. In such cases, the termination proof needs to be done manually.
 
 **Performance:**
 

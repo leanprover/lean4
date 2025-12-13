@@ -60,3 +60,62 @@ example (hα : α = α') (_ : double n = double m)
     (heq : xs ≍ EvenVec.cons _ p3 x' xs') :
     xs.ctorIdx = 1 := by
   grind
+
+-- Some tests provided by clause
+
+-- Test 1: Multiple ctorIdx comparisons with different constructors
+example (t1 t2 : T) (h1 : t1 = .con1 10) (h2 : t2 = .con2) : t1.ctorIdx ≠ t2.ctorIdx := by
+  grind
+
+-- Test 2: ctorIdx with transitivity through multiple equalities
+example (t1 t2 t3 : T) (h1 : t1 = t2) (h2 : t2 = t3) (h3 : t3 = .con1 7) : t1.ctorIdx = 0 := by
+  grind
+
+-- Test 3: ctorIdx inequality leading to false
+example (t : T) (h1 : t = .con1 3) (h2 : t.ctorIdx = 1) : False := by
+  grind
+
+-- Test 4: ctorIdx with Option type (simple inductive with two constructors)
+example (opt : Option Nat) (h : opt = .some 42) : opt.ctorIdx = 1 := by
+  grind
+
+example (opt : Option Nat) (h : opt = .none) : opt.ctorIdx = 0 := by
+  grind
+
+-- Test 5: ctorIdx distinguishing between constructors indirectly
+example (opt1 opt2 : Option Nat) (h1 : opt1 = .some 5) (h2 : opt2 = .none)
+    (heq : opt1.ctorIdx = opt2.ctorIdx) : False := by
+  grind
+
+-- Test 6: Dependent type with multiple index changes
+example (n m : Nat) (v1 : Vec Nat n) (v2 : Vec Nat m)
+    (hn : n = 0) (hm : m = 1)
+    (hv1 : v1 ≍ (Vec.nil : Vec Nat 0)) (hv2 : v2 ≍ (Vec.cons 0 Vec.nil : Vec Nat 1))
+    (hidx : v1.ctorIdx = v2.ctorIdx) : False := by
+  grind
+
+-- Test 7: ctorIdx with nested dependent types
+inductive Fin' : Nat → Type where
+| zero : {n : Nat} → Fin' (n + 1)
+| succ : {n : Nat} → Fin' n → Fin' (n + 1)
+
+example (n : Nat) (hn : n = 5) (f : Fin' n) (hf : f ≍ (Fin'.zero : Fin' 5)) : f.ctorIdx = 0 := by
+  grind
+
+-- Test 8: ctorIdx propagation through arithmetic
+example (t : T) (h : t = .con2) (hbad : t.ctorIdx + 1 = 1) : False := by
+  grind
+
+-- Test 9: Complex heterogeneous equality with List
+example (xs ys : List Nat)
+    (hxs : xs = List.nil)
+    (hys : ys = List.cons 0 List.nil)
+    (hidx : xs.ctorIdx = ys.ctorIdx) : False := by
+  grind
+
+-- Test 10: ctorIdx with Sum type
+example (s : Sum Nat Bool) (h : s = .inl 5) : s.ctorIdx = 0 := by
+  grind
+
+example (s : Sum Nat Bool) (h : s = .inr true) : s.ctorIdx = 1 := by
+  grind

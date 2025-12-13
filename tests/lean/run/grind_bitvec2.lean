@@ -291,7 +291,13 @@ theorem sub_sub_toNat_cancel {x : BitVec w} :
 theorem sub_add_bmod_cancel {x y : BitVec w} :
     ((((2 ^ w : Nat) - y.toNat) : Int) + x.toNat).bmod (2 ^ w) =
       ((x.toNat : Int) - y.toNat).bmod (2 ^ w) := by
-  grind [=_ Int.add_bmod_right] -- TODO: teach `grind` about Int.bmod
+  /-
+  **Note**: This is a goal containing nonlinear integer arithmetic.
+  This is not in `grind`s scope. The following command used to work
+  before we expanded `Int.bmod` into `Int.emod`.
+  -/
+  -- grind [=_ Int.add_bmod_right]
+  sorry
 
 private theorem lt_two_pow_of_le {x m n : Nat} (lt : x < 2 ^ m) (le : m ≤ n) : x < 2 ^ n :=
   Nat.lt_of_lt_of_le lt (Nat.pow_le_pow_right (by trivial : 0 < 2) le)

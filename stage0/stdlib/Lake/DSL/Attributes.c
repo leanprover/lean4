@@ -98,6 +98,14 @@ LEAN_EXPORT lean_object* l_Lean_Option_get___at___00Lean_logAt___at___00Lean_log
 static lean_object* l___private_Lake_DSL_Attributes_0__Lake_initFn___closed__24_00___x40_Lake_DSL_Attributes_4284851756____hygCtx___hyg_2_;
 static lean_object* l___private_Lake_DSL_Attributes_0__Lake_initFn___lam__0___closed__0_00___x40_Lake_DSL_Attributes_4284851756____hygCtx___hyg_2_;
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_DSL_Attributes_0__Lake_initFn___lam__1_00___x40_Lake_DSL_Attributes_4284851756____hygCtx___hyg_2_(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_6; 
+x_6 = lean_apply_4(x_1, x_2, x_3, x_4, lean_box(0));
+return x_6;
+}
+}
 static lean_object* _init_l_Lean_addMessageContextPartial___at___00Lean_logAt___at___00Lean_logWarningAt___at___00__private_Lake_DSL_Attributes_0__Lake_initFn_00___x40_Lake_DSL_Attributes_4284851756____hygCtx___hyg_2__spec__0_spec__0_spec__0___closed__0() {
 _start:
 {
@@ -918,22 +926,27 @@ return x_2;
 LEAN_EXPORT lean_object* l___private_Lake_DSL_Attributes_0__Lake_initFn___lam__0_00___x40_Lake_DSL_Attributes_4284851756____hygCtx___hyg_2_(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_8; lean_object* x_9; 
 x_8 = l___private_Lake_DSL_Attributes_0__Lake_initFn___lam__0___closed__2_00___x40_Lake_DSL_Attributes_4284851756____hygCtx___hyg_2_;
 lean_inc_ref(x_5);
 x_9 = l_Lean_logWarningAt___at___00__private_Lake_DSL_Attributes_0__Lake_initFn_00___x40_Lake_DSL_Attributes_4284851756____hygCtx___hyg_2__spec__0(x_3, x_8, x_5, x_6);
+if (lean_obj_tag(x_9) == 0)
+{
+lean_object* x_10; lean_object* x_11; 
 lean_dec_ref(x_9);
 x_10 = lean_box(x_4);
 x_11 = lean_apply_6(x_1, x_2, x_3, x_10, x_5, x_6, lean_box(0));
 return x_11;
 }
-}
-LEAN_EXPORT lean_object* l___private_Lake_DSL_Attributes_0__Lake_initFn___lam__1_00___x40_Lake_DSL_Attributes_4284851756____hygCtx___hyg_2_(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
+else
 {
-lean_object* x_6; 
-x_6 = lean_apply_4(x_1, x_2, x_3, x_4, lean_box(0));
-return x_6;
+lean_dec(x_6);
+lean_dec_ref(x_5);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec_ref(x_1);
+return x_9;
+}
 }
 }
 static lean_object* _init_l___private_Lake_DSL_Attributes_0__Lake_initFn___closed__0_00___x40_Lake_DSL_Attributes_4284851756____hygCtx___hyg_2_() {

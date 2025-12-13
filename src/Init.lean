@@ -15,6 +15,7 @@ public import Init.RCases
 public import Init.Core
 public import Init.Control
 public import Init.WF
+public import Init.WFComputable
 public import Init.WFTactics
 public import Init.Data
 public import Init.System

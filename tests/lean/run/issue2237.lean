@@ -20,7 +20,7 @@ abbrev plus : Term Γ a → Term Γ a
 
 /--
 error: failed to generate equational theorem for `plus`
-  failed to generate equality theorems for `match` expression `plus.match_1`
+  failed to generate equality theorem `_private.lean.run.issue2237.0.plus.match_1.eq_2` for `match` expression `plus.match_1`
   Γ✝ : Context
   a✝ : Ty
   motive✝ : Term Γ✝ a✝ → Sort u_1

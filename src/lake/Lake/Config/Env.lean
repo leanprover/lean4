@@ -208,7 +208,7 @@ public def leanGithash (env : Env) : String :=
 
 /--
 The binary search path of the environment (i.e., `PATH`).
-Combines the initial path of the environment with that of the Lake installation.
+Combines the initial path of the environment with that of the Lean and Lake installations.
 -/
 public def path (env : Env) : SearchPath :=
   if env.lake.binDir = env.lean.binDir then

@@ -10,6 +10,7 @@ import Std.Data.TreeMap.Raw.Lemmas
 import Std.Data.DTreeMap.Raw.Lemmas
 public import Std.Data.TreeSet.Raw.Basic
 public import Init.Data.List.BasicAux
+public import Init.Data.Order.ClassesExtra
 
 @[expose] public section
 
@@ -282,6 +283,10 @@ theorem get?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} (h' : 
       if h₂ : cmp k a = .eq ∧ ¬ k ∈ t then k
       else t.get a (mem_of_mem_insert' h h₁ h₂) :=
   TreeMap.Raw.getKey_insertIfNew h
+
+theorem toList_insert_perm {t : Raw α cmp} [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] (h : t.WF) {k : α} :
+    (t.insert k).toList.Perm (if k ∈ t then t.toList else k :: t.toList) :=
+  TreeMap.Raw.keys_insertIfNew_perm h
 
 @[simp, grind =]
 theorem get_erase [TransCmp cmp] (h : t.WF) {k a : α} {h'} :
@@ -813,6 +818,20 @@ theorem isEmpty_inter_iff [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
 
 end Inter
 
+section
+variable {m₁ m₂ : Raw α cmp}
+
+theorem Equiv.beq [TransCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁ ~m m₂) : beq m₁ m₂ :=
+  TreeMap.Raw.Const.Equiv.beq h₁ h₂ h.1
+
+theorem equiv_of_beq [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁ == m₂): m₁ ~m m₂ :=
+  ⟨TreeMap.Raw.Const.equiv_of_beq h₁.1 h₂.1 h⟩
+
+theorem Equiv.beq_congr [TransCmp cmp] {m₃ m₄ : Raw α cmp} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : (m₁ == m₂) = (m₃ == m₄) :=
+  TreeMap.Raw.Const.Equiv.beq_congr h₁.1 h₂.1 h₃.1 h₄.1 w₁.1 w₂.1
+
+end
+
 section Diff
 
 variable {t₁ t₂ : Raw α cmp}
@@ -1276,6 +1295,20 @@ theorem min?_insert [TransCmp cmp] (h : t.WF) {k} :
       some (t.min?.elim k fun k' => if cmp k k' = .lt then k else k') :=
   TreeMap.Raw.minKey?_insertIfNew h
 
+@[simp] theorem min?_toList [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α]
+    [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp]
+    (h : t.WF) :
+    t.toList.min? = t.min? :=
+  TreeMap.Raw.min?_keys h
+
+@[simp] theorem head?_toList [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α]
+    [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp]
+    (h : t.WF) :
+    t.toList.head? = t.min? :=
+  TreeMap.Raw.head?_keys h
+
 theorem isSome_min?_insert [TransCmp cmp] (h : t.WF) {k} :
     (t.insert k).min?.isSome :=
   TreeMap.Raw.isSome_minKey?_insertIfNew h
@@ -1684,11 +1717,6 @@ theorem max?_erase_le_max? [TransCmp cmp] (h : t.WF) {k km kme} :
   TreeMap.Raw.maxKey?_erase_le_maxKey? h
 
 @[grind =_] theorem max?_eq_getLast?_toList [TransCmp cmp] (h : t.WF) :
-    t.max? = t.toList.getLast? :=
-  TreeMap.Raw.maxKey?_eq_getLast?_keys h
-
-@[deprecated max?_eq_getLast?_toList (since := "2025-05-23")]
-theorem max?_eq_head?_toList [TransCmp cmp] (h : t.WF) :
     t.max? = t.toList.getLast? :=
   TreeMap.Raw.maxKey?_eq_getLast?_keys h
 

@@ -28,6 +28,7 @@ namespace Lean.Meta
 def matchEq? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) :=
   matchHelper? e fun e => return Expr.eq? e
 
+/-- Matches `e` with `x1 ≍ x2`, returns `some (α1, x1, α2, x2)`.  -/
 def matchHEq? (e : Expr) : MetaM (Option (Expr × Expr × Expr × Expr)) :=
   matchHelper? e fun e => return Expr.heq? e
 

@@ -19,16 +19,12 @@ static lean_object* l_Lean_Grind_nodeDefUnexpander___redArg___closed__7;
 static lean_object* l_Lean_Grind_nodeDefUnexpander___redArg___closed__1;
 static lean_object* l_Lean_Grind_nodeDefUnexpander___redArg___closed__5;
 static lean_object* l_Lean_Grind_nodeDefUnexpander___redArg___closed__6;
-LEAN_EXPORT lean_object* l_Lean_Grind_NodeDef_noConfusion___redArg(lean_object*);
 static lean_object* l_Lean_Grind_nodeDefUnexpander___redArg___closed__0;
 static lean_object* l_Lean_Grind_NodeDefUnexpander___redArg___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Grind_NodeDef_noConfusion(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_NodeDef_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Grind_nodeDefUnexpander___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Grind_NodeDefUnexpander___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Grind_NodeDef_noConfusion___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_node__def(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_NodeDefUnexpander___redArg___closed__2;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -52,38 +48,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_NodeDef_noConfusion(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_inc(x_5);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_NodeDef_noConfusion___redArg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_NodeDef_noConfusion___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_Lean_Grind_NodeDef_noConfusion(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_NodeDef_noConfusion___redArg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Grind_NodeDef_noConfusion___redArg(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }

@@ -178,3 +178,12 @@ example (x : Int) (h : x^2 = 0) : (if x > 0 then x else x)^3 = 0 := by
 example {xs ys zs : List α} : (xs ++ ys) ++ zs = xs ++ (ys ++ zs) := by
   fail_if_success grobner
   grind
+
+example (x : BitVec 8) : (x - 16)*(x + 272) = x^2 := by
+  grind
+
+example (x : BitVec 8) : (x - 16#8)*(x + 16#8) = x^2 := by
+  grind
+
+example (x : BitVec 8) : (x - 16)*(x + 272#8) = x^2 := by
+  grind

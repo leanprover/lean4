@@ -11509,7 +11509,6 @@ x_38 = l_Int8_reduceBin___closed__8_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpro
 x_39 = lean_unbox(x_32);
 x_40 = lean_int8_to_int(x_39);
 x_41 = lean_int_neg(x_40);
-lean_dec(x_40);
 x_42 = l_Int_toNat(x_41);
 lean_dec(x_41);
 x_43 = l_Lean_instToExprInt8_mkNat(x_42);
@@ -11523,7 +11522,6 @@ uint8_t x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48;
 x_45 = lean_unbox(x_32);
 x_46 = lean_int8_to_int(x_45);
 x_47 = l_Int_toNat(x_46);
-lean_dec(x_46);
 x_48 = l_Lean_instToExprInt8_mkNat(x_47);
 x_27 = x_48;
 goto block_30;
@@ -11649,7 +11647,6 @@ x_72 = l_Int8_reduceBin___closed__8_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpro
 x_73 = lean_unbox(x_66);
 x_74 = lean_int8_to_int(x_73);
 x_75 = lean_int_neg(x_74);
-lean_dec(x_74);
 x_76 = l_Int_toNat(x_75);
 lean_dec(x_75);
 x_77 = l_Lean_instToExprInt8_mkNat(x_76);
@@ -11663,7 +11660,6 @@ uint8_t x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82;
 x_79 = lean_unbox(x_66);
 x_80 = lean_int8_to_int(x_79);
 x_81 = l_Int_toNat(x_80);
-lean_dec(x_80);
 x_82 = l_Lean_instToExprInt8_mkNat(x_81);
 x_61 = x_82;
 goto block_64;
@@ -11851,7 +11847,6 @@ x_35 = l_Int8_reduceBin___closed__8_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpro
 x_36 = lean_unbox(x_29);
 x_37 = lean_int8_to_int(x_36);
 x_38 = lean_int_neg(x_37);
-lean_dec(x_37);
 x_39 = l_Int_toNat(x_38);
 lean_dec(x_38);
 x_40 = l_Lean_instToExprInt8_mkNat(x_39);
@@ -11865,7 +11860,6 @@ uint8_t x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45;
 x_42 = lean_unbox(x_29);
 x_43 = lean_int8_to_int(x_42);
 x_44 = l_Int_toNat(x_43);
-lean_dec(x_43);
 x_45 = l_Lean_instToExprInt8_mkNat(x_44);
 x_24 = x_45;
 goto block_27;
@@ -11991,7 +11985,6 @@ x_69 = l_Int8_reduceBin___closed__8_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpro
 x_70 = lean_unbox(x_63);
 x_71 = lean_int8_to_int(x_70);
 x_72 = lean_int_neg(x_71);
-lean_dec(x_71);
 x_73 = l_Int_toNat(x_72);
 lean_dec(x_72);
 x_74 = l_Lean_instToExprInt8_mkNat(x_73);
@@ -12005,7 +11998,6 @@ uint8_t x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79;
 x_76 = lean_unbox(x_63);
 x_77 = lean_int8_to_int(x_76);
 x_78 = l_Int_toNat(x_77);
-lean_dec(x_77);
 x_79 = l_Lean_instToExprInt8_mkNat(x_78);
 x_58 = x_79;
 goto block_61;
@@ -13589,7 +13581,6 @@ x_39 = l_Int8_reduceBin___closed__5_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpro
 x_40 = l_Int8_reduceBin___closed__8_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_3529513953____hygCtx___hyg_3_;
 x_41 = lean_int8_to_int(x_35);
 x_42 = lean_int_neg(x_41);
-lean_dec(x_41);
 x_43 = l_Int_toNat(x_42);
 lean_dec(x_42);
 x_44 = l_Lean_instToExprInt8_mkNat(x_43);
@@ -13602,7 +13593,6 @@ else
 lean_object* x_46; lean_object* x_47; lean_object* x_48; 
 x_46 = lean_int8_to_int(x_35);
 x_47 = l_Int_toNat(x_46);
-lean_dec(x_46);
 x_48 = l_Lean_instToExprInt8_mkNat(x_47);
 x_29 = x_48;
 goto block_32;
@@ -14140,7 +14130,6 @@ x_34 = l_Int8_reduceBin___closed__5_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpro
 x_35 = l_Int8_reduceBin___closed__8_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_3529513953____hygCtx___hyg_3_;
 x_36 = lean_int8_to_int(x_30);
 x_37 = lean_int_neg(x_36);
-lean_dec(x_36);
 x_38 = l_Int_toNat(x_37);
 lean_dec(x_37);
 x_39 = l_Lean_instToExprInt8_mkNat(x_38);
@@ -14153,7 +14142,6 @@ else
 lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 x_41 = lean_int8_to_int(x_30);
 x_42 = l_Int_toNat(x_41);
-lean_dec(x_41);
 x_43 = l_Lean_instToExprInt8_mkNat(x_42);
 x_23 = x_43;
 goto block_26;
@@ -14278,7 +14266,6 @@ x_67 = l_Int8_reduceBin___closed__5_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpro
 x_68 = l_Int8_reduceBin___closed__8_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_3529513953____hygCtx___hyg_3_;
 x_69 = lean_int8_to_int(x_63);
 x_70 = lean_int_neg(x_69);
-lean_dec(x_69);
 x_71 = l_Int_toNat(x_70);
 lean_dec(x_70);
 x_72 = l_Lean_instToExprInt8_mkNat(x_71);
@@ -14291,7 +14278,6 @@ else
 lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 x_74 = lean_int8_to_int(x_63);
 x_75 = l_Int_toNat(x_74);
-lean_dec(x_74);
 x_76 = l_Lean_instToExprInt8_mkNat(x_75);
 x_56 = x_76;
 goto block_59;
@@ -14675,7 +14661,6 @@ x_34 = l_Int8_reduceBin___closed__5_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpro
 x_35 = l_Int8_reduceBin___closed__8_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_3529513953____hygCtx___hyg_3_;
 x_36 = lean_int8_to_int(x_30);
 x_37 = lean_int_neg(x_36);
-lean_dec(x_36);
 x_38 = l_Int_toNat(x_37);
 lean_dec(x_37);
 x_39 = l_Lean_instToExprInt8_mkNat(x_38);
@@ -14688,7 +14673,6 @@ else
 lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 x_41 = lean_int8_to_int(x_30);
 x_42 = l_Int_toNat(x_41);
-lean_dec(x_41);
 x_43 = l_Lean_instToExprInt8_mkNat(x_42);
 x_23 = x_43;
 goto block_26;
@@ -14813,7 +14797,6 @@ x_67 = l_Int8_reduceBin___closed__5_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpro
 x_68 = l_Int8_reduceBin___closed__8_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_3529513953____hygCtx___hyg_3_;
 x_69 = lean_int8_to_int(x_63);
 x_70 = lean_int_neg(x_69);
-lean_dec(x_69);
 x_71 = l_Int_toNat(x_70);
 lean_dec(x_70);
 x_72 = l_Lean_instToExprInt8_mkNat(x_71);
@@ -14826,7 +14809,6 @@ else
 lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 x_74 = lean_int8_to_int(x_63);
 x_75 = l_Int_toNat(x_74);
-lean_dec(x_74);
 x_76 = l_Lean_instToExprInt8_mkNat(x_75);
 x_56 = x_76;
 goto block_59;
@@ -15201,7 +15183,6 @@ x_34 = l_Int8_reduceBin___closed__5_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpro
 x_35 = l_Int8_reduceBin___closed__8_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_3529513953____hygCtx___hyg_3_;
 x_36 = lean_int8_to_int(x_30);
 x_37 = lean_int_neg(x_36);
-lean_dec(x_36);
 x_38 = l_Int_toNat(x_37);
 lean_dec(x_37);
 x_39 = l_Lean_instToExprInt8_mkNat(x_38);
@@ -15214,7 +15195,6 @@ else
 lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 x_41 = lean_int8_to_int(x_30);
 x_42 = l_Int_toNat(x_41);
-lean_dec(x_41);
 x_43 = l_Lean_instToExprInt8_mkNat(x_42);
 x_23 = x_43;
 goto block_26;
@@ -15339,7 +15319,6 @@ x_67 = l_Int8_reduceBin___closed__5_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpro
 x_68 = l_Int8_reduceBin___closed__8_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_3529513953____hygCtx___hyg_3_;
 x_69 = lean_int8_to_int(x_63);
 x_70 = lean_int_neg(x_69);
-lean_dec(x_69);
 x_71 = l_Int_toNat(x_70);
 lean_dec(x_70);
 x_72 = l_Lean_instToExprInt8_mkNat(x_71);
@@ -15352,7 +15331,6 @@ else
 lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 x_74 = lean_int8_to_int(x_63);
 x_75 = l_Int_toNat(x_74);
-lean_dec(x_74);
 x_76 = l_Lean_instToExprInt8_mkNat(x_75);
 x_56 = x_76;
 goto block_59;
@@ -15727,7 +15705,6 @@ x_34 = l_Int8_reduceBin___closed__5_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpro
 x_35 = l_Int8_reduceBin___closed__8_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_3529513953____hygCtx___hyg_3_;
 x_36 = lean_int8_to_int(x_30);
 x_37 = lean_int_neg(x_36);
-lean_dec(x_36);
 x_38 = l_Int_toNat(x_37);
 lean_dec(x_37);
 x_39 = l_Lean_instToExprInt8_mkNat(x_38);
@@ -15740,7 +15717,6 @@ else
 lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 x_41 = lean_int8_to_int(x_30);
 x_42 = l_Int_toNat(x_41);
-lean_dec(x_41);
 x_43 = l_Lean_instToExprInt8_mkNat(x_42);
 x_23 = x_43;
 goto block_26;
@@ -15865,7 +15841,6 @@ x_67 = l_Int8_reduceBin___closed__5_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpro
 x_68 = l_Int8_reduceBin___closed__8_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_3529513953____hygCtx___hyg_3_;
 x_69 = lean_int8_to_int(x_63);
 x_70 = lean_int_neg(x_69);
-lean_dec(x_69);
 x_71 = l_Int_toNat(x_70);
 lean_dec(x_70);
 x_72 = l_Lean_instToExprInt8_mkNat(x_71);
@@ -15878,7 +15853,6 @@ else
 lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 x_74 = lean_int8_to_int(x_63);
 x_75 = l_Int_toNat(x_74);
-lean_dec(x_74);
 x_76 = l_Lean_instToExprInt8_mkNat(x_75);
 x_56 = x_76;
 goto block_59;
@@ -16253,7 +16227,6 @@ x_34 = l_Int8_reduceBin___closed__5_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpro
 x_35 = l_Int8_reduceBin___closed__8_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_3529513953____hygCtx___hyg_3_;
 x_36 = lean_int8_to_int(x_30);
 x_37 = lean_int_neg(x_36);
-lean_dec(x_36);
 x_38 = l_Int_toNat(x_37);
 lean_dec(x_37);
 x_39 = l_Lean_instToExprInt8_mkNat(x_38);
@@ -16266,7 +16239,6 @@ else
 lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 x_41 = lean_int8_to_int(x_30);
 x_42 = l_Int_toNat(x_41);
-lean_dec(x_41);
 x_43 = l_Lean_instToExprInt8_mkNat(x_42);
 x_23 = x_43;
 goto block_26;
@@ -16391,7 +16363,6 @@ x_67 = l_Int8_reduceBin___closed__5_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpro
 x_68 = l_Int8_reduceBin___closed__8_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_3529513953____hygCtx___hyg_3_;
 x_69 = lean_int8_to_int(x_63);
 x_70 = lean_int_neg(x_69);
-lean_dec(x_69);
 x_71 = l_Int_toNat(x_70);
 lean_dec(x_70);
 x_72 = l_Lean_instToExprInt8_mkNat(x_71);
@@ -16404,7 +16375,6 @@ else
 lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 x_74 = lean_int8_to_int(x_63);
 x_75 = l_Int_toNat(x_74);
-lean_dec(x_74);
 x_76 = l_Lean_instToExprInt8_mkNat(x_75);
 x_56 = x_76;
 goto block_59;
@@ -20912,7 +20882,6 @@ x_27 = l_Int8_reduceBin___closed__5_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpro
 x_28 = l_Int8_reduceBin___closed__8_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_3529513953____hygCtx___hyg_3_;
 x_29 = lean_int8_to_int(x_23);
 x_30 = lean_int_neg(x_29);
-lean_dec(x_29);
 x_31 = l_Int_toNat(x_30);
 lean_dec(x_30);
 x_32 = l_Lean_instToExprInt8_mkNat(x_31);
@@ -20925,7 +20894,6 @@ else
 lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 x_34 = lean_int8_to_int(x_23);
 x_35 = l_Int_toNat(x_34);
-lean_dec(x_34);
 x_36 = l_Lean_instToExprInt8_mkNat(x_35);
 x_18 = x_36;
 goto block_21;
@@ -21200,7 +21168,6 @@ x_25 = l_Int8_reduceBin___closed__5_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpro
 x_26 = l_Int8_reduceBin___closed__8_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_3529513953____hygCtx___hyg_3_;
 x_27 = lean_int8_to_int(x_21);
 x_28 = lean_int_neg(x_27);
-lean_dec(x_27);
 x_29 = l_Int_toNat(x_28);
 lean_dec(x_28);
 x_30 = l_Lean_instToExprInt8_mkNat(x_29);
@@ -21213,7 +21180,6 @@ else
 lean_object* x_32; lean_object* x_33; lean_object* x_34; 
 x_32 = lean_int8_to_int(x_21);
 x_33 = l_Int_toNat(x_32);
-lean_dec(x_32);
 x_34 = l_Lean_instToExprInt8_mkNat(x_33);
 x_16 = x_34;
 goto block_19;
@@ -21476,7 +21442,6 @@ x_25 = l_Int8_reduceBin___closed__5_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpro
 x_26 = l_Int8_reduceBin___closed__8_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_3529513953____hygCtx___hyg_3_;
 x_27 = lean_int8_to_int(x_21);
 x_28 = lean_int_neg(x_27);
-lean_dec(x_27);
 x_29 = l_Int_toNat(x_28);
 lean_dec(x_28);
 x_30 = l_Lean_instToExprInt8_mkNat(x_29);
@@ -21489,7 +21454,6 @@ else
 lean_object* x_32; lean_object* x_33; lean_object* x_34; 
 x_32 = lean_int8_to_int(x_21);
 x_33 = l_Int_toNat(x_32);
-lean_dec(x_32);
 x_34 = l_Lean_instToExprInt8_mkNat(x_33);
 x_16 = x_34;
 goto block_19;
@@ -21799,7 +21763,6 @@ x_25 = l_Int8_reduceBin___closed__4_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpro
 x_26 = l_Int8_reduceToInt___redArg___closed__3;
 x_27 = l_Int8_reduceToInt___redArg___closed__6;
 x_28 = lean_int_neg(x_22);
-lean_dec(x_22);
 x_29 = l_Int_toNat(x_28);
 lean_dec(x_28);
 x_30 = l_Lean_instToExprInt_mkNat(x_29);
@@ -21811,7 +21774,6 @@ else
 {
 lean_object* x_32; lean_object* x_33; 
 x_32 = l_Int_toNat(x_22);
-lean_dec(x_22);
 x_33 = l_Lean_instToExprInt_mkNat(x_32);
 x_16 = x_33;
 goto block_19;
@@ -22055,7 +22017,6 @@ x_18 = lean_unbox(x_17);
 lean_dec(x_17);
 x_19 = lean_int8_to_int(x_18);
 x_20 = l_Int_toNat(x_19);
-lean_dec(x_19);
 x_21 = l_Lean_mkNatLit(x_20);
 lean_ctor_set_tag(x_15, 0);
 lean_ctor_set(x_15, 0, x_21);
@@ -22071,7 +22032,6 @@ x_23 = lean_unbox(x_22);
 lean_dec(x_22);
 x_24 = lean_int8_to_int(x_23);
 x_25 = l_Int_toNat(x_24);
-lean_dec(x_24);
 x_26 = l_Lean_mkNatLit(x_25);
 x_27 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_27, 0, x_26);
@@ -22110,7 +22070,6 @@ x_32 = lean_unbox(x_30);
 lean_dec(x_30);
 x_33 = lean_int8_to_int(x_32);
 x_34 = l_Int_toNat(x_33);
-lean_dec(x_33);
 x_35 = l_Lean_mkNatLit(x_34);
 if (lean_is_scalar(x_31)) {
  x_36 = lean_alloc_ctor(0, 1, 0);
@@ -23321,7 +23280,6 @@ x_38 = l_Int16_reduceBin___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpr
 x_39 = lean_unbox(x_32);
 x_40 = lean_int16_to_int(x_39);
 x_41 = lean_int_neg(x_40);
-lean_dec(x_40);
 x_42 = l_Int_toNat(x_41);
 lean_dec(x_41);
 x_43 = l_Lean_instToExprInt16_mkNat(x_42);
@@ -23335,7 +23293,6 @@ uint16_t x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48;
 x_45 = lean_unbox(x_32);
 x_46 = lean_int16_to_int(x_45);
 x_47 = l_Int_toNat(x_46);
-lean_dec(x_46);
 x_48 = l_Lean_instToExprInt16_mkNat(x_47);
 x_27 = x_48;
 goto block_30;
@@ -23461,7 +23418,6 @@ x_72 = l_Int16_reduceBin___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpr
 x_73 = lean_unbox(x_66);
 x_74 = lean_int16_to_int(x_73);
 x_75 = lean_int_neg(x_74);
-lean_dec(x_74);
 x_76 = l_Int_toNat(x_75);
 lean_dec(x_75);
 x_77 = l_Lean_instToExprInt16_mkNat(x_76);
@@ -23475,7 +23431,6 @@ uint16_t x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82;
 x_79 = lean_unbox(x_66);
 x_80 = lean_int16_to_int(x_79);
 x_81 = l_Int_toNat(x_80);
-lean_dec(x_80);
 x_82 = l_Lean_instToExprInt16_mkNat(x_81);
 x_61 = x_82;
 goto block_64;
@@ -23663,7 +23618,6 @@ x_35 = l_Int16_reduceBin___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpr
 x_36 = lean_unbox(x_29);
 x_37 = lean_int16_to_int(x_36);
 x_38 = lean_int_neg(x_37);
-lean_dec(x_37);
 x_39 = l_Int_toNat(x_38);
 lean_dec(x_38);
 x_40 = l_Lean_instToExprInt16_mkNat(x_39);
@@ -23677,7 +23631,6 @@ uint16_t x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45;
 x_42 = lean_unbox(x_29);
 x_43 = lean_int16_to_int(x_42);
 x_44 = l_Int_toNat(x_43);
-lean_dec(x_43);
 x_45 = l_Lean_instToExprInt16_mkNat(x_44);
 x_24 = x_45;
 goto block_27;
@@ -23803,7 +23756,6 @@ x_69 = l_Int16_reduceBin___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpr
 x_70 = lean_unbox(x_63);
 x_71 = lean_int16_to_int(x_70);
 x_72 = lean_int_neg(x_71);
-lean_dec(x_71);
 x_73 = l_Int_toNat(x_72);
 lean_dec(x_72);
 x_74 = l_Lean_instToExprInt16_mkNat(x_73);
@@ -23817,7 +23769,6 @@ uint16_t x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79;
 x_76 = lean_unbox(x_63);
 x_77 = lean_int16_to_int(x_76);
 x_78 = l_Int_toNat(x_77);
-lean_dec(x_77);
 x_79 = l_Lean_instToExprInt16_mkNat(x_78);
 x_58 = x_79;
 goto block_61;
@@ -25335,7 +25286,6 @@ x_39 = l_Int16_reduceBin___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpr
 x_40 = l_Int16_reduceBin___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_780327193____hygCtx___hyg_3_;
 x_41 = lean_int16_to_int(x_35);
 x_42 = lean_int_neg(x_41);
-lean_dec(x_41);
 x_43 = l_Int_toNat(x_42);
 lean_dec(x_42);
 x_44 = l_Lean_instToExprInt16_mkNat(x_43);
@@ -25348,7 +25298,6 @@ else
 lean_object* x_46; lean_object* x_47; lean_object* x_48; 
 x_46 = lean_int16_to_int(x_35);
 x_47 = l_Int_toNat(x_46);
-lean_dec(x_46);
 x_48 = l_Lean_instToExprInt16_mkNat(x_47);
 x_29 = x_48;
 goto block_32;
@@ -25807,7 +25756,6 @@ x_34 = l_Int16_reduceBin___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpr
 x_35 = l_Int16_reduceBin___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_780327193____hygCtx___hyg_3_;
 x_36 = lean_int16_to_int(x_30);
 x_37 = lean_int_neg(x_36);
-lean_dec(x_36);
 x_38 = l_Int_toNat(x_37);
 lean_dec(x_37);
 x_39 = l_Lean_instToExprInt16_mkNat(x_38);
@@ -25820,7 +25768,6 @@ else
 lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 x_41 = lean_int16_to_int(x_30);
 x_42 = l_Int_toNat(x_41);
-lean_dec(x_41);
 x_43 = l_Lean_instToExprInt16_mkNat(x_42);
 x_23 = x_43;
 goto block_26;
@@ -25945,7 +25892,6 @@ x_67 = l_Int16_reduceBin___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpr
 x_68 = l_Int16_reduceBin___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_780327193____hygCtx___hyg_3_;
 x_69 = lean_int16_to_int(x_63);
 x_70 = lean_int_neg(x_69);
-lean_dec(x_69);
 x_71 = l_Int_toNat(x_70);
 lean_dec(x_70);
 x_72 = l_Lean_instToExprInt16_mkNat(x_71);
@@ -25958,7 +25904,6 @@ else
 lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 x_74 = lean_int16_to_int(x_63);
 x_75 = l_Int_toNat(x_74);
-lean_dec(x_74);
 x_76 = l_Lean_instToExprInt16_mkNat(x_75);
 x_56 = x_76;
 goto block_59;
@@ -26311,7 +26256,6 @@ x_34 = l_Int16_reduceBin___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpr
 x_35 = l_Int16_reduceBin___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_780327193____hygCtx___hyg_3_;
 x_36 = lean_int16_to_int(x_30);
 x_37 = lean_int_neg(x_36);
-lean_dec(x_36);
 x_38 = l_Int_toNat(x_37);
 lean_dec(x_37);
 x_39 = l_Lean_instToExprInt16_mkNat(x_38);
@@ -26324,7 +26268,6 @@ else
 lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 x_41 = lean_int16_to_int(x_30);
 x_42 = l_Int_toNat(x_41);
-lean_dec(x_41);
 x_43 = l_Lean_instToExprInt16_mkNat(x_42);
 x_23 = x_43;
 goto block_26;
@@ -26449,7 +26392,6 @@ x_67 = l_Int16_reduceBin___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpr
 x_68 = l_Int16_reduceBin___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_780327193____hygCtx___hyg_3_;
 x_69 = lean_int16_to_int(x_63);
 x_70 = lean_int_neg(x_69);
-lean_dec(x_69);
 x_71 = l_Int_toNat(x_70);
 lean_dec(x_70);
 x_72 = l_Lean_instToExprInt16_mkNat(x_71);
@@ -26462,7 +26404,6 @@ else
 lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 x_74 = lean_int16_to_int(x_63);
 x_75 = l_Int_toNat(x_74);
-lean_dec(x_74);
 x_76 = l_Lean_instToExprInt16_mkNat(x_75);
 x_56 = x_76;
 goto block_59;
@@ -26815,7 +26756,6 @@ x_34 = l_Int16_reduceBin___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpr
 x_35 = l_Int16_reduceBin___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_780327193____hygCtx___hyg_3_;
 x_36 = lean_int16_to_int(x_30);
 x_37 = lean_int_neg(x_36);
-lean_dec(x_36);
 x_38 = l_Int_toNat(x_37);
 lean_dec(x_37);
 x_39 = l_Lean_instToExprInt16_mkNat(x_38);
@@ -26828,7 +26768,6 @@ else
 lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 x_41 = lean_int16_to_int(x_30);
 x_42 = l_Int_toNat(x_41);
-lean_dec(x_41);
 x_43 = l_Lean_instToExprInt16_mkNat(x_42);
 x_23 = x_43;
 goto block_26;
@@ -26953,7 +26892,6 @@ x_67 = l_Int16_reduceBin___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpr
 x_68 = l_Int16_reduceBin___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_780327193____hygCtx___hyg_3_;
 x_69 = lean_int16_to_int(x_63);
 x_70 = lean_int_neg(x_69);
-lean_dec(x_69);
 x_71 = l_Int_toNat(x_70);
 lean_dec(x_70);
 x_72 = l_Lean_instToExprInt16_mkNat(x_71);
@@ -26966,7 +26904,6 @@ else
 lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 x_74 = lean_int16_to_int(x_63);
 x_75 = l_Int_toNat(x_74);
-lean_dec(x_74);
 x_76 = l_Lean_instToExprInt16_mkNat(x_75);
 x_56 = x_76;
 goto block_59;
@@ -27319,7 +27256,6 @@ x_34 = l_Int16_reduceBin___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpr
 x_35 = l_Int16_reduceBin___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_780327193____hygCtx___hyg_3_;
 x_36 = lean_int16_to_int(x_30);
 x_37 = lean_int_neg(x_36);
-lean_dec(x_36);
 x_38 = l_Int_toNat(x_37);
 lean_dec(x_37);
 x_39 = l_Lean_instToExprInt16_mkNat(x_38);
@@ -27332,7 +27268,6 @@ else
 lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 x_41 = lean_int16_to_int(x_30);
 x_42 = l_Int_toNat(x_41);
-lean_dec(x_41);
 x_43 = l_Lean_instToExprInt16_mkNat(x_42);
 x_23 = x_43;
 goto block_26;
@@ -27457,7 +27392,6 @@ x_67 = l_Int16_reduceBin___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpr
 x_68 = l_Int16_reduceBin___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_780327193____hygCtx___hyg_3_;
 x_69 = lean_int16_to_int(x_63);
 x_70 = lean_int_neg(x_69);
-lean_dec(x_69);
 x_71 = l_Int_toNat(x_70);
 lean_dec(x_70);
 x_72 = l_Lean_instToExprInt16_mkNat(x_71);
@@ -27470,7 +27404,6 @@ else
 lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 x_74 = lean_int16_to_int(x_63);
 x_75 = l_Int_toNat(x_74);
-lean_dec(x_74);
 x_76 = l_Lean_instToExprInt16_mkNat(x_75);
 x_56 = x_76;
 goto block_59;
@@ -27823,7 +27756,6 @@ x_34 = l_Int16_reduceBin___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpr
 x_35 = l_Int16_reduceBin___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_780327193____hygCtx___hyg_3_;
 x_36 = lean_int16_to_int(x_30);
 x_37 = lean_int_neg(x_36);
-lean_dec(x_36);
 x_38 = l_Int_toNat(x_37);
 lean_dec(x_37);
 x_39 = l_Lean_instToExprInt16_mkNat(x_38);
@@ -27836,7 +27768,6 @@ else
 lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 x_41 = lean_int16_to_int(x_30);
 x_42 = l_Int_toNat(x_41);
-lean_dec(x_41);
 x_43 = l_Lean_instToExprInt16_mkNat(x_42);
 x_23 = x_43;
 goto block_26;
@@ -27961,7 +27892,6 @@ x_67 = l_Int16_reduceBin___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpr
 x_68 = l_Int16_reduceBin___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_780327193____hygCtx___hyg_3_;
 x_69 = lean_int16_to_int(x_63);
 x_70 = lean_int_neg(x_69);
-lean_dec(x_69);
 x_71 = l_Int_toNat(x_70);
 lean_dec(x_70);
 x_72 = l_Lean_instToExprInt16_mkNat(x_71);
@@ -27974,7 +27904,6 @@ else
 lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 x_74 = lean_int16_to_int(x_63);
 x_75 = l_Int_toNat(x_74);
-lean_dec(x_74);
 x_76 = l_Lean_instToExprInt16_mkNat(x_75);
 x_56 = x_76;
 goto block_59;
@@ -32292,7 +32221,6 @@ x_27 = l_Int16_reduceBin___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpr
 x_28 = l_Int16_reduceBin___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_780327193____hygCtx___hyg_3_;
 x_29 = lean_int16_to_int(x_23);
 x_30 = lean_int_neg(x_29);
-lean_dec(x_29);
 x_31 = l_Int_toNat(x_30);
 lean_dec(x_30);
 x_32 = l_Lean_instToExprInt16_mkNat(x_31);
@@ -32305,7 +32233,6 @@ else
 lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 x_34 = lean_int16_to_int(x_23);
 x_35 = l_Int_toNat(x_34);
-lean_dec(x_34);
 x_36 = l_Lean_instToExprInt16_mkNat(x_35);
 x_18 = x_36;
 goto block_21;
@@ -32580,7 +32507,6 @@ x_25 = l_Int16_reduceBin___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpr
 x_26 = l_Int16_reduceBin___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_780327193____hygCtx___hyg_3_;
 x_27 = lean_int16_to_int(x_21);
 x_28 = lean_int_neg(x_27);
-lean_dec(x_27);
 x_29 = l_Int_toNat(x_28);
 lean_dec(x_28);
 x_30 = l_Lean_instToExprInt16_mkNat(x_29);
@@ -32593,7 +32519,6 @@ else
 lean_object* x_32; lean_object* x_33; lean_object* x_34; 
 x_32 = lean_int16_to_int(x_21);
 x_33 = l_Int_toNat(x_32);
-lean_dec(x_32);
 x_34 = l_Lean_instToExprInt16_mkNat(x_33);
 x_16 = x_34;
 goto block_19;
@@ -32847,7 +32772,6 @@ x_25 = l_Int16_reduceBin___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpr
 x_26 = l_Int16_reduceBin___closed__3_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_SInt_780327193____hygCtx___hyg_3_;
 x_27 = lean_int16_to_int(x_21);
 x_28 = lean_int_neg(x_27);
-lean_dec(x_27);
 x_29 = l_Int_toNat(x_28);
 lean_dec(x_28);
 x_30 = l_Lean_instToExprInt16_mkNat(x_29);
@@ -32860,7 +32784,6 @@ else
 lean_object* x_32; lean_object* x_33; lean_object* x_34; 
 x_32 = lean_int16_to_int(x_21);
 x_33 = l_Int_toNat(x_32);
-lean_dec(x_32);
 x_34 = l_Lean_instToExprInt16_mkNat(x_33);
 x_16 = x_34;
 goto block_19;
@@ -33114,7 +33037,6 @@ x_25 = l_Int8_reduceBin___closed__4_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimpro
 x_26 = l_Int8_reduceToInt___redArg___closed__3;
 x_27 = l_Int8_reduceToInt___redArg___closed__6;
 x_28 = lean_int_neg(x_22);
-lean_dec(x_22);
 x_29 = l_Int_toNat(x_28);
 lean_dec(x_28);
 x_30 = l_Lean_instToExprInt_mkNat(x_29);
@@ -33126,7 +33048,6 @@ else
 {
 lean_object* x_32; lean_object* x_33; 
 x_32 = l_Int_toNat(x_22);
-lean_dec(x_22);
 x_33 = l_Lean_instToExprInt_mkNat(x_32);
 x_16 = x_33;
 goto block_19;
@@ -33370,7 +33291,6 @@ x_18 = lean_unbox(x_17);
 lean_dec(x_17);
 x_19 = lean_int16_to_int(x_18);
 x_20 = l_Int_toNat(x_19);
-lean_dec(x_19);
 x_21 = l_Lean_mkNatLit(x_20);
 lean_ctor_set_tag(x_15, 0);
 lean_ctor_set(x_15, 0, x_21);
@@ -33386,7 +33306,6 @@ x_23 = lean_unbox(x_22);
 lean_dec(x_22);
 x_24 = lean_int16_to_int(x_23);
 x_25 = l_Int_toNat(x_24);
-lean_dec(x_24);
 x_26 = l_Lean_mkNatLit(x_25);
 x_27 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_27, 0, x_26);
@@ -33425,7 +33344,6 @@ x_32 = lean_unbox(x_30);
 lean_dec(x_30);
 x_33 = lean_int16_to_int(x_32);
 x_34 = l_Int_toNat(x_33);
-lean_dec(x_33);
 x_35 = l_Lean_mkNatLit(x_34);
 if (lean_is_scalar(x_31)) {
  x_36 = lean_alloc_ctor(0, 1, 0);

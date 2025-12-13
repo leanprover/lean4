@@ -63,8 +63,9 @@ the `match`-eliminator `matchDeclName`. `type` contains the type of the theorem.
 The `heqPos`/`heqNum` arguments indicate that these hypotheses are `Eq`/`HEq` hypotheses
 to substitute first; this is used for the generalized match equations.
 -/
-partial def proveCondEqThm (matchDeclName : Name) (type : Expr)
+partial def proveCondEqThm (matchDeclName : Name) (thmName : Name) (type : Expr)
   (heqPos : Nat := 0) (heqNum : Nat := 0) : MetaM Expr := withLCtx {} {} do
+  withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} proveCondEqThm {thmName}")) do
   let type ← instantiateMVars type
   let mvar0  ← mkFreshExprSyntheticOpaqueMVar type
   trace[Meta.Match.matchEqs] "proveCondEqThm {mvar0.mvarId!}"
@@ -107,7 +108,7 @@ where
       <|>
       (substSomeVar mvarId)
       <|>
-      (throwError "failed to generate equality theorems for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
+      (throwError "failed to generate equality theorem `{thmName}` for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
     subgoals.forM (go · (depth+1))
 
 /--
@@ -179,7 +180,9 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
         let patterns := altResultType.getAppArgs
         let mut hs := #[]
         for overlappedBy in matchInfo.overlaps.overlapping i do
+          assert! overlappedBy < notAlts.size
           let notAlt := notAlts[overlappedBy]!
+          trace[Meta.Match.matchEqs] "overlap notAlt: {overlappedBy} overlapping {i}:{indentExpr notAlt}"
           let h ← instantiateForall notAlt patterns
           if let some h ← simpH? h patterns.size then
             hs := hs.push h
@@ -201,7 +204,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
           let thmType ← mkArrowN hs thmType
           let thmType ← mkForallFVars (params ++ #[motive] ++ ys ++ alts) thmType
           let thmType ← unfoldNamedPattern thmType
-          let thmVal ← proveCondEqThm matchDeclName thmType
+          let thmVal ← proveCondEqThm matchDeclName thmName thmType
           addDecl <| Declaration.thmDecl {
             name        := thmName
             levelParams := constInfo.levelParams
@@ -229,7 +232,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
       assert! matchInfo.altInfos == splitterAltInfos
       -- This match statement does not need a splitter, we can use itself for that.
       -- (We still have to generate a declaration to satisfy the realizable constant)
-      addAndCompile <| Declaration.defnDecl {
+      addAndCompile (logCompileErrors := false) <| Declaration.defnDecl {
         name        := splitterName
         levelParams := constInfo.levelParams
         type        := constInfo.type
@@ -301,6 +304,7 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
           let rhs ← Match.mkAppDiscrEqs (mkAppN alt args) heqs numDiscrEqs
           let mut hs := #[]
           for overlappedBy in matchInfo.overlaps.overlapping i do
+            assert! overlappedBy < notAlts.size
             let notAlt := notAlts[overlappedBy]!
             let h ← instantiateForall notAlt patterns
             if let some h ← simpH? h patterns.size then
@@ -317,7 +321,7 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
           let thmType ← Match.unfoldNamedPattern thmType
           -- Here we prove the theorem from scratch. One could likely also use the (non-generalized)
           -- match equation theorem after subst'ing the `heqs`.
-          let thmVal ← Match.proveCondEqThm matchDeclName thmType
+          let thmVal ← Match.proveCondEqThm matchDeclName thmName thmType
             (heqPos := params.size + 1 + discrs.size + alts.size + altVars.size) (heqNum := heqs.size)
           unless (← getEnv).contains thmName do
             addDecl <| Declaration.thmDecl {

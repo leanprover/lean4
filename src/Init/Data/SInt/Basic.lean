@@ -150,7 +150,7 @@ Converts an 8-bit signed integer to an arbitrary-precision integer that denotes 
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_to_int"]
+@[extern "lean_int8_to_int", tagged_return]
 def Int8.toInt (i : Int8) : Int := i.toBitVec.toInt
 /--
 Converts an 8-bit signed integer to a natural number, mapping all negative numbers to `0`.
@@ -503,7 +503,7 @@ Converts a 16-bit signed integer to an arbitrary-precision integer that denotes 
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int16_to_int"]
+@[extern "lean_int16_to_int", tagged_return]
 def Int16.toInt (i : Int16) : Int := i.toBitVec.toInt
 /--
 Converts a 16-bit signed integer to a natural number, mapping all negative numbers to `0`.

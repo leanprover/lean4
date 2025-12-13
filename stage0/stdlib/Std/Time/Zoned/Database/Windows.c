@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst;
 lean_object* lean_int64_to_int_sint(uint64_t);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -29,7 +28,6 @@ uint64_t lean_int64_neg(uint64_t);
 LEAN_EXPORT lean_object* l_Std_Time_Database_Windows_getZoneRules___closed__3___boxed__const__1;
 uint8_t lean_int64_dec_le(uint64_t, uint64_t);
 lean_object* lean_mk_io_user_error(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_noConfusion___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__1___boxed(lean_object*, lean_object*);
 static uint64_t l_Std_Time_Database_Windows_getZoneRules___closed__1;
 lean_object* lean_windows_get_next_transition(lean_object*, uint64_t, uint8_t);
@@ -40,11 +38,9 @@ LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___0
 LEAN_EXPORT lean_object* l_Std_Time_Database_Windows_getNextTransition___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_Database_Windows_getZoneRules_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Time_Zoned_Database_Windows_0__Std_Time_Database_Windows_getZoneRules_toLocalTime___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_noConfusion___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_Windows_getLocalTimeZoneIdentifierAt___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Database_Windows_getZoneRules___closed__5;
 uint64_t lean_int64_of_nat(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_noConfusion(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_get_windows_local_timezone_id_at(uint64_t);
 LEAN_EXPORT lean_object* l_Std_Time_Database_Windows_getZoneRules___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Database_Windows_getZoneRules___closed__2;
@@ -675,38 +671,6 @@ x_2 = lean_unsigned_to_nat(0u);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_noConfusion(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_inc(x_5);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_noConfusion___redArg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_noConfusion___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_Std_Time_Database_WindowsDb_noConfusion(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_noConfusion___redArg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Time_Database_WindowsDb_noConfusion___redArg(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Std_Time_Database_WindowsDb_default() {
 _start:
 {
@@ -720,6 +684,15 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_Time_Database_Windows_getZoneRules(x_2);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_Time_Database_WindowsDb_inst___lam__0(x_1, x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -758,15 +731,6 @@ lean_ctor_set(x_9, 0, x_8);
 return x_9;
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Time_Database_WindowsDb_inst___lam__0(x_1, x_2);
-lean_dec_ref(x_2);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__1___boxed(lean_object* x_1, lean_object* x_2) {

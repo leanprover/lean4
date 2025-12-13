@@ -11,6 +11,7 @@ error: Failed to compile pattern matching: Stuck at
     [] |- ["Eek"] => h_2 ()
     [x✝:(String)] |- [x✝] => h_3 x✝
   examples:_
+  fallthrough: <not-available>
 -/
 #guard_msgs in
 def stringMatch : Option Nat :=
@@ -27,6 +28,7 @@ error: Failed to compile pattern matching: Stuck at
     [] |- ['A'] => h_2 ()
     [x✝:(Char)] |- [x✝] => h_3 x✝
   examples:_
+  fallthrough: <not-available>
 -/
 #guard_msgs in
 def charMatch :=
@@ -43,6 +45,7 @@ error: Failed to compile pattern matching: Stuck at
     [] |- [5] => h_2 ()
     [x✝:(UInt8)] |- [x✝] => h_3 x✝
   examples:_
+  fallthrough: <not-available>
 -/
 #guard_msgs in
 def uInt8Match :=

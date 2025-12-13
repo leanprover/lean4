@@ -249,10 +249,31 @@ def union [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtHashMap α β) : Ext
 
 instance [EquivBEq α] [LawfulHashable α] : Union (ExtHashMap α β) := ⟨union⟩
 
+instance [EquivBEq α] [LawfulHashable α] [BEq β] : BEq (ExtHashMap α β) where
+  beq m₁ m₂ := ExtDHashMap.Const.beq m₁.inner m₂.inner
+
+instance [EquivBEq α] [LawfulHashable α] [BEq β] [ReflBEq β] : ReflBEq (ExtHashMap α β) where
+  rfl := ExtDHashMap.Const.beq_of_eq _ _ rfl
+
+instance [LawfulBEq α] [BEq β] [LawfulBEq β] : LawfulBEq (ExtHashMap α β) where
+  eq_of_beq {a} {b} hyp := by
+    have ⟨_⟩ := a
+    have ⟨_⟩ := b
+    simp only [mk.injEq] at |- hyp
+    exact ExtDHashMap.Const.eq_of_beq _ _ hyp
+
+instance {α : Type u} {β : Type v} [BEq α] [LawfulBEq α] [Hashable α] [BEq β] [LawfulBEq β] : DecidableEq (ExtHashMap α β) :=
+  fun _ _ => decidable_of_iff _ beq_iff_eq
+
 @[inline, inherit_doc ExtDHashMap.inter]
 def inter [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtHashMap α β) : ExtHashMap α β := ⟨ExtDHashMap.inter m₁.inner m₂.inner⟩
 
 instance [EquivBEq α] [LawfulHashable α] : Inter (ExtHashMap α β) := ⟨inter⟩
+
+@[inline, inherit_doc ExtDHashMap.diff]
+def diff [EquivBEq α] [LawfulHashable α] (m₁ m₂ : ExtHashMap α β) : ExtHashMap α β := ⟨ExtDHashMap.diff m₁.inner m₂.inner⟩
+
+instance [EquivBEq α] [LawfulHashable α] : SDiff (ExtHashMap α β) := ⟨diff⟩
 
 @[inline, inherit_doc ExtDHashMap.Const.unitOfArray]
 def unitOfArray [BEq α] [Hashable α] (l : Array α) :

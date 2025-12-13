@@ -21,11 +21,11 @@ LEAN_EXPORT lean_object* l_instToStringSum___redArg(lean_object*, lean_object*);
 static lean_object* l_instToStringExcept___redArg___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_instToStringUInt16;
 static lean_object* l_List_toString___redArg___closed__2;
-LEAN_EXPORT lean_object* l_instToStringNat___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringRaw__1;
 LEAN_EXPORT lean_object* l_instReprExcept___redArg(lean_object*, lean_object*);
 static lean_object* l_instToStringSum___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_instToStringExcept___redArg(lean_object*, lean_object*);
+static lean_object* l_instToStringNat___closed__0;
 LEAN_EXPORT lean_object* l_instToStringChar;
 LEAN_EXPORT lean_object* l_instToStringList(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringList___redArg(lean_object*);
@@ -38,6 +38,7 @@ lean_object* lean_string_push(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_instToStringPUnit___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringFormat;
 LEAN_EXPORT lean_object* l_instToStringSigma___redArg(lean_object*, lean_object*);
+static lean_object* l_instToStringRaw___closed__0;
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringRaw;
 static lean_object* l_instToStringInt___lam__0___closed__0;
@@ -66,7 +67,6 @@ LEAN_EXPORT lean_object* l_instToStringSum(lean_object*, lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_instToStringSubtype(lean_object*, lean_object*, lean_object*);
 static lean_object* l_instToStringFormat___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_instToStringProd___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instToStringRaw___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_instReprExcept___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringNat;
 LEAN_EXPORT lean_object* l_instToStringChar___lam__0___boxed(lean_object*);
@@ -75,7 +75,6 @@ LEAN_EXPORT lean_object* l_instToStringUInt8;
 static lean_object* l_instReprExcept___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_instToStringDecidable___lam__0(uint8_t);
 LEAN_EXPORT lean_object* l_instToStringId__1___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_instToStringRaw__1___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringOption(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringSigma___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_addParenHeuristic___closed__0;
@@ -83,13 +82,11 @@ LEAN_EXPORT lean_object* l_instToStringUInt64___lam__0(uint64_t);
 extern lean_object* l_Std_Format_defWidth;
 static lean_object* l_instToStringInt___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_instToStringBool;
-LEAN_EXPORT lean_object* l_instToStringFin___lam__0(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_instToStringBool___lam__0(uint8_t);
 LEAN_EXPORT lean_object* l_instToStringUInt8___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringExcept(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringFin___boxed(lean_object*);
-lean_object* lean_substring_tostring(lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 static lean_object* l_instToStringPUnit___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_instToStringChar___lam__0(uint32_t);
@@ -123,6 +120,7 @@ LEAN_EXPORT lean_object* l_instToStringUInt16___lam__0(uint16_t);
 LEAN_EXPORT lean_object* l_instToStringExcept___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_instToStringOption___redArg___lam__0___closed__1;
 static lean_object* l_addParenHeuristic___closed__3;
+lean_object* l_Substring_Raw_Internal_toString___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_addParenHeuristic___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringFormat___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringUnit;
@@ -235,19 +233,19 @@ x_1 = lean_alloc_closure((void*)(l_instToStringString___lam__0___boxed), 1, 0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_instToStringRaw___lam__0(lean_object* x_1) {
+static lean_object* _init_l_instToStringRaw___closed__0() {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_substring_tostring(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Substring_Raw_Internal_toString___boxed), 1, 0);
+return x_1;
 }
 }
 static lean_object* _init_l_instToStringRaw() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instToStringRaw___lam__0), 1, 0);
+x_1 = l_instToStringRaw___closed__0;
 return x_1;
 }
 }
@@ -557,35 +555,27 @@ x_1 = l_instToStringUnit___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_instToStringNat___lam__0(lean_object* x_1) {
+static lean_object* _init_l_instToStringNat___closed__0() {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Nat_reprFast(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Nat_reprFast), 1, 0);
+return x_1;
 }
 }
 static lean_object* _init_l_instToStringNat() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instToStringNat___lam__0), 1, 0);
+x_1 = l_instToStringNat___closed__0;
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_instToStringRaw__1___lam__0(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Nat_reprFast(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_instToStringRaw__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instToStringRaw__1___lam__0), 1, 0);
+x_1 = l_instToStringNat___closed__0;
 return x_1;
 }
 }
@@ -653,19 +643,11 @@ x_1 = lean_alloc_closure((void*)(l_instToStringInt___lam__0___boxed), 1, 0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_instToStringFin___lam__0(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Nat_reprFast(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_instToStringFin(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instToStringFin___lam__0), 1, 0);
+x_2 = l_instToStringNat___closed__0;
 return x_2;
 }
 }
@@ -1435,6 +1417,8 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_instToStringString = _init_l_instToStringString();
 lean_mark_persistent(l_instToStringString);
+l_instToStringRaw___closed__0 = _init_l_instToStringRaw___closed__0();
+lean_mark_persistent(l_instToStringRaw___closed__0);
 l_instToStringRaw = _init_l_instToStringRaw();
 lean_mark_persistent(l_instToStringRaw);
 l_instToStringChar___lam__0___closed__0 = _init_l_instToStringChar___lam__0___closed__0();
@@ -1463,6 +1447,8 @@ l_instToStringUnit___closed__0 = _init_l_instToStringUnit___closed__0();
 lean_mark_persistent(l_instToStringUnit___closed__0);
 l_instToStringUnit = _init_l_instToStringUnit();
 lean_mark_persistent(l_instToStringUnit);
+l_instToStringNat___closed__0 = _init_l_instToStringNat___closed__0();
+lean_mark_persistent(l_instToStringNat___closed__0);
 l_instToStringNat = _init_l_instToStringNat();
 lean_mark_persistent(l_instToStringNat);
 l_instToStringRaw__1 = _init_l_instToStringRaw__1();

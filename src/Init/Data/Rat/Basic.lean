@@ -20,6 +20,7 @@ Rational numbers, implemented as a pair of integers `num / den` such that the
 denominator is positive and the numerator and denominator are coprime.
 -/
 -- `Rat` is not tagged with the `ext` attribute, since this is more often than not undesirable
+@[suggest_for ℚ]
 structure Rat where
   /-- Constructs a rational number from components.
   We rename the constructor to `mk'` to avoid a clash with the smart constructor. -/

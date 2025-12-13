@@ -41,7 +41,7 @@ were not matched. Using a single hypothesis like this, rather than many hypothes
 
 This function is implemented with a simple call to `.rec`, i.e. no clever branching on the constructor
 index. The compiler has native support for these sparse matches anyways, and kernel reduction would
-not benefit from from a more sophisticated implementan unless it has itself native support for
+not benefit from a more sophisticated implementation unless it has itself native support for
 `.ctorIdx` and constructor elimination functions.
 -/
 public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name := do

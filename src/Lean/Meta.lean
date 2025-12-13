@@ -58,3 +58,4 @@ public import Lean.Meta.BinderNameHint
 public import Lean.Meta.TryThis
 public import Lean.Meta.Hint
 public import Lean.Meta.MethodSpecs
+public import Lean.Meta.CtorIdxHInj

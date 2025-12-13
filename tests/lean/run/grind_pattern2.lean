@@ -45,13 +45,6 @@ trace: [grind.internalize] [0] x
 [grind.internalize] [0] y
 [grind.internalize] [0] z
 [grind.internalize] [0] foo x y
-[grind.internalize] [0] [a, b]
-[grind.internalize] [0] Nat
-[grind.internalize] [0] a
-[grind.internalize] [0] [b]
-[grind.internalize] [0] b
-[grind.internalize] [0] []
-[grind.ematch] activated `fooThm`, [foo #0 `[[a, b]]]
 -/
 #guard_msgs (trace) in
 set_option trace.grind.internalize true in

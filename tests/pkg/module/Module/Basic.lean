@@ -510,3 +510,17 @@ public meta def delab : Lean.PrettyPrinter.Delaborator.Delab :=
 
 public def noMetaDelab : Lean.PrettyPrinter.Delaborator.Delab :=
   default
+
+/-- error: Cannot make suggestions for private names -/
+#guard_msgs in
+@[suggest_for Bar1]
+def FooBar1 := 4
+
+/-- error: Cannot make suggestions for private names -/
+#guard_msgs in
+@[suggest_for Bar2]
+meta def FooBar2 := 4
+
+#guard_msgs in
+@[suggest_for Bar3 FooBar1 FooBar2]
+public def FooBar3 := 4

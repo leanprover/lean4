@@ -259,7 +259,7 @@ withTraceNode `isPosTrace (msg := (return m!"{ExceptToEmoji.toEmoji ·} checking
   return 0 < x
 ```
 
-The `cls`, `collapsed`, and `tag` arguments are fowarded to the constructor of `TraceData`.
+The `cls`, `collapsed`, and `tag` arguments are forwarded to the constructor of `TraceData`.
 -/
 def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls : Name)
     (msg : Except ε α → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do

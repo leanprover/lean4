@@ -27,7 +27,9 @@ def Overlaps.isEmpty (o : Overlaps) : Bool :=
   o.map.isEmpty
 
 def Overlaps.insert (o : Overlaps) (overlapping overlapped : Nat) : Overlaps where
-  map := o.map.alter overlapped fun s? => some ((s?.getD {}).insert overlapping)
+  map :=
+    assert! overlapping < overlapped
+    o.map.alter overlapped fun s? => some ((s?.getD {}).insert overlapping)
 
 def Overlaps.overlapping (o : Overlaps) (overlapped : Nat) : Array Nat :=
   match o.map[overlapped]? with
@@ -35,14 +37,14 @@ def Overlaps.overlapping (o : Overlaps) (overlapped : Nat) : Array Nat :=
   | none   => #[]
 
 /--
-Informatino about the parameter structure for the alternative of a matcher or splitter.
+Information about the parameter structure for the alternative of a matcher or splitter.
 -/
 structure AltParamInfo where
-  /-- Actual fields (not incuding discr eqns) -/
+  /-- Actual fields (not including discr eqns) -/
   numFields : Nat
   /-- Overlap assumption (for splitters only) -/
   numOverlaps : Nat
-  /-- Whether this alternatie has an artifcial `Unit` parameter -/
+  /-- Whether this alternative has an artificial `Unit` parameter -/
   hasUnitThunk : Bool
 deriving Inhabited, Repr, BEq
 

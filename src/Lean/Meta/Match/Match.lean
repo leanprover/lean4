@@ -16,6 +16,9 @@ public import Lean.Meta.Match.MVarRenaming
 import Lean.Meta.Match.SimpH
 import Lean.Meta.Match.SolveOverlap
 import Lean.Meta.HasNotBit
+import Lean.Data.Array
+import Lean.Meta.Match.CaseArraySizes
+import Lean.Meta.Match.CaseValues
 import Lean.Meta.Match.NamedPatterns
 
 public section
@@ -36,6 +39,12 @@ register_builtin_option backward.match.rowMajor : Bool := {
   descr := "If true (the default), match compilation will split the discrimnants based \
     on position of the first constructor pattern in the first alternative. If false, \
     it splits them from left to right, which can lead to unnecessary code bloat."
+}
+
+
+register_builtin_option backwards.match.divide : Bool := {
+  defValue := true
+  descr := "If true (the default), match compilation will TODO"
 }
 
 private def mkIncorrectNumberOfPatternsMsg [ToMessageData α]
@@ -202,6 +211,7 @@ private def hasIntValPattern (p : Problem) : MetaM Bool :=
     | _           => return false
 
 private def hasVarPattern (p : Problem) : Bool :=
+  p.fallthrough.isSome || -- a fallthrough is a bit like a variable pattern
   p.alts.any fun alt => match alt.patterns with
     | .var _ :: _ => true
     | _           => false
@@ -223,6 +233,42 @@ private def isVariableTransition (p : Problem) : Bool :=
     | .var _ :: _          => true
     | _                    => false
 
+def Pattern.isRefutable : Pattern → Bool
+  | .var _           => false
+  | .inaccessible _  => false
+  | .as _ p _        => p.isRefutable
+  | .arrayLit ..     => true
+  | .ctor ..         => true
+  | .val ..          => true
+
+/--
+Returns the index of the first pattern in the first alternative that is refutable
+(i.e. not a variable or inaccessible pattern). We want to handle these first
+so that the generated code branches in the order suggested by the user's code.
+-/
+private def firstRefutablePattern (p : Problem) : Option Nat :=
+  match p.alts with
+  | alt:: _ => alt.patterns.findIdx? (·.isRefutable)
+  | _ => none
+
+/--
+If there is a catch-all, and not all other patterns have constructors at the head,
+return the index of the first alternative that doesn't. That is where we want to divide
+the match compiliation.
+(If there was no catch-all we'd have to carry over the information that we are not in the first
+cases for the final completeness proof.)
+-/
+private def isDivideTransition (p : Problem) : MetaM (Option Nat) := do
+  if backwards.match.divide.get (← getOptions) then return do
+    guard !p.vars.isEmpty
+    guard !p.alts.isEmpty
+    guard (p.alts.getLast!.patterns.all (!·.isRefutable))
+    let i ← p.alts.findIdx? (! ·.patterns.head!.isRefutable)
+    guard (i + 1 < p.alts.length)
+    return i
+  else
+    return none
+
 private def getInductiveVal? (x : Expr) : MetaM (Option InductiveVal) := do
   let xType ← inferType x
   let xType ← whnfD xType
@@ -243,7 +289,7 @@ def isCurrVarInductive (p : Problem) : MetaM Bool := do
 
 private def isConstructorTransition (p : Problem) : MetaM Bool := do
   return (← isCurrVarInductive p)
-    && (hasCtorPattern p || p.alts.isEmpty)
+    && (hasCtorPattern p || (p.alts.isEmpty && p.fallthrough.isNone))
     && p.alts.all fun alt => match alt.patterns with
       | .ctor .. :: _        => true
       | .var _ :: _          => true
@@ -439,11 +485,16 @@ where
   go (alts : List Alt) : StateRefT State MetaM Unit := do
     match alts with
     | [] =>
-      let mvarId ← p.mvarId.exfalso
-      /- TODO: allow users to configure which tactic is used to close leaves. -/
-      unless (← contradiction mvarId) do
-        trace[Meta.Match.match] "contradiction failed, missing alternative"
-        modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
+      if let some fallthrough := p.fallthrough then
+        trace[Meta.Match.match] "using fallthrough (with {p.fallthroughArgs} overlap assumptions)"
+        let subgoals ← p.mvarId.applyN fallthrough p.fallthroughArgs
+        subgoals.forM (solveOverlap ·)
+      else
+        let mvarId ← p.mvarId.exfalso
+        /- TODO: allow users to configure which tactic is used to close leaves. -/
+        unless (← contradiction mvarId) do
+          trace[Meta.Match.match] "contradiction failed, missing alternative"
+          modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
     | alt :: overlapped =>
       solveCnstrs p.mvarId alt
       for otherAlt in overlapped do
@@ -534,7 +585,7 @@ private def expandVarIntoCtor (alt : Alt) (ctorName : Name) : MetaM Alt := do
   let .var fvarId :: ps := alt.patterns | unreachable!
   let alt := { alt with patterns := ps}
   withExistingLocalDecls alt.fvarDecls do
-    trace[Meta.Match.unify] "expandVarIntoCtor fvarId: {mkFVar fvarId}, ctorName: {ctorName}, alt:\n{← alt.toMessageData}"
+    trace[Meta.Match.match] "expandVarIntoCtor fvarId: {mkFVar fvarId}, ctorName: {ctorName}, alt:\n{← alt.toMessageData}"
     let expectedType ← inferType (mkFVar fvarId)
     let expectedType ← whnfD expectedType
     let (ctorLevels, ctorParams) ← getInductiveUniverseAndParams expectedType
@@ -548,7 +599,7 @@ private def expandVarIntoCtor (alt : Alt) (ctorName : Name) : MetaM Alt := do
       let mut cnstrs := alt.cnstrs
       unless (← isDefEqGuarded resultType expectedType) do
          cnstrs := (resultType, expectedType) :: cnstrs
-      trace[Meta.Match.unify] "expandVarIntoCtor {mkFVar fvarId} : {expectedType}, ctor: {ctor}"
+      trace[Meta.Match.match] "expandVarIntoCtor {mkFVar fvarId} : {expectedType}, ctor: {ctor}"
       let ctorFieldPatterns := ctorFieldDecls.toList.map fun decl => Pattern.var decl.fvarId
       return { alt with fvarDecls := newAltDecls, patterns := ctorFieldPatterns ++ alt.patterns, cnstrs }
 
@@ -593,6 +644,53 @@ def processInaccessibleAsCtor (alt : Alt) (ctorName : Name) : MetaM Alt := do
 private def hasNonTrivialExample (p : Problem) : Bool :=
   p.examples.any fun | Example.underscore => false | _ => true
 
+private def altNegation (vars : Array Expr) (alt : Alt) : MetaM Expr := do
+  withExistingLocalDecls alt.fvarDecls do
+    let mut hyps := #[]
+    for pattern in alt.patterns.reverse, var in vars.reverse do
+      hyps := hyps.push (← mkEqHEq (← pattern.toExpr) var)
+    let neg ← mkArrowN hyps (mkConst ``False)
+    mkForallFVars (alt.fvarDecls.toArray.map (mkFVar ·.fvarId)) neg
+
+private def altsNegation (vars : List Expr) (alt : List Alt) : MetaM (Array Expr) := do
+  alt.toArray.mapM (altNegation vars.toArray ·)
+
+private def updateFallthrough (p : Problem) (altsMask : Array Bool) : MetaM Problem := withGoalOf p do
+  let some fallthrough := p.fallthrough | return p
+  /-
+  let negs ← altsNegation p.vars p.alts
+  let negs := negs.mapIdx fun i t => ((`h).appendIndexAfter (i+1), t)
+  let fallthrough' ← withLocalDeclsDND negs fun hyps => do
+    let (oldHyps, _, _) ← forallMetaTelescope (← inferType fallthrough)
+    assert! oldHyps.size == altsMask.size
+    let mut j := 0
+    for oldHyp in oldHyps, m in altsMask do
+      if m then
+        let (_, mvarId) ← oldHyp.mvarId!.intros
+        mvarId.admit (synthetic := false)
+        -- let subgoals ← mvarId.applyN hyps[j]! (p.alts[j]!.fvarDecls.length + p.vars.length)
+        -- subgoals.forM (·.admit (synthetic := false))
+        j := j + 1
+      else
+        oldHyp.mvarId!.admit (synthetic := false)
+    mkLambdaFVars hyps (mkAppN fallthrough oldHyps)
+  -/
+  let fallthrough' ← forallTelescope ( ← inferType fallthrough) fun oldHyps _ => do
+    assert! oldHyps.size == altsMask.size
+    let mut e := fallthrough
+    for oldHyp in oldHyps, m in altsMask do
+      if m then
+        e := e.app oldHyp
+      else
+        let a ← mkFreshExprSyntheticOpaqueMVar (← inferType oldHyp)
+        solveOverlap a.mvarId!
+        -- a.mvarId!.admit (synthetic := true)
+        e := e.app a
+    e := e.headBeta
+    mkLambdaFVars (usedOnly := true) oldHyps e
+  return { p with fallthrough := some fallthrough' }
+
+
 private def throwCasesException (p : Problem) (ex : Exception) : MetaM α := do
   match ex with
   | .error ref msg =>
@@ -629,7 +727,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
        try
          p.mvarId.cases x.fvarId! (interestingCtors? := interestingCtors?)
        catch ex =>
-         if p.alts.isEmpty then
+         if p.alts.isEmpty && p.fallthrough.isNone then
            /- If we have no alternatives and dependent pattern matching fails, then a "missing cases" error is better than a "stuck" error message. -/
            return none
          else
@@ -637,7 +735,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
      if subgoals.isEmpty then
        /- Easy case: we have solved problem `p` since there are no subgoals -/
        return some #[]
-     else if !p.alts.isEmpty then
+     else if !p.alts.isEmpty || p.fallthrough.isSome then
        return some subgoals
      else do
        let isRec ← withGoalOf p <| hasRecursiveType x
@@ -662,11 +760,12 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
         | _            => Example.underscore -- This case can happen due to dependent elimination
       let examples := p.examples.map <| Example.replaceFVarId x.fvarId! subex
       let examples := examples.map <| Example.applyFVarSubst subst
-      let newAlts  := p.alts.filter fun alt => match alt.patterns with
+      let newAltsMask := p.alts.map fun alt => match alt.patterns with
         | .ctor n .. :: _       => n == ctorName
         | .var _ :: _           => true
         | .inaccessible _ :: _  => true
         | _                     => false
+      let newAlts := (newAltsMask.toArray.mask p.alts.toArray).toList
       let newAlts  := newAlts.map fun alt => alt.applyFVarSubst subst
       let newAlts ← newAlts.mapM fun alt => do
         match alt.patterns with
@@ -674,7 +773,10 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
         | .var _ :: _               => expandVarIntoCtor alt ctorName
         | .inaccessible _ :: _      => processInaccessibleAsCtor alt ctorName
         | _                         => unreachable!
-      return { p with mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
+      let fallthrough := p.fallthrough.map (·.applyFVarSubst subst)
+      let p := { p with mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples, fallthrough }
+      -- updateFallthrough p newAltsMask.toArray
+      pure p
     else
       -- A catch-all case
       let subst := subgoal.subst
@@ -685,7 +787,42 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
         | .ctor .. :: _ => false
         | _             => true
       let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst
-      return { p with mvarId := subgoal.mvarId, alts := newAlts, vars := newVars, examples := examples }
+      let fallthrough := p.fallthrough.map (·.applyFVarSubst subst)
+      return { p with mvarId := subgoal.mvarId, alts := newAlts, vars := newVars, examples, fallthrough }
+
+private def processDivide (p : Problem) (i : Nat) : StateRefT State MetaM (Array Problem) := do
+  let mvarType ← p.mvarId.getType
+  let (altsUpper, altsLower) := p.alts.splitAt i
+
+  let mut notAltRequested : Std.HashSet Nat := {}
+  for alt in altsLower do
+    for overlappedBy in alt.notAltIdxs do
+    notAltRequested := notAltRequested.insert overlappedBy
+  let notAlts := altsUpper.filter fun alt => notAltRequested.contains alt.idx
+  let negs ← altsNegation p.vars notAlts
+  let mvarLowerType ← mkArrow (mkConst ``Unit) (← mkArrowN negs mvarType)
+  let mvarLower ← mkFreshExprSyntheticOpaqueMVar mvarLowerType
+  let (_, mvarLowerId) ← mvarLower.mvarId!.intro1
+  let (_, mvarLowerId) ← mvarLowerId.introN negs.size
+  let idx := p.alts[i]!.idx
+  let n := (`cont).appendIndexAfter idx
+  -- We don't have `mvarId.have` like `mvarId.define`?
+  let (fallthroughRhs, mvarUpper) ← withLetDecl n mvarLowerType mvarLower (nondep := true) fun fvarId => do
+    let mvarUpper ← mkFreshExprSyntheticOpaqueMVar mvarType
+    p.mvarId.assign (← mkLambdaFVars (generalizeNondepLet := false) #[fvarId] mvarUpper)
+    pure (fvarId, mvarUpper)
+  let fallthroughRhs := mkApp fallthroughRhs (mkConst ``Unit.unit)
+
+  -- TODO: This can be improved if we join the overlap information later,
+  -- once we know which upper alternatives are overlapping the fallback
+  for lowerAlt in altsLower do
+    for upperAlt in altsUpper do
+      modify fun s => { s with overlaps := s.overlaps.insert upperAlt.idx lowerAlt.idx }
+
+  let pUpper := { p with mvarId := mvarUpper.mvarId!, alts := altsUpper, fallthrough := some fallthroughRhs, fallthroughArgs := negs.size }
+  let pLower := { p with mvarId := mvarLowerId, alts := altsLower }
+  return #[pUpper, pLower]
+
 
 private def processNonVariable (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: xs := p.vars | unreachable!
@@ -720,11 +857,15 @@ private def isFirstPatternVar (alt : Alt) : Bool :=
   | .var _ :: _ => true
   | _           => false
 
+private def triviallyComplete (p : Problem) : Bool :=
+  !p.alts.isEmpty && p.alts.getLast!.patterns.all (!·.isRefutable)
+
 private def processValue (p : Problem) : MetaM (Array Problem) := do
   trace[Meta.Match.match] "value step"
   let x :: xs := p.vars | unreachable!
   let values := collectValues p
-  let subgoals ← caseValues p.mvarId x.fvarId! values (substNewEqs := true)
+  let needHyps := !triviallyComplete p || p.alts.any (!·.notAltIdxs.isEmpty)
+  let subgoals ← caseValues p.mvarId x.fvarId! values (needHyps := needHyps)
   subgoals.mapIdxM fun i subgoal => do
     trace[Meta.Match.match] "processValue subgoal\n{MessageData.ofGoal subgoal.mvarId}"
     if h : i < values.size then
@@ -746,11 +887,13 @@ private def processValue (p : Problem) : MetaM (Array Problem) := do
           alt.replaceFVarId fvarId value
         | _  => unreachable!
       let newVars := xs.map fun x => x.applyFVarSubst subst
-      return { p with mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
+      let fallthrough := p.fallthrough.map (·.applyFVarSubst subst)
+      return { p with mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples, fallthrough }
     else
       -- else branch for value
       let newAlts := p.alts.filter isFirstPatternVar
-      return { p with mvarId := subgoal.mvarId, alts := newAlts, vars := x::xs }
+      let fallthrough := p.fallthrough
+      return { p with mvarId := subgoal.mvarId, alts := newAlts, vars := x::xs, fallthrough }
 
 private def collectArraySizes (p : Problem) : Array Nat :=
   p.alts.foldl (init := #[]) fun sizes alt =>
@@ -793,7 +936,7 @@ private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
       let newAlts  := p.alts.filter fun alt => match alt.patterns with
         | .arrayLit _ ps :: _ => ps.length == size
         | .var _ :: _         => true
-        | _                          => false
+        | _                   => false
       let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst
       let newAlts ← newAlts.mapM fun alt => do
         match alt.patterns with
@@ -802,11 +945,13 @@ private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
           let α ← getArrayArgType <| subst.apply x
           expandVarIntoArrayLit { alt with patterns := ps } fvarId α size
         | _  => unreachable!
-      return { p with mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
+      let fallthrough := p.fallthrough
+      return { p with mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples, fallthrough }
     else
       -- else branch
       let newAlts := p.alts.filter isFirstPatternVar
-      return { p with mvarId := subgoal.mvarId, alts := newAlts, vars := x::xs }
+      let fallthrough := p.fallthrough
+      return { p with mvarId := subgoal.mvarId, alts := newAlts, vars := x::xs, fallthrough }
 
 private def expandNatValuePattern (p : Problem) : MetaM Problem := do
   let alts ← p.alts.mapM fun alt => do
@@ -898,26 +1043,8 @@ private def moveToFront (p : Problem) (i : Nat) : Problem :=
   else
     p
 
-def Pattern.isRefutable : Pattern → Bool
-  | .var _           => false
-  | .inaccessible _  => false
-  | .as _ p _        => p.isRefutable
-  | .arrayLit ..     => true
-  | .ctor ..         => true
-  | .val ..          => true
-
-/--
-Returns the index of the first pattern in the first alternative that is refutable
-(i.e. not a variable or inaccessible pattern). We want to handle these first
-so that the generated code branches in the order suggested by the user's code.
--/
-private def firstRefutablePattern (p : Problem) : Option Nat :=
-  match p.alts with
-  | alt:: _ => alt.patterns.findIdx? (·.isRefutable)
-  | _ => none
-
 def isExFalsoTransition (p : Problem) : MetaM Bool := do
-  if p.alts.isEmpty then
+  if p.alts.isEmpty && p.fallthrough.isNone then
     withGoalOf p do
       let targetType ← p.mvarId.getType
       return !targetType.isFalse
@@ -937,7 +1064,7 @@ private def tracedForM (xs : Array α) (process : α → StateRefT State MetaM U
     for x in xs do
       process x
 
-private partial def process (p : Problem) : StateRefT State MetaM Unit := do
+private partial def process (p : Problem) : StateRefT State MetaM Unit := p.mvarId.withContext do
   traceState p
   if isDone p then
     traceStep ("leaf")
@@ -999,6 +1126,12 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
     process p
     return
 
+  if let some i ← isDivideTransition p then
+    traceStep s!"dividing at {i}"
+    let ps ← processDivide p i
+    tracedForM ps process
+    return
+
   if (← isConstructorTransition p) then
     let ps ← processConstructor p
     tracedForM ps process
@@ -1023,7 +1156,7 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
   if (← hasNatValPattern p) then
     -- This branch is reachable when `p`, for example, is just values without an else-alternative.
     -- We added it just to get better error messages.
-    traceStep ("nat value to constructor")
+    traceStep ("nat value to constructor (failing)")
     process (← expandNatValuePattern p)
     return
 
@@ -1060,6 +1193,7 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) (isSplitte
   trace[Meta.Match.debug] "{name} : {type} := {value}"
   let compile := bootstrap.genMatcherCode.get (← getOptions)
   let result ← Closure.mkValueTypeClosure type value (zetaDelta := false)
+  trace[Meta.Match.debug] "mkValueTypeClosure succeeded"
   let env ← getEnv
   let mkMatcherConst name :=
     mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
@@ -1198,7 +1332,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
       let mvar ← mkFreshExprMVar mvarType
       trace[Meta.Match.debug] "goal\n{mvar.mvarId!}"
       let examples := discrs'.toList.map fun discr => Example.var discr.fvarId!
-      let (_, s) ← (process { mvarId := mvar.mvarId!, vars := discrs'.toList, alts := alts, examples := examples }).run {}
+      let (_, s) ← (process { mvarId := mvar.mvarId!, vars := discrs'.toList, alts := alts, examples := examples, fallthrough := none }).run {}
       let val ← mkLambdaFVars discrs' mvar
       trace[Meta.Match.debug] "matcher\nvalue: {val}\ntype: {← inferType val}"
       let mut rfls := #[]
@@ -1221,7 +1355,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
     withAlts motive discrs discrInfos lhss isSplitter fun alts minors altInfos => do
       let mvar ← mkFreshExprMVar mvarType
       let examples := discrs.toList.map fun discr => Example.var discr.fvarId!
-      let (_, s) ← (process { mvarId := mvar.mvarId!, vars := discrs.toList, alts := alts, examples := examples }).run {}
+      let (_, s) ← (process { mvarId := mvar.mvarId!, vars := discrs.toList, alts := alts, examples := examples, fallthrough := none }).run {}
       let args := #[motive] ++ discrs ++ minors
       let type ← mkForallFVars args mvarType
       let val  ← mkLambdaFVars args mvar

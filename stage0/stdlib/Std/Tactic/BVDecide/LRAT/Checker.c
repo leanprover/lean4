@@ -42,6 +42,28 @@ LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Checker_0__Std_Tac
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_delete(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_check___closed__0;
+LEAN_EXPORT uint8_t l_List_filterMapTR_go___at___00Std_Tactic_BVDecide_LRAT_check_spec__1___lam__0(uint8_t x_1, uint8_t x_2) {
+_start:
+{
+if (x_1 == 0)
+{
+if (x_2 == 0)
+{
+uint8_t x_3; 
+x_3 = 1;
+return x_3;
+}
+else
+{
+return x_1;
+}
+}
+else
+{
+return x_2;
+}
+}
+}
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Std_Tactic_BVDecide_LRAT_check_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -97,28 +119,6 @@ lean_object* x_1; lean_object* x_2;
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
-}
-}
-LEAN_EXPORT uint8_t l_List_filterMapTR_go___at___00Std_Tactic_BVDecide_LRAT_check_spec__1___lam__0(uint8_t x_1, uint8_t x_2) {
-_start:
-{
-if (x_1 == 0)
-{
-if (x_2 == 0)
-{
-uint8_t x_3; 
-x_3 = 1;
-return x_3;
-}
-else
-{
-return x_1;
-}
-}
-else
-{
-return x_2;
-}
 }
 }
 LEAN_EXPORT lean_object* l_List_filterMapTR_go___at___00Std_Tactic_BVDecide_LRAT_check_spec__1___lam__0___boxed(lean_object* x_1, lean_object* x_2) {

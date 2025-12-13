@@ -145,6 +145,6 @@ Asserts that the `(n+1)`th least significant bit of `m` is not set.
 (This definition is used by Lean internally for compact bitmaps.)
 -/
 @[expose, reducible] protected def hasNotBit (m n : Nat) : Prop :=
-  Nat.land 1 (Nat.shiftRight m n) ≠ 1
+  1 &&& (m >>> n) ≠ 1
 
 end Nat

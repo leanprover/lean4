@@ -38,10 +38,10 @@ double lean_float_of_nat(lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addTrace___at___00Lean_Meta_Grind_propagateProjEq_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_ofSubarray___redArg(lean_object*);
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getProjectionFnInfo_x3f___at___00Lean_Meta_Grind_propagateProjEq_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_getGeneration___redArg(lean_object*, lean_object*);
+lean_object* l_Subarray_toArray___redArg(lean_object*);
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
 lean_object* l_Lean_Meta_Grind_pushEqCore___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_updateLastTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -70,7 +70,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateProjEq___boxed(lean_object*,
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___00Lean_addTrace___at___00Lean_Meta_Grind_propagateProjEq_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___00Lean_addTrace___at___00Lean_Meta_Grind_propagateProjEq_spec__2_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* lean_get_projection_info(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_getProjectionFnInfo_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addTrace___at___00Lean_Meta_Grind_propagateProjEq_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_grind_internalize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___00Lean_addTrace___at___00Lean_Meta_Grind_propagateProjEq_spec__2_spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -399,7 +399,7 @@ x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
 lean_dec(x_4);
-x_6 = lean_get_projection_info(x_5, x_1);
+x_6 = l_Lean_Environment_getProjectionFnInfo_x3f(x_5, x_1);
 x_7 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 return x_7;
@@ -696,7 +696,7 @@ x_110 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_34, x_108, x_109);
 x_111 = lean_unsigned_to_nat(0u);
 lean_inc(x_18);
 x_112 = l_Array_toSubarray___redArg(x_110, x_111, x_18);
-x_113 = l_Array_ofSubarray___redArg(x_112);
+x_113 = l_Subarray_toArray___redArg(x_112);
 x_114 = l_Lean_mkAppN(x_11, x_113);
 lean_dec_ref(x_113);
 lean_inc_ref(x_34);
@@ -895,6 +895,8 @@ lean_dec_ref(x_74);
 lean_inc_ref(x_60);
 x_75 = l_Lean_MessageData_ofExpr(x_60);
 x_76 = l_Lean_addTrace___at___00Lean_Meta_Grind_propagateProjEq_spec__2___redArg(x_70, x_75, x_65, x_66, x_67, x_68);
+if (lean_obj_tag(x_76) == 0)
+{
 lean_dec_ref(x_76);
 x_36 = x_60;
 x_37 = x_61;
@@ -905,6 +907,22 @@ x_41 = x_67;
 x_42 = x_68;
 x_43 = lean_box(0);
 goto block_59;
+}
+else
+{
+lean_dec(x_68);
+lean_dec_ref(x_67);
+lean_dec(x_66);
+lean_dec_ref(x_65);
+lean_dec_ref(x_63);
+lean_dec(x_61);
+lean_dec_ref(x_60);
+lean_dec_ref(x_34);
+lean_dec(x_33);
+lean_dec(x_19);
+lean_dec(x_18);
+return x_76;
+}
 }
 else
 {
@@ -1205,7 +1223,7 @@ x_209 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_132, x_207, x_208);
 x_210 = lean_unsigned_to_nat(0u);
 lean_inc(x_18);
 x_211 = l_Array_toSubarray___redArg(x_209, x_210, x_18);
-x_212 = l_Array_ofSubarray___redArg(x_211);
+x_212 = l_Subarray_toArray___redArg(x_211);
 x_213 = l_Lean_mkAppN(x_11, x_212);
 lean_dec_ref(x_212);
 lean_inc_ref(x_132);
@@ -1406,6 +1424,8 @@ lean_dec_ref(x_172);
 lean_inc_ref(x_158);
 x_173 = l_Lean_MessageData_ofExpr(x_158);
 x_174 = l_Lean_addTrace___at___00Lean_Meta_Grind_propagateProjEq_spec__2___redArg(x_168, x_173, x_163, x_164, x_165, x_166);
+if (lean_obj_tag(x_174) == 0)
+{
 lean_dec_ref(x_174);
 x_134 = x_158;
 x_135 = x_159;
@@ -1416,6 +1436,22 @@ x_139 = x_165;
 x_140 = x_166;
 x_141 = lean_box(0);
 goto block_157;
+}
+else
+{
+lean_dec(x_166);
+lean_dec_ref(x_165);
+lean_dec(x_164);
+lean_dec_ref(x_163);
+lean_dec_ref(x_161);
+lean_dec(x_159);
+lean_dec_ref(x_158);
+lean_dec_ref(x_132);
+lean_dec(x_131);
+lean_dec(x_19);
+lean_dec(x_18);
+return x_174;
+}
 }
 else
 {
@@ -1837,7 +1873,7 @@ x_325 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_248, x_323, x_324);
 x_326 = lean_unsigned_to_nat(0u);
 lean_inc(x_230);
 x_327 = l_Array_toSubarray___redArg(x_325, x_326, x_230);
-x_328 = l_Array_ofSubarray___redArg(x_327);
+x_328 = l_Subarray_toArray___redArg(x_327);
 x_329 = l_Lean_mkAppN(x_11, x_328);
 lean_dec_ref(x_328);
 lean_inc_ref(x_248);
@@ -2038,6 +2074,8 @@ lean_dec_ref(x_288);
 lean_inc_ref(x_274);
 x_289 = l_Lean_MessageData_ofExpr(x_274);
 x_290 = l_Lean_addTrace___at___00Lean_Meta_Grind_propagateProjEq_spec__2___redArg(x_284, x_289, x_279, x_280, x_281, x_282);
+if (lean_obj_tag(x_290) == 0)
+{
 lean_dec_ref(x_290);
 x_250 = x_274;
 x_251 = x_275;
@@ -2048,6 +2086,22 @@ x_255 = x_281;
 x_256 = x_282;
 x_257 = lean_box(0);
 goto block_273;
+}
+else
+{
+lean_dec(x_282);
+lean_dec_ref(x_281);
+lean_dec(x_280);
+lean_dec_ref(x_279);
+lean_dec_ref(x_277);
+lean_dec(x_275);
+lean_dec_ref(x_274);
+lean_dec_ref(x_248);
+lean_dec(x_247);
+lean_dec(x_231);
+lean_dec(x_230);
+return x_290;
+}
 }
 else
 {

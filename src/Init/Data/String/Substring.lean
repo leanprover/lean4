@@ -274,7 +274,7 @@ Checks whether the Boolean predicate `p` returns `true` for any character in a s
 
 Short-circuits at the first character for which `p` returns `true`.
 -/
-@[inline] def any (s : Substring.Raw) (p : Char → Bool) : Bool :=
+@[inline, suggest_for Substring.Raw.some] def any (s : Substring.Raw) (p : Char → Bool) : Bool :=
   s.toSlice?.get!.any p
 
 /--
@@ -282,7 +282,7 @@ Checks whether the Boolean predicate `p` returns `true` for every character in a
 
 Short-circuits at the first character for which `p` returns `false`.
 -/
-@[inline] def all (s : Substring.Raw) (p : Char → Bool) : Bool :=
+@[inline, suggest_for Substring.Raw.every] def all (s : Substring.Raw) (p : Char → Bool) : Bool :=
   s.toSlice?.get!.all p
 
 @[export lean_substring_all]
@@ -403,25 +403,39 @@ Examples:
 Checks whether the substring can be interpreted as the decimal representation of a natural number.
 
 A substring can be interpreted as a decimal natural number if it is not empty and all the characters
-in it are digits.
+in it are digits. Underscores ({lit}`_`) are allowed as digit separators for readability, but cannot appear
+at the start, at the end, or consecutively.
 
 Use `Substring.toNat?` to convert such a substring to a natural number.
 -/
 @[inline] def isNat (s : Substring.Raw) : Bool :=
-  !s.isEmpty && s.all fun c => c.isDigit
+  if s.isEmpty then
+    false
+  else
+    -- Track: isFirst, lastWasUnderscore, lastCharWasDigit, valid
+    let result := s.foldl (fun (isFirst, lastWasUnderscore, _lastCharWasDigit, valid) c =>
+      let isDigit := c.isDigit
+      let isUnderscore := c = '_'
+      let newValid := valid && (isDigit || isUnderscore) &&
+                      !(isFirst && isUnderscore) &&  -- Cannot start with underscore
+                      !(lastWasUnderscore && isUnderscore)  -- No consecutive underscores
+      (false, isUnderscore, isDigit, newValid))
+      (true, false, false, true)
+    -- Must be valid and last character must have been a digit (not underscore)
+    result.2.2.2 && result.2.2.1
 
 /--
 Checks whether the substring can be interpreted as the decimal representation of a natural number,
 returning the number if it can.
 
 A substring can be interpreted as a decimal natural number if it is not empty and all the characters
-in it are digits.
+in it are digits. Underscores ({lit}`_`) are allowed as digit separators and are ignored during parsing.
 
 Use `Substring.isNat` to check whether the substring is such a substring.
 -/
 def toNat? (s : Substring.Raw) : Option Nat :=
   if s.isNat then
-    some <| s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
+    some <| s.foldl (fun n c => if c = '_' then n else n*10 + (c.toNat - '0'.toNat)) 0
   else
     none
 

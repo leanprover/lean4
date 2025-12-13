@@ -34,13 +34,13 @@ LEAN_EXPORT lean_object* l_Lean_LOption_undef_elim___redArg(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Lean_instBEqLOption(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqLOption_beq___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_some_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_toLOptionM___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedLOption_default(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_ctorIdx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToStringLOption(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_ctorIdx___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_none_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_toOption___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_toLOptionM___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_none_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToStringLOption___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LOption_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -473,7 +473,7 @@ x_3 = l_Option_toLOption___redArg(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_toLOptionM___lam__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_toLOptionM___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
@@ -494,7 +494,7 @@ lean_dec_ref(x_3);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
 lean_dec_ref(x_5);
-x_8 = lean_alloc_closure((void*)(l_toLOptionM___lam__0), 2, 1);
+x_8 = lean_alloc_closure((void*)(l_toLOptionM___redArg___lam__0), 2, 1);
 lean_closure_set(x_8, 0, x_7);
 x_9 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_4, x_8);
 return x_9;
@@ -512,7 +512,7 @@ lean_dec_ref(x_1);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec_ref(x_3);
-x_6 = lean_alloc_closure((void*)(l_toLOptionM___lam__0), 2, 1);
+x_6 = lean_alloc_closure((void*)(l_toLOptionM___redArg___lam__0), 2, 1);
 lean_closure_set(x_6, 0, x_5);
 x_7 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_2, x_6);
 return x_7;

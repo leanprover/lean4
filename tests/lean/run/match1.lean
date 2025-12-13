@@ -10,6 +10,8 @@ match b with
 #guard_msgs in
 #eval h1 false
 
+-- set_option backwards.match.divide false
+
 def h2 (x : List Nat) : Nat :=
 match x with
 | [x1, x2] => x1 + x2

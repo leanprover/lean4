@@ -8615,21 +8615,21 @@ if (x_71 == 0)
 {
 lean_dec(x_65);
 x_17 = x_81;
-x_18 = x_73;
-x_19 = x_76;
-x_20 = x_75;
+x_18 = x_74;
+x_19 = x_80;
+x_20 = x_77;
 x_21 = x_79;
-x_22 = x_74;
-x_23 = x_80;
-x_24 = x_78;
-x_25 = x_72;
+x_22 = x_73;
+x_23 = x_76;
+x_24 = x_72;
+x_25 = x_78;
 x_26 = lean_box(0);
 goto block_63;
 }
 else
 {
-lean_dec(x_76);
-lean_dec(x_73);
+lean_dec(x_80);
+lean_dec(x_74);
 if (lean_obj_tag(x_65) == 1)
 {
 lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; 
@@ -8644,12 +8644,12 @@ x_86 = l_Lean_Name_replacePrefix(x_82, x_70, x_84);
 x_17 = x_81;
 x_18 = x_86;
 x_19 = x_85;
-x_20 = x_75;
+x_20 = x_77;
 x_21 = x_79;
-x_22 = x_74;
-x_23 = x_80;
-x_24 = x_78;
-x_25 = x_72;
+x_22 = x_73;
+x_23 = x_76;
+x_24 = x_72;
+x_25 = x_78;
 x_26 = lean_box(0);
 goto block_63;
 }
@@ -8666,11 +8666,11 @@ x_90 = l_Lean_Elab_checkNotAlreadyDeclared___redArg___lam__12___closed__1;
 x_91 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_91, 0, x_89);
 lean_ctor_set(x_91, 1, x_90);
-x_92 = l_Lean_throwError___at___00Lean_Elab_throwAlreadyDeclaredUniverseLevel___at___00Lean_Elab_expandDeclId_spec__1_spec__1___redArg(x_91, x_75, x_79, x_74, x_80, x_78, x_72);
-lean_dec(x_72);
-lean_dec_ref(x_78);
-lean_dec(x_80);
-lean_dec_ref(x_74);
+x_92 = l_Lean_throwError___at___00Lean_Elab_throwAlreadyDeclaredUniverseLevel___at___00Lean_Elab_expandDeclId_spec__1_spec__1___redArg(x_91, x_77, x_79, x_73, x_76, x_72, x_78);
+lean_dec(x_78);
+lean_dec_ref(x_72);
+lean_dec(x_76);
+lean_dec_ref(x_73);
 lean_dec(x_79);
 x_93 = !lean_is_exclusive(x_92);
 if (x_93 == 0)
@@ -8702,15 +8702,15 @@ lean_dec(x_66);
 lean_inc(x_98);
 lean_inc(x_97);
 x_106 = l_Lean_Name_append(x_97, x_98);
-x_72 = x_104;
-x_73 = x_97;
-x_74 = x_101;
-x_75 = x_99;
-x_76 = x_98;
-x_77 = lean_box(0);
-x_78 = x_103;
+x_72 = x_103;
+x_73 = x_101;
+x_74 = x_97;
+x_75 = lean_box(0);
+x_76 = x_102;
+x_77 = x_99;
+x_78 = x_104;
 x_79 = x_100;
-x_80 = x_102;
+x_80 = x_98;
 x_81 = x_106;
 goto block_96;
 }
@@ -8730,15 +8730,15 @@ lean_ctor_set(x_109, 1, x_66);
 lean_ctor_set(x_109, 2, x_67);
 lean_ctor_set(x_109, 3, x_68);
 x_110 = l_Lean_MacroScopesView_review(x_109);
-x_72 = x_104;
-x_73 = x_97;
-x_74 = x_101;
-x_75 = x_99;
-x_76 = x_98;
-x_77 = lean_box(0);
-x_78 = x_103;
+x_72 = x_103;
+x_73 = x_101;
+x_74 = x_97;
+x_75 = lean_box(0);
+x_76 = x_102;
+x_77 = x_99;
+x_78 = x_104;
 x_79 = x_100;
-x_80 = x_102;
+x_80 = x_98;
 x_81 = x_110;
 goto block_96;
 }

@@ -1,6 +1,5 @@
 #include "util/options.h"
 
-// Trigger update-stage0 for: signed integer division overflow fix in lean.h
 namespace lean {
 options get_default_options() {
     options opts;

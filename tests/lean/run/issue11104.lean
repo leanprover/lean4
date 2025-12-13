@@ -20,7 +20,8 @@ info: def anyTwo.match_1.{u_1} : (motive : N → N → Sort u_1) →
     (Unit → motive N.z N.z) →
       ((x : N) → motive N.z.s x) → ((x : N) → motive x N.z.s) → ((x x_2 : N) → motive x x_2) → motive x x_1 :=
 fun motive x x_1 h_1 h_2 h_3 h_4 =>
-  have cont_2 := fun x_2 => N.casesOn x_1 (h_4 x N.z) fun n => N.casesOn n (h_3 x) fun n => h_4 x n.s.s;
+  have cont_2 := fun x_2 =>
+    anyTwo._sparseCasesOn_1 x_1 (fun n => anyTwo._sparseCasesOn_2 n (h_3 x) fun h => h_4 x n.s) fun h => h_4 x x_1;
   N.casesOn (motive := fun x => (Unit → motive x x_1) → motive x x_1) x
     (fun cont_2 =>
       N.casesOn (motive := fun x => (Unit → motive N.z x) → motive N.z x) x_1 (fun cont_2 => h_1 ())
@@ -63,7 +64,7 @@ error: Failed to realize constant natToBin.match_1.splitter:
           (fun n x cont_2 =>
               if h_1 : n = 0 then
                 Eq.ndrec (motive := fun n => (x : Parity n.succ) → (Unit → motive✝ n.succ x) → motive✝ n.succ x)
-                  (fun x cont_2 => Eq.symm h_1 ▸ h_2✝ x) (Eq.symm h_1) x cont_2
+                  (fun x cont_2 => h_2✝ x) (Eq.symm h_1) x cont_2
               else cont_2 ())
             n)
         (j✝ + j✝) (Parity.even j✝) fun x =>
@@ -89,9 +90,9 @@ error: Unknown constant `natToBin.match_1.splitter`
 /--
 error: Tactic `cases` failed with a nested error:
 Dependent elimination failed: Failed to solve equation
-  n✝¹.succ.succ = n✝.add n✝
+  n✝¹.succ = n✝.add n✝
 at case `Parity.even` after processing
-  (Nat.succ (Nat.succ _)), _
+  (Nat.succ _), _
 the dependent pattern matcher can solve the following kinds of equations
 - <var> = <term> and <term> = <var>
 - <term> = <term> where the terms are definitionally equal
@@ -106,17 +107,6 @@ partial def natToBin2 : (n : Nat) → Parity n →  List Bool
 
 -- Just to confirm that match division is relevant here
 
-/--
-error: Tactic `cases` failed with a nested error:
-Dependent elimination failed: Failed to solve equation
-  n✝¹.succ = n✝.add n✝
-at case `Parity.even` after processing
-  (Nat.succ _), _
-the dependent pattern matcher can solve the following kinds of equations
-- <var> = <term> and <term> = <var>
-- <term> = <term> where the terms are definitionally equal
-- <constructor> = <constructor>, examples: List.cons x xs = List.cons y ys, and List.cons x xs = List.nil
--/
 #guard_msgs in
 set_option backwards.match.divide false in
 partial def natToBin3 : (n : Nat) → Parity n →  List Bool
@@ -124,6 +114,18 @@ partial def natToBin3 : (n : Nat) → Parity n →  List Bool
 | _, Parity.even j => [false, false]
 | _, Parity.odd  j => [true, true]
 
+set_option backwards.match.divide false in
+partial def foo2' : Nat → Nat → Nat
+  | .succ n, 1 => foo2' n 1
+  | .succ n, 2 => foo2' (.succ n) 1
+  | n,       3 => foo2' (.succ n) 2
+  | .succ n, 4 => foo2' (if n > 10 then n else .succ n) 3
+  | n,       5 => foo2' (n - 1) 4
+  | n, .succ m => foo2' n m
+  | _, _ => 0
+
+#guard_msgs(drop info) in
+#print sig foo2'.match_1.eq_6
 
 partial def foo2 : Nat → Nat → Nat
   | .succ n, 1 => foo2 n 1
@@ -135,7 +137,7 @@ partial def foo2 : Nat → Nat → Nat
   | _, _ => 0
 
 /--
-error: Failed to realize constant foo2.match_1.splitter:
+error: Failed to realize constant foo2.match_1.eq_6:
   failed to generate equality theorem `_private.lean.run.issue11104.0.foo2.match_1.eq_6` for `match` expression `foo2.match_1`
   case succ.isTrue
   motive✝ : Nat → Nat → Sort u_1
@@ -154,31 +156,32 @@ error: Failed to realize constant foo2.match_1.splitter:
   x✝¹ : ∀ (n : Nat), n✝.succ = n.succ → m✝ = 1 → False
   x✝ : ∀ (n : Nat), n✝.succ = n.succ → m✝ = 3 → False
   h✝ : m✝.succ = 1
-  ⊢ ((Eq.symm h✝ ▸ fun cont_2 => Eq.symm h✝ ▸ h_1✝ n✝) fun x =>
-        Nat.casesOn m✝.succ (h_7✝ n✝.succ Nat.zero) fun n =>
-          have cont_5 := fun x => h_6✝ n✝.succ n;
-          if h_1 : n = 2 then
-            Eq.ndrec (motive := fun n => (Unit → motive✝ n✝.succ n.succ) → motive✝ n✝.succ n.succ)
-              (fun cont_5 => Eq.symm h_1 ▸ h_3✝ n✝.succ) (Eq.symm h_1) cont_5
-          else
-            if h_2 : n = 3 then
-              Eq.ndrec (motive := fun n => (Unit → motive✝ n✝.succ n.succ) → ¬n = 2 → motive✝ n✝.succ n.succ)
-                (fun cont_5 h_1 =>
-                  Eq.symm h_2 ▸
+  ⊢ ((Eq.symm h✝ ▸ fun cont_2 => h_1✝ n✝) fun x =>
+        foo2'._sparseCasesOn_1 m✝.succ
+          (fun n =>
+            have cont_5 := fun x => h_6✝ n✝.succ n;
+            if h_1 : n = 2 then
+              Eq.ndrec (motive := fun n => (Unit → motive✝ n✝.succ n.succ) → motive✝ n✝.succ n.succ)
+                (fun cont_5 => h_3✝ n✝.succ) (Eq.symm h_1) cont_5
+            else
+              if h_2 : n = 3 then
+                Eq.ndrec (motive := fun n => (Unit → motive✝ n✝.succ n.succ) → motive✝ n✝.succ n.succ)
+                  (fun cont_5 =>
                     Nat.casesOn (motive := fun x => (Unit → motive✝ x (Nat.succ 3)) → motive✝ x (Nat.succ 3)) n✝.succ
                       (fun cont_5 => cont_5 ()) (fun n cont_5 => h_4✝ n) cont_5)
-                (Eq.symm h_2) cont_5 h_1
-            else
-              if h_3 : n = 4 then
-                Eq.ndrec (motive := fun n => (Unit → motive✝ n✝.succ n.succ) → ¬n = 2 → ¬n = 3 → motive✝ n✝.succ n.succ)
-                  (fun cont_5 h_1 h_2 => Eq.symm h_3 ▸ h_5✝ n✝.succ) (Eq.symm h_3) cont_5 h_1 h_2
-              else cont_5 ()) =
+                  (Eq.symm h_2) cont_5
+              else
+                if h_3 : n = 4 then
+                  Eq.ndrec (motive := fun n => (Unit → motive✝ n✝.succ n.succ) → motive✝ n✝.succ n.succ)
+                    (fun cont_5 => h_5✝ n✝.succ) (Eq.symm h_3) cont_5
+                else cont_5 ())
+          fun h => h_7✝ n✝.succ m✝.succ) =
       h_6✝ n✝.succ m✝
 ---
-error: Unknown constant `foo2.match_1.splitter`
+error: Unknown constant `foo2.match_1.eq_6`
 -/
 #guard_msgs in
-#print sig foo2.match_1.splitter
+#print sig foo2.match_1.eq_6
 
 def mixed_matches_pure (f : Nat → Option Nat) : Nat :=
   match h : f 0, f 10 with

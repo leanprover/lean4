@@ -50,7 +50,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         # don't schedule nightlies on forks
         if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4' || inputs.action == 'release nightly' || (startsWith(github.ref, 'refs/tags/') && github.repository == 'leanprover/lean4')
       - name: Set Nightly
@@ -453,7 +453,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           # needed for tagging
           fetch-depth: 0

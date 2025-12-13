@@ -71,17 +71,17 @@ public def mkCtorIdx (indName : Name) : MetaM Unit :=
             value := mkApp value alt
           pure value
         mkLambdaFVars (xs.push x) value
+      let hints := ReducibilityHints.regular (getMaxHeight (← getEnv) declValue + 1)
       let decl := .defnDecl (← mkDefinitionValInferringUnsafe
         (name        := declName)
         (levelParams := info.levelParams)
         (type        := declType)
         (value       := declValue)
-        (hints       := ReducibilityHints.abbrev)
+        (hints       := hints)
       )
       addDecl decl
       modifyEnv fun env => addToCompletionBlackList env declName
       modifyEnv fun env => addProtected env declName
-      setReducibleAttribute declName
       if info.numCtors = 1 then
         setInlineAttribute declName .macroInline
       compileDecl decl

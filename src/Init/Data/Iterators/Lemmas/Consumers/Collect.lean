@@ -16,7 +16,8 @@ import all Init.Data.Iterators.Consumers.Monadic.Total
 
 public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 theorem Iter.toArray_eq_toArray_toIterM {α β} [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id]
     [LawfulIteratorCollect α Id Id] {it : Iter (α := α) β} :
@@ -218,4 +219,4 @@ theorem Iter.isPlausibleIndirectOutput_of_mem_toArray
   rw [← Array.mem_toList_iff] at h
   simpa [toList_toArray] using h
 
-end Std.Iterators
+end Std

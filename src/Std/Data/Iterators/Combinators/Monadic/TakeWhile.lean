@@ -31,7 +31,8 @@ Several variants of this combinator are provided:
   iterator, and particularly for specialized termination proofs. If possible, avoid this.
 -/
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 variable {α : Type w} {m : Type w → Type w'} {β : Type w}
 
@@ -39,7 +40,7 @@ variable {α : Type w} {m : Type w → Type w'} {β : Type w}
 Internal state of the `takeWhile` combinator. Do not depend on its internals.
 -/
 @[unbox]
-structure TakeWhile (α : Type w) (m : Type w → Type w') (β : Type w)
+structure Iterators.Types.TakeWhile (α : Type w) (m : Type w → Type w') (β : Type w)
     (P : β → PostconditionT m (ULift Bool)) where
   /-- Internal implementation detail of the iterator library. -/
   inner : IterM (α := α) m β
@@ -85,7 +86,7 @@ it terminates.
 -/
 @[always_inline, inline]
 def IterM.takeWhileWithPostcondition (P : β → PostconditionT m (ULift Bool)) (it : IterM (α := α) m β) :=
-  (toIterM (TakeWhile.mk (P := P) it) m β : IterM m β)
+  (IterM.mk (Types.TakeWhile.mk (P := P) it) m β : IterM m β)
 
 /--
 Given an iterator `it` and a monadic predicate `P`, `it.takeWhileM P` is an iterator that outputs
@@ -158,6 +159,8 @@ it terminates.
 @[always_inline, inline]
 def IterM.takeWhile [Monad m] (P : β → Bool) (it : IterM (α := α) m β) :=
   (it.takeWhileM (pure ∘ ULift.up ∘ P) : IterM m β)
+
+namespace Iterators.Types
 
 /--
 `it.PlausibleStep step` is the proposition that `step` is a possible next step from the
@@ -235,4 +238,4 @@ instance TakeWhile.instIteratorLoop [Monad m] [Monad n] [Iterator α m β]
     IteratorLoop (TakeWhile α m β P) m n :=
   .defaultImplementation
 
-end Std.Iterators
+end Std.Iterators.Types

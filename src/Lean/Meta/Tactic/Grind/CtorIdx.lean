@@ -47,6 +47,5 @@ def propagateCtorIdxUp (e : Expr) : GoalM Unit := e.withApp fun f xs => do
   let e' ← shareCommon (mkNatLit conInfo.cidx)
   internalize e' 0
   pushEq e e' (← mkCongrArg e.appFn! (← mkEqProof a aNode.self))
-  trace_goal[grind.debug] "pushed {e} = {e'}"
 
 end Lean.Meta.Grind

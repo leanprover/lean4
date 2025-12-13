@@ -1845,6 +1845,19 @@ def withInstImplicitAsImplicit (xs : Array Expr) (k : MetaM α) : MetaM α := do
       return none
   withNewBinderInfos newBinderInfos k
 
+private def withPrimedNamesImp (xs : Array Expr) (k : MetaM α) : MetaM α := do
+  let lctx ← getLCtx
+  let lctx := lctx.modifyLocalDecls fun decl =>
+    if xs.contains (mkFVar decl.fvarId) then
+      decl.setUserName (decl.userName.appendAfter "'")
+    else
+      decl
+  withReader (fun ctx => { ctx with lctx := lctx }) k
+
+/-- Appends a `'` to the namen of the given free variables. -/
+def withPrimedNames (xs : Array Expr) (k : n α) : n α := do
+  mapMetaM (fun k => withPrimedNamesImp xs k) k
+
 private def withLetDeclImp (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) (nondep : Bool) (kind : LocalDeclKind) : MetaM α := do
   let fvarId ← mkFreshFVarId
   let ctx ← read

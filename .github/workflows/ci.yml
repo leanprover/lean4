@@ -115,7 +115,7 @@ jobs:
           CMAKE_MAJOR=$(grep -E "^set\(LEAN_VERSION_MAJOR " src/CMakeLists.txt | grep -oE '[0-9]+')
           CMAKE_MINOR=$(grep -E "^set\(LEAN_VERSION_MINOR " src/CMakeLists.txt | grep -oE '[0-9]+')
           CMAKE_PATCH=$(grep -E "^set\(LEAN_VERSION_PATCH " src/CMakeLists.txt | grep -oE '[0-9]+')
-          CMAKE_IS_RELEASE=$(grep -m 1 -E "^set\(LEAN_VERSION_IS_RELEASE " src/CMakeLists.txt | grep -oE '[0-9]+')
+          CMAKE_IS_RELEASE=$(grep -m 1 -E "^set\(LEAN_VERSION_IS_RELEASE " src/CMakeLists.txt | sed -nE 's/^set\(LEAN_VERSION_IS_RELEASE ([0-9]+)\).*/\1/p')
 
           # Expected values from tag parsing
           TAG_MAJOR="${{ steps.set-release.outputs.LEAN_VERSION_MAJOR }}"

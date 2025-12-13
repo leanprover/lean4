@@ -1544,6 +1544,10 @@ private def save (ref : Syntax) (thm : EMatchTheorem) (isParam : Bool) (minIndex
   if (← get).thms.all fun thm' => thm.patterns != thm'.patterns then
     let pats ← thm.patterns.mapM fun p => do
       let pats ← addMessageContextFull (ppPattern p)
+      -- **Note**: Add function for adding naming context, or store `MessageData` directly in the suggestion.
+      let currNamespace ← getCurrNamespace
+      let openDecls ← getOpenDecls
+      let pats := MessageData.withNamingContext {currNamespace, openDecls} pats
       pats.format
     let openBracket  := if isParam then "" else "["
     let closeBracket := if isParam then "" else "]"

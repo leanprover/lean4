@@ -46,6 +46,8 @@ def propagateCtorIdxUp (e : Expr) : GoalM Unit := e.withApp fun f xs => do
   -- Homogeneous case
   let e' ← shareCommon (mkNatLit conInfo.cidx)
   internalize e' 0
-  pushEq e e' (← mkCongrArg e.appFn! (← mkEqProof a aNode.self))
+  -- We used `mkExpectedPropHint` so that the inferred type of the proof matches the goal,
+  -- to satisfy `debug.grind` checks
+  pushEq e e' (mkExpectedPropHint (← mkCongrArg e.appFn! (← mkEqProof a aNode.self)) (← mkEq e e'))
 
 end Lean.Meta.Grind

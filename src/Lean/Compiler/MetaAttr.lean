@@ -47,11 +47,11 @@ def isMarkedMeta (env : Environment) (declName : Name) : Bool :=
   metaExt.isTagged env declName
 
 /--
-Set of IR decls that should be made available to any importer. This is a superset of `metaExt`,
-which is managed by the elaborator and has a different async mode. More precisely, it contains the
-closure of `metaExt` as well as further derived decls such as `_boxed` versions. We store this set
-primarily to filter exports in `declMapExt`; we persist it in `.olean.private` for the benefit of
-`shake`.
+Set of IR decls that should be made available to any importer. This is a superset of `metaExt`
+(except for non-defs such as `meta structure`), which is managed by the elaborator and has a
+different async mode. More precisely, it contains the closure of `metaExt` as well as further
+derived decls such as `_boxed` versions. We store this set primarily to filter exports in
+`declMapExt`; we persist it in `.olean.private` for the benefit of `shake`.
 -/
 private builtin_initialize declMetaExt : SimplePersistentEnvExtension Name NameSet ←
   registerSimplePersistentEnvExtension {

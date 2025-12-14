@@ -92,6 +92,9 @@ public structure PackageEntry where
 
 namespace PackageEntry
 
+@[inline] public def prettyName (entry : PackageEntry) : String :=
+  entry.name.toString (escape := false)
+
 public protected def toJson (entry : PackageEntry) : Json :=
   let fields := [
     ("name", toJson entry.name),

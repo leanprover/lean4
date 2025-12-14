@@ -27,16 +27,6 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   /-- **For internal use.** Whether this package is Lean itself. -/
   bootstrap : Bool := false
 
-  /--
-  **This field is deprecated.**
-
-  The path of a package's manifest file, which stores the exact versions
-  of its resolved dependencies.
-
-  Defaults to `defaultManifestFile` (i.e., `lake-manifest.json`).
-  -/
-  manifestFile : Option FilePath := none
-
   /-- An `Array` of target names to build whenever the package is used. -/
   extraDepTargets : Array Name := #[]
 

@@ -39,6 +39,7 @@ public def mkPackage (loadCfg : LoadConfig) (fileCfg : LakefileConfig) : Package
     relDir := loadCfg.relPkgDir
     configFile := loadCfg.configFile
     relConfigFile := loadCfg.relConfigFile
+    relManifestFile := loadCfg.relManifestFile
     scope := loadCfg.scope
     remoteUrl := loadCfg.remoteUrl
     depConfigs := fileCfg.depConfigs

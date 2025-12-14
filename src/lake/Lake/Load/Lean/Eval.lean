@@ -181,10 +181,6 @@ public def LakefileConfig.loadFromEnv
       decls := decls.push  {decl with config := decl.config.toFacetConfig}
     return decls
 
-  -- Deprecation warnings
-  unless pkgDecl.config.manifestFile.isNone do
-    logWarning s!"{prettyName}: package configuration option 'manifestFile' is deprecated"
-
   -- Fill in the Package
   return {
     pkgDecl, depConfigs, facetDecls,

@@ -662,10 +662,23 @@ def getPatternArgKinds (f : Expr) (numArgs : Nat) : MetaM (Array PatternArgKind)
           if pinfos[idx].hasFwdDeps then return .typeFormer else return .relevant
         else
           return .typeFormer
-      else if (← x.fvarId!.getDecl).binderInfo matches .instImplicit then
-        return .instImplicit
       else
-        return .relevant
+        let xDecl ← x.fvarId!.getDecl
+        if xDecl.binderInfo matches .instImplicit then
+          return .instImplicit
+        /-
+        **Note**: Even if the binder is not marked as instance implicit, we may still
+        synthesize it using type class resolution. The motivation is declarations such as
+        ```
+        ZeroMemClass.zero_mem {S : Type} {M : outParam Type} {inst1 : Zero M} {inst2 : SetLike S M}
+            [self : @ZeroMemClass S M inst1 inst2] (s : S) : 0 ∈ s
+        ```
+        Recall that a similar approach is used in `simp`.
+        -/
+        else if (← isClass? xDecl.type).isSome then
+          return .instImplicit
+        else
+          return .relevant
 
 private def getPatternFn? (pattern : Expr) (inSupport : Bool) (root : Bool) (argKind : PatternArgKind) : M (Option Expr) := do
   if !pattern.isApp && !pattern.isConst then
@@ -860,27 +873,34 @@ private def checkCoverage (thmProof : Expr) (numParams : Nat) (bvarsFound : Std.
       for x in xs do
         let fvarId := x.fvarId!
         unless processed.contains fvarId do
-          let xType ← inferType x
+          let xDecl ← fvarId.getDecl
+          let xType := xDecl.type
           if fvarsFound.contains fvarId then
             -- Collect free vars in `x`s type and mark as processed
             fvarsFound := update fvarsFound xType
             processed := processed.insert fvarId
             modified := true
-          else if (← fvarId.getDecl).binderInfo matches .instImplicit then
-            -- If `x` is instance implicit, check whether
-            -- we have found all free variables needed to synthesize instance
-            if (← canBeSynthesized thmVars fvarsFound xType) then
-              fvarsFound := fvarsFound.insert fvarId
-              fvarsFound := update fvarsFound xType
-              processed := processed.insert fvarId
-              modified := true
-          else if (← isProp xType) then
-            -- If `x` is a proposition, and all theorem variables in `x`s type have already been found
-            -- add it to `fvarsFound` and mark it as processed.
-            if checkTypeFVars thmVars fvarsFound xType then
-              fvarsFound := fvarsFound.insert fvarId
-              processed := processed.insert fvarId
-              modified := true
+          else
+            /- **Note**: See comment at `getPatternArgKinds` -/
+            let instImplicit ← if xDecl.binderInfo matches .instImplicit then
+              pure true
+            else
+              pure <| (← isClass? xType).isSome
+            if instImplicit then
+              -- If `x` is instance implicit, check whether
+              -- we have found all free variables needed to synthesize instance
+              if (← canBeSynthesized thmVars fvarsFound xType) then
+                fvarsFound := fvarsFound.insert fvarId
+                fvarsFound := update fvarsFound xType
+                processed := processed.insert fvarId
+                modified := true
+            else if (← isProp xType) then
+              -- If `x` is a proposition, and all theorem variables in `x`s type have already been found
+              -- add it to `fvarsFound` and mark it as processed.
+              if checkTypeFVars thmVars fvarsFound xType then
+                fvarsFound := fvarsFound.insert fvarId
+                processed := processed.insert fvarId
+                modified := true
       if fvarsFound.size == numParams then
         return .ok
       if !modified then

@@ -77,7 +77,7 @@ private def checkIffStatus (e a b : Expr) : GoalM SplitStatus := do
   else
     return .notReady
 
-/-- Returns `true` is `c` is congruent to a case-split that was already performed. -/
+/-- Returns `true` if `c` is congruent to a case-split that was already performed. -/
 private def isCongrToPrevSplit (c : Expr) : GoalM Bool := do
   unless c.isApp do return false
   (← get).split.resolved.foldM (init := false) fun flag { expr := c' } => do

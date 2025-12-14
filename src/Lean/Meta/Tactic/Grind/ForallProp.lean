@@ -19,7 +19,8 @@ import Lean.Meta.Tactic.Grind.SynthInstance
 public section
 namespace Lean.Meta.Grind
 /--
-Propagation for implication
+Propagator for dependent forall terms
+`forall (h : p), q[h]` where p is a proposition.
 -/
 def propagateForallPropUp (e : Expr) : GoalM Unit := do
   let .forallE n p q bi := e | return ()

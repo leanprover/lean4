@@ -18,15 +18,6 @@ namespace Lean
 
 open Meta
 
-def withPrimedNames (xs : Array Expr) (k : MetaM α) : MetaM α := do
-  let lctx ← getLCtx
-  let lctx := lctx.modifyLocalDecls fun decl =>
-    if xs.contains (mkFVar decl.fvarId) then
-      decl.setUserName (decl.userName.appendAfter "'")
-    else
-      decl
-  withLCtx lctx (← getLocalInstances) k
-
 /--
 Constructs a lambda expression that returns the argument to the `noConfusion` principle for a given
 constructor. In particular, returns

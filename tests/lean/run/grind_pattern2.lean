@@ -60,3 +60,15 @@ trace: [grind.ematch.pattern] arrEx: [@HAdd.hAdd #6 _ _ _ (@getElem (Array _) `[
 -/
 #guard_msgs in
 grind_pattern arrEx => as[i]+as[j]'(h₂▸h₁)
+
+namespace Foo.Bla
+set_option trace.grind.ematch false
+set_option trace.grind.ematch.pattern false
+opaque P : {n : Nat} → Fin (n+1) → Prop
+/--
+info: Try this:
+  [apply] [grind .] for pattern: [@P #0 (@OfNat.ofNat (Fin _) `[0] _)]
+-/
+#guard_msgs in
+@[grind] axiom Pax : @P n 0
+end Foo.Bla

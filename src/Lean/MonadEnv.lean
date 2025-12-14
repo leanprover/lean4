@@ -96,13 +96,16 @@ def getAsyncConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) (
   | some val => pure val
   | none     => throwUnknownConstant constName
 
-def isInductive? [Monad m] [MonadEnv m] (declName : Name) : m (Option InductiveVal) := do
-  match (← getEnv).findAsync? declName with
+def isInductiveCore? (env : Environment) (declName : Name) : Option InductiveVal := do
+  match env.findAsync? declName with
   | some info@{ kind := .induct, .. } =>
     match info.toConstantInfo with
-    | .inductInfo val => pure (some val)
+    | .inductInfo val => some val
     | _ => unreachable!
-  | _ => pure none
+  | _ => none
+
+def isInductive? [Monad m] [MonadEnv m] (declName : Name) : m (Option InductiveVal) :=
+  return isInductiveCore? (← getEnv) declName
 
 def isDefn? [Monad m] [MonadEnv m] (constName : Name) : m (Option DefinitionVal) := do
   match (← getEnv).findAsync? constName with

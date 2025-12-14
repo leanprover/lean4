@@ -4,13 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.ByCases
 public import Init.Grind.Util
-
+public import Init.Grind.Ring.Basic
 public section
-
 namespace Lean.Grind
 
 theorem rfl_true : true = true :=
@@ -193,6 +191,15 @@ theorem Nat.or_congr {a b : Nat} {k₁ k₂ k : Nat} (h₁ : a = k₁) (h₂ : b
 theorem Nat.shiftLeft_congr {a b : Nat} {k₁ k₂ k : Nat} (h₁ : a = k₁) (h₂ : b = k₂) : k == k₁ <<< k₂ → a <<< b = k := by simp_all
 theorem Nat.shiftRight_congr {a b : Nat} {k₁ k₂ k : Nat} (h₁ : a = k₁) (h₂ : b = k₂) : k == k₁ >>> k₂ → a >>> b = k := by simp_all
 
-theorem Nat.hasNotBit_congr {a b : Nat} {k₁ k₂ : Nat} {k : Bool} (h₁ : a = k₁) (h₂ : b = k₂) : k == Nat.hasNotBit k₁ k₂ → Nat.hasNotBit a b = k := by simp_all
+/-! Semiring propagators -/
+
+theorem Semiring.one_mul_congr {α} [Semiring α] {a b : α} (h : a = 1) : a*b = b := by
+  simp [h, Semiring.one_mul]
+theorem Semiring.zero_mul_congr {α} [Semiring α] {a b : α} (h : a = 0) : a*b = 0 := by
+  simp [h, Semiring.zero_mul]
+theorem Semiring.mul_one_congr {α} [Semiring α] {a b : α} (h : b = 1) : a*b = a := by
+  simp [h, Semiring.mul_one]
+theorem Semiring.mul_zero_congr {α} [Semiring α] {a b : α} (h : b = 0) : a*b = 0 := by
+  simp [h, Semiring.mul_zero]
 
 end Lean.Grind

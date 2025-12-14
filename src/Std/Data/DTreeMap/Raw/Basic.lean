@@ -604,16 +604,12 @@ def forInUncurried (f : α × β → δ → m (ForInStep δ)) (init : δ) (t : R
 end Const
 
 @[inline, inherit_doc DTreeMap.any]
-def any (t : Raw α β cmp) (p : (a : α) → β a → Bool) : Bool := Id.run $ do
-  for ⟨a, b⟩ in t do
-    if p a b then return true
-  return false
+def any (t : Raw α β cmp) (p : (a : α) → β a → Bool) : Bool :=
+  t.inner.any p
 
 @[inline, inherit_doc DTreeMap.all]
 def all (t : Raw α β cmp) (p : (a : α) → β a → Bool) : Bool := Id.run $ do
-  for ⟨a, b⟩ in t do
-    if p a b = false then return false
-  return true
+  t.inner.all p
 
 @[inline, inherit_doc DTreeMap.keys]
 def keys (t : Raw α β cmp) : List α :=
@@ -731,6 +727,15 @@ def inter (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.inter! t₂.inner⟩
 
 instance : Inter (Raw α β cmp) := ⟨inter⟩
+
+
+@[inherit_doc DTreeMap.beq] def beq [LawfulEqCmp cmp] [∀ k, BEq (β k)] (t₁ t₂ : Raw α β cmp) : Bool :=
+  letI : Ord α := ⟨cmp⟩; t₁.inner.beq t₂.inner
+
+instance [LawfulEqCmp cmp] [∀ k, BEq (β k)] : BEq (Raw α β cmp) := ⟨beq⟩
+
+@[inherit_doc DTreeMap.beq] def Const.beq {β : Type v} [BEq β] (t₁ t₂ : Raw α (fun _ => β) cmp) : Bool :=
+  letI : Ord α := ⟨cmp⟩; Internal.Impl.Const.beq t₁.inner t₂.inner
 
 /--
 Computes the difference of the given tree maps.

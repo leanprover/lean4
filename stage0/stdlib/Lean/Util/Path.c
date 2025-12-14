@@ -1406,8 +1406,11 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_initSearchPath(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+lean_object* x_4; 
 x_4 = l_Lean_getBuiltinSearchPath(x_1);
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 lean_dec_ref(x_4);
@@ -1435,6 +1438,27 @@ x_15 = lean_st_ref_set(x_14, x_13);
 x_16 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_16, 0, x_15);
 return x_16;
+}
+}
+else
+{
+uint8_t x_17; 
+lean_dec(x_2);
+x_17 = !lean_is_exclusive(x_4);
+if (x_17 == 0)
+{
+return x_4;
+}
+else
+{
+lean_object* x_18; lean_object* x_19; 
+x_18 = lean_ctor_get(x_4, 0);
+lean_inc(x_18);
+lean_dec(x_4);
+x_19 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_19, 0, x_18);
+return x_19;
+}
 }
 }
 }

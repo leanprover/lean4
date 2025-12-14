@@ -469,6 +469,20 @@ private def useFunCongrAtFn (f : Expr) : GrindM Bool := do
   let .const declName _ := f | return true
   useFunCongrAtDecl declName
 
+private def internalizeLiteral (e : Expr) (generation : Nat) (parent? : Option Expr) : GoalM Unit := do
+  -- We do not want to internalize the components of a literal value.
+  mkENode e generation
+  Solvers.internalize e parent?
+  /-
+  **Note**: Functions used to construct literals may be used for indexing theorem.
+  `OfNat.ofNat` is not used for indexing, but `BitVec.ofNat` is.
+  **Note**: We should revise whether we should normalize `BitVec.ofNat` to `OfNat.ofNat` in `grind`.
+  -/
+  if let .const declName _ := e.getAppFn then
+    unless declName == ``OfNat.ofNat do
+      updateIndicesFound (.const declName)
+      activateTheorems declName generation
+
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do
   if (← alreadyInternalized e) then
@@ -535,9 +549,7 @@ where
       mkENode' e generation
     | .app .. =>
       if (← isLitValue e) then
-        -- We do not want to internalize the components of a literal value.
-        mkENode e generation
-        Solvers.internalize e parent?
+        internalizeLiteral e generation parent?
       else if e.isAppOfArity ``Grind.MatchCond 1 then
         internalizeMatchCond e generation
       else e.withApp fun f args => do

@@ -1210,10 +1210,6 @@ Any zeta-delta reductions recorded while executing `x` will *not* persist when l
   mapMetaM fun x =>
     withFreshCache <| withReader (fun ctx => { ctx with trackZetaDelta := true }) <| withResetZetaDeltaFVarIds x
 
-@[deprecated withTrackingZetaDelta (since := "2025-06-12")]
-def resetZetaDeltaFVarIds : MetaM Unit :=
-  modify fun s => { s with zetaDeltaFVarIds := {} }
-
 /--
 `withTrackingZetaDeltaSet s x` executes `x` in a context where `zetaDeltaFVarIds` has been temporarily cleared.
 - If `s` is nonempty, zeta-delta tracking is enabled and `zetaDeltaSet := s`.
@@ -2683,7 +2679,8 @@ where
         let _ : MonadExceptOf _ MetaM := MonadAlwaysExcept.except
         observing do
           withDeclNameForAuxNaming constName do
-            realize
+            withoutExporting (when := isPrivateName constName) do
+              realize
           -- Meta code working on a non-exported declaration should usually do so inside
           -- `withoutExporting` but we're lenient here in case this call is the only one that needs
           -- the setting.

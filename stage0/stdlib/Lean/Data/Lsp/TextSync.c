@@ -1672,6 +1672,22 @@ x_3 = l_Lean_Lsp_TextDocumentContentChangeEvent_ctorElim___redArg(x_1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Lsp_instFromJsonRange_fromJson), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Json_getStr_x3f), 1, 0);
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___lam__0___closed__0() {
 _start:
 {
@@ -1798,22 +1814,6 @@ return x_14;
 }
 }
 }
-}
-}
-static lean_object* _init_l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Lsp_instFromJsonRange_fromJson), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Json_getStr_x3f), 1, 0);
-return x_1;
 }
 }
 static lean_object* _init_l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent() {
@@ -4656,14 +4656,14 @@ l_Lean_Lsp_instFromJsonTextDocumentChangeRegistrationOptions___closed__0 = _init
 lean_mark_persistent(l_Lean_Lsp_instFromJsonTextDocumentChangeRegistrationOptions___closed__0);
 l_Lean_Lsp_instFromJsonTextDocumentChangeRegistrationOptions = _init_l_Lean_Lsp_instFromJsonTextDocumentChangeRegistrationOptions();
 lean_mark_persistent(l_Lean_Lsp_instFromJsonTextDocumentChangeRegistrationOptions);
-l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___lam__0___closed__0 = _init_l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___lam__0___closed__0();
-lean_mark_persistent(l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___lam__0___closed__0);
-l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___lam__0___closed__1 = _init_l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___lam__0___closed__1();
-lean_mark_persistent(l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___lam__0___closed__1);
 l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___closed__0 = _init_l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___closed__0();
 lean_mark_persistent(l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___closed__0);
 l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___closed__1 = _init_l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___closed__1();
 lean_mark_persistent(l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___closed__1);
+l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___lam__0___closed__0 = _init_l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___lam__0___closed__0();
+lean_mark_persistent(l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___lam__0___closed__0);
+l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___lam__0___closed__1 = _init_l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___lam__0___closed__1();
+lean_mark_persistent(l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___lam__0___closed__1);
 l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent = _init_l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent();
 lean_mark_persistent(l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent);
 l_Lean_Lsp_TextDocumentContentChangeEvent_hasToJson = _init_l_Lean_Lsp_TextDocumentContentChangeEvent_hasToJson();

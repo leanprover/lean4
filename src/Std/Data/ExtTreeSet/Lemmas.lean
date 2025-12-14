@@ -1190,6 +1190,18 @@ theorem min?_mem [TransCmp cmp] {km} :
     (hkm : t.min? = some km) → km ∈ t :=
   ExtTreeMap.minKey?_mem
 
+@[simp] theorem min?_toList [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α]
+    [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp] :
+    t.toList.min? = t.min? :=
+  ExtDTreeMap.min?_keys
+
+@[simp] theorem head?_toList [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α]
+    [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp] :
+    t.toList.head? = t.min? :=
+  ExtDTreeMap.head?_keys
+
 theorem isSome_min?_of_contains [TransCmp cmp] {k} :
     (hc : t.contains k) → t.min?.isSome :=
   ExtTreeMap.isSome_minKey?_of_contains

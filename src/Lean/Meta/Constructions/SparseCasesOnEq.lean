@@ -71,7 +71,7 @@ where
             let hyp := hyp.applyFVarSubst subst
             mvarId.withContext do
               let some prf ← refutableHasNotBit? (← inferType hyp)
-                | panic! "mkSparseCasesOnEq: not refutable (← inferTye hyp)"
+                | throwError m!"mkSparseCasesOnEq: not refutable {← inferType hyp}"
               mvarId.assign (← mkAbsurd (← mvarId.getType) prf hyp)
           else
             s.mvarId.refl

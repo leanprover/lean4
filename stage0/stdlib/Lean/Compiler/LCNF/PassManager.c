@@ -1519,7 +1519,17 @@ x_19 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
 x_20 = l_Lean_MessageData_ofFormat(x_19);
 x_21 = l_Lean_throwError___at___00__private_Lean_Compiler_LCNF_PassManager_0__Lean_Compiler_LCNF_PassManager_validatePasses_spec__0___redArg(x_20, x_7, x_8);
+if (lean_obj_tag(x_21) == 0)
+{
+lean_dec_ref(x_21);
+x_10 = x_2;
+x_11 = lean_box(0);
+goto block_15;
+}
+else
+{
 return x_21;
+}
 }
 }
 }
@@ -1784,11 +1794,14 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PassManager_findOccurrenceBounds(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_17; size_t x_18; size_t x_19; lean_object* x_20; uint8_t x_21; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_17; size_t x_18; size_t x_19; lean_object* x_20; 
 x_17 = l_Lean_Compiler_LCNF_PassManager_findOccurrenceBounds___closed__1;
 x_18 = lean_array_size(x_2);
 x_19 = 0;
 x_20 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Compiler_LCNF_PassManager_findOccurrenceBounds_spec__0___redArg(x_1, x_2, x_18, x_19, x_17);
+if (lean_obj_tag(x_20) == 0)
+{
+uint8_t x_21; 
 x_21 = !lean_is_exclusive(x_20);
 if (x_21 == 0)
 {
@@ -1938,6 +1951,27 @@ x_6 = x_3;
 x_7 = x_4;
 x_8 = lean_box(0);
 goto block_16;
+}
+}
+}
+else
+{
+uint8_t x_41; 
+lean_dec(x_1);
+x_41 = !lean_is_exclusive(x_20);
+if (x_41 == 0)
+{
+return x_20;
+}
+else
+{
+lean_object* x_42; lean_object* x_43; 
+x_42 = lean_ctor_get(x_20, 0);
+lean_inc(x_42);
+lean_dec(x_20);
+x_43 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_43, 0, x_42);
+return x_43;
 }
 }
 block_16:
@@ -2456,20 +2490,20 @@ lean_dec(x_1);
 return x_13;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at___00Lean_Compiler_LCNF_PassInstaller_withEachOccurrence_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_panic___at___00Lean_Compiler_LCNF_PassInstaller_withEachOccurrence_spec__0(x_1, x_2, x_3);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PassInstaller_withEachOccurrence___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
 x_5 = l_Lean_Compiler_LCNF_PassInstaller_withEachOccurrence(x_4, x_2, x_3);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_panic___at___00Lean_Compiler_LCNF_PassInstaller_withEachOccurrence_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_panic___at___00Lean_Compiler_LCNF_PassInstaller_withEachOccurrence_spec__0(x_1, x_2, x_3);
 return x_5;
 }
 }
@@ -2508,6 +2542,18 @@ uint8_t x_7;
 x_7 = lean_nat_dec_eq(x_4, x_2);
 return x_7;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PassInstaller_installAfter___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Lean_Compiler_LCNF_PassInstaller_installAfter___lam__0(x_1, x_2, x_3);
+lean_dec_ref(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+x_5 = lean_box(x_4);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Compiler_LCNF_PassInstaller_installAfter___lam__1___closed__0() {
@@ -2620,18 +2666,6 @@ x_43 = l_Lean_MessageData_ofFormat(x_42);
 x_44 = l_Lean_throwError___at___00__private_Lean_Compiler_LCNF_PassManager_0__Lean_Compiler_LCNF_PassManager_validatePasses_spec__0___redArg(x_43, x_6, x_7);
 return x_44;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PassInstaller_installAfter___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Lean_Compiler_LCNF_PassInstaller_installAfter___lam__0(x_1, x_2, x_3);
-lean_dec_ref(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-x_5 = lean_box(x_4);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PassInstaller_installAfter___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {

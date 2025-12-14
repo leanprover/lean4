@@ -208,3 +208,6 @@ error: Invalid `meta` definition `metaUsingNonMeta`, `f` is not accessible here;
 #guard_msgs in
 public meta def metaUsingNonMeta : Nat :=
   f
+
+-- #11672
+example : instA = { instA with b := 0 } := rfl

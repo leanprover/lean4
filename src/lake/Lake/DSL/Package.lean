@@ -28,17 +28,18 @@ def elabPackageCommand : CommandElab := fun stx => do
   let configId : Ident ← `(pkgConfig)
   let id ← mkConfigDeclIdent nameStx?
   let origName := Name.quoteFrom id id.getId
-  let ⟨idx, name⟩ := nameExt.getState (← getEnv)
-  let name := match name with
+  let ⟨wsIdx, name⟩ := nameExt.getState (← getEnv)
+  let baseName := match name with
     | .anonymous => origName
     | name => Name.quoteFrom id name
-  let name := Syntax.mkCApp ``Name.num #[name, quote idx]
-  let ty := Syntax.mkCApp ``PackageConfig #[name, origName]
+  let wsIdx := quote wsIdx
+  let keyName := Syntax.mkCApp ``Name.num #[baseName, wsIdx]
+  let ty := Syntax.mkCApp ``PackageConfig #[keyName, origName]
   elabConfig ``PackageConfig configId ty cfg
   let attr ← `(Term.attrInstance| «package»)
   let attrs := #[attr] ++ expandAttrs attrs?
   let id := mkIdentFrom id packageDeclName
-  let decl ← `({name := $name, origName := $origName, config := $configId})
+  let decl ← `({baseName := $baseName, origName := $origName, keyName := $keyName, config := $configId})
   let cmd ← `($[$doc?]? @[$attrs,*] abbrev $id : PackageDecl := $decl)
   withMacroExpansion stx cmd <| elabCommand cmd
   let nameId := mkIdentFrom id <| packageDeclName.str "name"

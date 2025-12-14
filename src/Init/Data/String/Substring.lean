@@ -32,7 +32,7 @@ def ofSlice (s : String.Slice) : Substring.Raw where
 Converts a `Substring.Raw` into a `String.Slice`, returning `none` if the substring is invalid.
 -/
 @[inline]
-def toSlice (s : Substring.Raw) : Option String.Slice :=
+def toSlice? (s : Substring.Raw) : Option String.Slice :=
   if h : s.startPos.IsValid s.str ∧ s.stopPos.IsValid s.str ∧ s.startPos ≤ s.stopPos then
     some (String.Slice.mk s.str (s.str.pos s.startPos h.1) (s.str.pos s.stopPos h.2.1)
       (by simp [String.Pos.le_iff, h.2.2]))
@@ -155,7 +155,7 @@ Returns the substring-relative position of the first occurrence of `c` in `s`, o
 doesn't occur.
 -/
 @[inline] def posOf (s : Substring.Raw) (c : Char) : String.Pos.Raw :=
-  s.toSlice.map (·.find c |>.offset) |>.getD ⟨s.bsize⟩
+  s.toSlice?.map (·.find c |>.offset) |>.getD ⟨s.bsize⟩
 
 /--
 Removes the specified number of characters (Unicode code points) from the beginning of a substring
@@ -260,32 +260,30 @@ Folds a function over a substring from the left, accumulating a value starting w
 accumulated value is combined with each character in order, using `f`.
 -/
 @[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : Substring.Raw) : α :=
-  s.toSlice.get!.foldl f init
+  s.toSlice?.get!.foldl f init
 
 /--
 Folds a function over a substring from the right, accumulating a value starting with `init`. The
 accumulated value is combined with each character in reverse order, using `f`.
 -/
 @[inline] def foldr {α : Type u} (f : Char → α → α) (init : α) (s : Substring.Raw) : α :=
-  match s with
-  | ⟨s, b, e⟩ => String.foldrAux f init s e b
+  s.toSlice?.get!.foldr f init
 
 /--
 Checks whether the Boolean predicate `p` returns `true` for any character in a substring.
 
 Short-circuits at the first character for which `p` returns `true`.
 -/
-@[inline] def any (s : Substring.Raw) (p : Char → Bool) : Bool :=
-  match s with
-  | ⟨s, b, e⟩ => String.anyAux s e p b
+@[inline, suggest_for Substring.Raw.some] def any (s : Substring.Raw) (p : Char → Bool) : Bool :=
+  s.toSlice?.get!.any p
 
 /--
 Checks whether the Boolean predicate `p` returns `true` for every character in a substring.
 
 Short-circuits at the first character for which `p` returns `false`.
 -/
-@[inline] def all (s : Substring.Raw) (p : Char → Bool) : Bool :=
-  !s.any (fun c => !p c)
+@[inline, suggest_for Substring.Raw.every] def all (s : Substring.Raw) (p : Char → Bool) : Bool :=
+  s.toSlice?.get!.all p
 
 @[export lean_substring_all]
 def Internal.allImpl (s : Substring.Raw) (p : Char → Bool) : Bool :=
@@ -405,25 +403,39 @@ Examples:
 Checks whether the substring can be interpreted as the decimal representation of a natural number.
 
 A substring can be interpreted as a decimal natural number if it is not empty and all the characters
-in it are digits.
+in it are digits. Underscores ({lit}`_`) are allowed as digit separators for readability, but cannot appear
+at the start, at the end, or consecutively.
 
 Use `Substring.toNat?` to convert such a substring to a natural number.
 -/
 @[inline] def isNat (s : Substring.Raw) : Bool :=
-  !s.isEmpty && s.all fun c => c.isDigit
+  if s.isEmpty then
+    false
+  else
+    -- Track: isFirst, lastWasUnderscore, lastCharWasDigit, valid
+    let result := s.foldl (fun (isFirst, lastWasUnderscore, _lastCharWasDigit, valid) c =>
+      let isDigit := c.isDigit
+      let isUnderscore := c = '_'
+      let newValid := valid && (isDigit || isUnderscore) &&
+                      !(isFirst && isUnderscore) &&  -- Cannot start with underscore
+                      !(lastWasUnderscore && isUnderscore)  -- No consecutive underscores
+      (false, isUnderscore, isDigit, newValid))
+      (true, false, false, true)
+    -- Must be valid and last character must have been a digit (not underscore)
+    result.2.2.2 && result.2.2.1
 
 /--
 Checks whether the substring can be interpreted as the decimal representation of a natural number,
 returning the number if it can.
 
 A substring can be interpreted as a decimal natural number if it is not empty and all the characters
-in it are digits.
+in it are digits. Underscores ({lit}`_`) are allowed as digit separators and are ignored during parsing.
 
 Use `Substring.isNat` to check whether the substring is such a substring.
 -/
 def toNat? (s : Substring.Raw) : Option Nat :=
   if s.isNat then
-    some <| s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
+    some <| s.foldl (fun n c => if c = '_' then n else n*10 + (c.toNat - '0'.toNat)) 0
   else
     none
 

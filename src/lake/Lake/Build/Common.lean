@@ -84,9 +84,6 @@ That is, the very old version of the trace file format that just contained a has
 public def BuildMetadata.ofStub (hash : Hash) : BuildMetadata :=
   {depHash := hash,  inputs := #[], outputs? := none, log := {}, synthetic := false}
 
-@[deprecated ofStub (since := "2025-06-28")]
-public abbrev BuildMetadata.ofHash := @ofStub
-
 public def BuildMetadata.fromJsonObject? (obj : JsonObject) : Except String BuildMetadata := do
   let depHash ←
     if obj.getJson? "schemaVersion" |>.isNone then
@@ -177,14 +174,6 @@ public def readTraceFile (path : FilePath) : LogIO SavedTrace := do
   | .error e =>
     error s!"{path}: read failed: {e}"
 
-/--
-Tries to read data from a trace file. On failure, returns `none`.
-Logs if the read failed or the contents where invalid.
--/
-@[inline, deprecated readTraceFile (since := "2025-06-26")]
-public def readTraceFile? (path : FilePath) : LogIO (Option BuildMetadata) := do
-  if let .ok data ← readTraceFile path then return some data else none
-
 /-- Write a trace file containing the metadata. -/
 public def BuildMetadata.writeFile (path : FilePath) (data : BuildMetadata) : IO Unit := do
   createParentDirs path
@@ -198,9 +187,6 @@ public def BuildMetadata.writeFile (path : FilePath) (data : BuildMetadata) : IO
 @[inline] public def writeBuildTrace
   [ToJson α] (path : FilePath) (depTrace : BuildTrace) (outputs : α) (log : Log)
 : IO Unit := BuildMetadata.writeFile path (.ofBuild depTrace outputs log)
-
-@[deprecated writeBuildTrace (since := "2025-06-28")]
-public abbrev writeTraceFile := @writeBuildTrace
 
 /-- Indicator of whether a build's output(s) are up-to-date. -/
 public inductive OutputStatus
@@ -499,7 +485,7 @@ public class ResolveOutputs (m : Type v → Type w) (α : Type v) where
 
 open ResolveOutputs in
 /--
-Retrieve artifacts from the Lake cache using the the outputs stored
+Retrieve artifacts from the Lake cache using the outputs stored
 in either the saved trace file or in the cached input-to-content mapping.
 
 **For internal use only.**

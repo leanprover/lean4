@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data
-// Imports: public import Std.Data.DHashMap public import Std.Data.HashMap public import Std.Data.HashSet public import Std.Data.DTreeMap public import Std.Data.TreeMap public import Std.Data.TreeSet public import Std.Data.ExtDHashMap public import Std.Data.ExtHashMap public import Std.Data.ExtHashSet public import Std.Data.ExtDTreeMap public import Std.Data.ExtTreeMap public import Std.Data.ExtTreeSet public import Std.Data.DHashMap.RawLemmas public import Std.Data.HashMap.RawLemmas public import Std.Data.HashSet.RawLemmas public import Std.Data.DTreeMap.Raw public import Std.Data.TreeMap.Raw public import Std.Data.TreeSet.Raw public import Std.Data.Iterators public import Std.Data.ByteSlice
+// Imports: public import Std.Data.DHashMap public import Std.Data.HashMap public import Std.Data.HashSet public import Std.Data.DTreeMap public import Std.Data.TreeMap public import Std.Data.TreeSet public import Std.Data.ExtDHashMap public import Std.Data.ExtHashMap public import Std.Data.ExtHashSet public import Std.Data.ExtDTreeMap public import Std.Data.ExtTreeMap public import Std.Data.ExtTreeSet public import Std.Data.DHashMap.RawLemmas public import Std.Data.DHashMap.RawDecidableEquiv public import Std.Data.HashMap.RawLemmas public import Std.Data.HashMap.RawDecidableEquiv public import Std.Data.HashSet.RawLemmas public import Std.Data.HashSet.RawDecidableEquiv public import Std.Data.DTreeMap.Raw public import Std.Data.TreeMap.Raw public import Std.Data.TreeSet.Raw public import Std.Data.Iterators public import Std.Data.ByteSlice
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -26,8 +26,11 @@ lean_object* initialize_Std_Data_ExtDTreeMap(uint8_t builtin);
 lean_object* initialize_Std_Data_ExtTreeMap(uint8_t builtin);
 lean_object* initialize_Std_Data_ExtTreeSet(uint8_t builtin);
 lean_object* initialize_Std_Data_DHashMap_RawLemmas(uint8_t builtin);
+lean_object* initialize_Std_Data_DHashMap_RawDecidableEquiv(uint8_t builtin);
 lean_object* initialize_Std_Data_HashMap_RawLemmas(uint8_t builtin);
+lean_object* initialize_Std_Data_HashMap_RawDecidableEquiv(uint8_t builtin);
 lean_object* initialize_Std_Data_HashSet_RawLemmas(uint8_t builtin);
+lean_object* initialize_Std_Data_HashSet_RawDecidableEquiv(uint8_t builtin);
 lean_object* initialize_Std_Data_DTreeMap_Raw(uint8_t builtin);
 lean_object* initialize_Std_Data_TreeMap_Raw(uint8_t builtin);
 lean_object* initialize_Std_Data_TreeSet_Raw(uint8_t builtin);
@@ -77,10 +80,19 @@ lean_dec_ref(res);
 res = initialize_Std_Data_DHashMap_RawLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Std_Data_DHashMap_RawDecidableEquiv(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Std_Data_HashMap_RawLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Std_Data_HashMap_RawDecidableEquiv(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Std_Data_HashSet_RawLemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_HashSet_RawDecidableEquiv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_DTreeMap_Raw(builtin);

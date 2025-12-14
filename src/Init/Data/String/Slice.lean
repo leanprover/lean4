@@ -188,13 +188,7 @@ instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (SplitIterator 
 instance [Monad n] : Std.Iterators.IteratorCollect (SplitIterator pat s) Id n :=
   .defaultImplementation
 
-instance [Monad n] : Std.Iterators.IteratorCollectPartial (SplitIterator pat s) Id n :=
-  .defaultImplementation
-
 instance [Monad n] : Std.Iterators.IteratorLoop (SplitIterator pat s) Id n :=
-  .defaultImplementation
-
-instance [Monad n] : Std.Iterators.IteratorLoopPartial (SplitIterator pat s) Id n :=
   .defaultImplementation
 
 end SplitIterator
@@ -291,15 +285,7 @@ instance [Monad n] {s} :
   .defaultImplementation
 
 instance [Monad n] {s} :
-    Std.Iterators.IteratorCollectPartial (SplitInclusiveIterator pat s) Id n :=
-  .defaultImplementation
-
-instance [Monad n] {s} :
     Std.Iterators.IteratorLoop (SplitInclusiveIterator pat s) Id n :=
-  .defaultImplementation
-
-instance [Monad n] {s} :
-    Std.Iterators.IteratorLoopPartial (SplitInclusiveIterator pat s) Id n :=
   .defaultImplementation
 
 end SplitInclusiveIterator
@@ -519,7 +505,7 @@ Examples:
  * {lean}`"tea".toSlice.contains (fun (c : Char) => c == 'X') = false`
  * {lean}`"coffee tea water".toSlice.contains "tea" = true`
 -/
-@[specialize pat]
+@[specialize pat, suggest_for String.Slice.some]
 def contains (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
   let searcher := ToForwardSearcher.toSearcher pat s
   searcher.any (· matches .matched ..)
@@ -529,7 +515,7 @@ def any (s : Slice) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
   s.contains pat
 
 /--
-Checks whether a slice only consists of matches of the pattern {name}`pat` anywhere.
+Checks whether a slice only consists of matches of the pattern {name}`pat`.
 
 Short-circuits at the first pattern mis-match.
 
@@ -640,14 +626,7 @@ instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (RevSplitIterat
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (RevSplitIterator ρ s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] :
-    Std.Iterators.IteratorCollectPartial (RevSplitIterator ρ s) m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (RevSplitIterator ρ s) m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (RevSplitIterator ρ s) m n :=
   .defaultImplementation
 
 end RevSplitIterator
@@ -921,13 +900,7 @@ instance [Pure m] : Std.Iterators.Finite (PosIterator s) m :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (PosIterator s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial (PosIterator s) m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (PosIterator s) m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (PosIterator s) m n :=
   .defaultImplementation
 
 docs_to_verso positions
@@ -1011,14 +984,7 @@ instance [Pure m] : Std.Iterators.Finite (RevPosIterator s) m :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect (RevPosIterator s) m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] :
-    Std.Iterators.IteratorCollectPartial (RevPosIterator s) m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop (RevPosIterator s) m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (RevPosIterator s) m n :=
   .defaultImplementation
 
 docs_to_verso revPositions
@@ -1098,13 +1064,7 @@ instance [Pure m] : Std.Iterators.Finite ByteIterator m :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect ByteIterator m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial ByteIterator m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop ByteIterator m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial ByteIterator m n :=
   .defaultImplementation
 
 docs_to_verso bytes
@@ -1185,13 +1145,7 @@ instance [Pure m] : Std.Iterators.Finite RevByteIterator m :=
 instance [Monad m] [Monad n] : Std.Iterators.IteratorCollect RevByteIterator m n :=
   .defaultImplementation
 
-instance [Monad m] [Monad n] : Std.Iterators.IteratorCollectPartial RevByteIterator m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.Iterators.IteratorLoop RevByteIterator m n :=
-  .defaultImplementation
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial RevByteIterator m n :=
   .defaultImplementation
 
 docs_to_verso revBytes
@@ -1249,7 +1203,8 @@ def foldr {α : Type u} (f : Char → α → α) (init : α) (s : Slice) : α :=
 Checks whether the slice can be interpreted as the decimal representation of a natural number.
 
 A slice can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits.
+it are digits. Underscores ({lit}`_`) are allowed as digit separators for readability, but cannot appear
+at the start, at the end, or consecutively.
 
 Use {name (scope := "Init.Data.String.Slice")}`toNat?` or
 {name (scope := "Init.Data.String.Slice")}`toNat!` to convert such a slice to a natural number.
@@ -1260,21 +1215,39 @@ Examples:
  * {lean}`"5".toSlice.isNat = true`
  * {lean}`"05".toSlice.isNat = true`
  * {lean}`"587".toSlice.isNat = true`
+ * {lean}`"1_000".toSlice.isNat = true`
+ * {lean}`"100_000_000".toSlice.isNat = true`
  * {lean}`"-587".toSlice.isNat = false`
  * {lean}`" 5".toSlice.isNat = false`
  * {lean}`"2+3".toSlice.isNat = false`
  * {lean}`"0xff".toSlice.isNat = false`
+ * {lean}`"_123".toSlice.isNat = false`
+ * {lean}`"123_".toSlice.isNat = false`
+ * {lean}`"12__34".toSlice.isNat = false`
 -/
 @[inline]
 def isNat (s : Slice) : Bool :=
-  !s.isEmpty && s.all Char.isDigit
+  if s.isEmpty then
+    false
+  else
+    -- Track: isFirst, lastWasUnderscore, lastCharWasDigit, valid
+    let result := s.foldl (fun (isFirst, lastWasUnderscore, _lastCharWasDigit, valid) c =>
+      let isDigit := c.isDigit
+      let isUnderscore := c = '_'
+      let newValid := valid && (isDigit || isUnderscore) &&
+                      !(isFirst && isUnderscore) &&  -- Cannot start with underscore
+                      !(lastWasUnderscore && isUnderscore)  -- No consecutive underscores
+      (false, isUnderscore, isDigit, newValid))
+      (true, false, false, true)
+    -- Must be valid and last character must have been a digit (not underscore)
+    result.2.2.2 && result.2.2.1
 
 /--
 Interprets a slice as the decimal representation of a natural number, returning it. Returns
 {name}`none` if the slice does not contain a decimal natural number.
 
 A slice can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits.
+it are digits. Underscores ({lit}`_`) are allowed as digit separators and are ignored during parsing.
 
 Use {name}`isNat` to check whether {name}`toNat?` would return {name}`some`.
 {name (scope := "Init.Data.String.Slice")}`toNat!` is an alternative that panics instead of
@@ -1285,6 +1258,8 @@ Examples:
  * {lean}`"0".toSlice.toNat? = some 0`
  * {lean}`"5".toSlice.toNat? = some 5`
  * {lean}`"587".toSlice.toNat? = some 587`
+ * {lean}`"1_000".toSlice.toNat? = some 1000`
+ * {lean}`"100_000_000".toSlice.toNat? = some 100000000`
  * {lean}`"-587".toSlice.toNat? = none`
  * {lean}`" 5".toSlice.toNat? = none`
  * {lean}`"2+3".toSlice.toNat? = none`
@@ -1292,7 +1267,7 @@ Examples:
 -/
 def toNat? (s : Slice) : Option Nat :=
   if s.isNat then
-    some <| s.foldl (fun n c => n * 10 + (c.toNat - '0'.toNat)) 0
+    some <| s.foldl (fun n c => if c = '_' then n else n * 10 + (c.toNat - '0'.toNat)) 0
   else
     none
 
@@ -1301,7 +1276,7 @@ Interprets a slice as the decimal representation of a natural number, returning 
 slice does not contain a decimal natural number.
 
 A slice can be interpreted as a decimal natural number if it is not empty and all the characters in
-it are digits.
+it are digits. Underscores ({lit}`_`) are allowed as digit separators and are ignored during parsing.
 
 Use {name}`isNat` to check whether {name}`toNat!` would return a value. {name}`toNat?` is a safer
 alternative that returns {name}`none` instead of panicking when the string is not a natural number.
@@ -1310,10 +1285,11 @@ Examples:
  * {lean}`"0".toSlice.toNat! = 0`
  * {lean}`"5".toSlice.toNat! = 5`
  * {lean}`"587".toSlice.toNat! = 587`
+ * {lean}`"1_000".toSlice.toNat! = 1000`
 -/
 def toNat! (s : Slice) : Nat :=
   if s.isNat then
-    s.foldl (fun n c => n * 10 + (c.toNat - '0'.toNat)) 0
+    s.foldl (fun n c => if c = '_' then n else n * 10 + (c.toNat - '0'.toNat)) 0
   else
     panic! "Nat expected"
 
@@ -1338,6 +1314,85 @@ Examples:
 @[inline, expose]
 def front (s : Slice) : Char :=
   s.front?.getD default
+
+/--
+Checks whether the slice can be interpreted as the decimal representation of an integer.
+
+A slice can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Leading {lit}`+` characters are not allowed.
+
+Use {name (scope := "Init.Data.String.Slice")}`String.Slice.toInt?` or {name (scope := "Init.Data.String.Slice")}`String.toInt!` to convert such a string to an integer.
+
+Examples:
+ * {lean}`"".toSlice.isInt = false`
+ * {lean}`"-".toSlice.isInt = false`
+ * {lean}`"0".toSlice.isInt = true`
+ * {lean}`"-0".toSlice.isInt = true`
+ * {lean}`"5".toSlice.isInt = true`
+ * {lean}`"587".toSlice.isInt = true`
+ * {lean}`"-587".toSlice.isInt = true`
+ * {lean}`"+587".toSlice.isInt = false`
+ * {lean}`" 5".toSlice.isInt = false`
+ * {lean}`"2-3".toSlice.isInt = false`
+ * {lean}`"0xff".toSlice.isInt = false`
+-/
+def isInt (s : Slice) : Bool :=
+  if s.front = '-' then
+    (s.drop 1).isNat
+  else
+    s.isNat
+
+/--
+Interprets a slice as the decimal representation of an integer, returning it. Returns {lean}`none` if
+the string does not contain a decimal integer.
+
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Leading {lit}`+` characters are not allowed.
+
+Use {name}`Slice.isInt` to check whether {name}`Slice.toInt?` would return {lean}`some`.
+{name (scope := "Init.Data.String.Slice")}`Slice.toInt!` is an alternative that panics instead of
+returning {lean}`none` when the string is not an integer.
+
+Examples:
+ * {lean}`"".toSlice.toInt? = none`
+ * {lean}`"-".toSlice.toInt? = none`
+ * {lean}`"0".toSlice.toInt? = some 0`
+ * {lean}`"5".toSlice.toInt? = some 5`
+ * {lean}`"-5".toSlice.toInt? = some (-5)`
+ * {lean}`"587".toSlice.toInt? = some 587`
+ * {lean}`"-587".toSlice.toInt? = some (-587)`
+ * {lean}`" 5".toSlice.toInt? = none`
+ * {lean}`"2-3".toSlice.toInt? = none`
+ * {lean}`"0xff".toSlice.toInt? = none`
+-/
+def toInt? (s : Slice) : Option Int :=
+  if s.front = '-' then
+    Int.negOfNat <$> (s.drop 1).toNat?
+  else
+   Int.ofNat <$> s.toNat?
+
+/--
+Interprets a string as the decimal representation of an integer, returning it. Panics if the string
+does not contain a decimal integer.
+
+A string can be interpreted as a decimal integer if it only consists of at least one decimal digit
+and optionally {lit}`-` in front. Leading `+` characters are not allowed.
+
+Use {name}`Slice.isInt` to check whether {name}`Slice.toInt!` would return a value.
+{name}`Slice.toInt?` is a safer alternative that returns {lean}`none` instead of panicking when the
+string is not an integer.
+
+Examples:
+ * {lean}`"0".toSlice.toInt! = 0`
+ * {lean}`"5".toSlice.toInt! = 5`
+ * {lean}`"587".toSlice.toInt! = 587`
+ * {lean}`"-587".toSlice.toInt! = -587`
+-/
+@[inline]
+def toInt! (s : Slice) : Int :=
+  match s.toInt? with
+  | some v => v
+  | none   => panic "Int expected"
 
 /--
 Returns the last character in {name}`s`. If {name}`s` is empty, returns {name}`none`.

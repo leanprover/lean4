@@ -6,6 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
+public import Lean.LibrarySuggestions.Basic
+public import Lean.LibrarySuggestions.SineQuaNon
 import all Lean.LibrarySuggestions.SineQuaNon
 
 /-!

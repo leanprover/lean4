@@ -634,6 +634,24 @@ syntax (name := deprecated) "deprecated" (ppSpace ident)? (ppSpace str)?
     (" (" &"since" " := " str ")")? : attr
 
 /--
+The attribute `@[suggest_for ..]` on a declaration suggests likely ways in which
+someone might **incorrectly** refer to a definition.
+
+* `@[suggest_for String.endPos]` on the definition of `String.rawEndPos` suggests that `"str".endPos` might be correctable to `"str".rawEndPos`.
+* `@[suggest_for Either Result]` on the definition of `Except` suggests that `Either Nat String` might be correctable to `Except Nat String`.
+
+The namespace of the suggestions is always relative to the root namespace. In the namespace `X.Y`,
+adding an annotation `@[suggest_for Z.bar]` to `def Z.foo` will suggest `X.Y.Z.foo` only as a
+replacement for `Z.foo`. If your intent is to suggest `X.Y.Z.foo` as a replacement for
+`X.Y.Z.bar`, you must instead use the annotation `@[suggest_for X.Y.Z.bar]`.
+
+Suggestions can be defined for structure fields or inductive branches with the
+`attribute [suggest_for Exception] Except` syntax, and these attributes do not have to be added
+in the same module where the actual identifier was defined.
+-/
+syntax (name := suggest_for) "suggest_for" (ppSpace ident)+ : attr
+
+/--
 The `@[coe]` attribute on a function (which should also appear in a
 `instance : Coe A B := ⟨myFn⟩` declaration) allows the delaborator to show
 applications of this function as `↑` when printing expressions.
@@ -842,7 +860,7 @@ Position reporting:
   `#guard_msgs` appears.
 - `positions := false` does not report position info.
 
-For example, `#guard_msgs (error, drop all) in cmd` means to check warnings and drop
+For example, `#guard_msgs (error, drop all) in cmd` means to check errors and drop
 everything else.
 
 The command elaborator has special support for `#guard_msgs` for linting.

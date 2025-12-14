@@ -102,6 +102,23 @@ theorem fixF_eq (x : α) (acx : Acc r x) : fixF F x acx = F x (fun (y : α) (p :
   induction acx with
   | intro x r _ => exact rfl
 
+/-- Attaches to `x` the proof that `x` is accessible in the given well-founded relation.
+This can be used in recursive function definitions to explicitly use a different relation
+than the one inferred by default:
+
+```
+def otherWF : WellFounded Nat := …
+def foo (n : Nat) := …
+termination_by otherWF.wrap n
+```
+-/
+def wrap {α : Sort u} {r : α → α → Prop} (h : WellFounded r) (x : α) : {x : α // Acc r x} :=
+  ⟨_, h.apply x⟩
+
+@[simp]
+theorem val_wrap {α : Sort u} {r : α → α → Prop} (h : WellFounded r) (x : α) :
+    (h.wrap x).val = x := (rfl)
+
 end
 
 variable {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
@@ -438,6 +455,53 @@ theorem mkSkipLeft {α : Type u} {β : Type v} {b₁ b₂ : β} {s : β → β �
 end
 
 end PSigma
+
+namespace WellFounded
+
+variable {α : Sort u}
+variable {motive : α → Sort v}
+variable (h : α → Nat)
+variable (F : (x : α) → ((y : α) → InvImage (· < ·) h y x → motive y) → motive x)
+
+/-- Helper gadget that prevents reduction of `Nat.eager n` unless `n` evalutes to a ground term. -/
+def Nat.eager (n : Nat) : Nat :=
+  if Nat.beq n n = true then n else n
+
+theorem Nat.eager_eq (n : Nat) : Nat.eager n = n := ite_self n
+
+/--
+A well-founded fixpoint operator specialized for `Nat`-valued measures. Given a measure `h`, it expects
+its higher order function argument `F` to invoke its argument only on values `y` that are smaller
+than `x` with regard to `h`.
+
+In contrast to to `WellFounded.fix`, this fixpoint operator reduces on closed terms. (More precisely:
+when `h x` evalutes to a ground value)
+
+-/
+def Nat.fix : (x : α) → motive x :=
+  let rec go : ∀ (fuel : Nat) (x : α), (h x < fuel) → motive x :=
+    Nat.rec
+      (fun _ hfuel => (Nat.not_succ_le_zero _ hfuel).elim)
+      (fun _ ih x hfuel => F x (fun y hy => ih y (Nat.lt_of_lt_of_le hy (Nat.le_of_lt_add_one hfuel))))
+  fun x => go (Nat.eager (h x + 1)) x (Nat.eager_eq _ ▸ Nat.lt_add_one _)
+
+protected theorem Nat.fix.go_congr (x : α) (fuel₁ fuel₂ : Nat) (h₁ : h x < fuel₁) (h₂ : h x < fuel₂) :
+    Nat.fix.go h F fuel₁ x h₁ = Nat.fix.go h F fuel₂ x h₂ := by
+  induction fuel₁ generalizing x fuel₂ with
+  | zero => contradiction
+  | succ fuel₁ ih =>
+    cases fuel₂ with
+    | zero => contradiction
+    | succ fuel₂ =>
+      exact congrArg (F x) (funext fun y => funext fun hy => ih y fuel₂ _ _ )
+
+theorem Nat.fix_eq (x : α) :
+    Nat.fix h F x = F x (fun y _ => Nat.fix h F y) := by
+  unfold Nat.fix
+  simp [Nat.eager_eq]
+  exact congrArg (F x) (funext fun _ => funext fun _ => Nat.fix.go_congr ..)
+
+end WellFounded
 
 /--
 The `wfParam` gadget is used internally during the construction of recursive functions by

@@ -2,19 +2,15 @@ name = "test"
 
 [[lean_lib]]
 name = "Test"
-leanOptions.experimental.module = true
 
 [[lean_lib]]
 name = "TestFoo"
-leanOptions.experimental.module = true
 
 [[lean_exe]]
 name = "TestUse"
-leanOptions.experimental.module = true
 
 [[lean_exe]]
 name = "TestLocalUse"
-leanOptions.experimental.module = true
 
 [[require]]
 name = "useA"

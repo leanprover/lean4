@@ -837,7 +837,7 @@ Encountering an EOF does not close a handle. Subsequent reads may block and retu
 -/
 @[extern "lean_io_prim_handle_read"] opaque read (h : @& Handle) (bytes : USize) : IO ByteArray
 /--
-Writes the provided bytes to the the handle.
+Writes the provided bytes to the handle.
 
 Writing to a handle is typically buffered, and may not immediately modify the file on disk. Use
 `IO.FS.Handle.flush` to write changes to buffers to the associated device.

@@ -353,14 +353,6 @@ theorem zipWithM_eq_mapM_id_zipWith {m : Type v → Type w} [Monad m] [LawfulMon
 
 /-! ### unzip -/
 
-@[deprecated fst_unzip (since := "2025-05-26")]
-theorem unzip_fst : (unzip l).fst = l.map Prod.fst := by
-  simp
-
-@[deprecated snd_unzip (since := "2025-05-26")]
-theorem unzip_snd : (unzip l).snd = l.map Prod.snd := by
-  simp
-
 @[grind =]
 theorem unzip_eq_map {xs : Array (α × β)} : unzip xs = (xs.map Prod.fst, xs.map Prod.snd) := by
   cases xs

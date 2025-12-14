@@ -159,9 +159,6 @@ theorem find?_singleton {a : α} {p : α → Bool} :
     findRev? p (xs.push a) = findRev? p xs := by
   cases xs; simp [h]
 
-@[deprecated findRev?_push_of_neg (since := "2025-06-12")]
-abbrev findRev?_cons_of_neg := @findRev?_push_of_neg
-
 @[grind =]
 theorem finRev?_push {xs : Array α} :
     findRev? p (xs.push a) = (Option.guard p a).or (xs.findRev? p) := by
@@ -170,9 +167,6 @@ theorem finRev?_push {xs : Array α} :
     all_goals simp [h]
   · rw [findRev?_push_of_pos, Option.guard_eq_some_iff.mpr ⟨rfl, h⟩]
     all_goals simp [h]
-
-@[deprecated finRev?_push (since := "2025-06-12")]
-abbrev findRev?_cons := @finRev?_push
 
 @[simp, grind =] theorem find?_eq_none : find? p xs = none ↔ ∀ x ∈ xs, ¬ p x := by
   cases xs; simp

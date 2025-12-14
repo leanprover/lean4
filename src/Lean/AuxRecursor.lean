@@ -28,7 +28,6 @@ builtin_initialize auxRecExt : TagDeclarationExtension ← mkTagDeclarationExten
 def markAuxRecursor (env : Environment) (declName : Name) : Environment :=
   auxRecExt.tag env declName
 
-@[export lean_is_aux_recursor]
 def isAuxRecursor (env : Environment) (declName : Name) : Bool :=
   auxRecExt.isTagged env declName
   -- TODO: use `markAuxRecursor` when they are defined
@@ -63,13 +62,31 @@ public def isSparseCasesOn (env : Environment) (declName : Name) : Bool :=
 public def isCasesOnLike (env : Environment) (declName : Name) : Bool :=
   isCasesOnRecursor env declName || isSparseCasesOn env declName
 
-builtin_initialize noConfusionExt : TagDeclarationExtension ← mkTagDeclarationExtension
+/--
+Shape information for no confusion lemmas.
+The `arity` does not include the final major argument (which is not there when the constructors differ)
+The regular no confusion lemma marks the lhs and rhs arguments for the compiler to look at and
+find the number of fields.
+The per-constructor no confusion lemmas know the number of (non-prop) fields statically.
+-/
+inductive NoConfusionInfo where
+  | regular (arity : Nat) (lhs : Nat) (rhs : Nat)
+  | perCtor (arity : Nat) (fields : Nat)
+deriving Inhabited
 
-def markNoConfusion (env : Environment) (n : Name) : Environment :=
-  noConfusionExt.tag env n
+def NoConfusionInfo.arity : NoConfusionInfo → Nat
+  | .regular arity _ _ => arity
+  | .perCtor arity _   => arity
 
-@[export lean_is_no_confusion]
+builtin_initialize noConfusionExt : MapDeclarationExtension NoConfusionInfo ← mkMapDeclarationExtension (asyncMode := .mainOnly)
+
+def markNoConfusion (env : Environment) (n : Name) (info : NoConfusionInfo) : Environment :=
+  noConfusionExt.insert env n info
+
 def isNoConfusion (env : Environment) (n : Name) : Bool :=
-  noConfusionExt.isTagged env n
+  noConfusionExt.contains env n
+
+def getNoConfusionInfo (env : Environment) (n : Name) : NoConfusionInfo :=
+  (noConfusionExt.find? env n).get!
 
 end Lean

@@ -15,29 +15,10 @@ extern "C" {
 #endif
 lean_object* l_String_toSlice(lean_object*);
 static lean_object* l_String_instToSlice___closed__0;
-LEAN_EXPORT lean_object* l_String_ToSlice_ctorIdx___boxed(lean_object*, lean_object*);
 static lean_object* l_String_instToSliceSlice___closed__0;
 lean_object* l_id___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_instToSlice;
 LEAN_EXPORT lean_object* l_String_instToSliceSlice;
-LEAN_EXPORT lean_object* l_String_ToSlice_ctorIdx(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_ToSlice_ctorIdx(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(0u);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_String_ToSlice_ctorIdx___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_String_ToSlice_ctorIdx(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
 static lean_object* _init_l_String_instToSliceSlice___closed__0() {
 _start:
 {

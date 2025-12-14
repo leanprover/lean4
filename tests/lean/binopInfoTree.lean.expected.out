@@ -55,6 +55,9 @@ fun n m l => ↑n + (↑m + ↑l) : Nat → Nat → Nat → Int
             ===>
             binop% HAdd.hAdd✝ n (m +' l)
             • [Term] ↑n + (↑m + ↑l) : Int @ ⟨7, 29⟩†-⟨7, 41⟩† @ Lean.Elab.Term.Op.elabBinOp
+              • [CustomInfo(Lean.Elab.Term.CoeExpansionTrace)]
+              • [CustomInfo(Lean.Elab.Term.CoeExpansionTrace)]
+              • [CustomInfo(Lean.Elab.Term.CoeExpansionTrace)]
               • [Term] ↑n + (↑m + ↑l) : Int @ ⟨7, 29⟩†-⟨7, 41⟩†
                 • [Completion-Id] HAdd.hAdd✝ : none @ ⟨7, 29⟩†-⟨7, 41⟩†
                 • [Term] n : Nat @ ⟨7, 29⟩-⟨7, 30⟩ @ Lean.Elab.Term.elabIdent

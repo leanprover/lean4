@@ -1,3 +1,6 @@
+-- set_option trace.Meta.Match.match true
+-- set_option trace.Meta.Match.matchEqs true
+
 def f (xs : List Nat) : Nat :=
   match xs with
   | [] => 1

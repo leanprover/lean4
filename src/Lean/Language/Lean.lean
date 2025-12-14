@@ -301,6 +301,28 @@ structure SetupImportsResult where
   plugins : Array System.FilePath := #[]
 
 /--
+Parses an option value from a string and inserts it into `opts`.
+The type of the option is determined from `decl`.
+-/
+def setOption (opts : Options) (decl : OptionDecl) (name : Name) (val : String)  : IO Options := do
+  match decl.defValue with
+  | .ofBool _ =>
+    match val with
+    | "true"  => return opts.insert name true
+    | "false" => return opts.insert name false
+    | _ =>
+      throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
+        it must be true/false"
+  | .ofNat _ =>
+    let some val := val.toNat?
+      | throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
+          it must be a natural number"
+    return opts.insert name val
+  | .ofString _ => return opts.insert name val
+  | _ => throw <| .userError s!"invalid -D parameter, configuration option '{name}' \
+            cannot be set in the command line, use set_option command"
+
+/--
 Parses values of options registered during import and left by the C++ frontend as strings.
 Removes `weak` prefixes from both parsed and unparsed options and fails if any option names remain
 unknown.
@@ -322,22 +344,7 @@ If the option is defined in a library, use '-D{`weak ++ name}' to set it conditi
     let .ofString val := val
       | opts' := opts'.insert name val  -- Already parsed
 
-    match decl.defValue with
-    | .ofBool _ =>
-      match val with
-      | "true"  => opts' := opts'.insert name true
-      | "false" => opts' := opts'.insert name false
-      | _ =>
-        throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
-          it must be true/false"
-    | .ofNat _ =>
-      let some val := val.toNat?
-        | throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
-            it must be a natural number"
-      opts' := opts'.insert name val
-    | .ofString _ => opts' := opts'.insert name val
-    | _ => throw <| .userError s!"invalid -D parameter, configuration option '{name}' \
-              cannot be set in the command line, use set_option command"
+    opts' ← setOption opts' decl name val
 
   return opts'
 
@@ -348,10 +355,10 @@ private def getNiceCommandStartPos? (stx : Syntax) : Option String.Pos.Raw := do
     stx := stx[1]
   stx.getPos?
 
-/-- Allow use of module system -/
+/-- No-op, deprecated -/
 register_builtin_option experimental.module : Bool := {
   defValue := false
-  descr := "Allow use of module system (experimental)"
+  descr := "no-op, deprecated"
 }
 
 /--
@@ -487,11 +494,6 @@ where
 
       let startTime := (← IO.monoNanosNow).toFloat / 1000000000
       let mut opts := setup.opts
-      -- HACK: no better way to enable in core with `USE_LAKE` off
-      if setup.mainModuleName.getRoot ∈ [`Init, `Std, `Lean, `Lake, `LakeMain] then
-        opts := experimental.module.setIfNotSet opts true
-      if !stx.raw[0].isNone && !experimental.module.get opts then
-        throw <| IO.Error.userError "`module` keyword is experimental and not enabled here"
       -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
       let (headerEnv, msgLog) ← Elab.processHeaderCore (leakEnv := true)
         stx.startPos setup.imports setup.isModule setup.opts .empty ctx.toInputContext

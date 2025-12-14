@@ -30,6 +30,7 @@ declare_config_elab elabCutsatConfig Grind.CutsatConfig
 declare_config_elab elabGrobnerConfig Grind.GrobnerConfig
 
 open Command Term in
+open Lean.Parser.Command.GrindCnstr in
 @[builtin_command_elab Lean.Parser.Command.grindPattern]
 def elabGrindPattern : CommandElab := fun stx => do
   match stx with
@@ -38,41 +39,97 @@ def elabGrindPattern : CommandElab := fun stx => do
   | `(local grind_pattern $thmName:ident => $terms,* $[$cnstrs?:grindPatternCnstrs]?) => go thmName terms cnstrs? .local
   | _ => throwUnsupportedSyntax
 where
+  findLHS (xs : Array Expr) (lhs : Syntax) : TermElabM (LocalDecl × Nat) := do
+    let lhsId := lhs.getId
+    let mut i := 0
+    for x in xs do
+      let xDecl ← x.fvarId!.getDecl
+      if xDecl.userName == lhsId then
+        return (xDecl, xs.size - i - 1)
+      i := i + 1
+    throwErrorAt lhs "invalid constraint, `{lhsId}` is not local variable of the theorem"
+
+  elabCnstrRHS (xs : Array Expr) (rhs : Syntax) (expectedType : Expr) : TermElabM Grind.CnstrRHS := do
+    /-
+    **Note**: We need better sanity checking here.
+    We must check whether the type of `rhs` is type correct with respect to
+    an arbitrary instantiation of `xs`. That is, we should use meta-variables
+    in the check. It is incorrect to use `xDecl.type`. For example, suppose the
+    type of `xDecl` is `α → β` where `α` and `β` are variables in `xs` occurring before
+    `xDecl`, and `rhsExpr` is `some : ?m → ?m`. The types `α → β =?= ?m → ?m` are
+    not definitionally equal, but `?α → ?β =?= ?m → ?m` are.
+    -/
+    let rhsExpr ← Term.elabTerm rhs expectedType
+    Term.synthesizeSyntheticMVars (postpone := .no) (ignoreStuckTC := true)
+    let rhsExpr ← instantiateMVars rhsExpr
+    if rhsExpr.hasSyntheticSorry then
+      throwErrorAt rhs "invalid constraint, rhs contains a synthetic `sorry`"
+    let rhsExpr := rhsExpr.eta
+    let { paramNames := levelNames, mvars, expr := rhs } ← abstractMVars rhsExpr
+    let numMVars := mvars.size
+    let rhs := rhs.abstract xs
+    return { levelNames, numMVars, expr := rhs }
+
+  elabProp (xs : Array Expr) (term : Syntax) : TermElabM Expr := do
+    let e ← Term.elabTermAndSynthesize term (Expr.sort 0)
+    let e ← instantiateMVars e
+    if e.hasSyntheticSorry then
+      throwErrorAt term "invalid proposition, it contains a synthetic `sorry`"
+    if e.hasMVar then
+      throwErrorAt term "invalid proposition, it contains metavariables{indentExpr e}"
+    return e.abstract xs
+
+  elabNotDefEq (xs : Array Expr) (lhs rhs : Syntax) : TermElabM Grind.EMatchTheoremConstraint := do
+    let (localDecl, lhsBVarIdx) ← findLHS xs lhs
+    let rhs ← elabCnstrRHS xs rhs localDecl.type
+    return .notDefEq lhsBVarIdx rhs
+
+  elabDefEq (xs : Array Expr) (lhs rhs : Syntax) : TermElabM Grind.EMatchTheoremConstraint := do
+    let (localDecl, lhsBVarIdx) ← findLHS xs lhs
+    let rhs ← elabCnstrRHS xs rhs localDecl.type
+    return .defEq lhsBVarIdx rhs
+
   elabCnstrs (xs : Array Expr) (cnstrs? : Option (TSyntax ``Parser.Command.grindPatternCnstrs))
       : TermElabM (List (Grind.EMatchTheoremConstraint)) := do
     let some cnstrs := cnstrs? | return []
     let cnstrs := cnstrs.raw[1].getArgs
     cnstrs.toList.mapM fun cnstr => do
-      -- **Note**: Hack because syntax matching is not working. Fix after another update stage0
-      let lhs := cnstr[0]
-      let rhs := cnstr[2]
-      let lhsId := lhs.getId
-      let mut i := 0
-      for x in xs do
-        let xDecl ← x.fvarId!.getDecl
-        if xDecl.userName == lhsId then
-          let bvarIdx := xs.size - i - 1
-          /-
-          **Note**: We need better sanity checking here.
-          We must check whether the type of `rhs` is type correct with respect to
-          an arbitrary instantiation of `xs`. That is, we should use meta-variables
-          in the check. It is incorrect to use `xDecl.type`. For example, suppose the
-          type of `xDecl` is `α → β` where `α` and `β` are variables in `xs` occurring before
-          `xDecl`, and `rhsExpr` is `some : ?m → ?m`. The types `α → β =?= ?m → ?m` are
-          not definitionally equal, but `?α → ?β =?= ?m → ?m` are.
-          -/
-          let rhsExpr ← Term.elabTerm rhs xDecl.type
-          Term.synthesizeSyntheticMVars (postpone := .no) (ignoreStuckTC := true)
-          let rhsExpr ← instantiateMVars rhsExpr
-          if rhsExpr.hasSyntheticSorry then
-            throwErrorAt rhs "invalid constraint, rhs contains a synthetic `sorry`"
-          let rhsExpr := rhsExpr.eta
-          let { paramNames := levelNames, mvars, expr := rhs } ← abstractMVars rhsExpr
-          let numMVars := mvars.size
-          let rhs := rhs.abstract xs
-          return { bvarIdx, levelNames, numMVars, rhs }
-        i := i + 1
-      throwErrorAt lhs "invalid constraint, `{lhsId}` is not local variable of the theorem"
+      let kind := cnstr.getKind
+      if kind == ``notDefEq then
+        elabNotDefEq xs cnstr[0] cnstr[2]
+      else if kind == ``defEq then
+        elabDefEq xs cnstr[0] cnstr[2]
+      else if kind == ``genLt then
+        return .genLt cnstr[2].toNat
+      else if kind == ``sizeLt then
+        let (_, lhs) ← findLHS xs cnstr[1]
+        return .sizeLt lhs cnstr[3].toNat
+      else if kind == ``depthLt then
+        let (_, lhs) ← findLHS xs cnstr[1]
+        return .depthLt lhs cnstr[3].toNat
+      else if kind == ``maxInsts then
+        return .maxInsts cnstr[2].toNat
+      else if kind == ``isValue then
+        let (_, lhs) ← findLHS xs cnstr[1]
+        return .isValue lhs false
+      else if kind == ``isStrictValue then
+        let (_, lhs) ← findLHS xs cnstr[1]
+        return .isValue lhs true
+      else if kind == ``notValue then
+        let (_, lhs) ← findLHS xs cnstr[1]
+        return .notValue lhs false
+      else if kind == ``notStrictValue then
+        let (_, lhs) ← findLHS xs cnstr[1]
+        return .notValue lhs true
+      else if kind == ``isGround then
+        let (_, lhs) ← findLHS xs cnstr[1]
+        return .isGround lhs
+      else if kind == ``Parser.Command.GrindCnstr.check then
+        return .check (← elabProp xs cnstr[1])
+      else if kind == ``Parser.Command.GrindCnstr.guard then
+        return .guard (← elabProp xs cnstr[1])
+      else
+        throwErrorAt cnstr "unexpected constraint"
 
   go (thmName : TSyntax `ident) (terms : Syntax.TSepArray `term ",")
       (cnstrs? : Option (TSyntax ``Parser.Command.grindPatternCnstrs))
@@ -277,24 +334,41 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
   let config ← elabGrindConfig configStx
   let config := { config with clean := false, trace, verbose, useSorry }
   let only := only.isSome
-  let params := if let some params := params? then params.getElems else #[]
+  let paramStxs := if let some params := params? then params.getElems else #[]
+  -- Extract term parameters (non-ident params) to include in the suggestion.
+  -- These are not tracked via E-matching, so we conservatively include them all.
+  -- Ident params resolve to global declarations and are tracked via E-matching.
+  -- Non-ident terms (like `show P by tac`) need to be preserved explicitly.
+  let termParamStxs : Array Grind.TParam := paramStxs.filter fun p =>
+    match p with
+    | `(Parser.Tactic.grindParam| $[$_:grindMod]? $_:ident) => false
+    | `(Parser.Tactic.grindParam| ! $[$_:grindMod]? $_:ident) => false
+    | `(Parser.Tactic.grindParam| - $_:ident) => false
+    | `(Parser.Tactic.grindParam| #$_:hexnum) => false
+    | _ => true
   let mvarId ← getMainGoal
-  let params ← mkGrindParams config only params mvarId
+  let params ← mkGrindParams config only paramStxs mvarId
   Grind.withProtectedMCtx config.abstractProof mvarId fun mvarId' => do
     let (tacs, _) ← Grind.GrindTacticM.runAtGoal mvarId' params do
       let finish ← Grind.Action.mkFinish
       let goal :: _ ← Grind.getGoals
-        | let tac ← `(tactic| grind only)
-          return #[tac]
+        | -- Goal was closed during initialization
+          let configStx' := filterSuggestionsFromGrindConfig configStx
+          if termParamStxs.isEmpty then
+            let tac ← `(tactic| grind $configStx':optConfig only)
+            return #[tac]
+          else
+            let tac ← `(tactic| grind $configStx':optConfig only [$termParamStxs,*])
+            return #[tac]
       Grind.liftGrindM do
         -- **Note**: If we get failures when using the first suggestion, we should test is using `saved`
         -- let saved ← saveState
         match (← finish.run goal) with
         | .closed seq =>
-          let configCtx' := filterSuggestionsFromGrindConfig configStx
-          let tacs ← Grind.mkGrindOnlyTactics configCtx' seq
+          let configStx' := filterSuggestionsFromGrindConfig configStx
+          let tacs ← Grind.mkGrindOnlyTactics configStx' seq termParamStxs
           let seq := Grind.Action.mkGrindSeq seq
-          let tac ← `(tactic| grind => $seq:grindSeq)
+          let tac ← `(tactic| grind $configStx':optConfig => $seq:grindSeq)
           let tacs := tacs.push tac
           return tacs
         | .stuck gs =>

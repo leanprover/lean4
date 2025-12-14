@@ -13,29 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lake_LoadConfig_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LoadConfig_lakeDir(lean_object*);
 extern lean_object* l_Lake_defaultLakeDir;
 static lean_object* l_Lake_LoadConfig_lakeDir___closed__0;
-LEAN_EXPORT lean_object* l_Lake_LoadConfig_ctorIdx___boxed(lean_object*);
 lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_LoadConfig_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_LoadConfig_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_LoadConfig_ctorIdx(x_1);
-lean_dec_ref(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lake_LoadConfig_lakeDir___closed__0() {
 _start:
 {
@@ -48,7 +29,7 @@ LEAN_EXPORT lean_object* l_Lake_LoadConfig_lakeDir(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lean_ctor_get(x_1, 5);
+x_2 = lean_ctor_get(x_1, 6);
 lean_inc_ref(x_2);
 lean_dec_ref(x_1);
 x_3 = l_Lake_LoadConfig_lakeDir___closed__0;

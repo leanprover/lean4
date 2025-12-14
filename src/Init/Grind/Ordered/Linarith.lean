@@ -123,26 +123,22 @@ def Poly.append (p₁ p₂ : Poly) : Poly :=
   | .nil => p₂
   | .add k x p₁ => .add k x (append p₁ p₂)
 
-def Poly.combine' (fuel : Nat) (p₁ p₂ : Poly) : Poly :=
-  match fuel with
-  | 0 => p₁.append p₂
-  | fuel + 1 => match p₁, p₂ with
+def Poly.combine (p₁ p₂ : Poly) : Poly :=
+  match p₁, p₂ with
     | .nil, p₂ => p₂
     | p₁, .nil => p₁
     | .add a₁ x₁ p₁, .add a₂ x₂ p₂ =>
       bif Nat.beq x₁ x₂ then
         let a := a₁ + a₂
         bif a == 0 then
-          combine' fuel p₁ p₂
+          combine p₁ p₂
         else
-          .add a x₁ (combine' fuel p₁ p₂)
+          .add a x₁ (combine p₁ p₂)
       else bif Nat.blt x₂ x₁ then
-        .add a₁ x₁ (combine' fuel p₁ (.add a₂ x₂ p₂))
+        .add a₁ x₁ (combine p₁ (.add a₂ x₂ p₂))
       else
-        .add a₂ x₂ (combine' fuel (.add a₁ x₁ p₁) p₂)
-
-def Poly.combine (p₁ p₂ : Poly) : Poly :=
-  combine' 100000000 p₁ p₂
+        .add a₂ x₂ (combine (.add a₁ x₁ p₁) p₂)
+  termination_by sizeOf p₁ + sizeOf p₂
 
 /-- Converts the given expression into a polynomial. -/
 def Expr.toPoly' (e : Expr) : Poly :=
@@ -205,17 +201,14 @@ theorem Poly.denote_append {α} [IntModule α] (ctx : Context α) (p₁ p₂ : P
 
 attribute [local simp] Poly.denote_append
 
-theorem Poly.denote_combine' {α} [IntModule α] (ctx : Context α) (fuel : Nat) (p₁ p₂ : Poly) : (p₁.combine' fuel p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
-  fun_induction p₁.combine' fuel p₂ <;>
+theorem Poly.denote_combine {α} [IntModule α] (ctx : Context α) (p₁ p₂ : Poly) : (p₁.combine p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
+  fun_induction p₁.combine p₂ <;>
     simp_all +zetaDelta [denote]
   next h _ =>
     rw [Int.add_comm] at h
     rw [add_left_comm, add_assoc, ← add_assoc, ← add_zsmul, h, zero_zsmul, zero_add]
   next => rw [add_zsmul]; ac_rfl
   all_goals ac_rfl
-
-theorem Poly.denote_combine {α} [IntModule α] (ctx : Context α) (p₁ p₂ : Poly) : (p₁.combine p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
-  simp [combine, denote_combine']
 
 attribute [local simp] Poly.denote_combine
 
@@ -284,7 +277,7 @@ def le_lt_combine_cert (p₁ p₂ p₃ : Poly) : Bool :=
 
 theorem le_lt_combine {α} [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] (ctx : Context α) (p₁ p₂ p₃ : Poly)
     : le_lt_combine_cert p₁ p₂ p₃ → p₁.denote' ctx ≤ 0 → p₂.denote' ctx < 0 → p₃.denote' ctx < 0 := by
-  simp [-Int.natAbs_pos, -Int.ofNat_pos, le_lt_combine_cert]; intro hp _ h₁ h₂; subst p₃; simp
+  simp [-Int.natAbs_pos, -Int.natCast_pos, le_lt_combine_cert]; intro hp _ h₁ h₂; subst p₃; simp
   replace h₁ := zsmul_nonpos (coe_natAbs_nonneg p₂.leadCoeff) h₁
   replace h₂ := zsmul_neg_iff (↑p₁.leadCoeff.natAbs) h₂ |>.mpr hp
   exact le_add_lt h₁ h₂
@@ -296,7 +289,7 @@ def lt_lt_combine_cert (p₁ p₂ p₃ : Poly) : Bool :=
 
 theorem lt_lt_combine {α} [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] (ctx : Context α) (p₁ p₂ p₃ : Poly)
     : lt_lt_combine_cert p₁ p₂ p₃ → p₁.denote' ctx < 0 → p₂.denote' ctx < 0 → p₃.denote' ctx < 0 := by
-  simp [-Int.natAbs_pos, -Int.ofNat_pos, lt_lt_combine_cert]; intro hp₁ hp₂ _ h₁ h₂; subst p₃; simp
+  simp [-Int.natAbs_pos, -Int.natCast_pos, lt_lt_combine_cert]; intro hp₁ hp₂ _ h₁ h₂; subst p₃; simp
   replace h₁ := zsmul_neg_iff (↑p₂.leadCoeff.natAbs) h₁ |>.mpr hp₁
   replace h₂ := zsmul_neg_iff (↑p₁.leadCoeff.natAbs) h₂ |>.mpr hp₂
   exact lt_add_lt h₁ h₂

@@ -389,9 +389,6 @@ theorem eraseIdx_append_of_size_le {xs : Array α} {k : Nat} (hk : xs.size ≤ k
   simp at hk
   simp [List.eraseIdx_append_of_length_le, *]
 
-@[deprecated eraseIdx_append_of_size_le (since := "2025-06-11")]
-abbrev eraseIdx_append_of_length_le := @eraseIdx_append_of_size_le
-
 @[grind =]
 theorem eraseIdx_append {xs ys : Array α} (h : k < (xs ++ ys).size) :
     eraseIdx (xs ++ ys) k =

@@ -97,6 +97,12 @@ def rot (n : Nat) (xs : Array α) : Array α :=
 
 
 /--
+Given {given}`α : Type` and {given}`x : α, y : α` with an instance of {givenInstance}`Add α`,
+{lean}`x + y : α`.
+-/
+def givens := ()
+
+/--
 Given {given}`xs : List α`, finds lists {given}`ys` and {given}`zs` such that {lean}`xs = ys ++ zs`
 and {lean}`∀x ∈ xs, p x` and {lean}`zs.head?.all (¬p ·)`.
 -/

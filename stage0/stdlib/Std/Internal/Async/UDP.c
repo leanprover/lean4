@@ -16,7 +16,6 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_setTTL(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recv___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_ofExcept___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__0___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__7___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__3___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_enterGroup_elim(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -38,7 +37,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_ctorIdx(uint8_t);
 static lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__1___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_setTTL___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1(lean_object*, uint64_t, lean_object*, lean_object*, lean_object*);
@@ -51,7 +49,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___00Std_Intern
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__8___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_uv_udp_bind(lean_object*, lean_object*);
 lean_object* lean_task_bind(lean_object*, lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_noConfusion___redArg(uint8_t, uint8_t);
 static lean_object* l_Std_Internal_IO_Async_UDP_Socket_sendAll___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__4(lean_object*, uint64_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_leaveGroup_elim(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -70,14 +67,12 @@ static lean_object* l_Std_Internal_IO_Async_UDP_Socket_send___closed__0;
 uint8_t l_IO_Promise_isResolved___redArg(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_noConfusion___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_setMulticastInterface(lean_object*, lean_object*);
 lean_object* lean_uv_udp_new();
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__3(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_sendAll___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_sendAll(lean_object*, lean_object*, lean_object*);
 lean_object* lean_uv_udp_set_membership(lean_object*, lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_noConfusion___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_setBroadcast(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__10(lean_object*, lean_object*, uint64_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_mk();
@@ -99,14 +94,10 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_setMulticastLoop(lea
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_setMulticastTTL(lean_object*, uint32_t);
 lean_object* lean_task_get_own(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_noConfusion___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_enterGroup_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_uv_udp_set_multicast_ttl(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_sendAll___lam__1___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_ctorIdx(lean_object*);
 static lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__5___closed__1;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recv___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_connect___boxed(lean_object*, lean_object*, lean_object*);
@@ -147,23 +138,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_connect(lean_object*
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_enterGroup_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_bind(lean_object*, lean_object*);
 lean_object* l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_ctorIdx(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_ctorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Internal_IO_Async_UDP_Socket_ctorIdx(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_ctorIdx(uint8_t x_1) {
 _start:
 {
@@ -207,13 +181,6 @@ x_3 = l_Std_Internal_IO_Async_UDP_Membership_toCtorIdx(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_ctorElim___redArg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_ctorElim(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -221,13 +188,11 @@ lean_inc(x_5);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_ctorElim___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_ctorElim___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Internal_IO_Async_UDP_Membership_ctorElim___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -241,11 +206,13 @@ lean_dec(x_2);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_leaveGroup_elim___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_ctorElim___redArg___boxed(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
-return x_1;
+lean_object* x_2; 
+x_2 = l_Std_Internal_IO_Async_UDP_Membership_ctorElim___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_leaveGroup_elim(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
@@ -255,13 +222,11 @@ lean_inc(x_4);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_leaveGroup_elim___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_leaveGroup_elim___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Internal_IO_Async_UDP_Membership_leaveGroup_elim___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_leaveGroup_elim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -274,11 +239,13 @@ lean_dec(x_4);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_enterGroup_elim___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_leaveGroup_elim___redArg___boxed(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
-return x_1;
+lean_object* x_2; 
+x_2 = l_Std_Internal_IO_Async_UDP_Membership_leaveGroup_elim___redArg(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_enterGroup_elim(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
@@ -288,13 +255,11 @@ lean_inc(x_4);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_enterGroup_elim___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_enterGroup_elim___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Std_Internal_IO_Async_UDP_Membership_enterGroup_elim___redArg(x_1);
-lean_dec(x_1);
-return x_2;
+lean_inc(x_1);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_enterGroup_elim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -307,61 +272,13 @@ lean_dec(x_4);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_noConfusion___redArg___lam__0(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_noConfusion___redArg(uint8_t x_1, uint8_t x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = l_Std_Internal_IO_Async_UDP_Membership_ctorIdx(x_1);
-x_4 = l_Std_Internal_IO_Async_UDP_Membership_ctorIdx(x_2);
-x_5 = lean_nat_dec_eq(x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
-x_6 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_UDP_Membership_noConfusion___redArg___lam__0___boxed), 1, 0);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_noConfusion(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_Internal_IO_Async_UDP_Membership_noConfusion___redArg(x_2, x_3);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_noConfusion___redArg___lam__0___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_enterGroup_elim___redArg___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Std_Internal_IO_Async_UDP_Membership_noConfusion___redArg___lam__0(x_1);
+x_2 = l_Std_Internal_IO_Async_UDP_Membership_enterGroup_elim___redArg(x_1);
 lean_dec(x_1);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_noConfusion___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; lean_object* x_5; 
-x_3 = lean_unbox(x_1);
-x_4 = lean_unbox(x_2);
-x_5 = l_Std_Internal_IO_Async_UDP_Membership_noConfusion___redArg(x_3, x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Membership_noConfusion___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; uint8_t x_6; lean_object* x_7; 
-x_5 = lean_unbox(x_2);
-x_6 = lean_unbox(x_3);
-x_7 = l_Std_Internal_IO_Async_UDP_Membership_noConfusion(x_1, x_5, x_6, x_4);
-return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_mk() {
@@ -474,6 +391,23 @@ return x_5;
 }
 }
 }
+static lean_object* _init_l_Std_Internal_IO_Async_UDP_Socket_sendAll___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("the promise linked to the Async was dropped", 43, 43);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_sendAll___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Internal_IO_Async_UDP_Socket_sendAll___lam__0(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_sendAll___lam__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -551,12 +485,12 @@ return x_20;
 }
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_UDP_Socket_sendAll___closed__0() {
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_sendAll___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("the promise linked to the Async was dropped", 43, 43);
-return x_1;
+lean_object* x_4; 
+x_4 = l_Std_Internal_IO_Async_UDP_Socket_sendAll___lam__1(x_1, x_2);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_sendAll(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -629,23 +563,6 @@ x_13 = 0;
 x_14 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), x_12, x_13, x_11, x_7);
 return x_14;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_sendAll___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Internal_IO_Async_UDP_Socket_sendAll___lam__0(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_sendAll___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Internal_IO_Async_UDP_Socket_sendAll___lam__1(x_1, x_2);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_sendAll___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -788,6 +705,15 @@ return x_5;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recv___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Internal_IO_Async_UDP_Socket_recv___lam__0(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recv___lam__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -865,6 +791,14 @@ return x_20;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recv___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_Internal_IO_Async_UDP_Socket_recv___lam__1(x_1, x_2);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recv(lean_object* x_1, uint64_t x_2) {
 _start:
 {
@@ -935,23 +869,6 @@ x_12 = 0;
 x_13 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), x_11, x_12, x_10, x_6);
 return x_13;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recv___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Internal_IO_Async_UDP_Socket_recv___lam__0(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recv___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Internal_IO_Async_UDP_Socket_recv___lam__1(x_1, x_2);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recv___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1025,6 +942,15 @@ x_4 = l_IO_ofExcept___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec_
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__3(lean_object* x_1) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_3, 0, x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__0(lean_object* x_1) {
 _start:
 {
@@ -1045,6 +971,226 @@ lean_inc_ref(x_4);
 lean_dec_ref(x_1);
 return x_4;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__1(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+uint8_t x_3; 
+x_3 = !lean_is_exclusive(x_1);
+if (x_3 == 0)
+{
+lean_object* x_4; 
+x_4 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_4, 0, x_1);
+return x_4;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_6, 0, x_5);
+x_7 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_7, 0, x_6);
+return x_7;
+}
+}
+else
+{
+uint8_t x_8; 
+x_8 = !lean_is_exclusive(x_1);
+if (x_8 == 0)
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_9 = lean_ctor_get(x_1, 0);
+x_10 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_10, 0, x_9);
+lean_ctor_set(x_1, 0, x_10);
+x_11 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_11, 0, x_1);
+return x_11;
+}
+else
+{
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_12 = lean_ctor_get(x_1, 0);
+lean_inc(x_12);
+lean_dec(x_1);
+x_13 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_13, 0, x_12);
+x_14 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_14, 0, x_13);
+x_15 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_15, 0, x_14);
+return x_15;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__1(x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0___closed__0() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0___closed__0;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+uint8_t x_3; 
+x_3 = !lean_is_exclusive(x_1);
+if (x_3 == 0)
+{
+lean_object* x_4; 
+x_4 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_4, 0, x_1);
+return x_4;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_6, 0, x_5);
+x_7 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_7, 0, x_6);
+return x_7;
+}
+}
+else
+{
+lean_object* x_8; 
+lean_dec_ref(x_1);
+x_8 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0___closed__1;
+return x_8;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__2(lean_object* x_1) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_7; 
+x_7 = lean_uv_udp_cancel_recv(x_1);
+if (lean_obj_tag(x_7) == 0)
+{
+uint8_t x_8; 
+x_8 = !lean_is_exclusive(x_7);
+if (x_8 == 0)
+{
+lean_ctor_set_tag(x_7, 1);
+x_3 = x_7;
+x_4 = lean_box(0);
+goto block_6;
+}
+else
+{
+lean_object* x_9; lean_object* x_10; 
+x_9 = lean_ctor_get(x_7, 0);
+lean_inc(x_9);
+lean_dec(x_7);
+x_10 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_10, 0, x_9);
+x_3 = x_10;
+x_4 = lean_box(0);
+goto block_6;
+}
+}
+else
+{
+uint8_t x_11; 
+x_11 = !lean_is_exclusive(x_7);
+if (x_11 == 0)
+{
+lean_ctor_set_tag(x_7, 0);
+x_3 = x_7;
+x_4 = lean_box(0);
+goto block_6;
+}
+else
+{
+lean_object* x_12; lean_object* x_13; 
+x_12 = lean_ctor_get(x_7, 0);
+lean_inc(x_12);
+lean_dec(x_7);
+x_13 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_13, 0, x_12);
+x_3 = x_13;
+x_4 = lean_box(0);
+goto block_6;
+}
+}
+block_6:
+{
+lean_object* x_5; 
+x_5 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_5, 0, x_3);
+return x_5;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__2___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__2(x_1);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__3___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__3(x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__1___closed__0() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Std_Internal_IO_Async_UDP_Socket_sendAll___closed__0;
+x_2 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_UDP_Socket_recv___lam__0___boxed), 2, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1125,14 +1271,12 @@ return x_20;
 }
 }
 }
-static lean_object* _init_l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__1___closed__0() {
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Internal_IO_Async_UDP_Socket_sendAll___closed__0;
-x_2 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_UDP_Socket_recv___lam__0___boxed), 2, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
+lean_object* x_5; 
+x_5 = l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__2(x_1, x_2, x_3);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__1(lean_object* x_1, lean_object* x_2, uint64_t x_3) {
@@ -1206,28 +1350,40 @@ return x_12;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint64_t x_5; lean_object* x_6; 
+x_5 = lean_unbox_uint64(x_3);
+lean_dec(x_3);
+x_6 = l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__1(x_1, x_2, x_5);
+lean_dec(x_2);
+return x_6;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1(lean_object* x_1, uint64_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_15; uint8_t x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; uint8_t x_30; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; uint8_t x_29; uint8_t x_37; 
 x_7 = lean_ctor_get(x_4, 0);
 x_8 = lean_ctor_get(x_4, 1);
 x_15 = lean_st_ref_take(x_7);
-x_16 = lean_unbox(x_15);
-x_17 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__0), 1, 0);
-if (x_16 == 0)
+x_16 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__0), 1, 0);
+x_37 = lean_unbox(x_15);
+lean_dec(x_15);
+if (x_37 == 0)
 {
 uint8_t x_38; 
 x_38 = 1;
-x_30 = x_38;
-goto block_37;
+x_29 = x_38;
+goto block_36;
 }
 else
 {
 uint8_t x_39; 
 x_39 = 0;
-x_30 = x_39;
-goto block_37;
+x_29 = x_39;
+goto block_36;
 }
 block_14:
 {
@@ -1239,274 +1395,88 @@ x_13 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
 return x_13;
 }
-block_29:
+block_28:
 {
-lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-x_20 = lean_unsigned_to_nat(0u);
-x_21 = lean_box_uint64(x_2);
-x_22 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__1___boxed), 4, 3);
-lean_closure_set(x_22, 0, x_20);
-lean_closure_set(x_22, 1, x_1);
-lean_closure_set(x_22, 2, x_21);
-x_23 = lean_io_as_task(x_22, x_20);
-x_24 = lean_task_bind(x_23, x_17, x_20, x_18);
-x_25 = lean_task_get_own(x_24);
-if (lean_obj_tag(x_25) == 0)
+lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+x_19 = lean_unsigned_to_nat(0u);
+x_20 = lean_box_uint64(x_2);
+x_21 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__1___boxed), 4, 3);
+lean_closure_set(x_21, 0, x_19);
+lean_closure_set(x_21, 1, x_1);
+lean_closure_set(x_21, 2, x_20);
+x_22 = lean_io_as_task(x_21, x_19);
+x_23 = lean_task_bind(x_22, x_16, x_19, x_17);
+x_24 = lean_task_get_own(x_23);
+if (lean_obj_tag(x_24) == 0)
 {
-lean_object* x_26; 
-x_26 = lean_ctor_get(x_25, 0);
-lean_inc(x_26);
-lean_dec_ref(x_25);
-x_9 = x_26;
+lean_object* x_25; 
+x_25 = lean_ctor_get(x_24, 0);
+lean_inc(x_25);
+lean_dec_ref(x_24);
+x_9 = x_25;
 x_10 = lean_box(0);
 goto block_14;
 }
 else
 {
-lean_object* x_27; lean_object* x_28; 
-x_27 = lean_io_promise_resolve(x_25, x_8);
-x_28 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_28, 0, x_27);
-return x_28;
+lean_object* x_26; lean_object* x_27; 
+x_26 = lean_io_promise_resolve(x_24, x_8);
+x_27 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_27, 0, x_26);
+return x_27;
 }
 }
-block_37:
+block_36:
 {
-uint8_t x_31; lean_object* x_32; lean_object* x_33; 
-x_31 = 1;
-x_32 = lean_box(x_31);
-x_33 = lean_st_ref_set(x_7, x_32);
-if (x_30 == 0)
+uint8_t x_30; lean_object* x_31; lean_object* x_32; 
+x_30 = 1;
+x_31 = lean_box(x_30);
+x_32 = lean_st_ref_set(x_7, x_31);
+if (x_29 == 0)
 {
-lean_object* x_34; 
-lean_dec_ref(x_17);
+lean_object* x_33; 
+lean_dec_ref(x_16);
 lean_dec_ref(x_3);
 lean_dec(x_1);
-x_34 = lean_apply_1(x_5, lean_box(0));
-return x_34;
+x_33 = lean_apply_1(x_5, lean_box(0));
+return x_33;
+}
+else
+{
+lean_object* x_34; 
+lean_dec_ref(x_5);
+x_34 = l_IO_ofExcept___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__0___redArg(x_3);
+if (lean_obj_tag(x_34) == 0)
+{
+lean_dec_ref(x_34);
+x_17 = x_29;
+x_18 = lean_box(0);
+goto block_28;
+}
+else
+{
+if (lean_obj_tag(x_34) == 0)
+{
+lean_dec_ref(x_34);
+x_17 = x_29;
+x_18 = lean_box(0);
+goto block_28;
 }
 else
 {
 lean_object* x_35; 
-lean_dec_ref(x_5);
-x_35 = l_IO_ofExcept___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__0___redArg(x_3);
-if (lean_obj_tag(x_35) == 0)
-{
-lean_dec_ref(x_35);
-x_18 = x_30;
-x_19 = lean_box(0);
-goto block_29;
-}
-else
-{
-if (lean_obj_tag(x_35) == 0)
-{
-lean_dec_ref(x_35);
-x_18 = x_30;
-x_19 = lean_box(0);
-goto block_29;
-}
-else
-{
-lean_object* x_36; 
-lean_dec_ref(x_17);
+lean_dec_ref(x_16);
 lean_dec(x_1);
-x_36 = lean_ctor_get(x_35, 0);
-lean_inc(x_36);
-lean_dec_ref(x_35);
-x_9 = x_36;
+x_35 = lean_ctor_get(x_34, 0);
+lean_inc(x_35);
+lean_dec_ref(x_34);
+x_9 = x_35;
 x_10 = lean_box(0);
 goto block_14;
 }
 }
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__1(lean_object* x_1) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-uint8_t x_3; 
-x_3 = !lean_is_exclusive(x_1);
-if (x_3 == 0)
-{
-lean_object* x_4; 
-x_4 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_4, 0, x_1);
-return x_4;
-}
-else
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_6, 0, x_5);
-x_7 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_7, 0, x_6);
-return x_7;
-}
-}
-else
-{
-uint8_t x_8; 
-x_8 = !lean_is_exclusive(x_1);
-if (x_8 == 0)
-{
-lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_9 = lean_ctor_get(x_1, 0);
-x_10 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_10, 0, x_9);
-lean_ctor_set(x_1, 0, x_10);
-x_11 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_11, 0, x_1);
-return x_11;
-}
-else
-{
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_12 = lean_ctor_get(x_1, 0);
-lean_inc(x_12);
-lean_dec(x_1);
-x_13 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_13, 0, x_12);
-x_14 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_14, 0, x_13);
-x_15 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_15, 0, x_14);
-return x_15;
-}
-}
-}
-}
-static lean_object* _init_l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0___closed__0;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0(lean_object* x_1) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-uint8_t x_3; 
-x_3 = !lean_is_exclusive(x_1);
-if (x_3 == 0)
-{
-lean_object* x_4; 
-x_4 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_4, 0, x_1);
-return x_4;
-}
-else
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_6, 0, x_5);
-x_7 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_7, 0, x_6);
-return x_7;
-}
-}
-else
-{
-lean_object* x_8; 
-lean_dec_ref(x_1);
-x_8 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0___closed__1;
-return x_8;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__2(lean_object* x_1) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_7; 
-x_7 = lean_uv_udp_cancel_recv(x_1);
-if (lean_obj_tag(x_7) == 0)
-{
-uint8_t x_8; 
-x_8 = !lean_is_exclusive(x_7);
-if (x_8 == 0)
-{
-lean_ctor_set_tag(x_7, 1);
-x_3 = x_7;
-x_4 = lean_box(0);
-goto block_6;
-}
-else
-{
-lean_object* x_9; lean_object* x_10; 
-x_9 = lean_ctor_get(x_7, 0);
-lean_inc(x_9);
-lean_dec(x_7);
-x_10 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_10, 0, x_9);
-x_3 = x_10;
-x_4 = lean_box(0);
-goto block_6;
-}
-}
-else
-{
-uint8_t x_11; 
-x_11 = !lean_is_exclusive(x_7);
-if (x_11 == 0)
-{
-lean_ctor_set_tag(x_7, 0);
-x_3 = x_7;
-x_4 = lean_box(0);
-goto block_6;
-}
-else
-{
-lean_object* x_12; lean_object* x_13; 
-x_12 = lean_ctor_get(x_7, 0);
-lean_inc(x_12);
-lean_dec(x_7);
-x_13 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_13, 0, x_12);
-x_3 = x_13;
-x_4 = lean_box(0);
-goto block_6;
-}
-}
-block_6:
-{
-lean_object* x_5; 
-x_5 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_5, 0, x_3);
-return x_5;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__3(lean_object* x_1) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_3, 0, x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__4(lean_object* x_1, uint64_t x_2, lean_object* x_3, lean_object* x_4) {
@@ -1572,6 +1542,17 @@ return x_8;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint64_t x_6; lean_object* x_7; 
+x_6 = lean_unbox_uint64(x_2);
+lean_dec(x_2);
+x_7 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__4(x_1, x_6, x_3, x_4);
+lean_dec_ref(x_3);
+return x_7;
+}
+}
 static lean_object* _init_l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__5___closed__0() {
 _start:
 {
@@ -1635,6 +1616,14 @@ lean_dec_ref(x_13);
 x_14 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__5___closed__1;
 return x_14;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__5___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__5(x_1, x_2);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__6(lean_object* x_1, uint64_t x_2, lean_object* x_3) {
@@ -1709,6 +1698,16 @@ x_12 = 0;
 x_13 = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), x_11, x_12, x_10, x_7);
 return x_13;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint64_t x_5; lean_object* x_6; 
+x_5 = lean_unbox_uint64(x_2);
+lean_dec(x_2);
+x_6 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__6(x_1, x_5, x_3);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__10(lean_object* x_1, lean_object* x_2, uint64_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -1891,6 +1890,16 @@ return x_42;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__10___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+uint64_t x_8; lean_object* x_9; 
+x_8 = lean_unbox_uint64(x_3);
+lean_dec(x_3);
+x_9 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__10(x_1, x_2, x_8, x_4, x_5, x_6);
+return x_9;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__7(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1959,6 +1968,14 @@ return x_24;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__7___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__7(x_1, x_2);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__8(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2024,6 +2041,15 @@ return x_9;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__8___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__8(x_1, x_2);
+lean_dec(x_2);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector(lean_object* x_1, uint64_t x_2) {
 _start:
 {
@@ -2059,14 +2085,6 @@ lean_ctor_set(x_13, 2, x_6);
 return x_13;
 }
 }
-LEAN_EXPORT lean_object* l_IO_ofExcept___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_IO_ofExcept___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__0___redArg(x_1);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_IO_ofExcept___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2075,23 +2093,22 @@ x_4 = l_IO_ofExcept___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec_
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_IO_ofExcept___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_5; 
-x_5 = l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__2(x_1, x_2, x_3);
-return x_5;
+lean_object* x_3; 
+x_3 = l_IO_ofExcept___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__0___redArg(x_1);
+return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint64_t x_5; lean_object* x_6; 
-x_5 = lean_unbox_uint64(x_3);
-lean_dec(x_3);
-x_6 = l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__1(x_1, x_2, x_5);
+uint64_t x_3; lean_object* x_4; 
+x_3 = lean_unbox_uint64(x_2);
 lean_dec(x_2);
-return x_6;
+x_4 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector(x_1, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -2103,105 +2120,6 @@ lean_dec(x_2);
 x_8 = l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1(x_1, x_7, x_3, x_4, x_5);
 lean_dec_ref(x_4);
 return x_8;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__1(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__2___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__2(x_1);
-lean_dec(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__3___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__3(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-uint64_t x_6; lean_object* x_7; 
-x_6 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
-x_7 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__4(x_1, x_6, x_3, x_4);
-lean_dec_ref(x_3);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__5___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__5(x_1, x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint64_t x_5; lean_object* x_6; 
-x_5 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
-x_6 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__6(x_1, x_5, x_3);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__10___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-uint64_t x_8; lean_object* x_9; 
-x_8 = lean_unbox_uint64(x_3);
-lean_dec(x_3);
-x_9 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__10(x_1, x_2, x_8, x_4, x_5, x_6);
-return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__7___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__7(x_1, x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__8___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__8(x_1, x_2);
-lean_dec(x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_recvSelector___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint64_t x_3; lean_object* x_4; 
-x_3 = lean_unbox_uint64(x_2);
-lean_dec(x_2);
-x_4 = l_Std_Internal_IO_Async_UDP_Socket_recvSelector(x_1, x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_UDP_Socket_getSockName(lean_object* x_1) {
@@ -2386,12 +2304,12 @@ l_Std_Internal_IO_Async_UDP_Socket_send___closed__1 = _init_l_Std_Internal_IO_As
 lean_mark_persistent(l_Std_Internal_IO_Async_UDP_Socket_send___closed__1);
 l_Std_Internal_IO_Async_UDP_Socket_send___closed__2 = _init_l_Std_Internal_IO_Async_UDP_Socket_send___closed__2();
 lean_mark_persistent(l_Std_Internal_IO_Async_UDP_Socket_send___closed__2);
-l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__1___closed__0 = _init_l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__1___closed__0();
-lean_mark_persistent(l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__1___closed__0);
 l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0___closed__0 = _init_l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0___closed__0();
 lean_mark_persistent(l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0___closed__0);
 l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0___closed__1 = _init_l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0___closed__1();
 lean_mark_persistent(l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__0___closed__1);
+l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__1___closed__0 = _init_l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__1___closed__0();
+lean_mark_persistent(l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___lam__1___closed__0);
 l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__5___closed__0 = _init_l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__5___closed__0();
 lean_mark_persistent(l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__5___closed__0);
 l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__5___closed__1 = _init_l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__5___closed__1();

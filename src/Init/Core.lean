@@ -201,6 +201,7 @@ An element of `α ⊕ β` is either an `a : α` wrapped in `Sum.inl` or a `b : �
 indication of which of the two types was chosen. The union of a singleton set with itself contains
 one element, while `Unit ⊕ Unit` contains distinct values `inl ()` and `inr ()`.
 -/
+@[suggest_for Either]
 inductive Sum (α : Type u) (β : Type v) where
   /-- Left injection into the sum type `α ⊕ β`. -/
   | inl (val : α) : Sum α β
@@ -377,7 +378,7 @@ class ForIn (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v))
   More information about the translation of `for` loops into `ForIn.forIn` is available in [the Lean
   reference manual](lean-manual://section/monad-iteration-syntax).
   -/
-  forIn {β} [Monad m] (xs : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β
+  forIn {β} (xs : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β
 
 export ForIn (forIn)
 
@@ -405,7 +406,7 @@ class ForIn' (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)
   More information about the translation of `for` loops into `ForIn'.forIn'` is available in [the
   Lean reference manual](lean-manual://section/monad-iteration-syntax).
   -/
-  forIn' {β} [Monad m] (x : ρ) (b : β) (f : (a : α) → a ∈ x → β → m (ForInStep β)) : m β
+  forIn' {β} (x : ρ) (b : β) (f : (a : α) → a ∈ x → β → m (ForInStep β)) : m β
 
 export ForIn' (forIn')
 
@@ -939,9 +940,7 @@ theorem HEq.subst {p : (T : Sort u) → T → Prop} (h₁ : a ≍ b) (h₂ : p �
 @[symm] theorem HEq.symm (h : a ≍ b) : b ≍ a :=
   h.rec (HEq.refl a)
 
-/-- Propositionally equal terms are also heterogeneously equal. -/
-theorem heq_of_eq (h : a = a') : a ≍ a' :=
-  Eq.subst h (HEq.refl a)
+
 
 /-- Heterogeneous equality is transitive. -/
 theorem HEq.trans (h₁ : a ≍ b) (h₂ : b ≍ c) : a ≍ c :=
@@ -1370,7 +1369,7 @@ instance {α : Type u} {p : α → Prop} [BEq α] [LawfulBEq α] : LawfulBEq {x 
 instance {α : Sort u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
   fun ⟨a, h₁⟩ ⟨b, h₂⟩ =>
     if h : a = b then isTrue (by subst h; exact rfl)
-    else isFalse (fun h' => Subtype.noConfusion h' (fun h' => absurd h' h))
+    else isFalse (fun h' => Subtype.noConfusion rfl .rfl (heq_of_eq h') (fun h' => absurd (eq_of_heq h') h))
 
 end Subtype
 
@@ -1429,8 +1428,8 @@ instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
     | isTrue e₁ =>
       match decEq b b' with
       | isTrue e₂  => isTrue (e₁ ▸ e₂ ▸ rfl)
-      | isFalse n₂ => isFalse fun h => Prod.noConfusion h fun _   e₂' => absurd e₂' n₂
-    | isFalse n₁ => isFalse fun h => Prod.noConfusion h fun e₁' _   => absurd e₁' n₁
+      | isFalse n₂ => isFalse fun h => Prod.noConfusion rfl rfl (heq_of_eq h) fun _   e₂' => absurd (eq_of_heq e₂') n₂
+    | isFalse n₁ => isFalse fun h => Prod.noConfusion rfl rfl (heq_of_eq h) fun e₁' _   => absurd (eq_of_heq e₁') n₁
 
 instance [BEq α] [BEq β] : BEq (α × β) where
   beq := fun (a₁, b₁) (a₂, b₂) => a₁ == a₂ && b₁ == b₂

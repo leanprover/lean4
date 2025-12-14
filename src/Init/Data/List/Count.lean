@@ -29,7 +29,7 @@ section countP
 
 variable {p q : α → Bool}
 
-@[simp] theorem countP_nil : countP p [] = 0 := rfl
+@[simp, grind =] theorem countP_nil : countP p [] = 0 := rfl
 
 protected theorem countP_go_eq_add {l} : countP.go p l n = n + countP.go p l 0 := by
   induction l generalizing n with
@@ -47,6 +47,7 @@ protected theorem countP_go_eq_add {l} : countP.go p l n = n + countP.go p l 0 :
 @[simp] theorem countP_cons_of_neg {l} (pa : ¬p a) : countP p (a :: l) = countP p l := by
   simp [countP, countP.go, pa]
 
+@[grind =]
 theorem countP_cons {a : α} {l : List α} : countP p (a :: l) = countP p l + if p a then 1 else 0 := by
   by_cases h : p a <;> simp [h]
 
@@ -66,7 +67,6 @@ theorem length_eq_countP_add_countP (p : α → Bool) {l : List α} : length l =
       · rfl
       · simp [h]
 
-@[grind =]  -- This to quite aggressive, as it introduces `filter` based reasoning whenever we see `countP`.
 theorem countP_eq_length_filter {l : List α} : countP p l = (filter p l).length := by
   induction l with
   | nil => rfl
@@ -75,7 +75,8 @@ theorem countP_eq_length_filter {l : List α} : countP p l = (filter p l).length
     then rw [countP_cons_of_pos h, ih, filter_cons_of_pos h, length]
     else rw [countP_cons_of_neg h, ih, filter_cons_of_neg h]
 
-@[grind =]
+grind_pattern countP_eq_length_filter => l.countP p, l.filter p
+
 theorem countP_eq_length_filter' : countP p = length ∘ filter p := by
   funext l
   apply countP_eq_length_filter
@@ -350,10 +351,6 @@ theorem filter_eq [DecidableEq α] {l : List α} (a : α) : l.filter (· = a) = 
   refine ⟨fun h => ?_, fun h => ?_⟩
   · simpa only [count_replicate_self] using h.count_le a
   · exact ((replicate_sublist_replicate a).2 h).trans <| filter_beq a ▸ filter_sublist
-
-@[deprecated replicate_sublist_iff (since := "2025-05-26")]
-theorem le_count_iff_replicate_sublist {l : List α} : n ≤ count a l ↔ replicate n a <+ l :=
-  replicate_sublist_iff.symm
 
 theorem replicate_count_eq_of_count_eq_length {l : List α} (h : count a l = length l) :
     replicate (count a l) a = l :=

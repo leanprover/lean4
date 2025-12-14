@@ -151,6 +151,15 @@ lean_dec(x_3);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_List_max_x3f___at___00Std_Sat_CNF_Clause_maxLiteral_spec__1___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_List_max_x3f___at___00Std_Sat_CNF_Clause_maxLiteral_spec__1(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_List_foldl___at___00List_max_x3f___at___00Std_Sat_CNF_Clause_maxLiteral_spec__1_spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -161,12 +170,12 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_List_max_x3f___at___00Std_Sat_CNF_Clause_maxLiteral_spec__1___boxed(lean_object* x_1) {
+static lean_object* _init_l_Std_Sat_CNF_maxLiteral___closed__0() {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_List_max_x3f___at___00Std_Sat_CNF_Clause_maxLiteral_spec__1(x_1);
-lean_dec(x_1);
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -205,15 +214,6 @@ x_2 = x_9;
 goto _start;
 }
 }
-}
-}
-static lean_object* _init_l_Std_Sat_CNF_maxLiteral___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_maxLiteral(lean_object* x_1) {
@@ -300,6 +300,16 @@ return x_2;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabelFin___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Sat_CNF_relabelFin___lam__0(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabelFin(lean_object* x_1) {
 _start:
 {
@@ -325,16 +335,6 @@ lean_closure_set(x_7, 0, x_6);
 x_8 = l_Std_Sat_CNF_relabel___redArg(x_7, x_1);
 return x_8;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabelFin___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Sat_CNF_relabelFin___lam__0(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 lean_object* initialize_Init_Data_Nat_Order(uint8_t builtin);

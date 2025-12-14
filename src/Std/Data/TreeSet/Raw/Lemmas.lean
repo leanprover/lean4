@@ -10,6 +10,7 @@ import Std.Data.TreeMap.Raw.Lemmas
 import Std.Data.DTreeMap.Raw.Lemmas
 public import Std.Data.TreeSet.Raw.Basic
 public import Init.Data.List.BasicAux
+public import Init.Data.Order.ClassesExtra
 
 @[expose] public section
 
@@ -115,6 +116,8 @@ theorem mem_insert [TransCmp cmp] (h : t.WF) {k a : α} :
 theorem contains_insert_self [TransCmp cmp] (h : t.WF) {k : α} :
     (t.insert k).contains k :=
   TreeMap.Raw.contains_insertIfNew_self h
+
+theorem mem_of_get_eq  {k v : α} {w} (_ : t.get k w = v) : k ∈ t := w
 
 theorem mem_insert_self [TransCmp cmp] (h : t.WF) {k : α} :
     k ∈ t.insert k :=
@@ -280,6 +283,10 @@ theorem get?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} (h' : 
       if h₂ : cmp k a = .eq ∧ ¬ k ∈ t then k
       else t.get a (mem_of_mem_insert' h h₁ h₂) :=
   TreeMap.Raw.getKey_insertIfNew h
+
+theorem toList_insert_perm {t : Raw α cmp} [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] (h : t.WF) {k : α} :
+    (t.insert k).toList.Perm (if k ∈ t then t.toList else k :: t.toList) :=
+  TreeMap.Raw.keys_insertIfNew_perm h
 
 @[simp, grind =]
 theorem get_erase [TransCmp cmp] (h : t.WF) {k a : α} {h'} :
@@ -811,6 +818,180 @@ theorem isEmpty_inter_iff [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
 
 end Inter
 
+section
+variable {m₁ m₂ : Raw α cmp}
+
+theorem Equiv.beq [TransCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁ ~m m₂) : beq m₁ m₂ :=
+  TreeMap.Raw.Const.Equiv.beq h₁ h₂ h.1
+
+theorem equiv_of_beq [TransCmp cmp] [LawfulEqCmp cmp] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁ == m₂): m₁ ~m m₂ :=
+  ⟨TreeMap.Raw.Const.equiv_of_beq h₁.1 h₂.1 h⟩
+
+theorem Equiv.beq_congr [TransCmp cmp] {m₃ m₄ : Raw α cmp} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : (m₁ == m₂) = (m₃ == m₄) :=
+  TreeMap.Raw.Const.Equiv.beq_congr h₁.1 h₂.1 h₃.1 h₄.1 w₁.1 w₂.1
+
+end
+
+section Diff
+
+variable {t₁ t₂ : Raw α cmp}
+
+@[simp]
+theorem diff_eq : t₁.diff t₂ = t₁ \ t₂ := by
+  simp only [SDiff.sdiff]
+
+/- contains -/
+@[simp]
+theorem contains_diff [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k : α} :
+    (t₁ \ t₂).contains k = (t₁.contains k && !t₂.contains k) :=
+  TreeMap.Raw.contains_diff h₁ h₂
+
+/- mem -/
+@[simp]
+theorem mem_diff_iff [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k : α} :
+    k ∈ t₁ \ t₂ ↔ k ∈ t₁ ∧ k ∉ t₂ :=
+  TreeMap.Raw.mem_diff_iff h₁ h₂
+
+theorem not_mem_diff_of_not_mem_left [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α}
+    (not_mem : k ∉ t₁) :
+    k ∉ t₁ \ t₂ :=
+  TreeMap.Raw.not_mem_diff_of_not_mem_left h₁ h₂ not_mem
+
+theorem not_mem_diff_of_mem_right [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α}
+    (mem : k ∈ t₂) :
+    k ∉ t₁ \ t₂ :=
+  TreeMap.Raw.not_mem_diff_of_mem_right h₁ h₂ mem
+
+theorem Equiv.diff_left [TransCmp cmp] {t₃ : Raw α cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) (equiv : t₁ ~m t₂) :
+    (t₁ \ t₃).Equiv (t₂ \ t₃) :=
+  ⟨TreeMap.Raw.Equiv.diff_left h₁ h₂ h₃ equiv.1⟩
+
+theorem Equiv.diff_right [TransCmp cmp] {t₃ : Raw α cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) (equiv : t₂ ~m t₃) :
+    (t₁ \ t₂).Equiv (t₁ \ t₃) :=
+  ⟨TreeMap.Raw.Equiv.diff_right h₁ h₂ h₃ equiv.1⟩
+
+theorem Equiv.diff_congr [TransCmp cmp] {t₃ t₄ : Raw α cmp}
+    (h₁ : t₁.WF) (h₂ : t₂.WF) (h₃ : t₃.WF) (h₄ : t₄.WF)
+    (equiv₁ : t₁ ~m t₃) (equiv₂ : t₂ ~m t₄) :
+    (t₁ \ t₂).Equiv (t₃ \ t₄) :=
+  ⟨TreeMap.Raw.Equiv.diff_congr h₁ h₂ h₃ h₄ equiv₁.1 equiv₂.1⟩
+
+/- get? -/
+theorem get?_diff [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} :
+    (t₁ \ t₂).get? k =
+    if k ∈ t₂ then none else t₁.get? k :=
+  TreeMap.Raw.getKey?_diff h₁ h₂
+
+theorem get?_diff_of_not_mem_right [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} (not_mem : k ∉ t₂) :
+    (t₁ \ t₂).get? k = t₁.get? k :=
+  TreeMap.Raw.getKey?_diff_of_not_mem_right h₁ h₂ not_mem
+
+theorem get?_diff_of_not_mem_left [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} (not_mem : k ∉ t₁) :
+    (t₁ \ t₂).get? k = none :=
+  TreeMap.Raw.getKey?_diff_of_not_mem_left h₁ h₂ not_mem
+
+theorem get?_diff_of_mem_right [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} (mem : k ∈ t₂) :
+    (t₁ \ t₂).get? k = none :=
+  TreeMap.Raw.getKey?_diff_of_mem_right h₁ h₂ mem
+
+/- get -/
+theorem get_diff [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF)
+    {k : α} {h_mem : k ∈ t₁ \ t₂} :
+    (t₁ \ t₂).get k h_mem =
+    t₁.get k ((mem_diff_iff h₁ h₂).1 h_mem).1 :=
+  TreeMap.Raw.getKey_diff h₁ h₂
+
+/- getD -/
+theorem getD_diff [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k fallback : α} :
+    (t₁ \ t₂).getD k fallback =
+    if k ∈ t₂ then fallback else t₁.getD k fallback :=
+  TreeMap.Raw.getKeyD_diff h₁ h₂
+
+theorem getD_diff_of_not_mem_right [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k fallback : α} (not_mem : k ∉ t₂) :
+    (t₁ \ t₂).getD k fallback = t₁.getD k fallback :=
+  TreeMap.Raw.getKeyD_diff_of_not_mem_right h₁ h₂ not_mem
+
+theorem getD_diff_of_mem_right [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k fallback : α} (mem : k ∈ t₂) :
+    (t₁ \ t₂).getD k fallback = fallback :=
+  TreeMap.Raw.getKeyD_diff_of_mem_right h₁ h₂ mem
+
+theorem getD_diff_of_not_mem_left [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k fallback : α} (not_mem : k ∉ t₁) :
+    (t₁ \ t₂).getD k fallback = fallback :=
+  TreeMap.Raw.getKeyD_diff_of_not_mem_left h₁ h₂ not_mem
+
+/- get! -/
+theorem get!_diff [TransCmp cmp] [Inhabited α]
+    (h₁ : t₁.WF)
+    (h₂ : t₂.WF) {k : α} :
+    (t₁ \ t₂).get! k =
+    if k ∈ t₂ then default else t₁.get! k :=
+  TreeMap.Raw.getKey!_diff h₁ h₂
+
+theorem get!_diff_of_not_mem_right [Inhabited α]
+    [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α}
+    (not_mem : k ∉ t₂) :
+    (t₁ \ t₂).get! k = t₁.get! k :=
+  TreeMap.Raw.getKey!_diff_of_not_mem_right h₁ h₂ not_mem
+
+theorem get!_diff_of_mem_right [Inhabited α]
+    [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α}
+    (mem : k ∈ t₂) :
+    (t₁ \ t₂).get! k = default :=
+  TreeMap.Raw.getKey!_diff_of_mem_right h₁ h₂ mem
+
+theorem get!_diff_of_not_mem_left [Inhabited α]
+    [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) {k : α}
+    (not_mem : k ∉ t₁) :
+    (t₁ \ t₂).get! k = default :=
+  TreeMap.Raw.getKey!_diff_of_not_mem_left h₁ h₂ not_mem
+
+/- size -/
+theorem size_diff_le_size_left [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF) :
+    (t₁ \ t₂).size ≤ t₁.size :=
+  TreeMap.Raw.size_diff_le_size_left h₁ h₂
+
+theorem size_diff_eq_size_left [TransCmp cmp] (h₁ : t₁.WF)
+    (h₂ : t₂.WF)
+    (h : ∀ (a : α), a ∈ t₁ → a ∉ t₂) :
+    (t₁ \ t₂).size = t₁.size :=
+  TreeMap.Raw.size_diff_eq_size_left h₁ h₂ h
+
+theorem size_diff_add_size_inter_eq_size_left [TransCmp cmp]
+    (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (t₁ \ t₂).size + (t₁ ∩ t₂).size = t₁.size :=
+  TreeMap.Raw.size_diff_add_size_inter_eq_size_left h₁ h₂
+
+/- isEmpty -/
+@[simp]
+theorem isEmpty_diff_left [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁.isEmpty) :
+    (t₁ \ t₂).isEmpty = true :=
+  TreeMap.Raw.isEmpty_diff_left h₁ h₂ h
+
+theorem isEmpty_diff_iff [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    (t₁ \ t₂).isEmpty ↔ ∀ k, k ∈ t₁ → k ∈ t₂ :=
+  TreeMap.Raw.isEmpty_diff_iff h₁ h₂
+
+end Diff
+
 section monadic
 
 variable {δ : Type w} {m : Type w → Type w'}
@@ -1113,6 +1294,20 @@ theorem min?_insert [TransCmp cmp] (h : t.WF) {k} :
     (t.insert k).min? =
       some (t.min?.elim k fun k' => if cmp k k' = .lt then k else k') :=
   TreeMap.Raw.minKey?_insertIfNew h
+
+@[simp] theorem min?_toList [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α]
+    [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp]
+    (h : t.WF) :
+    t.toList.min? = t.min? :=
+  TreeMap.Raw.min?_keys h
+
+@[simp] theorem head?_toList [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α]
+    [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp]
+    (h : t.WF) :
+    t.toList.head? = t.min? :=
+  TreeMap.Raw.head?_keys h
 
 theorem isSome_min?_insert [TransCmp cmp] (h : t.WF) {k} :
     (t.insert k).min?.isSome :=
@@ -1522,11 +1717,6 @@ theorem max?_erase_le_max? [TransCmp cmp] (h : t.WF) {k km kme} :
   TreeMap.Raw.maxKey?_erase_le_maxKey? h
 
 @[grind =_] theorem max?_eq_getLast?_toList [TransCmp cmp] (h : t.WF) :
-    t.max? = t.toList.getLast? :=
-  TreeMap.Raw.maxKey?_eq_getLast?_keys h
-
-@[deprecated max?_eq_getLast?_toList (since := "2025-05-23")]
-theorem max?_eq_head?_toList [TransCmp cmp] (h : t.WF) :
     t.max? = t.toList.getLast? :=
   TreeMap.Raw.maxKey?_eq_getLast?_keys h
 

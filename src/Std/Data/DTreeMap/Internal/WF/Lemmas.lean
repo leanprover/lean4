@@ -1662,6 +1662,75 @@ theorem WF.eraseMany! {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ α] {l : ρ}
   (t.eraseMany! l).2 h (fun _ _ h' => h'.erase!)
 
 /-!
+### `eraseManyEntries`
+-/
+
+theorem eraseManyEntries!_eq_foldl {_ : Ord α} {l : List ((a : α) × β a)} {t : Impl α β} :
+    (t.eraseManyEntries! l).val = l.foldl (init := t) fun acc ⟨k, _⟩ => acc.erase! k := by
+  simp [eraseManyEntries!, ← List.foldl_hom Subtype.val, List.forIn_pure_yield_eq_foldl]
+
+theorem eraseManyEntries_eq_foldl {_ : Ord α} {l : List ((a : α) × β a)} {t : Impl α β} (h : t.Balanced) :
+    (t.eraseManyEntries l h).val = l.foldl (init := t) fun acc ⟨k, _⟩ => acc.erase! k := by
+  simp [eraseManyEntries, erase_eq_erase!, ← List.foldl_hom Subtype.val, List.forIn_pure_yield_eq_foldl]
+
+theorem eraseManyEntries_impl_eq_foldl {_ : Ord α} {t₁ : Impl α β} (h₁ : t₁.Balanced) {t₂ : Impl α β} :
+    (t₁.eraseManyEntries t₂ h₁).val = t₂.foldl (init := t₁) fun acc k _ => acc.erase! k := by
+  simp [foldl_eq_foldl]
+  rw [← eraseManyEntries_eq_foldl]
+  rotate_left
+  · exact h₁
+  · simp only [eraseManyEntries, pure, ForIn.forIn, Id.run_bind]
+    rw [forIn_eq_forIn_toListModel]
+    congr
+
+theorem eraseManyEntries!_impl_eq_foldl {_ : Ord α} {t₁ : Impl α β} {t₂ : Impl α β} :
+    (t₁.eraseManyEntries! t₂).val = t₂.foldl (init := t₁) fun acc k _ => acc.erase! k := by
+  simp [foldl_eq_foldl]
+  rw [← eraseManyEntries!_eq_foldl]
+  simp only [eraseManyEntries!, pure, ForIn.forIn, Id.run_bind]
+  rw [forIn_eq_forIn_toListModel]
+  congr
+
+theorem eraseManyEntries_impl_eq_eraseManyEntries! {_ : Ord α}
+    {t₁ t₂ : Impl α β} (h : t₁.Balanced) :
+    (t₁.eraseManyEntries t₂ h).val = (t₁.eraseManyEntries! t₂).val := by
+  simp only [eraseManyEntries_impl_eq_foldl, eraseManyEntries!_impl_eq_foldl]
+
+theorem eraseManyEntries_impl_perm_eraseList {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
+    {t₁ : Impl α β} (h₁ : t₁.WF) {t₂ : Impl α β} :
+    List.Perm (t₁.eraseManyEntries t₂ h₁.balanced).val.toListModel (t₁.toListModel.eraseList (t₂.toListModel.map (·.1))) := by
+  rw [eraseManyEntries_impl_eq_foldl]
+  rw [foldl_eq_foldl]
+  induction t₂.toListModel generalizing t₁ with
+  | nil => rfl
+  | cons e es ih =>
+    simp only [List.foldl_cons]
+    apply List.Perm.trans (@ih (t₁.erase! e.1) (h₁.erase!))
+    apply eraseList_perm_of_perm_first
+    · apply toListModel_erase!
+      · exact h₁.balanced
+      · exact h₁.ordered
+    · apply h₁.erase!.ordered.distinctKeys
+
+theorem toListModel_eraseManyEntries_impl {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
+    {t₁ : Impl α β} (h₁ : t₁.WF) {t₂ : Impl α β} :
+    List.Perm (t₁.eraseManyEntries t₂ h₁.balanced).val.toListModel (t₁.toListModel.filter (fun p => !List.contains (t₂.toListModel.map Sigma.fst) p.fst )) := by
+  apply List.Perm.trans
+  · apply eraseManyEntries_impl_perm_eraseList h₁
+  · apply eraseList_perm_filter_not_contains
+    · apply h₁.ordered.distinctKeys
+
+theorem toListModel_eraseManyEntries!_impl {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
+    {t₁ : Impl α β} (h₁ : t₁.WF) {t₂ : Impl α β} :
+    List.Perm (t₁.eraseManyEntries! t₂).val.toListModel (t₁.toListModel.filter (fun p => !List.contains (t₂.toListModel.map Sigma.fst) p.fst)) := by
+  rw [← eraseManyEntries_impl_eq_eraseManyEntries! h₁.balanced]
+  apply toListModel_eraseManyEntries_impl h₁
+
+theorem WF.eraseManyEntries! {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ ((a : α) × β a)] {l : ρ}
+    {t : Impl α β} (h : t.WF) : (t.eraseManyEntries! l).1.WF :=
+  (t.eraseManyEntries! l).2 h (fun _ _ h' => h'.erase!)
+
+/-!
 ### `insertMany`
 -/
 
@@ -1830,6 +1899,29 @@ theorem WF.union! {_ : Ord α} [TransOrd α]
   split
   . exact WF.insertManyIfNew! h₂
   . exact WF.insertMany! h₁
+
+theorem all_eq_all_toListModel {p : (a : α) → β a → Bool} {m : Impl α β} :
+    m.all p = m.toListModel.all (fun x => p x.1 x.2) := by
+  simp [all, ForIn.forIn, bind_pure_comp, map_pure, Id.run_bind]
+  rw [forIn_eq_forIn_toListModel, ← toList_eq_toListModel, forIn_eq_forIn']
+  induction m.toList with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [forIn'_eq_forIn, List.all_cons]
+    by_cases h : p hd.fst hd.snd = false
+    · simp [h]
+    · simp only [forIn'_eq_forIn] at ih
+      simp [h, ih]
+
+theorem beq_eq_beqModel {_ : Ord α} [BEq α] [TransOrd α] [LawfulBEq α] [LawfulBEqOrd α] [∀ k, BEq (β k)] {m₁ m₂ : Impl α β} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    Impl.beq m₁ m₂ = beqModel m₁.toListModel m₂.toListModel := by
+  simp [beq, beqModel, size_eq_length _ h₁.balanced, size_eq_length _ h₂.balanced, all_eq_all_toListModel,
+    get?_eq_getValueCast? h₂.ordered]
+
+theorem Const.beq_eq_beqModel {β : Type v} {_ : Ord α} [BEq α] [TransOrd α] [LawfulBEqOrd α] [BEq β] {m₁ m₂ : Impl α (fun _ => β)}  (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    beq m₁ m₂ = Const.beqModel m₁.toListModel m₂.toListModel := by
+  simp [beq, Const.beqModel, size_eq_length _ h₁.balanced, size_eq_length _ h₂.balanced, all_eq_all_toListModel,
+    get?_eq_getValue? h₂.ordered]
 
 theorem WF.constInsertMany! {β : Type v} {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ (α × β)] {l : ρ}
     {t : Impl α β} (h : t.WF) : (Const.insertMany! t l).1.WF :=
@@ -2047,6 +2139,40 @@ theorem toListModel_interSmallerFn {_ : Ord α} [TransOrd α] [BEq α] [LawfulBE
     rw [getEntry?_eq_getEntry?] at heq
     simp only [heq, hml]
     exact h₁.ordered
+
+/-!
+### diff
+-/
+
+theorem toListModel_diff {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
+    {t₁ t₂ : Impl α β} (h₁ : t₁.WF) (h₂ : t₂.WF) :
+    List.Perm (t₁.diff t₂ h₁.balanced).toListModel (t₁.toListModel.filter (fun p => !List.contains (t₂.toListModel.map Sigma.fst) p.fst)) := by
+  rw [diff]
+  split
+  · simp only [toListModel_filter]
+    conv =>
+      lhs
+      lhs
+      ext e
+      congr
+      rw [contains_eq_containsKey h₂.ordered]
+      rw [containsKey_eq_contains_map_fst]
+  · apply toListModel_eraseManyEntries_impl h₁
+
+theorem diff_eq_diff! [Ord α]
+    {t₁ t₂ : Impl α β} (h₁ : t₁.WF) :
+    (t₁.diff t₂ h₁.balanced) = t₁.diff! t₂ := by
+  simp only [diff, diff!]
+  split
+  · rw [filter_eq_filter!]
+  . rw [eraseManyEntries_impl_eq_eraseManyEntries! h₁.balanced]
+
+theorem WF.diff! {_ : Ord α} [TransOrd α]
+    {t₁ : Impl α β} (h₁ : t₁.WF) {t₂ : Impl α β} : (t₁.diff! t₂).WF := by
+  simp only [Impl.diff!]
+  split
+  . exact WF.filter! h₁
+  . exact WF.eraseManyEntries! h₁
 
 /-!
 ### interSmaller

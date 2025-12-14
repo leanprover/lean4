@@ -366,12 +366,6 @@ theorem idRun_findM? (p : α → Id Bool) (as : List α) :
     (findM? p as).run = as.find? (p · |>.run) :=
   findM?_pure _ _
 
-@[deprecated idRun_findM? (since := "2025-05-21")]
-theorem findM?_id (p : α → Id Bool) (as : List α) :
-    findM? (m := Id) p as = as.find? p :=
-  findM?_pure _ _
-
-
 /--
 Returns the first non-`none` result of applying the monadic function `f` to each element of the
 list, in order. Returns `none` if `f` returns `none` for all elements.
@@ -434,11 +428,6 @@ theorem idRun_findSomeM? (f : α → Id (Option β)) (as : List α) :
     (findSomeM? f as).run = as.findSome? (f · |>.run) :=
   findSomeM?_pure
 
-@[deprecated idRun_findSomeM? (since := "2025-05-21")]
-theorem findSomeM?_id (f : α → Id (Option β)) (as : List α) :
-    findSomeM? (m := Id) f as = as.findSome? f :=
-  findSomeM?_pure
-
 theorem findSome?_eq_findSomeM? {f : α → Option β} {as : List α} :
     as.findSome? f = (as.findSomeM? (pure (f := Id) <| f ·)).run := by
   simp
@@ -471,7 +460,7 @@ theorem findM?_eq_findSomeM? [Monad m] [LawfulMonad m] {p : α → m Bool} {as :
         loop as' b this
   loop as init ⟨[], rfl⟩
 
-instance : ForIn' m (List α) α inferInstance where
+instance [Monad m] : ForIn' m (List α) α inferInstance where
   forIn' := List.forIn'
 
 -- No separate `ForIn` instance is required because it can be derived from `ForIn'`.
@@ -485,7 +474,7 @@ instance : ForIn' m (List α) α inferInstance where
 @[simp, grind =] theorem forIn_nil [Monad m] {f : α → β → m (ForInStep β)} {b : β} : forIn [] b f = pure b :=
   rfl
 
-instance : ForM m (List α) α where
+instance [Monad m] : ForM m (List α) α where
   forM := List.forM
 
 -- We simplify `List.forM` to `forM`.

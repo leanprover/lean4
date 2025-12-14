@@ -186,7 +186,11 @@ def liftMacroM [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [M
       match (← expandMacroImpl? env stx) with
       | some (_, stx?) => liftExcept stx?
       | none           => return none
-    hasDecl          := fun declName => return env.contains declName
+    hasDecl          := fun declName => do
+      -- this is used (by mkUnusedBaseName) to find available names, so check
+      -- for both private and public names
+      let env := env.setExporting false
+      return env.contains (mkPrivateName env declName) || env.contains (privateToUserName declName)
     getCurrNamespace := return currNamespace
     resolveNamespace := fun n => return ResolveName.resolveNamespace env currNamespace openDecls n
     resolveGlobalName := fun n => return ResolveName.resolveGlobalName env opts currNamespace openDecls n

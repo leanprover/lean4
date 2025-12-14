@@ -40,6 +40,7 @@ structure ProofM.State where
   exprDecls     : Std.HashMap LinExpr Expr := {}
   ringPolyDecls : Std.HashMap CommRing.Poly Expr := {}
   ringExprDecls : Std.HashMap RingExpr Expr := {}
+  ringVarDecls  : Std.HashMap Var Expr := {}
 
 structure ProofM.Context where
   ctx     : Expr
@@ -90,6 +91,9 @@ def mkRingPolyDecl (p : CommRing.Poly) : ProofM Expr := do
 def mkRingExprDecl (e : RingExpr) : ProofM Expr := do
   declare! ringExprDecls e
 
+def mkRingVarDecl (x : Var) : ProofM Expr := do
+  declare! ringVarDecls x
+
 private def mkContext (h : Expr) : ProofM Expr := do
   let varDecls     := (← get).varDecls
   let polyDecls    := (← get).polyDecls
@@ -120,12 +124,17 @@ private def mkRingContext (h : Expr) : ProofM Expr := do
   unless (← isCommRing) do return h
   let ring ← withRingM do CommRing.getRing
   let vars := ring.vars
-  let usedVars     := collectMapVars (← get).ringPolyDecls (·.collectVars) >> collectMapVars (← get).ringExprDecls (·.collectVars) <| {}
+  let ringVarDecls := (← get).ringVarDecls
+  let usedVars     := collectMapVars (← get).ringPolyDecls (·.collectVars) >> collectMapVars (← get).ringExprDecls (·.collectVars) >> collectMapVars ringVarDecls collectVar <| {}
   let vars'        := usedVars.toArray
   let varRename    := mkVarRename vars'
   let vars         := vars'.map fun x => vars[x]!
   let h := mkLetOfMap (← get).ringExprDecls h `re (mkConst ``Grind.CommRing.Expr) fun e => toExpr <| e.renameVars varRename
   let h := mkLetOfMap (← get).ringPolyDecls h `rp (mkConst ``Grind.CommRing.Poly) fun p => toExpr <| p.renameVars varRename
+  -- Replace ring variable FVars with their renamed indices
+  let varFVars     := ringVarDecls.toArray.map (·.2)
+  let varIdsAsExpr := ringVarDecls.toArray.map fun (v, _) => toExpr (varRename v)
+  let h := h.replaceFVars varFVars varIdsAsExpr
   let h := h.abstract #[(← read).ringCtx]
   if h.hasLooseBVars then
     let struct ← getStruct
@@ -206,6 +215,14 @@ private def mkCommRingThmPrefix (declName : Name) : ProofM Expr := do
 
 /--
 Returns the prefix of a theorem with name `declName` where the first four arguments are
+`{α} [CommRing α] [NoNatZeroDivisors α] (rctx : Context α)`
+-/
+private def mkCommRingNoNatDivThmPrefix (declName : Name) : ProofM Expr := do
+  let s ← getStruct
+  return mkApp4 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getNoNatDivInst) (← getRingContext)
+
+/--
+Returns the prefix of a theorem with name `declName` where the first four arguments are
 `{α} [CommRing α] [LE α] (rctx : Context α)`
 -/
 private def mkCommRingLEThmPrefix (declName : Name) : ProofM Expr := do
@@ -244,6 +261,14 @@ private def mkCommRingLinOrdThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
   return mkApp8 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getLEInst) (← getLTInst) (← getLawfulOrderLTInst) (← getIsLinearOrderInst) (← getOrderedRingInst) (← getRingContext)
 
+/--
+Returns the prefix of a theorem with name `declName` where the first three arguments are
+`{α} [Field α] [IsCharP α 0]`
+-/
+private def mkFieldChar0ThmPrefix (declName : Name) : ProofM Expr := do
+  let s ← getStruct
+  return mkApp3 (mkConst declName [s.u]) s.type s.fieldInst?.get! s.charInst?.get!.1
+
 partial def RingIneqCnstr.toExprProof (c' : RingIneqCnstr) : ProofM Expr := do
   match c'.h with
   | .core e lhs rhs =>
@@ -252,6 +277,20 @@ partial def RingIneqCnstr.toExprProof (c' : RingIneqCnstr) : ProofM Expr := do
   | .notCore e lhs rhs =>
     let h' ← mkCommRingLinOrdThmPrefix (if c'.strict then ``Grind.CommRing.not_le_norm else ``Grind.CommRing.not_lt_norm)
     return mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl c'.p) eagerReflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
+  | .cancelDen c val x n =>
+    let h ← if c.strict then
+      mkCommRingLawfulPreOrdThmPrefix ``Grind.CommRing.lt_mul
+    else
+      mkCommRingPreOrdThmPrefix ``Grind.CommRing.le_mul
+    let p₁ := c.p.mulConst (val^n)
+    let p₁ ← mkRingPolyDecl p₁
+    let h := mkApp5 h (← mkRingPolyDecl c.p) (toExpr (val^n)) p₁ eagerReflBoolTrue (← c.toExprProof)
+    let h_eq_one := mkApp2 (← mkFieldChar0ThmPrefix ``Grind.CommRing.inv_int_eq') (toExpr val) eagerReflBoolTrue
+    let h' ← if c.strict then
+      mkCommRingLTThmPrefix ``Grind.CommRing.lt_cancel_var
+    else
+      mkCommRingLEThmPrefix ``Grind.CommRing.le_cancel_var
+    return mkApp7 h' (toExpr val) (← mkRingVarDecl x) p₁ (← mkRingPolyDecl c'.p) eagerReflBoolTrue h_eq_one h
 
 partial def RingEqCnstr.toExprProof (c' : RingEqCnstr) : ProofM Expr := do
   match c'.h with
@@ -262,12 +301,28 @@ partial def RingEqCnstr.toExprProof (c' : RingEqCnstr) : ProofM Expr := do
     let h ← c.toExprProof
     let h' ← mkCommRingThmPrefix ``Grind.CommRing.Stepwise.inv
     return mkApp4 h' (← mkRingPolyDecl c.p) (← mkRingPolyDecl c'.p) eagerReflBoolTrue h
+  | .cancelDen c val x n =>
+    let h ← mkCommRingThmPrefix ``Grind.CommRing.Stepwise.eq_mul
+    let p₁ := c.p.mulConst (val^n)
+    let p₁ ← mkRingPolyDecl p₁
+    let h := mkApp5 h (← mkRingPolyDecl c.p) (toExpr (val^n)) p₁ eagerReflBoolTrue (← c.toExprProof)
+    let h_eq_one := mkApp2 (← mkFieldChar0ThmPrefix ``Grind.CommRing.inv_int_eq') (toExpr val) eagerReflBoolTrue
+    let h' ← mkCommRingThmPrefix ``Grind.CommRing.eq_cancel_var
+    return mkApp7 h' (toExpr val) (← mkRingVarDecl x) p₁ (← mkRingPolyDecl c'.p) eagerReflBoolTrue h_eq_one h
 
 partial def RingDiseqCnstr.toExprProof (c' : RingDiseqCnstr) : ProofM Expr := do
   match c'.h with
   | .core a b lhs rhs =>
     let h' ← mkCommRingThmPrefix ``Grind.CommRing.diseq_norm
     return mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl c'.p) eagerReflBoolTrue (← mkDiseqProof a b)
+  | .cancelDen c val x n =>
+    let h ← mkCommRingNoNatDivThmPrefix ``Grind.CommRing.Stepwise.diseq_mul
+    let p₁ := c.p.mulConst (val^n)
+    let p₁ ← mkRingPolyDecl p₁
+    let h := mkApp5 h (← mkRingPolyDecl c.p) (toExpr (val^n)) p₁ eagerReflBoolTrue (← c.toExprProof)
+    let h_eq_one := mkApp2 (← mkFieldChar0ThmPrefix ``Grind.CommRing.inv_int_eq') (toExpr val) eagerReflBoolTrue
+    let h' ← mkCommRingThmPrefix ``Grind.CommRing.diseq_cancel_var
+    return mkApp7 h' (toExpr val) (← mkRingVarDecl x) p₁ (← mkRingPolyDecl c'.p) eagerReflBoolTrue h_eq_one h
 
 mutual
 partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' do

@@ -46,8 +46,6 @@ jobs:
       CCACHE_MAXSIZE: 400M
       # squelch error message about missing nixpkgs channel
       NIX_BUILD_SHELL: bash
-      # TODO
-      ASAN_OPTIONS: detect_leaks=0
       LSAN_OPTIONS: max_leaks=10
       # somehow MinGW clang64 (or cmake?) defaults to `g++` even though it doesn't exist
       CXX: c++
@@ -222,7 +220,7 @@ jobs:
           path: pack/*
       - name: Lean stats
         run: |
-          build/$TARGET_STAGE/bin/lean --stats src/Lean.lean -Dexperimental.module=true
+          build/$TARGET_STAGE/bin/lean --stats src/Lean.lean
         if: ${{ !matrix.cross }}
       - name: Test
         id: test

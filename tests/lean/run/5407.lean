@@ -63,12 +63,9 @@ example : EqExplicit (fun (f : α → β) => (fun g x => g x) f) id := by
   exact?
 
 
-/-! Suggests `expose_names` if a name in the syntax contains macro scopes -/
-/--
-info: Try this:
-  [apply] (expose_names; exact h)
--/
-#guard_msgs in
+/-! `exact?` no longer uses `solve_by_elim` first, so it can't find local hypotheses.
+However, star-indexed lemmas (like `Function.comp`) may find a proof via fallback. -/
+#guard_msgs (drop info) in
 example {P : Prop} : P → P := by
   intro
   exact?

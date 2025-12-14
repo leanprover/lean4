@@ -685,7 +685,7 @@ def get (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get t.inner a h
 
 @[inline, inherit_doc DTreeMap.get!]
-def get! (t : DTreeMap α β cmp) (a : α) [Inhabited β] : β :=
+def get! [Inhabited β] (t : DTreeMap α β cmp) (a : α) : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get! t.inner a
 
 @[inline, inherit_doc DTreeMap.getD]
@@ -842,10 +842,10 @@ def forM (f : (a : α) → β a → m PUnit) (t : DTreeMap α β cmp) : m PUnit 
 def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (t : DTreeMap α β cmp) : m δ :=
   t.inner.forIn f init
 
-instance : ForM m (DTreeMap α β cmp) ((a : α) × β a) where
+instance [Monad m] : ForM m (DTreeMap α β cmp) ((a : α) × β a) where
   forM t f := t.forM (fun a b => f ⟨a, b⟩)
 
-instance : ForIn m (DTreeMap α β cmp) ((a : α) × β a) where
+instance [Monad m] : ForIn m (DTreeMap α β cmp) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
 namespace Const
@@ -870,17 +870,11 @@ end Const
 
 /-- Check if any element satisfies the predicate, short-circuiting if a predicate fails. -/
 @[inline]
-def any (t : DTreeMap α β cmp) (p : (a : α) → β a → Bool) : Bool := Id.run $ do
-  for ⟨a, b⟩ in t do
-    if p a b then return true
-  return false
+def any (t : DTreeMap α β cmp) (p : (a : α) → β a → Bool) : Bool := t.inner.any p
 
 /-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
 @[inline]
-def all (t : DTreeMap α β cmp) (p : (a : α) → β a → Bool) : Bool := Id.run $ do
-  for ⟨a, b⟩ in t do
-    if p a b = false then return false
-  return true
+def all (t : DTreeMap α β cmp) (p : (a : α) → β a → Bool) : Bool := t.inner.all p
 
 /-- Returns a list of all keys present in the tree map in ascending  order. -/
 @[inline]
@@ -1053,6 +1047,29 @@ def inter (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.inter t₂.inner t₁.wf.balanced,  @Impl.WF.inter _ _ _ _ t₂.inner t₁.wf.balanced t₁.wf⟩
 
 instance : Inter (DTreeMap α β cmp) := ⟨inter⟩
+
+/--
+Compares two tree maps using Boolean equality on keys and values.
+
+Returns `true` if the maps contain the same key-value pairs, `false` otherwise.
+-/
+def beq [LawfulEqCmp cmp] [∀ k, BEq (β k)] (t₁ t₂ : DTreeMap α β cmp) : Bool :=
+  letI : Ord α := ⟨cmp⟩; t₁.inner.beq t₂.inner
+
+instance [LawfulEqCmp cmp] [∀ k, BEq (β k)] : BEq (DTreeMap α β cmp) := ⟨beq⟩
+
+@[inherit_doc DTreeMap.beq] def Const.beq {β : Type v} [BEq β] (t₁ t₂ : DTreeMap α (fun _ => β) cmp) : Bool :=
+  letI : Ord α := ⟨cmp⟩; Internal.Impl.Const.beq t₁.inner t₂.inner
+
+/--
+Computes the difference of the given tree maps.
+This function always iterates through the smaller map.
+-/
+def diff (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
+    letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.diff t₂.inner t₁.wf.balanced, @Impl.WF.diff α β _ t₁.inner t₁.wf t₂.inner⟩
+
+instance : SDiff (DTreeMap α β cmp) := ⟨diff⟩
+
 /--
 Erases multiple mappings from the tree map by iterating over the given collection and calling
 `erase`.
@@ -1060,7 +1077,6 @@ Erases multiple mappings from the tree map by iterating over the given collectio
 @[inline]
 def eraseMany {ρ} [ForIn Id ρ α] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.eraseMany l t.wf.balanced, t.wf.eraseMany⟩
-
 namespace Const
 
 variable {β : Type v}

@@ -664,32 +664,38 @@ where
 
   visitNoConfusion (e : Expr) : M Arg := do
     let .const declName _ := e.getAppFn | unreachable!
+    let info := getNoConfusionInfo (← getEnv) declName
     let typeName := declName.getPrefix
-    let .inductInfo inductVal ← getConstInfo typeName | unreachable!
-    let arity := inductVal.numParams + inductVal.numIndices + 1 /- motive -/ + 2 /- lhs/rhs-/ + 1 /- equality -/
-    etaIfUnderApplied e arity do
+    etaIfUnderApplied e info.arity do
       let args := e.getAppArgs
-      let lhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 1]!
-      let rhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 2]!
-      let lhs ← liftMetaM lhs.toCtorIfLit
-      let rhs ← liftMetaM rhs.toCtorIfLit
-      match (← liftMetaM <| Meta.isConstructorApp? lhs), (← liftMetaM <| Meta.isConstructorApp? rhs) with
-      | some lhsCtorVal, some rhsCtorVal =>
-        if lhsCtorVal.name == rhsCtorVal.name then
-          etaIfUnderApplied e (arity+1) do
-            let major := args[arity]!
+      let visitMajor (numNonPropFields : Nat) := do
+        etaIfUnderApplied e (info.arity+1) do
+          let major := args[info.arity]!
+          let major ← expandNoConfusionMajor major numNonPropFields
+          let major := mkAppN major args[(info.arity+1)...*]
+          visit major
+
+      match info with
+      | .regular _ lhsPos rhsPos =>
+        let lhs ← liftMetaM do Meta.whnf args[lhsPos]!
+        let rhs ← liftMetaM do Meta.whnf args[rhsPos]!
+        let lhs ← liftMetaM lhs.toCtorIfLit
+        let rhs ← liftMetaM rhs.toCtorIfLit
+        match (← liftMetaM <| Meta.isConstructorApp? lhs), (← liftMetaM <| Meta.isConstructorApp? rhs) with
+        | some lhsCtorVal, some rhsCtorVal =>
+          if lhsCtorVal.name == rhsCtorVal.name then
             let numNonPropFields ← liftMetaM <| Meta.forallTelescope lhsCtorVal.type fun params _ =>
               params[lhsCtorVal.numParams...*].foldlM (init := 0) fun n param => do
                 let type ← param.fvarId!.getType
                 return if !(← Meta.isProp type) then n + 1 else n
-            let major ← expandNoConfusionMajor major numNonPropFields
-            let major := mkAppN major args[(arity+1)...*]
-            visit major
-        else
-          let type ← toLCNFType (← liftMetaM <| Meta.inferType e)
-          mkUnreachable type
-      | _, _ =>
-        throwError "code generator failed, unsupported occurrence of `{.ofConstName declName}`"
+            visitMajor numNonPropFields
+          else
+            let type ← toLCNFType (← liftMetaM <| Meta.inferType e)
+            mkUnreachable type
+        | _, _ =>
+          throwError "code generator failed, unsupported occurrence of `{.ofConstName declName}`"
+      | .perCtor _ numNonPropFields =>
+        visitMajor numNonPropFields
 
   expandNoConfusionMajor (major : Expr) (numFields : Nat) : M Expr := do
     match numFields with

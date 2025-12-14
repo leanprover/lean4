@@ -115,7 +115,7 @@ lean_dec(x_176);
 if (x_177 == 0)
 {
 lean_free_object(x_174);
-lean_dec_ref(x_173);
+lean_dec(x_173);
 x_64 = x_7;
 x_65 = x_8;
 x_66 = x_9;
@@ -140,7 +140,7 @@ lean_free_object(x_174);
 x_183 = lean_st_ref_take(x_9);
 x_184 = lean_ctor_get(x_173, 0);
 lean_inc_ref(x_184);
-lean_dec_ref(x_173);
+lean_dec(x_173);
 x_185 = !lean_is_exclusive(x_183);
 if (x_185 == 0)
 {
@@ -188,7 +188,7 @@ goto block_167;
 else
 {
 lean_object* x_194; 
-lean_dec_ref(x_173);
+lean_dec(x_173);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
@@ -211,7 +211,7 @@ x_196 = lean_unbox(x_195);
 lean_dec(x_195);
 if (x_196 == 0)
 {
-lean_dec_ref(x_173);
+lean_dec(x_173);
 x_64 = x_7;
 x_65 = x_8;
 x_66 = x_9;
@@ -235,7 +235,7 @@ lean_object* x_202; lean_object* x_203; lean_object* x_204; lean_object* x_205; 
 x_202 = lean_st_ref_take(x_9);
 x_203 = lean_ctor_get(x_173, 0);
 lean_inc_ref(x_203);
-lean_dec_ref(x_173);
+lean_dec(x_173);
 x_204 = lean_ctor_get(x_202, 1);
 lean_inc_ref(x_204);
 x_205 = lean_ctor_get(x_202, 2);
@@ -277,7 +277,7 @@ goto block_167;
 else
 {
 lean_object* x_211; lean_object* x_212; 
-lean_dec_ref(x_173);
+lean_dec(x_173);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
@@ -295,7 +295,7 @@ return x_212;
 else
 {
 uint8_t x_213; 
-lean_dec_ref(x_173);
+lean_dec(x_173);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
@@ -1016,7 +1016,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec_ref(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_instantiateMVarsCore(x_7, x_1);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
@@ -1180,15 +1180,6 @@ return x_27;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___00Lean_Meta_kabstract_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_instantiateMVars___at___00Lean_Meta_kabstract_spec__0___redArg(x_1, x_2);
-lean_dec(x_2);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___00Lean_Meta_kabstract_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -1199,6 +1190,15 @@ lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___00Lean_Meta_kabstract_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_instantiateMVars___at___00Lean_Meta_kabstract_spec__0___redArg(x_1, x_2);
+lean_dec(x_2);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_kabstract___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {

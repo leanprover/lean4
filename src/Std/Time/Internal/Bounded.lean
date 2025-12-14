@@ -61,7 +61,7 @@ instance : LawfulEqOrd (Bounded rel n m) where
 variable {rel a b}
 
 /--
-A `Bounded` integer that the relation used is the the less-equal relation so, it includes all
+A `Bounded` integer where the relation used is the less-equal relation, so it includes all
 integers that `lo ≤ val ≤ hi`.
 -/
 abbrev LE := @Bounded LE.le
@@ -74,7 +74,7 @@ def cast {rel : Int → Int → Prop} {lo₁ lo₂ hi₁ hi₂ : Int} (h₁ : lo
   .mk b.val ⟨h₁ ▸ b.property.1, h₂ ▸ b.property.2⟩
 
 /--
-A `Bounded` integer that the relation used is the the less-than relation so, it includes all
+A `Bounded` integer where the relation used is the less-than relation, so it includes all
 integers that `lo < val < hi`.
 -/
 abbrev LT := @Bounded LT.lt

@@ -1,6 +1,6 @@
 - attributes:
-    description: stdlib
-    tags: [stdlib]
+    description: Init.Prelude async
+    tags: [other]
     time: &time
       #runner: time
       # alternative config: use `perf stat` for extended properties
@@ -18,109 +18,42 @@
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: |
-      set -euxo pipefail
-      bash -c 'set -eo pipefail; find ${BUILD:-../build/release}/stage3 -name "*.olean" -delete; lakeprof record make -C ${BUILD:-../build/release}/stage3 -j$(nproc) 2>&1 | ../tests/bench/accumulate_profile.py'
-      lakeprof report -p | awk '{if ($3) cum = $3} END {print "longest build path: " cum}'
-      lakeprof report -r | awk '{if ($3) cum = $3} END {print "longest rebuild path: " cum}'
-    max_runs: 2
-    parse_output: true
-  # initialize stage3 cmake + warmup
-  build_config:
-    cmd: |
-      bash -c 'make -C ${BUILD:-../build/release} stage3 -j$(nproc)'
-- attributes:
-    description: stdlib size
-    tags: [stdlib]
-  run_config:
-    cwd: ../../
-    cmd: |
-      set -euxo pipefail
-      echo -n 'lines: '
-      find src -name '*.lean' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'bytes .olean: '
-      find ${BUILD:-build/release}/stage3/lib/lean -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'bytes .olean.server: '
-      find ${BUILD:-build/release}/stage3/lib/lean -name '*.olean.server' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'bytes .olean.private: '
-      find ${BUILD:-build/release}/stage3/lib/lean -name '*.olean.private' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'bytes .ir: '
-      find ${BUILD:-build/release}/stage3/lib/lean -name '*.ir' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'lines C: '
-      find ${BUILD:-build/release}/stage3/lib/temp -name '*.c' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'lines C++: '
-      find src \( -name '*.h' -o -name '*.cpp' \) -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'max dynamic symbols: '
-      find ${BUILD:-build/release}/stage3/lib/lean -name '*.so' -exec bash -c 'nm --extern-only --defined-only {} | wc -l' \; | sort --reverse --numeric-sort | head -n1
-    max_runs: 1
-    runner: output
-- attributes:
-    description: Init size
-    tags: [stdlib]
-  run_config:
-    cwd: ../../
-    cmd: |
-      set -euxo pipefail
-      echo -n 'bytes .olean: '
-      find ${BUILD:-build/release}/stage3/lib/lean/Init -name '*.olean' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'bytes .olean.server: '
-      find ${BUILD:-build/release}/stage3/lib/lean/Init -name '*.olean.server' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
-      echo -n 'bytes .olean.private: '
-      find ${BUILD:-build/release}/stage3/lib/lean/Init -name '*.olean.private' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
-    max_runs: 1
-    runner: output
-- attributes:
-    description: libleanshared.so
-    tags: [stdlib]
-  run_config:
-    cmd: |
-      set -eu
-      echo -n 'binary size: '
-      wc -c ${BUILD:-../../build/release}/stage3/lib/lean/libleanshared.so | cut -d' ' -f 1
-    max_runs: 1
-    runner: output
-- attributes:
-    description: Init.Prelude async
-    tags: [other]
-  run_config:
-    <<: *time
-    cwd: ../../src
-    cmd: lean -Dexperimental.module=true Init/Prelude.lean
+    cmd: lean Init/Prelude.lean
 - attributes:
     description: Init.Data.List.Sublist async
     tags: [other]
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: lean -Dexperimental.module=true Init/Data/List/Sublist.lean
+    cmd: lean Init/Data/List/Sublist.lean
 - attributes:
     description: Std.Data.Internal.List.Associative
     tags: [other]
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: lean -Dexperimental.module=true Std/Data/Internal/List/Associative.lean
+    cmd: lean Std/Data/Internal/List/Associative.lean
 - attributes:
     description: Std.Data.DHashMap.Internal.RawLemmas
     tags: [other]
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: lean -Dexperimental.module=true Std/Data/DHashMap/Internal/RawLemmas.lean
+    cmd: lean Std/Data/DHashMap/Internal/RawLemmas.lean
 - attributes:
     description: Init.Data.BitVec.Lemmas
     tags: [other]
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: lean -Dexperimental.module=true Init/Data/BitVec/Lemmas.lean
+    cmd: lean Init/Data/BitVec/Lemmas.lean
 - attributes:
     description: Init.Data.List.Sublist re-elab -j4
     tags: [other]
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/List/Sublist.lean 10 -j4 -Dexperimental.module=true
+    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/List/Sublist.lean 10 -j4
     max_runs: 2
     parse_output: true
 - attributes:
@@ -129,7 +62,7 @@
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/BitVec/Lemmas.lean 3 -j4 -Dexperimental.module=true
+    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/BitVec/Lemmas.lean 3 -j4
     max_runs: 2
     parse_output: true
 - attributes:
@@ -138,7 +71,7 @@
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: lean --run ../script/benchReelabWatchdogRss.lean lean Init/Data/List/Sublist.lean 10 -j4 -Dexperimental.module=true
+    cmd: lean --run ../script/benchReelabWatchdogRss.lean lean Init/Data/List/Sublist.lean 10 -j4
     max_runs: 2
     parse_output: true
 # This benchmark uncovered the promise cycle in `realizeConst` (#11328)
@@ -148,7 +81,7 @@
   run_config:
     <<: *time
     cwd: ../../src
-    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/List/Basic.lean 10 -j4 -Dexperimental.module=true
+    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/List/Basic.lean 10 -j4
     max_runs: 2
     parse_output: true
 - attributes:
@@ -165,8 +98,9 @@
     cwd: ../compiler/
     cmd: |
       set -eu
+      for f in *.lean; do ../bench/compile.sh $f > /dev/null; done
       printf 'sum binary sizes: '
-      for f in *.lean; do ../bench/compile.sh $f; printf '%s\0' "$f.out"; done | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      for f in *.lean; do printf '%s\0' "$f.out"; done | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
     max_runs: 1
     runner: output
 - attributes:
@@ -333,9 +267,19 @@
 - attributes:
     description: language server startup
     tags: [other]
+  build_config:
+    cmd: ./compile.sh server_startup.lean
   run_config:
     <<: *time
-    cmd: lean -Dlinter.all=false --run server_startup.lean
+    cmd: ./server_startup.lean.out
+- attributes:
+    description: language server startup with ileans
+    tags: [other]
+  build_config:
+    cmd: ./compile.sh watchdogRss.lean
+  run_config:
+    <<: *time
+    cmd: ./watchdogRss.lean.out
 - attributes:
     description: ilean roundtrip
     tags: [other]
@@ -471,6 +415,18 @@
     <<: *time
     cmd: lean big_match_partial.lean
 - attributes:
+    description: big_match_nat
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean big_match_nat.lean
+- attributes:
+    description: big_match_nat_split
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean big_match_nat_split.lean
+- attributes:
     description: big_beq
     tags: [other]
   run_config:
@@ -515,7 +471,14 @@
     tags: [other]
   run_config:
     <<: *time
-    cmd: lean -Dexperimental.module=true workspaceSymbols.lean
+    cmd: lean workspaceSymbols.lean
+    max_runs: 2
+- attributes:
+    description: charactersIn
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean charactersIn.lean
     max_runs: 2
 - attributes:
     description: bv_decide_realworld
@@ -664,16 +627,16 @@
     tags: [other]
   run_config:
     <<: *time
-    cmd: lean -Dexperimental.module=true ../lean/run/grind_bitvec2.lean
+    cmd: lean ../lean/run/grind_bitvec2.lean
 - attributes:
     description: grind_list2.lean
     tags: [other]
   run_config:
     <<: *time
-    cmd: lean -Dexperimental.module=true ../lean/run/grind_list2.lean
+    cmd: lean ../lean/run/grind_list2.lean
 - attributes:
     description: grind_ring_5.lean
     tags: [other]
   run_config:
     <<: *time
-    cmd: lean -Dexperimental.module=true ../lean/run/grind_ring_5.lean
+    cmd: lean ../lean/run/grind_ring_5.lean

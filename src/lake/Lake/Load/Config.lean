@@ -41,8 +41,10 @@ public structure LoadConfig where
   pkgDir : FilePath := wsDir / relPkgDir
   /-- The package's Lake configuration file (relative to its directory). -/
   relConfigFile : FilePath := defaultConfigFile
-    /-- The full path to the loaded package's Lake configuration file. -/
+  /-- The full path to the loaded package's Lake configuration file. -/
   configFile : FilePath := pkgDir / relConfigFile
+  /-- The package's Lake manifest file (relative to its directory). -/
+  relManifestFile : FilePath := defaultManifestFile
   /-- Additional package overrides for this workspace load. -/
   packageOverrides : Array PackageEntry := #[]
   /-- A set of key-value Lake configuration options (i.e., {lit}`-K` settings). -/

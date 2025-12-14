@@ -43,7 +43,7 @@ public structure Package where
   /-- The path to the package's configuration file (relative to `dir`). -/
   relConfigFile : FilePath
   /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
-  relManifestFile : FilePath := config.manifestFile.getD defaultManifestFile |>.normalize
+  relManifestFile : FilePath
   /-- The package's scope (e.g., in Reservoir). -/
   scope : String
   /-- The URL to this package's Git remote. -/

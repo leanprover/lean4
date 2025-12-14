@@ -4,6 +4,7 @@ reset_grind_attrs%
 
 attribute [grind cases] Or
 attribute [grind =] List.length_nil List.length_cons Option.getD
+attribute [grind =] Nat.hasNotBit_eq
 
 abbrev Var := String
 

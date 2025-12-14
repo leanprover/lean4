@@ -21,8 +21,15 @@ def propagateCtorIdxUp (e : Expr) : GoalM Unit := e.withApp fun f xs => do
   unless xs.size == indInfo.numParams + indInfo.numIndices + 1 do return
   let a := xs.back!
   let aNode ← getRootENode a
-  unless aNode.ctor do return
-  let some conInfo ← isConstructorApp? aNode.self | return
+  unless aNode.ctor do
+    -- For `Nat`, constructors appear as offset, and these nodes do not have the ctor flag
+    if (← inferType aNode.self).isConstOf ``Nat then
+      unless (← (isOffset? aNode.self).run).isSome do
+        unless (← getNatValue? aNode.self).isSome do
+          return
+    else
+      return
+  let some conInfo ← isConstructorApp'? aNode.self | return
   if aNode.heqProofs then
     unless (← hasSameType a aNode.self) do
       let b := aNode.self

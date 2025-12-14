@@ -554,4 +554,13 @@ theorem eq_eq_subst {α} [IntModule α] (ctx : Context α) (x : Var) (p₁ p₂ 
     : eq_eq_subst_cert x p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx = 0 → p₃.denote' ctx = 0 := by
   simp [eq_eq_subst_cert]; intro _ h₁ h₂; subst p₃; simp [h₁, h₂]
 
+def imp_eq_cert (p : Poly) (x y : Var) : Bool :=
+  p == .add 1 x (.add (-1) y .nil)
+
+theorem imp_eq {α} [IntModule α] (ctx : Context α) (p : Poly) (x y : Var)
+    : imp_eq_cert p x y → p.denote' ctx = 0 → x.denote ctx = y.denote ctx := by
+  simp [imp_eq_cert]; intro; subst p; simp [Poly.denote]
+  rw [neg_zsmul, ← sub_eq_add_neg, one_zsmul, sub_eq_zero_iff]
+  simp
+
 end Lean.Grind.Linarith

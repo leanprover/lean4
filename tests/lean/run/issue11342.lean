@@ -158,3 +158,16 @@ info: private theorem deleteOne.match_1.congr_eq_3.{u_1} : ∀ {n : Nat} (motive
 -/
 #guard_msgs(pass trace, all) in
 #print sig deleteOne.match_1.congr_eq_3
+
+set_option trace.Meta.Match.matchEqs true
+
+def foo2 : Nat → Nat → Nat
+  | .succ _, 1 => 0
+  | .succ _, 2 => 1
+  | _,       3 => 2
+  | .succ _, 4 => 3
+  | _,       5 => 4
+  | _, .succ _ => 5
+  | _, _       => 6
+
+#print sig foo2.match_1.eq_6

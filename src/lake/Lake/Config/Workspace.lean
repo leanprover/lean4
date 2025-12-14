@@ -63,8 +63,8 @@ public hydrate_opaque_type OpaqueWorkspace Workspace
 namespace Workspace
 
 /-- **For internal use.** Whether this workspace is Lean itself.  -/
-@[inline] def bootstrap (ws : Workspace) : Bool :=
-  ws.root.bootstrap
+@[inline] def bootstrap (self : Workspace) : Bool :=
+  self.root.bootstrap
 
 /-- The path to the workspace's directory (i.e., the directory of the root package). -/
 @[inline] public def dir (self : Workspace) : FilePath :=
@@ -73,6 +73,10 @@ namespace Workspace
 /-- The workspace's configuration. -/
 @[inline] public def config (self : Workspace) : WorkspaceConfig :=
   self.root.config.toWorkspaceConfig
+
+/-- Whether this workspace supports multi-version resolution.  -/
+@[inline] public def isMultiVersion (self : Workspace) : Bool :=
+  self.config.multiVersion.getD false
 
 /-- The path to the workspace' Lake directory relative to {lean}`dir`. -/
 @[inline] public def relLakeDir (self : Workspace) : FilePath :=

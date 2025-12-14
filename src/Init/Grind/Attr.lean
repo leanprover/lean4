@@ -143,7 +143,7 @@ the `grind_pattern` command, which lets you specify how `grind` should
 match and use particular theorems.
 
 Example:
-- `grind [usr myThm]` means `grind` is using `myThm`, but with the
+- `grind [usr myThm]` means `grind` is using `myThm`, but with
   the custom pattern you defined with `grind_pattern`.
 -/
 syntax grindUsr    := &"usr"

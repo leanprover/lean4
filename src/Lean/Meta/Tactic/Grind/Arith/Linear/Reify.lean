@@ -63,10 +63,8 @@ partial def reify? (e : Expr) (skipVar : Bool) (generation : Nat := 0) : LinearM
   | NatCast.natCast _ _ a =>
     if (← getStruct).orderedRingInst?.isSome then
       assertNatCastNonneg a
-      asTopVar e
-    else
-      asTopVarCore e
-  | _ => asTopVarCore e
+    toTopVar e
+  | _ => toTopVar e
 where
   toVar (e : Expr) : LinearM LinExpr := do
     if (← alreadyInternalized e) then
@@ -77,14 +75,17 @@ where
   asVar (e : Expr) : LinearM LinExpr := do
     reportInstIssue e
     toVar e
-  asTopVarCore (e : Expr) : LinearM (Option LinExpr) := do
+  toTopVar (e : Expr) : LinearM (Option LinExpr) := do
+    if skipVar then
+      return none
+    else
+      return some (← toVar e)
+  asTopVar (e : Expr) : LinearM (Option LinExpr) := do
+    reportInstIssue e
     if skipVar then
       return none
     else
       return some (← asVar e)
-  asTopVar (e : Expr) : LinearM (Option LinExpr) := do
-    reportInstIssue e
-    asTopVarCore e
   isOfNatZero (e : Expr) : LinearM Bool := do
     isDefEqD e (← getStruct).ofNatZero
   processSMul (i a b : Expr) : LinearM (Option LinExpr) := do
@@ -114,6 +115,6 @@ where
       if (← getStruct).orderedRingInst?.isSome then
         assertNatCastNonneg a
       toVar e
-     | _ => toVar e
+    | _ => toVar e
 
 end  Lean.Meta.Grind.Arith.Linear

@@ -421,17 +421,6 @@ def execute_release_steps(repo, version, config):
     elif repo_name == "cslib":
         print(blue("Updating lakefile.toml..."))
         run_command(f'perl -pi -e \'s/"v4\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?"/"' + version + '"/g\' lakefile.*', cwd=repo_path)
-        
-        print(blue("Updating docs/lakefile.toml..."))
-        run_command(f'perl -pi -e \'s/"v4\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?"/"' + version + '"/g\' lakefile.*', cwd=repo_path / "docs")
-
-        # Update lean-toolchain in docs
-        print(blue("Updating docs/lean-toolchain..."))
-        docs_toolchain = repo_path / "docs" / "lean-toolchain"
-        with open(docs_toolchain, "w") as f:
-            f.write(f"leanprover/lean4:{version}\n")
-        print(green(f"Updated docs/lean-toolchain to leanprover/lean4:{version}"))
-
         run_command("lake update", cwd=repo_path, stream_output=True)
     elif dependencies:
         run_command(f'perl -pi -e \'s/"v4\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?"/"' + version + '"/g\' lakefile.*', cwd=repo_path)

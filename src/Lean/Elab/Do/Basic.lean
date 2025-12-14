@@ -604,7 +604,8 @@ where
         if ← (← liftM (m := TermElabM) get).pendingMVars.anyM isPostponedSyntheticMVarOfMonadicType then
           if ← Term.synthesizeSyntheticMVarsStep (postponeOnError := true) (runTactics := false) then
             loop ()
-          Term.tryPostpone
+          else
+            Term.tryPostpone
     loop ()
 
 /-- Elaborate the `DoElemCont` with the `deadCode` flag set to `deadSyntactically` to emit warnings. -/
@@ -979,9 +980,7 @@ def elabDo : Term.TermElab := fun e expectedType? => do
   let ctx ← mkContext expectedType?
   let cont ← DoElemCont.mkPure ctx.doBlockResultType
   let res ← elabDoSeq doSeq cont |>.run ctx |>.run' {}
-  Term.synthesizeSyntheticMVars
-  let res ← instantiateMVars res
-  trace[Elab.do] "{res}"
+  trace[Elab.do] "{← instantiateMVars res}"
   pure res
 
 syntax:arg (name := dooBlock) "doo" doSeq : term

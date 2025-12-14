@@ -96,6 +96,17 @@ abbrev ResolveT m := DepStackT <| StateT Workspace m
     inline <| recFetchAcyclic (·.baseName) go root
   return ws
 
+private def Workspace.setDepPkgs
+  (self : Workspace) (wsIdx : Nat) (depPkgs : Array Package)
+: Workspace := {self with
+  packages := self.packages.modify wsIdx ({· with depPkgs})
+  packages_wsIdx {i} := by
+    if h : wsIdx = i then
+      simp [h, Array.getElem_modify_self, self.packages_wsIdx]
+    else
+      simp [Array.getElem_modify_of_ne h, self.packages_wsIdx]
+}
+
 /-
 Recursively visits each node in a package's dependency graph, starting from
 the workspace package `root`. Each dependency missing from the workspace is
@@ -116,15 +127,17 @@ where
   @[specialize] go pkg recurse : ResolveT m Unit := do
     let start := (← getWorkspace).packages.size
     -- Materialize and load the missing direct dependencies of `pkg`
-    pkg.depConfigs.forRevM fun dep => do
-      let ws ← getWorkspace
-      if ws.packages.any (·.baseName == dep.name) then
-        return -- already handled in another branch
+    let depIdxs ← pkg.depConfigs.foldrM (init := Array.mkEmpty pkg.depConfigs.size) fun dep deps => do
+      if let some pkg ← findPackageByName? dep.name then
+        return deps.push pkg.wsIdx -- already handled in another branch
       if pkg.baseName = dep.name then
         error s!"{pkg.prettyName}: package requires itself (or a package with the same name)"
-      discard <| resolve pkg dep
+      let pkg ← resolve pkg dep
+      return deps.push pkg.wsIdx
     -- Recursively load the dependencies' dependencies
     (← getWorkspace).packages.forM recurse start
+    -- Add the package's dependencies to the package
+    modifyThe Workspace fun ws => ws.setDepPkgs pkg.wsIdx <| depIdxs.map (ws.packages[·]!)
 
 /--
 Adds monad state used to update the manifest.
@@ -317,10 +330,12 @@ def Workspace.updateAndMaterializeCore
     ws.updateToolchain matDeps
     let start := ws.packages.size
     let ws ← (deps.zip matDeps).foldlM (init := ws) fun ws (dep, matDep) => do
-      let (_, ws) ← addUpdatedDep dep matDep ws
+      let (_, ws) ← addUpdatedDep dep matDep ws -- TODO: produce correct `depPkgs`
       return ws
-    ws.packages.foldlM (init := ws) (start := start) fun ws pkg =>
+    let stop := ws.packages.size
+    let ws ← ws.packages.foldlM (init := ws) (start := start) fun ws pkg =>
       ws.resolveDepsCore (stack := [ws.root.baseName]) updateAndAddDep pkg
+    return ws.setDepPkgs ws.root.wsIdx <| (start...<stop).toArray.map (ws.packages[·]!)
   else
     ws.resolveDepsCore updateAndAddDep
 where

@@ -155,7 +155,12 @@ where
             trace[Meta.Match.matchEqs] "proveCondEqThm.go: grind_as_sorry is enabled, admitting goal"
             mvarId.admit (synthetic := true)
           else
-            let r ← Grind.main mvarId (← Grind.mkParams {})
+            let mut params ← Grind.mkParams {}
+            let s ← Grind.getEMatchTheorems
+            let thms := s.find (.decl ``Nat.hasNotBit_eq)
+            for thm in thms do
+              params := { params with extra := params.extra.push thm }
+            let r ← Grind.main mvarId params
             if r.hasFailed then throwError "grind failed"
             trace[Meta.Match.matchEqs] "solved by grind"
           return #[])

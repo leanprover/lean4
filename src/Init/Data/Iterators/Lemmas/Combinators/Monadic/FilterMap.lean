@@ -12,8 +12,8 @@ import all Init.Data.Iterators.Consumers.Monadic.Collect
 
 public section
 
-namespace Std.Iterators
-open Std.Internal
+namespace Std
+open Std.Internal Std.Iterators Std.Iterators.Types
 
 section Step
 
@@ -234,7 +234,8 @@ end Step
 section Lawful
 
 @[no_expose]
-instance {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type x}
+instance Iterators.Types.Map.instLawfulIteratorCollect {α β γ : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} {o : Type w → Type x}
     [Monad m] [Monad n] [Monad o] [LawfulMonad n] [LawfulMonad o] [Iterator α m β] [Finite α m]
     [IteratorCollect α m o] [LawfulIteratorCollect α m o]
     {lift : ⦃δ : Type w⦄ -> m δ → n δ} {f : β → PostconditionT n γ} [LawfulMonadLiftFunction lift] :
@@ -483,12 +484,12 @@ theorem IterM.toList_map {α β β' : Type w} {m : Type w → Type w'} [Monad m]
   let t' := type_of% (it.filterMap (some ∘ f))
   congr
   · simp [Map]
-  · simp [instIteratorMap, inferInstanceAs]
+  · simp [Map.instIterator, inferInstanceAs]
     congr
     simp
   · congr
     simp only [Map, PostconditionT.map_pure, Function.comp_apply]
-  · simp only [instIteratorMap, inferInstanceAs, Function.comp_apply]
+  · simp only [Map.instIterator, inferInstanceAs, Function.comp_apply]
     congr
     simp
   · simp only [map, mapWithPostcondition, InternalCombinators.map, Function.comp_apply, filterMap,
@@ -1262,4 +1263,4 @@ theorem IterM.all_map {α β β' : Type w} {m : Type w → Type w'}
 
 end AnyAll
 
-end Std.Iterators
+end Std

@@ -13,8 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Iterators_Iter_empty(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_Iter_empty(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Iter_empty(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Iter_empty(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 

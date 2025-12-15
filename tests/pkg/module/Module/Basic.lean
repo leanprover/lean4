@@ -524,3 +524,23 @@ meta def FooBar2 := 4
 #guard_msgs in
 @[suggest_for Bar3 FooBar1 FooBar2]
 public def FooBar3 := 4
+
+/-- #11672: Check that `by` creates aux theorems with correct type in presence of opaque defs. -/
+
+@[no_expose] public def five : Nat := 5
+
+public class A where
+  a : five = 5
+  b : Nat
+
+public instance : A where
+  a := by rfl
+  b := 0
+
+-- should NOT be `five = five`, which is not a valid proof of `A.a` in the public scope
+/--
+info: theorem instA._proof_1 : five = 5 :=
+Eq.refl five
+-/
+#guard_msgs in
+#print instA._proof_1

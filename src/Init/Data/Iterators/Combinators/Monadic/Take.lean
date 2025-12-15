@@ -17,7 +17,7 @@ public import Init.Data.Iterators.Internal.Termination
 This module provides the iterator combinator `IterM.take`.
 -/
 
-namespace Std.Iterators
+namespace Std
 
 variable {α : Type w} {m : Type w → Type w'} {β : Type w}
 
@@ -25,7 +25,7 @@ variable {α : Type w} {m : Type w → Type w'} {β : Type w}
 The internal state of the `IterM.take` iterator combinator.
 -/
 @[unbox]
-structure Take (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
+structure Iterators.Types.Take (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
   /--
   Internal implementation detail of the iterator library.
   Caution: For `take n`, `countdown` is `n + 1`.
@@ -39,6 +39,8 @@ structure Take (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α
   This proof term ensures that a `take` always produces a finite iterator from a productive one.
   -/
   finite : countdown > 0 ∨ Finite α m
+
+open Std.Iterators Std.Iterators.Types
 
 /--
 Given an iterator `it` and a natural number `n`, `it.take n` is an iterator that outputs
@@ -65,7 +67,7 @@ This combinator incurs an additional O(1) cost with each output of `it`.
 -/
 @[always_inline, inline]
 def IterM.take [Iterator α m β] (n : Nat) (it : IterM (α := α) m β) :=
-  toIterM (Take.mk (n + 1) it (Or.inl <| Nat.zero_lt_succ _)) m β
+  IterM.mk (Take.mk (n + 1) it (Or.inl <| Nat.zero_lt_succ _)) m β
 
 /--
 This combinator is only useful for advanced use cases.
@@ -91,7 +93,7 @@ This combinator incurs an additional O(1) cost with each output of `it`.
 -/
 @[always_inline, inline]
 def IterM.toTake [Iterator α m β] [Finite α m] (it : IterM (α := α) m β) :=
-  toIterM (Take.mk 0 it (Or.inr inferInstance)) m β
+  IterM.mk (Take.mk 0 it (Or.inr inferInstance)) m β
 
 theorem IterM.take.surjective_of_zero_lt {α : Type w} {m : Type w → Type w'} {β : Type w}
     [Iterator α m β] (it : IterM (α := Take α m) m β) (h : 0 < it.internalState.countdown) :
@@ -99,6 +101,8 @@ theorem IterM.take.surjective_of_zero_lt {α : Type w} {m : Type w → Type w'} 
   refine ⟨it.internalState.inner, it.internalState.countdown - 1, ?_⟩
   simp only [take, Nat.sub_add_cancel (m := 1) (n := it.internalState.countdown) (by omega)]
   rfl
+
+namespace Iterators.Types
 
 inductive Take.PlausibleStep [Iterator α m β] (it : IterM (α := Take α m) m β) :
     (step : IterStep (IterM (α := Take α m) m β) β) → Prop where
@@ -212,4 +216,4 @@ instance Take.instIteratorLoop {n : Type x → Type x'} [Monad m] [Monad n] [Ite
     IteratorLoop (Take α m) m n :=
   .defaultImplementation
 
-end Std.Iterators
+end Std.Iterators.Types

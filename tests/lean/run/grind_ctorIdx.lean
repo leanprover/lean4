@@ -1,11 +1,11 @@
 set_option warn.sorry false
+set_option grind.debug true
 
 inductive T where
 | con1 : Nat → T
 | con2 : T
 
 opaque double (n : Nat) : T := .con2
-
 
 example (heq_1 : double n = .con1 5) : (double n).ctorIdx = 0 := by
   grind

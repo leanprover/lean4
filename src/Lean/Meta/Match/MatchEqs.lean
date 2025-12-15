@@ -14,8 +14,8 @@ import Lean.Meta.Tactic.SplitIf
 import Lean.Meta.Tactic.CasesOnStuckLHS
 import Lean.Meta.Match.SimpH
 import Lean.Meta.Match.AltTelescopes
-import Lean.Meta.Match.SolveOverlap
 import Lean.Meta.Match.NamedPatterns
+import Lean.Meta.SplitSparseCasesOn
 
 public section
 
@@ -94,6 +94,10 @@ where
       (do let mvarId ← unfoldElimOffset mvarId; return #[mvarId])
       <|>
       (casesOnStuckLHS mvarId)
+      <|>
+      (reduceSparseCasesOn mvarId)
+      <|>
+      (splitSparseCasesOn mvarId)
       <|>
       (do let mvarId' ← simpIfTarget mvarId (useDecide := true) (useNewSemantics := true)
           if mvarId' == mvarId then throwError "simpIf failed"

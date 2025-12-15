@@ -11,7 +11,8 @@ public import Init.Data.Iterators.Combinators.FilterMap
 
 public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 @[always_inline, inline, expose, inherit_doc IterM.attachWith]
 def Iter.attachWith {α β : Type w}
@@ -24,4 +25,4 @@ where finally
     simp only [← isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM]
     exact h
 
-end Std.Iterators
+end Std

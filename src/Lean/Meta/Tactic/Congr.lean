@@ -52,6 +52,13 @@ def MVarId.congr? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
     applyCongrThm? mvarId congrThm
 
 /--
+Try to apply a `simp` congruence theorem and throw an error if it fails.
+-/
+def MVarId.congr (mvarId : MVarId) : MetaM (List MVarId) := do
+  let some mvarIds ← mvarId.congr? | throwError "Failed to apply `simp` congruence theorem"
+  return mvarIds
+
+/--
 Try to apply a `hcongr` congruence theorem, and then tries to close resulting goals
 using `Eq.refl`, `HEq.refl`, and assumption.
 -/

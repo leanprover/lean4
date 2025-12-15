@@ -1092,6 +1092,13 @@ def _root_.Lean.Expr.abstractM (e : Expr) (xs : Array Expr) : MetaM Expr :=
   e.abstractRangeM xs.size xs
 
 /--
+Replace occurrences of the free variables `fvars` in `e` with `vs`.
+Similar to `Expr.replaceFVars`, but handles metavariables correctly.
+-/
+def _root_.Lean.Expr.replaceFVarsM (e : Expr) (fvars : Array Expr) (vs : Array Expr) : MetaM Expr :=
+  return (← e.abstractM fvars).instantiateRev vs
+
+/--
 Collect forward dependencies for the free variables in `toRevert`.
 Recall that when reverting free variables `xs`, we must also revert their forward dependencies.
 

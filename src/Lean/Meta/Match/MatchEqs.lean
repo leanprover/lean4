@@ -341,36 +341,27 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
   let numDiscrEqs := getNumEqsFromDiscrInfos matchInfo.discrInfos
   forallTelescopeReducing constInfo.type fun xs _matchResultType => do
     let mut eqnNames := #[]
-    let params := xs[*...matchInfo.numParams]
-    let motive := xs[matchInfo.getMotivePos]!
-    let alts   := xs[(xs.size - matchInfo.numAlts)...*]
-    let firstDiscrIdx := matchInfo.numParams + 1
-    let discrs := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
-    let mut notAlts := #[]
+    let params : Array Expr := xs[*...matchInfo.numParams]
+    let motive : Expr       := xs[matchInfo.getMotivePos]!
+    let alts   : Array Expr := xs[(xs.size - matchInfo.numAlts)...*]
+    let firstDiscrIdx       := matchInfo.numParams + 1
+    let discrs : Array Expr := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
     let mut splitterAltInfos := #[]
     for i in *...alts.size do
       let thmName := Name.str baseName eqnThmSuffixBase |>.appendIndexAfter (i + 1)
       trace[Meta.Match.matchEqs] "proving {thmName}"
       let altInfo := matchInfo.altInfos[i]!
       eqnNames := eqnNames.push thmName
-      let (notAlt, splitterAltInfo) ←
-          forallAltTelescope (← inferType alts[i]!) altInfo numDiscrEqs
+      let splitterAltInfo ← forallAltTelescope (← inferType alts[i]!) altInfo numDiscrEqs
           fun ys rhsArgs altResultType => do
         let patterns := altResultType.getAppArgs
-        let mut hs := #[]
-        for overlappedBy in matchInfo.overlaps.overlapping i do
-          let notAlt := notAlts[overlappedBy]!
-          let h ← instantiateForall notAlt patterns
-          if let some h ← simpH? h patterns.size then
-            hs := hs.push h
+        let hs ← (matchInfo.overlaps.overlapping i).filterMapM fun overlappedBy => do
+          let h ← genNotAltType matchInfo discrs alts overlappedBy
+          let h := h.replaceFVars discrs patterns
+          simpH? h patterns.size
         trace[Meta.Match.matchEqs] "hs: {hs}"
         let hasUnitThunk := ys.isEmpty && hs.isEmpty && numDiscrEqs = 0
         let splitterAltInfo := { numFields := ys.size, numOverlaps := hs.size, hasUnitThunk }
-        -- Create a proposition for representing terms that do not match `patterns`
-        let mut notAlt := mkConst ``False
-        for discr in discrs.toArray.reverse, pattern in patterns.reverse do
-          notAlt ← mkArrow (← mkEqHEq discr pattern) notAlt
-        notAlt ← mkForallFVars (discrs ++ ys) notAlt
         /- Recall that when we use the `h : discr`, the alternative type depends on the discriminant.
            Thus, we need to create new `alts`. -/
         withNewAlts numDiscrEqs discrs patterns alts fun alts => do
@@ -405,8 +396,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
             type        := thmType
             value       := thmVal
           }
-          return (notAlt, splitterAltInfo)
-      notAlts := notAlts.push notAlt
+          return splitterAltInfo
       splitterAltInfos := splitterAltInfos.push splitterAltInfo
     let splitterMatchInfo : MatcherInfo := { matchInfo with altInfos := splitterAltInfos }
 

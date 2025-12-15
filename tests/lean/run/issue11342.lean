@@ -12,6 +12,7 @@ inductive Parity : N -> Type
 -- set_option trace.Meta.Match.matchEqs true
 
 
+set_option pp.mvars false in
 partial def natToBin3 : (n : N) → Parity n →  List Bool
 | .zero, _             => []
 | _, Parity.even j => [false, false]
@@ -72,7 +73,7 @@ info: private theorem natToBin3.match_1.congr_eq_1.{u_1} : ∀ (motive : (x : N)
 error: Failed to realize constant natToBin3.match_1.eq_1:
   failed to solve overlap assumption, unsolved subgoal
     case x
-    motive : (x : N) → Parity x → Sort ?u.191
+    motive : (x : N) → Parity x → Sort _
     h_1 : (x : Parity N.zero) → motive N.zero x
     h_2 :
       (j : N) →

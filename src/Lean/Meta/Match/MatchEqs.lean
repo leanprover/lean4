@@ -42,25 +42,6 @@ register_builtin_option bootstrap.grindInMatchEqns : Bool := {
     incomplete and inefficient approximation of it"
 }
 
-/--
-Given an application of an matcher arm `alt` that is expecting the `numDiscrEqs`, and
-an array of `discr = pattern` equalities (one for each discriminant), apply those that
-are expected by the alternative.
--/
-partial def mkAppDiscrEqs (alt : Expr) (heqs : Array Expr) (numDiscrEqs : Nat) : MetaM Expr := do
-  go alt (← inferType alt) 0
-where
-  go e ty i := do
-    if i < numDiscrEqs then
-      let Expr.forallE n d b .. := ty
-        | throwError "expecting {numDiscrEqs} equalities, but found type{indentExpr alt}"
-      for heq in heqs do
-        if (← isDefEq (← inferType heq) d) then
-          return ← go (mkApp e heq) (b.instantiate1 heq) (i+1)
-      throwError "Could not find equation {n} : {d} among {heqs}"
-    else
-      return e
-
 private def unfoldElimOffset (mvarId : MVarId) : MetaM MVarId := do
   if Option.isNone <| (← mvarId.getType).find? fun e => e.isConstOf ``Nat.elimOffset then
     throwError "goal's target does not contain `Nat.elimOffset`"
@@ -178,36 +159,23 @@ where
       (throwMatchEqnFailedMessage matchDeclName thmName mvarId)
 
 /--
-  Create new alternatives (aka minor premises) by replacing `discrs` with `patterns` at `alts`.
-  Recall that `alts` depends on `discrs` when `numDiscrEqs > 0`, where `numDiscrEqs` is the number of discriminants
-  annotated with `h : discr`.
+Given an application of an matcher arm `alt` that is expecting the `numDiscrEqs`, and
+an array of `discr = pattern` equalities (one for each discriminant), apply those that
+are expected by the alternative.
 -/
-private partial def withNewAlts (numDiscrEqs : Nat) (discrs : Array Expr) (patterns : Array Expr) (alts : Array Expr) (k : Array Expr → MetaM α) : MetaM α :=
-  if numDiscrEqs == 0 then
-    k alts
-  else
-    go 0 #[]
+partial def mkAppDiscrEqs (alt : Expr) (heqs : Array Expr) (numDiscrEqs : Nat) : MetaM Expr := do
+  go alt (← inferType alt) 0
 where
-  go (i : Nat) (altsNew : Array Expr) : MetaM α := do
-   if h : i < alts.size then
-     let altLocalDecl ← getFVarLocalDecl alts[i]
-     let typeNew := altLocalDecl.type.replaceFVars discrs patterns
-     withLocalDecl altLocalDecl.userName altLocalDecl.binderInfo typeNew fun altNew =>
-       go (i+1) (altsNew.push altNew)
-   else
-     k altsNew
-
-private def _root_.Lean.MVarId.revertAll (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
-  mvarId.checkNotAssigned `revertAll
-  let mut toRevert := #[]
-  for fvarId in (← getLCtx).getFVarIds do
-    unless (← fvarId.getDecl).isAuxDecl do
-      toRevert := toRevert.push fvarId
-  mvarId.setKind .natural
-  let (_, mvarId) ← mvarId.revert toRevert
-    (preserveOrder := true)
-    (clearAuxDeclsInsteadOfRevert := true)
-  return mvarId
+  go e ty i := do
+    if i < numDiscrEqs then
+      let Expr.forallE n d b .. := ty
+        | throwError "expecting {numDiscrEqs} equalities, but found type{indentExpr alt}"
+      for heq in heqs do
+        if (← isDefEq (← inferType heq) d) then
+          return ← go (mkApp e heq) (b.instantiate1 heq) (i+1)
+      throwError "Could not find equation {n} : {d} among {heqs}"
+    else
+      return e
 
 private def genNotAltType (matchInfo : MatcherInfo) (discrs : Array Expr) (alts : Array Expr) (i : Nat) : MetaM Expr := do
   let alt := alts[i]!
@@ -322,6 +290,26 @@ where go thmName :=
             type        := thmType
             value       := thmVal
           }
+
+/--
+  Create new alternatives (aka minor premises) by replacing `discrs` with `patterns` at `alts`.
+  Recall that `alts` depends on `discrs` when `numDiscrEqs > 0`, where `numDiscrEqs` is the number of discriminants
+  annotated with `h : discr`.
+-/
+private partial def withNewAlts (numDiscrEqs : Nat) (discrs : Array Expr) (patterns : Array Expr) (alts : Array Expr) (k : Array Expr → MetaM α) : MetaM α :=
+  if numDiscrEqs == 0 then
+    k alts
+  else
+    go 0 #[]
+where
+  go (i : Nat) (altsNew : Array Expr) : MetaM α := do
+   if h : i < alts.size then
+     let altLocalDecl ← getFVarLocalDecl alts[i]
+     let typeNew := altLocalDecl.type.replaceFVars discrs patterns
+     withLocalDecl altLocalDecl.userName altLocalDecl.binderInfo typeNew fun altNew =>
+       go (i+1) (altsNew.push altNew)
+   else
+     k altsNew
 
 /-
 Creates conditional equations and splitter for the given match auxiliary declaration.

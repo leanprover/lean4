@@ -247,7 +247,7 @@ public theorem Iter.toList_flatMapAfter {α α₂ β γ : Type w} [Iterator α I
       | some it₂ => it₂.toList ++
           (it₁.map fun b => (f b).toList).toList.flatten := by
   simp only [flatMapAfter, Iter.toList, toIterM_toIter, IterM.toList_flatMapAfter]
-  cases it₂ <;> simp [map]
+  cases it₂ <;> simp [map, IterM.toList_map_eq_toList_mapM, - IterM.toList_map]
 
 public theorem Iter.toArray_flatMapAfter {α α₂ β γ : Type w} [Iterator α Id β] [Iterator α₂ Id γ]
     [Finite α Id] [Finite α₂ Id] [IteratorCollect α Id Id] [IteratorCollect α₂ Id Id]
@@ -258,7 +258,7 @@ public theorem Iter.toArray_flatMapAfter {α α₂ β γ : Type w} [Iterator α 
       | some it₂ => it₂.toArray ++
           (it₁.map fun b => (f b).toArray).toArray.flatten := by
   simp only [flatMapAfter, Iter.toArray, toIterM_toIter, IterM.toArray_flatMapAfter]
-  cases it₂ <;> simp [map, IterM.toArray_map_eq_toArray_mapM]
+  cases it₂ <;> simp [map, IterM.toArray_map_eq_toArray_mapM, - IterM.toArray_map]
 
 public theorem Iter.toList_flatMap {α α₂ β γ : Type w} [Iterator α Id β] [Iterator α₂ Id γ]
     [Finite α Id] [Finite α₂ Id]

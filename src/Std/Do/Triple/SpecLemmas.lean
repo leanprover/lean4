@@ -1163,6 +1163,81 @@ theorem Spec.forIn_slice {m : Type w → Type x} {ps : PostShape}
   simp only [← Slice.forIn_toList]
   exact Spec.forIn_list inv step
 
+open Std.Iterators in
+@[spec]
+theorem Spec.forIn_iter {ps : PostShape} [Monad n] [WPMonad n ps]
+    {α β γ} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {init : γ} {f : β → γ → n (ForInStep γ)}
+    {it : Iter (α := α) β}
+    (inv : Invariant it.toList γ ps)
+    (step : ∀ pref cur suff (h : it.toList = pref ++ cur :: suff) b,
+      Triple
+        (f cur b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨it.toList, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn it init f) (inv.1 (⟨[], it.toList, rfl⟩, init)) (fun b => inv.1 (⟨it.toList, [], by simp⟩, b), inv.2) := by
+  simp only [← Iter.forIn_toList]
+  exact Spec.forIn_list inv step
+
+open Std.Iterators in
+@[spec]
+theorem Spec.forIn_iterM_id {ps : PostShape} [Monad n] [WPMonad n ps]
+    {α β γ} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {init : γ} {f : β → γ → n (ForInStep γ)}
+    {it : IterM (α := α) Id β}
+    (inv : Invariant it.toList.run γ ps)
+    (step : ∀ pref cur suff (h : it.toList.run = pref ++ cur :: suff) b,
+      Triple
+        (f cur b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨it.toList.run, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn it init f) (inv.1 (⟨[], it.toList.run, rfl⟩, init)) (fun b => inv.1 (⟨it.toList.run, [], by simp⟩, b), inv.2) := by
+  conv =>
+    congr
+    rw [← Iter.toIterM_toIter (it := it), ← Iter.forIn_eq_forIn_toIterM, ← Iter.forIn_toList,
+      IterM.toList_toIter]
+  exact Spec.forIn_list inv step
+
+open Std.Iterators in
+@[spec]
+theorem Spec.foldM_iter {ps : PostShape} [Monad n] [WPMonad n ps]
+    {α β γ} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {it : Iter (α := α) β}
+    {init : γ} {f : γ → β → n γ}
+    (inv : Invariant it.toList γ ps)
+    (step : ∀ pref cur suff (h : it.toList = pref ++ cur :: suff) b,
+      Triple
+        (f b cur)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b'), inv.2)) :
+    Triple (it.foldM f init) (inv.1 (⟨[], it.toList, rfl⟩, init)) (fun b => inv.1 (⟨it.toList, [], by simp⟩, b), inv.2) := by
+  rw [← Iter.foldlM_toList]
+  exact Spec.foldlM_list inv step
+
+open Std.Iterators in
+@[spec]
+theorem Spec.foldM_iterM_id {ps : PostShape} [Monad n] [WPMonad n ps]
+    {α β γ} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {it : IterM (α := α) Id β}
+    {init : γ} {f : γ → β → n γ}
+    (inv : Invariant it.toList.run γ ps)
+    (step : ∀ pref cur suff (h : it.toList.run = pref ++ cur :: suff) b,
+      Triple
+        (f b cur)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b'), inv.2)) :
+    Triple (it.foldM f init) (inv.1 (⟨[], it.toList.run, rfl⟩, init)) (fun b => inv.1 (⟨it.toList.run, [], by simp⟩, b), inv.2) := by
+  rw [← IterM.foldlM_toList]
+  exact Spec.foldlM_list inv step
+
 @[spec]
 theorem Spec.forIn'_array {α β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]

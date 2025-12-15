@@ -23174,7 +23174,7 @@ static lean_object* _init_l_Lean_Meta_Grind_addNewRawFact___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\nwhich is not definitionally equal with `reducible` transparency setting", 72, 72);
+x_1 = lean_mk_string_unchecked("\nwhich is not definitionally equal with `reducible` transparency setting}", 73, 73);
 return x_1;
 }
 }

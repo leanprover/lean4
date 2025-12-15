@@ -6664,8 +6664,6 @@ lean_dec(x_57);
 lean_ctor_set(x_52, 5, x_58);
 lean_inc(x_48);
 x_59 = l_Lean_Meta_Grind_validateCasesAttr(x_48, x_47, x_52, x_53);
-lean_dec(x_53);
-lean_dec_ref(x_52);
 if (lean_obj_tag(x_59) == 0)
 {
 uint8_t x_60; 
@@ -6877,8 +6875,6 @@ lean_ctor_set_uint8(x_115, sizeof(void*)*14, x_110);
 lean_ctor_set_uint8(x_115, sizeof(void*)*14 + 1, x_112);
 lean_inc(x_48);
 x_116 = l_Lean_Meta_Grind_validateCasesAttr(x_48, x_47, x_115, x_53);
-lean_dec(x_53);
-lean_dec_ref(x_115);
 if (lean_obj_tag(x_116) == 0)
 {
 lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; lean_object* x_133; 
@@ -7018,6 +7014,8 @@ return x_150;
 block_243:
 {
 lean_object* x_160; 
+lean_inc(x_158);
+lean_inc_ref(x_157);
 lean_inc(x_153);
 x_160 = l_Lean_Meta_Grind_isCasesAttrCandidate_x3f(x_153, x_152, x_157, x_158);
 if (lean_obj_tag(x_160) == 0)
@@ -14766,6 +14764,8 @@ if (lean_obj_tag(x_14) == 0)
 uint8_t x_15; lean_object* x_16; 
 lean_dec_ref(x_14);
 x_15 = 0;
+lean_inc(x_9);
+lean_inc_ref(x_8);
 lean_inc(x_13);
 x_16 = l_Lean_Meta_Grind_isCasesAttrCandidate_x3f(x_13, x_15, x_8, x_9);
 if (lean_obj_tag(x_16) == 0)

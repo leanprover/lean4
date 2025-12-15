@@ -13993,6 +13993,10 @@ lean_object* x_22; lean_object* x_23;
 x_22 = lean_ctor_get(x_21, 0);
 lean_inc(x_22);
 lean_dec_ref(x_21);
+lean_inc(x_8);
+lean_inc_ref(x_7);
+lean_inc(x_6);
+lean_inc_ref(x_5);
 x_23 = l_Lean_PrettyPrinter_Delaborator_isParentProj(x_1, x_22, x_5, x_6, x_7, x_8);
 lean_dec(x_22);
 if (lean_obj_tag(x_23) == 0)
@@ -14220,6 +14224,10 @@ x_29 = lean_ctor_get(x_28, 0);
 lean_inc(x_29);
 lean_dec_ref(x_28);
 x_30 = 0;
+lean_inc(x_7);
+lean_inc_ref(x_6);
+lean_inc(x_5);
+lean_inc_ref(x_4);
 x_31 = l_Lean_PrettyPrinter_Delaborator_parentProj_x3f(x_30, x_29, x_4, x_5, x_6, x_7);
 lean_dec(x_29);
 if (lean_obj_tag(x_31) == 0)

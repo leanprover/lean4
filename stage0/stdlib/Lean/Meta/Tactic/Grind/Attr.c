@@ -4033,6 +4033,8 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = 0;
+lean_inc(x_6);
+lean_inc_ref(x_5);
 lean_inc(x_1);
 x_9 = l_Lean_Meta_Grind_isCasesAttrCandidate(x_1, x_8, x_5, x_6);
 if (lean_obj_tag(x_9) == 0)
@@ -4872,7 +4874,6 @@ lean_dec(x_1);
 x_22 = lean_ctor_get_uint8(x_13, 0);
 lean_dec_ref(x_13);
 x_23 = l_Lean_Meta_Grind_addCasesAttr(x_2, x_22, x_3, x_9, x_10);
-lean_dec(x_10);
 return x_23;
 }
 case 2:
@@ -4978,6 +4979,8 @@ return x_41;
 case 3:
 {
 lean_object* x_42; 
+lean_inc(x_10);
+lean_inc_ref(x_9);
 lean_inc(x_2);
 x_42 = l_Lean_Meta_Grind_isCasesAttrCandidate_x3f(x_2, x_6, x_9, x_10);
 if (lean_obj_tag(x_42) == 0)
@@ -4994,6 +4997,7 @@ lean_dec(x_1);
 x_44 = lean_ctor_get(x_43, 0);
 lean_inc(x_44);
 lean_dec_ref(x_43);
+lean_inc(x_10);
 lean_inc_ref(x_9);
 lean_inc(x_44);
 x_45 = l_Lean_Meta_Grind_addCasesAttr(x_44, x_6, x_3, x_9, x_10);

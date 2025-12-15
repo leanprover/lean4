@@ -248,11 +248,11 @@ instance [BEq α] [Hashable α] {m : Type w → Type w'} [Monad m] : ForIn m (Ha
   ⟨DHashMap.Const.alter m.inner a f⟩
 
 @[inline, inherit_doc DHashMap.Const.insertMany] def insertMany {ρ : Type w}
-    [ForIn Id ρ (α × β)] (m : HashMap α β) (l : ρ) : HashMap α β :=
+    [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)] (m : HashMap α β) (l : ρ) : HashMap α β :=
   ⟨DHashMap.Const.insertMany m.inner l⟩
 
 @[inline, inherit_doc DHashMap.Const.insertManyIfNewUnit] def insertManyIfNewUnit
-    {ρ : Type w} [ForIn Id ρ α] (m : HashMap α Unit) (l : ρ) : HashMap α Unit :=
+    {ρ : Type w} [ForIn Id ρ α] [ForInNew Id ρ α] (m : HashMap α Unit) (l : ρ) : HashMap α Unit :=
   ⟨DHashMap.Const.insertManyIfNewUnit m.inner l⟩
 
 @[inline, inherit_doc DHashMap.Const.toArray] def toArray (m : HashMap α β) :

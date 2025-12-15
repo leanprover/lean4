@@ -1167,7 +1167,7 @@ theorem any_keys [LawfulHashable α] [EquivBEq α] {p : α → Bool} (h : m.WF) 
 theorem all_keys [LawfulHashable α] [EquivBEq α] {p : α → Bool} (h : m.WF) :
     m.keys.all p = m.all (fun a _ => p a) := DHashMap.Raw.Const.all_keys h.out
 
-variable {ρ : Type w} [ForIn Id ρ (α × β)]
+variable {ρ : Type w} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)]
 
 @[simp, grind =]
 theorem insertMany_nil (h : m.WF) :
@@ -2250,7 +2250,7 @@ theorem getD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
   DHashMap.Raw.Const.getD_insertMany_list_of_mem h.out k_beq distinct mem
 
 variable {m : Raw α Unit}
-variable {ρ : Type w} [ForIn Id ρ α]
+variable {ρ : Type w} [ForIn Id ρ α] [ForInNew Id ρ α]
 
 @[simp]
 theorem insertManyIfNewUnit_nil (h : m.WF) :

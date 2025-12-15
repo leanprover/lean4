@@ -290,11 +290,11 @@ m.inner.values
   m.inner.valuesArray
 
 @[inline, inherit_doc DHashMap.Raw.Const.insertMany] def insertMany [BEq α] [Hashable α]
-    {ρ : Type w} [ForIn Id ρ (α × β)] (m : Raw α β) (l : ρ) : Raw α β :=
+    {ρ : Type w} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)] (m : Raw α β) (l : ρ) : Raw α β :=
   ⟨DHashMap.Raw.Const.insertMany m.inner l⟩
 
 @[inline, inherit_doc DHashMap.Raw.Const.insertManyIfNewUnit] def insertManyIfNewUnit [BEq α]
-    [Hashable α] {ρ : Type w} [ForIn Id ρ α] (m : Raw α Unit) (l : ρ) : Raw α Unit :=
+    [Hashable α] {ρ : Type w} [ForIn Id ρ α] [ForInNew Id ρ α] (m : Raw α Unit) (l : ρ) : Raw α Unit :=
   ⟨DHashMap.Raw.Const.insertManyIfNewUnit m.inner l⟩
 
 @[inline, inherit_doc DHashMap.Raw.Const.unitOfArray] def unitOfArray [BEq α] [Hashable α]
@@ -352,11 +352,11 @@ theorem WF.filter [BEq α] [Hashable α] {m : Raw α β} {f : α → β → Bool
     (m.filter f).WF :=
   ⟨DHashMap.Raw.WF.filter h.out⟩
 
-theorem WF.insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × β)] {m : Raw α β} {l : ρ}
+theorem WF.insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)] {m : Raw α β} {l : ρ}
     (h : m.WF) : (m.insertMany l).WF :=
   ⟨DHashMap.Raw.WF.Const.insertMany h.out⟩
 
-theorem WF.insertManyIfNewUnit [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] {m : Raw α Unit}
+theorem WF.insertManyIfNewUnit [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] [ForInNew Id ρ α] {m : Raw α Unit}
     {l : ρ} (h : m.WF) : (m.insertManyIfNewUnit l).WF :=
   ⟨DHashMap.Raw.WF.Const.insertManyIfNewUnit h.out⟩
 

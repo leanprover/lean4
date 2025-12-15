@@ -1614,7 +1614,7 @@ end Const
 
 section insertMany
 
-variable {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
+variable {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)]
 
 @[elab_as_elim]
 theorem insertMany_ind {motive : Raw₀ α β → Prop} (m : Raw₀ α β) (l : ρ)
@@ -1816,7 +1816,7 @@ theorem isEmpty_of_isEmpty_insertMany [EquivBEq α] [LawfulHashable α] (h : m.1
 namespace Const
 
 variable {β : Type v} (m : Raw₀ α (fun _ => β))
-variable {ρ : Type w} [ForIn Id ρ (α × β)]
+variable {ρ : Type w} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)]
 
 @[elab_as_elim]
 theorem insertMany_ind {motive : Raw₀ α (fun _ => β) → Prop} (m : Raw₀ α fun _ => β) (l : ρ)
@@ -2016,7 +2016,7 @@ theorem getD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.1.W
 
 variable (m : Raw₀ α (fun _ => Unit))
 
-variable {ρ : Type w} [ForIn Id ρ α]
+variable {ρ : Type w} [ForIn Id ρ α] [ForInNew Id ρ α]
 
 @[elab_as_elim]
 theorem insertManyIfNewUnit_ind {motive : Raw₀ α (fun _ => Unit) → Prop}

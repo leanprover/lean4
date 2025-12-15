@@ -100,6 +100,8 @@ private def solveWithGrind (mvarId : MVarId) : MetaM (Array MVarId) := do
     let mut params ← Grind.mkParams {}
     let s ← Grind.getEMatchTheorems
     let thms := s.find (.decl ``Nat.hasNotBit_eq)
+    let thms := thms ++ s.find (.decl `Nat.ctorIdx_zero)
+    let thms := thms ++ s.find (.decl `Nat.ctorIdx_succ)
     for thm in thms do
       params := { params with extra := params.extra.push thm }
     let r ← Grind.main mvarId params

@@ -50,8 +50,10 @@ def _root_.Int.Linear.Poly.normCommRing? (p : Poly) : GoalM (Option (CommRing.Ri
     let some p' ← re.toPolyM? | return none
     let e' ← p'.denoteExpr
     let e' ← preprocessLight e'
-    -- Remark: we are reusing the `IntModule` virtual parent.
-    -- TODO: Investigate whether we should have a custom virtual parent for cutsat
+    /-
+    **Note**: We are reusing the `IntModule` virtual parent.
+    **TODO**: Investigate whether we should have a custom virtual parent for cutsat
+    -/
     internalize e' gen (some getIntModuleVirtualParent)
     let p'' ← toPoly e'
     if p == p'' then return none

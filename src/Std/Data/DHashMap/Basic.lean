@@ -299,18 +299,18 @@ This function ensures that the value is used linearly.
   ⟨Raw₀.Const.alter ⟨m.1, m.2.size_buckets_pos⟩ a f, Raw.WF.constAlter₀ m.2⟩
 
 @[inline, inherit_doc Raw.insertMany] def insertMany {ρ : Type w}
-    [ForIn Id ρ ((a : α) × β a)] (m : DHashMap α β) (l : ρ) : DHashMap α β :=
+    [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)] (m : DHashMap α β) (l : ρ) : DHashMap α β :=
   ⟨(Raw₀.insertMany ⟨m.1, m.2.size_buckets_pos⟩ l).1,
    (Raw₀.insertMany ⟨m.1, m.2.size_buckets_pos⟩ l).2 _ Raw.WF.insert₀ m.2⟩
 
 @[inline, inherit_doc Raw.Const.insertMany] def Const.insertMany {β : Type v}
-    {ρ : Type w} [ForIn Id ρ (α × β)] (m : DHashMap α (fun _ => β)) (l : ρ) :
+    {ρ : Type w} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)] (m : DHashMap α (fun _ => β)) (l : ρ) :
     DHashMap α (fun _ => β) :=
   ⟨(Raw₀.Const.insertMany ⟨m.1, m.2.size_buckets_pos⟩ l).1,
    (Raw₀.Const.insertMany ⟨m.1, m.2.size_buckets_pos⟩ l).2 _ Raw.WF.insert₀ m.2⟩
 
 @[inline, inherit_doc Raw.Const.insertManyIfNewUnit] def Const.insertManyIfNewUnit
-    {ρ : Type w} [ForIn Id ρ α] (m : DHashMap α (fun _ => Unit)) (l : ρ) :
+    {ρ : Type w} [ForIn Id ρ α] [ForInNew Id ρ α] (m : DHashMap α (fun _ => Unit)) (l : ρ) :
     DHashMap α (fun _ => Unit) :=
   ⟨(Raw₀.Const.insertManyIfNewUnit ⟨m.1, m.2.size_buckets_pos⟩ l).1,
    (Raw₀.Const.insertManyIfNewUnit ⟨m.1, m.2.size_buckets_pos⟩ l).2 _ Raw.WF.insertIfNew₀ m.2⟩

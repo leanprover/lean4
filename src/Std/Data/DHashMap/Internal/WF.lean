@@ -1332,7 +1332,7 @@ theorem wf_map₀ [BEq α] [Hashable α] {m : Raw₀ α β} (h : m.1.WF) {f : (a
 /-! # `insertMany` -/
 
 theorem wfImp_insertMany [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w}
-    [ForIn Id ρ ((a : α) × β a)] {m : Raw₀ α β} {l : ρ} (h : Raw.WFImp m.1) :
+    [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)] {m : Raw₀ α β} {l : ρ} (h : Raw.WFImp m.1) :
     Raw.WFImp (m.insertMany l).1.1 :=
   Raw.WF.out ((m.insertMany l).2 _ Raw.WF.insert₀ (.wf m.2 h))
 
@@ -1346,18 +1346,18 @@ theorem toListModel_insertMany_list [BEq α] [Hashable α] [EquivBEq α] [Lawful
 
 /-! # `eraseMany` -/
 
-theorem WF.eraseManyEntries [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] {m : Raw α β}
+theorem WF.eraseManyEntries [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)] {m : Raw α β}
     {l : ρ} (h : m.WF) : (m.eraseManyEntries l).WF := by
   simpa [Raw.eraseManyEntries, h.size_buckets_pos] using
     (Raw₀.eraseManyEntries ⟨m, h.size_buckets_pos⟩ l).2 _ Raw.WF.erase₀ h
 
 theorem wf_insertMany₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w}
-    [ForIn Id ρ ((a : α) × β a)] {m : Raw α β} {h : 0 < m.buckets.size} {l : ρ} (h' : m.WF) :
+    [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)] {m : Raw α β} {h : 0 < m.buckets.size} {l : ρ} (h' : m.WF) :
     (Raw₀.insertMany ⟨m, h⟩ l).1.1.WF :=
   (Raw₀.insertMany ⟨m, h⟩ l).2 _ Raw.WF.insert₀ h'
 
 theorem wf_eraseMany₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w}
-    [ForIn Id ρ ((a : α) × β a)] {m : Raw α β} {h : 0 < m.buckets.size} {l : ρ} (h' : m.WF) :
+    [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)] {m : Raw α β} {h : 0 < m.buckets.size} {l : ρ} (h' : m.WF) :
     (eraseManyEntries ⟨m, h⟩ l).1.1.WF :=
   (eraseManyEntries ⟨m, h⟩ l).2 _ Raw.WF.erase₀ h'
 
@@ -1425,12 +1425,12 @@ theorem wf_diff₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
 /-! # `insertManyIfNew` -/
 
 theorem wfImp_insertManyIfNew [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w}
-    [ForIn Id ρ ((a : α) × β a)] {m : Raw₀ α β} {l : ρ} (h : Raw.WFImp m.1) :
+    [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)] {m : Raw₀ α β} {l : ρ} (h : Raw.WFImp m.1) :
     Raw.WFImp (m.insertManyIfNew l).1.1 :=
   Raw.WF.out ((m.insertManyIfNew l).2 _ Raw.WF.insertIfNew₀ (.wf m.2 h))
 
 theorem wf_insertManyIfNew₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w}
-    [ForIn Id ρ ((a : α) × β a)] {m : Raw α β} {h : 0 < m.buckets.size} {l : ρ} (h' : m.WF) :
+    [ForIn Id ρ ((a : α) × β a)] [ForInNew Id ρ ((a : α) × β a)] {m : Raw α β} {h : 0 < m.buckets.size} {l : ρ} (h' : m.WF) :
     (Raw₀.insertManyIfNew ⟨m, h⟩ l).1.1.WF :=
   (Raw₀.insertManyIfNew ⟨m, h⟩ l).2 _ Raw.WF.insertIfNew₀ h'
 
@@ -1555,12 +1555,12 @@ theorem Const.toListModel_insertMany_list {β : Type v} [BEq α] [Hashable α] [
   apply toListModel_insertListₘ h
 
 theorem Const.wfImp_insertMany {β : Type v} [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
-    {ρ : Type w} [ForIn Id ρ (α × β)] {m : Raw₀ α (fun _ => β)}
+    {ρ : Type w} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)] {m : Raw₀ α (fun _ => β)}
     {l : ρ} (h : Raw.WFImp m.1) : Raw.WFImp (Const.insertMany m l).1.1 :=
   Raw.WF.out ((Const.insertMany m l).2 _ Raw.WF.insert₀ (.wf m.2 h))
 
 theorem Const.wf_insertMany₀ {β : Type v} [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
-    {ρ : Type w} [ForIn Id ρ (α × β)] {m : Raw α (fun _ => β)} {h : 0 < m.buckets.size}
+    {ρ : Type w} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)] {m : Raw α (fun _ => β)} {h : 0 < m.buckets.size}
     {l : ρ} (h' : m.WF) : (Const.insertMany ⟨m, h⟩ l).1.1.WF :=
   (Raw₀.Const.insertMany ⟨m, h⟩ l).2 _ Raw.WF.insert₀ h'
 
@@ -1588,12 +1588,12 @@ theorem Const.toListModel_insertManyIfNewUnit_list [BEq α] [Hashable α] [Equiv
   apply toListModel_insertListIfNewUnitₘ h
 
 theorem Const.wfImp_insertManyIfNewUnit [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
-    {ρ : Type w} [ForIn Id ρ α] {m : Raw₀ α (fun _ => Unit)} {l : ρ} (h : Raw.WFImp m.1) :
+    {ρ : Type w} [ForIn Id ρ α] [ForInNew Id ρ α] {m : Raw₀ α (fun _ => Unit)} {l : ρ} (h : Raw.WFImp m.1) :
     Raw.WFImp (Const.insertManyIfNewUnit m l).1.1 :=
   Raw.WF.out ((Const.insertManyIfNewUnit m l).2 _ Raw.WF.insertIfNew₀ (.wf m.2 h))
 
 theorem Const.wf_insertManyIfNewUnit₀ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
-    {ρ : Type w} [ForIn Id ρ α] {m : Raw α (fun _ => Unit)} {h : 0 < m.buckets.size}
+    {ρ : Type w} [ForIn Id ρ α] [ForInNew Id ρ α] {m : Raw α (fun _ => Unit)} {h : 0 < m.buckets.size}
     {l : ρ} (h' : m.WF) : (Const.insertManyIfNewUnit ⟨m, h⟩ l).1.1.WF :=
   (Raw₀.Const.insertManyIfNewUnit ⟨m, h⟩ l).2 _ Raw.WF.insertIfNew₀ h'
 

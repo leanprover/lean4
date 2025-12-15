@@ -293,7 +293,7 @@ Note: this precedence behavior is true for `HashSet` and `HashSet.Raw`. The `ins
 `HashMap`, `DHashMap`, `HashMap.Raw` and `DHashMap.Raw` behaves differently: it will prefer the last
 appearance.
 -/
-@[inline] def insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] (m : Raw α) (l : ρ) :
+@[inline] def insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] [ForInNew Id ρ α] (m : Raw α) (l : ρ) :
     Raw α :=
   ⟨m.inner.insertManyIfNewUnit l⟩
 
@@ -347,7 +347,7 @@ theorem WF.erase [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.er
 theorem WF.filter [BEq α] [Hashable α] {m : Raw α} {f : α → Bool} (h : m.WF) : (m.filter f).WF :=
   ⟨HashMap.Raw.WF.filter h.out⟩
 
-theorem WF.insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] {m : Raw α} {l : ρ}
+theorem WF.insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] [ForInNew Id ρ α] {m : Raw α} {l : ρ}
     (h : m.WF) : (m.insertMany l).WF :=
   ⟨HashMap.Raw.WF.insertManyIfNewUnit h.out⟩
 

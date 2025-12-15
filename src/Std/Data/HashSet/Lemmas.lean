@@ -625,7 +625,7 @@ theorem all_eq_false_iff_exists_mem [LawfulBEq α] {p : α → Bool} :
     m.all p = false ↔ ∃ (a : α), a ∈ m ∧ p a = false := by
   simpa using @HashMap.all_eq_false_iff_exists_mem_getElem _ _ _ _ _ _ (fun a b => p a)
 
-variable {ρ : Type v} [ForIn Id ρ α]
+variable {ρ : Type v} [ForIn Id ρ α] [ForInNew Id ρ α]
 
 @[simp, grind =]
 theorem insertMany_nil :

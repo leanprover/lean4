@@ -232,7 +232,7 @@ Note: this precedence behavior is true for `HashSet` and `HashSet.Raw`. The `ins
 `HashMap`, `DHashMap`, `HashMap.Raw` and `DHashMap.Raw` behaves differently: it will prefer the last
 appearance.
 -/
-@[inline] def insertMany {ρ : Type v} [ForIn Id ρ α] (m : HashSet α) (l : ρ) :
+@[inline] def insertMany {ρ : Type v} [ForIn Id ρ α] [ForInNew Id ρ α] (m : HashSet α) (l : ρ) :
     HashSet α :=
   ⟨m.inner.insertManyIfNewUnit l⟩
 

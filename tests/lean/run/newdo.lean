@@ -9,10 +9,49 @@ import Lean.Elab.BuiltinDo
 import Lean.Parser.Term
 import Init.NotationExtra
 import Init.Control.Basic
+import Std.Data.Iterators.Lemmas.Combinators.Monadic.Zip
 
 open Lean Parser Meta Elab Do
 
 set_option linter.unusedVariables false
+
+set_option trace.Elab.match true in
+example (n : Nat) : Id (Fin (n + 1)) :=
+  have jp : ?m := ?rhs
+  match n with
+  | 0 => ?jmp1
+  | n + 1 => ?jmp2
+  where finally
+  case m => exact Fin (n + 1) → Id (Fin (n + 1))
+  case jmp1 => exact jp ⟨0, sorry⟩
+  case jmp2 => exact jp ⟨n, sorry⟩
+  case rhs => exact pure
+
+/--
+info: (let a := 1;
+  let b := 2;
+  let c := 3;
+  have __do_jp := fun a b r =>
+    let c := a + b;
+    pure (a, b, c);
+  if true = true then
+    let a := a + 1;
+    __do_jp a b PUnit.unit
+  else
+    let b := b + 1;
+    __do_jp a b PUnit.unit).run : Nat × Nat × Nat
+-/
+#guard_msgs in
+#check Id.run do
+  let mut a := 1
+  let mut b := 2
+  let mut c := 3
+  if true then
+    a := a + 1
+  else
+    b := b + 1
+  c := a + b
+  return (a, b, c)
 
 set_option pp.all true in
 @[inline]
@@ -144,6 +183,63 @@ def logErrorNames (x : MetaM Unit) : MetaM Unit := do
         msg
   Core.setMessageLog newLog
 
+open Std.Iterators IterM in
+example [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
+    {it₁ : IterM (α := α₁) m β₁}
+    {memo : Option { out : β₁ //
+        ∃ it : IterM (α := α₁) m β₁, it.IsPlausibleOutput out }}
+    {it₂ : IterM (α := α₂) m β₂} :
+    (Intermediate.zip it₁ memo it₂).step = (do
+      match hm : ((fun x => x) memo) with
+      | none =>
+        match (← it₁.step).inflate with
+        | .yield it₁' out hp =>
+          pure <| .deflate <| .skip (Intermediate.zip it₁' (some ⟨out, _, _, hp⟩) it₂)
+            (.yieldLeft hm hp)
+        | .skip it₁' hp =>
+          pure <| .deflate <| .skip (Intermediate.zip it₁' none it₂)
+            (.skipLeft hm hp)
+        | .done hp =>
+          pure <| .deflate <| .done (.doneLeft hm hp)
+      | some out₁ =>
+        match (← it₂.step).inflate with
+        | .yield it₂' out₂ hp =>
+          pure <| .deflate <| .yield (Intermediate.zip it₁ none it₂') (out₁, out₂)
+            (.yieldRight hm hp)
+        | .skip it₂' hp =>
+          pure <| .deflate <| .skip (Intermediate.zip it₁ (some out₁) it₂')
+            (.skipRight hm hp)
+        | .done hp =>
+          pure <| .deflate <| .done (.doneRight hm hp)) := sorry
+
+open Std.Iterators IterM in
+example [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
+    {it₁ : IterM (α := α₁) m β₁}
+    {memo : Option { out : β₁ //
+        ∃ it : IterM (α := α₁) m β₁, it.IsPlausibleOutput out }}
+    {it₂ : IterM (α := α₂) m β₂} :
+    (Intermediate.zip it₁ memo it₂).step = (do
+      match (generalizing := false) memo with
+      | none =>
+        match (← it₁.step).inflate with
+        | .yield it₁' out hp =>
+          pure <| .deflate <| .skip (Intermediate.zip it₁' (some ⟨out, _, _, hp⟩) it₂)
+            (.yieldLeft rfl hp)
+        | .skip it₁' hp =>
+          pure <| .deflate <| .skip (Intermediate.zip it₁' none it₂)
+            (.skipLeft rfl hp)
+        | .done hp =>
+          pure <| .deflate <| .done (.doneLeft rfl hp)
+      | some out₁ =>
+        match (← it₂.step).inflate with
+        | .yield it₂' out₂ hp =>
+          pure <| .deflate <| .yield (Intermediate.zip it₁ none it₂') (out₁, out₂)
+            (.yieldRight rfl hp)
+        | .skip it₂' hp =>
+          pure <| .deflate <| .skip (Intermediate.zip it₁ (some out₁) it₂')
+            (.skipRight (by grind) hp)
+        | .done hp =>
+          pure <| .deflate <| .done (.doneRight (by grind) hp)) := sorry
 /--
 error: Type mismatch
   y

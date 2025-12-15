@@ -11,8 +11,8 @@ import Init.Data.Iterators.Lemmas.Combinators.Monadic.FilterMap
 public import Init.Data.Iterators.Combinators.Monadic.FlatMap
 import all Init.Data.Iterators.Combinators.Monadic.FlatMap
 
-namespace Std.Iterators
-open Std.Internal
+namespace Std
+open Std.Internal Std.Iterators
 
 theorem IterM.step_flattenAfter {α α₂ β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
@@ -32,7 +32,9 @@ theorem IterM.step_flattenAfter {α α₂ β : Type w} {m : Type w → Type w'} 
   cases it₂
   all_goals
   · apply bind_congr; intro step
-    cases step.inflate using PlausibleIterStep.casesOn <;> simp [IterM.flattenAfter, toIterM]
+    cases step.inflate using PlausibleIterStep.casesOn <;> simp [IterM.flattenAfter, IterM.mk]
+
+namespace Iterators.Types
 
 public theorem Flatten.IsPlausibleStep.outerYield_flatMapM {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m] [Iterator α m β] [Iterator α₂ m γ]
@@ -117,6 +119,8 @@ public theorem Flatten.IsPlausibleStep.innerDone_flatMap {α : Type w} {β : Typ
     (h : it₂.IsPlausibleStep .done) :
     (it₁.flatMapAfter f (some it₂)).IsPlausibleStep (.skip (it₁.flatMapAfter f none)) :=
   .innerDone h
+
+end Iterators.Types
 
 public theorem IterM.step_flatMapAfterM {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m] [Iterator α m β] [Iterator α₂ m γ]
@@ -341,4 +345,4 @@ public theorem IterM.toArray_flatMap {α α₂ β γ : Type w} {m : Type w → T
     (it₁.flatMap f).toArray = Array.flatten <$> (it₁.mapM fun b => (f b).toArray).toArray := by
   simp [flatMap, toArray_flatMapAfter]
 
-end Std.Iterators
+end Std

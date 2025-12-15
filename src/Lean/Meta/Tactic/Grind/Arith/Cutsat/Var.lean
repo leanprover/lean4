@@ -42,7 +42,7 @@ private partial def registerNonlinearOccsAt (e : Expr) (x : Var) : GoalM Unit :=
   | HPow.hPow _ _ _ _ a b =>
     if (← getIntValue? a).isNone then
       registerNonlinearOcc a x
-    if (← getIntValue? b).isNone then
+    if (← getIntValue? b).isNone && (← getNatValue? b).isNone then
       -- Recall that `b : Nat`, we must create `NatCast.natCast b` and watch it.
       let (b', _) ← mkNatVar b
       internalize b' (← getGeneration b)

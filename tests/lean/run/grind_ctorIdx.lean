@@ -1,11 +1,11 @@
 set_option warn.sorry false
+set_option grind.debug true
 
 inductive T where
 | con1 : Nat → T
 | con2 : T
 
 opaque double (n : Nat) : T := .con2
-
 
 example (heq_1 : double n = .con1 5) : (double n).ctorIdx = 0 := by
   grind
@@ -66,6 +66,25 @@ example (hα : α = α') (_ : double n = double m)
 example (h : Bool = Nat) (x : Bool) (heq : x ≍ Nat.succ n) : x.ctorIdx = 0 := by
   fail_if_success grind
   sorry
+
+-- Nat constructors are represented as `n + k` or as literals, so check that that works
+
+example (n x1 : Nat) (h : Nat.hasNotBit 2 x1.ctorIdx) (heq_1 : x1 = n.succ) : False := by
+  grind
+
+example (n x1 : Nat) (h : Nat.hasNotBit 2 x1.ctorIdx) (heq_1 : x1 = n + 5) : False := by
+  grind
+
+example (x1 : Nat) (h : Nat.hasNotBit 2 x1.ctorIdx) (heq_1 : x1 = 5) : False := by
+  grind
+
+inductive S where
+  | mk1 (n : Nat)
+  | mk2 (n : Nat) (s : S)
+  | mk3 (n : Bool)
+  | mk4 (s1 s2 : S)
+
+example (h : Nat.hasNotBit 5 x.ctorIdx) (heq_1 : x = S.mk1 n) : False := by grind
 
 -- Some tests provided by claude
 

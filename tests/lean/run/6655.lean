@@ -27,7 +27,7 @@ d : α → α := c
 e : α → α := d
 ⊢ d x = x
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example {α : Type} (c : α → α) (x : α) : c x = x := by
@@ -45,7 +45,7 @@ Example from #6655. This used to suggest `simp only [d]`.
 info: Try this:
   [apply] simp only
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example {α : Type} (c : α → α) (x : α) : c x = x := by
@@ -106,7 +106,7 @@ d : α → α := c
 e : α → α := d
 ⊢ d x = x
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example {α : Type} (b : α → α) (x : α) : b x = x := by

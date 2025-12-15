@@ -21,7 +21,10 @@ def propagateCtorIdxUp (e : Expr) : GoalM Unit := e.withApp fun f xs => do
   unless xs.size == indInfo.numParams + indInfo.numIndices + 1 do return
   let a := xs.back!
   let aNode ← getRootENode a
-  unless aNode.ctor do return
+  -- NB: This does not work for `Nat.ctorIdx`, as grind normalizes `Nat.succ` to `_ + k`.
+  -- But we have `attribute [grind] Nat.ctorIdx` to handle that case.
+  unless aNode.ctor do
+    return
   let some conInfo ← isConstructorApp? aNode.self | return
   if aNode.heqProofs then
     unless (← hasSameType a aNode.self) do
@@ -46,6 +49,8 @@ def propagateCtorIdxUp (e : Expr) : GoalM Unit := e.withApp fun f xs => do
   -- Homogeneous case
   let e' ← shareCommon (mkNatLit conInfo.cidx)
   internalize e' 0
-  pushEq e e' (← mkCongrArg e.appFn! (← mkEqProof a aNode.self))
+  -- We used `mkExpectedPropHint` so that the inferred type of the proof matches the goal,
+  -- to satisfy `debug.grind` checks
+  pushEq e e' (mkExpectedPropHint (← mkCongrArg e.appFn! (← mkEqProof a aNode.self)) (← mkEq e e'))
 
 end Lean.Meta.Grind

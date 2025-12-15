@@ -71,7 +71,7 @@ set_option trace.compiler.ir.result true in
 def test5 (a : String) := a.utf8ByteSize
 
 /--
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 ---
 trace: [Compiler.IR] [result]
     def test6 (x_1 : @& obj) (x_2 : @& tobj) : tobj :=
@@ -144,7 +144,7 @@ set_option trace.compiler.ir.result true in
 def test11 (a : Int16) := a.toInt
 
 /--
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 ---
 trace: [Compiler.IR] [result]
     def test12 (x_1 : @& obj) (x_2 : @& tobj) : tobj :=

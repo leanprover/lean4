@@ -11,7 +11,8 @@ public import Std.Data.Iterators.Lemmas.Equivalence.StepCongr
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 theorem IterM.Equiv.toListRev_eq [Monad m] [LawfulMonad m]
     [Iterator α₁ m β] [Iterator α₂ m β] [Finite α₁ m] [Finite α₂ m]
@@ -51,4 +52,4 @@ theorem IterM.Equiv.toArray_eq [Monad m] [LawfulMonad m]
     ita.toArray = itb.toArray := by
   simp only [← IterM.toArray_toList, toList_eq h]
 
-end Std.Iterators
+end Std

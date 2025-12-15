@@ -15,9 +15,7 @@ This module provides the typeclass `ToIterator`, which is implemented by types t
 converted into iterators.
 -/
 
-open Std.Iterators
-
-namespace Std.Iterators
+namespace Std
 
 /-- This typeclass provides an iterator for elements of type `γ`. -/
 class ToIterator (γ : Type u) (m : Type w → Type w') (α β : outParam (Type w)) where
@@ -60,4 +58,4 @@ theorem ToIterator.iter_eq {γ : Type u} {x : γ} {α β : Type v} {it} :
     ToIterator.iter x = (it x).toIter :=
   rfl
 
-end Std.Iterators
+end Std

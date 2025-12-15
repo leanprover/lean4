@@ -31,7 +31,7 @@ namespace ForwardCharSearcher
 def iter (c : Char) (s : Slice) : Std.Iter (α := ForwardCharSearcher c s) (SearchStep s) :=
   { internalState := { currPos := s.startPos }}
 
-instance (s : Slice) : Std.Iterators.Iterator (ForwardCharSearcher c s) Id (SearchStep s) where
+instance (s : Slice) : Std.Iterator (ForwardCharSearcher c s) Id (SearchStep s) where
   IsPlausibleStep it
     | .yield it' out =>
       ∃ h1 : it.internalState.currPos ≠ s.endPos,
@@ -74,7 +74,7 @@ def finitenessRelation : Std.Iterators.FinitenessRelation (ForwardCharSearcher s
 instance : Std.Iterators.Finite (ForwardCharSearcher s c) Id :=
   .of_finitenessRelation finitenessRelation
 
-instance : Std.Iterators.IteratorLoop (ForwardCharSearcher s c) Id Id :=
+instance : Std.IteratorLoop (ForwardCharSearcher s c) Id Id :=
   .defaultImplementation
 
 instance {c : Char} : ToForwardSearcher c (ForwardCharSearcher c) where
@@ -95,7 +95,7 @@ namespace BackwardCharSearcher
 def iter (c : Char) (s : Slice) : Std.Iter (α := BackwardCharSearcher s) (SearchStep s) :=
   { internalState := { currPos := s.endPos, needle := c }}
 
-instance (s : Slice) : Std.Iterators.Iterator (BackwardCharSearcher s) Id (SearchStep s) where
+instance (s : Slice) : Std.Iterator (BackwardCharSearcher s) Id (SearchStep s) where
   IsPlausibleStep it
     | .yield it' out =>
       it.internalState.needle = it'.internalState.needle ∧
@@ -139,7 +139,7 @@ def finitenessRelation : Std.Iterators.FinitenessRelation (BackwardCharSearcher 
 instance : Std.Iterators.Finite (BackwardCharSearcher s) Id :=
   .of_finitenessRelation finitenessRelation
 
-instance : Std.Iterators.IteratorLoop (BackwardCharSearcher s) Id Id :=
+instance : Std.IteratorLoop (BackwardCharSearcher s) Id Id :=
   .defaultImplementation
 
 instance {c : Char} : ToBackwardSearcher c BackwardCharSearcher where

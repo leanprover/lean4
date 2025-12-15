@@ -12,7 +12,7 @@ set_option doc.verso true
 
 public section
 
-namespace Std.Iterators
+namespace Std
 
 structure Iter.Total {α : Type w} (β : Type w) where
   it : Iter (α := α) β
@@ -33,4 +33,4 @@ A wrapper around an iterator that provides strictly terminating consumers. See
 -/
 add_decl_doc Iter.Total
 
-end Std.Iterators
+end Std

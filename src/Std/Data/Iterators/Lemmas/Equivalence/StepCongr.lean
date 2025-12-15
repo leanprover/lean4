@@ -15,7 +15,8 @@ This module proves that the step functions of equivalent iterators behave the sa
 circumstances.
 -/
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 /--
 This function is used in lemmas about iterator equivalence (`Iter.Equiv` and `IterM.Equiv`).
@@ -232,4 +233,4 @@ theorem IterM.Equiv.liftInner_stepAsHetT_bind_congr [Monad m] [LawfulMonad m]
   apply liftInner_stepAsHetT_pbind_congr h
   exact hfg
 
-end Std.Iterators
+end Std

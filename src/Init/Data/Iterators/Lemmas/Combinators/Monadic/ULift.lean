@@ -12,7 +12,8 @@ public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 
 public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 variable {α : Type u} {m : Type u → Type u'} {n : Type max u v → Type v'}
     {β : Type u}
@@ -80,4 +81,4 @@ theorem IterM.count_uLift [Iterator α m β] [Monad m] [Monad n] {it : IterM (α
   · simp [ihs ‹_›]
   · simp
 
-end Std.Iterators
+end Std

@@ -14,7 +14,8 @@ public import Init.Data.Iterators.Lemmas.Consumers.Loop
 
 public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 variable {α : Type u} {β : Type u}
 
@@ -66,4 +67,4 @@ theorem Iter.count_uLift [Iterator α Id β] {it : Iter (α := α) β}
   rw [IterM.count_uLift]
   simp [monadLift]
 
-end Std.Iterators
+end Std

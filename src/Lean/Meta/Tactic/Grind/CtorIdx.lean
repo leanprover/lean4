@@ -21,7 +21,10 @@ def propagateCtorIdxUp (e : Expr) : GoalM Unit := e.withApp fun f xs => do
   unless xs.size == indInfo.numParams + indInfo.numIndices + 1 do return
   let a := xs.back!
   let aNode ← getRootENode a
-  unless aNode.ctor do return
+  -- NB: This does not work for `Nat.ctorIdx`, as grind normalizes `Nat.succ` to `_ + k`.
+  -- But we have `attribute [grind] Nat.ctorIdx` to handle that case.
+  unless aNode.ctor do
+    return
   let some conInfo ← isConstructorApp? aNode.self | return
   if aNode.heqProofs then
     unless (← hasSameType a aNode.self) do

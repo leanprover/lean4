@@ -348,15 +348,14 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
     let discrs := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
     let mut notAlts := #[]
     let mut splitterAltInfos := #[]
-    let mut altArgMasks := #[] -- masks produced by `forallAltTelescope`
     for i in *...alts.size do
       let thmName := Name.str baseName eqnThmSuffixBase |>.appendIndexAfter (i + 1)
       trace[Meta.Match.matchEqs] "proving {thmName}"
       let altInfo := matchInfo.altInfos[i]!
       eqnNames := eqnNames.push thmName
-      let (notAlt, splitterAltInfo, argMask) ←
+      let (notAlt, splitterAltInfo) ←
           forallAltTelescope (← inferType alts[i]!) altInfo numDiscrEqs
-          fun ys _eqs rhsArgs argMask altResultType => do
+          fun ys rhsArgs altResultType => do
         let patterns := altResultType.getAppArgs
         let mut hs := #[]
         for overlappedBy in matchInfo.overlaps.overlapping i do
@@ -406,10 +405,9 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
             type        := thmType
             value       := thmVal
           }
-          return (notAlt, splitterAltInfo, argMask)
+          return (notAlt, splitterAltInfo)
       notAlts := notAlts.push notAlt
       splitterAltInfos := splitterAltInfos.push splitterAltInfo
-      altArgMasks := altArgMasks.push argMask
     let splitterMatchInfo : MatcherInfo := { matchInfo with altInfos := splitterAltInfos }
 
     let needsSplitter := !matchInfo.overlaps.isEmpty || (constInfo.type.find? (isNamedPattern )).isSome

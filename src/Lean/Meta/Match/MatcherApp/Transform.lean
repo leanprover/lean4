@@ -189,10 +189,10 @@ def withUserNames {n} [MonadControlT MetaM n] [Monad n]
   mapMetaM (withUserNamesImpl fvars names) k
 
 /-
-`Match.forallAltTelescope` lifted to a monad transformer
+`Match.forallAltVarsTelescope` lifted to a monad transformer
 (and only passing those arguments that we care about below)
 -/
-private def forallAltTelescope'
+private def forallAltVarsTelescope'
     {n} [Monad n] [MonadControlT MetaM n]
     {α} (origAltType : Expr) (altInfo : Match.AltParamInfo)
     (k : Array Expr → Array Expr → n α) : n α := do
@@ -317,7 +317,7 @@ def transform
         origAltType in origAltTypes,
         altType in altTypes do
       assert! altInfo.numOverlaps = 0
-      let alt' ← forallAltTelescope' origAltType altInfo fun ys args => do
+      let alt' ← forallAltVarsTelescope' origAltType altInfo fun ys args => do
         assert! ys.size == splitterAltInfo.numFields
         let altType ← instantiateForall altType ys
         -- Look past the thunking unit parameter, if present

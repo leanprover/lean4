@@ -61,18 +61,6 @@ where
     else
       return e
 
-private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := mvarId.withContext do
-  for localDecl in (← getLCtx) do
-    if let some (_, lhs, rhs) ← matchEq? localDecl.type then
-      if lhs.isFVar then
-        if !(← dependsOn rhs lhs.fvarId!) then
-          match (← subst? mvarId lhs.fvarId!) with
-          | some mvarId =>
-            trace[Meta.Match.matchEqs] "substSomeVar: substituted {lhs} with {rhs}"
-            return #[mvarId]
-          | none => pure ()
-  throwError "substSomeVar failed"
-
 private def unfoldElimOffset (mvarId : MVarId) : MetaM MVarId := do
   if Option.isNone <| (← mvarId.getType).find? fun e => e.isConstOf ``Nat.elimOffset then
     throwError "goal's target does not contain `Nat.elimOffset`"
@@ -117,11 +105,11 @@ private def getMatchEqsGrindParams : MetaM Grind.Params := do
     params := { params with extra := params.extra.push thm }
   return params
 
-private def solveWithGrind (mvarId : MVarId) : MetaM (Array MVarId) := do
+private def solveWithGrind (mvarId : MVarId) : MetaM Unit := do
   if debug.Meta.Match.MatchEqs.grindAsSorry.get (← getOptions) then
     trace[Meta.Match.matchEqs] "proveCondEqThm.go: grind_as_sorry is enabled, admitting goal"
     mvarId.admit (synthetic := true)
-    return #[]
+    return
 
   if (← shouldUseGrind) then
     let result ← Grind.main mvarId (← getMatchEqsGrindParams)
@@ -131,7 +119,6 @@ private def solveWithGrind (mvarId : MVarId) : MetaM (Array MVarId) := do
   else
     grindFallback mvarId
   trace[Meta.Match.matchEqs] "solved by grind"
-  return #[]
 
 private partial def proveCongrEqThm (matchDeclName : Name) (thmName : Name) (mvarId : MVarId) : MetaM Unit := do
   withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} proveCongrEqThm {thmName}")) do
@@ -160,14 +147,35 @@ where
           else
             throwError "spliIf failed")
       <|>
+      (goLeaf mvarId *> return #[])
+    subgoals.forM (go · (depth+1))
+
+  goLeaf (mvarId : MVarId) : MetaM Unit := do
+    -- At this point we should have a leave goal
+    trace[Meta.Match.matchEqs] "proveCongrEqThm.goLeaf{indentD mvarId}"
+    let type ← instantiateMVars (← mvarId.getType)
+    let badLeafGoal := do
+      throwError "Incomplete case splitting during match compilation, goal left-hand side not fully \
+        reduced to an application of a match alternative:{indentExpr type}"
+    let some (_, lhs, _, rhs) := type.heq? | badLeafGoal
+    let .fvar lhsFn := lhs.getAppFn | badLeafGoal
+    let .fvar rhsFn := rhs.getAppFn | badLeafGoal
+
+    if lhsFn == rhsFn then
       (solveWithGrind mvarId)
       <|>
+      (throwMatchEqnFailedMessage matchDeclName thmName mvarId)
+    else
+      let mvarId ← mvarId.exfalso
+      solveWithGrind mvarId
+      <|>
+      -- We need contradiction only for genDiseq. We could be smart about recognizing
+      -- the right assumption to use here, and call processGenDiseq directly, avoiding
+      -- contradiction
       (do mvarId.contradiction { genDiseq := true }
-          trace[Meta.Match.matchEqs] "solved by contradiction"
-          return #[])
+          trace[Meta.Match.matchEqs] "solved by contradiction")
       <|>
       (throwMatchEqnFailedMessage matchDeclName thmName mvarId)
-    subgoals.forM (go · (depth+1))
 
 /--
   Create new alternatives (aka minor premises) by replacing `discrs` with `patterns` at `alts`.

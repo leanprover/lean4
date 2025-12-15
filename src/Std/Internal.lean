@@ -6,7 +6,7 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Internal.Async
+public import Std.Async
 public import Std.Internal.Parsec
 public import Std.Internal.UV
 

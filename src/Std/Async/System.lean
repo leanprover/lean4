@@ -18,11 +18,9 @@ manipulation.
 -/
 
 open Std Time
-open System
+open System Internal
 
 namespace Std
-namespace Internal
-namespace IO
 namespace Async
 namespace System
 
@@ -316,6 +314,4 @@ def getGroup (groupId : GroupId) : IO (Option GroupInfo) := do
 
 end System
 end Async
-end IO
-end Internal
 end Std

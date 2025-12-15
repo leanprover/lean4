@@ -6,16 +6,14 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Internal.Async.Select
+public import Std.Async.Select
 
 public section
 
 namespace Std
-namespace Internal
 namespace Async
-namespace IO
 
-open Std.Internal.IO.Async
+open Std Async
 
 /-!
 This module provides buffered asynchronous I/O operations for efficient reading and writing.
@@ -48,7 +46,5 @@ class AsyncStream (α : Type) (β : outParam Type) where
   stop : α → IO Unit :=
     fun _ => pure ()
 
-end IO
 end Async
-end Internal
 end Std

@@ -11,9 +11,6 @@ public import Init.System.Promise
 public section
 
 namespace Std
-namespace Internal
-namespace IO
-namespace Async
 
 /-!
 
@@ -867,10 +864,10 @@ protected def block (x : Async α) (prio := Task.Priority.default) : IO α :=
   x.asTask (prio := prio) >>= ETask.block
 
 /--
-Converts `Promise` into `Async`.
+Converts `IO (IO.Promise (Except IO.Error α))` into `Async`.
 -/
 @[inline]
-protected def ofPromise (task : IO (IO.Promise (Except IO.Error α))) (error : String := "the promise linked to the Async was dropped") : Async α := do
+protected def ofIOPromise (task : IO (IO.Promise (Except IO.Error α))) (error : String := "the promise linked to the Async was dropped") : Async α := do
   match ← task.toBaseIO with
   | .ok data => pure (f := BaseIO) <| MaybeTask.ofTask <| data.result?.map fun
     | none => .error error
@@ -995,7 +992,4 @@ This function transforms the operation inside the monad `m` into a task and let 
 def background [Monad m] [MonadAsync t m] (action : m α) (prio := Task.Priority.default) : m Unit :=
   discard (async (t := t) (prio := prio) action)
 
-end Async
-end IO
-end Internal
 end Std

@@ -281,8 +281,7 @@ while true do
 ```
 -/
 def serveConnection [Transport t] (client : t) (onRequest : Request Body → ContextAsync (Response Body)) (config : Config) : ContextAsync Unit := do
-  ContextAsync.fork do
-    Connection.mk client { config := config.toH1Config }
-    |>.handle config (← ContextAsync.getContext) onRequest
+  Connection.mk client { config := config.toH1Config }
+  |>.handle config (← ContextAsync.getContext) onRequest
 
 end Std.Http.Server

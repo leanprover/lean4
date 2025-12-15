@@ -7,9 +7,7 @@ module
 
 prelude
 public import Std.Sync
-public import Init.Data.Vector
 public import Std.Internal.Async
-public import Std.Internal.Http.Internal
 public import Std.Internal.Http.Data.Chunk
 public import Std.Internal.Http.Data.Body.Length
 
@@ -24,7 +22,6 @@ making it suitable for HTTP chunked transfer encoding and other streaming scenar
 -/
 
 namespace Std.Http.Body
-
 open Std Internal IO Async
 
 set_option linter.all true
@@ -50,6 +47,7 @@ def emptyWithCapacity (capacity : Nat := 128) : Async ByteStream := do
 /--
 Creates a new ByteStream with default capacity.
 -/
+@[always_inline, inline]
 def empty : Async ByteStream :=
   emptyWithCapacity
 
@@ -57,6 +55,7 @@ def empty : Async ByteStream :=
 Attempts to receive a chunk from the stream. Returns `some` with a chunk when data is available, or `none`
 when the stream is closed or no data is available.
 -/
+@[always_inline, inline]
 def tryRecv (stream : ByteStream) : Async (Option Chunk) := do
   stream.channel.tryRecv
 
@@ -78,6 +77,7 @@ def recv (stream : ByteStream) : Async (Option Chunk) := do
 Receives a chunk and returns only its data, discarding extensions.
 Returns `none` if the stream is closed and no data is available.
 -/
+@[always_inline, inline]
 def recvBytes (stream : ByteStream) : Async (Option ByteArray) := do
   let chunk? ← stream.recv
   return chunk?.map (·.data)
@@ -106,6 +106,7 @@ def writeChunk (stream : ByteStream) (chunk : Chunk) : Async Unit := do
 Gets the known size of the stream if available.
 Returns `none` if the size is not known.
 -/
+@[always_inline, inline]
 def getKnownSize (stream : ByteStream) : Async (Option Body.Length) := do
   stream.knownSize.atomically do
     get
@@ -114,6 +115,7 @@ def getKnownSize (stream : ByteStream) : Async (Option Body.Length) := do
 Sets the known size of the stream.
 Use this when the total expected size is known ahead of time.
 -/
+@[always_inline, inline]
 def setKnownSize (stream : ByteStream) (size : Option Body.Length) : Async Unit := do
   stream.knownSize.atomically do
     set size
@@ -122,18 +124,21 @@ def setKnownSize (stream : ByteStream) (size : Option Body.Length) : Async Unit 
 Closes the stream, preventing further writes and causing pending/future
 recv operations to return `none` when no data is available.
 -/
+@[always_inline, inline]
 def close (stream : ByteStream) : Async Unit := do
   stream.channel.close
 
 /--
 Checks if the stream is closed.
 -/
+@[always_inline, inline]
 def isClosed (stream : ByteStream) : Async Bool := do
   stream.channel.isClosed
 
 /--
 Creates a `Selector` that resolves once the `ByteStream` has data available and provides that data.
 -/
+@[always_inline, inline]
 def recvSelector (stream : ByteStream) : Selector (Option Chunk) :=
   stream.channel.recvSelector
 

@@ -13,12 +13,14 @@ jobs:
         with:
           script: |
             // Get the list of files changed in this PR
-            const { data: files } = await github.paginate(github.rest.pulls.listFiles,
-            {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
-            });
+            const files = await github.paginate(
+              github.rest.pulls.listFiles,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number,
+              }
+            );
 
             // Check if stdlib_flags.h was modified
             const stdlibFlagsModified = files.some(file =>

@@ -306,7 +306,7 @@ trace: α : Type := Nat
 x : α
 ⊢ x = 1
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example : let α := Nat; let x : α := 1; @Eq α x 1 := by

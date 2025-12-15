@@ -17,6 +17,42 @@ partial def natToBin3 : (n : N) → Parity n →  List Bool
 | _, Parity.even j => [false, false]
 | _, Parity.odd  j => [true, true]
 
+-- This checks that the congr equation is done using rfl if possible:
+-- There should be not casesOn or so
+/--
+info: private theorem natToBin3.match_1.congr_eq_1.{u_1} : ∀ (motive : (x : N) → Parity x → Sort u_1) (x : N) (x_1 : Parity x)
+  (h_1 : (x : Parity N.zero) → motive N.zero x) (h_2 : (j : N) → motive (double j) (Parity.even j))
+  (h_3 : (j : N) → motive (double j).succ (Parity.odd j)) (x_2 : Parity N.zero),
+  x = N.zero →
+    x_1 ≍ x_2 →
+      (match x, x_1 with
+        | N.zero, x => h_1 x
+        | .(double j), Parity.even j => h_2 j
+        | .((double j).succ), Parity.odd j => h_3 j) ≍
+        h_1 x_2 :=
+fun motive x x_1 h_1 h_2 h_3 x_2 heq_1 heq_2 =>
+  id
+    (Eq.ndrec (motive := fun x =>
+      ∀ (x_3 : Parity x),
+        x_3 ≍ x_2 →
+          (match x, x_3 with
+            | N.zero, x => h_1 x
+            | .(double j), Parity.even j => h_2 j
+            | .((double j).succ), Parity.odd j => h_3 j) ≍
+            h_1 x_2)
+      (fun x heq_2 =>
+        eq_of_heq heq_2 ▸
+          heq_of_eq
+            (Eq.refl
+              (match N.zero, x with
+              | N.zero, x => h_1 x
+              | .(double j), Parity.even j => h_2 j
+              | .((double j).succ), Parity.odd j => h_3 j)))
+      (Eq.symm heq_1) x_1 heq_2)
+-/
+#guard_msgs in
+#print natToBin3.match_1.congr_eq_1
+
 /--
 info: private theorem natToBin3.match_1.congr_eq_1.{u_1} : ∀ (motive : (x : N) → Parity x → Sort u_1) (x : N) (x_1 : Parity x)
   (h_1 : (x : Parity N.zero) → motive N.zero x) (h_2 : (j : N) → motive (double j) (Parity.even j))

@@ -118,10 +118,6 @@ where
     trace[Meta.Match.matchEqs] "proveCongrEqThm.go {mvarId}"
     let mvarId ← mvarId.modifyTargetEqLHS whnfCore
     let subgoals ←
-      -- (do solveOverlap mvarId
-      --     trace[Meta.Match.matchEqs] "solved by solveOverlap"
-      --     return #[])
-      -- <|>
       (do let mvarId ← unfoldElimOffset mvarId; return #[mvarId])
       <|>
       (casesOnStuckLHS mvarId)
@@ -244,28 +240,20 @@ where go thmName :=
           let thmType ← unfoldNamedPattern thmType
           let thmVal  ← mkFreshExprSyntheticOpaqueMVar thmType
           let mvarId := thmVal.mvarId!
-          proveCongrEqThm matchDeclName thmName mvarId
-          /-
-            trace[Meta.Match.matchEqs] "proving congruence equation via normal equation generation"
-            let mut mvarId := mvarId
-            (_, mvarId) ← mvarId.revert (hs_discrs.map Expr.fvarId!) (preserveOrder := true)
-            (_, mvarId) ← mvarId.revert (heqs.map Expr.fvarId!) (preserveOrder := true)
-            trace[Meta.Match.matchEqs] "reverted:\n{mvarId}"
-            -- TODO: Code duplication with below
-            for _ in [:heqs.size] do
-              let (fvarId, mvarId') ← mvarId.intro1
-              -- important to substitute the fvar on the LHS, so do not use `substEq`
-              let (fvarId, mvarId') ← heqToEq mvarId' fvarId
-              (_, mvarId) ← substCore (symm := false) (clearH := true) mvarId' fvarId
-            let (xs, mvarId') ← mvarId.intros
-            mvarId ← mvarId'.heqOfEq
-            mvarId := (← mvarId.revert xs).2
-            trace[Meta.Match.matchEqs] "subst'ed:\n{mvarId}"
-            mvarId ← mvarId.revertAll
-            let thmType ← mvarId.getType'
-            trace[Meta.Match.matchEqs] "thmType: {thmType}"
-            mvarId.assign (← proveCondEqThm matchDeclName thmName thmType)
-          -/
+          ( do -- Fast path trying refl if there are no overlaps assumptions
+              unless hs_discrs.isEmpty do
+                throwError "cannot use refl when there are overlap assumptions"
+              let mut mvarId := mvarId
+              (_, mvarId) ← mvarId.revert (heqs.map Expr.fvarId!) (preserveOrder := true)
+              trace[Meta.Match.matchEqs] "reverted:\n{mvarId}"
+              -- TODO: Code duplication with below
+              for _ in [:heqs.size] do
+                let (fvarId, mvarId') ← mvarId.intro1
+                (_, mvarId) ← substEq mvarId' fvarId
+              mvarId ← mvarId.heqOfEq
+              mvarId.refl)
+          -- Default path
+          <|> proveCongrEqThm matchDeclName thmName mvarId
           let thmVal ← mkExpectedTypeHint thmVal thmType
           let thmVal ← instantiateMVars thmVal
           mkLambdaFVars hs_discrs thmVal

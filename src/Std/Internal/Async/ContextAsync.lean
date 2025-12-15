@@ -183,7 +183,7 @@ def background (action : ContextAsync α) (prio := Task.Priority.default) : Cont
   Async.background (action childCtx *> childCtx.cancel .cancel) prio
 
 /--
-Launches a `ContextAsync` computation in the background, discarding its result. It's Similar to `background`,
+Launches a `ContextAsync` computation in the background, discarding its result. It's similar to `background`,
 but the child context is not automatically cancelled when the action completes. This allows the disowned
 computation to continue running independently, even if the parent context is cancelled. The child context
 will remain alive as long as the computation needs it. See also `background` for launching tasks that are

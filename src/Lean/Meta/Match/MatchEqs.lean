@@ -29,7 +29,7 @@ register_builtin_option debug.Meta.Match.MatchEqs.grindAsSorry : Bool := {
 }
 
 -- TODO: Turn this true once it works
--- (Problem: issue10775 and injectivity of Int constructors)
+-- Known problem so far: injectivity of `Int` constructors (test issue10775)
 register_builtin_option debug.Meta.Match.MatchEqs.unrestrictedGrind : Bool := {
   defValue := true
   descr := "When proving match equations, run `grind` in the unrestricted configuration. \
@@ -104,7 +104,6 @@ private def getMatchEqsGrindParams : MetaM Grind.Params := do
       {}
     else
       { ({} : Grind.NoopConfig) with
-        splits := 1       -- grind needs at least one here, it seems
         ematch := 1000    -- We only have a fixed sets of theorem to ematch, declared below
         gen := 1000       -- Allow deep propagation of equalities
         etaStruct := true -- Needed for `x = (x' : Unit)`

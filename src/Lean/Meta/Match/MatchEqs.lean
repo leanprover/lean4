@@ -17,6 +17,7 @@ import Lean.Meta.Match.AltTelescopes
 import Lean.Meta.Match.NamedPatterns
 import Lean.Meta.SplitSparseCasesOn
 import Lean.Meta.Tactic.Grind.Main
+import Lean.Meta.Match.SolveOverlap
 
 public section
 
@@ -25,6 +26,12 @@ namespace Lean.Meta.Match
 register_builtin_option debug.Meta.Match.MatchEqs.grindAsSorry : Bool := {
   defValue := false
   descr := "When proving match equations, skip running `grind`"
+}
+
+register_builtin_option bootstrap.grindInMatchEqns : Bool := {
+  defValue := true
+  descr := "When set to false, match equation avoids using `grind` and uses a simple \
+    incomplete and inefficient approximation of it"
 }
 
 /--
@@ -74,51 +81,33 @@ private def throwMatchEqnFailedMessage (matchDeclName : Name) (thmName : Name) (
   throwError m!"failed to generate equality theorem {thmName} for `match` expression `{matchDeclName}`" ++
     .hint' "It may help to include indices of inductive types as discriminants in the `match` expression."
 
-/--
-Helper method for proving a conditional equational theorem associated with an alternative of
-the `match`-eliminator `matchDeclName`. `type` contains the type of the theorem.
--/
-partial def proveCondEqThm (matchDeclName : Name) (thmName : Name) (type : Expr) : MetaM Expr := withLCtx {} {} do
-  withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} proveCondEqThm {thmName}")) do
-  let type ← instantiateMVars type
-  let mvar0  ← mkFreshExprSyntheticOpaqueMVar type
-  trace[Meta.Match.matchEqs] "proveCondEqThm {mvar0.mvarId!}"
-  let mut mvarId := mvar0.mvarId!
-  mvarId := (← mvarId.intros).2
-  mvarId ← mvarId.deltaTarget (· == matchDeclName)
-  go mvarId 0
-  instantiateMVars mvar0
-where
-  go (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do
-    trace[Meta.Match.matchEqs] "proveCondEqThm.go {mvarId}"
-    let mvarId ← mvarId.modifyTargetEqLHS whnfCore
-    let subgoals ←
-      (do mvarId.refl; return #[])
-      <|>
-      (do mvarId.contradiction { genDiseq := true }; return #[])
-      <|>
-      (do let mvarId ← unfoldElimOffset mvarId; return #[mvarId])
-      <|>
-      (casesOnStuckLHS mvarId)
-      <|>
-      (reduceSparseCasesOn mvarId)
-      <|>
-      (splitSparseCasesOn mvarId)
-      <|>
-      (do let mvarId' ← simpIfTarget mvarId (useDecide := true) (useNewSemantics := true)
-          if mvarId' == mvarId then throwError "simpIf failed"
-          return #[mvarId'])
-      <|>
-      (do if let some (s₁, s₂) ← splitIfTarget? mvarId (useNewSemantics := true) then
-            let mvarId₁ ← trySubst s₁.mvarId s₁.fvarId
-            return #[mvarId₁, s₂.mvarId]
-          else
-            throwError "spliIf failed")
-      <|>
-      (substSomeVar mvarId)
-      <|>
-      (throwMatchEqnFailedMessage matchDeclName thmName mvarId)
-    subgoals.forM (go · (depth+1))
+private def shouldUseGrind : MetaM Bool := do
+  if !bootstrap.grindInMatchEqns.get (← getOptions) then
+    return false
+  -- Temporary until we can rebuild stage0 and set bootstrap.grindInMatchEqns
+  -- in bootstrapping options
+  if ((← getEnv).getModuleIdx? `Init).isNone then
+    return false
+  return true
+
+private def solveWithGrind (mvarId : MVarId) : MetaM (Array MVarId) := do
+  if debug.Meta.Match.MatchEqs.grindAsSorry.get (← getOptions) then
+    trace[Meta.Match.matchEqs] "proveCondEqThm.go: grind_as_sorry is enabled, admitting goal"
+    mvarId.admit (synthetic := true)
+    return #[]
+
+  if (← shouldUseGrind) then
+    let mut params ← Grind.mkParams {}
+    let s ← Grind.getEMatchTheorems
+    let thms := s.find (.decl ``Nat.hasNotBit_eq)
+    for thm in thms do
+      params := { params with extra := params.extra.push thm }
+    let r ← Grind.main mvarId params
+    if r.hasFailed then throwError "grind failed"
+  else
+    grindFallback mvarId
+  trace[Meta.Match.matchEqs] "solved by grind"
+  return #[]
 
 private partial def proveCongrEqThm (matchDeclName : Name) (thmName : Name) (mvarId : MVarId) : MetaM Unit := do
   withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} proveCongrEqThm {thmName}")) do
@@ -151,19 +140,7 @@ where
           else
             throwError "spliIf failed")
       <|>
-      (do if debug.Meta.Match.MatchEqs.grindAsSorry.get (← getOptions) then
-            trace[Meta.Match.matchEqs] "proveCondEqThm.go: grind_as_sorry is enabled, admitting goal"
-            mvarId.admit (synthetic := true)
-          else
-            let mut params ← Grind.mkParams {}
-            let s ← Grind.getEMatchTheorems
-            let thms := s.find (.decl ``Nat.hasNotBit_eq)
-            for thm in thms do
-              params := { params with extra := params.extra.push thm }
-            let r ← Grind.main mvarId params
-            if r.hasFailed then throwError "grind failed"
-            trace[Meta.Match.matchEqs] "solved by grind"
-          return #[])
+      (solveWithGrind mvarId)
       <|>
       (do mvarId.contradiction { genDiseq := true }
           trace[Meta.Match.matchEqs] "solved by contradiction"
@@ -267,10 +244,8 @@ where go thmName :=
           let thmType ← unfoldNamedPattern thmType
           let thmVal  ← mkFreshExprSyntheticOpaqueMVar thmType
           let mvarId := thmVal.mvarId!
-          let canUseGrind := ((← getEnv).getModuleIdx? `Init.Grind).isSome
-          if canUseGrind then -- TMP
-            proveCongrEqThm matchDeclName thmName mvarId
-          else
+          proveCongrEqThm matchDeclName thmName mvarId
+          /-
             trace[Meta.Match.matchEqs] "proving congruence equation via normal equation generation"
             let mut mvarId := mvarId
             (_, mvarId) ← mvarId.revert (hs_discrs.map Expr.fvarId!) (preserveOrder := true)
@@ -290,6 +265,7 @@ where go thmName :=
             let thmType ← mvarId.getType'
             trace[Meta.Match.matchEqs] "thmType: {thmType}"
             mvarId.assign (← proveCondEqThm matchDeclName thmName thmType)
+          -/
           let thmVal ← mkExpectedTypeHint thmVal thmType
           let thmVal ← instantiateMVars thmVal
           mkLambdaFVars hs_discrs thmVal
@@ -362,7 +338,6 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
     let alts   := xs[(xs.size - matchInfo.numAlts)...*]
     let firstDiscrIdx := matchInfo.numParams + 1
     let discrs := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
-    let canUseGrind := ((← getEnv).getModuleIdx? `Init.Grind).isSome
     let mut notAlts := #[]
     let mut splitterAltInfos := #[]
     let mut altArgMasks := #[] -- masks produced by `forallAltTelescope`
@@ -403,8 +378,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
             if let some thmVal ← proveCondEqThmByRefl thmType then
               trace[Meta.Match.matchEqs] "proved equation {thmName} by refl"
               pure thmVal
-            else if canUseGrind then
-              trace[Meta.Match.matchEqs] "proving via congr eqn"
+            else
               let congrEqThm ← genMatchCongrEqn matchDeclName i
               let thmVal := mkConst congrEqThm us
               -- We build the normal equation from the congruence equation here
@@ -418,10 +392,6 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
               let thmVal := mkAppN thmVal hs
               let thmVal ← mkEqOfHEq thmVal
               mkLambdaFVars (params ++ #[motive] ++ ys ++ alts ++ hs) thmVal
-            else
-              trace[Meta.Match.matchEqs] "falling back to old style"
-              -- Old style
-              proveCondEqThm matchDeclName thmName thmType
           addDecl <| Declaration.thmDecl {
             name        := thmName
             levelParams := constInfo.levelParams

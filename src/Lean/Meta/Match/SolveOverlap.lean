@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Basic
 import Lean.Meta.Tactic.Contradiction
+import Lean.Meta.Tactic.Refl
 
 namespace Lean.Meta.Match
 
@@ -94,7 +95,7 @@ where
   they have forward dependencies.
   -/
   loop (mvarId : MVarId) (forbidden : FVarIdSet) : MetaM Unit := do
-    trace[Meta.Match.matchEqs] "proveSubgoalLoop\n{mvarId}"
+    trace[Meta.Match.matchEqs] "solveOverlap.loop\n{mvarId}"
     if (← mvarId.contradictionQuick) then
       return ()
     match (← injectionAny mvarId forbidden) with
@@ -105,6 +106,42 @@ where
         if (← mvarId.contradictionCore {}) then
           return ()
         throwError "failed to solve overlap assumption, unsolved subgoal{indentD mvarId}"
+      else
+        loop mvarId' forbidden
+    | .subgoal fvarId mvarId => loop mvarId (forbidden.insert fvarId)
+
+/--
+Fallback tactic to be used instead of grind during bootstrapping.
+(Lives in this module because of the similarity with `solveOverlap`.)
+-/
+public partial def grindFallback (mvarId : MVarId) : MetaM Unit := do
+    withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} grindFallback")) do
+    trace[Meta.Match.matchEqs] "goal:{mkMVar mvarId}"
+    loop mvarId {}
+where
+  /-
+  See above for explanation of `forbidden`
+  -/
+  loop (mvarId : MVarId) (forbidden : FVarIdSet) : MetaM Unit := do
+    trace[Meta.Match.matchEqs] "grindFallback.loop\n{mvarId}"
+    let mvarId' ← mvarId.heqOfEq
+    unless mvarId' == mvarId do
+      loop mvarId' forbidden
+      return
+    if (← observing? mvarId.refl).isSome then
+      return ()
+    if (← mvarId.contradictionQuick) then
+      return ()
+    match (← injectionAny mvarId forbidden) with
+    | .solved => return ()
+    | .failed =>
+      let mvarId' ← substVars mvarId
+      if mvarId' == mvarId then
+        if (← observing? mvarId.refl).isSome then
+          return ()
+        if (← mvarId.contradictionCore {}) then
+          return ()
+        throwError "failed to prove goal with grindFallback tactic{indentD mvarId}"
       else
         loop mvarId' forbidden
     | .subgoal fvarId mvarId => loop mvarId (forbidden.insert fvarId)

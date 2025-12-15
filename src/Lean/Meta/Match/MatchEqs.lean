@@ -28,6 +28,14 @@ register_builtin_option debug.Meta.Match.MatchEqs.grindAsSorry : Bool := {
   descr := "When proving match equations, skip running `grind`"
 }
 
+-- TODO: Turn this true once it works
+-- (Problem: issue10775 and injectivity of Int constructors)
+register_builtin_option debug.Meta.Match.MatchEqs.unrestrictedGrind : Bool := {
+  defValue := true
+  descr := "When proving match equations, run `grind` in the unrestricted configuration. \
+    Useful to debug match equation failures that may be due to a too restrictive grind configuration."
+}
+
 register_builtin_option bootstrap.grindInMatchEqns : Bool := {
   defValue := true
   descr := "When set to false, match equation avoids using `grind` and uses a simple \
@@ -90,6 +98,26 @@ private def shouldUseGrind : MetaM Bool := do
     return false
   return true
 
+private def getMatchEqsGrindParams : MetaM Grind.Params := do
+  let config :=
+    if debug.Meta.Match.MatchEqs.unrestrictedGrind.get (← getOptions) then
+      {}
+    else
+      { ({} : Grind.NoopConfig) with
+        splits := 1       -- grind needs at least one here, it seems
+        ematch := 1000    -- We only have a fixed sets of theorem to ematch, declared below
+        gen := 1000       -- Allow deep propagation of equalities
+        etaStruct := true -- Needed for `x = (x' : Unit)`
+      }
+  let mut params ← Grind.mkParams config
+  let s ← Grind.getEMatchTheorems
+  let thms := s.find (.decl ``Nat.hasNotBit_eq)
+  let thms := thms ++ s.find (.decl `Nat.ctorIdx_zero)
+  let thms := thms ++ s.find (.decl `Nat.ctorIdx_succ)
+  for thm in thms do
+    params := { params with extra := params.extra.push thm }
+  return params
+
 private def solveWithGrind (mvarId : MVarId) : MetaM (Array MVarId) := do
   if debug.Meta.Match.MatchEqs.grindAsSorry.get (← getOptions) then
     trace[Meta.Match.matchEqs] "proveCondEqThm.go: grind_as_sorry is enabled, admitting goal"
@@ -97,15 +125,10 @@ private def solveWithGrind (mvarId : MVarId) : MetaM (Array MVarId) := do
     return #[]
 
   if (← shouldUseGrind) then
-    let mut params ← Grind.mkParams {}
-    let s ← Grind.getEMatchTheorems
-    let thms := s.find (.decl ``Nat.hasNotBit_eq)
-    let thms := thms ++ s.find (.decl `Nat.ctorIdx_zero)
-    let thms := thms ++ s.find (.decl `Nat.ctorIdx_succ)
-    for thm in thms do
-      params := { params with extra := params.extra.push thm }
-    let r ← Grind.main mvarId params
-    if r.hasFailed then throwError "grind failed"
+    let result ← Grind.main mvarId (← getMatchEqsGrindParams)
+    if result.hasFailed then
+      trace[Meta.Match.matchEqs] "`grind` failed\n{← result.toMessageData}"
+      throwError "grind failed"
   else
     grindFallback mvarId
   trace[Meta.Match.matchEqs] "solved by grind"

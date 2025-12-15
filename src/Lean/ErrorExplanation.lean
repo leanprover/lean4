@@ -40,7 +40,6 @@ Error explanations are rendered in the manual; a link to the resulting manual pa
 the bottom of corresponding error messages thrown using `throwNamedError` or `throwNamedErrorAt`.
 -/
 structure ErrorExplanation where
-  doc : String
   metadata : ErrorExplanation.Metadata
   declLoc? : Option DeclarationLocation
 
@@ -185,140 +184,7 @@ private def ValidationM.run (p : ValidationM α) (input : String) : Except (Nat 
   | .success _ res => Except.ok res
   | .error s err  => Except.error (s.getLineNumber, toString err)
 
-/--
-Matches `p` as many times as possible, followed by EOF. If `p` cannot be matched prior to the end
-of the input, rethrows the corresponding error.
--/
-private partial def manyThenEOF (p : ValidationM α) : ValidationM Unit := fun s =>
-  match eof s with
-  | .success .. => .success s ()
-  | .error .. =>
-    match p s with
-    | .success s' _ => manyThenEOF p s'
-    | .error s' err => .error s' err
 
-/-- Repeatedly parses the next input as long as it satisfies `p`, and discards the result. -/
-private partial def manyD (p : ValidationM α) : ValidationM Unit :=
-  Parsec.tryCatch p (fun _ => manyD p) (fun _ => pure ())
-
-/-- Parses one or more inputs as long as they satisfy `p`, and discards the result. -/
-private def many1D (p : ValidationM α) : ValidationM Unit :=
-  p *> manyD p
-
-/-- Repeatedly parses the next input as long as it fails to satisfy `p`, and discards the result. -/
-private def manyNotD (p : ValidationM α) : ValidationM Unit :=
-  manyD (notFollowedBy p *> skip)
-
-/-- Parses an error explanation: a general description followed by an examples section. -/
-private def parseExplanation : ValidationM Unit := do
-  manyNotD examplesHeader
-  eof <|> (examplesHeader *> manyThenEOF singleExample)
-where
-  /-- The top-level `# Examples` header -/
-  examplesHeader := attempt do
-    let line ← any
-    if (matchHeader 1 "Examples" line).isSome then
-      return
-    else
-      fail s!"Expected level-1 'Examples' header, but found `{line}`"
-
-  -- We needn't `attempt` examples because they never appear in a location where backtracking is
-  -- possible, and persisting the line index allows better error message placement
-  singleExample := do
-    let header ← exampleHeader
-    labelingExampleErrors header do
-      codeBlock "lean" (some .broken)
-      many1D (codeBlock "output")
-      many1D do
-        let leanBlock ← codeBlock "lean" (some .fixed)
-        let outputBlocks ← many (codeBlock "output")
-        return (leanBlock, outputBlocks)
-      manyNotD exampleEndingHeader
-
-  /-- A level-2 header for a single example. -/
-  exampleHeader := attempt do
-    let line ← any
-    if let some header := matchHeader 2 none line then
-      return header
-    else
-      fail s!"Expected level-2 header for an example section, but found `{line}`"
-
-  /-- A header capable of ending an example. -/
-  exampleEndingHeader := attempt do
-    let line ← any
-    if (matchHeader 1 none line).isSome || (matchHeader 2 none line).isSome then
-      return
-    else
-      fail s!"Expected a level-1 or level-2 header, but found `{line}`"
-
-  codeBlock (lang : String) (kind? : Option ErrorExplanation.CodeInfo.Kind := none) := attempt do
-    let (numTicks, infoString) ← fence
-      <|> fail s!"Expected a(n){kind?.map (s!" {·}") |>.getD ""} `{lang}` code block"
-    manyD (notFollowedBy (fence numTicks) *> any)
-    let (_, closing) ← fence numTicks
-      <|> fail s!"Missing closing code fence for block with header '{infoString}'"
-    -- Validate code block:
-    unless closing.trimAscii.isEmpty do
-      fail s!"Expected a closing code fence, but found the nonempty info string `{closing}`"
-    let info ← match ErrorExplanation.CodeInfo.parse infoString.copy with
-      | .ok i => pure i
-      | .error s =>
-        fail s
-    let langMatches := info.lang == lang
-    let kindMatches := (kind?.map (some · == info.kind?)).getD true
-    unless langMatches && kindMatches do
-      let (expKind, actKind) := match kind? with
-        | some kind =>
-          let actualKindStr := (info.kind?.map (s!" {·}")).getD " unspecified-kind"
-          (s!" {kind}", actualKindStr)
-        | none => ("", "")
-      fail s!"Expected a(n){expKind} `{lang}` code block, but found a(n){actKind} `{info.lang}` one"
-
-  fence (ticksToClose : Option Nat := none) := attempt do
-    let line ← any
-    if line.startsWith "```" then
-      let numTicks := line.takeWhile (· == '`') |>.utf8ByteSize -- this makes sense because we know the slice consists only of ticks
-      match ticksToClose with
-      | none => return (numTicks, line.drop numTicks)
-      | some n =>
-        if numTicks == n then
-          return (numTicks, line.drop numTicks)
-        else
-          fail s!"Expected a closing code fence with {n} ticks, but found:\n{line}"
-    else
-      -- Don't put `line` in backticks here because it might be a partial code fence
-      fail s!"Expected a code fence, but found:\n{line}"
-
-  /-- Prepends an error raised by `x` to indicate that it arose in example `header`. -/
-  labelingExampleErrors {α} (header : String) (x : ValidationM α) : ValidationM α := fun s =>
-    match x s with
-    | res@(.success ..) => res
-    | .error s' msg => .error s' (.other s!"Example '{header}' is malformed: {msg}")
-
-  /--
-  If `line` is a level-`level` header and, if `title?` is non-`none`, its title is `title?`,
-  then returns the contents of the header at `line` (i.e., stripping the leading `#`). Returns
-  `none` if `line` is not a header of the appropriate form.
-  -/
-  matchHeader (level : Nat) (title? : Option String) (line : String) : Option String := do
-    let octsEndPos := String.Pos.Raw.nextWhile line (· == '#') 0
-    guard (octsEndPos.byteIdx == level)
-    guard (octsEndPos.get line == ' ')
-    let titleStartPos := octsEndPos.next line
-    let title := Substring.Raw.mk line titleStartPos line.rawEndPos |>.toString
-    let titleMatches : Bool := match title? with
-      | some expectedTitle => title == expectedTitle
-      | none => true
-    guard titleMatches
-    some title
-
-/--
-Validates that the given error explanation has the expected structure. If an error is found, it is
-represented as a pair `(lineNumber, errorMessage)` where `lineNumber` gives the 0-based offset from
-the first line of `doc` at which the error occurs.
--/
-def processDoc (doc : String) : Except (Nat × String) Unit :=
-  parseExplanation.run doc
 
 end ErrorExplanation
 
@@ -334,9 +200,7 @@ builtin_initialize errorExplanationExt : SimplePersistentEnvExtension (Name × E
 
 /-- Returns an error explanation for the given name if one exists, rewriting manual links. -/
 def getErrorExplanation? [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] (name : Name) : m (Option ErrorExplanation) := do
-  let explan? := errorExplanationExt.getState (← getEnv) |>.find? name
-  explan?.mapM fun explan =>
-    return { explan with doc := (← rewriteManualLinks explan.doc) }
+  return errorExplanationExt.getState (← getEnv) |>.find? name
 
 /--
 Returns an error explanation for the given name if one exists *without* rewriting manual links.
@@ -362,9 +226,7 @@ def getErrorExplanationsRaw (env : Environment) : Array (Name × ErrorExplanatio
 
 /-- Returns all error explanations with their names, rewriting manual links. -/
 def getErrorExplanations [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] : m (Array (Name × ErrorExplanation)) := do
-  let entries := errorExplanationExt.getState (← getEnv) |>.toArray
-  entries
-    |>.mapM fun (n, e) => return (n, { e with doc := (← rewriteManualLinks e.doc) })
+  return errorExplanationExt.getState (← getEnv) |>.toArray
 
 /--
 Returns all error explanations with their names as a sorted array, rewriting manual links.

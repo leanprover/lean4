@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 module
 
+prelude
 public import Lake.Config.Script
 public import Lake.Config.Dependency
 public import Lake.Config.PackageConfig

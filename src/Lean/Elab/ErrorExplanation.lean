@@ -117,17 +117,6 @@ open Command in
       ++ .note m!"The first component of an error explanation name identifies the package from \
         which the error originates, and the second identifies the error itself."
   runTermElabM fun _ => validateDocComment docStx
-  let doc ← getDocStringText docStx
-  if errorExplanationExt.getState (← getEnv) |>.contains name then
-    throwErrorAt id m!"Cannot add explanation: An error explanation already exists for `{name}`"
-  if let .error (lineOffset, msg) := ErrorExplanation.processDoc doc then
-    let some range := docStx.raw[1].getRange? | throwError msg
-    let fileMap ← getFileMap
-    let ⟨startLine, _⟩ := fileMap.toPosition range.start
-    let errLine := startLine + lineOffset
-    let synth := Syntax.ofRange { start := fileMap.ofPosition ⟨errLine, 0⟩,
-                                  stop  := fileMap.ofPosition ⟨errLine + 1, 0⟩ }
-    throwErrorAt synth msg
   let (declLoc? : Option DeclarationLocation) ← do
     let map ← getFileMap
     let start := id.raw.getPos?.getD 0
@@ -136,5 +125,5 @@ open Command in
       module := (← getMainModule)
       range := .ofStringPositions map start fin
     }
-  modifyEnv (errorExplanationExt.addEntry · (name, { metadata, doc, declLoc? }))
+  modifyEnv (errorExplanationExt.addEntry · (name, { metadata, declLoc? }))
 | _ => throwUnsupportedSyntax

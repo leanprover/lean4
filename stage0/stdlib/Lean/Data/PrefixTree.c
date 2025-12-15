@@ -22,6 +22,7 @@ LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_empty(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l_Lean_PrefixTree_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PrefixTree_0__Lean_PrefixTreeNode_insert_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_find_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_PrefixTree_forMatchingM___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_empty___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedPrefixTreeNode___closed__0;
 LEAN_EXPORT lean_object* l_Lean_instEmptyCollectionPrefixTree___redArg___boxed(lean_object*);
@@ -37,7 +38,6 @@ LEAN_EXPORT lean_object* l_Lean_instInhabitedPrefixTree___boxed(lean_object*, le
 LEAN_EXPORT lean_object* l___private_Lean_Data_PrefixTree_0__Lean_PrefixTreeNode_find_x3f_loop___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PrefixTree_forMatchingM___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedPrefixTree___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PrefixTree_0__Lean_PrefixTreeNode_insert_loop___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PrefixTree_0__Lean_PrefixTreeNode_find_x3f_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -818,7 +818,7 @@ x_7 = l___private_Lean_Data_PrefixTree_0__Lean_PrefixTreeNode_foldMatchingM_find
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_PrefixTree_forMatchingM___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_PrefixTree_forMatchingM___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -830,7 +830,7 @@ LEAN_EXPORT lean_object* l_Lean_PrefixTree_forMatchingM(lean_object* x_1, lean_o
 _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_9 = lean_alloc_closure((void*)(l_Lean_PrefixTree_forMatchingM___lam__0), 3, 1);
+x_9 = lean_alloc_closure((void*)(l_Lean_PrefixTree_forMatchingM___redArg___lam__0), 3, 1);
 lean_closure_set(x_9, 0, x_8);
 x_10 = lean_box(0);
 x_11 = l___private_Lean_Data_PrefixTree_0__Lean_PrefixTreeNode_foldMatchingM_find___redArg(x_5, x_4, x_10, x_9, x_7, x_6, x_10);
@@ -841,7 +841,7 @@ LEAN_EXPORT lean_object* l_Lean_PrefixTree_forMatchingM___redArg(lean_object* x_
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = lean_alloc_closure((void*)(l_Lean_PrefixTree_forMatchingM___lam__0), 3, 1);
+x_6 = lean_alloc_closure((void*)(l_Lean_PrefixTree_forMatchingM___redArg___lam__0), 3, 1);
 lean_closure_set(x_6, 0, x_5);
 x_7 = lean_box(0);
 x_8 = l___private_Lean_Data_PrefixTree_0__Lean_PrefixTreeNode_foldMatchingM_find___redArg(x_2, x_1, x_7, x_6, x_4, x_3, x_7);
@@ -852,7 +852,7 @@ LEAN_EXPORT lean_object* l_Lean_PrefixTree_forM(lean_object* x_1, lean_object* x
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = lean_alloc_closure((void*)(l_Lean_PrefixTree_forMatchingM___lam__0), 3, 1);
+x_8 = lean_alloc_closure((void*)(l_Lean_PrefixTree_forMatchingM___redArg___lam__0), 3, 1);
 lean_closure_set(x_8, 0, x_7);
 x_9 = lean_box(0);
 x_10 = lean_box(0);
@@ -864,7 +864,7 @@ LEAN_EXPORT lean_object* l_Lean_PrefixTree_forM___redArg(lean_object* x_1, lean_
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = lean_alloc_closure((void*)(l_Lean_PrefixTree_forMatchingM___lam__0), 3, 1);
+x_5 = lean_alloc_closure((void*)(l_Lean_PrefixTree_forMatchingM___redArg___lam__0), 3, 1);
 lean_closure_set(x_5, 0, x_4);
 x_6 = lean_box(0);
 x_7 = lean_box(0);

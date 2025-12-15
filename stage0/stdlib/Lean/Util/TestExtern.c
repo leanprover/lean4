@@ -642,19 +642,19 @@ x_10 = l_Lean_throwError___at___00elabTestExtern_spec__1___redArg(x_2, x_3, x_4,
 return x_10;
 }
 }
-static lean_object* _init_l_elabTestExtern___lam__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean", 4, 4);
-return x_1;
-}
-}
 static lean_object* _init_l_elabTestExtern___lam__0___closed__1() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_mk_string_unchecked("reduceBool", 10, 10);
+return x_1;
+}
+}
+static lean_object* _init_l_elabTestExtern___lam__0___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -1309,6 +1309,15 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_elabTestExtern___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_elabTestExtern(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___00Lean_throwError___at___00elabTestExtern_spec__1_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -1340,15 +1349,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00elabTestExtern_spec__1_spec__2___redArg(x_1, x_2, x_3);
 lean_dec_ref(x_3);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_elabTestExtern___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_elabTestExtern(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_5;
 }
 }
@@ -1417,10 +1417,10 @@ l_Lean_Elab_throwUnsupportedSyntax___at___00elabTestExtern_spec__0___redArg___cl
 lean_mark_persistent(l_Lean_Elab_throwUnsupportedSyntax___at___00elabTestExtern_spec__0___redArg___closed__0);
 l_Lean_Elab_throwUnsupportedSyntax___at___00elabTestExtern_spec__0___redArg___closed__1 = _init_l_Lean_Elab_throwUnsupportedSyntax___at___00elabTestExtern_spec__0___redArg___closed__1();
 lean_mark_persistent(l_Lean_Elab_throwUnsupportedSyntax___at___00elabTestExtern_spec__0___redArg___closed__1);
-l_elabTestExtern___lam__0___closed__0 = _init_l_elabTestExtern___lam__0___closed__0();
-lean_mark_persistent(l_elabTestExtern___lam__0___closed__0);
 l_elabTestExtern___lam__0___closed__1 = _init_l_elabTestExtern___lam__0___closed__1();
 lean_mark_persistent(l_elabTestExtern___lam__0___closed__1);
+l_elabTestExtern___lam__0___closed__0 = _init_l_elabTestExtern___lam__0___closed__0();
+lean_mark_persistent(l_elabTestExtern___lam__0___closed__0);
 l_elabTestExtern___lam__0___closed__2 = _init_l_elabTestExtern___lam__0___closed__2();
 lean_mark_persistent(l_elabTestExtern___lam__0___closed__2);
 l_elabTestExtern___lam__0___closed__3 = _init_l_elabTestExtern___lam__0___closed__3();

@@ -300,6 +300,10 @@ theorem get?_eq_some [LawfulBEq α] (h : m.WF) {k : α} (h' : k ∈ m) :
       if h₂ : k == a ∧ ¬k ∈ m then k else m.get a (mem_of_mem_insert' h h₁ h₂) :=
   HashMap.Raw.getKey_insertIfNew (h₁ := h₁) h.out
 
+theorem toList_insert_perm [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+    (m.insert k).toList.Perm (if k ∈ m then m.toList else k :: m.toList) :=
+  HashMap.Raw.keys_insertIfNew_perm (v := ()) h.out
+
 @[simp, grind =]
 theorem get_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {h'} :
     (m.erase k).get a h' = m.get a (mem_of_mem_erase h h') :=
@@ -815,6 +819,20 @@ theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
 theorem isEmpty_of_isEmpty_insertMany [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : ρ} : (insertMany m l).isEmpty → m.isEmpty :=
   HashMap.Raw.isEmpty_of_isEmpty_insertManyIfNewUnit h.out
+
+section
+variable {m₁ m₂ : Raw α}
+
+theorem Equiv.beq [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁ ~m m₂) : beq m₁ m₂ :=
+  HashMap.Raw.Equiv.beq h₁.1 h₂.1 h.1
+
+theorem equiv_of_beq [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁ == m₂) : m₁ ~m m₂ :=
+  ⟨HashMap.Raw.equiv_of_beq h₁.1 h₂.1 h⟩
+
+theorem Equiv.beq_congr [EquivBEq α] [LawfulHashable α] {m₃ m₄ : Raw α} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : (m₁ == m₂) = (m₃ == m₄) :=
+  HashMap.Raw.Equiv.beq_congr h₁.1 h₂.1 h₃.1 h₄.1 w₁.1 w₂.1
+
+end
 
 section Union
 

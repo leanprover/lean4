@@ -33,14 +33,10 @@ LEAN_EXPORT lean_object* l_Vector_instDecidableMemOfLawfulBEq___redArg___boxed(l
 LEAN_EXPORT uint8_t l_Vector_instDecidableForallVectorZero(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Vector_instDecidableForallForallMemOfDecidablePred___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instDecidableForallForallMemOfDecidablePred___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Lemmas_0__Vector_foldl__filterMap_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Vector_instDecidableMemOfLawfulBEq___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Lemmas_0__Array_foldl__filterMap_x27_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Vector_instDecidableExistsVectorSucc(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT uint8_t l_Vector_instDecidableExistsAndMemOfDecidablePred(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Lemmas_0__Array_foldl__filterMap_x27_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instDecidableForallVectorZero___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Lemmas_0__Vector_foldl__filterMap_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instDecidableExistsVectorZero___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instDecidableExistsAndMemOfDecidablePred___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Vector_instDecidableExistsVectorZero(lean_object*, lean_object*, uint8_t);
@@ -208,68 +204,6 @@ uint8_t x_4; lean_object* x_5;
 x_4 = l_Vector_instDecidableMemOfLawfulBEq___redArg(x_1, x_2, x_3);
 x_5 = lean_box(x_4);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Lemmas_0__Array_foldl__filterMap_x27_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
-x_4 = lean_box(0);
-x_5 = lean_apply_1(x_3, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec_ref(x_1);
-x_7 = lean_apply_1(x_2, x_6);
-return x_7;
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Lemmas_0__Array_foldl__filterMap_x27_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l___private_Init_Data_Vector_Lemmas_0__Array_foldl__filterMap_x27_match__1_splitter___redArg(x_3, x_4, x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Lemmas_0__Vector_foldl__filterMap_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
-x_4 = lean_box(0);
-x_5 = lean_apply_1(x_3, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec_ref(x_1);
-x_7 = lean_apply_1(x_2, x_6);
-return x_7;
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Lemmas_0__Vector_foldl__filterMap_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l___private_Init_Data_Vector_Lemmas_0__Vector_foldl__filterMap_match__1_splitter___redArg(x_3, x_4, x_5);
-return x_6;
 }
 }
 LEAN_EXPORT uint8_t l_Vector_instDecidableForallVectorZero(lean_object* x_1, lean_object* x_2, uint8_t x_3) {

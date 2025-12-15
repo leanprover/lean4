@@ -1758,11 +1758,6 @@ theorem toArray_append {xs : List α} {ys : Array α} :
 
 theorem singleton_eq_toArray_singleton {a : α} : #[a] = [a].toArray := rfl
 
-@[deprecated empty_append (since := "2025-05-26")]
-theorem empty_append_fun : ((#[] : Array α) ++ ·) = id := by
-  funext ⟨l⟩
-  simp
-
 @[simp, grind =] theorem mem_append {a : α} {xs ys : Array α} : a ∈ xs ++ ys ↔ a ∈ xs ∨ a ∈ ys := by
   simp only [mem_def, toList_append, List.mem_append]
 
@@ -3248,14 +3243,6 @@ rather than `(arr.push a).size` as the argument.
     l.foldl (fun xs x => xs.push x) xs = xs ++ l.toArray := by
   simpa using List.foldl_push_eq_append (f := id)
 
-@[deprecated _root_.List.foldl_push_eq_append' (since := "2025-05-18")]
-theorem _root_.List.foldl_push {l : List α} {as : Array α} : l.foldl Array.push as = as ++ l.toArray := by
-  induction l generalizing as <;> simp [*]
-
-@[deprecated _root_.List.foldr_push_eq_append' (since := "2025-05-18")]
-theorem _root_.List.foldr_push {l : List α} {as : Array α} : l.foldr (fun a bs => push bs a) as = as ++ l.reverse.toArray := by
-  rw [List.foldr_eq_foldl_reverse, List.foldl_push_eq_append']
-
 -- TODO: a multi-pattern is being selected there because E-matching does not go inside lambdas.
 @[simp, grind! ←] theorem foldr_append_eq_append {xs : Array α} {f : α → Array β} {ys : Array β} :
     xs.foldr (f · ++ ·) ys = (xs.map f).flatten ++ ys := by
@@ -4333,11 +4320,6 @@ theorem getElem!_eq_getD [Inhabited α] {xs : Array α} {i} : xs[i]! = xs.getD i
 theorem getElem_eq_getD {xs : Array α} {i} {h : i < xs.size} (fallback : α) :
     xs[i]'h = xs.getD i fallback := by
   rw [getD_eq_getD_getElem?, getElem_eq_getElem?_get, Option.get_eq_getD]
-
-/-! # mem -/
-
-@[deprecated mem_toList_iff (since := "2025-05-26")]
-theorem mem_toList {a : α} {xs : Array α} : a ∈ xs.toList ↔ a ∈ xs := mem_def.symm
 
 /-! # get lemmas -/
 

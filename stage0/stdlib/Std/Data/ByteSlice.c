@@ -26,6 +26,7 @@ LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__7;
 LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__8___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__4___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice;
+LEAN_EXPORT lean_object* l_ByteSlice_foldr___redArg___lam__0(lean_object*, uint8_t, lean_object*);
 static lean_object* l_ByteSlice_foldr___closed__2;
 LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__8___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__2___lam__0(lean_object*, lean_object*);
@@ -69,10 +70,8 @@ LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__2;
 static lean_object* l_ByteSlice_empty___closed__1;
 LEAN_EXPORT lean_object* l_instSliceableByteSliceNat___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_ByteSlice_contains(lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_ByteSlice_foldr___lam__0(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableByteArrayNatByteSlice__5;
 static lean_object* l_ByteSlice_foldr___closed__3;
-LEAN_EXPORT lean_object* l_ByteSlice_foldr___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__2___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__1;
 LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__7___lam__0(lean_object*, lean_object*);
@@ -115,6 +114,7 @@ LEAN_EXPORT lean_object* l_ByteSlice_slice___boxed(lean_object*, lean_object*, l
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_ByteSlice_getD(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_ByteSlice_beq___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ByteSlice_foldr___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__6___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableByteSliceNat__8;
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -627,7 +627,7 @@ x_5 = l___private_Std_Data_ByteSlice_0__ByteSlice_forM_loop___redArg(x_1, x_2, x
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_ByteSlice_foldr___lam__0(lean_object* x_1, uint8_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_ByteSlice_foldr___redArg___lam__0(lean_object* x_1, uint8_t x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
@@ -734,12 +734,12 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_ByteSlice_foldr___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_ByteSlice_foldr___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_2);
-x_5 = l_ByteSlice_foldr___lam__0(x_1, x_4, x_3);
+x_5 = l_ByteSlice_foldr___redArg___lam__0(x_1, x_4, x_3);
 return x_5;
 }
 }
@@ -747,7 +747,7 @@ LEAN_EXPORT lean_object* l_ByteSlice_foldr(lean_object* x_1, lean_object* x_2, l
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = lean_alloc_closure((void*)(l_ByteSlice_foldr___lam__0___boxed), 3, 1);
+x_5 = lean_alloc_closure((void*)(l_ByteSlice_foldr___redArg___lam__0___boxed), 3, 1);
 lean_closure_set(x_5, 0, x_2);
 x_6 = l_ByteSlice_foldr___closed__9;
 x_7 = lean_unsigned_to_nat(0u);
@@ -759,7 +759,7 @@ LEAN_EXPORT lean_object* l_ByteSlice_foldr___redArg(lean_object* x_1, lean_objec
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_4 = lean_alloc_closure((void*)(l_ByteSlice_foldr___lam__0___boxed), 3, 1);
+x_4 = lean_alloc_closure((void*)(l_ByteSlice_foldr___redArg___lam__0___boxed), 3, 1);
 lean_closure_set(x_4, 0, x_1);
 x_5 = l_ByteSlice_foldr___closed__9;
 x_6 = lean_unsigned_to_nat(0u);
@@ -794,7 +794,6 @@ x_8 = lean_nat_add(x_5, x_7);
 lean_dec(x_7);
 x_9 = lean_byte_array_size(x_4);
 x_10 = lean_nat_dec_le(x_8, x_9);
-lean_dec(x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; 
@@ -948,7 +947,6 @@ if (x_6 == 0)
 {
 lean_object* x_7; 
 lean_dec(x_2);
-lean_inc(x_4);
 x_7 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_7, 0, x_1);
 lean_ctor_set(x_7, 1, x_4);
@@ -968,7 +966,6 @@ return x_8;
 else
 {
 uint8_t x_9; 
-lean_dec(x_4);
 x_9 = lean_nat_dec_le(x_2, x_3);
 if (x_9 == 0)
 {
@@ -1033,7 +1030,6 @@ return x_11;
 else
 {
 lean_object* x_12; 
-lean_dec(x_6);
 x_12 = l_ByteArray_toByteSlice(x_1, x_7, x_9);
 return x_12;
 }
@@ -1085,7 +1081,6 @@ return x_9;
 else
 {
 lean_object* x_10; 
-lean_dec(x_6);
 x_10 = l_ByteArray_toByteSlice(x_1, x_7, x_4);
 return x_10;
 }
@@ -1167,7 +1162,6 @@ return x_11;
 else
 {
 lean_object* x_12; 
-lean_dec(x_6);
 x_12 = l_ByteArray_toByteSlice(x_1, x_8, x_9);
 return x_12;
 }
@@ -1231,7 +1225,6 @@ return x_9;
 else
 {
 lean_object* x_10; 
-lean_dec(x_6);
 x_10 = l_ByteArray_toByteSlice(x_1, x_7, x_4);
 return x_10;
 }
@@ -1306,7 +1299,6 @@ return x_8;
 else
 {
 lean_object* x_9; 
-lean_dec(x_4);
 x_9 = l_ByteArray_toByteSlice(x_1, x_3, x_6);
 return x_9;
 }
@@ -1346,7 +1338,6 @@ return x_6;
 else
 {
 lean_object* x_7; 
-lean_dec(x_4);
 x_7 = l_ByteArray_toByteSlice(x_1, x_3, x_2);
 return x_7;
 }

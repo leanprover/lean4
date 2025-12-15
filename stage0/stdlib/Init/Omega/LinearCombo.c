@@ -37,7 +37,6 @@ static lean_object* l_Lean_Omega_instReprLinearCombo_repr___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_smul___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_instDecidableEqLinearCombo___boxed(lean_object*, lean_object*);
 static lean_object* l_List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0___redArg___closed__2;
-static lean_object* l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0_spec__0_spec__0___closed__0;
 static lean_object* l_Lean_Omega_instReprLinearCombo_repr___redArg___closed__2;
 static lean_object* l___private_Init_Omega_LinearCombo_0__Lean_Omega_LinearCombo_join___closed__0;
 lean_object* lean_string_length(lean_object*);
@@ -51,7 +50,6 @@ static lean_object* l_List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr
 static lean_object* l_Lean_Omega_instReprLinearCombo_repr___redArg___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_smul(lean_object*, lean_object*);
 uint8_t l_instDecidableEqList___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_instToString___lam__0(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Omega_instDecidableEqLinearCombo(lean_object*, lean_object*);
 uint8_t l_List_all___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_instToString;
@@ -65,6 +63,7 @@ static lean_object* l_List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___00__private_Init_Omega_LinearCombo_0__Lean_Omega_LinearCombo_join_spec__0(lean_object*, lean_object*);
 static lean_object* l_List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0___redArg___closed__3;
+static lean_object* l_Lean_Omega_LinearCombo_instToString___closed__0;
 LEAN_EXPORT uint8_t l_Lean_Omega_LinearCombo_isAtom___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_instReprLinearCombo;
 lean_object* l_Lean_Omega_IntList_set(lean_object*, lean_object*, lean_object*);
@@ -98,6 +97,7 @@ lean_object* l_Int_instDecidableEq___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_instAdd;
 static lean_object* l_List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0___redArg___closed__10;
+static lean_object* l_Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0___lam__0___closed__0;
 static lean_object* l_List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0___redArg___closed__1;
 static lean_object* l_Lean_Omega_instReprLinearCombo_repr___redArg___closed__15;
 static lean_object* l_List_mapTR_loop___at___00Lean_Omega_LinearCombo_instToString___private__1_spec__0___closed__0;
@@ -332,7 +332,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0_spec__0_spec__0___closed__0() {
+static lean_object* _init_l_Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0___lam__0___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -346,7 +346,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0_spec__0_spec__0___closed__0;
+x_3 = l_Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0___lam__0___closed__0;
 x_4 = lean_int_dec_lt(x_1, x_3);
 if (x_4 == 0)
 {
@@ -389,7 +389,7 @@ lean_ctor_set_tag(x_3, 5);
 lean_ctor_set(x_3, 1, x_1);
 lean_ctor_set(x_3, 0, x_2);
 x_7 = lean_unsigned_to_nat(0u);
-x_8 = l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0_spec__0_spec__0___closed__0;
+x_8 = l_Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0___lam__0___closed__0;
 x_9 = lean_int_dec_lt(x_5, x_8);
 if (x_9 == 0)
 {
@@ -434,7 +434,7 @@ x_21 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_21, 0, x_2);
 lean_ctor_set(x_21, 1, x_1);
 x_22 = lean_unsigned_to_nat(0u);
-x_23 = l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0_spec__0_spec__0___closed__0;
+x_23 = l_Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0___lam__0___closed__0;
 x_24 = lean_int_dec_lt(x_19, x_23);
 if (x_24 == 0)
 {
@@ -491,7 +491,7 @@ lean_ctor_set_tag(x_3, 5);
 lean_ctor_set(x_3, 1, x_1);
 lean_ctor_set(x_3, 0, x_2);
 x_7 = lean_unsigned_to_nat(0u);
-x_8 = l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0_spec__0_spec__0___closed__0;
+x_8 = l_Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0___lam__0___closed__0;
 x_9 = lean_int_dec_lt(x_5, x_8);
 if (x_9 == 0)
 {
@@ -534,7 +534,7 @@ x_21 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_21, 0, x_2);
 lean_ctor_set(x_21, 1, x_1);
 x_22 = lean_unsigned_to_nat(0u);
-x_23 = l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0_spec__0_spec__0___closed__0;
+x_23 = l_Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0___lam__0___closed__0;
 x_24 = lean_int_dec_lt(x_19, x_23);
 if (x_24 == 0)
 {
@@ -766,7 +766,7 @@ x_5 = l_Lean_Omega_instReprLinearCombo_repr___redArg___closed__5;
 x_6 = l_Lean_Omega_instReprLinearCombo_repr___redArg___closed__6;
 x_7 = l_Lean_Omega_instReprLinearCombo_repr___redArg___closed__7;
 x_33 = lean_unsigned_to_nat(0u);
-x_34 = l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0_spec__0_spec__0___closed__0;
+x_34 = l_Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0___lam__0___closed__0;
 x_35 = lean_int_dec_lt(x_2, x_34);
 if (x_35 == 0)
 {
@@ -1043,7 +1043,7 @@ x_8 = lean_ctor_get(x_4, 1);
 lean_inc(x_8);
 lean_dec(x_4);
 x_9 = l_List_mapTR_loop___at___00Lean_Omega_LinearCombo_instToString___private__1_spec__0___closed__0;
-x_21 = l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0_spec__0_spec__0___closed__0;
+x_21 = l_Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0___lam__0___closed__0;
 x_22 = lean_int_dec_lt(x_7, x_21);
 if (x_22 == 0)
 {
@@ -1107,7 +1107,7 @@ lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 lean_dec_ref(x_1);
-x_12 = l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0_spec__0_spec__0___closed__0;
+x_12 = l_Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0___lam__0___closed__0;
 x_13 = lean_int_dec_lt(x_2, x_12);
 if (x_13 == 0)
 {
@@ -1150,19 +1150,19 @@ return x_10;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_instToString___lam__0(lean_object* x_1) {
+static lean_object* _init_l_Lean_Omega_LinearCombo_instToString___closed__0() {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lean_Omega_LinearCombo_instToString___private__1(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Omega_LinearCombo_instToString___private__1), 1, 0);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Omega_LinearCombo_instToString() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Omega_LinearCombo_instToString___lam__0), 1, 0);
+x_1 = l_Lean_Omega_LinearCombo_instToString___closed__0;
 return x_1;
 }
 }
@@ -1193,6 +1193,25 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Omega_LinearCombo_instInhabited___closed__1;
 return x_1;
+}
+}
+LEAN_EXPORT uint8_t l_Lean_Omega_LinearCombo_isAtom___lam__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; uint8_t x_3; 
+x_2 = l_Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0___lam__0___closed__0;
+x_3 = lean_int_dec_eq(x_1, x_2);
+if (x_3 == 0)
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = l_Lean_Omega_LinearCombo_instInhabited___closed__0;
+x_5 = lean_int_dec_eq(x_1, x_4);
+return x_5;
+}
+else
+{
+return x_3;
+}
 }
 }
 LEAN_EXPORT lean_object* l_List_filterTR_loop___at___00Lean_Omega_LinearCombo_isAtom_spec__0(lean_object* x_1, lean_object* x_2) {
@@ -1264,25 +1283,6 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Omega_LinearCombo_isAtom___lam__0(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; uint8_t x_3; 
-x_2 = l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0_spec__0_spec__0___closed__0;
-x_3 = lean_int_dec_eq(x_1, x_2);
-if (x_3 == 0)
-{
-lean_object* x_4; uint8_t x_5; 
-x_4 = l_Lean_Omega_LinearCombo_instInhabited___closed__0;
-x_5 = lean_int_dec_eq(x_1, x_4);
-return x_5;
-}
-else
-{
-return x_3;
-}
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_isAtom___lam__0___boxed(lean_object* x_1) {
 _start:
 {
@@ -1303,7 +1303,7 @@ x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 lean_dec_ref(x_1);
 x_4 = lean_alloc_closure((void*)(l_Lean_Omega_LinearCombo_isAtom___lam__0___boxed), 1, 0);
-x_8 = l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0_spec__0_spec__0___closed__0;
+x_8 = l_Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0___lam__0___closed__0;
 x_9 = lean_int_dec_eq(x_2, x_8);
 lean_dec(x_2);
 if (x_9 == 0)
@@ -1376,7 +1376,7 @@ LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_coordinate(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0_spec__0_spec__0___closed__0;
+x_2 = l_Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0___lam__0___closed__0;
 x_3 = lean_box(0);
 x_4 = l_Lean_Omega_LinearCombo_instInhabited___closed__0;
 x_5 = l_Lean_Omega_IntList_set(x_3, x_1, x_4);
@@ -1696,8 +1696,8 @@ l_List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0___redArg___
 lean_mark_persistent(l_List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0___redArg___closed__1);
 l_List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0___redArg___closed__5 = _init_l_List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0___redArg___closed__5();
 lean_mark_persistent(l_List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0___redArg___closed__5);
-l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0_spec__0_spec__0___closed__0 = _init_l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0_spec__0_spec__0___closed__0();
-lean_mark_persistent(l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0_spec__0_spec__0___closed__0);
+l_Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0___lam__0___closed__0 = _init_l_Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0___lam__0___closed__0();
+lean_mark_persistent(l_Std_Format_joinSep___at___00List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0_spec__0___lam__0___closed__0);
 l_List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0___redArg___closed__2 = _init_l_List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0___redArg___closed__2();
 lean_mark_persistent(l_List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0___redArg___closed__2);
 l_List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0___redArg___closed__7 = _init_l_List_repr_x27___at___00Lean_Omega_instReprLinearCombo_repr_spec__0___redArg___closed__7();
@@ -1738,6 +1738,8 @@ l_List_mapTR_loop___at___00Lean_Omega_LinearCombo_instToString___private__1_spec
 lean_mark_persistent(l_List_mapTR_loop___at___00Lean_Omega_LinearCombo_instToString___private__1_spec__0___closed__0);
 l_List_mapTR_loop___at___00Lean_Omega_LinearCombo_instToString___private__1_spec__0___closed__1 = _init_l_List_mapTR_loop___at___00Lean_Omega_LinearCombo_instToString___private__1_spec__0___closed__1();
 lean_mark_persistent(l_List_mapTR_loop___at___00Lean_Omega_LinearCombo_instToString___private__1_spec__0___closed__1);
+l_Lean_Omega_LinearCombo_instToString___closed__0 = _init_l_Lean_Omega_LinearCombo_instToString___closed__0();
+lean_mark_persistent(l_Lean_Omega_LinearCombo_instToString___closed__0);
 l_Lean_Omega_LinearCombo_instToString = _init_l_Lean_Omega_LinearCombo_instToString();
 lean_mark_persistent(l_Lean_Omega_LinearCombo_instToString);
 l_Lean_Omega_LinearCombo_instInhabited___closed__0 = _init_l_Lean_Omega_LinearCombo_instInhabited___closed__0();

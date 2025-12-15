@@ -16,7 +16,7 @@ This modules defines the `CasesInfo` data structure and functions to obtain it.
 It contains information about the structure of casesOn-like functions, namely of
 
 * Plain `.casesOn` (one alternative per constructor)
-* Per-constructor eliminiations (with side condition, one alternative only)
+* Per-constructor eliminations (with side condition, one alternative only)
 * Sparse cases-on (only some constructors, with a catch-all)
 
 It recognizes `.casesOn` by using `isCasesOnRecursor` (name + `isAuxDecl` env ext), and the others

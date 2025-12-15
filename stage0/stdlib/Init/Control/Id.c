@@ -38,14 +38,6 @@ LEAN_EXPORT lean_object* l_Id_run___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Id_instMonadLiftTOfPure(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Id_instMonad___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_apply_1(x_3, x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Id_instMonad___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -60,21 +52,27 @@ lean_inc(x_2);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Id_instMonad___lam__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_box(0);
-x_6 = lean_apply_1(x_4, x_5);
-x_7 = lean_apply_1(x_3, x_6);
-return x_7;
-}
-}
 LEAN_EXPORT lean_object* l_Id_instMonad___lam__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_inc(x_3);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Id_instMonad___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = lean_apply_1(x_3, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Id_instMonad___lam__6(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = lean_apply_1(x_4, x_3);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Id_instMonad___lam__5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -86,12 +84,14 @@ x_6 = lean_apply_1(x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Id_instMonad___lam__6(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Id_instMonad___lam__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; 
-x_5 = lean_apply_1(x_4, x_3);
-return x_5;
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_5 = lean_box(0);
+x_6 = lean_apply_1(x_4, x_5);
+x_7 = lean_apply_1(x_3, x_6);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Id_instMonad___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

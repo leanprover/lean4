@@ -260,7 +260,7 @@ instance : Std.Associative (· != ·) := ⟨bne_assoc⟩
 
 theorem eq_not_of_ne : ∀ {x y : Bool}, x ≠ y → x = !y := by decide
 
-/-! ### coercision related normal forms -/
+/-! ### coercion related normal forms -/
 
 theorem beq_eq_decide_eq [BEq α] [LawfulBEq α] [DecidableEq α] (a b : α) :
     (a == b) = decide (a = b) := by

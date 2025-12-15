@@ -92,7 +92,7 @@ Returns the declaration name.
 -/
 def declareTacticSyntax (tactic : Syntax) (name? : Option Name := none) : TermElabM Name :=
   withFreshMacroScope do
-    let name ← name?.getDM do MonadQuotation.addMacroScope ((← getEnv).asyncPrefix?.getD .anonymous ++ `_auto)
+    let name ← name?.getDM (mkAuxDeclName `_auto)
     let type := Lean.mkConst `Lean.Syntax
     let value ← quoteAutoTactic tactic
     trace[Elab.autoParam] value

@@ -181,7 +181,6 @@ lean_inc_ref(x_7);
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_array_get_size(x_7);
 x_10 = lean_nat_dec_lt(x_8, x_9);
-lean_dec(x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; 

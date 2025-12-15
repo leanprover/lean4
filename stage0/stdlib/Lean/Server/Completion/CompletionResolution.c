@@ -1215,7 +1215,6 @@ lean_inc(x_10);
 lean_dec_ref(x_9);
 x_11 = lean_array_get_size(x_10);
 x_12 = lean_nat_dec_lt(x_7, x_11);
-lean_dec(x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; 

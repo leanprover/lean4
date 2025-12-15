@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.HashSet
-// Imports: public import Std.Data.HashSet.Basic public import Std.Data.HashSet.Iterator public import Std.Data.HashSet.Lemmas public import Std.Data.HashSet.IteratorLemmas
+// Imports: public import Std.Data.HashSet.Basic public import Std.Data.HashSet.Iterator public import Std.Data.HashSet.Lemmas public import Std.Data.HashSet.IteratorLemmas public import Std.Data.HashSet.DecidableEquiv
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,6 +17,7 @@ lean_object* initialize_Std_Data_HashSet_Basic(uint8_t builtin);
 lean_object* initialize_Std_Data_HashSet_Iterator(uint8_t builtin);
 lean_object* initialize_Std_Data_HashSet_Lemmas(uint8_t builtin);
 lean_object* initialize_Std_Data_HashSet_IteratorLemmas(uint8_t builtin);
+lean_object* initialize_Std_Data_HashSet_DecidableEquiv(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_HashSet(uint8_t builtin) {
 lean_object * res;
@@ -32,6 +33,9 @@ res = initialize_Std_Data_HashSet_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_HashSet_IteratorLemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_HashSet_DecidableEquiv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

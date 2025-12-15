@@ -198,6 +198,21 @@ private def updateOccs (a : Nat) (x : Var) (c : EqCnstr) : LinearM Unit := do
   for y in ys do
     updateOccsAt a x c y
 
+private def isImpliedEq (c : EqCnstr) : LinearM Bool := do
+  match c.p with
+  | .add (-1) x (.add 1 y .nil)
+  | .add 1 x (.add (-1) y .nil) =>
+    if (← isEqv (← getVar x) (← getVar y)) then return false
+    return true
+  | _ => return false
+
+private def ensureLeadCoeffPos (c : EqCnstr) : LinearM EqCnstr := do
+  let .add k _ _ := c.p | return c
+  if k < 0 then
+    return { p := c.p.mul (-1), h := .neg c }
+  else
+    return c
+
 private def EqCnstr.assert (c : EqCnstr) : LinearM Unit := do
   trace[grind.linarith.assert] "{← c.denoteExpr}"
   let c ← c.applySubsts
@@ -207,6 +222,17 @@ private def EqCnstr.assert (c : EqCnstr) : LinearM Unit := do
   let (a, x, c) ← c.norm
   trace[grind.debug.linarith.subst] ">> {← getVar x}, {← c.denoteExpr}"
   trace[grind.linarith.assert.store] "{← c.denoteExpr}"
+  /-
+  **Note**:
+  We currently only catch equalities of the form `x + -1*y = 0`
+  This is sufficient for catching trivial cases, but to catch all implied equalities
+  we need to keep a mapping from `(Poly, Int)` to `Var`. The mapping contains an entry `(p, k) ↦ x`
+  if `x` is an eliminated variable and there is a constraint that implies `k*x = p`.
+  We need this mapping to catch `k*x = p` and `k*y = p`
+  -/
+  unless (← getStruct).caseSplits do
+    if (← isImpliedEq c) then
+      propagateImpEq (← ensureLeadCoeffPos c)
   modifyStruct fun s => { s with
     elimEqs := s.elimEqs.set x (some c)
     elimStack := x :: s.elimStack

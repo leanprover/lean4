@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Theorems
 import Init.Grind.Util
+import Lean.Util.ForEachExpr
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Match.Basic
 import Lean.Meta.Tactic.TryThis
@@ -406,6 +407,11 @@ inductive EMatchTheoremConstraint where
     Similar to `guard`, but checks whether `e` is implied by asserting `¬e`.
     -/
     check (e : Expr)
+  | /--
+    Constraints of the form `not_value x` and `not_strict_value x`.
+    They are the negations of `is_value x` and `is_strict_value x`.
+    -/
+    notValue (bvarIdx : Nat) (strict : Bool)
   deriving Inhabited, Repr, BEq
 
 /-- A theorem for heuristic instantiation based on E-matching. -/
@@ -575,6 +581,22 @@ private def saveSymbol (h : HeadIndex) : M Unit := do
   unless (← get).symbolSet.contains h do
     modify fun s => { s with symbols := s.symbols.push h, symbolSet := s.symbolSet.insert h }
 
+private def saveSymbolsAt (e : Expr) : M Unit := do
+  e.forEach' fun e => do
+    if e.isApp || e.isConst then
+      /- **Note**: We ignore function symbols that have special handling in the internalizer. -/
+      if let .const declName _ := e.getAppFn then
+        if declName == ``OfNat.ofNat || declName == ``Grind.nestedProof
+           || declName == ``Grind.eqBwdPattern
+           || declName == ``Grind.nestedDecidable || declName == ``ite then
+          return false
+    match e with
+    | .const .. =>
+      saveSymbol e.toHeadIndex
+      return false
+    | _ =>
+      return true
+
 private def foundBVar (idx : Nat) : M Bool :=
   return (← get).bvarsFound.contains idx
 
@@ -640,10 +662,23 @@ def getPatternArgKinds (f : Expr) (numArgs : Nat) : MetaM (Array PatternArgKind)
           if pinfos[idx].hasFwdDeps then return .typeFormer else return .relevant
         else
           return .typeFormer
-      else if (← x.fvarId!.getDecl).binderInfo matches .instImplicit then
-        return .instImplicit
       else
-        return .relevant
+        let xDecl ← x.fvarId!.getDecl
+        if xDecl.binderInfo matches .instImplicit then
+          return .instImplicit
+        /-
+        **Note**: Even if the binder is not marked as instance implicit, we may still
+        synthesize it using type class resolution. The motivation is declarations such as
+        ```
+        ZeroMemClass.zero_mem {S : Type} {M : outParam Type} {inst1 : Zero M} {inst2 : SetLike S M}
+            [self : @ZeroMemClass S M inst1 inst2] (s : S) : 0 ∈ s
+        ```
+        Recall that a similar approach is used in `simp`.
+        -/
+        else if (← isClass? xDecl.type).isSome then
+          return .instImplicit
+        else
+          return .relevant
 
 private def getPatternFn? (pattern : Expr) (inSupport : Bool) (root : Bool) (argKind : PatternArgKind) : M (Option Expr) := do
   if !pattern.isApp && !pattern.isConst then
@@ -665,35 +700,85 @@ private def getPatternFn? (pattern : Expr) (inSupport : Bool) (root : Bool) (arg
     | _ =>
       return none
 
+/--
+Helper type used during pattern normalization.
+When normalizing a sub-pattern `p`, we store the kind of the parent pattern
+using this enumeration type.
+-/
+private inductive ParentKind where
+  | /-- No special treatment needed. -/
+    regular
+  | /--
+    The parent pattern is the gadget `Grind.eqBwdPattern`.
+    In this case, we do not collect the symbols in ground children pattern.
+    -/
+    eqBwdPattern
+  | /--
+    The parent pattern is the gadget `Grind.genPattern` and `Grind.genHEqPattern`.
+    These gadgets assume the arguments are variables (see: `isGenPattern?`).
+    Thus, during normalization we must not replace them with `dontCare`.
+    -/
+    genPattern
+
+private def toParentKind (f : Expr) : ParentKind :=
+  match f with
+  | .const declName _ =>
+    if declName == ``Grind.eqBwdPattern then
+      .eqBwdPattern
+    else if declName == ``Grind.genHEqPattern || declName == ``Grind.genPattern then
+      .genPattern
+    else
+      .regular
+  | _ => .regular
+
 private partial def go (pattern : Expr) (inSupport : Bool) (root : Bool) : M Expr := do
   if let some (e, k) := isOffsetPattern? pattern then
-    let e ← goArg e inSupport .relevant
-    if e == dontCare then
+    let e ← goArg e inSupport .relevant .regular
+    if isPatternDontCare e then
       return dontCare
     else
       return mkOffsetPattern e k
   let some f ← getPatternFn? pattern inSupport root .relevant
     | throwError "invalid pattern, (non-forbidden) application expected{indentD (ppPattern pattern)}"
   assert! f.isConst || f.isFVar
-  unless f.isConstOf ``Grind.eqBwdPattern do
+  let parentKind := toParentKind f
+  if parentKind matches .regular then
     saveSymbol f.toHeadIndex
   let mut args := pattern.getAppArgs.toVector
   let patternArgKinds ← getPatternArgKinds f args.size
   for h : i in *...args.size do
     let arg := args[i]
     let argKind := patternArgKinds[i]?.getD .relevant
-    args := args.set i (← goArg arg (inSupport || argKind.isSupport) argKind)
+    args := args.set i (← goArg arg (inSupport || argKind.isSupport) argKind parentKind)
   return mkAppN f args.toArray
 where
-  goArg (arg : Expr) (inSupport : Bool) (argKind : PatternArgKind) : M Expr := do
+  goArg (arg : Expr) (inSupport : Bool) (argKind : PatternArgKind) (parentKind : ParentKind) : M Expr := do
     if !arg.hasLooseBVars then
       if arg.hasMVar then
         pure dontCare
+      else if (← isProof arg) then
+        pure dontCare
       else
-        return mkGroundPattern (← expandOffsetPatterns arg)
+        let arg ← expandOffsetPatterns arg
+        if !inSupport && parentKind matches .regular then
+          /-
+          **Note**: We ignore symbols in ground patterns if the parent is the auxiliary ``Grind.eqBwdPattern
+          We do that because we want to sign an error in examples such as:
+          ```
+          theorem dummy (x : Nat) : x = x :=
+            rfl
+          -- error: invalid pattern for `dummy`
+          --  [@Lean.Grind.eqBwdPattern `[Nat] #0 #0]
+          -- the pattern does not contain constant symbols for indexing
+          attribute [grind ←=] dummy
+          ```
+          -/
+          saveSymbolsAt arg
+        return mkGroundPattern arg
     else match arg with
       | .bvar idx =>
-        if inSupport && (← foundBVar idx) then
+        -- **Note** See comment at `ParentKind.genPattern`.
+        if inSupport && (← foundBVar idx) && !parentKind matches .genPattern then
           pure dontCare
         else
           saveBVar idx
@@ -788,27 +873,34 @@ private def checkCoverage (thmProof : Expr) (numParams : Nat) (bvarsFound : Std.
       for x in xs do
         let fvarId := x.fvarId!
         unless processed.contains fvarId do
-          let xType ← inferType x
+          let xDecl ← fvarId.getDecl
+          let xType := xDecl.type
           if fvarsFound.contains fvarId then
             -- Collect free vars in `x`s type and mark as processed
             fvarsFound := update fvarsFound xType
             processed := processed.insert fvarId
             modified := true
-          else if (← fvarId.getDecl).binderInfo matches .instImplicit then
-            -- If `x` is instance implicit, check whether
-            -- we have found all free variables needed to synthesize instance
-            if (← canBeSynthesized thmVars fvarsFound xType) then
-              fvarsFound := fvarsFound.insert fvarId
-              fvarsFound := update fvarsFound xType
-              processed := processed.insert fvarId
-              modified := true
-          else if (← isProp xType) then
-            -- If `x` is a proposition, and all theorem variables in `x`s type have already been found
-            -- add it to `fvarsFound` and mark it as processed.
-            if checkTypeFVars thmVars fvarsFound xType then
-              fvarsFound := fvarsFound.insert fvarId
-              processed := processed.insert fvarId
-              modified := true
+          else
+            /- **Note**: See comment at `getPatternArgKinds` -/
+            let instImplicit ← if xDecl.binderInfo matches .instImplicit then
+              pure true
+            else
+              pure <| (← isClass? xType).isSome
+            if instImplicit then
+              -- If `x` is instance implicit, check whether
+              -- we have found all free variables needed to synthesize instance
+              if (← canBeSynthesized thmVars fvarsFound xType) then
+                fvarsFound := fvarsFound.insert fvarId
+                fvarsFound := update fvarsFound xType
+                processed := processed.insert fvarId
+                modified := true
+            else if (← isProp xType) then
+              -- If `x` is a proposition, and all theorem variables in `x`s type have already been found
+              -- add it to `fvarsFound` and mark it as processed.
+              if checkTypeFVars thmVars fvarsFound xType then
+                fvarsFound := fvarsFound.insert fvarId
+                processed := processed.insert fvarId
+                modified := true
       if fvarsFound.size == numParams then
         return .ok
       if !modified then
@@ -1472,6 +1564,10 @@ private def save (ref : Syntax) (thm : EMatchTheorem) (isParam : Bool) (minIndex
   if (← get).thms.all fun thm' => thm.patterns != thm'.patterns then
     let pats ← thm.patterns.mapM fun p => do
       let pats ← addMessageContextFull (ppPattern p)
+      -- **Note**: Add function for adding naming context, or store `MessageData` directly in the suggestion.
+      let currNamespace ← getCurrNamespace
+      let openDecls ← getOpenDecls
+      let pats := MessageData.withNamingContext {currNamespace, openDecls} pats
       pats.format
     let openBracket  := if isParam then "" else "["
     let closeBracket := if isParam then "" else "]"

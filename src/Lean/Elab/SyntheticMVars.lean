@@ -38,10 +38,21 @@ private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId
         let mvarDecl     ← getMVarDecl mvarId
         let expectedType ← instantiateMVars mvarDecl.type
         withInfoHole mvarId do
-          let result ← resumeElabTerm stx expectedType (!postponeOnError)
-          /- We must ensure `result` has the expected type because it is the one expected by the method that postponed stx.
-            That is, the method does not have an opportunity to check whether `result` has the expected type or not. -/
-          let result ← withRef stx <| ensureHasType expectedType result
+          /-
+          NOTE: `withInfoTree` discards all but the last info tree pushed inside this `do` block.
+          `resumeElabTerm` usually pushes the term info node and `ensureHasType` sometimes
+          pushes a custom info node with information about the coercions that were applied.
+
+          In order for both trees to be preserved, we use `withTermInfoContext'` to wrap these
+          trees into a single node. Although this results in two nested term nodes for the same
+          syntax element, this should be unproblematic. For example, `hoverableInfoAtM?` selects
+          the innermost info tree.
+          -/
+          let result ← withTermInfoContext' .anonymous stx do
+            let result ← resumeElabTerm stx expectedType (!postponeOnError)
+            /- We must ensure `result` has the expected type because it is the one expected by the method that postponed stx.
+              That is, the method does not have an opportunity to check whether `result` has the expected type or not. -/
+            withRef stx <| ensureHasType expectedType result
           /- We must perform `occursCheck` here since `result` may contain `mvarId` when it has synthetic `sorry`s. -/
           if (← occursCheck mvarId result) then
             mvarId.assign result
@@ -512,7 +523,9 @@ mutual
             if !e.isFVar then
               e ← mvarId'.withContext do
                 withExporting (isExporting := wasExporting) do
-                  abstractProof e
+                  -- Like `abstractProof`, but use the expected and not given type here as
+                  -- the latter might not make sense outside the current module (#11672).
+                  mkAuxTheorem (cache := !e.hasSorry) (← mvarId.getType) e (zetaDelta := true)
             mvarId.assign e)
       fun ex => do
         if report then
@@ -537,7 +550,11 @@ mutual
         if (← occursCheck mvarId e) then
           mvarId.assign e
           return true
-      if let .some coerced ← coerce? e expectedType then
+      if let .some (coerced, expandedCoeDecls) ← coerceCollectingNames? e expectedType then
+        pushInfoLeaf (.ofCustomInfo {
+          stx := mvarSyntheticDecl.stx
+          value := Dynamic.mk <| CoeExpansionTrace.mk expandedCoeDecls
+        })
         if (← occursCheck mvarId coerced) then
           mvarId.assign coerced
           return true

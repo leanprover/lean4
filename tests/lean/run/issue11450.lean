@@ -17,7 +17,7 @@ inductive Term (L: Nat → Type) (n : Nat) : Nat → Type _
 
 /--
 info: @[reducible] def Term.var.noConfusion.{u} : {L : Nat → Type} →
-  {n : Nat} → {P : Sort u} → {k k' : Fin n} → Term.var k = Term.var k' → (k = k' → P) → P
+  {n : Nat} → {P : Sort u} → {k k' : Fin n} → Term.var k = Term.var k' → (k ≍ k' → P) → P
 -/
 #guard_msgs in
 #print sig Term.var.noConfusion
@@ -44,7 +44,7 @@ inductive Vec (α : Type u) : Nat → Type u where
 /--
 info: Vec.cons.noConfusion.{u_1, u} {α : Type u} {P : Sort u_1} {n : Nat} {x : α} {xs : Vec α n} {n' : Nat} {x' : α}
   {xs' : Vec α n'} (eq_1 : n + 1 = n' + 1) (eq_2 : Vec.cons x xs ≍ Vec.cons x' xs')
-  (k : n = n' → x = x' → xs ≍ xs' → P) : P
+  (k : n = n' → x ≍ x' → xs ≍ xs' → P) : P
 -/
 #guard_msgs in
 #check Vec.cons.noConfusion
@@ -60,11 +60,11 @@ theorem Vec.cons.hinj' {α : Type u}
   {x : α} {n : Nat} {xs : Vec α n} {x' : α} {n' : Nat} {xs' : Vec α n'} :
   Vec.cons x xs ≍ Vec.cons x' xs' → (n + 1 = n' + 1 → (x = x' ∧ xs ≍ xs')) := by
   intro h eq_1
-  apply Vec.cons.noConfusion eq_1 h (fun _ eq_x eq_xs => ⟨eq_x, eq_xs⟩)
+  apply Vec.cons.noConfusion eq_1 h (fun _ eq_x eq_xs => ⟨eq_of_heq eq_x, eq_xs⟩)
 
 /--
-info: Vec.cons.hinj.{u} {α : Type u} {n : Nat} {x : α} {xs : Vec α n} {n✝ : Nat} {x✝ : α} {xs✝ : Vec α n✝} :
-  n + 1 = n✝ + 1 → Vec.cons x xs ≍ Vec.cons x✝ xs✝ → n = n✝ ∧ x = x✝ ∧ xs ≍ xs✝
+info: Vec.cons.hinj.{u} {α : Type u} {n : Nat} {x : α} {xs : Vec α n} {α✝ : Type u} {n✝ : Nat} {x✝ : α✝} {xs✝ : Vec α✝ n✝} :
+  α = α✝ → n + 1 = n✝ + 1 → Vec.cons x xs ≍ Vec.cons x✝ xs✝ → α = α✝ ∧ n = n✝ ∧ x ≍ x✝ ∧ xs ≍ xs✝
 -/
 #guard_msgs in
 #check Vec.cons.hinj

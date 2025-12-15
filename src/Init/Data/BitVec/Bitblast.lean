@@ -835,7 +835,7 @@ execution. -/
 structure DivModArgs (w : Nat) where
   /-- the numerator (aka, dividend) -/
   n : BitVec w
-  /-- the denumerator (aka, divisor)-/
+  /-- the denominator (aka, divisor)-/
   d : BitVec w
 
 /-- A `DivModState` is lawful if the remainder width `wr` plus the numerator width `wn` equals `w`,

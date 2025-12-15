@@ -13,7 +13,7 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Pred
 /-!
 This module contains the logic to turn a `BVLogicalExpr` into an `AIG` with maximum subterm sharing,
 through the use of a cache that re-uses sub-circuits if possible. Additionally a term level cache
-is used to prevent rerunning bitblasting on commong bitvector subexpressions.
+is used to prevent rerunning bitblasting on common bitvector subexpressions.
 -/
 
 namespace Std.Tactic.BVDecide

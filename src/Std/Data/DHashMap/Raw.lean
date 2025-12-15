@@ -476,17 +476,6 @@ only those mappings where the function returns `some` value.
 @[inline] def keysArray (m : Raw α β) : Array α :=
   m.fold (fun acc k _ => acc.push k) (.emptyWithCapacity m.size)
 
-/-- Checks if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
-@[inline] def all (m : Raw α β) (p : (a : α) → β a → Bool) : Bool := Id.run do
-  for a in m do
-    if ¬ p a.1 a.2 then return false
-  return true
-
-/-- Checks if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
-@[inline] def any (m : Raw α β) (p : (a : α) → β a → Bool) : Bool := Id.run do
-  for a in m do
-    if p a.1 a.2 then return true
-  return false
 /--
 Computes the union of the given hash maps. If a key appears in both maps, the entry contained in
 the second argument will appear in the result.
@@ -521,6 +510,25 @@ This function always merges the smaller map into the larger map, so the expected
     m₂
 
 instance [BEq α] [Hashable α] : Inter (Raw α β) := ⟨inter⟩
+
+/--
+Compares two hash maps using Boolean equality on keys and values.
+
+Returns `true` if the maps contain the same key-value pairs, `false` otherwise.
+-/
+def beq [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] (m₁ m₂ : Raw α β) : Bool :=
+  if h : 0 < m₁.buckets.size ∧ 0 < m₂.buckets.size then
+    Raw₀.beq ⟨m₁, h.1⟩ ⟨m₂, h.2⟩
+  else
+    false
+
+instance [BEq α] [Hashable α] [LawfulBEq α] [∀ k, BEq (β k)] : BEq (Raw α β) := ⟨beq⟩
+
+@[inherit_doc DHashMap.Raw.beq] def Const.beq {β : Type v} [BEq α] [Hashable α] [BEq β] (m₁ m₂ : Raw α (fun _ => β)) : Bool :=
+  if h : 0 < m₁.buckets.size ∧ 0 < m₂.buckets.size then
+      Raw₀.Const.beq ⟨m₁, h.1⟩ ⟨m₂, h.2⟩
+  else
+    false
 
 /--
 Computes the difference of the given hash maps.

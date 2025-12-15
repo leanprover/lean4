@@ -73,19 +73,11 @@ private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs 
        (lt a b || a == b && xs.lex ys lt) := by
   simp only [lex, size_append, List.size_toArray, List.length_cons, List.length_nil, Nat.zero_add,
     Nat.add_min_add_left, Nat.add_lt_add_iff_left, Std.Rco.forIn'_eq_forIn'_toList]
-  conv =>
-    lhs; congr; congr
-    rw [cons_lex_cons.forIn'_congr_aux Std.Rco.toList_eq_if_roo rfl (fun _ _ _ => rfl)]
-    simp only [bind_pure_comp, map_pure]
-    rw [cons_lex_cons.forIn'_congr_aux (if_pos (by omega)) rfl (fun _ _ _ => rfl)]
-  simp only [Std.toList_roo_eq_toList_rco_of_isSome_succ? (lo := 0) (h := rfl),
-    Std.PRange.UpwardEnumerable.succ?, Nat.add_comm 1, Std.PRange.Nat.toList_rco_succ_succ,
-    Option.get_some, List.forIn'_cons, List.size_toArray, List.length_cons, List.length_nil,
-    Nat.lt_add_one, getElem_append_left, List.getElem_toArray, List.getElem_cons_zero]
-  cases lt a b
-  · rw [bne]
-    cases a == b <;> simp
-  · simp
+  rw [cons_lex_cons.forIn'_congr_aux (Nat.toList_rco_eq_cons (by omega)) rfl (fun _ _ _ => rfl)]
+  simp only [bind_pure_comp, map_pure, Nat.toList_rco_succ_succ, Nat.add_comm 1]
+  cases h : lt a b
+  · cases h' : a == b <;> simp [bne, *]
+  · simp [*]
 
 @[simp, grind =] theorem _root_.List.lex_toArray [BEq α] {lt : α → α → Bool} {l₁ l₂ : List α} :
     l₁.toArray.lex l₂.toArray lt = l₁.lex l₂ lt := by

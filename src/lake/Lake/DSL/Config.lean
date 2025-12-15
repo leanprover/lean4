@@ -19,10 +19,11 @@ def elabNameConst : TermElab := fun stx expectedType? => do
   let env ← getEnv
   unless env.contains packageDeclName do
     throwError "`__name__` can only be used after the `package` declaration"
-  let exp :=
-    match nameExt.getState env with
-    | .anonymous => mkIdent <| packageDeclName.str "origName"
+  let ⟨idx, name⟩ := nameExt.getState env
+  let name := match name with
+    | .anonymous => (mkIdent <| packageDeclName.str "origName")
     | name => Name.quoteFrom stx name
+  let exp := Syntax.mkCApp ``Name.num #[name, quote idx]
   withMacroExpansion stx exp <| elabTerm exp expectedType?
 
 /--

@@ -260,6 +260,17 @@ instance [BEq α] [Hashable α] : Inter (HashSet α) := ⟨inter⟩
 @[inline, inherit_doc HashMap.partition] def partition (f : α → Bool) (m : HashSet α) : HashSet α × HashSet α :=
   let ⟨l, r⟩ := m.inner.partition fun a _ => f a
   ⟨⟨l⟩, ⟨r⟩⟩
+
+/--
+Compares two hash sets using Boolean equality on keys.
+
+Returns `true` if the sets contain the same keys, `false` otherwise.
+-/
+def beq [BEq α] (m₁ m₂ : HashSet α) : Bool :=
+  HashMap.beq m₁.inner m₂.inner
+
+instance [BEq α] : BEq (HashSet α) := ⟨beq⟩
+
 /--
 Computes the difference of the given hash sets.
 

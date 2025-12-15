@@ -38,7 +38,7 @@ protected def map (f : α → β) : Except ε α → Except ε β
 @[simp] theorem map_id : Except.map (ε := ε) (α := α) (β := α) id = id := by
   apply funext
   intro e
-  cases e <;> rfl
+  simp [Except.map]; cases e <;> rfl
 
 /--
 Transforms exceptions with a function, doing nothing on successful results.

@@ -96,7 +96,7 @@ def elabCheckedNamedError : TermElab := fun stx expType? => do
 
 open Command in
 @[builtin_command_elab registerErrorExplanationStx] def elabRegisterErrorExplanation : CommandElab
-| `(registerErrorExplanationStx| $docStx:docComment register_error_explanation%$cmd $id:ident $t:term) => withRef cmd do
+| `(registerErrorExplanationStx| $_docStx register_error_explanation%$cmd $id:ident $t:term) => withRef cmd do
   unless (← getEnv).contains ``ErrorExplanation.Metadata do
     throwError "To use this command, add `import Lean.ErrorExplanation` to the header of this file"
   recordExtraModUseFromDecl ``ErrorExplanation.Metadata (isMeta := true)
@@ -116,7 +116,8 @@ open Command in
     throwErrorAt id m!"Invalid name `{name}`: Error explanation names must have two components"
       ++ .note m!"The first component of an error explanation name identifies the package from \
         which the error originates, and the second identifies the error itself."
-  runTermElabM fun _ => validateDocComment docStx
+  if errorExplanationExt.getState (← getEnv) |>.contains name then
+    throwErrorAt id m!"Cannot add explanation: An error explanation already exists for `{name}`"
   let (declLoc? : Option DeclarationLocation) ← do
     let map ← getFileMap
     let start := id.raw.getPos?.getD 0

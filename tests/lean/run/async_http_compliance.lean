@@ -26,8 +26,7 @@ def sendRawBytes (data : Array ByteArray)
 
   client.close
 
-  Std.Http.Server.serveConnection server onRequest config
-  |>.run (← CancellationContext.new)
+  Std.Http.Server.serveConnection server onRequest config |>.run
 
   let res ← client.recv?
   pure <| res.getD .empty
@@ -196,10 +195,6 @@ info: "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0
 #eval show IO Unit from do
   let response ← sendRawBytes #["GET / HTTP/1.1\r\n\r\n".toUTF8] (maximumSizeHandlerEcho 150)
   IO.println <| String.quote <| String.fromUTF8! response
-
--- =====================================================
--- Header Handling
--- =====================================================
 
 /--
 info: "HTTP/1.1 200 OK\x0d\nContent-Length: 4\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\ndata"

@@ -8,12 +8,6 @@ command.
 
 open Lean Meta
 
-#guard_msgs in
-register_error_explanation Lean.Example1 {
-  summary := ""
-  sinceVersion := ""
-}
-
 
 #guard_msgs in
 /--

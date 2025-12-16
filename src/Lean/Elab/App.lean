@@ -1314,6 +1314,16 @@ where
     | none => 0
     | some (_, p2) => prodArity p2 + 1
 
+/--
+For a fieldname `fieldName`, locate all the environment constants with that name
+-/
+private def reverseFieldLookup (env : Environment) (fieldName : String) :=
+  env.constants.fold (init := #[]) (fun accum name _ =>
+      match name with
+      | .str _ s => if s = fieldName && !name.isInternal then accum.push name else accum
+      | _ => accum)
+    |>.qsort (lt := Name.lt)
+
 private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM LValResolution := do
   match eType.getAppFn, lval with
   | .const structName _, LVal.fieldIdx ref idx =>
@@ -1365,13 +1375,13 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       -- inheritance, nor `import all`.
       (declHint := (mkPrivateName env structName).mkStr fieldName)
 
-  | .forallE .., LVal.fieldName ref fieldName suffix? _fullRef =>
+  | .forallE .., LVal.fieldName ref fieldName suffix? fullRef =>
     let fullName := Name.str `Function fieldName
     if (← getEnv).contains fullName then
       return LValResolution.const `Function `Function fullName
     match e.getAppFn, suffix? with
     | Expr.const c _, some suffix =>
-      throwUnknownConstantWithSuggestions (c ++ suffix)
+      throwUnknownNameWithSuggestions (idOrConst := "constant")  (ref? := fullRef) (c ++ suffix)
     | _, _ =>
       throwInvalidFieldAt ref fieldName fullName
   | .forallE .., .fieldIdx .. =>
@@ -1379,11 +1389,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       has function type{inlineExprTrailing eType}"
 
   | .mvar .., .fieldName _ fieldName _ _ =>
-    let possibleConstants := (← getEnv).constants.fold (fun accum name _ =>
-      match name with
-      | .str _ s => if s = fieldName && !name.isInternal then accum.push name else accum
-      | _ => accum) #[]
-    let hint := match possibleConstants with
+    let hint := match reverseFieldLookup (← getEnv) fieldName with
       | #[] => MessageData.nil
       | #[opt] => .hint' m!"Consider replacing the field projection `.{fieldName}` with a call to the function `{.ofConstName opt}`."
       | opts => .hint' m!"Consider replacing the field projection with a call to one of the following:\
@@ -1396,8 +1402,8 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
 
   | _, _ =>
     match e.getAppFn, lval with
-    | Expr.const c _, .fieldName _ref _fieldName (some suffix) _fullRef =>
-      throwUnknownConstantWithSuggestions (c ++ suffix)
+    | Expr.const c _, .fieldName _ref _fieldName (some suffix) fullRef =>
+      throwUnknownNameWithSuggestions (idOrConst := "constant") (ref? := fullRef) (c ++ suffix)
     | _, .fieldName .. =>
       throwNamedError lean.invalidField m!"Invalid field notation: Field projection operates on \
         types of the form `C ...` where C is a constant. The expression{indentExpr e}\nhas \
@@ -1418,17 +1424,27 @@ where
           type{inlineExprTrailing eType}"
 
     -- Possible alternatives provided with `@[suggest_for]` annotations
-    let suggestions := (← Lean.getSuggestions fullName).filter (·.getPrefix = fullName.getPrefix)
+    let suggestions := (← Lean.getSuggestions fullName).filter (·.getPrefix = fullName.getPrefix) |>.toArray
     let suggestForHint ←
-      if suggestions.size = 0 then
+      if h : suggestions.size = 0 then
         pure .nil
+      else if suggestions.size = 1 then
+        MessageData.hint (ref? := ref)
+          m!"Perhaps you meant `{.ofConstName suggestions[0]}` in place of `{fullName}`:"
+          (suggestions.map fun suggestion => {
+            preInfo? := .some s!".",
+            suggestion := suggestion.getString!,
+            toCodeActionTitle? := .some (s!"Change to .{·}"),
+            diffGranularity := .all,
+          })
       else
-        m!"Perhaps you meant one of these in place of `{fullName}`:".hint (suggestions.map fun suggestion => {
-          suggestion := suggestion.getString!,
-          toCodeActionTitle? := .some (s!"Suggested replacement: {e}.{·}"),
-          diffGranularity := .all,
-          messageData? := .some m!"`{.ofConstName suggestion}`: {e}.{suggestion.getString!}",
-        }) ref
+        MessageData.hint (ref? := ref)
+          m!"Perhaps you meant one of these in place of `{fullName}`:"
+          (suggestions.map fun suggestion => {
+            suggestion := suggestion.getString!,
+            toCodeActionTitle? := .some (s!"Change to .{·}"),
+            messageData? := .some m!"`{.ofConstName suggestion}`",
+          })
 
     -- By using `mkUnknownIdentifierMessage`, the tag `Lean.unknownIdentifierMessageTag` is
     -- incorporated within the message, as required for the "import unknown identifier" code action.
@@ -1732,8 +1748,25 @@ private def elabAppFnId (fIdent : Syntax) (fExplicitUnivs : List Level) (lvals :
     (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool)
     (acc : Array (TermElabResult Expr)) :
     TermElabM (Array (TermElabResult Expr)) := do
-  let fRes ← withRef fIdent <| resolveName' fIdent fExplicitUnivs expectedType?
+  let (n, fRes) ← withRef fIdent <| resolveName' fIdent fExplicitUnivs expectedType?
+  if fRes.isEmpty then throwUnknownIdWithSuggestions n
   elabAppFnResolutions fIdent fRes lvals namedArgs args expectedType? explicit ellipsis overloaded acc
+where
+  throwUnknownIdWithSuggestions (n : Name) := withRef fIdent do
+    let env ← getEnv
+    -- check for scope errors before trying auto implicits
+    if env.isExporting then
+      if let [(npriv, _)] ← withoutExporting <| resolveGlobalName (enableLog := false) n then
+        throwUnknownNameWithSuggestions (declHint := npriv) n
+    if !(← read).autoBoundImplicitForbidden n then
+      if (← read).autoBoundImplicitContext.isSome then
+        let allowed := autoImplicit.get (← getOptions)
+        let relaxed := relaxedAutoImplicit.get (← getOptions)
+        match checkValidAutoBoundImplicitName n (allowed := allowed) (relaxed := relaxed) with
+          | .ok true => throwAutoBoundImplicitLocal n
+          | .ok false => throwUnknownNameWithSuggestions n
+          | .error msg => throwUnknownNameWithSuggestions (extraMsg := msg) n
+    throwUnknownNameWithSuggestions n
 
 /--
 Resolves `(.$id:ident)` using the expected type to infer the namespace for `id`.
@@ -1754,8 +1787,17 @@ private partial def resolveDottedIdentFn (idRef : Syntax) (id : Name) (expectedT
   withForallBody expectedType fun resultType => do
     go resultType expectedType #[]
 where
-  throwNoExpectedType :=
-    throwNamedError lean.invalidDottedIdent "Invalid dotted identifier notation: The expected type of `.{id}` could not be determined"
+  throwNoExpectedType := do
+    let hint ← match reverseFieldLookup (← getEnv) (id.getString!) with
+      | #[] => pure MessageData.nil
+      | suggestions =>
+        let oneOfThese := if h : suggestions.size = 1 then m!"`{.ofConstName suggestions[0]}" else m!"one of these"
+        m!"Using {oneOfThese} would be unambiguous:".hint (suggestions.map fun suggestion => {
+          suggestion := mkIdent suggestion
+          toCodeActionTitle? := .some (s!"Change to {·}")
+          messageData? := .some m!"`{.ofConstName suggestion}`",
+        })
+    throwNamedError lean.invalidDottedIdent (m!"Invalid dotted identifier notation: The expected type of `.{id}` could not be determined" ++ hint)
   /-- A weak version of forallTelescopeReducing that only uses whnfCore, to avoid unfolding definitions except by `unfoldDefinition?` below. -/
   withForallBody {α} (type : Expr) (k : Expr → TermElabM α) : TermElabM α := do
     let type ← whnfCoreUnfoldingAnnotations type

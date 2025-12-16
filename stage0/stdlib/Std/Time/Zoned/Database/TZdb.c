@@ -454,7 +454,6 @@ if (x_7 == 0)
 {
 lean_object* x_8; 
 lean_dec(x_6);
-lean_dec(x_4);
 lean_dec_ref(x_3);
 x_8 = lean_box(0);
 return x_8;
@@ -465,7 +464,6 @@ lean_object* x_9; lean_object* x_10; uint8_t x_11;
 x_9 = lean_unsigned_to_nat(2u);
 x_10 = lean_nat_sub(x_4, x_9);
 x_11 = lean_nat_dec_lt(x_10, x_4);
-lean_dec(x_4);
 if (x_11 == 0)
 {
 lean_object* x_12; 
@@ -747,6 +745,42 @@ x_4 = l_Std_Time_Database_TZdb_localRules(x_3);
 return x_4;
 }
 }
+static lean_object* _init_l_Std_Time_Database_TZdb_inst___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_instMonadEST(lean_box(0), lean_box(0));
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_inst___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_Time_Database_TZdb_inst___lam__0(x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Std_Time_Database_TZdb_inst___lam__2___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("TZDIR", 5, 5);
+return x_1;
+}
+}
+static lean_object* _init_l_Std_Time_Database_TZdb_inst___lam__2___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = lean_box(0);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_inst___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -826,24 +860,13 @@ return x_24;
 }
 }
 }
-static lean_object* _init_l_Std_Time_Database_TZdb_inst___lam__2___closed__0() {
+LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_inst___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("TZDIR", 5, 5);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Time_Database_TZdb_inst___lam__2___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = lean_box(0);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
+lean_object* x_8; 
+x_8 = l_Std_Time_Database_TZdb_inst___lam__1(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec_ref(x_6);
+return x_8;
 }
 }
 static lean_object* _init_l_Std_Time_Database_TZdb_inst___lam__2___closed__2() {
@@ -860,15 +883,6 @@ _start:
 lean_object* x_1; 
 x_1 = lean_mk_string_unchecked(" in the local timezone database", 31, 31);
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_inst___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; 
-x_8 = l_Std_Time_Database_TZdb_inst___lam__1(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec_ref(x_6);
-return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_inst___lam__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -999,22 +1013,6 @@ return x_38;
 }
 }
 }
-static lean_object* _init_l_Std_Time_Database_TZdb_inst___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_instMonadEST(lean_box(0), lean_box(0));
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_inst___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Time_Database_TZdb_inst___lam__0(x_1);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_inst___lam__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1090,6 +1088,8 @@ l_Std_Time_Database_TZdb_localRules___closed__0 = _init_l_Std_Time_Database_TZdb
 lean_mark_persistent(l_Std_Time_Database_TZdb_localRules___closed__0);
 l_Std_Time_Database_TZdb_localRules___closed__1 = _init_l_Std_Time_Database_TZdb_localRules___closed__1();
 lean_mark_persistent(l_Std_Time_Database_TZdb_localRules___closed__1);
+l_Std_Time_Database_TZdb_inst___closed__0 = _init_l_Std_Time_Database_TZdb_inst___closed__0();
+lean_mark_persistent(l_Std_Time_Database_TZdb_inst___closed__0);
 l_Std_Time_Database_TZdb_inst___lam__2___closed__0 = _init_l_Std_Time_Database_TZdb_inst___lam__2___closed__0();
 lean_mark_persistent(l_Std_Time_Database_TZdb_inst___lam__2___closed__0);
 l_Std_Time_Database_TZdb_inst___lam__2___closed__1 = _init_l_Std_Time_Database_TZdb_inst___lam__2___closed__1();
@@ -1098,8 +1098,6 @@ l_Std_Time_Database_TZdb_inst___lam__2___closed__2 = _init_l_Std_Time_Database_T
 lean_mark_persistent(l_Std_Time_Database_TZdb_inst___lam__2___closed__2);
 l_Std_Time_Database_TZdb_inst___lam__2___closed__3 = _init_l_Std_Time_Database_TZdb_inst___lam__2___closed__3();
 lean_mark_persistent(l_Std_Time_Database_TZdb_inst___lam__2___closed__3);
-l_Std_Time_Database_TZdb_inst___closed__0 = _init_l_Std_Time_Database_TZdb_inst___closed__0();
-lean_mark_persistent(l_Std_Time_Database_TZdb_inst___closed__0);
 l_Std_Time_Database_TZdb_inst = _init_l_Std_Time_Database_TZdb_inst();
 lean_mark_persistent(l_Std_Time_Database_TZdb_inst);
 return lean_io_result_mk_ok(lean_box(0));

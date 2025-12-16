@@ -1502,17 +1502,17 @@ lean_dec(x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Do_EStateM_instWP___lam__0(lean_object* x_1) {
-_start:
-{
-return lean_box(0);
-}
-}
 LEAN_EXPORT lean_object* l_Std_Do_EStateM_instWP___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_inc_ref(x_1);
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_EStateM_instWP___lam__0(lean_object* x_1) {
+_start:
+{
+return lean_box(0);
 }
 }
 LEAN_EXPORT lean_object* l_Std_Do_EStateM_instWP___lam__0___boxed(lean_object* x_1) {

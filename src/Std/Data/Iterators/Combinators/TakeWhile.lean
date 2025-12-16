@@ -10,7 +10,7 @@ public import Std.Data.Iterators.Combinators.Monadic.TakeWhile
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
 
 /--
 Given an iterator `it` and a predicate `P`, `it.takeWhile P` is an iterator that outputs
@@ -46,4 +46,4 @@ it terminates.
 def Iter.takeWhile {α : Type w} {β : Type w} (P : β → Bool) (it : Iter (α := α) β) :=
   (it.toIterM.takeWhile P |>.toIter : Iter β)
 
-end Std.Iterators
+end Std

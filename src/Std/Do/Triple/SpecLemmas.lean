@@ -16,6 +16,8 @@ public import Init.Data.Iterators.ToIterator
 -- Without it, adding the `spec` attribute for `instMonadLiftTOfMonadLift` will fail.
 public import Init.Data.Iterators.Lemmas.Combinators.FilterMap
 
+set_option linter.missingDocs true
+
 @[expose] public section
 
 /-!
@@ -26,6 +28,9 @@ This module contains Hoare triple specifications for some functions in Core.
 
 namespace Std.Range
 
+/--
+Converts a range to the list of all numbers in the range.
+-/
 abbrev toList (r : Std.Range) : List Nat :=
   List.range' r.start ((r.stop - r.start + r.step - 1) / r.step) r.step
 
@@ -33,19 +38,61 @@ end Std.Range
 
 namespace List
 
+/--
+A pointer at a specific location in a list. List cursors are used in loop invariants for the
+`mvcgen` tactic.
+
+Moving the cursor to the left or right takes time linear in the current position of the cursor, so
+this data structure is not appropriate for run-time code.
+-/
 @[ext]
 structure Cursor {α : Type u} (l : List α) : Type u where
+  /--
+  The elements before to the current position in the list.
+  -/
   «prefix» : List α
+  /--
+  The elements starting at the current position. If the position is after the last element of the
+  list, then the suffix is empty; otherwise, the first element of the suffix is the current element
+  that the cursor points to.
+  -/
   suffix : List α
+  /-- Appending the prefix to the suffix yields the original list. -/
   property : «prefix» ++ suffix = l
 
+/--
+Creates a cursor at position `n` in the list `l`.
+The prefix contains the first `n` elements, and the suffix contains the remaining elements.
+If `n` is larger than the length of the list, the cursor is positioned at the end of the list.
+-/
 def Cursor.at (l : List α) (n : Nat) : Cursor l := ⟨l.take n, l.drop n, by simp⟩
+
+/--
+Creates a cursor at the beginning of the list (position 0).
+The prefix is empty and the suffix is the entire list.
+-/
 abbrev Cursor.begin (l : List α) : Cursor l := .at l 0
+
+/--
+Creates a cursor at the end of the list.
+The prefix is the entire list and the suffix is empty.
+-/
 abbrev Cursor.end (l : List α) : Cursor l := .at l l.length
 
+/--
+Returns the element at the current cursor position.
+
+Requires that is a current element: the suffix must be non-empty, so the cursor is not at the end of
+the list.
+-/
 def Cursor.current {α} {l : List α} (c : Cursor l) (h : 0 < c.suffix.length := by get_elem_tactic) : α :=
   c.suffix[0]'(by simp [h])
 
+/--
+Advances the cursor by one position, moving the current element from the suffix to the prefix.
+
+Requires that the cursor is not already at the end of the list.
+-/
 def Cursor.tail (s : Cursor l) (h : 0 < s.suffix.length := by get_elem_tactic) : Cursor l :=
   { «prefix» := s.prefix ++ [s.current]
   , suffix := s.suffix.tail

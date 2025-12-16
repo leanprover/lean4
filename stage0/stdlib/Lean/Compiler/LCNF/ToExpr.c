@@ -50,6 +50,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ToExpr_abstractM___boxed(lean_obje
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FunDecl_toExpr(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_ToExpr_run_x27___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FunDecl_toExpr___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ToExpr_run_x27___redArg___lam__0(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_FVarId_toExprM(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
@@ -58,7 +59,6 @@ static lean_object* l_Lean_Compiler_LCNF_Code_toExprM___closed__5;
 static lean_object* l_Lean_Compiler_LCNF_Code_toExprM___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Expr_abstract_x27_go(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ToExpr_run_x27___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_Arg_toExprM(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Compiler_LCNF_ToExpr_withParams_go___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_FVarId_toExprM___boxed(lean_object*, lean_object*, lean_object*);
@@ -521,7 +521,6 @@ _start:
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_get_size(x_1);
 x_7 = lean_nat_dec_lt(x_3, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; 
@@ -633,7 +632,7 @@ lean_dec_ref(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ToExpr_run_x27___lam__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ToExpr_run_x27___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -779,7 +778,7 @@ goto block_10;
 else
 {
 lean_object* x_14; size_t x_15; size_t x_16; lean_object* x_17; 
-x_14 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_ToExpr_run_x27___lam__0), 2, 0);
+x_14 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_ToExpr_run_x27___redArg___lam__0), 2, 0);
 x_15 = 0;
 x_16 = lean_usize_of_nat(x_6);
 x_17 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_11, x_14, x_3, x_15, x_16, x_4);
@@ -826,7 +825,7 @@ goto block_9;
 else
 {
 lean_object* x_13; size_t x_14; size_t x_15; lean_object* x_16; 
-x_13 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_ToExpr_run_x27___lam__0), 2, 0);
+x_13 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_ToExpr_run_x27___redArg___lam__0), 2, 0);
 x_14 = 0;
 x_15 = lean_usize_of_nat(x_5);
 x_16 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_10, x_13, x_2, x_14, x_15, x_3);
@@ -1311,7 +1310,6 @@ _start:
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_array_get_size(x_3);
 x_8 = lean_nat_dec_lt(x_4, x_7);
-lean_dec(x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; uint8_t x_10; 

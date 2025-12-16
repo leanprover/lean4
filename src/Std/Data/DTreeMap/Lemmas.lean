@@ -357,6 +357,17 @@ end Const
         t.get a (mem_of_mem_insert h₁ h₂) :=
   Impl.get_insert t.wf
 
+theorem toList_insert_perm [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] {k : α} {v : β k} :
+    (t.insert k v).toList.Perm (⟨k, v⟩ :: t.toList.filter (¬k == ·.1)) := Impl.toList_insert_perm t.wf
+
+theorem Const.toList_insert_perm {β : Type v} {t : DTreeMap α (fun _ => β) cmp} [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] {k : α} {v : β} :
+    (Const.toList (t.insert k v)).Perm (⟨k, v⟩ :: (Const.toList t).filter (¬k == ·.1)) :=
+  Impl.Const.toList_insert_perm t.2
+
+theorem keys_insertIfNew_perm [BEq α] [TransCmp cmp] [LawfulBEqCmp cmp] {k : α} {v : β k} :
+    (t.insertIfNew k v).keys.Perm (if k ∈ t then t.keys else k :: t.keys) :=
+  Impl.keys_insertIfNew_perm t.2
+
 @[simp]
 theorem get_insert_self [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {v : β k} :
     (t.insert k v).get k mem_insert_self = v :=
@@ -2879,6 +2890,36 @@ theorem get!_inter_of_not_mem_left [TransCmp cmp] [Inhabited β]
 
 end Const
 
+section BEq
+
+variable {m₁ m₂ : DTreeMap α β cmp} [∀ k, BEq (β k)] [LawfulEqCmp cmp] [TransCmp cmp]
+
+theorem Equiv.beq [∀ k, ReflBEq (β k)] (h : m₁ ~m m₂) : m₁ == m₂ :=
+  Impl.Equiv.beq m₁.2 m₂.2 h.1
+
+theorem equiv_of_beq [∀ k, LawfulBEq (β k)] (h : m₁ == m₂) : m₁ ~m m₂ :=
+  ⟨Impl.equiv_of_beq m₁.2 m₂.2 h⟩
+
+theorem Equiv.beq_congr {m₃ m₄ : DTreeMap α β cmp} (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : (m₁ == m₂) = (m₃ == m₄) :=
+  Impl.Equiv.beq_congr m₁.2 m₂.2 m₃.2 m₄.2 w₁.1 w₂.1
+
+end BEq
+
+section
+
+variable {β : Type v} {m₁ m₂ : DTreeMap α (fun _ => β) cmp} [BEq β]
+
+theorem Const.Equiv.beq [TransCmp cmp] [ReflBEq β] (h : m₁ ~m m₂) : DTreeMap.Const.beq m₁ m₂ :=
+  Impl.Const.Equiv.beq m₁.2 m₂.2 h.1
+
+theorem Const.equiv_of_beq [TransCmp cmp] [LawfulEqCmp cmp] [LawfulBEq β] (h : Const.beq m₁ m₂) : m₁ ~m m₂ :=
+  ⟨Impl.Const.equiv_of_beq m₁.2 m₂.2 h⟩
+
+theorem Const.Equiv.beq_congr [TransCmp cmp] {m₃ m₄ : DTreeMap α (fun _ => β) cmp} (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : Const.beq m₁ m₂ = Const.beq m₃ m₄ :=
+  Impl.Const.Equiv.beq_congr m₁.2 m₂.2 m₃.2 m₄.2 w₁.1 w₂.1
+
+end
+
 section Diff
 
 variable {t₁ t₂ : DTreeMap α β cmp}
@@ -4015,6 +4056,16 @@ theorem contains_minKey? [TransCmp cmp] {km} :
     (hkm : t.minKey? = some km) →
     t.contains km :=
   Impl.contains_minKey? t.wf
+
+@[simp] theorem min?_keys [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α] [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp] :
+    t.keys.min? = t.minKey? :=
+  Impl.min?_keys t.wf
+
+@[simp] theorem head?_keys [TransCmp cmp] [Min α]
+    [LE α] [LawfulOrderCmp cmp] [LawfulOrderMin α] [LawfulOrderLeftLeaningMin α] [LawfulEqCmp cmp] :
+    t.keys.head? = t.minKey? :=
+  Impl.head?_keys t.wf
 
 theorem minKey?_mem [TransCmp cmp] {km} :
     (hkm : t.minKey? = some km) →
@@ -5351,10 +5402,10 @@ theorem forM_eq [TransCmp cmp] [Monad m] [LawfulMonad m] {f : (a : α) × β a �
   h.1.forM_eq t₁.2 t₂.2
 
 theorem any_eq [TransCmp cmp] {p : (a : α) → β a → Bool} (h : t₁ ~m t₂) : t₁.any p = t₂.any p := by
-  simp only [any, h.forIn_eq]
+  simp only [any, Impl.any, ForIn.forIn, h.1.forIn_eq t₁.2 t₂.2]
 
 theorem all_eq [TransCmp cmp] {p : (a : α) → β a → Bool} (h : t₁ ~m t₂) : t₁.all p = t₂.all p := by
-  simp only [all, h.forIn_eq]
+  simp only [all, Impl.all, ForIn.forIn, h.1.forIn_eq t₁.2 t₂.2]
 
 theorem minKey?_eq [TransCmp cmp] (h : t₁ ~m t₂) : t₁.minKey? = t₂.minKey? :=
   h.1.minKey?_eq t₁.2 t₂.2

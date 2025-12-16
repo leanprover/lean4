@@ -25,7 +25,7 @@ namespace Try
 
 /-!
 `evalSuggest` is a `evalTactic` variant that returns suggestions after executing a tactic built using
-combinatiors such as `first`, `attempt_all`, `<;>`, `;`, and `try`.
+combinators such as `first`, `attempt_all`, `<;>`, `;`, and `try`.
 -/
 
 /-- Returns `true` if `fvarId` has an accessible name. -/
@@ -295,7 +295,7 @@ meta def elabRegisterTryTactic : Command.CommandElab := fun stx => do
 
   -- Generate a unique name based on a hash of the tactic syntax
   let tacHash := hash tacStx.prettyPrint.pretty
-  let name := Name.mkSimple s!"auxTryTactic{tacHash}"
+  let name := Name.mkSimple s!"_auxTryTactic{tacHash}"
 
   -- Generate code that parses the tactic at runtime
   let prioStx := Syntax.mkNumLit (toString prio)

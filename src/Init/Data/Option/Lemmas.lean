@@ -388,11 +388,6 @@ theorem bind_guard (x : Option α) (p : α → Bool) :
     x.bind (Option.guard p) = x.filter p := by
   cases x <;> rfl
 
-@[deprecated bind_guard (since := "2025-05-15")]
-theorem filter_eq_bind (x : Option α) (p : α → Bool) :
-    x.filter p = x.bind (Option.guard p) :=
-  (bind_guard x p).symm
-
 @[simp, grind =] theorem any_filter : (o : Option α) →
     (Option.filter p o).any q = Option.any (fun a => p a && q a) o
   | none => rfl
@@ -612,12 +607,6 @@ theorem guard_def (p : α → Bool) :
 
 @[grind =] theorem guard_apply : Option.guard p x = if p x then some x else none := rfl
 
-@[deprecated guard_def (since := "2025-05-15")]
-theorem guard_eq_map (p : α → Bool) :
-    Option.guard p = fun x => Option.map (fun _ => x) (if p x then some x else none) := by
-  funext x
-  simp [Option.guard]
-
 theorem guard_eq_ite {p : α → Bool} {x : α} :
     Option.guard p x = if p x then some x else none := rfl
 
@@ -765,9 +754,6 @@ theorem choice_eq_some [Subsingleton α] (a : α) : choice α = some a := by
   rw [dif_pos (⟨a⟩ : Nonempty α)]
   simp; apply Subsingleton.elim
 
-@[deprecated choice_eq_some (since := "2025-05-12")]
-abbrev choice_eq := @choice_eq_some
-
 @[simp]
 theorem choice_eq_default [Subsingleton α] [Inhabited α] : choice α = some default :=
   choice_eq_some _
@@ -820,9 +806,6 @@ theorem or_eq_right_of_none {o o' : Option α} (h : o = none) : o.or o' = o' := 
 
 @[simp, grind =] theorem or_some {o : Option α} : o.or (some a) = some (o.getD a) := by
   cases o <;> rfl
-
-@[deprecated or_some (since := "2025-05-03")]
-abbrev or_some' := @or_some
 
 @[simp, grind =]
 theorem or_none : or o none = o := by
@@ -900,30 +883,6 @@ theorem or_eq_orElse : or o o' = o.orElse (fun _ => o') := by
 /-- The `simp` normal form of `o.orElse f` is o.or (f ())`. -/
 @[simp, grind =] theorem orElse_eq_or {o : Option α} {f} : o.orElse f = o.or (f ()) := by
   simp [or_eq_orElse]
-
-@[deprecated or_some (since := "2025-05-03")]
-theorem some_orElse (a : α) (f) : (some a).orElse f = some a := rfl
-
-@[deprecated or_none (since := "2025-05-03")]
-theorem none_orElse (f : Unit → Option α) : none.orElse f = f () := rfl
-
-@[deprecated or_none (since := "2025-05-13")]
-theorem orElse_fun_none (x : Option α) : x.orElse (fun _ => none) = x := by simp
-
-@[deprecated or_some (since := "2025-05-13")]
-theorem orElse_fun_some (x : Option α) (a : α) :
-    x.orElse (fun _ => some a) = some (x.getD a) := by simp
-
-@[deprecated or_eq_some_iff (since := "2025-05-13")]
-theorem orElse_eq_some_iff (o : Option α) (f) (x : α) :
-    (o.orElse f) = some x ↔ o = some x ∨ o = none ∧ f () = some x := by simp
-
-@[deprecated or_eq_none_iff (since := "2025-05-13")]
-theorem orElse_eq_none_iff (o : Option α) (f) : (o.orElse f) = none ↔ o = none ∧ f () = none := by simp
-
-@[deprecated map_or (since := "2025-05-13")]
-theorem map_orElse {x : Option α} {y} :
-    (x.orElse y).map f = (x.map f).orElse (fun _ => (y ()).map f) := by simp [map_or]
 
 /-! ### beq -/
 

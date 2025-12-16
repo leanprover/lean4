@@ -18,8 +18,6 @@ namespace Fin
 
 @[simp, grind =] theorem ofNat_zero (n : Nat) [NeZero n] : Fin.ofNat n 0 = 0 := rfl
 
-@[deprecated ofNat_zero (since := "2025-05-28")] abbrev ofNat'_zero := @ofNat_zero
-
 theorem mod_def (a m : Fin n) : a % m = Fin.mk (a.val % m.val) (Nat.lt_of_le_of_lt (Nat.mod_le _ _) a.2) :=
   rfl
 
@@ -76,21 +74,15 @@ theorem mk_val (i : Fin n) : (⟨i, i.isLt⟩ : Fin n) = i := Fin.eta ..
 @[simp, grind =] theorem val_ofNat (n : Nat) [NeZero n] (a : Nat) :
   (Fin.ofNat n a).val = a % n := rfl
 
-@[deprecated val_ofNat (since := "2025-05-28")] abbrev val_ofNat' := @val_ofNat
-
 @[simp, grind =] theorem ofNat_self {n : Nat} [NeZero n] : Fin.ofNat n n = 0 := by
   ext
   simp
   congr
 
-@[deprecated ofNat_self (since := "2025-05-28")] abbrev ofNat'_self := @ofNat_self
-
 @[simp] theorem ofNat_val_eq_self [NeZero n] (x : Fin n) : (Fin.ofNat n x.val) = x := by
   ext
   rw [val_ofNat, Nat.mod_eq_of_lt]
   exact x.2
-
-@[deprecated ofNat_val_eq_self (since := "2025-05-28")] abbrev ofNat'_val_eq_self := @ofNat_val_eq_self
 
 @[simp] theorem mod_val (a b : Fin n) : (a % b).val = a.val % b.val :=
   rfl
@@ -1084,14 +1076,10 @@ theorem ofNat_add [NeZero n] (x : Nat) (y : Fin n) :
   apply Fin.eq_of_val_eq
   simp [Fin.ofNat, Fin.add_def]
 
-@[deprecated ofNat_add (since := "2025-05-28")] abbrev ofNat_add' := @ofNat_add
-
 theorem add_ofNat [NeZero n] (x : Fin n) (y : Nat) :
     x + Fin.ofNat n y = Fin.ofNat n (x.val + y) := by
   apply Fin.eq_of_val_eq
   simp [Fin.ofNat, Fin.add_def]
-
-@[deprecated add_ofNat (since := "2025-05-28")] abbrev add_ofNat' := @add_ofNat
 
 /-! ### sub -/
 
@@ -1104,14 +1092,10 @@ theorem ofNat_sub [NeZero n] (x : Nat) (y : Fin n) :
   apply Fin.eq_of_val_eq
   simp [Fin.ofNat, Fin.sub_def]
 
-@[deprecated ofNat_sub (since := "2025-05-28")] abbrev ofNat_sub' := @ofNat_sub
-
 theorem sub_ofNat [NeZero n] (x : Fin n) (y : Nat) :
     x - Fin.ofNat n y = Fin.ofNat n ((n - y % n) + x.val) := by
   apply Fin.eq_of_val_eq
   simp [Fin.ofNat, Fin.sub_def]
-
-@[deprecated sub_ofNat (since := "2025-05-28")] abbrev sub_ofNat' := @sub_ofNat
 
 @[simp] protected theorem sub_self [NeZero n] {x : Fin n} : x - x = 0 := by
   ext
@@ -1175,14 +1159,10 @@ theorem ofNat_mul [NeZero n] (x : Nat) (y : Fin n) :
   apply Fin.eq_of_val_eq
   simp [Fin.ofNat, Fin.mul_def]
 
-@[deprecated ofNat_mul (since := "2025-05-28")] abbrev ofNat_mul' := @ofNat_mul
-
 theorem mul_ofNat [NeZero n] (x : Fin n) (y : Nat) :
     x * Fin.ofNat n y = Fin.ofNat n (x.val * y) := by
   apply Fin.eq_of_val_eq
   simp [Fin.ofNat, Fin.mul_def]
-
-@[deprecated mul_ofNat (since := "2025-05-28")] abbrev mul_ofNat' := @mul_ofNat
 
 @[deprecated val_mul (since := "2025-10-26")]
 theorem coe_mul {n : Nat} : ∀ a b : Fin n, ((a * b : Fin n) : Nat) = a * b % n

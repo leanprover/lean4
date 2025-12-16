@@ -24,7 +24,7 @@ and so on. In other words, {lit}`it` flattens the iterator of iterators obtained
 {lit}`f`.
 -/
 
-namespace Std.Iterators
+namespace Std
 
 @[always_inline, inherit_doc IterM.flatMapAfterM]
 public def Iter.flatMapAfterM {α : Type w} {β : Type w} {α₂ : Type w}
@@ -49,5 +49,3 @@ public def Iter.flatMap {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} [Iterator α Id β] [Iterator α₂ Id γ]
     (f : β → Iter (α := α₂) γ) (it : Iter (α := α) β) :=
   (it.flatMapAfter f none : Iter γ)
-
-end Std.Iterators

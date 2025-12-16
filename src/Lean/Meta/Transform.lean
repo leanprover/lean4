@@ -191,7 +191,7 @@ def zetaDeltaFVars (e : Expr) (fvars : Array FVarId) : MetaM Expr :=
 def unfoldDeclsFrom (biggerEnv : Environment) (e : Expr) : CoreM Expr := do
   withoutModifyingEnv do
     let env ← getEnv
-    -- There might have been nested proof abstractions, which yield private helper theoresms, so
+    -- There might have been nested proof abstractions, which yield private helper theorems, so
     -- make sure we can find them. They will later be re-abstracted again.
     let biggerEnv := biggerEnv.setExporting false
     setEnv biggerEnv -- `e` has declarations from `biggerEnv` that are not in `env`

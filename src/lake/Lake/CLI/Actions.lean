@@ -57,26 +57,24 @@ public def Package.uploadRelease
 public def Package.resolveDriver
   (pkg : Package) (kind : String) (driver : String)
 : LakeT IO (Package × String) := do
-  let pkgName := pkg.name.toString (escape := false)
   if driver.isEmpty then
-    error s!"{pkgName}: no {kind} driver configured"
+    error s!"{pkg.prettyName}: no {kind} driver configured"
   else
     match driver.split '/' |>.toStringList with
-    | [pkg, driver] =>
-      let some pkg ← findPackage? pkg.toName
-        | error s!"{pkgName}: unknown {kind} driver package '{pkg}'"
-      return (pkg, driver)
+    | [driverPkg, driver] =>
+      let some driverPkg ← findPackageByName? driverPkg.toName
+        | error s!"{pkg.prettyName}: unknown {kind} driver package '{driverPkg}'"
+      return (driverPkg, driver)
     | [driver] =>
       return (pkg, driver)
     | _ =>
-      error s!"{pkgName}: invalid {kind} driver '{driver}' (too many '/')"
+      error s!"{pkg.prettyName}: invalid {kind} driver '{driver}' (too many '/')"
 
 public def Package.test
   (pkg : Package) (args : List String := []) (buildConfig : BuildConfig := {})
 : LakeT IO UInt32 := do
   let cfgArgs := pkg.testDriverArgs
   let (pkg, driver) ← pkg.resolveDriver "test" pkg.testDriver
-  let pkgName := pkg.name.toString (escape := false)
   if let some script := pkg.scripts.find? driver.toName then
     script.run (cfgArgs.toList ++ args)
   else if let some exe := pkg.findLeanExe? driver.toName  then
@@ -84,15 +82,15 @@ public def Package.test
     env exeFile.toString (cfgArgs ++ args.toArray)
   else if let some lib := pkg.findLeanLib? driver.toName then
     unless cfgArgs.isEmpty ∧ args.isEmpty do
-      error s!"{pkgName}: arguments cannot be passed to a library test driver"
+      error s!"{pkg.prettyName}: arguments cannot be passed to a library test driver"
     match resolveLibTarget (← getWorkspace) lib with
     | .ok specs =>
       runBuild (buildSpecs specs) {buildConfig with out := .stdout}
       return 0
     | .error e =>
-      error s!"{pkgName}: invalid test driver: {e}"
+      error s!"{pkg.prettyName}: invalid test driver: {e}"
   else
-    error s!"{pkgName}: invalid test driver: unknown script, executable, or library '{driver}'"
+    error s!"{pkg.prettyName}: invalid test driver: unknown script, executable, or library '{driver}'"
 
 public def Package.lint
   (pkg : Package) (args : List String := []) (buildConfig : BuildConfig := {})
@@ -105,8 +103,7 @@ public def Package.lint
     let exeFile ← runBuild exe.fetch buildConfig
     env exeFile.toString (cfgArgs ++ args.toArray)
   else
-    let pkgName := pkg.name.toString (escape := false)
-    error s!"{pkgName}: invalid lint driver: unknown script or executable '{driver}'"
+    error s!"{pkg.prettyName}: invalid lint driver: unknown script or executable '{driver}'"
 
 /--
 Run `lean` on file using configuration from the workspace.

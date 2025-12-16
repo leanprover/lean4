@@ -12,7 +12,8 @@ public import Init.Data.Iterators.Lemmas.Consumers
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators Std.Iterators.Types
 
 theorem Iter.take_eq_toIter_take_toIterM {α β} [Iterator α Id β] {n : Nat}
     {it : Iter (α := α) β} :
@@ -118,4 +119,4 @@ theorem Iter.toList_toTake {α β} [Iterator α Id β] [Finite α Id]
     it.toTake.toList = it.toList := by
   simp [toTake_eq_toIter_toTake_toIterM, toList_eq_toList_toIterM]
 
-end Std.Iterators
+end Std

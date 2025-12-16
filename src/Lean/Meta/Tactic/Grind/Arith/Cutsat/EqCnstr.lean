@@ -386,13 +386,6 @@ private def exprAsPoly (a : Expr) : GoalM Poly := do
   else
     throwError "internal `grind` error, expression is not relevant to cutsat{indentExpr a}"
 
-private def processNewIntEq (a b : Expr) : GoalM Unit := do
-  let p₁ ← exprAsPoly a
-  let p₂ ← exprAsPoly b
-  -- Remark: we don't need to use the comm ring normalizer here because `p` is always linear.
-  let p := p₁.combine (p₂.mul (-1))
-  { p, h := .core a b p₁ p₂ : EqCnstr }.assert
-
 /-- Asserts a constraint coming from the core. -/
 private def EqCnstr.assertCore (c : EqCnstr) : GoalM Unit := do
   if let some (re, rp, p) ← c.p.normCommRing? then
@@ -400,6 +393,14 @@ private def EqCnstr.assertCore (c : EqCnstr) : GoalM Unit := do
     c.assert
   else
     c.assert
+
+private def processNewIntEq (a b : Expr) : GoalM Unit := do
+  let p₁ ← exprAsPoly a
+  let p₂ ← exprAsPoly b
+  -- Remark: we don't need to use the comm ring normalizer here because `p` is always linear.
+  let p := p₁.combine (p₂.mul (-1))
+  let c := { p, h := .core a b p₁ p₂ : EqCnstr }
+  c.assertCore
 
 /--
 Similar to `natToInt`, but checks first whether the term has already been internalized.

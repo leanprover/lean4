@@ -1042,10 +1042,12 @@ def findImportMatches
     profileitM Exception  "lazy discriminator import initialization" (←getOptions) $ do
       let t ← createImportedDiscrTree (createTreeCtx cctx) cNGen (←getEnv) addEntry
                 (constantsPerTask := constantsPerTask)
-      -- If a reference is provided, extract and store dropped entries
+      -- If a reference is provided, extract and append dropped entries
       if let some droppedRef := droppedEntriesRef then
         let (extracted, t) ← extractKeys t droppedKeys
-        droppedRef.set (some extracted)
+        -- Append to existing dropped entries (e.g., from module tree)
+        let existing := (← droppedRef.get).getD #[]
+        droppedRef.set (some (existing ++ extracted))
         pure t
       else
         dropKeys t droppedKeys
@@ -1077,12 +1079,23 @@ def createModuleDiscrTree
 
 /--
 Creates reference for lazy discriminator tree that only contains this module's definitions.
+If `droppedEntriesRef` is provided, dropped entries (e.g., star-indexed lemmas) are extracted
+and appended to the array in the reference.
 -/
 def createModuleTreeRef (entriesForConst : Name → ConstantInfo → MetaM (Array (InitEntry α)))
-    (droppedKeys : List (List LazyDiscrTree.Key)) : MetaM (ModuleDiscrTreeRef α) := do
+    (droppedKeys : List (List LazyDiscrTree.Key))
+    (droppedEntriesRef : Option (IO.Ref (Option (Array α))) := none) :
+    MetaM (ModuleDiscrTreeRef α) := do
   profileitM Exception "build module discriminator tree" (←getOptions) $ do
     let t ← createModuleDiscrTree entriesForConst
-    let t ← dropKeys t droppedKeys
+    let t ← if let some droppedRef := droppedEntriesRef then
+      let (extracted, t) ← extractKeys t droppedKeys
+      -- Append to existing dropped entries (if any)
+      let existing := (← droppedRef.get).getD #[]
+      droppedRef.set (some (existing ++ extracted))
+      pure t
+    else
+      dropKeys t droppedKeys
     pure { ref := ← IO.mkRef t }
 
 /--
@@ -1147,7 +1160,7 @@ def findMatches (ext : EnvExtension (IO.Ref (Option (LazyDiscrTree α))))
     (constantsPerTask : Nat := 1000)
     (droppedEntriesRef : Option (IO.Ref (Option (Array α))) := none)
     (ty : Expr) : MetaM (Array α) := do
-
-  let moduleTreeRef ← createModuleTreeRef addEntry droppedKeys
+  -- Pass droppedEntriesRef to also capture star-indexed lemmas from the current module
+  let moduleTreeRef ← createModuleTreeRef addEntry droppedKeys droppedEntriesRef
   let incPrio _ v := v
   findMatchesExt moduleTreeRef ext addEntry droppedKeys constantsPerTask droppedEntriesRef incPrio ty

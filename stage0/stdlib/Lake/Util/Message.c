@@ -335,14 +335,12 @@ x_24 = lean_nat_dec_eq(x_22, x_23);
 if (x_24 == 0)
 {
 lean_object* x_25; lean_object* x_26; 
-lean_inc(x_22);
 lean_inc_ref(x_21);
 x_25 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_25, 0, x_21);
 lean_ctor_set(x_25, 1, x_23);
 lean_ctor_set(x_25, 2, x_22);
 x_26 = l_String_Slice_Pos_prev_x3f(x_25, x_22);
-lean_dec(x_22);
 if (lean_obj_tag(x_26) == 0)
 {
 uint32_t x_27; 
@@ -388,7 +386,6 @@ goto block_20;
 }
 else
 {
-lean_dec(x_22);
 x_12 = x_21;
 x_13 = x_24;
 goto block_14;

@@ -117,3 +117,9 @@ example {n : Nat} (x y : Fin ((n + 1) + 1)) (h₂ : ¬x = y) (h : ¬x < y) : y <
 
 example {n m : Nat} (x : BitVec n) : 2 ≤ n → n ≤ m → m = 2 → x = 0 ∨ x = 1 ∨ x = 2 ∨ x = 3 := by
   grind
+
+example (x : BitVec 8) : x > 2#8 → x > 1#8 := by
+  grind
+
+example (x y : BitVec 8) : y < 254#8 → x > 2#8 + y → x > 1#8 + y := by
+  grind

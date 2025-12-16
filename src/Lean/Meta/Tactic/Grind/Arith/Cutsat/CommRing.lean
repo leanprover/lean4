@@ -13,6 +13,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 /-!
@@ -22,7 +23,7 @@ CommRing interface for cutsat. We use it to normalize nonlinear polynomials.
 /-- Returns `true` if `p` contains a nonlinear monomial. -/
 def _root_.Int.Linear.Poly.isNonlinear (p : Poly) : GoalM Bool := do
   let .add _ x p := p | return false
-  if (← getVar x).isAppOf ``HMul.hMul then return true
+  if (← getVar x).isAppOf ``HMul.hMul || (← getVar x).isAppOf ``HPow.hPow then return true
   p.isNonlinear
 
 def _root_.Int.Linear.Poly.getGeneration (p : Poly) : GoalM Nat := do
@@ -46,11 +47,13 @@ def _root_.Int.Linear.Poly.normCommRing? (p : Poly) : GoalM (Option (CommRing.Ri
     let e ← shareCommon (← canon e)
     let gen ← p.getGeneration
     let some re ← CommRing.reify? e (gen := gen) | return none
-    let p' := re.toPoly
+    let some p' ← re.toPolyM? | return none
     let e' ← p'.denoteExpr
     let e' ← preprocessLight e'
-    -- Remark: we are reusing the `IntModule` virtual parent.
-    -- TODO: Investigate whether we should have a custom virtual parent for cutsat
+    /-
+    **Note**: We are reusing the `IntModule` virtual parent.
+    **TODO**: Investigate whether we should have a custom virtual parent for cutsat
+    -/
     internalize e' gen (some getIntModuleVirtualParent)
     let p'' ← toPoly e'
     if p == p'' then return none

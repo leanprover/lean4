@@ -12,12 +12,11 @@ import all Init.Data.String.Search
 public section
 
 namespace String
-open String.Slice Pattern
+open Std String.Slice Pattern
 
 variable {ρ : Type} {σ : Slice → Type}
-variable [∀ s, Std.Iterators.Iterator (σ s) Id (SearchStep s)]
-variable [∀ s, Std.Iterators.Finite (σ s) Id]
-variable [∀ s, Std.Iterators.IteratorLoop (σ s) Id Id]
+variable [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
+variable [∀ s, Std.IteratorLoop (σ s) Id Id]
 
 @[simp]
 theorem Slice.Pos.le_find {s : Slice} (pos : s.Pos) (pattern : ρ) [ToForwardSearcher pattern σ] :

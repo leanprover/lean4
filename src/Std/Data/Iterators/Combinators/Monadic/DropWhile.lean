@@ -31,7 +31,8 @@ Several variants of this combinator are provided:
   iterator, and particularly for specialized termination proofs. If possible, avoid this.
 -/
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 variable {α : Type w} {m : Type w → Type w'} {β : Type w}
 
@@ -39,7 +40,7 @@ variable {α : Type w} {m : Type w → Type w'} {β : Type w}
 Internal state of the `dropWhile` combinator. Do not depend on its internals.
 -/
 @[unbox]
-structure DropWhile (α : Type w) (m : Type w → Type w') (β : Type w)
+structure Iterators.Types.DropWhile (α : Type w) (m : Type w → Type w') (β : Type w)
     (P : β → PostconditionT m (ULift Bool)) where
   /-- Internal implementation detail of the iterator library. -/
   dropping : Bool
@@ -59,7 +60,7 @@ verification purposes.
 @[always_inline, inline]
 def IterM.Intermediate.dropWhileWithPostcondition (P : β → PostconditionT m (ULift Bool))
     (dropping : Bool) (it : IterM (α := α) m β) :=
-  (toIterM (DropWhile.mk (P := P) dropping it) m β : IterM m β)
+  (IterM.mk (Iterators.Types.DropWhile.mk (P := P) dropping it) m β : IterM m β)
 
 /--
 Constructs intermediate states of an iterator created with the combinator `IterM.dropWhileM`.
@@ -200,6 +201,8 @@ that, the combinator incurs an addictional O(1) cost for each value emitted by `
 def IterM.dropWhile [Monad m] (P : β → Bool) (it : IterM (α := α) m β) :=
   (Intermediate.dropWhile P true it: IterM m β)
 
+namespace Iterators.Types
+
 /--
 `it.PlausibleStep step` is the proposition that `step` is a possible next step from the
 `dropWhile` iterator `it`. This is mostly internally relevant, except if one needs to manually
@@ -275,17 +278,8 @@ instance DropWhile.instIteratorCollect [Monad m] [Monad n] [Iterator α m β] [P
     IteratorCollect (DropWhile α m β P) m n :=
   .defaultImplementation
 
-instance DropWhile.instIteratorCollectPartial [Monad m] [Monad n] [Iterator α m β] {P} :
-    IteratorCollectPartial (DropWhile α m β P) m n :=
-  .defaultImplementation
-
 instance DropWhile.instIteratorLoop [Monad m] [Monad n] [Iterator α m β] :
     IteratorLoop (DropWhile α m β P) m n :=
   .defaultImplementation
 
-instance DropWhile.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]
-    [IteratorLoopPartial α m n] [MonadLiftT m n] {P} :
-    IteratorLoopPartial (DropWhile α m β P) m n :=
-  .defaultImplementation
-
-end Std.Iterators
+end Std.Iterators.Types

@@ -7,3 +7,5 @@ root = "Modulize"
 [[lean_exe]]
 name = "shake"
 root = "Shake"
+# needed by `Lake.loadWorkspace`
+supportInterpreter = true

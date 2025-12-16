@@ -11,8 +11,10 @@ public import Init.Data.Iterators.Combinators.FlatMap
 import all Init.Data.Iterators.Combinators.FlatMap
 public import Init.Data.Iterators.Lemmas.Combinators.Monadic.FlatMap
 
-namespace Std.Iterators
-open Std.Internal
+namespace Std
+open Std.Internal Std.Iterators
+
+namespace Iterators.Types
 
 public theorem Flatten.IsPlausibleStep.outerYield_flatMapM_pure {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m] [Iterator α Id β] [Iterator α₂ m γ]
@@ -98,6 +100,8 @@ public theorem Flatten.IsPlausibleStep.innerDone_flatMap_pure {α : Type w} {β 
     (h : it₂.IsPlausibleStep .done) :
     (it₁.flatMapAfter f (some it₂)).IsPlausibleStep (.skip (it₁.flatMapAfter f none)) :=
   innerDone_flatMap h
+
+end Iterators.Types
 
 public theorem Iter.step_flatMapAfterM {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [LawfulMonad m] [Iterator α Id β] [Iterator α₂ m γ]
@@ -263,4 +267,4 @@ public theorem Iter.toArray_flatMap {α α₂ β γ : Type w} [Iterator α Id β
     (it₁.flatMap f).toArray = (it₁.map fun b => (f b).toArray).toArray.flatten := by
   simp [flatMap, toArray_flatMapAfter]
 
-end Std.Iterators
+end Std

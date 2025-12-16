@@ -39,6 +39,7 @@ These comments explain the scripts' behavior, which repositories get special han
 
 ## Important Notes
 
+- **NEVER merge PRs autonomously** - always wait for the user to merge PRs themselves
 - The `release_steps.py` script is idempotent - it's safe to rerun
 - The `release_checklist.py` script is idempotent - it's safe to rerun
 - Some repositories depend on others (e.g., mathlib4 depends on batteries, aesop, etc.)

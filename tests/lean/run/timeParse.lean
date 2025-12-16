@@ -134,7 +134,7 @@ info: "2024-08-16T01:28:12.000000000+09:00"
 /--
 TM: 1723730627
 GMT: Thursday, 15 August 2024 14:03:47
-Your time zone: 15 Aguust 2024 11:03:47 GMT-03:00
+Your time zone: 15 August 2024 11:03:47 GMT-03:00
 -/
 def localTm : Second.Offset := 1723730627
 

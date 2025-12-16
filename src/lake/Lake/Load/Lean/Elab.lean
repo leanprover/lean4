@@ -60,7 +60,7 @@ public def configModuleName : Name := `lakefile
 
 /-- Elaborate `configFile` with the given package directory and options. -/
 def elabConfigFile
-  (pkgName : Name) (pkgDir : FilePath) (lakeOpts : NameMap String)
+  (pkgIdx : Nat) (pkgName : Name) (pkgDir : FilePath) (lakeOpts : NameMap String)
   (leanOpts := Options.empty) (configFile := pkgDir / defaultLeanConfigFile)
 : LogIO Environment := do
 
@@ -72,7 +72,7 @@ def elabConfigFile
   let env := env.setMainModule configModuleName
 
   -- Configure extensions
-  let env := nameExt.setState env pkgName
+  let env := nameExt.setState env ⟨pkgIdx, pkgName⟩
   let env := dirExt.setState env pkgDir
   let env := optsExt.setState env lakeOpts
 
@@ -164,6 +164,7 @@ where
     |>.insert ``IR.declMapExt
 
 structure ConfigTrace where
+  idx : Nat
   name : Name
   platform : String
   leanHash : String
@@ -245,9 +246,10 @@ public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
     | .ok _ | .error (.noFileOrDirectory ..) =>
       h.putStrLn <| Json.pretty <| toJson
         {platform := System.Platform.target, leanHash := cfg.lakeEnv.leanGithash,
-          configHash, name := cfg.pkgName, options := lakeOpts : ConfigTrace}
+          configHash, idx := cfg.pkgIdx, name := cfg.pkgName, options := lakeOpts : ConfigTrace}
       h.truncate
-      let env ← elabConfigFile cfg.pkgName cfg.pkgDir lakeOpts cfg.leanOpts cfg.configFile
+      let env ← elabConfigFile
+        cfg.pkgIdx cfg.pkgName cfg.pkgDir lakeOpts cfg.leanOpts cfg.configFile
       Lean.writeModule env olean
       h.unlock
       return env
@@ -266,9 +268,9 @@ public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
       | .ok json =>
         match fromJson? json with
         | .ok (trace : ConfigTrace) =>
-          let upToDate :=
-            (← olean.pathExists) ∧ trace.name = cfg.pkgName ∧ trace.configHash = configHash ∧
-            trace.platform = System.Platform.target ∧ trace.leanHash = cfg.lakeEnv.leanGithash
+          let upToDate := (← olean.pathExists) ∧
+            trace.idx = cfg.pkgIdx ∧ trace.name = cfg.pkgName ∧  trace.configHash = configHash ∧
+            trace.platform = System.Platform.target ∧  trace.leanHash = cfg.lakeEnv.leanGithash
           if upToDate then
             let env ← importConfigFileCore olean cfg.leanOpts
             h.unlock

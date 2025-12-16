@@ -865,9 +865,15 @@ private def matchEqBwdPat (p : Expr) : M Unit := do
     if isSameExpr n.next false then return ()
     curr := n.next
 
+def instantiateGroundTheorem (thm : EMatchTheorem) : M Unit := do
+  if (← markTheoremInstance thm.proof #[]) then
+    addNewInstance thm thm.proof 0 []
+
 def ematchTheorem (thm : EMatchTheorem) : M Unit := do
   if (← checkMaxInstancesExceeded) then return ()
-  withReader (fun ctx => { ctx with thm }) do
+  if thm.numParams == 0 then
+    instantiateGroundTheorem thm
+  else withReader (fun ctx => { ctx with thm }) do
     let ps := thm.patterns
     match ps, (← read).useMT with
     | [p],   _     => if isEqBwdPattern p then matchEqBwdPat p else main p []
@@ -909,7 +915,8 @@ private def ematchCore (extraThms : Array EMatchTheorem) : GoalM InstanceMap := 
   else
     let (_, s) ← go (← get).ematch.thms (← get).ematch.newThms |>.run
     modify fun s => { s with
-      ematch.thms      := s.ematch.thms ++ s.ematch.newThms
+      -- **Note**: Ground theorems should be instantiated once. So, we filter them.
+      ematch.thms      := s.ematch.thms ++ (s.ematch.newThms.filter fun thm => thm.numParams > 0)
       ematch.newThms   := {}
       ematch.gmt       := s.ematch.gmt + 1
       ematch.num       := s.ematch.num + 1

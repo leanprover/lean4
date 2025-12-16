@@ -1,5 +1,25 @@
 emptyTypeAscription.lean:3:19-3:24: error(lean.invalidDottedIdent): Invalid dotted identifier notation: The expected type of `.zero` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `BitVec.zero`
+  [apply] `Dyadic.zero`
+  [apply] `Nat.zero`
+  [apply] `Vector.zero`
+  [apply] `Zero.zero`
+  [apply] `System.Uri.UriEscape.zero`
+  [apply] `Lean.Grind.IntModule.OfNatModule.zero`
+  [apply] `Lean.Grind.Linarith.Expr.zero`
 emptyTypeAscription.lean:4:29-4:34: error(lean.invalidDottedIdent): Invalid dotted identifier notation: The expected type of `.zero` could not be determined
+
+Hint: Using one of these would be unambiguous:
+  [apply] `BitVec.zero`
+  [apply] `Dyadic.zero`
+  [apply] `Nat.zero`
+  [apply] `Vector.zero`
+  [apply] `Zero.zero`
+  [apply] `System.Uri.UriEscape.zero`
+  [apply] `Lean.Grind.IntModule.OfNatModule.zero`
+  [apply] `Lean.Grind.Linarith.Expr.zero`
 emptyTypeAscription.lean:9:63-9:70: error: invalid `▸` notation, expected result type of cast is 
   w = add x y
 however, the equality 

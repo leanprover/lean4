@@ -74,7 +74,6 @@ x_15 = lean_array_get_size(x_14);
 lean_dec_ref(x_14);
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_nat_dec_eq(x_15, x_16);
-lean_dec(x_15);
 if (x_17 == 0)
 {
 lean_dec(x_13);

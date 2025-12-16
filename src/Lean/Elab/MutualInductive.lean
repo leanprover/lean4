@@ -959,7 +959,7 @@ private def mkFlatInductive (views : Array InductiveView)
     forallBoundedTelescope indType numParams fun indTypeParams indTypeBody => do
 
       -- We first go through all types in the mutual block and get rid of their parameters
-      -- by substiuting free variables
+      -- by substituting free variables
       let typesWithAppliedParams ← namesAndTypes.mapM fun (newName, curIndType) => do
         forallBoundedTelescope curIndType numParams fun curIntTypeParams curIndTypeBody => do
           return (newName, curIndTypeBody.replaceFVars curIntTypeParams indTypeParams)

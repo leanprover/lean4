@@ -15,6 +15,8 @@ extern "C" {
 #endif
 lean_object* l_Std_DHashMap_Internal_AssocList_getKey___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_filterMap___redArg(lean_object*, lean_object*);
+static lean_object* l_Std_DHashMap_Internal_Raw_u2080_beq___redArg___closed__0;
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_union___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_get_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_getEntry___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_getKeyD___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -31,7 +33,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_emptyWithCapacity___b
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_getThenInsertIfNew_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_contains(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_modify(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 static lean_object* l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__1;
@@ -45,10 +46,10 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_reinsertAux(lean_obje
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_getEntry_x3f___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_diff___lam__0(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_inter___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_filterMap(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_computeSize___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_getKey(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_getKey_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertMany___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -60,11 +61,14 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_insertManyIfNew
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_contains___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_beq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_Internal_computeSize___closed__7;
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_beq___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_getCast___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldl___at___00Array_appendList_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_replace___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_diff___redArg___lam__0(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_computeSize___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_alter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_Internal_computeSize___closed__3;
@@ -79,7 +83,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_get_x21___redArg___bo
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_getD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_get_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_Internal_computeSize___closed__5;
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_union___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_containsThenInsert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -88,24 +91,28 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_getD___redArg__
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l___private_Std_Data_DHashMap_Internal_AssocList_Basic_0__Std_DHashMap_Internal_AssocList_forInStep_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expandIfNecessary(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_Const_beq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_union___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_Const_beq___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_getEntry_x21___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_beq___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_modify___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_toListModel___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_inter___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_filter(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_Internal_computeSize___closed__8;
 static lean_object* l_Std_DHashMap_Internal_Raw_u2080_filterMap___redArg___closed__0;
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_computeSize___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_getThenInsertIfNew_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_union(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_beq___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_contains___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Raw_instForInSigmaOfMonad___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_reinsertAux___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_beq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_emptyWithCapacity(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_interSmallerFn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_computeSize___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_getKey_x21___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_containsThenInsertIfNew(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -122,7 +129,6 @@ lean_object* l___private_Std_Data_DHashMap_Internal_AssocList_Basic_0__Std_DHash
 lean_object* l_Std_DHashMap_Internal_AssocList_Const_modify___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_get___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_getEntryD___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_getEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_insertMany___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -132,8 +138,8 @@ LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHas
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_modify___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_Internal_computeSize___closed__4;
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_union___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_eraseManyEntries___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_beq___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Std_Data_DHashMap_Internal_AssocList_Basic_0__Std_DHashMap_Internal_AssocList_map_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_alter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -164,16 +170,19 @@ lean_object* l_Std_DHashMap_Internal_AssocList_length___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expandIfNecessary___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_Internal_computeSize___closed__6;
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_beq___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_toListModel(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_getEntryD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Std_DHashMap_Internal_toListModel_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_getEntryD___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertManyIfNew___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_inter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Std_DHashMap_Internal_toListModel_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_diff___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_getKey_x21___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_beq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_numBucketsForCapacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_interSmallerFn___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_diff(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -183,7 +192,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_get(lean_object*, lea
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_getKey_x3f___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_emptyWithCapacity___redArg(lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_modify___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_diff___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
 lean_object* l_Std_DHashMap_Internal_AssocList_Const_alter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_getD___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -195,6 +203,8 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_getEntry_x3f(lean_obj
 lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_get_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_computeSize___redArg___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_beq___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_erase___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -202,7 +212,6 @@ lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_emptyWithCapacity___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_insertMany(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_interSmallerFn___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x21(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -220,6 +229,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_interSmaller(lean_obj
 lean_object* l_Std_DHashMap_Internal_AssocList_alter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_getKeyD___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_getEntry___redArg(lean_object*, lean_object*, lean_object*);
+uint8_t l_Option_instBEq_beq___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Std_DHashMap_Internal_toListModel_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertManyIfNew(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -231,6 +241,7 @@ lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_eraseManyEntries(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_beq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_get_x21(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_getCast_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Std_DHashMap_Internal_toListModel_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -245,6 +256,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_get_x3f___boxed(lean_
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_eraseManyEntries___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x21___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertManyIfNew___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_Internal_computeSize___closed__1;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_map___redArg___lam__0(lean_object*, lean_object*);
@@ -253,6 +265,7 @@ LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHas
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_computeSize(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_getCast_x3f___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_beq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 lean_object* l___private_Std_Data_DHashMap_Internal_AssocList_Basic_0__Std_DHashMap_Internal_AssocList_filter_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_Internal_Raw_u2080_union___closed__0;
@@ -353,7 +366,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_computeSize___lam__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_computeSize___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
@@ -461,11 +474,11 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_computeSize___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_computeSize___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_DHashMap_Internal_computeSize___lam__0(x_1, x_2);
+x_3 = l_Std_DHashMap_Internal_computeSize___redArg___lam__0(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
@@ -481,7 +494,6 @@ x_6 = l_Std_DHashMap_Internal_computeSize___closed__9;
 x_7 = lean_nat_dec_lt(x_4, x_5);
 if (x_7 == 0)
 {
-lean_dec(x_5);
 lean_dec_ref(x_3);
 return x_4;
 }
@@ -491,17 +503,15 @@ uint8_t x_8;
 x_8 = lean_nat_dec_le(x_5, x_5);
 if (x_8 == 0)
 {
-lean_dec(x_5);
 lean_dec_ref(x_3);
 return x_4;
 }
 else
 {
 lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; 
-x_9 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_computeSize___lam__0___boxed), 2, 0);
+x_9 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_computeSize___redArg___lam__0___boxed), 2, 0);
 x_10 = 0;
 x_11 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
 x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_9, x_3, x_10, x_11, x_4);
 return x_12;
 }
@@ -518,7 +528,6 @@ x_4 = l_Std_DHashMap_Internal_computeSize___closed__9;
 x_5 = lean_nat_dec_lt(x_2, x_3);
 if (x_5 == 0)
 {
-lean_dec(x_3);
 lean_dec_ref(x_1);
 return x_2;
 }
@@ -528,17 +537,15 @@ uint8_t x_6;
 x_6 = lean_nat_dec_le(x_3, x_3);
 if (x_6 == 0)
 {
-lean_dec(x_3);
 lean_dec_ref(x_1);
 return x_2;
 }
 else
 {
 lean_object* x_7; size_t x_8; size_t x_9; lean_object* x_10; 
-x_7 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_computeSize___lam__0___boxed), 2, 0);
+x_7 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_computeSize___redArg___lam__0___boxed), 2, 0);
 x_8 = 0;
 x_9 = lean_usize_of_nat(x_3);
-lean_dec(x_3);
 x_10 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_4, x_7, x_1, x_8, x_9, x_2);
 return x_10;
 }
@@ -621,7 +628,6 @@ x_15 = lean_uint64_shift_right(x_13, x_14);
 x_16 = lean_uint64_xor(x_13, x_15);
 x_17 = lean_uint64_to_usize(x_16);
 x_18 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
 x_19 = 1;
 x_20 = lean_usize_sub(x_18, x_19);
 x_21 = lean_usize_land(x_17, x_20);
@@ -652,7 +658,6 @@ x_13 = lean_uint64_shift_right(x_11, x_12);
 x_14 = lean_uint64_xor(x_11, x_13);
 x_15 = lean_uint64_to_usize(x_14);
 x_16 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
 x_17 = 1;
 x_18 = lean_usize_sub(x_16, x_17);
 x_19 = lean_usize_land(x_15, x_18);
@@ -683,7 +688,6 @@ x_13 = lean_uint64_shift_right(x_11, x_12);
 x_14 = lean_uint64_xor(x_11, x_13);
 x_15 = lean_uint64_to_usize(x_14);
 x_16 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
 x_17 = 1;
 x_18 = lean_usize_sub(x_16, x_17);
 x_19 = lean_usize_land(x_15, x_18);
@@ -702,7 +706,6 @@ _start:
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_array_get_size(x_3);
 x_6 = lean_nat_dec_lt(x_2, x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 lean_dec_ref(x_3);
@@ -746,7 +749,6 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_array_get_size(x_2);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = lean_nat_mul(x_3, x_4);
-lean_dec(x_3);
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_box(0);
 x_8 = lean_mk_array(x_5, x_7);
@@ -775,7 +777,6 @@ x_11 = lean_nat_div(x_9, x_10);
 lean_dec(x_9);
 x_12 = lean_array_get_size(x_7);
 x_13 = lean_nat_dec_le(x_11, x_12);
-lean_dec(x_12);
 lean_dec(x_11);
 if (x_13 == 0)
 {
@@ -825,7 +826,6 @@ x_8 = lean_nat_div(x_6, x_7);
 lean_dec(x_6);
 x_9 = lean_array_get_size(x_4);
 x_10 = lean_nat_dec_le(x_8, x_9);
-lean_dec(x_9);
 lean_dec(x_8);
 if (x_10 == 0)
 {
@@ -896,7 +896,6 @@ x_17 = lean_uint64_shift_right(x_15, x_16);
 x_18 = lean_uint64_xor(x_15, x_17);
 x_19 = lean_uint64_to_usize(x_18);
 x_20 = lean_usize_of_nat(x_9);
-lean_dec(x_9);
 x_21 = 1;
 x_22 = lean_usize_sub(x_20, x_21);
 x_23 = lean_usize_land(x_19, x_22);
@@ -924,7 +923,6 @@ x_33 = lean_nat_div(x_31, x_32);
 lean_dec(x_31);
 x_34 = lean_array_get_size(x_29);
 x_35 = lean_nat_dec_le(x_33, x_34);
-lean_dec(x_34);
 lean_dec(x_33);
 if (x_35 == 0)
 {
@@ -977,7 +975,6 @@ x_51 = lean_uint64_shift_right(x_49, x_50);
 x_52 = lean_uint64_xor(x_49, x_51);
 x_53 = lean_uint64_to_usize(x_52);
 x_54 = lean_usize_of_nat(x_43);
-lean_dec(x_43);
 x_55 = 1;
 x_56 = lean_usize_sub(x_54, x_55);
 x_57 = lean_usize_land(x_53, x_56);
@@ -1005,7 +1002,6 @@ x_67 = lean_nat_div(x_65, x_66);
 lean_dec(x_65);
 x_68 = lean_array_get_size(x_63);
 x_69 = lean_nat_dec_le(x_67, x_68);
-lean_dec(x_68);
 lean_dec(x_67);
 if (x_69 == 0)
 {
@@ -1070,7 +1066,6 @@ x_16 = lean_uint64_shift_right(x_14, x_15);
 x_17 = lean_uint64_xor(x_14, x_16);
 x_18 = lean_uint64_to_usize(x_17);
 x_19 = lean_usize_of_nat(x_8);
-lean_dec(x_8);
 x_20 = 1;
 x_21 = lean_usize_sub(x_19, x_20);
 x_22 = lean_usize_land(x_18, x_21);
@@ -1151,7 +1146,6 @@ x_16 = lean_uint64_shift_right(x_14, x_15);
 x_17 = lean_uint64_xor(x_14, x_16);
 x_18 = lean_uint64_to_usize(x_17);
 x_19 = lean_usize_of_nat(x_8);
-lean_dec(x_8);
 x_20 = 1;
 x_21 = lean_usize_sub(x_19, x_20);
 x_22 = lean_usize_land(x_18, x_21);
@@ -1233,7 +1227,6 @@ x_16 = lean_uint64_shift_right(x_14, x_15);
 x_17 = lean_uint64_xor(x_14, x_16);
 x_18 = lean_uint64_to_usize(x_17);
 x_19 = lean_usize_of_nat(x_8);
-lean_dec(x_8);
 x_20 = 1;
 x_21 = lean_usize_sub(x_19, x_20);
 x_22 = lean_usize_land(x_18, x_21);
@@ -1286,7 +1279,6 @@ x_38 = lean_nat_div(x_36, x_37);
 lean_dec(x_36);
 x_39 = lean_array_get_size(x_34);
 x_40 = lean_nat_dec_le(x_38, x_39);
-lean_dec(x_39);
 lean_dec(x_38);
 if (x_40 == 0)
 {
@@ -1326,7 +1318,6 @@ x_50 = lean_nat_div(x_48, x_49);
 lean_dec(x_48);
 x_51 = lean_array_get_size(x_46);
 x_52 = lean_nat_dec_le(x_50, x_51);
-lean_dec(x_51);
 lean_dec(x_50);
 if (x_52 == 0)
 {
@@ -1429,7 +1420,6 @@ x_16 = lean_uint64_shift_right(x_14, x_15);
 x_17 = lean_uint64_xor(x_14, x_16);
 x_18 = lean_uint64_to_usize(x_17);
 x_19 = lean_usize_of_nat(x_8);
-lean_dec(x_8);
 x_20 = 1;
 x_21 = lean_usize_sub(x_19, x_20);
 x_22 = lean_usize_land(x_18, x_21);
@@ -1482,7 +1472,6 @@ x_38 = lean_nat_div(x_36, x_37);
 lean_dec(x_36);
 x_39 = lean_array_get_size(x_34);
 x_40 = lean_nat_dec_le(x_38, x_39);
-lean_dec(x_39);
 lean_dec(x_38);
 if (x_40 == 0)
 {
@@ -1522,7 +1511,6 @@ x_50 = lean_nat_div(x_48, x_49);
 lean_dec(x_48);
 x_51 = lean_array_get_size(x_46);
 x_52 = lean_nat_dec_le(x_50, x_51);
-lean_dec(x_51);
 lean_dec(x_50);
 if (x_52 == 0)
 {
@@ -1629,7 +1617,6 @@ x_19 = lean_uint64_shift_right(x_17, x_18);
 x_20 = lean_uint64_xor(x_17, x_19);
 x_21 = lean_uint64_to_usize(x_20);
 x_22 = lean_usize_of_nat(x_11);
-lean_dec(x_11);
 x_23 = 1;
 x_24 = lean_usize_sub(x_22, x_23);
 x_25 = lean_usize_land(x_21, x_24);
@@ -1657,7 +1644,6 @@ x_35 = lean_nat_div(x_33, x_34);
 lean_dec(x_33);
 x_36 = lean_array_get_size(x_31);
 x_37 = lean_nat_dec_le(x_35, x_36);
-lean_dec(x_36);
 lean_dec(x_35);
 if (x_37 == 0)
 {
@@ -1723,7 +1709,6 @@ x_59 = lean_uint64_shift_right(x_57, x_58);
 x_60 = lean_uint64_xor(x_57, x_59);
 x_61 = lean_uint64_to_usize(x_60);
 x_62 = lean_usize_of_nat(x_51);
-lean_dec(x_51);
 x_63 = 1;
 x_64 = lean_usize_sub(x_62, x_63);
 x_65 = lean_usize_land(x_61, x_64);
@@ -1751,7 +1736,6 @@ x_75 = lean_nat_div(x_73, x_74);
 lean_dec(x_73);
 x_76 = lean_array_get_size(x_71);
 x_77 = lean_nat_dec_le(x_75, x_76);
-lean_dec(x_76);
 lean_dec(x_75);
 if (x_77 == 0)
 {
@@ -1825,7 +1809,6 @@ x_17 = lean_uint64_shift_right(x_15, x_16);
 x_18 = lean_uint64_xor(x_15, x_17);
 x_19 = lean_uint64_to_usize(x_18);
 x_20 = lean_usize_of_nat(x_9);
-lean_dec(x_9);
 x_21 = 1;
 x_22 = lean_usize_sub(x_20, x_21);
 x_23 = lean_usize_land(x_19, x_22);
@@ -1853,7 +1836,6 @@ x_33 = lean_nat_div(x_31, x_32);
 lean_dec(x_31);
 x_34 = lean_array_get_size(x_29);
 x_35 = lean_nat_dec_le(x_33, x_34);
-lean_dec(x_34);
 lean_dec(x_33);
 if (x_35 == 0)
 {
@@ -1919,7 +1901,6 @@ x_57 = lean_uint64_shift_right(x_55, x_56);
 x_58 = lean_uint64_xor(x_55, x_57);
 x_59 = lean_uint64_to_usize(x_58);
 x_60 = lean_usize_of_nat(x_49);
-lean_dec(x_49);
 x_61 = 1;
 x_62 = lean_usize_sub(x_60, x_61);
 x_63 = lean_usize_land(x_59, x_62);
@@ -1947,7 +1928,6 @@ x_73 = lean_nat_div(x_71, x_72);
 lean_dec(x_71);
 x_74 = lean_array_get_size(x_69);
 x_75 = lean_nat_dec_le(x_73, x_74);
-lean_dec(x_74);
 lean_dec(x_73);
 if (x_75 == 0)
 {
@@ -2017,7 +1997,6 @@ x_18 = lean_uint64_shift_right(x_16, x_17);
 x_19 = lean_uint64_xor(x_16, x_18);
 x_20 = lean_uint64_to_usize(x_19);
 x_21 = lean_usize_of_nat(x_10);
-lean_dec(x_10);
 x_22 = 1;
 x_23 = lean_usize_sub(x_21, x_22);
 x_24 = lean_usize_land(x_20, x_23);
@@ -2053,7 +2032,6 @@ x_37 = lean_nat_div(x_35, x_36);
 lean_dec(x_35);
 x_38 = lean_array_get_size(x_33);
 x_39 = lean_nat_dec_le(x_37, x_38);
-lean_dec(x_38);
 lean_dec(x_37);
 if (x_39 == 0)
 {
@@ -2099,7 +2077,6 @@ x_52 = lean_nat_div(x_50, x_51);
 lean_dec(x_50);
 x_53 = lean_array_get_size(x_48);
 x_54 = lean_nat_dec_le(x_52, x_53);
-lean_dec(x_53);
 lean_dec(x_52);
 if (x_54 == 0)
 {
@@ -2165,7 +2142,6 @@ x_16 = lean_uint64_shift_right(x_14, x_15);
 x_17 = lean_uint64_xor(x_14, x_16);
 x_18 = lean_uint64_to_usize(x_17);
 x_19 = lean_usize_of_nat(x_8);
-lean_dec(x_8);
 x_20 = 1;
 x_21 = lean_usize_sub(x_19, x_20);
 x_22 = lean_usize_land(x_18, x_21);
@@ -2201,7 +2177,6 @@ x_35 = lean_nat_div(x_33, x_34);
 lean_dec(x_33);
 x_36 = lean_array_get_size(x_31);
 x_37 = lean_nat_dec_le(x_35, x_36);
-lean_dec(x_36);
 lean_dec(x_35);
 if (x_37 == 0)
 {
@@ -2247,7 +2222,6 @@ x_50 = lean_nat_div(x_48, x_49);
 lean_dec(x_48);
 x_51 = lean_array_get_size(x_46);
 x_52 = lean_nat_dec_le(x_50, x_51);
-lean_dec(x_51);
 lean_dec(x_50);
 if (x_52 == 0)
 {
@@ -2313,7 +2287,6 @@ x_16 = lean_uint64_shift_right(x_14, x_15);
 x_17 = lean_uint64_xor(x_14, x_16);
 x_18 = lean_uint64_to_usize(x_17);
 x_19 = lean_usize_of_nat(x_8);
-lean_dec(x_8);
 x_20 = 1;
 x_21 = lean_usize_sub(x_19, x_20);
 x_22 = lean_usize_land(x_18, x_21);
@@ -2349,7 +2322,6 @@ x_35 = lean_nat_div(x_33, x_34);
 lean_dec(x_33);
 x_36 = lean_array_get_size(x_31);
 x_37 = lean_nat_dec_le(x_35, x_36);
-lean_dec(x_36);
 lean_dec(x_35);
 if (x_37 == 0)
 {
@@ -2386,7 +2358,6 @@ x_46 = lean_nat_div(x_44, x_45);
 lean_dec(x_44);
 x_47 = lean_array_get_size(x_42);
 x_48 = lean_nat_dec_le(x_46, x_47);
-lean_dec(x_47);
 lean_dec(x_46);
 if (x_48 == 0)
 {
@@ -2447,7 +2418,6 @@ x_19 = lean_uint64_shift_right(x_17, x_18);
 x_20 = lean_uint64_xor(x_17, x_19);
 x_21 = lean_uint64_to_usize(x_20);
 x_22 = lean_usize_of_nat(x_11);
-lean_dec(x_11);
 x_23 = 1;
 x_24 = lean_usize_sub(x_22, x_23);
 x_25 = lean_usize_land(x_21, x_24);
@@ -2483,7 +2453,6 @@ x_38 = lean_nat_div(x_36, x_37);
 lean_dec(x_36);
 x_39 = lean_array_get_size(x_34);
 x_40 = lean_nat_dec_le(x_38, x_39);
-lean_dec(x_39);
 lean_dec(x_38);
 if (x_40 == 0)
 {
@@ -2527,7 +2496,6 @@ x_51 = lean_nat_div(x_49, x_50);
 lean_dec(x_49);
 x_52 = lean_array_get_size(x_47);
 x_53 = lean_nat_dec_le(x_51, x_52);
-lean_dec(x_52);
 lean_dec(x_51);
 if (x_53 == 0)
 {
@@ -2590,7 +2558,6 @@ x_16 = lean_uint64_shift_right(x_14, x_15);
 x_17 = lean_uint64_xor(x_14, x_16);
 x_18 = lean_uint64_to_usize(x_17);
 x_19 = lean_usize_of_nat(x_8);
-lean_dec(x_8);
 x_20 = 1;
 x_21 = lean_usize_sub(x_19, x_20);
 x_22 = lean_usize_land(x_18, x_21);
@@ -2626,7 +2593,6 @@ x_35 = lean_nat_div(x_33, x_34);
 lean_dec(x_33);
 x_36 = lean_array_get_size(x_31);
 x_37 = lean_nat_dec_le(x_35, x_36);
-lean_dec(x_36);
 lean_dec(x_35);
 if (x_37 == 0)
 {
@@ -2670,7 +2636,6 @@ x_48 = lean_nat_div(x_46, x_47);
 lean_dec(x_46);
 x_49 = lean_array_get_size(x_44);
 x_50 = lean_nat_dec_le(x_48, x_49);
-lean_dec(x_49);
 lean_dec(x_48);
 if (x_50 == 0)
 {
@@ -2731,7 +2696,6 @@ x_14 = lean_uint64_shift_right(x_12, x_13);
 x_15 = lean_uint64_xor(x_12, x_14);
 x_16 = lean_uint64_to_usize(x_15);
 x_17 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_18 = 1;
 x_19 = lean_usize_sub(x_17, x_18);
 x_20 = lean_usize_land(x_16, x_19);
@@ -2785,7 +2749,6 @@ x_14 = lean_uint64_shift_right(x_12, x_13);
 x_15 = lean_uint64_xor(x_12, x_14);
 x_16 = lean_uint64_to_usize(x_15);
 x_17 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_18 = 1;
 x_19 = lean_usize_sub(x_17, x_18);
 x_20 = lean_usize_land(x_16, x_19);
@@ -2841,7 +2804,6 @@ x_14 = lean_uint64_shift_right(x_12, x_13);
 x_15 = lean_uint64_xor(x_12, x_14);
 x_16 = lean_uint64_to_usize(x_15);
 x_17 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_18 = 1;
 x_19 = lean_usize_sub(x_17, x_18);
 x_20 = lean_usize_land(x_16, x_19);
@@ -2895,7 +2857,6 @@ x_14 = lean_uint64_shift_right(x_12, x_13);
 x_15 = lean_uint64_xor(x_12, x_14);
 x_16 = lean_uint64_to_usize(x_15);
 x_17 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_18 = 1;
 x_19 = lean_usize_sub(x_17, x_18);
 x_20 = lean_usize_land(x_16, x_19);
@@ -2949,7 +2910,6 @@ x_14 = lean_uint64_shift_right(x_12, x_13);
 x_15 = lean_uint64_xor(x_12, x_14);
 x_16 = lean_uint64_to_usize(x_15);
 x_17 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_18 = 1;
 x_19 = lean_usize_sub(x_17, x_18);
 x_20 = lean_usize_land(x_16, x_19);
@@ -3003,7 +2963,6 @@ x_15 = lean_uint64_shift_right(x_13, x_14);
 x_16 = lean_uint64_xor(x_13, x_15);
 x_17 = lean_uint64_to_usize(x_16);
 x_18 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
 x_19 = 1;
 x_20 = lean_usize_sub(x_18, x_19);
 x_21 = lean_usize_land(x_17, x_20);
@@ -3059,7 +3018,6 @@ x_15 = lean_uint64_shift_right(x_13, x_14);
 x_16 = lean_uint64_xor(x_13, x_15);
 x_17 = lean_uint64_to_usize(x_16);
 x_18 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
 x_19 = 1;
 x_20 = lean_usize_sub(x_18, x_19);
 x_21 = lean_usize_land(x_17, x_20);
@@ -3115,7 +3073,6 @@ x_15 = lean_uint64_shift_right(x_13, x_14);
 x_16 = lean_uint64_xor(x_13, x_15);
 x_17 = lean_uint64_to_usize(x_16);
 x_18 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
 x_19 = 1;
 x_20 = lean_usize_sub(x_18, x_19);
 x_21 = lean_usize_land(x_17, x_20);
@@ -3171,7 +3128,6 @@ x_15 = lean_uint64_shift_right(x_13, x_14);
 x_16 = lean_uint64_xor(x_13, x_15);
 x_17 = lean_uint64_to_usize(x_16);
 x_18 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
 x_19 = 1;
 x_20 = lean_usize_sub(x_18, x_19);
 x_21 = lean_usize_land(x_17, x_20);
@@ -3226,7 +3182,6 @@ x_15 = lean_uint64_shift_right(x_13, x_14);
 x_16 = lean_uint64_xor(x_13, x_15);
 x_17 = lean_uint64_to_usize(x_16);
 x_18 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
 x_19 = 1;
 x_20 = lean_usize_sub(x_18, x_19);
 x_21 = lean_usize_land(x_17, x_20);
@@ -3306,7 +3261,7 @@ static lean_object* _init_l_Std_DHashMap_Internal_Raw_u2080_filterMap___redArg__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_computeSize___lam__0___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_computeSize___redArg___lam__0___boxed), 2, 0);
 return x_1;
 }
 }
@@ -3332,7 +3287,6 @@ x_12 = lean_array_get_size(x_10);
 x_13 = lean_nat_dec_lt(x_11, x_12);
 if (x_13 == 0)
 {
-lean_dec(x_12);
 lean_ctor_set(x_2, 1, x_10);
 lean_ctor_set(x_2, 0, x_11);
 return x_2;
@@ -3343,7 +3297,6 @@ uint8_t x_14;
 x_14 = lean_nat_dec_le(x_12, x_12);
 if (x_14 == 0)
 {
-lean_dec(x_12);
 lean_ctor_set(x_2, 1, x_10);
 lean_ctor_set(x_2, 0, x_11);
 return x_2;
@@ -3353,7 +3306,6 @@ else
 lean_object* x_15; size_t x_16; lean_object* x_17; 
 x_15 = l_Std_DHashMap_Internal_Raw_u2080_filterMap___redArg___closed__0;
 x_16 = lean_usize_of_nat(x_12);
-lean_dec(x_12);
 lean_inc(x_10);
 x_17 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_7, x_15, x_10, x_9, x_16, x_11);
 lean_ctor_set(x_2, 1, x_10);
@@ -3380,7 +3332,6 @@ x_26 = lean_nat_dec_lt(x_24, x_25);
 if (x_26 == 0)
 {
 lean_object* x_27; 
-lean_dec(x_25);
 x_27 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_27, 0, x_24);
 lean_ctor_set(x_27, 1, x_23);
@@ -3393,7 +3344,6 @@ x_28 = lean_nat_dec_le(x_25, x_25);
 if (x_28 == 0)
 {
 lean_object* x_29; 
-lean_dec(x_25);
 x_29 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_29, 0, x_24);
 lean_ctor_set(x_29, 1, x_23);
@@ -3404,7 +3354,6 @@ else
 lean_object* x_30; size_t x_31; lean_object* x_32; lean_object* x_33; 
 x_30 = l_Std_DHashMap_Internal_Raw_u2080_filterMap___redArg___closed__0;
 x_31 = lean_usize_of_nat(x_25);
-lean_dec(x_25);
 lean_inc(x_23);
 x_32 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_20, x_30, x_23, x_22, x_31, x_24);
 x_33 = lean_alloc_ctor(0, 2, 0);
@@ -3511,7 +3460,6 @@ x_12 = lean_array_get_size(x_10);
 x_13 = lean_nat_dec_lt(x_11, x_12);
 if (x_13 == 0)
 {
-lean_dec(x_12);
 lean_ctor_set(x_2, 1, x_10);
 lean_ctor_set(x_2, 0, x_11);
 return x_2;
@@ -3522,7 +3470,6 @@ uint8_t x_14;
 x_14 = lean_nat_dec_le(x_12, x_12);
 if (x_14 == 0)
 {
-lean_dec(x_12);
 lean_ctor_set(x_2, 1, x_10);
 lean_ctor_set(x_2, 0, x_11);
 return x_2;
@@ -3532,7 +3479,6 @@ else
 lean_object* x_15; size_t x_16; lean_object* x_17; 
 x_15 = l_Std_DHashMap_Internal_Raw_u2080_filterMap___redArg___closed__0;
 x_16 = lean_usize_of_nat(x_12);
-lean_dec(x_12);
 lean_inc(x_10);
 x_17 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_7, x_15, x_10, x_9, x_16, x_11);
 lean_ctor_set(x_2, 1, x_10);
@@ -3559,7 +3505,6 @@ x_26 = lean_nat_dec_lt(x_24, x_25);
 if (x_26 == 0)
 {
 lean_object* x_27; 
-lean_dec(x_25);
 x_27 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_27, 0, x_24);
 lean_ctor_set(x_27, 1, x_23);
@@ -3572,7 +3517,6 @@ x_28 = lean_nat_dec_le(x_25, x_25);
 if (x_28 == 0)
 {
 lean_object* x_29; 
-lean_dec(x_25);
 x_29 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_29, 0, x_24);
 lean_ctor_set(x_29, 1, x_23);
@@ -3583,7 +3527,6 @@ else
 lean_object* x_30; size_t x_31; lean_object* x_32; lean_object* x_33; 
 x_30 = l_Std_DHashMap_Internal_Raw_u2080_filterMap___redArg___closed__0;
 x_31 = lean_usize_of_nat(x_25);
-lean_dec(x_25);
 lean_inc(x_23);
 x_32 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_20, x_30, x_23, x_22, x_31, x_24);
 x_33 = lean_alloc_ctor(0, 2, 0);
@@ -3669,7 +3612,7 @@ x_9 = l_Std_DHashMap_Internal_Raw_u2080_eraseManyEntries___redArg(x_4, x_5, x_6,
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertManyIfNew___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertManyIfNew___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
@@ -3688,7 +3631,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertManyIfNew(lean_
 _start:
 {
 lean_object* x_9; lean_object* x_10; 
-x_9 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_insertManyIfNew___lam__0), 4, 2);
+x_9 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_insertManyIfNew___redArg___lam__0), 4, 2);
 lean_closure_set(x_9, 0, x_5);
 lean_closure_set(x_9, 1, x_6);
 x_10 = lean_apply_4(x_4, lean_box(0), x_8, x_7, x_9);
@@ -3699,7 +3642,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertManyIfNew___red
 _start:
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_insertManyIfNew___lam__0), 4, 2);
+x_6 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_insertManyIfNew___redArg___lam__0), 4, 2);
 lean_closure_set(x_6, 0, x_2);
 lean_closure_set(x_6, 1, x_3);
 x_7 = lean_apply_4(x_1, lean_box(0), x_5, x_4, x_6);
@@ -3786,9 +3729,9 @@ static lean_object* _init_l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redAr
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(4u);
-x_2 = lean_unsigned_to_nat(8u);
-x_3 = lean_nat_mul(x_2, x_1);
+x_1 = lean_box(0);
+x_2 = lean_unsigned_to_nat(16u);
+x_3 = lean_mk_array(x_2, x_1);
 return x_3;
 }
 }
@@ -3796,36 +3739,7 @@ static lean_object* _init_l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redAr
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(3u);
-x_2 = l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__0;
-x_3 = lean_nat_div(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__1;
-x_2 = l_Nat_nextPowerOfTwo(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__2;
-x_3 = lean_mk_array(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__3;
+x_1 = l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__0;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -3889,12 +3803,11 @@ x_6 = lean_ctor_get(x_4, 1);
 lean_inc_ref(x_6);
 lean_dec_ref(x_4);
 x_7 = lean_unsigned_to_nat(0u);
-x_8 = l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__4;
+x_8 = l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__1;
 x_9 = lean_array_get_size(x_6);
 x_10 = lean_nat_dec_lt(x_7, x_9);
 if (x_10 == 0)
 {
-lean_dec(x_9);
 lean_dec_ref(x_6);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
@@ -3907,7 +3820,6 @@ uint8_t x_11;
 x_11 = lean_nat_dec_le(x_9, x_9);
 if (x_11 == 0)
 {
-lean_dec(x_9);
 lean_dec_ref(x_6);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
@@ -3926,7 +3838,6 @@ lean_closure_set(x_13, 0, x_5);
 lean_closure_set(x_13, 1, x_12);
 x_14 = 0;
 x_15 = lean_usize_of_nat(x_9);
-lean_dec(x_9);
 x_16 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_5, x_13, x_6, x_14, x_15, x_8);
 return x_16;
 }
@@ -3941,7 +3852,15 @@ x_7 = l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg(x_3, x_4, x_5, x_6
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_union___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_union___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l___private_Std_Data_DHashMap_Internal_AssocList_Basic_0__Std_DHashMap_Internal_AssocList_forInStep_go(lean_box(0), lean_box(0), lean_box(0), lean_box(0), x_1, x_2, x_3, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_union___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; 
@@ -3949,14 +3868,6 @@ x_6 = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___redArg(x_1, x_2, x_5, x_3,
 x_7 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_union___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l___private_Std_Data_DHashMap_Internal_AssocList_Basic_0__Std_DHashMap_Internal_AssocList_forInStep_go(lean_box(0), lean_box(0), lean_box(0), lean_box(0), x_1, x_2, x_3, x_5);
-return x_6;
 }
 }
 static lean_object* _init_l_Std_DHashMap_Internal_Raw_u2080_union___closed__0() {
@@ -3988,11 +3899,11 @@ else
 lean_object* x_13; lean_object* x_14; lean_object* x_15; size_t x_16; size_t x_17; lean_object* x_18; 
 lean_inc_ref(x_8);
 lean_dec_ref(x_5);
-x_13 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_union___lam__0), 5, 2);
+x_13 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_union___redArg___lam__0), 5, 2);
 lean_closure_set(x_13, 0, x_3);
 lean_closure_set(x_13, 1, x_4);
 x_14 = l_Std_DHashMap_Internal_computeSize___closed__9;
-x_15 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_union___lam__1), 5, 2);
+x_15 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_union___redArg___lam__1), 5, 2);
 lean_closure_set(x_15, 0, x_14);
 lean_closure_set(x_15, 1, x_13);
 x_16 = lean_array_size(x_8);
@@ -4022,11 +3933,11 @@ else
 lean_object* x_11; lean_object* x_12; lean_object* x_13; size_t x_14; size_t x_15; lean_object* x_16; 
 lean_inc_ref(x_6);
 lean_dec_ref(x_3);
-x_11 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_union___lam__0), 5, 2);
+x_11 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_union___redArg___lam__0), 5, 2);
 lean_closure_set(x_11, 0, x_1);
 lean_closure_set(x_11, 1, x_2);
 x_12 = l_Std_DHashMap_Internal_computeSize___closed__9;
-x_13 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_union___lam__1), 5, 2);
+x_13 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_union___redArg___lam__1), 5, 2);
 lean_closure_set(x_13, 0, x_12);
 lean_closure_set(x_13, 1, x_11);
 x_14 = lean_array_size(x_6);
@@ -4088,7 +3999,160 @@ x_7 = l_Std_DHashMap_Internal_Raw_u2080_inter___redArg(x_3, x_4, x_5, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_diff___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5, lean_object* x_6) {
+static lean_object* _init_l_Std_DHashMap_Internal_Raw_u2080_beq___redArg___closed__0() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = lean_box(0);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_beq___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+_start:
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+lean_inc(x_8);
+x_11 = lean_apply_1(x_1, x_8);
+x_12 = l_Std_DHashMap_Internal_Raw_u2080_get_x3f___redArg(x_2, x_3, x_4, x_8);
+x_13 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_13, 0, x_9);
+x_14 = l_Option_instBEq_beq___redArg(x_11, x_12, x_13);
+if (x_14 == 0)
+{
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_dec_ref(x_7);
+x_15 = lean_box(x_5);
+x_16 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_16, 0, x_15);
+x_17 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_17, 0, x_16);
+lean_ctor_set(x_17, 1, x_6);
+x_18 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_18, 0, x_17);
+return x_18;
+}
+else
+{
+lean_object* x_19; 
+x_19 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_19, 0, x_7);
+return x_19;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_beq___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+_start:
+{
+uint8_t x_11; lean_object* x_12; 
+x_11 = lean_unbox(x_5);
+x_12 = l_Std_DHashMap_Internal_Raw_u2080_beq___redArg___lam__0(x_1, x_2, x_3, x_4, x_11, x_6, x_7, x_8, x_9, x_10);
+lean_dec_ref(x_10);
+lean_dec_ref(x_4);
+return x_12;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_beq___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l___private_Std_Data_DHashMap_Internal_AssocList_Basic_0__Std_DHashMap_Internal_AssocList_forInStep_go(lean_box(0), lean_box(0), lean_box(0), lean_box(0), x_1, x_2, x_3, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_beq___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_6 = lean_ctor_get(x_4, 0);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_4, 1);
+lean_inc_ref(x_7);
+lean_dec_ref(x_4);
+x_8 = lean_ctor_get(x_5, 0);
+x_9 = lean_nat_dec_eq(x_6, x_8);
+lean_dec(x_6);
+if (x_9 == 0)
+{
+lean_dec_ref(x_7);
+lean_dec_ref(x_5);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
+return x_9;
+}
+else
+{
+uint8_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; size_t x_17; size_t x_18; lean_object* x_19; lean_object* x_20; 
+x_10 = 0;
+x_11 = l_Std_DHashMap_Internal_computeSize___closed__9;
+x_12 = lean_box(0);
+x_13 = l_Std_DHashMap_Internal_Raw_u2080_beq___redArg___closed__0;
+x_14 = lean_box(x_10);
+x_15 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_beq___redArg___lam__0___boxed), 10, 7);
+lean_closure_set(x_15, 0, x_3);
+lean_closure_set(x_15, 1, x_1);
+lean_closure_set(x_15, 2, x_2);
+lean_closure_set(x_15, 3, x_5);
+lean_closure_set(x_15, 4, x_14);
+lean_closure_set(x_15, 5, x_12);
+lean_closure_set(x_15, 6, x_13);
+x_16 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_beq___redArg___lam__1), 5, 2);
+lean_closure_set(x_16, 0, x_11);
+lean_closure_set(x_16, 1, x_15);
+x_17 = lean_array_size(x_7);
+x_18 = 0;
+x_19 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_11, x_7, x_16, x_17, x_18, x_13);
+x_20 = lean_ctor_get(x_19, 0);
+lean_inc(x_20);
+lean_dec(x_19);
+if (lean_obj_tag(x_20) == 0)
+{
+return x_9;
+}
+else
+{
+lean_object* x_21; uint8_t x_22; 
+x_21 = lean_ctor_get(x_20, 0);
+lean_inc(x_21);
+lean_dec_ref(x_20);
+x_22 = lean_unbox(x_21);
+lean_dec(x_21);
+return x_22;
+}
+}
+}
+}
+LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_beq(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+uint8_t x_9; 
+x_9 = l_Std_DHashMap_Internal_Raw_u2080_beq___redArg(x_3, x_5, x_6, x_7, x_8);
+return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_beq___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+uint8_t x_9; lean_object* x_10; 
+x_9 = l_Std_DHashMap_Internal_Raw_u2080_beq(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+x_10 = lean_box(x_9);
+return x_10;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_beq___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; lean_object* x_7; 
+x_6 = l_Std_DHashMap_Internal_Raw_u2080_beq___redArg(x_1, x_2, x_3, x_4, x_5);
+x_7 = lean_box(x_6);
+return x_7;
+}
+}
+LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_diff___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 uint8_t x_7; 
@@ -4105,12 +4169,12 @@ return x_8;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_diff___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_diff___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 uint8_t x_7; uint8_t x_8; lean_object* x_9; 
 x_7 = lean_unbox(x_4);
-x_8 = l_Std_DHashMap_Internal_Raw_u2080_diff___lam__0(x_1, x_2, x_3, x_7, x_5, x_6);
+x_8 = l_Std_DHashMap_Internal_Raw_u2080_diff___redArg___lam__0(x_1, x_2, x_3, x_7, x_5, x_6);
 lean_dec(x_6);
 lean_dec_ref(x_3);
 x_9 = lean_box(x_8);
@@ -4135,7 +4199,7 @@ else
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_12 = lean_box(x_9);
-x_13 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_diff___lam__0___boxed), 6, 4);
+x_13 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_diff___redArg___lam__0___boxed), 6, 4);
 lean_closure_set(x_13, 0, x_3);
 lean_closure_set(x_13, 1, x_4);
 lean_closure_set(x_13, 2, x_6);
@@ -4163,7 +4227,7 @@ else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_10 = lean_box(x_7);
-x_11 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_diff___lam__0___boxed), 6, 4);
+x_11 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_diff___redArg___lam__0___boxed), 6, 4);
 lean_closure_set(x_11, 0, x_1);
 lean_closure_set(x_11, 1, x_2);
 lean_closure_set(x_11, 2, x_4);
@@ -4192,7 +4256,6 @@ x_14 = lean_uint64_shift_right(x_12, x_13);
 x_15 = lean_uint64_xor(x_12, x_14);
 x_16 = lean_uint64_to_usize(x_15);
 x_17 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_18 = 1;
 x_19 = lean_usize_sub(x_17, x_18);
 x_20 = lean_usize_land(x_16, x_19);
@@ -4227,6 +4290,137 @@ lean_dec_ref(x_3);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_beq___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+_start:
+{
+lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+x_11 = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___redArg(x_1, x_2, x_3, x_8);
+x_12 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_12, 0, x_9);
+x_13 = l_Option_instBEq_beq___redArg(x_4, x_11, x_12);
+if (x_13 == 0)
+{
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+lean_dec_ref(x_7);
+x_14 = lean_box(x_5);
+x_15 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_15, 0, x_14);
+x_16 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_16, 0, x_15);
+lean_ctor_set(x_16, 1, x_6);
+x_17 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_17, 0, x_16);
+return x_17;
+}
+else
+{
+lean_object* x_18; 
+x_18 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_18, 0, x_7);
+return x_18;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_beq___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+_start:
+{
+uint8_t x_11; lean_object* x_12; 
+x_11 = lean_unbox(x_5);
+x_12 = l_Std_DHashMap_Internal_Raw_u2080_Const_beq___redArg___lam__0(x_1, x_2, x_3, x_4, x_11, x_6, x_7, x_8, x_9, x_10);
+lean_dec_ref(x_10);
+lean_dec_ref(x_3);
+return x_12;
+}
+}
+LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_Const_beq___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_6 = lean_ctor_get(x_4, 0);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_4, 1);
+lean_inc_ref(x_7);
+lean_dec_ref(x_4);
+x_8 = lean_ctor_get(x_5, 0);
+x_9 = lean_nat_dec_eq(x_6, x_8);
+lean_dec(x_6);
+if (x_9 == 0)
+{
+lean_dec_ref(x_7);
+lean_dec_ref(x_5);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
+return x_9;
+}
+else
+{
+uint8_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; size_t x_17; size_t x_18; lean_object* x_19; lean_object* x_20; 
+x_10 = 0;
+x_11 = l_Std_DHashMap_Internal_computeSize___closed__9;
+x_12 = lean_box(0);
+x_13 = l_Std_DHashMap_Internal_Raw_u2080_beq___redArg___closed__0;
+x_14 = lean_box(x_10);
+x_15 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_Const_beq___redArg___lam__0___boxed), 10, 7);
+lean_closure_set(x_15, 0, x_1);
+lean_closure_set(x_15, 1, x_2);
+lean_closure_set(x_15, 2, x_5);
+lean_closure_set(x_15, 3, x_3);
+lean_closure_set(x_15, 4, x_14);
+lean_closure_set(x_15, 5, x_12);
+lean_closure_set(x_15, 6, x_13);
+x_16 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_beq___redArg___lam__1), 5, 2);
+lean_closure_set(x_16, 0, x_11);
+lean_closure_set(x_16, 1, x_15);
+x_17 = lean_array_size(x_7);
+x_18 = 0;
+x_19 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_11, x_7, x_16, x_17, x_18, x_13);
+x_20 = lean_ctor_get(x_19, 0);
+lean_inc(x_20);
+lean_dec(x_19);
+if (lean_obj_tag(x_20) == 0)
+{
+return x_9;
+}
+else
+{
+lean_object* x_21; uint8_t x_22; 
+x_21 = lean_ctor_get(x_20, 0);
+lean_inc(x_21);
+lean_dec_ref(x_20);
+x_22 = lean_unbox(x_21);
+lean_dec(x_21);
+return x_22;
+}
+}
+}
+}
+LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_Raw_u2080_Const_beq(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+uint8_t x_8; 
+x_8 = l_Std_DHashMap_Internal_Raw_u2080_Const_beq___redArg(x_3, x_4, x_5, x_6, x_7);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_beq___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+uint8_t x_8; lean_object* x_9; 
+x_8 = l_Std_DHashMap_Internal_Raw_u2080_Const_beq(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+x_9 = lean_box(x_8);
+return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_beq___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; lean_object* x_7; 
+x_6 = l_Std_DHashMap_Internal_Raw_u2080_Const_beq___redArg(x_1, x_2, x_3, x_4, x_5);
+x_7 = lean_box(x_6);
+return x_7;
+}
+}
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -4246,7 +4440,6 @@ x_14 = lean_uint64_shift_right(x_12, x_13);
 x_15 = lean_uint64_xor(x_12, x_14);
 x_16 = lean_uint64_to_usize(x_15);
 x_17 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_18 = 1;
 x_19 = lean_usize_sub(x_17, x_18);
 x_20 = lean_usize_land(x_16, x_19);
@@ -4300,7 +4493,6 @@ x_15 = lean_uint64_shift_right(x_13, x_14);
 x_16 = lean_uint64_xor(x_13, x_15);
 x_17 = lean_uint64_to_usize(x_16);
 x_18 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
 x_19 = 1;
 x_20 = lean_usize_sub(x_18, x_19);
 x_21 = lean_usize_land(x_17, x_20);
@@ -4356,7 +4548,6 @@ x_15 = lean_uint64_shift_right(x_13, x_14);
 x_16 = lean_uint64_xor(x_13, x_15);
 x_17 = lean_uint64_to_usize(x_16);
 x_18 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
 x_19 = 1;
 x_20 = lean_usize_sub(x_18, x_19);
 x_21 = lean_usize_land(x_17, x_20);
@@ -4412,7 +4603,6 @@ x_18 = lean_uint64_shift_right(x_16, x_17);
 x_19 = lean_uint64_xor(x_16, x_18);
 x_20 = lean_uint64_to_usize(x_19);
 x_21 = lean_usize_of_nat(x_10);
-lean_dec(x_10);
 x_22 = 1;
 x_23 = lean_usize_sub(x_21, x_22);
 x_24 = lean_usize_land(x_20, x_23);
@@ -4448,7 +4638,6 @@ x_37 = lean_nat_div(x_35, x_36);
 lean_dec(x_35);
 x_38 = lean_array_get_size(x_33);
 x_39 = lean_nat_dec_le(x_37, x_38);
-lean_dec(x_38);
 lean_dec(x_37);
 if (x_39 == 0)
 {
@@ -4492,7 +4681,6 @@ x_50 = lean_nat_div(x_48, x_49);
 lean_dec(x_48);
 x_51 = lean_array_get_size(x_46);
 x_52 = lean_nat_dec_le(x_50, x_51);
-lean_dec(x_51);
 lean_dec(x_50);
 if (x_52 == 0)
 {
@@ -4555,7 +4743,6 @@ x_16 = lean_uint64_shift_right(x_14, x_15);
 x_17 = lean_uint64_xor(x_14, x_16);
 x_18 = lean_uint64_to_usize(x_17);
 x_19 = lean_usize_of_nat(x_8);
-lean_dec(x_8);
 x_20 = 1;
 x_21 = lean_usize_sub(x_19, x_20);
 x_22 = lean_usize_land(x_18, x_21);
@@ -4591,7 +4778,6 @@ x_35 = lean_nat_div(x_33, x_34);
 lean_dec(x_33);
 x_36 = lean_array_get_size(x_31);
 x_37 = lean_nat_dec_le(x_35, x_36);
-lean_dec(x_36);
 lean_dec(x_35);
 if (x_37 == 0)
 {
@@ -4635,7 +4821,6 @@ x_48 = lean_nat_div(x_46, x_47);
 lean_dec(x_46);
 x_49 = lean_array_get_size(x_44);
 x_50 = lean_nat_dec_le(x_48, x_49);
-lean_dec(x_49);
 lean_dec(x_48);
 if (x_50 == 0)
 {
@@ -4760,7 +4945,6 @@ x_14 = lean_uint64_shift_right(x_12, x_13);
 x_15 = lean_uint64_xor(x_12, x_14);
 x_16 = lean_uint64_to_usize(x_15);
 x_17 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_18 = 1;
 x_19 = lean_usize_sub(x_17, x_18);
 x_20 = lean_usize_land(x_16, x_19);
@@ -4814,7 +4998,6 @@ x_14 = lean_uint64_shift_right(x_12, x_13);
 x_15 = lean_uint64_xor(x_12, x_14);
 x_16 = lean_uint64_to_usize(x_15);
 x_17 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_18 = 1;
 x_19 = lean_usize_sub(x_17, x_18);
 x_20 = lean_usize_land(x_16, x_19);
@@ -4868,7 +5051,6 @@ x_15 = lean_uint64_shift_right(x_13, x_14);
 x_16 = lean_uint64_xor(x_13, x_15);
 x_17 = lean_uint64_to_usize(x_16);
 x_18 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
 x_19 = 1;
 x_20 = lean_usize_sub(x_18, x_19);
 x_21 = lean_usize_land(x_17, x_20);
@@ -4924,7 +5106,6 @@ x_15 = lean_uint64_shift_right(x_13, x_14);
 x_16 = lean_uint64_xor(x_13, x_15);
 x_17 = lean_uint64_to_usize(x_16);
 x_18 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
 x_19 = 1;
 x_20 = lean_usize_sub(x_18, x_19);
 x_21 = lean_usize_land(x_17, x_20);
@@ -5008,14 +5189,10 @@ l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__0 = _init_l_St
 lean_mark_persistent(l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__0);
 l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__1 = _init_l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__1();
 lean_mark_persistent(l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__1);
-l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__2 = _init_l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__2();
-lean_mark_persistent(l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__2);
-l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__3 = _init_l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__3();
-lean_mark_persistent(l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__3);
-l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__4 = _init_l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__4();
-lean_mark_persistent(l_Std_DHashMap_Internal_Raw_u2080_interSmaller___redArg___closed__4);
 l_Std_DHashMap_Internal_Raw_u2080_union___closed__0 = _init_l_Std_DHashMap_Internal_Raw_u2080_union___closed__0();
 lean_mark_persistent(l_Std_DHashMap_Internal_Raw_u2080_union___closed__0);
+l_Std_DHashMap_Internal_Raw_u2080_beq___redArg___closed__0 = _init_l_Std_DHashMap_Internal_Raw_u2080_beq___redArg___closed__0();
+lean_mark_persistent(l_Std_DHashMap_Internal_Raw_u2080_beq___redArg___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

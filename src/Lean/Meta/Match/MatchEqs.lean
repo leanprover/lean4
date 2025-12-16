@@ -12,11 +12,11 @@ import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.SplitIf
 import Lean.Meta.Tactic.CasesOnStuckLHS
+import Lean.Meta.SplitSparseCasesOn
 import Lean.Meta.Match.SimpH
 import Lean.Meta.Match.AltTelescopes
 import Lean.Meta.Match.NamedPatterns
-import Lean.Meta.SplitSparseCasesOn
-import Lean.Meta.Tactic.Grind.Main
+import Lean.Meta.Match.Grind
 import Lean.Meta.Match.SolveOverlap
 
 public section
@@ -26,14 +26,6 @@ namespace Lean.Meta.Match
 register_builtin_option debug.Meta.Match.MatchEqs.grindAsSorry : Bool := {
   defValue := false
   descr := "When proving match equations, skip running `grind`"
-}
-
--- TODO: Turn this true once it works
--- Known problem so far: injectivity of `Int` constructors (test issue10775)
-register_builtin_option debug.Meta.Match.MatchEqs.unrestrictedGrind : Bool := {
-  defValue := true
-  descr := "When proving match equations, run `grind` in the unrestricted configuration. \
-    Useful to debug match equation failures that may be due to a too restrictive grind configuration."
 }
 
 register_builtin_option bootstrap.grindInMatchEqns : Bool := {
@@ -67,25 +59,6 @@ private def shouldUseGrind : MetaM Bool := do
     return false
   return true
 
-private def getMatchEqsGrindParams : MetaM Grind.Params := do
-  let config :=
-    if debug.Meta.Match.MatchEqs.unrestrictedGrind.get (← getOptions) then
-      {}
-    else
-      { ({} : Grind.NoopConfig) with
-        ematch := 1000    -- We only have a fixed sets of theorem to ematch, declared below
-        gen := 1000       -- Allow deep propagation of equalities
-        etaStruct := true -- Needed for `x = (x' : Unit)`
-      }
-  let mut params ← Grind.mkParams config
-  let s ← Grind.getEMatchTheorems
-  let thms := s.find (.decl ``Nat.hasNotBit_eq)
-  let thms := thms ++ s.find (.decl `Nat.ctorIdx_zero)
-  let thms := thms ++ s.find (.decl `Nat.ctorIdx_succ)
-  for thm in thms do
-    params := { params with extra := params.extra.push thm }
-  return params
-
 private def solveWithGrind (mvarId : MVarId) : MetaM Unit := do
   if debug.Meta.Match.MatchEqs.grindAsSorry.get (← getOptions) then
     trace[Meta.Match.matchEqs] "proveCondEqThm.go: grind_as_sorry is enabled, admitting goal"
@@ -93,10 +66,7 @@ private def solveWithGrind (mvarId : MVarId) : MetaM Unit := do
     return
 
   if (← shouldUseGrind) then
-    let result ← Grind.main mvarId (← getMatchEqsGrindParams)
-    if result.hasFailed then
-      trace[Meta.Match.matchEqs] "`grind` failed\n{← result.toMessageData}"
-      throwError "grind failed"
+    Match.grind mvarId
   else
     grindFallback mvarId
   trace[Meta.Match.matchEqs] "solved by grind"

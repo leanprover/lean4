@@ -41,8 +41,7 @@ theorem List.step_iterM {l : List β} :
 theorem Std.Iterators.Types.ListIterator.toArrayMapped_iterM [Monad n] [LawfulMonad n]
     {β : Type w} {γ : Type w} {lift : ⦃δ : Type w⦄ → m δ → n δ}
     [LawfulMonadLiftFunction lift] {f : β → n γ} {l : List β} :
-    IteratorCollect.toArrayMapped lift f (l.iterM m) (m := m) = List.toArray <$> l.mapM f := by
-  rw [LawfulIteratorCollect.toArrayMapped_eq]
+    IterM.DefaultConsumers.toArrayMapped lift f (l.iterM m) (m := m) = List.toArray <$> l.mapM f := by
   induction l with
   | nil =>
     rw [IterM.DefaultConsumers.toArrayMapped_eq_match_step]

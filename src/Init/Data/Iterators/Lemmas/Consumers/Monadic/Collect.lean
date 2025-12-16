@@ -79,28 +79,22 @@ theorem IterM.DefaultConsumers.toArrayMapped_eq_match_step [Monad n] [LawfulMona
 
 @[simp]
 theorem IterM.toArray_ensureTermination [Monad m] [Iterator α m β] [Finite α m]
-    [IteratorCollect α m m] {it : IterM (α := α) m β} :
+    {it : IterM (α := α) m β} :
     it.ensureTermination.toArray = it.toArray :=
   (rfl)
 
-theorem IterM.toArray_eq_toArray_defaultImplementation [Monad m] [LawfulMonad m] [Iterator α m β]
-    [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m] {it : IterM (α := α) m β} :
-    it.toArray = (haveI : IteratorCollect α m m := .defaultImplementation; it.toArray) := by
-  simp only [IterM.toArray, LawfulIteratorCollect.toArrayMapped_eq]
-
-theorem IterM.toArray_eq_match_step [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
-    [IteratorCollect α m m] [LawfulIteratorCollect α m m] :
+theorem IterM.toArray_eq_match_step [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m] :
     it.toArray = (do
       match (← it.step).inflate.val with
       | .yield it' out => return #[out] ++ (← it'.toArray)
       | .skip it' => it'.toArray
       | .done => return #[]) := by
-  simp only [IterM.toArray, LawfulIteratorCollect.toArrayMapped_eq]
+  simp only [IterM.toArray]
   rw [IterM.DefaultConsumers.toArrayMapped_eq_match_step]
   simp [bind_pure_comp, pure_bind]
 
 theorem IterM.toArray_ensureTermination_eq_match_step [Monad m] [LawfulMonad m] [Iterator α m β]
-    [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m] :
+    [Finite α m] :
     it.ensureTermination.toArray = (do
       match (← it.step).inflate.val with
       | .yield it' out => return #[out] ++ (← it'.toArray)
@@ -110,39 +104,34 @@ theorem IterM.toArray_ensureTermination_eq_match_step [Monad m] [LawfulMonad m] 
 
 @[simp]
 theorem IterM.toList_ensureTermination [Monad m] [Iterator α m β] [Finite α m]
-    [IteratorCollect α m m] {it : IterM (α := α) m β} :
+    {it : IterM (α := α) m β} :
     it.ensureTermination.toList = it.toList :=
   (rfl)
 
 @[simp]
-theorem IterM.toList_toArray [Monad m] [Iterator α m β] [Finite α m] [IteratorCollect α m m]
+theorem IterM.toList_toArray [Monad m] [Iterator α m β] [Finite α m]
     {it : IterM (α := α) m β} :
     Array.toList <$> it.toArray = it.toList := by
   simp [IterM.toList]
 
 theorem IterM.toList_toArray_ensureTermination [Monad m] [Iterator α m β] [Finite α m]
-    [IteratorCollect α m m] {it : IterM (α := α) m β} :
+    {it : IterM (α := α) m β} :
     Array.toList <$> it.ensureTermination.toArray = it.toList := by
   simp
 
 @[simp]
 theorem IterM.toArray_toList [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
-    [IteratorCollect α m m] {it : IterM (α := α) m β} :
+    {it : IterM (α := α) m β} :
     List.toArray <$> it.toList = it.toArray := by
   simp [IterM.toList, -toList_toArray]
 
 theorem IterM.toArray_toList_ensureTermination [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
-    [IteratorCollect α m m] {it : IterM (α := α) m β} :
+    {it : IterM (α := α) m β} :
     List.toArray <$> it.ensureTermination.toList = it.toArray := by
   rw [toList_ensureTermination, toArray_toList]
 
-theorem IterM.toList_eq_toList_defaultImplementation [Monad m] [LawfulMonad m] [Iterator α m β]
-    [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m] {it : IterM (α := α) m β} :
-    it.toList = (haveI : IteratorCollect α m m := .defaultImplementation; it.toList) := by
-  simp only [IterM.toList, toArray_eq_toArray_defaultImplementation]
-
 theorem IterM.toList_eq_match_step [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
-    [IteratorCollect α m m] [LawfulIteratorCollect α m m] {it : IterM (α := α) m β} :
+    {it : IterM (α := α) m β} :
     it.toList = (do
       match (← it.step).inflate.val with
       | .yield it' out => return out :: (← it'.toList)
@@ -155,7 +144,7 @@ theorem IterM.toList_eq_match_step [Monad m] [LawfulMonad m] [Iterator α m β] 
   split <;> simp
 
 theorem IterM.toList_ensureTermination_eq_match_step [Monad m] [LawfulMonad m] [Iterator α m β]
-    [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m] {it : IterM (α := α) m β} :
+    [Finite α m] {it : IterM (α := α) m β} :
     it.ensureTermination.toList = (do
       match (← it.step).inflate.val with
       | .yield it' out => return out :: (← it'.toList)
@@ -229,7 +218,6 @@ theorem IterM.toListRev_ensureTermination_eq_match_step [Monad m] [LawfulMonad m
 
 @[simp]
 theorem IterM.reverse_toListRev [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
-    [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {it : IterM (α := α) m β} :
     List.reverse <$> it.toListRev = it.toList := by
   apply Eq.symm
@@ -242,35 +230,19 @@ theorem IterM.reverse_toListRev [Monad m] [LawfulMonad m] [Iterator α m β] [Fi
 
 @[simp]
 theorem IterM.reverse_toListRev_ensureTermination [Monad m] [LawfulMonad m] [Iterator α m β]
-    [Finite α m] [IteratorCollect α m m] [LawfulIteratorCollect α m m]
+    [Finite α m]
     {it : IterM (α := α) m β} :
     List.reverse <$> it.ensureTermination.toListRev = it.toList := by
   rw [toListRev_ensureTermination_eq_toListRev, reverse_toListRev]
 
 theorem IterM.toListRev_eq [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
-    [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {it : IterM (α := α) m β} :
     it.toListRev = List.reverse <$> it.toList := by
   simp [← IterM.reverse_toListRev]
 
 theorem IterM.toListRev_ensureTermination [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
-    [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {it : IterM (α := α) m β} :
     it.ensureTermination.toListRev = List.reverse <$> it.toList := by
   simp [← IterM.reverse_toListRev]
-
-theorem LawfulIteratorCollect.toArray_eq {α β : Type w} {m : Type w → Type w'}
-    [Monad m] [Iterator α m β] [Finite α m] [IteratorCollect α m m]
-    [hl : LawfulIteratorCollect α m m]
-    {it : IterM (α := α) m β} :
-    it.toArray = (letI : IteratorCollect α m m := .defaultImplementation; it.toArray) := by
-  simp [IterM.toArray, toArrayMapped_eq, IteratorCollect.defaultImplementation]
-
-theorem LawfulIteratorCollect.toList_eq {α β : Type w} {m : Type w → Type w'}
-    [Monad m] [Iterator α m β] [Finite α m] [IteratorCollect α m m]
-    [hl : LawfulIteratorCollect α m m]
-    {it : IterM (α := α) m β} :
-    it.toList = (letI : IteratorCollect α m m := .defaultImplementation; it.toList) := by
-  simp [IterM.toList, toArray_eq, -IterM.toList_toArray]
 
 end Std

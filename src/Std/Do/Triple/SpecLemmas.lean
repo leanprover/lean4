@@ -1146,8 +1146,6 @@ theorem Spec.forIn_slice {m : Type w → Type x} {ps : PostShape}
     [Iterator α Id β]
     [IteratorLoop α Id m]
     [LawfulIteratorLoop α Id m]
-    [IteratorCollect α Id Id]
-    [LawfulIteratorCollect α Id Id]
     [Finite α Id]
     {init : δ} {f : β → δ → m (ForInStep δ)}
     {xs : Slice γ}
@@ -1167,7 +1165,6 @@ open Std.Iterators in
 @[spec]
 theorem Spec.forIn_iter {ps : PostShape} [Monad n] [WPMonad n ps]
     {α β γ} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
-    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {init : γ} {f : β → γ → n (ForInStep γ)}
     {it : Iter (α := α) β}
     (inv : Invariant it.toList γ ps)
@@ -1186,7 +1183,6 @@ open Std.Iterators in
 @[spec]
 theorem Spec.forIn_iterM_id {ps : PostShape} [Monad n] [WPMonad n ps]
     {α β γ} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
-    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {init : γ} {f : β → γ → n (ForInStep γ)}
     {it : IterM (α := α) Id β}
     (inv : Invariant it.toList.run γ ps)
@@ -1208,7 +1204,6 @@ open Std.Iterators in
 @[spec]
 theorem Spec.foldM_iter {ps : PostShape} [Monad n] [WPMonad n ps]
     {α β γ} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
-    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {it : Iter (α := α) β}
     {init : γ} {f : γ → β → n γ}
     (inv : Invariant it.toList γ ps)
@@ -1225,7 +1220,6 @@ open Std.Iterators in
 @[spec]
 theorem Spec.foldM_iterM_id {ps : PostShape} [Monad n] [WPMonad n ps]
     {α β γ} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
-    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {it : IterM (α := α) Id β}
     {init : γ} {f : γ → β → n γ}
     (inv : Invariant it.toList.run γ ps)

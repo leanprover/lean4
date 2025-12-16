@@ -221,36 +221,12 @@ instance Map.instProductive {α β γ : Type w} {m : Type w → Type w'}
     Productive (Map α m n lift f) n :=
   Productive.of_productivenessRelation Map.instProductivenessRelation
 
-instance FilterMap.instIteratorCollect {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} {o : Type w → Type x} [Monad n] [Monad o] [Iterator α m β]
-    {lift : ⦃α : Type w⦄ → m α → n α}
-    {f : β → PostconditionT n (Option γ)} :
-    IteratorCollect (FilterMap α m n lift f) n o :=
-  .defaultImplementation
-
 instance FilterMap.instIteratorLoop {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type x → Type x'}
     [Monad n] [Monad o] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} :
     IteratorLoop (FilterMap α m n lift f) n o :=
   .defaultImplementation
-
-/--
-`map` operations allow for a more efficient implementation of `toArray`. For example,
-`array.iter.map f |>.toArray happens in-place if possible.
--/
-instance Map.instIteratorCollect {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} {o : Type w → Type x} [Monad n] [Monad o] [Iterator α m β]
-    {lift₁ : ⦃α : Type w⦄ → m α → n α}
-    {f : β → PostconditionT n γ} [IteratorCollect α m o] :
-    IteratorCollect (Map α m n lift₁ f) n o where
-  toArrayMapped lift₂ _ g it :=
-    letI : MonadLift m n := ⟨lift₁ (α := _)⟩
-    letI : MonadLift n o := ⟨lift₂ (δ := _)⟩
-    IteratorCollect.toArrayMapped
-      (lift := fun ⦃_⦄ => monadLift)
-      (fun x => do g (← (f x).operation))
-      it.internalState.inner (m := m)
 
 instance Map.instIteratorLoop {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type x → Type x'} [Monad n] [Monad o] [Iterator α m β]

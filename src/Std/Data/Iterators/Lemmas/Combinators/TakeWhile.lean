@@ -116,7 +116,7 @@ private theorem List.getElem?_takeWhile {l : List α} {P : α → Bool} {k} :
 
 @[simp]
 theorem Iter.toList_takeWhile_of_finite {α β} [Iterator α Id β] {P}
-    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    [Finite α Id]
     {it : Iter (α := α) β} :
     (it.takeWhile P).toList = it.toList.takeWhile P := by
   ext
@@ -124,14 +124,14 @@ theorem Iter.toList_takeWhile_of_finite {α β} [Iterator α Id β] {P}
 
 @[simp]
 theorem Iter.toListRev_takeWhile_of_finite {α β} [Iterator α Id β] {P}
-    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    [Finite α Id]
     {it : Iter (α := α) β} :
     (it.takeWhile P).toListRev = (it.toList.takeWhile P).reverse := by
   rw [toListRev_eq, toList_takeWhile_of_finite]
 
 @[simp]
 theorem Iter.toArray_takeWhile_of_finite {α β} [Iterator α Id β] {P}
-    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    [Finite α Id]
     {it : Iter (α := α) β} :
     (it.takeWhile P).toArray = it.toArray.takeWhile P := by
   rw [← toArray_toList, ← toArray_toList, List.takeWhile_toArray, toList_takeWhile_of_finite]

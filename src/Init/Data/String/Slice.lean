@@ -185,9 +185,6 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
 instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (SplitIterator pat s) Id :=
   .of_finitenessRelation finitenessRelation
 
-instance [Monad n] : Std.IteratorCollect (SplitIterator pat s) Id n :=
-  .defaultImplementation
-
 instance [Monad n] : Std.IteratorLoop (SplitIterator pat s) Id n :=
   .defaultImplementation
 
@@ -279,10 +276,6 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
 instance [Std.Iterators.Finite (σ s) Id] :
     Std.Iterators.Finite (SplitInclusiveIterator pat s) Id :=
   .of_finitenessRelation finitenessRelation
-
-instance [Monad n] {s} :
-    Std.IteratorCollect (SplitInclusiveIterator pat s) Id n :=
-  .defaultImplementation
 
 instance [Monad n] {s} :
     Std.IteratorLoop (SplitInclusiveIterator pat s) Id n :=
@@ -623,9 +616,6 @@ private def finitenessRelation [Std.Iterators.Finite (σ s) Id] :
 instance [Std.Iterators.Finite (σ s) Id] : Std.Iterators.Finite (RevSplitIterator ρ s) Id :=
   .of_finitenessRelation finitenessRelation
 
-instance [Monad m] [Monad n] : Std.IteratorCollect (RevSplitIterator ρ s) m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.IteratorLoop (RevSplitIterator ρ s) m n :=
   .defaultImplementation
 
@@ -897,9 +887,6 @@ private def finitenessRelation [Pure m] :
 instance [Pure m] : Std.Iterators.Finite (PosIterator s) m :=
   .of_finitenessRelation finitenessRelation
 
-instance [Monad m] [Monad n] : Std.IteratorCollect (PosIterator s) m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.IteratorLoop (PosIterator s) m n :=
   .defaultImplementation
 
@@ -981,9 +968,6 @@ private def finitenessRelation [Pure m] :
 instance [Pure m] : Std.Iterators.Finite (RevPosIterator s) m :=
   .of_finitenessRelation finitenessRelation
 
-instance [Monad m] [Monad n] : Std.IteratorCollect (RevPosIterator s) m n :=
-  .defaultImplementation
-
 instance [Monad m] [Monad n] : Std.IteratorLoop (RevPosIterator s) m n :=
   .defaultImplementation
 
@@ -1060,9 +1044,6 @@ private def finitenessRelation [Pure m] :
 @[no_expose]
 instance [Pure m] : Std.Iterators.Finite ByteIterator m :=
   .of_finitenessRelation finitenessRelation
-
-instance [Monad m] [Monad n] : Std.IteratorCollect ByteIterator m n :=
-  .defaultImplementation
 
 instance [Monad m] [Monad n] : Std.IteratorLoop ByteIterator m n :=
   .defaultImplementation
@@ -1141,9 +1122,6 @@ private def finitenessRelation [Pure m] :
 @[no_expose]
 instance [Pure m] : Std.Iterators.Finite RevByteIterator m :=
   .of_finitenessRelation finitenessRelation
-
-instance [Monad m] [Monad n] : Std.IteratorCollect RevByteIterator m n :=
-  .defaultImplementation
 
 instance [Monad m] [Monad n] : Std.IteratorLoop RevByteIterator m n :=
   .defaultImplementation
@@ -1456,12 +1434,12 @@ end String.Slice
 /-- Converts a {lean}`Std.Iter String.Slice` to a {lean}`List String`. -/
 @[inline]
 def Std.Iter.toStringList {α : Type} [Std.Iterator α Id String.Slice]
-    [Std.Iterators.Finite α Id] [Std.IteratorCollect α Id Id]
+    [Std.Iterators.Finite α Id]
     (i : Std.Iter (α := α) String.Slice) : List String :=
   i.map String.Slice.copy |>.toList
 
 /-- Converts a {lean}`Std.Iter String.Slice` to an {lean}`Array String`. -/
 def Std.Iter.toStringArray {α : Type} [Std.Iterator α Id String.Slice]
-    [Std.Iterators.Finite α Id] [Std.IteratorCollect α Id Id]
+    [Std.Iterators.Finite α Id]
     (i : Std.Iter (α := α) String.Slice) : Array String :=
   i.map String.Slice.copy |>.toArray

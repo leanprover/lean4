@@ -21,6 +21,8 @@ These engines work together to handle equality reasoning, apply known theorems,
 propagate new facts, perform case analysis, and run specialized solvers
 for domains like linear arithmetic and commutative rings.
 
+See [the reference manual's chapter on `grind`](lean-manual://section/grind-tactic) for more information.
+
 `grind` is *not* designed for goals whose search space explodes combinatorially,
 think large pigeonhole instances, graph‑coloring reductions, high‑order N‑queens boards,
 or a 200‑variable Sudoku encoded as Boolean constraints.  Such encodings require

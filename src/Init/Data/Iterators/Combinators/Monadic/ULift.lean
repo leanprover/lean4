@@ -11,11 +11,12 @@ public import Init.Data.Iterators.Consumers.Monadic
 
 public section
 
-namespace Std.Iterators
+namespace Std
 
 universe v u v' u'
 
 section ULiftT
+namespace Iterators
 
 /-- `ULiftT.{v, u}` shrinks a monad on `Type max u v` to a monad on `Type u`. -/
 @[expose]  -- for codegen
@@ -60,11 +61,14 @@ theorem ULiftT.run_map {n : Type max u v → Type v'} [Monad n] {α β : Type u}
     (f <$> x).run = x.run >>= (fun a => pure <| .up (f a.down)) :=
   (rfl)
 
+end Iterators
 end ULiftT
+
+namespace Iterators.Types
 
 /-- Internal state of the `uLift` iterator combinator. Do not depend on its internals. -/
 @[unbox]
-structure Types.ULiftIterator (α : Type u) (m : Type u → Type u') (n : Type max u v → Type v')
+structure ULiftIterator (α : Type u) (m : Type u → Type u') (n : Type max u v → Type v')
     (β : Type u) (lift : ∀ ⦃γ : Type u⦄, m γ → ULiftT n γ) : Type max u v where
   inner : IterM (α := α) m β
 
@@ -75,14 +79,14 @@ variable {α : Type u} {m : Type u → Type u'} {n : Type max u v → Type v'}
 Transforms a step of the base iterator into a step of the `uLift` iterator.
 -/
 @[always_inline, inline, expose]
-def Types.ULiftIterator.Monadic.modifyStep (step : IterStep (IterM (α := α) m β) β) :
+def ULiftIterator.Monadic.modifyStep (step : IterStep (IterM (α := α) m β) β) :
     IterStep (IterM (α := ULiftIterator.{v} α m n β lift) n (ULift.{v} β)) (ULift.{v} β) :=
   match step with
   | .yield it' out => .yield ⟨⟨it'⟩⟩ (.up out)
   | .skip it' => .skip ⟨⟨it'⟩⟩
   | .done => .done
 
-instance Types.ULiftIterator.instIterator [Iterator α m β] [Monad n] :
+instance ULiftIterator.instIterator [Iterator α m β] [Monad n] :
     Iterator (ULiftIterator α m n β lift) n (ULift β) where
   IsPlausibleStep it step :=
     ∃ step', it.internalState.inner.IsPlausibleStep step' ∧
@@ -93,7 +97,7 @@ instance Types.ULiftIterator.instIterator [Iterator α m β] [Monad n] :
   where finally
     case hp => exact ⟨step.inflate.val, step.inflate.property, rfl⟩
 
-def Types.ULiftIterator.instFinitenessRelation [Iterator α m β] [Finite α m] [Monad n] :
+private def ULiftIterator.instFinitenessRelation [Iterator α m β] [Finite α m] [Monad n] :
     FinitenessRelation (ULiftIterator α m n β lift) n where
   rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.inner.finitelyManySteps)
   wf := InvImage.wf _ WellFoundedRelation.wf
@@ -105,11 +109,11 @@ def Types.ULiftIterator.instFinitenessRelation [Iterator α m β] [Finite α m] 
     · apply IterM.TerminationMeasures.Finite.rel_of_skip
       exact hp
 
-instance Types.ULiftIterator.instFinite [Iterator α m β] [Finite α m] [Monad n] :
+instance ULiftIterator.instFinite [Iterator α m β] [Finite α m] [Monad n] :
     Finite (ULiftIterator α m n β lift) n :=
   .of_finitenessRelation instFinitenessRelation
 
-def Types.ULiftIterator.instProductivenessRelation [Iterator α m β] [Productive α m] [Monad n] :
+private def ULiftIterator.instProductivenessRelation [Iterator α m β] [Productive α m] [Monad n] :
     ProductivenessRelation (ULiftIterator α m n β lift) n where
   rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.inner.finitelyManySkips)
   wf := InvImage.wf _ WellFoundedRelation.wf
@@ -119,18 +123,22 @@ def Types.ULiftIterator.instProductivenessRelation [Iterator α m β] [Productiv
     apply IterM.TerminationMeasures.Productive.rel_of_skip
     exact hp
 
-instance Types.ULiftIterator.instProductive [Iterator α m β] [Productive α m] [Monad n] :
+instance ULiftIterator.instProductive [Iterator α m β] [Productive α m] [Monad n] :
     Productive (ULiftIterator α m n β lift) n :=
   .of_productivenessRelation instProductivenessRelation
 
-instance Types.ULiftIterator.instIteratorLoop {o : Type x → Type x'} [Monad n] [Monad o]
+instance ULiftIterator.instIteratorLoop {o : Type x → Type x'} [Monad n] [Monad o]
     [Iterator α m β] :
     IteratorLoop (ULiftIterator α m n β lift) n o :=
   .defaultImplementation
 
-instance Types.ULiftIterator.instIteratorCollect [Monad n] [Monad o] [Iterator α m β] :
+instance ULiftIterator.instIteratorCollect [Monad n] [Monad o] [Iterator α m β] :
     IteratorCollect (ULiftIterator α m n β lift) n o :=
   .defaultImplementation
+
+end Iterators.Types
+
+open Std.Iterators Std.Iterators.Types
 
 /--
 Transforms an `m`-monadic iterator with values in `β` into an `n`-monadic iterator with
@@ -149,9 +157,9 @@ it.uLift n    ---.up a----.up b---.up c--.up d---⊥
 * `Productive`: only if the original iterator is productive
 -/
 @[always_inline, inline, expose]
-def IterM.uLift (it : IterM (α := α) m β) (n : Type max u v → Type v')
-    [lift : MonadLiftT m (ULiftT n)] :
-    IterM (α := Types.ULiftIterator α m n β (fun _ => lift.monadLift)) n (ULift β) :=
+def IterM.uLift {α β : Type u} {m : Type u → Type u'} (it : IterM (α := α) m β)
+    (n : Type max u v → Type v') [lift : MonadLiftT m (ULiftT n)] :
+    IterM (α := ULiftIterator α m n β (fun _ => lift.monadLift)) n (ULift β) :=
   ⟨⟨it⟩⟩
 
-end Std.Iterators
+end Std

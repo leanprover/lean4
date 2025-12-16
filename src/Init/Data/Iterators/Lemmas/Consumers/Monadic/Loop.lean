@@ -12,7 +12,8 @@ import all Init.Data.Iterators.Consumers.Monadic.Loop
 
 public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 theorem IterM.DefaultConsumers.forIn'_eq_match_step {α β : Type w} {m : Type w → Type w'}
     [Iterator α m β] {n : Type x → Type x'} [Monad n] [LawfulMonad n]
@@ -780,4 +781,4 @@ theorem IterM.findM?_pure {α β : Type w} {m : Type w → Type w'} [Monad m]
   · simp [ihs ‹_›]
   · simp
 
-end Std.Iterators
+end Std

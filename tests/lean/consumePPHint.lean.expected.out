@@ -1,6 +1,6 @@
-consumePPHint.lean:8:8-8:14: warning: declaration uses 'sorry'
+consumePPHint.lean:8:8-8:14: warning: declaration uses `sorry`
 case a
 ⊢ q
     (have x := 0;
     x + 1)
-consumePPHint.lean:10:8-10:15: warning: declaration uses 'sorry'
+consumePPHint.lean:10:8-10:15: warning: declaration uses `sorry`

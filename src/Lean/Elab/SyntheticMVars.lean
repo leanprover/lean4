@@ -523,7 +523,9 @@ mutual
             if !e.isFVar then
               e ← mvarId'.withContext do
                 withExporting (isExporting := wasExporting) do
-                  abstractProof e
+                  -- Like `abstractProof`, but use the expected and not given type here as
+                  -- the latter might not make sense outside the current module (#11672).
+                  mkAuxTheorem (cache := !e.hasSorry) (← mvarId.getType) e (zetaDelta := true)
             mvarId.assign e)
       fun ex => do
         if report then

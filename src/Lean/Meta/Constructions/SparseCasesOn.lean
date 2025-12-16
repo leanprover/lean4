@@ -136,7 +136,6 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name :=
   addDecl (.defnDecl decl)
   modifyEnv fun env => sparseCasesOnCacheExt.modifyState env fun s => s.insert key declName
   setReducibleAttribute declName
-  modifyEnv fun env => markAuxRecursor env declName -- TODO: is this right?
   modifyEnv fun env => markSparseCasesOn env declName
   modifyEnv fun env => sparseCasesOnInfoExt.insert env declName {
     indName

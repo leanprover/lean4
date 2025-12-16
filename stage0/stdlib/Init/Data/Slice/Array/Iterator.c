@@ -41,7 +41,6 @@ LEAN_EXPORT lean_object* l_Subarray_copy(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceSizeSubarrayData___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_forIn___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instIteratorSubarrayIteratorId___lam__0(lean_object*);
-lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_foldlM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_copy___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_foldlM___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -58,6 +57,7 @@ LEAN_EXPORT lean_object* l_Array_ofSubarray___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_instAppendSubarray(lean_object*);
 static lean_object* l_Array_instToStringSubarray___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Subarray_foldlM___redArg___lam__0(lean_object*);
+lean_object* l_Std_IterM_DefaultConsumers_toArrayMapped(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_toArray___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Subarray_toArray_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_foldlM___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -373,7 +373,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_instIteratorCollectSubarrayIteratorIdOfMonad___redArg___closed__0;
-x_3 = lean_alloc_closure((void*)(l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped), 10, 6);
+x_3 = lean_alloc_closure((void*)(l_Std_IterM_DefaultConsumers_toArrayMapped), 10, 6);
 lean_closure_set(x_3, 0, lean_box(0));
 lean_closure_set(x_3, 1, lean_box(0));
 lean_closure_set(x_3, 2, lean_box(0));

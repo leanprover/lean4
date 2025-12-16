@@ -17,6 +17,7 @@ import Lean.Meta.Tactic.Grind.RevertAll
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Proj
 import Lean.Meta.Tactic.Grind.ForallProp
+import Lean.Meta.Tactic.Grind.CtorIdx
 import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.EMatch
@@ -62,6 +63,7 @@ def mkMethods (evalTactic? : Option EvalTactic := none) : CoreM Methods := do
       propagateReflCmp e
       let .const declName _ := e.getAppFn | return ()
       propagateProjEq e
+      propagateCtorIdxUp e
       if let some props := builtinPropagators.up[declName]? then
        props.forM fun prop => prop e
     propagateDown := fun e => do

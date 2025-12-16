@@ -218,12 +218,6 @@ private def hasArrayLitPattern (p : Problem) : Bool :=
     | .arrayLit .. :: _ => true
     | _                 => false
 
-private def isVariableTransition (p : Problem) : Bool :=
-  p.alts.all fun alt => match alt.patterns with
-    | .inaccessible _ :: _ => true
-    | .var _ :: _          => true
-    | _                    => false
-
 private def getInductiveVal? (x : Expr) : MetaM (Option InductiveVal) := do
   let xType ← inferType x
   let xType ← whnfD xType
@@ -476,22 +470,6 @@ private def processAsPattern (p : Problem) : MetaM Problem := withGoalOf p do
       return { alt with patterns := p :: ps }.replaceFVarId fvarId x |>.replaceFVarId h r
     | _ => return alt
   return { p with alts := alts }
-
-private def processVariable (p : Problem) : MetaM Problem := withGoalOf p do
-  let x :: xs := p.vars | unreachable!
-  let alts ← p.alts.mapM fun alt => do
-    match alt.patterns with
-    | .inaccessible e :: ps =>
-      let cnstrs := if x == e then alt.cnstrs else (x, e) :: alt.cnstrs
-      return { alt with patterns := ps, cnstrs }
-    | .var fvarId :: ps     =>
-      withExistingLocalDecls alt.fvarDecls do
-        if (← isDefEqGuarded (← fvarId.getType) (← inferType x)) then
-          return { alt with patterns := ps }.replaceFVarId fvarId x
-        else
-          return { alt with patterns := ps, cnstrs := (mkFVar fvarId, x) :: alt.cnstrs }
-    | _  => unreachable!
-  return { p with alts := alts, vars := xs }
 
 /-!
 Note that we decided to store pending constraints to address issues exposed by #1279 and #1361.
@@ -1116,9 +1094,11 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
     tracedForM ps process
     return
 
-  if isVariableTransition p then
-    traceStep ("variable")
-    let p ← processVariable p
+  if p.alts.isEmpty then
+    -- Note that for inductive types, `isConstructorTransition` does something on empty matches
+    -- For all others, drop the variable here
+    traceStep ("empty match transition")
+    let p := { p with vars := p.vars.tail! }
     process p
     return
 

@@ -172,7 +172,12 @@ protected partial def forIn'
     (step : Chunk → β → ContextAsync (ForInStep β)) : ContextAsync β := do
 
   let rec @[specialize] loop (stream : ByteStream) (acc : β) : ContextAsync β := do
-    if let some chunk ← stream.recv then
+    let data ← Selectable.one #[
+      .case (stream.recvSelector) pure,
+      .case (← ContextAsync.doneSelector) (fun _ => pure none),
+    ]
+
+    if let some chunk := data then
       match ← step chunk acc with
       | .done res => return res
       | .yield res => loop stream res

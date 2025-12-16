@@ -13,18 +13,20 @@ def testCancelSlowHandler : IO Unit := do
     let ctx ← CancellationContext.new
 
     -- Start the server in the background
-    background do
+    let op := ContextAsync.background do
       Std.Http.Server.serveConnection server (fun _req => do
         -- Simulate a slow handler that should be cancelled
         Async.sleep 10000
         return Response.ok "should not complete"
-      ) (config := { lingeringTimeout := 1000 }) |>.run ctx
+      ) (config := { lingeringTimeout := 1000 }) |>.run
 
     -- Send a simple request
     client.send (String.toUTF8 "GET / HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n")
 
     -- Wait a bit for the request to start processing
     Async.sleep 2000
+
+    op ctx
 
     -- Cancel the context
     ctx.cancel .cancel
@@ -50,18 +52,18 @@ def testServerShutdownDuringRequest : IO Unit := do
     let ctx ← CancellationContext.new
 
     -- Start the server
-    background do
+    let op := ContextAsync.background do
       Std.Http.Server.serveConnection server (fun _req => do
         -- Handler that sleeps for a long time
         Async.sleep 100000
         return Response.ok "should not complete"
-      ) (config := { lingeringTimeout := 3000 }) |>.run ctx
+      ) (config := { lingeringTimeout := 3000 }) |>.run
+
+    op.runIn ctx
 
     -- Send a request
     client.send (String.toUTF8 "GET / HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n")
 
-    -- Wait a bit
-    Async.sleep 1000
 
     -- Shutdown the server (simulating server shutdown)
     ctx.cancel .shutdown
@@ -99,7 +101,7 @@ def testCancelDuringStreaming : IO Unit := Async.block do
             Async.sleep 50
           s.close
         )
-    ) (config := { lingeringTimeout := 3000 }) |>.run ctx
+    ) (config := { lingeringTimeout := 3000 }) |>.run
 
   -- Send request
   client.send (String.toUTF8 "GET / HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n")
@@ -156,7 +158,7 @@ def testRaceWithCancellation : IO Unit := Async.block do
       ContextAsync.race
         (do Async.sleep 50; return Response.ok "fast")
         (do Async.sleep 10000; return Response.ok "slow")
-    ) (config := { lingeringTimeout := 3000 }) |>.run ctx
+    ) (config := { lingeringTimeout := 3000 }) |>.run
 
   -- Send request
   client.send (String.toUTF8 "GET / HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n")
@@ -191,7 +193,7 @@ def testHandlerChecksCancellation : IO Unit := Async.block do
         Async.sleep 50
 
       return Response.ok "completed"
-    ) (config := { lingeringTimeout := 3000 }) |>.run ctx
+    ) (config := { lingeringTimeout := 3000 }) |>.run
 
   -- Send request
   client.send (String.toUTF8 "GET / HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n")
@@ -219,13 +221,13 @@ def testMultipleConcurrentRequestsWithCancel : IO Unit := Async.block do
     Std.Http.Server.serveConnection server1 (fun _req => do
       Async.sleep 10000
       return Response.ok "server1"
-    ) (config := { lingeringTimeout := 3000 }) |>.run ctx
+    ) (config := { lingeringTimeout := 3000 }) |>.run
 
   background do
     Std.Http.Server.serveConnection server2 (fun _req => do
       Async.sleep 10000
       return Response.ok "server2"
-    ) (config := { lingeringTimeout := 3000 }) |>.run ctx
+    ) (config := { lingeringTimeout := 3000 }) |>.run
 
   -- Send requests to both
   client1.send (String.toUTF8 "GET /1 HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n")
@@ -253,7 +255,7 @@ def testDeadlineCancellation : IO Unit := Async.block do
     Std.Http.Server.serveConnection server (fun _req => do
       Async.sleep 10000
       return Response.ok "should timeout"
-    ) (config := { lingeringTimeout := 3000 }) |>.run ctx
+    ) (config := { lingeringTimeout := 3000 }) |>.run
 
   -- Send request
   client.send (String.toUTF8 "GET / HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n")
@@ -284,7 +286,7 @@ def testCompletedRequestNotAffected : IO Unit := Async.block do
     Std.Http.Server.serveConnection server (fun _req => do
       -- Fast handler that completes before cancellation
       return Response.ok "completed"
-    ) (config := { lingeringTimeout := 3000 }) |>.run ctx
+    ) (config := { lingeringTimeout := 3000 }) |>.run
 
   -- Send request
   client.send (String.toUTF8 "GET / HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n")

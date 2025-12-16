@@ -36,7 +36,7 @@ def sendRequest (client : Mock.Client) (server : Mock.Server) (req : Request (Ar
 
   client.send data
   Std.Http.Server.serveConnection server onRequest (config := { lingeringTimeout := 3000, keepAliveTimeout := ⟨1000, by decide⟩ })
-    |>.run (← CancellationContext.new)
+    |>.run
 
   let res ← client.recv?
   pure <| res.getD .empty

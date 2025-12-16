@@ -290,7 +290,7 @@ Lean convention that division by zero returns zero.
 
 Examples:
 * `(7#4).sdiv 2 = 3#4`
-* `(-9#4).sdiv 2 = -4#4`
+* `(-8#4).sdiv 2 = -4#4`
 * `(5#4).sdiv -2 = -2#4`
 * `(-7#4).sdiv (-2) = 3#4`
 -/

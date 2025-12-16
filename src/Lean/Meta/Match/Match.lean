@@ -404,7 +404,10 @@ private partial def contradiction (mvarId : MVarId) : MetaM Bool := do
         if let some fvarId := isCtorIdxHasNotBit? localDecl.type then
           trace[Meta.Match.match] "splitting ctorIdx assumption {localDecl.type}"
           let subgoals ← mvarId.cases fvarId
-          return ← subgoals.allM (contradiction ·.mvarId)
+          -- NB: do not use `allM`, we want to process all cases to not leave
+          -- unsolved metavariables behind.
+          let allDone ← subgoals.mapM (contradiction ·.mvarId)
+          return allDone.all id
 
       mvarId.admit
       return false

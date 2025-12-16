@@ -950,7 +950,8 @@ theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [LawfulMonad
   rename_i r
   induction xs.toList generalizing r <;> grind
 
-theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [LawfulMonad m] [WPMonad m ps] :
+theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [MonadAttach m]
+    [LawfulMonad m] [WeaklyLawfulMonadAttach m] [WPMonad m ps] :
     Triple (m := m) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).mapM (pure (f := m) <| · + 1) do
@@ -960,8 +961,8 @@ theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [LawfulMona
   case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum + cur.prefix.length⌝
   all_goals grind
 
-theorem forIn_filterMapM_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [LawfulMonad m]
-    [WPMonad m ps] :
+theorem forIn_filterMapM_eq_sum_add_size (xs : Array Nat) {m ps}
+    [Monad m] [LawfulMonad m] [MonadAttach m] [WeaklyLawfulMonadAttach m] [WPMonad m ps] :
     Triple (m := m) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).filterMapM (pure (f := m) <| some <| · + 1) do

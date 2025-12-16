@@ -285,7 +285,9 @@ def isDeclMeta' (env : Environment) (declName : Name) : Bool :=
   -- references from any other context as compatible with both phases.
   let inferFor :=
     if declName.isStr && (declName.getString!.startsWith "match_" || declName.getString! == "_unsafe_rec") then declName.getPrefix else declName
-  isDeclMeta env inferFor
+  -- `isMarkedMeta` knows about non-defs such as `meta structure`, isDeclMeta knows about decls
+  -- implicitly marked meta
+  isMarkedMeta env inferFor || isDeclMeta env inferFor
 
 /--
 Given an `Expr` reference, returns the declaration name that should be considered the reference, if

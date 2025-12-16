@@ -236,8 +236,7 @@ private def isConstructorTransition (p : Problem) : MetaM Bool := do
     && (hasCtorPattern p || p.alts.isEmpty)
     && p.alts.all fun alt => match alt.patterns with
       | .ctor .. :: _        => true
-      | .var _ :: _          => true
-      | .inaccessible _ :: _ => true
+      | .inaccessible _ :: _ => true -- should be a done pattern by now
       | _                    => false
 
 private def isValueTransition (p : Problem) : Bool :=
@@ -423,13 +422,16 @@ where
     | [] =>
       let mvarId ← p.mvarId.exfalso
       /- TODO: allow users to configure which tactic is used to close leaves. -/
-      unless (← contradiction mvarId) do
+      if (← contradiction mvarId) then
+        trace[Meta.Match.match] "contradiction succeeded"
+      else
         trace[Meta.Match.match] "contradiction failed, missing alternative"
         modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
     | alt :: overlapped =>
       solveCnstrs p.mvarId alt
       for otherAlt in overlapped do
         modify fun s => { s with overlaps := s.overlaps.insert alt.idx otherAlt.idx }
+      trace[Meta.Match.match] "leaf closed"
 
 /-!
 Note that we decided to store pending constraints to address issues exposed by #1279 and #1361.
@@ -597,16 +599,14 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
       let examples := examples.map <| Example.applyFVarSubst subst
       let newAlts  := p.alts.filter fun alt => match alt.patterns with
         | .ctor n .. :: _       => n == ctorName
-        | .var _ :: _           => true
         | .inaccessible _ :: _  => true
-        | _                     => false
+        | _                     => unreachable!
       let newAlts  := newAlts.map fun alt => alt.applyFVarSubst subst
       let newAlts ← newAlts.mapM fun alt => do
         match alt.patterns with
-        | .ctor _ _ _ fields :: ps  => return { alt with patterns := fields ++ ps }
-        | .var _ :: _               => expandVarIntoCtor alt ctorName
-        | .inaccessible _ :: _      => processInaccessibleAsCtor alt ctorName
-        | _                         => unreachable!
+        | .ctor _ _ _ fieldPats :: ps  => return { alt with patterns := fieldPats ++ ps }
+        | .inaccessible _ :: ps        => return { alt with patterns := fields.map .inaccessible ++ ps }
+        | _                            => unreachable!
       return { p with mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
     else
       -- A catch-all case
@@ -624,6 +624,7 @@ private def processNonVariable (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: xs := p.vars | unreachable!
   if let some (ctorVal, xArgs) ← withTransparency .default <| constructorApp'? x then
     if hasCtorPattern p then
+      let xFields := xArgs.extract ctorVal.numParams xArgs.size
       let alts ← p.alts.filterMapM fun alt => do
         match alt.patterns with
         | .ctor ctorName _ _ fields :: ps   =>
@@ -631,13 +632,13 @@ private def processNonVariable (p : Problem) : MetaM Problem := withGoalOf p do
             return none
           else
             return some { alt with patterns := fields ++ ps }
-        | .inaccessible _ :: _ => processInaccessibleAsCtor alt ctorVal.name
-        | .var _ :: _          => expandVarIntoCtor alt ctorVal.name
+        | .inaccessible _ :: ps =>
+            return some { alt with patterns := xFields.toList.map .inaccessible ++ ps }
         | _ => unreachable!
-      let xFields := xArgs.extract ctorVal.numParams xArgs.size
       return { p with alts := alts, vars := xFields.toList ++ xs }
   let alts ← p.alts.mapM fun alt => do
     match alt.patterns with
+    | .inaccessible _ :: ps => return { alt with patterns := ps }
     | p :: ps => return { alt with patterns := ps, cnstrs := (x, ← p.toExpr) :: alt.cnstrs }
     | _      => unreachable!
   return { p with alts := alts, vars := xs }

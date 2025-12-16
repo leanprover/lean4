@@ -13,6 +13,9 @@ public section
 partial def String.charactersIn (a b : String) : Bool :=
   goFastScalar ⟨0⟩ ⟨0⟩
 where
+  /-
+  This function is the ASCII fast path for `go`
+  -/
   goFastScalar (aPos bPos : String.Pos.Raw) : Bool :=
     if ha : ¬aPos < a.rawEndPos then
       true
@@ -21,9 +24,8 @@ where
     else
       let aByte := a.getUTF8Byte aPos (by simpa using ha)
       let bByte := b.getUTF8Byte bPos (by simpa using hb)
-      let aWrong := (aByte &&& 0x80 != 0)
-      let bWrong := (bByte &&& 0x80 != 0)
-      if aWrong || bWrong then
+      -- If a or b are not UTF-8 bytes we give up on the fast path
+      if (aByte &&& 0x80 != 0) || (bByte &&& 0x80 != 0) then
         go aPos bPos
       else
         let bPos := ⟨bPos.byteIdx + 1⟩

@@ -766,7 +766,7 @@ def Poly.cancelVar (c : Int) (x : Var) (p : Poly) : Poly :=
           (fun _ _ _ _ => a.toPoly_k.pow k)
           (fun _ _ _ _ => a.toPoly_k.pow k)
           (fun _ _ _ => a.toPoly_k.pow k)
-          a) = match a with
+          a) = match (generalizing := false) a with
             | num n => Poly.num (n ^ k)
             | .intCast n => .num (n^k)
             | .natCast n => .num (n^k)

@@ -196,8 +196,18 @@ where
     -- context = fun e => H ⊢ₛ wp⟦e⟧ Q
     let context ← withLocalDecl `e .default (mkApp m α) fun e => do
       mkLambdaFVars #[e] (goal.withNewProg e).toExpr
-    return ← info.splitWithConstantMotive goal.toExpr (useSplitter := true) fun altSuff idx params => do
+    return ← info.splitWith goal.toExpr (useSplitter := true) fun altSuff expAltType idx params => do
+      burnOne
+      let e ← mkFreshExprMVar (mkApp m α)
+      unless ← isDefEq (goal.withNewProg e).toExpr expAltType do
+        throwError "The alternative type {expAltType} returned by `splitWith` does not match {(goal.withNewProg e).toExpr}. This is a bug in `mvcgen`."
+      let e ← instantiateMVarsIfMVarApp e
       let res ← liftMetaM <| rwIfOrMatcher idx e
+      -- When `FunInd.rwMatcher` fails, it returns the original expression. We'd loop in that case,
+      -- so we rather throw an error.
+      if res.expr == e then
+        throwError "`rwMatcher` failed to rewrite {indentExpr e}\n\
+          Check the output of `trace.Elab.Tactic.Do.vcgen.split` for more info and submit a bug report."
       let goal' := goal.withNewProg res.expr
       let prf ← withAltCtx idx params <| onWPApp goal' (name ++ altSuff)
       let res ← Simp.mkCongrArg context res
@@ -243,7 +253,7 @@ where
       mkFreshExprSyntheticOpaqueMVar hypsTy (name.appendIndexAfter i)
 
     let (joinPrf, joinGoal) ← forallBoundedTelescope joinTy numJoinParams fun joinParams _body => do
-      let φ ← info.splitWithConstantMotive (mkSort .zero) fun _suff idx altParams =>
+      let φ ← info.splitWith (mkSort .zero) fun _suff _expAltType idx altParams =>
         return mkAppN hypsMVars[idx]! (joinParams ++ altParams)
       withLocalDecl (← mkFreshUserName `h) .default φ fun h => do
         -- NB: `mkJoinGoal` is not quite `goal.withNewProg` because we only take 4 args and clear

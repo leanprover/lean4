@@ -475,6 +475,14 @@ theorem unfold_to_expose_match_spec :
   -- and then apply the spec for `get`.
   mvcgen [unfold_to_expose_match, Option.getD]
 
+theorem test_match_splitting_nogeneralize {m : Option Nat} (h : m = some 4) :
+  ⦃⌜True⌝⦄
+  (match (generalizing := false) m with
+  | some n => (set n : StateM Nat PUnit)
+  | none => set 0)
+  ⦃⇓ r s => ⌜s = 4⌝⦄ := by
+  mvcgen <;> simp_all
+
 theorem test_match_splitting {m : Option Nat} (h : m = some 4) :
   ⦃⌜True⌝⦄
   (match m with

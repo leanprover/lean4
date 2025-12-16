@@ -16,6 +16,7 @@ namespace Lean.Elab.Tactic.Do
 open Lean Parser Elab Tactic Meta Do SpecAttr
 
 builtin_initialize registerTraceClass `Elab.Tactic.Do.vcgen
+builtin_initialize registerTraceClass `Elab.Tactic.Do.vcgen.split
 
 register_builtin_option mvcgen.warning : Bool := {
   defValue := true

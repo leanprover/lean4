@@ -165,8 +165,9 @@ match n, parity n with
 | _, Parity.even j => false :: natToBin j
 | _, Parity.odd  j => true  :: natToBin j
 
--- The refactoring #11695 also fixed this, because it uses value matching
--- for the 0 pattern:
+-- The refactoring #11695 also fixed this, because it is more likely to use
+-- value matching when it sees no actual constructors. Previously, the
+-- inaccessible pattern caused it to expand the literal to a constructor.
 
 set_option backward.match.sparseCases false in
 #guard_msgs in
@@ -176,7 +177,8 @@ match n, parity n with
 | _, Parity.even j => false :: natToBin j
 | _, Parity.odd  j => true  :: natToBin j
 
--- Somehow the refactoring in #11695 made this work:
+-- Somehow the refactoring in #11695 also made this work, because
+-- `.succ 0` is treated as a value, not as a constructor pattern
 
 partial def natToBinBad2 (n : Nat) : List Bool :=
 match n, parity n with

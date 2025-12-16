@@ -29,8 +29,9 @@ Does not resolve dependencies.
 private def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
   Lean.searchPathRef.set config.lakeEnv.leanSearchPath
   let config := {config with pkgIdx := 0}
-  let fileCfg ← loadConfig "[root]" config
-  let root := mkPackage config fileCfg
+  let ⟨config, h⟩ ← resolveConfigFile "[root]" config
+  let fileCfg ← loadConfigFile config h
+  let root := mkPackage config fileCfg 0
   let root := {root with outputsRef? := ← CacheRef.mk}
   let facetConfigs := fileCfg.facetDecls.foldl (·.insert ·.config) initFacetConfigs
   let ws : Workspace := {

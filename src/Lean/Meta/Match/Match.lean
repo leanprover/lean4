@@ -483,7 +483,9 @@ private def processVariable (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: xs := p.vars | unreachable!
   let alts ← p.alts.mapM fun alt => do
     match alt.patterns with
-    | .inaccessible e :: ps => return { alt with patterns := ps, cnstrs := (x, e) :: alt.cnstrs }
+    | .inaccessible e :: ps =>
+      let cnstrs := if x == e then alt.cnstrs else (x, e) :: alt.cnstrs
+      return { alt with patterns := ps, cnstrs }
     | .var fvarId :: ps     =>
       withExistingLocalDecls alt.fvarDecls do
         if (← isDefEqGuarded (← fvarId.getType) (← inferType x)) then

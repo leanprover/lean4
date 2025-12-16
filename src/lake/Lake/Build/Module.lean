@@ -327,13 +327,13 @@ private def ModuleImportInfo.addImport
           |>.mix expInfo.artsTrace.withoutInputs
           |>.withoutInputs
       }
+  let info := {info with
+    metaTransTrace := info.metaTransTrace
+      |>.mix expInfo.metaTransTrace
+      |>.mix expInfo.metaArtsTrace.withoutInputs
+      |>.withoutInputs
+  }
   if imp.isExported then
-    let info := {info with
-      metaTransTrace := info.metaTransTrace
-        |>.mix expInfo.metaTransTrace
-        |>.mix expInfo.metaArtsTrace.withoutInputs
-        |>.withoutInputs
-    }
     if imp.isMeta then
       {info with
         transTrace := info.transTrace

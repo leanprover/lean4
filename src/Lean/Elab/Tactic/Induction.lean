@@ -665,7 +665,7 @@ def checkForInductionWithNoAlts (tacticKind : String) (optInductionAlts : Syntax
     -- Usually errors are suppressed for syntax containing `.missing` nodes, but this named error is
     -- listed in `Lean.Core.getAndEmptySnapshotTasks` as an error that ignores suppression.
     throwNamedErrorAt optInductionAlts lean.inductionWithNoAlts
-      m!"Invalid syntax for {tacticKind} tactic: The `with` keyword must followed by a tactic or by an alternative (e.g. `| zero =>`), but here it is followed by the identifier `{var}`."
+      m!"Invalid syntax for {tacticKind} tactic: The `with` keyword must be followed by a tactic or by an alternative (e.g. `| zero =>`), but here it is followed by the identifier `{var}`."
 
 /--
 Separate out the optional `with` tactics from the rest of the alternates

@@ -307,13 +307,6 @@ private def isIntValueTransition (p : Problem) : MetaM Bool := do
   unless (← hasIntValPattern p) do return false
   return hasCtorOrInaccessible p || !hasVarPattern p
 
-private def processSkipInaccessible (p : Problem) : Problem := Id.run do
-  let x :: xs := p.vars | unreachable!
-  let alts := p.alts.map fun alt => Id.run do
-    let .inaccessible e :: ps := alt.patterns | unreachable!
-    { alt with patterns := ps, cnstrs := (x, e) :: alt.cnstrs }
-  { p with alts := alts, vars := xs }
-
 /--
 If constraint is of the form `e ≋ x` where `x` is a free variable, reorient it
 as `x ≋ e` If

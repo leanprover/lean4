@@ -179,7 +179,7 @@ where
         let context ← withLocalDecl `e .default (mkApp m α) fun e => do
           mkLambdaFVars #[e] (goal.withNewProg e).toExpr
         let res ← Simp.mkCongrArg context res
-        res.mkEqMPR prf
+        return ← res.mkEqMPR prf
       else
         pure e
     -- Try reduce the matcher

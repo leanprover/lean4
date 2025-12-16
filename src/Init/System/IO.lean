@@ -196,7 +196,7 @@ causing the side effect to occur at initialization time, even if it would otherw
 @[inline] unsafe def unsafeEIO (fn : EIO ε α) : Except ε α :=
   unsafeBaseIO fn.toBaseIO
 
-@[inline, inherit_doc EIO] unsafe def unsafeIO (fn : IO α) : Except IO.Error α :=
+@[inline, inherit_doc unsafeEIO] unsafe def unsafeIO (fn : IO α) : Except IO.Error α :=
   unsafeEIO fn
 
 

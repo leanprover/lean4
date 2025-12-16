@@ -20,6 +20,44 @@ import Lean.Meta.Match.CaseArraySizes
 import Lean.Meta.Match.CaseValues
 import Lean.Meta.Match.NamedPatterns
 
+/-!
+This module implements the backend of match compilation. The elaborator has already elaborated
+the patterns and the the expected type of the matcher is known.
+
+The match compilation task is represented as a `Problem`, which is then processed interatively by
+the `process` function. It has various “moves” which it tries in a particular order, to make progress
+on the problem, possibly splitting it.
+
+The high-level overview of moves are
+* If no variables are left, process as leaf
+  * If there is an alternative, solve its constraints
+  * Else use `contradiction` to prove completeness of the match
+* Process “independent prefixes” of patterns. These are patterns that can be processed without
+  affecting the aother alternatives, and without side effects in the sense of updating the `mvarId`.
+  These are
+  - variable patterns; substitute
+  - inaccessible patterns; add equality constraints
+  - as-patterns: substitute value and equality
+  After thes have been processed, we use `.inaccessible x` where `x` is the variable being matched
+  to mark them as “done”.
+* If all patterns start with “done”, drop the first variable
+* The first alt has only “done” patterns, drop remaining alts (they're overlapped)
+* If the first alternative has its first refutable pattern not at the front, move it to the front.
+* If we have both constructor and value patterns, expand the values to constructors.
+* If next pattern is not a variable, but an expression, then
+  - if it is a constructor, behave a bit as if we just did a case split
+  - else move it to constraints
+* If we have constructor patterns, or no alternatives, split by constructor
+  Use sparse splitting if not all constructors are present
+* If match is empty (no alts), drop the variable
+* If we have value patterns (e.g. strings), split by value
+* If we have array literal patterns, split by array
+
+If we reach this point, the match is not supported.
+If only nat value patterns exist, we expand them for better error messages.
+Throw error.
+-/
+
 public section
 
 namespace Lean.Meta.Match

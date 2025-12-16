@@ -52,7 +52,7 @@ structure Server where
   /--
   Indicates when the server has successfully shutdown
   -/
-  shutdownPromise : IO.Promise Unit
+  shutdownPromise : Std.Promise Unit
 
   /--
   Configuration of the server
@@ -67,7 +67,7 @@ Create a new `Server` structure with an optional configuration.
 def new (config : Std.Http.Config := {}) : IO Server := do
   let context ← Std.CancellationContext.new
   let activeConnections ← Std.Mutex.new 0
-  let shutdownPromise : IO.Promise Unit ← IO.Promise.new
+  let shutdownPromise ← Std.Promise.new
 
   return { context, activeConnections, shutdownPromise, config }
 
@@ -84,7 +84,14 @@ Waits for the server to shut down. Blocks until another task or async operation 
 -/
 @[inline]
 def waitShutdown (s : Server) : Async Unit := do
-  Async.ofAsyncTask (s.shutdownPromise.result?.map (Option.map Except.ok · |>.getD (.error "promise dropped at server shutdown task")))
+  Async.ofAsyncTask ((← s.shutdownPromise.get).map Except.ok)
+
+/--
+Returns a `Selector` that waits for the server to shut down.
+-/
+@[inline]
+def waitShutdownSelector (s : Server) : Selector Unit :=
+  s.shutdownPromise.selector
 
 /--
 Triggers cancellation of all requests and the accept loop, then waits for the server to fully shut down.
@@ -96,7 +103,7 @@ def shutdownAndWait (s : Server) : Async Unit := do
   s.waitShutdown
 
 @[inline]
-private def frameCancellation (s : Server) (action : Async α) : Async α := do
+private def frameCancellation (s : Server) (action : ContextAsync α) : ContextAsync α := do
   s.activeConnections.atomically (modify (· + 1))
 
   let result ← action
@@ -105,7 +112,7 @@ private def frameCancellation (s : Server) (action : Async α) : Async α := do
     modify (· - 1)
 
     if (← get) = 0 ∧ (← s.context.isCancelled) then
-      s.shutdownPromise.resolve ()
+      discard <| s.shutdownPromise.resolve ()
 
   return result
 
@@ -124,11 +131,21 @@ def serve
   server.bind addr
   server.listen backlog
 
-  background do
+  let runServer := do
     frameCancellation httpServer do
-      while not (← httpServer.context.isCancelled) do
-        let client ← server.accept
-        background (frameCancellation httpServer (serveConnection client onRequest config httpServer.context))
+      while not (← ContextAsync.isCancelled) do
+
+        let result ← Selectable.one #[
+          .case (server.acceptSelector) (fun x => pure <| some x),
+          .case (← ContextAsync.doneSelector) (fun _ => pure none)
+        ]
+
+        match result with
+        | some client => ContextAsync.background (frameCancellation httpServer (serveConnection client onRequest config))
+        | none => do
+          break
+
+  background (runServer httpServer.context)
 
   return httpServer
 

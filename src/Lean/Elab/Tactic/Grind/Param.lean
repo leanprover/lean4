@@ -80,72 +80,6 @@ public def addEMatchTheorem (params : Grind.Params) (id : Ident) (declName : Nam
   | _ =>
     throwError "invalid `grind` parameter, `{.ofConstName declName}` is not a theorem, definition, or inductive type"
 
-def processParam (params : Grind.Params)
-    (p : TSyntax `Lean.Parser.Tactic.grindParam)
-    (mod? : Option (TSyntax `Lean.Parser.Attr.grindMod))
-    (id : TSyntax `ident)
-    (minIndexable : Bool)
-    (only : Bool)
-    (incremental : Bool)
-    : MetaM Grind.Params := do
-  let mut params := params
-  let declName ← try
-    realizeGlobalConstNoOverloadWithInfo id
-  catch err =>
-    if (← resolveLocalName id.getId).isSome then
-      throwErrorAt id "redundant parameter `{id}`, `grind` uses local hypotheses automatically"
-    else
-      throw err
-  let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
-  match kind with
-  | .ematch .user =>
-    unless only do
-      withRef p <| Grind.throwInvalidUsrModifier
-    ensureNoMinIndexable minIndexable
-    let s ← Grind.getEMatchTheorems
-    let thms := s.find (.decl declName)
-    let thms := thms.filter fun thm => thm.kind == .user
-    if thms.isEmpty then
-      throwErrorAt p "invalid use of `usr` modifier, `{.ofConstName declName}` does not have patterns specified with the command `grind_pattern`"
-    for thm in thms do
-      params := { params with extra := params.extra.push thm }
-  | .ematch kind =>
-    params ← withRef p <| addEMatchTheorem params id declName kind minIndexable
-  | .cases eager =>
-    if incremental then throwError "`cases` parameter are not supported here"
-    ensureNoMinIndexable minIndexable
-    withRef p <| Grind.validateCasesAttr declName eager
-    params := { params with casesTypes := params.casesTypes.insert declName eager }
-  | .intro =>
-    if let some info ← Grind.isCasesAttrPredicateCandidate? declName false then
-      if incremental then throwError "`cases` parameter are not supported here"
-      for ctor in info.ctors do
-        params ← withRef p <| addEMatchTheorem params id ctor (.default false) minIndexable
-    else
-      throwError "invalid use of `intro` modifier, `{.ofConstName declName}` is not an inductive predicate"
-  | .inj =>
-    let thm ← Grind.mkInjectiveTheorem declName
-    params := { params with extraInj := params.extraInj.push thm }
-  | .ext =>
-    throwError "`[grind ext]` cannot be set using parameters"
-  | .infer =>
-    if let some declName ← Grind.isCasesAttrCandidate? declName false then
-      params := { params with casesTypes := params.casesTypes.insert declName false }
-      if let some info ← isInductivePredicate? declName then
-        -- If it is an inductive predicate,
-        -- we also add the constructors (intro rules) as E-matching rules
-        for ctor in info.ctors do
-          -- **Note**: We should not warn if `declName` is an inductive
-          params ← withRef p <| addEMatchTheorem params id ctor (.default false) minIndexable (warn := False)
-    else
-      params ← withRef p <| addEMatchTheorem params id declName (.default false) minIndexable (suggest := true)
-  | .symbol prio =>
-    ensureNoMinIndexable minIndexable
-    params := { params with symPrios := params.symPrios.insert declName prio }
-  | .funCC =>
-    params := { params with funCCs := params.funCCs.insert declName }
-  return params
-
 def processAnchor (params : Grind.Params) (val : TSyntax `hexnum) : CoreM Grind.Params := do
   let anchorRefs := params.anchorRefs?.getD #[]
   let anchorRef ← Grind.elabAnchorRef val
@@ -205,6 +139,74 @@ def processTermParam (params : Grind.Params)
     unless levelParams.isEmpty do
       throwError "invalid `grind` parameter, parameter type is not a `forall` and is universe polymorphic{indentExpr type}"
     return { params with extraFacts := params.extraFacts.push proof }
+
+def processParam (params : Grind.Params)
+    (p : TSyntax `Lean.Parser.Tactic.grindParam)
+    (mod? : Option (TSyntax `Lean.Parser.Attr.grindMod))
+    (id : TSyntax `ident)
+    (minIndexable : Bool)
+    (only : Bool)
+    (incremental : Bool)
+    : TermElabM Grind.Params := do
+  let mut params := params
+  let declName? ← try
+    pure <| some (← realizeGlobalConstNoOverloadWithInfo id)
+  catch _ =>
+    if (← resolveLocalName id.getId).isSome then
+      throwErrorAt id "redundant parameter `{id}`, `grind` uses local hypotheses automatically"
+    else
+      -- Fall back to term elaboration for cases like `foo.le` (dot notation on declarations)
+      pure none
+  let some declName := declName? | return ← processTermParam params p mod? id minIndexable
+  let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
+  match kind with
+  | .ematch .user =>
+    unless only do
+      withRef p <| Grind.throwInvalidUsrModifier
+    ensureNoMinIndexable minIndexable
+    let s ← Grind.getEMatchTheorems
+    let thms := s.find (.decl declName)
+    let thms := thms.filter fun thm => thm.kind == .user
+    if thms.isEmpty then
+      throwErrorAt p "invalid use of `usr` modifier, `{.ofConstName declName}` does not have patterns specified with the command `grind_pattern`"
+    for thm in thms do
+      params := { params with extra := params.extra.push thm }
+  | .ematch kind =>
+    params ← withRef p <| addEMatchTheorem params id declName kind minIndexable
+  | .cases eager =>
+    if incremental then throwError "`cases` parameter are not supported here"
+    ensureNoMinIndexable minIndexable
+    withRef p <| Grind.validateCasesAttr declName eager
+    params := { params with casesTypes := params.casesTypes.insert declName eager }
+  | .intro =>
+    if let some info ← Grind.isCasesAttrPredicateCandidate? declName false then
+      if incremental then throwError "`cases` parameter are not supported here"
+      for ctor in info.ctors do
+        params ← withRef p <| addEMatchTheorem params id ctor (.default false) minIndexable
+    else
+      throwError "invalid use of `intro` modifier, `{.ofConstName declName}` is not an inductive predicate"
+  | .inj =>
+    let thm ← Grind.mkInjectiveTheorem declName
+    params := { params with extraInj := params.extraInj.push thm }
+  | .ext =>
+    throwError "`[grind ext]` cannot be set using parameters"
+  | .infer =>
+    if let some declName ← Grind.isCasesAttrCandidate? declName false then
+      params := { params with casesTypes := params.casesTypes.insert declName false }
+      if let some info ← isInductivePredicate? declName then
+        -- If it is an inductive predicate,
+        -- we also add the constructors (intro rules) as E-matching rules
+        for ctor in info.ctors do
+          -- **Note**: We should not warn if `declName` is an inductive
+          params ← withRef p <| addEMatchTheorem params id ctor (.default false) minIndexable (warn := False)
+    else
+      params ← withRef p <| addEMatchTheorem params id declName (.default false) minIndexable (suggest := true)
+  | .symbol prio =>
+    ensureNoMinIndexable minIndexable
+    params := { params with symPrios := params.symPrios.insert declName prio }
+  | .funCC =>
+    params := { params with funCCs := params.funCCs.insert declName }
+  return params
 
 /--
 Elaborates `grind` parameters.

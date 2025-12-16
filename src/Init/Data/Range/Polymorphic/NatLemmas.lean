@@ -621,7 +621,7 @@ theorem induct_rco_right (motive : Nat → Nat → Prop)
 @[simp]
 theorem toList_rcc_eq_toList_rco {m n : Nat} :
     (m...=n).toList = (m...(n + 1)).toList := by
-  simp
+  simp [Rcc.toList_eq_toList_rco]
 
 @[simp]
 theorem toList_toArray_rcc {m n : Nat} :
@@ -1425,15 +1425,16 @@ theorem induct_roo_right (motive : Nat → Nat → Prop)
 
 theorem toList_roc_eq_toList_rcc {m n : Nat} :
     (m<...=n).toList = ((m + 1)...=n).toList := by
-  simp
+  simp [Roc.toList_eq_toList_roo]
 
 theorem toList_roc_eq_toList_roo {m n : Nat} :
     (m<...=n).toList = (m<...(n + 1)).toList := by
-  simp
+  simp [Roc.toList_eq_toList_roo]
 
+@[simp]
 theorem toList_roc_eq_toList_rco {m n : Nat} :
     (m<...=n).toList = ((m + 1)...(n + 1)).toList := by
-  simp
+  simp [Roc.toList_eq_toList_roo]
 
 @[simp]
 theorem toList_toArray_roc {m n : Nat} :
@@ -1452,11 +1453,11 @@ theorem toList_roc_eq_if {m n : Nat} :
 
 theorem toList_roc_succ_succ {m n : Nat} :
     ((m+1)<...=(n+1)).toList = (m<...=n).toList.map (· + 1) := by
-  simp [← succ_eq, Rco.toList_succ_succ_eq_map]
+  simp [← succ_eq, toList_roc_eq_toList_rco, Rco.toList_succ_succ_eq_map]
 
 theorem toList_roc_succ_right_eq_cons_map {m n : Nat} (h : m ≤ n) :
     (m<...=(n + 1)).toList = (m + 1) :: (m<...=n).toList.map (· + 1) := by
-  simp [toList_rco_succ_right_eq_cons_map, h]
+  simp [toList_roc_eq_toList_rco, toList_rco_succ_right_eq_cons_map, h]
 
 @[simp]
 theorem toList_roc_eq_nil_iff {m n : Nat} :
@@ -1686,7 +1687,7 @@ theorem toArray_roc_add_succ_right_eq_push {m n : Nat} :
     (m<...=(m + n + 1)).toArray = (m<...=(m + n)).toArray.push (m + n + 1) := by
   rw [toArray_roc_succ_right_eq_push (by omega)]
 
-theorem toArray_roc_add_succ_right_eq_append' {m n : Nat} :
+theorem toArray_roc_add_succ_right_eq_push' {m n : Nat} :
     (m<...=(m + (n + 1))).toArray = (m<...=(m + n)).toArray.push (m + n + 1) := by
   rw [← Nat.add_assoc, toArray_roc_add_succ_right_eq_push]
 

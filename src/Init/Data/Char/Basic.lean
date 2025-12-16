@@ -164,10 +164,17 @@ The lowercase ASCII letters are the following: `abcdefghijklmnopqrstuvwxyz`.
 @[inline]
 def toUpper (c : Char) : Char :=
   if h : c.val ≥ 'a'.val ∧ c.val ≤ 'z'.val then
-    ⟨c.val - ('a'.val - 'A'.val), ?_⟩
+    ⟨c.val + ('A'.val - 'a'.val), ?_⟩
   else
     c
 where finally
-  sorry
+  have h₁ : 2^32 ≤ c.val.toNat + ('A'.val - 'a'.val).toNat :=
+    @Nat.add_le_add 'a'.val.toNat _ (2^32 - 'a'.val.toNat) _ h.1 (by decide)
+  have h₂ : c.val.toBitVec.toNat + ('A'.val - 'a'.val).toNat < 2^32 + 0xd800 :=
+    Nat.add_lt_add_right (Nat.lt_of_le_of_lt h.2 (by decide)) _
+  have add_eq {x y : UInt32} : (x + y).toNat = (x.toNat + y.toNat) % 2^32 := rfl
+  replace h₂ := Nat.sub_lt_left_of_lt_add h₁ h₂
+  exact .inl <| lt_of_eq_of_lt (add_eq.trans (Nat.mod_eq_sub_mod h₁) |>.trans
+    (Nat.mod_eq_of_lt (Nat.lt_trans h₂ (by decide)))) h₂
 
 end Char

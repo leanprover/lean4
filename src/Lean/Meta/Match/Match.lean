@@ -465,65 +465,10 @@ alternative `cnstrs` field.
 private def inLocalDecls (localDecls : List LocalDecl) (fvarId : FVarId) : Bool :=
   localDecls.any fun d => d.fvarId == fvarId
 
-private def expandVarIntoCtor (alt : Alt) (ctorName : Name) : MetaM Alt := do
-  let .var fvarId :: ps := alt.patterns | unreachable!
-  let alt := { alt with patterns := ps}
-  withExistingLocalDecls alt.fvarDecls do
-    trace[Meta.Match.unify] "expandVarIntoCtor fvarId: {mkFVar fvarId}, ctorName: {ctorName}, alt:\n{← alt.toMessageData}"
-    let expectedType ← inferType (mkFVar fvarId)
-    let expectedType ← whnfD expectedType
-    let (ctorLevels, ctorParams) ← getInductiveUniverseAndParams expectedType
-    let ctor := mkAppN (mkConst ctorName ctorLevels) ctorParams
-    let ctorType ← inferType ctor
-    forallTelescopeReducing ctorType fun ctorFields resultType => do
-      let ctor := mkAppN ctor ctorFields
-      let alt  := alt.replaceFVarId fvarId ctor
-      let ctorFieldDecls ← ctorFields.mapM fun ctorField => ctorField.fvarId!.getDecl
-      let newAltDecls := ctorFieldDecls.toList ++ alt.fvarDecls
-      let mut cnstrs := alt.cnstrs
-      unless (← isDefEqGuarded resultType expectedType) do
-         cnstrs := (resultType, expectedType) :: cnstrs
-      trace[Meta.Match.unify] "expandVarIntoCtor {mkFVar fvarId} : {expectedType}, ctor: {ctor}"
-      let ctorFieldPatterns := ctorFieldDecls.toList.map fun decl => Pattern.var decl.fvarId
-      return { alt with fvarDecls := newAltDecls, patterns := ctorFieldPatterns ++ alt.patterns, cnstrs }
-
-private def expandInaccessibleIntoVar (alt : Alt) : MetaM Alt := do
-  let .inaccessible e :: ps := alt.patterns | unreachable!
-  withExistingLocalDecls alt.fvarDecls do
-    let type ← inferType e
-    withLocalDeclD `x type fun x => do
-      trace[Meta.Match.unify] "expandInaccessibleIntoVar {x} : {type} := {e}"
-      return { alt with
-        fvarDecls := (← x.fvarId!.getDecl) :: alt.fvarDecls
-        patterns := .var x.fvarId! :: ps
-        cnstrs := (x, e) :: alt.cnstrs
-      }
-
 private def hasRecursiveType (x : Expr) : MetaM Bool := do
   match (← getInductiveVal? x) with
   | some val => return val.isRec
   | _        => return false
-
-/-- Given `alt` s.t. the next pattern is an inaccessible pattern `e`,
-   try to normalize `e` into a constructor application.
-   If it is a constructor application of `ctorName`,
-   update the next patterns with the fields of the constructor.
-   Otherwise, move it to contraints, so that we fail unless some later step
-   eliminates this alternative.
--/
-def processInaccessibleAsCtor (alt : Alt) (ctorName : Name) : MetaM Alt := do
-  let .inaccessible e :: ps := alt.patterns | unreachable!
-  trace[Meta.Match.match] "inaccessible step {e} as ctor {ctorName}"
-  withExistingLocalDecls alt.fvarDecls do
-    -- Try to push inaccessible annotations.
-    let e ← whnfD e
-    if let some (ctorVal, ctorArgs) ← constructorApp? e then
-      if ctorVal.name == ctorName then
-        let fields := ctorArgs.extract ctorVal.numParams ctorArgs.size
-        let fields := fields.toList.map .inaccessible
-        return { alt with patterns := fields ++ ps }
-    let alt' ← expandInaccessibleIntoVar alt
-    expandVarIntoCtor alt' ctorName
 
 private def hasNonTrivialExample (p : Problem) : Bool :=
   p.examples.any fun | Example.underscore => false | _ => true
@@ -701,23 +646,6 @@ private def collectArraySizes (p : Problem) : Array Nat :=
     match alt.patterns with
     | .arrayLit _ ps :: _ => let sz := ps.length; if sizes.contains sz then sizes else sizes.push sz
     | _                   => sizes
-
-private def expandVarIntoArrayLit (alt : Alt) (fvarId : FVarId) (arrayElemType : Expr) (arraySize : Nat) : MetaM Alt :=
-  withExistingLocalDecls alt.fvarDecls do
-    let fvarDecl ← fvarId.getDecl
-    let varNamePrefix := fvarDecl.userName
-    let rec loop (n : Nat) (newVars : Array Expr) := do
-      match n with
-      | n+1 =>
-        withLocalDeclD (varNamePrefix.appendIndexAfter (n+1)) arrayElemType fun x =>
-          loop n (newVars.push x)
-      | 0 =>
-        let arrayLit ← mkArrayLit arrayElemType newVars.toList
-        let alt := alt.replaceFVarId fvarId arrayLit
-        let newDecls ← newVars.toList.mapM fun newVar => newVar.fvarId!.getDecl
-        let newPatterns := newVars.toList.map fun newVar => .var newVar.fvarId!
-        return { alt with fvarDecls := newDecls ++ alt.fvarDecls, patterns := newPatterns ++ alt.patterns }
-    loop arraySize #[]
 
 private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
   trace[Meta.Match.match] "array literal step"

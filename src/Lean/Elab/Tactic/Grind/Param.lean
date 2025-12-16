@@ -80,7 +80,66 @@ public def addEMatchTheorem (params : Grind.Params) (id : Ident) (declName : Nam
   | _ =>
     throwError "invalid `grind` parameter, `{.ofConstName declName}` is not a theorem, definition, or inductive type"
 
-mutual
+def processAnchor (params : Grind.Params) (val : TSyntax `hexnum) : CoreM Grind.Params := do
+  let anchorRefs := params.anchorRefs?.getD #[]
+  let anchorRef ← Grind.elabAnchorRef val
+  return { params with anchorRefs? := some <| anchorRefs.push anchorRef }
+
+def checkNoRevert (params : Grind.Params) : CoreM Unit := do
+  if params.config.revert then
+    throwError "invalid `grind` parameter, only global declarations are allowed when `+revert` is used"
+
+def processTermParam (params : Grind.Params)
+    (p : TSyntax `Lean.Parser.Tactic.grindParam)
+    (mod? : Option (TSyntax `Lean.Parser.Attr.grindMod))
+    (term : Term)
+    (minIndexable : Bool)
+    : TermElabM Grind.Params := withRef p do
+  checkNoRevert params
+  let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
+  let kind ← match kind with
+    | .ematch .user | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC =>
+      throwError "invalid `grind` parameter, only global declarations are allowed with this kind of modifier"
+    | .ematch kind => pure kind
+    | .infer => pure <| .default false
+  let thm? ← Term.withoutModifyingElabMetaStateWithInfo <| withRef p do
+    let e ← Term.elabTerm term .none
+    Term.synthesizeSyntheticMVars (postpone := .no) (ignoreStuckTC := true)
+    let e ← instantiateMVars e
+    if e.hasSyntheticSorry then
+      return .none
+    let e := e.eta
+    if e.hasMVar then
+      let r ← abstractMVars e
+      return some (r.paramNames, r.expr)
+    else
+      return some (#[], e)
+  let some (levelParams, proof) := thm? | return params
+  let type ← inferType proof
+  unless (← isProp type) do
+    throwError "invalid `grind` parameter, proof term expected"
+  if type.isForall then
+    let mkThm (kind : Grind.EMatchTheoremKind) (idx : Nat) : MetaM Grind.EMatchTheorem := do
+      let id := ((`extra).appendIndexAfter idx)
+      let some thm ← Grind.mkEMatchTheoremWithKind? (.stx id p) levelParams proof kind params.symPrios (minIndexable := minIndexable)
+        | throwError "invalid `grind` parameter, failed to infer patterns"
+      return thm
+    let idx := params.extra.size
+    match kind with
+    | .eqBoth gen =>
+      ensureNoMinIndexable minIndexable
+      return { params with extra := params.extra.push (← mkThm (.eqLhs gen) idx) |>.push (← mkThm (.eqRhs gen) idx) }
+    | _ =>
+      if kind matches .eqLhs _ | .eqRhs _ then
+        ensureNoMinIndexable minIndexable
+      return { params with extra := params.extra.push (← mkThm kind idx) }
+  else
+    unless mod?.isNone do
+      throwError "invalid `grind` parameter, modifier is redundant since the parameter type is not a `forall`{indentExpr type}"
+    unless levelParams.isEmpty do
+      throwError "invalid `grind` parameter, parameter type is not a `forall` and is universe polymorphic{indentExpr type}"
+    return { params with extraFacts := params.extraFacts.push proof }
+
 def processParam (params : Grind.Params)
     (p : TSyntax `Lean.Parser.Tactic.grindParam)
     (mod? : Option (TSyntax `Lean.Parser.Attr.grindMod))
@@ -148,67 +207,6 @@ def processParam (params : Grind.Params)
   | .funCC =>
     params := { params with funCCs := params.funCCs.insert declName }
   return params
-
-def processAnchor (params : Grind.Params) (val : TSyntax `hexnum) : CoreM Grind.Params := do
-  let anchorRefs := params.anchorRefs?.getD #[]
-  let anchorRef ← Grind.elabAnchorRef val
-  return { params with anchorRefs? := some <| anchorRefs.push anchorRef }
-
-def checkNoRevert (params : Grind.Params) : CoreM Unit := do
-  if params.config.revert then
-    throwError "invalid `grind` parameter, only global declarations are allowed when `+revert` is used"
-
-def processTermParam (params : Grind.Params)
-    (p : TSyntax `Lean.Parser.Tactic.grindParam)
-    (mod? : Option (TSyntax `Lean.Parser.Attr.grindMod))
-    (term : Term)
-    (minIndexable : Bool)
-    : TermElabM Grind.Params := withRef p do
-  checkNoRevert params
-  let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
-  let kind ← match kind with
-    | .ematch .user | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC =>
-      throwError "invalid `grind` parameter, only global declarations are allowed with this kind of modifier"
-    | .ematch kind => pure kind
-    | .infer => pure <| .default false
-  let thm? ← Term.withoutModifyingElabMetaStateWithInfo <| withRef p do
-    let e ← Term.elabTerm term .none
-    Term.synthesizeSyntheticMVars (postpone := .no) (ignoreStuckTC := true)
-    let e ← instantiateMVars e
-    if e.hasSyntheticSorry then
-      return .none
-    let e := e.eta
-    if e.hasMVar then
-      let r ← abstractMVars e
-      return some (r.paramNames, r.expr)
-    else
-      return some (#[], e)
-  let some (levelParams, proof) := thm? | return params
-  let type ← inferType proof
-  unless (← isProp type) do
-    throwError "invalid `grind` parameter, proof term expected"
-  if type.isForall then
-    let mkThm (kind : Grind.EMatchTheoremKind) (idx : Nat) : MetaM Grind.EMatchTheorem := do
-      let id := ((`extra).appendIndexAfter idx)
-      let some thm ← Grind.mkEMatchTheoremWithKind? (.stx id p) levelParams proof kind params.symPrios (minIndexable := minIndexable)
-        | throwError "invalid `grind` parameter, failed to infer patterns"
-      return thm
-    let idx := params.extra.size
-    match kind with
-    | .eqBoth gen =>
-      ensureNoMinIndexable minIndexable
-      return { params with extra := params.extra.push (← mkThm (.eqLhs gen) idx) |>.push (← mkThm (.eqRhs gen) idx) }
-    | _ =>
-      if kind matches .eqLhs _ | .eqRhs _ then
-        ensureNoMinIndexable minIndexable
-      return { params with extra := params.extra.push (← mkThm kind idx) }
-  else
-    unless mod?.isNone do
-      throwError "invalid `grind` parameter, modifier is redundant since the parameter type is not a `forall`{indentExpr type}"
-    unless levelParams.isEmpty do
-      throwError "invalid `grind` parameter, parameter type is not a `forall` and is universe polymorphic{indentExpr type}"
-    return { params with extraFacts := params.extraFacts.push proof }
-end
 
 /--
 Elaborates `grind` parameters.

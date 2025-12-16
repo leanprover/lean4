@@ -137,7 +137,6 @@ The ASCII digits are the following: `0123456789`.
 @[inline] def isAlphanum (c : Char) : Bool :=
   c.isAlpha || c.isDigit
 
-
 /--
 Converts an uppercase ASCII letter to the corresponding lowercase letter. Letters outside the ASCII
 alphabet are returned unchanged.

@@ -141,8 +141,10 @@ test_run build Test.Module.Import Test.Module.PublicImport --no-build
 # should trigger a rebuild on a direct `meta import`
 test_out "Built Test.Module.MetaImport" build Test.Module.MetaImport -v
 test_out "Built Test.Module.PublicMetaImport" build Test.Module.PublicMetaImport -v
-# should trigger a rebuild on a transitive `meta import`
+# should trigger a rebuild on a `meta import` of a transitive `public import`
 test_out "Built Test.Module.MetaImportPublicImport" build Test.Module.MetaImportPublicImport -v
+# should trigger a rebuild on a `meta import` of a transitive private `import`
+test_out "Built Test.Module.MetaImportImport" build Test.Module.MetaImportImport -v
 # should trigger a rebuild on module transitive import of a `public meta import`
 test_out "Built Test.Module.ImportPublicMetaImport" build Test.Module.ImportPublicMetaImport -v
 # should not trigger a rebuild on module transitive import of a private `meta import`

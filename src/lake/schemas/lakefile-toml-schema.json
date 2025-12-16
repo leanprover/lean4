@@ -355,7 +355,8 @@
                     "description": "A dependency on the local filesystem, specified by its path."
                 },
                 "git": {
-                    "type": "string",
+                    "type": ["string", "object"],
+                    "default": "",
                     "description": "A dependency in a Git repository, specified by its URL."
                 },
                 "subDir": {

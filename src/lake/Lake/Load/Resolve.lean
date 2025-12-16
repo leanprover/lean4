@@ -26,7 +26,7 @@ This module contains definitions for resolving the dependencies of a package.
 namespace Lake
 
 /-- Returns the load configuration of a materialized dependency. -/
-def mkDepLoadConfig
+@[inline] def mkDepLoadConfig
   (ws : Workspace) (dep : MaterializedDep)
   (lakeOpts : NameMap String) (leanOpts : Options) (reconfigure : Bool)
 : LoadConfig where
@@ -54,9 +54,11 @@ def addDepPackage
   (lakeOpts : NameMap String)
   (leanOpts : Options) (reconfigure : Bool)
 : StateT Workspace LogIO Package := fun ws => do
+  let wsIdx := ws.packages.size
   let loadCfg := mkDepLoadConfig ws dep lakeOpts leanOpts reconfigure
-  let fileCfg ← loadConfig dep.prettyName loadCfg
-  let pkg := mkPackage loadCfg fileCfg
+  let ⟨loadCfg, h⟩ ← resolveConfigFile dep.prettyName loadCfg
+  let fileCfg ← loadConfigFile loadCfg h
+  let pkg := mkPackage loadCfg fileCfg wsIdx
   let ws := ws.addPackage' pkg wsIdx_mkPackage
   let ws := ws.addFacetDecls fileCfg.facetDecls
   return (pkg, ws)

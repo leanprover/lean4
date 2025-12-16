@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lake.Config.Env
+public import Lake.Config.Lang
 public import Lake.Load.Manifest
 public import Lake.Util.FilePath
 
@@ -43,6 +44,12 @@ public structure LoadConfig where
   relConfigFile : FilePath := defaultConfigFile
   /-- The full path to the loaded package's Lake configuration file. -/
   configFile : FilePath := pkgDir / relConfigFile
+  /-
+  The format of the package's configuration file.
+
+  If {lean}`none`, the format will be determined by the file's extension.
+  -/
+  configLang? : Option ConfigLang := none
   /-- The package's Lake manifest file (relative to its directory). -/
   relManifestFile : FilePath := defaultManifestFile
   /-- Additional package overrides for this workspace load. -/
@@ -57,6 +64,7 @@ public structure LoadConfig where
   updateDeps : Bool := false
   /--
   Whether to update the workspace's {lit}`lean-toolchain` when dependencies are updated.
+
   If {lean}`true` and a toolchain update occurs, Lake will need to be restarted.
   -/
   updateToolchain : Bool := true

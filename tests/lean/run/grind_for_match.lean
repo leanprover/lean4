@@ -99,3 +99,8 @@ example (heq : Int.ofNat x = Int.ofNat n) : x = n := by
 
 example (heq : Int.negSucc x = Int.negSucc n) : x = n := by
   grind_for_match
+
+example (h : Int.negSucc a' = Int.negSucc a'2)
+  (h : Int.ofNat 0 = Int.ofNat a'1) :
+  a' = a'2 ∧ 0 = a'1 := by
+  grind (splits := 0) -order -linarith -ac -ring only -- works

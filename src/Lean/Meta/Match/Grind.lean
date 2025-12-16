@@ -15,7 +15,7 @@ namespace Lean.Meta.Match
 -- TODO: Turn this true once it works
 -- Known problem so far: injectivity of `Int` constructors (test issue10775)
 register_builtin_option debug.Meta.Match.MatchEqs.unrestrictedGrind : Bool := {
-  defValue := true
+  defValue := false
   descr := "When proving match equations, run `grind` in the unrestricted configuration. \
     Useful to debug match equation failures that may be due to a too restrictive grind configuration."
 }

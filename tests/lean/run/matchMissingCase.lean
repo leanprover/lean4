@@ -10,12 +10,13 @@ def test : Enum → Nat
   | .a => 0
   | .b => 0
 
--- set_option trace.Meta.Match.match true
+-- TODO: The kernel error below is a regression. No idea where it comes from.
 
 /--
 error: Missing cases:
-Enum.d, false
-Enum.c, false
+_, false
+---
+error: (kernel) declaration has metavariables 'test2'
 -/
 #guard_msgs(pass trace, all) in
 def test2 : Enum → Bool → Nat

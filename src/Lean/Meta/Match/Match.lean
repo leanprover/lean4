@@ -191,6 +191,11 @@ private def hasValPattern (p : Problem) : Bool :=
     | .val _ :: _ => true
     | _           => false
 
+private def hasInaccessiblePattern (p : Problem) : Bool :=
+  p.alts.any fun alt => match alt.patterns with
+    | .inaccessible _ :: _ => true
+    | _                    => false
+
 private def hasNatValPattern (p : Problem) : MetaM Bool :=
   p.alts.anyM fun alt => do
     match alt.patterns with
@@ -212,12 +217,6 @@ private def hasArrayLitPattern (p : Problem) : Bool :=
   p.alts.any fun alt => match alt.patterns with
     | .arrayLit .. :: _ => true
     | _                 => false
-
-private def hasVarOrInaccessiblePattern (p : Problem) : Bool :=
-  p.alts.any fun alt => match alt.patterns with
-    | .inaccessible _ :: _ => true
-    | .var _ :: _          => true
-    | _                    => false
 
 private def isVariableTransition (p : Problem) : Bool :=
   p.alts.all fun alt => match alt.patterns with
@@ -253,11 +252,11 @@ private def isConstructorTransition (p : Problem) : MetaM Bool := do
       | _                    => false
 
 private def isValueTransition (p : Problem) : Bool :=
-  hasVarPattern p && hasValPattern p
-  && p.alts.all fun alt => match alt.patterns with
-     | .val _ :: _ => true
-     | .var _ :: _ => true
-     | _           => false
+  hasValPattern p && hasInaccessiblePattern p &&
+  p.alts.all fun alt => match alt.patterns with
+     | .val _          :: _ => true
+     | .inaccessible _ :: _ => true -- should be a done pattern by now
+     | _                    => false
 
 private def isValueOnlyTransitionCore (p : Problem) (isValue : Expr → MetaM Bool) : MetaM Bool := do
   if hasVarPattern p then return false
@@ -275,37 +274,36 @@ private def isBitVecValueTransition (p : Problem) : MetaM Bool :=
   isValueOnlyTransitionCore p fun e => return (← getBitVecValue? e).isSome
 
 private def isArrayLitTransition (p : Problem) : Bool :=
-  hasArrayLitPattern p && hasVarPattern p
-  && p.alts.all fun alt => match alt.patterns with
-     | .arrayLit .. :: _ => true
-     | .var _ :: _       => true
-     | _                 => false
+  hasArrayLitPattern p && hasInaccessiblePattern p &&
+  p.alts.all fun alt => match alt.patterns with
+     | .arrayLit .. :: _    => true
+     | .inaccessible _ :: _ => true -- should be a done pattern by now
+     | _                    => false
 
-private def hasCtorOrInaccessible (p : Problem) : Bool :=
+private def hasCtor (p : Problem) : Bool :=
   !isNextVar p ||
     p.alts.any fun alt => match alt.patterns with
     | .ctor .. :: _        => true
-    | .inaccessible _ :: _ => true
     | _                    => false
 
 private def isNatValueTransition (p : Problem) : MetaM Bool := do
-  return (← hasNatValPattern p) && hasCtorOrInaccessible p
+  return (← hasNatValPattern p) && hasCtor p
 
 /--
 Predicate for testing whether we need to expand `Int` value patterns into constructors.
 There are two cases:
-- We have constructor or inaccessible patterns. Example:
+- We have constructor patterns. Example:
 ```
 | 0, ...
 | Int.toVal p, ...
 ...
 ```
-- We don't have the `else`-case (i.e., variable pattern). This can happen
+- We don't have the `else`-case (i.e., inaccessible pattern). This can happen
 when the non-value cases are unreachable.
 -/
 private def isIntValueTransition (p : Problem) : MetaM Bool := do
   unless (← hasIntValPattern p) do return false
-  return hasCtorOrInaccessible p || !hasVarPattern p
+  return hasCtor p || !hasInaccessiblePattern p
 
 /--
 If constraint is of the form `e ≋ x` where `x` is a free variable, reorient it
@@ -615,7 +613,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
     -- We use a sparse case analysis only if there is at least one non-constructor pattern,
     -- but not just because there are constructors missing (in that case we benefit from
     -- the eager split in ruling out constructors by type or by a more explicit error message)
-    if backward.match.sparseCases.get (← getOptions) && hasVarOrInaccessiblePattern p then
+    if backward.match.sparseCases.get (← getOptions) && hasInaccessiblePattern p then
       let ctors := collectCtors p
       trace[Meta.Match.match] "using sparse cases: {ctors}"
       pure (some ctors)
@@ -712,10 +710,10 @@ private def collectValues (p : Problem) : Array Expr :=
     | .val v :: _ => if values.contains v then values else values.push v
     | _           => values
 
-private def isFirstPatternVar (alt : Alt) : Bool :=
+private def isFirstPatternInaccessible (alt : Alt) : Bool :=
   match alt.patterns with
-  | .var _ :: _ => true
-  | _           => false
+  | .inaccessible _ :: _ => true
+  | _                    => false
 
 private def Pattern.isRefutable : Pattern → Bool
   | .var _           => false
@@ -744,21 +742,19 @@ private def processValue (p : Problem) : MetaM (Array Problem) := do
         let examples := p.examples.map <| Example.replaceFVarId x.fvarId! (Example.val value)
       let examples := examples.map <| Example.applyFVarSubst subst
       let newAlts  := p.alts.filter fun alt => match alt.patterns with
-        | .val v :: _ => v == value
-        | .var _ :: _ => true
-        | _           => false
+        | .val v          :: _ => v == value
+        | .inaccessible _ :: _ => true
+        | _                    => unreachable!
       let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst
       let newAlts := newAlts.map fun alt => match alt.patterns with
-        | .val _ :: ps      => { alt with patterns := ps }
-        | .var fvarId :: ps =>
-          let alt := { alt with patterns := ps }
-          alt.replaceFVarId fvarId value
-        | _  => unreachable!
+        | .val _          :: ps => { alt with patterns := ps }
+        | .inaccessible _ :: ps => { alt with patterns := ps }
+        | _                     => unreachable!
       let newVars := xs.map fun x => x.applyFVarSubst subst
       return { p with mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
     else
       -- else branch for value
-      let newAlts := p.alts.filter isFirstPatternVar
+      let newAlts := p.alts.filter isFirstPatternInaccessible
       return { p with mvarId := subgoal.mvarId, alts := newAlts, vars := x::xs }
 
 private def collectArraySizes (p : Problem) : Array Nat :=
@@ -800,21 +796,21 @@ private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
       let examples := p.examples.map <| Example.replaceFVarId x.fvarId! subex
       let examples := examples.map <| Example.applyFVarSubst subst
       let newAlts  := p.alts.filter fun alt => match alt.patterns with
-        | .arrayLit _ ps :: _ => ps.length == size
-        | .var _ :: _         => true
-        | _                          => false
+        | .arrayLit _ ps :: _  => ps.length == size
+        | .inaccessible _ :: _ => true
+        | _                    => unreachable!
       let newAlts := newAlts.map fun alt => alt.applyFVarSubst subst
-      let newAlts ← newAlts.mapM fun alt => do
+      let newAlts := newAlts.map fun alt =>
         match alt.patterns with
-        | .arrayLit _ pats :: ps => return { alt with patterns := pats ++ ps }
-        | .var fvarId :: ps      =>
-          let α ← getArrayArgType <| subst.apply x
-          expandVarIntoArrayLit { alt with patterns := ps } fvarId α size
+        | .arrayLit _ pats :: ps => { alt with patterns := pats ++ ps }
+        | .inaccessible _ :: ps  =>
+          let patterns := elems.map (fun elem => .inaccessible (mkFVar elem)) ++ ps
+          { alt with patterns }
         | _  => unreachable!
       return { p with mvarId := subgoal.mvarId, vars := newVars, alts := newAlts, examples := examples }
     else
       -- else branch
-      let newAlts := p.alts.filter isFirstPatternVar
+      let newAlts := p.alts.filter isFirstPatternInaccessible
       return { p with mvarId := subgoal.mvarId, alts := newAlts, vars := x::xs }
 
 private def expandNatValuePattern (p : Problem) : MetaM Problem := do
@@ -929,6 +925,107 @@ def processExFalso (p : Problem) : MetaM Problem := do
   let mvarId' ← p.mvarId.exfalso
   return { p with mvarId := mvarId' }
 
+/--
+Does any alternative have a pattern that can be independently handled (variable, inaccessible,
+as-pattern) before any refutable pattern?
+-/
+def hasIndependentPatterns (p : Problem) : Bool :=
+  p.alts.any fun alt => Id.run do
+    for v in p.vars, p in alt.patterns do
+      match p with
+      | .inaccessible e =>
+        if e == v then
+          -- Skip inaccessible pattern that's are equal to the variable, these are “done”
+          continue
+        else
+          return true
+      | .var .. | .as .. => return true
+      | .ctor .. | .val .. | .arrayLit .. => return false
+    return false
+
+def processIndependentPatterns (p : Problem) : MetaM Problem := withGoalOf p do
+  let alts' ← p.alts.mapM fun alt => do
+    -- We process only one pattern at a time, for code simplicity and better tracing
+    -- of the main loop
+    let mut donePrefix := 0
+    for var in p.vars, pat in alt.patterns do
+      match pat with
+      | .inaccessible e =>
+        if e == var then
+          donePrefix := donePrefix + 1
+        else
+          break
+      | _ => break
+    match alt.patterns.drop donePrefix with
+    | [] =>
+      -- All done here
+      return alt
+    | pat :: remainingPats =>
+      let v := p.vars[donePrefix]!
+      match pat with
+      | .inaccessible e =>
+        trace[Meta.Match.match] "processing inaccessible pattern"
+        let patterns := (p.vars.take (donePrefix + 1)).map .inaccessible ++ remainingPats
+        let cnstrs := (v, e) :: alt.cnstrs
+        return { alt with patterns, cnstrs }
+      | .var fvarId =>
+        trace[Meta.Match.match] "processing variable pattern"
+        let patterns := (p.vars.take (donePrefix + 1)).map .inaccessible ++ remainingPats
+        let alt' ← withExistingLocalDecls alt.fvarDecls do
+          if (← isDefEqGuarded (← fvarId.getType) (← inferType v)) then
+            return { alt with patterns }.replaceFVarId fvarId v
+          else
+            let cnstrs := (mkFVar fvarId, v) :: alt.cnstrs
+            return { alt with patterns, cnstrs }
+        return alt'
+      | .as fvarId pat h =>
+        let patterns := (p.vars.take donePrefix).map .inaccessible ++ [pat] ++ remainingPats
+        /- We used to use eagerly check the types here (using what was called `checkAndReplaceFVarId`),
+          but `x` and `fvarId` can have different types when dependent types are being used.
+          Let's consider the repro for issue #471
+          ```
+          inductive vec : Nat → Type
+          | nil : vec 0
+          | cons : Int → vec n → vec n.succ
+
+          def vec_len : vec n → Nat
+          | vec.nil => 0
+          | x@(vec.cons h t) => vec_len t + 1
+
+          ```
+          we reach the state
+          ```
+            [Meta.Match.match] remaining variables: [x✝:(vec n✝)]
+            alternatives:
+              [n:(Nat), x:(vec (Nat.succ n)), h:(Int), t:(vec n)] |- [x@(vec.cons n h t)] => h_1 n x h t
+              [x✝:(vec n✝)] |- [x✝] => h_2 n✝ x✝
+          ```
+          The variables `x✝:(vec n✝)` and `x:(vec (Nat.succ n))` have different types, but we perform the substitution anyway,
+          because we claim the "discrepancy" will be corrected after we process the pattern `(vec.cons n h t)`.
+          The right-hand-side is temporarily type incorrect, but we claim this is fine because it will be type correct again after
+          we the pattern `(vec.cons n h t)`. TODO: try to find a cleaner solution.
+        -/
+        let r ← mkEqRefl v
+        return { alt with patterns }.replaceFVarId fvarId v |>.replaceFVarId h r
+      | .ctor .. | .val .. | .arrayLit .. =>
+        return alt
+  return { p with alts := alts' }
+
+private def isFirstVarDoneTransition (p : Problem) : Bool := Id.run do
+  if p.alts.isEmpty then
+    return false
+  let x :: _ := p.vars | unreachable!
+  return p.alts.all fun alt => Id.run do
+    let p :: _ := alt.patterns | unreachable!
+    return match p with
+    | .inaccessible e    => e == x
+    | _                  => false
+
+private def processFirstVarDone (p : Problem) : Problem :=
+  { p with
+    vars := p.vars.tail!
+    alts := p.alts.map fun alt => { alt with patterns := alt.patterns.tail! } }
+
 private def tracedForM (xs : Array α) (process : α → StateRefT State MetaM Unit) : StateRefT State MetaM Unit :=
   if xs.size > 1 then
     for x in xs, i in [:xs.size] do
@@ -939,6 +1036,8 @@ private def tracedForM (xs : Array α) (process : α → StateRefT State MetaM U
       process x
 
 private partial def process (p : Problem) : StateRefT State MetaM Unit := do
+  unless p.alts.all (fun alt => alt.patterns.length == p.vars.length) do
+    throwError "Internal error: number of patterns and variables do not match"
   traceState p
   if isDone p then
     traceStep ("leaf")
@@ -948,6 +1047,18 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
   if (← isExFalsoTransition p) then
     traceStep ("ex falso")
     let p ← processExFalso p
+    process p
+    return
+
+  if hasIndependentPatterns p then
+    traceStep ("processing independent prefixes of patterns")
+    let p ← processIndependentPatterns p
+    process p
+    return
+
+  if isFirstVarDoneTransition p then
+    traceStep ("first var done")
+    let p := processFirstVarDone p
     process p
     return
 

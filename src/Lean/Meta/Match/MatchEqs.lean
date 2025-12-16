@@ -12,6 +12,7 @@ import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.SplitIf
 import Lean.Meta.Tactic.CasesOnStuckLHS
+import Lean.Meta.SplitSparseCasesOn
 import Lean.Meta.Match.SimpH
 import Lean.Meta.Match.AltTelescopes
 import Lean.Meta.Match.NamedPatterns

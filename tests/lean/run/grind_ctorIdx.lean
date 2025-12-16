@@ -1,5 +1,4 @@
 set_option warn.sorry false
-set_option grind.debug true
 
 inductive T where
 | con1 : Nat → T

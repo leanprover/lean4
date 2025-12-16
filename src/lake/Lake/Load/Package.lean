@@ -35,25 +35,25 @@ and the load configuaration.
 public def mkPackage
   (loadCfg : LoadConfig) (fileCfg : LakefileConfig) (wsIdx := loadCfg.pkgIdx)
 : Package :=
-  let {pkgDecl, targetDecls, targetDeclMap, postUpdateHooks, ..} := fileCfg
+  let {
+    pkgDir := dir, relPkgDir := relDir,
+    configFile, relConfigFile, relManifestFile,
+    scope, remoteUrl, ..} := loadCfg
+  let {
+    depConfigs, defaultTargets, scripts, defaultScripts, testDriver, lintDriver
+    -- destructing needed for type-correctness
+    pkgDecl, targetDecls, targetDeclMap, postUpdateHooks,
+    ..} := fileCfg
   let {baseName, keyName, origName, config} := pkgDecl
   {
     wsIdx, baseName, keyName, origName, config
-    dir := loadCfg.pkgDir
-    relDir := loadCfg.relPkgDir
-    configFile := loadCfg.configFile
-    relConfigFile := loadCfg.relConfigFile
-    relManifestFile := loadCfg.relManifestFile
-    scope := loadCfg.scope
-    remoteUrl := loadCfg.remoteUrl
-    depConfigs := fileCfg.depConfigs
-    targetDecls, targetDeclMap
-    defaultTargets := fileCfg.defaultTargets
-    scripts := fileCfg.scripts
-    defaultScripts := fileCfg.defaultScripts
+    dir, relDir, configFile, relConfigFile, relManifestFile
+    scope, remoteUrl
+    depConfigs
+    targetDecls, targetDeclMap, defaultTargets
+    scripts, defaultScripts
+    testDriver, lintDriver
     postUpdateHooks
-    testDriver := fileCfg.lintDriver
-    lintDriver := fileCfg.testDriver
   }
 
 public theorem wsIdx_mkPackage : (mkPackage l f i).wsIdx = i := by rfl

@@ -80,6 +80,7 @@ public def addEMatchTheorem (params : Grind.Params) (id : Ident) (declName : Nam
   | _ =>
     throwError "invalid `grind` parameter, `{.ofConstName declName}` is not a theorem, definition, or inductive type"
 
+mutual
 def processParam (params : Grind.Params)
     (p : TSyntax `Lean.Parser.Tactic.grindParam)
     (mod? : Option (TSyntax `Lean.Parser.Attr.grindMod))
@@ -87,15 +88,17 @@ def processParam (params : Grind.Params)
     (minIndexable : Bool)
     (only : Bool)
     (incremental : Bool)
-    : MetaM Grind.Params := do
+    : TermElabM Grind.Params := do
   let mut params := params
-  let declName ← try
-    realizeGlobalConstNoOverloadWithInfo id
-  catch err =>
+  let declName? ← try
+    pure <| some (← realizeGlobalConstNoOverloadWithInfo id)
+  catch _ =>
     if (← resolveLocalName id.getId).isSome then
       throwErrorAt id "redundant parameter `{id}`, `grind` uses local hypotheses automatically"
     else
-      throw err
+      -- Fall back to term elaboration for cases like `foo.le` (dot notation on declarations)
+      pure none
+  let some declName := declName? | return ← processTermParam params p mod? id minIndexable
   let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
   match kind with
   | .ematch .user =>
@@ -205,6 +208,7 @@ def processTermParam (params : Grind.Params)
     unless levelParams.isEmpty do
       throwError "invalid `grind` parameter, parameter type is not a `forall` and is universe polymorphic{indentExpr type}"
     return { params with extraFacts := params.extraFacts.push proof }
+end
 
 /--
 Elaborates `grind` parameters.

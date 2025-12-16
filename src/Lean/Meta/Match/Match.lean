@@ -176,11 +176,6 @@ private def isNextVar (p : Problem) : Bool :=
   | .fvar _ :: _ => true
   | _            => false
 
-private def hasAsPattern (p : Problem) : Bool :=
-  p.alts.any fun alt => match alt.patterns with
-    | .as .. :: _ => true
-    | _           => false
-
 private def hasCtorPattern (p : Problem) : Bool :=
   p.alts.any fun alt => match alt.patterns with
     | .ctor .. :: _ => true
@@ -435,41 +430,6 @@ where
       solveCnstrs p.mvarId alt
       for otherAlt in overlapped do
         modify fun s => { s with overlaps := s.overlaps.insert alt.idx otherAlt.idx }
-
-private def processAsPattern (p : Problem) : MetaM Problem := withGoalOf p do
-  let x :: _ := p.vars | unreachable!
-  let alts ← p.alts.mapM fun alt => do
-    match alt.patterns with
-    | .as fvarId p h :: ps =>
-      /- We used to use eagerly check the types here (using what was called `checkAndReplaceFVarId`),
-        but `x` and `fvarId` can have different types when dependent types are being used.
-        Let's consider the repro for issue #471
-        ```
-        inductive vec : Nat → Type
-        | nil : vec 0
-        | cons : Int → vec n → vec n.succ
-
-        def vec_len : vec n → Nat
-        | vec.nil => 0
-        | x@(vec.cons h t) => vec_len t + 1
-
-        ```
-        we reach the state
-        ```
-          [Meta.Match.match] remaining variables: [x✝:(vec n✝)]
-          alternatives:
-            [n:(Nat), x:(vec (Nat.succ n)), h:(Int), t:(vec n)] |- [x@(vec.cons n h t)] => h_1 n x h t
-            [x✝:(vec n✝)] |- [x✝] => h_2 n✝ x✝
-        ```
-        The variables `x✝:(vec n✝)` and `x:(vec (Nat.succ n))` have different types, but we perform the substitution anyway,
-        because we claim the "discrepancy" will be corrected after we process the pattern `(vec.cons n h t)`.
-        The right-hand-side is temporarily type incorrect, but we claim this is fine because it will be type correct again after
-        we the pattern `(vec.cons n h t)`. TODO: try to find a cleaner solution.
-       -/
-      let r ← mkEqRefl x
-      return { alt with patterns := p :: ps }.replaceFVarId fvarId x |>.replaceFVarId h r
-    | _ => return alt
-  return { p with alts := alts }
 
 /-!
 Note that we decided to store pending constraints to address issues exposed by #1279 and #1361.
@@ -1014,8 +974,6 @@ private def tracedForM (xs : Array α) (process : α → StateRefT State MetaM U
       process x
 
 private partial def process (p : Problem) : StateRefT State MetaM Unit := do
-  unless p.alts.all (fun alt => alt.patterns.length == p.vars.length) do
-    throwError "Internal error: number of patterns and variables do not match"
   traceState p
   if isDone p then
     traceStep ("leaf")
@@ -1037,12 +995,6 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
   if isFirstVarDoneTransition p then
     traceStep ("first var done")
     let p := processFirstVarDone p
-    process p
-    return
-
-  if hasAsPattern p then
-    traceStep ("as-pattern")
-    let p ← processAsPattern p
     process p
     return
 

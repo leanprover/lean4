@@ -11,52 +11,8 @@ public import Lean.Meta.WHNF
 public section
 
 partial def String.charactersIn (a b : String) : Bool :=
-  goFastSIMD ⟨0⟩ ⟨0⟩
+  goFastScalar ⟨0⟩ ⟨0⟩
 where
-  goFastSIMD (aPos bPos : String.Pos.Raw) : Bool :=
-    if ha : ¬aPos < a.rawEndPos then
-      true
-    else if hb : ¬bPos < b.rawEndPos then
-      false
-    else
-      let aRemaining := a.rawEndPos.byteIdx - aPos.byteIdx
-      let bRemaining := b.rawEndPos.byteIdx - bPos.byteIdx
-
-      if aRemaining >= 2 && bRemaining >= 2 then
-
-        let aByte1 := a.getUTF8Byte aPos (by simpa using ha)
-        let bByte1 := b.getUTF8Byte bPos (by simpa using hb)
-        let aByte2 := a.getUTF8Byte ⟨aPos.byteIdx + 1⟩ sorry
-        let bByte2 := b.getUTF8Byte ⟨bPos.byteIdx + 1⟩ sorry
-
-        let aWrong1 := (aByte1 &&& 0x80 != 0)
-        let bWrong1 := (bByte1 &&& 0x80 != 0)
-        let aWrong2 := (aByte2 &&& 0x80 != 0)
-        let bWrong2 := (bByte2 &&& 0x80 != 0)
-
-        if aWrong1 || bWrong1 || aWrong2 || bWrong2 then
-          go aPos bPos
-        else
-          if aByte1.toAsciiLower == bByte1.toAsciiLower then
-            if aByte2.toAsciiLower == bByte2.toAsciiLower then
-              let aPos := ⟨aPos.byteIdx + 2⟩
-              let bPos := ⟨bPos.byteIdx + 2⟩
-              goFastSIMD aPos bPos
-            else
-              let aPos := ⟨aPos.byteIdx + 1⟩
-              let bPos := ⟨bPos.byteIdx + 2⟩
-              goFastSIMD aPos bPos
-          else
-            if aByte1.toAsciiLower == bByte2.toAsciiLower then
-              let aPos := ⟨aPos.byteIdx + 1⟩
-              let bPos := ⟨bPos.byteIdx + 2⟩
-              goFastSIMD aPos bPos
-            else
-              let bPos := ⟨bPos.byteIdx + 2⟩
-              goFastSIMD aPos bPos
-      else
-        goFastScalar aPos bPos
-
   goFastScalar (aPos bPos : String.Pos.Raw) : Bool :=
     if ha : ¬aPos < a.rawEndPos then
       true

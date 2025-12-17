@@ -58,34 +58,34 @@ theorem Array.step_iter {array : Array β} :
         .done (Nat.not_lt.mp h) := by
   simp only [Array.iter_eq_iterFromIdx, Array.step_iterFromIdx]
 
-@[simp]
+@[simp, grind =]
 theorem Array.toList_iterFromIdx {array : Array β}
     {pos : Nat} :
     (array.iterFromIdx pos).toList = array.toList.drop pos := by
   simp [Iter.toList, Array.iterFromIdx_eq_toIter_iterFromIdxM, Iter.toIterM_toIter,
     Array.toList_iterFromIdxM]
 
-@[simp]
+@[simp, grind =]
 theorem Array.toList_iter {array : Array β} :
     array.iter.toList = array.toList := by
   simp [Array.iter_eq_iterFromIdx, Array.toList_iterFromIdx]
 
-@[simp]
+@[simp, grind =]
 theorem Array.toArray_iterFromIdx {array : Array β} {pos : Nat} :
     (array.iterFromIdx pos).toArray = array.extract pos := by
   simp [iterFromIdx_eq_toIter_iterFromIdxM, Iter.toArray]
 
-@[simp]
+@[simp, grind =]
 theorem Array.toArray_toIter {array : Array β} :
     array.iter.toArray = array := by
   simp [Array.iter_eq_iterFromIdx]
 
-@[simp]
+@[simp, grind =]
 theorem Array.toListRev_iterFromIdx {array : Array β} {pos : Nat} :
     (array.iterFromIdx pos).toListRev = (array.toList.drop pos).reverse := by
   simp [Iter.toListRev_eq, Array.toList_iterFromIdx]
 
-@[simp]
+@[simp, grind =]
 theorem Array.toListRev_toIter {array : Array β} :
     array.iter.toListRev = array.toListRev := by
   simp [Array.iter_eq_iterFromIdx]

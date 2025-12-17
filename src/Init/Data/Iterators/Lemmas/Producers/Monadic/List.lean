@@ -51,18 +51,18 @@ theorem Std.Iterators.Types.ListIterator.toArrayMapped_iterM [Monad n] [LawfulMo
     rw [IterM.DefaultConsumers.toArrayMapped_eq_match_step]
     simp [List.step_iterM_cons, List.mapM_cons, pure_bind, ih, LawfulMonadLiftFunction.lift_pure]
 
-@[simp]
+@[simp, grind =]
 theorem List.toArray_iterM [LawfulMonad m] {l : List β} :
     (l.iterM m).toArray = pure l.toArray := by
   simp only [IterM.toArray, ListIterator.toArrayMapped_iterM]
   rw [List.mapM_pure, map_pure, List.map_id']
 
-@[simp]
+@[simp, grind =]
 theorem List.toList_iterM [LawfulMonad m] {l : List β} :
     (l.iterM m).toList = pure l := by
   rw [← IterM.toList_toArray, List.toArray_iterM, map_pure, List.toList_toArray]
 
-@[simp]
+@[simp, grind =]
 theorem List.toListRev_iterM [LawfulMonad m] {l : List β} :
     (l.iterM m).toListRev = pure l.reverse := by
   simp [IterM.toListRev_eq, List.toList_iterM]

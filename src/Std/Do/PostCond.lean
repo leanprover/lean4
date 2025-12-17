@@ -171,7 +171,7 @@ def ExceptConds.entails {ps : PostShape.{u}} (x y : ExceptConds ps) : Prop :=
 @[inherit_doc ExceptConds.entails]
 scoped infixr:25 " ⊢ₑ " => ExceptConds.entails
 
-@[refl, simp]
+@[refl, simp, grind ←]
 theorem ExceptConds.entails.refl {ps : PostShape} (x : ExceptConds ps) : x ⊢ₑ x := by
   induction ps <;> simp [entails, *]
 

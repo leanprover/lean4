@@ -364,9 +364,9 @@ theorem Iter.foldlM_toList {α β : Type w} {γ : Type x} [Iterator α Id β] [F
     {m : Type x → Type x'} [Monad m] [LawfulMonad m] [IteratorLoop α Id m]
     [LawfulIteratorLoop α Id m] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {f : γ → β → m γ} {init : γ} {it : Iter (α := α) β} :
-    it.toList.foldlM (init := init) f = it.foldM (init := init) f := by
-  rw [Iter.foldM_eq_forIn, ← Iter.forIn_toList]
-  simp only [List.forIn_yield_eq_foldlM, id_map']
+    it.toList.foldlM (init := init) f = it.foldM (init := init) f:= by
+  rw [foldM_eq_forIn, ← Iter.forIn_toList]
+  simp
 
 theorem Iter.foldlM_toArray {α β : Type w} {γ : Type x} [Iterator α Id β] [Finite α Id]
     {m : Type x → Type x'} [Monad m] [LawfulMonad m] [IteratorLoop α Id m]

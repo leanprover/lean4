@@ -52,7 +52,7 @@ structure Server where
   /--
   Indicates when the server has successfully shutdown
   -/
-  shutdownPromise : Std.Promise Unit
+  shutdownPromise : Std.Future Unit
 
   /--
   Configuration of the server
@@ -67,7 +67,7 @@ Create a new `Server` structure with an optional configuration.
 def new (config : Std.Http.Config := {}) : IO Server := do
   let context ← Std.CancellationContext.new
   let activeConnections ← Std.Mutex.new 0
-  let shutdownPromise ← Std.Promise.new
+  let shutdownPromise ← Std.Future.new
 
   return { context, activeConnections, shutdownPromise, config }
 

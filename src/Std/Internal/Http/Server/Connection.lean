@@ -60,7 +60,7 @@ private def receiveWithTimeout
     (socket : Option α)
     (expect : UInt64)
     (channel : Option Body.ByteStream)
-    (response : Option (Std.Promise (Except Error (Response Body))))
+    (response : Option (Std.Future (Except Error (Response Body))))
     (timeoutMs : Millisecond.Offset)
     (keepAliveTimeoutMs : Option Millisecond.Offset)
     (connectionContext : CancellationContext) : Async Recv := do
@@ -93,7 +93,7 @@ private def processNeedMoreData
     (config : Config)
     (socket : Option α)
     (expect : Option Nat)
-    (response : Option (Std.Promise (Except Error (Response Body))))
+    (response : Option (Std.Future (Except Error (Response Body))))
     (channel : Option Body.ByteStream)
     (timeout : Millisecond.Offset)
     (keepAliveTimeout : Option Millisecond.Offset)
@@ -132,7 +132,7 @@ private def handle
   let mut keepAliveTimeout := some config.keepAliveTimeout.val
   let mut currentTimeout := config.keepAliveTimeout.val
 
-  let mut response ← Std.Promise.new
+  let mut response ← Std.Future.new
   let mut respStream := none
   let mut requiresData := false
   let mut needAnswer := false
@@ -186,7 +186,7 @@ private def handle
 
       | .next => do
         requestStream ← Body.ByteStream.emptyWithCapacity
-        response ← Std.Promise.new
+        response ← Std.Future.new
 
         if let some res := respStream then
           if (← res.isClosed) then res.close

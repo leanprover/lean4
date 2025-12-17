@@ -2126,8 +2126,8 @@ x_10 = lean_string_append(x_9, x_5);
 lean_dec(x_5);
 x_11 = l_Lean_moduleNameOfFileName___closed__1;
 x_12 = lean_string_append(x_10, x_11);
-x_13 = lean_string_append(x_12, x_7);
-lean_dec_ref(x_7);
+x_13 = lean_string_append(x_12, x_8);
+lean_dec_ref(x_8);
 x_14 = l_Lean_moduleNameOfFileName___closed__2;
 x_15 = lean_string_append(x_13, x_14);
 x_16 = lean_mk_io_user_error(x_15);
@@ -2151,8 +2151,8 @@ x_24 = lean_nat_dec_le(x_23, x_22);
 if (x_24 == 0)
 {
 lean_dec_ref(x_21);
-x_7 = x_19;
-x_8 = lean_box(0);
+x_7 = lean_box(0);
+x_8 = x_19;
 goto block_18;
 }
 else
@@ -2163,8 +2163,8 @@ x_26 = lean_string_memcmp(x_21, x_19, x_25, x_25, x_23);
 lean_dec_ref(x_21);
 if (x_26 == 0)
 {
-x_7 = x_19;
-x_8 = lean_box(0);
+x_7 = lean_box(0);
+x_8 = x_19;
 goto block_18;
 }
 else
@@ -2198,8 +2198,8 @@ return x_37;
 block_43:
 {
 lean_object* x_42; 
-x_42 = lean_string_append(x_40, x_41);
-lean_dec_ref(x_41);
+x_42 = lean_string_append(x_41, x_40);
+lean_dec_ref(x_40);
 x_19 = x_42;
 x_20 = lean_box(0);
 goto block_38;
@@ -2221,8 +2221,8 @@ x_51 = lean_nat_dec_le(x_50, x_49);
 if (x_51 == 0)
 {
 x_39 = lean_box(0);
-x_40 = x_47;
-x_41 = x_48;
+x_40 = x_48;
+x_41 = x_47;
 goto block_43;
 }
 else
@@ -2235,8 +2235,8 @@ lean_dec(x_53);
 if (x_54 == 0)
 {
 x_39 = lean_box(0);
-x_40 = x_47;
-x_41 = x_48;
+x_40 = x_48;
+x_41 = x_47;
 goto block_43;
 }
 else

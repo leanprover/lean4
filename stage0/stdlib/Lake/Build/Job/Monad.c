@@ -5822,8 +5822,8 @@ x_33 = lean_ctor_get(x_1, 1);
 lean_inc(x_33);
 lean_dec_ref(x_1);
 x_34 = lean_unsigned_to_nat(0u);
-x_10 = x_3;
-x_11 = x_34;
+x_10 = x_34;
+x_11 = x_3;
 x_12 = x_33;
 goto block_14;
 }
@@ -5840,11 +5840,11 @@ return x_8;
 block_14:
 {
 lean_object* x_13; 
-x_13 = lean_ctor_get(x_10, 1);
+x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
-lean_dec_ref(x_10);
+lean_dec_ref(x_11);
 x_4 = x_12;
-x_5 = x_11;
+x_5 = x_10;
 x_6 = x_13;
 goto block_9;
 }
@@ -5852,8 +5852,8 @@ block_18:
 {
 lean_object* x_17; 
 x_17 = lean_unsigned_to_nat(0u);
-x_10 = x_16;
-x_11 = x_17;
+x_10 = x_17;
+x_11 = x_16;
 x_12 = x_15;
 goto block_14;
 }
@@ -5945,8 +5945,8 @@ x_32 = lean_ctor_get(x_1, 1);
 lean_inc(x_32);
 lean_dec_ref(x_1);
 x_33 = lean_unsigned_to_nat(0u);
-x_10 = x_3;
-x_11 = x_33;
+x_10 = x_33;
+x_11 = x_3;
 x_12 = x_32;
 goto block_14;
 }
@@ -5963,11 +5963,11 @@ return x_8;
 block_14:
 {
 lean_object* x_13; 
-x_13 = lean_ctor_get(x_10, 1);
+x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
-lean_dec_ref(x_10);
+lean_dec_ref(x_11);
 x_4 = x_12;
-x_5 = x_11;
+x_5 = x_10;
 x_6 = x_13;
 goto block_9;
 }
@@ -5975,8 +5975,8 @@ block_17:
 {
 lean_object* x_16; 
 x_16 = lean_unsigned_to_nat(0u);
-x_10 = x_3;
-x_11 = x_16;
+x_10 = x_16;
+x_11 = x_3;
 x_12 = x_15;
 goto block_14;
 }

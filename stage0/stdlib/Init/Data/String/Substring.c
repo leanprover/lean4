@@ -51,6 +51,7 @@ LEAN_EXPORT lean_object* lean_substring_prev(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_Raw_splitOn___boxed(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Substring_0__Substring_Raw_splitOn_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_panic___at___00Substring_Raw_Internal_allImpl_spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Substring_Raw_contains___boxed(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT uint8_t l_Substring_Raw_all(lean_object*, lean_object*);
@@ -73,7 +74,6 @@ uint8_t l_String_Slice_contains___redArg(lean_object*, lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Substring_Raw_sameAs___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_Raw_drop(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
-LEAN_EXPORT lean_object* l_panic___at___00Substring_Raw_Internal_allImpl_spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Substring_Raw_toNat_x3f(lean_object*);
 lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instForwardPatternForallCharBool(lean_object*);
 LEAN_EXPORT lean_object* l_Substring_Raw_toString___boxed(lean_object*);
@@ -2743,7 +2743,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at___00Substring_Raw_Internal_allImpl_spec__2(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_panic___at___00Substring_Raw_Internal_allImpl_spec__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -2970,7 +2970,7 @@ block_13:
 {
 lean_object* x_11; lean_object* x_12; 
 x_11 = l_Substring_Raw_foldl___closed__3;
-x_12 = l_panic___at___00Substring_Raw_Internal_allImpl_spec__2(x_11);
+x_12 = l_panic___at___00Substring_Raw_Internal_allImpl_spec__1(x_11);
 x_3 = x_12;
 goto block_10;
 }
@@ -4533,7 +4533,7 @@ block_47:
 {
 lean_object* x_45; lean_object* x_46; 
 x_45 = l_Substring_Raw_foldl___closed__3;
-x_46 = l_panic___at___00Substring_Raw_Internal_allImpl_spec__2(x_45);
+x_46 = l_panic___at___00Substring_Raw_Internal_allImpl_spec__1(x_45);
 x_35 = x_46;
 goto block_44;
 }
@@ -4562,7 +4562,7 @@ block_11:
 {
 lean_object* x_9; lean_object* x_10; 
 x_9 = l_Substring_Raw_foldl___closed__3;
-x_10 = l_panic___at___00Substring_Raw_Internal_allImpl_spec__2(x_9);
+x_10 = l_panic___at___00Substring_Raw_Internal_allImpl_spec__1(x_9);
 x_2 = x_8;
 x_3 = x_10;
 goto block_7;

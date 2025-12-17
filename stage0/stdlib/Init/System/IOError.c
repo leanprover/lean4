@@ -53,13 +53,13 @@ LEAN_EXPORT lean_object* l___private_Init_System_IOError_0__IO_Error_downCaseFir
 LEAN_EXPORT lean_object* lean_mk_io_error_resource_vanished(uint32_t, lean_object*);
 static lean_object* l_IO_Error_toString___closed__7;
 lean_object* l_Nat_reprFast(lean_object*);
-uint32_t l_Char_toLower(uint32_t);
 LEAN_EXPORT lean_object* lean_mk_io_error_no_such_thing(uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Error_otherError_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Error_instToString;
 LEAN_EXPORT lean_object* l_IO_Error_noFileOrDirectory_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_mk_io_error_no_such_thing_file(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Error_inappropriateType_elim(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_IO_Error_noSuchThing_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeStringError;
 static lean_object* l_instInhabitedError___closed__0;
@@ -131,6 +131,7 @@ LEAN_EXPORT lean_object* l_IO_Error_interrupted_elim(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* lean_mk_io_error_already_exists_file(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* lean_io_error_to_string(lean_object*);
 LEAN_EXPORT lean_object* lean_mk_io_error_illegal_operation(uint32_t, lean_object*);
+uint32_t lean_uint32_add(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_IO_Error_illegalOperation_elim___redArg(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Error_mkInappropriateTypeFile___boxed(lean_object*, lean_object*, lean_object*);
@@ -1283,12 +1284,37 @@ return x_4;
 LEAN_EXPORT lean_object* l___private_Init_System_IOError_0__IO_Error_downCaseFirst(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint32_t x_3; uint32_t x_4; lean_object* x_5; 
+lean_object* x_2; uint32_t x_3; uint32_t x_4; uint8_t x_5; 
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_string_utf8_get(x_1, x_2);
-x_4 = l_Char_toLower(x_3);
-x_5 = lean_string_utf8_set(x_1, x_2, x_4);
-return x_5;
+x_4 = 65;
+x_5 = lean_uint32_dec_le(x_4, x_3);
+if (x_5 == 0)
+{
+lean_object* x_6; 
+x_6 = lean_string_utf8_set(x_1, x_2, x_3);
+return x_6;
+}
+else
+{
+uint32_t x_7; uint8_t x_8; 
+x_7 = 90;
+x_8 = lean_uint32_dec_le(x_3, x_7);
+if (x_8 == 0)
+{
+lean_object* x_9; 
+x_9 = lean_string_utf8_set(x_1, x_2, x_3);
+return x_9;
+}
+else
+{
+uint32_t x_10; uint32_t x_11; lean_object* x_12; 
+x_10 = 32;
+x_11 = lean_uint32_add(x_3, x_10);
+x_12 = lean_string_utf8_set(x_1, x_2, x_11);
+return x_12;
+}
+}
 }
 }
 static lean_object* _init_l_IO_Error_fopenErrorToString___closed__0() {

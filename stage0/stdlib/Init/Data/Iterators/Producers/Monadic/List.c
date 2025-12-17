@@ -18,15 +18,12 @@ LEAN_EXPORT lean_object* l_Std_Iterators_Types_ListIterator_instIteratorLoop___r
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_ListIterator_instIteratorLoop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Producers_Monadic_List_0__Std_Iterators_Types_ListIterator_instFinitenessRelation___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_iterM___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_Types_ListIterator_instIteratorCollect(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_iterM___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_ListIterator_instIteratorLoop___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_iterM(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_IterM_DefaultConsumers_toArrayMapped(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Producers_Monadic_List_0__Std_Iterators_Types_ListIterator_instFinitenessRelation(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_ListIterator_instIterator(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_iterM___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_Types_ListIterator_instIteratorCollect___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_ListIterator_instIteratorLoop___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_ListIterator_instIterator___redArg___lam__0(lean_object*, lean_object*);
 lean_object* l_WellFounded_opaqueFix_u2083___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -140,50 +137,6 @@ lean_object* x_4;
 x_4 = l___private_Init_Data_Iterators_Producers_Monadic_List_0__Std_Iterators_Types_ListIterator_instFinitenessRelation(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_Types_ListIterator_instIteratorCollect(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_6 = lean_ctor_get(x_3, 0);
-lean_inc_ref(x_6);
-lean_dec_ref(x_3);
-x_7 = lean_ctor_get(x_6, 1);
-lean_inc(x_7);
-lean_dec_ref(x_6);
-x_8 = lean_alloc_closure((void*)(l_Std_Iterators_Types_ListIterator_instIterator___redArg___lam__0), 2, 1);
-lean_closure_set(x_8, 0, x_7);
-x_9 = lean_alloc_closure((void*)(l_Std_IterM_DefaultConsumers_toArrayMapped), 10, 6);
-lean_closure_set(x_9, 0, lean_box(0));
-lean_closure_set(x_9, 1, lean_box(0));
-lean_closure_set(x_9, 2, lean_box(0));
-lean_closure_set(x_9, 3, lean_box(0));
-lean_closure_set(x_9, 4, x_5);
-lean_closure_set(x_9, 5, x_8);
-return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_Types_ListIterator_instIteratorCollect___redArg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_3);
-lean_dec_ref(x_1);
-x_4 = lean_ctor_get(x_3, 1);
-lean_inc(x_4);
-lean_dec_ref(x_3);
-x_5 = lean_alloc_closure((void*)(l_Std_Iterators_Types_ListIterator_instIterator___redArg___lam__0), 2, 1);
-lean_closure_set(x_5, 0, x_4);
-x_6 = lean_alloc_closure((void*)(l_Std_IterM_DefaultConsumers_toArrayMapped), 10, 6);
-lean_closure_set(x_6, 0, lean_box(0));
-lean_closure_set(x_6, 1, lean_box(0));
-lean_closure_set(x_6, 2, lean_box(0));
-lean_closure_set(x_6, 3, lean_box(0));
-lean_closure_set(x_6, 4, x_2);
-lean_closure_set(x_6, 5, x_5);
-return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_ListIterator_instIteratorLoop___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

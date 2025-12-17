@@ -18,18 +18,14 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_instIteratorLoopAssoc
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_iter___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_instIteratorLoopAssocListIteratorIdSigmaOfMonad___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_instIteratorLoopAssocListIteratorIdSigmaOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_instIteratorAssocListIteratorIdSigma___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_iter___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_instIteratorAssocListIteratorIdSigma(lean_object*, lean_object*);
-lean_object* l_Std_IterM_DefaultConsumers_toArrayMapped(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_iter(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_instIteratorLoopAssocListIteratorIdSigmaOfMonad___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_AssocList_Iterator_0__Std_DHashMap_Internal_AssocList_AssocListIterator_finitenessRelation(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_instIteratorLoopAssocListIteratorIdSigmaOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_WellFounded_opaqueFix_u2083___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_iter___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_instIteratorLoopAssocListIteratorIdSigmaOfMonad___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_instIteratorLoopAssocListIteratorIdSigmaOfMonad___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -84,37 +80,6 @@ _start:
 lean_object* x_3; 
 x_3 = lean_box(0);
 return x_3;
-}
-}
-static lean_object* _init_l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_AssocList_instIteratorAssocListIteratorIdSigma___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg___closed__0;
-x_3 = lean_alloc_closure((void*)(l_Std_IterM_DefaultConsumers_toArrayMapped), 10, 6);
-lean_closure_set(x_3, 0, lean_box(0));
-lean_closure_set(x_3, 1, lean_box(0));
-lean_closure_set(x_3, 2, lean_box(0));
-lean_closure_set(x_3, 3, lean_box(0));
-lean_closure_set(x_3, 4, x_1);
-lean_closure_set(x_3, 5, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg(x_4);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_instIteratorLoopAssocListIteratorIdSigmaOfMonad___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -324,8 +289,6 @@ lean_dec_ref(res);
 res = initialize_Std_Data_DHashMap_Internal_AssocList_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg___closed__0 = _init_l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg___closed__0();
-lean_mark_persistent(l_Std_DHashMap_Internal_AssocList_instIteratorCollectAssocListIteratorIdSigmaOfMonad___redArg___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -1045,21 +1045,28 @@ return x_4;
 LEAN_EXPORT lean_object* l_Lake_uriEncodeChar(uint32_t x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; uint8_t x_9; uint8_t x_16; uint32_t x_23; uint8_t x_24; 
-x_23 = 65;
-x_24 = lean_uint32_dec_le(x_23, x_1);
-if (x_24 == 0)
+uint8_t x_3; uint8_t x_9; uint32_t x_21; uint8_t x_22; 
+x_21 = 65;
+x_22 = lean_uint32_dec_le(x_21, x_1);
+if (x_22 == 0)
 {
-x_16 = x_24;
-goto block_22;
+goto block_20;
 }
 else
 {
-uint32_t x_25; uint8_t x_26; 
-x_25 = 90;
-x_26 = lean_uint32_dec_le(x_1, x_25);
-x_16 = x_26;
-goto block_22;
+uint32_t x_23; uint8_t x_24; 
+x_23 = 90;
+x_24 = lean_uint32_dec_le(x_1, x_23);
+if (x_24 == 0)
+{
+goto block_20;
+}
+else
+{
+lean_object* x_25; 
+x_25 = lean_string_push(x_2, x_1);
+return x_25;
+}
 }
 block_8:
 {
@@ -1115,32 +1122,23 @@ x_14 = lean_string_push(x_2, x_1);
 return x_14;
 }
 }
-block_22:
+block_20:
 {
-if (x_16 == 0)
+uint32_t x_16; uint8_t x_17; 
+x_16 = 97;
+x_17 = lean_uint32_dec_le(x_16, x_1);
+if (x_17 == 0)
 {
-uint32_t x_17; uint8_t x_18; 
-x_17 = 97;
-x_18 = lean_uint32_dec_le(x_17, x_1);
-if (x_18 == 0)
-{
-x_9 = x_18;
+x_9 = x_17;
 goto block_15;
 }
 else
 {
-uint32_t x_19; uint8_t x_20; 
-x_19 = 122;
-x_20 = lean_uint32_dec_le(x_1, x_19);
-x_9 = x_20;
+uint32_t x_18; uint8_t x_19; 
+x_18 = 122;
+x_19 = lean_uint32_dec_le(x_1, x_18);
+x_9 = x_19;
 goto block_15;
-}
-}
-else
-{
-lean_object* x_21; 
-x_21 = lean_string_push(x_2, x_1);
-return x_21;
 }
 }
 }

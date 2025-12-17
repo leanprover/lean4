@@ -52,7 +52,7 @@ trace: [Compiler.saveMono] size: 7
       let _x.7 := List.cons ◾ _x.1 _x.6;
       let _x.8 := List.newForIn._at_.testing.spec_1 _x.1 _x.7 x;
       return _x.8
-[Compiler.saveMono] size: 13
+[Compiler.saveMono] size: 12
     def List.newForIn._at_.testing.spec_1 _x.1 l b : Nat :=
       cases l : Nat
       | List.nil =>
@@ -63,12 +63,11 @@ trace: [Compiler.saveMono] size: 7
         let _x.6 := Nat.add _x.5 _x.1;
         let _x.7 := 1;
         let _x.8 := Nat.sub _x.6 _x.7;
-        let _x.9 := Nat.mul _x.1 _x.8;
-        let _x.10 := Nat.add head.2 _x.9;
-        let _x.11 := [] ◾;
-        let _x.12 := List.range'TR.go _x.1 _x.8 _x.10 _x.11;
-        let _x.13 := List.newForIn._at_.testing.spec_0._at_.List.newForIn._at_.testing.spec_1.spec_2 _x.1 tail.3 head.2 _x.12 b;
-        return _x.13
+        let _x.9 := Nat.add head.2 _x.8;
+        let _x.10 := [] ◾;
+        let _x.11 := List.range'TR.go _x.1 _x.8 _x.9 _x.10;
+        let _x.12 := List.newForIn._at_.testing.spec_0._at_.List.newForIn._at_.testing.spec_1.spec_2 _x.1 tail.3 head.2 _x.11 b;
+        return _x.12
 -/
 #guard_msgs in
 set_option trace.Compiler.saveMono true in
@@ -113,7 +112,7 @@ trace: [Compiler.saveMono] size: 7
       let _x.7 := List.cons ◾ _x.1 _x.6;
       let _x.8 := List.newForIn._at_.testing2.spec_0 _x.1 _x.7 x;
       return _x.8
-[Compiler.saveMono] size: 15
+[Compiler.saveMono] size: 14
     def List.newForIn._at_.testing2.spec_0 _x.1 l b : Nat :=
       cases l : Nat
       | List.nil =>
@@ -126,12 +125,11 @@ trace: [Compiler.saveMono] size: 7
         let _x.7 := Nat.add _x.6 _x.1;
         let _x.8 := 1;
         let _x.9 := Nat.sub _x.7 _x.8;
-        let _x.10 := Nat.mul _x.1 _x.9;
-        let _x.11 := Nat.add head.2 _x.10;
-        let _x.12 := [] ◾;
-        let _x.13 := List.range'TR.go _x.1 _x.9 _x.11 _x.12;
-        let _x.14 := List.newForIn._at_.testing.spec_0._at_.List.newForIn._at_.testing2.spec_0.spec_1 _x.1 tail.3 head.2 _x.13 x;
-        return _x.14
+        let _x.10 := Nat.add head.2 _x.9;
+        let _x.11 := [] ◾;
+        let _x.12 := List.range'TR.go _x.1 _x.9 _x.10 _x.11;
+        let _x.13 := List.newForIn._at_.testing.spec_0._at_.List.newForIn._at_.testing2.spec_0.spec_1 _x.1 tail.3 head.2 _x.12 x;
+        return _x.13
 -/
 #guard_msgs in
 set_option trace.Compiler.saveMono true in
@@ -204,7 +202,7 @@ trace: [Compiler.saveMono] size: 9
       let _x.7 := List.cons ◾ _x.1 _x.6;
       let _x.8 := List.newForIn._at_.testing3.spec_1 _x.1 _x.7 x;
       return _x.8
-[Compiler.saveMono] size: 13
+[Compiler.saveMono] size: 12
     def List.newForIn._at_.testing3.spec_1 _x.1 l b : Nat :=
       cases l : Nat
       | List.nil =>
@@ -215,12 +213,11 @@ trace: [Compiler.saveMono] size: 9
         let _x.6 := Nat.add _x.5 _x.1;
         let _x.7 := 1;
         let _x.8 := Nat.sub _x.6 _x.7;
-        let _x.9 := Nat.mul _x.1 _x.8;
-        let _x.10 := Nat.add head.2 _x.9;
-        let _x.11 := [] ◾;
-        let _x.12 := List.range'TR.go _x.1 _x.8 _x.10 _x.11;
-        let _x.13 := List.newForIn._at_.testing3.spec_0._at_.List.newForIn._at_.testing3.spec_1.spec_2 _x.1 tail.3 b head.2 _x.12 b;
-        return _x.13
+        let _x.9 := Nat.add head.2 _x.8;
+        let _x.10 := [] ◾;
+        let _x.11 := List.range'TR.go _x.1 _x.8 _x.9 _x.10;
+        let _x.12 := List.newForIn._at_.testing3.spec_0._at_.List.newForIn._at_.testing3.spec_1.spec_2 _x.1 tail.3 b head.2 _x.11 b;
+        return _x.12
 -/
 #guard_msgs in
 set_option trace.Compiler.saveMono true in

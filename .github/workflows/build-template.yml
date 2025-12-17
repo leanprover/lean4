@@ -73,7 +73,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Namespace Checkout
         if: endsWith(matrix.os, '-with-cache')
-        uses: namespacelabs/nscloud-checkout-action@v7
+        uses: namespacelabs/nscloud-checkout-action@v8
         with:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Open Nix shell once

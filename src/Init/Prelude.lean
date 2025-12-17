@@ -692,6 +692,11 @@ set_option linter.unusedVariables.funArgs false in
 /-- Auxiliary declaration used to implement named patterns like `x@h:p`. -/
 @[reducible] def namedPattern {α : Sort u} (x a : α) (h : Eq x a) : α := a
 
+
+set_option linter.unusedVariables.funArgs false in
+/-- Gadget for internal use by the match equation compiler  -/
+@[reducible] def overlapAssumption {α : Sort u} (h : α) (P : Prop) : Prop := P
+
 /--
 Auxiliary axiom used to implement the `sorry` term and tactic.
 

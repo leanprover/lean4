@@ -71,6 +71,13 @@ private def solveWithGrind (mvarId : MVarId) : MetaM Unit := do
     grindFallback mvarId
   trace[Meta.Match.matchEqs] "solved by grind"
 
+private def findOverlapAssumption (alt : FVarId) : MetaM (Option FVarId) := do
+  for decl in ← getLCtx do
+    if decl.type.isAppOfArity `overlapAssumption 3 then
+      if decl.type.appFn!.appArg!.isFVarOf alt then
+        return some decl.fvarId
+  return none
+
 private partial def proveCongrEqThm (matchDeclName : Name) (thmName : Name) (mvarId : MVarId) : MetaM Unit := do
   withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} proveCongrEqThm {thmName}")) do
   let mvarId ← mvarId.deltaTarget (· == matchDeclName)
@@ -118,15 +125,17 @@ where
       (throwMatchEqnFailedMessage matchDeclName thmName mvarId)
     else
       let mvarId ← mvarId.exfalso
-      solveWithGrind mvarId
-      <|>
-      -- We need contradiction only for genDiseq. We could be smart about recognizing
-      -- the right assumption to use here, and call processGenDiseq directly, avoiding
-      -- contradiction
-      (do mvarId.contradiction { genDiseq := true }
-          trace[Meta.Match.matchEqs] "solved by contradiction")
-      <|>
-      (throwMatchEqnFailedMessage matchDeclName thmName mvarId)
+      mvarId.withContext do
+      if let some overlapAssumption ← findOverlapAssumption lhsFn then
+          trace[Meta.Match.matchEqs] "Trying to use overlap assumption {mkFVar overlapAssumption}"
+          unless (← processGenDiseq mvarId (← overlapAssumption.getDecl)) do
+            throwError m!"failed to generate equality theorem {thmName} for `match` expression `{matchDeclName}`. \
+              In overlapped case, could not derive contradiction from the overlap assumption."
+          trace[Meta.Match.matchEqs] "solved by processGenDiseq"
+      else
+        solveWithGrind mvarId
+        <|>
+        (throwMatchEqnFailedMessage matchDeclName thmName mvarId)
 
 /--
 Given an application of an matcher arm `alt` that is expecting the `numDiscrEqs`, and
@@ -197,14 +206,17 @@ where go thmName :=
       withLocalDeclsDND' `heq heqsTypes fun heqs => do
         let rhs ← Match.mkAppDiscrEqs (mkAppN alt args) heqs numDiscrEqs
         let overlappedBys : Array Nat := matchInfo.overlaps.overlapping i
-        let hs_discr ← overlappedBys.mapM fun overlappedBy => do
+        let hs_discrs ← overlappedBys.mapM fun overlappedBy => do
           -- we need to start with the overlap assumptions applid to the abstract
           -- discriminants, so that they are picked up reliably by `contradiction`
           -- We later simplify them to expose the them applied to the patterns
           -- to match what the splitter provides
-          genNotAltType matchInfo discrs alts overlappedBy
-        trace[Meta.Match.matchEqs] "hs (abstract): {hs_discr}"
-        let thmVal ← withLocalDeclsDND' `hnot hs_discr fun hs_discrs => do
+          let h ← genNotAltType matchInfo discrs alts overlappedBy
+          -- We remember the association from `alt` to the corresponding overlap assumption,
+          -- to avoid having to try all of them later
+          mkAppM `overlapAssumption #[alts[overlappedBy]!, h]
+        trace[Meta.Match.matchEqs] "hs (abstract): {hs_discrs}"
+        let thmVal ← withLocalDeclsDND' `hnot hs_discrs fun hs_discrs => do
           let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
           let thmType ← mkHEq lhs rhs
           let thmType ← unfoldNamedPattern thmType
@@ -228,7 +240,7 @@ where go thmName :=
           let thmVal ← instantiateMVars thmVal
           mkLambdaFVars hs_discrs thmVal
         -- Now we simplify the overlap assumptions
-        let hs_discr ← hs_discr.mapM mkFreshExprSyntheticOpaqueMVar
+        let hs_discr ← hs_discrs.mapM mkFreshExprSyntheticOpaqueMVar
         let thmVal := mkAppN thmVal hs_discr
         let hs_pat : Array MVarId ←
           withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} simplify overlap assumptions")) do

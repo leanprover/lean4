@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Basic
 import Lean.Meta.Tactic.Contradiction
+import Lean.Meta.Tactic.Replace
 
 namespace Lean.Meta.Match.SimpH
 
@@ -127,6 +128,8 @@ hypothesis, and either closes it or returns a residual goal whose type is the si
 theorem hypothesis.
 -/
 public partial def simpH (mvarId : MVarId) (numEqs : Nat) : MetaM (Option MVarId) := withDefault do
+  -- reduce away a possible overlapAssumption gadget
+  let mvarId ← mvarId.modifyTarget fun type => whnfForall type
   let numVars ← forallTelescope (← mvarId.getType) fun ys _ => pure (ys.size - numEqs)
   let mvarId ← mvarId.tryClearMany (← getLCtx).getFVarIds
   let (xs, mvarId) ← mvarId.introN numVars

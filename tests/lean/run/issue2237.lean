@@ -76,10 +76,12 @@ error: Failed to realize constant plus.match_1.congr_eq_1:
   ⏎
   Γ : Context
   a : Ty
+  motive : Term Γ a → Sort u_1
   x✝ : Term Γ a
+  h_3 : (a : Term ( ✶ :: Γ) ✶ ) → (m : Term Γ ✶ ) → motive (a.lam.ap m)
   l m : Term Γ ✶
   heq✝ : x✝ ≍ l.ap m
-  ⊢ ∀ (a_1 : Term ( ✶ :: Γ) ✶ ) (m : Term Γ ✶ ), x✝ ≍ a_1.lam.ap m → False
+  ⊢ overlapAssumption h_3 (∀ (a_1 : Term ( ✶ :: Γ) ✶ ) (m : Term Γ ✶ ), x✝ ≍ a_1.lam.ap m → False)
 ---
 error: Unknown constant `plus.match_1.congr_eq_1`
 -/

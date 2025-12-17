@@ -77,6 +77,7 @@ def matchOptionUnit (o? : Option Unit) : Bool := Id.run do
     else
       false
 
+
 /--
 info: matchOptionUnit.match_1.congr_eq_1.{u_1} (motive : Option Unit → Sort u_1) (o?✝ : Option Unit)
   (h_1 : (val : Unit) → motive (some val)) (h_2 : (x : Option Unit) → motive x) (val✝ : Unit) (heq : o?✝ = some val✝) :

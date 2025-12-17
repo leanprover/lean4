@@ -1,3 +1,4 @@
+set_option trace.Meta.Match.matchEqs true
 mutual
   def f : Nat → α → α → α
     | 0, a, b => a

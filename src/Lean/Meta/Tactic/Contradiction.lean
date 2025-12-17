@@ -92,8 +92,11 @@ private def elimEmptyInductive (mvarId : MVarId) (fvarId : FVarId) (fuel : Nat) 
 /--
   See `Simp.isEqnThmHypothesis`
 -/
-private abbrev isGenDiseq (e : Expr) : Bool :=
-  Simp.isEqnThmHypothesis e
+private partial def isGenDiseq (e : Expr) : Bool :=
+  if e.isAppOfArity `overlapAssumption 3 then
+    isGenDiseq e.appArg!
+  else
+    Simp.isEqnThmHypothesis e
 
 /--
   Given `e` s.t. `isGenDiseq e`, generate a bit-mask `mask` s.t. `mask[i] = true` iff
@@ -116,11 +119,12 @@ where
   ```
   This kind of hypotheses is created when we generate conditional equations for match expressions.
 -/
-private def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bool := do
+def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bool := do
   assert! isGenDiseq localDecl.type
+  let type ← whnfForall localDecl.type
   let val? ← withNewMCtxDepth do
-    let (args, _, _) ← forallMetaTelescope localDecl.type
-    let mask  := mkGenDiseqMask localDecl.type
+    let (args, _, _) ← forallMetaTelescope type
+    let mask  := mkGenDiseqMask type
     for arg in args, useRefl in mask do
       if useRefl then
         /- Remark: we should not try to use `refl` for equalities that have forward dependencies because

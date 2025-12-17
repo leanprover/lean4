@@ -94,8 +94,14 @@ example (h : Nat.hasNotBit 5 x.ctorIdx) (heq_1 : x = S.mk1 n) : False := by grin
 
 -- Int constructor injectivity
 
+-- TODO:
+
+/-- error: grind failed -/
+#guard_msgs in
 example (heq : Int.ofNat x = Int.ofNat n) : x = n := by
   grind_for_match
 
+/-- error: grind failed -/
+#guard_msgs in
 example (heq : Int.negSucc x = Int.negSucc n) : x = n := by
   grind_for_match

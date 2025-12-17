@@ -29,35 +29,15 @@ open Std.Internal Std.Iterators
 
 section ToArray
 
-def IterM.DefaultConsumers.toArrayMapped.RecursionRel {α β : Type w} {m : Type w → Type w'}
-    [Iterator α m β] {γ : Type w} (x' x : (_ : IterM (α := α) m β) ×' Array γ) : Prop :=
-  (∃ out, x.1.IsPlausibleStep (.yield x'.1 out) ∧ ∃ fx, x'.2 = x.2.push fx) ∨
-    (x.1.IsPlausibleStep (.skip x'.1) ∧ x'.2 = x.2)
-
 /--
-This is an internal function used in `IteratorCollect.defaultImplementation`. -- TODO
-
-It iterates over an iterator and applies `f` whenever a value is emitted before inserting the result
-of `f` into an array.
+If this relation is well-founded, then `IterM.toArray`, `IterM.toList` and `IterM.toListRev` are
+guaranteed to finish after finitely many steps. If all of the iterator's steps terminate
+individually, `IterM.toArray` is guaranteed to terminate.
 -/
-@[always_inline, no_expose]
-def IterM.DefaultConsumers.toArrayMapped {α β : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} [Monad n] [Iterator α m β]
-    (lift : ⦃α : Type w⦄ → m α → n α) {γ : Type w} (f : β → n γ)
-    (it : IterM (α := α) m β) : n (Array γ) :=
-  letI : MonadLift m n := ⟨lift (α := _)⟩
-  go it #[]
-where
-  @[always_inline]
-  go it (acc : Array γ) : n (Array γ) :=
-    letI : MonadLift m n := ⟨lift (α := _)⟩
-    WellFounded.extrinsicFix₂ (C₂ := fun _ _ => n (Array γ)) (InvImage TerminationMeasures.Finite.Rel (·.1.finitelyManySteps!))
-    (fun (it : IterM (α := α) m β) acc recur => do
-      match (← it.step).inflate with
-      | .yield it' out h =>
-        recur it' (acc.push (← f out)) (by exact TerminationMeasures.Finite.rel_of_yield ‹_›)
-      | .skip it' h => recur it' acc (by exact TerminationMeasures.Finite.rel_of_skip ‹_›)
-      | .done _ => return acc) it acc
+def IterM.toArray.RecursionRel {α β : Type w} {m : Type w → Type w'}
+    [Iterator α m β] {γ : Type w} (x' x : (_ : IterM (α := α) m β) ×' Array γ) : Prop :=
+  (∃ out, x.1.IsPlausibleStep (.yield x'.1 out) ∧ ∃ a, x'.2 = x.2.push a) ∨
+    (x.1.IsPlausibleStep (.skip x'.1) ∧ x'.2 = x.2)
 
 /--
 Traverses the given iterator and stores the emitted values in an array.
@@ -68,7 +48,17 @@ If the iterator is not finite, this function might run forever. The variant
 @[always_inline, inline]
 def IterM.toArray {α β : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β]
     (it : IterM (α := α) m β) : m (Array β) :=
-  DefaultConsumers.toArrayMapped (fun ⦃_⦄ => id) pure it
+  go it #[]
+where
+  @[always_inline]
+  go it (acc : Array β) : m (Array β) :=
+    WellFounded.extrinsicFix₂ (C₂ := fun _ _ => m (Array β)) (InvImage TerminationMeasures.Finite.Rel (·.1.finitelyManySteps!))
+    (fun (it : IterM (α := α) m β) acc recur => do
+      match (← it.step).inflate with
+      | .yield it' out h =>
+        recur it' (acc.push out) (by exact TerminationMeasures.Finite.rel_of_yield ‹_›)
+      | .skip it' h => recur it' acc (by exact TerminationMeasures.Finite.rel_of_skip ‹_›)
+      | .done _ => return acc) it acc
 
 /--
 Traverses the given iterator and stores the emitted values in an array.

@@ -314,8 +314,7 @@ theorem Iter.toList_map [Finite α Id] {f : β → γ} :
   simp [map_eq_toIter_map_toIterM, IterM.toList_map, Iter.toList_eq_toList_toIterM]
 
 @[simp]
-theorem Iter.toList_filter[Finite α Id]
-    {f : β → Bool} :
+theorem Iter.toList_filter [Finite α Id] {f : β → Bool} :
     (it.filter f).toList = it.toList.filter f := by
   simp [filter_eq_toIter_filter_toIterM, IterM.toList_filter, Iter.toList_eq_toList_toIterM]
 

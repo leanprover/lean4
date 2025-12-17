@@ -208,7 +208,7 @@ private def updateAndMaterializeDep
   (ws : Workspace) (pkg : Package) (dep : Dependency)
 : UpdateT LoggerIO MaterializedDep := do
   if let some entry ← fetch? dep.name then
-    entry.materialize ws.lakeEnv ws.dir ws.relPkgsDir
+    entry.materialize ws.lakeEnv ws.dir ws.relPkgsDir ws.isMultiVersion
   else
     let inherited := !pkg.isRoot
     /-
@@ -220,7 +220,8 @@ private def updateAndMaterializeDep
     Adding a `.` here eliminates this difference.
     -/
     let relPkgDir := if pkg.relDir == "." then pkg.relDir else pkg.relDir / "."
-    let matDep ← dep.materialize inherited ws.lakeEnv ws.dir ws.relPkgsDir relPkgDir
+    let matDep ← dep.materialize inherited
+      ws.lakeEnv ws.dir ws.relPkgsDir relPkgDir ws.isMultiVersion
     store matDep.name matDep.manifestEntry
     return matDep
 
@@ -425,6 +426,7 @@ public def Workspace.materializeDeps
   (overrides : Array PackageEntry := #[])
 : LoggerIO Workspace := do
   -- Load locked dependencies
+  -- TODO?: record `isMultiVersion` flag in manifest
   if !manifest.packages.isEmpty && manifest.packagesDir? != some (mkRelPathString ws.relPkgsDir) then
     logWarning <|
       "manifest out of date: packages directory changed; \
@@ -445,7 +447,7 @@ public def Workspace.materializeDeps
   -- Materialize all dependencies
   ws.resolveDepsCore (leanOpts := leanOpts) (reconfigure := reconfigure) fun pkg dep ws => do
     if let some entry := pkgEntries.find? dep.name then
-      entry.materialize ws.lakeEnv ws.dir relPkgsDir
+      entry.materialize ws.lakeEnv ws.dir relPkgsDir ws.isMultiVersion
     else
       if pkg.isRoot then
         error <|

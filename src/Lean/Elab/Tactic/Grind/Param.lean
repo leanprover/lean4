@@ -149,15 +149,17 @@ def processParam (params : Grind.Params)
     (incremental : Bool)
     : TermElabM Grind.Params := do
   let mut params := params
-  let declName? ← try
-    pure <| some (← realizeGlobalConstNoOverloadWithInfo id)
-  catch _ =>
+  let declName ← try
+    realizeGlobalConstNoOverloadWithInfo id
+  catch err =>
     if (← resolveLocalName id.getId).isSome then
       throwErrorAt id "redundant parameter `{id}`, `grind` uses local hypotheses automatically"
+    else if !id.getId.getPrefix.isAnonymous then
+      -- Fall back to term elaboration for compound identifiers like `foo.le` (dot notation on declarations)
+      return ← processTermParam params p mod? id minIndexable
     else
-      -- Fall back to term elaboration for cases like `foo.le` (dot notation on declarations)
-      pure none
-  let some declName := declName? | return ← processTermParam params p mod? id minIndexable
+      throw err
+  Linter.checkDeprecated declName
   let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
   match kind with
   | .ematch .user =>

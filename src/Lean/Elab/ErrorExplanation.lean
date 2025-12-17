@@ -89,8 +89,8 @@ def elabCheckedNamedError : TermElab := fun stx expType? => do
       logWarningAt id m!"The error name `{name}` was removed in Lean version {removedVersion} and \
         should not be used."
   else
-    logErrorAt id m!"There is no explanation associated with the name `{name}`. \
-      Add an explanation of this error to the `Lean.ErrorExplanations` module."
+    logErrorAt id m!"There is no explanation registered with the name `{name}`. \
+      Register an explanation for this error in the `Lean.ErrorExplanation` module."
   let stx' ← liftMacroM <| expandNamedErrorMacro stx
   elabTerm stx' expType?
 

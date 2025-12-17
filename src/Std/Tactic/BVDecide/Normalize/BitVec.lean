@@ -493,6 +493,9 @@ theorem BitVec.mul_beq_mul_short_circuit_right {x y₁ y₂ : BitVec w} :
   intros
   congr
 
+theorem BitVec.beq_self_eq_true (a : BitVec w) : (a == a) = true := by
+  apply _root_.beq_self_eq_true
+
 @[int_toBitVec]
 theorem UInt8.toBitVec_cond :
     UInt8.toBitVec (bif c then t else e) = bif c then t.toBitVec else e.toBitVec := by

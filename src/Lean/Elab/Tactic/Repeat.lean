@@ -13,6 +13,19 @@ public section
 
 namespace Lean.Elab.Tactic
 
+@[builtin_tactic tacticRepeat_]
+def evalRepeat : Tactic := fun stx => do
+  -- Does not work while the old macro is still in scope
+  --match stx with
+  --| `(tactic| repeat $tac:tacticSeq) =>
+  let tac := stx[1]
+  withoutRecover do
+    while true do
+      try
+        evalTactic tac
+      catch _ =>
+        break
+
 @[builtin_tactic repeat']
 def evalRepeat' : Tactic := fun stx => do
   match stx with

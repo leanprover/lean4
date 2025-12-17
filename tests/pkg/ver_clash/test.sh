@@ -38,6 +38,7 @@ popd
 pushd DiamondExample-B
 $LAKE update
 init_git
+B_REV=`git rev-parse HEAD`
 popd
 
 pushd DiamondExample-C
@@ -51,6 +52,7 @@ sed_i s/poorly_named_lemma/add_left_comm/ DiamondExampleC/MainResult.lean
 $LAKE update
 git commit -am "use v2"
 git tag v2
+C_REV=`git rev-parse HEAD`
 popd
 
 pushd DiamondExample-D
@@ -79,7 +81,7 @@ git switch v2 --detach
 test_err 'Unknown identifier `poorly_named_lemma`' build
 
 # Test build with different package names
-sed_i '/name/ s/A/A-v1/' .lake/packages/DiamondExample-B/lakefile.toml
-sed_i '/name/ s/A/A-v2/' .lake/packages/DiamondExample-C/lakefile.toml
+sed_i '/name/ s/A/A-v1/' .lake/packages/DiamondExample-B/$B_REV/lakefile.toml
+sed_i '/name/ s/A/A-v2/' .lake/packages/DiamondExample-C/$C_REV/lakefile.toml
 test_run update
 test_run build

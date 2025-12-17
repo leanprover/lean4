@@ -31453,7 +31453,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" tactic: The `with` keyword must followed by a tactic or by an alternative (e.g. `| zero =>`), but here it is followed by the identifier `", 138, 138);
+x_1 = lean_mk_string_unchecked(" tactic: The `with` keyword must be followed by a tactic or by an alternative (e.g. `| zero =>`), but here it is followed by the identifier `", 141, 141);
 return x_1;
 }
 }

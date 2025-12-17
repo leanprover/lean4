@@ -13,7 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_instMonadAttachReaderTOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_instAlternativeOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instMonadAttachReaderTOfMonad___redArg___lam__0___boxed(lean_object*);
 lean_object* l_ReaderT_instFunctorOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadControlReaderT___lam__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_failure___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -25,9 +27,12 @@ LEAN_EXPORT lean_object* l_instMonadControlReaderT___lam__0(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_ReaderT_instAlternativeOfMonad___redArg(lean_object*, lean_object*);
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_instAlternativeOfMonad___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instMonadAttachReaderTOfMonad___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_instMonadControlReaderT___lam__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_instAlternativeOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instMonadAttachReaderTOfMonad(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_orElse(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instMonadAttachReaderTOfMonad___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_orElse___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instFunctorOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadControlReaderT(lean_object*, lean_object*);
@@ -348,6 +353,61 @@ lean_object* x_2;
 x_2 = lean_alloc_closure((void*)(l_ReaderT_tryFinally___redArg___lam__1), 6, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_instMonadAttachReaderTOfMonad___redArg___lam__0(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_instMonadAttachReaderTOfMonad___redArg___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_instMonadAttachReaderTOfMonad___redArg___lam__0(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_instMonadAttachReaderTOfMonad___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_7 = lean_ctor_get(x_1, 0);
+lean_inc(x_7);
+lean_dec_ref(x_1);
+x_8 = lean_apply_1(x_5, x_6);
+x_9 = lean_apply_2(x_2, lean_box(0), x_8);
+x_10 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_3, x_9);
+return x_10;
+}
+}
+LEAN_EXPORT lean_object* l_instMonadAttachReaderTOfMonad___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_3);
+lean_dec_ref(x_1);
+x_4 = lean_ctor_get(x_3, 0);
+lean_inc_ref(x_4);
+lean_dec_ref(x_3);
+x_5 = lean_alloc_closure((void*)(l_instMonadAttachReaderTOfMonad___redArg___lam__0___boxed), 1, 0);
+x_6 = lean_alloc_closure((void*)(l_instMonadAttachReaderTOfMonad___redArg___lam__1), 6, 3);
+lean_closure_set(x_6, 0, x_4);
+lean_closure_set(x_6, 1, x_2);
+lean_closure_set(x_6, 2, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_instMonadAttachReaderTOfMonad(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_instMonadAttachReaderTOfMonad___redArg(x_3, x_4);
+return x_5;
 }
 }
 lean_object* initialize_Init_Control_Except(uint8_t builtin);

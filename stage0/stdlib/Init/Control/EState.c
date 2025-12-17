@@ -25,7 +25,9 @@ static lean_object* l_EStateM_instToStringResult___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_EStateM_instToStringResult(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_instToStringResult___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_instReprResult___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_EStateM_instMonadAttach(lean_object*, lean_object*);
 static lean_object* l_EStateM_instReprResult___redArg___lam__0___closed__3;
+LEAN_EXPORT lean_object* l_EStateM_instMonadAttach___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_instMonadFinally(lean_object*, lean_object*);
@@ -239,6 +241,65 @@ _start:
 lean_object* x_6; 
 x_6 = l_EStateM_instReprResult___redArg(x_4, x_5);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_EStateM_instMonadAttach___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_apply_1(x_2, x_3);
+if (lean_obj_tag(x_4) == 0)
+{
+uint8_t x_5; 
+x_5 = !lean_is_exclusive(x_4);
+if (x_5 == 0)
+{
+return x_4;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_6 = lean_ctor_get(x_4, 0);
+x_7 = lean_ctor_get(x_4, 1);
+lean_inc(x_7);
+lean_inc(x_6);
+lean_dec(x_4);
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_6);
+lean_ctor_set(x_8, 1, x_7);
+return x_8;
+}
+}
+else
+{
+uint8_t x_9; 
+x_9 = !lean_is_exclusive(x_4);
+if (x_9 == 0)
+{
+return x_4;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_10 = lean_ctor_get(x_4, 0);
+x_11 = lean_ctor_get(x_4, 1);
+lean_inc(x_11);
+lean_inc(x_10);
+lean_dec(x_4);
+x_12 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_12, 0, x_10);
+lean_ctor_set(x_12, 1, x_11);
+return x_12;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_EStateM_instMonadAttach(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_EStateM_instMonadAttach___lam__0), 3, 0);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_EStateM_orElse_x27(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, uint8_t x_8, lean_object* x_9) {

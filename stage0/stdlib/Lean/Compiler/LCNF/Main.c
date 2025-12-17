@@ -7842,7 +7842,7 @@ lean_object* x_14; lean_object* x_15; lean_object* x_16;
 x_14 = lean_ctor_get(x_11, 2);
 lean_inc(x_14);
 x_15 = l_Lean_Compiler_LCNF_PassManager_run___closed__0;
-x_16 = l_Lean_profileitM___at___00Lean_Compiler_LCNF_PassManager_run_spec__10___redArg(x_15, x_14, x_7, x_8, x_9, x_10, x_11, x_12);
+x_16 = l_Lean_profileitM___at___00Lean_Compiler_LCNF_PassManager_run_spec__10___redArg(x_15, x_14, x_8, x_7, x_9, x_10, x_11, x_12);
 lean_dec(x_14);
 return x_16;
 }
@@ -7944,8 +7944,8 @@ lean_dec(x_73);
 if (x_75 == 0)
 {
 lean_dec(x_70);
-x_7 = x_74;
-x_8 = x_60;
+x_7 = x_60;
+x_8 = x_74;
 x_9 = x_2;
 x_10 = x_3;
 x_11 = x_39;
@@ -7964,8 +7964,8 @@ lean_dec(x_70);
 if (lean_obj_tag(x_77) == 0)
 {
 lean_dec_ref(x_77);
-x_7 = x_74;
-x_8 = x_60;
+x_7 = x_60;
+x_8 = x_74;
 x_9 = x_2;
 x_10 = x_3;
 x_11 = x_39;

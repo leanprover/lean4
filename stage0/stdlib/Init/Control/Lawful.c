@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Lawful
-// Imports: public import Init.Control.Lawful.Basic public import Init.Control.Lawful.Instances public import Init.Control.Lawful.Lemmas public import Init.Control.Lawful.MonadLift
+// Imports: public import Init.Control.Lawful.Basic public import Init.Control.Lawful.Instances public import Init.Control.Lawful.Lemmas public import Init.Control.Lawful.MonadLift public import Init.Control.Lawful.MonadAttach
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,6 +17,7 @@ lean_object* initialize_Init_Control_Lawful_Basic(uint8_t builtin);
 lean_object* initialize_Init_Control_Lawful_Instances(uint8_t builtin);
 lean_object* initialize_Init_Control_Lawful_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Control_Lawful_MonadLift(uint8_t builtin);
+lean_object* initialize_Init_Control_Lawful_MonadAttach(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Control_Lawful(uint8_t builtin) {
 lean_object * res;
@@ -32,6 +33,9 @@ res = initialize_Init_Control_Lawful_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Control_Lawful_MonadLift(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_Lawful_MonadAttach(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

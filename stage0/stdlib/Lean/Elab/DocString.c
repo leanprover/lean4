@@ -53912,7 +53912,7 @@ static lean_object* _init_l_Lean_Doc_elabInline___lam__2___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Unkown role `", 13, 13);
+x_1 = lean_mk_string_unchecked("Unknown role `", 14, 14);
 return x_1;
 }
 }

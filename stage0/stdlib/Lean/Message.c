@@ -8985,7 +8985,7 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_Message_toString(lean_object* x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_15; lean_object* x_16; uint32_t x_17; lean_object* x_21; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_44; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_15; uint8_t x_16; uint32_t x_17; lean_object* x_21; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_44; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
@@ -9029,18 +9029,18 @@ x_18 = 10;
 x_19 = lean_uint32_dec_eq(x_17, x_18);
 if (x_19 == 0)
 {
-x_11 = x_16;
+x_11 = x_15;
 goto block_14;
 }
 else
 {
-if (x_15 == 0)
+if (x_16 == 0)
 {
-return x_16;
+return x_15;
 }
 else
 {
-x_11 = x_16;
+x_11 = x_15;
 goto block_14;
 }
 }
@@ -9065,8 +9065,8 @@ if (lean_obj_tag(x_26) == 0)
 uint32_t x_27; 
 lean_dec_ref(x_25);
 x_27 = 65;
-x_15 = x_24;
-x_16 = x_21;
+x_15 = x_21;
+x_16 = x_24;
 x_17 = x_27;
 goto block_20;
 }
@@ -9083,8 +9083,8 @@ if (lean_obj_tag(x_29) == 0)
 {
 uint32_t x_30; 
 x_30 = 65;
-x_15 = x_24;
-x_16 = x_21;
+x_15 = x_21;
+x_16 = x_24;
 x_17 = x_30;
 goto block_20;
 }
@@ -9096,8 +9096,8 @@ lean_inc(x_31);
 lean_dec_ref(x_29);
 x_32 = lean_unbox_uint32(x_31);
 lean_dec(x_31);
-x_15 = x_24;
-x_16 = x_21;
+x_15 = x_21;
+x_16 = x_24;
 x_17 = x_32;
 goto block_20;
 }

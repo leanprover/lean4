@@ -17,5 +17,6 @@ public import Std.Sync.Broadcast
 public import Std.Sync.StreamMap
 public import Std.Sync.CancellationToken
 public import Std.Sync.CancellationContext
+public import Std.Sync.Future
 
 @[expose] public section

@@ -14,7 +14,7 @@ def theTimeInTheFuture : Async ByteArray := do
 def tick :=
   Iter.repeat (fun _ => ()) () |>.mapM (fun _ => theTimeInTheFuture)
 
-def writeToStream (s : Body.ByteStream) {α : Type} [Iterator α Async ByteArray] [IteratorLoopPartial α Async Async]
+def writeToStream (s : Body.ByteStream) {α : Type} [Iterator α Async ByteArray] [IteratorLoop α Async Async]
     (i : Std.IterM (α := α) Async ByteArray) (count : Nat) : Async Unit := do
   let mut n := 0
   for b in i.allowNontermination do

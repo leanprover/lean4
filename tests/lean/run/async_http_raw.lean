@@ -23,7 +23,7 @@ def sendRawBytes (pair : Mock.Client × Mock.Server) (data : ByteArray)
 
   client.send data
   Std.Http.Server.serveConnection server onRequest config
-  |>.run (← CancellationContext.new)
+  |>.runIn (← CancellationContext.new)
 
   let res ← client.recv?
   pure <| res.getD .empty

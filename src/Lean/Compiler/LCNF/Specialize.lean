@@ -243,8 +243,9 @@ def shouldSpecialize (specEntry : SpecEntry) (args : Array Arg) : SpecializeM Bo
 
         We thought about lifting this restriction and instead always specializing `@[specialize]`
         decls twice, once at their definition site and once at their call site. However, almost all
-        `@[specialize]` function declarations will indeed get specialized properly. Hence keeping
-        the first version around is likely a waste of space.
+        `@[specialize]` function declarations will indeed get specialized for a non-trivial function
+        instead of just an argument. Hence keeping the first version around is likely a waste of
+        space because it will often end up going unused.
         -/
         match arg with
         | .erased | .type .. => return false

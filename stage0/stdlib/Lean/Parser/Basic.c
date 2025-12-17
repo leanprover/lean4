@@ -987,6 +987,13 @@ LEAN_EXPORT lean_object* l___private_Lean_Parser_Basic_0__Lean_Parser_isHexDigit
 LEAN_EXPORT lean_object* l_Lean_Parser_checkLinebreakBeforeFn(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_instReprRecoveryContext_repr___redArg___closed__18;
 static lean_object* l_Lean_Parser_instReprLeadingIdentBehavior_repr___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Parser_dbgTraceStateFn___lam__0(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_inc_ref(x_1);
+return x_1;
+}
+}
 static lean_object* _init_l_List_foldl___at___00List_toString___at___00Lean_Parser_dbgTraceStateFn_spec__0_spec__0___closed__0() {
 _start:
 {
@@ -1112,13 +1119,6 @@ x_26 = lean_string_push(x_24, x_25);
 return x_26;
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Parser_dbgTraceStateFn___lam__0(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_inc_ref(x_1);
-return x_1;
 }
 }
 static lean_object* _init_l_Lean_Parser_dbgTraceStateFn___closed__0() {
@@ -8009,6 +8009,14 @@ x_6 = l_Lean_Parser_decimalNumberFn(x_1, x_5, x_3, x_4);
 return x_6;
 }
 }
+static lean_object* _init_l_Lean_Parser_binNumberFn___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("binary number", 13, 13);
+return x_1;
+}
+}
 LEAN_EXPORT uint8_t l_Lean_Parser_binNumberFn___lam__0(uint32_t x_1) {
 _start:
 {
@@ -8026,14 +8034,6 @@ else
 {
 return x_3;
 }
-}
-}
-static lean_object* _init_l_Lean_Parser_binNumberFn___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("binary number", 13, 13);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Parser_binNumberFn___lam__0___boxed(lean_object* x_1) {
@@ -8069,6 +8069,14 @@ x_6 = l_Lean_Parser_binNumberFn(x_1, x_5, x_3, x_4);
 return x_6;
 }
 }
+static lean_object* _init_l_Lean_Parser_octalNumberFn___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("octal number", 12, 12);
+return x_1;
+}
+}
 LEAN_EXPORT uint8_t l_Lean_Parser_octalNumberFn___lam__0(uint32_t x_1) {
 _start:
 {
@@ -8086,14 +8094,6 @@ x_4 = 55;
 x_5 = lean_uint32_dec_le(x_1, x_4);
 return x_5;
 }
-}
-}
-static lean_object* _init_l_Lean_Parser_octalNumberFn___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("octal number", 12, 12);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Parser_octalNumberFn___lam__0___boxed(lean_object* x_1) {
@@ -8211,6 +8211,14 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
+static lean_object* _init_l_Lean_Parser_hexNumberFn___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("hexadecimal number", 18, 18);
+return x_1;
+}
+}
 LEAN_EXPORT uint8_t l_Lean_Parser_hexNumberFn___lam__0(uint32_t x_1) {
 _start:
 {
@@ -8280,14 +8288,6 @@ else
 return x_8;
 }
 }
-}
-}
-static lean_object* _init_l_Lean_Parser_hexNumberFn___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("hexadecimal number", 18, 18);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Parser_hexNumberFn___lam__0___boxed(lean_object* x_1) {
@@ -8972,6 +8972,15 @@ lean_dec(x_2);
 return x_8;
 }
 }
+LEAN_EXPORT uint8_t l___private_Lean_Parser_Basic_0__Lean_Parser_identFnAux_parse___lam__1(uint32_t x_1) {
+_start:
+{
+uint32_t x_2; uint8_t x_3; 
+x_2 = 187;
+x_3 = lean_uint32_dec_eq(x_1, x_2);
+return x_3;
+}
+}
 LEAN_EXPORT uint8_t l___private_Lean_Parser_Basic_0__Lean_Parser_identFnAux_parse___lam__0(uint32_t x_1) {
 _start:
 {
@@ -9105,15 +9114,6 @@ else
 return x_20;
 }
 }
-}
-}
-LEAN_EXPORT uint8_t l___private_Lean_Parser_Basic_0__Lean_Parser_identFnAux_parse___lam__1(uint32_t x_1) {
-_start:
-{
-uint32_t x_2; uint8_t x_3; 
-x_2 = 187;
-x_3 = lean_uint32_dec_eq(x_1, x_2);
-return x_3;
 }
 }
 static lean_object* _init_l___private_Lean_Parser_Basic_0__Lean_Parser_identFnAux_parse___closed__0() {

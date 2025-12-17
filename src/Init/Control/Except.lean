@@ -329,3 +329,8 @@ instance ExceptT.finally {m : Type u → Type v} {ε : Type u} [MonadFinally m] 
     | (.ok a,    .ok b)    => pure (.ok (a, b))
     | (_,        .error e) => pure (.error e)  -- second error has precedence
     | (.error e, _)        => pure (.error e)
+
+instance [Monad m] [MonadAttach m] : MonadAttach (ExceptT ε m) where
+  CanReturn x a := MonadAttach.CanReturn (m := m) x (.ok a)
+  attach x := show m (Except ε _) from
+      (fun ⟨a, h⟩ => match a with | .ok a => .ok ⟨a, h⟩ | .error e => .error e) <$> MonadAttach.attach (m := m) x

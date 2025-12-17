@@ -25,7 +25,8 @@ Concretely, the following operations are provided:
 Some operations are implemented using the `IteratorCollect` type class.
 -/
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 /--
 Traverses the given iterator and stores the emitted values in an array.
@@ -131,4 +132,4 @@ def Iter.Total.toList {α : Type w} {β : Type w}
     List β :=
   it.it.toList
 
-end Std.Iterators
+end Std

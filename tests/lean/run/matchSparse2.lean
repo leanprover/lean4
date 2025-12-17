@@ -23,14 +23,23 @@ def List.nth : (as : List α) → (i : Fin as.length) → α
   | a::as, ⟨0, _⟩   => a
   | a::as, ⟨i+1, h⟩ => nth as ⟨i, Nat.lt_of_succ_lt_succ h⟩
 
+-- set_option trace.Meta.Match.match true
 
--- So does this, taken from the standard library
+-- This, taken from the standard library, used to work, but it was
+-- fragile and broke with sparse matching and refacotrings in #11695
+-- and the error message is rather helpful actually
+
+/--
+error: Missing cases:
+_, (Int.negSucc _), _
+-/
+#guard_msgs in
 example : (a b : Int) → (h : a * b = 0) → a = 0 ∨ b = 0
   | .ofNat 0, _, _ => by simp
   | _, .ofNat 0, _ => by simp
   | .ofNat (a+1), .negSucc b, h => by cases h
 
--- When we use the sparse cases more aggressively, we had to write it like this
+-- We can fix it this way:
 example : (a b : Int) → (h : a * b = 0) → a = 0 ∨ b = 0
   | .ofNat 0, _, _ => by simp
   | _, .ofNat 0, _ => by simp

@@ -26,6 +26,14 @@ public def mkToCtorIdxName (indName : Name) : Name :=
 public def mkCtorIdxName (indName : Name) : Name :=
   Name.mkStr indName "ctorIdx"
 
+public def isCtorIdxCore? (env : Environment) (declName : Name) : Option InductiveVal := do
+  let .str indName "ctorIdx" := declName | none
+  let indInfo ← isInductiveCore? env indName
+  return indInfo
+
+public def isCtorIdx? (declName : Name) : MetaM (Option InductiveVal) := do
+  return isCtorIdxCore? (← getEnv) declName
+
 /--
 For an inductive type `T` with more than one function builds a function `T.ctorIdx : T → Nat` that
 returns the constructor index of the given value.
@@ -71,20 +79,21 @@ public def mkCtorIdx (indName : Name) : MetaM Unit :=
             value := mkApp value alt
           pure value
         mkLambdaFVars (xs.push x) value
+      let hints := ReducibilityHints.regular (getMaxHeight (← getEnv) declValue + 1)
       let decl := .defnDecl (← mkDefinitionValInferringUnsafe
         (name        := declName)
         (levelParams := info.levelParams)
         (type        := declType)
         (value       := declValue)
-        (hints       := ReducibilityHints.abbrev)
+        (hints       := hints)
       )
       addDecl decl
       modifyEnv fun env => addToCompletionBlackList env declName
       modifyEnv fun env => addProtected env declName
-      setReducibleAttribute declName
       if info.numCtors = 1 then
         setInlineAttribute declName .macroInline
       compileDecl decl
+      enableRealizationsForConst declName
 
       -- Deprecated alias for enumeration types (which used to have `toCtorIdx`)
       if (← isEnumType indName) then

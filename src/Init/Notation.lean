@@ -634,7 +634,7 @@ syntax (name := deprecated) "deprecated" (ppSpace ident)? (ppSpace str)?
     (" (" &"since" " := " str ")")? : attr
 
 /--
-The attribute `@[suggest_for]` on a declaration suggests likely ways in which
+The attribute `@[suggest_for ..]` on a declaration suggests likely ways in which
 someone might **incorrectly** refer to a definition.
 
 * `@[suggest_for String.endPos]` on the definition of `String.rawEndPos` suggests that `"str".endPos` might be correctable to `"str".rawEndPos`.
@@ -644,6 +644,10 @@ The namespace of the suggestions is always relative to the root namespace. In th
 adding an annotation `@[suggest_for Z.bar]` to `def Z.foo` will suggest `X.Y.Z.foo` only as a
 replacement for `Z.foo`. If your intent is to suggest `X.Y.Z.foo` as a replacement for
 `X.Y.Z.bar`, you must instead use the annotation `@[suggest_for X.Y.Z.bar]`.
+
+Suggestions can be defined for structure fields or inductive branches with the
+`attribute [suggest_for Exception] Except` syntax, and these attributes do not have to be added
+in the same module where the actual identifier was defined.
 -/
 syntax (name := suggest_for) "suggest_for" (ppSpace ident)+ : attr
 

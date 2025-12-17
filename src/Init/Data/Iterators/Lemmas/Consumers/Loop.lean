@@ -15,7 +15,8 @@ import Init.Data.Array.Monadic
 
 public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 theorem Iter.forIn'_eq {α β : Type w} [Iterator α Id β] [Finite α Id]
     {m : Type x → Type x'} [Monad m] [LawfulMonad m] [IteratorLoop α Id m] [hl : LawfulIteratorLoop α Id m]
@@ -938,4 +939,4 @@ theorem Iter.findM?_pure {α β : Type w} {m : Type w → Type w'} [Monad m]
   · simp [ihs ‹_›]
   · simp
 
-end Std.Iterators
+end Std

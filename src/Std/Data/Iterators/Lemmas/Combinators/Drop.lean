@@ -12,7 +12,8 @@ public import Init.Data.Iterators.Lemmas.Combinators.Take
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 theorem Iter.drop_eq {α β} [Iterator α Id β] {n : Nat}
     {it : Iter (α := α) β} :
@@ -59,17 +60,6 @@ theorem Iter.toListRev_drop {α β} [Iterator α Id β] {n : Nat}
     (it.drop n).toListRev = (it.toList.reverse.take (it.toList.length - n)) := by
   rw [toListRev_eq, toList_drop, List.reverse_drop]
 
-theorem List.drop_eq_extract {l : List α} {k : Nat} :
-    l.drop k = l.extract k := by
-  induction l generalizing k
-  case nil => simp
-  case cons _ _ ih =>
-    match k with
-    | 0 => simp
-    | _ + 1 =>
-      simp only [List.drop_succ_cons, List.length_cons, ih]
-      simp only [List.extract_eq_drop_take, Nat.reduceSubDiff, List.drop_succ_cons]
-
 @[simp]
 theorem Iter.toArray_drop {α β} [Iterator α Id β] {n : Nat}
     [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
@@ -77,4 +67,4 @@ theorem Iter.toArray_drop {α β} [Iterator α Id β] {n : Nat}
     (it.drop n).toArray = it.toArray.extract n := by
   rw [← toArray_toList, ← toArray_toList, ← List.toArray_drop, toList_drop]
 
-end Std.Iterators
+end Std

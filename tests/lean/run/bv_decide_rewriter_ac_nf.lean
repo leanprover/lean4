@@ -19,7 +19,7 @@ elab "bv_ac_nf" : tactic =>
 /- NOTE: the expression in this test is used as an example in the `bv_ac_nf` tactic
 documentation. Any changes to the behaviour of this test should be reflected in
 that docstring also. -/
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs in
 theorem mul_mul_beq_mul_mul (x₁ x₂ y₁ y₂ z : BitVec 4) :
     (x₁ * (y₁ * z)) == (x₂ * (y₂ * z)) := by
@@ -27,7 +27,7 @@ theorem mul_mul_beq_mul_mul (x₁ x₂ y₁ y₂ z : BitVec 4) :
   guard_target =ₛ (z * (x₁ * y₁) == z * (x₂ * y₂)) = true
   sorry
 
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs in
 theorem ex_1 (x y z k₁ k₂ l₁ l₂ m₁ m₂ v : BitVec w) :
     m₁ * x * (y * l₁ * k₁) * z == v * (k₂ * l₂ * x * y) * z * m₂ := by
@@ -35,7 +35,7 @@ theorem ex_1 (x y z k₁ k₂ l₁ l₂ m₁ m₂ v : BitVec w) :
   guard_target =ₛ (x * y * z * (m₁ * l₁ * k₁) == x * y * z * (v * k₂ * l₂ * m₂)) = true
   sorry
 
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs in
 theorem ex_2 (x y : BitVec w) (h₁ : y = x) :
     x * x * x * x == y * x * x * y := by
@@ -44,7 +44,7 @@ theorem ex_2 (x y : BitVec w) (h₁ : y = x) :
   sorry
 
 -- This theorem is short-circuited and scales to standard bitwidths.
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs in
 theorem mul_beq_mul_eq_right (x y z : BitVec 64) (h : x = y) :
     x * z == y * z := by
@@ -53,7 +53,7 @@ theorem mul_beq_mul_eq_right (x y z : BitVec 64) (h : x = y) :
   sorry
 
 -- This theorem is short-circuited and scales to standard bitwidths.
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs in
 theorem mul_beq_mul_eq_left (x y z : BitVec 64) (h : x = y) :
     z * x == z * y := by
@@ -61,7 +61,7 @@ theorem mul_beq_mul_eq_left (x y z : BitVec 64) (h : x = y) :
   guard_target =ₛ (z * x == z * y) = true
   sorry
 
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs in
 theorem short_circuit_triple_mul (x x_1 x_2 : BitVec 32) (h : ¬x_2 &&& 4096#32 == 0#32) :
     (x_1 ||| 4096#32) * x * (x_1 ||| 4096#32) = (x_1 ||| x_2 &&& 4096#32) * x * (x_1 ||| 4096#32) := by
@@ -107,7 +107,7 @@ namespace Normalize
 local macro "bv_normalize" : tactic =>
   `(tactic| bv_normalize (config := {acNf := true, shortCircuit := true}))
 
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs in
 theorem mul_mul_eq_mul_mul (x₁ x₂ y₁ y₂ z : BitVec 4) (h₁ : x₁ = x₂) (h₂ : y₁ = y₂) :
     x₁ * (y₁ * z) = x₂ * (y₂ * z) := by
@@ -116,7 +116,7 @@ theorem mul_mul_eq_mul_mul (x₁ x₂ y₁ y₂ z : BitVec 4) (h₁ : x₁ = x�
   guard_hyp tgt :ₛ (!!(!x₁ * y₁ == x₂ * y₂ && !z * (x₁ * y₁) == z * (x₂ * y₂))) = true
   sorry
 
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs in
 theorem mul_eq_mul_eq_right (x y z : BitVec 64) (h : x = y) :
     x * z = y * z := by

@@ -5,7 +5,7 @@
    "severity": 2,
    "range":
    {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 7}},
-   "message": "declaration uses 'sorry'",
+   "message": "declaration uses `sorry`",
    "fullRange":
    {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 7}}},
   {"source": "Lean 4",
@@ -37,12 +37,12 @@
   {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 7}},
   "message":
   {"append":
-   [{"tag": [{"expr": {"text": "declaration uses '"}}, {"text": ""}]},
+   [{"tag": [{"expr": {"text": "declaration uses `"}}, {"text": ""}]},
     {"tag":
      [{"expr":
        {"tag": [{"subexprPos": "/", "info": {"p": "0"}}, {"text": "sorry"}]}},
       {"text": ""}]},
-    {"tag": [{"expr": {"text": "'"}}, {"text": ""}]}]},
+    {"tag": [{"expr": {"text": "`"}}, {"text": ""}]}]},
   "fullRange":
   {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 7}}},
  {"source": "Lean 4",

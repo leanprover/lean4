@@ -6,4 +6,4 @@ i : α
 f : (j : α) → β j
 x : α
 ⊢ (if h : x = i then ⋯ ▸ f i else f x) = f x
-1856.lean:10:4-10:13: warning: declaration uses 'sorry'
+1856.lean:10:4-10:13: warning: declaration uses `sorry`

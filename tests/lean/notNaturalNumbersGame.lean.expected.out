@@ -1,7 +1,7 @@
 notNaturalNumbersGame.lean:6:20: error: unknown tactic
-notNaturalNumbersGame.lean:6:14-6:20: error(lean.inductionWithNoAlts): Invalid syntax for induction tactic: The `with` keyword must followed by a tactic or by an alternative (e.g. `| zero =>`), but here it is followed by the identifier `n`.
+notNaturalNumbersGame.lean:6:14-6:20: error(lean.inductionWithNoAlts): Invalid syntax for induction tactic: The `with` keyword must be followed by a tactic or by an alternative (e.g. `| zero =>`), but here it is followed by the identifier `n`.
 notNaturalNumbersGame.lean:13:16: error: unknown tactic
-notNaturalNumbersGame.lean:13:10-13:16: error(lean.inductionWithNoAlts): Invalid syntax for case analysis tactic: The `with` keyword must followed by a tactic or by an alternative (e.g. `| zero =>`), but here it is followed by the identifier `n`.
+notNaturalNumbersGame.lean:13:10-13:16: error(lean.inductionWithNoAlts): Invalid syntax for case analysis tactic: The `with` keyword must be followed by a tactic or by an alternative (e.g. `| zero =>`), but here it is followed by the identifier `n`.
 notNaturalNumbersGame.lean:22:2-22:11: error: Alternative `zero` has not been provided
 notNaturalNumbersGame.lean:22:2-22:11: error: Alternative `succ` has not been provided
 notNaturalNumbersGame.lean:25:2-25:7: error: Alternative `zero` has not been provided

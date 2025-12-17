@@ -10,7 +10,7 @@ macro:max P:term noWs "[" term "]" : term => `(foo $P fun x => 0)
 
 /-! This used to give a kernel error even though there is a succeeding interpretation. -/
 
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs in
 theorem kernel_error
     (L : List Nat) (hL : L.length = 2 ∧ ∀ i : Fin L.length, L[i] = 0) (i : Nat) :

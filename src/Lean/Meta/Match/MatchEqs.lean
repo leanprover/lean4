@@ -14,8 +14,8 @@ import Lean.Meta.Tactic.SplitIf
 import Lean.Meta.Tactic.CasesOnStuckLHS
 import Lean.Meta.Match.SimpH
 import Lean.Meta.Match.AltTelescopes
-import Lean.Meta.Match.SolveOverlap
 import Lean.Meta.Match.NamedPatterns
+import Lean.Meta.SplitSparseCasesOn
 
 public section
 
@@ -94,6 +94,10 @@ where
       (do let mvarId ← unfoldElimOffset mvarId; return #[mvarId])
       <|>
       (casesOnStuckLHS mvarId)
+      <|>
+      (reduceSparseCasesOn mvarId)
+      <|>
+      (splitSparseCasesOn mvarId)
       <|>
       (do let mvarId' ← simpIfTarget mvarId (useDecide := true) (useNewSemantics := true)
           if mvarId' == mvarId then throwError "simpIf failed"
@@ -229,7 +233,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
       assert! matchInfo.altInfos == splitterAltInfos
       -- This match statement does not need a splitter, we can use itself for that.
       -- (We still have to generate a declaration to satisfy the realizable constant)
-      addAndCompile <| Declaration.defnDecl {
+      addAndCompile (logCompileErrors := false) <| Declaration.defnDecl {
         name        := splitterName
         levelParams := constInfo.levelParams
         type        := constInfo.type

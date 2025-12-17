@@ -36,4 +36,6 @@ public theorem LawfulOrderOrd.isGE_compare_eq_false {α : Type u} [Ord α] [LE �
     (compare a b).isGE = false ↔ ¬ b ≤ a := by
   simp [← isGE_compare]
 
+public abbrev LawfulOrderCmp (cmp : α → α → Ordering) [LE α] := @Std.LawfulOrderOrd α ⟨cmp⟩ _
+
 end Std

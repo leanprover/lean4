@@ -18,15 +18,6 @@ namespace Lean
 
 open Meta
 
-def withPrimedNames (xs : Array Expr) (k : MetaM α) : MetaM α := do
-  let lctx ← getLCtx
-  let lctx := lctx.modifyLocalDecls fun decl =>
-    if xs.contains (mkFVar decl.fvarId) then
-      decl.setUserName (decl.userName.appendAfter "'")
-    else
-      decl
-  withLCtx lctx (← getLocalInstances) k
-
 /--
 Constructs a lambda expression that returns the argument to the `noConfusion` principle for a given
 constructor. In particular, returns
@@ -262,9 +253,9 @@ def mkNoConfusionCoreImp (indName : Name) : MetaM Unit := do
     (value       := e)
     (hints       := ReducibilityHints.abbrev)))
   setReducibleAttribute declName
-  let arity := info.numParams + 1 + 3 * (info.numIndices + 1)
-  let lhsPos := info.numParams + 1 + info.numIndices
-  let rhsPos := info.numParams + 1 + info.numIndices + 1 + info.numIndices
+  let arity  := 1 + 3 * (info.numParams + info.numIndices + 1)
+  let lhsPos := 1 + info.numParams + info.numIndices
+  let rhsPos := 1 + 2 * info.numParams + 2 * info.numIndices + 1
   modifyEnv fun env => markNoConfusion env declName (.regular arity lhsPos rhsPos)
   modifyEnv fun env => addProtected env declName
 

@@ -1092,6 +1092,13 @@ def _root_.Lean.Expr.abstractM (e : Expr) (xs : Array Expr) : MetaM Expr :=
   e.abstractRangeM xs.size xs
 
 /--
+Replace occurrences of the free variables `fvars` in `e` with `vs`.
+Similar to `Expr.replaceFVars`, but handles metavariables correctly.
+-/
+def _root_.Lean.Expr.replaceFVarsM (e : Expr) (fvars : Array Expr) (vs : Array Expr) : MetaM Expr :=
+  return (← e.abstractM fvars).instantiateRev vs
+
+/--
 Collect forward dependencies for the free variables in `toRevert`.
 Recall that when reverting free variables `xs`, we must also revert their forward dependencies.
 
@@ -1209,10 +1216,6 @@ Any zeta-delta reductions recorded while executing `x` will *not* persist when l
 @[inline] def withTrackingZetaDelta : n α → n α :=
   mapMetaM fun x =>
     withFreshCache <| withReader (fun ctx => { ctx with trackZetaDelta := true }) <| withResetZetaDeltaFVarIds x
-
-@[deprecated withTrackingZetaDelta (since := "2025-06-12")]
-def resetZetaDeltaFVarIds : MetaM Unit :=
-  modify fun s => { s with zetaDeltaFVarIds := {} }
 
 /--
 `withTrackingZetaDeltaSet s x` executes `x` in a context where `zetaDeltaFVarIds` has been temporarily cleared.
@@ -1848,6 +1851,19 @@ def withInstImplicitAsImplicit (xs : Array Expr) (k : MetaM α) : MetaM α := do
     else
       return none
   withNewBinderInfos newBinderInfos k
+
+private def withPrimedNamesImp (xs : Array Expr) (k : MetaM α) : MetaM α := do
+  let lctx ← getLCtx
+  let lctx := lctx.modifyLocalDecls fun decl =>
+    if xs.contains (mkFVar decl.fvarId) then
+      decl.setUserName (decl.userName.appendAfter "'")
+    else
+      decl
+  withReader (fun ctx => { ctx with lctx := lctx }) k
+
+/-- Appends a `'` to the namen of the given free variables. -/
+def withPrimedNames (xs : Array Expr) (k : n α) : n α := do
+  mapMetaM (fun k => withPrimedNamesImp xs k) k
 
 private def withLetDeclImp (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) (nondep : Bool) (kind : LocalDeclKind) : MetaM α := do
   let fvarId ← mkFreshFVarId
@@ -2673,7 +2689,8 @@ where
         let _ : MonadExceptOf _ MetaM := MonadAlwaysExcept.except
         observing do
           withDeclNameForAuxNaming constName do
-            realize
+            withoutExporting (when := isPrivateName constName) do
+              realize
           -- Meta code working on a non-exported declaration should usually do so inside
           -- `withoutExporting` but we're lenient here in case this call is the only one that needs
           -- the setting.

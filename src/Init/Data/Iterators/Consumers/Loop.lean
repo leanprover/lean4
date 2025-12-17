@@ -26,7 +26,8 @@ function in every iteration. Concretely, the following operations are provided:
 These operations are implemented using the `IteratorLoop` type class.
 -/
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 /--
 A `ForIn'` instance for iterators. Its generic membership relation is not easy to use,
@@ -677,4 +678,4 @@ def Iter.Partial.size {α : Type w} {β : Type w} [Iterator α Id β] [IteratorL
     (it : Iter.Partial (α := α) β) : Nat :=
   it.it.count
 
-end Std.Iterators
+end Std

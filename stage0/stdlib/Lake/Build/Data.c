@@ -2101,6 +2101,48 @@ x_1 = l_Lake_builtinFacetCommand___closed__23;
 return x_1;
 }
 }
+static lean_object* _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("FacetOut", 8, 8);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__0;
+x_2 = l_Lake_dataTypeDecl___closed__0;
+x_3 = l_Lean_Name_mkStr2(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("unknown target namespace `", 26, 26);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("`", 1, 1);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("unknown or ambiguous target namespace `", 39, 39);
+return x_1;
+}
+}
 static lean_object* _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___lam__0___closed__0() {
 _start:
 {
@@ -3000,48 +3042,6 @@ goto block_215;
 }
 }
 }
-}
-}
-static lean_object* _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("FacetOut", 8, 8);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__0;
-x_2 = l_Lake_dataTypeDecl___closed__0;
-x_3 = l_Lean_Name_mkStr2(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown target namespace `", 26, 26);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`", 1, 1);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown or ambiguous target namespace `", 39, 39);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -5680,6 +5680,16 @@ l_Lake_builtinFacetCommand___closed__23 = _init_l_Lake_builtinFacetCommand___clo
 lean_mark_persistent(l_Lake_builtinFacetCommand___closed__23);
 l_Lake_builtinFacetCommand = _init_l_Lake_builtinFacetCommand();
 lean_mark_persistent(l_Lake_builtinFacetCommand);
+l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__0 = _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__0();
+lean_mark_persistent(l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__0);
+l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__1 = _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__1();
+lean_mark_persistent(l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__1);
+l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__2 = _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__2();
+lean_mark_persistent(l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__2);
+l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__3 = _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__3();
+lean_mark_persistent(l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__3);
+l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__4 = _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__4();
+lean_mark_persistent(l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__4);
 l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___lam__0___closed__0 = _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___lam__0___closed__0();
 lean_mark_persistent(l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___lam__0___closed__0);
 l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___lam__0___closed__1 = _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___lam__0___closed__1();
@@ -5752,16 +5762,6 @@ l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___
 lean_mark_persistent(l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___lam__0___closed__34);
 l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___lam__0___closed__35 = _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___lam__0___closed__35();
 lean_mark_persistent(l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___lam__0___closed__35);
-l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__0 = _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__0();
-lean_mark_persistent(l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__0);
-l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__1 = _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__1();
-lean_mark_persistent(l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__1);
-l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__2 = _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__2();
-lean_mark_persistent(l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__2);
-l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__3 = _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__3();
-lean_mark_persistent(l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__3);
-l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__4 = _init_l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__4();
-lean_mark_persistent(l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__4);
 l_Lake_facetDataDecl___closed__0 = _init_l_Lake_facetDataDecl___closed__0();
 lean_mark_persistent(l_Lake_facetDataDecl___closed__0);
 l_Lake_facetDataDecl___closed__1 = _init_l_Lake_facetDataDecl___closed__1();

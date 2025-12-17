@@ -16,7 +16,8 @@ public import Init.Data.Array.Attach
 
 public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 theorem Iter.unattach_eq_toIter_unattach_toIterM [Iterator α Id β] {it : Iter (α := α) β} {hP} :
     it.attachWith P hP =
@@ -93,4 +94,4 @@ theorem Iter.count_attachWith [Iterator α Id β]
   rw [← Iter.length_toList_eq_count, toList_attachWith]
   simp
 
-end Std.Iterators
+end Std

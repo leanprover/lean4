@@ -149,6 +149,15 @@ theorem smul_nat_eq_mul {α} [Semiring α] (n : Nat) (a : α) : n • a = NatCas
 theorem smul_int_eq_mul {α} [Ring α] (i : Int) (a : α) : i • a = Int.cast i * a := by
   rw [Ring.zsmul_eq_intCast_mul]
 
+theorem Int.subNatNat_eq (a b : Nat) : Int.subNatNat a b = NatCast.natCast a - NatCast.natCast b := by
+  apply Int.subNatNat_eq_coe
+
+theorem Int.sign_eq (x : Int) : x.sign = if x > 0 then 1 else if x < 0 then -1 else 0 := by
+  split; simp [*]
+  split; simp [*]
+  have : x = 0 := by omega
+  simp [*]
+
 -- Remark: for additional `grind` simprocs, check `Lean/Meta/Tactic/Grind`
 init_grind_norm
   /- Pre theorems -/
@@ -188,17 +197,20 @@ init_grind_norm
   natCast_div natCast_mod natCast_id
   natCast_add natCast_mul natCast_pow
   Int.one_pow
-  Int.pow_zero Int.pow_one
+  Int.pow_zero Int.pow_one Int.subNatNat_eq
   -- Int op folding
   Int.add_def Int.mul_def Int.ofNat_eq_coe
   Int.Linear.sub_fold Int.Linear.neg_fold
   -- Int divides
   Int.one_dvd Int.zero_dvd
+  -- Int alternative div and mod. We just expand them
+  Int.fdiv_eq_ediv Int.tdiv_eq_ediv
+  Int.fmod_eq_emod Int.tmod_eq_emod Int.bmod_eq_emod
+  -- Int sign. We just expand it
+  Int.sign_eq
   -- Function composition
   Function.const_apply Function.comp_apply Function.const_comp
   Function.comp_const Function.true_comp Function.false_comp
-  -- Field
-  Field.inv_zero Field.inv_inv Field.inv_one Field.inv_neg
   -- SMul normalizer
   smul_int_eq_mul smul_nat_eq_mul
   -- NatCast & IntCast for algebraic structures
@@ -213,5 +225,10 @@ init_grind_norm
   LawfulOfScientific.ofScientific_def
   -- Rationals
   Rat.zpow_neg
+  -- Field
+  Field.inv_zero Field.inv_inv Field.inv_one Field.inv_neg
+  -- Semiring
+  Semiring.one_mul Semiring.mul_one
+  Semiring.zero_mul Semiring.mul_zero
 
 end Lean.Grind

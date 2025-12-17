@@ -32,7 +32,9 @@ Several variants of these combinators are provided:
   iterator, and particularly for specialized termination proofs. If possible, avoid this.
 -/
 
-namespace Std.Iterators
+namespace Std
+
+namespace Iterators.Types
 
 /--
 Internal state of the `filterMap` combinator. Do not depend on its internals.
@@ -53,19 +55,23 @@ def Map (α : Type w) {β γ : Type w} (m : Type w → Type w') (n : Type w → 
     (f : β → PostconditionT n γ) :=
   FilterMap α m n lift (fun b => PostconditionT.map some (f b))
 
+end Iterators.Types
+
+open Std.Iterators Std.Iterators.Types
+
 @[always_inline, inline, expose]
 def IterM.InternalCombinators.filterMap {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} (lift : ⦃α : Type w⦄ → m α → n α)
     [Iterator α m β] (f : β → PostconditionT n (Option γ))
     (it : IterM (α := α) m β) : IterM (α := FilterMap α m n lift f) n γ :=
-  toIterM ⟨it⟩ n γ
+  .mk ⟨it⟩ n γ
 
 @[always_inline, inline, expose]
 def IterM.InternalCombinators.map {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} [Monad n] (lift : ⦃α : Type w⦄ → m α → n α)
     [Iterator α m β] (f : β → PostconditionT n γ)
     (it : IterM (α := α) m β) : IterM (α := Map α m n lift f) n γ :=
-  toIterM ⟨it⟩ n γ
+  .mk ⟨it⟩ n γ
 
 /--
 *Note: This is a very general combinator that requires an advanced understanding of monads,
@@ -117,16 +123,18 @@ returned `Option` value.
 def IterM.filterMapWithPostcondition {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
     [MonadLiftT m n] [Iterator α m β] (f : β → PostconditionT n (Option γ))
     (it : IterM (α := α) m β) : IterM (α := FilterMap α m n (fun ⦃_⦄ => monadLift) f) n γ :=
-  IterM.InternalCombinators.filterMap (fun ⦃_⦄ => monadLift) f it
+  IterM.InternalCombinators.filterMap (n := n) (fun ⦃_⦄ => monadLift) f it
+
+namespace Iterators.Types
 
 /--
 `it.PlausibleStep step` is the proposition that `step` is a possible next step from the
 `filterMap` iterator `it`. This is mostly internally relevant, except if one needs to manually
 prove termination (`Finite` or `Productive` instances, for example) of a `filterMap` iterator.
 -/
-inductive FilterMap.PlausibleStep {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
-    {lift : ⦃α : Type w⦄ → m α → n α} {f : β → PostconditionT n (Option γ)} [Iterator α m β]
-    (it : IterM (α := FilterMap α m n lift f) n γ) :
+inductive FilterMap.PlausibleStep {α β γ : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} {lift : ⦃α : Type w⦄ → m α → n α} {f : β → PostconditionT n (Option γ)}
+    [Iterator α m β] (it : IterM (α := FilterMap α m n lift f) n γ) :
     IterStep (IterM (α := FilterMap α m n lift f) n γ) γ → Prop where
   | yieldNone : ∀ {it' out},
       it.internalState.inner.IsPlausibleStep (.yield it' out) →
@@ -139,8 +147,8 @@ inductive FilterMap.PlausibleStep {α β γ : Type w} {m : Type w → Type w'} {
       PlausibleStep it (.skip (IterM.InternalCombinators.filterMap lift f it'))
   | done : it.internalState.inner.IsPlausibleStep .done → PlausibleStep it .done
 
-instance FilterMap.instIterator {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
-    {lift : ⦃α : Type w⦄ → m α → n α} {f : β → PostconditionT n (Option γ)}
+instance FilterMap.instIterator {α β γ : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} {lift : ⦃α : Type w⦄ → m α → n α} {f : β → PostconditionT n (Option γ)}
     [Iterator α m β] [Monad n] :
     Iterator (FilterMap α m n lift f) n γ where
   IsPlausibleStep := FilterMap.PlausibleStep (m := m) (n := n)
@@ -155,9 +163,8 @@ instance FilterMap.instIterator {α β γ : Type w} {m : Type w → Type w'} {n 
       | .skip it' h => pure <| .deflate <| .skip (it'.filterMapWithPostcondition f) (by exact .skip h)
       | .done h => pure <| .deflate <| .done (.done h)
 
-instance {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} [Monad n] [Iterator α m β]
-    {lift : ⦃α : Type w⦄ → m α → n α}
-    {f : β → PostconditionT n γ} :
+instance Map.instIterator {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} [Monad n]
+    [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α} {f : β → PostconditionT n γ} :
     Iterator (Map α m n lift f) n γ :=
   inferInstanceAs <| Iterator (FilterMap α m n lift _) n γ
 
@@ -189,8 +196,8 @@ instance FilterMap.instFinite {α β γ : Type w} {m : Type w → Type w'}
   Finite.of_finitenessRelation FilterMap.instFinitenessRelation
 
 @[no_expose]
-instance {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} [Monad n] [Iterator α m β]
-    {lift : ⦃α : Type w⦄ → m α → n α} {f : β → PostconditionT n γ} [Finite α m] :
+instance Map.instFinite {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} [Monad n]
+    [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α} {f : β → PostconditionT n γ} [Finite α m] :
     Finite (Map α m n lift f) n :=
   Finite.of_finitenessRelation FilterMap.instFinitenessRelation
 
@@ -214,7 +221,7 @@ instance Map.instProductive {α β γ : Type w} {m : Type w → Type w'}
     Productive (Map α m n lift f) n :=
   Productive.of_productivenessRelation Map.instProductivenessRelation
 
-instance {α β γ : Type w} {m : Type w → Type w'}
+instance FilterMap.instIteratorCollect {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type w → Type x} [Monad n] [Monad o] [Iterator α m β]
     {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} :
@@ -251,6 +258,8 @@ instance Map.instIteratorLoop {α β γ : Type w} {m : Type w → Type w'}
     {f : β → PostconditionT n γ} :
     IteratorLoop (Map α m n lift f) n o :=
   .defaultImplementation
+
+end Iterators.Types
 
 /--
 *Note: This is a very general combinator that requires an advanced understanding of monads, dependent
@@ -373,12 +382,8 @@ it.filterMapM     ---a'-----c'-------⊥
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For example, if `f` never returns `none`, then
 this combinator will preserve productiveness. If `f` is an `ExceptT` monad and will always fail,
-then `it.filterMapM` will be finite even if `it` isn't. In the first case, consider
-using the `map`/`mapM`/`mapWithPostcondition` combinators instead, which provide more instances out of
-the box.
-
-If that does not help, the more general combinator `it.filterMapWithPostcondition f` makes it
-possible to manually prove `Finite` and `Productive` instances depending on the concrete choice of `f`.
+then `it.filterMapM` will be finite even if `it` isn't. In such cases, the termination proof needs
+to be done manually.
 
 **Performance:**
 
@@ -387,9 +392,9 @@ returned `Option` value.
 -/
 @[inline, expose]
 def IterM.filterMapM {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
-    [Iterator α m β] [Monad n] [MonadLiftT m n]
+    [Iterator α m β] [Monad n] [MonadAttach n] [MonadLiftT m n]
     (f : β → n (Option γ)) (it : IterM (α := α) m β) :=
-  (it.filterMapWithPostcondition (fun b => PostconditionT.lift (f b)) : IterM n γ)
+  (it.filterMapWithPostcondition (fun b => PostconditionT.attachLift (f b)) : IterM n γ)
 
 /--
 If `it` is an iterator, then `it.mapM f` is another iterator that applies a monadic
@@ -416,10 +421,8 @@ it.mapM     ---a'--b'--c'--d'-e'----⊥
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For example, if `f` is an `ExceptT` monad and
-will always fail, then `it.mapM` will be finite even if `it` isn't.
-
-If that does not help, the more general combinator `it.mapWithPostcondition f` makes it possible to
-manually prove `Finite` and `Productive` instances depending on the concrete choice of `f`.
+will always fail, then `it.mapM` will be finite even if `it` isn't. In such cases, the termination
+proof needs to be done manually.
 
 **Performance:**
 
@@ -427,8 +430,8 @@ For each value emitted by the base iterator `it`, this combinator calls `f`.
 -/
 @[inline, expose]
 def IterM.mapM {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} [Iterator α m β]
-    [Monad n] [MonadLiftT m n] (f : β → n γ) (it : IterM (α := α) m β) :=
-  (it.mapWithPostcondition (fun b => PostconditionT.lift (f b)) : IterM n γ)
+    [Monad n] [MonadAttach n] [MonadLiftT m n] (f : β → n γ) (it : IterM (α := α) m β) :=
+  (it.mapWithPostcondition (fun b => PostconditionT.attachLift (f b)) : IterM n γ)
 
 /--
 If `it` is an iterator, then `it.filterM f` is another iterator that applies a monadic
@@ -456,10 +459,7 @@ it.filterM     ---a-----c-------⊥
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For example, if `f` is an `ExceptT` monad and
 will always fail, then `it.filterWithPostcondition` will be finite -- and productive -- even if `it`
-isn't.
-
-In such situations, the more general combinator `it.filterWithPostcondition f` makes it possible to
-manually prove `Finite` and `Productive` instances depending on the concrete choice of `f`.
+isn't. In such cases, the termination proof needs to be done manually.
 
 **Performance:**
 
@@ -467,9 +467,9 @@ For each value emitted by the base iterator `it`, this combinator calls `f`.
 -/
 @[inline, expose]
 def IterM.filterM {α β : Type w} {m : Type w → Type w'} {n : Type w → Type w''} [Iterator α m β]
-    [Monad n] [MonadLiftT m n] (f : β → n (ULift Bool)) (it : IterM (α := α) m β) :=
+    [Monad n] [MonadAttach n] [MonadLiftT m n] (f : β → n (ULift Bool)) (it : IterM (α := α) m β) :=
   (it.filterMapWithPostcondition
-    (fun b => (PostconditionT.lift (f b)).map (if ·.down = true then some b else none)) : IterM n β)
+    (fun b => (PostconditionT.attachLift (f b)).map (if ·.down = true then some b else none)) : IterM n β)
 
 /--
 If `it` is an iterator, then `it.filterMap f` is another iterator that applies a function `f` to all
@@ -571,4 +571,4 @@ def IterM.filter {α β : Type w} {m : Type w → Type w'} [Iterator α m β] [M
     (f : β → Bool) (it : IterM (α := α) m β) :=
   (it.filterMap (fun b => if f b then some b else none) : IterM m β)
 
-end Std.Iterators
+end Std

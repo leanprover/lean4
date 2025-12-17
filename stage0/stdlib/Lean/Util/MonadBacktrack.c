@@ -472,6 +472,13 @@ x_9 = l_Lean_commitIfNoEx___redArg(x_5, x_6, x_7, x_8);
 return x_9;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_withoutModifyingState___redArg___lam__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_withoutModifyingState___redArg___lam__0(lean_object* x_1) {
 _start:
 {
@@ -488,13 +495,6 @@ lean_object* x_2;
 x_2 = l_Lean_withoutModifyingState___redArg___lam__0(x_1);
 lean_dec_ref(x_1);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_withoutModifyingState___redArg___lam__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_withoutModifyingState___redArg___lam__1___boxed(lean_object* x_1, lean_object* x_2) {

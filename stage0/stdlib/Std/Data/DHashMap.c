@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DHashMap
-// Imports: public import Std.Data.DHashMap.Basic public import Std.Data.DHashMap.AdditionalOperations public import Std.Data.DHashMap.Iterator public import Std.Data.DHashMap.Lemmas public import Std.Data.DHashMap.IteratorLemmas
+// Imports: public import Std.Data.DHashMap.Basic public import Std.Data.DHashMap.AdditionalOperations public import Std.Data.DHashMap.Iterator public import Std.Data.DHashMap.Lemmas public import Std.Data.DHashMap.IteratorLemmas public import Std.Data.DHashMap.DecidableEquiv
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,7 @@ lean_object* initialize_Std_Data_DHashMap_AdditionalOperations(uint8_t builtin);
 lean_object* initialize_Std_Data_DHashMap_Iterator(uint8_t builtin);
 lean_object* initialize_Std_Data_DHashMap_Lemmas(uint8_t builtin);
 lean_object* initialize_Std_Data_DHashMap_IteratorLemmas(uint8_t builtin);
+lean_object* initialize_Std_Data_DHashMap_DecidableEquiv(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_DHashMap(uint8_t builtin) {
 lean_object * res;
@@ -36,6 +37,9 @@ res = initialize_Std_Data_DHashMap_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_DHashMap_IteratorLemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_DHashMap_DecidableEquiv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

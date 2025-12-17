@@ -29,8 +29,8 @@ implementation is provided. The typeclass `LawfulIteratorCollect` asserts that a
 instance equals the default implementation.
 -/
 
-namespace Std.Iterators
-open Std.Internal
+namespace Std
+open Std.Internal Std.Iterators
 
 section Typeclasses
 
@@ -122,8 +122,8 @@ theorem LawfulIteratorCollect.toArrayMapped_eq {α β γ : Type w} {m : Type w �
       IterM.DefaultConsumers.toArrayMapped lift f it (m := m) := by
   rw [lawful_toArrayMapped]; rfl
 
-instance (α β : Type w) (m : Type w → Type w') (n : Type w → Type w'') [Monad n]
-    [Iterator α m β] [Monad m] [Iterator α m β] [Finite α m] :
+instance instLawfulIteratorCollectDefaultImplementation (α β : Type w) (m : Type w → Type w')
+    (n : Type w → Type w'') [Monad n] [Iterator α m β] [Monad m] [Iterator α m β] [Finite α m] :
     haveI : IteratorCollect α m n := .defaultImplementation
     LawfulIteratorCollect α m n :=
   letI : IteratorCollect α m n := .defaultImplementation
@@ -246,4 +246,4 @@ def IterM.Total.toList {α : Type w} {m : Type w → Type w'} {β : Type w} [Mon
     m (List β) :=
   it.it.toList
 
-end Std.Iterators
+end Std

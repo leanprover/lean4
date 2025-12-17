@@ -535,10 +535,26 @@ def inter [TransCmp cmp] (t₁ t₂ : ExtTreeMap α β cmp) : ExtTreeMap α β c
 
 instance [TransCmp cmp] : Inter (ExtTreeMap α β cmp) := ⟨inter⟩
 
+instance [TransCmp cmp] [BEq β] : BEq (ExtTreeMap α β cmp) where
+  beq m₁ m₂ := ExtDTreeMap.Const.beq m₁.inner m₂.inner
+
+instance [TransCmp cmp] [BEq β] [ReflBEq β] : ReflBEq (ExtTreeMap α β cmp) where
+  rfl := ExtDTreeMap.Const.beq_of_eq _ _ rfl
+
+instance [TransCmp cmp] [LawfulEqCmp cmp] [BEq β] [LawfulBEq β] : LawfulBEq (ExtTreeMap α β cmp) where
+  eq_of_beq {a} {b} hyp := by
+    have ⟨_⟩ := a
+    have ⟨_⟩ := b
+    simp only [mk.injEq]
+    exact ExtDTreeMap.Const.eq_of_beq _ _ hyp
+
 @[inline, inherit_doc ExtDTreeMap.diff]
 def diff [TransCmp cmp] (t₁ t₂ : ExtTreeMap α β cmp) : ExtTreeMap α β cmp := ⟨ExtDTreeMap.diff t₁.inner t₂.inner⟩
 
 instance [TransCmp cmp] : SDiff (ExtTreeMap α β cmp) := ⟨diff⟩
+
+instance {α : Type u} {β : Type v} {cmp : α → α → Ordering} [LawfulEqCmp cmp] [TransCmp cmp] [BEq β] [LawfulBEq β] : DecidableEq (ExtTreeMap α β cmp) :=
+  fun _ _ => decidable_of_iff _ beq_iff_eq
 
 @[inline, inherit_doc ExtDTreeMap.eraseMany]
 def eraseMany [TransCmp cmp] {ρ} [ForIn Id ρ α] (t : ExtTreeMap α β cmp) (l : ρ) : ExtTreeMap α β cmp :=

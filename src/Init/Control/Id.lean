@@ -9,6 +9,7 @@ module
 
 prelude
 public import Init.Core
+public import Init.Control.MonadAttach
 
 public section
 
@@ -66,5 +67,16 @@ instance [OfNat α n] : OfNat (Id α) n :=
 
 instance {m : Type u → Type v} [Pure m] : MonadLiftT Id m where
   monadLift x := pure x.run
+
+instance : MonadAttach Id where
+  CanReturn x a := x.run = a
+  attach x := pure ⟨x.run, rfl⟩
+
+instance : LawfulMonadAttach Id where
+  map_attach := rfl
+  canReturn_map_imp := by
+    intro _ _ x _ h
+    cases h
+    exact x.run.2
 
 end Id

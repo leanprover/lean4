@@ -877,7 +877,10 @@ def cpopNatRec (x : BitVec w) (pos acc : Nat) : Nat :=
   | 0 => acc
   | n + 1 => x.cpopNatRec n (acc + (x.getLsbD n).toNat)
 
-/-- Count the number of bits with value `1` in `x`. -/
+/-- Population count operation, to count the number of bits with value `1` in `x`.
+  Also known as `popcount`, `popcnt`.
+-/
+@[suggest_for BitVec.popcount BitVec.popcnt]
 def cpop (x : BitVec w) : BitVec w := BitVec.ofNat w (cpopNatRec x w 0)
 
 end BitVec

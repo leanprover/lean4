@@ -17,6 +17,10 @@ namespace Lean
 @[expose] def Options := KVMap
 
 def Options.empty : Options  := {}
+
+@[export lean_options_get_empty]
+private def Options.getEmpty (_ : Unit) : Options := Options.empty
+
 instance : Inhabited Options where
   default := {}
 instance : ToString Options := inferInstanceAs (ToString KVMap)
@@ -131,11 +135,19 @@ protected def get? [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : Op
 protected def get [KVMap.Value α] (opts : Options) (opt : Lean.Option α) : α :=
   opts.get opt.name opt.defValue
 
+@[export lean_options_get_bool]
+private def getBool (opts : Options) (name : Name) (defValue : Bool) : Bool :=
+  opts.getBool name defValue
+
 protected def getM [Monad m] [MonadOptions m] [KVMap.Value α] (opt : Lean.Option α) : m α :=
   return opt.get (← getOptions)
 
 protected def set [KVMap.Value α] (opts : Options) (opt : Lean.Option α) (val : α) : Options :=
   opts.set opt.name val
+
+@[export lean_options_update_bool]
+private def updateBool (opts : Options) (name : Name) (val : Bool) : Options :=
+  opts.set name val
 
 /-- Similar to `set`, but update `opts` only if it doesn't already contains an setting for `opt.name` -/
 protected def setIfNotSet [KVMap.Value α] (opts : Options) (opt : Lean.Option α) (val : α) : Options :=

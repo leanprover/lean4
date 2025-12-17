@@ -1464,7 +1464,6 @@ end ForIn
 
 section Fold
 
-@[spec]
 theorem IterM.foldM_filterMapWithPostcondition {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     [Iterator α m β] [Finite α m]
@@ -1484,7 +1483,6 @@ theorem IterM.foldM_filterMapWithPostcondition {α β γ δ : Type w}
   apply bind_congr; intro fx
   split <;> simp
 
-@[spec]
 theorem IterM.foldM_filterMapM {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     [Iterator α m β] [Finite α m]
@@ -1502,7 +1500,6 @@ theorem IterM.foldM_filterMapM {α β γ δ : Type w}
           g d c) := by
   simp [filterMapM, foldM_filterMapWithPostcondition, PostconditionT.run_attachLift]
 
-@[spec]
 theorem IterM.foldM_mapWithPostcondition {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     [Iterator α m β] [Finite α m]
@@ -1516,7 +1513,6 @@ theorem IterM.foldM_mapWithPostcondition {α β γ δ : Type w}
       it.foldM (init := init) (fun d b => do let c ← (f b).run; g d c) := by
   simp [foldM_eq_forIn, forIn_mapWithPostcondition]
 
-@[spec]
 theorem IterM.foldM_mapM {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     [Iterator α m β] [Finite α m]
@@ -1532,7 +1528,6 @@ theorem IterM.foldM_mapM {α β γ δ : Type w}
       it.foldM (init := init) (fun d b => do let c ← f b; g d c) := by
   simp [foldM_eq_forIn, forIn_mapM]
 
-@[spec]
 theorem IterM.foldM_filterWithPostcondition {α β δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     [Iterator α m β] [Finite α m]
@@ -1550,7 +1545,6 @@ theorem IterM.foldM_filterWithPostcondition {α β δ : Type w}
   apply bind_congr; intro fx
   split <;> simp
 
-@[spec]
 theorem IterM.foldM_filterM {α β δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
     [Iterator α m β] [Finite α m]
@@ -1569,7 +1563,6 @@ theorem IterM.foldM_filterM {α β δ : Type w}
   apply bind_congr; intro fx
   cases fx.down <;> simp [PostconditionT.run_eq_map]
 
-@[spec]
 theorem IterM.foldM_filterMap {α β γ δ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
     [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [LawfulMonad n]
     [IteratorLoop α m n]
@@ -1584,7 +1577,6 @@ theorem IterM.foldM_filterMap {α β γ δ : Type w} {m : Type w → Type w'} {n
   congr 1; ext out acc
   split <;> simp [*]
 
-@[spec]
 theorem IterM.foldM_map {α β γ δ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
     [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [LawfulMonad n]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]
@@ -1594,7 +1586,6 @@ theorem IterM.foldM_map {α β γ δ : Type w} {m : Type w → Type w'} {n : Typ
       it.foldM (init := init) (fun d b => do g d (f b)) := by
   simp [foldM_eq_forIn, forIn_map]
 
-@[spec]
 theorem IterM.foldM_filter {α β δ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
     [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [LawfulMonad n]
     [IteratorLoop α m n]
@@ -1607,7 +1598,6 @@ theorem IterM.foldM_filter {α β δ : Type w} {m : Type w → Type w'} {n : Typ
   congr 1; ext out acc
   split <;> simp [*]
 
-@[spec]
 theorem IterM.fold_filterMapWithPostcondition {α β γ δ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''}
     [Iterator α m β] [Finite α m]
@@ -1622,7 +1612,6 @@ theorem IterM.fold_filterMapWithPostcondition {α β γ δ : Type w} {m : Type w
           return g d c) := by
   simp [fold_eq_foldM, foldM_filterMapWithPostcondition]
 
-@[spec]
 theorem IterM.fold_filterMapM {α β γ δ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
@@ -1636,7 +1625,6 @@ theorem IterM.fold_filterMapM {α β γ δ : Type w} {m : Type w → Type w'} {n
           return g d c) := by
   simp [fold_eq_foldM, foldM_filterMapM]
 
-@[spec]
 theorem IterM.fold_mapWithPostcondition {α β γ δ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
@@ -1648,7 +1636,6 @@ theorem IterM.fold_mapWithPostcondition {α β γ δ : Type w} {m : Type w → T
       it.foldM (init := init) (fun d b => do let c ← (f b).run; return g d c) := by
   simp [fold_eq_foldM, foldM_mapWithPostcondition]
 
-@[spec]
 theorem IterM.fold_mapM {α β γ δ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
@@ -1660,7 +1647,6 @@ theorem IterM.fold_mapM {α β γ δ : Type w} {m : Type w → Type w'} {n : Typ
       it.foldM (init := init) (fun d b => do let c ← f b; return g d c) := by
   simp [fold_eq_foldM, foldM_mapM]
 
-@[spec]
 theorem IterM.fold_filterWithPostcondition {α β δ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''}
     [Iterator α m β] [Finite α m]
@@ -1676,7 +1662,6 @@ theorem IterM.fold_filterWithPostcondition {α β δ : Type w} {m : Type w → T
   apply bind_congr; intro fx
   cases fx.down <;> simp
 
-@[spec]
 theorem IterM.fold_filterM {α β δ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
     [Iterator α m β] [Finite α m]
     [Monad m] [LawfulMonad m]
@@ -1691,7 +1676,6 @@ theorem IterM.fold_filterM {α β δ : Type w} {m : Type w → Type w'} {n : Typ
   apply bind_congr; intro fx
   cases fx.down <;> simp
 
-@[spec]
 theorem IterM.fold_filterMap {α β γ δ : Type w} {m : Type w → Type w'}
     [Iterator α m β] [Finite α m] [Monad m] [LawfulMonad m]
     [IteratorLoop α m m] [LawfulIteratorLoop α m m]
@@ -1705,7 +1689,6 @@ theorem IterM.fold_filterMap {α β γ δ : Type w} {m : Type w → Type w'}
   congr; ext
   split <;> simp
 
-@[spec]
 theorem IterM.fold_map {α β γ δ : Type w} {m : Type w → Type w'}
     [Iterator α m β] [Finite α m] [Monad m] [LawfulMonad m]
     [IteratorLoop α m m] [LawfulIteratorLoop α m m]
@@ -1714,7 +1697,6 @@ theorem IterM.fold_map {α β γ δ : Type w} {m : Type w → Type w'}
       it.fold (init := init) (fun d b => g d (f b)) := by
   simp [fold_eq_foldM, foldM_map]
 
-@[spec]
 theorem IterM.fold_filter {α β δ : Type w} {m : Type w → Type w'}
     [Iterator α m β] [Finite α m] [Monad m] [LawfulMonad m]
     [IteratorLoop α m m] [LawfulIteratorLoop α m m]

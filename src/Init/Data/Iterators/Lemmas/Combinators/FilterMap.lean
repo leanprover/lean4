@@ -291,47 +291,36 @@ def Iter.val_step_filter {f : β → Bool} :
   · simp
 
 @[simp]
-theorem Iter.toList_filterMap
-    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
+theorem Iter.toList_filterMap [Finite α Id]
     {f : β → Option γ} :
     (it.filterMap f).toList = it.toList.filterMap f := by
   simp [filterMap_eq_toIter_filterMap_toIterM, toList_eq_toList_toIterM, IterM.toList_filterMap]
 
 @[simp]
-theorem Iter.toList_mapWithPostcondition [Monad m] [LawfulMonad m]
-    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
-    [IteratorCollect α Id m] [LawfulIteratorCollect α Id m] [Finite α Id]
+theorem Iter.toList_mapWithPostcondition [Monad m] [LawfulMonad m] [Finite α Id]
     {f : β → PostconditionT m γ} :
     (it.mapWithPostcondition f).toList = it.toList.mapM (fun x => (f x).run) := by
   simp [Iter.mapWithPostcondition, IterM.toList_mapWithPostcondition, Iter.toList_eq_toList_toIterM]
 
 @[simp]
 theorem Iter.toList_mapM [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
-    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
-    [IteratorCollect α Id m] [LawfulIteratorCollect α Id m] [Finite α Id]
-    {f : β → m γ} :
+    [Finite α Id] {f : β → m γ} :
     (it.mapM f).toList = it.toList.mapM f := by
   simp [Iter.mapM_eq_toIter_mapM_toIterM, IterM.toList_mapM, Iter.toList_eq_toList_toIterM]
 
 @[simp]
-theorem Iter.toList_map
-    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
-    {f : β → γ} :
+theorem Iter.toList_map [Finite α Id] {f : β → γ} :
     (it.map f).toList = it.toList.map f := by
   simp [map_eq_toIter_map_toIterM, IterM.toList_map, Iter.toList_eq_toList_toIterM]
 
 @[simp]
-theorem Iter.toList_filter
-    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
-    {f : β → Bool} :
+theorem Iter.toList_filter [Finite α Id] {f : β → Bool} :
     (it.filter f).toList = it.toList.filter f := by
   simp [filter_eq_toIter_filter_toIterM, IterM.toList_filter, Iter.toList_eq_toList_toIterM]
 
 @[simp]
 theorem Iter.toList_filterMapWithPostcondition_filterMapWithPostcondition
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [MonadLiftT m n] [LawfulMonadLiftT m n]
-    [IteratorCollect α Id m] [LawfulIteratorCollect α Id m]
-    [IteratorCollect α Id n] [LawfulIteratorCollect α Id n]
     [Finite α Id]
     {f : β → PostconditionT m (Option γ)} {g : γ → PostconditionT n (Option δ)} :
     ((it.filterMapWithPostcondition f).filterMapWithPostcondition g).toList =
@@ -347,8 +336,6 @@ theorem Iter.toList_filterMapWithPostcondition_filterMapWithPostcondition
 @[simp]
 theorem Iter.toList_mapWithPostcondition_mapWithPostcondition
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [MonadLiftT m n] [LawfulMonadLiftT m n]
-    [IteratorCollect α Id m] [LawfulIteratorCollect α Id m]
-    [IteratorCollect α Id n] [LawfulIteratorCollect α Id n]
     [Finite α Id]
     {f : β → PostconditionT m γ} {g : γ → PostconditionT n δ} :
     ((it.mapWithPostcondition f).mapWithPostcondition g).toList =
@@ -358,68 +345,54 @@ theorem Iter.toList_mapWithPostcondition_mapWithPostcondition
     instMonadLiftTOfMonadLift_instMonadLiftTOfPure]
 
 @[simp]
-theorem Iter.toListRev_filterMap
-    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
+theorem Iter.toListRev_filterMap [Finite α Id]
     {f : β → Option γ} :
     (it.filterMap f).toListRev = it.toListRev.filterMap f := by
   simp [filterMap_eq_toIter_filterMap_toIterM, toListRev_eq_toListRev_toIterM, IterM.toListRev_filterMap]
 
 @[simp]
-theorem Iter.toListRev_map
-    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
+theorem Iter.toListRev_map [Finite α Id]
     {f : β → γ} :
     (it.map f).toListRev = it.toListRev.map f := by
   simp [map_eq_toIter_map_toIterM, IterM.toListRev_map, Iter.toListRev_eq_toListRev_toIterM]
 
 @[simp]
-theorem Iter.toListRev_filter
-    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
+theorem Iter.toListRev_filter [Finite α Id]
     {f : β → Bool} :
     (it.filter f).toListRev = it.toListRev.filter f := by
   simp [filter_eq_toIter_filter_toIterM, IterM.toListRev_filter, Iter.toListRev_eq_toListRev_toIterM]
 
 @[simp]
-theorem Iter.toArray_filterMap
-    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
+theorem Iter.toArray_filterMap [Finite α Id]
     {f : β → Option γ} :
     (it.filterMap f).toArray = it.toArray.filterMap f := by
   simp [filterMap_eq_toIter_filterMap_toIterM, toArray_eq_toArray_toIterM, IterM.toArray_filterMap]
 
 @[simp]
-theorem Iter.toArray_mapWithPostcondition [Monad m] [LawfulMonad m]
-    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
-    [IteratorCollect α Id m] [LawfulIteratorCollect α Id m] [Finite α Id]
+theorem Iter.toArray_mapWithPostcondition [Monad m] [LawfulMonad m] [Finite α Id]
     {f : β → PostconditionT m γ} :
     (it.mapWithPostcondition f).toArray = it.toArray.mapM (fun x => (f x).run) := by
   simp [Iter.mapWithPostcondition, IterM.toArray_mapWithPostcondition, Iter.toArray_eq_toArray_toIterM]
 
 @[simp]
 theorem Iter.toArray_mapM [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
-    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
-    [IteratorCollect α Id m] [LawfulIteratorCollect α Id m] [Finite α Id]
-    {f : β → m γ} :
+    [Finite α Id] {f : β → m γ} :
     (it.mapM f).toArray = it.toArray.mapM f := by
   simp [Iter.mapM_eq_toIter_mapM_toIterM, IterM.toArray_mapM, Iter.toArray_eq_toArray_toIterM]
 
 @[simp]
-theorem Iter.toArray_map
-    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
-    {f : β → γ} :
+theorem Iter.toArray_map [Finite α Id] {f : β → γ} :
     (it.map f).toArray = it.toArray.map f := by
   simp [map_eq_toIter_map_toIterM, IterM.toArray_map, Iter.toArray_eq_toArray_toIterM]
 
 @[simp]
-theorem Iter.toArray_filter
-    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id] [Finite α Id]
-    {f : β → Bool} :
+theorem Iter.toArray_filter[Finite α Id] {f : β → Bool} :
     (it.filter f).toArray = it.toArray.filter f := by
   simp [filter_eq_toIter_filter_toIterM, IterM.toArray_filter, Iter.toArray_eq_toArray_toIterM]
 
 @[simp]
 theorem Iter.toArray_filterMapWithPostcondition_filterMapWithPostcondition
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [MonadLiftT m n] [LawfulMonadLiftT m n]
-    [IteratorCollect α Id m] [LawfulIteratorCollect α Id m]
-    [IteratorCollect α Id n] [LawfulIteratorCollect α Id n]
     [Finite α Id]
     {f : β → PostconditionT m (Option γ)} {g : γ → PostconditionT n (Option δ)} :
     ((it.filterMapWithPostcondition f).filterMapWithPostcondition g).toArray =
@@ -435,8 +408,6 @@ theorem Iter.toArray_filterMapWithPostcondition_filterMapWithPostcondition
 @[simp]
 theorem Iter.toArray_mapWithPostcondition_mapWithPostcondition
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [MonadLiftT m n] [LawfulMonadLiftT m n]
-    [IteratorCollect α Id m] [LawfulIteratorCollect α Id m]
-    [IteratorCollect α Id n] [LawfulIteratorCollect α Id n]
     [Finite α Id]
     {f : β → PostconditionT m γ} {g : γ → PostconditionT n δ} :
     ((it.mapWithPostcondition f).mapWithPostcondition g).toArray =

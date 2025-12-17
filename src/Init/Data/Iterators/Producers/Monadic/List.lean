@@ -76,11 +76,6 @@ instance ListIterator.instFinite [Pure m] : Finite (ListIterator α) m :=
   by exact Finite.of_finitenessRelation ListIterator.instFinitenessRelation
 
 @[always_inline, inline]
-instance ListIterator.instIteratorCollect{α : Type w} [Monad m] {n : Type w → Type w''} [Monad n] :
-    IteratorCollect (ListIterator α) m n :=
-  .defaultImplementation
-
-@[always_inline, inline]
 instance ListIterator.instIteratorLoop {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
     IteratorLoop (ListIterator α) m n :=
   .defaultImplementation

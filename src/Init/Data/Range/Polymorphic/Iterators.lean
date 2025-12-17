@@ -681,8 +681,7 @@ Returns the elements of the given full range as a list in ascending order.
 -/
 @[always_inline, inline, expose]
 def toList [UpwardEnumerable α] [Least? α] (r : Rii α)
-    [Iterator (Rxi.Iterator α) Id α] [Finite (Rxi.Iterator α) Id]
-    [IteratorCollect (Rxi.Iterator α) Id Id] : List α :=
+    [Iterator (Rxi.Iterator α) Id α] [Finite (Rxi.Iterator α) Id] : List α :=
   Internal.iter r |>.toList
 
 /--
@@ -690,8 +689,7 @@ Returns the elements of the given full range as an array in ascending order.
 -/
 @[always_inline, inline, expose]
 def toArray {α} [UpwardEnumerable α] [Least? α] (r : Rii α)
-    [Iterator (Rxi.Iterator α) Id α] [Finite (Rxi.Iterator α) Id]
-    [IteratorCollect (Rxi.Iterator α) Id Id] : Array α :=
+    [Iterator (Rxi.Iterator α) Id α] [Finite (Rxi.Iterator α) Id] : Array α :=
   Internal.iter r |>.toArray
 
 /--

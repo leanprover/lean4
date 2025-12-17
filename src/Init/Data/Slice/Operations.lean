@@ -59,13 +59,13 @@ def size (s : Slice γ) [SliceSize γ] :=
 /-- Allocates a new array that contains the elements of the slice. -/
 @[always_inline, inline]
 def toArray [ToIterator (Slice γ) Id α β] [Iterator α Id β]
-    [IteratorCollect α Id Id] [Finite α Id] (s : Slice γ) : Array β :=
+    [Finite α Id] (s : Slice γ) : Array β :=
   Internal.iter s |>.toArray
 
 /-- Allocates a new list that contains the elements of the slice. -/
 @[always_inline, inline]
 def toList [ToIterator (Slice γ) Id α β] [Iterator α Id β]
-    [IteratorCollect α Id Id] [Finite α Id]
+    [Finite α Id]
     (s : Slice γ) : List β :=
   Internal.iter s |>.toList
 

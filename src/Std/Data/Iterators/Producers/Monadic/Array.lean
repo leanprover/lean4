@@ -112,11 +112,6 @@ instance ArrayIterator.instFinite [Pure m] : Finite (ArrayIterator α) m := by
   exact Finite.of_finitenessRelation ArrayIterator.instFinitenessRelation
 
 @[always_inline, inline]
-instance ArrayIterator.instIteratorCollect {α : Type w} [Monad m] {n : Type w → Type w''} [Monad n] :
-    IteratorCollect (ArrayIterator α) m n :=
-  .defaultImplementation
-
-@[always_inline, inline]
 instance ArrayIterator.instIteratorLoop {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
     IteratorLoop (ArrayIterator α) m n :=
   .defaultImplementation

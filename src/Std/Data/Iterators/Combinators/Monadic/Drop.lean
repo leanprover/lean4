@@ -154,10 +154,6 @@ instance Drop.instProductive [Iterator α m β] [Monad m] [Productive α m] :
     Productive (Drop α m β) m :=
   by exact Productive.of_productivenessRelation instProductivenessRelation
 
-instance Drop.instIteratorCollect {n : Type w → Type w'} [Monad m] [Monad n] [Iterator α m β] [Finite α m] :
-    IteratorCollect (Drop α m β) m n :=
-  .defaultImplementation
-
 instance Drop.instIteratorLoop {n : Type x → Type x'} [Monad m] [Monad n] [Iterator α m β] :
     IteratorLoop (Drop α m β) m n :=
   .defaultImplementation

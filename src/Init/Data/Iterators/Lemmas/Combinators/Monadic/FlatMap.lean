@@ -201,8 +201,6 @@ public theorem IterM.step_flatMap {α : Type w} {β : Type w} {α₂ : Type w}
 theorem IterM.toList_flattenAfter {α α₂ β : Type w} {m : Type w → Type w'}
     [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
     [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β] [Finite α m] [Finite α₂ m]
-    [IteratorCollect α m m] [IteratorCollect α₂ m m]
-    [LawfulIteratorCollect α m m] [LawfulIteratorCollect α₂ m m]
     {it₁ : IterM (α := α) m (IterM (α := α₂) m β)} {it₂ : Option (IterM (α := α₂) m β)} :
     (it₁.flattenAfter it₂).toList = do
       match it₂ with
@@ -237,8 +235,6 @@ theorem IterM.toList_flattenAfter {α α₂ β : Type w} {m : Type w → Type w'
 theorem IterM.toArray_flattenAfter {α α₂ β : Type w} {m : Type w → Type w'}
     [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
     [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β] [Finite α m] [Finite α₂ m]
-    [IteratorCollect α m m] [IteratorCollect α₂ m m]
-    [LawfulIteratorCollect α m m] [LawfulIteratorCollect α₂ m m]
     {it₁ : IterM (α := α) m (IterM (α := α₂) m β)} {it₂ : Option (IterM (α := α₂) m β)} :
     (it₁.flattenAfter it₂).toArray = do
       match it₂ with
@@ -261,8 +257,6 @@ theorem IterM.toArray_flattenAfter {α α₂ β : Type w} {m : Type w → Type w
 public theorem IterM.toList_flatMapAfterM {α α₂ β γ : Type w} {m : Type w → Type w'}
     [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
     [Iterator α m β] [Iterator α₂ m γ] [Finite α m] [Finite α₂ m]
-    [IteratorCollect α m m] [IteratorCollect α₂ m m]
-    [LawfulIteratorCollect α m m] [LawfulIteratorCollect α₂ m m]
     {f : β → m (IterM (α := α₂) m γ)}
     {it₁ : IterM (α := α) m β} {it₂ : Option (IterM (α := α₂) m γ)} :
     (it₁.flatMapAfterM f it₂).toList = do
@@ -275,8 +269,6 @@ public theorem IterM.toList_flatMapAfterM {α α₂ β γ : Type w} {m : Type w 
 public theorem IterM.toArray_flatMapAfterM {α α₂ β γ : Type w} {m : Type w → Type w'}
     [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
     [Iterator α m β] [Iterator α₂ m γ] [Finite α m] [Finite α₂ m]
-    [IteratorCollect α m m] [IteratorCollect α₂ m m]
-    [LawfulIteratorCollect α m m] [LawfulIteratorCollect α₂ m m]
     {f : β → m (IterM (α := α₂) m γ)}
     {it₁ : IterM (α := α) m β} {it₂ : Option (IterM (α := α₂) m γ)} :
     (it₁.flatMapAfterM f it₂).toArray = do
@@ -289,8 +281,6 @@ public theorem IterM.toArray_flatMapAfterM {α α₂ β γ : Type w} {m : Type w
 public theorem IterM.toList_flatMapM {α α₂ β γ : Type w} {m : Type w → Type w'}
     [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
     [Iterator α m β] [Iterator α₂ m γ] [Finite α m] [Finite α₂ m]
-    [IteratorCollect α m m] [IteratorCollect α₂ m m]
-    [LawfulIteratorCollect α m m] [LawfulIteratorCollect α₂ m m]
     {f : β → m (IterM (α := α₂) m γ)}
     {it₁ : IterM (α := α) m β} :
     (it₁.flatMapM f).toList = List.flatten <$> (it₁.mapM fun b => do (← f b).toList).toList := by
@@ -299,8 +289,6 @@ public theorem IterM.toList_flatMapM {α α₂ β γ : Type w} {m : Type w → T
 public theorem IterM.toArray_flatMapM {α α₂ β γ : Type w} {m : Type w → Type w'}
     [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
     [Iterator α m β] [Iterator α₂ m γ] [Finite α m] [Finite α₂ m]
-    [IteratorCollect α m m] [IteratorCollect α₂ m m]
-    [LawfulIteratorCollect α m m] [LawfulIteratorCollect α₂ m m]
     {f : β → m (IterM (α := α₂) m γ)}
     {it₁ : IterM (α := α) m β} :
     (it₁.flatMapM f).toArray = Array.flatten <$> (it₁.mapM fun b => do (← f b).toArray).toArray := by
@@ -309,8 +297,6 @@ public theorem IterM.toArray_flatMapM {α α₂ β γ : Type w} {m : Type w → 
 public theorem IterM.toList_flatMapAfter {α α₂ β γ : Type w} {m : Type w → Type w'}
     [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
     [Iterator α m β] [Iterator α₂ m γ] [Finite α m] [Finite α₂ m]
-    [IteratorCollect α m m] [IteratorCollect α₂ m m]
-    [LawfulIteratorCollect α m m] [LawfulIteratorCollect α₂ m m]
     {f : β → IterM (α := α₂) m γ}
     {it₁ : IterM (α := α) m β} {it₂ : Option (IterM (α := α₂) m γ)} :
     (it₁.flatMapAfter f it₂).toList = do
@@ -323,8 +309,6 @@ public theorem IterM.toList_flatMapAfter {α α₂ β γ : Type w} {m : Type w �
 public theorem IterM.toArray_flatMapAfter {α α₂ β γ : Type w} {m : Type w → Type w'}
     [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
     [Iterator α m β] [Iterator α₂ m γ] [Finite α m] [Finite α₂ m]
-    [IteratorCollect α m m] [IteratorCollect α₂ m m]
-    [LawfulIteratorCollect α m m] [LawfulIteratorCollect α₂ m m]
     {f : β → IterM (α := α₂) m γ}
     {it₁ : IterM (α := α) m β} {it₂ : Option (IterM (α := α₂) m γ)} :
     (it₁.flatMapAfter f it₂).toArray = do
@@ -338,8 +322,6 @@ public theorem IterM.toList_flatMap {α α₂ β γ : Type w} {m : Type w → Ty
     [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
     [Iterator α m β] [Iterator α₂ m γ] [Finite α m] [Finite α₂ m]
     [Iterator α m β] [Iterator α₂ m γ] [Finite α m] [Finite α₂ m]
-    [IteratorCollect α m m] [IteratorCollect α₂ m m]
-    [LawfulIteratorCollect α m m] [LawfulIteratorCollect α₂ m m]
     {f : β → IterM (α := α₂) m γ}
     {it₁ : IterM (α := α) m β} :
     (it₁.flatMap f).toList = List.flatten <$> (it₁.mapM fun b => (f b).toList).toList := by
@@ -349,8 +331,6 @@ public theorem IterM.toArray_flatMap {α α₂ β γ : Type w} {m : Type w → T
     [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
     [Iterator α m β] [Iterator α₂ m γ] [Finite α m] [Finite α₂ m]
     [Iterator α m β] [Iterator α₂ m γ] [Finite α m] [Finite α₂ m]
-    [IteratorCollect α m m] [IteratorCollect α₂ m m]
-    [LawfulIteratorCollect α m m] [LawfulIteratorCollect α₂ m m]
     {f : β → IterM (α := α₂) m γ}
     {it₁ : IterM (α := α) m β} :
     (it₁.flatMap f).toArray = Array.flatten <$> (it₁.mapM fun b => (f b).toArray).toArray := by

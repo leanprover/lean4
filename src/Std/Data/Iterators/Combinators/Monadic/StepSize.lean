@@ -137,11 +137,6 @@ instance StepSizeIterator.instProductive [Iterator α m β] [IteratorAccess α m
     [Productive α m] : Productive (Types.StepSizeIterator α m β) m :=
   .of_productivenessRelation instProductivenessRelation
 
-instance StepSizeIterator.instIteratorCollect {m n} [Iterator α m β]
-    [IteratorAccess α m] [Monad m] [Monad n] :
-    IteratorCollect (Types.StepSizeIterator α m β) m n :=
-  .defaultImplementation
-
 instance StepSizeIterator.instIteratorLoop {m n} [Iterator α m β]
     [IteratorAccess α m] [Monad m] [Monad n] :
     IteratorLoop (Types.StepSizeIterator α m β) m n :=

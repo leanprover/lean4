@@ -1,9 +1,69 @@
-multiConstantError.lean:1:11-1:12: error(lean.inferBinderTypeFailed): Failed to infer type of binder `c`
-
-Note: Multiple constants cannot be declared in a single declaration. The identifier(s) `b`, `c` are being interpreted as parameters `(b : _)`, `(c : _)`.
 multiConstantError.lean:1:9-1:10: error(lean.inferBinderTypeFailed): Failed to infer type of binder `b`
 
-Note: Multiple constants cannot be declared in a single declaration. The identifier(s) `b`, `c` are being interpreted as parameters `(b : _)`, `(c : _)`.
-multiConstantError.lean:3:9-3:10: error(lean.inferBinderTypeFailed): Failed to infer type of binder `α`
+Note: Multiple constants cannot be declared in a single declaration. The identifier `b` is being interpreted as a parameter `(b : _)`.
+multiConstantError.lean:3:11-3:12: error(lean.inferBinderTypeFailed): Failed to infer type of binder `c`
 
-Note: Multiple constants cannot be declared in a single declaration. The identifier(s) `α`, `β` are being interpreted as parameters `(α : _)`, `(β : _)`.
+Note: Multiple constants cannot be declared in a single declaration. The identifiers `b` and `c` are being interpreted as parameters `(b : _)` and `(c : _)`.
+multiConstantError.lean:3:9-3:10: error(lean.inferBinderTypeFailed): Failed to infer type of binder `b`
+
+Note: Multiple constants cannot be declared in a single declaration. The identifiers `b` and `c` are being interpreted as parameters `(b : _)` and `(c : _)`.
+multiConstantError.lean:5:13-5:14: error(lean.inferBinderTypeFailed): Failed to infer type of binder `d`
+
+Note: Multiple constants cannot be declared in a single declaration. The identifiers `b`, `c`, and `d` are being interpreted as parameters `(b : _)`, `(c : _)`, and `(d : _)`.
+multiConstantError.lean:5:11-5:12: error(lean.inferBinderTypeFailed): Failed to infer type of binder `c`
+
+Note: Multiple constants cannot be declared in a single declaration. The identifiers `b`, `c`, and `d` are being interpreted as parameters `(b : _)`, `(c : _)`, and `(d : _)`.
+multiConstantError.lean:5:9-5:10: error(lean.inferBinderTypeFailed): Failed to infer type of binder `b`
+
+Note: Multiple constants cannot be declared in a single declaration. The identifiers `b`, `c`, and `d` are being interpreted as parameters `(b : _)`, `(c : _)`, and `(d : _)`.
+multiConstantError.lean:7:15-7:16: error(lean.inferBinderTypeFailed): Failed to infer type of binder `e`
+
+Note: Multiple constants cannot be declared in a single declaration. The identifiers `b`, `c`, `d`, and `e` are being interpreted as parameters `(b : _)`, `(c : _)`, `(d : _)`, and `(e : _)`.
+multiConstantError.lean:7:13-7:14: error(lean.inferBinderTypeFailed): Failed to infer type of binder `d`
+
+Note: Multiple constants cannot be declared in a single declaration. The identifiers `b`, `c`, `d`, and `e` are being interpreted as parameters `(b : _)`, `(c : _)`, `(d : _)`, and `(e : _)`.
+multiConstantError.lean:7:11-7:12: error(lean.inferBinderTypeFailed): Failed to infer type of binder `c`
+
+Note: Multiple constants cannot be declared in a single declaration. The identifiers `b`, `c`, `d`, and `e` are being interpreted as parameters `(b : _)`, `(c : _)`, `(d : _)`, and `(e : _)`.
+multiConstantError.lean:7:9-7:10: error(lean.inferBinderTypeFailed): Failed to infer type of binder `b`
+
+Note: Multiple constants cannot be declared in a single declaration. The identifiers `b`, `c`, `d`, and `e` are being interpreted as parameters `(b : _)`, `(c : _)`, `(d : _)`, and `(e : _)`.
+multiConstantError.lean:9:12-9:13: error(lean.inferBinderTypeFailed): Failed to infer type of binder `c`
+
+Note: Because this declaration's type has been explicitly provided, all parameter types and holes (e.g., `_`) in its header are resolved before its body is processed; information from the declaration body cannot be used to infer what these values should be
+multiConstantError.lean:9:9-9:10: error(lean.inferBinderTypeFailed): Failed to infer type of binder `b`
+
+Note: Because this declaration's type has been explicitly provided, all parameter types and holes (e.g., `_`) in its header are resolved before its body is processed; information from the declaration body cannot be used to infer what these values should be
+multiConstantError.lean:11:9-11:10: error(lean.inferBinderTypeFailed): Failed to infer type of binder `α`
+
+Note: Multiple constants cannot be declared in a single declaration. The identifiers `α` and `β` are being interpreted as parameters `(α : _)` and `(β : _)`.
+multiConstantError.lean:14:8-14:9: error(lean.inferBinderTypeFailed): Failed to infer type of binder `x`
+
+Note: Examples do not have names. The identifier `x` is being interpreted as a parameter `(x : _)`.
+multiConstantError.lean:16:10-16:11: error(lean.inferBinderTypeFailed): Failed to infer type of binder `y`
+
+Note: Examples do not have names. The identifiers `x` and `y` are being interpreted as parameters `(x : _)` and `(y : _)`.
+multiConstantError.lean:16:8-16:9: error(lean.inferBinderTypeFailed): Failed to infer type of binder `x`
+
+Note: Examples do not have names. The identifiers `x` and `y` are being interpreted as parameters `(x : _)` and `(y : _)`.
+multiConstantError.lean:18:12-18:13: error(lean.inferBinderTypeFailed): Failed to infer type of binder `z`
+
+Note: Examples do not have names. The identifiers `x`, `y`, and `z` are being interpreted as parameters `(x : _)`, `(y : _)`, and `(z : _)`.
+multiConstantError.lean:18:10-18:11: error(lean.inferBinderTypeFailed): Failed to infer type of binder `y`
+
+Note: Examples do not have names. The identifiers `x`, `y`, and `z` are being interpreted as parameters `(x : _)`, `(y : _)`, and `(z : _)`.
+multiConstantError.lean:18:8-18:9: error(lean.inferBinderTypeFailed): Failed to infer type of binder `x`
+
+Note: Examples do not have names. The identifiers `x`, `y`, and `z` are being interpreted as parameters `(x : _)`, `(y : _)`, and `(z : _)`.
+multiConstantError.lean:20:12-20:13: error(lean.inferBinderTypeFailed): Failed to infer type of binder `γ`
+
+Note: Examples do not have names. The identifiers `α`, `β`, and `γ` are being interpreted as parameters `(α : _)`, `(β : _)`, and `(γ : _)`.
+multiConstantError.lean:20:8-20:9: error(lean.inferBinderTypeFailed): Failed to infer type of binder `α`
+
+Note: Examples do not have names. The identifiers `α`, `β`, and `γ` are being interpreted as parameters `(α : _)`, `(β : _)`, and `(γ : _)`.
+multiConstantError.lean:22:10-22:11: error(lean.inferBinderTypeFailed): Failed to infer type of binder `y`
+
+Note: Because this declaration's type has been explicitly provided, all parameter types and holes (e.g., `_`) in its header are resolved before its body is processed; information from the declaration body cannot be used to infer what these values should be
+multiConstantError.lean:22:8-22:9: error(lean.inferBinderTypeFailed): Failed to infer type of binder `x`
+
+Note: Because this declaration's type has been explicitly provided, all parameter types and holes (e.g., `_`) in its header are resolved before its body is processed; information from the declaration body cannot be used to infer what these values should be

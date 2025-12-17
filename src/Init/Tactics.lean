@@ -1093,9 +1093,6 @@ See also:
 * `first | tac1 | tac2` implements the backtracking used by `repeat`
 -/
 syntax "repeat " tacticSeq : tactic
--- TODO: delete in favor of builtin elab after stage 0 update
-macro_rules
-  | `(tactic| repeat $seq) => `(tactic| first | ($seq); repeat $seq | skip)
 
 /--
 `repeat' tac` recursively applies `tac` on all of the goals so long as it succeeds.

@@ -445,119 +445,333 @@ theorem Iter.toArray_mapWithPostcondition_mapWithPostcondition
   rw [IterM.toArray_mapWithPostcondition_mapWithPostcondition,
     instMonadLiftTOfMonadLift_instMonadLiftTOfPure]
 
+section ForIn
+
+@[spec]
+theorem Iter.forIn_filterMapWithPostcondition
+    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadLiftT n o] [LawfulMonadLiftT n o] [Finite α Id]
+    [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
+    {it : Iter (α := α) β} {f : β → PostconditionT n (Option β₂)} {init : γ}
+    {g : β₂ → γ → o (ForInStep γ)} :
+    forIn (it.filterMapWithPostcondition f) init g = forIn it init (fun out acc => do
+        match ← (f out).run with
+        | some c => g c acc
+        | none => return .yield acc) := by
+  simp [Iter.forIn_eq_forIn_toIterM, filterMapWithPostcondition, IterM.forIn_filterMapWithPostcondition,
+    instMonadLiftTOfMonadLift_instMonadLiftTOfPure]; rfl
+
+@[spec]
+theorem Iter.forIn_filterMapM
+    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadAttach n] [WeaklyLawfulMonadAttach n]
+    [MonadLiftT n o] [LawfulMonadLiftT n o]
+    [Finite α Id] [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
+    {it : Iter (α := α) β} {f : β → n (Option β₂)} {init : γ} {g : β₂ → γ → o (ForInStep γ)} :
+    forIn (it.filterMapM f) init g = forIn it init (fun out acc => do
+        match ← f out with
+        | some c => g c acc
+        | none => return .yield acc) := by
+  simp [filterMapM, forIn_eq_forIn_toIterM, IterM.forIn_filterMapM,
+    instMonadLiftTOfMonadLift_instMonadLiftTOfPure]; rfl
+
+@[spec]
+theorem Iter.forIn_filterMap
+    [Monad n] [LawfulMonad n] [Finite α Id]
+    [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {it : Iter (α := α) β} {f : β → Option β₂} {init : γ} {g : β₂ → γ → n (ForInStep γ)} :
+    forIn (it.filterMap f) init g = forIn it init (fun out acc => do
+        match f out with
+        | some c => g c acc
+        | none => return .yield acc) := by
+  simp [filterMap, forIn_eq_forIn_toIterM, IterM.forIn_filterMap]; rfl
+
+@[spec]
+theorem Iter.forIn_mapWithPostcondition
+    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadLiftT n o] [LawfulMonadLiftT n o] [Finite α Id]
+    [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
+    {it : Iter (α := α) β} {f : β → PostconditionT n β₂} {init : γ}
+    {g : β₂ → γ → o (ForInStep γ)} :
+    forIn (it.mapWithPostcondition f) init g =
+      forIn it init (fun out acc => do g (← (f out).run) acc) := by
+  simp [mapWithPostcondition, forIn_eq_forIn_toIterM, IterM.forIn_mapWithPostcondition,
+    instMonadLiftTOfMonadLift_instMonadLiftTOfPure]
+
+@[spec]
+theorem Iter.forIn_mapM
+    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadAttach n] [WeaklyLawfulMonadAttach n]
+    [MonadLiftT n o] [LawfulMonadLiftT n o]
+    [Finite α Id]
+    [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
+    {it : Iter (α := α) β} {f : β → n β₂} {init : γ} {g : β₂ → γ → o (ForInStep γ)} :
+    forIn (it.mapM f) init g = forIn it init (fun out acc => do g (← f out) acc) := by
+  rw [mapM, forIn_eq_forIn_toIterM, IterM.forIn_mapM, instMonadLiftTOfMonadLift_instMonadLiftTOfPure]
+
+@[spec]
+theorem Iter.forIn_map
+    [Monad n] [LawfulMonad n]
+    [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {it : Iter (α := α) β} {f : β → β₂} {init : γ} {g : β₂ → γ → n (ForInStep γ)} :
+    forIn (it.map f) init g = forIn it init (fun out acc => do g (f out) acc) := by
+  simp [map, forIn_eq_forIn_toIterM, IterM.forIn_map]
+
+@[spec]
+theorem Iter.forIn_filterWithPostcondition
+    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadLiftT n o] [LawfulMonadLiftT n o]
+    [Finite α Id] [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
+    {it : Iter (α := α) β} {f : β → PostconditionT n (ULift Bool)} {init : γ}
+    {g : β → γ → o (ForInStep γ)} :
+    haveI : MonadLift n o := ⟨monadLift⟩
+    forIn (it.filterWithPostcondition f) init g =
+      forIn it init (fun out acc => do if (← (f out).run).down then g out acc else return .yield acc) := by
+  simp [filterWithPostcondition, forIn_eq_forIn_toIterM, IterM.forIn_filterWithPostcondition,
+    instMonadLiftTOfMonadLift_instMonadLiftTOfPure]
+
+@[spec]
+theorem Iter.forIn_filterM
+    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadAttach n] [WeaklyLawfulMonadAttach n]
+    [MonadLiftT n o] [LawfulMonadLiftT n o] [Finite α Id]
+    [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
+    {it : Iter (α := α) β} {f : β → n (ULift Bool)} {init : γ} {g : β → γ → o (ForInStep γ)} :
+    forIn (it.filterM f) init g = forIn it init (fun out acc => do if (← f out).down then g out acc else return .yield acc) := by
+  simp [filterM, forIn_eq_forIn_toIterM, IterM.forIn_filterM,
+    instMonadLiftTOfMonadLift_instMonadLiftTOfPure]
+
+@[spec]
+theorem Iter.forIn_filter
+    [Monad n] [LawfulMonad n]
+    [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {it : Iter (α := α) β} {f : β → Bool} {init : γ} {g : β → γ → n (ForInStep γ)} :
+    forIn (it.filter f) init g = forIn it init (fun out acc => do if f out then g out acc else return .yield acc) := by
+  simp [filter, forIn_eq_forIn_toIterM, IterM.forIn_filter]
+
+end ForIn
+
 section Fold
 
-theorem Iter.foldM_filterMapM {α β γ δ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
-    [Iterator α Id β] [Finite α Id] [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
-    [Monad n] [LawfulMonad n]
-    [IteratorLoop α Id Id] [IteratorLoop α Id m] [IteratorLoop α Id n]
-    [MonadLiftT m n] [LawfulMonadLiftT m n]
-    [LawfulIteratorLoop α Id Id] [LawfulIteratorLoop α Id m] [LawfulIteratorLoop α Id n]
-    {f : β → m (Option γ)} {g : δ → γ → n δ} {init : δ} {it : Iter (α := α) β} :
+@[spec]
+theorem Iter.foldM_filterMapWithPostcondition {α β γ δ : Type w}
+    {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [Monad o] [LawfulMonad n] [LawfulMonad o]
+    [IteratorLoop α Id n] [IteratorLoop α Id o]
+    [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
+    [MonadLiftT n o] [LawfulMonadLiftT n o]
+    {f : β → PostconditionT n (Option γ)} {g : δ → γ → o δ} {init : δ} {it : Iter (α := α) β} :
+    (it.filterMapWithPostcondition f).foldM (init := init) g =
+      it.foldM (init := init) (fun d b => do
+          let some c ← (f b).run | pure d
+          g d c) := by
+  rw [filterMapWithPostcondition, IterM.foldM_filterMapWithPostcondition, foldM_eq_foldM_toIterM,
+    instMonadLiftTOfMonadLift_instMonadLiftTOfPure]; rfl
+
+@[spec]
+theorem Iter.foldM_filterMapM {α β γ δ : Type w}
+    {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
+    [Monad o] [LawfulMonad o]
+    [IteratorLoop α Id n] [IteratorLoop α Id o]
+    [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
+    [MonadLiftT n o] [LawfulMonadLiftT n o]
+    {f : β → n (Option γ)} {g : δ → γ → o δ} {init : δ} {it : Iter (α := α) β} :
     (it.filterMapM f).foldM (init := init) g =
       it.foldM (init := init) (fun d b => do
           let some c ← f b | pure d
           g d c) := by
-  rw [foldM_eq_foldM_toIterM, filterMapM_eq_toIter_filterMapM_toIterM, IterM.foldM_filterMapM]
-  congr
-  simp [instMonadLiftTOfMonadLift, Id.instMonadLiftTOfPure]
+  simp [filterMapM, IterM.foldM_filterMapM, foldM_eq_foldM_toIterM,
+    instMonadLiftTOfMonadLift_instMonadLiftTOfPure]; rfl
 
-theorem Iter.foldM_mapM {α β γ δ : Type w} {m : Type w → Type w'} {n : Type w → Type w''}
-    [Iterator α Id β] [Finite α Id] [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
-    [Monad n] [LawfulMonad n] [IteratorLoop α Id m] [IteratorLoop α Id n]
-    [LawfulIteratorLoop α Id m] [LawfulIteratorLoop α Id n]
-    [MonadLiftT m n] [LawfulMonadLiftT m n]
-    {f : β → m γ} {g : δ → γ → n δ} {init : δ} {it : Iter (α := α) β} :
+@[spec]
+theorem Iter.foldM_mapWithPostcondition {α β γ δ : Type w}
+    {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad m] [Monad n] [Monad o] [LawfulMonad m][LawfulMonad n] [LawfulMonad o]
+    [IteratorLoop α Id n] [IteratorLoop α Id o]
+    [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
+    [MonadLiftT n o] [LawfulMonadLiftT n o]
+    {f : β → PostconditionT n γ} {g : δ → γ → o δ} {init : δ} {it : Iter (α := α) β} :
+    (it.mapWithPostcondition f).foldM (init := init) g =
+      it.foldM (init := init) (fun d b => do let c ← (f b).run; g d c) := by
+  simp [mapWithPostcondition, IterM.foldM_mapWithPostcondition, foldM_eq_foldM_toIterM,
+    instMonadLiftTOfMonadLift_instMonadLiftTOfPure]
+
+@[spec]
+theorem Iter.foldM_mapM {α β γ δ : Type w}
+    {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
+    [Monad o] [LawfulMonad o]
+    [IteratorLoop α Id n] [IteratorLoop α Id o]
+    [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
+    [MonadLiftT n o] [LawfulMonadLiftT n o]
+    {f : β → n γ} {g : δ → γ → o δ} {init : δ} {it : Iter (α := α) β} :
+    haveI : MonadLift n o := ⟨MonadLiftT.monadLift⟩
     (it.mapM f).foldM (init := init) g =
       it.foldM (init := init) (fun d b => do let c ← f b; g d c) := by
-  rw [foldM_eq_foldM_toIterM, mapM_eq_toIter_mapM_toIterM, IterM.foldM_mapM]
-  congr
-  simp [instMonadLiftTOfMonadLift, Id.instMonadLiftTOfPure]
+  simp [mapM, IterM.foldM_mapM, foldM_eq_foldM_toIterM,
+    instMonadLiftTOfMonadLift_instMonadLiftTOfPure]
 
-theorem Iter.foldM_filterMap {α β γ : Type w} {δ : Type x} {m : Type x → Type w'}
-    [Iterator α Id β] [Finite α Id] [Monad m] [LawfulMonad m]
-    [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
-    {f : β → Option γ} {g : δ → γ → m δ} {init : δ} {it : Iter (α := α) β} :
+@[spec]
+theorem Iter.foldM_filterWithPostcondition {α β δ : Type w}
+    {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [Monad o] [LawfulMonad n] [LawfulMonad o]
+    [IteratorLoop α Id n] [IteratorLoop α Id o]
+    [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
+    [MonadLiftT n o] [LawfulMonadLiftT n o]
+    {f : β → PostconditionT n (ULift Bool)} {g : δ → β → o δ} {init : δ} {it : Iter (α := α) β} :
+    (it.filterWithPostcondition f).foldM (init := init) g =
+      it.foldM (init := init) (fun d b => do if (← (f b).run).down then g d b else pure d) := by
+  simp [filterWithPostcondition, IterM.foldM_filterWithPostcondition, foldM_eq_foldM_toIterM,
+    instMonadLiftTOfMonadLift_instMonadLiftTOfPure]
+
+@[spec]
+theorem Iter.foldM_filterM {α β δ : Type w}
+    {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
+    [Monad o] [LawfulMonad o]
+    [IteratorLoop α Id n] [IteratorLoop α Id o]
+    [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
+    [MonadLiftT n o] [LawfulMonadLiftT n o]
+    {f : β → n (ULift Bool)} {g : δ → β → o δ} {init : δ} {it : Iter (α := α) β} :
+    (it.filterM f).foldM (init := init) g =
+      it.foldM (init := init) (fun d b => do if (← f b).down then g d b else pure d) := by
+  simp [filterM, IterM.foldM_filterM, foldM_eq_foldM_toIterM,
+    instMonadLiftTOfMonadLift_instMonadLiftTOfPure]
+
+@[spec]
+theorem Iter.foldM_filterMap {α β γ δ : Type w} {n : Type w → Type w''}
+    [Iterator α Id β] [Finite α Id] [Monad n] [LawfulMonad n]
+    [IteratorLoop α Id n]
+    [LawfulIteratorLoop α Id n]
+    {f : β → Option γ} {g : δ → γ → n δ} {init : δ} {it : Iter (α := α) β} :
     (it.filterMap f).foldM (init := init) g =
       it.foldM (init := init) (fun d b => do
           let some c := f b | pure d
           g d c) := by
-  induction it using Iter.inductSteps generalizing init with | step it ihy ihs
-  rw [foldM_eq_match_step, foldM_eq_match_step, step_filterMap]
-  -- There seem to be some type dependencies that, combined with nested match expressions,
-  -- force us to split a lot.
-  split <;> rename_i h
-  · split at h
-    · split at h
-      · cases h
-      · cases h; simp [*, ihy ‹_›]
-    · cases h
-    · cases h
-  · split at h
-    · split at h
-      · cases h; simp [*, ihy ‹_›]
-      · cases h
-    · cases h; simp [*, ihs ‹_›]
-    · cases h
-  · split at h
-    · split at h
-      · cases h
-      · cases h
-    · cases h
-    · simp [*]
+  simp [filterMap, IterM.foldM_filterMap, foldM_eq_foldM_toIterM]; rfl
 
-theorem Iter.foldM_map {α β γ : Type w} {δ : Type x} {m : Type x → Type w'}
-    [Iterator α Id β] [Finite α Id] [Monad m] [LawfulMonad m]
-    [IteratorLoop α Id m] [LawfulIteratorLoop α Id m]
-    {f : β → γ} {g : δ → γ → m δ} {init : δ} {it : Iter (α := α) β} :
+@[spec]
+theorem Iter.foldM_map {α β γ δ : Type w} {n : Type w → Type w''}
+    [Iterator α Id β] [Finite α Id] [Monad n] [LawfulMonad n]
+    [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {f : β → γ} {g : δ → γ → n δ} {init : δ} {it : Iter (α := α) β} :
     (it.map f).foldM (init := init) g =
-      it.foldM (init := init) (fun d b => g d (f b)) := by
-  induction it using Iter.inductSteps generalizing init with | step it ihy ihs
-  rw [foldM_eq_match_step, foldM_eq_match_step, step_map]
-  cases it.step using PlausibleIterStep.casesOn
-  · simp [*, ihy ‹_›]
-  · simp [*, ihs ‹_›]
-  · simp
+      it.foldM (init := init) (fun d b => do g d (f b)) := by
+  simp [foldM_eq_forIn, forIn_map]
 
-theorem Iter.fold_filterMapM {α β γ δ : Type w} {m : Type w → Type w'}
-    [Iterator α Id β] [Finite α Id] [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
-    [IteratorLoop α Id Id.{w}] [IteratorLoop α Id m]
-    [LawfulIteratorLoop α Id Id] [LawfulIteratorLoop α Id m]
-    {f : β → m (Option γ)} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β} :
+@[spec]
+theorem Iter.foldM_filter {α β δ : Type w} {n : Type w → Type w''}
+    [Iterator α Id β] [Finite α Id] [Monad n] [LawfulMonad n]
+    [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {f : β → Bool} {g : δ → β → n δ} {init : δ} {it : Iter (α := α) β} :
+    (it.filter f).foldM (init := init) g =
+      it.foldM (init := init) (fun d b => if f b then g d b else pure d) := by
+  simp only [foldM_eq_forIn, forIn_filter]
+  congr 1; ext out acc
+  cases f out <;> simp
+
+@[spec]
+theorem Iter.fold_filterMapWithPostcondition {α β γ δ : Type w} {n : Type w → Type w''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [LawfulMonad n]
+    [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {f : β → PostconditionT n (Option γ)} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β} :
+    (it.filterMapWithPostcondition f).fold (init := init) g =
+      it.foldM (init := init) (fun d b => do
+          let some c ← (f b).run | pure d
+          return g d c) := by
+  simp [filterMapWithPostcondition, IterM.fold_filterMapWithPostcondition, foldM_eq_foldM_toIterM]
+  rfl
+
+@[spec]
+theorem Iter.fold_filterMapM {α β γ δ : Type w} {n : Type w → Type w''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
+    [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {f : β → n (Option γ)} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β} :
     (it.filterMapM f).fold (init := init) g =
       it.foldM (init := init) (fun d b => do
           let some c ← f b | pure d
           return g d c) := by
-  rw [foldM_eq_foldM_toIterM, filterMapM_eq_toIter_filterMapM_toIterM, IterM.fold_filterMapM]
-  rfl
+  simp [filterMapM, IterM.fold_filterMapM, foldM_eq_foldM_toIterM]; rfl
 
-theorem Iter.fold_mapM {α β γ δ : Type w} {m : Type w → Type w'}
-    [Iterator α Id β] [Finite α Id] [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m]
-    [IteratorLoop α Id Id.{w}] [IteratorLoop α Id m]
-    [LawfulIteratorLoop α Id Id] [LawfulIteratorLoop α Id m]
-    {f : β → m γ} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β} :
+@[spec]
+theorem Iter.fold_mapWithPostcondition {α β γ δ : Type w} {n : Type w → Type w''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [LawfulMonad n]
+    [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {f : β → PostconditionT n γ} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β} :
+    (it.mapWithPostcondition f).fold (init := init) g =
+      it.foldM (init := init) (fun d b => do let c ← (f b).run; return g d c) := by
+  simp [mapWithPostcondition, IterM.fold_mapWithPostcondition, foldM_eq_foldM_toIterM]
+
+@[spec]
+theorem Iter.fold_mapM {α β γ δ : Type w} {n : Type w → Type w''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
+    [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {f : β → n γ} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β} :
     (it.mapM f).fold (init := init) g =
-      it.foldM (init := init) (fun d b => do return g d (← f b)) := by
-  rw [foldM_eq_foldM_toIterM, mapM_eq_toIter_mapM_toIterM, IterM.fold_mapM]
+      it.foldM (init := init) (fun d b => do let c ← f b; return g d c) := by
+  simp [mapM, IterM.fold_mapM, foldM_eq_foldM_toIterM]
 
-theorem Iter.fold_filterMap {α β γ : Type w} {δ : Type x}
-    [Iterator α Id β] [Finite α Id] [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
+@[spec]
+theorem Iter.fold_filterWithPostcondition {α β δ : Type w}
+    {n : Type w → Type w''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [LawfulMonad n]
+    [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {f : β → PostconditionT n (ULift Bool)} {g : δ → β → δ} {init : δ} {it : Iter (α := α) β} :
+    (it.filterWithPostcondition f).fold (init := init) g =
+      it.foldM (init := init) (fun d b => return if (← (f b).run).down then g d b else d) := by
+  simp [filterWithPostcondition, IterM.fold_filterWithPostcondition, foldM_eq_foldM_toIterM]
+
+@[spec]
+theorem Iter.fold_filterM {α β δ : Type w} {n : Type w → Type w''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
+    [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {f : β → n (ULift Bool)} {g : δ → β → δ} {init : δ} {it : Iter (α := α) β} :
+    (it.filterM f).fold (init := init) g =
+      it.foldM (init := init) (fun d b => return if (← f b).down then g d b else d) := by
+  simp [filterM, IterM.fold_filterM, foldM_eq_foldM_toIterM]
+
+@[spec]
+theorem Iter.fold_filterMap {α β γ δ : Type w}
+    [Iterator α Id β] [Finite α Id]
+    [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
     {f : β → Option γ} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β} :
     (it.filterMap f).fold (init := init) g =
       it.fold (init := init) (fun d b =>
           match f b with
           | some c => g d c
           | _ => d) := by
-  simp only [fold_eq_foldM, foldM_filterMap]
-  rfl
+  simp [filterMap, IterM.fold_filterMap, fold_eq_fold_toIterM]; rfl
 
-theorem Iter.fold_map {α β γ : Type w} {δ : Type x}
+@[spec]
+theorem Iter.fold_map {α β γ δ : Type w}
     [Iterator α Id β] [Finite α Id]
     [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
     {f : β → γ} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β} :
     (it.map f).fold (init := init) g =
       it.fold (init := init) (fun d b => g d (f b)) := by
   simp [fold_eq_foldM, foldM_map]
+
+@[spec]
+theorem Iter.fold_filter {α β δ : Type w}
+    [Iterator α Id β] [Finite α Id]
+    [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
+    {f : β → Bool} {g : δ → β → δ} {init : δ} {it : Iter (α := α) β} :
+    (it.filter f).fold (init := init) g =
+      it.fold (init := init) (fun d b => if f b then g d b else d) := by
+  simp [filter, IterM.fold_filter, fold_eq_fold_toIterM]
 
 end Fold
 

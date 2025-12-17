@@ -1164,7 +1164,7 @@ theorem Spec.forIn_slice {m : Type w → Type x} {ps : PostShape}
   exact Spec.forIn_list inv step
 
 open Std.Iterators in
-@[spec]
+@[spec low]
 theorem Spec.forIn_iter {ps : PostShape} [Monad n] [WPMonad n ps]
     {α β γ} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
@@ -1184,6 +1184,17 @@ theorem Spec.forIn_iter {ps : PostShape} [Monad n] [WPMonad n ps]
 
 open Std.Iterators in
 @[spec]
+theorem Spec.forIn_map_iterM {m β} {ps : PostShape}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [i : WPMonad n ps]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    [Iterator α m β] [Finite α m] [IteratorLoop α m n] [LawfulIteratorLoop α m n]
+    {it : IterM (α := α) m β} {f : β → β₂} {init : γ} {g : β₂ → γ → n (ForInStep γ)} {P Q}
+    (h : Triple (forIn it init (fun out acc => do g (f out) acc)) P Q) :
+    Triple (forIn (it.map f) init g) P Q := by
+  rwa [IterM.forIn_map]
+
+open Std.Iterators in
+@[spec low]
 theorem Spec.forIn_iterM_id {ps : PostShape} [Monad n] [WPMonad n ps]
     {α β γ} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
@@ -1205,7 +1216,7 @@ theorem Spec.forIn_iterM_id {ps : PostShape} [Monad n] [WPMonad n ps]
   exact Spec.forIn_list inv step
 
 open Std.Iterators in
-@[spec]
+@[spec low]
 theorem Spec.foldM_iter {ps : PostShape} [Monad n] [WPMonad n ps]
     {α β γ} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
@@ -1222,7 +1233,7 @@ theorem Spec.foldM_iter {ps : PostShape} [Monad n] [WPMonad n ps]
   exact Spec.foldlM_list inv step
 
 open Std.Iterators in
-@[spec]
+@[spec low]
 theorem Spec.foldM_iterM_id {ps : PostShape} [Monad n] [WPMonad n ps]
     {α β γ} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
     [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]

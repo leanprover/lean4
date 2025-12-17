@@ -217,6 +217,7 @@ def mkSpecAttr (ext : SpecExtension) : AttributeImpl where
     let go : MetaM Unit := do
       let info ← getAsyncConstInfo declName
       let prio ← getAttrParamOptPrio stx[3]
+      logInfo m!"prio {prio}"
       try
         addSpecTheorem ext declName prio attrKind
       catch _ =>

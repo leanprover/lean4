@@ -934,6 +934,29 @@ theorem forIn_eq_sum (xs : Array Nat) {m ps} [Monad m] [WPMonad m ps] :
   · simp only [Array.toList_iter, Array.sum_eq_sum_toList, SPred.entails.refl]
   · simp only [ExceptConds.entails.refl]
 
+open Std.Iterators in
+@[spec low]
+theorem Spec.forIn_iterM_id {ps : PostShape} [Monad n] [WPMonad n ps]
+    {α β γ} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {init : γ} {f : β → γ → n (ForInStep γ)}
+    {it : IterM (α := α) Id β}
+    (inv : Invariant it.toList.run γ ps)
+    (step : ∀ pref cur suff (h : it.toList.run = pref ++ cur :: suff) b,
+      Triple
+        (f cur b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨it.toList.run, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn it init f) (inv.1 (⟨[], it.toList.run, rfl⟩, init)) (fun b => inv.1 (⟨it.toList.run, [], by simp⟩, b), inv.2) := by
+  conv =>
+    congr
+    rw [← Iter.toIterM_toIter (it := it), ← Iter.forIn_eq_forIn_toIterM, ← Iter.forIn_toList,
+      IterM.toList_toIter]
+  exact Spec.forIn_list inv step
+
+set_option trace.Elab.Tactic.Do.spec true in
 theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [LawfulMonad m]
     [WPMonad m ps] :
     Triple (m := m) (do

@@ -103,23 +103,19 @@ def throwUnknownParserCategory {α} (catName : Name) : ExceptT String Id α :=
 abbrev getCategory (categories : ParserCategories) (catName : Name) : Option ParserCategory :=
   categories.find? catName
 
-def addLeadingParser (categories : ParserCategories) (catName declName : Name) (p : Parser) (prio : Nat) : Except String ParserCategories :=
-  match getCategory categories catName with
-  | none     =>
-    throwUnknownParserCategory catName
-  | some cat =>
-    let kinds := cat.kinds.insert declName
-    let addTokens (tks : List Token) : Except String ParserCategories :=
-      let tks    := tks.map Name.mkSimple
-      let tables := tks.eraseDups.foldl (init := cat.tables) fun tables tk =>
-        { tables with leadingTable := tables.leadingTable.insert tk (p, prio) }
-      pure $ categories.insert catName { cat with kinds, tables }
-    match p.info.firstTokens with
-    | FirstTokens.tokens tks    => addTokens tks
-    | FirstTokens.optTokens tks => addTokens tks
-    | _ =>
-      let tables := { cat.tables with leadingParsers := (p, prio) :: cat.tables.leadingParsers }
-      pure $ categories.insert catName { cat with kinds, tables }
+def ParserCategory.addLeadingParser (cat : ParserCategory) (declName : Name) (p : Parser) (prio : Nat) : ParserCategory :=
+  let kinds := cat.kinds.insert declName
+  let addTokens (tks : List Token) : ParserCategory :=
+    let tks    := tks.map Name.mkSimple
+    let tables := tks.eraseDups.foldl (init := cat.tables) fun tables tk =>
+      { tables with leadingTable := tables.leadingTable.insert tk (p, prio) }
+    { cat with kinds, tables }
+  match p.info.firstTokens with
+  | FirstTokens.tokens tks    => addTokens tks
+  | FirstTokens.optTokens tks => addTokens tks
+  | _ =>
+    let tables := { cat.tables with leadingParsers := (p, prio) :: cat.tables.leadingParsers }
+    { cat with kinds, tables }
 
 private def addTrailingParserAux (tables : PrattParsingTables) (p : TrailingParser) (prio : Nat) : PrattParsingTables :=
   let addTokens (tks : List Token) : PrattParsingTables :=
@@ -131,19 +127,22 @@ private def addTrailingParserAux (tables : PrattParsingTables) (p : TrailingPars
   | FirstTokens.optTokens tks => addTokens tks
   | _                         => { tables with trailingParsers := (p, prio) :: tables.trailingParsers }
 
-def addTrailingParser (categories : ParserCategories) (catName declName : Name) (p : TrailingParser) (prio : Nat) : Except String ParserCategories :=
-  match getCategory categories catName with
-  | none     => throwUnknownParserCategory catName
-  | some cat =>
-    let kinds := cat.kinds.insert declName
-    let tables := addTrailingParserAux cat.tables p prio
-    pure $ categories.insert catName { cat with kinds, tables }
+def ParserCategory.addTrailingParser (cat : ParserCategory) (declName : Name) (p : TrailingParser) (prio : Nat) : ParserCategory :=
+  let kinds := cat.kinds.insert declName
+  let tables := addTrailingParserAux cat.tables p prio
+  { cat with kinds, tables }
+
+def ParserCategory.addParser (cat : ParserCategory) (declName : Name)
+    (leading : Bool) (p : Parser) (prio : Nat) : ParserCategory :=
+  match leading with
+  | true  => cat.addLeadingParser declName p prio
+  | false => cat.addTrailingParser declName p prio
 
 def addParser (categories : ParserCategories) (catName declName : Name)
     (leading : Bool) (p : Parser) (prio : Nat) : Except String ParserCategories := do
-  match leading, p with
-  | true, p  => addLeadingParser categories catName declName p prio
-  | false, p => addTrailingParser categories catName declName p prio
+  match getCategory categories catName with
+  | none     => throwUnknownParserCategory catName
+  | some cat => pure $ categories.insert catName $ cat.addParser declName leading p prio
 
 def addParserTokens (tokenTable : TokenTable) (info : ParserInfo) : Except String TokenTable :=
   let newTokens := info.collectTokens []

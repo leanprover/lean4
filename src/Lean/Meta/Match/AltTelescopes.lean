@@ -92,24 +92,18 @@ where
   Recall that this kind of parameter always occurs after the parameters corresponding to pattern
   variables.
 
-  The continuation `k` takes four arguments `ys args mask type`.
+  The continuation `k` takes three arguments:
   - `ys` are variables for the hypotheses that have not been eliminated.
-  - `eqs` are variables for equality hypotheses associated with discriminants annotated with `h : discr`.
   - `args` are the arguments for the alternative `alt` that has type `altType`. `ys.size <= args.size`
-  - `mask[i]` is true if the hypotheses has not been eliminated. `mask.size == args.size`.
   - `type` is the resulting type for `altType`.
-
-  We use the `mask` to build the splitter proof. See `mkSplitterProof`.
-
-  This can be used to use the alternative of a match expression in its splitter.
 -/
 public partial def forallAltTelescope (altType : Expr) (altInfo : AltParamInfo) (numDiscrEqs : Nat)
-    (k : (ys : Array Expr) → (eqs : Array Expr) → (args : Array Expr) → (mask : Array Bool) → (type : Expr) → MetaM α)
+    (k : (ys : Array Expr) → (args : Array Expr) → (type : Expr) → MetaM α)
     : MetaM α := do
-  forallAltVarsTelescope altType altInfo fun ys args mask altType => do
-    go ys #[] args mask 0 altType
+  forallAltVarsTelescope altType altInfo fun ys args _mask altType => do
+    go ys #[] args 0 altType
 where
-  go (ys : Array Expr) (eqs : Array Expr) (args : Array Expr) (mask : Array Bool) (i : Nat) (type : Expr) : MetaM α := do
+  go (ys : Array Expr) (eqs : Array Expr) (args : Array Expr) (i : Nat) (type : Expr) : MetaM α := do
     let type ← whnfForall type
     if i < numDiscrEqs then
       let Expr.forallE n d b .. := type
@@ -122,7 +116,7 @@ where
         throwError "unexpected match alternative type{indentExpr altType}"
       withLocalDeclD n d fun eq => do
         let typeNew := b.instantiate1 eq
-        go ys (eqs.push eq) (args.push arg) (mask.push false) (i+1) typeNew
+        go ys (eqs.push eq) (args.push arg) (i+1) typeNew
     else
       let type ← unfoldNamedPattern type
-      k ys eqs args mask type
+      k ys args type

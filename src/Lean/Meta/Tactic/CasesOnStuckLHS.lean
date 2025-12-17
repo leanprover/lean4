@@ -18,8 +18,11 @@ This module provides the `casesOnStuckLHS` tactic, used by
 -/
 
 /--
-  Helper method for `proveCondEqThm`. Given a goal of the form `C.rec ... xMajor = rhs`,
-  apply `cases xMajor`. -/
+Helper method for `proveCondEqThm`.
+Given a goal of the form `C.rec ... xMajor = rhs`,
+if `xMajor` is a free variable, apply `cases xMajor`.
+(As a corner case, `xMajor := Eq.symm h` where `h` is a free variable is also supported.)
+-/
 public partial def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
   let target ← mvarId.getType
   if let some (_, lhs) ← matchEqHEqLHS? target then
@@ -46,11 +49,15 @@ where
           matchConstRec f (fun _ => return none) fun recVal _ => do
             if recVal.getMajorIdx >= args.size then
               return none
-            let major := args[recVal.getMajorIdx]!.consumeMData
-            if major.isFVar then
-              return some major.fvarId!
-            else
-              return none
+            return getMajorFVar args[recVal.getMajorIdx]!.consumeMData
+
+  getMajorFVar (e : Expr) : Option FVarId := do
+    if e.isFVar then
+      return e.fvarId!
+    else if e.isAppOfArity ``Eq.symm 4 then
+      getMajorFVar e.appArg!
+    else
+      none
 
 public def casesOnStuckLHS? (mvarId : MVarId) : MetaM (Option (Array MVarId)) := do
   try casesOnStuckLHS mvarId catch _ => return none

@@ -19,7 +19,7 @@ info: optimize.eq_def (x✝ : Expr) :
       | x, Expr.const i => Expr.op bop (Expr.const 0)
       | x, x_1 => Expr.const 0
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check optimize.eq_def
 
 /--

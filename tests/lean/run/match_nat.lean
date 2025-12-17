@@ -38,3 +38,20 @@ info: private theorem f.match_1.eq_4.{u_1} : ∀ (motive : Nat → Sort u_1) (x 
 -/
 #guard_msgs in
 #print sig f.match_1.eq_4
+
+/--
+info: private theorem f.match_1.congr_eq_4.{u_1} : ∀ (motive : Nat → Sort u_1) (x : Nat) (h_1 : Unit → motive 0)
+  (h_2 : Unit → motive 10) (h_3 : Unit → motive 100) (h_4 : (x : Nat) → motive x) (x_1 : Nat),
+  x = x_1 →
+    (x_1 = 0 → False) →
+      (x_1 = 10 → False) →
+        (x_1 = 100 → False) →
+          (match x with
+            | 0 => h_1 ()
+            | 10 => h_2 ()
+            | 100 => h_3 ()
+            | x => h_4 x) ≍
+            h_4 x_1
+-/
+#guard_msgs in
+#print sig f.match_1.congr_eq_4

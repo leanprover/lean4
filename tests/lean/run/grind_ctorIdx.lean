@@ -1,5 +1,4 @@
 set_option warn.sorry false
-set_option grind.debug true
 
 inductive T where
 | con1 : Nat → T
@@ -68,6 +67,9 @@ example (h : Bool = Nat) (x : Bool) (heq : x ≍ Nat.succ n) : x.ctorIdx = 0 := 
   sorry
 
 -- Nat constructors are represented as `n + k` or as literals, so check that that works
+
+example (n x1 : Nat) (heq_1 : x1 = n.succ) : x1.ctorIdx = 1 := by
+  grind
 
 example (n x1 : Nat) (h : Nat.hasNotBit 2 x1.ctorIdx) (heq_1 : x1 = n.succ) : False := by
   grind

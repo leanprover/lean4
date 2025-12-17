@@ -39,6 +39,9 @@ macro_rules
             -- not enough for `omega`.
             Vector.size] at *
           -- If we're accessing elements of a subarray, we need to calculate its size.
-          try simp only [Array.size_mkSlice_rco]
+          try simp only [
+            Array.size_mkSlice_rco, Array.size_mkSlice_rcc, Array.size_mkSlice_rci,
+            Array.size_mkSlice_roo, Array.size_mkSlice_roc, Array.size_mkSlice_roi,
+            Array.size_mkSlice_rio, Array.size_mkSlice_ric, Array.size_mkSlice_rii]
           omega
         | done)

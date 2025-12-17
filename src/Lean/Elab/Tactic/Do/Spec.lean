@@ -28,7 +28,7 @@ public def findSpec (database : SpecTheorems) (wp : Expr) : MetaM SpecTheorem :=
   let prog := prog.headBeta
   let candidates ← database.specs.getMatch prog
   let candidates := candidates.filter fun spec => !database.erased.contains spec.proof
-  let candidates := candidates.insertionSort fun s₁ s₂ => s₁.priority < s₂.priority
+  let candidates := candidates.insertionSort fun s₁ s₂ => s₁.priority > s₂.priority
   trace[Elab.Tactic.Do.spec] "Candidates for {prog}: {candidates.map (·.proof)}, prios {candidates.map (·.priority)}"
   let specs ← candidates.filterM fun spec => do
     let (_, _, _, type) ← spec.proof.instantiate

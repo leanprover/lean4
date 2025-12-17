@@ -26,6 +26,21 @@ set_option linter.missingDocs true
 This module contains Hoare triple specifications for some functions in Core.
 -/
 
+namespace Lean.Parser.Attr
+
+/--
+Theorems tagged with the `spec` attribute are used by the `mspec` and `mvcgen` tactics.
+
+* When used on a theorem `foo_spec : Triple (foo a b c) P Q`, then `mspec` and `mvcgen` will use
+  `foo_spec` as a specification for calls to `foo`.
+* Otherwise, when used on a definition that `@[simp]` would work on, it is added to the internal
+  simp set of `mvcgen` that is used within `wp⟦·⟧` contexts to simplify match discriminants and
+  applications of constants.
+-/
+syntax (name := spec) "spec" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+
+end Lean.Parser.Attr
+
 namespace Std.Range
 
 /--

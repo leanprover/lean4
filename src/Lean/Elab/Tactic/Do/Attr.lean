@@ -216,8 +216,7 @@ def mkSpecAttr (ext : SpecExtension) : AttributeImpl where
   add   := fun declName stx attrKind => do
     let go : MetaM Unit := do
       let info ← getAsyncConstInfo declName
-      let prio ← getAttrParamOptPrio stx[3]
-      logInfo m!"prio {prio}"
+      let prio ← if stx.getKind = ``Lean.Parser.Attr.spec then getAttrParamOptPrio stx[3] else getAttrParamOptPrio stx[1]
       try
         addSpecTheorem ext declName prio attrKind
       catch _ =>

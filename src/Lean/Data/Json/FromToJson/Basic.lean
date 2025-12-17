@@ -46,6 +46,8 @@ instance : FromJson Int := ⟨Json.getInt?⟩
 instance : ToJson Int := ⟨fun n => Json.num n⟩
 instance : FromJson String := ⟨Json.getStr?⟩
 instance : ToJson String := ⟨fun s => s⟩
+instance : FromJson String.Slice := ⟨Except.map String.toSlice ∘ Json.getStr?⟩
+instance : ToJson String.Slice := ⟨fun s => s.copy⟩
 
 instance : FromJson System.FilePath := ⟨fun j => System.FilePath.mk <$> Json.getStr? j⟩
 instance : ToJson System.FilePath := ⟨fun p => p.toString⟩

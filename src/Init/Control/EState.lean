@@ -25,6 +25,12 @@ instance [Repr ε] [Repr α] : Repr (Result ε σ α) where
     | Result.error e _, prec => Repr.addAppParen ("EStateM.Result.error " ++ reprArg e) prec
     | Result.ok a _, prec    => Repr.addAppParen ("EStateM.Result.ok " ++ reprArg a) prec
 
+instance : MonadAttach (EStateM ε σ) where
+  CanReturn x a := Exists fun s => Exists fun s' => x.run s = .ok a s'
+  attach x s := match h : x s with
+    | .ok a s' => .ok ⟨a, s, s', h⟩ s'
+    | .error e s' => .error e s'
+
 end EStateM
 
 namespace EStateM

@@ -63,7 +63,7 @@ information. For consumers that require `Finite` (like `.toList`), use `.allowNo
 
 public section
 
-namespace Std.Iterators
+namespace Std.Iterators.Types
 
 /--
 Internal state for an iterator over tasks.
@@ -85,14 +85,14 @@ private instance {α : Type} : Iterator (TaskIterator α) BaseIO α where
         have hlen : 0 < (task :: rest).length := by simp
         let (result, remaining) ← IO.waitAny' (task :: rest) hlen
         pure <| .deflate ⟨
-          .yield (Std.Iterators.toIterM { tasks := remaining } BaseIO α) result,
+          .yield (.mk { tasks := remaining } BaseIO α) result,
           trivial⟩
 
-end Std.Iterators
+end Std.Iterators.Types
 
 namespace IO
 
-open Std.Iterators
+open Std Std.Iterators.Types
 
 /--
 Creates an iterator over a list of tasks that yields results in completion order.
@@ -117,7 +117,7 @@ for result in iter do
 ```
 -/
 private def iterTasks {α : Type} (tasks : List (Task α)) : IterM (α := TaskIterator α) BaseIO α :=
-  Std.Iterators.toIterM { tasks } BaseIO α
+  .mk { tasks } BaseIO α
 
 end IO
 

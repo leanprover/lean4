@@ -286,7 +286,6 @@ x_29 = lean_array_get_size(x_7);
 x_30 = lean_nat_dec_lt(x_9, x_29);
 if (x_30 == 0)
 {
-lean_dec(x_29);
 lean_dec_ref(x_7);
 x_14 = x_27;
 goto block_26;
@@ -297,7 +296,6 @@ uint8_t x_31;
 x_31 = lean_nat_dec_le(x_29, x_29);
 if (x_31 == 0)
 {
-lean_dec(x_29);
 lean_dec_ref(x_7);
 x_14 = x_27;
 goto block_26;
@@ -311,7 +309,6 @@ lean_closure_set(x_33, 0, x_28);
 lean_closure_set(x_33, 1, x_32);
 x_34 = 0;
 x_35 = lean_usize_of_nat(x_29);
-lean_dec(x_29);
 x_36 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_28, x_33, x_7, x_34, x_35, x_27);
 x_14 = x_36;
 goto block_26;

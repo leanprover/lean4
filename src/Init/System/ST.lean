@@ -61,6 +61,10 @@ instance : MonadFinally (ST σ) where
 instance {σ : Type} {α : Type} [Inhabited α] : Inhabited (ST σ α) where
   default := fun s => .mk default s
 
+instance {σ : Type} : MonadAttach (ST σ) where
+  CanReturn x a := ∃ s s', x s = ⟨a, s'⟩
+  attach x s := match h : x s with | ⟨a, s'⟩ => ⟨⟨a, s, s', h⟩, s'⟩
+
 inductive EST.Out (ε : Type) (σ : Type) (α : Type) where
   | ok : α → Void σ → EST.Out ε σ α
   | error : ε → Void σ → EST.Out ε σ α
@@ -111,6 +115,12 @@ instance : MonadFinally (EST ε σ) where
       match f none s with
       | .ok _ s => .error e s
       | .error e s => .error e s
+
+instance {ε σ : Type} : MonadAttach (EST ε σ) where
+  CanReturn x a := ∃ s s', x s = .ok a s'
+  attach x s := match h : x s with
+    | .ok a s' => .ok ⟨a, s, s', h⟩ s'
+    | .error e s' => .error e s'
 
 instance (ε σ : Type) : MonadExceptOf ε (EST ε σ) where
   throw := EST.throw

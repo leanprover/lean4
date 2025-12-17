@@ -73,9 +73,6 @@ theorem foldrM_eq_reverse_foldlM_toList [Monad m] {f : α → β → m β} {init
   rcases xs with ⟨xs⟩
   simp [push, List.concat_eq_append]
 
-@[deprecated toList_push (since := "2025-05-26")]
-abbrev push_toList := @toList_push
-
 @[simp, grind =] theorem toListAppend_eq {xs : Array α} {l : List α} : xs.toListAppend l = xs.toList ++ l := by
   simp [toListAppend, ← foldr_toList]
 

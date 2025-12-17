@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Match.MatchEqsExt
-// Imports: public import Lean.Meta.Basic public import Lean.Meta.Match.Basic import Lean.Meta.Eqns
+// Imports: public import Lean.Meta.Basic public import Lean.Meta.Match.Basic public import Lean.Meta.Match.MatcherInfo import Lean.Meta.Eqns
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -544,7 +544,6 @@ lean_object* x_2; lean_object* x_3; uint8_t x_4;
 x_2 = lean_array_get_size(x_1);
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_nat_dec_eq(x_2, x_3);
-lean_dec(x_2);
 if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -998,7 +997,6 @@ x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_1, 1);
 x_8 = lean_array_get_size(x_6);
 x_9 = lean_nat_dec_lt(x_2, x_8);
-lean_dec(x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -1045,7 +1043,6 @@ lean_inc(x_19);
 lean_dec(x_1);
 x_21 = lean_array_get_size(x_19);
 x_22 = lean_nat_dec_lt(x_2, x_21);
-lean_dec(x_21);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; 
@@ -1113,7 +1110,6 @@ _start:
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_get_size(x_2);
 x_7 = lean_nat_dec_lt(x_4, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_dec(x_4);
@@ -1157,7 +1153,6 @@ x_10 = lean_usize_land(x_2, x_9);
 x_11 = lean_usize_to_nat(x_10);
 x_12 = lean_array_get_size(x_6);
 x_13 = lean_nat_dec_lt(x_11, x_12);
-lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_dec(x_11);
@@ -1451,7 +1446,6 @@ x_10 = lean_array_get_size(x_7);
 x_11 = lean_nat_dec_lt(x_9, x_10);
 if (x_11 == 0)
 {
-lean_dec(x_10);
 lean_dec_ref(x_7);
 lean_ctor_set(x_3, 0, x_8);
 return x_3;
@@ -1462,7 +1456,6 @@ uint8_t x_12;
 x_12 = lean_nat_dec_le(x_10, x_10);
 if (x_12 == 0)
 {
-lean_dec(x_10);
 lean_dec_ref(x_7);
 lean_ctor_set(x_3, 0, x_8);
 return x_3;
@@ -1472,7 +1465,6 @@ else
 size_t x_13; size_t x_14; lean_object* x_15; 
 x_13 = 0;
 x_14 = lean_usize_of_nat(x_10);
-lean_dec(x_10);
 x_15 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Meta_Match_registerMatchEqns_spec__5___redArg(x_7, x_13, x_14, x_6);
 lean_dec_ref(x_7);
 lean_ctor_set(x_3, 1, x_15);
@@ -1498,7 +1490,6 @@ x_22 = lean_nat_dec_lt(x_20, x_21);
 if (x_22 == 0)
 {
 lean_object* x_23; 
-lean_dec(x_21);
 lean_dec_ref(x_18);
 x_23 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_23, 0, x_19);
@@ -1512,7 +1503,6 @@ x_24 = lean_nat_dec_le(x_21, x_21);
 if (x_24 == 0)
 {
 lean_object* x_25; 
-lean_dec(x_21);
 lean_dec_ref(x_18);
 x_25 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_25, 0, x_19);
@@ -1524,7 +1514,6 @@ else
 size_t x_26; size_t x_27; lean_object* x_28; lean_object* x_29; 
 x_26 = 0;
 x_27 = lean_usize_of_nat(x_21);
-lean_dec(x_21);
 x_28 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Meta_Match_registerMatchEqns_spec__5___redArg(x_18, x_26, x_27, x_17);
 lean_dec_ref(x_18);
 x_29 = lean_alloc_ctor(0, 2, 0);
@@ -1816,7 +1805,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_array_get_size(x_1);
 x_5 = lean_nat_dec_lt(x_2, x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_dec(x_2);
@@ -2072,6 +2060,7 @@ return x_6;
 }
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Match_Basic(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Match_MatcherInfo(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Eqns(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Match_MatchEqsExt(uint8_t builtin) {
@@ -2082,6 +2071,9 @@ res = initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Match_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Match_MatcherInfo(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Eqns(builtin);

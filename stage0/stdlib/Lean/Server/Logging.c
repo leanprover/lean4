@@ -421,7 +421,7 @@ if (lean_is_exclusive(x_3)) {
 x_6 = l_Std_Time_Database_defaultGetLocalZoneRules();
 if (lean_obj_tag(x_6) == 0)
 {
-lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_16; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_16; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 if (lean_is_exclusive(x_6)) {
@@ -457,9 +457,9 @@ block_15:
 lean_object* x_13; lean_object* x_14; 
 x_13 = lean_alloc_ctor(0, 3, 1);
 lean_ctor_set(x_13, 0, x_12);
-lean_ctor_set(x_13, 1, x_10);
-lean_ctor_set(x_13, 2, x_11);
-lean_ctor_set_uint8(x_13, sizeof(void*)*3, x_9);
+lean_ctor_set(x_13, 1, x_9);
+lean_ctor_set(x_13, 2, x_10);
+lean_ctor_set_uint8(x_13, sizeof(void*)*3, x_11);
 if (lean_is_scalar(x_8)) {
  x_14 = lean_alloc_ctor(0, 1, 0);
 } else {
@@ -510,9 +510,9 @@ x_32 = 1;
 if (lean_obj_tag(x_29) == 0)
 {
 lean_dec_ref(x_25);
-x_9 = x_32;
-x_10 = x_30;
-x_11 = x_31;
+x_9 = x_30;
+x_10 = x_31;
+x_11 = x_32;
 x_12 = x_27;
 goto block_15;
 }
@@ -524,9 +524,9 @@ x_33 = lean_ctor_get(x_29, 0);
 lean_inc(x_33);
 lean_dec_ref(x_29);
 x_34 = l_System_FilePath_join(x_33, x_25);
-x_9 = x_32;
-x_10 = x_30;
-x_11 = x_31;
+x_9 = x_30;
+x_10 = x_31;
+x_11 = x_32;
 x_12 = x_34;
 goto block_15;
 }
@@ -1040,7 +1040,6 @@ x_10 = lean_uint64_shift_right(x_8, x_9);
 x_11 = lean_uint64_xor(x_8, x_10);
 x_12 = lean_uint64_to_usize(x_11);
 x_13 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_14 = 1;
 x_15 = lean_usize_sub(x_13, x_14);
 x_16 = lean_usize_land(x_12, x_15);
@@ -1190,7 +1189,6 @@ x_10 = lean_uint64_shift_right(x_8, x_9);
 x_11 = lean_uint64_xor(x_8, x_10);
 x_12 = lean_uint64_to_usize(x_11);
 x_13 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_14 = 1;
 x_15 = lean_usize_sub(x_13, x_14);
 x_16 = lean_usize_land(x_12, x_15);
@@ -1319,14 +1317,12 @@ x_21 = lean_array_get_size(x_10);
 x_22 = lean_nat_dec_lt(x_20, x_21);
 if (x_22 == 0)
 {
-lean_dec(x_21);
 goto block_18;
 }
 else
 {
 if (x_22 == 0)
 {
-lean_dec(x_21);
 goto block_18;
 }
 else
@@ -1334,7 +1330,6 @@ else
 size_t x_23; size_t x_24; uint8_t x_25; 
 x_23 = 0;
 x_24 = lean_usize_of_nat(x_21);
-lean_dec(x_21);
 x_25 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Server_Logging_0__Lean_Server_Logging_isMsgAllowed_spec__3(x_19, x_4, x_7, x_10, x_23, x_24);
 if (x_25 == 0)
 {
@@ -1363,7 +1358,6 @@ x_13 = lean_array_get_size(x_10);
 x_14 = lean_nat_dec_lt(x_12, x_13);
 if (x_14 == 0)
 {
-lean_dec(x_13);
 lean_dec_ref(x_10);
 return x_4;
 }
@@ -1371,7 +1365,6 @@ else
 {
 if (x_14 == 0)
 {
-lean_dec(x_13);
 lean_dec_ref(x_10);
 return x_4;
 }
@@ -1380,7 +1373,6 @@ else
 size_t x_15; size_t x_16; uint8_t x_17; 
 x_15 = 0;
 x_16 = lean_usize_of_nat(x_13);
-lean_dec(x_13);
 x_17 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00__private_Lean_Server_Logging_0__Lean_Server_Logging_isMsgAllowed_spec__2(x_11, x_10, x_15, x_16);
 lean_dec_ref(x_10);
 if (x_17 == 0)
@@ -2746,9 +2738,9 @@ lean_dec_ref(x_52);
 x_53 = lean_box(0);
 x_54 = lean_unbox(x_44);
 lean_dec(x_44);
-x_5 = x_50;
+x_5 = x_32;
 x_6 = x_54;
-x_7 = x_32;
+x_7 = x_50;
 x_8 = x_53;
 goto block_11;
 }
@@ -2761,9 +2753,9 @@ if (x_55 == 0)
 uint8_t x_56; 
 x_56 = lean_unbox(x_44);
 lean_dec(x_44);
-x_5 = x_50;
+x_5 = x_32;
 x_6 = x_56;
-x_7 = x_32;
+x_7 = x_50;
 x_8 = x_52;
 goto block_11;
 }
@@ -2777,9 +2769,9 @@ x_58 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_58, 0, x_57);
 x_59 = lean_unbox(x_44);
 lean_dec(x_44);
-x_5 = x_50;
+x_5 = x_32;
 x_6 = x_59;
-x_7 = x_32;
+x_7 = x_50;
 x_8 = x_58;
 goto block_11;
 }
@@ -2910,8 +2902,8 @@ block_11:
 {
 lean_object* x_9; lean_object* x_10; 
 x_9 = lean_alloc_ctor(3, 3, 1);
-lean_ctor_set(x_9, 0, x_7);
-lean_ctor_set(x_9, 1, x_5);
+lean_ctor_set(x_9, 0, x_5);
+lean_ctor_set(x_9, 1, x_7);
 lean_ctor_set(x_9, 2, x_8);
 lean_ctor_set_uint8(x_9, sizeof(void*)*3, x_6);
 x_10 = lean_alloc_ctor(1, 1, 0);

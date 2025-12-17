@@ -15,14 +15,14 @@ public import Init.Data.Iterators.Internal.Termination
 This file provides an empty iterator.
 -/
 
-namespace Std.Iterators
+namespace Std
 
 variable {m : Type w → Type w'} {β : Type w}
 
 /--
 The internal state of the `IterM.empty` iterator.
 -/
-structure Empty (m : Type w → Type w') (β : Type w) : Type w where
+structure Iterators.Types.Empty (m : Type w → Type w') (β : Type w) : Type w where
 
 /--
 Returns an iterator that terminates immediately.
@@ -35,7 +35,9 @@ Returns an iterator that terminates immediately.
 -/
 @[always_inline, inline]
 def IterM.empty (m : Type w → Type w') (β : Type w) :=
-  toIterM (Empty.mk (m := m) (β := β)) m β
+  IterM.mk (Iterators.Types.Empty.mk (m := m) (β := β)) m β
+
+namespace Iterators.Types
 
 def Empty.PlausibleStep (_ : IterM (α := Empty m β) m β)
     (step : IterStep (IterM (α := Empty m β) m β) β) : Prop :=
@@ -61,16 +63,8 @@ instance Empty.instIteratorCollect {n : Type w → Type w''} [Monad m] [Monad n]
     IteratorCollect (Empty m β) m n :=
   .defaultImplementation
 
-instance Empty.instIteratorCollectPartial {n : Type w → Type w''} [Monad m] [Monad n] :
-    IteratorCollectPartial (Empty m β) m n :=
-  .defaultImplementation
-
 instance Empty.instIteratorLoop {n : Type x → Type x'} [Monad m] [Monad n] :
     IteratorLoop (Empty m β) m n :=
   .defaultImplementation
 
-instance Empty.instIteratorLoopPartial {n : Type x → Type x'} [Monad m] [Monad n] :
-    IteratorLoopPartial (Empty m β) m n :=
-  .defaultImplementation
-
-end Std.Iterators
+end Std.Iterators.Types

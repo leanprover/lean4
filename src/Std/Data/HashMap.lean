@@ -11,3 +11,4 @@ public import Std.Data.HashMap.AdditionalOperations
 public import Std.Data.HashMap.Iterator
 public import Std.Data.HashMap.Lemmas
 public import Std.Data.HashMap.IteratorLemmas
+public import Std.Data.HashMap.DecidableEquiv

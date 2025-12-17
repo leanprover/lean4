@@ -12,7 +12,8 @@ public import Init.Data.Iterators.Lemmas.Combinators.Take
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators Std.Iterators.Types
 
 variable {α₁ α₂ β₁ β₂ : Type w} {m : Type w → Type w'}
 
@@ -394,4 +395,4 @@ theorem Iter.toArray_take_zip {α₁ α₂ β₁ β₂} [Iterator α₁ Id β₁
     ((it₁.zip it₂).take n).toArray = ((it₁.take n).toList.zip (it₂.take n).toList).toArray := by
   simp [← toArray_toList]
 
-end Iterators
+end Std

@@ -6,8 +6,10 @@ Authors: Sebastian Graf
 module
 
 prelude
-public import Lean.Meta.Tactic.FunInd
+public import Lean.Meta.Tactic.Simp.Types
 public import Lean.Meta.Match.MatcherApp.Transform
+public import Lean.Data.Array
+import Lean.Meta.Match.Rewrite
 import Lean.Meta.Tactic.Simp.Rewrite
 import Lean.Meta.Tactic.Assumption
 
@@ -49,36 +51,40 @@ def altInfos (info : SplitInfo) : Array (Nat × Expr) := match info with
   | matcher matcherApp => matcherApp.altNumParams.mapIdx fun idx numParams =>
       (numParams, matcherApp.alts[idx]!)
 
-def splitWithConstantMotive
+def splitWith
   {n} [MonadLiftT MetaM n] [MonadControlT MetaM n] [Monad n] [MonadError n] [MonadEnv n] [MonadLog n]
   [AddMessageContext n] [MonadOptions n]
-  (info : SplitInfo) (resTy : Expr) (onAlt : Name → Nat → Array Expr → n Expr) (useSplitter := false) : n Expr := match info with
+  (info : SplitInfo) (resTy : Expr) (onAlt : Name → Expr → Nat → Array Expr → n Expr) (useSplitter := false) : n Expr := match info with
   | ite e => do
     let u ← getLevel resTy
     let c := e.getArg! 1
     let h := e.getArg! 2
     if useSplitter then -- dite is the "splitter" for ite
       let n ← liftMetaM <| mkFreshUserName `h
-      let t ← withLocalDecl n .default c fun h => do mkLambdaFVars #[h] (← onAlt `isTrue 0 #[])
-      let e ← withLocalDecl n .default (mkNot c) fun h => do mkLambdaFVars #[h] (← onAlt `isFalse 1 #[])
+      let t ← withLocalDecl n .default c fun h => do mkLambdaFVars #[h] (← onAlt `isTrue resTy 0 #[])
+      let e ← withLocalDecl n .default (mkNot c) fun h => do mkLambdaFVars #[h] (← onAlt `isFalse resTy 1 #[])
       return mkApp5 (mkConst ``_root_.dite [u]) resTy c h t e
     else
-      let t ← onAlt `isTrue 0 #[]
-      let e ← onAlt `isFalse 1 #[]
+      let t ← onAlt `isTrue resTy 0 #[]
+      let e ← onAlt `isFalse resTy 1 #[]
       return mkApp5 (mkConst ``_root_.ite [u]) resTy c h t e
   | dite e => do
     let u ← getLevel resTy
     let c := e.getArg! 1
     let h := e.getArg! 2
     let n ← liftMetaM <| mkFreshUserName `h
-    let t ← withLocalDecl n .default c fun h => do mkLambdaFVars #[h] (← onAlt `isTrue 0 #[h])
-    let e ← withLocalDecl n .default (mkNot c) fun h => do mkLambdaFVars #[h] (← onAlt `isFalse 1 #[h])
+    let t ← withLocalDecl n .default c fun h => do mkLambdaFVars #[h] (← onAlt `isTrue resTy 0 #[h])
+    let e ← withLocalDecl n .default (mkNot c) fun h => do mkLambdaFVars #[h] (← onAlt `isFalse resTy 1 #[h])
     return mkApp5 (mkConst ``_root_.dite [u]) resTy c h t e
   | matcher matcherApp => do
+    let mask := matcherApp.discrs.map (·.isFVar)
+    let maskedDiscrs := Array.mask mask matcherApp.discrs
+    let absMotiveBody ← resTy.abstractM maskedDiscrs
     (·.toExpr) <$> matcherApp.transform
       (useSplitter := useSplitter) (addEqualities := useSplitter) -- (freshenNames := true)
-      (onMotive := fun _xs _motive => pure resTy)
-      (onAlt := fun idx _ty params _alt => onAlt ((`h).appendIndexAfter (idx+1)) idx params)
+      (onMotive := fun xs _body => pure (absMotiveBody.instantiateRev (Array.mask mask xs)))
+      (onAlt := fun idx expAltType params _alt => do
+        onAlt ((`h).appendIndexAfter (idx+1)) expAltType idx params)
 
 def simpDiscrs? (info : SplitInfo) (e : Expr) : SimpM (Option Simp.Result) := match info with
   | dite _ | ite _ => return none -- Tricky because we need to simultaneously rewrite  `[Decidable c]`
@@ -102,6 +108,6 @@ def rwIfOrMatcher (idx : Nat) (e : Expr) : MetaM Simp.Result := do
     let c := if idx = 0 then c else mkNot c
     let .some fv ← findLocalDeclWithType? c
       | throwError "Failed to find proof for if condition {c}"
-    FunInd.rwIfWith (mkFVar fv) e
+    rwIfWith (mkFVar fv) e
   else
-    FunInd.rwMatcher idx e
+    rwMatcher idx e

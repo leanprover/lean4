@@ -278,7 +278,7 @@ where
     ids.getArgs.mapM fun x =>
       if x.getKind == identKind || x.getKind == ``hole then
         pure (some x)
-      else throwErrorAt x "identifer or `_` expected"
+      else throwErrorAt x "identifier or `_` expected"
 
 
 set_option linter.unusedVariables false in
@@ -1301,7 +1301,7 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
             continue
           else throw e
         | e => throw e
-    throwErrorAt name "Unkown role `{name}`"
+    throwErrorAt name "Unknown role `{name}`"
   | other =>
     throwErrorAt other "Unsupported syntax {other}"
 where

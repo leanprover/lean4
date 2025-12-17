@@ -6,7 +6,7 @@ trace: b : Bool
     True
   else False
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example (b : Bool) : if b then have unused := (); True else False := by
@@ -16,7 +16,7 @@ example (b : Bool) : if b then have unused := (); True else False := by
 trace: b : Bool
 ⊢ b = true
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example (b : Bool) : if b then have unused := (); True else False := by
@@ -28,7 +28,7 @@ trace: b : Bool
     have unused := ();
     True
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example (b : Bool) : if b then have unused := (); True else False := by
@@ -43,7 +43,7 @@ example (b : Bool) : if b then have unused := (); True else False := by
 trace: b : Bool
 ⊢ if b = true then True else False
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example (b : Bool) : if b then have unused := (); True else False := by
@@ -54,7 +54,7 @@ example (b : Bool) : if b then have unused := (); True else False := by
 trace: b : Bool
 ⊢ if b = true then True else False
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example (b : Bool) : if b then have unused := (); True else False := by
@@ -71,7 +71,7 @@ h✝ : b = true
 ⊢ have unused := ();
   True
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example (b : Bool) : if b then have unused := (); True else False := by

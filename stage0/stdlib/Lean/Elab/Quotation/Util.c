@@ -1319,10 +1319,24 @@ x_54 = l_Lean_Syntax_instForInTopDownOfMonad_loop___at___00Lean_Elab_Term_Quotat
 x_55 = l_Lean_Syntax_isOfKind(x_52, x_54);
 if (x_55 == 0)
 {
-lean_object* x_56; lean_object* x_57; uint8_t x_58; 
-lean_dec_ref(x_3);
+lean_object* x_56; lean_object* x_57; 
 x_56 = l_Lean_Syntax_instForInTopDownOfMonad_loop___at___00Lean_Elab_Term_Quotation_getAntiquotationIds_spec__6___closed__6;
+lean_inc_ref(x_9);
+lean_inc_ref(x_5);
 x_57 = l_Lean_throwErrorAt___at___00Lean_Elab_Term_Quotation_getAntiquotationIds_spec__0___redArg(x_2, x_56, x_5, x_6, x_7, x_8, x_9, x_10);
+if (lean_obj_tag(x_57) == 0)
+{
+lean_dec_ref(x_57);
+x_39 = x_3;
+x_40 = lean_box(0);
+goto block_50;
+}
+else
+{
+uint8_t x_58; 
+lean_dec_ref(x_9);
+lean_dec_ref(x_5);
+lean_dec_ref(x_3);
 lean_dec(x_2);
 x_58 = !lean_is_exclusive(x_57);
 if (x_58 == 0)
@@ -1338,6 +1352,7 @@ lean_dec(x_57);
 x_60 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_60, 0, x_59);
 return x_60;
+}
 }
 }
 else
@@ -1909,7 +1924,6 @@ x_12 = lean_nat_dec_lt(x_9, x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; 
-lean_dec(x_11);
 lean_dec_ref(x_6);
 lean_dec_ref(x_2);
 x_13 = lean_alloc_ctor(0, 1, 0);
@@ -1923,7 +1937,6 @@ x_14 = lean_nat_dec_le(x_11, x_11);
 if (x_14 == 0)
 {
 lean_object* x_15; 
-lean_dec(x_11);
 lean_dec_ref(x_6);
 lean_dec_ref(x_2);
 x_15 = lean_alloc_ctor(0, 1, 0);
@@ -1935,7 +1948,6 @@ else
 size_t x_16; size_t x_17; lean_object* x_18; 
 x_16 = 0;
 x_17 = lean_usize_of_nat(x_11);
-lean_dec(x_11);
 x_18 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Term_Quotation_getPatternsVars_spec__0(x_1, x_16, x_17, x_10, x_2, x_3, x_4, x_5, x_6, x_7);
 return x_18;
 }

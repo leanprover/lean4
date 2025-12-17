@@ -359,7 +359,6 @@ x_19 = l_Std_StreamMap_register___redArg___closed__9;
 x_20 = lean_nat_dec_lt(x_16, x_17);
 if (x_20 == 0)
 {
-lean_dec(x_17);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
 x_10 = x_18;
@@ -371,7 +370,6 @@ uint8_t x_21;
 x_21 = lean_nat_dec_le(x_17, x_17);
 if (x_21 == 0)
 {
-lean_dec(x_17);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
 x_10 = x_18;
@@ -386,7 +384,6 @@ lean_closure_set(x_22, 0, x_1);
 lean_closure_set(x_22, 1, x_4);
 x_23 = 0;
 x_24 = lean_usize_of_nat(x_17);
-lean_dec(x_17);
 x_25 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_19, x_22, x_3, x_23, x_24, x_18);
 x_10 = x_25;
 goto block_15;
@@ -760,7 +757,6 @@ x_7 = l_Std_StreamMap_register___redArg___closed__9;
 x_8 = lean_nat_dec_lt(x_4, x_5);
 if (x_8 == 0)
 {
-lean_dec(x_5);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
@@ -772,7 +768,6 @@ uint8_t x_9;
 x_9 = lean_nat_dec_le(x_5, x_5);
 if (x_9 == 0)
 {
-lean_dec(x_5);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
@@ -786,7 +781,6 @@ lean_closure_set(x_10, 0, x_1);
 lean_closure_set(x_10, 1, x_3);
 x_11 = 0;
 x_12 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
 x_13 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_7, x_10, x_2, x_11, x_12, x_6);
 return x_13;
 }
@@ -832,7 +826,6 @@ x_6 = l_Std_StreamMap_register___redArg___closed__9;
 x_7 = lean_nat_dec_lt(x_4, x_5);
 if (x_7 == 0)
 {
-lean_dec(x_5);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
@@ -842,7 +835,6 @@ else
 {
 if (x_7 == 0)
 {
-lean_dec(x_5);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
@@ -856,7 +848,6 @@ lean_closure_set(x_8, 0, x_1);
 lean_closure_set(x_8, 1, x_3);
 x_9 = 0;
 x_10 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
 x_11 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), x_6, x_8, x_2, x_9, x_10);
 x_12 = lean_unbox(x_11);
 lean_dec(x_11);
@@ -1224,7 +1215,6 @@ x_5 = l_Std_StreamMap_empty___closed__0;
 x_6 = lean_nat_dec_lt(x_3, x_4);
 if (x_6 == 0)
 {
-lean_dec(x_4);
 lean_dec_ref(x_2);
 return x_5;
 }
@@ -1234,7 +1224,6 @@ uint8_t x_7;
 x_7 = lean_nat_dec_le(x_4, x_4);
 if (x_7 == 0)
 {
-lean_dec(x_4);
 lean_dec_ref(x_2);
 return x_5;
 }
@@ -1243,7 +1232,6 @@ else
 size_t x_8; size_t x_9; lean_object* x_10; 
 x_8 = 0;
 x_9 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_10 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_StreamMap_filterByName_spec__0___redArg(x_2, x_1, x_8, x_9, x_5);
 return x_10;
 }
@@ -1470,7 +1458,6 @@ x_6 = lean_nat_dec_lt(x_3, x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; 
-lean_dec(x_4);
 x_7 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_7, 0, x_5);
 return x_7;
@@ -1482,7 +1469,6 @@ x_8 = lean_nat_dec_le(x_4, x_4);
 if (x_8 == 0)
 {
 lean_object* x_9; 
-lean_dec(x_4);
 x_9 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_9, 0, x_5);
 return x_9;
@@ -1492,7 +1478,6 @@ else
 size_t x_10; size_t x_11; lean_object* x_12; 
 x_10 = 0;
 x_11 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_StreamMap_close_spec__0___redArg(x_1, x_10, x_11, x_5);
 return x_12;
 }

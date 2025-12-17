@@ -1753,7 +1753,7 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
            Without the proof irrelevance check, this example timeouts. Recall that:
 
            1- The elaborator has a pending list of things to do: Tactics, TC, etc.
-           2- The elaborator only tries tactics after it tried to solve pending TC problems, delayed elaboratio, etc.
+           2- The elaborator only tries tactics after it tried to solve pending TC problems, delayed elaboration, etc.
               The motivation: avoid unassigned metavariables in goals.
            3- Each pending tactic goal is represented as a metavariable. It is marked as `syntheticOpaque` to make it clear
               that it should not be assigned by unification.

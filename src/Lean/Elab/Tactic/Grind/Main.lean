@@ -115,6 +115,12 @@ where
       else if kind == ``isStrictValue then
         let (_, lhs) ← findLHS xs cnstr[1]
         return .isValue lhs true
+      else if kind == ``notValue then
+        let (_, lhs) ← findLHS xs cnstr[1]
+        return .notValue lhs false
+      else if kind == ``notStrictValue then
+        let (_, lhs) ← findLHS xs cnstr[1]
+        return .notValue lhs true
       else if kind == ``isGround then
         let (_, lhs) ← findLHS xs cnstr[1]
         return .isGround lhs
@@ -328,22 +334,39 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
   let config ← elabGrindConfig configStx
   let config := { config with clean := false, trace, verbose, useSorry }
   let only := only.isSome
-  let params := if let some params := params? then params.getElems else #[]
+  let paramStxs := if let some params := params? then params.getElems else #[]
+  -- Extract term parameters (non-ident params) to include in the suggestion.
+  -- These are not tracked via E-matching, so we conservatively include them all.
+  -- Ident params resolve to global declarations and are tracked via E-matching.
+  -- Non-ident terms (like `show P by tac`) need to be preserved explicitly.
+  let termParamStxs : Array Grind.TParam := paramStxs.filter fun p =>
+    match p with
+    | `(Parser.Tactic.grindParam| $[$_:grindMod]? $_:ident) => false
+    | `(Parser.Tactic.grindParam| ! $[$_:grindMod]? $_:ident) => false
+    | `(Parser.Tactic.grindParam| - $_:ident) => false
+    | `(Parser.Tactic.grindParam| #$_:hexnum) => false
+    | _ => true
   let mvarId ← getMainGoal
-  let params ← mkGrindParams config only params mvarId
+  let params ← mkGrindParams config only paramStxs mvarId
   Grind.withProtectedMCtx config.abstractProof mvarId fun mvarId' => do
     let (tacs, _) ← Grind.GrindTacticM.runAtGoal mvarId' params do
       let finish ← Grind.Action.mkFinish
       let goal :: _ ← Grind.getGoals
-        | let tac ← `(tactic| grind only)
-          return #[tac]
+        | -- Goal was closed during initialization
+          let configStx' := filterSuggestionsFromGrindConfig configStx
+          if termParamStxs.isEmpty then
+            let tac ← `(tactic| grind $configStx':optConfig only)
+            return #[tac]
+          else
+            let tac ← `(tactic| grind $configStx':optConfig only [$termParamStxs,*])
+            return #[tac]
       Grind.liftGrindM do
         -- **Note**: If we get failures when using the first suggestion, we should test is using `saved`
         -- let saved ← saveState
         match (← finish.run goal) with
         | .closed seq =>
           let configStx' := filterSuggestionsFromGrindConfig configStx
-          let tacs ← Grind.mkGrindOnlyTactics configStx' seq
+          let tacs ← Grind.mkGrindOnlyTactics configStx' seq termParamStxs
           let seq := Grind.Action.mkGrindSeq seq
           let tac ← `(tactic| grind $configStx':optConfig => $seq:grindSeq)
           let tacs := tacs.push tac

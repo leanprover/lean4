@@ -25,6 +25,7 @@ static lean_object* l_coeFunNotation___closed__1;
 LEAN_EXPORT lean_object* l_instCoeTOfCoeDep___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_coeNotation___closed__0;
 LEAN_EXPORT lean_object* l_instCoeTCOfCoe__1___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Internal_liftCoeM___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_coeNotation___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Internal_liftCoeM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_instCoeOTC___closed__0;
@@ -62,7 +63,6 @@ static lean_object* l_coeNotation___closed__8;
 LEAN_EXPORT lean_object* l_instCoeHTCTOfCoeHTC(lean_object*, lean_object*, lean_object*);
 static lean_object* l_coeSortNotation___closed__3;
 static lean_object* l_coeSortNotation___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Internal_liftCoeM___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeOTCOfCoeOut(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeHTCOfCoeHeadOfCoeOTC(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeTCOfCoe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -748,7 +748,7 @@ x_3 = lean_alloc_closure((void*)(l_subtypeCoe___lam__0___boxed), 1, 0);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Internal_liftCoeM___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Internal_liftCoeM___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
@@ -770,7 +770,7 @@ x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 lean_dec_ref(x_9);
 x_12 = lean_apply_2(x_5, lean_box(0), x_8);
-x_13 = lean_alloc_closure((void*)(l_Lean_Internal_liftCoeM___lam__0), 3, 2);
+x_13 = lean_alloc_closure((void*)(l_Lean_Internal_liftCoeM___redArg___lam__0), 3, 2);
 lean_closure_set(x_13, 0, x_6);
 lean_closure_set(x_13, 1, x_11);
 x_14 = lean_apply_4(x_10, lean_box(0), lean_box(0), x_12, x_13);
@@ -790,7 +790,7 @@ x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
 lean_dec_ref(x_5);
 x_8 = lean_apply_2(x_1, lean_box(0), x_4);
-x_9 = lean_alloc_closure((void*)(l_Lean_Internal_liftCoeM___lam__0), 3, 2);
+x_9 = lean_alloc_closure((void*)(l_Lean_Internal_liftCoeM___redArg___lam__0), 3, 2);
 lean_closure_set(x_9, 0, x_2);
 lean_closure_set(x_9, 1, x_7);
 x_10 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_8, x_9);
@@ -809,7 +809,7 @@ lean_dec_ref(x_5);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec_ref(x_7);
-x_10 = lean_alloc_closure((void*)(l_Lean_Internal_liftCoeM___lam__0), 3, 2);
+x_10 = lean_alloc_closure((void*)(l_Lean_Internal_liftCoeM___redArg___lam__0), 3, 2);
 lean_closure_set(x_10, 0, x_4);
 lean_closure_set(x_10, 1, x_9);
 x_11 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_6, x_10);
@@ -828,7 +828,7 @@ lean_dec_ref(x_2);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
 lean_dec_ref(x_4);
-x_7 = lean_alloc_closure((void*)(l_Lean_Internal_liftCoeM___lam__0), 3, 2);
+x_7 = lean_alloc_closure((void*)(l_Lean_Internal_liftCoeM___redArg___lam__0), 3, 2);
 lean_closure_set(x_7, 0, x_1);
 lean_closure_set(x_7, 1, x_6);
 x_8 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_3, x_7);

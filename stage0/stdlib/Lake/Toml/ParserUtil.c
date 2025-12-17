@@ -1297,7 +1297,6 @@ block_20:
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_15 = lean_string_utf8_byte_size(x_13);
 x_16 = lean_nat_add(x_1, x_15);
-lean_dec(x_15);
 if (lean_is_scalar(x_9)) {
  x_17 = lean_alloc_ctor(0, 4, 0);
 } else {
@@ -1989,7 +1988,7 @@ return x_20;
 }
 else
 {
-lean_object* x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+lean_object* x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 x_21 = l_Lake_Toml_atom_formatter___redArg___closed__5;
 x_22 = lean_box(0);
 x_23 = 0;
@@ -2005,9 +2004,17 @@ lean_ctor_set(x_28, 1, x_27);
 x_29 = l_Lean_addTrace___at___00Lake_Toml_atom_formatter_spec__3___redArg(x_16, x_28, x_3, x_4);
 lean_dec(x_4);
 lean_dec_ref(x_3);
+if (lean_obj_tag(x_29) == 0)
+{
+lean_object* x_30; 
 lean_dec_ref(x_29);
 x_30 = l_Lean_PrettyPrinter_Formatter_throwBacktrack___redArg();
 return x_30;
+}
+else
+{
+return x_29;
+}
 }
 }
 }
@@ -2952,7 +2959,6 @@ x_22 = lean_array_get_size(x_21);
 x_23 = lean_unsigned_to_nat(1u);
 x_24 = lean_nat_sub(x_22, x_23);
 x_25 = lean_nat_dec_lt(x_24, x_22);
-lean_dec(x_22);
 if (x_25 == 0)
 {
 lean_dec(x_24);
@@ -3168,7 +3174,6 @@ x_22 = lean_array_get_size(x_21);
 x_23 = lean_unsigned_to_nat(1u);
 x_24 = lean_nat_sub(x_22, x_23);
 x_25 = lean_nat_dec_lt(x_24, x_22);
-lean_dec(x_22);
 if (x_25 == 0)
 {
 lean_dec(x_24);

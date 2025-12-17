@@ -130,14 +130,14 @@ theorem hyperoperation_recursion (n m k : ℕ) :
 /--
 info: Try these:
   [apply] (induction k) <;> grind
-  [apply] (induction k) <;> grind only [hyperoperation, = add_zero, = add_succ, = hyperoperation_zero]
+  [apply] (induction k) <;> grind only [hyperoperation, = add_zero, = add_succ]
   [apply] ·
     induction k
     · grind => instantiate only [hyperoperation, = add_zero]
     ·
       grind =>
         instantiate only [hyperoperation, = add_succ]
-        instantiate only [= hyperoperation_zero]
+        instantiate only [hyperoperation]
 -/
 #guard_msgs in
 @[grind =]

@@ -77,8 +77,6 @@ x_5 = lean_nat_dec_le(x_4, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; 
-lean_dec(x_4);
-lean_dec(x_3);
 lean_dec_ref(x_2);
 x_6 = lean_box(0);
 return x_6;
@@ -91,8 +89,6 @@ x_8 = lean_string_memcmp(x_2, x_1, x_7, x_7, x_4);
 if (x_8 == 0)
 {
 lean_object* x_9; 
-lean_dec(x_4);
-lean_dec(x_3);
 lean_dec_ref(x_2);
 x_9 = lean_box(0);
 return x_9;
@@ -100,14 +96,12 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-lean_inc(x_3);
 lean_inc_ref(x_2);
 x_10 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_10, 0, x_2);
 lean_ctor_set(x_10, 1, x_7);
 lean_ctor_set(x_10, 2, x_3);
 x_11 = l_String_Slice_pos_x21(x_10, x_4);
-lean_dec(x_4);
 lean_dec_ref(x_10);
 x_12 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_12, 0, x_2);
@@ -233,7 +227,6 @@ _start:
 uint32_t x_3; lean_object* x_9; uint8_t x_10; 
 x_9 = lean_string_utf8_byte_size(x_1);
 x_10 = lean_nat_dec_eq(x_2, x_9);
-lean_dec(x_9);
 if (x_10 == 0)
 {
 uint32_t x_11; uint32_t x_12; uint8_t x_13; 
@@ -584,7 +577,6 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_2 = l_System_FilePath_normalize(x_1);
 x_3 = lean_string_utf8_byte_size(x_2);
-lean_inc(x_3);
 x_4 = l___private_Lake_Util_FilePath_0__Lake_modOfFilePath_removeExts(x_2, x_3, x_3);
 lean_dec_ref(x_2);
 x_5 = l_Lake_modOfFilePath___closed__1;

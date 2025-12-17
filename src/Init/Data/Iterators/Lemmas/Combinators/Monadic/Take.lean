@@ -11,7 +11,10 @@ public import Init.Data.Iterators.Lemmas.Consumers.Monadic
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators Std.Iterators.Types
+
+namespace Iterators.Types
 
 theorem Take.isPlausibleStep_take_yield [Monad m] [Iterator α m β] {n : Nat}
     {it : IterM (α := α) m β} (h : it.IsPlausibleStep (.yield it' out)) :
@@ -22,6 +25,8 @@ theorem Take.isPlausibleStep_take_skip [Monad m] [Iterator α m β] {n : Nat}
     {it : IterM (α := α) m β} (h : it.IsPlausibleStep (.skip it')) :
     (it.take (n + 1)).IsPlausibleStep (.skip (it'.take (n + 1))) :=
   (.skip h (by simp [IterM.take]))
+
+end Iterators.Types
 
 theorem IterM.step_take {α m β} [Monad m] [Iterator α m β] {n : Nat}
     {it : IterM (α := α) m β} :
@@ -74,4 +79,4 @@ theorem IterM.toList_toTake {α m β} [Monad m] [LawfulMonad m] [Iterator α m �
   · simp [ihs ‹_›]
   · simp
 
-end Std.Iterators
+end Std

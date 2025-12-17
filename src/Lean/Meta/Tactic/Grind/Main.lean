@@ -17,6 +17,7 @@ import Lean.Meta.Tactic.Grind.RevertAll
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Proj
 import Lean.Meta.Tactic.Grind.ForallProp
+import Lean.Meta.Tactic.Grind.CtorIdx
 import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.EMatch
@@ -62,6 +63,7 @@ def mkMethods (evalTactic? : Option EvalTactic := none) : CoreM Methods := do
       propagateReflCmp e
       let .const declName _ := e.getAppFn | return ()
       propagateProjEq e
+      propagateCtorIdxUp e
       if let some props := builtinPropagators.up[declName]? then
        props.forM fun prop => prop e
     propagateDown := fun e => do
@@ -121,6 +123,11 @@ def assertExtra (params : Params) : GoalM Unit := do
   for thm in params.extraInj do
     activateInjectiveTheorem thm 0
 
+private def initENodeCore (e : Expr) (interpreted ctor : Bool) : GoalM Unit := do
+  if let .const declName _ := e then
+    updateIndicesFound (.const declName)
+  mkENodeCore e interpreted ctor (generation := 0) (funCC := false)
+
 private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
   let mvarId ← if params.config.clean then mvarId.exposeNames else pure mvarId
   let trueExpr ← getTrueExpr
@@ -134,12 +141,12 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
   let clean ← mkCleanState mvarId params
   let sstates ← Solvers.mkInitialStates
   GoalM.run' { mvarId, ematch.thmMap := thmMap, inj.thms := params.inj, split.casesTypes := casesTypes, clean, sstates } do
-    mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0) (funCC := false)
-    mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0) (funCC := false)
-    mkENodeCore btrueExpr (interpreted := false) (ctor := true) (generation := 0) (funCC := false)
-    mkENodeCore bfalseExpr (interpreted := false) (ctor := true) (generation := 0) (funCC := false)
-    mkENodeCore natZeroExpr (interpreted := true) (ctor := false) (generation := 0) (funCC := false)
-    mkENodeCore ordEqExpr (interpreted := false) (ctor := true) (generation := 0) (funCC := false)
+    initENodeCore falseExpr (interpreted := true) (ctor := false)
+    initENodeCore trueExpr (interpreted := true) (ctor := false)
+    initENodeCore btrueExpr (interpreted := false) (ctor := true)
+    initENodeCore bfalseExpr (interpreted := false) (ctor := true)
+    initENodeCore natZeroExpr (interpreted := true) (ctor := false)
+    initENodeCore ordEqExpr (interpreted := false) (ctor := true)
     assertExtra params
 
 structure Result where

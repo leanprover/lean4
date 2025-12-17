@@ -12,7 +12,7 @@ public import Std.Data.Iterators.Producers.Empty
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
 
 @[simp]
 theorem Iter.toIterM_empty {β} :
@@ -56,4 +56,4 @@ theorem Iter.fold_empty {β γ} {init : γ} {f} :
     (Iter.empty β).fold (init := init) f = init := by
   simp [Iter.fold_eq_foldM]
 
-end Std.Iterators
+end Std

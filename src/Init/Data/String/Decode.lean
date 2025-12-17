@@ -529,7 +529,7 @@ public def assemble₂ (w x : UInt8) : Option Char :=
   else
     let r := assemble₂Unchecked w x
     if r < 0x80 then
-      none -- overlong encodinlg
+      none -- overlong encoding
     else
       some ⟨r, ?onemore⟩
 where finally
@@ -1440,6 +1440,9 @@ public def utf8ByteSize (c : UInt8) (_h : c.IsUTF8FirstByte) : Nat :=
     3
   else
     4
+
+public theorem utf8ByteSize_pos (c : UInt8) (h : c.IsUTF8FirstByte) : 0 < c.utf8ByteSize h := by
+  fun_cases utf8ByteSize <;> simp
 
 def _root_.ByteArray.utf8DecodeChar?.FirstByte.utf8ByteSize : FirstByte → Nat
   | .invalid => 0

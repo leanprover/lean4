@@ -51,6 +51,15 @@ lean_ctor_set(x_4, 0, x_3);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_PRange_instUpwardEnumerableInt___lam__0(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -61,15 +70,6 @@ lean_dec(x_3);
 x_5 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_5, 0, x_4);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_PRange_instUpwardEnumerableInt___lam__0(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_PRange_instUpwardEnumerableInt___lam__1___boxed(lean_object* x_1, lean_object* x_2) {

@@ -10,7 +10,7 @@ public import Init.Data.Iterators.Basic
 
 public section
 
-namespace Std.Iterators
+namespace Std
 
 /--
 A wrapper around an iterator that provides partial consumers. See `Iter.allowNontermination`.
@@ -29,4 +29,4 @@ def Iter.allowNontermination {α : Type w} {β : Type w}
     (it : Iter (α := α) β) : Iter.Partial (α := α) β :=
   ⟨it⟩
 
-end Std.Iterators
+end Std

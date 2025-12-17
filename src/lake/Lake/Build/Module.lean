@@ -327,13 +327,13 @@ private def ModuleImportInfo.addImport
           |>.mix expInfo.artsTrace.withoutInputs
           |>.withoutInputs
       }
+  let info := {info with
+    metaTransTrace := info.metaTransTrace
+      |>.mix expInfo.metaTransTrace
+      |>.mix expInfo.metaArtsTrace.withoutInputs
+      |>.withoutInputs
+  }
   if imp.isExported then
-    let info := {info with
-      metaTransTrace := info.metaTransTrace
-        |>.mix expInfo.metaTransTrace
-        |>.mix expInfo.metaArtsTrace.withoutInputs
-        |>.withoutInputs
-    }
     if imp.isMeta then
       {info with
         transTrace := info.transTrace
@@ -353,9 +353,9 @@ private def ModuleImportInfo.addImport
 
 private def Package.discriminant (self : Package) :=
   if self.version == {} then
-    self.name.toString
+    self.prettyName
   else
-    s!"{self.name}@{self.version}"
+    s!"{self.prettyName}@{self.version}"
 
 private def fetchImportInfo
   (fileName : String) (pkgName modName : Name) (header : ModuleHeader)
@@ -373,7 +373,7 @@ private def fetchImportInfo
       return s
     else if n = 1 then -- common fast path
       let mod := mods[0]
-      if imp.importAll && !mod.allowImportAll && pkgName != mod.pkg.name then
+      if imp.importAll && !mod.allowImportAll && pkgName != mod.pkg.keyName then
         logError s!"{fileName}: cannot `import all` \
           the module `{imp.module}` from the package `{mod.pkg.discriminant}`"
         return .error
@@ -381,7 +381,7 @@ private def fetchImportInfo
       return s.zipWith (sync := true) (·.addImport nonModule imp ·) importJob
     else
       let isImportable (mod) :=
-        mod.allowImportAll || pkgName == mod.pkg.name
+        mod.allowImportAll || pkgName == mod.pkg.keyName
       let allImportable :=
         if imp.importAll then
           mods.all isImportable
@@ -417,7 +417,7 @@ private def fetchImportInfo
 public def Module.importInfoFacetConfig : ModuleFacetConfig importInfoFacet :=
   mkFacetJobConfig fun mod => do
     let header ← (← mod.header.fetch).await
-    fetchImportInfo mod.relLeanFile.toString mod.pkg.name mod.name header
+    fetchImportInfo mod.relLeanFile.toString mod.pkg.keyName mod.name header
 
 private def noServerOLeanError :=
   "No server olean generated. Ensure the module system is enabled."
@@ -1016,7 +1016,7 @@ private def setupEditedModule
     return ⟨imp, ← findModule? imp.module⟩
   let fileName := mod.relLeanFile.toString
   let localImports := directImports.filterMap (·.module?)
-  let impInfoJob ← fetchImportInfo fileName mod.pkg.name mod.name header
+  let impInfoJob ← fetchImportInfo fileName mod.pkg.keyName mod.name header
   let precompileImports ←
     if mod.shouldPrecompile then
       (← computeTransImportsAux fileName localImports).await

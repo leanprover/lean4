@@ -12,7 +12,6 @@ public import Lean.Elab.Tactic.ElabTerm
 import Lean.Meta.Tactic.FunIndCollect
 import Lean.Elab.App
 import Lean.Elab.Tactic.Generalize
-import Lean.ErrorExplanations.InductionWithNoAlts
 
 
 public section

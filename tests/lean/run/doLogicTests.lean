@@ -920,26 +920,28 @@ example  : (hp : ∀m, m = 42 → q → p) → (hinv : ∀ (inv : Nat → Prop),
 variable {m} [Monad m]
 open Std Std.Iterators
 
-theorem forIn_eq_sum (xs : Array Nat) {m ps} [Monad m] [WPMonad m ps] :
-    Triple (m := m) (do
-      let mut sum : Nat := 0
-      for n in xs.iter do
-        sum := sum + n
-      return sum) ⌜True⌝ (⇓r => ⌜r = xs.sum⌝) := by
-  mvcgen
-  case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum⌝
-  all_goals grind
+-- TODO: enable after stage0 update, such that MPL priorities work
+-- theorem forIn_eq_sum (xs : Array Nat) {m ps} [Monad m] [WPMonad m ps] :
+--     Triple (m := m) (do
+--       let mut sum : Nat := 0
+--       for n in xs.iter do
+--         sum := sum + n
+--       return sum) ⌜True⌝ (⇓r => ⌜r = xs.sum⌝) := by
+--   mvcgen
+--   case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum⌝
+--   all_goals grind
 
-theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [LawfulMonad m]
-    [WPMonad m ps] :
-    Triple (m := m) (do
-      let mut sum : Nat := 0
-      for n in (xs.iterM Id).map (· + 1) do
-        sum := sum + n
-      return sum) ⌜True⌝ (⇓r => ⌜r = xs.sum + xs.size⌝) := by
-  mvcgen
-  case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum + cur.prefix.length⌝
-  all_goals grind
+-- TODO: enable after stage0 update, such that MPL priorities work
+-- theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [LawfulMonad m]
+--     [WPMonad m ps] :
+--     Triple (m := m) (do
+--       let mut sum : Nat := 0
+--       for n in (xs.iterM Id).map (· + 1) do
+--         sum := sum + n
+--       return sum) ⌜True⌝ (⇓r => ⌜r = xs.sum + xs.size⌝) := by
+--   mvcgen
+--   case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum + cur.prefix.length⌝
+--   all_goals grind
 
 theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [MonadAttach m]
     [LawfulMonad m] [WeaklyLawfulMonadAttach m] [WPMonad m ps] :

@@ -48,6 +48,21 @@ end Lean.Elab.Tactic.Do.VCGen
 
 namespace Lean.Parser
 
+namespace Attr
+
+/--
+Theorems tagged with the `spec` attribute are used by the `mspec` and `mvcgen` tactics.
+
+* When used on a theorem `foo_spec : Triple (foo a b c) P Q`, then `mspec` and `mvcgen` will use
+  `foo_spec` as a specification for calls to `foo`.
+* Otherwise, when used on a definition that `@[simp]` would work on, it is added to the internal
+  simp set of `mvcgen` that is used within `wp⟦·⟧` contexts to simplify match discriminants and
+  applications of constants.
+-/
+syntax (name := spec) "spec" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+
+end Attr
+
 namespace Tactic
 
 @[tactic_alt Lean.Parser.Tactic.massumptionMacro]

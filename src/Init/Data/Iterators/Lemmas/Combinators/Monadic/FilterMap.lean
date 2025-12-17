@@ -1317,7 +1317,6 @@ end ToArray
 
 section ForIn
 
-@[spec]
 theorem IterM.forIn_filterMapWithPostcondition
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
     [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
@@ -1349,7 +1348,6 @@ theorem IterM.forIn_filterMapWithPostcondition
   · simp [ihs ‹_›]
   · simp
 
-@[spec]
 theorem IterM.forIn_filterMapM
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
     [MonadAttach n] [WeaklyLawfulMonadAttach n]
@@ -1365,7 +1363,6 @@ theorem IterM.forIn_filterMapM
   rw [filterMapM, forIn_filterMapWithPostcondition]
   simp [PostconditionT.run_attachLift]
 
-@[spec]
 theorem IterM.forIn_filterMap
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
@@ -1379,7 +1376,6 @@ theorem IterM.forIn_filterMap
   rw [filterMap, forIn_filterMapWithPostcondition]
   simp [PostconditionT.run_eq_map]
 
-@[spec]
 theorem IterM.forIn_mapWithPostcondition
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
     [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
@@ -1394,7 +1390,6 @@ theorem IterM.forIn_mapWithPostcondition
     ← filterMapWithPostcondition, forIn_filterMapWithPostcondition]
   simp [PostconditionT.run_eq_map]
 
-@[spec]
 theorem IterM.forIn_mapM
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
     [MonadAttach n] [WeaklyLawfulMonadAttach n]
@@ -1407,7 +1402,6 @@ theorem IterM.forIn_mapM
   rw [mapM, forIn_mapWithPostcondition]
   simp [PostconditionT.run_attachLift]
 
-@[spec]
 theorem IterM.forIn_map
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
@@ -1417,7 +1411,6 @@ theorem IterM.forIn_map
   rw [map, forIn_mapWithPostcondition]
   simp [PostconditionT.run_eq_map]
 
-@[spec]
 theorem IterM.forIn_filterWithPostcondition
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
     [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
@@ -1436,7 +1429,6 @@ theorem IterM.forIn_filterWithPostcondition
   apply bind_congr; intro fx
   cases fx.val.down <;> simp
 
-@[spec]
 theorem IterM.forIn_filterM
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
     [MonadAttach n] [WeaklyLawfulMonadAttach n]
@@ -1449,7 +1441,6 @@ theorem IterM.forIn_filterM
   rw [filterM, ← filterWithPostcondition, forIn_filterWithPostcondition]
   simp [PostconditionT.run_attachLift]
 
-@[spec]
 theorem IterM.forIn_filter
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n]
     [MonadLiftT m n] [LawfulMonadLiftT m n]

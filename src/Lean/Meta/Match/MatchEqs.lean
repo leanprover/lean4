@@ -72,7 +72,7 @@ private def solveWithGrind (mvarId : MVarId) : MetaM Unit := do
   trace[Meta.Match.matchEqs] "solved by grind"
 
 private def splitIfAtHEq? (mvarId : MVarId) : MetaM (Option (MVarId × MVarId)) := mvarId.withContext do
-  let type ← mvarId.getType'
+  let type ← mvarId.getType
   let some (α,lhs,β,rhs) := type.heq? | return none
   match_expr lhs.getAppPrefix 5 with
   | dite α' cond inst «then» «else» =>

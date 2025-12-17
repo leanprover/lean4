@@ -126,7 +126,8 @@ recv operations to return `none` when no data is available.
 -/
 @[always_inline, inline]
 def close (stream : ByteStream) : Async Unit := do
-  stream.channel.close
+  if ¬ (← stream.channel.isClosed) then
+    stream.channel.close
 
 /--
 Checks if the stream is closed.

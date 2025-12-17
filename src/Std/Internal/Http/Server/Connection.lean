@@ -188,7 +188,9 @@ private def handle
         requestStream ← Body.ByteStream.emptyWithCapacity
         response ← Std.Promise.new
 
-        if let some res := respStream then res.close
+        if let some res := respStream then
+          if (← res.isClosed) then res.close
+
         respStream := none
 
         keepAliveTimeout := some config.keepAliveTimeout.val
@@ -221,6 +223,10 @@ private def handle
 
       | .channel none =>
         machine := machine.userClosedBody
+
+        if let some res := respStream then
+          if (← res.isClosed) then res.close
+
         respStream := none
 
       | .close =>
@@ -252,14 +258,11 @@ private def handle
           machine := machine.setKnownSize (size.getD .chunked)
           respStream := some stream
 
-  if ¬ (← connectionContext.isCancelled) then
-    connectionContext.cancel .cancel
-
   if ¬ (← requestStream.isClosed) then
     requestStream.close
 
   if let some res := respStream then
-    if ¬ (← res.isClosed) then res.close
+    if (← res.isClosed) then res.close
 
 end Connection
 

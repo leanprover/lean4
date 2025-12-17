@@ -928,11 +928,7 @@ theorem forIn_eq_sum (xs : Array Nat) {m ps} [Monad m] [WPMonad m ps] :
       return sum) ⌜True⌝ (⇓r => ⌜r = xs.sum⌝) := by
   mvcgen
   case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum⌝
-  · simp only [List.sum_append_nat, List.sum_cons, List.sum_nil, Nat.add_zero,
-    Nat.add_right_cancel_iff, SPred.entails.refl]
-  · simp only [List.sum_nil, SPred.entails.refl]
-  · simp only [Array.toList_iter, Array.sum_eq_sum_toList, SPred.entails.refl]
-  · simp only [ExceptConds.entails.refl]
+  all_goals grind
 
 theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [LawfulMonad m]
     [WPMonad m ps] :
@@ -943,7 +939,7 @@ theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [LawfulMonad
       return sum) ⌜True⌝ (⇓r => ⌜r = xs.sum + xs.size⌝) := by
   mvcgen
   case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum + cur.prefix.length⌝
-  all_goals (try grind)
+  all_goals grind
 
 theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [MonadAttach m]
     [LawfulMonad m] [WeaklyLawfulMonadAttach m] [WPMonad m ps] :
@@ -965,7 +961,7 @@ theorem forIn_filterMapM_eq_sum_add_size (xs : Array Nat) {m ps}
       return sum) ⌜True⌝ (⇓r => ⌜r = xs.sum + xs.size⌝) := by
   mvcgen
   case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum + cur.prefix.length⌝
-  all_goals (try grind)
+  all_goals grind
 
 theorem foldM_eq_sum (xs : Array Nat) {m ps} [Monad m] [LawfulMonad m]
     [WPMonad m ps] :
@@ -975,4 +971,4 @@ theorem foldM_eq_sum (xs : Array Nat) {m ps} [Monad m] [LawfulMonad m]
       (⇓r => ⌜r = xs.sum⌝) := by
   mvcgen
   case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum⌝
-  all_goals (try grind)
+  all_goals grind

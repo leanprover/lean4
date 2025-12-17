@@ -420,6 +420,31 @@ builtin_simproc [bv_normalize] cast (BitVec.cast _ _) := fun e => do
   let proof := mkApp3 (mkConst ``BitVec.cast_eq) nExpr hExpr targetExpr
   return .visit { expr := targetExpr, proof? := some proof }
 
+builtin_simproc [bv_normalize] bool_or_elim ((_ : Bool) || (_ : Bool)) := fun e => do
+  let_expr Bool.or lhs rhs := e | return .continue
+  let newLhs := mkApp (mkConst ``Bool.not) lhs
+  let newRhs := mkApp (mkConst ``Bool.not) rhs
+  let expr := mkApp (mkConst ``Bool.not) (mkApp2 (mkConst ``Bool.and) newLhs newRhs)
+  let proof := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.or_elim) lhs rhs
+  return .visit { expr, proof? := some proof }
+
+builtin_simproc [bv_normalize] bv_or_elim ((_ : BitVec _) ||| (_ : BitVec _)) := fun e => do
+  let_expr HOr.hOr ty _ _ _ lhs rhs := e | return .continue
+  let_expr BitVec wExpr := ty | return .continue
+  let newLhs := BitVec.mkComplement lhs wExpr
+  let newRhs := BitVec.mkComplement rhs wExpr
+  let expr := BitVec.mkComplement (BitVec.mkAnd newLhs newRhs wExpr) wExpr
+  let proof := mkApp3 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.or_elim) wExpr lhs rhs
+  return .visit { expr, proof? := some proof }
+
+builtin_simproc [bv_normalize] bv_sub_elim ((_ : BitVec _) - (_ : BitVec _)) := fun e => do
+  let_expr HSub.hSub ty _ _ _ lhs rhs := e | return .continue
+  let_expr BitVec wExpr := ty | return .continue
+  let newRhs := BitVec.mkNeg rhs wExpr
+  let expr := BitVec.mkAdd lhs newRhs wExpr
+  let proof := mkApp3 (mkConst ``BitVec.sub_eq_add_neg) wExpr lhs rhs
+  return .visit { expr, proof? := some proof }
+
 end SimpleUnifiers
 
 builtin_simproc ↓ [bv_normalize] reduceCond (cond _ _ _) := fun e => do

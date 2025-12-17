@@ -80,10 +80,8 @@ theorem BitVec.lt_ult (x y : BitVec w) : (x < y) = (BitVec.ult x y = true) := by
   simp only [(· < ·)]
   simp
 
-@[bv_normalize]
 theorem Bool.or_elim : ∀ (a b : Bool), (a || b) = !(!a && !b) := by decide
 
-@[bv_normalize]
 theorem BitVec.or_elim (x y : BitVec w) : x ||| y = ~~~(~~~x &&& ~~~y) := by
   ext
   simp

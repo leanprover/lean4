@@ -1,42 +1,42 @@
-α : Type ?u
+α : Type u_1
 a : α
 as bs : List α
 h : bs = a :: as
-⊢ List.length (?head :: as) = List.length bs
+⊢ (?head :: as).length = bs.length
 
 case head
-α : Type ?u
+α : Type u_1
 a : α
 as bs : List α
 h : bs = a :: as
 ⊢ α
-α : Type ?u
+α : Type u_1
 b a : α
 as bs : List α
 h : as = bs
-⊢ List.length as + 1 + 1 = List.length bs + 2
-α : Type ?u
+⊢ as.length + 1 + 1 = bs.length + 2
+α : Type u_1
 b a : α
 as bs : List α
 h : as = bs
-⊢ List.length as + 1 + 1 = List.length (b :: bs) + 1
-α : Type ?u
+⊢ as.length + 1 + 1 = (b :: bs).length + 1
+α : Type u_1
 b a : α
 as bs : List α
 h : as = bs
-⊢ List.length as + 1 + 1 = List.length bs + 1 + 1
-α : Type ?u
+⊢ as.length + 1 + 1 = bs.length + 1 + 1
+α : Type u_1
 b a : α
 as bs : List α
 h : as = bs
-⊢ id (List.length (a :: b :: as)) = List.length (b :: bs) + 1
-α : Type ?u
+⊢ id (a :: b :: as).length = (b :: bs).length + 1
+α : Type u_1
 b a : α
 as bs : List α
 h : as = bs
-⊢ List.length (a :: b :: as) = List.length (b :: bs) + 1
-α : Type ?u
+⊢ (a :: b :: as).length = (b :: bs).length + 1
+α : Type u_1
 b a : α
 as bs : List α
 h : as = bs
-⊢ List.length as + 1 + 1 = List.length bs + 1 + 1
+⊢ as.length + 1 + 1 = bs.length + 1 + 1

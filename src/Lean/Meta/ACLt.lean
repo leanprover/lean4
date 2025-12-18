@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Meta.Basic
-import Lean.Meta.FunInfo
+module
+
+prelude
+public import Lean.Meta.DiscrTree
+
+public section
 
 namespace Lean
 
@@ -25,6 +29,14 @@ def Expr.ctorWeight : Expr → UInt8
 namespace Meta
 namespace ACLt
 
+inductive ReduceMode where
+  | reduce
+  | reduceSimpleOnly
+  | none
+
+private def config : ConfigWithKey :=
+  { transparency := .reducible, iota := false, proj := .no : Config }.toConfigWithKey
+
 mutual
 
 /--
@@ -32,7 +44,7 @@ mutual
 
   Recall that an AC-compatible ordering if it is monotonic, well-founded, and total.
   Both KBO and LPO are AC-compatible. KBO is faster, but we do not cache the weight of
-  each expression in Lean 4. Even if we did, we would need to have a weight where implicit instace arguments are ignored.
+  each expression in Lean 4. Even if we did, we would need to have a weight where implicit instance arguments are ignored.
   So, we use a LPO-like term ordering.
 
   Remark: this method is used to implement ordered rewriting. We ignore implicit instance
@@ -41,19 +53,36 @@ mutual
   Remark: the order is not really total on terms since
    - We instance implicit arguments.
    - We ignore metadata.
-   - We ignore universe parameterst at constants.
+   - We ignore universe parameters at constants.
 -/
-unsafe def lt (a b : Expr) : MetaM Bool :=
-  if ptrAddrUnsafe a == ptrAddrUnsafe b then
-    return false
-  -- We ignore metadata
-  else if a.isMData then
-    lt a.mdataExpr! b
-  else if b.isMData then
-    lt a b.mdataExpr!
-  else
-    lpo a b
+partial def main (a b : Expr) (mode : ReduceMode := .none) : MetaM Bool := do
+  lt a b
 where
+  reduce (e : Expr) : MetaM Expr := do
+    if e.hasLooseBVars then
+      -- We don't reduce terms occurring inside binders.
+      -- See issue #1841.
+      -- TODO: investigate whether we have to create temporary fresh free variables in practice.
+      -- Drawback: cost.
+      return e
+    else match mode with
+      | .reduce => DiscrTree.reduce e
+      | .reduceSimpleOnly => withConfigWithKey config <| DiscrTree.reduce e
+      | .none => return e
+
+  lt (a b : Expr) : MetaM Bool := do
+    if a == b then
+      -- We used to have an "optimization" using only pointer equality.
+      -- This was a bad idea, `==` is often much cheaper than `acLt`.
+      return false
+    -- We ignore metadata
+    else if a.isMData then
+      lt a.mdataExpr! b
+    else if b.isMData then
+      lt a b.mdataExpr!
+    else
+      lpo (← reduce a) (← reduce b)
+
   ltPair (a₁ a₂ b₁ b₂ : Expr) : MetaM Bool := do
     if (← lt a₁ b₁) then
       return true
@@ -61,6 +90,16 @@ where
       return false
     else
       lt a₂ b₂
+
+  getParamsInfo (f : Expr) (numArgs : Nat) : MetaM (Array ParamInfo) := do
+    -- Ensure `f` does not have loose bound variables. This may happen in
+    -- since we go inside binders without extending the local context.
+    -- See `lexSameCtor` and `allChildrenLt`
+    -- See issue #3705.
+    if f.hasLooseBVars then
+      return #[]
+    else
+      return (← getFunInfoNArgs f numArgs).paramInfo
 
   ltApp (a b : Expr) : MetaM Bool := do
     let aFn := a.getAppFn
@@ -77,15 +116,15 @@ where
       else if aArgs.size > bArgs.size then
         return false
       else
-        let infos := (← getFunInfoNArgs aFn aArgs.size).paramInfo
-        for i in [:infos.size] do
+        let infos ← getParamsInfo aFn aArgs.size
+        for i in *...infos.size do
           -- We ignore instance implicit arguments during comparison
           if !infos[i]!.isInstImplicit then
             if (← lt aArgs[i]! bArgs[i]!) then
               return true
             else if (← lt bArgs[i]! aArgs[i]!) then
               return false
-        for i in [infos.size:aArgs.size] do
+        for i in infos.size...aArgs.size do
           if (← lt aArgs[i]! bArgs[i]!) then
             return true
           else if (← lt bArgs[i]! aArgs[i]!) then
@@ -95,39 +134,39 @@ where
   lexSameCtor (a b : Expr) : MetaM Bool :=
     match a with
     -- Atomic
-    | Expr.bvar i ..    => return i < b.bvarIdx!
-    | Expr.fvar id ..   => return Name.lt id.name b.fvarId!.name
-    | Expr.mvar id ..   => return Name.lt id.name b.mvarId!.name
-    | Expr.sort u ..    => return Level.normLt u b.sortLevel!
-    | Expr.const n ..   => return Name.lt n b.constName! -- We igore the levels
-    | Expr.lit v ..     => return Literal.lt v b.litValue!
+    | .bvar i ..    => return i < b.bvarIdx!
+    | .fvar id ..   => return Name.lt id.name b.fvarId!.name
+    | .mvar id ..   => return Name.lt id.name b.mvarId!.name
+    | .sort u ..    => return Level.normLt u b.sortLevel!
+    | .const n ..   => return Name.lt n b.constName! -- We ignore the levels
+    | .lit v ..     => return Literal.lt v b.litValue!
     -- Composite
-    | Expr.proj _ i e ..    => if i != b.projIdx! then return i < b.projIdx! else lt e b.projExpr!
-    | Expr.app ..           => ltApp a b
-    | Expr.lam _ d e ..     => ltPair d e b.bindingDomain! b.bindingBody!
-    | Expr.forallE _ d e .. => ltPair d e b.bindingDomain! b.bindingBody!
-    | Expr.letE _ _ v e ..  => ltPair v e b.letValue! b.letBody!
+    | .proj _ i e ..    => if i != b.projIdx! then return i < b.projIdx! else lt e b.projExpr!
+    | .app ..           => ltApp a b
+    | .lam _ d e ..     => ltPair d e b.bindingDomain! b.bindingBody!
+    | .forallE _ d e .. => ltPair d e b.bindingDomain! b.bindingBody!
+    | .letE _ _ v e ..  => ltPair v e b.letValue! b.letBody!
     -- See main function
-    | Expr.mdata ..         => unreachable!
+    | .mdata ..         => unreachable!
 
   allChildrenLt (a b : Expr) : MetaM Bool :=
     match a with
-    | Expr.proj _ _ e ..    => lt e b
-    | Expr.app ..           =>
+    | .proj _ _ e ..    => lt e b
+    | .app ..           =>
       a.withApp fun f args => do
-        let infos := (← getFunInfoNArgs f args.size).paramInfo
-        for i in [:infos.size] do
+        let infos ← getParamsInfo f args.size
+        for i in *...infos.size do
           -- We ignore instance implicit arguments during comparison
           if !infos[i]!.isInstImplicit then
             if !(← lt args[i]! b) then
               return false
-        for i in [infos.size:args.size] do
-          if !(← lt args[i]! b) then
+        for h : i in infos.size...args.size do
+          if !(← lt args[i] b) then
             return false
         return true
-    | Expr.lam _ d e ..     => lt d b <&&> lt e b
-    | Expr.forallE _ d e .. => lt d b <&&> lt e b
-    | Expr.letE _ _ v e ..  => lt v b <&&> lt e b
+    | .lam _ d e ..     => lt d b <&&> lt e b
+    | .forallE _ d e .. => lt d b <&&> lt e b
+    | .letE _ _ v e ..  => lt v b <&&> lt e b
     | _ => return true
 
   someChildGe (a b : Expr) : MetaM Bool :=
@@ -154,7 +193,8 @@ end
 
 end ACLt
 
-@[implemented_by ACLt.lt]
-opaque Expr.acLt : Expr → Expr → MetaM Bool
+@[inherit_doc ACLt.main]
+def acLt (a b : Expr) (mode : ACLt.ReduceMode := .none) : MetaM Bool :=
+  ACLt.main a b mode
 
 end Lean.Meta

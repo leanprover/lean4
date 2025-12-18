@@ -19,7 +19,7 @@ by {
   exact a+b+y
 }
 
-#eval f2 (10, 20) { y := 5 }
+#guard f2 (10, 20) { y := 5 } == 35
 
 theorem ex2 : f2 (10, 20) { y := 5 } = 35 :=
 rfl
@@ -30,7 +30,7 @@ by {
   exact a+b+y+s.x
 }
 
-#eval f3 (10, 20) { y := 5 } { x := 1 }
+#guard f3 (10, 20) { y := 5 } { x := 1 } == 36
 
 theorem ex3 : f3 (10, 20) { y := 5 } { x := 1 } = 36 :=
 rfl

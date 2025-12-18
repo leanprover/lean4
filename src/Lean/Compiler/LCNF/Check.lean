@@ -3,8 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.PrettyPrinter
+module
+
+prelude
+public import Lean.Compiler.LCNF.PrettyPrinter
+public import Lean.Compiler.LCNF.CompatibleTypes
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -92,6 +97,9 @@ structure State where
 
 abbrev CheckM := ReaderT Context $ StateRefT State InferTypeM
 
+def checkTypes : CheckM Bool := do
+  return (← getConfig).checkTypes
+
 def checkFVar (fvarId : FVarId) : CheckM Unit :=
   unless (← read).vars.contains fvarId do
     throwError "invalid out of scope free variable {← getBinderName fvarId}"
@@ -102,11 +110,11 @@ def isCtorParam (f : Expr) (i : Nat) : CoreM Bool := do
   let .ctorInfo info ← getConstInfo declName | return false
   return i < info.numParams
 
-def checkAppArgs (f : Expr) (args : Array Expr) : CheckM Unit := do
+def checkAppArgs (f : Expr) (args : Array Arg) : CheckM Unit := do
   let mut fType ← inferType f
   let mut j := 0
-  for i in [:args.size] do
-    let arg := args[i]!
+  for h : i in *...args.size do
+    let arg := args[i]
     if fType.isErased then
       return ()
     fType := fType.headBeta
@@ -114,36 +122,23 @@ def checkAppArgs (f : Expr) (args : Array Expr) : CheckM Unit := do
       match fType with
       | .forallE _ d b _ => pure (d, b)
       | _ =>
-        fType := fType.instantiateRevRange j i args |>.headBeta
+        fType := instantiateRevRangeArgs fType j i args |>.headBeta
         match fType with
         | .forallE _ d b _ => j := i; pure (d, b)
         | _ => return ()
-    let expectedType := d.instantiateRevRange j i args
-    unless (← pure (maybeTypeFormerType expectedType) <||> isErasedCompatible expectedType) do
-      if arg.isFVar then
-        checkFVar arg.fvarId!
-      else
-        -- Constructor parameters that are not type formers are erased at phase .mono
-        unless arg.isErased && (← getPhase) ≥ .mono && (← isCtorParam f i) do
-          throwError "invalid LCNF application{indentExpr (mkAppN f args)}\nargument{indentExpr arg}\nhas type{indentExpr expectedType}\nmust be a free variable"
+    let expectedType := instantiateRevRangeArgs d j i args
+    if (← checkTypes) then
+      let argType ← arg.inferType
+      unless (← InferType.compatibleTypes argType expectedType) do
+        throwError "type mismatch at LCNF application{indentExpr (mkAppN f (args.map Arg.toExpr))}\nargument {arg.toExpr} has type{indentExpr argType}\nbut is expected to have type{indentExpr expectedType}"
     fType := b
 
-def checkApp (f : Expr) (args : Array Expr) : CheckM Unit := do
-  unless f.isConst || f.isFVar do
-    throwError "unexpected function application, function must be a constant or free variable{indentExpr (mkAppN f args)}"
-  if f.isFVar then
-    checkFVar f.fvarId!
-  checkAppArgs f args
-
-def checkExpr (e : Expr) : CheckM Unit :=
+def checkLetValue (e : LetValue) : CheckM Unit := do
   match e with
-  | .lit _ => pure ()
-  | .app .. => checkApp e.getAppFn e.getAppArgs
-  | .proj _ _ (.fvar fvarId) => checkFVar fvarId
-  | .mdata _ (.fvar fvarId)  => checkFVar fvarId
-  | .const _ _ => pure () -- TODO: check number of universe level parameters
-  | .fvar fvarId => checkFVar fvarId
-  | _ => throwError "unexpected expression at LCNF{indentExpr e}"
+  | .lit .. | .erased => pure ()
+  | .const declName us args => checkAppArgs (mkConst declName us) args
+  | .fvar fvarId args => checkFVar fvarId; checkAppArgs (.fvar fvarId) args
+  | .proj _ _ fvarId => checkFVar fvarId
 
 def checkJpInScope (jp : FVarId) : CheckM Unit := do
   unless (← read).jps.contains jp do
@@ -167,7 +162,11 @@ def checkParams (params : Array Param) : CheckM Unit :=
   params.forM checkParam
 
 def checkLetDecl (letDecl : LetDecl) : CheckM Unit := do
-  checkExpr letDecl.value
+  checkLetValue letDecl.value
+  if (← checkTypes) then
+    let valueType ← letDecl.value.inferType
+    unless (← InferType.compatibleTypes letDecl.type valueType) do
+      throwError "type mismatch at `{letDecl.binderName}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr letDecl.type}"
   unless letDecl == (← getLetDecl letDecl.fvarId) do
     throwError "LCNF let declaration mismatch at `{letDecl.binderName}`, does not match value in local context"
 
@@ -191,13 +190,19 @@ def addFVarId (fvarId : FVarId) : CheckM Unit := do
 
 mutual
 
-partial def checkFunDeclCore (params : Array Param) (value : Code) : CheckM Unit := do
+set_option linter.all false
+
+partial def checkFunDeclCore (declName : Name) (params : Array Param) (type : Expr) (value : Code) : CheckM Unit := do
   checkParams params
   withParams params do
     discard <| check value
+    if (← checkTypes) then
+      let valueType ← mkForallParams params (← value.inferType)
+      unless (← InferType.compatibleTypes type valueType) do
+        throwError "type mismatch at `{.ofConstName declName}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr type}"
 
 partial def checkFunDecl (funDecl : FunDecl) : CheckM Unit := do
-  checkFunDeclCore funDecl.params funDecl.value
+  checkFunDeclCore funDecl.binderName funDecl.params funDecl.type funDecl.value
   let decl ← getFunDecl funDecl.fvarId
   unless decl.binderName == funDecl.binderName do
     throwError "LCNF local function declaration mismatch at `{funDecl.binderName}`, binder name in local context `{decl.binderName}`"
@@ -251,7 +256,7 @@ def run (x : CheckM α) : CompilerM α :=
 end Check
 
 def Decl.check (decl : Decl) : CompilerM Unit := do
-  Check.run do Check.checkFunDeclCore decl.params decl.value
+  Check.run do decl.value.forCodeM (Check.checkFunDeclCore decl.name decl.params decl.type)
 
 /--
 Check whether every local declaration in the local context is used in one of given `decls`.
@@ -289,7 +294,7 @@ where
 
   visitDecl (decl : Decl) : StateM FVarIdHashSet Unit := do
     visitParams decl.params
-    visitCode decl.value
+    decl.value.forCodeM visitCode
 
   visitDecls (decls : Array Decl) : StateM FVarIdHashSet Unit :=
     decls.forM visitDecl

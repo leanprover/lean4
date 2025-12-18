@@ -1,5 +1,8 @@
 prelude
-import Init.Data.List.Basic
+import Init.MetaTypes
+import Init.Data.List.Lemmas
+
+attribute [-simp] List.map_map -- Turn off the global simp lemma so we can turn on and off the local version.
 
 @[simp] theorem map_comp_map (f : α → β) (g : β → γ) : List.map g ∘ List.map f = List.map (g ∘ f) :=
   sorry
@@ -8,7 +11,7 @@ theorem map_map (f : α → β) (g : β → γ) (xs : List α) : (xs.map f |>.ma
   sorry
 
 theorem ex1 (f : Nat → Nat) (xs : List Nat) : (xs.map f |>.map f) = xs.map (f ∘ f) := by
-  simp
+  fail_if_success simp
   simp [map_map]
   done
 
@@ -18,4 +21,4 @@ theorem ex2 (f : Nat → Nat) : List.map f ∘ List.map f ∘ List.map f = List.
 attribute [simp] map_map
 
 theorem ex3 (f : Nat → Nat) (xs : List Nat) : (xs.map f |>.map f |>.map f) = xs.map (fun x => f (f (f x))) := by
-  simp [Function.comp]
+  simp (config := { unfoldPartialApp := true }) [Function.comp]

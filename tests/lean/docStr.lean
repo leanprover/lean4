@@ -102,3 +102,6 @@ def printRangesTest : MetaM Unit := do
   printRanges `g.foo
 
 #eval printRangesTest
+
+/-- no dice -/
+add_decl_doc Nat.add

@@ -3,7 +3,7 @@ class Trait (X : Type u) where
 
 attribute [reducible] Trait.R
 
-class SemiInner (X : Type u) (R : Type v) where
+class SemiInner (X : Type u) (R : outParam <| Type v) where
   semiInner : X → X → R
 
 @[reducible] instance (X) (R : Type u) [SemiInner X R] : Trait X := ⟨R⟩
@@ -17,4 +17,7 @@ section Real
   attribute [irreducible] ℝ
 
   variable (x : ℝ)
+
+  /-- info: norm x : Trait.R ℝ -/
+  #guard_msgs in
   #check (norm x : ℝ)

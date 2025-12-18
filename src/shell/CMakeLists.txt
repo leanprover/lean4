@@ -1,9 +1,15 @@
-set(SRC lean.cpp)
-if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-set(SRC ${SRC} manifest.rc)
-endif()
+add_library(leanmain STATIC lean.cpp)
+set_target_properties(leanmain PROPERTIES
+  ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/temp
+  OUTPUT_NAME leanmain)
 
-add_library(shell OBJECT ${SRC})
+# library must contain at least one non-manifest file
+# We use `CONFIGURE` instead of `WRITE` so as to avoid touching the file on each run
+file(CONFIGURE OUTPUT ${CMAKE_BINARY_DIR}/temp/empty.c CONTENT "")
+add_library(leanmanifest STATIC ${CMAKE_BINARY_DIR}/temp/empty.c manifest.rc)
+set_target_properties(leanmanifest PROPERTIES
+  ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/lean
+  OUTPUT_NAME leanmanifest)
 
 if(LLVM)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -28,8 +34,8 @@ endif()
 
 add_custom_target(lean ALL
   WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-  DEPENDS leanshared shell
-  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lean LEAN_SHELL="$<TARGET_OBJECTS:shell>"
+  DEPENDS leanshared leanmain
+  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lean
   COMMAND_EXPAND_LISTS)
 
 # use executable of current stage for tests
@@ -46,15 +52,20 @@ add_test(lean_ghash2   "${CMAKE_BINARY_DIR}/bin/lean" --githash)
 add_test(lean_unknown_option bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_BINARY_DIR}/bin/lean" "-z")
 add_test(lean_unknown_file1 bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_BINARY_DIR}/bin/lean" "boofoo.lean")
 
-# LEANC_OPTS is necessary for macOS c++ to find its headers
-set(TEST_VARS "PATH=${LEAN_BIN}:$PATH ${LEAN_TEST_VARS} CXX='${CMAKE_CXX_COMPILER} ${LEANC_OPTS}'")
+if(${EMSCRIPTEN})
+  configure_file("${LEAN_SOURCE_DIR}/bin/lean.in" "${CMAKE_BINARY_DIR}/bin/lean")
+endif()
+
+# LEANC_OPTS in CXX is necessary for macOS c++ to find its headers
+set(TEST_VARS "PATH=${LEAN_BIN}:$PATH ${LEAN_TEST_VARS} CXX='${CMAKE_CXX_COMPILER} ${LEANC_OPTS}' LEANC_OPTS='${LEANC_OPTS}'")
 
 # LEAN TESTS
 file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")
 FOREACH(T ${LEANTESTS})
   if(NOT T MATCHES "\\.#")
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-    add_test(NAME "leantest_${T_NAME}"
+    CMAKE_PATH(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
+    add_test(NAME "${T_PATH}"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
              COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
   endif()
@@ -65,7 +76,8 @@ file(GLOB LEANRUNTESTS "${LEAN_SOURCE_DIR}/../tests/lean/run/*.lean")
 FOREACH(T ${LEANRUNTESTS})
   if(NOT T MATCHES "\\.#")
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-    add_test(NAME "leanruntest_${T_NAME}"
+    CMAKE_PATH(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
+    add_test(NAME "${T_PATH}"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/run"
              COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
   endif()
@@ -76,7 +88,8 @@ file(GLOB LEANDOCEXS "${LEAN_SOURCE_DIR}/../doc/examples/*.lean")
 FOREACH(T ${LEANDOCEXS})
   if(NOT T MATCHES "\\.#")
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-    add_test(NAME "leandocex_${T_NAME}"
+    CMAKE_PATH(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
+    add_test(NAME "${T_PATH}"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../doc/examples"
              COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
   endif()
@@ -86,7 +99,8 @@ ENDFOREACH(T)
 file(GLOB LEANCOMPTESTS "${LEAN_SOURCE_DIR}/../tests/compiler/*.lean")
 FOREACH(T ${LEANCOMPTESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "leancomptest_${T_NAME}"
+  CMAKE_PATH(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
+  add_test(NAME "${T_PATH}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler"
            COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
 ENDFOREACH(T)
@@ -103,7 +117,8 @@ file(GLOB LEANINTERPTESTS "${LEAN_SOURCE_DIR}/../tests/compiler/*.lean")
 FOREACH(T ${LEANINTERPTESTS})
   if(NOT EXISTS "${T}.no_interpreter")
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-    add_test(NAME "leaninterptest_${T_NAME}"
+    CMAKE_PATH(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
+    add_test(NAME "${T_PATH} (interpreted)"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler"
              COMMAND bash -c "${TEST_VARS} ./test_single_interpret.sh ${T_NAME}")
   endif()
@@ -115,15 +130,17 @@ file(GLOB LEANBENCHTESTS "${LEAN_SOURCE_DIR}/../tests/bench/*.lean.expected.out"
 FOREACH(T_OUT ${LEANBENCHTESTS})
   string(REPLACE ".expected.out" "" T ${T_OUT})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "leanbenchtest_${T_NAME}"
-           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/bench"
-           COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
+  CMAKE_PATH(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
+  add_test(NAME "${T_PATH}"
+            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/bench"
+            COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
 ENDFOREACH(T_OUT)
 
 file(GLOB LEANINTERPTESTS "${LEAN_SOURCE_DIR}/../tests/plugin/*.lean")
 FOREACH(T ${LEANINTERPTESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "leanplugintest_${T_NAME}"
+  CMAKE_PATH(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
+  add_test(NAME "${T_PATH}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/plugin"
            COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
 ENDFOREACH(T)
@@ -132,7 +149,8 @@ ENDFOREACH(T)
 file(GLOB LEANT0TESTS "${LEAN_SOURCE_DIR}/../tests/lean/trust0/*.lean")
 FOREACH(T ${LEANT0TESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "leant0test_${T_NAME}"
+  CMAKE_PATH(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
+  add_test(NAME "${T_PATH}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/trust0"
            COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
 ENDFOREACH(T)
@@ -140,9 +158,10 @@ ENDFOREACH(T)
 # LEAN PACKAGE TESTS
 file(GLOB LEANPKGTESTS "${LEAN_SOURCE_DIR}/../tests/pkg/*")
 FOREACH(T ${LEANPKGTESTS})
-  if(IS_DIRECTORY ${T})
+  if(EXISTS ${T}/test.sh)
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-    add_test(NAME "leanpkgtest_${T_NAME}"
+    CMAKE_PATH(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
+    add_test(NAME "${T_PATH}"
             WORKING_DIRECTORY "${T}"
             COMMAND bash -c "${TEST_VARS} ./test.sh")
   endif()
@@ -153,7 +172,8 @@ file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/server/*.lean")
 FOREACH(T ${LEANTESTS})
   if(NOT T MATCHES "\\.#")
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-    add_test(NAME "leanservertest_${T_NAME}"
+    CMAKE_PATH(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
+    add_test(NAME "${T_PATH}"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/server"
              COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
   endif()
@@ -164,25 +184,55 @@ file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/interactive/*.lean")
 FOREACH(T ${LEANTESTS})
   if(NOT T MATCHES "\\.#" AND NOT T MATCHES "run.lean")
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-    add_test(NAME "leaninteractivetest_${T_NAME}"
+    CMAKE_PATH(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
+    add_test(NAME "${T_PATH}"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/interactive"
              COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
   endif()
 ENDFOREACH(T)
 
-# Create a lake test for each subdirectory of `lake/examples` which contains a `test.sh` file.
-file(GLOB_RECURSE LEANLAKETESTS "${LEAN_SOURCE_DIR}/lake/examples/test.sh")
+# LEAN INTERACTIVE PROJECT SERVER TESTS
+file(GLOB_RECURSE LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/interactive/projects/*Test.lean")
+FOREACH(T ${LEANTESTS})
+  if(NOT T MATCHES "\\.#")
+    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+    CMAKE_PATH(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
+    add_test(NAME "${T_PATH}"
+             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/interactive/projects"
+             COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T}")
+  endif()
+ENDFOREACH(T)
+
+# LEAN DOCSTRING PARSER TESTS
+file(GLOB_RECURSE LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/docparse/*_[0-9][0-9][0-9][0-9]")
+FOREACH(T ${LEANTESTS})
+  if(NOT T MATCHES "\\.#" AND NOT T MATCHES "run.lean")
+    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+    CMAKE_PATH(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
+    add_test(NAME "${T_PATH}"
+             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/docparse"
+             COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
+  endif()
+ENDFOREACH(T)
+
+# Create a lake test for each test and examples subdirectory of `lake`
+# which contains a `test.sh` file, excluding the following test(s):
+# bootstrap: too slow
+# toolchain: requires elan to download toolchain
+# online: downloads remote repositories
+file(GLOB_RECURSE LEANLAKETESTS
+  #"${LEAN_SOURCE_DIR}/../tests/lake/tests/test.sh"
+  "${LEAN_SOURCE_DIR}/../tests/lake/examples/test.sh")
 FOREACH(T ${LEANLAKETESTS})
-  if(NOT T MATCHES ".*lean_packages.*")
-  if(NOT T MATCHES ".*bootstrap.*")
+  if(NOT T MATCHES ".*(lake-packages|bootstrap|toolchain|online).*")
     GET_FILENAME_COMPONENT(T_DIR ${T} DIRECTORY)
     GET_FILENAME_COMPONENT(DIR_NAME ${T_DIR} NAME)
-    add_test(NAME "leanlaketest_${DIR_NAME}"
+    CMAKE_PATH(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
+    add_test(NAME "${T_PATH}"
              WORKING_DIRECTORY "${T_DIR}"
              COMMAND bash -c "
                set -eu
                export ${TEST_VARS}
                LAKE=lake ./test.sh")
-  endif()
   endif()
 ENDFOREACH(T)

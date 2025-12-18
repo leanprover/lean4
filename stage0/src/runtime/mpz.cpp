@@ -47,7 +47,7 @@ mpz::mpz(uint64 v):
 
 mpz::mpz(int64 v) {
     uint64 w;
-    if (v < 0) w = -v;
+    if (v < 0) w = -static_cast<uint64>(v);
     else w = v;
     mpz_init_set_ui(m_val, static_cast<unsigned>(w));
     mpz tmp(static_cast<unsigned>(w >> 32));
@@ -146,19 +146,62 @@ mpz & mpz::operator+=(mpz const & o) { mpz_add(m_val, m_val, o.m_val); return *t
 
 mpz & mpz::operator+=(unsigned u) { mpz_add_ui(m_val, m_val, u); return *this; }
 
-mpz & mpz::operator+=(int u) { if (u >= 0) mpz_add_ui(m_val, m_val, u); else mpz_sub_ui(m_val, m_val, -u); return *this; }
+mpz & mpz::operator+=(int u) { if (u >= 0) mpz_add_ui(m_val, m_val, u); else mpz_sub_ui(m_val, m_val, -static_cast<unsigned>(u)); return *this; }
 
 mpz & mpz::operator-=(mpz const & o) { mpz_sub(m_val, m_val, o.m_val); return *this; }
 
 mpz & mpz::operator-=(unsigned u) { mpz_sub_ui(m_val, m_val, u); return *this; }
 
-mpz & mpz::operator-=(int u) { if (u >= 0) mpz_sub_ui(m_val, m_val, u); else mpz_add_ui(m_val, m_val, -u); return *this; }
+mpz & mpz::operator-=(int u) { if (u >= 0) mpz_sub_ui(m_val, m_val, u); else mpz_add_ui(m_val, m_val, -static_cast<unsigned>(u)); return *this; }
 
 mpz & mpz::operator*=(mpz const & o) { mpz_mul(m_val, m_val, o.m_val); return *this; }
 
 mpz & mpz::operator*=(unsigned u) { mpz_mul_ui(m_val, m_val, u); return *this; }
 
 mpz & mpz::operator*=(int u) { mpz_mul_si(m_val, m_val, u); return *this; }
+
+mpz mpz::divexact(mpz const & n, mpz const & d) {
+    mpz q;
+    mpz_divexact(q.m_val, n.m_val, d.m_val);
+    return q;
+}
+
+mpz mpz::ediv(mpz const & n, mpz const & d) {
+    mpz q;
+    mpz_t r;
+    mpz_init(r);
+    /* (q,r) = (n/d, n%d) */
+    mpz_tdiv_qr(q.m_val, r, n.m_val, d.m_val);
+    /* if (r < 0) */
+    if (mpz_sgn(r) < 0) {
+        if (mpz_sgn(d.m_val) > 0) {
+            /* q = q - 1. */
+            mpz_sub_ui(q.m_val, q.m_val, 1);
+        } else {
+            /* q = q + 1. */
+            mpz_add_ui(q.m_val, q.m_val, 1);
+        }
+    }
+    mpz_clear(r);
+    return q;
+}
+
+mpz mpz::emod(mpz const & n, mpz const & d) {
+    mpz r;
+    /* (q,r) = (n/d, n%d) */
+    mpz_tdiv_r(r.m_val, n.m_val, d.m_val);
+    /* if (r < 0) */
+    if (mpz_sgn(r.m_val) < 0) {
+        if (mpz_sgn(d.m_val) > 0) {
+            /* r = r + d. */
+            mpz_add(r.m_val, r.m_val, d.m_val);
+        } else {
+            /* r = r - d. */
+            mpz_sub(r.m_val, r.m_val, d.m_val);
+        }
+    }
+    return r;
+}
 
 mpz & mpz::operator/=(mpz const & o) { mpz_tdiv_q(m_val, m_val, o.m_val); return *this; }
 mpz & mpz::operator/=(unsigned u) { mpz_tdiv_q_ui(m_val, m_val, u); return *this; }
@@ -202,32 +245,48 @@ void div2k(mpz & a, mpz const & b, unsigned k) {
     mpz_tdiv_q_2exp(a.m_val, b.m_val, k);
 }
 
-unsigned mpz::mod8() const {
+uint8 mpz::mod8() const {
     mpz a;
-    mpz_tdiv_r_2exp(a.m_val, m_val, 8);
-    return a.get_unsigned_int();
+    mpz_fdiv_r_2exp(a.m_val, m_val, 8);
+    return static_cast<uint8>(a.get_unsigned_int());
 }
 
-unsigned mpz::mod16() const {
+uint16 mpz::mod16() const {
     mpz a;
-    mpz_tdiv_r_2exp(a.m_val, m_val, 16);
-    return a.get_unsigned_int();
+    mpz_fdiv_r_2exp(a.m_val, m_val, 16);
+    return static_cast<uint16>(a.get_unsigned_int());
 }
 
-unsigned mpz::mod32() const {
+uint32 mpz::mod32() const {
     mpz a;
-    mpz_tdiv_r_2exp(a.m_val, m_val, 32);
-    return a.get_unsigned_int();
+    mpz_fdiv_r_2exp(a.m_val, m_val, 32);
+    return static_cast<uint32>(a.get_unsigned_int());
 }
 
 uint64 mpz::mod64() const {
     mpz r;
-    mpz_tdiv_r_2exp(r.m_val, m_val, 64);
+    mpz_fdiv_r_2exp(r.m_val, m_val, 64);
     mpz l;
-    mpz_tdiv_r_2exp(l.m_val, r.m_val, 32);
+    mpz_fdiv_r_2exp(l.m_val, r.m_val, 32);
     mpz h;
-    mpz_tdiv_q_2exp(h.m_val, r.m_val, 32);
+    mpz_fdiv_q_2exp(h.m_val, r.m_val, 32);
     return (static_cast<uint64>(h.get_unsigned_int()) << 32) + static_cast<uint64>(l.get_unsigned_int());
+}
+
+int8 mpz::smod8() const {
+    return static_cast<int8>(mod8());
+}
+
+int16 mpz::smod16() const {
+    return static_cast<int16>(mod16());
+}
+
+int32 mpz::smod32() const {
+    return static_cast<int32>(mod32());
+}
+
+int64 mpz::smod64() const {
+    return static_cast<int64>(mod64());
 }
 
 void power(mpz & a, mpz const & b, unsigned k) {
@@ -245,7 +304,7 @@ void display(std::ostream & out, __mpz_struct const * v) {
         mpz_get_str(buffer, 10, v);
         out << buffer;
     } else {
-        std::unique_ptr<char> buffer(new char[sz]);
+        std::unique_ptr<char[]> buffer(new char[sz]);
         mpz_get_str(buffer.get(), 10, v);
         out << buffer.get();
     }
@@ -259,9 +318,29 @@ std::ostream & operator<<(std::ostream & out, mpz const & v) {
 #else
 /***** NON GMP VERSION ******/
 
+static void *mpz_alloc(size_t size) {
+#ifdef LEAN_SMALL_ALLOCATOR
+    return alloc(size);
+#elif defined(LEAN_MIMALLOC)
+    return mi_malloc(size);
+#else
+    return malloc(size);
+#endif
+}
+
+static void mpz_dealloc(void *ptr, size_t size) {
+#ifdef LEAN_SMALL_ALLOCATOR
+        dealloc(ptr, size);
+#elif defined(LEAN_MIMALLOC)
+        mi_free_size(ptr, size);
+#else
+        free_sized(ptr, size);
+#endif
+}
+
 void mpz::allocate(size_t s) {
     m_size   = s;
-    m_digits = static_cast<mpn_digit*>(alloc(s * sizeof(mpn_digit)));
+    m_digits = static_cast<mpn_digit*>(mpz_alloc(s * sizeof(mpn_digit)));
 }
 
 void mpz::init() {
@@ -311,7 +390,7 @@ void mpz::init_uint64(uint64 v) {
         allocate(1);
         m_digits[0] = v;
     } else {
-        static_assert(sizeof(uint64) == 2 * sizeof(unsigned));
+        static_assert(sizeof(uint64) == 2 * sizeof(unsigned), "unsigned should be half the size of an uint64");
         allocate(2);
         m_digits[0] = static_cast<mpn_digit>(v);
         m_digits[1] = static_cast<mpn_digit>(v >> 8*sizeof(mpn_digit));
@@ -330,7 +409,7 @@ void mpz::init_int64(int64 v) {
 void mpz::init_mpz(mpz const & v) {
     m_sign   = v.m_sign;
     m_size   = v.m_size;
-    m_digits = static_cast<mpn_digit*>(alloc(m_size * sizeof(mpn_digit)));
+    m_digits = static_cast<mpn_digit*>(mpz_alloc(m_size * sizeof(mpn_digit)));
     memcpy(m_digits, v.m_digits, m_size * sizeof(mpn_digit));
 }
 
@@ -370,8 +449,9 @@ mpz::mpz(mpz && s):
 }
 
 mpz::~mpz() {
-    if (m_digits)
-        dealloc(m_digits, sizeof(mpn_digit)*m_size);
+    if (m_digits) {
+        mpz_dealloc(m_digits, sizeof(mpn_digit)*m_size);
+    }
 }
 
 void swap(mpz & a, mpz & b) {
@@ -438,7 +518,7 @@ mpz & mpz::operator=(mpz const & v) {
         if (v.m_size == m_size) {
             memcpy(m_digits, v.m_digits, m_size * sizeof(mpn_digit));
         } else {
-            dealloc(m_digits, sizeof(mpn_digit)*m_size);
+            mpz_dealloc(m_digits, sizeof(mpn_digit)*m_size);
             init_mpz(v);
         }
     }
@@ -446,19 +526,19 @@ mpz & mpz::operator=(mpz const & v) {
 }
 
 mpz & mpz::operator=(char const * v) {
-    dealloc(m_digits, sizeof(mpn_digit)*m_size);
+    mpz_dealloc(m_digits, sizeof(mpn_digit)*m_size);
     init_str(v);
     return *this;
 }
 
 mpz & mpz::operator=(unsigned int v) {
-    dealloc(m_digits, sizeof(mpn_digit)*m_size);
+    mpz_dealloc(m_digits, sizeof(mpn_digit)*m_size);
     init_uint(v);
     return *this;
 }
 
 mpz & mpz::operator=(int v) {
-    dealloc(m_digits, sizeof(mpn_digit)*m_size);
+    mpz_dealloc(m_digits, sizeof(mpn_digit)*m_size);
     init_int(v);
     return *this;
 }
@@ -509,7 +589,7 @@ void mpz::set(size_t sz, mpn_digit const * digits) {
     while (sz > 1 && digits[sz - 1] == 0)
         sz--;
     if (sz != m_size) {
-        dealloc(m_digits, sizeof(mpn_digit)*m_size);
+        mpz_dealloc(m_digits, sizeof(mpn_digit)*m_size);
         allocate(sz);
     }
     memcpy(m_digits, digits, sizeof(mpn_digit)*sz);
@@ -613,6 +693,7 @@ mpz & mpz::rem(size_t sz, mpn_digit const * digits) {
             digits, sz,
             q1.begin(), r1.begin());
     set(r_sz, r1.begin());
+    m_sign = m_sign && !is_zero();
     return *this;
 }
 
@@ -680,6 +761,57 @@ mpz & mpz::operator/=(unsigned u) {
 
 mpz & mpz::operator%=(mpz const & o) {
     return rem(o.m_size, o.m_digits);
+}
+
+mpz mpz::divexact(mpz const & n, mpz const & d) {
+    return n / d;
+}
+
+mpz mpz::ediv(mpz const & n, mpz const & d) {
+    if (d.m_size > n.m_size) {
+        if (n.is_neg()) {
+            int64_t r = d.is_pos() ? -1 : 1;
+            return mpz(r);
+        } else {
+            return mpz(0);
+        }
+    } else {
+        digit_buffer q1, r1;
+        size_t q_sz = n.m_size - d.m_size + 1;
+        size_t r_sz = d.m_size;
+        q1.ensure_capacity(q_sz);
+        r1.ensure_capacity(r_sz);
+        mpn_div(n.m_digits, n.m_size,
+                d.m_digits, d.m_size,
+                q1.begin(), r1.begin());
+        mpz q;
+        q.set(q_sz, q1.begin());
+        q.m_sign = !q.is_zero() && n.m_sign != d.m_sign;
+        mpz r;
+        r.set(r_sz, r1.begin());
+        r.m_sign = n.m_sign && !r.is_zero();
+        if (r.is_neg()) {
+            if (d.is_pos()) {
+                q -= 1;
+            } else {
+                q += 1;
+            }
+        }
+        return q;
+    }
+}
+
+mpz mpz::emod(mpz const & n, mpz const & d) {
+    mpz r(n);
+    r.rem(d.m_size, d.m_digits);
+    if (r.is_neg()) {
+        if (d.is_pos()) {
+            r += d;
+        } else {
+            r -= d;
+        }
+    }
+    return r;
 }
 
 mpz mpz::pow(unsigned int p) const {
@@ -843,23 +975,58 @@ void div2k(mpz & a, mpz const & b, unsigned k) {
     a.set(new_sz, ds.begin());
 }
 
-unsigned mpz::mod8() const {
-    return m_digits[0] & 0xFFu;
+uint8 mpz::mod8() const {
+    uint8 ret = static_cast<uint8>(m_digits[0] & 0xFFu);
+    if (m_sign) {
+        ret = -ret;
+    }
+    return ret;
 }
 
-unsigned mpz::mod16() const {
-    return m_digits[0] & 0xFFFFu;
+uint16 mpz::mod16() const {
+    uint16 ret = static_cast<uint16>(m_digits[0] & 0xFFFFu);
+    if (m_sign) {
+        ret = -ret;
+    }
+    return ret;
 }
 
-unsigned mpz::mod32() const {
-    return m_digits[0];
+uint32 mpz::mod32() const {
+    uint32 ret = static_cast<uint32>(m_digits[0]);
+    if (m_sign) {
+        ret = -ret;
+    }
+    return ret;
 }
 
 uint64 mpz::mod64() const {
-    if (m_size == 1)
-        return m_digits[0];
-    else
-        return m_digits[0] + (static_cast<uint64>(m_digits[1]) << 8*sizeof(mpn_digit));
+    uint64 ret;
+    if (m_size == 1) {
+        ret = m_digits[0];
+    }
+    else {
+        ret = m_digits[0] + (static_cast<uint64>(m_digits[1]) << 8*sizeof(mpn_digit));
+    }
+    if (m_sign) {
+        ret = -ret;
+    }
+    return ret;
+}
+
+int8 mpz::smod8() const {
+    return static_cast<int8>(mod8());
+}
+
+int16 mpz::smod16() const {
+    return static_cast<int16>(mod16());
+}
+
+int32 mpz::smod32() const {
+    return static_cast<int32>(mod32());
+}
+
+int64 mpz::smod64() const {
+    return static_cast<int64>(mod64());
 }
 
 void power(mpz & a, mpz const & b, unsigned k) {

@@ -1,2 +1,4 @@
-1102.lean:22:35-22:49: error: failed to synthesize instance
+1102.lean:22:35-22:49: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   DVR 1
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.

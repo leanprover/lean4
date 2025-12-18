@@ -102,7 +102,6 @@ namespace SetModel
            , tm := fun {γ} =>
                      (by
                        simp at fTy xTy; subst fTy xTy; simp at Actx Bctx; subst Actx Bctx
-                       simp [interpTyStep, cast] at *
                        exact (ftm xtm)
                      )
                }

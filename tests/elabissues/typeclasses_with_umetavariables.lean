@@ -1,5 +1,5 @@
 /-
-In constrast to expression metavariables (see: typeclasses_with_emetavariables.lean),
+In contrast to expression metavariables (see: typeclasses_with_emetavariables.lean),
 typeclass resolution is not stalled due to the presence of universe metavariables.
 
 In the current C++ implementation, some (but not all) universe metavariables appearing

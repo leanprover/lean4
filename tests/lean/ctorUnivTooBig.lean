@@ -21,7 +21,7 @@ inductive Member : α → List α → Type u
   | head : Member a (a::as)
   | tail : Member a bs → Member a (b::bs)
 
-#check @Member.head
+#check Member.head
 end Ex1
 
 namespace Ex2

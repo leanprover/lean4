@@ -3,11 +3,14 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Compiler.LCNF.DependsOn
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.Internalize
-import Lean.Compiler.LCNF.Simp.Basic
-import Lean.Compiler.LCNF.Simp.DiscrM
+module
+
+prelude
+public import Lean.Compiler.LCNF.DependsOn
+public import Lean.Compiler.LCNF.Internalize
+public import Lean.Compiler.LCNF.Simp.DiscrM
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Simp
@@ -79,10 +82,10 @@ where
       | .alt ctorName ps k => withDiscrCtor c.discr ctorName ps <| go k
     | .return .. | .unreach .. => return ()
     | .jmp fvarId args =>
-      if let some info := (← get).find? fvarId then
-        let arg ← findCtor args[info.paramIdx]!
-        let some (cval, _) := arg.constructorApp? (← getEnv) | return ()
-        modify fun map => map.insert fvarId <| { info with ctorNames := info.ctorNames.insert cval.name }
+      if let some info := (← get).get? fvarId then
+        let .fvar argFVarId := args[info.paramIdx]! | return ()
+        let some ctorName ← findCtorName? argFVarId | return ()
+        modify fun map => map.insert fvarId <| { info with ctorNames := info.ctorNames.insert ctorName }
 
 /--
 Extract the let-declarations and `cases` for a join point body that satisfies `isJpCases?`.
@@ -105,7 +108,7 @@ abbrev Ctor2JpCasesAlt := FVarIdMap (NameMap JpCasesAlt)
 
 open Internalize in
 /--
-Construct an auxiliary join point for a particular alternative in a join-point that satifies `isJpCases?`.
+Construct an auxiliary join point for a particular alternative in a join-point that satisfies `isJpCases?`.
 - `decls` is the prefix (before the `cases`). See `isJpCases?`.
 - `params` are the parameters of the main join point that satisfies `isJpCases?`.
 - `targetParamIdx` is the index of the parameter that we are expanding to `fields`
@@ -120,8 +123,8 @@ where
     let mut paramsNew := #[]
     let singleton : FVarIdSet := ({} : FVarIdSet).insert params[targetParamIdx]!.fvarId
     let dependsOnDiscr := k.dependsOn singleton || decls.any (·.dependsOn singleton)
-    for i in [:params.size] do
-      let param := params[i]!
+    for h : i in *...params.size do
+      let param := params[i]
       if targetParamIdx == i then
         if dependsOnDiscr then
           paramsNew := paramsNew.push (← internalizeParam param)
@@ -134,22 +137,22 @@ where
     return { decl := (← mkAuxJpDecl paramsNew value), default, dependsOnDiscr }
 
 /-- Create the arguments for a jump to an auxiliary join point created using `mkJpAlt`. -/
-private def mkJmpNewArgs (args : Array Expr) (targetParamIdx : Nat) (fields : Array Expr) (dependsOnTarget : Bool) : Array Expr :=
+private def mkJmpNewArgs (args : Array Arg) (targetParamIdx : Nat) (fields : Array Arg) (dependsOnTarget : Bool) : Array Arg :=
   if dependsOnTarget then
-    args[:targetParamIdx+1] ++ fields ++ args[targetParamIdx+1:]
+    args[*...=targetParamIdx] ++ fields ++ args[targetParamIdx<...*]
   else
-    args[:targetParamIdx] ++ fields ++ args[targetParamIdx+1:]
+    args[*...targetParamIdx] ++ fields ++ args[targetParamIdx<...*]
 
 /--
 Create the arguments for a jump to an auxiliary join point created using `mkJpAlt`.
 This function is used to create jumps from the join point satisfying `isJpCases?` to the new auxiliary join points created using `mkJpAlt`.
 -/
-private def mkJmpArgsAtJp (params : Array Param) (targetParamIdx : Nat) (fields : Array Param) (dependsOnTarget : Bool) : Array Expr := Id.run do
-  mkJmpNewArgs (params.map (mkFVar ·.fvarId)) targetParamIdx (fields.map (mkFVar ·.fvarId)) dependsOnTarget
+private def mkJmpArgsAtJp (params : Array Param) (targetParamIdx : Nat) (fields : Array Param) (dependsOnTarget : Bool) : Array Arg := Id.run do
+  mkJmpNewArgs (params.map (Arg.fvar ·.fvarId)) targetParamIdx (fields.map (Arg.fvar ·.fvarId)) dependsOnTarget
 
 /--
 Try to optimize `jpCases` join points.
-We say a join point is a `jpCases` when it satifies the predicate `isJpCases`.
+We say a join point is a `jpCases` when it satisfies the predicate `isJpCases`.
 If we have a jump to `jpCases` with a constructor, then we can optimize the code by creating an new join point for
 the constructor.
 Example: suppose we have
@@ -230,7 +233,7 @@ where
       return code
 
   visitJp? (decl : FunDecl) (k : Code) : ReaderT JpCasesInfoMap (StateRefT Ctor2JpCasesAlt DiscrM) (Option Code) := do
-    let some info := (← read).find? decl.fvarId | return none
+    let some info := (← read).get? decl.fvarId | return none
     if info.ctorNames.isEmpty then return none
     -- This join point satisfies `isJpCases?` and there are jumps with constructors in `info` to it.
     let (decls, cases) := extractJpCases decl.value
@@ -270,27 +273,28 @@ where
     let code := .jp decl (← visit k)
     return LCNF.attachCodeDecls jpAltDecls code
 
-  visitJmp? (fvarId : FVarId) (args : Array Expr) : ReaderT JpCasesInfoMap (StateRefT Ctor2JpCasesAlt DiscrM) (Option Code) := do
-    let some ctorJpAltMap := (← get).find? fvarId | return none
-    let some info := (← read).find? fvarId | return none
-    let arg ← findCtor args[info.paramIdx]!
-    let some (ctorVal, ctorArgs) := arg.constructorApp? (← getEnv) (useRaw := true) | return none
-    let some jpAlt := ctorJpAltMap.find? ctorVal.name | return none
-    let fields := ctorArgs[ctorVal.numParams:]
-    -- Recall that if `arg` is a `Nat` literal, then `ctorArgs` is a literal too.
-    -- We use a for-loop because we may have other special cases in the future.
-    let mut auxDecls := #[]
-    let mut fieldsNew := #[]
-    unless jpAlt.default do
-      for field in fields do
-        if field.isFVar then
-          fieldsNew := fieldsNew.push field
-        else
-          let letDecl ← mkAuxLetDecl field
-          auxDecls := auxDecls.push (CodeDecl.let letDecl)
-          fieldsNew := fieldsNew.push (.fvar letDecl.fvarId)
-    let argsNew := mkJmpNewArgs args info.paramIdx fieldsNew jpAlt.dependsOnDiscr
-    return some <| LCNF.attachCodeDecls auxDecls (.jmp jpAlt.decl.fvarId argsNew)
+  visitJmp? (fvarId : FVarId) (args : Array Arg) : ReaderT JpCasesInfoMap (StateRefT Ctor2JpCasesAlt DiscrM) (Option Code) := do
+    let some ctorJpAltMap := (← get).get? fvarId | return none
+    let some info := (← read).get? fvarId | return none
+    let .fvar argFVarId := args[info.paramIdx]! | return none
+    let some ctorInfo ← findCtor? argFVarId | return none
+    let some jpAlt := ctorJpAltMap.find? ctorInfo.getName | return none
+    if jpAlt.default then
+      let argsNew := mkJmpNewArgs args info.paramIdx #[] jpAlt.dependsOnDiscr
+      return some <| .jmp jpAlt.decl.fvarId argsNew
+    else
+      match ctorInfo with
+      | .ctor ctorVal ctorArgs =>
+         let fields := ctorArgs[ctorVal.numParams...*]
+         let argsNew := mkJmpNewArgs args info.paramIdx fields jpAlt.dependsOnDiscr
+         return some <| .jmp jpAlt.decl.fvarId argsNew
+      | .natVal 0 =>
+        let argsNew := mkJmpNewArgs args info.paramIdx #[] jpAlt.dependsOnDiscr
+        return some <| .jmp jpAlt.decl.fvarId argsNew
+      | .natVal (n+1) =>
+        let auxDecl ← mkAuxLetDecl (.lit (.nat n))
+        let argsNew := mkJmpNewArgs args info.paramIdx #[.fvar auxDecl.fvarId] jpAlt.dependsOnDiscr
+        return some <| .let auxDecl (.jmp jpAlt.decl.fvarId argsNew)
 
 end Simp
 
@@ -298,4 +302,3 @@ builtin_initialize
   registerTraceClass `Compiler.simp.jpCases
 
 end Lean.Compiler.LCNF
-

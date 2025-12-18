@@ -7,7 +7,7 @@ theorem ex1 [Monad m] [LawfulMonad m] (b : Bool) (ma : m α) (mb : α → m α) 
     (ma >>= fun x => if b then mb x else pure x) := by
   cases b <;> simp
 
-attribute [simp] map_eq_pure_bind seq_eq_bind_map
+attribute [simp] seq_eq_bind_map
 
 theorem ex2 [Monad m] [LawfulMonad m] (b : Bool) (ma : m α) (mb : α → m α) (a : α) :
     (do let mut x ← ma

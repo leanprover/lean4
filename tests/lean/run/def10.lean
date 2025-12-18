@@ -27,4 +27,4 @@ theorem ex6 : g x y z > 0 := by
   split
   next => decide
   next => decide
-  next a b c h₁ h₂ => simp [f_eq h₁]
+  next a b c h₁ h₂ => simp (config := { decide := true }) [f_eq h₁]

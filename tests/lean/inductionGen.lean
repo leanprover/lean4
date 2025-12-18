@@ -66,3 +66,13 @@ theorem ex3 (a b : Expr α) (h : a = b) : eval (constProp a) = eval b := by
   induction a
   trace_state -- b's type must have been refined, `h` too
   repeat admit
+
+inductive Foo : Nat → Nat → Type where
+  | mk : Foo 1 2
+
+theorem ex4 (n m : Nat) (heq : n = m) (h : Foo n m) : False := by
+  induction h using Foo.rec
+  case mk => contradiction
+
+theorem ex5 (n : Nat) (h : Foo n n) : False := by
+  induction h using Foo.rec -- error, target repeated

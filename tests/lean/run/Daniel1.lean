@@ -5,7 +5,7 @@ def small (ps : Array (Nat × Nat)) : Array (Nat × Nat) :=
   ++
   ps
 
-#eval small #[(1, 2), (0, 3), (2, 4)]
+#guard small #[(1, 2), (0, 3), (2, 4)] == #[(0, 3), (1, 2), (0, 3), (2, 4)]
 
 variable {α β : Type} [Inhabited α] [Inhabited β]
 

@@ -52,7 +52,7 @@ def pred_with_proof (n : ℕ) (h : n ≠ zero) : Σ' m, n = succ m :=
   by
   revert h
   let P (k : ℕ) := k ≠ zero → Σ' m, k = succ m
-  exact (nat_induction (by simp ; exact False.elim) (λ k _ _ => ⟨k, rfl⟩) n : P n)
+  exact (nat_induction (by simp [P]; exact False.elim) (λ k _ _ => ⟨k, rfl⟩) n : P n)
 
 def pred (n : ℕ) (h : n ≠ zero) : ℕ := (pred_with_proof n h).fst
 end

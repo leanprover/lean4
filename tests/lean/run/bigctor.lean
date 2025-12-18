@@ -74,4 +74,4 @@ structure Foo where
 @[noinline] def mkFoo (x : Nat) : Foo :=
   { yy10 := x }
 
-#eval (mkFoo 10).yy10
+#guard (mkFoo 10).yy10 == 10

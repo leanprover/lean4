@@ -1,3 +1,6 @@
+-- The `fullRange` should span each entire block
+--^ collectDiagnostics
+
 example : False := by
   have : True := by
     skip

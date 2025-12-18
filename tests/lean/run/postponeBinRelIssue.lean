@@ -1,8 +1,9 @@
 def as := [-1, 2, 0, -3, 4]
 
-#eval as.map fun a => ite (GE.ge a 0) [a] [] -- Works
+#guard as.map (fun a => ite (GE.ge a 0) [a] []) == [[], [2], [0], [], [4]]
 
-#eval as.map fun a => ite (a ≥ 0) [a] [] -- Fails if we use `withSynthesize` instead of `withSynthesizeLight` at `elabBinRel`
+-- Used to fail if we use `withSynthesize` instead of `withSynthesizeLight` at `elabBinRel`
+#guard as.map (fun a => ite (a ≥ 0) [a] []) = [[], [2], [0], [], [4]]
 
 example : True :=
   /-

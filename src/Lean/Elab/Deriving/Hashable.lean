@@ -3,9 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dany Fabian
 -/
-import Lean.Meta.Inductive
-import Lean.Elab.Deriving.Basic
-import Lean.Elab.Deriving.Util
+module
+
+prelude
+public import Lean.Meta.Inductive
+public import Lean.Elab.Deriving.Basic
+public import Lean.Elab.Deriving.Util
+
+public section
 
 namespace Lean.Elab.Deriving.Hashable
 open Command
@@ -30,14 +35,14 @@ where
       let alt ← forallTelescopeReducing ctorInfo.type fun xs _ => do
         let mut patterns := #[]
         -- add `_` pattern for indices
-        for _ in [:indVal.numIndices] do
+        for _ in *...indVal.numIndices do
           patterns := patterns.push (← `(_))
         let mut ctorArgs := #[]
         let mut rhs ← `($(quote ctorIdx))
         -- add `_` for inductive parameters, they are inaccessible
-        for _ in [:indVal.numParams] do
+        for _ in *...indVal.numParams do
           ctorArgs := ctorArgs.push (← `(_))
-        for i in [:ctorInfo.numFields] do
+        for i in *...ctorInfo.numFields do
           let x := xs[indVal.numParams + i]!
           let a := mkIdent (← mkFreshUserName `a)
           ctorArgs := ctorArgs.push a
@@ -65,26 +70,29 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   let binders    := header.binders
   if ctx.usePartial then
     -- TODO(Dany): Get rid of this code branch altogether once we have well-founded recursion
-    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
+    `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
   else
-    `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
+    `(@[no_expose] def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
 
 def mkHashFuncs (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]
-  for i in [:ctx.typeInfos.size] do
+  for i in *...ctx.typeInfos.size do
     auxDefs := auxDefs.push (← mkAuxFunction ctx i)
   `(mutual $auxDefs:command* end)
 
-private def mkHashableInstanceCmds (declNames : Array Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "hash" declNames[0]!
-  let cmds := #[← mkHashFuncs ctx] ++ (← mkInstanceCmds ctx `Hashable declNames)
+private def mkHashableInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
+  let ctx ← mkContext ``Hashable "hash" declName
+  let cmds := #[← mkHashFuncs ctx] ++ (← mkInstanceCmds ctx `Hashable #[declName])
   trace[Elab.Deriving.hashable] "\n{cmds}"
   return cmds
 
 def mkHashableHandler (declNames : Array Name) : CommandElabM Bool := do
-  if (← declNames.allM isInductive) && declNames.size > 0 then
-    let cmds ← liftTermElabM <| mkHashableInstanceCmds declNames
-    cmds.forM elabCommand
+  withoutExporting do  -- This deriving handler handles visibility of generated decls syntactically
+  if (← declNames.allM isInductive)  then
+    for declName in declNames do
+      withoutExposeFromCtors declName do
+        let cmds ← liftTermElabM <| mkHashableInstanceCmds declName
+        cmds.forM elabCommand
     return true
   else
     return false

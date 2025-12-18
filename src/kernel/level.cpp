@@ -41,6 +41,16 @@ unsigned get_depth(level const & l) { return lean_level_depth(l.to_obj_arg()); }
 bool has_param(level const & l) { return lean_level_has_param(l.to_obj_arg()); }
 bool has_mvar(level const & l) { return lean_level_has_mvar(l.to_obj_arg()); }
 
+extern "C" LEAN_EXPORT uint64_t lean_level_mk_data (uint64_t h, object * depth, uint8_t hasMVar, uint8_t hasParam) {
+    if (!is_scalar(depth))
+        lean_internal_panic("universe level depth is too big");
+    size_t d = unbox(depth);
+    if (d > 16777215)
+        lean_internal_panic("universe level depth is too big");
+    uint32_t h1 = h;
+    return ((uint64_t) h1) + (((uint64_t) hasMVar) << 32) + (((uint64_t) hasParam) << 33) + (((uint64_t)d) << 40);
+}
+
 bool is_explicit(level const & l) {
     switch (kind(l)) {
     case level_kind::Zero:
@@ -93,24 +103,24 @@ level mk_max(level const & l1, level const & l2)  {
     }
 }
 
-level mk_imax(level const & l1, level const & l2) {
-    if (is_not_zero(l2))
-        return mk_max(l1, l2);
-    else if (is_zero(l2))
-        return l2;  // imax u 0 = 0  for any u
-    else if (is_zero(l1))
-        return l2;  // imax 0 u = u  for any u
-    else if (l1 == l2)
-        return l1;  // imax u u = u
-    else
-        return mk_imax_core(l1, l2);
-}
-
 static level * g_level_zero = nullptr;
 static level * g_level_one  = nullptr;
 level const & mk_level_zero() { return *g_level_zero; }
 level const & mk_level_one() { return *g_level_one; }
 bool is_one(level const & l) { return l == mk_level_one(); }
+
+level mk_imax(level const & l1, level const & l2) {
+    if (is_not_zero(l2))
+        return mk_max(l1, l2);
+    else if (is_zero(l2))
+        return l2;  // imax u 0 = 0  for any u
+    else if (is_zero(l1) || is_one(l1))
+        return l2;  // imax 0 u = imax 1 u = u  for any u
+    else if (l1 == l2)
+        return l1;  // imax u u = u
+    else
+        return mk_imax_core(l1, l2);
+}
 
 bool operator==(level const & l1, level const & l2) {
     if (kind(l1) != kind(l2)) return false;
@@ -361,60 +371,6 @@ static void print(std::ostream & out, level l) {
 std::ostream & operator<<(std::ostream & out, level const & l) {
     print(out, l);
     return out;
-}
-
-format pp(level l, bool unicode, unsigned indent);
-
-static format pp_child(level const & l, bool unicode, unsigned indent) {
-    if (is_explicit(l) || is_param(l) || is_mvar(l)) {
-        return pp(l, unicode, indent);
-    } else {
-        return paren(pp(l, unicode, indent));
-    }
-}
-
-format pp(level l, bool unicode, unsigned indent) {
-    if (is_explicit(l)) {
-        return format(get_depth(l));
-    } else {
-        switch (kind(l)) {
-        case level_kind::Zero:
-            lean_unreachable(); // LCOV_EXCL_LINE
-        case level_kind::Param:
-            return format(param_id(l));
-        case level_kind::MVar:
-            return format("?") + format(mvar_id(l));
-        case level_kind::Succ: {
-            auto p    = to_offset(l);
-            auto fmt1 = pp_child(p.first, unicode, indent);
-            return fmt1 + format("+") + format(p.second);
-        }
-        case level_kind::Max: case level_kind::IMax: {
-            format r = format(is_max(l) ? "max" : "imax");
-            r += nest(indent, compose(line(), pp_child(level_lhs(l), unicode, indent)));
-            // max and imax are right associative
-            while (kind(level_rhs(l)) == kind(l)) {
-                l = level_rhs(l);
-                r += nest(indent, compose(line(), pp_child(level_lhs(l), unicode, indent)));
-            }
-            r += nest(indent, compose(line(), pp_child(level_rhs(l), unicode, indent)));
-            return group(r);
-        }}
-        lean_unreachable(); // LCOV_EXCL_LINE
-    }
-}
-
-format pp(level const & l, options const & opts) {
-    return pp(l, get_pp_unicode(opts), get_pp_indent(opts));
-}
-
-format pp(level const & lhs, level const & rhs, bool unicode, unsigned indent) {
-    format leq = unicode ? format("≤") : format("<=");
-    return group(pp(lhs, unicode, indent) + space() + leq + line() + pp(rhs, unicode, indent));
-}
-
-format pp(level const & lhs, level const & rhs, options const & opts) {
-    return pp(lhs, rhs, get_pp_unicode(opts), get_pp_indent(opts));
 }
 
 // A total order on level expressions that has the following properties

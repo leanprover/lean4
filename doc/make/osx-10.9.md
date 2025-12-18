@@ -1,4 +1,4 @@
-# Install Packages on OS X 10.9
+# Install Packages on OS X
 
 We assume that you are using [homebrew][homebrew] as a package manager.
 
@@ -6,23 +6,23 @@ We assume that you are using [homebrew][homebrew] as a package manager.
 
 ## Compilers
 
-You need a C++11-compatible compiler to build Lean. As of November
-2014, you have three options:
+You need a C++14-compatible compiler to build Lean. As of July
+2025, you have three options:
 
- - clang++-3.5 (shipped with OSX, Apple LLVM version 6.0)
- - gcc-4.9.1 (homebrew)
- - clang++-3.5 (homebrew)
+ - clang++ shipped with OSX (at time of writing v17.0.0)
+ - clang++ via homebrew (at time of writing, v20.1.8)
+ - gcc via homebrew (at time of writing, v15.1.0)
 
 We recommend to use Apple's clang++ because it is pre-shipped with OS
 X and requires no further installation.
 
-To install gcc-4.9.1 via homebrew, please execute:
+To install gcc via homebrew, please execute:
 ```bash
 brew install gcc
 ```
-To install clang++-3.5 via homebrew, please execute:
+To install clang via homebrew, please execute:
 ```bash
-brew install llvm --with-clang --with-asan
+brew install llvm lld
 ```
 To use compilers other than the default one (Apple's clang++), you
 need to use `-DCMAKE_CXX_COMPILER` option to specify the compiler
@@ -32,11 +32,13 @@ following to use `g++`.
 cmake -DCMAKE_CXX_COMPILER=g++ ...
 ```
 
-## Required Packages: CMake, GMP
+## Required Packages: CMake, GMP, libuv, pkgconf
 
 ```bash
 brew install cmake
 brew install gmp
+brew install libuv
+brew install pkgconf
 ```
 
 ## Recommended Packages: CCache

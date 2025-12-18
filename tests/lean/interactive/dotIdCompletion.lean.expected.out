@@ -1,6 +1,20 @@
-{"textDocument": {"uri": "file://dotIdCompletion.lean"},
+{"textDocument": {"uri": "file:///dotIdCompletion.lean"},
  "position": {"line": 4, "character": 5}}
 {"items":
- [{"label": "true", "kind": 4, "detail": "Boo"},
-  {"label": "truth", "kind": 4, "detail": "Boo"}],
- "isIncomplete": true}
+ [{"label": "true",
+   "kind": 4,
+   "data": ["«external:file:///dotIdCompletion.lean»", 4, 5, 0, "cBoo.true"]},
+  {"label": "truth",
+   "kind": 4,
+   "data": ["«external:file:///dotIdCompletion.lean»", 4, 5, 0, "cBoo.truth"]}],
+ "isIncomplete": false}
+Resolution of true:
+{"label": "true",
+ "kind": 4,
+ "detail": "Boo",
+ "data": ["«external:file:///dotIdCompletion.lean»", 4, 5, 0, "cBoo.true"]}
+Resolution of truth:
+{"label": "truth",
+ "kind": 4,
+ "detail": "Boo",
+ "data": ["«external:file:///dotIdCompletion.lean»", 4, 5, 0, "cBoo.truth"]}

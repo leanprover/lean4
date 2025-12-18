@@ -3,13 +3,18 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.MetavarContext
+module
+
+prelude
+public import Lean.MetavarContext
+
+public section
 
 namespace Lean
 
 /--
   Return true if `e` does **not** contain `mvarId` directly or indirectly
-  This function considers assigments and delayed assignments. -/
+  This function considers assignments and delayed assignments. -/
 partial def occursCheck [Monad m] [MonadMCtx m] (mvarId : MVarId) (e : Expr) : m Bool := do
   if !e.hasExprMVar then
     return true

@@ -3,9 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Compiler.Specialize
-import Lean.Compiler.LCNF.FixedParams
-import Lean.Compiler.LCNF.InferType
+module
+
+prelude
+public import Lean.Compiler.LCNF.FixedParams
+public import Lean.Compiler.LCNF.InferType
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -84,6 +88,9 @@ builtin_initialize specExtension : SimplePersistentEnvExtension SpecEntry SpecSt
     addEntryFn    := SpecState.addEntry
     addImportedFn := fun _ => {}
     toArrayFn     := fun s => sortEntries s.toArray
+    asyncMode     := .sync
+    replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
+      (!·.specInfo.contains ·.declName) SpecState.addEntry
   }
 
 /--
@@ -103,7 +110,7 @@ private def isNoSpecType (env : Environment) (type : Expr) : Bool :=
 *Note*: `fixedNeutral` must have forward dependencies.
 
 The code specializer consider a `fixedNeutral` parameter during code specialization
-only if it contains forward dependecies that are tagged as `.user`, `.fixedHO`, or `.fixedInst`.
+only if it contains forward dependencies that are tagged as `.user`, `.fixedHO`, or `.fixedInst`.
 The motivation is to minimize the number of code specializations that have little or no impact on
 performance. For example, let's consider the function.
 ```
@@ -128,9 +135,9 @@ See comment at `.fixedNeutral`.
 -/
 private def hasFwdDeps (decl : Decl) (paramsInfo : Array SpecParamInfo) (j : Nat) : Bool := Id.run do
   let param := decl.params[j]!
-  for k in [j+1 : decl.params.size] do
+  for h : k in (j+1)...decl.params.size do
     if paramsInfo[k]! matches .user | .fixedHO | .fixedInst then
-      let param' := decl.params[k]!
+      let param' := decl.params[k]
       if param'.type.containsFVar param.fvarId then
         return true
   return false
@@ -146,13 +153,13 @@ def saveSpecParamInfo (decls : Array Decl) : CompilerM Unit := do
   let mut declsInfo := #[]
   for decl in decls do
     if hasNospecializeAttribute (← getEnv) decl.name then
-      declsInfo := declsInfo.push (mkArray decl.params.size .other)
+      declsInfo := declsInfo.push (.replicate decl.params.size .other)
     else
       let specArgs? := getSpecializationArgs? (← getEnv) decl.name
       let contains (i : Nat) : Bool := specArgs?.getD #[] |>.contains i
       let mut paramsInfo : Array SpecParamInfo := #[]
-      for i in [:decl.params.size] do
-        let param := decl.params[i]!
+      for h :i in *...decl.params.size do
+        let param := decl.params[i]
         let info ←
           if contains i then
             pure .user
@@ -180,14 +187,18 @@ def saveSpecParamInfo (decls : Array Decl) : CompilerM Unit := do
       declsInfo := declsInfo.push paramsInfo
   if declsInfo.any fun paramsInfo => paramsInfo.any (· matches .user | .fixedInst | .fixedHO) then
     let m := mkFixedParamsMap decls
-    for i in [:decls.size] do
-      let decl := decls[i]!
+    for hi : i in *...decls.size do
+      let decl := decls[i]
       let mut paramsInfo := declsInfo[i]!
       let some mask := m.find? decl.name | unreachable!
       trace[Compiler.specialize.info] "{decl.name} {mask}"
-      paramsInfo := paramsInfo.zipWith mask fun info fixed => if fixed || info matches .user then info else .other
-      for j in [:paramsInfo.size] do
-        let mut info  := paramsInfo[j]!
+      paramsInfo := Array.zipWith (as := paramsInfo) (bs := mask) fun info fixed =>
+        if fixed || info matches .user then
+          info
+        else
+          .other
+      for j in *...paramsInfo.size do
+        let mut info := paramsInfo[j]!
         if info matches .fixedNeutral && !hasFwdDeps decl paramsInfo j then
           paramsInfo := paramsInfo.set! j .other
       if paramsInfo.any fun info => info matches .fixedInst | .fixedHO | .user then
@@ -213,4 +224,3 @@ builtin_initialize
   registerTraceClass `Compiler.specialize.info
 
 end Lean.Compiler.LCNF
-

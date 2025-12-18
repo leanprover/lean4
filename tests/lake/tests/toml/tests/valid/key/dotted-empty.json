@@ -1,0 +1,22 @@
+{
+  "": {
+    "x": {
+      "type": "string",
+      "value": "empty.x"
+    }
+  },
+  "x": {
+    "": {
+      "type": "string",
+      "value": "x.empty"
+    }
+  },
+  "a": {
+    "": {
+      "": {
+        "type": "string",
+        "value": "empty.empty"
+      }
+    }
+  }
+}

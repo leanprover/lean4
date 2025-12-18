@@ -3,14 +3,20 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
-import Lean.Parser.Basic
-import Lean.Parser.Level
-import Lean.Parser.Term
-import Lean.Parser.Tactic
-import Lean.Parser.Command
-import Lean.Parser.Module
-import Lean.Parser.Syntax
-import Lean.Parser.Do
+module
+
+prelude
+public import Lean.Parser.Basic
+public import Lean.Parser.Level
+public import Lean.Parser.Term
+public import Lean.Parser.Tactic
+public import Lean.Parser.Command
+public import Lean.Parser.Module
+public import Lean.Parser.Syntax
+public import Lean.Parser.Do
+public import Lean.Parser.Tactic.Doc
+
+public section
 
 namespace Lean
 namespace Parser
@@ -27,7 +33,9 @@ builtin_initialize
   register_parser_alias (kind := charLitKind) "char" charLit
   register_parser_alias (kind := nameLitKind) "name" nameLit
   register_parser_alias (kind := scientificLitKind) "scientific" scientificLit
-  register_parser_alias (kind := identKind) "ident" ident
+  register_parser_alias (kind := identKind) ident
+  register_parser_alias (kind := identKind) rawIdent
+  register_parser_alias (kind := hygieneInfoKind) hygieneInfo
   register_parser_alias "colGt" checkColGt { stackSz? := some 0 }
   register_parser_alias "colGe" checkColGe { stackSz? := some 0 }
   register_parser_alias "colEq" checkColEq { stackSz? := some 0 }
@@ -43,12 +51,14 @@ builtin_initialize
   register_parser_alias withoutPosition { stackSz? := none }
   register_parser_alias withoutForbidden { stackSz? := none }
   register_parser_alias (kind := interpolatedStrKind) interpolatedStr
+  register_parser_alias (kind := hexnumKind) hexnum
   register_parser_alias orelse
   register_parser_alias andthen { stackSz? := none }
+  register_parser_alias recover
 
-  registerAlias "notFollowedBy" ``notFollowedBy (notFollowedBy · "element")
-  Parenthesizer.registerAlias "notFollowedBy" notFollowedBy.parenthesizer
-  Formatter.registerAlias "notFollowedBy" notFollowedBy.formatter
+  registerAlias `notFollowedBy ``notFollowedBy (notFollowedBy · "element")
+  Parenthesizer.registerAlias `notFollowedBy notFollowedBy.parenthesizer
+  Formatter.registerAlias `notFollowedBy notFollowedBy.formatter
 
 end Parser
 
@@ -83,6 +93,7 @@ unsafe def interpretParserDescr : ParserDescr → CoreM Parenthesizer
   | ParserDescr.trailingNode k prec lhsPrec d       => return trailingNode.parenthesizer k prec lhsPrec (← interpretParserDescr d)
   | ParserDescr.symbol tk                           => return symbol.parenthesizer tk
   | ParserDescr.nonReservedSymbol tk includeIdent   => return nonReservedSymbol.parenthesizer tk includeIdent
+  | ParserDescr.unicodeSymbol tk asciiTk preserve   => return unicodeSymbol.parenthesizer tk asciiTk preserve
   | ParserDescr.parser constName                    => combinatorParenthesizerAttribute.runDeclFor constName
   | ParserDescr.cat catName prec                    => return categoryParser.parenthesizer catName prec
 
@@ -115,6 +126,7 @@ unsafe def interpretParserDescr : ParserDescr → CoreM Formatter
   | ParserDescr.trailingNode k prec lhsPrec d       => return trailingNode.formatter k prec lhsPrec (← interpretParserDescr d)
   | ParserDescr.symbol tk                           => return symbol.formatter tk
   | ParserDescr.nonReservedSymbol tk _              => return nonReservedSymbol.formatter tk
+  | ParserDescr.unicodeSymbol tk asciiTk preserve   => return unicodeSymbol.formatter tk asciiTk preserve
   | ParserDescr.parser constName                    => combinatorFormatterAttribute.runDeclFor constName
   | ParserDescr.cat catName _                       => return categoryParser.formatter catName
 

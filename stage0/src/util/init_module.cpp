@@ -4,12 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/init_module.h"
 #include "runtime/init_module.h"
 #include "util/ascii.h"
 #include "util/name.h"
 #include "util/name_generator.h"
 #include "util/options.h"
-#include "util/format.h"
 
 namespace lean {
 void initialize_util_module() {
@@ -18,10 +18,8 @@ void initialize_util_module() {
     initialize_name();
     initialize_name_generator();
     initialize_options();
-    initialize_format();
 }
 void finalize_util_module() {
-    finalize_format();
     finalize_options();
     finalize_name_generator();
     finalize_name();

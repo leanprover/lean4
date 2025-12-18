@@ -6,7 +6,7 @@ set_option pp.motives.pi true
 
 #print Nat.add
 
-theorem ex : ∀ {α β : Sort u} (h : α = β) (a : α), HEq (cast h a) a
+theorem ex : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≍ a
   | α, _, rfl, a => HEq.refl a
 
 set_option pp.motives.nonConst false

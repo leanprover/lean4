@@ -10,9 +10,9 @@ where
       if ptrEq a b then
         go (i+1) as
       else
-        go (i+1) (as.set ⟨i, h⟩ b)
+        go (i+1) (as.set i b)
     else
       return as
 
 set_option trace.Compiler.result true
-#eval Lean.Compiler.compile #[``mapMonoMImp, ``mapMonoMImp.go]
+run_meta Lean.Compiler.compile #[``mapMonoMImp, ``mapMonoMImp.go]

@@ -4,19 +4,32 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Gabriel Ebner, Marc Huisinga
 -/
-import Lean.Data.RBTree
+module
+
+prelude
+public import Init.Data.Range
+public import Init.Data.OfScientific
+public import Init.Data.Hashable
+public import Std.Data.TreeMap.Raw.Basic
+public import Init.Data.Ord.String
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Nat
+import Init.Data.String.TakeDrop
+
+public section
+
 namespace Lean
 
 -- mantissa * 10^-exponent
 structure JsonNumber where
   mantissa : Int
   exponent : Nat
-  deriving DecidableEq
+  deriving DecidableEq, Hashable
 
 namespace JsonNumber
 
-protected def fromNat (n : Nat) : JsonNumber := ⟨n, 0⟩
-protected def fromInt (n : Int) : JsonNumber := ⟨n, 0⟩
+@[expose] protected def fromNat (n : Nat) : JsonNumber := ⟨n, 0⟩
+@[expose] protected def fromInt (n : Int) : JsonNumber := ⟨n, 0⟩
 
 instance : Coe Nat JsonNumber := ⟨JsonNumber.fromNat⟩
 instance : Coe Int JsonNumber := ⟨JsonNumber.fromInt⟩
@@ -39,7 +52,7 @@ protected def normalize : JsonNumber → Int × Nat × Int
       let mut mAbs := m.natAbs
       let nDigits := countDigits mAbs
       -- eliminate trailing zeros
-      for _ in [0:nDigits] do
+      for _ in *...nDigits do
         if mAbs % 10 = 0 then
           mAbs := mAbs / 10
         else
@@ -71,11 +84,8 @@ def lt (a b : JsonNumber) : Bool :=
     else if ae > be then false
     else am < bm
 
-def ltProp : LT JsonNumber :=
+instance ltProp : LT JsonNumber :=
   ⟨fun a b => lt a b = true⟩
-
-instance : LT JsonNumber :=
-  ltProp
 
 instance (a b : JsonNumber) : Decidable (a < b) :=
   inferInstanceAs (Decidable (lt a b = true))
@@ -98,13 +108,13 @@ protected def toString : JsonNumber → String
     -- grow exponentially in the value of exponent.
     let exp : Int := 9 + countDigits m - (e : Int)
     let exp := if exp < 0 then exp else 0
-    let e' := (10 : Int) ^ (e - exp.natAbs)
+    let e' := 10 ^ (e - exp.natAbs)
     let left := (m / e').repr
     if m % e' = 0 && exp = 0 then
       s!"{sign}{left}"
     else
       let right := e' + m % e'
-        |>.repr.toSubstring.drop 1
+        |>.repr.toRawSubstring.drop 1
         |>.dropRightWhile (fun c => c = '0')
         |>.toString
       let exp := if exp = 0 then "" else "e" ++ exp.repr
@@ -114,7 +124,7 @@ protected def toString : JsonNumber → String
 protected def shiftl : JsonNumber → Nat → JsonNumber
   -- if s ≤ e, then 10 ^ (s - e) = 1, and hence the mantissa remains unchanged.
   -- otherwise, the expression pads the mantissa with zeroes
-  -- to accomodate for the remaining places to shift.
+  -- to accommodate for the remaining places to shift.
   | ⟨m, e⟩, s => ⟨m * (10 ^ (s - e) : Nat), e - s⟩
 
 -- shift a JsonNumber by a specified amount of places to the right
@@ -172,10 +182,7 @@ inductive Json where
   | num (n : JsonNumber)
   | str (s : String)
   | arr (elems : Array Json)
-  -- uses RBNode instead of RBMap because RBMap is a def
-  -- and thus currently cannot be used to define a type that
-  -- is recursive in one of its parameters
-  | obj (kvPairs : RBNode String (fun _ => Json))
+  | obj (kvPairs : Std.TreeMap.Raw String Json)
   deriving Inhabited
 
 namespace Json
@@ -190,24 +197,32 @@ private partial def beq' : Json → Json → Bool
     a == b
   | obj a,  obj b =>
     let _ : BEq Json := ⟨beq'⟩
-    let szA := a.fold (init := 0) (fun a _ _ => a + 1)
-    let szB := b.fold (init := 0) (fun a _ _ => a + 1)
+    let szA := a.foldl (init := 0) (fun a _ _ => a + 1)
+    let szB := b.foldl (init := 0) (fun a _ _ => a + 1)
     szA == szB && a.all fun field fa =>
-      match b.find compare field with
+      match b.get? field with
       | none    => false
       | some fb => fa == fb
   | _,      _      => false
 
 instance : BEq Json where
-  beq := beq'
+  beq := private beq'
 
--- HACK(Marc): temporary ugliness until we can use RBMap for JSON objects
+private partial def hash' : Json → UInt64
+  | null   => 11
+  | bool b => mixHash 13 <| hash b
+  | num n  => mixHash 17 <| hash n
+  | str s  => mixHash 19 <| hash s
+  | arr elems =>
+    mixHash 23 <| elems.foldl (init := 7) fun r a => mixHash r (hash' a)
+  | obj kvPairs =>
+    mixHash 29 <| kvPairs.foldl (init := 7) fun r k v => mixHash r <| mixHash (hash k) (hash' v)
+
+instance : Hashable Json where
+  hash := private hash'
+
 def mkObj (o : List (String × Json)) : Json :=
-  obj <| Id.run do
-    let mut kvPairs := RBNode.leaf
-    for ⟨k, v⟩ in o do
-      kvPairs := kvPairs.insert compare k v
-    kvPairs
+  obj <| Std.TreeMap.Raw.ofList o
 
 instance : Coe Nat Json := ⟨fun n => Json.num n⟩
 instance : Coe Int Json := ⟨fun n => Json.num n⟩
@@ -219,7 +234,7 @@ def isNull : Json -> Bool
   | null => true
   | _    => false
 
-def getObj? : Json → Except String (RBNode String (fun _ => Json))
+def getObj? : Json → Except String (Std.TreeMap.Raw String Json compare)
   | obj kvs => return kvs
   | _       => throw "object expected"
 
@@ -249,14 +264,14 @@ def getNum? : Json → Except String JsonNumber
 
 def getObjVal? : Json → String → Except String Json
   | obj kvs, k =>
-    match kvs.find compare k with
+    match kvs.get? k with
     | some v => return v
     | none => throw s!"property not found: {k}"
   | _      , _ => throw "object expected"
 
 def getArrVal? : Json → Nat → Except String Json
   | arr a, i =>
-    match a.get? i with
+    match a[i]? with
     | some v => return v
     | none => throw s!"index out of bounds: {i}"
   | _    , _ => throw "array expected"
@@ -265,24 +280,23 @@ def getObjValD (j : Json) (k : String) : Json :=
   (j.getObjVal? k).toOption.getD null
 
 def setObjVal! : Json → String → Json → Json
-  | obj kvs, k, v => obj <| kvs.insert compare k v
+  | obj kvs, k, v => obj <| kvs.insert k v
   | _      , _, _ => panic! "Json.setObjVal!: not an object: {j}"
 
-open Lean.RBNode in
 /-- Assuming both inputs `o₁, o₂` are json objects, will compute `{...o₁, ...o₂}`.
 If `o₁` is not a json object, `o₂` will be returned.
 -/
 def mergeObj : Json → Json → Json
   | obj kvs₁, obj kvs₂ =>
-    obj <| fold (insert compare) kvs₁ kvs₂
+    obj <| kvs₂.foldl Std.TreeMap.Raw.insert kvs₁
   | _, j₂ => j₂
 
 inductive Structured where
   | arr (elems : Array Json)
-  | obj (kvPairs : RBNode String (fun _ => Json))
+  | obj (kvPairs : Std.TreeMap.Raw String Json compare)
 
 instance : Coe (Array Json) Structured := ⟨Structured.arr⟩
-instance : Coe (RBNode String (fun _ => Json)) Structured := ⟨Structured.obj⟩
+instance : Coe (Std.TreeMap.Raw String Json) Structured := ⟨Structured.obj⟩
 
 end Json
 end Lean

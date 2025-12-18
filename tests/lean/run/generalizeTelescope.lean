@@ -18,10 +18,12 @@ let n1    := mkApp succ n
 let vecN1 := mkApp2 (mkConst `Vec) nat n1
 withLocalDeclD `xs vecN1 fun xs => do
 generalizeTelescope #[n1, xs] fun ys => do
-let t ← mkLambdaFVars ys ys.back
+let t ← mkLambdaFVars ys ys.back!
 trace[Meta.debug] t
 pure ()
 
+/-- trace: [Meta.debug] fun x x_1 => x_1 -/
+#guard_msgs in
 #eval tst1
 
 set_option pp.all true
@@ -33,10 +35,14 @@ let vecN1 := mkApp2 (mkConst `Vec) nat n1
 withLocalDeclD `xs vecN1 $ fun xs => do
 let e ← mkEqRefl xs
 generalizeTelescope #[n1, xs, e] fun ys => do
-let t ← mkLambdaFVars ys ys.back
+let t ← mkLambdaFVars ys ys.back!
 trace[Meta.debug] t
 pure ()
 
+/--
+trace: [Meta.debug] fun (x : Nat) (x_1 : Vec Nat x) (x_2 : @Eq.{1} (Vec Nat x) x_1 x_1) => x_2
+-/
+#guard_msgs in
 #eval tst2
 
 def failIfSuccess (x : MetaM Unit) : MetaM Unit := do
@@ -52,9 +58,11 @@ withLocalDeclD `xs vecN1 $ fun xs => do
 let e ← mkEqRefl xs
 failIfSuccess do
   generalizeTelescope #[n1, e] fun ys => do
-  let t ← mkLambdaFVars ys ys.back
+  let t ← mkLambdaFVars ys ys.back!
   trace[Meta.debug] t
   pure ()
 trace[Meta.debug] "failed as expected"
 
+/-- trace: [Meta.debug] failed as expected -/
+#guard_msgs in
 #eval tst3

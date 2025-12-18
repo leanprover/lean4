@@ -3,24 +3,33 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.ScopedEnvExtension
-import Lean.Util.Recognizers
-import Lean.Meta.DiscrTree
-import Lean.Meta.SynthInstance
+module
+
+prelude
+public import Lean.Meta.SynthInstance
+
+public section
 
 namespace Lean.Meta
 
+abbrev UnificationHintKey := DiscrTree.Key
+
 structure UnificationHintEntry where
-  keys        : Array DiscrTree.Key
+  keys        : Array UnificationHintKey
   val         : Name
   deriving Inhabited
 
+abbrev UnificationHintTree := DiscrTree Name
+
 structure UnificationHints where
-  discrTree       : DiscrTree Name := DiscrTree.empty
+  discrTree : UnificationHintTree := DiscrTree.empty
   deriving Inhabited
 
 instance : ToFormat UnificationHints where
   format h := format h.discrTree
+
+private def config : ConfigWithKey :=
+  { iota := false, proj := .no : Config }.toConfigWithKey
 
 def UnificationHints.add (hints : UnificationHints) (e : UnificationHintEntry) : UnificationHints :=
   { hints with discrTree := hints.discrTree.insertCore e.keys e.val }
@@ -74,7 +83,7 @@ def addUnificationHint (declName : Name) (kind : AttributeKind) : MetaM Unit :=
       match decodeUnificationHint body with
       | Except.error msg => throwError msg
       | Except.ok hint =>
-        let keys ← DiscrTree.mkPath hint.pattern.lhs
+        let keys ← withConfigWithKey config <| DiscrTree.mkPath hint.pattern.lhs
         validateHint hint
         unificationHintExtension.add { keys := keys, val := declName } kind
 
@@ -89,12 +98,12 @@ builtin_initialize
 
 def tryUnificationHints (t s : Expr) : MetaM Bool := do
   trace[Meta.isDefEq.hint] "{t} =?= {s}"
-  unless (← read).config.unificationHints do
+  unless (← getConfig).unificationHints do
     return false
   if t.isMVar then
     return false
   let hints := unificationHintExtension.getState (← getEnv)
-  let candidates ← hints.discrTree.getMatch t
+  let candidates ← withConfigWithKey config <| hints.discrTree.getMatch t
   for candidate in candidates do
     if (← tryCandidate candidate) then
       return true

@@ -1,0 +1,42 @@
+ex1 (heq : foo = bar) (P : Nat → Prop) (h : P foo) : P bar
+substFails.lean:6:67-6:74: error: invalid `▸` notation, expected result type of cast is 
+  P 4
+however, the equality 
+  heq
+of type 
+  foo = bar
+does not contain the expected result type on either the left or the right hand side
+substFails.lean:8:67-8:74: error: invalid `▸` notation, the equality
+  heq
+has type 
+  foo = bar
+but neither side of the equality is mentioned in the type
+  P 3
+substFails.lean:9:67-9:74: error: invalid `▸` notation, expected result type of cast is 
+  P 4
+however, the equality 
+  heq
+of type 
+  foo = bar
+does not contain the expected result type on either the left or the right hand side
+ex7 (heq : bar = foo) (P : Nat → Prop) (h : P foo) : P bar
+substFails.lean:14:67-14:74: error: invalid `▸` notation, expected result type of cast is 
+  P 4
+however, the equality 
+  heq
+of type 
+  bar = foo
+does not contain the expected result type on either the left or the right hand side
+substFails.lean:16:67-16:74: error: invalid `▸` notation, the equality
+  heq
+has type 
+  bar = foo
+but neither side of the equality is mentioned in the type
+  P 3
+substFails.lean:17:67-17:74: error: invalid `▸` notation, expected result type of cast is 
+  P 4
+however, the equality 
+  heq
+of type 
+  bar = foo
+does not contain the expected result type on either the left or the right hand side

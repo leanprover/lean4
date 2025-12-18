@@ -1,0 +1,10 @@
+instReprTree
+instReprListTree
+instDecidableEqTree
+instDecidableEqListTree
+instBEqTree
+instBEqListTree
+instHashableTree
+instHashableListTree
+instOrdTree
+instOrdListTree

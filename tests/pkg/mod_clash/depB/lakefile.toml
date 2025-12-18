@@ -1,0 +1,11 @@
+name = "dep"
+
+[[lean_lib]]
+name = "Same"
+
+[[lean_lib]]
+name = "Similar"
+leanOptions.experimental.module = true
+
+[[lean_lib]]
+name = "Diff"

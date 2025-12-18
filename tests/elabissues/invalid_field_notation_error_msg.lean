@@ -6,7 +6,7 @@ An exact line number would help, but even so it would be great to report the fie
 [Leo]: the bad line number is due to the transition from Lean3 to Lean4.
 The new frontend reports the exact position. It still fails to elaborate since
 the types of `f`, `g` and `h` are unknown, and there is no `Foo.f6`.
-I decided to no report the field, users have all information they neeed when the correct position is reported.
+I decided to not report the field, users have all information they need when the correct position is reported.
 -/
 structure Foo := (n : Nat)
 def Foo.f1 (f : Foo) : Nat := f.n

@@ -48,6 +48,7 @@ example : 0 + n = n := by
 example : ∀ a b : Nat, a = b := by
   intro a b
  --^ $/lean/plainGoal
+         --^ $/lean/plainGoal
 
 example : α → α := (by
                   --^ $/lean/plainGoal
@@ -102,6 +103,59 @@ example : True = True := by
   --
 --^ $/lean/plainGoal
 
+example : True := by
+  have : True := by
+    -- type here
+  --^ $/lean/plainGoal
+-- no `this` here either, but seems okay
+--^ $/lean/plainGoal
+
+example : True := by
+  have : True := by
+    -- type here
+  --^ $/lean/plainGoal
+  apply this
+--^ $/lean/plainGoal
+-- note: no output here at all because of parse error
+
 example : False := by
 -- EOF test
 --^ $/lean/plainGoal
+
+example (hp : p) (hq : q) : p ∧ q := by
+  suffices q ∧ p by
+               --^ $/lean/plainGoal
+
+example (hp : p) (hq : q) : p ∧ q :=
+  show id (p ∧ q) by
+                --^ $/lean/plainGoal
+
+example : True ∧ False := by
+  constructor
+  · --
+ --^ $/lean/plainGoal
+  --^ $/lean/plainGoal
+
+section
+
+example : True := by induction 1 with
+                                --^ $/lean/plainGoal
+
+example : True := by induction 1 with |
+                                --^ $/lean/plainGoal
+
+example : True := by induction 1 with done
+                                --^ $/lean/plainGoal
+
+end
+
+section
+
+example (f : Nat → Nat) (n : Nat) (hf : ∀ x, f x = x + 0 + 1) : f n + 0 = 1 + n := by
+  simpa [Nat.add_zero, Nat.add_comm] using hf n
+--^ $/lean/plainGoal
+ --^ $/lean/plainGoal
+                                       --^ $/lean/plainGoal
+                                         --^ $/lean/plainGoal
+
+end

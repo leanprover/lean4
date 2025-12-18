@@ -1,2 +1,2 @@
-theorem ex : ∀ {n : Nat} {i j : Fin n}, i = j → i.val = j.val :=
+theorem ex : ∀ {n : Nat} {i j : Fin n}, i = j → ↑i = ↑j :=
 fun {n} {i j} h => h ▸ rfl

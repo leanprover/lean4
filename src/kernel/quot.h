@@ -58,7 +58,7 @@ template<typename WHNF> optional<expr> quot_reduce_rec(expr const & e, WHNF cons
 
     expr mk = whnf(args[mk_pos]);
     expr const & mk_fn = get_app_fn(mk);
-    if (!is_constant(mk_fn) || const_name(mk_fn) != *quot_consts::g_quot_mk)
+    if (!is_constant(mk_fn) || const_name(mk_fn) != *quot_consts::g_quot_mk || get_app_num_args(mk) != 3)
         return none_expr();
 
     expr const & f = args[arg_pos];

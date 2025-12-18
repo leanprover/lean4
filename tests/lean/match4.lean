@@ -41,15 +41,15 @@ match x with
 
 #eval f6 (5, 20)
 
-def Vector (α : Type) (n : Nat) := { a : Array α // a.size = n }
+def Vector' (α : Type) (n : Nat) := { a : Array α // a.size = n }
 
-def mkVec {α : Type} (n : Nat) (a : α) : Vector α n :=
-⟨mkArray n a, Array.size_mkArray ..⟩
+def mkVec {α : Type} (n : Nat) (a : α) : Vector' α n :=
+⟨Array.replicate n a, Array.size_replicate ..⟩
 
 structure S :=
 (n : Nat)
-(y : Vector Nat n)
-(z : Vector Nat n)
+(y : Vector' Nat n)
+(z : Vector' Nat n)
 (h : y = z)
 (m : { v : Nat // v = y.val.size })
 
@@ -58,3 +58,13 @@ match s with
 | { n := n, m := m, .. } => n + m.val
 
 #eval f7 { n := 10, y := mkVec 10 0, z := mkVec 10 0, h := rfl, m := ⟨10, rfl⟩ }
+
+inductive Bla : Unit → Unit × Unit → Type where
+  | left : Bla a (a, b)
+  | right : Bla b (a, b)
+
+def f8 : ∀ x y, Bla x y → Unit
+  | _, _, .left => ()
+  | _, _, .right => ()
+
+example (x : Bla () ((), ())) : f8 () ((), ()) x = () := by simp only [f8]

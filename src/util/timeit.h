@@ -55,10 +55,26 @@ public:
     }
     xtimeit(std::function<void(second_duration)> const & fn) : xtimeit(second_duration(0), fn) {} // NOLINT
     xtimeit(xtimeit const &) = delete;
-    xtimeit(xtimeit &&) = default;
+    xtimeit& operator=(xtimeit const &) = delete;
+    xtimeit(xtimeit && other) noexcept
+      : m_threshold(std::move(other.m_threshold)),
+        m_excluded(std::move(other.m_excluded)),
+        m_start(std::move(other.m_start)),
+        m_fn(std::move(other.m_fn)) { // TODO: use `std::exchange(_, nullptr)` in C++14
+        other.m_fn = nullptr;
+    }
+    xtimeit& operator=(xtimeit && other) noexcept {
+        m_threshold = std::move(other.m_threshold);
+        m_excluded  = std::move(other.m_excluded);
+        m_start     = std::move(other.m_start);
+        m_fn        = std::move(other.m_fn); // TODO: use `std::exchange(_, nullptr)` in C++14
+        other.m_fn = nullptr;
+        return *this;
+    }
     ~xtimeit() {
+        if (!m_fn) return;
         auto diff = get_elapsed();
-        if (diff >= m_threshold && m_fn) {
+        if (diff >= m_threshold) {
             m_fn(diff);
         }
     }

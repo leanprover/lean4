@@ -36,4 +36,6 @@ def myFirstProg := bCmd.bAssm (bvar.mk 0) (bExpr.BLit false)
 def newEnv :=
   cEval init_benv myFirstProg
 
+/-- info: false -/
+#guard_msgs in
 #eval newEnv (bvar.mk 0)

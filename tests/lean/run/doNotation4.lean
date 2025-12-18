@@ -21,7 +21,18 @@ catch _ =>
 finally
   IO.println "done"
 
+/--
+info: done
+result 8
+-/
+#guard_msgs in
 #eval testM 10 8 $ f1 1
+
+/--
+info: done
+result 1000
+-/
+#guard_msgs in
 #eval testM 1 1000 $ f1 1
 
 def f2 (x : Nat) : M Nat := do
@@ -35,8 +46,25 @@ catch _ =>
 finally
   IO.println "done"
 
+/--
+info: done
+result 500
+-/
+#guard_msgs in
 #eval testM 0 500 $ f2 500
+
+/--
+info: done
+result 1000
+-/
+#guard_msgs in
 #eval testM 0 1000 $ f2 50
+
+/--
+info: done
+result 150
+-/
+#guard_msgs in
 #eval testM 200 150 $ f2 50
 
 def f3 (x : Nat) : M Nat := do
@@ -47,6 +75,11 @@ catch
   | IO.Error.userError err => IO.println err; pure 2000
   | ex => throw ex
 
+/--
+info: value is zero
+result 2000
+-/
+#guard_msgs in
 #eval testM 0 2000 $ f3 10
 
 def f4 (xs : List Nat) : M Nat := do
@@ -61,7 +94,26 @@ for x in xs do
     break
 get
 
+/--
+info: x: 1
+x: 2
+x: 3
+x: 4
+result 6
+-/
+#guard_msgs in
 #eval testM 5 6 $ f4 [1, 2, 3, 4, 5, 6]
+
+/--
+info: x: 1
+x: 2
+x: 3
+x: 4
+x: 5
+x: 6
+result 19
+-/
+#guard_msgs in
 #eval testM 40 19 $ f4 [1, 2, 3, 4, 5, 6]
 
 def f5 (xs : List Nat) : M Nat := do
@@ -77,5 +129,25 @@ IO.println "after for"
 modify (· - 1)
 get
 
+/--
+info: x: 1
+x: 2
+x: 3
+x: 4
+result 6
+-/
+#guard_msgs in
 #eval testM 5 6 $ f5 [1, 2, 3, 4, 5, 6]
+
+/--
+info: x: 1
+x: 2
+x: 3
+x: 4
+x: 5
+x: 6
+after for
+result 18
+-/
+#guard_msgs in
 #eval testM 40 18 $ f5 [1, 2, 3, 4, 5, 6]

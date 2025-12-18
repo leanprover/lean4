@@ -13,6 +13,8 @@ e.replace $ fun e => match e with
 
 #eval replaceTest $ mkBig 4
 
+/-- info: Lean.Expr.const `g [] -/
+#guard_msgs in
 #eval (replaceTest $ mkBig 128).getAppFn
 
 def findTest (e : Expr) : Option Expr :=
@@ -20,7 +22,18 @@ e.find? $ fun e => match e with
   | Expr.const c _ => c == `g
   | _ => false
 
+/-- info: none -/
+#guard_msgs in
 #eval findTest $ mkBig 4
+
+/-- info: some (Lean.Expr.const `g []) -/
+#guard_msgs in
 #eval findTest $ replaceTest $ mkBig 4
+
+/-- info: none -/
+#guard_msgs in
 #eval findTest $ mkBig 128
+
+/-- info: some (Lean.Expr.const `g []) -/
+#guard_msgs in
 #eval findTest $ (replaceTest $ mkBig 128)

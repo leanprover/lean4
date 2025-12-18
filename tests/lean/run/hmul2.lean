@@ -5,9 +5,9 @@ instance [Mul α] : HMul α (Array α) (Array α) where
 instance [Mul α] : Mul (Array α) where
   mul as bs := (as.zip bs).map fun (a, b) => a * b
 
-#eval 2 * #[3, 4, 5]
+#guard 2 * #[3, 4, 5] == #[6, 8, 10]
 
-#eval (2:Nat) * #[3, 4, 5]
+#guard (2:Nat) * #[3, 4, 5] == #[6, 8, 10]
 
 #check fun x => x * 2
 #check fun y : Int => let  x := 1; x * y

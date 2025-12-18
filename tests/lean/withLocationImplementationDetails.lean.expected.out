@@ -1,0 +1,3 @@
+withLocationImplementationDetails.lean:5:28-7:25: error: unsolved goals
+h : B = 3
+⊢ B = 3

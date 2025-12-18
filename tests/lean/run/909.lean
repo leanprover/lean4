@@ -16,7 +16,7 @@ instance (a b : Date) : Decidable (a <= b) :=
 -/
 
 /-
-This implemenation evaluates successfully:
+This implementation evaluates successfully:
 instance (a b : Date) : Decidable (a <= b) :=
   dite (a.val <= b.val) isTrue (fun nle => isFalse (fun hf => False.elim (nle hf)))
 -/
@@ -33,4 +33,6 @@ def r1 := (DateRange.mk (Date.mk 0) (Date.mk 10) (by decide))
 -- If you change the start_ value here to `0`, it works.
 def r2 := (DateRange.mk (Date.mk 1) (Date.mk 10) (by decide))
 
+/-- info: { val := 0 } -/
+#guard_msgs in
 #eval min r1.start_ r2.start_

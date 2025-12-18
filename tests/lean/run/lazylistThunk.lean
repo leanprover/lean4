@@ -25,7 +25,7 @@ in the list, ignoring delays
 
 theorem length_toList (l : LazyList α) : l.toList.length = l.length := by
   match l with
-  | nil => rfl
+  | nil => simp [length_toList]
   | cons a as => simp [length_toList as]
   | delayed as => simp [length_toList as.get]
 

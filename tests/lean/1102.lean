@@ -12,9 +12,9 @@ class cls2 extends cls3 := (u2 : Unit)
 class cls1 extends cls2 := (u1 : Unit)
 class cls0 extends cls1 := (u0 : Unit)
 
-class CommRing (n : Nat) extends cls0 := (ucr : Unit)
-class Field (n) extends CommRing n := (uf : Unit)
-class DVR (n) [CommRing n] := (udvr : Unit)
+class CommRing (n : semiOutParam Nat) extends cls0 := (ucr : Unit)
+class Field (n : semiOutParam Nat) extends CommRing n := (uf : Unit)
+class DVR (n : semiOutParam Nat) [CommRing n] := (udvr : Unit)
 
 instance [c : CommRing n] : CommRing n.succ := { ucr := c.u12 }
 instance [Field n] : DVR n.succ := ⟨()⟩

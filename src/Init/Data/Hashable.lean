@@ -3,15 +3,18 @@ Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.UInt
-import Init.Data.String
+public import Init.Data.String.Basic
+
+public section
 universe u
 
 instance : Hashable Nat where
   hash n := UInt64.ofNat n
 
-instance : Hashable String.Pos where
+instance : Hashable String.Pos.Raw where
   hash p := UInt64.ofNat p.byteIdx
 
 instance [Hashable α] [Hashable β] : Hashable (α × β) where
@@ -21,6 +24,12 @@ instance : Hashable Bool where
   hash
     | true  => 11
     | false => 13
+
+instance : Hashable PEmpty.{u} where
+  hash x := nomatch x
+
+instance : Hashable PUnit.{u} where
+  hash | .unit => 11
 
 instance [Hashable α] : Hashable (Option α) where
   hash
@@ -51,6 +60,9 @@ instance : Hashable USize where
 instance : Hashable (Fin n) where
   hash v := v.val.toUInt64
 
+instance : Hashable Char where
+  hash c := c.val.toUInt64
+
 instance : Hashable Int where
   hash
     | Int.ofNat n => UInt64.ofNat (2 * n)
@@ -58,3 +70,7 @@ instance : Hashable Int where
 
 instance (P : Prop) : Hashable P where
   hash _ := 0
+
+/-- An opaque (low-level) hash operation used to implement hashing for pointers. -/
+@[always_inline, inline] def hash64 (u : UInt64) : UInt64 :=
+  mixHash u 11

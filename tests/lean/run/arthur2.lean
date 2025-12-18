@@ -1,4 +1,4 @@
-import Lean.Data.HashMap
+import Std.Data.HashMap
 
 inductive NEList (α : Type)
   | uno  : α → NEList α
@@ -67,7 +67,7 @@ inductive Value
   | lam  : Lambda → Value
   deriving Inhabited
 
-abbrev Context := Lean.HashMap String Value
+abbrev Context := Std.HashMap String Value
 
 inductive ErrorType
   | name | type | runTime
@@ -85,7 +85,7 @@ def removeRightmostZeros (s : String) : String :=
       if a != '0'
         then aux [] (a :: (buff ++ res)) as
         else aux (a :: buff) res as
-  ⟨aux [] [] s.data⟩
+  (aux [] [] s.data).asString
 
 protected def Literal.toString : Literal → String
   | bool  b => toString b
@@ -145,10 +145,6 @@ def Value.mul : Value → Value → Except String Value
   | lit $ .int   iₗ, lit $ .float fᵣ => return .lit $ .float $ (.ofInt iₗ) *  fᵣ
   | lit $ .float fₗ, lit $ .int   iᵣ => return .lit $ .float $ fₗ *  (.ofInt iᵣ)
   | l,               r               => throw $ opError "*" l.typeStr r.typeStr
-
-def Bool.toNat : Bool → Nat
-  | false => 0
-  | true  => 1
 
 def Value.lt : Value → Value → Except String Value
   | lit $ .bool  bₗ, lit $ .bool  bᵣ => return lit $ .bool $ bₗ.toNat < bᵣ.toNat
@@ -322,7 +318,7 @@ def State.step : State → State
 
   | expr (.lit l) c k => ret (.lit l) c k
   | expr (.list l) c k => ret (.list l) c k
-  | expr (.var n) c k => match c[n] with
+  | expr (.var n) c k => match c[n]? with
     | none   => error .name c $ notFound n
     | some v => ret v c k
   | expr (.lam l) c k => ret (.lam l) c k
@@ -397,7 +393,7 @@ theorem State.retProgression :
     | _ => exact ⟨1, by simp [stepN, step, isEnd]⟩
   | _ => sorry
 
-#check @State.step.match_2.eq_1
-#check @State.step.match_2.eq_2
-#check @State.step.match_2.eq_3
-#check @State.step.match_2.splitter
+#check @State.step.match_9.eq_1
+#check @State.step.match_9.eq_2
+#check @State.step.match_9.eq_3
+#check @State.step.match_9.splitter

@@ -1,9 +1,15 @@
-scopedLocalInsts.lean:12:6-12:39: error: failed to synthesize instance
+scopedLocalInsts.lean:12:6-12:39: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   ToString A
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 "A.mk 10 20"
-scopedLocalInsts.lean:21:6-21:39: error: failed to synthesize instance
+scopedLocalInsts.lean:21:6-21:39: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   ToString A
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 "{ x := 10, y := 20 }"
-scopedLocalInsts.lean:32:6-32:39: error: failed to synthesize instance
+scopedLocalInsts.lean:32:6-32:39: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   ToString A
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 "A.mk 10 20"

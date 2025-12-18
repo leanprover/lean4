@@ -114,14 +114,32 @@ namespace lean {
 static size_t g_max_memory = 0;
 LEAN_THREAD_VALUE(size_t, g_counter, 0);
 
+extern "C" LEAN_EXPORT lean_obj_res lean_internal_get_default_max_memory() {
+#ifdef LEAN_DEFAULT_MAX_MEMORY
+    return lean_box(LEAN_DEFAULT_MAX_MEMORY);
+#else
+    return lean_box(0);
+#endif
+}
+
 void set_max_memory(size_t max) {
     g_max_memory = max;
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_internal_set_max_memory(size_t max) {
+    set_max_memory(max);
+    return lean_box(0);
 }
 
 void set_max_memory_megabyte(unsigned max) {
     size_t m = max;
     m *= 1024 * 1024;
     set_max_memory(m);
+}
+
+// separate definition to allow breakpoint in debugger
+void throw_memory_exception(char const * component_name) {
+    throw memory_exception(component_name);
 }
 
 void check_memory(char const * component_name) {
@@ -135,7 +153,7 @@ void check_memory(char const * component_name) {
         if (r > 0 && r < g_max_memory) return;
         r = get_current_rss();
         if (r == 0 || r < g_max_memory) return;
-        throw memory_exception(component_name);
+        throw_memory_exception(component_name);
     }
 }
 

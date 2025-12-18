@@ -764,7 +764,7 @@ private def tokenFnAux : BasicParserFn
   else if c.isDigit then
     numberFnAux s d
   else
-    let (_, tk) := cfg.tokens.matchPrefix s i in
+    let tk := cfg.tokens.matchPrefix s i in
     identFnAux i tk Name.anonymous s d
 
 private def updateCache (startPos : Nat) (d : ParserData) : ParserData :=

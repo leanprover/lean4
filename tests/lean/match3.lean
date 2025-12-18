@@ -9,28 +9,27 @@ match x with
 #eval f 30
 
 universe u
-infix:50 " ≅ " => HEq
-theorem ex1 {α : Sort u} {a b : α} (h : a ≅ b) : a = b :=
+theorem ex1 {α : Sort u} {a b : α} (h : a ≍ b) : a = b :=
 match α, a, b, h with
 | _, _, _, HEq.refl _ => rfl
 
-theorem ex2 {α : Sort u} {a b : α} (h : a ≅ b) : a = b :=
+theorem ex2 {α : Sort u} {a b : α} (h : a ≍ b) : a = b :=
 match a, b, h with
 | _, _, HEq.refl _ => rfl
 
-theorem ex3 {α : Sort u} {a b : α} (h : a ≅ b) : a = b :=
+theorem ex3 {α : Sort u} {a b : α} (h : a ≍ b) : a = b :=
 match b, h with
 | _, HEq.refl _ => rfl
 
-theorem ex4  {α β : Sort u} {b : β} {a a' : α} (h₁ : a = a') (h₂ : a' ≅ b) : a ≅ b :=
+theorem ex4  {α β : Sort u} {b : β} {a a' : α} (h₁ : a = a') (h₂ : a' ≍ b) : a ≍ b :=
 match β, a', b, h₁, h₂ with
 | _, _, _, rfl, HEq.refl _ => HEq.refl _
 
-theorem ex5  {α β : Sort u} {b : β} {a a' : α} (h₁ : a = a') (h₂ : a' ≅ b) : a ≅ b :=
+theorem ex5  {α β : Sort u} {b : β} {a a' : α} (h₁ : a = a') (h₂ : a' ≍ b) : a ≍ b :=
 match a', h₁, h₂ with
 | _, rfl, h₂ => h₂
 
-theorem ex6  {α β : Sort u} {b : β} {a a' : α} (h₁ : a = a') (h₂ : a' ≅ b) : a ≅ b :=
+theorem ex6  {α β : Sort u} {b : β} {a a' : α} (h₁ : a = a') (h₂ : a' ≍ b) : a ≍ b :=
 by {
   subst h₁;
   assumption
@@ -60,7 +59,7 @@ match a1, a2, h with
 universe v
 variable {β : α → Type v}
 
-theorem ex9 {p₁ p₂ : Sigma (fun a => β a)} (h₁ : p₁.1 = p₂.1) (h : p₁.2 ≅ p₂.2) : p₁ = p₂ :=
+theorem ex9 {p₁ p₂ : Sigma (fun a => β a)} (h₁ : p₁.1 = p₂.1) (h : p₁.2 ≍ p₂.2) : p₁ = p₂ :=
 match p₁, p₂, h₁, h with
 | ⟨_, _⟩, ⟨_, _⟩, rfl, HEq.refl _ => rfl
 

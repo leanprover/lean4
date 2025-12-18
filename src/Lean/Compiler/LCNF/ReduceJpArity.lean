@@ -3,9 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.PassManager
+module
+
+prelude
+public import Lean.Compiler.LCNF.InferType
+
+public section
 
 namespace Lean.Compiler.LCNF
 /-!
@@ -50,7 +53,7 @@ partial def reduce (code : Code) : ReduceM Code := do
     return code.updateAlts! alts
   | .return .. | .unreach .. => return code
   | .jmp fvarId args =>
-    if let some mask := (← read).find? fvarId then
+    if let some mask := (← read).get? fvarId then
       let mut argsNew := #[]
       for keep in mask, arg in args do
         if keep then
@@ -67,7 +70,7 @@ open ReduceJpArity
 Try to reduce arity of join points
 -/
 def Decl.reduceJpArity (decl : Decl) : CompilerM Decl := do
-  let value ← reduce decl.value |>.run {}
+  let value ← decl.value.mapCodeM reduce |>.run {}
   return { decl with value }
 
 def reduceJpArity (phase := Phase.base) : Pass :=

@@ -1,20 +1,70 @@
-{"textDocument": {"uri": "file://keywordCompletion.lean"},
- "position": {"line": 4, "character": 16}}
+{"textDocument": {"uri": "file:///keywordCompletion.lean"},
+ "position": {"line": 4, "character": 10}}
 {"items":
- [{"label": "register_string", "kind": 14, "detail": "keyword"},
-  {"label": "termRegister_string_", "kind": 21, "detail": "Lean.ParserDescr"}],
- "isIncomplete": true}
-{"textDocument": {"uri": "file://keywordCompletion.lean"},
- "position": {"line": 7, "character": 10}}
+ [{"label": "bin",
+   "kind": 21,
+   "data": ["«external:file:///keywordCompletion.lean»", 4, 10, 0, "cbin"]},
+  {"label": "binop_lazy%",
+   "kind": 14,
+   "detail": "keyword",
+   "data": ["«external:file:///keywordCompletion.lean»", 4, 10, 0]},
+  {"label": "binop%",
+   "kind": 14,
+   "detail": "keyword",
+   "data": ["«external:file:///keywordCompletion.lean»", 4, 10, 0]},
+  {"label": "binrel_no_prop%",
+   "kind": 14,
+   "detail": "keyword",
+   "data": ["«external:file:///keywordCompletion.lean»", 4, 10, 0]},
+  {"label": "binrel%",
+   "kind": 14,
+   "detail": "keyword",
+   "data": ["«external:file:///keywordCompletion.lean»", 4, 10, 0]},
+  {"label": "binder_predicate",
+   "kind": 14,
+   "detail": "keyword",
+   "data": ["«external:file:///keywordCompletion.lean»", 4, 10, 0]}],
+ "isIncomplete": false}
+Resolution of bin:
+{"label": "bin",
+ "kind": 21,
+ "detail": "Type 1",
+ "data": ["«external:file:///keywordCompletion.lean»", 4, 10, 0, "cbin"]}
+Resolution of binop_lazy%:
+{"label": "binop_lazy%",
+ "kind": 14,
+ "detail": "keyword",
+ "data": ["«external:file:///keywordCompletion.lean»", 4, 10, 0]}
+Resolution of binop%:
+{"label": "binop%",
+ "kind": 14,
+ "detail": "keyword",
+ "data": ["«external:file:///keywordCompletion.lean»", 4, 10, 0]}
+Resolution of binrel_no_prop%:
+{"label": "binrel_no_prop%",
+ "kind": 14,
+ "detail": "keyword",
+ "data": ["«external:file:///keywordCompletion.lean»", 4, 10, 0]}
+Resolution of binrel%:
+{"label": "binrel%",
+ "kind": 14,
+ "detail": "keyword",
+ "data": ["«external:file:///keywordCompletion.lean»", 4, 10, 0]}
+Resolution of binder_predicate:
+{"label": "binder_predicate",
+ "kind": 14,
+ "detail": "keyword",
+ "data": ["«external:file:///keywordCompletion.lean»", 4, 10, 0]}
+{"textDocument": {"uri": "file:///keywordCompletion.lean"},
+ "position": {"line": 4, "character": 13}}
 {"items":
- [{"label": "register_string", "kind": 14, "detail": "keyword"},
-  {"label": "regular", "kind": 21, "detail": "Nat"},
-  {"label": "termRegister_string_", "kind": 21, "detail": "Lean.ParserDescr"},
-  {"label": "recSubsingleton",
-   "kind": 3,
-   "detail":
-   "∀ [h : Decidable p] {h₁ : p → Sort u} {h₂ : ¬p → Sort u} [h₃ : ∀ (h : p), Subsingleton (h₁ h)]\n  [h₄ : ∀ (h : ¬p), Subsingleton (h₂ h)], Subsingleton (Decidable.casesOn h h₂ h₁)"},
-  {"label": "reprArg",
-   "kind": 3,
-   "detail": "[inst : Repr α] → α → Std.Format"}],
- "isIncomplete": true}
+ [{"label": "binop_lazy%",
+   "kind": 14,
+   "detail": "keyword",
+   "data": ["«external:file:///keywordCompletion.lean»", 4, 13, 0]}],
+ "isIncomplete": false}
+Resolution of binop_lazy%:
+{"label": "binop_lazy%",
+ "kind": 14,
+ "detail": "keyword",
+ "data": ["«external:file:///keywordCompletion.lean»", 4, 13, 0]}

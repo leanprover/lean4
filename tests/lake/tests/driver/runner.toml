@@ -1,0 +1,5 @@
+name = "test"
+testRunner = "driver"
+
+[[lean_exe]]
+name = "driver"

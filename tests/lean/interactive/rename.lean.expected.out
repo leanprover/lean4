@@ -1,0 +1,19 @@
+{"textDocument": {"uri": "file:///rename.lean"},
+ "position": {"line": 5, "character": 14}}
+null
+{"textDocument": {"uri": "file:///rename.lean"},
+ "position": {"line": 5, "character": 14},
+ "newName": "blue"}
+{"changes": {}}
+{"textDocument": {"uri": "file:///rename.lean"},
+ "position": {"line": 9, "character": 10},
+ "newName": "Bar"}
+{"changes": {}}
+{"textDocument": {"uri": "file:///rename.lean"},
+ "position": {"line": 23, "character": 6},
+ "newName": "z"}
+{"changes": {}}
+{"textDocument": {"uri": "file:///rename.lean"},
+ "position": {"line": 30, "character": 12},
+ "newName": "X"}
+{"changes": {}}

@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.LocalContext
-import Lean.Compiler.LCNF.Basic
+module
+
+prelude
+public import Lean.Compiler.LCNF.Basic
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -12,9 +16,9 @@ namespace Lean.Compiler.LCNF
 LCNF local context.
 -/
 structure LCtx where
-  params   : HashMap FVarId Param := {}
-  letDecls : HashMap FVarId LetDecl := {}
-  funDecls : HashMap FVarId FunDecl := {}
+  params   : Std.HashMap FVarId Param := {}
+  letDecls : Std.HashMap FVarId LetDecl := {}
+  funDecls : Std.HashMap FVarId FunDecl := {}
   deriving Inhabited
 
 def LCtx.addParam (lctx : LCtx) (param : Param) : LCtx :=
@@ -65,7 +69,7 @@ def LCtx.toLocalContext (lctx : LCtx) : LocalContext := Id.run do
   for (_, param) in lctx.params.toArray do
     result := result.addDecl (.cdecl 0 param.fvarId param.binderName param.type .default .default)
   for (_, decl) in lctx.letDecls.toArray do
-    result := result.addDecl (.ldecl 0 decl.fvarId decl.binderName decl.type decl.value true .default)
+    result := result.addDecl (.ldecl 0 decl.fvarId decl.binderName decl.type decl.value.toExpr true .default)
   for (_, decl) in lctx.funDecls.toArray do
     result := result.addDecl (.cdecl 0 decl.fvarId decl.binderName decl.type .default .default)
   return result

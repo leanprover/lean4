@@ -134,4 +134,3 @@ set_option pp.explicit true
 #eval testMono ``Elab.Term.elabTerm
 #eval testMono ``Nat.add
 #eval testMono ``Fin.add
-#eval testMono ``HashSetBucket.update

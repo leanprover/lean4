@@ -1,1 +1,1 @@
-348.lean:3:24: error: expected ')'
+348.lean:3:24-3:25: error: unexpected token '⟩'; expected ')'

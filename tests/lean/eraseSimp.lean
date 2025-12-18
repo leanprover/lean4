@@ -12,7 +12,7 @@ section
 attribute [-simp] Nat.zero_add
 
 theorem ex2 {a b : Nat} (h₁ : a = b) : 0 + a = b := by
-  simp -- did not apply `Nat.zero_add`
+  fail_if_success simp -- did not apply `Nat.zero_add`
   rw [Nat.zero_add]
   assumption
 
@@ -24,6 +24,6 @@ theorem ex3 {a b : Nat} (h₁ : a = b) : 0 + a = b := by
   assumption
 
 theorem ex4 {a b : Nat} (h₁ : a = b) : 0 + a = b := by
-  simp [-Nat.zero_add]
+  fail_if_success simp [-Nat.zero_add]
   rw [Nat.zero_add]
   assumption

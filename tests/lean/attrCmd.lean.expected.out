@@ -1,2 +1,4 @@
-attrCmd.lean:6:0-6:6: error: failed to synthesize instance
+attrCmd.lean:6:0-6:6: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   Pure M
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.

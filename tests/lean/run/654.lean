@@ -285,6 +285,10 @@ open CXCursorKind
 example (h : CXCursor_CUDAGlobalAttr = CXCursor_CUDAHostAttr) : False := by
   contradiction
 
+/-- info: false -/
+#guard_msgs in
 #eval CXCursor_CUDAGlobalAttr == CXCursor_CUDAHostAttr
 
+/-- info: false -/
+#guard_msgs in
 #eval decide (CXCursor_CUDAGlobalAttr = CXCursor_CUDAHostAttr)

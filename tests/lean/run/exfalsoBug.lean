@@ -72,15 +72,13 @@ theorem f_eq (n : Nat) :
   split
   next r h =>
     revert h
-    split <;> simp [f']
+    split <;> try simp [f']
     next => intro h; subst h; simp
     next hne =>
       cases n <;> simp [f']
       next => contradiction
       next n _ =>
-       have : Nat.succ n - 1 = n := rfl
-       rw [this]
-       split <;> simp
+       split <;> try simp
        next r hrn h₁ =>
          split <;> simp
          next => intro he; subst he; simp [*]

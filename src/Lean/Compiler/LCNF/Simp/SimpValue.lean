@@ -3,7 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Compiler.LCNF.Simp.SimpM
+module
+
+prelude
+public import Lean.Compiler.LCNF.Simp.SimpM
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Simp
@@ -11,39 +16,49 @@ namespace Simp
 /--
 Try to simplify projections `.proj _ i s` where `s` is constructor.
 -/
-def simpProj? (e : Expr) : OptionT SimpM Expr := do
+def simpProj? (e : LetValue) : OptionT SimpM LetValue := do
   let .proj _ i s := e | failure
-  let s ← findCtor s
-  let some (ctorVal, args) := s.constructorApp? (← getEnv) | failure
-  return args[ctorVal.numParams + i]!
+  let some ctorInfo ← findCtor? s | failure
+  match ctorInfo with
+  | .ctor ctorVal args => return args[ctorVal.numParams + i]!.toLetValue
+  | .natVal .. => failure
 
 /--
 Application over application.
 ```
-let _x.i := f a
-_x.i b
+let g := f a
+g b
 ```
 is simplified to `f a b`.
 -/
-def simpAppApp? (e : Expr) : OptionT SimpM Expr := do
-  guard e.isApp
-  let f := e.getAppFn
-  guard f.isFVar
-  let f ← findExpr f
-  guard <| f.isApp || f.isConst
-  return mkAppN f e.getAppArgs
+def simpAppApp? (e : LetValue) : OptionT SimpM LetValue := do
+  let .fvar g args := e | failure
+  let some decl ← findLetDecl? g | failure
+  match decl.value with
+  | .fvar f args' =>
+    /- If `args` is empty then `g` is an alias that is going to be eliminated by `elimVar?` -/
+    guard (!args.isEmpty)
+    return .fvar f (args' ++ args)
+  | .const declName us args' =>
+    /- If `args` is empty then `g` is an alias that is going to be eliminated by `elimVar?` -/
+    guard (!args.isEmpty)
+    return .const declName us (args' ++ args)
+  | .erased => return .erased
+  | .proj .. | .lit .. => failure
 
-def simpCtorDiscr? (e : Expr) : OptionT SimpM Expr := do
-  let some v ← simpCtorDiscrCore? e | failure
-  return v
+def simpCtorDiscr? (e : LetValue) : OptionT SimpM LetValue := do
+  let .const declName _ _ := e | failure
+  let some (.ctorInfo _) := (← getEnv).find? declName | failure
+  let some fvarId ← simpCtorDiscrCore? e.toExpr | failure
+  return .fvar fvarId #[]
 
-def applyImplementedBy? (e : Expr) : OptionT SimpM Expr := do
+def applyImplementedBy? (e : LetValue) : OptionT SimpM LetValue := do
   guard <| (← read).config.implementedBy
-  let .const declName us := e.getAppFn | failure
+  let .const declName us args := e | failure
   let some declNameNew := getImplementedBy? (← getEnv) declName | failure
-  return mkAppN (.const declNameNew us) e.getAppArgs
+  return .const declNameNew us args
 
 /-- Try to apply simple simplifications. -/
-def simpValue? (e : Expr) : SimpM (Option Expr) :=
+def simpValue? (e : LetValue) : SimpM (Option LetValue) :=
   -- TODO: more simplifications
   simpProj? e <|> simpAppApp? e <|> simpCtorDiscr? e <|> applyImplementedBy? e

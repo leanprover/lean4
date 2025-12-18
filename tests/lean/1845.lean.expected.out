@@ -1,0 +1,2 @@
+1
+1845.lean:13:66-13:71: error: cannot lift `(<- ...)` over inconsistent syntax variants, consider lifting out the binding manually

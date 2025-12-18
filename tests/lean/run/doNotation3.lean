@@ -11,11 +11,11 @@ let rec loop : (i : Nat) → i ≤ as.size → β → m β
     have h' : i < as.size          := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
     have : as.size - 1 < as.size     := Nat.sub_lt (zero_lt_of_lt h') (by decide)
     have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this
-    let b ← f (as.get ⟨as.size - 1 - i, this⟩) b
+    let b ← f as[as.size - 1 - i] b
     loop i (Nat.le_of_lt h') b
 loop as.size (Nat.le_refl _) b
 
-#eval Id.run $ fold #[1, 2, 3, 4] 0 (pure $ · + ·)
+#guard (Id.run $ fold #[1, 2, 3, 4] 0 (pure $ · + ·)) == 10
 
 theorem ex : (Id.run $ fold #[1, 2, 3, 4] 0 (pure $ · + ·)) = 10 :=
 rfl
@@ -28,7 +28,7 @@ let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
     have h' : i < as.size          := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
     have : as.size - 1 < as.size     := Nat.sub_lt (zero_lt_of_lt h') (by decide)
     have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this
-    let b ← f (as.get ⟨as.size - 1 - i, this⟩) b
+    let b ← f as[as.size - 1 - i] b
     loop i (Nat.le_of_lt h') b
 loop as.size (Nat.le_refl _) b
 
@@ -55,6 +55,11 @@ unless (← g 2 1 (← IO.mkRef (10, 20))) == (2, 1)   do throw $ IO.userError "
 unless (← g 0 1 (← IO.mkRef (10, 20))) == (10, 20) do throw $ IO.userError "unexpected"
 return ()
 
+/--
+info: x: 2, y: 1
+x: 10, y: 20
+-/
+#guard_msgs in
 #eval gTest
 
 macro "ret!" x:term : doElem => `(doElem| return $x)

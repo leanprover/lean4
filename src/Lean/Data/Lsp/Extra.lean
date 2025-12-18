@@ -4,14 +4,35 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
-import Lean.Data.Lsp.Basic
-import Lean.Server.Rpc.Basic
+module
+
+prelude
+public import Lean.Data.Lsp.TextSync
+public import Lean.Server.Rpc.Basic
+
+public section
 
 /-! This file contains Lean-specific extensions to LSP. See the structures below for which
 additional requests and notifications are supported. -/
 
 namespace Lean.Lsp
 open Json
+
+/--
+  Controls when dependencies are built on `textDocument/didOpen` notifications.
+-/
+inductive DependencyBuildMode where
+  /-- Always build dependencies. -/
+  | always
+  /-- Build dependencies once, but then do not build them again on import changes / crashes. Used for `didOpen` notifications that are explicitly intended for manually triggering the build. -/
+  | once
+  /--  Never build dependencies. -/
+  | never
+  deriving FromJson, ToJson, Inhabited
+
+structure LeanDidOpenTextDocumentParams extends DidOpenTextDocumentParams where
+  dependencyBuildMode? : Option DependencyBuildMode := none -- `none`: Compatibility with clients pre-build-mode
+  deriving FromJson, ToJson
 
 /-- `textDocument/waitForDiagnostics` client->server request.
 
@@ -33,6 +54,21 @@ instance : FromJson WaitForDiagnostics :=
 
 instance : ToJson WaitForDiagnostics :=
   ⟨fun _ => mkObj []⟩
+
+/--
+Internal `$/lean/waitForILeans` client->server request.
+
+Yields a response once the watchdog process has loaded all .ilean files and has received
+an ILean finalization notification for the worker and the document version designated in the request.
+Used for test stability in tests that use the .ileans.
+-/
+structure WaitForILeansParams where
+  uri?     : Option DocumentUri := none
+  version? : Option Nat := none
+  deriving FromJson, ToJson
+
+structure WaitForILeans where
+  deriving FromJson, ToJson
 
 inductive LeanFileProgressKind
   | processing | fatalError
@@ -86,6 +122,69 @@ structure PlainTermGoalParams extends TextDocumentPositionParams
 structure PlainTermGoal where
   goal : String
   range : Range
+  deriving FromJson, ToJson
+
+structure ModuleHierarchyOptions where
+  deriving FromJson, ToJson
+
+structure HighlightMatchesOptions where
+  deriving FromJson, ToJson
+
+structure RpcOptions where
+  highlightMatchesProvider? : Option HighlightMatchesOptions := none
+  deriving FromJson, ToJson
+
+structure LeanModule where
+  name  : String
+  uri   : DocumentUri
+  data? : Option Json := none
+  deriving FromJson, ToJson
+
+/--
+`$/lean/prepareModuleHierarchy` client->server request.
+
+Response type: `Option LeanModule`
+-/
+structure LeanPrepareModuleHierarchyParams where
+  textDocument : TextDocumentIdentifier
+  deriving FromJson, ToJson
+
+inductive LeanImportMetaKind where
+  /-- `meta` flag was not set on this import. -/
+  | nonMeta
+  /-- `meta` flag was set on this import. -/
+  | «meta»
+  /-- This import is imported twice; once with `meta`, once without. -/
+  | full
+  deriving Inhabited, FromJson, ToJson
+
+structure LeanImportKind where
+  isPrivate : Bool
+  isAll     : Bool
+  metaKind  : LeanImportMetaKind
+  deriving FromJson, ToJson
+
+structure LeanImport where
+  module : LeanModule
+  kind   : LeanImportKind
+  deriving FromJson, ToJson
+
+/--
+`$/lean/moduleHierarchy/imports` client->server request.
+
+Response type: `Array LeanImport`
+-/
+structure LeanModuleHierarchyImportsParams where
+  module : LeanModule
+  deriving FromJson, ToJson
+
+/--
+`$/lean/moduleHierarchy/importedBy` client->server request.
+
+Response type: `Array LeanImport`
+-/
+structure LeanModuleHierarchyImportedByParams where
+  module : LeanModule
   deriving FromJson, ToJson
 
 /-- `$/lean/rpc/connect` client->server request.

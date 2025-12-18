@@ -1,0 +1,9 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.named
+   "("
+   `x
+   ":="
+   (Lean.Doc.Syntax.arg_num (num "1"))
+   ")")
+Remaining:
+"\n"

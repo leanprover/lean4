@@ -23,7 +23,18 @@ def test (declName : Name) : CoreM Unit := do
   let some docstr ← findDocString? (← getEnv) declName | throwError "docstring not found"
   IO.println docstr
 
+/-- info: w -/
+#guard_msgs in
 #eval test ``W.w
+
+/-- info: x -/
+#guard_msgs in
 #eval test ``X.x
+
+/-- info: y -/
+#guard_msgs in
 #eval test ``Z.y
+
+/-- info: h -/
+#guard_msgs in
 #eval test ``Z.h

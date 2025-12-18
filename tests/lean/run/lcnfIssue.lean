@@ -4,4 +4,4 @@ def issue : Trans (. < . : Nat → Nat → Prop) (. < . : Nat → Nat → Prop) 
    trans := Nat.lt_trans
 
 set_option trace.Compiler.result true
-#eval Lean.Compiler.compile #[``issue]
+run_meta Lean.Compiler.compile #[``issue]

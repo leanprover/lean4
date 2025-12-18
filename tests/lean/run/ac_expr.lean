@@ -32,7 +32,7 @@ def Expr.concat : Expr → Expr → Expr
 theorem Expr.denote_concat (ctx : Context α) (a b : Expr) : denote ctx (concat a b) = denote ctx (Expr.op a b) := by
   induction a with
   | var i => rfl
-  | op _ _ _ ih => simp [denote, ih, ctx.assoc]
+  | op _ _ _ ih => simp [denote, concat, ih, ctx.assoc]
 
 def Expr.flat : Expr → Expr
   | Expr.op a b => concat (flat a) (flat b)

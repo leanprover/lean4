@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://foldingRange.lean"},
+{"textDocument": {"uri": "file:///foldingRange.lean"},
  "position": {"line": 0, "character": 2}}
 [{"startLine": 1, "kind": "imports", "endLine": 4},
  {"startLine": 8, "kind": "imports", "endLine": 9},

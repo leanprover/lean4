@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://discrsIssue.lean"},
+{"textDocument": {"uri": "file:///discrsIssue.lean"},
  "position": {"line": 32, "character": 18}}
 {"range":
  {"start": {"line": 32, "character": 18}, "end": {"line": 32, "character": 20}},

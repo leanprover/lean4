@@ -6,17 +6,17 @@ structure InjectiveFunction (α : Type u) (β : Type v) where
 
 def add1 : InjectiveFunction Nat Nat where
   fn a      := a + 1
-  inj a b h := by injection h; assumption
+  inj a b h := by injection h
 
 instance : CoeFun (InjectiveFunction α β) (fun _ => α → β) where
   coe s := s.fn
 
-#eval add1 10
+#guard add1 10 == 11
 
 def mapAdd1 (xs : List Nat) : List Nat :=
   xs.map add1
 
-#eval mapAdd1 [1, 2]
+#guard mapAdd1 [1, 2] = [2, 3]
 
 def foo : InjectiveFunction Bool (Nat → Nat) where
   fn
@@ -33,7 +33,7 @@ theorem ex1 (x : Nat) : foo true x = x + 1 :=
 theorem ex2 (x : Nat) : foo false x = x :=
   rfl
 
-#eval foo true 10
-#eval foo false 20
+#guard foo true 10 == 11
+#guard foo false 20 == 20
 
-#eval [1, 2, 3].map (foo true)
+#guard [1, 2, 3].map (foo true) = [2, 3, 4]

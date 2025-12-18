@@ -3,8 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
+module
+
 prelude
-import Init.Prelude
+public import Init.Prelude
+public meta import Init.Prelude
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 /-!
@@ -34,6 +39,7 @@ which is not a type error anymore.
 
 You can also use the `↑` operator to explicitly indicate a coercion. Using `↑x`
 instead of `x` in the example will result in the same output.
+
 Because there are many polymorphic functions in Lean, it is often ambiguous where
 the coercion can go. For example:
 ```
@@ -47,10 +53,44 @@ between these possibilities, but generally Lean will elaborate working from the
 and assign the `+` to be the one for `Int`, and then need to insert coercions
 for the subterms `↑x : Int` and `↑y : Int`, resulting in the `↑x + ↑y` version.
 
+Note that unlike most operators like `+`, `↑` is always eagerly unfolded at
+parse time into its definition. So if we look at the definition of `f` from
+before, we see no trace of the `CoeT.coe` function:
+```
+def f (x : Nat) : Int := x
+#print f
+-- def f : Nat → Int :=
+-- fun (x : Nat) => Int.ofNat x
+```
+
 ## Important typeclasses
+
+Lean resolves a coercion by either inserting a `CoeDep` instance
+or chaining `CoeHead? CoeOut* Coe* CoeTail?` instances.
+(That is, zero or one `CoeHead` instances, an arbitrary number of `CoeOut`
+instances, etc.)
+
+The `CoeHead? CoeOut*` instances are chained from the "left" side.
+So if Lean looks for a coercion from `Nat` to `Int`, it starts by trying coerce
+`Nat` using `CoeHead` by looking for a `CoeHead Nat ?α` instance, and then
+continuing with `CoeOut`.  Similarly `Coe* CoeTail?` are chained from the "right".
+
+These classes should be implemented for coercions:
 
 * `Coe α β` is the most basic class, and the usual one you will want to use
   when implementing a coercion for your own types.
+  The variables in the type `α` must be a subset of the variables in `β`
+  (or out-params of type class parameters),
+  because `Coe` is chained right-to-left.
+
+* `CoeOut α β` is like `Coe α β` but chained left-to-right.
+  Use this if the variables in the type `α` are a superset of the variables in `β`.
+
+* `CoeTail α β` is like `Coe α β`, but only applied once.
+  Use this for coercions that would cause loops, like `[Ring R] → CoeTail Nat R`.
+
+* `CoeHead α β` is similar to `CoeOut α β`, but only applied once.
+  Use this for coercions that would cause loops, like `[SetLike S α] → CoeHead S (Set α)`.
 
 * `CoeDep α (x : α) β` allows `β` to depend not only on `α` but on the value
   `x : α` itself. This is useful when the coercion function is dependent.
@@ -63,32 +103,21 @@ for the subterms `↑x : Int` and `↑y : Int`, resulting in the `↑x + ↑y` v
 * `CoeFun α (γ : α → Sort v)` is a coercion to a function. `γ a` should be a
   (coercion-to-)function type, and this is triggered whenever an element
   `f : α` appears in an application like `f x` which would not make sense since
-  `f` does not have a function type. This is automatically turned into `CoeFun.coe f x`.
+  `f` does not have a function type.
+  `CoeFun` instances apply to `CoeOut` as well.
 
-* `CoeSort α β` is a coercion to a sort. `β` must be a universe, and if
-  `a : α` appears in a place where a type is expected, like `(x : a)` or `a → a`,
-  then it will be turned into `(x : CoeSort.coe a)`.
+* `CoeSort α β` is a coercion to a sort. `β` must be a universe, and this is
+  triggered when `a : α` appears in a place where a type is expected, like
+  `(x : a)` or `a → a`.
+  `CoeSort` instances apply to `CoeOut` as well.
 
-* `CoeHead` is like `Coe`, but while `Coe` can be transitively chained in the
-  `CoeT` class, `CoeHead` can only appear once and only at the start of such a
-  chain. This is useful when the transitive instances are not well behaved.
+On top of these instances this file defines several auxiliary type classes:
+  * `CoeTC := Coe*`
+  * `CoeOTC := CoeOut* Coe*`
+  * `CoeHTC := CoeHead? CoeOut* Coe*`
+  * `CoeHTCT := CoeHead? CoeOut* Coe* CoeTail?`
+  * `CoeT := CoeHead? CoeOut* Coe* CoeTail? | CoeDep`
 
-* `CoeTail` is similar: it can only appear at the end of a chain of coercions.
-
-* `CoeT α (x : α) β` itself is the combination of all the aforementioned classes
-  (except `CoeSort` and `CoeFun` which have different triggers). You can
-  implement `CoeT` if you do not want this coercion to be transitively composed
-  with any other coercions.
-
-Note that unlike most operators like `+`, `↑` is always eagerly unfolded at
-parse time into its definition. So if we look at the definition of `f` from
-before, we see no trace of the `CoeT.coe` function:
-```
-def f (x : Nat) : Int := x
-#print f
--- def f : Nat → Int :=
--- fun (x : Nat) => Int.ofNat x
-```
 -/
 
 universe u v w w'
@@ -99,50 +128,101 @@ chained with other `Coe` instances, and coercion is automatically used when
 `x` has type `α` but it is used in a context where `β` is expected.
 You can use the `↑x` operator to explicitly trigger coercion.
 -/
-class Coe (α : Sort u) (β : Sort v) where
+class Coe (α : semiOutParam (Sort u)) (β : Sort v) where
   /-- Coerces a value of type `α` to type `β`. Accessible by the notation `↑x`,
   or by double type ascription `((x : α) : β)`. -/
   coe : α → β
+attribute [coe_decl] Coe.coe
 
 /--
-Auxiliary class that contains the transitive closure of `Coe`.
+Auxiliary class implementing `Coe*`.
 Users should generally not implement this directly.
 -/
 class CoeTC (α : Sort u) (β : Sort v) where
   /-- Coerces a value of type `α` to type `β`. Accessible by the notation `↑x`,
   or by double type ascription `((x : α) : β)`. -/
   coe : α → β
+attribute [coe_decl] CoeTC.coe
+
+instance [Coe β γ] [CoeTC α β] : CoeTC α γ where coe a := Coe.coe (CoeTC.coe a : β)
+instance [Coe α β] : CoeTC α β where coe a := Coe.coe a
+instance : CoeTC α α where coe a := a
 
 /--
-`CoeHead α β` is for coercions that can only appear at the beginning of a
-sequence of coercions. That is, `β` can be further coerced via `Coe β γ` and
-`CoeTail γ δ` instances but `α` will only be the inferred type of the input.
+`CoeOut α β` is for coercions that are applied from left-to-right.
 -/
-class CoeHead (α : Sort u) (β : Sort v) where
+class CoeOut (α : Sort u) (β : semiOutParam (Sort v)) where
   /-- Coerces a value of type `α` to type `β`. Accessible by the notation `↑x`,
   or by double type ascription `((x : α) : β)`. -/
   coe : α → β
+attribute [coe_decl] CoeOut.coe
+
+/--
+Auxiliary class implementing `CoeOut* Coe*`.
+Users should generally not implement this directly.
+-/
+class CoeOTC (α : Sort u) (β : Sort v) where
+  /-- Coerces a value of type `α` to type `β`. Accessible by the notation `↑x`,
+  or by double type ascription `((x : α) : β)`. -/
+  coe : α → β
+attribute [coe_decl] CoeOTC.coe
+
+instance [CoeOut α β] [CoeOTC β γ] : CoeOTC α γ where coe a := CoeOTC.coe (CoeOut.coe a : β)
+instance [CoeTC α β] : CoeOTC α β where coe a := CoeTC.coe a
+instance : CoeOTC α α where coe a := a
+
+-- Note: ^^ We add reflexivity instances for CoeOTC/etc. so that we avoid going
+-- through a user-defined CoeTC/etc. instance.  (Instances like
+-- `CoeTC F (A →+ B)` apply even when the two sides are defeq.)
+
+/--
+`CoeHead α β` is for coercions that are applied from left-to-right at most once
+at beginning of the coercion chain.
+-/
+class CoeHead (α : Sort u) (β : semiOutParam (Sort v)) where
+  /-- Coerces a value of type `α` to type `β`. Accessible by the notation `↑x`,
+  or by double type ascription `((x : α) : β)`. -/
+  coe : α → β
+attribute [coe_decl] CoeHead.coe
+
+/--
+Auxiliary class implementing `CoeHead CoeOut* Coe*`.
+Users should generally not implement this directly.
+-/
+class CoeHTC (α : Sort u) (β : Sort v) where
+  /-- Coerces a value of type `α` to type `β`. Accessible by the notation `↑x`,
+  or by double type ascription `((x : α) : β)`. -/
+  coe : α → β
+attribute [coe_decl] CoeHTC.coe
+
+instance [CoeHead α β] [CoeOTC β γ] : CoeHTC α γ where coe a := CoeOTC.coe (CoeHead.coe a : β)
+instance [CoeOTC α β] : CoeHTC α β where coe a := CoeOTC.coe a
+instance : CoeHTC α α where coe a := a
 
 /--
 `CoeTail α β` is for coercions that can only appear at the end of a
 sequence of coercions. That is, `α` can be further coerced via `Coe σ α` and
 `CoeHead τ σ` instances but `β` will only be the expected type of the expression.
 -/
-class CoeTail (α : Sort u) (β : Sort v) where
+class CoeTail (α : semiOutParam (Sort u)) (β : Sort v) where
   /-- Coerces a value of type `α` to type `β`. Accessible by the notation `↑x`,
   or by double type ascription `((x : α) : β)`. -/
   coe : α → β
+attribute [coe_decl] CoeTail.coe
 
 /--
-Auxiliary class that contains `CoeHead` + `CoeTC` + `CoeTail`.
-
-A `CoeHTCT` chain has the "grammar" `(CoeHead)? (Coe)* (CoeTail)?`, except that
-the empty sequence is not allowed.
+Auxiliary class implementing `CoeHead* Coe* CoeTail?`.
+Users should generally not implement this directly.
 -/
 class CoeHTCT (α : Sort u) (β : Sort v) where
   /-- Coerces a value of type `α` to type `β`. Accessible by the notation `↑x`,
   or by double type ascription `((x : α) : β)`. -/
   coe : α → β
+attribute [coe_decl] CoeHTCT.coe
+
+instance [CoeTail β γ] [CoeHTC α β] : CoeHTCT α γ where coe a := CoeTail.coe (CoeHTC.coe a : β)
+instance [CoeHTC α β] : CoeHTCT α β where coe a := CoeHTC.coe a
+instance : CoeHTCT α α where coe a := a
 
 /--
 `CoeDep α (x : α) β` is a typeclass for dependent coercions, that is, the type `β`
@@ -157,43 +237,54 @@ class CoeDep (α : Sort u) (_ : α) (β : Sort v) where
   the type class, so the value of type `β` may possibly depend on additional
   typeclasses on `x`. -/
   coe : β
+attribute [coe_decl] CoeDep.coe
 
 /--
 `CoeT` is the core typeclass which is invoked by Lean to resolve a type error.
 It can also be triggered explicitly with the notation `↑x` or by double type
 ascription `((x : α) : β)`.
 
-A `CoeT` chain has the "grammar" `(CoeHead)? (Coe)* (CoeTail)? | CoeDep`,
-except that the empty sequence is not allowed (identity coercions don't need
-the coercion system at all).
+A `CoeT` chain has the grammar `CoeHead? CoeOut* Coe* CoeTail? | CoeDep`.
 -/
 class CoeT (α : Sort u) (_ : α) (β : Sort v) where
   /-- The resulting value of type `β`. The input `x : α` is a parameter to
   the type class, so the value of type `β` may possibly depend on additional
   typeclasses on `x`. -/
   coe : β
+attribute [coe_decl] CoeT.coe
 
+instance [CoeHTCT α β] : CoeT α a β where coe := CoeHTCT.coe a
+instance [CoeDep α a β] : CoeT α a β where coe := CoeDep.coe a
+instance : CoeT α a α where coe := a
 
 /--
 `CoeFun α (γ : α → Sort v)` is a coercion to a function. `γ a` should be a
 (coercion-to-)function type, and this is triggered whenever an element
-`f : α` appears in an application like `f x` which would not make sense since
-`f` does not have a function type. This is automatically turned into `CoeFun.coe f x`.
+`f : α` appears in an application like `f x`, which would not make sense since
+`f` does not have a function type.
+`CoeFun` instances apply to `CoeOut` as well.
 -/
 class CoeFun (α : Sort u) (γ : outParam (α → Sort v)) where
   /-- Coerces a value `f : α` to type `γ f`, which should be either be a
   function type or another `CoeFun` type, in order to resolve a mistyped
   application `f x`. -/
   coe : (f : α) → γ f
+attribute [coe_decl] CoeFun.coe
+
+instance [CoeFun α fun _ => β] : CoeOut α β where coe a := CoeFun.coe a
 
 /--
-`CoeSort α β` is a coercion to a sort. `β` must be a universe, and if
-`a : α` appears in a place where a type is expected, like `(x : a)` or `a → a`,
-then it will be turned into `(x : CoeSort.coe a)`.
+`CoeSort α β` is a coercion to a sort. `β` must be a universe, and this is
+triggered when `a : α` appears in a place where a type is expected, like
+`(x : a)` or `a → a`.
+`CoeSort` instances apply to `CoeOut` as well.
 -/
 class CoeSort (α : Sort u) (β : outParam (Sort v)) where
   /-- Coerces a value of type `α` to `β`, which must be a universe. -/
   coe : α → β
+attribute [coe_decl] CoeSort.coe
+
+instance [CoeSort α β] : CoeOut α β where coe a := CoeSort.coe a
 
 /--
 `↑x` represents a coercion, which converts `x` of type `α` to type `β`, using
@@ -204,44 +295,11 @@ between e.g. `↑x + ↑y` and `↑(x + y)`.
 -/
 syntax:1024 (name := coeNotation) "↑" term:1024 : term
 
-instance coeTrans {α : Sort u} {β : Sort v} {δ : Sort w} [Coe β δ] [CoeTC α β] : CoeTC α δ where
-  coe a := Coe.coe (CoeTC.coe a : β)
+/-- `⇑ t` coerces `t` to a function. -/
+syntax:1024 (name := coeFunNotation) "⇑" term:1024 : term
 
-instance coeBase {α : Sort u} {β : Sort v} [Coe α β] : CoeTC α β where
-  coe a := Coe.coe a
-
-instance coeOfHeafOfTCOfTail {α : Sort u} {β : Sort v} {δ : Sort w} {γ : Sort w'} [CoeHead α β] [CoeTail δ γ] [CoeTC β δ] : CoeHTCT α γ where
-  coe a := CoeTail.coe (CoeTC.coe (CoeHead.coe a : β) : δ)
-
-instance coeOfHeadOfTC {α : Sort u} {β : Sort v} {δ : Sort w} [CoeHead α β] [CoeTC β δ] : CoeHTCT α δ  where
-  coe a := CoeTC.coe (CoeHead.coe a : β)
-
-instance coeOfTCOfTail {α : Sort u} {β : Sort v} {δ : Sort w} [CoeTail β δ] [CoeTC α β] : CoeHTCT α δ where
-  coe a := CoeTail.coe (CoeTC.coe a : β)
-
-instance coeOfHeadOfTail {α : Sort u} {β : Sort v} {γ : Sort w} [CoeHead α β] [CoeTail β γ] : CoeHTCT α γ where
-  coe a := CoeTail.coe (CoeHead.coe a : β)
-
-instance coeOfHead {α : Sort u} {β : Sort v} [CoeHead α β] : CoeHTCT α β where
-  coe a := CoeHead.coe a
-
-instance coeOfTail {α : Sort u} {β : Sort v} [CoeTail α β] : CoeHTCT α β where
-  coe a := CoeTail.coe a
-
-instance coeOfTC {α : Sort u} {β : Sort v} [CoeTC α β] : CoeHTCT α β where
-  coe a := CoeTC.coe a
-
-instance coeOfHTCT {α : Sort u} {β : Sort v} [CoeHTCT α β] (a : α) : CoeT α a β where
-  coe := CoeHTCT.coe a
-
-instance coeOfDep {α : Sort u} {β : Sort v} (a : α) [CoeDep α a β] : CoeT α a β where
-  coe := CoeDep.coe a
-
-instance coeId {α : Sort u} (a : α) : CoeT α a α where
-  coe := a
-
-instance coeSortToCoeTail [inst : CoeSort α β] : CoeTail α β where
-  coe := inst.coe
+/-- `↥ t` coerces `t` to a type. -/
+syntax:1024 (name := coeSortNotation) "↥" term:1024 : term
 
 /-! # Basic instances -/
 
@@ -249,15 +307,12 @@ instance boolToProp : Coe Bool Prop where
   coe b := Eq b true
 
 instance boolToSort : CoeSort Bool Prop where
-  coe b := Eq b true
+  coe b := b
 
 instance decPropToBool (p : Prop) [Decidable p] : CoeDep Prop p Bool where
   coe := decide p
 
-instance optionCoe {α : Type u} : CoeTail α (Option α) where
-  coe := some
-
-instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeHead (Subtype p) α where
+instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeOut (Subtype p) α where
   coe v := v.val
 
 /-! # Coe bridge -/
@@ -268,7 +323,7 @@ Helper definition used by the elaborator. It is not meant to be used directly by
 This is used for coercions between monads, in the case where we want to apply
 a monad lift and a coercion on the result type at the same time.
 -/
-@[inline] def Lean.Internal.liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u}
+@[coe_decl] abbrev Lean.Internal.liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u}
     [MonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β := do
   let a ← liftM x
   pure (CoeT.coe a)
@@ -278,16 +333,7 @@ Helper definition used by the elaborator. It is not meant to be used directly by
 
 This is used for coercing the result type under a monad.
 -/
-@[inline] def Lean.Internal.coeM {m : Type u → Type v} {α β : Type u}
+@[coe_decl] abbrev Lean.Internal.coeM {m : Type u → Type v} {α β : Type u}
     [∀ a, CoeT α a β] [Monad m] (x : m α) : m β := do
   let a ← x
   pure (CoeT.coe a)
-
-instance [CoeFun α β] (a : α) : CoeDep α a (β a) where
-  coe := CoeFun.coe a
-
-instance [CoeFun α (fun _ => β)] : CoeTail α β  where
-  coe a := CoeFun.coe a
-
-instance [CoeSort α β] : CoeTail α β where
-  coe a := CoeSort.coe a

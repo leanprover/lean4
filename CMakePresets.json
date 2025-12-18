@@ -1,0 +1,105 @@
+{
+  "version": 2,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 10,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "release",
+      "displayName": "Default development optimized build config",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/release"
+    },
+    {
+      "name": "debug",
+      "displayName": "Debug build config",
+      "cacheVariables": {
+        "LEAN_EXTRA_CXX_FLAGS": "-DLEAN_DEFAULT_THREAD_STACK_SIZE=16*1024*1024",
+        "CMAKE_BUILD_TYPE": "Debug"
+      },
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/debug"
+    },
+    {
+      "name": "reldebug",
+      "displayName": "Release with assertions enabled",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithAssert"
+      },
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/reldebug"
+    },
+    {
+      "name": "sanitize",
+      "displayName": "Sanitize build config",
+      "cacheVariables": {
+        "LEAN_EXTRA_CXX_FLAGS": "-fsanitize=address,undefined -DLEAN_DEFAULT_THREAD_STACK_SIZE=16*1024*1024",
+        "LEANC_EXTRA_CC_FLAGS": "-fsanitize=address,undefined",
+        "LEAN_EXTRA_LINKER_FLAGS": "-fsanitize=address,undefined -fsanitize-link-c++-runtime",
+        "SMALL_ALLOCATOR": "OFF",
+        "USE_MIMALLOC": "OFF",
+        "BSYMBOLIC": "OFF",
+        "LEAN_TEST_VARS": "MAIN_STACK_SIZE=16000 LSAN_OPTIONS=max_leaks=10"
+      },
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/sanitize"
+    },
+    {
+      "name": "sandebug",
+      "inherits": ["sanitize", "debug"],
+      "displayName": "Sanitize+debug build config",
+      "binaryDir": "${sourceDir}/build/sandebug"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "release",
+      "configurePreset": "release"
+    },
+    {
+      "name": "debug",
+      "configurePreset": "debug"
+    },
+    {
+      "name": "reldebug",
+      "configurePreset": "reldebug"
+    },
+    {
+      "name": "sanitize",
+      "configurePreset": "sanitize"
+    },
+    {
+      "name": "sandebug",
+      "configurePreset": "sandebug"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "output": {"outputOnFailure": true, "shortProgress": true}
+    },
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "inherits": "release"
+    },
+    {
+      "name": "reldebug",
+      "configurePreset": "reldebug",
+      "inherits": "release"
+    },
+    {
+      "name": "sanitize",
+      "configurePreset": "sanitize",
+      "inherits": "release"
+    },
+    {
+      "name": "sandebug",
+      "configurePreset": "sandebug",
+      "inherits": "release"
+    }
+  ]
+}

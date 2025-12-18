@@ -3,9 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Chris Lovett
 -/
+module
+
 prelude
-import Init.Data.String.Extra
-import Init.System.FilePath
+public import Init.System.FilePath
+import Init.Data.String.TakeDrop
+import Init.Data.String.Modify
+import Init.Data.String.Search
+
+public section
 
 namespace System
 namespace Uri
@@ -20,7 +26,7 @@ namespace UriEscape
 @[inline] def letterF : UInt8 := 'F'.toNat.toUInt8
 
 /-- Decode %HH escapings in the given string. Note that sometimes a consecutive
-sequence of multiple escapings can represet a utf-8 encoded sequence for
+sequence of multiple escapings can represent a utf-8 encoded sequence for
 a single unicode code point and these will also be decoded correctly. -/
 def decodeUri (uri : String) : String := Id.run do
   let mut decoded : ByteArray := ByteArray.empty
@@ -28,13 +34,13 @@ def decodeUri (uri : String) : String := Id.run do
   let len := rawBytes.size
   let mut i := 0
   let percent := '%'.toNat.toUInt8
-  while i < len do
-    let c := rawBytes[i]!
-    (decoded, i) := if c == percent && i + 1 < len then
-      let h1 := rawBytes[i + 1]!
+  while h : i < len do
+    let c := rawBytes[i]
+    (decoded, i) := if h₁ : c == percent ∧ i + 1 < len then
+      let h1 := rawBytes[i + 1]
       if let some hd1 := hexDigitToUInt8? h1 then
-        if i + 2 < len then
-          let h2 := rawBytes[i + 2]!
+        if h₂ : i + 2 < len then
+          let h2 := rawBytes[i + 2]
           if let some hd2 := hexDigitToUInt8? h2 then
             -- decode the hex digits into a byte.
             (decoded.push (hd1 * 16 + hd2), i + 3)
@@ -49,7 +55,7 @@ def decodeUri (uri : String) : String := Id.run do
         ((decoded.push c).push h1, i + 2)
     else
       (decoded.push c, i + 1)
-  return String.fromUTF8Unchecked decoded
+  return String.fromUTF8! decoded
 where hexDigitToUInt8? (c : UInt8) : Option UInt8 :=
   if zero ≤ c ∧ c ≤ nine then some (c - zero)
   else if lettera ≤ c ∧ c ≤ letterf then some (c - lettera + 10)
@@ -78,7 +84,7 @@ def escapeUri (uri: String) : String :=
 
 /-- Replaces all %HH Uri escapings in the given string with their
 corresponding unicode code points.  Note that sometimes a consecutive
-sequence of multiple escapings can represet a utf-8 encoded sequence for
+sequence of multiple escapings can represent a utf-8 encoded sequence for
 a single unicode code point and these will also be decoded correctly. -/
 def unescapeUri (s: String) : String :=
   UriEscape.decodeUri s
@@ -89,8 +95,8 @@ def pathToUri (fname : System.FilePath) : String := Id.run do
   if System.Platform.isWindows then
     -- normalize drive letter
     -- lower-case drive letters seem to be preferred in URIs
-    if uri.length >= 2 && (uri.get 0).isUpper && uri.get ⟨1⟩ == ':' then
-      uri := uri.set 0 (uri.get 0).toLower
+    if uri.length >= 2 && uri.front.isUpper && String.Pos.Raw.get uri ⟨1⟩ == ':' then
+      uri := uri.decapitalize
     uri := uri.map (fun c => if c == '\\' then '/' else c)
   uri := uri.foldl (fun s c => s ++ UriEscape.uriEscapeAsciiChar c) ""
   let result := if uri.startsWith "/" then "file://" ++ uri else "file:///" ++ uri
@@ -102,13 +108,13 @@ def fileUriToPath? (uri : String) : Option System.FilePath := Id.run do
   if !uri.startsWith "file://" then
     none
   else
-    let mut p := (unescapeUri uri).drop "file://".length
-    p := p.dropWhile (λ c => c != '/') -- drop the hostname.
+    let mut p := (unescapeUri uri).drop "file://".length |>.copy
+    p := p.dropWhile (λ c => c != '/') |>.copy -- drop the hostname.
     -- On Windows, the path "/c:/temp" needs to become "C:/temp"
     if System.Platform.isWindows && p.length >= 2 &&
-        p.get 0 == '/' && (p.get ⟨1⟩).isAlpha && p.get ⟨2⟩ == ':' then
+        p.front == '/' && (String.Pos.Raw.get p ⟨1⟩).isAlpha && String.Pos.Raw.get p ⟨2⟩ == ':' then
       -- see also `pathToUri`
-      p := p.drop 1 |>.modify 0 .toUpper
+      p := String.Pos.Raw.modify (p.drop 1).copy 0 .toUpper
     some p
 
 end Uri

@@ -7,4 +7,6 @@ else
     IO.println "x is one"
   throw $ IO.userError "x is not zero"
 
+/-- info: x is zero -/
+#guard_msgs in
 #eval tst 0

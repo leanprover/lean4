@@ -3,7 +3,14 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Meta.InferType
+module
+
+prelude
+public import Lean.Compiler.BorrowedAnnotation
+public import Lean.Meta.InferType
+import Lean.AddDecl
+
+public section
 
 namespace Lean.Compiler
 
@@ -12,9 +19,13 @@ scoped notation:max "◾" => lcErased
 namespace LCNF
 
 def erasedExpr := mkConst ``lcErased
+def anyExpr := mkConst ``lcAny
 
 def _root_.Lean.Expr.isErased (e : Expr) :=
   e.isAppOf ``lcErased
+
+def _root_.Lean.Expr.isAny (e : Expr) :=
+  e.isAppOf ``lcAny
 
 def isPropFormerTypeQuick : Expr → Bool
   | .forallE _ _ b _ => isPropFormerTypeQuick b
@@ -113,27 +124,72 @@ open Meta in
 Convert a Lean type into a LCNF type used by the code generator.
 -/
 partial def toLCNFType (type : Expr) : MetaM Expr := do
-  if (← isProp type) then
-    return erasedExpr
-  let type ← whnfEta type
-  match type with
-  | .sort u     => return .sort u
-  | .const ..   => visitApp type #[]
-  | .lam n d b bi =>
-    withLocalDecl n bi d fun x => do
-      let d ← toLCNFType d
-      let b ← toLCNFType (b.instantiate1 x)
-      if b.isErased then
-        return b
-      else
-        return Expr.lam n d (b.abstract #[x]) bi
-  | .forallE .. => visitForall type #[]
-  | .app ..  => type.withApp visitApp
-  | .fvar .. => visitApp type #[]
-  | _        => return erasedExpr
+  let res ← go type
+  if (← getEnv).header.isModule then
+    -- Under the module system, `type` may reduce differently in different modules, leading to
+    -- IR-level mismatches and thus undefined behavior. We want to make this part independent of the
+    -- current module and its view of the environment but until then, we force the user to make
+    -- involved type definitions exposed by checking whether we would infer a different type in the
+    -- public scope. We ignore failed inference in the public scope because it can easily fail when
+    -- compiling private declarations using private types, and even if that private code should
+    -- escape into different modules, it can only generate a static error there, not a
+    -- miscompilation.
+    -- Note that always using `withExporting` would not always be correct either because it is
+    -- ignored in non-`module`s and thus mismatches with upstream `module`s may again occur.
+    let res'? ← observing <| withExporting <| go type
+    if let .ok res' := res'? then
+      if res != res' then
+        let mut reason := m!"locally inferred compilation type{indentD res}\n\
+          differs from type{indentD res'}\n\
+          that would be inferred in other modules. This usually means that a type `def` involved \
+          with the mentioned declarations needs to be `@[expose]`d. "
+        -- The above error message is terrible to read, so we'll try to condense it to the essential
+        -- list of non-exposed definitions.
+        let origDiag := (← get).diag
+        try
+          let _ ← observing <| withOptions (diagnostics.set · true)  <| withExporting <| go type
+          let env ← getEnv
+          let blocked := (← get).diag.unfoldAxiomCounter.toList.filterMap fun (n, count) => do
+            let count := count - origDiag.unfoldAxiomCounter.findD n 0
+            guard <| count > 0 && getOriginalConstKind? env n matches some .defn
+            return m!"{.ofConstName n} ↦ {count}"
+          if !blocked.isEmpty then
+            reason := m!"locally inferred compilation type differs from type that would be \
+              inferred in other modules. Some of the following definitions may need to be \
+              `@[expose]`d to fix this mismatch: {indentD <| .joinSep blocked Format.line}\n"
+        finally
+          modify ({ · with diag := origDiag })
+        throwError "Compilation failed, {reason}This is a current compiler \
+          limitation for `module`s that may be lifted in the future."
+  return res
 where
+  go type := do
+    if ← isProp type then
+      return erasedExpr
+    let type ← whnfEta type
+    match type with
+    | .sort u     => return .sort u
+    | .const ..   => visitApp type #[]
+    | .lam n d b bi =>
+      withLocalDecl n bi d fun x => do
+        let d ← go d
+        let b ← go (b.instantiate1 x)
+        if b.isErased then
+          return b
+        else
+          return Expr.lam n d (b.abstract #[x]) bi
+    | .forallE .. => visitForall type #[]
+    | .app ..  => type.withApp visitApp
+    | .fvar .. => visitApp type #[]
+    | .proj ``Subtype 0 (.app (.const ``Void.nonemptyType []) _) =>
+      return mkConst ``lcVoid
+    | _        => return mkConst ``lcAny
+
   whnfEta (type : Expr) : MetaM Expr := do
-    let type ← whnf type
+    -- We increase transparency here to unfold type aliases of functions that are declared as
+    -- `irreducible`, such that they end up being represented as C functions.
+    let type ← withTransparency .all do
+      whnf type
     let type' := type.eta
     if type' != type then
       whnfEta type'
@@ -145,35 +201,40 @@ where
     | .forallE n d b bi =>
       let d := d.instantiateRev xs
       withLocalDecl n bi d fun x => do
-        let d := (← toLCNFType d).abstract xs
+        let isBorrowed := isMarkedBorrowed d
+        let mut d := (← go d).abstract xs
+        if isBorrowed then
+          d := markBorrowed d
         return .forallE n d (← visitForall b (xs.push x)) bi
     | _ =>
-      let e ← toLCNFType (e.instantiateRev xs)
+      let e ← go (e.instantiateRev xs)
       return e.abstract xs
 
   visitApp (f : Expr) (args : Array Expr) := do
     let fNew ← match f with
       | .const declName us =>
-        let .inductInfo _ ← getConstInfo declName | return erasedExpr
+        if (← getEnv).isExporting && isPrivateName declName then
+          -- This branch can happen under `backward.privateInPublic`; restore original behavior of
+          -- failing here, which is caught and ignored above by `observing`.
+          throwError "internal compiler error: private in public"
+        let .inductInfo _ ← getConstInfo declName | return anyExpr
         pure <| .const declName us
       | .fvar .. => pure f
-      | _ => return erasedExpr
+      | _ => return anyExpr
     let mut result := fNew
     for arg in args do
-      if (← isProp arg) then
+      if ← isProp arg <||> isPropFormer arg then
         result := mkApp result erasedExpr
-      else if (← isPropFormer arg) then
-        result := mkApp result erasedExpr
-      else if (← isTypeFormer arg) then
-        result := mkApp result (← toLCNFType arg)
+      else if ← isTypeFormer arg then
+        result := mkApp result (← go arg)
       else
-        result := mkApp result erasedExpr
+        result := mkApp result (mkConst ``lcAny)
     return result
 
 mutual
 
 partial def joinTypes (a b : Expr) : Expr :=
-  joinTypes? a b |>.getD erasedExpr
+  joinTypes? a b |>.getD (mkConst ``lcAny)
 
 partial def joinTypes? (a b : Expr) : Option Expr := do
   if a.isErased || b.isErased then
@@ -192,16 +253,16 @@ partial def joinTypes? (a b : Expr) : Option Expr := do
       | .app f a, .app g b =>
         (do return .app (← joinTypes? f g) (← joinTypes? a b))
          <|>
-        return erasedExpr
+        return (mkConst ``lcAny)
       | .forallE n d₁ b₁ _, .forallE _ d₂ b₂ _ =>
         (do return .forallE n (← joinTypes? d₁ d₂) (joinTypes b₁ b₂) .default)
         <|>
-        return erasedExpr
+        return (mkConst ``lcAny)
       | .lam n d₁ b₁ _, .lam _ d₂ b₂ _ =>
         (do return .lam n (← joinTypes? d₁ d₂) (joinTypes b₁ b₂) .default)
         <|>
-        return erasedExpr
-      | _, _ => return erasedExpr
+        return (mkConst ``lcAny)
+      | _, _ => return (mkConst ``lcAny)
 
 end
 
@@ -234,7 +295,7 @@ where
         throwError "invalid instantiateForall, too many parameters"
     else
       return type
-termination_by go i _ => ps.size - i
+  termination_by ps.size - i
 
 /--
 Return `true` if `type` is a predicate.

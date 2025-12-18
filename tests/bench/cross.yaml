@@ -258,7 +258,7 @@ run:
     
     #   Implements a simple run driver that just executes one of the passed run_cmds
     #   in each benchmarking run.
-    #   It meausures the time  using the perf stat tool (runner=perf_stat).
+    #   It measures the time using the perf stat tool (runner=perf_stat).
     #   
     #   The constructor calls the ``setup`` method.
     exec_misc:
@@ -297,7 +297,7 @@ run:
         # Enable:   Disables swapping on the system before the benchmarking and enables it after.
         disable_swap_active: null
         
-        # Enable:   Drop page cache, directoy entries and inodes before every benchmarking run.
+        # Enable:   Drop page cache, directory entries and inodes before every benchmarking run.
         drop_fs_caches_active: null
         
         # Enable:   Adds random environment variables.
@@ -355,7 +355,7 @@ run:
         #   Disables swapping on the system before the benchmarking and enables it after.
         disable_swap_misc: !!map {}
         
-        #   Drop page cache, directoy entries and inodes before every benchmarking run.
+        #   Drop page cache, directory entries and inodes before every benchmarking run.
         drop_fs_caches_misc:
             
             # Free dentries and inodes

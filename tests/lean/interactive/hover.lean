@@ -1,5 +1,5 @@
 import Lean
-
+--^ waitForILeans
 example : True := by
   apply True.intro
       --^ textDocument/hover
@@ -168,6 +168,8 @@ def foo.bar : Nat := 1
   --^ textDocument/hover
       --^ textDocument/hover
 
+end Bar
+
 example : Nat → Nat → Nat :=
   fun x y =>
     --^ textDocument/hover
@@ -175,6 +177,9 @@ example : Nat → Nat → Nat :=
     x
   --^ textDocument/hover
 
+           -- textDocument/definition -- removed because the result is platform-dependent
+set_option linter.unusedVariables false in
+          --^ textDocument/hover
 example : Nat → Nat → Nat := by
   intro x y
       --^ textDocument/hover
@@ -183,7 +188,7 @@ example : Nat → Nat → Nat := by
       --^ textDocument/hover
 
 def g (n : Nat) : Nat := g 0
-termination_by g n => n
+termination_by n
 decreasing_by have n' := n; admit
                        --^ textDocument/hover
 
@@ -202,6 +207,7 @@ example : Nat := Id.run do (← 1)
 #check (· + ·)
       --^ textDocument/hover
         --^ textDocument/hover
+/-- my_intro tactic -/
 macro "my_intro" x:(ident <|> "_") : tactic =>
   match x with
   | `($x:ident) => `(tactic| intro $x:ident)
@@ -213,8 +219,18 @@ example : α → α := by intro _; assumption
                           --^ textDocument/hover
 example : α → α := by my_intro x; assumption
                              --^ textDocument/hover
+                    --v textDocument/hover
 example : α → α := by my_intro _; assumption
                              --^ textDocument/hover
+
+/-- my_intro term -/
+def my_intro : Nat := 1
+
+                    --v textDocument/hover
+example : α → α := by my_intro _; assumption
+
+attribute [simp] my_intro
+               --^ textDocument/hover
 
 example : Nat → True := by
   intro x
@@ -248,3 +264,85 @@ example : Nat → Nat
 example : Inhabited Nat := ⟨Nat.zero⟩
                          --^ textDocument/hover
                           --^ textDocument/hover
+
+example : Nat :=
+  let x := match 0 with | _ => 0
+  _
+--^ textDocument/hover
+
+def auto (o : Nat := by exact 1) : Nat := o
+  --^ textDocument/hover
+
+example : 1 = 1 := by
+                    --v textDocument/hover
+  generalize _e : 1 = x
+           --^ textDocument/hover
+  exact Eq.refl x
+
+example : 1 = 1 := by
+  cases _e : 1 with
+      --^ textDocument/hover
+  | zero => rfl
+  | succ x => rfl
+       --^ textDocument/hover
+
+namespace Foo
+
+export List (nil)
+           --^ textDocument/hover
+open List (cons)
+           --^ textDocument/hover
+open List hiding map
+                --^ textDocument/hover
+                        --v textDocument/hover
+open List renaming zip → zip'
+                 --^ textDocument/hover
+
+end Foo
+
+/-!
+`#eval` needs to save info context for this hover to give the inferred type,
+since it needs the environment with the generated `_eval.match_1` matcher.
+-/
+#eval (default : Nat) matches .succ ..
+                      --^ textDocument/hover
+
+/--
+These are docs
+-/
+structure S where
+        --^ textDocument/hover
+  /-- So are these -/
+  mk ::
+--^ textDocument/hover
+  /-- And these -/
+  x : Nat
+--^ textDocument/hover
+
+#check { x := 5 : S }
+       --^ textDocument/hover
+                --^ textDocument/hover
+
+/-- Docs -/
+inductive S' where
+        --^ textDocument/hover
+  /-- More docs -/
+  | mk (x : Nat)
+  --^ textDocument/hover
+
+#check (.mk 5 : S')
+       --^ textDocument/hover
+              --^ textDocument/hover
+
+/-- An infinite sequence -/
+coinductive InfSeq (r : α → α → Prop) : α → Prop where
+          --^ textDocument/hover
+  /-- Take a step -/
+  | step : r a b → InfSeq r b → InfSeq r a
+     --^ textDocument/hover
+
+#check InfSeq
+     --^ textDocument/hover
+
+#check InfSeq.step
+     --^ textDocument/hover

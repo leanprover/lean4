@@ -74,7 +74,7 @@ let m ← mkFreshExprSyntheticOpaqueMVar vType;
 let subgoals ← caseValues m.mvarId! x.fvarId! #[mkNatLit 2, mkNatLit 3, mkNatLit 5];
 subgoals.forM fun s => do {
   print (MessageData.ofGoal s.mvarId);
-  assumption s.mvarId
+  s.mvarId.assumption
 };
 let t ← instantiateMVars m;
 print t;

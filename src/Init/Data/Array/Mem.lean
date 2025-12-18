@@ -1,60 +1,57 @@
 /-
 Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Joachim Breitner
 -/
-prelude
-import Init.Data.Array.Basic
-import Init.Data.Nat.Linear
-import Init.Data.List.BasicAux
+module
 
-theorem List.sizeOf_get_lt [SizeOf α] (as : List α) (i : Fin as.length) : sizeOf (as.get i) < sizeOf as := by
-  match as, i with
-  | [],    i      => apply Fin.elim0 i
-  | a::as, ⟨0, _⟩ => simp_arith [get]
-  | a::as, ⟨i+1, h⟩ =>
-    simp [get]
-    have h : i < as.length := Nat.lt_of_succ_lt_succ h
-    have ih := sizeOf_get_lt as ⟨i, h⟩
-    exact Nat.lt_of_lt_of_le ih (Nat.le_add_left ..)
+prelude
+public import Init.Data.List.BasicAux
+
+public section
+
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Array
 
-instance [DecidableEq α] : Membership α (Array α) where
-  mem a as := as.contains a
+theorem sizeOf_lt_of_mem [SizeOf α] {as : Array α} (h : a ∈ as) : sizeOf a < sizeOf as := by
+  cases as with | _ as
+  exact Nat.lt_trans (List.sizeOf_lt_of_mem h.val) (by simp +arith)
 
-theorem sizeOf_get_lt [SizeOf α] (as : Array α) (i : Fin as.size) : sizeOf (as.get i) < sizeOf as := by
-  cases as; rename_i as
-  simp [get]
-  have ih := List.sizeOf_get_lt as i
-  exact Nat.lt_trans ih (by simp_arith)
+theorem sizeOf_get [SizeOf α] (as : Array α) (i : Nat) (h : i < as.size) : sizeOf as[i] < sizeOf as := by
+  cases as with | _ as
+  simpa using Nat.lt_trans (List.sizeOf_get _ ⟨i, h⟩) (by simp +arith)
 
-theorem sizeOf_lt_of_mem [DecidableEq α] [SizeOf α] {as : Array α} (h : a ∈ as) : sizeOf a < sizeOf as := by
-  simp [Membership.mem, contains, any, Id.run, BEq.beq, anyM] at h
-  let rec aux (j : Nat) (h : anyM.loop (m := Id) (fun b => decide (a = b)) as as.size (Nat.le_refl ..) j = true) : sizeOf a < sizeOf as := by
-    unfold anyM.loop at h
-    split at h
-    · simp [Bind.bind, pure] at h; split at h
-      next he => subst a; apply sizeOf_get_lt
-      next => have ih := aux (j+1) h; assumption
-    · contradiction
-  apply aux 0 h
-termination_by aux j _ => as.size - j
-
-@[simp] theorem sizeOf_get [SizeOf α] (as : Array α) (i : Fin as.size) : sizeOf (as.get i) < sizeOf as := by
-  cases as
-  simp [get]
-  apply Nat.lt_trans (List.sizeOf_get ..)
-  simp_arith
+@[simp] theorem sizeOf_getElem [SizeOf α] (as : Array α) (i : Nat) (h : i < as.size) :
+  sizeOf (as[i]'h) < sizeOf as := sizeOf_get _ _ h
 
 /-- This tactic, added to the `decreasing_trivial` toolbox, proves that
 `sizeOf arr[i] < sizeOf arr`, which is useful for well founded recursions
 over a nested inductive like `inductive T | mk : Array T → T`. -/
 macro "array_get_dec" : tactic =>
   `(tactic| first
-    | apply sizeOf_get
-    | apply Nat.lt_trans (sizeOf_get ..); simp_arith)
+    -- subsumed by simp
+    -- | with_reducible apply sizeOf_get
+    -- | with_reducible apply sizeOf_getElem
+    | (with_reducible apply Nat.lt_of_lt_of_le (sizeOf_get ..)); simp +arith
+    | (with_reducible apply Nat.lt_of_lt_of_le (sizeOf_getElem ..)); simp +arith
+    )
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| array_get_dec)
+
+/-- This tactic, added to the `decreasing_trivial` toolbox, proves that `sizeOf a < sizeOf arr`
+provided that `a ∈ arr` which is useful for well founded recursions over a nested inductive like
+`inductive T | mk : Array T → T`. -/
+-- NB: This is analogue to tactic `sizeOf_list_dec`
+macro "array_mem_dec" : tactic =>
+  `(tactic| first
+    | with_reducible apply Array.sizeOf_lt_of_mem; assumption; done
+    | with_reducible
+        apply Nat.lt_of_lt_of_le (Array.sizeOf_lt_of_mem ?h)
+        case' h => assumption
+      simp +arith)
+
+macro_rules | `(tactic| decreasing_trivial) => `(tactic| array_mem_dec)
 
 end Array

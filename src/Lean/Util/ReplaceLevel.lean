@@ -3,7 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Expr
+module
+
+prelude
+public import Lean.Expr
+
+public section
 
 namespace Lean
 namespace Level
@@ -23,7 +28,7 @@ namespace Expr
 
 namespace ReplaceLevelImpl
 
-abbrev cacheSize : USize := 8192
+abbrev cacheSize : USize := 8192 - 1
 
 structure State where
   keys    : Array Expr -- Remark: our "unsafe" implementation relies on the fact that `()` is not a valid Expr
@@ -46,7 +51,7 @@ unsafe def replaceUnsafeM (f? : Level → Option Level) (size : USize) (e : Expr
         | Expr.forallE _ d b _   => cache i e <| e.updateForallE! (← visit d) (← visit b)
         | Expr.lam _ d b _       => cache i e <| e.updateLambdaE! (← visit d) (← visit b)
         | Expr.mdata _ b         => cache i e <| e.updateMData! (← visit b)
-        | Expr.letE _ t v b _    => cache i e <| e.updateLet! (← visit t) (← visit v) (← visit b)
+        | Expr.letE _ t v b _    => cache i e <| e.updateLetE! (← visit t) (← visit v) (← visit b)
         | Expr.app f a           => cache i e <| e.updateApp! (← visit f) (← visit a)
         | Expr.proj _ _ b        => cache i e <| e.updateProj! (← visit b)
         | Expr.sort u            => cache i e <| e.updateSort! (u.replace f?)
@@ -54,9 +59,11 @@ unsafe def replaceUnsafeM (f? : Level → Option Level) (size : USize) (e : Expr
         | e                      => pure e
   visit e
 
+private def notAnExpr : Unit × Unit := ⟨⟨⟩, ⟨⟩⟩
+
 unsafe def initCache : State :=
-  { keys    := mkArray cacheSize.toNat (cast lcProof ()), -- `()` is not a valid `Expr`
-    results := mkArray cacheSize.toNat default }
+  { keys    := .replicate cacheSize.toNat (cast lcProof notAnExpr), -- `notAnExpr` is not a valid `Expr`
+    results := .replicate cacheSize.toNat default }
 
 unsafe def replaceUnsafe (f? : Level → Option Level) (e : Expr) : Expr :=
   (replaceUnsafeM f? cacheSize e).run' initCache
@@ -68,7 +75,7 @@ partial def replaceLevel (f? : Level → Option Level) : Expr → Expr
   | e@(Expr.forallE _ d b _)   => let d := replaceLevel f? d; let b := replaceLevel f? b; e.updateForallE! d b
   | e@(Expr.lam _ d b _)       => let d := replaceLevel f? d; let b := replaceLevel f? b; e.updateLambdaE! d b
   | e@(Expr.mdata _ b)         => let b := replaceLevel f? b; e.updateMData! b
-  | e@(Expr.letE _ t v b _)    => let t := replaceLevel f? t; let v := replaceLevel f? v; let b := replaceLevel f? b; e.updateLet! t v b
+  | e@(Expr.letE _ t v b _)    => let t := replaceLevel f? t; let v := replaceLevel f? v; let b := replaceLevel f? b; e.updateLetE! t v b
   | e@(Expr.app f a)           => let f := replaceLevel f? f; let a := replaceLevel f? a; e.updateApp! f a
   | e@(Expr.proj _ _ b)        => let b := replaceLevel f? b; e.updateProj! b
   | e@(Expr.sort u)            => e.updateSort! (u.replace f?)

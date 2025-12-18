@@ -1,0 +1,11 @@
+Success! Final stack:
+  [(Lean.Doc.Syntax.blockquote
+    ">"
+    [(Lean.Doc.Syntax.para
+      "para{"
+      [(Lean.Doc.Syntax.text (str "\"hey\""))
+       (Lean.Doc.Syntax.linebreak
+        "line!"
+        (str "\"\\n\""))]
+      "}")])]
+All input consumed.

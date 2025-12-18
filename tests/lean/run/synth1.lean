@@ -3,7 +3,7 @@ import Lean.Meta
 open Lean
 open Lean.Meta
 
-class HasCoerce (a b : Type) :=
+class HasCoerce (a : semiOutParam Type) (b : Type) :=
 (coerce : a → b)
 
 def coerce {a b : Type} [HasCoerce a b] : a → b :=

@@ -29,8 +29,8 @@ inductive PosView where
   and it will be applied automatically for us. -/
 theorem sizeof_lt_of_view_eq (h : Pos.view p₁ = PosView.succ p₂) : sizeOf p₂ < sizeOf p₁ := by
   match p₁, p₂ with
-  | { pred := Nat.succ n }, { pred := Nat.succ m } => simp [Pos.view] at h; simp_arith [h]
-  | { pred := Nat.succ n }, { pred := 0 }          => simp [Pos.view] at h; simp_arith [h]
+  | { pred := Nat.succ n }, { pred := Nat.succ m } => simp [Pos.view] at h; simp +arith [h]
+  | { pred := Nat.succ n }, { pred := 0 }          => simp [Pos.view] at h; simp +arith [h]
   | { pred := 0 },          _                      => simp [Pos.view] at h
 
 /-- `1` as notation for `PosView.one` -/

@@ -6,9 +6,11 @@ let rec loop : List α → List α → List α
   | a::as, r => loop as (a::r)
 loop as []
 
-#eval reverse [3, 2, 1]
-#eval reverse [1, 2, 3, 4]
+#guard reverse [3, 2, 1] == [1, 2, 3]
+#guard reverse [1, 2, 3, 4] == [4, 3, 2, 1]
+
 #print reverse
+
 #print reverse.loop
 #print reverse.loop._unsafe_rec
 
@@ -19,4 +21,4 @@ let rec loop (as acc : List α) : List α :=
   | a::as, r => loop as (a::r)
 loop as []
 
-#eval appendRev [3, 4] [1, 2, 0]
+#guard appendRev [3, 4] [1, 2, 0] == [3, 4, 0, 2, 1]

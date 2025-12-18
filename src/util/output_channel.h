@@ -18,11 +18,11 @@ namespace lean {
 
     std::unique_ptr<output_channel> out;
     out = new stdout_channel();
-    (*out) << "writting to standard output";
+    (*out) << "writing to standard output";
     out = new stderr_channel();
-    (*out) << "writting to standard input";
+    (*out) << "writing to standard input";
     out = new file_output_channel("file.txt");
-    (*out) << "writting to file";
+    (*out) << "writing to file";
 */
 class output_channel {
 public:

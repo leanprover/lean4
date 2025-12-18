@@ -1,14 +1,12 @@
-{"textDocument": {"uri": "file://completionAtPrint.lean"},
- "position": {"line": 2, "character": 25}}
+{"textDocument": {"uri": "file:///completionAtPrint.lean"},
+ "position": {"line": 2, "character": 10}}
 {"items":
- [{"label": "find?",
-   "kind": 3,
-   "detail": "Lean.Environment → Lean.Name → Option Lean.ConstantInfo"},
-  {"label": "freeRegions",
-   "kind": 3,
-   "documentation":
-   {"value":
-    "Free compacted regions of imports. No live references to imported objects may exist at the time of invocation; in\nparticular, `env` should be the last reference to any `Environment` derived from these imports. ",
-    "kind": "markdown"},
-   "detail": "Lean.Environment → IO Unit"}],
- "isIncomplete": true}
+ [{"label": "gg",
+   "kind": 21,
+   "data": ["«external:file:///completionAtPrint.lean»", 2, 10, 0, "cf.gg"]}],
+ "isIncomplete": false}
+Resolution of gg:
+{"label": "gg",
+ "kind": 21,
+ "detail": "Nat",
+ "data": ["«external:file:///completionAtPrint.lean»", 2, 10, 0, "cf.gg"]}

@@ -1,5 +1,5 @@
 theorem modifySize {A : Type u} (as : Array A) (f : A → A) (n : Nat) : (as.modify n f).size = as.size := by
-  simp [Array.modify, Array.modifyM, Id.run]; split <;> simp [Id.run]
+  simp [Array.modify, Array.modifyM]; split <;> simp
 
 structure Idx (p : Array String) where
   n : Fin p.size
@@ -15,7 +15,7 @@ instance {arr : Array String} {f : String → String} {n : Nat} : Coe (Array (Id
 
 def store1 : Store := {
   arr := #["a", "b", "c", "d", "e"]
-  ids := #[⟨2, by simp⟩]
+  ids := #[⟨2, by decide⟩]
 }
 
 def tryCoeStore := {

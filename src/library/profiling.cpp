@@ -7,40 +7,23 @@ Author: Gabriel Ebner
 #include "library/profiling.h"
 #include "util/option_declarations.h"
 
-#ifndef LEAN_DEFAULT_PROFILER
-#define LEAN_DEFAULT_PROFILER false
-#endif
-
-#ifndef LEAN_DEFAULT_PROFILER_THRESHOLD
-#define LEAN_DEFAULT_PROFILER_THRESHOLD 100
-#endif
-
 namespace lean {
 
-static name * g_profiler           = nullptr;
-static name * g_profiler_threshold = nullptr;
-
+extern "C" uint8_t lean_get_profiler(obj_arg opts);
 bool get_profiler(options const & opts) {
-    return opts.get_bool(*g_profiler, LEAN_DEFAULT_PROFILER);
+    return lean_get_profiler(opts.to_obj_arg());
 }
 
+extern "C" double lean_get_profiler_threshold(obj_arg opts);
 second_duration get_profiling_threshold(options const & opts) {
-    return second_duration(static_cast<double>(opts.get_unsigned(*g_profiler_threshold, LEAN_DEFAULT_PROFILER_THRESHOLD))/1000.0);
+    double ms = lean_get_profiler_threshold(opts.to_obj_arg());
+    return second_duration(ms);
 }
 
 void initialize_profiling() {
-    g_profiler           = new name{"profiler"};
-    mark_persistent(g_profiler->raw());
-    g_profiler_threshold = new name{"profiler", "threshold"};
-    mark_persistent(g_profiler_threshold->raw());
-    register_bool_option(*g_profiler, LEAN_DEFAULT_PROFILER, "(profiler) profile tactics and vm_eval command");
-    register_unsigned_option(*g_profiler_threshold, LEAN_DEFAULT_PROFILER_THRESHOLD,
-                             "(profiler) threshold in milliseconds, profiling times under threshold will not be reported");
 }
 
 void finalize_profiling() {
-    delete g_profiler;
-    delete g_profiler_threshold;
 }
 
 }

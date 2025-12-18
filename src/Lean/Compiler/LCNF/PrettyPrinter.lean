@@ -3,9 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.PrettyPrinter
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.Internalize
+module
+
+prelude
+public import Lean.PrettyPrinter.Delaborator.Options
+public import Lean.Compiler.LCNF.Internalize
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -18,7 +22,7 @@ abbrev M := ReaderT LocalContext CompilerM
 private def join (as : Array α) (f : α → M Format) : M Format := do
   if h : 0 < as.size then
     let mut result ← f as[0]
-    for a in as[1:] do
+    for a in as[1...*] do
       result := f!"{result} {← f a}"
     return result
   else
@@ -39,29 +43,34 @@ def ppFVar (fvarId : FVarId) : M Format :=
 def ppExpr (e : Expr) : M Format := do
   Meta.ppExpr e |>.run' { lctx := (← read) }
 
-def ppArg (e : Expr) : M Format := do
-  if e.isFVar then
-    ppFVar e.fvarId!
-  else if pp.explicit.get (← getOptions) then
-    if e.isConst || e.isProp || e.isType0 then
-      ppExpr e
-    else
-      return Format.paren (←  ppExpr e)
-  else
-    return "_"
-
-def ppArgs (args : Array Expr) : M Format := do
-  join args ppArg
-
-def ppApp (e : Expr) : M Format := do
-  return f!"{← ppExpr e.getAppFn} {← ppArgs e.getAppArgs}"
-
-def ppValue (e : Expr) : M Format := do
+def ppArg (e : Arg) : M Format := do
   match e with
-  | .app .. => ppApp e
+  | .erased => return "◾"
   | .fvar fvarId => ppFVar fvarId
-  | .proj _ i e => return f!"{← ppArg e} # {i}"
-  | _ => ppExpr e
+  | .type e =>
+    if pp.explicit.get (← getOptions) then
+      if e.isConst || e.isProp || e.isType0 || e.isFVar then
+        ppExpr e
+      else
+        return Format.paren (←  ppExpr e)
+    else
+      return "_"
+
+def ppArgs (args : Array Arg) : M Format := do
+  prefixJoin " " args ppArg
+
+def ppLitValue (lit : LitValue) : M Format := do
+  match lit with
+  | .nat v | .uint8 v | .uint16 v | .uint32 v | .uint64 v | .usize v => return format v
+  | .str v => return format (repr v)
+
+def ppLetValue (e : LetValue) : M Format := do
+  match e with
+  | .erased => return "◾"
+  | .lit v => ppLitValue v
+  | .proj _ i fvarId => return f!"{← ppFVar fvarId} # {i}"
+  | .fvar fvarId args => return f!"{← ppFVar fvarId}{← ppArgs args}"
+  | .const declName us args => return f!"{← ppExpr (.const declName us)}{← ppArgs args}"
 
 def ppParam (param : Param) : M Format := do
   let borrow := if param.borrow then "@&" else ""
@@ -75,12 +84,15 @@ def ppParams (params : Array Param) : M Format := do
 
 def ppLetDecl (letDecl : LetDecl) : M Format := do
   if pp.letVarTypes.get (← getOptions) then
-    return f!"let {letDecl.binderName} : {← ppExpr letDecl.type} := {← ppValue letDecl.value}"
+    return f!"let {letDecl.binderName} : {← ppExpr letDecl.type} := {← ppLetValue letDecl.value}"
   else
-    return f!"let {letDecl.binderName} := {← ppValue letDecl.value}"
+    return f!"let {letDecl.binderName} := {← ppLetValue letDecl.value}"
 
 def getFunType (ps : Array Param) (type : Expr) : CoreM Expr :=
-  instantiateForall type (ps.map (mkFVar ·.fvarId))
+  if type.isErased then
+    pure type
+  else
+    instantiateForall type (ps.map (mkFVar ·.fvarId))
 
 mutual
   partial def ppFunDecl (funDecl : FunDecl) : M Format := do
@@ -98,8 +110,17 @@ mutual
     | .jp decl k => return f!"jp " ++ (← ppFunDecl decl) ++ ";" ++ .line ++ (← ppCode k)
     | .cases c => return f!"cases {← ppFVar c.discr} : {← ppExpr c.resultType}{← prefixJoin .line c.alts ppAlt}"
     | .return fvarId => return f!"return {← ppFVar fvarId}"
-    | .jmp fvarId args => return f!"goto {← ppFVar fvarId} {← ppArgs args}"
-    | .unreach .. => return "⊥"
+    | .jmp fvarId args => return f!"goto {← ppFVar fvarId}{← ppArgs args}"
+    | .unreach type =>
+      if pp.all.get (← getOptions) then
+        return f!"⊥ : {← ppExpr type}"
+      else
+        return "⊥"
+
+  partial def ppDeclValue (b : DeclValue) : M Format := do
+    match b with
+    | .code c => ppCode c
+    | .extern .. => return "extern"
 end
 
 def run (x : M α) : CompilerM α :=
@@ -111,32 +132,43 @@ end PP
 def ppCode (code : Code) : CompilerM Format :=
   PP.run <| PP.ppCode code
 
+def ppLetValue (e : LetValue) : CompilerM Format :=
+  PP.run <| PP.ppLetValue e
+
 def ppDecl (decl : Decl) : CompilerM Format :=
   PP.run do
-    return f!"def {decl.name}{← PP.ppParams decl.params} : {← PP.ppExpr (← PP.getFunType decl.params decl.type)} :={indentD (← PP.ppCode decl.value)}"
+    return f!"def {decl.name}{← PP.ppParams decl.params} : {← PP.ppExpr (← PP.getFunType decl.params decl.type)} :={indentD (← PP.ppDeclValue decl.value)}"
 
 def ppFunDecl (decl : FunDecl) : CompilerM Format :=
   PP.run do
     return f!"fun {← PP.ppFunDecl decl}"
 
 /--
+Execute `x` in `CoreM` without modifying `Core`s state.
+This is useful if we want make sure we do not affect the next free variable id.
+-/
+def runCompilerWithoutModifyingState (x : CompilerM α) : CoreM α := do
+  let s ← get
+  try
+    x |>.run {}
+  finally
+    set s
+
+/--
 Similar to `ppDecl`, but in `CoreM`, and it does not assume
 `decl` has already been internalized.
-
 This function is used for debugging purposes.
 -/
 def ppDecl' (decl : Decl) : CoreM Format := do
-  /-
-  We save/restore the state to make sure we do not affect the next free variable id.
-  -/
-  let s ← get
-  try
-    go |>.run {}
-  finally
-    set s
-where
-  go : CompilerM Format := do
-    let decl ← decl.internalize
-    ppDecl decl
+  runCompilerWithoutModifyingState do
+    ppDecl (← decl.internalize)
+
+/--
+Similar to `ppCode`, but in `CoreM`, and it does not assume
+`code` has already been internalized.
+-/
+def ppCode' (code : Code) : CoreM Format := do
+  runCompilerWithoutModifyingState do
+    ppCode (← code.internalize)
 
 end Lean.Compiler.LCNF

@@ -44,7 +44,7 @@ The unification constraint is easily solved
 
 set_option pp.all true
 
--- The following test got stuck at universe contraints after if fixed the `decAux?` bug.
+-- The following test got stuck at universe constraints after if fixed the `decAux?` bug.
 -- #check let x := (fun f => (f, f)) @id; (x.1 (), x.2 true) -- works
 -- #check_failure let x := (fun f => (f, f)) id; (x.1 (), x.2 true) -- fails as expected
 
@@ -58,4 +58,4 @@ def h (x := 10) (y := 20) : Nat := x + y
 #check let f := fun (x : optParam Nat 10) => x + 1; f + f 1
 #check (fun (x : optParam Nat 10) => x)
 
-#check let_fun x := 10; x + 1
+#check have x := 10; x + 1

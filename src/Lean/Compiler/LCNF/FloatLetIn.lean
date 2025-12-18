@@ -3,10 +3,13 @@ Copyright (c) 2022 Henrik Böving. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.FVarUtil
-import Lean.Compiler.LCNF.PassManager
-import Lean.Compiler.LCNF.Types
+module
+
+prelude
+public import Lean.Compiler.LCNF.FVarUtil
+public import Lean.Compiler.LCNF.PassManager
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -27,7 +30,7 @@ inductive Decision where
   default
 |
   /--
-  Dont move this declaration it is needed where it is right now.
+  Don't move this declaration it is needed where it is right now.
   -/
   dont
 |
@@ -58,7 +61,7 @@ structure FloatState where
   /--
   A map from identifiers of declarations to their current decision.
   -/
-  decision : HashMap FVarId Decision
+  decision : Std.HashMap FVarId Decision
   /--
   A map from decisions (excluding `unknown`) to the declarations with
   these decisions (in correct order). Basically:
@@ -66,7 +69,7 @@ structure FloatState where
   - Which declarations do we move into a certain arm
   - Which declarations do we move into the default arm
   -/
-  newArms : HashMap Decision (List CodeDecl)
+  newArms : Std.HashMap Decision (List CodeDecl)
 
 /--
 Use to collect relevant declarations for the floating mechanism.
@@ -100,7 +103,7 @@ Whether to ignore `decl` for the floating mechanism. We want to do this if:
 def ignore? (decl : LetDecl) : BaseFloatM Bool :=  do
    if (← isArrowClass? decl.type).isSome then
      return true
-   else if let .proj _ _ (.fvar fvarId) := decl.value then
+   else if let .proj _ _ fvarId := decl.value then
      return (← isArrowClass? (← getType fvarId)).isSome
    else
      return false
@@ -115,39 +118,38 @@ up to this point, with respect to `cs`. The initial decisions are:
 - `arm` or `default` if we see the declaration only being used in exactly one cases arm
 - `unknown` otherwise
 -/
-def initialDecisions (cs : Cases) : BaseFloatM (HashMap FVarId Decision) := do
-  let mut map := mkHashMap (← read).decls.length
-  let folder val acc := do
+def initialDecisions (cs : Cases) : BaseFloatM (Std.HashMap FVarId Decision) := do
+  let mut map := Std.HashMap.emptyWithCapacity (← read).decls.length
+  map ← (← read).decls.foldrM (init := map) fun val acc => do
     if let .let decl := val then
       if (← ignore? decl) then
         return acc.insert decl.fvarId .dont
     return acc.insert val.fvarId .unknown
 
-  map ← (← read).decls.foldrM (init := map) folder
   if map.contains cs.discr then
     map := map.insert cs.discr .dont
   (_, map) ← goCases cs |>.run map
   return map
 where
-  goFVar (plannedDecision : Decision) (var : FVarId) : StateRefT (HashMap FVarId Decision) BaseFloatM Unit := do
-    if let some decision := (← get).find? var then
+  goFVar (plannedDecision : Decision) (var : FVarId) : StateRefT (Std.HashMap FVarId Decision) BaseFloatM Unit := do
+    if let some decision := (← get)[var]? then
       if decision == .unknown then
         modify fun s => s.insert var plannedDecision
       else if decision != plannedDecision then
-          modify fun s => s.insert var .dont
+        modify fun s => s.insert var .dont
       -- otherwise we already have the proper decision
 
-  goAlt (alt : Alt) : StateRefT (HashMap FVarId Decision) BaseFloatM Unit :=
+  goAlt (alt : Alt) : StateRefT (Std.HashMap FVarId Decision) BaseFloatM Unit :=
     forFVarM (goFVar (.ofAlt alt)) alt
-  goCases (cs : Cases) : StateRefT (HashMap FVarId Decision) BaseFloatM Unit :=
+  goCases (cs : Cases) : StateRefT (Std.HashMap FVarId Decision) BaseFloatM Unit :=
     cs.alts.forM goAlt
 
 /--
 Compute the initial new arms. This will just set up a map from all arms of
 `cs` to empty `Array`s, plus one additional entry for `dont`.
 -/
-def initialNewArms (cs : Cases) : HashMap Decision (List CodeDecl) := Id.run do
-  let mut map := mkHashMap (cs.alts.size + 1)
+def initialNewArms (cs : Cases) : Std.HashMap Decision (List CodeDecl) := Id.run do
+  let mut map := Std.HashMap.emptyWithCapacity (cs.alts.size + 1)
   map := map.insert .dont []
   cs.alts.foldr (init := map) fun val acc => acc.insert (.ofAlt val) []
 
@@ -169,7 +171,7 @@ respectively but since `z` can't be moved we don't want that to move `x` and `y`
 -/
 def dontFloat (decl : CodeDecl) : FloatM Unit := do
   forFVarM goFVar decl
-  modify fun s => { s with newArms := s.newArms.insert .dont (decl :: s.newArms.find! .dont) }
+  modify fun s => { s with newArms := s.newArms.insert .dont (decl :: s.newArms[Decision.dont]!) }
 where
   goFVar (fvar : FVarId) : FloatM Unit := do
     if (← get).decision.contains fvar then
@@ -187,7 +189,7 @@ Will:
     | n => x * y
     | m => z
     ```
-    If we are at `y` `x` is alreayd marked to be floated into `n` as well.
+    If we are at `y` `x` is already marked to be floated into `n` as well.
   - if there hasn't be a decision yet, that is they are marked with `.unknown` we float
     them into the same arm as the current value:
     ```
@@ -211,7 +213,7 @@ Will:
     When we visit `a` `x` is now marked as getting moved into `n` but since it also occurs
     in `a` which wants to be moved somewhere else we will instead decide to not move `x`
     at all.
-  - if they are meant to be floated somewhere else decide that they wont get floated:
+  - if they are meant to be floated somewhere else decide that they won't get floated:
     ```
     let x := ...
     let y := x + z
@@ -222,23 +224,23 @@ Will:
     If we are at `y` `x` is still marked to be moved but we don't want that.
 -/
 def float (decl : CodeDecl) : FloatM Unit := do
-  let arm := (← get).decision.find! decl.fvarId
+  let arm := (← get).decision[decl.fvarId]!
   forFVarM (goFVar · arm) decl
-  modify fun s => { s with newArms := s.newArms.insert arm (decl :: s.newArms.find! arm) }
+  modify fun s => { s with newArms := s.newArms.insert arm (decl :: s.newArms[arm]!) }
 where
   goFVar (fvar : FVarId) (arm : Decision) : FloatM Unit := do
-    let some decision := (← get).decision.find? fvar | return ()
-    if decision != arm then
-      modify fun s => { s with decision := s.decision.insert fvar .dont }
-    else if decision == .unknown then
+    let some decision := (← get).decision[fvar]? | return ()
+    if decision == .unknown then
       modify fun s => { s with decision := s.decision.insert fvar arm }
+    else if decision != arm then
+      modify fun s => { s with decision := s.decision.insert fvar .dont }
 
 /--
-Iterate throgh `decl`, pushing local declarations that are only used in one
+Iterate through `decl`, pushing local declarations that are only used in one
 control flow arm into said arm in order to avoid useless computations.
 -/
 partial def floatLetIn (decl : Decl) : CompilerM Decl := do
-  let newValue ← go decl.value |>.run {}
+  let newValue ← decl.value.mapCodeM go |>.run {}
   return { decl with value := newValue }
 where
   /--
@@ -248,7 +250,7 @@ where
   -/
   goCases : FloatM Unit := do
     for decl in (← read).decls do
-      let currentDecision := (← get).decision.find! decl.fvarId
+      let currentDecision := (← get).decision[decl.fvarId]!
       if currentDecision == .unknown then
         /-
         If the decision is still unknown by now this means `decl` is
@@ -283,19 +285,18 @@ where
         newArms := initialNewArms cs
       }
       let (_, res) ← goCases |>.run base
-      let remainders := res.newArms.find! .dont
-      let altMapper alt := do
-        let decision := .ofAlt alt
-        let newCode := res.newArms.find! decision
+      let remainders := res.newArms[Decision.dont]!
+      let newAlts ← cs.alts.mapM fun alt => do
+        let decision := Decision.ofAlt alt
+        let newCode := res.newArms[decision]!
         trace[Compiler.floatLetIn] "Size of code that was pushed into arm: {repr decision} {newCode.length}"
         let fused ← withNewScope do
           go (attachCodeDecls newCode.toArray alt.getCode)
         return alt.updateCode fused
-      let newAlts ← cs.alts.mapM altMapper
       let mut newCases := Code.updateCases! code cs.resultType cs.discr newAlts
       return attachCodeDecls remainders.toArray newCases
     | .jmp .. | .return .. | .unreach .. =>
-    return attachCodeDecls (← read).decls.toArray.reverse code
+      return attachCodeDecls (← read).decls.toArray.reverse code
 
 end FloatLetIn
 

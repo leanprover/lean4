@@ -1,2 +1,4 @@
-448.lean:21:2-23:20: error: failed to synthesize instance
+448.lean:21:2-23:20: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   MonadExceptOf IO.Error M
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.

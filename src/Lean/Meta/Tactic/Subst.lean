@@ -3,14 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Meta.AppBuilder
-import Lean.Meta.MatchUtil
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Revert
-import Lean.Meta.Tactic.Assert
-import Lean.Meta.Tactic.Intro
-import Lean.Meta.Tactic.Clear
-import Lean.Meta.Tactic.FVarSubst
+module
+
+prelude
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.MatchUtil
+public import Lean.Meta.Tactic.Assert
+
+public section
 
 namespace Lean.Meta
 
@@ -52,9 +52,9 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
           if clearH then
             let mvarId ← mvarId.clear hFVarId
             let mvarId ← mvarId.clear aFVarId
-            pure ({}, mvarId)
+            pure (fvarSubst, mvarId)
           else
-            pure ({}, mvarId)
+            pure (fvarSubst, mvarId)
         else
           mvarId.withContext do
             let mvarDecl   ← mvarId.getDecl
@@ -79,9 +79,9 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
                   pure mvarId
                 let (newFVars, mvarId) ← mvarId.introNP (vars.size - 2)
                 trace[Meta.Tactic.subst] "after intro rest {vars.size - 2} {MessageData.ofGoal mvarId}"
-                let fvarSubst ← newFVars.size.foldM (init := fvarSubst) fun i (fvarSubst : FVarSubst) =>
+                let fvarSubst ← newFVars.size.foldM (init := fvarSubst) fun i _ (fvarSubst : FVarSubst) =>
                     let var     := vars[i+2]!
-                    let newFVar := newFVars[i]!
+                    let newFVar := newFVars[i]
                     pure $ fvarSubst.insert var (mkFVar newFVar)
                 let fvarSubst := fvarSubst.insert aFVarIdOriginal (if clearH then b else mkFVar aFVarId)
                 let fvarSubst := fvarSubst.insert hFVarIdOriginal (mkFVar hFVarId)
@@ -116,7 +116,7 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
           m!"invalid equality proof, it is not of the form {eqMsg}{indentExpr hLocalDecl.type}\nafter WHNF, variable expected, but obtained{indentExpr a}"
 
 /--
-  Given `h : HEq α a α b` in the given goal, produce a new goal where `h : Eq α a b`.
+  Given `h : @HEq α a α b` in the given goal, produce a new goal where `h : @Eq α a b`.
   If `h` is not of the give form, then just return `(h, mvarId)`
 -/
 def heqToEq (mvarId : MVarId) (fvarId : FVarId) (tryToClear : Bool := true) : MetaM (FVarId × MVarId) :=
@@ -137,50 +137,15 @@ def heqToEq (mvarId : MVarId) (fvarId : FVarId) (tryToClear : Bool := true) : Me
      else
        return (fvarId, mvarId)
 
-partial def subst (mvarId : MVarId) (h : FVarId) : MetaM MVarId :=
+/--
+Given `x`, try to find an equation of the form `heq : x = rhs` or `heq : lhs = x`,
+and runs `substCore` on it. Throws an exception if no such equation is found.
+-/
+partial def substVar (mvarId : MVarId) (x : FVarId) : MetaM MVarId :=
   mvarId.withContext do
-    let type ← h.getType
-    match (← matchEq? type) with
-    | some _ => substEq mvarId h
-    | none => match (← matchHEq? type) with
-      | some _ =>
-        let (h', mvarId') ← heqToEq mvarId h
-        if mvarId == mvarId' then
-          findEq mvarId h
-        else
-          subst mvarId' h'
-      | none => findEq mvarId h
-where
-  /-- Give `h : Eq α a b`, try to apply `substCore` -/
-  substEq (mvarId : MVarId) (h : FVarId) : MetaM MVarId := mvarId.withContext do
-    let localDecl ← h.getDecl
-    let some (_, lhs, rhs) ← matchEq? localDecl.type | unreachable!
-    let substReduced (newType : Expr) (symm : Bool) : MetaM MVarId := do
-      let mvarId ← mvarId.assert localDecl.userName newType (mkFVar h)
-      let (hFVarId', mvarId) ← mvarId.intro1P
-      let mvarId ← mvarId.clear h
-      return (← substCore mvarId hFVarId' (symm := symm) (tryToSkip := true)).2
-    let rhs' ← whnf rhs
-    if rhs'.isFVar then
-      if rhs != rhs' then
-        substReduced (← mkEq lhs rhs') true
-      else
-        return (← substCore mvarId h (symm := true) (tryToSkip := true)).2
-    else do
-      let lhs' ← whnf lhs
-      if lhs'.isFVar then
-        if lhs != lhs' then
-          substReduced (← mkEq lhs' rhs) false
-        else
-          return (← substCore mvarId h (symm := false) (tryToSkip := true)).2
-      else do
-        throwTacticEx `subst mvarId m!"invalid equality proof, it is not of the form (x = t) or (t = x){indentExpr localDecl.type}"
-
-  /-- Try to find an equation of the form `heq : h = rhs` or `heq : lhs = h` -/
-  findEq (mvarId : MVarId) (h : FVarId) : MetaM MVarId := mvarId.withContext do
-    let localDecl ← h.getDecl
+    let localDecl ← x.getDecl
     if localDecl.isLet then
-      throwTacticEx `subst mvarId m!"variable '{mkFVar h}' is a let-declaration"
+      throwTacticEx `subst mvarId m!"variable '{mkFVar x}' is a let-declaration"
     let lctx ← getLCtx
     let some (fvarId, symm) ← lctx.findDeclM? fun localDecl => do
        if localDecl.isImplementationDetail then
@@ -190,16 +155,69 @@ where
          | some (_, lhs, rhs) =>
            let lhs ← instantiateMVars lhs
            let rhs ← instantiateMVars rhs
-           if rhs.isFVar && rhs.fvarId! == h then
-             if !(← exprDependsOn lhs h) then
+           if rhs.isFVar && rhs.fvarId! == x then
+             if !(← exprDependsOn lhs x) then
                return some (localDecl.fvarId, true)
-           if lhs.isFVar && lhs.fvarId! == h then
-             if !(← exprDependsOn rhs h) then
+           if lhs.isFVar && lhs.fvarId! == x then
+             if !(← exprDependsOn rhs x) then
                return some (localDecl.fvarId, false)
            return none
          | _ => return none
-      | throwTacticEx `subst mvarId m!"did not find equation for eliminating '{mkFVar h}'"
+      | throwTacticEx `subst mvarId m!"did not find equation for eliminating '{mkFVar x}'"
     return (← substCore mvarId fvarId (symm := symm) (tryToSkip := true)).2
+
+/--
+If `hFVarId` is an `Eq` (or a `HEq` that can be turned into an `Eq`) with a free variable
+on the LHS or RHS, eliminates the variable by substitution.
+-/
+def substEq (mvarId : MVarId) (hFVarId : FVarId)
+    (fvarSubst : FVarSubst := {}) : MetaM (FVarSubst × MVarId) := do
+  let (hFVarId, mvarId) ← heqToEq mvarId hFVarId
+  mvarId.withContext do
+    let localDecl ← hFVarId.getDecl
+    let error {α} _ : MetaM α := throwTacticEx `subst mvarId
+      m!"invalid equality proof, it is not of the form (x = t) or (t = x){indentExpr localDecl.type}"
+    let some (_, lhs, rhs) ← matchEq? localDecl.type | error ()
+    let substReduced (newType : Expr) (symm : Bool) : MetaM (FVarSubst × MVarId) := do
+      let mvarId ← mvarId.assert localDecl.userName newType (mkFVar hFVarId)
+      let (hFVarId', mvarId) ← mvarId.intro1P
+      let mvarId ← mvarId.clear hFVarId
+      substCore mvarId hFVarId' (symm := symm) (tryToSkip := true) (fvarSubst := fvarSubst)
+    let rhs' ← whnf rhs
+    if rhs'.isFVar then
+      if rhs != rhs' then
+        substReduced (← mkEq lhs rhs') true
+      else
+        substCore mvarId hFVarId (symm := true) (tryToSkip := true) (fvarSubst := fvarSubst)
+    else
+      let lhs' ← whnf lhs
+      if lhs'.isFVar then
+        if lhs != lhs' then
+          substReduced (← mkEq lhs' rhs) false
+        else
+          substCore mvarId hFVarId (symm := false) (tryToSkip := true) (fvarSubst := fvarSubst)
+      else error ()
+
+partial def subst (mvarId : MVarId) (h : FVarId) : MetaM MVarId :=
+  mvarId.withContext do
+    let type ← h.getType
+    match (← matchEq? type) with
+    | some _ => return (← substEq mvarId h).2
+    | none => match (← matchHEq? type) with
+      | some _ =>
+        let (h', mvarId') ← heqToEq mvarId h
+        if mvarId == mvarId' then
+          substVar mvarId h
+        else
+          subst mvarId' h'
+      | none => substVar mvarId h
+
+/--
+Given `x`, try to find an equation of the form `heq : x = rhs` or `heq : lhs = x`,
+and runs `substCore` on it. Returns `none` if no such equation is found, or if `substCore` fails.
+-/
+def substVar? (mvarId : MVarId) (hFVarId : FVarId) : MetaM (Option MVarId) :=
+  observing? (substVar mvarId hFVarId)
 
 def subst? (mvarId : MVarId) (hFVarId : FVarId) : MetaM (Option MVarId) :=
   observing? (subst mvarId hFVarId)
@@ -207,10 +225,11 @@ def subst? (mvarId : MVarId) (hFVarId : FVarId) : MetaM (Option MVarId) :=
 def substCore? (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : FVarSubst := {}) (clearH := true) (tryToSkip := false) : MetaM (Option (FVarSubst × MVarId)) :=
   observing? (substCore mvarId hFVarId symm fvarSubst clearH tryToSkip)
 
+def trySubstVar (mvarId : MVarId) (hFVarId : FVarId) : MetaM MVarId := do
+  return (← substVar? mvarId hFVarId).getD mvarId
+
 def trySubst (mvarId : MVarId) (hFVarId : FVarId) : MetaM MVarId := do
-  match (← subst? mvarId hFVarId) with
-  | some mvarId => return mvarId
-  | none => return mvarId
+  return (← subst? mvarId hFVarId).getD mvarId
 
 def substSomeVar? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContext do
   for localDecl in (← getLCtx) do

@@ -9,7 +9,7 @@ inductive R : FoldImpl α β → FoldImpl α β → Prop where
 
 #print R
 
-#check @R.intro
+#check R.intro
 -- @R.intro : ∀ {α β γ γ' : Type u_1} {x₀ : γ} {y₀ : γ'} {f : γ → α → γ} {g : γ' → α → γ'} {out : γ → β} {out' : γ' → β},
 --   R { γ := γ, x₀ := x₀, f := f, out := out } { γ := γ', x₀ := y₀, f := g, out := out' }
 

@@ -1,1 +1,1 @@
-test : Type
+test {α : Type} [LT α] : Type

@@ -1,0 +1,6 @@
+funind_reserved.lean:18:4-18:7: error: failed to declare `Structural.foo` because `Structural.foo.induct` has already been declared
+funind_reserved.lean:28:4-28:7: error: failed to declare `WF.foo` because `WF.foo.induct` has already been declared
+funind_reserved.lean:40:4-40:7: error: failed to declare `Mutual1.foo` because `Mutual1.foo.induct` has already been declared
+funind_reserved.lean:63:4-63:7: error: failed to declare `Mutual2.bar` because `Mutual2.bar.induct` has already been declared
+funind_reserved.lean:76:4-76:7: error: failed to declare `Mutual3.foo` because `Mutual3.foo.mutual_induct` has already been declared
+funind_reserved.lean:91:4-91:7: error: failed to declare `Nested.foo` because `Nested.foo.induct` has already been declared

@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://macroGoalIssue.lean"},
+{"textDocument": {"uri": "file:///macroGoalIssue.lean"},
  "position": {"line": 2, "character": 2}}
 {"rendered": "```lean\nn : Nat\nthis : n = 0 + n\n⊢ True\n```",
  "goals": ["n : Nat\nthis : n = 0 + n\n⊢ True"]}

@@ -3,14 +3,15 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Meta.Instances
-import Lean.Compiler.InlineAttrs
-import Lean.Compiler.LCNF.Closure
-import Lean.Compiler.LCNF.Types
-import Lean.Compiler.LCNF.MonadScope
-import Lean.Compiler.LCNF.Internalize
-import Lean.Compiler.LCNF.Level
-import Lean.Compiler.LCNF.AuxDeclCache
+module
+
+prelude
+public import Lean.Compiler.LCNF.Closure
+public import Lean.Compiler.LCNF.MonadScope
+public import Lean.Compiler.LCNF.Level
+public import Lean.Compiler.LCNF.AuxDeclCache
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace LambdaLifting
@@ -39,6 +40,10 @@ structure Context where
   We use this feature to implement `@[inline] instance ...` and `@[always_inline] instance ...`
   -/
   minSize : Nat := 0
+  /--
+  Allow for eta contraction instead of lifting to a lambda if possible.
+  -/
+  allowEtaContraction : Bool := true
 
 
 /-- State for the `LiftM` monad. -/
@@ -80,6 +85,13 @@ partial def mkAuxDeclName : LiftM Name := do
   if (← getDecl? nameNew).isNone then return nameNew
   mkAuxDeclName
 
+def replaceFunDecl (decl : FunDecl) (value : LetValue) : LiftM LetDecl := do
+  /- We reuse `decl`s `fvarId` to avoid substitution -/
+  let declNew := { fvarId := decl.fvarId, binderName := decl.binderName, type := decl.type, value }
+  modifyLCtx fun lctx => lctx.addLetDecl declNew
+  eraseFunDecl decl
+  return declNew
+
 open Internalize in
 /--
 Create a new auxiliary declaration. The array `closure` contains all free variables
@@ -87,7 +99,7 @@ occurring in `decl`.
 -/
 def mkAuxDecl (closure : Array Param) (decl : FunDecl) : LiftM LetDecl := do
   let nameNew ← mkAuxDeclName
-  let inlineAttr? := if (← read).inheritInlineAttrs then (← read).mainDecl.inlineAttr? else none
+  let inlineAttr? ← if (← read).inheritInlineAttrs then pure (← read).mainDecl.inlineAttr? else pure none
   let auxDecl ← go nameNew (← read).mainDecl.safe inlineAttr? |>.run' {}
   let us := auxDecl.levelParams.map mkLevelParam
   let auxDeclName ← match (← cacheAuxDecl auxDecl) with
@@ -98,20 +110,31 @@ def mkAuxDecl (closure : Array Param) (decl : FunDecl) : LiftM LetDecl := do
   | .alreadyCached declName =>
     auxDecl.erase
     pure declName
-  let value := mkAppN (.const auxDeclName us) (closure.map (mkFVar ·.fvarId))
-  /- We reuse `decl`s `fvarId` to avoid substitution -/
-  let declNew := { fvarId := decl.fvarId, binderName := decl.binderName, type := decl.type, value }
-  modifyLCtx fun lctx => lctx.addLetDecl declNew
-  eraseFunDecl decl
-  return declNew
+  let value := .const auxDeclName us (closure.map (.fvar ·.fvarId))
+  replaceFunDecl decl value
 where
   go (nameNew : Name) (safe : Bool) (inlineAttr? : Option InlineAttributeKind) : InternalizeM Decl := do
     let params := (← closure.mapM internalizeParam) ++ (← decl.params.mapM internalizeParam)
-    let value ← internalizeCode decl.value
-    let type ← value.inferType
+    let code ← internalizeCode decl.value
+    let type ← code.inferType
     let type ← mkForallParams params type
+    let value := .code code
     let decl := { name := nameNew, levelParams := [], params, type, value, safe, inlineAttr?, recursive := false : Decl }
     return decl.setLevelParams
+
+def etaContractibleDecl? (decl : FunDecl) : LiftM (Option LetDecl) := do
+  if !(← read).allowEtaContraction then return none
+  let .let { fvarId := letVar, value := .const declName us args, .. } (.return retVar) := decl.value
+    | return none
+  if letVar != retVar then return none
+  if args.size != decl.params.size then return none
+  if (← getDecl? declName).isNone then return none
+  for arg in args, param in decl.params do
+    let .fvar argVar := arg | return none
+    if argVar != param.fvarId then return none
+
+  let value := .const declName us #[]
+  replaceFunDecl decl value
 
 mutual
   partial def visitFunDecl (funDecl : FunDecl) : LiftM FunDecl := do
@@ -126,9 +149,13 @@ mutual
     | .fun decl k =>
       let decl ← visitFunDecl decl
       if (← shouldLift decl) then
-        let scope ← getScope
-        let (_, params, _) ← Closure.run (inScope := scope.contains) <| Closure.collectFunDecl decl
-        let declNew ← mkAuxDecl params decl
+        let declNew ← do
+          if let some letDecl ← etaContractibleDecl? decl then
+            pure letDecl
+          else
+            let scope ← getScope
+            let (_, params, _) ← Closure.run (inScope := scope.contains) <| Closure.collectFunDecl decl
+            mkAuxDecl params decl
         let k ← withFVar declNew.fvarId <| visitCode k
         return .let declNew k
       else
@@ -148,13 +175,22 @@ mutual
 end
 
 def main (decl : Decl) : LiftM Decl := do
-  let value ← withParams decl.params <| visitCode decl.value
+  let value ← withParams decl.params <| decl.value.mapCodeM visitCode
   return { decl with value }
 
 end LambdaLifting
 
-partial def Decl.lambdaLifting (decl : Decl) (liftInstParamOnly : Bool) (suffix : Name) (inheritInlineAttrs := false) (minSize := 0) : CompilerM (Array Decl) := do
-  let (decl, s) ← LambdaLifting.main decl |>.run { mainDecl := decl, liftInstParamOnly, suffix, inheritInlineAttrs, minSize } |>.run {} |>.run {}
+partial def Decl.lambdaLifting (decl : Decl) (liftInstParamOnly : Bool) (allowEtaContraction : Bool)
+    (suffix : Name) (inheritInlineAttrs := false) (minSize := 0) : CompilerM (Array Decl) := do
+  let ctx := {
+    mainDecl := decl,
+    liftInstParamOnly,
+    suffix,
+    inheritInlineAttrs,
+    minSize,
+    allowEtaContraction
+  }
+  let (decl, s) ← LambdaLifting.main decl |>.run ctx |>.run {} |>.run {}
   return s.decls.push decl
 
 /--
@@ -164,34 +200,27 @@ def lambdaLifting : Pass where
   phase      := .mono
   name       := `lambdaLifting
   run        := fun decls => do
-    decls.foldlM (init := #[]) fun decls decl => return decls ++ (← decl.lambdaLifting false (suffix := `_lam))
+    decls.foldlM (init := #[]) fun decls decl =>
+      return decls ++ (← decl.lambdaLifting false true (suffix := `_lam))
 
 /--
-During eager lambda lifting, we lift
-- All local function declarations from instances (motivation: make sure it is cheap to inline them later)
-- Local function declarations that take local instances as parameters (motivation: ensure they are specialized)
+During eager lambda lifting, we inspect declarations that are not inlineable or instances (doing it
+everywhere can accidentally introduce mutual recursion which the compiler cannot handle well at the
+moment). We then lift local function declarations that take local instances as parameters from
+their body to ensure they are specialized.
 -/
 def eagerLambdaLifting : Pass where
   phase      := .base
   name       := `eagerLambdaLifting
   run        := fun decls => do
     decls.foldlM (init := #[]) fun decls decl => do
-      if (← Meta.isInstance decl.name) then
-        /-
-        Recall that we lambda lift local functions in instances to control code blowup, and make sure they are cheap to inline.
-        It is not worth to lift tiny ones. TODO: evaluate whether we should add a compiler option to control the min size.
-
-        Recall that when performing eager lambda lifting in instances, we progatate the `[inline]` annotations to the new auxiliary functions.
-
-        Note: we have tried `if decl.inlineable then return decls.push decl`, but it didn't help in our preliminary experiments.
-        -/
-        return decls ++ (← decl.lambdaLifting (liftInstParamOnly := false) (suffix := `_elam) (inheritInlineAttrs := true) (minSize := 3))
+      if decl.inlineable || (← Meta.isInstance decl.name) then
+        return decls.push decl
       else
-        return decls ++ (← decl.lambdaLifting (liftInstParamOnly := true) (suffix := `_elam))
+        return decls ++ (← decl.lambdaLifting (liftInstParamOnly := true) (allowEtaContraction := false) (suffix := `_elam))
 
 builtin_initialize
   registerTraceClass `Compiler.eagerLambdaLifting (inherited := true)
   registerTraceClass `Compiler.lambdaLifting (inherited := true)
 
 end Lean.Compiler.LCNF
-

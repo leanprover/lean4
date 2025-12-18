@@ -40,6 +40,6 @@ theorem double.inj'' : double n = double m → n = m := by
       apply ih h
 
 theorem double.inj''' : double n = double m → n = m := by
-  simp (config := { maxDischargeDepth := 2 })
-  simp (config := { maxSteps := 2000000 })
+  fail_if_success simp (config := { maxDischargeDepth := 2 })
+  fail_if_success simp (config := { maxSteps := 2000000 })
   admit

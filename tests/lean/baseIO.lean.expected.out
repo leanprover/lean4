@@ -1,18 +1,12 @@
-[Compiler.saveBase] size: 13
-    def test a.1 : EStateM.Result Empty PUnit UInt32 :=
+[Compiler.saveBase] size: 9
+    def test a.1 : ST.Out lcAny UInt32 :=
       let _x.2 := 42;
-      let _x.3 := UInt32.ofNat _x.2;
-      let _x.4 := @ST.Prim.mkRef _ _ _x.3 a.1;
-      cases _x.4 : EStateM.Result Empty PUnit UInt32
-      | EStateM.Result.ok a.5 a.6 =>
-        let _x.7 := 10;
-        let _x.8 := UInt32.ofNat _x.7;
-        let _x.9 := @ST.Prim.Ref.set _ _ a.5 _x.8 a.6;
-        cases _x.9 : EStateM.Result Empty PUnit UInt32
-        | EStateM.Result.ok a.10 a.11 =>
-          let _x.12 := @ST.Prim.Ref.get _ _ a.5 a.11;
-          return _x.12
-        | EStateM.Result.error a.13 a.14 =>
-          ⊥
-      | EStateM.Result.error a.15 a.16 =>
-        ⊥
+      let _x.3 := @ST.Prim.mkRef _ _ _x.2 a.1;
+      cases _x.3 : ST.Out lcAny UInt32
+      | ST.Out.mk val.4 state.5 =>
+        let _x.6 := 10;
+        let _x.7 := @ST.Prim.Ref.set _ _ val.4 _x.6 state.5;
+        cases _x.7 : ST.Out lcAny UInt32
+        | ST.Out.mk val.8 state.9 =>
+          let _x.10 := @ST.Prim.Ref.get _ _ val.4 state.9;
+          return _x.10

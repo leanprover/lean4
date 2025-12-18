@@ -1,0 +1,6 @@
+do
+  let a ← liftM m
+  pure a.val : ReaderT Int IO Nat
+do
+  let a ← m
+  pure a.val : EIO IO.Error Nat

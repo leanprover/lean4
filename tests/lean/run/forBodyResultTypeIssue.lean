@@ -5,7 +5,12 @@ for x in xs do
   if x == 0 then
     throw "contains zero"
 
+/-- info: Except.ok () -/
+#guard_msgs in
 #eval f [1, 2, 3] |>.run' 0
+
+/-- info: Except.error "contains zero" -/
+#guard_msgs in
 #eval f [1, 0, 3] |>.run' 0
 
 theorem ex1 : (f [1, 2, 3] |>.run' 0) = Except.ok () :=
@@ -30,4 +35,6 @@ for x in xs do
   let a ← idM a
   checkEq x a
 
+/-- info: Except.error (ULift.up "2 is not equal to 1") -/
+#guard_msgs in
 #eval g [1, (2:Nat), 3] 1 |>.run

@@ -11,6 +11,8 @@ There are two primary attributes for interoperating with other languages:
   It can also be used with `def` to provide an internal definition, but ensuring consistency of both definitions is up to the user.
 * `@[export sym] def leanSym : ...` exports `leanSym` under the unmangled symbol name `sym`.
 
+For simple examples of how to call foreign code from Lean and vice versa, see <https://github.com/leanprover/lean4/blob/master/src/lake/examples/ffi> and <https://github.com/leanprover/lean4/blob/master/src/lake/examples/reverse-ffi>, respectively.
+
 ## The Lean ABI
 
 The Lean Application Binary Interface (ABI) describes how the signature of a Lean declaration is encoded as a native calling convention.
@@ -47,13 +49,63 @@ In the case of `@[extern]` all *irrelevant* types are removed first; see next se
   is represented by the representation of that parameter's type.
 
   For example, `{ x : α // p }`, the `Subtype` structure of a value of type `α` and an irrelevant proof, is represented by the representation of `α`.
-* `Nat` is represented by `lean_object *`.
-  Its runtime value is either a pointer to an opaque bignum object or, if the lowest bit of the "pointer" is 1 (`lean_is_scalar`), an encoded unboxed natural number (`lean_box`/`lean_unbox`).
-* A universe `Sort u`, type constructor `... → Sort u`, or proposition `p : Prop` is *irrelevant* and is either statically erased (see above) or represented as a `lean_object *` with the runtime value `lean_box(0)`
+  Similarly, the signed integer types `Int8`, ..., `Int64`, `ISize` are also represented by the unsigned C types `uint8_t`, ..., `uint64_t`, `size_t`, respectively, because they have a trivial structure.
+* `Nat` and `Int` are represented by `lean_object *`.
+  Their runtime values is either a pointer to an opaque bignum object or, if the lowest bit of the "pointer" is 1 (`lean_is_scalar`), an encoded unboxed natural number or integer (`lean_box`/`lean_unbox`).
+* A universe `Sort u`, type constructor `... → Sort u`, `Void α` or proposition `p : Prop` is *irrelevant* and is either statically erased (see above) or represented as a `lean_object *` with the runtime value `lean_box(0)`
 * Any other type is represented by `lean_object *`.
-  Its runtime value is a pointer to an object of a subtype of `lean_object` (see respective declarations in `lean.h`) or the unboxed value `lean_box(cidx)` for the `cidx`th constructor of an inductive type if this constructor does not have any relevant parameters.
+  Its runtime value is a pointer to an object of a subtype of `lean_object` (see the "Inductive types" section below) or the unboxed value `lean_box(cidx)` for the `cidx`th constructor of an inductive type if this constructor does not have any relevant parameters.
 
   Example: the runtime value of `u : Unit` is always `lean_box(0)`.
+
+#### Inductive types
+
+For inductive types which are in the fallback `lean_object *` case above and not trivial constructors, the type is stored as a `lean_ctor_object`, and `lean_is_ctor` will return true. A `lean_ctor_object` stores the constructor index in the header, and the fields are stored in the `m_objs` portion of the object.
+
+The memory order of the fields is derived from the types and order of the fields in the declaration. They are ordered as follows:
+
+* Non-scalar fields stored as `lean_object *`
+* Fields of type `USize`
+* Other scalar fields, in decreasing order by size
+
+Within each group the fields are ordered in declaration order. Trivial wrapper types count as their underlying wrapped type for this purpose.
+
+* To access fields of the first kind, use `lean_ctor_get(val, i)` to get the `i`th non-scalar field.
+* To access `USize` fields, use `lean_ctor_get_usize(val, n+i)` to get the `i`th usize field and `n` is the total number of fields of the first kind.
+* To access other scalar fields, use `lean_ctor_get_uintN(val, off)` or `lean_ctor_get_usize(val, off)` as appropriate. Here `off` is the byte offset of the field in the structure, starting at `n*sizeof(void*)` where `n` is the number of fields of the first two kinds.
+
+For example, a structure such as
+```lean
+structure S where
+  ptr_1 : Array Nat
+  usize_1 : USize
+  sc64_1 : UInt64
+  sc64_2 : { x : UInt64 // x > 0 } -- wrappers of scalars count as scalars
+  sc64_3 : Float -- `Float` is 64 bit
+  sc8_1 : Bool
+  sc16_1 : UInt16
+  sc8_2 : UInt8
+  sc64_4 : UInt64
+  usize_2 : USize
+  sc32_1 : Char -- trivial wrapper around `UInt32`
+  sc32_2 : UInt32
+  sc16_2 : UInt16
+```
+would get re-sorted into the following memory order:
+
+* `S.ptr_1` - `lean_ctor_get(val, 0)`
+* `S.usize_1` - `lean_ctor_get_usize(val, 1)`
+* `S.usize_2` - `lean_ctor_get_usize(val, 2)`
+* `S.sc64_1` - `lean_ctor_get_uint64(val, sizeof(void*)*3)`
+* `S.sc64_2` - `lean_ctor_get_uint64(val, sizeof(void*)*3 + 8)`
+* `S.sc64_3` - `lean_ctor_get_float(val, sizeof(void*)*3 + 16)`
+* `S.sc64_4` - `lean_ctor_get_uint64(val, sizeof(void*)*3 + 24)`
+* `S.sc32_1` - `lean_ctor_get_uint32(val, sizeof(void*)*3 + 32)`
+* `S.sc32_2` - `lean_ctor_get_uint32(val, sizeof(void*)*3 + 36)`
+* `S.sc16_1` - `lean_ctor_get_uint16(val, sizeof(void*)*3 + 40)`
+* `S.sc16_2` - `lean_ctor_get_uint16(val, sizeof(void*)*3 + 42)`
+* `S.sc8_1` - `lean_ctor_get_uint8(val, sizeof(void*)*3 + 44)`
+* `S.sc8_2` - `lean_ctor_get_uint8(val, sizeof(void*)*3 + 45)`
 
 ### Borrowing
 
@@ -77,23 +129,29 @@ For all other modules imported by `lean`, the initializer is run without `builti
 Thus `[init]` functions are run iff their module is imported, regardless of whether they have native code available or not, while `[builtin_init]` functions are only run for native executable or plugins, regardless of whether their module is imported or not.
 `lean` uses built-in initializers for e.g. registering basic parsers that should be available even without importing their module (which is necessary for bootstrapping).
 
-The initializer for module `A.B` is called `initialize_A_B` and will automatically initialize any imported modules.
-Module initializers are idempotent (when run with the same `builtin` flag), but not thread-safe.
+The initializer for module `A.B` in a package `foo` is called `initialize_foo_A_B`. For modules in the Lean core (e.g., `Init.Prelude`), the initializer is called `initialize_Init_Prelude`. Module initializers will automatically initialize any imported modules. They are also idempotent (when run with the same `builtin` flag), but not thread-safe.
+
+**Important for process-related functionality**: If your application needs to use process-related functions from libuv, such as `Std.Internal.IO.Process.getProcessTitle` and `Std.Internal.IO.Process.setProcessTitle`, you must call `lean_setup_args(argc, argv)` (which returns a potentially modified `argv` that must be used in place of the original) **before** calling `lean_initialize()` or `lean_initialize_runtime_module()`. This sets up process handling capabilities correctly, which is essential for certain system-level operations that Lean's runtime may depend on.
+
 Together with initialization of the Lean runtime, you should execute code like the following exactly once before accessing any Lean declarations:
+
 ```c
 void lean_initialize_runtime_module();
 void lean_initialize();
-lean_object * initialize_A_B(uint8_t builtin, lean_object *);
-lean_object * initialize_C(uint8_t builtin, lean_object *);
+char ** lean_setup_args(int argc, char ** argv);
+
+lean_object * initialize_A_B(uint8_t builtin);
+lean_object * initialize_C(uint8_t builtin);
 ...
 
+argv = lean_setup_args(argc, argv); // if using process-related functionality
 lean_initialize_runtime_module();
-//lean_initialize();  // necessary if you (indirectly) access the `Lean` package
+//lean_initialize();  // necessary (and replaces `lean_initialize_runtime_module`) if you (indirectly) access the `Lean` package
 
 lean_object * res;
 // use same default as for Lean executables
 uint8_t builtin = 1;
-res = initialize_A_B(builtin, lean_io_mk_world());
+res = initialize_A_B(builtin);
 if (lean_io_result_is_ok(res)) {
     lean_dec_ref(res);
 } else {
@@ -101,12 +159,21 @@ if (lean_io_result_is_ok(res)) {
     lean_dec(res);
     return ...;  // do not access Lean declarations if initialization failed
 }
-res = initialize_C(builtin, lean_io_mk_world());
+res = initialize_C(builtin);
 if (lean_io_result_is_ok(res)) {
 ...
 
 //lean_init_task_manager();  // necessary if you (indirectly) use `Task`
 lean_io_mark_end_initialization();
+```
+
+In addition, any other thread not spawned by the Lean runtime itself must be initialized for Lean use by calling
+```c
+void lean_initialize_thread();
+```
+and should be finalized in order to free all thread-local resources by calling
+```c
+void lean_finalize_thread();
 ```
 
 ## `@[extern]` in the Interpreter
@@ -119,4 +186,4 @@ Thus to e.g. run `#eval` on such a declaration, you need to
 Note that it is not sufficient to load the foreign library containing the external symbol because the interpreter depends on code that is emitted for each `@[extern]` declaration.
 Thus it is not possible to interpret an `@[extern]` declaration in the same file.
 
-See `tests/compiler/foreign` for an example.
+See [`tests/compiler/foreign`](https://github.com/leanprover/lean4/tree/master/tests/compiler/foreign/) for an example.

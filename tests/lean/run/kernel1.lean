@@ -14,7 +14,12 @@ def a1 := 100 + 100
 def a2 := 200
 def a3 := 20
 
+/-- info: a1 =?= a2 := true -/
+#guard_msgs in
 #eval checkDefEq `a1 `a2
+
+/-- info: a1 =?= a3 := false -/
+#guard_msgs in
 #eval checkDefEq `a1 `a3
 
 def v1 := 100000000000 + 100000000000
@@ -29,9 +34,22 @@ def c3 := reduceNat v3
 def c4 := reduceBool v4
 def c5 := reduceNat v5
 
+/-- info: c1 =?= c2 := true -/
+#guard_msgs in
 #eval checkDefEq `c1 `c2
+
+/-- info: c1 =?= c3 := false -/
+#guard_msgs in
 #eval checkDefEq `c1 `c3
+
+/-- info: c5 =?= Nat.zero := true -/
+#guard_msgs in
 #eval checkDefEq `c5 `Nat.zero
+
+/-- info: Nat.zero =?= c5 := true -/
+#guard_msgs in
 #eval checkDefEq `Nat.zero `c5
 
+/-- info: c4 =?= Bool.true := false -/
+#guard_msgs in
 #eval checkDefEq `c4 `Bool.true

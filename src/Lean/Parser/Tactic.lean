@@ -3,7 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
-import Lean.Parser.Term
+module
+
+prelude
+public import Lean.Parser.Term
+public import Lean.Parser.Tactic.Doc
+public import Std.Tactic.Do.Syntax
+
+public section
 
 namespace Lean
 namespace Parser
@@ -11,6 +18,7 @@ namespace Tactic
 
 builtin_initialize
   register_parser_alias tacticSeq
+  register_parser_alias tacticSeqIndentGt
 
 /- This is a fallback tactic parser for any identifier which exists only
 to improve syntax error messages.
@@ -37,7 +45,7 @@ example (n : Nat) : n = n := by
   | i+1 => simp
 ```
 
-[tpil4]: https://leanprover.github.io/theorem_proving_in_lean4/induction_and_recursion.html
+[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html
 -/
 @[builtin_tactic_parser] def «match» := leading_parser:leadPrec
   "match " >> optional Term.generalizingParam >>
@@ -62,34 +70,10 @@ That is, `intro` can be followed by match arms and it introduces the values whil
 doing a pattern match. This is equivalent to `fun` with match arms in term mode.
 -/
 @[builtin_tactic_parser] def introMatch := leading_parser
-  nonReservedSymbol "intro " >> matchAlts
+  nonReservedSymbol "intro" >> matchAlts
 
-/-- `decide` will attempt to prove a goal of type `p` by synthesizing an instance
-of `Decidable p` and then evaluating it to `isTrue ..`. Because this uses kernel
-computation to evaluate the term, it may not work in the presence of definitions
-by well founded recursion, since this requires reducing proofs.
-```
-example : 2 + 2 ≠ 5 := by decide
-```
--/
-@[builtin_tactic_parser] def decide := leading_parser
-  nonReservedSymbol "decide"
-
-/-- `native_decide` will attempt to prove a goal of type `p` by synthesizing an instance
-of `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this
-uses `#eval` to evaluate the decidability instance.
-
-This should be used with care because it adds the entire lean compiler to the trusted
-part, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using
-this method or anything that transitively depends on them. Nevertheless, because it is
-compiled, this can be significantly more efficient than using `decide`, and for very
-large computations this is one way to run external programs and trust the result.
-```
-example : (List.range 1000).length = 1000 := by native_decide
-```
--/
-@[builtin_tactic_parser] def nativeDecide := leading_parser
-  nonReservedSymbol "native_decide"
+builtin_initialize
+  register_parser_alias "matchRhsTacticSeq" matchRhs
 
 end Tactic
 end Parser

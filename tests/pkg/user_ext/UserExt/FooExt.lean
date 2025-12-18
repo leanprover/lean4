@@ -21,5 +21,5 @@ open Lean.Elab.Command
   IO.println s!"inserting {stx[1].getId}"
   modifyEnv fun env => fooExtension.addEntry env stx[1].getId
 
-@[command_elab showFoo] def elabShowFoo : CommandElab := fun stx => do
-  IO.println s!"foo set: {fooExtension.getState (← getEnv) |>.toList}"
+@[command_elab showFoo] def elabShowFoo : CommandElab := fun _ => do
+  IO.println s!"foo set: {fooExtension.getState (← getEnv) |>.toArray |>.qsort Name.lt}"

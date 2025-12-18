@@ -1,0 +1,10 @@
+name = "bar"
+precompileModules = false
+defaultTargets = ["Bar"]
+
+[[require]]
+name = "foo"
+path = "../foo"
+
+[[lean_lib]]
+name = "Bar"

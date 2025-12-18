@@ -11,3 +11,10 @@ example (p q r s: Prop) (h1: p -> s) (h2: q -> s) (h3: r -> s)
   (try (apply h.elim <;> intro h)) <;>
   revert h <;> assumption;
 }
+
+/-!
+Verify that `withoutRecover` is not necessary for `apply`.
+This is because `first` enables it itself.
+-/
+example (p : Prop) (h : p) : p := by
+  first | apply bogusTerm | assumption

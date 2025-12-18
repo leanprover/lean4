@@ -9,24 +9,8 @@ class Add (α : Type u) where
   add : α → α → α
 -/
 
-class Inv (α : Type u) where
-    inv : α → α
-
-postfix:max "⁻¹" => Inv.inv
-
-class One (α : Type u) where
-    one : α
 export One (one)
-
-instance [One α] : OfNat α (nat_lit 1) where
-    ofNat := one
-
-class Zero (α : Type u) where
-    zero : α
 export Zero (zero)
-
-instance [Zero α] : OfNat α (nat_lit 0) where
-    ofNat := zero
 
 class MulComm (α : Type u) [Mul α] : Prop where
     mulComm : {a b : α} → a * b = b * a
@@ -232,7 +216,7 @@ unsafe def Expr.dagSizeUnsafe (e : Expr) : IO Nat := do
   let (_, s) ← visit e |>.run ({}, 0)
   return s.2
 where
-  visit (e : Expr) : StateRefT (HashSet USize × Nat) IO Unit := do
+  visit (e : Expr) : StateRefT (Std.HashSet USize × Nat) IO Unit := do
     let addr := ptrAddrUnsafe e
     unless (← get).1.contains addr do
       modify fun (s, c) => (s.insert addr, c+1)
@@ -256,11 +240,17 @@ def getDeclTypeValueDagSize (declName : Name) : CoreM Nat := do
   | some v => return n + (← v.dagSize)
 
 #eval getDeclTypeValueDagSize `test2
+
 #eval getDeclTypeValueDagSize `test3
+
 #eval getDeclTypeValueDagSize `test4
+
 #eval getDeclTypeValueDagSize `test5
+
 #eval getDeclTypeValueDagSize `test6
+
 #eval getDeclTypeValueDagSize `test7
+
 #eval getDeclTypeValueDagSize `test8
 
 def reduceAndGetDagSize (declName : Name) : MetaM Nat := do
@@ -270,12 +260,19 @@ def reduceAndGetDagSize (declName : Name) : MetaM Nat := do
   e.dagSize
 
 #eval reduceAndGetDagSize `test1
+
 #eval reduceAndGetDagSize `test2
+
 #eval reduceAndGetDagSize `test3
+
 #eval reduceAndGetDagSize `test4
+
 #eval reduceAndGetDagSize `test5
+
 #eval reduceAndGetDagSize `test6
+
 #eval reduceAndGetDagSize `test7
+
 -- Use `set_option` to trace the reduced term
 set_option pp.all true in
 set_option trace.Meta.debug true in

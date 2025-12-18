@@ -18,7 +18,6 @@ instance Ring.toSemiring [instR : Ring α] : Semiring α := { add := instR.add }
 instance NormedField.toRing [instNF : NormedField α] : Ring α := { add := instNF.add }
 
 
--- @[infer_tc_goals_rl]
 instance SemiNormedSpace.toModule [NormedField α] [SemiNormedGroup β] [SemiNormedSpace α β] : Module α β := {}
 
 opaque R : Type := Unit
@@ -29,4 +28,6 @@ instance R.Ring : Ring R := { add := foo }
 
 variable {E : Type} [instSNG : SemiNormedGroup E] [instSNS : SemiNormedSpace R E]
 
+/-- info: SemiNormedSpace.toModule -/
+#guard_msgs in
 #synth Module R E

@@ -1,0 +1,2 @@
+partial_fixpoint_parseerrors.lean:6:0: error: expected indented monotonicity proof
+partial_fixpoint_parseerrors.lean:10:0-10:12: error: unexpected identifier; expected command

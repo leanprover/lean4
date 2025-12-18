@@ -5,7 +5,7 @@ def foo (array : Array Nat) : Nat -> Nat
     if array.isEmpty then
       0
     else
-      let arrayOfLast := #[array.back]
+      let arrayOfLast := #[array.back!]
       foo arrayOfLast n
 
 def main : IO Unit :=

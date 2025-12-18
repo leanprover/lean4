@@ -191,8 +191,9 @@ struct print_expr_fn {
     }
 
     void print_let(expr const & e) {
+        out() << (let_nondep(e) ? "have " : "let ");
         auto p = let_body_fresh(e);
-        out() << "let " << p.second << " : ";
+        out() << p.second << " : ";
         print(let_type(e));
         out() << " := ";
         print(let_value(e));
@@ -207,11 +208,8 @@ struct print_expr_fn {
             out() << ".{";
             bool first = true;
             for (auto l : ls) {
-                if (first) first = false; else out() << " ";
-                if (is_max(l) || is_imax(l))
-                    out() << "(" << l << ")";
-                else
-                    out() << l;
+                if (first) first = false; else out() << ", ";
+                out() << l;
             }
             out() << "}";
         }
@@ -249,7 +247,7 @@ struct print_expr_fn {
             break;
         case expr_kind::Proj:
             print_child(proj_expr(a));
-            out() << "." << proj_idx(a).to_mpz();
+            out() << "." << proj_idx(a).to_mpz() + 1;
             break;
         case expr_kind::BVar:
             out() << "#" << bvar_idx(a);

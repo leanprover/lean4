@@ -3,10 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Meta.Transform
-import Lean.Meta.Inductive
-import Lean.Elab.Deriving.Basic
-import Lean.Elab.Deriving.Util
+module
+
+prelude
+public import Lean.Meta.Inductive
+public import Lean.Elab.Deriving.Basic
+public import Lean.Elab.Deriving.Util
+
+public section
 
 namespace Lean.Elab.Deriving.Repr
 open Lean.Parser.Term
@@ -28,8 +32,8 @@ def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM Term :
     let mut fields ← `(Format.nil)
     if xs.size != numParams + fieldNames.size then
       throwError "'deriving Repr' failed, unexpected number of fields in structure"
-    for i in [:fieldNames.size] do
-      let fieldName := fieldNames[i]!
+    for h : i in *...fieldNames.size do
+      let fieldName := fieldNames[i]
       let fieldNameLit := Syntax.mkStrLit (toString fieldName)
       let x := xs[numParams + i]!
       if i != 0 then
@@ -53,22 +57,26 @@ where
       let alt ← forallTelescopeReducing ctorInfo.type fun xs _ => do
         let mut patterns := #[]
         -- add `_` pattern for indices
-        for _ in [:indVal.numIndices] do
+        for _ in *...indVal.numIndices do
           patterns := patterns.push (← `(_))
         let mut ctorArgs := #[]
         let mut rhs : Term := Syntax.mkStrLit (toString ctorInfo.name)
         rhs ← `(Format.text $rhs)
-        -- add `_` for inductive parameters, they are inaccessible
-        for _ in [:indVal.numParams] do
-          ctorArgs := ctorArgs.push (← `(_))
-        for i in [:ctorInfo.numFields] do
-          let x := xs[indVal.numParams + i]!
-          let a := mkIdent (← mkFreshUserName `a)
-          ctorArgs := ctorArgs.push a
-          let localDecl ← x.fvarId!.getDecl
-          if localDecl.binderInfo.isExplicit then
+        for h : i in *...xs.size do
+          -- Note: some inductive parameters are explicit if they were promoted from indices,
+          -- so we process all constructor arguments in the same loop.
+          let x := xs[i]
+          let a ← mkIdent <$> if i < indVal.numParams then pure header.argNames[i]! else mkFreshUserName `a
+          if i < indVal.numParams then
+            -- add `_` for inductive parameters, they are inaccessible
+            ctorArgs := ctorArgs.push (← `(_))
+          else
+            ctorArgs := ctorArgs.push a
+          if (← x.fvarId!.getBinderInfo).isExplicit then
             if (← inferType x).isAppOf indVal.name then
               rhs ← `($rhs ++ Format.line ++ $(mkIdent auxFunName):ident $a:ident max_prec)
+            else if (← isType x <||> isProof x) then
+              rhs ← `($rhs ++ Format.line ++ "_")
             else
               rhs ← `($rhs ++ Format.line ++ reprArg $a)
         patterns := patterns.push (← `(@$(mkIdent ctorName):ident $ctorArgs:term*))
@@ -92,30 +100,32 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
     body ← mkLet letDecls body
   let binders    := header.binders
   if ctx.usePartial then
-    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
+    `(@[no_expose] partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
   else
-    `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
+    `(@[no_expose] def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
 
 def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]
-  for i in [:ctx.typeInfos.size] do
+  for i in *...ctx.typeInfos.size do
     auxDefs := auxDefs.push (← mkAuxFunction ctx i)
   `(mutual
      $auxDefs:command*
     end)
 
-private def mkReprInstanceCmds (declNames : Array Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "repr" declNames[0]!
-  let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Repr declNames)
+private def mkReprInstanceCmd (declName : Name) : TermElabM (Array Syntax) := do
+  let ctx ← mkContext ``Repr "repr" declName
+  let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Repr #[declName])
   trace[Elab.Deriving.repr] "\n{cmds}"
   return cmds
 
 open Command
 
 def mkReprInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
-  if (← declNames.allM isInductive) && declNames.size > 0 then
-    let cmds ← liftTermElabM <| mkReprInstanceCmds declNames
-    cmds.forM elabCommand
+  if (← declNames.allM isInductive) then
+    for declName in declNames do
+      withoutExposeFromCtors declName do
+        let cmds ← liftTermElabM <| mkReprInstanceCmd declName
+        cmds.forM elabCommand
     return true
   else
     return false

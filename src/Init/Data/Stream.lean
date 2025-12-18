@@ -3,9 +3,17 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Andrew Kent, Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Array.Subarray
-import Init.Data.Range
+public import Init.Data.Range
+public import Init.Data.Array.Subarray
+
+import Init.Data.Slice.Array.Basic
+
+public section
+
+namespace Std
 
 /-!
 Remark: we considered using the following alternative design
@@ -58,20 +66,21 @@ protected partial def Stream.forIn [Stream ρ α] [Monad m] (s : ρ) (b : β) (f
     | none => return b
   visit s b
 
-instance (priority := low) [Stream ρ α] : ForIn m ρ α where
+instance (priority := low) [Monad m] [Stream ρ α] : ForIn m ρ α where
   forIn := Stream.forIn
 
 instance : ToStream (List α) (List α) where
   toStream c := c
 
+@[no_expose]
 instance : ToStream (Array α) (Subarray α) where
-  toStream a := a[:a.size]
+  toStream a := a[*...*]
 
 instance : ToStream (Subarray α) (Subarray α) where
   toStream a := a
 
-instance : ToStream String Substring where
-  toStream s := s.toSubstring
+instance : ToStream String Substring.Raw where
+  toStream s := s.toRawSubstring
 
 instance : ToStream Std.Range Std.Range where
   toStream r := r
@@ -94,7 +103,8 @@ instance : Stream (Subarray α) α where
   next? s :=
     if h : s.start < s.stop then
       have : s.start + 1 ≤ s.stop := Nat.succ_le_of_lt h
-      some (s.as.get ⟨s.start, Nat.lt_of_lt_of_le h s.h₂⟩, { s with start := s.start + 1, h₁ := this })
+      some (s.array[s.start]'(Nat.lt_of_lt_of_le h s.stop_le_array_size),
+        ⟨{ s.internalRepresentation with start := s.start + 1, start_le_stop := this }⟩)
     else
       none
 
@@ -105,9 +115,18 @@ instance : Stream Std.Range Nat where
     else
       none
 
-instance : Stream Substring Char where
-  next? s :=
-    if s.startPos < s.stopPos then
-      some (s.str.get s.startPos, { s with startPos := s.str.next s.startPos })
-    else
-      none
+end Std
+
+@[deprecated Std.Stream (since := "2025-10-01")]
+abbrev Stream := Std.Stream
+
+-- Not deprecated to avoid bootstrapping annoyances
+abbrev Stream.next? {stream : Type u} {value : outParam (Type v)} [self : Std.Stream stream value] :
+    stream → Option (value × stream) := Std.Stream.next?
+
+@[deprecated Std.ToStream (since := "2025-10-01")]
+abbrev ToStream := Std.ToStream
+
+-- Not deprecated to avoid bootstrapping annoyances
+abbrev ToStream.toStream {collection : Type u} {stream : outParam (Type u)}
+  [self : Std.ToStream collection stream] : collection → stream := Std.ToStream.toStream

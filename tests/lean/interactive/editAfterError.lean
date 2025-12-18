@@ -1,4 +1,4 @@
 #check tru
 #check fal
-        --^ insert: s
+        --^ insert: "s"
         --^ collectDiagnostics

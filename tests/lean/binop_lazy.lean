@@ -9,3 +9,18 @@ def f : IO Unit :=
    IO.println x)
 
 #eval f -- should not print hello
+
+instance : Coe (Id Unit) (Id (Array Unit)) where
+  coe x := Array.singleton <$> x
+
+instance : HAndThen (Id Unit) (Id Unit) (Id Unit) where
+  hAndThen p1 p2 := p1 *> (p2 ())
+
+def nop : Id Unit :=
+  pure ()
+
+def group (_ : Id (Array Unit)) : Id Unit :=
+  pure ()
+
+def bug :=
+  group (nop >> nop)

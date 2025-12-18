@@ -3,7 +3,12 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
-import Lean.Data.Options
+module
+
+prelude
+public import Lean.Data.Options
+
+public section
 universe u v
 
 namespace Std
@@ -41,7 +46,7 @@ open Std
 export Std
   (Format ToFormat Format.nest Format.nil Format.joinSep Format.line
    Format.sbracket Format.bracket Format.group Format.tag Format.pretty
-   Format.fill Format.paren Format.join)
+   Format.fill Format.paren Format.join Format.align)
 export ToFormat (format)
 
 instance : ToFormat Name where

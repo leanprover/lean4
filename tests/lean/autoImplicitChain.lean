@@ -1,3 +1,5 @@
+set_option linter.constructorNameAsVariable false
+
 inductive A where
   | a
 

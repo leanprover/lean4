@@ -5,17 +5,17 @@ class GetElem (Cont : Type u) (Idx : Type v) (Elem : outParam (Type w)) where
 export GetElem (getElem)
 
 instance : GetElem (Array α) Nat α where
-  getElem xs i := xs.get ⟨i, sorry⟩
+  getElem xs i := xs[i]'sorry
 
 opaque f : Option Bool → Id Unit
 
 def bad2 (bs : Array Bool) (n : Nat) : Id Unit := do
-  for idx in [:n] do
+  for idx in *...n do
     let b  := getElem bs idx
     f b
 
 def bad3 (bs : Array Bool) (n : Nat) : Id Unit := do
-  for h : idx in [:n] do
+  for h : idx in *...n do
     let b  := getElem bs idx
     f b
 

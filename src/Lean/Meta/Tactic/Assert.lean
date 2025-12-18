@@ -3,8 +3,16 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Meta.Tactic.FVarSubst
-import Lean.Meta.Tactic.Intro
+module
+
+prelude
+public import Lean.Meta.Tactic.FVarSubst
+public import Lean.Meta.Tactic.Intro
+public import Lean.Meta.Tactic.Revert
+public import Lean.Util.ForEachExpr
+import Lean.Meta.AppBuilder
+
+public section
 
 namespace Lean.Meta
 
@@ -21,9 +29,10 @@ def _root_.Lean.MVarId.assert (mvarId : MVarId) (name : Name) (type : Expr) (val
     mvarId.assign (mkApp newMVar val)
     return newMVar.mvarId!
 
-@[deprecated MVarId.assert]
-def assert (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) : MetaM MVarId :=
-  mvarId.assert name type val
+/-- Add the hypothesis `h : t`, given `v : t`, and return the new `FVarId`. -/
+def _root_.Lean.MVarId.note (g : MVarId) (h : Name) (v : Expr) (t? : Option Expr := .none) :
+    MetaM (FVarId × MVarId) := do
+  (← g.assert h (← match t? with | some t => pure t | none => inferType v) v).intro1P
 
 /--
   Convert the given goal `Ctx |- target` into `Ctx |- let name : type := val; target`.
@@ -37,10 +46,6 @@ def _root_.Lean.MVarId.define (mvarId : MVarId) (name : Name) (type : Expr) (val
     let newMVar ← mkFreshExprSyntheticOpaqueMVar newType tag
     mvarId.assign newMVar
     return newMVar.mvarId!
-
-@[deprecated MVarId.define]
-def define (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) : MetaM MVarId := do
-  mvarId.define name type val
 
 /--
   Convert the given goal `Ctx |- target` into `Ctx |- (hName : type) -> hName = val -> target`.
@@ -58,10 +63,6 @@ def _root_.Lean.MVarId.assertExt (mvarId : MVarId) (name : Name) (type : Expr) (
     mvarId.assign (mkApp2 newMVar val rflPrf)
     return newMVar.mvarId!
 
-@[deprecated MVarId.assertExt]
-def assertExt (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) (hName : Name := `h) : MetaM MVarId := do
-  mvarId.assertExt name type val hName
-
 structure AssertAfterResult where
   fvarId : FVarId
   mvarId : MVarId
@@ -72,36 +73,24 @@ structure AssertAfterResult where
   It assumes `val` has type `type`, and that `type` is well-formed after `fvarId`.
   Note that `val` does not need to be well-formed after `fvarId`. That is, it may contain variables that are defined after `fvarId`. -/
 def _root_.Lean.MVarId.assertAfter (mvarId : MVarId) (fvarId : FVarId) (userName : Name) (type : Expr) (val : Expr) : MetaM AssertAfterResult := do
-  mvarId.withContext do
-    mvarId.checkNotAssigned `assertAfter
-    let tag        ← mvarId.getTag
-    let target     ← mvarId.getType
-    let localDecl  ← fvarId.getDecl
-    let lctx       ← getLCtx
-    let localInsts ← getLocalInstances
-    let fvarIds := lctx.foldl (init := #[]) (start := localDecl.index+1) fun fvarIds decl => fvarIds.push decl.fvarId
-    let xs   := fvarIds.map mkFVar
-    let targetNew ← mkForallFVars xs target (usedLetOnly := false)
-    let targetNew := Lean.mkForall userName BinderInfo.default type targetNew
-    let lctxNew := fvarIds.foldl (init := lctx) fun lctxNew fvarId => lctxNew.erase fvarId
-    let localInstsNew := localInsts.filter fun inst => !fvarIds.contains inst.fvar.fvarId!
-    let mvarNew ← mkFreshExprMVarAt lctxNew localInstsNew targetNew MetavarKind.syntheticOpaque tag
-    let args := (fvarIds.filter fun fvarId => !(lctx.get! fvarId).isLet).map mkFVar
-    let args := #[val] ++ args
-    mvarId.assign (mkAppN mvarNew args)
-    let (fvarIdNew, mvarIdNew) ← mvarNew.mvarId!.intro1P
-    let (fvarIdsNew, mvarIdNew) ← mvarIdNew.introNP fvarIds.size
-    let subst := fvarIds.size.fold (init := {}) fun i subst => subst.insert fvarIds[i]! (mkFVar fvarIdsNew[i]!)
-    return { fvarId := fvarIdNew, mvarId := mvarIdNew, subst := subst }
-
-@[deprecated MVarId.assertAfter]
-def assertAfter (mvarId : MVarId) (fvarId : FVarId) (userName : Name) (type : Expr) (val : Expr) : MetaM AssertAfterResult := do
-  mvarId.assertAfter fvarId userName type val
+  mvarId.checkNotAssigned `assertAfter
+  let (fvarIds, mvarId) ← mvarId.revertAfter fvarId
+  let mvarId ← mvarId.assert userName type val
+  let (fvarIdNew, mvarId) ← mvarId.intro1P
+  let (fvarIdsNew, mvarId) ← mvarId.introNP fvarIds.size
+  let mut subst := {}
+  for f in fvarIds, fNew in fvarIdsNew do
+    subst := subst.insert f (mkFVar fNew)
+  return { fvarId := fvarIdNew, mvarId, subst }
 
 structure Hypothesis where
   userName : Name
   type     : Expr
   value    : Expr
+  /-- The hypothesis' `BinderInfo` -/
+  binderInfo : BinderInfo := .default
+  /-- The hypothesis' `LocalDeclKind` -/
+  kind : LocalDeclKind := .default
 
 /--
   Convert the given goal `Ctx |- target` into `Ctx, (hs[0].userName : hs[0].type) ... |-target`.
@@ -114,14 +103,48 @@ def _root_.Lean.MVarId.assertHypotheses (mvarId : MVarId) (hs : Array Hypothesis
     let tag    ← mvarId.getTag
     let target ← mvarId.getType
     let targetNew := hs.foldr (init := target) fun h targetNew =>
-      mkForall h.userName BinderInfo.default h.type targetNew
+      .forallE h.userName h.type targetNew h.binderInfo
     let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag
-    let val := hs.foldl (init := mvarNew) fun val h => mkApp val h.value
+    let val := hs.foldl (init := mvarNew) fun val h => .app val h.value
     mvarId.assign val
-    mvarNew.mvarId!.introNP hs.size
+    let (fvarIds, mvarId) ← mvarNew.mvarId!.introNP hs.size
+    mvarId.modifyLCtx fun lctx => Id.run do
+      let mut lctx := lctx
+      for h : i in *...hs.size do
+        let h := hs[i]
+        if h.kind != .default then
+          lctx := lctx.setKind fvarIds[i]! h.kind
+      pure lctx
+    return (fvarIds, mvarId)
 
-@[deprecated MVarId.assertHypotheses]
-def assertHypotheses (mvarId : MVarId) (hs : Array Hypothesis) : MetaM (Array FVarId × MVarId) := do
-  mvarId.assertHypotheses hs
+/--
+Replace hypothesis `hyp` in goal `g` with `proof : typeNew`.
+The new hypothesis is given the same user name as the original,
+it attempts to avoid reordering hypotheses, and the original is cleared if possible.
+-/
+-- adapted from Lean.Meta.replaceLocalDeclCore
+def _root_.Lean.MVarId.replace (g : MVarId) (hyp : FVarId) (proof : Expr) (typeNew : Option Expr := none) :
+    MetaM AssertAfterResult :=
+  g.withContext do
+    let typeNew ← match typeNew with
+    | some t => pure t
+    | none => inferType proof
+    let ldecl ← hyp.getDecl
+    -- `typeNew` may contain variables that occur after `hyp`.
+    -- Thus, we use the auxiliary function `findMaxFVar` to ensure `typeNew` is well-formed
+    -- at the position we are inserting it.
+    let (_, ldecl') ← findMaxFVar typeNew |>.run ldecl
+    let result ← g.assertAfter ldecl'.fvarId ldecl.userName typeNew proof
+    (return { result with mvarId := ← result.mvarId.clear hyp }) <|> pure result
+where
+  /-- Finds the `LocalDecl` for the FVar in `e` with the highest index. -/
+  findMaxFVar (e : Expr) : StateRefT LocalDecl MetaM Unit :=
+    e.forEach' fun e => do
+      if e.isFVar then
+        let ldecl' ← e.fvarId!.getDecl
+        modify fun ldecl => if ldecl'.index > ldecl.index then ldecl' else ldecl
+        return false
+      else
+        return e.hasFVar
 
 end Lean.Meta

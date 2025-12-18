@@ -1,0 +1,2 @@
+Foo.inst1, priority: (some 10), kind: (some scoped)
+Foo.inst2, priority: (some 1000), kind: (some global)

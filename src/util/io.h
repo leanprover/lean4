@@ -50,4 +50,5 @@ template<typename T> T get_io_scalar_result(object * o) {
         return r;
     }
 }
+
 }

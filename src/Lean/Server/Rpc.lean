@@ -4,6 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
-import Lean.Server.Rpc.Basic
-import Lean.Server.Rpc.Deriving
-import Lean.Server.Rpc.RequestHandling
+module
+
+prelude
+public import Lean.Server.Rpc.Basic
+public import Lean.Server.Rpc.Deriving
+public import Lean.Server.Rpc.RequestHandling

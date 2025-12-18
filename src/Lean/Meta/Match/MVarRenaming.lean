@@ -3,7 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Util.ReplaceExpr
+module
+
+prelude
+public import Lean.Util.ReplaceExpr
+
+public section
 
 namespace Lean.Meta
 
@@ -15,7 +20,7 @@ def MVarRenaming.isEmpty (s : MVarRenaming) : Bool :=
   s.map.isEmpty
 
 def MVarRenaming.find? (s : MVarRenaming) (mvarId : MVarId) : Option MVarId :=
-  s.map.find? mvarId
+  s.map.get? mvarId
 
 def MVarRenaming.find! (s : MVarRenaming) (mvarId : MVarId) : MVarId :=
   (s.find? mvarId).get!
@@ -27,7 +32,7 @@ def MVarRenaming.apply (s : MVarRenaming) (e : Expr) : Expr :=
   if !e.hasMVar then e
   else if s.map.isEmpty then e
   else e.replace fun e => match e with
-    | Expr.mvar mvarId => match s.map.find? mvarId with
+    | Expr.mvar mvarId => match s.map.get? mvarId with
       | none           => e
       | some newMVarId => mkMVar newMVarId
     | _ => none

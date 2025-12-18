@@ -1,0 +1,2 @@
+Try this:
+  [apply] simp only [Nat.foo]

@@ -11,4 +11,7 @@ class Category.{v, u} (Ob : Type u) where
   Hom : Ob → Ob → Type v
 
 variable (C : Type u) [Category.{v} C] (X : C)
+
+/-- info: Category.Hom X X : Type v -/
+#guard_msgs in
 #check (Category.Hom X X)

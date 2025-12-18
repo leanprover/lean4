@@ -1,0 +1,6 @@
+name = "test"
+
+[[require]]
+name = "Cli"
+git = "https://github.com/leanprover/lean4-cli"
+rev = "main"

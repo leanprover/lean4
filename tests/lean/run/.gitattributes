@@ -1,0 +1,2 @@
+# do not normalize line endings
+WindowsNewlines.lean -text

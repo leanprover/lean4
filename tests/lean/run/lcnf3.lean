@@ -1,5 +1,7 @@
 import Lean
 
+set_option compiler.checkTypes true
+
 def f1 (x : Option Nat) (y : Nat) : Nat :=
   let z := some y
   if let (some x, some y) := (x, z) then
@@ -7,12 +9,12 @@ def f1 (x : Option Nat) (y : Nat) : Nat :=
   else
     0
 
-set_option trace.Compiler true
-#eval Lean.Compiler.compile #[``f1]
+set_option compiler.checkTypes false -- disabled due to type checking withCtor
 
-#exit
 inductive Ty where
  | c1 | c2 | c3 | c4 | c5
+
+set_option compiler.checkTypes true
 
 def f2 (a b : Ty) (n : Nat) : Nat :=
   let x := match a with
@@ -22,6 +24,3 @@ def f2 (a b : Ty) (n : Nat) : Nat :=
     | .c2 => 10 + n
     | _  => 20 + n
   x + y
-
-set_option trace.Compiler true
-#eval Lean.Compiler.compile #[``f2]

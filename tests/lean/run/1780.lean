@@ -6,6 +6,6 @@ open Meta -- ok
 end
 
 section
-open Lean hiding Rat
+open Lean hiding AttributeImplCore
 open Meta -- ok
 end

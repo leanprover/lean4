@@ -3,9 +3,17 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
-namespace Lean
+module
 
-instance : Coe String Name := ⟨Name.mkSimple⟩
+prelude
+public import Init.Data.Ord.Basic
+import Init.Data.String.TakeDrop
+import Init.Data.Ord.String
+import Init.Data.Ord.UInt
+import Init.Data.String.Search
+
+public section
+namespace Lean
 
 namespace Name
 -- Remark: we export the `Name.hash` to make sure it matches the hash implemented in C++
@@ -96,22 +104,50 @@ def quickCmp (n₁ n₂ : Name) : Ordering :=
 def quickLt (n₁ n₂ : Name) : Bool :=
   quickCmp n₁ n₂ == Ordering.lt
 
-/-- Alternative HasLt instance. -/
-@[inline] protected def hasLtQuick : LT Name :=
-  ⟨fun a b => Name.quickLt a b = true⟩
-
-@[inline] def Name.decLt : DecidableRel (@LT.lt Name Name.hasLtQuick) :=
-  inferInstanceAs (DecidableRel fun a b => Name.quickLt a b = true)
-
-instance : DecidableRel (@LT.lt Name Name.hasLtQuick) :=
-  Name.decLt
+/-- Returns true if the name has any numeric components. -/
+def hasNum : Name → Bool
+  | .anonymous => false
+  | .str p _ => p.hasNum
+  | .num _ _ => true
 
 /-- The frontend does not allow user declarations to start with `_` in any of its parts.
    We use name parts starting with `_` internally to create auxiliary names (e.g., `_private`). -/
 def isInternal : Name → Bool
-  | str p s => s.get 0 == '_' || isInternal p
+  | str p s => s.front == '_' || isInternal p
   | num p _ => isInternal p
   | _       => false
+
+/--
+The frontend does not allow user declarations to start with `_` in any of its parts.
+We use name parts starting with `_` internally to create auxiliary names (e.g., `_private`).
+
+This function checks if any component of the name starts with `_`, or is numeric.
+-/
+def isInternalOrNum : Name → Bool
+  | .str p s => s.front == '_' || isInternalOrNum p
+  | .num _ _ => true
+  | _       => false
+
+/--
+Returns true if this a part of name that is internal or dynamically
+generated so that it may easily be changed.
+
+Generally, user code should not explicitly use internal names.
+-/
+def isInternalDetail : Name → Bool
+  | .str p s     =>
+    s.startsWith "_"
+      || matchPrefix s "eq_"
+      || matchPrefix s "match_"
+      || matchPrefix s "proof_"
+      || matchPrefix s "omega_"
+      || p.isInternalOrNum
+  | .num _ _     => true
+  | p            => p.isInternalOrNum
+where
+  /-- Check that a string begins with the given prefix, and then is only digits/'_'. -/
+  matchPrefix (s : String) (pre : String) :=
+    s.startsWith pre && (s |>.drop pre.length |>.all fun c => c.isDigit || c == '_')
 
 /--
 Checks whether the name is an implementation-detail hypothesis name.
@@ -143,7 +179,7 @@ def isNum : Name → Bool
   | _      => false
 
 /--
-Return `true` if `n` contains a string part `s` that satifies `f`.
+Return `true` if `n` contains a string part `s` that satisfies `f`.
 
 Examples:
 ```
@@ -157,11 +193,12 @@ def anyS (n : Name) (f : String → Bool) : Bool :=
   | .num p _ => p.anyS f
   | _ => false
 
+/-- Return true if the name is in a namespace associated to metaprogramming. -/
+def isMetaprogramming (n : Name) : Bool :=
+  let components := n.components
+  components.head? == some `Lean || (components.any fun n => n == `Tactic || n == `Linter)
+
 end Name
 end Lean
 
 open Lean
-
-def String.toName (s : String) : Name :=
-  let ps := s.splitOn ".";
-  ps.foldl (fun n p => Name.mkStr n p.trim) Name.anonymous

@@ -1,23 +1,3 @@
-/-
-Helper classes for Lean 3 users
--/
-class One (α : Type u) where
-  one : α
-
-instance [OfNat α (nat_lit 1)] : One α where
-  one := 1
-
-instance [One α] : OfNat α (nat_lit 1) where
-  ofNat := One.one
-
-class Zero (α : Type u) where
-  zero : α
-
-instance [OfNat α (nat_lit 0)] : Zero α where
-  zero := 0
-
-instance [Zero α] : OfNat α (nat_lit 0) where
-  ofNat := Zero.zero
 
 /- Simple Matrix -/
 
@@ -64,14 +44,14 @@ def m2 : Matrix 2 2 Int :=
 
 open Matrix -- activate .[.,.] notation
 
-#eval (m1*m2)[0, 0] -- 19
-#eval (m1*m2)[0, 1] -- 22
-#eval (m1*m2)[1, 0] -- 43
-#eval (m1*m2)[1, 1] -- 50
+#guard (m1*m2)[0, 0] == 19
+#guard (m1*m2)[0, 1] == 22
+#guard (m1*m2)[1, 0] == 43
+#guard (m1*m2)[1, 1] == 50
 
 def v := -2
 
-#eval (v*m1*m2)[0, 0] -- -38
+#guard (v*m1*m2)[0, 0] == -38
 
 def ex1 (a b : Nat) (x : Matrix 10 20 Nat) (y : Matrix 20 10 Nat) (z : Matrix 10 10 Nat) : Matrix 10 10 Nat :=
   a * x * y + b * z

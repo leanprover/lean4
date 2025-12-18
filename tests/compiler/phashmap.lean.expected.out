@@ -1,6 +1,4 @@
 { nodes := 1057, null := 27768, collisions := 0, depth := 3}
 { nodes := 529, null := 13900, collisions := 0, depth := 3}
-50
 { nodes := 17, null := 478, collisions := 0, depth := 2}
-5
 { nodes := 1, null := 27, collisions := 0, depth := 1}

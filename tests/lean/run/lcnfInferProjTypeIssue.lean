@@ -14,15 +14,15 @@ def NFloatArray (n : Nat) := {a : FloatArray // a.size = n}
 instance {n} : Add (NFloatArray n) :=
  ⟨λ x y => Id.run do
    let mut x := x.1
-   for i in [0:n] do
-     x := x.set ⟨i,sorry⟩ (x[i]'sorry+y.1[i]'sorry)
+   for i in *...n do
+     x := x.set i (x[i]'sorry+y.1[i]'sorry) sorry
    ⟨x,sorry⟩⟩
 
 instance {n} : HMul Float (NFloatArray n) (NFloatArray n) :=
  ⟨λ s x => Id.run do
    let mut x := x.1
-   for i in [0:n] do
-     x := x.set ⟨i,sorry⟩ (s*x[i]'sorry)
+   for i in *...n do
+     x := x.set i (s*x[i]'sorry) sorry
    ⟨x,sorry⟩⟩
 
 def FloatVector : Nat → Type
@@ -53,10 +53,10 @@ def foo1 := λ (x y : FloatVector 2) => x + y
 
 def foo2 := λ {n} (s : Float) (x y : FloatVector n) => s * (x + y)
 
-#eval Lean.Compiler.compile #[``foo1]
-#eval Lean.Compiler.compile #[``foo2]
+run_meta Lean.Compiler.compile #[``foo1]
+run_meta Lean.Compiler.compile #[``foo2]
 
 set_option trace.Compiler.result true
 set_option pp.funBinderTypes true
-#eval Lean.Compiler.compile #[``foo1]
-#eval Lean.Compiler.compile #[``foo2]
+run_meta Lean.Compiler.compile #[``foo1]
+run_meta Lean.Compiler.compile #[``foo2]

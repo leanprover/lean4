@@ -168,8 +168,8 @@ do tk ← monadLift peekToken,
    | Syntax.atom ⟨_, sym⟩ := do
      cfg ← readCfg,
      (match cfg.tokens.matchPrefix sym.mkIterator with
-      | some ⟨_, tkCfg⟩ := pure tkCfg.lbp
-      | _                := error "currLbp: unreachable")
+      | some tkCfg := pure tkCfg.lbp
+      | _          := error "currLbp: unreachable")
    | Syntax.rawNode {kind := @number, ..}     := pure maxPrec
    | Syntax.rawNode {kind := @stringLit, ..} := pure maxPrec
    | Syntax.ident _                            := pure maxPrec
@@ -182,7 +182,7 @@ do tk ← monadLift peekToken,
    match tk with
    | Syntax.atom ⟨_, sym⟩ := do
      cfg ← read,
-     -- some ⟨_, tkCfg⟩ ← pure (cfg.tokens.matchPrefix sym.mkIterator) | error "currLbp: unreachable",
+     -- some tkCfg ← pure (cfg.tokens.matchPrefix sym.mkIterator) | error "currLbp: unreachable",
      pure 0
    | Syntax.ident _ := pure maxPrec
    | Syntax.rawNode {kind := @number, ..} := pure maxPrec

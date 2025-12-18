@@ -15,8 +15,7 @@ def makePair?: (n m: (sz: Nat) × FinInt sz) → Option Pair
   | ⟨sz, lhs⟩, ⟨sz', rhs⟩ =>
       if EQ: true /\ sz = sz' then
             have rhs' : FinInt sz := by {
-                cases EQ;
-                case intro left right =>
+                cases EQ with | intro left right
                 simp [right];
                 exact rhs;
             };
@@ -25,4 +24,6 @@ def makePair?: (n m: (sz: Nat) × FinInt sz) → Option Pair
 
 def usePair: Pair → Bool := fun ⟨sz, lhs, rhs⟩ => lhs = rhs
 
+/-- info: some true -/
+#guard_msgs in
 #eval (makePair? ⟨8, zero 8⟩ ⟨8, zero 8⟩).map usePair

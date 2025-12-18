@@ -4,8 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
-import Lean.Data.Json
-import Lean.Data.JsonRpc
+module
+
+prelude
+public import Lean.Data.Json
+public import Lean.Data.Lsp.BasicAux
+
+public section
 
 /-! Defines most of the 'Basic Structures' in the LSP specification
 (https://microsoft.github.io/language-server-protocol/specifications/specification-current/),
@@ -18,40 +23,11 @@ namespace Lsp
 
 open Json
 
-structure CancelParams where
-  id : JsonRpc.RequestID
-  deriving Inhabited, BEq, ToJson, FromJson
-
-abbrev DocumentUri := String
-
-/-- We adopt the convention that zero-based UTF-16 positions as sent by LSP clients
-are represented by `Lsp.Position` while internally we mostly use `String.Pos` UTF-8
-offsets. For diagnostics, one-based `Lean.Position`s are used internally.
-`character` is accepted liberally: actual character := min(line length, character) -/
-structure Position where
-  line : Nat
-  character : Nat
-  deriving Inhabited, BEq, Ord, Hashable, ToJson, FromJson
-
-instance : ToString Position := ⟨fun p =>
-  "(" ++ toString p.line ++ ", " ++ toString p.character ++ ")"⟩
-
-instance : LT Position := ltOfOrd
-instance : LE Position := leOfOrd
-
-structure Range where
-  start : Position
-  «end» : Position
-  deriving Inhabited, BEq, Hashable, ToJson, FromJson, Ord
-
-instance : LT Range := ltOfOrd
-instance : LE Range := leOfOrd
-
 /-- A `Location` is a `DocumentUri` and a `Range`. -/
 structure Location where
   uri : DocumentUri
   range : Range
-  deriving Inhabited, BEq, ToJson, FromJson
+  deriving Inhabited, BEq, ToJson, FromJson, Ord
 
 structure LocationLink where
   originSelectionRange? : Option Range
@@ -78,6 +54,38 @@ structure Command where
   arguments? : Option (Array Json) := none
   deriving ToJson, FromJson
 
+/-- A snippet is a string that gets inserted into a document,
+and can afterwards be edited by the user in a structured way.
+
+Snippets contain instructions that
+specify how this structured editing should proceed.
+They are expressed in a domain-specific language
+based on one from TextMate,
+including the following constructs:
+- Designated positions for subsequent user input,
+  called "tab stops" after their most frequently-used keybinding.
+  They are denoted with `$1`, `$2`, and so forth.
+  `$0` denotes where the cursor should be positioned after all edits are completed,
+  defaulting to the end of the string.
+  Snippet tab stops are unrelated to tab stops used for indentation.
+- Tab stops with default values, called _placeholders_, written `${1:default}`.
+  The default may itself contain a tab stop or a further placeholder
+  and multiple options to select from may be provided
+  by surrounding them with `|`s and separating them with `,`,
+  as in `${1|if $2 then $3 else $4,if let $2 := $3 then $4 else $5|}`.
+- One of a set of predefined variables that are replaced with their values.
+  This includes the current line number (`$TM_LINE_NUMBER`)
+  or the text that was selected when the snippet was invoked (`$TM_SELECTED_TEXT`).
+- Formatting instructions to modify variables using regular expressions
+  or a set of predefined filters.
+
+The full syntax and semantics of snippets,
+including the available variables and the rules for escaping control characters,
+are described in the [LSP specification](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#snippet_syntax). -/
+structure SnippetString where
+  value : String
+  deriving ToJson, FromJson
+
 /-- A textual edit applicable to a text document.
 
 [reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textEdit) -/
@@ -87,6 +95,21 @@ structure TextEdit where
   range : Range
   /-- The string to be inserted. For delete operations use an empty string. -/
   newText : String
+  /-- If this field is present and the editor supports it,
+  `newText` is ignored
+  and an interactive snippet edit is performed instead.
+
+  The use of snippets in `TextEdit`s
+  is a Lean-specific extension to the LSP standard,
+  so `newText` should still be set to a correct value
+  as fallback in case the editor does not support this feature.
+  Even editors that support snippets may not always use them;
+  for instance, if the file is not already open,
+  VS Code will perform a normal text edit in the background instead. -/
+  /- NOTE: Similar functionality may be added to LSP in the future:
+  see [issue #592](https://github.com/microsoft/language-server-protocol/issues/592).
+  If such an addition occurs, this field should be deprecated. -/
+  leanExtSnippet? : Option SnippetString := none
   /-- Identifier for annotated edit.
 
     `WorkspaceEdit` has a `changeAnnotations` field that maps these identifiers to a `ChangeAnnotation`.
@@ -98,7 +121,7 @@ structure TextEdit where
   deriving ToJson, FromJson
 
 /-- An array of `TextEdit`s to be performed in sequence. -/
-def TextEditBatch := Array TextEdit
+@[expose] def TextEditBatch := Array TextEdit
 
 instance : FromJson TextEditBatch :=
   ⟨@fromJson? (Array TextEdit) _⟩
@@ -206,7 +229,7 @@ instance : FromJson DocumentChange where
 [reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspaceEdit) -/
 structure WorkspaceEdit where
   /-- Changes to existing resources. -/
-  changes : RBMap DocumentUri TextEditBatch compare := ∅
+  changes? : Option (Std.TreeMap DocumentUri TextEditBatch) := none
   /-- Depending on the client capability
     `workspace.workspaceEdit.resourceOperations` document changes are either
     an array of `TextDocumentEdit`s to express changes to n different text
@@ -220,14 +243,14 @@ structure WorkspaceEdit where
     If a client neither supports `documentChanges` nor
     `workspace.workspaceEdit.resourceOperations` then only plain `TextEdit`s
     using the `changes` property are supported. -/
-  documentChanges : Array DocumentChange := ∅
+  documentChanges? : Option (Array DocumentChange) := none
   /-- A map of change annotations that can be referenced in
       `AnnotatedTextEdit`s or create, rename and delete file / folder
       operations.
 
       Whether clients honor this property depends on the client capability
       `workspace.changeAnnotationSupport`. -/
-  changeAnnotations : RBMap String ChangeAnnotation compare := ∅
+  changeAnnotations? : Option (Std.TreeMap String ChangeAnnotation) := none
   deriving ToJson, FromJson
 
 namespace WorkspaceEdit
@@ -236,27 +259,39 @@ instance : EmptyCollection WorkspaceEdit := ⟨{}⟩
 
 instance : Append WorkspaceEdit where
   append x y := {
-    changes           := x.changes.mergeBy (fun _ v₁ v₂ => v₁ ++ v₂) y.changes
-    documentChanges   := x.documentChanges ++ y.documentChanges
-    changeAnnotations := x.changeAnnotations.mergeBy (fun _ _v₁ v₂ => v₂) y.changeAnnotations
+    changes?           :=
+      match x.changes?, y.changes? with
+      | v, none | none, v => v
+      | some x, some y => x.mergeWith (fun _ v₁ v₂ => v₁ ++ v₂) y
+    documentChanges?   :=
+      match x.documentChanges?, y.documentChanges? with
+      | v, none | none, v => v
+      | some x, some y => x ++ y
+    changeAnnotations? :=
+      match x.changeAnnotations?, y.changeAnnotations? with
+      | v, none | none, v => v
+      | some x, some y => x.mergeWith (fun _ _v₁ v₂ => v₂) y
   }
 
 def ofTextDocumentEdit (e : TextDocumentEdit) : WorkspaceEdit :=
-  { documentChanges := #[DocumentChange.edit e]}
+  { documentChanges? := #[DocumentChange.edit e]}
 
-def ofTextEdit (uri : DocumentUri) (te : TextEdit) : WorkspaceEdit :=
-  /- [note], there is a bug in vscode where not including the version will cause an error,
-  even though the version field is not used to validate the change.
-
-  References:
-  - [a fix in the wild](https://github.com/stylelint/vscode-stylelint/pull/330/files).
-    Note that the version field needs to be present, even if the value is `undefined`.
-  - [angry comment](https://github.com/tsqllint/tsqllint-vscode-extension/blob/727026fce9f8c6a33d113373666d0776f8f6c23c/server/src/server.ts#L70)
-  -/
-  let doc := {uri, version? := some 0}
+def ofTextEdit (doc : VersionedTextDocumentIdentifier) (te : TextEdit) : WorkspaceEdit :=
   ofTextDocumentEdit { textDocument := doc, edits := #[te]}
 
 end WorkspaceEdit
+
+/-- The `workspace/applyEdit` request is sent from the server to the client to modify resource on the client side.
+
+[reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#applyWorkspaceEditParams) -/
+structure ApplyWorkspaceEditParams where
+  /-- An optional label of the workspace edit. This label is
+  presented in the user interface for example on an undo
+  stack to undo the workspace edit. -/
+  label? : Option String := none
+  /-- The edits to apply. -/
+  edit : WorkspaceEdit
+  deriving ToJson, FromJson
 
 /-- An item to transfer a text document from the client to the server.
 
@@ -287,7 +322,7 @@ structure DocumentFilter where
   pattern?  : Option String := none
   deriving ToJson, FromJson
 
-def DocumentSelector := Array DocumentFilter
+@[expose] def DocumentSelector := Array DocumentFilter
 
 instance : FromJson DocumentSelector :=
   ⟨@fromJson? (Array DocumentFilter) _⟩
@@ -305,6 +340,7 @@ structure TextDocumentRegistrationOptions where
 
 inductive MarkupKind where
   | plaintext | markdown
+  deriving DecidableEq, Hashable
 
 instance : FromJson MarkupKind := ⟨fun
   | str "plaintext" => Except.ok MarkupKind.plaintext
@@ -318,7 +354,7 @@ instance : ToJson MarkupKind := ⟨fun
 structure MarkupContent where
   kind  : MarkupKind
   value : String
-  deriving ToJson, FromJson
+  deriving ToJson, FromJson, DecidableEq, Hashable
 
 /-- Reference to the progress of some in-flight piece of work.
 
@@ -369,6 +405,10 @@ structure PartialResultParams where
 structure WorkDoneProgressOptions where
   workDoneProgress := false
   deriving ToJson, FromJson
+
+structure ResolveSupport where
+  properties : Array String
+  deriving FromJson, ToJson
 
 end Lsp
 end Lean

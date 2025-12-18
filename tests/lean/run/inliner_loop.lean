@@ -1,5 +1,3 @@
-
-
 unsafe inductive t
 | mk : (t → t) → t
 

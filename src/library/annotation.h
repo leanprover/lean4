@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 /** \brief Declare a new kind of annotation. It must only be invoked at startup time
-    Use helper obect #register_annotation_fn. */
+    Use helper object #register_annotation_fn. */
 void register_annotation(name const & n);
 
 /** \brief Create an annotated expression with tag \c kind based on \c e.

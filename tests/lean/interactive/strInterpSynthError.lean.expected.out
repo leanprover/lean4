@@ -1,0 +1,36 @@
+{"version": 1,
+ "uri": "file:///strInterpSynthError.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 15, "character": 25},
+    "end": {"line": 15, "character": 28}},
+   "message":
+   "failed to synthesize instance of type class\n  ToString Bar\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.",
+   "fullRange":
+   {"start": {"line": 15, "character": 25},
+    "end": {"line": 15, "character": 28}},
+   "code": "lean.synthInstanceFailed"},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 20, "character": 15},
+    "end": {"line": 20, "character": 18}},
+   "message":
+   "failed to synthesize instance of type class\n  ToString Bar\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.",
+   "fullRange":
+   {"start": {"line": 20, "character": 15},
+    "end": {"line": 20, "character": 18}},
+   "code": "lean.synthInstanceFailed"},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 26, "character": 17},
+    "end": {"line": 26, "character": 20}},
+   "message":
+   "failed to synthesize instance of type class\n  ToString Bar\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.",
+   "fullRange":
+   {"start": {"line": 26, "character": 17},
+    "end": {"line": 26, "character": 20}},
+   "code": "lean.synthInstanceFailed"}]}

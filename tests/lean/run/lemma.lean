@@ -1,8 +1,14 @@
 macro mods:declModifiers "lemma" n:declId sig:declSig val:declVal : command => `($mods:declModifiers theorem $n $sig $val)
 
-lemma fooSimple (n : Nat) : Prop :=
+def fooSimple (n : Nat) : Prop :=
   if n = 0 then True else False
 
-lemma fooPat : Nat → Prop
+lemma fooSimple' : fooSimple 0 :=
+  by constructor
+
+def fooPat : Nat → Prop
   | 0   => True
-  | n+1 => False
+  | _+1 => False
+
+lemma fooPat' : (x : Nat) → fooPat x → x = 0
+  | 0, _ => rfl

@@ -20,3 +20,7 @@ theorem ex5 : (fun (x : Id Nat) => x.succ + 0) = (fun (x : Id Nat) => 0 + x.succ
   funext (x : Nat)
   have y := x + 1 -- if `(x : Nat)` is not used at `funext`, then `x+1` would fail to be elaborated since we don't have the instance `Add (Id Nat)`
   rw [Nat.add_comm]
+
+theorem ex6 : (fun (x : Nat) y z => x + y + z) = (fun x y z => x + (y + z)) := by
+  funext
+  rw [Nat.add_assoc]

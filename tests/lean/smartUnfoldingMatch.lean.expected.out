@@ -1,4 +1,4 @@
 42
-[Meta.debug] r: match x, 0 with
-    | some x, x_1 => x
-    | none, e => e
+[Meta.debug] r: match x with
+    | some x => x
+    | none => 0

@@ -3,11 +3,9 @@ class OpAssoc (op : α → α → α) : Prop where
 
 abbrev op_assoc (op : α → α → α) [self : OpAssoc op] := self.op_assoc
 
-@[reducible]
 structure SemigroupSig (α) where
   op : α → α → α
 
-@[reducible]
 structure SemiringSig (α) where
   add : α → α → α
   mul : α → α → α

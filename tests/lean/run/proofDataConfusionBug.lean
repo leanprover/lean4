@@ -9,4 +9,4 @@ def tst : String :=
   | .inr _ => "inr"
   | .inl _ => "inl"
 
-#eval tst
+#guard tst = "inr"

@@ -21,4 +21,10 @@ dbgSleep 1000 $ fun _ =>
 IO.println (toString t1.get ++ " " ++ toString t2.get) *>
 pure 0
 
+/--
+info: 12 11
+---
+info: 0
+-/
+#guard_msgs in
 #eval tst 10

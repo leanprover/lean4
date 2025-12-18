@@ -9,3 +9,9 @@ initialize registerBuiltinAttribute {
     descr := "",
     add := fun _ _ _ => pure ()
   }
+
+def myFun (x : Nat) :=
+  x + 1
+
+example : myFun x = x + 1 :=
+  rfl

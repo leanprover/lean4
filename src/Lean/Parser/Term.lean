@@ -1,65 +1,100 @@
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura, Sebastian Ullrich
+Authors: Leonardo de Moura, Sebastian Ullrich, Mario Carneiro
 -/
-import Lean.Parser.Attr
-import Lean.Parser.Level
+module
+
+prelude
+public import Lean.Parser.Term.Basic
+meta import Lean.Parser.Term.Basic
+public import Lean.Parser.Term.Doc
+import Lean.DocString.Parser
+public import Lean.DocString.Formatter
+
+public section
 
 namespace Lean
 namespace Parser
 
 namespace Command
-def commentBody : Parser :=
-{ fn := rawFn (finishCommentBlock 1) (trailingWs := true) }
 
-@[combinator_parenthesizer commentBody]
+open Lean.Parser in
+def versoCommentBodyFn : ParserFn := fun c s =>
+  let startPos := s.pos
+  let s := finishCommentBlock (pushMissingOnError := true) 1 c s
+  if !s.hasError then
+    let iniSz := s.stackSize
+    let commentEndPos := s.pos
+    let endPos := c.prev (c.prev commentEndPos)
+    let endPos := if endPos ≤ c.inputString.rawEndPos then endPos else c.inputString.rawEndPos
+    let c' := c.setEndPos endPos (by unfold endPos; split <;> simp [*])
+    let s := Doc.Parser.document {} c' (s.setPos startPos)
+    let s :=
+      if !s.allErrors.isEmpty then
+        -- Docstring parsing must always succeed, or else later error messages are atrocious! Syntax
+        -- errors in the docs should not cause verso-docstring-expecting commands to be removed from
+        -- consideration. So, at this stage, we push an indication of the failure, and then later,
+        -- when adding docstrings, the failing case is re-parsed and the errors are reported then.
+        -- We don't just parse them later because then the syntax of the docs doesn't end up as part
+        -- of the syntax of the actual program.
+        let s := s.restore iniSz endPos
+        let leading := c.mkEmptySubstringAt startPos
+        let trailing := c.mkEmptySubstringAt endPos
+        let s :=
+          s.pushSyntax <|
+          .atom (.original leading startPos trailing endPos) (String.Pos.Raw.extract c.inputString startPos endPos)
+        let s := s.mkNode `Lean.Doc.Syntax.parseFailure iniSz
+        {s with recoveredErrors := #[]}
+      else s
+    rawFn (Doc.Parser.ignoreFn <| chFn '-' >> chFn '/') (trailingWs := true) c s
+  else s
+
+public def versoCommentBody : Parser where
+  fn := fun c s => nodeFn `Lean.Parser.Command.versoCommentBody versoCommentBodyFn c s
+
+
+@[combinator_parenthesizer versoCommentBody, expose]
+public def versoCommentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
+
+open PrettyPrinter Formatter in
+open Syntax.MonadTraverser in
+@[combinator_formatter versoCommentBody, expose]
+public def versoCommentBody.formatter : PrettyPrinter.Formatter := do
+  visitArgs $ do
+    visitAtom `«-/»
+    goLeft
+    Lean.Doc.Parser.document.formatter
+
+def commentBody : Parser :=
+{ fn := rawFn (finishCommentBlock (pushMissingOnError := true) 1) (trailingWs := true) }
+
+@[combinator_parenthesizer commentBody, expose]
 def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
-@[combinator_formatter commentBody]
+@[combinator_formatter commentBody, expose]
 def commentBody.formatter := PrettyPrinter.Formatter.visitAtom Name.anonymous
 
+/--
+A `docComment` parses a "documentation comment" like `/-- foo -/`. This is not treated like
+a regular comment (that is, as whitespace); it is parsed and forms part of the syntax tree structure.
+
+At parse time, `docComment` checks the value of the `doc.verso` option. If it is true, the contents
+are parsed as Verso markup. If not, the contents are treated as plain text or Markdown. Use
+`plainDocComment` to always treat the contents as plain text.
+
+A plain text doc comment node contains a `/--` atom and then the remainder of the comment, `foo -/`
+in this example. Use `TSyntax.getDocString` to extract the body text from a doc string syntax node.
+A Verso comment node contains the `/--` atom, the document's syntax tree, and a closing `-/` atom.
+-/
+-- @[builtin_doc] -- FIXME: suppress the hover
+@[run_builtin_parser_attribute_hooks]
 def docComment := leading_parser
-  ppDedent $ "/--" >> ppSpace >> commentBody >> ppLine
+  ppDedent $ "/--" >> ppSpace >> Doc.Parser.ifVerso versoCommentBody commentBody >> ppLine
+
+@[inherit_doc docComment, run_builtin_parser_attribute_hooks]
+def plainDocComment : Parser := Doc.Parser.withoutVersoSyntax docComment
+
 end Command
-
-builtin_initialize
-  registerBuiltinParserAttribute `builtin_tactic_parser ``Category.tactic .both
-  registerBuiltinDynamicParserAttribute `tactic_parser `tactic
-
-@[inline] def tacticParser (rbp : Nat := 0) : Parser :=
-  categoryParser `tactic rbp
-
-@[inline] def convParser (rbp : Nat := 0) : Parser :=
-  categoryParser `conv rbp
-
-namespace Tactic
-
-@[run_builtin_parser_attribute_hooks]
-def sepByIndentSemicolon (p : Parser) : Parser :=
-  sepByIndent p "; " (allowTrailingSep := true)
-
-@[run_builtin_parser_attribute_hooks]
-def sepBy1IndentSemicolon (p : Parser) : Parser :=
-  sepBy1Indent p "; " (allowTrailingSep := true)
-
-builtin_initialize
-  register_parser_alias sepByIndentSemicolon
-  register_parser_alias sepBy1IndentSemicolon
-
-def tacticSeq1Indented : Parser := leading_parser
-  sepBy1IndentSemicolon tacticParser
-/-- The syntax `{ tacs }` is an alternative syntax for `· tacs`.
-It runs the tactics in sequence, and fails if the goal is not solved. -/
-def tacticSeqBracketed : Parser := leading_parser
-  "{" >> sepByIndentSemicolon tacticParser >> ppDedent (ppLine >> "}")
-def tacticSeq := leading_parser
-  tacticSeqBracketed <|> tacticSeq1Indented
-
-/- Raw sequence for quotation and grouping -/
-def seq1 :=
-  node `Lean.Parser.Tactic.seq1 $ sepBy1 tacticParser ";\n" (allowTrailingSep := true)
-
-end Tactic
 
 def darrow : Parser := " => "
 def semicolonOrLinebreak := ";" <|> checkLinebreakBefore >> pushNone
@@ -70,7 +105,7 @@ namespace Term
 
 /-- `by tac` constructs a term of the expected type by running the tactic(s) `tac`. -/
 @[builtin_term_parser] def byTactic := leading_parser:leadPrec
-  ppAllowUngrouped >> "by " >> Tactic.tacticSeq
+  ppAllowUngrouped >> "by " >> Tactic.tacticSeqIndentGt
 
 /-
   This is the same as `byTactic`, but it uses a different syntax kind. This is
@@ -79,7 +114,7 @@ namespace Term
   safely find-replace `by exact $e` by `$e` in any context without causing
   incorrect syntax when the full expression is `show $T by exact $e`. -/
 def byTactic' := leading_parser
-  "by " >> Tactic.tacticSeq
+  "by " >> Tactic.tacticSeqIndentGt
 
 -- TODO: rename to e.g. `afterSemicolonOrLinebreak`
 def optSemicolon (p : Parser) : Parser :=
@@ -102,43 +137,68 @@ def optSemicolon (p : Parser) : Parser :=
 /-- A specific universe in Lean's infinite hierarchy of universes. -/
 @[builtin_term_parser] def sort := leading_parser
   "Sort" >> optional (checkWsBefore "" >> checkPrec leadPrec >> checkColGt >> levelParser maxPrec)
-/-- The universe of propositions. `Prop ≡ Sort 0`. -/
+/-- The universe of propositions. `Prop ≡ Sort 0`.
+
+Every proposition is propositionally equal to either `True` or `False`. -/
 @[builtin_term_parser] def prop := leading_parser
   "Prop"
-/-- A placeholder term, to be synthesized by unification. -/
-@[builtin_term_parser] def hole := leading_parser
-  "_"
-@[builtin_term_parser] def syntheticHole := leading_parser
-  "?" >> (ident <|> hole)
-/-- A temporary placeholder for a missing proof or value. -/
+
+
+/--
+The `sorry` term is a temporary placeholder for a missing proof or value.
+
+The syntax is intended for stubbing-out incomplete parts of a value or proof while still having a syntactically correct skeleton.
+Lean will give a warning whenever a declaration uses `sorry`, so you aren't likely to miss it,
+but you can double check if a declaration depends on `sorry` by looking for `sorryAx` in the output
+of the `#print axioms my_thm` command, the axiom used by the implementation of `sorry`.
+
+"Go to definition" on `sorry` in the Infoview will go to the source position where it was introduced, if such information is available.
+
+Each `sorry` is guaranteed to be unique, so for example the following fails:
+```lean
+example : (sorry : Nat) = sorry := rfl -- fails
+```
+
+See also the `sorry` tactic, which is short for `exact sorry`.
+-/
 @[builtin_term_parser] def «sorry» := leading_parser
   "sorry"
+-- Left parenthesis with hygiene info, for cdot function expansion.
+def hygienicLParen : Parser := leading_parser (withAnonymousAntiquot := false)
+  "(" >> hygieneInfo
 /--
 A placeholder for an implicit lambda abstraction's variable. The lambda abstraction is scoped to the surrounding parentheses.
-For example, `(· + ·)` is equivalent to `fun x y => x + y`.
+For example, `(· + ·)` is equivalent to `fun x y => x + y`. Tuple notation and type ascription notation also serve as scopes.
+Note that `(· : ty)` expands to `((fun x => x) : ty)`, so `ty` should be a function type.
 -/
-@[builtin_term_parser] def cdot   := leading_parser
-  symbol "·" <|> "."
-def typeAscription := leading_parser
-  " : " >> termParser
-def tupleTail      := leading_parser
-  ", " >> sepBy1 termParser ", "
-def parenSpecial : Parser :=
-  optional (tupleTail <|> typeAscription)
+@[builtin_term_parser] def cdot := leading_parser
+  unicodeSymbol "·" "." >> hygieneInfo
 /--
-Parentheses, used for
-- Grouping expressions, e.g., `a * (b + c)`.
-- Creating tuples, e.g., `(a, b, c)` is notation for `Prod.mk a (Prod.mk b c)`.
-- Performing type ascription, e.g., `(0 : Int)` instructs Lean to process `0` as a value of type `Int`.
-- Creating `Unit.unit`, `()` is just a shorthand for `Unit.unit`.
-- Creating simple functions when combined with `·`. Here are some examples:
+Type ascription notation: `(0 : Int)` instructs Lean to process `0` as a value of type `Int`.
+An empty type ascription `(e :)` elaborates `e` without the expected type.
+This is occasionally useful when Lean's heuristics for filling arguments from the expected type
+do not yield the right result.
+-/
+@[builtin_term_parser] def typeAscription := leading_parser
+  hygienicLParen >> (withoutPosition (withoutForbidden (termParser >> " :" >> optional (ppSpace >> termParser)))) >> ")"
+
+/-- Tuple notation; `()` is short for `Unit.unit`, `(a, b, c)` for `Prod.mk a (Prod.mk b c)`, etc. -/
+@[builtin_term_parser] def tuple := leading_parser
+  hygienicLParen >> optional (withoutPosition (withoutForbidden (termParser >> ", " >> sepBy1 termParser ", " (allowTrailingSep := true)))) >> ")"
+
+recommended_spelling "mk" for "(a, b)" in [Prod.mk, tuple]
+
+/--
+Parentheses, used for grouping expressions (e.g., `a * (b + c)`).
+Can also be used for creating simple functions when combined with `·`. Here are some examples:
   - `(· + 1)` is shorthand for `fun x => x + 1`
   - `(· + ·)` is shorthand for `fun x y => x + y`
   - `(f · a b)` is shorthand for `fun x => f x a b`
   - `(h (· + 1) ·)` is shorthand for `fun x => h (fun y => y + 1) x`
+  - also applies to other parentheses-like notations such as `(·, 1)` and `(· : Nat → Nat)`
 -/
 @[builtin_term_parser] def paren := leading_parser
-  "(" >> (withoutPosition (withoutForbidden (optional (ppDedentIfGrouped termParser >> parenSpecial)))) >> ")"
+  hygienicLParen >> withoutPosition (withoutForbidden (ppDedentIfGrouped termParser)) >> ")"
 /--
 The *anonymous constructor* `⟨e, ...⟩` is equivalent to `c e ...` if the
 expected type is an inductive type with a single constructor `c`.
@@ -147,45 +207,17 @@ are turned into a new anonymous constructor application. For example,
 `⟨a, b, c⟩ : α × (β × γ)` is equivalent to `⟨a, ⟨b, c⟩⟩`.
 -/
 @[builtin_term_parser] def anonymousCtor := leading_parser
-  "⟨" >> sepBy termParser ", " >> "⟩"
-def optIdent : Parser :=
-  optional (atomic (ident >> " : "))
+  "⟨" >> withoutPosition (withoutForbidden (sepBy termParser ", " (allowTrailingSep := true))) >> "⟩"
 def fromTerm   := leading_parser
   "from " >> termParser
 def showRhs := fromTerm <|> byTactic'
-def sufficesDecl := leading_parser
-  optIdent >> termParser >> ppSpace >> showRhs
+/-- A `sufficesDecl` represents everything that comes after the `suffices` keyword:
+an optional `x :`, then a term `ty`, then `from val` or `by tac`. -/
+@[builtin_doc] def sufficesDecl := leading_parser
+  (atomic (group (binderIdent >> " : ")) <|> hygieneInfo) >> termParser >> ppSpace >> showRhs
 @[builtin_term_parser] def «suffices» := leading_parser:leadPrec
   withPosition ("suffices " >> sufficesDecl) >> optSemicolon termParser
 @[builtin_term_parser] def «show»     := leading_parser:leadPrec "show " >> termParser >> ppSpace >> showRhs
-def structInstArrayRef := leading_parser
-  "[" >> withoutPosition termParser >>"]"
-def structInstLVal   := leading_parser
-  (ident <|> fieldIdx <|> structInstArrayRef) >>
-  many (group ("." >> (ident <|> fieldIdx)) <|> structInstArrayRef)
-def structInstField  := ppGroup $ leading_parser
-  structInstLVal >> " := " >> termParser
-def structInstFieldAbbrev := leading_parser
-  -- `x` is an abbreviation for `x := x`
-  atomic (ident >> notFollowedBy ("." <|> ":=" <|> symbol "[") "invalid field abbreviation")
-def optEllipsis      := leading_parser
-  optional ".."
-/--
-Structure instance. `{ x := e, ... }` assigns `e` to field `x`, which may be
-inherited. If `e` is itself a variable called `x`, it can be elided:
-`fun y => { x := 1, y }`.
-A *structure update* of an existing value can be given via `with`:
-`{ point with x := 1 }`.
-The structure type can be specified if not inferable:
-`{ x := 1, y := 2 : Point }`.
--/
-@[builtin_term_parser] def structInst := leading_parser
-  "{" >> withoutPosition (ppHardSpace >> optional (atomic (sepBy1 termParser ", " >> " with "))
-    >> sepByIndent (structInstFieldAbbrev <|> structInstField) ", " (allowTrailingSep := true)
-    >> optEllipsis
-    >> optional (" : " >> termParser)) >> " }"
-def typeSpec := leading_parser " : " >> termParser
-def optType : Parser := optional typeSpec
 /--
 `@x` disables automatic insertion of implicit parameters of the constant `x`.
 `@e` for any term `e` also disables the insertion of implicit lambdas at this position.
@@ -198,41 +230,6 @@ In contrast to regular patterns, `e` may be an arbitrary term of the appropriate
 -/
 @[builtin_term_parser] def inaccessible := leading_parser
   ".(" >> withoutPosition termParser >> ")"
-def binderIdent : Parser  := ident <|> hole
-def binderType (requireType := false) : Parser :=
-  if requireType then node nullKind (" : " >> termParser) else optional (" : " >> termParser)
-def binderTactic  := leading_parser
-  atomic (symbol " := " >> " by ") >> Tactic.tacticSeq
-def binderDefault := leading_parser
-  " := " >> termParser
-def explicitBinder (requireType := false) := ppGroup $ leading_parser
-  "(" >> withoutPosition (many1 binderIdent >> binderType requireType >> optional (binderTactic <|> binderDefault)) >> ")"
-/--
-Implicit binder. In regular applications without `@`, it is automatically inserted
-and solved by unification whenever all explicit parameters before it are specified.
--/
-def implicitBinder (requireType := false) := ppGroup $ leading_parser
-  "{" >> withoutPosition (many1 binderIdent >> binderType requireType) >> "}"
-def strictImplicitLeftBracket := atomic (group (symbol "{" >> "{")) <|> "⦃"
-def strictImplicitRightBracket := atomic (group (symbol "}" >> "}")) <|> "⦄"
-/--
-Strict-implicit binder. In contrast to `{ ... }` regular implicit binders,
-a strict-implicit binder is inserted automatically only when at least one subsequent
-explicit parameter is specified.
--/
-def strictImplicitBinder (requireType := false) := ppGroup <| leading_parser
-  strictImplicitLeftBracket >> many1 binderIdent >>
-  binderType requireType >> strictImplicitRightBracket
-/--
-Instance-implicit binder. In regular applications without `@`, it is automatically inserted
-and solved by typeclass inference of the specified class.
--/
-def instBinder := ppGroup <| leading_parser
-  "[" >> withoutPosition (optIdent >> termParser) >> "]"
-def bracketedBinder (requireType := false) :=
-  withAntiquot (mkAntiquot "bracketedBinder" decl_name% (isPseudoKind := true)) <|
-    explicitBinder requireType <|> strictImplicitBinder requireType <|>
-    implicitBinder requireType <|> instBinder
 
 /-
 It is feasible to support dependent arrows such as `{α} → α → α` without sacrificing the quality of the error messages for the longer case.
@@ -261,7 +258,7 @@ def «forall» := leading_parser:leadPrec
 def matchAlt (rhsParser : Parser := termParser) : Parser :=
   leading_parser (withAnonymousAntiquot := false)
     "| " >> ppIndent (
-      sepBy1 (sepBy1 termParser ", ") "|" >> darrow >>
+      sepBy1 (sepBy1 termParser ", ") " | " >> darrow >>
       checkColGe "alternative right-hand-side to start in a column greater than or equal to the corresponding '|'" >>
       rhsParser)
 /--
@@ -275,8 +272,10 @@ instance : Coe (TSyntax ``matchAltExpr) (TSyntax ``matchAlt) where
 def matchAlts (rhsParser : Parser := termParser) : Parser :=
   leading_parser withPosition $ many1Indent (ppLine >> matchAlt rhsParser)
 
-def matchDiscr := leading_parser
-  optional (atomic (ident >> " : ")) >> termParser
+/-- `matchDiscr` matches a "match discriminant", either `h : tm` or `tm`, used in `match` as
+`match h1 : e1, e2, h3 : e3 with ...`. -/
+@[builtin_doc] def matchDiscr := leading_parser
+  optional (atomic (binderIdent >> " : ")) >> termParser
 
 def trueVal  := leading_parser nonReservedSymbol "true"
 def falseVal := leading_parser nonReservedSymbol "false"
@@ -294,6 +293,9 @@ term `e` against each pattern `p` of a match alternative. When all patterns
 of an alternative match, the `match` term evaluates to the value of the
 corresponding right-hand side `f` with the pattern variables bound to the
 respective matched values.
+If used as `match h : e, ... with | p, ... => f | ...`, `h : e = p` is available
+within `f`.
+
 When not constructing a proof, `match` does not automatically substitute variables
 matched on in dependent variables' types. Use `match (generalizing := true) ...` to
 enforce this.
@@ -320,13 +322,37 @@ they are not.
 -/
 @[builtin_term_parser] def «match» := leading_parser:leadPrec
   "match " >> optional generalizingParam >> optional motive >> sepBy1 matchDiscr ", " >>
-  " with " >> ppDedent matchAlts
+  " with" >> ppDedent matchAlts
 /--
 Empty match/ex falso. `nomatch e` is of arbitrary type `α : Sort u` if
 Lean can show that an empty set of patterns is exhaustive given `e`'s type,
 e.g. because it has no constructors.
 -/
-@[builtin_term_parser] def «nomatch» := leading_parser:leadPrec "nomatch " >> termParser
+@[builtin_term_parser] def «nomatch» := leading_parser:leadPrec "nomatch " >> sepBy1 termParser ", "
+
+@[builtin_term_parser] def «nofun» := leading_parser "nofun"
+
+/--
+Structure instance. `{ x := e, ... }` assigns `e` to field `x`, which may be
+inherited. If `e` is itself a variable called `x`, it can be elided:
+`fun y => { x := 1, y }`.
+A *structure update* of an existing value can be given via `with`:
+`{ point with x := 1 }`.
+The structure type can be specified if not inferable:
+`{ x := 1, y := 2 : Point }`.
+-/
+@[builtin_term_parser] def structInst := leading_parser
+  "{ " >> withoutPosition (optional (atomic (sepBy1 termParser ", " >> " with "))
+    >> structInstFields (sepByIndent structInstField ", " (allowTrailingSep := true))
+    >> optEllipsis
+    >> optional (" : " >> termParser)) >> " }"
+
+@[builtin_structInstFieldDecl_parser]
+def structInstFieldDef := leading_parser
+  " := " >> optional "private" >> termParser
+@[builtin_structInstFieldDecl_parser]
+def structInstFieldEqns := leading_parser
+  optional "private" >> matchAlts
 
 def funImplicitBinder := withAntiquot (mkAntiquot "implicitBinder" ``implicitBinder) <|
   atomic (lookahead ("{" >> many1 binderIdent >> (symbol " : " <|> "}"))) >> implicitBinder
@@ -341,19 +367,28 @@ def funBinder : Parser :=
 -- NOTE: we disable anonymous antiquotations to ensure that `fun $b => ...`
 -- remains a `term` antiquotation
 def basicFun : Parser := leading_parser (withAnonymousAntiquot := false)
-  ppGroup (many1 (ppSpace >> funBinder) >> optType >> " =>") >> ppSpace >> termParser
+  ppGroup (many1 (ppSpace >> funBinder) >> optType >> unicodeSymbol " ↦" " =>" (preserveForPP := true)) >> ppSpace >> termParser
 @[builtin_term_parser] def «fun» := leading_parser:maxPrec
-  ppAllowUngrouped >> unicodeSymbol "λ" "fun" >> (basicFun <|> matchAlts)
+  ppAllowUngrouped >> unicodeSymbol "λ" "fun" (preserveForPP := true) >> (basicFun <|> matchAlts)
 
 def optExprPrecedence := optional (atomic ":" >> termParser maxPrec)
 def withAnonymousAntiquot := leading_parser
-  atomic ("(" >> nonReservedSymbol "withAnonymousAntiquot" >> " := ") >>
-  (trueVal <|> falseVal) >> ")" >> ppSpace
+  atomic (" (" >> nonReservedSymbol "withAnonymousAntiquot" >> " := ") >>
+  (trueVal <|> falseVal) >> ")"
 @[builtin_term_parser] def «leading_parser»  := leading_parser:leadPrec
-  "leading_parser " >> optExprPrecedence >> optional withAnonymousAntiquot >> termParser
+  "leading_parser" >> optExprPrecedence >> optional withAnonymousAntiquot >> ppSpace >> termParser
 @[builtin_term_parser] def «trailing_parser» := leading_parser:leadPrec
-  "trailing_parser " >> optExprPrecedence >> optExprPrecedence >> termParser
+  "trailing_parser" >> optExprPrecedence >> optExprPrecedence >> ppSpace >> termParser
 
+/--
+Indicates that an argument to a function marked `@[extern]` is borrowed.
+
+Being borrowed only affects the ABI and runtime behavior of the function when compiled or interpreted. From the perspective of Lean's type system, this annotation has no effect. It similarly has no effect on functions not marked `@[extern]`.
+
+When a function argument is borrowed, the function does not consume the value. This means that the function will not decrement the value's reference count or deallocate it, and the caller is responsible for doing so.
+
+Please see https://lean-lang.org/doc/reference/latest/find/?domain=Verso.Genre.Manual.section&name=ffi-borrowing for a complete description.
+-/
 @[builtin_term_parser] def borrowed   := leading_parser
   "@& " >> termParser leadPrec
 /-- A literal of type `Name`. -/
@@ -367,18 +402,22 @@ existent in the current context, or else fails.
 @[builtin_term_parser] def doubleQuotedName := leading_parser
   "`" >> checkNoWsBefore >> rawCh '`' (trailingWs := false) >> ident
 
+def letId := leading_parser (withAnonymousAntiquot := false)
+  (ppSpace >> binderIdent >> notFollowedBy (checkNoWsBefore "" >> "[")
+    "space is required before instance '[...]' binders to distinguish them from array updates `let x[i] := e; ...`")
+  <|> hygieneInfo
 def letIdBinder :=
   withAntiquot (mkAntiquot "letIdBinder" decl_name% (isPseudoKind := true)) <|
     binderIdent <|> bracketedBinder
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
 def letIdLhs    : Parser :=
-  ident >> notFollowedBy (checkNoWsBefore "" >> "[")
-    "space is required before instance '[...]' binders to distinguish them from array updates `let x[i] := e; ...`" >>
-  many (ppSpace >> letIdBinder) >> optType
+  letId >> many (ppSpace >> letIdBinder) >> optType
 def letIdDecl   := leading_parser (withAnonymousAntiquot := false)
   atomic (letIdLhs >> " := ") >> termParser
-def letPatDecl  := leading_parser (withAnonymousAntiquot := false)
-  atomic (termParser >> pushNone >> optType >> " := ") >> termParser
+/- Remark: `requireParens` forces the pattern to have parentheses, for trying before `letIdDecl`.
+   We need this because for `let (rfl) := h`, which would parse as `letIdDecl` due to `hygieneInfo`. -/
+def letPatDecl (requireParens := false) := leading_parser (withAnonymousAntiquot := false)
+  atomic (ppSpace >> (if requireParens then lookahead "(" >> paren else termParser) >> pushNone >> optType >> " := ") >> termParser
 /-
   Remark: the following `(" := " <|> matchAlts)` is a hack we use
   to produce a better error message at `letDecl`.
@@ -397,11 +436,55 @@ def letPatDecl  := leading_parser (withAnonymousAntiquot := false)
 -/
 def letEqnsDecl := leading_parser (withAnonymousAntiquot := false)
   letIdLhs >> (" := " <|> matchAlts)
--- Remark: we disable anonymous antiquotations here to make sure
--- anonymous antiquotations (e.g., `$x`) are not `letDecl`
-def letDecl     := leading_parser (withAnonymousAntiquot := false)
+/-- `letDecl` matches the body of a let declaration `let f x1 x2 := e`,
+`let pat := e` (where `pat` is an arbitrary term) or `let f | pat1 => e1 | pat2 => e2 ...`
+(a pattern matching declaration), except for the `let` keyword itself.
+`let rec` declarations are not handled here. -/
+@[builtin_doc] def letDecl := leading_parser (withAnonymousAntiquot := false)
+  -- Remark: we disable anonymous antiquotations here to make sure
+  -- anonymous antiquotations (e.g., `$x`) are not `letDecl`
   notFollowedBy (nonReservedSymbol "rec") "rec" >>
-  (letIdDecl <|> letPatDecl <|> letEqnsDecl)
+  (letPatDecl true <|> letIdDecl <|> letPatDecl <|> letEqnsDecl)
+/--
+`+nondep` elaborates as a nondependent `let`, a `have` expression.
+-/
+@[builtin_doc] def letOptNondep := leading_parser
+  nonReservedSymbol "nondep"
+/--
+`+postponeValue` causes the body of the `let` to be elaborated before the value.
+-/
+@[builtin_doc] def letOptPostponeValue := leading_parser
+  nonReservedSymbol "postponeValue"
+/--
+`+usedOnly` causes unused `let`s bindings to be eliminated.
+-/
+@[builtin_doc] def letOptUsedOnly := leading_parser
+  nonReservedSymbol "usedOnly"
+/--
+`+zeta` immediately inlines the `let` value after elaboration (it zeta reduces the `let`).
+-/
+@[builtin_doc] def letOptZeta := leading_parser
+  nonReservedSymbol "zeta"
+/--
+`+generalize` directs `let`/`have` to generalize the value from the expected type before elaborating the body.
+-/
+@[builtin_doc] def letOptGeneralize := leading_parser
+  nonReservedSymbol "generalize"
+def letOpts := leading_parser
+  letOptNondep <|> letOptPostponeValue <|> letOptUsedOnly <|> letOptZeta <|> letOptGeneralize
+def letPosOpt := leading_parser (withAnonymousAntiquot := false)
+  " +" >> checkNoWsBefore >> letOpts
+def letNegOpt := leading_parser (withAnonymousAntiquot := false)
+  " -" >> checkNoWsBefore >> letOpts
+/--
+`let (eq := h) x := v; ...` adds the equality `h : x = v` to the context while elaborating the body.
+-/
+@[builtin_doc] def letOptEq := leading_parser (withAnonymousAntiquot := false)
+  atomic (" (" >> nonReservedSymbol "eq" >> " := ") >> binderIdent >> ")"
+def letConfigItem := letPosOpt <|> letNegOpt <|> letOptEq
+/-- Configuration options for `let` tactics. -/
+def letConfig := leading_parser (withAnonymousAntiquot := false)
+  many letConfigItem
 /--
 `let` is used to declare a local definition. Example:
 ```
@@ -422,16 +505,24 @@ assume `p` has type `Nat × Nat`, then you can write
 let (x, y) := p
 x + y
 ```
+
+The *anaphoric let* `let := v` defines a variable called `this`.
 -/
 @[builtin_term_parser] def «let» := leading_parser:leadPrec
-  withPosition ("let " >> letDecl) >> optSemicolon termParser
+  withPosition ("let" >> letConfig >> letDecl) >> optSemicolon termParser
 /--
-`let_fun x := v; b` is syntax sugar for `(fun x => b) v`.
-It is very similar to `let x := v; b`, but they are not equivalent.
-In `let_fun`, the value `v` has been abstracted away and cannot be accessed in `b`.
+`have` is used to declare local hypotheses and opaque local definitions.
+
+It has the same syntax as `let`, and it is equivalent to `let +nondep`,
+creating a *nondependent* let expression.
+-/
+@[builtin_term_parser] def «have» := leading_parser:leadPrec
+  withPosition ("have" >> letConfig >> letDecl) >> optSemicolon termParser
+/--
+`let_fun x := v; b` is deprecated syntax sugar for `have x := v; b`.
 -/
 @[builtin_term_parser] def «let_fun»     := leading_parser:leadPrec
-  withPosition ((symbol "let_fun " <|> "let_λ") >> letDecl) >> optSemicolon termParser
+  withPosition ((symbol "let_fun " <|> "let_λ ") >> letDecl) >> optSemicolon termParser
 /--
 `let_delayed x := v; b` is similar to `let x := v; b`, but `b` is elaborated before `v`.
 -/
@@ -443,27 +534,149 @@ It is often used when building macros.
 -/
 @[builtin_term_parser] def «let_tmp» := leading_parser:leadPrec
   withPosition ("let_tmp " >> letDecl) >> optSemicolon termParser
-
-/- like `let_fun` but with optional name -/
-def haveIdLhs    := optional (ident >> many (ppSpace >> letIdBinder)) >> optType
-def haveIdDecl   := leading_parser (withAnonymousAntiquot := false)
-  atomic (haveIdLhs >> " := ") >> termParser
-def haveEqnsDecl := leading_parser (withAnonymousAntiquot := false)
-  haveIdLhs >> matchAlts
-def haveDecl     := leading_parser (withAnonymousAntiquot := false)
-  haveIdDecl <|> letPatDecl <|> haveEqnsDecl
-@[builtin_term_parser] def «have» := leading_parser:leadPrec
-  withPosition ("have " >> haveDecl) >> optSemicolon termParser
+/-- `haveI` behaves like `have`, but inlines the value instead of producing a `have` term. -/
+@[builtin_term_parser] def «haveI» := leading_parser
+  withPosition ("haveI " >> letConfig >> letDecl) >> optSemicolon termParser
+/-- `letI` behaves like `let`, but inlines the value instead of producing a `let` term. -/
+@[builtin_term_parser] def «letI» := leading_parser
+  withPosition ("letI " >> letConfig >> letDecl) >> optSemicolon termParser
 
 def «scoped» := leading_parser "scoped "
 def «local»  := leading_parser "local "
-def attrKind := leading_parser optional («scoped» <|> «local»)
+/-- `attrKind` matches `("scoped" <|> "local")?`, used before an attribute like `@[local simp]`. -/
+@[builtin_doc] def attrKind := leading_parser optional («scoped» <|> «local»)
 def attrInstance     := ppGroup $ leading_parser attrKind >> attrParser
 
 def attributes       := leading_parser
-  "@[" >> withoutPosition (sepBy1 attrInstance ", ") >> "]"
-def letRecDecl       := leading_parser
-  optional Command.docComment >> optional «attributes» >> letDecl
+  "@[" >> withoutPosition (sepBy1 attrInstance ", ") >> "] "
+
+end Term
+namespace Termination
+
+/-
+Termination suffix parsers, typically thought of as part of a command, but due to
+letrec we need them here already.
+-/
+
+/--
+Specify a termination measure for recursive functions.
+```
+termination_by a - b
+```
+indicates that termination of the currently defined recursive function follows
+because the difference between the arguments `a` and `b` decreases.
+
+If the function takes further argument after the colon, you can name them as follows:
+```
+def example (a : Nat) : Nat → Nat → Nat :=
+termination_by b c => a - b
+```
+
+By default, a `termination_by` clause will cause the function to be constructed using well-founded
+recursion. The syntax `termination_by structural a` (or `termination_by structural _ c => c`)
+indicates the function is expected to be structural recursive on the argument. In this case
+the body of the `termination_by` clause must be one of the function's parameters.
+
+If omitted, a termination measure will be inferred. If written as `termination_by?`,
+the inferred termination measure will be suggested.
+
+-/
+@[builtin_doc] def terminationBy := leading_parser
+  "termination_by " >>
+  optional (nonReservedSymbol "structural ") >>
+  optional (atomic (many (ppSpace >> Term.binderIdent) >> " => ")) >>
+  termParser
+
+@[inherit_doc terminationBy, builtin_doc]
+def terminationBy? := leading_parser
+  "termination_by?"
+
+/--
+Defines a possibly non-terminating function as a fixed-point in a suitable partial order.
+
+Such a function is compiled as if it was marked `partial`, but its equations are provided as
+theorems, so that it can be verified.
+
+In general it accepts functions whose return type has a `Lean.Order.CCPO` instance and whose
+definition is `Lean.Order.monotone` with regard to its recursive calls.
+
+Common special cases are
+
+* Functions whose type is inhabited a-priori (as with `partial`), and where all recursive
+  calls are in tail-call position.
+* Monadic in certain “monotone chain-complete monads” (in particular, `Option`) composed using
+  the bind operator and other supported monadic combinators.
+
+By default, the monotonicity proof is performed by the compositional `monotonicity` tactic. Using
+the syntax `partial_fixpoint monotonicity by $tac` the proof can be done manually.
+-/
+@[builtin_doc] def partialFixpoint := leading_parser
+  withPosition (
+    "partial_fixpoint" >>
+    optional (checkColGt "indentation" >> nonReservedSymbol "monotonicity " >>
+              checkColGt "indented monotonicity proof" >> termParser))
+
+/--
+Defines a coinductive predicate using lattice theory, based on the Knaster-Tarski fixpoint theorem.
+
+This feature constructs coinductive predicates by leveraging the lattice structure on `Prop`
+and ensures correctness through monotonicity.
+
+The coinductive predicate is defined as the greatest fixed point of a monotone function on `Prop`.
+
+By default, monotonicity is verified automatically. However, users can provide custom proofs
+of monotonicity if needed.
+-/
+def coinductiveFixpoint := leading_parser
+  withPosition (
+    "coinductive_fixpoint" >>
+    optional (checkColGt "indentation" >> nonReservedSymbol "monotonicity " >>
+              checkColGt "indented monotonicity proof" >> termParser))
+
+/--
+Defines an inductive predicate using lattice theory, based on the Knaster-Tarski fixpoint theorem.
+
+This feature constructs inductive predicates by leveraging the lattice structure on `Prop`
+and ensures correctness through monotonicity.
+
+The inductive predicate is defined as the least fixed point of a monotone function on `Prop`.
+
+By default, monotonicity is verified automatically. However, users can provide custom proofs
+of monotonicity if needed.
+-/
+def inductiveFixpoint := leading_parser
+  withPosition (
+    "inductive_fixpoint" >>
+    optional (checkColGt "indentation" >> nonReservedSymbol "monotonicity " >>
+              checkColGt "indented monotonicity proof" >> termParser))
+
+/--
+Manually prove that the termination measure (as specified with `termination_by` or inferred)
+decreases at each recursive call.
+
+By default, the tactic `decreasing_tactic` is used.
+
+Forces the use of well-founded recursion and is hence incompatible with
+`termination_by structural`.
+-/
+@[builtin_doc] def decreasingBy := leading_parser
+  ppDedent ppLine >> "decreasing_by " >> Tactic.tacticSeqIndentGt
+
+/--
+Termination hints are `termination_by` and `decreasing_by`, in that order.
+-/
+@[builtin_doc] def suffix := leading_parser
+  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy <|> partialFixpoint <|> coinductiveFixpoint <|> inductiveFixpoint)) >> optional decreasingBy
+
+end Termination
+namespace Term
+
+/-- `letRecDecl` matches the body of a let-rec declaration: a doc comment, attributes, and then
+a let declaration without the `let` keyword, such as `/-- foo -/ @[simp] bar := 1`. -/
+@[builtin_doc] def letRecDecl := leading_parser
+  optional Command.docComment >> optional «attributes» >> letDecl >> Termination.suffix
+/-- `letRecDecls` matches `letRecDecl,+`, a comma-separated list of let-rec declarations (see `letRecDecl`). -/
+-- @[builtin_doc] -- FIXME: suppress the hover
 def letRecDecls      := leading_parser
   sepBy1 letRecDecl ", "
 @[builtin_term_parser]
@@ -471,36 +684,78 @@ def «letrec» := leading_parser:leadPrec
   withPosition (group ("let " >> nonReservedSymbol "rec ") >> letRecDecls) >>
   optSemicolon termParser
 
+/--
+A named subsection of `where ... finally`. In the future, sections such as `decreasing_by` might become
+syntactic sugar for an `where ... finally` subsection `| decreasing => ...`.
+-/
+def whereFinallySubsection := leading_parser
+  ppLine >> "| " >> ident >> darrow >> Tactic.tacticSeq
+
+/--
+The `finally` section trailing a `where` opens a tactic block to fill in `?hole`s in the definition body.
+-/
+@[builtin_doc] def whereFinally := leading_parser
+  ppDedent ppLine >> "finally " >> optional Tactic.tacticSeqIndentGt >> manyIndent whereFinallySubsection
+
 @[run_builtin_parser_attribute_hooks]
 def whereDecls := leading_parser
-  " where" >> sepBy1Indent (ppGroup letRecDecl) "; " (allowTrailingSep := true)
+  ppDedent ppLine >> "where" >> sepByIndent (ppGroup letRecDecl) "; " (allowTrailingSep := true) >> optional whereFinally
 
 @[run_builtin_parser_attribute_hooks]
 def matchAltsWhereDecls := leading_parser
-  matchAlts >> optional whereDecls
+  matchAlts >> Termination.suffix >> optional whereDecls
 
 @[builtin_term_parser] def noindex := leading_parser
   "no_index " >> termParser maxPrec
 
+/--
+`unsafe t : α` is an expression constructor which allows using unsafe declarations inside the
+body of `t : α`, by creating an auxiliary definition containing `t` and using `implementedBy` to
+wrap it in a safe interface. It is required that `α` is nonempty for this to be sound,
+but even beyond that, an `unsafe` block should be carefully inspected for memory safety because
+the compiler is unable to guarantee the safety of the operation.
+
+For example, the `evalExpr` function is unsafe, because the compiler cannot guarantee that when
+you call ```evalExpr Foo ``Foo e``` that the type `Foo` corresponds to the name `Foo`, but in a
+particular use case, we can ensure this, so `unsafe (evalExpr Foo ``Foo e)` is a correct usage.
+-/
+@[builtin_term_parser] def «unsafe» := leading_parser:leadPrec "unsafe " >> termParser
+
+/-- `binrel% r a b` elaborates `r a b` as a binary relation using the type propagation protocol in `Lean.Elab.Extra`. -/
 @[builtin_term_parser] def binrel := leading_parser
-  "binrel% " >> ident >> ppSpace >> termParser maxPrec >> termParser maxPrec
-/-- Similar to `binrel`, but coerce `Prop` arguments into `Bool`. -/
+  "binrel% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
+/-- `binrel_no_prop% r a b` is similar to `binrel% r a b`, but it coerces `Prop` arguments into `Bool`. -/
 @[builtin_term_parser] def binrel_no_prop := leading_parser
-  "binrel_no_prop% " >> ident >> ppSpace >> termParser maxPrec >> termParser maxPrec
-@[builtin_term_parser] def binop  := leading_parser
-  "binop% " >> ident >> ppSpace >> termParser maxPrec >> termParser maxPrec
-@[builtin_term_parser] def binop_lazy  := leading_parser
-  "binop_lazy% " >> ident >> ppSpace >> termParser maxPrec >> termParser maxPrec
-@[builtin_term_parser] def unop  := leading_parser
+  "binrel_no_prop% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
+/-- `binop% f a b` elaborates `f a b` as a binary operation using the type propagation protocol in `Lean.Elab.Extra`. -/
+@[builtin_term_parser] def binop := leading_parser
+  "binop% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
+/-- `binop_lazy%` is similar to `binop% f a b`, but it wraps `b` as a function from `Unit`. -/
+@[builtin_term_parser] def binop_lazy := leading_parser
+  "binop_lazy% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
+/-- `leftact% f a b` elaborates `f a b` as a left action using the type propagation protocol in `Lean.Elab.Extra`.
+In particular, it is like a unary operation with a fixed parameter `a`, where only the right argument `b` participates in the operator coercion elaborator. -/
+@[builtin_term_parser] def leftact := leading_parser
+  "leftact% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
+/-- `rightact% f a b` elaborates `f a b` as a right action using the type propagation protocol in `Lean.Elab.Extra`.
+In particular, it is like a unary operation with a fixed parameter `b`, where only the left argument `a` participates in the operator coercion elaborator. -/
+@[builtin_term_parser] def rightact := leading_parser
+  "rightact% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
+/-- `unop% f a` elaborates `f a` as a unary operation using the type propagation protocol in `Lean.Elab.Extra`. -/
+@[builtin_term_parser] def unop := leading_parser
   "unop% " >> ident >> ppSpace >> termParser maxPrec
 
 @[builtin_term_parser] def forInMacro := leading_parser
-  "for_in% " >> termParser maxPrec >> termParser maxPrec >> termParser maxPrec
+  "for_in% " >> termParser maxPrec >> termParser maxPrec >> ppSpace >> termParser maxPrec
 @[builtin_term_parser] def forInMacro' := leading_parser
-  "for_in'% " >> termParser maxPrec >> termParser maxPrec >> termParser maxPrec
+  "for_in'% " >> termParser maxPrec >> termParser maxPrec >> ppSpace >> termParser maxPrec
 
 /-- A macro which evaluates to the name of the currently elaborating declaration. -/
 @[builtin_term_parser] def declName := leading_parser "decl_name%"
+
+/-- `private_decl% e` elaborates `e` in a private context and wraps the result in a helper `def`. -/
+@[builtin_term_parser] def «privateDecl» :=
+  leading_parser "private_decl% " >> termParser maxPrec
 
 /--
 * `with_decl_name% id e` elaborates `e` in a context while changing the effective
@@ -509,22 +764,27 @@ def matchAltsWhereDecls := leading_parser
   (appending the current namespaces).
 -/
 @[builtin_term_parser] def withDeclName := leading_parser
-  "with_decl_name% " >> optional "?" >> ident >> termParser
+  "with_decl_name% " >> optional "?" >> ident >> ppSpace >> termParser
 @[builtin_term_parser] def typeOf := leading_parser
   "type_of% " >> termParser maxPrec
 @[builtin_term_parser] def ensureTypeOf := leading_parser
-  "ensure_type_of% " >> termParser maxPrec >> strLit >> termParser
+  "ensure_type_of% " >> termParser maxPrec >> strLit >> ppSpace >> termParser
 @[builtin_term_parser] def ensureExpectedType := leading_parser
-  "ensure_expected_type% " >> strLit >> termParser maxPrec
+  "ensure_expected_type% " >> strLit >> ppSpace >> termParser maxPrec
 @[builtin_term_parser] def noImplicitLambda := leading_parser
   "no_implicit_lambda% " >> termParser maxPrec
+/--
+`value_of% x` elaborates to the value of `x`, which can be a local or global definition.
+-/
+@[builtin_term_parser] def valueOf := leading_parser
+  "value_of% " >> ident
 
 /--
 `clear% x; e` elaborates `x` after clearing the free variable `x` from the local context.
 If `x` cannot be cleared (due to dependencies), it will keep `x` without failing.
 -/
 @[builtin_term_parser] def clear := leading_parser
-  "clear% " >> ident >> semicolonOrLinebreak >> termParser
+  "clear% " >> ident >> semicolonOrLinebreak >> ppDedent ppLine >> termParser
 
 @[builtin_term_parser] def letMVar := leading_parser
   "let_mvar% " >> "?" >> ident >> " := " >> termParser >> "; " >> termParser
@@ -543,12 +803,13 @@ Helper parser for marking `match`-alternatives that should not trigger errors if
 We use them to implement `macro_rules` and `elab_rules`
 -/
 @[builtin_term_parser] def noErrorIfUnused := leading_parser
-  "no_error_if_unused%" >> termParser
+  "no_error_if_unused% " >> termParser
 
 def namedArgument  := leading_parser (withAnonymousAntiquot := false)
   atomic ("(" >> ident >> " := ") >> withoutPosition termParser >> ")"
+/-- In a function application, `..` notation inserts zero or more `_` placeholders. -/
 def ellipsis       := leading_parser (withAnonymousAntiquot := false)
-  ".." >> notFollowedBy "." "`.` immediately after `..`"
+  ".." >> notFollowedBy (checkNoWsBefore >> ".") "`.` immediately after `..`"
 def argument       :=
   checkWsBefore "expected space" >>
   checkColGt "expected to be indented" >>
@@ -577,6 +838,17 @@ is short for accessing the `i`-th field (1-indexed) of `e` if it is of a structu
 @[builtin_term_parser] def arrow    := trailing_parser
   checkPrec 25 >> unicodeSymbol " → " " -> " >> termParser 25
 
+/--
+Syntax kind for syntax nodes representing the field of a projection in the `InfoTree`.
+Specifically, the `InfoTree` node for a projection `s.f` contains a child `InfoTree` node
+with syntax ``(Syntax.node .none identProjKind #[`f])``.
+
+This is necessary because projection syntax cannot always be detected purely syntactically
+(`s.f` may refer to either the identifier `s.f` or a projection `s.f` depending on
+the available context).
+-/
+def identProjKind := `Lean.Parser.Term.identProj
+
 def isIdent (stx : Syntax) : Bool :=
   -- antiquotations should also be allowed where an identifier is expected
   stx.isAntiquot || stx.isIdent
@@ -586,7 +858,8 @@ def isIdent (stx : Syntax) : Bool :=
   checkStackTop isIdent "expected preceding identifier" >>
   checkNoWsBefore "no space before '.{'" >> ".{" >>
   sepBy1 levelParser ", " >> "}"
-/-- `x@e` matches the pattern `e` and binds its value to the identifier `x`. -/
+/-- `x@e` or `x@h:e` matches the pattern `e` and binds its value to the identifier `x`.
+If present, the identifier `h` is bound to a proof of `x = e`. -/
 @[builtin_term_parser] def namedPattern : TrailingParser := trailing_parser
   checkStackTop isIdent "expected preceding identifier" >>
   checkNoWsBefore "no space before '@'" >> "@" >>
@@ -606,6 +879,10 @@ It is especially useful for avoiding parentheses with repeated applications.
 Given `h : a = b` and `e : p a`, the term `h ▸ e` has type `p b`.
 You can also view `h ▸ e` as a "type casting" operation
 where you change the type of `e` by using `h`.
+
+The macro tries both orientations of `h`. If the context provides an
+expected type, it rewrites the expected type, else it rewrites the type of e`.
+
 See the Chapter "Quantifiers and Equality" in the manual
 "Theorem Proving in Lean" for additional information.
 -/
@@ -638,33 +915,118 @@ interpolated string literal) to stderr. It should only be used for debugging.
 /-- `assert! cond` panics if `cond` evaluates to `false`. -/
 @[builtin_term_parser] def assert := leading_parser:leadPrec
   withPosition ("assert! " >> termParser) >> optSemicolon termParser
-
+/--
+`debug_assert! cond` panics if `cond` evaluates to `false` and the executing code has been built
+with debug assertions enabled (see the `debugAssertions` option).
+-/
+@[builtin_term_parser] def debugAssert := leading_parser:leadPrec
+  withPosition ("debug_assert! " >> termParser) >> optSemicolon termParser
 
 def macroArg       := termParser maxPrec
 def macroDollarArg := leading_parser "$" >> termParser 10
 def macroLastArg   := macroDollarArg <|> macroArg
 
+/--
+A state monad that uses an actual mutable reference cell (i.e. an `ST.Ref`).
+
+This is syntax, rather than a function, to make it easier to use. Its elaborator synthesizes an
+appropriate parameter for the underlying monad's `ST` effects, then passes it to `StateRefT'`.
+-/
 -- Macro for avoiding exponentially big terms when using `STWorld`
 @[builtin_term_parser] def stateRefT := leading_parser
-  "StateRefT" >> macroArg >> macroLastArg
+  "StateRefT " >> macroArg >> ppSpace >> macroLastArg
 
-@[builtin_term_parser] def dynamicQuot := leading_parser
-  "`(" >> ident >> "|" >> withoutPosition (incQuotDepth (parserOfStack 1)) >> ")"
+@[builtin_term_parser] def dynamicQuot := withoutPosition <| leading_parser
+  "`(" >> ident >> "| " >> incQuotDepth (parserOfStack 1) >> ")"
 
 @[builtin_term_parser] def dotIdent := leading_parser
   "." >> checkNoWsBefore >> rawIdent
 
+/--
+Implementation of the `show_term` term elaborator.
+-/
+@[builtin_term_parser] def showTermElabImpl :=
+  leading_parser:leadPrec "show_term_elab " >> termParser
+
+/-!
+`match_expr` support.
+-/
+
+def matchExprPat := leading_parser optional (atomic (ident >> "@")) >> ident >> many binderIdent
+def matchExprAlt (rhsParser : Parser) := leading_parser "| " >> ppIndent (matchExprPat >> " => " >> rhsParser)
+def matchExprElseAlt (rhsParser : Parser) := leading_parser "| " >> ppIndent (hole >> " => " >> rhsParser)
+def matchExprAlts (rhsParser : Parser) :=
+  leading_parser withPosition $
+    many (ppLine >> checkColGe "irrelevant" >> notFollowedBy (symbol "| " >> " _ ") "irrelevant" >> matchExprAlt rhsParser)
+    >> (ppLine >> checkColGe "else-alternative for `match_expr`, i.e., `| _ => ...`" >> matchExprElseAlt rhsParser)
+@[builtin_term_parser] def matchExpr := leading_parser:leadPrec
+  "match_expr " >> termParser >> " with" >> ppDedent (matchExprAlts termParser)
+
+@[builtin_term_parser] def letExpr := leading_parser:leadPrec
+  withPosition ("let_expr " >> matchExprPat >> " := " >> termParser >> checkColGt >> " | " >> termParser) >> optSemicolon termParser
+
+/--
+Throws an error exception, tagging the associated message as a named error with the specified name
+and validating that an associated error explanation exists. The message may be passed as an
+interpolated string or a `MessageData` term. The result of `getRef` is used as position information.
+-/
+@[builtin_term_parser] def throwNamedErrorMacro := leading_parser
+  "throwNamedError " >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
+
+/--
+Throws an error exception, tagging the associated message as a named error with the specified name
+and validating that an associated error explanation exists. The error name must be followed by a
+`Syntax` at which the error is to be thrown. The message is the final argument and may be passed as
+an interpolated string or a `MessageData` term.
+-/
+@[builtin_term_parser] def throwNamedErrorAtMacro := leading_parser
+  "throwNamedErrorAt " >> termParser maxPrec >> ppSpace >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
+
+/--
+Logs an error, tagging the message as a named error with the specified name and validating that an
+associated error explanation exists. The message may be passed as an interpolated string or a
+`MessageData` term. The result of `getRef` is used as position information.
+-/
+@[builtin_term_parser] def logNamedErrorMacro := leading_parser
+  "logNamedError " >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
+
+/--
+Logs an error, tagging the message as a named error with the specified name and validating that an
+associated error explanation exists. The error name must be followed by a `Syntax` at which the
+error is to be logged. The message is the final argument and may be passed as an interpolated string
+or a `MessageData` term.
+-/
+@[builtin_term_parser] def logNamedErrorAtMacro := leading_parser
+  "logNamedErrorAt " >> termParser maxPrec >> ppSpace >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
+
+/--
+Logs a warning, tagging the message as a named diagnostic with the specified name and validating
+that an associated error explanation exists. The message may be passed as an interpolated string or
+a `MessageData` term. The result of `getRef` is used as position information.
+-/
+@[builtin_term_parser] def logNamedWarningMacro := leading_parser
+  "logNamedWarning " >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
+
+/--
+Logs a warning, tagging the message as a named diagnostic with the specified name and validating
+that an associated error explanation exists. The error name must be followed by a `Syntax` at which
+the warning is to be logged. The message is the final argument and may be passed as an interpolated
+string or a `MessageData` term.
+-/
+@[builtin_term_parser] def logNamedWarningAtMacro := leading_parser
+  "logNamedWarningAt " >> termParser maxPrec >> ppSpace >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
+
 end Term
 
 @[builtin_term_parser default+1] def Tactic.quot : Parser := leading_parser
-  "`(tactic|" >> withoutPosition (incQuotDepth tacticParser) >> ")"
+  "`(tactic| " >> withoutPosition (incQuotDepth tacticParser) >> ")"
 @[builtin_term_parser] def Tactic.quotSeq : Parser := leading_parser
-  "`(tactic|" >> withoutPosition (incQuotDepth Tactic.seq1) >> ")"
+  "`(tactic| " >> withoutPosition (incQuotDepth Tactic.seq1) >> ")"
 
 open Term in
 builtin_initialize
   register_parser_alias letDecl
-  register_parser_alias haveDecl
+  register_parser_alias letConfig
   register_parser_alias sufficesDecl
   register_parser_alias letRecDecls
   register_parser_alias hole
@@ -672,6 +1034,8 @@ builtin_initialize
   register_parser_alias matchDiscr
   register_parser_alias bracketedBinder
   register_parser_alias attrKind
+  register_parser_alias optSemicolon
+  register_parser_alias structInstFields
 
 end Parser
 end Lean

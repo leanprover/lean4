@@ -3,8 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Util.ForEachExpr
-import Lean.Compiler.LCNF.CompilerM
+module
+
+prelude
+public import Lean.Util.ForEachExprWhere
+public import Lean.Compiler.LCNF.CompilerM
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Closure
@@ -24,10 +29,14 @@ structure Context where
   inScope : FVarId → Bool
   /--
   If `abstract x` returns `true`, we convert `x` into a closure parameter. Otherwise,
-  we collect the dependecies in the `let`/`fun`-declaration too, and include the declaration in the closure.
+  we collect the dependencies in the `let`/`fun`-declaration too, and include the declaration in the closure.
   Remark: the lambda lifting pass abstracts all `let`/`fun`-declarations.
   -/
   abstract : FVarId → Bool
+  /--
+  Indicates whether we are processing terms beneath a binder.
+  -/
+  isUnderBinder : Bool
 
 /--
 State for the `ClosureM` monad.
@@ -36,7 +45,7 @@ structure State where
   /--
   Set of already visited free variables.
   -/
-  visited : FVarIdSet := {}
+  visited : FVarIdHashSet := {}
   /--
   Free variables that must become new parameters of the code being specialized.
   -/
@@ -71,7 +80,20 @@ mutual
   contain other type parameters.
   -/
   partial def collectParams (params : Array Param) : ClosureM Unit :=
-    params.forM (collectExpr ·.type)
+    params.forM (collectType ·.type)
+
+  partial def collectArg (arg : Arg) : ClosureM Unit :=
+    match arg with
+    | .erased => return ()
+    | .type e => collectType e
+    | .fvar fvarId => collectFVar fvarId
+
+  partial def collectLetValue (e : LetValue) : ClosureM Unit := do
+    match e with
+    | .erased | .lit .. => return ()
+    | .proj _ _ fvarId => collectFVar fvarId
+    | .const _ _ args => args.forM collectArg
+    | .fvar fvarId args => collectFVar fvarId; args.forM collectArg
 
   /--
   Collect dependencies in the given code. We need this function to be able
@@ -79,24 +101,29 @@ mutual
   -/
   partial def collectCode (c : Code) : ClosureM Unit := do
     match c with
-    | .let decl k => collectExpr decl.type; collectExpr decl.value; collectCode k
+    | .let decl k =>
+      collectType decl.type
+      withReader (fun ctx => { ctx with isUnderBinder := ctx.isUnderBinder || decl.type.isForall })
+        do collectLetValue decl.value
+      collectCode k
     | .fun decl k | .jp decl k => collectFunDecl decl; collectCode k
     | .cases c =>
-      collectExpr c.resultType
+      collectType c.resultType
       collectFVar c.discr
       c.alts.forM fun alt => do
         match alt with
         | .default k => collectCode k
         | .alt _ ps k => collectParams ps; collectCode k
-    | .jmp _ args => args.forM collectExpr
-    | .unreach type => collectExpr type
+    | .jmp _ args => args.forM collectArg
+    | .unreach type => collectType type
     | .return fvarId => collectFVar fvarId
 
   /-- Collect dependencies of a local function declaration. -/
   partial def collectFunDecl (decl : FunDecl) : ClosureM Unit := do
-    collectExpr decl.type
+    collectType decl.type
     collectParams decl.params
-    collectCode decl.value
+    withReader (fun ctx => { ctx with isUnderBinder := true }) do
+      collectCode decl.value
 
   /--
   Process the given free variable.
@@ -105,38 +132,44 @@ mutual
   partial def collectFVar (fvarId : FVarId) : ClosureM Unit := do
     unless (← get).visited.contains fvarId do
       markVisited fvarId
-      if (← read).inScope fvarId then
+      let ctx ← read
+      if ctx.inScope fvarId then
         /- We only collect the variables in the scope of the function application being specialized. -/
         if let some funDecl ← findFunDecl? fvarId then
-          if (← read).abstract funDecl.fvarId then
+          if ctx.abstract funDecl.fvarId then
             modify fun s => { s with params := s.params.push <| { funDecl with borrow := false } }
           else
             collectFunDecl funDecl
             modify fun s => { s with decls := s.decls.push <| .fun funDecl }
         else if let some param ← findParam? fvarId then
-          collectExpr param.type
+          collectType param.type
           modify fun s => { s with params := s.params.push param }
         else if let some letDecl ← findLetDecl? fvarId then
-          collectExpr letDecl.type
-          if (← read).abstract letDecl.fvarId then
+          collectType letDecl.type
+          if ctx.isUnderBinder || ctx.abstract letDecl.fvarId then
             modify fun s => { s with params := s.params.push <| { letDecl with borrow := false } }
           else
-            collectExpr letDecl.value
+            collectLetValue letDecl.value
             modify fun s => { s with decls := s.decls.push <| .let letDecl }
         else
           unreachable!
 
   /-- Collect dependencies of the given expression. -/
-  partial def collectExpr (e : Expr) : ClosureM Unit := do
-    e.forEach fun e => do
-      match e with
-      | .fvar fvarId => collectFVar fvarId
-      | _ => pure ()
+  partial def collectType (type : Expr) : ClosureM Unit := do
+    type.forEachWhere Expr.isFVar fun e => collectFVar e.fvarId!
+
 end
 
 def run (x : ClosureM α) (inScope : FVarId → Bool) (abstract : FVarId → Bool := fun _ => true) : CompilerM (α × Array Param × Array CodeDecl) := do
-  let (a, s) ← x { inScope, abstract } |>.run {}
-  return (a, s.params, s.decls)
+  let (a, s) ← x { inScope, abstract, isUnderBinder := false } |>.run {}
+  -- If we've abstracted an fvar into a param, exclude its definition. Note that this still allows
+  -- for other decls the removed decl depends upon to be included, but they will be removed later
+  -- for having no users.
+  let mut paramFVars : FVarIdSet := {}
+  for param in s.params do
+    paramFVars := paramFVars.insert param.fvarId
+  let filteredDecls := s.decls.filter fun decl => !(paramFVars.contains decl.fvarId)
+  return (a, s.params, filteredDecls)
 
 end Closure
 

@@ -1,8 +1,32 @@
-{"textDocument": {"uri": "file://completionPrefixIssue.lean"},
+{"textDocument": {"uri": "file:///completionPrefixIssue.lean"},
  "position": {"line": 1, "character": 64}}
 {"items":
- [{"label": "veryLongDefinitionName", "kind": 6, "detail": "Nat"},
+ [{"label": "veryLongDefinitionName",
+   "kind": 6,
+   "data":
+   ["«external:file:///completionPrefixIssue.lean»", 1, 64, 0, "f_uniq.35"]},
   {"label": "veryLongDefinitionNameVeryLongDefinitionName",
    "kind": 21,
-   "detail": "Nat"}],
- "isIncomplete": true}
+   "data":
+   ["«external:file:///completionPrefixIssue.lean»",
+    1,
+    64,
+    0,
+    "cveryLongDefinitionNameVeryLongDefinitionName"]}],
+ "isIncomplete": false}
+Resolution of veryLongDefinitionName:
+{"label": "veryLongDefinitionName",
+ "kind": 6,
+ "detail": "Nat",
+ "data":
+ ["«external:file:///completionPrefixIssue.lean»", 1, 64, 0, "f_uniq.35"]}
+Resolution of veryLongDefinitionNameVeryLongDefinitionName:
+{"label": "veryLongDefinitionNameVeryLongDefinitionName",
+ "kind": 21,
+ "detail": "Nat",
+ "data":
+ ["«external:file:///completionPrefixIssue.lean»",
+  1,
+  64,
+  0,
+  "cveryLongDefinitionNameVeryLongDefinitionName"]}

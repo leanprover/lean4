@@ -3,64 +3,103 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
-import Lean.Parser.Module
-import Lean.Data.Json
+module
+
+prelude
+public import Lean.Parser.Module
+meta import Lean.Parser.Module
+import Lean.Compiler.ModPkgExt
+
+public section
+
+public section
 
 namespace Lean.Elab
 
-def headerToImports (header : Syntax) : List Import :=
-  let imports := if header[0].isNone then [{ module := `Init : Import }] else []
-  imports ++ header[1].getArgs.toList.map fun stx =>
-    -- `stx` is of the form `(Module.import "import" "runtime"? id)
-    let runtime := !stx[1].isNone
-    let id      := stx[2].getId
-    { module := id, runtimeOnly := runtime }
+abbrev HeaderSyntax := TSyntax ``Parser.Module.header
 
-def processHeader (header : Syntax) (opts : Options) (messages : MessageLog) (inputCtx : Parser.InputContext) (trustLevel : UInt32 := 0)
+def HeaderSyntax.startPos (header : HeaderSyntax) : String.Pos.Raw :=
+  header.raw.getPos?.getD 0
+
+def HeaderSyntax.isModule (header : HeaderSyntax) : Bool :=
+  !header.raw[0].isNone
+
+def HeaderSyntax.imports (stx : HeaderSyntax) (includeInit : Bool := true) : Array Import :=
+  match stx with
+  | `(Parser.Module.header| $[module%$moduleTk]? $[prelude%$preludeTk]? $importsStx*) =>
+    let imports := if preludeTk.isNone && includeInit then #[{ module := `Init : Import }] else #[]
+    imports ++ importsStx.map fun
+      | `(Parser.Module.import| $[public%$publicTk]? $[meta%$metaTk]? import $[all%$allTk]? $n) =>
+        { module := n.getId, importAll := allTk.isSome
+          isExported := publicTk.isSome || moduleTk.isNone
+          isMeta := metaTk.isSome }
+      | _ => unreachable!
+  | _ => unreachable!
+
+def HeaderSyntax.toModuleHeader (stx : HeaderSyntax) : ModuleHeader where
+  isModule := stx.isModule
+  imports := stx.imports
+
+abbrev headerToImports := @HeaderSyntax.imports
+
+def processHeaderCore
+    (startPos : String.Pos.Raw) (imports : Array Import) (isModule : Bool)
+    (opts : Options) (messages : MessageLog) (inputCtx : Parser.InputContext)
+    (trustLevel : UInt32 := 0) (plugins : Array System.FilePath := #[]) (leakEnv := false)
+    (mainModule := Name.anonymous) (package? : Option PkgId := none)
+    (arts : NameMap ImportArtifacts := {})
     : IO (Environment × MessageLog) := do
-  try
-    let env ← importModules (headerToImports header) opts trustLevel
+  let level := if isModule then
+    if Elab.inServer.get opts then
+      .server
+    else
+      .exported
+  else
+    .private
+  let (env, messages) ← try
+    let env ←
+      importModules (leakEnv := leakEnv) (loadExts := true) (level := level)
+        imports opts trustLevel plugins arts
     pure (env, messages)
   catch e =>
     let env ← mkEmptyEnvironment
-    let spos := header.getPos?.getD 0
-    let pos  := inputCtx.fileMap.toPosition spos
+    let pos := inputCtx.fileMap.toPosition startPos
     pure (env, messages.add { fileName := inputCtx.fileName, data := toString e, pos := pos })
+  let env := env.setMainModule mainModule |>.setModulePackage package?
+  return (env, messages)
 
-def parseImports (input : String) (fileName : Option String := none) : IO (List Import × Position × MessageLog) := do
+/--
+Elaborates the given header syntax into an environment.
+
+If `mainModule` is not given, `Environment.setMainModule` should be called manually. This is a
+backwards compatibility measure not compatible with the module system.
+-/
+@[inline] def processHeader
+    (header : HeaderSyntax)
+    (opts : Options) (messages : MessageLog) (inputCtx : Parser.InputContext)
+    (trustLevel : UInt32 := 0) (plugins : Array System.FilePath := #[]) (leakEnv := false)
+    (mainModule := Name.anonymous)
+    : IO (Environment × MessageLog) := do
+  processHeaderCore header.startPos header.imports header.isModule
+    opts messages inputCtx trustLevel plugins leakEnv mainModule
+
+def parseImports (input : String) (fileName : Option String := none) : IO (Array Import × Position × MessageLog) := do
   let fileName := fileName.getD "<input>"
   let inputCtx := Parser.mkInputContext input fileName
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
   pure (headerToImports header, inputCtx.fileMap.toPosition parserState.pos, messages)
 
-@[export lean_print_imports]
 def printImports (input : String) (fileName : Option String) : IO Unit := do
   let (deps, _, _) ← parseImports input fileName
   for dep in deps do
     let fname ← findOLean dep.module
     IO.println fname
 
-deriving instance ToJson for Import
-
-structure PrintImportResult where
-  imports? : Option (Array Import) := none
-  errors   : Array String := #[]
-  deriving ToJson
-
-structure PrintImportsResult where
-  imports : Array PrintImportResult
-  deriving ToJson
-
-@[export lean_print_imports_json]
-def printImportsJson (fileNames : Array String) : IO Unit := do
-  let rs ← fileNames.mapM fun fn => do
-    try
-      let (deps, _, msgs) ← parseImports (← IO.FS.readFile ⟨fn⟩) fn
-      if msgs.hasErrors then
-        return { errors := (← msgs.toList.toArray.mapM (·.toString)) }
-      else
-        return { imports? := some deps.toArray }
-    catch e => return { errors := #[e.toString] }
-  IO.println (toJson { imports := rs : PrintImportsResult })
+def printImportSrcs (input : String) (fileName : Option String) : IO Unit := do
+  let sp ← getSrcSearchPath
+  let (deps, _, _) ← parseImports input fileName
+  for dep in deps do
+    let fname ← findLean sp dep.module
+    IO.println fname
 
 end Lean.Elab

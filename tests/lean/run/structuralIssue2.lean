@@ -1,15 +1,6 @@
 namespace List
 
-@[simp] theorem filter_nil {p : α → Bool} : filter p [] = [] := by
-  simp!
-
-theorem cons_eq_append (a : α) (as : List α) : a :: as = [a] ++ as := rfl
-
-theorem filter_cons (a : α) (as : List α) :
-  filter p (a :: as) = if p a then a :: filter p as else filter p as :=
-  sorry
-
-@[simp] theorem filter_append {as bs : List α} {p : α → Bool} :
+@[simp] theorem filter_append' {as bs : List α} {p : α → Bool} :
   filter p (as ++ bs) = filter p as ++ filter p bs :=
   match as with
   | []      => by simp

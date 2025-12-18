@@ -3,17 +3,60 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.ScopedEnvExtension
-import Lean.Meta.GlobalInstances
-import Lean.Meta.DiscrTree
+module
+
+prelude
+public import Init.Data.Range.Polymorphic.Stream
+public import Lean.Meta.DiscrTree
+public import Lean.Meta.CollectMVars
+
+public section
 
 namespace Lean.Meta
 
+register_builtin_option synthInstance.checkSynthOrder : Bool := {
+  defValue := true
+  descr := "check that instances do not introduce metavariable in non-out-params"
+}
+
+/-
+Note: we want to use iota reduction when indexing instances. Otherwise,
+we cannot elaborate examples such as
+```
+inductive Ty where
+  | int
+  | bool
+
+@[reducible] def Ty.interp (ty : Ty) : Type :=
+  Ty.casesOn (motive := fun _ => Type) ty Int Bool
+
+def test {a b c : Ty} (f : a.interp → b.interp → c.interp) (x : a.interp) (y : b.interp) : c.interp :=
+  f x y
+
+def f (a b : Ty.bool.interp) : Ty.bool.interp :=
+  -- We want to synthesize `BEq Ty.bool.interp` here, and it will fail
+  -- if we do not reduce `Ty.bool.interp` to `Bool`.
+  test (.==.) a b
+```
+See comment at `DiscrTree`.
+-/
+
+abbrev InstanceKey := DiscrTree.Key
+
 structure InstanceEntry where
-  keys        : Array DiscrTree.Key
+  keys        : Array InstanceKey
   val         : Expr
   priority    : Nat
   globalName? : Option Name := none
+  /-- The order in which the instance's arguments are to be synthesized. -/
+  synthOrder  : Array Nat
+  /-
+  We store the attribute kind to be able to implement the API `getInstanceAttrKind`.
+  TODO: add better support for retrieving the `attrKind` of any attribute.
+  The current implementation here works only for instances, but it is good enough for unblocking the
+  implementation of `to_additive`.
+  -/
+  attrKind    : AttributeKind
   deriving Inhabited
 
 instance : BEq InstanceEntry where
@@ -24,15 +67,17 @@ instance : ToFormat InstanceEntry where
     | some n => format n
     | _      => "<local>"
 
+abbrev InstanceTree := DiscrTree InstanceEntry
+
 structure Instances where
-  discrTree     : DiscrTree InstanceEntry := DiscrTree.empty
-  instanceNames : PHashSet Name := {}
+  discrTree     : InstanceTree := DiscrTree.empty
+  instanceNames : PHashMap Name InstanceEntry := {}
   erased        : PHashSet Name := {}
   deriving Inhabited
 
 def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
   match e.globalName? with
-  | some n => { d with discrTree := d.discrTree.insertCore e.keys e, instanceNames := d.instanceNames.insert n }
+  | some n => { d with discrTree := d.discrTree.insertCore e.keys e, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n }
   | none   => { d with discrTree := d.discrTree.insertCore e.keys e }
 
 def Instances.eraseCore (d : Instances) (declName : Name) : Instances :=
@@ -40,27 +85,169 @@ def Instances.eraseCore (d : Instances) (declName : Name) : Instances :=
 
 def Instances.erase [Monad m] [MonadError m] (d : Instances) (declName : Name) : m Instances := do
   unless d.instanceNames.contains declName do
-    throwError "'{declName}' does not have [instance] attribute"
+    throwError "`{.ofConstName declName}` does not have [instance] attribute"
   return d.eraseCore declName
 
 builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry Instances ←
   registerSimpleScopedEnvExtension {
     initial  := {}
     addEntry := addInstanceEntry
+    exportEntry? := fun level e =>
+      guard (level == .private || e.globalName?.any (!isPrivateName ·)) *> e
   }
 
-private def mkInstanceKey (e : Expr) : MetaM (Array DiscrTree.Key) := do
+private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
   let type ← inferType e
   withNewMCtxDepth do
     let (_, _, type) ← forallMetaTelescopeReducing type
     DiscrTree.mkPath type
 
+/--
+Compute the order the arguments of `inst` should be synthesized.
+
+The synthesization order makes sure that all mvars in non-out-params of the
+subgoals are assigned before we try to synthesize it.  Otherwise it goes left
+to right.
+
+For example:
+  - `[Add α] [Zero α] : Foo α` returns `[0, 1]`
+  - `[Mul A] [Mul B] [MulHomClass F A B] : FunLike F A B` returns `[2, 0, 1]`
+    (because A B are out-params and are only filled in once we synthesize 2)
+
+(The type of `inst` must not contain mvars.)
+
+Remark: `projInfo?` is `some` if the instance is a projection.
+We need this information because of the heuristic we use to annotate binder
+information in projections. See PR #5376 and issue #5333. Before PR
+#5376, given a class `C` at
+```
+class A (n : Nat) where
+
+instance [A n] : A n.succ where
+
+class B [A 20050] where
+
+class C [A 20000] extends B where
+```
+we would get the following instance
+```
+C.toB [inst : A 20000] [self : @C inst] : @B ...
+```
+After the PR, we have
+```
+C.toB {inst : A 20000} [self : @C inst] : @B ...
+```
+Note the attribute `inst` is now just a regular implicit argument.
+To ensure `computeSynthOrder` works as expected, we should take
+this change into account while processing field `self`.
+This field is the one at position `projInfo?.numParams`.
+-/
+private partial def computeSynthOrder (inst : Expr) (projInfo? : Option ProjectionFunctionInfo) : MetaM (Array Nat) :=
+  withReducible do
+  let instTy ← inferType inst
+
+  -- Gets positions of all out- and semi-out-params of `classTy`
+  -- (where `classTy` is e.g. something like `Inhabited Nat`)
+  let rec getSemiOutParamPositionsOf (classTy : Expr) : MetaM (Array Nat) := do
+    if let .const className .. := classTy.getAppFn then
+      forallTelescopeReducing (← inferType classTy.getAppFn) fun args _ => do
+      let mut pos := (getOutParamPositions? (← getEnv) className).getD #[]
+      for arg in args, i in *...args.size do
+        if (← inferType arg).isAppOf ``semiOutParam then
+          pos := pos.push i
+      return pos
+    else
+      return #[]
+
+  -- Create both metavariables and free variables for the instance args
+  -- We will successively pick subgoals where all non-out-params have been
+  -- assigned already. After picking such a "ready" subgoal, we assign the
+  -- mvars in its out-params by the corresponding fvars.
+  let (argMVars, argBIs, ty) ← forallMetaTelescopeReducing instTy
+  let ty ← whnf ty
+  forallTelescopeReducing instTy fun argVars _ => do
+
+  -- Assigns all mvars from argMVars in e by the corresponding fvar.
+  let rec assignMVarsIn (e : Expr) : MetaM Unit := do
+    for mvarId in ← getMVars e do
+      if let some i := argMVars.findIdx? (·.mvarId! == mvarId) then
+        mvarId.assign argVars[i]!
+      assignMVarsIn (← inferType (.mvar mvarId))
+
+  -- We start by assigning all metavariables in non-out-params of the return value.
+  -- These are assumed to not be mvars during TC search (or at least not assignable)
+  let tyOutParams ← getSemiOutParamPositionsOf ty
+  let tyArgs := ty.getAppArgs
+  for tyArg in tyArgs, i in *...tyArgs.size do
+    unless tyOutParams.contains i do
+      assignMVarsIn tyArg
+
+  -- Now we successively try to find the next ready subgoal, where all
+  -- non-out-params are mvar-free.
+  let mut synthed := #[]
+  let mut toSynth := List.range argMVars.size |>.filter (argBIs[·]! == .instImplicit) |>.toArray
+  while !toSynth.isEmpty do
+    let next? ← toSynth.findM? fun i => do
+      let argTy ← instantiateMVars (← inferType argMVars[i]!)
+      if let some projInfo := projInfo? then
+        if projInfo.numParams == i then
+          -- See comment regarding `projInfo?` at the beginning of this function
+          assignMVarsIn argTy
+          return true
+      forallTelescopeReducing argTy fun _ argTy => do
+      let argTy ← whnf argTy
+      let argOutParams ← getSemiOutParamPositionsOf argTy
+      let argTyArgs := argTy.getAppArgs
+      for i in *...argTyArgs.size, argTyArg in argTyArgs do
+        if !argOutParams.contains i && argTyArg.hasExprMVar then
+          return false
+      return true
+    let next ←
+      match next? with
+      | some next => pure next
+      | none =>
+        if synthInstance.checkSynthOrder.get (← getOptions) then
+          let typeLines := ("" : MessageData).joinSep <| Array.toList <| ← toSynth.mapM fun i => do
+            let ty ← instantiateMVars (← inferType argMVars[i]!)
+            return indentExpr (ty.setPPExplicit true)
+          throwError m!"\
+            cannot find synthesization order for instance {inst} with type{indentExpr instTy}\n\
+            all remaining arguments have metavariables:{typeLines}"
+        pure toSynth[0]!
+    synthed := synthed.push next
+    toSynth := toSynth.filter (· != next)
+    assignMVarsIn (← inferType argMVars[next]!)
+    assignMVarsIn argMVars[next]!
+
+  if synthInstance.checkSynthOrder.get (← getOptions) then
+    let ty ← instantiateMVars ty
+    if ty.hasExprMVar then
+      throwError m!"instance does not provide concrete values for (semi-)out-params{indentExpr (ty.setPPExplicit true)}"
+
+  trace[Meta.synthOrder] "synthesizing the arguments of {inst} in the order {synthed}:\
+    {("" : MessageData).joinSep (← synthed.mapM fun i => return indentExpr (← inferType argVars[i]!)).toList}"
+
+  return synthed
+
 def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
   let c ← mkConstWithLevelParams declName
   let keys ← mkInstanceKey c
   addGlobalInstance declName attrKind
-  instanceExtension.add { keys := keys, val := c, priority := prio, globalName? := declName } attrKind
+  let projInfo? ← getProjectionFnInfo? declName
+  let synthOrder ← computeSynthOrder c projInfo?
+  instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
 
+/--
+Registers type class instances.
+
+The `instance` command, which expands to `@[instance] def`, is usually preferred over using this
+attribute directly. However it might sometimes still be necessary to use this attribute directly,
+in particular for `opaque` instances.
+
+To assign priorities to instances, `@[instance prio]` can be used (where `prio` is a priority).
+This corresponds to the `instance (priority := prio)` notation.
+-/
+@[builtin_doc]
 builtin_initialize
   registerBuiltinAttribute {
     name  := `instance
@@ -80,8 +267,19 @@ def getGlobalInstancesIndex : CoreM (DiscrTree InstanceEntry) :=
 def getErasedInstances : CoreM (PHashSet Name) :=
   return Meta.instanceExtension.getState (← getEnv) |>.erased
 
+def isInstanceCore (env : Environment) (declName : Name) : Bool :=
+  Meta.instanceExtension.getState env |>.instanceNames.contains declName
+
 def isInstance (declName : Name) : CoreM Bool :=
-  return Meta.instanceExtension.getState (← getEnv) |>.instanceNames.contains declName
+  return isInstanceCore (← getEnv) declName
+
+def getInstancePriority? (declName : Name) : CoreM (Option Nat) := do
+  let some entry := Meta.instanceExtension.getState (← getEnv) |>.instanceNames.find? declName | return none
+  return entry.priority
+
+def getInstanceAttrKind? (declName : Name) : CoreM (Option AttributeKind) := do
+  let some entry := Meta.instanceExtension.getState (← getEnv) |>.instanceNames.find? declName | return none
+  return entry.attrKind
 
 /-! # Default instance support -/
 
@@ -90,7 +288,7 @@ structure DefaultInstanceEntry where
   instanceName : Name
   priority     : Nat
 
-abbrev PrioritySet := RBTree Nat (fun x y => compare y x)
+abbrev PrioritySet := Std.TreeSet Nat (fun x y => compare y x)
 
 structure DefaultInstances where
   defaultInstances : NameMap (List (Name × Nat)) := {}
@@ -111,15 +309,15 @@ builtin_initialize defaultInstanceExtension : SimplePersistentEnvExtension Defau
 
 def addDefaultInstance (declName : Name) (prio : Nat := 0) : MetaM Unit := do
   match (← getEnv).find? declName with
-  | none => throwError "unknown constant '{declName}'"
+  | none => throwError "Unknown constant `{.ofConstName declName}`"
   | some info =>
     forallTelescopeReducing info.type fun _ type => do
       match type.getAppFn with
       | Expr.const className _ =>
         unless isClass (← getEnv) className do
-          throwError "invalid default instance '{declName}', it has type '({className} ...)', but {className}' is not a type class"
+          throwError "invalid default instance `{.ofConstName declName}`, it has type `({className} ...)`, but `{.ofConstName className}` is not a type class"
         setEnv <| defaultInstanceExtension.addEntry (← getEnv) { className := className, instanceName := declName, priority := prio }
-      | _ => throwError "invalid default instance '{declName}', type must be of the form '(C ...)' where 'C' is a type class"
+      | _ => throwError "invalid default instance `{.ofConstName declName}`, type must be of the form `(C ...)` where `C` is a type class"
 
 builtin_initialize
   registerBuiltinAttribute {
@@ -127,9 +325,10 @@ builtin_initialize
     descr := "type class default instance"
     add   := fun declName stx kind => do
       let prio ← getAttrParamOptPrio stx[1]
-      unless kind == AttributeKind.global do throwError "invalid attribute 'default_instance', must be global"
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal `default_instance kind
       discard <| addDefaultInstance declName prio |>.run {} {}
   }
+  registerTraceClass `Meta.synthOrder
 
 def getDefaultInstancesPriorities [Monad m] [MonadEnv m] : m PrioritySet :=
   return defaultInstanceExtension.getState (← getEnv) |>.priorities

@@ -19,6 +19,8 @@ def Tree.size : Tree α → Nat
       apply Nat.lt_succ_self
     sizeList l
   | Tree.leaf _ => 1
+-- use automatically synthesized size function, which is not quite the number of leaves
+termination_by t => sizeOf t
 
 def Tree.sizeList : TreeList α → Nat
   | TreeList.nil => 0
@@ -32,11 +34,8 @@ def Tree.sizeList : TreeList α → Nat
       apply Nat.lt_succ_of_le
       apply Nat.le_add_left
     t.size + sizeList l
+termination_by l => sizeOf l
 end
--- use automatically synthesized size function, which is not quite the number of leaves
-termination_by
-  size t => sizeOf t
-  sizeList l => sizeOf l
 
 end Mutual
 
@@ -54,6 +53,7 @@ def Tree.size : Tree α → Nat
       apply Nat.lt_succ_self
     sizeList l
   | Tree.leaf _ => 1
+termination_by t => sizeOf t
 
 def Tree.sizeList : List (Tree α) → Nat
   | [] => 0
@@ -67,9 +67,7 @@ def Tree.sizeList : List (Tree α) → Nat
       apply Nat.lt_succ_of_le
       apply Nat.le_add_left
     t.size + sizeList l
+termination_by l => sizeOf l
 end
-termination_by
-  size t => sizeOf t
-  sizeList l => sizeOf l
 
 end Nested

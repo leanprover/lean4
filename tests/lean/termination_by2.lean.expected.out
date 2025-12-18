@@ -1,6 +1,0 @@
-termination_by2.lean:4:1-4:22: error: invalid 'termination_by' in 'mutual' block, it must be used after the 'end' keyword
-termination_by2.lean:13:2-13:10: error: invalid `termination_by` syntax, unnecessary else-case
-termination_by2.lean:24:3-24:16: error: invalid `termination_by` syntax, missing case for function 'isOdd'
-termination_by2.lean:36:3-36:14: error: function 'isOd' not found in current declaration
-termination_by2.lean:48:3-48:16: error: invalid `termination_by` syntax, `isEven` case has already been provided
-termination_by2.lean:61:3-61:15: error: invalid `termination_by` syntax, the else-case (i.e., `_ ... => ...`) has already been specified

@@ -4,16 +4,25 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Leonardo de Moura, Sebastian Ullrich
 -/
-import Lean.Message
-import Lean.Data.Json
-import Lean.Data.Lsp.CodeActions
+module
+
+prelude
+public import Lean.Data.DeclarationRange
+public import Lean.Data.OpenDecl
+public import Lean.MetavarContext
+public import Lean.Environment
+public import Lean.Widget.Types
+
+public section
 
 namespace Lean.Elab
 
-/-- Context after executing `liftTermElabM`.
-   Note that the term information collected during elaboration may contain metavariables, and their
-   assignments are stored at `mctx`. -/
-structure ContextInfo where
+/--
+Context after executing `liftTermElabM`.
+Note that the term information collected during elaboration may contain metavariables, and their
+assignments are stored at `mctx`.
+-/
+structure CommandContextInfo where
   env           : Environment
   fileMap       : FileMap
   mctx          : MetavarContext := {}
@@ -21,7 +30,33 @@ structure ContextInfo where
   currNamespace : Name           := Name.anonymous
   openDecls     : List OpenDecl  := []
   ngen          : NameGenerator -- We must save the name generator to implement `ContextInfo.runMetaM` and making we not create `MVarId`s used in `mctx`.
-  deriving Inhabited
+
+/--
+Context from the root of the `InfoTree` up to this node.
+Note that the term information collected during elaboration may contain metavariables, and their
+assignments are stored at `mctx`.
+-/
+structure ContextInfo extends CommandContextInfo where
+  parentDecl? : Option Name := none
+  autoImplicits : Array Expr := #[]
+
+/--
+Context for a sub-`InfoTree`.
+
+Within `InfoTree`, this must fulfill the invariant that every non-`commandCtx` `PartialContextInfo`
+node is always contained within a `commandCtx` node.
+-/
+inductive PartialContextInfo where
+  | commandCtx (info : CommandContextInfo)
+  /--
+  Context for the name of the declaration that surrounds nodes contained within this `context` node.
+  For example, this makes the name of the surrounding declaration available in `InfoTree` nodes
+  corresponding to the terms within the declaration.
+  -/
+  | parentDeclCtx (parentDecl : Name)
+  | autoImplicitCtx (autoImplicits : Array Expr)
+  -- TODO: More constructors for the different kinds of scopes `commandCtx` is currently
+  -- used for (e.g. eliminating `Info.updateContext?` would be nice!).
 
 /-- Base structure for `TermInfo`, `CommandInfo` and `TacticInfo`. -/
 structure ElabInfo where
@@ -37,6 +72,20 @@ structure TermInfo extends ElabInfo where
   expectedType? : Option Expr
   expr : Expr
   isBinder : Bool := false
+  /-- Whether `expr` should always be displayed in the language server, e.g. in hovers. -/
+  isDisplayableTerm : Bool := false
+  deriving Inhabited
+
+/--
+Used instead of `TermInfo` when a term couldn't successfully be elaborated,
+and so there is no complete expression available.
+
+The main purpose of `PartialTermInfo` is to ensure that the sub-`InfoTree`s of a failed elaborator
+are retained so that they can still be used in the language server.
+-/
+structure PartialTermInfo extends ElabInfo where
+  lctx : LocalContext -- The local context when the term was elaborated.
+  expectedType? : Option Expr
   deriving Inhabited
 
 structure CommandInfo extends ElabInfo where
@@ -45,15 +94,32 @@ structure CommandInfo extends ElabInfo where
 /-- A completion is an item that appears in the [IntelliSense](https://code.visualstudio.com/docs/editor/intellisense)
 box that appears as you type. -/
 inductive CompletionInfo where
-  | dot (termInfo : TermInfo) (field? : Option Syntax) (expectedType? : Option Expr)
+  | dot (termInfo : TermInfo) (expectedType? : Option Expr)
   | id (stx : Syntax) (id : Name) (danglingDot : Bool) (lctx : LocalContext) (expectedType? : Option Expr)
   | dotId (stx : Syntax) (id : Name) (lctx : LocalContext) (expectedType? : Option Expr)
-  | fieldId (stx : Syntax) (id : Name) (lctx : LocalContext) (structName : Name)
+  | fieldId (stx : Syntax) (id : Option Name) (lctx : LocalContext) (structName : Name)
   | namespaceId (stx : Syntax)
   | option (stx : Syntax)
-  | endSection (stx : Syntax) (scopeNames : List String)
-  | tactic (stx : Syntax) (goals : List MVarId)
-  -- TODO `import`
+  | errorName (stx partialId : Syntax)
+  | endSection (stx : Syntax) (id? : Option Name) (danglingDot : Bool) (scopeNames : List String)
+  | tactic (stx : Syntax)
+
+/-- Info for an option reference (e.g. in `set_option`). -/
+structure OptionInfo where
+  stx : Syntax
+  optionName : Name
+  declName : Name
+
+/--
+Info for an error name provided as an identifier to one of the named-error macros (`throwNamedError`
+or similar).
+
+Note that this is *not* added for `Name` terms passed to the underlying functions (e.g.,
+`Lean.throwNamedError`), though these functions generally should not be invoked directly anyway.
+-/
+structure ErrorNameInfo where
+  stx : Syntax
+  errorName : Name
 
 structure FieldInfo where
   /-- Name of the projection. -/
@@ -88,23 +154,21 @@ structure CustomInfo where
   stx : Syntax
   value : Dynamic
 
-/-- An info that represents a user-widget.
-User-widgets are custom pieces of code that run on the editor client.
-You can learn about user widgets at `src/Lean/Widget/UserWidget`
--/
-structure UserWidgetInfo where
+/-- Information about a user widget associated with a syntactic span.
+This must be a panel widget.
+A panel widget is a widget that can be displayed
+in the infoview alongside the goal state. -/
+structure UserWidgetInfo extends Widget.WidgetInstance where
   stx : Syntax
-  /-- Id of `WidgetSource` object to use. -/
-  widgetId : Name
-  /-- Json representing the props to be loaded in to the component. -/
-  props : Json
-  deriving Inhabited
 
 /--
-Specifies that the given free variables should be considered semantically identical in the current local context.
+Specifies that the given free variables should be considered semantically identical.
+The free variable `baseId` might not be in the current local context
+because it has been cleared.
 Used for e.g. connecting variables before and after `match` generalization.
 -/
 structure FVarAliasInfo where
+  userName : Name
   id     : FVarId
   baseId : FVarId
 
@@ -120,18 +184,76 @@ structure Bar extends Foo :=
 structure FieldRedeclInfo where
   stx : Syntax
 
+/--
+Denotes TermInfo with additional configurations to control interactions with delaborated terms.
+
+For example, the omission term `⋯` that is emitted by the delaborator when omitting a term
+due to `pp.deepTerms false` or `pp.proofs false` uses this.
+Omission needs to be treated differently from regular terms because
+it has to be delaborated differently in `Lean.Widget.InteractiveDiagnostics.infoToInteractive`:
+Regular terms are delaborated explicitly, whereas omitted terms are simply to be expanded with
+regular delaboration settings. Additionally, omissions come with a reason for omission.
+-/
+structure DelabTermInfo extends TermInfo where
+  /-- A source position to use for "go to definition", to override the default. -/
+  location? : Option DeclarationLocation := none
+  /-- Text to use to override the docstring. -/
+  docString? : Option String := none
+  /-- Whether to use explicit mode when pretty printing the term on hover. -/
+  explicit : Bool := true
+
+/--
+Indicates that all overloaded elaborators failed. The subtrees of a `ChoiceInfo` node are the
+partial `InfoTree`s of those failed elaborators. Retaining these partial `InfoTree`s helps
+the language server provide interactivity even when all overloaded elaborators failed.
+-/
+structure ChoiceInfo extends ElabInfo where
+
+inductive DocElabKind where
+  | role | codeBlock | directive | command
+deriving Repr
+
+/--
+Indicates that an extensible document elaborator was used. This info is applied to the name on a
+role, directive, code block, or command, and is used to generate the hover.
+
+A `TermInfo` would not give the correct hover for a few reasons:
+ 1. The name used to invoke a document extension is not necessarily the name of the elaborator that
+    was used, but the elaborator's docstring should be shown rather than that of the name as
+    written.
+ 2. The underlying elaborator's Lean type is not an appropriate signature to show to users.
+-/
+structure DocElabInfo extends ElabInfo where
+  name : Name
+  kind : DocElabKind
+
+/--
+Indicates that a piece of syntax was elaborated as documentation. This info is used for ordinary
+documentation constructs, such as paragraphs, list items, and links. It can be used to determine
+that a given piece of documentation syntax in fact has been elaborated.
+-/
+structure DocInfo extends ElabInfo where
+
+
 /-- Header information for a node in `InfoTree`. -/
 inductive Info where
   | ofTacticInfo (i : TacticInfo)
   | ofTermInfo (i : TermInfo)
+  | ofPartialTermInfo (i : PartialTermInfo)
   | ofCommandInfo (i : CommandInfo)
   | ofMacroExpansionInfo (i : MacroExpansionInfo)
+  | ofOptionInfo (i : OptionInfo)
+  | ofErrorNameInfo (i : ErrorNameInfo)
   | ofFieldInfo (i : FieldInfo)
   | ofCompletionInfo (i : CompletionInfo)
   | ofUserWidgetInfo (i : UserWidgetInfo)
   | ofCustomInfo (i : CustomInfo)
   | ofFVarAliasInfo (i : FVarAliasInfo)
   | ofFieldRedeclInfo (i : FieldRedeclInfo)
+  | ofDelabTermInfo (i : DelabTermInfo)
+  | ofChoiceInfo (i : ChoiceInfo)
+  | ofDocInfo (i : DocInfo)
+  | ofDocElabInfo (i : DocElabInfo)
   deriving Inhabited
 
 /-- The InfoTree is a structure that is generated during elaboration and used
@@ -156,8 +278,8 @@ inductive Info where
     `hole`s which are filled in later in the same way that unassigned metavariables are.
 -/
 inductive InfoTree where
-  /-- The context object is created by `liftTermElabM` at `Command.lean` -/
-  | context (i : ContextInfo) (t : InfoTree)
+  /-- The context object is created at appropriate points during elaboration -/
+  | context (i : PartialContextInfo) (t : InfoTree)
   /-- The children contain information for nested term elaboration and tactic evaluation -/
   | node (i : Info) (children : PersistentArray InfoTree)
   /-- The elaborator creates holes (aka metavariables) for tactics and postponed terms -/
@@ -179,11 +301,16 @@ structure InfoState where
   enabled    : Bool := true
   /-- Map from holes in the infotree to child infotrees. -/
   assignment : PersistentHashMap MVarId InfoTree := {}
+  /--
+  Assignments fulfilled by other elaboration tasks. We substitute them only just before reporting
+  the info tree via a snapshot to avoid premature blocking.
+  -/
+  lazyAssignment : PersistentHashMap MVarId (Task InfoTree) := {}
   /-- Pending child trees of a node. -/
   trees      : PersistentArray InfoTree := {}
   deriving Inhabited
 
-class MonadInfoTree (m : Type → Type)  where
+class MonadInfoTree (m : Type → Type) where
   getInfoState    : m InfoState
   modifyInfoState : (InfoState → InfoState) → m Unit
 
@@ -195,5 +322,15 @@ instance [MonadLift m n] [MonadInfoTree m] : MonadInfoTree n where
 
 def setInfoState [MonadInfoTree m] (s : InfoState) : m Unit :=
   modifyInfoState fun _ => s
+
+class MonadParentDecl (m : Type → Type) where
+  getParentDeclName? : m (Option Name)
+
+export MonadParentDecl (getParentDeclName?)
+
+class MonadAutoImplicits (m : Type → Type) where
+  getAutoImplicits : m (Array Expr)
+
+export MonadAutoImplicits (getAutoImplicits)
 
 end Lean.Elab

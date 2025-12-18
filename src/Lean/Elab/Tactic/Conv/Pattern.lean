@@ -3,19 +3,22 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Elab.Tactic.Simp
-import Lean.Elab.Tactic.Conv.Basic
-import Lean.HeadIndex
+module
+
+prelude
+public import Lean.Elab.Tactic.Simp
+public import Lean.Elab.Tactic.Conv.Basic
+
+public section
 
 namespace Lean.Elab.Tactic.Conv
 open Meta
 
 private def getContext : MetaM Simp.Context := do
-  return {
-    simpTheorems  := {}
-    congrTheorems := (← getSimpCongrTheorems)
-    config        := Simp.neutralConfig
-  }
+  Simp.mkContext
+    (simpTheorems  := {})
+    (congrTheorems := (← getSimpCongrTheorems))
+    (config        := Simp.neutralConfig)
 
 partial def matchPattern? (pattern : AbstractMVarsResult) (e : Expr) : MetaM (Option (Expr × Array Expr)) :=
   withNewMCtxDepth do
@@ -82,7 +85,7 @@ end PatternMatchState
 
 private def pre (pattern : AbstractMVarsResult) (state : IO.Ref PatternMatchState) (e : Expr) : SimpM Simp.Step := do
   if (← state.get).isDone then
-    return Simp.Step.visit { expr := e }
+    return Simp.Step.done { expr := e }
   else if let some (e, extraArgs) ← matchPattern? pattern e then
     if (← state.get).isReady then
       let (rhs, newGoal) ← mkConvGoalFor e
@@ -97,9 +100,9 @@ private def pre (pattern : AbstractMVarsResult) (state : IO.Ref PatternMatchStat
       -- it is possible for skipping an earlier match to affect what later matches
       -- refer to. For example, matching `f _` in `f (f a) = f b` with occs `[1, 2]`
       -- yields `[f (f a), f b]`, but `[2, 3]` yields `[f a, f b]`, and `[1, 3]` is an error.
-      return Simp.Step.visit { expr := e }
+      return Simp.Step.continue
   else
-    return Simp.Step.visit { expr := e }
+    return Simp.Step.continue
 
 @[builtin_tactic Lean.Parser.Tactic.Conv.pattern] def evalPattern : Tactic := fun stx => withMainContext do
   match stx with
@@ -118,14 +121,15 @@ private def pre (pattern : AbstractMVarsResult) (state : IO.Ref PatternMatchStat
         let ids ← ids.mapIdxM fun i id =>
           match id.getNat with
           | 0 => throwErrorAt id "positive integer expected"
-          | n+1 => pure (n, i.1)
+          | n+1 => pure (n, i)
         let ids := ids.qsort (·.1 < ·.1)
         unless @Array.allDiff _ ⟨(·.1 == ·.1)⟩ ids do
           throwError "occurrence list is not distinct"
         pure (.occs #[] 0 ids.toList)
       | _ => throwUnsupportedSyntax
     let state ← IO.mkRef occs
-    let (result, _) ← Simp.main lhs (← getContext) (methods := { pre := pre patternA state })
+    let ctx := (← getContext).setMemoize (occs matches .all _)
+    let (result, _) ← Simp.main lhs ctx (methods := { pre := pre patternA state })
     let subgoals ← match ← state.get with
     | .all #[] | .occs _ 0 _ =>
       throwError "'pattern' conv tactic failed, pattern was not found{indentExpr patternA.expr}"

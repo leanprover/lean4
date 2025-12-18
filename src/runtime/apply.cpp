@@ -29,7 +29,7 @@ static obj* fix_args(obj* f, unsigned n, obj*const* as) {
       for (unsigned i = 0; i < fixed; i++, source++, target++) {
           *target = *source;
       }
-      lean_free_small_object(f);
+      lean_free_object(f);
     }
     for (unsigned i = 0; i < n; i++, as++, target++) {
         *target = *as;
@@ -105,22 +105,22 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 1) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 1: { fn1 fn = FN1(f); lean_free_small_object(f); return fn(a1); }
-    case 2: { obj* fx0 = fx(0); fn2 fn = FN2(f); lean_free_small_object(f); return fn(fx0, a1); }
-    case 3: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn3 fn = FN3(f); lean_free_small_object(f); return fn(fx0, fx1, a1); }
-    case 4: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn4 fn = FN4(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, a1); }
-    case 5: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn5 fn = FN5(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, a1); }
-    case 6: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn6 fn = FN6(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1); }
-    case 7: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); fn7 fn = FN7(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, a1); }
-    case 8: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); fn8 fn = FN8(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, a1); }
-    case 9: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); fn9 fn = FN9(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, a1); }
-    case 10: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); fn10 fn = FN10(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, a1); }
-    case 11: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); fn11 fn = FN11(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, a1); }
-    case 12: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); fn12 fn = FN12(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, a1); }
-    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); obj* fx11 = fx(11); fn13 fn = FN13(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, fx11, a1); }
-    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); obj* fx11 = fx(11); obj* fx12 = fx(12); fn14 fn = FN14(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, fx11, fx12, a1); }
-    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); obj* fx11 = fx(11); obj* fx12 = fx(12); obj* fx13 = fx(13); fn15 fn = FN15(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, fx11, fx12, fx13, a1); }
-    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); obj* fx11 = fx(11); obj* fx12 = fx(12); obj* fx13 = fx(13); obj* fx14 = fx(14); fn16 fn = FN16(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, fx11, fx12, fx13, fx14, a1); }
+    case 1: { fn1 fn = FN1(f); lean_free_object(f); return fn(a1); }
+    case 2: { obj* fx0 = fx(0); fn2 fn = FN2(f); lean_free_object(f); return fn(fx0, a1); }
+    case 3: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn3 fn = FN3(f); lean_free_object(f); return fn(fx0, fx1, a1); }
+    case 4: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn4 fn = FN4(f); lean_free_object(f); return fn(fx0, fx1, fx2, a1); }
+    case 5: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn5 fn = FN5(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, a1); }
+    case 6: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn6 fn = FN6(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1); }
+    case 7: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); fn7 fn = FN7(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, a1); }
+    case 8: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); fn8 fn = FN8(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, a1); }
+    case 9: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); fn9 fn = FN9(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, a1); }
+    case 10: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); fn10 fn = FN10(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, a1); }
+    case 11: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); fn11 fn = FN11(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, a1); }
+    case 12: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); fn12 fn = FN12(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, a1); }
+    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); obj* fx11 = fx(11); fn13 fn = FN13(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, fx11, a1); }
+    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); obj* fx11 = fx(11); obj* fx12 = fx(12); fn14 fn = FN14(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, fx11, fx12, a1); }
+    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); obj* fx11 = fx(11); obj* fx12 = fx(12); obj* fx13 = fx(13); fn15 fn = FN15(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, fx11, fx12, fx13, a1); }
+    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); obj* fx11 = fx(11); obj* fx12 = fx(12); obj* fx13 = fx(13); obj* fx14 = fx(14); fn16 fn = FN16(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, fx11, fx12, fx13, fx14, a1); }
     }
   }
   switch (arity) {
@@ -164,21 +164,21 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 2) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 2: { fn2 fn = FN2(f); lean_free_small_object(f); return fn(a1, a2); }
-    case 3: { obj* fx0 = fx(0); fn3 fn = FN3(f); lean_free_small_object(f); return fn(fx0, a1, a2); }
-    case 4: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn4 fn = FN4(f); lean_free_small_object(f); return fn(fx0, fx1, a1, a2); }
-    case 5: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn5 fn = FN5(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, a1, a2); }
-    case 6: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn6 fn = FN6(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2); }
-    case 7: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn7 fn = FN7(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1, a2); }
-    case 8: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); fn8 fn = FN8(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, a1, a2); }
-    case 9: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); fn9 fn = FN9(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, a1, a2); }
-    case 10: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); fn10 fn = FN10(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, a1, a2); }
-    case 11: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); fn11 fn = FN11(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, a1, a2); }
-    case 12: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); fn12 fn = FN12(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, a1, a2); }
-    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); fn13 fn = FN13(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, a1, a2); }
-    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); obj* fx11 = fx(11); fn14 fn = FN14(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, fx11, a1, a2); }
-    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); obj* fx11 = fx(11); obj* fx12 = fx(12); fn15 fn = FN15(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, fx11, fx12, a1, a2); }
-    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); obj* fx11 = fx(11); obj* fx12 = fx(12); obj* fx13 = fx(13); fn16 fn = FN16(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, fx11, fx12, fx13, a1, a2); }
+    case 2: { fn2 fn = FN2(f); lean_free_object(f); return fn(a1, a2); }
+    case 3: { obj* fx0 = fx(0); fn3 fn = FN3(f); lean_free_object(f); return fn(fx0, a1, a2); }
+    case 4: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn4 fn = FN4(f); lean_free_object(f); return fn(fx0, fx1, a1, a2); }
+    case 5: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn5 fn = FN5(f); lean_free_object(f); return fn(fx0, fx1, fx2, a1, a2); }
+    case 6: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn6 fn = FN6(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2); }
+    case 7: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn7 fn = FN7(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1, a2); }
+    case 8: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); fn8 fn = FN8(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, a1, a2); }
+    case 9: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); fn9 fn = FN9(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, a1, a2); }
+    case 10: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); fn10 fn = FN10(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, a1, a2); }
+    case 11: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); fn11 fn = FN11(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, a1, a2); }
+    case 12: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); fn12 fn = FN12(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, a1, a2); }
+    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); fn13 fn = FN13(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, a1, a2); }
+    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); obj* fx11 = fx(11); fn14 fn = FN14(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, fx11, a1, a2); }
+    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); obj* fx11 = fx(11); obj* fx12 = fx(12); fn15 fn = FN15(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, fx11, fx12, a1, a2); }
+    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); obj* fx11 = fx(11); obj* fx12 = fx(12); obj* fx13 = fx(13); fn16 fn = FN16(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, fx11, fx12, fx13, a1, a2); }
     }
   }
   switch (arity) {
@@ -226,20 +226,20 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 3) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 3: { fn3 fn = FN3(f); lean_free_small_object(f); return fn(a1, a2, a3); }
-    case 4: { obj* fx0 = fx(0); fn4 fn = FN4(f); lean_free_small_object(f); return fn(fx0, a1, a2, a3); }
-    case 5: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn5 fn = FN5(f); lean_free_small_object(f); return fn(fx0, fx1, a1, a2, a3); }
-    case 6: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn6 fn = FN6(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, a1, a2, a3); }
-    case 7: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn7 fn = FN7(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2, a3); }
-    case 8: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn8 fn = FN8(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1, a2, a3); }
-    case 9: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); fn9 fn = FN9(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, a1, a2, a3); }
-    case 10: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); fn10 fn = FN10(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, a1, a2, a3); }
-    case 11: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); fn11 fn = FN11(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, a1, a2, a3); }
-    case 12: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); fn12 fn = FN12(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, a1, a2, a3); }
-    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); fn13 fn = FN13(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, a1, a2, a3); }
-    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); fn14 fn = FN14(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, a1, a2, a3); }
-    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); obj* fx11 = fx(11); fn15 fn = FN15(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, fx11, a1, a2, a3); }
-    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); obj* fx11 = fx(11); obj* fx12 = fx(12); fn16 fn = FN16(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, fx11, fx12, a1, a2, a3); }
+    case 3: { fn3 fn = FN3(f); lean_free_object(f); return fn(a1, a2, a3); }
+    case 4: { obj* fx0 = fx(0); fn4 fn = FN4(f); lean_free_object(f); return fn(fx0, a1, a2, a3); }
+    case 5: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn5 fn = FN5(f); lean_free_object(f); return fn(fx0, fx1, a1, a2, a3); }
+    case 6: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn6 fn = FN6(f); lean_free_object(f); return fn(fx0, fx1, fx2, a1, a2, a3); }
+    case 7: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn7 fn = FN7(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2, a3); }
+    case 8: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn8 fn = FN8(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1, a2, a3); }
+    case 9: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); fn9 fn = FN9(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, a1, a2, a3); }
+    case 10: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); fn10 fn = FN10(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, a1, a2, a3); }
+    case 11: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); fn11 fn = FN11(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, a1, a2, a3); }
+    case 12: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); fn12 fn = FN12(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, a1, a2, a3); }
+    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); fn13 fn = FN13(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, a1, a2, a3); }
+    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); fn14 fn = FN14(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, a1, a2, a3); }
+    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); obj* fx11 = fx(11); fn15 fn = FN15(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, fx11, a1, a2, a3); }
+    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); obj* fx11 = fx(11); obj* fx12 = fx(12); fn16 fn = FN16(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, fx11, fx12, a1, a2, a3); }
     }
   }
   switch (arity) {
@@ -286,19 +286,19 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 4) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 4: { fn4 fn = FN4(f); lean_free_small_object(f); return fn(a1, a2, a3, a4); }
-    case 5: { obj* fx0 = fx(0); fn5 fn = FN5(f); lean_free_small_object(f); return fn(fx0, a1, a2, a3, a4); }
-    case 6: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn6 fn = FN6(f); lean_free_small_object(f); return fn(fx0, fx1, a1, a2, a3, a4); }
-    case 7: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn7 fn = FN7(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, a1, a2, a3, a4); }
-    case 8: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn8 fn = FN8(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2, a3, a4); }
-    case 9: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn9 fn = FN9(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1, a2, a3, a4); }
-    case 10: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); fn10 fn = FN10(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, a1, a2, a3, a4); }
-    case 11: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); fn11 fn = FN11(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, a1, a2, a3, a4); }
-    case 12: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); fn12 fn = FN12(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, a1, a2, a3, a4); }
-    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); fn13 fn = FN13(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, a1, a2, a3, a4); }
-    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); fn14 fn = FN14(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, a1, a2, a3, a4); }
-    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); fn15 fn = FN15(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, a1, a2, a3, a4); }
-    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); obj* fx11 = fx(11); fn16 fn = FN16(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, fx11, a1, a2, a3, a4); }
+    case 4: { fn4 fn = FN4(f); lean_free_object(f); return fn(a1, a2, a3, a4); }
+    case 5: { obj* fx0 = fx(0); fn5 fn = FN5(f); lean_free_object(f); return fn(fx0, a1, a2, a3, a4); }
+    case 6: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn6 fn = FN6(f); lean_free_object(f); return fn(fx0, fx1, a1, a2, a3, a4); }
+    case 7: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn7 fn = FN7(f); lean_free_object(f); return fn(fx0, fx1, fx2, a1, a2, a3, a4); }
+    case 8: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn8 fn = FN8(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2, a3, a4); }
+    case 9: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn9 fn = FN9(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1, a2, a3, a4); }
+    case 10: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); fn10 fn = FN10(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, a1, a2, a3, a4); }
+    case 11: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); fn11 fn = FN11(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, a1, a2, a3, a4); }
+    case 12: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); fn12 fn = FN12(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, a1, a2, a3, a4); }
+    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); fn13 fn = FN13(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, a1, a2, a3, a4); }
+    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); fn14 fn = FN14(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, a1, a2, a3, a4); }
+    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); fn15 fn = FN15(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, a1, a2, a3, a4); }
+    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); obj* fx11 = fx(11); fn16 fn = FN16(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, fx11, a1, a2, a3, a4); }
     }
   }
   switch (arity) {
@@ -344,18 +344,18 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 5) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 5: { fn5 fn = FN5(f); lean_free_small_object(f); return fn(a1, a2, a3, a4, a5); }
-    case 6: { obj* fx0 = fx(0); fn6 fn = FN6(f); lean_free_small_object(f); return fn(fx0, a1, a2, a3, a4, a5); }
-    case 7: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn7 fn = FN7(f); lean_free_small_object(f); return fn(fx0, fx1, a1, a2, a3, a4, a5); }
-    case 8: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn8 fn = FN8(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, a1, a2, a3, a4, a5); }
-    case 9: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn9 fn = FN9(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2, a3, a4, a5); }
-    case 10: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn10 fn = FN10(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1, a2, a3, a4, a5); }
-    case 11: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); fn11 fn = FN11(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, a1, a2, a3, a4, a5); }
-    case 12: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); fn12 fn = FN12(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, a1, a2, a3, a4, a5); }
-    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); fn13 fn = FN13(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, a1, a2, a3, a4, a5); }
-    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); fn14 fn = FN14(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, a1, a2, a3, a4, a5); }
-    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); fn15 fn = FN15(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, a1, a2, a3, a4, a5); }
-    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); fn16 fn = FN16(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, a1, a2, a3, a4, a5); }
+    case 5: { fn5 fn = FN5(f); lean_free_object(f); return fn(a1, a2, a3, a4, a5); }
+    case 6: { obj* fx0 = fx(0); fn6 fn = FN6(f); lean_free_object(f); return fn(fx0, a1, a2, a3, a4, a5); }
+    case 7: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn7 fn = FN7(f); lean_free_object(f); return fn(fx0, fx1, a1, a2, a3, a4, a5); }
+    case 8: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn8 fn = FN8(f); lean_free_object(f); return fn(fx0, fx1, fx2, a1, a2, a3, a4, a5); }
+    case 9: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn9 fn = FN9(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2, a3, a4, a5); }
+    case 10: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn10 fn = FN10(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1, a2, a3, a4, a5); }
+    case 11: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); fn11 fn = FN11(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, a1, a2, a3, a4, a5); }
+    case 12: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); fn12 fn = FN12(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, a1, a2, a3, a4, a5); }
+    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); fn13 fn = FN13(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, a1, a2, a3, a4, a5); }
+    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); fn14 fn = FN14(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, a1, a2, a3, a4, a5); }
+    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); fn15 fn = FN15(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, a1, a2, a3, a4, a5); }
+    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); obj* fx10 = fx(10); fn16 fn = FN16(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, fx10, a1, a2, a3, a4, a5); }
     }
   }
   switch (arity) {
@@ -400,17 +400,17 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 6) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 6: { fn6 fn = FN6(f); lean_free_small_object(f); return fn(a1, a2, a3, a4, a5, a6); }
-    case 7: { obj* fx0 = fx(0); fn7 fn = FN7(f); lean_free_small_object(f); return fn(fx0, a1, a2, a3, a4, a5, a6); }
-    case 8: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn8 fn = FN8(f); lean_free_small_object(f); return fn(fx0, fx1, a1, a2, a3, a4, a5, a6); }
-    case 9: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn9 fn = FN9(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, a1, a2, a3, a4, a5, a6); }
-    case 10: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn10 fn = FN10(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2, a3, a4, a5, a6); }
-    case 11: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn11 fn = FN11(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1, a2, a3, a4, a5, a6); }
-    case 12: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); fn12 fn = FN12(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, a1, a2, a3, a4, a5, a6); }
-    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); fn13 fn = FN13(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, a1, a2, a3, a4, a5, a6); }
-    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); fn14 fn = FN14(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, a1, a2, a3, a4, a5, a6); }
-    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); fn15 fn = FN15(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, a1, a2, a3, a4, a5, a6); }
-    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); fn16 fn = FN16(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, a1, a2, a3, a4, a5, a6); }
+    case 6: { fn6 fn = FN6(f); lean_free_object(f); return fn(a1, a2, a3, a4, a5, a6); }
+    case 7: { obj* fx0 = fx(0); fn7 fn = FN7(f); lean_free_object(f); return fn(fx0, a1, a2, a3, a4, a5, a6); }
+    case 8: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn8 fn = FN8(f); lean_free_object(f); return fn(fx0, fx1, a1, a2, a3, a4, a5, a6); }
+    case 9: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn9 fn = FN9(f); lean_free_object(f); return fn(fx0, fx1, fx2, a1, a2, a3, a4, a5, a6); }
+    case 10: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn10 fn = FN10(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2, a3, a4, a5, a6); }
+    case 11: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn11 fn = FN11(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1, a2, a3, a4, a5, a6); }
+    case 12: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); fn12 fn = FN12(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, a1, a2, a3, a4, a5, a6); }
+    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); fn13 fn = FN13(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, a1, a2, a3, a4, a5, a6); }
+    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); fn14 fn = FN14(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, a1, a2, a3, a4, a5, a6); }
+    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); fn15 fn = FN15(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, a1, a2, a3, a4, a5, a6); }
+    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); obj* fx9 = fx(9); fn16 fn = FN16(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, fx9, a1, a2, a3, a4, a5, a6); }
     }
   }
   switch (arity) {
@@ -454,16 +454,16 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 7) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 7: { fn7 fn = FN7(f); lean_free_small_object(f); return fn(a1, a2, a3, a4, a5, a6, a7); }
-    case 8: { obj* fx0 = fx(0); fn8 fn = FN8(f); lean_free_small_object(f); return fn(fx0, a1, a2, a3, a4, a5, a6, a7); }
-    case 9: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn9 fn = FN9(f); lean_free_small_object(f); return fn(fx0, fx1, a1, a2, a3, a4, a5, a6, a7); }
-    case 10: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn10 fn = FN10(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, a1, a2, a3, a4, a5, a6, a7); }
-    case 11: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn11 fn = FN11(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2, a3, a4, a5, a6, a7); }
-    case 12: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn12 fn = FN12(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1, a2, a3, a4, a5, a6, a7); }
-    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); fn13 fn = FN13(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, a1, a2, a3, a4, a5, a6, a7); }
-    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); fn14 fn = FN14(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, a1, a2, a3, a4, a5, a6, a7); }
-    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); fn15 fn = FN15(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, a1, a2, a3, a4, a5, a6, a7); }
-    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); fn16 fn = FN16(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, a1, a2, a3, a4, a5, a6, a7); }
+    case 7: { fn7 fn = FN7(f); lean_free_object(f); return fn(a1, a2, a3, a4, a5, a6, a7); }
+    case 8: { obj* fx0 = fx(0); fn8 fn = FN8(f); lean_free_object(f); return fn(fx0, a1, a2, a3, a4, a5, a6, a7); }
+    case 9: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn9 fn = FN9(f); lean_free_object(f); return fn(fx0, fx1, a1, a2, a3, a4, a5, a6, a7); }
+    case 10: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn10 fn = FN10(f); lean_free_object(f); return fn(fx0, fx1, fx2, a1, a2, a3, a4, a5, a6, a7); }
+    case 11: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn11 fn = FN11(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2, a3, a4, a5, a6, a7); }
+    case 12: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn12 fn = FN12(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1, a2, a3, a4, a5, a6, a7); }
+    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); fn13 fn = FN13(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, a1, a2, a3, a4, a5, a6, a7); }
+    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); fn14 fn = FN14(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, a1, a2, a3, a4, a5, a6, a7); }
+    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); fn15 fn = FN15(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, a1, a2, a3, a4, a5, a6, a7); }
+    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); obj* fx8 = fx(8); fn16 fn = FN16(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, fx8, a1, a2, a3, a4, a5, a6, a7); }
     }
   }
   switch (arity) {
@@ -506,15 +506,15 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 8) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 8: { fn8 fn = FN8(f); lean_free_small_object(f); return fn(a1, a2, a3, a4, a5, a6, a7, a8); }
-    case 9: { obj* fx0 = fx(0); fn9 fn = FN9(f); lean_free_small_object(f); return fn(fx0, a1, a2, a3, a4, a5, a6, a7, a8); }
-    case 10: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn10 fn = FN10(f); lean_free_small_object(f); return fn(fx0, fx1, a1, a2, a3, a4, a5, a6, a7, a8); }
-    case 11: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn11 fn = FN11(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, a1, a2, a3, a4, a5, a6, a7, a8); }
-    case 12: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn12 fn = FN12(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2, a3, a4, a5, a6, a7, a8); }
-    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn13 fn = FN13(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1, a2, a3, a4, a5, a6, a7, a8); }
-    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); fn14 fn = FN14(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, a1, a2, a3, a4, a5, a6, a7, a8); }
-    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); fn15 fn = FN15(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, a1, a2, a3, a4, a5, a6, a7, a8); }
-    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); fn16 fn = FN16(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, a1, a2, a3, a4, a5, a6, a7, a8); }
+    case 8: { fn8 fn = FN8(f); lean_free_object(f); return fn(a1, a2, a3, a4, a5, a6, a7, a8); }
+    case 9: { obj* fx0 = fx(0); fn9 fn = FN9(f); lean_free_object(f); return fn(fx0, a1, a2, a3, a4, a5, a6, a7, a8); }
+    case 10: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn10 fn = FN10(f); lean_free_object(f); return fn(fx0, fx1, a1, a2, a3, a4, a5, a6, a7, a8); }
+    case 11: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn11 fn = FN11(f); lean_free_object(f); return fn(fx0, fx1, fx2, a1, a2, a3, a4, a5, a6, a7, a8); }
+    case 12: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn12 fn = FN12(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2, a3, a4, a5, a6, a7, a8); }
+    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn13 fn = FN13(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1, a2, a3, a4, a5, a6, a7, a8); }
+    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); fn14 fn = FN14(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, a1, a2, a3, a4, a5, a6, a7, a8); }
+    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); fn15 fn = FN15(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, a1, a2, a3, a4, a5, a6, a7, a8); }
+    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); obj* fx7 = fx(7); fn16 fn = FN16(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, fx7, a1, a2, a3, a4, a5, a6, a7, a8); }
     }
   }
   switch (arity) {
@@ -556,14 +556,14 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 9) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 9: { fn9 fn = FN9(f); lean_free_small_object(f); return fn(a1, a2, a3, a4, a5, a6, a7, a8, a9); }
-    case 10: { obj* fx0 = fx(0); fn10 fn = FN10(f); lean_free_small_object(f); return fn(fx0, a1, a2, a3, a4, a5, a6, a7, a8, a9); }
-    case 11: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn11 fn = FN11(f); lean_free_small_object(f); return fn(fx0, fx1, a1, a2, a3, a4, a5, a6, a7, a8, a9); }
-    case 12: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn12 fn = FN12(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, a1, a2, a3, a4, a5, a6, a7, a8, a9); }
-    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn13 fn = FN13(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2, a3, a4, a5, a6, a7, a8, a9); }
-    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn14 fn = FN14(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1, a2, a3, a4, a5, a6, a7, a8, a9); }
-    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); fn15 fn = FN15(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, a1, a2, a3, a4, a5, a6, a7, a8, a9); }
-    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); fn16 fn = FN16(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, a1, a2, a3, a4, a5, a6, a7, a8, a9); }
+    case 9: { fn9 fn = FN9(f); lean_free_object(f); return fn(a1, a2, a3, a4, a5, a6, a7, a8, a9); }
+    case 10: { obj* fx0 = fx(0); fn10 fn = FN10(f); lean_free_object(f); return fn(fx0, a1, a2, a3, a4, a5, a6, a7, a8, a9); }
+    case 11: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn11 fn = FN11(f); lean_free_object(f); return fn(fx0, fx1, a1, a2, a3, a4, a5, a6, a7, a8, a9); }
+    case 12: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn12 fn = FN12(f); lean_free_object(f); return fn(fx0, fx1, fx2, a1, a2, a3, a4, a5, a6, a7, a8, a9); }
+    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn13 fn = FN13(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2, a3, a4, a5, a6, a7, a8, a9); }
+    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn14 fn = FN14(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1, a2, a3, a4, a5, a6, a7, a8, a9); }
+    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); fn15 fn = FN15(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, a1, a2, a3, a4, a5, a6, a7, a8, a9); }
+    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); obj* fx6 = fx(6); fn16 fn = FN16(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, fx6, a1, a2, a3, a4, a5, a6, a7, a8, a9); }
     }
   }
   switch (arity) {
@@ -604,13 +604,13 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 10) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 10: { fn10 fn = FN10(f); lean_free_small_object(f); return fn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); }
-    case 11: { obj* fx0 = fx(0); fn11 fn = FN11(f); lean_free_small_object(f); return fn(fx0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); }
-    case 12: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn12 fn = FN12(f); lean_free_small_object(f); return fn(fx0, fx1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); }
-    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn13 fn = FN13(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); }
-    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn14 fn = FN14(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); }
-    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn15 fn = FN15(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); }
-    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); fn16 fn = FN16(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); }
+    case 10: { fn10 fn = FN10(f); lean_free_object(f); return fn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); }
+    case 11: { obj* fx0 = fx(0); fn11 fn = FN11(f); lean_free_object(f); return fn(fx0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); }
+    case 12: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn12 fn = FN12(f); lean_free_object(f); return fn(fx0, fx1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); }
+    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn13 fn = FN13(f); lean_free_object(f); return fn(fx0, fx1, fx2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); }
+    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn14 fn = FN14(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); }
+    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn15 fn = FN15(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); }
+    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); obj* fx5 = fx(5); fn16 fn = FN16(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, fx5, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); }
     }
   }
   switch (arity) {
@@ -650,12 +650,12 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 11) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 11: { fn11 fn = FN11(f); lean_free_small_object(f); return fn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); }
-    case 12: { obj* fx0 = fx(0); fn12 fn = FN12(f); lean_free_small_object(f); return fn(fx0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); }
-    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn13 fn = FN13(f); lean_free_small_object(f); return fn(fx0, fx1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); }
-    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn14 fn = FN14(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); }
-    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn15 fn = FN15(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); }
-    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn16 fn = FN16(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); }
+    case 11: { fn11 fn = FN11(f); lean_free_object(f); return fn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); }
+    case 12: { obj* fx0 = fx(0); fn12 fn = FN12(f); lean_free_object(f); return fn(fx0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); }
+    case 13: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn13 fn = FN13(f); lean_free_object(f); return fn(fx0, fx1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); }
+    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn14 fn = FN14(f); lean_free_object(f); return fn(fx0, fx1, fx2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); }
+    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn15 fn = FN15(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); }
+    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); obj* fx4 = fx(4); fn16 fn = FN16(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, fx4, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); }
     }
   }
   switch (arity) {
@@ -694,11 +694,11 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 12) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 12: { fn12 fn = FN12(f); lean_free_small_object(f); return fn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); }
-    case 13: { obj* fx0 = fx(0); fn13 fn = FN13(f); lean_free_small_object(f); return fn(fx0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); }
-    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn14 fn = FN14(f); lean_free_small_object(f); return fn(fx0, fx1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); }
-    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn15 fn = FN15(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); }
-    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn16 fn = FN16(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); }
+    case 12: { fn12 fn = FN12(f); lean_free_object(f); return fn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); }
+    case 13: { obj* fx0 = fx(0); fn13 fn = FN13(f); lean_free_object(f); return fn(fx0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); }
+    case 14: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn14 fn = FN14(f); lean_free_object(f); return fn(fx0, fx1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); }
+    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn15 fn = FN15(f); lean_free_object(f); return fn(fx0, fx1, fx2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); }
+    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); obj* fx3 = fx(3); fn16 fn = FN16(f); lean_free_object(f); return fn(fx0, fx1, fx2, fx3, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); }
     }
   }
   switch (arity) {
@@ -736,10 +736,10 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 13) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 13: { fn13 fn = FN13(f); lean_free_small_object(f); return fn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); }
-    case 14: { obj* fx0 = fx(0); fn14 fn = FN14(f); lean_free_small_object(f); return fn(fx0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); }
-    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn15 fn = FN15(f); lean_free_small_object(f); return fn(fx0, fx1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); }
-    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn16 fn = FN16(f); lean_free_small_object(f); return fn(fx0, fx1, fx2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); }
+    case 13: { fn13 fn = FN13(f); lean_free_object(f); return fn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); }
+    case 14: { obj* fx0 = fx(0); fn14 fn = FN14(f); lean_free_object(f); return fn(fx0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); }
+    case 15: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn15 fn = FN15(f); lean_free_object(f); return fn(fx0, fx1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); }
+    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); obj* fx2 = fx(2); fn16 fn = FN16(f); lean_free_object(f); return fn(fx0, fx1, fx2, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); }
     }
   }
   switch (arity) {
@@ -776,9 +776,9 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 14) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 14: { fn14 fn = FN14(f); lean_free_small_object(f); return fn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); }
-    case 15: { obj* fx0 = fx(0); fn15 fn = FN15(f); lean_free_small_object(f); return fn(fx0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); }
-    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn16 fn = FN16(f); lean_free_small_object(f); return fn(fx0, fx1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); }
+    case 14: { fn14 fn = FN14(f); lean_free_object(f); return fn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); }
+    case 15: { obj* fx0 = fx(0); fn15 fn = FN15(f); lean_free_object(f); return fn(fx0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); }
+    case 16: { obj* fx0 = fx(0); obj* fx1 = fx(1); fn16 fn = FN16(f); lean_free_object(f); return fn(fx0, fx1, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); }
     }
   }
   switch (arity) {
@@ -814,8 +814,8 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 15) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 15: { fn15 fn = FN15(f); lean_free_small_object(f); return fn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); }
-    case 16: { obj* fx0 = fx(0); fn16 fn = FN16(f); lean_free_small_object(f); return fn(fx0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); }
+    case 15: { fn15 fn = FN15(f); lean_free_object(f); return fn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); }
+    case 16: { obj* fx0 = fx(0); fn16 fn = FN16(f); lean_free_object(f); return fn(fx0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); }
     }
   }
   switch (arity) {
@@ -850,7 +850,7 @@ unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 16) {
   if (lean_is_exclusive(f)) {
     switch (arity) {
-    case 16: { fn16 fn = FN16(f); lean_free_small_object(f); return fn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16); }
+    case 16: { fn16 fn = FN16(f); lean_free_object(f); return fn(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16); }
     }
   }
   switch (arity) {

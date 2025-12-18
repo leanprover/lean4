@@ -4,11 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: E.W.Ayers
 -/
-import Lean.Meta.PPGoal
-import Lean.Widget.InteractiveCode
-import Lean.Widget.InteractiveGoal
-import Lean.Data.Lsp.Extra
-import Lean.Elab.InfoTree
+module
+
+prelude
+public import Lean.Widget.InteractiveGoal
 
 namespace Lean.Widget
 
@@ -57,13 +56,13 @@ structure ExprDiff where
 instance : EmptyCollection ExprDiff := ⟨{}⟩
 instance : Append ExprDiff where
   append a b := {
-    changesBefore := RBMap.mergeBy (fun _ _ b => b) a.changesBefore b.changesBefore,
-    changesAfter := RBMap.mergeBy (fun _ _ b => b) a.changesAfter b.changesAfter
+    changesBefore := Std.TreeMap.mergeWith (fun _ _ b => b) a.changesBefore b.changesBefore,
+    changesAfter := Std.TreeMap.mergeWith (fun _ _ b => b) a.changesAfter b.changesAfter
   }
 instance : ToString ExprDiff where
   toString x :=
     let f := fun (p : PosMap ExprDiffTag) =>
-      RBMap.toList p |>.map (fun (k,v) => s!"({toString k}:{toString v})")
+      p.toList.map (fun (k,v) => s!"({toString k}:{toString v})")
     s!"before: {f x.changesBefore}\nafter: {f x.changesAfter}"
 
 /-- Add a tag at the given position to the `changesBefore` dict. -/
@@ -75,8 +74,8 @@ def ExprDiff.insertAfterChange (p : Pos) (d : ExprDiffTag := .change) (δ : Expr
   {δ with changesAfter := δ.changesAfter.insert p d}
 
 def ExprDiff.withChangePos (before after : Pos) (d : ExprDiffTag := .change) : ExprDiff :=
-  { changesAfter := RBMap.empty.insert after d
-    changesBefore := RBMap.empty.insert before d
+  { changesAfter := Std.TreeMap.empty.insert after d
+    changesBefore := Std.TreeMap.empty.insert before d
   }
 
 /-- Add a tag to the diff at the positions given by `before` and `after`. -/
@@ -170,7 +169,7 @@ partial def exprDiffCore (before after : SubExpr) : MetaM ExprDiff := do
             ⟨body₀.instantiateRev fvars.toArray, before.pos.pushNthBindingBody s.length⟩
             after
         ) <|> (pure ∅)
-        for i in [0:s.length] do
+        for i in *...s.length do
           δ := δ.insertBeforeChange (before.pos.pushNthBindingDomain i) .delete
         -- [todo] maybe here insert a tag on the after case indicating an expression was deleted above the expression?
         return δ
@@ -205,7 +204,7 @@ def diffHypothesesBundle (useAfter : Bool) (ctx₀  : LocalContext) (h₁ : Inte
      this indicates that something like `rewrite at` has hit it. -/
   for (ppName, fvid) in Array.zip h₁.names h₁.fvarIds do
     if !(ctx₀.contains fvid) then
-      if let some decl₀ := ctx₀.findFromUserName? ppName then
+      if let some decl₀ := ctx₀.findFromUserName? (.mkSimple ppName) then
         -- on ctx₀ there is an fvar with the same name as this one.
         let t₀ := decl₀.type
         return ← withTypeDiff t₀ h₁
@@ -238,8 +237,7 @@ def diffInteractiveGoal (useAfter : Bool) (g₀ : MVarId) (i₁ : InteractiveGoa
   let lctx₀ := md₀.lctx |>.sanitizeNames.run' {options := (← getOptions)}
   let hs₁ ← diffHypotheses useAfter lctx₀ i₁.hyps
   let i₁ := {i₁ with hyps := hs₁}
-  let some g₁ := i₁.mvarId?
-    | throwError "Expected InteractiveGoal to have an mvarId"
+  let g₁ := i₁.mvarId
   let t₀ ← instantiateMVars <|← inferType (Expr.mvar g₀)
   let some md₁ := (← getMCtx).findDecl? g₁
     | throwError "Unknown goal {g₁}"
@@ -252,21 +250,20 @@ def diffInteractiveGoal (useAfter : Bool) (g₀ : MVarId) (i₁ : InteractiveGoa
 /-- Modifies `goalsAfter` with additional information about how it is different to `goalsBefore`.
 If `useAfter` is `true` then `igs₁` is the set of interactive goals _after_ the tactic has been applied.
 Otherwise `igs₁` is the set of interactive goals _before_. -/
-def diffInteractiveGoals (useAfter : Bool) (info : Elab.TacticInfo) (igs₁ : InteractiveGoals) : MetaM InteractiveGoals := do
+public def diffInteractiveGoals (useAfter : Bool) (info : Elab.TacticInfo) (igs₁ : InteractiveGoals) : MetaM InteractiveGoals := do
     if ! showTacticDiff.get (← getOptions) then return igs₁ else
     let goals₀ := if useAfter then info.goalsBefore else info.goalsAfter
     let parentMap : MVarIdMap MVarIdSet ← info.goalsBefore.foldlM (init := ∅) (fun s g => do
       let ms ← Expr.mvar g |> Lean.Meta.getMVars
-      let ms : MVarIdSet := RBTree.fromArray ms _
+      let ms := MVarIdSet.ofArray ms
       return s.insert g ms
     )
     let isParent (before after : MVarId) : Bool :=
-       match parentMap.find? before with
+       match parentMap.get? before with
        | some xs => xs.contains after
        | none => false
     let goals ← igs₁.goals.mapM (fun ig₁ => do
-      let some g₁ := ig₁.mvarId?
-        | throwError "error: goal not found"
+      let g₁ := ig₁.mvarId
       withGoalCtx (g₁ : MVarId) (fun _lctx₁ _md₁ => do
         -- if the goal is present on the previous version then continue
         if goals₀.any (fun g₀ => g₀ == g₁) then

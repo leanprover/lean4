@@ -1,9 +1,6 @@
 class Trait (X : Type) where
   R : Type
 
-class One (R : Type) where
-  one : R
-
 attribute [reducible] Trait.R
 
 def add_one {X} [Trait X] [One (Trait.R X)] [HAdd X (Trait.R X) X] (x : X) : X := x + (One.one : (Trait.R X))
@@ -17,3 +14,4 @@ def add_one_to_one (x : Int) (h : x = 1) : add_one (x : Int) = (2 : Int) := by
     pattern add_one _
     trace_state
     rw [h]
+  rfl

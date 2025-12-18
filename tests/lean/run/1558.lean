@@ -3,3 +3,4 @@ example : (λ (u : Nat) => u + 0) = id :=by
     lhs
     intro u
     change u
+  rfl

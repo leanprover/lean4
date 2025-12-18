@@ -8,7 +8,7 @@ structure ℝ where
 instance instFoo1 {X : Type u} {Y : Type v} [Vec X] [Vec Y] : Vec (X × Y) := sorry
 instance instProblem {α : Type u} {X : Type v} [Vec X] : Vec (α → X) := sorry
 
-instance (priority := mid+1) instFoo2 : Vec ℝ := sorry
+instance (priority := default+1) instFoo2 : Vec ℝ := sorry
 
 --------------
 
@@ -23,15 +23,14 @@ class Trait (X : Type u) where
 
 attribute [reducible] Trait.R
 
-class SemiInner (X : Type u) (R : Type v) where
+class SemiInner (X : Type u) (R : outParam (Type v)) where
   semiInner : X → X → R
 
 @[reducible] instance (X) (R : Type u) [SemiInner X R] : Trait X := ⟨R⟩
 
-class SemiHilbert (X) (R : Type u) [Vec R] extends Vec X, SemiInner X R
+class SemiHilbert (X) (R : outParam (Type u)) [Vec R] [Vec X] extends SemiInner X R
 
-@[infer_tc_goals_rl]
-instance (X R) [Trait X] [Vec R] [SemiHilbert X R] (ι : Type v) : SemiHilbert (ι → X) R := sorry
+instance (X R) [Trait X] [Vec R] [Vec X] [SemiHilbert X R] (ι : Type v) : SemiHilbert (ι → X) R := sorry
 instance : SemiHilbert ℝ ℝ := sorry
 
 --------------
@@ -53,5 +52,5 @@ example : SemiHilbert (Trait.R ℝ) ℝ := by infer_instance
 -- set_option pp.explicit true in
 -- set_option trace.Meta.synthInstance true in
 
--- This should not timeout but failt in finite number of steps like in Lean 3
+-- This should not timeout but fail in finite number of steps like in Lean 3
 example : IsLin  (λ (x : ℝ) => sum λ i : Fin n => norm x) := by infer_instance

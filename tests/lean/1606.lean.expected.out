@@ -1,9 +1,9 @@
 1606.lean:1:18-2:6: error: unsolved goals
 ⊢ True
-1606.lean:3:4: error: expected command
+1606.lean:3:4-3:8: error: unexpected identifier; expected command
 1606.lean:8:18-10:8: error: unsolved goals
 ⊢ True
-1606.lean:11:4: error: expected command
+1606.lean:11:4-11:14: error: unexpected identifier; expected command
 1606.lean:19:18-21:14: error: unsolved goals
 ⊢ True
-1606.lean:22:4: error: expected command
+1606.lean:22:4-22:14: error: unexpected identifier; expected command

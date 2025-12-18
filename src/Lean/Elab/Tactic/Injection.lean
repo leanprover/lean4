@@ -3,8 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Meta.Tactic.Injection
-import Lean.Elab.Tactic.ElabTerm
+module
+
+prelude
+public import Lean.Meta.Tactic.Injection
+public import Lean.Meta.Tactic.Assumption
+public import Lean.Elab.Tactic.ElabTerm
+
+public section
 namespace Lean.Elab.Tactic
 
 -- optional (" with " >> many1 ident')
@@ -18,6 +24,13 @@ private def checkUnusedIds (tacticName : Name) (mvarId : MVarId) (unusedIds : Li
   unless unusedIds.isEmpty do
     Meta.throwTacticEx tacticName mvarId m!"too many identifiers provided, unused: {unusedIds}"
 
+-- TODO: move to a different place?
+private def tryAssumption (mvarId : MVarId) : MetaM (List MVarId) := do
+  if (← mvarId.assumptionCore) then
+    return []
+  else
+    return [mvarId]
+
 @[builtin_tactic «injection»] def evalInjection : Tactic := fun stx => do
   -- leading_parser nonReservedSymbol "injection " >> termParser >> withIds
   let fvarId ← elabAsFVar stx[1]
@@ -25,13 +38,13 @@ private def checkUnusedIds (tacticName : Name) (mvarId : MVarId) (unusedIds : Li
   liftMetaTactic fun mvarId => do
     match (← Meta.injection mvarId fvarId ids) with
     | .solved                      => checkUnusedIds `injection mvarId ids; return []
-    | .subgoal mvarId' _ unusedIds => checkUnusedIds `injection mvarId unusedIds; return [mvarId']
+    | .subgoal mvarId' _ unusedIds => checkUnusedIds `injection mvarId unusedIds; tryAssumption mvarId'
 
 @[builtin_tactic «injections»] def evalInjections : Tactic := fun stx => do
   let ids := stx[1].getArgs.toList.map getNameOfIdent'
   liftMetaTactic fun mvarId => do
     match (← Meta.injections mvarId ids) with
-    | .solved                    => checkUnusedIds `injections mvarId ids; return []
-    | .subgoal mvarId' unusedIds => checkUnusedIds `injections mvarId unusedIds; return [mvarId']
+    | .solved                      => checkUnusedIds `injections mvarId ids; return []
+    | .subgoal mvarId' unusedIds _ => checkUnusedIds `injections mvarId unusedIds; tryAssumption mvarId'
 
 end Lean.Elab.Tactic

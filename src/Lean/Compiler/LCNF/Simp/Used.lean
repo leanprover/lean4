@@ -3,7 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Compiler.LCNF.Simp.SimpM
+module
+
+prelude
+public import Lean.Compiler.LCNF.Simp.SimpM
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Simp
@@ -16,18 +21,30 @@ def markUsedFVar (fvarId : FVarId) : SimpM Unit :=
   modify fun s => { s with used := s.used.insert fvarId }
 
 /--
-Mark all free variables occurring in `e` as used.
-This is information is used to eliminate dead local declarations.
+Mark all free variables occurring in `arg` as used.
 -/
-def markUsedExpr (e : Expr) : SimpM Unit :=
-  modify fun s => { s with used := collectLocalDecls s.used e }
+def markUsedArg (arg : Arg) : SimpM Unit :=
+  match arg with
+  | .fvar fvarId => markUsedFVar fvarId
+  -- Locally declared variables do not occur in types.
+  | .type _ | .erased => return ()
+
+/--
+Mark all free variables occurring in `e` as used.
+-/
+def markUsedLetValue (e : LetValue) : SimpM Unit := do
+  match e with
+  | .lit .. | .erased => return ()
+  | .proj _ _ fvarId => markUsedFVar fvarId
+  | .const _ _ args => args.forM markUsedArg
+  | .fvar fvarId args => markUsedFVar fvarId; args.forM markUsedArg
 
 /--
 Mark all free variables occurring on the right-hand side of the given let declaration as used.
 This is information is used to eliminate dead local declarations.
 -/
 def markUsedLetDecl (letDecl : LetDecl) : SimpM Unit :=
-  markUsedExpr letDecl.value
+  markUsedLetValue letDecl.value
 
 mutual
 /--
@@ -39,7 +56,7 @@ partial def markUsedCode (code : Code) : SimpM Unit := do
   | .jp decl k | .fun decl k => markUsedFunDecl decl; markUsedCode k
   | .return fvarId => markUsedFVar fvarId
   | .unreach .. => return ()
-  | .jmp fvarId args => markUsedFVar fvarId; args.forM markUsedExpr
+  | .jmp fvarId args => markUsedFVar fvarId; args.forM markUsedArg
   | .cases c => markUsedFVar c.discr; c.alts.forM fun alt => markUsedCode alt.getCode
 
 /--

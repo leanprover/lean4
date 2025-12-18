@@ -3,22 +3,42 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Meta.WHNF
-import Lean.Meta.Transform
-import Lean.Meta.SynthInstance
-import Lean.Meta.AppBuilder
+module
+
+prelude
+public import Lean.Meta.AppBuilder
+import Lean.ExtraModUses
+
+public section
 
 namespace Lean.Meta
 
 /--
-  Return true iff `declName` is one of the auxiliary definitions/projections
-  used to implement coercions.
+Tags declarations to be unfolded during coercion elaboration.
+
+This is mostly used to hide coercion implementation details and show the coerced result instead of
+an application of auxiliary definitions (e.g. `CoeT.coe`, `Coe.coe`). This attribute only works on
+reducible functions and instance projections.
 -/
-def isCoeDecl (declName : Name) : Bool :=
-  declName == ``Coe.coe || declName == ``CoeTC.coe || declName == ``CoeHead.coe ||
-  declName == ``CoeTail.coe || declName == ``CoeHTCT.coe || declName == ``CoeDep.coe ||
-  declName == ``CoeT.coe || declName == ``CoeFun.coe || declName == ``CoeSort.coe ||
-  declName == ``Lean.Internal.liftCoeM || declName == ``Lean.Internal.coeM
+@[builtin_doc]
+builtin_initialize coeDeclAttr : TagAttribute ←
+  registerTagAttribute `coe_decl "auxiliary definition used to implement coercion (unfolded during elaboration)"
+
+/--
+Return true iff `declName` is one of the auxiliary definitions/projections used to implement
+coercions.
+-/
+def isCoeDecl (env : Environment) (declName : Name) : Bool :=
+  coeDeclAttr.hasTag env declName
+
+/-- Recurse through projection functions (e.g. `(f a b c).fst.snd` => `f`) -/
+private partial def recProjTarget (e : Expr) (nm : Name := e.getAppFn.constName!) : MetaM Name := do
+  let some info ← getProjectionFnInfo? nm | return nm
+  let target := e.getArgD info.numParams (.sort .zero)
+  if target.getAppFn.isConst then
+    recProjTarget target
+  else
+    return nm
 
 /-- Expand coercions occurring in `e` -/
 partial def expandCoe (e : Expr) : MetaM Expr :=
@@ -27,23 +47,22 @@ partial def expandCoe (e : Expr) : MetaM Expr :=
       let f := e.getAppFn
       if f.isConst then
         let declName := f.constName!
-        if isCoeDecl declName then
+        if isCoeDecl (← getEnv) declName then
+          /-
+          Unfolding an instance projection corresponds to unfolding the target of the projection
+          (and then reducing the projection). Thus we can recursively visit projections before
+          recording the declaration. We shouldn't need to record any other arguments because they
+          should still appear after unfolding (unless there are unused variables in the instances).
+          -/
+          recordExtraModUseFromDecl (isMeta := false) (← recProjTarget e)
           if let some e ← unfoldDefinition? e then
             return .visit e.headBeta
       return .continue
 
-register_builtin_option maxCoeSize : Nat := {
-  defValue := 16
-  descr    := "maximum number of instances used to construct an automatic coercion"
-}
-
 register_builtin_option autoLift : Bool := {
   defValue := true
-  descr    := "insert monadic lifts (i.e., `liftM` and coercions) when needed"
+  descr    := "Insert monadic lifts (i.e., `liftM` and coercions) when needed."
 }
-
-def trySynthInstanceForCoe (cls : Expr) : MetaM (LOption Expr) := do
-  trySynthInstance cls (some (maxCoeSize.get (← getOptions)))
 
 /-- Coerces `expr` to `expectedType` using `CoeT`. -/
 def coerceSimple? (expr expectedType : Expr) : MetaM (LOption Expr) := do
@@ -51,29 +70,41 @@ def coerceSimple? (expr expectedType : Expr) : MetaM (LOption Expr) := do
   let u ← getLevel eType
   let v ← getLevel expectedType
   let coeTInstType := mkAppN (mkConst ``CoeT [u, v]) #[eType, expr, expectedType]
-  match ← trySynthInstanceForCoe coeTInstType with
+  match ← trySynthInstance coeTInstType with
   | .some inst =>
     let result ← expandCoe (mkAppN (mkConst ``CoeT.coe [u, v]) #[eType, expr, expectedType, inst])
     unless ← isDefEq (← inferType result) expectedType do
-      throwError "could not coerce{indentExpr expr}\nto{indentExpr expectedType}\ncoerced expression has wrong type:{indentExpr result}"
+      throwError "Could not coerce{indentExpr expr}\nto{indentExpr expectedType}\ncoerced expression has wrong type:{indentExpr result}"
     return .some result
   | .undef => return .undef
   | .none => return .none
 
 /-- Coerces `expr` to a function type. -/
 def coerceToFunction? (expr : Expr) : MetaM (Option Expr) := do
-  let result ← try mkAppM ``CoeFun.coe #[expr] catch _ => return none
-  let expanded ← expandCoe result
+  -- constructing expression manually because mkAppM wouldn't assign universe mvars
+  let α ← inferType expr
+  let u ← getLevel α
+  let v ← mkFreshLevelMVar
+  let γ ← mkFreshExprMVar (← mkArrow α (mkSort v))
+  let .some inst ← trySynthInstance (mkApp2 (.const ``CoeFun [u,v]) α γ) | return none
+  let expanded ← expandCoe (mkApp4 (.const ``CoeFun.coe [u,v]) α γ inst expr)
   unless (← whnf (← inferType expanded)).isForall do
-    throwError "failed to coerce{indentExpr expr}\nto a function, after applying `CoeFun.coe`, result is still not a function{indentExpr expanded}\nthis is often due to incorrect `CoeFun` instances, the synthesized instance was{indentExpr result.appFn!.appArg!}"
+    throwError m!"Failed to coerce{indentExpr expr}\nto a function: After applying `CoeFun.coe`, result is still not a function{indentExpr expanded}"
+      ++ .hint' m!"This is often due to incorrect `CoeFun` instances; the synthesized instance was{indentExpr inst}"
   return expanded
 
 /-- Coerces `expr` to a type. -/
 def coerceToSort? (expr : Expr) : MetaM (Option Expr) := do
-  let result ← try mkAppM ``CoeSort.coe #[expr] catch _ => return none
-  let expanded ← expandCoe result
+  -- constructing expression manually because mkAppM wouldn't assign universe mvars
+  let α ← inferType expr
+  let u ← getLevel α
+  let v ← mkFreshLevelMVar
+  let β ← mkFreshExprMVar (mkSort v)
+  let .some inst ← trySynthInstance (mkApp2 (.const ``CoeSort [u,v]) α β) | return none
+  let expanded ← expandCoe (mkApp4 (.const ``CoeSort.coe [u,v]) α β inst expr)
   unless (← whnf (← inferType expanded)).isSort do
-    throwError "failed to coerce{indentExpr expr}\nto a type, after applying `CoeSort.coe`, result is still not a type{indentExpr expanded}\nthis is often due to incorrect `CoeSort` instances, the synthesized instance was{indentExpr result.appFn!.appArg!}"
+    throwError m!"Failed to coerce{indentExpr expr}\nto a type: After applying `CoeSort.coe`, result is still not a type{indentExpr expanded}"
+      ++ .hint' m!"This is often due to incorrect `CoeSort` instances; the synthesized instance was{indentExpr inst}"
   return expanded
 
 /-- Return `some (m, α)` if `type` can be reduced to an application of the form `m α` using `[reducible]` transparency. -/
@@ -155,13 +186,23 @@ def coerceMonadLift? (e expectedType : Expr) : MetaM (Option Expr) := do
   let eType ← instantiateMVars (← inferType e)
   let some (n, β) ← isTypeApp? expectedType | return none
   let some (m, α) ← isTypeApp? eType | return none
+  -- Need to save and restore the state in case `m` and `n` are defeq but not monads to prevent this procedure from having side effects.
+  let saved ← saveState
   if (← isDefEq m n) then
-    let some monadInst ← isMonad? n | return none
-    try expandCoe (← mkAppOptM ``Lean.Internal.coeM #[m, α, β, none, monadInst, e]) catch _ => return none
+    let some monadInst ← isMonad? n | restoreState saved; return none
+    try expandCoe (← mkAppOptM ``Lean.Internal.coeM #[m, α, β, none, monadInst, e]) catch _ => restoreState saved; return none
   else if autoLift.get (← getOptions) then
     try
       -- Construct lift from `m` to `n`
-      let monadLiftType ← mkAppM ``MonadLiftT #[m, n]
+      -- Note: we cannot use mkAppM here because mkAppM does not assign universe metavariables,
+      -- but we need to make sure that the domains of `m` and `n` have the same level.
+      let .forallE _ (.sort um₁) (.sort um₂) _ ← whnf (← inferType m) | return none
+      let .forallE _ (.sort un₁) (.sort un₂) _ ← whnf (← inferType n) | return none
+      let u ← decLevel um₁
+      let .true ← isLevelDefEq u (← decLevel un₁) | return none
+      let v ← decLevel um₂
+      let w ← decLevel un₂
+      let monadLiftType := mkAppN (.const ``MonadLiftT [u, v, w]) #[m, n]
       let .some monadLiftVal ← trySynthInstance monadLiftType | return none
       let u_1 ← getDecLevel α
       let u_2 ← getDecLevel eType

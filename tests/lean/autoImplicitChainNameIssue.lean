@@ -9,4 +9,4 @@ theorem palindrome_reverse (h : Palindrome as) : Palindrome as.reverse := by
   | single a => exact Palindrome.single a
   | sandwish a h ih => simp; exact Palindrome.sandwish _ ih
 
-#check @palindrome_reverse
+#check palindrome_reverse

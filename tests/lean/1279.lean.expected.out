@@ -3,6 +3,6 @@ fun {α β γ} x x_1 =>
   match β, γ, x, x_1 with
   | β, .(β), Arrow.id, g => g
   | .(α), γ, f, Arrow.id => f
-  | β, γ, Arrow.comp f₁ f₂, g => Arrow.comp f₁ (Arrow.comp f₂ g)
-  | β, γ, f, g => Arrow.comp f g
+  | β, γ, f₁.comp f₂, g => f₁.comp (f₂.comp g)
+  | β, γ, f, g => f.comp g
 Arrow.unit

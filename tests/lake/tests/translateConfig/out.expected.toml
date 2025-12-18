@@ -1,0 +1,29 @@
+name = "test"
+testDriver = "b"
+lintDriver = "b"
+defaultTargets = ["A"]
+
+[leanOptions]
+pp.unicode.fun = true
+
+[[require]]
+name = "baz"
+scope = "foo"
+version = "git#abcdef"
+
+[[require]]
+name = "foo"
+path = "dir"
+options = {foo = "bar"}
+
+[[require]]
+name = "bar"
+git = "https://example.com"
+rev = "abc"
+subDir = "sub/dir"
+
+[[lean_lib]]
+name = "A"
+
+[[lean_exe]]
+name = "b"

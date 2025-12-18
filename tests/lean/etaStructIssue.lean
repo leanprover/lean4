@@ -1,4 +1,4 @@
-inductive E where
+inductive E : Type where
   | mk : E → E
 
 inductive F : E → Prop
@@ -17,4 +17,4 @@ def mkNat (e : E) (x : F e) : Nat :=
 theorem fail (e : E) (x₁ : F e) (x₂ : F (E.mk e)) : mkNat e x₁ = mkNat (E.mk e) x₂ :=
   /- The following rfl was succeeding in the elaborator but failing in the kernel because
      of a discrepancy in the implementation for Eta-for-structures. -/
-  rfl -- should fail
+  (rfl) -- should fail

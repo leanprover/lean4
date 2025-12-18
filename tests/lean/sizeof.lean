@@ -15,4 +15,4 @@ inductive InfTree (α : Type u)
 
 #reduce sizeOf <| InfTree.leaf 10
 
-#check @InfTree.node.sizeOf_spec
+#check InfTree.node.sizeOf_spec

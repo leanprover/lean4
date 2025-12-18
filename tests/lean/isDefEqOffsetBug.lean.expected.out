@@ -1,6 +1,6 @@
-isDefEqOffsetBug.lean:27:2-27:5: error: type mismatch
+isDefEqOffsetBug.lean:19:2-19:7: error: Type mismatch
   rfl
 has type
-  0 + 0 = 0 + 0 : Prop
+  ?m = ?m
 but is expected to have type
-  0 + 0 = 0 : Prop
+  0 + 0 = 0

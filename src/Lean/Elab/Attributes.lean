@@ -3,7 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
-import Lean.Elab.Util
+module
+
+prelude
+public import Lean.Elab.Util
+public import Lean.Compiler.InitAttr
+import Lean.Parser.Term
+
+public section
 namespace Lean.Elab
 
 structure Attribute where
@@ -30,7 +37,7 @@ def toAttributeKind (attrKindStx : Syntax) : MacroM AttributeKind := do
     return AttributeKind.global
   else if attrKindStx[0][0].getKind == ``Lean.Parser.Term.scoped then
     if (← Macro.getCurrNamespace).isAnonymous then
-      throw <| Macro.Exception.error (← getRef) "scoped attributes must be used inside namespaces"
+      throw <| Macro.Exception.error (← getRef) "Scoped attributes must be used inside namespaces"
     return AttributeKind.scoped
   else
     return AttributeKind.local
@@ -38,7 +45,7 @@ def toAttributeKind (attrKindStx : Syntax) : MacroM AttributeKind := do
 def mkAttrKindGlobal : Syntax :=
   mkNode ``Lean.Parser.Term.attrKind #[mkNullNode]
 
-def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadInfoTree m] [MonadLiftT IO m] (attrInstance : Syntax) : m Attribute := do
+def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLiftT IO m] (attrInstance : Syntax) : m Attribute := do
   /- attrInstance     := ppGroup $ leading_parser attrKind >> attrParser -/
   let attrKind ← liftMacroM <| toAttributeKind attrInstance[0]
   let attr := attrInstance[1]
@@ -47,23 +54,17 @@ def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMa
     pure attr[0].getId.eraseMacroScopes
   else match attr.getKind with
     | .str _ s => pure <| Name.mkSimple s
-    | _ => throwErrorAt attr  "unknown attribute"
-  let .ok impl := getAttributeImpl (← getEnv) attrName
-    | throwError "unknown attribute [{attrName}]"
-  let attrSyntaxNodeKind := attrInstance[1].getKind
-  -- `Lean.Parser.Attr.simple` is a generic `attribute` parser used in simple attributes.
-  -- We don't want to create an info tree node from a simple attribute to the generic parser.
-  let declTarget := if attrSyntaxNodeKind == ``Lean.Parser.Attr.simple then impl.ref else attrSyntaxNodeKind
-  if (← getEnv).contains declTarget && (← getInfoState).enabled then
-    pushInfoLeaf <| .ofCommandInfo {
-      elaborator := declTarget  -- not truly an elaborator, but a sensible target for go-to-definition
-      stx        := attrInstance[1][0] -- We want to associate the information to the first atom only
-    }
+    | _ => throwErrorAt attr  "Unknown attribute"
+  let .ok _impl := getAttributeImpl (← getEnv) attrName
+    | throwError "Unknown attribute `[{attrName}]`"
+  if let .ok impl := getAttributeImpl (← getEnv) attrName then
+    if regularInitAttr.getParam? (← getEnv) impl.ref |>.isSome then  -- skip `builtin_initialize` attributes
+      recordExtraModUseFromDecl (isMeta := true) impl.ref
   /- The `AttrM` does not have sufficient information for expanding macros in `args`.
      So, we expand them before here before we invoke the attributer handlers implemented using `AttrM`. -/
   return { kind := attrKind, name := attrName, stx := attr }
 
-def elabAttrs [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadInfoTree m] [MonadLiftT IO m] (attrInstances : Array Syntax) : m (Array Attribute) := do
+def elabAttrs [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadLiftT IO m] (attrInstances : Array Syntax) : m (Array Attribute) := do
   let mut attrs := #[]
   for attr in attrInstances do
     try
@@ -73,7 +74,7 @@ def elabAttrs [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadM
   return attrs
 
 -- leading_parser "@[" >> sepBy1 attrInstance ", " >> "]"
-def elabDeclAttrs [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadInfoTree m] [MonadLiftT IO m] (stx : Syntax) : m (Array Attribute) :=
+def elabDeclAttrs [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadLiftT IO m] (stx : Syntax) : m (Array Attribute) :=
   elabAttrs stx[1].getSepArgs
 
 end Lean.Elab

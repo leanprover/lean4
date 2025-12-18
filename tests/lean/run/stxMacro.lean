@@ -11,7 +11,7 @@ macro_rules
   return r
 
 #check sum! 1 2 3
-#eval sum! 1 2 3
+#guard sum! 1 2 3 == 6
 #check sum!
 
 theorem ex : sum! 1 2 3 = 6 :=

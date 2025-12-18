@@ -1,0 +1,4 @@
+name = "foo"
+
+[[lean_exe]]
+name = "foo"

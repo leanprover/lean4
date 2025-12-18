@@ -3,7 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Compiler.LCNF.Simp.SimpM
+module
+
+prelude
+public import Lean.Compiler.LCNF.Simp.SimpM
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Simp
@@ -17,10 +22,10 @@ or not.
 private def getMaxOccs (alts : Array Alt) : Alt × Nat := Id.run do
   let mut maxAlt := alts[0]!
   let mut max    := getNumOccsOf alts 0
-  for i in [1:alts.size] do
+  for h : i in 1...alts.size do
     let curr := getNumOccsOf alts i
     if curr > max then
-       maxAlt := alts[i]!
+       maxAlt := alts[i]
        max    := curr
   return (maxAlt, max)
 where
@@ -33,8 +38,8 @@ where
   getNumOccsOf (alts : Array Alt) (i : Nat) : Nat := Id.run do
     let code := alts[i]!.getCode
     let mut n := 1
-    for j in [i+1:alts.size] do
-      if Code.alphaEqv alts[j]!.getCode code then
+    for h : j in (i+1)...alts.size do
+      if Code.alphaEqv alts[j].getCode code then
         n := n+1
     return n
 

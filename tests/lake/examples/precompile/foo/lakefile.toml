@@ -1,0 +1,6 @@
+name = "foo"
+precompileModules = true
+defaultTargets = ["Foo"]
+
+[[lean_lib]]
+name = "Foo"

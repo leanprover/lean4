@@ -1,0 +1,38 @@
+[Compiler.IR] [reset_reuse]
+    def f (x_1 : obj) : obj :=
+      case x_1 : obj of
+      Prod.mk →
+        let x_2 : tobj := proj[0] x_1;
+        let x_3 : tobj := proj[1] x_1;
+        let x_5 : tobj := reset[2] x_1;
+        let x_4 : obj := reuse x_5 in ctor_0[Prod.mk] x_3 x_2;
+        ret x_4
+[Compiler.IR] [reset_reuse]
+    def Sigma.toProd (x_1 : ◾) (x_2 : ◾) (x_3 : obj) : obj :=
+      let x_4 : obj := Sigma.toProd._redArg x_3;
+      ret x_4
+    def Sigma.toProd._redArg (x_1 : obj) : obj :=
+      case x_1 : obj of
+      Sigma.mk →
+        let x_2 : tobj := proj[0] x_1;
+        let x_3 : tobj := proj[1] x_1;
+        let x_5 : tobj := reset[2] x_1;
+        let x_4 : obj := reuse x_5 in ctor_0[Prod.mk] x_2 x_3;
+        ret x_4
+[Compiler.IR] [reset_reuse]
+    def foo (x_1 : tobj) : tobj :=
+      case x_1 : tobj of
+      List.nil →
+        let x_2 : tagged := ctor_0[List.nil];
+        ret x_2
+      List.cons →
+        let x_3 : tobj := proj[0] x_1;
+        case x_3 : obj of
+        Prod.mk →
+          let x_4 : tobj := proj[1] x_1;
+          let x_10 : tobj := reset[2] x_1;
+          let x_5 : tobj := proj[0] x_3;
+          let x_6 : tobj := proj[1] x_3;
+          let x_7 : tobj := foo x_4;
+          let x_8 : obj := reuse x_10 in ctor_1[List.cons] x_5 x_7;
+          ret x_8

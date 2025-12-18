@@ -3,8 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Util.Recognizers
-import Lean.Meta.Basic
+module
+
+prelude
+public import Lean.Util.Recognizers
+public import Lean.Meta.CtorRecognizer
+
+public section
 
 namespace Lean.Meta
 
@@ -39,8 +44,20 @@ def matchEqHEq? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) := do
   else
     return none
 
+/--
+  Return `some (α, lhs)` if `e` is of the form `@Eq α lhs rhs` or `@HEq α lhs β rhs`
+-/
+def matchEqHEqLHS? (e : Expr) : MetaM (Option (Expr × Expr)) := do
+  if let some (α, lhs, _rhs) ← matchEq? e then
+    return some (α, lhs)
+  else if let some (α, lhs, _β, _rhs) ← matchHEq? e then
+    return some (α, lhs)
+  else
+    return none
+
+
 def matchFalse (e : Expr) : MetaM Bool := do
-  testHelper e fun e => return e.isConstOf ``False
+  testHelper e fun e => return e.isFalse
 
 def matchNot? (e : Expr) : MetaM (Option Expr) :=
   matchHelper? e fun e => do
@@ -61,8 +78,6 @@ def matchNe? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) :=
       return none
 
 def matchConstructorApp? (e : Expr) : MetaM (Option ConstructorVal) := do
-  let env ← getEnv
-  matchHelper? e fun e =>
-    return e.isConstructorApp? env
+  matchHelper? e isConstructorApp?
 
 end Lean.Meta

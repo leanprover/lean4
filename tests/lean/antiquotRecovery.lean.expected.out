@@ -1,1 +1,1 @@
-antiquotRecovery.lean:5:18: error: expected ')'
+antiquotRecovery.lean:5:17-5:19: error: unexpected token '$'; expected ')'

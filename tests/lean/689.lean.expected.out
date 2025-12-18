@@ -1,2 +1,2 @@
-689.lean:4:0: error: expected '|'
+689.lean:2:14-4:7: error: unexpected token 'section'; expected '|'
 689.lean:9:0: error: unexpected end of input; expected '{'

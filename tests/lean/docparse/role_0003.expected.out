@@ -1,0 +1,22 @@
+Success! Final stack:
+  (Lean.Doc.Syntax.role
+   "{"
+   `ref
+   [(Lean.Doc.Syntax.anon
+     (Lean.Doc.Syntax.arg_ident `other))]
+   "}"
+   "["
+   [(Lean.Doc.Syntax.role
+     "{"
+     `leanKw
+     []
+     "}"
+     "["
+     [(Lean.Doc.Syntax.code
+       "`"
+       (str "\"cmd\"")
+       "`")]
+     "]")
+    (Lean.Doc.Syntax.text (str "\" is great\""))]
+   "]")
+All input consumed.

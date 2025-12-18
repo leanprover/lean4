@@ -4,12 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
-import Lean.Elab.Command
-import Lean.Elab.Term
-import Lean.Elab.Deriving.Basic
-import Lean.Elab.Deriving.Util
+module
 
-import Lean.Server.Rpc.Basic
+prelude
+public import Lean.Elab.Deriving.Basic
+
+
+public section
 
 namespace Lean.Server.RpcEncodable
 
@@ -41,7 +42,6 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
       decInits := decInits.push (← `(structInstField| $fid:ident := ← rpcDecode a.$fid))
 
   let paramIds ← params.mapM fun p => return mkIdent (← getFVarLocalDecl p).userName
-
   `(structure RpcEncodablePacket where
       $[($fieldIds : $fieldTys)]*
       deriving FromJson, ToJson
@@ -54,11 +54,11 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
       enc a := return toJson { $[$encInits],* : RpcEncodablePacket }
       dec j := do
         let a : RpcEncodablePacket ← fromJson? j
-        return { $[$decInits],* }
+        return { $decInits:structInstField,* }
   )
 
 private def matchAltTerm := Lean.Parser.Term.matchAlt (rhsParser := Lean.Parser.termParser)
-instance : Coe (TSyntax ``matchAltTerm) (TSyntax ``Parser.Term.matchAlt) where coe s := ⟨s⟩
+private instance : Coe (TSyntax ``matchAltTerm) (TSyntax ``Parser.Term.matchAlt) where coe s := ⟨s⟩
 
 private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr)
     (encInstBinders : Array (TSyntax ``bracketedBinder)) : TermElabM Command := do
@@ -67,7 +67,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
     let ctorTy ← instantiateForall (← getConstInfoCtor ctorName).type params
     forallTelescopeReducing ctorTy fun argVars _ => do
     let .str _ ctor := ctorName | throwError m!"constructor name not a string: {ctorName}"
-    let ctorId := mkIdent ctor
+    let ctorId := mkIdent (.mkSimple ctor)
 
     -- create the constructor
     let fieldStxs ← argVars.mapM fun arg => do
@@ -90,7 +90,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
 
   -- helpers for type name syntax
   let paramIds ← params.mapM fun p => return mkIdent (← getFVarLocalDecl p).userName
-  let typeId ← `(@$(mkIdent indVal.name) $paramIds*)
+  let typeId ← `(@$(mkCIdent indVal.name) $paramIds*)
 
   `(inductive RpcEncodablePacket where
       $[$ctors:ctor]*

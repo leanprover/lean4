@@ -1,6 +1,9 @@
-345.lean:1:12-1:13: error: failed to synthesize instance
+345.lean:1:12-1:13: error: failed to synthesize
   OfNat (Sort ?u) 1
-345.lean:4:8-4:9: error: failed to synthesize instance
+use `set_option diagnostics true` to get diagnostic information
+345.lean:4:8-4:9: error: failed to synthesize
   OfNat (Sort ?u) 1
-345.lean:6:19-6:20: error: failed to synthesize instance
+use `set_option diagnostics true` to get diagnostic information
+345.lean:6:19-6:20: error: failed to synthesize
   OfNat (Sort ?u) 1
+use `set_option diagnostics true` to get diagnostic information

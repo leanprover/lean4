@@ -1,9 +1,9 @@
-{"textDocument": {"uri": "file://matchPatternHover.lean"},
+{"textDocument": {"uri": "file:///matchPatternHover.lean"},
  "position": {"line": 13, "character": 7}}
 {"range":
  {"start": {"line": 13, "character": 7}, "end": {"line": 13, "character": 9}},
  "contents": {"value": "```lean\nas : HList β is✝\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://matchPatternHover.lean"},
+{"textDocument": {"uri": "file:///matchPatternHover.lean"},
  "position": {"line": 13, "character": 17}}
 {"range":
  {"start": {"line": 13, "character": 17}, "end": {"line": 13, "character": 18}},

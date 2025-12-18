@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+rm -r stage0 || true
+# don't copy untracked files
+# `:!` is git glob flavor for exclude patterns
+for f in $(git ls-files src ':!:src/lake/*' ':!:src/Leanc.lean'); do
+    if [[ $f == *.lean ]]; then
+        f=${f#src/}
+        f=${f%.lean}.c
+        mkdir -p $(dirname stage0/stdlib/$f)
+        cp ${CP_C_PARAMS:-} $CSRCS/$f stage0/stdlib/$f
+    else
+        mkdir -p $(dirname stage0/$f)
+        cp $f stage0/$f
+    fi
+done
+
+# special handling for Lake files due to its nested directory
+# copy the README to ensure the `stage0/src/lake` directory is committed
+for f in $(git ls-files 'src/lake/Lake/*' src/lake/Lake.lean src/lake/LakeMain.lean src/lake/README.md ':!:src/lakefile.toml'); do
+    if [[ $f == *.lean ]]; then
+        f=${f#src/lake}
+        f=${f%.lean}.c
+        mkdir -p $(dirname stage0/stdlib/$f)
+        cp ${CP_C_PARAMS:-} $CSRCS/$f stage0/stdlib/$f
+    else
+        mkdir -p $(dirname stage0/$f)
+        cp $f stage0/$f
+    fi
+done
+
+git add stage0

@@ -3,7 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Environment
+module
+
+prelude
+public import Lean.Environment
+
+public section
 
 namespace Lean
 namespace Expr
@@ -63,6 +68,7 @@ namespace Expr
 @[inline] def and? (p : Expr) : Option (Expr × Expr) :=
   p.app2? ``And
 
+/-- Recognizes `x1 ≍ x2`, returns `some (α1, x1, α2, x2)`.  -/
 @[inline] def heq? (p : Expr) : Option (Expr × Expr × Expr × Expr) :=
   p.app4? ``HEq
 
@@ -105,50 +111,29 @@ def arrayLit? (e : Expr) : Option (Expr × List Expr) :=
 def prod? (e : Expr) : Option (Expr × Expr) :=
   e.app2? ``Prod
 
-private def getConstructorVal? (env : Environment) (ctorName : Name) : Option ConstructorVal :=
-  match env.find? ctorName with
-  | some (ConstantInfo.ctorInfo v) => v
-  | _                              => none
-
-def isConstructorApp? (env : Environment) (e : Expr) : Option ConstructorVal :=
-  match e with
-  | Expr.lit (Literal.natVal n) => if n == 0 then getConstructorVal? env `Nat.zero else getConstructorVal? env `Nat.succ
-  | _ =>
-    match e.getAppFn with
-    | Expr.const n _ => match getConstructorVal? env n with
-      | some v => if v.numParams + v.numFields == e.getAppNumArgs then some v else none
-      | none   => none
-    | _ => none
-
-def isConstructorApp (env : Environment) (e : Expr) : Bool :=
-  e.isConstructorApp? env |>.isSome
-
 /--
-If `e` is a constructor application, return a pair containing the corresponding `ConstructorVal` and the constructor
-application arguments.
-This function treats numerals as constructors. For example, if `e` is the numeral `2`, the result pair
-is `ConstructorVal` for `Nat.succ`, and the array `#[1]`. The parameter `useRaw` controls how the resulting
-numeral is represented. If `useRaw := false`, then `mkNatLit` is used, otherwise `mkRawNatLit`.
-Recall that `mkNatLit` uses the `OfNat.ofNat` application which is the canonical way of representing numerals
-in the elaborator and tactic framework. We `useRaw := false` in the compiler (aka code generator).
+Checks if an expression is a `Name` literal, and if so returns the name.
 -/
-def constructorApp? (env : Environment) (e : Expr) (useRaw := false) : Option (ConstructorVal × Array Expr) := do
-  match e with
-  | Expr.lit (Literal.natVal n) =>
-    if n == 0 then do
-      let v ← getConstructorVal? env `Nat.zero
-      pure (v, #[])
-    else do
-      let v ← getConstructorVal? env `Nat.succ
-      pure (v, #[if useRaw then mkRawNatLit (n-1) else mkNatLit (n-1)])
-  | _ =>
-    match e.getAppFn with
-    | Expr.const n _ => do
-      let v ← getConstructorVal? env n
-      if v.numParams + v.numFields == e.getAppNumArgs then
-        pure (v, e.getAppArgs)
-      else
-        none
-    | _ => none
+def name? : Expr → Option Name
+  | .const ``Lean.Name.anonymous _ => Name.anonymous
+  | mkApp2 (.const ``Lean.Name.str _) n (.lit (.strVal s)) => (name? n).map (·.str s)
+  | mkApp2 (.const ``Lean.Name.num _) n i =>
+    (i.rawNatLit? <|> i.nat?).bind fun i => (name? n).map (Name.num · i)
+  | mkApp (.const ``Lean.Name.mkStr1 _) (.lit (.strVal a)) => Lean.Name.mkStr1 a
+  | mkApp2 (.const ``Lean.Name.mkStr2 _) (.lit (.strVal a1)) (.lit (.strVal a2)) =>
+    Lean.Name.mkStr2 a1 a2
+  | mkApp3 (.const ``Lean.Name.mkStr3 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) =>
+    Lean.Name.mkStr3 a1 a2 a3
+  | mkApp4 (.const ``Lean.Name.mkStr4 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) (.lit (.strVal a4)) =>
+    Lean.Name.mkStr4 a1 a2 a3 a4
+  | mkApp5 (.const ``Lean.Name.mkStr5 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) (.lit (.strVal a4)) (.lit (.strVal a5)) =>
+    Lean.Name.mkStr5 a1 a2 a3 a4 a5
+  | mkApp6 (.const ``Lean.Name.mkStr6 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) (.lit (.strVal a4)) (.lit (.strVal a5)) (.lit (.strVal a6)) =>
+    Lean.Name.mkStr6 a1 a2 a3 a4 a5 a6
+  | mkApp7 (.const ``Lean.Name.mkStr7 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) (.lit (.strVal a4)) (.lit (.strVal a5)) (.lit (.strVal a6)) (.lit (.strVal a7)) =>
+    Lean.Name.mkStr7 a1 a2 a3 a4 a5 a6 a7
+  | mkApp8 (.const ``Lean.Name.mkStr8 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) (.lit (.strVal a4)) (.lit (.strVal a5)) (.lit (.strVal a6)) (.lit (.strVal a7)) (.lit (.strVal a8)) =>
+    Lean.Name.mkStr8 a1 a2 a3 a4 a5 a6 a7 a8
+  | _ => none
 
 end Lean.Expr

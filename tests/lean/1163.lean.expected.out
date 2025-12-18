@@ -1,7 +1,9 @@
 1163.lean:6:8-6:15: warning: declaration uses 'sorry'
 1163.lean:11:8-11:15: warning: declaration uses 'sorry'
-1163.lean:13:16-13:17: error: failed to synthesize instance
+1163.lean:13:16-13:17: error: failed to synthesize
   OfNat Bool 0
+use `set_option diagnostics true` to get diagnostic information
 1163.lean:15:8-15:15: warning: declaration uses 'sorry'
-1163.lean:18:18-18:19: error: failed to synthesize instance
+1163.lean:18:18-18:19: error: failed to synthesize
   OfNat Bool 0
+use `set_option diagnostics true` to get diagnostic information

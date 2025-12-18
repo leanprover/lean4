@@ -20,18 +20,18 @@ def g : Nat → Nat
   | n+1 => n + 2
 
 example (a : Nat) : g a > 0 := by
-  cases a <;> simp_arith!
+  cases a <;> simp! +arith
 
 example (a : Nat) : g a > 0 := by
-  cases a <;> simp_arith!
+  cases a <;> simp! +arith
 
 example (a : Nat) : g a > 0 := by
-  cases a <;> simp_arith! [-g]
-  simp_arith!
+  cases a <;> simp! +arith +decide [-g]
+  simp! +arith
 
 example (a : Nat) (h : b + 2 = 2) : g a > b := by
-  cases a <;> simp_all_arith!
+  cases a <;> simp_all! +arith
 
 example (a : Nat) (h : b + 2 = 2) : g a > b := by
-  cases a <;> simp_all_arith! [-g]
-  simp_arith!
+  cases a <;> simp_all! +arith +decide [-g]
+  simp! +arith +decide

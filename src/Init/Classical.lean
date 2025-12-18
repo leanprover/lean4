@@ -1,11 +1,14 @@
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Mario Carneiro
 -/
+module
+
 prelude
-import Init.Core
-import Init.NotationExtra
+public import Init.PropLemmas
+
+@[expose] public section
 
 universe u v
 
@@ -16,13 +19,20 @@ namespace Classical
 noncomputable def indefiniteDescription {α : Sort u} (p : α → Prop) (h : ∃ x, p x) : {x // p x} :=
   choice <| let ⟨x, px⟩ := h; ⟨⟨x, px⟩⟩
 
+/--
+Given that there exists an element satisfying `p`, returns one such element.
+
+This is a straightforward consequence of, and equivalent to, `Classical.choice`.
+
+See also `choose_spec`, which asserts that the returned value has property `p`.
+-/
 noncomputable def choose {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : α :=
   (indefiniteDescription p h).val
 
 theorem choose_spec {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : p (choose h) :=
   (indefiniteDescription p h).property
 
-/-- Diaconescu's theorem: excluded middle from choice, Function extensionality and propositional extensionality. -/
+/-- **Diaconescu's theorem**: excluded middle from choice, Function extensionality and propositional extensionality. -/
 theorem em (p : Prop) : p ∨ ¬p :=
   let U (x : Prop) : Prop := x = True ∨ p
   let V (x : Prop) : Prop := x = False ∨ p
@@ -37,7 +47,7 @@ theorem em (p : Prop) : p ∨ ¬p :=
     | Or.inr h, _ => Or.inr h
     | _, Or.inr h => Or.inr h
     | Or.inl hut, Or.inl hvf =>
-      have hne : u ≠ v := by simp [hvf, hut, true_ne_false]
+      have hne : u ≠ v := by simp [hvf, hut]
       Or.inl hne
   have p_implies_uv : p → u = v :=
     fun hp =>
@@ -74,6 +84,8 @@ noncomputable scoped instance (priority := low) propDecidable (a : Prop) : Decid
 noncomputable def decidableInhabited (a : Prop) : Inhabited (Decidable a) where
   default := inferInstance
 
+instance (a : Prop) : Nonempty (Decidable a) := ⟨propDecidable a⟩
+
 noncomputable def typeDecidableEq (α : Sort u) : DecidableEq α :=
   fun _ _ => inferInstance
 
@@ -97,8 +109,8 @@ noncomputable def epsilon {α : Sort u} [h : Nonempty α] (p : α → Prop) : α
 theorem epsilon_spec_aux {α : Sort u} (h : Nonempty α) (p : α → Prop) : (∃ y, p y) → p (@epsilon α h p) :=
   (strongIndefiniteDescription p h).property
 
-theorem epsilon_spec {α : Sort u} {p : α → Prop} (hex : ∃ y, p y) : p (@epsilon α (nonempty_of_exists hex) p) :=
-  epsilon_spec_aux (nonempty_of_exists hex) p hex
+theorem epsilon_spec {α : Sort u} {p : α → Prop} (hex : ∃ y, p y) : p (@epsilon α hex.nonempty p) :=
+  epsilon_spec_aux hex.nonempty p hex
 
 theorem epsilon_singleton {α : Sort u} (x : α) : @epsilon α ⟨x⟩ (fun y => y = x) = x :=
   @epsilon_spec α (fun y => y = x) ⟨x, rfl⟩
@@ -112,32 +124,86 @@ theorem skolem {α : Sort u} {b : α → Sort v} {p : ∀ x, b x → Prop} : (�
 
 theorem propComplete (a : Prop) : a = True ∨ a = False :=
   match em a with
-  | Or.inl ha => Or.inl (propext (Iff.intro (fun _ => ⟨⟩) (fun _ => ha)))
-  | Or.inr hn => Or.inr (propext (Iff.intro (fun h => hn h) (fun h => False.elim h)))
+  | Or.inl ha => Or.inl (eq_true ha)
+  | Or.inr hn => Or.inr (eq_false hn)
 
--- this supercedes byCases in Decidable
+-- this supersedes byCases in Decidable
 theorem byCases {p q : Prop} (hpq : p → q) (hnpq : ¬p → q) : q :=
   Decidable.byCases (dec := propDecidable _) hpq hnpq
 
--- this supercedes byContradiction in Decidable
+-- this supersedes byContradiction in Decidable
 theorem byContradiction {p : Prop} (h : ¬p → False) : p :=
   Decidable.byContradiction (dec := propDecidable _) h
 
-/--
-`by_cases (h :)? p` splits the main goal into two cases, assuming `h : p` in the first branch, and `h : ¬ p` in the second branch.
--/
-syntax "by_cases" (atomic(ident ":"))? term : tactic
+/-- The Double Negation Theorem: `¬¬P` is equivalent to `P`.
+The left-to-right direction, double negation elimination (DNE),
+is classically true but not constructively. -/
+@[simp] theorem not_not : ¬¬a ↔ a := Decidable.not_not
 
-macro_rules
-  | `(tactic| by_cases $h : $e) =>
-    `(tactic|
-      cases em $e with
-      | inl $h => _
-      | inr $h => _)
-  | `(tactic| by_cases $e) =>
-    `(tactic|
-      cases em $e with
-      | inl h => _
-      | inr h => _)
+/-- Transfer decidability of `¬ p` to decidability of `p`. -/
+-- This can not be an instance as it would be tried everywhere.
+def decidable_of_decidable_not (p : Prop) [h : Decidable (¬ p)] : Decidable p :=
+  match h with
+  | isFalse h => isTrue (Classical.not_not.mp h)
+  | isTrue h => isFalse h
+
+attribute [local instance] decidable_of_decidable_not in
+/-- Negation of the condition `P : Prop` in a `dite` is the same as swapping the branches. -/
+@[simp low] protected theorem dite_not [hn : Decidable (¬p)] (x : ¬p → α) (y : ¬¬p → α) :
+    dite (¬p) x y = dite p (fun h => y (not_not_intro h)) x := by
+  cases hn <;> rename_i g
+  · simp [not_not.mp g]
+  · simp [g]
+
+attribute [local instance] decidable_of_decidable_not in
+/-- Negation of the condition `P : Prop` in a `ite` is the same as swapping the branches. -/
+@[simp low] protected theorem ite_not (p : Prop) [Decidable (¬ p)] (x y : α) : ite (¬p) x y = ite p y x :=
+  dite_not (fun _ => x) (fun _ => y)
+
+attribute [local instance] decidable_of_decidable_not in
+@[simp low] protected theorem decide_not (p : Prop) [Decidable (¬ p)] : decide (¬p) = !decide p :=
+  byCases (fun h : p => by simp_all) (fun h => by simp_all)
+
+@[simp low] theorem not_forall {p : α → Prop} : (¬∀ x, p x) ↔ ∃ x, ¬p x := Decidable.not_forall
+
+theorem not_forall_not {p : α → Prop} : (¬∀ x, ¬p x) ↔ ∃ x, p x := Decidable.not_forall_not
+theorem not_exists_not {p : α → Prop} : (¬∃ x, ¬p x) ↔ ∀ x, p x := Decidable.not_exists_not
+
+theorem forall_or_exists_not (P : α → Prop) : (∀ a, P a) ∨ ∃ a, ¬ P a := by
+  rw [← not_forall]; exact em _
+theorem exists_or_forall_not (P : α → Prop) : (∃ a, P a) ∨ ∀ a, ¬ P a := by
+  rw [← not_exists]; exact em _
+
+theorem or_iff_not_imp_left  : a ∨ b ↔ (¬a → b) := Decidable.or_iff_not_imp_left
+theorem or_iff_not_imp_right : a ∨ b ↔ (¬b → a) := Decidable.or_iff_not_imp_right
+
+theorem not_imp_iff_and_not : ¬(a → b) ↔ a ∧ ¬b := Decidable.not_imp_iff_and_not
+
+theorem not_and_iff_not_or_not : ¬(a ∧ b) ↔ ¬a ∨ ¬b := Decidable.not_and_iff_not_or_not
+
+theorem not_iff : ¬(a ↔ b) ↔ (¬a ↔ b) := Decidable.not_iff
+
+@[simp] theorem imp_iff_left_iff  : (b ↔ a → b) ↔ a ∨ b := Decidable.imp_iff_left_iff
+@[simp] theorem imp_iff_right_iff : (a → b ↔ b) ↔ a ∨ b := Decidable.imp_iff_right_iff
+
+@[simp] theorem and_or_imp : a ∧ b ∨ (a → c) ↔ a → b ∨ c := Decidable.and_or_imp
+
+@[simp] theorem not_imp : ¬(a → b) ↔ a ∧ ¬b := Decidable.not_imp_iff_and_not
+
+@[simp] theorem imp_and_neg_imp_iff (p : Prop) {q : Prop} : (p → q) ∧ (¬p → q) ↔ q :=
+  Iff.intro (fun (a : _ ∧ _) => (Classical.em p).rec a.left a.right)
+            (fun a => And.intro (fun _ => a) (fun _ => a))
 
 end Classical
+
+/- Export for Mathlib compat. -/
+export Classical (imp_iff_right_iff imp_and_neg_imp_iff and_or_imp not_imp)
+
+/-- Extract an element from an existential statement, using `Classical.choose`. -/
+-- This enables projection notation.
+@[reducible] noncomputable def Exists.choose {p : α → Prop} (P : ∃ a, p a) : α := Classical.choose P
+
+/-- Show that an element extracted from `P : ∃ a, p a` using `P.choose` satisfies `p`. -/
+theorem Exists.choose_spec {p : α → Prop} (P : ∃ a, p a) : p P.choose := Classical.choose_spec P
+
+grind_pattern Exists.choose_spec => P.choose

@@ -42,11 +42,10 @@ static char g_path_sep     = ';';
 static constexpr char g_sep          = '\\';
 static char g_bad_sep      = '/';
 std::string get_exe_location() {
-    HMODULE hModule = GetModuleHandleW(NULL);
-    WCHAR path[MAX_PATH];
-    GetModuleFileNameW(hModule, path, MAX_PATH);
-    std::wstring pathstr(path);
-    return std::string(pathstr.begin(), pathstr.end());
+    HMODULE hModule = GetModuleHandle(NULL);
+    char path[MAX_PATH];
+    GetModuleFileName(hModule, path, MAX_PATH);
+    return std::string(path);
 }
 bool is_path_sep(char c) { return c == g_path_sep; }
 #elif defined(__APPLE__)
@@ -233,30 +232,5 @@ std::vector<std::string> read_dir(std::string const &dirname) {
     closedir(dir);
 #endif
     return files;
-}
-
-std::string lrealpath(std::string const & fname) {
-#if defined(LEAN_EMSCRIPTEN)
-    return fname;
-#elif defined(LEAN_WINDOWS)
-    constexpr unsigned BufferSize = 8192;
-    char buffer[BufferSize];
-    DWORD retval = GetFullPathName(fname.c_str(), BufferSize, buffer, nullptr);
-    if (retval == 0 || retval > BufferSize) {
-        return fname;
-    } else {
-        return std::string(buffer);
-    }
-#else
-    constexpr unsigned BufferSize = 8192;
-    char buffer[BufferSize];
-    char * tmp = realpath(fname.c_str(), buffer);
-    if (tmp) {
-        std::string r(tmp);
-        return r;
-    } else {
-        throw file_not_found_exception(fname);
-    }
-#endif
 }
 }

@@ -9,20 +9,20 @@ theorem append_empty (x : Fin i → Nat) : x ++ empty = x :=
 opaque f : (Fin 0 → Nat) → Prop
 example : f (empty ++ empty) = f empty := by simp only [append_empty] -- should work
 
-@[congr] theorem Array.get_congr (as bs : Array α) (h : as = bs) (i : Fin as.size) (j : Nat) (hi : i = j) :
-    as.get i = bs.get ⟨j, h ▸ hi ▸ i.2⟩ := by
+@[congr] theorem Array.get_congr (as bs : Array α) (w : as = bs) (i : Nat) (h : i < as.size) (j : Nat) (hi : i = j) :
+    as[i] = (bs[j]'(w ▸ hi ▸ h)) := by
   subst bs; subst j; rfl
 
 example (as : Array Nat) (h : 0 + x < as.size) :
-    as.get ⟨0 + x, h⟩ = as.get ⟨x, Nat.zero_add x ▸ h⟩ := by
+    as[0 + x] = as[x] := by
   simp -- should work
 
 example (as : Array (Nat → Nat)) (h : 0 + x < as.size) :
-    as.get ⟨0 + x, h⟩ i = as.get ⟨x, Nat.zero_add x ▸ h⟩ i := by
+    as[0 + x] = as[x]'(Nat.zero_add x ▸ h) := by
   simp -- should also work
 
 example (as : Array (Nat → Nat)) (h : 0 + x < as.size) :
-    as.get ⟨0 + x, h⟩ i = as.get ⟨x, Nat.zero_add x ▸ h⟩ (0+i) := by
+    as[0 + x] i = as[x] (0+i) := by
   simp -- should also work
 
 example [Decidable p] : decide (p ∧ True) = decide p := by simp -- should work

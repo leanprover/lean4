@@ -18,7 +18,7 @@ class Top : Type := (x : Unit)
 instance AllFoo (α : Type) : Foo α := {x:=()}
 
 /-
-When the subgoal `[@HasParam α (@FooToBar α (AllFoo α))]` is triggerred, `α` is not known.
+When the subgoal `[@HasParam α (@FooToBar α (AllFoo α))]` is triggered, `α` is not known.
 
 This happens for two reasons:
 

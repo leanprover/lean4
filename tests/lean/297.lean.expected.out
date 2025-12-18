@@ -1,2 +1,7 @@
-297.lean:1:10-1:11: error: failed to synthesize instance
+297.lean:1:10-1:11: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   OfNat (Sort ?u) 0
+numerals are polymorphic in Lean, but the numeral `0` cannot be used in a context where the expected type is
+  Sort ?u
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.

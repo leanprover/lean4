@@ -3,7 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Data.HashMap
+module
+
+prelude
+public import Std.Data.HashMap.Basic
+public import Init.Data.Option.Coe
+
+public section
+
 namespace Lean.SCC
 /-!
   Very simple implementation of Tarjan's SCC algorithm.
@@ -23,7 +30,7 @@ structure Data where
 structure State where
   stack     : List α := []
   nextIndex : Nat := 0
-  data      : HashMap α Data := {}
+  data      : Std.HashMap α Data := {}
   sccs      : List (List α) := []
 
 abbrev M := StateM (State α)
@@ -33,7 +40,7 @@ variable {α : Type} [BEq α] [Hashable α]
 
 private def getDataOf (a : α) : M α Data := do
   let s ← get
-  match s.data.find? a with
+  match s.data[a]? with
   | some d => pure d
   | none   => pure {}
 
@@ -50,7 +57,7 @@ private def push (a : α) : M α Unit :=
 
 private def modifyDataOf (a : α) (f : Data → Data) : M α Unit :=
   modify fun s => { s with
-    data := match s.data.find? a with
+    data := match s.data[a]? with
       | none   => s.data
       | some d => s.data.insert a (f d)
   }

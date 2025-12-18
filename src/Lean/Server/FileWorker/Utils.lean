@@ -4,57 +4,73 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Marc Huisinga
 -/
-import Lean.Server.Utils
-import Lean.Server.Snapshots
-import Lean.Server.AsyncList
+module
 
-import Lean.Server.Rpc.Basic
+prelude
+public import Lean.Language.Lean.Types
+public import Lean.Server.Snapshots
+public import Lean.Server.AsyncList
+import Init.Data.ByteArray.Extra
+
+public section
 
 namespace Lean.Server.FileWorker
 open Snapshots
 open IO
 
-def logSnapContent (s : Snapshot) (text : FileMap) : IO Unit :=
-  IO.eprintln s!"[{s.beginPos}, {s.endPos}]: ```\n{text.source.extract s.beginPos (s.endPos - ⟨1⟩)}\n```"
+-- TEMP: translate from new heterogeneous snapshot tree to old homogeneous async list
+private partial def mkCmdSnaps (initSnap : Language.Lean.InitialSnapshot) :
+    AsyncList IO.Error Snapshot := Id.run do
+  let some headerParsed := initSnap.result? | return .nil
+  .delayed <| headerParsed.processedSnap.task.asServerTask.bindCheap fun headerProcessed => Id.run do
+    let some headerSuccess := headerProcessed.result? | return .pure <| .ok .nil
+    return .pure <| .ok <| .cons {
+      stx := initSnap.stx
+      mpState := headerParsed.parserState
+      cmdState := headerSuccess.cmdState
+    } <| .delayed <| headerSuccess.firstCmdSnap.task.asServerTask.bindCheap go
+where
+  go cmdParsed :=
+    cmdParsed.elabSnap.resultSnap.task.asServerTask.mapCheap fun result =>
+      .ok <| .cons {
+        stx := cmdParsed.stx
+        mpState := cmdParsed.parserState
+        cmdState := result.cmdState
+      } (match cmdParsed.nextCmdSnap? with
+        | some next => .delayed <| next.task.asServerTask.bindCheap go
+        | none => .nil)
 
-inductive ElabTaskError where
-  | aborted
-  | ioError (e : IO.Error)
+/--
+A document bundled with processing information. Turned into `EditableDocument` as soon as the
+reporter task has been started.
+-/
+structure EditableDocumentCore where
+  /-- The document. -/
+  «meta»   : DocumentMeta
+  /-- Initial processing snapshot. -/
+  initSnap : Language.Lean.InitialSnapshot
+  /-- Old representation for backward compatibility. -/
+  cmdSnaps : AsyncList IO.Error Snapshot := private_decl% mkCmdSnaps initSnap
+  /--
+  Interactive versions of diagnostics reported so far. Filled by `reportSnapshots` and read by
+  `handleGetInteractiveDiagnosticsRequest`.
+  -/
+  diagnosticsRef : IO.Ref (Array Widget.InteractiveDiagnostic)
 
-instance : Coe IO.Error ElabTaskError :=
-  ⟨ElabTaskError.ioError⟩
-
-instance : MonadLift IO (EIO ElabTaskError) where
-  monadLift act := act.toEIO (↑ ·)
-
-structure CancelToken where
-  ref : IO.Ref Bool
-
-namespace CancelToken
-
-def new : IO CancelToken :=
-  CancelToken.mk <$> IO.mkRef false
-
-def check [MonadExceptOf ElabTaskError m] [MonadLiftT (ST RealWorld) m] [Monad m] (tk : CancelToken) : m Unit := do
-  let c ← tk.ref.get
-  if c then
-    throw ElabTaskError.aborted
-
-def set (tk : CancelToken) : IO Unit :=
-  tk.ref.set true
-
-end CancelToken
-
-/-- A document editable in the sense that we track the environment
-and parser state after each command so that edits can be applied
-without recompiling code appearing earlier in the file. -/
-structure EditableDocument where
-  meta       : DocumentMeta
-  /-- State snapshots after header and each command. -/
-  cmdSnaps   : AsyncList ElabTaskError Snapshot
-  cancelTk   : CancelToken
+/-- `EditableDocumentCore` with reporter task. -/
+structure EditableDocument extends EditableDocumentCore where
+  /--
+    Task reporting processing status back to client. We store it here for implementing
+    `waitForDiagnostics`. -/
+  reporter : ServerTask Unit
 
 namespace EditableDocument
+
+/-- Construct a VersionedTextDocumentIdentifier from an EditableDocument --/
+def versionedIdentifier (ed : EditableDocument) : Lsp.VersionedTextDocumentIdentifier := {
+  uri := ed.meta.uri
+  version? := some ed.meta.version
+}
 
 end EditableDocument
 

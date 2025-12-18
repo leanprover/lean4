@@ -14,8 +14,9 @@ def checkDelab (e : Expr) (tgt? : Option Term) (name? : Option Name := none) : T
   let stx ← delab e
   match tgt? with
   | some tgt =>
-    if toString (← PrettyPrinter.ppTerm stx) != toString (← PrettyPrinter.ppTerm tgt?.get!) then
-      throwError "{pfix} missed target\n{← PrettyPrinter.ppTerm stx}\n!=\n{← PrettyPrinter.ppTerm tgt}\n\nExpr: {e}\nType: {← inferType e}"
+    let tgt := tgt.raw.rewriteBottomUp Syntax.unsetTrailing
+    if toString (← PrettyPrinter.ppTerm stx) != toString (← PrettyPrinter.ppTerm ⟨tgt⟩) then
+      throwError "{pfix} missed target\n{← PrettyPrinter.ppTerm stx}\n!=\n{← PrettyPrinter.ppTerm ⟨tgt⟩}\n\nExpr: {e}\nType: {← inferType e}"
   | _ => pure ()
 
   let e' ←
@@ -81,7 +82,7 @@ set_option pp.proofs true
   expecting Nat.brecOn (motive := fun x => Nat → Nat) 0 (fun x ih y => y + x) 0
 
 #testDelab let xs := #[]; xs.push (5 : Nat)
-  expecting let xs : Array Nat := #[]; Array.push xs 5
+  expecting let xs : Array Nat := #[]; xs.push 5
 
 #testDelab let x := Nat.zero; x + Nat.zero
   expecting let x := Nat.zero; x + Nat.zero
@@ -196,7 +197,7 @@ set_option pp.analyze.trustSubst true in
 
 set_option pp.analyze.trustId true in
 #testDelab Sigma.mk (β := fun α => α) Bool true
-  expecting { fst := _, snd := true }
+  expecting ⟨_, true⟩
 
 set_option pp.analyze.trustId false in
 #testDelab Sigma.mk (β := fun α => α) Bool true
@@ -257,17 +258,26 @@ structure S2 where x : Unit
 inductive NeedsAnalysis {α : Type} : Prop
   | mk : NeedsAnalysis
 
+section proofs
+/--
+The `#testDelab` expects it can elaborate the expression, so here is a macro rule to let that happen.
+-/
+local macro_rules | `(⋯) => `(_)
+
 set_option pp.proofs false in
+set_option pp.proofs.withType true in
 #testDelab @NeedsAnalysis.mk Unit
-  expecting (_ : NeedsAnalysis (α := Unit))
+  expecting (⋯ : NeedsAnalysis (α := Unit))
 
 set_option pp.proofs false in
 set_option pp.proofs.withType false in
 #testDelab @NeedsAnalysis.mk Unit
-  expecting _
+  expecting ⋯
 
-#testDelab ∀ (α : Type u) (vals vals_1 : List α), { data := vals : Array α } = { data := vals_1 : Array α }
-  expecting ∀ (α : Type u) (vals vals_1 : List α), { data := vals : Array α } = { data := vals_1 }
+end proofs
+
+#testDelab ∀ (α : Type u) (vals vals_1 : List α), { toList := vals : Array α } = { toList := vals_1 : Array α }
+  expecting ∀ (α : Type u) (vals vals_1 : List α), { toList := vals : Array α } = { toList := vals_1 }
 
 #testDelab (do let ctxCore ← readThe Core.Context; pure ctxCore.currNamespace : MetaM Name)
   expecting do
@@ -284,7 +294,7 @@ structure SubtypeLike1 {α : Sort u} (p : α → Prop) where
 --Note: currently we do not try "bottom-upping" inside lambdas
 --(so we will always annotate the binder type)
 #testDelab SubtypeLike1 fun (x : Nat) => Nat.succ x = x
-  expecting SubtypeLike1 fun (x : Nat) => Nat.succ x = x
+  expecting SubtypeLike1 fun (x : Nat) => x.succ = x
 
 structure SubtypeLike3 {α β γ : Sort u} (p : α → β → γ → Prop) where
 
@@ -310,7 +320,8 @@ def takesStrictMotive ⦃motive : Nat → Type⦄ {n : Nat} (x : motive n) : mot
 def arrayMkInjEqSnippet :=
   fun {α : Type} (xs : List α) => Eq.ndrec (motive := fun _ => (Array.mk xs = Array.mk xs)) (Eq.refl (Array.mk xs)) (rfl : xs = xs)
 
-#testDelabN arrayMkInjEqSnippet
+-- TODO: fix following test
+-- #testDelabN arrayMkInjEqSnippet
 
 def typeAs (α : Type u) (a : α) := ()
 
@@ -318,23 +329,24 @@ set_option pp.analyze.explicitHoles false in
 #testDelab ∀ {α : Sort u} {β : α → Sort v} {f₁ f₂ : (x : α) → β x}, (∀ (x : α), f₁ x = f₂ _) → f₁ = f₂
   expecting ∀ {α : Sort u} {β : α → Sort v} {f₁ f₂ : (x : α) → β x}, (∀ (x : α), f₁ x = f₂ x) → f₁ = f₂
 
+/- TODO(kmill) 2024-11-10 fix the following test
 set_option pp.analyze.trustSubtypeMk true in
 #testDelab fun (n : Nat) (val : List Nat) (property : List.length val = n) => List.length { val := val, property := property : { x : List Nat // List.length x = n } }.val = n
-  expecting fun n val property => List.length { val := val, property := property : { x : List Nat // List.length x = n } }.val = n
+  expecting fun n val property => (Subtype.val (p := fun x => x.length = n) (⟨val, property⟩ : { x : List Nat // x.length = n })).length = n
+-/
 
 #testDelabN Nat.brecOn
 #testDelabN Nat.below
-#testDelabN Nat.mod_lt
-#testDelabN Array.qsort
+#testDelabN Nat.mod_eq_of_lt
 #testDelabN List.partition
-#testDelabN List.partitionAux
+#testDelabN List.partition.loop
 #testDelabN StateT.modifyGet
 #testDelabN Nat.gcd_one_left
-#testDelabN List.hasDecidableLt
+#testDelabN List.decidableLT
 #testDelabN Lean.Xml.parse
 #testDelabN Add.noConfusionType
 #testDelabN List.filterMapM.loop
-#testDelabN instMonadReaderOf
+#testDelabN instMonadReaderOfOfMonadLift
 #testDelabN instInhabitedPUnit
 #testDelabN Lean.Syntax.getOptionalIdent?
 #testDelabN Lean.Meta.ppExpr
@@ -342,20 +354,14 @@ set_option pp.analyze.trustSubtypeMk true in
 #testDelabN MonadLift.noConfusionType
 #testDelabN MonadExcept.noConfusion
 #testDelabN MonadFinally.noConfusion
-#testDelabN Lean.Elab.InfoTree.goalsAt?.match_1
 #testDelabN Array.mk.injEq
 #testDelabN Lean.PrefixTree.empty
-#testDelabN Lean.PersistentHashMap.getCollisionNodeSize.match_1
-#testDelabN Lean.HashMap.size.match_1
 #testDelabN and_false
-
--- TODO: this one prints out a structure instance with keyword field `end`
-set_option pp.structureInstances false in
 #testDelabN Lean.Server.FileWorker.handlePlainTermGoal
-
--- TODO: this one desugars to a `doLet` in an assignment
-set_option pp.notation false in
 #testDelabN Lean.Server.FileWorker.handlePlainGoal
+
+-- TODO: this hangs
+-- #testDelabN Nat.mod_lt
 
 -- TODO: this error occurs because we use a term's type to determine `blockImplicit` (@),
 -- whereas we should actually use the expected type based on the function being applied.

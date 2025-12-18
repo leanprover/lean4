@@ -1274,7 +1274,7 @@ theorem setWidth_extractLsb'_of_le {c : BitVec w} (h : len₁ ≤ len₂) :
 
 theorem extractLsb'_cast {x : BitVec w} :
     extractLsb' start len (BitVec.cast hcast x) =
-    extractLsb' start len (x) := by
+    extractLsb' start len x := by
   ext k hk
   simp
 

@@ -3351,7 +3351,7 @@ theorem msb_concat {w : Nat} {b : Bool} {x : BitVec w} :
   simp [getElem_concat]
 
 theorem extractLsb'_concat {x : BitVec (w + 1)} {y : Bool} :
-    BitVec.extractLsb' 0 (t + 1) (x.concat y) = (BitVec.extractLsb' 0 t x).concat y := by
+    extractLsb' 0 (t + 1) (x.concat y) = (extractLsb' 0 t x).concat y := by
   ext i hi
   simp only [← getLsbD_eq_getElem, getLsbD_extractLsb', hi, decide_true, Nat.zero_add,
     getLsbD_concat, Bool.true_and]

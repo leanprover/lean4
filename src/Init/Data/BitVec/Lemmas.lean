@@ -2941,7 +2941,7 @@ theorem setWidth_eq_append {v : Nat} {x : BitVec v} {w : Nat} (h : v ≤ w) :
   · simp [hiv, getLsbD_of_ge x i (by omega)]
 
 @[simp]
-theorem append_extractLsb'_self {x : BitVec (w + 1)} :
+theorem extractLsb'_append_extractLsb'_self {x : BitVec (w + 1)} :
     (extractLsb' 1 w x).append (extractLsb' 0 1 x) = x := by
   ext k hk
   simp only [append_eq, getElem_append, Nat.lt_one_iff, getElem_extractLsb', Nat.zero_add,

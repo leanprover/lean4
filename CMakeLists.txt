@@ -88,6 +88,16 @@ if (USE_MIMALLOC)
   list(APPEND EXTRA_DEPENDS mimalloc)
 endif()
 
+ExternalProject_add(abseil
+  PREFIX abseil
+  GIT_REPOSITORY https://github.com/abseil/abseil-cpp
+  GIT_TAG 20250814.1
+  # just download, we compile it as part of each stage as it is small
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+  INSTALL_COMMAND "")
+list(APPEND EXTRA_DEPENDS abseil)
+
 if (NOT STAGE1_PREV_STAGE)
   ExternalProject_add(stage0
     SOURCE_DIR "${LEAN_SOURCE_DIR}/stage0"

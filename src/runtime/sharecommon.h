@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include "runtime/object_ref.h"
 #include "util/alloc.h"
+#include <absl/container/flat_hash_map.h>
 
 namespace lean {
 extern "C" LEAN_EXPORT uint8 lean_sharecommon_eq(b_obj_arg o1, b_obj_arg o2);
@@ -31,7 +32,7 @@ protected:
     We use `m_cache` to ensure we do **not** traverse a DAG as a tree.
     We use pointer equality for this collection.
     */
-    lean::unordered_map<lean_object *, lean_object *> m_cache;
+    absl::flat_hash_map<lean_object *, lean_object *> m_cache;
     /* Set of maximally shared terms. AKA hash-consing table. */
     lean::unordered_set<lean_object *, set_hash, set_eq> m_set;
     /*

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "runtime/interrupt.h"
 #include "runtime/flet.h"
 #include "kernel/for_each_fn.h"
+#include <absl/container/flat_hash_set.h>
 
 namespace lean {
 
@@ -19,7 +20,7 @@ If `partial_apps = true`, then given a term `g a b`, we also apply the function 
 and not only to `g`, `a`, and `b`.
 */
 template<bool partial_apps> class for_each_fn {
-    std::unordered_set<lean_object *> m_cache;
+    absl::flat_hash_set<lean_object *> m_cache;
     std::function<bool(expr const &)> m_f; // NOLINT
 
     bool visited(expr const & e) {

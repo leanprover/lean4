@@ -234,7 +234,7 @@ else()
 endif ()
 
 if (NOT MSVC)
-    set(CMAKE_CXX_FLAGS                "-Wall -Wextra -std=c++14 ${CMAKE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS                "-Wall -Wextra -std=c++17 ${CMAKE_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS_DEBUG          "-g3 ${CMAKE_CXX_FLAGS_DEBUG}")
     if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
       # smallest+slower | -Oz .. -Os .. -O3 | largest+faster
@@ -583,6 +583,54 @@ include_directories(${LEAN_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})  # version.h etc., "private" headers
 include_directories(${CMAKE_BINARY_DIR}/include)  # config.h etc., "public" headers
 
+add_subdirectory(${LEAN_BINARY_DIR}/../abseil/src/abseil ${LEAN_BINARY_DIR}/abseil)
+include_directories(${LEAN_BINARY_DIR}/../abseil/src/abseil)
+# Use generator expression to generate linker flags from ABSEIL_LIBS
+set(ABSEIL_LIBS
+  absl_raw_hash_set
+  absl_cord
+  absl_cordz_info
+  absl_cord_internal
+  absl_cordz_functions
+  absl_cordz_handle
+  absl_crc_cord_state
+  absl_crc32c
+  absl_crc_internal
+  absl_crc_cpu_detect
+  absl_str_format_internal
+  absl_hash
+  absl_city
+  absl_hashtablez_sampler
+  absl_exponential_biased
+  absl_synchronization
+  absl_stacktrace
+  absl_graphcycles_internal
+  absl_kernel_timeout_internal
+  absl_symbolize
+  absl_malloc_internal
+  absl_debugging_internal
+  absl_demangle_internal
+  absl_demangle_rust
+  absl_decode_rust_punycode
+  absl_utf8_for_code_point
+  absl_tracing_internal
+  absl_time
+  absl_strings
+  absl_int128
+  absl_strings_internal
+  absl_string_view
+  absl_base
+  absl_spinlock_wait
+  absl_civil_time
+  absl_time_zone
+  absl_throw_delegate
+  absl_raw_logging_internal
+  absl_log_severity)
+
+# Generate linker flags using string(JOIN) (evaluated at configure time)
+string(JOIN " -l" ABSEIL_LINK_FLAGS ${ABSEIL_LIBS})
+string(APPEND LEANSHARED_LINKER_FLAGS " -l${ABSEIL_LINK_FLAGS}")
+
 # Lean code only needs this one include
 string(APPEND LEANC_OPTS " -I${CMAKE_BINARY_DIR}/include")
 
@@ -704,6 +752,7 @@ add_custom_target(make_stdlib ALL
   # for a parallelized nested build, but CMake doesn't let us do that.
   # We use `lean` from the previous stage, but `leanc`, headers, etc. from the current stage
   COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make ${STDLIBS}
+  DEPENDS ${ABSEIL_LIBS}
   VERBATIM)
 
 # if we have LLVM enabled, then build `lean.h.bc` which has the LLVM bitcode

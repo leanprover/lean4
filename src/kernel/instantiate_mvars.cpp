@@ -11,6 +11,7 @@ Authors: Leonardo de Moura
 #include "runtime/array_ref.h"
 #include "kernel/instantiate.h"
 #include "kernel/replace_fn.h"
+#include <absl/container/flat_hash_map.h>
 
 /*
 This module is not used by the kernel. It just provides an efficient implementation of
@@ -33,7 +34,7 @@ option_ref<level> get_lmvar_assignment(metavar_ctx & mctx, name const & mid) {
 
 class instantiate_lmvars_fn {
     metavar_ctx & m_mctx;
-    std::unordered_map<lean_object *, level> m_cache;
+    absl::flat_hash_map<lean_object *, level> m_cache;
     std::vector<level> m_saved; // Helper vector to prevent values from being garbage collected
 
     inline level cache(level const & l, level r, bool shared) {
@@ -141,7 +142,7 @@ class instantiate_mvars_fn {
     metavar_ctx & m_mctx;
     instantiate_lmvars_fn m_level_fn;
     name_set m_already_normalized; // Store metavariables whose assignment has already been normalized.
-    std::unordered_map<lean_object *, expr> m_cache;
+    absl::flat_hash_map<lean_object *, expr> m_cache;
     std::vector<expr> m_saved; // Helper vector to prevent values from being garbage collected
 
     level visit_level(level const & l) {

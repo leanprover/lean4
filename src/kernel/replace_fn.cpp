@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include <unordered_map>
 #include "kernel/replace_fn.h"
 #include "util/alloc.h"
+#include <absl/container/flat_hash_map.h>
 
 namespace lean {
 
@@ -85,7 +86,7 @@ expr replace(expr const & e, std::function<optional<expr>(expr const &, unsigned
 }
 
 class replace_fn {
-    lean::unordered_map<lean_object *, expr> m_cache;
+    absl::flat_hash_map<lean_object *, expr> m_cache;
     lean_object * m_f;
 
     expr save_result(expr const & e, expr const & r, bool shared) {

@@ -2942,7 +2942,7 @@ theorem setWidth_eq_append {v : Nat} {x : BitVec v} {w : Nat} (h : v ≤ w) :
   · simp [hiv, getLsbD_of_ge x i (by omega)]
 
 @[simp]
-theorem append_extractLsb'_self (x : BitVec (w + 1)) :
+theorem append_extractLsb'_self {x : BitVec (w + 1)} :
     (extractLsb' 1 w x).append (extractLsb' 0 1 x) = x := by
   ext k hk
   simp only [append_eq, getElem_append, Nat.lt_one_iff, getElem_extractLsb', Nat.zero_add,
@@ -2953,7 +2953,7 @@ theorem append_extractLsb'_self (x : BitVec (w + 1)) :
 
 @[simp]
 theorem extractLsb'_append_extractLsb'_eq_of_lt {x : BitVec (w + len)} :
-  (x.extractLsb' len w ++ x.extractLsb' 0 len) = x := by
+    (x.extractLsb' len w ++ x.extractLsb' 0 len) = x := by
   ext i hi
   simp only [getElem_append, getElem_extractLsb', Nat.zero_add, dite_eq_ite]
   split
@@ -3258,7 +3258,7 @@ theorem cons_append_append (x : BitVec w₁) (y : BitVec w₂) (z : BitVec w₃)
     · simp [h₂];  omega
 
 @[simp]
-theorem extractLsb'_cons (x : BitVec w) :
+theorem extractLsb'_cons {x : BitVec w} :
     (x.cons y).extractLsb' 0 w = x := by
   simp [BitVec.toNat_eq, Nat.or_mod_two_pow, Nat.shiftLeft_eq]
 

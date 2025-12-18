@@ -872,16 +872,6 @@ def clz (x : BitVec w) : BitVec w := clzAuxRec x (w - 1)
 /-- Count the number of trailing zeros. -/
 def ctz (x : BitVec w) : BitVec w := (x.reverse).clz
 
-/-- Count the number of bits with value `1` downward from the `pos`-th bit to the
-  `0`-th bit of `x`, storing the result in `acc`. -/
-def cpopNatRec (x : BitVec w) (pos acc : Nat) : Nat :=
-  match pos with
-  | 0 => acc
-  | n + 1 => x.cpopNatRec n (acc + (x.getLsbD n).toNat)
-
-/-- Count the number of bits with value `1` in `x`. -/
-def cpop (x : BitVec w) : BitVec w := BitVec.ofNat w (cpopNatRec x w 0)
-
 /-- Recursive addition of the elements in a flattened bitvec, starting from the `rem`-th element. -/
 def addRecAux (x : BitVec (l * w)) (rem : Nat) (acc : BitVec w) : BitVec w :=
   match rem with

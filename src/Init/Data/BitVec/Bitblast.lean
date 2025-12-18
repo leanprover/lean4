@@ -3011,50 +3011,7 @@ def pps (l : BitVec (l_length * w)) (k : BitVec w)
     pps new_layer k proof_sum_eq proof_new_layer_length hw
 
 
-@[simp]
-theorem cpopNatRec_zero_eq_self {x : BitVec w} :
-    x.cpopNatRec 0 acc = acc := rfl
 
-theorem cpopNatRec_succ {n : Nat} {x : BitVec w} :
-    x.cpopNatRec (n + 1) acc = x.cpopNatRec n (acc + (x.getLsbD n).toNat):= rfl
-
-@[simp]
-theorem cpopNatRec_zero :
-    (0#w).cpopNatRec n acc = acc := by
-  induction n
-  · case zero => simp
-  · case succ n ihn =>
-    simp [cpopNatRec_succ, ihn]
-
-@[simp]
-theorem add_cpopNatRec_zero {x : BitVec w} {acc n : Nat} :
-    x.cpopNatRec n 0 + acc = x.cpopNatRec n acc := by
-  induction n generalizing acc
-  · simp
-  · case _ n ihn =>
-    simp only [cpopNatRec_succ]
-    rw [← ihn, ← @ihn (acc + (x.getLsbD n).toNat)]
-    omega
-
-theorem cpopNatRec_le {x : BitVec w} (n : Nat) :
-    x.cpopNatRec n acc ≤ acc + n := by
-  induction n generalizing acc
-  · simp
-  · case _ n ihn =>
-    have : (x.getLsbD n).toNat ≤ 1 := by cases x.getLsbD n <;> simp
-    specialize ihn (acc := acc + (x.getLsbD n).toNat)
-    simp [cpopNatRec_succ]
-    omega
-
-@[simp]
-theorem cpopNatRec_cons_eq_cpopNatRec_of_le {x : BitVec w} {b : Bool} (hn : n ≤ w) :
-    (cons b x).cpopNatRec n acc = x.cpopNatRec n acc := by
-  induction n generalizing acc
-  · simp
-  · case _ n ihn =>
-    specialize ihn (acc := acc + ((cons b x).getLsbD n).toNat) (by omega)
-    rw [cpopNatRec_succ, ihn, getLsbD_cons]
-    simp [show ¬ n = w by omega, cpopNatRec_succ]
 
 theorem getLsbD_extractAndExtendPopulate_add  {x : BitVec w} (hk : k < w):
     (x.extractAndExtendPopulate w).getLsbD (pos * w + k) = ((x.extractLsb' pos 1).zeroExtend w).getLsbD k := by
@@ -3524,7 +3481,7 @@ theorem cpop_eq_recursive_addition {x : BitVec w} :
   · case _ w' ihw' =>
     simp only [cpopNatRec_succ, Nat.lt_add_one, getLsbD_eq_getElem, Nat.zero_add, addRecAux_succ,
       BitVec.zero_add]
-    rw [← add_cpopNatRec_zero]
+    rw [cpopNatRec_eq]
     rw [← addRecAux_zero_add]
     rw [BitVec.ofNat_add]
     have hext := extractLsb'_extractAndExtendPopulate_eq (w := w' + 1) (len := w' + 1)
@@ -3538,10 +3495,6 @@ theorem cpop_eq_recursive_addition {x : BitVec w} :
       rw [Nat.mod_eq_of_lt (by omega)]
       rw [Nat.mod_eq_of_lt (by omega)]
       rw [Nat.mod_eq_of_lt (by omega)]
-      conv =>
-        lhs
-        rw [← cons_msb_setWidth (x := x)]
-      rw [cpopNatRec_cons_eq_cpopNatRec_of_le (by omega)]
     rw [this]
     rw [ihw']
     congr 1

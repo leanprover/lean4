@@ -26,8 +26,7 @@ it just defines how data *should* be processed. This separation allows the proto
 to remain pure and testable, while different transports (like TCP sockets or mocks) can handle
 the actual reading and writing of bytes.
 
-The main function of this library is `Std.Http.Server.serve`,
-located in the module `Std.Internal.Http.Server`. It starts a simple HTTP/1.1 server that
+The main function of this library is `Std.Http.Server.serve` located in the module `Std.Internal.Http.Server`. It starts a simple HTTP/1.1 server that
 handles all requests and sends them to a simple handler function. It uses the default `Std.Internal.Async`
 library, but it can be customized to use whatever IO library you want, as the protocol implementation
 is pure.

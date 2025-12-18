@@ -17,7 +17,8 @@ def testCancelSlowHandler : IO Unit := do
       Std.Http.Server.serveConnection server (fun _req => do
         -- Simulate a slow handler that should be cancelled
         Async.sleep 10000
-        return Response.ok "should not complete"
+        return Response.ok
+          |>.body "should not complete"
       ) (config := { lingeringTimeout := 1000 })
 
     -- Send a simple request
@@ -56,7 +57,7 @@ def testServerShutdownDuringRequest : IO Unit := do
     let op := ContextAsync.background do
       Std.Http.Server.serveConnection server (fun _req => do
         Async.sleep 100000
-        return Response.ok "should not complete"
+        return Response.ok |>.body "should not complete"
       ) (config := { lingeringTimeout := 5000 })
 
     op.runIn ctx
@@ -125,7 +126,8 @@ def testContextFork : IO Unit := Async.block do
     Std.Http.Server.serveConnection server (fun _req => do
         -- This runs in a forked context
         Async.sleep 10000
-        return Response.ok "should not complete"
+        return Response.ok
+          |>.body "should not complete"
     ) (config := { lingeringTimeout := 3000 })
 
   op parentCtx
@@ -154,8 +156,8 @@ def testRaceWithCancellation : IO Unit := Async.block do
     Std.Http.Server.serveConnection server (fun _req => do
       -- Race two operations, one should win before cancellation
       ContextAsync.race
-        (do Async.sleep 50; return Response.ok "fast")
-        (do Async.sleep 10000; return Response.ok "slow")
+        (do Async.sleep 50; return Response.ok |>.body "fast")
+        (do Async.sleep 10000; return Response.ok |>.body "slow")
     ) (config := { lingeringTimeout := 3000 })
 
   op ctx
@@ -192,7 +194,7 @@ def testHandlerChecksCancellation : IO Unit := Async.block do
           return Response.new |>.status .serviceUnavailable |>.body "cancelled"
         Async.sleep 50
 
-      return Response.ok "completed"
+      return Response.ok |>.body "completed"
     ) (config := { lingeringTimeout := 3000 })
 
   op ctx
@@ -222,7 +224,7 @@ def testMultipleConcurrentRequestsWithCancel : IO Unit := Async.block do
   let op := ContextAsync.background do
     Std.Http.Server.serveConnection server1 (fun _req => do
       Async.sleep 10000
-      return Response.ok "server1"
+      return Response.ok |>.body "server1"
     ) (config := { lingeringTimeout := 3000 })
 
   op ctx
@@ -230,7 +232,7 @@ def testMultipleConcurrentRequestsWithCancel : IO Unit := Async.block do
   let op := ContextAsync.background do
     Std.Http.Server.serveConnection server2 (fun _req => do
       Async.sleep 10000
-      return Response.ok "server2"
+      return Response.ok |>.body "server2"
     ) (config := { lingeringTimeout := 3000 })
 
   op ctx
@@ -260,7 +262,7 @@ def testDeadlineCancellation : IO Unit := Async.block do
   let op := ContextAsync.background do
     Std.Http.Server.serveConnection server (fun _req => do
       Async.sleep 10000
-      return Response.ok "should timeout"
+      return Response.ok |>.body "should timeout"
     ) (config := { lingeringTimeout := 3000 })
 
   op ctx
@@ -293,7 +295,7 @@ def testCompletedRequestNotAffected : IO Unit := Async.block do
   let op := ContextAsync.background do
     Std.Http.Server.serveConnection server (fun _req => do
       -- Fast handler that completes before cancellation
-      return Response.ok "completed"
+      return Response.ok |>.body "completed"
     ) (config := { lingeringTimeout := 3000 })
 
   op ctx

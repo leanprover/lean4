@@ -110,7 +110,9 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
         discard <| stream.write s!"chunk{i}\n".toUTF8
       stream.close
 
-    return Response.ok stream (.empty |>.insert (.new "Content-Length") (.new "21"))
+    return Response.ok
+      |>.header (.new "Content-Length") (.new "21")
+      |>.body stream
 
   expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 21\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nchunk0\nchunk1\nchunk2\n"
 }
@@ -135,7 +137,8 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
 
       stream.close
 
-    return Response.ok stream .empty
+    return Response.ok
+      |>.body stream
 
   expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 15\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\ndata0data1data2"
 }
@@ -157,7 +160,8 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
       discard <| stream.write "hello".toUTF8
       discard <| stream.write "world".toUTF8
       stream.close
-    return Response.ok stream .empty
+    return Response.ok
+      |>.body stream
 
   expected := "HTTP/1.1 200 OK\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n5\x0d\nhello\x0d\n5\x0d\nworld\x0d\n0\x0d\n\x0d\n"
 }
@@ -184,9 +188,11 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
         for i in [0:2] do
           discard <| stream.write s!"response{i}".toUTF8
         stream.close
-      return Response.ok stream (.empty |>.insert (.new "Content-Length") (.new "18"))
+      return Response.ok
+        |>.header (.new "Content-Length") (.new "18")
+        |>.body stream
     else
-      return Response.badRequest "not chunked"
+      return Response.badRequest |>.body "not chunked"
 
   expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 18\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nresponse0response1"
   chunked := true
@@ -214,9 +220,12 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
         for i in [0:2] do
           discard <| stream.write s!"response{i}".toUTF8
         stream.close
-      return Response.ok stream (.empty |>.insert (.new "Content-Length") (.new "18"))
+      return Response.ok
+        |>.header (.new "Content-Length") (.new "18")
+        |>.body stream
     else
-      return Response.badRequest "not chunked"
+      return Response.badRequest
+        |>.body "not chunked"
 
   expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 18\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nresponse0response1"
   chunked := true

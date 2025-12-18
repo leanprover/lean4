@@ -174,43 +174,33 @@ def html (builder : Builder) (body : String) : Response Body :=
 end Builder
 
 /--
-Creates a new HTTP Response with OK status and the provided body
+Creates a new HTTP Response builder with with 200 status code
 -/
-def ok (body : t) (headers : Headers := Headers.empty) : Response t :=
-  new
-  |>.headers headers
-  |>.body body
+def ok : Builder :=
+  .empty |>.status .ok
 
 /--
-Creates a new HTTP Response with the specified status and body
+Creates a new HTTP Response builder with with provided status
 -/
-def buildWithStatus (status : Status) (body : t) : Response t :=
-  new
-  |>.status status
-  |>.body body
+def buildWithStatus (status : Status) : Builder :=
+  .empty |>.status status
 
 /--
-Convenience function to create a simple HTTP 404 Not Found response
+Creates a new HTTP Response builder with with 404 status code
 -/
-def notFound [Coe String t] (body : String := "Not Found") : Response t :=
-  new
-  |>.status .notFound
-  |>.body body
+def notFound : Builder :=
+  .empty |>.status .notFound
 
 /--
-Convenience function to create a simple HTTP 500 Internal Server Error response
+Creates a new HTTP Response builder with with 500 status code
 -/
-def internalServerError [Coe String t] (body : String := "Internal Server Error") : Response t :=
-  new
-  |>.status .internalServerError
-  |>.body body
+def internalServerError : Builder :=
+  .empty |>.status .internalServerError
 
 /--
-Convenience function to create a simple HTTP 400 Bad Request response
+Creates a new HTTP Response builder with with 400 status code
 -/
-def badRequest [Coe String t] (body : String := "Bad Request") : Response t :=
-  new
-  |>.status .badRequest
-  |>.body body
+def badRequest : Builder :=
+  .empty |>.status .badRequest
 
 end Response

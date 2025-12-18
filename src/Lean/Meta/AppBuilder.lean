@@ -222,12 +222,7 @@ def congrArg? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) := do
     return some (α, f, h)
   if e.isAppOfArity ``congrFun 6 then
     let #[α, β, _f, _g, h, a] := e.getAppArgs | unreachable!
-    /-
-    This (and mkCongrArg and mkCongrFun) used to be implemented using withLocalDecl and
-    mkLambdaFVars. However, we noticed that reabstracting over the free variables does lead to
-    significant performance issues in the workloads that are applied to the simp invocation of
-    bv_decide. Thus, we decided derive these small terms without locally nameless.
-    -/
+    -- hot path, construct terms directly
     let α' := .forallE `x α (β.beta #[.bvar 0]) .default
     let f' := .lam `f α' (.app (.bvar 0) a) .default
     return some (α', f', h)
@@ -239,7 +234,7 @@ partial def mkCongrArg (f h : Expr) : MetaM Expr := do
     mkEqRefl (mkApp f a)
   else if let some (α, f₁, h₁) ← congrArg? h then
     -- Fuse nested `congrArg` for smaller proof terms, e.g. when using simp
-    -- See note at congrArg? for why we use bvars here
+    -- hot path, construct terms directly
     let f' := .lam `x α (f.beta #[f₁.beta #[.bvar 0]]) .default
     mkCongrArg f' h₁
   else
@@ -259,7 +254,7 @@ def mkCongrFun (h a : Expr) : MetaM Expr := do
     mkEqRefl (mkApp f a)
   else if let some (α, f₁, h₁) ← congrArg? h then
     -- Fuse nested `congrArg` for smaller proof terms, e.g. when using simp
-    -- See note at congrArg? for why we use bvars here
+    -- hot path, construct terms directly
     let f' := .lam `x α (f₁.beta #[.bvar 0, a]) .default
     mkCongrArg f' h₁
   else

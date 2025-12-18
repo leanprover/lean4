@@ -1260,7 +1260,7 @@ theorem extractLsb'_setWidth_of_le {b : BitVec w} {start len w' : Nat} (h : star
   simp
   omega
 
-theorem extractLsb_setWidth_of_lt {x : BitVec w} {hi lo v : Nat} (hlo : lo < hi) (hhi : hi < v):
+theorem extractLsb_setWidth_of_lt {x : BitVec w} {hi lo v : Nat} (h : lo + hi < v):
     extractLsb hi lo (BitVec.setWidth v x) = BitVec.extractLsb hi lo x := by
   simp only [BitVec.extractLsb]
   ext k

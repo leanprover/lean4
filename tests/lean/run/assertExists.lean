@@ -68,12 +68,14 @@ Init.Control.Lawful.MonadLift.Basic,
 assert_not_imported Init.Control.Lawful.MonadLift.Basic
 
 -- Test #check_assertions - should show the pending assertions
+-- Note: The module name below is `lean.run.assertExists` (from the file path).
+-- In VSCode or when run interactively, it would show `_stdin` instead.
 /--
 warning:
-❌️ 'FooBarBaz' (declaration) asserted in '_stdin'.
-❌️ 'NonExistent1' (declaration) asserted in '_stdin'.
-❌️ 'NonExistent2' (declaration) asserted in '_stdin'.
-❌️ 'Fake.Module' (module) asserted in '_stdin'.
+❌️ 'FooBarBaz' (declaration) asserted in 'lean.run.assertExists'.
+❌️ 'NonExistent1' (declaration) asserted in 'lean.run.assertExists'.
+❌️ 'NonExistent2' (declaration) asserted in 'lean.run.assertExists'.
+❌️ 'Fake.Module' (module) asserted in 'lean.run.assertExists'.
 ---
 ✅️ means the declaration or import exists.
 ❌️ means the declaration or import does not exist.
@@ -84,10 +86,10 @@ warning:
 -- Test #check_assertions! - should only show unmet assertions
 /--
 warning:
-❌️ 'FooBarBaz' (declaration) asserted in '_stdin'.
-❌️ 'NonExistent1' (declaration) asserted in '_stdin'.
-❌️ 'NonExistent2' (declaration) asserted in '_stdin'.
-❌️ 'Fake.Module' (module) asserted in '_stdin'.
+❌️ 'FooBarBaz' (declaration) asserted in 'lean.run.assertExists'.
+❌️ 'NonExistent1' (declaration) asserted in 'lean.run.assertExists'.
+❌️ 'NonExistent2' (declaration) asserted in 'lean.run.assertExists'.
+❌️ 'Fake.Module' (module) asserted in 'lean.run.assertExists'.
 ---
 ✅️ means the declaration or import exists.
 ❌️ means the declaration or import does not exist.

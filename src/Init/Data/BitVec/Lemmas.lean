@@ -3356,8 +3356,7 @@ theorem extractLsb'_concat {x : BitVec (w + 1)} {y : Bool} :
   simp only [← getLsbD_eq_getElem, getLsbD_extractLsb', hi, decide_true, Nat.zero_add,
     getLsbD_concat, Bool.true_and]
   split
-  · simp
-  · simp [show i - 1 < t by omega]
+  <;> simp
 
 /-! ### shiftConcat -/
 

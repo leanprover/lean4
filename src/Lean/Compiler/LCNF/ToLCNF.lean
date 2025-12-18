@@ -613,12 +613,12 @@ where
     let arity := 6
     etaIfUnderApplied e arity do
       let mut args := e.getAppArgs
-      let α := args[0]!
-      let r := args[1]!
+      let α ← visitAppArg args[0]!
+      let r ← visitAppArg args[1]!
       let f ← visitAppArg args[3]!
       let q ← visitAppArg args[5]!
       let .const _ [u, _] := e.getAppFn | unreachable!
-      let invq ← mkAuxLetDecl (.const ``Quot.lcInv [u] #[.type α, .type r, q])
+      let invq ← mkAuxLetDecl (.const ``Quot.lcInv [u] #[α, r, q])
       match f with
       | .erased => return .erased
       | .type _ => unreachable!

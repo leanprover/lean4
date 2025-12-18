@@ -2394,14 +2394,10 @@ theorem fastUmulOverflow (x y : BitVec w) :
 
 /-! ## Auxilliary lemmas for popcount -/
 
-theorem extractLsb'_extractLsb'_of_le {x : BitVec w} (h : start ≤ start') (h' : len' < len):
-    (x.extractLsb' start' len').extractLsb' start len = x.extractLsb' start len := by
-    sorry
-
 theorem extractLsb'_cast {x : BitVec w} :
     extractLsb' start len (BitVec.cast hcast x) =
     extractLsb' start len (x) := by
-  sorry
+  ext k hk; simp
 
 /-- Recursively extract one bit at a time and extend it to width `w`. `hlen` emulates the behaviour of Vector to simplify proving the correctness of the circuit. -/
 def extractAndExtendPopulateAux (k len : Nat) (x : BitVec w) (acc : BitVec (k * len)) (hle : k ≤ w)

@@ -2951,7 +2951,7 @@ theorem extractLsb'_append_extractLsb'_self {x : BitVec (w + 1)} :
   · simp [hklt, show 1 + (k - 1) = k by omega, getLsbD_eq_getElem (by omega)]
 
 @[simp]
-theorem append_extractLsb'_self' {x : BitVec (w + len)} :
+theorem extractLsb'_append_extractLsb'_self' {x : BitVec (w + len)} :
     (x.extractLsb' len w ++ x.extractLsb' 0 len) = x := by
   ext i hi
   simp only [getElem_append, getElem_extractLsb', Nat.zero_add, dite_eq_ite]

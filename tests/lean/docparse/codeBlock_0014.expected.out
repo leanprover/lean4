@@ -1,4 +1,4 @@
-Failure @30 (⟨1, 30⟩): expected ')'
+Failure @30 (⟨1, 30⟩): expected `)`
 Final stack:
   (Lean.Doc.Syntax.codeblock
    "```"

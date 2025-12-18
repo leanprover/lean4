@@ -1,0 +1,4 @@
+unexpectedLiterals.lean:8:3-8:7: error: unexpected numeral `123`; expected identifier
+unexpectedLiterals.lean:9:3-9:11: error: unexpected string literal `"hello"`; expected identifier
+unexpectedLiterals.lean:10:3-10:7: error: unexpected character literal `'a'`; expected identifier
+unexpectedLiterals.lean:11:3-11:8: error: unexpected numeral `0x10`; expected identifier

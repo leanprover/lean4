@@ -611,7 +611,7 @@ def rawFn (p : ParserFn) (trailingWs := false) : ParserFn := fun c s =>
   if s.hasError then s else rawAux startPos trailingWs c s
 
 def chFn (c : Char) (trailingWs := false) : ParserFn :=
-  rawFn (satisfyFn (fun d => c == d) ("'" ++ toString c ++ "'")) trailingWs
+  rawFn (satisfyFn (fun d => c == d) ("`" ++ toString c ++ "`")) trailingWs
 
 def rawCh (c : Char) (trailingWs := false) : Parser := {
   fn := chFn c trailingWs
@@ -1108,7 +1108,7 @@ def symbolInfo (sym : String) : ParserInfo := {
 }
 
 def symbolFn (sym : String) : ParserFn :=
-  symbolFnAux sym ("'" ++ sym ++ "'")
+  symbolFnAux sym ("`" ++ sym ++ "`")
 
 def symbolNoAntiquot (sym : String) : Parser :=
   let sym := sym.trimAscii.copy
@@ -1143,7 +1143,7 @@ def nonReservedSymbolFnAux (sym : String) (errorMsg : String) : ParserFn := fun 
   s.mkUnexpectedTokenError errorMsg
 
 def nonReservedSymbolFn (sym : String) : ParserFn :=
-  nonReservedSymbolFnAux sym ("'" ++ sym ++ "'")
+  nonReservedSymbolFnAux sym ("`" ++ sym ++ "`")
 
 def nonReservedSymbolInfo (sym : String) (includeIdent : Bool) : ParserInfo := {
   firstTokens  :=
@@ -1232,7 +1232,7 @@ def unicodeSymbolInfo (sym asciiSym : String) : ParserInfo := {
 }
 
 def unicodeSymbolFn (sym asciiSym : String) : ParserFn :=
-  unicodeSymbolFnAux sym asciiSym ["'" ++ sym ++ "', '" ++ asciiSym ++ "'"]
+  unicodeSymbolFnAux sym asciiSym [s!"`{sym}`, `{asciiSym}`"]
 
 set_option linter.unusedVariables false in
 def unicodeSymbolNoAntiquot (sym asciiSym : String) (preserveForPP : Bool) : Parser :=
@@ -1311,7 +1311,7 @@ def identEqFn (id : Name) : ParserFn := fun c s =>
   if s.hasError then
     s
   else match s.stxStack.back with
-    | .ident _ _ val _ => if val != id then s.mkUnexpectedTokenError s!"identifier '{id}'" else s
+    | .ident _ _ val _ => if val != id then s.mkUnexpectedTokenError s!"identifier `{id}`" else s
     | _ => s.mkUnexpectedTokenError "identifier"
 
 def identEq (id : Name) : Parser := {

@@ -1,4 +1,4 @@
-Failure @8 (⟨1, 8⟩): expected ')'
+Failure @8 (⟨1, 8⟩): expected `)`
 Final stack:
   (Lean.Doc.Syntax.named
    "("

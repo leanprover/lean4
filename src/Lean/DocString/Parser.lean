@@ -255,7 +255,7 @@ private def strFn (str : String) : ParserFn := asStringFn <| fun c s =>
   let iniPos := s.pos
   let iniSz := s.stxStack.size
   let s := go str.startPos s
-  if s.hasError then s.mkErrorAt s!"'{str}'" iniPos (some iniSz) else s
+  if s.hasError then s.mkErrorAt s!"`{str}`" iniPos (some iniSz) else s
 
 /--
 Ordered lists may have two styles of indicator, with trailing dots or parentheses.
@@ -878,7 +878,7 @@ public def lookaheadOrderedListIndicator (ctxt : BlockCtxt) (p : OrderedListType
         | '.' => (s.next' c i h, (chFn ' ' <|> chFn '\n'), OrderedListType.numDot)
         | ')' => (s.next' c i h, (chFn ' ' <|> chFn '\n'), OrderedListType.parenAfter)
         | other =>
-          (s.setError { unexpected := s!"unexpected '{other}'", expected := ["'.'", "')'"] },
+          (s.setError { unexpected := s!"unexpected `{other}`", expected := ["`.`", "`)`"] },
            skipFn,
            .numDot)
       if s.hasError then {s with pos := iniPos}

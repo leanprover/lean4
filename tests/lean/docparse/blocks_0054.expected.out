@@ -1,23 +1,23 @@
 10 failures:
-  @38 (⟨4, 14⟩): expected ']'
+  @38 (⟨4, 14⟩): expected `]`
     "\n\n* [busted\n   link\n\n* [busted\n   _italics\n   link\n\n\n* [busted destination](hey\n\n* ![busted image alt text\n\n* ![busted image link](image.png\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
-  @57 (⟨7, 7⟩): expected ']'
+  @57 (⟨7, 7⟩): expected `]`
     "\n\n* [busted\n   _italics\n   link\n\n\n* [busted destination](hey\n\n* ![busted image alt text\n\n* ![busted image link](image.png\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
   @88 (⟨11, 7⟩): '_'
     "\n\n\n* [busted destination](hey\n\n* ![busted image alt text\n\n* ![busted image link](image.png\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
-  @88 (⟨11, 7⟩): expected ']'
+  @88 (⟨11, 7⟩): expected `]`
     "\n\n\n* [busted destination](hey\n\n* ![busted image alt text\n\n* ![busted image link](image.png\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
-  @117 (⟨14, 26⟩): expected ')'
+  @117 (⟨14, 26⟩): expected `)`
     "\n\n* ![busted image alt text\n\n* ![busted image link](image.png\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
-  @144 (⟨16, 25⟩): expected ']'
+  @144 (⟨16, 25⟩): expected `]`
     "\n\n* ![busted image link](image.png\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
-  @178 (⟨18, 32⟩): expected ')'
+  @178 (⟨18, 32⟩): expected `)`
     "\n\n* a *bold choice\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
   @196 (⟨20, 16⟩): '*'
     "\n\n* very _italic *and bold, onto many\n   lines is OK* but don't forget...\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
   @269 (⟨23, 35⟩): '_'
     "\n\na paragraph with [a bad link syntax](http://example.com\nis OK. The rest *works*.\n"
-  @326 (⟨25, 55⟩): expected ')'
+  @326 (⟨25, 55⟩): expected `)`
     "\nis OK. The rest *works*.\n"
 
 Final stack:

@@ -402,7 +402,7 @@ theorem denote_go
           rw [← BitVec.getLsbD_eq_getElem, ← hbvRes, bvRes_proof]
           rw [← BitVec.getLsbD_eq_getElem, ← hlayer, layer_proof]
         have haddrec := BitVec.rec_add_eq_rec_add_iff (a := bvRes) (b := l_bv) (b_length := l_length)
-                            (hadd := by omega) (hw := by omega) (hlen := by omega) (by omega)
+                            (hadd := by omega) (hlen := by omega) (by omega)
                             (n := (l_length + 1) / 2) (by omega)
         subst this
         simp

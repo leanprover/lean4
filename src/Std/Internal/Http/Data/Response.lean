@@ -102,12 +102,6 @@ def status (builder : Builder) (status : Status) : Builder :=
   { builder with head := { builder.head with status := status } }
 
 /--
-Sets the HTTP version for the response being built
--/
-def version (builder : Builder) (version : Version) : Builder :=
-  { builder with head := { builder.head with version := version } }
-
-/--
 Sets the headers for the response being built
 -/
 def headers (builder : Builder) (headers : Headers) : Builder :=

@@ -6,6 +6,43 @@ open Std.Internal.IO Async
 open Std Http
 
 /-- Test cancelling a slow request handler -/
+def testCancelSlowHandlerNotSendingData : IO Unit := do
+  let res ← Async.block do
+    let (client, server) ← Mock.new
+
+    let ctx ← CancellationContext.new
+
+    -- Start the server in the background
+    let op := ContextAsync.background do
+      Std.Http.Server.serveConnection server (fun _req => do
+        -- Simulate a slow handler that should be cancelled
+        Async.sleep 10000
+        return Response.ok
+          |>.body "should not complete"
+      ) (config := { lingeringTimeout := 1000, keepAliveTimeout := ⟨1000, by decide⟩ })
+      client.getRecvChan.close
+
+    op ctx
+
+    -- Wait a bit for the request to start processing
+    Async.sleep 2000
+
+    -- Cancel the context
+    ctx.cancel .cancel
+
+    -- Try to receive response - should get nothing or partial response
+    -- The important thing is that the handler was cancelled
+    client.recv?
+
+  IO.println <| res.map (String.fromUTF8! · |>.quote)
+
+/--
+info: none
+-/
+#guard_msgs in
+#eval testCancelSlowHandlerNotSendingData
+
+/-- Test cancelling a slow request handler -/
 def testCancelSlowHandler : IO Unit := do
   let res ← Async.block do
     let (client, server) ← Mock.new
@@ -19,7 +56,8 @@ def testCancelSlowHandler : IO Unit := do
         Async.sleep 10000
         return Response.ok
           |>.body "should not complete"
-      ) (config := { lingeringTimeout := 1000 })
+      ) (config := { lingeringTimeout := 1000, keepAliveTimeout := ⟨1000, by decide⟩ })
+      client.getRecvChan.close
 
     -- Send a simple request
     client.send (String.toUTF8 "GET / HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n")
@@ -39,7 +77,7 @@ def testCancelSlowHandler : IO Unit := do
   IO.println <| res.map (String.fromUTF8! · |>.quote)
 
 /--
-info: (some ("HTTP/1.1 408 Request Timeout\x0d\nContent-Length: 0\x0d\nconnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"))
+info: (some ("HTTP/1.1 503 Service Unavailable\x0d\nContent-Length: 0\x0d\nconnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"))
 -/
 #guard_msgs in
 #eval testCancelSlowHandler

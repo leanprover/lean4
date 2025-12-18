@@ -22,13 +22,12 @@ This module defines a simple, asynchronous HTTP/1.1 server implementation.
 It provides the `Std.Http.Server` structure, which encapsulates all server state, and functions for
 starting, managing, and gracefully shutting down the server.
 
-The server runs entirely using `Async` and uses a shared `CancellationToken` to signal shutdowns.
+The server runs entirely using `Async` and uses a shared `CancellationContext` to signal shutdowns.
 Each active client connection is tracked, and the server automatically resolves its shutdown
 promise once all connections have closed.
 -/
 
 namespace Std.Http
-
 open Std.Internal.IO.Async TCP
 
 set_option linter.all true

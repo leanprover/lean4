@@ -74,8 +74,8 @@ def recv (stream : ByteStream) : Async (Option Chunk) := do
     | _, _ => pure chunk
 
 /--
-Receives a chunk and returns only its data, discarding extensions.
-Returns `none` if the stream is closed and no data is available.
+Receives a chunk and returns only its data, discarding extensions. Returns `none` if the stream is
+closed and no data is available.
 -/
 @[always_inline, inline]
 def recvBytes (stream : ByteStream) : Async (Option ByteArray) := do
@@ -103,8 +103,7 @@ def writeChunk (stream : ByteStream) (chunk : Chunk) : Async Unit := do
   Async.ofAsyncTask task
 
 /--
-Gets the known size of the stream if available.
-Returns `none` if the size is not known.
+Gets the known size of the stream if available. Returns `none` if the size is not known.
 -/
 @[always_inline, inline]
 def getKnownSize (stream : ByteStream) : Async (Option Body.Length) := do
@@ -112,8 +111,7 @@ def getKnownSize (stream : ByteStream) : Async (Option Body.Length) := do
     get
 
 /--
-Sets the known size of the stream.
-Use this when the total expected size is known ahead of time.
+Sets the known size of the stream. Use this when the total expected size is known ahead of time.
 -/
 @[always_inline, inline]
 def setKnownSize (stream : ByteStream) (size : Option Body.Length) : Async Unit := do

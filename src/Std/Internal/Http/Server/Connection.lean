@@ -47,6 +47,14 @@ public structure Connection (α : Type) where
 
 namespace Connection
 
+deriving instance Repr for ByteArray
+deriving instance Repr for Chunk
+deriving instance Repr for Response
+deriving instance Repr for Error
+
+instance : Repr Body where
+  reprPrec _ n := reprPrec () n
+
 private inductive Recv
   | bytes (x : Option ByteArray)
   | channel (x : Option Chunk)
@@ -54,6 +62,7 @@ private inductive Recv
   | timeout
   | shutdown
   | close
+deriving Repr
 
 private def receiveWithTimeout
     [Transport α]
@@ -66,7 +75,6 @@ private def receiveWithTimeout
     (connectionContext : CancellationContext) : Async Recv := do
 
   let mut baseSelectables := #[
-    .case (← Selector.sleep timeoutMs) (fun _ => pure .timeout),
     .case connectionContext.doneSelector (fun _ => do
       let reason ← connectionContext.getCancellationReason
       match reason with
@@ -74,11 +82,15 @@ private def receiveWithTimeout
       | _ => pure .shutdown)
   ]
 
-  if let some keepAliveTimeout := keepAliveTimeoutMs then
-    baseSelectables := baseSelectables.push (.case (← Selector.sleep keepAliveTimeout) (fun _ => pure .timeout))
-
   if let some socket := socket then
     baseSelectables := baseSelectables.push (.case (Transport.recvSelector socket expect) (Recv.bytes · |> pure))
+
+    -- Timeouts are only applied if we are not expecting data from the user.
+    if channel.isNone ∧ response.isNone then
+      if let some keepAliveTimeout := keepAliveTimeoutMs then
+        baseSelectables := baseSelectables.push (.case (← Selector.sleep keepAliveTimeout) (fun _ => pure .timeout))
+
+      baseSelectables := baseSelectables.push (.case (← Selector.sleep timeoutMs) (fun _ => pure .timeout))
 
   if let some channel := channel then
     baseSelectables := baseSelectables.push (.case channel.recvSelector (Recv.channel · |> pure))
@@ -135,7 +147,6 @@ private def handle
   let mut response ← Std.Future.new
   let mut respStream := none
   let mut requiresData := false
-  let mut needAnswer := false
   let mut needBody := false
 
   let mut expectData := none
@@ -159,7 +170,7 @@ private def handle
         needBody := true
 
       | .needAnswer =>
-        needAnswer := true
+        pure ()
 
       | .endHeaders head =>
         waitingResponse := true
@@ -189,13 +200,13 @@ private def handle
         response ← Std.Future.new
 
         if let some res := respStream then
-          if (← res.isClosed) then res.close
+          if ¬ (← res.isClosed) then res.close
 
         respStream := none
 
         keepAliveTimeout := some config.keepAliveTimeout.val
         currentTimeout := config.keepAliveTimeout.val
-        needAnswer := false
+        waitingResponse := false
 
       | .failed _ =>
         pure ()
@@ -203,15 +214,16 @@ private def handle
       | .close =>
         pure ()
 
-    if requiresData ∨ needAnswer ∨ respStream.isSome then
+    if requiresData ∨ waitingResponse ∨ respStream.isSome then
       let socket := some socket
-      let answer := if needAnswer then some response else none
+      let answer := if waitingResponse then some response else none
 
       requiresData := false
-      needAnswer := false
       needBody := false
 
-      match ← processNeedMoreData config socket expectData answer respStream currentTimeout keepAliveTimeout connectionContext with
+      let event ← processNeedMoreData config socket expectData answer respStream currentTimeout keepAliveTimeout connectionContext
+
+      match event with
       | .bytes (some bs) =>
         machine := machine.feed bs
 
@@ -225,7 +237,7 @@ private def handle
         machine := machine.userClosedBody
 
         if let some res := respStream then
-          if (← res.isClosed) then res.close
+          if ¬(← res.isClosed) then res.close
 
         respStream := none
 
@@ -250,6 +262,8 @@ private def handle
 
       | .response (.ok res) =>
         machine := machine.send res.head
+        waitingResponse := false
+
         match res.body with
         | .bytes data => machine := machine.sendData #[Chunk.mk data #[]] |>.userClosedBody
         | .zero => machine := machine.userClosedBody
@@ -262,7 +276,8 @@ private def handle
     requestStream.close
 
   if let some res := respStream then
-    if (← res.isClosed) then res.close
+    if ¬(← res.isClosed) then
+      res.close
 
 end Connection
 

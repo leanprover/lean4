@@ -18,7 +18,6 @@ that can be used with a HTTP connection.
 -/
 
 namespace Std.Http
-
 open Std Internal IO Async TCP
 
 set_option linter.all true
@@ -79,8 +78,8 @@ structure Mock.Server where
 namespace Mock
 
 /--
-Create a new pair of connected mock clients (client and server).
-They share the same underlying state for bidirectional communication.
+Create a new pair of connected mock clients (client and server). They share the same underlying state
+for bidirectional communication.
 -/
 def new : BaseIO (Mock.Client × Mock.Server) := do
   let first ← Std.CloseableChannel.new
@@ -89,11 +88,10 @@ def new : BaseIO (Mock.Client × Mock.Server) := do
   return (⟨⟨first, second⟩⟩, ⟨⟨first, second⟩⟩)
 
 /--
-Receive data from a channel, joining all available data.
-First does a blocking recv, then greedily consumes all available data with tryRecv.
+Receive data from a channel, joining all available data. First does a blocking recv, then greedily
+consumes all available data with tryRecv.
 -/
 def recvJoined (recvChan : Std.CloseableChannel ByteArray) (_expect : UInt64) : Async (Option ByteArray) := do
-  -- First blocking receive
   match ← await (← recvChan.recv) with
   | none => return none
   | some first =>
@@ -111,7 +109,7 @@ def send (sendChan : Std.CloseableChannel ByteArray) (data : ByteArray) : Async 
   Async.ofAsyncTask ((← sendChan.send data) |>.map (Except.mapError (IO.userError ∘ toString)))
 
 /--
-Send all ByteArrays through a channel.
+Send ByteArrays through a channel.
 -/
 def sendAll (sendChan : Std.CloseableChannel ByteArray) (data : Array ByteArray) : Async Unit := do
   for chunk in data do
@@ -201,8 +199,8 @@ def recv? (server : Mock.Server) (expect : UInt64 := 0) : Async (Option ByteArra
   Mock.recvJoined (getRecvChan server) expect
 
 /--
-Try to receive data without blocking, joining all immediately available chunks.
-Returns `none` if no data is available.
+Try to receive data without blocking, joining all immediately available chunks. Returns `none` if no
+data is available.
 -/
 def tryRecv? (server : Mock.Server) (_expect : UInt64 := 0) : BaseIO (Option ByteArray) := do
   match ← (getRecvChan server).tryRecv with

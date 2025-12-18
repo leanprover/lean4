@@ -15,31 +15,21 @@ open Lean Parser Meta Elab Do
 
 set_option linter.unusedVariables false
 
-set_option trace.Elab.match true in
-example (n : Nat) : Id (Fin (n + 1)) :=
-  have jp : ?m := ?rhs
-  match n with
-  | 0 => ?jmp1
-  | n + 1 => ?jmp2
-  where finally
-  case m => exact Fin (n + 1) → Id (Fin (n + 1))
-  case jmp1 => exact jp ⟨0, sorry⟩
-  case jmp2 => exact jp ⟨n, sorry⟩
-  case rhs => exact pure
-
 /--
 info: (let a := 1;
   let b := 2;
   let c := 3;
-  have __do_jp := fun a b r =>
+  have __do_jp := fun tuple =>
+    let a := tuple.fst;
+    let b := tuple.snd;
     let c := a + b;
     pure (a, b, c);
   if true = true then
     let a := a + 1;
-    __do_jp a b PUnit.unit
+    __do_jp (a, b)
   else
     let b := b + 1;
-    __do_jp a b PUnit.unit).run : Nat × Nat × Nat
+    __do_jp (a, b)).run : Nat × Nat × Nat
 -/
 #guard_msgs in
 #check Id.run do
@@ -183,7 +173,7 @@ def logErrorNames (x : MetaM Unit) : MetaM Unit := do
         msg
   Core.setMessageLog newLog
 
-open Std.Iterators IterM in
+open Std IterM in
 example [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
     {it₁ : IterM (α := α₁) m β₁}
     {memo : Option { out : β₁ //
@@ -212,14 +202,15 @@ example [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
         | .done hp =>
           pure <| .deflate <| .done (.doneRight hm hp)) := sorry
 
-open Std.Iterators IterM in
+set_option trace.Elab.do true in
+open Std IterM in
 example [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
     {it₁ : IterM (α := α₁) m β₁}
     {memo : Option { out : β₁ //
         ∃ it : IterM (α := α₁) m β₁, it.IsPlausibleOutput out }}
     {it₂ : IterM (α := α₂) m β₂} :
     (Intermediate.zip it₁ memo it₂).step = (do
-      match (generalizing := false) memo with
+      match memo with
       | none =>
         match (← it₁.step).inflate with
         | .yield it₁' out hp =>
@@ -237,18 +228,10 @@ example [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
             (.yieldRight rfl hp)
         | .skip it₂' hp =>
           pure <| .deflate <| .skip (Intermediate.zip it₁ (some out₁) it₂')
-            (.skipRight (by grind) hp)
+            (.skipRight rfl hp)
         | .done hp =>
-          pure <| .deflate <| .done (.doneRight (by grind) hp)) := sorry
-/--
-error: Type mismatch
-  y
-has type
-  Fin 3
-but is expected to have type
-  Fin (x + 1)
--/
-#guard_msgs in
+          pure <| .deflate <| .done (.doneRight rfl hp)) := sorry
+
 -- test case doLetElse
 example (x : Nat) : IO (Fin (x + 1)) := do
   let 2 := x | return 0
@@ -271,7 +254,18 @@ set_option trace.Elab.do true in
     x := x + 1
   return ⟨3, by decide⟩
 
+/-- info: Except.ok 23 -/
+#guard_msgs in
+#eval Id.run <| ExceptT.run (ε:=String) do
+  let res ←
+    let false := true | pure true
+    throw "error"
+    return 44
+  if res then pure 23 else return 33
+
 set_option backward.do.legacy true in
+/-- info: "ok" -/
+#guard_msgs in
 #eval Id.run do
   let mut x := 0
   let y <- do
@@ -280,16 +274,14 @@ set_option backward.do.legacy true in
     return "unreachable"
   if x + y < 23 then pure "ok" else pure "wrong"
 
-set_option backward.do.legacy false in
-#eval Id.run do
-  let mut x := 0
-  let y <- do
-    let true := false | do x := x + 3; pure 0
-    x := x + 100
-    return "unreachable"
-  if x + y < 23 then pure "ok" else pure "wrong"
-
-set_option backward.do.legacy false in
+-- a bug in the old `do` elaborator:
+set_option backward.do.legacy true in
+/--
+error: `do` element is unreachable
+---
+info: fun x => sorry.run : Nat → String
+-/
+#guard_msgs in
 #check fun (x : Nat) => Id.run (α := String) do
   let y : Nat <-
     match x with
@@ -298,72 +290,36 @@ set_option backward.do.legacy false in
     | _ => pure 0
   return toString y
 
-/--
-error: The expected type ⏎
-  Id (Fin (x + 1))
-changed to ⏎
-  Id (Fin (0 + 1))
-This is not supported by the `do` elaborator. If there's a surrounding `match`, try `(generalizing := false)`.
----
-error: The expected type ⏎
-  Id (Fin (x + 1))
-changed to ⏎
-  Id (Fin (x✝ + 1))
-This is not supported by the `do` elaborator. If there's a surrounding `match`, try `(generalizing := false)`.
----
-warning: This `do` element and its control-flow region are dead code. Consider removing it.
--/
-#guard_msgs in
-example (x : Nat) := Id.run (α := Fin (x + 1)) do
-  let y : Fin x <-
-    match x with
-    | 0 => pure ⟨0, by grind⟩
-    | _ => pure ⟨0, by grind⟩
-  return ⟨↑y + 1, by grind⟩
+-- Full-blown dependent match including refinement of the join point, but not the mut vars:
+example (x : Nat) := Id.run (α := Fin (2 * x + 2)) do
+  have y' : Fin (x + 1) := ⟨0, by grind⟩
+  let mut y₁ : Fin (x + 1) := ⟨0, by grind⟩
+  let y₂ : Fin (x + 1) ←
+    match h : x with
+    | z + 1 => y₁ := ⟨1, by grind⟩; pure ⟨1, by grind⟩
+    | _     => pure ⟨0, by grind⟩
+  return ⟨y₁.val + y₂.val, by grind⟩
 
-/--
-error: `grind` failed
-case grind
-x : Nat
-h : x = 0
-⊢ False
-[grind] Goal diagnostics
-  [facts] Asserted facts
-    [prop] x = 0
-  [eqc] Equivalence classes
-    [eqc] {x, 0}
-  [cutsat] Assignment satisfying linear constraints
-    [assign] x := 0
----
-error: `grind` failed
-case grind
-x x_1 : Nat
-h : x = 0
-⊢ False
-[grind] Goal diagnostics
-  [facts] Asserted facts
-    [prop] x = 0
-  [eqc] Equivalence classes
-    [eqc] {x, 0}
-  [cutsat] Assignment satisfying linear constraints
-    [assign] x := 0
-    [assign] x_1 := 1
--/
-#guard_msgs in
-example (x : Nat) := Id.run (α := Fin (x + 1)) do
-  let y : Fin x <-
+-- Specifying `(generalizing := false)` implies a constant motive.
+-- The motive is the result type of the join point and it is not refined without generalization.
+example (x : Nat) := Id.run (α := Fin (x + 2)) do
+  let y : Fin (x + 1) <-
     match (generalizing := false) x with
     | 0 => pure ⟨0, by grind⟩
     | _ => pure ⟨0, by grind⟩
   return ⟨↑y + 1, by grind⟩
 
-set_option backward.do.legacy true in
-#eval Id.run <| ExceptT.run (ε:=String) do
-  let res ←
-    let false := true | pure true
-    throw "error"
-    return 44
-  if res then pure 23 else return 33
+example (x : Nat) (h : x = 3) := Id.run (α := Fin (x + 2)) do
+  let y : Fin (x + 1) <-
+    match h with
+    | rfl => pure ⟨0, by grind⟩
+  return ⟨↑y + 1, by grind⟩
+
+example (x : Nat) (h : x = 3) := Id.run (α := Fin (x + 2)) do
+  let y : Fin (x + 1) <-
+    match (generalizing := false) h with
+    | rfl => pure ⟨0, by grind⟩
+  return ⟨↑y + 1, by grind⟩
 
 set_option backward.do.legacy false in
 #eval Id.run <| ExceptT.run (ε:=String) do
@@ -529,12 +485,13 @@ trace: [Elab.do] let x := 1;
         forInNew [4, 5, 6] x
           (fun j kcontinue_1 s_1 =>
             let x_1 := s_1;
-            have __do_jp := fun x_2 r =>
+            have __do_jp := fun tuple =>
+              let x_2 := tuple;
               if j < 3 then kcontinue_1 x_2 else if j > 6 then kbreak_1 x_2 else kcontinue_1 x_2;
             if j < 5 then
               let x := x_1 + j;
-              __do_jp x PUnit.unit
-            else __do_jp x_1 PUnit.unit)
+              __do_jp x
+            else __do_jp x_1)
           kbreak_1)
       kbreak
 -/
@@ -571,13 +528,14 @@ info: (let x := 42;
       let x := s.fst;
       let z := s.snd;
       let x_1 := x + i;
-      have __do_jp := fun z r =>
+      have __do_jp := fun tuple =>
+        let z := tuple;
         let z := z + i;
         kcontinue (x_1, z);
       if x_1 > 10 then
         let z := z + i;
-        __do_jp z PUnit.unit
-      else __do_jp z PUnit.unit)
+        __do_jp z
+      else __do_jp z)
     fun s =>
     let x := s.fst;
     let z := s.snd;
@@ -619,7 +577,8 @@ info: (let w := 23;
         let y := y - 2;
         kbreak (x, y, z)
       else
-        have __do_jp := fun z r =>
+        have __do_jp := fun tuple =>
+          let z := tuple;
           if x > 10 then
             let x := x + 3;
             kcontinue (x, y, z)
@@ -628,8 +587,8 @@ info: (let w := 23;
             kcontinue (x, y, z);
         if x = 3 then
           let z := z + i;
-          __do_jp z PUnit.unit
-        else __do_jp z PUnit.unit)
+          __do_jp z
+        else __do_jp z)
     kbreak).run : Nat
 -/
 #guard_msgs (info) in
@@ -665,39 +624,39 @@ trace: [Compiler.saveBase] size: 44
         let _x.11 := s # 0;
         let _x.12 := s # 1;
         let _x.13 := _x.12 # 0;
-        jp _jp.14 z : Nat :=
-          let _x.15 := 10;
-          let _x.16 := Nat.decLt _x.15 _x.11;
-          cases _x.16 : Nat
-          | Decidable.isFalse x.17 =>
-            let _x.18 := Nat.add _x.11 head.9;
-            let _x.19 := @Prod.mk _ _ _x.13 z;
-            let _x.20 := @Prod.mk _ _ _x.18 _x.19;
-            let _x.21 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 w tail.10 _x.20;
-            return _x.21
-          | Decidable.isTrue x.22 =>
-            let _x.23 := Nat.add _x.11 _x.1;
-            let _x.24 := @Prod.mk _ _ _x.13 z;
-            let _x.25 := @Prod.mk _ _ _x.23 _x.24;
-            let _x.26 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 w tail.10 _x.25;
-            return _x.26;
-        let _x.27 := _x.12 # 1;
-        let _x.28 := 20;
-        let _x.29 := Nat.decLt _x.11 _x.28;
-        cases _x.29 : Nat
-        | Decidable.isFalse x.30 =>
-          let _x.31 := instDecidableEqNat _x.11 _x.1;
-          cases _x.31 : Nat
-          | Decidable.isFalse x.32 =>
-            goto _jp.14 _x.27
-          | Decidable.isTrue x.33 =>
-            let _x.34 := Nat.add _x.27 head.9;
-            goto _jp.14 _x.34
-        | Decidable.isTrue x.35 =>
-          let _x.36 := Nat.sub _x.13 _x.2;
-          let _x.37 := @Prod.mk _ _ _x.36 _x.27;
-          let _x.38 := @Prod.mk _ _ _x.11 _x.37;
-          goto _jp.3 _x.38
+        jp _jp.14 tuple.15 : Nat :=
+          let _x.16 := 10;
+          let _x.17 := Nat.decLt _x.16 _x.11;
+          cases _x.17 : Nat
+          | Decidable.isFalse x.18 =>
+            let _x.19 := Nat.add _x.11 head.9;
+            let _x.20 := @Prod.mk _ _ _x.13 tuple.15;
+            let _x.21 := @Prod.mk _ _ _x.19 _x.20;
+            let _x.22 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 w tail.10 _x.21;
+            return _x.22
+          | Decidable.isTrue x.23 =>
+            let _x.24 := Nat.add _x.11 _x.1;
+            let _x.25 := @Prod.mk _ _ _x.13 tuple.15;
+            let _x.26 := @Prod.mk _ _ _x.24 _x.25;
+            let _x.27 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 w tail.10 _x.26;
+            return _x.27;
+        let _x.28 := _x.12 # 1;
+        let _x.29 := 20;
+        let _x.30 := Nat.decLt _x.11 _x.29;
+        cases _x.30 : Nat
+        | Decidable.isFalse x.31 =>
+          let _x.32 := instDecidableEqNat _x.11 _x.1;
+          cases _x.32 : Nat
+          | Decidable.isFalse x.33 =>
+            goto _jp.14 _x.28
+          | Decidable.isTrue x.34 =>
+            let _x.35 := Nat.add _x.28 head.9;
+            goto _jp.14 _x.35
+        | Decidable.isTrue x.36 =>
+          let _x.37 := Nat.sub _x.13 _x.2;
+          let _x.38 := @Prod.mk _ _ _x.37 _x.28;
+          let _x.39 := @Prod.mk _ _ _x.11 _x.38;
+          goto _jp.3 _x.39
 [Compiler.saveBase] size: 44
     def List.forInNew'._at_.Do._example.spec_0 _x.1 _x.2 w l s : Nat :=
       jp _jp.3 s.4 : Nat :=
@@ -716,39 +675,39 @@ trace: [Compiler.saveBase] size: 44
         let _x.11 := s # 0;
         let _x.12 := s # 1;
         let _x.13 := _x.12 # 0;
-        jp _jp.14 z : Nat :=
-          let _x.15 := 10;
-          let _x.16 := Nat.decLt _x.15 _x.11;
-          cases _x.16 : Nat
-          | Decidable.isFalse x.17 =>
-            let _x.18 := Nat.add _x.11 head.9;
-            let _x.19 := @Prod.mk _ _ _x.13 z;
-            let _x.20 := @Prod.mk _ _ _x.18 _x.19;
-            let _x.21 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 w tail.10 _x.20;
-            return _x.21
-          | Decidable.isTrue x.22 =>
-            let _x.23 := Nat.add _x.11 _x.1;
-            let _x.24 := @Prod.mk _ _ _x.13 z;
-            let _x.25 := @Prod.mk _ _ _x.23 _x.24;
-            let _x.26 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 w tail.10 _x.25;
-            return _x.26;
-        let _x.27 := _x.12 # 1;
-        let _x.28 := 20;
-        let _x.29 := Nat.decLt _x.11 _x.28;
-        cases _x.29 : Nat
-        | Decidable.isFalse x.30 =>
-          let _x.31 := instDecidableEqNat _x.11 _x.1;
-          cases _x.31 : Nat
-          | Decidable.isFalse x.32 =>
-            goto _jp.14 _x.27
-          | Decidable.isTrue x.33 =>
-            let _x.34 := Nat.add _x.27 head.9;
-            goto _jp.14 _x.34
-        | Decidable.isTrue x.35 =>
-          let _x.36 := Nat.sub _x.13 _x.2;
-          let _x.37 := @Prod.mk _ _ _x.36 _x.27;
-          let _x.38 := @Prod.mk _ _ _x.11 _x.37;
-          goto _jp.3 _x.38
+        jp _jp.14 tuple.15 : Nat :=
+          let _x.16 := 10;
+          let _x.17 := Nat.decLt _x.16 _x.11;
+          cases _x.17 : Nat
+          | Decidable.isFalse x.18 =>
+            let _x.19 := Nat.add _x.11 head.9;
+            let _x.20 := @Prod.mk _ _ _x.13 tuple.15;
+            let _x.21 := @Prod.mk _ _ _x.19 _x.20;
+            let _x.22 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 w tail.10 _x.21;
+            return _x.22
+          | Decidable.isTrue x.23 =>
+            let _x.24 := Nat.add _x.11 _x.1;
+            let _x.25 := @Prod.mk _ _ _x.13 tuple.15;
+            let _x.26 := @Prod.mk _ _ _x.24 _x.25;
+            let _x.27 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 w tail.10 _x.26;
+            return _x.27;
+        let _x.28 := _x.12 # 1;
+        let _x.29 := 20;
+        let _x.30 := Nat.decLt _x.11 _x.29;
+        cases _x.30 : Nat
+        | Decidable.isFalse x.31 =>
+          let _x.32 := instDecidableEqNat _x.11 _x.1;
+          cases _x.32 : Nat
+          | Decidable.isFalse x.33 =>
+            goto _jp.14 _x.28
+          | Decidable.isTrue x.34 =>
+            let _x.35 := Nat.add _x.28 head.9;
+            goto _jp.14 _x.35
+        | Decidable.isTrue x.36 =>
+          let _x.37 := Nat.sub _x.13 _x.2;
+          let _x.38 := @Prod.mk _ _ _x.37 _x.28;
+          let _x.39 := @Prod.mk _ _ _x.11 _x.38;
+          goto _jp.3 _x.39
 [Compiler.saveBase] size: 13
     def Do._example : Nat :=
       let w := 23;
@@ -789,7 +748,8 @@ trace: [Elab.do] let x := 42;
     forInNew [1, 2, 3] x
       (fun i kcontinue s =>
         let x := s;
-        have __do_jp := fun x_1 r =>
+        have __do_jp := fun tuple =>
+          let x_1 := tuple;
           if x_1 > 10 then
             let x := x_1 + 3;
             kcontinue x
@@ -802,8 +762,8 @@ trace: [Elab.do] let x := 42;
               kcontinue x;
         if x = 3 then
           let x := x + 1;
-          __do_jp x PUnit.unit
-        else __do_jp x PUnit.unit)
+          __do_jp x
+        else __do_jp x)
       kbreak
 -/
 #guard_msgs in
@@ -1647,8 +1607,8 @@ example : (Id.run doo
 
 -- Test: elabToSyntax and postponement
 /--
-error: Invalid match expression: The type of pattern variable 'y' contains metavariables:
-  ?m.12
+error: Invalid match expression: This pattern contains metavariables:
+  some y
 -/
 #guard_msgs (error) in
 example := Id.run do
@@ -2108,14 +2068,16 @@ else
 /--
 info: let x := 0;
 let y := 0;
-have __do_jp := fun x r => pure (x + y);
+have __do_jp := fun tuple =>
+  let x := tuple;
+  pure (x + y);
 if true = true then
   let x := x + 7;
   let y := 3;
-  __do_jp x PUnit.unit
+  __do_jp x
 else
   let x := x + 5;
-  __do_jp x PUnit.unit : ?m Nat
+  __do_jp x : ?m Nat
 -/
 #guard_msgs (info) in
 #check doo
@@ -2205,6 +2167,8 @@ trace: [Meta.Tactic.simp] [7]
 run_meta do
   foo 5
 
+set_option trace.Elab.do true in
+set_option trace.Elab.match true in
 set_option backward.do.legacy false in
 def bar (n : Nat) : MetaM (List Nat) := doo
   let mut result : Foo n := ⟨[7], rfl⟩
@@ -2212,11 +2176,18 @@ def bar (n : Nat) : MetaM (List Nat) := doo
   result := ⟨List.range n, rfl⟩
   trace[Meta.Tactic.simp] "{result.l}"
   -- match (motive := ∀ _, MetaM (List Nat)) n with
-  match n with
-  | 0   => result := ⟨[10], rfl⟩
+  have result2 : Foo n := ⟨[7], rfl⟩
+  match (generalizing := false) n with
+  | 0   => pure (); result := ⟨[10], rfl⟩
   | n+1 => result := ⟨[6], rfl⟩
   trace[Meta.Tactic.simp] "{result.l}"
   return result.l
+
+example (n : Nat) : Foo n :=
+  have result2 : Foo n := ⟨[7], rfl⟩
+  match (generalizing := false) h : n with
+  | 0   => ⟨[10], rfl⟩
+  | n+1 => ⟨[6], rfl⟩
 
 set_option trace.Meta.Tactic.simp true
 /--

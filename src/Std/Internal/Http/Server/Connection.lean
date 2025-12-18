@@ -89,8 +89,8 @@ private def receiveWithTimeout
     if channel.isNone ∧ response.isNone then
       if let some keepAliveTimeout := keepAliveTimeoutMs then
         baseSelectables := baseSelectables.push (.case (← Selector.sleep keepAliveTimeout) (fun _ => pure .timeout))
-
-      baseSelectables := baseSelectables.push (.case (← Selector.sleep timeoutMs) (fun _ => pure .timeout))
+      else
+        baseSelectables := baseSelectables.push (.case (← Selector.sleep timeoutMs) (fun _ => pure .timeout))
 
   if let some channel := channel then
     baseSelectables := baseSelectables.push (.case channel.recvSelector (Recv.channel · |> pure))

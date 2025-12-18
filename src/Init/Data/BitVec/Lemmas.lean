@@ -1278,9 +1278,8 @@ theorem extractLsb'_cast {x : BitVec w} :
   ext k hk
   simp
 
-theorem extractLsb'_extractLsb'_of_le {a : BitVec w} (hlt : i + k ≤ len) :
-      extractLsb' i k (extractLsb' 0 len a) =
-      extractLsb' i k a := by
+theorem extractLsb'_extractLsb'_of_le {x : BitVec w} (hlt : start + len ≤ len') :
+    extractLsb' start len (x.extractLsb' 0 len') = x.extractLsb' start len := by
   ext j hj
   simp
   omega

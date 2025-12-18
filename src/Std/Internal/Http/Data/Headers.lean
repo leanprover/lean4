@@ -7,3 +7,4 @@ module
 
 prelude
 public import Std.Internal.Http.Data.Header.Map
+public import Std.Internal.Http.Data.Header.Name

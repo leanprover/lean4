@@ -142,6 +142,14 @@ def header! (builder : Builder) (key : String) (value : String) : Builder :=
   { builder with head := { builder.head with headers := builder.head.headers.insert key value } }
 
 /--
+Adds a header to the request being built only if the Option HeaderValue is Some
+-/
+def headerOpt (builder : Builder) (key : HeaderName) (value : Option HeaderValue) : Builder :=
+  match value with
+  | some v => builder.header key v
+  | none => builder
+
+/--
 Builds and returns the final HTTP Request with the specified body
 -/
 def body (builder : Builder) (body : t) : Request t :=
@@ -189,39 +197,35 @@ def get (uri : RequestTarget) : Request Body :=
   |>.build
 
 /--
-Creates a new HTTP POST Request with the specified URI and body
+Creates a new HTTP POST Request builder with the specified URI and body
 -/
-def post (uri : RequestTarget) (body : t) : Request t :=
+def post (uri : RequestTarget) : Builder :=
   new
   |>.method .post
   |>.uri uri
-  |>.body body
 
 /--
-Creates a new HTTP PUT Request with the specified URI and body
+Creates a new HTTP PUT Request builder with the specified URI and body
 -/
-def put (uri : RequestTarget) (body : t) : Request t :=
+def put (uri : RequestTarget) : Builder :=
   new
   |>.method .put
   |>.uri uri
-  |>.body body
 
 /--
-Creates a new HTTP DELETE Request with the specified URI
+Creates a new HTTP DELETE Request builder with the specified URI
 -/
-def delete (uri : RequestTarget) : Request Body :=
+def delete (uri : RequestTarget) : Builder :=
   new
   |>.method .delete
   |>.uri uri
-  |>.build
 
 /--
-Creates a new HTTP PATCH Request with the specified URI and body
+Creates a new HTTP PATCH Request builder with the specified URI
 -/
-def patch (uri : RequestTarget) (body : t) : Request t :=
+def patch (uri : RequestTarget) : Builder :=
   new
   |>.method .patch
   |>.uri uri
-  |>.body body
 
 end Std.Http.Request

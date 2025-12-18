@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Internal.Async.ContextAsync
+public import Std.Internal.Http.Data.Headers
 public import Std.Internal.Http.Data.Body.Length
 public import Std.Internal.Http.Data.Body.ByteStream
 
@@ -64,13 +65,16 @@ def close (body : Body) : Async Unit :=
   | _ => pure ()
 
 instance : Coe String Body where
-  coe := .bytes ∘ String.toUTF8
+  coe s := .bytes (String.toUTF8 s)
 
 instance : Coe ByteArray Body where
   coe := .bytes
 
 instance : Coe Body.ByteStream Body where
   coe := .stream
+
+instance : Coe Unit Body where
+  coe _ := Body.zero
 
 instance : EmptyCollection Body where
   emptyCollection := Body.zero

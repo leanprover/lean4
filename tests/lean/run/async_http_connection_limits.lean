@@ -107,8 +107,11 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
 
   handler := fun req => do
     if hasMethod req .head
-    then return Response.ok "" (Headers.empty |>.insert (.ofString! bigString) (.ofString! "ata"))
+    then return Response.ok
+      |>.header (.ofString! bigString) (.ofString! "ata")
+      |>.body ""
     else return Response.notFound
+      |>.body ()
   expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }
 
@@ -124,7 +127,8 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.body #[]
 
   handler := fun req => do
-    return Response.ok (toString (toString req.head.uri).length)
+    return Response.ok
+      |>.body (toString (toString req.head.uri).length)
 
   expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }
@@ -141,7 +145,8 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.body #[]
 
   handler := fun req => do
-    return Response.ok (toString (toString req.head.uri).length)
+    return Response.ok
+      |>.body (toString (toString req.head.uri).length)
 
   expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }
@@ -162,7 +167,8 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     return req |>.body #[]
 
   handler := fun _ => do
-    return Response.ok "success"
+    return Response.ok
+      |>.body "success"
 
   expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }
@@ -175,11 +181,12 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.uri! "/api/test"
     |>.header! "Host" "api.example.com"
     |>.header! "X-Long-Value" (String.ofList (List.replicate 9000 'x'))
-      |>.header! "Connection" "close"
+    |>.header! "Connection" "close"
     |>.body #[]
 
   handler := fun _ => do
-    return Response.ok "ok"
+    return Response.ok
+      |>.body "ok"
 
   expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }
@@ -199,7 +206,8 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     return req |>.body #[]
 
   handler := fun _ => do
-    return Response.ok "success"
+    return Response.ok
+      |>.body "success"
 
   expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }

@@ -104,8 +104,8 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
 
   handler := fun req => do
     if isBasicGetRequest req "/" "example.com" ∧ hasContentLength req "7"
-    then return Response.ok "ok"
-    else return Response.badRequest "invalid"
+    then return Response.ok |>.body "ok"
+    else return Response.badRequest |>.body "invalid"
 
   expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 2\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nok"
 }
@@ -122,8 +122,8 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
 
   handler := fun req => do
     if hasMethod req .get ∧ hasUri req "/api/users"
-    then return Response.ok "users list"
-    else return Response.notFound
+    then return Response.ok |>.body "users list"
+    else return Response.notFound |>.body ()
 
   expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 10\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nusers list"
 }
@@ -142,7 +142,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   handler := fun req => do
     if hasMethod req .post ∧ hasHeader req "Content-Type" "application/json"
     then return Response.new |>.status .created |>.body "Created"
-    else return Response.badRequest
+    else return Response.badRequest |>.body ()
   expected := "HTTP/1.1 201 Created\x0d\nContent-Length: 7\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nCreated"
 }
 
@@ -159,7 +159,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   handler := fun req => do
     if hasMethod req .delete ∧ hasUri req "/api/users/123"
     then return Response.new |>.status .noContent |>.body ""
-    else return Response.notFound
+    else return Response.notFound |>.body ()
 
   expected := "HTTP/1.1 204 No Content\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }
@@ -176,8 +176,8 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
 
   handler := fun req => do
     if hasMethod req .head
-    then return Response.ok ""
-    else return Response.notFound
+    then return Response.ok |>.body ""
+    else return Response.notFound |>.body ()
 
   expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }
@@ -198,7 +198,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
       |>.status .ok
       |>.header! "Allow" "GET, POST, PUT, DELETE, OPTIONS"
       |>.body ""
-    else return Response.badRequest
+    else return Response.badRequest |>.body ()
 
   expected := "HTTP/1.1 200 OK\x0d\nAllow: GET, POST, PUT, DELETE, OPTIONS\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
 }
@@ -218,7 +218,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
 
   handler := fun req => do
     if hasHeader req "Authorization" "Bearer token123" ∧ hasHeader req "Accept" "application/json"
-    then return Response.ok "authenticated"
+    then return Response.ok |>.body "authenticated"
     else return Response.new |>.status .unauthorized |>.body "unauthorized"
 
   expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 13\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nauthenticated"
@@ -236,8 +236,8 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
 
   handler := fun req => do
     if hasUri req "/api/search?q=test&limit=10"
-    then return Response.ok "search results"
-    else return Response.notFound
+    then return Response.ok |>.body "search results"
+    else return Response.notFound |>.body ()
 
   expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 14\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nsearch results"
 }
@@ -256,7 +256,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   handler := fun req => do
     if hasMethod req .post ∧ hasContentLength req "0"
     then return Response.new |>.status .accepted |>.body "triggered"
-    else return Response.badRequest
+    else return Response.badRequest |>.body ()
 
   expected := "HTTP/1.1 202 Accepted\x0d\nContent-Length: 9\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\ntriggered"
 }
@@ -273,7 +273,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
 
   handler := fun _ => do
     let largeBody := String.ofList (List.replicate 1000 'X')
-    return Response.ok largeBody
+    return Response.ok |>.body largeBody
 
   expected := s!"HTTP/1.1 200 OK\x0d\nContent-Length: 1000\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n{String.ofList (List.replicate 1000 'X')}"
 }
@@ -306,8 +306,8 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.body #[]
   handler := fun req => do
     if hasUri req "/api/users/%C3%A9"
-    then return Response.ok "found"
-    else return Response.notFound
+    then return Response.ok |>.body "found"
+    else return Response.notFound |>.body ()
   expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 5\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nfound"
 }
 
@@ -346,7 +346,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
 
   handler := fun req => do
     if hasHeader req "Content-Type" "application/xml"
-    then return Response.ok "processed xml"
+    then return Response.ok |>.body "processed xml"
     else return Response.new |>.status .unsupportedMediaType |>.body "unsupported"
 
   expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 13\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nprocessed xml"
@@ -366,7 +366,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
 
   handler := fun req => do
     if hasHeader req "Content-Type" "application/xml"
-    then return Response.ok "processed xml"
+    then return Response.ok |>.body "processed xml"
     else return Response.new |>.status .unsupportedMediaType |>.body "unsupported"
 
   expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 13\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nprocessed xml"

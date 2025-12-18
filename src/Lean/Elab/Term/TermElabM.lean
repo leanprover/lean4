@@ -337,6 +337,15 @@ structure Context where
   Fixed term elaborators for supporting `elabToSyntax`.
   -/
   fixedTermElabs : Array FixedTermElabRef := #[]
+  /--
+  The substitution carried out by dependent pattern matching.
+  The left component are the FVar match discriminants of surrounding dependent pattern matches, the
+  right component is the pattern to substitute.
+
+  It is expected that no FVar occurs twice in the left component, and the substitution is in
+  triangular form (i.e., it suffices to substitute once).
+  -/
+  matchRefinementSubst : Array Expr × Array Expr := (#[], #[])
 
 abbrev TermElabM := ReaderT Context $ StateRefT State MetaM
 abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
@@ -815,6 +824,26 @@ def elabToSyntax (fixedTermElab : FixedTermElab) (k : Term → TermElabM α) (hi
   let some fixedTermElab := (← read).fixedTermElabs[idx]?
     | throwError "Fixed term elaborator {idx} not found. There were only {(← read).fixedTermElabs.size} fixed term elaborators registered."
   fixedTermElab.toFixedTermElab expectedType?
+
+/--
+Substitute away discriminants that have been refined by a surrounding dependent pattern match.
+-/
+def substituteRefinedDiscriminants (e : Expr) : TermElabM Expr := do
+  let ctx ← read
+  let (vs, es) := ctx.matchRefinementSubst
+  e.replaceFVarsM vs es
+
+/--
+Adds to the match refinement substitution the given `vars` with the given `exprs`.
+-/
+@[inline]
+def addMatchRefinement (subst : Array Expr × Array Expr) (k : TermElabM α) : TermElabM α := do
+  let ctx ← read
+  let (vs₁, es₁) := ctx.matchRefinementSubst
+  let (vs₂, es₂) := subst
+  let es₁ ← es₁.mapM (·.replaceFVarsM vs₂ es₂)
+  let ctx := { ctx with matchRefinementSubst := (vs₁ ++ vs₂, es₁ ++ es₂) }
+  withReader (fun _ => ctx) k
 
 /--
   Add the given metavariable to the list of pending synthetic metavariables.

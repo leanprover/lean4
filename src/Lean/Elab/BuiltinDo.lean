@@ -137,9 +137,10 @@ def getDoReassignArrowVars (doReassignArrow : TSyntax ``doReassignArrow) : TermE
   let `(doReturn| return $[$e?]?) := stx | throwUnsupportedSyntax
   let returnCont ← getReturnCont
   elabNestedActions (e?.getD ⟨.missing⟩) fun e => do
+  let resultType ← Term.substituteRefinedDiscriminants returnCont.resultType
   let e ← match e.raw with
-    | .missing => mkPUnitUnit
-    | _        => Term.elabTermEnsuringType e returnCont.resultType
+    | .missing => Term.ensureHasType resultType (← mkPUnitUnit)
+    | _        => Term.elabTermEnsuringType e resultType
   dec.elabAsSyntacticallyDeadCode -- emit dead code warnings
   returnCont.k e
 
@@ -157,7 +158,7 @@ def getDoReassignArrowVars (doReassignArrow : TSyntax ``doReassignArrow) : TermE
 
 @[builtin_doElem_elab Lean.Parser.Term.doExpr] def elabDoExpr : DoElab := fun stx dec => do
   let `(doExpr| $e:term) := stx | throwUnsupportedSyntax
-  let mα ← mkMonadicType dec.resultType
+  let mα ← mkMonadicType (← Term.substituteRefinedDiscriminants dec.resultType)
   elabNestedActions e fun e => do
   let e ← Term.elabTermEnsuringType e mα
   dec.mkBindUnlessPure e
@@ -178,10 +179,10 @@ def LetOrReassign.getLetMutTk? (letOrReassign : LetOrReassign) : Option Syntax :
 
 def LetOrReassign.checkMutVars (letOrReassign : LetOrReassign) (vars : Array Ident) : DoElabM Unit :=
   match letOrReassign with
-  | .reassign => throwUnlessMutVarsDeclared vars
+  | .reassign => do
+    throwUnlessMutVarsDeclared vars
   | _         => checkMutVarsForShadowing vars
 
-@[inline]
 def LetOrReassign.registerReassignAliasInfo (letOrReassign : LetOrReassign) (vars : Array Ident) : DoElabM Unit := do
   if letOrReassign matches .reassign then
     let mutVarDefs := (← read).mutVarDefs
@@ -209,7 +210,7 @@ def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDec
     (dec : DoElemCont) : DoElabM Expr := do
   let vars ← getLetDeclVars decl
   letOrReassign.checkMutVars vars
-  let mγ ← mkMonadicType (← read).doBlockResultType
+  let mγ ← mkMonadicType (← getRefinedDoBlockResultType)
   -- For plain variable reassignment, we infer the LHS as a term and use that as the expected type
   -- of the RHS:
   let decl ←
@@ -260,9 +261,9 @@ def elabDoLetOrReassignElse (letOrReassign : LetOrReassign) (pattern rhs : Term)
   let bodyElab := elabWithReassignments letOrReassign vars (elabDoSeq body dec)
   doElabToSyntax m!"else case of {pattern}" otherwiseElab fun otherwise => do
   doElabToSyntax m!"let body of {pattern}" bodyElab fun body => do
-    let mγ ← mkMonadicType (← read).doBlockResultType
+    let mγ ← mkMonadicType (← getRefinedDoBlockResultType)
     elabNestedActions rhs fun rhs => do
-    Term.elabTerm (← `(match (motive := ∀ _, $(← Term.exprToSyntax mγ)) $rhs:term with
+    Term.elabTerm (← `(match $rhs:term with
                        | $pattern => $body
                        | _ => $otherwise)) mγ
 
@@ -319,7 +320,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
 @[builtin_doElem_elab Lean.Parser.Term.doLetRec] def elabDoLetRec : DoElab := fun stx dec => do
   let `(doLetRec| let rec $decls:letRecDecls) := stx | throwUnsupportedSyntax
   let vars ← getLetRecDeclsVars decls
-  let mγ ← mkMonadicType (← read).doBlockResultType
+  let mγ ← mkMonadicType (← getRefinedDoBlockResultType)
   doElabToSyntax m!"let rec body of group {vars}" dec.continueWithUnit fun body => do
     Term.elabTerm (← `(let rec $decls:letRecDecls; $body)) mγ (catchExPostpone := false)
 
@@ -351,7 +352,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
 
 @[builtin_doElem_elab Lean.Parser.Term.doIf] def elabDoIf : DoElab := fun stx dec => do
   let `(doIf|if $cond:doIfCond then $thenSeq $[else if $conds:doIfCond then $thenSeqs]* $[else $elseSeq?]?) := stx | throwUnsupportedSyntax
-  let mγ ← mkMonadicType (← read).doBlockResultType
+  let mγ ← mkMonadicType (← getRefinedDoBlockResultType)
   dec.withDuplicableCont fun dec => do
   let doElemToTerm doElem := doElabToSyntax m!"if branch {doElem}" (ref := doElem) (elabDoSeq doElem dec)
   let condsThens := #[(cond, thenSeq)] ++ Array.zip conds thenSeqs
@@ -378,8 +379,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
         checkMutVarsForShadowing (← getPatternVarsEx pat)
         let x ← Term.mkFreshIdent pat
         elabDoIdDecl x none (← `(doElem| $rhs:term)) (contRef := pat) (declKind := .implDetail) do
-          let motive ← `(∀ _, $(← Term.exprToSyntax mγ))
-          Term.elabTerm (← `(match (motive := $motive) $x:term with | $pat => $then_ | _ => $else_)) mγ (catchExPostpone := false)
+          Term.elabTerm (← `(match $x:term with | $pat => $then_ | _ => $else_)) mγ (catchExPostpone := false)
       | _ => throwUnsupportedSyntax
     else
       match elseSeq? with
@@ -390,18 +390,17 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
 @[builtin_doElem_elab Lean.Parser.Term.doMatch] def elabDoMatch : DoElab := fun stx dec => do
   let `(doMatch| match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*) := stx | throwUnsupportedSyntax
   -- We push the `DoElemCont` into each `match` alternative, altering its result type.
-  -- We *could* try and propagate the `motive` to `dec.resultType`, but that seems complicated.
-  -- So we do not accept custom motives. Note that `checkUnchangedResultType` will check that the
-  -- motive is effectively constant, without us requiring to specify a fixed motive in the expanded
-  -- term `match`. Not specifying this motive has the advantage that generalization still works as
-  -- long as the motive is unaffected. This is important for constructing membership proofs such as
-  -- in `Option.instForIn'`.
-  let provideMotive ← match gen.getD ⟨.missing⟩ with
-    | `(generalizingParam| (generalizing := false)) => pure true
-    | _ => pure false
+  -- We *could* try and propagate the `motive` to `dec.resultType`, but that seems complicated and
+  -- is not really what the user thinks will happen. So we do not accept custom motives.
   if let some motive := motive then
     throwErrorAt motive "Specifying a `match` motive is not supported in `do` blocks.\n\
-      Either try `(generalizing := false)` for the `do` elaborator to insert a constant motive or express your match as a term match."
+      You can specify `(generalizing := false)` to force a non-dependent match."
+  -- We interpret `(generalizing := false)` as a request to perform a non-dependent match.
+  -- (Because a dependent match does not make sense without also generalizing the join point type.)
+  let nonDep :=
+    match gen.getD ⟨.missing⟩ with
+    | `(generalizingParam| (generalizing := false)) => true
+    | _ => false
   -- cf. `expandMatchAlts?`
   let alts : Array (TSyntax ``Term.matchAlt) :=
     if alts.any Term.shouldExpandMatchAlt then
@@ -409,7 +408,8 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
         alts ++ (Term.expandMatchAlt alt)
     else
       alts
-  let mγ ← mkMonadicType (← read).doBlockResultType
+  let mγ ← mkMonadicType (← getRefinedDoBlockResultType)
+  -- trace[Elab.do] "doMatch. mγ: {mγ}, dec.resultType: {dec.resultType}, dec.duplicable: {dec.kind matches .duplicable ..}"
   dec.withDuplicableCont fun dec => do
     let rec elabMatch i (alts : Array (TSyntax ``Term.matchAlt)) := do
       if h : i < alts.size then
@@ -421,17 +421,16 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
             elabMatch (i + 1) (alts.set i (← `(matchAltExpr| | $patterns,* => $rhs)))
         | _ => throwUnsupportedSyntax
       else
-        let mut motive : Term ← Term.exprToSyntax mγ
-        for discr in discrs.getElems do
-          motive ← `(∀ _, $motive)
-        let motive' ← `(motive| (motive := $motive))
-        let motive? :=
-          if let `(generalizingParam| (generalizing := false)) := gen.getD ⟨.missing⟩ then
-            some motive'
+        let motive ← do
+          if !nonDep then
+            pure none
           else
-            none
+            let mut motive : Term ← Term.exprToSyntax mγ
+            for discr in discrs.getElems do
+              motive ← `(∀ _, $motive)
+            some <$> `(motive| (motive := $motive))
         elabNestedActionsArray discrs.getElems fun discrs => do
-        Term.elabTerm (← `(match $[$gen]? $[$motive?]? $[$discrs],* with $alts:matchAlt*)) mγ (catchExPostpone := false)
+        Term.elabTerm (← `(match $[$gen]? $[$motive]? $[$discrs],* with $alts:matchAlt*)) mγ (catchExPostpone := false)
     elabMatch 0 alts
 
 @[builtin_doElem_elab Lean.Parser.Term.doMatchExpr] def elabDoMatchExpr : DoElab := fun stx dec => do
@@ -459,14 +458,14 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
         doElabToSyntax m!"match_expr else alternative" (ref := elseSeq) (elabDoSeq ⟨elseSeq⟩ dec) fun rhs => do
           let alts : TSyntax ``Term.matchExprAlts := ⟨alts.raw.modifyArg 0 fun node => node.setArgs altsArr⟩
           let alts : TSyntax ``Term.matchExprAlts := ⟨alts.raw.modifyArg 1 (·.setArg 3 rhs)⟩
-          let mγ ← mkMonadicType (← read).doBlockResultType
+          let mγ ← mkMonadicType (← getRefinedDoBlockResultType)
           elabNestedActions discr fun discrs => do
           Term.elabTerm (← `(match_expr $discr with $alts)) mγ (catchExPostpone := false)
     elabMatch 0 (alts.raw[0].getArgs.map (⟨·⟩))
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetExpr] def elabDoLetExpr : DoElab := fun stx dec => do
   let `(doLetExpr| let_expr $pattern:matchExprPat := $rhs:term | $otherwise $body:doSeq) := stx | throwUnsupportedSyntax
-  let γ := (← read).doBlockResultType
+  let γ ← getRefinedDoBlockResultType
   let mγ ← mkMonadicType γ
   let otherwise ← elabDoSeq otherwise (← DoElemCont.mkPure γ)
   let otherwise ← Term.exprToSyntax otherwise
@@ -488,7 +487,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
 
 @[builtin_doElem_elab Lean.Parser.Term.doDbgTrace] def elabDoDbgTrace : DoElab := fun stx dec => do
   let `(doDbgTrace| dbg_trace $msg:term) := stx | throwUnsupportedSyntax
-  let mγ ← mkMonadicType (← read).doBlockResultType
+  let mγ ← mkMonadicType (← getRefinedDoBlockResultType)
   let body ← dec.continueWithUnit
   let body ← Term.exprToSyntax body
   elabNestedActions msg fun msg => do
@@ -496,7 +495,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
 
 @[builtin_doElem_elab Lean.Parser.Term.doAssert] def elabDoAssert : DoElab := fun stx dec => do
   let `(doAssert| assert! $cond) := stx | throwUnsupportedSyntax
-  let mγ ← mkMonadicType (← read).doBlockResultType
+  let mγ ← mkMonadicType (← getRefinedDoBlockResultType)
   let body ← dec.continueWithUnit
   let body ← Term.exprToSyntax body
   elabNestedActions cond fun cond => do
@@ -504,7 +503,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
 
 @[builtin_doElem_elab Lean.Parser.Term.doDebugAssert] def elabDoDebugAssert : DoElab := fun stx dec => do
   let `(doDebugAssert| debug_assert! $cond) := stx | throwUnsupportedSyntax
-  let mγ ← mkMonadicType (← read).doBlockResultType
+  let mγ ← mkMonadicType (← getRefinedDoBlockResultType)
   let body ← dec.continueWithUnit
   let body ← Term.exprToSyntax body
   elabNestedActions cond fun cond => do
@@ -576,7 +575,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
   let xs ← Term.elabTermEnsuringType xs ρ
   let mi := (← read).monadInfo
   let σ ← mkFreshExprMVar (mkSort (mkLevelSucc mi.u)) (userName := `σ) -- assigned below
-  let γ := (← read).doBlockResultType
+  let γ := (← getRefinedDoBlockResultType)
   let β ← mkArrow σ (← mkMonadicType γ)
   let mutVars := (← read).mutVars
   let mutVarNames := mutVars.map (·.getId)
@@ -604,8 +603,8 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
     let rootCtx ← getLCtx
     -- We will use `continueKVar` to stand in for the `DoElemCont` `dec` below.
     -- Adding `dec.resultName` to the list of tunneled vars helps with some MVar assignment issues.
-    let continueKVar ← mkFreshContVar γ (mutVarNames.push dec.resultName)
-    let breakKVar ← mkFreshContVar γ mutVarNames
+    let continueKVar ← mkFreshContVar (mutVarNames.push dec.resultName)
+    let breakKVar ← mkFreshContVar mutVarNames
 
     -- Elaborate the loop body, which must have result type `PUnit`.
     -- The `withSynthesizeForDo` is so that we see all jump sites before continuing elaboration.
@@ -631,19 +630,16 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
 
     -- Assign the state tuple type and the initial tuple of states.
     let preS ← σ.mvarId!.withContext do
-      let (tuple, tupleTy) ← mkProdMkN (← useLoopMutVars)
+      let (tuple, tupleTy) ← mkProdMkN (← useLoopMutVars) (mkLevelSucc mi.u)
       synthUsingDefEq "state tuple type" σ tupleTy
-      discard <| Term.ensureHasType (mkSort (mkLevelSucc mi.u)) σ
       pure tuple
 
     -- Synthesize the `continue` and `break` jumps.
     continueKVar.synthesizeJumps do
-      let (tuple, _tupleTy) ← mkProdMkN (← useLoopMutVars)
-      discard <| Term.ensureHasType σ tuple -- instantiate `?u` in `PUnit.unit.{?u}`
+      let (tuple, _tupleTy) ← mkProdMkN (← useLoopMutVars) (mkLevelSucc mi.u)
       return mkApp kcontinue tuple
     breakKVar.synthesizeJumps do
-      let (tuple, _tupleTy) ← mkProdMkN (← useLoopMutVars)
-      discard <| Term.ensureHasType σ tuple -- instantiate `?u` in `PUnit.unit.{?u}`
+      let (tuple, _tupleTy) ← mkProdMkN (← useLoopMutVars) (mkLevelSucc mi.u)
       return mkApp kbreak tuple
 
     -- Elaborate the continuation, now that `σ` is known. It will be the `break` handler.
@@ -670,7 +666,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
     if needBreakJoin then
       mkLetFVars (generalizeNondepLet := false) #[kbreak] app
     else
-      return (← app.abstractM #[kbreak]).instantiate1 breakRhs
+      return ← app.replaceFVarsM #[kbreak] #[breakRhs]
 
 private def elabDoCatch (lifter : ControlLifter) (body : Expr) (catch_ : TSyntax ``doCatch) : DoElabM Expr := do
   let mi := (← read).monadInfo
@@ -688,11 +684,11 @@ private def elabDoCatch (lifter : ControlLifter) (body : Expr) (catch_ : TSyntax
   if eType?.isSome then
     let inst ← Term.mkInstMVar <| mkApp2 (mkConst ``MonadExceptOf [uε, mi.u, mi.v]) ε mi.m
     return mkApp6 (mkConst ``tryCatchThe [uε, mi.u, mi.v])
-      ε mi.m inst lifter.resultType body catch_
+      ε mi.m inst (← getRefinedDoBlockResultType) body catch_
   else
     let inst ← Term.mkInstMVar <| mkApp2 (mkConst ``MonadExcept [uε, mi.u, mi.v]) ε mi.m
     return mkApp6 (mkConst ``MonadExcept.tryCatch [uε, mi.u, mi.v])
-      ε mi.m inst lifter.resultType body catch_
+      ε mi.m inst (← getRefinedDoBlockResultType) body catch_
 
 @[builtin_doElem_elab Lean.Parser.Term.doTry] def elabDoTry : DoElab := fun stx dec => do
   let `(doTry| try $trySeq:doSeq $[$catches]* $[finally $finSeq?]?) := stx | throwUnsupportedSyntax

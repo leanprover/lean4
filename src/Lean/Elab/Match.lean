@@ -812,7 +812,7 @@ where
   The array `toClear` contains variables that must be cleared before elaborating the `rhs` because
   they have been generalized/refined.
 -/
-private def elabMatchAltView (discrs : Array Discr) (alt : MatchAltView) (matchType : Expr) (toClear : Array FVarId) : ExceptT PatternElabException TermElabM (AltLHS × Expr) := withRef alt.ref do
+private def elabMatchAltView (isDep : Bool) (discrs : Array Discr) (alt : MatchAltView) (matchType : Expr) (toClear : Array FVarId) : ExceptT PatternElabException TermElabM (AltLHS × Expr) := withRef alt.ref do
     let (patternVars, alt) ← collectPatternVars alt
     trace[Elab.match] "patternVars: {patternVars}"
     withPatternVars patternVars fun patternVarDecls => do
@@ -829,7 +829,15 @@ private def elabMatchAltView (discrs : Array Discr) (alt : MatchAltView) (matchT
             -- This improves the effectiveness of the `isDefEq` default approximations
             let matchType' ← if matchType.getAppFn.isMVar then mkFreshTypeMVar else pure matchType
             withToClear toClear matchType' do
-              let rhs ← elabTermEnsuringType alt.rhs matchType'
+              let subst ←
+                if !isDep then -- We do not record a substitution unless the match is dependent
+                  pure #[]
+                else
+                  discrs.zip altLHS.patterns.toArray
+                  |>.filter (·.fst.expr.isFVar)
+                  |>.mapM fun (discr, pattern) => return (discr.expr, ← pattern.toExpr)
+              trace[Elab.match] "subst: {subst}"
+              let rhs ← addMatchRefinement subst.unzip <| elabTermEnsuringType alt.rhs matchType'
               -- We use all approximations to ensure the auxiliary type is defeq to the original one.
               unless (← fullApproxDefEq <| isDefEq matchType' matchType) do
                 throwError "Type mismatch: Alternative {← mkHasTypeButIsExpectedMsg matchType' matchType}"
@@ -911,7 +919,7 @@ private def generalize (discrs : Array Discr) (matchType : Expr) (altViews : Arr
         return { discrs, matchType, altViews }
 
 
-private partial def elabMatchAltViews (generalizing? : Option Bool) (discrs : Array Discr) (matchType : Expr) (altViews : Array MatchAltView) : TermElabM (Array Discr × Expr × Array (AltLHS × Expr) × Bool) := do
+private partial def elabMatchAltViews (generalizing? : Option Bool) (isDep : Bool) (discrs : Array Discr) (matchType : Expr) (altViews : Array MatchAltView) : TermElabM (Array Discr × Expr × Array (AltLHS × Expr) × Bool) := do
   loop discrs #[] matchType altViews none
 where
   /--
@@ -921,7 +929,7 @@ where
       : TermElabM (Array Discr × Expr × Array (AltLHS × Expr) × Bool) := do
     let s ← saveState
     let { discrs := discrs', toClear := toClear', matchType := matchType', altViews := altViews', refined } ← generalize discrs matchType altViews generalizing?
-    match (← altViews'.mapM (fun altView => elabMatchAltView discrs' altView matchType' (toClear ++ toClear')) |>.run) with
+    match (← altViews'.mapM (fun altView => elabMatchAltView isDep discrs' altView matchType' (toClear ++ toClear')) |>.run) with
     | Except.ok alts => return (discrs', matchType', alts, first?.isSome || refined)
     | Except.error { patternIdx := patternIdx, pathToIndex := pathToIndex, ex := ex } =>
       let discr := discrs[patternIdx]!
@@ -1074,7 +1082,7 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
     let ⟨discrs, matchType, isDep, altViews⟩ ← elabMatchTypeAndDiscrs discrStxs matchOptMotive altViews expectedType
     let matchAlts ← liftMacroM <| expandMacrosInPatterns altViews
     trace[Elab.match] "matchType: {matchType}"
-    let (discrs, matchType, alts, refined) ← elabMatchAltViews generalizing? discrs matchType matchAlts
+    let (discrs, matchType, alts, refined) ← elabMatchAltViews generalizing? isDep discrs matchType matchAlts
     let isDep := isDep || refined
     /-
      We should not use `synthesizeSyntheticMVarsNoPostponing` here. Otherwise, we will not be

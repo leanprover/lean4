@@ -16,9 +16,9 @@ namespace Lean.Meta
 
 /--
 Given types `tᵢ`, return the tuple type `t₁ × t₂ × … × tₙ`.
-For `n = 0`, return `PUnit`.
+For `n = 0`, return `PUnit` with the given level.
 -/
-def mkProdN (ts : Array Expr) : MetaM Expr := do
+def mkProdN (ts : Array Expr) (u : Level) : MetaM Expr := do
   if h : ts.size > 0 then
     let mut tupleTy := ts.back
     let mut u ← getDecLevel tupleTy
@@ -31,14 +31,13 @@ def mkProdN (ts : Array Expr) : MetaM Expr := do
       ts := ts.pop
     return tupleTy
   else
-    let u ← mkFreshLevelMVar
     return mkConst ``PUnit [u]
 
 /--
 Given expressions `eᵢ`, return the tuple `(e₁, e₂, …, eₙ)` and its type `t₁ × t₂ × … × tₙ`.
-For `n = 0`, return `PUnit.unit` with a fresh level variable to be instantiated by the caller.
+For `n = 0`, return `PUnit.unit` with the given level.
 -/
-def mkProdMkN (es : Array Expr) : MetaM (Expr × Expr) := do
+def mkProdMkN (es : Array Expr) (u : Level) : MetaM (Expr × Expr) := do
   if h : es.size > 0 then
     let mut tuple := es.back
     let mut tupleTy ← inferType tuple
@@ -54,7 +53,6 @@ def mkProdMkN (es : Array Expr) : MetaM (Expr × Expr) := do
       es := es.pop
     return (tuple, tupleTy)
   else
-    let u ← mkFreshLevelMVar
     return (mkConst ``PUnit.unit [u], mkConst ``PUnit [u])
 
 /-- Given a product `(e₁, e₂)` of type `t₁ × t₂`, return `(e₁, t₁, e₂, t₂)`. -/

@@ -10,7 +10,7 @@ public import Init.Omega
 
 public section
 
-namespace Std
+namespace Std.Legacy
 -- We put `Range` in `Init` because we want the notation `[i:j]`  without importing `Std`
 -- We don't put `Range` in the top-level namespace to avoid collisions with user defined types
 structure Range where
@@ -74,15 +74,15 @@ macro_rules
   | `([ : $stop : $step ]) => `({ stop := $stop, step := $step, step_pos := by decide : Range })
 
 end Range
-end Std
+end Std.Legacy
 
-theorem Membership.mem.upper {i : Nat} {r : Std.Range} (h : i ∈ r) : i < r.stop := h.2.1
+theorem Membership.mem.upper {i : Nat} {r : Std.Legacy.Range} (h : i ∈ r) : i < r.stop := h.2.1
 
-theorem Membership.mem.lower {i : Nat} {r : Std.Range} (h : i ∈ r) : r.start ≤ i := h.1
+theorem Membership.mem.lower {i : Nat} {r : Std.Legacy.Range} (h : i ∈ r) : r.start ≤ i := h.1
 
-theorem Membership.mem.step {i : Nat} {r : Std.Range} (h : i ∈ r) : (i - r.start) % r.step = 0 := h.2.2
+theorem Membership.mem.step {i : Nat} {r : Std.Legacy.Range} (h : i ∈ r) : (i - r.start) % r.step = 0 := h.2.2
 
-theorem Membership.get_elem_helper {i n : Nat} {r : Std.Range} (h₁ : i ∈ r) (h₂ : r.stop = n) :
+theorem Membership.get_elem_helper {i n : Nat} {r : Std.Legacy.Range} (h₁ : i ∈ r) (h₂ : r.stop = n) :
     i < n := h₂ ▸ h₁.2.1
 
 macro_rules

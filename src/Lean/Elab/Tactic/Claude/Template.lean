@@ -86,7 +86,7 @@ def findDeclStart (source : String) (posIdx : Nat) : Nat := Id.run do
     let foundDecl := declKeywords.any fun kw =>
       linePrefix.startsWith kw &&
         (linePrefix.length == kw.length ||
-         (kw.length < linePrefix.length && !(linePrefix.get! ⟨kw.length⟩).isAlphanum))
+         (kw.length < linePrefix.length && !(String.Pos.Raw.get linePrefix ⟨kw.length⟩).isAlphanum))
 
     if foundDecl then
       declStart := lineStart

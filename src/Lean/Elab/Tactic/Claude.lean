@@ -35,7 +35,7 @@ The tactic requires one of the following environment variable configurations:
 
 ## Options
 
-- `set_option tactic.claude.model "claude-opus-4-20250514"` - Choose model (default: Opus)
+- `set_option tactic.claude.model "claude-sonnet-4"` - Choose model (default: Opus)
 - `set_option tactic.claude.template "/path/to/template.txt"` - Custom prompt template
 - `set_option trace.claude.prompt true` - Show the prompt sent to Claude
 

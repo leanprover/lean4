@@ -24,8 +24,6 @@ namespace Normalize
 
 section Reduce
 
-attribute [bv_normalize] BitVec.sub_eq_add_neg
-
 @[bv_normalize]
 theorem BitVec.le_ult (x y : BitVec w) : (x ≤ y) ↔ ((!y.ult x) = true) := by
   have : x ≤ y ↔ (x.ule y = true) := by
@@ -164,7 +162,6 @@ attribute [bv_normalize] BitVec.not_not
 attribute [bv_normalize] decide_true
 attribute [bv_normalize] decide_false
 attribute [bv_normalize] decide_not
-attribute [bv_normalize] BitVec.cast_eq
 
 end Constant
 
@@ -258,11 +255,6 @@ theorem BitVec.add_const_right' {a : BitVec w} :
 
 attribute [bv_normalize] BitVec.mul_zero
 attribute [bv_normalize] BitVec.zero_mul
-
-
-attribute [bv_normalize] BitVec.shiftLeft_ofNat_eq
-attribute [bv_normalize] BitVec.ushiftRight_ofNat_eq
-attribute [bv_normalize] BitVec.sshiftRight'_ofNat_eq_sshiftRight
 
 @[bv_normalize]
 theorem BitVec.neg_mul (x y : BitVec w) : (~~~x + 1#w) * y = ~~~(x * y) + 1#w := by
@@ -370,10 +362,6 @@ theorem BitVec.udiv_ofNat_eq_of_lt (w : Nat) (x : BitVec w) (n : Nat) (k : Nat) 
   have : BitVec.ofNat w n = BitVec.twoPow w k := by simp [bitvec_to_nat, hk]
   rw [this, BitVec.udiv_twoPow_eq_of_lt (hk := by omega)]
 
-attribute [bv_normalize] BitVec.extractLsb'_and
-attribute [bv_normalize] BitVec.extractLsb'_xor
-
-@[bv_normalize]
 theorem BitVec.extractLsb'_if {x y : BitVec w} (s l : Nat) :
     BitVec.extractLsb' s l (bif c then x else y) = bif c then (BitVec.extractLsb' s l x) else (BitVec.extractLsb' s l y) := by
   cases c <;> simp

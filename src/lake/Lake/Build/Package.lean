@@ -26,12 +26,8 @@ namespace Lake
 open Lean (Name)
 
 /-- Fetch the package's direct dependencies. -/
-private def Package.recFetchDeps (self : Package) : FetchM (Job (Array Package)) := ensureJob do
-  (pure ·) <$> self.depConfigs.mapM fun cfg => do
-    let some dep ← findPackageByName? cfg.name
-      | error s!"{self.prettyName}: package not found for dependency '{cfg.name}' \
-        (this is likely a bug in Lake)"
-    return dep
+private def Package.recFetchDeps (self : Package) : FetchM (Job (Array Package)) := do
+  return Job.pure self.depPkgs
 
 /-- The `PackageFacetConfig` for the builtin `depsFacet`. -/
 public def Package.depsFacetConfig : PackageFacetConfig depsFacet :=
@@ -39,10 +35,7 @@ public def Package.depsFacetConfig : PackageFacetConfig depsFacet :=
 
 /-- Compute a topological ordering of the package's transitive dependencies. -/
 private def Package.recComputeTransDeps (self : Package) : FetchM (Job (Array Package)) := ensureJob do
-  (pure ·.toArray) <$> self.depConfigs.foldlM (init := OrdPackageSet.empty) fun deps cfg => do
-    let some dep ← findPackageByName? cfg.name
-      | error s!"{self.prettyName}: package not found for dependency '{cfg.name}' \
-        (this is likely a bug in Lake)"
+  (pure ·.toArray) <$> self.depPkgs.foldlM (init := OrdPackageSet.empty) fun deps dep => do
     let depDeps ← (← fetch <| dep.transDeps).await
     return depDeps.foldl (·.insert ·) deps |>.insert dep
 

@@ -132,7 +132,7 @@ public protected def Dependency.toToml (dep : Dependency) (t : Table  := {}) : T
   let t := t
     |>.insert `name dep.name
     |>.insertD `scope dep.scope ""
-    |>.smartInsert `version dep.version?
+    |>.smartInsert `version dep.version.toString?
   let t :=
     if let some src := dep.src? then
       match src with

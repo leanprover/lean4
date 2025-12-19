@@ -297,30 +297,31 @@ public instance : DecodeToml DependencySrc := ⟨fun v => do DependencySrc.decod
 public protected def Dependency.decodeToml (t : Table) (ref := Syntax.missing) : EDecodeM Dependency := ensureDecode do
   let name ← stringToLegalOrSimpleName <$> t.tryDecode `name ref
   let rev? ← t.tryDecode? `rev
-  let src? : Option DependencySrc ← id do
-    if let some dir ← t.tryDecode? `path then
+  let src? : Option DependencySrc ← tryDecode do
+    if let some dir ← t.decode? `path then
       return some <| .path dir
     else if let some g := t.find? `git then
       match g with
-      | .string _ url =>
+      | .string _ url => ensureDecode do
         return some <| .git url rev? (← t.tryDecode? `subDir)
-      | .table ref t =>
+      | .table ref t => ensureDecode do
         return some <| .git (← t.tryDecode `url ref) rev? (← t.tryDecode? `subDir)
-      | _ =>
-        modify (·.push <| .mk g.ref "expected string or table")
-        return default
+      | _ => throwDecodeErrorAt g.ref "expected string or table"
     else
-      t.tryDecode? `source
+      t.decode? `source
   let scope ← t.tryDecodeD `scope ""
-  let version? ← id do
-    if let some ver ← t.tryDecode? `version then
-      return some ver
+  let version : InputVer ← tryDecode do
+    if let some val := t.find? `version then
+      let ver ← val.decodeString
+      match InputVer.parse ver with
+      | .ok ver => return ver
+      | .error e =>  throwDecodeErrorAt val.ref s!"invalid dependency version range: {e}"
     else if let some rev := rev? then
-      return if src?.isSome then none else some s!"git#{rev}"
+      return .git rev
     else
-      return none
+      return .none
   let opts ← t.tryDecodeD `options {}
-  return {name, scope, version?, src?, opts}
+  return {name, scope, version, src?, opts}
 
 public instance : DecodeToml Dependency := ⟨fun v => do Dependency.decodeToml (← v.decodeTable) v.ref⟩
 

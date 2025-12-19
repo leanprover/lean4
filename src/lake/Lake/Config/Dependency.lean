@@ -8,8 +8,11 @@ module
 prelude
 public import Init.Dynamic
 public import Init.System.FilePath
+public import Init.Data.ToString.Name
 public import Lean.Data.NameMap.Basic
-import Init.Data.ToString.Name
+public import Lake.Util.Git
+public import Lake.Util.Version
+import Init.Data.String.TakeDrop
 
 /- # Package Dependency Configuration
 
@@ -20,6 +23,42 @@ Lake package (i.e., the information contained in the `require` DSL syntax).
 open System Lean
 
 namespace Lake
+
+/-- A version targeted by a dependency (e.g., in a `require`). -/
+public inductive InputVer
+/-- No version was specified. -/
+| protected none
+/--
+A Git revision to resolve to a commit hash.
+
+This is specified by an  `@ git <rev>`  clause in Lean or `rev = <rev>` field in TOML.
+-/
+| protected git (rev : GitRev)
+/--
+A semantic version range of acceptable versions.
+
+This is specified by an `@ <ver>` clause in Lean or `verison = <ver>` field in TOML.
+-/
+| protected ver (ver : VerRange)
+deriving Inhabited, Repr
+
+namespace InputVer
+
+public def parse (ver : String) : Except String InputVer :=
+  if let some ver := ver.dropPrefix? "git#" then
+    return .git ver.toString
+  else
+    match VerRange.parse ver with
+    | .ok ver => return .ver ver
+    | .error e => throw e
+
+public def toString? (self : InputVer) : Option String :=
+  match self with
+  | .none => none
+  | .git rev => some s!"git#{rev}"
+  | .ver ver => some ver.toString
+
+end InputVer
 
 /--
 The source of a `Dependency`.
@@ -52,9 +91,8 @@ public structure Dependency where
   scope : String
   /--
   The target version of the dependency.
-  A Git revision can be specified with the syntax `git#<rev>`.
   -/
-  version? : Option String
+  version : InputVer
   /--
   The source of a dependency.
   If none, looks up the dependency in the default registry (e.g., Reservoir).
@@ -67,6 +105,26 @@ public structure Dependency where
   opts : NameMap String
   deriving Inhabited, TypeName
 
-/-- The full name of a dependency (i.e., `<scope>/<name>`)-/
-public def Dependency.fullName (dep : Dependency) : String :=
-  s!"{dep.scope}/{dep.name.toString}"
+namespace Dependency
+
+/-- Returns the directory name used for storing the materialized depedency. -/
+@[inline] public def dirName (dep : Dependency) : String :=
+  dep.name.toString (escape := false)
+
+/-- Returns the name of the dependency formatted for printing. -/
+@[inline] public def prettyName (dep : Dependency) : String :=
+  dep.name.toString (escape := false)
+
+/-- Returns the name of the dependency formatted for lookup on Reservoir. -/
+@[inline] public def reservoirName (dep : Dependency) : String :=
+  dep.name.toString (escape := false)
+
+/-- Returns the full name of the dependency  (i.e., `<scope>/<name>`) formatted for printing. -/
+@[inline] public def fullName (dep : Dependency) : String :=
+  s!"{dep.scope}/{dep.prettyName}"
+
+/--  Returns a printable string which uniquely identifies this dependency for the resolver. -/
+@[inline] public def resolverDescr (dep : Dependency) : String :=
+  let name :=  dep.name.toString (escape := false)
+  let name := dep.version.toString?.elim name (s!"{name}@{·}")
+  if dep.scope.isEmpty then name else s!"{dep.scope}/{name}"

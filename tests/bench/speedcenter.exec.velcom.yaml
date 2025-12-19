@@ -640,3 +640,9 @@
   run_config:
     <<: *time
     cmd: lean ../lean/run/grind_ring_5.lean
+- attributes:
+    description: engine_let_forall_exists_and.lean
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean --tstack=16384 engine_let_forall_exists_and.lean

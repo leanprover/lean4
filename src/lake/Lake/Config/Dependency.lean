@@ -52,6 +52,8 @@ public def parse (ver : String) : Except String InputVer :=
     | .ok ver => return .ver ver
     | .error e => throw e
 
+instance : DecodeVersion InputVer := ⟨InputVer.parse⟩
+
 public def toString? (self : InputVer) : Option String :=
   match self with
   | .none => none

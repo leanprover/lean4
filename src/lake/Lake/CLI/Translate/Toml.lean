@@ -132,14 +132,24 @@ public protected def Dependency.toToml (dep : Dependency) (t : Table  := {}) : T
   let t := t
     |>.insert `name dep.name
     |>.insertD `scope dep.scope ""
-    |>.smartInsert `version dep.version.toString?
+  let t :=
+    match dep.version with
+    | .none => t
+    | .git rev =>
+      match dep.src? with
+      | some (.git (rev := some gitRev) ..) =>
+        if gitRev == rev then
+          t -- `rev` will be set below
+        else t.insert `version s!"git#{rev}"
+      | _ => t.insert `rev rev
+    | .ver ver => t.insert `version ver.toString
   let t :=
     if let some src := dep.src? then
       match src with
       | .path dir => t.insert `path (toToml dir)
-      | .git url rev subDir? =>
+      | .git url rev? subDir? =>
         t.insert `git url
-        |>.smartInsert `rev rev
+        |>.smartInsert `rev rev?
         |>.smartInsert `subDir subDir?
     else
       t

@@ -106,9 +106,9 @@ def materializeGitRepoMultiVersion
   (name : String) (wsDir : FilePath) (repo : GitRepo) (url : String) (rev : GitRev := .head)
 : LoggerIO GitRev := do
   let url ← id do
-    let urlAsDir := wsDir / url
-    if (← FilePath.pathExists urlAsDir) then
-      return (← IO.FS.realPath urlAsDir).toString
+    let urlAsPath := wsDir / url
+    if (← urlAsPath.pathExists) then
+      return (← IO.FS.realPath urlAsPath).toString
     else
       return url
   unless (← repo.dirExists) do

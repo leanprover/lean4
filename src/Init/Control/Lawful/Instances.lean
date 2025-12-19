@@ -157,7 +157,7 @@ namespace OptionT
   simp [OptionT.run, OptionT.lift, bind, OptionT.bind, OptionT.mk]
 
 @[simp, grind =] theorem bind_throw [Monad m] [LawfulMonad m] (f : α → OptionT m β) : (throw e >>= f) = throw e := by
-  simp [throw, throwThe, MonadExceptOf.throw, bind, OptionT.bind, OptionT.mk, OptionT.fail]
+  simp [throw, throwThe, MonadExceptOf.throw, bind, OptionT.bind, OptionT.fail]
 
 @[simp, grind =] theorem run_bind (f : α → OptionT m β) [Monad m] :
     (x >>= f).run = Option.elimM x.run (pure none) (fun x => (f x).run) := by
@@ -172,7 +172,7 @@ namespace OptionT
     : (f <$> x).run = Option.map f <$> x.run := by
   simp [Functor.map, Option.map, ←bind_pure_comp]
   apply bind_congr
-  intro a; cases a <;> simp [OptionT.pure, OptionT.mk]
+  intro a; cases a <;> simp [OptionT.pure]
 
 @[simp, grind =] theorem run_monadMap [MonadFunctorT n m] (f : {β : Type u} → n β → n β) (x : OptionT m α)
     : (monadMap @f x : OptionT m α).run = monadMap @f (x.run) := rfl
@@ -232,10 +232,10 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (OptionT m) where
 
 @[simp] theorem map_failure [Monad m] [LawfulMonad m] {α β : Type _} (f : α → β) :
     f <$> (failure : OptionT m α) = (failure : OptionT m β) := by
-  simp [OptionT.mk, Functor.map, Alternative.failure, OptionT.fail, OptionT.bind]
+  simp [Functor.map, Alternative.failure, OptionT.fail, OptionT.bind]
 
-@[simp] theorem run_orElse [Monad m] (x : OptionT m α) (y : OptionT m α) :
-    (x <|> y).run = Option.elimM x.run y.run (fun x => pure (some x)) :=
+@[simp] theorem run_orElse [Monad m] (x : OptionT m α) (y : Unit → OptionT m α) :
+    (OrElse.orElse x y).run = Option.elimM x.run (y ()).run (fun x => pure (some x)) :=
   bind_congr fun | some _ => by rfl | none => by rfl
 
 /-! Note that the `MonadControl` instance for `OptionT` is not monad-generic. -/
@@ -449,6 +449,9 @@ end StateT
 
 namespace EStateM
 
+@[simp, grind =] theorem run_mk (f : σ → Result ε σ α) (s : σ) :
+    EStateM.run (.mk f : EStateM ε σ α) s = f s := rfl
+
 @[simp, grind =] theorem run_pure (a : α) (s : σ) :
     EStateM.run (pure a : EStateM ε σ α) s = .ok a s := rfl
 
@@ -467,16 +470,19 @@ namespace EStateM
 @[simp, grind =] theorem run_throw (e : ε) (s : σ):
     EStateM.run (throw e : EStateM ε σ PUnit) s = .error e s := rfl
 
+@[ext, grind ext] theorem ext {x y : EStateM ε σ α} (h : ∀ s, x.run s = y.run s) : x = y :=
+  funext h
+
 instance : LawfulMonad (EStateM ε σ) := .mk'
-  (id_map := fun x => funext <| fun s => by
-    dsimp only [EStateM.instMonad, EStateM.map]
-    match x s with
+  (id_map := fun x => ext <| fun s => by
+    dsimp only [EStateM.instMonad, EStateM.map, EStateM.run_mk]
+    match x.run s with
     | .ok _ _ => rfl
     | .error _ _ => rfl)
   (pure_bind := fun _ _ => by rfl)
-  (bind_assoc := fun x _ _ => funext <| fun s => by
-    dsimp only [EStateM.instMonad, EStateM.bind]
-    match x s with
+  (bind_assoc := fun x _ _ => ext <| fun s => by
+    dsimp only [EStateM.instMonad, EStateM.bind, EStateM.run_mk]
+    match x.run s with
     | .ok _ _ => rfl
     | .error _ _ => rfl)
   (map_const := fun _ _ => rfl)

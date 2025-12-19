@@ -112,7 +112,7 @@ def materializeGitRepoMultiVersion
     else
       return url
   unless (← repo.dirExists) do
-    logInfo s!"{name}: initializing Git repository"
+    logVerbose s!"{name}: initializing Git repository"
     IO.FS.createDirAll repo.dir
     repo.bareInit
   let some rev ← repo.fetchRevision? url rev

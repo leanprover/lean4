@@ -16,7 +16,8 @@ source ../../lake/tests/common.sh
 # across the versions, but they both privately make use of changed API (i.e.,
 # `poorly_named_lemma` and its rename, `add_left_comm`).
 #
-# Currently, this causes a version clash, which is tested here.
+# Without multi-version workspaces, this causes a version clash. With them,
+# Lake can automagically make this work. This test verifies that behavior.
 
 # ---
 # Setup
@@ -58,6 +59,7 @@ C_REV=`git rev-parse HEAD`
 popd
 
 pushd DiamondExample-D
+sed_i '/multiVersion/ s/true/false/' lakefile.toml
 sed_i s/v2/v1/ lakefile.toml
 $LAKE update
 init_git
@@ -76,15 +78,25 @@ echo "# TESTS"
 
 cd DiamondExample-D
 
-# Test build succeeds on v1
+echo "# multiVersion = false"
+
+# Test v1 build succeeds w/o mult-version workspaces
 test_cmd git switch v1 --detach
 test_run build
 
-# Test build fails on v2
+# Test v2 build fails w/o multi-version workspaces
 test_cmd git switch v2 --detach
+test_err 'Unknown identifier `poorly_named_lemma`' build
+
+echo "# multiVersion = true"
+
+# Test v2 build succeeds w/ multi-version workspaces
+sed_i '/multiVersion/ s/false/true/' lakefile.toml
+test_run update
 test_run build
 
-# Test build with different package names
+# Test v2 build with different package names
+# (multi-version workspaces are still required for module disambiguation)
 sed_i '/name/ s/A/A-v1/' .lake/packages/DiamondExample-B/$B_REV/lakefile.toml
 sed_i '/name/ s/A/A-v2/' .lake/packages/DiamondExample-C/$C_REV/lakefile.toml
 test_run update

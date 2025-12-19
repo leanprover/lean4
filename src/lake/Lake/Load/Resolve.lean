@@ -211,23 +211,39 @@ private def reuseManifest (ws : Workspace) (toUpdate : NameSet) : UpdateM PUnit 
       manifest.packages.forM fun entry => do
         unless entry.inherited || toUpdate.contains entry.name do
           addEntry ws entry
-    -- Move packages directory
+    -- Reuse or delete packages directory
     if let some oldRelPkgsDir := manifest.packagesDir? then
       let oldPkgsDir := ws.dir / oldRelPkgsDir
-      if oldRelPkgsDir.normalize != ws.relPkgsDir.normalize && (← oldPkgsDir.pathExists) then
-        logInfo s!"workspace packages directory changed; \
-          renaming '{oldPkgsDir}' to '{ws.pkgsDir}'"
-        let doRename : IO Unit := do
-          createParentDirs ws.pkgsDir
-          IO.FS.rename oldPkgsDir ws.pkgsDir
-        if let .error e ← doRename.toBaseIO then
-          error s!"could not rename workspace packages directory: {e}"
+      if (← oldPkgsDir.pathExists) then
+        if manifest.multiVersion != ws.isMultiVersion then
+          tryDeletePackagesDir oldPkgsDir
+        -- Rename it
+        else if oldRelPkgsDir.normalize != ws.relPkgsDir.normalize then
+          logInfo s!"workspace packages directory changed, \
+            renaming\n  {oldPkgsDir}\nto\n  {ws.pkgsDir}"
+          let doRename : IO Unit := do
+            createParentDirs ws.pkgsDir
+            IO.FS.rename oldPkgsDir ws.pkgsDir
+          if let .error e ← doRename.toBaseIO then
+            error s!"could not rename workspace packages directory: {e}"
+      else if manifest.multiVersion != ws.isMultiVersion then
+        tryDeletePackagesDir ws.pkgsDir
   | .error (.noFileOrDirectory ..) =>
     logInfo s!"{rootName}: no previous manifest, creating one from scratch"
   | .error e =>
     unless toUpdate.isEmpty do
       liftM (m := IO) <| throw e -- only ignore manifest on a bare `lake update`
     logWarning s!"{rootName}: ignoring previous manifest because it failed to load: {e}"
+where
+  tryDeletePackagesDir pkgsDir : LoggerIO PUnit := do
+    if System.Platform.isWindows then
+      -- Deleting git repositories via IO.FS.removeDirAll does not work reliably on windows
+      logInfo s!"mutli-version workspace setting changed; \
+        you may need to delete the packages directory manually:\n  {pkgsDir}"
+    else
+      logInfo s!"mutli-version workspace setting changed, \
+        deleting packages directory:\n  {pkgsDir}"
+      IO.FS.removeDirAll pkgsDir
 
 /-- Add a package dependency's manifest entries to the update state. -/
 private def addDependencyEntries (ws : Workspace) (dep : MaterializedDep) : UpdateM PUnit := do

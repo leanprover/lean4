@@ -379,7 +379,6 @@ private def fetchImportInfo
       logError s!"{fileName}: module imports itself"
       return .error
     let ws ← getWorkspace
-    --logInfo s!"multi-version workspace: {if ws.isMultiVersion then "enabled" else "disabled"}"
     let multiVersion := !imp.isExported ∧ ws.isMultiVersion ∧ pkg?.isSome
     let mods :=
       if h : multiVersion then

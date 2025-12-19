@@ -247,13 +247,13 @@ builtin_simproc [bv_normalize] bv_add ((_ : BitVec _) + (_ : BitVec _)) := fun e
       return some <| .visit { expr := expr, proof? := some proof }
 
     if let some step ← notAdd then return step
-    else if let some step ← addNot then return step
-    else if let some step ← addNeg then return step
-    else if let some step ← negAdd then return step
-    else if let some step ← addNegMul then return step
-    else if let some step ← addShiftLeft then return step
-    else if let some step ← shiftLeftAdd then return step
-    else return .continue
+    if let some step ← addNot then return step
+    if let some step ← addNeg then return step
+    if let some step ← negAdd then return step
+    if let some step ← addNegMul then return step
+    if let some step ← addShiftLeft then return step
+    if let some step ← shiftLeftAdd then return step
+    return .continue
 
 builtin_simproc [bv_normalize] shiftRight ((_ : BitVec _) >>> (_ : BitVec _)) := fun e => do
   let_expr HShiftRight.hShiftRight ty _ _ _ lhs rhs := e | return .continue
@@ -395,14 +395,14 @@ builtin_simproc [bv_normalize] bool_and ((_ : Bool) && (_ : Bool)) := fun e => d
       return some <| .visit { expr := expr, proof? := some proof }
 
     if let some step ← falseAnd then return step
-    else if let some step ← andFalse then return step
-    else if let some step ← andTrue then return step
-    else if let some step ← trueAnd then return step
-    else if let some step ← andNotSelf then return step
-    else if let some step ← notAndSelf then return step
-    else if let some step ← andSelfLeft then return step
-    else if let some step ← andSelfRight then return step
-    else return .continue
+    if let some step ← andFalse then return step
+    if let some step ← andTrue then return step
+    if let some step ← trueAnd then return step
+    if let some step ← andNotSelf then return step
+    if let some step ← notAndSelf then return step
+    if let some step ← andSelfLeft then return step
+    if let some step ← andSelfRight then return step
+    return .continue
 
 builtin_simproc [bv_normalize] bv_beq ((_ : BitVec _) == (_ : BitVec _)) := fun e => do
   let_expr BEq.beq ty _ lhs rhs := e | return .continue
@@ -609,19 +609,19 @@ builtin_simproc [bv_normalize] bv_beq ((_ : BitVec _) == (_ : BitVec _)) := fun 
       return some <| .visit { expr, proof? := some proof }
 
     if let some step ← addInj then return step
-    else if let some step ← notEqComm then return step
-    else if let some step ← notEqComm' then return step
-    else if let some step ← andEqAllOnes then return step
-    else if let some step ← allOnesEqAnd then return step
-    else if let some step ← addConstBeqConst then return step
-    else if let some step ← constAddBeqConst then return step
-    else if let some step ← constBeqAddConstBeq then return step
-    else if let some step ← constBeqConstAddBeq then return step
-    else if let some step ← addLeftEqSelf then return step
-    else if let some step ← addRightEqSelf then return step
-    else if let some step ← selfEqAddRight then return step
-    else if let some step ← selfEqAddLeft then return step
-    else return .continue
+    if let some step ← notEqComm then return step
+    if let some step ← notEqComm' then return step
+    if let some step ← andEqAllOnes then return step
+    if let some step ← allOnesEqAnd then return step
+    if let some step ← addConstBeqConst then return step
+    if let some step ← constAddBeqConst then return step
+    if let some step ← constBeqAddConstBeq then return step
+    if let some step ← constBeqConstAddBeq then return step
+    if let some step ← addLeftEqSelf then return step
+    if let some step ← addRightEqSelf then return step
+    if let some step ← selfEqAddRight then return step
+    if let some step ← selfEqAddLeft then return step
+    return .continue
 
 builtin_simproc [bv_normalize] bool_beq ((_ : Bool) == (_ : Bool)) := fun e => do
   let_expr BEq.beq _ _ lhs rhs := e | return .continue
@@ -654,10 +654,10 @@ builtin_simproc [bv_normalize] bool_beq ((_ : Bool) == (_ : Bool)) := fun e => d
       return some <| .visit { expr := llhs, proof? := some proof }
 
     if let some step ← notSelf then return step
-    else if let some step ← selfNot then return step
-    else if let some step ← selfLeft then return step
-    else if let some step ← selfRight then return step
-    else return .continue
+    if let some step ← selfNot then return step
+    if let some step ← selfLeft then return step
+    if let some step ← selfRight then return step
+    return .continue
 
 builtin_simproc [bv_normalize] cast (BitVec.cast _ _) := fun e => do
   let_expr BitVec.cast nExpr mExpr hExpr targetExpr := e | return .continue
@@ -714,8 +714,8 @@ builtin_simproc [bv_normalize] ult (BitVec.ult _ _) := fun e => do
       return some <| .visit { expr := expr, proof? := some proof }
 
     if let some step ← maxUlt then return step
-    else if let some step ← lt_allOnes then return step
-    else return .continue
+    if let some step ← lt_allOnes then return step
+    return .continue
 
 builtin_simproc [bv_normalize] cond_simplify (cond _ _ _) := fun e => do
   let_expr cond α c thenExpr elseExpr := e | return .continue
@@ -813,12 +813,12 @@ builtin_simproc [bv_normalize] cond_simplify (cond _ _ _) := fun e => do
       return some <| .visit { expr, proof? := some proof }
 
     if let some step ← iteThenIte then return step
-    else if let some step ← iteElseIte then return step
-    else if let some step ← iteThenIte' then return step
-    else if let some step ← iteElseIte' then return step
-    else if let some step ← iteThenIte'' then return step
-    else if let some step ← iteElseIte'' then return step
-    else return .continue
+    if let some step ← iteElseIte then return step
+    if let some step ← iteThenIte' then return step
+    if let some step ← iteElseIte' then return step
+    if let some step ← iteThenIte'' then return step
+    if let some step ← iteElseIte'' then return step
+    return .continue
 
 end SimpleUnifiers
 

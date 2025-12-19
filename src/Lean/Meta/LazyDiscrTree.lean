@@ -802,10 +802,17 @@ structure Cache where
 
 def Cache.empty (ngen : NameGenerator) : Cache := { ngen := ngen, core := {}, «meta» := {} }
 
+/-- Check if a private name belongs to the given module -/
+private def isPrivateNameOf (declName : Name) (mainModule : Name) : Bool :=
+  if let some pfx := privatePrefix? declName then
+    pfx == Name.mkNum (privateHeader ++ mainModule) 0
+  else
+    false
+
 def blacklistInsertion (env : Environment) (declName : Name) : Bool :=
   !allowCompletion env declName
   || declName == ``sorryAx
-  || declName.isInternalDetail
+  || (declName.isInternalDetail && !isPrivateNameOf declName env.header.mainModule)
   || (declName matches .str _ "inj")
   || (declName matches .str _ "noConfusionType")
 

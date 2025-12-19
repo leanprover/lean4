@@ -17,6 +17,33 @@ open Lean
 
 /-! ## Anthropic API Backend -/
 
+/-- Format an API error response into a user-friendly message -/
+def formatAPIError (errorType : String) (message : String) : String :=
+  match errorType with
+  | "rate_limit_error" =>
+    s!"Rate limit exceeded: {message}\n\nTry again in a few moments, or check your usage tier at https://console.anthropic.com"
+  | "overloaded_error" =>
+    s!"API overloaded: {message}\n\nThe API is temporarily overloaded. Please try again shortly."
+  | "authentication_error" =>
+    s!"Authentication failed: {message}\n\nCheck that ANTHROPIC_API_KEY is set correctly."
+  | "invalid_api_key" =>
+    s!"Invalid API key: {message}\n\nVerify your API key at https://console.anthropic.com"
+  | "permission_error" =>
+    s!"Permission denied: {message}\n\nYour API key may not have access to this model."
+  | "not_found_error" =>
+    s!"Model not found: {message}\n\nCheck the model name in tactic.claude.model option."
+  | "invalid_request_error" =>
+    s!"Invalid request: {message}"
+  | _ =>
+    s!"API error ({errorType}): {message}"
+
+/-- Check if JSON response is an error and extract error details -/
+def checkAPIError (json : Json) : Option (String × String) := do
+  let errorObj ← json.getObjVal? "error" |>.toOption
+  let errorType ← errorObj.getObjValAs? String "type" |>.toOption
+  let message ← errorObj.getObjValAs? String "message" |>.toOption
+  return (errorType, message)
+
 /-- Call Anthropic Messages API and return (content, inputTokens, outputTokens) -/
 def callClaudeAPI (prompt : String) (model : String) : IO (String × Nat × Nat) := do
   let some apiKey ← IO.getEnv "ANTHROPIC_API_KEY"
@@ -55,7 +82,11 @@ def callClaudeAPI (prompt : String) (model : String) : IO (String × Nat × Nat)
     | .ok j => pure j
     | .error err => throw <| IO.userError s!"Failed to parse API response: {err}"
 
-  -- Extract content from response
+  -- Check for API error response
+  if let some (errorType, message) := checkAPIError json then
+    throw <| IO.userError (formatAPIError errorType message)
+
+  -- Extract content from successful response
   let content ← match json.getObjVal? "content" with
     | .ok c => pure c
     | .error err => throw <| IO.userError s!"No 'content' field in response: {err}\n\nFull response:\n{json}"

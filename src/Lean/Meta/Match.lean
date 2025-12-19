@@ -11,6 +11,7 @@ public import Lean.Meta.Match.Match
 public import Lean.Meta.Match.CaseValues
 public import Lean.Meta.Match.CaseArraySizes
 public import Lean.Meta.Match.MatchEqs
+public import Lean.Meta.Match.Grind
 
 public section
 

@@ -44,16 +44,20 @@ def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment) : MacroM 
   let ver ←
     if let some ver := ver? then withRef ver do
       match ver with
-      | `(verSpec|git $ver) => ``(some <| InputVer.git $ver)
-      | `(verSpec|$ver:term) => ``(some <| InputVer.ver <| decode_version% $ver)
+      | `(verSpec|git $rev) => ``(InputVer.git $rev)
+      | `(verSpec|$ver:term) => ``((eval_ver% $ver : InputVer))
       | _ => Macro.throwErrorAt ver "ill-formed version syntax"
+    else if let some src := src? then
+      match src with
+      | `(fromSource|git $_ @ $rev $[/ $_]?) => withRef rev ``(InputVer.git $rev)
+      | _ => ``(InputVer.none)
     else
-      ``(none)
+       ``(InputVer.none)
   let name := expandIdentOrStrAsIdent nameStx
   `($[$doc?:docComment]? @[package_dep] def $name : $(mkCIdent ``Dependency) := {
     name :=  $(quote name.getId),
     scope := $scope,
-    version? := $ver,
+    version := $ver,
     src? := $(← quoteOptTerm src?),
     opts := $(opts?.getD <| ← `({})),
   })

@@ -265,7 +265,13 @@ def Dependency.mkRequire (cfg : Dependency) : RequireDecl := Unhygienic.run do
   let ver? ← id do
     match cfg.version with
     | .none => return none
-    | .git rev => some <$> `(verSpec|git $(toLean rev))
+    | .git rev =>
+      match cfg.src? with
+      | some (.git (rev := some gitRev) ..) =>
+        if gitRev == rev then
+          return none -- will be derived from the source above
+        else some <$> `(verSpec|git $(toLean rev))
+      | _ => some <$> `(verSpec|git $(toLean rev))
     | .ver ver => some <$> `(verSpec|$(toLean ver.toString):term)
   let scope? := if cfg.scope.isEmpty then none else some (toLean cfg.scope)
   let opts? := if cfg.opts.isEmpty then none else some <| Unhygienic.run do

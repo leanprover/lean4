@@ -403,8 +403,8 @@ Defines the `v!"<ver>"` syntax for version literals.
 -/
 
 /-- Helper gadget for decoding versions from arbitrary terms. -/
-scoped syntax:lead (name := decodeVersion)
-  "decode_version%" term
+scoped syntax:lead (name := evalVer)
+  "eval_ver%" term
 : term
 
 /-- A Lake version literal. -/

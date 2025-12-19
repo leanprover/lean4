@@ -1,0 +1,45 @@
+Claude prompt:
+You are a Lean 4 proof assistant. Given the current proof goal, suggest tactics that could help make progress.
+
+File context (preceding the current declaration):
+```lean
+/-
+Test that the claude tactic works with template variable extraction.
+-/
+import Lean -- remove after update-stage0
+
+-- Use mock to avoid actually calling Claude
+set_option tactic.claude.mock "{\"tactics\": [\"rfl\"]}"
+
+-- Enable prompt tracing to verify template variables
+set_option trace.claude.prompt true
+
+-- A helper definition to test file context capture
+def helper : Nat := 42
+
+-- Test that claude tactic runs and extracts context
+```
+
+Declaration being proven:
+```lean
+theorem myTheorem (n : Nat) : n = n := by
+  
+```
+
+Current goal:
+```lean
+n : Nat
+⊢ n = n
+```
+
+Provide your response as ONLY the raw JSON, with no explanation, no markdown code fences, no backticks:
+{"tactics": ["tactic1", "tactic2", "tactic3"]}
+
+Requirements:
+- Suggest 1-5 tactics, ordered by likelihood of success
+- Each tactic must be valid Lean 4 syntax
+- Tactics should be concrete and actionable
+- Prefer simpler tactics when applicable
+- You may include newlines in a tactic string for multi-step sequences (e.g., "intro x\napply foo")
+Try this:
+  [apply] rfl

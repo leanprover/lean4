@@ -402,6 +402,11 @@ scoped syntax (name := scriptDecl)
 Defines the `v!"<ver>"` syntax for version literals.
 -/
 
+/-- Helper gadget for decoding versions from arbitrary terms. -/
+scoped syntax:lead (name := decodeVersion)
+  "decode_version%" term
+: term
+
 /-- A Lake version literal. -/
 scoped syntax:max (name := verLit)
   "v!" noWs interpolatedStr(term)

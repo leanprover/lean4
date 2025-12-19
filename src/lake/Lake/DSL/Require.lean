@@ -44,8 +44,8 @@ def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment) : MacroM 
   let ver ←
     if let some ver := ver? then withRef ver do
       match ver with
-      | `(verSpec|git $ver) => ``(some ("git#" ++ $ver))
-      | `(verSpec|$ver:term) => ``(some $ver)
+      | `(verSpec|git $ver) => ``(some <| InputVer.git $ver)
+      | `(verSpec|$ver:term) => ``(some <| InputVer.ver <| decode_version% $ver)
       | _ => Macro.throwErrorAt ver "ill-formed version syntax"
     else
       ``(none)

@@ -22,6 +22,8 @@ source ../../lake/tests/common.sh
 # Setup
 # ---
 
+echo "# SETUP"
+
 # Since committing a Git repository to a Git repository is not well-supported,
 # We reinitialize the repositories on each test.
 
@@ -70,15 +72,17 @@ popd
 # Main tests
 # ---
 
+echo "# TESTS"
+
 cd DiamondExample-D
 
 # Test build succeeds on v1
-git switch v1 --detach
+test_cmd git switch v1 --detach
 test_run build
 
 # Test build fails on v2
-git switch v2 --detach
-test_err 'Unknown identifier `poorly_named_lemma`' build
+test_cmd git switch v2 --detach
+test_run build
 
 # Test build with different package names
 sed_i '/name/ s/A/A-v1/' .lake/packages/DiamondExample-B/$B_REV/lakefile.toml

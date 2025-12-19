@@ -99,7 +99,7 @@ def findDeclStart (source : String) (posIdx : Nat) : Nat := Id.run do
 
   return declStart
 
-/-- Get current declaration source text -/
+/-- Get current declaration source text, with `sorry` replacing the current tactic position -/
 def getDeclarationString : TacticM String := do
   let fileMap ← getFileMap
   let ref ← getRef
@@ -111,7 +111,9 @@ def getDeclarationString : TacticM String := do
   let declStart := findDeclStart source posIdx
 
   if declStart < posIdx then
-    return String.Pos.Raw.extract source ⟨declStart⟩ ⟨posIdx⟩
+    -- Extract declaration up to the current position, then append `sorry`
+    let declPrefix := String.Pos.Raw.extract source ⟨declStart⟩ ⟨posIdx⟩
+    return declPrefix ++ "sorry"
   else
     return ""
 

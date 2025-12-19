@@ -43,8 +43,6 @@ public theorem forIn_toList {γ : Type u} {β : Type v}
     [Iterator α Id β]
     [IteratorLoop α Id m]
     [LawfulIteratorLoop α Id m]
-    [IteratorCollect α Id Id]
-    [LawfulIteratorCollect α Id Id]
     [Finite α Id] {s : Slice γ}
     {init : δ} {f : β → δ → m (ForInStep δ)} :
     ForIn.forIn s.toList init f = ForIn.forIn s init f := by
@@ -57,8 +55,6 @@ public theorem forIn_toArray {γ : Type u} {β : Type v}
     [Iterator α Id β]
     [IteratorLoop α Id m]
     [LawfulIteratorLoop α Id m]
-    [IteratorCollect α Id Id]
-    [LawfulIteratorCollect α Id Id]
     [Finite α Id] {s : Slice γ}
     {init : δ} {f : β → δ → m (ForInStep δ)} :
     ForIn.forIn s.toArray init f = ForIn.forIn s init f := by
@@ -69,17 +65,16 @@ theorem Internal.size_eq_count_iter [ToIterator (Slice γ) Id α β]
     [IteratorLoop α Id Id] [LawfulIteratorLoop α Id Id]
     {s : Slice γ} [SliceSize γ] [LawfulSliceSize γ] :
     s.size = (Internal.iter s).count := by
-  letI : IteratorCollect α Id Id := .defaultImplementation
   simp only [Slice.size, iter, LawfulSliceSize.lawful, ← Iter.length_toList_eq_count]
 
 theorem Internal.toArray_eq_toArray_iter {s : Slice γ} [ToIterator (Slice γ) Id α β]
-    [Iterator α Id β] [IteratorCollect α Id Id]
+    [Iterator α Id β]
     [Finite α Id] :
     s.toArray = (Internal.iter s).toArray :=
   (rfl)
 
 theorem Internal.toList_eq_toList_iter {s : Slice γ} [ToIterator (Slice γ) Id α β]
-    [Iterator α Id β] [IteratorCollect α Id Id]
+    [Iterator α Id β]
     [Finite α Id] :
     s.toList = (Internal.iter s).toList :=
   (rfl)
@@ -92,8 +87,8 @@ theorem Internal.toListRev_eq_toListRev_iter {s : Slice γ} [ToIterator (Slice �
 @[simp]
 theorem size_toArray_eq_size [ToIterator (Slice γ) Id α β]
     [Iterator α Id β] [SliceSize γ] [LawfulSliceSize γ]
-    [IteratorCollect α Id Id] [Finite α Id]
-    [LawfulIteratorCollect α Id Id] {s : Slice γ} :
+    [Finite α Id]
+    {s : Slice γ} :
     s.toArray.size = s.size := by
   letI : IteratorLoop α Id Id := .defaultImplementation
   rw [Internal.size_eq_count_iter, Internal.toArray_eq_toArray_iter, Iter.size_toArray_eq_count]
@@ -101,8 +96,8 @@ theorem size_toArray_eq_size [ToIterator (Slice γ) Id α β]
 @[simp]
 theorem length_toList_eq_size [ToIterator (Slice γ) Id α β]
     [Iterator α Id β] {s : Slice γ}
-    [SliceSize γ] [LawfulSliceSize γ] [IteratorCollect α Id Id]
-    [Finite α Id] [LawfulIteratorCollect α Id Id] :
+    [SliceSize γ] [LawfulSliceSize γ]
+    [Finite α Id] :
     s.toList.length = s.size := by
   letI : IteratorLoop α Id Id := .defaultImplementation
   rw [Internal.size_eq_count_iter, Internal.toList_eq_toList_iter, Iter.length_toList_eq_count]
@@ -114,7 +109,6 @@ theorem length_toListRev_eq_size [ToIterator (Slice γ) Id α β]
     [Finite α Id]
     [LawfulIteratorLoop α Id Id] :
     s.toListRev.length = s.size := by
-  letI : IteratorCollect α Id Id := .defaultImplementation
   rw [Internal.size_eq_count_iter, Internal.toListRev_eq_toListRev_iter,
     Iter.length_toListRev_eq_count]
 

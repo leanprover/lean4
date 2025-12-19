@@ -99,23 +99,23 @@ instance instDecidableEq [DecidableEq α] : DecidableEq (Array α) := fun xs ys 
   | ⟨[]⟩ =>
     match ys with
     | ⟨[]⟩ => isTrue rfl
-    | ⟨_ :: _⟩ => isFalse (Array.noConfusion · (List.noConfusion ·))
+    | ⟨_ :: _⟩ => isFalse (fun h => Array.noConfusion rfl (heq_of_eq h) (fun h => List.noConfusion rfl h))
   | ⟨a :: as⟩ =>
     match ys with
-    | ⟨[]⟩ => isFalse (Array.noConfusion · (List.noConfusion ·))
+    | ⟨[]⟩ => isFalse (fun h => Array.noConfusion rfl (heq_of_eq h) (fun h => List.noConfusion rfl h))
     | ⟨b :: bs⟩ => instDecidableEqImpl ⟨a :: as⟩ ⟨b :: bs⟩
 
 @[csimp]
 theorem instDecidableEq_csimp : @instDecidableEq = @instDecidableEqImpl :=
   Subsingleton.allEq _ _
-  
+
 /--
 Equality with `#[]` is decidable even if the underlying type does not have decidable equality.
 -/
 instance instDecidableEqEmp (xs : Array α) : Decidable (xs = #[]) :=
   match xs with
   | ⟨[]⟩ => isTrue rfl
-  | ⟨_ :: _⟩ => isFalse (Array.noConfusion · (List.noConfusion ·))
+  | ⟨_ :: _⟩ => isFalse (fun h => Array.noConfusion rfl (heq_of_eq h) (fun h => List.noConfusion rfl h))
 
 /--
 Equality with `#[]` is decidable even if the underlying type does not have decidable equality.
@@ -123,7 +123,7 @@ Equality with `#[]` is decidable even if the underlying type does not have decid
 instance instDecidableEmpEq (ys : Array α) : Decidable (#[] = ys) :=
   match ys with
   | ⟨[]⟩ => isTrue rfl
-  | ⟨_ :: _⟩ => isFalse (Array.noConfusion · (List.noConfusion ·))
+  | ⟨_ :: _⟩ => isFalse (fun h => Array.noConfusion rfl (heq_of_eq h) (fun h => List.noConfusion rfl h))
 
 theorem beq_eq_decide [BEq α] (xs ys : Array α) :
     (xs == ys) = if h : xs.size = ys.size then

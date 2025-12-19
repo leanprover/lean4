@@ -9,6 +9,7 @@ prelude
 public import Std.Data.HashMap.Basic
 meta import Std.Data.HashMap.Basic
 public import Std.Data.DTreeMap.Internal.WF.Lemmas
+public import Init.Data.Order.ClassesExtra
 
 @[expose] public section
 
@@ -100,6 +101,8 @@ private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (T
      ⟨`getKeyD, (``getKeyD_eq_getKeyD, #[``(getKeyD_of_perm _)])⟩,
      ⟨`getKey!, (``getKey!_eq_getKey!, #[``(getKey!_of_perm _)])⟩,
      ⟨`toList, (``toList_eq_toListModel, #[])⟩,
+     ⟨`beq, (``beq_eq_beqModel, #[])⟩,
+     ⟨`Const.beq, (``Internal.Impl.Const.beq_eq_beqModel, #[])⟩,
      ⟨`keys, (``keys_eq_keys, #[])⟩,
      ⟨`Const.toList, (``Const.toList_eq_toListModel_map, #[])⟩,
      ⟨`foldlM, (``foldlM_eq_foldlM_toListModel, #[])⟩,
@@ -659,6 +662,42 @@ theorem get_insert! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {v : β
       else
         t.get a (contains_of_contains_insert! h h₁ h₂) := by
   simpa only [insert_eq_insert!] using get_insert h (h₁ := by simpa [insert_eq_insert!])
+
+theorem toList_insert_perm [BEq α] [TransOrd α] [LawfulBEqOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.insert k v h.balanced).1.toList.Perm (⟨k, v⟩ :: t.toList.filter (¬k == ·.1)) := by
+  simp_to_model
+  refine List.Perm.trans (toListModel_insert _ h.ordered) <| List.Perm.trans (List.insertEntry_perm_filter _ _ h.ordered.distinctKeys) ?_
+  simp
+
+theorem toList_insert!_perm [BEq α] [TransOrd α] [LawfulBEqOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.insert! k v).toList.Perm (⟨k, v⟩ :: t.toList.filter (¬k == ·.1)) := by
+  simpa only [insert_eq_insert!] using toList_insert_perm h
+
+theorem Const.toList_insert_perm {β : Type v} {t : Impl α (fun _ => β)} [BEq α] [TransOrd α] [LawfulBEqOrd α] (h : t.WF) {k : α} {v : β} :
+    (Const.toList (t.insert k v h.balanced).1).Perm (⟨k, v⟩ :: (Const.toList t).filter (¬k == ·.1)) := by
+  simp_to_model
+  apply List.Perm.trans <| List.Perm.map _ <| toListModel_insert _ h.ordered
+  apply List.Perm.trans <| List.Const.map_insertEntry_perm_filter_map _ _ h.ordered.distinctKeys
+  simp
+
+theorem Const.toList_insert!_perm {β : Type v} {t : Impl α (fun _ => β)} [BEq α] [TransOrd α] [LawfulBEqOrd α] (h : t.WF) {k : α} {v : β} :
+    (Const.toList (t.insert! k v)).Perm (⟨k, v⟩ :: (Const.toList t).filter (¬k == ·.1)) := by
+  simpa only [insert_eq_insert!] using Const.toList_insert_perm h
+
+theorem keys_insertIfNew_perm [BEq α] [TransOrd α] [LawfulBEqOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.insertIfNew k v h.balanced).1.keys.Perm (if t.contains k then t.keys else k :: t.keys) := by
+  simp_to_model
+  apply List.Perm.trans
+  simp only [List.keys_eq_map]
+  apply List.Perm.map _ <| toListModel_insertIfNew _ h.ordered
+  simp only [← List.keys_eq_map]
+  apply List.Perm.trans
+  apply List.keys_insertEntryIfNew_perm
+  simp
+
+theorem keys_insertIfNew!_perm {t : Impl α β} [BEq α] [TransOrd α] [LawfulBEqOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.insertIfNew! k v).keys.Perm (if t.contains k then t.keys else k :: t.keys) := by
+    simpa only [insertIfNew_eq_insertIfNew!] using keys_insertIfNew_perm h
 
 theorem get_insert_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {v : β k} :
     (t.insert k v h.balanced).impl.get k (contains_insert_self h) = v := by
@@ -4851,6 +4890,37 @@ theorem get!_inter!_of_contains_eq_false_left [TransOrd α] [Inhabited β] (h₁
 
 end Const
 
+section BEq
+variable {m₁ m₂ : Impl α β} [TransOrd α] [LawfulEqOrd α] [∀ k, BEq (β k)]
+
+theorem Equiv.beq [∀ k, ReflBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁.Equiv m₂ → beq m₁ m₂ := by
+  simp_to_model using List.beqModel_eq_true_of_perm
+
+theorem equiv_of_beq [∀ k, LawfulBEq (β k)] (h₁ : m₁.WF) (h₂ : m₂.WF) : beq m₁ m₂ = true → m₁.Equiv m₂ := by
+  simp_to_model using List.perm_of_beqModel
+
+theorem Equiv.beq_congr {m₃ m₄ : Impl α β} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) :
+    m₁.Equiv m₃ → m₂.Equiv m₄ → (Impl.beq m₁ m₂) = (Impl.beq m₃ m₄) := by
+  simp_to_model using List.beqModel_congr
+
+end BEq
+
+section
+
+variable {β : Type v} [BEq β] {m₁ m₂ : Impl α (fun _ => β)}
+
+theorem Const.Equiv.beq [TransOrd α] [ReflBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : m₁.Equiv m₂ → Const.beq m₁ m₂ := by
+  simp_to_model using List.Const.beqModel_eq_true_of_perm
+
+theorem Const.equiv_of_beq [TransOrd α] [LawfulEqOrd α] [LawfulBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : Const.beq m₁ m₂ = true → m₁.Equiv m₂ := by
+  simp_to_model using List.Const.perm_of_beqModel
+
+theorem Const.Equiv.beq_congr [TransOrd α] {m₃ m₄ : Impl α (fun _ => β)} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) :
+    m₁.Equiv m₃ → m₂.Equiv m₄ → Const.beq m₁ m₂ = Const.beq m₃ m₄ := by
+  simp_to_model using List.Const.beqModel_congr
+
+end
+
 section Diff
 
 variable {m₁ m₂ : Impl α β}
@@ -6860,6 +6930,20 @@ theorem minKey?_mem [TransOrd α] (h : t.WF) {km} :
     (hkm : t.minKey? = some km) →
     km ∈ t := by
   simp_to_model [minKey?, contains] using List.containsKey_minKey?
+
+theorem min?_keys [TransOrd α] [Min α]
+    [LE α] [LawfulOrderOrd α] [LawfulOrderMin α]
+    [LawfulOrderLeftLeaningMin α] [LawfulEqOrd α]
+    (h : t.WF) :
+    t.keys.min? = t.minKey? := by
+  simp_to_model using List.min?_keys
+
+theorem head?_keys [TransOrd α] [Min α]
+    [LE α] [LawfulOrderOrd α] [LawfulOrderMin α]
+    [LawfulOrderLeftLeaningMin α] [LawfulEqOrd α]
+    (h : t.WF) :
+    t.keys.head? = t.minKey? := by
+  simp_to_model using List.head?_keys _ h.ordered
 
 theorem isSome_minKey?_of_contains [TransOrd α] (h : t.WF) {k} :
     (hc : t.contains k) → t.minKey?.isSome := by
@@ -10340,5 +10424,13 @@ theorem toList_map {f : α → β → γ} :
 end Const
 
 end map
+
+section
+
+/-- Internal implementation detail -/
+def decidableEquiv {α : Type u} {β : α → Type v} [Ord α] [TransOrd α] [LawfulEqOrd α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)] (t₁ t₂ : Impl α β) (h₁ : t₁.WF) (h₂ : t₂.WF) : Decidable (t₁.Equiv t₂) :=
+  decidable_of_iff (beq t₁ t₂ = true) ⟨equiv_of_beq h₁ h₂, Equiv.beq h₁ h₂⟩
+
+end
 
 end Std.DTreeMap.Internal.Impl

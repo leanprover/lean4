@@ -12,6 +12,7 @@ public import Lean.Elab.BindersUtil
 public import Lean.Elab.PatternVar
 public import Lean.Elab.Quotation.Precheck
 public import Lean.Elab.SyntheticMVars
+import Lean.Meta.Match.Value
 import Lean.Meta.Match.NamedPatterns
 
 public section
@@ -216,7 +217,7 @@ def Vec.map' (f : α → β) (xs : Vec α n) : Vec β n :=
 We had to include `n` and the `_`s because the type of `xs` depends on `n`.
 Moreover, `nil` and `cons a as` have different types.
 This was quite tedious. So, we have implemented an automatic "discriminant refinement procedure".
-The procedure is based on the observation that we get a type error whenenver we forget to include `_`s
+The procedure is based on the observation that we get a type error whenever we forget to include `_`s
 and the indices a discriminant depends on. So, we catch the exception, check whether the type of the discriminant
 is an indexed family, and add their indices as new discriminants.
 
@@ -885,7 +886,7 @@ private def generalize (discrs : Array Discr) (matchType : Expr) (altViews : Arr
       let matchType' ← forallBoundedTelescope matchType discrs.size fun ds type => do
         let type ← mkForallFVars ys type
         let (discrs', ds') := Array.unzip <| Array.zip discrExprs ds |>.filter fun (di, _) => di.isFVar
-        let type := type.replaceFVars discrs' ds'
+        let type ← type.replaceFVarsM discrs' ds'
         mkForallFVars ds type
       if (← isTypeCorrect matchType') then
         let discrs := discrs ++  ys.map fun y => { expr := y : Discr }
@@ -1118,11 +1119,11 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
       withRef altLHS.ref do
         for d in altLHS.fvarDecls do
           if d.hasExprMVar then
+            -- This code path is a vestige prior to fixing #8099, but it is still appears to be
+            -- important for testcase 1300.lean.
             tryPostpone
             withExistingLocalDecls altLHS.fvarDecls do
               runPendingTacticsAt d.type
-              if (← instantiateMVars d.type).hasExprMVar then
-                throwMVarError m!"Invalid match expression: The type of pattern variable '{d.toExpr}' contains metavariables:{indentExpr d.type}"
         for p in altLHS.patterns do
           if (← Match.instantiatePatternMVars p).hasExprMVar then
             tryPostpone

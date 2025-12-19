@@ -91,7 +91,7 @@ theorem nodup_correct_invariants_with_cases_error (l : List Int) : nodup l ↔ l
 
 theorem test_with_pretac {m : Option Nat} (h : m = some 4) :
   ⦃⌜True⌝⦄
-  (match m with
+  (match (generalizing := false) m with
   | some n => (set n : StateM Nat PUnit)
   | none => set 0)
   ⦃⇓ _ s => ⌜s = 4⌝⦄ := by
@@ -99,7 +99,7 @@ theorem test_with_pretac {m : Option Nat} (h : m = some 4) :
 
 theorem test_with_cases {m : Option Nat} (h : m = some 4) :
   ⦃⌜True⌝⦄
-  (match m with
+  (match (generalizing := false) m with
   | some n => (set n : StateM Nat PUnit)
   | none => set 0)
   ⦃⇓ _ s => ⌜s = 4⌝⦄ := by
@@ -108,9 +108,19 @@ theorem test_with_cases {m : Option Nat} (h : m = some 4) :
   | vc1 => grind
   | vc2 => grind
 
-theorem test_with_pretac_cases {m : Option Nat} (h : m = some 4) :
+theorem test_with_cases_generalizing {m : Option Nat} (h : m = some 4) :
   ⦃⌜True⌝⦄
   (match m with
+  | some n => (set n : StateM Nat PUnit)
+  | none => set 0)
+  ⦃⇓ _ s => ⌜s = 4⌝⦄ := by
+  mvcgen
+  with
+  | vc1 => grind
+
+theorem test_with_pretac_cases {m : Option Nat} (h : m = some 4) :
+  ⦃⌜True⌝⦄
+  (match (generalizing := false) m with
   | some n => (set n : StateM Nat PUnit)
   | none => set 0)
   ⦃⇓ _ s => ⌜s = 4⌝⦄ := by

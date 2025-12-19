@@ -19,7 +19,6 @@ LEAN_EXPORT lean_object* l_Fin_neg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_succ___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_div___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instSub(lean_object*);
-LEAN_EXPORT lean_object* l_Fin_ofNat_x27(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_natAdd(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_elim0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_cast___redArg(lean_object*);
@@ -44,7 +43,6 @@ LEAN_EXPORT lean_object* l_Fin_add(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_ofNat(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_coeToNat___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instShiftLeft(lean_object*);
-LEAN_EXPORT lean_object* l_Fin_ofNat_x27___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_mod___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_mod___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instDiv(lean_object*);
@@ -55,7 +53,6 @@ lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_cast___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_sub(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Fin_Basic_0__Fin_modn_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Fin_ofNat_x27___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_castLE___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_ofNat___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_lor___boxed(lean_object*, lean_object*, lean_object*);
@@ -66,7 +63,6 @@ LEAN_EXPORT lean_object* l_Fin_sub___boxed(lean_object*, lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Fin_mod___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instOfNat___redArg___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_land(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Fin_ofNat_x27___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_cast(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instInhabited___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_land___boxed(lean_object*, lean_object*, lean_object*);
@@ -252,42 +248,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Fin_ofNat___redArg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Fin_ofNat_x27(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_nat_mod(x_3, x_1);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Fin_ofNat_x27___redArg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_nat_mod(x_2, x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Fin_ofNat_x27___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Fin_ofNat_x27(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_1);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Fin_ofNat_x27___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Fin_ofNat_x27___redArg(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

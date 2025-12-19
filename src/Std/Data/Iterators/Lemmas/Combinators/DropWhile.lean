@@ -12,7 +12,8 @@ public import Init.Data.Iterators.Lemmas.Consumers
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 theorem Iter.dropWhile_eq_intermediateDropWhile {α β} [Iterator α Id β] {P}
     {it : Iter (α := α) β} :
@@ -78,8 +79,7 @@ theorem Iter.step_dropWhile {α β} [Iterator α Id β] {P}
   simp [dropWhile_eq_intermediateDropWhile, step_intermediateDropWhile]
 
 theorem Iter.toList_intermediateDropWhile_of_finite {α β} [Iterator α Id β] {P dropping}
-    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
-    {it : Iter (α := α) β} :
+    [Finite α Id] {it : Iter (α := α) β} :
     (Intermediate.dropWhile P dropping it).toList =
       if dropping = true then it.toList.dropWhile P else it.toList := by
   induction it using Iter.inductSteps generalizing dropping with | step it ihy ihs
@@ -106,23 +106,23 @@ theorem Iter.toList_intermediateDropWhile_of_finite {α β} [Iterator α Id β] 
 
 @[simp]
 theorem Iter.toList_dropWhile_of_finite {α β} [Iterator α Id β] {P}
-    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    [Finite α Id]
     {it : Iter (α := α) β} :
     (it.dropWhile P).toList = it.toList.dropWhile P := by
   simp [dropWhile_eq_intermediateDropWhile, toList_intermediateDropWhile_of_finite]
 
 @[simp]
 theorem Iter.toArray_dropWhile_of_finite {α β} [Iterator α Id β] {P}
-    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    [Finite α Id]
     {it : Iter (α := α) β} :
     (it.dropWhile P).toArray = (it.toList.dropWhile P).toArray := by
   simp only [← toArray_toList, toList_dropWhile_of_finite]
 
 @[simp]
 theorem Iter.toListRev_dropWhile_of_finite {α β} [Iterator α Id β] {P}
-    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    [Finite α Id]
     {it : Iter (α := α) β} :
     (it.dropWhile P).toListRev = (it.toList.dropWhile P).reverse := by
   rw [toListRev_eq, toList_dropWhile_of_finite]
 
-end Std.Iterators
+end Std

@@ -26,13 +26,13 @@ LEAN_EXPORT lean_object* l_Lake_Target_repr(lean_object*, lean_object*, lean_obj
 static lean_object* l_Lake_Target_repr___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lake_Target_repr___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Target_instRepr___closed__0;
-LEAN_EXPORT lean_object* l_Lake_Target_instToString___lam__0(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 lean_object* l_Lake_instReprBuildKey_repr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_instCoePartialBuildKey___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_instToString(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_repr___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_repr___redArg(lean_object*, lean_object*);
+static lean_object* l_Lake_Target_instToString___closed__0;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* _init_l_Lake_Target_repr___redArg___closed__0() {
 _start:
@@ -166,19 +166,19 @@ x_2 = l_Lake_Target_instRepr___closed__0;
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Target_instToString___lam__0(lean_object* x_1) {
+static lean_object* _init_l_Lake_Target_instToString___closed__0() {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lake_PartialBuildKey_toString(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lake_PartialBuildKey_toString), 1, 0);
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Target_instToString(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lake_Target_instToString___lam__0), 1, 0);
+x_2 = l_Lake_Target_instToString___closed__0;
 return x_2;
 }
 }
@@ -227,6 +227,8 @@ l_Lake_Target_repr___redArg___closed__4 = _init_l_Lake_Target_repr___redArg___cl
 lean_mark_persistent(l_Lake_Target_repr___redArg___closed__4);
 l_Lake_Target_instRepr___closed__0 = _init_l_Lake_Target_instRepr___closed__0();
 lean_mark_persistent(l_Lake_Target_instRepr___closed__0);
+l_Lake_Target_instToString___closed__0 = _init_l_Lake_Target_instToString___closed__0();
+lean_mark_persistent(l_Lake_Target_instToString___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lake_mkRBArray___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_forIn___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_RBArray_0__Lake_RBArray_instForInOfMonad(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -26,20 +25,21 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_RBArray_0__Lake_RBArray_instEmptyCollection___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_foldr___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_mkEmpty___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_mkRBArray___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_RBArray_all(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_RBArray_0__Lake_RBArray_instForInOfMonad___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_mkEmpty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_foldrM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_forIn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_RBArray_forIn___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_foldr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_RBArray_0__Lake_RBArray_instEmptyCollection___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_forM___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___00Lake_RBArray_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_RBArray_forM___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_foldl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_RBArray_any___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_RBArray_0__Lake_RBArray_instEmptyCollection(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_RBArray_forM___lam__0(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_insert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t);
@@ -48,21 +48,20 @@ static lean_object* l_Lake_RBArray_all___closed__4;
 LEAN_EXPORT lean_object* l_Lake_RBArray_foldlM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_find_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lake_RBArray_any___lam__0(lean_object*, lean_object*);
 static lean_object* l_Lake_RBArray_all___closed__2;
 LEAN_EXPORT lean_object* l___private_Lake_Util_RBArray_0__Lake_RBArray_instForInOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lake_RBArray_insert_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lake_RBArray_all___closed__9;
+LEAN_EXPORT lean_object* l_Lake_RBArray_foldl___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_RBArray_empty___closed__0;
-LEAN_EXPORT lean_object* l_Lake_RBArray_forIn___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_contains___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lake_RBArray_all___redArg___lam__0(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_RBArray_contains(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_DTreeMap_Internal_Impl_contains___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_RBArray_contains___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_any___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lake_RBArray_all___lam__0(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_RBArray_0__Lake_RBArray_instForInOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lake_RBArray_insert_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_RBArray_all___closed__1;
@@ -70,7 +69,6 @@ LEAN_EXPORT lean_object* l_Lake_RBArray_forIn(lean_object*, lean_object*, lean_o
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_RBArray_all___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_RBArray_all___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_RBArray_all___closed__0;
 LEAN_EXPORT lean_object* l___private_Lake_Util_RBArray_0__Lake_RBArray_instEmptyCollection___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_foldl___redArg(lean_object*, lean_object*, lean_object*);
@@ -83,16 +81,17 @@ LEAN_EXPORT lean_object* l_Lake_RBArray_foldl(lean_object*, lean_object*, lean_o
 static lean_object* l_Lake_RBArray_all___closed__6;
 LEAN_EXPORT lean_object* l_Lake_RBArray_forM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_RBArray_all___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at___00Lake_RBArray_insert_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_empty(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_foldlM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_RBArray_any___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_find_x3f___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_foldrM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkRBArray___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_RBArray_foldl___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_empty___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_RBArray_all___closed__5;
 size_t lean_array_size(lean_object*);
@@ -101,6 +100,7 @@ LEAN_EXPORT uint8_t l_Lake_RBArray_any(lean_object*, lean_object*, lean_object*,
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lake_RBArray_any___redArg___lam__0(lean_object*, lean_object*);
 static lean_object* l_Lake_RBArray_empty___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBArray_mkEmpty___redArg(lean_object*);
@@ -482,9 +482,9 @@ goto block_54;
 block_46:
 {
 lean_object* x_43; lean_object* x_44; lean_object* x_45; 
-x_43 = lean_nat_add(x_40, x_42);
+x_43 = lean_nat_add(x_41, x_42);
 lean_dec(x_42);
-lean_dec(x_40);
+lean_dec(x_41);
 if (lean_is_scalar(x_37)) {
  x_44 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -503,7 +503,7 @@ if (lean_is_scalar(x_27)) {
 lean_ctor_set(x_45, 0, x_39);
 lean_ctor_set(x_45, 1, x_30);
 lean_ctor_set(x_45, 2, x_31);
-lean_ctor_set(x_45, 3, x_41);
+lean_ctor_set(x_45, 3, x_40);
 lean_ctor_set(x_45, 4, x_44);
 return x_45;
 }
@@ -529,8 +529,8 @@ if (lean_obj_tag(x_33) == 0)
 lean_object* x_52; 
 x_52 = lean_ctor_get(x_33, 0);
 lean_inc(x_52);
-x_40 = x_51;
-x_41 = x_50;
+x_40 = x_50;
+x_41 = x_51;
 x_42 = x_52;
 goto block_46;
 }
@@ -538,8 +538,8 @@ else
 {
 lean_object* x_53; 
 x_53 = lean_unsigned_to_nat(0u);
-x_40 = x_51;
-x_41 = x_50;
+x_40 = x_50;
+x_41 = x_51;
 x_42 = x_53;
 goto block_46;
 }
@@ -957,9 +957,9 @@ goto block_156;
 block_149:
 {
 lean_object* x_146; lean_object* x_147; lean_object* x_148; 
-x_146 = lean_nat_add(x_143, x_145);
+x_146 = lean_nat_add(x_144, x_145);
 lean_dec(x_145);
-lean_dec(x_143);
+lean_dec(x_144);
 if (lean_is_scalar(x_140)) {
  x_147 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -978,7 +978,7 @@ if (lean_is_scalar(x_130)) {
 lean_ctor_set(x_148, 0, x_142);
 lean_ctor_set(x_148, 1, x_132);
 lean_ctor_set(x_148, 2, x_133);
-lean_ctor_set(x_148, 3, x_144);
+lean_ctor_set(x_148, 3, x_143);
 lean_ctor_set(x_148, 4, x_147);
 return x_148;
 }
@@ -1004,8 +1004,8 @@ if (lean_obj_tag(x_135) == 0)
 lean_object* x_154; 
 x_154 = lean_ctor_get(x_135, 0);
 lean_inc(x_154);
-x_143 = x_153;
-x_144 = x_152;
+x_143 = x_152;
+x_144 = x_153;
 x_145 = x_154;
 goto block_149;
 }
@@ -1013,8 +1013,8 @@ else
 {
 lean_object* x_155; 
 x_155 = lean_unsigned_to_nat(0u);
-x_143 = x_153;
-x_144 = x_152;
+x_143 = x_152;
+x_144 = x_153;
 x_145 = x_155;
 goto block_149;
 }
@@ -1411,7 +1411,7 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT uint8_t l_Lake_RBArray_all___lam__0(lean_object* x_1, uint8_t x_2, lean_object* x_3) {
+LEAN_EXPORT uint8_t l_Lake_RBArray_all___redArg___lam__0(lean_object* x_1, uint8_t x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -1527,12 +1527,12 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_RBArray_all___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lake_RBArray_all___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_2);
-x_5 = l_Lake_RBArray_all___lam__0(x_1, x_4, x_3);
+x_5 = l_Lake_RBArray_all___redArg___lam__0(x_1, x_4, x_3);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -1551,7 +1551,6 @@ x_10 = lean_nat_dec_lt(x_7, x_8);
 if (x_10 == 0)
 {
 uint8_t x_11; 
-lean_dec(x_8);
 lean_dec_ref(x_6);
 lean_dec_ref(x_4);
 x_11 = 1;
@@ -1561,7 +1560,6 @@ else
 {
 if (x_10 == 0)
 {
-lean_dec(x_8);
 lean_dec_ref(x_6);
 lean_dec_ref(x_4);
 return x_10;
@@ -1570,12 +1568,11 @@ else
 {
 lean_object* x_12; lean_object* x_13; size_t x_14; size_t x_15; lean_object* x_16; uint8_t x_17; 
 x_12 = lean_box(x_10);
-x_13 = lean_alloc_closure((void*)(l_Lake_RBArray_all___lam__0___boxed), 3, 2);
+x_13 = lean_alloc_closure((void*)(l_Lake_RBArray_all___redArg___lam__0___boxed), 3, 2);
 lean_closure_set(x_13, 0, x_4);
 lean_closure_set(x_13, 1, x_12);
 x_14 = 0;
 x_15 = lean_usize_of_nat(x_8);
-lean_dec(x_8);
 x_16 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), x_9, x_13, x_6, x_14, x_15);
 x_17 = lean_unbox(x_16);
 lean_dec(x_16);
@@ -1607,7 +1604,6 @@ x_7 = lean_nat_dec_lt(x_4, x_5);
 if (x_7 == 0)
 {
 uint8_t x_8; 
-lean_dec(x_5);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
 x_8 = 1;
@@ -1617,7 +1613,6 @@ else
 {
 if (x_7 == 0)
 {
-lean_dec(x_5);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
 return x_7;
@@ -1626,12 +1621,11 @@ else
 {
 lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; lean_object* x_13; uint8_t x_14; 
 x_9 = lean_box(x_7);
-x_10 = lean_alloc_closure((void*)(l_Lake_RBArray_all___lam__0___boxed), 3, 2);
+x_10 = lean_alloc_closure((void*)(l_Lake_RBArray_all___redArg___lam__0___boxed), 3, 2);
 lean_closure_set(x_10, 0, x_1);
 lean_closure_set(x_10, 1, x_9);
 x_11 = 0;
 x_12 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
 x_13 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), x_6, x_10, x_3, x_11, x_12);
 x_14 = lean_unbox(x_13);
 lean_dec(x_13);
@@ -1668,7 +1662,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT uint8_t l_Lake_RBArray_any___lam__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lake_RBArray_any___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
@@ -1677,11 +1671,11 @@ x_4 = lean_unbox(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_RBArray_any___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_RBArray_any___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lake_RBArray_any___lam__0(x_1, x_2);
+x_3 = l_Lake_RBArray_any___redArg___lam__0(x_1, x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -1699,7 +1693,6 @@ x_9 = l_Lake_RBArray_all___closed__9;
 x_10 = lean_nat_dec_lt(x_7, x_8);
 if (x_10 == 0)
 {
-lean_dec(x_8);
 lean_dec_ref(x_6);
 lean_dec_ref(x_4);
 return x_10;
@@ -1708,7 +1701,6 @@ else
 {
 if (x_10 == 0)
 {
-lean_dec(x_8);
 lean_dec_ref(x_6);
 lean_dec_ref(x_4);
 return x_10;
@@ -1716,11 +1708,10 @@ return x_10;
 else
 {
 lean_object* x_11; size_t x_12; size_t x_13; lean_object* x_14; uint8_t x_15; 
-x_11 = lean_alloc_closure((void*)(l_Lake_RBArray_any___lam__0___boxed), 2, 1);
+x_11 = lean_alloc_closure((void*)(l_Lake_RBArray_any___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(x_11, 0, x_4);
 x_12 = 0;
 x_13 = lean_usize_of_nat(x_8);
-lean_dec(x_8);
 x_14 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), x_9, x_11, x_6, x_12, x_13);
 x_15 = lean_unbox(x_14);
 lean_dec(x_14);
@@ -1742,7 +1733,6 @@ x_6 = l_Lake_RBArray_all___closed__9;
 x_7 = lean_nat_dec_lt(x_4, x_5);
 if (x_7 == 0)
 {
-lean_dec(x_5);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
 return x_7;
@@ -1751,7 +1741,6 @@ else
 {
 if (x_7 == 0)
 {
-lean_dec(x_5);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
 return x_7;
@@ -1759,11 +1748,10 @@ return x_7;
 else
 {
 lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; uint8_t x_12; 
-x_8 = lean_alloc_closure((void*)(l_Lake_RBArray_any___lam__0___boxed), 2, 1);
+x_8 = lean_alloc_closure((void*)(l_Lake_RBArray_any___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(x_8, 0, x_1);
 x_9 = 0;
 x_10 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
 x_11 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_box(0), lean_box(0), x_6, x_8, x_3, x_9, x_10);
 x_12 = lean_unbox(x_11);
 lean_dec(x_11);
@@ -1791,7 +1779,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_RBArray_foldl___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lake_RBArray_foldl___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -1812,7 +1800,6 @@ x_11 = l_Lake_RBArray_all___closed__9;
 x_12 = lean_nat_dec_lt(x_9, x_10);
 if (x_12 == 0)
 {
-lean_dec(x_10);
 lean_dec_ref(x_8);
 lean_dec(x_5);
 return x_6;
@@ -1823,7 +1810,6 @@ uint8_t x_13;
 x_13 = lean_nat_dec_le(x_10, x_10);
 if (x_13 == 0)
 {
-lean_dec(x_10);
 lean_dec_ref(x_8);
 lean_dec(x_5);
 return x_6;
@@ -1831,11 +1817,10 @@ return x_6;
 else
 {
 lean_object* x_14; size_t x_15; size_t x_16; lean_object* x_17; 
-x_14 = lean_alloc_closure((void*)(l_Lake_RBArray_foldl___lam__0), 3, 1);
+x_14 = lean_alloc_closure((void*)(l_Lake_RBArray_foldl___redArg___lam__0), 3, 1);
 lean_closure_set(x_14, 0, x_5);
 x_15 = 0;
 x_16 = lean_usize_of_nat(x_10);
-lean_dec(x_10);
 x_17 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_11, x_14, x_8, x_15, x_16, x_6);
 return x_17;
 }
@@ -1855,7 +1840,6 @@ x_7 = l_Lake_RBArray_all___closed__9;
 x_8 = lean_nat_dec_lt(x_5, x_6);
 if (x_8 == 0)
 {
-lean_dec(x_6);
 lean_dec_ref(x_4);
 lean_dec(x_1);
 return x_2;
@@ -1866,7 +1850,6 @@ uint8_t x_9;
 x_9 = lean_nat_dec_le(x_6, x_6);
 if (x_9 == 0)
 {
-lean_dec(x_6);
 lean_dec_ref(x_4);
 lean_dec(x_1);
 return x_2;
@@ -1874,11 +1857,10 @@ return x_2;
 else
 {
 lean_object* x_10; size_t x_11; size_t x_12; lean_object* x_13; 
-x_10 = lean_alloc_closure((void*)(l_Lake_RBArray_foldl___lam__0), 3, 1);
+x_10 = lean_alloc_closure((void*)(l_Lake_RBArray_foldl___redArg___lam__0), 3, 1);
 lean_closure_set(x_10, 0, x_1);
 x_11 = 0;
 x_12 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_13 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_7, x_10, x_4, x_11, x_12, x_2);
 return x_13;
 }
@@ -1907,7 +1889,6 @@ x_13 = lean_nat_dec_lt(x_11, x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-lean_dec(x_12);
 lean_dec_ref(x_10);
 lean_dec(x_7);
 x_14 = lean_ctor_get(x_6, 0);
@@ -1926,7 +1907,6 @@ x_17 = lean_nat_dec_le(x_12, x_12);
 if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-lean_dec(x_12);
 lean_dec_ref(x_10);
 lean_dec(x_7);
 x_18 = lean_ctor_get(x_6, 0);
@@ -1943,7 +1923,6 @@ else
 size_t x_21; size_t x_22; lean_object* x_23; 
 x_21 = 0;
 x_22 = lean_usize_of_nat(x_12);
-lean_dec(x_12);
 x_23 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_7, x_10, x_21, x_22, x_8);
 return x_23;
 }
@@ -1963,7 +1942,6 @@ x_8 = lean_nat_dec_lt(x_6, x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-lean_dec(x_7);
 lean_dec_ref(x_5);
 lean_dec(x_2);
 x_9 = lean_ctor_get(x_1, 0);
@@ -1982,7 +1960,6 @@ x_12 = lean_nat_dec_le(x_7, x_7);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_dec(x_7);
 lean_dec_ref(x_5);
 lean_dec(x_2);
 x_13 = lean_ctor_get(x_1, 0);
@@ -1999,7 +1976,6 @@ else
 size_t x_16; size_t x_17; lean_object* x_18; 
 x_16 = 0;
 x_17 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
 x_18 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_1, x_2, x_5, x_16, x_17, x_3);
 return x_18;
 }
@@ -2028,7 +2004,6 @@ x_11 = l_Lake_RBArray_all___closed__9;
 x_12 = lean_nat_dec_lt(x_10, x_9);
 if (x_12 == 0)
 {
-lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_5);
 return x_6;
@@ -2036,10 +2011,9 @@ return x_6;
 else
 {
 lean_object* x_13; size_t x_14; size_t x_15; lean_object* x_16; 
-x_13 = lean_alloc_closure((void*)(l_Lake_RBArray_foldl___lam__0), 3, 1);
+x_13 = lean_alloc_closure((void*)(l_Lake_RBArray_foldl___redArg___lam__0), 3, 1);
 lean_closure_set(x_13, 0, x_5);
 x_14 = lean_usize_of_nat(x_9);
-lean_dec(x_9);
 x_15 = 0;
 x_16 = l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_11, x_13, x_8, x_14, x_15, x_6);
 return x_16;
@@ -2059,7 +2033,6 @@ x_7 = l_Lake_RBArray_all___closed__9;
 x_8 = lean_nat_dec_lt(x_6, x_5);
 if (x_8 == 0)
 {
-lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_1);
 return x_2;
@@ -2067,10 +2040,9 @@ return x_2;
 else
 {
 lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; 
-x_9 = lean_alloc_closure((void*)(l_Lake_RBArray_foldl___lam__0), 3, 1);
+x_9 = lean_alloc_closure((void*)(l_Lake_RBArray_foldl___redArg___lam__0), 3, 1);
 lean_closure_set(x_9, 0, x_1);
 x_10 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
 x_11 = 0;
 x_12 = l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_7, x_9, x_4, x_10, x_11, x_2);
 return x_12;
@@ -2099,7 +2071,6 @@ x_13 = lean_nat_dec_lt(x_12, x_11);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_7);
 x_14 = lean_ctor_get(x_6, 0);
@@ -2115,7 +2086,6 @@ else
 {
 size_t x_17; size_t x_18; lean_object* x_19; 
 x_17 = lean_usize_of_nat(x_11);
-lean_dec(x_11);
 x_18 = 0;
 x_19 = l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_7, x_10, x_17, x_18, x_8);
 return x_19;
@@ -2135,7 +2105,6 @@ x_8 = lean_nat_dec_lt(x_7, x_6);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_2);
 x_9 = lean_ctor_get(x_1, 0);
@@ -2151,7 +2120,6 @@ else
 {
 size_t x_12; size_t x_13; lean_object* x_14; 
 x_12 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_13 = 0;
 x_14 = l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_1, x_2, x_5, x_12, x_13, x_3);
 return x_14;
@@ -2167,7 +2135,7 @@ lean_dec_ref(x_5);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_RBArray_forM___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lake_RBArray_forM___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -2189,7 +2157,6 @@ x_12 = lean_nat_dec_lt(x_9, x_10);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_dec(x_10);
 lean_dec_ref(x_8);
 lean_dec(x_6);
 x_13 = lean_ctor_get(x_5, 0);
@@ -2208,7 +2175,6 @@ x_16 = lean_nat_dec_le(x_10, x_10);
 if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-lean_dec(x_10);
 lean_dec_ref(x_8);
 lean_dec(x_6);
 x_17 = lean_ctor_get(x_5, 0);
@@ -2223,11 +2189,10 @@ return x_19;
 else
 {
 lean_object* x_20; size_t x_21; size_t x_22; lean_object* x_23; 
-x_20 = lean_alloc_closure((void*)(l_Lake_RBArray_forM___lam__0), 3, 1);
+x_20 = lean_alloc_closure((void*)(l_Lake_RBArray_forM___redArg___lam__0), 3, 1);
 lean_closure_set(x_20, 0, x_6);
 x_21 = 0;
 x_22 = lean_usize_of_nat(x_10);
-lean_dec(x_10);
 x_23 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_5, x_20, x_8, x_21, x_22, x_11);
 return x_23;
 }
@@ -2248,7 +2213,6 @@ x_8 = lean_nat_dec_lt(x_5, x_6);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-lean_dec(x_6);
 lean_dec_ref(x_4);
 lean_dec(x_2);
 x_9 = lean_ctor_get(x_1, 0);
@@ -2267,7 +2231,6 @@ x_12 = lean_nat_dec_le(x_6, x_6);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_dec(x_6);
 lean_dec_ref(x_4);
 lean_dec(x_2);
 x_13 = lean_ctor_get(x_1, 0);
@@ -2282,11 +2245,10 @@ return x_15;
 else
 {
 lean_object* x_16; size_t x_17; size_t x_18; lean_object* x_19; 
-x_16 = lean_alloc_closure((void*)(l_Lake_RBArray_forM___lam__0), 3, 1);
+x_16 = lean_alloc_closure((void*)(l_Lake_RBArray_forM___redArg___lam__0), 3, 1);
 lean_closure_set(x_16, 0, x_2);
 x_17 = 0;
 x_18 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_19 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_1, x_16, x_4, x_17, x_18, x_7);
 return x_19;
 }
@@ -2302,7 +2264,7 @@ lean_dec_ref(x_4);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_RBArray_forIn___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lake_RBArray_forIn___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
@@ -2317,7 +2279,7 @@ lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; lean_object* x_1
 x_10 = lean_ctor_get(x_7, 1);
 lean_inc_ref(x_10);
 lean_dec_ref(x_7);
-x_11 = lean_alloc_closure((void*)(l_Lake_RBArray_forIn___lam__0), 4, 1);
+x_11 = lean_alloc_closure((void*)(l_Lake_RBArray_forIn___redArg___lam__0), 4, 1);
 lean_closure_set(x_11, 0, x_9);
 x_12 = lean_array_size(x_10);
 x_13 = 0;
@@ -2332,7 +2294,7 @@ lean_object* x_5; lean_object* x_6; size_t x_7; size_t x_8; lean_object* x_9;
 x_5 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_5);
 lean_dec_ref(x_2);
-x_6 = lean_alloc_closure((void*)(l_Lake_RBArray_forIn___lam__0), 4, 1);
+x_6 = lean_alloc_closure((void*)(l_Lake_RBArray_forIn___redArg___lam__0), 4, 1);
 lean_closure_set(x_6, 0, x_4);
 x_7 = lean_array_size(x_5);
 x_8 = 0;
@@ -2398,7 +2360,7 @@ lean_dec_ref(x_4);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_mkRBArray___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lake_mkRBArray___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
@@ -2419,7 +2381,6 @@ x_9 = l_Lake_RBArray_all___closed__9;
 x_10 = lean_nat_dec_lt(x_8, x_6);
 if (x_10 == 0)
 {
-lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
@@ -2431,7 +2392,6 @@ uint8_t x_11;
 x_11 = lean_nat_dec_le(x_6, x_6);
 if (x_11 == 0)
 {
-lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
@@ -2440,12 +2400,11 @@ return x_7;
 else
 {
 lean_object* x_12; size_t x_13; size_t x_14; lean_object* x_15; 
-x_12 = lean_alloc_closure((void*)(l_Lake_mkRBArray___lam__0), 4, 2);
+x_12 = lean_alloc_closure((void*)(l_Lake_mkRBArray___redArg___lam__0), 4, 2);
 lean_closure_set(x_12, 0, x_4);
 lean_closure_set(x_12, 1, x_3);
 x_13 = 0;
 x_14 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
 x_15 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_9, x_12, x_5, x_13, x_14, x_7);
 return x_15;
 }
@@ -2463,7 +2422,6 @@ x_7 = l_Lake_RBArray_all___closed__9;
 x_8 = lean_nat_dec_lt(x_6, x_4);
 if (x_8 == 0)
 {
-lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
@@ -2475,7 +2433,6 @@ uint8_t x_9;
 x_9 = lean_nat_dec_le(x_4, x_4);
 if (x_9 == 0)
 {
-lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
@@ -2484,12 +2441,11 @@ return x_5;
 else
 {
 lean_object* x_10; size_t x_11; size_t x_12; lean_object* x_13; 
-x_10 = lean_alloc_closure((void*)(l_Lake_mkRBArray___lam__0), 4, 2);
+x_10 = lean_alloc_closure((void*)(l_Lake_mkRBArray___redArg___lam__0), 4, 2);
 lean_closure_set(x_10, 0, x_2);
 lean_closure_set(x_10, 1, x_1);
 x_11 = 0;
 x_12 = lean_usize_of_nat(x_4);
-lean_dec(x_4);
 x_13 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_7, x_10, x_3, x_11, x_12, x_5);
 return x_13;
 }

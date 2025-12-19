@@ -116,10 +116,8 @@ lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_4 = lean_array_get_size(x_2);
 x_5 = lean_array_get_size(x_3);
 x_6 = lean_nat_dec_eq(x_4, x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
-lean_dec(x_4);
 lean_dec_ref(x_1);
 return x_6;
 }

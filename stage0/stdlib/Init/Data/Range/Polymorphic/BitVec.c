@@ -64,6 +64,16 @@ return x_10;
 }
 }
 }
+LEAN_EXPORT lean_object* l_BitVec_instUpwardEnumerable___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_BitVec_instUpwardEnumerable___lam__0(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_BitVec_instUpwardEnumerable___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -87,16 +97,6 @@ x_9 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_9, 0, x_4);
 return x_9;
 }
-}
-}
-LEAN_EXPORT lean_object* l_BitVec_instUpwardEnumerable___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_BitVec_instUpwardEnumerable___lam__0(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_BitVec_instUpwardEnumerable___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

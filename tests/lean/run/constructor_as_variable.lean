@@ -95,7 +95,8 @@ inductive MyProd where
 /--
 error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
 
-Hint: `MyProd.construct` is similar
+Hint: Using `MyProd.construct` would be valid:
+  [apply] `MyProd.construct`
 -/
 #guard_msgs in
 def ctorSuggestion1 (pair : MyProd) : Nat :=
@@ -106,17 +107,17 @@ def ctorSuggestion1 (pair : MyProd) : Nat :=
 /--
 error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
 
-Hint: These are similar:
-  'Lean.Grind.AC.Seq.cons',
-  'List.Lex.below.cons',
-  'List.Lex.cons',
-  'List.Pairwise.below.cons',
-  'List.Pairwise.cons',
-  'List.Perm.below.cons',
-  'List.Perm.cons',
-  'List.Sublist.below.cons',
-  'List.Sublist.cons',
-  'List.cons'
+Hint: Using one of these would be valid:
+  [apply] `List.Sublist.cons`
+  [apply] `Lean.Grind.AC.Seq.cons`
+  [apply] `List.Lex.cons`
+  [apply] `List.Perm.below.cons`
+  [apply] `List.Lex.below.cons`
+  [apply] `List.Pairwise.below.cons`
+  [apply] `List.cons`
+  [apply] `List.Sublist.below.cons`
+  [apply] `List.Perm.cons`
+  [apply] `List.Pairwise.cons`
 ---
 warning: Local variable 'nil' resembles constructor 'List.nil' - write '.nil' (with a dot) or 'List.nil' to use the constructor.
 
@@ -136,18 +137,18 @@ inductive StringList : Type where
 /--
 error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
 
-Hint: These are similar:
-  'Lean.Grind.AC.Seq.cons',
-  'List.Lex.below.cons',
-  'List.Lex.cons',
-  'List.Pairwise.below.cons',
-  'List.Pairwise.cons',
-  'List.Perm.below.cons',
-  'List.Perm.cons',
-  'List.Sublist.below.cons',
-  'List.Sublist.cons',
-  'List.cons',
-   (or 1 others)
+Hint: Using one of these would be valid:
+  [apply] `List.Sublist.cons`
+  [apply] `Lean.Grind.AC.Seq.cons`
+  [apply] `List.Lex.cons`
+  [apply] `List.Perm.below.cons`
+  [apply] `List.Lex.below.cons`
+  [apply] `List.Pairwise.below.cons`
+  [apply] `List.cons`
+  [apply] `List.Sublist.below.cons`
+  [apply] `List.Perm.cons`
+  [apply] `List.Pairwise.cons`
+  [apply] `StringList.cons`
 ---
 warning: Local variable 'nil' resembles constructor 'List.nil' - write '.nil' (with a dot) or 'List.nil' to use the constructor.
 

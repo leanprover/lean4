@@ -17,9 +17,9 @@ public import Init.Data.Iterators.Internal.Termination
 This module provides an iterator for lists that is accessible via `List.iterM`.
 -/
 
-namespace Std.Iterators
+namespace Std
 
-variable {α : Type w} {m : Type w → Type w'}
+namespace Iterators.Types
 
 /--
 The underlying state of a list iterator. Its contents are internal and should
@@ -28,6 +28,12 @@ not be used by downstream users of the library.
 @[ext]
 structure ListIterator (α : Type w) where
   list : List α
+
+end Iterators.Types
+
+open Std.Iterators Std.Iterators.Types
+
+variable {α : Type w} {m : Type w → Type w'}
 
 /--
 Returns a finite iterator for the given list.
@@ -43,19 +49,21 @@ The non-monadic version of this iterator is `List.iter`.
 @[always_inline, inline]
 def _root_.List.iterM {α : Type w} (l : List α) (m : Type w → Type w') [Pure m] :
     IterM (α := ListIterator α) m α :=
-  toIterM { list := l } m α
+  .mk { list := l } m α
+
+namespace Iterators.Types
 
 @[always_inline, inline]
-instance {α : Type w} [Pure m] : Iterator (ListIterator α) m α where
+instance ListIterator.instIterator {α : Type w} [Pure m] : Iterator (ListIterator α) m α where
   IsPlausibleStep it
     | .yield it' out => it.internalState.list = out :: it'.internalState.list
     | .skip _ => False
     | .done => it.internalState.list = []
   step it := pure (match it with
         | ⟨⟨[]⟩⟩ => .deflate ⟨.done, rfl⟩
-        | ⟨⟨x :: xs⟩⟩ => .deflate ⟨.yield (toIterM ⟨xs⟩ m α) x, rfl⟩)
+        | ⟨⟨x :: xs⟩⟩ => .deflate ⟨.yield (.mk ⟨xs⟩ m α) x, rfl⟩)
 
-private def ListIterator.finitenessRelation [Pure m] :
+private def ListIterator.instFinitenessRelation [Pure m] :
     FinitenessRelation (ListIterator α) m where
   rel := InvImage WellFoundedRelation.rel (ListIterator.list ∘ IterM.internalState)
   wf := InvImage.wf _ WellFoundedRelation.wf
@@ -64,27 +72,12 @@ private def ListIterator.finitenessRelation [Pure m] :
     obtain ⟨step, h, h'⟩ := h
     cases step <;> simp_all [IterStep.successor, IterM.IsPlausibleStep, Iterator.IsPlausibleStep]
 
-instance [Pure m] : Finite (ListIterator α) m :=
-  by exact Finite.of_finitenessRelation ListIterator.finitenessRelation
+instance ListIterator.instFinite [Pure m] : Finite (ListIterator α) m :=
+  by exact Finite.of_finitenessRelation ListIterator.instFinitenessRelation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] {n : Type w → Type w''} [Monad n] :
-    IteratorCollect (ListIterator α) m n :=
-  .defaultImplementation
-
-@[always_inline, inline]
-instance {α : Type w} [Monad m] {n : Type w → Type w''} [Monad n] :
-    IteratorCollectPartial (ListIterator α) m n :=
-  .defaultImplementation
-
-@[always_inline, inline]
-instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
+instance ListIterator.instIteratorLoop {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
     IteratorLoop (ListIterator α) m n :=
   .defaultImplementation
 
-@[always_inline, inline]
-instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
-    IteratorLoopPartial (ListIterator α) m n :=
-  .defaultImplementation
-
-end Std.Iterators
+end Std.Iterators.Types

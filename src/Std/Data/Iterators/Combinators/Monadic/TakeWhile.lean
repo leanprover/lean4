@@ -31,7 +31,8 @@ Several variants of this combinator are provided:
   iterator, and particularly for specialized termination proofs. If possible, avoid this.
 -/
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 variable {α : Type w} {m : Type w → Type w'} {β : Type w}
 
@@ -39,7 +40,7 @@ variable {α : Type w} {m : Type w → Type w'} {β : Type w}
 Internal state of the `takeWhile` combinator. Do not depend on its internals.
 -/
 @[unbox]
-structure TakeWhile (α : Type w) (m : Type w → Type w') (β : Type w)
+structure Iterators.Types.TakeWhile (α : Type w) (m : Type w → Type w') (β : Type w)
     (P : β → PostconditionT m (ULift Bool)) where
   /-- Internal implementation detail of the iterator library. -/
   inner : IterM (α := α) m β
@@ -85,7 +86,7 @@ it terminates.
 -/
 @[always_inline, inline]
 def IterM.takeWhileWithPostcondition (P : β → PostconditionT m (ULift Bool)) (it : IterM (α := α) m β) :=
-  (toIterM (TakeWhile.mk (P := P) it) m β : IterM m β)
+  (IterM.mk (Types.TakeWhile.mk (P := P) it) m β : IterM m β)
 
 /--
 Given an iterator `it` and a monadic predicate `P`, `it.takeWhileM P` is an iterator that outputs
@@ -159,6 +160,8 @@ it terminates.
 def IterM.takeWhile [Monad m] (P : β → Bool) (it : IterM (α := α) m β) :=
   (it.takeWhileM (pure ∘ ULift.up ∘ P) : IterM m β)
 
+namespace Iterators.Types
+
 /--
 `it.PlausibleStep step` is the proposition that `step` is a possible next step from the
 `takeWhile` iterator `it`. This is mostly internally relevant, except if one needs to manually
@@ -226,22 +229,9 @@ instance TakeWhile.instProductive [Monad m] [Iterator α m β] [Productive α m]
     Productive (TakeWhile α m β P) m :=
   by exact Productive.of_productivenessRelation instProductivenessRelation
 
-instance TakeWhile.instIteratorCollect [Monad m] [Monad n] [Iterator α m β] [Productive α m] {P} :
-    IteratorCollect (TakeWhile α m β P) m n :=
-  .defaultImplementation
-
-instance TakeWhile.instIteratorCollectPartial [Monad m] [Monad n] [Iterator α m β] {P} :
-    IteratorCollectPartial (TakeWhile α m β P) m n :=
-  .defaultImplementation
-
 instance TakeWhile.instIteratorLoop [Monad m] [Monad n] [Iterator α m β]
     [IteratorLoop α m n] :
     IteratorLoop (TakeWhile α m β P) m n :=
   .defaultImplementation
 
-instance TakeWhile.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]
-    [IteratorLoopPartial α m n] {P} :
-    IteratorLoopPartial (TakeWhile α m β P) m n :=
-  .defaultImplementation
-
-end Std.Iterators
+end Std.Iterators.Types

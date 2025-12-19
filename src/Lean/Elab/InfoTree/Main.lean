@@ -52,7 +52,7 @@ def PartialContextInfo.mergeIntoOuter?
   | .autoImplicitCtx _, none =>
     panic! "Unexpected incomplete InfoTree context info."
   | .commandCtx innerInfo, some outer =>
-    some { outer with toCommandContextInfo := innerInfo }
+    some { outer with toCommandContextInfo := { innerInfo with cmdEnv? := outer.cmdEnv? <|> innerInfo.cmdEnv? } }
   | .parentDeclCtx innerParentDecl, some outer =>
     some { outer with parentDecl? := innerParentDecl }
   | .autoImplicitCtx innerAutoImplicits, some outer =>
@@ -489,6 +489,10 @@ def withMacroExpansionInfo [MonadFinally m] [Monad m] [MonadInfoTree m] [MonadLC
     }
   withInfoContext x mkInfo
 
+/--
+Runs `x`. The last info tree that is pushed while running `x` is assigned to `mvarId`. All other
+pushed info trees are silently discarded.
+-/
 @[inline] def withInfoHole [MonadFinally m] [Monad m] [MonadInfoTree m] (mvarId : MVarId) (x : m α) : m α := do
   if (← getInfoState).enabled then
     let treesSaved ← getResetInfoTrees

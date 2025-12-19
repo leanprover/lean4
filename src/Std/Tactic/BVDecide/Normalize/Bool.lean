@@ -302,5 +302,8 @@ theorem Bool.and_right (lhs rhs : Bool) (h : (lhs && rhs) = true) : rhs = true :
   revert lhs rhs
   decide
 
+theorem Bool.beq_self_eq_true (a : Bool) : (a == a) = true := by
+  apply _root_.beq_self_eq_true
+
 end Normalize
 end Std.Tactic.BVDecide

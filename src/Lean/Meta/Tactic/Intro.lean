@@ -162,6 +162,23 @@ abbrev _root_.Lean.MVarId.intro1P (mvarId : MVarId) : MetaM (FVarId × MVarId) :
   intro1Core mvarId true
 
 /--
+Given a goal `... |- β → α`, returns a goal `... ⊢ α`.
+Like `intro h; clear h`, but without ever appending to the local context.
+-/
+def _root_.Lean.MVarId.intro1_ (mvarId : MVarId) : MetaM MVarId := do
+  mvarId.withContext do
+    let target ← mvarId.getType'
+    match target with
+    | .forallE n β α bi =>
+      if α.hasLooseBVars then
+        throwError "intro1_: expected arrow type\n{mvarId}"
+      let tag ← mvarId.getTag
+      let newMVar ← mkFreshExprSyntheticOpaqueMVar α tag
+      mvarId.assign (.lam n β newMVar bi)
+      return newMVar.mvarId!
+    | _ => throwError "intro1_: expected arrow type\n{mvarId}"
+
+/--
 Calculate the number of new hypotheses that would be created by `intros`,
 i.e. the number of binders which can be introduced without unfolding definitions.
 -/

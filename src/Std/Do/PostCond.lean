@@ -10,6 +10,8 @@ public import Std.Do.SPred
 
 @[expose] public section
 
+set_option linter.missingDocs true
+
 /-!
 # Pre and postconditions
 
@@ -44,51 +46,86 @@ namespace Std.Do
 
 universe u
 
+/--
+The “shape” of the postconditions that are used to reason about a monad.
+
+A postcondition shape is an abstraction of many possible monadic effects, based on the structure of pure functions that can simulate them. The postcondition shape of a monad is given by its `WP` instance. This shape is used to determine both its `Assertion`s and its `PostCond`s.
+-/
 inductive PostShape : Type (u+1) where
+  /-- The assertions and postconditions in this monad use neither state nor exceptions. -/
   | pure : PostShape
+  /--
+  The assertions in this monad may mention the current value of a state of type `σ`, and
+  postconditions may mention the state's final value.
+  -/
   | arg : (σ : Type u) → PostShape → PostShape
+  /--
+  The postconditions in this monad include assertions about exceptional values of type `ε` that
+  result from premature termination.
+  -/
   | except : (ε : Type u) → PostShape → PostShape
 
 variable {ps : PostShape.{u}} {α σ ε : Type u}
 
+/--
+Extracts the list of state types under `PostShape.arg` constructors, discarding exception types.
+
+The state types determine the shape of assertions in the monad.
+-/
 abbrev PostShape.args : PostShape.{u} → List (Type u)
   | .pure => []
   | .arg σ s => σ :: PostShape.args s
   | .except _ s => PostShape.args s
 
 /--
-  An assertion on the `.arg`s in the given predicate shape.
-  ```
-  example : Assertion (.arg ρ .pure) = (ρ → ULift Prop) := rfl
-  example : Assertion (.except ε .pure) = ULift Prop := rfl
-  example : Assertion (.arg σ (.except ε .pure)) = (σ → ULift Prop) := rfl
-  example : Assertion (.except ε (.arg σ .pure)) = (σ → ULift Prop) := rfl
-  ```
-  This is an abbreviation for `SPred` under the hood, so all theorems about `SPred` apply.
+An assertion about the state fields for a monad whose postcondition shape is `ps`.
+
+Concretely, this is an abbreviation for `SPred` applied to the `.arg`s in the given predicate shape, so all theorems about `SPred` apply.
+
+Examples:
+```lean example
+example : Assertion (.arg ρ .pure) = (ρ → ULift Prop) := rfl
+example : Assertion (.except ε .pure) = ULift Prop := rfl
+example : Assertion (.arg σ (.except ε .pure)) = (σ → ULift Prop) := rfl
+example : Assertion (.except ε (.arg σ .pure)) = (σ → ULift Prop) := rfl
+```
 -/
 abbrev Assertion (ps : PostShape.{u}) : Type u :=
   SPred (PostShape.args ps)
 
 /--
-  Encodes one continuation barrel for each `PostShape.except` in the given predicate shape.
-  ```
-  example : ExceptConds (.pure) = Unit := rfl
-  example : ExceptConds (.except ε .pure) = ((ε → ULift Prop) × Unit) := rfl
-  example : ExceptConds (.arg σ (.except ε .pure)) = ((ε → ULift Prop) × Unit) := rfl
-  example : ExceptConds (.except ε (.arg σ .pure)) = ((ε → σ → ULift Prop) × Unit) := rfl
-  ```
+An assertion about each potential exception that's declared in a postcondition shape.
+
+Examples:
+```lean example
+example : ExceptConds (.pure) = Unit := rfl
+example : ExceptConds (.except ε .pure) = ((ε → ULift Prop) × Unit) := rfl
+example : ExceptConds (.arg σ (.except ε .pure)) = ((ε → ULift Prop) × Unit) := rfl
+example : ExceptConds (.except ε (.arg σ .pure)) = ((ε → σ → ULift Prop) × Unit) := rfl
+```
 -/
 def ExceptConds : PostShape.{u} → Type u
   | .pure => PUnit
   | .arg _ ps => ExceptConds ps
   | .except ε ps => (ε → Assertion ps) × ExceptConds ps
 
+/--
+Lifts a proposition `p` to a set of assertions about the possible exceptions in `ps`. Each
+exception's postcondition holds when `p` is true.
+-/
 def ExceptConds.const {ps : PostShape.{u}} (p : Prop) : ExceptConds ps := match ps with
   | .pure => ⟨⟩
   | .arg _ ps => @ExceptConds.const ps p
   | .except _ ps => (fun _ε => spred(⌜p⌝), @ExceptConds.const ps p)
 
+/--
+An assertion about the possible exceptions in `ps` that always holds.
+-/
 def ExceptConds.true : ExceptConds ps := ExceptConds.const True
+
+/--
+An assertion about the possible exceptions in `ps` that never holds.
+-/
 def ExceptConds.false : ExceptConds ps := ExceptConds.const False
 
 @[simp, grind =]
@@ -118,15 +155,23 @@ theorem ExceptConds.snd_false {ps : PostShape.{u}} :
 instance : Inhabited (ExceptConds ps) where
   default := ExceptConds.true
 
+/--
+Entailment of exception assertions is defined as pointwise entailment of the assertions for each
+potential exception.
+
+While implication of exception conditions (`ExceptConds.imp`) is itself an exception condition,
+entailment is an ordinary proposition.
+-/
 def ExceptConds.entails {ps : PostShape.{u}} (x y : ExceptConds ps) : Prop :=
   match ps with
   | .pure => True
   | .arg _ ps => @entails ps x y
   | .except _ ps => (∀ e, x.1 e ⊢ₛ y.1 e) ∧ @entails ps x.2 y.2
 
+@[inherit_doc ExceptConds.entails]
 scoped infixr:25 " ⊢ₑ " => ExceptConds.entails
 
-@[refl, simp]
+@[refl, simp, grind ←]
 theorem ExceptConds.entails.refl {ps : PostShape} (x : ExceptConds ps) : x ⊢ₑ x := by
   induction ps <;> simp [entails, *]
 
@@ -146,12 +191,17 @@ theorem ExceptConds.entails_false {x : ExceptConds ps} : ExceptConds.false ⊢�
 theorem ExceptConds.entails_true {x : ExceptConds ps} : x ⊢ₑ ExceptConds.true := by
   induction ps <;> simp_all [true, const, entails]
 
+/--
+Conjunction of exception assertions is defined as pointwise conjunction of the assertions for each
+potential exception.
+-/
 def ExceptConds.and {ps : PostShape.{u}} (x : ExceptConds ps) (y : ExceptConds ps) : ExceptConds ps :=
   match ps with
   | .pure => ⟨⟩
   | .arg _ ps => @ExceptConds.and ps x y
   | .except _ _ => (fun e => SPred.and (x.1 e) (y.1 e), ExceptConds.and x.2 y.2)
 
+@[inherit_doc ExceptConds.and]
 infixr:35 " ∧ₑ " => ExceptConds.and
 
 @[simp]
@@ -207,12 +257,20 @@ theorem ExceptConds.and_eq_left {ps : PostShape} {p q : ExceptConds ps} (h : p �
     · ext a; exact (SPred.and_eq_left.mp (h.1 a)).to_eq
     · exact ih h.2
 
+/--
+Implication of exception assertions is defined as pointwise implication of the assertion for each
+exception.
+
+Unlike entailment (`ExceptConds.entails`), which is an ordinary proposition of type `Prop`,
+implication of exception assertions is itself an exception assertion.
+-/
 def ExceptConds.imp {ps : PostShape.{u}} (x : ExceptConds ps) (y : ExceptConds ps) : ExceptConds ps :=
   match ps with
   | .pure => ⟨⟩
   | .arg _ ps => @ExceptConds.imp ps x y
   | .except _ _ => (fun e => SPred.imp (x.1 e) (y.1 e), ExceptConds.imp x.2 y.2)
 
+@[inherit_doc ExceptConds.imp]
 infixr:25 " →ₑ " => ExceptConds.imp
 
 @[simp]
@@ -304,10 +362,21 @@ scoped macro:max ppAllowUngrouped "⇓?" xs:term:max+ " => " e:term : term =>
 instance : Inhabited (PostCond α ps) where
   default := PostCond.noThrow fun _ => default
 
+/--
+Entailment of postconditions.
+
+This consists of:
+ * Entailment of the assertion about the return value, for all possible return values.
+ * Entailment of the exception conditions.
+
+While implication of postconditions (`PostCond.imp`) results in a new postcondition, entailment is
+an ordinary proposition.
+-/
 @[simp]
 def PostCond.entails (p q : PostCond α ps) : Prop :=
   (∀ a, SPred.entails (p.1 a) (q.1 a)) ∧ ExceptConds.entails p.2 q.2
 
+@[inherit_doc PostCond.entails]
 scoped infixr:25 " ⊢ₚ " => PostCond.entails
 
 @[refl, simp]
@@ -325,14 +394,31 @@ theorem PostCond.entails_noThrow (p : α → Assertion ps) (q : PostCond α ps) 
 theorem PostCond.entails_mayThrow (p : PostCond α ps) (q : α → Assertion ps) : p ⊢ₚ PostCond.mayThrow q ↔ ∀ a, p.1 a ⊢ₛ q a := by
   simp only [entails, ExceptConds.entails_true, and_true]
 
+/--
+Conjunction of postconditions.
+
+This is defined pointwise, as the conjunction of the assertions about the return value and the
+conjunctions of the assertions about each potential exception.
+-/
 abbrev PostCond.and (p : PostCond α ps) (q : PostCond α ps) : PostCond α ps :=
   (fun a => SPred.and (p.1 a) (q.1 a), ExceptConds.and p.2 q.2)
 
+@[inherit_doc PostCond.and]
 scoped infixr:35 " ∧ₚ " => PostCond.and
 
+/--
+Implication of postconditions.
+
+This is defined pointwise, as the implication of the assertions about the return value and the
+implications of each of the assertions about each potential exception.
+
+While entailment of postconditions (`PostCond.entails`) is an ordinary proposition, implication of
+postconditions is itself a postcondition.
+-/
 abbrev PostCond.imp (p : PostCond α ps) (q : PostCond α ps) : PostCond α ps :=
   (fun a => SPred.imp (p.1 a) (q.1 a), ExceptConds.imp p.2 q.2)
 
+@[inherit_doc PostCond.imp]
 scoped infixr:25 " →ₚ " => PostCond.imp
 
 theorem PostCond.and_imp : P' ∧ₚ (P' →ₚ Q') ⊢ₚ P' ∧ₚ Q' := by

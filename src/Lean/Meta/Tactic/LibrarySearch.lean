@@ -179,11 +179,33 @@ initialization performance.
 -/
 private def constantsPerImportTask : Nat := 6500
 
-/-- Create function for finding relevant declarations. -/
-def libSearchFindDecls : Expr → MetaM (Array (Name × DeclMod)) :=
+/-- Environment extension for caching star-indexed lemmas.
+    Used for fallback when primary search finds nothing for fvar-headed goals. -/
+private builtin_initialize starLemmasExt : EnvExtension (IO.Ref (Option (Array (Name × DeclMod)))) ←
+  registerEnvExtension (IO.mkRef .none)
+
+/-- Create function for finding relevant declarations.
+    Also captures dropped entries in starLemmasExt for fallback search. -/
+def libSearchFindDecls (ty : Expr) : MetaM (Array (Name × DeclMod)) := do
+  let _ : Inhabited (IO.Ref (Option (Array (Name × DeclMod)))) := ⟨← IO.mkRef none⟩
+  let droppedRef := starLemmasExt.getState (←getEnv)
   findMatches ext addImport
       (droppedKeys := droppedKeys)
       (constantsPerTask := constantsPerImportTask)
+      (droppedEntriesRef := some droppedRef)
+      ty
+
+/-- Get star-indexed lemmas (lazily computed during tree initialization). -/
+def getStarLemmas : MetaM (Array (Name × DeclMod)) := do
+  let _ : Inhabited (IO.Ref (Option (Array (Name × DeclMod)))) := ⟨← IO.mkRef none⟩
+  let ref := starLemmasExt.getState (←getEnv)
+  match ←ref.get with
+  | some lemmas => return lemmas
+  | none =>
+    -- If star lemmas aren't cached yet, trigger tree initialization by searching for a dummy type
+    -- This will populate starLemmasExt as a side effect
+    let _ ← libSearchFindDecls (mkConst ``True)
+    pure ((←ref.get).getD #[])
 
 /--
 Return an action that returns true when the remaining heartbeats is less
@@ -312,7 +334,8 @@ Sequentially invokes a tactic `act` on each value in candidates on the current s
 
 The tactic `act` should return a list of meta-variables that still need to be resolved.
 If this list is empty, then no variables remain to be solved, and `tryOnEach` returns
-`none` with the environment set so each goal is resolved.
+`none` with the environment set so each goal is resolved (unless `collectAll` is true,
+in which case it continues searching and collects complete solutions in the array).
 
 If the action throws an internal exception with the `abortSpeculationId` id then
 further computation is stopped and intermediate results returned. If any other
@@ -320,7 +343,8 @@ exception is thrown, then it is silently discarded.
 -/
 def tryOnEach
     (act : Candidate → MetaM (List MVarId))
-    (candidates : Array Candidate) :
+    (candidates : Array Candidate)
+    (collectAll : Bool := false) :
     MetaM (Option (Array (List MVarId × MetavarContext))) := do
   let mut a := #[]
   let s ← saveState
@@ -331,7 +355,7 @@ def tryOnEach
       if isAbortSpeculation e then
         break
     | .ok remaining =>
-      if remaining.isEmpty then
+      if remaining.isEmpty && !collectAll then
         return none
       let ctx ← getMCtx
       restoreState s
@@ -341,19 +365,40 @@ def tryOnEach
 private def librarySearch' (goal : MVarId)
     (tactic : List MVarId → MetaM (List MVarId))
     (allowFailure : MVarId → MetaM Bool)
-    (leavePercentHeartbeats : Nat) :
+    (leavePercentHeartbeats : Nat)
+    (includeStar : Bool := true)
+    (collectAll : Bool := false) :
     MetaM (Option (Array (List MVarId × MetavarContext))) := do
   withTraceNode `Tactic.librarySearch (return m!"{librarySearchEmoji ·} {← goal.getType}") do
   profileitM Exception "librarySearch" (← getOptions) do
-    -- Create predicate that returns true when running low on heartbeats.
-    let candidates ← librarySearchSymm libSearchFindDecls goal
     let cfg : ApplyConfig := { allowSynthFailures := true }
     let shouldAbort ← mkHeartbeatCheck leavePercentHeartbeats
     let act := fun cand => do
         if ←shouldAbort then
           abortSpeculation
         librarySearchLemma cfg tactic allowFailure cand
-    tryOnEach act candidates
+    -- First pass: search with droppedKeys (excludes star-indexed lemmas)
+    let candidates ← librarySearchSymm libSearchFindDecls goal
+    match ← tryOnEach act candidates collectAll with
+    | none => return none  -- Found a complete solution (only when collectAll = false)
+    | some results =>
+      -- Only do star fallback if:
+      -- 1. No complete solutions from primary search (when collectAll, check for empty remaining)
+      -- 2. includeStar is true
+      -- When collectAll = false, any result means we should skip star fallback (return partial).
+      -- When collectAll = true, we continue to star lemmas unless we have a complete solution.
+      let hasCompleteSolution := results.any (·.1.isEmpty)
+      if hasCompleteSolution || (!collectAll && !results.isEmpty) || !includeStar then
+        return some results
+      -- Second pass: try star-indexed lemmas (those with [*] or [Eq,*,*,*] keys)
+      -- No need for librarySearchSymm since getStarLemmas ignores the goal type
+      let starLemmas ← getStarLemmas
+      if starLemmas.isEmpty then return some results
+      let mctx ← getMCtx
+      let starCandidates := starLemmas.map ((goal, mctx), ·)
+      match ← tryOnEach act starCandidates collectAll with
+      | none => return none  -- Found complete solution from star lemmas
+      | some starResults => return some (results ++ starResults)
 
 /--
 Tries to solve the goal by applying a library lemma
@@ -361,10 +406,12 @@ then calling `tactic` on the resulting goals.
 
 Typically here `tactic` is `solveByElim`.
 
-If it successfully closes the goal, returns `none`.
+If it successfully closes the goal, returns `none` (unless `collectAll` is true).
 Otherwise, it returns `some a`, where `a : Array (List MVarId × MetavarContext)`,
 with an entry for each library lemma which was successfully applied,
 containing a list of the subsidiary goals, and the metavariable context after the application.
+When `collectAll` is true, complete solutions (with empty remaining goals) are also included
+in the array instead of returning early.
 
 (Always succeeds, and the metavariable context stored in the monad is reverted,
 unless the goal was completely solved.)
@@ -376,9 +423,11 @@ def librarySearch (goal : MVarId)
     (tactic : List MVarId → MetaM (List MVarId) :=
       fun g => solveByElim [] (maxDepth := 6) (exfalso := false) g)
     (allowFailure : MVarId → MetaM Bool := fun _ => pure true)
-    (leavePercentHeartbeats : Nat := 10) :
+    (leavePercentHeartbeats : Nat := 10)
+    (includeStar : Bool := true)
+    (collectAll : Bool := false) :
     MetaM (Option (Array (List MVarId × MetavarContext))) := do
-  librarySearch' goal tactic allowFailure leavePercentHeartbeats
+  librarySearch' goal tactic allowFailure leavePercentHeartbeats includeStar collectAll
 
 end LibrarySearch
 

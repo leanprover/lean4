@@ -25,9 +25,9 @@ section
 open String.Slice Pattern
 
 variable {ρ : Type} {σ : Slice → Type}
-variable [∀ s, Std.Iterators.Iterator (σ s) Id (SearchStep s)]
+variable [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
 variable [∀ s, Std.Iterators.Finite (σ s) Id]
-variable [∀ s, Std.Iterators.IteratorLoop (σ s) Id Id]
+variable [∀ s, Std.IteratorLoop (σ s) Id Id]
 
 
 /--
@@ -324,7 +324,8 @@ Examples:
  * {lean}`"tea".contains (fun (c : Char) => c == 'X') = false`
  * {lean}`"coffee tea water".contains "tea" = true`
 -/
-@[inline] def contains (s : String) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
+@[inline, suggest_for String.some]
+def contains (s : String) (pat : ρ) [ToForwardSearcher pat σ] : Bool :=
   s.toSlice.contains pat
 
 @[export lean_string_contains]
@@ -352,7 +353,7 @@ Examples:
  * {lean}`"aaaaaa".all "aa" = true`
  * {lean}`"aaaaaaa".all "aa" = false`
 -/
-@[inline] def all (s : String) (pat : ρ) [ForwardPattern pat] : Bool :=
+@[inline, suggest_for String.every] def all (s : String) (pat : ρ) [ForwardPattern pat] : Bool :=
   s.toSlice.all pat
 
 /--

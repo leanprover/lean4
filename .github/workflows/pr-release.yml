@@ -127,7 +127,7 @@ jobs:
               description: "${{ github.repository_owner }}/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}-${{ env.SHORT_SHA }}",
             });
 
-      - name: Add label
+      - name: Add toolchain-available label
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         uses: actions/github-script@v8
         with:
@@ -166,22 +166,14 @@ jobs:
           if [ "$NIGHTLY_SHA" = "$MERGE_BASE_SHA" ]; then
             echo "The merge base of this PR coincides with the nightly release"
 
-            BATTERIES_REMOTE_TAGS="$(git ls-remote https://github.com/leanprover-community/batteries.git nightly-testing-"$MOST_RECENT_NIGHTLY")"
             MATHLIB_REMOTE_TAGS="$(git ls-remote https://github.com/leanprover-community/mathlib4-nightly-testing.git nightly-testing-"$MOST_RECENT_NIGHTLY")"
 
-            if [[ -n "$BATTERIES_REMOTE_TAGS" ]]; then
-              echo "... and Batteries has a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
+            if [[ -n "$MATHLIB_REMOTE_TAGS" ]]; then
+              echo "... and Mathlib has a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
               MESSAGE=""
-
-              if [[ -n "$MATHLIB_REMOTE_TAGS" ]]; then
-                echo "... and Mathlib has a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
-              else
-                echo "... but Mathlib does not yet have a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
-                MESSAGE="- ❗ Mathlib CI can not be attempted yet, as the \`nightly-testing-$MOST_RECENT_NIGHTLY\` tag does not exist there yet. We will retry when you push more commits. If you rebase your branch onto \`nightly-with-mathlib\`, Mathlib CI should run now."
-              fi
             else
-              echo "... but Batteries does not yet have a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
-              MESSAGE="- ❗ Batteries CI can not be attempted yet, as the \`nightly-testing-$MOST_RECENT_NIGHTLY\` tag does not exist there yet. We will retry when you push more commits. If you rebase your branch onto \`nightly-with-mathlib\`, Batteries CI should run now."
+              echo "... but Mathlib does not yet have a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
+              MESSAGE="- ❗ Mathlib CI can not be attempted yet, as the \`nightly-testing-$MOST_RECENT_NIGHTLY\` tag does not exist there yet. We will retry when you push more commits. If you rebase your branch onto \`nightly-with-mathlib\`, Mathlib CI should run now."
             fi
           else
             echo "The most recently nightly tag on this branch has SHA: $NIGHTLY_SHA"
@@ -514,6 +506,18 @@ jobs:
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
         run: |
           git push origin lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}
+
+      - name: Add mathlib4-nightly-available label
+        if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              issue_number: ${{ steps.workflow-info.outputs.pullRequestNumber }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['mathlib4-nightly-available']
+            })
 
       # We next automatically create a reference manual branch using this toolchain.
       # Reference manual CI will be responsible for reporting back success or failure

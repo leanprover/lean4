@@ -222,9 +222,6 @@ Tests for `String.Slice` functions
 section
 open String.Slice.Pattern
 
-instance [Monad n]{s : String.Slice} : Std.Iterators.IteratorCollect (ForwardSliceSearcher s) Id n :=
-  .defaultImplementation
-
 #guard (ToForwardSearcher.toSearcher "" "".toSlice).toList == [.matched "".toSlice.startPos "".toSlice.startPos]
 #guard (ToForwardSearcher.toSearcher "" "abc".toSlice).toList == [
   .matched ("abc".toSlice.pos ⟨0⟩ (by decide)) ("abc".toSlice.pos ⟨0⟩ (by decide)),
@@ -240,3 +237,12 @@ end
 
 #guard ("".toSlice.split "").toList == ["".toSlice, "".toSlice]
 #guard ("abc".toSlice.split "").toList == ["".toSlice, "a".toSlice, "b".toSlice, "c".toSlice, "".toSlice]
+
+#guard " ".find (·.isWhitespace) = " ".startPos
+#guard " ".find (· = ' ') = " ".startPos
+#guard " ".startsWith (·.isWhitespace) = true
+#guard " ".startsWith (· = ' ') = true
+#guard " ".revFind? (·.isWhitespace) = some " ".startPos
+#guard " ".revFind? (· = ' ') = some " ".startPos
+#guard " ".endsWith (·.isWhitespace) = true
+#guard " ".endsWith (· = ' ') = true

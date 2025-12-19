@@ -951,6 +951,11 @@ structure Goal where
   it is its unique id.
   -/
   appMap       : PHashMap HeadIndex (List Expr) := {}
+  /--
+  All constants (*not* in `appMap`) that have been internalized, *and*
+  `appMap`'s domain. We use this collection during theorem activation.
+  -/
+  indicesFound : PHashSet HeadIndex := {}
   /-- Equations and propositions to be processed. -/
   newFacts     : Array NewFact := #[]
   /-- `inconsistent := true` if `ENode`s for `True` and `False` are in the same equivalence class. -/
@@ -1036,7 +1041,7 @@ def addNewRawFact (proof : Expr) (prop : Expr) (generation : Nat) (splitSource :
     unless (← withGTransparency <| isDefEq (← inferType proof) prop) do
       throwError "`grind` internal error, trying to assert{indentExpr prop}\n\
         with proof{indentExpr proof}\nwhich has type{indentExpr (← inferType proof)}\n\
-        which is not definitionally equal with `reducible` transparency setting}"
+        which is not definitionally equal with `reducible` transparency setting"
   modify fun s => { s with newRawFacts := s.newRawFacts.enqueue { proof, prop, generation, splitSource } }
 
 /-- Returns the number of theorem instances generated so far. -/
@@ -1193,7 +1198,7 @@ def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
       unless (← withGTransparency <| isDefEq (← inferType proof) expectedType) do
         throwError "`grind` internal error, trying to assert equality{indentExpr expectedType}\n\
             with proof{indentExpr proof}\nwhich has type{indentExpr (← inferType proof)}\n\
-            which is not definitionally equal with `reducible` transparency setting}"
+            which is not definitionally equal with `reducible` transparency setting"
       trace[grind.debug] "pushEqCore: {expectedType}"
   modify fun s => { s with newFacts := s.newFacts.push <| .eq lhs rhs proof isHEq }
 

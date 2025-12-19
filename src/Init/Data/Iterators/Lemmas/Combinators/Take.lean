@@ -12,7 +12,8 @@ public import Init.Data.Iterators.Lemmas.Consumers
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators Std.Iterators.Types
 
 theorem Iter.take_eq_toIter_take_toIterM {α β} [Iterator α Id β] {n : Nat}
     {it : Iter (α := α) β} :
@@ -62,8 +63,7 @@ theorem Iter.atIdxSlow?_take {α β}
 
 @[simp]
 theorem Iter.toList_take_of_finite {α β} [Iterator α Id β] {n : Nat}
-    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
-    {it : Iter (α := α) β} :
+    [Finite α Id] {it : Iter (α := α) β} :
     (it.take n).toList = it.toList.take n := by
   induction it using Iter.inductSteps generalizing n with | step it ihy ihs
   rw [Iter.toList_eq_match_step, Iter.toList_eq_match_step, Iter.step_take]
@@ -79,23 +79,19 @@ theorem Iter.toList_take_of_finite {α β} [Iterator α Id β] {n : Nat}
 
 @[simp]
 theorem Iter.toListRev_take_of_finite {α β} [Iterator α Id β] {n : Nat}
-    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
-    {it : Iter (α := α) β} :
+    [Finite α Id] {it : Iter (α := α) β} :
     (it.take n).toListRev = it.toListRev.drop (it.toList.length - n) := by
   rw [toListRev_eq, toList_take_of_finite, List.reverse_take, toListRev_eq]
 
 @[simp]
 theorem Iter.toArray_take_of_finite {α β} [Iterator α Id β] {n : Nat}
-    [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
-    {it : Iter (α := α) β} :
+    [Finite α Id] {it : Iter (α := α) β} :
     (it.take n).toArray = it.toArray.take n := by
   rw [← toArray_toList, ← toArray_toList, List.take_toArray, toList_take_of_finite]
 
 @[simp]
 theorem Iter.toList_take_zero {α β} [Iterator α Id β]
-    [Finite (Take α Id) Id]
-    [IteratorCollect (Take α Id) Id Id] [LawfulIteratorCollect (Take α Id) Id Id]
-    {it : Iter (α := α) β} :
+    [Finite (Take α Id) Id] {it : Iter (α := α) β} :
     (it.take 0).toList = [] := by
   rw [toList_eq_match_step]
   simp [step_take]
@@ -112,10 +108,8 @@ theorem Iter.step_toTake {α β} [Iterator α Id β] [Finite α Id]
   cases it.toIterM.step.run.inflate using PlausibleIterStep.casesOn <;> simp
 
 @[simp]
-theorem Iter.toList_toTake {α β} [Iterator α Id β] [Finite α Id]
-    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
-    {it : Iter (α := α) β} :
+theorem Iter.toList_toTake {α β} [Iterator α Id β] [Finite α Id] {it : Iter (α := α) β} :
     it.toTake.toList = it.toList := by
   simp [toTake_eq_toIter_toTake_toIterM, toList_eq_toList_toIterM]
 
-end Std.Iterators
+end Std

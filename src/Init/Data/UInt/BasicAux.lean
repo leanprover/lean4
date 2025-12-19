@@ -57,7 +57,7 @@ Converts an 8-bit unsigned integer to an arbitrary-precision natural number.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint8_to_nat"]
+@[extern "lean_uint8_to_nat", tagged_return]
 def UInt8.toNat (n : UInt8) : Nat := n.toBitVec.toNat
 
 instance UInt8.instOfNat : OfNat UInt8 n := ⟨UInt8.ofNat n⟩
@@ -108,7 +108,7 @@ Converts a 16-bit unsigned integer to an arbitrary-precision natural number.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint16_to_nat"]
+@[extern "lean_uint16_to_nat", tagged_return]
 def UInt16.toNat (n : UInt16) : Nat := n.toBitVec.toNat
 /--
 Converts 16-bit unsigned integers to 8-bit unsigned integers. Wraps around on overflow.
@@ -206,6 +206,28 @@ theorem UInt32.lt_ofNatLT_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UIn
      m < n → UInt32.ofNat m < UInt32.ofNatLT n h1 := by
   simp only [(· < ·), BitVec.toNat, ofNatLT, BitVec.ofNatLT, ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat,
     Fin.ofNat, Nat.mod_eq_of_lt h2, imp_self]
+
+
+/--
+Adds two 32-bit unsigned integers, wrapping around on overflow. Usually accessed via the `+`
+operator.
+
+This function is overridden at runtime with an efficient implementation.
+-/
+@[extern "lean_uint32_add"]
+protected def UInt32.add (a b : UInt32) : UInt32 := ⟨a.toBitVec + b.toBitVec⟩
+
+/--
+Subtracts one 32-bit unsigned integer from another, wrapping around on underflow. Usually accessed
+via the `-` operator.
+
+This function is overridden at runtime with an efficient implementation.
+-/
+@[extern "lean_uint32_sub"]
+protected def UInt32.sub (a b : UInt32) : UInt32 := ⟨a.toBitVec - b.toBitVec⟩
+
+instance : Add UInt32       := ⟨UInt32.add⟩
+instance : Sub UInt32       := ⟨UInt32.sub⟩
 
 /-- Converts a `UInt64` into the corresponding `Fin UInt64.size`. -/
 def UInt64.toFin (x : UInt64) : Fin UInt64.size := x.toBitVec.toFin

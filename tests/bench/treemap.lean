@@ -20,16 +20,13 @@ def iterRandM (seed : UInt64) : Std.IterM (α := RandomIterator) m UInt64 :=
 def iterRand (seed : UInt64) : Std.Iter (α := RandomIterator) UInt64 :=
   { internalState := RandomIterator.mk seed }
 
-instance [Pure m] : Std.Iterators.Iterator RandomIterator m UInt64 where
+instance [Pure m] : Std.Iterator RandomIterator m UInt64 where
   IsPlausibleStep it
     | .yield it' out => True -- fake it for now
     | .skip _ => False
     | .done => False
   step := fun ⟨it⟩ =>
     pure (.deflate ⟨.yield (iterRandM <| (it.state + (1 : UInt64)) * (3_787_392_781 : UInt64)) it.state, by trivial⟩)
-
-instance [Monad m] [Monad n] : Std.Iterators.IteratorLoopPartial (RandomIterator) m n :=
-  .defaultImplementation
 
 def mkMap (seed : UInt64) (size : Nat) : Std.TreeMap UInt64 UInt64 := Id.run do
   let mut map := {}

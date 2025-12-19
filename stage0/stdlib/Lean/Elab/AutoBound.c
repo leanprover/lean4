@@ -21,6 +21,7 @@ lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardPattern_defaultDropPrefix_x3f___at___00__private_Init_Data_String_Slice_0__String_Slice_dropWhile_go___at___00__private_Lean_Elab_AutoBound_0__Lean_Elab_isValidAutoBoundSuffix_spec__0_spec__0___boxed(lean_object*);
 static lean_object* l_Lean_Elab_instEmptyCollectionAutoBoundImplicitContext___closed__2;
 static lean_object* l_Lean_Elab_initFn___closed__2_00___x40_Lean_Elab_AutoBound_366037992____hygCtx___hyg_4_;
+LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_Elab_AutoBound_0__Lean_Elab_isValidAutoBoundSuffix_spec__1(lean_object*);
 static lean_object* l_Lean_Elab_instEmptyCollectionAutoBoundImplicitContext___closed__1;
 static lean_object* l_Lean_Elab_initFn___closed__4_00___x40_Lean_Elab_AutoBound_323533819____hygCtx___hyg_4_;
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___00Lean_Elab_initFn_00___x40_Lean_Elab_AutoBound_366037992____hygCtx___hyg_4__spec__0(lean_object*, lean_object*, lean_object*);
@@ -33,7 +34,6 @@ lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_initFn_00___x40_Lean_Elab_AutoBound_323533819____hygCtx___hyg_4____boxed(lean_object*);
 lean_object* l_Lean_MessageData_note(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
-LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_Elab_AutoBound_0__Lean_Elab_isValidAutoBoundSuffix_spec__2(lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_AutoBound_0__Lean_Elab_isValidAutoBoundSuffix___closed__0;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
@@ -392,7 +392,7 @@ x_2 = l_Lean_Elab_initFn_00___x40_Lean_Elab_AutoBound_323533819____hygCtx___hyg_
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_Elab_AutoBound_0__Lean_Elab_isValidAutoBoundSuffix_spec__2(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_Elab_AutoBound_0__Lean_Elab_isValidAutoBoundSuffix_spec__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -417,7 +417,6 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; uint8_t x_10; uint32_t x_14; uint8_t x_15; uint32_t x_23; uint8_t x_24; 
 x_8 = lean_string_utf8_next_fast(x_2, x_3);
 x_9 = lean_nat_sub(x_8, x_3);
-lean_dec(x_8);
 x_14 = lean_string_utf8_get_fast(x_2, x_3);
 x_23 = 48;
 x_24 = lean_uint32_dec_le(x_23, x_14);
@@ -587,7 +586,6 @@ _start:
 lean_object* x_2; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
 x_13 = lean_unsigned_to_nat(0u);
 x_14 = lean_string_utf8_byte_size(x_1);
-lean_inc(x_14);
 lean_inc_ref(x_1);
 x_15 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_15, 0, x_1);
@@ -600,7 +598,6 @@ x_18 = lean_string_is_valid_pos(x_1, x_17);
 if (x_18 == 0)
 {
 lean_dec(x_17);
-lean_dec(x_14);
 lean_dec_ref(x_1);
 goto block_12;
 }
@@ -611,7 +608,6 @@ x_19 = lean_string_is_valid_pos(x_1, x_14);
 if (x_19 == 0)
 {
 lean_dec(x_17);
-lean_dec(x_14);
 lean_dec_ref(x_1);
 goto block_12;
 }
@@ -622,7 +618,6 @@ x_20 = lean_nat_dec_le(x_17, x_14);
 if (x_20 == 0)
 {
 lean_dec(x_17);
-lean_dec(x_14);
 lean_dec_ref(x_1);
 goto block_12;
 }
@@ -660,7 +655,7 @@ block_12:
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = l___private_Lean_Elab_AutoBound_0__Lean_Elab_isValidAutoBoundSuffix___closed__3;
-x_11 = l_panic___at___00__private_Lean_Elab_AutoBound_0__Lean_Elab_isValidAutoBoundSuffix_spec__2(x_10);
+x_11 = l_panic___at___00__private_Lean_Elab_AutoBound_0__Lean_Elab_isValidAutoBoundSuffix_spec__1(x_10);
 x_2 = x_11;
 goto block_9;
 }
@@ -813,7 +808,6 @@ x_33 = lean_ctor_get(x_1, 1);
 x_34 = lean_string_length(x_33);
 x_35 = lean_unsigned_to_nat(0u);
 x_36 = lean_nat_dec_eq(x_34, x_35);
-lean_dec(x_34);
 if (x_36 == 0)
 {
 if (x_2 == 0)
@@ -963,7 +957,6 @@ lean_object* x_14; lean_object* x_15; uint8_t x_16;
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_string_length(x_4);
 x_16 = lean_nat_dec_lt(x_14, x_15);
-lean_dec(x_15);
 if (x_16 == 0)
 {
 lean_dec_ref(x_4);

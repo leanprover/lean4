@@ -77,9 +77,6 @@ Returns the `i`th least significant bit.
 -/
 @[inline, expose] def getLsb (x : BitVec w) (i : Fin w) : Bool := x.toNat.testBit i
 
-@[deprecated getLsb (since := "2025-06-17"), inherit_doc getLsb]
-abbrev getLsb' := @getLsb
-
 /-- Returns the `i`th least significant bit, or `none` if `i ≥ w`. -/
 @[inline, expose] def getLsb? (x : BitVec w) (i : Nat) : Option Bool :=
   if h : i < w then some (getLsb x ⟨i, h⟩) else none
@@ -88,9 +85,6 @@ abbrev getLsb' := @getLsb
 Returns the `i`th most significant bit.
 -/
 @[inline] def getMsb (x : BitVec w) (i : Fin w) : Bool := x.getLsb ⟨w-1-i, by omega⟩
-
-@[deprecated getMsb (since := "2025-06-17"), inherit_doc getMsb]
-abbrev getMsb' := @getMsb
 
 /-- Returns the `i`th most significant bit or `none` if `i ≥ w`. -/
 @[inline] def getMsb? (x : BitVec w) (i : Nat) : Option Bool :=
@@ -296,7 +290,7 @@ Lean convention that division by zero returns zero.
 
 Examples:
 * `(7#4).sdiv 2 = 3#4`
-* `(-9#4).sdiv 2 = -4#4`
+* `(-8#4).sdiv 2 = -4#4`
 * `(5#4).sdiv -2 = -2#4`
 * `(-7#4).sdiv (-2) = 3#4`
 -/
@@ -869,5 +863,18 @@ def clz (x : BitVec w) : BitVec w := clzAuxRec x (w - 1)
 
 /-- Count the number of trailing zeros. -/
 def ctz (x : BitVec w) : BitVec w := (x.reverse).clz
+
+/-- Count the number of bits with value `1` downward from the `pos`-th bit to the
+  `0`-th bit of `x`, storing the result in `acc`. -/
+def cpopNatRec (x : BitVec w) (pos acc : Nat) : Nat :=
+  match pos with
+  | 0 => acc
+  | n + 1 => x.cpopNatRec n (acc + (x.getLsbD n).toNat)
+
+/-- Population count operation, to count the number of bits with value `1` in `x`.
+  Also known as `popcount`, `popcnt`.
+-/
+@[suggest_for BitVec.popcount BitVec.popcnt]
+def cpop (x : BitVec w) : BitVec w := BitVec.ofNat w (cpopNatRec x w 0)
 
 end BitVec

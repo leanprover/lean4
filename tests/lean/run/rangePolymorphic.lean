@@ -80,6 +80,11 @@ example (xs : Array Nat) : Id Unit := do
     for _h' : i' in *...<i do
       x := x + xs[i']
 
+example {a : Array Nat} (h : a.size = 28) : Id Unit := do
+  let mut x := 0
+  for h : i in *...(3 : Nat) do
+    x := a[1...4][i]
+
 /--
 info: i=0, j=2
 i=1, j=3

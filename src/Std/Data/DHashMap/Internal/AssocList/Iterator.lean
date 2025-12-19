@@ -33,7 +33,7 @@ public instance : Iterator (α := AssocListIterator α β) Id ((a : α) × β a)
     | .done => it.internalState.l = .nil
   step it := pure (match it with
         | ⟨⟨.nil⟩⟩ => .deflate ⟨.done, rfl⟩
-        | ⟨⟨.cons k v l⟩⟩ => .deflate ⟨.yield (toIterM ⟨l⟩ Id _) ⟨k, v⟩, rfl⟩)
+        | ⟨⟨.cons k v l⟩⟩ => .deflate ⟨.yield (.mk ⟨l⟩ Id _) ⟨k, v⟩, rfl⟩)
 
 def AssocListIterator.finitenessRelation :
     FinitenessRelation (AssocListIterator α β) Id where
@@ -48,19 +48,7 @@ public instance : Finite (AssocListIterator α β) Id :=
   Finite.of_finitenessRelation AssocListIterator.finitenessRelation
 
 public instance {α : Type u} {β : α → Type v} {m : Type (max u v) → Type w''} [Monad m] :
-    IteratorCollect (AssocListIterator α β) Id m :=
-  .defaultImplementation
-
-public instance {α : Type u} {β : α → Type v} {m : Type (max u v) → Type w''} [Monad m] :
-    IteratorCollectPartial (AssocListIterator α β) Id m :=
-  .defaultImplementation
-
-public instance {α : Type u} {β : α → Type v} {m : Type (max u v) → Type w''} [Monad m] :
     IteratorLoop (AssocListIterator α β) Id m :=
-  .defaultImplementation
-
-public instance {α : Type u} {β : α → Type v} {m : Type (max u v) → Type w''} [Monad m] :
-    IteratorLoopPartial (AssocListIterator α β) Id m :=
   .defaultImplementation
 
 /--

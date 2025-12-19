@@ -12,7 +12,8 @@ public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 
 public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 variable {α : Type u} {m : Type u → Type u'} {n : Type max u v → Type v'}
     {β : Type u}
@@ -30,8 +31,8 @@ theorem IterM.step_uLift [Iterator α m β] [Monad n] {it : IterM (α := α) m �
 
 @[simp]
 theorem IterM.toList_uLift [Iterator α m β] [Monad m] [Monad n] {it : IterM (α := α) m β}
-    [MonadLiftT m (ULiftT n)] [Finite α m] [IteratorCollect α m m]
-    [LawfulMonad m] [LawfulMonad n] [LawfulIteratorCollect α m m]
+    [MonadLiftT m (ULiftT n)] [Finite α m]
+    [LawfulMonad m] [LawfulMonad n]
     [LawfulMonadLiftT m (ULiftT n)] :
     (it.uLift n).toList =
       (fun l => l.down.map ULift.up) <$> (monadLift it.toList : ULiftT n _).run := by
@@ -46,8 +47,8 @@ theorem IterM.toList_uLift [Iterator α m β] [Monad m] [Monad n] {it : IterM (�
 
 @[simp]
 theorem IterM.toListRev_uLift [Iterator α m β] [Monad m] [Monad n] {it : IterM (α := α) m β}
-    [MonadLiftT m (ULiftT n)] [Finite α m] [IteratorCollect α m m]
-    [LawfulMonad m] [LawfulMonad n] [LawfulIteratorCollect α m m]
+    [MonadLiftT m (ULiftT n)] [Finite α m]
+    [LawfulMonad m] [LawfulMonad n]
     [LawfulMonadLiftT m (ULiftT n)] :
     (it.uLift n).toListRev =
       (fun l => l.down.map ULift.up) <$> (monadLift it.toListRev : ULiftT n _).run := by
@@ -56,8 +57,8 @@ theorem IterM.toListRev_uLift [Iterator α m β] [Monad m] [Monad n] {it : IterM
 
 @[simp]
 theorem IterM.toArray_uLift [Iterator α m β] [Monad m] [Monad n] {it : IterM (α := α) m β}
-    [MonadLiftT m (ULiftT n)] [Finite α m] [IteratorCollect α m m]
-    [LawfulMonad m] [LawfulMonad n] [LawfulIteratorCollect α m m]
+    [MonadLiftT m (ULiftT n)] [Finite α m]
+    [LawfulMonad m] [LawfulMonad n]
     [LawfulMonadLiftT m (ULiftT n)] :
     (it.uLift n).toArray =
       (fun l => l.down.map ULift.up) <$> (monadLift it.toArray : ULiftT n _).run := by
@@ -80,4 +81,4 @@ theorem IterM.count_uLift [Iterator α m β] [Monad m] [Monad n] {it : IterM (α
   · simp [ihs ‹_›]
   · simp
 
-end Std.Iterators
+end Std

@@ -63,7 +63,7 @@ info: Try this:
 #guard_msgs in
 example : x < x + 1 := exact?%
 
-/-- error: `exact?%` didn't find any relevant lemmas -/
+/-- error: `exact?%` could not close the goal. Try `by apply?` to see partial suggestions. -/
 #guard_msgs in
 example {α : Sort u} (x y : α) : Eq x y := exact?%
 
@@ -90,14 +90,32 @@ info: Try this:
 #guard_msgs in
 example (X : Type) (P : Prop) (x : X) (h : ∀ x : X, x = x → P) : P := by show_term solve_by_elim
 
--- Could be any number of results (`fun x => x`, `id`, etc)
-#guard_msgs (drop info) in
+/--
+info: Try this:
+  [apply] exact fun a => a
+-/
+#guard_msgs in
 example (α : Prop) : α → α := by show_term solve_by_elim
 
--- Note: these examples no longer work after we turned off lemmas with discrimination key `#[*]`.
--- example (p : Prop) : (¬¬p) → p := by apply? -- says: `exact not_not.mp`
--- example (a b : Prop) (h : a ∧ b) : a := by apply? -- says: `exact h.left`
--- example (P Q : Prop) : (¬ Q → ¬ P) → (P → Q) := by apply? -- say: `exact Function.mtr`
+-- These examples work via star-indexed fallback.
+/--
+info: Try this:
+  [apply] exact fun a => Classical.byContradiction a
+-/
+#guard_msgs in
+example (p : Prop) : (¬¬p) → p := by apply?
+/--
+info: Try this:
+  [apply] exact h.left
+-/
+#guard_msgs in
+example (a b : Prop) (h : a ∧ b) : a := by apply?
+/--
+info: Try this:
+  [apply] exact fun a a_1 => Classical.byContradiction fun a_2 => a a_2 a_1
+-/
+#guard_msgs in
+example (P Q : Prop) : (¬ Q → ¬ P) → (P → Q) := by apply?
 
 /--
 info: Try this:
@@ -260,10 +278,16 @@ info: Try this:
 #guard_msgs in
 example {a b c : Nat} (h₁ : a ∣ c) (h₂ : a ∣ b + c) : a ∣ b := by apply?
 
--- Note: these examples no longer work after we turned off lemmas with discrimination key `#[*]`.
--- example {α : Sort u} (h : Empty) : α := by apply? -- says `exact Empty.elim h`
--- example (f : A → C) (g : B → C) : (A ⊕ B) → C := by apply? -- says `exact Sum.elim f g`
--- example (n : Nat) (r : ℚ) : ℚ := by apply? using n, r -- exact nsmulRec n r
+-- These examples work via star-indexed fallback.
+/--
+info: Try this:
+  [apply] exact h.elim
+-/
+#guard_msgs in
+example {α : Sort u} (h : Empty) : α := by apply?
+
+-- FIXME: this is timing out, what is it doing?
+-- example (f : A → C) (g : B → C) : (A ⊕ B) → C := by apply?
 
 opaque f : Nat → Nat
 axiom F (a b : Nat) : f a ≤ f b ↔ a ≤ b
@@ -350,7 +374,7 @@ info: Try this:
   -- Remaining subgoals:
   -- ⊢ 2 ≠ 0
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example {x : Int} (h : x ≠ 0) : 2 * x ≠ 0 := by
@@ -366,10 +390,8 @@ info: Try this:
 example (_h : List.range 10000 = List.range 10000) (n m : Nat) : n + m = m + n := by
   with_reducible exact?
 
-/--
-error: apply? didn't find any relevant lemmas
--/
-#guard_msgs in
+-- Now finds star-indexed lemmas (e.g., noConfusion) as partial proofs
+#guard_msgs (drop info) in
 example {α : Sort u} (x y : α) : Eq x y := by apply?
 
 -- If this lemma is added later to the library, please update this `#guard_msgs`.
@@ -381,3 +403,91 @@ example (p q : Prop) : (¬ p = q) = (p = ¬ q) := by exact?
 -- Verify that there is a `sorry` warning when `apply?` closes the goal.
 #guard_msgs (drop info) in
 example : False := by apply?
+
+-- Test the `-star` and `+star` flags for controlling star-indexed lemma fallback.
+-- `Empty.elim` is a star-indexed lemma (polymorphic result type), so `-star` prevents finding it.
+/-- error: apply? didn't find any relevant lemmas -/
+#guard_msgs in
+example {α : Sort u} (h : Empty) : α := by apply? -star
+
+-- With `+star`, we find `Empty.elim` via star-indexed lemma fallback.
+/--
+info: Try this:
+  [apply] exact h.elim
+-/
+#guard_msgs in
+example {α : Sort u} (h : Empty) : α := by apply? +star
+
+-- Verify that `-star` doesn't break normal (non-star-indexed) lemma search.
+section MinusStar
+
+/--
+info: Try this:
+  [apply] exact Nat.add_comm x y
+-/
+#guard_msgs in
+example (x y : Nat) : x + y = y + x := by apply? -star
+
+/--
+info: Try this:
+  [apply] exact fun a => Nat.add_le_add_right a k
+-/
+#guard_msgs in
+example (n m k : Nat) : n ≤ m → n + k ≤ m + k := by apply? -star
+
+/--
+info: Try this:
+  [apply] exact Nat.mul_dvd_mul_left a w
+-/
+#guard_msgs in
+example (_ha : a > 0) (w : b ∣ c) : a * b ∣ a * c := by apply? -star
+
+/--
+info: Try this:
+  [apply] exact Nat.lt_add_one x
+-/
+#guard_msgs in
+example : x < x + 1 := by exact? -star
+
+/--
+info: Try this:
+  [apply] exact eq_comm
+-/
+#guard_msgs in
+example {α : Type} (x y : α) : x = y ↔ y = x := by apply? -star
+
+/--
+info: Try this:
+  [apply] exact (p_iff_q a).mp h
+-/
+#guard_msgs in
+example {a : Nat} (h : P a) : Q a := by apply? -star
+
+/--
+info: Try this:
+  [apply] exact (Nat.dvd_add_iff_left h₁).mpr h₂
+-/
+#guard_msgs in
+example {a b c : Nat} (h₁ : a ∣ c) (h₂ : a ∣ b + c) : a ∣ b := by apply? -star
+
+/--
+info: Try this:
+  [apply] exact L.flatten
+-/
+#guard_msgs in
+example (L : List (List Nat)) : List Nat := by apply? -star using L
+
+/--
+info: Try this:
+  [apply] exact Bool_eq_iff
+-/
+#guard_msgs in
+example {A B : Bool} : (A = B) = (A ↔ B) := by apply? -star
+
+end MinusStar
+
+-- Test that `+all` includes star-indexed lemmas even when partial results exist from primary search.
+-- `Empty.elim` is star-indexed (polymorphic result type).
+-- This verifies the fix for the bug where star fallback was skipped when partial results existed.
+#guard_msgs (drop info) in
+example {α : Sort u} (h : Empty) : α := by apply? +all

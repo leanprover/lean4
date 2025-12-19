@@ -6,8 +6,14 @@ Authors: Leonardo de Moura
 module
 
 prelude
+public import Lean.Meta.Basic
+public import Lean.Meta.Tactic.FVarSubst
 public import Lean.Meta.CollectFVars
-public import Lean.Meta.Match.CaseArraySizes
+import Lean.Meta.Match.Value
+import Lean.Meta.AppBuilder
+import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.Assert
+import Lean.Meta.Tactic.Subst
 import Lean.Meta.Match.NamedPatterns
 
 public section
@@ -150,14 +156,20 @@ structure Alt where
   After we perform additional case analysis, their types become definitionally equal.
   -/
   cnstrs    : List (Expr × Expr)
+  /--
+  Indices of previous alternatives that this alternative expects a not-that-proofs.
+  (When producing a splitter, and in the future also for source-level overlap hypotheses.)
+  -/
+  notAltIdxs : Array Nat
   deriving Inhabited
 
 namespace Alt
 
 partial def toMessageData (alt : Alt) : MetaM MessageData := do
   withExistingLocalDecls alt.fvarDecls do
-    let msg := alt.fvarDecls.map fun d => m!"{d.toExpr}:({d.type})"
-    let mut msg := m!"{msg} |- {alt.patterns.map Pattern.toMessageData} => {alt.rhs}"
+    let mut msg := if alt.fvarDecls.isEmpty then m!"" else
+       alt.fvarDecls.map (fun d => m!"{d.toExpr}:({d.type})") ++ m!"\n"
+    msg := msg ++ m!"|- {alt.patterns.map Pattern.toMessageData} => {alt.rhs}"
     for (lhs, rhs) in alt.cnstrs do
       msg := m!"{msg}\n  | {lhs} ≋ {rhs}"
     addMessageContext msg

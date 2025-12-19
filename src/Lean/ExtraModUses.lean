@@ -132,6 +132,7 @@ public def isExtraRevModUse (env : Environment) (modIdx : ModuleIdx) : Bool :=
 /-- Records this module to be preserved as an import by `shake`. -/
 public def recordExtraRevUseOfCurrentModule : m Unit := do
   if isExtraRevModUseExt.getEntries (asyncMode := .local) (← getEnv) |>.isEmpty then
+    trace[extraModUses] "recording extra reverse use of current module"
     modifyEnv (isExtraRevModUseExt.addEntry · ())
 
 builtin_initialize

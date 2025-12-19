@@ -26,6 +26,12 @@ of a value and a state.
   σ → m (α × σ)
 
 /--
+Interpret `σ → m (α × σ)` as an element of `StateT σ m α`.
+-/
+@[always_inline, inline, expose]
+def StateT.mk {σ : Type u} {m : Type u → Type v} {α : Type u} (x : σ → m (α × σ)) : StateT σ m α := x
+
+/--
 Executes an action from a monad with added state in the underlying monad `m`. Given an initial
 state, it returns a value paired with the final state.
 -/
@@ -198,3 +204,7 @@ instance StateT.tryFinally {m : Type u → Type v} {σ : Type u} [MonadFinally m
       | some (a, s') => h (some a) s'
       | none         => h none s
     pure ((a, b), s'')
+
+instance [Monad m] [MonadAttach m] : MonadAttach (StateT σ m) where
+  CanReturn x a := Exists fun s => Exists fun s' => MonadAttach.CanReturn (x.run s) (a, s')
+  attach x := fun s => (fun ⟨⟨a, s'⟩, h⟩ => ⟨⟨a, s, s', h⟩, s'⟩) <$> MonadAttach.attach (x.run s)

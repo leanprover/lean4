@@ -250,7 +250,7 @@ structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
   afterSet : Name → α → AttrM Unit := fun _ _ _ => pure ()
   /--
   If set, entries are not resorted on export and `getParam?` will fall back to a linear instead of
-  binary search insde an imported module's entries.
+  binary search inside an imported module's entries.
   -/
   preserveOrder : Bool := false
   /--

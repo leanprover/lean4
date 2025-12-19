@@ -766,7 +766,7 @@ def Poly.cancelVar (c : Int) (x : Var) (p : Poly) : Poly :=
           (fun _ _ _ _ => a.toPoly_k.pow k)
           (fun _ _ _ _ => a.toPoly_k.pow k)
           (fun _ _ _ => a.toPoly_k.pow k)
-          a) = match a with
+          a) = match (generalizing := false) a with
             | num n => Poly.num (n ^ k)
             | .intCast n => .num (n^k)
             | .natCast n => .num (n^k)
@@ -889,26 +889,22 @@ where
     | .num k' => acc.insert (k*k' % c) m
     | .add k' m' p => go p (acc.insert (k*k' % c) (m.mul_nc m'))
 
-def Poly.combineC (p₁ p₂ : Poly) (c : Nat) : Poly :=
-  go hugeFuel p₁ p₂
-where
-  go (fuel : Nat) (p₁ p₂ : Poly) : Poly :=
-    match fuel with
-    | 0 => p₁.concat p₂
-    | fuel + 1 => match p₁, p₂ with
-      | .num k₁, .num k₂ => .num ((k₁ + k₂) % c)
-      | .num k₁, .add k₂ m₂ p₂ => addConstC (.add k₂ m₂ p₂) k₁ c
-      | .add k₁ m₁ p₁, .num k₂ => addConstC (.add k₁ m₁ p₁) k₂ c
-      | .add k₁ m₁ p₁, .add k₂ m₂ p₂ =>
-        match m₁.grevlex m₂ with
-        | .eq =>
-          let k := (k₁ + k₂) % c
-          bif k == 0 then
-            go fuel p₁ p₂
-          else
-            .add k m₁ (go fuel p₁ p₂)
-        | .gt => .add k₁ m₁ (go fuel p₁ (.add k₂ m₂ p₂))
-        | .lt => .add k₂ m₂ (go fuel (.add k₁ m₁ p₁) p₂)
+@[semireducible]
+def Poly.combineC (p₁ p₂ : Poly) (c : Nat) : Poly := match p₁, p₂ with
+  | .num k₁, .num k₂ => .num ((k₁ + k₂) % c)
+  | .num k₁, .add k₂ m₂ p₂ => addConstC (.add k₂ m₂ p₂) k₁ c
+  | .add k₁ m₁ p₁, .num k₂ => addConstC (.add k₁ m₁ p₁) k₂ c
+  | .add k₁ m₁ p₁, .add k₂ m₂ p₂ =>
+    match m₁.grevlex m₂ with
+    | .eq =>
+      let k := (k₁ + k₂) % c
+      bif k == 0 then
+        combineC p₁ p₂ c
+      else
+        .add k m₁ (combineC p₁ p₂ c)
+    | .gt => .add k₁ m₁ (combineC p₁ (.add k₂ m₂ p₂) c)
+    | .lt => .add k₂ m₂ (combineC (.add k₁ m₁ p₁) p₂ c)
+termination_by sizeOf p₁ + sizeOf p₂
 
 def Poly.mulC (p₁ : Poly) (p₂ : Poly) (c : Nat) : Poly :=
   go p₁ (.num 0)
@@ -1432,10 +1428,9 @@ theorem Poly.denote_mulMonC_nc {α c} [Ring α] [IsCharP α c] (ctx : Context α
 
 theorem Poly.denote_combineC {α c} [Ring α] [IsCharP α c] (ctx : Context α) (p₁ p₂ : Poly)
     : (combineC p₁ p₂ c).denote ctx = p₁.denote ctx + p₂.denote ctx := by
-  unfold combineC; generalize hugeFuel = fuel
-  fun_induction combineC.go
-    <;> simp [*, denote_concat, denote_addConstC, denote, intCast_add,
-          add_comm, add_left_comm, add_assoc, IsCharP.intCast_emod, zsmul_eq_intCast_mul]
+  fun_induction combineC
+    <;> simp [*, denote_addConstC, denote, intCast_add, add_comm, add_left_comm, add_assoc,
+      IsCharP.intCast_emod, zsmul_eq_intCast_mul]
   next hg _ h _ =>
     simp +zetaDelta at h
     rw [← add_assoc, Mon.eq_of_grevlex hg, ← right_distrib, ← intCast_add,

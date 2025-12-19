@@ -47,8 +47,8 @@ register_builtin_option tactic.claude.template : String := {
 
 /-- Claude model to use for API requests -/
 register_builtin_option tactic.claude.model : String := {
-  defValue := "claude-opus-4-20250514"
-  descr := "Claude model to use (e.g., claude-opus-4-20250514, claude-sonnet-4-20250514)"
+  defValue := "claude-opus-4"
+  descr := "Claude model to use (e.g., claude-opus-4, claude-sonnet-4)"
 }
 
 /-- Mock JSON response for testing -/

@@ -1090,6 +1090,14 @@ def Goal.getGeneration (goal : Goal) (e : Expr) : Nat :=
   else
     0
 
+def SplitInfo.getGenerationCore (goal : Goal) : SplitInfo → Nat
+  | .default e _ => goal.getGeneration e
+  | .imp e h _ => goal.getGeneration (e.forallDomain h)
+  | .arg a b _ _ _ => max (goal.getGeneration a) (goal.getGeneration b)
+
+def SplitInfo.getGeneration (s : SplitInfo) : GoalM Nat :=
+  return s.getGenerationCore (← get)
+
 /-- Returns the generation of the given term. Is assumes it has been internalized -/
 def getGeneration (e : Expr) : GoalM Nat :=
   return (← get).getGeneration e

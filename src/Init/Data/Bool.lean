@@ -403,6 +403,9 @@ theorem toNat_lt (b : Bool) : b.toNat < 2 :=
 @[simp] theorem toNat_eq_one  {b : Bool} : b.toNat = 1 ↔ b = true := by
   cases b <;> simp
 
+@[simp] theorem toNat_neg' {b : Bool} : (!b).toNat = 1 - b.toNat := by
+  cases b <;> simp
+
 /-! ## toInt -/
 
 /--

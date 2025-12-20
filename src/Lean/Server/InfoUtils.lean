@@ -342,7 +342,7 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
       return decl.fullDescr
     return none
   | .ofErrorNameInfo eni => do
-    let some errorExplanation := getErrorExplanationRaw? (← getEnv) eni.errorName | return none
+    let some errorExplanation ← getErrorExplanation? eni.errorName | return none
     return errorExplanation.summaryWithSeverity
   | .ofDocInfo di =>
     return (← findDocString? env di.stx.getKind)

@@ -238,7 +238,7 @@ private def writeHeaders (messageHead : Message.Head dir.swap) (writer : Writer 
 Checks if the connection should be kept alive based on the Connection header
 -/
 def shouldKeepAlive (writer : Writer dir) : Bool :=
-  writer.messageHead.headers.get (.new "Connection")
+  writer.messageHead.headers.get? (.new "Connection")
   |>.map (fun v => v.value.toLower != "close")
   |>.getD true
 

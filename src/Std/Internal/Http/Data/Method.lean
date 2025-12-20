@@ -72,9 +72,10 @@ inductive Method where
 
   /--
   Apply partial modifications to a resource.
+  Source: https://www.rfc-editor.org/rfc/rfc5789.html
   -/
   | patch
-deriving Repr, Inhabited, BEq
+deriving Repr, Inhabited, BEq, DecidableEq
 
 namespace Method
 

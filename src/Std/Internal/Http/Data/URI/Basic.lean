@@ -111,6 +111,31 @@ Query string represented as an array of key–value pairs.
 @[expose]
 def Query := Array (String × Option String)
 
+namespace Query
+
+/--
+Gets all the names of the query parameters
+-/
+@[expose]
+def names (query : Query) : List String :=
+  query.map Prod.fst |>.toList
+
+/--
+Gets all the values of the query parameters
+-/
+@[expose]
+def values (query : Query) : Array String :=
+  query.map Prod.snd |>.map (Option.getD · "")
+
+/--
+Gets all the values of the query parameters
+-/
+@[expose]
+def pairs (query : Query) : Array (String × String) :=
+  query.map (fun (x,y) => (x, y.getD ""))
+
+end Query
+
 instance : Repr Query :=
   inferInstanceAs (Repr (Array (String × Option String)))
 

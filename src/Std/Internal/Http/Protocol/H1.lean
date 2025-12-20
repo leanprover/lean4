@@ -138,21 +138,21 @@ private def updateKeepAlive (machine : Machine dir) (should : Bool) : Machine di
 -- Helper Functions
 
 private def extractBodyLengthFromHeaders (headers : Headers) : Option Body.Length :=
-  match (headers.get (.new "Content-Length"), headers.hasEntry (.new "Transfer-Encoding") "chunked") with
+  match (headers.get? (.new "Content-Length"), headers.hasEntry (.new "Transfer-Encoding") "chunked") with
   | (some cl, false) => cl.value.toNat? >>= (some ∘ Body.Length.fixed)
   | (_, true) => some Body.Length.chunked
   | _ => none
 
 def getMessageSize (req : Message.Head dir) : Option Body.Length := do
   match dir with
-  | .receiving => guard (req.headers.get (.new "host") |>.isSome)
+  | .receiving => guard (req.headers.get? (.new "host") |>.isSome)
   | .sending => pure ()
 
   if let .receiving := dir then
     if req.method == .head ∨ req.method == .connect then
       return .fixed 0
 
-  match (req.headers.get (.new "Content-Length"), req.headers.hasEntry (.new "Transfer-Encoding") "chunked") with
+  match (req.headers.get? (.new "Content-Length"), req.headers.hasEntry (.new "Transfer-Encoding") "chunked") with
   | (some cl, false) => do
     let num ← cl.value.toNat?
     some (.fixed num)

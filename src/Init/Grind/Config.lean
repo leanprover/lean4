@@ -247,12 +247,14 @@ structure NoopConfig extends Config where
   extAll    := false
   etaStruct := false
   funext    := false
+  funCC     := false
 
   -- Disable all solver modules
   ring      := false
   linarith  := false
   lia       := false
   ac        := false
+  order     := false
 
 /--
 A `grind` configuration that only uses `cutsat` and splitting.

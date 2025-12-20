@@ -168,20 +168,26 @@ abbrev UpdateT := StateT EntryMap
 /-- Monad used to update the manifest. -/
 abbrev UpdateM := UpdateT LoggerIO
 
-def EntryMap.resolve? (dep : Dependency) (multiVersion : Bool) (self : EntryMap) : Option PackageEntry :=
+def EntryMap.resolve?
+  (dep : Dependency) (multiVersion inherit : Bool) (self : EntryMap)
+: Option PackageEntry :=
   if let some entries := self.get? dep.name then
     if multiVersion then
       match dep.version with
       | .none => entries[0]?
       | .git rev => entries.find? (·.inputRev?.any (· == rev))
       | .ver ver => entries.find? (ver.test ·.version)
-    else
+    else if inherit then
       entries[0]?
+    else
+      entries[0]?.filter (!·.inherited)
   else
     none
 
-@[inline] def getEntry? (ws : Workspace) (dep : Dependency) : UpdateM (Option PackageEntry) := do
-  return (← getThe EntryMap).resolve? dep ws.isMultiVersion
+@[inline] def getEntry?
+  (ws : Workspace) (dep : Dependency) (inherit : Bool)
+: UpdateM (Option PackageEntry) :=
+  return (← getThe EntryMap).resolve? dep ws.isMultiVersion inherit
 
 def EntryMap.add (entry : PackageEntry) (multiVersion : Bool) (self : EntryMap) : EntryMap :=
   self.alter entry.name fun es? =>
@@ -260,7 +266,7 @@ private def addDependencyEntries (ws : Workspace) (dep : MaterializedDep) : Upda
 private def updateAndMaterializeDep
   (ws : Workspace) (pkg : Package) (dep : Dependency)
 : UpdateM MaterializedDep := do
-  if let some entry ← getEntry? ws dep then
+  if let some entry ← getEntry? ws dep !pkg.isRoot then
     entry.materialize ws.lakeEnv ws.dir ws.relPkgsDir ws.isMultiVersion
   else
     let matDep ← dep.materialize (!pkg.isRoot)
@@ -452,7 +458,7 @@ def validateManifest
         s!"manifest out of date: {what} of dependency '{dep.name}' changed; \
         use `lake update {dep.name}` to update it"
     let some src := dep.src? | return
-    let some entry := pkgEntries.resolve? dep multiVersion | return
+    let some entry := pkgEntries.resolve? dep multiVersion false | return
     match src, entry.src with
     | .git (url := url) (rev := rev) .., .git (url := url') (inputRev? := rev')  .. =>
       if url ≠ url' then warnOutOfDate "git url"
@@ -497,7 +503,7 @@ public def Workspace.materializeDeps
     error "missing manifest; use `lake update` to generate one"
   -- Materialize all dependencies
   ws.resolveDepsCore (leanOpts := leanOpts) (reconfigure := reconfigure) fun pkg dep ws => do
-    if let some entry := pkgEntries.resolve? dep multiVersion then
+    if let some entry := pkgEntries.resolve? dep multiVersion (!pkg.isRoot) then
       entry.materialize ws.lakeEnv ws.dir relPkgsDir multiVersion
     else
       if pkg.isRoot then

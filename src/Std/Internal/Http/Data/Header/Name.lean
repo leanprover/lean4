@@ -6,10 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init.Data.Slice
 public import Init.Data.String
-public import Std.Data.HashMap
-public import Std.Data.HashSet
 
 public section
 
@@ -55,10 +52,9 @@ deriving BEq, Repr
 
 namespace HeaderValue
 
-instance : Hashable HeaderValue where
-  hash x := Hashable.hash x.value
+instance : Hashable HeaderValue := ⟨Hashable.hash ∘ HeaderValue.value⟩
 
-instance : Inhabited HeaderValue where default := ⟨"", by decide⟩
+instance : Inhabited HeaderValue := ⟨⟨"", by decide⟩⟩
 
 /--
 Creates a new `HeaderValue` from a string with an optional proof of validity.

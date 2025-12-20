@@ -23,8 +23,8 @@ public configuration WorkspaceConfig where
   /--
   Enables **experimental** multi-version workspaces.
 
-  When enabled, Lake supports resolving multiple packages with the same name
-  (e.g., at different versions).
+  When enabled, Lake supports including different versions of a package (all with the same name)
+  in the workspace depedency tree.
   -/
   multiVersion : Option Bool := .none
   deriving Inhabited, Repr

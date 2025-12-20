@@ -84,7 +84,7 @@ def elabCheckedNamedError : TermElab := fun stx expType? => do
   addCompletionInfo <| CompletionInfo.errorName span partialId
   let name := id.getId.eraseMacroScopes
   pushInfoLeaf <| .ofErrorNameInfo { stx := id, errorName := name }
-  if let some explan := getErrorExplanationRaw? (← getEnv) name then
+  if let some explan ← getErrorExplanation? name then
     if let some removedVersion := explan.metadata.removedVersion? then
       logWarningAt id m!"The error name `{name}` was removed in Lean version {removedVersion} and \
         should not be used."

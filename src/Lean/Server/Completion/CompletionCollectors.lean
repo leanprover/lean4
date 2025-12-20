@@ -571,7 +571,7 @@ def errorNameCompletion
     (caps              : ClientCapabilities)
     : IO (Array ResolvableCompletionItem) :=
   ctx.runMetaM {} do
-    let explanations := getErrorExplanationsRaw (← getEnv)
+    let explanations ← getErrorExplanations
     return trailingDotCompletion explanations partialId caps ctx fun name explan textEdit? => {
       label := name.toString,
       detail? := "error name",

@@ -29,6 +29,8 @@ example (k : Rat) (hk : 2 ≤ k) : 1 ≤ k := by lia
 
 example (k : Rat) (hk : 2 ≤ k) : 1 ≤ k := by lia +order
 
+example (k : Rat) (hk : 2 ≤ k) : 1 ≤ k := by grind_order
+
 -- This should still work: natural number inequalities are handled by lia
 example (k : Nat) (hk : 2 ≤ k) : 1 ≤ k := by lia
 

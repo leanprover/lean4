@@ -269,6 +269,24 @@ structure CutsatConfig extends NoopConfig where
   splits := ({} : Config).splits
 
 /--
+A `grind` configuration that only uses `linarith`.
+-/
+-- This is a `structure` rather than `def` so we can use `declare_config_elab`.
+structure LinarithConfig extends NoopConfig where
+  linarith := true
+  -- Allow the default number of splits.
+  splits := ({} : Config).splits
+
+/--
+A `grind` configuration that only uses `order`.
+-/
+-- This is a `structure` rather than `def` so we can use `declare_config_elab`.
+structure OrderConfig extends NoopConfig where
+  order := true
+  -- Allow the default number of splits.
+  splits := ({} : Config).splits
+
+/--
 A `grind` configuration that only uses `ring`.
 -/
 -- This is a `structure` rather than `def` so we can use `declare_config_elab`.

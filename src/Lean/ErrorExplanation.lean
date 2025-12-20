@@ -62,41 +62,33 @@ builtin_initialize errorExplanationExt : SimplePersistentEnvExtension (Name × E
           acc.insert n v
   }
 
-/-- Returns an error explanation for the given name if one exists, rewriting manual links. -/
-def getErrorExplanation? [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] (name : Name) : m (Option ErrorExplanation) := do
+/-- Returns an error explanation for the given name if one exists. -/
+def getErrorExplanation? [Monad m] [MonadEnv m] (name : Name) : m (Option ErrorExplanation) := do
   return errorExplanationExt.getState (← getEnv) |>.find? name
 
-/--
-Returns an error explanation for the given name if one exists *without* rewriting manual links.
-
-In general, use `Lean.getErrorExplanation?` instead if the body of the explanation will be used.
--/
+@[deprecated getErrorExplanation? (since := "2026-12-20")]
 def getErrorExplanationRaw? (env : Environment) (name : Name) : Option ErrorExplanation := do
   errorExplanationExt.getState env |>.find? name
 
 /-- Returns `true` if there exists an error explanation named `name`. -/
-def hasErrorExplanation [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] (name : Name) : m Bool :=
+def hasErrorExplanation [Monad m] [MonadEnv m] (name : Name) : m Bool :=
   return errorExplanationExt.getState (← getEnv) |>.contains name
 
-/--
-Returns all error explanations with their names as an unsorted array, *without* rewriting manual
-links.
+/-- Returns all error explanations with their names, sorted by name. -/
+public def getErrorExplanations [Monad m] [MonadEnv m] : m (Array (Name × ErrorExplanation)) := do
+  return errorExplanationExt.getState (← getEnv)
+    |>.toArray
+    |>.qsort fun e e' => e.1.toString < e'.1.toString
 
-In general, use `Lean.getErrorExplanations` or `Lean.getErrorExplanationsSorted` instead of this
-function if the bodies of the fetched explanations will be used.
--/
+@[deprecated getErrorExplanations (since := "2026-12-20")]
 public def getErrorExplanationsRaw (env : Environment) : Array (Name × ErrorExplanation) :=
-  errorExplanationExt.getState env |>.toArray
+  errorExplanationExt.getState env
+    |>.toArray
+    |>.qsort fun e e' => e.1.toString < e'.1.toString
 
-/-- Returns all error explanations with their names, rewriting manual links. -/
-public def getErrorExplanations [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] : m (Array (Name × ErrorExplanation)) := do
-  return errorExplanationExt.getState (← getEnv) |>.toArray
-
-/--
-Returns all error explanations with their names as a sorted array, rewriting manual links.
--/
-public def getErrorExplanationsSorted [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] : m (Array (Name × ErrorExplanation)) := do
-  return (← getErrorExplanations).qsort fun e e' => e.1.toString < e'.1.toString
+@[deprecated getErrorExplanations (since := "2026-12-20")]
+public def getErrorExplanationsSorted [Monad m] [MonadEnv m] : m (Array (Name × ErrorExplanation)) := do
+  getErrorExplanations
 
 end Lean
 

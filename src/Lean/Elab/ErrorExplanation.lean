@@ -126,5 +126,5 @@ open Command in
       module := (← getMainModule)
       range := .ofStringPositions map start fin
     }
-  modifyEnv (errorExplanationExt.addEntry · (name, { metadata, declLoc? }))
+  modifyEnv (errorExplanationExt.addEntry · (name, { doc := "", metadata, declLoc? }))
 | _ => throwUnsupportedSyntax

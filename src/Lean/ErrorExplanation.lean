@@ -40,6 +40,8 @@ Error explanations are rendered in the manual; a link to the resulting manual pa
 the bottom of corresponding error messages thrown using `throwNamedError` or `throwNamedErrorAt`.
 -/
 structure ErrorExplanation where
+  /-- The `doc` field is deprecated and should always be the empty string -/
+  doc : String
   metadata : ErrorExplanation.Metadata
   declLoc? : Option DeclarationLocation
 

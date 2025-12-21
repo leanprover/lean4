@@ -245,17 +245,6 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
     let result := { eqnNames, splitterName, splitterMatchInfo }
     registerMatchEqns matchDeclName result
 
-/- We generate the equations and splitter on demand, and do not save them on .olean files. -/
-builtin_initialize matchCongrEqnsExt : EnvExtension (PHashMap Name (Array Name)) ←
-  -- Using `local` allows us to use the extension in `realizeConst` without specifying `replay?`.
-  -- The resulting state can still be accessed on the generated declarations using `.asyncEnv`;
-  -- see below
-  registerEnvExtension (pure {}) (asyncMode := .local)
-
-def registerMatchCongrEqns (matchDeclName : Name) (eqnNames : Array Name) : CoreM Unit := do
-  modifyEnv fun env => matchCongrEqnsExt.modifyState env fun map =>
-    map.insert matchDeclName eqnNames
-
 /--
 Generate the congruence equations for the given match auxiliary declaration.
 The congruence equations have a completely unrestricted left-hand side (arbitrary discriminants),
@@ -269,9 +258,13 @@ not always needed, so for now we live with the code duplication.
 -/
 @[export lean_get_congr_match_equations_for]
 def genMatchCongrEqnsImpl (matchDeclName : Name) : MetaM (Array Name) := do
-  let firstEqnName := .str matchDeclName congrEqn1ThmSuffix
+  let firstEqnName := matchDeclName.str congrEqn1ThmSuffix
   realizeConst matchDeclName firstEqnName go
-  return matchCongrEqnsExt.getState (asyncMode := .async .asyncEnv) (asyncDecl := firstEqnName) (← getEnv) |>.find! matchDeclName
+  let some matchInfo ← getMatcherInfo? matchDeclName | throwError "`{matchDeclName}` is not a matcher function"
+  let mut thmNames := #[]
+  for i in *...matchInfo.numAlts do
+    thmNames := thmNames.push <|(matchDeclName.str congrEqnThmSuffixBase).appendIndexAfter (i+1)
+  return thmNames
 where go := withConfig (fun c => { c with etaStruct := .none }) do
   withConfig (fun c => { c with etaStruct := .none }) do
   let constInfo ← getConstInfo matchDeclName
@@ -332,7 +325,6 @@ where go := withConfig (fun c => { c with etaStruct := .none }) do
           return notAlt
       notAlts := notAlts.push notAlt
       idx := idx + 1
-    registerMatchCongrEqns matchDeclName eqnNames
 
 builtin_initialize registerTraceClass `Meta.Match.matchEqs
 

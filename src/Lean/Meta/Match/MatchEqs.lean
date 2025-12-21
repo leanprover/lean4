@@ -10,7 +10,6 @@ public import Lean.Meta.Match.Match
 public import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Delta
-import Lean.Meta.Tactic.SplitIf
 import Lean.Meta.Tactic.CasesOnStuckLHS
 import Lean.Meta.SplitSparseCasesOn
 import Lean.Meta.Match.SimpH
@@ -18,6 +17,7 @@ import Lean.Meta.Match.AltTelescopes
 import Lean.Meta.Match.NamedPatterns
 import Lean.Meta.Match.Grind
 import Lean.Meta.Match.SolveOverlap
+import Lean.Meta.Eqns
 
 public section
 
@@ -71,6 +71,41 @@ private def solveWithGrind (mvarId : MVarId) : MetaM Unit := do
     grindFallback mvarId
   trace[Meta.Match.matchEqs] "solved by grind"
 
+private def rwOrSplitIfAtHEq? (mvarId : MVarId) : MetaM (Array MVarId) := mvarId.withContext do
+  let type ← mvarId.getType
+  let some (α,lhs,β,rhs) := type.heq? | throwError "rwOrSplitIfAtHEq?: goal is not an HEq"
+  match_expr lhs.getAppPrefix 5 with
+  | dite α' cond inst «then» «else» =>
+    let extraArgs := lhs.getAppArgs[5:]
+    let motive := .lam `lhs α' (binderInfo := .default) <|
+      mkApp4 type.getAppFn α (mkAppN (.bvar 0) extraArgs) β rhs
+    -- Check the local context for conditions we can use to rewrite instead of split
+    for d in (← getLCtx) do
+      if (← withReducible <| isDefEq cond d.type) then
+        let e := mkConst ``dif_pos [← getLevel α']
+        let e := mkApp6 e cond inst d.toExpr α' «then» «else»
+        let e ← mkCongrArg motive e
+        let mvarId' ← mvarId.replaceTargetEq (motive.beta #[«then».beta #[d.toExpr]]) e
+        return #[mvarId']
+      if (← withReducible <| isDefEq (mkNot cond) d.type) then
+        let e := mkConst ``dif_neg [← getLevel α']
+        let e := mkApp6 e cond inst d.toExpr α' «then» «else»
+        let e ← mkCongrArg motive e
+        let mvarId' ← mvarId.replaceTargetEq (motive.beta #[«else».beta #[d.toExpr]]) e
+        return #[mvarId']
+    let k₁ ← mkFreshExprSyntheticOpaqueMVar <|
+      .forallE `c cond (binderInfo := .default) (motive.beta #[«then».beta #[.bvar 0]])
+    let k₂ ← mkFreshExprSyntheticOpaqueMVar <|
+      .forallE `c (mkNot cond) (binderInfo := .default) (motive.beta #[«else».beta #[.bvar 0]])
+    let e := mkConst `diteInduction [← getLevel α', ← getLevel type]
+    let e := mkApp8 e α' cond inst motive «then» «else» k₁ k₂
+    mvarId.assign e
+    let (fvarId₁, mvarId₁) ← k₁.mvarId!.intro1
+    let mvarId₁ ← trySubst mvarId₁ fvarId₁
+    let (_, mvarId₂) ← k₂.mvarId!.intro1
+    return #[mvarId₁, mvarId₂]
+  | _ => throwError "rwOrSplitIfAtHEq?: LHS is not a `dite` application"
+
 private partial def proveCongrEqThm (matchDeclName : Name) (thmName : Name) (mvarId : MVarId) : MetaM Unit := do
   withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} proveCongrEqThm {thmName}")) do
   let mvarId ← mvarId.deltaTarget (· == matchDeclName)
@@ -88,15 +123,7 @@ where
       <|>
       (splitSparseCasesOn mvarId)
       <|>
-      (do let mvarId' ← simpIfTarget mvarId (useDecide := true) (useNewSemantics := true)
-          if mvarId' == mvarId then throwError "simpIf failed"
-          return #[mvarId'])
-      <|>
-      (do if let some (s₁, s₂) ← splitIfTarget? mvarId (useNewSemantics := true) then
-            let mvarId₁ ← trySubst s₁.mvarId s₁.fvarId
-            return #[mvarId₁, s₂.mvarId]
-          else
-            throwError "spliIf failed")
+      (rwOrSplitIfAtHEq? mvarId)
       <|>
       (goLeaf mvarId *> return #[])
     subgoals.forM (go · (depth+1))
@@ -105,7 +132,7 @@ where
     -- At this point we should have a leave goal
     trace[Meta.Match.matchEqs] "proveCongrEqThm.goLeaf{indentD mvarId}"
     let type ← instantiateMVars (← mvarId.getType)
-    let badLeafGoal := do
+    let badLeafGoal := mvarId.withContext do
       throwError "Incomplete case splitting during match compilation, goal left-hand side not fully \
         reduced to an application of a match alternative:{indentExpr type}"
     let some (_, lhs, _, rhs) := type.heq? | badLeafGoal

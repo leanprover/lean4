@@ -47,14 +47,20 @@ structure RealizableTheoremSpec where
   hasIndex : Bool
   /-- Visiblity -/
   visibility  : RealizeableTheoremVisibility := .sameAsDecl
-  /-- Whether a given declaration should have this theorem attached -/
+  /--
+  Whether a given declaration should have this theorem attached
+
+  The `index?` is zero-based.
+  -/
   shouldExist : (env : Lean.Environment) → (declName : Name) → (index? : Option Nat) → Bool
   /--
   Generate the theorem type and proof. These are returned via continuations to allow
   for concurrency.
 
+  The `index?` is zero-based.
+
   This runs in a `realizeConst` environment, so attributes set here can be found on other enviornment
-  braches with with `(async := thmName)`
+  branches with with `(asyncDecl := thmName)`.
   -/
   generate : (declName thmName : Name) → (index? : Option Nat) →
     (kType : (levelParams : List Name) → (type : Expr) → MetaM Unit) →
@@ -123,8 +129,9 @@ def RealizableTheoremSpec.parseName (spec : RealizableTheoremSpec) (env : Enviro
     let suffixBase := (suffix.sliceTo underscoreIdx).toString
     guard <| suffixBase == spec.suffixBase
     let suffixIndex : String := (suffix.sliceFrom (← underscoreIdx.next?)).toString
-    let idx ← suffixIndex.toNat?
-    guard <| idx > 0
+    let idx1 ← suffixIndex.toNat?
+    guard <| idx1 > 0
+    let idx := idx1 - 1
     index? := some (idx - 1)
   else
     guard (suffix == spec.suffixBase)

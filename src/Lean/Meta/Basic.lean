@@ -2480,6 +2480,14 @@ abbrev isDefEqGuarded (t s : Expr) : MetaM Bool :=
 def isDefEqNoConstantApprox (t s : Expr) : MetaM Bool :=
   approxDefEq <| isDefEq t s
 
+/-- Similar to `isDefEq`, but ensures default transparency is used. -/
+def isDefEqD (t s : Expr) : MetaM Bool :=
+  withDefault <| isDefEq t s
+
+/-- Similar to `isDefEq`, but ensures that only reducible definitions and instances can be reduced. -/
+def isDefEqI (t s : Expr) : MetaM Bool :=
+  withReducibleAndInstances <| isDefEq t s
+
 /--
 Returns `true` if `mvarId := val` was successfully assigned.
 This method uses the same assignment validation performed by `isDefEq`, but it does not check whether the types match.

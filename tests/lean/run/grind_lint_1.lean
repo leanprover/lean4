@@ -108,8 +108,6 @@ info: instantiating `Array.findIdx_singleton` triggers 16 additional `grind` the
 ---
 info: Try this:
   [apply] #grind_lint check  (min := 15) in Array
-  #grind_lint inspect Array.back?_empty
-  #grind_lint inspect Array.back?_mapIdx
   #grind_lint inspect Array.count_empty
   #grind_lint inspect Array.findIdx_empty
   #grind_lint inspect Array.findIdx_singleton

@@ -101,7 +101,7 @@ private def DvdCnstr.assertCore (c : DvdCnstr) : GoalM Unit := do
 
 def propagateIntDvd (e : Expr) : GoalM Unit := do
   let_expr Dvd.dvd _ inst a b ← e | return ()
-  unless (← isInstDvdInt inst) do return ()
+  unless (← Structural.isInstDvdInt inst) do return ()
   let some d ← getIntValue? a
     | reportIssue! "non-linear divisibility constraint found{indentExpr e}"; return ()
   if (← isEqTrue e) then
@@ -113,7 +113,7 @@ def propagateIntDvd (e : Expr) : GoalM Unit := do
 
 def propagateNatDvd (e : Expr) : GoalM Unit := do
   let_expr Dvd.dvd _ inst d₀ a := e | return ()
-  unless (← isInstDvdNat inst) do return ()
+  unless (← Structural.isInstDvdNat inst) do return ()
   let some d ← getNatValue? d₀
     | reportIssue! "non-linear divisibility constraint found{indentExpr e}"; return ()
   if (← isEqTrue e) then

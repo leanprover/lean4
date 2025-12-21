@@ -161,6 +161,7 @@ inductive Entry where
   | funCC (declName : Name)
   | cases (declName : Name) (eager : Bool)
   | norm (s : SimpTheorem)
+  | normUnfold (declName : Name)
   | symPrio (declName : Name) (prio : Nat)
   | ematch (thm : EMatchTheorem)
   | inj (thm : InjectiveTheorem)
@@ -184,6 +185,7 @@ def ExtensionState.addEntry (s : ExtensionState) (e : Entry) : ExtensionState :=
   | .funCC declName => { s with funCC := s.funCC.insert declName }
   | .symPrio declName prio => { s with symPrios := s.symPrios.insert declName prio }
   | .norm thm => { s with norm := s.norm.addSimpTheorem thm }
+  | .normUnfold declName => { s with norm := s.norm.addDeclToUnfoldCore declName }
   | .ematch thm => { s with ematch := s.ematch.insert thm }
   | .inj thm => { s with inj := s.inj.insert thm }
 
@@ -199,7 +201,8 @@ def mkExtension (name : Name := by exact decl_name%) : IO Extension :=
           match thm.origin with
           | .decl declName => declName
           | _ => unreachable!
-        | .ext declName | .cases declName _ | .funCC declName | .symPrio declName _ => declName
+        | .ext declName | .cases declName _ | .funCC declName
+        | .symPrio declName _ | .normUnfold declName => declName
       guard (lvl == .private || !isPrivateName declName)
       return e
   }
@@ -211,5 +214,11 @@ builtin_initialize ExtensionMapRef : IO.Ref ExtensionMap ← IO.mkRef {}
 def getExtension? (attrName : Name) : IO (Option Extension) :=
   return (← ExtensionMapRef.get)[attrName]?
 
+/--
+`grind` is parametrized by a collection of `ExtensionState`. The motivation is to allow
+users to use multiple extensions simultaneously without merging them into a single structure.
+The collection is scanned linearly. In practice, we expect the array to be very small.
+-/
+abbrev ExtensionStateArray := Array ExtensionState
 
 end Lean.Meta.Grind

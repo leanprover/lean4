@@ -174,4 +174,11 @@ def getProofForDecl (declName : Name) : MetaM Expr := do
   let us := info.levelParams.map mkLevelParam
   return mkConst declName us
 
+/--
+A `TheoremsArray α` is a collection of `Theorems α`.
+The array is scanned linear during theorem activation.
+This avoids the need for efficiently merging the `Theorems α` data structure.
+-/
+abbrev TheoremsArray (α : Type) := Array (Theorems α)
+
 end Lean.Meta.Grind

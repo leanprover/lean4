@@ -28,7 +28,7 @@ info: private def f.match_1.splitter.{u_1} : (motive : List Nat → Sort u_1) �
 
 
 /--
-info: private theorem f.match_1.congr_eq_1.{u_1} : ∀ (motive : List Nat → Sort u_1) (xs : List Nat) (h_1 : Unit → motive [])
+info: theorem f.match_1.congr_eq_1.{u_1} : ∀ (motive : List Nat → Sort u_1) (xs : List Nat) (h_1 : Unit → motive [])
   (h_2 : (x : List Nat) → motive x),
   xs = [] →
     (match xs with

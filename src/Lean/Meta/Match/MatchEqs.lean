@@ -93,12 +93,16 @@ private def rwOrSplitIfAtHEq? (mvarId : MVarId) : MetaM (Array MVarId) := mvarId
         let e ← mkCongrArg motive e
         let mvarId' ← mvarId.replaceTargetEq (motive.beta #[«else».beta #[d.toExpr]]) e
         return #[mvarId']
+    let k₁ ← mkFreshExprSyntheticOpaqueMVar <|
+      .forallE `c cond (binderInfo := .default) (motive.beta #[«then».beta #[.bvar 0]])
+    let k₂ ← mkFreshExprSyntheticOpaqueMVar <|
+      .forallE `c (mkNot cond) (binderInfo := .default) (motive.beta #[«else».beta #[.bvar 0]])
     let e := mkConst `diteInduction [← getLevel α', ← getLevel type]
-    let e := mkApp6 e α' cond inst motive «then» «else»
-    let [mvarId₁, mvarId₂] ← mvarId.applyN e 2 | panic! "splitIfAtHEq: unexpected number of subgoals"
-    let (fvarId₁, mvarId₁) ← mvarId₁.intro1
+    let e := mkApp8 e α' cond inst motive «then» «else» k₁ k₂
+    mvarId.assign e
+    let (fvarId₁, mvarId₁) ← k₁.mvarId!.intro1
     let mvarId₁ ← trySubst mvarId₁ fvarId₁
-    let (_, mvarId₂) ← mvarId₂.intro1
+    let (_, mvarId₂) ← k₂.mvarId!.intro1
     return #[mvarId₁, mvarId₂]
   | _ => throwError "rwOrSplitIfAtHEq?: LHS is not a `dite` application"
 

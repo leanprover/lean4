@@ -6,7 +6,7 @@ Authors: Joachim Breitner
 
 module
 prelude
-import Lean.Meta.Basic
+public import Lean.Meta.Basic
 import Lean.AddDecl
 import Lean.ReservedNameAction
 
@@ -32,7 +32,7 @@ This convenience layer is not meant for
 * when attributes need to be set on the derived theorem
 -/
 
-inductive RealizeableTheoremVisibility
+public inductive RealizeableTheoremVisibility
   /-- The derived theorem is always private. -/
   | alwaysPrivate
   /-- The derived theorem is private iff the original declaration is private -/
@@ -40,11 +40,11 @@ inductive RealizeableTheoremVisibility
   /-- The derived theorem is private iff the original declaration is exposed -/
   | sameAsDeclBody
 
-structure RealizableTheoremSpec where
+public structure RealizableTheoremSpec where
   /-- Suffix of the derive name (e.g. `.eq`, `.eq_def`) -/
   suffixBase : String
   /-- Whether the thereom has an index attached (`.eq_<n>`) -/
-  hasIndex : Bool
+  hasIndex : Bool := false
   /-- Visiblity -/
   visibility  : RealizeableTheoremVisibility := .sameAsDecl
   /--
@@ -96,32 +96,32 @@ def RealizableTheoremSpec.getThmName (spec : RealizableTheoremSpec) (declName : 
 Generates the realizable theorem and returns its name.
 This is the entry point for meta programs that need the generated name.
 -/
-def RealizableTheoremSpec.gen (spec : RealizableTheoremSpec) (declName : Name) (index? : Option Nat) : MetaM Name := do
+public def RealizableTheoremSpec.gen (spec : RealizableTheoremSpec) (declName : Name) (index? : Option Nat := none) : MetaM Name := do
   let thmName ← spec.getThmName declName index?
   -- TODO: Hook up to Environment.addConstAsync
   realizeConst declName thmName do
-  withExporting (when := thmName.isPrivateName) do
-    let typePromise  : IO.Promise (List Name × Expr) ← IO.Promise.new
-    let proofPromise : IO.Promise Expr ← IO.Promise.new
-    spec.generate declName thmName index?
-      (fun lvlparams type => typePromise.resolve (lvlparams, type))
-      (fun proof => proofPromise.resolve proof)
-    unless (← typePromise.isResolved) do
-      throwError "RealizableTheoremSpec.gen: `generate` did not set type"
-    let (levelParams, type) := typePromise.result!.get
-    unless (← proofPromise.isResolved) do
-      throwError "RealizableTheoremSpec.gen: `generate` did not set proof"
-    let value := proofPromise.result!.get
-    let thmDecl := { name := thmName, levelParams, type, value }
-    let decl ← mkThmOrUnsafeDef thmDecl
-    addDecl decl
+    withExporting (isExporting := !isPrivateName thmName) do
+      let typePromise  : IO.Promise (List Name × Expr) ← IO.Promise.new
+      let proofPromise : IO.Promise Expr ← IO.Promise.new
+      spec.generate declName thmName index?
+        (fun lvlparams type => typePromise.resolve (lvlparams, type))
+        (fun proof => proofPromise.resolve proof)
+      unless (← typePromise.isResolved) do
+        throwError "RealizableTheoremSpec.gen: `generate` did not set type"
+      let (levelParams, type) := typePromise.result!.get
+      unless (← proofPromise.isResolved) do
+        throwError "RealizableTheoremSpec.gen: `generate` did not set proof"
+      let value := proofPromise.result!.get
+      let thmDecl := { name := thmName, levelParams, type, value }
+      let decl ← mkThmOrUnsafeDef thmDecl
+      addDecl decl
   return thmName
 
 /--
 Is `thmName` the name of a realizable theorem?
 (Returns the optional index if so).
 -/
-def RealizableTheoremSpec.parseName (spec : RealizableTheoremSpec) (env : Environment) (thmName : Name) : Option (Option Nat) := do
+public def RealizableTheoremSpec.parseName (spec : RealizableTheoremSpec) (env : Environment) (thmName : Name) : Option (Option Nat) := do
   let .str declName suffix := thmName | none
   let mut index? := none
   if spec.hasIndex then
@@ -142,9 +142,10 @@ def RealizableTheoremSpec.parseName (spec : RealizableTheoremSpec) (env : Enviro
 Register the realizable theorem with the reserved name machinery. To be used in `initialize` resp.
 `builtin_initialize`.
 -/
-def RealizableTheoremSpec.register (spec : RealizableTheoremSpec) : IO Unit := do
-  registerReservedNamePredicate fun env name => spec.parseName env name |>.isSome
+public def RealizableTheoremSpec.register (spec : RealizableTheoremSpec) : IO Unit := do
+  registerReservedNamePredicate fun env name =>
+    spec.parseName env name |>.isSome
   registerReservedNameAction fun name => do
     let some index? := spec.parseName (← getEnv) name | return false
-    let _ ← MetaM.run' <| spec.gen name index?
+    let _ ← MetaM.run' <| spec.gen name.getPrefix index?
     return true

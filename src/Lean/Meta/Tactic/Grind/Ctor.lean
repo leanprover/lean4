@@ -77,9 +77,7 @@ private def propagateCtorHetero (a b : Expr) : GoalM Unit := do
   unless (← us₁.zip us₂ |>.allM fun (u₁, u₂) => isLevelDefEq u₁ u₂) do return ()
   let gen := max (← getGeneration a) (← getGeneration b)
   if ctorName₁ == ctorName₂ then
-    let hinjDeclName := mkHInjectiveTheoremNameFor ctorName₁
-    unless (← getEnv).containsOnBranch hinjDeclName do
-      let _ ← executeReservedNameAction hinjDeclName
+    let hinjDeclName ← mkHInjectiveTheoremFor ctorName₁
     let proof := mkConst hinjDeclName us₁
     let proof := mkAppN (mkAppN proof args₁) args₂
     addNewRawFact proof (← inferType proof) gen (.inj (.decl hinjDeclName))

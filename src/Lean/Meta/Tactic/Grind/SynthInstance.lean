@@ -10,7 +10,7 @@ import Lean.Meta.SynthInstance
 public section
 namespace Lean.Meta.Grind
 /--
-Some modules in grind use builtin instances defined directly in core (e.g., `cutsat`),
+Some modules in grind use builtin instances defined directly in core (e.g., `lia`),
 while others synthesize them using `synthInstance` (e.g., `ring`).
 This inconsistency is problematic, as it may introduce mismatches and result in
 two different representations for the same term.
@@ -41,8 +41,17 @@ private def builtinInsts : Std.HashMap Expr Expr :=
     (mkApp  (mkConst ``LE [0]) int, Int.mkInstLE),
   ]
 
+/--
+Some modules in grind use builtin instances defined directly in core (e.g., `lia`).
+Users may provide nonstandard instances that are definitionally equal to the ones in core.
+Given a type, such as `HAdd Int Int Int`, this function returns the instance defined in
+core.
+-/
+def getBuiltinInstance? (type : Expr) : Option Expr :=
+  builtinInsts[type]?
+
 def synthInstanceMeta? (type : Expr) : MetaM (Option Expr) := do profileitM Exception "grind typeclass inference" (← getOptions) (decl := type.getAppFn.constName?.getD .anonymous) do
-  if let some inst := builtinInsts[type]? then
+  if let some inst := getBuiltinInstance? type then
     return inst
   catchInternalId isDefEqStuckExceptionId
     (synthInstanceCore? type none)

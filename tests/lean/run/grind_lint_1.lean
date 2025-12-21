@@ -96,7 +96,7 @@ info: Try this to display the actual theorem instances:
 -- Note: The suffix skip should apply during check, but inspect bypasses it
 -- Array.range_succ and Array.range'_succ should NOT appear in the output
 /--
-info: instantiating `Array.back?_empty` triggers 17 additional `grind` theorem instantiations
+info: instantiating `Array.back?_empty` triggers 16 additional `grind` theorem instantiations
 ---
 info: instantiating `Array.back?_mapIdx` triggers 18 additional `grind` theorem instantiations
 ---

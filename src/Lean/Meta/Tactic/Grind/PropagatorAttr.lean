@@ -52,6 +52,9 @@ private def addBuiltin (propagatorName : Name) (stx : Syntax) : AttrM Unit := do
     declareBuiltin initDeclName val
   go.run' {}
 
+/-
+**Note**: We currently use the same propagators for all `grind` attributes.
+-/
 builtin_initialize
   registerBuiltinAttribute {
     ref             := by exact decl_name%

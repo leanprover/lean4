@@ -253,7 +253,7 @@ where
 
   go (e : Expr) : ProofM MulEqProof := do
     let_expr HMul.hMul _ _ _ i a b := e | goVar e
-    if !(← isInstHMulInt i) then goVar e else
+    if !(← Structural.isInstHMulInt i) then goVar e else
     let ha ← go a
     if let .const 0 h := ha then
       return .const 0 (mkApp3 (mkConst ``Int.Linear.mul_eq_zero_left) a b h)

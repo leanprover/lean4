@@ -708,7 +708,7 @@ def mkSimpleThunk (type : Expr) : Expr :=
   .lit l
 
 /--
-Return the "raw" natural number `.lit (.natVal n)`.
+Returns the "raw" natural number `.lit (.natVal n)`.
 This is not the default representation used by the Lean frontend.
 See `mkNatLit`.
 -/
@@ -716,13 +716,21 @@ See `mkNatLit`.
   mkLit (.natVal n)
 
 /--
-Return a natural number literal used in the frontend. It is a `OfNat.ofNat` application.
+Returns `instOfNatNat n : OfNat Nat n`
+-/
+def mkInstOfNatNat (n : Expr) : Expr :=
+  mkApp (mkConst ``instOfNatNat) n
+
+def mkNatLitCore (n : Expr) : Expr :=
+  mkApp3 (mkConst ``OfNat.ofNat [levelZero]) (mkConst ``Nat) n (mkInstOfNatNat n)
+
+/--
+Returns a natural number literal used in the frontend. It is a `OfNat.ofNat` application.
 Recall that all theorems and definitions containing numeric literals are encoded using
 `OfNat.ofNat` applications in the frontend.
 -/
 @[match_pattern, expose] def mkNatLit (n : Nat) : Expr :=
-  let r := mkRawNatLit n
-  mkApp3 (mkConst ``OfNat.ofNat [levelZero]) (mkConst ``Nat) r (mkApp (mkConst ``instOfNatNat) r)
+  mkNatLitCore (mkRawNatLit n)
 
 /-- Return the string literal `.lit (.strVal s)` -/
 @[match_pattern, expose] def mkStrLit (s : String) : Expr :=

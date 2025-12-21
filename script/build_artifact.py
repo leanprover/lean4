@@ -10,7 +10,7 @@ Usage:
 This script downloads pre-built binaries from GitHub Actions CI runs,
 which is much faster than building from source (~30s vs 2-5min).
 
-Artifacts are cached in ~/.cache/lean-bisect/artifacts/ for reuse.
+Artifacts are cached in ~/.cache/lean_build_artifact/ for reuse.
 """
 
 import argparse
@@ -30,8 +30,8 @@ GITHUB_API_BASE = "https://api.github.com"
 LEAN4_REPO = "leanprover/lean4"
 
 # CI artifact cache
-CACHE_DIR = Path.home() / '.cache' / 'lean-bisect'
-ARTIFACT_CACHE = CACHE_DIR / 'artifacts'
+CACHE_DIR = Path.home() / '.cache' / 'lean_build_artifact'
+ARTIFACT_CACHE = CACHE_DIR
 
 # Sentinel value indicating CI failed (don't bother building locally)
 CI_FAILED = object()
@@ -362,7 +362,7 @@ def main():
 This script downloads pre-built binaries from GitHub Actions CI runs,
 which is much faster than building from source (~30s vs 2-5min).
 
-Artifacts are cached in ~/.cache/lean-bisect/artifacts/ for reuse.
+Artifacts are cached in ~/.cache/lean_build_artifact/ for reuse.
 
 Examples:
   build_artifact.py                   # Download for current HEAD

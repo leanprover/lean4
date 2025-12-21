@@ -306,7 +306,6 @@ theorem BitVec.zero_ult' (a : BitVec w) : (BitVec.ult 0#w a) = (!a == 0#w) := by
   | true => simp_all
   | false => simp_all
 
-@[bv_normalize]
 theorem BitVec.lt_irrefl (a : BitVec n) : (BitVec.ult a a) = false := by
   rw [← Bool.not_eq_true, ← BitVec.lt_ult]
   exact _root_.BitVec.lt_irrefl _
@@ -377,25 +376,21 @@ theorem BitVec.mul_ones (a : BitVec w) : a * -1#w = -a := by
   simp
 
 -- All push a to the lhs as the rhs is guaranteed to be a constant so this form improves sharing.
-@[bv_normalize]
 theorem BitVec.add_const_beq_const {a : BitVec w} :
     ((a + BitVec.ofNat w b) == BitVec.ofNat w c) = (a == BitVec.ofNat w c - BitVec.ofNat w b) := by
   rw [Bool.eq_iff_iff]
   simp [BitVec.eq_sub_iff_add_eq]
 
-@[bv_normalize]
 theorem BitVec.const_add_beq_const :
     ((BitVec.ofNat w b + a) == BitVec.ofNat w c) = (a == BitVec.ofNat w c - BitVec.ofNat w b) := by
   rw [Bool.eq_iff_iff, BitVec.add_comm _ a]
   simp [BitVec.eq_sub_iff_add_eq]
 
-@[bv_normalize]
 theorem BitVec.const_beq_add_const_beq :
     (BitVec.ofNat w c == (a + BitVec.ofNat w b)) = (a == BitVec.ofNat w c - BitVec.ofNat w b) := by
   rw [Bool.eq_iff_iff, Bool.beq_comm]
   simp [BitVec.eq_sub_iff_add_eq]
 
-@[bv_normalize]
 theorem BitVec.const_beq_const_add_beq :
     (BitVec.ofNat w c == (BitVec.ofNat w b + a)) = (a == BitVec.ofNat w c - BitVec.ofNat w b) := by
   rw [Bool.eq_iff_iff, BitVec.add_comm _ a, Bool.beq_comm]

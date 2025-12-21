@@ -77,13 +77,30 @@ private def splitIfAtHEq? (mvarId : MVarId) : MetaM (Option (MVarId × MVarId)) 
   match_expr lhs.getAppPrefix 5 with
   | dite α' cond inst «then» «else» =>
     let extraArgs := lhs.getAppArgs[5:]
-    let motive ← withLocalDeclD `lhs α' fun x =>
-      mkLambdaFVars #[x] <| mkApp4 type.getAppFn α (mkAppN x extraArgs) β rhs
+    let motive := .lam `lhs α' (binderInfo := .default) <|
+      mkApp4 type.getAppFn α (mkAppN (.bvar 0) extraArgs) β rhs
+    -- Check the local context for conditions we can use to rewrite instead of split
+    for d in (← getLCtx) do
+      if (← withReducible <| isDefEq cond d.type) then
+        let e := mkConst ``dif_pos [← getLevel α']
+        let e := mkApp6 e cond inst d.toExpr α' «then» «else»
+        let e ← mkCongrArg motive e
+        let mvarId' ← mvarId.replaceTargetEq (motive.beta #[«then».beta #[d.toExpr]]) e
+        return #[mvarId']
+      if (← withReducible <| isDefEq (mkNot cond) d.type) then
+        let e := mkConst ``dif_neg [← getLevel α']
+        let e := mkApp6 e cond inst d.toExpr α' «then» «else»
+        let e ← mkCongrArg motive e
+        let mvarId' ← mvarId.replaceTargetEq (motive.beta #[«else».beta #[d.toExpr]]) e
+        return #[mvarId']
     let e := mkConst `diteInduction [← getLevel α', ← getLevel type]
     let e := mkApp6 e α' cond inst motive «then» «else»
     let [mvarId₁, mvarId₂] ← mvarId.applyN e 2 | panic! "splitIfAtHEq: unexpected number of subgoals"
-    return some (mvarId₁, mvarId₂)
-  | _ => return none
+    let (fvarId₁, mvarId₁) ← mvarId₁.intro1
+    let mvarId₁ ← trySubst mvarId₁ fvarId₁
+    let (_, mvarId₂) ← mvarId₂.intro1
+    return #[mvarId₁, mvarId₂]
+  | _ => throwError "rwOrSplitIfAtHEq?: LHS is not a `dite` application"
 
 private partial def proveCongrEqThm (matchDeclName : Name) (thmName : Name) (mvarId : MVarId) : MetaM Unit := do
   withTraceNode `Meta.Match.matchEqs (msg := (return m!"{exceptEmoji ·} proveCongrEqThm {thmName}")) do
@@ -102,13 +119,7 @@ where
       <|>
       (splitSparseCasesOn mvarId)
       <|>
-      (do if let some (mvarId₁, mvarId₂) ← splitIfAtHEq? mvarId then
-            let (fvarId₁, mvarId₁) ← mvarId₁.intro1
-            let mvarId₁ ← trySubst mvarId₁ fvarId₁
-            let (_, mvarId₂) ← mvarId₂.intro1
-            return #[mvarId₁, mvarId₂]
-          else
-            throwError "spliIf failed")
+      (rwOrSplitIfAtHEq? mvarId)
       <|>
       (goLeaf mvarId *> return #[])
     subgoals.forM (go · (depth+1))

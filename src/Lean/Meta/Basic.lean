@@ -2590,7 +2590,11 @@ where
         -- catch all exceptions
         let _ : MonadExceptOf _ MetaM := MonadAlwaysExcept.except
         observing do
-          realize)
+          -- The scope at which `enableRealizationsForConst forConst` was called is essentially
+          -- arbitrary, normalize here. As `realize` will not add new constants nor should it
+          -- directly be connected to user input to be checked, be permissive.
+          withoutExporting do
+            realize)
         <* addTraceAsMessages
     let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO
     let res ← match res? with

@@ -269,15 +269,10 @@ not always needed, so for now we live with the code duplication.
 -/
 @[export lean_get_congr_match_equations_for]
 def genMatchCongrEqnsImpl (matchDeclName : Name) : MetaM (Array Name) := do
-  let env ← getEnv
-  -- Preserve existing private prefix if any so that we can find `matchDeclName` again purely by
-  -- looking at an equation name. As realizable constants should behave as if they were defined in
-  -- the original module, this is fine here.
-  let baseName := if isPrivateName matchDeclName then matchDeclName else mkPrivateName env matchDeclName
-  let firstEqnName := .str baseName congrEqn1ThmSuffix
-  realizeConst matchDeclName firstEqnName (go baseName)
+  let firstEqnName := .str matchDeclName congrEqn1ThmSuffix
+  realizeConst matchDeclName firstEqnName go
   return matchCongrEqnsExt.getState (asyncMode := .async .asyncEnv) (asyncDecl := firstEqnName) (← getEnv) |>.find! matchDeclName
-where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
+where go := withConfig (fun c => { c with etaStruct := .none }) do
   withConfig (fun c => { c with etaStruct := .none }) do
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
@@ -294,7 +289,7 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
     let mut idx := 1
     for i in *...alts.size do
       let altInfo := matchInfo.altInfos[i]!
-      let thmName := (Name.str baseName congrEqnThmSuffixBase).appendIndexAfter idx
+      let thmName := (Name.str matchDeclName congrEqnThmSuffixBase).appendIndexAfter idx
       eqnNames := eqnNames.push thmName
       let notAlt ← do
         let alt := alts[i]!
@@ -341,22 +336,33 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
 
 builtin_initialize registerTraceClass `Meta.Match.matchEqs
 
-private def isMatchEqName? (env : Environment) (n : Name) : Option (Name × Bool) := do
+private def isMatchEqName? (env : Environment) (n : Name) : Option Name := do
   let .str p s := n | failure
-  guard <| isEqnReservedNameSuffix s || s == "splitter" || isCongrEqnReservedNameSuffix s
+  guard <| isEqnReservedNameSuffix s || s == "splitter"
   let p ← privateToUserName? p
   guard <| isMatcherCore env p
-  return (p, isCongrEqnReservedNameSuffix s)
+  return p
 
 builtin_initialize registerReservedNamePredicate (isMatchEqName? · · |>.isSome)
 
 builtin_initialize registerReservedNameAction fun name => do
-  let some (p, isGenEq) := isMatchEqName? (← getEnv) name |
+  let some p := isMatchEqName? (← getEnv) name |
     return false
-  if isGenEq then
-    let _ ← MetaM.run' <| genMatchCongrEqnsImpl p
-  else
-    let _ ← MetaM.run' <| getEquationsFor p
+  let _ ← MetaM.run' <| getEquationsForImpl p
+  return true
+
+private def isMatchCongrEqName? (env : Environment) (n : Name) : Option Name := do
+  let .str p s := n | failure
+  guard <| isCongrEqnReservedNameSuffix s
+  guard <| isMatcherCore env p
+  return p
+
+builtin_initialize registerReservedNamePredicate (isMatchCongrEqName? · · |>.isSome)
+
+builtin_initialize registerReservedNameAction fun name => do
+  let some p := isMatchCongrEqName? (← getEnv) name |
+    return false
+  let _ ← MetaM.run' <| genMatchCongrEqnsImpl p
   return true
 
 end Lean.Meta.Match

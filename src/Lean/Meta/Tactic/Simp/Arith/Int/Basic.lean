@@ -117,6 +117,7 @@ def addAsVar (e : Expr) : M Int.Linear.Expr := do
     set { varMap := (← s.varMap.insert e x), vars := s.vars.push e : State }
     return var x
 
+open Structural in -- TODO FIX
 partial def toLinearExpr (e : Expr) : M Int.Linear.Expr := do
   match e with
   | .mdata _ e            => toLinearExpr e
@@ -176,6 +177,7 @@ partial def eqCnstr? (e : Expr) : M (Option (Int.Linear.Expr × Int.Linear.Expr)
   | .var _, .var _ | .var _, .num _ | .num _, .var _ => failure
   | _, _ => return (a, b)
 
+open Structural in -- TODO FIX
 partial def leCnstr? (e : Expr) : M (Option (Int.Linear.Expr × Int.Linear.Expr)) := OptionT.run do
   match_expr e with
   | Int.le a b =>
@@ -196,6 +198,7 @@ partial def leCnstr? (e : Expr) : M (Option (Int.Linear.Expr × Int.Linear.Expr)
     return (.add (← toLinearExpr b) (.num 1), ← toLinearExpr a)
   | _ => failure
 
+open Structural in -- TODO FIX
 partial def dvdCnstr? (e : Expr) : M (Option (Int × Int.Linear.Expr)) := OptionT.run do
   let_expr Dvd.dvd _ inst k b ← e | failure
   guard (← isInstDvdInt inst)

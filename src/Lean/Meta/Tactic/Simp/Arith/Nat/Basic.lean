@@ -94,6 +94,7 @@ def addAsVar (e : Expr) : M LinearExpr := do
     set { varMap := (← s.varMap.insert e x), vars := s.vars.push e : State }
     return var x
 
+open Structural in -- TODO FIX
 partial def toLinearExpr (e : Expr) : M LinearExpr := do
   match e with
   | .lit (.natVal n)      => return num n
@@ -131,6 +132,7 @@ where
       else addAsVar e
     | _ => addAsVar e
 
+open Structural in -- TODO FIX
 partial def toLinearCnstr? (e : Expr) : M (Option LinearCnstr) := OptionT.run do
   match_expr e with
   | Eq α a b =>

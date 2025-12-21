@@ -233,9 +233,9 @@ private def normOfNatArgs? (args : Array Expr) : MetaM (Option (Array Expr)) := 
       args := args.set 1 (mkRawNatLit val)
       modified := true
     let inst := args[2]
-    if (← isInstOfNatNat inst) && !args[0].isConstOf ``Nat then
+    if (← Structural.isInstOfNatNat inst) && !args[0].isConstOf ``Nat then
       return some (args.set 0 Nat.mkType |>.toArray)
-    else if (← isInstOfNatInt inst) && !args[0].isConstOf ``Int then
+    else if (← Structural.isInstOfNatInt inst) && !args[0].isConstOf ``Int then
       return some (args.set 0 Int.mkType |>.toArray)
     else if modified then
       return some args.toArray

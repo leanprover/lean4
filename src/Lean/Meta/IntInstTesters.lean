@@ -14,6 +14,11 @@ namespace Lean.Meta
 /-!
 Functions for testing whether expressions are canonical `Int` instances.
 -/
+namespace Structural
+/-!
+**Note**: Structural tests are *syntactic*. They are more efficient, but
+should be used only in modules that have perform some kind of canonicalization.
+-/
 
 def isInstOfNatInt (e : Expr) : MetaM Bool := do
   let_expr instOfNat _ ← e | return false
@@ -69,4 +74,5 @@ def isInstPowInt (e : Expr) : MetaM Bool := do
 def isInstHPowInt (e : Expr) : MetaM Bool := do
   let_expr instHPow _ _ i ← e | return false
   isInstPowInt i
+end Structural
 end Lean.Meta

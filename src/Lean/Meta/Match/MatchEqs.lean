@@ -71,9 +71,9 @@ private def solveWithGrind (mvarId : MVarId) : MetaM Unit := do
     grindFallback mvarId
   trace[Meta.Match.matchEqs] "solved by grind"
 
-private def splitIfAtHEq? (mvarId : MVarId) : MetaM (Option (MVarId × MVarId)) := mvarId.withContext do
+private def rwOrSplitIfAtHEq? (mvarId : MVarId) : MetaM (Array MVarId) := mvarId.withContext do
   let type ← mvarId.getType
-  let some (α,lhs,β,rhs) := type.heq? | return none
+  let some (α,lhs,β,rhs) := type.heq? | throwError "rwOrSplitIfAtHEq?: goal is not an HEq"
   match_expr lhs.getAppPrefix 5 with
   | dite α' cond inst «then» «else» =>
     let extraArgs := lhs.getAppArgs[5:]

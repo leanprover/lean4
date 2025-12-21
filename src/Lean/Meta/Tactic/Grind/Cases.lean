@@ -6,14 +6,10 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Cases
+public import Lean.Meta.Tactic.Grind.Extension
 public section
 namespace Lean.Meta.Grind
-
-/-- Types that `grind` will case-split on. -/
-structure CasesTypes where
-  casesMap : PHashMap Name Bool := {}
-  deriving Inhabited
-
+-- TODO: delete
 structure CasesEntry where
   declName : Name
   eager : Bool
@@ -43,9 +39,6 @@ def CasesTypes.contains (s : CasesTypes) (declName : Name) : Bool :=
 def CasesTypes.erase (s : CasesTypes) (declName : Name) : CasesTypes :=
   { s with casesMap := s.casesMap.erase declName }
 
-def CasesTypes.insert (s : CasesTypes) (declName : Name) (eager : Bool) : CasesTypes :=
-  { s with casesMap := s.casesMap.insert declName eager }
-
 def CasesTypes.find? (s : CasesTypes) (declName : Name) : Option Bool :=
   s.casesMap.find? declName
 
@@ -55,6 +48,9 @@ def CasesTypes.isEagerSplit (s : CasesTypes) (declName : Name) : Bool :=
 def CasesTypes.isSplit (s : CasesTypes) (declName : Name) : Bool :=
   (s.casesMap.find? declName |>.isSome) || isBuiltinEagerCases declName
 
+/-
+TODO: group into a `grind` extension object
+-/
 builtin_initialize casesExt : SimpleScopedEnvExtension CasesEntry CasesTypes ←
   registerSimpleScopedEnvExtension {
     initial        := {}

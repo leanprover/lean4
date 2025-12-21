@@ -14,25 +14,12 @@ builtin_initialize registerTraceClass `grind.inj
 builtin_initialize registerTraceClass `grind.inj.assert
 builtin_initialize registerTraceClass `grind.debug.inj
 
-/-- A theorem marked with `@[grind inj]` -/
-structure InjectiveTheorem where
-  levelParams  : Array Name
-  proof        : Expr
-  /-- Contains all symbols used in the term `f` at the theorem's conclusion: `Function.Injective f`. -/
-  symbols      : List HeadIndex
-  origin       : Origin
-  deriving Inhabited
-
-instance : TheoremLike InjectiveTheorem where
-  getSymbols thm := thm.symbols
-  setSymbols thm symbols := { thm with symbols }
-  getOrigin thm := thm.origin
-  getProof thm := thm.proof
-  getLevelParams thm := thm.levelParams
-
 /-- Set of Injective theorems. -/
 abbrev InjectiveTheorems := Theorems InjectiveTheorem
 
+/-
+TODO: group into a `grind` extension object
+-/
 private builtin_initialize injectiveTheoremsExt : SimpleScopedEnvExtension InjectiveTheorem (Theorems InjectiveTheorem) ←
   registerSimpleScopedEnvExtension {
       addEntry := Theorems.insert

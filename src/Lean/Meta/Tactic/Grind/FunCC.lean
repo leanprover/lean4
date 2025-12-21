@@ -9,6 +9,9 @@ public import Lean.ScopedEnvExtension
 public section
 namespace Lean.Meta.Grind
 
+/-
+TODO: group into a `grind` extension object
+-/
 private builtin_initialize funCCExt : SimpleScopedEnvExtension Name NameSet ←
   registerSimpleScopedEnvExtension {
     initial        := {}

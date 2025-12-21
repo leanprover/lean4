@@ -6,13 +6,14 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Ext
+public import Lean.Meta.Tactic.Grind.Extension
 public section
 namespace Lean.Meta.Grind
 /-! Grind extensionality attribute to mark which `[ext]` theorems should be used. -/
 
-/-- Extensionality theorems that can be used by `grind` -/
-abbrev ExtTheorems := PHashSet Name
-
+/-
+TODO: group into a `grind` extension object
+-/
 builtin_initialize extTheoremsExt : SimpleScopedEnvExtension Name ExtTheorems ←
   registerSimpleScopedEnvExtension {
     initial        := {}

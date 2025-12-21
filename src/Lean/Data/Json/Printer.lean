@@ -68,7 +68,7 @@ where
       let byte := s.getUTF8Byte ⟨i⟩ h
       have h1 : byte.toNat < 256 := UInt8.toNat_lt_size byte
       have h2 : escapeTable.val.size = 256 := escapeTable.property
-      if escapeTable.val.get byte.toNat (Nat.lt_of_lt_of_eq h1 h2.symm) == 0 then
+      if escapeTable.val.uget byte.toUSize (Nat.lt_of_lt_of_eq h1 h2.symm) == 0 then
         go s (i + 1)
       else
         true

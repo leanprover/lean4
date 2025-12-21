@@ -269,7 +269,11 @@ not always needed, so for now we live with the code duplication.
 -/
 @[export lean_get_congr_match_equations_for]
 def genMatchCongrEqnsImpl (matchDeclName : Name) : MetaM (Array Name) := do
-  let baseName := mkPrivateName (← getEnv) matchDeclName
+  let env ← getEnv
+  -- Preserve existing private prefix if any so that we can find `matchDeclName` again purely by
+  -- looking at an equation name. As realizable constants should behave as if they were defined in
+  -- the original module, this is fine here.
+  let baseName := if isPrivateName matchDeclName then matchDeclName else mkPrivateName env matchDeclName
   let firstEqnName := .str baseName congrEqn1ThmSuffix
   realizeConst matchDeclName firstEqnName (go baseName)
   return matchCongrEqnsExt.getState (asyncMode := .async .asyncEnv) (asyncDecl := firstEqnName) (← getEnv) |>.find! matchDeclName

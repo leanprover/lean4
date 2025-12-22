@@ -210,22 +210,13 @@ def elabGrindParamsAndSuggestions
 def mkGrindParams
     (config : Grind.Config) (only : Bool) (ps : TSyntaxArray ``Parser.Tactic.grindParam) (mvarId : MVarId) :
     TermElabM Grind.Params := do
-  let params ← Grind.mkParams config
-  let ematch ← if only then pure default else Grind.getEMatchTheorems
-  let inj ← if only then pure default else Grind.getInjectiveTheorems
-  /-
-  **Note**: We used to skip the global cases attribute when `only = true`, but
-  this is not very effective. We now use anchors to restrict the set of case-splits.
-  -/
-  let casesTypes ← Grind.getCasesTypes
-  let funCCs ← Grind.getFunCCSet
-  let params := { params with ematch, casesTypes, inj, funCCs }
+  let params ← if only then Grind.mkOnlyParams config else Grind.mkDefaultParams config
   let suggestions ← if config.suggestions then
     LibrarySuggestions.select mvarId { caller := some "grind" }
   else
     pure #[]
   let mut params ← elabGrindParamsAndSuggestions params ps suggestions (only := only) (lax := config.lax)
-  trace[grind.debug.inj] "{params.inj.getOrigins.map (·.pp)}"
+  trace[grind.debug.inj] "{params.extensions[0]!.inj.getOrigins.map (·.pp)}"
   if params.anchorRefs?.isSome then
     /-
     **Note**: anchors are automatically computed in interactive mode where

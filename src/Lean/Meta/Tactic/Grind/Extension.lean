@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Expr
 public import Lean.Data.PersistentHashMap
-public import Lean.Meta.Tactic.Simp.Types
 public import Lean.Meta.Tactic.Grind.Theorems
 public section
 namespace Lean.Meta.Grind
@@ -160,18 +159,23 @@ inductive Entry where
   | ext (declName : Name)
   | funCC (declName : Name)
   | cases (declName : Name) (eager : Bool)
-  | norm (s : SimpTheorem)
-  | normUnfold (declName : Name)
-  | symPrio (declName : Name) (prio : Nat)
   | ematch (thm : EMatchTheorem)
   | inj (thm : InjectiveTheorem)
+
+/-
+**Note**: We currently have a single normalization and symbol priority sets for all `grind` attributes.
+Reason: the E-match patterns must be normalized with respect to them. If we are using multiple
+`grind` attributes, they patterns would have to be re-normalized using the union of all normalizers.
+
+Alternative design: allow a single `grind` attribute per `grind` call. Cons: when creating a new
+`grind` attribute users would have to carefully setup the normalizer to ensure all `grind` assumptions
+are met. Cons: users would not be able to write `grind only [attr_1, attr_2]`.
+-/
 
 structure ExtensionState where
   casesTypes : CasesTypes := {}
   extThms    : ExtTheorems := {}
   funCC      : NameSet := {}
-  norm       : SimpTheorems := {}
-  symPrios   : SymbolPriorities := {}
   ematch     : Theorems EMatchTheorem := {}
   inj        : Theorems InjectiveTheorem := {}
   deriving Inhabited
@@ -183,9 +187,6 @@ def ExtensionState.addEntry (s : ExtensionState) (e : Entry) : ExtensionState :=
   | .cases declName eager => { s with casesTypes := s.casesTypes.insert declName eager }
   | .ext declName => { s with extThms := s.extThms.insert declName }
   | .funCC declName => { s with funCC := s.funCC.insert declName }
-  | .symPrio declName prio => { s with symPrios := s.symPrios.insert declName prio }
-  | .norm thm => { s with norm := s.norm.addSimpTheorem thm }
-  | .normUnfold declName => { s with norm := s.norm.addDeclToUnfoldCore declName }
   | .ematch thm => { s with ematch := s.ematch.insert thm }
   | .inj thm => { s with inj := s.inj.insert thm }
 
@@ -197,12 +198,11 @@ def mkExtension (name : Name := by exact decl_name%) : IO Extension :=
     exportEntry? := fun lvl e => do
       -- export only annotations on public decls
       let declName := match e with
-        | .norm thm | .inj thm | .ematch thm =>
+        | .inj thm | .ematch thm =>
           match thm.origin with
           | .decl declName => declName
           | _ => unreachable!
-        | .ext declName | .cases declName _ | .funCC declName
-        | .symPrio declName _ | .normUnfold declName => declName
+        | .ext declName | .cases declName _ | .funCC declName => declName
       guard (lvl == .private || !isPrivateName declName)
       return e
   }
@@ -220,5 +220,8 @@ users to use multiple extensions simultaneously without merging them into a sing
 The collection is scanned linearly. In practice, we expect the array to be very small.
 -/
 abbrev ExtensionStateArray := Array ExtensionState
+
+def throwNotMarkedWithGrindAttribute (declName : Name) : CoreM α :=
+  throwError "`{.ofConstName declName}` is not marked with the `[grind]` attribute"
 
 end Lean.Meta.Grind

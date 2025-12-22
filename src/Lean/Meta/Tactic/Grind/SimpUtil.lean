@@ -179,14 +179,18 @@ private def addDeclToUnfold (s : SimpTheorems) (declName : Name) : MetaM SimpThe
   else
     return s
 
-/-- Returns the simplification context used by `grind`. -/
-protected def getSimpContext (config : Grind.Config) : MetaM Simp.Context := do
+def getNormTheorems : MetaM SimpTheorems := do
   let mut thms ← normExt.getTheorems
   thms ← addDeclToUnfold thms ``GE.ge
   thms ← addDeclToUnfold thms ``GT.gt
   thms ← addDeclToUnfold thms ``Nat.cast
   thms ← addDeclToUnfold thms ``Bool.xor
   thms ← addDeclToUnfold thms ``Ne
+  return thms
+
+/-- Returns the simplification context used by `grind`. -/
+protected def getSimpContext (config : Grind.Config) : MetaM Simp.Context := do
+  let thms ← getNormTheorems
   Simp.mkContext
     (config :=
       { arith := true

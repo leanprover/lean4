@@ -17,6 +17,9 @@ builtin_initialize registerTraceClass `grind.debug.inj
 /-- Set of Injective theorems. -/
 abbrev InjectiveTheorems := Theorems InjectiveTheorem
 
+/-- A collections of sets of Injective theorems. -/
+abbrev InjectiveTheoremsArray := TheoremsArray InjectiveTheorem
+
 /-
 TODO: group into a `grind` extension object
 -/

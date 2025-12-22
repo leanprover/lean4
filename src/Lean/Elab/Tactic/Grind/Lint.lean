@@ -88,15 +88,14 @@ def mkConfig (items : Array (TSyntax `Lean.Parser.Tactic.configItem)) : TermElab
   elabConfigItems defaultConfig items
 
 def mkParams (config : Grind.Config) : MetaM Params := do
-  let params ← Meta.Grind.mkParams config
-  let casesTypes ← Grind.getCasesTypes
-  let mut ematch ← getEMatchTheorems
+  let params ← Meta.Grind.mkDefaultParams config
+  let mut ematch := params.extensions[0]!.ematch
   for declName in muteExt.getState (← getEnv) do
     try
       ematch ← ematch.eraseDecl declName
     catch _ =>
       pure () -- Ignore failures here.
-  return { params with ematch, casesTypes }
+  return { params with extensions[0].ematch := ematch }
 
 /-- Returns the total number of generated instances.  -/
 def sum (cs : PHashMap Grind.Origin Nat) : Nat := Id.run do

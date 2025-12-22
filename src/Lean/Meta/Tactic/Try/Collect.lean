@@ -126,7 +126,7 @@ def checkInductive (localDecl : LocalDecl) : M Unit := do
   let .const declName _ := type.getAppFn | return ()
   let .inductInfo val ← getConstInfo declName | return ()
   if (← isEligible declName) then
-    unless (← Grind.isSplit declName) do
+    unless (← Grind.isGlobalSplit declName) do
       modify fun s => { s with indCandidates := s.indCandidates.push { fvarId := localDecl.fvarId, val } }
 
 unsafe abbrev Cache := PtrSet Expr

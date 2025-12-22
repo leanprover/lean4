@@ -182,9 +182,9 @@ private partial def introNext (goal : Goal) (generation : Nat) : GrindM IntroRes
     else
       return .done goal
 
-private def isEagerCasesCandidate (goal : Goal) (type : Expr) : Bool := Id.run do
+private def isEagerCasesCandidate (type : Expr) : GrindM Bool := do
   let .const declName _ := type.getAppFn | return false
-  return goal.split.casesTypes.isEagerSplit declName
+  isEagerSplit declName
 
 /-- Returns `true` if `type` is an inductive type with at most one constructor. -/
 private def isCheapInductive (type : Expr) : CoreM Bool := do
@@ -215,7 +215,7 @@ private def applyCases? (goal : Goal) (fvarId : FVarId) (kp : ActionCont) : Grin
   Example: `a ∣ b` is defined as `∃ x, b = a * x`
   -/
   let type ← whnf (← fvarId.getType)
-  unless isEagerCasesCandidate goal type do return none
+  unless (← isEagerCasesCandidate type) do return none
   if (← cheapCasesOnly) then
     unless (← isCheapInductive type) do return none
   if let .const declName _ := type.getAppFn then
@@ -268,7 +268,7 @@ def intros (generation : Nat) : Action :=
 
 /-- Asserts a new fact `prop` with proof `proof` to the given `goal`. -/
 private def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : Action := fun goal kna kp => do
-  if isEagerCasesCandidate goal prop then
+  if (← isEagerCasesCandidate prop) then
     let mvarId ← goal.mvarId.assert (← mkFreshUserName `h) prop proof
     intros generation { goal with mvarId } kna kp
   else goal.withContext do

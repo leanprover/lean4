@@ -328,6 +328,9 @@ private def EMatchTheoremKind.explainFailure : EMatchTheoremKind → String
 /-- Set of E-matching theorems. -/
 abbrev EMatchTheorems := Theorems EMatchTheorem
 
+/-- A collection of sets of E-matching theorems. -/
+abbrev EMatchTheoremsArray := TheoremsArray EMatchTheorem
+
 /--
 Returns `true` if there is a theorem with exactly the same pattern and constraints is already in `s`
 -/
@@ -335,6 +338,10 @@ def EMatchTheorems.containsWithSamePatterns (s : EMatchTheorems) (origin : Origi
     (patterns : List Expr) (cnstrs : List EMatchTheoremConstraint) : Bool :=
   let thms := s.find origin
   thms.any fun thm => thm.patterns == patterns && thm.cnstrs == cnstrs
+
+def ExtensionStateArray.containsWithSamePatterns (s : ExtensionStateArray) (origin : Origin)
+    (patterns : List Expr) (cnstrs : List EMatchTheoremConstraint) : Bool :=
+  s.any (EMatchTheorems.containsWithSamePatterns ·.ematch origin patterns cnstrs)
 
 def EMatchTheorems.getKindsFor (s : EMatchTheorems) (origin : Origin) : List EMatchTheoremKind :=
   let thms := s.find origin
@@ -1379,19 +1386,16 @@ private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind
     throwError s!"`{thmKind.toAttribute false}` attribute can only be applied to equational theorems or function definitions"
 
 def EMatchTheorems.eraseDecl (s : EMatchTheorems) (declName : Name) : MetaM EMatchTheorems := do
-  let throwErr {α} : MetaM α :=
-    throwError "`{.ofConstName declName}` is not marked with the `[grind]` attribute"
   if !wasOriginallyTheorem (← getEnv) declName then
     if let some eqns ← getEqnsFor? declName then
-       let s := ematchTheoremsExt.getState (← getEnv)
        unless eqns.all fun eqn => s.contains (.decl eqn) do
-         throwErr
+         throwNotMarkedWithGrindAttribute declName
        return eqns.foldl (init := s) fun s eqn => s.erase (.decl eqn)
     else
-      throwErr
+      throwNotMarkedWithGrindAttribute declName
   else
-    unless ematchTheoremsExt.getState (← getEnv) |>.contains (.decl declName) do
-      throwErr
+    unless s.contains (.decl declName) do
+      throwNotMarkedWithGrindAttribute declName
     return s.erase <| .decl declName
 
 private def ensureNoMinIndexable (minIndexable : Bool) : MetaM Unit := do

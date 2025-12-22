@@ -43,4 +43,7 @@ def eraseExtAttr (declName : Name) : CoreM Unit := do
 def isExtTheorem (declName : Name) : CoreM Bool := do
   return extTheoremsExt.getState (← getEnv) |>.contains declName
 
+def getGlobalExtTheorems : CoreM ExtTheorems := do
+  return extTheoremsExt.getState (← getEnv)
+
 end Lean.Meta.Grind

@@ -145,7 +145,7 @@ private def mkGrindAttr (attrName : Name) (minIndexable : Bool) (showInfo : Bool
       The attribute `[{attrName}]` by itself will effectively try `[{attrName} ←]` (if the conclusion is sufficient for instantiation) and then `[{attrName} →]`.\
       \
       The `grind` tactic utilizes annotated theorems to add instances of matching patterns into the local context during proof search.\
-      For example, if a theorem `@[grind =] theorem foo_idempotent : foo (foo x) = foo x` is annotated,\
+      For example, if a theorem `@[{attrName} =] theorem foo_idempotent : foo (foo x) = foo x` is annotated,\
       `grind` will add an instance of this theorem to the local context whenever it encounters the pattern `foo (foo x)`."
     applicationTime := .afterCompilation
     add := fun declName stx attrKind => MetaM.run' do

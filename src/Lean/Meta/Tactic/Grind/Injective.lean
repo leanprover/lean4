@@ -20,15 +20,6 @@ abbrev InjectiveTheorems := Theorems InjectiveTheorem
 /-- A collections of sets of Injective theorems. -/
 abbrev InjectiveTheoremsArray := TheoremsArray InjectiveTheorem
 
-/-
-TODO: group into a `grind` extension object
--/
-private builtin_initialize injectiveTheoremsExt : SimpleScopedEnvExtension InjectiveTheorem (Theorems InjectiveTheorem) ←
-  registerSimpleScopedEnvExtension {
-      addEntry := Theorems.insert
-      initial  := {}
-    }
-
 private partial def getSymbols (proof : Expr) (hasUniverses : Bool) : MetaM (List HeadIndex) := do
   let type ← inferType proof
   forallTelescope type fun xs type => do
@@ -75,27 +66,7 @@ def mkInjectiveTheorem (declName : Name) : MetaM InjectiveTheorem := do
     proof, symbols
   }
 
--- TODO: delete
-def addInjectiveAttr (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
-  injectiveTheoremsExt.add (← mkInjectiveTheorem declName) attrKind
-
 def Extension.addInjectiveAttr (ext : Extension) (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
   ext.add (.inj (← mkInjectiveTheorem declName)) attrKind
-
-def eraseInjectiveAttr (declName : Name) : MetaM Unit := do
-  let s := injectiveTheoremsExt.getState (← getEnv)
-  let s ← s.eraseDecl declName
-  modifyEnv fun env => injectiveTheoremsExt.modifyState env fun _ => s
-
-/-- Returns `true` if `declName` has been tagged as an injective theorem using `[grind]`. -/
-def isInjectiveTheorem (declName : Name) : CoreM Bool := do
-  return injectiveTheoremsExt.getState (← getEnv) |>.contains (.decl declName)
-
-/-- Returns the injective theorems registered in the environment. -/
-def getInjectiveTheorems : CoreM InjectiveTheorems := do
-  return injectiveTheoremsExt.getState (← getEnv)
-
-def resetInjectiveTheoremsExt : CoreM Unit := do
-  modifyEnv fun env => injectiveTheoremsExt.modifyState env fun _ => {}
 
 end Lean.Meta.Grind

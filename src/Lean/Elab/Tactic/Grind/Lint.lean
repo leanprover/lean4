@@ -36,7 +36,7 @@ builtin_initialize muteExt : SimplePersistentEnvExtension Name NameSet ←
 open Command Meta Grind
 
 def checkEMatchTheorem (declName : Name) : CoreM Unit := do
-  unless (← isEMatchTheorem declName) do
+  unless (← Grind.grindExt.isEMatchTheorem declName) do
     throwError "`{declName}` is not marked with the `@[grind]` attribute for theorem instantiation"
 
 @[builtin_command_elab Lean.Grind.grindLintSkip]
@@ -163,7 +163,7 @@ def nameEndsWithSuffix (name suff : Name) : Bool :=
 def getTheorems (prefixes? : Option (Array Name)) (inModule : Bool) : CoreM (List Name) := do
   let skip := skipExt.getState (← getEnv)
   let skipSuffixes := skipSuffixExt.getState (← getEnv)
-  let origins := (← getEMatchTheorems).getOrigins
+  let origins := (← Grind.grindExt.getEMatchTheorems).getOrigins
   let env ← getEnv
   return origins.filterMap fun origin => Id.run do
     let .decl declName := origin | return none

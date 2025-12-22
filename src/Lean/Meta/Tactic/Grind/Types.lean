@@ -358,6 +358,9 @@ def isSplit (declName : Name) : GrindM Bool :=
 def isEagerSplit (declName : Name) : GrindM Bool :=
   return (← readThe Context).extensions.any fun ext => ext.casesTypes.isEagerSplit declName
 
+def isExtTheorem (declName : Name) : GrindM Bool :=
+  return (← readThe Context).extensions.any fun ext => ext.extThms.contains declName
+
 /--
 Returns `true` if `declName` is the name of a `match` equation or a `match` congruence equation.
 -/

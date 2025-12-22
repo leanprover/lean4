@@ -9,29 +9,6 @@ public import Lean.ScopedEnvExtension
 public section
 namespace Lean.Meta.Grind
 
-/-
-TODO: group into a `grind` extension object
--/
-private builtin_initialize funCCExt : SimpleScopedEnvExtension Name NameSet ←
-  registerSimpleScopedEnvExtension {
-    initial        := {}
-    addEntry       := fun s declName => s.insert declName
-  }
-
-def getFunCCSet : CoreM NameSet :=
-  return funCCExt.getState (← getEnv)
-
-def hasFunCCAttr (declName : Name) : CoreM Bool := do
-  return (← getFunCCSet).contains declName
-
-def addFunCCAttr (declName : Name) (attrKind : AttributeKind) : CoreM Unit := do
-  funCCExt.add declName attrKind
-
-def eraseFunCCAttr (declName : Name) : CoreM Unit := do
-  let s ← getFunCCSet
-  unless s.contains declName do
-    throwError "`{.ofConstName declName}` is not marked with the `[grind]` attribute"
-  let s := s.erase declName
-  modifyEnv fun env => funCCExt.modifyState env fun _ => s
+-- **TODO**: delete this file
 
 end Lean.Meta.Grind

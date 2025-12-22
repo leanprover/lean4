@@ -117,7 +117,7 @@ Auxiliary function for registering `grind`, `grind!`, `grind?`, and `grind!?` at
 The `grind?` and `grind!?` are aliases for `grind` and `grind!` which displays patterns using `logInfo`.
 It is just a convenience for users.
 -/
-private def mkGrindAttr (attrName : Name) (minIndexable : Bool) (showInfo : Bool) (ext? : Option Extension := none) (ref : Name := by exact decl_name%) : IO Unit :=
+private def mkGrindAttr (attrName : Name) (minIndexable : Bool) (showInfo : Bool) (ext : Extension) (ref : Name := by exact decl_name%) : IO Unit :=
   registerBuiltinAttribute {
     ref  := ref
     name := match minIndexable, showInfo with
@@ -154,86 +154,46 @@ private def mkGrindAttr (attrName : Name) (minIndexable : Bool) (showInfo : Bool
       -- When the body is not available (i.e. the def equations are private), the attribute will not
       -- be exported; see `ematchTheoremsExt.exportEntry?`.
       withoutExporting do
-      if let some ext := ext? then
-        match (← getAttrKindFromOpt stx) with
-        | .symbol prio =>
-          unless attrName == `grind do
-            throwError "symbol priorities must be set using the default `[grind]` attribute"
-          addSymbolPriorityAttr declName attrKind prio
-        | .cases eager => ext.addCasesAttr declName eager attrKind
-        | .funCC => ext.addFunCCAttr declName attrKind
-        | .ext => ext.addExtAttr declName attrKind
-        | .ematch .user => throwInvalidUsrModifier
-        | .ematch k => ext.addEMatchAttr declName attrKind k (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
-        | .intro =>
-          if let some info ← isCasesAttrPredicateCandidate? declName false then
+      match (← getAttrKindFromOpt stx) with
+      | .symbol prio =>
+        unless attrName == `grind do
+          throwError "symbol priorities must be set using the default `[grind]` attribute"
+        addSymbolPriorityAttr declName attrKind prio
+      | .cases eager => ext.addCasesAttr declName eager attrKind
+      | .funCC => ext.addFunCCAttr declName attrKind
+      | .ext => ext.addExtAttr declName attrKind
+      | .ematch .user => throwInvalidUsrModifier
+      | .ematch k => ext.addEMatchAttr declName attrKind k (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
+      | .intro =>
+        if let some info ← isCasesAttrPredicateCandidate? declName false then
+          for ctor in info.ctors do
+            ext.addEMatchAttr ctor attrKind (.default false) (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
+        else
+          throwError "invalid `[{attrName} intro]`, `{.ofConstName declName}` is not an inductive predicate"
+      | .infer =>
+        if let some declName ← isCasesAttrCandidate? declName false then
+          ext.addCasesAttr declName false attrKind
+          if let some info ← isInductivePredicate? declName then
+            -- If it is an inductive predicate,
+            -- we also add the constructors (intro rules) as E-matching rules
             for ctor in info.ctors do
               ext.addEMatchAttr ctor attrKind (.default false) (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
-          else
-            throwError "invalid `[{attrName} intro]`, `{.ofConstName declName}` is not an inductive predicate"
-        | .infer =>
-          if let some declName ← isCasesAttrCandidate? declName false then
-            ext.addCasesAttr declName false attrKind
-            if let some info ← isInductivePredicate? declName then
-              -- If it is an inductive predicate,
-              -- we also add the constructors (intro rules) as E-matching rules
-              for ctor in info.ctors do
-                ext.addEMatchAttr ctor attrKind (.default false) (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
-          else
-            ext.addEMatchAttrAndSuggest stx declName attrKind (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
-        | .inj => ext.addInjectiveAttr declName attrKind
-      else
-        -- **TODO**: delete after update stage0 and new extension for default `grind` attribute
-        match (← getAttrKindFromOpt stx) with
-        | .ematch .user => throwInvalidUsrModifier
-        | .ematch k => addEMatchAttr declName attrKind k (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
-        | .cases eager => addCasesAttr declName eager attrKind
-        | .intro =>
-          if let some info ← isCasesAttrPredicateCandidate? declName false then
-            for ctor in info.ctors do
-              addEMatchAttr ctor attrKind (.default false) (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
-          else
-            throwError "invalid `[{attrName} intro]`, `{.ofConstName declName}` is not an inductive predicate"
-        | .ext => addExtAttr declName attrKind
-        | .infer =>
-          if let some declName ← isCasesAttrCandidate? declName false then
-            addCasesAttr declName false attrKind
-            if let some info ← isInductivePredicate? declName then
-              -- If it is an inductive predicate,
-              -- we also add the constructors (intro rules) as E-matching rules
-              for ctor in info.ctors do
-                addEMatchAttr ctor attrKind (.default false) (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
-          else
-            addEMatchAttrAndSuggest stx declName attrKind (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
-        | .symbol prio => addSymbolPriorityAttr declName attrKind prio
-        | .inj => addInjectiveAttr declName attrKind
-        | .funCC => addFunCCAttr declName attrKind
+        else
+          ext.addEMatchAttrAndSuggest stx declName attrKind (← getGlobalSymbolPriorities) (minIndexable := minIndexable) (showInfo := showInfo)
+      | .inj => ext.addInjectiveAttr declName attrKind
     erase := fun declName => MetaM.run' do
       if showInfo then
         throwError "`[{attrName}?]` is a helper attribute for displaying inferred patterns, if you want to remove the attribute, consider using `[{attrName}]` instead"
-      if let some ext := ext? then
-        if (← isCasesAttrCandidate declName false) then
-          ext.eraseCasesAttr declName
-        else if (← ext.isExtTheorem declName) then
-          ext.eraseExtAttr declName
-        else if (← ext.isInjectiveTheorem declName) then
-          ext.eraseInjectiveAttr declName
-        else if (← ext.hasFunCCAttr declName) then
-          ext.eraseFunCCAttr declName
-        else
-          ext.eraseEMatchAttr declName
+      if (← isCasesAttrCandidate declName false) then
+        ext.eraseCasesAttr declName
+      else if (← ext.isExtTheorem declName) then
+        ext.eraseExtAttr declName
+      else if (← ext.isInjectiveTheorem declName) then
+        ext.eraseInjectiveAttr declName
+      else if (← ext.hasFunCCAttr declName) then
+        ext.eraseFunCCAttr declName
       else
-        -- **TODO**: delete after update stage0 and new extension for default `grind` attribute
-        if (← isCasesAttrCandidate declName false) then
-          eraseCasesAttr declName
-        else if (← isExtTheorem declName) then
-          eraseExtAttr declName
-        else if (← isInjectiveTheorem declName) then
-          eraseInjectiveAttr declName
-        else if (← hasFunCCAttr declName) then
-          eraseFunCCAttr declName
-        else
-          eraseEMatchAttr declName
+        ext.eraseEMatchAttr declName
   }
 
 /-
@@ -256,13 +216,18 @@ def getExtension? (attrName : Name) : IO (Option Extension) :=
 
 def registerAttr (attrName : Name) (ref : Name := by exact decl_name%) : IO Extension := do
   let ext ← mkExtension ref
-  mkGrindAttr attrName (minIndexable := false) (showInfo := true) (ext? := some ext) (ref := ref)
-  mkGrindAttr attrName (minIndexable := false) (showInfo := false) (ext? := some ext) (ref := ref)
-  mkGrindAttr attrName (minIndexable := true) (showInfo := true) (ext? := some ext) (ref := ref)
-  mkGrindAttr attrName (minIndexable := true) (showInfo := false) (ext? := some ext) (ref := ref)
+  mkGrindAttr attrName (minIndexable := false) (showInfo := true) (ext := ext) (ref := ref)
+  mkGrindAttr attrName (minIndexable := false) (showInfo := false) (ext := ext) (ref := ref)
+  mkGrindAttr attrName (minIndexable := true) (showInfo := true) (ext := ext) (ref := ref)
+  mkGrindAttr attrName (minIndexable := true) (showInfo := false) (ext := ext) (ref := ref)
   extensionMapRef.modify fun map => map.insert attrName ext
   return ext
 
 builtin_initialize grindExt : Extension ← registerAttr `grind
+
+/-- Returns `true` is `declName` is a builtin split or has been tagged with `[grind]` attribute. -/
+def isGlobalSplit (declName : Name) : CoreM Bool := do
+  let s := grindExt.getState (← getEnv)
+  return s.casesTypes.isSplit declName
 
 end Lean.Meta.Grind

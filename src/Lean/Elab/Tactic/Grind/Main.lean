@@ -35,9 +35,9 @@ open Lean.Parser.Command.GrindCnstr in
 @[builtin_command_elab Lean.Parser.Command.grindPattern]
 def elabGrindPattern : CommandElab := fun stx => do
   match stx with
-  | `(grind_pattern $thmName:ident => $terms,* $[$cnstrs?:grindPatternCnstrs]?) => go thmName terms cnstrs? .global
-  | `(scoped grind_pattern $thmName:ident => $terms,* $[$cnstrs?:grindPatternCnstrs]?) => go thmName terms cnstrs? .scoped
-  | `(local grind_pattern $thmName:ident => $terms,* $[$cnstrs?:grindPatternCnstrs]?) => go thmName terms cnstrs? .local
+  | `(grind_pattern $[[ $attr?:ident ]]? $thmName:ident => $terms,* $[$cnstrs?:grindPatternCnstrs]?) => go attr? thmName terms cnstrs? .global
+  | `(scoped grind_pattern $[[ $attr?:ident ]]? $thmName:ident => $terms,* $[$cnstrs?:grindPatternCnstrs]?) => go attr? thmName terms cnstrs? .scoped
+  | `(local grind_pattern $[[ $attr?:ident ]]? $thmName:ident => $terms,* $[$cnstrs?:grindPatternCnstrs]?) => go attr? thmName terms cnstrs? .local
   | _ => throwUnsupportedSyntax
 where
   findLHS (xs : Array Expr) (lhs : Syntax) : TermElabM (LocalDecl × Nat) := do
@@ -132,9 +132,11 @@ where
       else
         throwErrorAt cnstr "unexpected constraint"
 
-  go (thmName : TSyntax `ident) (terms : Syntax.TSepArray `term ",")
+  go (attrName? : Option (TSyntax `ident)) (thmName : TSyntax `ident) (terms : Syntax.TSepArray `term ",")
       (cnstrs? : Option (TSyntax ``Parser.Command.grindPatternCnstrs))
       (kind : AttributeKind) : CommandElabM Unit := liftTermElabM do
+    let attrName := if let some attrName := attrName? then attrName.getId else `grind
+    let some ext ← Grind.getExtension? attrName | throwError "unknown `grind` attribute `{attrName}`"
     let declName ← realizeGlobalConstNoOverloadWithInfo thmName
     let info ← getConstVal declName
     forallTelescope info.type fun xs _ => do
@@ -145,7 +147,7 @@ where
         let pattern ← Grind.preprocessPattern pattern
         return pattern.abstract xs
       let cnstrs ← elabCnstrs xs cnstrs?
-      Grind.grindExt.addEMatchTheorem declName xs.size patterns.toList .user kind cnstrs (minIndexable := false)
+      ext.addEMatchTheorem declName xs.size patterns.toList .user kind cnstrs (minIndexable := false)
 
 open Command in
 @[builtin_command_elab Lean.Parser.resetGrindAttrs]

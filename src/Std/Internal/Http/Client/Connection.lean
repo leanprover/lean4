@@ -1,7 +1,13 @@
+/-
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Sofia Rodrigues
+-/
 module
 
 prelude
 public import Std.Internal.Async.TCP
+public import Std.Internal.Async.ContextAsync
 public import Std.Internal.Http.Transport
 public import Std.Internal.Http.Protocol.H1
 public import Std.Internal.Http.Client.Config
@@ -22,6 +28,8 @@ This module defines a `Client.Connection` that is a structure used to handle a s
 possibly multiple requests/responses from the client side.
 -/
 
+set_option linter.all true
+
 /--
 A single HTTP client connection.
 -/
@@ -34,24 +42,24 @@ public structure Connection (α : Type) where
   /--
   The processing machine for HTTP 1.1
   -/
-  machine : Protocol.H1.Machine .response
+  machine : Protocol.H1.Machine .sending
 
 /--
 A request packet to be sent through the persistent connection channel.
 -/
 structure RequestPacket where
   /--
-  ?
+  The request to send
   -/
   request : Request Body
 
   /--
-  ?
+  Promise to resolve with the response
   -/
-  responsePromise : Std.Promise (Except Error (Response Body))
+  responsePromise : Std.Future (Except Error (Response Body))
 
   /--
-  ?
+  Cancellation token for this request
   -/
   cancellationToken : Std.CancellationToken
 
@@ -86,9 +94,9 @@ public structure PersistentConnection (α : Type) where
   requestChannel : CloseableChannel RequestPacket
 
   /--
-  Shutdown Promise, resolves when the connection shuts down.
+  Shutdown Future, resolves when the connection shuts down.
   -/
-  shutdown : Std.Promise Unit
+  shutdown : Std.Future Unit
 
 namespace PersistentConnection
 
@@ -96,7 +104,7 @@ namespace PersistentConnection
 Send a request through the persistent connection.
 -/
 def send [Transport α] (pc : PersistentConnection α) (request : Request Body) : Async (Response Body) := do
-  let responsePromise ← IO.Promise.new
+  let responsePromise ← Std.Future.new
   let cancellationToken ← Std.CancellationToken.new
 
   let task ← pc.requestChannel.send { request, responsePromise, cancellationToken }
@@ -121,184 +129,198 @@ namespace Connection
 
 private inductive Recv
   | bytes (x : Option ByteArray)
+  | channel (x : Option Chunk)
+  | packet (x : Option RequestPacket)
   | timeout
+  | shutdown
+  | close
 
-private def receiveWithTimeout [Transport α] (socket : α) (expect : UInt64)
-    (timeoutMs : Millisecond.Offset) :
-  Async Recv := do
-    Selectable.one #[
-      .case (← Transport.recvSelector socket expect) (fun x => pure <| .bytes x),
-      .case (← Selector.sleep timeoutMs) (fun _ => pure <| .timeout)]
+private def receiveWithTimeout
+    [Transport α]
+    (socket : α)
+    (expect : UInt64)
+    (requestStream : Option Body.ByteStream)
+    (requestChannel : Option (CloseableChannel RequestPacket))
+    (timeoutMs : Millisecond.Offset)
+    (connectionContext : CancellationContext) : Async Recv := do
+
+  let mut baseSelectables := #[
+    .case connectionContext.doneSelector (fun _ => do
+      let reason ← connectionContext.getCancellationReason
+      match reason with
+      | some .deadline => pure .timeout
+      | _ => pure .shutdown)
+  ]
+
+  baseSelectables := baseSelectables.push (.case (Transport.recvSelector socket expect) (Recv.bytes · |> pure))
+
+  -- Add timeout for waiting on socket data
+  baseSelectables := baseSelectables.push (.case (← Selector.sleep timeoutMs) (fun _ => pure .timeout))
+
+  if let some stream := requestStream then
+    baseSelectables := baseSelectables.push (.case stream.recvSelector (Recv.channel · |> pure))
+
+  if let some channel := requestChannel then
+    baseSelectables := baseSelectables.push (.case channel.recvSelector (Recv.packet · |> pure))
+
+  Selectable.one baseSelectables
 
 private def processNeedMoreData
-    [Transport α] (config : Client.Config) (socket : α) (expect : Option Nat) :
-    Async (Except Protocol.H1.Machine.Error (Option ByteArray)) := do
+    [Transport α]
+    (config : Config)
+    (socket : α)
+    (expect : Option Nat)
+    (requestStream : Option Body.ByteStream)
+    (requestChannel : Option (CloseableChannel RequestPacket))
+    (timeout : Millisecond.Offset)
+    (connectionContext : CancellationContext) : Async Recv := do
   try
     let expectedBytes := expect
       |>.getD config.defaultRequestBufferSize
       |>.min config.maxRecvChunkSize
       |>.toUInt64
 
-    let data ← receiveWithTimeout socket expect.toUInt64 config.readTimeout
-
-    match data with
-    | .bytes (some bytes) => pure (.ok <| some bytes)
-    | .bytes none => pure (.ok <| none)
-    | .timeout => pure (.error Protocol.H1.Machine.Error.timeout)
-
+    receiveWithTimeout socket expectedBytes requestStream requestChannel timeout connectionContext
   catch _ =>
-    pure (.error Protocol.H1.Machine.Error.timeout)
+    pure .close
 
-private def handle [Transport α] (connection : Connection α) (config : Client.Config)
+private def handleError (machine : Protocol.H1.Machine .sending) (currentRequest : Option RequestPacket) : BaseIO (Protocol.H1.Machine .sending) := do
+  let machine := machine.closeWriter.closeReader.noMoreInput
+  if let some packet := currentRequest then
+    packet.onError (.userError "timeout")
+
+  return machine
+
+private def handle
+    [Transport α]
+    (connection : Connection α)
+    (config : Config)
+    (connectionContext : CancellationContext)
     (requestChannel : CloseableChannel RequestPacket) : Async Unit := do
 
   let mut machine := connection.machine
-  let mut running := true
   let socket := connection.socket
 
   let mut responseStream ← Body.ByteStream.emptyWithCapacity
-  let mut requestTimer ← Interval.mk config.requestTimeout.val config.requestTimeout.property
-  let mut connectionTimer ← Sleep.mk config.keepAliveTimeout
+  let mut currentTimeout := config.keepAliveTimeout.val
 
   let mut currentRequest : Option RequestPacket := none
-  let mut receivedResponse := false
   let mut reqStream := none
+  let mut requiresData := false
+  let mut expectData := none
   let mut waitingForRequest := true
 
-  -- Wait for the first tick that is immediate
-  requestTimer.tick
+  while ¬machine.halted do
+    let (newMachine, step) := machine.step
 
-  let mut requestTimerTask ← async requestTimer.tick
-  let connectionTimerTask ← async connectionTimer.wait
+    machine := newMachine
 
-  while running do
+    if step.output.size > 0 then
+      try Transport.sendAll socket step.output.data catch _ => break
 
-    if waitingForRequest then
-      match ← await (← requestChannel.recv) with
-      | some packet =>
+    for event in step.events do
+      match event with
+      | .needMoreData expect => do
+        requiresData := true
+        expectData := expect
+
+      | .needBody => do
+        pure ()
+
+      | .needAnswer =>
+        pure ()
+
+      | .endHeaders head => do
+        currentTimeout := config.readTimeout
+
+        if let some length := Protocol.H1.Machine.getMessageSize head then
+          responseStream.setKnownSize (some length)
+
+        if let some packet := currentRequest then
+          packet.onResponse { head, body := (.stream responseStream) }
+
+      | .gotData final ext data =>
+        try
+          responseStream.writeChunk { data := data.toByteArray, extensions := ext }
+
+          if final then
+            responseStream.close
+
+        catch _ =>
+          pure ()
+
+      | .next => do
+        responseStream ← Body.ByteStream.emptyWithCapacity
+        reqStream := none
+        currentRequest := none
+        waitingForRequest := true
+        currentTimeout := config.keepAliveTimeout.val
+
+      | .failed e =>
+        if let some packet := currentRequest then
+          packet.onError (.userError (toString e))
+
+      | .close =>
+        pure ()
+
+    if requiresData ∨ waitingForRequest ∨ reqStream.isSome then
+      let requestChannelOpt := if waitingForRequest then some requestChannel else none
+
+      requiresData := false
+
+      let event ← processNeedMoreData config socket expectData reqStream requestChannelOpt currentTimeout connectionContext
+
+      match event with
+      | .bytes (some bs) =>
+        machine := machine.feed bs
+
+      | .bytes none =>
+        machine := machine.noMoreInput
+
+      | .channel (some chunk) =>
+        machine := machine.sendData #[chunk]
+
+      | .channel none =>
+        machine := machine.closeWriter
+
+        if let some stream := reqStream then
+          if ¬(← stream.isClosed) then stream.close
+
+        reqStream := none
+
+      | .packet (some packet) =>
         currentRequest := some packet
         waitingForRequest := false
+        currentTimeout := config.requestTimeout
 
-        machine := machine.sendMessage packet.request.head
+        machine := machine.send packet.request.head
 
         match packet.request.body with
-        | .bytes data => machine := machine.writeUserData data |>.closeWriter
+        | .bytes data => machine := machine.sendData #[Chunk.mk data #[]] |>.closeWriter
         | .zero => machine := machine.closeWriter
         | .stream stream => do
           if let some size ← stream.getKnownSize then
             machine := machine.setKnownSize size
           reqStream := some stream
 
-        requestTimer.reset
-
-      | none =>
-        running := false
-        continue
-
-    machine := machine
-      |> Protocol.H1.Machine.Client.processRead
-      |> Protocol.H1.Machine.Client.processWrite
-
-    let (newMachine, events) := machine.takeEvents
-    machine := newMachine
-
-    -- Sends the output of the machine to the socket in a vectored write.
-    if let some (newMachine, data) := machine.takeOutput then
-      machine := newMachine
-
-      if data.size > 0 then
-        try
-          Transport.sendAll socket data.data
-        catch e =>
-          if let some packet := currentRequest then
-            packet.onError e
-          running := false
-
-    for event in events do
-      match event with
-      | .needMoreData expect => do
-        try
-          match ← processNeedMoreData config socket expect with
-          | .ok (some bs) =>
-            machine := machine.feed bs
-          | .ok none =>
-            machine := machine.setFailure .connectionClosed
-          | .error _ => do
-            machine := machine.setFailure .timeout
-        catch e =>
-          if let some packet := currentRequest then
-            packet.onError e
-          running := false
-
-      | .endHeaders head => do
-        if let some (.fixed n) := Protocol.H1.Machine.getMessageSize head then
-          responseStream.setKnownSize (some n)
-
-        receivedResponse := true
-
-        if let some packet := currentRequest then
-          let response := { head := machine.reader.messageHead, body := some (.stream responseStream) }
-          packet.onResponse response
-
-      | .gotData final data =>
-        discard <| responseStream.send data.toByteArray
-
-        if final then
-          responseStream.close
-
-      | .next => do
-        requestTimer := (← Timestamp.now) + config.requestTimeout.val
-        responseStream ← Body.ByteStream.emptyWithCapacity
-        reqStream := none
-        currentRequest := none
-        needRequest := true
-
-      | .failed e =>
-        if let some packet := currentRequest then
-          packet.onError (.userError (toString e))
-        pure ()
+      | .packet none =>
+        break
 
       | .close =>
-        running := false
+        break
 
-      | .next =>
-        -- Request/response cycle complete, ready for next request
-        requestTimer.reset
-        responseStream ← Body.ByteStream.emptyWithCapacity
-        reqStream := none
-        receivedResponse := false
-        currentRequest := none
-        waitingForRequest := true
+      | .timeout =>
+        machine ← handleError machine currentRequest
 
-    -- Sends data from the request body.
-    if let some stream := reqStream then
-      if machine.isWriterOpened then
-        if machine.isReaderComplete ∧ events.isEmpty then
-          if let some data ← stream.recv then
-            machine := machine.writeUserData data
-          else
-            machine := machine.closeWriter
-        else
-          if ← stream.isClosed then
-            pure ()
-          else
-            match ← stream.tryRecv with
-            | some res => machine := machine.writeUserData res
-            | none => machine := machine.closeWriter
+      | .shutdown =>
+        machine ← handleError machine currentRequest
 
-    -- Checks for things that can close the connection.
-    if ¬ waitingForRequest then
-      if (← requestTimerTask.isFinished) ∨ (← connectionTimerTask.isFinished) then
-        machine := machine.setFailure .timeout
-        if let some packet := currentRequest then
-          packet.onError (.userError "timeout")
-        running := false
+  if ¬ (← responseStream.isClosed) then
+    responseStream.close
 
-  -- End of the connection
-  connectionTimer.stop
-  requestTimer.stop
-
-  dbg_trace "end connection client"
+  if let some stream := reqStream then
+    if ¬(← stream.isClosed) then
+      stream.close
 
 end Connection
 
@@ -319,21 +341,24 @@ socket.connect serverAddr
 -- Create persistent connection
 let pc ← createPersistentConnection socket config
 
--- Spawn the connection handler
-async (pc.connection.handlePersistent pc.config pc.requestChannel)
+-- Spawn the connection handler in the background
+background (pc.connection.handle pc.config (← ContextAsync.getContext) pc.requestChannel)
 
 -- Send multiple requests
-pc.send request1 (fun response => IO.println s!"Response 1: {response.head.status}")
-pc.send request2 (fun response => IO.println s!"Response 2: {response.head.status}")
+let response1 ← pc.send request1
+IO.println s!"Response 1: {response1.head.status}"
+
+let response2 ← pc.send request2
+IO.println s!"Response 2: {response2.head.status}"
 
 -- Close when done
 pc.close
 ```
 -/
-def createPersistentConnection [Transport t] (client : t) (config : Client.Config := {}) : Async (PersistentConnection t) := do
+def createPersistentConnection [Transport t] (client : t) (config : Config := {}) : ContextAsync (PersistentConnection t) := do
   let requestChannel ← CloseableChannel.new
   let connection := Connection.mk client { config := config.toH1Config }
-  let shutdown ← IO.Promise.new
+  let shutdown ← Std.Future.new
 
   pure { connection, requestChannel, shutdown }
 

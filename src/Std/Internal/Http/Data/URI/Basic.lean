@@ -117,6 +117,13 @@ namespace Query
 Gets all the names of the query parameters
 -/
 @[expose]
+def empty : Query :=
+  #[]
+
+/--
+Gets all the names of the query parameters
+-/
+@[expose]
 def names (query : Query) : List String :=
   query.map Prod.fst |>.toList
 
@@ -214,6 +221,12 @@ def query? : RequestTarget → Option URI.Query
   | .originForm _ q _ => q
   | .absoluteForm u => u.query
   | _ => none
+
+/--
+Returns the query component of a `RequestTarget`, if available.
+-/
+def query (rt: RequestTarget) : URI.Query :=
+  rt.query?.getD URI.Query.empty
 
 /--
 Returns the authority component of a `RequestTarget`, if available.

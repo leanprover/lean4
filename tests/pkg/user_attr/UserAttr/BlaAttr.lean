@@ -31,3 +31,5 @@ initialize registerBuiltinAttribute {
     logInfo m!"trace_add attribute added to {decl}"
   -- applicationTime := .afterCompilation
 }
+
+register_grind_attr my_grind

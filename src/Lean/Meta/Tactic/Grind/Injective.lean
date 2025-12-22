@@ -14,25 +14,15 @@ builtin_initialize registerTraceClass `grind.inj
 builtin_initialize registerTraceClass `grind.inj.assert
 builtin_initialize registerTraceClass `grind.debug.inj
 
-/-- A theorem marked with `@[grind inj]` -/
-structure InjectiveTheorem where
-  levelParams  : Array Name
-  proof        : Expr
-  /-- Contains all symbols used in the term `f` at the theorem's conclusion: `Function.Injective f`. -/
-  symbols      : List HeadIndex
-  origin       : Origin
-  deriving Inhabited
-
-instance : TheoremLike InjectiveTheorem where
-  getSymbols thm := thm.symbols
-  setSymbols thm symbols := { thm with symbols }
-  getOrigin thm := thm.origin
-  getProof thm := thm.proof
-  getLevelParams thm := thm.levelParams
-
 /-- Set of Injective theorems. -/
 abbrev InjectiveTheorems := Theorems InjectiveTheorem
 
+/-- A collections of sets of Injective theorems. -/
+abbrev InjectiveTheoremsArray := TheoremsArray InjectiveTheorem
+
+/-
+TODO: group into a `grind` extension object
+-/
 private builtin_initialize injectiveTheoremsExt : SimpleScopedEnvExtension InjectiveTheorem (Theorems InjectiveTheorem) ←
   registerSimpleScopedEnvExtension {
       addEntry := Theorems.insert
@@ -85,8 +75,12 @@ def mkInjectiveTheorem (declName : Name) : MetaM InjectiveTheorem := do
     proof, symbols
   }
 
+-- TODO: delete
 def addInjectiveAttr (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
   injectiveTheoremsExt.add (← mkInjectiveTheorem declName) attrKind
+
+def Extension.addInjectiveAttr (ext : Extension) (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
+  ext.add (.inj (← mkInjectiveTheorem declName)) attrKind
 
 def eraseInjectiveAttr (declName : Name) : MetaM Unit := do
   let s := injectiveTheoremsExt.getState (← getEnv)

@@ -155,3 +155,22 @@ termination_by n => n
 end
 
 end TraceAdd
+
+namespace GrindAttr
+
+opaque f : Nat → Nat
+opaque g : Nat → Nat
+
+@[my_grind] theorem fax : f (f x) = f x := sorry
+
+@[my_grind =] theorem fax2 : f (f (f x)) = f x := by
+  fail_if_success grind
+  grind [my_grind]
+
+@[my_grind? .] theorem fg : g (f x) = x := sorry
+
+@[my_grind? =] theorem fax3 : f (f (f x)) = f x := sorry
+
+@[my_grind!? .] theorem fax4 : f (f (f x)) = f x := sorry
+
+end GrindAttr

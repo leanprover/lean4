@@ -20,7 +20,49 @@ open Meta
 `grind` parameter elaboration
 -/
 
-def warnRedundantEMatchArg (s : Grind.EMatchTheorems) (declName : Name) : MetaM Unit := do
+def _root_.Lean.Meta.Grind.Params.insertCasesTypes (params : Grind.Params) (declName : Name) (eager : Bool) : Grind.Params :=
+  { params with extensions := params.extensions.modify 0 fun ext => { ext with casesTypes := ext.casesTypes.insert declName eager } }
+
+def _root_.Lean.Meta.Grind.Params.eraseCasesTypes (params : Grind.Params) (declName : Name) : CoreM Grind.Params := do
+  unless params.extensions.any fun ext => ext.casesTypes.contains declName do
+    Grind.throwNotMarkedWithGrindAttribute declName
+  return { params with extensions := params.extensions.modify 0 fun ext => { ext with casesTypes := ext.casesTypes.erase declName } }
+
+def _root_.Lean.Meta.Grind.Params.insertFunCC (params : Grind.Params) (declName : Name) : Grind.Params :=
+  { params with extensions := params.extensions.modify 0 fun ext => { ext with funCC := ext.funCC.insert declName } }
+
+def _root_.Lean.Meta.Grind.Params.containsEMatch (params : Grind.Params) (declName : Name) : Bool :=
+  params.extensions.any fun ext => ext.ematch.contains (.decl declName)
+
+def _root_.Lean.Meta.Grind.Params.eraseEMatchCore (params : Grind.Params) (declName : Name) : Grind.Params :=
+  { params with extensions := params.extensions.modify 0 fun ext => { ext with ematch := ext.ematch.erase (.decl declName) } }
+
+def _root_.Lean.Meta.Grind.Params.eraseEMatch (params : Grind.Params) (declName : Name) : MetaM Grind.Params := do
+  if !wasOriginallyTheorem (← getEnv) declName then
+    if let some eqns ← getEqnsFor? declName then
+      unless eqns.all fun eqn => params.containsEMatch eqn do
+        Grind.throwNotMarkedWithGrindAttribute declName
+      return eqns.foldl (init := params) fun params eqn => params.eraseEMatchCore eqn
+    else
+      Grind.throwNotMarkedWithGrindAttribute declName
+  else
+    unless params.containsEMatch declName do
+      Grind.throwNotMarkedWithGrindAttribute declName
+    return params.eraseEMatchCore declName
+
+def _root_.Lean.Meta.Grind.Params.eraseInj (params : Grind.Params) (declName : Name) : Grind.Params :=
+  { params with extensions := params.extensions.modify 0 fun ext => { ext with inj := ext.inj.erase (.decl declName) } }
+
+def _root_.Lean.Meta.Grind.ExtensionStateArray.getKindsFor (s : Grind.ExtensionStateArray) (origin : Grind.Origin) : List Grind.EMatchTheoremKind := Id.run do
+  let mut result := []
+  for ext in s do
+    let s : Grind.EMatchTheorems := ext.ematch
+    let ks := s.getKindsFor origin
+    unless ks.isEmpty do
+      result := result ++ ks
+  return result
+
+def warnRedundantEMatchArg (s : Grind.ExtensionStateArray) (declName : Name) : MetaM Unit := do
   let minIndexable := false -- TODO: infer it
   let kinds ← match s.getKindsFor (.decl declName) with
     | [] => return ()
@@ -54,9 +96,9 @@ public def addEMatchTheorem (params : Grind.Params) (id : Ident) (declName : Nam
       let thm₁ ← Grind.mkEMatchTheoremForDecl declName (.eqLhs gen) params.symPrios
       let thm₂ ← Grind.mkEMatchTheoremForDecl declName (.eqRhs gen) params.symPrios
       if warn &&
-          params.ematch.containsWithSamePatterns thm₁.origin thm₁.patterns thm₁.cnstrs &&
-          params.ematch.containsWithSamePatterns thm₂.origin thm₂.patterns thm₂.cnstrs then
-        warnRedundantEMatchArg params.ematch declName
+          params.extensions.containsWithSamePatterns thm₁.origin thm₁.patterns thm₁.cnstrs &&
+          params.extensions.containsWithSamePatterns thm₂.origin thm₂.patterns thm₂.cnstrs then
+        warnRedundantEMatchArg params.extensions declName
       return { params with extra := params.extra.push thm₁ |>.push thm₂ }
     | _ =>
       if kind matches .eqLhs _ | .eqRhs _ then
@@ -65,8 +107,8 @@ public def addEMatchTheorem (params : Grind.Params) (id : Ident) (declName : Nam
         Grind.mkEMatchTheoremAndSuggest id declName params.symPrios minIndexable (isParam := true)
       else
         Grind.mkEMatchTheoremForDecl declName kind params.symPrios (minIndexable := minIndexable)
-      if warn && params.ematch.containsWithSamePatterns thm.origin thm.patterns thm.cnstrs then
-        warnRedundantEMatchArg params.ematch declName
+      if warn && params.extensions.containsWithSamePatterns thm.origin thm.patterns thm.cnstrs then
+        warnRedundantEMatchArg params.extensions declName
       return { params with extra := params.extra.push thm }
   | .defn =>
     if (← isReducible declName) then
@@ -154,9 +196,13 @@ def processParam (params : Grind.Params)
   catch err =>
     if (← resolveLocalName id.getId).isSome then
       throwErrorAt id "redundant parameter `{id}`, `grind` uses local hypotheses automatically"
+    else if let some ext ← Grind.getExtension? id.getId then
+      if let some mod := mod? then
+        throwErrorAt mod "invalid use of modifier in `grind` attribute `{id.getId}`"
+      return { params with extensions := params.extensions.push (ext.getState (← getEnv)) }
     else if !id.getId.getPrefix.isAnonymous then
       -- Fall back to term elaboration for compound identifiers like `foo.le` (dot notation on declarations)
-      return ← processTermParam params p mod? id minIndexable
+      return (← processTermParam params p mod? id minIndexable)
     else
       throw err
   Linter.checkDeprecated declName
@@ -179,7 +225,7 @@ def processParam (params : Grind.Params)
     if incremental then throwError "`cases` parameter are not supported here"
     ensureNoMinIndexable minIndexable
     withRef p <| Grind.validateCasesAttr declName eager
-    params := { params with casesTypes := params.casesTypes.insert declName eager }
+    params := params.insertCasesTypes declName eager
   | .intro =>
     if let some info ← Grind.isCasesAttrPredicateCandidate? declName false then
       if incremental then throwError "`cases` parameter are not supported here"
@@ -194,7 +240,7 @@ def processParam (params : Grind.Params)
     throwError "`[grind ext]` cannot be set using parameters"
   | .infer =>
     if let some declName ← Grind.isCasesAttrCandidate? declName false then
-      params := { params with casesTypes := params.casesTypes.insert declName false }
+      params := params.insertCasesTypes declName false
       if let some info ← isInductivePredicate? declName then
         -- If it is an inductive predicate,
         -- we also add the constructors (intro rules) as E-matching rules
@@ -207,7 +253,7 @@ def processParam (params : Grind.Params)
     ensureNoMinIndexable minIndexable
     params := { params with symPrios := params.symPrios.insert declName prio }
   | .funCC =>
-    params := { params with funCCs := params.funCCs.insert declName }
+    params := params.insertFunCC declName
   return params
 
 /--
@@ -228,11 +274,11 @@ public def elabGrindParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.T
         Linter.checkDeprecated declName
         if let some declName ← Grind.isCasesAttrCandidate? declName false then
           Grind.ensureNotBuiltinCases declName
-          params := { params with casesTypes := (← params.casesTypes.eraseDecl declName) }
+          params ← params.eraseCasesTypes declName
         else if (← Grind.isInjectiveTheorem declName) then
-          params := { params with inj := params.inj.erase (.decl declName) }
+          params := params.eraseInj declName
         else
-          params := { params with ematch := (← params.ematch.eraseDecl declName) }
+          params ← params.eraseEMatch declName
       | `(Parser.Tactic.grindParam| $[$mod?:grindMod]? $id:ident) =>
         -- Check if this is dot notation on a local variable (e.g., `n.triv` for `Nat.triv n`).
         -- If so, process as term to let elaboration resolve the dot notation properly.
@@ -294,7 +340,7 @@ public def withParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.Tactic
     let mut params := params
     if only then
       params := { params with
-        ematch := {}
+        extensions  := params.extensions.map fun ext => { ext with ematch := {} }
         anchorRefs? := none
       }
     params ← elabGrindParams params ps (only := only) (incremental := true)

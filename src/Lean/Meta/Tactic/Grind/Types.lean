@@ -9,6 +9,7 @@ public import Lean.Meta.Tactic.Simp.Types
 public import Lean.Meta.Tactic.Grind.AlphaShareCommon
 public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.CheckResult
+public import Lean.Meta.Tactic.Grind.Extension
 public import Init.Data.Queue
 import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.HeadIndex
@@ -158,8 +159,7 @@ structure Context where
   splitSource  : SplitSource := .input
   /-- Symbol priorities for inferring E-matching patterns -/
   symPrios     : SymbolPriorities
-  /-- Global declarations marked with `@[grind funCC]` -/
-  funCCs       : NameSet
+  extensions   : ExtensionStateArray := #[]
   trueExpr     : Expr
   falseExpr    : Expr
   natZExpr     : Expr
@@ -345,6 +345,18 @@ def reportMVarInternalization : GrindM Bool :=
 /-- Returns symbol priorities for inferring E-matching patterns. -/
 def getSymbolPriorities : GrindM SymbolPriorities := do
   return (← readThe Context).symPrios
+
+/--
+Returns `true` if we `declName` is tagged with `funCC` modifier.
+-/
+def hasFunCCModifier (declName : Name) : GrindM Bool :=
+  return (← readThe Context).extensions.any fun ext => ext.funCC.contains declName
+
+def isSplit (declName : Name) : GrindM Bool :=
+  return (← readThe Context).extensions.any fun ext => ext.casesTypes.isSplit declName
+
+def isEagerSplit (declName : Name) : GrindM Bool :=
+  return (← readThe Context).extensions.any fun ext => ext.casesTypes.isEagerSplit declName
 
 /--
 Returns `true` if `declName` is the name of a `match` equation or a `match` congruence equation.
@@ -758,7 +770,7 @@ structure EMatch.State where
   Inactive global theorems. As we internalize terms, we activate theorems as we find their symbols.
   Local theorem provided by users are added directly into `newThms`.
   -/
-  thmMap       : EMatchTheorems
+  thmMap       : EMatchTheoremsArray
   /-- Goal modification time. -/
   gmt          : Nat := 0
   /-- Active theorems that we have performed ematching at least once. -/
@@ -840,8 +852,6 @@ structure SplitArg where
 structure Split.State where
   /-- Number of splits performed to get to this goal. -/
   num          : Nat := 0
-  /-- Inductive datatypes marked for case-splitting -/
-  casesTypes   : CasesTypes := {}
   /-- Case-split candidates. -/
   candidates   : List SplitInfo := []
   /-- Case-splits that have been inserted at `candidates` at some point. -/
@@ -901,7 +911,7 @@ structure InjectiveInfo where
 
 /-- State for injective theorem support. -/
 structure Injective.State where
-  thms : InjectiveTheorems
+  thms : InjectiveTheoremsArray
   fns  : PHashMap ExprPtr InjectiveInfo := {}
   deriving Inhabited
 

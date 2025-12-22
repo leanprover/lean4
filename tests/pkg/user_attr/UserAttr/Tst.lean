@@ -160,6 +160,8 @@ namespace GrindAttr
 
 opaque f : Nat → Nat
 opaque g : Nat → Nat
+opaque foo : Nat → Nat → Nat
+opaque boo : Nat → Nat → Nat
 
 @[my_grind] theorem fax : f (f x) = f x := sorry
 
@@ -172,5 +174,26 @@ opaque g : Nat → Nat
 @[my_grind? =] theorem fax3 : f (f (f x)) = f x := sorry
 
 @[my_grind!? .] theorem fax4 : f (f (f x)) = f x := sorry
+
+theorem fooAx : foo x (f x) = x := sorry
+
+grind_pattern fooAx => foo x (f x)
+
+example : foo x (f (f x)) = x := by
+  fail_if_success grind only [my_grind]
+  grind only [my_grind, usr fooAx]
+
+grind_pattern [my_grind] fooAx => foo x (f x)
+
+example : foo x (f (f x)) = x := by
+  grind only [my_grind]
+
+theorem booAx : boo (f x) (f x) = x := sorry
+
+grind_pattern [my_grind] booAx => boo (f x) (f x)
+
+example : boo (f (f (f x))) (f (f x)) = x := by
+  grind only [my_grind]
+
 
 end GrindAttr

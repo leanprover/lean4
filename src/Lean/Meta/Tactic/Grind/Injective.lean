@@ -75,8 +75,12 @@ def mkInjectiveTheorem (declName : Name) : MetaM InjectiveTheorem := do
     proof, symbols
   }
 
+-- TODO: delete
 def addInjectiveAttr (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
   injectiveTheoremsExt.add (← mkInjectiveTheorem declName) attrKind
+
+def Extension.addInjectiveAttr (ext : Extension) (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
+  ext.add (.inj (← mkInjectiveTheorem declName)) attrKind
 
 def eraseInjectiveAttr (declName : Name) : MetaM Unit := do
   let s := injectiveTheoremsExt.getState (← getEnv)

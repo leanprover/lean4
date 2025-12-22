@@ -29,7 +29,7 @@ def addExtAttr (declName : Name) (attrKind : AttributeKind) : CoreM Unit := do
   validateExtAttr declName
   extTheoremsExt.add declName attrKind
 
-private def eraseDecl (s : ExtTheorems) (declName : Name) : CoreM ExtTheorems := do
+def ExtTheorems.eraseDecl (s : ExtTheorems) (declName : Name) : CoreM ExtTheorems := do
   if s.contains declName then
     return s.erase declName
   else
@@ -37,7 +37,7 @@ private def eraseDecl (s : ExtTheorems) (declName : Name) : CoreM ExtTheorems :=
 
 def eraseExtAttr (declName : Name) : CoreM Unit := do
   let s := extTheoremsExt.getState (← getEnv)
-  let s ← eraseDecl s declName
+  let s ← s.eraseDecl declName
   modifyEnv fun env => extTheoremsExt.modifyState env fun _ => s
 
 def isExtTheorem (declName : Name) : CoreM Bool := do

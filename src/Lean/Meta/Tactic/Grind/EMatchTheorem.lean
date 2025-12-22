@@ -1375,6 +1375,7 @@ def mkEMatchEqTheoremsForDef? (declName : Name) (showInfo := false) : MetaM (Opt
   eqns.mapM fun eqn => do
     mkEMatchEqTheorem eqn (normalizePattern := true) (showInfo := showInfo)
 
+-- TODO: delete
 private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatchTheoremKind) (useLhs := true) (showInfo := false) : MetaM Unit := do
   if wasOriginallyTheorem (← getEnv) declName then
     ematchTheoremsExt.add (← mkEMatchEqTheorem declName (normalizePattern := true) (useLhs := useLhs) (gen := thmKind.gen) (showInfo := showInfo)) attrKind
@@ -1382,6 +1383,16 @@ private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind
     unless useLhs do
       throwError "`{.ofConstName declName}` is a definition, you must only use the left-hand side for extracting patterns"
     thms.forM (ematchTheoremsExt.add · attrKind)
+  else
+    throwError s!"`{thmKind.toAttribute false}` attribute can only be applied to equational theorems or function definitions"
+
+private def Extension.addGrindEqAttr (ext : Extension) (declName : Name) (attrKind : AttributeKind) (thmKind : EMatchTheoremKind) (useLhs := true) (showInfo := false) : MetaM Unit := do
+  if wasOriginallyTheorem (← getEnv) declName then
+    ext.add (.ematch (← mkEMatchEqTheorem declName (normalizePattern := true) (useLhs := useLhs) (gen := thmKind.gen) (showInfo := showInfo))) attrKind
+  else if let some thms ← mkEMatchEqTheoremsForDef? declName (showInfo := showInfo) then
+    unless useLhs do
+      throwError "`{.ofConstName declName}` is a definition, you must only use the left-hand side for extracting patterns"
+    thms.forM fun thm => ext.add (.ematch thm) attrKind
   else
     throwError s!"`{thmKind.toAttribute false}` attribute can only be applied to equational theorems or function definitions"
 
@@ -1402,6 +1413,7 @@ private def ensureNoMinIndexable (minIndexable : Bool) : MetaM Unit := do
   if minIndexable then
     throwError "redundant modifier `!` in `grind` attribute"
 
+-- TODO: delete
 def addEMatchAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatchTheoremKind) (prios : SymbolPriorities)
     (showInfo := false) (minIndexable := false) : MetaM Unit := do
   match thmKind with
@@ -1423,6 +1435,28 @@ def addEMatchAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatch
     else
       let thm ← mkEMatchTheoremForDecl declName thmKind prios (showInfo := showInfo) (minIndexable := minIndexable)
       ematchTheoremsExt.add thm attrKind
+
+def Extension.addEMatchAttr (ext : Extension) (declName : Name) (attrKind : AttributeKind) (thmKind : EMatchTheoremKind) (prios : SymbolPriorities)
+    (showInfo := false) (minIndexable := false) : MetaM Unit := do
+  match thmKind with
+  | .eqLhs _ =>
+    ensureNoMinIndexable minIndexable
+    ext.addGrindEqAttr declName attrKind thmKind (useLhs := true) (showInfo := showInfo)
+  | .eqRhs _ =>
+    ensureNoMinIndexable minIndexable
+    ext.addGrindEqAttr declName attrKind thmKind (useLhs := false) (showInfo := showInfo)
+  | .eqBoth _ =>
+    ensureNoMinIndexable minIndexable
+    ext.addGrindEqAttr declName attrKind thmKind (useLhs := true) (showInfo := showInfo)
+    ext.addGrindEqAttr declName attrKind thmKind (useLhs := false) (showInfo := showInfo)
+  | _ =>
+    let info ← getConstInfo declName
+    if !wasOriginallyTheorem (← getEnv) declName && !info.isCtor && !info.isAxiom then
+      ensureNoMinIndexable minIndexable
+      ext.addGrindEqAttr declName attrKind thmKind (showInfo := showInfo)
+    else
+      let thm ← mkEMatchTheoremForDecl declName thmKind prios (showInfo := showInfo) (minIndexable := minIndexable)
+      ext.add (.ematch thm) attrKind
 
 private structure SelectM.State where
   -- **Note**: hack, an attribute is not a tactic.
@@ -1555,6 +1589,7 @@ Tries different modifiers, logs info messages with modifiers that worked, but st
 Remark: if `backward.grind.inferPattern` is `true`, then `.default false` is used.
 The parameter `showInfo` is only taken into account when `backward.grind.inferPattern` is `true`.
 -/
+-- TODO: delete
 def addEMatchAttrAndSuggest (ref : Syntax) (declName : Name) (attrKind : AttributeKind) (prios : SymbolPriorities)
     (minIndexable : Bool) (showInfo : Bool) (isParam : Bool := false) : MetaM Unit := do
   let info ← getConstInfo declName
@@ -1566,6 +1601,25 @@ def addEMatchAttrAndSuggest (ref : Syntax) (declName : Name) (attrKind : Attribu
   else
     let thm ← mkEMatchTheoremAndSuggest ref declName prios minIndexable isParam
     ematchTheoremsExt.add thm attrKind
+
+/--
+Tries different modifiers, logs info messages with modifiers that worked, but stores just the first one that worked.
+
+Remark: if `backward.grind.inferPattern` is `true`, then `.default false` is used.
+The parameter `showInfo` is only taken into account when `backward.grind.inferPattern` is `true`.
+-/
+-- TODO: delete
+def Extension.addEMatchAttrAndSuggest (ext : Extension) (ref : Syntax) (declName : Name) (attrKind : AttributeKind) (prios : SymbolPriorities)
+    (minIndexable : Bool) (showInfo : Bool) (isParam : Bool := false) : MetaM Unit := do
+  let info ← getConstInfo declName
+  if !wasOriginallyTheorem (← getEnv) declName && !info.isCtor && !info.isAxiom then
+    ensureNoMinIndexable minIndexable
+    ext.addGrindEqAttr declName attrKind (.default false) (showInfo := showInfo)
+  else if backward.grind.inferPattern.get (← getOptions) then
+    ext.addEMatchAttr declName attrKind (.default false) prios (minIndexable := minIndexable) (showInfo := showInfo)
+  else
+    let thm ← mkEMatchTheoremAndSuggest ref declName prios minIndexable isParam
+    ext.add (.ematch thm) attrKind
 
 def eraseEMatchAttr (declName : Name) : MetaM Unit := do
   /-

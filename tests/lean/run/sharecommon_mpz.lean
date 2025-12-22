@@ -3,7 +3,7 @@ import Lean
 open Lean Meta Tactic Grind
 
 def runGrind (x : GrindM α) : MetaM α := do
-  GrindM.run x (← mkParams {})
+  GrindM.run x (← mkDefaultParams {})
 
 @[noinline] def mkA (x : Nat) := x + 1
 

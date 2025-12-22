@@ -154,9 +154,12 @@ theorem range'_eq_map_range {s n : Nat} : range' s n = map (s + ·) (range n) :=
   rw [range_eq_range', map_add_range']; rfl
 
 @[grind _=_]
-theorem range_succ {n : Nat} : range (succ n) = range n ++ #v[n] := by
+theorem range_add_one {n : Nat} : range (n + 1) = range n ++ #v[n] := by
   rw [← toArray_inj]
-  simp [Array.range_succ]
+  simp [Array.range_add_one]
+
+@[deprecated range_add_one (since := "2025-12-22")]
+theorem range_succ {n : Nat} : range (succ n) = range n ++ #v[n] := range_add_one
 
 theorem range_add {n m : Nat} : range (n + m) = range n ++ (range m).map (n + ·) := by
   rw [← range'_eq_map_range]

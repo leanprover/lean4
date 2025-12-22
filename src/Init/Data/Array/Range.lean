@@ -163,13 +163,16 @@ theorem range_ne_empty_iff {n : Nat} : range n ≠ #[] ↔ n ≠ 0 := by
   cases n <;> simp
 
 @[grind _=_]
-theorem range_succ {n : Nat} : range (succ n) = range n ++ #[n] := by
+theorem range_add_one {n : Nat} : range (n + 1) = range n ++ #[n] := by
   ext i h₁ h₂
   · simp
-  · simp only [succ_eq_add_one, size_range] at h₁
-    simp only [succ_eq_add_one, getElem_range, append_singleton, getElem_push, size_range,
+  · simp only [size_range] at h₁
+    simp only [getElem_range, append_singleton, getElem_push, size_range,
       dite_eq_ite]
     split <;> omega
+
+@[deprecated range_add_one (since := "2025-12-22")]
+theorem range_succ {n : Nat} : range (succ n) = range n ++ #[n] := range_add_one
 
 theorem range_add {n m : Nat} : range (n + m) = range n ++ (range m).map (n + ·) := by
   rw [← range'_eq_map_range]

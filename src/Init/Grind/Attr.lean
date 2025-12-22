@@ -255,6 +255,7 @@ theorem fg_eq (h : x > 0) : f (g x) = x
 -- With minimal subexpression:
 @[grind! <-] theorem fg_eq (h : x > 0) : f (g x) = x
 -- Pattern selected: `g x`
+```
 -/
 syntax (name := grind!) "grind!" (ppSpace grindMod)? : attr
 /--

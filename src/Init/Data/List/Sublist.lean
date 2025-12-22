@@ -249,11 +249,12 @@ theorem Sublist.eq_of_length : l₁ <+ l₂ → length l₁ = length l₂ → l�
   | .cons a s, h => nomatch Nat.not_lt.2 s.length_le (h ▸ lt_succ_self _)
   | .cons₂ a s, h => by rw [s.eq_of_length (succ.inj h)]
 
--- Only activate `eq_of_length` if we're already thinking about lengths.
-grind_pattern Sublist.eq_of_length => l₁ <+ l₂, length l₁, length l₂
-
 theorem Sublist.eq_of_length_le (s : l₁ <+ l₂) (h : length l₂ ≤ length l₁) : l₁ = l₂ :=
   s.eq_of_length <| Nat.le_antisymm s.length_le h
+
+-- Only activate `eq_of_length_le` if we're already thinking about lengths.
+grind_pattern Sublist.eq_of_length_le => l₁ <+ l₂, length l₁, length l₂ where
+  guard length l₂ ≤ length l₁
 
 theorem Sublist.length_eq (s : l₁ <+ l₂) : length l₁ = length l₂ ↔ l₁ = l₂ :=
   ⟨s.eq_of_length, congrArg _⟩

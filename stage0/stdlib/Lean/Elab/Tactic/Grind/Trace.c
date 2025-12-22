@@ -436,7 +436,7 @@ lean_inc(x_129);
 x_130 = lean_ctor_get(x_11, 5);
 lean_inc_ref(x_130);
 x_131 = lean_ctor_get(x_11, 6);
-lean_inc(x_131);
+lean_inc_ref(x_131);
 x_132 = lean_ctor_get(x_11, 7);
 lean_inc_ref(x_132);
 x_133 = lean_ctor_get(x_11, 8);

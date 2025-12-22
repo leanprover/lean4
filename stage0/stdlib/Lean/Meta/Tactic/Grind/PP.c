@@ -10334,7 +10334,7 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_8 = lean_ctor_get(x_1, 15);
 lean_inc_ref(x_8);
 lean_dec_ref(x_1);
-x_9 = lean_ctor_get(x_8, 5);
+x_9 = lean_ctor_get(x_8, 4);
 lean_inc(x_9);
 lean_dec_ref(x_8);
 x_10 = l_List_isEmpty___redArg(x_9);

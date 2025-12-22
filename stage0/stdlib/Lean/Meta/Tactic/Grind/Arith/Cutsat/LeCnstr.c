@@ -235,12 +235,12 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_modifyAux___at___00Lean_Persiste
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_LeCnstr_applyEq___closed__2;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_LeCnstr_assertImpl___closed__5;
+lean_object* l_Lean_Meta_Structural_isInstLEInt___redArg(lean_object*, lean_object*);
 uint8_t l_Int_Linear_Poly_isSorted(lean_object*);
 lean_object* l_Int_Linear_Poly_gcdCoeffs_x27(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentArray_foldlM___at___00Lean_Meta_Grind_Arith_Cutsat_LeCnstr_erase_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_Cutsat_inconsistent___redArg(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_isInstLEInt___redArg(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_propagateNatLe___closed__2;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_LeCnstr_assertImpl___closed__2;
@@ -11112,7 +11112,7 @@ lean_dec(x_13);
 x_28 = lean_ctor_get(x_21, 1);
 lean_inc_ref(x_28);
 lean_dec_ref(x_21);
-x_29 = l_Lean_Meta_isInstLEInt___redArg(x_28, x_7);
+x_29 = l_Lean_Meta_Structural_isInstLEInt___redArg(x_28, x_7);
 if (lean_obj_tag(x_29) == 0)
 {
 uint8_t x_30; 

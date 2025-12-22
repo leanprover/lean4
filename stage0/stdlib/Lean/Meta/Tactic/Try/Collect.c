@@ -198,7 +198,6 @@ static lean_object* l_Lean_Meta_Try_Collector_main___closed__3;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_Try_Collector_saveLibSearchCandidates_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_main___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_Try_Collector_checkInductive_spec__0_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_isSplit___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forIn___at___00__private_Lean_Meta_Tactic_Try_Collect_0__Lean_Meta_Try_Collector_main_go_spec__0_spec__1_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Meta_Try_Collector_checkInductive_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___redArg___closed__1;
 static lean_object* l_Lean_Meta_Try_Collector_getEqDefDecl_x3f___redArg___closed__1;
@@ -281,6 +280,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
 lean_object* l_Lean_Environment_setExporting(lean_object*, uint8_t);
 lean_object* l_Lean_Meta_FunInd_SeenCalls_push(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_isGlobalSplit___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_mkPtrSet___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_OrdSet_isEmpty___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_isEligible___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4633,7 +4633,7 @@ else
 {
 lean_object* x_24; 
 lean_free_object(x_19);
-x_24 = l_Lean_Meta_Grind_isSplit___redArg(x_14, x_7);
+x_24 = l_Lean_Meta_Grind_isGlobalSplit___redArg(x_14, x_7);
 lean_dec(x_7);
 lean_dec(x_14);
 if (lean_obj_tag(x_24) == 0)
@@ -4822,7 +4822,7 @@ return x_74;
 else
 {
 lean_object* x_75; 
-x_75 = l_Lean_Meta_Grind_isSplit___redArg(x_14, x_7);
+x_75 = l_Lean_Meta_Grind_isGlobalSplit___redArg(x_14, x_7);
 lean_dec(x_7);
 lean_dec(x_14);
 if (lean_obj_tag(x_75) == 0)
@@ -4987,7 +4987,7 @@ else
 {
 lean_object* x_108; 
 lean_dec(x_104);
-x_108 = l_Lean_Meta_Grind_isSplit___redArg(x_14, x_7);
+x_108 = l_Lean_Meta_Grind_isGlobalSplit___redArg(x_14, x_7);
 lean_dec(x_7);
 lean_dec(x_14);
 if (lean_obj_tag(x_108) == 0)
@@ -5215,7 +5215,7 @@ else
 {
 lean_object* x_151; 
 lean_dec(x_147);
-x_151 = l_Lean_Meta_Grind_isSplit___redArg(x_140, x_7);
+x_151 = l_Lean_Meta_Grind_isGlobalSplit___redArg(x_140, x_7);
 lean_dec(x_7);
 lean_dec(x_140);
 if (lean_obj_tag(x_151) == 0)

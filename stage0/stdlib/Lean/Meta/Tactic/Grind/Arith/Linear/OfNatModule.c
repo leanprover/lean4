@@ -63,6 +63,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_getTermNatStructId_x3f(l
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___00Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Grind_Arith_Linear_getTermNatStructId_x3f_spec__0_spec__0_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___00Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Grind_Arith_Linear_getTermNatStructId_x3f_spec__0_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_isDefEqD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -102,7 +103,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_getTermNatStructId_x3f__
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_ofNatModule(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_getNatStructId(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_modifyNatStruct___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_isDefEqD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_OfNatModule_0__Lean_Meta_Grind_Arith_Linear_ofNatModule_x27___closed__13;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Grind_Arith_Linear_getTermNatStructId_x3f_spec__0_spec__0(lean_object*, lean_object*, size_t, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_OfNatModule_0__Lean_Meta_Grind_Arith_Linear_ReifyM_run___closed__3;
@@ -3798,7 +3798,7 @@ lean_inc_ref(x_9);
 lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc_ref(x_1);
-x_170 = l_Lean_Meta_Grind_isDefEqD(x_1, x_169, x_7, x_8, x_9, x_10);
+x_170 = l_Lean_Meta_isDefEqD(x_1, x_169, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_170) == 0)
 {
 uint8_t x_171; 
@@ -4398,7 +4398,7 @@ lean_inc_ref(x_9);
 lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc_ref(x_1);
-x_289 = l_Lean_Meta_Grind_isDefEqD(x_1, x_288, x_7, x_8, x_9, x_10);
+x_289 = l_Lean_Meta_isDefEqD(x_1, x_288, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_289) == 0)
 {
 lean_object* x_290; lean_object* x_291; uint8_t x_292; 
@@ -6829,7 +6829,7 @@ x_76 = lean_ctor_get(x_14, 13);
 lean_inc_ref(x_76);
 lean_dec(x_14);
 lean_inc_ref(x_1);
-x_77 = l_Lean_Meta_Grind_isDefEqD(x_1, x_76, x_8, x_9, x_10, x_11);
+x_77 = l_Lean_Meta_isDefEqD(x_1, x_76, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_77) == 0)
 {
 uint8_t x_78; 
@@ -7302,7 +7302,7 @@ x_149 = lean_ctor_get(x_14, 13);
 lean_inc_ref(x_149);
 lean_dec(x_14);
 lean_inc_ref(x_1);
-x_150 = l_Lean_Meta_Grind_isDefEqD(x_1, x_149, x_8, x_9, x_10, x_11);
+x_150 = l_Lean_Meta_isDefEqD(x_1, x_149, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_150) == 0)
 {
 lean_object* x_151; lean_object* x_152; uint8_t x_153; 

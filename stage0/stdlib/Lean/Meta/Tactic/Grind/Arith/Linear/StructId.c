@@ -94,6 +94,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_StructI
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_StructId_0__Lean_Meta_Grind_Arith_Linear_mkRingInst_x3f___redArg___closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_StructId_0__Lean_Meta_Grind_Arith_Linear_getHSMulNatInst___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNode___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_StructId_0__Lean_Meta_Grind_Arith_Linear_getStructId_x3f_go_x3f_spec__0_spec__0_spec__1___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_isDefEqD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_StructId_0__Lean_Meta_Grind_Arith_Linear_isNonTrivialIsCharInst___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_StructId_0__Lean_Meta_Grind_Arith_Linear_preprocess(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -160,7 +161,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_modifyAux___at___00Lean_Persiste
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_StructId_0__Lean_Meta_Grind_Arith_Linear_getStructId_x3f_go_x3f___closed__40;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_StructId_0__Lean_Meta_Grind_Arith_Linear_mkRingInst_x3f___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Grind_Arith_Linear_getStructId_x3f_spec__0_spec__0___redArg(lean_object*, size_t, lean_object*);
-lean_object* l_Lean_Meta_Grind_isDefEqD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_StructId_0__Lean_Meta_Grind_Arith_Linear_getNatStructId_x3f_go_x3f___closed__12;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___00Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Grind_Arith_Linear_getStructId_x3f_spec__0_spec__0_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_StructId_0__Lean_Meta_Grind_Arith_Linear_getNatStructId_x3f_go_x3f___closed__8;
@@ -782,7 +782,7 @@ lean_inc(x_4);
 lean_inc_ref(x_3);
 lean_inc_ref(x_2);
 lean_inc_ref(x_1);
-x_8 = l_Lean_Meta_Grind_isDefEqD(x_1, x_2, x_3, x_4, x_5, x_6);
+x_8 = l_Lean_Meta_isDefEqD(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_8) == 0)
 {
 uint8_t x_9; 
@@ -3320,7 +3320,7 @@ lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc(x_34);
 lean_inc(x_26);
-x_35 = l_Lean_Meta_Grind_isDefEqD(x_26, x_34, x_7, x_8, x_9, x_10);
+x_35 = l_Lean_Meta_isDefEqD(x_26, x_34, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; uint8_t x_37; 
@@ -3631,7 +3631,7 @@ lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc(x_75);
 lean_inc(x_67);
-x_76 = l_Lean_Meta_Grind_isDefEqD(x_67, x_75, x_7, x_8, x_9, x_10);
+x_76 = l_Lean_Meta_isDefEqD(x_67, x_75, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_76) == 0)
 {
 lean_object* x_77; uint8_t x_78; 
@@ -4680,7 +4680,7 @@ lean_inc(x_11);
 lean_inc_ref(x_10);
 lean_inc_ref(x_25);
 lean_inc(x_20);
-x_26 = l_Lean_Meta_Grind_isDefEqD(x_20, x_25, x_10, x_11, x_12, x_13);
+x_26 = l_Lean_Meta_isDefEqD(x_20, x_25, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_26) == 0)
 {
 uint8_t x_27; 

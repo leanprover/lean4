@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Range_toList___boxed(lean_object*);
 lean_object* l_List_lengthTR___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_Invariant_withEarlyReturn___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -36,6 +35,7 @@ LEAN_EXPORT lean_object* l_List_Cursor_end___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_Invariant_withEarlyReturn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Do_SPred_or(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_Cursor_tail___auto__1;
+LEAN_EXPORT lean_object* l_Std_Legacy_Range_toList___boxed(lean_object*);
 static lean_object* l_List_Cursor_current___auto__1___closed__3;
 static lean_object* l_List_Cursor_current___auto__1___closed__21;
 LEAN_EXPORT lean_object* l_List_Cursor_current___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -75,7 +75,7 @@ lean_object* l_Std_Do_SPred_and(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_Cursor_current___auto__1___closed__10;
 LEAN_EXPORT lean_object* l_Std_Do_Invariant_withEarlyReturn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__Std_Do_Spec_forIn_x27__list_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Range_toList(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Legacy_Range_toList(lean_object*);
 LEAN_EXPORT lean_object* l_List_Cursor_at___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -92,7 +92,7 @@ static lean_object* l_List_Cursor_current___auto__1___closed__11;
 lean_object* l_List_drop___redArg(lean_object*, lean_object*);
 static lean_object* l_List_Cursor_current___auto__1___closed__6;
 LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__Std_Do_Spec_forIn_x27__list_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Range_toList(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Legacy_Range_toList(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
@@ -115,11 +115,11 @@ x_13 = l_List_range_x27TR_go(x_4, x_9, x_11, x_12);
 return x_13;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Range_toList___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Legacy_Range_toList___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Std_Range_toList(x_1);
+x_2 = l_Std_Legacy_Range_toList(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

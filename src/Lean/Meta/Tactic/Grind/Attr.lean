@@ -236,6 +236,7 @@ private def mkGrindAttr (attrName : Name) (minIndexable : Bool) (showInfo : Bool
           eraseEMatchAttr declName
   }
 
+/-
 private def registerDefaultGrindAttr (minIndexable : Bool) (showInfo : Bool) : IO Unit :=
   mkGrindAttr `grind minIndexable showInfo
 
@@ -244,6 +245,7 @@ builtin_initialize
   registerDefaultGrindAttr (minIndexable := false) (showInfo := false)
   registerDefaultGrindAttr (minIndexable := true) (showInfo := true)
   registerDefaultGrindAttr (minIndexable := true) (showInfo := false)
+-/
 
 abbrev ExtensionMap := Std.HashMap Name Extension
 
@@ -260,5 +262,7 @@ def registerAttr (attrName : Name) (ref : Name := by exact decl_name%) : IO Exte
   mkGrindAttr attrName (minIndexable := true) (showInfo := false) (ext? := some ext) (ref := ref)
   extensionMapRef.modify fun map => map.insert attrName ext
   return ext
+
+builtin_initialize grindExt : Extension ← registerAttr `grind
 
 end Lean.Meta.Grind

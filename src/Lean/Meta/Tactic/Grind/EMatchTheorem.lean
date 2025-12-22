@@ -906,16 +906,16 @@ def mkEMatchEqTheorem (declName : Name) (normalizePattern := true) (useLhs : Boo
 Adds an E-matching theorem to the environment.
 See `mkEMatchTheorem`.
 -/
-def addEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr) (kind : EMatchTheoremKind)
+def Extension.addEMatchTheorem (ext : Extension) (declName : Name) (numParams : Nat) (patterns : List Expr) (kind : EMatchTheoremKind)
     (minIndexable : Bool) (attrKind := AttributeKind.global) (cnstrs : List EMatchTheoremConstraint) : MetaM Unit := do
-  ematchTheoremsExt.add (← mkEMatchTheorem declName numParams patterns kind cnstrs (minIndexable := minIndexable)) attrKind
+  ext.add (.ematch (← mkEMatchTheorem declName numParams patterns kind cnstrs (minIndexable := minIndexable))) attrKind
 
 /--
 Adds an E-matching equality theorem to the environment.
 See `mkEMatchEqTheorem`.
 -/
-def addEMatchEqTheorem (declName : Name) : MetaM Unit := do
-  ematchTheoremsExt.add (← mkEMatchEqTheorem declName)
+def Extension.addEMatchEqTheorem (ext : Extension) (declName : Name) : MetaM Unit := do
+  ext.add (.ematch (← mkEMatchEqTheorem declName))
 
 /-- Returns the E-matching theorems registered in the environment. -/
 def getEMatchTheorems : CoreM EMatchTheorems :=

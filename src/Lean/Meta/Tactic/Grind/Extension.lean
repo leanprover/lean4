@@ -161,6 +161,7 @@ inductive Entry where
   | cases (declName : Name) (eager : Bool)
   | ematch (thm : EMatchTheorem)
   | inj (thm : InjectiveTheorem)
+  deriving Inhabited
 
 /-
 **Note**: We currently have a single normalization and symbol priority sets for all `grind` attributes.

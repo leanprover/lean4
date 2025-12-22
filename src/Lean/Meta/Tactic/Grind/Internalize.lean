@@ -16,7 +16,6 @@ import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Proof
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 import Lean.Meta.Tactic.Grind.PropagateInj
-import Lean.Meta.Tactic.Grind.FunCC
 import Lean.Util.CollectLevelParams
 public section
 namespace Lean.Meta.Grind

@@ -13,7 +13,19 @@ import Lean.Meta.Match.Basic
 import Lean.Meta.Tactic.TryThis
 public section
 namespace Lean.Meta.Grind
--- TODO: delete
+/-!
+## Design Note: Symbol Priorities and Extension State
+
+We considered including `SymbolPriorities` in `ExtensionState` to allow each `grind` attribute/extension
+to define its own symbol priorities. However, this design was rejected because E-match patterns are selected
+with respect to symbol priorities. When using multiple `grind` attributes simultaneously
+(e.g., `grind only [attr_1, attr_2]`), patterns would need to be re-selected using the union of all
+symbol priorities and then re-normalized using the union of all normalizers, an expensive operation we want to avoid.
+
+Instead, we use a single global `SymbolPriorities` set shared across all `grind` attributes.
+See also: the related note in `Extension.lean` regarding normalization.
+-/
+
 structure SymbolPriorityEntry where
   declName : Name
   prio : Nat
@@ -37,9 +49,6 @@ Recall that symbols not in `s` are assumed to have default priority.
 def SymbolPriorities.contains (s : SymbolPriorities) (declName : Name) : Bool :=
   s.map.contains declName
 
-/-
-TODO: group into a `grind` extension object
--/
 private builtin_initialize symbolPrioExt : SimpleScopedEnvExtension SymbolPriorityEntry SymbolPriorities ←
   registerSimpleScopedEnvExtension {
     initial        := {}

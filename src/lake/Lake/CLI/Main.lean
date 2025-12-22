@@ -704,7 +704,7 @@ protected def cache : CliM PUnit := do
 protected def setupFile : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let loadConfig ← mkLoadConfig opts
+  let loadConfigFile ← mkLoadConfig opts
   let buildConfig := mkBuildConfig opts
   let filePath ← takeArg "file path"
   let header? ← takeArg?
@@ -714,7 +714,7 @@ protected def setupFile : CliM PUnit := do
     match Json.parse header >>= fromJson? with
     | .ok header => pure header
     | .error e => error s!"failed to parse header JSON: {e}"
-  exit <| ← setupFile loadConfig filePath header buildConfig
+  exit <| ← setupFile loadConfigFile filePath header buildConfig
 
 protected def test : CliM PUnit := do
   processOptions lakeOption

@@ -505,6 +505,11 @@
                     "default": ".lake/packages",
                     "description": "The directory to which Lake should download remote dependencies."
                 },
+                "multiVersion": {
+                    "type": "boolean",
+                    "default": "false",
+                    "description": "Enables **experimental** multi-version workspaces. When enabled, Lake supports including different versions of a package (all with the same name) in the workspace depedency tree."
+                },
                 "extraDepTargets": {
                     "type": "array",
                     "items": {

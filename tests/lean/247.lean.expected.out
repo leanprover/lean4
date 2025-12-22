@@ -1,1 +1,2 @@
-247.lean:7:11-7:33: error: cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`
+247.lean:7:11-7:33: error: Cannot lift nested action `← uinfoldDefinition? b` over a binder.
+This error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`.

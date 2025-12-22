@@ -50,6 +50,7 @@ structure SavedContext where
   macroStack     : MacroStack
   errToSorry     : Bool
   levelNames     : List Name
+  mayElabToJump    : Bool
   fixedTermElabs : Array FixedTermElabRef
 
 /-- The kind of a tactic metavariable, used for additional error reporting. -/
@@ -334,18 +335,17 @@ structure Context where
   -/
   checkDeprecated : Bool := true
   /--
+  Whether the elaborator may possibly elaborate to a join point jump.
+  Always false for pure term elaborators.
+  It is set by the `do` elaborator in the alternatives of a `match` or `if` expression.
+  When this flag is set, postponed synthetic metavariables cause the whole `match` expression to
+  postpone.
+  -/
+  mayElabToJump : Bool := false
+  /--
   Fixed term elaborators for supporting `elabToSyntax`.
   -/
   fixedTermElabs : Array FixedTermElabRef := #[]
-  /--
-  The substitution carried out by dependent pattern matching.
-  The left component are the FVar match discriminants of surrounding dependent pattern matches, the
-  right component is the pattern to substitute.
-
-  It is expected that no FVar occurs twice in the left component, and the substitution is in
-  triangular form (i.e., it suffices to substitute once).
-  -/
-  matchRefinementSubst : Array Expr × Array Expr := (#[], #[])
 
 abbrev TermElabM := ReaderT Context $ StateRefT State MetaM
 abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
@@ -824,26 +824,6 @@ def elabToSyntax (fixedTermElab : FixedTermElab) (k : Term → TermElabM α) (hi
   let some fixedTermElab := (← read).fixedTermElabs[idx]?
     | throwError "Fixed term elaborator {idx} not found. There were only {(← read).fixedTermElabs.size} fixed term elaborators registered."
   fixedTermElab.toFixedTermElab expectedType?
-
-/--
-Substitute away discriminants that have been refined by a surrounding dependent pattern match.
--/
-def substituteRefinedDiscriminants (e : Expr) : TermElabM Expr := do
-  let ctx ← read
-  let (vs, es) := ctx.matchRefinementSubst
-  e.replaceFVarsM vs es
-
-/--
-Adds to the match refinement substitution the given `vars` with the given `exprs`.
--/
-@[inline]
-def addMatchRefinement (subst : Array Expr × Array Expr) (k : TermElabM α) : TermElabM α := do
-  let ctx ← read
-  let (vs₁, es₁) := ctx.matchRefinementSubst
-  let (vs₂, es₂) := subst
-  let es₁ ← es₁.mapM (·.replaceFVarsM vs₂ es₂)
-  let ctx := { ctx with matchRefinementSubst := (vs₁ ++ vs₂, es₁ ++ es₂) }
-  withReader (fun _ => ctx) k
 
 /--
   Add the given metavariable to the list of pending synthetic metavariables.
@@ -1380,6 +1360,7 @@ def saveContext : TermElabM SavedContext :=
     openDecls      := (← getOpenDecls)
     errToSorry     := (← read).errToSorry
     levelNames     := (← get).levelNames
+    mayElabToJump  := (← read).mayElabToJump
     fixedTermElabs := (← read).fixedTermElabs
   }
 
@@ -1391,6 +1372,7 @@ def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α
         declName? := savedCtx.declName?,
         macroStack := savedCtx.macroStack,
         errToSorry := savedCtx.errToSorry,
+        mayElabToJump := savedCtx.mayElabToJump,
         fixedTermElabs := savedCtx.fixedTermElabs,
       }) <|
     withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls }) <|

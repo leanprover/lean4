@@ -1,2 +1,3 @@
-doLetLoop.lean:4:0: error: unexpected end of input
-doLetLoop.lean:2:4-2:5: warning: declaration uses `sorry`
+doLetLoop.lean:5:0: error: unexpected end of input
+doLetLoop.lean:4:2-4:8: error: unexpected `do` element syntax
+  failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)

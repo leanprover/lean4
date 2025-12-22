@@ -15,34 +15,6 @@ open Lean Parser Meta Elab Do
 
 set_option linter.unusedVariables false
 
-/--
-info: (let a := 1;
-  let b := 2;
-  let c := 3;
-  have __do_jp := fun tuple =>
-    let a := tuple.fst;
-    let b := tuple.snd;
-    let c := a + b;
-    pure (a, b, c);
-  if true = true then
-    let a := a + 1;
-    __do_jp (a, b)
-  else
-    let b := b + 1;
-    __do_jp (a, b)).run : Nat × Nat × Nat
--/
-#guard_msgs in
-#check Id.run do
-  let mut a := 1
-  let mut b := 2
-  let mut c := 3
-  if true then
-    a := a + 1
-  else
-    b := b + 1
-  c := a + b
-  return (a, b, c)
-
 set_option pp.all true in
 @[inline]
 def ForInNew.forInInv {m} {ρ : Type u} {α : Type v} [ForInNew m ρ α] {σ γ}
@@ -202,7 +174,6 @@ example [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
         | .done hp =>
           pure <| .deflate <| .done (.doneRight hm hp)) := sorry
 
-set_option trace.Elab.do true in
 open Std IterM in
 example [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
     {it₁ : IterM (α := α₁) m β₁}
@@ -239,15 +210,15 @@ example (x : Nat) : IO (Fin (x + 1)) := do
   let y : Fin 3 := ⟨1, by decide⟩
   return y
 
-set_option trace.Elab.do true in
 -- Test: Try/catch with let mut and match refinement
 #check Id.run <| ExceptT.run (ε:=String) (α := Fin 17) doo
   let mut x := 0
   try
     if true then
       x := 10
-      let 2 := x | return 0
-      return ⟨x, by decide⟩
+      match x with
+      | 2 => return ⟨x, by decide⟩
+      | _ => return 0
     else
       x := 5
   catch e =>
@@ -273,22 +244,6 @@ set_option backward.do.legacy true in
     x := x + 100
     return "unreachable"
   if x + y < 23 then pure "ok" else pure "wrong"
-
--- a bug in the old `do` elaborator:
-set_option backward.do.legacy true in
-/--
-error: `do` element is unreachable
----
-info: fun x => sorry.run : Nat → String
--/
-#guard_msgs in
-#check fun (x : Nat) => Id.run (α := String) do
-  let y : Nat <-
-    match x with
-    | 0 => pure 0
-    | 1 => pure 0
-    | _ => pure 0
-  return toString y
 
 -- Full-blown dependent match including refinement of the join point, but not the mut vars:
 example (x : Nat) := Id.run (α := Fin (2 * x + 2)) do
@@ -321,6 +276,35 @@ example (x : Nat) (h : x = 3) := Id.run (α := Fin (x + 2)) do
     | rfl => pure ⟨0, by grind⟩
   return ⟨↑y + 1, by grind⟩
 
+-- Full-blown dependent match + try/catch + early return
+example (p n : Nat) := Id.run <| ExceptT.run (α := Fin (2 * p + 2)) (ε:=String) do
+let mut a := 0    have y' : Fin (p + 1) := ⟨0, by grind⟩
+  let mut y₁ : Fin (p + 1) := ⟨0, by grind⟩
+  let y₂ : Fin (p + 1) ←
+    match h : p with
+    | z + 1 => y₁ := ⟨1, by omega⟩; return ⟨3, by omega⟩
+    | _     => pure ⟨0, by omega⟩
+  return ⟨y₁.val + y₂.val, by grind⟩
+
+-- Full-blown dependent match + try/catch, early return and break/continue
+example (p n : Nat) : Except String (Fin (2 * p + 2)) := Id.run <| ExceptT.run do
+  let mut a := 0
+  for i in [n:n+10].toList do
+    try
+      have y' : Fin (p + 1) := ⟨0, by grind⟩
+      let mut y₁ : Fin (p + 1) := ⟨0, by grind⟩
+      let y₂ : Fin (p + 1) ←
+        match h : p with
+        | z + 1 => y₁ := ⟨1, by omega⟩; return ⟨3, by omega⟩
+        | _     => pure ⟨0, by omega⟩
+      if i = 5 then return ⟨y₁.val + y₂.val, by grind⟩
+      if i = 15 then break
+      if i = 35 then throw "error"
+      a := a + i
+    catch _ =>
+      a := a + 1
+  return 0
+
 set_option backward.do.legacy false in
 #eval Id.run <| ExceptT.run (ε:=String) do
   let res ←
@@ -347,6 +331,39 @@ set_option backward.do.legacy false in
     pure (0 : Fin 1)
   let y := ↑res + ↑x + 3
   return ⟨y, by grind⟩
+
+-- The following example was lifted from test case optionGetD prior to fixing
+-- the `doFor` expander to emit a non-generalizing `match`.
+-- Both the outer `match` and the inner `if` introduce JPs.
+-- But since the outer `jpo` is duplicable, the inner `jpi` will turn out to be dead.
+-- It is difficult to synthesize a `joinRhs` for `jpi` in this case, in particular because
+-- the context might have changed since the introduction of `jpo`.
+-- But we need to synthesize a `joinRhs` to substitute for `jpi`.
+-- So there is some special code for the 0 jumps case that ensures
+-- `joinRhs := fun _ (s : σ) => (s : mγ)` is well-typed.
+example : IO Nat := do
+  let mut i := 1
+  for x in Loop.mk do
+    match (generalizing := true) x with
+    | _ =>
+      if i < 10 then
+        i := i + 1
+      else
+        break
+  return i
+
+-- Test that dependent matches do not leave behind unnecessary join point discriminants
+set_option trace.Elab.do true in
+example (o1 : Option Unit) (o2 : Option Unit) : Bool := Id.run do
+  let b ←
+    match o1 with
+    | some _ => pure true
+    | none =>
+      match o2 with
+      | some _ => pure true
+      | none => pure false
+  return b && b
+
 end Blah
 
 set_option trace.Meta.synthInstance true in
@@ -485,13 +502,13 @@ trace: [Elab.do] let x := 1;
         forInNew [4, 5, 6] x
           (fun j kcontinue_1 s_1 =>
             let x_1 := s_1;
-            have __do_jp := fun tuple =>
+            have __do_jp := fun r tuple =>
               let x_2 := tuple;
               if j < 3 then kcontinue_1 x_2 else if j > 6 then kbreak_1 x_2 else kcontinue_1 x_2;
             if j < 5 then
               let x := x_1 + j;
-              __do_jp x
-            else __do_jp x_1)
+              __do_jp PUnit.unit x
+            else __do_jp PUnit.unit x_1)
           kbreak_1)
       kbreak
 -/
@@ -528,14 +545,14 @@ info: (let x := 42;
       let x := s.fst;
       let z := s.snd;
       let x_1 := x + i;
-      have __do_jp := fun tuple =>
+      have __do_jp := fun r tuple =>
         let z := tuple;
         let z := z + i;
         kcontinue (x_1, z);
       if x_1 > 10 then
         let z := z + i;
-        __do_jp z
-      else __do_jp z)
+        __do_jp PUnit.unit z
+      else __do_jp PUnit.unit z)
     fun s =>
     let x := s.fst;
     let z := s.snd;
@@ -577,7 +594,7 @@ info: (let w := 23;
         let y := y - 2;
         kbreak (x, y, z)
       else
-        have __do_jp := fun tuple =>
+        have __do_jp := fun r tuple =>
           let z := tuple;
           if x > 10 then
             let x := x + 3;
@@ -587,8 +604,8 @@ info: (let w := 23;
             kcontinue (x, y, z);
         if x = 3 then
           let z := z + i;
-          __do_jp z
-        else __do_jp z)
+          __do_jp PUnit.unit z
+        else __do_jp PUnit.unit z)
     kbreak).run : Nat
 -/
 #guard_msgs (info) in
@@ -748,7 +765,7 @@ trace: [Elab.do] let x := 42;
     forInNew [1, 2, 3] x
       (fun i kcontinue s =>
         let x := s;
-        have __do_jp := fun tuple =>
+        have __do_jp := fun r tuple =>
           let x_1 := tuple;
           if x_1 > 10 then
             let x := x_1 + 3;
@@ -762,8 +779,8 @@ trace: [Elab.do] let x := 42;
               kcontinue x;
         if x = 3 then
           let x := x + 1;
-          __do_jp x
-        else __do_jp x)
+          __do_jp PUnit.unit x
+        else __do_jp PUnit.unit x)
       kbreak
 -/
 #guard_msgs in
@@ -1779,6 +1796,7 @@ example {s} :
   get) := by simp
 
 set_option trace.Elab.do true in
+--set_option trace.Meta.isDefEq true in
 -- Try/catch with return, break and continue
 example :
   let f n :=
@@ -2052,6 +2070,7 @@ if true = true then pure 3
 else
   let x := x + 5;
   let y_1 := 3;
+  let x := x;
   pure (x + y) : ?m Nat
 -/
 #guard_msgs (info) in
@@ -2068,16 +2087,16 @@ else
 /--
 info: let x := 0;
 let y := 0;
-have __do_jp := fun tuple =>
+have __do_jp := fun r tuple =>
   let x := tuple;
   pure (x + y);
 if true = true then
   let x := x + 7;
   let y := 3;
-  __do_jp x
+  __do_jp PUnit.unit x
 else
   let x := x + 5;
-  __do_jp x : ?m Nat
+  __do_jp PUnit.unit x : ?m Nat
 -/
 #guard_msgs (info) in
 #check doo
@@ -2167,8 +2186,6 @@ trace: [Meta.Tactic.simp] [7]
 run_meta do
   foo 5
 
-set_option trace.Elab.do true in
-set_option trace.Elab.match true in
 set_option backward.do.legacy false in
 def bar (n : Nat) : MetaM (List Nat) := doo
   let mut result : Foo n := ⟨[7], rfl⟩

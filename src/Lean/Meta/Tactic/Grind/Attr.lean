@@ -236,13 +236,29 @@ private def mkGrindAttr (attrName : Name) (minIndexable : Bool) (showInfo : Bool
           eraseEMatchAttr declName
   }
 
-private def registerGrindAttr (minIndexable : Bool) (showInfo : Bool) : IO Unit :=
+private def registerDefaultGrindAttr (minIndexable : Bool) (showInfo : Bool) : IO Unit :=
   mkGrindAttr `grind minIndexable showInfo
 
 builtin_initialize
-  registerGrindAttr (minIndexable := false) (showInfo := true)
-  registerGrindAttr (minIndexable := false) (showInfo := false)
-  registerGrindAttr (minIndexable := true) (showInfo := true)
-  registerGrindAttr (minIndexable := true) (showInfo := false)
+  registerDefaultGrindAttr (minIndexable := false) (showInfo := true)
+  registerDefaultGrindAttr (minIndexable := false) (showInfo := false)
+  registerDefaultGrindAttr (minIndexable := true) (showInfo := true)
+  registerDefaultGrindAttr (minIndexable := true) (showInfo := false)
+
+abbrev ExtensionMap := Std.HashMap Name Extension
+
+builtin_initialize extensionMapRef : IO.Ref ExtensionMap ← IO.mkRef {}
+
+def getExtension? (attrName : Name) : IO (Option Extension) :=
+  return (← extensionMapRef.get)[attrName]?
+
+def registerAttr (attrName : Name) (ref : Name := by exact decl_name%) : IO Extension := do
+  let ext ← mkExtension ref
+  mkGrindAttr attrName (minIndexable := false) (showInfo := true) (ext? := some ext) (ref := ref)
+  mkGrindAttr attrName (minIndexable := false) (showInfo := false) (ext? := some ext) (ref := ref)
+  mkGrindAttr attrName (minIndexable := true) (showInfo := true) (ext? := some ext) (ref := ref)
+  mkGrindAttr attrName (minIndexable := true) (showInfo := false) (ext? := some ext) (ref := ref)
+  extensionMapRef.modify fun map => map.insert attrName ext
+  return ext
 
 end Lean.Meta.Grind

@@ -207,13 +207,6 @@ def mkExtension (name : Name := by exact decl_name%) : IO Extension :=
       return e
   }
 
-abbrev ExtensionMap := Std.HashMap Name Extension
-
-builtin_initialize ExtensionMapRef : IO.Ref ExtensionMap ← IO.mkRef {}
-
-def getExtension? (attrName : Name) : IO (Option Extension) :=
-  return (← ExtensionMapRef.get)[attrName]?
-
 /--
 `grind` is parametrized by a collection of `ExtensionState`. The motivation is to allow
 users to use multiple extensions simultaneously without merging them into a single structure.

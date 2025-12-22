@@ -35,21 +35,14 @@ namespace Lean.Meta.Grind
 /--
 Returns the `ExtensionState` for the default `grind` attribute.
 -/
-def getDefaultExtensionState : MetaM ExtensionState := do
-  -- **TODO**: update after update stage0
-  let casesTypes ← getCasesTypes
-  let funCC ← getFunCCSet
-  let extThms ← getGlobalExtTheorems
-  let ematch ← getEMatchTheorems
-  let inj ← getInjectiveTheorems
-  return {
-    casesTypes, funCC, extThms, ematch, inj
-  }
+def getDefaultExtensionState : MetaM ExtensionState :=
+  return grindExt.getState (← getEnv)
 
 def getOnlyExtensionState : MetaM ExtensionState := do
-  let casesTypes ← getCasesTypes
-  let funCC ← getFunCCSet
-  let extThms ← getGlobalExtTheorems
+  let s := grindExt.getState (← getEnv)
+  let casesTypes := s.casesTypes
+  let funCC := s.funCC
+  let extThms := s.extThms
   return {
     casesTypes, funCC, extThms
   }

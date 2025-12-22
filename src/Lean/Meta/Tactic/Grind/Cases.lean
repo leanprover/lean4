@@ -51,25 +51,6 @@ def CasesTypes.isEagerSplit (s : CasesTypes) (declName : Name) : Bool :=
 def CasesTypes.isSplit (s : CasesTypes) (declName : Name) : Bool :=
   (s.casesMap.find? declName |>.isSome) || isBuiltinEagerCases declName
 
-/-
-TODO: group into a `grind` extension object
--/
-builtin_initialize casesExt : SimpleScopedEnvExtension CasesEntry CasesTypes ←
-  registerSimpleScopedEnvExtension {
-    initial        := {}
-    addEntry       := fun s {declName, eager} => s.insert declName eager
-  }
-
-def resetCasesExt : CoreM Unit := do
-  modifyEnv fun env => casesExt.modifyState env fun _ => {}
-
-def getCasesTypes : CoreM CasesTypes :=
-  return casesExt.getState (← getEnv)
-
-/-- Returns `true` is `declName` is a builtin split or has been tagged with `[grind]` attribute. -/
-def isGlobalSplit (declName : Name) : CoreM Bool := do
-  return (← getCasesTypes).isSplit declName
-
 partial def isCasesAttrCandidate? (declName : Name) (eager : Bool) : CoreM (Option Name) := do
   match (← isInductive? declName) with
   | some info => if !info.isRec || !eager then return some declName else return none
@@ -89,10 +70,6 @@ def validateCasesAttr (declName : Name) (eager : Bool) : CoreM Unit := do
     else
       throwError "invalid `[grind cases]`, `{.ofConstName declName}` is not an inductive datatype or an alias for one"
 
-def addCasesAttr (declName : Name) (eager : Bool) (attrKind : AttributeKind) : CoreM Unit := do
-  validateCasesAttr declName eager
-  casesExt.add { declName, eager } attrKind
-
 def CasesTypes.eraseDecl (s : CasesTypes) (declName : Name) : CoreM CasesTypes := do
   if s.contains declName then
     return s.erase declName
@@ -102,12 +79,6 @@ def CasesTypes.eraseDecl (s : CasesTypes) (declName : Name) : CoreM CasesTypes :
 def ensureNotBuiltinCases (declName : Name) : CoreM Unit := do
   if isBuiltinEagerCases declName then
     throwError "`{.ofConstName declName}` is marked as a built-in case-split for `grind` and cannot be erased"
-
-def eraseCasesAttr (declName : Name) : CoreM Unit := do
-  ensureNotBuiltinCases declName
-  let s := casesExt.getState (← getEnv)
-  let s ← s.eraseDecl declName
-  modifyEnv fun env => casesExt.modifyState env fun _ => s
 
 /--
 We say a free variable is "simple" to be processed by the cases tactic IF:

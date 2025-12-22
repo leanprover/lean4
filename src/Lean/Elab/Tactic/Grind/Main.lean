@@ -18,6 +18,7 @@ import Lean.Elab.Tactic.Grind.Param
 import Lean.Meta.Tactic.Grind.Action
 import Lean.Elab.Tactic.Grind.Trace
 import Lean.Meta.Tactic.Grind.Finish
+import Lean.Meta.Tactic.Grind.Attr
 import Lean.Meta.Tactic.Grind.CollectParams
 import Lean.Elab.MutualDef
 meta import Lean.Meta.Tactic.Grind.Parser
@@ -144,17 +145,15 @@ where
         let pattern ← Grind.preprocessPattern pattern
         return pattern.abstract xs
       let cnstrs ← elabCnstrs xs cnstrs?
-      Grind.addEMatchTheorem declName xs.size patterns.toList .user kind cnstrs (minIndexable := false)
+      Grind.grindExt.addEMatchTheorem declName xs.size patterns.toList .user kind cnstrs (minIndexable := false)
 
 open Command in
 @[builtin_command_elab Lean.Parser.resetGrindAttrs]
 def elabResetGrindAttrs : CommandElab := fun _ => liftTermElabM do
-  Grind.resetCasesExt
-  Grind.resetEMatchTheoremsExt
-  Grind.resetInjectiveTheoremsExt
   -- Remark: we do not reset symbol priorities because we would have to then set
   -- `[grind symbol 0] Eq` after a `reset_grind_attr%` command.
   -- Grind.resetSymbolPrioExt
+  modifyEnv fun env => Grind.grindExt.modifyState env fun ext => { ext with casesTypes := {}, inj := {}, ematch := {} }
 
 open Command Term in
 @[builtin_command_elab Lean.Parser.Command.initGrindNorm]

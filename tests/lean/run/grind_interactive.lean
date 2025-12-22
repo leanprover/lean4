@@ -65,6 +65,7 @@ trace: [eqc] Equivalence classes
   [eqc] {as.size, bs.size, cs.size, (as.set i₁ v₁ ⋯).size, (bs.set i₂ v₂ ⋯).size}
   [eqc] {cs[j], bs[j], (bs.set i₂ v₂ ⋯)[j]}
     [eqc] {if i₂ = j then v₂ else bs[j]}
+  [eqc] {as.size = 0, bs.size = 0, cs.size = 0}
   [eqc] others
     [eqc] {↑as.size, ↑bs.size, ↑cs.size, ↑(bs.set i₂ v₂ ⋯).size}
 -/
@@ -149,6 +150,7 @@ trace: [grind] Grind state
     [eqc] {as.size, bs.size, cs.size, (as.set i₁ v₁ ⋯).size, (bs.set i₂ v₂ ⋯).size}
     [eqc] {cs[j], bs[j], (bs.set i₂ v₂ ⋯)[j]}
       [eqc] {if i₂ = j then v₂ else bs[j]}
+    [eqc] {as.size = 0, bs.size = 0, cs.size = 0}
     [eqc] others
       [eqc] {↑as.size, ↑bs.size, ↑cs.size, ↑(bs.set i₂ v₂ ⋯).size}
 -/

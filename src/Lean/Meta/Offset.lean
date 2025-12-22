@@ -19,6 +19,7 @@ private abbrev withInstantiatedMVars (e : Expr) (k : Expr → OptionT MetaM α) 
   else
     k eNew
 
+open Structural in -- TODO FIX
 /--
   Evaluate simple `Nat` expressions.
   Remark: this method assumes the given expression has type `Nat`. -/

@@ -9,7 +9,7 @@ import Lean.Elab.Tactic.Grind.LintExceptions
 
 -- `BitVec.msb_signExtend` is reasonable at 26.
 #guard_msgs in
-#grind_lint inspect (min := 26)  BitVec.msb_signExtend
+#grind_lint inspect (min := 26) BitVec.msb_signExtend
 
 /-! Check BitVec namespace: -/
 

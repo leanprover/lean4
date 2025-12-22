@@ -130,7 +130,7 @@ private def reportNonNormalized (e : Expr) : GoalM Unit := do
 
 private def toPolyLe? (e : Expr) : GoalM (Option Poly) := do
   let_expr LE.le _ inst a b ← e | return none
-  unless (← isInstLEInt inst) do return none
+  unless (← Structural.isInstLEInt inst) do return none
   let some k ← getIntValue? b
     | reportNonNormalized e; return none
   unless k == 0 do

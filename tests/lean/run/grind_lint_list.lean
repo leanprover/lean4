@@ -7,8 +7,6 @@ import Lean.Elab.Tactic.Grind.LintExceptions
 -- #grind_lint inspect List.getLast?_concat
 #grind_lint skip List.getLast?_concat
 
--- TODO: `List.Sublist.eq_of_length` should probably only fire when we've already proved the hypotheses.
-
 -- `List.getLast?_pmap` is reasonable at 31.
 #guard_msgs in
 #grind_lint inspect (min := 31) List.getLast?_pmap

@@ -14,6 +14,11 @@ namespace Lean.Meta
 /-!
 Functions for testing whether expressions are canonical `Int` instances.
 -/
+namespace Structural
+/-!
+**Note**: Structural tests are *syntactic*. They are more efficient, but
+should be used only in modules that have perform some kind of canonicalization.
+-/
 
 def isInstOfNatInt (e : Expr) : MetaM Bool := do
   let_expr instOfNat _ ← e | return false
@@ -69,4 +74,50 @@ def isInstPowInt (e : Expr) : MetaM Bool := do
 def isInstHPowInt (e : Expr) : MetaM Bool := do
   let_expr instHPow _ _ i ← e | return false
   isInstPowInt i
+end Structural
+
+namespace DefEq
+
+def isInstNegInt (e : Expr) : MetaM Bool := do
+  if (← Structural.isInstNegInt e) then return true
+  isDefEqI e Int.mkInstNeg
+
+def isInstAddInt (e : Expr) : MetaM Bool := do
+  if (← Structural.isInstAddInt e) then return true
+  isDefEqI e Int.mkInstAdd
+
+def isInstHAddInt (e : Expr) : MetaM Bool := do
+  if (← Structural.isInstHAddInt e) then return true
+  isDefEqI e Int.mkInstHAdd
+
+def isInstSubInt (e : Expr) : MetaM Bool := do
+  if (← Structural.isInstSubInt e) then return true
+  isDefEqI e Int.mkInstSub
+
+def isInstHSubInt (e : Expr) : MetaM Bool := do
+  if (← Structural.isInstHSubInt e) then return true
+  isDefEqI e Int.mkInstHSub
+
+def isInstMulInt (e : Expr) : MetaM Bool := do
+  if (← Structural.isInstMulInt e) then return true
+  isDefEqI e Int.mkInstMul
+
+def isInstHMulInt (e : Expr) : MetaM Bool := do
+  if (← Structural.isInstHMulInt e) then return true
+  isDefEqI e Int.mkInstHMul
+
+def isInstLTInt (e : Expr) : MetaM Bool := do
+  if (← Structural.isInstLTInt e) then return true
+  isDefEqI e Int.mkInstLT
+
+def isInstLEInt (e : Expr) : MetaM Bool := do
+  if (← Structural.isInstLEInt e) then return true
+  isDefEqI e Int.mkInstLE
+
+def isInstDvdInt (e : Expr) : MetaM Bool := do
+  if (← Structural.isInstDvdInt e) then return true
+  isDefEqI e (mkConst ``Int.instDvd)
+
+end DefEq
+
 end Lean.Meta

@@ -223,7 +223,9 @@ def processParam (params : Grind.Params)
     unless only do
       withRef p <| Grind.throwInvalidUsrModifier
     ensureNoMinIndexable minIndexable
-    let thms := params.extensions.find (.decl declName)
+    -- **Note**: This check is hard-coded to the default `grind` attribute. Possible improvement: `usr` modifier that specifies the attribute where
+    -- the user pattern is coming from.
+    let thms := (← Grind.grindExt.getEMatchTheorems).find (.decl declName)
     let thms := thms.filter fun thm => thm.kind == .user
     if thms.isEmpty then
       throwErrorAt p "invalid use of `usr` modifier, `{.ofConstName declName}` does not have patterns specified with the command `grind_pattern`"

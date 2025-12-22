@@ -196,9 +196,13 @@ def processParam (params : Grind.Params)
   catch err =>
     if (← resolveLocalName id.getId).isSome then
       throwErrorAt id "redundant parameter `{id}`, `grind` uses local hypotheses automatically"
+    else if let some ext ← Grind.getExtension? id.getId then
+      if let some mod := mod? then
+        throwErrorAt mod "invalid use of modifier in `grind` attribute `{id.getId}`"
+      return { params with extensions := params.extensions.push (ext.getState (← getEnv)) }
     else if !id.getId.getPrefix.isAnonymous then
       -- Fall back to term elaboration for compound identifiers like `foo.le` (dot notation on declarations)
-      return ← processTermParam params p mod? id minIndexable
+      return (← processTermParam params p mod? id minIndexable)
     else
       throw err
   Linter.checkDeprecated declName

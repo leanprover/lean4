@@ -8,7 +8,6 @@ prelude
 public import Lean.Meta.Tactic.Grind.Injective
 public import Lean.Meta.Tactic.Grind.Cases
 public import Lean.Meta.Tactic.Grind.ExtAttr
-public import Lean.Meta.Tactic.Grind.FunCC
 import Lean.ExtraModUses
 public section
 namespace Lean.Meta.Grind

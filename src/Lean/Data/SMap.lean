@@ -76,7 +76,7 @@ def empty : SMap α β := {}
   | ⟨true, m₁, _⟩, k   => m₁[k]?
   | ⟨false, m₁, m₂⟩, k => m₁[k]?.orElse fun _ => m₂.find? k
 
-def forInNew {m : Type x → Type x'} (s : SMap α β) (init : σ)
+@[inline] def forInNew {m : Type x → Type x'} (s : SMap α β) (init : σ)
     (kcons : α → β → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
   s.map₁.forInNew init kcons (s.map₂.forInNew · kcons knil)
 

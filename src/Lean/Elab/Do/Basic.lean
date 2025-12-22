@@ -128,6 +128,10 @@ structure ContVarJump where
   mvar : Expr
   /-- A reference for error reporting. -/
   ref : Syntax
+  /-- The term elaborator context at the jump site. -/
+  termCtx : Term.Context
+  /-- The do elaborator context at the jump site. -/
+  doCtx : Context
 
 /--
 Information about a `ContVarId`.
@@ -260,13 +264,6 @@ def mkPUnit : DoElabM Expr := do
 def mkPUnitUnit : DoElabM Expr := do
   return (← read).monadInfo.cachedPUnitUnit
 
-/--
-The result type of the current `do` block, considering refinements from surrounding dependent
-pattern matches.
--/
-def getRefinedDoBlockResultType : DoElabM Expr := do
-  return ← Term.substituteRefinedDiscriminants (← read).doBlockResultType
-
 /-- The cached `@Pure.pure m instPure` expression. -/
 private def getCachedPure : DoElabM Expr := do
   let s ← get
@@ -293,7 +290,7 @@ def DoElemCont.mkPure (resultType : Expr) : TermElabM DoElemCont := do
   return {
     resultName := r,
     resultType,
-    k := do mkPureApp (← Term.substituteRefinedDiscriminants resultType) (← getFVarFromUserName r),
+    k := do let decl ← getLocalDeclFromUserName r; mkPureApp decl.type decl.toExpr,
     kind := .duplicable
     ref := .missing
     declKind := .implDetail  -- Does not matter much, because `mkPureApp` does not do
@@ -303,7 +300,7 @@ def DoElemCont.mkPure (resultType : Expr) : TermElabM DoElemCont := do
 /-- Create a `ReturnCont` returning the result using `pure`. -/
 def ReturnCont.mkPure (resultType : Expr) : TermElabM ReturnCont := do
   return { resultType, k x := do
-    mkPureApp (← Term.substituteRefinedDiscriminants resultType) x }
+    mkPureApp (← inferType x) x }
 
 /-- The cached `@Bind.bind m instBind` expression. -/
 private def getCachedBind : DoElabM Expr := do
@@ -385,8 +382,8 @@ def mkBindCancellingPure (x : Name) (eResultTy e : Expr) (k : Expr → DoElabM E
   withLocalDecl x .default eResultTy (kind := declKind) fun x => do
     let body ← k x
     let body' := body.consumeMData
-    if body.isAppOfArity ``Pure.pure 4 && body'.getArg! 3 == x then
-      if ← isDefEq body' (← mkPureApp eResultTy x) then
+    if body'.isAppOfArity ``Pure.pure 4 && body'.getArg! 3 == x then
+      if ← withNewMCtxDepth do isDefEq body' (← mkPureApp eResultTy x) then
         return e
     let kResultTy ← mkFreshResultType `kResultTy
     let body ← Term.ensureHasType (← mkMonadicType kResultTy) body
@@ -455,13 +452,13 @@ def ContVarId.find (contVarId : ContVarId) : DoElabM ContVarInfo := do
 def ContVarId.mkJump (contVarId : ContVarId) : DoElabM Expr := do
   let info ← contVarId.find
   let lctx ← addReachingDefsAsNonDep info.lctx (← getLCtx) info.tunneledVars.inner
-  let type ← mkMonadicType (← getRefinedDoBlockResultType)
+  let type ← mkMonadicType (← read).doBlockResultType
   let mvar ← withLCtx' lctx (mkFreshExprMVar type) -- assigned by `synthesizeJumps`
-  -- trace[Elab.do] "mkJump: {contVarId.name}, {mvar}, {repr mvar}, deadCode: {(← read).deadCode}"
+  -- trace[Elab.do] "mkJump: {contVarId.name}, {mvar}, {repr mvar}, deadCode: {(← read).deadCode}, {mvar.mvarId!}"
   -- If it's dead syntactically, don't even bother registering the jump
   let deadCode := (← read).deadCode
   unless deadCode matches .deadSyntactically do
-    let jumps := info.jumps.push { mvar, ref := (← getRef) }
+    let jumps := info.jumps.push { mvar, ref := (← getRef), termCtx := (← readThe _), doCtx := (← read) }
     let info := { info with jumps, deadCode := info.deadCode.lub deadCode }
     modify fun s => { s with contVars := s.contVars.insert contVarId { info with jumps } }
   return mvar
@@ -481,8 +478,7 @@ def ContVarId.synthesizeJumps (contVarId : ContVarId) (k : DoElabM Expr) : DoEla
   for jump in info.jumps do
     jump.mvar.mvarId!.withContext do
     withRef jump.ref do
-    withDeadCode info.deadCode do
-      let res ← k
+      let res ← withReader (fun _ => jump.doCtx) <| withTheReader _ (fun _ => jump.termCtx) k
       -- trace[Elab.do] "jump site: {res} assign to {(← instantiateMVars jump.mvar).getAppFn.mvarId!}"
       synthUsingDefEq "jump site" jump.mvar res
 
@@ -570,7 +566,7 @@ Return `$e >>= fun ($dec.resultName : $dec.resultType) => $(← dec.k)`, cancell
 the bind if `$(← dec.k)` is `pure $dec.resultName`.
 -/
 def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := do
-  mkBindCancellingPure dec.resultName (← Term.substituteRefinedDiscriminants dec.resultType) e (declKind := dec.declKind) fun _ =>
+  mkBindCancellingPure dec.resultName dec.resultType e (declKind := dec.declKind) fun _ =>
     withRef? dec.ref dec.k
 
 /--
@@ -579,7 +575,7 @@ is `PUnit` and then immediately zeta-reduce the `let`.
 -/
 def DoElemCont.continueWithUnit (dec : DoElemCont) : DoElabM Expr := do
   let unit ← mkPUnitUnit
-  discard <| Term.ensureHasType (← Term.substituteRefinedDiscriminants dec.resultType) unit
+  discard <| Term.ensureHasType dec.resultType unit
   mapLetDeclZeta dec.resultName (← mkPUnit) unit (nondep := true) (kind := dec.declKind) fun _ =>
     withRef? dec.ref dec.k
 
@@ -596,12 +592,27 @@ partial def withSynthesizeForDo (k : DoElabM α) : DoElabM α :=
 where
   isPostponedSyntheticMVarOfMonadicType (mvarId : MVarId) : DoElabM Bool := do
     let some decl ← Term.getSyntheticMVarDecl? mvarId | return false
-    let .postponed .. := decl.kind | return false
-    withNewMCtxDepth do -- do not instantiate any metavariables other than α in the test!
+    let .postponed ctx := decl.kind | return false
+    if !ctx.mayElabToJump then return false -- Don't care
+    -- The `withNewMCtxDepth` means that no MVar except α is assignable.
+    -- This /appears/ to have the potential to result in a check that is not conservative, a worry
+    -- that SG thinks is unfounded.
+    -- The worry is that `mvarId.getType` might be a metavariable `?m` that could instantiate to
+    -- `m ?α`, in which case the defeq check will fail and `mvarId` will not be considered for
+    -- "might contain a jump to a joinpoint".
+    -- Hence it might be more conservative to save and restore the MetaM state.
+    -- However, this worry is unfounded given that `?m` could not be the type of an elaborated
+    -- `do` element; it must always unify with `m ?α`.
+    withNewMCtxDepth do
     let α ← mkFreshResultType
     let mα ← mkMonadicType α
-    let res ← isDefEq (← mvarId.getType) mα
-    -- trace[Elab.do] "isPostponedSyntheticMVarOfMonadicType: {repr mvarId}, {← mvarId.getType}, {mα}, {res}"
+    let type ← mvarId.getType
+    -- The `forallTelescope` should not be necessary; if a relevant elaboration problem is
+    -- postponed, it should have type `m ?α`.
+    -- forallTelescope type fun _xs type => do
+    let res ← isDefEq type mα
+    if res then
+      trace[Elab.do] "isPostponedSyntheticMVarOfMonadicType: {mkMVar mvarId}, {← mvarId.getType}, {mα}, {res}"
     return res
 
   getSomeSyntheticMVarsRef : DoElabM Syntax := do
@@ -613,10 +624,13 @@ where
   synth : DoElabM Unit := do
     let rec loop (_ : Unit) : DoElabM Unit := do
       withRef (← getSomeSyntheticMVarsRef) <| withIncRecDepth do
-        if ← (← liftM (m := TermElabM) get).pendingMVars.anyM isPostponedSyntheticMVarOfMonadicType then
+        let relevantMVars ← (← liftM (m := TermElabM) get).pendingMVars.filterM isPostponedSyntheticMVarOfMonadicType
+        trace[Elab.do] "relevantMVars: {relevantMVars.map (mkMVar ·)}"
+        if !relevantMVars.isEmpty then
           if ← Term.synthesizeSyntheticMVarsStep (postponeOnError := true) (runTactics := false) then
             loop ()
           else
+            trace[Elab.do] "Eeeek postpone"
             Term.tryPostpone
     loop ()
 
@@ -654,6 +668,13 @@ where
       withLetDecl (← tupleVar.getUserName) sndTy snd fun r => do
         go xs r.fvarId! sndTy (letFVars |>.push x |>.push r)
 
+private def withLambda (name : Name) (type : Expr) (k : Expr → DoElabM Expr) (kind := LocalDeclKind.default) (bi := BinderInfo.default) : DoElabM Expr := do
+  withLocalDecl name type (bi := bi) (kind := kind) fun r => do
+    mkLambdaFVars #[r] (← k r)
+
+private def withLambdaIf (b : Bool) (name : Name) (type : Expr) (k : DoElabM Expr) (kind := LocalDeclKind.default) (bi := BinderInfo.default) : DoElabM Expr := do
+  if b then withLambda name type (fun _ => k) kind bi else k
+
 /--
 Call `caller` with a duplicable proxy of `dec`.
 When the proxy is elaborated more than once, a join point is introduced so that `dec` is only
@@ -662,106 +683,142 @@ elaborated once to fill in the RHS of this join point.
 This is useful for control-flow constructs like `if` and `match`, where multiple tail-called
 branches share the continuation.
 -/
-def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont → DoElabM Expr) : DoElabM Expr := do
-  if nondupDec.kind matches .duplicable .. then
-    return (← caller nondupDec)
-  let γ ← getRefinedDoBlockResultType
+def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElabM (DoElemCont × Expr × Expr) → DoElabM Expr) : DoElabM Expr := do
+  let mi := (← read).monadInfo
+  let γ := (← read).doBlockResultType
   let mγ ← mkMonadicType γ
   let rootCtx ← getLCtx
   let joinName ← mkFreshUserName `__do_jp
-  let argTy ← mkFreshResultType `argTy .synthetic -- The tuple type of result and mut vars
-  let joinTy ← mkArrow argTy mγ
+  let returnDummyName ← mkFreshUserName `__return_dummy
+  -- σ is the tuple type of the mut vars, or mγ if jumpCount = 0. Hence it is either level mi.u or mi.v.
+  let σ ← mkFreshTypeMVar (userName := `σ)
+  let joinTy ← mkArrow nondupDec.resultType (← mkArrow σ mγ)
   let joinRhs ← mkFreshExprMVar joinTy (userName := `joinRhs)
+  let returnCont := (← read).contInfo.toContInfo.returnCont
   withLetDecl joinName joinTy joinRhs (kind := .implDetail) (nondep := true) fun jp => do
-
+  let returnDummyRhs := mkApp (mkConst ``id [mkLevelSucc mi.u]) returnCont.resultType
+  withLocalDecl returnDummyName .default (← mkArrow returnCont.resultType returnCont.resultType) (kind := .implDetail) fun returnDummy => do
+  -- trace[Elab.do] "returnDummy: {returnDummy}"
+  -- trace[Elab.do] "jp: {jp}"
   let mutVars := (← read).mutVars
   let mutVarNames := mutVars.map (·.getId)
   let contVarId ← mkFreshContVar (mutVarNames |>.push nondupDec.resultName |>.push joinName)
-  let duplicableDec := { nondupDec with k := contVarId.mkJump, kind := .duplicable }
-  let e ← withSynthesizeForDo (caller duplicableDec)
+  let dupDecTemplate :=
+    match nondupDec.kind with
+    | .duplicable .. => nondupDec
+    | .nonDuplicable => { nondupDec with k := contVarId.mkJump, kind := .duplicable }
+  let mkDuplicableDec := do
+    let jpDecl ← getLocalDeclFromUserName joinName
+    let returnDummyDecl ← getLocalDeclFromUserName returnDummyName
+    -- trace[Elab.do] "returnDummyDecl: {returnDummyDecl.toExpr}, jpDecl: {jpDecl.toExpr}"
+    let (refinedDecResultType, refinedDoBlockResultType, refinedReturnType) ← do
+      let .forallE _ resTy (.forallE _ _ mγ _) _ := (← instantiateMVarsIfMVarApp jpDecl.type).consumeMData
+        | throwError "join point {jpDecl.toExpr} was not a forall. This is a bug in the do elaborator."
+      let .forallE _ retTy _ _ := (← instantiateMVarsIfMVarApp returnDummyDecl.type).consumeMData
+        | throwError "join point {jpDecl.toExpr} was not a forall. This is a bug in the do elaborator."
+      let γ ← mkFreshResultType `γ
+      unless ← isDefEq (← mkMonadicType γ) mγ do
+        throwError "The monadic type changed from {← mkMonadicType γ} to {mγ}. This is not supported by the `do` elaborator."
+      pure (resTy, γ, retTy)
+    -- trace[Elab.do] "refinedDecResultType: {refinedDecResultType}, refinedDoBlockResultType: {refinedDoBlockResultType}, refinedReturnType: {refinedReturnType}, nondupDec.duplicable: {nondupDec.kind matches .duplicable ..}"
+    return ({ dupDecTemplate with resultType := refinedDecResultType }, refinedDoBlockResultType, refinedReturnType)
 
-  -- Now determine whether we need to realize the join point.
+  let e ← withSynthesizeForDo (caller mkDuplicableDec)
+
   let jumpCount ← contVarId.jumpCount
   if jumpCount = 0 then
-    -- Substitute the FVar away (for the dead MVar `joinRhs`), but do not assign any MVars.
-    -- However, /do/ elaborate the continuation as dead code warnings.
     nondupDec.elabAsSyntacticallyDeadCode
-    Term.ensureHasType mγ e -- (← e.replaceFVarsM #[jp] #[joinRhs])
-  else if jumpCount = 1 then
-    -- Linear use of the continuation. Do not introduce a join point; just emit the continuation
-    -- directly. Still need to replace any FVars with a dummy expression `joinRhs`.
-    contVarId.synthesizeJumps nondupDec.k
-    Term.ensureHasType mγ (← e.replaceFVarsM #[jp] #[joinRhs])
-  else -- jumps.size > 1
-    -- Non-linear use of the continuation. Introduce a join point and synthesize jumps to it.
+    -- Trick: the join point is dead and we are going to substitue it away.
+    -- But we cannot elaborate `nondupDec.k` in the right context to produce
+    -- a term to substitue. Hence we say that `σ` is `mγ`, so that the join point
+    -- definition can be `fun _ σ => σ`.
+    synthUsingDefEq "dead join state type" σ mγ
+    synthUsingDefEq "join RHS" joinRhs <|
+      mkLambda `r .default nondupDec.resultType <|
+      mkLambda `σ .default mγ <| .bvar 0
+    return ← e.replaceFVarsM #[jp, returnDummy] #[joinRhs, returnDummyRhs]
 
-    -- Compute the union of all reassigned mut vars. These + `r` constitute the parameters
-    -- of the join point. We take a little care to preserve the declaration order that is manifest
-    -- in the array `(← read).mutVars`.
-    let reassignedMutVars ← contVarId.getReassignedMutVars rootCtx
-    let reassignedMutVars := mutVars.filter (reassignedMutVars.contains ·.getId)
+  -- Otherwise, we had at least one jump and potentially more (runtime-semantically dead) occs.
+  -- Fill in `joinTy`, `joinRhs` and the jumps associated with `contVarId`.
 
-    -- Assign the `argTy` based on the types of the reassigned mut vars and the result type.
-    let resultType := nondupDec.resultType
-    let resultIsUnit ← withNewMCtxDepth do isDefEqGuarded resultType (← mkPUnit)
-    let reassignedDecls ← reassignedMutVars.mapM (getLocalDeclFromUserName ·.getId)
-    let reassignedTys := reassignedDecls.map (·.type)
-    -- We cannot assign `mkProdN (#[resultType] ++ reassignedTys) u` directly here, because while
-    -- the result type is refined by dependent pattern matching, the types of the reassigned mut
-    -- vars are *not*. The `mut` vars are not generalized because they are `let` bound.
-    -- If we were to assign `reassignedTys` directly, these types would be refined. Hence we first
-    -- use fresh MVars instead (which will not be `abstractM` when synthesizing). Then we assign
-    -- the MVars after having assigned `argTy`. Phew.
-    let u := mkLevelSucc (← read).monadInfo.u
-    let reassignedTyDummys ← reassignedTys.mapM fun _ => mkFreshExprMVar (mkSort u)
-    let tupleTys := if resultIsUnit then reassignedTyDummys else #[resultType] ++ reassignedTyDummys
-    synthUsingDefEq "join argument type" argTy (← mkProdN tupleTys u)
-    for dummy in reassignedTyDummys, ty in reassignedTys do
-      let dummy ← instantiateMVars dummy
-      dummy.withApp fun mvar args => do
-        let mut declInfos := #[]
-        let argTys ← args.mapM (inferType ·)
-        for h : i in *...argTys.size do
-          let argTy := argTys[i]
-          let argTy' xs := return argTy.abstractRange i args |>.instantiateRev xs
-          declInfos := declInfos.push (`_, BinderInfo.default, argTy')
-        let ty ← withLocalDecls declInfos fun xs => mkLambdaFVars xs ty
-        -- We cannot use defeq for the assignment because the LCtx of `mvar` does not contain `args`.
-        -- However, the assignment is safe because `mvar` only occurs applied to `args`, so `args`
-        -- must be in scope at all uses.
-        mvar.mvarId!.assign ty
+  -- Compute the union of all reassigned mut vars. These + `r` constitute the parameters
+  -- of the join point. We take a little care to preserve the declaration order that is manifest
+  -- in the array `(← read).mutVars`.
+  let reassignedMutVars ← contVarId.getReassignedMutVars rootCtx
+  let reassignedMutVars := mutVars.filter (reassignedMutVars.contains ·.getId)
 
-    -- Assign the `joinRhs` with the result of the continuation.
-    joinRhs.mvarId!.assign (← withLCtx' rootCtx do
-      withLocalDecl (← mkFreshUserName `tuple) argTy (bi := .default) (kind := .implDetail) fun r => do
-      let reassignedMutVars := (reassignedMutVars.map (·.getId)).toList
-      let tupleVars := if resultIsUnit then reassignedMutVars else nondupDec.resultName :: reassignedMutVars
-      let body ← bindMutVarsFromTuple tupleVars r.fvarId! do
-        -- for (decl, x) in reassignedDecls.zip xs do
-        --   let id := x.fvarId!
-        --   if let some baseId := (← read).mutVarDefs[decl.userName]? then
-        --     if id != baseId then
-        --       pushInfoLeaf <| .ofFVarAliasInfo { userName := decl.userName, id, baseId }
-        if resultIsUnit then
-          nondupDec.continueWithUnit
-        else
-          nondupDec.k
-      mkLambdaFVars #[r] body)
+  -- Assign the `argTy` based on the types of the reassigned mut vars and the result type.
+  let reassignedDecls ← reassignedMutVars.mapM (getLocalDeclFromUserName ·.getId)
+  let reassignedTys := reassignedDecls.map (·.type)
+  -- We cannot assign `mkProdN (#[resultType] ++ reassignedTys) u` directly here, because while
+  -- the result type is refined by dependent pattern matching, the types of the reassigned mut
+  -- vars are *not*. The `mut` vars are not generalized because they are `let` bound.
+  -- If we were to assign `reassignedTys` directly, these types would be refined. Hence we first
+  -- use fresh MVars instead (which will not be `abstractM` when synthesizing). Then we assign
+  -- the MVars after having assigned `argTy`. Phew.
+  let u := (← read).monadInfo.u
+  let reassignedTyDummys ← reassignedTys.mapM fun _ => mkFreshExprMVar (mkSort (mkLevelSucc u))
+  synthUsingDefEq "join argument type" σ (← mkProdN reassignedTyDummys u)
+  for dummy in reassignedTyDummys, ty in reassignedTys do
+    let dummy ← instantiateMVars dummy
+    dummy.withApp fun mvar args => do
+      let mut declInfos := #[]
+      let argTys ← args.mapM (inferType ·)
+      for h : i in *...argTys.size do
+        let argTy := argTys[i]
+        let argTy' xs := return argTy.abstractRange i args |>.instantiateRev xs
+        declInfos := declInfos.push (`_, BinderInfo.default, argTy')
+      let ty ← withLocalDecls declInfos fun xs => mkLambdaFVars xs ty
+      -- We cannot use defeq for the assignment because the LCtx of `mvar` does not contain `args`.
+      -- However, the assignment is safe because `mvar` only occurs applied to `args`, so `args`
+      -- must be in scope at all uses.
+      mvar.mvarId!.assign ty
 
-    -- Finally, assign the ContVars with the jump to `jp`.
-    contVarId.synthesizeJumps do
-      let jp ← getFVarFromUserName joinName
-      let mut args := #[]
-      if !resultIsUnit then
-        args := args.push (← getFVarFromUserName nondupDec.resultName)
-      for x in reassignedMutVars do
-        let newDefn ← getLocalDeclFromUserName x.getId
-        Term.addTermInfo' x newDefn.toExpr
-        args := args.push newDefn.toExpr
-      let (tuple, _tupleTy) ← mkProdMkN args u
-      return mkApp jp tuple
+  -- Assign the `joinRhs` with the result of the continuation.
 
-    mkLetFVars #[jp] (generalizeNondepLet := false) (← Term.ensureHasType mγ e)
+  synthUsingDefEq "join RHS" joinRhs (← joinRhs.mvarId!.withContext do
+    withLambda nondupDec.resultName nondupDec.resultType fun _ => do
+    withLambda (← mkFreshUserName `tuple) σ (bi := .default) (kind := .implDetail) fun s => do
+    let reassignedMutVars := (reassignedMutVars.map (·.getId)).toList
+    bindMutVarsFromTuple reassignedMutVars s.fvarId! do
+      for decl in reassignedDecls do
+        let newDecl ← getLocalDeclFromUserName decl.userName
+        if let some baseId := (← read).mutVarDefs[decl.userName]? then
+          if newDecl.fvarId != baseId then
+            pushInfoLeaf <| .ofFVarAliasInfo { userName := decl.userName, id := newDecl.fvarId, baseId }
+      nondupDec.k)
+
+  -- Finally, assign the ContVars with the jump to `jp`.
+  -- When there is only one jump, we have already synthesized it and should not attempt to do so
+  -- again.
+  let zetad ← IO.mkRef false
+  contVarId.synthesizeJumps do
+    let jp' ← getFVarFromUserName joinName
+    let result ← getFVarFromUserName nondupDec.resultName
+    let mut muts := #[]
+    for x in reassignedMutVars do
+      let newDefn ← getLocalDeclFromUserName x.getId
+      Term.addTermInfo' x newDefn.toExpr
+      muts := muts.push newDefn.toExpr
+    let (tuple, _tupleTy) ← mkProdMkN muts u
+    -- trace[Elab.do] "jp: {jp'.toExpr}, result: {result}, tuple: {tuple}"
+    if jumpCount == 1 && jp' == jp then
+      -- The defeq check is for dependent matches, where the join point might have been
+      -- reintroduced under a different name, in which case we risk defeq failures due to
+      -- differing contexts and types.
+      -- TODO: we could also undo the tupling here; we currently get a chain of renaming `let`s.
+      zetad.set true
+      return joinRhs.betaRev #[tuple, result]
+    else
+      return mkApp2 jp' result tuple
+
+  if ← zetad.get then -- 0 case has been handled above
+    -- It's well-typed to substitute `joinRhs` for `jp` here, and the remaining uses
+    -- of `jp` are dead code.
+    e.replaceFVarsM #[jp, returnDummy] #[joinRhs, returnDummyRhs]
+  else
+    let e ← e.replaceFVarsM #[returnDummy] #[returnDummyRhs]
+    mkLetFVars (generalizeNondepLet := false) (usedLetOnly := true) #[jp] e
 
 /--
 Create syntax standing in for an unelaborated metavariable.
@@ -835,12 +892,28 @@ def withDoBlockResultType (doBlockResultType : Expr) (k : DoElabM α) : DoElabM 
   withReader (fun ctx => { ctx with doBlockResultType }) k
 
 /--
+Runs the given `do` elaborator with the refined `do` block result type on the refined continuation
+produced by `mkRefinedDec`. A compatible `mkRefinedDec` can be obtained by calling
+`DoElemCont.withDuplicableCont`.
+-/
+def elabWithRefinement (mkRefinedDec : DoElabM (DoElemCont × Expr × Expr)) (doElab : DoElemCont → DoElabM Expr) : DoElabM Expr := do
+  let (refinedDec, doBlockResultType, returnType) ← mkRefinedDec
+  let ctx ← read
+  let contInfo := { ctx.contInfo.toContInfo with returnCont.resultType := returnType }.toContInfoRef
+  let ctx := { ctx with contInfo, doBlockResultType }
+  withReader (fun _ => ctx) do doElab refinedDec
+
+/--
 Prepare the context for elaborating the body of a `finally` block.
 There is no support for `mut` vars, `break`, `continue` or `return` in a `finally` block.
 -/
 def enterFinally (resultType : Expr) (k : DoElabM Expr) : DoElabM Expr := do
   withoutControl do
   withDoBlockResultType resultType k
+
+/-- Execute `x` with the updated flag `mayElabToJump`. -/
+def withMayElabToJump (mayElabToJump : Bool) (x : DoElabM α) : DoElabM α :=
+  withTheReader Term.Context (fun ctx => { ctx with mayElabToJump := mayElabToJump }) x
 
 /-- Extracts `MonadInfo` and monadic result type `α` from the expected type of a `do` block `m α`. -/
 private partial def extractMonadInfo (expectedType? : Option Expr) : Term.TermElabM (MonadInfo × Expr) := do
@@ -915,6 +988,37 @@ protected def DoElabM.saveState : DoElabM SavedState :=
 instance : MonadBacktrack SavedState DoElabM where
   saveState      := DoElabM.saveState
   restoreState b := b.restore
+
+section MatcherSimplification
+
+private def simplifyMatchers (e : Expr) : MetaM Expr := do
+  transform e (usedLetOnly := true) (pre := fun e => do
+    let some matcherApp ← matchMatcherApp? e | return .continue
+    trace[Elab.do] "matcherApp: {matcherApp.toExpr}"
+    for h : i in *...matcherApp.discrs.size do
+      let discr := matcherApp.discrs[i]
+      let discrType ← inferType discr
+      unless discrType.isForall do continue
+      let mut refined := false
+      for alt in matcherApp.alts do
+        let b ← lambdaBoundedTelescope alt matcherApp.discrs.size fun discrs' alt => do
+          if i >= discrs'.size then
+            trace[Elab.do] "oopsie discrs': {discrs'}"
+            return true
+          if ← isDefEq discrs'[i]! discr then
+            return false
+          else
+            return true
+        refined := refined || b
+      if refined then
+        trace[Elab.do] "{discr} is a candidate to substitute"
+    -- if matcherApp.alts.size
+    -- matcherApp.alts.forM fun alt => do
+    --   let some matcherApp ← matchMatcherApp? alt | return ()
+    --   matcherApp.alts.forM fun alt => do
+    return .continue)
+
+end MatcherSimplification
 
 unsafe def mkDoElemElabAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute DoElab) :=
   mkElabAttribute DoElab `builtin_doElem_elab `doElem_elab `Lean.Parser.Term.doElem ``Lean.Elab.Do.DoElab "do element" ref
@@ -1002,6 +1106,8 @@ partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) : DoElabM Exp
     match doElemElabAttribute.getEntries (← getEnv) k with
     | []      => throwError "elaboration function for `{k}` has not been implemented{indentD stx}"
     | elabFns => elabDoElemFns stx cont elabFns
+  -- simplifyMatchers result
+  return result
 
 partial def elabDoElems1 (doElems : Array (TSyntax `doElem)) (cont : DoElemCont) : DoElabM Expr := do
   if h : doElems.size = 0 then
@@ -1017,18 +1123,27 @@ end
 def elabDoSeq (doSeq : TSyntax ``Lean.Parser.Term.doSeq) (cont : DoElemCont) : DoElabM Expr := do
   elabDoElems1 (Lean.Parser.Term.getDoElems doSeq) cont
 
+/--
+Elaborates the given `do` sequence with the refined `do` block result type on the refined
+continuation produced by `mkRefinedDec`. A compatible `mkRefinedDec` can be obtained by calling
+`DoElemCont.withDuplicableCont`.
+-/
+def elabDoSeqRefined (doSeq : TSyntax ``Lean.Parser.Term.doSeq) (mkRefinedDec : DoElabM (DoElemCont × Expr × Expr)) : DoElabM Expr := do
+  elabWithRefinement mkRefinedDec (elabDoSeq doSeq)
+
 @[builtin_doElem_elab doElemNoNestedAction] def elabDoElemNoNestedAction : DoElab := fun stx cont => do
   let `(doElemNoNestedAction| $e:doElem) := stx | throwUnsupportedSyntax
   elabDoElem e cont
 
--- @[builtin_term_elab «do»]
+-- @[builtin_term_elab «do»] -- once the legacy `do` elaborator has been phased out
 def elabDo : Term.TermElab := fun e expectedType? => do
   let `(do $doSeq) := e | throwError "unexpected `do` block syntax{indentD e}"
   Term.tryPostponeIfNoneOrMVar expectedType?
   let ctx ← mkContext expectedType?
   let cont ← DoElemCont.mkPure ctx.doBlockResultType
   let res ← elabDoSeq doSeq cont |>.run ctx |>.run' {}
-  trace[Elab.do] "{← instantiateMVars res}"
+  -- Term.synthesizeSyntheticMVarsUsingDefault
+  --trace[Elab.do] "{← instantiateMVars res}"
   pure res
 
 syntax:arg (name := dooBlock) "doo" doSeq : term
@@ -1043,7 +1158,7 @@ section NestedActions
 -- @[builtin_term_elab liftMethod]
 def elabNestedAction : Term.TermElab := fun stx _ty? => do
   let `(← $_rhs) := stx | throwUnsupportedSyntax
-  throwError "Nested action `{stx}` is not supported by the `do` syntax surrounding it."
+  throwErrorAt stx "Nested action `{stx}` must be nested inside a `do` expression."
 
 /-- Return true if we should not lift nested action `(← …)` out of syntax nodes with the given kind. -/
 private def liftNestedActionDelimiter (k : SyntaxNodeKind) : Bool :=
@@ -1062,7 +1177,7 @@ private def letDeclArgHasBinders (letDeclArg : Syntax) : Bool :=
   else if k == ``Parser.Term.letEqnsDecl then
     true
   else if k == ``Parser.Term.letIdDecl then
-    -- letIdLhs := binderIdent >> checkWsBefore "expected space before binders" >> many (ppSpace >> letIdBinder)) >> optType
+    -- letIdLhs := letId >> many (ppSpace >> letIdBinder) >> optType
     let binders := letDeclArg[1]
     binders.getNumArgs > 0
   else
@@ -1081,12 +1196,8 @@ private def liftMethodForbiddenBinder (stx : Syntax) : Bool :=
      -- It is never ok to lift over this kind of binder
     true
   -- The following kinds of `let`-expressions require extra checks to decide whether they contain binders or not
-  else if k == ``Parser.Term.let then
-    letDeclHasBinders stx[1]
-  else if k == ``Parser.Term.doLet then
-    letDeclHasBinders stx[2]
-  else if k == ``Parser.Term.doLetArrow then
-    letDeclArgHasBinders stx[2]
+  else if k == ``Parser.Term.letDecl then
+    letDeclHasBinders stx
   else
     false
 
@@ -1109,7 +1220,7 @@ private partial def expandNestedActionsAux (baseId : Name) (inQuot : Bool) (inBi
       let alts ← stx.getArgs.mapM (expandNestedActionsAux baseId inQuot inBinder · |>.run #[])
       let (_, lifts) := alts[0]!
       unless alts.all (·.2 == lifts) do
-        throwErrorAt stx "cannot lift `(<- ...)` over inconsistent syntax variants, consider lifting out the binding manually"
+        throwErrorAt stx "Cannot lift nested action `{stx}` over inconsistent syntax variants.\nConsider lifting out the binding manually."
       modify (· ++ lifts)
       return .node i k (alts.map (·.1))
     else if liftNestedActionDelimiter k then
@@ -1122,7 +1233,7 @@ private partial def expandNestedActionsAux (baseId : Name) (inQuot : Bool) (inBi
       return Syntax.node i k args
     else if k == ``Parser.Term.liftMethod && !inQuot then withFreshMacroScope do
       if inBinder then
-        throwErrorAt stx "cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`"
+        throwErrorAt stx "Cannot lift nested action `{stx}` over a binder.\nThis error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`."
       let term := args[1]!
       let term ← expandNestedActionsAux baseId inQuot inBinder term
       -- keep name deterministic across choice branches

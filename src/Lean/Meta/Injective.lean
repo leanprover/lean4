@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Assumption
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.SameCtorUtils
+import Lean.ReservedRealizableThm
 public section
 namespace Lean.Meta
 
@@ -188,93 +189,72 @@ def getCtorAppIndices? (ctorApp : Expr) : MetaM (Option (Array Expr)) := do
     if val.numIndices == 0 then return some #[]
     return some typeArgs[val.numParams...*].toArray
 
-private structure MkHInjTypeResult where
-  thmType : Expr
-  us : List Level
-  numIndices : Nat
-
-private def mkHInjType? (ctorVal : ConstructorVal) : MetaM (Option MkHInjTypeResult) := do
-  let us := ctorVal.levelParams.map mkLevelParam
-  let type ← elimOptParam ctorVal.type
-  forallTelescope type fun args1 _ =>
-  withImplicitBinderInfos args1 do
-    let params1 := args1[:ctorVal.numParams]
-    let k (args2 : Array Expr) : MetaM (Option MkHInjTypeResult) := do
-      let params2 := args2[:ctorVal.numParams]
-      let lhs := mkAppN (mkConst ctorVal.name us) args1
-      let rhs := mkAppN (mkConst ctorVal.name us) args2
-      let eq ← mkEqHEq lhs rhs
-      let eqs ← mkEqs args1 args2
-      if let some andEqs := mkAnd? eqs then
-        let result ← mkArrow eq andEqs
-        let some idxs1 ← getCtorAppIndices? lhs | return none
-        let some idxs2 ← getCtorAppIndices? rhs | return none
-        -- **Note**: We dot not skip here because the type of `noConfusion` does not.
-        let idxEqs ← mkEqs (params1 ++ idxs1) (params2 ++ idxs2) (skipIfPropOrEq := false)
-        let result ← mkArrowN idxEqs result
-        let thmType ← mkForallFVars args1 (← mkForallFVars args2 result)
-        return some { thmType, us, numIndices := idxs1.size }
-      else
-        return none
-    let rec mkArgs2 (i : Nat) (type : Expr) (args2 : Array Expr) : MetaM (Option MkHInjTypeResult) := do
-      if h : i < args1.size then
-        let .forallE n d b _  ← whnf type | throwError "unexpected constructor type for `{ctorVal.name}`"
-        let arg1 := args1[i]
-        withLocalDecl n .implicit d fun arg2 =>
-          mkArgs2 (i + 1) (b.instantiate1 arg2) (args2.push arg2)
-      else
-        k args2
-    mkArgs2 0 type #[]
-
 private def failedToGenHInj (ctorVal : ConstructorVal) : MetaM α :=
   throwError "failed to generate heterogeneous injectivity theorem for `{ctorVal.name}`"
 
-private partial def mkHInjectiveTheoremValue? (ctorVal : ConstructorVal) (typeInfo : MkHInjTypeResult) : MetaM (Option Expr) := do
-  forallTelescopeReducing typeInfo.thmType fun xs type => do
-    let noConfusionName := ctorVal.induct.str "noConfusion"
-    let noConfusion := mkConst noConfusionName (0 :: typeInfo.us)
-    let noConfusion := mkApp noConfusion type
-    let n := xs.size - ctorVal.numParams - typeInfo.numIndices - 1
-    let eqs := xs[n...*].toArray
-    let eqExprs ← eqs.mapM fun x => do
-      match_expr (← inferType x) with
-      | Eq _ lhs rhs => return (lhs, rhs)
-      | HEq _ lhs _ rhs => return (lhs, rhs)
-      | _ => failedToGenHInj ctorVal
-    let (args₁, args₂) := eqExprs.unzip
-    let noConfusion := mkAppN (mkAppN (mkAppN noConfusion args₁) args₂) eqs
-    let .forallE _ d _ _ ← whnf (← inferType noConfusion) | failedToGenHInj ctorVal
-    let mvar ← mkFreshExprSyntheticOpaqueMVar d
-    let noConfusion := mkApp noConfusion mvar
-    let mvarId := mvar.mvarId!
-    let (_, mvarId) ← mvarId.intros
-    splitAndAssumption mvarId ctorVal.name
-    let result ← instantiateMVars noConfusion
-    mkLambdaFVars xs result
+private def hinjThms : RealizableTheoremSpec where
+  suffixBase := "hinj"
+  shouldExist := fun env declName _ =>
+    env.find? declName matches some (.ctorInfo _)
+  generate := fun declName thmName _ kType kProof => do
+    let ctorVal ← getConstInfoCtor declName
+    let us := ctorVal.levelParams.map mkLevelParam
+    let type ← elimOptParam ctorVal.type
+    let (thmType, numIndices) ← forallTelescope type fun args1 _ => withImplicitBinderInfos args1 do
+      let params1 := args1[:ctorVal.numParams]
+      let k (args2 : Array Expr) : MetaM (Expr × Nat) := do
+        let params2 := args2[:ctorVal.numParams]
+        let lhs := mkAppN (mkConst ctorVal.name us) args1
+        let rhs := mkAppN (mkConst ctorVal.name us) args2
+        let eq ← mkEqHEq lhs rhs
+        let eqs ← mkEqs args1 args2
+        if let some andEqs := mkAnd? eqs then
+          let result ← mkArrow eq andEqs
+          let some idxs1 ← getCtorAppIndices? lhs | throwError "not a constructor application:{lhs}"
+          let some idxs2 ← getCtorAppIndices? rhs | throwError "not a constructor application:{rhs}"
+          -- **Note**: We dot not skip here because the type of `noConfusion` does not.
+          let idxEqs ← mkEqs (params1 ++ idxs1) (params2 ++ idxs2) (skipIfPropOrEq := false)
+          let result ← mkArrowN idxEqs result
+          let thmType ← mkForallFVars args1 (← mkForallFVars args2 result)
+          return (thmType, idxs1.size)
+        else
+          throwError "failed to generate heterogeneous injectivity theorem for `{ctorVal.name}`: nullary constructor"
+      let rec mkArgs2 (i : Nat) (type : Expr) (args2 : Array Expr) : MetaM (Expr × Nat) := do
+        if h : i < args1.size then
+          let .forallE n d b _  ← whnf type | throwError "unexpected constructor type for `{ctorVal.name}`"
+          let arg1 := args1[i]
+          withLocalDecl n .implicit d fun arg2 =>
+            mkArgs2 (i + 1) (b.instantiate1 arg2) (args2.push arg2)
+        else
+          k args2
+      mkArgs2 0 type #[]
+    kType ctorVal.levelParams thmType
+    let proof ← forallTelescopeReducing thmType fun xs type => do
+      let noConfusionName := ctorVal.induct.str "noConfusion"
+      let noConfusion := mkConst noConfusionName (0 :: us)
+      let noConfusion := mkApp noConfusion type
+      let n := xs.size - ctorVal.numParams - numIndices - 1
+      let eqs := xs[n...*].toArray
+      let eqExprs ← eqs.mapM fun x => do
+        match_expr (← inferType x) with
+        | Eq _ lhs rhs => return (lhs, rhs)
+        | HEq _ lhs _ rhs => return (lhs, rhs)
+        | _ => failedToGenHInj ctorVal
+      let (args₁, args₂) := eqExprs.unzip
+      let noConfusion := mkAppN (mkAppN (mkAppN noConfusion args₁) args₂) eqs
+      let .forallE _ d _ _ ← whnf (← inferType noConfusion) | failedToGenHInj ctorVal
+      let mvar ← mkFreshExprSyntheticOpaqueMVar d
+      let noConfusion := mkApp noConfusion mvar
+      let mvarId := mvar.mvarId!
+      let (_, mvarId) ← mvarId.intros
+      splitAndAssumption mvarId ctorVal.name
+      let result ← instantiateMVars noConfusion
+      mkLambdaFVars xs result
+    kProof proof
 
-private def hinjSuffix := "hinj"
+builtin_initialize hinjThms.register
 
-def mkHInjectiveTheoremNameFor (ctorName : Name) : Name :=
-  ctorName.str hinjSuffix
-
-private def mkHInjectiveTheorem? (thmName : Name) (ctorVal : ConstructorVal) : MetaM (Option TheoremVal) := do
-  let some typeInfo ← mkHInjType? ctorVal | return none
-  let some value ← mkHInjectiveTheoremValue? ctorVal typeInfo | return none
-  return some { name := thmName, value, levelParams := ctorVal.levelParams, type := typeInfo.thmType }
-
-builtin_initialize registerReservedNamePredicate fun env n =>
-  match n with
-  | .str p "hinj" => (env.find? p matches some (.ctorInfo _))
-  | _ => false
-
-builtin_initialize
-  registerReservedNameAction fun name => do
-    let .str p "hinj" := name | return false
-    let some (.ctorInfo ctorVal) := (← getEnv).find? p | return false
-    MetaM.run' do
-    let some thmVal ← mkHInjectiveTheorem? name ctorVal | return false
-    realizeConst p name do
-      addDecl (← mkThmOrUnsafeDef thmVal)
-    return true
+public def mkHInjectiveTheoremFor (ctorName : Name) : MetaM Name :=
+  hinjThms.gen ctorName
 
 end Lean.Meta

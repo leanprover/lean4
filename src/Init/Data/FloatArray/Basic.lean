@@ -144,8 +144,10 @@ unsafe def foldlMUnsafe {β : Type v} {m : Type v → Type w} [Monad m] (f : β 
   if start < stop then
     if stop ≤ as.size then
       fold (USize.ofNat start) (USize.ofNat stop) init
-    else
+    else if start < as.size then
       fold (USize.ofNat start) (USize.ofNat as.size) init
+    else
+      pure init
   else
     pure init
 

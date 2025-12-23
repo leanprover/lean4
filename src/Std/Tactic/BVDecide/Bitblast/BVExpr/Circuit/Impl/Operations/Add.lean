@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
 public import Std.Sat.AIG.LawfulVecOperator
+import Init.Grind
 
 @[expose] public section
 
@@ -70,21 +71,24 @@ def mkFullAdderOut (aig : AIG α) (input : FullAdderInput aig) : AIG.Entrypoint 
   let cin := cin.cast <| AIG.LawfulOperator.le_size (f := AIG.mkXorCached) ..
   aig.mkXorCached ⟨subExprRef, cin⟩
 
+@[grind! .]
+theorem mkFullAdderOut_le_size (aig : AIG α) (input : FullAdderInput aig) :
+    aig.decls.size ≤ (mkFullAdderOut aig input).aig.decls.size := by
+  intros
+  unfold mkFullAdderOut
+  grind
+
+@[grind =]
+theorem mkFullAdderOut_decl_eq (aig : AIG α) (input : FullAdderInput aig) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (mkFullAdderOut aig input).aig.decls.size) :
+    (mkFullAdderOut aig input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold mkFullAdderOut
+  grind
+
 instance : AIG.LawfulOperator α FullAdderInput mkFullAdderOut where
-  le_size := by
-    intros
-    unfold mkFullAdderOut
-    dsimp only
-    apply AIG.LawfulOperator.le_size_of_le_aig_size
-    apply AIG.LawfulOperator.le_size
-  decl_eq := by
-    intros
-    unfold mkFullAdderOut
-    dsimp only
-    rw [AIG.LawfulOperator.decl_eq]
-    rw [AIG.LawfulOperator.decl_eq]
-    apply AIG.LawfulOperator.lt_size_of_lt_aig_size
-    assumption
+  le_size := mkFullAdderOut_le_size
+  decl_eq := mkFullAdderOut_decl_eq
 
 def mkFullAdderCarry (aig : AIG α) (input : FullAdderInput aig) : AIG.Entrypoint α :=
   -- let subExpr = XOR lhs rhs
@@ -112,33 +116,24 @@ def mkFullAdderCarry (aig : AIG α) (input : FullAdderInput aig) : AIG.Entrypoin
   let lorRef := lorRef.cast hror
   aig.mkOrCached ⟨lorRef, rorRef⟩
 
-instance : AIG.LawfulOperator α FullAdderInput mkFullAdderCarry where
-  le_size := by
-    intros
-    unfold mkFullAdderCarry
-    dsimp only
-    apply AIG.LawfulOperator.le_size_of_le_aig_size (f := AIG.mkOrCached)
-    apply AIG.LawfulOperator.le_size_of_le_aig_size (f := AIG.mkAndCached)
-    apply AIG.LawfulOperator.le_size_of_le_aig_size (f := AIG.mkAndCached)
-    apply AIG.LawfulOperator.le_size (f := AIG.mkXorCached)
+@[grind! .]
+theorem mkFullAdderCarry_le_size (aig : AIG α) (input : FullAdderInput aig) :
+    aig.decls.size ≤ (mkFullAdderCarry aig input).aig.decls.size := by
+  intros
+  unfold mkFullAdderCarry
+  grind
 
-  decl_eq := by
-    intros
-    unfold mkFullAdderCarry
-    dsimp only
-    rw [AIG.LawfulOperator.decl_eq]
-    rw [AIG.LawfulOperator.decl_eq]
-    rw [AIG.LawfulOperator.decl_eq]
-    rw [AIG.LawfulOperator.decl_eq]
-    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkXorCached)
-      assumption
-    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkAndCached)
-      apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkXorCached)
-      assumption
-    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkAndCached)
-      apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkAndCached)
-      apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkXorCached)
-      assumption
+@[grind =]
+theorem mkFullAdderCarry_decl_eq (aig : AIG α) (input : FullAdderInput aig) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (mkFullAdderCarry aig input).aig.decls.size) :
+    (mkFullAdderCarry aig input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold mkFullAdderCarry
+  grind
+
+instance : AIG.LawfulOperator α FullAdderInput mkFullAdderCarry where
+  le_size := mkFullAdderCarry_le_size
+  decl_eq := mkFullAdderCarry_decl_eq
 
 structure FullAdderOutput (old : AIG α) where
   aig : AIG α
@@ -249,16 +244,24 @@ instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blast where
 
 end blastAdd
 
-instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastAdd where
-  le_size := by
-    intros
-    unfold blastAdd
-    split <;> apply AIG.LawfulVecOperator.le_size (f := blastAdd.blast)
-  decl_eq := by
-    intros
-    unfold blastAdd
-    split <;> rw [AIG.LawfulVecOperator.decl_eq (f := blastAdd.blast)]
+@[grind! .]
+theorem blastAdd_le_size (aig : AIG α) (input : aig.BinaryRefVec w) :
+    aig.decls.size ≤ (blastAdd aig input).aig.decls.size := by
+  intros
+  unfold blastAdd
+  split <;> apply AIG.LawfulVecOperator.le_size (f := blastAdd.blast)
 
+@[grind =]
+theorem blastAdd_decl_eq (aig : AIG α) (input : aig.BinaryRefVec w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (blastAdd aig input).aig.decls.size) :
+    (blastAdd aig input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold blastAdd
+  split <;> rw [AIG.LawfulVecOperator.decl_eq (f := blastAdd.blast)]
+
+instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastAdd where
+  le_size := blastAdd_le_size
+  decl_eq := blastAdd_decl_eq
 
 end bitblast
 end BVExpr

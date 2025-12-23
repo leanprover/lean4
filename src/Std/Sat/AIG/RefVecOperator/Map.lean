@@ -93,6 +93,7 @@ theorem map.go_le_size {aig : AIG α} (idx : Nat) (hidx) (s : RefVec aig idx)
   · simp
   termination_by len - idx
 
+@[grind! .]
 theorem map_le_size {aig : AIG α} (target : MapTarget aig len) :
     aig.decls.size ≤ (map aig target).aig.decls.size := by
   unfold map
@@ -118,6 +119,7 @@ theorem map.go_decl_eq {aig : AIG α} (i) (hi)
     simp
 termination_by len - i
 
+@[grind =]
 theorem map_decl_eq {aig : AIG α} (target : MapTarget aig len) :
     ∀ idx (h1 : idx < aig.decls.size) (h2),
       (map aig target).1.decls[idx]'h2

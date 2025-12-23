@@ -73,17 +73,26 @@ theorem blastClz.go_decl_eq (aig : AIG α) (curr : Nat) (acc : AIG.RefVec aig w)
   · simp [← hgo]
 termination_by w - curr
 
+@[grind! .]
+theorem blastClz_le_size (aig : AIG α) (input : aig.RefVec w) :
+    aig.decls.size ≤ (blastClz aig input).aig.decls.size := by
+  intros
+  unfold blastClz
+  dsimp only
+  apply blastClz.go_le_size
+
+@[grind =]
+theorem blastClz_decl_eq (aig : AIG α) (input : aig.RefVec w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (blastClz aig input).aig.decls.size) :
+    (blastClz aig input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold blastClz
+  dsimp only
+  apply blastClz.go_decl_eq
+
 instance : AIG.LawfulVecOperator α AIG.RefVec blastClz where
-  le_size := by
-    intros
-    unfold blastClz
-    dsimp only
-    apply blastClz.go_le_size
-  decl_eq := by
-    intros
-    unfold blastClz
-    dsimp only
-    apply blastClz.go_decl_eq
+  le_size := blastClz_le_size
+  decl_eq := blastClz_decl_eq
 
 end bitblast
 end BVExpr

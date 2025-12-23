@@ -9,6 +9,7 @@ prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftLeft
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
+import Init.Grind
 
 @[expose] public section
 
@@ -87,6 +88,7 @@ where
 
 namespace blastMul
 
+@[grind! .]
 theorem go_le_size {w : Nat} (aig : AIG α) (curr : Nat) (acc : AIG.RefVec aig w)
     (lhs rhs : AIG.RefVec aig w) :
     aig.decls.size ≤ (go aig lhs rhs curr acc).aig.decls.size := by
@@ -96,11 +98,10 @@ theorem go_le_size {w : Nat} (aig : AIG α) (curr : Nat) (acc : AIG.RefVec aig w
     · apply go_le_size
     · dsimp only
       refine Nat.le_trans ?_ (by apply go_le_size)
-      apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.ite)
-      apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := blastAdd)
-      apply AIG.LawfulVecOperator.le_size (f := blastShiftLeftConst)
+      grind
   · simp
 
+@[grind =]
 theorem go_decl_eq {w : Nat} (aig : AIG α) (curr : Nat) (acc : AIG.RefVec aig w)
     (lhs rhs : AIG.RefVec aig w) :
     ∀ (idx : Nat) (h1) (h2),
@@ -116,51 +117,39 @@ theorem go_decl_eq {w : Nat} (aig : AIG α) (curr : Nat) (acc : AIG.RefVec aig w
       rw [← hgo]
       intro idx h1 h2
       rw [go_decl_eq]
-      rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
-      rw [AIG.LawfulVecOperator.decl_eq (f := blastAdd)]
-      rw [AIG.LawfulVecOperator.decl_eq (f := blastShiftLeftConst)]
-      · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastShiftLeftConst)
-        assumption
-      · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastAdd)
-        apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastShiftLeftConst)
-        assumption
-      · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
-        apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastAdd)
-        apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastShiftLeftConst)
-        assumption
+      all_goals grind
   · simp [← hgo]
 
 instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blast where
   le_size := by
     intros
     unfold blast
-    split
-    · simp
-    · dsimp only
-      refine Nat.le_trans ?_ (by apply blastMul.go_le_size)
-      apply AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite)
+    grind
   decl_eq := by
     intros
     unfold blast
-    split
-    · simp
-    · dsimp only
-      rw [blastMul.go_decl_eq]
-      rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
-      apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
-      assumption
+    grind
 
 end blastMul
 
-instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastMul where
-  le_size := by
-    intros
-    unfold blastMul
-    split <;> apply AIG.LawfulVecOperator.le_size (f := blastMul.blast)
-  decl_eq := by
-    intros
-    unfold blastMul
-    split <;> rw [AIG.LawfulVecOperator.decl_eq (f := blastMul.blast)]
+@[grind! .]
+theorem blastMul_le_size (aig : AIG α) (input : aig.BinaryRefVec w) :
+    aig.decls.size ≤ (blastMul aig input).aig.decls.size := by
+  intros
+  unfold blastMul
+  split <;> apply AIG.LawfulVecOperator.le_size (f := blastMul.blast)
+
+@[grind =]
+theorem blastMul_decl_eq (aig : AIG α) (input : aig.BinaryRefVec w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (blastMul aig input).aig.decls.size) :
+    (blastMul aig input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold blastMul
+  split <;> rw [AIG.LawfulVecOperator.decl_eq (f := blastMul.blast)]
+
+instance inst : AIG.LawfulVecOperator α AIG.BinaryRefVec blastMul where
+  le_size := blastMul_le_size
+  decl_eq := blastMul_decl_eq
 
 end bitblast
 end BVExpr

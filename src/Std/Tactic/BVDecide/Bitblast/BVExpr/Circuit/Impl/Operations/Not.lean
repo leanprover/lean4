@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
 public import Std.Sat.AIG.RefVecOperator
+import Init.Grind
 
 @[expose] public section
 
@@ -27,15 +28,24 @@ variable [Hashable α] [DecidableEq α]
 def blastNot (aig : AIG α) (s : AIG.RefVec aig w) : AIG.RefVecEntry α w :=
   AIG.RefVec.map aig ⟨s, AIG.mkNotCached⟩
 
+@[grind! .]
+theorem blastNot_le_size (aig : AIG α) (input : aig.RefVec w) :
+    aig.decls.size ≤ (blastNot aig input).aig.decls.size := by
+  intros
+  unfold blastNot
+  grind
+
+@[grind =]
+theorem blastNot_decl_eq (aig : AIG α) (input : aig.RefVec w) (idx : Nat)
+    (h1 : idx < aig.decls.size) (h2 : idx < (blastNot aig input).aig.decls.size) :
+    (blastNot aig input).aig.decls[idx] = aig.decls[idx] := by
+  intros
+  unfold blastNot
+  grind
+
 instance : AIG.LawfulVecOperator α AIG.RefVec blastNot where
-  le_size := by
-    intros
-    unfold blastNot
-    apply AIG.LawfulVecOperator.le_size (f := AIG.RefVec.map)
-  decl_eq := by
-    intros
-    unfold blastNot
-    apply AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.map)
+  le_size := blastNot_le_size
+  decl_eq := blastNot_decl_eq
 
 end bitblast
 end BVExpr

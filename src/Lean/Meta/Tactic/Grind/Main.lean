@@ -249,14 +249,15 @@ private def addHypotheses (goal : Goal) : GrindM Goal := GoalM.run' goal do
   let mvarDecl ← goal.mvarId.getDecl
   for localDecl in mvarDecl.lctx do
     if (← isInconsistent) then return ()
-    let type := localDecl.type
-    if (← isProp type) then
-      let r ← preprocessHypothesis type
-      match r.proof? with
-      | none => add r.expr localDecl.toExpr
-      | some h => add r.expr <| mkApp4 (mkConst ``Eq.mp [0]) type r.expr h localDecl.toExpr
-    else
-      internalizeLocalDecl localDecl
+    unless localDecl.isImplementationDetail do
+      let type := localDecl.type
+      if (← isProp type) then
+        let r ← preprocessHypothesis type
+        match r.proof? with
+        | none => add r.expr localDecl.toExpr
+        | some h => add r.expr <| mkApp4 (mkConst ``Eq.mp [0]) type r.expr h localDecl.toExpr
+      else
+        internalizeLocalDecl localDecl
 
 private def initCore (mvarId : MVarId) (params : Params) : GrindM Goal := do
   /-
@@ -310,14 +311,23 @@ See issue #11806 for a motivating example.
 -/
 def withProtectedMCtx [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
     [MonadExcept Exception m] [MonadRuntimeException m]
-    (abstractProof : Bool) (mvarId : MVarId) (k : MVarId → m α) : m α := do
+    (config : Grind.Config) (mvarId : MVarId) (k : MVarId → m α) : m α := do
   /-
   **Note**: `instantiateGoalMVars` here also instantiates mvars occurring in hypotheses.
   This is particularly important when using `grind -revert`.
   -/
-  let mvarId ← mvarId.instantiateGoalMVars
-  let mvarId ← mvarId.abstractMVars
-  let mvarId ← mvarId.clearImplDetails
+  let mut mvarId ← mvarId.instantiateGoalMVars
+  /-
+  **TODO**: It would be nice to remove the following step, but
+  some tests break with unknown metavariable error when this
+  step is removed.
+  -/
+  mvarId ← mvarId.abstractMVars
+  if config.revert then
+    /-
+    **Note**: We now skip implementation details at `addHypotheses`
+    -/
+    mvarId ← mvarId.clearImplDetails
   tryCatchRuntimeEx (main mvarId) fun ex => do
     mvarId.admit
     throw ex
@@ -336,7 +346,7 @@ where
     trace[grind.debug.proof] "{← instantiateMVars mvar'}"
     let type ← inferType mvar'
     -- `grind` proofs are often big, if `abstractProof` is true, we create an auxiliary theorem.
-    let val ← if !abstractProof then
+    let val ← if !config.abstractProof then
       instantiateMVarsProfiling mvar'
     else if (← isProp type) then
       mkAuxTheorem type (← instantiateMVarsProfiling mvar') (zetaDelta := true)

@@ -309,14 +309,15 @@ where
   Add an auxiliary declaration. Only used to create constants that appear in our reflection proof.
   -/
   mkAuxDecl (name : Name) (value type : Expr) : CoreM Unit :=
-    addAndCompile <| .defnDecl {
-      name := name,
-      levelParams := [],
-      type := type,
-      value := value,
-      hints := .abbrev,
-      safety := .safe
-    }
+    withOptions (fun opt => opt.setBool `compiler.extract_closed false) do
+      addAndCompile <| .defnDecl {
+        name := name,
+        levelParams := [],
+        type := type,
+        value := value,
+        hints := .abbrev,
+        safety := .safe
+      }
 
 def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : ReflectionResult)
     (atomsAssignment : Std.HashMap Nat (Nat × Expr × Bool)) :

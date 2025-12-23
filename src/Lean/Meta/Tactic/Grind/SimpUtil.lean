@@ -18,11 +18,6 @@ import Init.Grind.Norm
 public section
 namespace Lean.Meta.Grind
 
-/-
-TODO: group into a `grind` extension object
--/
-builtin_initialize normExt : SimpExtension ← mkSimpExt
-
 def registerNormTheorems (preDeclNames : Array Name) (postDeclNames : Array Name) : MetaM Unit := do
   let thms ← normExt.getTheorems
   unless thms.lemmaNames.isEmpty do

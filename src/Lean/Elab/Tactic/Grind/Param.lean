@@ -151,7 +151,7 @@ def processTermParam (params : Grind.Params)
   checkNoRevert params
   let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
   let kind ← match kind with
-    | .ematch .user | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC =>
+    | .ematch .user | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC | .norm .. | .unfold =>
       throwError "invalid `grind` parameter, only global declarations are allowed with this kind of modifier"
     | .ematch kind => pure kind
     | .infer => pure <| .default false
@@ -266,6 +266,8 @@ def processParam (params : Grind.Params)
     params := { params with symPrios := params.symPrios.insert declName prio }
   | .funCC =>
     params := params.insertFunCC declName
+  | .norm .. => throwError "normalization theorems should be registered using the `@[grind norm]` attribute"
+  | .unfold => throwError "declarations to be unfolded during normalization should be registered using the `@[grind unfold]` attribute"
   return params
 
 /--

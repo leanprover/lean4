@@ -56,7 +56,7 @@ structure RequestPacket where
   /--
   Promise to resolve with the response
   -/
-  responsePromise : Std.Future (Except Error (Response Body))
+  responsePromise : IO.Promise (Except Error (Response Body))
 
   /--
   Cancellation token for this request
@@ -104,7 +104,7 @@ namespace PersistentConnection
 Send a request through the persistent connection.
 -/
 def send [Transport α] (pc : PersistentConnection α) (request : Request Body) : Async (Response Body) := do
-  let responsePromise ← Std.Future.new
+  let responsePromise ← IO.Promise.new
   let cancellationToken ← Std.CancellationToken.new
 
   let task ← pc.requestChannel.send { request, responsePromise, cancellationToken }
@@ -112,7 +112,8 @@ def send [Transport α] (pc : PersistentConnection α) (request : Request Body) 
   let .ok _ ← await task
     | throw (.userError "connection closed, cannot send more requests")
 
-  let result ← Selectable.one #[.case responsePromise.selector pure]
+  let result ← await (responsePromise.result!)
+
   match result with
   | .ok response => pure response
   | .error e => throw e
@@ -127,6 +128,12 @@ end PersistentConnection
 
 namespace Connection
 
+deriving instance Repr for ByteArray
+deriving instance Repr for Chunk
+
+instance : Repr RequestPacket where
+  reprPrec _ := reprPrec "..."
+
 private inductive Recv
   | bytes (x : Option ByteArray)
   | channel (x : Option Chunk)
@@ -134,6 +141,7 @@ private inductive Recv
   | timeout
   | shutdown
   | close
+deriving Repr
 
 private def receiveWithTimeout
     [Transport α]
@@ -296,8 +304,11 @@ private def handle
         machine := machine.send packet.request.head
 
         match packet.request.body with
-        | .bytes data => machine := machine.sendData #[Chunk.mk data #[]] |>.closeWriter
-        | .zero => machine := machine.closeWriter
+        | .bytes data =>
+
+          machine := machine.sendData #[Chunk.mk data #[]]
+          |>.userClosedBody
+        | .zero => machine := machine.userClosedBody
         | .stream stream => do
           if let some size ← stream.getKnownSize then
             machine := machine.setKnownSize size
@@ -355,10 +366,14 @@ IO.println s!"Response 2: {response2.head.status}"
 pc.close
 ```
 -/
-def createPersistentConnection [Transport t] (client : t) (config : Config := {}) : ContextAsync (PersistentConnection t) := do
+def createPersistentConnection [Transport t] (client : t) (config : Config := {}) : Async (PersistentConnection t) := do
   let requestChannel ← CloseableChannel.new
   let connection := Connection.mk client { config := config.toH1Config }
   let shutdown ← Std.Future.new
+
+  let ctx ← CancellationContext.new
+
+  background (Std.Http.Client.Connection.handle connection config ctx requestChannel)
 
   pure { connection, requestChannel, shutdown }
 

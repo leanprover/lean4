@@ -8,9 +8,12 @@ prelude
 public import Lean.Meta.Tactic.Grind.Injective
 public import Lean.Meta.Tactic.Grind.Cases
 public import Lean.Meta.Tactic.Grind.ExtAttr
+public import Lean.Meta.Tactic.Simp.Attr
 import Lean.ExtraModUses
 public section
 namespace Lean.Meta.Grind
+
+builtin_initialize normExt : SimpExtension ← mkSimpExt
 
 inductive AttrKind where
   | ematch (k : EMatchTheoremKind)
@@ -21,6 +24,8 @@ inductive AttrKind where
   | symbol (prio : Nat)
   | inj
   | funCC
+  | norm (post : Bool) (inv : Bool)
+  | unfold
 
 /-- Return theorem kind for `stx` of the form `Attr.grindThmMod` -/
 def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
@@ -47,6 +52,13 @@ def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   | `(Parser.Attr.grindMod|ext) => return .ext
   | `(Parser.Attr.grindMod|inj) => return .inj
   | `(Parser.Attr.grindMod|funCC) => return .funCC
+  | `(Parser.Attr.grindMod|norm) => return .norm true false
+  | `(Parser.Attr.grindMod|norm ↑) => return .norm true false
+  | `(Parser.Attr.grindMod|norm ↓) => return .norm (post := false) false
+  | `(Parser.Attr.grindMod|norm ←) => return .norm true true
+  | `(Parser.Attr.grindMod|norm ↑ ←) => return .norm true true
+  | `(Parser.Attr.grindMod|norm ↓ ←) => return .norm (post := false) true
+  | `(Parser.Attr.grindMod|unfold) => return .unfold
   | `(Parser.Attr.grindMod|symbol $prio:prio) =>
     let some prio := prio.raw.isNatLit? | throwErrorAt prio "priority expected"
     return .symbol prio
@@ -158,6 +170,15 @@ private def mkGrindAttr (attrName : Name) (minIndexable : Bool) (showInfo : Bool
         unless attrName == `grind do
           throwError "symbol priorities must be set using the default `[grind]` attribute"
         addSymbolPriorityAttr declName attrKind prio
+      | .norm post inv =>
+        unless attrName == `grind do
+          throwError "normalizer must be set using the default `[grind]` attribute"
+        addSimpTheorem normExt declName (post := post) (inv := inv) attrKind (eval_prio default)
+      | .unfold =>
+        unless attrName == `grind do
+          throwError "declaration to unfold must be set using the default `[grind]` attribute"
+        unless (← addDeclToUnfold normExt declName (post := false) (inv := false) (prio := eval_prio default) (attrKind := attrKind)) do
+          throwError "cannot mark declaration to be unfolded by `grind`"
       | .cases eager => ext.addCasesAttr declName eager attrKind
       | .funCC => ext.addFunCCAttr declName attrKind
       | .ext => ext.addExtAttr declName attrKind

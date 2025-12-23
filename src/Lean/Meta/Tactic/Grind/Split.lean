@@ -216,7 +216,11 @@ where
           return false
         else if numCases == 1 && !isRec && numCases' > 1 then
           return true
-        if (← getGeneration c.getExpr) < (← getGeneration c'.getExpr) then
+        /-
+        **Note**: We used to use `getGeneration c.getExpr` instead of `c.getGeneration`.
+        This was incorrect. The expression returned by `c.getExpr` may have not been internalized yet.
+        -/
+        else if (← c.getGeneration) < (← c'.getGeneration) then
           return true
         return numCases < numCases'
       if (← isBetter) then

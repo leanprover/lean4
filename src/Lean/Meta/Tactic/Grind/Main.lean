@@ -32,26 +32,44 @@ import Lean.Meta.Tactic.Grind.Core
 public section
 namespace Lean.Meta.Grind
 
+/--
+Returns the `ExtensionState` for the default `grind` attribute.
+-/
+def getDefaultExtensionState : MetaM ExtensionState :=
+  return grindExt.getState (← getEnv)
+
+def getOnlyExtensionState : MetaM ExtensionState := do
+  let s := grindExt.getState (← getEnv)
+  let casesTypes := s.casesTypes
+  let funCC := s.funCC
+  let extThms := s.extThms
+  return {
+    casesTypes, funCC, extThms
+  }
+
 structure Params where
   config      : Grind.Config
-  ematch      : EMatchTheorems := default
-  inj         : InjectiveTheorems := default
-  symPrios    : SymbolPriorities := {}
-  casesTypes  : CasesTypes := {}
+  extensions  : ExtensionStateArray := #[]
   extra       : PArray EMatchTheorem := {}
   extraInj    : PArray InjectiveTheorem := {}
   extraFacts  : PArray Expr := {}
-  funCCs      : NameSet := {}
+  symPrios    : SymbolPriorities := {}
   norm        : Simp.Context
   normProcs   : Array Simprocs
   anchorRefs? : Option (Array AnchorRef) := none
   -- TODO: inductives to split
 
-def mkParams (config : Grind.Config) : MetaM Params := do
+def mkParams (config : Grind.Config) (extensions : ExtensionStateArray) : MetaM Params := do
   let norm ← Grind.getSimpContext config
   let normProcs ← Grind.getSimprocs
   let symPrios ← getGlobalSymbolPriorities
-  return { config, norm, normProcs, symPrios }
+  return { config, norm, normProcs, symPrios, extensions }
+
+def mkDefaultParams (config : Grind.Config) : MetaM Params := do
+  mkParams config #[← getDefaultExtensionState]
+
+def mkOnlyParams (config : Grind.Config) : MetaM Params := do
+  mkParams config #[← getOnlyExtensionState]
 
 def mkMethods (evalTactic? : Option EvalTactic := none) : CoreM Methods := do
   let builtinPropagators ← builtinPropagatorsRef.get
@@ -99,9 +117,11 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
   let simp := params.norm
   let config := params.config
   let symPrios := params.symPrios
+  let extensions := params.extensions
   let anchorRefs? := params.anchorRefs?
-  let funCCs := params.funCCs
-  x (← mkMethods evalTactic?).toMethodsRef { config, anchorRefs?, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr, symPrios, funCCs }
+  x (← mkMethods evalTactic?).toMethodsRef
+    { config, anchorRefs?, simpMethods, simp, extensions, symPrios
+      trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr }
     |>.run' { scState }
 
 private def mkCleanState (mvarId : MVarId) (params : Params) : MetaM Clean.State := mvarId.withContext do
@@ -136,11 +156,11 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
   let bfalseExpr ← getBoolFalseExpr
   let natZeroExpr ← getNatZeroExpr
   let ordEqExpr ← getOrderingEqExpr
-  let thmMap := params.ematch
-  let casesTypes := params.casesTypes
+  let thmEMatch := params.extensions.map fun ext => ext.ematch
+  let thmInj := params.extensions.map fun ext => ext.inj
   let clean ← mkCleanState mvarId params
   let sstates ← Solvers.mkInitialStates
-  GoalM.run' { mvarId, ematch.thmMap := thmMap, inj.thms := params.inj, split.casesTypes := casesTypes, clean, sstates } do
+  GoalM.run' { mvarId, ematch.thmMap := thmEMatch, inj.thms := thmInj, clean, sstates } do
     initENodeCore falseExpr (interpreted := true) (ctor := false)
     initENodeCore trueExpr (interpreted := true) (ctor := false)
     initENodeCore btrueExpr (interpreted := false) (ctor := true)

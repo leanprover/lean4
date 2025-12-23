@@ -34,17 +34,17 @@ theorem List.step_iter_cons {x : β} {xs : List β} :
   simp [List.iter, List.iterM, IterM.mk, IterM.toIter, Iter.step, Iter.toIterM, IterM.step,
     Iterator.step]
 
-@[simp]
+@[simp, grind =]
 theorem List.toArray_iter {l : List β} :
     l.iter.toArray = l.toArray := by
   simp [List.iter, List.toArray_iterM, Iter.toArray_eq_toArray_toIterM]
 
-@[simp]
+@[simp, grind =]
 theorem List.toList_iter {l : List β} :
     l.iter.toList = l := by
   simp [List.iter, List.toList_iterM]
 
-@[simp]
+@[simp, grind =]
 theorem List.toListRev_iter {l : List β} :
     l.iter.toListRev = l.reverse := by
   simp [List.iter, Iter.toListRev_eq_toListRev_toIterM, List.toListRev_iterM]

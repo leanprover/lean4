@@ -13,8 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Meta_isInstHMulNat___redArg(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_isInstAddNat___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__37;
 lean_object* l_Lean_instMonadMCtxOfMonadLift___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkNatLit(lean_object*);
@@ -25,7 +23,9 @@ lean_object* l_Lean_Core_instMonadCoreM___lam__0___boxed(lean_object*, lean_obje
 uint64_t l_Lean_Meta_Context_configKey(lean_object*);
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__16;
 static lean_object* l_Lean_Meta_evalNat___closed__1;
+lean_object* l_Lean_Meta_Structural_isInstNatPowNat___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_isDefEqOffset___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Structural_isInstDivNat___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_isOffset_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_lor(uint64_t, uint64_t);
@@ -39,18 +39,15 @@ lean_object* l_ReaderT_instFunctorOfMonad___redArg___lam__1(lean_object*, lean_o
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffset___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__38;
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__25;
-lean_object* l_Lean_Meta_isInstModNat___redArg(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_isInstMulNat___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Structural_isInstHAddNat___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__5;
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__42;
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_withInstantiatedMVars___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_evalNat___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__13;
-lean_object* l_Lean_Meta_isInstDivNat___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__30;
-lean_object* l_Lean_Meta_isInstHPowNat___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_evalNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__14;
 lean_object* l_OptionT_lift___redArg___lam__0(lean_object*, lean_object*);
@@ -65,6 +62,7 @@ lean_object* l_Lean_Meta_instantiateMVarsIfMVarApp___redArg(lean_object*, lean_o
 lean_object* l_Lean_mkNatAdd(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__10;
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__33;
+lean_object* l_Lean_Meta_Structural_isInstHMulNat___redArg(lean_object*, lean_object*);
 lean_object* l_OptionT_instMonad___redArg___lam__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_isOffset_x3f___closed__1;
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__34;
@@ -82,10 +80,14 @@ LEAN_EXPORT lean_object* l_Lean_Meta_isDefEqOffset___lam__1(uint8_t, lean_object
 uint8_t l_Lean_Expr_isMVar(lean_object*);
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__11;
 lean_object* l_Lean_Meta_isExprDefEqAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Structural_isInstPowNat___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Structural_isInstAddNat___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_isNatZero(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__36;
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__23;
+lean_object* l_Lean_Meta_Structural_isInstModNat___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Structural_isInstSubNat___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__7;
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__48;
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__43;
@@ -95,6 +97,7 @@ static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___cl
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__21;
 LEAN_EXPORT lean_object* l_Lean_Meta_isDefEqOffset___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_isOffset_x3f___closed__0;
+lean_object* l_Lean_Meta_Structural_isInstHSubNat___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchesInstance___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_instMonadCoreM___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__47;
@@ -103,8 +106,8 @@ static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_withInstantiatedMV
 LEAN_EXPORT lean_object* l_Lean_Meta_isDefEqOffset___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withNewMCtxDepth___at___00Lean_Meta_matchesInstance_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_isOffset_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_isInstNatPowNat___redArg(lean_object*, lean_object*);
 lean_object* l_OptionT_lift(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Structural_isInstOfNatNat___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__40;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffset(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Nat_mkInstHAdd;
@@ -114,7 +117,6 @@ lean_object* l_OptionT_bind(lean_object*, lean_object*, lean_object*, lean_objec
 lean_object* l_Lean_instantiateMVars___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__8;
 lean_object* l_Lean_Meta_Context_config(lean_object*);
-lean_object* l_Lean_Meta_isInstOfNatNat___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__32;
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__27;
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__41;
@@ -122,13 +124,12 @@ static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___cl
 LEAN_EXPORT lean_object* l_Lean_Meta_isDefEqOffset___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__46;
 lean_object* l_Lean_Expr_appFnCleanup___redArg(lean_object*);
-lean_object* l_Lean_Meta_isInstSubNat___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Structural_isInstHPowNat___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instMonadMetaM___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_pow(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_evalPow(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instMonadMetaM___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_isInstHAddNat___redArg(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* l_OptionT_instMonad___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -140,7 +141,7 @@ static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___cl
 lean_object* l_ReaderT_instFunctorOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_isNatZero___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_isInstHModNat___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Structural_isInstMulNat___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__12;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
@@ -172,17 +173,16 @@ static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___cl
 extern lean_object* l_Lean_Meta_instMonadMCtxMetaM;
 uint64_t l_Lean_Meta_TransparencyMode_toUInt64(uint8_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_isInstHSubNat___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_withInstantiatedMVars___closed__0;
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_withInstantiatedMVars___closed__6;
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__44;
-lean_object* l_Lean_Meta_isInstHDivNat___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getConfig___redArg(lean_object*);
+lean_object* l_Lean_Meta_Structural_isInstHModNat___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_evalNat_visit___closed__15;
 static lean_object* l_Lean_Meta_isDefEqOffset___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_withNewMCtxDepth___at___00Lean_Meta_matchesInstance_spec__0___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_isInstPowNat___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_withInstantiatedMVars___closed__1;
+lean_object* l_Lean_Meta_Structural_isInstHDivNat___redArg(lean_object*, lean_object*);
 static lean_object* _init_l___private_Lean_Meta_Offset_0__Lean_Meta_withInstantiatedMVars___closed__0() {
 _start:
 {
@@ -3659,7 +3659,7 @@ else
 {
 lean_object* x_71; 
 lean_dec(x_9);
-x_71 = l_Lean_Meta_isInstHAddNat___redArg(x_39, x_3);
+x_71 = l_Lean_Meta_Structural_isInstHAddNat___redArg(x_39, x_3);
 if (lean_obj_tag(x_71) == 0)
 {
 uint8_t x_72; 
@@ -3928,7 +3928,7 @@ else
 lean_object* x_112; 
 lean_dec_ref(x_58);
 lean_dec(x_9);
-x_112 = l_Lean_Meta_isInstHSubNat___redArg(x_39, x_3);
+x_112 = l_Lean_Meta_Structural_isInstHSubNat___redArg(x_39, x_3);
 if (lean_obj_tag(x_112) == 0)
 {
 uint8_t x_113; 
@@ -4197,7 +4197,7 @@ else
 lean_object* x_153; 
 lean_dec_ref(x_58);
 lean_dec(x_9);
-x_153 = l_Lean_Meta_isInstHMulNat___redArg(x_39, x_3);
+x_153 = l_Lean_Meta_Structural_isInstHMulNat___redArg(x_39, x_3);
 if (lean_obj_tag(x_153) == 0)
 {
 uint8_t x_154; 
@@ -4466,7 +4466,7 @@ else
 lean_object* x_194; 
 lean_dec_ref(x_58);
 lean_dec(x_9);
-x_194 = l_Lean_Meta_isInstHDivNat___redArg(x_39, x_3);
+x_194 = l_Lean_Meta_Structural_isInstHDivNat___redArg(x_39, x_3);
 if (lean_obj_tag(x_194) == 0)
 {
 uint8_t x_195; 
@@ -4735,7 +4735,7 @@ else
 lean_object* x_235; 
 lean_dec_ref(x_58);
 lean_dec(x_9);
-x_235 = l_Lean_Meta_isInstHModNat___redArg(x_39, x_3);
+x_235 = l_Lean_Meta_Structural_isInstHModNat___redArg(x_39, x_3);
 if (lean_obj_tag(x_235) == 0)
 {
 uint8_t x_236; 
@@ -5004,7 +5004,7 @@ else
 lean_object* x_276; 
 lean_dec_ref(x_58);
 lean_dec(x_9);
-x_276 = l_Lean_Meta_isInstHPowNat___redArg(x_39, x_3);
+x_276 = l_Lean_Meta_Structural_isInstHPowNat___redArg(x_39, x_3);
 if (lean_obj_tag(x_276) == 0)
 {
 uint8_t x_277; 
@@ -5090,7 +5090,7 @@ else
 lean_object* x_290; 
 lean_dec_ref(x_54);
 lean_dec(x_9);
-x_290 = l_Lean_Meta_isInstPowNat___redArg(x_39, x_3);
+x_290 = l_Lean_Meta_Structural_isInstPowNat___redArg(x_39, x_3);
 if (lean_obj_tag(x_290) == 0)
 {
 uint8_t x_291; 
@@ -5176,7 +5176,7 @@ else
 lean_object* x_304; 
 lean_dec_ref(x_40);
 lean_dec(x_9);
-x_304 = l_Lean_Meta_isInstAddNat___redArg(x_39, x_3);
+x_304 = l_Lean_Meta_Structural_isInstAddNat___redArg(x_39, x_3);
 if (lean_obj_tag(x_304) == 0)
 {
 uint8_t x_305; 
@@ -5445,7 +5445,7 @@ else
 lean_object* x_345; 
 lean_dec_ref(x_40);
 lean_dec(x_9);
-x_345 = l_Lean_Meta_isInstSubNat___redArg(x_39, x_3);
+x_345 = l_Lean_Meta_Structural_isInstSubNat___redArg(x_39, x_3);
 if (lean_obj_tag(x_345) == 0)
 {
 uint8_t x_346; 
@@ -5714,7 +5714,7 @@ else
 lean_object* x_386; 
 lean_dec_ref(x_40);
 lean_dec(x_9);
-x_386 = l_Lean_Meta_isInstMulNat___redArg(x_39, x_3);
+x_386 = l_Lean_Meta_Structural_isInstMulNat___redArg(x_39, x_3);
 if (lean_obj_tag(x_386) == 0)
 {
 uint8_t x_387; 
@@ -5983,7 +5983,7 @@ else
 lean_object* x_427; 
 lean_dec_ref(x_40);
 lean_dec(x_9);
-x_427 = l_Lean_Meta_isInstDivNat___redArg(x_39, x_3);
+x_427 = l_Lean_Meta_Structural_isInstDivNat___redArg(x_39, x_3);
 if (lean_obj_tag(x_427) == 0)
 {
 uint8_t x_428; 
@@ -6252,7 +6252,7 @@ else
 lean_object* x_468; 
 lean_dec_ref(x_40);
 lean_dec(x_9);
-x_468 = l_Lean_Meta_isInstModNat___redArg(x_39, x_3);
+x_468 = l_Lean_Meta_Structural_isInstModNat___redArg(x_39, x_3);
 if (lean_obj_tag(x_468) == 0)
 {
 uint8_t x_469; 
@@ -6521,7 +6521,7 @@ else
 lean_object* x_509; 
 lean_dec_ref(x_40);
 lean_dec(x_9);
-x_509 = l_Lean_Meta_isInstNatPowNat___redArg(x_39, x_3);
+x_509 = l_Lean_Meta_Structural_isInstNatPowNat___redArg(x_39, x_3);
 if (lean_obj_tag(x_509) == 0)
 {
 uint8_t x_510; 
@@ -6608,7 +6608,7 @@ lean_object* x_523;
 lean_dec_ref(x_35);
 lean_dec_ref(x_21);
 lean_dec(x_9);
-x_523 = l_Lean_Meta_isInstOfNatNat___redArg(x_15, x_3);
+x_523 = l_Lean_Meta_Structural_isInstOfNatNat___redArg(x_15, x_3);
 if (lean_obj_tag(x_523) == 0)
 {
 uint8_t x_524; 

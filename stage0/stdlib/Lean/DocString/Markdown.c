@@ -86,7 +86,6 @@ LEAN_EXPORT lean_object* l___private_Lean_DocString_Markdown_0__Lean_Doc_trimLef
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Markdown_0__Lean_Doc_blockMarkdown___redArg___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_DocString_Markdown_0__Lean_Doc_blockMarkdown___redArg___lam__2___closed__0;
 static lean_object* l___private_Lean_DocString_Markdown_0__Lean_Doc_MarkdownM_combineBlocks___closed__1;
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_takeWhile_go___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_trimLeft_go_spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Markdown_0__Lean_Doc_MarkdownM_State_endsWith___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_quoteCodeBlock_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Markdown_0__Lean_Doc_quoteCodeBlock___boxed(lean_object*, lean_object*);
@@ -215,6 +214,7 @@ static lean_object* l___private_Lean_DocString_Markdown_0__Lean_Doc_inlineMarkdo
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_DocString_Markdown_0__Lean_Doc_inlineMarkdown___redArg___closed__23;
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00String_Slice_contains___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_escape_isSpecial_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_takeWhile_go___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_trimLeft_go_spec__1(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Markdown_0__Lean_Doc_trimRight___redArg(lean_object*);
 static lean_object* l___private_Lean_DocString_Markdown_0__Lean_Doc_blockMarkdown___redArg___lam__2___closed__1;
@@ -1669,7 +1669,7 @@ return x_7;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_takeWhile_go___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_trimLeft_go_spec__2(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Slice_0__String_Slice_takeWhile_go___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_trimLeft_go_spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
@@ -1827,7 +1827,7 @@ if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; 
 lean_inc_ref(x_11);
-x_17 = l___private_Init_Data_String_Slice_0__String_Slice_takeWhile_go___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_trimLeft_go_spec__2(x_11, x_9);
+x_17 = l___private_Init_Data_String_Slice_0__String_Slice_takeWhile_go___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_trimLeft_go_spec__1(x_11, x_9);
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc_ref(x_18);
 x_19 = lean_ctor_get(x_17, 1);
@@ -1934,7 +1934,7 @@ if (x_48 == 0)
 {
 lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; uint8_t x_60; 
 lean_inc_ref(x_43);
-x_49 = l___private_Init_Data_String_Slice_0__String_Slice_takeWhile_go___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_trimLeft_go_spec__2(x_43, x_41);
+x_49 = l___private_Init_Data_String_Slice_0__String_Slice_takeWhile_go___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_trimLeft_go_spec__1(x_43, x_41);
 x_50 = lean_ctor_get(x_49, 0);
 lean_inc_ref(x_50);
 x_51 = lean_ctor_get(x_49, 1);
@@ -2048,7 +2048,7 @@ if (x_81 == 0)
 {
 lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; uint8_t x_93; 
 lean_inc_ref(x_76);
-x_82 = l___private_Init_Data_String_Slice_0__String_Slice_takeWhile_go___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_trimLeft_go_spec__2(x_76, x_74);
+x_82 = l___private_Init_Data_String_Slice_0__String_Slice_takeWhile_go___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_trimLeft_go_spec__1(x_76, x_74);
 x_83 = lean_ctor_get(x_82, 0);
 lean_inc_ref(x_83);
 x_84 = lean_ctor_get(x_82, 1);
@@ -4596,11 +4596,11 @@ lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean
 x_17 = lean_unsigned_to_nat(1u);
 x_18 = lean_nat_add(x_16, x_17);
 lean_dec(x_16);
-x_19 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_quoteCode_spec__1(x_15, x_18, x_14);
+x_19 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_quoteCode_spec__1(x_15, x_18, x_13);
 lean_inc_ref(x_19);
 x_20 = lean_string_append(x_19, x_12);
-x_21 = lean_string_append(x_20, x_13);
-lean_dec_ref(x_13);
+x_21 = lean_string_append(x_20, x_14);
+lean_dec_ref(x_14);
 x_22 = lean_string_append(x_21, x_19);
 lean_dec_ref(x_19);
 x_23 = lean_string_append(x_22, x_12);
@@ -4616,8 +4616,8 @@ x_29 = lean_nat_dec_le(x_10, x_9);
 if (x_29 == 0)
 {
 lean_dec(x_9);
-x_13 = x_25;
-x_14 = x_27;
+x_13 = x_27;
+x_14 = x_25;
 x_15 = x_28;
 x_16 = x_10;
 goto block_24;
@@ -4625,8 +4625,8 @@ goto block_24;
 else
 {
 lean_dec(x_10);
-x_13 = x_25;
-x_14 = x_27;
+x_13 = x_27;
+x_14 = x_25;
 x_15 = x_28;
 x_16 = x_9;
 goto block_24;

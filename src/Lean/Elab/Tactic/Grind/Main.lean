@@ -18,6 +18,7 @@ import Lean.Elab.Tactic.Grind.Param
 import Lean.Meta.Tactic.Grind.Action
 import Lean.Elab.Tactic.Grind.Trace
 import Lean.Meta.Tactic.Grind.Finish
+import Lean.Meta.Tactic.Grind.Attr
 import Lean.Meta.Tactic.Grind.CollectParams
 import Lean.Elab.MutualDef
 meta import Lean.Meta.Tactic.Grind.Parser
@@ -34,9 +35,9 @@ open Lean.Parser.Command.GrindCnstr in
 @[builtin_command_elab Lean.Parser.Command.grindPattern]
 def elabGrindPattern : CommandElab := fun stx => do
   match stx with
-  | `(grind_pattern $thmName:ident => $terms,* $[$cnstrs?:grindPatternCnstrs]?) => go thmName terms cnstrs? .global
-  | `(scoped grind_pattern $thmName:ident => $terms,* $[$cnstrs?:grindPatternCnstrs]?) => go thmName terms cnstrs? .scoped
-  | `(local grind_pattern $thmName:ident => $terms,* $[$cnstrs?:grindPatternCnstrs]?) => go thmName terms cnstrs? .local
+  | `(grind_pattern $[[ $attr?:ident ]]? $thmName:ident => $terms,* $[$cnstrs?:grindPatternCnstrs]?) => go attr? thmName terms cnstrs? .global
+  | `(scoped grind_pattern $[[ $attr?:ident ]]? $thmName:ident => $terms,* $[$cnstrs?:grindPatternCnstrs]?) => go attr? thmName terms cnstrs? .scoped
+  | `(local grind_pattern $[[ $attr?:ident ]]? $thmName:ident => $terms,* $[$cnstrs?:grindPatternCnstrs]?) => go attr? thmName terms cnstrs? .local
   | _ => throwUnsupportedSyntax
 where
   findLHS (xs : Array Expr) (lhs : Syntax) : TermElabM (LocalDecl × Nat) := do
@@ -131,9 +132,11 @@ where
       else
         throwErrorAt cnstr "unexpected constraint"
 
-  go (thmName : TSyntax `ident) (terms : Syntax.TSepArray `term ",")
+  go (attrName? : Option (TSyntax `ident)) (thmName : TSyntax `ident) (terms : Syntax.TSepArray `term ",")
       (cnstrs? : Option (TSyntax ``Parser.Command.grindPatternCnstrs))
       (kind : AttributeKind) : CommandElabM Unit := liftTermElabM do
+    let attrName := if let some attrName := attrName? then attrName.getId else `grind
+    let some ext ← Grind.getExtension? attrName | throwError "unknown `grind` attribute `{attrName}`"
     let declName ← realizeGlobalConstNoOverloadWithInfo thmName
     let info ← getConstVal declName
     forallTelescope info.type fun xs _ => do
@@ -144,17 +147,15 @@ where
         let pattern ← Grind.preprocessPattern pattern
         return pattern.abstract xs
       let cnstrs ← elabCnstrs xs cnstrs?
-      Grind.addEMatchTheorem declName xs.size patterns.toList .user kind cnstrs (minIndexable := false)
+      ext.addEMatchTheorem declName xs.size patterns.toList .user kind cnstrs (minIndexable := false)
 
 open Command in
 @[builtin_command_elab Lean.Parser.resetGrindAttrs]
 def elabResetGrindAttrs : CommandElab := fun _ => liftTermElabM do
-  Grind.resetCasesExt
-  Grind.resetEMatchTheoremsExt
-  Grind.resetInjectiveTheoremsExt
   -- Remark: we do not reset symbol priorities because we would have to then set
   -- `[grind symbol 0] Eq` after a `reset_grind_attr%` command.
   -- Grind.resetSymbolPrioExt
+  modifyEnv fun env => Grind.grindExt.modifyState env fun ext => { ext with casesTypes := {}, inj := {}, ematch := {} }
 
 open Command Term in
 @[builtin_command_elab Lean.Parser.Command.initGrindNorm]
@@ -210,22 +211,13 @@ def elabGrindParamsAndSuggestions
 def mkGrindParams
     (config : Grind.Config) (only : Bool) (ps : TSyntaxArray ``Parser.Tactic.grindParam) (mvarId : MVarId) :
     TermElabM Grind.Params := do
-  let params ← Grind.mkParams config
-  let ematch ← if only then pure default else Grind.getEMatchTheorems
-  let inj ← if only then pure default else Grind.getInjectiveTheorems
-  /-
-  **Note**: We used to skip the global cases attribute when `only = true`, but
-  this is not very effective. We now use anchors to restrict the set of case-splits.
-  -/
-  let casesTypes ← Grind.getCasesTypes
-  let funCCs ← Grind.getFunCCSet
-  let params := { params with ematch, casesTypes, inj, funCCs }
+  let params ← if only then Grind.mkOnlyParams config else Grind.mkDefaultParams config
   let suggestions ← if config.suggestions then
     LibrarySuggestions.select mvarId { caller := some "grind" }
   else
     pure #[]
   let mut params ← elabGrindParamsAndSuggestions params ps suggestions (only := only) (lax := config.lax)
-  trace[grind.debug.inj] "{params.inj.getOrigins.map (·.pp)}"
+  trace[grind.debug.inj] "{params.extensions[0]!.inj.getOrigins.map (·.pp)}"
   if params.anchorRefs?.isSome then
     /-
     **Note**: anchors are automatically computed in interactive mode where

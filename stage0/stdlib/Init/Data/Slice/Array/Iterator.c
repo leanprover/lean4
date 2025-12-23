@@ -28,11 +28,9 @@ LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFi
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_foldl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instIteratorLoopSubarrayIteratorIdOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instIteratorCollectSubarrayIteratorIdOfMonad___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_SubarrayIterator_step(lean_object*, lean_object*, lean_object*);
 static lean_object* l_instForInSubarrayOfMonad___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Array_instToStringSubarray___redArg___lam__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instIteratorCollectSubarrayIteratorIdOfMonad(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instIteratorLoopSubarrayIteratorIdOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeSubarrayArray(lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_forIn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -57,7 +55,6 @@ LEAN_EXPORT lean_object* l_Array_ofSubarray___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_instAppendSubarray(lean_object*);
 static lean_object* l_Array_instToStringSubarray___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Subarray_foldlM___redArg___lam__0(lean_object*);
-lean_object* l_Std_IterM_DefaultConsumers_toArrayMapped(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_toArray___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Subarray_toArray_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_foldlM___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -82,7 +79,6 @@ LEAN_EXPORT lean_object* l_Subarray_instToIterator___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_instIteratorLoopSubarrayIteratorIdOfMonad___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_instReprSubarray(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-static lean_object* l_instIteratorCollectSubarrayIteratorIdOfMonad___redArg___closed__0;
 LEAN_EXPORT lean_object* l_instForInSubarrayOfMonad___redArg(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_forIn___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -358,37 +354,6 @@ _start:
 lean_object* x_2; 
 x_2 = lean_box(0);
 return x_2;
-}
-}
-static lean_object* _init_l_instIteratorCollectSubarrayIteratorIdOfMonad___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instIteratorSubarrayIteratorId___lam__0), 1, 0);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_instIteratorCollectSubarrayIteratorIdOfMonad___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = l_instIteratorCollectSubarrayIteratorIdOfMonad___redArg___closed__0;
-x_3 = lean_alloc_closure((void*)(l_Std_IterM_DefaultConsumers_toArrayMapped), 10, 6);
-lean_closure_set(x_3, 0, lean_box(0));
-lean_closure_set(x_3, 1, lean_box(0));
-lean_closure_set(x_3, 2, lean_box(0));
-lean_closure_set(x_3, 3, lean_box(0));
-lean_closure_set(x_3, 4, x_1);
-lean_closure_set(x_3, 5, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_instIteratorCollectSubarrayIteratorIdOfMonad(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_instIteratorCollectSubarrayIteratorIdOfMonad___redArg(x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_instIteratorLoopSubarrayIteratorIdOfMonad___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -1458,8 +1423,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Lemmas_Combinators_Monadic_FilterMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_instIteratorCollectSubarrayIteratorIdOfMonad___redArg___closed__0 = _init_l_instIteratorCollectSubarrayIteratorIdOfMonad___redArg___closed__0();
-lean_mark_persistent(l_instIteratorCollectSubarrayIteratorIdOfMonad___redArg___closed__0);
 l_instForInSubarrayOfMonad___redArg___closed__0 = _init_l_instForInSubarrayOfMonad___redArg___closed__0();
 lean_mark_persistent(l_instForInSubarrayOfMonad___redArg___closed__0);
 l_Subarray_toArray___redArg___closed__0 = _init_l_Subarray_toArray___redArg___closed__0();

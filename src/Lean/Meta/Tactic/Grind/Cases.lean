@@ -6,18 +6,17 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Cases
+public import Lean.Meta.Tactic.Grind.Extension
 public section
 namespace Lean.Meta.Grind
-
-/-- Types that `grind` will case-split on. -/
-structure CasesTypes where
-  casesMap : PHashMap Name Bool := {}
-  deriving Inhabited
-
+-- TODO: delete
 structure CasesEntry where
   declName : Name
   eager : Bool
   deriving Inhabited
+
+/-- A collection of `CasesTypes`. -/
+abbrev CasesTypesArray := Array CasesTypes
 
 /--
 `grind` always case-splits on the following types. Even when using `grind only`.
@@ -43,9 +42,6 @@ def CasesTypes.contains (s : CasesTypes) (declName : Name) : Bool :=
 def CasesTypes.erase (s : CasesTypes) (declName : Name) : CasesTypes :=
   { s with casesMap := s.casesMap.erase declName }
 
-def CasesTypes.insert (s : CasesTypes) (declName : Name) (eager : Bool) : CasesTypes :=
-  { s with casesMap := s.casesMap.insert declName eager }
-
 def CasesTypes.find? (s : CasesTypes) (declName : Name) : Option Bool :=
   s.casesMap.find? declName
 
@@ -54,22 +50,6 @@ def CasesTypes.isEagerSplit (s : CasesTypes) (declName : Name) : Bool :=
 
 def CasesTypes.isSplit (s : CasesTypes) (declName : Name) : Bool :=
   (s.casesMap.find? declName |>.isSome) || isBuiltinEagerCases declName
-
-builtin_initialize casesExt : SimpleScopedEnvExtension CasesEntry CasesTypes ←
-  registerSimpleScopedEnvExtension {
-    initial        := {}
-    addEntry       := fun s {declName, eager} => s.insert declName eager
-  }
-
-def resetCasesExt : CoreM Unit := do
-  modifyEnv fun env => casesExt.modifyState env fun _ => {}
-
-def getCasesTypes : CoreM CasesTypes :=
-  return casesExt.getState (← getEnv)
-
-/-- Returns `true` is `declName` is a builtin split or has been tagged with `[grind]` attribute. -/
-def isSplit (declName : Name) : CoreM Bool := do
-  return (← getCasesTypes).isSplit declName
 
 partial def isCasesAttrCandidate? (declName : Name) (eager : Bool) : CoreM (Option Name) := do
   match (← isInductive? declName) with
@@ -90,25 +70,15 @@ def validateCasesAttr (declName : Name) (eager : Bool) : CoreM Unit := do
     else
       throwError "invalid `[grind cases]`, `{.ofConstName declName}` is not an inductive datatype or an alias for one"
 
-def addCasesAttr (declName : Name) (eager : Bool) (attrKind : AttributeKind) : CoreM Unit := do
-  validateCasesAttr declName eager
-  casesExt.add { declName, eager } attrKind
-
 def CasesTypes.eraseDecl (s : CasesTypes) (declName : Name) : CoreM CasesTypes := do
   if s.contains declName then
     return s.erase declName
   else
-    throwError "`{.ofConstName declName}` is not marked with the `[grind]` attribute"
+    throwNotMarkedWithGrindAttribute declName
 
 def ensureNotBuiltinCases (declName : Name) : CoreM Unit := do
   if isBuiltinEagerCases declName then
     throwError "`{.ofConstName declName}` is marked as a built-in case-split for `grind` and cannot be erased"
-
-def eraseCasesAttr (declName : Name) : CoreM Unit := do
-  ensureNotBuiltinCases declName
-  let s := casesExt.getState (← getEnv)
-  let s ← s.eraseDecl declName
-  modifyEnv fun env => casesExt.modifyState env fun _ => s
 
 /--
 We say a free variable is "simple" to be processed by the cases tactic IF:

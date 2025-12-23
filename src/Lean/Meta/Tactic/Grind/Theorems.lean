@@ -174,4 +174,36 @@ def getProofForDecl (declName : Name) : MetaM Expr := do
   let us := info.levelParams.map mkLevelParam
   return mkConst declName us
 
+/--
+A `TheoremsArray α` is a collection of `Theorems α`.
+The array is scanned linear during theorem activation.
+This avoids the need for efficiently merging the `Theorems α` data structure.
+-/
+abbrev TheoremsArray (α : Type) := Array (Theorems α)
+
+@[specialize]
+def TheoremsArray.retrieve? (s : TheoremsArray α) (sym : Name) : Option (List α × TheoremsArray α) := Id.run do
+  for h : i in *...s.size do
+    if let some (thms, a) ← s[i].retrieve? sym then
+      return some (thms, s.set i a)
+  return none
+
+def TheoremsArray.insert [TheoremLike α] (s : TheoremsArray α) (thm : α) : TheoremsArray α := Id.run do
+  if s.isEmpty then
+    let thms := { : Theorems α}
+    #[thms.insert thm]
+  else
+    s.modify 0 (·.insert thm)
+
+def TheoremsArray.isErased (s : TheoremsArray α) (origin : Origin) : Bool :=
+  s.any fun thms => thms.erased.contains origin
+
+def TheoremsArray.find (s : TheoremsArray α) (origin : Origin) : List α := Id.run do
+  let mut r := []
+  for h : i in *...s.size do
+    let thms := s[i].find origin
+    unless thms.isEmpty do
+      r := r ++ thms
+  return r
+
 end Lean.Meta.Grind

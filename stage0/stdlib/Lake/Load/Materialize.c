@@ -14,13 +14,13 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_materializeGitRepo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MaterializedDep_configFile(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___at___00__private_Lake_Load_Materialize_0__Lake_materializeGitRepo_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_InputVer_ctorIdx___boxed(lean_object*);
 lean_object* l_Std_Format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__1;
 extern lean_object* l_System_instInhabitedFilePath_default;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_InputVer_none_elim___redArg(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -41,8 +41,8 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_PackageEntry_materialize___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_InputVer_ctorElim___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__2;
-LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lake_Dependency_materialize___closed__6;
+LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1_spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MaterializedDep_name(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_InputVer_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_Dependency_materialize_materializeGit(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -51,10 +51,11 @@ LEAN_EXPORT lean_object* l_Lake_Dependency_materialize(lean_object*, uint8_t, le
 static lean_object* l_String_dropPrefix_x3f___at___00Lake_Dependency_materialize_spec__2___redArg___closed__1;
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_cloneGitPkg___at___00__private_Lake_Load_Materialize_0__Lake_updateGitRepo_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___at___00__private_Lake_Load_Materialize_0__Lake_updateGitRepo_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Dependency_materialize___closed__5;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedMaterializedDep_default;
+LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1_spec__1___redArg(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 extern lean_object* l_Lake_instInhabitedPackageEntry_default;
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_Dependency_materialize_mkDep(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -68,8 +69,8 @@ LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitRepo
 uint8_t l_System_FilePath_isDir(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_InputVer_git_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_StdVer_toString(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_Dependency_materialize_mkDep___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__6;
 LEAN_EXPORT lean_object* l_Lake_MaterializedDep_configFile___boxed(lean_object*);
@@ -133,6 +134,7 @@ static lean_object* l_Lake_Dependency_materialize___closed__2;
 LEAN_EXPORT lean_object* l_Lake_MaterializedDep_scope___boxed(lean_object*);
 lean_object* lean_io_realpath(lean_object*);
 static lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___closed__3;
+LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__2;
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_materializeGitRepo___at___00__private_Lake_Load_Materialize_0__Lake_Dependency_materialize_materializeGit_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__4;
@@ -142,7 +144,6 @@ static uint8_t l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed_
 LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00Lake_Dependency_materialize_spec__2___boxed(lean_object*, lean_object*);
 uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static uint8_t l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__7;
-LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageEntry_materialize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -170,7 +171,6 @@ LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_InputVer_ctor
 static lean_object* l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__8;
 extern uint8_t l_System_Platform_isWindows;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedMaterializedDep;
-LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__0;
 lean_object* l_instDecidableEqString___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_InputVer_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -192,7 +192,7 @@ x_5 = l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___redArg(
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1_spec__1___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
@@ -202,15 +202,15 @@ lean_ctor_set(x_5, 0, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0_spec__0___redArg(x_1, x_3);
+x_5 = l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1_spec__1___redArg(x_1, x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_7; 
@@ -220,7 +220,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_array_uget(x_1, x_2);
 lean_inc_ref(x_5);
-x_9 = l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0_spec__0___redArg(x_5, x_8);
+x_9 = l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1_spec__1___redArg(x_5, x_8);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; size_t x_11; size_t x_12; 
@@ -340,7 +340,7 @@ x_119 = lean_box(0);
 x_120 = 0;
 x_121 = lean_usize_of_nat(x_116);
 lean_inc_ref(x_4);
-x_122 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_93, x_120, x_121, x_119, x_4);
+x_122 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_93, x_120, x_121, x_119, x_4);
 lean_dec(x_93);
 if (lean_obj_tag(x_122) == 0)
 {
@@ -400,7 +400,7 @@ x_101 = lean_box(0);
 x_102 = 0;
 x_103 = lean_usize_of_nat(x_98);
 lean_inc_ref(x_4);
-x_104 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_97, x_102, x_103, x_101, x_4);
+x_104 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_97, x_102, x_103, x_101, x_4);
 lean_dec(x_97);
 if (lean_obj_tag(x_104) == 0)
 {
@@ -460,7 +460,7 @@ lean_object* x_111; size_t x_112; size_t x_113; lean_object* x_114;
 x_111 = lean_box(0);
 x_112 = 0;
 x_113 = lean_usize_of_nat(x_106);
-x_114 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_105, x_112, x_113, x_111, x_4);
+x_114 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_105, x_112, x_113, x_111, x_4);
 lean_dec(x_105);
 if (lean_obj_tag(x_114) == 0)
 {
@@ -514,7 +514,7 @@ lean_object* x_129; size_t x_130; size_t x_131; lean_object* x_132;
 x_129 = lean_box(0);
 x_130 = 0;
 x_131 = lean_usize_of_nat(x_124);
-x_132 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_123, x_130, x_131, x_129, x_4);
+x_132 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_123, x_130, x_131, x_129, x_4);
 lean_dec(x_123);
 if (lean_obj_tag(x_132) == 0)
 {
@@ -591,7 +591,7 @@ x_27 = lean_box(0);
 x_28 = 0;
 x_29 = lean_usize_of_nat(x_24);
 lean_inc_ref(x_4);
-x_30 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_20, x_28, x_29, x_27, x_4);
+x_30 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_20, x_28, x_29, x_27, x_4);
 lean_dec_ref(x_20);
 if (lean_obj_tag(x_30) == 0)
 {
@@ -678,7 +678,7 @@ lean_object* x_58; size_t x_59; size_t x_60; lean_object* x_61;
 x_58 = lean_box(0);
 x_59 = 0;
 x_60 = lean_usize_of_nat(x_53);
-x_61 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_52, x_59, x_60, x_58, x_4);
+x_61 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_52, x_59, x_60, x_58, x_4);
 lean_dec(x_52);
 if (lean_obj_tag(x_61) == 0)
 {
@@ -744,7 +744,7 @@ lean_object* x_71; size_t x_72; size_t x_73; lean_object* x_74;
 x_71 = lean_box(0);
 x_72 = 0;
 x_73 = lean_usize_of_nat(x_66);
-x_74 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_65, x_72, x_73, x_71, x_4);
+x_74 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_65, x_72, x_73, x_71, x_4);
 lean_dec(x_65);
 if (lean_obj_tag(x_74) == 0)
 {
@@ -814,19 +814,19 @@ x_5 = l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0(x_1, x_2,
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0_spec__0(x_1, x_2, x_3);
+x_5 = l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1_spec__1(x_1, x_2, x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1_spec__1___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0_spec__0___redArg(x_1, x_2);
+x_4 = l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1_spec__1___redArg(x_1, x_2);
 return x_4;
 }
 }
@@ -838,7 +838,7 @@ x_4 = l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___elam__0___redArg(
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; 
@@ -846,7 +846,7 @@ x_7 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_8 = lean_unbox_usize(x_3);
 lean_dec(x_3);
-x_9 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_1, x_7, x_8, x_4, x_5);
+x_9 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_1, x_7, x_8, x_4, x_5);
 lean_dec_ref(x_1);
 return x_9;
 }
@@ -916,7 +916,7 @@ x_124 = lean_box(0);
 x_125 = 0;
 x_126 = lean_usize_of_nat(x_121);
 lean_inc_ref(x_5);
-x_127 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_120, x_125, x_126, x_124, x_5);
+x_127 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_120, x_125, x_126, x_124, x_5);
 lean_dec(x_120);
 if (lean_obj_tag(x_127) == 0)
 {
@@ -974,7 +974,7 @@ x_134 = lean_box(0);
 x_135 = 0;
 x_136 = lean_usize_of_nat(x_129);
 lean_inc_ref(x_5);
-x_137 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_128, x_135, x_136, x_134, x_5);
+x_137 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_128, x_135, x_136, x_134, x_5);
 lean_dec(x_128);
 if (lean_obj_tag(x_137) == 0)
 {
@@ -1057,7 +1057,7 @@ lean_object* x_31; size_t x_32; size_t x_33; lean_object* x_34;
 x_31 = lean_box(0);
 x_32 = 0;
 x_33 = lean_usize_of_nat(x_26);
-x_34 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_25, x_32, x_33, x_31, x_5);
+x_34 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_25, x_32, x_33, x_31, x_5);
 lean_dec(x_25);
 if (lean_obj_tag(x_34) == 0)
 {
@@ -1123,7 +1123,7 @@ lean_object* x_44; size_t x_45; size_t x_46; lean_object* x_47;
 x_44 = lean_box(0);
 x_45 = 0;
 x_46 = lean_usize_of_nat(x_39);
-x_47 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_38, x_45, x_46, x_44, x_5);
+x_47 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_38, x_45, x_46, x_44, x_5);
 lean_dec(x_38);
 if (lean_obj_tag(x_47) == 0)
 {
@@ -1198,7 +1198,7 @@ x_65 = lean_box(0);
 x_66 = 0;
 x_67 = lean_usize_of_nat(x_62);
 lean_inc_ref(x_5);
-x_68 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_61, x_66, x_67, x_65, x_5);
+x_68 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_61, x_66, x_67, x_65, x_5);
 lean_dec(x_61);
 if (lean_obj_tag(x_68) == 0)
 {
@@ -1255,7 +1255,7 @@ lean_object* x_74; size_t x_75; size_t x_76; lean_object* x_77;
 x_74 = lean_box(0);
 x_75 = 0;
 x_76 = lean_usize_of_nat(x_70);
-x_77 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_69, x_75, x_76, x_74, x_5);
+x_77 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_69, x_75, x_76, x_74, x_5);
 lean_dec(x_69);
 if (lean_obj_tag(x_77) == 0)
 {
@@ -1317,7 +1317,7 @@ x_88 = lean_box(0);
 x_89 = 0;
 x_90 = lean_usize_of_nat(x_85);
 lean_inc_ref(x_5);
-x_91 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_84, x_89, x_90, x_88, x_5);
+x_91 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_84, x_89, x_90, x_88, x_5);
 lean_dec(x_84);
 if (lean_obj_tag(x_91) == 0)
 {
@@ -1374,7 +1374,7 @@ lean_object* x_98; size_t x_99; size_t x_100; lean_object* x_101;
 x_98 = lean_box(0);
 x_99 = 0;
 x_100 = lean_usize_of_nat(x_93);
-x_101 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_92, x_99, x_100, x_98, x_5);
+x_101 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_92, x_99, x_100, x_98, x_5);
 lean_dec(x_92);
 if (lean_obj_tag(x_101) == 0)
 {
@@ -1565,7 +1565,7 @@ x_124 = lean_box(0);
 x_125 = 0;
 x_126 = lean_usize_of_nat(x_121);
 lean_inc_ref(x_1);
-x_127 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_120, x_125, x_126, x_124, x_1);
+x_127 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_120, x_125, x_126, x_124, x_1);
 lean_dec(x_120);
 if (lean_obj_tag(x_127) == 0)
 {
@@ -1623,7 +1623,7 @@ x_134 = lean_box(0);
 x_135 = 0;
 x_136 = lean_usize_of_nat(x_129);
 lean_inc_ref(x_1);
-x_137 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_128, x_135, x_136, x_134, x_1);
+x_137 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_128, x_135, x_136, x_134, x_1);
 lean_dec(x_128);
 if (lean_obj_tag(x_137) == 0)
 {
@@ -1706,7 +1706,7 @@ lean_object* x_31; size_t x_32; size_t x_33; lean_object* x_34;
 x_31 = lean_box(0);
 x_32 = 0;
 x_33 = lean_usize_of_nat(x_26);
-x_34 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_25, x_32, x_33, x_31, x_1);
+x_34 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_25, x_32, x_33, x_31, x_1);
 lean_dec(x_25);
 if (lean_obj_tag(x_34) == 0)
 {
@@ -1772,7 +1772,7 @@ lean_object* x_44; size_t x_45; size_t x_46; lean_object* x_47;
 x_44 = lean_box(0);
 x_45 = 0;
 x_46 = lean_usize_of_nat(x_39);
-x_47 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_38, x_45, x_46, x_44, x_1);
+x_47 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_38, x_45, x_46, x_44, x_1);
 lean_dec(x_38);
 if (lean_obj_tag(x_47) == 0)
 {
@@ -1847,7 +1847,7 @@ x_65 = lean_box(0);
 x_66 = 0;
 x_67 = lean_usize_of_nat(x_62);
 lean_inc_ref(x_1);
-x_68 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_61, x_66, x_67, x_65, x_1);
+x_68 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_61, x_66, x_67, x_65, x_1);
 lean_dec(x_61);
 if (lean_obj_tag(x_68) == 0)
 {
@@ -1904,7 +1904,7 @@ lean_object* x_74; size_t x_75; size_t x_76; lean_object* x_77;
 x_74 = lean_box(0);
 x_75 = 0;
 x_76 = lean_usize_of_nat(x_70);
-x_77 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_69, x_75, x_76, x_74, x_1);
+x_77 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_69, x_75, x_76, x_74, x_1);
 lean_dec(x_69);
 if (lean_obj_tag(x_77) == 0)
 {
@@ -1966,7 +1966,7 @@ x_88 = lean_box(0);
 x_89 = 0;
 x_90 = lean_usize_of_nat(x_85);
 lean_inc_ref(x_1);
-x_91 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_84, x_89, x_90, x_88, x_1);
+x_91 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_84, x_89, x_90, x_88, x_1);
 lean_dec(x_84);
 if (lean_obj_tag(x_91) == 0)
 {
@@ -2023,7 +2023,7 @@ lean_object* x_98; size_t x_99; size_t x_100; lean_object* x_101;
 x_98 = lean_box(0);
 x_99 = 0;
 x_100 = lean_usize_of_nat(x_93);
-x_101 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_92, x_99, x_100, x_98, x_1);
+x_101 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_92, x_99, x_100, x_98, x_1);
 lean_dec(x_92);
 if (lean_obj_tag(x_101) == 0)
 {
@@ -2122,7 +2122,7 @@ x_119 = lean_box(0);
 x_120 = 0;
 x_121 = lean_usize_of_nat(x_116);
 lean_inc_ref(x_1);
-x_122 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_93, x_120, x_121, x_119, x_1);
+x_122 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_93, x_120, x_121, x_119, x_1);
 lean_dec(x_93);
 if (lean_obj_tag(x_122) == 0)
 {
@@ -2182,7 +2182,7 @@ x_101 = lean_box(0);
 x_102 = 0;
 x_103 = lean_usize_of_nat(x_98);
 lean_inc_ref(x_1);
-x_104 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_97, x_102, x_103, x_101, x_1);
+x_104 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_97, x_102, x_103, x_101, x_1);
 lean_dec(x_97);
 if (lean_obj_tag(x_104) == 0)
 {
@@ -2242,7 +2242,7 @@ lean_object* x_111; size_t x_112; size_t x_113; lean_object* x_114;
 x_111 = lean_box(0);
 x_112 = 0;
 x_113 = lean_usize_of_nat(x_106);
-x_114 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_105, x_112, x_113, x_111, x_1);
+x_114 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_105, x_112, x_113, x_111, x_1);
 lean_dec(x_105);
 if (lean_obj_tag(x_114) == 0)
 {
@@ -2296,7 +2296,7 @@ lean_object* x_129; size_t x_130; size_t x_131; lean_object* x_132;
 x_129 = lean_box(0);
 x_130 = 0;
 x_131 = lean_usize_of_nat(x_124);
-x_132 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_123, x_130, x_131, x_129, x_1);
+x_132 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_123, x_130, x_131, x_129, x_1);
 lean_dec(x_123);
 if (lean_obj_tag(x_132) == 0)
 {
@@ -2373,7 +2373,7 @@ x_27 = lean_box(0);
 x_28 = 0;
 x_29 = lean_usize_of_nat(x_24);
 lean_inc_ref(x_1);
-x_30 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_20, x_28, x_29, x_27, x_1);
+x_30 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_20, x_28, x_29, x_27, x_1);
 lean_dec_ref(x_20);
 if (lean_obj_tag(x_30) == 0)
 {
@@ -2460,7 +2460,7 @@ lean_object* x_58; size_t x_59; size_t x_60; lean_object* x_61;
 x_58 = lean_box(0);
 x_59 = 0;
 x_60 = lean_usize_of_nat(x_53);
-x_61 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_52, x_59, x_60, x_58, x_1);
+x_61 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_52, x_59, x_60, x_58, x_1);
 lean_dec(x_52);
 if (lean_obj_tag(x_61) == 0)
 {
@@ -2526,7 +2526,7 @@ lean_object* x_71; size_t x_72; size_t x_73; lean_object* x_74;
 x_71 = lean_box(0);
 x_72 = 0;
 x_73 = lean_usize_of_nat(x_66);
-x_74 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_65, x_72, x_73, x_71, x_1);
+x_74 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_65, x_72, x_73, x_71, x_1);
 lean_dec(x_65);
 if (lean_obj_tag(x_74) == 0)
 {
@@ -2787,7 +2787,7 @@ x_52 = lean_box(0);
 x_53 = 0;
 x_54 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__8;
 lean_inc_ref(x_5);
-x_55 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_47, x_53, x_54, x_52, x_5);
+x_55 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_47, x_53, x_54, x_52, x_5);
 if (lean_obj_tag(x_55) == 0)
 {
 lean_dec_ref(x_55);
@@ -3032,7 +3032,7 @@ x_52 = lean_box(0);
 x_53 = 0;
 x_54 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__8;
 lean_inc_ref(x_1);
-x_55 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_47, x_53, x_54, x_52, x_1);
+x_55 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_47, x_53, x_54, x_52, x_1);
 if (lean_obj_tag(x_55) == 0)
 {
 lean_dec_ref(x_55);
@@ -3082,7 +3082,7 @@ x_15 = lean_box(0);
 x_16 = 0;
 x_17 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__8;
 lean_inc_ref(x_5);
-x_18 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_12, x_16, x_17, x_15, x_5);
+x_18 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_12, x_16, x_17, x_15, x_5);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_dec_ref(x_18);
@@ -3672,7 +3672,7 @@ x_15 = lean_box(0);
 x_16 = 0;
 x_17 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__8;
 lean_inc_ref(x_1);
-x_18 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_12, x_16, x_17, x_15, x_1);
+x_18 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_12, x_16, x_17, x_15, x_1);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_dec_ref(x_18);
@@ -3745,7 +3745,7 @@ block_30:
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 x_24 = lean_alloc_ctor(1, 4, 0);
 lean_ctor_set(x_24, 0, x_21);
-lean_ctor_set(x_24, 1, x_22);
+lean_ctor_set(x_24, 1, x_20);
 lean_ctor_set(x_24, 2, x_9);
 lean_ctor_set(x_24, 3, x_10);
 x_25 = l___private_Lake_Load_Materialize_0__Lake_Dependency_materialize_mkDep___closed__0;
@@ -3775,17 +3775,17 @@ lean_object* x_34; lean_object* x_35;
 x_34 = lean_ctor_get(x_10, 0);
 lean_inc(x_34);
 x_35 = l_Lake_joinRelative(x_6, x_34);
-x_20 = lean_box(0);
+x_20 = x_32;
 x_21 = x_31;
-x_22 = x_32;
+x_22 = lean_box(0);
 x_23 = x_35;
 goto block_30;
 }
 else
 {
-x_20 = lean_box(0);
+x_20 = x_32;
 x_21 = x_31;
-x_22 = x_32;
+x_22 = lean_box(0);
 x_23 = x_6;
 goto block_30;
 }
@@ -3849,7 +3849,7 @@ lean_object* x_50; size_t x_51; size_t x_52; lean_object* x_53;
 x_50 = lean_box(0);
 x_51 = 0;
 x_52 = lean_usize_of_nat(x_47);
-x_53 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_46, x_51, x_52, x_50, x_11);
+x_53 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_46, x_51, x_52, x_50, x_11);
 lean_dec(x_46);
 if (lean_obj_tag(x_53) == 0)
 {
@@ -3928,7 +3928,7 @@ lean_object* x_62; size_t x_63; size_t x_64; lean_object* x_65;
 x_62 = lean_box(0);
 x_63 = 0;
 x_64 = lean_usize_of_nat(x_58);
-x_65 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_57, x_63, x_64, x_62, x_11);
+x_65 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_57, x_63, x_64, x_62, x_11);
 lean_dec(x_57);
 if (lean_obj_tag(x_65) == 0)
 {
@@ -4004,7 +4004,7 @@ lean_object* x_77; size_t x_78; size_t x_79; lean_object* x_80;
 x_77 = lean_box(0);
 x_78 = 0;
 x_79 = lean_usize_of_nat(x_74);
-x_80 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_73, x_78, x_79, x_77, x_11);
+x_80 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_73, x_78, x_79, x_77, x_11);
 lean_dec(x_73);
 if (lean_obj_tag(x_80) == 0)
 {
@@ -4083,7 +4083,7 @@ lean_object* x_90; size_t x_91; size_t x_92; lean_object* x_93;
 x_90 = lean_box(0);
 x_91 = 0;
 x_92 = lean_usize_of_nat(x_85);
-x_93 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_84, x_91, x_92, x_90, x_11);
+x_93 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_84, x_91, x_92, x_90, x_11);
 lean_dec(x_84);
 if (lean_obj_tag(x_93) == 0)
 {
@@ -4426,7 +4426,7 @@ lean_object* x_50; size_t x_51; size_t x_52; lean_object* x_53;
 x_50 = lean_box(0);
 x_51 = 0;
 x_52 = lean_usize_of_nat(x_47);
-x_53 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_46, x_51, x_52, x_50, x_1);
+x_53 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_46, x_51, x_52, x_50, x_1);
 lean_dec(x_46);
 if (lean_obj_tag(x_53) == 0)
 {
@@ -4505,7 +4505,7 @@ lean_object* x_62; size_t x_63; size_t x_64; lean_object* x_65;
 x_62 = lean_box(0);
 x_63 = 0;
 x_64 = lean_usize_of_nat(x_58);
-x_65 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_57, x_63, x_64, x_62, x_1);
+x_65 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_57, x_63, x_64, x_62, x_1);
 lean_dec(x_57);
 if (lean_obj_tag(x_65) == 0)
 {
@@ -4581,7 +4581,7 @@ lean_object* x_77; size_t x_78; size_t x_79; lean_object* x_80;
 x_77 = lean_box(0);
 x_78 = 0;
 x_79 = lean_usize_of_nat(x_74);
-x_80 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_73, x_78, x_79, x_77, x_1);
+x_80 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_73, x_78, x_79, x_77, x_1);
 lean_dec(x_73);
 if (lean_obj_tag(x_80) == 0)
 {
@@ -4660,7 +4660,7 @@ lean_object* x_90; size_t x_91; size_t x_92; lean_object* x_93;
 x_90 = lean_box(0);
 x_91 = 0;
 x_92 = lean_usize_of_nat(x_85);
-x_93 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_84, x_91, x_92, x_90, x_1);
+x_93 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_84, x_91, x_92, x_90, x_1);
 lean_dec(x_84);
 if (lean_obj_tag(x_93) == 0)
 {
@@ -5215,13 +5215,13 @@ x_192 = lean_nat_dec_lt(x_180, x_191);
 if (x_192 == 0)
 {
 lean_dec_ref(x_189);
-x_69 = x_182;
-x_70 = x_181;
+x_69 = x_181;
+x_70 = x_182;
 x_71 = x_183;
 x_72 = x_184;
 x_73 = x_185;
-x_74 = x_186;
-x_75 = x_187;
+x_74 = x_187;
+x_75 = x_186;
 x_76 = x_188;
 x_77 = lean_box(0);
 goto block_125;
@@ -5233,13 +5233,13 @@ x_193 = lean_nat_dec_le(x_191, x_191);
 if (x_193 == 0)
 {
 lean_dec_ref(x_189);
-x_69 = x_182;
-x_70 = x_181;
+x_69 = x_181;
+x_70 = x_182;
 x_71 = x_183;
 x_72 = x_184;
 x_73 = x_185;
-x_74 = x_186;
-x_75 = x_187;
+x_74 = x_187;
+x_75 = x_186;
 x_76 = x_188;
 x_77 = lean_box(0);
 goto block_125;
@@ -5251,18 +5251,18 @@ x_194 = lean_box(0);
 x_195 = 0;
 x_196 = lean_usize_of_nat(x_191);
 lean_inc_ref(x_7);
-x_197 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_189, x_195, x_196, x_194, x_7);
+x_197 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_189, x_195, x_196, x_194, x_7);
 lean_dec_ref(x_189);
 if (lean_obj_tag(x_197) == 0)
 {
 lean_dec_ref(x_197);
-x_69 = x_182;
-x_70 = x_181;
+x_69 = x_181;
+x_70 = x_182;
 x_71 = x_183;
 x_72 = x_184;
 x_73 = x_185;
-x_74 = x_186;
-x_75 = x_187;
+x_74 = x_187;
+x_75 = x_186;
 x_76 = x_188;
 x_77 = lean_box(0);
 goto block_125;
@@ -5271,13 +5271,13 @@ else
 {
 uint8_t x_198; 
 lean_dec_ref(x_188);
-lean_dec_ref(x_187);
+lean_dec(x_187);
 lean_dec_ref(x_186);
 lean_dec_ref(x_185);
-lean_dec_ref(x_184);
+lean_dec(x_184);
 lean_dec_ref(x_183);
-lean_dec(x_182);
-lean_dec(x_181);
+lean_dec_ref(x_182);
+lean_dec_ref(x_181);
 lean_dec_ref(x_7);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
@@ -5435,7 +5435,7 @@ lean_object* x_239; size_t x_240; size_t x_241; lean_object* x_242;
 x_239 = lean_box(0);
 x_240 = 0;
 x_241 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__8;
-x_242 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_235, x_240, x_241, x_239, x_7);
+x_242 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_235, x_240, x_241, x_239, x_7);
 if (lean_obj_tag(x_242) == 0)
 {
 lean_dec_ref(x_242);
@@ -5474,11 +5474,11 @@ lean_dec_ref(x_230);
 x_247 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__6;
 if (x_247 == 0)
 {
-x_36 = x_229;
-x_37 = x_231;
-x_38 = x_228;
-x_39 = x_233;
-x_40 = x_234;
+x_36 = x_234;
+x_37 = x_228;
+x_38 = x_233;
+x_39 = x_229;
+x_40 = x_231;
 x_41 = x_246;
 x_42 = x_7;
 x_43 = lean_box(0);
@@ -5490,11 +5490,11 @@ uint8_t x_248;
 x_248 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__7;
 if (x_248 == 0)
 {
-x_36 = x_229;
-x_37 = x_231;
-x_38 = x_228;
-x_39 = x_233;
-x_40 = x_234;
+x_36 = x_234;
+x_37 = x_228;
+x_38 = x_233;
+x_39 = x_229;
+x_40 = x_231;
 x_41 = x_246;
 x_42 = x_7;
 x_43 = lean_box(0);
@@ -5507,15 +5507,15 @@ x_249 = lean_box(0);
 x_250 = 0;
 x_251 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__8;
 lean_inc_ref(x_7);
-x_252 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_235, x_250, x_251, x_249, x_7);
+x_252 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_235, x_250, x_251, x_249, x_7);
 if (lean_obj_tag(x_252) == 0)
 {
 lean_dec_ref(x_252);
-x_36 = x_229;
-x_37 = x_231;
-x_38 = x_228;
-x_39 = x_233;
-x_40 = x_234;
+x_36 = x_234;
+x_37 = x_228;
+x_38 = x_233;
+x_39 = x_229;
+x_40 = x_231;
 x_41 = x_246;
 x_42 = x_7;
 x_43 = lean_box(0);
@@ -5568,11 +5568,11 @@ x_257 = l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___closed__4;
 x_258 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__6;
 if (x_258 == 0)
 {
-x_36 = x_229;
-x_37 = x_231;
-x_38 = x_228;
-x_39 = x_233;
-x_40 = x_234;
+x_36 = x_234;
+x_37 = x_228;
+x_38 = x_233;
+x_39 = x_229;
+x_40 = x_231;
 x_41 = x_256;
 x_42 = x_7;
 x_43 = lean_box(0);
@@ -5584,11 +5584,11 @@ uint8_t x_259;
 x_259 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__7;
 if (x_259 == 0)
 {
-x_36 = x_229;
-x_37 = x_231;
-x_38 = x_228;
-x_39 = x_233;
-x_40 = x_234;
+x_36 = x_234;
+x_37 = x_228;
+x_38 = x_233;
+x_39 = x_229;
+x_40 = x_231;
 x_41 = x_256;
 x_42 = x_7;
 x_43 = lean_box(0);
@@ -5601,15 +5601,15 @@ x_260 = lean_box(0);
 x_261 = 0;
 x_262 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__8;
 lean_inc_ref(x_7);
-x_263 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_257, x_261, x_262, x_260, x_7);
+x_263 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_257, x_261, x_262, x_260, x_7);
 if (lean_obj_tag(x_263) == 0)
 {
 lean_dec_ref(x_263);
-x_36 = x_229;
-x_37 = x_231;
-x_38 = x_228;
-x_39 = x_233;
-x_40 = x_234;
+x_36 = x_234;
+x_37 = x_228;
+x_38 = x_233;
+x_39 = x_229;
+x_40 = x_231;
 x_41 = x_256;
 x_42 = x_7;
 x_43 = lean_box(0);
@@ -5669,13 +5669,13 @@ x_271 = lean_ctor_get(x_269, 1);
 lean_inc(x_271);
 lean_dec_ref(x_269);
 lean_ctor_set(x_204, 0, x_270);
-x_181 = x_229;
-x_182 = x_231;
-x_183 = x_228;
-x_184 = x_267;
+x_181 = x_234;
+x_182 = x_228;
+x_183 = x_233;
+x_184 = x_229;
 x_185 = x_203;
-x_186 = x_233;
-x_187 = x_234;
+x_186 = x_267;
+x_187 = x_231;
 x_188 = x_204;
 x_189 = x_271;
 x_190 = lean_box(0);
@@ -5691,13 +5691,13 @@ lean_inc(x_273);
 lean_dec_ref(x_269);
 lean_ctor_set_tag(x_204, 0);
 lean_ctor_set(x_204, 0, x_272);
-x_181 = x_229;
-x_182 = x_231;
-x_183 = x_228;
-x_184 = x_267;
+x_181 = x_234;
+x_182 = x_228;
+x_183 = x_233;
+x_184 = x_229;
 x_185 = x_203;
-x_186 = x_233;
-x_187 = x_234;
+x_186 = x_267;
+x_187 = x_231;
 x_188 = x_204;
 x_189 = x_273;
 x_190 = lean_box(0);
@@ -5791,7 +5791,7 @@ lean_object* x_287; size_t x_288; size_t x_289; lean_object* x_290;
 x_287 = lean_box(0);
 x_288 = 0;
 x_289 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__8;
-x_290 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_282, x_288, x_289, x_287, x_7);
+x_290 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_282, x_288, x_289, x_287, x_7);
 if (lean_obj_tag(x_290) == 0)
 {
 lean_dec_ref(x_290);
@@ -5830,11 +5830,11 @@ lean_dec_ref(x_277);
 x_295 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__6;
 if (x_295 == 0)
 {
-x_36 = x_276;
-x_37 = x_278;
-x_38 = x_275;
-x_39 = x_280;
-x_40 = x_281;
+x_36 = x_281;
+x_37 = x_275;
+x_38 = x_280;
+x_39 = x_276;
+x_40 = x_278;
 x_41 = x_294;
 x_42 = x_7;
 x_43 = lean_box(0);
@@ -5846,11 +5846,11 @@ uint8_t x_296;
 x_296 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__7;
 if (x_296 == 0)
 {
-x_36 = x_276;
-x_37 = x_278;
-x_38 = x_275;
-x_39 = x_280;
-x_40 = x_281;
+x_36 = x_281;
+x_37 = x_275;
+x_38 = x_280;
+x_39 = x_276;
+x_40 = x_278;
 x_41 = x_294;
 x_42 = x_7;
 x_43 = lean_box(0);
@@ -5863,15 +5863,15 @@ x_297 = lean_box(0);
 x_298 = 0;
 x_299 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__8;
 lean_inc_ref(x_7);
-x_300 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_282, x_298, x_299, x_297, x_7);
+x_300 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_282, x_298, x_299, x_297, x_7);
 if (lean_obj_tag(x_300) == 0)
 {
 lean_dec_ref(x_300);
-x_36 = x_276;
-x_37 = x_278;
-x_38 = x_275;
-x_39 = x_280;
-x_40 = x_281;
+x_36 = x_281;
+x_37 = x_275;
+x_38 = x_280;
+x_39 = x_276;
+x_40 = x_278;
 x_41 = x_294;
 x_42 = x_7;
 x_43 = lean_box(0);
@@ -5924,11 +5924,11 @@ x_305 = l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___closed__4;
 x_306 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__6;
 if (x_306 == 0)
 {
-x_36 = x_276;
-x_37 = x_278;
-x_38 = x_275;
-x_39 = x_280;
-x_40 = x_281;
+x_36 = x_281;
+x_37 = x_275;
+x_38 = x_280;
+x_39 = x_276;
+x_40 = x_278;
 x_41 = x_304;
 x_42 = x_7;
 x_43 = lean_box(0);
@@ -5940,11 +5940,11 @@ uint8_t x_307;
 x_307 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__7;
 if (x_307 == 0)
 {
-x_36 = x_276;
-x_37 = x_278;
-x_38 = x_275;
-x_39 = x_280;
-x_40 = x_281;
+x_36 = x_281;
+x_37 = x_275;
+x_38 = x_280;
+x_39 = x_276;
+x_40 = x_278;
 x_41 = x_304;
 x_42 = x_7;
 x_43 = lean_box(0);
@@ -5957,15 +5957,15 @@ x_308 = lean_box(0);
 x_309 = 0;
 x_310 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__8;
 lean_inc_ref(x_7);
-x_311 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_305, x_309, x_310, x_308, x_7);
+x_311 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_305, x_309, x_310, x_308, x_7);
 if (lean_obj_tag(x_311) == 0)
 {
 lean_dec_ref(x_311);
-x_36 = x_276;
-x_37 = x_278;
-x_38 = x_275;
-x_39 = x_280;
-x_40 = x_281;
+x_36 = x_281;
+x_37 = x_275;
+x_38 = x_280;
+x_39 = x_276;
+x_40 = x_278;
 x_41 = x_304;
 x_42 = x_7;
 x_43 = lean_box(0);
@@ -6025,13 +6025,13 @@ x_319 = lean_ctor_get(x_317, 1);
 lean_inc(x_319);
 lean_dec_ref(x_317);
 lean_ctor_set(x_204, 0, x_318);
-x_181 = x_276;
-x_182 = x_278;
-x_183 = x_275;
-x_184 = x_315;
+x_181 = x_281;
+x_182 = x_275;
+x_183 = x_280;
+x_184 = x_276;
 x_185 = x_203;
-x_186 = x_280;
-x_187 = x_281;
+x_186 = x_315;
+x_187 = x_278;
 x_188 = x_204;
 x_189 = x_319;
 x_190 = lean_box(0);
@@ -6047,13 +6047,13 @@ lean_inc(x_321);
 lean_dec_ref(x_317);
 lean_ctor_set_tag(x_204, 0);
 lean_ctor_set(x_204, 0, x_320);
-x_181 = x_276;
-x_182 = x_278;
-x_183 = x_275;
-x_184 = x_315;
+x_181 = x_281;
+x_182 = x_275;
+x_183 = x_280;
+x_184 = x_276;
 x_185 = x_203;
-x_186 = x_280;
-x_187 = x_281;
+x_186 = x_315;
+x_187 = x_278;
 x_188 = x_204;
 x_189 = x_321;
 x_190 = lean_box(0);
@@ -6207,7 +6207,7 @@ lean_object* x_345; size_t x_346; size_t x_347; lean_object* x_348;
 x_345 = lean_box(0);
 x_346 = 0;
 x_347 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__8;
-x_348 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_340, x_346, x_347, x_345, x_7);
+x_348 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_340, x_346, x_347, x_345, x_7);
 if (lean_obj_tag(x_348) == 0)
 {
 lean_dec_ref(x_348);
@@ -6247,11 +6247,11 @@ lean_dec_ref(x_335);
 x_353 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__6;
 if (x_353 == 0)
 {
-x_36 = x_334;
-x_37 = x_336;
-x_38 = x_333;
-x_39 = x_338;
-x_40 = x_339;
+x_36 = x_339;
+x_37 = x_333;
+x_38 = x_338;
+x_39 = x_334;
+x_40 = x_336;
 x_41 = x_352;
 x_42 = x_7;
 x_43 = lean_box(0);
@@ -6263,11 +6263,11 @@ uint8_t x_354;
 x_354 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__7;
 if (x_354 == 0)
 {
-x_36 = x_334;
-x_37 = x_336;
-x_38 = x_333;
-x_39 = x_338;
-x_40 = x_339;
+x_36 = x_339;
+x_37 = x_333;
+x_38 = x_338;
+x_39 = x_334;
+x_40 = x_336;
 x_41 = x_352;
 x_42 = x_7;
 x_43 = lean_box(0);
@@ -6280,15 +6280,15 @@ x_355 = lean_box(0);
 x_356 = 0;
 x_357 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__8;
 lean_inc_ref(x_7);
-x_358 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_340, x_356, x_357, x_355, x_7);
+x_358 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_340, x_356, x_357, x_355, x_7);
 if (lean_obj_tag(x_358) == 0)
 {
 lean_dec_ref(x_358);
-x_36 = x_334;
-x_37 = x_336;
-x_38 = x_333;
-x_39 = x_338;
-x_40 = x_339;
+x_36 = x_339;
+x_37 = x_333;
+x_38 = x_338;
+x_39 = x_334;
+x_40 = x_336;
 x_41 = x_352;
 x_42 = x_7;
 x_43 = lean_box(0);
@@ -6341,11 +6341,11 @@ x_363 = l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___closed__4;
 x_364 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__6;
 if (x_364 == 0)
 {
-x_36 = x_334;
-x_37 = x_336;
-x_38 = x_333;
-x_39 = x_338;
-x_40 = x_339;
+x_36 = x_339;
+x_37 = x_333;
+x_38 = x_338;
+x_39 = x_334;
+x_40 = x_336;
 x_41 = x_362;
 x_42 = x_7;
 x_43 = lean_box(0);
@@ -6357,11 +6357,11 @@ uint8_t x_365;
 x_365 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__7;
 if (x_365 == 0)
 {
-x_36 = x_334;
-x_37 = x_336;
-x_38 = x_333;
-x_39 = x_338;
-x_40 = x_339;
+x_36 = x_339;
+x_37 = x_333;
+x_38 = x_338;
+x_39 = x_334;
+x_40 = x_336;
 x_41 = x_362;
 x_42 = x_7;
 x_43 = lean_box(0);
@@ -6374,15 +6374,15 @@ x_366 = lean_box(0);
 x_367 = 0;
 x_368 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__8;
 lean_inc_ref(x_7);
-x_369 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_363, x_367, x_368, x_366, x_7);
+x_369 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_363, x_367, x_368, x_366, x_7);
 if (lean_obj_tag(x_369) == 0)
 {
 lean_dec_ref(x_369);
-x_36 = x_334;
-x_37 = x_336;
-x_38 = x_333;
-x_39 = x_338;
-x_40 = x_339;
+x_36 = x_339;
+x_37 = x_333;
+x_38 = x_338;
+x_39 = x_334;
+x_40 = x_336;
 x_41 = x_362;
 x_42 = x_7;
 x_43 = lean_box(0);
@@ -6444,13 +6444,13 @@ lean_inc(x_377);
 lean_dec_ref(x_375);
 x_378 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_378, 0, x_376);
-x_181 = x_334;
-x_182 = x_336;
-x_183 = x_333;
-x_184 = x_373;
+x_181 = x_339;
+x_182 = x_333;
+x_183 = x_338;
+x_184 = x_334;
 x_185 = x_203;
-x_186 = x_338;
-x_187 = x_339;
+x_186 = x_373;
+x_187 = x_336;
 x_188 = x_378;
 x_189 = x_377;
 x_190 = lean_box(0);
@@ -6466,13 +6466,13 @@ lean_inc(x_380);
 lean_dec_ref(x_375);
 x_381 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_381, 0, x_379);
-x_181 = x_334;
-x_182 = x_336;
-x_183 = x_333;
-x_184 = x_373;
+x_181 = x_339;
+x_182 = x_333;
+x_183 = x_338;
+x_184 = x_334;
 x_185 = x_203;
-x_186 = x_338;
-x_187 = x_339;
+x_186 = x_373;
+x_187 = x_336;
 x_188 = x_381;
 x_189 = x_380;
 x_190 = lean_box(0);
@@ -6523,8 +6523,8 @@ x_389 = lean_nat_dec_lt(x_180, x_388);
 if (x_389 == 0)
 {
 lean_dec_ref(x_386);
-x_202 = x_384;
-x_203 = x_383;
+x_202 = x_383;
+x_203 = x_384;
 x_204 = x_385;
 x_205 = lean_box(0);
 goto block_382;
@@ -6536,8 +6536,8 @@ x_390 = lean_nat_dec_le(x_388, x_388);
 if (x_390 == 0)
 {
 lean_dec_ref(x_386);
-x_202 = x_384;
-x_203 = x_383;
+x_202 = x_383;
+x_203 = x_384;
 x_204 = x_385;
 x_205 = lean_box(0);
 goto block_382;
@@ -6549,13 +6549,13 @@ x_391 = lean_box(0);
 x_392 = 0;
 x_393 = lean_usize_of_nat(x_388);
 lean_inc_ref(x_7);
-x_394 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_386, x_392, x_393, x_391, x_7);
+x_394 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_386, x_392, x_393, x_391, x_7);
 lean_dec_ref(x_386);
 if (lean_obj_tag(x_394) == 0)
 {
 lean_dec_ref(x_394);
-x_202 = x_384;
-x_203 = x_383;
+x_202 = x_383;
+x_203 = x_384;
 x_204 = x_385;
 x_205 = lean_box(0);
 goto block_382;
@@ -6564,8 +6564,8 @@ else
 {
 uint8_t x_395; 
 lean_dec_ref(x_385);
-lean_dec(x_384);
-lean_dec_ref(x_383);
+lean_dec_ref(x_384);
+lean_dec(x_383);
 lean_dec_ref(x_7);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
@@ -6610,8 +6610,8 @@ lean_inc(x_406);
 lean_dec_ref(x_404);
 x_407 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_407, 0, x_405);
-x_383 = x_402;
-x_384 = x_400;
+x_383 = x_400;
+x_384 = x_402;
 x_385 = x_407;
 x_386 = x_406;
 x_387 = lean_box(0);
@@ -6627,8 +6627,8 @@ lean_inc(x_409);
 lean_dec_ref(x_404);
 x_410 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_410, 0, x_408);
-x_383 = x_402;
-x_384 = x_400;
+x_383 = x_400;
+x_384 = x_402;
 x_385 = x_410;
 x_386 = x_409;
 x_387 = lean_box(0);
@@ -6666,41 +6666,41 @@ block_35:
 {
 lean_object* x_33; lean_object* x_34; 
 x_33 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_33, 0, x_31);
-x_34 = l___private_Lake_Load_Materialize_0__Lake_Dependency_materialize_materializeGit(x_1, x_2, x_3, x_4, x_29, x_30, x_27, x_32, x_33, x_25, x_28);
+lean_ctor_set(x_33, 0, x_30);
+x_34 = l___private_Lake_Load_Materialize_0__Lake_Dependency_materialize_materializeGit(x_1, x_2, x_3, x_4, x_28, x_25, x_27, x_32, x_33, x_31, x_26);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
 return x_34;
 }
 block_46:
 {
-if (lean_obj_tag(x_36) == 0)
+if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_44; 
 x_44 = l_Lake_instInhabitedMaterializedDep_default___closed__1;
-x_25 = x_37;
-x_26 = lean_box(0);
-x_27 = x_38;
-x_28 = x_42;
-x_29 = x_39;
-x_30 = x_40;
-x_31 = x_41;
+x_25 = x_36;
+x_26 = x_42;
+x_27 = x_37;
+x_28 = x_38;
+x_29 = lean_box(0);
+x_30 = x_41;
+x_31 = x_40;
 x_32 = x_44;
 goto block_35;
 }
 else
 {
 lean_object* x_45; 
-x_45 = lean_ctor_get(x_36, 0);
+x_45 = lean_ctor_get(x_39, 0);
 lean_inc(x_45);
-lean_dec_ref(x_36);
-x_25 = x_37;
-x_26 = lean_box(0);
-x_27 = x_38;
-x_28 = x_42;
-x_29 = x_39;
-x_30 = x_40;
-x_31 = x_41;
+lean_dec_ref(x_39);
+x_25 = x_36;
+x_26 = x_42;
+x_27 = x_37;
+x_28 = x_38;
+x_29 = lean_box(0);
+x_30 = x_41;
+x_31 = x_40;
 x_32 = x_45;
 goto block_35;
 }
@@ -6708,13 +6708,13 @@ goto block_35;
 block_68:
 {
 lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; uint8_t x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; 
-x_54 = lean_ctor_get(x_51, 0);
+x_54 = lean_ctor_get(x_53, 0);
 lean_inc_ref(x_54);
-lean_dec_ref(x_51);
+lean_dec_ref(x_53);
 x_55 = l___private_Lake_Load_Materialize_0__Lake_pkgNotIndexed___closed__0;
 x_56 = lean_string_append(x_48, x_55);
-x_57 = lean_string_append(x_56, x_53);
-lean_dec_ref(x_53);
+x_57 = lean_string_append(x_56, x_52);
+lean_dec_ref(x_52);
 x_58 = l_Lake_Dependency_materialize___closed__1;
 x_59 = lean_string_append(x_57, x_58);
 x_60 = lean_string_append(x_59, x_54);
@@ -6737,11 +6737,11 @@ if (lean_obj_tag(x_76) == 0)
 {
 uint8_t x_78; 
 lean_dec_ref(x_75);
-lean_dec_ref(x_74);
-lean_dec_ref(x_72);
+lean_dec(x_74);
+lean_dec(x_72);
 lean_dec_ref(x_71);
-lean_dec(x_70);
-lean_dec(x_69);
+lean_dec_ref(x_70);
+lean_dec_ref(x_69);
 lean_inc_ref(x_48);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
@@ -6799,25 +6799,25 @@ x_100 = lean_box(0);
 x_101 = l_Lake_Dependency_materialize___closed__4;
 x_102 = lean_array_size(x_99);
 x_103 = 0;
-x_104 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lake_Dependency_materialize_spec__1(x_72, x_101, x_100, x_99, x_102, x_103, x_101);
+x_104 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lake_Dependency_materialize_spec__1(x_75, x_101, x_100, x_99, x_102, x_103, x_101);
 lean_dec(x_99);
 x_105 = lean_ctor_get(x_104, 0);
 lean_inc(x_105);
 lean_dec_ref(x_104);
 if (lean_obj_tag(x_105) == 0)
 {
-lean_dec_ref(x_75);
-lean_dec_ref(x_74);
+lean_dec(x_74);
+lean_dec(x_72);
 lean_dec_ref(x_71);
-lean_dec(x_70);
-lean_dec(x_69);
+lean_dec_ref(x_70);
+lean_dec_ref(x_69);
 lean_inc_ref(x_48);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
-x_51 = x_72;
-x_52 = lean_box(0);
-x_53 = x_73;
+x_51 = lean_box(0);
+x_52 = x_73;
+x_53 = x_75;
 goto block_68;
 }
 else
@@ -6829,7 +6829,7 @@ lean_dec_ref(x_105);
 if (lean_obj_tag(x_106) == 1)
 {
 lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; uint8_t x_122; lean_object* x_123; lean_object* x_124; 
-lean_dec_ref(x_72);
+lean_dec_ref(x_75);
 x_107 = lean_ctor_get(x_106, 0);
 lean_inc(x_107);
 lean_dec_ref(x_106);
@@ -6859,11 +6859,11 @@ lean_ctor_set(x_123, 0, x_121);
 lean_ctor_set_uint8(x_123, sizeof(void*)*1, x_122);
 lean_inc_ref(x_7);
 x_124 = lean_apply_2(x_7, x_123, lean_box(0));
-x_36 = x_70;
-x_37 = x_69;
+x_36 = x_69;
+x_37 = x_70;
 x_38 = x_71;
-x_39 = x_74;
-x_40 = x_75;
+x_39 = x_72;
+x_40 = x_74;
 x_41 = x_109;
 x_42 = x_7;
 x_43 = lean_box(0);
@@ -6872,18 +6872,18 @@ goto block_46;
 else
 {
 lean_dec(x_106);
-lean_dec_ref(x_75);
-lean_dec_ref(x_74);
+lean_dec(x_74);
+lean_dec(x_72);
 lean_dec_ref(x_71);
-lean_dec(x_70);
-lean_dec(x_69);
+lean_dec_ref(x_70);
+lean_dec_ref(x_69);
 lean_inc_ref(x_48);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
-x_51 = x_72;
-x_52 = lean_box(0);
-x_53 = x_73;
+x_51 = lean_box(0);
+x_52 = x_73;
+x_53 = x_75;
 goto block_68;
 }
 }
@@ -7038,7 +7038,7 @@ x_116 = lean_box(0);
 x_117 = 0;
 x_118 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__8;
 lean_inc_ref(x_5);
-x_119 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_113, x_117, x_118, x_116, x_5);
+x_119 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_113, x_117, x_118, x_116, x_5);
 if (lean_obj_tag(x_119) == 0)
 {
 lean_dec_ref(x_119);
@@ -7220,11 +7220,11 @@ goto block_38;
 block_81:
 {
 lean_object* x_71; uint8_t x_72; 
-x_71 = lean_array_get_size(x_67);
-x_72 = lean_nat_dec_lt(x_68, x_71);
+x_71 = lean_array_get_size(x_68);
+x_72 = lean_nat_dec_lt(x_67, x_71);
 if (x_72 == 0)
 {
-lean_dec_ref(x_67);
+lean_dec_ref(x_68);
 x_56 = x_69;
 x_57 = lean_box(0);
 goto block_66;
@@ -7235,7 +7235,7 @@ uint8_t x_73;
 x_73 = lean_nat_dec_le(x_71, x_71);
 if (x_73 == 0)
 {
-lean_dec_ref(x_67);
+lean_dec_ref(x_68);
 x_56 = x_69;
 x_57 = lean_box(0);
 goto block_66;
@@ -7247,8 +7247,8 @@ x_74 = lean_box(0);
 x_75 = 0;
 x_76 = lean_usize_of_nat(x_71);
 lean_inc_ref(x_5);
-x_77 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_67, x_75, x_76, x_74, x_5);
-lean_dec_ref(x_67);
+x_77 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_68, x_75, x_76, x_74, x_5);
+lean_dec_ref(x_68);
 if (lean_obj_tag(x_77) == 0)
 {
 lean_dec_ref(x_77);
@@ -7328,16 +7328,16 @@ x_92 = lean_unsigned_to_nat(0u);
 x_93 = l___private_Lake_Load_Materialize_0__Lake_updateGitPkg___closed__4;
 if (x_91 == 0)
 {
-x_67 = x_93;
-x_68 = x_92;
+x_67 = x_92;
+x_68 = x_93;
 x_69 = x_82;
 x_70 = lean_box(0);
 goto block_81;
 }
 else
 {
-x_67 = x_93;
-x_68 = x_92;
+x_67 = x_92;
+x_68 = x_93;
 x_69 = x_32;
 x_70 = lean_box(0);
 goto block_81;
@@ -7402,7 +7402,7 @@ x_105 = lean_box(0);
 x_106 = 0;
 x_107 = l___private_Lake_Load_Materialize_0__Lake_updateGitRepo___closed__8;
 lean_inc_ref(x_5);
-x_108 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__0(x_102, x_106, x_107, x_105, x_5);
+x_108 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lake_Load_Materialize_0__Lake_updateGitPkg_spec__1(x_102, x_106, x_107, x_105, x_5);
 if (lean_obj_tag(x_108) == 0)
 {
 lean_dec_ref(x_108);

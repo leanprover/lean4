@@ -802,10 +802,27 @@ structure Cache where
 
 def Cache.empty (ngen : NameGenerator) : Cache := { ngen := ngen, core := {}, «meta» := {} }
 
+/--
+Check if a private declaration is accessible from the current environment.
+- Local private declarations (defined in current module) are always accessible.
+- Imported private declarations are accessible only in the module system with `import all`.
+-/
+private def isAccessiblePrivateName (env : Environment) (declName : Name) : Bool :=
+  if !isPrivateName declName then
+    false -- Not private; the isInternalDetail check should still apply
+  else
+    match env.getModuleIdxFor? declName with
+    | some modIdx =>
+      -- Imported private: accessible only in module system with `import all`
+      env.header.isModule && env.header.modules[modIdx]?.any (·.importAll)
+    | none =>
+      -- Local private: always accessible
+      true
+
 def blacklistInsertion (env : Environment) (declName : Name) : Bool :=
   !allowCompletion env declName
   || declName == ``sorryAx
-  || declName.isInternalDetail
+  || (declName.isInternalDetail && !isAccessiblePrivateName env declName)
   || (declName matches .str _ "inj")
   || (declName matches .str _ "noConfusionType")
 

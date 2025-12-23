@@ -78,7 +78,7 @@ For each value emitted by the outer iterator `it₁`, this combinator calls `f`.
 -/
 @[always_inline, inline]
 public def IterM.flatMapAfterM {α : Type w} {β : Type w} {α₂ : Type w}
-    {γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β] [Iterator α₂ m γ]
+    {γ : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m] [Iterator α m β] [Iterator α₂ m γ]
     (f : β → m (IterM (α := α₂) m γ)) (it₁ : IterM (α := α) m β) (it₂ : Option (IterM (α := α₂) m γ)) :=
   ((it₁.mapM f).flattenAfter it₂ : IterM m γ)
 
@@ -117,7 +117,7 @@ For each value emitted by the outer iterator `it`, this combinator calls `f`.
 -/
 @[always_inline, inline, expose]
 public def IterM.flatMapM {α : Type w} {β : Type w} {α₂ : Type w}
-    {γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β] [Iterator α₂ m γ]
+    {γ : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m] [Iterator α m β] [Iterator α₂ m γ]
     (f : β → m (IterM (α := α₂) m γ)) (it : IterM (α := α) m β) :=
   (it.flatMapAfterM f none : IterM m γ)
 
@@ -368,10 +368,6 @@ public def Flatten.instProductive [Monad m] [Iterator α m (IterM (α := α₂) 
   .of_productivenessRelation instProductivenessRelation
 
 end Productive
-
-public instance Flatten.instIteratorCollect [Monad m] [Monad n] [Iterator α m (IterM (α := α₂) m β)]
-    [Iterator α₂ m β] : IteratorCollect (Flatten α α₂ β m) m n :=
-  .defaultImplementation
 
 public instance Flatten.instIteratorLoop [Monad m] [Monad n] [Iterator α m (IterM (α := α₂) m β)]
     [Iterator α₂ m β] : IteratorLoop (Flatten α α₂ β m) m n :=

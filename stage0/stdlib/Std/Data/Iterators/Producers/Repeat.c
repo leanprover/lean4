@@ -13,18 +13,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Iterators_Types_RepeatIterator_instIteratorCollect___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_RepeatIterator_instIterator___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_RepeatIterator_instIterator___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Producers_Repeat_0__Std_Iterators_Types_RepeatIterator_instProductivenessRelation___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_Types_RepeatIterator_instIteratorCollect(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_RepeatIterator_instIteratorLoop(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_RepeatIterator_instIteratorLoop___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_repeat___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_repeat(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iter_repeat___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Producers_Repeat_0__Std_Iterators_Types_RepeatIterator_instProductivenessRelation(lean_object*, lean_object*);
-lean_object* l_Std_IterM_DefaultConsumers_toArrayMapped(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_RepeatIterator_instIteratorLoop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_RepeatIterator_instIteratorLoop___redArg(lean_object*, lean_object*);
 lean_object* l_WellFounded_opaqueFix_u2083___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -205,30 +202,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_Iterators_Types_RepeatIterator_instIteratorLoop___redArg(x_2, x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_Types_RepeatIterator_instIteratorCollect___redArg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_alloc_closure((void*)(l_Std_Iterators_Types_RepeatIterator_instIterator___redArg___lam__0), 2, 1);
-lean_closure_set(x_3, 0, x_1);
-x_4 = lean_alloc_closure((void*)(l_Std_IterM_DefaultConsumers_toArrayMapped), 10, 6);
-lean_closure_set(x_4, 0, lean_box(0));
-lean_closure_set(x_4, 1, lean_box(0));
-lean_closure_set(x_4, 2, lean_box(0));
-lean_closure_set(x_4, 3, lean_box(0));
-lean_closure_set(x_4, 4, x_2);
-lean_closure_set(x_4, 5, x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_Types_RepeatIterator_instIteratorCollect(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_Iterators_Types_RepeatIterator_instIteratorCollect___redArg(x_2, x_4);
 return x_5;
 }
 }

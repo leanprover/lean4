@@ -16,9 +16,11 @@ public meta import Lean.Elab.Tactic.Try
 
 open Lean Meta Elab Tactic Try
 
--- An opaque goal that built-in tactics (including solve_by_elim) won't solve
+-- An opaque goal that built-in tactics (including solve_by_elim) won't solve.
+-- The axiom name starts with `_` so that `exact?` treats it as an implementation detail and
+-- won't suggest it directly, allowing us to test parallelism of user-defined suggestion generators.
 opaque ParallelTestGoal : Prop
-axiom parallelTestGoalHolds : ParallelTestGoal
+axiom _parallelTestGoalHolds : ParallelTestGoal
 
 -- Magic seed value to signal parallelism
 meta def magicSeed : Nat := 314159265
@@ -29,14 +31,14 @@ elab "wait_and_check_seed" : tactic => do
   let gen ← IO.stdGenRef.get
   let expected := mkStdGen magicSeed
   if gen.s1 == expected.s1 && gen.s2 == expected.s2 then
-    evalTactic (← `(tactic| exact parallelTestGoalHolds))
+    evalTactic (← `(tactic| exact _parallelTestGoalHolds))
   else
     throwError "seed not changed (sequential execution detected)"
 
 -- Tactic that immediately sets seed and succeeds
 elab "set_seed_and_succeed" : tactic => do
   IO.setRandSeed magicSeed
-  evalTactic (← `(tactic| exact parallelTestGoalHolds))
+  evalTactic (← `(tactic| exact _parallelTestGoalHolds))
 
 -- Register both tactics as user suggestions
 -- High priority tactic: reset seed first (to ensure clean state), then return waiting tactic
@@ -53,9 +55,6 @@ meta def setFlagSolver (_goal : MVarId) (_info : Try.Info) : MetaM (Array (TSynt
 
 -- If parallel: both tactics succeed (tactic 1 sees seed change after waiting)
 -- If sequential: only tactic 2 succeeds (tactic 1 sees unchanged seed)
---
--- EXPECTED ON MASTER (sequential): Only one suggestion
--- EXPECTED ON try_par (parallel): Two suggestions
 /--
 info: Try these:
   [apply] wait_and_check_seed

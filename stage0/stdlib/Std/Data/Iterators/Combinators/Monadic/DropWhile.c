@@ -35,15 +35,12 @@ LEAN_EXPORT lean_object* l_Std_IterM_Intermediate_dropWhile___redArg___boxed(lea
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_DropWhile_instIteratorLoop___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_dropWhileWithPostcondition___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_Intermediate_dropWhile___redArg(uint8_t, lean_object*);
-lean_object* l_Std_IterM_DefaultConsumers_toArrayMapped(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_dropWhileWithPostcondition(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_Types_DropWhile_instIteratorCollect___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_Intermediate_dropWhileWithPostcondition___redArg(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_DropWhile_instIteratorLoop___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_DropWhile_instIteratorLoop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_Intermediate_dropWhileM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_WellFounded_opaqueFix_u2083___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_Types_DropWhile_instIteratorCollect(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_DropWhile_instIterator___redArg___lam__0(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Std_IterM_Intermediate_dropWhile___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_DropWhile_instIterator___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -497,41 +494,6 @@ lean_dec(x_7);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 return x_8;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_Types_DropWhile_instIteratorCollect___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_5);
-x_6 = lean_ctor_get(x_1, 1);
-lean_inc(x_6);
-lean_dec_ref(x_1);
-x_7 = lean_ctor_get(x_5, 1);
-lean_inc(x_7);
-lean_dec_ref(x_5);
-x_8 = lean_alloc_closure((void*)(l_Std_Iterators_Types_DropWhile_instIterator___redArg___lam__2), 5, 4);
-lean_closure_set(x_8, 0, x_7);
-lean_closure_set(x_8, 1, x_4);
-lean_closure_set(x_8, 2, x_6);
-lean_closure_set(x_8, 3, x_3);
-x_9 = lean_alloc_closure((void*)(l_Std_IterM_DefaultConsumers_toArrayMapped), 10, 6);
-lean_closure_set(x_9, 0, lean_box(0));
-lean_closure_set(x_9, 1, lean_box(0));
-lean_closure_set(x_9, 2, lean_box(0));
-lean_closure_set(x_9, 3, lean_box(0));
-lean_closure_set(x_9, 4, x_2);
-lean_closure_set(x_9, 5, x_8);
-return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_Types_DropWhile_instIteratorCollect(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
-_start:
-{
-lean_object* x_10; 
-x_10 = l_Std_Iterators_Types_DropWhile_instIteratorCollect___redArg(x_5, x_6, x_7, x_9);
-return x_10;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_DropWhile_instIteratorLoop___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

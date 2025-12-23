@@ -34,7 +34,6 @@ static lean_object* l_Std_Internal_UV_System_instReprPasswdInfo_repr___redArg___
 static lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osSetenv___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__10;
-LEAN_EXPORT lean_object* l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00Array_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_UV_System_instReprUnameInfo_repr___redArg___closed__7;
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__15;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instInhabitedGroupInfo;
@@ -104,7 +103,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instReprPasswdInfo_repr___redA
 lean_object* lean_uv_os_get_passwd();
 static lean_object* l_Std_Internal_UV_System_instInhabitedCPUTimes_default___closed__0;
 static lean_object* l_Std_Internal_UV_System_instReprPasswdInfo_repr___redArg___closed__11;
-LEAN_EXPORT lean_object* l_List_foldl___at___00Std_Format_joinSep___at___00Array_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osGetHostname___boxed(lean_object*);
 static lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__6;
 static lean_object* l_Std_Internal_UV_System_instReprCPUInfo_repr___redArg___closed__2;
@@ -207,6 +205,7 @@ lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg___closed__4;
 static lean_object* l_Std_Internal_UV_System_instReprPasswdInfo___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osUname___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at___00Std_Format_joinSep___at___00Array_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0_spec__0_spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instReprCPUTimes_repr___redArg(lean_object*);
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__16;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_uptime___boxed(lean_object*);
@@ -258,6 +257,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_UV_System_instInhabitedUnameInfo_default
 static lean_object* l_Std_Internal_UV_System_instReprPasswdInfo_repr___redArg___closed__4;
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__49;
 LEAN_EXPORT lean_object* l_Std_Internal_UV_System_osUnsetenv___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00Array_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0_spec__0_spec__1_spec__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_UV_System_instReprRUsage_repr___redArg___closed__8;
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Internal_UV_System_instReprRUsage_repr_spec__0(lean_object* x_1) {
 _start:
@@ -2447,7 +2447,7 @@ lean_ctor_set(x_3, 0, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00Array_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0_spec__0_spec__0_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00Array_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0_spec__0_spec__1_spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_3) == 0)
@@ -2503,7 +2503,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_foldl___at___00Std_Format_joinSep___at___00Array_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0_spec__0_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_List_foldl___at___00Std_Format_joinSep___at___00Array_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0_spec__0_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_3) == 0)
@@ -2530,7 +2530,7 @@ lean_ctor_set(x_8, 0, x_7);
 x_9 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_9, 0, x_3);
 lean_ctor_set(x_9, 1, x_8);
-x_10 = l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00Array_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0_spec__0_spec__0_spec__0(x_1, x_9, x_6);
+x_10 = l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00Array_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0_spec__0_spec__1_spec__2(x_1, x_9, x_6);
 return x_10;
 }
 else
@@ -2551,7 +2551,7 @@ lean_ctor_set(x_15, 0, x_14);
 x_16 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_16, 0, x_13);
 lean_ctor_set(x_16, 1, x_15);
-x_17 = l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00Array_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0_spec__0_spec__0_spec__0(x_1, x_16, x_12);
+x_17 = l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00Array_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0_spec__0_spec__1_spec__2(x_1, x_16, x_12);
 return x_17;
 }
 }
@@ -2589,7 +2589,7 @@ x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 lean_dec_ref(x_1);
 x_8 = l_Std_Format_joinSep___at___00Array_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0_spec__0___lam__0(x_7);
-x_9 = l_List_foldl___at___00Std_Format_joinSep___at___00Array_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0_spec__0_spec__0(x_2, x_8, x_4);
+x_9 = l_List_foldl___at___00Std_Format_joinSep___at___00Array_Array_repr___at___00Std_Internal_UV_System_instReprGroupInfo_repr_spec__0_spec__0_spec__1(x_2, x_8, x_4);
 return x_9;
 }
 }

@@ -43,12 +43,10 @@ LEAN_EXPORT lean_object* l_Std_IterM_uLift___boxed(lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Std_Iterators_instMonadULiftT___redArg___lam__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_ULiftT_run___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instMonadULiftT___redArg___lam__9(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_IterM_DefaultConsumers_toArrayMapped(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_ULiftIterator_Monadic_modifyStep___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instMonadULiftT___redArg___lam__11(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_ULiftIterator_Monadic_modifyStep___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_ULiftT_run___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_Types_ULiftIterator_instIteratorCollect___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instMonadULiftT___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instMonadULiftT___redArg___lam__12(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_ULiftIterator_instIterator___redArg___lam__0(lean_object*, lean_object*);
@@ -58,7 +56,6 @@ LEAN_EXPORT lean_object* l_Std_IterM_uLift___redArg___boxed(lean_object*);
 lean_object* l_WellFounded_opaqueFix_u2083___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instMonadULiftT___redArg___lam__8(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_ULiftT_run(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Iterators_Types_ULiftIterator_instIteratorCollect(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_ULiftIterator_instIteratorLoop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instMonadULiftT(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Combinators_Monadic_ULift_0__Std_Iterators_Types_ULiftIterator_instProductivenessRelation___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -862,29 +859,6 @@ _start:
 {
 lean_object* x_10; 
 x_10 = l_Std_Iterators_Types_ULiftIterator_instIteratorLoop___redArg(x_5, x_7, x_8, x_9);
-return x_10;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_Types_ULiftIterator_instIteratorCollect___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; lean_object* x_6; 
-x_5 = l_Std_Iterators_Types_ULiftIterator_instIterator___redArg(x_1, x_4, x_2);
-x_6 = lean_alloc_closure((void*)(l_Std_IterM_DefaultConsumers_toArrayMapped), 10, 6);
-lean_closure_set(x_6, 0, lean_box(0));
-lean_closure_set(x_6, 1, lean_box(0));
-lean_closure_set(x_6, 2, lean_box(0));
-lean_closure_set(x_6, 3, lean_box(0));
-lean_closure_set(x_6, 4, x_3);
-lean_closure_set(x_6, 5, x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Iterators_Types_ULiftIterator_instIteratorCollect(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
-_start:
-{
-lean_object* x_10; 
-x_10 = l_Std_Iterators_Types_ULiftIterator_instIteratorCollect___redArg(x_5, x_7, x_8, x_9);
 return x_10;
 }
 }

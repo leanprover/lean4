@@ -15,5 +15,8 @@ import Lean.Elab.Tactic.Grind.Lint
 #grind_lint skip List.replicate_sublist_iff
 #grind_lint skip List.Sublist.append
 #grind_lint skip List.Sublist.middle
+#grind_lint skip Array.count_singleton
+#grind_lint skip Array.foldl_empty
+#grind_lint skip Array.foldr_empty
 
 #grind_lint skip suffix sizeOf_spec

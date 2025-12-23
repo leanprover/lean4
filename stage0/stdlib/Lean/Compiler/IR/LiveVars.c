@@ -31,6 +31,7 @@ LEAN_EXPORT uint8_t l_Lean_IR_FnBody_hasLiveVar(lean_object*, lean_object*, lean
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00__private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitJP_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00__private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitJP_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_IR_IsLive_visitFnBody_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_IR_LiveVars_updateJPLiveVarMap_spec__2___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter___at___00__private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitJP_spec__1___redArg___lam__0(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -45,6 +46,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_IsLive_visitVar___boxed(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitFnBody(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___00Lean_IR_mkLiveVarSet_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___00Lean_IR_mkLiveVarSet_spec__0___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_IR_LiveVars_updateJPLiveVarMap_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_minView___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_erase___at___00__private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindVar_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_updateLiveVars(lean_object*, lean_object*);
@@ -85,12 +87,10 @@ LEAN_EXPORT lean_object* l_Lean_IR_FnBody_hasLiveVar___boxed(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lean_IR_IsLive_visitArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_IR_LiveVars_updateJPLiveVarMap_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_IsLive_visitVar(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_IsLive_visitArgs(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_getJPBody(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_IR_LiveVars_updateJPLiveVarMap_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_HasIndex_visitVar(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_collectLiveVars(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter___at___00__private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitJP_spec__1___redArg___lam__0___boxed(lean_object*, lean_object*);
@@ -5312,7 +5312,7 @@ lean_dec_ref(x_1);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_IR_LiveVars_updateJPLiveVarMap_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_IR_LiveVars_updateJPLiveVarMap_spec__2___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_3) == 0)
@@ -5348,7 +5348,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
 lean_dec(x_4);
-x_12 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_IR_LiveVars_updateJPLiveVarMap_spec__0___redArg(x_1, x_2, x_8);
+x_12 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_IR_LiveVars_updateJPLiveVarMap_spec__2___redArg(x_1, x_2, x_8);
 x_13 = lean_unsigned_to_nat(1u);
 if (lean_obj_tag(x_7) == 0)
 {
@@ -5819,7 +5819,7 @@ else
 {
 lean_object* x_111; lean_object* x_112; 
 lean_dec(x_4);
-x_111 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_IR_LiveVars_updateJPLiveVarMap_spec__0___redArg(x_1, x_2, x_7);
+x_111 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_IR_LiveVars_updateJPLiveVarMap_spec__2___redArg(x_1, x_2, x_7);
 x_112 = lean_unsigned_to_nat(1u);
 if (lean_obj_tag(x_8) == 0)
 {
@@ -6289,11 +6289,11 @@ return x_214;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_IR_LiveVars_updateJPLiveVarMap_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_IR_LiveVars_updateJPLiveVarMap_spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_IR_LiveVars_updateJPLiveVarMap_spec__0___redArg(x_2, x_3, x_4);
+x_6 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_IR_LiveVars_updateJPLiveVarMap_spec__2___redArg(x_2, x_3, x_4);
 return x_6;
 }
 }
@@ -6672,7 +6672,7 @@ x_8 = l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindParams(x_2, 
 x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
 lean_dec_ref(x_8);
-x_10 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_IR_LiveVars_updateJPLiveVarMap_spec__0___redArg(x_1, x_9, x_4);
+x_10 = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_IR_LiveVars_updateJPLiveVarMap_spec__2___redArg(x_1, x_9, x_4);
 return x_10;
 }
 }

@@ -28,8 +28,7 @@ LEAN_EXPORT lean_object* l_String_modify___boxed(lean_object*, lean_object*, lea
 lean_object* lean_string_utf8_byte_size(lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_decapitalize(lean_object*);
-uint32_t l_Char_toLower(uint32_t);
-uint32_t l_Char_toUpper(uint32_t);
+uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 static lean_object* l_String_toUpper___closed__0;
 LEAN_EXPORT lean_object* l_String_Pos_appendRight(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_pastSet___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -61,6 +60,7 @@ lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_String_Pos_appendRight___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_toSetOfLE(lean_object*, lean_object*, lean_object*, uint32_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_capitalize(lean_object*);
+uint32_t lean_uint32_add(uint32_t, uint32_t);
 lean_object* l_Char_utf8Size(uint32_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_toModifyOfLE___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -446,34 +446,109 @@ return x_4;
 LEAN_EXPORT lean_object* l_String_capitalize(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint32_t x_3; uint32_t x_4; lean_object* x_5; 
+lean_object* x_2; uint32_t x_3; uint32_t x_4; uint8_t x_5; 
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_string_utf8_get(x_1, x_2);
-x_4 = l_Char_toUpper(x_3);
-x_5 = lean_string_utf8_set(x_1, x_2, x_4);
-return x_5;
+x_4 = 97;
+x_5 = lean_uint32_dec_le(x_4, x_3);
+if (x_5 == 0)
+{
+lean_object* x_6; 
+x_6 = lean_string_utf8_set(x_1, x_2, x_3);
+return x_6;
+}
+else
+{
+uint32_t x_7; uint8_t x_8; 
+x_7 = 122;
+x_8 = lean_uint32_dec_le(x_3, x_7);
+if (x_8 == 0)
+{
+lean_object* x_9; 
+x_9 = lean_string_utf8_set(x_1, x_2, x_3);
+return x_9;
+}
+else
+{
+uint32_t x_10; uint32_t x_11; lean_object* x_12; 
+x_10 = 4294967264;
+x_11 = lean_uint32_add(x_3, x_10);
+x_12 = lean_string_utf8_set(x_1, x_2, x_11);
+return x_12;
+}
+}
 }
 }
 LEAN_EXPORT lean_object* lean_string_capitalize(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint32_t x_3; uint32_t x_4; lean_object* x_5; 
+lean_object* x_2; uint32_t x_3; uint32_t x_4; uint8_t x_5; 
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_string_utf8_get(x_1, x_2);
-x_4 = l_Char_toUpper(x_3);
-x_5 = lean_string_utf8_set(x_1, x_2, x_4);
-return x_5;
+x_4 = 97;
+x_5 = lean_uint32_dec_le(x_4, x_3);
+if (x_5 == 0)
+{
+lean_object* x_6; 
+x_6 = lean_string_utf8_set(x_1, x_2, x_3);
+return x_6;
+}
+else
+{
+uint32_t x_7; uint8_t x_8; 
+x_7 = 122;
+x_8 = lean_uint32_dec_le(x_3, x_7);
+if (x_8 == 0)
+{
+lean_object* x_9; 
+x_9 = lean_string_utf8_set(x_1, x_2, x_3);
+return x_9;
+}
+else
+{
+uint32_t x_10; uint32_t x_11; lean_object* x_12; 
+x_10 = 4294967264;
+x_11 = lean_uint32_add(x_3, x_10);
+x_12 = lean_string_utf8_set(x_1, x_2, x_11);
+return x_12;
+}
+}
 }
 }
 LEAN_EXPORT lean_object* l_String_decapitalize(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint32_t x_3; uint32_t x_4; lean_object* x_5; 
+lean_object* x_2; uint32_t x_3; uint32_t x_4; uint8_t x_5; 
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_string_utf8_get(x_1, x_2);
-x_4 = l_Char_toLower(x_3);
-x_5 = lean_string_utf8_set(x_1, x_2, x_4);
-return x_5;
+x_4 = 65;
+x_5 = lean_uint32_dec_le(x_4, x_3);
+if (x_5 == 0)
+{
+lean_object* x_6; 
+x_6 = lean_string_utf8_set(x_1, x_2, x_3);
+return x_6;
+}
+else
+{
+uint32_t x_7; uint8_t x_8; 
+x_7 = 90;
+x_8 = lean_uint32_dec_le(x_3, x_7);
+if (x_8 == 0)
+{
+lean_object* x_9; 
+x_9 = lean_string_utf8_set(x_1, x_2, x_3);
+return x_9;
+}
+else
+{
+uint32_t x_10; uint32_t x_11; lean_object* x_12; 
+x_10 = 32;
+x_11 = lean_uint32_add(x_3, x_10);
+x_12 = lean_string_utf8_set(x_1, x_2, x_11);
+return x_12;
+}
+}
 }
 }
 lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);

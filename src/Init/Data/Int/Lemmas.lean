@@ -333,6 +333,12 @@ protected theorem sub_sub_self (a b : Int) : a - (a - b) = b := by
 @[simp] protected theorem add_sub_cancel (a b : Int) : a + b - b = a :=
   Int.add_neg_cancel_right a b
 
+protected theorem add_sub_add_right (n k m : Int) : (n + k) - (m + k) = n - m := by
+  rw [Int.add_comm m, ← Int.sub_sub, Int.add_sub_cancel]
+
+protected theorem add_sub_add_left (k n m : Int) : (k + n) - (k + m) = n - m := by
+  rw [Int.add_comm k, Int.add_comm k, Int.add_sub_add_right]
+
 protected theorem add_sub_assoc (a b c : Int) : a + b - c = a + (b - c) := by
   rw [Int.sub_eq_add_neg, Int.add_assoc, Int.add_neg_eq_sub]
 
@@ -546,6 +552,7 @@ protected theorem mul_eq_zero {a b : Int} : a * b = 0 ↔ a = 0 ∨ b = 0 := by
   | .ofNat 0, _, _ => by simp
   | _, .ofNat 0, _ => by simp
   | .ofNat (_+1), .negSucc _, h => by cases h
+  | .negSucc _, .negSucc _, h => by cases h
 
 protected theorem mul_ne_zero {a b : Int} (a0 : a ≠ 0) (b0 : b ≠ 0) : a * b ≠ 0 :=
   Or.rec a0 b0 ∘ Int.mul_eq_zero.mp

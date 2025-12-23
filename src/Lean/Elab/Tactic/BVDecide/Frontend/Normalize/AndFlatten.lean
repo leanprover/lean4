@@ -22,9 +22,13 @@ namespace Frontend.Normalize
 
 open Lean.Meta
 
+structure AndHyp where
+  hyp : Hypothesis
+  original : FVarId
+
 structure AndFlattenState where
   hypsToDelete : Array FVarId := #[]
-  hypsToAdd : Array Hypothesis := #[]
+  hypsToAdd : Array AndHyp := #[]
   cache : Std.HashSet Expr := {}
 
 /--
@@ -39,7 +43,15 @@ partial def andFlatteningPass : Pass where
     if hypsToAdd.isEmpty then
       return goal
     else
-      let (_, goal) ← goal.assertHypotheses hypsToAdd
+      let (newFVars, goal) ← goal.assertHypotheses <| hypsToAdd.map (·.hyp)
+      for h : i in 0...hypsToAdd.size do
+        let orig := hypsToAdd[i].original
+        let new := newFVars[i]!
+        if ← PreProcessM.checkRewritten orig then
+          PreProcessM.rewriteFinished new
+        if ← PreProcessM.checkAcNf orig then
+          PreProcessM.acNfFinished new
+
       -- Given that we collected the hypotheses in the correct order above the invariant is given
       let goal ← goal.tryClearMany hypsToDelete
       return goal
@@ -55,27 +67,30 @@ where
       modify (fun s => { s with hypsToDelete := s.hypsToDelete.push fvar })
     else
       let hyp := {
-        userName := (← fvar.getDecl).userName
-        type := type
-        value := mkFVar fvar
+        hyp := {
+          userName := (← fvar.getDecl).userName
+          type := type
+          value := mkFVar fvar
+        },
+        original := fvar
       }
       let some (lhs, rhs) ← trySplit hyp | return ()
       modify (fun s => { s with hypsToDelete := s.hypsToDelete.push fvar })
-      splitAnds [lhs, rhs]
+      splitAnds fvar [lhs, rhs]
 
-  splitAnds (worklist : List Hypothesis) : StateRefT AndFlattenState MetaM Unit := do
+  splitAnds (fvar : FVarId)  (worklist : List AndHyp) : StateRefT AndFlattenState MetaM Unit := do
     match worklist with
     | [] => return ()
     | hyp :: worklist =>
       match ← trySplit hyp with
-      | some (left, right) => splitAnds <| left :: right :: worklist
+      | some (left, right) => splitAnds fvar <| left :: right :: worklist
       | none =>
         modify (fun s => { s with hypsToAdd := s.hypsToAdd.push hyp })
-        splitAnds worklist
+        splitAnds fvar worklist
 
-  trySplit (hyp : Hypothesis) :
-      StateRefT AndFlattenState MetaM (Option (Hypothesis × Hypothesis)) := do
-    let typ := hyp.type
+  trySplit (hyp : AndHyp) :
+      StateRefT AndFlattenState MetaM (Option (AndHyp × AndHyp)) := do
+    let typ := hyp.hyp.type
     if (← get).cache.contains typ then
       return none
     else
@@ -86,16 +101,16 @@ where
       let mkEqTrue (lhs : Expr) : Expr :=
         mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) lhs (mkConst ``Bool.true)
       let leftHyp : Hypothesis := {
-        userName := hyp.userName,
+        userName := hyp.hyp.userName,
         type := mkEqTrue lhs,
-        value := mkApp3 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.and_left) lhs rhs hyp.value
+        value := mkApp3 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.and_left) lhs rhs hyp.hyp.value
       }
       let rightHyp : Hypothesis := {
-        userName := hyp.userName,
+        userName := hyp.hyp.userName,
         type := mkEqTrue rhs,
-        value := mkApp3 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.and_right) lhs rhs hyp.value
+        value := mkApp3 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.and_right) lhs rhs hyp.hyp.value
       }
-      return some (leftHyp, rightHyp)
+      return some (⟨leftHyp, hyp.original⟩, ⟨rightHyp, hyp.original⟩)
 
 
 end Frontend.Normalize

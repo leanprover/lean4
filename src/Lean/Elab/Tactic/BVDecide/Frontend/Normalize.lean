@@ -40,7 +40,7 @@ def passPipeline : PreProcessM (List Pass) := do
   if cfg.acNf then
     passPipeline := passPipeline ++ [bvAcNormalizePass]
 
-  if cfg.andFlattening then
+  if cfg.embeddedConstraintSubst && cfg.andFlattening then
     passPipeline := passPipeline ++ [andFlatteningPass]
 
   if cfg.embeddedConstraintSubst then

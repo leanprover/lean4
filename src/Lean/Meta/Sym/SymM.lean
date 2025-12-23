@@ -7,8 +7,11 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 namespace Lean.Meta.Sym
-/-!
+export Grind (ExprPtr Goal)
 
--/
+structure State where
+  maxFVar : PHashMap ExprPtr Expr := {}
+
+public abbrev SymM := StateRefT State Grind.GrindM
 
 end Lean.Meta.Sym

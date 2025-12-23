@@ -1,11 +1,14 @@
 import Lean.Data.PersistentArray
+/-!
+Test `PersistentArray.forM` with nonzero start position.
+-/
 
 def mk (n : Nat) : Lean.PersistentArray Nat :=
   List.range n |>.toPArray'
 
 def sum1 (start : Nat) (s : List Nat) : Nat :=
   let (_, s) := StateT.run (m := Id) (s.drop start |>.forM fun val => modify (· + val)) 0
-  s+1
+  s
 
 def sum2 (start : Nat) (s : Lean.PArray Nat) : Nat :=
   let (_, s) := StateT.run (m := Id)  (s.forM (start := start) (fun val => modify (· + val))) 0
@@ -20,7 +23,6 @@ def check (s₁ : List Nat) : IO Unit := do
   IO.println "ok"
 
 #eval check (List.range 10)
-#exit
 #eval check (List.range 0)
 #eval check (List.range 2000)
 #eval check (List.replicate 1000 1)

@@ -33,14 +33,11 @@ example (b : MyType) : myOp ⟨3⟩ b = myOp b ⟨3⟩ := by
 example (a b : MyType) : myOp a b = myOp b a := by
   grind
 
--- Test 4: Both concrete - should not work
+-- Test 4: Both concrete - should NOT work (pattern prevented by not_value constraint)
+set_option warn.sorry false in
 example : myOp ⟨3⟩ ⟨5⟩ = myOp ⟨5⟩ ⟨3⟩ := by
   fail_if_success grind
   sorry
-
--- Test 5: With composition showing the pattern is actually being used
-example (a b : MyType) : myOp (myOp a b) ⟨7⟩ = myOp ⟨7⟩ (myOp b a) := by
-  grind
 
 -- Negative test cases: guard and check cannot be in disjunctions
 

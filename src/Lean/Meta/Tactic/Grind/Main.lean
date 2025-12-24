@@ -320,7 +320,8 @@ def withProtectedMCtx [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
   /-
   **TODO**: It would be nice to remove the following step, but
   some tests break with unknown metavariable error when this
-  step is removed.
+  step is removed. The main issue is the `withNewMCtxDepth` step at
+  `main`.
   -/
   mvarId ← mvarId.abstractMVars
   if config.revert then
@@ -337,22 +338,23 @@ where
     let (a, val) ← withNewMCtxDepth do
       let mvar' ← mkFreshExprSyntheticOpaqueMVar type
       let a ← k mvar'.mvarId!
-      let val ← finalize mvar'
+      let val ← instantiateMVarsProfiling mvar'
       return (a, val)
+    let val ← finalize val
     (mvarId.assign val : MetaM _)
     return a
 
-  finalize (mvar' : Expr) : MetaM Expr := do
-    trace[grind.debug.proof] "{← instantiateMVars mvar'}"
-    let type ← inferType mvar'
+  finalize (val : Expr) : MetaM Expr := do
+    trace[grind.debug.proof] "{val}"
+    let type ← inferType val
     -- `grind` proofs are often big, if `abstractProof` is true, we create an auxiliary theorem.
     let val ← if !config.abstractProof then
-      instantiateMVarsProfiling mvar'
+      pure val
     else if (← isProp type) then
-      mkAuxTheorem type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+      mkAuxTheorem type val (zetaDelta := true)
     else
       let auxName ← mkAuxDeclName `grind
-      mkAuxDefinition auxName type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+      mkAuxDefinition auxName type val (zetaDelta := true)
     return val
 
 end Lean.Meta.Grind

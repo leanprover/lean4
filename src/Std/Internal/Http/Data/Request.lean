@@ -190,11 +190,10 @@ end Builder
 /--
 Creates a new HTTP GET Request with the specified URI
 -/
-def get (uri : RequestTarget) : Request Body :=
+def get (uri : RequestTarget) : Builder :=
   new
   |>.method .get
   |>.uri uri
-  |>.build
 
 /--
 Creates a new HTTP POST Request builder with the specified URI and body

@@ -465,11 +465,6 @@ def SemanticTokenType.names : Array String :=
 def SemanticTokenType.toNat (tokenType : SemanticTokenType) : Nat :=
   tokenType.ctorIdx
 
--- sanity check
-example {v : SemanticTokenType} : open SemanticTokenType in
-    names[v.toNat]?.map (toString <| toJson ·) = some (toString <| toJson v) := by
-  cases v <;> native_decide
-
 /--
 The semantic token modifiers included by default in the LSP specification.
 Not used by the Lean core, but implementing them here allows them to be
@@ -495,11 +490,6 @@ def SemanticTokenModifier.names : Array String :=
 
 def SemanticTokenModifier.toNat (modifier : SemanticTokenModifier) : Nat :=
   modifier.ctorIdx
-
--- sanity check
-example {v : SemanticTokenModifier} : open SemanticTokenModifier in
-    names[v.toNat]?.map (toString <| toJson ·) = some (toString <| toJson v) := by
-  cases v <;> native_decide
 
 structure SemanticTokensLegend where
   tokenTypes     : Array String

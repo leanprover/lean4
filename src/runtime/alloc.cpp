@@ -16,12 +16,6 @@ Author: Leonardo de Moura
 #define LEAN_RUNTIME_STAT_CODE(c)
 #endif
 
-#if defined(__GNUC__) || defined(__clang__)
-#define LEAN_NOINLINE __attribute__((noinline))
-#else
-#define LEAN_NOINLINE
-#endif
-
 #define LEAN_PAGE_SIZE             8192        // 8 Kb
 #define LEAN_SEGMENT_SIZE          8*1024*1024 // 8 Mb
 #define LEAN_NUM_SLOTS             (LEAN_MAX_SMALL_OBJECT_SIZE / LEAN_OBJECT_SIZE_DELTA)

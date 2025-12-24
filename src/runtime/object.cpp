@@ -391,19 +391,23 @@ static void lean_del_core(object * o, object * & todo) {
     }
 }
 
+void LEAN_NOINLINE lean_dec_ref_cold_cold(lean_object * o) {
+#ifdef LEAN_LAZY_RC
+    push_back(g_to_free, o);
+#else
+    object * todo = nullptr;
+    while (true) {
+        lean_del_core(o, todo);
+        if (todo == nullptr)
+            return;
+        o = pop_back(todo);
+    }
+#endif
+}
+
 extern "C" LEAN_EXPORT void lean_dec_ref_cold(lean_object * o) {
     if (o->m_rc == 1 || std::atomic_fetch_add_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_acq_rel) == -1) {
-#ifdef LEAN_LAZY_RC
-        push_back(g_to_free, o);
-#else
-        object * todo = nullptr;
-        while (true) {
-            lean_del_core(o, todo);
-            if (todo == nullptr)
-                return;
-            o = pop_back(todo);
-        }
-#endif
+        lean_dec_ref_cold_cold(o);
     }
 }
 

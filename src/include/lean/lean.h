@@ -58,6 +58,12 @@ extern "C" {
 #define LEAN_ALWAYS_INLINE
 #endif
 
+#if defined(__GNUC__) || defined(__clang__)
+#define LEAN_NOINLINE __attribute__((noinline))
+#else
+#define LEAN_NOINLINE
+#endif
+
 #ifndef assert
 #ifdef NDEBUG
 #define assert(expr)

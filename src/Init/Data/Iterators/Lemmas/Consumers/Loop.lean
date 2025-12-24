@@ -337,7 +337,6 @@ theorem Iter.mem_toArray_iff_isPlausibleIndirectOutput {α β} [Iterator α Id �
 theorem Iter.forInNew'_toList {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type x → Type x'}
     [IteratorLoopNew α Id m] [LawfulIteratorLoopNew α Id m]
-    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     [LawfulDeterministicIterator α Id]
     {σ γ : Type x} {it : Iter (α := α) β} {init : σ}
     {kcons : (out : β) → _ → (σ → m γ) → σ → m γ}
@@ -406,7 +405,6 @@ theorem Iter.forIn'_toArray {α β : Type w} [Iterator α Id β]
 theorem Iter.forInNew'_eq_forInNew'_toList {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type x → Type x'}
     [IteratorLoopNew α Id m] [LawfulIteratorLoopNew α Id m]
-    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     [LawfulDeterministicIterator α Id]
     {σ γ : Type x} {it : Iter (α := α) β} {init : σ}
     {kcons : (out : β) → _ → (σ → m γ) → σ → m γ}
@@ -440,7 +438,6 @@ theorem Iter.forIn'_eq_forIn'_toArray {α β : Type w} [Iterator α Id β]
 theorem Iter.forInNew_toList {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type x → Type x'}
     [IteratorLoopNew α Id m] [LawfulIteratorLoopNew α Id m]
-    [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {σ γ : Type x} {it : Iter (α := α) β} {init : σ}
     {kcons : β → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
     ForInNew.forInNew it.toList init kcons knil = ForInNew.forInNew it init kcons knil := by

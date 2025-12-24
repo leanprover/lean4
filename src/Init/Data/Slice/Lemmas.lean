@@ -43,8 +43,6 @@ public theorem forInNew_toList {γ : Type u} {σ δ : Type w}
     [Iterator α Id β]
     [IteratorLoopNew α Id m]
     [LawfulIteratorLoopNew α Id m]
-    [IteratorCollect α Id Id]
-    [LawfulIteratorCollect α Id Id]
     [Finite α Id] {s : Slice γ}
     {init : σ} {kcons : β → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
     ForInNew.forInNew s.toList init kcons knil = ForInNew.forInNew s init kcons knil := by

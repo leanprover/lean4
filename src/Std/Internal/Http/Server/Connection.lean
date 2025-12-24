@@ -279,7 +279,6 @@ private def handle
     if ¬(← res.isClosed) then
       res.close
 
-
 end Connection
 
 /--

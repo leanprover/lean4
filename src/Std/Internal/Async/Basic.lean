@@ -296,7 +296,7 @@ def block (x : AsyncTask α) : IO α :=
 Create an `AsyncTask` that resolves to the value of `x`.
 -/
 @[inline]
-def ofPromise (x : IO.Promise (Except IO.Error α)) (error : String := "the promise linked to the Async was dropped") : AsyncTask α :=
+def ofPromise (x : IO.Promise (Except IO.Error α)) (error : String := "the promise linked to the Async Task was dropped") : AsyncTask α :=
   x.result?.map fun
     | none => .error error
     | some res => res
@@ -305,7 +305,7 @@ def ofPromise (x : IO.Promise (Except IO.Error α)) (error : String := "the prom
 Create an `AsyncTask` that resolves to the value of `x`.
 -/
 @[inline]
-def ofPurePromise (x : IO.Promise α) (error : String := "the promise linked to the Async was dropped") : AsyncTask α :=
+def ofPurePromise (x : IO.Promise α) (error : String := "the promise linked to the Async Task was dropped") : AsyncTask α :=
   x.result?.map (sync := true) fun
     | none => .error error
     | some res => pure res

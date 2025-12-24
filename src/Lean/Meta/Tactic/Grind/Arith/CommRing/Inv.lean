@@ -49,7 +49,7 @@ private def checkRingInvs : RingM Unit := do
   checkDiseqs
 
 def checkInvariants : GoalM Unit := do
-  unless grind.debug.get (← getOptions) do return ()
+  if (← isDebugEnabled) then
   for ringId in *...(← get').rings.size do
     RingM.run ringId do
       assert! (← getRingId) == ringId

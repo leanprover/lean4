@@ -793,23 +793,23 @@ theorem Spec.foldlM_list_const_inv
 set_option linter.unusedVariables false in
 @[spec]
 theorem Spec.forInNew'_range
-    {xs : Std.Range} {init : σ} {kcons : (a : Nat) → a ∈ xs → (σ → m β) → σ → m β} {knil : σ → m β}
+    {xs : Std.Legacy.Range} {init : σ} {kcons : (a : Nat) → a ∈ xs → (σ → m β) → σ → m β} {knil : σ → m β}
     (inv : InvariantNew xs.toList σ ps) {Q : PostCond β ps}
     (hcons : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) s kcontinue
         (hcontinue : ∀ s', Triple (m:=m) (kcontinue s') (inv ⟨pref ++ [cur], suff, by simp [h]⟩ s') Q),
       Triple (m:=m)
-        (kcons cur (by simp [Std.Range.mem_of_mem_range', h]) kcontinue s)
+        (kcons cur (by simp [Std.Legacy.Range.mem_of_mem_range', h]) kcontinue s)
         (inv ⟨pref, cur::suff, h.symm⟩ s)
         Q)
     (hnil : ∀ s, Triple (m:=m) (knil s) (inv ⟨xs.toList, [], by simp⟩ s) Q) :
     Triple (forInNew' xs init kcons knil) (inv ⟨[], xs.toList, rfl⟩ init) Q := by
-  simp only [Std.Range.forInNew'_eq_forInNew'_range', Std.Range.size, Std.Range.size.eq_1]
+  simp only [Std.Legacy.Range.forInNew'_eq_forInNew'_range', Std.Legacy.Range.size, Std.Legacy.Range.size.eq_1]
   apply Spec.forInNew'_list inv hcons hnil
 
 set_option linter.unusedVariables false in
 @[spec]
 theorem Spec.forInNew_range
-    {xs : Std.Range} {init : σ} {kcons : Nat → (σ → m β) → σ → m β} {knil : σ → m β}
+    {xs : Std.Legacy.Range} {init : σ} {kcons : Nat → (σ → m β) → σ → m β} {knil : σ → m β}
     (inv : InvariantNew xs.toList σ ps) {Q : PostCond β ps}
     (hcons : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) s kcontinue
         (hcontinue : ∀ s', Triple (m:=m) (kcontinue s') (inv ⟨pref ++ [cur], suff, by simp [h]⟩ s') Q),
@@ -819,7 +819,7 @@ theorem Spec.forInNew_range
         Q)
     (hnil : ∀ s, Triple (m:=m) (knil s) (inv ⟨xs.toList, [], by simp⟩ s) Q) :
     Triple (forInNew xs init kcons knil) (inv ⟨[], xs.toList, rfl⟩ init) Q := by
-  simp only [Std.Range.forInNew_eq_forInNew_range', Std.Range.size]
+  simp only [Std.Legacy.Range.forInNew_eq_forInNew_range', Std.Legacy.Range.size]
   apply Spec.forInNew'_list inv hcons hnil
 
 @[spec]
@@ -2421,8 +2421,6 @@ theorem Spec.forInNew_slice {m : Type w → Type x} {ps : PostShape}
     [Iterator α Id β]
     [IteratorLoopNew α Id m]
     [LawfulIteratorLoopNew α Id m]
-    [IteratorCollect α Id Id]
-    [LawfulIteratorCollect α Id Id]
     [Finite α Id]
     {init : σ} {kcons : β → (σ → m δ) → σ → m δ} {knil : σ → m δ}
     {xs : Slice γ}

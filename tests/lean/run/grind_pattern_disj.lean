@@ -39,9 +39,49 @@ example : myOp ⟨3⟩ ⟨5⟩ = myOp ⟨5⟩ ⟨3⟩ := by
   fail_if_success grind
   sorry
 
-/-
-Note: `guard` and `check` constraints cannot appear in disjunctions because they use
-`termParser` which would consume the `<|>` as part of the term. The parser structure
-naturally prevents this: guards/checks are parsed as alternatives to sepBy1, not as
-atoms within sepBy1.
+-- Test demonstrating three-way disjunction
+def myTriOp (x y z : MyType) : MyType := ⟨x.val + y.val + z.val⟩
+
+axiom myTriOp_rotate {x y z : MyType} : myTriOp x y z = myTriOp y z x
+
+grind_pattern myTriOp_rotate => myTriOp x y z where
+  not_value x <|> not_value y <|> not_value z
+
+-- Test 5: One symbolic, two concrete
+example (a : MyType) : myTriOp a ⟨1⟩ ⟨2⟩ = myTriOp ⟨1⟩ ⟨2⟩ a := by
+  grind
+
+-- Test 6: Two symbolic, one concrete
+example (a b : MyType) : myTriOp a b ⟨3⟩ = myTriOp b ⟨3⟩ a := by
+  grind
+
+-- Test 7: All symbolic
+example (a b c : MyType) : myTriOp a b c = myTriOp b c a := by
+  grind
+
+-- Test 8: All concrete - should NOT work
+set_option warn.sorry false in
+example : myTriOp ⟨1⟩ ⟨2⟩ ⟨3⟩ = myTriOp ⟨2⟩ ⟨3⟩ ⟨1⟩ := by
+  fail_if_success grind
+  sorry
+
+-- Negative test cases: guard and check cannot be in disjunctions
+-- Note: These are tested by putting not_value BEFORE guard/check to ensure they parse correctly
+
+axiom dummy1 {a b : Nat} : a < b → a % b = a
+
+/--
+error: `guard` and `check` constraints cannot be used in disjunctions
 -/
+#guard_msgs in
+grind_pattern dummy1 => a % b where
+  not_value a <|> guard (a < b)
+
+axiom dummy2 {a b : Nat} : a < b → a % b = a
+
+/--
+error: `guard` and `check` constraints cannot be used in disjunctions
+-/
+#guard_msgs in
+grind_pattern dummy2 => a % b where
+  not_value a <|> check (a < b)

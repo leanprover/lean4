@@ -244,19 +244,34 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
 
 /--
 When `Config.revert := false`, we preprocess the hypotheses, and add them to the `grind` state.
+It starts at `goal.nextDeclIdx`. If `num?` is `some num`, then at most `num` local declarations are processed.
+Otherwise, all remaining local declarations are processed.
+
+Remark: this function assumes the local context does not contains holes with `none` in `decls`.
 -/
-private def addHypotheses (goal : Goal) : GrindM Goal := GoalM.run' goal do
-  let mvarDecl ← goal.mvarId.getDecl
-  for localDecl in mvarDecl.lctx do
-    if (← isInconsistent) then return ()
-    let type := localDecl.type
-    if (← isProp type) then
-      let r ← preprocessHypothesis type
-      match r.proof? with
-      | none => add r.expr localDecl.toExpr
-      | some h => add r.expr <| mkApp4 (mkConst ``Eq.mp [0]) type r.expr h localDecl.toExpr
-    else
-      internalizeLocalDecl localDecl
+private def addHypotheses (goal : Goal) (num? : Option Nat := none) : GrindM Goal := GoalM.run' goal do
+  discard <| go.run
+where
+  go : ExceptT Unit GoalM Unit := do
+    let mvarDecl ← goal.mvarId.getDecl
+    mvarDecl.lctx.forM (start := goal.nextDeclIdx) fun localDecl => do
+      if (← isInconsistent) then
+        setNextDeclToEnd
+        throwThe Unit () -- interrupt
+      if let some num := num? then
+        if localDecl.index >= goal.nextDeclIdx + num then
+          modify fun goal => { goal with nextDeclIdx := localDecl.index }
+          throwThe Unit () -- interrupt
+      unless localDecl.isImplementationDetail do
+        let type := localDecl.type
+        if (← isProp type) then
+          let r ← preprocessHypothesis type
+          match r.proof? with
+          | none => add r.expr localDecl.toExpr
+          | some h => add r.expr <| mkApp4 (mkConst ``Eq.mp [0]) type r.expr h localDecl.toExpr
+        else
+          internalizeLocalDecl localDecl
+    setNextDeclToEnd -- Processed all local decls
 
 private def initCore (mvarId : MVarId) (params : Params) : GrindM Goal := do
   /-
@@ -310,14 +325,24 @@ See issue #11806 for a motivating example.
 -/
 def withProtectedMCtx [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
     [MonadExcept Exception m] [MonadRuntimeException m]
-    (abstractProof : Bool) (mvarId : MVarId) (k : MVarId → m α) : m α := do
+    (config : Grind.Config) (mvarId : MVarId) (k : MVarId → m α) : m α := do
   /-
   **Note**: `instantiateGoalMVars` here also instantiates mvars occurring in hypotheses.
   This is particularly important when using `grind -revert`.
   -/
-  let mvarId ← mvarId.instantiateGoalMVars
-  let mvarId ← mvarId.abstractMVars
-  let mvarId ← mvarId.clearImplDetails
+  let mut mvarId ← mvarId.instantiateGoalMVars
+  /-
+  **TODO**: It would be nice to remove the following step, but
+  some tests break with unknown metavariable error when this
+  step is removed. The main issue is the `withNewMCtxDepth` step at
+  `main`.
+  -/
+  mvarId ← mvarId.abstractMVars
+  if config.revert then
+    /-
+    **Note**: We now skip implementation details at `addHypotheses`
+    -/
+    mvarId ← mvarId.clearImplDetails
   tryCatchRuntimeEx (main mvarId) fun ex => do
     mvarId.admit
     throw ex
@@ -327,22 +352,23 @@ where
     let (a, val) ← withNewMCtxDepth do
       let mvar' ← mkFreshExprSyntheticOpaqueMVar type
       let a ← k mvar'.mvarId!
-      let val ← finalize mvar'
+      let val ← instantiateMVarsProfiling mvar'
       return (a, val)
+    let val ← finalize val
     (mvarId.assign val : MetaM _)
     return a
 
-  finalize (mvar' : Expr) : MetaM Expr := do
-    trace[grind.debug.proof] "{← instantiateMVars mvar'}"
-    let type ← inferType mvar'
+  finalize (val : Expr) : MetaM Expr := do
+    trace[grind.debug.proof] "{val}"
+    let type ← inferType val
     -- `grind` proofs are often big, if `abstractProof` is true, we create an auxiliary theorem.
-    let val ← if !abstractProof then
-      instantiateMVarsProfiling mvar'
+    let val ← if !config.abstractProof then
+      pure val
     else if (← isProp type) then
-      mkAuxTheorem type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+      mkAuxTheorem type val (zetaDelta := true)
     else
       let auxName ← mkAuxDeclName `grind
-      mkAuxDefinition auxName type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+      mkAuxDefinition auxName type val (zetaDelta := true)
     return val
 
 end Lean.Meta.Grind

@@ -239,7 +239,7 @@ def grind
     return ()
   mvarId.withContext do
     let params ← mkGrindParams config only ps mvarId
-    Grind.withProtectedMCtx config.abstractProof mvarId fun mvarId' => do
+    Grind.withProtectedMCtx config mvarId fun mvarId' => do
       let finalize (result : Grind.Result) : TacticM Unit := do
         if result.hasFailed then
           throwError "`grind` failed\n{← result.toMessageData}"
@@ -340,7 +340,7 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
     | _ => true
   let mvarId ← getMainGoal
   let params ← mkGrindParams config only paramStxs mvarId
-  Grind.withProtectedMCtx config.abstractProof mvarId fun mvarId' => do
+  Grind.withProtectedMCtx config mvarId fun mvarId' => do
     let (tacs, _) ← Grind.GrindTacticM.runAtGoal mvarId' params do
       let finish ← Grind.Action.mkFinish
       let goal :: _ ← Grind.getGoals

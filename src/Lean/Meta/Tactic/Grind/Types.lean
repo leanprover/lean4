@@ -945,6 +945,8 @@ structure DelayedTheoremInstance where
 /-- The `grind` goal. -/
 structure Goal where
   mvarId       : MVarId
+  /-- Next local declaration index to process. -/
+  nextDeclIdx  : Nat := 0
   canon        : Canon.State := {}
   enodeMap     : ENodeMap := default
   exprs        : PArray Expr := {}
@@ -1009,6 +1011,30 @@ abbrev GoalM := StateRefT Goal GrindM
 
 @[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindM Goal :=
   goal.mvarId.withContext do StateRefT'.run' (x *> get) goal
+
+/--
+Sets `nextDeclIdx` to point past the last local declaration in the local context.
+
+This marks all existing local declarations as already processed by `grind`. Use this when
+initializing a goal whose hypotheses should not be processed or after internalizing all of them.
+-/
+def Goal.setNextDeclToEnd (g : Goal) : MetaM Goal := do
+  let mvarDecl ← g.mvarId.getDecl
+  return { g with nextDeclIdx := mvarDecl.lctx.decls.size }
+
+def setNextDeclToEnd : GoalM Unit := do
+  let mvarDecl ← (← get).mvarId.getDecl
+  modify fun g => { g with nextDeclIdx := mvarDecl.lctx.decls.size }
+
+/--
+Returns `true` if the goal has local declarations that have not yet been processed by `grind`.
+
+A local declaration is "pending" if its index is greater than or equal to `nextDeclIdx`.
+This is used to determine whether `grind` needs to internalize new hypotheses.
+-/
+def Goal.hasPendingLocalDecls (g : Goal) : MetaM Bool := do
+  let mvarDecl ← g.mvarId.getDecl
+  return g.nextDeclIdx < mvarDecl.lctx.decls.size
 
 def updateLastTag : GoalM Unit := do
   if (← isTracingEnabledFor `grind) then
@@ -1744,6 +1770,7 @@ inductive ActionResult where
     `gs` are subgoals that could not be closed. They are used for producing error messages.
     -/
     stuck (gs : List Goal)
+  deriving Inhabited
 
 abbrev ActionCont : Type :=
   Goal → GrindM ActionResult

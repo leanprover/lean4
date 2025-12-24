@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Sym.Util
 public import Lean.Meta.Tactic.Grind.Main
+public section
 namespace Lean.Meta.Sym
 open Grind (Params)
 

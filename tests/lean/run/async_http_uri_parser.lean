@@ -124,7 +124,7 @@ info: Std.Http.RequestTarget.originForm
   IO.println (repr result)
 
 /--
-info: Std.Http.RequestTarget.originForm { segments := #[""], absolute := true } none none
+info: Std.Http.RequestTarget.originForm { segments := #[], absolute := true } none none
 -/
 #guard_msgs in
 #eval show IO _ from do
@@ -327,7 +327,7 @@ info: Std.Http.RequestTarget.authorityForm
   IO.println (repr result)
 
 /--
-info: Std.Http.RequestTarget.originForm { segments := #[""], absolute := true } none none
+info: Std.Http.RequestTarget.originForm { segments := #[], absolute := true } none none
 -/
 #guard_msgs in
 #eval show IO _ from do

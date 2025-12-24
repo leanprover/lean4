@@ -215,7 +215,7 @@ private def parseAuthority : Parser URI.Authority := do
 private def parseSegment : Parser ByteSlice := do
   takeWhileUpTo isPChar 256
 
-/--
+/-
 path = path-abempty ; begins with "/" or is empty
   / path-absolute   ; begins with "/" but not "//"
   / path-noscheme   ; begins with a non-colon segment
@@ -229,10 +229,12 @@ path-rootless = segment-nz *( "/" segment )
 path-empty    = 0<pchar>
 -/
 
-private def parsePath (forceAbsolute : Bool) : Parser URI.Path := do
+/--
+Parses an URI with combined parsing and validation.
+-/
+def parsePath (forceAbsolute : Bool) : Parser URI.Path := do
   let mut isAbsolute := false
   let mut segments : Array String := #[]
-
   -- Check if path is absolute
   if ← peekIs (· == '/'.toUInt8) then
     isAbsolute := true
@@ -244,7 +246,7 @@ private def parsePath (forceAbsolute : Bool) : Parser URI.Path := do
   else
     pure ()
   -- Parse segments
-  while true do
+  while (← peek?).isSome do
     let segmentBytes ← parseSegment
 
     let .ok segmentStr := percentDecode segmentBytes.toByteArray
@@ -254,6 +256,9 @@ private def parsePath (forceAbsolute : Bool) : Parser URI.Path := do
 
     if (← peek?).any (· == '/'.toUInt8) then
       skip
+      -- If path ends with '/', add empty segment
+      if (← peek?).isNone then
+        segments := segments.push ""
     else
       break
 

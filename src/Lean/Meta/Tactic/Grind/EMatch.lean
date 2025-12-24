@@ -711,6 +711,27 @@ private partial def isValue (e : Expr) (strict : Bool) : MetaM Bool := do
       unless (← isValue args[i] strict) do return false
     return true
 
+/-- Check a single atomic constraint (used for both top-level and disjunct constraints) -/
+private def checkSingleConstraint (thm : EMatchTheorem) (gen : Nat) (info : ConstantInfo) (us : List Level)
+    (args : Array Expr) (cnstr : EMatchTheoremConstraint) : GoalM Bool := do
+  match cnstr with
+  | .notDefEq lhs rhs => checkDefEq (expectedResult := false) info.levelParams us args lhs rhs
+  | .defEq lhs rhs => checkDefEq (expectedResult := true) info.levelParams us args lhs rhs
+  | .depthLt lhs n => return (← getLHS args lhs).approxDepth.toNat < n
+  | .isGround lhs => let lhs ← getLHS args lhs; return !lhs.hasFVar && !lhs.hasMVar
+  | .isValue lhs strict => isValue (← getLHS args lhs) strict
+  | .notValue lhs strict => return !(← isValue (← getLHS args lhs) strict)
+  | .sizeLt lhs n => checkSize (← getLHS args lhs) n
+  | .genLt n => return gen < n
+  | .maxInsts n =>
+    /-
+    **Note**: We are checking the number of instances produced in the whole proof.
+    It may be useful to bound the number of instances in the current branch.
+    -/
+    return (← getEMatchTheoremNumInstances thm) + 1 < n
+  | .check _ | .guard _ => return true
+  | .disj _ => panic! "nested disjunctions are not supported"
+
 /--
 Checks whether `vars` satisfies the `grind_pattern` constraints attached at `thm`.
 Example:
@@ -731,27 +752,28 @@ private def checkConstraints (thm : EMatchTheorem) (gen : Nat) (proof : Expr) (a
   let info ← getConstInfo declName
   thm.cnstrs.allM fun cnstr => do
     match cnstr with
-    | .notDefEq lhs rhs => checkDefEq (expectedResult := false) info.levelParams us args lhs rhs
-    | .defEq lhs rhs => checkDefEq (expectedResult := true) info.levelParams us args lhs rhs
-    | .depthLt lhs n => return (← getLHS args lhs).approxDepth.toNat < n
-    | .isGround lhs => let lhs ← getLHS args lhs; return !lhs.hasFVar && !lhs.hasMVar
-    | .isValue lhs strict => isValue (← getLHS args lhs) strict
-    | .notValue lhs strict => return !(← isValue (← getLHS args lhs) strict)
-    | .sizeLt lhs n => checkSize (← getLHS args lhs) n
-    | .genLt n => return gen < n
-    | .maxInsts n =>
-      /-
-      **Note**: We are checking the number of instances produced in the whole proof.
-      It may be useful to bound the number of instances in the current branch.
-      -/
-      return (← getEMatchTheoremNumInstances thm) + 1 < n
-    | .check _ | .guard _ => return true
+    | .disj disjuncts =>
+      -- For disjunctions, at least one disjunct must be satisfied
+      disjuncts.anyM fun d => checkSingleConstraint thm gen info us args d
+    | other =>
+      -- For single constraints, check directly
+      checkSingleConstraint thm gen info us args other
 
 private def collectGuards (thm : EMatchTheorem) (proof : Expr) (args : Array Expr) : GoalM (List TheoremGuard) := do
   if thm.cnstrs.isEmpty then return []
   /- **Note**: Only top-level theorems have constraints. -/
   let .const declName us := proof | return []
-  unless thm.cnstrs.any fun c => c matches .check _ | .guard _ do return []
+  let hasGuards := thm.cnstrs.any fun c => 
+    match c with
+    | .check _ => true
+    | .guard _ => true
+    | .disj disjuncts => disjuncts.any fun d => 
+        match d with
+        | .check _ => true
+        | .guard _ => true
+        | _ => false
+    | _ => false
+  unless hasGuards do return []
   let info ← getConstInfo declName
   let mut result := #[]
   let applySubst (e : Expr) : GoalM (Option Expr) := do
@@ -770,6 +792,17 @@ private def collectGuards (thm : EMatchTheorem) (proof : Expr) (args : Array Exp
     | .guard e =>
       let some e ← applySubst e | pure ()
       result := result.push <| { e, check := false }
+    | .disj disjuncts =>
+      -- Guards in disjunctions should have been rejected during elaboration, but be defensive
+      for disjunct in disjuncts do
+        match disjunct with
+        | .check e =>
+          let some e ← applySubst e | pure ()
+          result := result.push <| { e, check := true }
+        | .guard e =>
+          let some e ← applySubst e | pure ()
+          result := result.push <| { e, check := false }
+        | _ => pure ()
     | _ => pure ()
   return result.toList
 

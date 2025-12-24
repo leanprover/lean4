@@ -172,7 +172,7 @@ info: Std.Http.Method.delete / Std.Http.RequestTarget.originForm { segments := #
   IO.println s!"{repr result.method} / {repr result.uri} / {repr result.version}"
 
 /--
-info: Std.Http.Method.head / Std.Http.RequestTarget.originForm { segments := #[""], absolute := true } none none / Std.Http.Version.v11
+info: Std.Http.Method.head / Std.Http.RequestTarget.originForm { segments := #[], absolute := true } none none / Std.Http.Version.v11
 -/
 #guard_msgs in
 #eval show IO _ from do

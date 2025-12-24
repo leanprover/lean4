@@ -96,15 +96,13 @@ info: Try this to display the actual theorem instances:
 -- Note: The suffix skip should apply during check, but inspect bypasses it
 -- Array.range_succ and Array.range'_succ should NOT appear in the output
 /--
-info: instantiating `Array.back?_empty` triggers 19 additional `grind` theorem instantiations
+info: instantiating `Array.back?_empty` triggers 16 additional `grind` theorem instantiations
 ---
 info: instantiating `Array.back?_mapIdx` triggers 18 additional `grind` theorem instantiations
 ---
-info: instantiating `Array.count_empty` triggers 19 additional `grind` theorem instantiations
+info: instantiating `Array.count_empty` triggers 16 additional `grind` theorem instantiations
 ---
-info: instantiating `Array.findIdx_empty` triggers 20 additional `grind` theorem instantiations
----
-info: instantiating `Array.findIdx_singleton` triggers 16 additional `grind` theorem instantiations
+info: instantiating `Array.findIdx_empty` triggers 18 additional `grind` theorem instantiations
 ---
 info: Try this:
   [apply] #grind_lint check  (min := 15) in Array
@@ -112,7 +110,6 @@ info: Try this:
   #grind_lint inspect Array.back?_mapIdx
   #grind_lint inspect Array.count_empty
   #grind_lint inspect Array.findIdx_empty
-  #grind_lint inspect Array.findIdx_singleton
 -/
 #guard_msgs in
 #grind_lint check (min := 15) in Array

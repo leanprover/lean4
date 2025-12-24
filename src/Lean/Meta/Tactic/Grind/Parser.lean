@@ -32,9 +32,9 @@ def grindPatternCnstrAtom : Parser :=
   isValue <|> isStrictValue <|> notValue <|> notStrictValue <|> isGround <|> sizeLt <|> depthLt <|> genLt <|> maxInsts
   <|> guard <|> GrindCnstr.check <|> notDefEq <|> defEq
 
-/-- A constraint can be a single atomic constraint or a disjunction of atomic constraints separated by `<OR>` -/
+/-- A constraint can be a single atomic constraint or a disjunction of atomic constraints separated by `or` -/
 def grindPatternCnstr : Parser :=
-  sepBy1 grindPatternCnstrAtom " <OR> "
+  sepBy1 grindPatternCnstrAtom " or "
 
 def grindPatternCnstrs : Parser := leading_parser "where " >> many1Indent (ppLine >> grindPatternCnstr)
 
@@ -116,11 +116,11 @@ assuming `¬ e` and trying to deduce an inconsistency.
 
 ## Disjunctive Constraints
 
-Constraints can be combined using `<OR>` to express "at least one must hold":
+Constraints can be combined using `or` to express "at least one must hold":
 ```
 grind_pattern mod_eq_of_lt => a % b where
   guard a < b
-  not_value a <OR> not_value b
+  not_value a or not_value b
 ```
 This pattern will match when `a < b` is known AND at least one of `a` or `b` is not a concrete value.
 This prevents instantiation on fully concrete examples like `2 % 1024` while still allowing
@@ -128,7 +128,7 @@ This prevents instantiation on fully concrete examples like `2 % 1024` while sti
 
 Multiple constraints in a disjunction are supported:
 ```
-not_value x <OR> not_value y <OR> not_value z
+not_value x or not_value y or not_value z
 ```
 
 **Note**: `guard` and `check` constraints cannot be used within disjunctions, as they involve

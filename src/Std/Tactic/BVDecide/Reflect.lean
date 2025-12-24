@@ -183,7 +183,7 @@ theorem verifyCert_correct : ∀ cnf cert, verifyCert cnf cert = true → cnf.Un
 /--
 Verify that `cert` is an UNSAT proof for the SAT problem obtained by bitblasting `bv`.
 -/
-def verifyBVExpr (bv : BVLogicalExpr) (cert : String) : Bool :=
+@[allow_native_decide] def verifyBVExpr (bv : BVLogicalExpr) (cert : String) : Bool :=
   verifyCert (AIG.toCNF bv.bitblast.relabelNat) cert
 
 theorem unsat_of_verifyBVExpr_eq_true (bv : BVLogicalExpr) (c : String)

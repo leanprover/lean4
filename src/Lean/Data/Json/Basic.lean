@@ -72,17 +72,18 @@ def lt (a b : JsonNumber) : Bool :=
         ((bm, be), (am, ae))
       else
         ((am, ae), (bm, be))
-    let amDigits := countDigits am
-    let bmDigits := countDigits bm
-    -- align the mantissas
-    let (am, bm) :=
-      if amDigits < bmDigits then
-        (am * 10^(bmDigits - amDigits), bm)
-      else
-        (am, bm * 10^(amDigits - bmDigits))
     if ae < be then true
     else if ae > be then false
-    else am < bm
+    else
+      -- align the mantissas
+      let amDigits := countDigits am
+      let bmDigits := countDigits bm
+      let (am, bm) :=
+        if amDigits < bmDigits then
+          (am * 10^(bmDigits - amDigits), bm)
+        else
+          (am, bm * 10^(amDigits - bmDigits))
+      am < bm
 
 instance ltProp : LT JsonNumber :=
   ⟨fun a b => lt a b = true⟩

@@ -134,18 +134,10 @@ where
     let some cnstrs := cnstrs? | return []
     let cnstrs := cnstrs.raw[1].getArgs
     cnstrs.toList.mapM fun cnstr => do
-      -- Check if this is a disjunction (sepBy1 with multiple elements has separators)
+      -- Check if this is a disjunction (sepBy1 with multiple elements)
       let args := cnstr.getArgs
       if args.size > 1 then
-        -- This is a disjunction - validate separators and extract elements
-        -- Verify that odd-indexed elements are the " or " separator
-        for h : i in [: args.size] do
-          if i % 2 == 1 then
-            -- This should be a separator
-            let sep := args[i]
-            unless sep.isAtom && sep.getAtomVal == "or" do
-              throwErrorAt sep "expected 'or' separator in disjunction, got: {sep}"
-        -- Extract constraint elements (even-indexed) using standard method
+        -- This is a disjunction - extract constraint elements using standard Lean method
         let disjuncts := cnstr.getSepArgs
         -- Validate: guard and check cannot be in disjunctions
         for disjunct in disjuncts do

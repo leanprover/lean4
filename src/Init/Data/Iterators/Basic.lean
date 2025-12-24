@@ -932,4 +932,60 @@ class LawfulDeterministicIterator (α : Type w) (m : Type w → Type w') [Iterat
     where
   isPlausibleStep_eq_eq : ∀ it : IterM (α := α) m β, ∃ step, it.IsPlausibleStep = (· = step)
 
-end Std
+namespace Iterators
+
+/--
+This structure provides a more convenient way to define `Finite α m` instances using
+`Finite.of_finitenessRelation : FinitenessRelation α m → Finite α m`.
+-/
+structure FinitenessRelation (α : Type w) (m : Type w → Type w') {β : Type w}
+    [Iterator α m β] where
+  /-
+  A well-founded relation such that if `it'` is a successor iterator of `it`, then
+  `Rel it' it`.
+  -/
+  Rel (it' it : IterM (α := α) m β) : Prop
+  /- A proof that `Rel` is well-founded. -/
+  wf : WellFounded Rel
+  /- A proof that if `it'` is a successor iterator of `it`, then `Rel it' it`. -/
+  subrelation : ∀ {it it'}, it'.IsPlausibleSuccessorOf it → Rel it' it
+
+theorem Finite.of_finitenessRelation
+    {α : Type w} {m : Type w → Type w'} {β : Type w}
+    [Iterator α m β] (r : FinitenessRelation α m) : Finite α m where
+  wf := by
+    refine Subrelation.wf (r := r.Rel) ?_ ?_
+    · intro x y h
+      apply FinitenessRelation.subrelation
+      exact h
+    · apply InvImage.wf
+      exact r.wf
+
+/--
+This structure provides a more convenient way to define `Productive α m` instances using
+`Productive.of_productivenessRelation : ProductivenessRelation α m → Productive α m`.
+-/
+structure ProductivenessRelation (α : Type w) (m : Type w → Type w') {β : Type w}
+    [Iterator α m β] where
+  /-
+  A well-founded relation such that if `it'` is obtained from `it` by skipping, then
+  `Rel it' it`.
+  -/
+  Rel : (IterM (α := α) m β) → (IterM (α := α) m β) → Prop
+  /- A proof that `Rel` is well-founded. -/
+  wf : WellFounded Rel
+  /- A proof that if `it'` is obtained from `it` by skipping, then `Rel it' it`. -/
+  subrelation : ∀ {it it'}, it'.IsPlausibleSkipSuccessorOf it → Rel it' it
+
+theorem Productive.of_productivenessRelation
+    {α : Type w} {m : Type w → Type w'} {β : Type w}
+    [Iterator α m β] (r : ProductivenessRelation α m) : Productive α m where
+  wf := by
+    refine Subrelation.wf (r := r.Rel) ?_ ?_
+    · intro x y h
+      apply ProductivenessRelation.subrelation
+      exact h
+    · apply InvImage.wf
+      exact r.wf
+
+end Std.Iterators

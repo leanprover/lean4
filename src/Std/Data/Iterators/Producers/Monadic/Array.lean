@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Iterators.Consumers
-public import Init.Data.Iterators.Internal.Termination
 
 @[expose] public section
 
@@ -93,7 +92,7 @@ instance ArrayIterator.instIterator {α : Type w} [Pure m] : Iterator (ArrayIter
 
 private def ArrayIterator.instFinitenessRelation [Pure m] :
     FinitenessRelation (ArrayIterator α) m where
-  rel := InvImage WellFoundedRelation.rel
+  Rel := InvImage WellFoundedRelation.rel
       (fun it => it.internalState.array.size - it.internalState.pos)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by

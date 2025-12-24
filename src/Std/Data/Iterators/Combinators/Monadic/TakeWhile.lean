@@ -9,7 +9,6 @@ prelude
 public import Init.Data.Nat.Lemmas
 public import Init.Data.Iterators.Consumers.Monadic.Collect
 public import Init.Data.Iterators.Consumers.Monadic.Loop
-public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.PostconditionMonad
 
 @[expose] public section
@@ -192,7 +191,7 @@ instance TakeWhile.instIterator [Monad m] [Iterator α m β] {P} :
 private def TakeWhile.instFinitenessRelation [Monad m] [Iterator α m β]
     [Finite α m] {P} :
     FinitenessRelation (TakeWhile α m β P) m where
-  rel := InvImage WellFoundedRelation.rel (IterM.finitelyManySteps ∘ TakeWhile.inner ∘ IterM.internalState)
+  Rel := InvImage WellFoundedRelation.rel (IterM.finitelyManySteps ∘ TakeWhile.inner ∘ IterM.internalState)
   wf := by
     apply InvImage.wf
     exact WellFoundedRelation.wf
@@ -217,7 +216,7 @@ instance TakeWhile.instFinite [Monad m] [Iterator α m β] [Finite α m] {P} :
 private def TakeWhile.instProductivenessRelation [Monad m] [Iterator α m β]
     [Productive α m] {P} :
     ProductivenessRelation (TakeWhile α m β P) m where
-  rel := InvImage WellFoundedRelation.rel (IterM.finitelyManySkips ∘ TakeWhile.inner ∘ IterM.internalState)
+  Rel := InvImage WellFoundedRelation.rel (IterM.finitelyManySkips ∘ TakeWhile.inner ∘ IterM.internalState)
   wf := by
     apply InvImage.wf
     exact WellFoundedRelation.wf

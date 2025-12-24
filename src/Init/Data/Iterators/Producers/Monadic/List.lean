@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Iterators.Consumers
-public import Init.Data.Iterators.Internal.Termination
 
 @[expose] public section
 
@@ -65,7 +64,7 @@ instance ListIterator.instIterator {α : Type w} [Pure m] : Iterator (ListIterat
 
 private def ListIterator.instFinitenessRelation [Pure m] :
     FinitenessRelation (ListIterator α) m where
-  rel := InvImage WellFoundedRelation.rel (ListIterator.list ∘ IterM.internalState)
+  Rel := InvImage WellFoundedRelation.rel (ListIterator.list ∘ IterM.internalState)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf

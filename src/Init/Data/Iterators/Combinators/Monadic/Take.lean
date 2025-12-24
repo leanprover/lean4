@@ -9,7 +9,6 @@ prelude
 public import Init.Data.Nat.Lemmas
 public import Init.Data.Iterators.Consumers.Monadic.Collect
 public import Init.Data.Iterators.Consumers.Monadic.Loop
-public import Init.Data.Iterators.Internal.Termination
 
 @[expose] public section
 
@@ -165,7 +164,7 @@ theorem Take.rel_of_zero_of_inner [Monad m] [Iterator α m β]
 private def Take.instFinitenessRelation [Monad m] [Iterator α m β]
     [Productive α m] :
     FinitenessRelation (Take α m) m where
-  rel := Take.Rel m
+  Rel := Take.Rel m
   wf := by
     rw [Rel]
     split

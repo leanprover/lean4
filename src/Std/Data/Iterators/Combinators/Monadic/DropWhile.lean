@@ -9,7 +9,6 @@ prelude
 public import Init.Data.Nat.Lemmas
 public import Init.Data.Iterators.Consumers.Monadic.Collect
 public import Init.Data.Iterators.Consumers.Monadic.Loop
-public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.PostconditionMonad
 
 @[expose] public section
@@ -247,7 +246,7 @@ instance DropWhile.instIterator [Monad m] [Iterator α m β] {P} :
 private def DropWhile.instFinitenessRelation [Monad m] [Iterator α m β]
     [Finite α m] {P} :
     FinitenessRelation (DropWhile α m β P) m where
-  rel := InvImage WellFoundedRelation.rel
+  Rel := InvImage WellFoundedRelation.rel
       (IterM.finitelyManySteps ∘ DropWhile.inner ∘ IterM.internalState)
   wf := by
     apply InvImage.wf

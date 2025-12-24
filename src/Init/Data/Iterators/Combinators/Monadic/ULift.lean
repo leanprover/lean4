@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.Consumers.Monadic
 
 public section
@@ -99,7 +98,7 @@ instance ULiftIterator.instIterator [Iterator α m β] [Monad n] :
 
 private def ULiftIterator.instFinitenessRelation [Iterator α m β] [Finite α m] [Monad n] :
     FinitenessRelation (ULiftIterator α m n β lift) n where
-  rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.inner.finitelyManySteps)
+  Rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.inner.finitelyManySteps)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation h := by
     rcases h with ⟨_, hs, step, hp, rfl⟩
@@ -115,7 +114,7 @@ instance ULiftIterator.instFinite [Iterator α m β] [Finite α m] [Monad n] :
 
 private def ULiftIterator.instProductivenessRelation [Iterator α m β] [Productive α m] [Monad n] :
     ProductivenessRelation (ULiftIterator α m n β lift) n where
-  rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.inner.finitelyManySkips)
+  Rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.inner.finitelyManySkips)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation h := by
     rcases h with ⟨step, hp, hs⟩

@@ -26,7 +26,7 @@ grind_pattern array_extract_extract => (as.extract i j).extract k l where
   size as < 100
 
 -- Should succeed: symbolic array
-example {as : Array Nat} {i j k l : Nat} (h : as.size < 50) :
+example {as : Array Nat} {i j k l : Nat} :
     (as.extract i j).extract k l = as.extract (i + k) (min (i + l) j) := by
   grind
 

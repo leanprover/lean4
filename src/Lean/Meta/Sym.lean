@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Sym.Main
+public import Lean.Meta.Sym.Util
 
 /-!
 # Symbolic simulation support.

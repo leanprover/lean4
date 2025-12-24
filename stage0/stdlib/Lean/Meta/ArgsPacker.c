@@ -8713,15 +8713,15 @@ block_28:
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 lean_inc(x_3);
-x_22 = l_List_get_x21Internal___redArg(x_13, x_15, x_3);
-lean_dec(x_15);
+x_22 = l_List_get_x21Internal___redArg(x_13, x_16, x_3);
+lean_dec(x_16);
 x_23 = l_Lean_Expr_bindingName_x21(x_12);
 lean_dec(x_12);
 lean_inc(x_20);
 lean_inc_ref(x_19);
 lean_inc(x_18);
 lean_inc_ref(x_17);
-x_24 = l_Lean_Meta_withLocalDeclD___at___00Lean_Meta_ArgsPacker_Unary_uncurryType_spec__1___redArg(x_23, x_22, x_16, x_17, x_18, x_19, x_20);
+x_24 = l_Lean_Meta_withLocalDeclD___at___00Lean_Meta_ArgsPacker_Unary_uncurryType_spec__1___redArg(x_23, x_22, x_15, x_17, x_18, x_19, x_20);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; 
@@ -8797,8 +8797,8 @@ return x_45;
 }
 else
 {
-x_15 = x_37;
-x_16 = x_38;
+x_15 = x_38;
+x_16 = x_37;
 x_17 = x_30;
 x_18 = x_31;
 x_19 = x_32;

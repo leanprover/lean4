@@ -290,6 +290,10 @@ def withSplitSource [MonadControlT GrindM m] [Monad m] (splitSource : SplitSourc
 def getConfig : GrindM Grind.Config :=
   return (← readThe Context).config
 
+/-- Returns extension states associate with `grind` attributes in use -/
+def getExtensions : GrindM Grind.ExtensionStateArray :=
+  return (← readThe Context).extensions
+
 /--
 Runs `k` with the transparency setting specified by `Config.reducible`.
 Uses reducible transparency if `reducible` is `true`, otherwise default transparency.

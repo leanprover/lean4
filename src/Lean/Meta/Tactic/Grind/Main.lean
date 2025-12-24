@@ -124,8 +124,9 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
       trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr }
     |>.run' { scState }
 
-private def mkCleanState (mvarId : MVarId) (params : Params) : MetaM Clean.State := mvarId.withContext do
-  unless params.config.clean do return {}
+private def mkCleanState (mvarId : MVarId) : GrindM Clean.State := mvarId.withContext do
+  let config ← getConfig
+  unless config.clean do return {}
   let mut used : PHashSet Name := {}
   for localDecl in (← getLCtx) do
     used := used.insert localDecl.userName
@@ -148,17 +149,20 @@ private def initENodeCore (e : Expr) (interpreted ctor : Bool) : GoalM Unit := d
     updateIndicesFound (.const declName)
   mkENodeCore e interpreted ctor (generation := 0) (funCC := false)
 
-private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
-  let mvarId ← if params.config.clean then mvarId.exposeNames else pure mvarId
+/-- Returns a new goal for the given metavariable. -/
+public def mkGoal (mvarId : MVarId) : GrindM Goal := do
+  let config ← getConfig
+  let mvarId ← if config.clean then mvarId.exposeNames else pure mvarId
   let trueExpr ← getTrueExpr
   let falseExpr ← getFalseExpr
   let btrueExpr ← getBoolTrueExpr
   let bfalseExpr ← getBoolFalseExpr
   let natZeroExpr ← getNatZeroExpr
   let ordEqExpr ← getOrderingEqExpr
-  let thmEMatch := params.extensions.map fun ext => ext.ematch
-  let thmInj := params.extensions.map fun ext => ext.inj
-  let clean ← mkCleanState mvarId params
+  let extensions ← getExtensions
+  let thmEMatch := extensions.map fun ext => ext.ematch
+  let thmInj := extensions.map fun ext => ext.inj
+  let clean ← mkCleanState mvarId
   let sstates ← Solvers.mkInitialStates
   GoalM.run' { mvarId, ematch.thmMap := thmEMatch, inj.thms := thmInj, clean, sstates } do
     initENodeCore falseExpr (interpreted := true) (ctor := false)
@@ -167,7 +171,6 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
     initENodeCore bfalseExpr (interpreted := false) (ctor := true)
     initENodeCore natZeroExpr (interpreted := true) (ctor := false)
     initENodeCore ordEqExpr (interpreted := false) (ctor := true)
-    assertExtra params
 
 structure Result where
   failure?   : Option Goal
@@ -249,7 +252,7 @@ Otherwise, all remaining local declarations are processed.
 
 Remark: this function assumes the local context does not contains holes with `none` in `decls`.
 -/
-private def addHypotheses (goal : Goal) (num? : Option Nat := none) : GrindM Goal := GoalM.run' goal do
+def processHypotheses (goal : Goal) (num? : Option Nat := none) : GrindM Goal := GoalM.run' goal do
   discard <| go.run
 where
   go : ExceptT Unit GoalM Unit := do
@@ -273,23 +276,18 @@ where
           internalizeLocalDecl localDecl
     setNextDeclToEnd -- Processed all local decls
 
-private def initCore (mvarId : MVarId) (params : Params) : GrindM Goal := do
-  /-
-  **Note**: We used to use `abstractMVars` and `clearImpDetails` here.
-  These operations are now performed at `withProtectedMCtx`
-  -/
-  -- let mvarId ← mvarId.abstractMVars
-  -- let mvarId ← mvarId.clearImplDetails
-  let mvarId ← if params.config.clean || !params.config.revert then pure mvarId else mvarId.markAccessible
-  let mvarId ← if params.config.revert then mvarId.revertAll else pure mvarId
+private def initCore (mvarId : MVarId) : GrindM Goal := do
+  let config ← getConfig
+  let mvarId ← if config.clean || !config.revert then pure mvarId else mvarId.markAccessible
+  let mvarId ← if config.revert then mvarId.revertAll else pure mvarId
   let mvarId ← mvarId.unfoldReducible
   let mvarId ← mvarId.betaReduce
   appendTagSuffix mvarId `grind
-  let goal ← mkGoal mvarId params
-  if params.config.revert then
+  let goal ← mkGoal mvarId
+  if config.revert then
     return goal
   else
-    addHypotheses goal
+    processHypotheses goal
 
 def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
   let issues     := (← get).issues
@@ -305,7 +303,8 @@ def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
 
 def GrindM.runAtGoal (mvarId : MVarId) (params : Params) (k : Goal → GrindM α) (evalTactic? : Option EvalTactic := none) : MetaM α := do
   let go : GrindM α := withGTransparency do
-    let goal ← initCore mvarId params
+    let goal ← initCore mvarId
+    let goal ← GoalM.run' goal <| assertExtra params
     k goal
   go.run params (evalTactic? := evalTactic?)
 

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "runtime/interrupt.h"
 #include "runtime/sstream.h"
 #include "runtime/flet.h"
+#include "runtime/option_ref.h"
 #include "util/lbool.h"
 #include "kernel/type_checker.h"
 #include "kernel/expr_maps.h"
@@ -534,11 +535,16 @@ object * run_boxed_kernel(environment const & env, options const & opts, name co
 expr mk_bool_true();
 expr mk_bool_false();
 
+extern "C" object * lean_has_disallowed_native_decide(object * env, object * n);
+
 optional<expr> reduce_native(environment const & env, expr const & e) {
     if (!is_app(e)) return none_expr();
     expr const & arg = app_arg(e);
     if (!is_constant(arg)) return none_expr();
     if (app_fn(e) == *g_lean_reduce_bool) {
+        if (option_ref<name> has_disallowed = option_ref<name>(lean_has_disallowed_native_decide(env.to_obj_arg(), const_name(arg).to_obj_arg()))) {
+            throw kernel_exception(env, sstream() << "cannot native-reduce expression involving definition `" << has_disallowed.get_val() << "` not marked `@[allow_native_decide]`");
+        }
         object * r = ir::run_boxed_kernel(env, options(), const_name(arg), 0, nullptr);
         if (!lean_is_scalar(r)) {
             lean_dec_ref(r);
@@ -547,6 +553,9 @@ optional<expr> reduce_native(environment const & env, expr const & e) {
         return lean_unbox(r) == 0 ? some_expr(mk_bool_false()) : some_expr(mk_bool_true());
     }
     if (app_fn(e) == *g_lean_reduce_nat) {
+        if (option_ref<name> has_disallowed = option_ref<name>(lean_has_disallowed_native_decide(env.to_obj_arg(), const_name(arg).to_obj_arg()))) {
+            throw kernel_exception(env, sstream() << "cannot native-reduce expression involving definition `" << has_disallowed.get_val() << "` not marked `@[allow_native_decide]`");
+        }
         object * r = ir::run_boxed_kernel(env, options(), const_name(arg), 0, nullptr);
         if (lean_is_scalar(r) || lean_is_mpz(r)) {
             return some_expr(mk_lit(literal(nat(r))));

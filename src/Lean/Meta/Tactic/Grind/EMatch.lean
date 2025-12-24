@@ -763,16 +763,8 @@ private def collectGuards (thm : EMatchTheorem) (proof : Expr) (args : Array Exp
   if thm.cnstrs.isEmpty then return []
   /- **Note**: Only top-level theorems have constraints. -/
   let .const declName us := proof | return []
-  let hasGuards := thm.cnstrs.any fun c => 
-    match c with
-    | .check _ => true
-    | .guard _ => true
-    | .disj disjuncts => disjuncts.any fun d => 
-        match d with
-        | .check _ => true
-        | .guard _ => true
-        | _ => false
-    | _ => false
+  -- Note: disjunctions cannot contain guards/checks (rejected during elaboration)
+  let hasGuards := thm.cnstrs.any fun c => c matches .check _ | .guard _
   unless hasGuards do return []
   let info ← getConstInfo declName
   let mut result := #[]

@@ -2,7 +2,7 @@
 Test for grind_pattern with disjunction support (CNF constraints)
 
 This test demonstrates that the `or` constraint is actually working.
-Without the disjunction, we would need two separate patterns with careful overlap prevention.
+Without the disjunction, we would need two separate patterns.
 -/
 
 -- Define a custom binary operation with a commutativity property

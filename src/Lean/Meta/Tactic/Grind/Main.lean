@@ -119,9 +119,11 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
   let symPrios := params.symPrios
   let extensions := params.extensions
   let anchorRefs? := params.anchorRefs?
+  let debug := grind.debug.get (← getOptions)
   x (← mkMethods evalTactic?).toMethodsRef
     { config, anchorRefs?, simpMethods, simp, extensions, symPrios
-      trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr }
+      trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr
+      debug }
     |>.run' { scState }
 
 private def mkCleanState (mvarId : MVarId) : GrindM Clean.State := mvarId.withContext do

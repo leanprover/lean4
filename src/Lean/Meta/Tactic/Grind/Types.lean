@@ -167,6 +167,7 @@ structure Context where
   bfalseExpr   : Expr
   ordEqExpr    : Expr -- `Ordering.eq`
   intExpr      : Expr -- `Int`
+  debug        : Bool -- Cached `grind.debug (← getOptions)`
 
 /-- Key for the congruence theorem cache. -/
 structure CongrTheoremCacheKey where
@@ -251,6 +252,10 @@ abbrev GrindM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
 
 @[inline] def mapGrindM [MonadControlT GrindM m] [Monad m] (f : {α : Type} → GrindM α → GrindM α) {α} (x : m α) : m α :=
   controlAt GrindM fun runInBase => f <| runInBase x
+
+/-- Returns `true` if `grind.debug` is set -/
+@[inline] def isDebugEnabled : GrindM Bool :=
+  return (← readThe Context).debug
 
 /--
 Backtrackable state for the `GrindM` monad.
@@ -1072,7 +1077,7 @@ def markTheoremInstance (proof : Expr) (assignment : Array Expr) : GoalM Bool :=
 
 /-- Adds a new fact `prop` with proof `proof` to the queue for preprocessing and the assertion. -/
 def addNewRawFact (proof : Expr) (prop : Expr) (generation : Nat) (splitSource : SplitSource) : GoalM Unit := do
-  if grind.debug.get (← getOptions) then
+  if (← isDebugEnabled) then
     unless (← withGTransparency <| isDefEq (← inferType proof) prop) do
       throwError "`grind` internal error, trying to assert{indentExpr prop}\n\
         with proof{indentExpr proof}\nwhich has type{indentExpr (← inferType proof)}\n\
@@ -1231,7 +1236,7 @@ If `isHEq` is `false`, it pushes `lhs = rhs` with `proof` to `newEqs`.
 Otherwise, it pushes `lhs ≍ rhs`.
 -/
 def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
-  if grind.debug.get (← getOptions) then
+  if (← isDebugEnabled) then
     unless (← alreadyInternalized lhs) do
       throwError "`grind` internal error, lhs of new equality has not been internalized{indentExpr lhs}"
     unless (← alreadyInternalized rhs) do

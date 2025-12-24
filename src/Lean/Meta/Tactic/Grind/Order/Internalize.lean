@@ -206,7 +206,7 @@ where
 def internalizeCnstr (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) : OrderM Unit := do
   let some c ← mkCnstr? e kind lhs rhs | return ()
   trace[grind.order.internalize] "{c.u}, {c.v}, {c.k}"
-  if grind.debug.get (← getOptions) then
+  if (← isDebugEnabled) then
     if let some h := c.h? then check h
   let u ← mkNode c.u
   let v ← mkNode c.v

@@ -244,20 +244,34 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
 
 /--
 When `Config.revert := false`, we preprocess the hypotheses, and add them to the `grind` state.
+It starts at `goal.nextDeclIdx`. If `num?` is `some num`, then at most `num` local declarations are processed.
+Otherwise, all remaining local declarations are processed.
+
+Remark: this function assumes the local context does not contains holes with `none` in `decls`.
 -/
-private def addHypotheses (goal : Goal) : GrindM Goal := GoalM.run' goal do
-  let mvarDecl ← goal.mvarId.getDecl
-  for localDecl in mvarDecl.lctx do
-    if (← isInconsistent) then return ()
-    unless localDecl.isImplementationDetail do
-      let type := localDecl.type
-      if (← isProp type) then
-        let r ← preprocessHypothesis type
-        match r.proof? with
-        | none => add r.expr localDecl.toExpr
-        | some h => add r.expr <| mkApp4 (mkConst ``Eq.mp [0]) type r.expr h localDecl.toExpr
-      else
-        internalizeLocalDecl localDecl
+private def addHypotheses (goal : Goal) (num? : Option Nat := none) : GrindM Goal := GoalM.run' goal do
+  discard <| go.run
+where
+  go : ExceptT Unit GoalM Unit := do
+    let mvarDecl ← goal.mvarId.getDecl
+    mvarDecl.lctx.forM (start := goal.nextDeclIdx) fun localDecl => do
+      if (← isInconsistent) then
+        setNextDeclToEnd
+        throwThe Unit () -- interrupt
+      if let some num := num? then
+        if localDecl.index >= goal.nextDeclIdx + num then
+          modify fun goal => { goal with nextDeclIdx := localDecl.index }
+          throwThe Unit () -- interrupt
+      unless localDecl.isImplementationDetail do
+        let type := localDecl.type
+        if (← isProp type) then
+          let r ← preprocessHypothesis type
+          match r.proof? with
+          | none => add r.expr localDecl.toExpr
+          | some h => add r.expr <| mkApp4 (mkConst ``Eq.mp [0]) type r.expr h localDecl.toExpr
+        else
+          internalizeLocalDecl localDecl
+    setNextDeclToEnd -- Processed all local decls
 
 private def initCore (mvarId : MVarId) (params : Params) : GrindM Goal := do
   /-

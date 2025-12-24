@@ -784,14 +784,9 @@ private def collectGuards (thm : EMatchTheorem) (proof : Expr) (args : Array Exp
     | .guard e =>
       let some e ← applySubst e | pure ()
       result := result.push <| { e, check := false }
-    | .disj disjuncts =>
-      -- Guards/checks in disjunctions should have been rejected during elaboration
-      for disjunct in disjuncts do
-        match disjunct with
-        | .check _ | .guard _ =>
-          panic! "guard/check in disjunction should have been rejected during elaboration"
-        | _ => pure ()
-    | _ => pure ()
+    | _ => 
+      -- Note: .disj cannot contain guards/checks (rejected during elaboration), so nothing to do
+      pure ()
   return result.toList
 
 /--

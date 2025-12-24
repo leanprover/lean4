@@ -134,22 +134,25 @@ where
     let some cnstrs := cnstrs? | return []
     let cnstrs := cnstrs.raw[1].getArgs
     cnstrs.toList.mapM fun cnstr => do
-      -- Check if this is a disjunction (sepBy1 creates a node with separators)
-      -- The structure is: sepBy1 creates elements at [0], [2], [4], ... with separators at [1], [3], ...
+      -- Check if this is a disjunction (sepBy1 with multiple elements has separators)
       let args := cnstr.getArgs
       if args.size > 1 then
-        -- This is a disjunction
-        let mut disjunctList : List Syntax := []
+        -- This is a disjunction - validate separators and extract elements
+        -- Verify that odd-indexed elements are the " or " separator
         for h : i in [: args.size] do
-          if i % 2 == 0 then
-            disjunctList := args[i] :: disjunctList
-        let disjuncts := disjunctList.reverse
+          if i % 2 == 1 then
+            -- This should be a separator
+            let sep := args[i]
+            unless sep.isAtom && sep.getAtomVal == "or" do
+              throwErrorAt sep "expected 'or' separator in disjunction, got: {sep}"
+        -- Extract constraint elements (even-indexed) using standard method
+        let disjuncts := cnstr.getSepArgs
         -- Validate: guard and check cannot be in disjunctions
         for disjunct in disjuncts do
           let kind := disjunct.getKind
           if kind == ``Parser.Command.GrindCnstr.guard || kind == ``Parser.Command.GrindCnstr.check then
             throwErrorAt disjunct "`guard` and `check` constraints cannot be used in disjunctions"
-        let elabedDisjuncts ← List.mapM (elabAtomicCnstr xs) disjuncts
+        let elabedDisjuncts ← disjuncts.toList.mapM (elabAtomicCnstr xs)
         return .disj elabedDisjuncts
       else
         -- Single constraint (no disjunction)

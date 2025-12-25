@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Sym.SymM
 import Lean.Meta.Sym.ReplaceS
+public section
 namespace Lean.Meta.Sym
 
 /--

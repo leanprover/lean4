@@ -35,8 +35,8 @@ mutual
   | .app f a => mkAppS (← visitChild f offset fn) (← visitChild a offset fn)
   | .mdata m a => mkMDataS m (← visitChild a offset fn)
   | .proj s i a => mkProjS s i (← visitChild a offset fn)
-  | .forallE n d b bi => mkForallS n bi (← visitChild d offset fn) (← visitChild d (offset+1) fn)
-  | .lam n d b bi => mkLambdaS n bi (← visitChild d offset fn) (← visitChild d (offset+1) fn)
+  | .forallE n d b bi => mkForallS n bi (← visitChild d offset fn) (← visitChild b (offset+1) fn)
+  | .lam n d b bi => mkLambdaS n bi (← visitChild d offset fn) (← visitChild b (offset+1) fn)
   | .letE n t v b d => mkLetS n (← visitChild t offset fn) (← visitChild v offset fn) (← visitChild b (offset+1) fn) (nondep := d)
 end
 

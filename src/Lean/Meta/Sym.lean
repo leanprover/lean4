@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Sym.Main
 public import Lean.Meta.Sym.Util
+public import Lean.Meta.Sym.MaxFVar
 
 /-!
 # Symbolic simulation support.

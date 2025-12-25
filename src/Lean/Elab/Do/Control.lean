@@ -225,8 +225,8 @@ def ControlLifter.lift (l : ControlLifter) (elabElem : DoElemCont → DoElabM Ex
   let breakCont := Functor.mapConst l.breakKVar.mkJump oldBreakCont
   let continueCont := Functor.mapConst l.continueKVar.mkJump oldContinueCont
   let returnCont := { oldReturnCont with k r := do
-      mapLetDeclZeta l.origCont.resultName (← inferType r) r fun _ => l.returnKVar.mkJump
-
+      mapLetDeclZeta l.origCont.resultName (← inferType r) r (nondep := true) (kind := .implDetail)
+        fun _ => l.returnKVar.mkJump
     }
   let contInfo := ContInfo.toContInfoRef { breakCont, continueCont, returnCont }
   let pureCont := { l.origCont with k := l.pureKVar.mkJump, kind := .duplicable }

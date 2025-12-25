@@ -14,6 +14,8 @@ A version of `replace_fn.h` that ensures the resulting expression is maximally s
 open Grind
 abbrev M := StateT (Std.HashMap (ExprPtr × Nat) Expr) AlphaShareBuilderM
 
+export Grind (AlphaShareBuilderM liftBuilderM)
+
 def save (key : ExprPtr × Nat) (r : Expr) : M Expr := do
   modify fun cache => cache.insert key r
   return r
@@ -44,11 +46,14 @@ end
 Similar to `replace_fn` in the kernel, but assumes input is maximally shared, and ensures
 output is also maximally shared.
 -/
-@[inline] public def replaceS (e : Expr) (f : Expr → Nat → AlphaShareBuilderM (Option Expr)) : SymM Expr := liftBuilderM do
+@[inline] public def replaceS' (e : Expr) (f : Expr → Nat → AlphaShareBuilderM (Option Expr)) : AlphaShareBuilderM Expr := do
   if let some r ← f e 0 then
     return r
   match e with
   | .lit _ | .mvar _ | .bvar _ | .fvar _ | .const _ _ | .sort _ => return e
   | _ => visit e 0 f |>.run' {}
+
+@[inline] public def replaceS (e : Expr) (f : Expr → Nat → AlphaShareBuilderM (Option Expr)) : SymM Expr := do
+  liftBuilderM <| replaceS' e f
 
 end Lean.Meta.Sym

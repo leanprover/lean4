@@ -11,6 +11,7 @@ public import Lean.Meta.Sym.Util
 public import Lean.Meta.Sym.MaxFVar
 public import Lean.Meta.Sym.ReplaceS
 public import Lean.Meta.Sym.LooseBVarsS
+public import Lean.Meta.Sym.InstantiateS
 
 /-!
 # Symbolic simulation support.

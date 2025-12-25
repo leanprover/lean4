@@ -13,7 +13,7 @@ namespace Lean.Meta.Sym
 open Grind (Params)
 
 def SymM.run (x : SymM α) (params : Params) : MetaM α := do
-  x.run' {} |>.run params
+  x params |>.run' {} |>.run params
 
 def SymM.run' (x : SymM α) (config : Grind.Config := {}) : MetaM α := do
   let params ← Grind.mkDefaultParams config

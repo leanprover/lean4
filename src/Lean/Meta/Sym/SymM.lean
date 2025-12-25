@@ -6,12 +6,14 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Main
+public section
 namespace Lean.Meta.Sym
 export Grind (ExprPtr Goal)
 
 structure State where
-  maxFVar : PHashMap ExprPtr Expr := {}
+  maxFVar : PHashMap ExprPtr (Option FVarId) := {}
 
-public abbrev SymM := StateRefT State Grind.GrindM
+abbrev SymM := ReaderT Grind.Params StateRefT State Grind.GrindM
 
 end Lean.Meta.Sym

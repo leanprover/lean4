@@ -64,7 +64,7 @@ void check_interrupted() {
     if (g_cancel_tk) {
         inc_ref(g_cancel_tk);
         if (lean_io_cancel_token_is_set(g_cancel_tk) &&
-            !std::uncaught_exception()) {
+            !std::uncaught_exceptions()) {
             throw interrupted();
         }
     }

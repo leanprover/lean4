@@ -123,7 +123,7 @@ private def go (e : Expr) : M Expr := do
     visit e (return mkProj n i (← go b))
 
 /-- Similar to `shareCommon`, but handles alpha-equivalence. -/
-@[inline] def shareCommonAlpha (e : Expr) (s : AlphaShareCommon.State) : Expr × AlphaShareCommon.State :=
+@[inline] def shareCommonAlpha (e : Expr) : AlphaShareCommonM Expr := fun s =>
   if let some r := s.set.find? { expr := e } then
     (r.expr, s)
   else

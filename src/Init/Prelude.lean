@@ -1019,7 +1019,7 @@ support.
    | true, false  => isFalse (fun h => Bool.noConfusion h)
    | true, true   => isTrue rfl
 
-@[inline] instance : DecidableEq Bool :=
+@[inline, allow_native_decide] instance : DecidableEq Bool :=
    Bool.decEq
 
 /--
@@ -1236,7 +1236,9 @@ class OfNat (α : Type u) (_ : Nat) where
   `α`. -/
   ofNat : α
 
-@[default_instance 100] /- low prio -/
+attribute [allow_native_decide] OfNat.ofNat
+
+@[default_instance 100, allow_native_decide] /- low prio -/
 instance instOfNatNat (n : Nat) : OfNat Nat n where
   ofNat := n
 
@@ -2354,7 +2356,7 @@ protected def BitVec.ofNatLT {w : Nat} (i : Nat) (p : LT.lt i (hPow 2 w)) : BitV
 /--
 The bitvector with value `i mod 2^n`.
 -/
-@[expose, match_pattern]
+@[expose, match_pattern, allow_native_decide]
 protected def BitVec.ofNat (n : Nat) (i : Nat) : BitVec n where
   toFin := Fin.Internal.ofNat (HPow.hPow 2 n) (Nat.pow_pos (Nat.zero_lt_succ _)) i
 

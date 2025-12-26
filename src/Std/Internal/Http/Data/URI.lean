@@ -52,7 +52,6 @@ Attempts to parse a `URI` from the given string.
 def parse? (string : String) : Option URI :=
   (Parser.parseURI <* Std.Internal.Parsec.eof).run string.toUTF8 |>.toOption
 
-
 /--
 Parses a `URI` from the given string. Panics if parsing fails. Use `parse?`
 if you need a safe option-returning version.
@@ -62,5 +61,12 @@ def parse! (string : String) : URI :=
   match parse? string with
   | some res => res
   | none => panic! "invalid request target"
+
+/--
+Decode a percent encoded `String` to an extended ascii string.
+-/
+@[inline]
+def decodeURIComponent (string : String) : Except String String :=
+  Parser.percentDecode string.toUTF8
 
 end URI

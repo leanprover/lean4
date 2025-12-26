@@ -367,7 +367,7 @@ info: "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0
 -/
 #guard_msgs in
 #eval show IO Unit from do
-  let response ← sendRawBytes #["POST / HTTP/1.1\r\nContent-Length: 5\r\nContent-Length: 5\r\nHost: test\r\n\r\nhello".toUTF8] (maximumSizeHandlerEcho 150)
+  let response ← sendRawBytes #["POST / HTTP/1.1\r\nContent-Length: 50\r\nContent-Length: 5\r\nHost: test\r\n\r\nhello".toUTF8] (maximumSizeHandlerEcho 150)
   IO.println <| String.quote <| String.fromUTF8! response
 
 
@@ -376,7 +376,7 @@ info: "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0
 -/
 #guard_msgs in
 #eval show IO Unit from do
-  let response ← sendRawBytes #["POST / HTTP/1.1\r\nContent-Length: 5\r\nContent-Length: 50\r\nHost: test\r\n\r\nhello".toUTF8] (maximumSizeHandlerEcho 150)
+  let response ← sendRawBytes #["POST / HTTP/1.1\r\nContent-Length: 50\r\nContent-Length: 5\r\nHost: test\r\n\r\nhello".toUTF8] (maximumSizeHandlerEcho 150)
   IO.println <| String.quote <| String.fromUTF8! response
 
 

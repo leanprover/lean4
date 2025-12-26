@@ -412,6 +412,12 @@ def getReassignedMutVars (rootCtx : LocalContext) (mutVars : Std.HashSet Name) (
     reassignedMutVars := reassignedMutVars.insertMany (newDefs.map (·.userName))
   return reassignedMutVars
 
+def withDeclsAsNonDep (decls : Array LocalDecl) (k : DoElabM α) : DoElabM α := do
+  let mut lctx ← getLCtx
+  for decl in decls do
+    lctx := lctx.modifyLocalDecl decl.fvarId (·.setNondep true)
+  withLCtx' lctx k
+
 /--
 Adds the new reaching definitions of the given `tunneledVars` in `childCtx` relative to `rootCtx` as
 non-dependent decls.
@@ -421,10 +427,12 @@ def addReachingDefsAsNonDep (rootCtx childCtx : LocalContext) (tunneledVars : St
   -- We must also tunnel any variables that the tunneled vars depend on; hence compute the closure.
   let fvars ← (·.2.fvarIds) <$> (tunnelDecls.mapM (Expr.collectFVars ·.type) |>.run {})
   let fvarDecls ← fvars.mapM (·.getDecl)
+  -- trace[Elab.do] "tunnelDecls: {tunnelDecls.map (·.toExpr)}"
   let fvarDecls := fvarDecls.insertionSort (·.index > ·.index)
     |>.takeWhile (·.index >= rootCtx.numIndices)
     |>.reverse
   tunnelDecls := fvarDecls ++ tunnelDecls
+  -- trace[Elab.do] "closed tunnelDecls: {tunnelDecls.map (·.toExpr)}"
   let mut rootCtx := rootCtx
   for decl in tunnelDecls do
     rootCtx := rootCtx.addDecl (decl.setNondep true)
@@ -451,8 +459,11 @@ def ContVarId.find (contVarId : ContVarId) : DoElabM ContVarInfo := do
 /-- Creates a new jump site for the continuation variable, to be synthesized later. -/
 def ContVarId.mkJump (contVarId : ContVarId) : DoElabM Expr := do
   let info ← contVarId.find
+  let tunnelDecls := (← getLCtx).findFromUserNames info.tunneledVars.inner
   let type ← mkMonadicType (← read).doBlockResultType
-  let mvar ← mkFreshExprMVar type -- assigned by `synthesizeJumps`
+  let mvar ← withDeclsAsNonDep tunnelDecls do -- otherwise we get zeta reduction during abstraction
+    mkFreshExprMVar type -- assigned by `synthesizeJumps`
+  -- trace[Elab.do] "mkJump: {contVarId.name}, {mvar}, {repr mvar}, deadCode: {(← read).deadCode}, {mvar.mvarId!}"
   -- If it's dead syntactically, don't even bother registering the jump
   let deadCode := (← read).deadCode
   unless deadCode matches .deadSyntactically do
@@ -650,20 +661,26 @@ fields of the tuple and call `k` in the resulting local context.
 def bindMutVarsFromTuple (vars : List Name) (tupleVar : FVarId) (k : DoElabM Expr) : DoElabM Expr :=
   do go vars tupleVar (← tupleVar.getType) #[]
 where
+  withHaveDecl (name : Name) (type val : Expr) (k : Expr → DoElabM Expr) : DoElabM Expr :=
+    withLetDecl name type val (nondep := true) k
+  mkHaveFVars (fvars : Array Expr) (e : Expr) : DoElabM Expr := do
+    mkLetFVars (generalizeNondepLet := false) fvars e
   go vars tupleVar tupleTy letFVars := do
     let tuple := mkFVar tupleVar
     match vars with
-    | []  => mkLetFVars letFVars (← k)
+    | []  => mkHaveFVars letFVars (← k)
     | [x] =>
-      withLetDecl x tupleTy tuple fun x => do mkLetFVars (letFVars.push x) (← k)
+      withHaveDecl x tupleTy tuple fun x => do
+        mkHaveFVars (letFVars.push x) (← k)
     | [x, y] =>
       let (fst, fstTy, snd, sndTy) ← getProdFields tuple tupleTy
-      withLetDecl x fstTy fst fun x =>
-      withLetDecl y sndTy snd fun y => do mkLetFVars (letFVars.push x |>.push y) (← k)
+      withHaveDecl x fstTy fst fun x =>
+      withHaveDecl y sndTy snd fun y => do
+        mkHaveFVars (letFVars.push x |>.push y) (← k)
     | x :: xs => do
       let (fst, fstTy, snd, sndTy) ← getProdFields tuple tupleTy
-      withLetDecl x fstTy fst fun x => do
-      withLetDecl (← tupleVar.getUserName) sndTy snd fun r => do
+      withHaveDecl x fstTy fst fun x => do
+      withHaveDecl (← tupleVar.getUserName) sndTy snd fun r => do
         go xs r.fvarId! sndTy (letFVars |>.push x |>.push r)
 
 private def withLambda (name : Name) (type : Expr) (k : Expr → DoElabM Expr) (kind := LocalDeclKind.default) (bi := BinderInfo.default) : DoElabM Expr := do
@@ -839,30 +856,6 @@ def getBreakCont : DoElabM (Option (DoElabM Expr)) := do
 
 def getContinueCont : DoElabM (Option (DoElabM Expr)) := do
   return (← read).contInfo.toContInfo.continueCont
-
-/--
-Introduce proxy redefinitions for *all* mut vars and call the continuation `k` with a function
-`elimProxyDefs : Expr → MetaM Expr` similar to `mkLetFVars` that will replace the proxy defs with
-the actual reassigned or original definitions.
--/
-@[inline]
-def withProxyMutVarDefs [Inhabited α] (k : (Expr → MetaM Expr) → DoElabM α) : DoElabM α := do
-  let mutVars := (← read).mutVars
-  let outerCtx ← getLCtx
-  let outerDecls := mutVars.map (outerCtx.getFromUserName! ·.getId)
-  withLocalDeclsDND (← outerDecls.mapM fun x => do return (x.userName, x.type)) (kind := .implDetail) fun proxyDefs => do
-    let proxyCtx ← getLCtx
-    let elimProxyDefs e : MetaM Expr := do
-      let innerCtx ← getLCtx
-      let actualDefs := proxyDefs.map fun pDef =>
-        let x := (proxyCtx.getFVar! pDef).userName
-        let iDef := (innerCtx.getFromUserName! x).toExpr
-        if iDef == pDef then
-          (outerCtx.getFromUserName! x).toExpr  -- original definition
-        else
-          iDef                                  -- reassigned definition
-      e.replaceFVarsM proxyDefs actualDefs
-    k elimProxyDefs
 
 /--
 Prepare the context for elaborating the body of a loop.

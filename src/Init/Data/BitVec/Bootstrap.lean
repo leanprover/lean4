@@ -159,4 +159,18 @@ theorem setWidth_neg_of_le {x : BitVec v} (h : w ≤ v) : BitVec.setWidth w (-x)
     omega
   omega
 
+@[induction_eliminator]
+theorem cons_induction (P : {w : Nat} → (BitVec w) → Prop)
+    (base : P 0#0)
+    (cons: ∀ {w : Nat} (b : Bool) (bv : BitVec w), P bv → P (bv.cons b)) :
+    ∀ {w : Nat} (x : BitVec w), P x := by
+  intros w x
+  induction w
+  case zero =>
+    simp [BitVec.eq_nil x, base]
+  case succ wl ih =>
+    rw [← cons_msb_setWidth x]
+    apply cons
+    apply ih
+
 end BitVec

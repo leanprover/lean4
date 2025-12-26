@@ -33,8 +33,10 @@ structure Headers where
   /--
   The internal hashmap that stores all the data.
   -/
-  data : HashMap HeaderName (Array HeaderValue)
-  deriving Repr, Inhabited
+  data : HashMap HeaderName { arr : Array HeaderValue // arr.size > 0 }
+deriving Inhabited, Repr
+
+
 
 instance : Membership HeaderName Headers where
   mem h s := s ∈ h.data
@@ -58,12 +60,12 @@ instance {s : String} {h : Headers} : Decidable (In s h) := by
   all_goals exact inferInstance
 
 /--
-Retrieves the `HeaderValue` for the given key.
+Retrieves the first `HeaderValue` for the given key.
 -/
 @[inline]
 def get (headers : Headers) (name : HeaderName) (h : name ∈ headers) : HeaderValue :=
-  headers.data.get name h
-  |> HeaderValue.joinCommaSep
+  let arr := headers.data.get name h
+  arr.val[0]'(arr.property)
 
 /--
 Retrieves all `HeaderValue` entries for the given key.
@@ -84,7 +86,7 @@ def getAll? (headers : Headers) (name : HeaderName) : Option (Array HeaderValue)
     none
 
 /--
-Retrieves the `HeaderValue` for the given key.
+Retrieves the first `HeaderValue` for the given key.
 Returns `none` if the header is absent.
 -/
 @[inline]
@@ -100,7 +102,7 @@ Checks if the entry is present in the `Headers`.
 @[inline]
 def hasEntry (headers : Headers) (name : HeaderName) (value : String) : Bool :=
   headers.data.get? name
-  |>.bind (·.find? (·.is value))
+  |>.bind (fun x => x.val.find? (·.is value))
   |>.isSome
 
 /--
@@ -110,7 +112,7 @@ Returns `none` if the header is absent.
 @[inline]
 def getLast? (headers : Headers) (name : HeaderName) : Option HeaderValue :=
   headers.data.get? name
-  |>.bind (fun x => x[x.size - 1]?)
+  |>.bind (fun x => x.val[x.val.size - 1]?)
 
 /--
 Like `get?`, but returns a default value if absent.
@@ -132,19 +134,24 @@ Inserts a new key-value pair into the headers.
 @[inline]
 def insert (headers : Headers) (key : HeaderName) (value : HeaderValue) : Headers :=
   if let some headerValue := headers.data.get? key then
-    { data := headers.data.insert key (headerValue.push value) }
+    let newArr := headerValue.val.push value
+    { data := headers.data.insert key ⟨newArr, by unfold newArr; simp⟩ }
   else
-    { data := headers.data.insert key #[value] }
+    { data := headers.data.insert key ⟨#[value], by simp⟩ }
 
 /--
 Inserts a new key with an array of values.
 -/
 @[inline]
-def insertMany (headers : Headers) (key : HeaderName) (value : Array HeaderValue) : Headers :=
-  if let some headerValue := headers.data.get? key then
-    { data := headers.data.insert key (headerValue ++ value) }
+def insertMany (headers : Headers) (key : HeaderName) (value : Array HeaderValue) (p : value.size > 0) : Headers :=
+  if h : value.size > 0 then
+    if let some headerValue := headers.data.get? key then
+      let newArr := headerValue.val ++ value
+      { data := headers.data.insert key ⟨newArr, by unfold newArr; simp [Array.size_append]; omega⟩ }
+    else
+      { data := headers.data.insert key ⟨value, h⟩ }
   else
-    { data := headers.data.insert key value }
+    headers
 
 /--
 Creates empty headers.
@@ -156,7 +163,7 @@ def empty : Headers :=
 Creates headers from a list of key-value pairs.
 -/
 def ofList (pairs : List (HeaderName × HeaderValue)) : Headers :=
-  { data := HashMap.ofList (pairs.map (fun (k, v) => (k, #[v]))) }
+  { data := HashMap.ofList (pairs.map (fun (k, v) => (k, ⟨#[v], by simp⟩))) }
 
 /--
 Checks if a header with the given name exists.
@@ -190,24 +197,28 @@ def isEmpty (headers : Headers) : Bool :=
 Merges two headers, with the second taking precedence for duplicate keys.
 -/
 def merge (headers1 headers2 : Headers) : Headers :=
-  headers2.data.fold (fun acc k v => acc.insertMany k v) headers1
+  headers2.data.fold (fun acc k v => acc.insertMany k v.val v.property) headers1
 
 instance : ToString Headers where
   toString headers :=
-    let pairs := headers.data.toArray.flatMap (fun (k, vs) => vs.map (k, ·))
+    let pairs := headers.data.toArray.flatMap (fun (k, vs) => vs.val.map (k, ·))
     let pairs := pairs.map (fun (k, vs) => s!"{k}: {vs.value}")
     String.intercalate "\r\n" pairs.toList
 
 instance : Encode .v11 Headers where
   encode buffer := buffer.writeString ∘ toString
 
-instance : EmptyCollection Headers := ⟨Headers.empty⟩
+instance : EmptyCollection Headers :=
+  ⟨Headers.empty⟩
 
-instance : Singleton (HeaderName × HeaderValue) Headers := ⟨fun ⟨a, b⟩ => (∅ : Headers).insert a b⟩
+instance : Singleton (HeaderName × HeaderValue) Headers :=
+  ⟨fun ⟨a, b⟩ => (∅ : Headers).insert a b⟩
 
-instance : Insert (HeaderName × HeaderValue) Headers := ⟨fun ⟨a, b⟩ s => s.insert a b⟩
+instance : Insert (HeaderName × HeaderValue) Headers :=
+  ⟨fun ⟨a, b⟩ s => s.insert a b⟩
 
-instance : Union Headers := ⟨merge⟩
+instance : Union Headers :=
+  ⟨merge⟩
 
 /--
 Proposition that all strings in a list are present in the headers.

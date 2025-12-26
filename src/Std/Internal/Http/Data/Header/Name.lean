@@ -109,6 +109,9 @@ where finally
 instance : HAppend HeaderValue HeaderValue HeaderValue where
   hAppend := HeaderValue.append
 
+instance : ToString HeaderValue where
+  toString v := v.value
+
 /--
 Joins an array of `HeaderValue` instances with comma-space separation.
 Returns a single `HeaderValue` containing all values joined together.
@@ -121,9 +124,6 @@ def joinCommaSep (x : Array HeaderValue) : HeaderValue :=
     rest.foldl (· ++ HeaderValue.new ", " ++ ·) first
   else
     .new ""
-
-instance : ToString HeaderValue where
-  toString v := v.value
 
 end HeaderValue
 

@@ -1746,16 +1746,47 @@ grind_pattern shiftLeft_add => (m <<< n) <<< k where
 
 /-! ### Decidability of predicates -/
 
-instance decidableBallLT :
+/-- This instance handles `n` up to approximately 160 with the default maxRecDepth of 512. -/
+def decidableBallLTSmall :
   ∀ (n : Nat) (P : ∀ k, k < n → Prop) [∀ n h, Decidable (P n h)], Decidable (∀ n h, P n h)
 | 0, _, _ => isTrue fun _ => (by cases ·)
 | n + 1, P, H =>
-  match decidableBallLT n (P · <| lt_succ_of_lt ·) with
+  match decidableBallLTSmall n (P · <| lt_succ_of_lt ·) with
   | isFalse h => isFalse (h fun _ _ => · _ _)
   | isTrue h =>
     match H n Nat.le.refl with
     | isFalse p => isFalse (p <| · _ _)
     | isTrue p => isTrue fun _ h' => (Nat.lt_succ_iff_lt_or_eq.1 h').elim (h _) fun hn => hn ▸ p
+
+/-- This instance handles `n` up to approximately 28000 with the default maxRecDepth of 512. -/
+instance decidableBallLT (n : Nat) (P : ∀ k, k < n → Prop) [H : ∀ n h, Decidable (P n h)] :
+    Decidable (∀ n h, P n h) :=
+  -- assuming we get `Lean.defaultMaxRecDepth / 2` stack frames,
+  -- this maximizes the number of inner * outer iterations
+  let step := Lean.defaultMaxRecDepth / 4
+  if n < step then decidableBallLTSmall n P else
+  -- tail-recursion doesn't save stack frames in kernel reduction, so we also need a nested loop
+  let rec inner : ∀ n1 ≤ n, ∀ n2 ≤ n1, (∀ n h, n1 ≤ n → P n h) → Decidable (∀ n h, n2 ≤ n → P n h)
+    | 0, _, _, _, h2 => isTrue fun n' hn' _ => h2 n' hn' (Nat.zero_le _)
+    | n1 + 1, h1, n2, hn2, h2 =>
+      if hn : n1 + 1 ≤ n2 then isTrue (h2 · · <| Nat.le_trans hn ·)
+      else have hn : n2 ≤ n1 := Nat.le_of_not_lt hn
+        match H n1 h1 with
+        | isFalse p => isFalse (p <| · _ h1 hn)
+        | isTrue p =>
+          inner n1 (Nat.le_of_succ_le h1) n2 hn fun n hn2 hn1 =>
+            (Nat.le_iff_lt_or_eq.mp hn1).elim (h2 n hn2) (· ▸ p)
+  let rec outer : ∀ n1, n1 * step ≤ n → (∀ n h, n1 * step ≤ n → P n h) → Decidable (∀ n h, P n h)
+  | 0, _, h2 => isTrue (h2 · · <| Nat.le_trans (Nat.le_of_eq (Nat.zero_mul _)) (Nat.zero_le _))
+  | n1 + 1, h1, h2 =>
+    have : n1 * step ≤ (n1 + 1) * step := Nat.mul_le_mul_right _ (Nat.le_add_right n1 1)
+    match inner _ h1 (n1 * step) this h2 with
+    | isFalse p => isFalse (p fun n' hn' _ => · n' hn')
+    | isTrue p => outer n1 (Nat.le_trans this h1) p
+  match inner n (Nat.le_refl n) (n / step * step) (Nat.div_mul_le_self n _)
+    fun _ => (Nat.not_le_of_gt · · |>.elim) with
+  | isFalse p => isFalse (p fun n' hn' _ => · n' hn')
+  | isTrue p => outer (n / step) (Nat.div_mul_le_self n _) p
 
 instance decidableForallFin (P : Fin n → Prop) [DecidablePred P] : Decidable (∀ i, P i) :=
   decidable_of_iff (∀ k h, P ⟨k, h⟩) ⟨fun m ⟨k, h⟩ => m k h, fun m k h => m ⟨k, h⟩⟩
@@ -1765,28 +1796,21 @@ instance decidableBallLE (n : Nat) (P : ∀ k, k ≤ n → Prop) [∀ n h, Decid
   decidable_of_iff (∀ (k) (h : k < succ n), P k (le_of_lt_succ h))
     ⟨fun m k h => m k (lt_succ_of_le h), fun m k _ => m k _⟩
 
-instance decidableExistsLT [h : DecidablePred p] : DecidablePred fun n => ∃ m : Nat, m < n ∧ p m
-  | 0 => isFalse (by simp only [not_lt_zero, false_and, exists_const, not_false_eq_true])
-  | n + 1 =>
-    @decidable_of_decidable_of_iff _ _ (@instDecidableOr _ _ (decidableExistsLT (p := p) n) (h n))
-      (by simp only [Nat.lt_succ_iff_lt_or_eq, or_and_right, exists_or, exists_eq_left])
+instance decidableExistsLT [DecidablePred p] : DecidablePred fun n => ∃ m : Nat, m < n ∧ p m
+  | n => match Nat.decidableBallLT n (fun (m : Nat) (_ : m < n) => ¬p m) with
+    | isTrue h => isFalse (by simpa using h)
+    | isFalse h => isTrue (by simpa using h)
 
 instance decidableExistsLE [DecidablePred p] : DecidablePred fun n => ∃ m : Nat, m ≤ n ∧ p m :=
   fun n => decidable_of_iff (∃ m, m < n + 1 ∧ p m)
     (exists_congr fun _ => and_congr_left' Nat.lt_succ_iff)
 
 /-- Dependent version of `decidableExistsLT`. -/
-instance decidableExistsLT' {p : (m : Nat) → m < k → Prop} [I : ∀ m h, Decidable (p m h)] :
+instance decidableExistsLT' {p : (m : Nat) → m < k → Prop} [∀ m h, Decidable (p m h)] :
     Decidable (∃ m : Nat, ∃ h : m < k, p m h) :=
-  match k, p, I with
-  | 0, _, _ => isFalse (by simp)
-  | (k + 1), p, I => @decidable_of_iff _ ((∃ m, ∃ h : m < k, p m (by omega)) ∨ p k (by omega))
-      ⟨by rintro (⟨m, h, w⟩ | w); exact ⟨m, by omega, w⟩; exact ⟨k, by omega, w⟩,
-        fun ⟨m, h, w⟩ => if h' : m < k then .inl ⟨m, h', w⟩ else
-          by obtain rfl := (by omega : m = k); exact .inr w⟩
-      (@instDecidableOr _ _
-        (decidableExistsLT' (p := fun m h => p m (by omega)) (I := fun m h => I m (by omega)))
-        inferInstance)
+  match Nat.decidableBallLT k (fun (m : Nat) (h : m < k) => ¬p m h) with
+  | isTrue h => isFalse (by simpa using h)
+  | isFalse h => isTrue (by simpa using h)
 
 /-- Dependent version of `decidableExistsLE`. -/
 instance decidableExistsLE' {p : (m : Nat) → m ≤ k → Prop} [I : ∀ m h, Decidable (p m h)] :

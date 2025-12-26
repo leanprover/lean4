@@ -49,11 +49,11 @@ namespace Body
 /--
 Get content length of a body (if known).
 -/
-def getContentLength (body : Body) : Length :=
+def getContentLength (body : Body) : Async Length :=
   match body with
-  | zero => .fixed 0
-  | .bytes data => .fixed data.size
-  | .stream _ => .chunked
+  | zero => pure <| .fixed 0
+  | .bytes data => pure <| .fixed data.size
+  | .stream s => (Option.getD · .chunked) <$> s.getKnownSize
 
 /--
 Close the body and release any associated resources. For streaming bodies, this closes the underlying
@@ -95,19 +95,36 @@ instance : ForIn ContextAsync Body Chunk where
 
 /--
 Collect all data from the body into a single `ByteArray`. This reads the entire body content into memory
-and consumes significant memory for large bodies.
+and consumes significant memory for large bodies. If `maxBytes` is provided, throws an error if the body
+exceeds that limit.
 -/
-def collectByteArray (body : Body) : Async ByteArray := do
-  let mut result := .empty
-  for x in body do result := result ++ x.data
+def collectByteArray (body : Body) (maxBytes : Option Nat := none) : Async ByteArray := do
+  if let some maxBytes := maxBytes then
+    if let .fixed size ← body.getContentLength then
+      if size > maxBytes then
+        throw <| IO.userError s!"body exceeds limit ({maxBytes} bytes)"
+
+  let mut result := ByteArray.empty
+  let mut size := 0
+
+  for x in body do
+    let chunk := x.data
+    let newSize := size + chunk.size
+
+    if let some maxBytes := maxBytes then
+      if newSize > maxBytes then
+        throw <| IO.userError s!"body exceeds limit ({maxBytes} bytes)"
+
+    result := result ++ chunk
+    size := newSize
+
   return result
 
 /--
 Collect all data from the body into a single `String`. This reads the entire body content into memory
-and consumes significant memory for large bodies. Returns `some` if the data is valid UTF-8, otherwise
-`none`.
+and consumes significant memory for large bodies. If `maxBytes` is provided, throws an error if the body
+exceeds that limit. Returns `some` if the data is valid UTF-8, otherwise `none`.
 -/
-def collectString (body : Body) : Async (Option String) := do
-  let mut result := .empty
-  for x in body do result := result ++ x.data
-  return String.fromUTF8? result
+def collectString (body : Body) (maxBytes : Option Nat := none) : Async (Option String) := do
+  let mut res ← collectByteArray body maxBytes
+  return String.fromUTF8? res

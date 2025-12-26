@@ -235,7 +235,7 @@ partial def mkCongrArg (f h : Expr) : MetaM Expr := do
   else if let some (α, f₁, h₁) ← congrArg? h then
     -- Fuse nested `congrArg` for smaller proof terms, e.g. when using simp
     -- hot path, construct terms directly
-    let f' := .lam `x α (f.beta #[f₁.beta #[.bvar 0]]) .default
+    let f' := .lam `x α (f.app (f₁.beta #[.bvar 0])) .default
     mkCongrArg f' h₁
   else
     let hType ← infer h
@@ -255,7 +255,7 @@ def mkCongrFun (h a : Expr) : MetaM Expr := do
   else if let some (α, f₁, h₁) ← congrArg? h then
     -- Fuse nested `congrArg` for smaller proof terms, e.g. when using simp
     -- hot path, construct terms directly
-    let f' := .lam `x α (f₁.beta #[.bvar 0, a]) .default
+    let f' := .lam `x α ((f₁.beta #[.bvar 0]).app a) .default
     mkCongrArg f' h₁
   else
     let hType ← infer h

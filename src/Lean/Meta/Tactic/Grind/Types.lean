@@ -776,6 +776,30 @@ structure CaseTrace where
   source : SplitSource
   deriving Inhabited
 
+/--
+Users can attach guards to `grind_pattern`s. A guard ensures that a theorem is instantiated
+ only when the guard expression becomes provably true.
+
+If `check` is `true`, then `grind` attempts to prove `e` by asserting its negation and
+checking whether this leads to a contradiction.
+-/
+structure TheoremGuard where
+  e     : Expr
+  check : Bool
+  deriving Inhabited
+
+/--
+A delayed theorem instantiation is an instantiation that includes one or more guards.
+See `TheoremGuard`.
+-/
+structure DelayedTheoremInstance where
+  thm        : EMatchTheorem
+  proof      : Expr
+  prop       : Expr
+  generation : Nat
+  guards     : List TheoremGuard
+  deriving Inhabited
+
 /-- E-matching related fields for the `grind` goal. -/
 structure EMatch.State where
   /--
@@ -801,6 +825,11 @@ structure EMatch.State where
   nextThmIdx   : Nat := 0
   /-- `match` auxiliary functions whose equations have already been created and activated. -/
   matchEqNames : PHashSet Name := {}
+  /--
+  Delayed instantiations is a mapping from guards to theorems that are waiting them
+  to become `True`.
+  -/
+  delayedThmInsts : PHashMap ExprPtr (List DelayedTheoremInstance) := {}
   deriving Inhabited
 
 /-- Case-split information. -/
@@ -928,32 +957,14 @@ structure Injective.State where
   deriving Inhabited
 
 /--
-Users can attach guards to `grind_pattern`s. A guard ensures that a theorem is instantiated
- only when the guard expression becomes provably true.
+The `grind` state for a goal, excluding the metavariable.
 
-If `check` is `true`, then `grind` attempts to prove `e` by asserting its negation and
-checking whether this leads to a contradiction.
+This separation from `Goal` allows multiple goals with different metavariables to share
+the same `GoalState`. This is useful for automation such as symbolic simulation, where applying
+theorems create multiple goals that inherit the same E-graph, congruence closure state, and other
+accumulated facts.
 -/
-structure TheoremGuard where
-  e     : Expr
-  check : Bool
-  deriving Inhabited
-
-/--
-A delayed theorem instantiation is an instantiation that includes one or more guards.
-See `TheoremGuard`.
--/
-structure DelayedTheoremInstance where
-  thm        : EMatchTheorem
-  proof      : Expr
-  prop       : Expr
-  generation : Nat
-  guards     : List TheoremGuard
-  deriving Inhabited
-
-/-- The `grind` goal. -/
-structure Goal where
-  mvarId       : MVarId
+structure GoalState where
   /-- Next local declaration index to process. -/
   nextDeclIdx  : Nat := 0
   canon        : Canon.State := {}
@@ -994,11 +1005,16 @@ structure Goal where
   clean        : Clean.State := {}
   /-- Solver states. -/
   sstates      : Array SolverExtensionState := #[]
-  /--
-  Delayed instantiations is a mapping from guards to theorems that are waiting them
-  to become `True`.
-  -/
-  delayedThmInsts : PHashMap ExprPtr (List DelayedTheoremInstance) := {}
+  deriving Inhabited
+
+/--
+A `grind` goal, combining shared state with a specific metavariable.
+
+See `GoalState` for details on why the state is factored out.
+**Note**: The `Goal` internal representation is just a pair `GoalState` and `MVarId`.
+-/
+structure Goal extends GoalState where
+  mvarId : MVarId
   deriving Inhabited
 
 def Goal.hasSameRoot (g : Goal) (a b : Expr) : Bool :=
@@ -1710,11 +1726,11 @@ def addTheoremInstance (thm : EMatchTheorem) (proof : Expr) (prop : Expr) (gener
     addNewRawFact proof prop generation (.ematch thm.origin)
     modify fun s => { s with ematch.numInstances := s.ematch.numInstances + 1 }
   | .next guard guards =>
-    let thms := (← get).delayedThmInsts.find? { expr := guard } |>.getD []
+    let thms := (← get).ematch.delayedThmInsts.find? { expr := guard } |>.getD []
     let thms := { thm, proof, prop, generation, guards } :: thms
     trace_goal[grind.ematch.instance.delayed] "`{thm.origin.pp}` waiting{indentExpr guard}"
     modify fun s => { s with
-      delayedThmInsts := s.delayedThmInsts.insert { expr := guard } thms
+      ematch.delayedThmInsts := s.ematch.delayedThmInsts.insert { expr := guard } thms
       ematch.numDelayedInstances := s.ematch.numDelayedInstances + 1
     }
 

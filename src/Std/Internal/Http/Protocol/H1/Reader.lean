@@ -20,7 +20,12 @@ namespace Std.Http.Protocol.H1
 
 inductive Reader.State (dir : Direction) : Type
   /--
-  Initial state waiting for HTTP start line.
+  State waiting to be able to read new data.
+  -/
+  | pending : State dir
+
+  /--
+  State waiting for HTTP start line.
   -/
   | needStartLine : State dir
 
@@ -65,7 +70,7 @@ structure Reader (dir : Direction) where
   /--
   The current state of the machine.
   -/
-  state : Reader.State dir := .needStartLine
+  state : Reader.State dir := match dir with | .receiving => .needStartLine | .sending => .pending
 
   /--
   The input byte array.

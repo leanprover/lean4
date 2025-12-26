@@ -225,7 +225,7 @@ info: Std.Http.RequestTarget.absoluteForm
 /--
 info: Std.Http.RequestTarget.absoluteForm
   { scheme := "https",
-    authority := some { userInfo := some "user:pass",
+    authority := some { userInfo := some { username := "user b", password := some "pass" },
                    host := Std.Http.URI.Host.name "secure.example.com",
                    port := none },
     path := { segments := #["private"], absolute := true },
@@ -234,7 +234,7 @@ info: Std.Http.RequestTarget.absoluteForm
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "https://user:pass@secure.example.com/private"
+  let result ← runParser Std.Http.Parser.parseRequestTarget "https://user%20b:pass@secure.example.com/private"
   IO.println (repr result)
 
 /--

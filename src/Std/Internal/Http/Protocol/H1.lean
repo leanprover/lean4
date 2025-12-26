@@ -152,12 +152,13 @@ def getMessageSize (req : Message.Head dir) : Option Body.Length := do
     if req.method == .head ∨ req.method == .connect then
       return .fixed 0
 
-  match (req.headers.get? (.new "Content-Length"), req.headers.hasEntry (.new "Transfer-Encoding") "chunked") with
-  | (some cl, false) => do
+  match (req.headers.getAll? (.new "Content-Length"), req.headers.hasEntry (.new "Transfer-Encoding") "chunked") with
+  | (some #[cl], false) => do
     let num ← cl.value.toNat?
     some (.fixed num)
   | (none, false) => some (.fixed 0)
   | (none, true) => some .chunked
+  | (some _, false) => none -- To avoid request smuggling with multiple content-length headers.
   | (some _, true) => none -- To avoid request smuggling!
 
 -- State Checks

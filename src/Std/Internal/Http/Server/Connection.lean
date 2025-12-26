@@ -47,14 +47,6 @@ public structure Connection (α : Type) where
 
 namespace Connection
 
-deriving instance Repr for ByteArray
-deriving instance Repr for Chunk
-deriving instance Repr for Response
-deriving instance Repr for Error
-
-instance : Repr Body where
-  reprPrec _ n := reprPrec () n
-
 private inductive Recv
   | bytes (x : Option ByteArray)
   | channel (x : Option Chunk)
@@ -62,7 +54,6 @@ private inductive Recv
   | timeout
   | shutdown
   | close
-deriving Repr
 
 private def receiveWithTimeout
     [Transport α]

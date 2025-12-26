@@ -40,3 +40,27 @@ def parse! (string : String) : RequestTarget :=
   match parse? string with
   | some res => res
   | none => panic! "invalid request target"
+
+end RequestTarget
+
+namespace URI
+
+/--
+Attempts to parse a `URI` from the given string.
+-/
+@[inline]
+def parse? (string : String) : Option URI :=
+  (Parser.parseURI <* Std.Internal.Parsec.eof).run string.toUTF8 |>.toOption
+
+
+/--
+Parses a `URI` from the given string. Panics if parsing fails. Use `parse?`
+if you need a safe option-returning version.
+-/
+@[inline]
+def parse! (string : String) : URI :=
+  match parse? string with
+  | some res => res
+  | none => panic! "invalid request target"
+
+end URI

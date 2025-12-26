@@ -753,6 +753,10 @@ instance : MonadLift (EIO ε) (EAsync ε) where
 instance : MonadLift BaseAsync (EAsync ε) where
   monadLift x := .mk <| x.map (.ok)
 
+instance : MonadAttach BaseAsync := .trivial
+
+instance : MonadAttach (EAsync ε) := .trivial
+
 @[inline]
 protected partial def forIn
     {β : Type} (init : β)

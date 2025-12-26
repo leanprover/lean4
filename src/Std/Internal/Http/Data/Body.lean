@@ -1,0 +1,130 @@
+/-
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Sofia Rodrigues
+-/
+module
+
+prelude
+public import Std.Internal.Async.ContextAsync
+public import Std.Internal.Http.Data.Headers
+public import Std.Internal.Http.Data.Body.Length
+public import Std.Internal.Http.Data.Body.ByteStream
+
+public section
+
+/-!
+# Body
+
+This module defines the `Body` type, which represents the body of an HTTP request or response.
+-/
+
+namespace Std.Http
+
+open Std Internal IO Async
+
+/--
+Type that represents the body of a request or response with streams of byte arrays or byte arrays of fixed
+size.
+-/
+inductive Body where
+  /--
+  Empty body with no content
+  -/
+  | zero
+
+  /--
+  Body containing raw byte data stored in memory
+  -/
+  | bytes (data : ByteArray)
+
+  /--
+  Body containing streaming data from a byte stream channel
+  -/
+  | stream (channel : Body.ByteStream)
+deriving Inhabited
+
+namespace Body
+
+/--
+Get content length of a body (if known).
+-/
+def getContentLength (body : Body) : Async Length :=
+  match body with
+  | zero => pure <| .fixed 0
+  | .bytes data => pure <| .fixed data.size
+  | .stream s => (Option.getD · .chunked) <$> s.getKnownSize
+
+/--
+Close the body and release any associated resources. For streaming bodies, this closes the underlying
+channel. For other body types, this is a no-op.
+-/
+def close (body : Body) : Async Unit :=
+  match body with
+  | .stream channel => channel.close
+  | _ => pure ()
+
+instance : Coe String Body where
+  coe s := .bytes (String.toUTF8 s)
+
+instance : Coe ByteArray Body where
+  coe := .bytes
+
+instance : Coe Body.ByteStream Body where
+  coe := .stream
+
+instance : Coe Unit Body where
+  coe _ := Body.zero
+
+instance : EmptyCollection Body where
+  emptyCollection := Body.zero
+
+instance : ForIn Async Body Chunk where
+  forIn body acc step :=
+    match body with
+    | .zero => pure acc
+    | .bytes data => return (← step (Chunk.mk data #[]) acc).value
+    | .stream stream' => ByteStream.forIn stream' acc step
+
+instance : ForIn ContextAsync Body Chunk where
+  forIn body acc step :=
+    match body with
+    | .zero => pure acc
+    | .bytes data => return (← step (Chunk.mk data #[]) acc).value
+    | .stream stream' => ByteStream.forIn' stream' acc step
+
+/--
+Collect all data from the body into a single `ByteArray`. This reads the entire body content into memory
+and consumes significant memory for large bodies. If `maxBytes` is provided, throws an error if the body
+exceeds that limit.
+-/
+def collectByteArray (body : Body) (maxBytes : Option Nat := none) : Async ByteArray := do
+  if let some maxBytes := maxBytes then
+    if let .fixed size ← body.getContentLength then
+      if size > maxBytes then
+        throw <| IO.userError s!"body exceeds limit ({maxBytes} bytes)"
+
+  let mut result := ByteArray.empty
+  let mut size := 0
+
+  for x in body do
+    let chunk := x.data
+    let newSize := size + chunk.size
+
+    if let some maxBytes := maxBytes then
+      if newSize > maxBytes then
+        throw <| IO.userError s!"body exceeds limit ({maxBytes} bytes)"
+
+    result := result ++ chunk
+    size := newSize
+
+  return result
+
+/--
+Collect all data from the body into a single `String`. This reads the entire body content into memory
+and consumes significant memory for large bodies. If `maxBytes` is provided, throws an error if the body
+exceeds that limit. Returns `some` if the data is valid UTF-8, otherwise `none`.
+-/
+def collectString (body : Body) (maxBytes : Option Nat := none) : Async (Option String) := do
+  let mut res ← collectByteArray body maxBytes
+  return String.fromUTF8? res

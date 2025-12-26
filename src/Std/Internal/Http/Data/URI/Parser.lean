@@ -154,12 +154,24 @@ private def parsePortNumber : Parser UInt16 := do
 
 -- userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
 private def parseUserInfo : Parser URI.UserInfo := do
-  let userBytes ← takeWhileUpTo isUserInfoChar 1024
+  let userBytesName ← takeWhileUpTo (fun x => x ≠ ':'.toUInt8 ∧ isUserInfoChar x) 1024
 
-  let .ok userStr := percentDecode userBytes.toByteArray
+  let .ok userName := percentDecode userBytesName.toByteArray
     | fail "invalid percent encoding in user info"
 
-  return userStr
+  let userPass ← if ← peekIs (· == ':'.toUInt8) then
+      skip
+
+      let userBytesPass ← takeWhileUpTo isUserInfoChar 1024
+
+      let .ok userStrPass := percentDecode userBytesPass.toByteArray
+        | fail "invalid percent encoding in user info"
+
+      pure <| some userStrPass
+    else
+      pure none
+
+  return ⟨userName, userPass⟩
 
 -- IP-literal = "[" ( IPv6address / IPvFuture  ) "]"
 private def parseIPv6 : Parser Net.IPv6Addr := do
@@ -296,6 +308,24 @@ private def parseFragment : Parser String := do
   return fragmentStr
 
 /--
+Parses a URI (Uniform Resource Identifier).
+
+URI = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
+hier-part = "//" authority path-abempty / path-absolute / path-rootless / path-empty
+-/
+public def parseURI : Parser URI := do
+  let scheme ← parseScheme
+  skipByte ':'.toUInt8
+
+  let authority ← optional (skipString "//" *> parseAuthority)
+  let path ← parsePath (authority.isSome)
+
+  let query ← optional (skipByteChar '?' *> parseQuery)
+  let fragment ← optional (skipByteChar '#' *> parseFragment)
+
+  return { scheme, authority, path := ⟨ {path with absolute := true }, by simp⟩, query, fragment }
+
+/--
 Parses a request target with combined parsing and validation.
 -/
 public def parseRequestTarget : Parser RequestTarget := do
@@ -334,7 +364,7 @@ public def parseRequestTarget : Parser RequestTarget := do
     let path ← parsePath true
     let query ← optional (skipByteChar '?' *> parseQuery)
     let fragment ← optional (skipByteChar '#' *> parseFragment)
-    return .absoluteForm { path, scheme, authority, query, fragment }
+    return .absoluteForm { path := ⟨ {path with absolute := true }, by simp⟩, scheme, authority, query, fragment }
 
   fail "invalid request target"
 

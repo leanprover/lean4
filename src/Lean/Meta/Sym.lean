@@ -12,6 +12,8 @@ public import Lean.Meta.Sym.MaxFVar
 public import Lean.Meta.Sym.ReplaceS
 public import Lean.Meta.Sym.LooseBVarsS
 public import Lean.Meta.Sym.InstantiateS
+public import Lean.Meta.Sym.IsClass
+public import Lean.Meta.Sym.Intro
 
 /-!
 # Symbolic simulation support.
@@ -48,9 +50,7 @@ of `lctx₂`, we only need to verify that `lctx₂` contains the maximal free va
 means `x` is the free variable with maximal index occurring in `e`. When assigning `?m := e`, we check
 whether `maxFVar[e]` is in `?m.lctx` — a single hash lookup, O(1).
 
-**Maintaining `maxFVar`:** The mapping is updated during `intro`. The default `intro` in `MetaM` uses
-`instantiate` to replace `Expr.bvar` with `Expr.fvar`, using `looseBVarRange` to skip subexpressions
-without relevant bound variables. The `SymM` version piggybacks on this traversal to update `maxFVar`.
+**Maintaining `maxFVar`:** The mapping is automatically updated when we use `getMaxFVar?`.
 
 ### Skipping type checks on assignment
 

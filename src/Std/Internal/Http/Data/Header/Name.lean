@@ -48,7 +48,7 @@ structure HeaderValue where
   The proof that it's a valid header value
   -/
   validHeaderValue : isValidHeaderValue value
-deriving BEq, Repr
+deriving BEq, Repr, DecidableEq
 
 namespace HeaderValue
 
@@ -161,7 +161,7 @@ structure HeaderName where
   The proof that it's a valid header name
   -/
   validHeaderName : isValidHeaderName value
-deriving Repr
+deriving Repr, DecidableEq, BEq
 
 namespace HeaderName
 

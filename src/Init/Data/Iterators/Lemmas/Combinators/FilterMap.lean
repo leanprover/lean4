@@ -416,6 +416,110 @@ theorem Iter.toArray_mapWithPostcondition_mapWithPostcondition
   rw [IterM.toArray_mapWithPostcondition_mapWithPostcondition,
     instMonadLiftTOfMonadLift_instMonadLiftTOfPure]
 
+section ForInNew
+
+theorem Iter.forInNew_filterMapWithPostcondition
+    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadLiftT n o] [LawfulMonadLiftT n o] [Finite α Id]
+    [IteratorLoopNew α Id o] [LawfulIteratorLoopNew α Id o]
+    {it : Iter (α := α) β} {f : β → PostconditionT n (Option β₂)}
+    {init : σ} {kcons : β₂ → (σ → o γ) → σ → o γ} {knil : σ → o γ} :
+    forInNew (it.filterMapWithPostcondition f) init kcons knil =
+      forInNew it init (fun out kcontinue acc => do
+        match ← (f out).run with
+        | some c => kcons c kcontinue acc
+        | none => kcontinue acc) knil := by
+  simp [Iter.forInNew_eq_forInNew_toIterM, filterMapWithPostcondition, IterM.forInNew_filterMapWithPostcondition,
+    instMonadLiftTOfMonadLift_instMonadLiftTOfPure]; rfl
+
+theorem Iter.forInNew_filterMapM
+    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadAttach n] [WeaklyLawfulMonadAttach n]
+    [MonadLiftT n o] [LawfulMonadLiftT n o]
+    [Finite α Id] [IteratorLoopNew α Id o] [LawfulIteratorLoopNew α Id o]
+    {it : Iter (α := α) β} {f : β → n (Option β₂)}
+    {init : σ} {kcons : β₂ → (σ → o γ) → σ → o γ} {knil : σ → o γ} :
+    forInNew (it.filterMapM f) init kcons knil = forInNew it init (fun out kcontinue acc => do
+        match ← f out with
+        | some c => kcons c kcontinue acc
+        | none => kcontinue acc) knil := by
+  simp [filterMapM, forInNew_eq_forInNew_toIterM, IterM.forInNew_filterMapM,
+    instMonadLiftTOfMonadLift_instMonadLiftTOfPure]; rfl
+
+theorem Iter.forInNew_filterMap
+    [Monad n] [LawfulMonad n] [Finite α Id]
+    [IteratorLoopNew α Id n] [LawfulIteratorLoopNew α Id n]
+    {it : Iter (α := α) β} {f : β → Option β₂}
+    {init : σ} {kcons : β₂ → (σ → n γ) → σ → n γ} {knil : σ → n γ} :
+    forInNew (it.filterMap f) init kcons knil = forInNew it init (fun out kcontinue acc =>
+        match f out with
+        | some c => kcons c kcontinue acc
+        | none => kcontinue acc) knil := by
+  simp [filterMap, forInNew_eq_forInNew_toIterM, IterM.forInNew_filterMap]; rfl
+
+theorem Iter.forInNew_mapWithPostcondition
+    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadLiftT n o] [LawfulMonadLiftT n o] [Finite α Id]
+    [IteratorLoopNew α Id o] [LawfulIteratorLoopNew α Id o]
+    {it : Iter (α := α) β} {f : β → PostconditionT n β₂}
+    {init : σ} {kcons : β₂ → (σ → o γ) → σ → o γ} {knil : σ → o γ} :
+    forInNew (it.mapWithPostcondition f) init kcons knil =
+      forInNew it init (fun out kcontinue acc => do kcons (← (f out).run) kcontinue acc) knil := by
+  simp [mapWithPostcondition, forInNew_eq_forInNew_toIterM, IterM.forInNew_mapWithPostcondition,
+    instMonadLiftTOfMonadLift_instMonadLiftTOfPure]
+
+theorem Iter.forInNew_mapM
+    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadAttach n] [WeaklyLawfulMonadAttach n]
+    [MonadLiftT n o] [LawfulMonadLiftT n o]
+    [Finite α Id]
+    [IteratorLoopNew α Id o] [LawfulIteratorLoopNew α Id o]
+    {it : Iter (α := α) β} {f : β → n β₂}
+    {init : σ} {kcons : β₂ → (σ → o γ) → σ → o γ} {knil : σ → o γ} :
+    forInNew (it.mapM f) init kcons knil = forInNew it init (fun out kcontinue acc => do kcons (← f out) kcontinue acc) knil := by
+  simp [mapM, forInNew_eq_forInNew_toIterM, IterM.forInNew_mapM, instMonadLiftTOfMonadLift_instMonadLiftTOfPure]
+
+theorem Iter.forInNew_map
+    [Monad n] [LawfulMonad n]
+    [Finite α Id] [IteratorLoopNew α Id n] [LawfulIteratorLoopNew α Id n]
+    {it : Iter (α := α) β} {f : β → β₂}
+    {init : σ} {kcons : β₂ → (σ → n γ) → σ → n γ} {knil : σ → n γ} :
+    forInNew (it.map f) init kcons knil = forInNew it init (fun out kcontinue acc => do kcons (f out) kcontinue acc) knil := by
+  simp [map, forInNew_eq_forInNew_toIterM, IterM.forInNew_map]
+
+theorem Iter.forInNew_filterWithPostcondition
+    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadLiftT n o] [LawfulMonadLiftT n o]
+    [Finite α Id] [IteratorLoopNew α Id o] [LawfulIteratorLoopNew α Id o]
+    {it : Iter (α := α) β} {f : β → PostconditionT n (ULift Bool)}
+    {init : σ} {kcons : β → (σ → o γ) → σ → o γ} {knil : σ → o γ} :
+    haveI : MonadLift n o := ⟨monadLift⟩
+    forInNew (it.filterWithPostcondition f) init kcons knil =
+      forInNew it init (fun out kcontinue acc => do if (← (f out).run).down then kcons out kcontinue acc else kcontinue acc) knil := by
+  simp [filterWithPostcondition, forInNew_eq_forInNew_toIterM, IterM.forInNew_filterWithPostcondition,
+    instMonadLiftTOfMonadLift_instMonadLiftTOfPure]
+
+theorem Iter.forInNew_filterM
+    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
+    [MonadAttach n] [WeaklyLawfulMonadAttach n]
+    [MonadLiftT n o] [LawfulMonadLiftT n o] [Finite α Id]
+    [IteratorLoopNew α Id o] [LawfulIteratorLoopNew α Id o]
+    {it : Iter (α := α) β} {f : β → n (ULift Bool)}
+    {init : σ} {kcons : β → (σ → o γ) → σ → o γ} {knil : σ → o γ} :
+    forInNew (it.filterM f) init kcons knil = forInNew it init (fun out kcontinue acc => do if (← f out).down then kcons out kcontinue acc else kcontinue acc) knil := by
+  simp [filterM, forInNew_eq_forInNew_toIterM, IterM.forInNew_filterM,
+    instMonadLiftTOfMonadLift_instMonadLiftTOfPure]
+
+theorem Iter.forInNew_filter
+    [Monad n] [LawfulMonad n]
+    [Finite α Id] [IteratorLoopNew α Id n] [LawfulIteratorLoopNew α Id n]
+    {it : Iter (α := α) β} {f : β → Bool}
+    {init : σ} {kcons : β → (σ → n γ) → σ → n γ} {knil : σ → n γ} :
+    forInNew (it.filter f) init kcons knil = forInNew it init (fun out kcontinue acc => do if f out then kcons out kcontinue acc else kcontinue acc) knil := by
+  simp [filter, forInNew_eq_forInNew_toIterM, IterM.forInNew_filter]
+
+end ForInNew
+
 section ForIn
 
 theorem Iter.forIn_filterMapWithPostcondition

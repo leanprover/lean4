@@ -905,6 +905,20 @@ example  : (hp : ∀m, m = 42 → q → p) → (hinv : ∀ (inv : Nat → Prop),
   case inv => exact fun _ => True
   case prf1 => grind
 
+-- Test spec simp set
+
+def incr : StateM Nat Unit := fun s => ((), 2 + s - 1)
+
+@[spec]
+theorem incr_eq' : incr = modify (· + 1) := by
+  ext s
+  unfold incr
+  simp only [StateT.run, Id.run, modify, modifyGet, MonadStateOf.modifyGet, StateT.modifyGet, pure]
+  grind
+
+example : ⦃fun s => Q.1 () (s + 1)⦄ incr ⦃Q⦄ := by
+  mvcgen
+
 variable {m} [Monad m]
 open Std Std.Iterators
 
@@ -939,19 +953,20 @@ theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [MonadAttac
         sum := sum + n
       return sum) ⌜True⌝ (⇓r => ⌜r = xs.sum + xs.size⌝) := by
   mvcgen
-  case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum + cur.prefix.length⌝
+  case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
   all_goals grind
 
 theorem forIn_filterMapM_eq_sum_add_size (xs : Array Nat) {m ps}
-    [Monad m] [LawfulMonad m] [MonadAttach m] [WeaklyLawfulMonadAttach m] [WPMonad m ps] :
+    [Monad m] [MonadAttach m] [WPMonad m ps] [WeaklyLawfulMonadAttach m] :
     Triple (m := m) (do
       let mut sum : Nat := 0
       for n in (xs.iterM Id).filterMapM (pure (f := m) <| some <| · + 1) do
         sum := sum + n
       return sum) ⌜True⌝ (⇓r => ⌜r = xs.sum + xs.size⌝) := by
   mvcgen
-  case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum + cur.prefix.length⌝
+  case inv1 => exact fun cur n => ⌜n = cur.prefix.sum + cur.prefix.length⌝
   all_goals grind
+
 
 theorem foldM_eq_sum (xs : Array Nat) {m ps} [Monad m] [LawfulMonad m]
     [WPMonad m ps] :

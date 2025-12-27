@@ -1685,6 +1685,31 @@ theorem Spec.forIn_slice {m : Type w → Type x} {ps : PostShape}
   simp only [← Slice.forIn_toList]
   exact Spec.forIn_list inv step
 
+set_option linter.unusedVariables false in
+open Std.Iterators in
+@[spec]
+theorem Spec.forInNew_slice {m : Type w → Type x} {ps : PostShape}
+    [Monad m] [WPMonad m ps]
+    {γ : Type u} {α σ β δ : Type w}
+    [ToIterator (Slice γ) Id α β]
+    [Iterator α Id β]
+    [IteratorLoopNew α Id m]
+    [LawfulIteratorLoopNew α Id m]
+    [Finite α Id]
+    {init : σ} {kcons : β → (σ → m δ) → σ → m δ} {knil : σ → m δ}
+    {xs : Slice γ}
+    (inv : InvariantNew xs.toList σ ps) {Q : PostCond δ ps}
+    (hcons : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) s kcontinue
+        (hcontinue : ∀ s', Triple (m:=m) (kcontinue s') (inv ⟨pref ++ [cur], suff, by simp [h]⟩ s') Q),
+      Triple (m:=m)
+        (kcons cur kcontinue s)
+        (inv ⟨pref, cur::suff, h.symm⟩ s)
+        Q)
+    (hnil : ∀ s, Triple (m:=m) (knil s) (inv ⟨xs.toList, [], by simp⟩ s) Q) :
+    Triple (forInNew xs init kcons knil) (inv ⟨[], xs.toList, rfl⟩ init) Q := by
+  simp only [← Slice.forInNew_toList]
+  exact Spec.forInNew_list inv hcons hnil
+
 section Iterators
 open Std.Iterators
 
@@ -1705,6 +1730,32 @@ theorem Spec.forIn_iter {ps : PostShape} [Monad n] [WPMonad n ps]
   simp only [← Iter.forIn_toList]
   exact Spec.forIn_list inv step
 
+set_option linter.unusedVariables false in
+@[spec low]
+theorem Spec.forInNew_iter {ps : PostShape} [Monad n] [WPMonad n ps]
+    {α σ β δ} [Iterator α Id β] [Finite α Id] [IteratorLoopNew α Id n] [LawfulIteratorLoopNew α Id n]
+    {init : σ} {kcons : β → (σ → n δ) → σ → n δ} {knil : σ → n δ}
+    {it : Iter (α := α) β}
+    (inv : InvariantNew it.toList σ ps) {Q : PostCond δ ps}
+    (hcons : ∀ pref cur suff (h : it.toList = pref ++ cur :: suff) s kcontinue
+        (hcontinue : ∀ s', Triple (kcontinue s') (inv ⟨pref ++ [cur], suff, by simp [h]⟩ s') Q),
+      Triple
+        (kcons cur kcontinue s)
+        (inv ⟨pref, cur::suff, h.symm⟩ s)
+        Q)
+    (hnil : ∀ s, Triple (knil s) (inv ⟨it.toList, [], by simp⟩ s) Q) :
+    Triple (forInNew it init kcons knil) (inv ⟨[], it.toList, rfl⟩ init) Q := by
+  simp only [← Iter.forInNew_toList]
+  exact Spec.forInNew_list inv hcons hnil
+
+@[spec low]
+theorem Spec.forInNew_iter'
+    {α σ β δ} [Iterator α Id β] [Finite α Id] [IteratorLoopNew α Id n] [LawfulIteratorLoopNew α Id n]
+    {init : σ} {kcons : β → (σ → n δ) → σ → n δ} {knil : σ → n δ}
+    {it : Iter (α := α) β} :
+    forInNew it init kcons knil = forInNew it.toList init kcons knil := by
+  simp only [Iter.forInNew_toList]
+
 @[spec low]
 theorem Spec.forIn_iterM_id {ps : PostShape} [Monad n] [WPMonad n ps]
     {α β γ} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
@@ -1724,6 +1775,37 @@ theorem Spec.forIn_iterM_id {ps : PostShape} [Monad n] [WPMonad n ps]
     rw [← Iter.toIterM_toIter (it := it), ← Iter.forIn_eq_forIn_toIterM, ← Iter.forIn_toList,
       IterM.toList_toIter]
   exact Spec.forIn_list inv step
+
+set_option linter.unusedVariables false in
+@[spec low]
+theorem Spec.forInNew_iterM_id {ps : PostShape} [Monad n] [WPMonad n ps]
+    {α σ β δ} [Iterator α Id β] [Finite α Id] [IteratorLoopNew α Id n] [LawfulIteratorLoopNew α Id n]
+    {init : σ} {kcons : β → (σ → n δ) → σ → n δ} {knil : σ → n δ}
+    {it : IterM (α := α) Id β}
+    (inv : InvariantNew it.toList σ ps) {Q : PostCond δ ps}
+    (hcons : ∀ pref cur suff (h : it.toList = pref ++ cur :: suff) s kcontinue
+        (hcontinue : ∀ s', Triple (kcontinue s') (inv ⟨pref ++ [cur], suff, by simp [h]⟩ s') Q),
+      Triple
+        (kcons cur kcontinue s)
+        (inv ⟨pref, cur::suff, h.symm⟩ s)
+        Q)
+    (hnil : ∀ s, Triple (knil s) (inv ⟨it.toList, [], by simp⟩ s) Q) :
+    Triple (forInNew it init kcons knil) (inv ⟨[], it.toList, rfl⟩ init) Q := by
+  conv =>
+    congr
+    rw [← Iter.toIterM_toIter (it := it), ← Iter.forInNew_eq_forInNew_toIterM, ← Iter.forInNew_toList,
+      IterM.toList_toIter]
+  exact Spec.forInNew_list inv hcons hnil
+
+@[spec low]
+theorem Spec.forInNew_iterM_id' [Monad n] [LawfulMonad n]
+    {α σ β δ} [Iterator α Id β] [Finite α Id] [IteratorLoopNew α Id n] [LawfulIteratorLoopNew α Id n]
+    {init : σ} {kcons : β → (σ → n δ) → σ → n δ} {knil : σ → n δ}
+    {it : IterM (α := α) Id β} :
+    forInNew it init kcons knil = forInNew it.toList.run init kcons knil := by
+  rw [← Iter.toIterM_toIter (it := it), ← Iter.forInNew_eq_forInNew_toIterM,
+      ← Iter.forInNew_toList, IterM.toList_toIter]
+  rfl
 
 @[spec low]
 theorem Spec.foldM_iter {ps : PostShape} [Monad n] [WPMonad n ps]
@@ -1757,7 +1839,7 @@ theorem Spec.foldM_iterM_id {ps : PostShape} [Monad n] [WPMonad n ps]
 
 @[spec]
 theorem Spec.IterM.forIn_filterMapWithPostcondition {m β ps}
-    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [WPMonad o ps]
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [WPMonad o ps]
     [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
     [Iterator α m β] [Finite α m]
     [IteratorLoop α m o] [LawfulIteratorLoop α m o]
@@ -1771,6 +1853,8 @@ theorem Spec.IterM.forIn_filterMapWithPostcondition {m β ps}
           | none => return .yield acc)) P Q) :
     Triple (forIn (it.filterMapWithPostcondition f) init g) P Q := by
   rwa [Std.IterM.forIn_filterMapWithPostcondition]
+
+attribute [spec] IterM.forInNew_filterMapWithPostcondition
 
 @[spec]
 theorem Spec.IterM.forIn_filterMapM {m β ps}
@@ -1790,6 +1874,8 @@ theorem Spec.IterM.forIn_filterMapM {m β ps}
     Triple (forIn (it.filterMapM f) init g) P Q := by
   rwa [Std.IterM.forIn_filterMapM]
 
+attribute [spec] IterM.forInNew_filterMapM
+
 @[spec]
 theorem Spec.IterM.forIn_filterMap {m β ps}
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [WPMonad n ps]
@@ -1805,6 +1891,8 @@ theorem Spec.IterM.forIn_filterMap {m β ps}
     Triple (forIn (it.filterMap f) init g) P Q := by
   rwa [Std.IterM.forIn_filterMap]
 
+attribute [spec] IterM.forInNew_filterMap
+
 @[spec]
 theorem Spec.IterM.forIn_mapWithPostcondition {m β ps}
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [WPMonad o ps]
@@ -1818,6 +1906,8 @@ theorem Spec.IterM.forIn_mapWithPostcondition {m β ps}
         Triple (forIn (m := o) it init (fun out acc => do g (← (f out).run) acc)) P Q) :
     Triple (forIn (it.mapWithPostcondition f) init g) P Q := by
   rwa [Std.IterM.forIn_mapWithPostcondition]
+
+attribute [spec] IterM.forInNew_mapWithPostcondition
 
 @[spec]
 theorem Spec.IterM.forIn_mapM {m β ps}
@@ -1833,6 +1923,8 @@ theorem Spec.IterM.forIn_mapM {m β ps}
     Triple (forIn (it.mapM f) init g) P Q := by
   rwa [Std.IterM.forIn_mapM]
 
+attribute [spec] IterM.forInNew_mapM
+
 @[spec]
 theorem Spec.IterM.forIn_map {m β ps}
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [WPMonad n ps]
@@ -1842,6 +1934,8 @@ theorem Spec.IterM.forIn_map {m β ps}
     (h : Triple (forIn it init (fun out acc => do g (f out) acc)) P Q) :
     Triple (forIn (it.map f) init g) P Q := by
   rwa [Std.IterM.forIn_map]
+
+attribute [spec] IterM.forInNew_map
 
 @[spec]
 theorem Spec.IterM.forIn_filterWithPostcondition {m β ps}
@@ -1857,6 +1951,8 @@ theorem Spec.IterM.forIn_filterWithPostcondition {m β ps}
     Triple (forIn (it.filterWithPostcondition f) init g) P Q := by
   rwa [Std.IterM.forIn_filterWithPostcondition]
 
+attribute [spec] IterM.forInNew_filterWithPostcondition
+
 @[spec]
 theorem Spec.IterM.forIn_filterM {m β ps}
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [WPMonad o ps]
@@ -1871,6 +1967,8 @@ theorem Spec.IterM.forIn_filterM {m β ps}
     Triple (forIn (it.filterM f) init g) P Q := by
   rwa [Std.IterM.forIn_filterM]
 
+attribute [spec] IterM.forInNew_filterM
+
 @[spec]
 theorem Spec.IterM.forIn_filter {m β ps}
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [WPMonad n ps]
@@ -1880,6 +1978,8 @@ theorem Spec.IterM.forIn_filter {m β ps}
     (h : Triple (forIn (m := n) it init (fun out acc => do if f out then g out acc else return .yield acc)) P Q) :
     Triple (forIn (it.filter f) init g) P Q := by
   rwa [Std.IterM.forIn_filter]
+
+attribute [spec] IterM.forInNew_filter
 
 @[spec]
 theorem Spec.IterM.foldM_filterMapWithPostcondition {α β γ δ : Type w} {ps}
@@ -2140,6 +2240,8 @@ theorem Spec.Iter.forIn_filterMapWithPostcondition
     Triple (forIn (it.filterMapWithPostcondition f) init g) P Q := by
   rwa [Std.Iter.forIn_filterMapWithPostcondition]
 
+attribute [spec] Iter.forInNew_filterMapWithPostcondition
+
 @[spec]
 theorem Spec.Iter.forIn_filterMapM
     [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [WPMonad o ps]
@@ -2154,6 +2256,8 @@ theorem Spec.Iter.forIn_filterMapM
     Triple (forIn (it.filterMapM f) init g) P Q := by
   rwa [Std.Iter.forIn_filterMapM]
 
+attribute [spec] Iter.forInNew_filterMapM
+
 @[spec]
 theorem Spec.Iter.forIn_filterMap
     [Monad n] [LawfulMonad n] [WPMonad n ps] [Finite α Id]
@@ -2166,6 +2270,8 @@ theorem Spec.Iter.forIn_filterMap
     Triple (forIn (it.filterMap f) init g) P Q := by
   rwa [Std.Iter.forIn_filterMap]
 
+attribute [spec] Iter.forInNew_filterMap
+
 @[spec]
 theorem Spec.Iter.forIn_mapWithPostcondition
     [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [WPMonad o ps]
@@ -2176,6 +2282,8 @@ theorem Spec.Iter.forIn_mapWithPostcondition
     (h : Triple (forIn (m := o) it init (fun out acc => do g (← (f out).run) acc)) P Q) :
     Triple (forIn (it.mapWithPostcondition f) init g) P Q := by
   rwa [Std.Iter.forIn_mapWithPostcondition]
+
+attribute [spec] Iter.forInNew_mapWithPostcondition
 
 @[spec]
 theorem Spec.Iter.forIn_mapM
@@ -2189,6 +2297,8 @@ theorem Spec.Iter.forIn_mapM
     Triple (forIn (it.mapM f) init g) P Q := by
   rwa [Std.Iter.forIn_mapM]
 
+attribute [spec] Iter.forInNew_mapM
+
 @[spec]
 theorem Spec.Iter.forIn_map
     [Monad n] [LawfulMonad n] [WPMonad n ps]
@@ -2197,6 +2307,8 @@ theorem Spec.Iter.forIn_map
     (h : Triple (forIn it init (fun out acc => do g (f out) acc)) P Q) :
     Triple (forIn (it.map f) init g) P Q := by
   rwa [Std.Iter.forIn_map]
+
+attribute [spec] Iter.forInNew_map
 
 @[spec]
 theorem Spec.Iter.forIn_filterWithPostcondition
@@ -2209,6 +2321,8 @@ theorem Spec.Iter.forIn_filterWithPostcondition
     Triple (forIn (it.filterWithPostcondition f) init g) P Q := by
   rwa [Std.Iter.forIn_filterWithPostcondition]
 
+attribute [spec] Iter.forInNew_filterWithPostcondition
+
 @[spec]
 theorem Spec.Iter.forIn_filterM
     [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [WPMonad o ps]
@@ -2220,6 +2334,8 @@ theorem Spec.Iter.forIn_filterM
     Triple (forIn (it.filterM f) init g) P Q := by
   rwa [Std.Iter.forIn_filterM]
 
+attribute [spec] Iter.forInNew_filterM
+
 @[spec]
 theorem Spec.Iter.forIn_filter
     [Monad n] [LawfulMonad n] [WPMonad n ps]
@@ -2228,6 +2344,8 @@ theorem Spec.Iter.forIn_filter
     (h : Triple (forIn it init (fun out acc => do if f out then g out acc else return .yield acc)) P Q) :
     Triple (forIn (it.filter f) init g) P Q := by
   rwa [Std.Iter.forIn_filter]
+
+attribute [spec] Iter.forInNew_filter
 
 @[spec]
 theorem Iter.foldM_filterMapWithPostcondition {α β γ δ : Type w}
@@ -2410,31 +2528,6 @@ theorem Iter.fold_filterM {α β δ : Type w} {n : Type w → Type w''}
   rwa [Std.Iter.fold_filterM]
 
 end Iterators
-
-set_option linter.unusedVariables false in
-open Std.Iterators in
-@[spec]
-theorem Spec.forInNew_slice {m : Type w → Type x} {ps : PostShape}
-    [Monad m] [WPMonad m ps]
-    {γ : Type u} {α σ β δ : Type w}
-    [ToIterator (Slice γ) Id α β]
-    [Iterator α Id β]
-    [IteratorLoopNew α Id m]
-    [LawfulIteratorLoopNew α Id m]
-    [Finite α Id]
-    {init : σ} {kcons : β → (σ → m δ) → σ → m δ} {knil : σ → m δ}
-    {xs : Slice γ}
-    (inv : InvariantNew xs.toList σ ps) {Q : PostCond δ ps}
-    (hcons : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) s kcontinue
-        (hcontinue : ∀ s', Triple (m:=m) (kcontinue s') (inv ⟨pref ++ [cur], suff, by simp [h]⟩ s') Q),
-      Triple (m:=m)
-        (kcons cur kcontinue s)
-        (inv ⟨pref, cur::suff, h.symm⟩ s)
-        Q)
-    (hnil : ∀ s, Triple (m:=m) (knil s) (inv ⟨xs.toList, [], by simp⟩ s) Q) :
-    Triple (forInNew xs init kcons knil) (inv ⟨[], xs.toList, rfl⟩ init) Q := by
-  simp only [← Slice.forInNew_toList]
-  exact Spec.forInNew_list inv hcons hnil
 
 set_option linter.unusedVariables false in
 @[spec]

@@ -40,7 +40,7 @@ instance (priority := 500) instForInNewOfForInNew' [ForInNew' m ρ α mem] : For
   simp [h]
   rfl
 
-@[wf_preprocess] theorem forInNew'_eq_forInNew' [ForInNew' m ρ α mem] {σ β}
+@[wf_preprocess] theorem forInNew_eq_forInNew' [ForInNew' m ρ α mem] {σ β}
     (xs : ρ) (s : σ) (f : (a : α) → (σ → m β) → σ → m β) :
     ForInNew.forInNew xs s f = ForInNew'.forInNew' xs s (fun a h => binderNameHint a f <| binderNameHint h () <| f a) := by
   rfl

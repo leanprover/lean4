@@ -1,7 +1,7 @@
 4 failures:
-  @4 (⟨1, 4⟩): expected ')'
+  @4 (⟨1, 4⟩): expected `)`
     ""
-  @4 (⟨1, 4⟩): expected ':='
+  @4 (⟨1, 4⟩): expected `:=`
     ""
   @4 (⟨1, 4⟩): expected token
     ""

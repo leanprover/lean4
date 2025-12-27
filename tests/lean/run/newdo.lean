@@ -375,6 +375,22 @@ example (provided : Expr) : MetaM Expr := do
       arg.fvarId!.getUserName
   return provided
 
+/-
+loop mut vars
+* We need them to be nondep to prevent zeta reduction issues; plus it's wrong if there is a
+  reassignment.
+* If we simply set the nondep flag to true, then we get def eq issues.
+  Concretely, the call to `mkLambdaFVarsWithLetDeps` may produce a type incorrect term
+  because it abstracts args as nondep that have actually been declared as dependent.
+* If we introduce a have for each, what do we do for forward dependencies?
+  * Introduce them as additional have's; if the variable in question is reassigned, we report an
+    error, asking the user to clear the have. BUT HOW WOULD THEY DO THAT?
+  * Don't introduce them as additional have's. But then we get type errors when they are used and
+    there was no reassignment.
+* Introduce new syntax, such as `freezing letMuts... in ...`.
+* .. or simply cope with the breaking change. Try this before introducing new syntax.
+-/
+
 set_option trace.Elab.do true in
 /--
 error: Application type mismatch: The argument

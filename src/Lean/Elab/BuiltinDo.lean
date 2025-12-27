@@ -617,9 +617,7 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
   withLocalDeclsD xh fun xh => do
   withLocalDecl (← mkFreshUserName `kcontinue) .default β (kind := .implDetail) fun kcontinue => do
   withLocalDecl (← mkFreshUserName `s) .default σ (kind := .implDetail) fun loopS => do
-  let elabBody := do
-    let mutVarDecls := (← getLCtx).findFromUserNames (Std.HashSet.ofArray mutVarNames).inner
-    withDeclsAsNonDep mutVarDecls do
+  withProxyMutVarDefs fun elimProxyDefs => do
     let rootCtx ← getLCtx
     -- We will use `continueKVar` to stand in for the `DoElemCont` `dec` below.
     -- Adding `dec.resultName` to the list of tunneled vars helps with some MVar assignment issues.
@@ -635,11 +633,11 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
 
     -- Compute the set of mut vars that were reassigned on the path to a back jump (`continue`).
     -- Take care to preserve the declaration order that is manifest in the array `mutVars`.
-    let loopMutVarsSet ← do
+    let loopMutVars ← do
       let ctn ← continueKVar.getReassignedMutVars rootCtx
       let brk ← breakKVar.getReassignedMutVars rootCtx
       pure (ctn.union brk)
-    let loopMutVars := mutVars.filter (loopMutVarsSet.contains ·.getId)
+    let loopMutVars := mutVars.filter (loopMutVars.contains ·.getId)
     let loopMutVarNames := loopMutVars.map (·.getId) |>.toList
 
     let useLoopMutVars : TermElabM (Array Expr) := do
@@ -674,56 +672,21 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``Term.matchExprAlts)
           dec.continueWithUnit
       synthUsingDefEq "break RHS" breakRhs e
 
+    -- Finally eliminate the proxy variables from the loop body.
+    -- * Point non-reassigned mut var defs to the pre state
+    -- * Point the initial defs of reassigned mut vars to the loop state
+    -- Done by `elimProxyDefs` below.
+    let body ← bindMutVarsFromTuple loopMutVarNames loopS.fvarId! do
+      elimProxyDefs body
+
     let needBreakJoin := (← breakKVar.jumpCount) > 0 && dec.kind matches .nonDuplicable
-
-    return (body, loopMutVarNames, preS, needBreakJoin)
-
-  let s ← saveState
-  let rootCtx ← getLCtx
-  let (body, loopMutVarNames, preS, needBreakJoin) ← elabBody
-
-  -- Finally eliminate the proxy variables from the loop body.
-  -- * Point non-reassigned mut var defs to the pre state
-  -- * Point the initial defs of reassigned mut vars to the loop state
-  -- Done by `elimProxyDefs` below.
-  let body ← bindMutVarsFromTuple loopMutVarNames loopS.fvarId! do
-    let loopVarsSet := (Std.HashSet.ofList loopMutVarNames).inner
-    let oldDecls := rootCtx.findFromUserNames loopVarsSet
-    let newDecls := (← getLCtx).findFromUserNames loopVarsSet rootCtx.numIndices
-    let mut subst := #[]
-    for oldDecl in oldDecls do
-      let some newDecl := newDecls.find? (·.userName == oldDecl.userName) | continue
-      subst := subst.push (oldDecl.toExpr, newDecl.toExpr)
-    let (old, new) := subst.unzip
-    withDeclsAsNonDep newDecls do -- to prevent zeta reduction during abstraction
-    body.replaceFVarsM old new
-
-  -- We might have made `body` ill-typed by the substitution above, for example when `body` made use
-  -- of a local decl the type of which depends on the old mut var.
-  -- So we check for it and in case of an error, we re-elaborate.
-  let body ←
-    try
-      check body
-      pure body
-    catch ex =>
-      if ex matches .internal .. then throw ex
-      let σ' ← instantiateMVars σ
-      s.restore
-      synthUsingDefEq "state tuple type" σ σ'
-      bindMutVarsFromTuple loopMutVarNames loopS.fvarId! do
-        let (body, _, _, _) ← elabBody
-        -- If we came this far, we successfully elaborated on the second try.
-        -- It is very likely there were some errors that were now reported but
-        -- previously weren't. We'll continue elaboration as if we were successful.
-        pure body
-
-  let kcons ← mkLambdaFVars (xh ++ #[kcontinue, loopS]) body
-  let knil := if needBreakJoin then kbreak else breakRhs
-  let app := mkApp3 app preS kcons knil
-  if needBreakJoin then
-    mkLetFVars (generalizeNondepLet := false) #[kbreak] app
-  else
-    return ← app.replaceFVarsM #[kbreak] #[breakRhs]
+    let kcons ← mkLambdaFVars (xh ++ #[kcontinue, loopS]) body
+    let knil := if needBreakJoin then kbreak else breakRhs
+    let app := mkApp3 app preS kcons knil
+    if needBreakJoin then
+      mkLetFVars (generalizeNondepLet := false) #[kbreak] app
+    else
+      return ← app.replaceFVarsM #[kbreak] #[breakRhs]
 
 private def elabDoCatch (lifter : ControlLifter) (body : Expr) (catch_ : TSyntax ``doCatch) : DoElabM Expr := do
   let mi := (← read).monadInfo

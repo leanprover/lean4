@@ -34,6 +34,7 @@ def TransparencyMode.toUInt64 : TransparencyMode → UInt64
   | .default   => 1
   | .reducible => 2
   | .instances => 3
+  | .none      => 4
 
 def EtaStructMode.toUInt64 : EtaStructMode → UInt64
   | .all        => 0

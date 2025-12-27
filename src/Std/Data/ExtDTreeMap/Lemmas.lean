@@ -1172,7 +1172,7 @@ end Const
 
 section monadic
 
-variable {δ : Type w} {m : Type w → Type w'}
+variable {δ σ : Type w} {m : Type w → Type w'}
 
 theorem foldlM_eq_foldlM_toList [TransCmp cmp] [Monad m] [LawfulMonad m]
     {f : δ → (a : α) → β a → m δ} {init : δ} :
@@ -1198,6 +1198,16 @@ theorem forM_eq_forM [TransCmp cmp] [Monad m] [LawfulMonad m] {f : (a : α) → 
 theorem forM_eq_forM_toList [TransCmp cmp] [Monad m] [LawfulMonad m] {f : (a : α) × β a → m PUnit} :
     ForM.forM t f = ForM.forM t.toList f :=
   t.inductionOn fun _ => DTreeMap.forM_eq_forM_toList
+
+@[simp, grind =]
+theorem forInNew_eq_forInNew [TransCmp cmp]
+    {init : σ} {kcons : (a : α) → β a → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
+    t.forInNew init kcons knil = ForInNew.forInNew t init (fun a => kcons a.1 a.2) knil := rfl
+
+theorem forInNew_eq_forInNew_toList [TransCmp cmp]
+    {init : σ} {kcons : (a : α) × β a → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
+    ForInNew.forInNew t init kcons knil = ForInNew.forInNew t.toList init kcons knil :=
+  t.inductionOn fun _ => DTreeMap.forInNew_eq_forInNew_toList
 
 @[simp, grind =]
 theorem forIn_eq_forIn [TransCmp cmp] [Monad m] [LawfulMonad m]
@@ -1265,6 +1275,15 @@ theorem forMUncurried_eq_forM_toList [TransCmp cmp] [Monad m] [LawfulMonad m] {f
     forMUncurried f t = (Const.toList t).forM f :=
   t.inductionOn fun _ => DTreeMap.Const.forMUncurried_eq_forM_toList
 
+theorem forInNew_eq_forInNewUncurried [TransCmp cmp]
+    {init : σ} {kcons : α → β → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
+    t.forInNew init kcons knil = forInNewUncurried t init (fun a => kcons a.1 a.2) knil := rfl
+
+theorem forInNewUncurried_eq_forInNew_toList [TransCmp cmp]
+    {init : σ} {kcons : α × β → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
+    forInNewUncurried t init kcons knil = ForInNew.forInNew (Const.toList t) init kcons knil :=
+  t.inductionOn fun _ => DTreeMap.Const.forInNewUncurried_eq_forInNew_toList
+
 theorem forIn_eq_forInUncurried [TransCmp cmp] [Monad m] [LawfulMonad m]
     {f : α → β → δ → m (ForInStep δ)} {init : δ} :
     t.forIn f init = forInUncurried (fun a b => f a.1 a.2 b) init t :=
@@ -1291,7 +1310,7 @@ theorem insertMany_cons [TransCmp cmp] {l : List ((a : α) × β a)} {p : (a : �
     t.insertMany (p :: l) = (t.insert p.1 p.2).insertMany l := by
   rcases p with ⟨k, v⟩
   unfold insertMany
-  simp only [bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, List.foldl_cons, Id.run_pure]
+  simp only [bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, List.forInNew_pure_eq_foldl, List.foldl_cons, Id.run_pure]
   refine Eq.trans ?_ (Eq.symm ?_ : l.foldl (fun b a => b.insert a.1 a.2) (t.insert k v) = _)
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
@@ -1540,7 +1559,7 @@ theorem insertMany_cons [TransCmp cmp] {l : List (α × β)} {p : α × β} :
     Const.insertMany t (p :: l) = Const.insertMany (t.insert p.1 p.2) l := by
   rcases p with ⟨k, v⟩
   unfold insertMany
-  simp only [bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, List.foldl_cons, Id.run_pure]
+  simp only [bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, List.forInNew_pure_eq_foldl, List.foldl_cons, Id.run_pure]
   refine Eq.trans ?_ (Eq.symm ?_ : l.foldl (fun b a => b.insert a.1 a.2) (t.insert k v) = _)
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
@@ -1786,7 +1805,7 @@ theorem insertManyIfNewUnit_list_singleton [TransCmp cmp] {k : α} :
 theorem insertManyIfNewUnit_cons [TransCmp cmp] {l : List α} {k : α} :
     insertManyIfNewUnit t (k :: l) = insertManyIfNewUnit (t.insertIfNew k ()) l := by
   unfold insertManyIfNewUnit
-  simp only [bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, List.foldl_cons, Id.run_pure]
+  simp only [bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, List.forInNew_pure_eq_foldl, List.foldl_cons, Id.run_pure]
   refine Eq.trans ?_ (Eq.symm ?_ : l.foldl (fun b a => b.insertIfNew a ()) (t.insertIfNew k ()) = _)
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm
   exact (List.foldl_hom (f := Subtype.val) fun x y => rfl).symm

@@ -870,6 +870,10 @@ define the `ForM` and `ForIn` instances for `DTreeMap`.
 def forMUncurried (f : α × β → m PUnit) (t : DTreeMap α β cmp) : m PUnit :=
   t.inner.forM fun a b => f ⟨a, b⟩
 
+@[inline, inherit_doc DTreeMap.forInNew]
+def forInNewUncurried {m : Type w → Type w₂} (t : DTreeMap α β cmp) (init : σ) (kcons : α × β → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  t.forInNew init (fun a b => kcons ⟨a, b⟩) knil
+
 @[inline, inherit_doc DTreeMap.forIn]
 def forInUncurried (f : α × β → δ → m (ForInStep δ)) (init : δ) (t : DTreeMap α β cmp) : m δ :=
   t.inner.forIn (fun a b acc => f ⟨a, b⟩ acc) init

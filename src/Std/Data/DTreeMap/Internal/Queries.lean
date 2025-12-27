@@ -286,24 +286,6 @@ def forInNew (t : Impl α β) (init : σ) (kcons : (a : α) → β a → (σ →
 instance : ForInNew m (Impl α β) ((a : α) × β a) where
   forInNew t init kcons knil := t.forInNew init (fun a b => kcons ⟨a, b⟩) knil
 
-/-
-TODO: This needs well-formedness proofs
-/-- Support for the `for` construct in `do` blocks. -/
-@[inline]
-def forInNew' [Ord α] [@ReflCmp α compare] (t : Impl α β) (init : σ) (kcons : (a : α) → β a → a ∈ t → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
-  match t with
-  | .leaf => knil init
-  | .inner sz k v l r =>
-    let kcons' {t'} (inj : ∀ {k'}, k' ∈ inner sz k v l r ↔ k' ∈ t') k v (h : k ∈ t') := kcons k v (inj.mpr h)
-    forInNew' l init
-      (kcons' (Ordered.mem_inner_iff_mem_left _ _ _ _ _ _ _))
-      (kcons k v (Ordered.mem_inner_of_eq _ _ _ _ _ _ _)
-        (forInNew r · (kcons' (Ordered.mem_inner_iff_mem_right _ _ _ _ _ _ _)) knil))
-
-instance : ForInNew' m (Impl α β) ((a : α) × β a) where
-  forInNew' t init kcons knil := t.forInNew' init (fun a b => kcons ⟨a, b⟩) knil
--/
-
 /-- Implementation detail. -/
 @[specialize]
 def forInStep {m} [Monad m] (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) :

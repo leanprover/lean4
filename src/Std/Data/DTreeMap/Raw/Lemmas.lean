@@ -1235,7 +1235,7 @@ end Const
 
 section monadic
 
-variable {δ : Type w} {m : Type w → Type w'}
+variable {δ σ : Type w} {m : Type w → Type w'}
 
 theorem foldlM_eq_foldlM_toList [Monad m] [LawfulMonad m] {f : δ → (a : α) → β a → m δ} {init : δ} :
     t.foldlM f init = t.toList.foldlM (fun a b => f a b.1 b.2) init :=
@@ -1260,6 +1260,16 @@ theorem forM_eq_forM [Monad m] [LawfulMonad m] {f : (a : α) → β a → m PUni
 theorem forM_eq_forM_toList [Monad m] [LawfulMonad m] {f : (a : α) × β a → m PUnit} :
     ForM.forM t f = ForM.forM t.toList f :=
   Impl.forM_eq_forM_toList
+
+@[simp, grind =]
+theorem forInNew_eq_forInNew
+    {init : σ} {kcons : (a : α) → β a → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
+    t.forInNew init kcons knil = ForInNew.forInNew t init (fun a => kcons a.1 a.2) knil := rfl
+
+theorem forInNew_eq_forInNew_toList
+    {init : σ} {kcons : (a : α) × β a → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
+    ForInNew.forInNew t init kcons knil = ForInNew.forInNew t.toList init kcons knil :=
+  Impl.forInNew_eq_forInNew_toList
 
 @[simp, grind =]
 theorem forIn_eq_forIn [Monad m] [LawfulMonad m]
@@ -1322,6 +1332,15 @@ theorem forM_eq_forMUncurried [Monad m] [LawfulMonad m] {f : α → β → m PUn
 theorem forMUncurried_eq_forM_toList [Monad m] [LawfulMonad m] {f : α × β → m PUnit} :
     forMUncurried f t = (Const.toList t).forM f :=
   Impl.Const.forM_eq_forM_toList
+
+theorem forInNew_eq_forInNewUncurried
+    {init : σ} {kcons : α → β → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
+    t.forInNew init kcons knil = forInNewUncurried t init (fun a => kcons a.1 a.2) knil := rfl
+
+theorem forInNewUncurried_eq_forInNew_toList
+    {init : σ} {kcons : α × β → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
+    forInNewUncurried t init kcons knil = ForInNew.forInNew (Const.toList t) init kcons knil :=
+  Impl.Const.forInNew_eq_forInNew_toList
 
 theorem forIn_eq_forInUncurried [Monad m] [LawfulMonad m]
     {f : α → β → δ → m (ForInStep δ)} {init : δ} :
@@ -5325,13 +5344,13 @@ theorem forM_eq [TransCmp cmp] [Monad m] [LawfulMonad m] {f : (a : α) × β a �
 
 theorem any_eq [TransCmp cmp] {p : (a : α) → β a → Bool} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.any p = t₂.any p := by
-  simp only [any, Impl.any, ForIn.forIn, bind_pure_comp, map_pure, h.1.forIn_eq h₁.1 h₂.1,
-    Id.run_bind]
+  simp only [any, Impl.any, ForIn.forIn, ForInNew.forInNew, bind_pure_comp, map_pure,
+    h.1.forIn_eq h₁.1 h₂.1, h.1.forInNew_eq h₁.1 h₂.1, Id.run_bind]
 
 theorem all_eq [TransCmp cmp] {p : (a : α) → β a → Bool} (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.all p = t₂.all p := by
-  simp only [all, Impl.all, ForIn.forIn, bind_pure_comp, map_pure, h.1.forIn_eq h₁.1 h₂.1,
-    Id.run_bind]
+  simp only [all, Impl.all, ForIn.forIn, ForInNew.forInNew, bind_pure_comp, map_pure,
+    h.1.forIn_eq h₁.1 h₂.1, h.1.forInNew_eq h₁.1 h₂.1, Id.run_bind]
 
 theorem minKey?_eq [TransCmp cmp] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.minKey? = t₂.minKey? :=

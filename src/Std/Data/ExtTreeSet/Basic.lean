@@ -505,7 +505,7 @@ Note: this precedence behavior is true for `ExtTreeSet` and `ExtTreeSet.Raw`. Th
 appearance.
 -/
 @[inline]
-def insertMany [TransCmp cmp] {ρ} [ForIn Id ρ α] (t : ExtTreeSet α cmp) (l : ρ) : ExtTreeSet α cmp :=
+def insertMany [TransCmp cmp] {ρ} [ForIn Id ρ α] [ForInNew Id ρ α] (t : ExtTreeSet α cmp) (l : ρ) : ExtTreeSet α cmp :=
   ⟨ExtTreeMap.insertManyIfNewUnit t.inner l⟩
 
 /--
@@ -559,7 +559,7 @@ instance {α : Type u} {cmp : α → α → Ordering} [LawfulEqCmp cmp] [TransCm
 Erases multiple items from the tree set by iterating over the given collection and calling erase.
 -/
 @[inline]
-def eraseMany [TransCmp cmp] {ρ} [ForIn Id ρ α] (t : ExtTreeSet α cmp) (l : ρ) : ExtTreeSet α cmp :=
+def eraseMany [TransCmp cmp] {ρ} [ForIn Id ρ α] [ForInNew Id ρ α] (t : ExtTreeSet α cmp) (l : ρ) : ExtTreeSet α cmp :=
   ⟨t.inner.eraseMany l⟩
 
 instance [TransCmp cmp] [Repr α] : Repr (ExtTreeSet α cmp) where

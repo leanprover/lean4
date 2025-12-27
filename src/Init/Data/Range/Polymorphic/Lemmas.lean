@@ -1125,6 +1125,25 @@ public theorem mem_of_mem_roo [LE α] [LT α] [UpwardEnumerable α]
 @[deprecated mem_of_mem_roo (since := "2025-10-29")]
 def mem_of_mem_Roo := @mem_of_mem_roo
 
+public theorem forInNew'_eq_if [LE α] [DecidableLE α] [LT α] [DecidableLT α]
+    [UpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLE α]
+    [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]
+    {m : Type u → Type w}
+    {σ γ : Type u} {init : σ} {kcons : (a : α) → _ → (σ → m γ) → σ → m γ} {knil : σ → m γ} :
+    ForInNew'.forInNew' r init kcons knil = if hu : r.lower < r.upper then
+        have hle : r.lower ≤ r.lower := by
+          simpa [UpwardEnumerable.le_iff] using UpwardEnumerable.le_refl _
+        kcons r.lower ⟨hle, hu⟩ (fun s => ForInNew'.forInNew' (r.lower<...r.upper) s
+            (fun a ha acc => kcons a (mem_of_mem_roo hle ha) acc) knil) init
+      else
+        knil init := by
+  apply Eq.symm
+  rw [Internal.forInNew'_eq_forInNew'_iter, Iter.forInNew'_eq_match_step]
+  simp only [Rxo.Iterator.step_eq_step, Rxo.Iterator.step, Internal.iter]
+  split
+  · simp [Roo.Internal.forInNew'_eq_forInNew'_iter, Roo.Internal.iter]
+  · simp
+
 public theorem forIn'_eq_if [LE α] [DecidableLE α] [LT α] [DecidableLT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLE α]
     [Rxo.IsAlwaysFinite α] [LawfulUpwardEnumerable α]

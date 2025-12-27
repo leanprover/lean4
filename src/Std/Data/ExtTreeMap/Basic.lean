@@ -525,11 +525,11 @@ def mergeWith [TransCmp cmp] (mergeFn : α → β → β → β) (t₁ t₂ : Ex
   ⟨ExtDTreeMap.Const.mergeWith mergeFn t₁.inner t₂.inner⟩
 
 @[inline, inherit_doc ExtDTreeMap.Const.insertMany]
-def insertMany [TransCmp cmp] {ρ} [ForIn Id ρ (α × β)] (t : ExtTreeMap α β cmp) (l : ρ) : ExtTreeMap α β cmp :=
+def insertMany [TransCmp cmp] {ρ} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)] (t : ExtTreeMap α β cmp) (l : ρ) : ExtTreeMap α β cmp :=
   ⟨ExtDTreeMap.Const.insertMany t.inner l⟩
 
 @[inline, inherit_doc ExtDTreeMap.Const.insertManyIfNewUnit]
-def insertManyIfNewUnit [TransCmp cmp] {ρ} [ForIn Id ρ α] (t : ExtTreeMap α Unit cmp) (l : ρ) : ExtTreeMap α Unit cmp :=
+def insertManyIfNewUnit [TransCmp cmp] {ρ} [ForIn Id ρ α] [ForInNew Id ρ α] (t : ExtTreeMap α Unit cmp) (l : ρ) : ExtTreeMap α Unit cmp :=
   ⟨ExtDTreeMap.Const.insertManyIfNewUnit t.inner l⟩
 
 @[inline, inherit_doc ExtDTreeMap.union]
@@ -564,7 +564,7 @@ instance {α : Type u} {β : Type v} {cmp : α → α → Ordering} [LawfulEqCmp
   fun _ _ => decidable_of_iff _ beq_iff_eq
 
 @[inline, inherit_doc ExtDTreeMap.eraseMany]
-def eraseMany [TransCmp cmp] {ρ} [ForIn Id ρ α] (t : ExtTreeMap α β cmp) (l : ρ) : ExtTreeMap α β cmp :=
+def eraseMany [TransCmp cmp] {ρ} [ForIn Id ρ α] [ForInNew Id ρ α] (t : ExtTreeMap α β cmp) (l : ρ) : ExtTreeMap α β cmp :=
   ⟨t.inner.eraseMany l⟩
 
 instance [TransCmp cmp] [Repr α] [Repr β] : Repr (ExtTreeMap α β cmp) where

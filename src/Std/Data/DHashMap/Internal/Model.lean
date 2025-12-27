@@ -657,7 +657,7 @@ theorem filter_eq_filterₘ (m : Raw₀ α β) (f : (a : α) → β a → Bool) 
     m.filter f = m.filterₘ f := (rfl)
 
 theorem insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) : insertMany m l = insertListₘ m l := by
-  simp only [insertMany, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
+  simp only [insertMany, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl, List.forInNew_pure_eq_foldl]
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
     (∀ {m'' : Raw₀ α β} {a : α} {b : β a}, P m'' → P (m''.insert a b)) → P m → P m' }),
       (List.foldl (fun m' p => ⟨m'.val.insert p.1 p.2, fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =
@@ -671,7 +671,7 @@ theorem insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l
 
 theorem eraseManyEntries_eq_eraseListₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) :
     eraseManyEntries m l = eraseListₘ m (l.map (·.1)) := by
-  simp only [eraseManyEntries, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
+  simp only [eraseManyEntries, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl, List.forInNew_pure_eq_foldl]
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
       (∀ {m'' : Raw₀ α β} {a : α}, P m'' → P (m''.erase a)) → P m → P m' }),
         (List.foldl (fun m' p => ⟨m'.val.erase p.1, fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =
@@ -685,7 +685,7 @@ theorem eraseManyEntries_eq_eraseListₘ [BEq α] [Hashable α] (m : Raw₀ α �
 
 theorem insertManyIfNew_eq_insertListIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) :
     insertManyIfNew m l = insertListIfNewₘ m l := by
-  simp only [insertManyIfNew, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
+  simp only [insertManyIfNew, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl, List.forInNew_pure_eq_foldl]
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
     (∀ {m'' : Raw₀ α β} {a : α} {b : β a}, P m'' → P (m''.insertIfNew a b)) → P m → P m' }),
       (List.foldl (fun m' p => ⟨m'.val.insertIfNew p.1 p.2, fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =
@@ -738,7 +738,7 @@ theorem Const.getThenInsertIfNew?_eq_get?ₘ [BEq α] [Hashable α] (m : Raw₀ 
 theorem Const.insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β))
     (l : List (α × β)) :
     (Const.insertMany m l).1 = Const.insertListₘ m l := by
-  simp only [insertMany, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
+  simp only [insertMany, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl, List.forInNew_pure_eq_foldl]
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α (fun _ => β) → Prop),
     (∀ {m'' : Raw₀ α (fun _ => β)} {a : α} {b : β}, P m'' → P (m''.insert a b)) → P m → P m' }),
       (List.foldl (fun m' p => ⟨m'.val.insert p.1 p.2, fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =
@@ -753,7 +753,7 @@ theorem Const.insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α 
 theorem Const.insertManyIfNewUnit_eq_insertListIfNewUnitₘ [BEq α] [Hashable α]
     (m : Raw₀ α (fun _ => Unit)) (l: List α):
     (Const.insertManyIfNewUnit m l).1 = Const.insertListIfNewUnitₘ m l := by
-  simp only [insertManyIfNewUnit, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl]
+  simp only [insertManyIfNewUnit, Id.run_pure, pure_bind, List.forIn_pure_yield_eq_foldl, List.forInNew_pure_eq_foldl]
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α (fun _ => Unit) → Prop),
       (∀ {m'' a b}, P m'' → P (m''.insertIfNew a b)) → P m → P m'}),
       (List.foldl (fun m' p => ⟨m'.val.insertIfNew p (), fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =

@@ -378,6 +378,45 @@ theorem monotone_modifyM (a : Array α) (i : Nat) (f : γ → α → m α) (hmon
   · apply monotone_const
 
 @[partial_fixpoint_monotone]
+theorem monotone_forInNew'_loop {m : Type v → Type w} {α : Type u} {β σ : Type v}
+    [PartialOrder α] [∀ α, PartialOrder (m α)]
+    (as : Array α) (init : σ) (kcons : γ → (a : α) → a ∈ as → (σ → m β) → σ → m β) (knil : γ → σ → m β)
+    (i : Nat) (h : i ≤ as.size)
+    (hmonocons : ∀ a (h : a ∈ as) (k : γ → σ → m β) s (_ : ∀ s, monotone fun x => k x s), monotone (fun x => kcons x a h (k x) s)) (hmononil : monotone knil) :
+    monotone (fun x => Array.forInNew'.loop as (kcons x) (knil x) i h init) := by
+  apply monotone_default
+  intro _
+  induction i, h, init using Array.forInNew'.loop.induct as (kcons default) (knil default) with
+  | case1 =>
+    apply monotone_apply
+    apply hmononil
+  | case2 _ _ _ _ _ _ ih =>
+    simp only [Array.forInNew'.loop]
+    apply hmonocons
+    intro s
+    apply ih
+
+@[partial_fixpoint_monotone]
+theorem monotone_forInNew' {m : Type v → Type w} {α : Type u} {β σ : Type v}
+    [PartialOrder α] [∀ α, PartialOrder (m α)]
+    (as : Array α) (init : σ) (kcons : γ → (a : α) → a ∈ as → (σ → m β) → σ → m β) (knil : γ → σ → m β)
+    (hmonocons : ∀ a (h : a ∈ as) (k : γ → σ → m β) s (_ : ∀ s, monotone fun x => k x s), monotone (fun x => kcons x a h (k x) s)) (hmononil : monotone knil) :
+    monotone (fun x => forInNew' as init (kcons x) (knil x)) := by
+  apply monotone_forInNew'_loop
+  apply hmonocons
+  apply hmononil
+
+@[partial_fixpoint_monotone]
+theorem monotone_forInNew {m : Type v → Type w} {α : Type u} {β σ : Type v}
+    [PartialOrder α] [∀ α, PartialOrder (m α)]
+    (as : Array α) (init : σ) (kcons : γ → α → (σ → m β) → σ → m β) (knil : γ → σ → m β)
+    (hmonocons : ∀ a (k : γ → σ → m β) s (_ : ∀ s, monotone fun x => k x s), monotone (fun x => kcons x a (k x) s)) (hmononil : monotone knil) :
+    monotone (fun x => forInNew as init (kcons x) (knil x)) := by
+  apply monotone_forInNew' as init _ _
+  · intro a _; apply hmonocons a
+  · apply hmononil
+
+@[partial_fixpoint_monotone]
 theorem monotone_forIn'_loop {α : Type uu}
     (as : Array α) (f : γ → (a : α) → a ∈ as → β → m (ForInStep β)) (i : Nat) (h : i ≤ as.size)
     (b : β) (hmono : monotone f) :

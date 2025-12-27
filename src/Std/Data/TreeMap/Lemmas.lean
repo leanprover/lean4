@@ -887,7 +887,7 @@ theorem ordered_keys_toList [TransCmp cmp] :
 
 section monadic
 
-variable {δ : Type w} {m : Type w → Type w'}
+variable {δ σ : Type w} {m : Type w → Type w'}
 
 theorem foldlM_eq_foldlM_toList [Monad m] [LawfulMonad m] {f : δ → α → β → m δ} {init : δ} :
     t.foldlM f init = t.toList.foldlM (fun a b => f a b.1 b.2) init :=
@@ -912,6 +912,16 @@ theorem forM_eq_forM [Monad m] [LawfulMonad m] {f : α → β → m PUnit} :
 theorem forM_eq_forM_toList [Monad m] [LawfulMonad m] {f : α × β → m PUnit} :
     ForM.forM t f = ForM.forM t.toList f :=
   DTreeMap.Const.forMUncurried_eq_forM_toList (f := f)
+
+@[simp, grind =]
+theorem forInNew_eq_forInNew
+    {init : σ} {kcons : α → β → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
+    t.forInNew init kcons knil = ForInNew.forInNew t init (fun a => kcons a.1 a.2) knil := rfl
+
+theorem forInNew_eq_forInNew_toList
+    {init : σ} {kcons : α × β → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
+    ForInNew.forInNew t init kcons knil = ForInNew.forInNew t.toList init kcons knil :=
+  DTreeMap.Const.forInNewUncurried_eq_forInNew_toList
 
 @[simp, grind =]
 theorem forIn_eq_forIn [Monad m] [LawfulMonad m]

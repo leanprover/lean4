@@ -189,7 +189,7 @@ Note: this precedence behavior is true for `ExtHashSet` and `ExtHashSet.Raw`. Th
 `ExtHashMap`, `DExtHashMap`, `ExtHashMap.Raw` and `DExtHashMap.Raw` behaves differently: it will prefer the last
 appearance.
 -/
-@[inline] def insertMany [EquivBEq α] [LawfulHashable α] {ρ : Type v} [ForIn Id ρ α]
+@[inline] def insertMany [EquivBEq α] [LawfulHashable α] {ρ : Type v} [ForIn Id ρ α] [ForInNew Id ρ α]
     (m : ExtHashSet α) (l : ρ) : ExtHashSet α :=
   ⟨m.inner.insertManyIfNewUnit l⟩
 

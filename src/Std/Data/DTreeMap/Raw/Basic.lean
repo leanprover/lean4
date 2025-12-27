@@ -604,6 +604,10 @@ define the `ForM` and `ForIn` instances for `DTreeMap.Raw`.
 def forMUncurried (f : α × β → m PUnit) (t : Raw α β cmp) : m PUnit :=
   t.inner.forM fun a b => f ⟨a, b⟩
 
+@[inline, inherit_doc Raw.forInNew]
+def forInNewUncurried {m : Type w → Type w₂} (t : Raw α β cmp) (init : σ) (kcons : α × β → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  t.forInNew init (fun a b => kcons ⟨a, b⟩) knil
+
 @[inline, inherit_doc Raw.forIn]
 def forInUncurried (f : α × β → δ → m (ForInStep δ)) (init : δ) (t : Raw α β cmp) : m δ :=
   t.inner.forIn (fun a b d => f ⟨a, b⟩ d) init

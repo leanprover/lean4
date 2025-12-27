@@ -173,6 +173,7 @@ private meta def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (T
      ⟨`fold, (``Raw.fold_eq_foldl_toListModel, #[])⟩,
      ⟨`foldRevM, (``Raw.foldRevM_eq_foldrM_toListModel, #[])⟩,
      ⟨`foldRev, (``Raw.foldRev_eq_foldr_toListModel, #[])⟩,
+     ⟨`forInNew, (``Raw.forInNew_eq_forInNew_toListModel, #[])⟩,
      ⟨`forIn, (``Raw.forIn_eq_forIn_toListModel, #[])⟩,
      ⟨`forM, (``Raw.forM_eq_forM_toListModel, #[])⟩,
      ⟨`toArray, (``Raw.toArray_eq_toArray_toListModel, #[])⟩,
@@ -1241,7 +1242,7 @@ end Const
 section monadic
 
 -- The types are redefined because fold/for does not need BEq/Hashable
-variable {α : Type u} {β : α → Type v} (m : Raw₀ α β) {δ : Type w} {m' : Type w → Type w'}
+variable {α : Type u} {β : α → Type v} (m : Raw₀ α β) {δ σ : Type w} {m' : Type w → Type w'}
 
 theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m']
     {f : δ → (a : α) → β a → m' δ} {init : δ} :
@@ -1265,9 +1266,14 @@ theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : (a : α) → β a �
     m.1.forM f = m.1.toList.forM (fun a => f a.1 a.2) := by
   simp_to_model [forM, toList]
 
+theorem forInNew_eq_forInNew_toList
+    {init : σ} {kcons : (a : α) → β a → (σ → m' δ) → σ → m' δ} {knil : σ → m' δ} :
+    m.1.forInNew init kcons knil = ForInNew.forInNew m.1.toList init (fun a => kcons a.1 a.2) knil := show_term by
+  simp_to_model [forInNew, toList]
+
 theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
     {f : (a : α) → β a → δ → m' (ForInStep δ)} {init : δ} :
-    m.1.forIn f init = ForIn.forIn m.1.toList init (fun a b => f a.1 a.2 b) := by
+    m.1.forIn f init = ForIn.forIn m.1.toList init (fun a b => f a.1 a.2 b) := show_term by
   simp_to_model [forIn, toList]
 
 theorem foldM_eq_foldlM_keys [Monad m'] [LawfulMonad m']
@@ -1326,9 +1332,14 @@ theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : α → β → m' PU
     m.1.forM f = (Raw.Const.toList m.1).forM (fun a => f a.1 a.2) := by
   simp_to_model [forM, Const.toList] using List.forM_eq_forM_toProd
 
+theorem forInNew_eq_forInNew_toList
+    {init : σ} {kcons : α → β → (σ → m' δ) → σ → m' δ} {knil : σ → m' δ} :
+    m.1.forInNew init kcons knil = ForInNew.forInNew (Raw.Const.toList m.1) init (fun a => kcons a.1 a.2) knil := by
+  simp_to_model [forInNew, Const.toList] using List.forInNew_eq_forInNew_toProd
+
 theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
     {f : α → β → δ → m' (ForInStep δ)} {init : δ} :
-    m.1.forIn f init = ForIn.forIn (Raw.Const.toList m.1) init (fun a b => f a.1 a.2 b) := by
+    m.1.forIn f init = ForIn.forIn (Raw.Const.toList m.1) init (fun a b => f a.1 a.2 b) := show_term by
   simp_to_model [forIn, Const.toList] using List.forIn_eq_forIn_toProd
 
 end Const
@@ -1419,6 +1430,11 @@ theorem forM_eq_forM_toArray [Monad m'] [LawfulMonad m'] {f : α → β → m' P
   rw [← toArray_toList_eq_toArray, List.forM_toArray', forM_eq_forM_toList]
   rfl
 
+theorem forInNew_eq_forInNew_toArray
+    {init : σ} {kcons : α → β → (σ → m' δ) → σ → m' δ} {knil : σ → m' δ} :
+    m.1.forInNew init kcons knil = ForInNew.forInNew (Raw.Const.toArray m.1) init (fun a => kcons a.1 a.2) knil := by
+  simp [← toArray_toList_eq_toArray, forInNew_eq_forInNew_toList]
+
 theorem forIn_eq_forIn_toArray [Monad m'] [LawfulMonad m']
     {f : α → β → δ → m' (ForInStep δ)} {init : δ} :
     m.1.forIn f init = ForIn.forIn (Raw.Const.toArray m.1) init (fun a b => f a.1 a.2 b) := by
@@ -1431,8 +1447,9 @@ end monadic
 omit [Hashable α] [BEq α] in
 theorem any_toList {p : (a : α) → β a → Bool} :
     m.1.toList.any (fun x => p x.1 x.2) = m.1.any p := by
-  simp only [Raw.any, ForIn.forIn, bind_pure_comp, map_pure, Id.run_bind]
-  rw [forIn_eq_forIn_toList, forIn_eq_forIn']
+  simp only [Raw.any, ForIn.forIn, ForInNew.forInNew, bind_pure_comp, map_pure, Id.run_bind]
+  first | rw [forIn_eq_forIn_toList, forIn_eq_forIn']
+        | rw [forInNew_eq_forInNew_toList, forInNew_eq_forInNew']
   induction m.val.toList with
   | nil => simp
   | cons hd tl ih =>
@@ -1504,8 +1521,9 @@ variable {β : Type v} (m : Raw₀ α (fun _ => β))
 omit [Hashable α] [BEq α] in
 theorem any_toList {p : (_ : α) → β → Bool} :
     (Raw.Const.toList m.1).any (fun x => p x.1 x.2) = m.1.any p := by
-  simp only [Raw.any, ForIn.forIn, bind_pure_comp, map_pure, Id.run_bind]
-  rw [forIn_eq_forIn_toList, forIn_eq_forIn']
+  simp only [Raw.any, ForIn.forIn, ForInNew.forInNew, bind_pure_comp, map_pure, Id.run_bind]
+  first | rw [forIn_eq_forIn_toList, forIn_eq_forIn']
+        | rw [forInNew_eq_forInNew_toList, forInNew_eq_forInNew']
   induction Raw.Const.toList m.1 with
   | nil => simp
   | cons hd tl ih =>
@@ -1569,8 +1587,9 @@ theorem any_eq_false' [LawfulBEq α] {p : (_ : α) → β → Bool} (h : m.1.WF)
 omit [BEq α] [Hashable α] in
 theorem all_toList {p : (_ : α) → β → Bool} :
     (Raw.Const.toList m.1).all (fun x => p x.1 x.2) = m.1.all p := by
-  simp only [Raw.all, ForIn.forIn, Bool.not_eq_true, bind_pure_comp, map_pure, Id.run_bind]
-  rw [forIn_eq_forIn_toList, forIn_eq_forIn']
+  simp only [Raw.all, ForIn.forIn, ForInNew.forInNew, Bool.not_eq_true, bind_pure_comp, map_pure, Id.run_bind]
+  first | rw [forIn_eq_forIn_toList, forIn_eq_forIn']
+        | rw [forInNew_eq_forInNew_toList, forInNew_eq_forInNew']
   induction Raw.Const.toList m.1 with
   | nil => simp
   | cons hd tl ih =>

@@ -31,7 +31,7 @@ set_option autoImplicit false
 
 universe u v w w'
 
-variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w'} [Monad m]
+variable {α : Type u} {β : α → Type v} {δ σ : Type w} {m : Type w → Type w'} [Monad m]
 
 namespace Std
 
@@ -435,6 +435,10 @@ define the `ForM` and `ForIn` instances for `HashMap.Raw`.
 @[inline, inherit_doc forM] def forMUncurried (f : α × β → m PUnit)
     (b : Raw α (fun _ => β)) : m PUnit :=
   b.forM fun a b => f ⟨a, b⟩
+
+@[inline, inherit_doc forInNew]
+def forInNewUncurried {m : Type w → Type w'} (b : Raw α (fun _ => β)) (init : σ) (kcons : α × β → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  b.forInNew init (fun a b => kcons ⟨a, b⟩) knil
 
 @[inline, inherit_doc forIn] def forInUncurried
     (f : α × β → δ → m (ForInStep δ)) (init : δ) (b : Raw α (fun _ => β)) : m δ :=

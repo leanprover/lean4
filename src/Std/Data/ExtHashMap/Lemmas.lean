@@ -727,7 +727,7 @@ instance [EquivBEq α] [LawfulHashable α] : LawfulGetElem (ExtHashMap α β) α
     rw [getElem!_eq_get!_getElem?]
     split <;> simp_all
 
-variable {ρ : Type w} [ForIn Id ρ (α × β)]
+variable {ρ : Type w} [ForIn Id ρ (α × β)] [ForInNew Id ρ (α × β)]
 
 @[simp, grind =]
 theorem insertMany_nil [EquivBEq α] [LawfulHashable α] :
@@ -930,7 +930,7 @@ theorem eq_empty_of_insertMany_eq_empty [EquivBEq α] [LawfulHashable α] {l : �
   simpa only [ext_iff] using ExtDHashMap.Const.eq_empty_of_insertMany_eq_empty
 
 variable {m : ExtHashMap α Unit}
-variable {ρ : Type w} [ForIn Id ρ α]
+variable {ρ : Type w} [ForIn Id ρ α] [ForInNew Id ρ α]
 
 @[simp]
 theorem insertManyIfNewUnit_nil [EquivBEq α] [LawfulHashable α] :

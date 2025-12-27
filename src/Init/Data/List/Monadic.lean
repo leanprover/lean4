@@ -366,7 +366,7 @@ theorem foldrM_attach [Monad m] [LawfulMonad m] {l : List α} {f : α → β →
     forInNew (l.map f) init kcons knil = forInNew l init (fun a => kcons (f a)) knil := by
   induction l generalizing init <;> simp_all
 
-@[simp, grind =] theorem forInNew_append [Monad m] [LawfulMonad m]
+@[simp, grind =] theorem forInNew_append {m : Type _ → Type _}
     {l₁ l₂ : List α} (kcons : (a : α) → (σ → m β) → σ → m β) (knil : σ → m β) (init : σ) :
     forInNew (l₁ ++ l₂) init kcons knil =
       forInNew l₁ init kcons (forInNew l₂ · kcons knil) := by

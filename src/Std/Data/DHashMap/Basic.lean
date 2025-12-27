@@ -262,6 +262,10 @@ define the `ForM` and `ForIn` instances for `HashMap`.
     (b : DHashMap α (fun _ => β)) : m PUnit :=
   b.forM fun a b => f ⟨a, b⟩
 
+@[inline, inherit_doc forInNew]
+def forInNewUncurried {m : Type w → Type w'} (b : DHashMap α (fun _ => β)) (init : σ) (kcons : α × β → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  b.forInNew init (fun a b => kcons ⟨a, b⟩) knil
+
 @[inline, inherit_doc forIn] def forInUncurried
     (f : α × β → δ → m (ForInStep δ)) (init : δ) (b : DHashMap α (fun _ => β)) : m δ :=
   b.forIn (init := init) fun a b d => f ⟨a, b⟩ d

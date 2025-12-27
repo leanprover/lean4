@@ -565,7 +565,8 @@ protected def forInNew' {α : Type u} {σ β : Type v} {m : Type v → Type w}
       have h' : i < as.size            := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
       have : as.size - 1 < as.size     := Nat.sub_lt (Nat.zero_lt_of_lt h') (by decide)
       have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this
-      kcons as[as.size - 1 - i] (getElem_mem this) (loop i (Nat.le_of_lt h')) s
+      let recurse s := loop i (Nat.le_of_lt h') s
+      kcons as[as.size - 1 - i] (getElem_mem this) recurse s
   loop as.size (Nat.le_refl _) s
 
 instance : ForInNew' m (Array α) α Membership.mem where

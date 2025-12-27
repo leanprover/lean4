@@ -4363,6 +4363,20 @@ theorem getElem?_push_eq {xs : Array α} {x : α} : (xs.push x)[xs.size]? = some
 @[simp] theorem getElem?_size {xs : Array α} : xs[xs.size]? = none := by
   simp only [getElem?_def, Nat.lt_irrefl, dite_false]
 
+/-! ### forInNew -/
+
+@[simp, grind =] theorem forInNew_toList {m : Type _ → Type _} {xs : Array α}
+    {s : σ} {kcons : α → (σ → m β) → σ → m β} {knil : σ → m β} :
+    forInNew xs.toList s kcons knil = forInNew xs s kcons knil := by
+  cases xs
+  simp
+
+@[simp, grind =] theorem forInNew'_toList {m : Type _ → Type _} {xs : Array α}
+    {s : σ} {kcons : (a : α) → a ∈ xs.toList → (σ → m β) → σ → m β} {knil : σ → m β} :
+    forInNew' xs.toList s kcons knil = forInNew' xs s (fun a m => kcons a (mem_toList_iff.mpr m)) knil := by
+  cases xs
+  simp
+
 /-! ### forIn -/
 
 @[simp, grind =] theorem forIn_toList [Monad m] {xs : Array α} {b : β} {f : α → β → m (ForInStep β)} :

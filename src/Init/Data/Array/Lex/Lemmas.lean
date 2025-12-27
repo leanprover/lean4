@@ -51,7 +51,23 @@ protected theorem not_le_iff_gt [LT α] {xs ys : Array α} :
   Classical.not_not
 
 @[simp] theorem lex_empty [BEq α] {lt : α → α → Bool} {xs : Array α} : xs.lex #[] lt = false := by
-  simp [lex, Std.Rco.forIn'_eq_if]
+  simp [lex, Std.Rco.forIn'_eq_if, Std.Rco.forInNew'_eq_if]
+
+private theorem cons_lex_cons.forInNew'_congr_aux [Monad m] {as₁ as₂ : ρ} {_ : Membership α ρ}
+    [ForInNew' m ρ α Membership.mem] (has : as₁ = as₂)
+    {s₁ s₂ : σ} (hs : s₁ = s₂)
+    {kcons₁ : (a' : α) → a' ∈ as₁ → (σ → m β) → σ → m β}
+    {kcons₂ : (a' : α) → a' ∈ as₂ → (σ → m β) → σ → m β}
+    (hcons : ∀ a m k s, kcons₁ a (by simpa [has] using m) k s = kcons₂ a m k s)
+    {knil₁ : σ → m β}
+    {knil₂ : σ → m β}
+    (hnil : ∀ s, knil₁ s = knil₂ s) :
+    forInNew' as₁ s₁ kcons₁ knil₁ = forInNew' as₂ s₂ kcons₂ knil₂ := by
+  cases hs
+  cases has
+  simp only [← funext_iff] at hcons
+  simp only [← funext_iff] at hnil
+  rw [← hcons, hnil]
 
 private theorem cons_lex_cons.forIn'_congr_aux [Monad m] {as bs : ρ} {_ : Membership α ρ}
     [ForIn' m ρ α inferInstance] (w : as = bs)
@@ -72,8 +88,9 @@ private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs 
      (#[a] ++ xs).lex (#[b] ++ ys) lt =
        (lt a b || a == b && xs.lex ys lt) := by
   simp only [lex, size_append, List.size_toArray, List.length_cons, List.length_nil, Nat.zero_add,
-    Nat.add_min_add_left, Nat.add_lt_add_iff_left, Std.Rco.forIn'_eq_forIn'_toList]
-  rw [cons_lex_cons.forIn'_congr_aux (Nat.toList_rco_eq_cons (by omega)) rfl (fun _ _ _ => rfl)]
+    Nat.add_min_add_left, Nat.add_lt_add_iff_left, Std.Rco.forIn'_eq_forIn'_toList, Std.Rco.forInNew'_eq_forInNew'_toList]
+  first | rw [cons_lex_cons.forIn'_congr_aux (Nat.toList_rco_eq_cons (by omega)) rfl (fun _ _ _ => rfl)]
+        | rw [cons_lex_cons.forInNew'_congr_aux (Nat.toList_rco_eq_cons (by omega)) rfl (fun _ _ _ _ => rfl) (fun _ => rfl)]
   simp only [bind_pure_comp, map_pure, Nat.toList_rco_succ_succ, Nat.add_comm 1]
   cases h : lt a b
   · cases h' : a == b <;> simp [bne, *]
@@ -83,10 +100,10 @@ private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs 
     l₁.toArray.lex l₂.toArray lt = l₁.lex l₂ lt := by
   induction l₁ generalizing l₂ with
   | nil =>
-    cases l₂ <;> simp [lex, Std.Rco.forIn'_eq_if]
+    cases l₂ <;> simp [lex, Std.Rco.forIn'_eq_if, Std.Rco.forInNew'_eq_if]
   | cons x l₁ ih =>
     cases l₂ with
-    | nil => simp [lex, Std.Rco.forIn'_eq_if]
+    | nil => simp [lex, Std.Rco.forIn'_eq_if, Std.Rco.forInNew'_eq_if]
     | cons y l₂ =>
       rw [List.toArray_cons, List.toArray_cons y, cons_lex_cons, List.lex, ih]
 

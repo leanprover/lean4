@@ -1342,7 +1342,7 @@ theorem forM_eq_forM {t : Impl α β} {m : Type w → Type w'} [Monad m] [Lawful
 ### forIn
 -/
 
-theorem forInNew_eq_forInNew_toListModel {δ σ : Type w} {t : Impl α β} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+theorem forInNew_eq_forInNew_toListModel {δ σ : Type w} {t : Impl α β} {m : Type w → Type w'}
     {kcons : (a : α) → β a → (σ → m δ) → σ → m δ} {knil : σ → m δ} {init : σ} :
     t.forInNew init kcons knil = ForInNew.forInNew t.toListModel init (fun a => kcons a.1 a.2) knil := by
   induction t generalizing init knil with simp [Impl.forInNew, *]
@@ -1908,15 +1908,17 @@ theorem WF.union! {_ : Ord α} [TransOrd α]
 
 theorem all_eq_all_toListModel {p : (a : α) → β a → Bool} {m : Impl α β} :
     m.all p = m.toListModel.all (fun x => p x.1 x.2) := by
-  simp [all, ForIn.forIn, bind_pure_comp, map_pure, Id.run_bind]
-  rw [forIn_eq_forIn_toListModel, ← toList_eq_toListModel, forIn_eq_forIn']
+  simp [all, ForIn.forIn, ForInNew.forInNew, bind_pure_comp, map_pure, Id.run_bind]
+  first | rw [forIn_eq_forIn_toListModel] | rw [forInNew_eq_forInNew_toListModel]
+  rw [← toList_eq_toListModel]
+  first | rw [forIn_eq_forIn'] | rw [forInNew_eq_forInNew']
   induction m.toList with
   | nil => simp
   | cons hd tl ih =>
-    simp only [forIn'_eq_forIn, List.all_cons]
+    simp only [forIn'_eq_forIn, forInNew'_eq_forInNew, List.all_cons]
     by_cases h : p hd.fst hd.snd = false
     · simp [h]
-    · simp only [forIn'_eq_forIn] at ih
+    · simp only [forIn'_eq_forIn, forInNew'_eq_forInNew] at ih
       simp [h, ih]
 
 theorem beq_eq_beqModel {_ : Ord α} [BEq α] [TransOrd α] [LawfulBEq α] [LawfulBEqOrd α] [∀ k, BEq (β k)] {m₁ m₂ : Impl α β} (h₁ : m₁.WF) (h₂ : m₂.WF) :

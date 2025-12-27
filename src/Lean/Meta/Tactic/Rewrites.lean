@@ -13,6 +13,7 @@ public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.SolveByElim
 public import Lean.Meta.Tactic.TryThis
 public import Lean.Util.Heartbeats
+public import Lean.Elab.Parallel
 
 public section
 
@@ -286,61 +287,44 @@ def RewriteResult.addSuggestion (ref : Syntax) (r : RewriteResult)
       (type? := r.newGoal.toLOption) (origSpan? := ← getRef)
       (checkState? := checkState?.getD (← saveState))
 
-structure RewriteResultConfig where
-  stopAtRfl : Bool
-  max : Nat
-  minHeartbeats : Nat
-  goal : MVarId
-  target : Expr
-  side : SideConditions := .solveByElim
-  mctx : MetavarContext
+/--
+Find lemmas which can rewrite the goal.
 
-def takeListAux (cfg : RewriteResultConfig) (seen : Std.HashMap String Unit) (acc : Array RewriteResult)
-    (xs : List ((Expr ⊕ Name) × Bool × Nat)) : MetaM (Array RewriteResult) := do
-  let mut seen := seen
-  let mut acc := acc
-  for (lem, symm, weight) in xs do
-    if (← getRemainingHeartbeats) < cfg.minHeartbeats then
-      return acc
-    if acc.size ≥ cfg.max then
-      return acc
-    let res ←
-          withoutModifyingState <| withMCtx cfg.mctx do
-            rwLemma cfg.mctx cfg.goal cfg.target cfg.side lem symm weight
-    match res with
-    | none => continue
-    | some r =>
-      let s ← withoutModifyingState <| withMCtx r.mctx r.ppResult
-      if seen.contains s then
-        continue
-      let rfl? ← dischargableWithRfl? r.mctx r.result.eNew
-      if cfg.stopAtRfl then
-        if rfl? then
-          return #[r]
-        else
-          seen := seen.insert s ()
-          acc := acc.push r
-      else
-        seen := seen.insert s ()
-        acc := acc.push r
-  return acc
-
-/-- Find lemmas which can rewrite the goal. -/
+Runs all candidates in parallel, iterates through results in order.
+Cancels remaining tasks and returns immediately if `stopAtRfl` is true and
+an rfl-closeable result is found. Collects up to `max` unique results.
+-/
 def findRewrites (hyps : Array (Expr × Bool × Nat))
     (moduleRef : LazyDiscrTree.ModuleDiscrTreeRef (Name × RwDirection))
     (goal : MVarId) (target : Expr)
     (forbidden : NameSet := ∅) (side : SideConditions := .solveByElim)
-    (stopAtRfl : Bool) (max : Nat := 20)
-    (leavePercentHeartbeats : Nat := 10) : MetaM (List RewriteResult) := do
+    (stopAtRfl : Bool) (max : Nat := 20) : MetaM (List RewriteResult) := do
   let mctx ← getMCtx
   let candidates ← rewriteCandidates hyps moduleRef target forbidden
-  let minHeartbeats : Nat ←
-        if (← getMaxHeartbeats) = 0 then
-          pure 0
-        else
-          pure <| leavePercentHeartbeats * (← getRemainingHeartbeats) / 100
-  let cfg : RewriteResultConfig :=
-        { stopAtRfl, minHeartbeats, max, mctx, goal, target, side }
-  return (← takeListAux cfg {} (Array.mkEmpty max) candidates.toList).toList
+  -- Create parallel jobs for each candidate
+  let jobs := candidates.toList.map fun (lem, symm, weight) => do
+    withoutModifyingState <| withMCtx mctx do
+      let some r ← rwLemma mctx goal target side lem symm weight
+        | return none
+      let s ← withoutModifyingState <| withMCtx r.mctx r.ppResult
+      return some (r, s)
+  let (cancel, iter) ← MetaM.parIterWithCancelChunked jobs (maxTasks := 128)
+  let mut seen : Std.HashMap String Unit := {}
+  let mut acc : Array RewriteResult := Array.mkEmpty max
+  for result in iter.allowNontermination do
+    if acc.size ≥ max then
+      cancel
+      break
+    match result with
+    | .error _ => continue
+    | .ok none => continue
+    | .ok (some (r, s)) =>
+      if seen.contains s then continue
+      seen := seen.insert s ()
+      if stopAtRfl && r.rfl? then
+        cancel
+        return [r]
+      acc := acc.push r
+  return acc.toList
 
 end Lean.Meta.Rewrites

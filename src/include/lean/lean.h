@@ -335,6 +335,7 @@ static inline unsigned lean_get_slot_idx(unsigned sz) {
     return sz / LEAN_OBJECT_SIZE_DELTA - 1;
 }
 
+__attribute__((malloc)) __attribute__((alloc_size(1))) __attribute__((returns_nonnull))
 LEAN_EXPORT void * lean_alloc_small(unsigned sz, unsigned slot_idx);
 LEAN_EXPORT void lean_free_small(void * p);
 LEAN_EXPORT unsigned lean_small_mem_size(void * p);
@@ -344,6 +345,7 @@ LEAN_EXPORT void lean_inc_heartbeat(void);
 void * malloc(size_t);  // avoid including big `stdlib.h`
 #endif
 
+__attribute__((malloc)) __attribute__((alloc_size(1))) __attribute__((returns_nonnull))
 static inline lean_object * lean_alloc_small_object(unsigned sz) {
 #ifdef LEAN_SMALL_ALLOCATOR
     sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
@@ -438,6 +440,7 @@ static inline void lean_free_small_object(lean_object * o) {
 #endif
 }
 
+__attribute__((malloc)) __attribute__((alloc_size(1))) __attribute__((returns_nonnull))
 LEAN_EXPORT lean_object * lean_alloc_object(size_t sz);
 LEAN_EXPORT void lean_free_object(lean_object * o);
 

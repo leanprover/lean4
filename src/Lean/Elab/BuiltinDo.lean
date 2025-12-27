@@ -309,10 +309,10 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
         throwUnsupportedSyntax
       | .have, _ =>
         elabDoElem (← `(doElem| have $pattern:term := $x)) dec
-      | .reassign, some otherwise =>
-        throwError (Function.const _ "doReassignElse needs a stage0 update for quotation syntax" otherwise)
-        elabDoElem ⟨← `(doReassignElse| $pattern:term := $x | $otherwise:doSeq $(rest?)?)⟩ dec
       | .reassign, _ =>
+        -- otherwise? is always `none`, because there is no `doReassignElse`
+        unless rest?.isNone do
+          throwError "reassignment with `|` (i.e., \"else clause\") is not supported"
         elabDoElem (← `(doElem| $pattern:term := $x)) dec
   | _ => throwUnsupportedSyntax
 
@@ -344,10 +344,6 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
 @[builtin_doElem_elab Lean.Parser.Term.doLetElse] def elabDoLetElse : DoElab := fun stx dec => do
   let `(doLetElse| let $[mut%$mutTk?]? $pattern := $rhs | $otherwise $(body?)?) := stx | throwUnsupportedSyntax
   elabDoLetOrReassignElse (.let mutTk?) pattern rhs body? otherwise dec
-
-@[builtin_doElem_elab Lean.Parser.Term.doReassignElse] def elabDoReassignElse : DoElab := fun stx dec => do
-  let `(doReassignElse| $pattern := $rhs | $otherwise $(body?)?) := stx | throwUnsupportedSyntax
-  elabDoLetOrReassignElse .reassign pattern rhs body? otherwise dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetArrow] def elabDoLetArrow : DoElab := fun stx dec => do
   let `(doLetArrow| let $[mut%$mutTk?]? $decl) := stx | throwUnsupportedSyntax

@@ -103,9 +103,13 @@ def letIdDeclNoBinders := node ``letIdDecl <|
 
 @[builtin_doElem_parser] def doReassign      := leading_parser
   notFollowedByRedefinedTermToken >> (letIdDeclNoBinders <|> letPatDecl)
-@[builtin_doElem_parser] def doReassignElse      := leading_parser
-  notFollowedByRedefinedTermToken >>
-    (termParser >> " := " >> termParser >> (checkColGt >> " | " >> doSeq) >> optional doSeq)
+
+-- `doReassignElse` clashes with the `doMatch` parser in
+--   `do match e with | x := x | none => pure ()`
+-- So we do not define it for back compat reasons.
+-- @[builtin_doElem_parser] def doReassignElse      := leading_parser
+--   notFollowedByRedefinedTermToken >>
+--     (termParser >> " := " >> termParser >> (checkColGt >> " | " >> doSeq) >> optional doSeq)
 
 @[builtin_doElem_parser] def doReassignArrow := leading_parser
   notFollowedByRedefinedTermToken >> (doIdDecl <|> doPatDecl)

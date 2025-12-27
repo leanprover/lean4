@@ -141,7 +141,7 @@ instance : ToLean Backend := ⟨Backend.toLean⟩
 def quoteLeanOptionValue : LeanOptionValue → Term
 | .ofString v => toLean v
 | .ofBool v => toLean v
-| .ofNat v => toLean v
+| .ofNat v => Unhygienic.run `(.ofNat $(toLean v))
 
 instance : ToLean LeanOptionValue := ⟨quoteLeanOptionValue⟩
 

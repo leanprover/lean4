@@ -64,7 +64,7 @@ opaque offsetOfPos (s : String) (pos : Pos.Raw) : Nat
 @[extern "lean_string_utf8_extract"]
 opaque extract : (@& String) → (@& Pos.Raw) → (@& Pos.Raw) → String
 
-@[extern "lean_string_length"]
+@[extern "lean_string_length", suggest_for String.Internal.size]
 opaque length : (@& String) → Nat
 
 @[extern "lean_string_pushn"]

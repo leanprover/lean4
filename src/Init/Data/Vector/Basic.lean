@@ -42,6 +42,7 @@ abbrev Array.toVector (xs : Array α) : Vector α xs.size := .mk xs rfl
 namespace Vector
 
 /-- The size of a vector. -/
+@[suggest_for Vector.length]
 abbrev size {α n} (_ : Vector α n) : Nat := n
 
 /-- Syntax for `Vector α n` -/

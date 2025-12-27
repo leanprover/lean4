@@ -637,7 +637,7 @@ Steps through the whole iterator, counting the number of outputs emitted.
 
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline, expose, suggest_for Std.Iterators.Iter.length Std.Iterators.Iter.Partial.length]
 def Iter.count {α : Type w} {β : Type w} [Iterator α Id β] [IteratorLoop α Id Id]
     (it : Iter (α := α) β) : Nat :=
   it.toIterM.count.run.down

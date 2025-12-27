@@ -65,6 +65,7 @@ theorem RArray.get_eq_getImpl : @RArray.get = @RArray.getImpl := by
 instance : GetElem (RArray α) Nat α (fun _ _ => True) where
   getElem a n _ := a.get n
 
+@[suggest_for Lean.RArray.length]
 def RArray.size : RArray α → Nat
   | leaf _ => 1
   | branch _ l r => l.size + r.size

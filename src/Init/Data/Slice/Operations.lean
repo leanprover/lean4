@@ -52,7 +52,7 @@ Returns the number of elements with distinct indices in the given slice.
 
 Example: `#[1, 1, 1][0...2].size = 2`.
 -/
-@[always_inline, inline]
+@[always_inline, inline, suggest_for Std.Slice.length]
 def size (s : Slice γ) [SliceSize γ] :=
   SliceSize.size s
 

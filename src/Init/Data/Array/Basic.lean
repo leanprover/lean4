@@ -596,10 +596,10 @@ instance : ForInNew' m (Array α) α Membership.mem where
 /-- Reference implementation for `forIn'` -/
 @[implemented_by Array.forIn'Unsafe, expose]
 protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
-  let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
-    match i, h with
+  let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β :=
+    match i, h with -- TODO: remove this once we better simplify matchers
     | 0,   _ => pure b
-    | i+1, h =>
+    | i+1, h => do
       have h' : i < as.size            := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
       have : as.size - 1 < as.size     := Nat.sub_lt (Nat.zero_lt_of_lt h') (by decide)
       have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this

@@ -18,7 +18,7 @@ theorem IterM.step_drop {α m β} [Monad m] [Iterator α m β] {n : Nat}
     (it.drop n).step = (do
       match (← it.step).inflate with
       | .yield it' out h =>
-        pure <| .deflate <| match n with
+        pure <| .deflate <| match (generalizing := false) n with
         | 0 => .yield (it'.drop 0) out (.yield h rfl)
         | k + 1 => .skip (it'.drop k) (.drop h rfl)
       | .skip it' h => pure <| .deflate <| .skip (it'.drop n) (.skip h)

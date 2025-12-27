@@ -117,27 +117,29 @@ public theorem Iter.step_flatMapAfterM {α : Type w} {β : Type w} {α₂ : Type
     [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m] [Iterator α Id β] [Iterator α₂ m γ]
     {f : β → m (IterM (α := α₂) m γ)} {it₁ : Iter (α := α) β} {it₂ : Option (IterM (α := α₂) m γ)} :
   (it₁.flatMapAfterM f it₂).step = (do
-    match it₂ with
+    match hit : id it₂ with
     | none =>
+      have hit : it₂ = none := hit
       match it₁.step with
       | .yield it₁' b h =>
         let fx ← MonadAttach.attach (f b)
-        return .deflate (.skip (it₁'.flatMapAfterM f (some fx.val)) (.outerYield_flatMapM_pure h fx.property))
-      | .skip it₁' h => return .deflate (.skip (it₁'.flatMapAfterM f none) (.outerSkip_flatMapM_pure h))
-      | .done h => return .deflate (.done (.outerDone_flatMapM_pure h))
-    | some it₂ =>
-      match (← it₂.step).inflate with
+        return .deflate (.skip (it₁'.flatMapAfterM f (some fx.val)) (by cases hit; exact .outerYield_flatMapM_pure h fx.property))
+      | .skip it₁' h => return .deflate (.skip (it₁'.flatMapAfterM f none) (by cases hit; exact .outerSkip_flatMapM_pure h))
+      | .done h => return .deflate (.done (by cases hit; exact .outerDone_flatMapM_pure h))
+    | some it₂' =>
+      have hit : it₂ = some it₂' := hit
+      match (← it₂'.step).inflate with
       | .yield it₂' out h =>
-        return .deflate (.yield (it₁.flatMapAfterM f (some it₂')) out (.innerYield_flatMapM_pure h))
+        return .deflate (.yield (it₁.flatMapAfterM f (some it₂')) out (by cases hit; exact .innerYield_flatMapM_pure h))
       | .skip it₂' h =>
-        return .deflate (.skip (it₁.flatMapAfterM f (some it₂')) (.innerSkip_flatMapM_pure h))
+        return .deflate (.skip (it₁.flatMapAfterM f (some it₂')) (by cases hit; exact .innerSkip_flatMapM_pure h))
       | .done h =>
-        return .deflate (.skip (it₁.flatMapAfterM f none) (.innerDone_flatMapM_pure h))) := by
+        return .deflate (.skip (it₁.flatMapAfterM f none) (by cases hit; exact .innerDone_flatMapM_pure h))) := by
   simp only [flatMapAfterM, IterM.step_flatMapAfterM, Iter.step_mapWithPostcondition,
     PostconditionT.operation_pure]
   split
-  · split <;> simp [*]
-  · rfl
+  next hit => simp at hit; cases hit; split <;> simp [*]
+  next hit => simp at hit; cases hit; rfl
 
 public theorem Iter.step_flatMapM {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'}
@@ -156,24 +158,26 @@ public theorem Iter.step_flatMapM {α : Type w} {β : Type w} {α₂ : Type w}
 public theorem Iter.step_flatMapAfter {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} [Iterator α Id β] [Iterator α₂ Id γ]
     {f : β → Iter (α := α₂) γ} {it₁ : Iter (α := α) β} {it₂ : Option (Iter (α := α₂) γ)} :
-  (it₁.flatMapAfter f it₂).step = (match it₂ with
+  (it₁.flatMapAfter f it₂).step = (match hit : id it₂ with
     | none =>
+      have hit : it₂ = none := hit
       match it₁.step with
       | .yield it₁' b h =>
-        .skip (it₁'.flatMapAfter f (some (f b))) (.outerYield_flatMap_pure h)
-      | .skip it₁' h => .skip (it₁'.flatMapAfter f none) (.outerSkip_flatMap_pure h)
-      | .done h => .done (.outerDone_flatMap_pure h)
-    | some it₂ =>
-      match it₂.step with
-      | .yield it₂' out h => .yield (it₁.flatMapAfter f (some it₂')) out (.innerYield_flatMap_pure h)
-      | .skip it₂' h => .skip (it₁.flatMapAfter f (some it₂')) (.innerSkip_flatMap_pure h)
-      | .done h => .skip (it₁.flatMapAfter f none) (.innerDone_flatMap_pure h)) := by
+        .skip (it₁'.flatMapAfter f (some (f b))) (by cases hit; exact .outerYield_flatMap_pure h)
+      | .skip it₁' h => .skip (it₁'.flatMapAfter f none) (by cases hit; exact .outerSkip_flatMap_pure h)
+      | .done h => .done (by cases hit; exact .outerDone_flatMap_pure h)
+    | some it₂' =>
+      have hit : it₂ = some it₂' := hit
+      match it₂'.step with
+      | .yield it₂' out h => .yield (it₁.flatMapAfter f (some it₂')) out (by cases hit; exact .innerYield_flatMap_pure h)
+      | .skip it₂' h => .skip (it₁.flatMapAfter f (some it₂')) (by cases hit; exact .innerSkip_flatMap_pure h)
+      | .done h => .skip (it₁.flatMapAfter f none) (by cases hit; exact .innerDone_flatMap_pure h)) := by
   simp only [flatMapAfter, step, toIterM_toIter, IterM.step_flatMapAfter]
   cases it₂
-  · simp only [Option.map_eq_map, Option.map_none, Id.run_bind, Option.map_some]
+  · simp only [id_eq, Option.map_eq_map, Option.map_none, Id.run_bind, Option.map_some]
     cases it₁.toIterM.step.run.inflate using PlausibleIterStep.casesOn <;> simp
   · rename_i it₂
-    simp only [Option.map_eq_map, Option.map_some, Id.run_bind, Option.map_none]
+    simp only [id_eq, Option.map_eq_map, Option.map_some, Id.run_bind, Option.map_none]
     cases it₂.toIterM.step.run.inflate using PlausibleIterStep.casesOn <;> simp
 
 public theorem Iter.step_flatMap {α : Type w} {β : Type w} {α₂ : Type w}

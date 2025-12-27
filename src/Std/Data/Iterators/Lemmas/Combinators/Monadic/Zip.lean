@@ -41,27 +41,29 @@ theorem IterM.step_intermediateZip [Monad m] [Iterator α₁ m β₁] [Iterator 
         ∃ it : IterM (α := α₁) m β₁, it.IsPlausibleOutput out }}
     {it₂ : IterM (α := α₂) m β₂} :
     (Intermediate.zip it₁ memo it₂).step = (do
-      match memo with
+      match h : (fun x => x) memo with -- TODO: maybe revisit once `match` simplification has been implemented
       | none =>
+        have h : memo = none := h
         match (← it₁.step).inflate with
         | .yield it₁' out hp =>
           pure <| .deflate <| .skip (Intermediate.zip it₁' (some ⟨out, _, _, hp⟩) it₂)
-            (.yieldLeft rfl hp)
+            (.yieldLeft h hp)
         | .skip it₁' hp =>
           pure <| .deflate <| .skip (Intermediate.zip it₁' none it₂)
-            (.skipLeft rfl hp)
+            (.skipLeft h hp)
         | .done hp =>
-          pure <| .deflate <| .done (.doneLeft rfl hp)
+          pure <| .deflate <| .done (.doneLeft h hp)
       | some out₁ =>
+        have h : memo = some out₁ := h
         match (← it₂.step).inflate with
         | .yield it₂' out₂ hp =>
           pure <| .deflate <| .yield (Intermediate.zip it₁ none it₂') (out₁, out₂)
-            (.yieldRight rfl hp)
+            (.yieldRight h hp)
         | .skip it₂' hp =>
           pure <| .deflate <| .skip (Intermediate.zip it₁ (some out₁) it₂')
-            (.skipRight rfl hp)
+            (.skipRight h hp)
         | .done hp =>
-          pure <| .deflate <| .done (.doneRight rfl hp)) := by
+          pure <| .deflate <| .done (.doneRight h hp)) := by
   simp only [Intermediate.zip, step, Iterator.step]
   split
   · apply bind_congr

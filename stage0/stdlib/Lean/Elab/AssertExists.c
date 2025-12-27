@@ -1247,6 +1247,8 @@ uint8_t x_6;
 x_6 = lean_nat_dec_le(x_4, x_4);
 if (x_6 == 0)
 {
+if (x_5 == 0)
+{
 return x_3;
 }
 else
@@ -1256,6 +1258,15 @@ x_7 = 0;
 x_8 = lean_usize_of_nat(x_4);
 x_9 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Command_initFn_00___x40_Lean_Elab_AssertExists_2003177635____hygCtx___hyg_2__spec__1___redArg(x_1, x_7, x_8, x_3);
 return x_9;
+}
+}
+else
+{
+size_t x_10; size_t x_11; lean_object* x_12; 
+x_10 = 0;
+x_11 = lean_usize_of_nat(x_4);
+x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Command_initFn_00___x40_Lean_Elab_AssertExists_2003177635____hygCtx___hyg_2__spec__1___redArg(x_1, x_10, x_11, x_3);
+return x_12;
 }
 }
 }
@@ -1711,6 +1722,8 @@ uint8_t x_30;
 x_30 = lean_nat_dec_le(x_28, x_28);
 if (x_30 == 0)
 {
+if (x_29 == 0)
+{
 lean_dec_ref(x_25);
 x_10 = x_26;
 goto block_17;
@@ -1726,15 +1739,26 @@ x_10 = x_33;
 goto block_17;
 }
 }
+else
+{
+size_t x_34; size_t x_35; lean_object* x_36; 
+x_34 = 0;
+x_35 = lean_usize_of_nat(x_28);
+x_36 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Command_getSortedAssertExists_spec__2(x_25, x_34, x_35, x_26);
+lean_dec_ref(x_25);
+x_10 = x_36;
+goto block_17;
+}
+}
 block_9:
 {
 uint8_t x_6; 
-lean_dec(x_4);
-x_6 = lean_nat_dec_le(x_5, x_2);
+lean_dec(x_2);
+x_6 = lean_nat_dec_le(x_5, x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; 
-lean_dec(x_2);
+lean_dec(x_4);
 lean_inc(x_5);
 x_7 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Elab_Command_getSortedAssertExists_spec__0___redArg(x_3, x_5, x_5);
 lean_dec(x_5);
@@ -1743,8 +1767,8 @@ return x_7;
 else
 {
 lean_object* x_8; 
-x_8 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Elab_Command_getSortedAssertExists_spec__0___redArg(x_3, x_5, x_2);
-lean_dec(x_2);
+x_8 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Elab_Command_getSortedAssertExists_spec__0___redArg(x_3, x_5, x_4);
+lean_dec(x_4);
 return x_8;
 }
 }
@@ -1763,17 +1787,17 @@ x_16 = lean_nat_dec_le(x_12, x_15);
 if (x_16 == 0)
 {
 lean_inc(x_15);
-x_2 = x_15;
+x_2 = x_11;
 x_3 = x_10;
-x_4 = x_11;
+x_4 = x_15;
 x_5 = x_15;
 goto block_9;
 }
 else
 {
-x_2 = x_15;
+x_2 = x_11;
 x_3 = x_10;
-x_4 = x_11;
+x_4 = x_15;
 x_5 = x_12;
 goto block_9;
 }
@@ -1932,6 +1956,8 @@ uint8_t x_18;
 x_18 = lean_nat_dec_le(x_16, x_16);
 if (x_18 == 0)
 {
+if (x_17 == 0)
+{
 lean_dec_ref(x_14);
 x_3 = x_13;
 goto block_6;
@@ -1944,6 +1970,17 @@ x_20 = lean_usize_of_nat(x_16);
 x_21 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Command_importPathMessage_spec__0(x_14, x_19, x_20, x_13);
 lean_dec_ref(x_14);
 x_3 = x_21;
+goto block_6;
+}
+}
+else
+{
+size_t x_22; size_t x_23; lean_object* x_24; 
+x_22 = 0;
+x_23 = lean_usize_of_nat(x_16);
+x_24 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Command_importPathMessage_spec__0(x_14, x_22, x_23, x_13);
+lean_dec_ref(x_14);
+x_3 = x_24;
 goto block_6;
 }
 }

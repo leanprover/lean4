@@ -2922,6 +2922,8 @@ uint8_t x_21;
 x_21 = lean_nat_dec_le(x_18, x_18);
 if (x_21 == 0)
 {
+if (x_19 == 0)
+{
 uint64_t x_22; 
 x_22 = l___private_Lean_Data_Json_Basic_0__Lean_Json_hash_x27___closed__2;
 return x_22;
@@ -2936,16 +2938,26 @@ x_26 = lean_uint64_mix_hash(x_15, x_25);
 return x_26;
 }
 }
+else
+{
+size_t x_27; size_t x_28; uint64_t x_29; uint64_t x_30; 
+x_27 = 0;
+x_28 = lean_usize_of_nat(x_18);
+x_29 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Data_Json_Basic_0__Lean_Json_hash_x27_spec__0(x_14, x_27, x_28, x_16);
+x_30 = lean_uint64_mix_hash(x_15, x_29);
+return x_30;
+}
+}
 }
 default: 
 {
-lean_object* x_27; uint64_t x_28; uint64_t x_29; uint64_t x_30; uint64_t x_31; 
-x_27 = lean_ctor_get(x_1, 0);
-x_28 = 29;
-x_29 = 7;
-x_30 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lean_Data_Json_Basic_0__Lean_Json_hash_x27_spec__1_spec__1(x_29, x_27);
-x_31 = lean_uint64_mix_hash(x_28, x_30);
-return x_31;
+lean_object* x_31; uint64_t x_32; uint64_t x_33; uint64_t x_34; uint64_t x_35; 
+x_31 = lean_ctor_get(x_1, 0);
+x_32 = 29;
+x_33 = 7;
+x_34 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lean_Data_Json_Basic_0__Lean_Json_hash_x27_spec__1_spec__1(x_33, x_31);
+x_35 = lean_uint64_mix_hash(x_32, x_34);
+return x_35;
 }
 }
 }

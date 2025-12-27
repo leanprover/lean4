@@ -669,6 +669,8 @@ uint8_t x_36;
 x_36 = lean_nat_dec_le(x_34, x_34);
 if (x_36 == 0)
 {
+if (x_35 == 0)
+{
 lean_dec_ref(x_31);
 x_22 = x_32;
 goto block_29;
@@ -681,6 +683,17 @@ x_38 = lean_usize_of_nat(x_34);
 x_39 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Tactic_Omega_atoms_spec__3(x_31, x_37, x_38, x_32);
 lean_dec_ref(x_31);
 x_22 = x_39;
+goto block_29;
+}
+}
+else
+{
+size_t x_40; size_t x_41; lean_object* x_42; 
+x_40 = 0;
+x_41 = lean_usize_of_nat(x_34);
+x_42 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Tactic_Omega_atoms_spec__3(x_31, x_40, x_41, x_32);
+lean_dec_ref(x_31);
+x_22 = x_42;
 goto block_29;
 }
 }
@@ -697,8 +710,8 @@ return x_8;
 block_15:
 {
 lean_object* x_14; 
-lean_dec(x_10);
-x_14 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Elab_Tactic_Omega_atoms_spec__1___redArg(x_12, x_11, x_13);
+lean_dec(x_11);
+x_14 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Elab_Tactic_Omega_atoms_spec__1___redArg(x_12, x_10, x_13);
 lean_dec(x_13);
 x_4 = x_14;
 goto block_9;
@@ -706,23 +719,23 @@ goto block_9;
 block_21:
 {
 uint8_t x_20; 
-x_20 = lean_nat_dec_le(x_19, x_17);
+x_20 = lean_nat_dec_le(x_19, x_16);
 if (x_20 == 0)
 {
-lean_dec(x_17);
+lean_dec(x_16);
 lean_inc(x_19);
-x_10 = x_16;
-x_11 = x_19;
+x_10 = x_19;
+x_11 = x_17;
 x_12 = x_18;
 x_13 = x_19;
 goto block_15;
 }
 else
 {
-x_10 = x_16;
-x_11 = x_19;
+x_10 = x_19;
+x_11 = x_17;
 x_12 = x_18;
-x_13 = x_17;
+x_13 = x_16;
 goto block_15;
 }
 }
@@ -741,16 +754,16 @@ x_28 = lean_nat_dec_le(x_24, x_27);
 if (x_28 == 0)
 {
 lean_inc(x_27);
-x_16 = x_23;
-x_17 = x_27;
+x_16 = x_27;
+x_17 = x_23;
 x_18 = x_22;
 x_19 = x_27;
 goto block_21;
 }
 else
 {
-x_16 = x_23;
-x_17 = x_27;
+x_16 = x_27;
+x_17 = x_23;
 x_18 = x_22;
 x_19 = x_24;
 goto block_21;

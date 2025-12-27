@@ -365,6 +365,8 @@ uint8_t x_8;
 x_8 = lean_nat_dec_le(x_5, x_5);
 if (x_8 == 0)
 {
+if (x_7 == 0)
+{
 lean_dec_ref(x_3);
 lean_dec(x_1);
 return x_2;
@@ -376,6 +378,15 @@ x_9 = 0;
 x_10 = lean_usize_of_nat(x_5);
 x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_1, x_3, x_9, x_10, x_2);
 return x_11;
+}
+}
+else
+{
+size_t x_12; size_t x_13; lean_object* x_14; 
+x_12 = 0;
+x_13 = lean_usize_of_nat(x_5);
+x_14 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_1, x_3, x_12, x_13, x_2);
+return x_14;
 }
 }
 }
@@ -396,25 +407,36 @@ return x_2;
 }
 else
 {
-uint8_t x_8; 
-x_8 = lean_nat_dec_le(x_5, x_5);
-if (x_8 == 0)
+lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_8 = lean_alloc_closure((void*)(l_Lean_mkStateFromImportedEntries___redArg___lam__0), 3, 1);
+lean_closure_set(x_8, 0, x_1);
+x_9 = lean_alloc_closure((void*)(l_Lean_mkStateFromImportedEntries___redArg___lam__1), 3, 1);
+lean_closure_set(x_9, 0, x_8);
+x_10 = lean_nat_dec_le(x_5, x_5);
+if (x_10 == 0)
 {
+if (x_7 == 0)
+{
+lean_dec_ref(x_9);
 lean_dec_ref(x_3);
-lean_dec(x_1);
 return x_2;
 }
 else
 {
-lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; lean_object* x_13; 
-x_9 = lean_alloc_closure((void*)(l_Lean_mkStateFromImportedEntries___redArg___lam__0), 3, 1);
-lean_closure_set(x_9, 0, x_1);
-x_10 = lean_alloc_closure((void*)(l_Lean_mkStateFromImportedEntries___redArg___lam__1), 3, 1);
-lean_closure_set(x_10, 0, x_9);
+size_t x_11; size_t x_12; lean_object* x_13; 
 x_11 = 0;
 x_12 = lean_usize_of_nat(x_5);
-x_13 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_10, x_3, x_11, x_12, x_2);
+x_13 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_9, x_3, x_11, x_12, x_2);
 return x_13;
+}
+}
+else
+{
+size_t x_14; size_t x_15; lean_object* x_16; 
+x_14 = 0;
+x_15 = lean_usize_of_nat(x_5);
+x_16 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_9, x_3, x_14, x_15, x_2);
+return x_16;
 }
 }
 }

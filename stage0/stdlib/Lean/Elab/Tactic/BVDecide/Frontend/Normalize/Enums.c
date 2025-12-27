@@ -8245,6 +8245,8 @@ uint8_t x_33;
 x_33 = lean_nat_dec_le(x_31, x_31);
 if (x_33 == 0)
 {
+if (x_32 == 0)
+{
 lean_dec(x_22);
 x_26 = x_30;
 goto block_29;
@@ -8259,6 +8261,16 @@ x_26 = x_36;
 goto block_29;
 }
 }
+else
+{
+size_t x_37; size_t x_38; lean_object* x_39; 
+x_37 = 0;
+x_38 = lean_usize_of_nat(x_31);
+x_39 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondForAux_handleSimpleEnum_spec__5___redArg(x_22, x_37, x_38, x_30);
+x_26 = x_39;
+goto block_29;
+}
+}
 block_29:
 {
 uint8_t x_27; lean_object* x_28; 
@@ -8269,7 +8281,7 @@ return x_28;
 }
 else
 {
-uint8_t x_37; 
+uint8_t x_40; 
 lean_dec(x_16);
 lean_dec_ref(x_15);
 lean_dec(x_14);
@@ -8286,20 +8298,20 @@ lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec(x_1);
-x_37 = !lean_is_exclusive(x_21);
-if (x_37 == 0)
+x_40 = !lean_is_exclusive(x_21);
+if (x_40 == 0)
 {
 return x_21;
 }
 else
 {
-lean_object* x_38; lean_object* x_39; 
-x_38 = lean_ctor_get(x_21, 0);
-lean_inc(x_38);
+lean_object* x_41; lean_object* x_42; 
+x_41 = lean_ctor_get(x_21, 0);
+lean_inc(x_41);
 lean_dec(x_21);
-x_39 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_39, 0, x_38);
-return x_39;
+x_42 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_42, 0, x_41);
+return x_42;
 }
 }
 }
@@ -9735,6 +9747,8 @@ uint8_t x_41;
 x_41 = lean_nat_dec_le(x_39, x_39);
 if (x_41 == 0)
 {
+if (x_40 == 0)
+{
 lean_dec(x_23);
 x_26 = x_38;
 goto block_37;
@@ -9746,6 +9760,16 @@ x_42 = 0;
 x_43 = lean_usize_of_nat(x_39);
 x_44 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondForAux_handleSimpleEnum_spec__5___redArg(x_23, x_42, x_43, x_38);
 x_26 = x_44;
+goto block_37;
+}
+}
+else
+{
+size_t x_45; size_t x_46; lean_object* x_47; 
+x_45 = 0;
+x_46 = lean_usize_of_nat(x_39);
+x_47 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondForAux_handleSimpleEnum_spec__5___redArg(x_23, x_45, x_46, x_38);
+x_26 = x_47;
 goto block_37;
 }
 }
@@ -9800,7 +9824,7 @@ return x_36;
 }
 else
 {
-uint8_t x_45; 
+uint8_t x_48; 
 lean_dec(x_17);
 lean_dec_ref(x_16);
 lean_dec(x_15);
@@ -9818,20 +9842,20 @@ lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec(x_1);
-x_45 = !lean_is_exclusive(x_22);
-if (x_45 == 0)
+x_48 = !lean_is_exclusive(x_22);
+if (x_48 == 0)
 {
 return x_22;
 }
 else
 {
-lean_object* x_46; lean_object* x_47; 
-x_46 = lean_ctor_get(x_22, 0);
-lean_inc(x_46);
+lean_object* x_49; lean_object* x_50; 
+x_49 = lean_ctor_get(x_22, 0);
+lean_inc(x_49);
 lean_dec(x_22);
-x_47 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_47, 0, x_46);
-return x_47;
+x_50 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_50, 0, x_49);
+return x_50;
 }
 }
 }

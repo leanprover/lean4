@@ -987,6 +987,8 @@ uint8_t x_22;
 x_22 = lean_nat_dec_le(x_19, x_19);
 if (x_22 == 0)
 {
+if (x_21 == 0)
+{
 lean_dec(x_13);
 x_14 = x_20;
 goto block_17;
@@ -1000,6 +1002,18 @@ lean_inc_ref(x_1);
 x_25 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_SearchPath_findAllWithExt_spec__1(x_1, x_13, x_23, x_24, x_20);
 lean_dec(x_13);
 x_14 = x_25;
+goto block_17;
+}
+}
+else
+{
+size_t x_26; size_t x_27; lean_object* x_28; 
+x_26 = 0;
+x_27 = lean_usize_of_nat(x_19);
+lean_inc_ref(x_1);
+x_28 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_SearchPath_findAllWithExt_spec__1(x_1, x_13, x_26, x_27, x_20);
+lean_dec(x_13);
+x_14 = x_28;
 goto block_17;
 }
 }

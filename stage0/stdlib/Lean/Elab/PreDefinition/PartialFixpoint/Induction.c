@@ -16900,22 +16900,35 @@ return x_47;
 }
 else
 {
-uint8_t x_55; 
-x_55 = lean_nat_dec_le(x_53, x_53);
-if (x_55 == 0)
+lean_object* x_55; uint8_t x_56; 
+x_55 = lean_box(0);
+x_56 = lean_nat_dec_le(x_53, x_53);
+if (x_56 == 0)
+{
+if (x_54 == 0)
 {
 lean_dec_ref(x_52);
 return x_47;
 }
 else
 {
-lean_object* x_56; size_t x_57; size_t x_58; lean_object* x_59; 
-x_56 = lean_box(0);
+size_t x_57; size_t x_58; lean_object* x_59; 
 x_57 = 0;
 x_58 = lean_usize_of_nat(x_53);
-x_59 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_PreDefinition_PartialFixpoint_Induction_0__Lean_Elab_PartialFixpoint_isOptionFixpoint_spec__3(x_52, x_57, x_58, x_56);
+x_59 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_PreDefinition_PartialFixpoint_Induction_0__Lean_Elab_PartialFixpoint_isOptionFixpoint_spec__3(x_52, x_57, x_58, x_55);
 lean_dec_ref(x_52);
 x_17 = x_59;
+goto block_19;
+}
+}
+else
+{
+size_t x_60; size_t x_61; lean_object* x_62; 
+x_60 = 0;
+x_61 = lean_usize_of_nat(x_53);
+x_62 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_PreDefinition_PartialFixpoint_Induction_0__Lean_Elab_PartialFixpoint_isOptionFixpoint_spec__3(x_52, x_60, x_61, x_55);
+lean_dec_ref(x_52);
+x_17 = x_62;
 goto block_19;
 }
 }

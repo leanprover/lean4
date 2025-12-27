@@ -366,46 +366,6 @@ return x_5;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Parser_Term_Doc_initFn___lam__0_00___x40_Lean_Parser_Term_Doc_383197578____hygCtx___hyg_2_(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_2, 1);
-lean_inc(x_4);
-lean_dec_ref(x_2);
-x_5 = lean_unsigned_to_nat(0u);
-x_6 = lean_array_get_size(x_4);
-x_7 = lean_nat_dec_lt(x_5, x_6);
-if (x_7 == 0)
-{
-lean_dec(x_4);
-lean_dec(x_3);
-return x_1;
-}
-else
-{
-uint8_t x_8; 
-x_8 = lean_nat_dec_le(x_6, x_6);
-if (x_8 == 0)
-{
-lean_dec(x_4);
-lean_dec(x_3);
-return x_1;
-}
-else
-{
-size_t x_9; size_t x_10; lean_object* x_11; 
-x_9 = 0;
-x_10 = lean_usize_of_nat(x_6);
-x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Parser_Term_Doc_initFn_00___x40_Lean_Parser_Term_Doc_383197578____hygCtx___hyg_2__spec__3(x_3, x_4, x_9, x_10, x_1);
-lean_dec(x_4);
-return x_11;
-}
-}
-}
-}
 static lean_object* _init_l_Lean_Parser_Term_Doc_initFn___closed__0_00___x40_Lean_Parser_Term_Doc_383197578____hygCtx___hyg_2_() {
 _start:
 {
@@ -457,6 +417,58 @@ x_4 = l_Lean_Parser_Term_Doc_initFn___closed__1_00___x40_Lean_Parser_Term_Doc_38
 x_5 = l_Lean_Parser_Term_Doc_initFn___closed__0_00___x40_Lean_Parser_Term_Doc_383197578____hygCtx___hyg_2_;
 x_6 = l_Lean_Name_mkStr5(x_5, x_4, x_3, x_2, x_1);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Parser_Term_Doc_initFn___lam__0_00___x40_Lean_Parser_Term_Doc_383197578____hygCtx___hyg_2_(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_2, 1);
+lean_inc(x_4);
+lean_dec_ref(x_2);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = lean_array_get_size(x_4);
+x_7 = lean_nat_dec_lt(x_5, x_6);
+if (x_7 == 0)
+{
+lean_dec(x_4);
+lean_dec(x_3);
+return x_1;
+}
+else
+{
+uint8_t x_8; 
+x_8 = lean_nat_dec_le(x_6, x_6);
+if (x_8 == 0)
+{
+if (x_7 == 0)
+{
+lean_dec(x_4);
+lean_dec(x_3);
+return x_1;
+}
+else
+{
+size_t x_9; size_t x_10; lean_object* x_11; 
+x_9 = 0;
+x_10 = lean_usize_of_nat(x_6);
+x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Parser_Term_Doc_initFn_00___x40_Lean_Parser_Term_Doc_383197578____hygCtx___hyg_2__spec__3(x_3, x_4, x_9, x_10, x_1);
+lean_dec(x_4);
+return x_11;
+}
+}
+else
+{
+size_t x_12; size_t x_13; lean_object* x_14; 
+x_12 = 0;
+x_13 = lean_usize_of_nat(x_6);
+x_14 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Parser_Term_Doc_initFn_00___x40_Lean_Parser_Term_Doc_383197578____hygCtx___hyg_2__spec__3(x_3, x_4, x_12, x_13, x_1);
+lean_dec(x_4);
+return x_14;
+}
+}
 }
 }
 static lean_object* _init_l_Lean_Parser_Term_Doc_initFn___lam__1___closed__0_00___x40_Lean_Parser_Term_Doc_383197578____hygCtx___hyg_2_() {

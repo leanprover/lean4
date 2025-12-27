@@ -272,6 +272,8 @@ uint8_t x_25;
 x_25 = lean_nat_dec_le(x_21, x_21);
 if (x_25 == 0)
 {
+if (x_23 == 0)
+{
 lean_object* x_26; 
 lean_dec_ref(x_19);
 x_26 = lean_alloc_ctor(0, 2, 0);
@@ -289,28 +291,38 @@ lean_dec_ref(x_19);
 return x_29;
 }
 }
+else
+{
+size_t x_30; size_t x_31; lean_object* x_32; 
+x_30 = 0;
+x_31 = lean_usize_of_nat(x_21);
+x_32 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_collectUsedFDecls_collectFnBody_spec__0(x_19, x_30, x_31, x_22, x_2);
+lean_dec_ref(x_19);
+return x_32;
+}
+}
 }
 default: 
 {
-uint8_t x_30; 
-x_30 = l_Lean_IR_FnBody_isTerminal(x_1);
-if (x_30 == 0)
+uint8_t x_33; 
+x_33 = l_Lean_IR_FnBody_isTerminal(x_1);
+if (x_33 == 0)
 {
-lean_object* x_31; 
-x_31 = l_Lean_IR_FnBody_body(x_1);
+lean_object* x_34; 
+x_34 = l_Lean_IR_FnBody_body(x_1);
 lean_dec(x_1);
-x_1 = x_31;
+x_1 = x_34;
 goto _start;
 }
 else
 {
-lean_object* x_33; lean_object* x_34; 
+lean_object* x_36; lean_object* x_37; 
 lean_dec(x_1);
-x_33 = lean_box(0);
-x_34 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_34, 0, x_33);
-lean_ctor_set(x_34, 1, x_2);
-return x_34;
+x_36 = lean_box(0);
+x_37 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_37, 0, x_36);
+lean_ctor_set(x_37, 1, x_2);
+return x_37;
 }
 }
 }

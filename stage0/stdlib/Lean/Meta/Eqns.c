@@ -4795,6 +4795,8 @@ uint8_t x_7;
 x_7 = lean_nat_dec_le(x_5, x_5);
 if (x_7 == 0)
 {
+if (x_6 == 0)
+{
 lean_dec(x_2);
 return x_3;
 }
@@ -4805,6 +4807,15 @@ x_8 = 0;
 x_9 = lean_usize_of_nat(x_5);
 x_10 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Meta_Eqns_0__Lean_Meta_registerEqnThms_spec__1(x_2, x_1, x_8, x_9, x_3);
 return x_10;
+}
+}
+else
+{
+size_t x_11; size_t x_12; lean_object* x_13; 
+x_11 = 0;
+x_12 = lean_usize_of_nat(x_5);
+x_13 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Meta_Eqns_0__Lean_Meta_registerEqnThms_spec__1(x_2, x_1, x_11, x_12, x_3);
+return x_13;
 }
 }
 }
@@ -6069,6 +6080,8 @@ uint8_t x_77;
 x_77 = l_Lean_Meta_getEqnsFor_x3f___lam__0___closed__3;
 if (x_77 == 0)
 {
+if (x_76 == 0)
+{
 x_68 = x_33;
 goto block_73;
 }
@@ -6079,6 +6092,16 @@ x_78 = 0;
 x_79 = l_Lean_Meta_getEqnsFor_x3f___lam__0___closed__4;
 x_80 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Meta_getEqnsFor_x3f_spec__3(x_74, x_78, x_79, x_33);
 x_68 = x_80;
+goto block_73;
+}
+}
+else
+{
+size_t x_81; size_t x_82; lean_object* x_83; 
+x_81 = 0;
+x_82 = l_Lean_Meta_getEqnsFor_x3f___lam__0___closed__4;
+x_83 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Meta_getEqnsFor_x3f_spec__3(x_74, x_81, x_82, x_33);
+x_68 = x_83;
 goto block_73;
 }
 }

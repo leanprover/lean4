@@ -52410,7 +52410,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Command_registerErrorExplanationStx___closed__6;
-x_2 = l_Lean_Parser_Command_declModifiers___closed__3;
+x_2 = l_Lean_Parser_Command_declModifiers___closed__4;
 x_3 = l_Lean_Parser_andthen(x_2, x_1);
 return x_3;
 }
@@ -52557,7 +52557,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Command_registerErrorExplanationStx_formatter___closed__3;
-x_2 = l_Lean_Parser_Command_declModifiers_formatter___closed__1;
+x_2 = l_Lean_Parser_Command_declModifiers_formatter___closed__2;
 x_3 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Formatter_andthen_formatter___boxed), 7, 2);
 lean_closure_set(x_3, 0, x_2);
 lean_closure_set(x_3, 1, x_1);
@@ -52686,7 +52686,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Command_registerErrorExplanationStx_parenthesizer___closed__3;
-x_2 = l_Lean_Parser_Command_declModifiers_parenthesizer___closed__1;
+x_2 = l_Lean_Parser_Command_declModifiers_parenthesizer___closed__2;
 x_3 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_andthen_parenthesizer___boxed), 7, 2);
 lean_closure_set(x_3, 0, x_2);
 lean_closure_set(x_3, 1, x_1);

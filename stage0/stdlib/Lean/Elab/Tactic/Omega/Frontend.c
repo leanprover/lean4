@@ -31310,6 +31310,8 @@ uint8_t x_13;
 x_13 = lean_nat_dec_le(x_10, x_10);
 if (x_13 == 0)
 {
+if (x_11 == 0)
+{
 lean_object* x_14; 
 x_14 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_14, 0, x_8);
@@ -31324,6 +31326,17 @@ x_17 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__p
 x_18 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_18, 0, x_17);
 return x_18;
+}
+}
+else
+{
+size_t x_19; size_t x_20; lean_object* x_21; lean_object* x_22; 
+x_19 = 0;
+x_20 = lean_usize_of_nat(x_10);
+x_21 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_Tactic_Omega_Frontend_0__Lean_Elab_Tactic_Omega_formatErrorMessage_mentioned_spec__2(x_4, x_19, x_20, x_8);
+x_22 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_22, 0, x_21);
+return x_22;
 }
 }
 }

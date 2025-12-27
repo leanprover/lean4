@@ -109,6 +109,12 @@ inductive EMatchTheoremConstraint where
     They are the negations of `is_value x` and `is_strict_value x`.
     -/
     notValue (bvarIdx : Nat) (strict : Bool)
+  | /--
+    A disjunction of constraints. The theorem is instantiated only if at least one of the
+    constraints in the list is satisfied. Used to express CNF conditions like `c1 || c2 || c3`.
+    Note: `guard` and `check` constraints are not allowed in disjunctions.
+    -/
+    disj (cnstrs : List EMatchTheoremConstraint)
   deriving Inhabited, Repr, BEq
 
 /-- A theorem for heuristic instantiation based on E-matching. -/

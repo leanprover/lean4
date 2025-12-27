@@ -90,47 +90,65 @@ where
     let rhs ← elabCnstrRHS xs rhs localDecl.type
     return .defEq lhsBVarIdx rhs
 
+  /-- Elaborate a single atomic constraint (not a disjunction) -/
+  elabAtomicCnstr (xs : Array Expr) (cnstr : Syntax) : TermElabM Grind.EMatchTheoremConstraint := do
+    let kind := cnstr.getKind
+    if kind == ``notDefEq then
+      elabNotDefEq xs cnstr[0] cnstr[2]
+    else if kind == ``defEq then
+      elabDefEq xs cnstr[0] cnstr[2]
+    else if kind == ``genLt then
+      return .genLt cnstr[2].toNat
+    else if kind == ``sizeLt then
+      let (_, lhs) ← findLHS xs cnstr[1]
+      return .sizeLt lhs cnstr[3].toNat
+    else if kind == ``depthLt then
+      let (_, lhs) ← findLHS xs cnstr[1]
+      return .depthLt lhs cnstr[3].toNat
+    else if kind == ``maxInsts then
+      return .maxInsts cnstr[2].toNat
+    else if kind == ``isValue then
+      let (_, lhs) ← findLHS xs cnstr[1]
+      return .isValue lhs false
+    else if kind == ``isStrictValue then
+      let (_, lhs) ← findLHS xs cnstr[1]
+      return .isValue lhs true
+    else if kind == ``notValue then
+      let (_, lhs) ← findLHS xs cnstr[1]
+      return .notValue lhs false
+    else if kind == ``notStrictValue then
+      let (_, lhs) ← findLHS xs cnstr[1]
+      return .notValue lhs true
+    else if kind == ``isGround then
+      let (_, lhs) ← findLHS xs cnstr[1]
+      return .isGround lhs
+    else if kind == ``Parser.Command.GrindCnstr.check then
+      return .check (← elabProp xs cnstr[1])
+    else if kind == ``Parser.Command.GrindCnstr.guard then
+      return .guard (← elabProp xs cnstr[1])
+    else
+      throwErrorAt cnstr "unexpected constraint"
+
   elabCnstrs (xs : Array Expr) (cnstrs? : Option (TSyntax ``Parser.Command.grindPatternCnstrs))
       : TermElabM (List (Grind.EMatchTheoremConstraint)) := do
     let some cnstrs := cnstrs? | return []
     let cnstrs := cnstrs.raw[1].getArgs
     cnstrs.toList.mapM fun cnstr => do
-      let kind := cnstr.getKind
-      if kind == ``notDefEq then
-        elabNotDefEq xs cnstr[0] cnstr[2]
-      else if kind == ``defEq then
-        elabDefEq xs cnstr[0] cnstr[2]
-      else if kind == ``genLt then
-        return .genLt cnstr[2].toNat
-      else if kind == ``sizeLt then
-        let (_, lhs) ← findLHS xs cnstr[1]
-        return .sizeLt lhs cnstr[3].toNat
-      else if kind == ``depthLt then
-        let (_, lhs) ← findLHS xs cnstr[1]
-        return .depthLt lhs cnstr[3].toNat
-      else if kind == ``maxInsts then
-        return .maxInsts cnstr[2].toNat
-      else if kind == ``isValue then
-        let (_, lhs) ← findLHS xs cnstr[1]
-        return .isValue lhs false
-      else if kind == ``isStrictValue then
-        let (_, lhs) ← findLHS xs cnstr[1]
-        return .isValue lhs true
-      else if kind == ``notValue then
-        let (_, lhs) ← findLHS xs cnstr[1]
-        return .notValue lhs false
-      else if kind == ``notStrictValue then
-        let (_, lhs) ← findLHS xs cnstr[1]
-        return .notValue lhs true
-      else if kind == ``isGround then
-        let (_, lhs) ← findLHS xs cnstr[1]
-        return .isGround lhs
-      else if kind == ``Parser.Command.GrindCnstr.check then
-        return .check (← elabProp xs cnstr[1])
-      else if kind == ``Parser.Command.GrindCnstr.guard then
-        return .guard (← elabProp xs cnstr[1])
+      -- Check if this is a disjunction (sepBy1 with multiple elements)
+      let args := cnstr.getArgs
+      if args.size > 1 then
+        -- This is a disjunction - extract constraint elements using standard Lean method
+        let disjuncts := cnstr.getSepArgs
+        -- Validate: guard and check cannot be in disjunctions
+        for disjunct in disjuncts do
+          let kind := disjunct.getKind
+          if kind == ``Parser.Command.GrindCnstr.guard || kind == ``Parser.Command.GrindCnstr.check then
+            throwErrorAt disjunct "`guard` and `check` constraints cannot be used in disjunctions"
+        let elabedDisjuncts ← disjuncts.toList.mapM (elabAtomicCnstr xs)
+        return .disj elabedDisjuncts
       else
-        throwErrorAt cnstr "unexpected constraint"
+        -- Single constraint (no disjunction)
+        elabAtomicCnstr xs args[0]!
 
   go (attrName? : Option (TSyntax `ident)) (thmName : TSyntax `ident) (terms : Syntax.TSepArray `term ",")
       (cnstrs? : Option (TSyntax ``Parser.Command.grindPatternCnstrs))

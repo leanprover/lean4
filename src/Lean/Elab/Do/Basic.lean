@@ -424,6 +424,8 @@ def addReachingDefsAsNonDep (rootCtx childCtx : LocalContext) (tunneledVars : St
   let fvarDecls := fvarDecls.insertionSort (·.index > ·.index)
     |>.takeWhile (·.index >= rootCtx.numIndices)
     |>.reverse
+  -- trace[Elab.do] "addReachingDefsAsNonDep: {fvarDecls.map (·.toExpr)}, {tunnelDecls.map (·.toExpr)}"
+  tunnelDecls := tunnelDecls.filter fun tun => !fvarDecls.any (·.index == tun.index)
   tunnelDecls := fvarDecls ++ tunnelDecls
   let mut rootCtx := rootCtx
   for decl in tunnelDecls do
@@ -452,6 +454,7 @@ def ContVarId.find (contVarId : ContVarId) : DoElabM ContVarInfo := do
 def ContVarId.mkJump (contVarId : ContVarId) : DoElabM Expr := do
   let info ← contVarId.find
   let lctx ← addReachingDefsAsNonDep info.lctx (← getLCtx) info.tunneledVars.inner
+  -- no need to add local instances as well; jumps don't need them
   let type ← mkMonadicType (← read).doBlockResultType
   let mvar ← withLCtx' lctx (mkFreshExprMVar type) -- assigned by `synthesizeJumps`
   -- trace[Elab.do] "mkJump: {contVarId.name}, {mvar}, {repr mvar}, deadCode: {(← read).deadCode}, {mvar.mvarId!}"
@@ -611,8 +614,8 @@ where
     -- postponed, it should have type `m ?α`.
     -- forallTelescope type fun _xs type => do
     let res ← isDefEq type mα
-    if res then
-      trace[Elab.do] "isPostponedSyntheticMVarOfMonadicType: {mkMVar mvarId}, {← mvarId.getType}, {mα}, {res}"
+    -- if res then
+    --   trace[Elab.do] "isPostponedSyntheticMVarOfMonadicType: {mkMVar mvarId}, {← mvarId.getType}, {mα}, {res}"
     return res
 
   getSomeSyntheticMVarsRef : DoElabM Syntax := do
@@ -625,12 +628,11 @@ where
     let rec loop (_ : Unit) : DoElabM Unit := do
       withRef (← getSomeSyntheticMVarsRef) <| withIncRecDepth do
         let relevantMVars ← (← liftM (m := TermElabM) get).pendingMVars.filterM isPostponedSyntheticMVarOfMonadicType
-        trace[Elab.do] "relevantMVars: {relevantMVars.map (mkMVar ·)}"
+        -- trace[Elab.do] "relevantMVars: {relevantMVars.map (mkMVar ·)}"
         if !relevantMVars.isEmpty then
           if ← Term.synthesizeSyntheticMVarsStep (postponeOnError := true) (runTactics := false) then
             loop ()
           else
-            trace[Elab.do] "Eeeek postpone"
             Term.tryPostpone
     loop ()
 
@@ -766,7 +768,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElabM (Do
       let argTys ← args.mapM (inferType ·)
       for h : i in *...argTys.size do
         let argTy := argTys[i]
-        let argTy' xs := return argTy.abstractRange i args |>.instantiateRev xs
+        let argTy' xs := return (← argTy.abstractRangeM i args) |>.instantiateRev xs
         declInfos := declInfos.push (`_, BinderInfo.default, argTy')
       let ty ← withLocalDecls declInfos fun xs => mkLambdaFVars xs ty
       -- We cannot use defeq for the assignment because the LCtx of `mvar` does not contain `args`.
@@ -1143,7 +1145,7 @@ def elabDo : Term.TermElab := fun e expectedType? => do
   let cont ← DoElemCont.mkPure ctx.doBlockResultType
   let res ← elabDoSeq doSeq cont |>.run ctx |>.run' {}
   -- Term.synthesizeSyntheticMVarsUsingDefault
-  --trace[Elab.do] "{← instantiateMVars res}"
+  trace[Elab.do] "{← instantiateMVars res}"
   pure res
 
 syntax:arg (name := dooBlock) "doo" doSeq : term

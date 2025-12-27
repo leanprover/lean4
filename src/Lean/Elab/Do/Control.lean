@@ -148,8 +148,8 @@ def ControlStack.synthesizeBreakContinue (breakTName breakName : Name) (m : Cont
   let inst ← mkInstMonad mi
   let m' := mkApp (mkConst breakTName [mi.u, mi.v]) mi.m
   let α ← mkFreshResultType `α
-  trace[Elab.do] "synthesizeBreakContinue: {mkApp m' α}, {mstMγ}"
-  discard <| isDefEq (mkApp m' α) mstMγ
+  -- trace[Elab.do] "synthesizeBreakContinue: {mkApp m' α}, {mstMγ}"
+  synthUsingDefEq "break/continue result type" (mkApp m' α) mstMγ
   kvar.synthesizeJumps do
     m.runInBase <| mkApp3 (mkConst breakName [mi.u, mi.v]) α mi.m inst
 
@@ -162,9 +162,12 @@ def ControlStack.synthesizeReturn (m : ControlStack) (resultName : Name) (return
   returnKVar.synthesizeJumps do
     let r ← getFVarFromUserName resultName
     let ρ ← inferType r
+    -- mstMγ is not dependently refined my pattern matches, hence its ρ will not be either.
+    -- So we'll match out *some* ρ' and throw it away; we know that it's defeq to ρ modulo refinements.
+    let ρ' ← mkFreshResultType `ρ
     let δ ← mkFreshResultType `δ
-    let stMγ := mkApp2 (mkConst ``Except [mi.u, mi.v]) ρ δ
-    discard <| isDefEq (mkApp mi.m stMγ) mstMγ
+    let stMγ := mkApp2 (mkConst ``Except [mi.u, mi.v]) ρ' δ
+    synthUsingDefEq "early return result type" (mkApp mi.m stMγ) mstMγ
     return mkApp5 (mkConst ``EarlyReturnT.return [mi.u, mi.v]) ρ mi.m δ instMonad r
 
 def ControlStack.synthesizePure (m : ControlStack) (resultName : Name) (pureKVar : ContVarId) : DoElabM Unit := do
@@ -261,21 +264,18 @@ def ControlLifter.restoreCont (l : ControlLifter)
     continueBase := some controlStack
     controlStack := ControlStack.continueT controlStack
   let ty ← controlStack.stM l.origCont.resultType
-  trace[Elab.do] "before {σ}, {controlStack.description ()}, {l.stMγ}, {repr l.stMγ}, {repr (← instantiateMVars l.stMγ)}, {ty}, assignment: {(← getExprMVarAssignment? l.stMγ.mvarId!).map (·.getAppFn.mvarId!)}, {l.stMγ.mvarId!}"
+  -- trace[Elab.do] "before {σ}, {controlStack.description ()}, {l.stMγ}, {ty}"
   withOptions (fun o =>
     if o.getBool `trace.Elab.do then
       o |>.setBool `trace.Meta.isDefEq true
     else
       o) do synthUsingDefEq "result type" l.stMγ ty
-  trace[Elab.do] "after"
-  let mut γ := l.stMγ
+  let mut tmγ := mkApp controlStack.monadInfo.m l.origCont.resultType
   -- Now propagate back to the `break` and `continue` jump sites
   if let some stk := continueBase then
-    stk.synthesizeContinue l.continueKVar (← mkMonadicType γ)
-    γ ← stk.stM l.origCont.resultType
+    stk.synthesizeContinue l.continueKVar tmγ
   if let some stk := breakBase then
-    stk.synthesizeBreak l.breakKVar (← mkMonadicType γ)
-    γ ← stk.stM l.origCont.resultType
+    stk.synthesizeBreak l.breakKVar tmγ
   if let some stk := returnBase then
     stk.synthesizeReturn l.origCont.resultName l.returnKVar (← mkMonadicType l.stMγ)
 

@@ -286,9 +286,6 @@ let mut a := 0    have y' : Fin (p + 1) := ⟨0, by grind⟩
     | _     => pure ⟨0, by omega⟩
   return ⟨y₁.val + y₂.val, by grind⟩
 
-set_option trace.Elab.do true in
-set_option trace.Meta.isDefEq true in
-set_option trace.Meta.isDefEq.assign true in
 -- Full-blown dependent match + try/catch, early return and break/continue
 example (p n : Nat) : Except String (Fin (2 * p + 2)) := Id.run <| ExceptT.run do
   let mut a := 0
@@ -298,10 +295,11 @@ example (p n : Nat) : Except String (Fin (2 * p + 2)) := Id.run <| ExceptT.run d
       let mut y₁ : Fin (p + 1) := ⟨0, by grind⟩
       let y₂ : Fin (p + 1) ←
         match h : p with
-        | z + 1 => y₁ := ⟨1, by omega⟩; return ⟨3, by omega⟩
-        | _     => pure ⟨0, by omega⟩
+        | z + 1 => y₁ := ⟨1, by grind⟩; return ⟨3, by grind⟩
+        | _     => pure ⟨0, by grind⟩
       if i = 5 then return ⟨y₁.val + y₂.val, by grind⟩
       if i = 15 then break
+      if i = 25 then continue
       if i = 35 then throw "error"
       a := a + i
     catch _ =>
@@ -315,8 +313,6 @@ set_option backward.do.legacy false in
     return 44
   if res then pure 23 else return 33
 
-set_option trace.Elab.do true in
-set_option backward.do.legacy false in
 -- Test: Try/catch with let mut and match refinement
 #eval Id.run <| ExceptT.run (ε:=String) (α := Fin 17) do
   let mut x : Fin 11 := 0
@@ -375,23 +371,6 @@ example (provided : Expr) : MetaM Expr := do
       arg.fvarId!.getUserName
   return provided
 
-/-
-loop mut vars
-* We need them to be nondep to prevent zeta reduction issues; plus it's wrong if there is a
-  reassignment.
-* If we simply set the nondep flag to true, then we get def eq issues.
-  Concretely, the call to `mkLambdaFVarsWithLetDeps` may produce a type incorrect term
-  because it abstracts args as nondep that have actually been declared as dependent.
-* If we introduce a have for each, what do we do for forward dependencies?
-  * Introduce them as additional have's; if the variable in question is reassigned, we report an
-    error, asking the user to clear the have. BUT HOW WOULD THEY DO THAT?
-  * Don't introduce them as additional have's. But then we get type errors when they are used and
-    there was no reassignment.
-* Introduce new syntax, such as `freezing letMuts... in ...`.
-* .. or simply cope with the breaking change. Try this before introducing new syntax.
--/
-
-set_option trace.Elab.do true in
 /--
 error: Application type mismatch: The argument
   h1
@@ -411,6 +390,43 @@ example (str1 str2 : String) (cutoff : Nat) : Unit := Id.run do
       iter2 := iter2.next h2
       iter1 := iter1.next h1
 
+/-
+We would rather like to accept the following example, but we can't. Reasoning:
+* Loop mut vars (such as `iter1`) are re-introduced via (nondep) proxy defs.
+  We do not re-introduce any forward dependencies (such as `h`).
+  This causes the type error below.
+  * Why re-introduce them in the first place?
+    The initial assignments are often born as `let` and `isDefEq` will happily zeta
+    the initial definition into the loop body, which is wrong. So at the very least we'd need to
+    set them nondep.
+    But that brings its own set of issues, because MVars created in the let body will be abstracted
+    differently (over `iter1`) than MVars created outside it. This causes spurious checkTypes
+    failures during assignment.
+    So we need to re-introduce as nondep.
+  * Why not also re-introduce forward dependencies such as `h`?
+    Then it is unclear what to substitute for the loop-invariant `h` in case `iter1` was reassigned,
+    such as in the example preceding this comment. We *need* to error if `iter1` was reassigned, but
+    we could only do so after having elaborated the loop body. And worse: we'd need to error
+    irrespective of whether the user actually used `h` in the loop body, because it will occur in
+    the local context of metavariables.
+    (We could use `reduceLocalContext` to remove `h` from any new MVars, though... That would amount
+    to copying `elimMVar`.)
+In the future, we could introduce new syntax, such as `freezing iter1 in ...`, to freeze mutable
+variable `iter1` for the scope of the `freezing` instruction. This would allow the user to use `h`
+in the loop body.
+-/
+
+/--
+error: Application type mismatch: The argument
+  h1
+has type
+  ¬iter1✝.IsAtEnd
+but is expected to have type
+  iter1 ≠ str1.endPos
+in the application
+  iter1.get h1
+-/
+#guard_msgs (error) in
 example (str1 str2 : String) (cutoff : Nat) : Unit := Id.run do
   let mut iter1 := str1.startPos
   while h1 : ¬iter1.IsAtEnd do
@@ -547,24 +563,24 @@ set_option trace.Elab.do true in
 /--
 trace: [Elab.do] let x := 1;
     have kbreak := fun s =>
-      have x := s;
+      let x := s;
       pure x;
     forInNew [1, 2, 3] x
       (fun i kcontinue s =>
-        have x := s;
+        let x := s;
         have kbreak_1 := fun s_1 =>
-          have x_1 := s_1;
+          let x_1 := s_1;
           if x_1 > 20 then kbreak x_1 else kcontinue x_1;
         forInNew [4, 5, 6] x
           (fun j kcontinue_1 s_1 =>
-            have x := s_1;
+            let x_1 := s_1;
             have __do_jp := fun r tuple =>
-              have x_1 := tuple;
-              if j < 3 then kcontinue_1 x_1 else if j > 6 then kbreak_1 x_1 else kcontinue_1 x_1;
+              let x_2 := tuple;
+              if j < 3 then kcontinue_1 x_2 else if j > 6 then kbreak_1 x_2 else kcontinue_1 x_2;
             if j < 5 then
-              let x := x + j;
+              let x := x_1 + j;
               __do_jp PUnit.unit x
-            else __do_jp PUnit.unit x)
+            else __do_jp PUnit.unit x_1)
           kbreak_1)
       kbreak
 -/
@@ -598,20 +614,20 @@ info: (let x := 42;
   let z := 1;
   forInNew [1, 2, 3] (x, z)
     (fun i kcontinue s =>
-      have x := s.fst;
-      have z := s.snd;
+      let x := s.fst;
+      let z := s.snd;
       let x_1 := x + i;
       have __do_jp := fun r tuple =>
-        have z_1 := tuple;
-        let z := z_1 + i;
+        let z := tuple;
+        let z := z + i;
         kcontinue (x_1, z);
       if x_1 > 10 then
         let z := z + i;
         __do_jp PUnit.unit z
       else __do_jp PUnit.unit z)
     fun s =>
-    have x := s.fst;
-    have z := s.snd;
+    let x := s.fst;
+    let z := s.snd;
     pure (x + y + z)).run : Nat
 -/
 #guard_msgs (info) in
@@ -635,23 +651,23 @@ info: (let w := 23;
   let y := 0;
   let z := 1;
   have kbreak := fun s =>
-    have x := s.fst;
-    have s := s.snd;
-    have y := s.fst;
-    have z := s.snd;
+    let x := s.fst;
+    let s := s.snd;
+    let y := s.fst;
+    let z := s.snd;
     pure (w + x + y + z);
   forInNew [1, 2, 3] (x, y, z)
     (fun i kcontinue s =>
-      have x := s.fst;
-      have s := s.snd;
-      have y := s.fst;
-      have z := s.snd;
+      let x := s.fst;
+      let s := s.snd;
+      let y := s.fst;
+      let z := s.snd;
       if x < 20 then
         let y := y - 2;
         kbreak (x, y, z)
       else
         have __do_jp := fun r tuple =>
-          have z := tuple;
+          let z := tuple;
           if x > 10 then
             let x := x + 3;
             kcontinue (x, y, z)
@@ -816,13 +832,13 @@ set_option trace.Elab.do true in
 trace: [Elab.do] let x := 42;
     let y := 0;
     have kbreak := fun s =>
-      have x := s;
+      let x := s;
       pure (x + x + x + x);
     forInNew [1, 2, 3] x
       (fun i kcontinue s =>
-        have x := s;
+        let x := s;
         have __do_jp := fun r tuple =>
-          have x_1 := tuple;
+          let x_1 := tuple;
           if x_1 > 10 then
             let x := x_1 + 3;
             kcontinue x
@@ -910,15 +926,15 @@ set_option trace.Compiler.saveBase true in
 /--
 trace: [Elab.do] let x := 42;
     have kbreak := fun s =>
-      have x := s;
-      let x_1 := x + 13;
-      let x_2 := x_1 + 13;
-      let x_3 := x_2 + 13;
-      let x := x_3 + 13;
+      let x := s;
+      let x := x + 13;
+      let x := x + 13;
+      let x := x + 13;
+      let x := x + 13;
       pure x;
     forInNew [1, 2, 3] x
       (fun i kcontinue s =>
-        have x := s;
+        let x := s;
         if x = 3 then pure x
         else
           if x > 10 then
@@ -1141,20 +1157,20 @@ trace: [Elab.do] let x := 42;
     let z := 1;
     forInNew [1, 2, 3] (x, z)
       (fun i kcontinue s =>
-        have x := s.fst;
-        have z := s.snd;
+        let x := s.fst;
+        let z := s.snd;
         let x := x + i;
         forInNew [i:10].toList z
           (fun j kcontinue s =>
-            have z := s;
+            let z := s;
             let z := z + x + j;
             kcontinue z)
           fun s =>
-          have z := s;
+          let z := s;
           kcontinue (x, z))
       fun s =>
-      have x := s.fst;
-      have z := s.snd;
+      let x := s.fst;
+      let z := s.snd;
       pure (x + y + z)
 ---
 trace: [Compiler.saveBase] size: 10
@@ -1334,7 +1350,7 @@ info: (let x := 42;
 /--
 info: (let x := 42;
   have kbreak := fun s =>
-    have x := s;
+    let x := s;
     let x := x + 13;
     let x := x + 13;
     let x := x + 13;
@@ -1342,7 +1358,7 @@ info: (let x := 42;
     pure x;
   forInNew [1, 2, 3] x
     (fun i kcontinue s =>
-      have x := s;
+      let x := s;
       if x = 3 then pure x
       else
         if x > 10 then
@@ -2146,7 +2162,7 @@ if true = true then pure 3
 else
   let x := x + 5;
   let y_1 := 3;
-  have x := x;
+  let x := x;
   pure (x + y) : ?m Nat
 -/
 #guard_msgs (info) in
@@ -2164,7 +2180,7 @@ else
 info: let x := 0;
 let y := 0;
 have __do_jp := fun r tuple =>
-  have x := tuple;
+  let x := tuple;
   pure (x + y);
 if true = true then
   let x := x + 7;
@@ -2190,15 +2206,15 @@ set_option trace.Elab.do true in
 /--
 trace: [Elab.do] let x := 42;
     have kbreak := fun s =>
-      have x := s;
-      let x_1 := x + 13;
-      let x_2 := x_1 + 13;
-      let x_3 := x_2 + 13;
-      let x := x_3 + 13;
+      let x := s;
+      let x := x + 13;
+      let x := x + 13;
+      let x := x + 13;
+      let x := x + 13;
       pure x;
     forInNew [1, 2, 3] x
       (fun i kcontinue s =>
-        have x := s;
+        let x := s;
         if x = 3 then pure x
         else
           if x > 10 then

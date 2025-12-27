@@ -1894,8 +1894,7 @@ Afterwards, the local declaration is zeta-reduced into the result.
 -/
 def mapLetDeclZeta [MonadLiftT MetaM n] (name : Name) (type rhs : Expr) (k : Expr → n Expr) (nondep : Bool := false) (kind : LocalDeclKind := .default) : n Expr := do
   withLetDecl (n:=n) name type rhs (nondep := nondep) (kind := kind) fun x => do
-    let e ← Expr.abstractM (← k x) #[x]
-    return e.instantiate1 rhs
+    (← k x).replaceFVarsM #[x] #[rhs]
 
 def withLocalInstancesImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := do
   let mut localInsts := (← read).localInstances

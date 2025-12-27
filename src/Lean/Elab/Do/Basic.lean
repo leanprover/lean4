@@ -451,8 +451,10 @@ def ContVarId.find (contVarId : ContVarId) : DoElabM ContVarInfo := do
 /-- Creates a new jump site for the continuation variable, to be synthesized later. -/
 def ContVarId.mkJump (contVarId : ContVarId) : DoElabM Expr := do
   let info ← contVarId.find
+  let lctx ← addReachingDefsAsNonDep info.lctx (← getLCtx) info.tunneledVars.inner
   let type ← mkMonadicType (← read).doBlockResultType
-  let mvar ← mkFreshExprMVar type -- assigned by `synthesizeJumps`
+  let mvar ← withLCtx' lctx (mkFreshExprMVar type) -- assigned by `synthesizeJumps`
+  -- trace[Elab.do] "mkJump: {contVarId.name}, {mvar}, {repr mvar}, deadCode: {(← read).deadCode}, {mvar.mvarId!}"
   -- If it's dead syntactically, don't even bother registering the jump
   let deadCode := (← read).deadCode
   unless deadCode matches .deadSyntactically do
@@ -623,7 +625,7 @@ where
     let rec loop (_ : Unit) : DoElabM Unit := do
       withRef (← getSomeSyntheticMVarsRef) <| withIncRecDepth do
         let relevantMVars ← (← liftM (m := TermElabM) get).pendingMVars.filterM isPostponedSyntheticMVarOfMonadicType
-        -- trace[Elab.do] "relevantMVars: {relevantMVars.map (mkMVar ·)}"
+        trace[Elab.do] "relevantMVars: {relevantMVars.map (mkMVar ·)}"
         if !relevantMVars.isEmpty then
           if ← Term.synthesizeSyntheticMVarsStep (postponeOnError := true) (runTactics := false) then
             loop ()
@@ -1141,7 +1143,7 @@ def elabDo : Term.TermElab := fun e expectedType? => do
   let cont ← DoElemCont.mkPure ctx.doBlockResultType
   let res ← elabDoSeq doSeq cont |>.run ctx |>.run' {}
   -- Term.synthesizeSyntheticMVarsUsingDefault
-  trace[Elab.do] "{← instantiateMVars res}"
+  --trace[Elab.do] "{← instantiateMVars res}"
   pure res
 
 syntax:arg (name := dooBlock) "doo" doSeq : term

@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Iterators.Consumers.Loop
 public import Init.Data.Iterators.PostconditionMonad
-public import Init.Data.Iterators.Internal.Termination
 
 public section
 
@@ -172,7 +171,7 @@ private def FilterMap.instFinitenessRelation {α β γ : Type w} {m : Type w →
     {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} [Finite α m] :
     FinitenessRelation (FilterMap α m n lift f) n where
-  rel := InvImage IterM.IsPlausibleSuccessorOf (FilterMap.inner ∘ IterM.internalState)
+  Rel := InvImage IterM.IsPlausibleSuccessorOf (FilterMap.inner ∘ IterM.internalState)
   wf := InvImage.wf _ Finite.wf
   subrelation {it it'} h := by
     obtain ⟨step, h, h'⟩ := h
@@ -205,7 +204,7 @@ private def Map.instProductivenessRelation {α β γ : Type w} {m : Type w → T
     {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n γ} [Productive α m] :
     ProductivenessRelation (Map α m n lift f) n where
-  rel := InvImage IterM.IsPlausibleSkipSuccessorOf (FilterMap.inner ∘ IterM.internalState)
+  Rel := InvImage IterM.IsPlausibleSkipSuccessorOf (FilterMap.inner ∘ IterM.internalState)
   wf := InvImage.wf _ Productive.wf
   subrelation {it it'} h := by
     cases h

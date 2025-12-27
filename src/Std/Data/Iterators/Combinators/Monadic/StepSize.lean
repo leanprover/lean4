@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.Consumers.Monadic.Access
 public import Init.Data.Iterators.Consumers.Monadic.Collect
 public import Init.Data.Iterators.Consumers.Monadic.Loop
@@ -81,7 +80,7 @@ instance StepSizeIterator.instIterator [Iterator α m β] [IteratorAccess α m] 
 
 def StepSizeIterator.instFinitenessRelation [Iterator α m β] [IteratorAccess α m] [Monad m]
     [Finite α m] : FinitenessRelation (Types.StepSizeIterator α m β) m where
-  rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.inner.finitelyManySteps)
+  Rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.inner.finitelyManySteps)
   wf := by
     apply InvImage.wf
     apply WellFoundedRelation.wf
@@ -115,7 +114,7 @@ instance StepSizeIterator.instFinite [Iterator α m β] [IteratorAccess α m] [M
 
 def StepSizeIterator.instProductivenessRelation [Iterator α m β] [IteratorAccess α m] [Monad m]
     [Productive α m] : ProductivenessRelation (Types.StepSizeIterator α m β) m where
-  rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.inner.finitelyManySkips)
+  Rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.inner.finitelyManySkips)
   wf := by
     apply InvImage.wf
     apply WellFoundedRelation.wf

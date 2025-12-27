@@ -9,7 +9,6 @@ prelude
 import Init.Data.Nat.Lemmas
 
 public import Init.Data.Iterators.Consumers
-import Init.Data.Iterators.Internal.Termination
 
 public import Std.Data.DHashMap.Internal.AssocList.Basic
 
@@ -37,7 +36,7 @@ public instance : Iterator (α := AssocListIterator α β) Id ((a : α) × β a)
 
 def AssocListIterator.finitenessRelation :
     FinitenessRelation (AssocListIterator α β) Id where
-  rel := InvImage WellFoundedRelation.rel (AssocListIterator.l ∘ IterM.internalState)
+  Rel := InvImage WellFoundedRelation.rel (AssocListIterator.l ∘ IterM.internalState)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf

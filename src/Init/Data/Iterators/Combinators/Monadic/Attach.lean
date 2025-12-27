@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.Consumers.Loop
 
 public section
@@ -47,7 +46,7 @@ instance Attach.instIterator {α β : Type w} {m : Type w → Type w'} [Monad m]
 def Attach.instFinitenessRelation {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] [Finite α m] {P : β → Prop} :
     FinitenessRelation (Attach α m P) m where
-  rel := InvImage WellFoundedRelation.rel fun it => it.internalState.inner.finitelyManySteps
+  Rel := InvImage WellFoundedRelation.rel fun it => it.internalState.inner.finitelyManySteps
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     apply Relation.TransGen.single
@@ -68,7 +67,7 @@ instance Attach.instFinite {α β : Type w} {m : Type w → Type w'} [Monad m]
 def Attach.instProductivenessRelation {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] [Productive α m] {P : β → Prop} :
     ProductivenessRelation (Attach α m P) m where
-  rel := InvImage WellFoundedRelation.rel fun it => it.internalState.inner.finitelyManySkips
+  Rel := InvImage WellFoundedRelation.rel fun it => it.internalState.inner.finitelyManySkips
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     apply Relation.TransGen.single

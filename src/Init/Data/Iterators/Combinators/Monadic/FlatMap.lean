@@ -277,7 +277,7 @@ theorem Flatten.rel_of_right₂ [Monad m] [Iterator α m (IterM (α := α₂) m 
 def Flatten.instFinitenessRelation [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
     [Finite α m] [Finite α₂ m] :
     FinitenessRelation (Flatten α α₂ β m) m where
-  rel := Rel α β m
+  Rel := Rel α β m
   wf := by
     apply InvImage.wf
     refine ⟨fun (a, b) => Prod.lexAccessible (WellFounded.apply ?_ a) (WellFounded.apply ?_) b⟩
@@ -342,7 +342,7 @@ theorem Flatten.productiveRel_of_right₂ [Monad m] [Iterator α m (IterM (α :=
 def Flatten.instProductivenessRelation [Monad m] [Iterator α m (IterM (α := α₂) m β)]
     [Iterator α₂ m β] [Finite α m] [Productive α₂ m] :
     ProductivenessRelation (Flatten α α₂ β m) m where
-  rel := ProductiveRel α β m
+  Rel := ProductiveRel α β m
   wf := by
     apply InvImage.wf
     refine ⟨fun (a, b) => Prod.lexAccessible (WellFounded.apply ?_ a) (WellFounded.apply ?_) b⟩

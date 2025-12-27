@@ -4,4 +4,4 @@ theorem sum_of_n (n : Nat) :
   induction n with
   | zero => rfl
   | succ k ih =>
-    grind [List.range_succ]
+    grind [List.range_add_one]

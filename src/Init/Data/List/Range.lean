@@ -174,8 +174,11 @@ theorem range_sublist {m n : Nat} : range m <+ range n ↔ m ≤ n := by
 theorem range_subset {m n : Nat} : range m ⊆ range n ↔ m ≤ n := by
   simp only [range_eq_range', range'_subset_right, lt_succ_self]
 
-theorem range_succ {n : Nat} : range (succ n) = range n ++ [n] := by
+theorem range_add_one {n : Nat} : range (n + 1) = range n ++ [n] := by
   simp only [range_eq_range', range'_1_concat, Nat.zero_add]
+
+@[deprecated range_add_one (since := "2025-12-22")]
+theorem range_succ {n : Nat} : range (succ n) = range n ++ [n] := range_add_one
 
 theorem range_add {n m : Nat} : range (n + m) = range n ++ (range m).map (n + ·) := by
   rw [← range'_eq_map_range]
@@ -185,7 +188,7 @@ theorem head?_range {n : Nat} : (range n).head? = if n = 0 then none else some 0
   induction n with
   | zero => simp
   | succ n ih =>
-    simp only [range_succ, head?_append, ih]
+    simp only [range_add_one, head?_append, ih]
     split <;> simp_all
 
 @[simp, grind =] theorem head_range {n : Nat} (h) : (range n).head h = 0 := by
@@ -197,7 +200,7 @@ theorem getLast?_range {n : Nat} : (range n).getLast? = if n = 0 then none else 
   induction n with
   | zero => simp
   | succ n ih =>
-    simp only [range_succ, getLast?_append, ih]
+    simp only [range_add_one, getLast?_append, ih]
     split <;> simp_all
 
 @[simp, grind =] theorem getLast_range {n : Nat} (h) : (range n).getLast h = n - 1 := by

@@ -137,6 +137,28 @@ theorem Iter.forIn'_eq_forInNew' {α β : Type w} [Iterator α Id β] [Finite α
   simp only [← funext_iff] at h
   rw [← h]
 
+theorem Iter.forInNew'_eq_forInNew'_toIterM {α β : Type w} [Iterator α Id β]
+    [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m] [IteratorLoopNew α Id m]
+    {σ γ : Type w} {it : Iter (α := α) β} {init : σ}
+    {kcons : (out : β) → _ → (σ → m γ) → σ → m γ}
+    {knil : σ → m γ} :
+    letI : ForInNew' m (Iter (α := α) β) β _ := Iter.instForInNew'
+    ForInNew'.forInNew' it init kcons knil =
+      letI : ForInNew' m (IterM (α := α) Id β) β _ := IterM.instForInNew'
+      ForInNew'.forInNew' it.toIterM init
+        (fun out h => kcons out (isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h)) knil := by
+  simp [ForInNew'.forInNew', Iter.instForInNew', IterM.instForInNew', monadLift]
+
+theorem Iter.forInNew_eq_forInNew_toIterM {α β : Type w} [Iterator α Id β]
+    [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m]
+    [IteratorLoopNew α Id m]
+    {σ γ : Type w} {it : Iter (α := α) β} {init : σ}
+    {kcons : β → (σ → m γ) → σ → m γ}
+    {knil : σ → m γ} :
+    ForInNew.forInNew it init kcons knil =
+      ForInNew.forInNew it.toIterM init kcons knil := by
+  simp [forInNew_eq_forInNew', forInNew'_eq_forInNew'_toIterM, -forInNew'_eq_forInNew]
+
 theorem Iter.forIn'_eq_forIn'_toIterM {α β : Type w} [Iterator α Id β]
     [Finite α Id] {m : Type w → Type w''} [Monad m] [LawfulMonad m] [IteratorLoop α Id m]
     {γ : Type w} {it : Iter (α := α) β} {init : γ}

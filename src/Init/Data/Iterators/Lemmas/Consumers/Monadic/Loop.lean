@@ -81,7 +81,7 @@ theorem IterM.DefaultConsumers.forInNew'_eq_wf_of_finite {m : Type w → Type w'
 theorem IterM.forInNew'_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m β] [Finite α m]
     {n : Type w → Type w''} [Monad m] [Monad n] [LawfulMonad n] [IteratorLoopNew α m n]
     [hl : LawfulIteratorLoopNew α m n]
-    [MonadLiftT m n] [LawfulMonadLiftT m n] {σ γ : Type w} {it : IterM (α := α) m β} {init : σ}
+    [MonadLiftT m n] {σ γ : Type w} {it : IterM (α := α) m β} {init : σ}
     {kcons : (b : β) → it.IsPlausibleIndirectOutput b → (σ → n γ) → σ → n γ}
     {knil : σ → n γ} :
     letI : ForInNew' n (IterM (α := α) m β) β _ := IterM.instForInNew'
@@ -95,7 +95,7 @@ theorem IterM.forInNew'_eq {α β : Type w} {m : Type w → Type w'} [Iterator �
 theorem IterM.forInNew_eq {α β : Type w} {m : Type w → Type w'} [Iterator α m β] [Finite α m]
     {n : Type w → Type w''} [Monad m] [Monad n] [LawfulMonad n] [IteratorLoopNew α m n]
     [hl : LawfulIteratorLoopNew α m n]
-    [MonadLiftT m n] [LawfulMonadLiftT m n] {σ γ : Type w} {it : IterM (α := α) m β} {init : σ}
+    [MonadLiftT m n] {σ γ : Type w} {it : IterM (α := α) m β} {init : σ}
     {kcons : β → (σ → n γ) → σ → n γ}
     {knil : σ → n γ} :
     ForInNew.forInNew it init kcons knil =
@@ -305,6 +305,51 @@ theorem IterM.DefaultConsumers.forIn'_eq_forInNew' {m : Type w → Type w'} {α 
   case yield it' out hStep => simp only; congr; ext forInStep; split <;> rfl
   case skip it' hStep => simp
   case done => rfl
+
+theorem IterM.forInNew'_eq_match_step {α β σ γ : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] {n : Type w → Type w''} [Monad m] [Monad n] [LawfulMonad n]
+    [IteratorLoopNew α m n] [LawfulIteratorLoopNew α m n]
+    [MonadLiftT m n] {it : IterM (α := α) m β}
+    {init : σ} {kcons : (out : β) → _ → (σ → n γ) → σ → n γ} {knil : σ → n γ} :
+    letI : ForInNew' n (IterM (α := α) m β) β _ := IterM.instForInNew'
+    ForInNew'.forInNew' it init kcons knil = (do
+      match (← it.step).inflate with
+      | .yield it' out h =>
+        let kcontinue s := ForInNew'.forInNew' it' s (fun out h'' => kcons out (.indirect ⟨_, rfl, h⟩ h'')) knil
+        kcons out (.direct ⟨_, h⟩) kcontinue init
+      | .skip it' h =>
+        ForInNew'.forInNew' it' init
+          (fun out h' => kcons out (.indirect ⟨_, rfl, h⟩ h')) knil
+      | .done _ => knil init) := by
+  simp [IterM.forInNew'_eq]
+  rw [DefaultConsumers.forInNew'_eq_match_step]
+  · apply bind_congr; intro step
+    cases step.inflate using PlausibleIterStep.casesOn
+    · simp only
+      congr; ext s
+      apply DefaultConsumers.forInNew'_eq_forInNew' (wf := IteratorLoopNew.wellFounded_of_finite)
+      simp +contextual
+    · simp only
+      apply DefaultConsumers.forInNew'_eq_forInNew' (wf := IteratorLoopNew.wellFounded_of_finite)
+      simp +contextual
+    · rfl
+  · exact IteratorLoop.wellFounded_of_finite
+
+theorem IterM.forInNew_eq_match_step {α β σ γ : Type w} {m : Type w → Type w'} [Iterator α m β]
+    [Finite α m] {n : Type w → Type w''} [Monad m] [Monad n] [LawfulMonad n]
+    [IteratorLoopNew α m n] [LawfulIteratorLoopNew α m n]
+    [MonadLiftT m n] {it : IterM (α := α) m β}
+    {init : σ} {kcons : β → (σ → n γ) → σ → n γ} {knil : σ → n γ} :
+    ForInNew.forInNew it init kcons knil = (do
+      match (← it.step).inflate with
+      | .yield it' out _ =>
+        let kcontinue s := ForInNew.forInNew it' s kcons knil
+        kcons out kcontinue init
+      | .skip it' _ =>
+        ForInNew.forInNew it' init kcons knil
+      | .done _ => knil init) := by
+  simp only [forInNew]
+  exact forInNew'_eq_match_step
 
 theorem IterM.forIn'_eq_match_step {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
     [Finite α m] {n : Type w → Type w''} [Monad m] [Monad n] [LawfulMonad n]

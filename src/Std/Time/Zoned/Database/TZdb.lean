@@ -84,19 +84,30 @@ Reads timezone rules from disk based on the provided file path and timezone ID.
 def readRulesFromDisk (path : System.FilePath) (id : String) : IO ZoneRules := do
   parseTZIfFromDisk (System.FilePath.join path id) id
 
-instance : Std.Time.Database TZdb where
-  getLocalZoneRules db := localRules db.localPath
+/--
+Reads timezone rules from disk based on the provided timezone ID.
+-/
+def getZoneRules (db : TZdb) (id : String) : IO ZoneRules := do
+  let env ← IO.getEnv "TZDIR"
 
-  getZoneRules db id := do
-    let env ← IO.getEnv "TZDIR"
+  if let some path := env then
+    let result ← readRulesFromDisk path id
+    return result
 
-    if let some path := env then
+  for path in db.zonesPaths do
+    if ← System.FilePath.pathExists path then
       let result ← readRulesFromDisk path id
       return result
 
-    for path in db.zonesPaths do
-      if ← System.FilePath.pathExists path then
-        let result ← readRulesFromDisk path id
-        return result
+  throw <| IO.userError s!"cannot find {id} in the local timezone database"
 
-    throw <| IO.userError s!"cannot find {id} in the local timezone database"
+instance : Std.Time.Database TZdb where
+  getLocalZoneRules db := do
+    if let some id ← IO.getEnv "TZ" then
+      getZoneRules db id
+    else if ← System.FilePath.pathExists db.localPath then
+      localRules db.localPath
+    else
+      getZoneRules db "UTC"
+
+  getZoneRules db id := TZdb.getZoneRules db id

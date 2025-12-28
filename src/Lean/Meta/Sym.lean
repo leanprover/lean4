@@ -14,6 +14,8 @@ public import Lean.Meta.Sym.LooseBVarsS
 public import Lean.Meta.Sym.InstantiateS
 public import Lean.Meta.Sym.IsClass
 public import Lean.Meta.Sym.Intro
+public import Lean.Meta.Sym.InstantiateMVarsS
+public import Lean.Meta.Sym.ProofInstInfo
 public import Lean.Meta.Sym.Pattern
 
 /-!

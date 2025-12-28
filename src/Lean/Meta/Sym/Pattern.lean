@@ -200,7 +200,7 @@ def mkPreResult : UnifyM Unit := do
       let type := varTypes[i]!
       let type := type.instantiateLevelParams pattern.levelParams us
       let type ← shareCommon type
-      let type ← instantiateRevS type args
+      let type ← instantiateRevBetaS type args
       let mvar ← mkFreshExprSyntheticOpaqueMVar type
       let mvar ← shareCommon mvar
       args := args.push mvar

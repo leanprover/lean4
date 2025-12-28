@@ -21,7 +21,6 @@ def tst1 : SymM Unit := do
   assert! r == e.instantiate #[a, b]
   logInfo r
 
-
 /--
 info: f b a 1
 ---
@@ -33,3 +32,28 @@ info: fun x => f x a 1
 -/
 #guard_msgs in
 #eval SymM.run' tst1
+
+def tst2 : SymM Unit := do
+  let f ← mkConstS `f
+  let e ← mkAppS (← mkAppS (← mkAppS f (← mkBVarS 0)) (← mkBVarS 1)) (← shareCommon (mkNatLit 1))
+  withLocalDeclD `x (← mkConstS ``Nat) fun x => do
+  withLocalDeclD `y (← mkConstS ``Nat) fun y => do
+  logInfo e
+  let r ← instantiateRevS e #[x, y]
+  logInfo r
+  assert! isSameExpr (← abstractFVars r #[x, y]) e
+  logInfo (← abstractFVars r #[x, y])
+  logInfo (← abstractFVarsRange r 1 #[x, y])
+
+
+/--
+info: f #0 #1 1
+---
+info: f y x 1
+---
+info: f #0 #1 1
+---
+info: f #0 x 1
+-/
+#guard_msgs in
+#eval SymM.run' tst2

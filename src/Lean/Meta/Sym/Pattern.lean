@@ -9,6 +9,7 @@ public import Lean.Meta.Sym.SymM
 import Lean.Util.FoldConsts
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.IsClass
+import Lean.Meta.Sym.ProofInstInfo
 namespace Lean.Meta.Sym
 open Grind
 
@@ -34,67 +35,16 @@ framework (`Sym`). The design prioritizes performance by using a two-phase appro
 - `instantiateRevS` ensures maximal sharing of result expressions
 -/
 
-def preprocessType (type : Expr) : MetaM Expr := do
-  let type ← unfoldReducible type
-  let type ← Core.betaReduce type
-  zetaReduce type
-
 /--
-Information about a single argument position in a function's type signature.
-
-This is used during pattern matching to identify arguments that can be skipped
-or handled specially (e.g., instance arguments can be synthesized, proof arguments
-can be inferred).
--/
-public structure PatternArgInfo where
-  /-- `true` if this argument is a proof (its type is a `Prop`). -/
-  isProof    : Bool
-  /-- `true` if this argument is a type class instance. -/
-  isInstance : Bool
-
-/--
-Information about a function symbol occurring in a pattern.
-
-Stores which argument positions are proofs or instances, enabling optimizations
-during pattern matching such as skipping proof arguments or deferring instance synthesis.
--/
-public structure FunPatternInfo where
-  /-- Information about each argument position. -/
-  argsInfo : Array PatternArgInfo
-
-/--
-Analyzes the type signature of `declName` and returns information about which arguments
-are proofs or instances. Returns `none` if no arguments are proofs or instances.
--/
-def mkFunPatternInfo? (declName : Name) : MetaM (Option FunPatternInfo) := do
-  let info ← getConstInfo declName
-  let type ← preprocessType info.type
-  forallTelescopeReducing type fun xs _ => do
-    let env ← getEnv
-    let mut argsInfo := #[]
-    let mut found := false
-    for x in xs do
-      let type ← inferType x
-      let isInstance := isClass? env type |>.isSome
-      let isProof ← isProp type
-      if isInstance || isProof then
-        found := true
-      argsInfo := argsInfo.push { isInstance, isProof }
-    if found then
-      return some { argsInfo }
-    else
-      return none
-
-/--
-Collects `FunPatternInfo` for all function symbols occurring in `pattern`.
+Collects `ProofInstInfo` for all function symbols occurring in `pattern`.
 
 Only includes functions that have at least one proof or instance argument.
 -/
-def mkFunInfosFor (pattern : Expr) : MetaM (AssocList Name FunPatternInfo) := do
+def mkProofInstInfoFor (pattern : Expr) : MetaM (AssocList Name ProofInstInfo) := do
   let cs := pattern.getUsedConstants
   let mut fnInfos := {}
   for declName in cs do
-    if let some info ← mkFunPatternInfo? declName then
+    if let some info ← mkProofInstInfo? declName then
       fnInfos := fnInfos.insertNew declName info
   return fnInfos
 

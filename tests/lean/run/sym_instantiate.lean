@@ -1,5 +1,5 @@
 import Lean.Meta.Sym
-
+set_option grind.debug true
 open Lean Meta Grind Sym
 
 def tst1 : SymM Unit := do
@@ -35,9 +35,13 @@ info: fun x => f x a 1
 
 def tst2 : SymM Unit := do
   let f ← mkConstS `f
-  let e ← mkAppS (← mkAppS (← mkAppS f (← mkBVarS 0)) (← mkBVarS 1)) (← shareCommon (mkNatLit 1))
+  withLocalDeclD `w (← mkConstS ``Nat) fun w => do
+  let w ← shareCommon w
+  let e ← mkAppS (← mkAppS (← mkAppS f (← mkBVarS 0)) (← mkBVarS 1)) w
   withLocalDeclD `x (← mkConstS ``Nat) fun x => do
   withLocalDeclD `y (← mkConstS ``Nat) fun y => do
+  let x ← shareCommon x
+  let y ← shareCommon y
   logInfo e
   let r ← instantiateRevS e #[x, y]
   logInfo r
@@ -47,13 +51,13 @@ def tst2 : SymM Unit := do
 
 
 /--
-info: f #0 #1 1
+info: f #0 #1 w
 ---
-info: f y x 1
+info: f y x w
 ---
-info: f #0 #1 1
+info: f #0 #1 w
 ---
-info: f #0 x 1
+info: f #0 x w
 -/
 #guard_msgs in
 #eval SymM.run' tst2

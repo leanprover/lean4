@@ -22,7 +22,7 @@ info: @Exists.intro Nat (fun x => And (p x) (q x Nat.zero)) ?m.1 ?m.2
 ---
 info: ?m.1 : Nat
 ---
-info: ?m.2 : (fun x => And (p x) (q x Nat.zero)) ?m.1
+info: ?m.2 : And (p ?m.1) (q ?m.1 Nat.zero)
 -/
 #guard_msgs in
 set_option pp.explicit true in

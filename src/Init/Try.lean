@@ -11,6 +11,7 @@ public import Init.Tactics
 public section
 
 namespace Lean.Try
+
 /--
 Configuration for `try?`.
 -/
@@ -57,6 +58,9 @@ syntax (name := attemptAll) "attempt_all " withPosition((ppDedent(ppLine) colGe 
 
 /-- Helper internal tactic for implementing the tactic `try?` with parallel execution. -/
 syntax (name := attemptAllPar) "attempt_all_par " withPosition((ppDedent(ppLine) colGe "| " tacticSeq)+) : tactic
+
+/-- Helper internal tactic: runs tactics in parallel, returns first success, cancels rest. -/
+syntax (name := firstPar) "first_par " withPosition((ppDedent(ppLine) colGe "| " tacticSeq)+) : tactic
 
 /-- Helper internal tactic used to implement `evalSuggest` in `try?` -/
 syntax (name := tryResult) "try_suggestions " tactic* : tactic

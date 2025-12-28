@@ -196,21 +196,31 @@ private def evalSuggestAtomic (tac : TSyntax `tactic) : TacticM (TSyntax `tactic
   else
     return tac
 
-/-- Check if a config contains `+suggestions` -/
+/-- Check if a config contains `+suggestions` or `(config := { suggestions := true, ... })` -/
 private def configHasSuggestions (config : TSyntax ``Lean.Parser.Tactic.optConfig) : Bool :=
-  let configItems := config.raw.getArgs
-  configItems.any fun item =>
-    match item[0]? with
-    | some configItem => match configItem[0]? with
-      | some posConfigItem => match posConfigItem[1]? with
-        | some ident => posConfigItem.getKind == ``Lean.Parser.Tactic.posConfigItem && ident.getId == `suggestions
-        | none => false
-      | none => false
-    | none => false
+  -- Structure: optConfig -> null node -> configItem* -> posConfigItem/valConfigItem
+  let nullNode := config.raw[0]!
+  let configItems := nullNode.getArgs
+  configItems.any fun configItem =>
+    let inner := configItem[0]!
+    -- Check for +suggestions: posConfigItem -> ["+", ident]
+    let isPlusSuggestions :=
+      inner.getKind == ``Lean.Parser.Tactic.posConfigItem && inner[1]!.getId == `suggestions
+    -- Check for (config := { suggestions := ..., ... }): valConfigItem with config struct containing suggestions field
+    let isConfigWithSuggestions :=
+      inner.getKind == ``Lean.Parser.Tactic.valConfigItem && inner[1]!.getId == `config &&
+      inner[3]!.getKind == ``Lean.Parser.Term.structInst &&
+      -- structInst[2] is structInstFields, structInstFields[0] is null node with fields
+      (let fieldsNullNode := inner[3]![2]![0]!
+       fieldsNullNode.getArgs.any fun item =>
+         item.getKind == ``Lean.Parser.Term.structInstField &&
+         item[0]![0]!.getId == `suggestions)
+    isPlusSuggestions || isConfigWithSuggestions
 
 private def grindTraceToGrind (tac : TSyntax `tactic) : TacticM (TSyntax `tactic) := do
   match tac with
   | `(tactic| grind? $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]?) =>
+    let config := filterSuggestionsFromGrindConfig config
     `(tactic| grind $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]?)
   | _ => throwUnsupportedSyntax
 
@@ -731,6 +741,16 @@ private partial def evalSuggestAttemptAllPar (tacs : Array (TSyntax ``Parser.Tac
   else
     throwError "`attempt_all_par` failed"
 
+/-- `evalSuggest` for `first_par` tactic - returns first success, cancels remaining tasks. -/
+private partial def evalSuggestFirstPar (tacs : Array (TSyntax ``Parser.Tactic.tacticSeq)) : TryTacticM (TSyntax `tactic) := do
+  unless (← read).terminal do
+    throwError "invalid occurrence of `first_par` in non-terminal position for `try?` script{indentD (← read).root}"
+  let ctx ← read
+  let jobs : List (TacticM (TSyntax `tactic)) := tacs.toList.map fun tacSeq =>
+    withOriginalHeartbeats (evalSuggestTacticSeq tacSeq) ctx
+  -- Uses TacticM.parFirst which cancels remaining tasks after first success
+  TacticM.parFirst jobs
+
 private partial def evalSuggestDefault (tac : TSyntax `tactic) : TryTacticM (TSyntax `tactic) := do
   let kind := tac.raw.getKind
   match (← getEvalFns kind) with
@@ -778,6 +798,7 @@ private partial def evalSuggestImpl : TryTactic := fun tac => do
   | `(tactic| try $tac:tacticSeq) => evalSuggestTry tac
   | `(tactic| attempt_all $[| $tacs]*) => evalSuggestAttemptAll tacs
   | `(tactic| attempt_all_par $[| $tacs]*) => evalSuggestAttemptAllPar tacs
+  | `(tactic| first_par $[| $tacs]*) => evalSuggestFirstPar tacs
   | _ =>
     let k := tac.raw.getKind
     if k == ``Parser.Tactic.seq1 then
@@ -881,8 +902,17 @@ Atomic tactics with library suggestions.
 Note: We previously included `simp_all? +suggestions` here, but removed it due to performance issues.
 We would like to restore it in the future once `simp_all? +suggestions` is faster for general use.
 -/
-private def mkAtomicWithSuggestionsStx : CoreM (TSyntax `tactic) :=
-  `(tactic| grind? +suggestions)
+private def mkGrindSuggestionsStx : CoreM (TSyntax `tactic) := do
+  let defaults : Grind.Config := {}
+  -- Escalating configurations: more suggestions with relaxed search thresholds
+  -- First level uses defaults, subsequent levels request more suggestions but reduce gen/splits
+  let levels : Array (Nat × Nat × Nat) := #[(128, 0, 0), (1024, 1, 1), (8192, 2, 2)]
+  let tacs ← levels.mapM fun (maxSugg, genReduction, splitsReduction) => do
+    let gen := defaults.gen - genReduction
+    let splits := defaults.splits - splitsReduction
+    -- Note: must include `suggestions := true` since config := {...} overrides the +suggestions flag
+    `(tactic| grind? (config := { suggestions := true, maxSuggestions := $(quote maxSugg), gen := $(quote gen), splits := $(quote splits) }))
+  `(tactic| first_par $[| $tacs:tactic]*)
 
 /-- `simple` tactics -/
 private def mkSimpleTacStx : CoreM (TSyntax `tactic) :=
@@ -946,7 +976,7 @@ private unsafe def mkTryEvalSuggestStxUnsafe (goal : MVarId) (info : Try.Info) :
   let grind ← mkGrindStx info
 
   let atomic ← `(tactic| attempt_all_par | $simple:tactic | $simp:tactic | $grind:tactic | simp_all)
-  let atomicSuggestions ← mkAtomicWithSuggestionsStx
+  let atomicSuggestions ← mkGrindSuggestionsStx
   let funInds ← mkAllFunIndStx info atomic
   let inds ← mkAllIndStx info atomic
   let extra ← `(tactic| (intros; first | $simple:tactic | $simp:tactic | exact?))

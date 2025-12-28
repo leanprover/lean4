@@ -48,30 +48,42 @@ structure ModuleParserState where
   recovering : Bool       := false
   deriving Inhabited
 
+/-- Tag for parser errors where wrapping a token in guillemets would fix the issue. -/
+def guillemetsFixableMessageTag : Name := `lean.parser.guillemetsFixable
+
 private partial def mkErrorMessage (c : InputContext) (pos : String.Pos.Raw) (stk : SyntaxStack) (e : Parser.Error) : Message := Id.run do
   let mut pos := pos
   let mut endPos? := none
   let mut e := e
+  let mut guillemetsFixable := false
   unless e.unexpectedTk.isMissing do
     -- calculate error parts too costly to do eagerly
     if let some r := e.unexpectedTk.getRange? then
       pos := r.start
       endPos? := some r.stop
-    let unexpected := match e.unexpectedTk with
-      | .ident .. => "unexpected identifier"
-      | .atom _ v => s!"unexpected token '{v}'"
-      | _         => "unexpected token"  -- TODO: categorize (custom?) literals as well?
+    let (unexpected, isGuillemetsFixable) := match e.unexpectedTk with
+      | .ident .. => ("unexpected identifier", false)
+      | .atom _ v =>
+        -- If expecting an identifier but got a keyword/token, suggest guillemets
+        -- Only offer the hint if the escaped name would be valid (non-empty, no closing guillemet)
+        if e.expected.contains "identifier" && !v.isEmpty && !v.any isIdEndEscape then
+          (s!"unexpected token `{v}`; if you intended to use it as an identifier, use `{idBeginEscape}{v}{idEndEscape}`", true)
+        else
+          (s!"unexpected token `{v}`", false)
+      | _         => ("unexpected token", false)  -- TODO: categorize (custom?) literals as well?
+    guillemetsFixable := isGuillemetsFixable
     e := { e with unexpected }
     -- if there is an unexpected token, include preceding whitespace as well as the expected token could
     -- be inserted at any of these places to fix the error; see tests/lean/1971.lean
     if let some trailing := lastTrailing stk then
       if trailing.stopPos == pos then
         pos := trailing.startPos
+  let data : MessageData := toString e
   { fileName := c.fileName
     pos := c.fileMap.toPosition pos
     endPos := c.fileMap.toPosition <$> endPos?
     keepFullRange := true
-    data := toString e }
+    data := if guillemetsFixable then .tagged guillemetsFixableMessageTag data else data }
 where
   -- Error recovery might lead to there being some "junk" on the stack
   lastTrailing (s : SyntaxStack) : Option Substring.Raw :=

@@ -20,6 +20,7 @@ public import Lean.Server.FileWorker.WidgetRequests
 public import Lean.Server.FileWorker.SetupFile
 public import Lean.Server.Completion.ImportCompletion
 public import Lean.Server.CodeActions.UnknownIdentifier
+public import Lean.Server.CodeActions.GuillemetsEscape
 
 public section
 

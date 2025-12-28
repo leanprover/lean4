@@ -1,0 +1,2 @@
+guillemet_hint.lean:9:9: error: unexpected token `if`; if you intended to use it as an identifier, use `«if»`; expected '_' or identifier
+good1 («if» : Nat) : Nat

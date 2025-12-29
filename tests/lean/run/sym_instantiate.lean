@@ -48,8 +48,10 @@ def tst2 : SymM Unit := do
   assert! isSameExpr (← abstractFVars r #[x, y]) e
   logInfo (← abstractFVars r #[x, y])
   logInfo (← abstractFVarsRange r 1 #[x, y])
+  logInfo (← mkLambdaFVarsS #[x, y] e)
 
 
+set_option pp.funBinderTypes true in
 /--
 info: f #0 #1 w
 ---
@@ -58,6 +60,8 @@ info: f y x w
 info: f #0 #1 w
 ---
 info: f #0 x w
+---
+info: fun (x y : Nat) => f y x w
 -/
 #guard_msgs in
 #eval SymM.run' tst2

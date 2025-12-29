@@ -84,4 +84,16 @@ It is an abbreviation for `abstractFVarsRange e 0 xs`.
 public abbrev abstractFVars (e : Expr) (xs : Array Expr) : SymM Expr := do
   abstractFVarsRange e 0 xs
 
+/--
+Similar to `mkLambdaFVars`, but uses the more efficient `abstractFVars` and `abstractFVarsRange`,
+and makes the same assumption made by these functions.
+-/
+public def mkLambdaFVarsS (xs : Array Expr) (e : Expr) : SymM Expr := do
+  let b ← abstractFVars e xs
+  xs.size.foldRevM (init := b) fun i _ b => do
+    let x := xs[i]
+    let decl ← x.fvarId!.getDecl
+    let type ← abstractFVarsRange decl.type i xs
+    mkLambdaS decl.userName decl.binderInfo type b
+
 end Lean.Meta.Sym

@@ -8,7 +8,10 @@ prelude
 public import Lean.Meta.Sym.SymM
 import Lean.Util.FoldConsts
 import Lean.Meta.Sym.InstantiateS
+import Lean.Meta.Sym.AbstractS
+import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.Sym.IsClass
+import Lean.Meta.Sym.MaxFVar
 import Lean.Meta.Sym.ProofInstInfo
 import Lean.Meta.Tactic.Grind.AlphaShareBuilder
 namespace Lean.Meta.Sym
@@ -27,7 +30,8 @@ framework (`Sym`). The design prioritizes performance by using a two-phase appro
 # Phase 2 (Pending Constraints) [WIP]
 - Handles binders (Miller patterns) and metavariable unification
 - Converts remaining de Bruijn variables to metavariables
-- Falls back to `isDefEq` when necessary
+- Falls back to structural `isDefEq` (aka `isDefEqS`) when necessary.
+- It still uses the standard `isDefEq` for instances.
 
 # Key design decisions:
 - Preprocessing unfolds reducible definitions and performs beta/zeta reduction
@@ -188,7 +192,14 @@ partial def process (p : Expr) (e : Expr) : UnifyM Bool := do
   | .proj .. =>
     reportIssue! "unexpected kernel projection term during unification/matching{indentExpr e}\npre-process and fold them as projection applications"
     return false
-  | .mvar _ | .fvar _ | .lit _ =>
+  | .fvar _ =>
+    /-
+    **Note**: We currently assume that patterns do not have free variables since they are created from
+    top-level theorems. If we want to support them in the future, we should add support for
+    `zetaDelta` here too. It should be similar to the support at `isDefEqS`.
+    -/
+    throwError "unexpected occurrence of free variable in pattern"
+  | .mvar _ | .lit _ =>
     pure (p == e) <||> checkMVar p e
   | .letE .. => unreachable!
 where
@@ -200,7 +211,7 @@ where
     processAppWithInfo p e (numArgs - 1) info
 
   processAppWithInfo (p : Expr) (e : Expr) (i : Nat) (info : ProofInstInfo) : UnifyM Bool := do
-    let .app fp ap := p | process p e
+    let .app fp ap := p | if e.isApp then return false else process p e
     let .app fe ae := e | return false
     unless (← processAppWithInfo fp fe (i - 1) info) do return false
     if h : i < info.argsInfo.size then
@@ -221,7 +232,7 @@ where
       process ap ae
 
   processAppDefault (p : Expr) (e : Expr) : UnifyM Bool := do
-    let .app fp ap := p | process p e
+    let .app fp ap := p | if e.isApp then return false else process p e
     let .app fe ae := e | return false
     unless (← processAppDefault fp fe) do return false
     process ap ae
@@ -234,6 +245,22 @@ where
     let .sort v := e | return false
     processLevel u v
 
+/--
+Attempts to assign a level metavariable `u` to value `v`.
+Returns `true` if `u` is an assignable level metavariable and the assignment succeeds.
+Returns `false` if `u` is not a metavariable or is not assignable.
+-/
+def tryAssignLevelMVar (u : Level) (v : Level) : MetaM Bool := do
+  let .mvar mvarId := u | return false
+  unless (← isLevelMVarAssignable mvarId) do return false
+  assignLevelMVar mvarId v
+  return true
+
+/--
+Structural definitional equality for universe levels.
+Treats `max` and `imax` as uninterpreted functions (no AC reasoning).
+Attempts metavariable assignment in both directions if structural matching fails.
+-/
 def isLevelDefEqS (u : Level) (v : Level) : MetaM Bool := do
   match u, v with
   | .param u, .param v => return u == v
@@ -247,28 +274,53 @@ def isLevelDefEqS (u : Level) (v : Level) : MetaM Bool := do
   | .imax _ u, .zero => isLevelDefEqS u .zero
   | .max u₁ u₂, .max v₁ v₂ => isLevelDefEqS u₁ v₁ <&&> isLevelDefEqS u₂ v₂
   | .imax u₁ u₂, .imax v₁ v₂ => isLevelDefEqS u₁ v₁ <&&> isLevelDefEqS u₂ v₂
-  | .mvar mvarId, v => assignLevelMVar mvarId v; return true
-  | u, .mvar mvarId => assignLevelMVar mvarId u; return true
-  | _, _ => return false
+  | _, _ => tryAssignLevelMVar u v <||> tryAssignLevelMVar v u
 
+/--
+Structural definitional equality for lists of universe levels.
+Returns `true` iff the lists have the same length and corresponding elements are structurally equal.
+-/
+def isLevelDefEqListS (us : List Level) (vs : List Level) : MetaM Bool := do
+  match us, vs with
+  | [],    []    => return true
+  | [],    _::_  => return false
+  | _::_,  []    => return false
+  | u::us, v::vs => isLevelDefEqS u v <&&> isLevelDefEqListS us vs
+
+/--
+Context for structural definitional equality (`isDefEqS`).
+-/
 structure DefEqM.Context where
-  unify     : Bool := true
+  unify : Bool := true
+  /--
+  If `zetaDelta` is `true`, then zeta-delta reduction is allowed.
+  That is, `isDefEqS` can unfold `x` if the local context contains `(x : t := v)`.
+  -/
   zetaDelta : Bool := true
   /--
-  If `unit
+  The next declaration index at the entry point of `isDefEqS`.
+  This information is used to decide whether an application is a Miller pattern or not.
   -/
-  mvarsNew  : Array MVarId := #[]
+  lctxInitialNextIndex : Nat := 0
+  /--
+  If `unify` is `false`, it contains which variables can be assigned.
+  -/
+  mvarsNew : Array MVarId := #[]
 
 abbrev DefEqM := ReaderT DefEqM.Context SymM
 
 /--
 Structural definitional equality. It is much cheaper than `isDefEq`.
+
+This function is the main loop of `isDefEqS`
 -/
 @[extern "lean_sym_def_eq"] -- Forward definition
-opaque isDefEqS : Expr → Expr → DefEqM Bool
+opaque isDefEqMain : Expr → Expr → DefEqM Bool
 
 /--
 Structural definitional equality for `forall` and `lambda` binders.
+Opens all binders simultaneously, then checks domain equality and body equality.
+This approach avoids repeated `withLCtx` calls for each binder.
 -/
 def isDefEqBindingS (a b : Expr) : DefEqM Bool := do
   let lctx ← getLCtx
@@ -278,7 +330,7 @@ where
   checkDomains (fvars : Array Expr) (ds₂ : Array Expr) : DefEqM Bool := do
     for fvar in fvars, d in ds₂ do
       let fvarType ← fvar.fvarId!.getType
-      unless (← isDefEqS fvarType d) do return false
+      unless (← isDefEqMain fvarType d) do return false
     return true
 
   go (lctx : LocalContext) (localInsts : LocalInstances) (fvars : Array Expr) (e₁ e₂ : Expr) (ds₂ : Array Expr) : DefEqM Bool := do
@@ -297,22 +349,251 @@ where
       go lctx localInsts (fvars.push fvar) b₁ b₂ (ds₂.push d₂)
     | _, _ => withLCtx lctx localInsts do
       unless (← checkDomains fvars ds₂) do return false
-      isDefEqS (← instantiateRevS e₁ fvars) (← instantiateRevS e₂ fvars)
+      isDefEqMain (← instantiateRevS e₁ fvars) (← instantiateRevS e₂ fvars)
 
 /--
-`isDefEqS` implementation.
+Returns `true` if `e` is an assigned metavariable.
+-/
+def isAssignedMVar (e : Expr) : MetaM Bool :=
+  match e with
+  | .mvar mvarId => mvarId.isAssigned
+  | _            => return false
+
+/--
+Returns `true` if the metavariable `mvarId` can be assigned in the current context.
+When `unify` is `true`, uses the default condition (not read-only nor synthetic opaque).
+When `unify` is `false`, only metavariables in `mvarsNew` can be assigned. That is,
+only metavariables associated with pattern variables can be assigned.
+-/
+def isAssignableMVar (mvarId : MVarId) : DefEqM Bool := do
+  if (← read).unify then
+    -- Use default condition
+    return !(← mvarId.isReadOnlyOrSyntheticOpaque)
+  else
+    return (← read).mvarsNew.contains mvarId
+
+/--
+Checks whether `e` satisfies the Miller pattern condition on its arguments.
+
+Returns `true` if `e` is not an application, or `e` is an n-ary application `f a₁ ... aₙ`
+where all arguments are pairwise distinct free variables that were introduced during the
+current `isDefEqS` invocation (i.e., their declaration index is ≥ `lctxInitialNextIndex`).
+
+This condition is essential for higher-order unification: when assigning a metavariable
+`?m a₁ ... aₙ := rhs`, the Miller pattern restriction ensures there is a unique solution
+`?m := fun x₁ ... xₙ => rhs[aᵢ/xᵢ]`. The index check ensures we only consider variables
+bound by the binders being compared, not pre-existing free variables from the context.
+
+Examples:
+- `f x y z` where `x`, `y`, `z` are distinct, newly-introduced free variables → `true`
+- `f x c z` where `c` is a constant → `false` (non-variable argument)
+- `f x y x` → `false` (repeated variable)
+- `f x y z` where `x` existed before `isDefEqS` was called → `false` (pre-existing variable)
+- `f` (nullary) → `true`
+-/
+def isMillerPatternArgs (e : Expr) : DefEqM Bool := do
+  let rec isUniqueArgUpTo (curr : Expr) (e' : Expr) (fvarId : FVarId) : Bool :=
+    if isSameExpr curr e' then
+      true
+    else match curr with
+      | .app f (.fvar fvarId') => fvarId != fvarId' && isUniqueArgUpTo f e' fvarId
+      | _ => false
+  let initialNextIndex := (← read).lctxInitialNextIndex
+  let lctx ← getLCtx
+  let rec go (e' : Expr) : Bool :=
+    match e' with
+    | .app f (.fvar fvarId) =>
+      if let some localDecl := lctx.find? fvarId then
+        localDecl.index ≥ initialNextIndex &&
+        isUniqueArgUpTo e e' fvarId &&
+        go f
+      else
+        false
+    | .app _ _ => false
+    | _ => true
+  return go e
+
+/--
+Returns `true` if the maximal free variable in `s` is less than or equal to the maximal free variable
+in `t`. We use this function when `t` is a metavariable, and we are trying to assign `t := s`.
+-/
+def mayAssign (t s : Expr) : SymM Bool := do
+  let some sMaxFVarId ← getMaxFVar? s
+    | return true -- `s` does not contain metavariables
+  let some tMaxFVarId ← getMaxFVar? t
+    | return false
+  let sMaxFVarDecl ← sMaxFVarId.getDecl
+  let tMaxFVarDecl ← tMaxFVarId.getDecl
+  return tMaxFVarDecl.index ≥ sMaxFVarDecl.index
+
+/--
+Attempts to solve a unification constraint `t =?= s` where `t` has the form `?m a₁ ... aₙ`
+and satisfies the Miller pattern condition (all `aᵢ` are distinct, newly-introduced free variables).
+
+If successful, assigns `?m := fun x₁ ... xₙ => s` and returns `true`.
+Returns `false` if:
+- `tFn` is not a metavariable
+- `t` does not satisfy the Miller pattern condition
+- The assignment would violate scope (free variables in `fun x₁ ... xₙ => s` not in scope of `?m`)
+
+The `tFn` parameter must equal `t.getAppFn` (enforced by the proof argument).
+
+Remark: `t` may be of the form `?m`.
+-/
+def tryAssignMillerPattern (tFn : Expr) (t : Expr) (s : Expr) (_ : tFn = t.getAppFn) : DefEqM Bool := do
+  let .mvar mvarId := tFn | return false
+  if !(← isAssignableMVar mvarId) then return false
+  if !(← isMillerPatternArgs t) then return false
+  let s ← if t.isApp then
+    mkLambdaFVarsS t.getAppArgs s
+  else
+    pure s
+  if !(← mayAssign tFn s) then return false
+  mvarId.assign s
+  return true
+
+/--
+Structural definitional equality for applications without `ProofInstInfo`.
+Recursively checks function and argument equality.
+-/
+def isDefEqAppDefault (t : Expr) (s : Expr) : DefEqM Bool := do
+  let .app f₁ a₁ := t | if s.isApp then return false else isDefEqMain t s
+  let .app f₂ a₂ := s | return false
+  unless (← isDefEqAppDefault f₁ f₂) do return false
+  isDefEqMain a₁ a₂
+
+/--
+Attempts to assign an unassigned metavariable on either side.
+Tries `t := s` first, then `s := t`. Returns `true` if either assignment succeeds.
+Used as a fast path before more expensive unification strategies. Example: using
+more expensive `isDefEqI` for instance arguments.
+-/
+def tryAssignUnassigned (t : Expr) (s : Expr) : DefEqM Bool := do
+  go t s <||> go s t
+where
+  go (t : Expr) (s : Expr) : DefEqM Bool := do
+    let .mvar mvarId := t | return false
+    if (← mvarId.isAssigned) then return false
+    if !(← isAssignableMVar mvarId) then return false
+    if !(← mayAssign t s) then return false
+    mvarId.assign s
+    return true
+
+/--
+Structural definitional equality for applications with `ProofInstInfo`.
+Skips proof arguments (proof irrelevance) and defers instance arguments to `isDefEqI`.
+-/
+def isDefEqAppWithInfo (t : Expr) (s : Expr) (i : Nat) (info : ProofInstInfo) : DefEqM Bool := do
+  let .app f₁ a₁ := t | if s.isApp then return false else isDefEqMain t s
+  let .app f₂ a₂ := s | return false
+  unless (← isDefEqAppWithInfo f₁ f₂ (i - 1) info) do return false
+  if h : i < info.argsInfo.size then
+    let argInfo := info.argsInfo[i]
+    if argInfo.isInstance then
+      if (← tryAssignUnassigned a₁ a₂) then
+        return true
+      else
+        --
+        isDefEqI a₁ a₂
+    else if argInfo.isProof then
+      discard <| tryAssignUnassigned a₁ a₂
+      return true
+    else
+      isDefEqMain a₁ a₂
+  else
+    isDefEqMain a₁ a₂
+
+/--
+Structural definitional equality for applications.
+Looks up `ProofInstInfo` for the head constant and delegates to `isDefEqAppWithInfo`
+if available, otherwise uses `isDefEqAppDefault`.
+-/
+def isDefEqApp (tFn : Expr) (t : Expr) (s : Expr) (_ : tFn = t.getAppFn) : DefEqM Bool := do
+  unless t.isApp && s.isApp do return false
+  let .const declName _ := tFn | isDefEqAppDefault t s
+  let some info ← getProofInstInfo? declName | isDefEqAppDefault t s
+  let numArgs := t.getAppNumArgs
+  isDefEqAppWithInfo t s (numArgs - 1) info
+
+/--
+`isDefEqMain` implementation.
 -/
 @[export lean_sym_def_eq]
-def isDefEqSImpl (t : Expr) (s : Expr) : DefEqM Bool := do
+def isDefEqMainImpl (t : Expr) (s : Expr) : DefEqM Bool := do
   if isSameExpr t s then return true
   match t, s with
-  | .lit  l₁,      .lit l₂     => return l₁ == l₂
-  | .sort u,       .sort v     => isLevelDefEqS u v
-  | .lam ..,       .lam ..     => isDefEqBindingS t s
-  | .forallE ..,   .forallE .. => isDefEqBindingS t s
-  | _, _ =>
-    -- **TODO**
+  | .lit  l₁,      .lit l₂       => return l₁ == l₂
+  | .sort u,       .sort v       => isLevelDefEqS u v
+  | .lam ..,       .lam ..       => isDefEqBindingS t s
+  | .forallE ..,   .forallE ..   => isDefEqBindingS t s
+  | .mdata _ t,    _             => isDefEqMain t s
+  | _,             .mdata _ s    => isDefEqMain t s
+  | .fvar fvarId₁, .fvar fvarId₂ =>
+    if (← read).zetaDelta then
+      if fvarId₁ == fvarId₂ then return true
+      let decl₁ ← fvarId₁.getDecl
+      let decl₂ ← fvarId₂.getDecl
+      if !decl₁.isLet && !decl₂.isLet then
+        -- Both are not let-declarations
+        return false
+      else if decl₁.index < decl₂.index then
+        -- If `s` occurs after `t` and it is a let-decl, unfold and recurse
+        let some val₂ := decl₂.value? | return false
+        isDefEqMain t val₂
+      else
+        -- If `t` occurs after `s`, and it is a let-decl, unfold and recurse
+        let some val₁ := decl₁.value? | return false
+        isDefEqMain val₁ s
+    else
+      return fvarId₁ == fvarId₂
+  | .fvar fvarId₁, _ =>
+    if (← read).zetaDelta then
+      let decl₁ ← fvarId₁.getDecl
+      let some val₁ := decl₁.value? | return false
+        isDefEqMain val₁ s
+    else
+      return false
+  | _, .fvar fvarId₂ =>
+    if (← read).zetaDelta then
+      let decl₂ ← fvarId₂.getDecl
+      let some val₂ := decl₂.value? | return false
+      isDefEqMain t val₂
+    else
+      return false
+  | .const declName₁ us₁, .const declName₂ us₂ =>
+    if declName₁ == declName₂ then
+      isLevelDefEqListS us₁ us₂
+    else
+      return false
+  | .bvar _, _ | _, .bvar _ => unreachable!
+  | .proj .., _ | _, .proj .. =>
+    reportIssue! "unexpected kernel projection term during structural definitional equality{indentExpr t}\nand{indentExpr s}\npre-process and fold them as projection applications"
     return false
+  | .letE .., _ | _, .letE .. =>
+    reportIssue! "unexpected let-declaration term during structural definitional equality{indentExpr t}\nand{indentExpr s}\npre-process and zeta-reduce them"
+    return false
+  | _, _ =>
+    let tFn := t.getAppFn
+    let sFn := s.getAppFn
+    if (← isAssignedMVar tFn) then
+      isDefEqMain (← instantiateMVarsS t) s
+    else if (← isAssignedMVar sFn) then
+      isDefEqMain t (← instantiateMVarsS s)
+    else if (← tryAssignMillerPattern tFn t s rfl) then
+      return true
+    else if (← tryAssignMillerPattern sFn s t rfl) then
+      return true
+    else
+      isDefEqApp tFn t s rfl
+
+/--
+A lightweight structural definitional equality for the symbolic simulation framework.
+Unlike the full `isDefEq`, it avoids expensive operations while still supporting Miller pattern unification.
+-/
+public def isDefEqS (t : Expr) (s : Expr) (unify := true) (zetaDelta := true) (mvarsNew : Array MVarId := #[]) : SymM Bool := do
+  let lctx ← getLCtx
+  let lctxInitialNextIndex := lctx.decls.size
+  isDefEqMain t s { zetaDelta, lctxInitialNextIndex, unify, mvarsNew }
 
 def noPending : UnifyM Bool := do
   let s ← get

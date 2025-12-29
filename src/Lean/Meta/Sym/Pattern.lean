@@ -85,8 +85,9 @@ public def mkPatternFromTheorem (declName : Name) : MetaM Pattern := do
   go type #[] #[]
 
 structure UnifyM.Context where
-  pattern : Pattern
-  unify   : Bool := true
+  pattern   : Pattern
+  unify     : Bool := true
+  zetaDelta : Bool := true
 
 structure UnifyM.State where
   eAssignment  : Array (Option Expr)   := #[]
@@ -587,14 +588,18 @@ def isDefEqMainImpl (t : Expr) (s : Expr) : DefEqM Bool := do
     else
       isDefEqApp tFn t s rfl
 
+abbrev DefEqM.run (unify := true) (zetaDelta := true) (mvarsNew : Array MVarId := #[]) (x : DefEqM α) : SymM α := do
+  let lctx ← getLCtx
+  let lctxInitialNextIndex := lctx.decls.size
+  x { zetaDelta, lctxInitialNextIndex, unify, mvarsNew }
+
 /--
 A lightweight structural definitional equality for the symbolic simulation framework.
 Unlike the full `isDefEq`, it avoids expensive operations while still supporting Miller pattern unification.
 -/
 public def isDefEqS (t : Expr) (s : Expr) (unify := true) (zetaDelta := true) (mvarsNew : Array MVarId := #[]) : SymM Bool := do
-  let lctx ← getLCtx
-  let lctxInitialNextIndex := lctx.decls.size
-  isDefEqMain t s { zetaDelta, lctxInitialNextIndex, unify, mvarsNew }
+  DefEqM.run (unify := unify) (zetaDelta := zetaDelta) (mvarsNew := mvarsNew) do
+    isDefEqMain t s
 
 def noPending : UnifyM Bool := do
   let s ← get
@@ -624,7 +629,7 @@ def mkPreResult : UnifyM Unit := do
         if let .some val ← trySynthInstance type then
           args := args.push (← shareCommon val)
           continue
-      let mvar ← mkFreshExprSyntheticOpaqueMVar type
+      let mvar ← mkFreshExprMVar type
       let mvar ← shareCommon mvar
       args := args.push mvar
   modify fun s => { s with args, us }
@@ -655,10 +660,22 @@ def processPendingInst : UnifyM Bool := do
 
 def processPendingExpr : UnifyM Bool := do
   let ePending := (← get).ePending
-  for (t, s) in ePending do
-    trace[Meta.debug] "expr >> {t}, {s}"
-    pure ()
-  return true
+  if ePending.isEmpty then return true
+  let pattern := (← read).pattern
+  let us := (← get).us
+  let args := (← get).args
+  let unify := (← read).unify
+  let zetaDelta := (← read).zetaDelta
+  let mvarsNew := if unify then #[] else args.filterMap fun
+    | .mvar mvarId => some mvarId
+    | _ => none
+  DefEqM.run unify zetaDelta mvarsNew do
+    for (t, s) in ePending do
+      let t ← instantiateLevelParamsS t pattern.levelParams us
+      let t ← instantiateRevBetaS t args
+      unless (← isDefEqMain t s) do
+        return false
+    return true
 
 def processPending : UnifyM Bool := do
   if (← noPending) then
@@ -666,10 +683,10 @@ def processPending : UnifyM Bool := do
   else
     processPendingLevel <&&> processPendingInst <&&> processPendingExpr
 
-abbrev run (pattern : Pattern) (unify : Bool) (k : UnifyM α) : SymM α := do
+abbrev UnifyM.run (pattern : Pattern) (unify : Bool) (zetaDelta : Bool) (k : UnifyM α) : SymM α := do
   let eAssignment := pattern.varTypes.map fun _ => none
   let uAssignment := pattern.levelParams.toArray.map fun _ => none
-  k { unify, pattern } |>.run' { eAssignment, uAssignment }
+  k { unify, zetaDelta, pattern } |>.run' { eAssignment, uAssignment }
 
 public structure MatchUnifyResult where
   us : List Level
@@ -679,8 +696,8 @@ def mkResult : UnifyM MatchUnifyResult := do
   let s ← get
   return { s with }
 
-def main (p : Pattern) (e : Expr) (unify : Bool) : SymM (Option (MatchUnifyResult)) :=
-  run p unify do
+def main (p : Pattern) (e : Expr) (unify : Bool) (zetaDelta : Bool) : SymM (Option (MatchUnifyResult)) :=
+  UnifyM.run p unify zetaDelta do
     unless (← process p.pattern e) do return none
     mkPreResult
     unless (← processPending) do return none
@@ -700,8 +717,8 @@ Matching fails if:
 Instance arguments are deferred for later synthesis. Proof arguments are
 skipped via proof irrelevance.
 -/
-public def Pattern.match? (p : Pattern) (e : Expr) : SymM (Option (MatchUnifyResult)) :=
-  main p e (unify := false)
+public def Pattern.match? (p : Pattern) (e : Expr) (zetaDelta := true) : SymM (Option (MatchUnifyResult)) :=
+  main p e (unify := false) (zetaDelta := zetaDelta)
 
 /--
 Attempts to unify expression `e` against pattern `p`, allowing metavariables in `e`.
@@ -717,7 +734,7 @@ expressions that may contain unsolved metavariables.
 Instance arguments are deferred for later synthesis. Proof arguments are
 skipped via proof irrelevance.
 -/
-public def Pattern.unify? (p : Pattern) (e : Expr) : SymM (Option (MatchUnifyResult)) :=
-  main p e (unify := true)
+public def Pattern.unify? (p : Pattern) (e : Expr) (zetaDelta := true) : SymM (Option (MatchUnifyResult)) :=
+  main p e (unify := true) (zetaDelta := zetaDelta)
 
 end Lean.Meta.Sym

@@ -606,7 +606,7 @@ def noPending : UnifyM Bool := do
   return s.ePending.isEmpty && s.uPending.isEmpty && s.iPending.isEmpty
 
 def instantiateLevelParamsS (e : Expr) (paramNames : List Name) (us : List Level) : SymM Expr :=
-  -- **TODO** write new version using `replaceS`
+  -- We do not assume `e` is maximally shared
   shareCommon (e.instantiateLevelParams paramNames us)
 
 def mkPreResult : UnifyM Unit := do

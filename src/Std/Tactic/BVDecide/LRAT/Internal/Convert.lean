@@ -52,7 +52,7 @@ def CNF.Clause.convertLRAT' (clause : CNF.Clause (PosFin n)) : Option (DefaultCl
 Turn a `CNF PosFin` into the representation used by the LRAT checker.
 -/
 def CNF.convertLRAT' (clauses : CNF (PosFin n)) : List (Option (DefaultClause n)) :=
-  clauses.filterMap (fun clause =>
+  clauses.clauses.filterMap (fun clause =>
     match CNF.Clause.convertLRAT' clause with
     | some clause => some (some clause)
     -- This might look stupid but we are in an Option (Option x) here so explicitly returning none

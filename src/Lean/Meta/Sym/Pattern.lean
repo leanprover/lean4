@@ -27,10 +27,10 @@ framework (`Sym`). The design prioritizes performance by using a two-phase appro
 - Universe levels treat `max` and `imax` as uninterpreted functions (no AC reasoning)
 - Binders and term metavariables are deferred to Phase 2
 
-# Phase 2 (Pending Constraints) [WIP]
+# Phase 2 (Pending Constraints)
 - Handles binders (Miller patterns) and metavariable unification
 - Converts remaining de Bruijn variables to metavariables
-- Falls back to structural `isDefEq` (aka `isDefEqS`) when necessary.
+- Falls back to structural `isDefEqS` when necessary.
 - It still uses the standard `isDefEq` for instances.
 
 # Key design decisions:

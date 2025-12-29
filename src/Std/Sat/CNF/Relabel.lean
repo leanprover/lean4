@@ -69,26 +69,20 @@ def relabel (r : α → β) (f : CNF α) : CNF β := ⟨f.clauses.map (Clause.re
     (relabel r f).eval a = f.eval (a ∘ r) := by
   unfold relabel eval
   simp
-  rw [Bool.eq_iff_iff, List.all_eq_true, List.all_eq_true]
-  constructor
-  all_goals
-    intro h x hx
-    specialize h x hx
-    simp [← h]
 
 @[simp] theorem relabel_append : relabel r (f1 ++ f2) = relabel r f1 ++ relabel r f2 := by
   unfold relabel
   simp [Internal.clauses_append, Internal.ext_iff]
 
 @[simp] theorem relabel_relabel : relabel r1 (relabel r2 f) = relabel (r1 ∘ r2) f := by
-  simp only [relabel, List.map_map, Clause.relabel_relabel']
+  simp only [relabel, Array.map_map, Clause.relabel_relabel']
 
 @[simp] theorem relabel_id : relabel id x = x := by simp [relabel]
 
 theorem relabel_congr {f : CNF α} {r1 r2 : α → β} (hw : ∀ v, VarMem v f → r1 v = r2 v) :
     relabel r1 f = relabel r2 f := by
   dsimp only [relabel]
-  rw [List.map_congr_left]
+  rw [Array.map_congr_left]
   intro c h
   apply Clause.relabel_congr
   intro v m
@@ -102,13 +96,13 @@ theorem unsat_relabel {f : CNF α} (r : α → β) (h : Unsat f) :
   simp_all [unsat_def]
 
 private theorem nonempty_or_impossible (f : CNF α) :
-    Nonempty α ∨ ∃ n, f = ⟨List.replicate n []⟩ := by
+    Nonempty α ∨ ∃ n, f = ⟨Array.replicate n []⟩ := by
   apply Classical.byContradiction
   intro h
   simp only [Internal.ext_iff, not_or, not_exists] at h
   rcases h with ⟨h1, h2⟩
-  specialize h2 f.clauses.length
-  simp only [List.eq_replicate_iff, true_and, Classical.not_forall] at h2
+  specialize h2 f.clauses.size
+  simp only [Array.eq_replicate_iff, true_and, Classical.not_forall] at h2
   rcases h2 with ⟨x, ⟨_, hx⟩⟩
   apply h1
   apply Nonempty.intro
@@ -135,9 +129,9 @@ theorem unsat_relabel_iff {f : CNF α} {r : α → β}
     rw [relabel_relabel, relabel_congr, relabel_id]
     exact this
   · cases n
-    · rw [List.replicate_zero, ← CNF.empty]
+    · rw [Array.replicate_zero, ← CNF.empty]
       simp
-    · rw [List.replicate_succ, ← CNF.add]
+    · rw [Array.replicate_succ, ← CNF.add]
       simp
 
 end CNF

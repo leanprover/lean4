@@ -68,21 +68,35 @@ def isUVar? (n : Name) : Option Nat := Id.run do
   unless p == uvarPrefix do return none
   return some idx
 
-public def mkPatternFromTheorem (declName : Name) : MetaM Pattern := do
+/--
+Creates a `Pattern` from the type of a theorem.
+
+The pattern is constructed by stripping leading universal quantifiers from the theorem's type.
+Each quantified variable becomes a pattern variable, with its type recorded in `varTypes` and
+whether it is a type class instance recorded in `isInstance`. The remaining type after
+stripping quantifiers becomes the `pattern` expression.
+
+Universe level parameters are replaced with fresh unification variables (prefixed with `_uvar`).
+
+If `num?` is `some n`, at most `n` leading quantifiers are stripped.
+If `num?` is `none`, all leading quantifiers are stripped.
+-/
+public def mkPatternFromTheorem (declName : Name) (num? : Option Nat := none) : MetaM Pattern := do
   let info ← getConstInfo declName
   let levelParams := info.levelParams.mapIdx fun i _ => Name.num uvarPrefix i
   let us := levelParams.map mkLevelParam
   let type ← instantiateTypeLevelParams info.toConstantVal us
   let type ← preprocessType type
-  let rec go (type : Expr) (varTypes : Array Expr) (isInstance : Array Bool) : MetaM Pattern := do
-    match type with
-    | .forallE _ d b _ =>
-      go b (varTypes.push d) (isInstance.push (isClass? (← getEnv) d).isSome)
-    | _ =>
-      let pattern := type
-      let fnInfos ← mkProofInstInfoMapFor pattern
-      return { levelParams, varTypes, isInstance, pattern, fnInfos }
-  go type #[] #[]
+  let hugeNumber := 10000000
+  let num := num?.getD hugeNumber
+  let rec go (i : Nat) (type : Expr) (varTypes : Array Expr) (isInstance : Array Bool) : MetaM Pattern := do
+    if i < num then
+      if let .forallE _ d b _ := type then
+        return (← go (i+1) b (varTypes.push d) (isInstance.push (isClass? (← getEnv) d).isSome))
+    let pattern := type
+    let fnInfos ← mkProofInstInfoMapFor pattern
+    return { levelParams, varTypes, isInstance, pattern, fnInfos }
+  go 0 type #[] #[]
 
 structure UnifyM.Context where
   pattern   : Pattern

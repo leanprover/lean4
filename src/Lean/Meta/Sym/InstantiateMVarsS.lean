@@ -11,7 +11,7 @@ namespace Lean.Meta.Sym
 /--
 Instantiates metavariables occurring in `e`, and returns a maximally shared term.
 -/
-def instantiateMVarsS (e : Expr) : SymM Expr := do
+public def instantiateMVarsS (e : Expr) : SymM Expr := do
   if e.hasMVar then
     -- **Note**: If this is a bottleneck, write a new function that combines both steps.
     Grind.shareCommon (← instantiateMVars e)

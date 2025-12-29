@@ -21,6 +21,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Sym_internalizeNumHypotheses___redArg(lean_
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_internalizeAllHypotheses___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_mkGoal___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_internalizeAllHypotheses___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Sym_SymM_run___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_SymM_run_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_GrindM_run___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_mkGoal___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -60,6 +61,17 @@ lean_object* x_1; lean_object* x_2;
 x_1 = l_Lean_Meta_Sym_SymM_run___redArg___closed__0;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Meta_Sym_SymM_run___redArg___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_Sym_SymM_run___redArg___closed__1;
+x_2 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_2, 0, x_1);
+lean_ctor_set(x_2, 1, x_1);
 return x_2;
 }
 }
@@ -115,7 +127,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Sym_SymM_run___redArg(lean_object* x_1, lea
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = l_Lean_Meta_Sym_SymM_run___redArg___closed__1;
+x_8 = l_Lean_Meta_Sym_SymM_run___redArg___closed__2;
 lean_inc_ref(x_2);
 x_9 = lean_alloc_closure((void*)(l_Lean_Meta_Sym_SymM_run___redArg___lam__0___boxed), 11, 3);
 lean_closure_set(x_9, 0, x_8);
@@ -378,6 +390,8 @@ l_Lean_Meta_Sym_SymM_run___redArg___closed__0 = _init_l_Lean_Meta_Sym_SymM_run__
 lean_mark_persistent(l_Lean_Meta_Sym_SymM_run___redArg___closed__0);
 l_Lean_Meta_Sym_SymM_run___redArg___closed__1 = _init_l_Lean_Meta_Sym_SymM_run___redArg___closed__1();
 lean_mark_persistent(l_Lean_Meta_Sym_SymM_run___redArg___closed__1);
+l_Lean_Meta_Sym_SymM_run___redArg___closed__2 = _init_l_Lean_Meta_Sym_SymM_run___redArg___closed__2();
+lean_mark_persistent(l_Lean_Meta_Sym_SymM_run___redArg___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

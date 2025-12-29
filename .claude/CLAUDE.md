@@ -29,6 +29,19 @@ After rebuilding, LSP diagnostics may be stale until the user interacts with fil
 
 If the user expresses frustration with you, stop and ask them to help update this `.claude/CLAUDE.md` file with missing guidance.
 
-## Creating pull requests.
+## Creating pull requests
 
-All PRs must have a first paragraph starting with "This PR". This paragraph is automatically incorporated into release notes. Read `lean4/doc/dev/commit_convention.md` when making PRs.
+Follow the commit convention in `doc/dev/commit_convention.md`.
+
+**Title format:** `<type>: <subject>` where type is one of: `feat`, `fix`, `doc`, `style`, `refactor`, `test`, `chore`, `perf`.
+Subject should use imperative present tense ("add" not "added"), no capitalization, no trailing period.
+
+**Body format:** The first paragraph must start with "This PR". This paragraph is automatically incorporated into release notes. Use imperative present tense. Include motivation and contrast with previous behavior when relevant.
+
+Example:
+```
+feat: add optional binder limit to `mkPatternFromTheorem`
+
+This PR adds a `num?` parameter to `mkPatternFromTheorem` to control how many
+leading quantifiers are stripped when creating a pattern.
+```

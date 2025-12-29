@@ -4,25 +4,26 @@ open Lean Meta Sym
 opaque p : Nat → Prop
 opaque q : Nat → Nat → Prop
 
-def ex := ∃ x : Nat, p x ∧ q x .zero
+def ex := ∃ x : Nat, p x ∧ x = .zero
 
 def test : SymM Unit := do
-  let p ← mkPatternFromTheorem ``Exists.intro
+  let pEx ← mkPatternFromTheorem ``Exists.intro
+  let pAnd ← mkPatternFromTheorem ``And.intro
+  let pEq ← mkPatternFromTheorem ``Eq.refl
   let e := (← getConstInfo ``ex).value!
-  let some r ← p.match? e | throwError "failed"
-  let app := mkAppN (mkConst ``Exists.intro r.us) r.args
-  logInfo app
-  for arg in r.args do
-    if arg.isMVar then
-      logInfo m!"{arg} : {← inferType arg}"
-  return ()
+  let some r₁ ← pEx.match? e | throwError "failed"
+  logInfo <| mkAppN (mkConst ``Exists.intro r₁.us) r₁.args
+  let some r₂ ← pAnd.match? (← inferType r₁.args[3]!) | throwError "failed"
+  logInfo <| mkAppN (mkConst ``And.intro r₂.us) r₂.args
+  let some r₃ ← pEq.unify? (← inferType r₂.args[3]!) | throwError "failed"
+  logInfo <| mkAppN (mkConst ``Eq.refl r₃.us) r₃.args
 
 /--
-info: @Exists.intro Nat (fun x => And (p x) (q x Nat.zero)) ?m.1 ?m.2
+info: @Exists.intro Nat (fun x => And (p x) (@Eq Nat x Nat.zero)) ?m.1 ?m.2
 ---
-info: ?m.1 : Nat
+info: @And.intro (p ?m.1) (@Eq Nat ?m.1 Nat.zero) ?m.3 ?m.4
 ---
-info: ?m.2 : And (p ?m.1) (q ?m.1 Nat.zero)
+info: @Eq.refl Nat Nat.zero
 -/
 #guard_msgs in
 set_option pp.explicit true in

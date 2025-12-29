@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.Consumers.Access
 import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 public import Init.Data.Range.Polymorphic.PRange
@@ -232,7 +231,7 @@ private def List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a 
 private def Iterator.instFinitenessRelation [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [Rxc.IsAlwaysFinite α] :
     FinitenessRelation (Rxc.Iterator α) Id where
-  rel it' it := it'.IsPlausibleSuccessorOf it
+  Rel it' it := it'.IsPlausibleSuccessorOf it
   wf := by
     constructor
     intro it
@@ -285,7 +284,7 @@ instance Iterator.instFinite [UpwardEnumerable α] [LE α] [DecidableLE α]
 private def Iterator.instProductivenessRelation [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] :
     ProductivenessRelation (Rxc.Iterator α) Id where
-  rel := emptyWf.rel
+  Rel := emptyWf.rel
   wf := emptyWf.wf
   subrelation {it it'} h := by
     exfalso
@@ -808,7 +807,7 @@ private def List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a 
 private def Iterator.instFinitenessRelation [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [Rxo.IsAlwaysFinite α] :
     FinitenessRelation (Rxo.Iterator α) Id where
-  rel it' it := it'.IsPlausibleSuccessorOf it
+  Rel it' it := it'.IsPlausibleSuccessorOf it
   wf := by
     constructor
     intro it
@@ -861,7 +860,7 @@ instance Iterator.instFinite [UpwardEnumerable α] [LT α] [DecidableLT α]
 private def Iterator.instProductivenessRelation [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] :
     ProductivenessRelation (Rxo.Iterator α) Id where
-  rel := emptyWf.rel
+  Rel := emptyWf.rel
   wf := emptyWf.wf
   subrelation {it it'} h := by
     exfalso
@@ -1330,7 +1329,7 @@ theorem Iterator.isSome_next_of_isPlausibleIndirectOutput
 private def Iterator.instFinitenessRelation [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] :
     FinitenessRelation (Rxi.Iterator α) Id where
-  rel it' it := it'.IsPlausibleSuccessorOf it
+  Rel it' it := it'.IsPlausibleSuccessorOf it
   wf := by
     constructor
     intro it
@@ -1375,7 +1374,7 @@ instance Iterator.instFinite [UpwardEnumerable α]
 private def Iterator.instProductivenessRelation [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] :
     ProductivenessRelation (Rxi.Iterator α) Id where
-  rel := emptyWf.rel
+  Rel := emptyWf.rel
   wf := emptyWf.wf
   subrelation {it it'} h := by
     exfalso

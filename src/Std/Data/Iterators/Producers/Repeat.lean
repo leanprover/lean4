@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Iterators.Consumers.Monadic
-public import Init.Data.Iterators.Internal.Termination
 
 @[expose] public section
 
@@ -44,7 +43,7 @@ instance RepeatIterator.instIterator : Iterator (RepeatIterator α f) Id α wher
 
 private def RepeatIterator.instProductivenessRelation :
     ProductivenessRelation (RepeatIterator α f) Id where
-  rel := emptyWf.rel
+  Rel := emptyWf.rel
   wf := emptyWf.wf
   subrelation {it it'} h := by cases h
 

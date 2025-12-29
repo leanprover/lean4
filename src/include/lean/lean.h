@@ -80,24 +80,24 @@ void lean_notify_assert(const char * fileName, int line, const char * condition)
 
 #define LEAN_BYTE(Var, Index) *(((uint8_t*)&Var)+Index)
 
-#define LeanMaxCtorTag  243
-#define LeanPromise     244
-#define LeanClosure     245
-#define LeanArray       246
-#define LeanStructArray 247
-#define LeanScalarArray 248
-#define LeanString      249
-#define LeanMPZ         250
-#define LeanThunk       251
-#define LeanTask        252
-#define LeanRef         253
-#define LeanExternal    254
-#define LeanReserved    255
+#define LeanMaxCtorTag  4083
+#define LeanPromise     4084
+#define LeanClosure     4085
+#define LeanArray       4086
+#define LeanStructArray 4087
+#define LeanScalarArray 4088
+#define LeanString      4089
+#define LeanMPZ         4090
+#define LeanThunk       4091
+#define LeanTask        4092
+#define LeanRef         4093
+#define LeanExternal    4094
+#define LeanReserved    4095
 
 #define LEAN_MAX_CTOR_FIELDS 256
 #define LEAN_MAX_CTOR_SCALARS_SIZE 1024
 
-static inline bool lean_is_big_object_tag(uint8_t tag) {
+static inline bool lean_is_big_object_tag(uint16_t tag) {
     return tag == LeanArray || tag == LeanStructArray || tag == LeanScalarArray || tag == LeanString;
 }
 
@@ -130,9 +130,9 @@ The field `m_other` is used to store the number of fields in a constructor objec
 */
 typedef struct {
     int      m_rc;
-    unsigned m_cs_sz:16;
+    unsigned m_cs_sz:12;
+    unsigned m_tag:12;
     unsigned m_other:8;
-    unsigned m_tag:8;
 } lean_object;
 
 /*
@@ -441,7 +441,7 @@ static inline void lean_free_small_object(lean_object * o) {
 LEAN_EXPORT lean_object * lean_alloc_object(size_t sz);
 LEAN_EXPORT void lean_free_object(lean_object * o);
 
-static inline uint8_t lean_ptr_tag(lean_object * o) {
+static inline uint16_t lean_ptr_tag(lean_object * o) {
     return o->m_tag;
 }
 
@@ -624,7 +624,7 @@ static inline void lean_ctor_set(b_lean_obj_arg o, unsigned i, lean_obj_arg v) {
     lean_ctor_obj_cptr(o)[i] = v;
 }
 
-static inline void lean_ctor_set_tag(b_lean_obj_arg o, uint8_t new_tag) {
+static inline void lean_ctor_set_tag(b_lean_obj_arg o, uint16_t new_tag) {
     assert(new_tag <= LeanMaxCtorTag);
     o->m_tag = new_tag;
 }

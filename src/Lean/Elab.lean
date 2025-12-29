@@ -46,6 +46,7 @@ public import Lean.Elab.Notation
 public import Lean.Elab.Mixfix
 public import Lean.Elab.MacroRules
 public import Lean.Elab.BuiltinCommand
+public import Lean.Elab.AssertExists
 public import Lean.Elab.Command.WithWeakNamespace
 public import Lean.Elab.BuiltinEvalCommand
 public import Lean.Elab.RecAppSyntax

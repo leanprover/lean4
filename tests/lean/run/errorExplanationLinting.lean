@@ -8,7 +8,7 @@ command.
 
 open Lean Meta
 
-/-- error: Example 'Bar' is malformed: Expected a(n) `output` code block -/
+
 #guard_msgs in
 /--
 # Examples
@@ -24,14 +24,11 @@ open Lean Meta
 ```lean broken
 ```
 -/
-register_error_explanation Lean.Example {
+register_error_explanation Lean.Example2 {
   summary := ""
   sinceVersion := ""
 }
 
-/--
-error: Example 'Foo' is malformed: Expected a(n) `output` code block, but found a(n) `lean` one
--/
 #guard_msgs in
 /--
 Foo
@@ -43,27 +40,23 @@ Foo
 ```lean fixed
 ```
 -/
-register_error_explanation Lean.Example {
+register_error_explanation Lean.Example3 {
   summary := ""
   sinceVersion := ""
 }
 
-/-- error: Expected level-2 header for an example section, but found `# End of Examples` -/
 #guard_msgs in
 /--
 # Examples
 
 # End of Examples
 -/
-register_error_explanation Lean.Example {
+register_error_explanation Lean.Example4 {
   summary := ""
   sinceVersion := ""
 }
 
 
-/--
-error: Example 'Example' is malformed: Expected a(n) broken `lean` code block, but found a(n) fixed `lean` one
--/
 #guard_msgs in
 /--
 # Examples
@@ -77,14 +70,11 @@ error: Example 'Example' is malformed: Expected a(n) broken `lean` code block, b
 ```lean broken
 ```
 -/
-register_error_explanation Lean.Example {
+register_error_explanation Lean.Example5 {
   summary := ""
   sinceVersion := ""
 }
 
-/--
-error: Example 'Example' is malformed: Expected a(n) `output` code block, but found a(n) `lean` one
--/
 #guard_msgs in
 /--
 # Examples
@@ -100,12 +90,11 @@ error: Example 'Example' is malformed: Expected a(n) `output` code block, but fo
 ```lean fixed
 ```
 -/
-register_error_explanation Lean.Example {
+register_error_explanation Lean.Example6 {
   summary := ""
   sinceVersion := ""
 }
 
-/-- error: Example 'Example' is malformed: Expected a(n) fixed `lean` code block -/
 #guard_msgs in
 /--
 # Examples
@@ -120,14 +109,11 @@ register_error_explanation Lean.Example {
 ```lean fixed
 ```
 -/
-register_error_explanation Lean.Example {
+register_error_explanation Lean.Example7 {
   summary := ""
   sinceVersion := ""
 }
 
-/--
-error: Example 'Example' is malformed: Invalid code block info string `lean broken_or_fixed`: offset 20: Invalid attribute `broken_or_fixed`
--/
 #guard_msgs in
 /--
 # Examples
@@ -141,13 +127,12 @@ error: Example 'Example' is malformed: Invalid code block info string `lean brok
 ```lean fixed
 ```
 -/
-register_error_explanation Lean.Example {
+register_error_explanation Lean.Example8 {
   summary := ""
   sinceVersion := ""
 }
 
 
-/-- error: Expected level-2 header for an example section, but found `# Examples` -/
 #guard_msgs in
 /--
 This is an explanation.
@@ -166,12 +151,11 @@ This is an explanation.
 
 Should fail
 -/
-register_error_explanation Lean.Example {
+register_error_explanation Lean.Example9 {
   summary := ""
   sinceVersion := ""
 }
 
-/-- error: Expected level-2 header for an example section, but found `# New Section` -/
 #guard_msgs in
 /--
 Pre-example
@@ -214,7 +198,7 @@ Explanation of second example.
 
 Foo
 -/
-register_error_explanation Lean.Example {
+register_error_explanation Lean.ExampleA {
   summary := ""
   sinceVersion := ""
 }

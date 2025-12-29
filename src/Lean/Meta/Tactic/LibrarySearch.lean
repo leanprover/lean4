@@ -55,7 +55,7 @@ def grindDischarger (mvarId : MVarId) : MetaM (Option (List MVarId)) := do
     let [subgoal] ← mvarId.apply markerExpr
       | return none
     -- Solve the subgoal with grind
-    let params ← Grind.mkParams {}
+    let params ← Grind.mkDefaultParams {}
     let result ← Grind.main subgoal params
     if result.hasFailed then
       return none

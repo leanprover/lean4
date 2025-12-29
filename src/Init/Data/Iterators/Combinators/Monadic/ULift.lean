@@ -132,10 +132,6 @@ instance ULiftIterator.instIteratorLoop {o : Type x → Type x'} [Monad n] [Mona
     IteratorLoop (ULiftIterator α m n β lift) n o :=
   .defaultImplementation
 
-instance ULiftIterator.instIteratorCollect [Monad n] [Monad o] [Iterator α m β] :
-    IteratorCollect (ULiftIterator α m n β lift) n o :=
-  .defaultImplementation
-
 end Iterators.Types
 
 open Std.Iterators Std.Iterators.Types

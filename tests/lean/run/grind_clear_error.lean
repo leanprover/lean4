@@ -2,15 +2,11 @@ module
 reset_grind_attrs%
 attribute [grind] List.not_mem_nil
 
-/--
-error: Tactic `grind` failed: the goal mentions the declaration `incList`, which is being defined. To avoid circular reasoning, try rewriting the goal to eliminate `incList` before using `grind`.
-
-as✝ : List Nat
-a : Nat
-as : List Nat
-⊢ ∀ (a : Nat), a ∈ (incList as).val → a > 0
+/-!
+Note: the following definition used to fail because the goal mentions the
+declaration `incList` being defined.
 -/
-#guard_msgs (error) in
+
 def incList (as : List Nat) : { as : List Nat // ∀ a, a ∈ as → a > 0 } :=
   match as with
   | [] => ⟨[], by grind⟩

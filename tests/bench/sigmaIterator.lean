@@ -105,11 +105,6 @@ instance SigmaIterator.instProductive {γ : Type w} {α : γ → Type w}
     Productive (SigmaIterator γ α) m :=
   .of_productivenessRelation instProductivenessRelation
 
-instance SigmaIterator.instIteratorCollect {γ : Type w} {α : γ → Type w}
-    [∀ x : γ, Iterator (α x) m β] [Monad m] [Monad n] :
-    IteratorCollect (SigmaIterator γ α) m n :=
-  .defaultImplementation
-
 instance SigmaIterator.instIteratorLoop {γ : Type w} {α : γ → Type w}
     [∀ x : γ, Iterator (α x) m β] [Monad m] [Monad n] :
     IteratorLoop (SigmaIterator γ α) m n :=

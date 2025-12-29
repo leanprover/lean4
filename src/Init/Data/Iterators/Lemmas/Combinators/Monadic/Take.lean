@@ -47,7 +47,6 @@ theorem IterM.step_take {α m β} [Monad m] [Iterator α m β] {n : Nat}
 
 theorem IterM.toList_take_zero {α m β} [Monad m] [LawfulMonad m] [Iterator α m β]
     [Finite (Take α m) m]
-    [IteratorCollect (Take α m) m m] [LawfulIteratorCollect (Take α m) m m]
     {it : IterM (α := α) m β} :
     (it.take 0).toList = pure [] := by
   rw [toList_eq_match_step]
@@ -67,7 +66,6 @@ theorem IterM.step_toTake {α m β} [Monad m] [Iterator α m β] [Finite α m]
 
 @[simp]
 theorem IterM.toList_toTake {α m β} [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
-    [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {it : IterM (α := α) m β} :
     it.toTake.toList = it.toList := by
   induction it using IterM.inductSteps with | step it ihy ihs

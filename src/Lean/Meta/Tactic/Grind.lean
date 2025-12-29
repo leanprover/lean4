@@ -47,7 +47,9 @@ public import Lean.Meta.Tactic.Grind.EMatchAction
 public import Lean.Meta.Tactic.Grind.Filter
 public import Lean.Meta.Tactic.Grind.CollectParams
 public import Lean.Meta.Tactic.Grind.Finish
-public import Lean.Meta.Tactic.Grind.FunCC
+public import Lean.Meta.Tactic.Grind.RegisterCommand
+public import Lean.Meta.Tactic.Grind.AlphaShareCommon
+public import Lean.Meta.Tactic.Grind.AlphaShareBuilder
 public section
 namespace Lean
 

@@ -22,12 +22,12 @@ LEAN_EXPORT lean_object* l_String_dropSuffix___at___00Lake_modOfFilePath_spec__0
 LEAN_EXPORT lean_object* l_String_dropSuffix___at___00Lake_modOfFilePath_spec__0___boxed(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_FilePath_0__Lake_modOfFilePath_removeExts(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at___00Lake_modOfFilePath_spec__1(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_Lake_instHDivFilePathString__lake;
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_relPathFrom(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_foldl___at___00Lake_modOfFilePath_spec__2(lean_object*, lean_object*);
 static uint8_t l_Lake_mkRelPathString___closed__0;
 LEAN_EXPORT lean_object* l_String_mapAux___at___00Lake_mkRelPathString_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFilePath_spec__0_spec__0(lean_object*, lean_object*);
@@ -549,7 +549,7 @@ x_6 = l_String_Slice_dropSuffix___at___00String_dropSuffix___at___00Lake_modOfFi
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_List_foldl___at___00Lake_modOfFilePath_spec__2(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_foldl___at___00Lake_modOfFilePath_spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -594,7 +594,7 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 x_12 = l_System_FilePath_components(x_11);
-x_13 = l_List_foldl___at___00Lake_modOfFilePath_spec__2(x_10, x_12);
+x_13 = l_List_foldl___at___00Lake_modOfFilePath_spec__1(x_10, x_12);
 return x_13;
 }
 }

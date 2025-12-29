@@ -2,7 +2,7 @@ module
 
 public import Module.Basic
 import all Module.Basic
-import Lean.CoreM
+import Lean
 
 /-! `import all` should import private information, privately. -/
 
@@ -160,3 +160,9 @@ error: Invalid `⟨...⟩` notation: Constructor for `StructWithPrivateField` is
 #guard_msgs in
 #with_exporting
 #check (⟨1⟩ : StructWithPrivateField)
+
+/-! #11715: `grind` should not fail to apply private matcher from imported module. -/
+
+attribute [local grind] func in
+theorem stmt1 : func ctx op = ctx := by
+  grind

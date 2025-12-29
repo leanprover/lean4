@@ -97,9 +97,10 @@ open Nat
 
 /-! ### length -/
 
--- Note: this is not a good `grind` candidate,
--- as in some circumstances it results in many case splits.
 theorem eq_nil_of_length_eq_zero (_ : length l = 0) : l = [] := match l with | [] => rfl
+
+grind_pattern eq_nil_of_length_eq_zero => length l where
+  guard l.length = 0
 
 theorem ne_nil_of_length_eq_add_one (_ : length l = n + 1) : l ≠ [] := fun _ => nomatch l
 

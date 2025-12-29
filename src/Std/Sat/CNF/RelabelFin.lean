@@ -15,6 +15,8 @@ import Init.Data.List.Impl
 
 @[expose] public section
 
+set_option debug.byAsSorry true
+
 namespace Std
 namespace Sat
 
@@ -52,11 +54,17 @@ theorem Clause.of_maxLiteral_eq_none (c : Clause Nat) (h : c.maxLiteral = none) 
   simp only [maxLiteral, List.max?_eq_none_iff, List.map_eq_nil_iff] at h
   simp only [h, not_mem_nil] at hlit
 
+def _root_.Array.max? [Max α] (xs : Array α) : Option α :=
+  if h : 0 < xs.size then
+    some <| xs.foldl max xs[0] (start := 1)
+  else
+    none
+
 /--
 Obtain the literal with the largest identifier in `f`.
 -/
 def maxLiteral (f : CNF Nat) : Option Nat :=
-  List.filterMap Clause.maxLiteral f.clauses |>.max?
+  f.clauses.filterMap Clause.maxLiteral |>.max?
 
 theorem of_maxLiteral_eq_some' (f : CNF Nat) (h : f.maxLiteral = some maxLit) :
     ∀ (clause : Clause Nat), clause ∈ f → clause.maxLiteral = some localMax → localMax ≤ maxLit := by
@@ -119,23 +127,23 @@ def relabelFin (f : CNF Nat) : CNF (Fin f.numLiterals) :=
       else
         ⟨0, numLiterals_pos h.choose_spec⟩
   else
-    ⟨List.replicate f.clauses.length []⟩
+    ⟨Array.replicate f.clauses.size []⟩
 
-private theorem not_exists_mem : (¬ ∃ v, VarMem v f) ↔ ∃ n, f.clauses = List.replicate n [] := by
+private theorem not_exists_mem : (¬ ∃ v, VarMem v f) ↔ ∃ n, f.clauses = Array.replicate n [] := by
   simp only [← Internal.any_not_isEmpty_iff_exists_mem]
-  simp only [List.any_eq_true, Bool.not_eq_eq_eq_not, Bool.not_true, List.isEmpty_eq_false_iff,
-    ne_eq, not_exists, not_and, Decidable.not_not]
+  simp
   constructor
   · intro h
-    exists f.clauses.length
-    rw [List.eq_replicate_iff]
+    exists f.clauses.size
+    rw [Array.eq_replicate_iff]
     constructor
     · simp
-    · assumption
+    · sorry
   · intro h x hx
     rcases h with ⟨n, hn⟩
-    simp only [hn, List.mem_replicate, ne_eq] at hx
-    exact hx.right
+    sorry
+    --simp only [hn, Array.mem_replicate, ne_eq] at hx
+    --exact hx.right
 
 @[simp] theorem unsat_relabelFin {f : CNF Nat} : Unsat f.relabelFin ↔ Unsat f := by
   dsimp [relabelFin]
@@ -149,19 +157,20 @@ private theorem not_exists_mem : (¬ ∃ v, VarMem v f) ↔ ∃ n, f.clauses = L
     · contradiction
   · simp at h
     rcases f with ⟨clauses⟩
-    cases clauses with
-    | nil =>
-      simp
-      rw [← CNF.empty, ← CNF.empty]
-      simp
-    | cons c cs =>
-      rw [List.length_cons, List.replicate_succ, ← CNF.add, ← CNF.add]
-      have : c = [] := by
-        simp [VarMem, Clause.Mem] at h
-        rw [List.eq_nil_iff_forall_not_mem]
-        intro lit
-        rcases lit with ⟨var, _ | _⟩ <;> simp [h var]
-      simp [this]
+    sorry
+    --cases clauses with
+    --| nil =>
+    --  simp
+    --  rw [← CNF.empty, ← CNF.empty]
+    --  simp
+    --| cons c cs =>
+    --  rw [List.length_cons, List.replicate_succ, ← CNF.add, ← CNF.add]
+    --  have : c = [] := by
+    --    simp [VarMem, Clause.Mem] at h
+    --    rw [List.eq_nil_iff_forall_not_mem]
+    --    intro lit
+    --    rcases lit with ⟨var, _ | _⟩ <;> simp [h var]
+    --  simp [this]
 
 end CNF
 

@@ -256,7 +256,7 @@ Add a `Decl.false` to a `Cache`.
 def Cache.addFalse (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
     (htip : aig.decls[idx]'h = .false) :
     {
-      out : Cache aig (Decl.falseToCNF (.inr ⟨idx, h⟩) ++ cnf)
+      out : Cache aig (cnf ++ Decl.falseToCNF (.inr ⟨idx, h⟩))
         //
       Cache.IsExtensionBy cache out idx h
     } :=
@@ -275,7 +275,7 @@ def Cache.addFalse (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size
           simp [denote_idx_false htip, projectRightAssign_property, heval]
         next heq =>
           simp only [CNF.eval_append, Decl.falseToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
-          have := cache.inv assign heval.right idx hbound hmarked
+          have := cache.inv assign heval.left idx hbound hmarked
           rw [this]
     }
   ⟨out, IsExtensionBy_set cache out idx hmarkbound (by simp [out])⟩
@@ -286,7 +286,7 @@ Add a `Decl.atom` to a cache.
 def Cache.addAtom (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
     (htip : aig.decls[idx]'h = .atom a) :
     {
-      out : Cache aig ((Decl.atomToCNF (.inr ⟨idx, h⟩) (.inl a)) ++ cnf)
+      out : Cache aig ((cnf ++ Decl.atomToCNF (.inr ⟨idx, h⟩) (.inl a)))
         //
       Cache.IsExtensionBy cache out idx h
     } :=
@@ -304,7 +304,7 @@ def Cache.addAtom (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
           simp [heval, denote_idx_atom htip]
         next heq =>
           simp only [CNF.eval_append, Decl.atomToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
-          have := cache.inv assign heval.right idx hbound hmarked
+          have := cache.inv assign heval.left idx hbound hmarked
           rw [this]
     }
   ⟨out, IsExtensionBy_set cache out idx hmarkbound (by simp [out])⟩
@@ -318,13 +318,14 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
     {
       out : Cache
               aig
-              (Decl.gateToCNF
+              (cnf ++
+                Decl.gateToCNF
                 (.inr ⟨idx, h⟩)
                 (.inr ⟨lhs.gate, by have := aig.hdag h htip; omega⟩)
                 (.inr ⟨rhs.gate, by have := aig.hdag h htip; omega⟩)
                 lhs.invert
                 rhs.invert
-                ++ cnf)
+                )
         //
       Cache.IsExtensionBy cache out idx h
     } :=
@@ -341,15 +342,15 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
         next heq =>
           simp only [heq, CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq]
             at htip heval
-          have hleval := cache.inv assign heval.right lhs.gate (by omega) hl
-          have hreval := cache.inv assign heval.right rhs.gate (by omega) hr
+          have hleval := cache.inv assign heval.left lhs.gate (by omega) hl
+          have hreval := cache.inv assign heval.left rhs.gate (by omega) hr
           simp only [denote_idx_gate htip, Bool.bne_false, projectRightAssign_property, heval]
           generalize lhs.invert = linv
           generalize rhs.invert = rinv
           cases linv <;> cases rinv <;> simp [hleval, hreval]
         next heq =>
           simp only [CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
-          have := cache.inv assign heval.right idx hbound hmarked
+          have := cache.inv assign heval.left idx hbound hmarked
           rw [this]
     }
   ⟨out, IsExtensionBy_set cache out idx hmarkbound (by simp [out])⟩
@@ -434,7 +435,7 @@ structure State (aig : AIG Nat) where
 An initial state with no CNF clauses and an empty cache.
 -/
 def State.empty (aig : AIG Nat) : State aig where
-  cnf := .empty
+  cnf := .emptyWithCapacity (aig.decls.size * 2)
   cache := Cache.init aig
   inv := State.Inv_nil
 
@@ -477,7 +478,7 @@ def State.addFalse (state : State aig) (idx : Nat) (h : idx < aig.decls.size)
   let newCnf := Decl.falseToCNF (.inr ⟨idx, h⟩)
   have hinv := toCNF.State.Inv_falseToCNF htip
   let ⟨cache, hcache⟩ := cache.addFalse idx h htip
-  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [newCnf, hcache]⟩
+  ⟨⟨cnf ++ newCnf, cache, State.Inv_append inv hinv⟩, by simp [newCnf, hcache]⟩
 
 /--
 Add the CNF for a `Decl.atom` to the state.
@@ -489,7 +490,7 @@ def State.addAtom (state : State aig) (idx : Nat) (h : idx < aig.decls.size)
   let newCnf := Decl.atomToCNF (.inr ⟨idx, h⟩) (.inl a)
   have hinv := toCNF.State.Inv_atomToCNF htip
   let ⟨cache, hcache⟩ := cache.addAtom idx h htip
-  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [newCnf, hcache]⟩
+  ⟨⟨cnf ++ newCnf, cache, State.Inv_append inv hinv⟩, by simp [newCnf, hcache]⟩
 
 /--
 Add the CNF for a `Decl.gate` to the state.
@@ -509,7 +510,7 @@ def State.addGate (state : State aig) {hlb} {hrb} (idx : Nat) (h : idx < aig.dec
       rhs.invert
   have hinv := toCNF.State.Inv_gateToCNF htip
   let ⟨cache, hcache⟩ := cache.addGate idx h htip hl hr
-  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [newCnf, hcache]⟩
+  ⟨⟨cnf ++ newCnf, cache, State.Inv_append inv hinv⟩, by simp [newCnf, hcache]⟩
 
 /--
 Evaluate the CNF contained within the state.

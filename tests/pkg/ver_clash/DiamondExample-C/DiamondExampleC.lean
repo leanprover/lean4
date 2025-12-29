@@ -1,1 +1,0 @@
-import DiamondExampleC.MainResult

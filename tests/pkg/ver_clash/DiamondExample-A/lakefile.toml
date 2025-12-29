@@ -1,5 +1,0 @@
-name = "DiamondExample-A"
-defaultTargets = ["DiamondExampleA"]
-
-[[lean_lib]]
-name = "DiamondExampleA"

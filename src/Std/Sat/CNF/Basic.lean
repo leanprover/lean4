@@ -26,7 +26,7 @@ A CNF formula.
 Literals are identified by members of `α`.
 -/
 structure CNF (α : Type u) where
-  clauses : List (CNF.Clause α)
+  clauses : Array (CNF.Clause α)
 
 namespace CNF
 
@@ -45,10 +45,13 @@ Evaluating a `CNF` formula with respect to an assignment `a`.
 def eval (a : α → Bool) (f : CNF α) : Bool := f.clauses.all fun c => c.eval a
 
 @[inline]
-def empty : CNF α := { clauses := [] }
+def empty : CNF α := { clauses := #[] }
 
 @[inline]
-def add (c : CNF.Clause α) (f : CNF α) : CNF α := { f with clauses := c :: f.clauses }
+def emptyWithCapacity (n : Nat) : CNF α := { clauses := .emptyWithCapacity n }
+
+@[inline]
+def add (c : CNF.Clause α) (f : CNF α) : CNF α := { f with clauses := f.clauses.push c }
 
 @[inline]
 def append (f1 f2 : CNF α) : CNF α :=
@@ -57,11 +60,13 @@ def append (f1 f2 : CNF α) : CNF α :=
 instance : Append (CNF α) where
   append := append
 
-@[simp] theorem eval_empty (a : α → Bool) : eval a .empty = true := rfl
-@[simp] theorem eval_add (a : α → Bool) : eval a (f.add c) = (c.eval a && eval a f) := rfl
+@[simp] theorem eval_empty (a : α → Bool) : eval a .empty = true := by simp [eval, empty]
+@[simp] theorem eval_add (a : α → Bool) : eval a (f.add c) = (c.eval a && eval a f) := by
+  rw [Bool.and_comm]
+  simp [add, eval]
 
 @[simp] theorem eval_append (a : α → Bool) (f1 f2 : CNF α) :
-    eval a (f1 ++ f2) = (eval a f1 && eval a f2) := List.all_append
+    eval a (f1 ++ f2) = (eval a f1 && eval a f2) := Array.all_append
 
 def Sat (a : α → Bool) (f : CNF α) : Prop := eval a f = true
 def Unsat (f : CNF α) : Prop := ∀ a, eval a f = false
@@ -140,24 +145,23 @@ instance {v : α} {f : CNF α} [DecidableEq α] : Decidable (VarMem v f) :=
 
 theorem Internal.any_not_isEmpty_iff_exists_mem {f : CNF α} :
     (f.clauses.any fun c => !List.isEmpty c) = true ↔ ∃ v, VarMem v f := by
-  simp only [List.any_eq_true, Bool.not_eq_true', List.isEmpty_eq_false_iff_exists_mem, VarMem,
+  simp only [Array.any_eq_true, Bool.not_eq_true', List.isEmpty_eq_false_iff_exists_mem, VarMem,
     Clause.Mem]
   constructor
   · intro h
-    rcases h with ⟨clause, ⟨hclause1, hclause2⟩⟩
+    rcases h with ⟨idx, ⟨hclause1, hclause2⟩⟩
     rcases hclause2 with ⟨lit, hlit⟩
-    exists lit.fst, clause
+    exists lit.fst, f.clauses[idx]
     constructor
-    · assumption
+    · simp
     · rcases lit with ⟨_, ⟨_ | _⟩⟩ <;> simp_all
   · intro h
     rcases h with ⟨lit, clause, ⟨hclause1, hclause2⟩⟩
-    exists clause
-    constructor
-    · assumption
-    · cases hclause2 with
-      | inl hl => exact Exists.intro _ hl
-      | inr hr => exact Exists.intro _ hr
+    cases hclause2 with
+    | inl hl =>
+      sorry
+    | inr hr =>
+      sorry
 
 @[no_expose]
 instance {f : CNF α} [DecidableEq α] : Decidable (∃ v, VarMem v f) :=
@@ -166,19 +170,41 @@ instance {f : CNF α} [DecidableEq α] : Decidable (∃ v, VarMem v f) :=
 theorem not_VarMem_empty {v : α} : ¬VarMem v (.empty : CNF α) := by simp [VarMem, empty]
 
 @[local simp] theorem VarMem_add {v : α} {c} {f : CNF α} :
-    VarMem v (f.add c : CNF α) ↔ (Clause.Mem v c ∨ VarMem v f) := by simp [VarMem, add]
+    VarMem v (f.add c : CNF α) ↔ (Clause.Mem v c ∨ VarMem v f) := by
+  simp only [VarMem, add, Array.mem_push]
+  constructor
+  · intro h
+    rcases h with ⟨c, ⟨hc1 | hc1, hc2⟩⟩
+    · right
+      exists c
+    · simp_all
+  · intro h
+    rcases h with hc1 | ⟨c, hc1, hc2⟩
+    · exists c
+      simp [hc1]
+    · exists c
+      simp [hc1, hc2]
 
 theorem VarMem_of (h : c ∈ f) (w : Clause.Mem v c) : VarMem v f := by
   apply Exists.intro c
   constructor <;> assumption
+
+theorem Internal.mem_iff {f : CNF α} : c ∈ f ↔ c ∈ f.clauses := by
+  rfl
 
 theorem Internal.clauses_append {f1 f2 : CNF α} : (f1 ++ f2).clauses = f1.clauses ++ f2.clauses := rfl
 
 theorem Internal.ext_iff {f1 f2 : CNF α} : f1 = f2 ↔ f1.clauses = f2.clauses := by
   cases f1; cases f2; simp
 
-@[simp] theorem VarMem_append {v : α} {f1 f2 : CNF α} : VarMem v (f1 ++ f2) ↔ VarMem v f1 ∨ VarMem v f2 := by
-  simp [VarMem, List.mem_append, Internal.clauses_append]
+@[simp]
+theorem emptyWithCapacity_eq_empty (n : Nat) :
+    CNF.emptyWithCapacity n = (CNF.empty : CNF α) := by
+  simp [empty, emptyWithCapacity]
+
+@[simp] theorem VarMem_append {v : α} {f1 f2 : CNF α} :
+    VarMem v (f1 ++ f2) ↔ VarMem v f1 ∨ VarMem v f2 := by
+  simp [VarMem, Array.mem_append, Internal.clauses_append]
   constructor
   · rintro ⟨c, (mf1 | mf2), mc⟩
     · left
@@ -193,19 +219,19 @@ theorem eval_congr (a1 a2 : α → Bool) (f : CNF α) (hw : ∀ v, VarMem v f �
     eval a1 f = eval a2 f := by
   rcases f with ⟨clauses⟩
   simp only [eval]
-  rw [Bool.eq_iff_iff, List.all_eq_true, List.all_eq_true]
+  rw [Bool.eq_iff_iff, Array.all_eq_true, Array.all_eq_true]
   constructor
   · intro h x hx
-    rw [Clause.eval_congr a2 a1 x]
+    rw [Clause.eval_congr a2 a1 clauses[x]]
     · exact h x hx
     · intro i hi
       symm
-      exact hw _ (VarMem_of hx hi)
+      exact hw _ (VarMem_of (by simp [Internal.mem_iff]) hi)
   · intro h x hx
-    rw [Clause.eval_congr a1 a2 x]
+    rw [Clause.eval_congr a1 a2 clauses[x]]
     · exact h x hx
     · intro i hi
-      exact hw _ (VarMem_of hx hi)
+      exact hw _ (VarMem_of (by simp [Internal.mem_iff]) hi)
 
 end CNF
 

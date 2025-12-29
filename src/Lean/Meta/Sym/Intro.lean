@@ -120,7 +120,7 @@ Throws an error if the target type does not have a leading binder.
 public def intro (goal : Goal) (name : Name) : SymM (FVarId × Goal) := do
   let (fvarIds, goal') ← introCore goal 1 #[name]
   if h : 0 < fvarIds.size then
-    return (fvarIds[0], goal)
+    return (fvarIds[0], goal')
   else
     throwError "`intro` failed, binder expected"
 

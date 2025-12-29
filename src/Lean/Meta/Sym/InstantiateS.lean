@@ -79,6 +79,7 @@ def instantiateRangeS' (e : Expr) (beginIdx endIdx : Nat) (subst : Array Expr) :
       else
         return none
 
+/-- Internal variant of `instantiateS` that runs in `AlphaShareBuilderM`. -/
 def instantiateS' (e : Expr) (subst : Array Expr) : AlphaShareBuilderM Expr :=
   instantiateRangeS' e 0 subst.size subst
 
@@ -101,7 +102,8 @@ where
     loop revArgs start (← mkAppS b revArgs[i]!) i
 
 /--
-Similar to `betaRev`, but ensures maximally shared terms.
+Beta-reduces `f` applied to reversed arguments `revArgs`, ensuring maximally shared terms.
+`betaRevS f #[a₃, a₂, a₁]` computes the beta-normal form of `f a₁ a₂ a₃`.
 -/
 partial def betaRevS (f : Expr) (revArgs : Array Expr) : AlphaShareBuilderM Expr :=
   if revArgs.size == 0 then
@@ -121,12 +123,15 @@ partial def betaRevS (f : Expr) (revArgs : Array Expr) : AlphaShareBuilderM Expr
         mkAppRevRangeS (← instantiateRangeS' e n sz revArgs) 0 n revArgs
     go f 0
 
+/-- Monad for `instantiateRevBetaS'` with caching keyed by `(expression pointer, binder offset)`. -/
 abbrev M := StateT (Std.HashMap (ExprPtr × Nat) Expr) AlphaShareBuilderM
 
+/-- Caches the result `r` for `key` and returns `r`. -/
 def save (key : ExprPtr × Nat) (r : Expr) : M Expr := do
   modify fun cache => cache.insert key r
   return r
 
+/-- Internal variant of `instantiateRevBetaS` that runs in `AlphaShareBuilderM`. -/
 partial def instantiateRevBetaS' (e : Expr) (subst : Array Expr) : AlphaShareBuilderM Expr := do
   if subst.isEmpty || !e.hasLooseBVars then return e
   visit e 0 |>.run' {}

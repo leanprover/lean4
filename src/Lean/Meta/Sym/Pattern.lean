@@ -421,7 +421,7 @@ in `t`. We use this function when `t` is a metavariable, and we are trying to as
 -/
 def mayAssign (t s : Expr) : SymM Bool := do
   let some sMaxFVarId ← getMaxFVar? s
-    | return true -- `s` does not contain metavariables
+    | return true -- `s` does not contain free variables
   let some tMaxFVarId ← getMaxFVar? t
     | return false
   let sMaxFVarDecl ← sMaxFVarId.getDecl
@@ -495,7 +495,6 @@ def isDefEqAppWithInfo (t : Expr) (s : Expr) (i : Nat) (info : ProofInstInfo) : 
       if (← tryAssignUnassigned a₁ a₂) then
         return true
       else
-        --
         isDefEqI a₁ a₂
     else if argInfo.isProof then
       discard <| tryAssignUnassigned a₁ a₂

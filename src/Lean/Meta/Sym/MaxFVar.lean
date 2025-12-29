@@ -21,12 +21,16 @@ private def max (fvarId1? : Option FVarId) (fvarId2? : Option FVarId) : MetaM (O
     return fvarId2?
 
 private abbrev check (e : Expr) (k : SymM (Option FVarId)) : SymM (Option FVarId) := do
-  if let some fvarId? := (← get).maxFVar.find? { expr := e } then
-    return fvarId?
+  if e.hasFVar || e.hasMVar then
+    if let some fvarId? := (← get).maxFVar.find? { expr := e } then
+      return fvarId?
+    else
+      let fvarId? ← k
+      modify fun s => { s with maxFVar := s.maxFVar.insert { expr := e } fvarId? }
+      return fvarId?
   else
-    let fvarId? ← k
-    modify fun s => { s with maxFVar := s.maxFVar.insert { expr := e } fvarId? }
-    return fvarId?
+    -- `e` does not contain free variables or metavariables, then `maxFVar[e]` is definitely `none`.
+    return none
 
 /--
 Returns the maximal free variable occurring in `e`.

@@ -506,15 +506,8 @@ static inline void lean_inc_ref(lean_object * o) {
     lean_inc_ref_n(o, 1);
 }
 
-LEAN_EXPORT void lean_dec_ref_cold(lean_object * o);
+__attribute__((preserve_most)) LEAN_EXPORT void lean_dec_ref(lean_object * o);
 
-static inline LEAN_ALWAYS_INLINE void lean_dec_ref(lean_object * o) {
-    if (LEAN_LIKELY(o->m_rc > 1)) {
-        o->m_rc--;
-    } else if (o->m_rc != 0) {
-        lean_dec_ref_cold(o);
-    }
-}
 static inline void LEAN_ALWAYS_INLINE lean_inc(lean_object * o) { if (!lean_is_scalar(o)) lean_inc_ref(o); }
 static inline void lean_inc_n(lean_object * o, size_t n) { if (!lean_is_scalar(o)) lean_inc_ref_n(o, n); }
 static inline void LEAN_ALWAYS_INLINE lean_dec(lean_object * o) { if (!lean_is_scalar(o)) lean_dec_ref(o); }

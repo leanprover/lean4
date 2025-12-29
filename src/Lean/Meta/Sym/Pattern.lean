@@ -81,7 +81,7 @@ Universe level parameters are replaced with fresh unification variables (prefixe
 If `num?` is `some n`, at most `n` leading quantifiers are stripped.
 If `num?` is `none`, all leading quantifiers are stripped.
 -/
-public def mkPatternFromTheorem (declName : Name) (num? : Option Nat := none) : MetaM Pattern := do
+public def mkPatternFromDecl (declName : Name) (num? : Option Nat := none) : MetaM Pattern := do
   let info ← getConstInfo declName
   let levelParams := info.levelParams.mapIdx fun i _ => Name.num uvarPrefix i
   let us := levelParams.map mkLevelParam

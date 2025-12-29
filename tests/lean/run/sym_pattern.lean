@@ -7,9 +7,9 @@ opaque q : Nat → Nat → Prop
 def ex := ∃ x : Nat, p x ∧ x = .zero
 
 def test : SymM Unit := do
-  let pEx ← mkPatternFromTheorem ``Exists.intro
-  let pAnd ← mkPatternFromTheorem ``And.intro
-  let pEq ← mkPatternFromTheorem ``Eq.refl
+  let pEx ← mkPatternFromDecl ``Exists.intro
+  let pAnd ← mkPatternFromDecl ``And.intro
+  let pEq ← mkPatternFromDecl ``Eq.refl
   let e ← shareCommon (← getConstInfo ``ex).value!
   let some r₁ ← pEx.match? e | throwError "failed"
   logInfo <| mkAppN (mkConst ``Exists.intro r₁.us) r₁.args

@@ -36,6 +36,24 @@ public structure ProofInstInfo where
   deriving Inhabited
 
 structure State where
+  /--
+  Maps expressions to their maximal free variable (by declaration index).
+
+  - `maxFVar[e] = some fvarId` means `fvarId` is the free variable with the largest declaration
+    index occurring in `e`.
+  - `maxFVar[e] = none` means `e` contains no free variables (but may contain metavariables).
+
+  Recall that if `e` contains a metavariable `?m`, then we assume `e` may contain any free variable
+  in the local context associated with `?m`.
+
+  This mapping enables O(1) local context compatibility checks during metavariable assignment.
+  Instead of traversing local contexts with `isSubPrefixOf`, we check if the maximal free variable
+  in the assigned value is in scope of the metavariable's local context.
+
+  **Note**: We considered using a mapping `PHashMap ExprPtr FVarId`. However, there is a corner
+  case that is not supported by this representation. `e` contains a metavariable (with an empty local context),
+  and no free variables.
+  -/
   maxFVar : PHashMap ExprPtr (Option FVarId) := {}
   proofInstInfo : PHashMap Name (Option ProofInstInfo) := {}
 

@@ -9,7 +9,7 @@ public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Sym.ReplaceS
 public section
 namespace Lean.Meta.Sym
-
+open Grind
 /--
 Lowers the loose bound variables `>= s` in `e` by `d`.
 That is, a loose bound variable `bvar i` with `i >= s` is mapped to `bvar (i-d)`.
@@ -24,7 +24,7 @@ def lowerLooseBVarsS' (e : Expr) (s d : Nat) : AlphaShareBuilderM Expr := do
     else match e with
     | .bvar idx =>
       if idx >= s₁ then
-        return some (← Grind.mkBVarS (idx - d))
+        return some (← mkBVarS (idx - d))
       else
         return none
     | _ => return none
@@ -45,7 +45,7 @@ def liftLooseBVarsS' (e : Expr) (s d : Nat) : AlphaShareBuilderM Expr := do
     else match e with
     | .bvar idx =>
       if idx >= s₁ then
-        return some (← Grind.mkBVarS (idx + d))
+        return some (← mkBVarS (idx + d))
       else
         return none
     | _ => return none

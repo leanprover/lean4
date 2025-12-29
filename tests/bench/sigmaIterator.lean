@@ -50,7 +50,7 @@ private structure SigmaIteratorWF (γ : Type w) (α : γ → Type w) (m : Type w
 private def SigmaIterator.instFinitenessRelation {γ : Type w} {α : γ → Type w}
     [∀ x : γ, Iterator (α x) m β] [∀ x : γ, Finite (α x) m] [Monad m] :
     FinitenessRelation (SigmaIterator γ α) m where
-  rel := InvImage
+  Rel := InvImage
     (PSigma.Lex emptyRelation
       (β := fun param : γ => IterM (α := α param) m β)
       (fun _ => InvImage IterM.TerminationMeasures.Finite.Rel IterM.finitelyManySteps))
@@ -80,7 +80,7 @@ instance SigmaIterator.instFinite {γ : Type w} {α : γ → Type w}
 private def SigmaIterator.instProductivenessRelation {γ : Type w} {α : γ → Type w}
     [∀ x : γ, Iterator (α x) m β] [∀ x : γ, Productive (α x) m] [Monad m] :
     ProductivenessRelation (SigmaIterator γ α) m where
-  rel := InvImage
+  Rel := InvImage
     (PSigma.Lex emptyRelation
       (β := fun param : γ => IterM (α := α param) m β)
       (fun _ => InvImage IterM.TerminationMeasures.Productive.Rel IterM.finitelyManySkips))

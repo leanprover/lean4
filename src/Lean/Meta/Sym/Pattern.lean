@@ -56,6 +56,7 @@ def mkProofInstInfoMapFor (pattern : Expr) : MetaM (AssocList Name ProofInstInfo
 public structure Pattern where
   levelParams  : List Name
   varTypes     : Array Expr
+  isInstance   : Array Bool
   pattern      : Expr
   fnInfos      : AssocList Name ProofInstInfo
   deriving Inhabited
@@ -73,15 +74,15 @@ public def mkPatternFromTheorem (declName : Name) : MetaM Pattern := do
   let us := levelParams.map mkLevelParam
   let type ← instantiateTypeLevelParams info.toConstantVal us
   let type ← preprocessType type
-  -- **TODO**: save position of instance arguments
-  let rec go (type : Expr) (varTypes : Array Expr) : MetaM Pattern := do
+  let rec go (type : Expr) (varTypes : Array Expr) (isInstance : Array Bool) : MetaM Pattern := do
     match type with
-    | .forallE _ d b _ => go b (varTypes.push d)
+    | .forallE _ d b _ =>
+      go b (varTypes.push d) (isInstance.push (isClass? (← getEnv) d).isSome)
     | _ =>
       let pattern := type
       let fnInfos ← mkProofInstInfoMapFor pattern
-      return { levelParams, varTypes, pattern, fnInfos }
-  go type #[]
+      return { levelParams, varTypes, isInstance, pattern, fnInfos }
+  go type #[] #[]
 
 structure UnifyM.Context where
   pattern : Pattern
@@ -599,12 +600,17 @@ def noPending : UnifyM Bool := do
   let s ← get
   return s.ePending.isEmpty && s.uPending.isEmpty && s.iPending.isEmpty
 
+def instantiateLevelParamsS (e : Expr) (paramNames : List Name) (us : List Level) : SymM Expr :=
+  -- **TODO** write new version using `replaceS`
+  shareCommon (e.instantiateLevelParams paramNames us)
+
 def mkPreResult : UnifyM Unit := do
   let us ← (← get).uAssignment.toList.mapM fun
     | some val => pure val
     | none => mkFreshLevelMVar
   let pattern := (← read).pattern
   let varTypes := pattern.varTypes
+  let isInstance := pattern.isInstance
   let eAssignment := (← get).eAssignment
   let mut args := #[]
   for h : i in *...eAssignment.size do
@@ -612,18 +618,53 @@ def mkPreResult : UnifyM Unit := do
       args := args.push val
     else
       let type := varTypes[i]!
-      let type := type.instantiateLevelParams pattern.levelParams us
-      let type ← shareCommon type
+      let type ← instantiateLevelParamsS type pattern.levelParams us
       let type ← instantiateRevBetaS type args
+      if isInstance[i]! then
+        if let .some val ← trySynthInstance type then
+          args := args.push (← shareCommon val)
+          continue
       let mvar ← mkFreshExprSyntheticOpaqueMVar type
       let mvar ← shareCommon mvar
       args := args.push mvar
   modify fun s => { s with args, us }
 
+def processPendingLevel : UnifyM Bool := do
+  let uPending := (← get).uPending
+  if uPending.isEmpty then return true
+  let pattern := (← read).pattern
+  let us := (← get).us
+  for (u, v) in uPending do
+    let u := u.instantiateParams pattern.levelParams us
+    unless (← isLevelDefEqS u v) do
+      return false
+  return true
+
+def processPendingInst : UnifyM Bool := do
+  let iPending := (← get).iPending
+  if iPending.isEmpty then return true
+  let pattern := (← read).pattern
+  let us := (← get).us
+  let args := (← get).args
+  for (t, s) in iPending do
+    let t ← instantiateLevelParamsS t pattern.levelParams us
+    let t ← instantiateRevBetaS t args
+    unless (← isDefEqI t s) do
+      return false
+  return true
+
+def processPendingExpr : UnifyM Bool := do
+  let ePending := (← get).ePending
+  for (t, s) in ePending do
+    trace[Meta.debug] "expr >> {t}, {s}"
+    pure ()
+  return true
+
 def processPending : UnifyM Bool := do
   if (← noPending) then
     return true
-  throwError "NIY: pending constraints"
+  else
+    processPendingLevel <&&> processPendingInst <&&> processPendingExpr
 
 abbrev run (pattern : Pattern) (unify : Bool) (k : UnifyM α) : SymM α := do
   let eAssignment := pattern.varTypes.map fun _ => none
@@ -642,7 +683,6 @@ def main (p : Pattern) (e : Expr) (unify : Bool) : SymM (Option (MatchUnifyResul
   run p unify do
     unless (← process p.pattern e) do return none
     mkPreResult
-    -- **TODO** synthesize instance arguments
     unless (← processPending) do return none
     return some (← mkResult)
 

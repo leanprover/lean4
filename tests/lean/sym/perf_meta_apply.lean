@@ -4,18 +4,23 @@ open Lean Meta
 def profileM {α : Type} (k : MetaM α) (msg : String := "experiment") : MetaM α :=
   profileitM Exception msg ({ : Options }.setBool `profiler true |>.setNat `profiler.threshold 0)  k
 
-macro "gen_term" n:num : term => do
-  let mut stx ← `(True)
-  for _ in 0...n.getNat do
-    stx := ← `(let z : Nat := x + y; forall x : Nat, exists y : Nat, y = z+x /\ $stx)
-  `(let z : Nat := 0 ; forall x : Nat, exists y : Nat, y = z+x ∧ $stx)
+def genTerm (n : Nat) : Expr := Id.run do
+  let mut e := mkConst ``True
+  let nat := mkConst ``Nat
+  for _ in 0...n do
+    let eq := mkApp3 (mkConst ``Eq [1]) nat (mkBVar 0) (mkNatAdd (mkBVar 2) (mkBVar 1))
+    e := mkApp2 (mkConst ``And) eq e
+    e := mkApp2 (mkConst ``Exists [1]) nat (mkLambda `y .default nat e)
+    e := mkForall `x .default nat e
+    e := mkLet `z nat (mkNatAdd (mkBVar 1) (mkBVar 0)) e
+  let eq := mkApp3 (mkConst ``Eq [1]) nat (mkBVar 0) (mkNatAdd (mkBVar 2) (mkBVar 1))
+  e := mkApp2 (mkConst ``And) eq e
+  e := mkApp2 (mkConst ``Exists [1]) nat (mkLambda `y .default nat e)
+  e := mkForall `x .default nat e
+  e := mkLet `z nat (mkNatLit 0) e
+  return e
 
 set_option maxRecDepth 10000000
-axiom ex1000 : gen_term 1000
-axiom ex2000 : gen_term 2000
-axiom ex3000 : gen_term 3000
-axiom ex4000 : gen_term 4000
-axiom ex5000 : gen_term 5000
 
 def tryIntros? (goals : List MVarId) : MetaM (Option (List MVarId)) := do
   let goal :: goals := goals | return none
@@ -40,8 +45,7 @@ def tryApplyAny? (declNames : List Name) (goals : List MVarId) : MetaM (Option (
     else
       tryApplyAny? declNames goals
 
-def solve (declName : Name) : MetaM Unit := profileM (msg := declName.toString) do
-  let type := (← getConstInfo declName).type
+def solve (n : Nat) (type : Expr) : MetaM Unit := profileM (msg := s!"size {n}") do
   let mvarId := (← mkFreshExprMVar type).mvarId!
   discard <| go 10000000 [mvarId]
   return ()
@@ -59,8 +63,16 @@ where
       else
         throwError "Stuck at {goal}"
 
-#eval solve ``ex1000
-#eval solve ``ex2000
-#eval solve ``ex3000
-#eval solve ``ex4000
-#eval solve ``ex5000
+def test (n : Nat) : MetaM Unit := do
+  let e := genTerm n
+  solve n e
+
+-- We are solving problems of the following form
+#eval logInfo (genTerm 2)
+
+#eval test 1000
+#eval test 2000
+#eval test 3000
+#eval test 4000
+#eval test 5000
+#eval test 6000

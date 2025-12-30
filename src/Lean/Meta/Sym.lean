@@ -18,6 +18,7 @@ public import Lean.Meta.Sym.InstantiateMVarsS
 public import Lean.Meta.Sym.ProofInstInfo
 public import Lean.Meta.Sym.AbstractS
 public import Lean.Meta.Sym.Pattern
+public import Lean.Meta.Sym.Apply
 
 /-!
 # Symbolic simulation support.

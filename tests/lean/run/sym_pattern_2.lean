@@ -8,7 +8,7 @@ opaque b : Int
 def ex₁ := p (a + 1) b
 
 def test₁ : SymM Unit := do
-  let pEx ← mkPatternFromTheorem ``pax
+  let pEx ← mkPatternFromDecl ``pax
   let e ← shareCommon (← getConstInfo ``ex₁).value!
   let some r₁ ← pEx.match? e | throwError "failed"
   let h := mkAppN (mkConst ``pax r₁.us) r₁.args
@@ -34,7 +34,7 @@ def ex₂ := ∀ x, q x 0 ∧ q (f (f x)) (f x + f (f 1))
 
 def test₂ : SymM Unit := do
   /- We use `some 5` because we want the pattern to be `(∀ x, ?P x ∧ ?Q x)`-/
-  let p ← mkPatternFromTheorem ``mk_forall_and (some 5)
+  let p ← mkPatternFromDecl ``mk_forall_and (some 5)
   let e ← shareCommon (← getConstInfo ``ex₂).value!
   logInfo p.pattern
   logInfo e

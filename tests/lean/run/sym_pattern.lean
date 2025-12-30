@@ -3,13 +3,13 @@ open Lean Meta Sym Grind
 set_option grind.debug true
 opaque p : Nat → Prop
 opaque q : Nat → Nat → Prop
-
+axiom pax : p x
 def ex := ∃ x : Nat, p x ∧ x = .zero
 
-def test : SymM Unit := do
-  let pEx ← mkPatternFromTheorem ``Exists.intro
-  let pAnd ← mkPatternFromTheorem ``And.intro
-  let pEq ← mkPatternFromTheorem ``Eq.refl
+def test1 : SymM Unit := do
+  let pEx ← mkPatternFromDecl ``Exists.intro
+  let pAnd ← mkPatternFromDecl ``And.intro
+  let pEq ← mkPatternFromDecl ``Eq.refl
   let e ← shareCommon (← getConstInfo ``ex).value!
   let some r₁ ← pEx.match? e | throwError "failed"
   logInfo <| mkAppN (mkConst ``Exists.intro r₁.us) r₁.args
@@ -27,4 +27,25 @@ info: @Eq.refl Nat Nat.zero
 -/
 #guard_msgs in
 set_option pp.explicit true in
-#eval SymM.run' test
+#eval SymM.run' test1
+
+def test2 : SymM Unit := do
+  let ruleEx   ← mkBackwardRuleFromDecl ``Exists.intro
+  let ruleAnd  ← mkBackwardRuleFromDecl ``And.intro
+  let ruleRefl ← mkBackwardRuleFromDecl ``Eq.refl
+  let rulePax  ← mkBackwardRuleFromDecl ``pax
+  let mvar ← mkFreshExprMVar (← getConstInfo ``ex).value!
+  let goal ← Sym.mkGoal mvar.mvarId!
+  let [goal, _] ← ruleEx.apply goal | throwError "Failed"
+  let [goal₁, goal₂] ← ruleAnd.apply goal | throwError "Failed"
+  let [] ← rulePax.apply goal₁ | throwError "Failed"
+  let [] ← ruleRefl.apply goal₂ | throwError "Failed"
+  logInfo mvar
+
+/--
+info: @Exists.intro Nat (fun x => And (p x) (@Eq Nat x Nat.zero)) Nat.zero
+  (@And.intro (p Nat.zero) (@Eq Nat Nat.zero Nat.zero) (@pax Nat.zero) (@Eq.refl Nat Nat.zero))
+-/
+#guard_msgs in
+set_option pp.explicit true in
+#eval SymM.run' test2

@@ -197,9 +197,9 @@ partial def process (p : Expr) (e : Expr) : UnifyM Bool := do
   | .bvar bidx => assignExpr bidx e
   | .mdata _ p => process p e
   | .const declName us =>
-    processConst declName us e <||> checkMVar p e
+    processConst declName us e <||> checkLetVar p e <||> checkMVar p e
   | .sort u =>
-    processSort u e <||> checkMVar p e
+    processSort u e <||> checkLetVar p e <||> checkMVar p e
   | .app .. =>
     processApp p e <||> checkMVar p e
   | .forallE .. | .lam .. =>
@@ -219,6 +219,12 @@ partial def process (p : Expr) (e : Expr) : UnifyM Bool := do
     pure (p == e) <||> checkMVar p e
   | .letE .. => unreachable!
 where
+  checkLetVar (p : Expr) (e : Expr) : UnifyM Bool := do
+    unless (← read).zetaDelta do return false
+    let .fvar fvarId := e | return false
+    let some value ← fvarId.getValue? | return false
+    process p value
+
   processApp (p : Expr) (e : Expr) : UnifyM Bool := do
     let f := p.getAppFn
     let .const declName _ := f | processAppDefault p e
@@ -228,7 +234,7 @@ where
 
   processAppWithInfo (p : Expr) (e : Expr) (i : Nat) (info : ProofInstInfo) : UnifyM Bool := do
     let .app fp ap := p | if e.isApp then return false else process p e
-    let .app fe ae := e | return false
+    let .app fe ae := e | checkLetVar p e
     unless (← processAppWithInfo fp fe (i - 1) info) do return false
     if h : i < info.argsInfo.size then
       let argInfo := info.argsInfo[i]
@@ -249,7 +255,7 @@ where
 
   processAppDefault (p : Expr) (e : Expr) : UnifyM Bool := do
     let .app fp ap := p | if e.isApp then return false else process p e
-    let .app fe ae := e | return false
+    let .app fe ae := e | checkLetVar p e
     unless (← processAppDefault fp fe) do return false
     process ap ae
 
@@ -257,6 +263,7 @@ where
     let .const declName' us' := e | return false
     unless declName == declName' do return false
     processLevels us us'
+
   processSort (u : Level) (e : Expr) : UnifyM Bool := do
     let .sort v := e | return false
     processLevel u v

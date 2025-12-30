@@ -49,3 +49,20 @@ info: @Exists.intro Nat (fun x => And (p x) (@Eq Nat x Nat.zero)) Nat.zero
 #guard_msgs in
 set_option pp.explicit true in
 #eval SymM.run' test2
+
+opaque a : Nat
+opaque bla : Nat → Nat → Nat
+opaque foo : Type → Nat → Nat
+axiom pFoo (x : Nat) : p (foo Prop (bla x 1))
+
+def test3 : SymM Unit := do
+  withLetDecl `x (.sort 1) (.sort 0) fun x =>
+  withLetDecl `y (mkConst ``Nat) (mkNatLit 1) fun y => do
+  let target := mkApp (mkConst ``p) (mkApp2 (mkConst ``foo) x (mkApp2 (mkConst ``bla) (mkNatAdd (mkNatLit 3) y) y))
+  let mvar ← mkFreshExprMVar target
+  let goal ← Sym.mkGoal mvar.mvarId!
+  let rule ← mkBackwardRuleFromDecl ``pFoo
+  let [] ← rule.apply goal | throwError "failed"
+  logInfo mvar
+
+#eval SymM.run' test3

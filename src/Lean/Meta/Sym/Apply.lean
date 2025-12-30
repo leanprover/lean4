@@ -113,6 +113,6 @@ public def BackwardRule.apply (goal : Goal) (rule : BackwardRule) : SymM (List G
       let mvarId := result.args[i]!.mvarId!
       { goal with mvarId }
   else
-    throwError "rule is not applicable to goal{goal.mvarId}\nrule:{indentExpr rule.expr}"
+    throwError "rule is not applicable to goal{goal.mvarId}rule:{indentExpr rule.expr}"
 
 end Lean.Meta.Sym

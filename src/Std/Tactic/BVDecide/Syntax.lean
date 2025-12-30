@@ -15,6 +15,23 @@ set_option linter.missingDocs true -- keep it documented
 namespace Lean.Elab.Tactic.BVDecide.Frontend
 
 /--
+The various kinds of configurations offered for the SAT solver.
+-/
+inductive SolverMode where
+  /--
+  Set SAT solver options to improve proof search.
+  -/
+  | proof
+  /--
+  Set SAT solver options to improve counterexample search.
+  -/
+  | counterexample
+  /--
+  Don't set additional SAT solver flags.
+  -/
+  | default
+
+/--
 The configuration options for `bv_decide`.
 -/
 structure BVDecideConfig where
@@ -70,6 +87,11 @@ structure BVDecideConfig where
   if matching multiplications are not needed to proof a goal.
   -/
   shortCircuit : Bool := false
+  /--
+  The SAT solver configuration to use. Defaults to `.proof` as that is the most relevant use case
+  for `bv_decide`.
+  -/
+  solverMode : SolverMode := .proof
 
 end Lean.Elab.Tactic.BVDecide.Frontend
 

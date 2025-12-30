@@ -344,7 +344,14 @@ def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : Ref
 
   let res ←
     withTraceNode `Meta.Tactic.sat (fun _ => return "Obtaining external proof certificate") do
-      runExternal cnf ctx.solver ctx.lratPath ctx.config.trimProofs ctx.config.timeout ctx.config.binaryProofs
+      runExternal
+        cnf
+        ctx.solver
+        ctx.lratPath
+        ctx.config.trimProofs
+        ctx.config.timeout
+        ctx.config.binaryProofs
+        ctx.config.solverMode
 
   match res with
   | .ok cert =>

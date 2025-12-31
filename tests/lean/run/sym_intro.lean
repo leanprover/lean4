@@ -19,11 +19,11 @@ trace: z✝² : Nat := 0
 x✝² y✝² : Nat
 z✝¹ : Nat := x✝² + y✝²
 y✝¹ : Nat := y✝² + 1
-this✝¹ : y✝¹ ≥ 0
+this✝¹ : y✝¹ ≥ 0 := Nat.zero_le y✝¹
 x✝¹ : Nat
 z✝ : Nat := x✝¹ + y✝¹
 y✝ : Nat := y✝¹ + 1
-this✝ : y✝ ≥ 0
+this✝ : y✝ ≥ 0 := Nat.zero_le y✝
 x✝ : Nat
 ⊢ True
 -/

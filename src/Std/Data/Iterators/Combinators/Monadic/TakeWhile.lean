@@ -120,8 +120,8 @@ This combinator calls `P` on each output of `it` until the predicate evaluates t
 it terminates.
 -/
 @[always_inline, inline]
-def IterM.takeWhileM [Monad m] (P : β → m (ULift Bool)) (it : IterM (α := α) m β) :=
-  (it.takeWhileWithPostcondition (PostconditionT.lift ∘ P) : IterM m β)
+def IterM.takeWhileM [Monad m] [MonadAttach m] (P : β → m (ULift Bool)) (it : IterM (α := α) m β) :=
+  (it.takeWhileWithPostcondition (PostconditionT.attachLift ∘ P) : IterM m β)
 
 /--
 Given an iterator `it` and a predicate `P`, `it.takeWhile P` is an iterator that outputs
@@ -157,7 +157,7 @@ it terminates.
 -/
 @[always_inline, inline]
 def IterM.takeWhile [Monad m] (P : β → Bool) (it : IterM (α := α) m β) :=
-  (it.takeWhileM (pure ∘ ULift.up ∘ P) : IterM m β)
+  (it.takeWhileWithPostcondition (pure ∘ ULift.up ∘ P) : IterM m β)
 
 namespace Iterators.Types
 

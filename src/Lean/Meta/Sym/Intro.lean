@@ -81,7 +81,12 @@ def introCore (goal : Goal) (max : Nat) (names : Array Name) : SymM (Array FVarI
       let type       ← instantiateRevS type fvars
       let value      ← instantiateRevS value fvars
       let fvarId     ← mkFreshFVarId
-      let lctx       := lctx.mkLetDecl fvarId (← mkName n i) type value nondep
+      /-
+      We have both dependent and non-dependent `let` expressions result in dependent `ldecl`s.
+      This is fine here since we never revert them in the Sym framework.
+      **Note**: If `type` is a proposition we could use a `cdecl`.
+      -/
+      let lctx       := lctx.mkLetDecl fvarId (← mkName n i) type value
       let fvar       ← Grind.mkFVarS fvarId
       let fvars      := fvars.push fvar
       let localInsts := updateLocalInsts localInsts fvar type

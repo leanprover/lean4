@@ -148,13 +148,6 @@ def assignLevel (uidx : Nat) (u : Level) : UnifyM Bool := do
     modify fun s => { s with uAssignment := s.uAssignment.set! uidx (some u) }
     return true
 
-def checkMVar (p : Expr) (e : Expr) : UnifyM Bool := do
-  if (← read).unify && e.getAppFn.isMVar then
-    pushPending p e
-    return true
-  else
-    return false
-
 def processLevel (u : Level) (v : Level) : UnifyM Bool := do
   match u, v with
   | .zero, .zero => return true
@@ -192,6 +185,14 @@ def processLevels (us : List Level) (vs : List Level) : UnifyM Bool := do
   | _::_,  []    => return false
   | u::us, v::vs => processLevel u v <&&> processLevels us vs
 
+/--
+Returns `true` if `e` is an assigned metavariable.
+-/
+def isAssignedMVar (e : Expr) : MetaM Bool :=
+  match e with
+  | .mvar mvarId => mvarId.isAssigned
+  | _            => return false
+
 partial def process (p : Expr) (e : Expr) : UnifyM Bool := do
   match p with
   | .bvar bidx => assignExpr bidx e
@@ -210,15 +211,25 @@ partial def process (p : Expr) (e : Expr) : UnifyM Bool := do
     return false
   | .fvar _ =>
     /-
-    **Note**: We currently assume that patterns do not have free variables since they are created from
-    top-level theorems. If we want to support them in the future, we should add support for
-    `zetaDelta` here too. It should be similar to the support at `isDefEqS`.
+    **Note**: Most patterns do not have free variables since they are created from
+    top-level theorems. That said, some user may want to create patterns using local hypotheses, and they
+    may contain free variables. This is not the common case. So, we just push to pending an continue.
     -/
-    throwError "unexpected occurrence of free variable in pattern"
+    pushPending p e
+    return true
   | .mvar _ | .lit _ =>
-    pure (p == e) <||> checkMVar p e
+    pure (p == e) <||> checkLetVar p e <||> checkMVar p e
   | .letE .. => unreachable!
 where
+  checkMVar (p : Expr) (e : Expr) : UnifyM Bool := do
+    if (← isAssignedMVar e) then
+      process p (← instantiateMVarsS e)
+    else if (← read).unify && e.getAppFn.isMVar then
+      pushPending p e
+      return true
+    else
+      return false
+
   checkLetVar (p : Expr) (e : Expr) : UnifyM Bool := do
     unless (← read).zetaDelta do return false
     let .fvar fvarId := e | return false
@@ -373,14 +384,6 @@ where
     | _, _ => withLCtx lctx localInsts do
       unless (← checkDomains fvars ds₂) do return false
       isDefEqMain (← instantiateRevS e₁ fvars) (← instantiateRevS e₂ fvars)
-
-/--
-Returns `true` if `e` is an assigned metavariable.
--/
-def isAssignedMVar (e : Expr) : MetaM Bool :=
-  match e with
-  | .mvar mvarId => mvarId.isAssigned
-  | _            => return false
 
 /--
 Returns `true` if the metavariable `mvarId` can be assigned in the current context.
@@ -568,20 +571,6 @@ def isDefEqMainImpl (t : Expr) (s : Expr) : DefEqM Bool := do
         isDefEqMain val₁ s
     else
       return fvarId₁ == fvarId₂
-  | .fvar fvarId₁, _ =>
-    if (← read).zetaDelta then
-      let decl₁ ← fvarId₁.getDecl
-      let some val₁ := decl₁.value? | return false
-        isDefEqMain val₁ s
-    else
-      return false
-  | _, .fvar fvarId₂ =>
-    if (← read).zetaDelta then
-      let decl₂ ← fvarId₂.getDecl
-      let some val₂ := decl₂.value? | return false
-      isDefEqMain t val₂
-    else
-      return false
   | .const declName₁ us₁, .const declName₂ us₂ =>
     if declName₁ == declName₂ then
       isLevelDefEqListS us₁ us₂
@@ -605,6 +594,14 @@ def isDefEqMainImpl (t : Expr) (s : Expr) : DefEqM Bool := do
       return true
     else if (← tryAssignMillerPattern sFn s t rfl) then
       return true
+    else if let .fvar fvarId₁ := t then
+      unless (← read).zetaDelta do return false
+      let some val₁ ← fvarId₁.getValue? | return false
+      isDefEqMain val₁ s
+    else if let .fvar fvarId₂ := s then
+      unless (← read).zetaDelta do return false
+      let some val₂ ← fvarId₂.getValue? | return false
+      isDefEqMain t val₂
     else
       isDefEqApp tFn t s rfl
 

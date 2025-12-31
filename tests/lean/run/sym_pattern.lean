@@ -65,4 +65,22 @@ def test3 : SymM Unit := do
   let [] ← rule.apply goal | throwError "failed"
   logInfo mvar
 
+/-- info: pFoo (3 + y) -/
+#guard_msgs in
 #eval SymM.run' test3
+
+def test4 : SymM Unit := do
+  withLetDecl `x (.sort 1) (.sort 0) fun x =>
+  withLetDecl `y (mkConst ``Nat) (mkNatLit 1) fun y => do
+  let e := mkApp2 (mkConst ``bla) (mkNatAdd (mkNatLit 3) y) y
+  let m1 ← mkFreshExprMVar (mkConst ``Nat)
+  assert! (← isDefEq m1 e)
+  let target := mkApp (mkConst ``p) (mkApp2 (mkConst ``foo) x m1)
+  let target ← shareCommon target
+  let p ← mkPatternFromDecl ``pFoo
+  let some r ← p.match? target | throwError "failed"
+  logInfo <| mkAppN (mkConst ``pFoo r.us) r.args
+
+/-- info: pFoo (3 + y) -/
+#guard_msgs in
+#eval SymM.run' test4

@@ -32,7 +32,7 @@ partial def pushProjs (bs : Array FnBody) (alts : Array Alt) (altsF : Array Inde
     match b with
     | FnBody.vdecl x _ v _ =>
       match v with
-      | Expr.proj _ _      => push x
+      | Expr.proj _ _ _    => push x
       | Expr.uproj _ _     => push x
       | Expr.sproj _ _ _   => push x
       | Expr.isShared _    => skip ()

@@ -68,7 +68,7 @@ partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (mask : Mask) (ke
       if n == 0 then done () else
       let b' := bs[bs.size - 2]
       match b' with
-      | .vdecl w _ (.proj i x) _ =>
+      | .vdecl w _ (.proj _ i x) _ =>
         if w == z && y == x then
           /- Found
              ```
@@ -143,7 +143,9 @@ def releaseUnreadFields (y : VarId) (mask : Mask) (b : FnBody) : M FnBody :=
     | some _ => pure b -- code took ownership of this field
     | none   => do
       let fld ← mkFresh
-      pure (FnBody.vdecl fld .tobject (Expr.proj i y) (FnBody.dec fld 1 true false b))
+      -- we don't need cidx information here since `reset` cannot occur
+      -- on a boxed value at this stage
+      pure (FnBody.vdecl fld .tobject (Expr.proj 0 i y) (FnBody.dec fld 1 true false b))
 
 def setFields (y : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
   zs.size.fold (init := b) fun i _ b => FnBody.set y i zs[i] b
@@ -153,7 +155,7 @@ def isSelfSet (ctx : Context) (x : VarId) (i : Nat) (y : Arg) : Bool :=
   match y with
   | .var y =>
     match ctx.projMap[y]? with
-    | some (Expr.proj j w) => j == i && w == x
+    | some (Expr.proj _ j w) => j == i && w == x
     | _ => false
   | .erased => false
 
@@ -237,16 +239,18 @@ def mkFastPath (x y : VarId) (mask : Mask) (b : FnBody) : M FnBody := do
   let b := reuseToSet ctx x y b
   releaseUnreadFields y mask b
 
+mutual
+
 -- Expand `bs; x := reset[n] y; b`
-partial def expand (mainFn : FnBody → Array FnBody → M FnBody)
+partial def expand
     (bs : Array FnBody) (x : VarId) (n : Nat) (y : VarId) (b : FnBody) : M FnBody := do
   let (bs, mask) := eraseProjIncFor n y bs
   /- Remark: we may be duplicating variable/JP indices. That is, `bSlow` and `bFast` may
-     have duplicate indices. We run `normalizeIds` to fix the ids after we have expand them. -/
-  let bSlow      := mkSlowPath x y mask b
+     have duplicate indices. We run `normalizeIds` to fix the ids after we have expanded them. -/
+  let bSlow := mkSlowPath x y mask b
   let bFast ← mkFastPath x y mask b
   /- We only optimize recursively the fast. -/
-  let bFast ← mainFn bFast #[]
+  let bFast ← searchAndExpand bFast #[]
   let c ← mkFresh
   let b := FnBody.vdecl c IRType.uint8 (Expr.isShared y) (mkIf c bSlow bFast)
   return reshape bs b
@@ -254,7 +258,7 @@ partial def expand (mainFn : FnBody → Array FnBody → M FnBody)
 partial def searchAndExpand : FnBody → Array FnBody → M FnBody
   | d@(FnBody.vdecl x _ (Expr.reset n y) b), bs =>
     if consumed x b then do
-      expand searchAndExpand bs x n y b
+      expand bs x n y b
     else
       searchAndExpand b (push bs d)
   | FnBody.jdecl j xs v b,   bs => do
@@ -266,6 +270,8 @@ partial def searchAndExpand : FnBody → Array FnBody → M FnBody
   | b, bs =>
     if b.isTerminal then return reshape bs b
     else searchAndExpand b.body (push bs b)
+
+end
 
 def main (d : Decl) : Decl :=
   match d with

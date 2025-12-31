@@ -45,7 +45,7 @@ private def visitParam (p : Param) : M Unit :=
 
 private def visitExpr (e : Expr) : M Unit := do
   match e with
-  | .proj _ x | .uproj _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
+  | .proj _ _ x | .uproj _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
     visitVar x
   | .ctor _ ys | .fap _ ys | .pap _ ys =>
     ys.forM visitArg
@@ -132,7 +132,7 @@ private def visitParam (p : Param) : M Unit :=
 
 private def visitExpr (e : Expr) : M Unit := do
   match e with
-  | .proj _ x | .uproj _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
+  | .proj _ _ x | .uproj _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
     visitVar x
   | .ctor _ ys | .fap _ ys | .pap _ ys =>
     ys.forM visitArg
@@ -209,7 +209,7 @@ def visitParams (w : Index) (ps : Array Param) : Bool :=
   ps.any (fun p => w == p.x.idx)
 
 def visitExpr (w : Index) : Expr → Bool
-  | .proj _ x | .uproj _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
+  | .proj _ _ x | .uproj _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
     visitVar w x
   | .ctor _ ys | .fap _ ys | .pap _ ys =>
     visitArgs w ys

@@ -339,7 +339,7 @@ def toLLVMType (t : IRType) : M llvmctx (LLVM.LLVMType llvmctx) := do
   | IRType.tobject    => do LLVM.pointerType (← LLVM.i8Type llvmctx)
   | IRType.erased     => do LLVM.pointerType (← LLVM.i8Type llvmctx)
   | IRType.void       => do LLVM.pointerType (← LLVM.i8Type llvmctx)
-  | IRType.struct _ _ => panic! "not implemented yet"
+  | IRType.struct ..  => panic! "not implemented yet"
   | IRType.union _ _  => panic! "not implemented yet"
 
 def throwInvalidExportName {α : Type} (n : Name) : M llvmctx α := do
@@ -804,7 +804,8 @@ def callLeanCtorGet (builder : LLVM.Builder llvmctx)
   let i ← LLVM.buildSextOrTrunc builder i (← LLVM.i32Type llvmctx)
   LLVM.buildCall2 builder fnty fn  #[x, i] retName
 
-def emitProj (builder : LLVM.Builder llvmctx) (z : VarId) (i : Nat) (x : VarId) : M llvmctx Unit := do
+def emitProj (builder : LLVM.Builder llvmctx) (z : VarId) (_c : Nat) (i : Nat) (x : VarId) :
+    M llvmctx Unit := do
   let xval ← emitLhsVal builder x
   let zval ← callLeanCtorGet builder xval (← constIntUnsigned i) ""
   emitLhsSlotStore builder z zval
@@ -981,7 +982,7 @@ def emitVDecl (builder : LLVM.Builder llvmctx) (z : VarId) (t : IRType) (v : Exp
   | Expr.ctor c ys      => emitCtor builder z c ys
   | Expr.reset n x      => emitReset builder z n x
   | Expr.reuse x c u ys => emitReuse builder z x c u ys
-  | Expr.proj i x       => emitProj builder z i x
+  | Expr.proj c i x     => emitProj builder z c i x
   | Expr.uproj i x      => emitUProj builder z i x
   | Expr.sproj n o x    => emitSProj builder z t n o x
   | Expr.fap c ys       => emitFullApp builder z c ys

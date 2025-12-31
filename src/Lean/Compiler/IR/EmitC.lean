@@ -73,7 +73,7 @@ def toCType : IRType → String
   | IRType.tobject    => "lean_object*"
   | IRType.erased     => "lean_object*"
   | IRType.void       => "lean_object*"
-  | IRType.struct _ _ => panic! "not implemented yet"
+  | IRType.struct ..  => panic! "not implemented yet"
   | IRType.union _ _  => panic! "not implemented yet"
 
 def throwInvalidExportName {α : Type} (n : Name) : M α :=
@@ -392,7 +392,7 @@ def emitReuse (z : VarId) (x : VarId) (c : CtorInfo) (updtHeader : Bool) (ys : A
   emitLn "}";
   emitCtorSetArgs z ys
 
-def emitProj (z : VarId) (i : Nat) (x : VarId) : M Unit := do
+def emitProj (z : VarId) (_c : Nat) (i : Nat) (x : VarId) : M Unit := do
   emitLhs z; emit "lean_ctor_get("; emit x; emit ", "; emit i; emitLn ");"
 
 def emitUProj (z : VarId) (i : Nat) (x : VarId) : M Unit := do
@@ -534,7 +534,7 @@ def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
   | Expr.ctor c ys      => emitCtor z c ys
   | Expr.reset n x      => emitReset z n x
   | Expr.reuse x c u ys => emitReuse z x c u ys
-  | Expr.proj i x       => emitProj z i x
+  | Expr.proj c i x     => emitProj z c i x
   | Expr.uproj i x      => emitUProj z i x
   | Expr.sproj n o x    => emitSProj z t n o x
   | Expr.fap c ys       => emitFullApp z c ys

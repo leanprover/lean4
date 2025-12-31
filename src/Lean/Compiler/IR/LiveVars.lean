@@ -118,7 +118,7 @@ private def visitJP (m : JPLiveVarMap) (j : JoinPointId) : M Unit :=
 
 private def useExpr (e : Expr) : M Unit := do
   match e with
-  | .proj _ x | .uproj _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
+  | .proj _ _ x | .uproj _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
     useVar x
   | .ctor _ ys | .fap _ ys | .pap _ ys =>
     ys.forM useArg

@@ -43,7 +43,7 @@ private def formatExpr : Expr → Format
   | Expr.ctor i ys      => format i ++ formatArray ys
   | Expr.reset n x      => "reset[" ++ format n ++ "] " ++ format x
   | Expr.reuse x i u ys => "reuse" ++ (if u then "!" else "") ++ " " ++ format x ++ " in " ++ format i ++ formatArray ys
-  | Expr.proj i x       => "proj[" ++ format i ++ "] " ++ format x
+  | Expr.proj c i x     => "proj[" ++ format c ++ ", " ++ format i ++ "] " ++ format x
   | Expr.uproj i x      => "uproj[" ++ format i ++ "] " ++ format x
   | Expr.sproj n o x    => "sproj[" ++ format n ++ ", " ++ format o ++ "] " ++ format x
   | Expr.fap c ys       => format c ++ formatArray ys
@@ -70,12 +70,13 @@ private partial def formatIRType : IRType → Format
   | IRType.object       => "obj"
   | IRType.tagged       => "tagged"
   | IRType.tobject      => "tobj"
-  | IRType.struct _ tys =>
+  | IRType.struct _ tys nu ns =>
     let _ : ToFormat IRType := ⟨formatIRType⟩
-    "struct " ++ Format.bracket "{" (Format.joinSep tys.toList ", ") "}"
+    "struct " ++ format (nu.repr ++ ":" ++ ns.repr) ++
+      Format.bracket "{" (Format.joinSep tys.toList ", ") "}"
   | IRType.union _ tys  =>
     let _ : ToFormat IRType := ⟨formatIRType⟩
-    "union " ++ Format.bracket "{" (Format.joinSep  tys.toList ", ") "}"
+    "union " ++ Format.bracket "{" (Format.joinSep tys.toList ", ") "}"
 
 instance : ToFormat IRType := ⟨private_decl% formatIRType⟩
 instance : ToString IRType := ⟨toString ∘ format⟩

@@ -243,7 +243,7 @@ def collectExpr (z : VarId) (e : Expr) : M Unit := do
   | .ctor _ xs =>
     ownVar z
     ownArgsIfParam xs
-  | .proj _ x =>
+  | .proj _ _ x =>
     if (← isOwned x) then ownVar z
     if (← isOwned z) then ownVar x
   | .fap g xs =>

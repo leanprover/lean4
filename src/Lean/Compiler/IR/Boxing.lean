@@ -130,7 +130,7 @@ def getDecl (fid : FunId) : M Decl := do
   withReader (fun ctx => { ctx with localCtx := ctx.localCtx.addJP j xs v }) k
 
 /-- If `x` declaration is of the form `x := Expr.lit _` or `x := Expr.fap c #[]`,
-   and `x`'s type is not cheap to box (e.g., it is `UInt64), then return its value. -/
+   and `x`'s type is not cheap to box (e.g., it is `UInt64`), then return its value. -/
 private def isExpensiveConstantValueBoxing (x : VarId) (xType : IRType) : M (Option Expr) :=
   match xType with
   | .uint8 | .uint16 => return none

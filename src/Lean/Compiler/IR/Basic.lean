@@ -63,6 +63,8 @@ first need to test whether the `tobject` is really a pointer or not.
 Remark: the Lean runtime assumes that sizeof(void*) == sizeof(sizeT).
 Lean cannot be compiled on old platforms where this is not True.
 
+Disregard the following paragraph please.
+
 Since values of type `struct` and `union` are only used to return values,
 We assume they must be used/consumed "linearly". We use the term "linear" here
 to mean "exactly once" in each execution. That is, given `x : S`, where `S` is a struct,
@@ -77,7 +79,18 @@ inductive IRType where
   | float | uint8 | uint16 | uint32 | uint64 | usize
   | erased | object | tobject
   | float32
-  | struct (leanTypeName : Option Name) (types : Array IRType) : IRType
+  /--
+  Unboxed structures representing a particular constructor of an inductive type.
+  `usize` and `ssize` each are exactly the number of `size_t` values and the amount of
+  bytes spent by other scalars and should be equivalent to the values in `CtorInfo.usize` and
+  `CtorInfo.ssize` corresponding to the constructor.
+  -/
+  | struct (leanTypeName : Option Name)
+    (objects : Array IRType) (usize ssize : Nat) : IRType
+  /--
+  Unboxed tagged unions of multiple IR types. Each type in `types` should correspond to a
+  constructor of the inductive type `leanTypeName`.
+  -/
   | union (leanTypeName : Name) (types : Array IRType) : IRType
   -- TODO: Move this upwards after a stage0 update.
   | tagged
@@ -174,16 +187,16 @@ def CtorInfo.type (info : CtorInfo) : IRType :=
   if info.isRef then .object else .tagged
 
 inductive Expr where
-  /-- We use `ctor` mainly for constructing Lean object/tobject values `lean_ctor_object` in the runtime.
-  This instruction is also used to creat `struct` and `union` return values.
-  For `union`, only `i.cidx` is relevant. For `struct`, `i` is irrelevant. -/
+  /-- We use `ctor` mainly for constructing Lean object/tobject values `lean_ctor_object` in the
+  runtime. This instruction is also used to create `struct` and `union` values where `i.cidx` is
+  used for the tag for a `union`. -/
   | ctor (i : CtorInfo) (ys : Array Arg)
   | reset (n : Nat) (x : VarId)
   /-- `reuse x in ctor_i ys` instruction in the paper. -/
   | reuse (x : VarId) (i : CtorInfo) (updtHeader : Bool) (ys : Array Arg)
-  /-- Extract the `tobject` value at Position `sizeof(void*)*i` from `x`.
-  We also use `proj` for extracting fields from `struct` return values, and casting `union` return values. -/
-  |  proj (i : Nat) (x : VarId)
+  /-- Extract the `tobject` value at Position `sizeof(void*)*i` from `x`. When `x` is represented
+  as a `union`, `cidx` is used to determine which part of the union to access. -/
+  | proj (cidx : Nat) (i : Nat) (x : VarId)
   /-- Extract the `Usize` value at Position `sizeof(void*)*i` from `x`. -/
   | uproj (i : Nat) (x : VarId)
   /-- Extract the scalar value at Position `sizeof(void*)*n + offset` from `x`. -/
@@ -195,7 +208,7 @@ inductive Expr where
   /-- Application. `x` must be a `pap` value. -/
   | ap  (x : VarId) (ys : Array Arg)
   /-- Given `x : ty` where `ty` is a scalar type, this operation returns a value of Type `tobject`.
-  For small scalar values, the Result is a tagged pointer, and no memory allocation is performed. -/
+  For small scalar values, the result is a tagged pointer, and no memory allocation is performed. -/
   | box (ty : IRType) (x : VarId)
   /-- Given `x : [t]object`, obtain the scalar value. -/
   | unbox (x : VarId)
@@ -483,7 +496,7 @@ def Expr.alphaEqv (ρ : IndexRenaming) : Expr → Expr → Bool
   | Expr.ctor i₁ ys₁,        Expr.ctor i₂ ys₂        => i₁ == i₂ && aeqv ρ ys₁ ys₂
   | Expr.reset n₁ x₁,        Expr.reset n₂ x₂        => n₁ == n₂ && aeqv ρ x₁ x₂
   | Expr.reuse x₁ i₁ u₁ ys₁, Expr.reuse x₂ i₂ u₂ ys₂ => aeqv ρ x₁ x₂ && i₁ == i₂ && u₁ == u₂ && aeqv ρ ys₁ ys₂
-  | Expr.proj i₁ x₁,         Expr.proj i₂ x₂         => i₁ == i₂ && aeqv ρ x₁ x₂
+  | Expr.proj _ i₁ x₁,       Expr.proj _ i₂ x₂       => i₁ == i₂ && aeqv ρ x₁ x₂
   | Expr.uproj i₁ x₁,        Expr.uproj i₂ x₂        => i₁ == i₂ && aeqv ρ x₁ x₂
   | Expr.sproj n₁ o₁ x₁,     Expr.sproj n₂ o₂ x₂     => n₁ == n₂ && o₁ == o₂ && aeqv ρ x₁ x₂
   | Expr.fap c₁ ys₁,         Expr.fap c₂ ys₂         => c₁ == c₂ && aeqv ρ ys₁ ys₂

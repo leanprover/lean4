@@ -68,7 +68,7 @@ private partial def visitFnBody (b : FnBody) : M Unit := do
   match b with
   | .vdecl x _ e b =>
     match e with
-    | .proj _ parent =>
+    | .proj _ _ parent =>
       addDerivedValue parent x
     | .fap ``Array.getInternal args =>
       if let .var parent := args[1]! then
@@ -185,7 +185,7 @@ private def useArgs (ctx : Context) (args : Array Arg) (liveVars : LiveVars) : L
 
 private def useExpr (ctx : Context) (e : Expr) (liveVars : LiveVars) : LiveVars :=
   match e with
-  | .proj _ x | .uproj _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
+  | .proj _ _ x | .uproj _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
     useVar ctx x liveVars
   | .ctor _ ys | .fap _ ys | .pap _ ys =>
     useArgs ctx ys liveVars
@@ -356,7 +356,7 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
   let b := match v with
     | .ctor _ ys | .reuse _ _ _ ys | .pap _ ys =>
       addIncBeforeConsumeAll ctx ys (.vdecl z t v b) bLiveVars
-    | .proj _ x =>
+    | .proj _ _ x =>
       let b := addDecIfNeeded ctx x b bLiveVars
       let b := if !bLiveVars.borrows.contains z then addInc ctx z b else b
       .vdecl z t v b

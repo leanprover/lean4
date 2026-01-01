@@ -424,6 +424,34 @@ def shareCommon (e : Expr) : GrindM Expr := do
   modify fun s => { s with scState }
   return e
 
+/--
+Incremental variant of `shareCommon` for expressions constructed from already-shared subterms.
+
+Use this when an expression `e` was produced by a Lean API (e.g., `inferType`, `mkApp4`) that
+does not preserve maximal sharing, but the inputs to that API were already maximally shared.
+
+Unlike `shareCommon`, this function does not use a local `Std.HashMap ExprPtr Expr` to
+track visited nodes. This is more efficient when the number of new (unshared) nodes is small,
+which is the common case when wrapping API calls that build a few constructor nodes around
+shared inputs.
+
+Example:
+```
+-- `a` and `b` are already maximally shared
+let result := mkApp2 f a b  -- result is not maximally shared
+let result ← shareCommonInc result -- efficiently restore sharing
+```
+-/
+def shareCommonInc (e : Expr) : GrindM Expr := do
+  let scState ← modifyGet fun s => (s.scState, { s with scState := {} })
+  let (e, scState) := shareCommonAlphaInc e scState
+  modify fun s => { s with scState }
+  return e
+
+@[inherit_doc shareCommonInc]
+abbrev shareCommon' (e : Expr) : GrindM Expr :=
+  shareCommonInc e
+
 /-- Returns `true` if `e` is the internalized `True` expression.  -/
 def isTrueExpr (e : Expr) : GrindM Bool :=
   return isSameExpr e (← getTrueExpr)

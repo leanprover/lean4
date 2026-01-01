@@ -223,6 +223,9 @@ private def D (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody :=
 partial def R (e : FnBody) : M FnBody := do
   match e with
   | .case tid x xType alts =>
+    -- Unboxed struct/union values cannot be reused
+    if xType.isStruct then
+      return .case tid x xType (← alts.mapM <| Alt.modifyBodyM R)
     let alreadyFound := (← read).alreadyFound.contains x
     withReader (fun ctx => { ctx with alreadyFound := ctx.alreadyFound.insert x }) do
       let alts ← alts.mapM fun alt => do

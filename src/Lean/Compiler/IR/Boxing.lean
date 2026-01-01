@@ -33,8 +33,9 @@ private def N.mkFresh : N VarId :=
 
 def requiresBoxedVersion (env : Environment) (decl : Decl) : Bool :=
   let ps := decl.params
-  (ps.size > 0 && (decl.resultType.isScalar || ps.any (fun p => p.ty.isScalar || p.borrow || p.ty.isVoid) || isExtern env decl.name))
-  || ps.size > closureMaxArgs
+  (ps.size > 0 && (decl.resultType.isScalarOrStruct ||
+    ps.any (fun p => p.ty.isScalarOrStruct || p.borrow || p.ty.isVoid) || isExtern env decl.name))
+    || ps.size > closureMaxArgs
 
 def mkBoxedVersionAux (decl : Decl) : N Decl := do
   let ps := decl.params
@@ -42,14 +43,14 @@ def mkBoxedVersionAux (decl : Decl) : N Decl := do
   let (newVDecls, xs) ← qs.size.foldM (init := (#[], #[])) fun i _ (newVDecls, xs) => do
     let p := ps[i]!
     let q := qs[i]
-    if !p.ty.isScalar then
+    if !p.ty.isScalarOrStruct then
       pure (newVDecls, xs.push (.var q.x))
     else
       let x ← N.mkFresh
       pure (newVDecls.push (.vdecl x p.ty (.unbox q.x) default), xs.push (.var x))
   let r ← N.mkFresh
   let newVDecls := newVDecls.push (.vdecl r decl.resultType (.fap decl.name xs) default)
-  let body ← if !decl.resultType.isScalar then
+  let body ← if !decl.resultType.isScalarOrStruct then
     pure <| reshape newVDecls (.ret (.var r))
   else
     let newR ← N.mkFresh
@@ -66,7 +67,12 @@ def addBoxedVersions (env : Environment) (decls : Array Decl) : Array Decl :=
   decls ++ boxedDecls
 
 def eqvTypes (t₁ t₂ : IRType) : Bool :=
-  (t₁.isScalar == t₂.isScalar) && (!t₁.isScalar || t₁ == t₂)
+  if t₁.isScalar then
+    t₁ == t₂
+  else if t₁ matches .union .. | .struct .. then
+    t₂ matches .union .. | .struct ..
+  else
+    t₂ matches .erased | .void | .tagged | .object | .tobject
 
 structure BoxingContext where
   f : FunId
@@ -149,7 +155,7 @@ private def isExpensiveConstantValueBoxing (x : VarId) (xType : IRType) : M (Opt
    It is used when the expected type does not match `xType`.
    If `xType` is scalar, then we need to "box" it. Otherwise, we need to "unbox" it. -/
 def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
-  if expectedType.isScalar then
+  if expectedType.isScalar || expectedType matches .struct .. | .union .. then
     return .unbox x
   else
     match (← isExpensiveConstantValueBoxing x xType) with
@@ -243,13 +249,23 @@ def castResultIfNeeded (x : VarId) (ty : IRType) (e : Expr) (eType : IRType) (b 
     let v ← mkCast y boxedTy ty
     return .vdecl y boxedTy e (.vdecl x ty v b)
 
-def visitVDeclExpr (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody :=
+def visitCtorExpr (x : VarId) (ty : IRType) (c : CtorInfo) (ys : Array Arg) (b : FnBody) :
+    M FnBody := do
+  if c.isScalar && ty.isScalar then
+    return .vdecl x ty (.lit (.num c.cidx)) b
+  else if let .struct _ tys _ _ := ty then
+    let (ys, bs) ← castArgsIfNeededAux ys (fun i => tys[i]!)
+    return reshape bs (.vdecl x ty (.ctor c ys) b)
+  else if let .union _ tys := ty then
+    let .struct _ tys _ _ := tys[c.cidx]! | unreachable!
+    let (ys, bs) ← castArgsIfNeededAux ys (fun i => tys[i]!)
+    return reshape bs (.vdecl x ty (.ctor c ys) b)
+  else
+    boxArgsIfNeeded ys fun ys => return .vdecl x ty (.ctor c ys) b
+
+def visitVDeclExpr (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody := do
   match e with
-  | .ctor c ys =>
-    if c.isScalar && ty.isScalar then
-      return .vdecl x ty (.lit (.num c.cidx)) b
-    else
-      boxArgsIfNeeded ys fun ys => return .vdecl x ty (.ctor c ys) b
+  | .ctor c ys => visitCtorExpr x ty c ys b
   | .reuse w c u ys =>
     boxArgsIfNeeded ys fun ys => return .vdecl x ty (.reuse w c u ys) b
   | .fap f ys => do
@@ -276,14 +292,23 @@ let y : obj := f x
 where `f : obj -> uint8`. It is the job of the boxing pass to enforce a stricter obj/scalar
 separation and as such it needs to correct situations like this.
 -/
-def tryCorrectVDeclType (ty : IRType) (e : Expr) : M IRType :=
+def tryCorrectVDeclType (ty : IRType) (e : Expr) : M IRType := do
   match e with
-  | .fap f _ => do
+  | .fap f _ =>
     let decl ← getDecl f
     return decl.resultType
   | .pap .. => return .object
   | .uproj .. => return .usize
-  | .ctor .. | .reuse .. | .ap .. | .lit .. | .sproj .. | .proj .. | .reset .. =>
+  | .proj c i x =>
+    let type ← getVarType x
+    match type with
+    | .struct _ tys _ _ =>
+      return tys[i]!
+    | .union _ tys =>
+      let .struct _ tys _ _ := tys[c]! | unreachable!
+      return tys[i]!
+    | _ => return ty
+  | .ctor .. | .reuse .. | .ap .. | .lit .. | .sproj .. | .reset .. =>
     return ty
   | .unbox .. | .box .. | .isShared .. => unreachable!
 
@@ -306,6 +331,8 @@ partial def visitFnBody : FnBody → M FnBody
       return .sset x i o y ty b
   | .case tid x xType alts   => do
     let alts ← alts.mapM fun alt => alt.modifyBodyM visitFnBody
+    if xType.isObj then
+      return .case tid x (← getVarType x) alts
     castVarIfNeeded x xType fun x => do
       return .case tid x xType alts
   | .ret x             => do

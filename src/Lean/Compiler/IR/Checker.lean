@@ -91,7 +91,15 @@ def checkArgs (as : Array Arg) : M Unit :=
 
 def checkObjType (ty : IRType) : M Unit := checkType ty IRType.isObj "object expected"
 
+def checkObjOrStructType (ty : IRType) : M Unit :=
+  checkType ty (fun a => IRType.isObj a || a matches .struct .. | .union ..)
+    "object or struct expected"
+
 def checkScalarType (ty : IRType) : M Unit := checkType ty IRType.isScalar "scalar expected"
+
+def checkScalarOrStructType (ty : IRType) : M Unit :=
+  checkType ty (fun a => IRType.isScalar a || a matches .struct .. | .union ..)
+    "scalar expected"
 
 def getType (x : VarId) : M IRType := do
   let ctx ← read
@@ -146,7 +154,7 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
     if c.ssize + c.usize * usizeSize > maxCtorScalarsSize then
       throwCheckerError s!"constructor '{c.name}' has too many scalar fields"
     if c.isRef then
-      checkObjType ty
+      checkObjOrStructType ty
       checkArgs ys
   | .reset _ x =>
     checkObjVar x
@@ -160,7 +168,7 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
     checkScalarOrStructVar x
     checkVarType x (· == xty)
   | .unbox x =>
-    checkScalarType ty
+    checkScalarOrStructType ty
     checkObjVar x
   | .proj c i x =>
     let xType ← getType x;
@@ -171,21 +179,19 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
     -/
     match xType with
     | .object | .tobject =>
-      checkObjType ty
+      checkObjOrStructType ty
     | .struct _ tys _ _ =>
       if c ≠ 0 then
         throwCheckerError "expected constructor index 0 for struct"
-      if h : i < tys.size then
-        checkEqTypes (tys[i]) ty
-      else
+      if h : i ≥ tys.size then
         throwCheckerError "invalid proj index"
+      --else checkEqTypes (tys[i]) ty
     | .union _ tys =>
       if h : c < tys.size then
         let .struct _ tys _ _ := tys[c] | throwCheckerError "expected struct inside union"
-        if h : i < tys.size then
-          checkEqTypes (tys[i]) ty
-        else
+        if h : i ≥ tys.size then
           throwCheckerError "invalid proj index"
+        --else checkEqTypes (tys[i]) ty
       else
         throwCheckerError "invalid proj constructor index"
     | .tagged => pure ()

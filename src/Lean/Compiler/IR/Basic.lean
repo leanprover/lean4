@@ -100,28 +100,35 @@ inductive IRType where
 namespace IRType
 
 def isScalar : IRType → Bool
-  | float    => true
-  | float32  => true
-  | uint8    => true
-  | uint16   => true
-  | uint32   => true
-  | uint64   => true
-  | usize    => true
+  | float | float32 | uint8 | uint16 | uint32 | uint64 | usize => true
   | _        => false
 
 def isObj : IRType → Bool
-  | object  => true
-  | tagged  => true
-  | tobject => true
-  | void    => true
+  | object | tagged | tobject | void => true
   | _       => false
 
+def isStruct : IRType → Bool
+  | struct _ _ _ _ | union _ _ => true
+  | _ => false
+
+def isObjOrStruct : IRType → Bool
+  | object | tagged | tobject | void | struct .. | union .. => true
+  | _ => false
+
+def isScalarOrStruct : IRType → Bool
+  | float | float32 | uint8 | uint16 | uint32 | uint64 | usize
+  | struct _ _ _ _ | union _ _ => true
+  | _ => false
+
 def isPossibleRef : IRType → Bool
-  | object | tobject => true
+  | object | tobject | struct .. | union .. => true
   | _ => false
 
 def isDefiniteRef : IRType → Bool
   | object => true
+  | union _ tys => tys.all (!· matches struct _ #[] 0 0)
+  | struct _ #[] 0 0 => false
+  | struct .. => true
   | _ => false
 
 def isErased : IRType → Bool
@@ -135,6 +142,9 @@ def isVoid : IRType → Bool
 def boxed : IRType → IRType
   | object | float | float32 => object
   | void | tagged | uint8 | uint16 => tagged
+  | union _ tys => if tys.any (· matches struct _ #[] 0 0) then tobject else object
+  | struct _ #[] 0 0 => tagged
+  | struct .. => object
   | _ => tobject
 
 end IRType

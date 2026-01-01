@@ -63,7 +63,7 @@ typedef object_ref lit_val;
 typedef object_ref ctor_info;
 
 type to_type(object * obj) {
-    if (!is_scalar(obj)) throw exception("unsupported IRType");
+    if (!is_scalar(obj)) return type::Struct; // struct or union
     else return static_cast<type>(unbox(obj));
 }
 type cnstr_get_type(object_ref const & o, unsigned i) { return to_type(cnstr_get(o.raw(), i)); }
@@ -97,8 +97,8 @@ var_id const & expr_reuse_obj(expr const & e) { lean_assert(expr_tag(e) == expr_
 ctor_info const & expr_reuse_ctor(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reuse); return cnstr_get_ref_t<ctor_info>(e, 1); }
 bool expr_reuse_update_header(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reuse); return get_bool_field(e.raw(), 3); }
 array_ref<arg> const & expr_reuse_args(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reuse); return cnstr_get_ref_t<array_ref<arg>>(e, 2); }
-nat const & expr_proj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Proj); return cnstr_get_ref_t<nat>(e, 0); }
-var_id const & expr_proj_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Proj); return cnstr_get_ref_t<var_id>(e, 1); }
+nat const & expr_proj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Proj); return cnstr_get_ref_t<nat>(e, 1); }
+var_id const & expr_proj_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Proj); return cnstr_get_ref_t<var_id>(e, 2); }
 nat const & expr_uproj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind::UProj); return cnstr_get_ref_t<nat>(e, 0); }
 var_id const & expr_uproj_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::UProj); return cnstr_get_ref_t<var_id>(e, 1); }
 nat const & expr_sproj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind::SProj); return cnstr_get_ref_t<nat>(e, 0); }
@@ -222,7 +222,7 @@ std::string format_fn_body_head(fn_body const & b) {
 
 static bool type_is_scalar(type t) {
     return t != type::Object && t != type::Tagged && t != type::TObject && t != type::Irrelevant
-            && t != type::Void;
+            && t != type::Void && t != type::Struct && t != type::Union;
 }
 
 extern "C" object* lean_get_regular_init_fn_name_for(object* env, object* fn);
@@ -277,10 +277,11 @@ object * box_t(value v, type t) {
     case type::TObject:
     case type::Irrelevant:
     case type::Void:
-        return v.m_obj;
+    // Note: structs and unions are not supported by the interpreter
+    // and thus are passed around in boxed form, i.e. unbox and box are no-ops
     case type::Struct:
     case type::Union:
-        throw exception("not implemented yet");
+        return v.m_obj;
     }
     lean_unreachable();
 }
@@ -302,7 +303,9 @@ value unbox_t(object * o, type t) {
         break;
     case type::Struct:
     case type::Union:
-        throw exception("not implemented yet");
+        // Note: structs and unions are not supported by the interpreter
+        // and thus are passed around in boxed form, i.e. unbox and box are no-ops
+        return value(o);
     }
     lean_unreachable();
 }

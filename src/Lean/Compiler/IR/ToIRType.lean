@@ -162,22 +162,24 @@ where
       unboxedIRType declName args
     else
       nameToIRType declName
-  unboxedIRType (declName : Name) (args : Array Lean.Expr) : CoreM IRType := do
-    let induct ← getConstInfoInduct declName
-    if args.size < induct.numParams then
-      throwError "too few parameters for type {declName}: \
-        expected {induct.numParams} but got only {args.size}"
-    let params := args.extract 0 induct.numParams
-    if let [] := induct.ctors then
-      return .erased -- really, an "impossible" type but erased is good enough
-    if let [ctor] := induct.ctors then
-      return ← unboxedIRTypeCtor declName ctor params
-    let mut types : Array IRType := #[]
-    for ctor in induct.ctors do
-      types := types.push (← unboxedIRTypeCtor none ctor params)
-    return .union declName types
+
+partial def unboxedIRType (declName : Name) (args : Array Lean.Expr) : CoreM IRType := do
+  let induct ← getConstInfoInduct declName
+  if args.size < induct.numParams then
+    throwError "too few parameters for type {declName}: \
+      expected {induct.numParams} but got only {args.size}"
+  let params := args.extract 0 induct.numParams
+  if let [] := induct.ctors then
+    return .erased -- really, an "impossible" type but erased is good enough
+  if let [ctor] := induct.ctors then
+    return ← handleCtor declName ctor params
+  let mut types : Array IRType := #[]
+  for ctor in induct.ctors do
+    types := types.push (← handleCtor none ctor params)
+  return .union declName types
+where
   /-- `induct` is specified if this is the only constructor -/
-  unboxedIRTypeCtor (induct : Option Name) (ctorName : Name)
+  handleCtor (induct : Option Name) (ctorName : Name)
       (params : Array Lean.Expr) : CoreM IRType := do
     let ctorLayout ← getCtorLayout ctorName
     let type := (← getConstVal ctorName).type

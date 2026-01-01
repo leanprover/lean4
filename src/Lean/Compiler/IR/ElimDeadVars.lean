@@ -46,7 +46,6 @@ partial def reshapeWithoutDead (bs : Array FnBody) (term : FnBody) : FnBody :=
           reshape bs b used
       match curr with
       | FnBody.vdecl x _ e _  => keepIfUsedLet x.idx e
-      -- TODO: we should keep all struct/union projections because they are used to ensure struct/union values are fully consumed.
       | FnBody.jdecl j _ _ _  => keepIfUsedJp j.idx
       | _                     => keep ()
   reshape bs term term.freeIndices

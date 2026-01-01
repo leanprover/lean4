@@ -23,6 +23,7 @@ public import Lean.Meta.Sym.InferType
 public import Lean.Meta.Sym.SimpM
 public import Lean.Meta.Sym.CongrInfo
 public import Lean.Meta.Sym.Simp
+public import Lean.Meta.Sym.EqTrans
 
 /-!
 # Symbolic simulation support.

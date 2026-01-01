@@ -581,16 +581,16 @@ instance [Monad m] : ForIn' m (Array α) α inferInstance where
 /-- See comment at `forIn'Unsafe` -/
 @[inline]
 unsafe def foldlMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Array α) (start := 0) (stop := as.size) : m β :=
-  let rec @[specialize] fold (i : USize) (stop : USize) (b : β) : m β := do
+  let rec @[specialize] fold (i : Nat) (stop : Nat) (b : β) : m β := do
     if i == stop then
       pure b
     else
-      fold (i+1) stop (← f b (as.uget i lcProof))
+      fold (i+1) stop (← f b (as.getInternal i lcProof))
   if start < stop then
     if stop ≤ as.size then
-      fold (USize.ofNat start) (USize.ofNat stop) init
+      fold start stop init
     else if start < as.size then
-      fold (USize.ofNat start) (USize.ofNat as.size) init
+      fold start as.size init
     else
       pure init
   else

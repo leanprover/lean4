@@ -69,10 +69,10 @@ def addBoxedVersions (env : Environment) (decls : Array Decl) : Array Decl :=
 def eqvTypes (t₁ t₂ : IRType) : Bool :=
   if t₁.isScalar then
     t₁ == t₂
-  else if t₁ matches .union .. | .struct .. then
-    t₂ matches .union .. | .struct ..
+  else if t₁.isStruct then
+    t₂.isStruct
   else
-    t₂ matches .erased | .void | .tagged | .object | .tobject
+    !t₂.isScalarOrStruct
 
 structure BoxingContext where
   f : FunId
@@ -155,7 +155,7 @@ private def isExpensiveConstantValueBoxing (x : VarId) (xType : IRType) : M (Opt
    It is used when the expected type does not match `xType`.
    If `xType` is scalar, then we need to "box" it. Otherwise, we need to "unbox" it. -/
 def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
-  if expectedType.isScalar || expectedType matches .struct .. | .union .. then
+  if expectedType.isScalarOrStruct then
     return .unbox x
   else
     match (← isExpensiveConstantValueBoxing x xType) with

@@ -92,14 +92,12 @@ def checkArgs (as : Array Arg) : M Unit :=
 def checkObjType (ty : IRType) : M Unit := checkType ty IRType.isObj "object expected"
 
 def checkObjOrStructType (ty : IRType) : M Unit :=
-  checkType ty (fun a => IRType.isObj a || a matches .struct .. | .union ..)
-    "object or struct expected"
+  checkType ty IRType.isObjOrStruct "object or struct expected"
 
 def checkScalarType (ty : IRType) : M Unit := checkType ty IRType.isScalar "scalar expected"
 
 def checkScalarOrStructType (ty : IRType) : M Unit :=
-  checkType ty (fun a => IRType.isScalar a || a matches .struct .. | .union ..)
-    "scalar expected"
+  checkType ty IRType.isScalarOrStruct "scalar expected"
 
 def getType (x : VarId) : M IRType := do
   let ctx ← read
@@ -114,12 +112,10 @@ def checkObjVar (x : VarId) : M Unit :=
   checkVarType x IRType.isObj "object expected"
 
 def checkObjOrStructVar (x : VarId) : M Unit :=
-  checkVarType x (fun a => IRType.isObj a || a matches .struct .. | .union ..)
-    "object or struct expected"
+  checkVarType x IRType.isObjOrStruct "object or struct expected"
 
 def checkScalarOrStructVar (x : VarId) : M Unit :=
-  checkVarType x (fun a => IRType.isScalar a || a matches .struct .. | .union ..)
-    "scalar expected"
+  checkVarType x IRType.isScalarOrStruct "scalar expected"
 
 def checkFullApp (c : FunId) (ys : Array Arg) : M Unit := do
   let decl ← getDecl c

@@ -59,16 +59,16 @@ private partial def mkErrorMessage (c : InputContext) (pos : String.Pos.Raw) (st
       endPos? := some r.stop
     let unexpected := match e.unexpectedTk with
       | .ident _ rawVal _ _ =>
-        s!"unexpected identifier `{Substring.Raw.Internal.toString rawVal}`"
+        s!"unexpected identifier `{toString rawVal}`"
       | .atom _ v =>
         s!"unexpected token `{v}`"
       | .node _ k #[.atom _ v] =>
         if k == numLitKind then
           s!"unexpected numeral `{v}`"
         else if k == strLitKind then
-          s!"unexpected string literal `{v}`"
+          s!"unexpected string literal {v}"
         else if k == charLitKind then
-          s!"unexpected character literal `{v}`"
+          s!"unexpected character literal {v}"
         else if k == scientificLitKind then
           s!"unexpected scientific numeral `{v}`"
         else if k == nameLitKind then
@@ -78,9 +78,9 @@ private partial def mkErrorMessage (c : InputContext) (pos : String.Pos.Raw) (st
         else if k == hexnumKind then
           s!"unexpected hexadecimal number `{v}`"
         else if k == interpolatedStrLitKind then
-          s!"unexpected interpolated string fragment `{v}`"
+          s!"unexpected interpolated string fragment {v}"
         else
-          s!"unexpected token `{v}` (kind `{k}`)"
+          s!"unexpected token `{v}`"
       | _ =>
         "unexpected token"
     e := { e with unexpected }

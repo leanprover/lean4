@@ -66,11 +66,19 @@ def addBoxedVersions (env : Environment) (decls : Array Decl) : Array Decl :=
     if requiresBoxedVersion env decl then newDecls.push (mkBoxedVersion decl) else newDecls
   decls ++ boxedDecls
 
-def eqvTypes (t₁ t₂ : IRType) : Bool :=
+partial def eqvTypes (t₁ t₂ : IRType) : Bool :=
   if t₁.isScalar then
     t₁ == t₂
-  else if t₁.isStruct then
-    t₂.isStruct
+  else if let .union _ tys := t₁ then
+    if let .union _ tys' := t₂ then
+      tys.isEqv tys' eqvTypes
+    else
+      false
+  else if let .struct _ tys us ss := t₁ then
+    if let .struct _ tys' us' ss' := t₂ then
+      us == us' && ss == ss' && tys.isEqv tys' eqvTypes
+    else
+      false
   else
     !t₂.isScalarOrStruct
 
@@ -156,6 +164,8 @@ private def isExpensiveConstantValueBoxing (x : VarId) (xType : IRType) : M (Opt
    If `xType` is scalar, then we need to "box" it. Otherwise, we need to "unbox" it. -/
 def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
   if expectedType.isScalarOrStruct then
+    -- Note: this is also used for "reboxing" when `xType` and `expectedType`
+    -- are different structs/unions
     return .unbox x
   else
     match (← isExpensiveConstantValueBoxing x xType) with
@@ -234,7 +244,7 @@ def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Arr
   pure (reshape bs b)
 
 def unboxResultIfNeeded (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody := do
-  if ty.isScalar then
+  if ty.isScalarOrStruct then
     let y ← M.mkFresh
     return .vdecl y .tobject e (.vdecl x ty (.unbox y) b)
   else

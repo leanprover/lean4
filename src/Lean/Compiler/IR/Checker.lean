@@ -165,7 +165,7 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
     checkVarType x (· == xty)
   | .unbox x =>
     checkScalarOrStructType ty
-    checkObjVar x
+    checkObjOrStructVar x
   | .proj c i x =>
     let xType ← getType x;
     /-

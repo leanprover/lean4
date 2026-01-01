@@ -154,9 +154,15 @@ structure State where
 /-- Monad for the structural simplifier, layered on top of `SymM`. -/
 abbrev SimpM := ReaderT Context StateRefT State SymM
 
+instance : Inhabited (SimpM α) where
+  default := throwError "<default>"
+
 /-- Runs a `SimpM` computation with the given theorems and configuration. -/
 abbrev SimpM.run (x : SimpM α) (thms : Theorems := {}) (config : Config := {}) : SymM α := do
   let initialLCtxSize := (← getLCtx).decls.size
   x { initialLCtxSize, thms, config } |>.run' {}
+
+@[extern "lean_sym_simp"] -- Forward declaration
+opaque simp (e : Expr) : SimpM Result
 
 end Lean.Meta.Sym.Simp

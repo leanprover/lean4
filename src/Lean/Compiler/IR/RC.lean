@@ -66,7 +66,7 @@ private partial def removeFromParent (child : VarId) : M Unit := do
 
 private partial def visitFnBody (b : FnBody) : M Unit := do
   match b with
-  | .vdecl x _ e b =>
+  | .vdecl x t e b =>
     match e with
     | .proj _ _ parent =>
       addDerivedValue parent x
@@ -78,6 +78,9 @@ private partial def visitFnBody (b : FnBody) : M Unit := do
         addDerivedValue parent x
     | .reset _ x =>
       removeFromParent x
+    | .unbox y =>
+      if t.isStruct then
+        addDerivedValue y x
     | _ => pure ()
     visitFnBody b
   | .jdecl _ ps v b =>
@@ -360,7 +363,12 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
       let b := addDecIfNeeded ctx x b bLiveVars
       let b := if !bLiveVars.borrows.contains z then addInc ctx z b else b
       .vdecl z t v b
-    | .uproj _ x | .sproj _ _ x | .unbox x =>
+    | .unbox x =>
+      let b := addDecIfNeeded ctx x b bLiveVars
+      -- Note: this is meant for struct/union types
+      let b := if !t.isScalar && !bLiveVars.borrows.contains z then addInc ctx z b else b
+      .vdecl z t v b
+    | .uproj _ x | .sproj _ _ x =>
       .vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
     | .fap f ys =>
       let ps := (getDecl ctx f).params

@@ -355,7 +355,7 @@ partial def visitFnBody : FnBody → M FnBody
     pure other
 
 def run (env : Environment) (decls : Array Decl) : Array Decl :=
-  let decls := decls.foldl (init := #[]) fun newDecls decl =>
+  decls.foldl (init := #[]) fun newDecls decl =>
     match decl with
     | .fdecl f xs resultType b _ =>
       let nextIdx  := decl.maxIndex + 1
@@ -365,7 +365,6 @@ def run (env : Environment) (decls : Array Decl) : Array Decl :=
       let newDecl  := newDecl.elimDead
       newDecls.push newDecl
     | d => newDecls.push d
-  addBoxedVersions env decls
 
 end ExplicitBoxing
 

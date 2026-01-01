@@ -3944,6 +3944,8 @@ uint8_t x_12;
 x_12 = lean_nat_dec_le(x_8, x_8);
 if (x_12 == 0)
 {
+if (x_10 == 0)
+{
 lean_object* x_13; 
 x_13 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_13, 0, x_9);
@@ -3956,6 +3958,15 @@ x_14 = 0;
 x_15 = lean_usize_of_nat(x_8);
 x_16 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_eraseCodeDecls_spec__0___redArg(x_1, x_14, x_15, x_9, x_3);
 return x_16;
+}
+}
+else
+{
+size_t x_17; size_t x_18; lean_object* x_19; 
+x_17 = 0;
+x_18 = lean_usize_of_nat(x_8);
+x_19 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Compiler_LCNF_eraseCodeDecls_spec__0___redArg(x_1, x_17, x_18, x_9, x_3);
+return x_19;
 }
 }
 }

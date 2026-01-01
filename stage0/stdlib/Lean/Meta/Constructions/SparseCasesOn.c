@@ -578,6 +578,8 @@ uint8_t x_19;
 x_19 = lean_nat_dec_le(x_17, x_17);
 if (x_19 == 0)
 {
+if (x_18 == 0)
+{
 x_8 = x_15;
 goto block_14;
 }
@@ -588,6 +590,16 @@ x_20 = 0;
 x_21 = lean_usize_of_nat(x_17);
 x_22 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Meta_Constructions_SparseCasesOn_0__Lean_Meta_instHashableSparseCasesOnKey_hash_spec__0(x_3, x_20, x_21, x_15);
 x_8 = x_22;
+goto block_14;
+}
+}
+else
+{
+size_t x_23; size_t x_24; uint64_t x_25; 
+x_23 = 0;
+x_24 = lean_usize_of_nat(x_17);
+x_25 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Meta_Constructions_SparseCasesOn_0__Lean_Meta_instHashableSparseCasesOnKey_hash_spec__0(x_3, x_23, x_24, x_15);
+x_8 = x_25;
 goto block_14;
 }
 }

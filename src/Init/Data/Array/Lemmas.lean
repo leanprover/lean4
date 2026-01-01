@@ -62,6 +62,9 @@ theorem eq_empty_of_size_eq_zero (h : xs.size = 0) : xs = #[] := by
   cases xs
   simp_all
 
+grind_pattern eq_empty_of_size_eq_zero => xs.size where
+  guard xs.size = 0
+
 theorem ne_empty_of_size_eq_add_one (h : xs.size = n + 1) : xs ≠ #[] := by
   cases xs
   simpa using List.ne_nil_of_length_eq_add_one h

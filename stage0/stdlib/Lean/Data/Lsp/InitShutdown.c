@@ -1514,25 +1514,37 @@ goto block_10;
 }
 else
 {
-uint8_t x_18; 
-x_18 = lean_nat_dec_le(x_16, x_16);
-if (x_18 == 0)
+lean_object* x_18; uint8_t x_19; 
+x_18 = lean_alloc_closure((void*)(l_Lean_Lsp_instToJsonHashSet___redArg___lam__2), 4, 2);
+lean_closure_set(x_18, 0, x_14);
+lean_closure_set(x_18, 1, x_2);
+x_19 = lean_nat_dec_le(x_16, x_16);
+if (x_19 == 0)
 {
+if (x_17 == 0)
+{
+lean_dec_ref(x_18);
 lean_dec_ref(x_12);
-lean_dec_ref(x_2);
 x_4 = x_13;
 goto block_10;
 }
 else
 {
-lean_object* x_19; size_t x_20; size_t x_21; lean_object* x_22; 
-x_19 = lean_alloc_closure((void*)(l_Lean_Lsp_instToJsonHashSet___redArg___lam__2), 4, 2);
-lean_closure_set(x_19, 0, x_14);
-lean_closure_set(x_19, 1, x_2);
+size_t x_20; size_t x_21; lean_object* x_22; 
 x_20 = 0;
 x_21 = lean_usize_of_nat(x_16);
-x_22 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_14, x_19, x_12, x_20, x_21, x_13);
+x_22 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_14, x_18, x_12, x_20, x_21, x_13);
 x_4 = x_22;
+goto block_10;
+}
+}
+else
+{
+size_t x_23; size_t x_24; lean_object* x_25; 
+x_23 = 0;
+x_24 = lean_usize_of_nat(x_16);
+x_25 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_14, x_18, x_12, x_23, x_24, x_13);
+x_4 = x_25;
 goto block_10;
 }
 }
@@ -3085,6 +3097,8 @@ uint8_t x_20;
 x_20 = lean_nat_dec_le(x_18, x_18);
 if (x_20 == 0)
 {
+if (x_19 == 0)
+{
 x_3 = x_16;
 goto block_11;
 }
@@ -3095,6 +3109,16 @@ x_21 = 0;
 x_22 = lean_usize_of_nat(x_18);
 x_23 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Json_opt___at___00Lean_Lsp_instToJsonLogConfig_toJson_spec__1_spec__3(x_15, x_21, x_22, x_16);
 x_3 = x_23;
+goto block_11;
+}
+}
+else
+{
+size_t x_24; size_t x_25; lean_object* x_26; 
+x_24 = 0;
+x_25 = lean_usize_of_nat(x_18);
+x_26 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Json_opt___at___00Lean_Lsp_instToJsonLogConfig_toJson_spec__1_spec__3(x_15, x_24, x_25, x_16);
+x_3 = x_26;
 goto block_11;
 }
 }

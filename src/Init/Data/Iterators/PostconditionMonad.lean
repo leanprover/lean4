@@ -287,6 +287,12 @@ theorem PostconditionT.run_attachLift {m : Type w → Type w'} [Monad m] [MonadA
     {x : m α} : (attachLift x).run = x := by
   simp [attachLift, run_eq_map, WeaklyLawfulMonadAttach.map_attach]
 
+@[simp]
+theorem PostconditionT.operation_attachLift {m : Type w → Type w'} [Monad m] [MonadAttach m]
+    {α : Type w} {x : m α} : (attachLift x : PostconditionT m α).operation =
+      MonadAttach.attach x := by
+  rfl
+
 instance {m : Type w → Type w'} {n : Type w → Type w''} [MonadLift m n] :
     MonadLift (PostconditionT m) (PostconditionT n) where
   monadLift x := ⟨_, monadLift x.operation⟩

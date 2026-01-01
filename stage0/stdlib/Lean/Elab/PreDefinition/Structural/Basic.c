@@ -1112,6 +1112,8 @@ uint8_t x_5;
 x_5 = lean_nat_dec_le(x_3, x_3);
 if (x_5 == 0)
 {
+if (x_4 == 0)
+{
 return x_2;
 }
 else
@@ -1121,6 +1123,15 @@ x_6 = 0;
 x_7 = lean_usize_of_nat(x_3);
 x_8 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Structural_Positions_numIndices_spec__0(x_1, x_6, x_7, x_2);
 return x_8;
+}
+}
+else
+{
+size_t x_9; size_t x_10; lean_object* x_11; 
+x_9 = 0;
+x_10 = lean_usize_of_nat(x_3);
+x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Structural_Positions_numIndices_spec__0(x_1, x_9, x_10, x_2);
+return x_11;
 }
 }
 }
@@ -1361,31 +1372,38 @@ return x_10;
 }
 else
 {
-uint8_t x_13; 
-x_13 = lean_nat_dec_le(x_9, x_9);
-if (x_13 == 0)
+lean_object* x_13; uint8_t x_14; 
+x_13 = lean_alloc_closure((void*)(l_Lean_Elab_Structural_Positions_groupAndSort___redArg___lam__0___boxed), 7, 5);
+lean_closure_set(x_13, 0, x_2);
+lean_closure_set(x_13, 1, x_1);
+lean_closure_set(x_13, 2, x_3);
+lean_closure_set(x_13, 3, x_4);
+lean_closure_set(x_13, 4, x_5);
+x_14 = lean_nat_dec_le(x_9, x_9);
+if (x_14 == 0)
 {
+if (x_12 == 0)
+{
+lean_dec_ref(x_13);
 lean_dec_ref(x_7);
-lean_dec(x_5);
-lean_dec_ref(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec_ref(x_1);
 return x_10;
 }
 else
 {
-lean_object* x_14; size_t x_15; size_t x_16; lean_object* x_17; 
-x_14 = lean_alloc_closure((void*)(l_Lean_Elab_Structural_Positions_groupAndSort___redArg___lam__0___boxed), 7, 5);
-lean_closure_set(x_14, 0, x_2);
-lean_closure_set(x_14, 1, x_1);
-lean_closure_set(x_14, 2, x_3);
-lean_closure_set(x_14, 3, x_4);
-lean_closure_set(x_14, 4, x_5);
+size_t x_15; size_t x_16; lean_object* x_17; 
 x_15 = 0;
 x_16 = lean_usize_of_nat(x_9);
-x_17 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_11, x_14, x_7, x_15, x_16, x_10);
+x_17 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_11, x_13, x_7, x_15, x_16, x_10);
 return x_17;
+}
+}
+else
+{
+size_t x_18; size_t x_19; lean_object* x_20; 
+x_18 = 0;
+x_19 = lean_usize_of_nat(x_9);
+x_20 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_11, x_13, x_7, x_18, x_19, x_10);
+return x_20;
 }
 }
 }
@@ -1443,21 +1461,33 @@ goto block_46;
 }
 else
 {
-uint8_t x_51; 
-x_51 = lean_nat_dec_le(x_49, x_49);
-if (x_51 == 0)
+lean_object* x_51; uint8_t x_52; 
+x_51 = l_Lean_Elab_Structural_Positions_groupAndSort___redArg___closed__8;
+x_52 = lean_nat_dec_le(x_49, x_49);
+if (x_52 == 0)
+{
+if (x_50 == 0)
 {
 x_38 = x_47;
 goto block_46;
 }
 else
 {
-lean_object* x_52; size_t x_53; lean_object* x_54; 
-x_52 = l_Lean_Elab_Structural_Positions_groupAndSort___redArg___closed__8;
+size_t x_53; lean_object* x_54; 
 x_53 = lean_usize_of_nat(x_49);
 lean_inc(x_15);
-x_54 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_12, x_52, x_15, x_14, x_53, x_47);
+x_54 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_12, x_51, x_15, x_14, x_53, x_47);
 x_38 = x_54;
+goto block_46;
+}
+}
+else
+{
+size_t x_55; lean_object* x_56; 
+x_55 = lean_usize_of_nat(x_49);
+lean_inc(x_15);
+x_56 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_12, x_51, x_15, x_14, x_55, x_47);
+x_38 = x_56;
 goto block_46;
 }
 }
@@ -1511,14 +1541,14 @@ goto block_23;
 block_37:
 {
 uint8_t x_36; 
-x_36 = lean_nat_dec_le(x_35, x_34);
+x_36 = lean_nat_dec_le(x_35, x_32);
 if (x_36 == 0)
 {
-lean_dec(x_34);
+lean_dec(x_32);
 lean_inc(x_35);
 x_24 = x_31;
-x_25 = x_32;
-x_26 = x_33;
+x_25 = x_33;
+x_26 = x_34;
 x_27 = x_35;
 x_28 = x_35;
 goto block_30;
@@ -1526,10 +1556,10 @@ goto block_30;
 else
 {
 x_24 = x_31;
-x_25 = x_32;
-x_26 = x_33;
+x_25 = x_33;
+x_26 = x_34;
 x_27 = x_35;
-x_28 = x_34;
+x_28 = x_32;
 goto block_30;
 }
 }
@@ -1550,18 +1580,18 @@ if (x_45 == 0)
 {
 lean_inc(x_44);
 x_31 = x_39;
-x_32 = x_42;
-x_33 = x_38;
-x_34 = x_44;
+x_32 = x_44;
+x_33 = x_42;
+x_34 = x_38;
 x_35 = x_44;
 goto block_37;
 }
 else
 {
 x_31 = x_39;
-x_32 = x_42;
-x_33 = x_38;
-x_34 = x_44;
+x_32 = x_44;
+x_33 = x_42;
+x_34 = x_38;
 x_35 = x_40;
 goto block_37;
 }

@@ -914,9 +914,12 @@ goto block_25;
 }
 else
 {
-uint8_t x_30; 
-x_30 = lean_nat_dec_le(x_27, x_27);
-if (x_30 == 0)
+lean_object* x_30; uint8_t x_31; 
+x_30 = lean_ctor_get(x_6, 2);
+x_31 = lean_nat_dec_le(x_27, x_27);
+if (x_31 == 0)
+{
+if (x_29 == 0)
 {
 lean_dec_ref(x_26);
 lean_dec_ref(x_3);
@@ -926,14 +929,25 @@ goto block_25;
 }
 else
 {
-lean_object* x_31; size_t x_32; size_t x_33; lean_object* x_34; 
-x_31 = lean_ctor_get(x_6, 2);
+size_t x_32; size_t x_33; lean_object* x_34; 
 x_32 = 0;
 x_33 = lean_usize_of_nat(x_27);
-lean_inc_ref(x_31);
-x_34 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_ParserCompiler_parserNodeKind_x3f_spec__2(x_31, x_2, x_3, x_26, x_32, x_33, x_28);
+lean_inc_ref(x_30);
+x_34 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_ParserCompiler_parserNodeKind_x3f_spec__2(x_30, x_2, x_3, x_26, x_32, x_33, x_28);
 lean_dec_ref(x_26);
 x_12 = x_34;
+goto block_25;
+}
+}
+else
+{
+size_t x_35; size_t x_36; lean_object* x_37; 
+x_35 = 0;
+x_36 = lean_usize_of_nat(x_27);
+lean_inc_ref(x_30);
+x_37 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_ParserCompiler_parserNodeKind_x3f_spec__2(x_30, x_2, x_3, x_26, x_35, x_36, x_28);
+lean_dec_ref(x_26);
+x_12 = x_37;
 goto block_25;
 }
 }
@@ -1254,16 +1268,16 @@ if (x_28 == 0)
 {
 uint8_t x_29; 
 x_29 = l_Lean_Exception_isRuntime(x_27);
-x_7 = lean_box(0);
-x_8 = x_19;
+x_7 = x_19;
+x_8 = lean_box(0);
 x_9 = x_29;
 goto block_12;
 }
 else
 {
 lean_dec(x_27);
-x_7 = lean_box(0);
-x_8 = x_19;
+x_7 = x_19;
+x_8 = lean_box(0);
 x_9 = x_28;
 goto block_12;
 }
@@ -1282,16 +1296,16 @@ if (x_32 == 0)
 {
 uint8_t x_33; 
 x_33 = l_Lean_Exception_isRuntime(x_30);
-x_7 = lean_box(0);
-x_8 = x_31;
+x_7 = x_31;
+x_8 = lean_box(0);
 x_9 = x_33;
 goto block_12;
 }
 else
 {
 lean_dec(x_30);
-x_7 = lean_box(0);
-x_8 = x_31;
+x_7 = x_31;
+x_8 = lean_box(0);
 x_9 = x_32;
 goto block_12;
 }
@@ -1334,7 +1348,7 @@ block_12:
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
-lean_dec_ref(x_8);
+lean_dec_ref(x_7);
 x_10 = lean_box(0);
 x_11 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
@@ -1342,7 +1356,7 @@ return x_11;
 }
 else
 {
-return x_8;
+return x_7;
 }
 }
 }

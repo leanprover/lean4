@@ -9,7 +9,7 @@ prelude
 public import Lean.InternalExceptionId
 -- This import is necessary to ensure that any users of the `throwNamedError` macros have access to
 -- all declared explanations:
-public import Lean.ErrorExplanations
+public import Lean.ErrorExplanation
 
 public section
 

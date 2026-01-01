@@ -1646,6 +1646,8 @@ uint8_t x_15;
 x_15 = lean_nat_dec_le(x_13, x_13);
 if (x_15 == 0)
 {
+if (x_14 == 0)
+{
 lean_dec_ref(x_2);
 x_3 = x_11;
 goto block_10;
@@ -1661,13 +1663,24 @@ x_3 = x_18;
 goto block_10;
 }
 }
+else
+{
+size_t x_19; size_t x_20; lean_object* x_21; 
+x_19 = 0;
+x_20 = lean_usize_of_nat(x_13);
+x_21 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_formatQuery___at___00Lake_InputDir_defaultFacetConfig_spec__0_spec__0(x_2, x_19, x_20, x_11);
+lean_dec_ref(x_2);
+x_3 = x_21;
+goto block_10;
+}
+}
 }
 else
 {
-lean_object* x_19; lean_object* x_20; 
-x_19 = l_Array_toJson___at___00Lake_formatQuery___at___00Lake_InputDir_defaultFacetConfig_spec__0_spec__1(x_2);
-x_20 = l_Lean_Json_compress(x_19);
-return x_20;
+lean_object* x_22; lean_object* x_23; 
+x_22 = l_Array_toJson___at___00Lake_formatQuery___at___00Lake_InputDir_defaultFacetConfig_spec__0_spec__1(x_2);
+x_23 = l_Lean_Json_compress(x_22);
+return x_23;
 }
 block_10:
 {

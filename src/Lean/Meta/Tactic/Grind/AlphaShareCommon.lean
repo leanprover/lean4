@@ -59,12 +59,17 @@ instance : BEq AlphaKey where
   beq k₁ k₂ := private alphaEq k₁.expr k₂.expr
 
 structure AlphaShareCommon.State where
-  map : PHashMap ExprPtr Expr := {}
   set : PHashSet AlphaKey := {}
 
 abbrev AlphaShareCommonM := StateM AlphaShareCommon.State
 
-private def save (e : Expr) (r : Expr) : AlphaShareCommonM Expr := do
+private structure State where
+  map : Std.HashMap ExprPtr Expr := {}
+  set : PHashSet AlphaKey := {}
+
+private abbrev M := StateM State
+
+private def save (e : Expr) (r : Expr) : M Expr := do
   if let some r := (← get).set.find? { expr := r } then
     let r := r.expr
     modify fun { set, map } => {
@@ -79,35 +84,102 @@ private def save (e : Expr) (r : Expr) : AlphaShareCommonM Expr := do
     }
     return r
 
-private abbrev visit (e : Expr) (k : AlphaShareCommonM Expr) : AlphaShareCommonM Expr := do
-  if let some r := (← get).map.find? { expr := e } then
+private abbrev visit (e : Expr) (k : M Expr) : M Expr := do
+  /-
+  **Note**: The input may be a DAG, and we don't want to visit the same sub-expression
+  over and over again.
+  -/
+  if let some r := (← get).map[{ expr := e : ExprPtr }]? then
     return r
+  else
+  /-
+  **Note**: The input may contain sub-expressions that have already been processed and are
+  already maximally shared.
+  -/
+  if let some r := (← get).set.find? { expr := e } then
+    return r.expr
   else
     save e (← k)
 
+private def go (e : Expr) : M Expr := do
+  match e with
+  | .bvar .. | .mvar .. | .const .. | .fvar .. | .sort .. | .lit .. =>
+    if let some r := (← get).set.find? { expr := e } then
+      return r.expr
+    else
+      modify fun { set, map } => { set := set.insert { expr := e }, map }
+      return e
+  | .app f a =>
+    visit e (return mkApp (← go f) (← go a))
+  | .letE n t v b nd =>
+    visit e (return mkLet n t (← go v) (← go b) nd)
+  | .forallE n d b bi =>
+    visit e (return mkForall n bi (← go d) (← go b))
+  | .lam n d b bi =>
+    visit e (return mkLambda n bi (← go d) (← go b))
+  | .mdata d b =>
+    visit e (return mkMData d (← go b))
+  | .proj n i b =>
+    visit e (return mkProj n i (← go b))
+
 /-- Similar to `shareCommon`, but handles alpha-equivalence. -/
-def shareCommonAlpha (e : Expr) : AlphaShareCommonM Expr :=
+@[inline] def shareCommonAlpha (e : Expr) : AlphaShareCommonM Expr := fun s =>
+  if let some r := s.set.find? { expr := e } then
+    (r.expr, s)
+  else
+    let (e, { set, .. }) := go e |>.run { map := {}, set := s.set }
+    (e, ⟨set⟩)
+
+private def saveInc (e : Expr) : AlphaShareCommonM Expr := do
+  if let some r := (← get).set.find? { expr := e } then
+    return r.expr
+  else
+    modify fun { set := set } => { set := set.insert { expr := e } }
+    return e
+
+@[inline] private def visitInc (e : Expr) (k : AlphaShareCommonM Expr) : AlphaShareCommonM Expr := do
+  if let some r := (← get).set.find? { expr := e } then
+    return r.expr
+  else
+    saveInc (← k)
+
+/--
+Incremental variant of `shareCommonAlpha` for expressions constructed from already-shared subterms.
+
+Use this when an expression `e` was produced by a Lean API (e.g., `inferType`, `mkApp4`) that
+does not preserve maximal sharing, but the inputs to that API were already maximally shared.
+In this case, only the newly constructed nodes need processing—the shared subterms can be
+looked up directly in the `AlphaShareCommonM` state without building a temporary hashmap.
+
+Unlike `shareCommonAlpha`, this function does not use a local `Std.HashMap ExprPtr Expr` to
+track visited nodes. This is more efficient when the number of new (unshared) nodes is small,
+which is the common case when wrapping API calls that build a few constructor nodes around
+shared inputs.
+
+Example:
+```
+-- `a` and `b` are already maximally shared
+let result := mkApp2 f a b  -- result is not maximally shared
+let result ← shareCommonAlphaInc result -- efficiently restore sharing
+```
+-/
+@[inline] def shareCommonAlphaInc (e : Expr) : AlphaShareCommonM Expr :=
   go e
 where
   go (e : Expr) : AlphaShareCommonM Expr := do
-    match e with
-    | .bvar .. | .mvar .. | .const .. | .fvar .. | .sort .. | .lit .. =>
-      if let some r := (← get).set.find? { expr := e } then
-        return r.expr
-      else
-        modify fun { set, map } => { set := set.insert { expr := e }, map }
-        return e
-    | .app f a =>
-      visit e (return mkApp (← go f) (← go a))
-    | .letE n t v b nd =>
-      visit e (return mkLet n t (← go v) (← go b) nd)
-    | .forallE n d b bi =>
-      visit e (return mkForall n bi (← go d) (← go b))
-    | .lam n d b bi =>
-      visit e (return mkLambda n bi (← go d) (← go b))
-    | .mdata d b =>
-      visit e (return mkMData d (← go b))
-    | .proj n i b =>
-      visit e (return mkProj n i (← go b))
+  match e with
+  | .bvar .. | .mvar .. | .const .. | .fvar .. | .sort .. | .lit .. => saveInc e
+  | .app f a =>
+    visitInc e (return mkApp (← go f) (← go a))
+  | .letE n t v b nd =>
+    visitInc e (return mkLet n t (← go v) (← go b) nd)
+  | .forallE n d b bi =>
+    visitInc e (return mkForall n bi (← go d) (← go b))
+  | .lam n d b bi =>
+    visitInc e (return mkLambda n bi (← go d) (← go b))
+  | .mdata d b =>
+    visitInc e (return mkMData d (← go b))
+  | .proj n i b =>
+    visitInc e (return mkProj n i (← go b))
 
 end Lean.Meta.Grind

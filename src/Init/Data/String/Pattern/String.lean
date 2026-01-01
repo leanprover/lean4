@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.String.Pattern.Basic
-public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.Consumers.Monadic.Loop
 import Init.Data.String.Termination
 public import Init.Data.Vector.Basic
@@ -223,7 +222,7 @@ private instance : WellFoundedRelation (ForwardSliceSearcher s) where
 
 private def finitenessRelation :
     Std.Iterators.FinitenessRelation (ForwardSliceSearcher s) Id where
-  rel := InvImage WellFoundedRelation.rel (fun it => it.internalState)
+  Rel := InvImage WellFoundedRelation.rel (fun it => it.internalState)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf

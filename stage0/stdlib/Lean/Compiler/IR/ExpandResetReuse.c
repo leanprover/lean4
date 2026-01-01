@@ -718,6 +718,8 @@ uint8_t x_18;
 x_18 = lean_nat_dec_le(x_16, x_16);
 if (x_18 == 0)
 {
+if (x_17 == 0)
+{
 lean_dec_ref(x_14);
 return x_2;
 }
@@ -731,17 +733,27 @@ lean_dec_ref(x_14);
 return x_21;
 }
 }
+else
+{
+size_t x_22; size_t x_23; lean_object* x_24; 
+x_22 = 0;
+x_23 = lean_usize_of_nat(x_16);
+x_24 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1(x_14, x_22, x_23, x_2);
+lean_dec_ref(x_14);
+return x_24;
+}
+}
 }
 default: 
 {
-uint8_t x_22; 
-x_22 = l_Lean_IR_FnBody_isTerminal(x_1);
-if (x_22 == 0)
+uint8_t x_25; 
+x_25 = l_Lean_IR_FnBody_isTerminal(x_1);
+if (x_25 == 0)
 {
-lean_object* x_23; 
-x_23 = l_Lean_IR_FnBody_body(x_1);
+lean_object* x_26; 
+x_26 = l_Lean_IR_FnBody_body(x_1);
 lean_dec(x_1);
-x_1 = x_23;
+x_1 = x_26;
 goto _start;
 }
 else
@@ -1798,6 +1810,8 @@ uint8_t x_13;
 x_13 = lean_nat_dec_le(x_11, x_11);
 if (x_13 == 0)
 {
+if (x_12 == 0)
+{
 return x_9;
 }
 else
@@ -1807,6 +1821,15 @@ x_14 = 0;
 x_15 = lean_usize_of_nat(x_11);
 x_16 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_IR_ExpandResetReuse_mkSlowPath_spec__0(x_6, x_7, x_8, x_3, x_14, x_15, x_9);
 return x_16;
+}
+}
+else
+{
+size_t x_17; size_t x_18; lean_object* x_19; 
+x_17 = 0;
+x_18 = lean_usize_of_nat(x_11);
+x_19 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_IR_ExpandResetReuse_mkSlowPath_spec__0(x_6, x_7, x_8, x_3, x_17, x_18, x_9);
+return x_19;
 }
 }
 }

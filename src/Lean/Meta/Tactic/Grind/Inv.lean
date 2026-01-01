@@ -119,7 +119,7 @@ def checkProofs : GoalM Unit := do
 
 /-- Checks invariants if `grind.debug` is enabled. -/
 public def checkInvariants (expensive := false) : GoalM Unit := do
-  if grind.debug.get (← getOptions) then
+  if (← isDebugEnabled) then
     for e in (← getExprs) do
       let node ← getENode e
       checkParents node.self

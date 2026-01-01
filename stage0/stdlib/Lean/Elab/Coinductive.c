@@ -10603,6 +10603,8 @@ uint8_t x_28;
 x_28 = lean_nat_dec_le(x_26, x_26);
 if (x_28 == 0)
 {
+if (x_27 == 0)
+{
 x_17 = x_25;
 goto block_24;
 }
@@ -10613,6 +10615,16 @@ x_29 = 0;
 x_30 = lean_usize_of_nat(x_26);
 x_31 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_Coinductive_0__Lean_Elab_Command_mkCasesOnCoinductive_spec__7(x_1, x_29, x_30, x_25);
 x_17 = x_31;
+goto block_24;
+}
+}
+else
+{
+size_t x_32; size_t x_33; lean_object* x_34; 
+x_32 = 0;
+x_33 = lean_usize_of_nat(x_26);
+x_34 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_Coinductive_0__Lean_Elab_Command_mkCasesOnCoinductive_spec__7(x_1, x_32, x_33, x_25);
+x_17 = x_34;
 goto block_24;
 }
 }

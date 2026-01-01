@@ -491,8 +491,8 @@ def getAt? (lctx : LocalContext) (i : Nat) : Option LocalDecl :=
     | none      => pure b
     | some decl => f decl b
 
-@[specialize] def forM [Monad m] (lctx : LocalContext) (f : LocalDecl → m PUnit) : m PUnit :=
-  lctx.decls.forM fun decl => match decl with
+@[specialize] def forM [Monad m] (lctx : LocalContext) (f : LocalDecl → m PUnit) (start := 0) : m PUnit :=
+  lctx.decls.forM (start := start) fun decl => match decl with
     | none      => pure PUnit.unit
     | some decl => f decl
 

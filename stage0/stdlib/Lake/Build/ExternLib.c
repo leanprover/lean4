@@ -924,6 +924,8 @@ uint8_t x_50;
 x_50 = lean_nat_dec_le(x_48, x_48);
 if (x_50 == 0)
 {
+if (x_49 == 0)
+{
 x_18 = x_46;
 goto block_45;
 }
@@ -934,6 +936,16 @@ x_51 = 0;
 x_52 = lean_usize_of_nat(x_48);
 x_53 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_buildLeanSharedLibOfStatic_spec__1(x_1, x_51, x_52, x_46);
 x_18 = x_53;
+goto block_45;
+}
+}
+else
+{
+size_t x_54; size_t x_55; uint64_t x_56; 
+x_54 = 0;
+x_55 = lean_usize_of_nat(x_48);
+x_56 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_buildLeanSharedLibOfStatic_spec__1(x_1, x_54, x_55, x_46);
+x_18 = x_56;
 goto block_45;
 }
 }

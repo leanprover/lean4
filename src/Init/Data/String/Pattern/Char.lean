@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.String.Pattern.Basic
-public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.Consumers.Monadic.Loop
 import Init.Data.String.Termination
 
@@ -59,7 +58,7 @@ instance (s : Slice) : Std.Iterator (ForwardCharSearcher c s) Id (SearchStep s) 
         pure (.deflate ⟨.yield nextIt (.rejected currPos nextPos), by simp [h1, h2, nextIt, nextPos]⟩)
 
 def finitenessRelation : Std.Iterators.FinitenessRelation (ForwardCharSearcher s c) Id where
-  rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.currPos)
+  Rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.currPos)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
@@ -124,7 +123,7 @@ instance (s : Slice) : Std.Iterator (BackwardCharSearcher s) Id (SearchStep s) w
         pure (.deflate ⟨.yield nextIt (.rejected nextPos currPos), by simp [h1, h2, nextIt, nextPos]⟩)
 
 def finitenessRelation : Std.Iterators.FinitenessRelation (BackwardCharSearcher s) Id where
-  rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.currPos.down)
+  Rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.currPos.down)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf

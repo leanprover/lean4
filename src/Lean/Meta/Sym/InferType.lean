@@ -9,11 +9,11 @@ public import Lean.Meta.Sym.SymM
 namespace Lean.Meta.Sym
 
 /-- Returns the type of `e`. -/
-def inferType (e : Expr) : SymM Expr := do
+public def inferType (e : Expr) : SymM Expr := do
   if let some type := (← get).inferType.find? { expr := e } then
     return type
   else
-    let type ← Meta.inferType e
+    let type ← Grind.shareCommonInc (← Meta.inferType e)
     modify fun s => { s with inferType := s.inferType.insert { expr := e } type }
     return type
 

@@ -35,6 +35,28 @@ public structure ProofInstInfo where
   argsInfo : Array ProofInstArgInfo
   deriving Inhabited
 
+/--
+Information on how to build congruence proofs for function applications.
+This enables efficient rewriting of subterms without repeatedly inferring types or instances.
+-/
+inductive CongrInfo where
+  | /--
+    For functions with a fixed prefix of implicit/instance arguments followed by
+    explicit non-dependent arguments that can be rewritten independently.
+
+    - `prefixSize`: Number of leading arguments (types, instances) that are determined
+      by the suffix arguments and should not be rewritten directly.
+    - `suffixSize`: Number of trailing arguments that can be rewritten using simple congruence.
+
+    Examples (showing `prefixSize`, `suffixSize`):
+    - `HAdd.hAdd {α β γ} [HAdd α β γ] (a : α) (b : β)`: `(4, 2)` — rewrite `a` and `b`
+    - `And (p q : Prop)`: `(0, 2)` — rewrite both propositions
+    - `Eq {α} (a b : α)`: `(1, 2)` — rewrite `a` and `b`, type `α` is fixed
+    - `Neg.neg {α} [Neg α] (a : α)`: `(2, 1)` — rewrite just `a`
+    -/
+    simple (prefixSize : Nat) (suffixSize : Nat)
+  -- **TODO**: Add other kinds
+
 structure State where
   /--
   Maps expressions to their maximal free variable (by declaration index).
@@ -56,6 +78,13 @@ structure State where
   -/
   maxFVar : PHashMap ExprPtr (Option FVarId) := {}
   proofInstInfo : PHashMap Name (Option ProofInstInfo) := {}
+  /--
+  Cache for `inferType` results, keyed by pointer equality.
+  `SymM` uses a fixed configuration, so we can use a simpler key than `MetaM`.
+  Remark: type inference is a bottleneck on `Meta.Tactic.Simp` simplifier.
+  -/
+  inferType : PHashMap ExprPtr Expr := {}
+  congrInfo : PHashMap ExprPtr CongrInfo := {}
 
 abbrev SymM := ReaderT Grind.Params StateRefT State Grind.GrindM
 

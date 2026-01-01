@@ -108,7 +108,7 @@ opaque Internal.enableDebug (tag : @& String) : BaseIO Unit
 /--
 Lean's short version string (i.e., what is printed by `lean --short-version`).
 
-This is the Lean equivalent of of the C++ `LEAN_VERSION_STRING` / `g_short_version_string`.
+This is the Lean equivalent of the C++ `LEAN_VERSION_STRING` / `g_short_version_string`.
 -/
 def shortVersionString : String :=
   if version.specialDesc ≠ "" then

@@ -295,7 +295,7 @@ def withSplitSource [MonadControlT GrindM m] [Monad m] (splitSource : SplitSourc
 def getConfig : GrindM Grind.Config :=
   return (← readThe Context).config
 
-/-- Returns extension states associate with `grind` attributes in use -/
+/-- Returns extension states associated with `grind` attributes in use -/
 def getExtensions : GrindM Grind.ExtensionStateArray :=
   return (← readThe Context).extensions
 
@@ -1242,7 +1242,7 @@ def getRootENode? (e : Expr) : GoalM (Option ENode) := do
   let some n ← getENode? e | return none
   getENode? n.root
 /--
-Returns `true` if the ENode associate with `e` has support for function equality
+Returns `true` if the ENode associated with `e` has support for function equality
 congruence closure. See `Grind.Config.funCC` for additional details.
 -/
 def useFunCC (e : Expr) : GoalM Bool :=

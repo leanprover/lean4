@@ -40,6 +40,8 @@ Information on how to build congruence proofs for function applications.
 This enables efficient rewriting of subterms without repeatedly inferring types or instances.
 -/
 inductive CongrInfo where
+  | /-- None of the arguments of the function can be rewritten. -/
+    none
   | /--
     For functions with a fixed prefix of implicit/instance arguments followed by
     explicit non-dependent arguments that can be rewritten independently.
@@ -54,9 +56,29 @@ inductive CongrInfo where
     - `Eq {α} (a b : α)`: `(1, 2)` — rewrite `a` and `b`, type `α` is fixed
     - `Neg.neg {α} [Neg α] (a : α)`: `(2, 1)` — rewrite just `a`
     -/
-    simple (prefixSize : Nat) (suffixSize : Nat)
-  -- **TODO**: Add other kinds
+    fixedPrefix (prefixSize : Nat) (suffixSize : Nat)
+  | /--
+    For functions with interlaced rewritable and non-rewritable arguments.
+    Each element indicates whether the corresponding argument position can be rewritten.
 
+    Example: For `HEq {α : Sort u} (a : α) {β : Sort u} (b : β)`, the mask would be
+    `#[false, true, false, true]` — we can rewrite `a` and `b`, but not `α` or `β`.
+    -/
+    interlaced (rewritable : Array Bool)
+  | /--
+    For functions that have proofs and `Decidable` arguments. For this kind of function we generate
+    a custom theorem.
+    Example: `Array.eraseIdx {α : Type u} (xs : Array α) (i : Nat) (h : i < xs.size) : Array α`.
+    The proof argument `h` depends on `xs` and `i`. To be able to rewrite `xs` and `i`, we use the
+    auto-generated theorem.
+    ```
+    Array.eraseIdx.congr_simp {α : Type u} (xs xs' : Array α) (e_xs : xs = xs')
+        (i i' : Nat) (e_i : i = i') (h : i < xs.size) : xs.eraseIdx i h = xs'.eraseIdx i' ⋯
+    ```
+    -/
+    congrTheorem (thm : CongrTheorem)
+
+/-- Mutable state for the symbolic simulator framework. -/
 structure State where
   /--
   Maps expressions to their maximal free variable (by declaration index).

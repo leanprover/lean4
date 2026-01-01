@@ -43,10 +43,10 @@ is nonempty.
 
 This process uses multiple strategies:
 - It looks for a parameter that matches the return type.
-- It tries synthesizing 'Inhabited' and 'Nonempty' instances for the return type, while making every parameter into a local 'Inhabited' instance.
+- It tries synthesizing `Inhabited` and `Nonempty` instances for the return type, while making every parameter into a local `Inhabited` instance.
 - It tries unfolding the return type.
 
-If the return type is defined using the 'structure' or 'inductive' command, you can try adding a 'deriving Nonempty' clause to it.
+If the return type is defined using the `structure` or `inductive` command, you can try adding a `deriving Nonempty` clause to it.
 -/
 #guard_msgs in
 def notinhabited (n m : Nat) : Fin n :=
@@ -60,10 +60,10 @@ is nonempty.
 
 This process uses multiple strategies:
 - It looks for a parameter that matches the return type.
-- It tries synthesizing 'Inhabited' and 'Nonempty' instances for the return type, while making every parameter into a local 'Inhabited' instance.
+- It tries synthesizing `Inhabited` and `Nonempty` instances for the return type, while making every parameter into a local `Inhabited` instance.
 - It tries unfolding the return type.
 
-If the return type is defined using the 'structure' or 'inductive' command, you can try adding a 'deriving Nonempty' clause to it.
+If the return type is defined using the `structure` or `inductive` command, you can try adding a `deriving Nonempty` clause to it.
 -/
 #guard_msgs in
 mutual

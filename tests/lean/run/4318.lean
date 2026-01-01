@@ -11,7 +11,7 @@ Term-mode `calc`. Errors about LHS and RHS not matching expected type.
 -/
 
 /--
-error: invalid 'calc' step, left-hand side is
+error: invalid `calc` step, left-hand side is
   1 + n - n : Nat
 but is expected to be
   0 : Nat
@@ -22,7 +22,7 @@ example (n : Nat) : 0 = 1 :=
     1 + n - n = 1 := testSorry
 
 /--
-error: invalid 'calc' step, right-hand side is
+error: invalid `calc` step, right-hand side is
   n - n : Nat
 but is expected to be
   1 : Nat
@@ -33,7 +33,7 @@ example (n : Nat) : 0 = 1 :=
     0 = n - n := testSorry
 
 /--
-error: 'calc' expression has type
+error: `calc` expression has type
   0 = 1
 but is expected to have type
   0 < 1
@@ -47,7 +47,7 @@ example : 0 < 1 :=
 Tactic-mode `calc`. LHS failure.
 -/
 /--
-error: invalid 'calc' step, left-hand side is
+error: invalid `calc` step, left-hand side is
   1 + n - n : Nat
 but is expected to be
   0 : Nat
@@ -70,7 +70,7 @@ example (n : Nat) : 0 ≤ 1 := by
 Tactic mode `calc`. Calc extension fails due to expected type mismatch, so report original failure.
 -/
 /--
-error: 'calc' expression has type
+error: `calc` expression has type
   0 < n - n
 but is expected to have type
   0 ≤ 1
@@ -84,7 +84,7 @@ example (n : Nat) : 0 ≤ 1 := by
 Tactic mode `calc`. Calc extension fails due to nontransitivity, so report original failure.
 -/
 /--
-error: invalid 'calc' step, right-hand side is
+error: invalid `calc` step, right-hand side is
   1 : Nat
 but is expected to be
   2 : Nat

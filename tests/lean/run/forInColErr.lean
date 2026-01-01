@@ -1,7 +1,7 @@
 set_option pp.mvars.anonymous false
 
 /--
-error: failed to construct 'ForIn' instance for collection
+error: failed to construct `ForIn` instance for collection
   ?_
 and monad
   Id

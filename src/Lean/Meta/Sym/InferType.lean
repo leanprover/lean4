@@ -17,4 +17,13 @@ public def inferType (e : Expr) : SymM Expr := do
     modify fun s => { s with inferType := s.inferType.insert { expr := e } type }
     return type
 
+@[inherit_doc Meta.getLevel]
+public def getLevel (type : Expr) : SymM Level := do
+  if let some u := (← get).getLevel.find? { expr := type } then
+    return u
+  else
+    let u ← Meta.getLevel type
+    modify fun s => { s with getLevel := s.getLevel.insert { expr := type } u }
+    return u
+
 end Lean.Meta.Sym

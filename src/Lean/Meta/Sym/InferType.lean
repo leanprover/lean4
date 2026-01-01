@@ -26,4 +26,9 @@ public def getLevel (type : Expr) : SymM Level := do
     modify fun s => { s with getLevel := s.getLevel.insert { expr := type } u }
     return u
 
+public def mkEqRefl (e : Expr) : SymM Expr := do
+  let α ← inferType e
+  let u ← getLevel α
+  return mkApp2 (mkConst ``Eq.refl [u]) α e
+
 end Lean.Meta.Sym

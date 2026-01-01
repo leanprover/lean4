@@ -220,7 +220,7 @@ Decomposing assertions in postconditions into conjunctions of simpler predicates
 chance that automation will be able to prove the entailment of the postcondition and the next precondition.
 -/
 class IsAnd (P : SPred σs) (Q₁ Q₂ : outParam (SPred σs)) where
-  /-- A proof the the decomposition is logically equivalent to the original predicate. -/
+  /-- A proof that the decomposition is logically equivalent to the original predicate. -/
   to_and : P ⊣⊢ₛ Q₁ ∧ Q₂
 instance (σs) (Q₁ Q₂ : SPred σs) : IsAnd (σs:=σs) spred(Q₁ ∧ Q₂) Q₁ Q₂ where to_and := .rfl
 instance (σs) : IsAnd (σs:=σs) ⌜p ∧ q⌝ ⌜p⌝ ⌜q⌝ where to_and := pure_and.symm

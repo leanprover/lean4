@@ -337,7 +337,7 @@ inductive Exists {α : Sort u} (p : α → Prop) : Prop where
 An indication of whether a loop's body terminated early that's used to compile the `for x in xs`
 notation.
 
-A collection's `ForIn` or `ForIn'` instance describe's how to iterate over its elements. The monadic
+A collection's `ForIn` or `ForIn'` instance describes how to iterate over its elements. The monadic
 action that represents the body of the loop returns a `ForInStep α`, where `α` is the local state
 used to implement features such as `let mut`.
 -/

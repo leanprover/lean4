@@ -463,7 +463,7 @@ variable {motive : α → Sort v}
 variable (h : α → Nat)
 variable (F : (x : α) → ((y : α) → InvImage (· < ·) h y x → motive y) → motive x)
 
-/-- Helper gadget that prevents reduction of `Nat.eager n` unless `n` evalutes to a ground term. -/
+/-- Helper gadget that prevents reduction of `Nat.eager n` unless `n` evaluates to a ground term. -/
 def Nat.eager (n : Nat) : Nat :=
   if Nat.beq n n = true then n else n
 
@@ -474,8 +474,8 @@ A well-founded fixpoint operator specialized for `Nat`-valued measures. Given a 
 its higher order function argument `F` to invoke its argument only on values `y` that are smaller
 than `x` with regard to `h`.
 
-In contrast to to `WellFounded.fix`, this fixpoint operator reduces on closed terms. (More precisely:
-when `h x` evalutes to a ground value)
+In contrast to `WellFounded.fix`, this fixpoint operator reduces on closed terms. (More precisely:
+when `h x` evaluates to a ground value)
 
 -/
 def Nat.fix : (x : α) → motive x :=

@@ -540,7 +540,7 @@ def recv [Inhabited α] (ch : Broadcast.Receiver α) : BaseIO (Task (Option α))
 open Internal.IO.Async in
 
 /--
-Creates a `Selector` that resolves once the broadcast channel `ch` has data available and provides that that data.
+Creates a `Selector` that resolves once the broadcast channel `ch` has data available and provides that data.
 -/
 @[inline]
 def recvSelector [Inhabited α] (ch : Broadcast.Receiver α) : Selector (Option α) :=

@@ -1863,7 +1863,7 @@ unsafe def Runtime.markPersistent (a : α) : BaseIO α := return a
 
 set_option linter.unusedVariables false in
 /--
-Discards the passed owned reference. This leads to `a` any any object reachable from it never being
+Discards the passed owned reference. This leads to `a` and any object reachable from it never being
 freed. This can be a useful optimization for eliding deallocation time of big object graphs that are
 kept alive close to the end of the process anyway (in which case calling `Runtime.markPersistent`
 would be similarly costly to deallocation). It is still considered a safe operation as it cannot

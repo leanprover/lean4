@@ -106,6 +106,10 @@ structure State where
   Remark: type inference is a bottleneck on `Meta.Tactic.Simp` simplifier.
   -/
   inferType : PHashMap ExprPtr Expr := {}
+  /--
+  Cache for `getLevel` results, keyed by pointer equality.
+  -/
+  getLevel : PHashMap ExprPtr Level := {}
   congrInfo : PHashMap ExprPtr CongrInfo := {}
 
 abbrev SymM := ReaderT Grind.Params StateRefT State Grind.GrindM

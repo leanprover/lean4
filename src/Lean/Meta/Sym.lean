@@ -22,6 +22,9 @@ public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.InferType
 public import Lean.Meta.Sym.SimpM
 public import Lean.Meta.Sym.CongrInfo
+public import Lean.Meta.Sym.EqTrans
+public import Lean.Meta.Sym.Congr
+public import Lean.Meta.Sym.SimpResult
 public import Lean.Meta.Sym.Simp
 
 /-!

@@ -103,6 +103,8 @@ invalidating the cache and causing O(2^n) behavior on conditional trees.
 structure Config where
   /-- If `true`, unfold let-bindings (zeta reduction) during simplification. -/
   zetaDelta : Bool := true
+  /-- Maximum number of steps that can be performed by the simplifier. -/
+  maxSteps : Nat := 0
   -- **TODO**: many are still missing
 
 /-- The result of simplifying some expression `e`. -/
@@ -145,11 +147,16 @@ abbrev Cache := PHashMap ExprPtr Result
 
 /-- Mutable state for the simplifier. -/
 structure State where
-  /-- Cache of previously simplified expressions to avoid redundant work. -/
+  /--
+  Cache of previously simplified expressions to avoid redundant work.
+  **Note**: Consider moving to `SymM.State`
+  -/
   cache : Cache := {}
   /-- Stack of free variables available for reuse when re-entering binders.
   Each entry is (type pointer, fvarId). -/
   binderStack : List (ExprPtr × FVarId) := []
+  /-- Number of steps performed so far. -/
+  numSteps := 0
 
 /-- Monad for the structural simplifier, layered on top of `SymM`. -/
 abbrev SimpM := ReaderT Context StateRefT State SymM
@@ -164,5 +171,11 @@ abbrev SimpM.run (x : SimpM α) (thms : Theorems := {}) (config : Config := {}) 
 
 @[extern "lean_sym_simp"] -- Forward declaration
 opaque simp (e : Expr) : SimpM Result
+
+def getConfig : SimpM Config :=
+  return (← read).config
+
+abbrev getCache : SimpM Cache :=
+  return (← get).cache
 
 end Lean.Meta.Sym.Simp

@@ -61,9 +61,26 @@ def mkBoxedVersionAux (decl : Decl) : N Decl := do
 def mkBoxedVersion (decl : Decl) : Decl :=
   (mkBoxedVersionAux decl).run' 1
 
+partial def transformBoxedPaps (decls : Array Decl) (env : Environment) (b : FnBody) : FnBody :=
+  match b with
+  | .vdecl x ty (.pap f ys) b =>
+    let decl := (findEnvDecl' env f decls).get!
+    let f := if requiresBoxedVersion env decl then mkBoxedName f else f
+    .vdecl x ty (.pap f ys) (transformBoxedPaps decls env b)
+  | .jdecl j xs v b =>
+    .jdecl j xs (transformBoxedPaps decls env v) (transformBoxedPaps decls env b)
+  | .case t x xTy alts =>
+    .case t x xTy (alts.map (Alt.modifyBody <| transformBoxedPaps decls env))
+  | _ => if b.isTerminal then b else b.setBody (transformBoxedPaps decls env b.body)
+
 def addBoxedVersions (env : Environment) (decls : Array Decl) : Array Decl :=
   let boxedDecls := decls.foldl (init := #[]) fun newDecls decl =>
     if requiresBoxedVersion env decl then newDecls.push (mkBoxedVersion decl) else newDecls
+  let decls := decls.map fun
+    | .fdecl f xs ty b i =>
+      let b := transformBoxedPaps decls env b
+      .fdecl f xs ty b i
+    | d => d
   decls ++ boxedDecls
 
 partial def eqvTypes (t₁ t₂ : IRType) : Bool :=
@@ -278,19 +295,16 @@ def visitVDeclExpr (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody 
   | .ctor c ys => visitCtorExpr x ty c ys b
   | .reuse w c u ys =>
     boxArgsIfNeeded ys fun ys => return .vdecl x ty (.reuse w c u ys) b
-  | .fap f ys => do
+  | .fap f ys =>
     let decl ← getDecl f
     castArgsIfNeeded ys decl.params fun ys =>
     castResultIfNeeded x ty (.fap f ys) decl.resultType b
-  | .pap f ys => do
-    let env ← getEnv
-    let decl ← getDecl f
-    let f := if requiresBoxedVersion env decl then mkBoxedName f else f
+  | .pap f ys =>
     boxArgsIfNeeded ys fun ys => return .vdecl x ty (.pap f ys) b
   | .ap f ys =>
     boxArgsIfNeeded ys fun ys =>
     unboxResultIfNeeded x ty (.ap f ys) b
-  | _     =>
+  | _ =>
     return .vdecl x ty e b
 
 /--
@@ -354,6 +368,93 @@ partial def visitFnBody : FnBody → M FnBody
   | other                    =>
     pure other
 
+namespace BoxParams
+
+def isExpensiveScalar (ty : IRType) : Bool :=
+  ty.isScalarOrStruct && !ty matches .uint8 | .uint16
+
+abbrev M := ReaderT BoxingContext (StateM VarIdSet)
+
+def checkArgsBoxed (args : Array Arg) (paramsBoxed : Nat → Bool) : VarIdSet → VarIdSet :=
+  go 0
+where
+  go (i : Nat) (set : VarIdSet) : VarIdSet :=
+    if h : i < args.size then
+      if let .var v := args[i] then
+        if paramsBoxed i then
+          go (i + 1) (set.insert v)
+        else
+          go (i + 1) set
+      else
+        go (i + 1) set
+    else set
+  termination_by args.size - i
+
+def visitVDeclExpr (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody := do
+  match e with
+  | .ctor c ys =>
+    if ty.isObj then
+      modify (checkArgsBoxed ys fun _ => true)
+    else if (← get).contains x then
+      modify (checkArgsBoxed ys fun _ => true)
+      return .vdecl x ty.boxed e b
+    else if let .struct _ tys _ _ := ty then
+      modify (checkArgsBoxed ys fun i => !tys[i]!.isScalarOrStruct)
+    else if let .union _ tys := ty then
+      let .struct _ tys _ _ := tys[c.cidx]! | unreachable!
+      modify (checkArgsBoxed ys fun i => !tys[i]!.isScalarOrStruct)
+    return .vdecl x ty e b
+  | .reuse _ _ _ ys =>
+    modify (checkArgsBoxed ys fun _ => true)
+    return .vdecl x ty e b
+  | .fap f ys => do
+    let ctx ← read
+    let decl := (findEnvDecl' ctx.env f ctx.decls).get!
+    modify (checkArgsBoxed ys fun i => !decl.params[i]!.ty.isScalarOrStruct)
+    return .vdecl x ty e b
+  | .pap _ ys => do
+    modify (checkArgsBoxed ys fun _ => true)
+    return .vdecl x ty e b
+  | .ap _ ys =>
+    modify (checkArgsBoxed ys fun _ => true)
+    return .vdecl x ty e b
+  | _  => return .vdecl x ty e b
+
+partial def boxParams : FnBody → M FnBody
+  | .vdecl x t v b => do
+    let b ← boxParams b
+    visitVDeclExpr x t v b
+  | .jdecl j xs v b => do
+    let v ← boxParams v
+    let boxed ← get
+    let xs := xs.mapMono fun param =>
+      if isExpensiveScalar param.ty ∧ boxed.contains param.x then
+        { param with ty := param.ty.boxed }
+      else
+        param
+    withReader (fun ctx => { ctx with localCtx := ctx.localCtx.addJP j xs v }) do
+      return .jdecl j xs v (← boxParams b)
+  | .case tid x xType alts => do
+    let alts ← alts.mapM fun alt => alt.modifyBodyM boxParams
+    return .case tid x xType alts
+  | .ret x => do
+    if let .var v := x then
+      let expected := (← read).resultType
+      if !expected.isScalarOrStruct then
+        modify (·.insert v)
+    return .ret x
+  | .jmp j ys => do
+    let ps := ((← read).localCtx.getJPParams j).get!
+    modify (checkArgsBoxed ys fun i => !ps[i]!.ty.isScalarOrStruct)
+    return .jmp j ys
+  | .uset x i y b => do
+    return .uset x i y (← boxParams b)
+  | .sset x i o y ty b => do
+    return .sset x i o y ty (← boxParams b)
+  | b => pure b
+
+end BoxParams
+
 def run (env : Environment) (decls : Array Decl) : Array Decl :=
   decls.foldl (init := #[]) fun newDecls decl =>
     match decl with
@@ -367,6 +468,21 @@ def run (env : Environment) (decls : Array Decl) : Array Decl :=
     | d => newDecls.push d
 
 end ExplicitBoxing
+
+open ExplicitBoxing BoxParams in
+def prepareBoxParams (env : Environment) (decls : Array Decl) : Array Decl :=
+  decls.map fun decl =>
+    match decl with
+    | .fdecl f xs resultType b info =>
+      let (b, boxed) := boxParams b { f, resultType, decls, env }
+        |>.run {}
+      let xs := xs.mapMono fun param =>
+        if isExpensiveScalar param.ty ∧ boxed.contains param.x then
+          { param with ty := param.ty.boxed }
+        else
+          param
+      .fdecl f xs resultType b info
+    | _ => decl
 
 def explicitBoxing (decls : Array Decl) : CompilerM (Array Decl) := do
   let env ← getEnv

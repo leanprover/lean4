@@ -49,7 +49,7 @@ private partial def S (w : VarId) (c : CtorInfo) (relaxedReuse : Bool) (b : FnBo
 where
   go : FnBody → FnBody
   | .vdecl x t v@(.ctor c' ys) b   =>
-    if mayReuse c c' relaxedReuse then
+    if t.isObj && mayReuse c c' relaxedReuse then
       let updtCidx := c.cidx != c'.cidx
       .vdecl x t (.reuse w c' updtCidx ys) b
     else

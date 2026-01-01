@@ -48,6 +48,8 @@ def compile (decls : Array Decl) : CompilerM (Array Decl) := do
   let mut decls := decls
   decls := decls.map Decl.pushProj
   logDecls `push_proj decls
+  decls := prepareBoxParams (← getEnv) decls
+  logDecls `box_params decls
   decls ← explicitBoxing decls
   logDecls `boxing decls
   if compiler.reuse.get (← getOptions) then
@@ -61,6 +63,7 @@ def compile (decls : Array Decl) : CompilerM (Array Decl) := do
   decls ← inferBorrow decls
   logDecls `borrow decls
   decls := ExplicitBoxing.addBoxedVersions (← getEnv) decls
+  logDecls `boxed_versions decls
   decls ← explicitRC decls
   logDecls `rc decls
   if compiler.reuse.get (← getOptions) then

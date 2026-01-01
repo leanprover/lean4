@@ -11,8 +11,8 @@ noncomputable
 def char (R : Type) [∀ n, OfNat R n] : Nat := 0
 
 /--
-error: failed to compile definition, consider marking it as 'noncomputable'
-because it depends on 'char', which is 'noncomputable'
+error: failed to compile definition, consider marking it as `noncomputable`
+because it depends on `char`, which is `noncomputable`
 -/
 #guard_msgs in
 def bug (R : Type) [∀ n, OfNat R n] : R :=

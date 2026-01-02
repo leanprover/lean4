@@ -134,7 +134,7 @@ structure State where
   /-- Order structures detected. -/
   structs : Array Struct := {}
   /--
-  Mapping from types to its "structure id". We cache failures using `none`.
+  Mapping from types to their "structure id". We cache failures using `none`.
   `typeIdOf[type]` is `some id`, then `id < structs.size`. -/
   typeIdOf : PHashMap ExprPtr (Option Nat) := {}
   /-- Mapping from expressions/terms to their structure ids. -/

@@ -178,4 +178,9 @@ def getConfig : SimpM Config :=
 abbrev getCache : SimpM Cache :=
   return (← get).cache
 
-end Lean.Meta.Sym.Simp
+end Simp
+
+public def simp (e : Expr) (thms : Simp.Theorems := {}) (config : Simp.Config := {}) : SymM Simp.Result := do
+  Simp.SimpM.run (Simp.simp e) thms config
+
+end Lean.Meta.Sym

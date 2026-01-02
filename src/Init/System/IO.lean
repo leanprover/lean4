@@ -561,7 +561,7 @@ Waits for the task to finish, then returns its result.
   return t.get
 
 /--
-Waits until any of the tasks in the list has finished, then return its result.
+Waits until any of the tasks in the list has finished, then returns its result.
 -/
 @[extern "lean_io_wait_any"] opaque waitAny (tasks : @& List (Task α))
     (h : tasks.length > 0 := by exact Nat.zero_lt_succ _) : BaseIO α :=
@@ -1350,7 +1350,7 @@ def withTempFile [Monad m] [MonadFinally m] [MonadLiftT IO m] (f : Handle → Fi
     removeFile path
 
 /--
-Creates a temporary directory in the most secure manner possible, providing a its path to an `IO`
+Creates a temporary directory in the most secure manner possible, providing its path to an `IO`
 action. Afterwards, all files in the temporary directory are recursively deleted, regardless of how
 or when they were created.
 
@@ -1480,7 +1480,7 @@ possible to close the child's standard input before the process terminates, whic
 @[extern "lean_io_process_spawn"] opaque spawn (args : SpawnArgs) : IO (Child args.toStdioConfig)
 
 /--
-Blocks until the child process has exited and return its exit code.
+Blocks until the child process has exited and returns its exit code.
 -/
 @[extern "lean_io_process_child_wait"] opaque Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32
 
@@ -1586,7 +1586,7 @@ end Process
 /--
 POSIX-style file permissions.
 
-The `FileRight` structure describes these permissions for a file's owner, members of it's designated
+The `FileRight` structure describes these permissions for a file's owner, members of its designated
 group, and all others.
 -/
 structure AccessRight where

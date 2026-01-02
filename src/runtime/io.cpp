@@ -616,12 +616,31 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_get_line(b_obj_arg h) {
 
     std::string result;
     int c; // Note: int, not char, required to handle EOF
-    while ((c = std::fgetc(fp)) != EOF) {
+
+    /*
+     * This code needs to handle `\0` occuring in lines as that is valid UTF-8. Thus we cannot use
+     * `fgets` here. Furthermore `getline` is not supported on Windows so we can't use it either.
+     * Ideally we will completely remove this implementation once our own buffered IO comes around.
+     */
+#if defined(LEAN_WINDOWS)
+    _lock_file(fp);
+    while ((c = _fgetc_nolock(fp)) != EOF) {
         result.push_back(c);
         if (c == '\n') {
             break;
         }
     }
+    _unlock_file(fp);
+#else
+    flockfile(fp);
+    while ((c = fgetc_unlocked(fp)) != EOF) {
+        result.push_back(c);
+        if (c == '\n') {
+            break;
+        }
+    }
+    funlockfile(fp);
+#endif
 
     if (std::ferror(fp)) {
         return io_result_mk_error(decode_io_error(errno, nullptr));

@@ -881,11 +881,12 @@ def emitStructReshapeFn (origin target : IRType) (id1 id2 : Nat) : M Unit := do
     emitUnionSwitchWithImpossible tys.size "x.tag"
         (fun i => compatibleReshape tys[i]! tys'[i]!)
         fun i _ => do
-      if tys[i].beqApprox tys'[i]! then
-        return
       emit "y.cs.c"; emit i; emit " = "
-      emitReshapeFn tys[i] tys'[i]!
-      emit "(x.cs.c"; emit i; emitLn ");"
+      if tys[i].beqApprox tys'[i]! then
+        emit "x.cs.c"; emit i; emitLn ";"
+      else
+        emitReshapeFn tys[i] tys'[i]!
+        emit "(x.cs.c"; emit i; emitLn ");"
   | .struct _ tys us ss, .struct _ tys' _ _ =>
     if us ≠ 0 ∨ ss ≠ 0 then
       emit "memcpy(&y, &x, sizeof(size_t)*"; emit us; emit "+"; emit ss; emitLn ");"

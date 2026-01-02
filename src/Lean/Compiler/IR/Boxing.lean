@@ -83,19 +83,24 @@ def addBoxedVersions (env : Environment) (decls : Array Decl) : Array Decl :=
     | d => d
   decls ++ boxedDecls
 
-partial def eqvTypes (t₁ t₂ : IRType) : Bool :=
+partial def eqvTypes (t₁ t₂ : IRType) (strict : Bool := false) : Bool :=
   if t₁.isScalar then
     t₁ == t₂
   else if let .union _ tys := t₁ then
     if let .union _ tys' := t₂ then
-      tys.isEqv tys' eqvTypes
+      tys.isEqv tys' (eqvTypes (strict := true))
     else
       false
   else if let .struct _ tys us ss := t₁ then
     if let .struct _ tys' us' ss' := t₂ then
-      us == us' && ss == ss' && tys.isEqv tys' eqvTypes
+      us == us' && ss == ss' && tys.isEqv tys' (eqvTypes (strict := true))
     else
       false
+  else if strict then
+    if t₁ matches .object | .tobject | .tagged then
+      t₂ matches .object | .tobject | .tagged
+    else
+      t₂ matches .erased | .void
   else
     !t₂.isScalarOrStruct
 
@@ -181,9 +186,11 @@ private def isExpensiveConstantValueBoxing (x : VarId) (xType : IRType) : M (Opt
    If `xType` is scalar, then we need to "box" it. Otherwise, we need to "unbox" it. -/
 def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
   if expectedType.isScalarOrStruct then
-    -- Note: this is also used for "reboxing" when `xType` and `expectedType`
-    -- are different structs/unions
-    return .unbox x
+    if xType.isStruct then
+      -- Reshaping a struct is denoted by the .box instruction
+      return .box xType x
+    else
+      return .unbox x
   else
     match (← isExpensiveConstantValueBoxing x xType) with
     | some v => do
@@ -331,7 +338,7 @@ def tryCorrectVDeclType (ty : IRType) (e : Expr) : M IRType := do
     | .union _ tys =>
       let .struct _ tys _ _ := tys[c]! | unreachable!
       return tys[i]!
-    | _ => return ty
+    | _ => return ty.boxed
   | .ctor .. | .reuse .. | .ap .. | .lit .. | .sproj .. | .reset .. =>
     return ty
   | .unbox .. | .box .. | .isShared .. => unreachable!
@@ -482,7 +489,11 @@ def prepareBoxParams (env : Environment) (decls : Array Decl) : Array Decl :=
         else
           param
       .fdecl f xs resultType b info
-    | _ => decl
+    | .extern f xs resultType e =>
+      -- extern declarations shouldn't use unboxed structs
+      let xs := xs.map (fun x => { x with ty := if x.ty.isStruct then x.ty.boxed else x.ty })
+      let resultType := if resultType.isStruct then resultType.boxed else resultType
+      .extern f xs resultType e
 
 def explicitBoxing (decls : Array Decl) : CompilerM (Array Decl) := do
   let env ← getEnv

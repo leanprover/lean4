@@ -359,11 +359,7 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
   let b := match v with
     | .ctor _ ys | .reuse _ _ _ ys | .pap _ ys =>
       addIncBeforeConsumeAll ctx ys (.vdecl z t v b) bLiveVars
-    | .proj _ _ x =>
-      let b := addDecIfNeeded ctx x b bLiveVars
-      let b := if !bLiveVars.borrows.contains z then addInc ctx z b else b
-      .vdecl z t v b
-    | .unbox x =>
+    | .proj _ _ x | .unbox x =>
       let b := addDecIfNeeded ctx x b bLiveVars
       -- Note: this is meant for struct/union types
       let b := if !t.isScalar && !bLiveVars.borrows.contains z then addInc ctx z b else b

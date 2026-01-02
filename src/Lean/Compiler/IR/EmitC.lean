@@ -26,6 +26,8 @@ structure Context where
   jpMap      : JPParamsMap := {}
   mainFn     : FunId := default
   mainParams : Array Param := #[]
+  varTypes   : VarTypeMap := {}
+  structs    : StructTypeLookup := {}
 
 abbrev M := ReaderT Context (EStateM String String)
 
@@ -60,21 +62,28 @@ def argToCString (x : Arg) : String :=
 def emitArg (x : Arg) : M Unit :=
   emit (argToCString x)
 
-def toCType : IRType → String
-  | IRType.float      => "double"
-  | IRType.float32    => "float"
-  | IRType.uint8      => "uint8_t"
-  | IRType.uint16     => "uint16_t"
-  | IRType.uint32     => "uint32_t"
-  | IRType.uint64     => "uint64_t"
-  | IRType.usize      => "size_t"
-  | IRType.object     => "lean_object*"
-  | IRType.tagged     => "lean_object*"
-  | IRType.tobject    => "lean_object*"
-  | IRType.erased     => "lean_object*"
-  | IRType.void       => "lean_object*"
-  | IRType.struct ..  => panic! "not implemented yet"
-  | IRType.union _ _  => panic! "not implemented yet"
+@[inline]
+def lookupStruct (ty : IRType) : M Nat := do
+  return (← read).structs[IRTypeApprox.mk ty]!
+
+def structType (id : Nat) : String :=
+  "struct l_s" ++ id.repr
+
+def toCType : IRType → M String
+  | .float      => return "double"
+  | .float32    => return "float"
+  | .uint8      => return "uint8_t"
+  | .uint16     => return "uint16_t"
+  | .uint32     => return "uint32_t"
+  | .uint64     => return "uint64_t"
+  | .usize      => return "size_t"
+  | .object     => return "lean_object*"
+  | .tagged     => return "lean_object*"
+  | .tobject    => return "lean_object*"
+  | .erased     => return "lean_object*"
+  | .void       => return "lean_object*"
+  | ty@(.struct ..) | ty@(.union ..) =>
+    return structType (← lookupStruct ty)
 
 def throwInvalidExportName {α : Type} (n : Name) : M α :=
   throw s!"invalid export name '{n}'"
@@ -110,7 +119,7 @@ def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M U
     else emit "LEAN_EXPORT "
   else
     if !isExternal then emit "LEAN_EXPORT "
-  emit (toCType decl.resultType ++ " " ++ cppBaseName)
+  emit ((← toCType decl.resultType) ++ " " ++ cppBaseName)
   unless ps.isEmpty do
     emit "("
     -- We omit void parameters, note that they are guaranteed not to occur in boxed functions
@@ -122,7 +131,7 @@ def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M U
     else
       ps.size.forM fun i _ => do
         if i > 0 then emit ", "
-        emit (toCType ps[i].ty)
+        emit (← toCType ps[i].ty)
     emit ")"
   emitLn ";"
 
@@ -263,7 +272,7 @@ def getJPParams (j : JoinPointId) : M (Array Param) := do
   | none    => throw "unknown join point"
 
 def declareVar (x : VarId) (t : IRType) : M Unit := do
-  emit (toCType t); emit " "; emit x; emit "; "
+  emit (← toCType t); emit " "; emit x; emit "; "
 
 def declareParams (ps : Array Param) : M Unit :=
   ps.forM fun p => declareVar p.x p.ty
@@ -281,6 +290,8 @@ partial def declareVars : FnBody → Bool → M Bool
 def emitTag (x : VarId) (xType : IRType) : M Unit := do
   if xType.isObj then do
     emit "lean_obj_tag("; emit x; emit ")"
+  else if xType.isStruct then
+    emit x; emit ".tag"
   else
     emit x
 
@@ -290,19 +301,55 @@ def isIf (alts : Array Alt) : Option (Nat × FnBody × FnBody) :=
     | Alt.ctor c b => some (c.cidx, b, alts[1].body)
     | _            => none
 
-def emitInc (x : VarId) (n : Nat) (checkRef : Bool) : M Unit := do
-  emit $
-    if checkRef then (if n == 1 then "lean_inc" else "lean_inc_n")
-    else (if n == 1 then "lean_inc_ref" else "lean_inc_ref_n")
-  emit "("; emit x
-  if n != 1 then emit ", "; emit n
-  emitLn ");"
+partial def needsRC (ty : IRType) : Bool :=
+  match ty with
+  | .object | .tobject => true
+  | .union _ tys => tys.any needsRC
+  | .struct _ tys _ _ => tys.any needsRC
+  | _ => false
+
+def structIncFnPrefix := "_l_struct_inc_"
+def structDecFnPrefix := "_l_struct_dec_"
+def structReshapeFnPrefix := "_l_struct_reshape_"
+def structBoxFnPrefix := "_l_struct_box_"
+def structUnboxFnPrefix := "_l_struct_unbox_"
+
+def emitIncOfType (x : String) (ty : IRType) (n : Nat) (checkRef : Bool) (nstr : String) :
+    M Unit := do
+  if ty.isStruct then
+    unless needsRC ty do
+      return
+    let id ← lookupStruct ty
+    emit structIncFnPrefix; emit id; emit "("
+    emit x; emit ", "; emit nstr
+    emitLn ");"
+  else
+    emit $
+      if checkRef then (if n == 1 then "lean_inc" else "lean_inc_n")
+      else (if n == 1 then "lean_inc_ref" else "lean_inc_ref_n")
+    emit "("; emit x
+    if n != 1 then emit ", "; emit nstr
+    emitLn ");"
+
+def emitInc (x : VarId) (n : Nat) (checkRef : Bool)  : M Unit := do
+  let ty := (← read).varTypes[x]!
+  emitIncOfType (toString x) ty n checkRef n.repr
+
+def emitDecOfType (x : String) (ty : IRType) (n : Nat) (checkRef : Bool) : M Unit := do
+  if ty.isStruct then
+    unless needsRC ty do
+      return
+    let id ← lookupStruct ty
+    emit structDecFnPrefix; emit id; emit "("; emit x; emitLn ");"
+  else
+    emit (if checkRef then "lean_dec" else "lean_dec_ref");
+    emit "("; emit x;
+    if n != 1 then emit ", "; emit n
+    emitLn ");"
 
 def emitDec (x : VarId) (n : Nat) (checkRef : Bool) : M Unit := do
-  emit (if checkRef then "lean_dec" else "lean_dec_ref");
-  emit "("; emit x;
-  if n != 1 then emit ", "; emit n
-  emitLn ");"
+  let ty := (← read).varTypes[x]!
+  emitDecOfType (toString x) ty n checkRef
 
 def emitDel (x : VarId) : M Unit := do
   emit "lean_free_object("; emit x; emitLn ");"
@@ -320,10 +367,21 @@ def emitOffset (n : Nat) (offset : Nat) : M Unit := do
   else
     emit offset
 
+
 def emitUSet (x : VarId) (n : Nat) (y : VarId) : M Unit := do
-  emit "lean_ctor_set_usize("; emit x; emit ", "; emit n; emit ", "; emit y; emitLn ");"
+  let ty := (← read).varTypes[x]!
+  if ty.isStruct then
+    emit "((size_t*)&"; emit x; emit ")["; emit n; emitLn "] = "; emit y; emitLn ";"
+  else
+    emit "lean_ctor_set_usize("; emit x; emit ", "; emit n; emit ", "; emit y; emitLn ");"
 
 def emitSSet (x : VarId) (n : Nat) (offset : Nat) (y : VarId) (t : IRType) : M Unit := do
+  let ty := (← read).varTypes[x]!
+  if ty.isStruct then
+    emit "*(("; emit (← toCType t); emit "*)((uint8_t*)&"
+    emit x; emit "+sizeof(size_t)*"; emit n; emit "+"; emit offset; emit ")) = "
+    emit y; emitLn ";"
+    return
   match t with
   | IRType.float   => emit "lean_ctor_set_float"
   | IRType.float32 => emit "lean_ctor_set_float32"
@@ -366,8 +424,18 @@ def emitCtorSetArgs (z : VarId) (ys : Array Arg) : M Unit :=
   ys.size.forM fun i _ => do
     emit "lean_ctor_set("; emit z; emit ", "; emit i; emit ", "; emitArg ys[i]; emitLn ");"
 
-def emitCtor (z : VarId) (c : CtorInfo) (ys : Array Arg) : M Unit := do
-  emitLhs z;
+def emitCtor (z : VarId) (t : IRType) (c : CtorInfo) (ys : Array Arg) : M Unit := do
+  if t matches .union .. then
+    emit z; emit ".tag = "; emit c.cidx; emitLn ";"
+    for h : i in *...ys.size do
+      emit z; emit ".cs.c"; emit c.cidx; emit ".i"; emit i
+      emit " = "; emitArg ys[i]; emitLn ";"
+    return
+  else if t matches .struct .. then
+    for h : i in *...ys.size do
+      emit z; emit ".i"; emit i; emit " = "; emitArg ys[i]; emitLn ";"
+    return
+  emitLhs z
   if c.size == 0 && c.usize == 0 && c.ssize == 0 then do
     emit "lean_box("; emit c.cidx; emitLn ");"
   else do
@@ -392,14 +460,31 @@ def emitReuse (z : VarId) (x : VarId) (c : CtorInfo) (updtHeader : Bool) (ys : A
   emitLn "}";
   emitCtorSetArgs z ys
 
-def emitProj (z : VarId) (_c : Nat) (i : Nat) (x : VarId) : M Unit := do
-  emitLhs z; emit "lean_ctor_get("; emit x; emit ", "; emit i; emitLn ");"
+def emitProj (z : VarId) (c : Nat) (i : Nat) (x : VarId) : M Unit := do
+  emitLhs z
+  let ty := (← read).varTypes[x]!
+  if ty matches .struct .. then
+    emit x; emit ".i"; emit i; emitLn ";"
+  else if ty matches .union .. then
+    emit x; emit ".cs.c"; emit c; emit ".i"; emit i; emitLn ";"
+  else
+    emit "lean_ctor_get("; emit x; emit ", "; emit i; emitLn ");"
 
 def emitUProj (z : VarId) (i : Nat) (x : VarId) : M Unit := do
-  emitLhs z; emit "lean_ctor_get_usize("; emit x; emit ", "; emit i; emitLn ");"
+  emitLhs z
+  let ty := (← read).varTypes[x]!
+  if ty.isStruct then
+    emit "((size_t*)&"; emit x; emit ")["; emit i; emitLn "];"
+  else
+    emit "lean_ctor_get_usize("; emit x; emit ", "; emit i; emitLn ");"
 
 def emitSProj (z : VarId) (t : IRType) (n offset : Nat) (x : VarId) : M Unit := do
-  emitLhs z;
+  emitLhs z
+  let ty := (← read).varTypes[x]!
+  if ty.isStruct then
+    emit "*(("; emit (← toCType t); emit "*)((uint8_t*)&"
+    emit x; emit "+sizeof(size_t)*"; emit n; emit "+"; emit offset; emitLn "));"
+    return
   match t with
   | IRType.float    => emit "lean_ctor_get_float"
   | IRType.float32  => emit "lean_ctor_get_float32"
@@ -462,22 +547,37 @@ def emitApp (z : VarId) (f : VarId) (ys : Array Arg) : M Unit :=
   else do
     emitLhs z; emit "lean_apply_"; emit ys.size; emit "("; emit f; emit ", "; emitArgs ys; emitLn ");"
 
-def emitBoxFn (xType : IRType) : M Unit :=
+def emitBoxFn (xType tgt : IRType) : M Unit := do
   match xType with
-  | IRType.usize   => emit "lean_box_usize"
-  | IRType.uint32  => emit "lean_box_uint32"
-  | IRType.uint64  => emit "lean_box_uint64"
-  | IRType.float   => emit "lean_box_float"
-  | IRType.float32 => emit "lean_box_float32"
-  | _              => emit "lean_box"
+  | .usize   => emit "lean_box_usize"
+  | .uint32  => emit "lean_box_uint32"
+  | .uint64  => emit "lean_box_uint64"
+  | .float   => emit "lean_box_float"
+  | .float32 => emit "lean_box_float32"
+  | ty@(.struct ..) | ty@(.union ..) =>
+    let id ← lookupStruct ty
+    if tgt.isStruct then
+      emit structReshapeFnPrefix
+      emit id
+      emit "_"
+      emit (← lookupStruct tgt)
+    else
+      emit structBoxFnPrefix
+      emit id
+  | _        => emit "lean_box"
 
-def emitBox (z : VarId) (x : VarId) (xType : IRType) : M Unit := do
-  emitLhs z; emitBoxFn xType; emit "("; emit x; emitLn ");"
+def emitBox (z : VarId) (x : VarId) (xType tgt : IRType) : M Unit := do
+  emitLhs z; emitBoxFn xType tgt; emit "("; emit x; emitLn ");"
+
+def emitUnboxFn (t : IRType) : M Unit := do
+  if t.isStruct then
+    emit structUnboxFnPrefix
+    emit (← lookupStruct t)
+  else
+    emit (getUnboxOpName t)
 
 def emitUnbox (z : VarId) (t : IRType) (x : VarId) : M Unit := do
-  emitLhs z
-  emit (getUnboxOpName t)
-  emit "("; emit x; emitLn ");"
+  emitLhs z; emitUnboxFn t; emit "("; emit x; emitLn ");"
 
 def emitIsShared (z : VarId) (x : VarId) : M Unit := do
   emitLhs z; emit "!lean_is_exclusive("; emit x; emitLn ");"
@@ -531,7 +631,7 @@ def emitLit (z : VarId) (t : IRType) (v : LitVal) : M Unit := do
 
 def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
   match v with
-  | Expr.ctor c ys      => emitCtor z c ys
+  | Expr.ctor c ys      => emitCtor z t c ys
   | Expr.reset n x      => emitReset z n x
   | Expr.reuse x c u ys => emitReuse z x c u ys
   | Expr.proj c i x     => emitProj z c i x
@@ -540,7 +640,7 @@ def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
   | Expr.fap c ys       => emitFullApp z c ys
   | Expr.pap c ys       => emitPartialApp z c ys
   | Expr.ap x ys        => emitApp z x ys
-  | Expr.box t x        => emitBox z x t
+  | Expr.box t' x       => emitBox z x t' t
   | Expr.unbox x        => emitUnbox z t x
   | Expr.isShared x     => emitIsShared z x
   | Expr.lit v          => emitLit z t v
@@ -590,7 +690,7 @@ def emitTailCall (v : Expr) : M Unit :=
           let p := ps[i]
           let y := ys[i]!
           unless paramEqArg p y do
-            emit (toCType p.ty); emit " _tmp_"; emit i; emit " = "; emitArg y; emitLn ";"
+            emit (← toCType p.ty); emit " _tmp_"; emit i; emit " = "; emitArg y; emitLn ";"
         ps.size.forM fun i _ => do
           let p := ps[i]
           let y := ys[i]!
@@ -666,10 +766,189 @@ partial def emitFnBody (b : FnBody) : M Unit := do
 
 end
 
+partial def emitStructDefn (ty : IRType) (nm : String) : M Unit := do
+  emitLn (nm ++ " {")
+  match ty with
+  | .union _ tys =>
+    emitLn "union {"
+    for h : i in *...tys.size do
+      emit (← toCType tys[i]); emit " c"; emit i; emitLn ";"
+    assert! tys.size ≤ 256
+    emitLn "} cs;"
+    emitLn "uint8_t tag;"
+  | .struct _ tys us ss =>
+    if us ≠ 0 then emitLn s!"size_t u[{us}];"
+    if ss ≠ 0 then emitLn s!"uint8_t s[{ss}];"
+    for h : i in *...tys.size do
+      if tys[i] matches .erased | .void then
+        continue
+      emit (← toCType tys[i]); emit " i"; emit i; emitLn ";"
+  | _ => unreachable!
+  emitLn "};"
+
+def emitUnionSwitch (n : Nat) (x : String) (branch : (i : Nat) → i < n → M Unit) : M Unit := do
+  if h : n = 1 then
+    branch 0 (by simp_all)
+  else if h : n = 2 then
+    emit "if ("; emit x; emitLn " == 0) {"
+    branch 0 (by simp_all)
+    emitLn "} else {"
+    branch 1 (by simp_all)
+    emitLn "}"
+  else
+    emit "switch ("; emit x; emitLn ") {"
+    for h : i in *...n do
+      emit "case "; emit i; emitLn ":"
+      branch i (by get_elem_tactic)
+      emitLn "break;"
+    emitLn "}"
+
+def emitStructIncDecFn (ty : IRType) (id : Nat) (isInc : Bool) : M Unit := do
+  let prfx := if isInc then structIncFnPrefix else structDecFnPrefix
+  let call (tgt : String) (ty : IRType) := do
+    if ty matches .void | .erased || ty.isScalar then
+      return
+    if isInc then
+      emitIncOfType tgt ty 0 true "n"
+    else
+      emitDecOfType tgt ty 1 true
+  emit "static void "; emit prfx; emit id
+  emit "("; emit (structType id);
+  if isInc then emitLn " x, size_t n) {" else emitLn " x) {"
+
+  if let .union _ tys := ty then
+    emitUnionSwitch tys.size "x.tag" fun i _ => call s!"x.cs.c{i}" tys[i]
+  else if let .struct _ tys _ _ := ty then
+    for h : i in *...tys.size do
+      call s!"x.i{i}" tys[i]
+  emitLn "}"
+
+def emitReshapeFn (origin target : IRType) : M Unit := do
+  if origin.isObj then
+    emitUnboxFn target
+  else
+    emitBoxFn origin target
+
+def emitStructReshapeFn (origin target : IRType) (id1 id2 : Nat) : M Unit := do
+  emit "static "; emit (structType id2); emit " "
+  emit structReshapeFnPrefix; emit id1; emit "_"; emit id2
+  emit "("; emit (structType id1); emitLn " x) {"
+  emit (structType id2); emitLn " y;"
+
+  match origin, target with
+  | .union _ tys, .union _ tys' =>
+    emitLn "y.tag = x.tag;"
+    emitUnionSwitch tys.size "x.tag" fun i _ => do
+      emit "y.cs.c"; emit i; emit " = "
+      emitReshapeFn tys[i] tys'[i]!
+      emit "(x.cs.c"; emit i; emitLn ");"
+  | .struct _ tys us ss, .struct _ tys' _ _ =>
+    if us ≠ 0 ∨ ss ≠ 0 then
+      emit "memcpy(&y, &x, sizeof(size_t)*"; emit us; emit "+"; emit ss; emitLn ");"
+    for h : i in *...tys.size do
+      if tys[i] matches .erased | .void then
+        continue
+      if tys[i].beqApprox tys'[i]! then
+        emit "y.i"; emit i; emit " = x.i"; emit i; emitLn ";"
+      else
+        emit "y.i"; emit i; emit " = "
+        emitReshapeFn tys[i] tys'[i]!
+        emit "(x.i"; emit i; emitLn ");"
+  | _, _ => pure ()
+  emitLn "return y;"
+  emitLn "}"
+
+def emitStructBox (ty : IRType) (cidx : Nat) (x : String) : M Unit := do
+  let .struct _ tys us ss := ty | unreachable!
+  if tys.isEmpty && us == 0 && ss == 0 then
+    emit "y = lean_box("; emit cidx; emitLn ");"
+    return
+  emit "y = lean_alloc_ctor(";
+  emit cidx; emit ", "; emit tys.size;
+  emit ", sizeof(size_t)*"; emit us; emit "+"; emit ss
+  emitLn ");"
+  if us ≠ 0 ∨ ss ≠ 0 then
+    emit "memcpy(lean_ctor_scalar_cptr(y), &x, sizeof(size_t)*"
+    emit us; emit "+"; emit ss; emitLn ");"
+  for h : i in *...tys.size do
+    emit "lean_ctor_set(y, "; emit i; emit ", "
+    if tys[i] matches .erased | .void then
+      emitLn "lean_box(0));"
+    else if tys[i] matches .object | .tobject | .tagged then
+      emit x; emit ".i"; emit i; emitLn ");"
+    else
+      emitBoxFn tys[i] .tobject
+      emit "("; emit x; emit ".i"; emit i; emitLn "));"
+
+def emitStructBoxFn (ty : IRType) (id : Nat) : M Unit := do
+  emit "static lean_object* "
+  emit structBoxFnPrefix; emit id
+  emit "("; emit (structType id); emitLn " x) {"
+  emitLn "lean_object* y;"
+  if let .union _ tys := ty then
+    emitUnionSwitch tys.size "x.tag" fun i _ => do
+      emitStructBox tys[i] i s!"x.cs.c{i}"
+  else
+    emitStructBox ty 0 "x"
+  emitLn "return y;"
+  emitLn "}"
+
+def emitStructUnboxFn (ty : IRType) (id : Nat) : M Unit := do
+  emit "static "; emit (structType id); emit " "
+  emit structUnboxFnPrefix; emit id
+  emitLn "(lean_object* x) {"
+  emit (structType id); emitLn " y;"
+
+  if let .union _ tys := ty then
+    emitLn "y.tag = lean_obj_tag(x);"
+    emitUnionSwitch tys.size "y.tag" fun i _ => do
+      emit "y.cs.c"; emit i; emit " = "
+      emitUnboxFn tys[i]
+      emitLn "(x);"
+  else
+    let .struct _ tys us ss := ty | unreachable!
+    if us ≠ 0 ∨ ss ≠ 0 then
+      emit "memcpy(&y, lean_ctor_scalar_cptr(x), sizeof(size_t)*"
+      emit us; emit "+"; emit ss; emitLn ");"
+    for h : i in *...tys.size do
+      if tys[i] matches .erased | .void then
+        continue
+      else if tys[i] matches .object | .tobject | .tagged then
+        emit "y.i"; emit i; emit " = lean_ctor_get(x, "; emit i; emitLn ");"
+      else
+        emit "y.i"; emit i; emit " = "
+        emitUnboxFn tys[i]
+        emit "(lean_ctor_get(x, "; emit i; emitLn "));"
+  emitLn "return y;"
+  emitLn "}"
+
+def emitStructDeclsFor (id : Nat) (info : StructTypeInfo) : M Unit := do
+  let ty := info.type
+  emitStructDefn ty (structType id)
+  if needsRC ty then
+    emitStructIncDecFn ty id true
+    emitStructIncDecFn ty id false
+  emitStructBoxFn ty id
+  emitStructUnboxFn ty id
+
+def emitStructDecls (cont : M α) : M α := do
+  let env ← getEnv
+  let decls := getDecls env
+  let (data, lookup) := collectStructTypes decls
+  withReader (fun ctx => { ctx with structs := lookup }) do
+    let mut emitted : Std.HashSet Nat := {}
+    for h : i in *...data.size do
+      emitStructDeclsFor i data[i]
+    for h : i in *...data.size do
+      let info := data[i]
+      for reshape in info.reboxing do
+        emitStructReshapeFn info.type data[reshape]!.type i reshape
+    cont
+
 def emitDeclAux (d : Decl) : M Unit := do
   let env ← getEnv
-  let (_, jpMap) := mkVarJPMaps d
-  withReader (fun ctx => { ctx with jpMap := jpMap }) do
+  let (varTypes, jpMap) := mkVarJPMaps d
+  withReader (fun ctx => { ctx with jpMap, varTypes }) do
   unless hasInitAttr env d.name do
     match d with
     | .fdecl (f := f) (xs := xs) (type := t) (body := b) .. =>
@@ -678,7 +957,7 @@ def emitDeclAux (d : Decl) : M Unit := do
         emit "static "
       else
         emit "LEAN_EXPORT "  -- make symbol visible to the interpreter
-      emit (toCType t); emit " ";
+      emit (← toCType t); emit " ";
       if xs.size > 0 then
         let xs := xs.filter (fun p => !p.ty.isVoid)
         emit baseName;
@@ -689,7 +968,7 @@ def emitDeclAux (d : Decl) : M Unit := do
           xs.size.forM fun i _ => do
             if i > 0 then emit ", "
             let x := xs[i]
-            emit (toCType x.ty); emit " "; emit x.x
+            emit (← toCType x.ty); emit " "; emit x.x
         emit ")"
       else
         emit ("_init_" ++ baseName ++ "()")
@@ -777,6 +1056,8 @@ def emitInitFn : M Unit := do
 
 def main : M Unit := do
   emitFileHeader
+  emitLn "void* memcpy(void* restrict, const void* restrict, size_t);"
+  emitStructDecls do
   emitFnDecls
   emitFns
   emitInitFn

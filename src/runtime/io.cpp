@@ -610,37 +610,34 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_write(b_obj_arg h, b_obj_arg 
     }
 }
 
+#if defined(LEAN_WINDOWS)
+
+#define LEAN_IO_LOCK_FILE(fp) _lock_file(fp)
+#define LEAN_IO_UNLOCK_FILE(fp) _unlock_file(fp)
+#define LEAN_IO_GETC_UNLOCKED(fp) _fgetc_unlocked(fp)
+
+#else
+
+#define LEAN_IO_LOCK_FILE(fp) flockfile(fp)
+#define LEAN_IO_UNLOCK_FILE(fp) funlockfile(fp)
+#define LEAN_IO_GETC_UNLOCKED(fp) getc_unlocked(fp)
+
+#endif
+
 /* Handle.getLine : (@& Handle) → IO Unit */
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_get_line(b_obj_arg h) {
     FILE * fp = io_get_handle(h);
 
     std::string result;
     int c; // Note: int, not char, required to handle EOF
-
-    /*
-     * This code needs to handle `\0` occuring in lines as that is valid UTF-8. Thus we cannot use
-     * `fgets` here. Furthermore `getline` is not supported on Windows so we can't use it either.
-     * Ideally we will completely remove this implementation once our own buffered IO comes around.
-     */
-#if defined(LEAN_WINDOWS)
-    _lock_file(fp);
-    while ((c = _fgetc_nolock(fp)) != EOF) {
+    LEAN_IO_LOCK_FILE(fp);
+    while ((c = LEAN_IO_GETC_UNLOCKED(fp)) != EOF) {
         result.push_back(c);
         if (c == '\n') {
             break;
         }
     }
-    _unlock_file(fp);
-#else
-    flockfile(fp);
-    while ((c = getc_unlocked(fp)) != EOF) {
-        result.push_back(c);
-        if (c == '\n') {
-            break;
-        }
-    }
-    funlockfile(fp);
-#endif
+    LEAN_IO_UNLOCK_FILE(fp);
 
     if (std::ferror(fp)) {
         return io_result_mk_error(decode_io_error(errno, nullptr));

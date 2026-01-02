@@ -69,7 +69,8 @@ private partial def visitFnBody (b : FnBody) : M Unit := do
   | .vdecl x t e b =>
     match e with
     | .proj _ _ parent =>
-      addDerivedValue parent x
+      unless t.isScalar do
+        addDerivedValue parent x
     | .fap ``Array.getInternal args =>
       if let .var parent := args[1]! then
         addDerivedValue parent x
@@ -361,8 +362,7 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
       addIncBeforeConsumeAll ctx ys (.vdecl z t v b) bLiveVars
     | .proj _ _ x | .unbox x =>
       let b := addDecIfNeeded ctx x b bLiveVars
-      -- Note: this is meant for struct/union types
-      let b := if !t.isScalar && !bLiveVars.borrows.contains z then addInc ctx z b else b
+      let b := if t.isPossibleRef && !bLiveVars.borrows.contains z then addInc ctx z b else b
       .vdecl z t v b
     | .uproj _ x | .sproj _ _ x =>
       .vdecl z t v (addDecIfNeeded ctx x b bLiveVars)

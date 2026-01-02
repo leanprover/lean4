@@ -425,14 +425,19 @@ def emitCtorSetArgs (z : VarId) (ys : Array Arg) : M Unit :=
     emit "lean_ctor_set("; emit z; emit ", "; emit i; emit ", "; emitArg ys[i]; emitLn ");"
 
 def emitCtor (z : VarId) (t : IRType) (c : CtorInfo) (ys : Array Arg) : M Unit := do
-  if t matches .union .. then
+  if let .union _ tys := t then
     emit z; emit ".tag = "; emit c.cidx; emitLn ";"
+    let .struct _ tys _ _ := tys[c.cidx]! | unreachable!
     for h : i in *...ys.size do
+      if tys[i]! matches .erased | .void then
+        continue
       emit z; emit ".cs.c"; emit c.cidx; emit ".i"; emit i
       emit " = "; emitArg ys[i]; emitLn ";"
     return
-  else if t matches .struct .. then
+  else if let .struct _ tys _ _ := t then
     for h : i in *...ys.size do
+      if tys[i]! matches .erased | .void then
+        continue
       emit z; emit ".i"; emit i; emit " = "; emitArg ys[i]; emitLn ";"
     return
   emitLhs z
@@ -803,6 +808,26 @@ def emitUnionSwitch (n : Nat) (x : String) (branch : (i : Nat) → i < n → M U
       emitLn "break;"
     emitLn "}"
 
+def emitUnionSwitchWithImpossible (n : Nat) (x : String)
+    (possible : Nat → Bool)
+    (branch : (i : Nat) → i < n → M Unit) : M Unit := do
+  let branches : Array (Fin n) := (Array.ofFn id).filter fun i => possible i
+  if h : branches.size = 1 then
+    branch branches[0].1 branches[0].2
+  else if h : branches.size = 2 then
+    emit "if ("; emit x; emitLn " == 0) {"
+    branch branches[0].1 branches[0].2
+    emitLn "} else {"
+    branch branches[1].1 branches[1].2
+    emitLn "}"
+  else
+    emit "switch ("; emit x; emitLn ") {"
+    for i in branches do
+      emit "case "; emit i; emitLn ":"
+      branch i.1 i.2
+      emitLn "break;"
+    emitLn "}"
+
 def emitStructIncDecFn (ty : IRType) (id : Nat) (isInc : Bool) : M Unit := do
   let prfx := if isInc then structIncFnPrefix else structDecFnPrefix
   let call (tgt : String) (ty : IRType) := do
@@ -829,7 +854,19 @@ def emitReshapeFn (origin target : IRType) : M Unit := do
   else
     emitBoxFn origin target
 
+partial def compatibleReshape (origin target : IRType) : Bool :=
+  match origin, target with
+  | .struct _ tys _ _, .struct _ tys' _ _ =>
+    tys.isEqv tys' compatibleReshape
+  | .union .., .struct .. => false
+  | .struct .., .union .. => false
+  | _, _ => (!origin.isScalar || !target.isStruct) && (!origin.isStruct || !target.isScalar)
+
 def emitStructReshapeFn (origin target : IRType) (id1 id2 : Nat) : M Unit := do
+  if id1 == id2 then
+    return
+  unless compatibleReshape origin target do
+    return
   emit "static "; emit (structType id2); emit " "
   emit structReshapeFnPrefix; emit id1; emit "_"; emit id2
   emit "("; emit (structType id1); emitLn " x) {"
@@ -838,7 +875,14 @@ def emitStructReshapeFn (origin target : IRType) (id1 id2 : Nat) : M Unit := do
   match origin, target with
   | .union _ tys, .union _ tys' =>
     emitLn "y.tag = x.tag;"
-    emitUnionSwitch tys.size "x.tag" fun i _ => do
+    -- Note: through cse in the mono stage we can get "bad" reshapes
+    -- where e.g. `let a : Option UInt8 := none` and `let a : Option (Option UInt8) := none`
+    -- merged into one variable. In that case, ignore branches with incompatibilities.
+    emitUnionSwitchWithImpossible tys.size "x.tag"
+        (fun i => compatibleReshape tys[i]! tys'[i]!)
+        fun i _ => do
+      if tys[i].beqApprox tys'[i]! then
+        return
       emit "y.cs.c"; emit i; emit " = "
       emitReshapeFn tys[i] tys'[i]!
       emit "(x.cs.c"; emit i; emitLn ");"
@@ -1019,8 +1063,10 @@ def emitDeclInit (d : Decl) : M Unit := do
       emit "res = "; emitCName initFn; emitLn "();"
       emitLn "if (lean_io_result_is_error(res)) return res;"
       emitCName n
-      if d.resultType.isScalar then
-        emitLn (" = " ++ getUnboxOpName d.resultType ++ "(lean_io_result_get_value(res));")
+      if d.resultType.isScalarOrStruct then
+        emit " = "
+        emitUnboxFn d.resultType
+        emitLn "(lean_io_result_get_value(res));"
       else
         emitLn " = lean_io_result_get_value(res);"
         emitMarkPersistent d n

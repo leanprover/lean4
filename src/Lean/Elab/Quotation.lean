@@ -108,14 +108,36 @@ def mkNode (b : ArrayStxBuilder) (k : SyntaxNodeKind) : TermElabM Term := do
 
 end ArrayStxBuilder
 
+private def builtinSyntaxNodeKindDecl? (k : SyntaxNodeKind) : Option Name :=
+  match k with
+  | `choice => some ``Lean.choiceKind
+  | `null => some ``Lean.nullKind
+  | `group => some ``Lean.groupKind
+  | `ident => some ``Lean.identKind
+  | `str => some ``Lean.strLitKind
+  | `char => some ``Lean.charLitKind
+  | `num => some ``Lean.numLitKind
+  | `hexnum => some ``Lean.hexnumKind
+  | `scientific => some ``Lean.scientificLitKind
+  | `name => some ``Lean.nameLitKind
+  | `fieldIdx => some ``Lean.fieldIdxKind
+  | `hygieneInfo => some ``Lean.hygieneInfoKind
+  | `interpolatedStrLitKind => some ``Lean.interpolatedStrLitKind
+  | `interpolatedStrKind => some ``Lean.interpolatedStrKind
+  | _ => none
+
 def tryAddSyntaxNodeKindInfo (stx : Syntax) (k : SyntaxNodeKind) : TermElabM Unit := do
-  if (← getEnv).contains k then
+  let env ← getEnv
+  if env.contains k then
     addTermInfo' stx (← mkConstWithFreshMVarLevels k)
   else
     -- HACK to support built in categories, which use a different naming convention
-    let k := ``Lean.Parser.Category ++ k
-    if (← getEnv).contains k then
-      addTermInfo' stx (← mkConstWithFreshMVarLevels k)
+    let catName := ``Lean.Parser.Category ++ k
+    if env.contains catName then
+      addTermInfo' stx (← mkConstWithFreshMVarLevels catName)
+    else if let some declName := builtinSyntaxNodeKindDecl? k then
+      if env.contains declName then
+        addTermInfo' stx (← mkConstWithFreshMVarLevels declName)
 
 instance : Quote Syntax.Preresolved where
   quote

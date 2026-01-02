@@ -21,19 +21,23 @@ meta structure Parser.Category
 namespace Parser.Category
 
 /-- `command` is the syntax category for top-level constructs in a Lean file.
-Examples include `def foo := 1`, `namespace Foo`, `open`, and `end Foo`.
-Commands typically update the environment (e.g., add declarations) or modify
-parsing/elaboration context for later commands (e.g., `variable` or `set_option`). -/
+Examples include `def foo := 1`, `theorem`, `#check`, `#eval`, `namespace Foo`,
+`open`, and `end Foo`. Commands typically update the environment (e.g., add
+declarations) or modify parsing/elaboration context for later commands (e.g.,
+`variable` or `set_option`). -/
 meta def command : Category := {}
 
 /-- `term` is the builtin syntax category for terms, i.e. expressions in Lean's
 type theory. For example, `2 + 2` is a term. `Term` is syntax, while `Expr` is
 the elaborated result. A term like `by simp` elaborates differently depending on
-the surrounding expected type. -/
+the surrounding expected type. This is the category referenced by `term` in
+parser DSLs such as `syntax term:60` declarations. -/
 meta def term : Category := {}
 
 /-- `tactic` is the builtin syntax category for tactics. These appear after `by`
-in proofs and are programs that transform a goal state into a proof term.
+in proofs and are programs that transform a goal state into a proof term. The
+category underlies the tactic sequences accepted by `by` blocks and `tactic`
+declarations.
 For example, `simp` is a tactic, used in:
 ```
 example : 2 + 2 = 4 := by simp
@@ -42,8 +46,8 @@ example : 2 + 2 = 4 := by simp
 meta def tactic : Category := {}
 
 /-- `doElem` is the builtin syntax category for elements that can appear in `do` notation.
-For example, `let x ← e`, `if ... then ... else ...`, and `return` are `doElem`s.
-A `do` block is a list of `doElem`s. -/
+For example, `let x ← e`, `if ... then ... else ...`, `for`, `match`, and
+`return` are `doElem`s. A `do` block is a list of `doElem`s. -/
 meta def doElem : Category := {}
 
 /-- `structInstFieldDecl` is the syntax category for field values in structure instance notation.
@@ -58,17 +62,19 @@ meta def level : Category := {}
 
 /-- `attr` is the builtin syntax category for attributes.
 Declarations can be annotated with attributes using the `@[ ... ]` notation,
-and the `attribute` command parses this category too. -/
+e.g. `@[simp]` or `@[simp, reducible]`, and the `attribute` command parses this
+category too. -/
 meta def attr : Category := {}
 
 /-- `stx` is the builtin syntax category for the syntax DSL used inside
-`syntax`/`macro` declarations (e.g., `term:60`, string literals, `sepBy`, etc.). -/
+`syntax`/`macro` declarations (e.g., `term:60`, string literals, `ident`,
+`sepBy`, `many`, `optional`, `indent`, `colGt`, etc.). -/
 meta def stx : Category := {}
 
 /-- `prio` is a builtin syntax category for priorities. Higher numbers denote
 higher priority (e.g., typeclass search tries higher priorities first).
-In addition to numeric literals like `37`, you can use `low`, `mid`, `high`,
-and `+`/`-` to offset priorities. -/
+In addition to numeric literals like `37`, you can use `default`, `low`, `mid`,
+`high`, and `+`/`-` to offset priorities. -/
 meta def prio : Category := {}
 
 /-- `prec` is a builtin syntax category for precedences. Precedence expresses how

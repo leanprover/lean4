@@ -483,14 +483,20 @@ def prepareBoxParams (env : Environment) (decls : Array Decl) : Array Decl :=
     | .fdecl f xs resultType b info =>
       let (b, boxed) := boxParams b { f, resultType, decls, env }
         |>.run {}
-      let xs := xs.mapMono fun param =>
-        if isExpensiveScalar param.ty ∧ boxed.contains param.x then
-          { param with ty := param.ty.boxed }
-        else
-          param
-      .fdecl f xs resultType b info
+      if isExport env f then
+        -- exports shouldn't use unboxed structs
+        let xs := xs.map (fun x => { x with ty := if x.ty.isStruct then x.ty.boxed else x.ty })
+        let resultType := if resultType.isStruct then resultType.boxed else resultType
+        .fdecl f xs resultType b info
+      else
+        let xs := xs.mapMono fun param =>
+          if isExpensiveScalar param.ty ∧ boxed.contains param.x then
+            { param with ty := param.ty.boxed }
+          else
+            param
+        .fdecl f xs resultType b info
     | .extern f xs resultType e =>
-      -- extern declarations shouldn't use unboxed structs
+      -- extern declarations should also not use unboxed structs
       let xs := xs.map (fun x => { x with ty := if x.ty.isStruct then x.ty.boxed else x.ty })
       let resultType := if resultType.isStruct then resultType.boxed else resultType
       .extern f xs resultType e

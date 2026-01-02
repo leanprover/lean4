@@ -63,8 +63,7 @@ typedef object_ref lit_val;
 typedef object_ref ctor_info;
 
 type to_type(object * obj) {
-    if (!is_scalar(obj)) return type::Struct; // struct or union
-    else return static_cast<type>(unbox(obj));
+    return static_cast<type>(lean_obj_tag(obj));
 }
 type cnstr_get_type(object_ref const & o, unsigned i) { return to_type(cnstr_get(o.raw(), i)); }
 
@@ -133,6 +132,7 @@ enum class fn_body_kind { VDecl, JDecl, Set, SetTag, USet, SSet, Inc, Dec, Del, 
 fn_body_kind fn_body_tag(fn_body const & a) { return is_scalar(a.raw()) ? static_cast<fn_body_kind>(unbox(a.raw())) : static_cast<fn_body_kind>(cnstr_tag(a.raw())); }
 var_id const & fn_body_vdecl_var(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::VDecl); return cnstr_get_ref_t<var_id>(b, 0); }
 type fn_body_vdecl_type(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::VDecl); return cnstr_get_type(b, 1); }
+object_ref const & fn_body_vdecl_type_ref(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::VDecl); return cnstr_get_ref(b, 1); }
 expr const & fn_body_vdecl_expr(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::VDecl); return cnstr_get_ref_t<expr>(b, 2); }
 fn_body const & fn_body_vdecl_cont(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::VDecl); return cnstr_get_ref_t<fn_body>(b, 3); }
 jp_id const & fn_body_jdecl_id(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::JDecl); return cnstr_get_ref_t<jp_id>(b, 0); }
@@ -221,8 +221,8 @@ std::string format_fn_body_head(fn_body const & b) {
 }
 
 static bool type_is_scalar(type t) {
-    return t != type::Object && t != type::Tagged && t != type::TObject && t != type::Irrelevant
-            && t != type::Void && t != type::Struct && t != type::Union;
+    return t == type::Float || t == type::Float32 || t == type::UInt8 || t == type::UInt16 ||
+        t == type::UInt32 || t == type::UInt64 || t == type::USize;
 }
 
 extern "C" object* lean_get_regular_init_fn_name_for(object* env, object* fn);
@@ -446,7 +446,7 @@ private:
     }
 
     /** \brief Allocate constructor object with given tag and arguments */
-    object * alloc_ctor(ctor_info const & i, array_ref<arg> const & args) {
+    object * alloc_ctor(ctor_info const & i, array_ref<arg> const & args, object_ref const & tref) {
         size_t tag = ctor_info_tag(i).get_small_value();
         // number of boxed object fields
         size_t size = ctor_info_size(i).get_small_value();
@@ -459,8 +459,41 @@ private:
             return box(tag);
         } else {
             object *o = alloc_cnstr(tag, size, usize * sizeof(void *) + ssize);
-            for (size_t i = 0; i < args.size(); i++) {
-                cnstr_set(o, i, eval_arg(args[i]).m_obj);
+            if (is_scalar(tref.raw())) {
+                for (size_t i = 0; i < args.size(); i++) {
+                    cnstr_set(o, i, eval_arg(args[i]).m_obj);
+                }
+            } else {
+                // struct or union
+                object_ref const * t_ref = &tref;
+                if (to_type(tref.raw()) == type::Union) {
+                    array_ref<object_ref> const & types = cnstr_get_ref_t<array_ref<object_ref>>(tref, 1);
+                    lean_assert(tag < types.size());
+                    t_ref = &types[tag];
+                }
+                lean_assert(to_type(t_ref->raw()) == type::Struct);
+                array_ref<object_ref> const & types = cnstr_get_ref_t<array_ref<object_ref>>(*t_ref, 1);
+                lean_assert(types.size() == args.size());
+                for (size_t i = 0; i < args.size(); i++) {
+                    type t = to_type(types[i].raw());
+                    value arg = eval_arg(args[i]);
+                    object * val;
+                    if (LEAN_UNLIKELY(type_is_scalar(t))) {
+                        switch (t) {
+                            case type::Float: val = lean_box_float(arg.m_float); break;
+                            case type::Float32: val = lean_box_float32(arg.m_float32); break;
+                            case type::UInt8: val = lean_box(arg.m_num); break;
+                            case type::UInt16: val = lean_box(arg.m_num); break;
+                            case type::UInt32: val = lean_box_uint32(arg.m_num); break;
+                            case type::UInt64: val = lean_box_uint64(arg.m_num); break;
+                            case type::USize: val = lean_box_usize(arg.m_num); break;
+                            default: lean_unreachable();
+                        }
+                    } else {
+                        val = arg.m_obj;
+                    }
+                    cnstr_set(o, i, val);
+                }
             }
             return o;
         }
@@ -479,10 +512,11 @@ private:
         return cls;
     }
 
-    value eval_expr(expr const & e, type t) {
+    value eval_expr(expr const & e, object_ref const & tref) {
+        type t = to_type(tref.raw());
         switch (expr_tag(e)) {
             case expr_kind::Ctor:
-                return value { alloc_ctor(expr_ctor_info(e), expr_ctor_args(e)) };
+                return value { alloc_ctor(expr_ctor_info(e), expr_ctor_args(e), tref) };
             case expr_kind::Reset: { // release fields if unique reference in preparation for `Reuse` below
                 object * o = var(expr_reset_obj(e)).m_obj;
                 if (is_exclusive(o)) {
@@ -500,7 +534,7 @@ private:
                 // check if `Reset` above had a unique reference it consumed
                 if (is_scalar(o)) {
                     // fall back to regular allocation
-                    return alloc_ctor(expr_reuse_ctor(e), expr_reuse_args(e));
+                    return alloc_ctor(expr_reuse_ctor(e), expr_reuse_args(e), tref);
                 } else {
                     // create new constructor object in-place
                     if (expr_reuse_update_header(e)) {
@@ -513,6 +547,20 @@ private:
                 }
             }
             case expr_kind::Proj: // object field access
+                if (LEAN_UNLIKELY(type_is_scalar(t))) {
+                    // possible for unboxed structs
+                    object * field = cnstr_get(var(expr_proj_obj(e)).m_obj, expr_proj_idx(e).get_small_value());
+                    switch (t) {
+                        case type::Float: return value::from_float(lean_unbox_float(field));
+                        case type::Float32: return value::from_float32(lean_unbox_float32(field));
+                        case type::UInt8: return lean_unbox(field);
+                        case type::UInt16: return lean_unbox(field);
+                        case type::UInt32: return lean_unbox_uint32(field);
+                        case type::UInt64: return lean_unbox_uint64(field);
+                        case type::USize: return lean_unbox_usize(field);
+                        default: lean_unreachable();
+                    }
+                }
                 return cnstr_get(var(expr_proj_obj(e)).m_obj, expr_proj_idx(e).get_small_value());
             case expr_kind::UProj: // USize field access
                 return cnstr_get_usize(var(expr_uproj_obj(e)).m_obj, expr_uproj_idx(e).get_small_value());
@@ -667,7 +715,7 @@ private:
                         check_system();
                         break;
                     }
-                    value v = eval_expr(fn_body_vdecl_expr(b), fn_body_vdecl_type(b));
+                    value v = eval_expr(fn_body_vdecl_expr(b), fn_body_vdecl_type_ref(b));
                     // NOTE: `var` must be called *after* `eval_expr` because the stack may get resized and invalidate
                     // the pointer
                     var(fn_body_vdecl_var(b)) = v;

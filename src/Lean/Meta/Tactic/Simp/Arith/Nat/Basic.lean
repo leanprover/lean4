@@ -10,6 +10,7 @@ public import Lean.Meta.KExprMap
 import Lean.Data.RArray
 import Lean.Meta.AppBuilder
 import Lean.Meta.NatInstTesters
+import Lean.Meta.Offset
 public section
 namespace Nat.Linear
 

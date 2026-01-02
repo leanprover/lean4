@@ -4,13 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Siddhartha Gadgil, Mario Carneiro, Kim Morrison
 -/
 module
-
 prelude
 public import Lean.Meta.Reduce
 public import Lean.Meta.Tactic.Assert
-public import Lean.Meta.DiscrTree
+public import Lean.Meta.DiscrTree.Main
 import Lean.Meta.AppBuilder
-
 public section
 
 /-!

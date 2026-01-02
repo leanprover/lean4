@@ -3,16 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
-
 module
-
 prelude
 public import Lean.Meta.Basic
 import Lean.AddDecl
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.AppBuilder
 import Lean.Meta.HasNotBit
-
+import Lean.Meta.WHNF
 /-!  See `mkSparseCasesOn` below.  -/
 
 namespace Lean.Meta

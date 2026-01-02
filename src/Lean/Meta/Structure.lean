@@ -4,18 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Kyle Miller
 -/
 module
-
 prelude
 public import Lean.AddDecl
 public import Lean.Meta.AppBuilder
-
+import Lean.Structure
+import Lean.Meta.Transform
 public section
-
+namespace Lean.Meta
 /-!
 # Structure methods that require `MetaM` infrastructure
 -/
-
-namespace Lean.Meta
 
 /--
 If `struct` is an application of the form `S ..` with `S` a constant for a structure,

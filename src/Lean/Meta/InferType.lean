@@ -178,7 +178,7 @@ private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
   | none   => fvarId.throwUnknown
 
 @[inline] private def checkInferTypeCache (e : Expr) (inferType : MetaM Expr) : MetaM Expr := do
-  if e.hasMVar then
+  if !(← read).cacheInferType || e.hasMVar then
     inferType
   else
     let key ← mkExprConfigCacheKey e

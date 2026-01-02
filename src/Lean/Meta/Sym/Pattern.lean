@@ -105,6 +105,7 @@ public def mkPatternFromDecl (declName : Name) (num? : Option Nat := none) : Met
 
 /--
 Creates a `Pattern` from an equational theorem, using the left-hand side of the equation.
+It also returns the right-hand side of the equation
 
 Like `mkPatternFromDecl`, this strips all leading universal quantifiers, recording variable
 types and instance status. However, instead of using the entire resulting type as the pattern,
@@ -113,16 +114,16 @@ it extracts just the LHS of the equation.
 For a theorem `∀ x₁ ... xₙ, lhs = rhs`, returns a pattern matching `lhs` with `n` pattern variables.
 Throws an error if the theorem's conclusion is not an equality.
 -/
-public def mkEqPatternFromDecl (declName : Name) : MetaM Pattern := do
+public def mkEqPatternFromDecl (declName : Name) : MetaM (Pattern × Expr) := do
   let (levelParams, type) ← preprocessPattern declName
-  let rec go (type : Expr) (varTypes : Array Expr) (isInstance : Array Bool) : MetaM Pattern := do
+  let rec go (type : Expr) (varTypes : Array Expr) (isInstance : Array Bool) : MetaM (Pattern × Expr) := do
     if let .forallE _ d b _ := type then
       return (← go b (varTypes.push d) (isInstance.push (isClass? (← getEnv) d).isSome))
     else
-      let_expr Eq _ lhs _ := type | throwError "resulting type for `{.ofConstName declName}` is not an equality"
+      let_expr Eq _ lhs rhs := type | throwError "resulting type for `{.ofConstName declName}` is not an equality"
       let pattern := lhs
       let fnInfos ← mkProofInstInfoMapFor pattern
-      return { levelParams, varTypes, isInstance, pattern, fnInfos }
+      return ({ levelParams, varTypes, isInstance, pattern, fnInfos }, rhs)
   go type #[] #[]
 
 structure UnifyM.Context where

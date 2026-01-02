@@ -30,7 +30,7 @@ def mkValue (expr : Expr) (pattern : Pattern) (result : MatchUnifyResult) : Expr
 Tries to rewrite `e` using the given theorem.
 -/
 -- **TODO**: Define `Step` result?
-public def rewriteUsing? (e : Expr) (thm : Theorem) : SimpM (Option Result) := do
+public def Theorem.rewrite? (thm : Theorem) (e : Expr) : SimpM (Option Result) := do
   if let some result ← thm.pattern.match? e then
     let proof? := some <| mkValue thm.expr thm.pattern result
     let rhs    := thm.rhs.instantiateLevelParams thm.pattern.levelParams result.us
@@ -43,7 +43,7 @@ public def rewriteUsing? (e : Expr) (thm : Theorem) : SimpM (Option Result) := d
 public def rewrite : SimpFun := fun e => do
   -- **TODO**: use indexing
   for thm in (← read).thms.thms do
-    if let some result ← rewriteUsing? e thm then
+    if let some result ← thm.rewrite? e then
       return result
   return { expr := e }
 

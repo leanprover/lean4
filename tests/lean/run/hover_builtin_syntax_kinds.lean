@@ -1,320 +1,1070 @@
 import Lean
 open Lean
 
-set_option linter.unusedVariables false
 set_option guard_msgs.diff false
 
 /--
-info: • [Command] @ ⟨107, 0⟩-⟨110, 14⟩ @ Lean.Elab.Command.elabDeclaration
-  • [Term] Syntax : Type @ ⟨107, 22⟩-⟨107, 28⟩ @ Lean.Elab.Term.elabIdent
-    • [Completion-Id] Syntax : some Sort.{?_uniq.1} @ ⟨107, 22⟩-⟨107, 28⟩
-    • [Term] Syntax : Type @ ⟨107, 22⟩-⟨107, 28⟩
-  • [Term] stx (isBinder := true) : Syntax @ ⟨107, 16⟩-⟨107, 19⟩
-  • [Term] Bool : Type @ ⟨107, 32⟩-⟨107, 36⟩ @ Lean.Elab.Term.elabIdent
-    • [Completion-Id] Bool : some Sort.{?_uniq.3} @ ⟨107, 32⟩-⟨107, 36⟩
-    • [Term] Bool : Type @ ⟨107, 32⟩-⟨107, 36⟩
-  • [Term] stx (isBinder := true) : Syntax @ ⟨107, 16⟩-⟨107, 19⟩
+info: • [Command] @ ⟨357, 0⟩-⟨359, 22⟩ @ Lean.Elab.Command.elabDeclaration
+  • [Term] MacroM (TSyntax `term) : Type @ ⟨357, 14⟩-⟨357, 36⟩ @ Lean.Elab.Term.elabApp
+    • [Completion-Id] MacroM : some Sort.{?_uniq.1} @ ⟨357, 14⟩-⟨357, 20⟩
+    • [Term] MacroM : Type → Type @ ⟨357, 14⟩-⟨357, 20⟩
+    • [Term] TSyntax `term : Type @ ⟨357, 21⟩-⟨357, 36⟩ @ Lean.Elab.Term.expandParen
+      • [MacroExpansion]
+        (TSyntax `term)
+        ===>
+        TSyntax `term
+        • [Term] TSyntax `term : Type @ ⟨357, 22⟩-⟨357, 35⟩ @ Lean.Elab.Term.elabApp
+          • [Completion-Id] TSyntax : some Type @ ⟨357, 22⟩-⟨357, 29⟩
+          • [Term] TSyntax : SyntaxNodeKinds → Type @ ⟨357, 22⟩-⟨357, 29⟩
+          • [Term] `term : Name @ ⟨357, 30⟩-⟨357, 35⟩ @ Lean.Elab.Term.elabQuotedName
+          • [CustomInfo(Lean.Elab.Term.CoeExpansionTrace)]
   • [CustomInfo(Lean.Elab.Term.BodyInfo)]
-    • [Term] have __discr := stx;
-      bif false || __discr.isOfKind `num then
-        have x := { raw := __discr };
-        true
-      else
-        have __discr := stx;
-        false : Bool @ ⟨108, 2⟩-⟨110, 14⟩ @ Lean.Elab.Term.Quotation.elabMatchSyntax
+    • [Term] let x := Syntax.mkNumLit "1";
+      do
+      let __do_lift ←
+        do
+          let _ ← MonadRef.mkInfoFromRefPos
+          let _ ← getCurrMacroScope
+          let _ ← MonadQuotation.getContext
+          pure { raw := x.raw }
+      pure __do_lift : MacroM (TSyntax `term) @ ⟨357, 40⟩-⟨359, 22⟩ @ Lean.Elab.Term.elabDo
+      • [Term] MacroM : Type → Type @ ⟨357, 40⟩†-⟨359, 22⟩† @ Lean.Elab.Term.elabSyntheticHole
+      • [Term] TSyntax `term : Type @ ⟨357, 40⟩†-⟨359, 22⟩† @ Lean.Elab.Term.elabSyntheticHole
       • [MacroExpansion]
         failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)
         ===>
-        have __discr✝ := stx;
-        cond✝ (or✝ false✝ (Syntax.isOfKind✝ __discr✝ `num))
-          (have x := @TSyntax.mk✝ (List.cons✝ `num List.nil✝) __discr✝;
-          true)
-          (have __discr✝¹ := stx;
-          false)
-        • [Term] have __discr := stx;
-          bif false || __discr.isOfKind `num then
-            have x := { raw := __discr };
-            true
-          else
-            have __discr := stx;
-            false : Bool @ ⟨108, 2⟩†-⟨110, 14⟩† @ Lean.Elab.Term.elabHaveDecl
-          • [Term] Syntax : Type @ ⟨108, 2⟩†-⟨110, 14⟩† @ Lean.Elab.Term.elabHole
-          • [Term] stx : Syntax @ ⟨108, 8⟩-⟨108, 11⟩ @ Lean.Elab.Term.elabIdent
-            • [Completion-Id] stx : some ?_uniq.7 @ ⟨108, 8⟩-⟨108, 11⟩
-            • [Term] stx : Syntax @ ⟨108, 8⟩-⟨108, 11⟩
-          • [Term] __discr✝ (isBinder := true) : Syntax @ ⟨108, 2⟩†-⟨110, 14⟩†
-          • [Term] bif false || __discr✝.isOfKind `num then
-              have x := { raw := __discr✝ };
-              true
-            else
-              have __discr := stx;
-              false : Bool @ ⟨108, 2⟩†-⟨110, 14⟩† @ Lean.Elab.Term.elabApp
-            • [Completion-Id] cond✝ : some Bool @ ⟨108, 2⟩†-⟨110, 14⟩†
-            • [Term] @cond : {α : Type} → Bool → α → α → α @ ⟨108, 2⟩†-⟨110, 14⟩†
-            • [Term] false || __discr✝.isOfKind `num : Bool @ ⟨108, 2⟩†-⟨110, 14⟩† @ Lean.Elab.Term.elabApp
-              • [Completion-Id] or✝ : some Bool @ ⟨108, 2⟩†-⟨110, 14⟩†
-              • [Term] or : Bool → Bool → Bool @ ⟨108, 2⟩†-⟨110, 14⟩†
-              • [Term] false : Bool @ ⟨108, 2⟩†-⟨110, 14⟩† @ Lean.Elab.Term.elabIdent
-                • [Completion-Id] false✝ : some Bool @ ⟨108, 2⟩†-⟨110, 14⟩†
-                • [Term] false : Bool @ ⟨108, 2⟩†-⟨110, 14⟩†
-              • [Term] __discr✝.isOfKind `num : Bool @ ⟨108, 2⟩†-⟨110, 14⟩† @ Lean.Elab.Term.expandParen
-                • [MacroExpansion]
-                  (Syntax.isOfKind✝ __discr✝ `num)
-                  ===>
-                  Syntax.isOfKind✝ __discr✝ `num
-                  • [Term] __discr✝.isOfKind `num : Bool @ ⟨108, 2⟩†-⟨110, 14⟩† @ Lean.Elab.Term.elabApp
-                    • [Completion-Id] Syntax.isOfKind✝ : some Bool @ ⟨108, 2⟩†-⟨110, 14⟩†
-                    • [Term] Syntax.isOfKind : Syntax → SyntaxNodeKind → Bool @ ⟨108, 2⟩†-⟨110, 14⟩†
-                    • [Term] __discr✝ : Syntax @ ⟨108, 2⟩†-⟨110, 14⟩† @ Lean.Elab.Term.elabIdent
-                      • [Completion-Id] __discr✝ : some Lean.Syntax @ ⟨108, 2⟩†-⟨110, 14⟩†
-                      • [Term] __discr✝ : Syntax @ ⟨108, 2⟩†-⟨110, 14⟩†
-                    • [Term] `num : Name @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabQuotedName
-            • [Term] have x := { raw := __discr✝ };
-              true : Bool @ ⟨108, 2⟩†-⟨110, 14⟩† @ Lean.Elab.Term.elabHaveDecl
-              • [Term] TSyntax `num : Type @ ⟨109, 7⟩†-⟨109, 8⟩† @ Lean.Elab.Term.elabHole
-              • [Term] { raw := __discr✝ } : TSyntax `num @ ⟨108, 2⟩†-⟨110, 14⟩† @ Lean.Elab.Term.elabApp
-                • [Completion-Id] TSyntax.mk✝ : some ?_uniq.12 @ ⟨108, 2⟩†-⟨110, 14⟩†
-                • [Term] @TSyntax.mk : {ks : SyntaxNodeKinds} → Syntax → TSyntax ks @ ⟨108, 2⟩†-⟨110, 14⟩†
-                • [Term] [`num] : List SyntaxNodeKind @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabApp
-                  • [Completion-Id] List.cons✝ : some Lean.SyntaxNodeKinds @ ⟨1, 0⟩†-⟨1, 0⟩†
-                  • [Term] @List.cons : {α : Type} → α → List α → List α @ ⟨1, 0⟩†-⟨1, 0⟩†
-                  • [Term] `num : Name @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabQuotedName
-                  • [Term] [] : List SyntaxNodeKind @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabIdent
-                    • [Completion-Id] List.nil✝ : some List.{?_uniq.13} ?_uniq.14 @ ⟨1, 0⟩†-⟨1, 0⟩†
-                    • [Term] @List.nil : {α : Type} → List α @ ⟨1, 0⟩†-⟨1, 0⟩†
-                • [Term] __discr✝ : Syntax @ ⟨108, 2⟩†-⟨110, 14⟩† @ Lean.Elab.Term.elabIdent
-                  • [Completion-Id] __discr✝ : some Lean.Syntax @ ⟨108, 2⟩†-⟨110, 14⟩†
-                  • [Term] __discr✝ : Syntax @ ⟨108, 2⟩†-⟨110, 14⟩†
-              • [Term] x (isBinder := true) : TSyntax `num @ ⟨109, 7⟩-⟨109, 8⟩
-              • [Term] true : Bool @ ⟨109, 17⟩-⟨109, 21⟩ @ Lean.Elab.Term.elabIdent
-                • [Completion-Id] true : some ?_uniq.10 @ ⟨109, 17⟩-⟨109, 21⟩
-                • [Term] true : Bool @ ⟨109, 17⟩-⟨109, 21⟩
-            • [Term] have __discr := stx;
-              false : Bool @ ⟨108, 2⟩†-⟨110, 14⟩† @ Lean.Elab.Term.elabHaveDecl
-              • [Term] Syntax : Type @ ⟨108, 2⟩†-⟨110, 14⟩† @ Lean.Elab.Term.elabHole
-              • [Term] stx : Syntax @ ⟨108, 8⟩-⟨108, 11⟩ @ Lean.Elab.Term.elabIdent
-                • [Completion-Id] stx : some ?_uniq.20 @ ⟨108, 8⟩-⟨108, 11⟩
-                • [Term] stx : Syntax @ ⟨108, 8⟩-⟨108, 11⟩
-              • [Term] __discr✝ (isBinder := true) : Syntax @ ⟨108, 2⟩†-⟨110, 14⟩†
-              • [Term] false : Bool @ ⟨110, 9⟩-⟨110, 14⟩ @ Lean.Elab.Term.elabIdent
-                • [Completion-Id] false : some ?_uniq.10 @ ⟨110, 9⟩-⟨110, 14⟩
-                • [Term] false : Bool @ ⟨110, 9⟩-⟨110, 14⟩
-  • [Term] matchesNum (isBinder := true) : Syntax → Bool @ ⟨107, 4⟩-⟨107, 14⟩
-  • [Term] matchesNum (isBinder := true) : Syntax → Bool @ ⟨107, 4⟩-⟨107, 14⟩
+        failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)
+        • [Term] let x := Syntax.mkNumLit "1";
+          do
+          let __do_lift ←
+            do
+              let _ ← MonadRef.mkInfoFromRefPos
+              let _ ← getCurrMacroScope
+              let _ ← MonadQuotation.getContext
+              pure { raw := x.raw }
+          pure __do_lift : MacroM (TSyntax `term) @ ⟨358, 2⟩†-⟨358, 45⟩† @ Lean.Elab.Term.elabWithAnnotateTerm
+          • [Term] let x := Syntax.mkNumLit "1";
+            do
+            let __do_lift ←
+              do
+                let _ ← MonadRef.mkInfoFromRefPos
+                let _ ← getCurrMacroScope
+                let _ ← MonadQuotation.getContext
+                pure { raw := x.raw }
+            pure __do_lift : MacroM (TSyntax `term) @ ⟨358, 2⟩-⟨358, 45⟩
+            • [Term] let x := Syntax.mkNumLit "1";
+              do
+              let __do_lift ←
+                do
+                  let _ ← MonadRef.mkInfoFromRefPos
+                  let _ ← getCurrMacroScope
+                  let _ ← MonadQuotation.getContext
+                  pure { raw := x.raw }
+              pure __do_lift : MacroM (TSyntax `term) @ ⟨358, 2⟩†-⟨358, 45⟩† @ Lean.Elab.Term.elabLetDecl
+              • [Term] TSyntax `num : Type @ ⟨358, 10⟩-⟨358, 22⟩ @ Lean.Elab.Term.elabApp
+                • [Completion-Id] TSyntax : some Sort.{?_uniq.80} @ ⟨358, 10⟩-⟨358, 17⟩
+                • [Term] TSyntax : SyntaxNodeKinds → Type @ ⟨358, 10⟩-⟨358, 17⟩
+                • [Term] `num : Name @ ⟨358, 18⟩-⟨358, 22⟩ @ Lean.Elab.Term.elabQuotedName
+                • [CustomInfo(Lean.Elab.Term.CoeExpansionTrace)]
+              • [Term] Syntax.mkNumLit "1" : NumLit @ ⟨358, 26⟩-⟨358, 45⟩ @ Lean.Elab.Term.elabApp
+                • [Completion-Id] Syntax.mkNumLit : some Lean.TSyntax (List.cons.{0} Lean.SyntaxNodeKind (Lean.Name.mkStr1 "num") (List.nil.{0} Lean.SyntaxNodeKind)) @ ⟨358, 26⟩-⟨358, 41⟩
+                • [Term] @Syntax.mkNumLit : String → optParam SourceInfo SourceInfo.none → NumLit @ ⟨358, 26⟩-⟨358, 41⟩
+                • [Term] "1" : String @ ⟨358, 42⟩-⟨358, 45⟩ @ Lean.Elab.Term.elabStrLit
+              • [Term] x (isBinder := true) : TSyntax `num @ ⟨358, 6⟩-⟨358, 7⟩
+              • [Term] do
+                  let __do_lift ←
+                    do
+                      let _ ← MonadRef.mkInfoFromRefPos
+                      let _ ← getCurrMacroScope
+                      let _ ← MonadQuotation.getContext
+                      pure { raw := x.raw }
+                  pure __do_lift : MacroM (TSyntax `term) @ ⟨359, 2⟩†-⟨359, 22⟩† @ Lean.Elab.Term.elabWithAnnotateTerm
+                • [Term] do
+                    let __do_lift ←
+                      do
+                        let _ ← MonadRef.mkInfoFromRefPos
+                        let _ ← getCurrMacroScope
+                        let _ ← MonadQuotation.getContext
+                        pure { raw := x.raw }
+                    pure __do_lift : MacroM (TSyntax `term) @ ⟨359, 2⟩†-⟨359, 22⟩†
+                  • [Term] do
+                      let __do_lift ←
+                        do
+                          let _ ← MonadRef.mkInfoFromRefPos
+                          let _ ← getCurrMacroScope
+                          let _ ← MonadQuotation.getContext
+                          pure { raw := x.raw }
+                      pure __do_lift : MacroM (TSyntax `term) @ ⟨359, 2⟩†-⟨359, 22⟩† @ Lean.Elab.Term.elabApp
+                    • [Completion-Id] Bind.bind✝ : some Lean.MacroM (Lean.TSyntax (List.cons.{0} Lean.SyntaxNodeKind (Lean.Name.mkStr1 "term") (List.nil.{0} Lean.SyntaxNodeKind))) @ ⟨359, 2⟩†-⟨359, 22⟩†
+                    • [Term] @bind : {m : Type → Type} →
+                        [self : Bind m] → {α β : Type} → m α → (α → m β) → m β @ ⟨359, 2⟩†-⟨359, 22⟩†
+                    • [Term] do
+                        let _ ← MonadRef.mkInfoFromRefPos
+                        let _ ← getCurrMacroScope
+                        let _ ← MonadQuotation.getContext
+                        pure
+                            {
+                              raw :=
+                                x.raw } : MacroM
+                        (TSyntax `term) @ ⟨359, 12⟩†-⟨359, 21⟩† @ Lean.Elab.Term.elabTypeAscription
+                      • [Term] MacroM (TSyntax `term) : Type @ ⟨359, 12⟩†-⟨359, 21⟩† @ Lean.Elab.Term.elabApp
+                        • [Term] MacroM : Type → Type @ ⟨357, 40⟩†-⟨359, 22⟩† @ Lean.Elab.Term.elabSyntheticHole
+                        • [Term] TSyntax `term : Type @ ⟨359, 2⟩†-⟨359, 22⟩† @ Lean.Elab.Term.elabHole
+                      • [Term] do
+                          let _ ← MonadRef.mkInfoFromRefPos
+                          let _ ← getCurrMacroScope
+                          let _ ← MonadQuotation.getContext
+                          pure
+                              {
+                                raw :=
+                                  x.raw } : MacroM
+                          (TSyntax
+                            `term) @ ⟨359, 12⟩-⟨359, 21⟩ @ Lean.Elab.Term.Quotation.elabQuot._@.Lean.Elab.Quotation.3282600398._hygCtx._hyg.3
+                        • [MacroExpansion]
+                          failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)
+                          ===>
+                          Bind.bind✝ MonadRef.mkInfoFromRefPos✝
+                            (fun info✝ =>
+                              Bind.bind✝ getCurrMacroScope✝
+                                (fun scp✝ =>
+                                  Bind.bind✝ MonadQuotation.getContext✝
+                                    (fun quotCtx✝ =>
+                                      Pure.pure✝ (@TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `num List.nil✝) x)))))
+                          • [Term] do
+                              let _ ← MonadRef.mkInfoFromRefPos
+                              let _ ← getCurrMacroScope
+                              let _ ← MonadQuotation.getContext
+                              pure
+                                  {
+                                    raw :=
+                                      x.raw } : MacroM (TSyntax `term) @ ⟨359, 12⟩†-⟨359, 21⟩† @ Lean.Elab.Term.elabApp
+                            • [Completion-Id] Bind.bind✝ : some ?_uniq.78 ?_uniq.182 @ ⟨359, 12⟩†-⟨359, 21⟩†
+                            • [Term] @bind : {m : Type → Type} →
+                                [self : Bind m] → {α β : Type} → m α → (α → m β) → m β @ ⟨359, 12⟩†-⟨359, 21⟩†
+                            • [Term] MonadRef.mkInfoFromRefPos : MacroM
+                                SourceInfo @ ⟨359, 12⟩†-⟨359, 21⟩† @ Lean.Elab.Term.elabIdent
+                              • [Completion-Id] MonadRef.mkInfoFromRefPos✝ : some ?_uniq.185 ?_uniq.187 @ ⟨359, 12⟩†-⟨359, 21⟩†
+                              • [Term] @MonadRef.mkInfoFromRefPos : {m : Type → Type} →
+                                  [Monad m] → [MonadRef m] → m SourceInfo @ ⟨359, 12⟩†-⟨359, 21⟩†
+                            • [Term] fun info => do
+                                let _ ← getCurrMacroScope
+                                let _ ← MonadQuotation.getContext
+                                pure
+                                    {
+                                      raw :=
+                                        x.raw } : SourceInfo →
+                                MacroM (TSyntax `term) @ ⟨359, 12⟩†-⟨359, 21⟩† @ Lean.Elab.Term.expandParen
+                              • [MacroExpansion]
+                                (fun info✝ =>
+                                  Bind.bind✝ getCurrMacroScope✝
+                                    (fun scp✝ =>
+                                      Bind.bind✝ MonadQuotation.getContext✝
+                                        (fun quotCtx✝ =>
+                                          Pure.pure✝
+                                            (@TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `num List.nil✝) x)))))
+                                ===>
+                                fun info✝ =>
+                                  Bind.bind✝ getCurrMacroScope✝
+                                    (fun scp✝ =>
+                                      Bind.bind✝ MonadQuotation.getContext✝
+                                        (fun quotCtx✝ =>
+                                          Pure.pure✝
+                                            (@TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `num List.nil✝) x))))
+                                • [Term] fun info => do
+                                    let _ ← getCurrMacroScope
+                                    let _ ← MonadQuotation.getContext
+                                    pure
+                                        {
+                                          raw :=
+                                            x.raw } : SourceInfo →
+                                    MacroM (TSyntax `term) @ ⟨359, 12⟩†-⟨359, 21⟩† @ Lean.Elab.Term.elabFun
+                                  • [Term] SourceInfo : Type @ ⟨359, 12⟩†-⟨359, 21⟩† @ Lean.Elab.Term.elabHole
+                                  • [Term] info✝ (isBinder := true) : SourceInfo @ ⟨359, 12⟩†-⟨359, 21⟩†
+                                  • [Term] do
+                                      let _ ← getCurrMacroScope
+                                      let _ ← MonadQuotation.getContext
+                                      pure
+                                          {
+                                            raw :=
+                                              x.raw } : MacroM
+                                      (TSyntax `term) @ ⟨359, 12⟩†-⟨359, 21⟩† @ Lean.Elab.Term.elabApp
+                                    • [Completion-Id] Bind.bind✝ : some ?_uniq.185 ?_uniq.188 @ ⟨359, 12⟩†-⟨359, 21⟩†
+                                    • [Term] @bind : {m : Type → Type} →
+                                        [self : Bind m] → {α β : Type} → m α → (α → m β) → m β @ ⟨359, 12⟩†-⟨359, 21⟩†
+                                    • [Term] getCurrMacroScope : MacroM
+                                        MacroScope @ ⟨359, 12⟩†-⟨359, 21⟩† @ Lean.Elab.Term.elabIdent
+                                      • [Completion-Id] getCurrMacroScope✝ : some ?_uniq.280 ?_uniq.282 @ ⟨359, 12⟩†-⟨359, 21⟩†
+                                      • [Term] @getCurrMacroScope : {m : Type → Type} →
+                                          [self : MonadQuotation m] → m MacroScope @ ⟨359, 12⟩†-⟨359, 21⟩†
+                                    • [Term] fun scp => do
+                                        let _ ← MonadQuotation.getContext
+                                        pure
+                                            {
+                                              raw :=
+                                                x.raw } : MacroScope →
+                                        MacroM (TSyntax `term) @ ⟨359, 12⟩†-⟨359, 21⟩† @ Lean.Elab.Term.expandParen
+                                      • [MacroExpansion]
+                                        (fun scp✝ =>
+                                          Bind.bind✝ MonadQuotation.getContext✝
+                                            (fun quotCtx✝ =>
+                                              Pure.pure✝
+                                                (@TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `num List.nil✝) x))))
+                                        ===>
+                                        fun scp✝ =>
+                                          Bind.bind✝ MonadQuotation.getContext✝
+                                            (fun quotCtx✝ =>
+                                              Pure.pure✝
+                                                (@TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `num List.nil✝) x)))
+                                        • [Term] fun scp => do
+                                            let _ ← MonadQuotation.getContext
+                                            pure
+                                                {
+                                                  raw :=
+                                                    x.raw } : MacroScope →
+                                            MacroM (TSyntax `term) @ ⟨359, 12⟩†-⟨359, 21⟩† @ Lean.Elab.Term.elabFun
+                                          • [Term] MacroScope : Type @ ⟨359, 12⟩†-⟨359, 21⟩† @ Lean.Elab.Term.elabHole
+                                          • [Term] scp✝ (isBinder := true) : MacroScope @ ⟨359, 12⟩†-⟨359, 21⟩†
+                                          • [Term] do
+                                              let _ ← MonadQuotation.getContext
+                                              pure
+                                                  {
+                                                    raw :=
+                                                      x.raw } : MacroM
+                                              (TSyntax `term) @ ⟨359, 12⟩†-⟨359, 21⟩† @ Lean.Elab.Term.elabApp
+                                            • [Completion-Id] Bind.bind✝ : some ?_uniq.280 ?_uniq.283 @ ⟨359, 12⟩†-⟨359, 21⟩†
+                                            • [Term] @bind : {m : Type → Type} →
+                                                [self : Bind m] →
+                                                  {α β : Type} → m α → (α → m β) → m β @ ⟨359, 12⟩†-⟨359, 21⟩†
+                                            • [Term] MonadQuotation.getContext : MacroM
+                                                Name @ ⟨359, 12⟩†-⟨359, 21⟩† @ Lean.Elab.Term.elabIdent
+                                              • [Completion-Id] MonadQuotation.getContext✝ : some ?_uniq.330 ?_uniq.332 @ ⟨359, 12⟩†-⟨359, 21⟩†
+                                              • [Term] @MonadQuotation.getContext : {m : Type → Type} →
+                                                  [self : MonadQuotation m] → m Name @ ⟨359, 12⟩†-⟨359, 21⟩†
+                                            • [Term] fun quotCtx =>
+                                                pure
+                                                  {
+                                                    raw :=
+                                                      x.raw } : Name →
+                                                MacroM
+                                                  (TSyntax `term) @ ⟨359, 12⟩†-⟨359, 21⟩† @ Lean.Elab.Term.expandParen
+                                              • [MacroExpansion]
+                                                (fun quotCtx✝ =>
+                                                  Pure.pure✝
+                                                    (@TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `num List.nil✝) x)))
+                                                ===>
+                                                fun quotCtx✝ =>
+                                                  Pure.pure✝
+                                                    (@TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `num List.nil✝) x))
+                                                • [Term] fun quotCtx =>
+                                                    pure
+                                                      {
+                                                        raw :=
+                                                          x.raw } : Name →
+                                                    MacroM
+                                                      (TSyntax `term) @ ⟨359, 12⟩†-⟨359, 21⟩† @ Lean.Elab.Term.elabFun
+                                                  • [Term] Name : Type @ ⟨359, 12⟩†-⟨359, 21⟩† @ Lean.Elab.Term.elabHole
+                                                  • [Term] quotCtx✝ (isBinder := true) : Name @ ⟨359, 12⟩†-⟨359, 21⟩†
+                                                  • [Term] pure
+                                                      {
+                                                        raw :=
+                                                          x.raw } : MacroM
+                                                      (TSyntax `term) @ ⟨359, 12⟩†-⟨359, 21⟩† @ Lean.Elab.Term.elabApp
+                                                    • [Completion-Id] Pure.pure✝ : some ?_uniq.330 ?_uniq.333 @ ⟨359, 12⟩†-⟨359, 21⟩†
+                                                    • [Term] @pure : {f : Type → Type} →
+                                                        [self : Pure f] → {α : Type} → α → f α @ ⟨359, 12⟩†-⟨359, 21⟩†
+                                                    • [Term] {
+                                                        raw :=
+                                                          x.raw } : TSyntax
+                                                        `term @ ⟨359, 12⟩†-⟨359, 21⟩† @ Lean.Elab.Term.expandParen
+                                                      • [MacroExpansion]
+                                                        (@TSyntax.mk✝ `term
+                                                          (@TSyntax.raw✝ (List.cons✝ `num List.nil✝) x))
+                                                        ===>
+                                                        @TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `num List.nil✝) x)
+                                                        • [Term] {
+                                                            raw :=
+                                                              x.raw } : TSyntax
+                                                            `term @ ⟨359, 12⟩†-⟨359, 21⟩† @ Lean.Elab.Term.elabApp
+                                                          • [Completion-Id] TSyntax.mk✝ : some ?_uniq.381 @ ⟨359, 12⟩†-⟨359, 21⟩†
+                                                          • [Term] @TSyntax.mk : {ks : SyntaxNodeKinds} →
+                                                              Syntax → TSyntax ks @ ⟨359, 12⟩†-⟨359, 21⟩†
+                                                          • [Term] `term : Name @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabQuotedName
+                                                          • [CustomInfo(Lean.Elab.Term.CoeExpansionTrace)]
+                                                          • [Term] x.raw : Syntax @ ⟨359, 12⟩†-⟨359, 21⟩† @ Lean.Elab.Term.elabApp
+                                                            • [Completion-Id] TSyntax.raw✝ : some Lean.Syntax @ ⟨359, 12⟩†-⟨359, 21⟩†
+                                                            • [Term] @TSyntax.raw : {ks : SyntaxNodeKinds} →
+                                                                TSyntax ks → Syntax @ ⟨359, 12⟩†-⟨359, 21⟩†
+                                                            • [Term] [`num] : List
+                                                                SyntaxNodeKind @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabApp
+                                                              • [Completion-Id] List.cons✝ : some Lean.SyntaxNodeKinds @ ⟨1, 0⟩†-⟨1, 0⟩†
+                                                              • [Term] @List.cons : {α : Type} →
+                                                                  α → List α → List α @ ⟨1, 0⟩†-⟨1, 0⟩†
+                                                              • [Term] `num : Name @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabQuotedName
+                                                              • [Term] [] : List
+                                                                  SyntaxNodeKind @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabIdent
+                                                                • [Completion-Id] List.nil✝ : some List.{?_uniq.458} ?_uniq.459 @ ⟨1, 0⟩†-⟨1, 0⟩†
+                                                                • [Term] @List.nil : {α : Type} →
+                                                                    List α @ ⟨1, 0⟩†-⟨1, 0⟩†
+                                                            • [Term] x : TSyntax
+                                                                `num @ ⟨359, 15⟩-⟨359, 16⟩ @ Lean.Elab.Term.elabIdent
+                                                              • [Completion-Id] x : some Lean.TSyntax (List.cons.{?_uniq.458} ?_uniq.459 (Lean.Name.mkStr1 "num") (List.nil.{?_uniq.460} ?_uniq.461)) @ ⟨359, 15⟩-⟨359, 16⟩
+                                                              • [Term] x : TSyntax `num @ ⟨359, 15⟩-⟨359, 16⟩
+                    • [Term] fun __do_lift =>
+                        pure
+                          __do_lift : TSyntax `term →
+                        MacroM (TSyntax `term) @ ⟨359, 2⟩†-⟨359, 22⟩† @ Lean.Elab.Term.expandParen
+                      • [MacroExpansion]
+                        (fun (__do_lift✝ : _) =>
+                          with_annotate_term(Term.doReturn
+                               "return"
+                               [(Term.paren (Term.hygienicLParen "(" (hygieneInfo `[anonymous])) `__do_lift✝ ")")])
+                            Pure.pure✝ (__do_lift✝))
+                        ===>
+                        fun (__do_lift✝ : _) =>
+                          with_annotate_term(Term.doReturn
+                               "return"
+                               [(Term.paren (Term.hygienicLParen "(" (hygieneInfo `[anonymous])) `__do_lift✝ ")")])
+                            Pure.pure✝ (__do_lift✝)
+                        • [Term] fun __do_lift =>
+                            pure
+                              __do_lift : TSyntax `term →
+                            MacroM (TSyntax `term) @ ⟨359, 2⟩†-⟨359, 22⟩† @ Lean.Elab.Term.elabFun
+                          • [Term] TSyntax `term : Type @ ⟨359, 2⟩†-⟨359, 22⟩† @ Lean.Elab.Term.elabHole
+                          • [Term] __do_lift✝ (isBinder := true) : TSyntax `term @ ⟨359, 2⟩†-⟨359, 22⟩†
+                          • [Term] pure
+                              __do_lift✝ : MacroM
+                              (TSyntax `term) @ ⟨359, 2⟩†-⟨359, 22⟩† @ Lean.Elab.Term.elabWithAnnotateTerm
+                            • [Term] pure __do_lift✝ : MacroM (TSyntax `term) @ ⟨359, 2⟩-⟨359, 22⟩
+                              • [Term] pure
+                                  __do_lift✝ : MacroM (TSyntax `term) @ ⟨359, 2⟩†-⟨359, 22⟩† @ Lean.Elab.Term.elabApp
+                                • [Completion-Id] Pure.pure✝ : some ?_uniq.140 ?_uniq.143 @ ⟨359, 2⟩†-⟨359, 22⟩†
+                                • [Term] @pure : {f : Type → Type} →
+                                    [self : Pure f] → {α : Type} → α → f α @ ⟨359, 2⟩†-⟨359, 22⟩†
+                                • [Term] __do_lift✝ : TSyntax `term @ ⟨359, 9⟩-⟨359, 22⟩ @ Lean.Elab.Term.expandParen
+                                  • [MacroExpansion]
+                                    (__do_lift✝)
+                                    ===>
+                                    __do_lift✝
+                                    • [Term] __do_lift✝ : TSyntax
+                                        `term @ ⟨359, 2⟩†-⟨359, 22⟩† @ Lean.Elab.Term.elabIdent
+                                      • [Completion-Id] __do_lift✝ : some ?_uniq.503 @ ⟨359, 2⟩†-⟨359, 22⟩†
+                                      • [Term] __do_lift✝ : TSyntax `term @ ⟨359, 2⟩†-⟨359, 22⟩†
+  • [Term] numQuot (isBinder := true) : MacroM (TSyntax `term) @ ⟨357, 4⟩-⟨357, 11⟩
+  • [Term] numQuot (isBinder := true) : MacroM (TSyntax `term) @ ⟨357, 4⟩-⟨357, 11⟩
 -/
 #guard_msgs in
 #info_trees in
-def matchesNum (stx : Syntax) : Bool :=
-  match stx with
-  | `($x:num) => true
-  | _ => false
+def numQuot : MacroM (TSyntax `term) := do
+  let x : TSyntax `num := Syntax.mkNumLit "1"
+  return (← `($x:num))
 
 /--
-info: • [Command] @ ⟨212, 0⟩-⟨215, 14⟩ @ Lean.Elab.Command.elabDeclaration
-  • [Term] Syntax : Type @ ⟨212, 24⟩-⟨212, 30⟩ @ Lean.Elab.Term.elabIdent
-    • [Completion-Id] Syntax : some Sort.{?_uniq.28} @ ⟨212, 24⟩-⟨212, 30⟩
-    • [Term] Syntax : Type @ ⟨212, 24⟩-⟨212, 30⟩
-  • [Term] stx (isBinder := true) : Syntax @ ⟨212, 18⟩-⟨212, 21⟩
-  • [Term] Bool : Type @ ⟨212, 34⟩-⟨212, 38⟩ @ Lean.Elab.Term.elabIdent
-    • [Completion-Id] Bool : some Sort.{?_uniq.30} @ ⟨212, 34⟩-⟨212, 38⟩
-    • [Term] Bool : Type @ ⟨212, 34⟩-⟨212, 38⟩
-  • [Term] stx (isBinder := true) : Syntax @ ⟨212, 18⟩-⟨212, 21⟩
+info: • [Command] @ ⟨711, 0⟩-⟨713, 24⟩ @ Lean.Elab.Command.elabDeclaration
+  • [Term] MacroM (TSyntax `term) : Type @ ⟨711, 16⟩-⟨711, 38⟩ @ Lean.Elab.Term.elabApp
+    • [Completion-Id] MacroM : some Sort.{?_uniq.546} @ ⟨711, 16⟩-⟨711, 22⟩
+    • [Term] MacroM : Type → Type @ ⟨711, 16⟩-⟨711, 22⟩
+    • [Term] TSyntax `term : Type @ ⟨711, 23⟩-⟨711, 38⟩ @ Lean.Elab.Term.expandParen
+      • [MacroExpansion]
+        (TSyntax `term)
+        ===>
+        TSyntax `term
+        • [Term] TSyntax `term : Type @ ⟨711, 24⟩-⟨711, 37⟩ @ Lean.Elab.Term.elabApp
+          • [Completion-Id] TSyntax : some Type @ ⟨711, 24⟩-⟨711, 31⟩
+          • [Term] TSyntax : SyntaxNodeKinds → Type @ ⟨711, 24⟩-⟨711, 31⟩
+          • [Term] `term : Name @ ⟨711, 32⟩-⟨711, 37⟩ @ Lean.Elab.Term.elabQuotedName
+          • [CustomInfo(Lean.Elab.Term.CoeExpansionTrace)]
   • [CustomInfo(Lean.Elab.Term.BodyInfo)]
-    • [Term] have __discr := stx;
-      bif false || __discr.isOfKind `ident then
-        have x := { raw := __discr };
-        true
-      else
-        have __discr := stx;
-        false : Bool @ ⟨213, 2⟩-⟨215, 14⟩ @ Lean.Elab.Term.Quotation.elabMatchSyntax
+    • [Term] let x := mkIdent `foo;
+      do
+      let __do_lift ←
+        do
+          let _ ← MonadRef.mkInfoFromRefPos
+          let _ ← getCurrMacroScope
+          let _ ← MonadQuotation.getContext
+          pure { raw := x.raw }
+      pure __do_lift : MacroM (TSyntax `term) @ ⟨711, 42⟩-⟨713, 24⟩ @ Lean.Elab.Term.elabDo
+      • [Term] MacroM : Type → Type @ ⟨711, 42⟩†-⟨713, 24⟩† @ Lean.Elab.Term.elabSyntheticHole
+      • [Term] TSyntax `term : Type @ ⟨711, 42⟩†-⟨713, 24⟩† @ Lean.Elab.Term.elabSyntheticHole
       • [MacroExpansion]
         failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)
         ===>
-        have __discr✝ := stx;
-        cond✝ (or✝ false✝ (Syntax.isOfKind✝ __discr✝ `ident))
-          (have x := @TSyntax.mk✝ (List.cons✝ `ident List.nil✝) __discr✝;
-          true)
-          (have __discr✝¹ := stx;
-          false)
-        • [Term] have __discr := stx;
-          bif false || __discr.isOfKind `ident then
-            have x := { raw := __discr };
-            true
-          else
-            have __discr := stx;
-            false : Bool @ ⟨213, 2⟩†-⟨215, 14⟩† @ Lean.Elab.Term.elabHaveDecl
-          • [Term] Syntax : Type @ ⟨213, 2⟩†-⟨215, 14⟩† @ Lean.Elab.Term.elabHole
-          • [Term] stx : Syntax @ ⟨213, 8⟩-⟨213, 11⟩ @ Lean.Elab.Term.elabIdent
-            • [Completion-Id] stx : some ?_uniq.34 @ ⟨213, 8⟩-⟨213, 11⟩
-            • [Term] stx : Syntax @ ⟨213, 8⟩-⟨213, 11⟩
-          • [Term] __discr✝ (isBinder := true) : Syntax @ ⟨213, 2⟩†-⟨215, 14⟩†
-          • [Term] bif false || __discr✝.isOfKind `ident then
-              have x := { raw := __discr✝ };
-              true
-            else
-              have __discr := stx;
-              false : Bool @ ⟨213, 2⟩†-⟨215, 14⟩† @ Lean.Elab.Term.elabApp
-            • [Completion-Id] cond✝ : some Bool @ ⟨213, 2⟩†-⟨215, 14⟩†
-            • [Term] @cond : {α : Type} → Bool → α → α → α @ ⟨213, 2⟩†-⟨215, 14⟩†
-            • [Term] false || __discr✝.isOfKind `ident : Bool @ ⟨213, 2⟩†-⟨215, 14⟩† @ Lean.Elab.Term.elabApp
-              • [Completion-Id] or✝ : some Bool @ ⟨213, 2⟩†-⟨215, 14⟩†
-              • [Term] or : Bool → Bool → Bool @ ⟨213, 2⟩†-⟨215, 14⟩†
-              • [Term] false : Bool @ ⟨213, 2⟩†-⟨215, 14⟩† @ Lean.Elab.Term.elabIdent
-                • [Completion-Id] false✝ : some Bool @ ⟨213, 2⟩†-⟨215, 14⟩†
-                • [Term] false : Bool @ ⟨213, 2⟩†-⟨215, 14⟩†
-              • [Term] __discr✝.isOfKind `ident : Bool @ ⟨213, 2⟩†-⟨215, 14⟩† @ Lean.Elab.Term.expandParen
-                • [MacroExpansion]
-                  (Syntax.isOfKind✝ __discr✝ `ident)
-                  ===>
-                  Syntax.isOfKind✝ __discr✝ `ident
-                  • [Term] __discr✝.isOfKind `ident : Bool @ ⟨213, 2⟩†-⟨215, 14⟩† @ Lean.Elab.Term.elabApp
-                    • [Completion-Id] Syntax.isOfKind✝ : some Bool @ ⟨213, 2⟩†-⟨215, 14⟩†
-                    • [Term] Syntax.isOfKind : Syntax → SyntaxNodeKind → Bool @ ⟨213, 2⟩†-⟨215, 14⟩†
-                    • [Term] __discr✝ : Syntax @ ⟨213, 2⟩†-⟨215, 14⟩† @ Lean.Elab.Term.elabIdent
-                      • [Completion-Id] __discr✝ : some Lean.Syntax @ ⟨213, 2⟩†-⟨215, 14⟩†
-                      • [Term] __discr✝ : Syntax @ ⟨213, 2⟩†-⟨215, 14⟩†
-                    • [Term] `ident : Name @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabQuotedName
-            • [Term] have x := { raw := __discr✝ };
-              true : Bool @ ⟨213, 2⟩†-⟨215, 14⟩† @ Lean.Elab.Term.elabHaveDecl
-              • [Term] TSyntax `ident : Type @ ⟨214, 7⟩†-⟨214, 8⟩† @ Lean.Elab.Term.elabHole
-              • [Term] { raw := __discr✝ } : TSyntax `ident @ ⟨213, 2⟩†-⟨215, 14⟩† @ Lean.Elab.Term.elabApp
-                • [Completion-Id] TSyntax.mk✝ : some ?_uniq.39 @ ⟨213, 2⟩†-⟨215, 14⟩†
-                • [Term] @TSyntax.mk : {ks : SyntaxNodeKinds} → Syntax → TSyntax ks @ ⟨213, 2⟩†-⟨215, 14⟩†
-                • [Term] [`ident] : List SyntaxNodeKind @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabApp
-                  • [Completion-Id] List.cons✝ : some Lean.SyntaxNodeKinds @ ⟨1, 0⟩†-⟨1, 0⟩†
-                  • [Term] @List.cons : {α : Type} → α → List α → List α @ ⟨1, 0⟩†-⟨1, 0⟩†
-                  • [Term] `ident : Name @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabQuotedName
-                  • [Term] [] : List SyntaxNodeKind @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabIdent
-                    • [Completion-Id] List.nil✝ : some List.{?_uniq.40} ?_uniq.41 @ ⟨1, 0⟩†-⟨1, 0⟩†
-                    • [Term] @List.nil : {α : Type} → List α @ ⟨1, 0⟩†-⟨1, 0⟩†
-                • [Term] __discr✝ : Syntax @ ⟨213, 2⟩†-⟨215, 14⟩† @ Lean.Elab.Term.elabIdent
-                  • [Completion-Id] __discr✝ : some Lean.Syntax @ ⟨213, 2⟩†-⟨215, 14⟩†
-                  • [Term] __discr✝ : Syntax @ ⟨213, 2⟩†-⟨215, 14⟩†
-              • [Term] x (isBinder := true) : TSyntax `ident @ ⟨214, 7⟩-⟨214, 8⟩
-              • [Term] true : Bool @ ⟨214, 19⟩-⟨214, 23⟩ @ Lean.Elab.Term.elabIdent
-                • [Completion-Id] true : some ?_uniq.37 @ ⟨214, 19⟩-⟨214, 23⟩
-                • [Term] true : Bool @ ⟨214, 19⟩-⟨214, 23⟩
-            • [Term] have __discr := stx;
-              false : Bool @ ⟨213, 2⟩†-⟨215, 14⟩† @ Lean.Elab.Term.elabHaveDecl
-              • [Term] Syntax : Type @ ⟨213, 2⟩†-⟨215, 14⟩† @ Lean.Elab.Term.elabHole
-              • [Term] stx : Syntax @ ⟨213, 8⟩-⟨213, 11⟩ @ Lean.Elab.Term.elabIdent
-                • [Completion-Id] stx : some ?_uniq.47 @ ⟨213, 8⟩-⟨213, 11⟩
-                • [Term] stx : Syntax @ ⟨213, 8⟩-⟨213, 11⟩
-              • [Term] __discr✝ (isBinder := true) : Syntax @ ⟨213, 2⟩†-⟨215, 14⟩†
-              • [Term] false : Bool @ ⟨215, 9⟩-⟨215, 14⟩ @ Lean.Elab.Term.elabIdent
-                • [Completion-Id] false : some ?_uniq.37 @ ⟨215, 9⟩-⟨215, 14⟩
-                • [Term] false : Bool @ ⟨215, 9⟩-⟨215, 14⟩
-  • [Term] matchesIdent (isBinder := true) : Syntax → Bool @ ⟨212, 4⟩-⟨212, 16⟩
-  • [Term] matchesIdent (isBinder := true) : Syntax → Bool @ ⟨212, 4⟩-⟨212, 16⟩
+        failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)
+        • [Term] let x := mkIdent `foo;
+          do
+          let __do_lift ←
+            do
+              let _ ← MonadRef.mkInfoFromRefPos
+              let _ ← getCurrMacroScope
+              let _ ← MonadQuotation.getContext
+              pure { raw := x.raw }
+          pure __do_lift : MacroM (TSyntax `term) @ ⟨712, 2⟩†-⟨712, 31⟩† @ Lean.Elab.Term.elabWithAnnotateTerm
+          • [Term] let x := mkIdent `foo;
+            do
+            let __do_lift ←
+              do
+                let _ ← MonadRef.mkInfoFromRefPos
+                let _ ← getCurrMacroScope
+                let _ ← MonadQuotation.getContext
+                pure { raw := x.raw }
+            pure __do_lift : MacroM (TSyntax `term) @ ⟨712, 2⟩-⟨712, 31⟩
+            • [Term] let x := mkIdent `foo;
+              do
+              let __do_lift ←
+                do
+                  let _ ← MonadRef.mkInfoFromRefPos
+                  let _ ← getCurrMacroScope
+                  let _ ← MonadQuotation.getContext
+                  pure { raw := x.raw }
+              pure __do_lift : MacroM (TSyntax `term) @ ⟨712, 2⟩†-⟨712, 31⟩† @ Lean.Elab.Term.elabLetDecl
+              • [Term] Ident : Type @ ⟨712, 10⟩-⟨712, 15⟩ @ Lean.Elab.Term.elabIdent
+                • [Completion-Id] Ident : some Sort.{?_uniq.625} @ ⟨712, 10⟩-⟨712, 15⟩
+                • [Term] Ident : Type @ ⟨712, 10⟩-⟨712, 15⟩
+              • [Term] mkIdent `foo : Ident @ ⟨712, 19⟩-⟨712, 31⟩ @ Lean.Elab.Term.elabApp
+                • [Completion-Id] mkIdent : some Lean.Syntax.Ident @ ⟨712, 19⟩-⟨712, 26⟩
+                • [Term] mkIdent : Name → Ident @ ⟨712, 19⟩-⟨712, 26⟩
+                • [Term] `foo : Name @ ⟨712, 27⟩-⟨712, 31⟩ @ Lean.Elab.Term.elabQuotedName
+              • [Term] x (isBinder := true) : Ident @ ⟨712, 6⟩-⟨712, 7⟩
+              • [Term] do
+                  let __do_lift ←
+                    do
+                      let _ ← MonadRef.mkInfoFromRefPos
+                      let _ ← getCurrMacroScope
+                      let _ ← MonadQuotation.getContext
+                      pure { raw := x.raw }
+                  pure __do_lift : MacroM (TSyntax `term) @ ⟨713, 2⟩†-⟨713, 24⟩† @ Lean.Elab.Term.elabWithAnnotateTerm
+                • [Term] do
+                    let __do_lift ←
+                      do
+                        let _ ← MonadRef.mkInfoFromRefPos
+                        let _ ← getCurrMacroScope
+                        let _ ← MonadQuotation.getContext
+                        pure { raw := x.raw }
+                    pure __do_lift : MacroM (TSyntax `term) @ ⟨713, 2⟩†-⟨713, 24⟩†
+                  • [Term] do
+                      let __do_lift ←
+                        do
+                          let _ ← MonadRef.mkInfoFromRefPos
+                          let _ ← getCurrMacroScope
+                          let _ ← MonadQuotation.getContext
+                          pure { raw := x.raw }
+                      pure __do_lift : MacroM (TSyntax `term) @ ⟨713, 2⟩†-⟨713, 24⟩† @ Lean.Elab.Term.elabApp
+                    • [Completion-Id] Bind.bind✝ : some Lean.MacroM (Lean.TSyntax (List.cons.{0} Lean.SyntaxNodeKind (Lean.Name.mkStr1 "term") (List.nil.{0} Lean.SyntaxNodeKind))) @ ⟨713, 2⟩†-⟨713, 24⟩†
+                    • [Term] @bind : {m : Type → Type} →
+                        [self : Bind m] → {α β : Type} → m α → (α → m β) → m β @ ⟨713, 2⟩†-⟨713, 24⟩†
+                    • [Term] do
+                        let _ ← MonadRef.mkInfoFromRefPos
+                        let _ ← getCurrMacroScope
+                        let _ ← MonadQuotation.getContext
+                        pure
+                            {
+                              raw :=
+                                x.raw } : MacroM
+                        (TSyntax `term) @ ⟨713, 12⟩†-⟨713, 23⟩† @ Lean.Elab.Term.elabTypeAscription
+                      • [Term] MacroM (TSyntax `term) : Type @ ⟨713, 12⟩†-⟨713, 23⟩† @ Lean.Elab.Term.elabApp
+                        • [Term] MacroM : Type → Type @ ⟨711, 42⟩†-⟨713, 24⟩† @ Lean.Elab.Term.elabSyntheticHole
+                        • [Term] TSyntax `term : Type @ ⟨713, 2⟩†-⟨713, 24⟩† @ Lean.Elab.Term.elabHole
+                      • [Term] do
+                          let _ ← MonadRef.mkInfoFromRefPos
+                          let _ ← getCurrMacroScope
+                          let _ ← MonadQuotation.getContext
+                          pure
+                              {
+                                raw :=
+                                  x.raw } : MacroM
+                          (TSyntax
+                            `term) @ ⟨713, 12⟩-⟨713, 23⟩ @ Lean.Elab.Term.Quotation.elabQuot._@.Lean.Elab.Quotation.3282600398._hygCtx._hyg.3
+                        • [MacroExpansion]
+                          failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)
+                          ===>
+                          Bind.bind✝ MonadRef.mkInfoFromRefPos✝
+                            (fun info✝ =>
+                              Bind.bind✝ getCurrMacroScope✝
+                                (fun scp✝ =>
+                                  Bind.bind✝ MonadQuotation.getContext✝
+                                    (fun quotCtx✝ =>
+                                      Pure.pure✝ (@TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `ident List.nil✝) x)))))
+                          • [Term] do
+                              let _ ← MonadRef.mkInfoFromRefPos
+                              let _ ← getCurrMacroScope
+                              let _ ← MonadQuotation.getContext
+                              pure
+                                  {
+                                    raw :=
+                                      x.raw } : MacroM (TSyntax `term) @ ⟨713, 12⟩†-⟨713, 23⟩† @ Lean.Elab.Term.elabApp
+                            • [Completion-Id] Bind.bind✝ : some ?_uniq.623 ?_uniq.671 @ ⟨713, 12⟩†-⟨713, 23⟩†
+                            • [Term] @bind : {m : Type → Type} →
+                                [self : Bind m] → {α β : Type} → m α → (α → m β) → m β @ ⟨713, 12⟩†-⟨713, 23⟩†
+                            • [Term] MonadRef.mkInfoFromRefPos : MacroM
+                                SourceInfo @ ⟨713, 12⟩†-⟨713, 23⟩† @ Lean.Elab.Term.elabIdent
+                              • [Completion-Id] MonadRef.mkInfoFromRefPos✝ : some ?_uniq.674 ?_uniq.676 @ ⟨713, 12⟩†-⟨713, 23⟩†
+                              • [Term] @MonadRef.mkInfoFromRefPos : {m : Type → Type} →
+                                  [Monad m] → [MonadRef m] → m SourceInfo @ ⟨713, 12⟩†-⟨713, 23⟩†
+                            • [Term] fun info => do
+                                let _ ← getCurrMacroScope
+                                let _ ← MonadQuotation.getContext
+                                pure
+                                    {
+                                      raw :=
+                                        x.raw } : SourceInfo →
+                                MacroM (TSyntax `term) @ ⟨713, 12⟩†-⟨713, 23⟩† @ Lean.Elab.Term.expandParen
+                              • [MacroExpansion]
+                                (fun info✝ =>
+                                  Bind.bind✝ getCurrMacroScope✝
+                                    (fun scp✝ =>
+                                      Bind.bind✝ MonadQuotation.getContext✝
+                                        (fun quotCtx✝ =>
+                                          Pure.pure✝
+                                            (@TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `ident List.nil✝) x)))))
+                                ===>
+                                fun info✝ =>
+                                  Bind.bind✝ getCurrMacroScope✝
+                                    (fun scp✝ =>
+                                      Bind.bind✝ MonadQuotation.getContext✝
+                                        (fun quotCtx✝ =>
+                                          Pure.pure✝
+                                            (@TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `ident List.nil✝) x))))
+                                • [Term] fun info => do
+                                    let _ ← getCurrMacroScope
+                                    let _ ← MonadQuotation.getContext
+                                    pure
+                                        {
+                                          raw :=
+                                            x.raw } : SourceInfo →
+                                    MacroM (TSyntax `term) @ ⟨713, 12⟩†-⟨713, 23⟩† @ Lean.Elab.Term.elabFun
+                                  • [Term] SourceInfo : Type @ ⟨713, 12⟩†-⟨713, 23⟩† @ Lean.Elab.Term.elabHole
+                                  • [Term] info✝ (isBinder := true) : SourceInfo @ ⟨713, 12⟩†-⟨713, 23⟩†
+                                  • [Term] do
+                                      let _ ← getCurrMacroScope
+                                      let _ ← MonadQuotation.getContext
+                                      pure
+                                          {
+                                            raw :=
+                                              x.raw } : MacroM
+                                      (TSyntax `term) @ ⟨713, 12⟩†-⟨713, 23⟩† @ Lean.Elab.Term.elabApp
+                                    • [Completion-Id] Bind.bind✝ : some ?_uniq.674 ?_uniq.677 @ ⟨713, 12⟩†-⟨713, 23⟩†
+                                    • [Term] @bind : {m : Type → Type} →
+                                        [self : Bind m] → {α β : Type} → m α → (α → m β) → m β @ ⟨713, 12⟩†-⟨713, 23⟩†
+                                    • [Term] getCurrMacroScope : MacroM
+                                        MacroScope @ ⟨713, 12⟩†-⟨713, 23⟩† @ Lean.Elab.Term.elabIdent
+                                      • [Completion-Id] getCurrMacroScope✝ : some ?_uniq.769 ?_uniq.771 @ ⟨713, 12⟩†-⟨713, 23⟩†
+                                      • [Term] @getCurrMacroScope : {m : Type → Type} →
+                                          [self : MonadQuotation m] → m MacroScope @ ⟨713, 12⟩†-⟨713, 23⟩†
+                                    • [Term] fun scp => do
+                                        let _ ← MonadQuotation.getContext
+                                        pure
+                                            {
+                                              raw :=
+                                                x.raw } : MacroScope →
+                                        MacroM (TSyntax `term) @ ⟨713, 12⟩†-⟨713, 23⟩† @ Lean.Elab.Term.expandParen
+                                      • [MacroExpansion]
+                                        (fun scp✝ =>
+                                          Bind.bind✝ MonadQuotation.getContext✝
+                                            (fun quotCtx✝ =>
+                                              Pure.pure✝
+                                                (@TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `ident List.nil✝) x))))
+                                        ===>
+                                        fun scp✝ =>
+                                          Bind.bind✝ MonadQuotation.getContext✝
+                                            (fun quotCtx✝ =>
+                                              Pure.pure✝
+                                                (@TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `ident List.nil✝) x)))
+                                        • [Term] fun scp => do
+                                            let _ ← MonadQuotation.getContext
+                                            pure
+                                                {
+                                                  raw :=
+                                                    x.raw } : MacroScope →
+                                            MacroM (TSyntax `term) @ ⟨713, 12⟩†-⟨713, 23⟩† @ Lean.Elab.Term.elabFun
+                                          • [Term] MacroScope : Type @ ⟨713, 12⟩†-⟨713, 23⟩† @ Lean.Elab.Term.elabHole
+                                          • [Term] scp✝ (isBinder := true) : MacroScope @ ⟨713, 12⟩†-⟨713, 23⟩†
+                                          • [Term] do
+                                              let _ ← MonadQuotation.getContext
+                                              pure
+                                                  {
+                                                    raw :=
+                                                      x.raw } : MacroM
+                                              (TSyntax `term) @ ⟨713, 12⟩†-⟨713, 23⟩† @ Lean.Elab.Term.elabApp
+                                            • [Completion-Id] Bind.bind✝ : some ?_uniq.769 ?_uniq.772 @ ⟨713, 12⟩†-⟨713, 23⟩†
+                                            • [Term] @bind : {m : Type → Type} →
+                                                [self : Bind m] →
+                                                  {α β : Type} → m α → (α → m β) → m β @ ⟨713, 12⟩†-⟨713, 23⟩†
+                                            • [Term] MonadQuotation.getContext : MacroM
+                                                Name @ ⟨713, 12⟩†-⟨713, 23⟩† @ Lean.Elab.Term.elabIdent
+                                              • [Completion-Id] MonadQuotation.getContext✝ : some ?_uniq.819 ?_uniq.821 @ ⟨713, 12⟩†-⟨713, 23⟩†
+                                              • [Term] @MonadQuotation.getContext : {m : Type → Type} →
+                                                  [self : MonadQuotation m] → m Name @ ⟨713, 12⟩†-⟨713, 23⟩†
+                                            • [Term] fun quotCtx =>
+                                                pure
+                                                  {
+                                                    raw :=
+                                                      x.raw } : Name →
+                                                MacroM
+                                                  (TSyntax `term) @ ⟨713, 12⟩†-⟨713, 23⟩† @ Lean.Elab.Term.expandParen
+                                              • [MacroExpansion]
+                                                (fun quotCtx✝ =>
+                                                  Pure.pure✝
+                                                    (@TSyntax.mk✝ `term
+                                                      (@TSyntax.raw✝ (List.cons✝ `ident List.nil✝) x)))
+                                                ===>
+                                                fun quotCtx✝ =>
+                                                  Pure.pure✝
+                                                    (@TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `ident List.nil✝) x))
+                                                • [Term] fun quotCtx =>
+                                                    pure
+                                                      {
+                                                        raw :=
+                                                          x.raw } : Name →
+                                                    MacroM
+                                                      (TSyntax `term) @ ⟨713, 12⟩†-⟨713, 23⟩† @ Lean.Elab.Term.elabFun
+                                                  • [Term] Name : Type @ ⟨713, 12⟩†-⟨713, 23⟩† @ Lean.Elab.Term.elabHole
+                                                  • [Term] quotCtx✝ (isBinder := true) : Name @ ⟨713, 12⟩†-⟨713, 23⟩†
+                                                  • [Term] pure
+                                                      {
+                                                        raw :=
+                                                          x.raw } : MacroM
+                                                      (TSyntax `term) @ ⟨713, 12⟩†-⟨713, 23⟩† @ Lean.Elab.Term.elabApp
+                                                    • [Completion-Id] Pure.pure✝ : some ?_uniq.819 ?_uniq.822 @ ⟨713, 12⟩†-⟨713, 23⟩†
+                                                    • [Term] @pure : {f : Type → Type} →
+                                                        [self : Pure f] → {α : Type} → α → f α @ ⟨713, 12⟩†-⟨713, 23⟩†
+                                                    • [Term] {
+                                                        raw :=
+                                                          x.raw } : TSyntax
+                                                        `term @ ⟨713, 12⟩†-⟨713, 23⟩† @ Lean.Elab.Term.expandParen
+                                                      • [MacroExpansion]
+                                                        (@TSyntax.mk✝ `term
+                                                          (@TSyntax.raw✝ (List.cons✝ `ident List.nil✝) x))
+                                                        ===>
+                                                        @TSyntax.mk✝ `term
+                                                          (@TSyntax.raw✝ (List.cons✝ `ident List.nil✝) x)
+                                                        • [Term] {
+                                                            raw :=
+                                                              x.raw } : TSyntax
+                                                            `term @ ⟨713, 12⟩†-⟨713, 23⟩† @ Lean.Elab.Term.elabApp
+                                                          • [Completion-Id] TSyntax.mk✝ : some ?_uniq.870 @ ⟨713, 12⟩†-⟨713, 23⟩†
+                                                          • [Term] @TSyntax.mk : {ks : SyntaxNodeKinds} →
+                                                              Syntax → TSyntax ks @ ⟨713, 12⟩†-⟨713, 23⟩†
+                                                          • [Term] `term : Name @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabQuotedName
+                                                          • [CustomInfo(Lean.Elab.Term.CoeExpansionTrace)]
+                                                          • [Term] x.raw : Syntax @ ⟨713, 12⟩†-⟨713, 23⟩† @ Lean.Elab.Term.elabApp
+                                                            • [Completion-Id] TSyntax.raw✝ : some Lean.Syntax @ ⟨713, 12⟩†-⟨713, 23⟩†
+                                                            • [Term] @TSyntax.raw : {ks : SyntaxNodeKinds} →
+                                                                TSyntax ks → Syntax @ ⟨713, 12⟩†-⟨713, 23⟩†
+                                                            • [Term] [`ident] : List
+                                                                SyntaxNodeKind @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabApp
+                                                              • [Completion-Id] List.cons✝ : some Lean.SyntaxNodeKinds @ ⟨1, 0⟩†-⟨1, 0⟩†
+                                                              • [Term] @List.cons : {α : Type} →
+                                                                  α → List α → List α @ ⟨1, 0⟩†-⟨1, 0⟩†
+                                                              • [Term] `ident : Name @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabQuotedName
+                                                              • [Term] [] : List
+                                                                  SyntaxNodeKind @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabIdent
+                                                                • [Completion-Id] List.nil✝ : some List.{?_uniq.947} ?_uniq.948 @ ⟨1, 0⟩†-⟨1, 0⟩†
+                                                                • [Term] @List.nil : {α : Type} →
+                                                                    List α @ ⟨1, 0⟩†-⟨1, 0⟩†
+                                                            • [Term] x : Ident @ ⟨713, 15⟩-⟨713, 16⟩ @ Lean.Elab.Term.elabIdent
+                                                              • [Completion-Id] x : some Lean.TSyntax (List.cons.{?_uniq.947} ?_uniq.948 (Lean.Name.mkStr1 "ident") (List.nil.{?_uniq.949} ?_uniq.950)) @ ⟨713, 15⟩-⟨713, 16⟩
+                                                              • [Term] x : Ident @ ⟨713, 15⟩-⟨713, 16⟩
+                    • [Term] fun __do_lift =>
+                        pure
+                          __do_lift : TSyntax `term →
+                        MacroM (TSyntax `term) @ ⟨713, 2⟩†-⟨713, 24⟩† @ Lean.Elab.Term.expandParen
+                      • [MacroExpansion]
+                        (fun (__do_lift✝ : _) =>
+                          with_annotate_term(Term.doReturn
+                               "return"
+                               [(Term.paren (Term.hygienicLParen "(" (hygieneInfo `[anonymous])) `__do_lift✝ ")")])
+                            Pure.pure✝ (__do_lift✝))
+                        ===>
+                        fun (__do_lift✝ : _) =>
+                          with_annotate_term(Term.doReturn
+                               "return"
+                               [(Term.paren (Term.hygienicLParen "(" (hygieneInfo `[anonymous])) `__do_lift✝ ")")])
+                            Pure.pure✝ (__do_lift✝)
+                        • [Term] fun __do_lift =>
+                            pure
+                              __do_lift : TSyntax `term →
+                            MacroM (TSyntax `term) @ ⟨713, 2⟩†-⟨713, 24⟩† @ Lean.Elab.Term.elabFun
+                          • [Term] TSyntax `term : Type @ ⟨713, 2⟩†-⟨713, 24⟩† @ Lean.Elab.Term.elabHole
+                          • [Term] __do_lift✝ (isBinder := true) : TSyntax `term @ ⟨713, 2⟩†-⟨713, 24⟩†
+                          • [Term] pure
+                              __do_lift✝ : MacroM
+                              (TSyntax `term) @ ⟨713, 2⟩†-⟨713, 24⟩† @ Lean.Elab.Term.elabWithAnnotateTerm
+                            • [Term] pure __do_lift✝ : MacroM (TSyntax `term) @ ⟨713, 2⟩-⟨713, 24⟩
+                              • [Term] pure
+                                  __do_lift✝ : MacroM (TSyntax `term) @ ⟨713, 2⟩†-⟨713, 24⟩† @ Lean.Elab.Term.elabApp
+                                • [Completion-Id] Pure.pure✝ : some ?_uniq.629 ?_uniq.632 @ ⟨713, 2⟩†-⟨713, 24⟩†
+                                • [Term] @pure : {f : Type → Type} →
+                                    [self : Pure f] → {α : Type} → α → f α @ ⟨713, 2⟩†-⟨713, 24⟩†
+                                • [Term] __do_lift✝ : TSyntax `term @ ⟨713, 9⟩-⟨713, 24⟩ @ Lean.Elab.Term.expandParen
+                                  • [MacroExpansion]
+                                    (__do_lift✝)
+                                    ===>
+                                    __do_lift✝
+                                    • [Term] __do_lift✝ : TSyntax
+                                        `term @ ⟨713, 2⟩†-⟨713, 24⟩† @ Lean.Elab.Term.elabIdent
+                                      • [Completion-Id] __do_lift✝ : some ?_uniq.992 @ ⟨713, 2⟩†-⟨713, 24⟩†
+                                      • [Term] __do_lift✝ : TSyntax `term @ ⟨713, 2⟩†-⟨713, 24⟩†
+  • [Term] identQuot (isBinder := true) : MacroM (TSyntax `term) @ ⟨711, 4⟩-⟨711, 13⟩
+  • [Term] identQuot (isBinder := true) : MacroM (TSyntax `term) @ ⟨711, 4⟩-⟨711, 13⟩
 -/
 #guard_msgs in
 #info_trees in
-def matchesIdent (stx : Syntax) : Bool :=
-  match stx with
-  | `($x:ident) => true
-  | _ => false
+def identQuot : MacroM (TSyntax `term) := do
+  let x : Ident := mkIdent `foo
+  return (← `($x:ident))
 
 /--
-info: • [Command] @ ⟨317, 0⟩-⟨320, 14⟩ @ Lean.Elab.Command.elabDeclaration
-  • [Term] Syntax : Type @ ⟨317, 22⟩-⟨317, 28⟩ @ Lean.Elab.Term.elabIdent
-    • [Completion-Id] Syntax : some Sort.{?_uniq.55} @ ⟨317, 22⟩-⟨317, 28⟩
-    • [Term] Syntax : Type @ ⟨317, 22⟩-⟨317, 28⟩
-  • [Term] stx (isBinder := true) : Syntax @ ⟨317, 16⟩-⟨317, 19⟩
-  • [Term] Bool : Type @ ⟨317, 32⟩-⟨317, 36⟩ @ Lean.Elab.Term.elabIdent
-    • [Completion-Id] Bool : some Sort.{?_uniq.57} @ ⟨317, 32⟩-⟨317, 36⟩
-    • [Term] Bool : Type @ ⟨317, 32⟩-⟨317, 36⟩
-  • [Term] stx (isBinder := true) : Syntax @ ⟨317, 16⟩-⟨317, 19⟩
+info: • [Command] @ ⟨1068, 0⟩-⟨1070, 22⟩ @ Lean.Elab.Command.elabDeclaration
+  • [Term] MacroM (TSyntax `term) : Type @ ⟨1068, 14⟩-⟨1068, 36⟩ @ Lean.Elab.Term.elabApp
+    • [Completion-Id] MacroM : some Sort.{?_uniq.1035} @ ⟨1068, 14⟩-⟨1068, 20⟩
+    • [Term] MacroM : Type → Type @ ⟨1068, 14⟩-⟨1068, 20⟩
+    • [Term] TSyntax `term : Type @ ⟨1068, 21⟩-⟨1068, 36⟩ @ Lean.Elab.Term.expandParen
+      • [MacroExpansion]
+        (TSyntax `term)
+        ===>
+        TSyntax `term
+        • [Term] TSyntax `term : Type @ ⟨1068, 22⟩-⟨1068, 35⟩ @ Lean.Elab.Term.elabApp
+          • [Completion-Id] TSyntax : some Type @ ⟨1068, 22⟩-⟨1068, 29⟩
+          • [Term] TSyntax : SyntaxNodeKinds → Type @ ⟨1068, 22⟩-⟨1068, 29⟩
+          • [Term] `term : Name @ ⟨1068, 30⟩-⟨1068, 35⟩ @ Lean.Elab.Term.elabQuotedName
+          • [CustomInfo(Lean.Elab.Term.CoeExpansionTrace)]
   • [CustomInfo(Lean.Elab.Term.BodyInfo)]
-    • [Term] have __discr := stx;
-      bif false || __discr.isOfKind `str then
-        have x := { raw := __discr };
-        true
-      else
-        have __discr := stx;
-        false : Bool @ ⟨318, 2⟩-⟨320, 14⟩ @ Lean.Elab.Term.Quotation.elabMatchSyntax
+    • [Term] let x := Syntax.mkStrLit "hi";
+      do
+      let __do_lift ←
+        do
+          let _ ← MonadRef.mkInfoFromRefPos
+          let _ ← getCurrMacroScope
+          let _ ← MonadQuotation.getContext
+          pure { raw := x.raw }
+      pure __do_lift : MacroM (TSyntax `term) @ ⟨1068, 40⟩-⟨1070, 22⟩ @ Lean.Elab.Term.elabDo
+      • [Term] MacroM : Type → Type @ ⟨1068, 40⟩†-⟨1070, 22⟩† @ Lean.Elab.Term.elabSyntheticHole
+      • [Term] TSyntax `term : Type @ ⟨1068, 40⟩†-⟨1070, 22⟩† @ Lean.Elab.Term.elabSyntheticHole
       • [MacroExpansion]
         failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)
         ===>
-        have __discr✝ := stx;
-        cond✝ (or✝ false✝ (Syntax.isOfKind✝ __discr✝ `str))
-          (have x := @TSyntax.mk✝ (List.cons✝ `str List.nil✝) __discr✝;
-          true)
-          (have __discr✝¹ := stx;
-          false)
-        • [Term] have __discr := stx;
-          bif false || __discr.isOfKind `str then
-            have x := { raw := __discr };
-            true
-          else
-            have __discr := stx;
-            false : Bool @ ⟨318, 2⟩†-⟨320, 14⟩† @ Lean.Elab.Term.elabHaveDecl
-          • [Term] Syntax : Type @ ⟨318, 2⟩†-⟨320, 14⟩† @ Lean.Elab.Term.elabHole
-          • [Term] stx : Syntax @ ⟨318, 8⟩-⟨318, 11⟩ @ Lean.Elab.Term.elabIdent
-            • [Completion-Id] stx : some ?_uniq.61 @ ⟨318, 8⟩-⟨318, 11⟩
-            • [Term] stx : Syntax @ ⟨318, 8⟩-⟨318, 11⟩
-          • [Term] __discr✝ (isBinder := true) : Syntax @ ⟨318, 2⟩†-⟨320, 14⟩†
-          • [Term] bif false || __discr✝.isOfKind `str then
-              have x := { raw := __discr✝ };
-              true
-            else
-              have __discr := stx;
-              false : Bool @ ⟨318, 2⟩†-⟨320, 14⟩† @ Lean.Elab.Term.elabApp
-            • [Completion-Id] cond✝ : some Bool @ ⟨318, 2⟩†-⟨320, 14⟩†
-            • [Term] @cond : {α : Type} → Bool → α → α → α @ ⟨318, 2⟩†-⟨320, 14⟩†
-            • [Term] false || __discr✝.isOfKind `str : Bool @ ⟨318, 2⟩†-⟨320, 14⟩† @ Lean.Elab.Term.elabApp
-              • [Completion-Id] or✝ : some Bool @ ⟨318, 2⟩†-⟨320, 14⟩†
-              • [Term] or : Bool → Bool → Bool @ ⟨318, 2⟩†-⟨320, 14⟩†
-              • [Term] false : Bool @ ⟨318, 2⟩†-⟨320, 14⟩† @ Lean.Elab.Term.elabIdent
-                • [Completion-Id] false✝ : some Bool @ ⟨318, 2⟩†-⟨320, 14⟩†
-                • [Term] false : Bool @ ⟨318, 2⟩†-⟨320, 14⟩†
-              • [Term] __discr✝.isOfKind `str : Bool @ ⟨318, 2⟩†-⟨320, 14⟩† @ Lean.Elab.Term.expandParen
-                • [MacroExpansion]
-                  (Syntax.isOfKind✝ __discr✝ `str)
-                  ===>
-                  Syntax.isOfKind✝ __discr✝ `str
-                  • [Term] __discr✝.isOfKind `str : Bool @ ⟨318, 2⟩†-⟨320, 14⟩† @ Lean.Elab.Term.elabApp
-                    • [Completion-Id] Syntax.isOfKind✝ : some Bool @ ⟨318, 2⟩†-⟨320, 14⟩†
-                    • [Term] Syntax.isOfKind : Syntax → SyntaxNodeKind → Bool @ ⟨318, 2⟩†-⟨320, 14⟩†
-                    • [Term] __discr✝ : Syntax @ ⟨318, 2⟩†-⟨320, 14⟩† @ Lean.Elab.Term.elabIdent
-                      • [Completion-Id] __discr✝ : some Lean.Syntax @ ⟨318, 2⟩†-⟨320, 14⟩†
-                      • [Term] __discr✝ : Syntax @ ⟨318, 2⟩†-⟨320, 14⟩†
-                    • [Term] `str : Name @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabQuotedName
-            • [Term] have x := { raw := __discr✝ };
-              true : Bool @ ⟨318, 2⟩†-⟨320, 14⟩† @ Lean.Elab.Term.elabHaveDecl
-              • [Term] TSyntax `str : Type @ ⟨319, 7⟩†-⟨319, 8⟩† @ Lean.Elab.Term.elabHole
-              • [Term] { raw := __discr✝ } : TSyntax `str @ ⟨318, 2⟩†-⟨320, 14⟩† @ Lean.Elab.Term.elabApp
-                • [Completion-Id] TSyntax.mk✝ : some ?_uniq.66 @ ⟨318, 2⟩†-⟨320, 14⟩†
-                • [Term] @TSyntax.mk : {ks : SyntaxNodeKinds} → Syntax → TSyntax ks @ ⟨318, 2⟩†-⟨320, 14⟩†
-                • [Term] [`str] : List SyntaxNodeKind @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabApp
-                  • [Completion-Id] List.cons✝ : some Lean.SyntaxNodeKinds @ ⟨1, 0⟩†-⟨1, 0⟩†
-                  • [Term] @List.cons : {α : Type} → α → List α → List α @ ⟨1, 0⟩†-⟨1, 0⟩†
-                  • [Term] `str : Name @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabQuotedName
-                  • [Term] [] : List SyntaxNodeKind @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabIdent
-                    • [Completion-Id] List.nil✝ : some List.{?_uniq.67} ?_uniq.68 @ ⟨1, 0⟩†-⟨1, 0⟩†
-                    • [Term] @List.nil : {α : Type} → List α @ ⟨1, 0⟩†-⟨1, 0⟩†
-                • [Term] __discr✝ : Syntax @ ⟨318, 2⟩†-⟨320, 14⟩† @ Lean.Elab.Term.elabIdent
-                  • [Completion-Id] __discr✝ : some Lean.Syntax @ ⟨318, 2⟩†-⟨320, 14⟩†
-                  • [Term] __discr✝ : Syntax @ ⟨318, 2⟩†-⟨320, 14⟩†
-              • [Term] x (isBinder := true) : TSyntax `str @ ⟨319, 7⟩-⟨319, 8⟩
-              • [Term] true : Bool @ ⟨319, 17⟩-⟨319, 21⟩ @ Lean.Elab.Term.elabIdent
-                • [Completion-Id] true : some ?_uniq.64 @ ⟨319, 17⟩-⟨319, 21⟩
-                • [Term] true : Bool @ ⟨319, 17⟩-⟨319, 21⟩
-            • [Term] have __discr := stx;
-              false : Bool @ ⟨318, 2⟩†-⟨320, 14⟩† @ Lean.Elab.Term.elabHaveDecl
-              • [Term] Syntax : Type @ ⟨318, 2⟩†-⟨320, 14⟩† @ Lean.Elab.Term.elabHole
-              • [Term] stx : Syntax @ ⟨318, 8⟩-⟨318, 11⟩ @ Lean.Elab.Term.elabIdent
-                • [Completion-Id] stx : some ?_uniq.74 @ ⟨318, 8⟩-⟨318, 11⟩
-                • [Term] stx : Syntax @ ⟨318, 8⟩-⟨318, 11⟩
-              • [Term] __discr✝ (isBinder := true) : Syntax @ ⟨318, 2⟩†-⟨320, 14⟩†
-              • [Term] false : Bool @ ⟨320, 9⟩-⟨320, 14⟩ @ Lean.Elab.Term.elabIdent
-                • [Completion-Id] false : some ?_uniq.64 @ ⟨320, 9⟩-⟨320, 14⟩
-                • [Term] false : Bool @ ⟨320, 9⟩-⟨320, 14⟩
-  • [Term] matchesStr (isBinder := true) : Syntax → Bool @ ⟨317, 4⟩-⟨317, 14⟩
-  • [Term] matchesStr (isBinder := true) : Syntax → Bool @ ⟨317, 4⟩-⟨317, 14⟩
+        failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)
+        • [Term] let x := Syntax.mkStrLit "hi";
+          do
+          let __do_lift ←
+            do
+              let _ ← MonadRef.mkInfoFromRefPos
+              let _ ← getCurrMacroScope
+              let _ ← MonadQuotation.getContext
+              pure { raw := x.raw }
+          pure __do_lift : MacroM (TSyntax `term) @ ⟨1069, 2⟩†-⟨1069, 46⟩† @ Lean.Elab.Term.elabWithAnnotateTerm
+          • [Term] let x := Syntax.mkStrLit "hi";
+            do
+            let __do_lift ←
+              do
+                let _ ← MonadRef.mkInfoFromRefPos
+                let _ ← getCurrMacroScope
+                let _ ← MonadQuotation.getContext
+                pure { raw := x.raw }
+            pure __do_lift : MacroM (TSyntax `term) @ ⟨1069, 2⟩-⟨1069, 46⟩
+            • [Term] let x := Syntax.mkStrLit "hi";
+              do
+              let __do_lift ←
+                do
+                  let _ ← MonadRef.mkInfoFromRefPos
+                  let _ ← getCurrMacroScope
+                  let _ ← MonadQuotation.getContext
+                  pure { raw := x.raw }
+              pure __do_lift : MacroM (TSyntax `term) @ ⟨1069, 2⟩†-⟨1069, 46⟩† @ Lean.Elab.Term.elabLetDecl
+              • [Term] TSyntax `str : Type @ ⟨1069, 10⟩-⟨1069, 22⟩ @ Lean.Elab.Term.elabApp
+                • [Completion-Id] TSyntax : some Sort.{?_uniq.1114} @ ⟨1069, 10⟩-⟨1069, 17⟩
+                • [Term] TSyntax : SyntaxNodeKinds → Type @ ⟨1069, 10⟩-⟨1069, 17⟩
+                • [Term] `str : Name @ ⟨1069, 18⟩-⟨1069, 22⟩ @ Lean.Elab.Term.elabQuotedName
+                • [CustomInfo(Lean.Elab.Term.CoeExpansionTrace)]
+              • [Term] Syntax.mkStrLit "hi" : StrLit @ ⟨1069, 26⟩-⟨1069, 46⟩ @ Lean.Elab.Term.elabApp
+                • [Completion-Id] Syntax.mkStrLit : some Lean.TSyntax (List.cons.{0} Lean.SyntaxNodeKind (Lean.Name.mkStr1 "str") (List.nil.{0} Lean.SyntaxNodeKind)) @ ⟨1069, 26⟩-⟨1069, 41⟩
+                • [Term] @Syntax.mkStrLit : String →
+                    optParam SourceInfo SourceInfo.none → StrLit @ ⟨1069, 26⟩-⟨1069, 41⟩
+                • [Term] "hi" : String @ ⟨1069, 42⟩-⟨1069, 46⟩ @ Lean.Elab.Term.elabStrLit
+              • [Term] x (isBinder := true) : TSyntax `str @ ⟨1069, 6⟩-⟨1069, 7⟩
+              • [Term] do
+                  let __do_lift ←
+                    do
+                      let _ ← MonadRef.mkInfoFromRefPos
+                      let _ ← getCurrMacroScope
+                      let _ ← MonadQuotation.getContext
+                      pure { raw := x.raw }
+                  pure __do_lift : MacroM (TSyntax `term) @ ⟨1070, 2⟩†-⟨1070, 22⟩† @ Lean.Elab.Term.elabWithAnnotateTerm
+                • [Term] do
+                    let __do_lift ←
+                      do
+                        let _ ← MonadRef.mkInfoFromRefPos
+                        let _ ← getCurrMacroScope
+                        let _ ← MonadQuotation.getContext
+                        pure { raw := x.raw }
+                    pure __do_lift : MacroM (TSyntax `term) @ ⟨1070, 2⟩†-⟨1070, 22⟩†
+                  • [Term] do
+                      let __do_lift ←
+                        do
+                          let _ ← MonadRef.mkInfoFromRefPos
+                          let _ ← getCurrMacroScope
+                          let _ ← MonadQuotation.getContext
+                          pure { raw := x.raw }
+                      pure __do_lift : MacroM (TSyntax `term) @ ⟨1070, 2⟩†-⟨1070, 22⟩† @ Lean.Elab.Term.elabApp
+                    • [Completion-Id] Bind.bind✝ : some Lean.MacroM (Lean.TSyntax (List.cons.{0} Lean.SyntaxNodeKind (Lean.Name.mkStr1 "term") (List.nil.{0} Lean.SyntaxNodeKind))) @ ⟨1070, 2⟩†-⟨1070, 22⟩†
+                    • [Term] @bind : {m : Type → Type} →
+                        [self : Bind m] → {α β : Type} → m α → (α → m β) → m β @ ⟨1070, 2⟩†-⟨1070, 22⟩†
+                    • [Term] do
+                        let _ ← MonadRef.mkInfoFromRefPos
+                        let _ ← getCurrMacroScope
+                        let _ ← MonadQuotation.getContext
+                        pure
+                            {
+                              raw :=
+                                x.raw } : MacroM
+                        (TSyntax `term) @ ⟨1070, 12⟩†-⟨1070, 21⟩† @ Lean.Elab.Term.elabTypeAscription
+                      • [Term] MacroM (TSyntax `term) : Type @ ⟨1070, 12⟩†-⟨1070, 21⟩† @ Lean.Elab.Term.elabApp
+                        • [Term] MacroM : Type → Type @ ⟨1068, 40⟩†-⟨1070, 22⟩† @ Lean.Elab.Term.elabSyntheticHole
+                        • [Term] TSyntax `term : Type @ ⟨1070, 2⟩†-⟨1070, 22⟩† @ Lean.Elab.Term.elabHole
+                      • [Term] do
+                          let _ ← MonadRef.mkInfoFromRefPos
+                          let _ ← getCurrMacroScope
+                          let _ ← MonadQuotation.getContext
+                          pure
+                              {
+                                raw :=
+                                  x.raw } : MacroM
+                          (TSyntax
+                            `term) @ ⟨1070, 12⟩-⟨1070, 21⟩ @ Lean.Elab.Term.Quotation.elabQuot._@.Lean.Elab.Quotation.3282600398._hygCtx._hyg.3
+                        • [MacroExpansion]
+                          failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)
+                          ===>
+                          Bind.bind✝ MonadRef.mkInfoFromRefPos✝
+                            (fun info✝ =>
+                              Bind.bind✝ getCurrMacroScope✝
+                                (fun scp✝ =>
+                                  Bind.bind✝ MonadQuotation.getContext✝
+                                    (fun quotCtx✝ =>
+                                      Pure.pure✝ (@TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `str List.nil✝) x)))))
+                          • [Term] do
+                              let _ ← MonadRef.mkInfoFromRefPos
+                              let _ ← getCurrMacroScope
+                              let _ ← MonadQuotation.getContext
+                              pure
+                                  {
+                                    raw :=
+                                      x.raw } : MacroM
+                              (TSyntax `term) @ ⟨1070, 12⟩†-⟨1070, 21⟩† @ Lean.Elab.Term.elabApp
+                            • [Completion-Id] Bind.bind✝ : some ?_uniq.1112 ?_uniq.1216 @ ⟨1070, 12⟩†-⟨1070, 21⟩†
+                            • [Term] @bind : {m : Type → Type} →
+                                [self : Bind m] → {α β : Type} → m α → (α → m β) → m β @ ⟨1070, 12⟩†-⟨1070, 21⟩†
+                            • [Term] MonadRef.mkInfoFromRefPos : MacroM
+                                SourceInfo @ ⟨1070, 12⟩†-⟨1070, 21⟩† @ Lean.Elab.Term.elabIdent
+                              • [Completion-Id] MonadRef.mkInfoFromRefPos✝ : some ?_uniq.1219 ?_uniq.1221 @ ⟨1070, 12⟩†-⟨1070, 21⟩†
+                              • [Term] @MonadRef.mkInfoFromRefPos : {m : Type → Type} →
+                                  [Monad m] → [MonadRef m] → m SourceInfo @ ⟨1070, 12⟩†-⟨1070, 21⟩†
+                            • [Term] fun info => do
+                                let _ ← getCurrMacroScope
+                                let _ ← MonadQuotation.getContext
+                                pure
+                                    {
+                                      raw :=
+                                        x.raw } : SourceInfo →
+                                MacroM (TSyntax `term) @ ⟨1070, 12⟩†-⟨1070, 21⟩† @ Lean.Elab.Term.expandParen
+                              • [MacroExpansion]
+                                (fun info✝ =>
+                                  Bind.bind✝ getCurrMacroScope✝
+                                    (fun scp✝ =>
+                                      Bind.bind✝ MonadQuotation.getContext✝
+                                        (fun quotCtx✝ =>
+                                          Pure.pure✝
+                                            (@TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `str List.nil✝) x)))))
+                                ===>
+                                fun info✝ =>
+                                  Bind.bind✝ getCurrMacroScope✝
+                                    (fun scp✝ =>
+                                      Bind.bind✝ MonadQuotation.getContext✝
+                                        (fun quotCtx✝ =>
+                                          Pure.pure✝
+                                            (@TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `str List.nil✝) x))))
+                                • [Term] fun info => do
+                                    let _ ← getCurrMacroScope
+                                    let _ ← MonadQuotation.getContext
+                                    pure
+                                        {
+                                          raw :=
+                                            x.raw } : SourceInfo →
+                                    MacroM (TSyntax `term) @ ⟨1070, 12⟩†-⟨1070, 21⟩† @ Lean.Elab.Term.elabFun
+                                  • [Term] SourceInfo : Type @ ⟨1070, 12⟩†-⟨1070, 21⟩† @ Lean.Elab.Term.elabHole
+                                  • [Term] info✝ (isBinder := true) : SourceInfo @ ⟨1070, 12⟩†-⟨1070, 21⟩†
+                                  • [Term] do
+                                      let _ ← getCurrMacroScope
+                                      let _ ← MonadQuotation.getContext
+                                      pure
+                                          {
+                                            raw :=
+                                              x.raw } : MacroM
+                                      (TSyntax `term) @ ⟨1070, 12⟩†-⟨1070, 21⟩† @ Lean.Elab.Term.elabApp
+                                    • [Completion-Id] Bind.bind✝ : some ?_uniq.1219 ?_uniq.1222 @ ⟨1070, 12⟩†-⟨1070, 21⟩†
+                                    • [Term] @bind : {m : Type → Type} →
+                                        [self : Bind m] → {α β : Type} → m α → (α → m β) → m β @ ⟨1070, 12⟩†-⟨1070, 21⟩†
+                                    • [Term] getCurrMacroScope : MacroM
+                                        MacroScope @ ⟨1070, 12⟩†-⟨1070, 21⟩† @ Lean.Elab.Term.elabIdent
+                                      • [Completion-Id] getCurrMacroScope✝ : some ?_uniq.1314 ?_uniq.1316 @ ⟨1070, 12⟩†-⟨1070, 21⟩†
+                                      • [Term] @getCurrMacroScope : {m : Type → Type} →
+                                          [self : MonadQuotation m] → m MacroScope @ ⟨1070, 12⟩†-⟨1070, 21⟩†
+                                    • [Term] fun scp => do
+                                        let _ ← MonadQuotation.getContext
+                                        pure
+                                            {
+                                              raw :=
+                                                x.raw } : MacroScope →
+                                        MacroM (TSyntax `term) @ ⟨1070, 12⟩†-⟨1070, 21⟩† @ Lean.Elab.Term.expandParen
+                                      • [MacroExpansion]
+                                        (fun scp✝ =>
+                                          Bind.bind✝ MonadQuotation.getContext✝
+                                            (fun quotCtx✝ =>
+                                              Pure.pure✝
+                                                (@TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `str List.nil✝) x))))
+                                        ===>
+                                        fun scp✝ =>
+                                          Bind.bind✝ MonadQuotation.getContext✝
+                                            (fun quotCtx✝ =>
+                                              Pure.pure✝
+                                                (@TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `str List.nil✝) x)))
+                                        • [Term] fun scp => do
+                                            let _ ← MonadQuotation.getContext
+                                            pure
+                                                {
+                                                  raw :=
+                                                    x.raw } : MacroScope →
+                                            MacroM (TSyntax `term) @ ⟨1070, 12⟩†-⟨1070, 21⟩† @ Lean.Elab.Term.elabFun
+                                          • [Term] MacroScope : Type @ ⟨1070, 12⟩†-⟨1070, 21⟩† @ Lean.Elab.Term.elabHole
+                                          • [Term] scp✝ (isBinder := true) : MacroScope @ ⟨1070, 12⟩†-⟨1070, 21⟩†
+                                          • [Term] do
+                                              let _ ← MonadQuotation.getContext
+                                              pure
+                                                  {
+                                                    raw :=
+                                                      x.raw } : MacroM
+                                              (TSyntax `term) @ ⟨1070, 12⟩†-⟨1070, 21⟩† @ Lean.Elab.Term.elabApp
+                                            • [Completion-Id] Bind.bind✝ : some ?_uniq.1314 ?_uniq.1317 @ ⟨1070, 12⟩†-⟨1070, 21⟩†
+                                            • [Term] @bind : {m : Type → Type} →
+                                                [self : Bind m] →
+                                                  {α β : Type} → m α → (α → m β) → m β @ ⟨1070, 12⟩†-⟨1070, 21⟩†
+                                            • [Term] MonadQuotation.getContext : MacroM
+                                                Name @ ⟨1070, 12⟩†-⟨1070, 21⟩† @ Lean.Elab.Term.elabIdent
+                                              • [Completion-Id] MonadQuotation.getContext✝ : some ?_uniq.1364 ?_uniq.1366 @ ⟨1070, 12⟩†-⟨1070, 21⟩†
+                                              • [Term] @MonadQuotation.getContext : {m : Type → Type} →
+                                                  [self : MonadQuotation m] → m Name @ ⟨1070, 12⟩†-⟨1070, 21⟩†
+                                            • [Term] fun quotCtx =>
+                                                pure
+                                                  {
+                                                    raw :=
+                                                      x.raw } : Name →
+                                                MacroM
+                                                  (TSyntax `term) @ ⟨1070, 12⟩†-⟨1070, 21⟩† @ Lean.Elab.Term.expandParen
+                                              • [MacroExpansion]
+                                                (fun quotCtx✝ =>
+                                                  Pure.pure✝
+                                                    (@TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `str List.nil✝) x)))
+                                                ===>
+                                                fun quotCtx✝ =>
+                                                  Pure.pure✝
+                                                    (@TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `str List.nil✝) x))
+                                                • [Term] fun quotCtx =>
+                                                    pure
+                                                      {
+                                                        raw :=
+                                                          x.raw } : Name →
+                                                    MacroM
+                                                      (TSyntax `term) @ ⟨1070, 12⟩†-⟨1070, 21⟩† @ Lean.Elab.Term.elabFun
+                                                  • [Term] Name : Type @ ⟨1070, 12⟩†-⟨1070, 21⟩† @ Lean.Elab.Term.elabHole
+                                                  • [Term] quotCtx✝ (isBinder := true) : Name @ ⟨1070, 12⟩†-⟨1070, 21⟩†
+                                                  • [Term] pure
+                                                      {
+                                                        raw :=
+                                                          x.raw } : MacroM
+                                                      (TSyntax `term) @ ⟨1070, 12⟩†-⟨1070, 21⟩† @ Lean.Elab.Term.elabApp
+                                                    • [Completion-Id] Pure.pure✝ : some ?_uniq.1364 ?_uniq.1367 @ ⟨1070, 12⟩†-⟨1070, 21⟩†
+                                                    • [Term] @pure : {f : Type → Type} →
+                                                        [self : Pure f] → {α : Type} → α → f α @ ⟨1070, 12⟩†-⟨1070, 21⟩†
+                                                    • [Term] {
+                                                        raw :=
+                                                          x.raw } : TSyntax
+                                                        `term @ ⟨1070, 12⟩†-⟨1070, 21⟩† @ Lean.Elab.Term.expandParen
+                                                      • [MacroExpansion]
+                                                        (@TSyntax.mk✝ `term
+                                                          (@TSyntax.raw✝ (List.cons✝ `str List.nil✝) x))
+                                                        ===>
+                                                        @TSyntax.mk✝ `term (@TSyntax.raw✝ (List.cons✝ `str List.nil✝) x)
+                                                        • [Term] {
+                                                            raw :=
+                                                              x.raw } : TSyntax
+                                                            `term @ ⟨1070, 12⟩†-⟨1070, 21⟩† @ Lean.Elab.Term.elabApp
+                                                          • [Completion-Id] TSyntax.mk✝ : some ?_uniq.1415 @ ⟨1070, 12⟩†-⟨1070, 21⟩†
+                                                          • [Term] @TSyntax.mk : {ks : SyntaxNodeKinds} →
+                                                              Syntax → TSyntax ks @ ⟨1070, 12⟩†-⟨1070, 21⟩†
+                                                          • [Term] `term : Name @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabQuotedName
+                                                          • [CustomInfo(Lean.Elab.Term.CoeExpansionTrace)]
+                                                          • [Term] x.raw : Syntax @ ⟨1070, 12⟩†-⟨1070, 21⟩† @ Lean.Elab.Term.elabApp
+                                                            • [Completion-Id] TSyntax.raw✝ : some Lean.Syntax @ ⟨1070, 12⟩†-⟨1070, 21⟩†
+                                                            • [Term] @TSyntax.raw : {ks : SyntaxNodeKinds} →
+                                                                TSyntax ks → Syntax @ ⟨1070, 12⟩†-⟨1070, 21⟩†
+                                                            • [Term] [`str] : List
+                                                                SyntaxNodeKind @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabApp
+                                                              • [Completion-Id] List.cons✝ : some Lean.SyntaxNodeKinds @ ⟨1, 0⟩†-⟨1, 0⟩†
+                                                              • [Term] @List.cons : {α : Type} →
+                                                                  α → List α → List α @ ⟨1, 0⟩†-⟨1, 0⟩†
+                                                              • [Term] `str : Name @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabQuotedName
+                                                              • [Term] [] : List
+                                                                  SyntaxNodeKind @ ⟨1, 0⟩†-⟨1, 0⟩† @ Lean.Elab.Term.elabIdent
+                                                                • [Completion-Id] List.nil✝ : some List.{?_uniq.1492} ?_uniq.1493 @ ⟨1, 0⟩†-⟨1, 0⟩†
+                                                                • [Term] @List.nil : {α : Type} →
+                                                                    List α @ ⟨1, 0⟩†-⟨1, 0⟩†
+                                                            • [Term] x : TSyntax
+                                                                `str @ ⟨1070, 15⟩-⟨1070, 16⟩ @ Lean.Elab.Term.elabIdent
+                                                              • [Completion-Id] x : some Lean.TSyntax (List.cons.{?_uniq.1492} ?_uniq.1493 (Lean.Name.mkStr1 "str") (List.nil.{?_uniq.1494} ?_uniq.1495)) @ ⟨1070, 15⟩-⟨1070, 16⟩
+                                                              • [Term] x : TSyntax `str @ ⟨1070, 15⟩-⟨1070, 16⟩
+                    • [Term] fun __do_lift =>
+                        pure
+                          __do_lift : TSyntax `term →
+                        MacroM (TSyntax `term) @ ⟨1070, 2⟩†-⟨1070, 22⟩† @ Lean.Elab.Term.expandParen
+                      • [MacroExpansion]
+                        (fun (__do_lift✝ : _) =>
+                          with_annotate_term(Term.doReturn
+                               "return"
+                               [(Term.paren (Term.hygienicLParen "(" (hygieneInfo `[anonymous])) `__do_lift✝ ")")])
+                            Pure.pure✝ (__do_lift✝))
+                        ===>
+                        fun (__do_lift✝ : _) =>
+                          with_annotate_term(Term.doReturn
+                               "return"
+                               [(Term.paren (Term.hygienicLParen "(" (hygieneInfo `[anonymous])) `__do_lift✝ ")")])
+                            Pure.pure✝ (__do_lift✝)
+                        • [Term] fun __do_lift =>
+                            pure
+                              __do_lift : TSyntax `term →
+                            MacroM (TSyntax `term) @ ⟨1070, 2⟩†-⟨1070, 22⟩† @ Lean.Elab.Term.elabFun
+                          • [Term] TSyntax `term : Type @ ⟨1070, 2⟩†-⟨1070, 22⟩† @ Lean.Elab.Term.elabHole
+                          • [Term] __do_lift✝ (isBinder := true) : TSyntax `term @ ⟨1070, 2⟩†-⟨1070, 22⟩†
+                          • [Term] pure
+                              __do_lift✝ : MacroM
+                              (TSyntax `term) @ ⟨1070, 2⟩†-⟨1070, 22⟩† @ Lean.Elab.Term.elabWithAnnotateTerm
+                            • [Term] pure __do_lift✝ : MacroM (TSyntax `term) @ ⟨1070, 2⟩-⟨1070, 22⟩
+                              • [Term] pure
+                                  __do_lift✝ : MacroM (TSyntax `term) @ ⟨1070, 2⟩†-⟨1070, 22⟩† @ Lean.Elab.Term.elabApp
+                                • [Completion-Id] Pure.pure✝ : some ?_uniq.1174 ?_uniq.1177 @ ⟨1070, 2⟩†-⟨1070, 22⟩†
+                                • [Term] @pure : {f : Type → Type} →
+                                    [self : Pure f] → {α : Type} → α → f α @ ⟨1070, 2⟩†-⟨1070, 22⟩†
+                                • [Term] __do_lift✝ : TSyntax `term @ ⟨1070, 9⟩-⟨1070, 22⟩ @ Lean.Elab.Term.expandParen
+                                  • [MacroExpansion]
+                                    (__do_lift✝)
+                                    ===>
+                                    __do_lift✝
+                                    • [Term] __do_lift✝ : TSyntax
+                                        `term @ ⟨1070, 2⟩†-⟨1070, 22⟩† @ Lean.Elab.Term.elabIdent
+                                      • [Completion-Id] __do_lift✝ : some ?_uniq.1537 @ ⟨1070, 2⟩†-⟨1070, 22⟩†
+                                      • [Term] __do_lift✝ : TSyntax `term @ ⟨1070, 2⟩†-⟨1070, 22⟩†
+  • [Term] strQuot (isBinder := true) : MacroM (TSyntax `term) @ ⟨1068, 4⟩-⟨1068, 11⟩
+  • [Term] strQuot (isBinder := true) : MacroM (TSyntax `term) @ ⟨1068, 4⟩-⟨1068, 11⟩
 -/
 #guard_msgs in
 #info_trees in
-def matchesStr (stx : Syntax) : Bool :=
-  match stx with
-  | `($x:str) => true
-  | _ => false
+def strQuot : MacroM (TSyntax `term) := do
+  let x : TSyntax `str := Syntax.mkStrLit "hi"
+  return (← `($x:str))

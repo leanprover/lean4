@@ -1396,6 +1396,7 @@ scalar value.
 public def IsUTF8FirstByte (c : UInt8) : Prop :=
   c &&& 0x80 = 0 ∨ c &&& 0xe0 = 0xc0 ∨ c &&& 0xf0 = 0xe0 ∨ c &&& 0xf8 = 0xf0
 
+@[inline]
 public instance {c : UInt8} : Decidable c.IsUTF8FirstByte :=
   inferInstanceAs <| Decidable (c &&& 0x80 = 0 ∨ c &&& 0xe0 = 0xc0 ∨ c &&& 0xf0 = 0xe0 ∨ c &&& 0xf8 = 0xf0)
 

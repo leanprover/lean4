@@ -1268,12 +1268,12 @@ theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : (a : α) → β a �
 
 theorem forInNew_eq_forInNew_toList
     {init : σ} {kcons : (a : α) → β a → (σ → m' δ) → σ → m' δ} {knil : σ → m' δ} :
-    m.1.forInNew init kcons knil = ForInNew.forInNew m.1.toList init (fun a => kcons a.1 a.2) knil := show_term by
+    m.1.forInNew init kcons knil = ForInNew.forInNew m.1.toList init (fun a => kcons a.1 a.2) knil := by
   simp_to_model [forInNew, toList]
 
 theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
     {f : (a : α) → β a → δ → m' (ForInStep δ)} {init : δ} :
-    m.1.forIn f init = ForIn.forIn m.1.toList init (fun a b => f a.1 a.2 b) := show_term by
+    m.1.forIn f init = ForIn.forIn m.1.toList init (fun a b => f a.1 a.2 b) := by
   simp_to_model [forIn, toList]
 
 theorem foldM_eq_foldlM_keys [Monad m'] [LawfulMonad m']
@@ -1339,7 +1339,7 @@ theorem forInNew_eq_forInNew_toList
 
 theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
     {f : α → β → δ → m' (ForInStep δ)} {init : δ} :
-    m.1.forIn f init = ForIn.forIn (Raw.Const.toList m.1) init (fun a b => f a.1 a.2 b) := show_term by
+    m.1.forIn f init = ForIn.forIn (Raw.Const.toList m.1) init (fun a b => f a.1 a.2 b) := by
   simp_to_model [forIn, Const.toList] using List.forIn_eq_forIn_toProd
 
 end Const

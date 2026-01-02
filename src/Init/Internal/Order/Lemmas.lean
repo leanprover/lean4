@@ -386,7 +386,7 @@ theorem monotone_forInNew'_loop {m : Type v → Type w} {α : Type u} {β σ : T
     monotone (fun x => Array.forInNew'.loop as (kcons x) (knil x) i h init) := by
   apply monotone_default
   intro _
-  induction i, h, init using Array.forInNew'.loop.induct as (kcons default) (knil default) with
+  induction i, h, init using Array.forInNew'.loop.induct with
   | case1 =>
     apply monotone_apply
     apply hmononil

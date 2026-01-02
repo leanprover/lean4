@@ -72,11 +72,11 @@ private partial def formatIRType : IRType → Format
   | IRType.tobject      => "tobj"
   | IRType.struct _ tys nu ns =>
     let _ : ToFormat IRType := ⟨formatIRType⟩
-    "struct " ++ format (nu.repr ++ ":" ++ ns.repr) ++
-      Format.bracket "{" (Format.joinSep tys.toList ", ") "}"
+    let fmt := Format.bracket "{" (Format.joinSep tys.toList ", ") "}"
+    if nu = 0 ∧ ns = 0 then fmt else format (nu.repr ++ ":" ++ ns.repr) ++ fmt
   | IRType.union _ tys  =>
     let _ : ToFormat IRType := ⟨formatIRType⟩
-    "union " ++ Format.bracket "{" (Format.joinSep tys.toList ", ") "}"
+    Format.bracket "(" (Format.joinSep tys.toList " | ") ")"
 
 instance : ToFormat IRType := ⟨private_decl% formatIRType⟩
 instance : ToString IRType := ⟨toString ∘ format⟩

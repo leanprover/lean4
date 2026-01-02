@@ -12,6 +12,7 @@ public import Lean.Compiler.IR.CompilerM
 public import Lean.Compiler.IR.ElimDeadVars
 public import Lean.Compiler.IR.ToIRType
 public import Lean.Data.AssocList
+import Lean.Compiler.IR.InitAttrS
 
 public section
 

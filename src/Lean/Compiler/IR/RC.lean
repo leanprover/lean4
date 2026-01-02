@@ -383,7 +383,7 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
     | .box xTy x =>
       if xTy.isStruct then
         if bLiveVars.vars.contains x || bLiveVars.borrows.contains x then
-          addInc ctx z b
+          addInc ctx x b
         else
           b
       else

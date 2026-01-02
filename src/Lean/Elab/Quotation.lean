@@ -126,6 +126,12 @@ private def builtinSyntaxNodeKindDecl? (k : SyntaxNodeKind) : Option Name :=
   | `interpolatedStrKind => some ``Lean.interpolatedStrKind
   | _ => none
 
+private def antiquotKindName? (stx : Syntax) : Option Name :=
+  match stx with
+  | Syntax.ident _ _ val _ => some val
+  | Syntax.atom _ val => some (Name.mkSimple val)
+  | _ => none
+
 def tryAddSyntaxNodeKindInfo (stx : Syntax) (k : SyntaxNodeKind) : TermElabM Unit := do
   let env ← getEnv
   if env.contains k then
@@ -167,7 +173,10 @@ private partial def quoteSyntax : Syntax → TermElabM Term
   | stx@(Syntax.node _ k _) => do
     if let some (k, _) := stx.antiquotKind? then
       if let some name := getAntiquotKindSpec? stx then
-        tryAddSyntaxNodeKindInfo name k
+        if let some kindName := antiquotKindName? name then
+          tryAddSyntaxNodeKindInfo name kindName
+        else
+          tryAddSyntaxNodeKindInfo name k
     if isAntiquots stx && !isEscapedAntiquot (getCanonicalAntiquot stx) then
       let ks := antiquotKinds stx
       `(@TSyntax.raw $(quote <| ks.map (·.1)) $(getAntiquotTerm (getCanonicalAntiquot stx)))
@@ -372,7 +381,10 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
     let quoted := getQuotContent pat
     if let some (k, _) := quoted.antiquotKind? then
       if let some name := getAntiquotKindSpec? quoted then
-        tryAddSyntaxNodeKindInfo name k
+        if let some kindName := antiquotKindName? name then
+          tryAddSyntaxNodeKindInfo name kindName
+        else
+          tryAddSyntaxNodeKindInfo name k
     if quoted.isAtom || quoted.isOfKind `patternIgnore then
       -- We assume that atoms are uniquely determined by the node kind and never have to be checked
       unconditionally pure

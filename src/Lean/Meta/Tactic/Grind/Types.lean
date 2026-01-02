@@ -1211,7 +1211,7 @@ def isEqv (a b : Expr) : GoalM Bool := do
     let some nb ← getENode? b | return false
     return isSameExpr na.root nb.root
 
-/-- Returns `true` if the root of its equivalence class. -/
+/-- Returns `true` if `e` is the root of its equivalence class. -/
 def isRoot (e : Expr) : GoalM Bool := do
   let some n ← getENode? e | return false -- `e` has not been internalized. Panic instead?
   return isSameExpr n.root e
@@ -1419,7 +1419,7 @@ For each equality `b = c` in `parents`, executes `k b c` IF
       else
         k b c
 
-/-- Returns `true` is `e` is the root of its congruence class. -/
+/-- Returns `true` if `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do
   return (← getENode e).isCongrRoot
 

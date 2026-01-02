@@ -63,7 +63,7 @@ theorem Iter.forIn'_eq_forInNew' {α β : Type w} [Iterator α Id β] [Finite α
     letI : ForIn' m (Iter (α := α) β) β _ := Iter.instForIn'
     letI : ForInNew' m (Iter (α := α) β) β _ := Iter.instForInNew'
     ForIn'.forIn' it init f =
-      ForInNew'.forInNew' it init (kbreak := pure) (fun x m k s => do
+      ForInNew'.forInNew' it init (knil := pure) (fun x m k s => do
         match ← f x m s with
         | .yield s => k s
         | .done c => pure c)

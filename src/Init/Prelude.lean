@@ -4979,25 +4979,25 @@ instance : Inhabited (TSyntax ks) where
 /-! # Builtin kinds -/
 
 /--
-The `` `choice `` kind is used to represent ambiguous parse results.
+The `` `choice `` kind represents ambiguous parse results.
 
 The parser prioritizes longer matches over shorter ones, but there is not always a unique longest
-match. All the parse results are saved, and the determination of which to use is deferred
-until typing information is available.
+match. All the parse results are saved as children of a `Syntax.node` of kind `choice`, and the
+determination of which alternative to use is deferred until typing information is available.
 -/
 abbrev choiceKind : SyntaxNodeKind := `choice
 
 /--
-`` `null `` is the “fallback” kind, used when no other kind applies. Null nodes result from
-repetition operators, and empty null nodes represent the failure of an optional parse.
-
-The null kind is used for raw list parsers like `many`.
+`` `null `` is the “fallback” kind used for list-like parser results. Null nodes result from
+repetition operators such as `optional`, `many`, and `sepBy`. An empty null node represents the
+failure of an optional parse, and a nonempty null node collects the parsed items.
 -/
 abbrev nullKind : SyntaxNodeKind := `null
 
 /--
-The `` `group `` kind is used for nodes that result from `Lean.Parser.group`. This avoids confusion
-with the null kind when used inside `optional`.
+The `` `group `` kind is used for nodes that result from `Lean.Parser.group`. Grouping ensures that
+parsers with arity greater than 1 are wrapped to produce a single node, which prevents list
+combinators such as `optional` and `many` from conflating a parsed value with an empty `null` node.
 -/
 abbrev groupKind : SyntaxNodeKind := `group
 
@@ -5032,7 +5032,11 @@ abbrev scientificLitKind : SyntaxNodeKind := `scientific
 /-- `` `name `` is the node kind of name literals like `` `foo ``. -/
 abbrev nameLitKind : SyntaxNodeKind := `name
 
-/-- `` `fieldIdx `` is the node kind of projection indices like the `2` in `x.2`. -/
+/--
+`` `fieldIdx `` is the node kind of numeric projection indices like the `2` in `x.2`.
+These are positive decimal indices without a leading zero, used both in projection notation and in
+structure instance field paths (e.g. `{ x.2 := ... }`).
+-/
 abbrev fieldIdxKind : SyntaxNodeKind := `fieldIdx
 
 /--
@@ -5046,13 +5050,15 @@ introduced in a macro's input, rather than by its implementation.
 abbrev hygieneInfoKind : SyntaxNodeKind := `hygieneInfo
 
 /--
-`` `interpolatedStrLitKind `` is the node kind of interpolated string literal
-fragments like `"value = {` and `}"` in `s!"value = {x}"`.
+`` `interpolatedStrLitKind `` is the node kind of literal fragments inside an interpolated string.
+For example, in `s!"value = {x}"`, the fragments `"value = {` and `}"` are `interpolatedStrLitKind`
+nodes, and they alternate with the parsed `{...}` holes.
 -/
 abbrev interpolatedStrLitKind : SyntaxNodeKind := `interpolatedStrLitKind
 /--
-`` `interpolatedStrKind `` is the node kind of an interpolated string literal like `"value = {x}"`
-in `s!"value = {x}"`.
+`` `interpolatedStrKind `` is the node kind of an interpolated string literal like `s!"value = {x}"`.
+The node has an odd number of arguments, alternating between literal fragments (of kind
+`interpolatedStrLitKind`) and the parsed holes.
 -/
 abbrev interpolatedStrKind : SyntaxNodeKind := `interpolatedStrKind
 

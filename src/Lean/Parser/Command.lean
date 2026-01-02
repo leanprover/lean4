@@ -527,7 +527,7 @@ structure Pair (α : Type u) (β : Type v) : Type (max u v) where
 -/
 @[builtin_command_parser] def «universe»     := leading_parser
   "universe" >> many1 (ppSpace >> checkColGt >> ident)
-/-- `#check e` reports the type of `e`. -/
+/-- `#check e` reports the type of `e`, printing `e : T`. -/
 @[builtin_command_parser] def check          := leading_parser
   "#check " >> termParser
 /-- Like `#check`, but succeeds only if `e` fails to type check. -/
@@ -561,22 +561,22 @@ See also: `#reduce e` for evaluation by term reduction.
   "#eval " >> termParser
 @[builtin_command_parser, inherit_doc eval] def evalBang := leading_parser
   "#eval! " >> termParser
-/-- `#synth T` attempts to synthesize a term of type `T` (commonly a typeclass instance). -/
+/-- `#synth T` tries to synthesize a typeclass instance of type `T` and prints the result. -/
 @[builtin_command_parser] def synth          := leading_parser
   "#synth " >> termParser
-/-- Interrupts processing (used for tests and debugging). -/
+/-- Debugging command that logs a warning and interrupts processing after this point. -/
 @[builtin_command_parser] def exit           := leading_parser
   "#exit"
-/-- `#print n` prints the declaration `n` or its docstring if `n` is a string literal. -/
+/-- `#print n` prints the declaration `n`; `#print "msg"` prints the string literal contents. -/
 @[builtin_command_parser] def print          := leading_parser
   "#print " >> (ident <|> strLit)
 /-- `#print sig n` prints only the signature of `n`. -/
 @[builtin_command_parser] def printSig       := leading_parser
   "#print " >> nonReservedSymbol "sig " >> ident
-/-- `#print axioms n` prints the axioms used by `n`. -/
+/-- `#print axioms n` prints the axioms that `n` depends on. -/
 @[builtin_command_parser] def printAxioms    := leading_parser
   "#print " >> nonReservedSymbol "axioms " >> ident
-/-- `#print equations n` prints the equations for `n`. -/
+/-- `#print equations n` prints the definitional equations for `n`, if any. -/
 @[builtin_command_parser] def printEqns      := leading_parser
   "#print " >> (nonReservedSymbol "equations " <|> nonReservedSymbol "eqns ") >> ident
 /--
@@ -585,7 +585,7 @@ Displays all available tactic tags, with documentation.
 @[builtin_command_parser] def printTacTags   := leading_parser
   "#print " >> nonReservedSymbol "tactic " >> nonReservedSymbol "tags"
 /--
-`#where` gives a description of the state of the current scope scope.
+`#where` gives a description of the state of the current scope.
 This includes the current namespace, `open` namespaces, `universe` and `variable` commands,
 and options set with `set_option`.
 -/

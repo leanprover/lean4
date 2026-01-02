@@ -380,7 +380,15 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
     | .ap x ys =>
       let ysx := ys.push (.var x) -- TODO: avoid temporary array allocation
       addIncBeforeConsumeAll ctx ysx (.vdecl z t v b) bLiveVars
-    | .lit _ | .box .. | .reset .. | .isShared _ =>
+    | .box xTy x =>
+      if xTy.isStruct then
+        if bLiveVars.vars.contains x || bLiveVars.borrows.contains x then
+          addInc ctx z b
+        else
+          b
+      else
+        .vdecl z t v b
+    | .lit _ | .reset .. | .isShared _ =>
       .vdecl z t v b
   let liveVars := useExpr ctx v bLiveVars
   let liveVars := bindVar z liveVars

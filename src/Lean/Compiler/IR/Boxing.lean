@@ -481,12 +481,12 @@ def prepareBoxParams (env : Environment) (decls : Array Decl) : Array Decl :=
   decls.map fun decl =>
     match decl with
     | .fdecl f xs resultType b info =>
+      let resultType := if isExport env f && resultType.isStruct then resultType.boxed else resultType
       let (b, boxed) := boxParams b { f, resultType, decls, env }
         |>.run {}
       if isExport env f then
         -- exports shouldn't use unboxed structs
         let xs := xs.map (fun x => { x with ty := if x.ty.isStruct then x.ty.boxed else x.ty })
-        let resultType := if resultType.isStruct then resultType.boxed else resultType
         .fdecl f xs resultType b info
       else
         let xs := xs.mapMono fun param =>

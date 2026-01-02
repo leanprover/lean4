@@ -890,9 +890,9 @@ def emitStructReshapeFn (origin target : IRType) (id1 id2 : Nat) : M Unit := do
     if us ≠ 0 ∨ ss ≠ 0 then
       emit "memcpy(&y, &x, sizeof(size_t)*"; emit us; emit "+"; emit ss; emitLn ");"
     for h : i in *...tys.size do
-      if tys[i] matches .erased | .void then
-        continue
       if tys'[i]! matches .erased | .void then
+        continue
+      if tys[i] matches .erased | .void then
         emit "y.i"; emit i; emitLn " = lean_box(0);"
       else if tys[i].beqApprox tys'[i]! then
         emit "y.i"; emit i; emit " = x.i"; emit i; emitLn ";"

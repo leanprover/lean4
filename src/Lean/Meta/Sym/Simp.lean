@@ -8,6 +8,9 @@ prelude
 public import Lean.Meta.Sym.SimpM
 import Lean.Meta.Tactic.Grind.AlphaShareBuilder
 import Lean.Meta.Sym.EqTrans
+import Lean.Meta.Sym.Rewrite
+import Lean.Meta.Sym.SimpResult
+import Lean.Meta.Sym.SimpFun
 import Lean.Meta.Sym.Congr
 namespace Lean.Meta.Sym.Simp
 open Grind
@@ -39,7 +42,7 @@ def simpMVar (e : Expr) : SimpM Result := do
 def simpApp (e : Expr) : SimpM Result := do
   congrArgs e
 
-def simpStep (e : Expr) : SimpM Result := do
+def simpStep : SimpFun := fun e => do
   match e with
   | .lit _ | .sort _ | .bvar _ => return { expr := e }
   | .proj .. =>
@@ -57,10 +60,6 @@ def simpStep (e : Expr) : SimpM Result := do
   | .mvar .. => simpMVar e
   | .app .. => simpApp e
 
-def mkEqTrans (e : Expr) (r₁ : Result) (r₂ : Result) : SimpM Result := do
-  let proof? ← Sym.mkEqTrans e r₁.expr r₁.proof? r₂.expr r₂.proof?
-  return { r₂ with proof? }
-
 def cacheResult (e : Expr) (r : Result) : SimpM Result := do
   modify fun s => { s with cache := s.cache.insert { expr := e } r }
   return r
@@ -71,7 +70,7 @@ def simpImpl (e : Expr) : SimpM Result := do
     throwError "`simp` failed: maximum number of steps exceeded"
   if let some result := (← getCache).find? { expr := e } then
     return result
-  let r ← simpStep e
+  let r ← (simpStep >> rewrite) e
   if isSameExpr r.expr e then
     cacheResult e r
   else

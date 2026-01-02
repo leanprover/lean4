@@ -68,6 +68,15 @@ def isUVar? (n : Name) : Option Nat := Id.run do
   unless p == uvarPrefix do return none
   return some idx
 
+/-- Helper function for implementing `mkPatternFromDecl` and `mkEqPatternFromDecl` -/
+def preprocessPattern (declName : Name) : MetaM (List Name × Expr) := do
+  let info ← getConstInfo declName
+  let levelParams := info.levelParams.mapIdx fun i _ => Name.num uvarPrefix i
+  let us := levelParams.map mkLevelParam
+  let type ← instantiateTypeLevelParams info.toConstantVal us
+  let type ← preprocessType type
+  return (levelParams, type)
+
 /--
 Creates a `Pattern` from the type of a theorem.
 
@@ -82,11 +91,7 @@ If `num?` is `some n`, at most `n` leading quantifiers are stripped.
 If `num?` is `none`, all leading quantifiers are stripped.
 -/
 public def mkPatternFromDecl (declName : Name) (num? : Option Nat := none) : MetaM Pattern := do
-  let info ← getConstInfo declName
-  let levelParams := info.levelParams.mapIdx fun i _ => Name.num uvarPrefix i
-  let us := levelParams.map mkLevelParam
-  let type ← instantiateTypeLevelParams info.toConstantVal us
-  let type ← preprocessType type
+  let (levelParams, type) ← preprocessPattern declName
   let hugeNumber := 10000000
   let num := num?.getD hugeNumber
   let rec go (i : Nat) (type : Expr) (varTypes : Array Expr) (isInstance : Array Bool) : MetaM Pattern := do
@@ -97,6 +102,28 @@ public def mkPatternFromDecl (declName : Name) (num? : Option Nat := none) : Met
     let fnInfos ← mkProofInstInfoMapFor pattern
     return { levelParams, varTypes, isInstance, pattern, fnInfos }
   go 0 type #[] #[]
+
+/--
+Creates a `Pattern` from an equational theorem, using the left-hand side of the equation.
+
+Like `mkPatternFromDecl`, this strips all leading universal quantifiers, recording variable
+types and instance status. However, instead of using the entire resulting type as the pattern,
+it extracts just the LHS of the equation.
+
+For a theorem `∀ x₁ ... xₙ, lhs = rhs`, returns a pattern matching `lhs` with `n` pattern variables.
+Throws an error if the theorem's conclusion is not an equality.
+-/
+public def mkEqPatternFromDecl (declName : Name) : MetaM Pattern := do
+  let (levelParams, type) ← preprocessPattern declName
+  let rec go (type : Expr) (varTypes : Array Expr) (isInstance : Array Bool) : MetaM Pattern := do
+    if let .forallE _ d b _ := type then
+      return (← go b (varTypes.push d) (isInstance.push (isClass? (← getEnv) d).isSome))
+    else
+      let_expr Eq _ lhs _ := type | throwError "resulting type for `{.ofConstName declName}` is not an equality"
+      let pattern := lhs
+      let fnInfos ← mkProofInstInfoMapFor pattern
+      return { levelParams, varTypes, isInstance, pattern, fnInfos }
+  go type #[] #[]
 
 structure UnifyM.Context where
   pattern   : Pattern

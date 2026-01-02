@@ -74,7 +74,7 @@ like `23:59:60` that is valid in ISO 8601.
   - `Minute.Ordinal`: Ranges from 0 to 59.
   - `Nanosecond.Ordinal`: Ranges from 0 to 999,999,999.
   - `Second.Ordinal`: Ranges from 0 to 60.
-  - `Weekday`: That is a inductive type with all the seven days.
+  - `Weekday`: That is an inductive type with all the seven days.
 
 ## Span
 

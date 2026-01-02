@@ -510,12 +510,12 @@ abbrev SSuperset [HasSSubset α] (a b : α) := SSubset b a
 
 /-- Notation type class for the union operation `∪`. -/
 class Union (α : Type u) where
-  /-- `a ∪ b` is the union of`a` and `b`. -/
+  /-- `a ∪ b` is the union of `a` and `b`. -/
   union : α → α → α
 
 /-- Notation type class for the intersection operation `∩`. -/
 class Inter (α : Type u) where
-  /-- `a ∩ b` is the intersection of`a` and `b`. -/
+  /-- `a ∩ b` is the intersection of `a` and `b`. -/
   inter : α → α → α
 
 /-- Notation type class for the set difference `\`. -/
@@ -538,10 +538,10 @@ infix:50 " ⊇ " => Superset
 /-- Strict superset relation: `a ⊃ b`  -/
 infix:50 " ⊃ " => SSuperset
 
-/-- `a ∪ b` is the union of`a` and `b`. -/
+/-- `a ∪ b` is the union of `a` and `b`. -/
 infixl:65 " ∪ " => Union.union
 
-/-- `a ∩ b` is the intersection of`a` and `b`. -/
+/-- `a ∩ b` is the intersection of `a` and `b`. -/
 infixl:70 " ∩ " => Inter.inter
 
 /--

@@ -222,9 +222,8 @@ variable {β σ : Type v}
 @[specialize] def foldrM [Monad m] (t : PersistentArray α) (f : α → β → m β) (init : β) : m β := do
   foldrMAux f t.root (← t.tail.foldrM f init)
 
-set_option linter.unusedVariables.funArgs false in
 @[specialize]
-partial def forInNewAux {α : Type u} {β σ : Type v} {m : Type v → Type w} [inh : Inhabited (m β)]
+def forInNewAux {α : Type u} {β σ : Type v} {m : Type v → Type w} [inh : Nonempty (m β)]
     (n : PersistentArrayNode α) (s : σ) (kcons : α → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
   match n with
   | leaf vs =>
@@ -236,12 +235,11 @@ partial def forInNewAux {α : Type u} {β σ : Type v} {m : Type v → Type w} [
     (kcons : α → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
   forInNewAux (inh := ⟨knil init⟩) t.root init kcons (forInNew t.tail · kcons knil)
 
-instance [Monad m] : ForInNew m (PersistentArray α) α where
+instance : ForInNew m (PersistentArray α) α where
   forInNew := PersistentArray.forInNew
 
-set_option linter.unusedVariables.funArgs false in
 @[specialize]
-partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] [inh : Inhabited β]
+partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] [inh : Nonempty β]
     (f : α → β → m (ForInStep β)) (n : PersistentArrayNode α) (b : β) : m (ForInStep β) := do
   let mut b := b
   match n with

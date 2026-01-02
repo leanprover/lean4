@@ -507,6 +507,11 @@ structure Context where
    This is not a great solution, but a proper solution would require a more sophisticated caching mechanism.
   -/
   inTypeClassResolution : Bool := false
+  /--
+  When `cacheInferType := true`, the `inferType` results are cached if the input term does not contain
+  metavariables
+  -/
+  cacheInferType : Bool := true
 deriving Inhabited
 
 def Context.config (c : Context) : Config := c.keyedConfig.config

@@ -5045,7 +5045,8 @@ abbrev fieldIdxKind : SyntaxNodeKind := `fieldIdx
 anything.
 
 They can be used to generate identifiers (with `Lean.HygieneInfo.mkIdent`) as if they were
-introduced in a macro's input, rather than by its implementation.
+introduced in a macro's input, rather than by its implementation. The node has a single child,
+an anonymous `Syntax.ident` whose macro scopes record the hygiene context.
 -/
 abbrev hygieneInfoKind : SyntaxNodeKind := `hygieneInfo
 

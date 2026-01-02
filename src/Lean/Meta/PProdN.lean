@@ -150,7 +150,7 @@ def projM (n i : Nat) (e : Expr) : MetaM Expr := do
 /--
 Packs multiple type-forming lambda expressions taking the same parameters using `PProd`.
 
-The parameter `type` is the common type of the these expressions
+The parameter `type` is the common type of these expressions
 
 For example
 ```

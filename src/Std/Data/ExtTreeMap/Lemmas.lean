@@ -886,8 +886,8 @@ theorem forM_eq_forM_toList [TransCmp cmp] [Monad m] [LawfulMonad m] {f : α × 
 
 @[simp, grind =]
 theorem forInNew_eq_forInNew [TransCmp cmp]
-    {init : σ} {kcons : α × β → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
-    t.forInNew init kcons knil = ForInNew.forInNew t init kcons knil := rfl
+    {init : σ} {kcons : α → β → (σ → m δ) → σ → m δ} {knil : σ → m δ} :
+    t.forInNew init kcons knil = ForInNew.forInNew t init (fun a => kcons a.1 a.2) knil := rfl
 
 theorem forInNew_eq_forInNew_toList [TransCmp cmp] [Monad m] [LawfulMonad m]
     {init : σ} {kcons : α × β → (σ → m δ) → σ → m δ} {knil : σ → m δ} :

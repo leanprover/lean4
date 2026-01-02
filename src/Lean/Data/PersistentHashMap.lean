@@ -389,9 +389,6 @@ protected partial def forInNew {m : Type w → Type w'} {_ : BEq α} {_ : Hashab
 
 instance [BEq α] [Hashable α] : ForInNew m (PersistentHashMap α β) (α × β) where
   forInNew t init kcons knil := PersistentHashMap.forInNew t init (fun a b => kcons (a, b)) knil
-  forInNew_tail := by
-    intros _ _ _ _ _ _ _ _ _ h
-    apply forInNew_tail (h := h)
 
 structure Stats where
   numNodes      : Nat := 0

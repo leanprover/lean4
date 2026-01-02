@@ -177,11 +177,6 @@ instance : ForInNew' m (Option α) α Membership.mem where
     match x with
     | none => knil init
     | some a => kcons a rfl knil init
-  forInNew'_tail := by
-    intros _ _ x _ _ _ _ _ _ h
-    match x with
-    | none   => rfl
-    | some _ => apply h
 
 instance [Monad m] : ForIn' m (Option α) α inferInstance where
   forIn' x init f := do

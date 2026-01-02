@@ -31,33 +31,16 @@ universe u v
 @[inline] protected def forInNew' {m : Type u → Type v} {σ β} (range : Range) (init : σ)
     (kcons : (i : Nat) → i ∈ range → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
   let rec @[specialize] loop (i : Nat)
-      (hs : (i - range.start) % range.step = 0) (hl : range.start ≤ i := by omega) (s : σ) : m β :=
+      (hs : (i - range.start) % range.step = 0) (hl : range.start ≤ i := by omega) : σ → m β :=
     if h : i < range.stop then
       have := range.step_pos
-      kcons i ⟨hl, by omega, hs⟩ (loop (i + range.step) (by rwa [Nat.add_comm, Nat.add_sub_assoc hl, Nat.add_mod_left])) s
+      kcons i ⟨hl, by omega, hs⟩ (loop (i + range.step) (by rwa [Nat.add_comm, Nat.add_sub_assoc hl, Nat.add_mod_left]))
     else
-      knil s
+      knil
   loop range.start (by simp) (by simp) init
-
-private theorem forInNew'.loop_tail {m : Type v → Type w} {σ β}
-    (range : Range) (knil : σ → m β) (s : σ) (i : Nat)
-    (hs : (i - range.start) % range.step = 0) (hl : range.start ≤ i)
-    (k : m β → m γ)
-    (kcons₁ : (i : Nat) → i ∈ range → (kcontinue : σ → m β) → σ → m β)
-    (kcons₂ : (i : Nat) → i ∈ range → (kcontinue : σ → m γ) → σ → m γ)
-    (h : ∀ a h kcontinue s, k (kcons₁ a h kcontinue s) = kcons₂ a h (fun s => k (kcontinue s)) s) :
-    k (forInNew'.loop range kcons₁ knil i hs hl s) = forInNew'.loop range kcons₂ (fun s => k (knil s)) i hs hl s := by
-  fun_induction Range.forInNew'.loop range kcons₁ knil i hs hl s with
-  | case2 => simp [*, loop]
-  | case1 _ _ _ _ _ _ ih =>
-    conv => rhs; rw [loop]
-    simp [*]
 
 instance : ForInNew' m Range Nat Membership.mem where
   forInNew' := Range.forInNew'
-  forInNew'_tail := by
-    intro _ _ _ _ _ _ _ _ _ h
-    apply forInNew'.loop_tail (h := h)
 
 -- No separate `ForInNew` instance is required because it can be derived from `ForInNew'`.
 

@@ -56,48 +56,17 @@ export ToStream (toStream)
 class Stream (stream : Type u) (value : outParam (Type v)) : Type (max u v) where
   next? : stream → Option (value × stream)
 
-private def LoopSpec (ρ : Type u) (α : Type v) [Stream ρ α] (m : Type w₁ → Type w₂) (σ : Type w₁)
-    (visit : ∀ {β}, ρ → (α → (σ → m β) → σ → m β) → (σ → m β) → σ → m β) :=
-  ∀ {β γ} (k : m β → m γ) (str : ρ) (s : σ) (knil : σ → m β)
-    (kcons₁ : α → (kcontinue : σ → m β) → σ → m β)
-    (kcons₂ : α → (kcontinue : σ → m γ) → σ → m γ)
-    (_ : ∀ a kcontinue s, k (kcons₁ a kcontinue s) = kcons₂ a (fun s => k (kcontinue s)) s),
-    k (visit str kcons₁ knil s) = visit str kcons₂ (fun s => k (knil s)) s
-
-private local instance [Stream ρ α] : Inhabited (Subtype (LoopSpec ρ α m σ)) :=
-  ⟨fun _ _ knil s => knil s, by (repeat intro); rfl⟩
-
-private partial def Stream.forInNew.loop {ρ : Type u} {α : Type v} [Stream ρ α] {m : Type w₁ → Type w₂} {σ : Type w₁} : Subtype (LoopSpec ρ α m σ) where
-  val {β} str kcons knil s :=
-    -- This is the actual definition of the loop:
-    letI _ : Inhabited (m β) := ⟨knil s⟩
-    match Stream.next? str with
-    | some (a, str) => kcons a (loop.val str kcons knil) s
-    | none => knil s
-  property := by
-    intro β γ k s str knil kcons₁ kcons₂ h;
-    simp only
-    split <;> try rfl
-    simp only [h]
-    congr
-    funext s
-    simp [loop.property k _ s knil kcons₁ kcons₂ h]
-
-@[specialize]
-private unsafe def Stream.forInNewUnsafe {ρ : Type u} {α : Type v} [Stream ρ α] {m : Type w₁ → Type w₂} {σ : Type w₁}
-    (str : ρ) (s : σ) (kcons : α → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
-  match Stream.next? str with
-  | some (a, str) => kcons a (forInNewUnsafe str · kcons knil) s
-  | none => knil s
-
-@[implemented_by Stream.forInNewUnsafe]
-def Stream.forInNew {ρ : Type u} {α : Type v} [Stream ρ α] {m : Type w₁ → Type w₂} {σ : Type w₁}
+protected partial def Stream.forInNew {ρ α} {m : Type u → Type v} {σ β} [Stream ρ α]
     (str : ρ) (init : σ) (kcons : α → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
-  Stream.forInNew.loop.val str kcons knil init
+  let rec @[specialize] visit [Nonempty (m β)] (str : ρ) (s : σ) : m β :=
+    match Stream.next? str with
+    | some (a, str) => kcons a (visit str) s
+    | none => knil s
+  haveI : Nonempty (m β) := ⟨knil init⟩
+  visit str init
 
 instance (priority := low) [Stream ρ α] : ForInNew m ρ α where
   forInNew := Stream.forInNew
-  forInNew_tail := by intros; apply Stream.forInNew.loop.property; assumption
 
 protected partial def Stream.forIn [Stream ρ α] [Monad m] (s : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β := do
   let _ : Inhabited (m β) := ⟨pure b⟩

@@ -363,21 +363,13 @@ class ForInNew (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type 
   forInNew {σ β : Type u₁} (xs : ρ) (s : σ)
     (kcons : (a : α) → (kcontinue : σ → m β) → σ → m β)
     (knil : σ → m β) : m β
-  /--
-  Proof that `forInNew` tail-calls `knil`.
-  This is important for proofs such as `Std.ExtDHashMap.insertMany_ind`.
-  -/
-  forInNew_tail (k : m β → m γ)
-    (kcons₁ : (a : α) → (kcontinue : σ → m β) → σ → m β)
-    (kcons₂ : (a : α) → (kcontinue : σ → m γ) → σ → m γ)
-    (h : ∀ a kcontinue s, k (kcons₁ a kcontinue s) = kcons₂ a (fun s => k (kcontinue s)) s) :
-    k (forInNew xs s kcons₁ knil) = forInNew xs s kcons₂ (fun s => k (knil s))
 
-export ForInNew (forInNew forInNew_tail)
-
+export ForInNew (forInNew)
 /--
 Monadic iteration in `do`-blocks with a membership proof, using the `for h : x in xs` notation.
 
+-- Note to myself (SG): we depend on `m` here because some collections (e.g., iterators) only have
+-- forIn' for specific monads
 The parameter `m` is the monad of the `do`-block in which iteration is performed, `ρ` is the type of
 the collection being iterated over, `α` is the type of elements, and `p` is the specific membership
 predicate to provide.
@@ -404,17 +396,8 @@ class ForInNew' (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type
   forInNew' {σ β : Type u₁} (xs : ρ) (s : σ)
     (kcons : (a : α) → (h : p xs a) → (kcontinue : σ → m β) → σ → m β)
     (knil : σ → m β) : m β
-  /--
-  Proof that `forInNew'` tail-calls `knil`.
-  This is important for proofs such as `Std.ExtDHashMap.insertMany_ind`.
-  -/
-  forInNew'_tail (k : m β → m γ)
-    (kcons₁ : (a : α) → (h : p xs a) → (kcontinue : σ → m β) → σ → m β)
-    (kcons₂ : (a : α) → (h : p xs a) → (kcontinue : σ → m γ) → σ → m γ)
-    (h : ∀ a h kcontinue s, k (kcons₁ a h kcontinue s) = kcons₂ a h (fun s => k (kcontinue s)) s) :
-    k (forInNew' xs s kcons₁ knil) = forInNew' xs s kcons₂ (fun s => k (knil s))
 
-export ForInNew' (forInNew' forInNew'_tail)
+export ForInNew' (forInNew')
 
 /--
 An indication of whether a loop's body terminated early that's used to compile the `for x in xs`

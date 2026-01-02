@@ -467,11 +467,6 @@ protected def forInNew' {α} {m : Type u → Type v} {σ β}
 
 instance : ForInNew' m (List α) α Membership.mem where
   forInNew' := List.forInNew'
-  forInNew'_tail := by
-    intro _ _ l _ s _ _ _ _ _
-    induction l generalizing s with
-    | nil => rfl
-    | cons => simp [List.forInNew', *]
 
 -- No separate `ForInNew` instance is required because it can be derived from `ForInNew'`.
 

@@ -568,27 +568,8 @@ protected def forInNew' {α : Type u} {σ β : Type v} {m : Type v → Type w}
       kcons as[as.size - 1 - i] (getElem_mem this) (fun s => loop i (Nat.le_of_lt h') s) s
   loop as.size (Nat.le_refl _) s
 
-private theorem forInNew'.loop_tail {α : Type u} {σ β : Type v} {m : Type v → Type w}
-    (as : Array α) (knil : σ → m β) (s : σ) (i : Nat) (hi : i ≤ as.size)
-    (k : m β → m γ)
-    (kcons₁ : (a : α) → (h : a ∈ as) → (kcontinue : σ → m β) → σ → m β)
-    (kcons₂ : (a : α) → (h : a ∈ as) → (kcontinue : σ → m γ) → σ → m γ)
-    (h : ∀ a h kcontinue s, k (kcons₁ a h kcontinue s) = kcons₂ a h (k ∘ kcontinue) s) :
-    k (forInNew'.loop as kcons₁ knil i hi s) = forInNew'.loop as kcons₂ (k ∘ knil) i hi s := by
-  fun_induction Array.forInNew'.loop as kcons₁ knil i hi s with
-  | case1 => rfl
-  | case2 _ _ _ _ _ _ ih =>
-    simp only [h, Array.forInNew'.loop]
-    congr
-    apply funext
-    intro s
-    simp [ih]
-
 instance : ForInNew' m (Array α) α Membership.mem where
   forInNew' := Array.forInNew'
-  forInNew'_tail := by
-    intro _ _ _ _ _ _ _ _ _ h
-    apply forInNew'.loop_tail (h := h)
 
 -- No separate `ForInNew` instance is required because it can be derived from `ForInNew'`.
 

@@ -429,10 +429,7 @@ instance [Monad m] : ForM m (Raw α β cmp) (α × β) where
   forM t f := t.forM (fun a b => f ⟨a, b⟩)
 
 instance : ForInNew m (Raw α β cmp) (α × β) where
-  forInNew t init kcons knil := ForInNew.forInNew t.inner init (fun ⟨a, b⟩ => kcons ⟨a, b⟩) knil
-  forInNew_tail := by
-    intros _ _ _ _ _ _ _ _ _ h
-    apply forInNew_tail (ρ := DTreeMap.Raw α (fun _ => β) cmp) (h := fun ⟨a, b⟩ => h ⟨a, b⟩)
+  forInNew t init kcons knil := t.forInNew init (fun a b => kcons ⟨a, b⟩) knil
 
 instance [Monad m] : ForIn m (Raw α β cmp) (α × β) where
   forIn t init f := t.forIn (fun a b acc => f ⟨a, b⟩ acc) init

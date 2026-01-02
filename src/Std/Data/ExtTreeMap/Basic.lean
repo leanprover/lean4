@@ -448,8 +448,8 @@ def forM [TransCmp cmp] (f : α → β → m PUnit) (t : ExtTreeMap α β cmp) :
   t.inner.forM f
 
 @[inline, inherit_doc ExtDTreeMap.forInNew]
-def forInNew [TransCmp cmp] (t : ExtTreeMap α β cmp) (init : σ) (kcons : α × β → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
-  ForInNew.forInNew t.inner init (fun ⟨a, b⟩ => kcons ⟨a, b⟩) knil
+def forInNew [TransCmp cmp] (t : ExtTreeMap α β cmp) (init : σ) (kcons : (a : α) → β → (σ → m δ) → σ → m δ) (knil : σ → m δ) : m δ :=
+  t.inner.forInNew init kcons knil
 
 @[inline, inherit_doc ExtDTreeMap.forIn]
 def forIn [TransCmp cmp] (f : α → β → δ → m (ForInStep δ)) (init : δ) (t : ExtTreeMap α β cmp) : m δ :=
@@ -459,10 +459,7 @@ instance [TransCmp cmp] [Monad m] [LawfulMonad m] : ForM m (ExtTreeMap α β cmp
   forM t f := forM (fun a b => f ⟨a, b⟩) t
 
 instance [TransCmp cmp] : ForInNew m (ExtTreeMap α β cmp) (α × β) where
-  forInNew m init kcons knil := m.forInNew init kcons knil
-  forInNew_tail := by
-    intros _ _ _ _ _ _ _ _ _ h
-    apply forInNew_tail (h := fun ⟨a, b⟩ => h ⟨a, b⟩)
+  forInNew m init kcons knil := m.forInNew init (fun a b => kcons ⟨a, b⟩) knil
 
 instance [TransCmp cmp] [Monad m] [LawfulMonad m] : ForIn m (ExtTreeMap α β cmp) (α × β) where
   forIn m init f := forIn (fun a b acc => f ⟨a, b⟩ acc) init m

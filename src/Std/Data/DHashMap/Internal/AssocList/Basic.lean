@@ -79,11 +79,6 @@ namespace AssocList
 
 instance : ForInNew m (AssocList α β) ((a : α) × β a) where
   forInNew as init kcons knil := as.forInNew init (fun a b => kcons ⟨a, b⟩) knil
-  forInNew_tail := by
-    intro _ _ _ as s _ _ _ _ _
-    induction as generalizing s with
-    | nil => rfl
-    | cons => simp [forInNew, *]
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def forInStep (as : AssocList α β) (init : δ) (f : (a : α) → β a → δ → m (ForInStep δ)) :

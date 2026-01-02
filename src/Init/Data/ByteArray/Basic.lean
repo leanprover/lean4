@@ -246,27 +246,8 @@ protected def forInNew {σ β : Type v} {m : Type v → Type w}
       kcons as[as.size - 1 - i] (fun s => loop i (Nat.le_of_lt h') s) s
   loop as.size (Nat.le_refl _) s
 
-private theorem forInNew.loop_tail {σ β : Type v} {m : Type v → Type w}
-    (as : ByteArray) (knil : σ → m β) (s : σ) (i : Nat) (hi : i ≤ as.size)
-    (k : m β → m γ)
-    (kcons₁ : UInt8 → (kcontinue : σ → m β) → σ → m β)
-    (kcons₂ : UInt8 → (kcontinue : σ → m γ) → σ → m γ)
-    (h : ∀ a kcontinue s, k (kcons₁ a kcontinue s) = kcons₂ a (k ∘ kcontinue) s) :
-    k (forInNew.loop as kcons₁ knil i hi s) = forInNew.loop as kcons₂ (k ∘ knil) i hi s := by
-  fun_induction forInNew.loop as kcons₁ knil i hi s with
-  | case1 => rfl
-  | case2 _ _ _ _ _ _ ih =>
-    simp only [h, forInNew.loop]
-    congr
-    apply funext
-    intro s
-    simp [ih]
-
 instance : ForInNew m ByteArray UInt8 where
   forInNew := ByteArray.forInNew
-  forInNew_tail := by
-    intro _ _ _ _ _ _ _ _ _ h
-    apply forInNew.loop_tail (h := h)
 
 /--
 An efficient implementation of {name}`ForIn.forIn` for {name}`ByteArray` that uses {name}`USize`

@@ -589,7 +589,6 @@ instance [Monad m] : ForIn m (Raw α β cmp) ((a : α) × β a) where
 
 instance : ForInNew m (Raw α β cmp) ((a : α) × β a) where
   forInNew t init kcons knil := t.forInNew init (fun a b => kcons ⟨a, b⟩) knil
-  forInNew_tail := forInNew_tail (ρ := Impl α β)
 
 namespace Const
 

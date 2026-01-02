@@ -231,36 +231,12 @@ def forInNewAux {α : Type u} {β σ : Type v} {m : Type v → Type w} [inh : No
   | node cs =>
     forInNew cs s (fun c kcontinue s => forInNewAux c s kcons kcontinue) knil
 
-private def forInNewAux_tail {α : Type u} {β γ σ : Type v} {m : Type v → Type w}
-    (n : PersistentArrayNode α) (s : σ) (knil : σ → m β) (k : m β → m γ)
-    (kcons₁ : (a : α) → (kcontinue : σ → m β) → σ → m β)
-    (kcons₂ : (a : α) → (kcontinue : σ → m γ) → σ → m γ)
-    (h : ∀ a kcontinue s, k (kcons₁ a kcontinue s) = kcons₂ a (fun s => k (kcontinue s)) s) :
-    k (forInNewAux (inh := ⟨knil s⟩)     n s kcons₁ knil) =
-       forInNewAux (inh := ⟨k (knil s)⟩) n s kcons₂ (fun s => k (knil s)) := by
-  match n with
-  | leaf vs =>
-    simp only [forInNewAux]
-    rw [forInNew_tail (h := h)]
-  | node cs =>
-    simp only [forInNewAux, forInNew_eq_forInNew']
-    rw [forInNew'_tail (k := k)]
-    intros
-    apply forInNewAux_tail
-    apply h
-
 @[inline] protected def forInNew (t : PersistentArray α) (init : σ)
     (kcons : α → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
   forInNewAux (inh := ⟨knil init⟩) t.root init kcons (forInNew t.tail · kcons knil)
 
 instance : ForInNew m (PersistentArray α) α where
   forInNew := PersistentArray.forInNew
-  forInNew_tail := by
-    intros _ _ _ xs s knil k _ _ h
-    simp only [PersistentArray.forInNew, forInNewAux_tail (h := h)]
-    congr
-    funext s
-    rw [forInNew_tail (h := h)]
 
 @[specialize]
 partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] [inh : Nonempty β]

@@ -39,9 +39,9 @@
         let x_5 : tobj := app x_2 x_4;
         ret x_5
       Exp.app →
-        let x_6 : tobj := proj[0] x_1;
+        let x_6 : tobj := proj[1, 0] x_1;
         inc x_6;
-        let x_7 : tobj := proj[1] x_1;
+        let x_7 : tobj := proj[1, 1] x_1;
         inc x_7;
         dec x_1;
         let x_8 : tobj := app x_2 x_6 x_7;
@@ -114,9 +114,9 @@
         ret x_12
       Exp.app._impl →
         dec x_3;
-        let x_13 : tobj := proj[0] x_2;
+        let x_13 : tobj := proj[1, 0] x_2;
         inc x_13;
-        let x_14 : tobj := proj[1] x_2;
+        let x_14 : tobj := proj[1, 1] x_2;
         inc x_14;
         dec x_2;
         let x_15 : tobj := app x_4 x_13 x_14;
@@ -157,9 +157,9 @@
         ret x_11
       Exp.app._impl →
         dec x_2;
-        let x_12 : tobj := proj[0] x_1;
+        let x_12 : tobj := proj[1, 0] x_1;
         inc x_12;
-        let x_13 : tobj := proj[1] x_1;
+        let x_13 : tobj := proj[1, 1] x_1;
         inc x_13;
         dec x_1;
         let x_14 : tobj := app x_3 x_12 x_13;
@@ -297,8 +297,8 @@
         let x_3 : tobj := UInt32.toNat x_2;
         ret x_3
       Exp.app._impl →
-        let x_4 : tobj := proj[0] x_1;
-        let x_5 : tobj := proj[1] x_1;
+        let x_4 : tobj := proj[1, 0] x_1;
+        let x_5 : tobj := proj[1, 1] x_1;
         let x_6 : tobj := hash' x_4;
         let x_7 : tobj := hash' x_5;
         let x_8 : tobj := Nat.add x_6 x_7;
@@ -316,7 +316,7 @@
     def getAppFn (x_1 : @& tobj) : tobj :=
       case x_1 : tobj of
       Exp.app._impl →
-        let x_2 : tobj := proj[0] x_1;
+        let x_2 : tobj := proj[1, 0] x_1;
         let x_3 : tobj := getAppFn x_2;
         ret x_3
       default →

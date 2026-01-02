@@ -65,6 +65,7 @@ instance {σ : Type} : MonadAttach (ST σ) where
   CanReturn x a := ∃ s s', x s = ⟨a, s'⟩
   attach x s := match h : x s with | ⟨a, s'⟩ => ⟨⟨a, s, s', h⟩, s'⟩
 
+@[unbox]
 inductive EST.Out (ε : Type) (σ : Type) (α : Type) where
   | ok : α → Void σ → EST.Out ε σ α
   | error : ε → Void σ → EST.Out ε σ α

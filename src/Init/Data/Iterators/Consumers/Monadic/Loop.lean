@@ -123,6 +123,14 @@ class IteratorLoopNew (α : Type w) (m : Type w → Type w') {β : Type w} [Iter
       (kcons : (b : β) → it.IsPlausibleIndirectOutput b → (s₁ : σ) → ((s₂ : σ) → PlausibleTransition b s₁ s₂ → n γ) → n γ) →
       (knil : σ → n γ) →
       n γ
+  forInNew_tail :
+    ∀ (lift : (γ : Type w) → (δ : Type x) → (γ → n δ) → m γ → n δ) (σ γ δ : Type x)
+      (Pl : β → σ → σ → Prop)
+      (it : IterM (α := α) m β) (s : σ) (k : n γ → n δ) (knil : σ → n γ)
+      (kcons₁ : (b : β) → it.IsPlausibleIndirectOutput b → (s₁ : σ) → ((s₂ : σ) → Pl b s₁ s₂ → n γ) → n γ)
+      (kcons₂ : (b : β) → it.IsPlausibleIndirectOutput b → (s₁ : σ) → ((s₂ : σ) → Pl b s₁ s₂ → n δ) → n δ)
+      (_h : ∀ b h s₁ (kcontinue : (s₂ : σ) → Pl b s₁ s₂ → n γ), k (kcons₁ b h s₁ kcontinue) = kcons₂ b h s₁ (fun s₂ h => k (kcontinue s₂ h))),
+    k (forInNew lift σ γ Pl it s kcons₁ knil) = forInNew lift σ δ Pl it s kcons₂ (fun s => k (knil s))
 
 /--
 `IteratorLoopNewPartial α m` provides efficient implementations of loop-based consumers for `α`-based
@@ -391,6 +399,10 @@ def IteratorLoopNew.finiteForInNew' {m : Type w → Type w'} {n : Type x → Typ
   forInNew' {σ γ} it init kcons knil :=
     IteratorLoopNew.forInNew (α := α) (m := m) lift σ γ (fun _ _ _ => True)
       it init (fun out h s₁ kcontinue => kcons out h (fun s₂ => kcontinue s₂ .intro) s₁) knil
+  forInNew'_tail := by
+    intros _ _ _ _ _ _ _ _ _ h
+    simp only [IteratorLoopNew.forInNew]
+    apply forInNew_tail (h := fun ⟨a, b⟩ => h ⟨a, b⟩)
 
 instance (priority := low) [Iterator α m β] [Finite α m] [IteratorLoopNew α m n]
     [MonadLiftT m n] [Monad n] : ForInNew' n (IterM (α := α) m β) β (fun it out => it.IsPlausibleIndirectOutput out) :=

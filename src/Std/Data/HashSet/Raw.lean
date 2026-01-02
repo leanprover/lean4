@@ -216,7 +216,10 @@ instance {m : Type v → Type w} [Monad m] : ForM m (Raw α) α where
   forM m f := m.forM f
 
 instance {m : Type v → Type w} : ForInNew m (Raw α) α where
-  forInNew m init kcons knil := m.forInNew init kcons knil
+  forInNew m init kcons knil := ForInNew.forInNew m.inner init (fun (a, _) => kcons a) knil
+  forInNew_tail := by
+    intros _ _ _ _ _ _ _ _ _ h
+    apply forInNew_tail (ρ := HashMap.Raw α _) (h := fun (a, _) => h a)
 
 instance {m : Type v → Type w} [Monad m] : ForIn m (Raw α) α where
   forIn m init f := m.forIn f init

@@ -62,10 +62,13 @@ def toList (s : PersistentHashSet α) : List α :=
 
 protected def forInNew {m : Type v → Type w} {_ : BEq α} {_ : Hashable α}
     (s : PersistentHashSet α) (init : σ) (kcons : α → (σ → m β) → (σ → m β)) (knil : σ → m β) : m β :=
-  PersistentHashMap.forInNew s.set init (fun k _ => kcons k) knil
+  forInNew s.set init (fun k => kcons k.1) knil
 
 instance {_ : BEq α} {_ : Hashable α} : ForInNew m (PersistentHashSet α) α where
   forInNew := PersistentHashSet.forInNew
+  forInNew_tail := by
+    intros _ _ _ _ _ _ _ _ _ h
+    apply forInNew_tail (h := fun p => h (Prod.fst p))
 
 protected def forIn {_ : BEq α} {_ : Hashable α} [Monad m]
     (s : PersistentHashSet α) (init : σ) (f : α → σ → m (ForInStep σ)) : m σ := do

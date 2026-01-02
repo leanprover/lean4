@@ -212,7 +212,10 @@ order.
   b.inner.forIn (fun a _ acc => f a acc) init
 
 instance [BEq α] [Hashable α] {m : Type v → Type w} [Monad m] : ForInNew m (HashSet α) α where
-  forInNew := forInNew
+  forInNew b init kcons knil := ForInNew.forInNew b.inner init (fun (a, _) acc => kcons a acc) knil
+  forInNew_tail := by
+    intros _ _ _ _ _ _ _ _ _ h
+    apply forInNew_tail (ρ := HashMap α Unit) (h := fun (a, _) => h a)
 
 instance [BEq α] [Hashable α] {m : Type v → Type w} [Monad m] : ForM m (HashSet α) α where
   forM m f := m.forM f

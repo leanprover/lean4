@@ -737,6 +737,11 @@ instance [TransCmp cmp] [Monad m] [LawfulMonad m] : ForM m (ExtDTreeMap α β cm
 
 instance [TransCmp cmp] : ForInNew m (ExtDTreeMap α β cmp) ((a : α) × β a) where
   forInNew m init kcons knil := m.forInNew init (fun a b => kcons ⟨a, b⟩) knil
+  forInNew_tail := by
+    intros _ _ _ xs _ _ _ _ _ h
+    simp [forInNew]
+    cases xs
+    apply forInNew_tail (h := h)
 
 instance [TransCmp cmp] [Monad m] [LawfulMonad m] : ForIn m (ExtDTreeMap α β cmp) ((a : α) × β a) where
   forIn m init f := forIn (fun a b acc => f ⟨a, b⟩ acc) init m

@@ -21,15 +21,46 @@ namespace Lean
 inductive Loop where
   | mk
 
-@[inline]
-partial def Loop.forInNew {m : Type u → Type v} {β σ} (_ : Loop) (init : σ)
+private def LoopSpec (m : Type u → Type v) (σ : Type u) (loop : ∀ {β}, (Unit → (σ → m β) → σ → m β) → (σ → m β) → σ → m β) :=
+  ∀ {β γ} (k : m β → m γ) (s : σ)
+    (knil : σ → m β)
+    (kcons₁ : Unit → (kcontinue : σ → m β) → σ → m β)
+    (kcons₂ : Unit → (kcontinue : σ → m γ) → σ → m γ)
+    (_ : ∀ kcontinue s, k (kcons₁ () kcontinue s) = kcons₂ () (fun s => k (kcontinue s)) s),
+    k (loop kcons₁ knil s) = loop kcons₂ (fun s => k (knil s)) s
+
+private local instance : Inhabited (Subtype (LoopSpec m σ)) :=
+  ⟨fun kcons knil s => knil s, by (repeat intro); rfl⟩
+
+private partial def Loop.forInNew.loop {m : Type u → Type v} {σ} : Subtype (LoopSpec m σ) where
+  val {β} kcons knil s :=
+    -- This is the actual definition of the loop:
+    haveI : Nonempty (m β) := ⟨knil s⟩
+    kcons () (loop.val kcons knil) s
+  property := by
+    intro β γ k s knil kcons₁ kcons₂ h;
+    simp [h]
+    congr
+    apply funext
+    intro s
+    simp [loop.property k s knil kcons₁ kcons₂ h]
+    rfl
+
+@[specialize]
+private unsafe def Loop.forInNewUnsafe {m : Type u → Type v} {β σ : Type u} (init : σ)
     (kcons : Unit → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
-  let rec @[specialize] loop [Nonempty (m β)] (s : σ) : m β := kcons () loop s
-  haveI : Nonempty (m β) := ⟨knil init⟩
-  loop init
+  kcons () (forInNewUnsafe · kcons knil) init
+
+@[implemented_by Loop.forInNewUnsafe]
+def Loop.forInNew {m : Type u → Type v} {β σ : Type u} (init : σ)
+    (kcons : Unit → (σ → m β) → σ → m β) (knil : σ → m β) : m β :=
+  Loop.forInNew.loop.val kcons knil init
 
 instance : ForInNew m Loop Unit where
-  forInNew := Loop.forInNew
+  forInNew _ := Loop.forInNew
+  forInNew_tail := by
+    intros _ _ _ _ _ _ _ _ _ h
+    apply Loop.forInNew.loop.property _ _ _ _ _ (h ())
 
 @[inline]
 partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (_ : Loop) (init : β) (f : Unit → β → m (ForInStep β)) : m β :=

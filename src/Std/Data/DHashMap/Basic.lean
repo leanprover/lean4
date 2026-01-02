@@ -243,7 +243,8 @@ instance [Monad m] [BEq α] [Hashable α] : ForM m (DHashMap α β) ((a : α) ×
   forM m f := m.forM (fun a b => f ⟨a, b⟩)
 
 instance [BEq α] [Hashable α] : ForInNew m (DHashMap α β) ((a : α) × β a) where
-  forInNew m init kcons knil := m.forInNew init (fun a b => kcons ⟨a, b⟩) knil
+  forInNew m init kcons knil := ForInNew.forInNew m.inner init kcons knil
+  forInNew_tail := forInNew_tail (ρ := DHashMap.Raw α β)
 
 instance [Monad m] [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init

@@ -285,6 +285,11 @@ def forInNew (t : Impl α β) (init : σ) (kcons : (a : α) → β a → (σ →
 
 instance : ForInNew m (Impl α β) ((a : α) × β a) where
   forInNew t init kcons knil := t.forInNew init (fun a b => kcons ⟨a, b⟩) knil
+  forInNew_tail := by
+    intro _ _ _ t s knil _ _ _ h
+    induction t generalizing s knil with
+    | leaf => rfl
+    | inner => simp [Impl.forInNew, *]
 
 /-- Implementation detail. -/
 @[specialize]

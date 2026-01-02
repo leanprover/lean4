@@ -24,6 +24,9 @@ instances are provided for the same type.
 -- but still above the low priority instance from `Stream`.
 instance (priority := 500) instForInNewOfForInNew' [ForInNew' m ρ α mem] : ForInNew m ρ α where
   forInNew x b f := ForInNew'.forInNew' x b fun a _ => f a
+  forInNew_tail := by
+    intros _ _ _ _ _ _ _ _ _ h
+    apply forInNew'_tail _ _ _ (fun a _ => h a)
 
 @[simp] theorem forInNew'_eq_forInNew [ForInNew' m ρ α mem] {σ β} (xs : ρ) (s : σ)
     (f : (a : α) → mem xs a → (σ → m β) → (σ → m β)) (g : (a : α) → (σ → m β) → (σ → m β))

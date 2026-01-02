@@ -302,7 +302,10 @@ instance [Monad m] : ForM m (Raw α cmp) α where
   forM t f := t.forM f
 
 instance : ForInNew m (Raw α cmp) α where
-  forInNew t init kcons knil := t.forInNew init kcons knil
+  forInNew t init kcons knil := ForInNew.forInNew t.inner init (fun (a, _) => kcons a) knil
+  forInNew_tail := by
+    intros _ _ _ _ _ _ _ _ _ h
+    apply forInNew_tail (ρ := TreeMap.Raw α Unit cmp) (h := fun (a, _) => h a)
 
 instance [Monad m] : ForIn m (Raw α cmp) α where
   forIn t init f := t.forIn (fun a acc => f a acc) init

@@ -81,6 +81,12 @@ map in some order.
 
 instance : ForInNew m (Raw α β) ((a : α) × β a) where
   forInNew m init kcons knil := m.forInNew init (fun a b => kcons ⟨a, b⟩) knil
+  forInNew_tail := by
+    intro _ _ _ _ _ _ _ _ _ h
+    apply forInNew_tail (ρ := Array (AssocList α β))
+    intro _ _ _
+    apply forInNew_tail (ρ := AssocList α β)
+    assumption
 
 instance [Monad m] : ForM m (Raw α β) ((a : α) × β a) where
   forM m f := m.forM (fun a b => f ⟨a, b⟩)

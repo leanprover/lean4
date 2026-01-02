@@ -227,7 +227,10 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
   b.inner.forIn f init
 
 instance [BEq α] [Hashable α] {m : Type w → Type w'} : ForInNew m (HashMap α β) (α × β) where
-  forInNew m init kcons knil := m.forInNew init (fun a b => kcons (a, b)) knil
+  forInNew m init kcons knil := ForInNew.forInNew m.inner init (fun ⟨a, b⟩ => kcons ⟨a, b⟩) knil
+  forInNew_tail := by
+    intros _ _ _ _ _ _ _ _ _ h
+    apply forInNew_tail (ρ := DHashMap α (fun _ => β)) (h := fun ⟨a, b⟩ => h ⟨a, b⟩)
 
 instance [BEq α] [Hashable α] {m : Type w → Type w'} [Monad m] : ForM m (HashMap α β) (α × β) where
   forM m f := m.forM (fun a b => f (a, b))

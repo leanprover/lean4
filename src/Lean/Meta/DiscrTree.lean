@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Jannis Limperg, Kim Morrison
 module
 prelude
 public import Lean.Meta.WHNF
-public import Lean.Meta.DiscrTree.Types
+public import Lean.Meta.DiscrTree.Basic
 public section
 namespace Lean.Meta.DiscrTree
 /-!
@@ -49,75 +49,6 @@ namespace Lean.Meta.DiscrTree
   2- Distinguish partial applications `f a`, `f a b`, and `f a b c`.
 -/
 
-def Key.lt : Key → Key → Bool
-  | .lit v₁,        .lit v₂        => v₁ < v₂
-  | .fvar n₁ a₁,    .fvar n₂ a₂    => Name.quickLt n₁.name n₂.name || (n₁ == n₂ && a₁ < a₂)
-  | .const n₁ a₁,   .const n₂ a₂   => Name.quickLt n₁ n₂ || (n₁ == n₂ && a₁ < a₂)
-  | .proj s₁ i₁ a₁, .proj s₂ i₂ a₂ => Name.quickLt s₁ s₂ || (s₁ == s₂ && i₁ < i₂) || (s₁ == s₂ && i₁ == i₂ && a₁ < a₂)
-  | k₁,             k₂             => k₁.ctorIdx < k₂.ctorIdx
-
-instance : LT Key := ⟨fun a b => Key.lt a b⟩
-instance (a b : Key) : Decidable (a < b) := inferInstanceAs (Decidable (Key.lt a b))
-
-def Key.format : Key → Format
-  | .star            => "*"
-  | .other           => "◾"
-  | .lit (.natVal v) => Std.format v
-  | .lit (.strVal v) => repr v
-  | .const k _       => Std.format k
-  | .proj s i _      => Std.format s ++ "." ++ Std.format i
-  | .fvar k _        => Std.format k.name
-  | .arrow           => "∀"
-
-instance : ToFormat Key := ⟨Key.format⟩
-
-/--
-Helper function for converting an entry (i.e., `Array Key`) to the discrimination tree into
-`MessageData` that is more user-friendly. We use this function to implement diagnostic information.
--/
-partial def keysAsPattern (keys : Array Key) : CoreM MessageData := do
-  go (parenIfNonAtomic := false) |>.run' keys.toList
-where
-  next? : StateRefT (List Key) CoreM (Option Key) := do
-    let key :: keys ← get | return none
-    set keys
-    return some key
-
-  mkApp (f : MessageData) (args : Array MessageData) (parenIfNonAtomic : Bool) : CoreM MessageData := do
-    if args.isEmpty then
-      return f
-    else
-      let mut r := m!""
-      for arg in args do
-        r := r ++ Format.line ++ arg
-      r := f ++ .nest 2 r
-      if parenIfNonAtomic then
-        return .paren r
-      else
-        return .group r
-
-  go (parenIfNonAtomic := true) : StateRefT (List Key) CoreM MessageData := do
-    let some key ← next? | return .nil
-    match key with
-    | .const declName nargs =>
-      mkApp m!"{← mkConstWithLevelParams declName}" (← goN nargs) parenIfNonAtomic
-    | .fvar fvarId nargs =>
-      mkApp m!"{mkFVar fvarId}" (← goN nargs) parenIfNonAtomic
-    | .proj _ i nargs =>
-      mkApp m!"{← go}.{i+1}" (← goN nargs) parenIfNonAtomic
-    | .arrow =>
-      mkApp m!"∀ " (← goN 1) parenIfNonAtomic
-    | .star => return "_"
-    | .other => return "<other>"
-    | .lit (.natVal v) => return m!"{v}"
-    | .lit (.strVal v) => return m!"{v}"
-
-  goN (num : Nat) : StateRefT (List Key) CoreM (Array MessageData) := do
-    let mut r := #[]
-    for _ in *...num do
-      r := r.push (← go)
-    return r
-
 def Key.arity : Key → Nat
   | .const _ a  => a
   | .fvar _ a   => a
@@ -134,33 +65,10 @@ def Key.arity : Key → Nat
   | .proj _ _ a => 1 + a
   | _           => 0
 
-instance : Inhabited (Trie α) := ⟨.node #[] #[]⟩
-
-def empty : DiscrTree α := { root := {} }
-
-partial def Trie.format [ToFormat α] : Trie α → Format
-  | .node vs cs => Format.group $ Format.paren $
-    "node" ++ (if vs.isEmpty then Format.nil else " " ++ Std.format vs)
-    ++ Format.join (cs.toList.map fun ⟨k, c⟩ => Format.line ++ Format.paren (Std.format k ++ " => " ++ format c))
-
-instance [ToFormat α] : ToFormat (Trie α) := ⟨Trie.format⟩
-
-partial def format [ToFormat α] (d : DiscrTree α) : Format :=
-  let (_, r) := d.root.foldl
-    (fun (p : Bool × Format) k c =>
-      (false, p.2 ++ (if p.1 then Format.nil else Format.line) ++ Format.paren (Std.format k ++ " => " ++ Std.format c)))
-    (true, Format.nil)
-  Format.group r
-
-instance [ToFormat α] : ToFormat (DiscrTree α) := ⟨format⟩
-
 /-- The discrimination tree ignores implicit arguments and proofs.
    We use the following auxiliary id as a "mark". -/
 private def tmpMVarId : MVarId := { name := `_discr_tree_tmp }
 private def tmpStar := mkMVar tmpMVarId
-
-instance : Inhabited (DiscrTree α) where
-  default := {}
 
 /--
   Return true iff the argument should be treated as a "wildcard" by the discrimination tree.

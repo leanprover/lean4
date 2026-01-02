@@ -679,7 +679,7 @@ File handles wrap the underlying operating system's file descriptors. There is n
 to close a file: when the last reference to a file handle is dropped, the file is closed
 automatically.
 
-Handles have an associated read/write cursor that determines the where reads and writes occur in the
+Handles have an associated read/write cursor that determines where reads and writes occur in the
 file.
 -/
 opaque FS.Handle : Type := Unit
@@ -790,7 +790,7 @@ An exception is thrown if the file cannot be opened.
 /--
 Acquires an exclusive or shared lock on the handle. Blocks to wait for the lock if necessary.
 
-Acquiring a exclusive lock while already possessing a shared lock will **not** reliably succeed: it
+Acquiring an exclusive lock while already possessing a shared lock will **not** reliably succeed: it
 works on Unix-like systems but not on Windows.
 -/
 @[extern "lean_io_prim_handle_lock"] opaque lock (h : @& Handle) (exclusive := true) : IO Unit
@@ -798,7 +798,7 @@ works on Unix-like systems but not on Windows.
 Tries to acquire an exclusive or shared lock on the handle and returns `true` if successful. Will
 not block if the lock cannot be acquired, but instead returns `false`.
 
-Acquiring a exclusive lock while already possessing a shared lock will **not** reliably succeed: it
+Acquiring an exclusive lock while already possessing a shared lock will **not** reliably succeed: it
 works on Unix-like systems but not on Windows.
 -/
 @[extern "lean_io_prim_handle_try_lock"] opaque tryLock (h : @& Handle) (exclusive := true) : IO Bool

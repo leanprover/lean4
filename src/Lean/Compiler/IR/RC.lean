@@ -382,6 +382,7 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
       addIncBeforeConsumeAll ctx ysx (.vdecl z t v b) bLiveVars
     | .box xTy x =>
       if xTy.isStruct then
+        let b := .vdecl z t v b
         if bLiveVars.vars.contains x || bLiveVars.borrows.contains x then
           addInc ctx x b
         else

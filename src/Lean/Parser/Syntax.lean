@@ -32,6 +32,10 @@ def «precedence» := leading_parser
 def optPrecedence := optional (atomic «precedence»)
 
 namespace Syntax
+/-! Parsers for the `syntax` DSL itself. -/
+-- Keep docs short; these are primarily for hover/help in editors.
+
+/-- Numeric literal for precedence expressions. -/
 @[builtin_prec_parser] def numPrec := checkPrec maxPrec >> numLit
 
 @[builtin_syntax_parser] def paren           := leading_parser
@@ -89,9 +93,11 @@ def «infixr»   := leading_parser "infixr"
 -/
 def «postfix»  := leading_parser "postfix"
 def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «postfix»
+/-- Declare a `prefix`/`infix`/`postfix` notation. -/
 @[builtin_command_parser] def «mixfix»   := leading_parser
   optional docComment >> optional Term.«attributes» >> Term.attrKind >> mixfixKind >>
   precedence >> optNamedName >> optNamedPrio >> ppSpace >> notationItem >> darrow >> termParser
+/-- Declare a general notation. -/
 @[builtin_command_parser] def «notation»    := leading_parser
   optional docComment >> optional Term.«attributes» >> Term.attrKind >>
   "notation" >> optPrecedence >> optNamedName >> optNamedPrio >> many (ppSpace >> notationItem) >> darrow >> termParser
@@ -99,31 +105,38 @@ def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «p
 -- NOTE: We use `suppressInsideQuot` in the following parsers because quotations inside them are evaluated in the same stage and
 -- thus should be ignored when we use `checkInsideQuot` to prepare the next stage for a builtin syntax change
 def optKind : Parser := optional (" (" >> nonReservedSymbol "kind" >> ":=" >> ident >> ")")
+/-- Declare a family of macros by pattern. -/
 @[builtin_command_parser] def «macro_rules» := suppressInsideQuot <| leading_parser
   optional docComment >> optional Term.«attributes» >> Term.attrKind >>
   "macro_rules" >> optKind >> Term.matchAlts
+/-- Declare new syntax in a category. -/
 @[builtin_command_parser] def «syntax»      := leading_parser
   optional docComment >> optional Term.«attributes» >> Term.attrKind >>
   "syntax " >> optPrecedence >> optNamedName >> optNamedPrio >> many1 (ppSpace >> syntaxParser argPrec) >> " : " >> ident
+/-- Declare a local syntax abbreviation. -/
 @[builtin_command_parser] def syntaxAbbrev  := leading_parser
   optional docComment >> optional visibility >> "syntax " >> ident >> " := " >> many1 syntaxParser
 def catBehaviorBoth   := leading_parser nonReservedSymbol "both"
 def catBehaviorSymbol := leading_parser nonReservedSymbol "symbol"
 def catBehavior := optional (" (" >> nonReservedSymbol "behavior" >> " := " >> (catBehaviorBoth <|> catBehaviorSymbol) >> ")")
+/-- Declare a new syntax category. -/
 @[builtin_command_parser] def syntaxCat := leading_parser
   optional docComment >> "declare_syntax_cat " >> ident >> catBehavior
 def macroArg  := leading_parser
   optional (atomic (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> syntaxParser argPrec
 def macroRhs : Parser := leading_parser withPosition termParser
 def macroTail := leading_parser atomic (" : " >> ident) >> darrow >> macroRhs
+/-- Declare a single macro. -/
 @[builtin_command_parser] def «macro»       := leading_parser suppressInsideQuot <|
   optional docComment >> optional Term.«attributes» >> Term.attrKind >>
   "macro" >> optPrecedence >> optNamedName >> optNamedPrio >> many1 (ppSpace >> macroArg) >> macroTail
+/-- Declare elaborator rules for syntax. -/
 @[builtin_command_parser] def «elab_rules» := leading_parser suppressInsideQuot <|
   optional docComment >> optional Term.«attributes» >> Term.attrKind >>
   "elab_rules" >> optKind >> optional (" : " >> ident) >> optional (" <= " >> ident) >> Term.matchAlts
 def elabArg  := macroArg
 def elabTail := leading_parser atomic (" : " >> ident >> optional (" <= " >> ident)) >> darrow >> withPosition termParser
+/-- Declare a single elaborator for syntax. -/
 @[builtin_command_parser] def «elab»       := leading_parser suppressInsideQuot <|
   optional docComment >> optional Term.«attributes» >> Term.attrKind >>
   "elab" >> optPrecedence >> optNamedName >> optNamedPrio >> many1 (ppSpace >> elabArg) >> elabTail

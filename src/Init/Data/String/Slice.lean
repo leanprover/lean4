@@ -20,7 +20,7 @@ functionality for searching for various kinds of pattern matches in slices to it
 provide subslices according to matches etc. The key design principles behind this module are:
 - Instead of providing one function per kind of pattern the API is generic over various kinds of
   patterns. Thus it only provides e.g. one kind of function for looking for the position of the
-  first occurence of a pattern. Currently the supported patterns are:
+  first occurrence of a pattern. Currently the supported patterns are:
   - {name}`Char`
   - {lean}`Char → Bool`
   - {name}`String` and {name}`String.Slice` (partially: doing non trivial searches backwards is not

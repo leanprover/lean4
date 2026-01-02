@@ -633,7 +633,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_get_line(b_obj_arg h) {
     _unlock_file(fp);
 #else
     flockfile(fp);
-    while ((c = fgetc_unlocked(fp)) != EOF) {
+    while ((c = getc_unlocked(fp)) != EOF) {
         result.push_back(c);
         if (c == '\n') {
             break;

@@ -436,7 +436,7 @@ where
     let some tactic := tactic | return vcs
     let mut newVCs := #[]
     for vc in vcs do
-      let vcs ← try evalTacticAt tactic vc catch _ => pure [vc]
+      let vcs ← evalTacticAt tactic vc
       newVCs := newVCs ++ vcs
     return newVCs
 

@@ -643,13 +643,13 @@ index exclusively, if any.
 -/
 def findFromUserNames (lctx : LocalContext) (userNames : Std.HashMap Name α) (start := 0) : Array LocalDecl :=
   Array.reverse <| Id.run <| ExceptT.runCatch do
-    let (_, _, acc) ← lctx.foldrM (init := (userNames, lctx.numIndices, #[])) fun decl (userNames, num, acc) => do
+    let (_, acc) ← lctx.foldrM (init := (userNames, #[])) fun decl (userNames, acc) => do
       if userNames.isEmpty then throw acc -- stop when we found all user names
-      if num ≤ start then throw acc         -- stop when we reached the start index
+      if decl.index < start then throw acc       -- stop when we passed over the start index
       if userNames.contains decl.userName then
-        pure (userNames.erase decl.userName, num - 1, acc.push decl)
+        pure (userNames.erase decl.userName, acc.push decl)
       else
-        pure (userNames, num - 1, acc)
+        pure (userNames, acc)
     return acc.reverse
 
 end LocalContext

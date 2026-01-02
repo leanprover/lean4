@@ -417,6 +417,9 @@ Adds the new reaching definitions of the given `tunneledVars` in `childCtx` rela
 non-dependent decls.
 -/
 def addReachingDefsAsNonDep (rootCtx childCtx : LocalContext) (tunneledVars : Std.HashMap Name α) : MetaM LocalContext := do
+  -- let ldeclToUserNameAndFVarId (d : LocalDecl) := (d.userName, d.fvarId.name)
+  -- let lctxToMessage (lctx : LocalContext) := toMessageData <| lctx.decls.toList.filterMap (ldeclToUserNameAndFVarId <$> ·)
+  -- trace[Elab.do] "addReachingDefsAsNonDep\nTunnel vars: {tunneledVars.toList.map Prod.fst}\nRoot ctx: {lctxToMessage rootCtx}\nChild ctx: {lctxToMessage childCtx}"
   let mut tunnelDecls := childCtx.findFromUserNames tunneledVars (start := rootCtx.numIndices)
   -- We must also tunnel any variables that the tunneled vars depend on; hence compute the closure.
   let fvars ← (·.2.fvarIds) <$> (tunnelDecls.mapM (Expr.collectFVars ·.type) |>.run {})

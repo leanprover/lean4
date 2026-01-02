@@ -123,9 +123,11 @@ during rewriting.
 -/
 structure Theorem where
   /-- The theorem expression, typically `Expr.const declName` for a named theorem. -/
-  expr      : Expr
+  expr    : Expr
   /-- Precomputed pattern extracted from the theorem's type for efficient matching. -/
-  pattern   : Pattern
+  pattern : Pattern
+  /-- Right-hand side of the equation. -/
+  rhs     : Expr
 
 /-- Collection of simplification theorems available to the simplifier. -/
 structure Theorems where
@@ -178,4 +180,9 @@ def getConfig : SimpM Config :=
 abbrev getCache : SimpM Cache :=
   return (← get).cache
 
-end Lean.Meta.Sym.Simp
+end Simp
+
+public def simp (e : Expr) (thms : Simp.Theorems := {}) (config : Simp.Config := {}) : SymM Simp.Result := do
+  Simp.SimpM.run (Simp.simp e) thms config
+
+end Lean.Meta.Sym

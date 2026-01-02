@@ -4,13 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Compiler.InitAttr
 public import Lean.Compiler.LCNF.ToLCNF
-
+import Lean.Meta.Transform
+import Lean.Meta.Match.MatcherInfo
 public section
-
 namespace Lean.Compiler.LCNF
 /--
 Inline constants tagged with the `[macro_inline]` attribute occurring in `e`.

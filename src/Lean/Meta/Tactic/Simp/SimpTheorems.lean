@@ -4,15 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.DiscrTree
+public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.Tactic.AuxLemma
 public import Lean.DocString
+import Lean.ExtraModUses
+import Lean.ProjFns
 import Lean.Meta.AppBuilder
 import Lean.Meta.Eqns
-import Lean.ExtraModUses
-
+import Lean.Meta.WHNF
 public section
 
 /-!

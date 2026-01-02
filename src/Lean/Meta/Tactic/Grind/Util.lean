@@ -7,6 +7,8 @@ module
 prelude
 public import Lean.Meta.Tactic.Simp.Simproc
 import Init.Simproc
+import Lean.ProjFns
+import Lean.Meta.WHNF
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Tactic.Clear
 public section

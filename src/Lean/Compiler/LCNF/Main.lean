@@ -4,16 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Compiler.Options
 public import Lean.Compiler.IR
 public import Lean.Compiler.LCNF.Passes
 public import Lean.Compiler.LCNF.ToDecl
 public import Lean.Compiler.LCNF.Check
-
+import Lean.Meta.Match.MatcherInfo
 public section
-
 namespace Lean.Compiler.LCNF
 /--
 We do not generate code for `declName` if

@@ -4,14 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Cases
 public import Lean.Meta.Tactic.Simp.Rewrite
 import Lean.Meta.Tactic.Simp.Main
-
+import Lean.Meta.FunInfo
 public section
-
 namespace Lean.Meta
 
 inductive SplitKind where

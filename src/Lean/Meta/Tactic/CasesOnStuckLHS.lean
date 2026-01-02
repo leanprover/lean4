@@ -4,11 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Basic
 import Lean.Meta.Tactic.SplitIf
-
+import Lean.ProjFns
 namespace Lean.Meta
 
 /-!

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.CongrTheorems
@@ -12,9 +11,8 @@ public import Lean.Meta.Eqns
 public import Lean.Meta.Tactic.Simp.SimpTheorems
 public import Lean.Meta.Tactic.Simp.SimpCongrTheorems
 import Lean.Meta.Tactic.Replace
-
+import Lean.Meta.FunInfo
 public section
-
 namespace Lean.Meta
 namespace Simp
 

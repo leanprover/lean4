@@ -4,12 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.Tactic.Replace
-
+import Lean.Meta.Transform
 public section
-
 namespace Lean.Meta
 
 def delta? (e : Expr) (p : Name → Bool := fun _ => true) : CoreM (Option Expr) :=

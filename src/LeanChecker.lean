@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2023 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Kim Morrison
+Authors: Kim Morrison, Sebastian Ullrich
 -/
 import Lean.CoreM
 import Lean.Replay
@@ -75,6 +75,7 @@ unsafe def main (args : List String) : IO UInt32 := do
   initSearchPath (← findSysroot)
   let (flags, args) := args.partition fun s => s.startsWith "-"
   let verbose := "-v" ∈ flags || "--verbose" ∈ flags
+  let fresh := "--fresh" ∈ flags
   let targets ← do
     match args with
     | [] => pure [← getCurrentModule]
@@ -90,12 +91,12 @@ unsafe def main (args : List String) : IO UInt32 := do
     let mut found := false
     for path in (← SearchPath.findAllWithExt sp "olean") do
       if let some m := (← searchModuleNameOfFileName path sp) then
-        if target.isPrefixOf m then
+        if !fresh && target.isPrefixOf m || target == m then
           targetModules := targetModules.insert m
           found := true
     if not found then
       throw <| IO.userError s!"Could not find any oleans for: {target}"
-  if "--fresh" ∈ flags then
+  if fresh then
     if targetModules.length != 1 then
       throw <| IO.userError s!"--fresh flag is only valid when specifying a single module:\n\
         {targetModules}"

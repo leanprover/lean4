@@ -1047,6 +1047,7 @@ def emitMarkPersistent (d : Decl) (n : Name) : M Unit := do
     emitCName n
     emitLn ");"
 
+open ExplicitBoxing in
 def emitDeclInit (d : Decl) : M Unit := do
   let env ← getEnv
   let n := d.name

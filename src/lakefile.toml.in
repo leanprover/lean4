@@ -8,7 +8,7 @@
 name = "lean4"
 bootstrap = true
 
-defaultTargets = ["Init", "Std", "Lean", "Lake", "LakeMain", "Leanc"]
+defaultTargets = ["Init", "Std", "Lean", "Lake", "LakeMain", "Leanc", "LeanChecker"]
 
 # Have Lake use CMake's build type (e.g., `Release`, `Debug`) where possible
 buildType = "${CMAKE_BUILD_TYPE_TOML}"
@@ -84,4 +84,8 @@ defaultFacets = ["static.export"]
 [[lean_lib]]
 name = "Leanc"
 srcDir = "${CMAKE_BINARY_DIR}/leanc"
+defaultFacets = ["static"]
+
+[[lean_lib]]
+name = "LeanChecker"
 defaultFacets = ["static"]

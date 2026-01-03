@@ -5,8 +5,8 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Sym.SimpM
-import Lean.Meta.Sym.EqTrans
+public import Lean.Meta.Sym.Simp.SimpM
+import Lean.Meta.Sym.Simp.EqTrans
 namespace Lean.Meta.Sym.Simp
 open Grind
 public def mkEqTrans (e : Expr) (r₁ : Result) (r₂ : Result) : SimpM Result := do

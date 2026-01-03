@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Sym.Pattern
-import Lean.Meta.Sym.DiscrTree
 public section
 namespace Lean.Meta.Sym.Simp
 

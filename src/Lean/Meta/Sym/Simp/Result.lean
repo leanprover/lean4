@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Sym.SimpM
+public import Lean.Meta.Sym.Simp.SimpM
 namespace Lean.Meta.Sym.Simp
 
 public def Result.getProof (result : Result) : SymM Expr := do

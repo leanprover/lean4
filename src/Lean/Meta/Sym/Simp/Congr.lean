@@ -5,11 +5,11 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Sym.SimpM
+public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Tactic.Grind.AlphaShareBuilder
 import Lean.Meta.Sym.InferType
-import Lean.Meta.Sym.SimpResult
-import Lean.Meta.Sym.CongrInfo
+import Lean.Meta.Sym.Simp.Result
+import Lean.Meta.Sym.Simp.CongrInfo
 namespace Lean.Meta.Sym.Simp
 open Grind
 

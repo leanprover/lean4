@@ -5,11 +5,11 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Sym.SimpM
-public import Lean.Meta.Sym.SimpFun
-public import Lean.Meta.Sym.SimpTheorems
+public import Lean.Meta.Sym.Simp.SimpM
+public import Lean.Meta.Sym.Simp.Simproc
+public import Lean.Meta.Sym.Simp.Theorems
 import Lean.Meta.Sym.InstantiateS
-import Lean.Meta.Sym.DiscrTree
+import Lean.Meta.Sym.Simp.DiscrTree
 namespace Lean.Meta.Sym.Simp
 open Grind
 
@@ -38,7 +38,7 @@ public def Theorem.rewrite? (thm : Theorem) (e : Expr) : SimpM (Option Result) :
   else
     return none
 
-public def rewrite (thms : Theorems) : SimpFun := fun e => do
+public def rewrite (thms : Theorems) : Simproc := fun e => do
   -- **TODO**: over-applied terms
   for thm in thms.getMatch e do
     if let some result ← thm.rewrite? e then

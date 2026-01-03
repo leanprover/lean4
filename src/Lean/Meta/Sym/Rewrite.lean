@@ -42,6 +42,7 @@ public def Theorem.rewrite? (thm : Theorem) (e : Expr) : SimpM (Option Result) :
     return none
 
 public def rewrite : SimpFun := fun e => do
+  -- **TODO**: over-applied terms
   for thm in (← read).thms.getMatch e do
     if let some result ← thm.rewrite? e then
       return result

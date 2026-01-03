@@ -7,14 +7,11 @@ module
 prelude
 public import Lean.Meta.Sym.SimpM
 public import Lean.Meta.Sym.SimpFun
+public import Lean.Meta.Sym.SimpTheorems
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.DiscrTree
 namespace Lean.Meta.Sym.Simp
 open Grind
-
-public def mkTheoremFromDecl (declName : Name) : MetaM Theorem := do
-  let (pattern, rhs) ← mkEqPatternFromDecl declName
-  return { expr := mkConst declName, pattern, rhs }
 
 /--
 Creates proof term for a rewriting step.
@@ -41,9 +38,9 @@ public def Theorem.rewrite? (thm : Theorem) (e : Expr) : SimpM (Option Result) :
   else
     return none
 
-public def rewrite : SimpFun := fun e => do
+public def rewrite (thms : Theorems) : SimpFun := fun e => do
   -- **TODO**: over-applied terms
-  for thm in (← read).thms.getMatch e do
+  for thm in thms.getMatch e do
     if let some result ← thm.rewrite? e then
       return result
   return { expr := e }

@@ -27,6 +27,7 @@ public import Lean.Meta.Sym.Congr
 public import Lean.Meta.Sym.SimpResult
 public import Lean.Meta.Sym.Simp
 public import Lean.Meta.Sym.DiscrTree
+public import Lean.Meta.Sym.Rewrite
 
 /-!
 # Symbolic simulation support.

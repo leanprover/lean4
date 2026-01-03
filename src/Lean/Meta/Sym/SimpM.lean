@@ -99,7 +99,6 @@ invalidating the cache and causing O(2^n) behavior on conditional trees.
 - Avoids entering control-flow binders
 -/
 
-
 /-- Configuration options for the structural simplifier. -/
 structure Config where
   /-- If `true`, unfold let-bindings (zeta reduction) during simplification. -/
@@ -116,37 +115,12 @@ structure Result where
   If `none`, the proof is assumed to be `refl`. -/
   proof?         : Option Expr := none
 
-/--
-A simplification theorem for the structural simplifier.
-
-Contains both the theorem expression and a precomputed pattern for efficient unification
-during rewriting.
--/
-structure Theorem where
-  /-- The theorem expression, typically `Expr.const declName` for a named theorem. -/
-  expr    : Expr
-  /-- Precomputed pattern extracted from the theorem's type for efficient matching. -/
-  pattern : Pattern
-  /-- Right-hand side of the equation. -/
-  rhs     : Expr
-
-instance : BEq Theorem where
-  beq thm₁ thm₂ := thm₁.expr == thm₂.expr
-
-/-- Collection of simplification theorems available to the simplifier. -/
-structure Theorems where
-  thms : DiscrTree Theorem := {}
-
-def Theorems.insert (thms : Theorems) (thm : Theorem) : Theorems :=
-  { thms with thms := insertPattern thms.thms thm.pattern thm }
-
-def Theorems.getMatch (thms : Theorems) (e : Expr) : Array Theorem :=
-  Sym.getMatch thms.thms e
+private opaque MethodsRefPointed : NonemptyType.{0}
+def MethodsRef : Type := MethodsRefPointed.type
+instance : Nonempty MethodsRef := by exact MethodsRefPointed.property
 
 /-- Read-only context for the simplifier. -/
 structure Context where
-  /-- Available simplification theorems. -/
-  thms   : Theorems := {}
   /-- Simplifier configuration options. -/
   config : Config := {}
   /-- Size of the local context when simplification started.
@@ -170,28 +144,64 @@ structure State where
   numSteps := 0
 
 /-- Monad for the structural simplifier, layered on top of `SymM`. -/
-abbrev SimpM := ReaderT Context StateRefT State SymM
+abbrev SimpM := ReaderT MethodsRef $ ReaderT Context StateRefT State SymM
 
 instance : Inhabited (SimpM α) where
   default := throwError "<default>"
 
+abbrev Simproc := Expr → SimpM Result
+
+structure Methods where
+  pre        : Simproc  := fun e => return { expr := e }
+  post       : Simproc  := fun e => return { expr := e }
+  discharge? : Expr → SimpM (Option Expr) := fun _ => return none
+  /--
+  `wellBehavedDischarge` must **not** be set to `true` IF `discharge?`
+  access local declarations with index >= `Context.lctxInitIndices` when
+  `contextual := false`.
+  Reason: it would prevent us from aggressively caching `simp` results.
+  -/
+  wellBehavedDischarge : Bool := true
+  deriving Inhabited
+
+unsafe def Methods.toMethodsRefImpl (m : Methods) : MethodsRef :=
+  unsafeCast m
+
+@[implemented_by Methods.toMethodsRefImpl]
+opaque Methods.toMethodsRef (m : Methods) : MethodsRef
+
+unsafe def MethodsRef.toMethodsImpl (m : MethodsRef) : Methods :=
+  unsafeCast m
+
+@[implemented_by MethodsRef.toMethodsImpl]
+opaque MethodsRef.toMethods (m : MethodsRef) : Methods
+
+def getMethods : SimpM Methods :=
+  return MethodsRef.toMethods (← read)
+
 /-- Runs a `SimpM` computation with the given theorems and configuration. -/
-abbrev SimpM.run (x : SimpM α) (thms : Theorems := {}) (config : Config := {}) : SymM α := do
+def SimpM.run (x : SimpM α) (methods : Methods := {}) (config : Config := {}) : SymM α := do
   let initialLCtxSize := (← getLCtx).decls.size
-  x { initialLCtxSize, thms, config } |>.run' {}
+  x methods.toMethodsRef { initialLCtxSize, config } |>.run' {}
 
 @[extern "lean_sym_simp"] -- Forward declaration
 opaque simp (e : Expr) : SimpM Result
 
 def getConfig : SimpM Config :=
-  return (← read).config
+  return (← readThe Context).config
 
 abbrev getCache : SimpM Cache :=
   return (← get).cache
 
+abbrev pre (e : Expr) : SimpM Result := do
+  (← getMethods).pre e
+
+abbrev post (e : Expr) : SimpM Result := do
+  (← getMethods).post e
+
 end Simp
 
-def simp (e : Expr) (thms : Simp.Theorems := {}) (config : Simp.Config := {}) : SymM Simp.Result := do
-  Simp.SimpM.run (Simp.simp e) thms config
+abbrev simp (e : Expr) (methods :  Simp.Methods := {}) (config : Simp.Config := {}) : SymM Simp.Result := do
+  Simp.SimpM.run (Simp.simp e) methods config
 
 end Lean.Meta.Sym

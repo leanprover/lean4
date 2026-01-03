@@ -8,7 +8,6 @@ prelude
 public import Lean.Meta.Sym.SimpM
 import Lean.Meta.Tactic.Grind.AlphaShareBuilder
 import Lean.Meta.Sym.EqTrans
-import Lean.Meta.Sym.Rewrite
 import Lean.Meta.Sym.SimpResult
 import Lean.Meta.Sym.SimpFun
 import Lean.Meta.Sym.Congr
@@ -70,7 +69,7 @@ def simpImpl (e : Expr) : SimpM Result := do
     throwError "`simp` failed: maximum number of steps exceeded"
   if let some result := (← getCache).find? { expr := e } then
     return result
-  let r ← (simpStep >> rewrite) e
+  let r ← (pre >> simpStep >> post) e
   if isSameExpr r.expr e then
     cacheResult e r
   else

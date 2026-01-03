@@ -7,6 +7,11 @@ namespace SimpBench
 ## `SymM` Simplifier benchmarks
 -/
 
+def getProofSize (r : Sym.Simp.Result) : MetaM Nat :=
+  match r.proof? with
+  | none => return 0
+  | some p => p.numObjs
+
 def mkSimpTheorems : MetaM Sym.Simp.Theorems := do
   let result : Sym.Simp.Theorems := {}
   let result := result.insert (← Sym.Simp.mkTheoremFromDecl ``Nat.zero_add)
@@ -15,8 +20,9 @@ def mkSimpTheorems : MetaM Sym.Simp.Theorems := do
 def simp (e : Expr) : MetaM (Sym.Simp.Result × Float) := Sym.SymM.run' do
   let e ← Grind.shareCommon e
   let thms ← mkSimpTheorems
+  let methods := { post := Sym.Simp.rewrite thms }
   let startTime ← IO.monoNanosNow
-  let r ← Sym.simp e thms { maxSteps := 100000000 }
+  let r ← Sym.simp e methods { maxSteps := 100000000 }
   let endTime ← IO.monoNanosNow
   -- logInfo e
   -- logInfo r.expr
@@ -37,7 +43,7 @@ def benchTransChain (n : Nat) : MetaM Unit := do
   let e ← mkTransitivityChain n
   forallTelescope e fun _ e => do
     let (r, timeMs) ← simp e
-    let proofSize ← r.proof?.get!.numObjs
+    let proofSize ← getProofSize r
     IO.println s!"trans_chain_{n}: {timeMs}ms, proof_size={proofSize}"
 
 def mkCongrArgStress (depth width : Nat) : MetaM Expr := do
@@ -72,7 +78,7 @@ def benchCongrArgExplosion (depth width : Nat) : MetaM Unit := do
   let e ← mkCongrArgStress depth width
   forallTelescope e fun _ e => do
     let (r, timeMs) ← simp e
-    let proofSize ← r.proof?.get!.numObjs
+    let proofSize ← getProofSize r
     IO.println s!"congr_arg_explosion_{depth}x{width}: {timeMs}ms, proof_size={proofSize}"
 
 -- We simulate this by having many structurally similar subterms
@@ -91,7 +97,7 @@ def mkManySubterms (n : Nat) : MetaM Expr := do
 def benchManyRewrites (n : Nat) : MetaM Unit := do
   let e ← mkManySubterms n
   let (r, timeMs) ← simp e
-  let proofSize ← r.proof?.get!.numObjs
+  let proofSize ← getProofSize r
   IO.println s!"many_rewrites_{n}: {timeMs}ms, proof_size={proofSize}"
 
 /-! ## Run all benchmarks -/

@@ -40,7 +40,7 @@ builtin_initialize extExtension :
     SimpleScopedEnvExtension ExtTheorem ExtTheorems ←
   registerSimpleScopedEnvExtension {
     addEntry := fun { tree, erased } thm =>
-      { tree := tree.insertCore thm.keys thm, erased := erased.erase thm.declName }
+      { tree := tree.insertKeyValue thm.keys thm, erased := erased.erase thm.declName }
     initial := {}
   }
 

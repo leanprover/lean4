@@ -26,7 +26,7 @@ namespace Lean.Meta.Symm
 builtin_initialize symmExt :
     SimpleScopedEnvExtension (Name × Array DiscrTree.Key) (DiscrTree Name) ←
   registerSimpleScopedEnvExtension {
-    addEntry := fun dt (n, ks) => dt.insertCore ks n
+    addEntry := fun dt (n, ks) => dt.insertKeyValue ks n
     initial := {}
   }
 

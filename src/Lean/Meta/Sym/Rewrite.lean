@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Sym.SimpM
 public import Lean.Meta.Sym.SimpFun
 import Lean.Meta.Sym.InstantiateS
+import Lean.Meta.Sym.DiscrTree
 namespace Lean.Meta.Sym.Simp
 open Grind
 
@@ -41,8 +42,7 @@ public def Theorem.rewrite? (thm : Theorem) (e : Expr) : SimpM (Option Result) :
     return none
 
 public def rewrite : SimpFun := fun e => do
-  -- **TODO**: use indexing
-  for thm in (← read).thms.thms do
+  for thm in (← read).thms.getMatch e do
     if let some result ← thm.rewrite? e then
       return result
   return { expr := e }

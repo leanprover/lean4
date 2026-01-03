@@ -338,61 +338,9 @@ def mkPath (e : Expr) (noIndexAtArgs := false) : MetaM (Array Key) := do
     let keys : Array Key := .mkEmpty initCapacity
     mkPathAux (root := true) (todo.push e) keys noIndexAtArgs
 
-private partial def createNodes (keys : Array Key) (v : α) (i : Nat) : Trie α :=
-  if h : i < keys.size then
-    let k := keys[i]
-    let c := createNodes keys v (i+1)
-    .node #[] #[(k, c)]
-  else
-    .node #[v] #[]
-
-/--
-If `vs` contains an element `v'` such that `v == v'`, then replace `v'` with `v`.
-Otherwise, push `v`.
-See issue #2155
-Recall that `BEq α` may not be Lawful.
--/
-private def insertVal [BEq α] (vs : Array α) (v : α) : Array α :=
-  loop 0
-where
-  loop (i : Nat) : Array α :=
-    if h : i < vs.size then
-      if v == vs[i] then
-        vs.set i v
-      else
-        loop (i+1)
-    else
-      vs.push v
-  termination_by vs.size - i
-
-private partial def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Trie α → Trie α
-  | i, .node vs cs =>
-    if h : i < keys.size then
-      let k := keys[i]
-      let c := Id.run $ cs.binInsertM
-          (fun a b => a.1 < b.1)
-          (fun ⟨_, s⟩ => let c := insertAux keys v (i+1) s; (k, c)) -- merge with existing
-          (fun _ => let c := createNodes keys v (i+1); (k, c))
-          (k, default)
-      .node vs c
-    else
-      .node (insertVal vs v) cs
-
-def insertCore [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTree α :=
-  if keys.isEmpty then panic! "invalid key sequence"
-  else
-    let k := keys[0]!
-    match d.root.find? k with
-    | none =>
-      let c := createNodes keys v 1
-      { root := d.root.insert k c }
-    | some c =>
-      let c := insertAux keys v 1 c
-      { root := d.root.insert k c }
-
 def insert [BEq α] (d : DiscrTree α) (e : Expr) (v : α) (noIndexAtArgs := false) : MetaM (DiscrTree α) := do
   let keys ← mkPath e noIndexAtArgs
-  return d.insertCore keys v
+  return d.insertKeyValue keys v
 
 /--
 Inserts a value into a discrimination tree,
@@ -400,10 +348,10 @@ but only if its key is not of the form `#[*]` or `#[=, *, *, *]`.
 -/
 def insertIfSpecific [BEq α] (d : DiscrTree α) (e : Expr) (v : α) (noIndexAtArgs := false) : MetaM (DiscrTree α) := do
   let keys ← mkPath e noIndexAtArgs
-  return if keys == #[Key.star] || keys == #[Key.const `Eq 3, Key.star, Key.star, Key.star] then
-    d
+  if keys == #[Key.star] || keys == #[Key.const `Eq 3, Key.star, Key.star, Key.star] then
+    return d
   else
-    d.insertCore keys v
+    return d.insertKeyValue keys v
 
 private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Expr) := do
   let e ← reduceDT e root

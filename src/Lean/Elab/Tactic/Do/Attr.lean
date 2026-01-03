@@ -193,7 +193,7 @@ def mkSpecTheoremFromStx (ref : Syntax) (proof : Expr) (prio : Nat := eval_prio 
   mkSpecTheorem type (.stx (← mkFreshId) ref proof) prio
 
 def addSpecTheoremEntry (d : SpecTheorems) (e : SpecTheorem) : SpecTheorems :=
-  { d with specs := d.specs.insertCore e.keys e }
+  { d with specs := d.specs.insertKeyValue e.keys e }
 
 def addSpecTheorem (ext : SpecExtension) (declName : Name) (prio : Nat) (attrKind : AttributeKind) : MetaM Unit := do
   let thm ← mkSpecTheoremFromConst declName prio

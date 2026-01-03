@@ -1,4 +1,5 @@
 import Lean.Meta.Sym
+import Lean.Meta.DiscrTree.Basic
 open Lean Meta Sym Grind
 set_option grind.debug true
 opaque p [Ring α] : α → α → Prop
@@ -58,3 +59,65 @@ info: ∀ (x : Nat), q (f (f x)) (f x + f (f 1))
 -/
 #guard_msgs in
 #eval SymM.run' test₂
+
+theorem forall_and_eq (P Q : α → Prop) : (∀ x, P x ∧ Q x) = ((∀ x, P x) ∧ (∀ x, Q x)):= by
+  grind
+
+def logPatternKey (p : Pattern) : MetaM Unit := do
+  let k := p.mkDiscrTreeKeys
+  logInfo m!"{k.toList.map (·.format)}"
+
+def logPatternKeyFor (declName : Name) : MetaM Unit := do
+  let (p, _) ← mkEqPatternFromDecl declName
+  logPatternKey p
+
+/--
+info: [HAdd.hAdd, Nat, Nat, Nat, *, OfNat.ofNat, Nat, 0, *, *]
+---
+info: [HMul.hMul, *, *, *, *, OfNat.ofNat, *, 0, *, *]
+---
+info: [∀, *, And, *, *]
+---
+info: [Array.eraseIdx, *, HAppend.hAppend, Array, *, Array, *, Array, *, *, *, *, *, *]
+---
+info: [List.map, *, *, *, List.map, *, *, *, *]
+---
+info: [Std.HashMap.insertMany,
+ *,
+ *,
+ *,
+ *,
+ List,
+ Prod,
+ *,
+ *,
+ *,
+ *,
+ HAppend.hAppend,
+ List,
+ Prod,
+ *,
+ *,
+ List,
+ Prod,
+ *,
+ *,
+ List,
+ Prod,
+ *,
+ *,
+ *,
+ *,
+ *]
+---
+info: [GetElem.getElem, Std.HashMap, *, *, *, *, *, *, ◾, *, Std.HashMap.insert, *, *, *, *, *, *, *, *, *]
+-/
+#guard_msgs in
+#eval SymM.run' do
+  logPatternKeyFor ``Nat.zero_add
+  logPatternKeyFor ``Grind.Semiring.zero_mul
+  logPatternKeyFor ``forall_and_eq
+  logPatternKeyFor ``Array.eraseIdx_append
+  logPatternKeyFor ``List.map_map
+  logPatternKeyFor ``Std.HashMap.insertMany_append
+  logPatternKeyFor ``Std.HashMap.getElem_insert

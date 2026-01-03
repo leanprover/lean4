@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.ToExpr
+public import Lean.Expr
 public section
 namespace Lean.Meta
 /-! See file `DiscrTree.lean` for the actual implementation and documentation. -/

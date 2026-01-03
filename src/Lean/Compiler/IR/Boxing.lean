@@ -482,7 +482,7 @@ def prepareBoxParams (env : Environment) (decls : Array Decl) : Array Decl :=
   decls.map fun decl =>
     match decl with
     | .fdecl f xs resultType b info =>
-      let exported := isExport env f || hasInitAttr env f || isIOUnitInitFn env f
+      let exported := isExport env f
       let resultType := if exported && resultType.isStruct then resultType.boxed else resultType
       let (b, boxed) := boxParams b { f, resultType, decls, env }
         |>.run {}

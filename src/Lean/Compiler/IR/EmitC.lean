@@ -1053,7 +1053,7 @@ def emitDeclInit (d : Decl) : M Unit := do
   if isIOUnitInitFn env n then
     if isIOUnitBuiltinInitFn env n then
       emit "if (builtin) {"
-    emit "res = "; emitCName n; emitLn "();"
+    emit "res = "; emitCName (mkBoxedName n); emitLn "();"
     emitLn "if (lean_io_result_is_error(res)) return res;"
     emitLn "lean_dec_ref(res);"
     if isIOUnitBuiltinInitFn env n then
@@ -1063,7 +1063,7 @@ def emitDeclInit (d : Decl) : M Unit := do
     | some initFn =>
       if getBuiltinInitFnNameFor? env d.name |>.isSome then
         emit "if (builtin) {"
-      emit "res = "; emitCName initFn; emitLn "();"
+      emit "res = "; emitCName (mkBoxedName initFn); emitLn "();"
       emitLn "if (lean_io_result_is_error(res)) return res;"
       emitCName n
       if d.resultType.isScalarOrStruct then

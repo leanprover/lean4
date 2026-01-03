@@ -11,6 +11,12 @@ public import Lean.CoreM
 public section
 namespace Lean.Meta.DiscrTree
 
+def mkNoindexAnnotation (e : Expr) : Expr :=
+  mkAnnotation `noindex e
+
+def hasNoindexAnnotation (e : Expr) : Bool :=
+  annotation? `noindex e |>.isSome
+
 instance : Inhabited (Trie α) where
   default := .node #[] #[]
 

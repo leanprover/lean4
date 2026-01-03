@@ -198,12 +198,6 @@ private def isOffset (fName : Name) (e : Expr) : MetaM Bool := do
 private def shouldAddAsStar (fName : Name) (e : Expr) : MetaM Bool := do
   isOffset fName e
 
-def mkNoindexAnnotation (e : Expr) : Expr :=
-  mkAnnotation `noindex e
-
-def hasNoindexAnnotation (e : Expr) : Bool :=
-  annotation? `noindex e |>.isSome
-
 /--
 Reduction procedure for the discrimination tree indexing.
 -/

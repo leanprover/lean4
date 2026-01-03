@@ -8,8 +8,9 @@ namespace SimpBench
 -/
 
 def mkSimpTheorems : MetaM Sym.Simp.Theorems := do
-  let thm ← Sym.Simp.mkTheoremFromDecl ``Nat.zero_add
-  return { thms := #[thm] }
+  let result : Sym.Simp.Theorems := {}
+  let result := result.insert (← Sym.Simp.mkTheoremFromDecl ``Nat.zero_add)
+  return result
 
 def simp (e : Expr) : MetaM (Sym.Simp.Result × Float) := Sym.SymM.run' do
   let e ← Grind.shareCommon e

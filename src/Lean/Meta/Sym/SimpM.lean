@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Sym.Pattern
+import Lean.Meta.Sym.DiscrTree
 public section
 namespace Lean.Meta.Sym.Simp
 
@@ -129,10 +130,18 @@ structure Theorem where
   /-- Right-hand side of the equation. -/
   rhs     : Expr
 
+instance : BEq Theorem where
+  beq thm₁ thm₂ := thm₁.expr == thm₂.expr
+
 /-- Collection of simplification theorems available to the simplifier. -/
 structure Theorems where
-  /-- **TODO**: No indexing for now. We will add a structural discrimination tree later. -/
-  thms : Array Theorem := #[]
+  thms : DiscrTree Theorem := {}
+
+def Theorems.insert (thms : Theorems) (thm : Theorem) : Theorems :=
+  { thms with thms := insertPattern thms.thms thm.pattern thm }
+
+def Theorems.getMatch (thms : Theorems) (e : Expr) : Array Theorem :=
+  Sym.getMatch thms.thms e
 
 /-- Read-only context for the simplifier. -/
 structure Context where
@@ -182,7 +191,7 @@ abbrev getCache : SimpM Cache :=
 
 end Simp
 
-public def simp (e : Expr) (thms : Simp.Theorems := {}) (config : Simp.Config := {}) : SymM Simp.Result := do
+def simp (e : Expr) (thms : Simp.Theorems := {}) (config : Simp.Config := {}) : SymM Simp.Result := do
   Simp.SimpM.run (Simp.simp e) thms config
 
 end Lean.Meta.Sym

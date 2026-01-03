@@ -614,7 +614,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_write(b_obj_arg h, b_obj_arg 
 
 #define LEAN_IO_LOCK_FILE(fp) _lock_file(fp)
 #define LEAN_IO_UNLOCK_FILE(fp) _unlock_file(fp)
-#define LEAN_IO_GETC_UNLOCKED(fp) _fgetc_unlocked(fp)
+#define LEAN_IO_GETC_UNLOCKED(fp) _fgetc_nolock(fp)
 
 #else
 

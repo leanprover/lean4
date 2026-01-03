@@ -82,7 +82,10 @@ See comment at `propagateMul`.
 private def isUnsupportedSemiring? (type : Expr) : GoalM (Option Expr) := do
   if isSupportedSemiringQuick type then return none
   if (← getCommRingId? type).isSome then return none
-  if (← getCommSemiringId? type).isSome then return none
+  if let some id ← getCommSemiringId? type then
+    -- CommSemiring also needs `propagateMul` because the ring envelope approach
+    -- does not propagate `0 * a = 0` back to original terms.
+    return some (← SemiringM.run id (return (← getSemiring).semiringInst))
   if let some id ← getNonCommRingId? type then
     let inst ← NonCommRingM.run id do return (← getRing).semiringInst
     return some inst

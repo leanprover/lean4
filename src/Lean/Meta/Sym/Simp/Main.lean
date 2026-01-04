@@ -64,9 +64,9 @@ def simpImpl (e₁ : Expr) : SimpM Result := do
     throwError "`simp` failed: maximum number of steps exceeded"
   if let some result := (← getCache).find? { expr := e₁ } then
     return result
-  -- match (← pre e₁) with
-  -- | .step e₂ h₁ => cacheResult e₁ (← mkEqTransResult e₁ e₂ h₁ (← simp e₂))
-  -- | .rfl =>
+  match (← pre e₁) with
+  | .step e₂ h₁ => cacheResult e₁ (← mkEqTransResult e₁ e₂ h₁ (← simp e₂))
+  | .rfl =>
   let r₁ ← (simpStep >> post) e₁
   match r₁ with
   | .rfl => cacheResult e₁ r₁

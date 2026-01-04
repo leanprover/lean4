@@ -13,10 +13,6 @@ import Lean.Meta.Sym.Simp.Congr
 namespace Lean.Meta.Sym.Simp
 open Grind
 
-def simpConst (_ : Expr) : SimpM Result := do
-  -- **TODO**
-  return .rfl
-
 def simpLambda (_ : Expr) : SimpM Result := do
   -- **TODO**
   return .rfl
@@ -42,7 +38,7 @@ def simpApp (e : Expr) : SimpM Result := do
 
 def simpStep : Simproc := fun e => do
   match e with
-  | .lit _ | .sort _ | .bvar _ => return .rfl
+  | .lit _ | .sort _ | .bvar _ | .const .. => return .rfl
   | .proj .. =>
     reportIssue! "unexpected kernel projection term during simplification{indentExpr e}\npre-process and fold them as projection applications"
     return .rfl
@@ -51,7 +47,6 @@ def simpStep : Simproc := fun e => do
     match r with
     | .rfl => return .rfl
     | .step b' h => return .step (← mkMDataS m b') h
-  | .const .. => simpConst e
   | .lam .. => simpLambda e
   | .forallE .. => simpForall e
   | .letE .. => simpLet e

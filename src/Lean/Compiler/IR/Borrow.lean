@@ -257,7 +257,11 @@ def collectExpr (z : VarId) (e : Expr) : M Unit := do
   | .pap _ xs =>
     ownVar z
     ownArgs xs
-  | _ => pure ()
+  | .box t x =>
+    ownVar z
+    unless t.isScalar do
+      ownVar x
+  | .lit _ | .isShared _ | .sproj .. | .uproj .. | .unbox _ => pure ()
 
 def preserveTailCall (x : VarId) (v : Expr) (b : FnBody) : M Unit := do
   let ctx ← read

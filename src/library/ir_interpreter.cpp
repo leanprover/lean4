@@ -477,21 +477,7 @@ private:
                 for (size_t i = 0; i < args.size(); i++) {
                     type t = to_type(types[i].raw());
                     value arg = eval_arg(args[i]);
-                    object * val;
-                    if (LEAN_UNLIKELY(type_is_scalar(t))) {
-                        switch (t) {
-                            case type::Float: val = lean_box_float(arg.m_float); break;
-                            case type::Float32: val = lean_box_float32(arg.m_float32); break;
-                            case type::UInt8: val = lean_box(arg.m_num); break;
-                            case type::UInt16: val = lean_box(arg.m_num); break;
-                            case type::UInt32: val = lean_box_uint32(arg.m_num); break;
-                            case type::UInt64: val = lean_box_uint64(arg.m_num); break;
-                            case type::USize: val = lean_box_usize(arg.m_num); break;
-                            default: lean_unreachable();
-                        }
-                    } else {
-                        val = arg.m_obj;
-                    }
+                    object * val = box_t(arg, t);
                     cnstr_set(o, i, val);
                 }
             }

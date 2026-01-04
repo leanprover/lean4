@@ -12,15 +12,15 @@ def getProofSize (r : Sym.Simp.Result) : MetaM Nat :=
   | .rfl => return 0
   | .step _ p => p.numObjs
 
-def mkSimpTheorems : MetaM Sym.Simp.Theorems := do
-  let result : Sym.Simp.Theorems := {}
-  let result := result.insert (← Sym.Simp.mkTheoremFromDecl ``Nat.zero_add)
-  return result
+def mkSimpMethods : MetaM Sym.Simp.Methods := do
+  let thms : Sym.Simp.Theorems := {}
+  let thm ← Sym.Simp.mkTheoremFromDecl ``Nat.zero_add
+  let thms := thms.insert thm
+  return { post := thms.rewrite }
 
 def simp (e : Expr) : MetaM (Sym.Simp.Result × Float) := Sym.SymM.run' do
   let e ← Grind.shareCommon e
-  let thms ← mkSimpTheorems
-  let methods := { post := Sym.Simp.rewrite thms }
+  let methods ← mkSimpMethods
   let startTime ← IO.monoNanosNow
   let r ← Sym.simp e methods { maxSteps := 100000000 }
   let endTime ← IO.monoNanosNow

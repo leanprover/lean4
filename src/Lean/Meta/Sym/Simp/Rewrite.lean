@@ -27,21 +27,21 @@ def mkValue (expr : Expr) (pattern : Pattern) (result : MatchUnifyResult) : Expr
 /--
 Tries to rewrite `e` using the given theorem.
 -/
--- **TODO**: Define `Step` result?
-public def Theorem.rewrite? (thm : Theorem) (e : Expr) : SimpM (Option Result) := do
+public def Theorem.rewrite (thm : Theorem) (e : Expr) : SimpM Result := do
   if let some result ← thm.pattern.match? e then
     let proof := mkValue thm.expr thm.pattern result
     let rhs   := thm.rhs.instantiateLevelParams thm.pattern.levelParams result.us
     let rhs   ← shareCommonInc rhs
     let expr  ← instantiateRevBetaS rhs result.args
-    return some <| .step expr proof
+    return .step expr proof
   else
-    return none
+    return .rfl
 
-public def rewrite (thms : Theorems) : Simproc := fun e => do
+public def Theorems.rewrite (thms : Theorems) : Simproc := fun e => do
   -- **TODO**: over-applied terms
   for thm in thms.getMatch e do
-    if let some result ← thm.rewrite? e then
+    let result ← thm.rewrite e
+    if !result.isRfl then
       return result
   return .rfl
 

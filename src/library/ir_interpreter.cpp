@@ -878,6 +878,8 @@ private:
         symbol_cache_entry e_new { get_decl(fn), {nullptr, false} };
         if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern || has_init_attribute(m_env, fn)) {
             string_ref mangled = get_symbol_stem(m_env, fn);
+            // TODO: this does not always cause the right mangled name to be generated
+            // compare a_ -> l_a__ and a_._boxed -> l_a___00__boxed
             string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
             // check for boxed version first
             if (void *p_boxed = lookup_symbol_in_cur_exe(boxed_mangled.data())) {
@@ -928,8 +930,6 @@ private:
         symbol_cache_entry e = lookup_symbol(fn);
         if (e.m_native.m_addr) {
             // we can assume that all native code has been initialized (see e.g. `evalConst`)
-
-            // constants do not have boxed wrappers, but we'll survive
             switch (t) {
                 case type::Float: return value::from_float(*static_cast<double *>(e.m_native.m_addr));
                 case type::Float32: return value::from_float32(*static_cast<float *>(e.m_native.m_addr));
@@ -946,7 +946,9 @@ private:
                     return *static_cast<object **>(e.m_native.m_addr);
                 case type::Struct:
                 case type::Union:
-                    throw exception("not implemented yet");
+                    // we generate boxed wrappers specifically for struct/union constants
+                    lean_assert(e.m_native.m_boxed);
+                    return *static_cast<object **>(e.m_native.m_addr);
             }
         }
 

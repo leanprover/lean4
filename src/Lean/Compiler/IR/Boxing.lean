@@ -195,6 +195,10 @@ def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
   else
     match (← isExpensiveConstantValueBoxing x xType) with
     | some v => do
+      if let .fap nm #[] := v then
+        if expectedType.isObj && xType.isStruct then
+          -- we create boxed versions specifically for struct constants (see `boxedConstDecl`)
+          return .fap (nm ++ `_boxed) #[]
       let ctx ← read
       let s ← get
       /- Create auxiliary FnBody
@@ -463,6 +467,18 @@ partial def boxParams : FnBody → M FnBody
 
 end BoxParams
 
+def boxedConstDecl (f : FunId) (ty : IRType) : Decl :=
+  /-
+  def f._boxed : tobj :=
+    let x_1 : ty := f;
+    let x_2 : tobj := box x_1;
+    ret x_2
+  -/
+  .fdecl (f ++ `_boxed) #[] .tobject (info := {}) <|
+    .vdecl { idx := 1 } ty (.fap f #[]) <|
+    .vdecl { idx := 2 } .tobject (.box ty { idx := 1 }) <|
+    .ret (.var { idx := 2 })
+
 def run (env : Environment) (decls : Array Decl) : Array Decl :=
   decls.foldl (init := #[]) fun newDecls decl =>
     match decl with
@@ -470,6 +486,11 @@ def run (env : Environment) (decls : Array Decl) : Array Decl :=
       let nextIdx  := decl.maxIndex + 1
       let (b, s)   := withParams xs (visitFnBody b) { f, resultType, decls, env } |>.run { nextIdx }
       let newDecls := newDecls ++ s.auxDecls
+      let newDecls :=
+        if resultType.isStruct && xs.isEmpty then
+          newDecls.push (boxedConstDecl f resultType)
+        else
+          newDecls
       let newDecl  := decl.updateBody! b
       let newDecl  := newDecl.elimDead
       newDecls.push newDecl

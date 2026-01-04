@@ -884,8 +884,7 @@ def congrDefault (e : Expr) : SimpM Result := do
   if let some result ← tryAutoCongrTheorem? e then
     result.mkEqTrans (← visitFn result.expr)
   else
-    withParent e <| e.withApp fun f args => do
-      congrArgs (← simp f) args
+    withParent e <| simpAppUsingCongr e
 
 /-- Process the given congruence theorem hypothesis. Return true if it made "progress". -/
 def processCongrHypothesis (h : Expr) (hType : Expr) : SimpM Bool := do

@@ -143,6 +143,7 @@ def getKey (e : Expr) : Key :=
   | .forallE _ _ _ _  => .arrow
   | _ => .other
 
+/-- Push `e` arguments/children into the `todo` stack.  -/
 def pushArgsTodo (todo : Array Expr) (e : Expr) : Array Expr :=
   match e with
   | .app f a => pushArgsTodo (todo.push a) f
@@ -152,11 +153,10 @@ def pushArgsTodo (todo : Array Expr) (e : Expr) : Array Expr :=
 partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) : Array α :=
   match c with
   | .node vs cs =>
+    let csize := cs.size
     if todo.isEmpty then
       result ++ vs
-    else
-    let csize := cs.size
-    if h : csize = 0 then
+    else if h : csize = 0 then
       result
     else
       let e     := todo.back!
@@ -205,9 +205,7 @@ public partial def getMatchWithExtra (d : DiscrTree α) (e : Expr) : Array (α �
   let result := result.map (·, 0)
   if !e.isApp then
     result
-  else
-  let k := getKey e
-  if !mayMatchPrefix k then
+  else if !mayMatchPrefix (getKey e) then
     result
   else
     go e.appFn! 1 result

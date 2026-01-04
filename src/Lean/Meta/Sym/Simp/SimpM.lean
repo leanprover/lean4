@@ -100,8 +100,6 @@ invalidating the cache and causing O(2^n) behavior on conditional trees.
 
 /-- Configuration options for the structural simplifier. -/
 structure Config where
-  /-- If `true`, unfold let-bindings (zeta reduction) during simplification. -/
-  zetaDelta : Bool := true
   /-- Maximum number of steps that can be performed by the simplifier. -/
   maxSteps : Nat := 0
   -- **TODO**: many are still missing

@@ -371,7 +371,7 @@ TODO: find better name for this function.
 -/
 def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
     [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] [ExceptToEmoji ε α] (cls : Name)
-    (msg : m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
+    (msg : Unit → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
   let _ := always.except
   let opts ← getOptions
   let clsEnabled ← isTracingEnabledFor cls
@@ -380,7 +380,7 @@ def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
   let oldTraces ← getResetTraces
   let ref ← getRef
   -- make sure to preserve context *before* running `k`
-  let msg ← withRef ref do addMessageContext (← msg)
+  let msg ← withRef ref do addMessageContext (← msg ())
   let (res, start, stop) ← withStartStop opts <| observing k
   let aboveThresh := trace.profiler.get opts &&
     stop - start > trace.profiler.threshold.unitAdjusted opts

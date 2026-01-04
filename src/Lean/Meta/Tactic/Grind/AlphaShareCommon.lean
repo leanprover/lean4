@@ -130,4 +130,56 @@ private def go (e : Expr) : M Expr := do
     let (e, { set, .. }) := go e |>.run { map := {}, set := s.set }
     (e, ⟨set⟩)
 
+private def saveInc (e : Expr) : AlphaShareCommonM Expr := do
+  if let some r := (← get).set.find? { expr := e } then
+    return r.expr
+  else
+    modify fun { set := set } => { set := set.insert { expr := e } }
+    return e
+
+@[inline] private def visitInc (e : Expr) (k : AlphaShareCommonM Expr) : AlphaShareCommonM Expr := do
+  if let some r := (← get).set.find? { expr := e } then
+    return r.expr
+  else
+    saveInc (← k)
+
+/--
+Incremental variant of `shareCommonAlpha` for expressions constructed from already-shared subterms.
+
+Use this when an expression `e` was produced by a Lean API (e.g., `inferType`, `mkApp4`) that
+does not preserve maximal sharing, but the inputs to that API were already maximally shared.
+In this case, only the newly constructed nodes need processing—the shared subterms can be
+looked up directly in the `AlphaShareCommonM` state without building a temporary hashmap.
+
+Unlike `shareCommonAlpha`, this function does not use a local `Std.HashMap ExprPtr Expr` to
+track visited nodes. This is more efficient when the number of new (unshared) nodes is small,
+which is the common case when wrapping API calls that build a few constructor nodes around
+shared inputs.
+
+Example:
+```
+-- `a` and `b` are already maximally shared
+let result := mkApp2 f a b  -- result is not maximally shared
+let result ← shareCommonAlphaInc result -- efficiently restore sharing
+```
+-/
+@[inline] def shareCommonAlphaInc (e : Expr) : AlphaShareCommonM Expr :=
+  go e
+where
+  go (e : Expr) : AlphaShareCommonM Expr := do
+  match e with
+  | .bvar .. | .mvar .. | .const .. | .fvar .. | .sort .. | .lit .. => saveInc e
+  | .app f a =>
+    visitInc e (return mkApp (← go f) (← go a))
+  | .letE n t v b nd =>
+    visitInc e (return mkLet n t (← go v) (← go b) nd)
+  | .forallE n d b bi =>
+    visitInc e (return mkForall n bi (← go d) (← go b))
+  | .lam n d b bi =>
+    visitInc e (return mkLambda n bi (← go d) (← go b))
+  | .mdata d b =>
+    visitInc e (return mkMData d (← go b))
+  | .proj n i b =>
+    visitInc e (return mkProj n i (← go b))
+
 end Lean.Meta.Grind

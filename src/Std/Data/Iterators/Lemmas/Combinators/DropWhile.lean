@@ -36,11 +36,11 @@ theorem Iter.step_intermediateDropWhile {α β} [Iterator α Id β]
     (Iter.Intermediate.dropWhile P dropping it).step = (match it.step with
       | .yield it' out h =>
         if h' : dropping = true then
-          match P out with
+          match hP : P out with
           | true =>
-            .skip (Intermediate.dropWhile P true it') (.dropped h h' True.intro)
+            .skip (Intermediate.dropWhile P true it') (.dropped h h' (by simpa))
           | false =>
-            .yield (Intermediate.dropWhile P false it') out (.start h h' True.intro)
+            .yield (Intermediate.dropWhile P false it') out (.start h h' (by simpa))
         else
           .yield (Intermediate.dropWhile P false it') out
               (.yield h (Bool.not_eq_true _ ▸ h'))
@@ -63,43 +63,72 @@ theorem Iter.step_intermediateDropWhile {α β} [Iterator α Id β]
   · simp
   · simp
 
+theorem Iter.val_step_intermediateDropWhile {α β} [Iterator α Id β]
+    {it : Iter (α := α) β} {P} {dropping} :
+    (Iter.Intermediate.dropWhile P dropping it).step.val = (match it.step.val with
+      | .yield it' out =>
+        if dropping = true then
+          match P out with
+          | true => .skip (Intermediate.dropWhile P true it')
+          | false => .yield (Intermediate.dropWhile P false it') out
+        else
+          .yield (Intermediate.dropWhile P false it') out
+      | .skip it' => .skip (Intermediate.dropWhile P dropping it')
+      | .done => .done) := by
+  rw [step_intermediateDropWhile]
+  cases it.step using PlausibleIterStep.casesOn
+  · cases dropping
+    · simp
+    · simp only [↓reduceDIte, ↓reduceIte]
+      split <;> simp_all
+  · simp
+  · simp
+
 theorem Iter.step_dropWhile {α β} [Iterator α Id β] {P}
     {it : Iter (α := α) β} :
     (it.dropWhile P).step = (match it.step with
     | .yield it' out h =>
-        match P out with
+        match hP : P out with
         | true =>
-          .skip (Intermediate.dropWhile P true it') (.dropped h rfl True.intro)
+          .skip (Intermediate.dropWhile P true it') (.dropped h rfl (by simpa))
         | false =>
-          .yield (Intermediate.dropWhile P false it') out (.start h rfl True.intro)
+          .yield (Intermediate.dropWhile P false it') out (.start h rfl (by simpa))
     | .skip it' h =>
       .skip (Intermediate.dropWhile P true it') (.skip h)
     | .done h =>
       .done (.done h)) := by
   simp [dropWhile_eq_intermediateDropWhile, step_intermediateDropWhile]
 
+theorem Iter.val_step_dropWhile {α β} [Iterator α Id β] {P}
+    {it : Iter (α := α) β} :
+    (it.dropWhile P).step.val = (match it.step.val with
+    | .yield it' out =>
+        match P out with
+        | true =>
+          .skip (Intermediate.dropWhile P true it')
+        | false =>
+          .yield (Intermediate.dropWhile P false it') out
+    | .skip it' => .skip (Intermediate.dropWhile P true it')
+    | .done => .done) := by
+  simp only [step_dropWhile]
+  split <;> rename_i heq
+  · simp only [heq]
+    split <;> simp_all
+  · simp [heq]
+  · simp [heq]
+
 theorem Iter.toList_intermediateDropWhile_of_finite {α β} [Iterator α Id β] {P dropping}
     [Finite α Id] {it : Iter (α := α) β} :
     (Intermediate.dropWhile P dropping it).toList =
       if dropping = true then it.toList.dropWhile P else it.toList := by
   induction it using Iter.inductSteps generalizing dropping with | step it ihy ihs
-  rw [toList_eq_match_step, toList_eq_match_step, step_intermediateDropWhile]
+  rw [toList_eq_match_step, toList_eq_match_step, val_step_intermediateDropWhile]
   cases it.step using PlausibleIterStep.casesOn
   · rename_i hp
     simp [List.dropWhile_cons]
-    cases P _
-    · cases dropping
-      · specialize ihy hp (dropping := false)
-        rw [if_neg (by simp)] at ihy
-        simp [ihy]
-      · specialize ihy hp (dropping := false)
-        rw [if_neg (by simp)] at ihy
-        simp [ihy]
-    · cases dropping
-      · specialize ihy hp (dropping := false)
-        simp [ihy]
-      · specialize ihy hp (dropping := true)
-        simp [ihy]
+    cases dropping
+    · simp [ihy hp]
+    · cases P _ <;> simp [ihy hp]
   · rename_i hp
     simp [ihs hp]
   · simp

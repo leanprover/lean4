@@ -42,8 +42,8 @@ def test₂ : SymM Unit := do
   let h := mkAppN (mkConst ``mk_forall_and r₁.us) r₁.args
   check h
   logInfo h
-  logInfo (← inferType r₁.args[3]!)
-  logInfo (← inferType r₁.args[4]!)
+  logInfo (← Sym.inferType r₁.args[3]!)
+  logInfo (← Sym.inferType r₁.args[4]!)
 
 /--
 info: ∀ (x : #4), @#3 x ∧ @#2 x

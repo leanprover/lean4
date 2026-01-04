@@ -13,9 +13,9 @@ def test1 : SymM Unit := do
   let e ← shareCommon (← getConstInfo ``ex).value!
   let some r₁ ← pEx.match? e | throwError "failed"
   logInfo <| mkAppN (mkConst ``Exists.intro r₁.us) r₁.args
-  let some r₂ ← pAnd.match? (← inferType r₁.args[3]!) | throwError "failed"
+  let some r₂ ← pAnd.match? (← Sym.inferType r₁.args[3]!) | throwError "failed"
   logInfo <| mkAppN (mkConst ``And.intro r₂.us) r₂.args
-  let some r₃ ← pEq.unify? (← inferType r₂.args[3]!) | throwError "failed"
+  let some r₃ ← pEq.unify? (← Sym.inferType r₂.args[3]!) | throwError "failed"
   logInfo <| mkAppN (mkConst ``Eq.refl r₃.us) r₃.args
 
 /--

@@ -29,7 +29,7 @@ public def mkProofInstInfo? (declName : Name) : MetaM (Option ProofInstInfo) := 
     let mut argsInfo := #[]
     let mut found := false
     for x in xs do
-      let type ← inferType x
+      let type ← Meta.inferType x
       let isInstance := isClass? env type |>.isSome
       let isProof ← isProp type
       if isInstance || isProof then

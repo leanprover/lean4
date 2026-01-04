@@ -35,6 +35,50 @@ public structure ProofInstInfo where
   argsInfo : Array ProofInstArgInfo
   deriving Inhabited
 
+/--
+Information on how to build congruence proofs for function applications.
+This enables efficient rewriting of subterms without repeatedly inferring types or instances.
+-/
+inductive CongrInfo where
+  | /-- None of the arguments of the function can be rewritten. -/
+    none
+  | /--
+    For functions with a fixed prefix of implicit/instance arguments followed by
+    explicit non-dependent arguments that can be rewritten independently.
+
+    - `prefixSize`: Number of leading arguments (types, instances) that are determined
+      by the suffix arguments and should not be rewritten directly.
+    - `suffixSize`: Number of trailing arguments that can be rewritten using simple congruence.
+
+    Examples (showing `prefixSize`, `suffixSize`):
+    - `HAdd.hAdd {α β γ} [HAdd α β γ] (a : α) (b : β)`: `(4, 2)` — rewrite `a` and `b`
+    - `And (p q : Prop)`: `(0, 2)` — rewrite both propositions
+    - `Eq {α} (a b : α)`: `(1, 2)` — rewrite `a` and `b`, type `α` is fixed
+    - `Neg.neg {α} [Neg α] (a : α)`: `(2, 1)` — rewrite just `a`
+    -/
+    fixedPrefix (prefixSize : Nat) (suffixSize : Nat)
+  | /--
+    For functions with interlaced rewritable and non-rewritable arguments.
+    Each element indicates whether the corresponding argument position can be rewritten.
+
+    Example: For `HEq {α : Sort u} (a : α) {β : Sort u} (b : β)`, the mask would be
+    `#[false, true, false, true]` — we can rewrite `a` and `b`, but not `α` or `β`.
+    -/
+    interlaced (rewritable : Array Bool)
+  | /--
+    For functions that have proofs and `Decidable` arguments. For this kind of function we generate
+    a custom theorem.
+    Example: `Array.eraseIdx {α : Type u} (xs : Array α) (i : Nat) (h : i < xs.size) : Array α`.
+    The proof argument `h` depends on `xs` and `i`. To be able to rewrite `xs` and `i`, we use the
+    auto-generated theorem.
+    ```
+    Array.eraseIdx.congr_simp {α : Type u} (xs xs' : Array α) (e_xs : xs = xs')
+        (i i' : Nat) (e_i : i = i') (h : i < xs.size) : xs.eraseIdx i h = xs'.eraseIdx i' ⋯
+    ```
+    -/
+    congrTheorem (thm : CongrTheorem)
+
+/-- Mutable state for the symbolic simulator framework. -/
 structure State where
   /--
   Maps expressions to their maximal free variable (by declaration index).
@@ -56,6 +100,17 @@ structure State where
   -/
   maxFVar : PHashMap ExprPtr (Option FVarId) := {}
   proofInstInfo : PHashMap Name (Option ProofInstInfo) := {}
+  /--
+  Cache for `inferType` results, keyed by pointer equality.
+  `SymM` uses a fixed configuration, so we can use a simpler key than `MetaM`.
+  Remark: type inference is a bottleneck on `Meta.Tactic.Simp` simplifier.
+  -/
+  inferType : PHashMap ExprPtr Expr := {}
+  /--
+  Cache for `getLevel` results, keyed by pointer equality.
+  -/
+  getLevel : PHashMap ExprPtr Level := {}
+  congrInfo : PHashMap ExprPtr CongrInfo := {}
 
 abbrev SymM := ReaderT Grind.Params StateRefT State Grind.GrindM
 

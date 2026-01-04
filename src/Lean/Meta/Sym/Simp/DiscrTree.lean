@@ -130,7 +130,7 @@ def getKey (e : Expr) : Key :=
   | .lit v            => .lit v
   | .const declName _ => .const declName e.getAppNumArgs
   | .fvar fvarId      => .fvar fvarId e.getAppNumArgs
-  | .forallE _ _ _ _  => .arrow
+  | .forallE ..       => .arrow
   | _ => .other
 
 /-- Push `e` arguments/children into the `todo` stack.  -/

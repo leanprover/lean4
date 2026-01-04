@@ -84,6 +84,7 @@ partial def shouldExtractLetValue (isRoot : Bool) (v : LetValue) : M Bool := do
   | .const name _ args =>
     if (← read).sccDecls.any (·.name == name) then
       return false
+    -- TODO: cleanup never extract annotations in core
     if hasNeverExtractAttribute (← getEnv) name then
       return false
     if let some constInfo := (← getEnv).find? name then

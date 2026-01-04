@@ -2660,7 +2660,8 @@ instance : Max UInt32 := maxOfLe
 instance : Min UInt32 := minOfLe
 
 /-- The number of distinct values representable by `UInt64`, that is, `2^64 = 18446744073709551616`. -/
-abbrev UInt64.size : Nat := 18446744073709551616
+@[noinline, reducible]
+def UInt64.size : Nat := 18446744073709551616
 
 /--
 Unsigned 64-bit integers.
@@ -2718,7 +2719,8 @@ instance : Inhabited UInt64 where
   default := UInt64.ofNatLT 0 (of_decide_eq_true rfl)
 
 /-- The number of distinct values representable by `USize`, that is, `2^System.Platform.numBits`. -/
-abbrev USize.size : Nat := (hPow 2 System.Platform.numBits)
+@[noinline, reducible]
+def USize.size : Nat := (hPow 2 System.Platform.numBits)
 
 theorem USize.size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=
   show Or (Eq (hPow 2 System.Platform.numBits) 4294967296) (Eq (hPow 2 System.Platform.numBits) 18446744073709551616) from

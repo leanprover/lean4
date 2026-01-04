@@ -80,6 +80,7 @@ mutual
 partial def shouldExtractLetValue (isRoot : Bool) (v : LetValue) : M Bool := do
   match v with
   | .lit (.str _) => return true
+  | .lit (.nat v) => return !isRoot || v >= Nat.pow 2 63
   | .lit _ | .erased => return !isRoot
   | .const name _ args =>
     if (← read).sccDecls.any (·.name == name) then

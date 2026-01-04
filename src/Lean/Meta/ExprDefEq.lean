@@ -1854,7 +1854,6 @@ end
       failK
   | none   => failK
 
-set_option trace.Compiler.result true in
 private def isDefEqOnFailure (t s : Expr) : MetaM Bool := do
   withTraceNodeBefore `Meta.isDefEq.onFailure (fun _ => return m!"{t} =?= {s}") do
     unstuckMVar t (fun t => Meta.isExprDefEqAux t s) <|

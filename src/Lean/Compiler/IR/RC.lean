@@ -189,7 +189,7 @@ private def useArgs (ctx : Context) (args : Array Arg) (liveVars : LiveVars) : L
 
 private def useExpr (ctx : Context) (e : Expr) (liveVars : LiveVars) : LiveVars :=
   match e with
-  | .proj _ _ x | .uproj _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
+  | .proj _ _ x | .uproj _ _ x | .sproj _ _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
     useVar ctx x liveVars
   | .ctor _ ys | .fap _ ys | .pap _ ys =>
     useArgs ctx ys liveVars
@@ -364,7 +364,7 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
       let b := addDecIfNeeded ctx x b bLiveVars
       let b := if t.isPossibleRef && !bLiveVars.borrows.contains z then addInc ctx z b else b
       .vdecl z t v b
-    | .uproj _ x | .sproj _ _ x =>
+    | .uproj _ _ x | .sproj _ _ _ x =>
       .vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
     | .fap f ys =>
       let ps := (getDecl ctx f).params
@@ -419,16 +419,16 @@ partial def visitFnBody (b : FnBody) (ctx : Context) : FnBody × LiveVars :=
     }
     let ⟨b, bLiveVars⟩ := visitFnBody b ctx
     ⟨.jdecl j xs v b, bLiveVars⟩
-  | .uset x i y b =>
+  | .uset x c i y b =>
     let ⟨b, s⟩ := visitFnBody b ctx
     -- We don't need to insert `y` since we only need to track live variables that are references at runtime
     let s := useVar ctx x s
-    ⟨.uset x i y b, s⟩
-  | .sset x i o y t b =>
+    ⟨.uset x c i y b, s⟩
+  | .sset x c i o y t b =>
     let ⟨b, s⟩ := visitFnBody b ctx
     -- We don't need to insert `y` since we only need to track live variables that are references at runtime
     let s := useVar ctx x s
-    ⟨.sset x i o y t b, s⟩
+    ⟨.sset x c i o y t b, s⟩
   | .case tid x xType alts =>
     let alts : Array (Alt × LiveVars) := alts.map fun alt => match alt with
       | .ctor c b =>

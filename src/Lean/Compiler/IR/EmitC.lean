@@ -368,19 +368,24 @@ def emitOffset (n : Nat) (offset : Nat) : M Unit := do
     emit offset
 
 
-def emitUSet (x : VarId) (n : Nat) (y : VarId) : M Unit := do
+def emitUSet (x : VarId) (cidx : Nat) (n : Nat) (y : VarId) : M Unit := do
   let ty := (← read).varTypes[x]!
-  if ty.isStruct then
-    emit "((size_t*)&"; emit x; emit ")["; emit n; emitLn "] = "; emit y; emitLn ";"
+  if ty matches .union .. then
+    emit x; emit ".cs.c"; emit cidx; emit ".u["; emit n; emit "] = "; emit y; emitLn ";"
+  else if ty matches .struct .. then
+    emit x; emit ".u["; emit n; emit "] = "; emit y; emitLn ";"
   else
     emit "lean_ctor_set_usize("; emit x; emit ", "; emit n; emit ", "; emit y; emitLn ");"
 
-def emitSSet (x : VarId) (n : Nat) (offset : Nat) (y : VarId) (t : IRType) : M Unit := do
+def emitSSet (x : VarId) (cidx : Nat) (n : Nat) (offset : Nat) (y : VarId) (t : IRType) : M Unit := do
   let ty := (← read).varTypes[x]!
-  if ty.isStruct then
-    emit "*(("; emit (← toCType t); emit "*)((uint8_t*)&"
-    emit x; emit "+sizeof(size_t)*"; emit n; emit "+"; emit offset; emit ")) = "
-    emit y; emitLn ";"
+  if ty matches .union .. then
+    emit "*(("; emit (← toCType t); emit "*)("
+    emit x; emit ".cs.c"; emit cidx; emit ".s+"; emit offset; emit ")) = "; emit y; emitLn ";"
+    return
+  else if ty matches .struct .. then
+    emit "*(("; emit (← toCType t); emit "*)("
+    emit x; emit ".s+"; emit offset; emit ")) = "; emit y; emitLn ";"
     return
   match t with
   | IRType.float   => emit "lean_ctor_set_float"
@@ -475,20 +480,25 @@ def emitProj (z : VarId) (c : Nat) (i : Nat) (x : VarId) : M Unit := do
   else
     emit "lean_ctor_get("; emit x; emit ", "; emit i; emitLn ");"
 
-def emitUProj (z : VarId) (i : Nat) (x : VarId) : M Unit := do
+def emitUProj (z : VarId) (cidx : Nat) (i : Nat) (x : VarId) : M Unit := do
   emitLhs z
   let ty := (← read).varTypes[x]!
-  if ty.isStruct then
-    emit "((size_t*)&"; emit x; emit ")["; emit i; emitLn "];"
+  if ty matches .union .. then
+    emit x; emit ".cs.c"; emit cidx; emit ".u["; emit i; emitLn "];"
+  else if ty matches .struct .. then
+    emit x; emit ".u["; emit i; emitLn "];"
   else
     emit "lean_ctor_get_usize("; emit x; emit ", "; emit i; emitLn ");"
 
-def emitSProj (z : VarId) (t : IRType) (n offset : Nat) (x : VarId) : M Unit := do
+def emitSProj (z : VarId) (t : IRType) (cidx : Nat) (n offset : Nat) (x : VarId) : M Unit := do
   emitLhs z
   let ty := (← read).varTypes[x]!
-  if ty.isStruct then
-    emit "*(("; emit (← toCType t); emit "*)((uint8_t*)&"
-    emit x; emit "+sizeof(size_t)*"; emit n; emit "+"; emit offset; emitLn "));"
+  if ty matches .union .. then
+    emit "*(("; emit (← toCType t); emit "*)("
+    emit x; emit ".cs.c"; emit cidx; emit ".s+"; emit offset; emitLn "));"
+  else if ty matches .struct .. then
+    emit "*(("; emit (← toCType t); emit "*)("
+    emit x; emit ".s+"; emit offset; emitLn "));"
     return
   match t with
   | IRType.float    => emit "lean_ctor_get_float"
@@ -640,8 +650,8 @@ def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
   | Expr.reset n x      => emitReset z n x
   | Expr.reuse x c u ys => emitReuse z x c u ys
   | Expr.proj c i x     => emitProj z c i x
-  | Expr.uproj i x      => emitUProj z i x
-  | Expr.sproj n o x    => emitSProj z t n o x
+  | Expr.uproj c i x    => emitUProj z c i x
+  | Expr.sproj c n o x  => emitSProj z t c n o x
   | Expr.fap c ys       => emitFullApp z c ys
   | Expr.pap c ys       => emitPartialApp z c ys
   | Expr.ap x ys        => emitApp z x ys
@@ -750,8 +760,8 @@ partial def emitBlock (b : FnBody) : M Unit := do
   | FnBody.del x b             => emitDel x; emitBlock b
   | FnBody.setTag x i b        => emitSetTag x i; emitBlock b
   | FnBody.set x i y b         => emitSet x i y; emitBlock b
-  | FnBody.uset x i y b        => emitUSet x i y; emitBlock b
-  | FnBody.sset x i o y t b    => emitSSet x i o y t; emitBlock b
+  | FnBody.uset x c i y b      => emitUSet x c i y; emitBlock b
+  | FnBody.sset x c i o y t b  => emitSSet x c i o y t; emitBlock b
   | FnBody.ret x               => emit "return "; emitArg x; emitLn ";"
   | FnBody.case _ x xType alts => emitCase x xType alts
   | FnBody.jmp j xs            => emitJmp j xs
@@ -782,12 +792,14 @@ partial def emitStructDefn (ty : IRType) (nm : String) : M Unit := do
     emitLn "} cs;"
     emitLn "uint8_t tag;"
   | .struct _ tys us ss =>
-    if us ≠ 0 then emitLn s!"size_t u[{us}];"
-    if ss ≠ 0 then emitLn s!"uint8_t s[{ss}];"
     for h : i in *...tys.size do
       if tys[i] matches .erased | .void then
         continue
       emit (← toCType tys[i]); emit " i"; emit i; emitLn ";"
+    if us ≠ 0 ∨ ss ≠ 0 then
+      -- Note: we keep a `size_t[0]` to ensure alignment of the scalars
+      emitLn s!"size_t u[{us}];"
+      emitLn s!"uint8_t s[{ss}];"
   | _ => unreachable!
   emitLn "};"
 

@@ -207,10 +207,10 @@ inductive Expr where
   /-- Extract the `tobject` value at Position `sizeof(void*)*i` from `x`. When `x` is represented
   as a `union`, `cidx` is used to determine which part of the union to access. -/
   | proj (cidx : Nat) (i : Nat) (x : VarId)
-  /-- Extract the `Usize` value at Position `sizeof(void*)*i` from `x`. -/
-  | uproj (i : Nat) (x : VarId)
+  /-- Extract the `usize` value at Position `sizeof(void*)*i` from `x`. -/
+  | uproj (cidx : Nat) (i : Nat) (x : VarId)
   /-- Extract the scalar value at Position `sizeof(void*)*n + offset` from `x`. -/
-  | sproj (n : Nat) (offset : Nat) (x : VarId)
+  | sproj (cidx : Nat) (n : Nat) (offset : Nat) (x : VarId)
   /-- Full application. -/
   | fap (c : FunId) (ys : Array Arg)
   /-- Partial application that creates a `pap` value (aka closure in our nonstandard terminology). -/
@@ -248,11 +248,13 @@ inductive FnBody where
   This operation is not part of λPure is only used during optimization. -/
   | set (x : VarId) (i : Nat) (y : Arg) (b : FnBody)
   | setTag (x : VarId) (cidx : Nat) (b : FnBody)
-  /-- Store `y : Usize` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1. -/
-  | uset (x : VarId) (i : Nat) (y : VarId) (b : FnBody)
-  /-- Store `y : ty` at Position `sizeof(void*)*i + offset` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
+  /-- Store `y : usize` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object or
+  `struct`/`union` with tag `cidx` and `RC(x)` must be 1. -/
+  | uset (x : VarId) (cidx : Nat) (i : Nat) (y : VarId) (b : FnBody)
+  /-- Store `y : ty` at Position `sizeof(void*)*i + offset` in `x`. `x` must be a Constructor object
+  or `struct`/`union` with tag `cidx` and `RC(x)` must be 1.
   `ty` must not be `object`, `tobject`, `erased` nor `Usize`. -/
-  | sset (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody)
+  | sset (x : VarId) (cidx : Nat) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody)
   /-- RC increment for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not.
   If `persistent == true` then `x` is statically known to be a persistent object. -/
   | inc (x : VarId) (n : Nat) (c : Bool) (persistent : Bool) (b : FnBody)
@@ -281,28 +283,28 @@ def FnBody.isTerminal : FnBody → Bool
   | _                    => false
 
 def FnBody.body : FnBody → FnBody
-  | FnBody.vdecl _ _ _ b    => b
-  | FnBody.jdecl _ _ _ b    => b
-  | FnBody.set _ _ _ b      => b
-  | FnBody.uset _ _ _ b     => b
-  | FnBody.sset _ _ _ _ _ b => b
-  | FnBody.setTag _ _ b     => b
-  | FnBody.inc _ _ _ _ b    => b
-  | FnBody.dec _ _ _ _ b    => b
-  | FnBody.del _ b          => b
-  | other                   => other
+  | FnBody.vdecl _ _ _ b      => b
+  | FnBody.jdecl _ _ _ b      => b
+  | FnBody.set _ _ _ b        => b
+  | FnBody.uset _ _ _ _ b     => b
+  | FnBody.sset _ _ _ _ _ _ b => b
+  | FnBody.setTag _ _ b       => b
+  | FnBody.inc _ _ _ _ b      => b
+  | FnBody.dec _ _ _ _ b      => b
+  | FnBody.del _ b            => b
+  | other                     => other
 
 def FnBody.setBody : FnBody → FnBody → FnBody
-  | FnBody.vdecl x t v _,    b => FnBody.vdecl x t v b
-  | FnBody.jdecl j xs v _,   b => FnBody.jdecl j xs v b
-  | FnBody.set x i y _,      b => FnBody.set x i y b
-  | FnBody.uset x i y _,     b => FnBody.uset x i y b
-  | FnBody.sset x i o y t _, b => FnBody.sset x i o y t b
-  | FnBody.setTag x i _,     b => FnBody.setTag x i b
-  | FnBody.inc x n c p _,    b => FnBody.inc x n c p b
-  | FnBody.dec x n c p _,    b => FnBody.dec x n c p b
-  | FnBody.del x _,          b => FnBody.del x b
-  | other,                   _ => other
+  | FnBody.vdecl x t v _,      b => FnBody.vdecl x t v b
+  | FnBody.jdecl j xs v _,     b => FnBody.jdecl j xs v b
+  | FnBody.set x i y _,        b => FnBody.set x i y b
+  | FnBody.uset x c i y _,     b => FnBody.uset x c i y b
+  | FnBody.sset x c i o y t _, b => FnBody.sset x c i o y t b
+  | FnBody.setTag x i _,       b => FnBody.setTag x i b
+  | FnBody.inc x n c p _,      b => FnBody.inc x n c p b
+  | FnBody.dec x n c p _,      b => FnBody.dec x n c p b
+  | FnBody.del x _,            b => FnBody.del x b
+  | other,                     _ => other
 
 @[inline] def FnBody.resetBody (b : FnBody) : FnBody :=
   b.setBody FnBody.nil
@@ -507,8 +509,8 @@ def Expr.alphaEqv (ρ : IndexRenaming) : Expr → Expr → Bool
   | Expr.reset n₁ x₁,        Expr.reset n₂ x₂        => n₁ == n₂ && aeqv ρ x₁ x₂
   | Expr.reuse x₁ i₁ u₁ ys₁, Expr.reuse x₂ i₂ u₂ ys₂ => aeqv ρ x₁ x₂ && i₁ == i₂ && u₁ == u₂ && aeqv ρ ys₁ ys₂
   | Expr.proj _ i₁ x₁,       Expr.proj _ i₂ x₂       => i₁ == i₂ && aeqv ρ x₁ x₂
-  | Expr.uproj i₁ x₁,        Expr.uproj i₂ x₂        => i₁ == i₂ && aeqv ρ x₁ x₂
-  | Expr.sproj n₁ o₁ x₁,     Expr.sproj n₂ o₂ x₂     => n₁ == n₂ && o₁ == o₂ && aeqv ρ x₁ x₂
+  | Expr.uproj _ i₁ x₁,      Expr.uproj _ i₂ x₂      => i₁ == i₂ && aeqv ρ x₁ x₂
+  | Expr.sproj _ n₁ o₁ x₁,   Expr.sproj _ n₂ o₂ x₂   => n₁ == n₂ && o₁ == o₂ && aeqv ρ x₁ x₂
   | Expr.fap c₁ ys₁,         Expr.fap c₂ ys₂         => c₁ == c₂ && aeqv ρ ys₁ ys₂
   | Expr.pap c₁ ys₁,         Expr.pap c₂ ys₂         => c₁ == c₂ && aeqv ρ ys₁ ys₂
   | Expr.ap x₁ ys₁,          Expr.ap x₂ ys₂          => aeqv ρ x₁ x₂ && aeqv ρ ys₁ ys₂
@@ -539,27 +541,40 @@ def addParamsRename (ρ : IndexRenaming) (ps₁ ps₂ : Array Param) : Option In
     pure ρ
 
 partial def FnBody.alphaEqv : IndexRenaming → FnBody → FnBody → Bool
-  | ρ, FnBody.vdecl x₁ t₁ v₁ b₁,      FnBody.vdecl x₂ t₂ v₂ b₂      => t₁ == t₂ && aeqv ρ v₁ v₂ && alphaEqv (addVarRename ρ x₁.idx x₂.idx) b₁ b₂
-  | ρ, FnBody.jdecl j₁ ys₁ v₁ b₁,  FnBody.jdecl j₂ ys₂ v₂ b₂        => match addParamsRename ρ ys₁ ys₂ with
+  | ρ, FnBody.vdecl x₁ t₁ v₁ b₁,        FnBody.vdecl x₂ t₂ v₂ b₂        =>
+    t₁ == t₂ && aeqv ρ v₁ v₂ && alphaEqv (addVarRename ρ x₁.idx x₂.idx) b₁ b₂
+  | ρ, FnBody.jdecl j₁ ys₁ v₁ b₁,       FnBody.jdecl j₂ ys₂ v₂ b₂       =>
+    match addParamsRename ρ ys₁ ys₂ with
     | some ρ' => alphaEqv ρ' v₁ v₂ && alphaEqv (addVarRename ρ j₁.idx j₂.idx) b₁ b₂
     | none    => false
-  | ρ, FnBody.set x₁ i₁ y₁ b₁,        FnBody.set x₂ i₂ y₂ b₂        => aeqv ρ x₁ x₂ && i₁ == i₂ && aeqv ρ y₁ y₂ && alphaEqv ρ b₁ b₂
-  | ρ, FnBody.uset x₁ i₁ y₁ b₁,       FnBody.uset x₂ i₂ y₂ b₂       => aeqv ρ x₁ x₂ && i₁ == i₂ && aeqv ρ y₁ y₂ && alphaEqv ρ b₁ b₂
-  | ρ, FnBody.sset x₁ i₁ o₁ y₁ t₁ b₁, FnBody.sset x₂ i₂ o₂ y₂ t₂ b₂ =>
+  | ρ, FnBody.set x₁ i₁ y₁ b₁,          FnBody.set x₂ i₂ y₂ b₂          =>
+    aeqv ρ x₁ x₂ && i₁ == i₂ && aeqv ρ y₁ y₂ && alphaEqv ρ b₁ b₂
+  | ρ, FnBody.uset x₁ _ i₁ y₁ b₁,       FnBody.uset x₂ _ i₂ y₂ b₂       =>
+    aeqv ρ x₁ x₂ && i₁ == i₂ && aeqv ρ y₁ y₂ && alphaEqv ρ b₁ b₂
+  | ρ, FnBody.sset x₁ _ i₁ o₁ y₁ t₁ b₁, FnBody.sset x₂ _ i₂ o₂ y₂ t₂ b₂ =>
     aeqv ρ x₁ x₂ && i₁ = i₂ && o₁ = o₂ && aeqv ρ y₁ y₂ && t₁ == t₂ && alphaEqv ρ b₁ b₂
-  | ρ, FnBody.setTag x₁ i₁ b₁,        FnBody.setTag x₂ i₂ b₂        => aeqv ρ x₁ x₂ && i₁ == i₂ && alphaEqv ρ b₁ b₂
-  | ρ, FnBody.inc x₁ n₁ c₁ p₁ b₁,     FnBody.inc x₂ n₂ c₂ p₂ b₂     => aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && p₁ == p₂ && alphaEqv ρ b₁ b₂
-  | ρ, FnBody.dec x₁ n₁ c₁ p₁ b₁,     FnBody.dec x₂ n₂ c₂ p₂ b₂     => aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && p₁ == p₂ && alphaEqv ρ b₁ b₂
-  | ρ, FnBody.del x₁ b₁,              FnBody.del x₂ b₂              => aeqv ρ x₁ x₂ && alphaEqv ρ b₁ b₂
-  | ρ, FnBody.case n₁ x₁ _ alts₁,     FnBody.case n₂ x₂ _ alts₂     => n₁ == n₂ && aeqv ρ x₁ x₂ && Array.isEqv alts₁ alts₂ (fun alt₁ alt₂ =>
+  | ρ, FnBody.setTag x₁ i₁ b₁,          FnBody.setTag x₂ i₂ b₂          =>
+    aeqv ρ x₁ x₂ && i₁ == i₂ && alphaEqv ρ b₁ b₂
+  | ρ, FnBody.inc x₁ n₁ c₁ p₁ b₁,       FnBody.inc x₂ n₂ c₂ p₂ b₂       =>
+    aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && p₁ == p₂ && alphaEqv ρ b₁ b₂
+  | ρ, FnBody.dec x₁ n₁ c₁ p₁ b₁,       FnBody.dec x₂ n₂ c₂ p₂ b₂       =>
+    aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && p₁ == p₂ && alphaEqv ρ b₁ b₂
+  | ρ, FnBody.del x₁ b₁,                FnBody.del x₂ b₂                =>
+    aeqv ρ x₁ x₂ && alphaEqv ρ b₁ b₂
+  | ρ, FnBody.case n₁ x₁ _ alts₁,       FnBody.case n₂ x₂ _ alts₂       =>
+    n₁ == n₂ && aeqv ρ x₁ x₂ && Array.isEqv alts₁ alts₂ (fun alt₁ alt₂ =>
      match alt₁, alt₂ with
      | Alt.ctor i₁ b₁, Alt.ctor i₂ b₂ => i₁ == i₂ && alphaEqv ρ b₁ b₂
      | Alt.default b₁, Alt.default b₂ => alphaEqv ρ b₁ b₂
      | _,              _              => false)
-  | ρ, FnBody.jmp j₁ ys₁,             FnBody.jmp j₂ ys₂             => j₁ == j₂ && aeqv ρ ys₁ ys₂
-  | ρ, FnBody.ret x₁,                 FnBody.ret x₂                 => aeqv ρ x₁ x₂
-  | _, FnBody.unreachable,            FnBody.unreachable            => true
-  | _, _,                             _                             => false
+  | ρ, FnBody.jmp j₁ ys₁,               FnBody.jmp j₂ ys₂               =>
+    j₁ == j₂ && aeqv ρ ys₁ ys₂
+  | ρ, FnBody.ret x₁,                   FnBody.ret x₂                   =>
+    aeqv ρ x₁ x₂
+  | _, FnBody.unreachable,              FnBody.unreachable              =>
+    true
+  | _, _,                               _                               =>
+    false
 
 def FnBody.beq (b₁ b₂ : FnBody) : Bool :=
   FnBody.alphaEqv ∅ b₁ b₂

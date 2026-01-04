@@ -192,10 +192,10 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
         throwCheckerError "invalid proj constructor index"
     | .tagged => pure ()
     | _ => throwCheckerError s!"unexpected IR type '{xType}'"
-  | .uproj _ x =>
+  | .uproj _ _ x =>
     checkObjOrStructVar x
     checkType ty (· == .usize)
-  | .sproj _ _ x =>
+  | .sproj _ _ _ x =>
     checkObjOrStructVar x
     checkScalarType ty
   | .isShared x =>
@@ -226,11 +226,11 @@ partial def checkFnBody (fnBody : FnBody) : M Unit := do
     checkVar x
     checkArg y
     checkFnBody b
-  | .uset x _ y b =>
+  | .uset x _ _ y b =>
     checkVar x
     checkVar y
     checkFnBody b
-  | .sset x _ _ y _ b =>
+  | .sset x _ _ _ y _ b =>
     checkVar x
     checkVar y
     checkFnBody b

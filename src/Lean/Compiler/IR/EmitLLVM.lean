@@ -983,8 +983,8 @@ def emitVDecl (builder : LLVM.Builder llvmctx) (z : VarId) (t : IRType) (v : Exp
   | Expr.reset n x      => emitReset builder z n x
   | Expr.reuse x c u ys => emitReuse builder z x c u ys
   | Expr.proj c i x     => emitProj builder z c i x
-  | Expr.uproj i x      => emitUProj builder z i x
-  | Expr.sproj n o x    => emitSProj builder z t n o x
+  | Expr.uproj _ i x    => emitUProj builder z i x
+  | Expr.sproj _ n o x  => emitSProj builder z t n o x
   | Expr.fap c ys       => emitFullApp builder z c ys
   | Expr.pap c ys       => emitPartialApp builder z c ys
   | Expr.ap x ys        => emitApp builder z x ys
@@ -1172,8 +1172,8 @@ partial def emitBlock (builder : LLVM.Builder llvmctx) (b : FnBody) : M llvmctx 
   | FnBody.del x b             =>  emitDel builder x; emitBlock builder b
   | FnBody.setTag x i b        =>  emitSetTag builder x i; emitBlock builder b
   | FnBody.set x i y b         => emitSet builder x i y; emitBlock builder b
-  | FnBody.uset x i y b        => emitUSet builder x i y; emitBlock builder b
-  | FnBody.sset x i o y t b    => emitSSet builder x i o y t; emitBlock builder b
+  | FnBody.uset x _ i y b      => emitUSet builder x i y; emitBlock builder b
+  | FnBody.sset x _ i o y t b  => emitSSet builder x i o y t; emitBlock builder b
   | FnBody.ret x               => do
       let (_xty, xv) ← emitArgVal builder x "ret_val"
       let _ ← LLVM.buildRet builder xv

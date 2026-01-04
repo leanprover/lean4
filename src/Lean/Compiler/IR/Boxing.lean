@@ -353,14 +353,14 @@ partial def visitFnBody : FnBody → M FnBody
     let v ← withParams xs (visitFnBody v)
     let b ← withJDecl j xs v (visitFnBody b)
     return .jdecl j xs v b
-  | .uset x i y b      => do
+  | .uset x c i y b      => do
     let b ← visitFnBody b
     castVarIfNeeded y IRType.usize fun y =>
-      return .uset x i y b
-  | .sset x i o y ty b => do
+      return .uset x c i y b
+  | .sset x c i o y ty b => do
     let b ← visitFnBody b
     castVarIfNeeded y ty fun y =>
-      return .sset x i o y ty b
+      return .sset x c i o y ty b
   | .case tid x xType alts   => do
     let alts ← alts.mapM fun alt => alt.modifyBodyM visitFnBody
     if xType.isObj then
@@ -455,10 +455,10 @@ partial def boxParams : FnBody → M FnBody
     let ps := ((← read).localCtx.getJPParams j).get!
     modify (checkArgsBoxed ys fun i => !ps[i]!.ty.isScalarOrStruct)
     return .jmp j ys
-  | .uset x i y b => do
-    return .uset x i y (← boxParams b)
-  | .sset x i o y ty b => do
-    return .sset x i o y ty (← boxParams b)
+  | .uset x c i y b => do
+    return .uset x c i y (← boxParams b)
+  | .sset x c i o y ty b => do
+    return .sset x c i o y ty (← boxParams b)
   | b => pure b
 
 end BoxParams

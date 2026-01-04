@@ -59,29 +59,46 @@ structure State where
 
 abbrev M := ReaderT Context $ StateRefT State CompilerM
 
+def extractionAllowlist : Std.HashSet Name := .ofArray #[
+  ``Lean.Name.mkStr,
+  ``Lean.Name.mkNum,
+  ``Lean.Name.mkStr1,
+  ``Lean.Name.mkStr2,
+  ``Lean.Name.mkStr3,
+  ``Lean.Name.mkStr4,
+  ``Lean.Name.mkStr5,
+  ``Lean.Name.mkStr6,
+  ``Lean.Name.mkStr7,
+  ``Lean.Name.mkStr8,
+  ``Lean.Name.str._override,
+  ``Lean.Name.num._override,
+  ``ByteArray.mk,
+]
+
 mutual
 
 partial def shouldExtractLetValue (isRoot : Bool) (v : LetValue) : M Bool := do
   match v with
   | .lit (.str _) => return true
-  | .lit (.nat v) =>
-    -- The old compiler's implementation used the runtime's `is_scalar` function, which
-    -- introduces a dependency on the architecture used by the compiler.
-    return !isRoot || v >= Nat.pow 2 63
   | .lit _ | .erased => return !isRoot
   | .const name _ args =>
     if (← read).sccDecls.any (·.name == name) then
       return false
     if hasNeverExtractAttribute (← getEnv) name then
       return false
-    if isRoot then
-      if let some constInfo := (← getEnv).find? name then
-        let shouldExtract := match constInfo with
-        | .defnInfo val => val.type.isForall
-        | .ctorInfo _ => !(args.all isIrrelevantArg)
-        | _ => true
-        if !shouldExtract then
-          return false
+    if let some constInfo := (← getEnv).find? name then
+      let shouldExtractCtor :=
+        constInfo.isCtor &&
+        !(isExtern (← getEnv) name) &&
+        (!(args.all isIrrelevantArg) || !isRoot)
+      -- TODO: check fully applied ctor
+      let shouldExtract := shouldExtractCtor || extractionAllowlist.contains name
+      if !shouldExtract then
+        return false
+    else
+      let shouldExtract := !isRoot && isClosedTermName (← getEnv) name
+      if !shouldExtract then
+        return false
     args.allM shouldExtractArg
   | .fvar fnVar args => return (← shouldExtractFVar fnVar) && (← args.allM shouldExtractArg)
   | .proj _ _ baseVar => shouldExtractFVar baseVar

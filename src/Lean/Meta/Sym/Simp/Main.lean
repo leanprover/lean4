@@ -59,11 +59,16 @@ abbrev cacheResult (e : Expr) (r : Result) : SimpM Result := do
   return r
 
 @[export lean_sym_simp]
-def simpImpl (e₁ : Expr) : SimpM Result := do
-  if (← get).numSteps >= (← getConfig).maxSteps then
+def simpImpl (e₁ : Expr) : SimpM Result := withIncRecDepth do
+  let numSteps := (← get).numSteps
+  if numSteps >= (← getConfig).maxSteps then
     throwError "`simp` failed: maximum number of steps exceeded"
   if let some result := (← getCache).find? { expr := e₁ } then
     return result
+  let numSteps := numSteps + 1
+  if numSteps % 1000 == 0 then
+    checkSystem "simp"
+  modify fun s => { s with numSteps }
   match (← pre e₁) with
   | .step e₂ h₁ => cacheResult e₁ (← mkEqTransResult e₁ e₂ h₁ (← simp e₂))
   | .rfl =>

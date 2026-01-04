@@ -25,20 +25,12 @@ def simpLet (_ : Expr) : SimpM Result := do
   -- **TODO**
   return .rfl
 
-def simpFVar (_ : Expr) : SimpM Result := do
-  -- **TODO**
-  return .rfl
-
-def simpMVar (_ : Expr) : SimpM Result := do
-  -- **TODO**
-  return .rfl
-
 def simpApp (e : Expr) : SimpM Result := do
   congrArgs e
 
 def simpStep : Simproc := fun e => do
   match e with
-  | .lit _ | .sort _ | .bvar _ | .const .. => return .rfl
+  | .lit _ | .sort _ | .bvar _ | .const .. | .fvar _  | .mvar _ => return .rfl
   | .proj .. =>
     reportIssue! "unexpected kernel projection term during simplification{indentExpr e}\npre-process and fold them as projection applications"
     return .rfl
@@ -50,8 +42,6 @@ def simpStep : Simproc := fun e => do
   | .lam .. => simpLambda e
   | .forallE .. => simpForall e
   | .letE .. => simpLet e
-  | .fvar .. => simpFVar e
-  | .mvar .. => simpMVar e
   | .app .. => simpApp e
 
 abbrev cacheResult (e : Expr) (r : Result) : SimpM Result := do

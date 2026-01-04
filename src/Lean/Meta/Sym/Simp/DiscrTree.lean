@@ -44,16 +44,6 @@ Retrieval should use the standard `DiscrTree.getMatch` or similar, which will fi
 whose key sequence is compatible with the query term.
 -/
 
-/--
-Returns the number of child keys for a given discrimination tree key.
-**Note**: Unlike the standard `DiscrTree` module, `Key.arrow` has arity 2.
--/
-def getKeyArity : Key → Nat
-  | .const _ a  => a
-  | .fvar _ a   => a
-  | .arrow      => 2
-  | _           => 0
-
 /-- Returns `true` if argument at position `i` should be ignored (is a proof or instance). -/
 def ignoreArg (infos : Array ProofInstArgInfo) (i : Nat) : Bool :=
   if h : i < infos.size then

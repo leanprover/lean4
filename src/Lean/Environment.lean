@@ -1357,9 +1357,11 @@ def asyncMayModify (ext : EnvExtension σ) (env : Environment) (asyncDecl : Name
     -- common case of confusing `mainEnv` and `asyncEnv`.
     | .async .mainEnv => ctx.mayContain asyncDecl && ctx.declPrefix != asyncDecl
     -- The async env's async context should either be `asyncDecl` itself or `asyncDecl` is a nested
-    -- declaration that is not itself async.
+    -- declaration that is not itself async. Note: we use `.all` rather than `.any` to also allow
+    -- modifying state for nested declarations that haven't been added to `asyncConsts` yet (e.g.,
+    -- `let rec` declarations with docstrings within `where` clauses).
     | .async .asyncEnv => ctx.declPrefix == asyncDecl ||
-      (ctx.mayContain asyncDecl && (env.findAsyncConst? asyncDecl).any (·.exts?.isNone))
+      (ctx.mayContain asyncDecl && (env.findAsyncConst? asyncDecl).all (·.exts?.isNone))
     | _ => true
 
 /--

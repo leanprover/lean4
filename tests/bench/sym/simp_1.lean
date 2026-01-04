@@ -7,20 +7,27 @@ namespace SimpBench
 ## `SymM` Simplifier benchmarks
 -/
 
-def mkSimpTheorems : MetaM Sym.Simp.Theorems := do
-  let result : Sym.Simp.Theorems := {}
-  let result := result.insert (← Sym.Simp.mkTheoremFromDecl ``Nat.zero_add)
-  return result
+def getProofSize (r : Sym.Simp.Result) : MetaM Nat :=
+  match r with
+  | .rfl => return 0
+  | .step _ p => p.numObjs
+
+def mkSimpMethods : MetaM Sym.Simp.Methods := do
+  let thms : Sym.Simp.Theorems := {}
+  let thm ← Sym.Simp.mkTheoremFromDecl ``Nat.zero_add
+  let thms := thms.insert thm
+  return { post := thms.rewrite }
 
 def simp (e : Expr) : MetaM (Sym.Simp.Result × Float) := Sym.SymM.run' do
   let e ← Grind.shareCommon e
-  let thms ← mkSimpTheorems
+  let methods ← mkSimpMethods
   let startTime ← IO.monoNanosNow
-  let r ← Sym.simp e thms { maxSteps := 100000000 }
+  let r ← Sym.simp e methods { maxSteps := 100000000 }
   let endTime ← IO.monoNanosNow
   -- logInfo e
-  -- logInfo r.expr
-  -- check (← r.getProof)
+  -- match r with
+  -- | .rfl => logInfo "rfl"
+  -- | .step e' h => logInfo e'; logInfo h; check h
   let timeMs := (endTime - startTime).toFloat / 1000000.0
   return (r, timeMs)
 
@@ -37,7 +44,7 @@ def benchTransChain (n : Nat) : MetaM Unit := do
   let e ← mkTransitivityChain n
   forallTelescope e fun _ e => do
     let (r, timeMs) ← simp e
-    let proofSize ← r.proof?.get!.numObjs
+    let proofSize ← getProofSize r
     IO.println s!"trans_chain_{n}: {timeMs}ms, proof_size={proofSize}"
 
 def mkCongrArgStress (depth width : Nat) : MetaM Expr := do
@@ -72,7 +79,7 @@ def benchCongrArgExplosion (depth width : Nat) : MetaM Unit := do
   let e ← mkCongrArgStress depth width
   forallTelescope e fun _ e => do
     let (r, timeMs) ← simp e
-    let proofSize ← r.proof?.get!.numObjs
+    let proofSize ← getProofSize r
     IO.println s!"congr_arg_explosion_{depth}x{width}: {timeMs}ms, proof_size={proofSize}"
 
 -- We simulate this by having many structurally similar subterms
@@ -91,13 +98,18 @@ def mkManySubterms (n : Nat) : MetaM Expr := do
 def benchManyRewrites (n : Nat) : MetaM Unit := do
   let e ← mkManySubterms n
   let (r, timeMs) ← simp e
-  let proofSize ← r.proof?.get!.numObjs
+  let proofSize ← getProofSize r
   IO.println s!"many_rewrites_{n}: {timeMs}ms, proof_size={proofSize}"
 
 /-! ## Run all benchmarks -/
 def runAllBenchmarks : MetaM Unit := do
   IO.println "=== Simplifier Stress Tests ==="
   IO.println ""
+
+  -- benchTransChain 3
+  -- benchCongrArgExplosion 4 3
+  -- benchManyRewrites 3
+  -- if true then return () -- #exit
 
   IO.println ""
   IO.println "--- Benchmark 1: Transitivity chain ---"

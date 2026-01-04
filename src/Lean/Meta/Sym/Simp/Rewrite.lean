@@ -5,16 +5,13 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Sym.SimpM
-public import Lean.Meta.Sym.SimpFun
+public import Lean.Meta.Sym.Simp.SimpM
+public import Lean.Meta.Sym.Simp.Simproc
+public import Lean.Meta.Sym.Simp.Theorems
 import Lean.Meta.Sym.InstantiateS
-import Lean.Meta.Sym.DiscrTree
+import Lean.Meta.Sym.Simp.DiscrTree
 namespace Lean.Meta.Sym.Simp
 open Grind
-
-public def mkTheoremFromDecl (declName : Name) : MetaM Theorem := do
-  let (pattern, rhs) ← mkEqPatternFromDecl declName
-  return { expr := mkConst declName, pattern, rhs }
 
 /--
 Creates proof term for a rewriting step.
@@ -30,22 +27,22 @@ def mkValue (expr : Expr) (pattern : Pattern) (result : MatchUnifyResult) : Expr
 /--
 Tries to rewrite `e` using the given theorem.
 -/
--- **TODO**: Define `Step` result?
-public def Theorem.rewrite? (thm : Theorem) (e : Expr) : SimpM (Option Result) := do
+public def Theorem.rewrite (thm : Theorem) (e : Expr) : SimpM Result := do
   if let some result ← thm.pattern.match? e then
-    let proof? := some <| mkValue thm.expr thm.pattern result
-    let rhs    := thm.rhs.instantiateLevelParams thm.pattern.levelParams result.us
-    let rhs    ← shareCommonInc rhs
-    let expr   ← instantiateRevBetaS rhs result.args
-    return some { expr, proof?  }
+    let proof := mkValue thm.expr thm.pattern result
+    let rhs   := thm.rhs.instantiateLevelParams thm.pattern.levelParams result.us
+    let rhs   ← shareCommonInc rhs
+    let expr  ← instantiateRevBetaS rhs result.args
+    return .step expr proof
   else
-    return none
+    return .rfl
 
-public def rewrite : SimpFun := fun e => do
+public def Theorems.rewrite (thms : Theorems) : Simproc := fun e => do
   -- **TODO**: over-applied terms
-  for thm in (← read).thms.getMatch e do
-    if let some result ← thm.rewrite? e then
+  for thm in thms.getMatch e do
+    let result ← thm.rewrite e
+    if !result.isRfl then
       return result
-  return { expr := e }
+  return .rfl
 
 end Lean.Meta.Sym.Simp

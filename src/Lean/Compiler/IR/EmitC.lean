@@ -901,6 +901,13 @@ def emitStructReshapeFn (origin target : IRType) (id1 id2 : Nat) : M Unit := do
         emit "y.i"; emit i; emit " = "
         emitReshapeFn tys[i] tys'[i]!
         emit "(x.i"; emit i; emitLn ");"
+        if tys[i].isObj then
+          -- note: for unboxing functions the calling conventions don't match up
+          -- (has @& -> @&, expected owned -> owned) so we need to compensate
+          -- TODO: avoid these reference counting instructions when possible
+          if needsRC tys'[i]! then
+            emitIncOfType s!"y.i{i}" tys'[i]! 1 true "1"
+          emit "lean_dec(x.i"; emit i; emitLn ");"
   | _, _ => pure ()
   emitLn "return y;"
   emitLn "}"

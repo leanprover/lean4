@@ -101,6 +101,8 @@ def benchManyRewrites (n : Nat) : MetaM Unit := do
   let proofSize ← getProofSize r
   IO.println s!"many_rewrites_{n}: {timeMs}ms, proof_size={proofSize}"
 
+set_option maxRecDepth 100000
+
 /-! ## Run all benchmarks -/
 def runAllBenchmarks : MetaM Unit := do
   IO.println "=== Simplifier Stress Tests ==="

@@ -25,20 +25,12 @@ def simpLet (_ : Expr) : SimpM Result := do
   -- **TODO**
   return .rfl
 
-def simpFVar (_ : Expr) : SimpM Result := do
-  -- **TODO**
-  return .rfl
-
-def simpMVar (_ : Expr) : SimpM Result := do
-  -- **TODO**
-  return .rfl
-
 def simpApp (e : Expr) : SimpM Result := do
   congrArgs e
 
 def simpStep : Simproc := fun e => do
   match e with
-  | .lit _ | .sort _ | .bvar _ | .const .. => return .rfl
+  | .lit _ | .sort _ | .bvar _ | .const .. | .fvar _  | .mvar _ => return .rfl
   | .proj .. =>
     reportIssue! "unexpected kernel projection term during simplification{indentExpr e}\npre-process and fold them as projection applications"
     return .rfl
@@ -50,8 +42,6 @@ def simpStep : Simproc := fun e => do
   | .lam .. => simpLambda e
   | .forallE .. => simpForall e
   | .letE .. => simpLet e
-  | .fvar .. => simpFVar e
-  | .mvar .. => simpMVar e
   | .app .. => simpApp e
 
 abbrev cacheResult (e : Expr) (r : Result) : SimpM Result := do
@@ -59,11 +49,16 @@ abbrev cacheResult (e : Expr) (r : Result) : SimpM Result := do
   return r
 
 @[export lean_sym_simp]
-def simpImpl (e₁ : Expr) : SimpM Result := do
-  if (← get).numSteps >= (← getConfig).maxSteps then
+def simpImpl (e₁ : Expr) : SimpM Result := withIncRecDepth do
+  let numSteps := (← get).numSteps
+  if numSteps >= (← getConfig).maxSteps then
     throwError "`simp` failed: maximum number of steps exceeded"
   if let some result := (← getCache).find? { expr := e₁ } then
     return result
+  let numSteps := numSteps + 1
+  if numSteps % 1000 == 0 then
+    checkSystem "simp"
+  modify fun s => { s with numSteps }
   match (← pre e₁) with
   | .step e₂ h₁ => cacheResult e₁ (← mkEqTransResult e₁ e₂ h₁ (← simp e₂))
   | .rfl =>

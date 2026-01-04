@@ -30,11 +30,11 @@ Tries to rewrite `e` using the given theorem.
 -- **TODO**: Define `Step` result?
 public def Theorem.rewrite? (thm : Theorem) (e : Expr) : SimpM (Option Result) := do
   if let some result ← thm.pattern.match? e then
-    let proof? := some <| mkValue thm.expr thm.pattern result
-    let rhs    := thm.rhs.instantiateLevelParams thm.pattern.levelParams result.us
-    let rhs    ← shareCommonInc rhs
-    let expr   ← instantiateRevBetaS rhs result.args
-    return some { expr, proof?  }
+    let proof := mkValue thm.expr thm.pattern result
+    let rhs   := thm.rhs.instantiateLevelParams thm.pattern.levelParams result.us
+    let rhs   ← shareCommonInc rhs
+    let expr  ← instantiateRevBetaS rhs result.args
+    return some <| .step expr proof
   else
     return none
 
@@ -43,6 +43,6 @@ public def rewrite (thms : Theorems) : Simproc := fun e => do
   for thm in thms.getMatch e do
     if let some result ← thm.rewrite? e then
       return result
-  return { expr := e }
+  return .rfl
 
 end Lean.Meta.Sym.Simp

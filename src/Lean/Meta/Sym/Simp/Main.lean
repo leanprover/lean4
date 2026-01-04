@@ -7,50 +7,50 @@ module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Tactic.Grind.AlphaShareBuilder
-import Lean.Meta.Sym.Simp.EqTrans
 import Lean.Meta.Sym.Simp.Result
 import Lean.Meta.Sym.Simp.Simproc
 import Lean.Meta.Sym.Simp.Congr
 namespace Lean.Meta.Sym.Simp
 open Grind
 
-def simpConst (e : Expr) : SimpM Result := do
+def simpConst (_ : Expr) : SimpM Result := do
   -- **TODO**
-  return { expr := e }
+  return .rfl
 
-def simpLambda (e : Expr) : SimpM Result := do
+def simpLambda (_ : Expr) : SimpM Result := do
   -- **TODO**
-  return { expr := e }
+  return .rfl
 
-def simpForall (e : Expr) : SimpM Result := do
+def simpForall (_ : Expr) : SimpM Result := do
   -- **TODO**
-  return { expr := e }
+  return .rfl
 
-def simpLet (e : Expr) : SimpM Result := do
+def simpLet (_ : Expr) : SimpM Result := do
   -- **TODO**
-  return { expr := e }
+  return .rfl
 
-def simpFVar (e : Expr) : SimpM Result := do
+def simpFVar (_ : Expr) : SimpM Result := do
   -- **TODO**
-  return { expr := e }
+  return .rfl
 
-def simpMVar (e : Expr) : SimpM Result := do
+def simpMVar (_ : Expr) : SimpM Result := do
   -- **TODO**
-  return { expr := e }
+  return .rfl
 
 def simpApp (e : Expr) : SimpM Result := do
   congrArgs e
 
 def simpStep : Simproc := fun e => do
   match e with
-  | .lit _ | .sort _ | .bvar _ => return { expr := e }
+  | .lit _ | .sort _ | .bvar _ => return .rfl
   | .proj .. =>
     reportIssue! "unexpected kernel projection term during simplification{indentExpr e}\npre-process and fold them as projection applications"
-    return { expr := e }
+    return .rfl
   | .mdata m b =>
     let r ← simp b
-    if isSameExpr r.expr b then return { expr := e }
-    else return { r with expr := (← mkMDataS m r.expr) }
+    match r with
+    | .rfl => return .rfl
+    | .step b' h => return .step (← mkMDataS m b') h
   | .const .. => simpConst e
   | .lam .. => simpLambda e
   | .forallE .. => simpForall e
@@ -59,24 +59,22 @@ def simpStep : Simproc := fun e => do
   | .mvar .. => simpMVar e
   | .app .. => simpApp e
 
-def cacheResult (e : Expr) (r : Result) : SimpM Result := do
+abbrev cacheResult (e : Expr) (r : Result) : SimpM Result := do
   modify fun s => { s with cache := s.cache.insert { expr := e } r }
   return r
 
 @[export lean_sym_simp]
-def simpImpl (e : Expr) : SimpM Result := do
+def simpImpl (e₁ : Expr) : SimpM Result := do
   if (← get).numSteps >= (← getConfig).maxSteps then
     throwError "`simp` failed: maximum number of steps exceeded"
-  if let some result := (← getCache).find? { expr := e } then
+  if let some result := (← getCache).find? { expr := e₁ } then
     return result
-  let r ← (pre >> simpStep >> post) e
-  if isSameExpr r.expr e then
-    cacheResult e r
-  else
-    let r' ← simp r.expr
-    if isSameExpr r'.expr r.expr then
-      cacheResult e r
-    else
-      cacheResult e (← mkEqTrans e r r')
+  -- match (← pre e₁) with
+  -- | .step e₂ h₁ => cacheResult e₁ (← mkEqTransResult e₁ e₂ h₁ (← simp e₂))
+  -- | .rfl =>
+  let r₁ ← (simpStep >> post) e₁
+  match r₁ with
+  | .rfl => cacheResult e₁ r₁
+  | .step e₂ h₁ => cacheResult e₁ (← mkEqTransResult e₁ e₂ h₁ (← simp e₂))
 
 end Lean.Meta.Sym.Simp

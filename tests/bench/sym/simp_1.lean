@@ -8,9 +8,9 @@ namespace SimpBench
 -/
 
 def getProofSize (r : Sym.Simp.Result) : MetaM Nat :=
-  match r.proof? with
-  | none => return 0
-  | some p => p.numObjs
+  match r with
+  | .rfl => return 0
+  | .step _ p => p.numObjs
 
 def mkSimpTheorems : MetaM Sym.Simp.Theorems := do
   let result : Sym.Simp.Theorems := {}
@@ -25,8 +25,9 @@ def simp (e : Expr) : MetaM (Sym.Simp.Result × Float) := Sym.SymM.run' do
   let r ← Sym.simp e methods { maxSteps := 100000000 }
   let endTime ← IO.monoNanosNow
   -- logInfo e
-  -- logInfo r.expr
-  -- check (← r.getProof)
+  -- match r with
+  -- | .rfl => logInfo "rfl"
+  -- | .step e' h => logInfo e'; logInfo h; check h
   let timeMs := (endTime - startTime).toFloat / 1000000.0
   return (r, timeMs)
 
@@ -104,6 +105,11 @@ def benchManyRewrites (n : Nat) : MetaM Unit := do
 def runAllBenchmarks : MetaM Unit := do
   IO.println "=== Simplifier Stress Tests ==="
   IO.println ""
+
+  -- benchTransChain 3
+  -- benchCongrArgExplosion 4 3
+  -- benchManyRewrites 3
+  -- if true then return () -- #exit
 
   IO.println ""
   IO.println "--- Benchmark 1: Transitivity chain ---"

@@ -107,12 +107,11 @@ structure Config where
   -- **TODO**: many are still missing
 
 /-- The result of simplifying some expression `e`. -/
-structure Result where
-  /-- The simplified version of `e` -/
-  expr           : Expr
-  /-- A proof that `e = expr`, where the simplified expression is on the RHS.
-  If `none`, the proof is assumed to be `refl`. -/
-  proof?         : Option Expr := none
+inductive Result where
+  | /-- No change -/
+    rfl
+  | /-- Simplified expression `e'` and a proof that `e = e'` -/
+    step (e' : Expr) (proof : Expr)
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 def MethodsRef : Type := MethodsRefPointed.type
@@ -151,8 +150,8 @@ instance : Inhabited (SimpM α) where
 abbrev Simproc := Expr → SimpM Result
 
 structure Methods where
-  pre        : Simproc  := fun e => return { expr := e }
-  post       : Simproc  := fun e => return { expr := e }
+  pre        : Simproc  := fun _ => return .rfl
+  post       : Simproc  := fun _ => return .rfl
   discharge? : Expr → SimpM (Option Expr) := fun _ => return none
   /--
   `wellBehavedDischarge` must **not** be set to `true` IF `discharge?`
@@ -169,7 +168,7 @@ unsafe def Methods.toMethodsRefImpl (m : Methods) : MethodsRef :=
 @[implemented_by Methods.toMethodsRefImpl]
 opaque Methods.toMethodsRef (m : Methods) : MethodsRef
 
-unsafe def MethodsRef.toMethodsImpl (m : MethodsRef) : Methods :=
+unsafe abbrev MethodsRef.toMethodsImpl (m : MethodsRef) : Methods :=
   unsafeCast m
 
 @[implemented_by MethodsRef.toMethodsImpl]
@@ -184,7 +183,7 @@ def SimpM.run (x : SimpM α) (methods : Methods := {}) (config : Config := {}) :
   x methods.toMethodsRef { initialLCtxSize, config } |>.run' {}
 
 @[extern "lean_sym_simp"] -- Forward declaration
-opaque simp (e : Expr) : SimpM Result
+opaque simp : Simproc
 
 def getConfig : SimpM Config :=
   return (← readThe Context).config
@@ -192,10 +191,10 @@ def getConfig : SimpM Config :=
 abbrev getCache : SimpM Cache :=
   return (← get).cache
 
-abbrev pre (e : Expr) : SimpM Result := do
+abbrev pre : Simproc := fun e => do
   (← getMethods).pre e
 
-abbrev post (e : Expr) : SimpM Result := do
+abbrev post : Simproc := fun e => do
   (← getMethods).post e
 
 end Simp

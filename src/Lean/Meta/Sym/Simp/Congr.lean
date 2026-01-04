@@ -47,21 +47,21 @@ def mkCongr (e : Expr) (f a : Expr) (fr : Result) (ar : Result) (_ : e = .app f 
     let β ← inferType e
     let v ← getLevel β
     return mkApp2 (mkConst declName [u, v]) α β
-  match isSameExpr fr.expr f, isSameExpr ar.expr a with
-  | true,  true =>
-    return { expr := e }
-  | false, true =>
-    let expr ← mkAppS fr.expr a
-    let proof? := mkApp4 (← mkCongrPrefix ``congrFun') f fr.expr (← fr.getProof) a
-    return { expr, proof? }
-  | true, false =>
-    let expr ← mkAppS f ar.expr
-    let proof? := mkApp4 (← mkCongrPrefix ``congrArg) a ar.expr f (← ar.getProof)
-    return { expr, proof? }
-  | false, false =>
-    let expr ← mkAppS fr.expr ar.expr
-    let proof? := mkApp6 (← mkCongrPrefix ``congr) f fr.expr a ar.expr (← fr.getProof) (← ar.getProof)
-    return { expr, proof? }
+  match fr, ar with
+  | .rfl,  .rfl =>
+    return .rfl
+  | .step f' hf, .rfl =>
+    let e' ← mkAppS f' a
+    let h := mkApp4 (← mkCongrPrefix ``congrFun') f f' hf a
+    return .step e' h
+  | .rfl, .step a' ha =>
+    let e' ← mkAppS f a'
+    let h := mkApp4 (← mkCongrPrefix ``congrArg) a a' f ha
+    return .step e' h
+  | .step f' hf, .step a' ha =>
+    let e' ← mkAppS f' a'
+    let h := mkApp6 (← mkCongrPrefix ``congr) f f' a a' hf ha
+    return .step e' h
 
 /--
 Returns a proof using `congrFun`
@@ -69,16 +69,16 @@ Returns a proof using `congrFun`
 congrFun.{u, v} {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x} (h : f = g) (a : α) : f a = g a
 ```
 -/
-def mkCongrFun (e : Expr) (f a : Expr) (fr : Result) (_ : e = .app f a) : SymM Result := do
+def mkCongrFun (e : Expr) (f a : Expr) (f' : Expr) (hf : Expr) (_ : e = .app f a) : SymM Result := do
   let .forallE x _ βx _ ← whnfD (← inferType f)
     | throwError "failed to build congruence proof, function expected{indentExpr f}"
   let α ← inferType a
   let u ← getLevel α
   let v ← getLevel (← inferType e)
   let β := Lean.mkLambda x .default α βx
-  let expr ← mkAppS fr.expr a
-  let proof? := mkApp6 (mkConst ``congrFun [u, v]) α β f fr.expr (← fr.getProof) a
-  return { expr, proof? }
+  let e' ← mkAppS f' a
+  let h := mkApp6 (mkConst ``congrFun [u, v]) α β f f' hf a
+  return .step e' h
 
 /--
 Simplify arguments of a function application with a fixed prefix structure.
@@ -89,16 +89,16 @@ def congrFixedPrefix (e : Expr) (prefixSize : Nat) (suffixSize : Nat) : SimpM Re
   let numArgs := e.getAppNumArgs
   if numArgs ≤ prefixSize then
     -- Nothing to be done
-    return { expr := e }
+    return .rfl
   else if numArgs > prefixSize + suffixSize then
     -- **TODO**: over-applied case
-    return { expr := e }
+    return .rfl
   else
     go numArgs e
 where
   go (i : Nat) (e : Expr) : SimpM Result := do
     if i == prefixSize then
-      return { expr := e }
+      return .rfl
     else
       match h : e with
       | .app f a => mkCongr e f a (← go (i - 1) f) (← simp a) h
@@ -114,35 +114,34 @@ def congrInterlaced (e : Expr) (rewritable : Array Bool) : SimpM Result := do
   let numArgs := e.getAppNumArgs
   if h : numArgs = 0 then
     -- Nothing to be done
-    return { expr := e }
+    return .rfl
   else if h : numArgs > rewritable.size then
     -- **TODO**: over-applied case
-    return { expr := e }
+    return .rfl
   else
     go numArgs e (by omega)
 where
   go (i : Nat) (e : Expr) (h : i ≤ rewritable.size) : SimpM Result := do
     if h : i = 0 then
-      return { expr := e }
+      return .rfl
     else
       match h : e with
       | .app f a =>
         let fr ← go (i - 1) f (by omega)
         if rewritable[i - 1] then
           mkCongr e f a fr (← simp a) h
-        else if isSameExpr fr.expr f then
-          return { expr := e }
-        else
-          mkCongrFun e f a fr h
+        else match fr with
+          | .rfl => return .rfl
+          | .step f' hf => mkCongrFun e f a f' hf h
       | _ => unreachable!
 
 /--
 Simplify arguments using a pre-generated congruence theorem.
 Used for functions with proof or `Decidable` arguments.
 -/
-def congrThm (e : Expr) (_ : CongrTheorem) : SimpM Result := do
+def congrThm (_e : Expr) (_ : CongrTheorem) : SimpM Result := do
   -- **TODO**
-  return { expr := e }
+  return .rfl
 
 /--
 Main entry point for simplifying function application arguments.
@@ -151,7 +150,7 @@ Dispatches to the appropriate strategy based on the function's `CongrInfo`.
 public def congrArgs (e : Expr) : SimpM Result := do
   let f := e.getAppFn
   match (← getCongrInfo f) with
-  | .none => return { expr := e }
+  | .none => return .rfl
   | .fixedPrefix prefixSize suffixSize => congrFixedPrefix e prefixSize suffixSize
   | .interlaced rewritable => congrInterlaced e rewritable
   | .congrTheorem thm => congrThm e thm

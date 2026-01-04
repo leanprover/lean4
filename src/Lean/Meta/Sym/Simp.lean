@@ -8,7 +8,6 @@ prelude
 public import Lean.Meta.Sym.Simp.Congr
 public import Lean.Meta.Sym.Simp.CongrInfo
 public import Lean.Meta.Sym.Simp.DiscrTree
-public import Lean.Meta.Sym.Simp.EqTrans
 public import Lean.Meta.Sym.Simp.Main
 public import Lean.Meta.Sym.Simp.Result
 public import Lean.Meta.Sym.Simp.Rewrite

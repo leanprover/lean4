@@ -6,10 +6,20 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
+public import Lean.Meta.Sym.InferType
 namespace Lean.Meta.Sym.Simp
 
-public def Result.getProof (result : Result) : SymM Expr := do
-  let some proof := result.proof? | mkEqRefl result.expr
-  return proof
+public abbrev Result.isRfl (result : Result) : Bool :=
+  result matches .rfl
+
+public def mkEqTrans (e₁ : Expr) (e₂ : Expr) (h₁ : Expr) (e₃ : Expr) (h₂ : Expr) : SymM Expr := do
+  let α ← Sym.inferType e₁
+  let u ← Sym.getLevel α
+  return mkApp6 (mkConst ``Eq.trans [u]) α e₁ e₂ e₃ h₁ h₂
+
+public abbrev mkEqTransResult (e₁ : Expr) (e₂ : Expr) (h₁ : Expr) (r₂ : Result) : SymM Result :=
+  match r₂ with
+  | .rfl => return .step e₂ h₁
+  | .step e₃ h₂ => return .step e₃ (← mkEqTrans e₁ e₂ h₁ e₃ h₂)
 
 end Lean.Meta.Sym.Simp

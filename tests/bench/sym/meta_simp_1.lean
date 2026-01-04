@@ -28,7 +28,7 @@ def simp (e : Expr) : MetaM (Simp.Result × Float) := Sym.SymM.run' do
 def mkTransitivityChain (n : Nat) : MetaM Expr := do
   withLocalDeclD `x (mkConst ``Nat) fun x => do
     let zero := mkNatLit 0
-    let mut e := zero
+    let mut e := x
     for _ in [:n] do
       e := mkApp (mkConst ``f) (mkNatAdd zero e)
     mkForallFVars #[x] e

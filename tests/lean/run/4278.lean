@@ -8,7 +8,7 @@ structure S where
 /--
 trace: [Compiler.IR] [result]
     def get_unboxed (x_1 : obj) : u64 :=
-      let x_2 : u64 := sproj[0, 0] x_1;
+      let x_2 : u64 := sproj[0, 0, 0] x_1;
       dec x_1;
       ret x_2
     def get_unboxed._boxed (x_1 : obj) : tobj :=

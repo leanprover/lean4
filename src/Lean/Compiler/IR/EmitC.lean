@@ -496,18 +496,19 @@ def emitSProj (z : VarId) (t : IRType) (cidx : Nat) (n offset : Nat) (x : VarId)
   if ty matches .union .. then
     emit "*(("; emit (← toCType t); emit "*)("
     emit x; emit ".cs.c"; emit cidx; emit ".s+"; emit offset; emitLn "));"
+    return
   else if ty matches .struct .. then
     emit "*(("; emit (← toCType t); emit "*)("
     emit x; emit ".s+"; emit offset; emitLn "));"
     return
   match t with
-  | IRType.float    => emit "lean_ctor_get_float"
-  | IRType.float32  => emit "lean_ctor_get_float32"
-  | IRType.uint8    => emit "lean_ctor_get_uint8"
-  | IRType.uint16   => emit "lean_ctor_get_uint16"
-  | IRType.uint32   => emit "lean_ctor_get_uint32"
-  | IRType.uint64   => emit "lean_ctor_get_uint64"
-  | _               => throw "invalid instruction"
+  | IRType.float   => emit "lean_ctor_get_float"
+  | IRType.float32 => emit "lean_ctor_get_float32"
+  | IRType.uint8   => emit "lean_ctor_get_uint8"
+  | IRType.uint16  => emit "lean_ctor_get_uint16"
+  | IRType.uint32  => emit "lean_ctor_get_uint32"
+  | IRType.uint64  => emit "lean_ctor_get_uint64"
+  | _              => throw "invalid instruction"
   emit "("; emit x; emit ", "; emitOffset n offset; emitLn ");"
 
 def toStringArgs (ys : Array Arg) : List String :=

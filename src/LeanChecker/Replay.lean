@@ -22,18 +22,11 @@ after replaying any inductive definitions occurring in `constantMap`.
 * a verifier for an `Environment`, by sending everything to the kernel, or
 * a mechanism to safely transfer constants from one `Environment` to another.
 
-## Implementation notes
-
-This is a patched version of `Lean.Environment.Replay`, which is in the `lean4` repository
-up to `v4.18.0`, but will be deprecated in `v4.19.0` and then removed. Once it it removed,
-the prime on the `Replay'` namespace, the prime on `Lean.Environment.replay'`
-should be removed here.
-
 -/
 
 namespace Lean.Environment
 
-namespace Replay'
+namespace Replay
 
 structure Context where
   newConstants : Std.HashMap Name ConstantInfo
@@ -165,9 +158,9 @@ def checkPostponedRecursors : M Unit := do
       if ! (info == info') then throw <| IO.userError s!"Invalid recursor {ctor}"
     | _, _ => throw <| IO.userError s!"No such recursor {ctor}"
 
-end Replay'
+end Replay
 
-open Replay'
+open Replay
 
 /--
 "Replay" some constants into an `Environment`, sending them to the kernel for checking.
@@ -175,7 +168,7 @@ open Replay'
 Throws a `IO.userError` if the kernel rejects a constant,
 or if there are malformed recursors or constructors for inductive types.
 -/
-def replay' (newConstants : Std.HashMap Name ConstantInfo) (env : Environment) : IO Environment := do
+def replay (newConstants : Std.HashMap Name ConstantInfo) (env : Environment) : IO Environment := do
   let mut remaining : NameSet := ∅
   for (n, ci) in newConstants.toList do
     -- We skip unsafe constants, and also partial constants.

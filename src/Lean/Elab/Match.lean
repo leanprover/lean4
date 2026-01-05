@@ -57,7 +57,24 @@ def isAtomicDiscr (discr : Syntax) : TermElabM Bool := do
 -- See expandNonAtomicDiscrs?
 private def elabAtomicDiscr (discr : Syntax) : TermElabM Expr := do
   let term := discr[1]
-  elabTerm term none
+  let discr ← elabTerm term none
+  let ty ← inferType discr
+  if ty.hasMVar && (← read).mayElabToJump then
+    -- If the discriminant type contains a metavariable, `match` elaboration may not succeed.
+    -- We will get a pending MVar for the `match`, and that will cause the surrounding join point
+    -- mechanism to postpone. It is unlikely that the inference problem is solvable later, so we
+    -- try to synthesize default instances in order to make progress on discriminants such as
+    -- `(m.get? "foo" <|> m.get? "bar")` to pick the default `HOrElse` instance.
+    -- It is sufficient to synthesize the top level of `ty` to see the `Except ?m`, however; hence
+    -- no need for `synthesizeSyntheticMVarsNoPostponing`.
+    trace[Elab.match] "synthesizing default instances for discriminant type {ty}"
+    synthesizeSyntheticMVarsUsingDefault
+    trace[Elab.match] "after synthesizing using default instances {ty}"
+    if ← isMVarApp ty then
+      -- If the discriminant type is still a metavariable, we postpone; that's what the join point
+      -- code would do anyway, but only after doing a lot more pointless work.
+      tryPostpone
+  return discr
 
 /-- Creates syntax for a fresh `h : `-notation annotation for a discriminant, copying source
     information from an existing annotation `stx`. -/

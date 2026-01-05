@@ -100,6 +100,15 @@ def all (p : α → β → Bool) : AssocList α β → Bool
   | nil         => true
   | cons k v es => p k v && all p es
 
+@[specialize] protected def forInNew {α : Type u} {β : Type v} {σ γ : Type w} {m : Type w → Type w'}
+    (as : AssocList α β) (init : σ) (kcons : (α × β) → (σ → m γ) → σ → m γ) (knil : σ → m γ) : m γ :=
+  match as with
+  | nil => knil init
+  | cons k v es => kcons (k, v) (AssocList.forInNew es · kcons knil) init
+
+instance : ForInNew m (AssocList α β) (α × β) where
+  forInNew := AssocList.forInNew
+
 @[inline] protected def forIn {α : Type u} {β : Type v} {δ : Type w} {m : Type w → Type w'} [Monad m]
     (as : AssocList α β) (init : δ) (f : (α × β) → δ → m (ForInStep δ)) : m δ :=
   let rec @[specialize] loop

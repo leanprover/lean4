@@ -218,6 +218,7 @@ This is a persistent data structure implemented using `Std.TreeSet`. -/
 @[expose] def FVarIdSet := Std.TreeSet FVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
+instance : ForInNew m FVarIdSet FVarId := inferInstanceAs (ForInNew _ (Std.TreeSet _ _) ..)
 instance [Monad m] : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
 def FVarIdSet.insert (s : FVarIdSet) (fvarId : FVarId) : FVarIdSet :=
@@ -280,6 +281,8 @@ def MVarIdMap.insert (s : MVarIdMap α) (mvarId : MVarId) (a : α) : MVarIdMap �
   Std.TreeMap.insert s mvarId a
 
 instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (Std.TreeMap _ _ _))
+
+instance : ForInNew m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForInNew _ (Std.TreeMap _ _ _) ..)
 
 instance [Monad m] : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) ..)
 

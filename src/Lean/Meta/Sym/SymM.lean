@@ -5,12 +5,11 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Main
+public import Lean.Meta.Basic
+public import Lean.Meta.Sym.AlphaShareCommon
+public import Lean.Meta.CongrTheorems
 public section
 namespace Lean.Meta.Sym
-export Grind (ExprPtr Goal)
-
 /--
 Information about a single argument position in a function's type signature.
 
@@ -112,6 +111,6 @@ structure State where
   getLevel : PHashMap ExprPtr Level := {}
   congrInfo : PHashMap ExprPtr CongrInfo := {}
 
-abbrev SymM := ReaderT Grind.Params StateRefT State Grind.GrindM
+abbrev SymM := StateRefT State MetaM
 
 end Lean.Meta.Sym

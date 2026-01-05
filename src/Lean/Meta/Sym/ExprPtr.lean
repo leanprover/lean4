@@ -7,7 +7,7 @@ module
 prelude
 public import Lean.Expr
 public section
-namespace Lean.Meta.Grind
+namespace Lean.Meta.Sym
 
 @[inline] def isSameExpr (a b : Expr) : Bool :=
   -- It is safe to use pointer equality because we hashcons all expressions
@@ -31,4 +31,4 @@ instance : Hashable ExprPtr where
 instance : BEq ExprPtr where
   beq k₁ k₂ := isSameExpr k₁.expr k₂.expr
 
-end Lean.Meta.Grind
+end Lean.Meta.Sym

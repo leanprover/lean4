@@ -5,9 +5,9 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.ExprPtr
+public import Lean.Meta.Sym.ExprPtr
 public section
-namespace Lean.Meta.Grind
+namespace Lean.Meta.Sym
 
 private def hashChild (e : Expr) : UInt64 :=
   match e with
@@ -180,4 +180,4 @@ where
   | .mdata _ b => visitInc e (return e.updateMData! (← go b))
   | .proj _ _ b => visitInc e (return e.updateProj! (← go b))
 
-end Lean.Meta.Grind
+end Lean.Meta.Sym

@@ -48,17 +48,16 @@ def mkCongr (e : Expr) (f a : Expr) (fr : Result) (ar : Result) (_ : e = .app f 
     let v ← getLevel β
     return mkApp2 (mkConst declName [u, v]) α β
   match fr, ar with
-  | .rfl,  .rfl =>
-    return .rfl
-  | .step f' hf, .rfl =>
+  | .rfl _,  .rfl _ => return .rfl
+  | .step f' hf _, .rfl _ =>
     let e' ← mkAppS f' a
     let h := mkApp4 (← mkCongrPrefix ``congrFun') f f' hf a
     return .step e' h
-  | .rfl, .step a' ha =>
+  | .rfl _, .step a' ha _ =>
     let e' ← mkAppS f a'
     let h := mkApp4 (← mkCongrPrefix ``congrArg) a a' f ha
     return .step e' h
-  | .step f' hf, .step a' ha =>
+  | .step f' hf _, .step a' ha _ =>
     let e' ← mkAppS f' a'
     let h := mkApp6 (← mkCongrPrefix ``congr) f f' a a' hf ha
     return .step e' h
@@ -131,8 +130,8 @@ where
         if rewritable[i - 1] then
           mkCongr e f a fr (← simp a) h
         else match fr with
-          | .rfl => return .rfl
-          | .step f' hf => mkCongrFun e f a f' hf h
+          | .rfl _ => return .rfl
+          | .step f' hf _ => mkCongrFun e f a f' hf h
       | _ => unreachable!
 
 /--

@@ -13,8 +13,9 @@ open Grind
 public abbrev Simproc.andThen (f g : Simproc) : Simproc := fun e₁ => do
   let r ← f e₁
   match r with
-  | .rfl => g e₁
-  | .step e₂ h₁ => mkEqTransResult e₁ e₂ h₁ (← g e₂)
+  | .step _ _ true | .rfl true  => return r
+  | .rfl false => g e₁
+  | .step e₂ h₁ false => mkEqTransResult e₁ e₂ h₁ (← g e₂)
 
 public instance : AndThen Simproc where
   andThen f g := Simproc.andThen f (g ())

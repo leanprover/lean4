@@ -104,12 +104,51 @@ structure Config where
   maxSteps : Nat := 0
   -- **TODO**: many are still missing
 
-/-- The result of simplifying some expression `e`. -/
+/--
+The result of simplifying an expression `e`.
+
+The `done` flag controls whether simplification should continue after this result:
+- `done = false` (default): Continue with subsequent simplification steps
+- `done = true`: Stop processing, return this result as final
+
+## Use cases for `done = true`
+
+### In `pre` simprocs
+Skip simplification of certain subterms entirely:
+```
+def skipLambdas : Simproc := fun e =>
+  if e.isLambda then return .rfl (done := true)
+  else return .rfl
+```
+
+### In `post` simprocs
+Perform single-pass normalization without recursive simplification:
+```
+def singlePassNormalize : Simproc := fun e =>
+  if let some (e', h) ← tryNormalize e then
+    return .step e' h (done := true)
+  else return .rfl
+```
+With `done = true`, the result `e'` won't be recursively simplified.
+
+## Behavior
+
+The `done` flag affects:
+1. **`andThen` composition**: If the first simproc returns `done = true`,
+   the second simproc is skipped.
+2. **Recursive simplification**: After `pre` or `post` returns `.step e' h`,
+   `simp` normally recurses on `e'`. With `done = true`, recursion is skipped.
+
+The flag is orthogonal to caching: both `.rfl` and `.step` results are cached
+regardless of the `done` flag, and cached results are always treated as final.
+-/
 inductive Result where
-  | /-- No change -/
-    rfl
-  | /-- Simplified expression `e'` and a proof that `e = e'` -/
-    step (e' : Expr) (proof : Expr)
+  /-- No change. If `done = true`, skip remaining simplification steps for this term. -/
+  | rfl (done : Bool := false)
+  /--
+  Simplified to `e'` with proof `proof : e = e'`.
+  If `done = true`, skip recursive simplification of `e'`. -/
+  | step (e' : Expr) (proof : Expr) (done : Bool := false)
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 def MethodsRef : Type := MethodsRefPointed.type

@@ -19,7 +19,7 @@ public def mkEqTrans (e₁ : Expr) (e₂ : Expr) (h₁ : Expr) (e₃ : Expr) (h�
 
 public abbrev mkEqTransResult (e₁ : Expr) (e₂ : Expr) (h₁ : Expr) (r₂ : Result) : SymM Result :=
   match r₂ with
-  | .rfl => return .step e₂ h₁
-  | .step e₃ h₂ => return .step e₃ (← mkEqTrans e₁ e₂ h₁ e₃ h₂)
+  | .rfl done => return .step e₂ h₁ done
+  | .step e₃ h₂ done => return .step e₃ (← mkEqTrans e₁ e₂ h₁ e₃ h₂) done
 
 end Lean.Meta.Sym.Simp

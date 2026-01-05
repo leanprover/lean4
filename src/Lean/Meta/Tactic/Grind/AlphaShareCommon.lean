@@ -69,18 +69,22 @@ private structure State where
 
 private abbrev M := StateM State
 
+private def dummy : AlphaKey := { expr := mkConst `__dummy__}
+
 private def save (e : Expr) (r : Expr) : M Expr := do
-  if let some r := (← get).set.find? { expr := r } then
-    let r := r.expr
-    modify fun { set, map } => {
-      set
-      map := map.insert { expr := e } r
-    }
-    return r
-  else
+  let prev := (← get).set.findD { expr := r } dummy
+  if isSameExpr prev.expr dummy.expr then
+    -- `r` is new
     modify fun { set, map } => {
       set := set.insert { expr := r }
       map := map.insert { expr := e } r |>.insert { expr := r } r
+    }
+    return r
+  else
+    let r := prev.expr
+    modify fun { set, map } => {
+      set
+      map := map.insert { expr := e } r
     }
     return r
 
@@ -96,10 +100,12 @@ private abbrev visit (e : Expr) (k : M Expr) : M Expr := do
   **Note**: The input may contain sub-expressions that have already been processed and are
   already maximally shared.
   -/
-  if let some r := (← get).set.find? { expr := e } then
-    return r.expr
-  else
+  let prev := (← get).set.findD { expr := e } dummy
+  if isSameExpr prev.expr dummy.expr then
+    -- `e` has not been hash-consed before
     save e (← k)
+  else
+    return prev.expr
 
 private def go (e : Expr) : M Expr := do
   match e with
@@ -125,17 +131,21 @@ private def go (e : Expr) : M Expr := do
     (e, ⟨set⟩)
 
 private def saveInc (e : Expr) : AlphaShareCommonM Expr := do
-  if let some r := (← get).set.find? { expr := e } then
-    return r.expr
-  else
+  let prev := (← get).set.findD { expr := e } dummy
+  if isSameExpr prev.expr dummy.expr then
+    -- `e` is new
     modify fun { set := set } => { set := set.insert { expr := e } }
     return e
+  else
+    return prev.expr
 
 @[inline] private def visitInc (e : Expr) (k : AlphaShareCommonM Expr) : AlphaShareCommonM Expr := do
-  if let some r := (← get).set.find? { expr := e } then
-    return r.expr
-  else
+  let prev := (← get).set.findD { expr := e } dummy
+  if isSameExpr prev.expr dummy.expr then
+    -- `e` has now been cached before
     saveInc (← k)
+  else
+    return prev.expr
 
 /--
 Incremental variant of `shareCommonAlpha` for expressions constructed from already-shared subterms.

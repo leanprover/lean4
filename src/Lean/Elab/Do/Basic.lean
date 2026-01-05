@@ -616,7 +616,7 @@ where
     -- The `forallTelescope` should not be necessary; if a relevant elaboration problem is
     -- postponed, it should have type `m ?α`.
     -- forallTelescope type fun _xs type => do
-    let res ← isDefEq type mα
+    let res ← withReducible <| isDefEq type mα
     -- if res then
     --   trace[Elab.do] "isPostponedSyntheticMVarOfMonadicType: {mkMVar mvarId}, {← mvarId.getType}, {mα}, {res}"
     return res

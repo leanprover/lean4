@@ -109,18 +109,12 @@ private def go (e : Expr) : M Expr := do
     else
       modify fun { set, map } => { set := set.insert { expr := e }, map }
       return e
-  | .app f a =>
-    visit e (return mkApp (← go f) (← go a))
-  | .letE n t v b nd =>
-    visit e (return mkLet n t (← go v) (← go b) nd)
-  | .forallE n d b bi =>
-    visit e (return mkForall n bi (← go d) (← go b))
-  | .lam n d b bi =>
-    visit e (return mkLambda n bi (← go d) (← go b))
-  | .mdata d b =>
-    visit e (return mkMData d (← go b))
-  | .proj n i b =>
-    visit e (return mkProj n i (← go b))
+  | .app f a => visit e (return e.updateApp! (← go f) (← go a))
+  | .letE _ t v b _ => visit e (return e.updateLetE! (← go t) (← go v) (← go b))
+  | .forallE _ d b _ => visit e (return e.updateForallE! (← go d) (← go b))
+  | .lam _ d b _ => visit e (return e.updateLambdaE! (← go d) (← go b))
+  | .mdata _ b => visit e (return e.updateMData! (← go b))
+  | .proj _ _ b => visit e (return e.updateProj! (← go b))
 
 /-- Similar to `shareCommon`, but handles alpha-equivalence. -/
 @[inline] def shareCommonAlpha (e : Expr) : AlphaShareCommonM Expr := fun s =>
@@ -169,17 +163,11 @@ where
   go (e : Expr) : AlphaShareCommonM Expr := do
   match e with
   | .bvar .. | .mvar .. | .const .. | .fvar .. | .sort .. | .lit .. => saveInc e
-  | .app f a =>
-    visitInc e (return mkApp (← go f) (← go a))
-  | .letE n t v b nd =>
-    visitInc e (return mkLet n t (← go v) (← go b) nd)
-  | .forallE n d b bi =>
-    visitInc e (return mkForall n bi (← go d) (← go b))
-  | .lam n d b bi =>
-    visitInc e (return mkLambda n bi (← go d) (← go b))
-  | .mdata d b =>
-    visitInc e (return mkMData d (← go b))
-  | .proj n i b =>
-    visitInc e (return mkProj n i (← go b))
+  | .app f a => visitInc e (return e.updateApp! (← go f) (← go a))
+  | .letE _ t v b _ => visitInc e (return e.updateLetE! (← go t) (← go v) (← go b))
+  | .forallE _ d b _ => visitInc e (return e.updateForallE! (← go d) (← go b))
+  | .lam _ d b _ => visitInc e (return e.updateLambdaE! (← go d) (← go b))
+  | .mdata _ b => visitInc e (return e.updateMData! (← go b))
+  | .proj _ _ b => visitInc e (return e.updateProj! (← go b))
 
 end Lean.Meta.Grind

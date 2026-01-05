@@ -9,8 +9,8 @@ namespace SimpBench
 
 def getProofSize (r : Sym.Simp.Result) : MetaM Nat :=
   match r with
-  | .rfl => return 0
-  | .step _ p => p.numObjs
+  | .rfl _ => return 0
+  | .step _ p _ => p.numObjs
 
 def mkSimpMethods : MetaM Sym.Simp.Methods := do
   let thms : Sym.Simp.Theorems := {}

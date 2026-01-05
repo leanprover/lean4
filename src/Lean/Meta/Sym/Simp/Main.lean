@@ -19,8 +19,8 @@ def simpLambda (e : Expr) : SimpM Result := do
   -- **TODO**: Add free variable reuse
   lambdaTelescope e fun xs b => do
     match (← simp b) with
-    | .rfl => return .rfl
-    | .step b' h =>
+    | .rfl _ => return .rfl
+    | .step b' h _ =>
       let h ← mkLambdaFVars xs h
       -- **TODO**: Add `mkLambdaFVarsS`?
       let e' ← shareCommonInc (← mkLambdaFVars xs b')
@@ -57,8 +57,8 @@ def simpStep : Simproc := fun e => do
   | .mdata m b =>
     let r ← simp b
     match r with
-    | .rfl => return .rfl
-    | .step b' h => return .step (← mkMDataS m b') h
+    | .rfl _ => return .rfl
+    | .step b' h _ => return .step (← mkMDataS m b') h
   | .lam .. => simpLambda e
   | .forallE .. => simpForall e
   | .letE .. => simpLet e
@@ -79,12 +79,14 @@ def simpImpl (e₁ : Expr) : SimpM Result := withIncRecDepth do
   if numSteps % 1000 == 0 then
     checkSystem "simp"
   modify fun s => { s with numSteps }
-  match (← pre e₁) with
-  | .step e₂ h₁ => cacheResult e₁ (← mkEqTransResult e₁ e₂ h₁ (← simp e₂))
-  | .rfl =>
-  let r₁ ← (simpStep >> post) e₁
+  let r₁ ← pre e₁
   match r₁ with
-  | .rfl => cacheResult e₁ r₁
-  | .step e₂ h₁ => cacheResult e₁ (← mkEqTransResult e₁ e₂ h₁ (← simp e₂))
+  | .rfl true | .step _ _ true => cacheResult e₁ r₁
+  | .step e₂ h₁ false => cacheResult e₁ (← mkEqTransResult e₁ e₂ h₁ (← simp e₂))
+  | .rfl false =>
+  let r₂ ← (simpStep >> post) e₁
+  match r₂ with
+  | .rfl _ | .step _ _ true => cacheResult e₁ r₂
+  | .step e₂ h₁ false => cacheResult e₁ (← mkEqTransResult e₁ e₂ h₁ (← simp e₂))
 
 end Lean.Meta.Sym.Simp

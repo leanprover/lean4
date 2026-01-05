@@ -257,7 +257,9 @@ example (x : Nat) := Id.run (α := Fin (2 * x + 2)) do
 
 -- Specifying `(generalizing := false)` implies a constant motive.
 -- The motive is the result type of the join point and it is not refined without generalization.
-example (x : Nat) := Id.run (α := Fin (x + 2)) do
+-- If we dependently match on `x`, the first RHS has type `Fin (x + 2)` but is expected to have type
+-- `Fin (0 + 2)`.
+def depMatchNeedsGeneralization (x : Nat) := Id.run (α := Fin (x + 2)) do
   let y : Fin (x + 1) <-
     match (generalizing := false) x with
     | 0 => pure ⟨0, by grind⟩
@@ -436,15 +438,32 @@ example (str1 str2 : String) (cutoff : Nat) : Unit := Id.run do
       iter2 := iter2.next h2
     iter1 := iter1.next h1
 
+set_option trace.Elab.do true in
+-- set_option trace.Meta.isDefEq true in
+-- set_option trace.Meta.isDefEq.stuck true in
+-- set_option trace.Meta.isDefEq.assign true in
+/-
+The following example used to trigger a bug in `LocalContext.findFromUserNames` where the index
+of the current declaration was tracked redundantly and incorrectly.
+-/
+def getZoneRules (id : String) : Except IO.Error Nat := do
+  let mut start : Int := -2147483648
+  let mut initialLocalTimeType : Nat := 0
+  while true do
+    let result : Option (Int × Int) ← pure (some (1, (2:Int)))
+    if let some res := result then
+      if res.fst ≤ start ∨ res.fst >= 32503690800 then
+        break
+      start := 0
+    else
+      break
+  return initialLocalTimeType
+
 end Blah
 
-set_option trace.Meta.synthInstance true in
-set_option trace.Elab.do true in
-set_option trace.Elab.postpone true in
-set_option backward.do.legacy false in
-#check ((do
+example : MetaM Bool := do
   let cfg := (← read).config
-  return cfg.beta) : MetaM Bool)
+  return cfg.beta
 
 example [Monad m] : ForIn' m (Option α) α inferInstance where
   forIn' x init f := do

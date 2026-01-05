@@ -7,15 +7,35 @@ module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Tactic.Grind.AlphaShareBuilder
+import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.Result
 import Lean.Meta.Sym.Simp.Simproc
 import Lean.Meta.Sym.Simp.Congr
+import Lean.Meta.Sym.Simp.Funext
 namespace Lean.Meta.Sym.Simp
 open Grind
 
-def simpLambda (_ : Expr) : SimpM Result := do
-  -- **TODO**
-  return .rfl
+def simpLambda (e : Expr) : SimpM Result := do
+  -- **TODO**: Add free variable reuse
+  lambdaTelescope e fun xs b => do
+    match (← simp b) with
+    | .rfl => return .rfl
+    | .step b' h =>
+      let h ← mkLambdaFVars xs h
+      -- **TODO**: Add `mkLambdaFVarsS`?
+      let e' ← shareCommonInc (← mkLambdaFVars xs b')
+      let funext ← getFunext xs b
+      return .step e' (mkApp3 funext e e' h)
+where
+  getFunext (xs : Array Expr) (b : Expr) : SimpM Expr := do
+    let key ← inferType e
+    if let some h := (← get).funext.find? { expr := key } then
+      return h
+    else
+      let β ← inferType b
+      let h ← mkFunextFor xs β
+      modify fun s => { s with funext := s.funext.insert { expr := key } h }
+      return h
 
 def simpForall (_ : Expr) : SimpM Result := do
   -- **TODO**

@@ -138,6 +138,8 @@ structure State where
   binderStack : List (ExprPtr × FVarId) := []
   /-- Number of steps performed so far. -/
   numSteps := 0
+  /-- Cache for generated funext theorems -/
+  funext : PHashMap ExprPtr Expr := {}
 
 /-- Monad for the structural simplifier, layered on top of `SymM`. -/
 abbrev SimpM := ReaderT MethodsRef $ ReaderT Context StateRefT State SymM

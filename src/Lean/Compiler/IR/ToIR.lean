@@ -9,6 +9,7 @@ prelude
 public import Lean.Compiler.IR.CompilerM
 public import Lean.Compiler.IR.ToIRType
 import Lean.Compiler.IR.UnboxResult
+import Lean.Compiler.IR.Boxing
 
 public section
 
@@ -366,6 +367,8 @@ def lowerDecl (d : LCNF.Decl) : M (Option Decl) := do
       -- TODO: This matches the behavior of the old compiler, but we should
       -- find a better way to handle this.
       addDecl (mkDummyExternDecl d.name params resultType)
+      if params.isEmpty && resultType.isStruct then
+        addDecl (ExplicitBoxing.boxedConstDecl d.name resultType)
       pure <| none
     else
       pure <| some <| .extern d.name params resultType externAttrData

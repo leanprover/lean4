@@ -474,9 +474,9 @@ def boxedConstDecl (f : FunId) (ty : IRType) : Decl :=
     let x_2 : tobj := box x_1;
     ret x_2
   -/
-  .fdecl (f ++ `_boxed) #[] .tobject (info := {}) <|
+  .fdecl (f ++ `_boxed) #[] ty.boxed (info := {}) <|
     .vdecl { idx := 1 } ty (.fap f #[]) <|
-    .vdecl { idx := 2 } .tobject (.box ty { idx := 1 }) <|
+    .vdecl { idx := 2 } ty.boxed (.box ty { idx := 1 }) <|
     .ret (.var { idx := 2 })
 
 def run (env : Environment) (decls : Array Decl) : Array Decl :=

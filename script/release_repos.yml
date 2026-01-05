@@ -142,3 +142,15 @@ repositories:
     branch: master
     dependencies:
       - verso-web-components
+
+  - name: comparator
+    url: https://github.com/leanprover/comparator
+    toolchain-tag: true
+    stable-branch: false
+    branch: master
+
+  - name: lean4export
+    url: https://github.com/leanprover/lean4export
+    toolchain-tag: true
+    stable-branch: false
+    branch: master

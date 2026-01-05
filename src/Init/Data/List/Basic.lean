@@ -169,10 +169,10 @@ Examples:
   | a::as, b::bs, eqv => eqv a b && isEqv as bs eqv
   | _,     _,     _   => false
 
-@[simp] theorem isEqv_nil_nil : isEqv ([] : List α) [] eqv = true := rfl
-@[simp] theorem isEqv_nil_cons : isEqv ([] : List α) (a::as) eqv = false := rfl
-@[simp] theorem isEqv_cons_nil : isEqv (a::as : List α) [] eqv = false := rfl
-theorem isEqv_cons₂ : isEqv (a::as) (b::bs) eqv = (eqv a b && isEqv as bs eqv) := rfl
+@[simp, grind =] theorem isEqv_nil_nil : isEqv ([] : List α) [] eqv = true := rfl
+@[simp, grind =] theorem isEqv_nil_cons : isEqv ([] : List α) (a::as) eqv = false := rfl
+@[simp, grind =] theorem isEqv_cons_nil : isEqv (a::as : List α) [] eqv = false := rfl
+@[grind =] theorem isEqv_cons₂ : isEqv (a::as) (b::bs) eqv = (eqv a b && isEqv as bs eqv) := rfl
 
 
 /-! ## Lexicographic ordering -/

@@ -469,9 +469,6 @@ example (toolchainFile : System.FilePath) : IO (Option Int) := do
       return none
     | e => throw e
 
-set_option trace.Meta.synthInstance true in
-set_option backward.do.legacy false in
-set_option trace.Elab.match true in
 example (url : String) (headers : Array String := #[]) (thing : Except String Lake.JsonObject): IO Nat := do
   match thing with
   | .ok data =>
@@ -481,6 +478,18 @@ example (url : String) (headers : Array String := #[]) (thing : Except String La
   | .error e =>
     panic s!"curl produced invalid JSON output: {e}"
 
+-- set_option trace.Elab.match true in
+-- set_option trace.Elab.step true in
+-- set_option trace.Elab.do true in
+-- set_option trace.Elab.do.step true in
+-- set_option trace.Elab.postpone true in
+-- set_option backward.do.legacy true in
+example (cache : Std.HashMap (Nat × Nat) Bool) : Bool := Id.run do
+  let key := ⟨1, 2⟩
+  if let some r := cache[key]? then
+    return true
+  let := cache.contains key
+  return false
 
 end Blah
 

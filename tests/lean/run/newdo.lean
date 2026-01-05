@@ -10,6 +10,7 @@ import Lean.Parser.Term
 import Init.NotationExtra
 import Init.Control.Basic
 import Std.Data.Iterators.Lemmas.Combinators.Monadic.Zip
+import Lake.Util.JsonObject
 
 open Lean Parser Meta Elab Do
 
@@ -458,6 +459,28 @@ def getZoneRules (id : String) : Except IO.Error Nat := do
     else
       break
   return initialLocalTimeType
+
+example (toolchainFile : System.FilePath) : IO (Option Int) := do
+  try
+    let toolchainString ← IO.FS.readFile toolchainFile
+    return some <| 42
+  catch
+    | .noFileOrDirectory .. =>
+      return none
+    | e => throw e
+
+set_option trace.Meta.synthInstance true in
+set_option backward.do.legacy false in
+set_option trace.Elab.match true in
+example (url : String) (headers : Array String := #[]) (thing : Except String Lake.JsonObject): IO Nat := do
+  match thing with
+  | .ok data =>
+    match (data.get? "response_code" <|> data.get? "http_code") with
+    | .ok (some code) => return code
+    | _ => panic s!"curl's JSON output did not contain a response code"
+  | .error e =>
+    panic s!"curl produced invalid JSON output: {e}"
+
 
 end Blah
 

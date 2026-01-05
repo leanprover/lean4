@@ -1,0 +1,179 @@
+/-
+Copyright (c) 2025 Lean FRO LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Sebastian Graf
+-/
+module
+
+prelude
+public import Lean.Elab.BuiltinDo.Basic
+meta import Lean.Parser.Do
+import Lean.Meta.ProdN
+
+public section
+
+namespace Lean.Elab.Do
+
+open Lean.Parser.Term
+open Lean.Meta
+
+@[builtin_macro Lean.Parser.Term.doFor] def expandDoFor : Macro := fun stx => do
+  match stx with
+  | `(doFor| for $[$_ : ]? $_:ident in $_ do $_) =>
+    -- This is the target form of the expander, handled by `elabDoFor` below.
+    Macro.throwUnsupported
+  | `(doFor| for $decls:doForDecl,* do $body) =>
+    let decls := decls.getElems
+    let `(doForDecl| $[$h? : ]? $pattern in $xs) := decls[0]! | Macro.throwUnsupported
+    let mut doElems := #[]
+    let mut body := body
+    -- Expand `pattern` into an `Ident` `x`:
+    let x ←
+      if pattern.raw.isIdent then
+        pure ⟨pattern⟩
+      else
+        let x ← Term.mkFreshIdent pattern
+        body ← `(doSeq| match (generalizing := false) $x:term with | $pattern => $body)
+        pure x
+    -- Expand the remaining `doForDecl`s:
+    for doForDecl in decls[1...*] do
+      /-
+        Expand
+        ```
+        for x in xs, y in ys do
+          body
+        ```
+        into
+        ```
+        let mut s := Std.toStream ys
+        for x in xs do
+          match Std.Stream.next? s with
+          | none => break
+          | some (y, s') =>
+            s := s'
+            body
+        ```
+      -/
+      let `(doForDecl| $[$h? : ]? $y in $ys) := doForDecl | Macro.throwUnsupported
+      if let some h := h? then
+        Macro.throwErrorAt h "The proof annotation here has not been implemented yet."
+      /- Recall that `@` (explicit) disables `coeAtOutParam`.
+         We used `@` at `Stream` functions to make sure `resultIsOutParamSupport` is not used. -/
+      let toStreamApp ← withRef ys `(@Std.toStream _ _ _ $ys)
+      let s := mkIdentFrom ys (← withFreshMacroScope <| MonadQuotation.addMacroScope `s)
+      doElems := doElems.push (← `(doSeqItem| let mut $s := $toStreamApp:term))
+      body ← `(doSeq|
+        match @Std.Stream.next? _ _ _ $s with
+          | none => break
+          | some ($y, s') =>
+            $s:ident := s'
+            do $body)
+    doElems := doElems.push (← `(doSeqItem| for $[$h? : ]? $x:ident in $xs do $body))
+    `(doElem| do $doElems*)
+  | _ => Macro.throwUnsupported
+
+@[builtin_doElem_elab Lean.Parser.Term.doFor] def elabDoFor : DoElab := fun stx dec => do
+  let `(doFor| for $[$h? : ]? $x:ident in $xs do $body) := stx | throwUnsupportedSyntax
+  checkMutVarsForShadowing #[x]
+  let uα ← mkFreshLevelMVar
+  let uρ ← mkFreshLevelMVar
+  let α ← mkFreshExprMVar (mkSort (mkLevelSucc uα)) (userName := `α) -- assigned by outParam
+  let ρ ← mkFreshExprMVar (mkSort (mkLevelSucc uρ)) (userName := `ρ) -- assigned in the next line
+  elabNestedActions xs fun xs => do
+  let xs ← Term.elabTermEnsuringType xs ρ
+  let mi := (← read).monadInfo
+  let σ ← mkFreshExprMVar (mkSort (mkLevelSucc mi.u)) (userName := `σ) -- assigned below
+  let γ := (← read).doBlockResultType
+  let β ← mkArrow σ (← mkMonadicType γ)
+  let mutVars := (← read).mutVars
+  let mutVarNames := mutVars.map (·.getId)
+  let breakRhs ← mkFreshExprMVar β -- assigned below
+  let (app, p?) ← match h? with
+    | none =>
+      let instForIn ← Term.mkInstMVar <| mkApp3 (mkConst ``ForInNew [uρ, uα, mi.u, mi.v]) mi.m ρ α
+      let app := mkConst ``ForInNew.forInNew [uρ, uα, mi.u, mi.v]
+      let app := mkApp7 app mi.m ρ α instForIn σ γ xs -- 3 args remaining: preS, kcons, knil
+      pure (app, none)
+    | some _ =>
+      let p ← mkFreshExprMVar (← mkArrowN #[ρ, α] (mkSort .zero)) (userName := `p) -- outParam
+      let instForIn ← Term.mkInstMVar <| mkApp4 (mkConst ``ForInNew' [uρ, uα, mi.u, mi.v]) mi.m ρ α p
+      let app := mkConst ``ForInNew'.forInNew' [uρ, uα, mi.u, mi.v]
+      let app := mkApp8 app mi.m ρ α p instForIn σ γ xs -- 3 args remaining: preS, kcons, knil
+      pure (app, some p)
+  withLetDecl (← mkFreshUserName `kbreak) β breakRhs (kind := .implDetail) (nondep := true) fun kbreak => do
+  let xh : Array (Name × (Array Expr → DoElabM Expr)) := match h?, p? with
+    | some h, some p => #[(x.getId, fun _ => pure α), (h.getId, fun x => pure (mkApp2 p xs x[0]!))]
+    | _, _ => #[(x.getId, fun _ => pure α)]
+  withLocalDeclsD xh fun xh => do
+  withLocalDecl (← mkFreshUserName `kcontinue) .default β (kind := .implDetail) fun kcontinue => do
+  withLocalDecl (← mkFreshUserName `s) .default σ (kind := .implDetail) fun loopS => do
+  withProxyMutVarDefs fun elimProxyDefs => do
+    let rootCtx ← getLCtx
+    -- We will use `continueKVar` to stand in for the `DoElemCont` `dec` below.
+    -- Adding `dec.resultName` to the list of tunneled vars helps with some MVar assignment issues.
+    let continueKVar ← mkFreshContVar (mutVarNames.push dec.resultName)
+    let breakKVar ← mkFreshContVar mutVarNames
+
+    -- Elaborate the loop body, which must have result type `PUnit`.
+    -- The `withSynthesizeForDo` is so that we see all jump sites before continuing elaboration.
+    let body ← withSynthesizeForDo do
+      enterLoopBody breakKVar.mkJump continueKVar.mkJump do
+      withMayElabToJump true do
+      elabDoSeq body { dec with k := continueKVar.mkJump, kind := .duplicable }
+
+    -- Compute the set of mut vars that were reassigned on the path to a back jump (`continue`).
+    -- Take care to preserve the declaration order that is manifest in the array `mutVars`.
+    let loopMutVars ← do
+      let ctn ← continueKVar.getReassignedMutVars rootCtx
+      let brk ← breakKVar.getReassignedMutVars rootCtx
+      pure (ctn.union brk)
+    let loopMutVars := mutVars.filter (loopMutVars.contains ·.getId)
+    let loopMutVarNames := loopMutVars.map (·.getId) |>.toList
+
+    let useLoopMutVars : TermElabM (Array Expr) := do
+      let mut defs := #[]
+      for x in loopMutVars do
+        let defn ← getFVarFromUserName x.getId
+        Term.addTermInfo' x defn
+        defs := defs.push defn
+      return defs
+
+    -- Assign the state tuple type and the initial tuple of states.
+    let preS ← σ.mvarId!.withContext do
+      let (tuple, tupleTy) ← mkProdMkN (← useLoopMutVars) mi.u
+      synthUsingDefEq "state tuple type" σ tupleTy
+      pure tuple
+
+    -- Synthesize the `continue` and `break` jumps.
+    continueKVar.synthesizeJumps do
+      let (tuple, _tupleTy) ← mkProdMkN (← useLoopMutVars) mi.u
+      return mkApp kcontinue tuple
+    breakKVar.synthesizeJumps do
+      let (tuple, _tupleTy) ← mkProdMkN (← useLoopMutVars) mi.u
+      return mkApp kbreak tuple
+
+    -- Elaborate the continuation, now that `σ` is known. It will be the `break` handler.
+    -- If there is a `break`, the code will be shared in the `kbreak` join point.
+    breakRhs.mvarId!.withContext do
+      let e ← withLocalDeclD (← mkFreshUserName `s) σ fun postS => do mkLambdaFVars #[postS] <| ← do
+        bindMutVarsFromTuple loopMutVarNames postS.fvarId! do
+          unless ← isDefEq dec.resultType (← mkPUnit) do
+            throwError m!"Type mismatch. `for` loops have result type {← mkPUnit}, but the rest of the `do` sequence expected {dec.resultType}."
+          dec.continueWithUnit
+      synthUsingDefEq "break RHS" breakRhs e
+
+    -- Finally eliminate the proxy variables from the loop body.
+    -- * Point non-reassigned mut var defs to the pre state
+    -- * Point the initial defs of reassigned mut vars to the loop state
+    -- Done by `elimProxyDefs` below.
+    let body ← bindMutVarsFromTuple loopMutVarNames loopS.fvarId! do
+      elimProxyDefs body
+
+    let needBreakJoin := (← breakKVar.jumpCount) > 0 && dec.kind matches .nonDuplicable
+    let kcons ← mkLambdaFVars (xh ++ #[kcontinue, loopS]) body
+    let knil := if needBreakJoin then kbreak else breakRhs
+    let app := mkApp3 app preS kcons knil
+    if needBreakJoin then
+      mkLetFVars (generalizeNondepLet := false) #[kbreak] app
+    else
+      return ← app.replaceFVarsM #[kbreak] #[breakRhs]

@@ -6,6 +6,7 @@ Authors: Mac Malone, Gabriel Ebner
 module
 
 prelude
+import Init.Control.Do
 public import Lean.Data.Json
 public import Lake.Util.Version
 public import Lake.Config.Defaults

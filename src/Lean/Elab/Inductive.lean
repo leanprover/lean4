@@ -83,6 +83,9 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (isCoi
     -- https://github.com/leanprover/lean4/issues/5236
     withRef decl[0] <| Linter.logLintIf Linter.linter.deprecated decl[3]
       "`inductive ... :=` has been deprecated in favor of `inductive ... where`"
+  if decl[3][0].isToken "Where" then
+    -- https://github.com/leanprover/lean4/issues/11853
+    withRef decl[3][0] <| logWarning "`Where` should be lowercase `where`"
   return {
     ref             := decl
     shortDeclName   := name

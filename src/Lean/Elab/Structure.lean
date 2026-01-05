@@ -342,6 +342,9 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
     let cmd := if structStx[0].getKind == ``Parser.Command.classTk then "class" else "structure"
     withRef structStx[0] <| Linter.logLintIf Linter.linter.deprecated structStx[4][0]
       s!"`{cmd} ... :=` has been deprecated in favor of `{cmd} ... where`."
+  if structStx[4][0].isToken "Where" then
+    -- https://github.com/leanprover/lean4/issues/11853
+    withRef structStx[4][0] <| logWarning "`Where` should be lowercase `where`"
   let fieldBinders := if structStx[4].isNone then #[] else structStx[4][2][0].getArgs
   fieldBinders.foldlM (init := #[]) fun (views : Array StructFieldView) fieldBinder => withRef fieldBinder do
     let mut fieldBinder := fieldBinder

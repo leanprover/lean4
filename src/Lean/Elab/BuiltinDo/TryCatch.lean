@@ -23,21 +23,24 @@ private def elabDoCatch (lifter : ControlLifter) (body : Expr) (catch_ : TSyntax
   let x := Term.mkExplicitBinder x <| match eType? with
     | some eType => eType
     | none => mkHole x
-  let (catch_, ε, uε) ← controlAtTermElabM fun runInBase => do
+  controlAtTermElabM fun runInBase => do
     Term.elabBinder x fun x => runInBase do
       let ε ← inferType x
       let uε ← getDecLevel ε
+      -- First thing we do is try and resolve the instance. This might instantiate `ε` and enables
+      -- use of dot notation in `catch | .error .. => ..`.
+      let catcher ←
+        if eType?.isSome then
+          let inst ← Term.mkInstMVar <| mkApp2 (mkConst ``MonadExceptOf [uε, mi.u, mi.v]) ε mi.m
+          pure <| mkApp6 (mkConst ``tryCatchThe [uε, mi.u, mi.v])
+            ε mi.m inst lifter.stMγ body
+        else
+          let inst ← Term.mkInstMVar <| mkApp2 (mkConst ``MonadExcept [uε, mi.u, mi.v]) ε mi.m
+          pure <| mkApp6 (mkConst ``MonadExcept.tryCatch [uε, mi.u, mi.v])
+            ε mi.m inst lifter.stMγ body
       let catch_ ← lifter.lift (elabDoSeq catchSeq)
       let catch_ ← mkLambdaFVars #[x] catch_
-      return (catch_, ε, uε)
-  if eType?.isSome then
-    let inst ← Term.mkInstMVar <| mkApp2 (mkConst ``MonadExceptOf [uε, mi.u, mi.v]) ε mi.m
-    return mkApp6 (mkConst ``tryCatchThe [uε, mi.u, mi.v])
-      ε mi.m inst lifter.stMγ body catch_
-  else
-    let inst ← Term.mkInstMVar <| mkApp2 (mkConst ``MonadExcept [uε, mi.u, mi.v]) ε mi.m
-    return mkApp6 (mkConst ``MonadExcept.tryCatch [uε, mi.u, mi.v])
-      ε mi.m inst lifter.stMγ body catch_
+      return catcher catch_
 
 @[builtin_doElem_elab Lean.Parser.Term.doTry] def elabDoTry : DoElab := fun stx dec => do
   let `(doTry| try $trySeq:doSeq $[$catches]* $[finally $finSeq?]?) := stx | throwUnsupportedSyntax
@@ -51,7 +54,7 @@ private def elabDoCatch (lifter : ControlLifter) (body : Expr) (catch_ : TSyntax
   -- community.
   --
   -- So we need to pack up our effects and unpack them after the `try`.
-  -- We could optimize for the `.last` case by omitting the state tuple ... in the future.
+  -- We could optimize for the terminal action case by omitting the state tuple ... in the future.
   let mi := (← read).monadInfo
   let lifter ← ControlLifter.ofCont dec
   let body ← do

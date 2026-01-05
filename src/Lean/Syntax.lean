@@ -383,6 +383,7 @@ partial instance : ForInNew m TopDown Syntax where
     haveI : Inhabited (m β) := ⟨knil init⟩
     loop stx knil init
 
+set_option backward.do.legacy true in
 partial instance [Monad m] : ForIn m TopDown Syntax where
   forIn := fun ⟨firstChoiceOnly, stx⟩ init f => do
     let rec @[specialize] loop stx b [Inhabited (type_of% b)] := do

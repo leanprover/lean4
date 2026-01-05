@@ -404,7 +404,8 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
     throwErrorAt motive "Specifying a `match` motive is not supported in `do` blocks.\n\
       You can specify `(generalizing := false)` to force a non-dependent match."
   -- We interpret `(generalizing := false)` as a request to perform a non-dependent match.
-  -- (Because a dependent match does not make sense without also generalizing the join point type.)
+  -- A dependent match does not make sense without also generalizing the join point type.
+  -- See test definition `depMatchNeedsGeneralization`.
   let nonDep :=
     match gen.getD ⟨.missing⟩ with
     | `(generalizingParam| (generalizing := false)) => true

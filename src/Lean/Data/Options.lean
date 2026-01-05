@@ -37,6 +37,8 @@ instance : ToString Options where
   toString o := private toString o.map.toList
 instance [Monad m] : ForIn m Options (Name × DataValue) where
   forIn o init f := private forIn o.map init f
+instance : ForInNew m Options (Name × DataValue) where
+  forInNew o init kcons knil := private forInNew o.map init kcons knil
 instance : BEq Options where
   beq o1 o2 := private o1.map.beq o2.map
 instance : EmptyCollection Options where

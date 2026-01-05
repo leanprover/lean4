@@ -511,6 +511,11 @@ instance [Monad m] : ForIn m LocalContext LocalDecl where
     | none   => return ForInStep.yield b
     | some d => f d b
 
+instance : ForInNew m LocalContext LocalDecl where
+  forInNew lctx init kcons := lctx.decls.forInNew init fun d? kcontinue b => match d? with
+    | none   => kcontinue b
+    | some d => kcons d kcontinue b
+
 @[inline] def foldl (lctx : LocalContext) (f : β → LocalDecl → β) (init : β) (start : Nat := 0) : β :=
   Id.run <| lctx.foldlM (pure <| f · ·) init start
 

@@ -8,7 +8,7 @@ prelude
 public import Lean.Meta.Sym.SymM
 import Lean.Meta.Sym.ReplaceS
 namespace Lean.Meta.Sym
-open Grind
+open Internal
 
 /--
 Helper function for implementing `abstractFVars` (and possible variants in the future).

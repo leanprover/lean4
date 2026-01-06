@@ -8,16 +8,15 @@ prelude
 public import Lean.Meta.Sym.SymM
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.IsClass
-import Lean.Meta.Tactic.Grind.AlphaShareBuilder
+import Lean.Meta.Sym.AlphaShareBuilder
 namespace Lean.Meta.Sym
-
+open Internal
 /--
 Efficient `intro` for symbolic simulation.
 -/
-def introCore (goal : Goal) (max : Nat) (names : Array Name) : SymM (Array FVarId × Goal) := do
-  if max == 0 then return (#[], goal)
+def introCore (mvarId : MVarId) (max : Nat) (names : Array Name) : SymM (Array FVarId × MVarId) := do
+  if max == 0 then return (#[], mvarId)
   let env ← getEnv
-  let mvarId := goal.mvarId
   let mvarDecl ← mvarId.getDecl
   /-
   Helper function for constructing a value to assign to `mvarId`. We don't need max sharing here.
@@ -73,7 +72,7 @@ def introCore (goal : Goal) (max : Nat) (names : Array Name) : SymM (Array FVarI
       let type       ← instantiateRevS type fvars
       let fvarId     ← mkFreshFVarId
       let lctx       := lctx.mkLocalDecl fvarId (← mkName n i) type bi
-      let fvar       ← Grind.mkFVarS fvarId
+      let fvar       ← mkFVarS fvarId
       let fvars      := fvars.push fvar
       let localInsts := updateLocalInsts localInsts fvar type
       visit (i+1) lctx localInsts fvars body
@@ -87,13 +86,13 @@ def introCore (goal : Goal) (max : Nat) (names : Array Name) : SymM (Array FVarI
       **Note**: If `type` is a proposition we could use a `cdecl`.
       -/
       let lctx       := lctx.mkLetDecl fvarId (← mkName n i) type value
-      let fvar       ← Grind.mkFVarS fvarId
+      let fvar       ← mkFVarS fvarId
       let fvars      := fvars.push fvar
       let localInsts := updateLocalInsts localInsts fvar type
       visit (i+1) lctx localInsts fvars body
     | _ => finalize lctx localInsts fvars type
   let (fvars, mvarId') ← visit 0 mvarDecl.lctx mvarDecl.localInstances #[] mvarDecl.type
-  return (fvars.map (·.fvarId!), { goal with mvarId := mvarId' })
+  return (fvars.map (·.fvarId!), mvarId')
 
 def hugeNat := 1000000
 
@@ -107,11 +106,11 @@ Returns the introduced free variable Ids and the updated goal.
 
 Throws an error if the target type does not have a leading binder.
 -/
-public def intros (goal : Goal) (names : Array Name := #[]) : SymM (Array FVarId × Goal) := do
+public def intros (mvarId : MVarId) (names : Array Name := #[]) : SymM (Array FVarId × MVarId) := do
   let result ← if names.isEmpty then
-    introCore goal hugeNat #[]
+    introCore mvarId hugeNat #[]
   else
-    introCore goal names.size names
+    introCore mvarId  names.size names
   if result.1.isEmpty then
     throwError "`intros` failed, binder expected"
   return result
@@ -122,8 +121,8 @@ Introduces a single binder from the goal's target type with the given name.
 Returns the introduced free variable ID and the updated goal.
 Throws an error if the target type does not have a leading binder.
 -/
-public def intro (goal : Goal) (name : Name) : SymM (FVarId × Goal) := do
-  let (fvarIds, goal') ← introCore goal 1 #[name]
+public def intro (mvarId : MVarId) (name : Name) : SymM (FVarId × MVarId) := do
+  let (fvarIds, goal') ← introCore mvarId 1 #[name]
   if h : 0 < fvarIds.size then
     return (fvarIds[0], goal')
   else
@@ -135,8 +134,8 @@ Introduces exactly `num` binders from the goal's target type.
 Returns the introduced free variable IDs and the updated goal.
 Throws an error if the target type has fewer than `num` leading binders.
 -/
-public def introN (goal : Goal) (num : Nat) : SymM (Array FVarId × Goal) := do
-  let result ← introCore goal num #[]
+public def introN (mvarId : MVarId) (num : Nat) : SymM (Array FVarId × MVarId) := do
+  let result ← introCore mvarId num #[]
   unless result.1.size == num do
     throwError "`introN` failed, insufficient number of binders"
   return result

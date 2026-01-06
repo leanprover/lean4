@@ -6,16 +6,18 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.SymM
+public import Lean.Data.AssocList
 import Lean.Util.FoldConsts
+import Lean.Meta.SynthInstance
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.AbstractS
 import Lean.Meta.Sym.InstantiateMVarsS
 import Lean.Meta.Sym.IsClass
 import Lean.Meta.Sym.MaxFVar
 import Lean.Meta.Sym.ProofInstInfo
-import Lean.Meta.Tactic.Grind.AlphaShareBuilder
+import Lean.Meta.Sym.AlphaShareBuilder
 namespace Lean.Meta.Sym
-open Grind
+open Internal
 
 /-!
 This module implements efficient pattern matching and unification module for the symbolic simulation
@@ -235,8 +237,7 @@ partial def process (p : Expr) (e : Expr) : UnifyM Bool := do
     pushPending p e
     return true
   | .proj .. =>
-    reportIssue! "unexpected kernel projection term during unification/matching{indentExpr e}\npre-process and fold them as projection applications"
-    return false
+    throwError "unexpected kernel projection term during unification/matching{indentExpr e}\npre-process and fold them as projection applications"
   | .fvar _ =>
     /-
     **Note**: Most patterns do not have free variables since they are created from
@@ -606,10 +607,10 @@ def isDefEqMainImpl (t : Expr) (s : Expr) : DefEqM Bool := do
       return false
   | .bvar _, _ | _, .bvar _ => unreachable!
   | .proj .., _ | _, .proj .. =>
-    reportIssue! "unexpected kernel projection term during structural definitional equality{indentExpr t}\nand{indentExpr s}\npre-process and fold them as projection applications"
+    throwError "unexpected kernel projection term during structural definitional equality{indentExpr t}\nand{indentExpr s}\npre-process and fold them as projection applications"
     return false
   | .letE .., _ | _, .letE .. =>
-    reportIssue! "unexpected let-declaration term during structural definitional equality{indentExpr t}\nand{indentExpr s}\npre-process and zeta-reduce them"
+    throwError "unexpected let-declaration term during structural definitional equality{indentExpr t}\nand{indentExpr s}\npre-process and zeta-reduce them"
     return false
   | _, _ =>
     let tFn := t.getAppFn

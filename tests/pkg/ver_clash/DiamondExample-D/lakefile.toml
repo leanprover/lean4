@@ -13,4 +13,3 @@ rev = "v2"
 
 [[lean_lib]]
 name = "DiamondExampleD"
-leanOptions.experimental.module = true

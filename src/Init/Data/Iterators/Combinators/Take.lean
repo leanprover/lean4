@@ -10,7 +10,8 @@ public import Init.Data.Iterators.Combinators.Monadic.Take
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators Std.Iterators.Types
 
 /--
 Given an iterator `it` and a natural number `n`, `it.take n` is an iterator that outputs
@@ -67,4 +68,4 @@ def Iter.toTake {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] (
     Iter (α := Take α Id) β :=
   it.toIterM.toTake.toIter
 
-end Std.Iterators
+end Std

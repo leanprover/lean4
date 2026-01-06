@@ -18,6 +18,7 @@ set_option trace.grind.assert true
 trace: [grind.assert] f (y + 1) = a
 [grind.assert] ¬a = g (f y)
 [grind.ematch.instance] f.eq_2: f y.succ = g (f y)
+[grind.ematch.instance] f.eq_1: f 0 = 10
 [grind.assert] f (y + 1) = g (f y)
 -/
 #guard_msgs (trace) in

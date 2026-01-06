@@ -20,13 +20,9 @@ theorem lt_of_getMsbD {x : BitVec w} {i : Nat} : getMsbD x i = true → i < w :=
 
 theorem getElem?_eq_getElem {l : BitVec w} {n} (h : n < w) : l[n]? = some l[n] := by grind
 
--- TODO: when removing this deprecated theorem,
--- remove the `_root_` prefixes appearing below.
-@[deprecated _root_.getElem?_eq_some_iff (since := "2025-06-19")]
 theorem getElem?_eq_some_iff {l : BitVec w} :
     l[n]? = some a ↔ ∃ h : n < w, l[n] = a := by grind
 
-@[deprecated _root_.some_eq_getElem?_iff (since := "2025-06-19")]
 theorem some_eq_getElem?_iff {l : BitVec w} :
     some a = l[n]? ↔ ∃ h : n < w, l[n] = a := by grind
 
@@ -108,7 +104,6 @@ theorem getMsbD_eq_getLsbD (x : BitVec w) (i : Nat) :
     x.getMsbD i = (decide (i < w) && x.getLsbD (w - 1 - i)) := by
   grind [getMsbD]
 
-@[deprecated getMsb_eq_getLsb (since := "2025-06-17")]
 theorem getMsb'_eq_getLsb' (x : BitVec w) (i : Nat) : x.getMsbD i = (decide (i < w) && x.getLsbD (w - 1 - i)) := by
   rw [getMsbD, getLsbD]
 
@@ -296,7 +291,13 @@ theorem sub_sub_toNat_cancel {x : BitVec w} :
 theorem sub_add_bmod_cancel {x y : BitVec w} :
     ((((2 ^ w : Nat) - y.toNat) : Int) + x.toNat).bmod (2 ^ w) =
       ((x.toNat : Int) - y.toNat).bmod (2 ^ w) := by
-  grind [=_ Int.add_bmod_right] -- TODO: teach `grind` about Int.bmod
+  /-
+  **Note**: This is a goal containing nonlinear integer arithmetic.
+  This is not in `grind`s scope. The following command used to work
+  before we expanded `Int.bmod` into `Int.emod`.
+  -/
+  -- grind [=_ Int.add_bmod_right]
+  sorry
 
 private theorem lt_two_pow_of_le {x m n : Nat} (lt : x < 2 ^ m) (le : m ≤ n) : x < 2 ^ n :=
   Nat.lt_of_lt_of_le lt (Nat.pow_le_pow_right (by trivial : 0 < 2) le)

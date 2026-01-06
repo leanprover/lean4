@@ -57,7 +57,7 @@ Examples:
 @[expose]
 def getLast! [Inhabited α] : List α → α
   | []    => panic! "empty list"
-  | a::as => getLast (a::as) (fun h => List.noConfusion h)
+  | a::as => getLast (a::as) (fun h => List.noConfusion rfl (heq_of_eq h))
 
 /-! ## Head and tail -/
 

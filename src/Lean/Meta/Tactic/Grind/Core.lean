@@ -244,10 +244,10 @@ where
         checkDelayedThmInsts toPropagateDown
   checkDelayedThmInsts (toPropagateDown : List Expr) : GoalM Unit := do
     if (← isInconsistent) then return ()
-    if (← get).delayedThmInsts.isEmpty then return ()
+    if (← get).ematch.delayedThmInsts.isEmpty then return ()
     for e in toPropagateDown do
-      let some delayedThms := (← get).delayedThmInsts.find? { expr := e } | pure ()
-      modify fun s => { s with delayedThmInsts := s.delayedThmInsts.erase { expr := e } }
+      let some delayedThms := (← get).ematch.delayedThmInsts.find? { expr := e } | pure ()
+      modify fun s => { s with ematch.delayedThmInsts := s.ematch.delayedThmInsts.erase { expr := e } }
       delayedThms.forM (·.check)
 
   updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do

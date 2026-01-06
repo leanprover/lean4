@@ -52,7 +52,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         # don't schedule nightlies on forks
-        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4' || inputs.action == 'release nightly'
+        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4' || inputs.action == 'release nightly' || (startsWith(github.ref, 'refs/tags/') && github.repository == 'leanprover/lean4')
       - name: Set Nightly
         if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4' || inputs.action == 'release nightly'
         id: set-nightly
@@ -115,7 +115,7 @@ jobs:
           CMAKE_MAJOR=$(grep -E "^set\(LEAN_VERSION_MAJOR " src/CMakeLists.txt | grep -oE '[0-9]+')
           CMAKE_MINOR=$(grep -E "^set\(LEAN_VERSION_MINOR " src/CMakeLists.txt | grep -oE '[0-9]+')
           CMAKE_PATCH=$(grep -E "^set\(LEAN_VERSION_PATCH " src/CMakeLists.txt | grep -oE '[0-9]+')
-          CMAKE_IS_RELEASE=$(grep -E "^set\(LEAN_VERSION_IS_RELEASE " src/CMakeLists.txt | grep -oE '[0-9]+')
+          CMAKE_IS_RELEASE=$(grep -m 1 -E "^set\(LEAN_VERSION_IS_RELEASE " src/CMakeLists.txt | grep -oE '[0-9]+')
 
           # Expected values from tag parsing
           TAG_MAJOR="${{ steps.set-release.outputs.LEAN_VERSION_MAJOR }}"
@@ -267,12 +267,14 @@ jobs:
                 "test": true,
                 // turn off custom allocator & symbolic functions to make LSAN do its magic
                 "CMAKE_PRESET": "sanitize",
-                // `StackOverflow*` correctly triggers ubsan
-                // `reverse-ffi` fails to link in sanitizers
+                // `StackOverflow*` correctly triggers ubsan.
+                // `reverse-ffi` fails to link in sanitizers.
                 // `interactive` and `async_select_channel` fail nondeterministically, would need to
-                // be investigated.
-                // 9366 is too close to timeout
-                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel|9366'"
+                // be investigated..
+                // 9366 is too close to timeout.
+                // `bv_` sometimes times out calling into cadical even though we should be using the
+                // standard compile flags for it.
+                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel|9366|run/bv_'"
               },
               {
                 "name": "macOS",

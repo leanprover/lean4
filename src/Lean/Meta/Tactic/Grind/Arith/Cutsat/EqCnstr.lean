@@ -217,7 +217,7 @@ where
 
   go (e : Expr) : StateT PropagateMul.State GoalM Unit := do
     let_expr HMul.hMul _ _ _ i a b := e | goVar e
-    if (← isInstHMulInt i) then
+    if (← Structural.isInstHMulInt i) then
       go a; go b
     else
       goVar e
@@ -225,7 +225,7 @@ where
 private def propagateNonlinearDiv (x : Var) : GoalM Bool := do
   let e ← getVar x
   let_expr HDiv.hDiv _ _ _ i a b := e | return false
-  unless (← isInstHDivInt i) do return false
+  unless (← Structural.isInstHDivInt i) do return false
   let some (k, c) ← isExprEqConst? b | return false
   let c' ← if let some a ← getIntValue? a then
     pure { p := .add 1 x (.num (-(a/k))), h := .div k none c : EqCnstr }
@@ -240,7 +240,7 @@ private def propagateNonlinearDiv (x : Var) : GoalM Bool := do
 private def propagateNonlinearMod (x : Var) : GoalM Bool := do
   let e ← getVar x
   let_expr HMod.hMod _ _ _ i a b := e | return false
-  unless (← isInstHModInt i) do return false
+  unless (← Structural.isInstHModInt i) do return false
   let some (k, c) ← isExprEqConst? b | return false
   let c' ← if let some a ← getIntValue? a then
     pure { p := .add 1 x (.num (-(a%k))), h := .mod k none c : EqCnstr }
@@ -255,7 +255,7 @@ private def propagateNonlinearMod (x : Var) : GoalM Bool := do
 private def propagateNonlinearPow (x : Var) : GoalM Bool := do
   let e ← getVar x
   let_expr HPow.hPow _ _ _ i a b := e | return false
-  unless (← isInstHPowInt i) do return false
+  unless (← Structural.isInstHPowInt i) do return false
   let (ka, ca?) ← if let some ka ← getIntValue? a then
     pure (ka, none)
   else if let some (ka, ca) ← isExprEqConst? a then
@@ -386,13 +386,6 @@ private def exprAsPoly (a : Expr) : GoalM Poly := do
   else
     throwError "internal `grind` error, expression is not relevant to cutsat{indentExpr a}"
 
-private def processNewIntEq (a b : Expr) : GoalM Unit := do
-  let p₁ ← exprAsPoly a
-  let p₂ ← exprAsPoly b
-  -- Remark: we don't need to use the comm ring normalizer here because `p` is always linear.
-  let p := p₁.combine (p₂.mul (-1))
-  { p, h := .core a b p₁ p₂ : EqCnstr }.assert
-
 /-- Asserts a constraint coming from the core. -/
 private def EqCnstr.assertCore (c : EqCnstr) : GoalM Unit := do
   if let some (re, rp, p) ← c.p.normCommRing? then
@@ -400,6 +393,14 @@ private def EqCnstr.assertCore (c : EqCnstr) : GoalM Unit := do
     c.assert
   else
     c.assert
+
+private def processNewIntEq (a b : Expr) : GoalM Unit := do
+  let p₁ ← exprAsPoly a
+  let p₂ ← exprAsPoly b
+  -- Remark: we don't need to use the comm ring normalizer here because `p` is always linear.
+  let p := p₁.combine (p₂.mul (-1))
+  let c := { p, h := .core a b p₁ p₂ : EqCnstr }
+  c.assertCore
 
 /--
 Similar to `natToInt`, but checks first whether the term has already been internalized.
@@ -589,7 +590,7 @@ private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
 
 private def propagateDiv (e : Expr) : GoalM Unit := do
   let_expr HDiv.hDiv _ _ _ inst a b ← e | return ()
-  if (← isInstHDivInt inst) then
+  if (← Structural.isInstHDivInt inst) then
     if let some b ← getIntValue? b then
       expandDivMod a b
     else
@@ -598,7 +599,7 @@ private def propagateDiv (e : Expr) : GoalM Unit := do
 
 private def propagateMod (e : Expr) : GoalM Unit := do
   let_expr HMod.hMod _ _ _ inst a b ← e | return ()
-  if (← isInstHModInt inst) then
+  if (← Structural.isInstHModInt inst) then
     if let some b ← getIntValue? b then
       expandDivMod a b
     else
@@ -644,7 +645,7 @@ private def internalizeIntTerm (e type : Expr) (parent? : Option Expr) (k : Supp
 
 private def propagateNatSub (e : Expr) : GoalM Unit := do
   let_expr HSub.hSub _ _ _ inst a b := e | return ()
-  unless (← isInstHSubNat inst) do return ()
+  unless (← Structural.isInstHSubNat inst) do return ()
   discard <| mkNatVar a
   discard <| mkNatVar b
   pushNewFact <| mkApp2 (mkConst ``Int.Linear.natCast_sub) a b

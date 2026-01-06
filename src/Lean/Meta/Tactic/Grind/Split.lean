@@ -77,7 +77,7 @@ private def checkIffStatus (e a b : Expr) : GoalM SplitStatus := do
   else
     return .notReady
 
-/-- Returns `true` is `c` is congruent to a case-split that was already performed. -/
+/-- Returns `true` if `c` is congruent to a case-split that was already performed. -/
 private def isCongrToPrevSplit (c : Expr) : GoalM Bool := do
   unless c.isApp do return false
   (← get).split.resolved.foldM (init := false) fun flag { expr := c' } => do
@@ -185,13 +185,10 @@ where
     match cs with
     | [] =>
       modify fun s => { s with split.candidates := cs'.reverse }
-      if let .some _ numCases isRec _ := c? then
-        let numSplits := (← get).split.num
-        -- We only increase the number of splits if there is more than one case or it is recursive.
-        let numSplits := if numCases > 1 || isRec then numSplits + 1 else numSplits
+      if let .some .. := c? then
         -- Remark: we reset `numEmatch` after each case split.
         -- We should consider other strategies in the future.
-        modify fun s => { s with split.num := numSplits, ematch.num := 0 }
+        modify fun s => { s with ematch.num := 0 }
       return c?
     | c::cs =>
     if !(← checkAnchorRefs c) then
@@ -219,7 +216,11 @@ where
           return false
         else if numCases == 1 && !isRec && numCases' > 1 then
           return true
-        if (← getGeneration c.getExpr) < (← getGeneration c'.getExpr) then
+        /-
+        **Note**: We used to use `getGeneration c.getExpr` instead of `c.getGeneration`.
+        This was incorrect. The expression returned by `c.getExpr` may have not been internalized yet.
+        -/
+        else if (← c.getGeneration) < (← c'.getGeneration) then
           return true
         return numCases < numCases'
       if (← isBetter) then
@@ -422,10 +423,24 @@ def splitCore (c : SplitInfo) (numCases : Nat) (isRec : Bool)
       pure 0
     return (mvarIds, numDigits)
   let numSubgoals := mvarIds.length
-  let subgoals := mvarIds.mapIdx fun i mvarId => { goal with
-    mvarId
-    split.trace := { expr := cExpr, i, num := numSubgoals, source := c.source } :: goal.split.trace
-  }
+  /-
+  **Split counter heuristic**: We do not increment `numSplits` for the first case (`i = 0`)
+  of a non-recursive split. This leverages non-chronological backtracking: if the first case
+  is solved using a proof that doesn't depend on the case hypothesis, we backtrack and close
+  the original goal directly. In this scenario, the case-split was "free", it didn't contribute
+  to the proof. By not counting it, we allow deeper exploration when case-splits turn out to be
+  irrelevant.
+
+  For recursive types or subsequent cases (`i > 0`), we always increment the counter since
+  these represent genuine branches in the proof search.
+  -/
+  let subgoals := mvarIds.mapIdx fun i mvarId =>
+    let numSplits := goal.split.num
+    let numSplits := if i > 0 || isRec then numSplits + 1 else numSplits
+    { goal with
+      mvarId
+      split.num := numSplits
+      split.trace := { expr := cExpr, i, num := numSubgoals, source := c.source } :: goal.split.trace }
   let mut seqNew : Array (List (TSyntax `grind)) := #[]
   let mut stuckNew : Array Goal := #[]
   for subgoal in subgoals do

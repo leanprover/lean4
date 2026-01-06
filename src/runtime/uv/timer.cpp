@@ -114,11 +114,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj) {
     auto setup_timer = [create_promise, obj, timer]() {
         lean_assert(timer->m_promise == NULL);
 
-        timer->m_promise = create_promise();
+        lean_object* promise = create_promise();
+        timer->m_promise = promise;
         timer->m_state = TIMER_STATE_RUNNING;
 
         // The event loop must keep the timer alive for the duration of the run time.
         lean_inc(obj);
+        lean_inc(promise);
 
         int result = uv_timer_start(
             timer->m_uv_timer,
@@ -127,15 +129,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj) {
             timer->m_repeating ? timer->m_timeout : 0
         );
 
-        event_loop_unlock(&global_ev);
-
         if (result != 0) {
             lean_dec(obj);
+            event_loop_unlock(&global_ev);
             return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
-        } else {
-            lean_inc(timer->m_promise);
-            return lean_io_result_mk_ok(timer->m_promise);
         }
+
+        event_loop_unlock(&global_ev);
+
+        return lean_io_result_mk_ok(promise);
     };
 
     event_loop_lock(&global_ev);

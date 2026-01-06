@@ -11,7 +11,8 @@ public import Init.Data.Iterators.Consumers.Access
 
 public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 instance {α β} [Iterator α Id β] [Productive α Id] [IteratorAccess α Id] :
     Stream (Iter (α := α) β) β where
@@ -24,4 +25,4 @@ instance {α β} [Iterator α Id β] [Productive α Id] [IteratorAccess α Id] :
       revert h
       exact IterM.not_isPlausibleNthOutputStep_yield
 
-end Std.Iterators
+end Std

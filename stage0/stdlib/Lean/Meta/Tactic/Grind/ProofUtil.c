@@ -292,25 +292,38 @@ goto block_26;
 }
 else
 {
-uint8_t x_31; 
-x_31 = lean_nat_dec_le(x_29, x_29);
-if (x_31 == 0)
+lean_object* x_31; lean_object* x_32; uint8_t x_33; 
+x_31 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_mkLetOfMap___redArg___lam__2), 3, 0);
+x_32 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_mkLetOfMap___redArg___lam__3), 4, 2);
+lean_closure_set(x_32, 0, x_28);
+lean_closure_set(x_32, 1, x_31);
+x_33 = lean_nat_dec_le(x_29, x_29);
+if (x_33 == 0)
 {
+if (x_30 == 0)
+{
+lean_dec_ref(x_32);
 lean_dec_ref(x_7);
 x_14 = x_27;
 goto block_26;
 }
 else
 {
-lean_object* x_32; lean_object* x_33; size_t x_34; size_t x_35; lean_object* x_36; 
-x_32 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_mkLetOfMap___redArg___lam__2), 3, 0);
-x_33 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_mkLetOfMap___redArg___lam__3), 4, 2);
-lean_closure_set(x_33, 0, x_28);
-lean_closure_set(x_33, 1, x_32);
+size_t x_34; size_t x_35; lean_object* x_36; 
 x_34 = 0;
 x_35 = lean_usize_of_nat(x_29);
-x_36 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_28, x_33, x_7, x_34, x_35, x_27);
+x_36 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_28, x_32, x_7, x_34, x_35, x_27);
 x_14 = x_36;
+goto block_26;
+}
+}
+else
+{
+size_t x_37; size_t x_38; lean_object* x_39; 
+x_37 = 0;
+x_38 = lean_usize_of_nat(x_29);
+x_39 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_28, x_32, x_7, x_37, x_38, x_27);
+x_14 = x_39;
 goto block_26;
 }
 }

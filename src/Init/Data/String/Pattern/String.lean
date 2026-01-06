@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.String.Pattern.Basic
-public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.Consumers.Monadic.Loop
 import Init.Data.String.Termination
 public import Init.Data.Vector.Basic
@@ -91,7 +90,7 @@ def iter (pat : Slice) (s : Slice) : Std.Iter (α := ForwardSliceSearcher s) (Se
     { internalState := .proper pat (buildTable pat) rfl s.startPos.offset pat.startPos.offset
         (by simp [Pos.Raw.lt_iff]; omega) }
 
-instance (s : Slice) : Std.Iterators.Iterator (ForwardSliceSearcher s) Id (SearchStep s) where
+instance (s : Slice) : Std.Iterator (ForwardSliceSearcher s) Id (SearchStep s) where
   IsPlausibleStep it
     | .yield it' out | .skip it' =>
      match it.internalState with
@@ -223,7 +222,7 @@ private instance : WellFoundedRelation (ForwardSliceSearcher s) where
 
 private def finitenessRelation :
     Std.Iterators.FinitenessRelation (ForwardSliceSearcher s) Id where
-  rel := InvImage WellFoundedRelation.rel (fun it => it.internalState)
+  Rel := InvImage WellFoundedRelation.rel (fun it => it.internalState)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
@@ -232,7 +231,7 @@ private def finitenessRelation :
     all_goals try
       cases h
       revert h'
-      simp only [Std.Iterators.IterM.IsPlausibleStep, Std.Iterators.Iterator.IsPlausibleStep]
+      simp only [Std.IterM.IsPlausibleStep, Std.Iterator.IsPlausibleStep]
       match it.internalState with
       | .emptyBefore pos =>
         rintro (⟨h, h'⟩|h') <;> simp [h', ForwardSliceSearcher.toOption, Option.lt, Prod.lex_def]
@@ -253,10 +252,7 @@ private def finitenessRelation :
 instance : Std.Iterators.Finite (ForwardSliceSearcher s) Id :=
   .of_finitenessRelation finitenessRelation
 
-instance : Std.Iterators.IteratorCollect (ForwardSliceSearcher s) Id Id :=
-  .defaultImplementation
-
-instance : Std.Iterators.IteratorLoop (ForwardSliceSearcher s) Id Id :=
+instance : Std.IteratorLoop (ForwardSliceSearcher s) Id Id :=
   .defaultImplementation
 
 instance {pat : Slice} : ToForwardSearcher pat ForwardSliceSearcher where

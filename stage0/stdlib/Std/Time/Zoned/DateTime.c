@@ -49,7 +49,6 @@ lean_object* l_Std_Time_Month_Ordinal_days(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_withMinutes___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_hour___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_alignedWeekOfMonth___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_DateTime_convertTimeZone___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_DateTime_instInhabited___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_alignedWeekOfMonth___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_toPlainDateTime___redArg___boxed(lean_object*);
@@ -114,6 +113,7 @@ LEAN_EXPORT lean_object* l_Std_Time_DateTime_subWeeks(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_dayOfYear___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_withYearRollOver___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_convertTimeZone(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_DateTime_convertTimeZone___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_quarter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instBEqDateTime___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_subYearsClip___boxed(lean_object*, lean_object*, lean_object*);
@@ -233,6 +233,7 @@ LEAN_EXPORT lean_object* l_Std_Time_DateTime_subNanoseconds___boxed(lean_object*
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_ofPlainDateTimeAssumingUTC(lean_object*, lean_object*);
 lean_object* l_Std_Time_PlainDate_ofDaysSinceUNIXEpoch(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_inLeapYear___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_DateTime_convertTimeZone___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_ofPlainDateTime___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_ofTimestamp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_withMonthClip___boxed(lean_object*, lean_object*, lean_object*);
@@ -248,7 +249,6 @@ LEAN_EXPORT lean_object* l_Std_Time_DateTime_addYearsRollOver___boxed(lean_objec
 LEAN_EXPORT lean_object* l_Std_Time_instOrdDateTime___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_weekOfYear___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_nanosecond___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_DateTime_convertTimeZone___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_weekOfMonth___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_second___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_addHours___boxed(lean_object*, lean_object*, lean_object*);
@@ -414,6 +414,14 @@ lean_ctor_set(x_5, 1, x_4);
 return x_5;
 }
 }
+static lean_object* _init_l_Std_Time_DateTime_instInhabited___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Std_Time_instInhabitedTimestamp_default;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_instInhabited___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -453,14 +461,6 @@ x_19 = l_Std_Time_Duration_ofNanoseconds(x_18);
 lean_dec(x_18);
 x_20 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_19);
 return x_20;
-}
-}
-static lean_object* _init_l_Std_Time_DateTime_instInhabited___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_Time_instInhabitedTimestamp_default;
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_instInhabited___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -564,7 +564,7 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_DateTime_convertTimeZone___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_Time_DateTime_convertTimeZone___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
@@ -605,11 +605,11 @@ x_20 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_19);
 return x_20;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_DateTime_convertTimeZone___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_Time_DateTime_convertTimeZone___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Std_Time_DateTime_convertTimeZone___lam__0(x_1, x_2, x_3);
+x_4 = l_Std_Time_DateTime_convertTimeZone___redArg___lam__0(x_1, x_2, x_3);
 lean_dec_ref(x_2);
 return x_4;
 }
@@ -626,7 +626,7 @@ x_5 = lean_ctor_get(x_2, 0);
 x_6 = lean_ctor_get(x_2, 1);
 lean_dec(x_6);
 lean_inc_ref(x_5);
-x_7 = lean_alloc_closure((void*)(l_Std_Time_DateTime_convertTimeZone___lam__0___boxed), 3, 2);
+x_7 = lean_alloc_closure((void*)(l_Std_Time_DateTime_convertTimeZone___redArg___lam__0___boxed), 3, 2);
 lean_closure_set(x_7, 0, x_5);
 lean_closure_set(x_7, 1, x_3);
 x_8 = lean_mk_thunk(x_7);
@@ -640,7 +640,7 @@ x_9 = lean_ctor_get(x_2, 0);
 lean_inc(x_9);
 lean_dec(x_2);
 lean_inc_ref(x_9);
-x_10 = lean_alloc_closure((void*)(l_Std_Time_DateTime_convertTimeZone___lam__0___boxed), 3, 2);
+x_10 = lean_alloc_closure((void*)(l_Std_Time_DateTime_convertTimeZone___redArg___lam__0___boxed), 3, 2);
 lean_closure_set(x_10, 0, x_9);
 lean_closure_set(x_10, 1, x_3);
 x_11 = lean_mk_thunk(x_10);
@@ -663,7 +663,7 @@ x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_1, 1);
 lean_dec(x_5);
 lean_inc_ref(x_4);
-x_6 = lean_alloc_closure((void*)(l_Std_Time_DateTime_convertTimeZone___lam__0___boxed), 3, 2);
+x_6 = lean_alloc_closure((void*)(l_Std_Time_DateTime_convertTimeZone___redArg___lam__0___boxed), 3, 2);
 lean_closure_set(x_6, 0, x_4);
 lean_closure_set(x_6, 1, x_2);
 x_7 = lean_mk_thunk(x_6);
@@ -677,7 +677,7 @@ x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
 lean_dec(x_1);
 lean_inc_ref(x_8);
-x_9 = lean_alloc_closure((void*)(l_Std_Time_DateTime_convertTimeZone___lam__0___boxed), 3, 2);
+x_9 = lean_alloc_closure((void*)(l_Std_Time_DateTime_convertTimeZone___redArg___lam__0___boxed), 3, 2);
 lean_closure_set(x_9, 0, x_8);
 lean_closure_set(x_9, 1, x_2);
 x_10 = lean_mk_thunk(x_9);

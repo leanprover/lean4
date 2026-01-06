@@ -142,7 +142,7 @@ theorem coe_le_coe : (a : WithBot α) ≤ b ↔ a ≤ b := by
   simp [LE.le]
 
 instance orderBot : OrderBot (WithBot α) where
-  bot_le _ := fun _ h => Option.noConfusion h
+  bot_le _ := fun _ h => Option.noConfusion rfl (heq_of_eq h)
 
 theorem le_coe_iff : ∀ {x : WithBot α}, x ≤ b ↔ ∀ a : α, x = ↑a → a ≤ b
   | (b : α) => by simp
@@ -174,7 +174,7 @@ end WithBot
 
 namespace WithBot
 
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs in
 theorem le_of_forall_lt_iff_le [LinearOrder α] [DenselyOrdered α]
     {x y : WithBot α} : (∀ z : α, x < z → y ≤ z) ↔ y ≤ x := by

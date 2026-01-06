@@ -531,6 +531,31 @@ structure Pair (α : Type u) (β : Type v) : Type (max u v) where
 @[builtin_command_parser] def check_failure  := leading_parser
   "#check_failure " >> termParser -- Like `#check`, but succeeds only if term does not type check
 /--
+`#import_path Foo` prints the transitive import chain that brings the declaration `Foo`
+into the current file's scope.
+-/
+@[builtin_command_parser] def importPath := leading_parser
+  "#import_path " >> ident
+/--
+`assert_not_exists Foo Bar` asserts that the declarations `Foo` and `Bar` do not exist
+in the current import scope. Used for dependency management.
+-/
+@[builtin_command_parser] def assertNotExists := leading_parser
+  "assert_not_exists " >> many1 ident
+/--
+`assert_not_imported Mod1 Mod2` asserts that the modules `Mod1` and `Mod2` are not
+transitively imported by the current file. Used for dependency management.
+-/
+@[builtin_command_parser] def assertNotImported := leading_parser
+  "assert_not_imported " >> many1 ident
+/--
+`#check_assertions` reports whether all `assert_not_exists` and `assert_not_imported`
+assertions in the current file and its imports have been satisfied.
+Use `#check_assertions!` to only show unsatisfied assertions.
+-/
+@[builtin_command_parser] def checkAssertions := leading_parser
+  "#check_assertions" >> optional "!"
+/--
 `#eval e` evaluates the expression `e` by compiling and evaluating it.
 
 * The command attempts to use `ToExpr`, `Repr`, or `ToString` instances to print the result.
@@ -939,7 +964,7 @@ Registers an error explanation.
 Note that the error name is not relativized to the current namespace.
 -/
 @[builtin_command_parser] def registerErrorExplanationStx := leading_parser
-  docComment >> "register_error_explanation " >> ident >> termParser
+  optional docComment >> "register_error_explanation " >> ident >> termParser
 
 /--
 Returns syntax for `private` or `public` visibility depending on `isPublic`. This function should be

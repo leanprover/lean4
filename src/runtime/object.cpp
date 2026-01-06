@@ -2649,7 +2649,7 @@ extern "C" LEAN_EXPORT uint8 lean_name_eq(b_lean_obj_arg n1, b_lean_obj_arg n2) 
             if (!lean_string_eq(lean_ctor_get(n1, 1), lean_ctor_get(n2, 1)))
                 return false;
         } else {
-            if (!lean_nat_eq(lean_ctor_get(n1, 1), lean_ctor_get(n1, 1)))
+            if (!lean_nat_eq(lean_ctor_get(n1, 1), lean_ctor_get(n2, 1)))
                 return false;
         }
         n1 = lean_ctor_get(n1, 0);

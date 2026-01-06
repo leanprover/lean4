@@ -73,11 +73,8 @@ h : ¬f x = 11
     [prop] ¬f x = 11
   [eqc] False propositions
     [prop] f x = 11
-  [ematch] E-matching patterns
-    [thm] fa: [f `[a]]
   [cutsat] Assignment satisfying linear constraints
     [assign] x := 1
-    [assign] a := 3
     [assign] f x := 2
 -/
 #guard_msgs (error) in

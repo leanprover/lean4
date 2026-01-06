@@ -151,6 +151,9 @@ theorem natCast_le_natCast_of_le (a b : Nat) : a ≤ b → (a : R) ≤ (b : R) :
     simp [Semiring.natCast_add, Semiring.natCast_one]
     exact OrderedAdd.add_le_left_iff _ |>.mp ih
 
+theorem natCast_nonneg {a : Nat} : 0 ≤ (a : R) := by
+  simpa [Semiring.natCast_zero] using natCast_le_natCast_of_le (R := R) _ _ (Nat.zero_le a)
+
 theorem natCast_lt_natCast_of_lt (a b : Nat) : a < b → (a : R) < (b : R) := by
   induction a generalizing b <;> cases b <;> simp
   next n =>

@@ -589,6 +589,8 @@ unsafe def foldlMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Mon
   if start < stop then
     if stop ≤ as.size then
       fold (USize.ofNat start) (USize.ofNat stop) init
+    else if start < as.size then
+      fold (USize.ofNat start) (USize.ofNat as.size) init
     else
       pure init
   else
@@ -1348,7 +1350,7 @@ Examples:
 * `#[2, 4, 5, 6].any (· % 2 = 0) = true`
 * `#[2, 4, 5, 6].any (· % 2 = 1) = true`
 -/
-@[inline, expose]
+@[inline, expose, suggest_for Array.some]
 def any (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool :=
   Id.run <| as.anyM (pure <| p ·) start stop
 
@@ -1366,7 +1368,7 @@ Examples:
 * `#[2, 4, 6].all (· % 2 = 0) = true`
 * `#[2, 4, 5, 6].all (· % 2 = 0) = false`
 -/
-@[inline]
+@[inline, suggest_for Array.every]
 def all (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool :=
   Id.run <| as.allM (pure <| p ·) start stop
 

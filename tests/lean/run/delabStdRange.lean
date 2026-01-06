@@ -1,40 +1,40 @@
 /-!
-# Tests for delaborators for Std.Range and Std.PRange
+# Tests for delaborators for Std.Legacy.Range and Std.PRange
 -/
 
 /-!
-## Tests for `Std.Range`
+## Tests for `Std.Legacy.Range`
 -/
 
 /-!
 Default lower bound and step
 -/
-/-- info: [:10] : Std.Range -/
-#guard_msgs in #check Std.Range.mk 0 10 1 (by grind)
+/-- info: [:10] : Std.Legacy.Range -/
+#guard_msgs in #check Std.Legacy.Range.mk 0 10 1 (by grind)
 
 /-!
 Default step
 -/
-/-- info: [5:10] : Std.Range -/
-#guard_msgs in #check Std.Range.mk 5 10 1 (by grind)
+/-- info: [5:10] : Std.Legacy.Range -/
+#guard_msgs in #check Std.Legacy.Range.mk 5 10 1 (by grind)
 
 /-!
 Default lower bound
 -/
-/-- info: [:10:2] : Std.Range -/
-#guard_msgs in #check Std.Range.mk 0 10 2 (by grind)
+/-- info: [:10:2] : Std.Legacy.Range -/
+#guard_msgs in #check Std.Legacy.Range.mk 0 10 2 (by grind)
 
 /-!
 No defaults
 -/
-/-- info: [5:10:2] : Std.Range -/
-#guard_msgs in #check Std.Range.mk 5 10 2 (by grind)
+/-- info: [5:10:2] : Std.Legacy.Range -/
+#guard_msgs in #check Std.Legacy.Range.mk 5 10 2 (by grind)
 
 /-!
 Disable notation
 -/
-/-- info: { stop := 10, step_pos := _check._proof_1 } : Std.Range -/
-#guard_msgs in set_option pp.notation false in #check Std.Range.mk 0 10 1 (by grind)
+/-- info: { stop := 10, step_pos := _check._proof_1 } : Std.Legacy.Range -/
+#guard_msgs in set_option pp.notation false in #check Std.Legacy.Range.mk 0 10 1 (by grind)
 
 /-!
 ## Tests for `Std.PRange`

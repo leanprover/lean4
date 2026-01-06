@@ -73,10 +73,6 @@ theorem mapM'_eq_mapM [Monad m] [LawfulMonad m] {f : α → m β} {l : List α} 
 @[simp, grind =] theorem idRun_mapM {l : List α} {f : α → Id β} : (l.mapM f).run = l.map (f · |>.run) :=
   mapM_pure
 
-@[deprecated idRun_mapM (since := "2025-05-21")]
-theorem mapM_id {l : List α} {f : α → Id β} : (l.mapM f).run = l.map (f · |>.run) :=
-  mapM_pure
-
 @[simp, grind =] theorem mapM_map [Monad m] [LawfulMonad m] {f : α → β} {g : β → m γ} {l : List α} :
     (l.map f).mapM g = l.mapM (g ∘ f) := by
   induction l <;> simp_all
@@ -388,13 +384,6 @@ theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m]
       l.attach.foldl (fun b ⟨a, h⟩ => f a h b |>.run) init :=
   forIn'_pure_yield_eq_foldl _ _
 
-@[deprecated idRun_forIn'_yield_eq_foldl (since := "2025-05-21")]
-theorem forIn'_yield_eq_foldl
-    {l : List α} (f : (a : α) → a ∈ l → β → β) (init : β) :
-    forIn' (m := Id) l init (fun a m b => .yield (f a m b)) =
-      l.attach.foldl (fun b ⟨a, h⟩ => f a h b) init :=
-  forIn'_pure_yield_eq_foldl _ _
-
 @[simp, grind =] theorem forIn'_map [Monad m] [LawfulMonad m]
     {l : List α} (g : α → β) (f : (b : β) → b ∈ l.map g → γ → m (ForInStep γ)) :
     forIn' (l.map g) init f = forIn' l init fun a h y => f (g a) (mem_map_of_mem h) y := by
@@ -445,13 +434,6 @@ theorem forIn_eq_foldlM [Monad m] [LawfulMonad m]
     (l : List α) (f : α → β → Id β) (init : β) :
     (forIn l init (fun a b => .yield <$> f a b)).run =
       l.foldl (fun b a => f a b |>.run) init :=
-  forIn_pure_yield_eq_foldl _ _
-
-@[deprecated idRun_forIn_yield_eq_foldl (since := "2025-05-21")]
-theorem forIn_yield_eq_foldl
-    {l : List α} (f : α → β → β) (init : β) :
-    forIn (m := Id) l init (fun a b => .yield (f a b)) =
-      l.foldl (fun b a => f a b) init :=
   forIn_pure_yield_eq_foldl _ _
 
 @[simp, grind =] theorem forIn_map [Monad m] [LawfulMonad m]

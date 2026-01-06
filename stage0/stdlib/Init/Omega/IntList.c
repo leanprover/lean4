@@ -676,6 +676,14 @@ x_1 = l_Lean_Omega_IntList_instNeg___closed__0;
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_Omega_IntList_sub___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Omega_IntList_add___lam__0), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_sub___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -720,14 +728,6 @@ lean_dec(x_4);
 return x_9;
 }
 }
-}
-}
-static lean_object* _init_l_Lean_Omega_IntList_sub___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Omega_IntList_add___lam__0), 1, 0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_sub___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

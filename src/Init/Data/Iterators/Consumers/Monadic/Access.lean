@@ -10,7 +10,8 @@ public import Init.Data.Iterators.Basic
 
 public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 /--
 `it.IsPlausibleNthOutputStep n step` is the proposition that according to the
@@ -105,4 +106,4 @@ def IterM.atIdx? [Iterator α m β] [IteratorAccess α m] [Monad m] (it : IterM 
   | .skip _ => return none
   | .done => return none
 
-end Std.Iterators
+end Std

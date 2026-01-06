@@ -21,11 +21,10 @@ Concretely, the following operations are provided:
 * `Iter.toList`, collecting the values in a list
 * `Iter.toListRev`, collecting the values in a list in reverse order but more efficiently
 * `Iter.toArray`, collecting the values in an array
-
-Some operations are implemented using the `IteratorCollect` type class.
 -/
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 /--
 Traverses the given iterator and stores the emitted values in an array.
@@ -35,7 +34,7 @@ If the iterator is not finite, this function might run forever. The variant
 -/
 @[always_inline, inline]
 def Iter.toArray {α : Type w} {β : Type w}
-    [Iterator α Id β] [IteratorCollect α Id Id] (it : Iter (α := α) β) : Array β :=
+    [Iterator α Id β] (it : Iter (α := α) β) : Array β :=
   it.toIterM.toArray.run
 
 /--
@@ -45,7 +44,7 @@ This function is deprecated. Instead of `it.allowNontermination.toArray`, use `i
 -/
 @[always_inline, inline, deprecated Iter.toArray (since := "2025-12-04")]
 def Iter.Partial.toArray {α : Type w} {β : Type w}
-    [Iterator α Id β] [IteratorCollect α Id Id] (it : Iter.Partial (α := α) β) : Array β :=
+    [Iterator α Id β] (it : Iter.Partial (α := α) β) : Array β :=
   it.it.toArray
 
 /--
@@ -56,7 +55,7 @@ finite. If such a proof is not available, consider using `Iter.toArray`.
 -/
 @[always_inline, inline]
 def Iter.Total.toArray {α : Type w} {β : Type w}
-    [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id] (it : Iter.Total (α := α) β) :
+    [Iterator α Id β] [Finite α Id] (it : Iter.Total (α := α) β) :
     Array β :=
   it.it.toArray
 
@@ -104,7 +103,7 @@ If the iterator is not finite, this function might run forever. The variant
 -/
 @[always_inline, inline]
 def Iter.toList {α : Type w} {β : Type w}
-    [Iterator α Id β] [IteratorCollect α Id Id] (it : Iter (α := α) β) : List β :=
+    [Iterator α Id β] (it : Iter (α := α) β) : List β :=
   it.toIterM.toList.run
 
 /--
@@ -115,7 +114,7 @@ This function is deprecated. Instead of `it.allowNontermination.toList`, use `it
 -/
 @[always_inline, deprecated Iter.toList (since := "2025-12-04")]
 def Iter.Partial.toList {α : Type w} {β : Type w}
-    [Iterator α Id β] [IteratorCollect α Id Id] (it : Iter.Partial (α := α) β) : List β :=
+    [Iterator α Id β] (it : Iter.Partial (α := α) β) : List β :=
   it.it.toList
 
 /--
@@ -127,8 +126,8 @@ finite. If such a proof is not available, consider using `Iter.toList`.
 -/
 @[always_inline, inline]
 def Iter.Total.toList {α : Type w} {β : Type w}
-    [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id] (it : Iter.Total (α := α) β) :
+    [Iterator α Id β] [Finite α Id] (it : Iter.Total (α := α) β) :
     List β :=
   it.it.toList
 
-end Std.Iterators
+end Std

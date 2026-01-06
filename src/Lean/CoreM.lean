@@ -647,7 +647,10 @@ export Core (CoreM mkFreshUserName checkSystem withCurrHeartbeats)
   This function is a bit hackish. The heartbeat exception should probably be an internal exception.
   We used a similar hack at `Exception.isMaxRecDepth` -/
 def Exception.isMaxHeartbeat (ex : Exception) : Bool :=
-  ex matches Exception.error _ (.tagged `runtime.maxHeartbeats _)
+  if let Exception.error _ msg := ex then
+    msg.stripNestedTags.kind == `runtime.maxHeartbeats
+  else
+    false
 
 /-- Creates the expression `d → b` -/
 def mkArrow (d b : Expr) : CoreM Expr :=
@@ -705,9 +708,7 @@ def compileDeclsImpl (declNames : Array Name) : CoreM Unit := do
 
 -- `ref?` is used for error reporting if available
 partial def compileDecls (decls : Array Name) (logErrors := true) : CoreM Unit := do
-  -- When inside `realizeConst`, do compilation synchronously so that `_cstage*` constants are found
-  -- by the replay code
-  if !Elab.async.get (← getOptions) || (← getEnv).isRealizing then
+  if !Elab.async.get (← getOptions) then
     let _ ← traceBlock "compiler env" (← getEnv).checked
     doCompile
     return

@@ -42,21 +42,37 @@ def exact? (ref : Syntax) (config : Parser.Tactic.LibrarySearchConfig)
     let allowFailure := fun g => do
       let g ← g.withContext (instantiateMVars (.mvar g))
       return required.all fun e => e.occurs g
-    match (← librarySearch goal tactic allowFailure (includeStar := config.star)) with
-    -- Found goal that closed problem
+    match (← librarySearch goal tactic allowFailure (includeStar := config.star)
+        (collectAll := config.all)) with
+    -- Found goal that closed problem (only when collectAll = false)
     | none =>
       addExactSuggestion ref (← instantiateMVars (mkMVar mvar)).headBeta (checkState? := initialState)
-    -- Found suggestions
+    -- Found suggestions (includes complete solutions when collectAll = true)
     | some suggestions =>
-      if requireClose then
+      -- Separate complete solutions (empty remaining goals) from incomplete ones
+      let (complete, incomplete) := suggestions.partition (·.1.isEmpty)
+      if requireClose && !config.all then
         let hint := if suggestions.isEmpty then "" else " Try `apply?` to see partial suggestions."
         throwError "`exact?` could not close the goal.{hint}"
+      if requireClose && config.all && complete.isEmpty then
+        let hint := if incomplete.isEmpty then "" else " Try `apply?` to see partial suggestions."
+        throwError "`exact?` could not close the goal.{hint}"
       reportOutOfHeartbeats `apply? ref
-      for (_, suggestionMCtx) in suggestions do
+      -- Collect complete solutions and show as a single "Try these:" message
+      let completeExprs ← complete.mapM fun (_, suggestionMCtx) =>
         withMCtx suggestionMCtx do
-          addExactSuggestion ref (← instantiateMVars (mkMVar mvar)).headBeta
-            (checkState? := initialState) (addSubgoalsMsg := true) (tacticErrorAsInfo := true)
-      if suggestions.isEmpty then logError "apply? didn't find any relevant lemmas"
+          return (← instantiateMVars (mkMVar mvar)).headBeta
+      if !completeExprs.isEmpty then
+        addExactSuggestions ref completeExprs (checkState? := initialState)
+      -- Show incomplete solutions only if not requireClose (i.e., for apply?)
+      -- Note: we must call addExactSuggestion inside withMCtx because incomplete
+      -- solutions have unassigned metavariables that are only valid in that context
+      if !requireClose then
+        for (_, suggestionMCtx) in incomplete do
+          withMCtx suggestionMCtx do
+            addExactSuggestion ref (← instantiateMVars (mkMVar mvar)).headBeta
+              (checkState? := initialState) (addSubgoalsMsg := true) (tacticErrorAsInfo := true)
+        if suggestions.isEmpty then logError "apply? didn't find any relevant lemmas"
       admitGoal goal (synthetic := false)
 
 @[builtin_tactic Lean.Parser.Tactic.exact?]

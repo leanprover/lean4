@@ -15,7 +15,7 @@ example : U := by
 
 /--
 trace: [Meta.Tactic.simp.discharge] bar discharge ✅️
-      autoParam T _auto✝
+      autoParam T bar._auto_1
   [Meta.Tactic.simp.rewrite] T.mk:1000:
         T
       ==>

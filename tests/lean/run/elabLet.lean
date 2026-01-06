@@ -57,7 +57,7 @@ trace: m : Nat := 1
 hyp : m = 1
 ⊢ True
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example : True := by
@@ -73,7 +73,7 @@ trace: m : Nat
 hyp : m = 1
 ⊢ True
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example : True := by
@@ -160,7 +160,7 @@ Testing `+generalize`
 trace: x y z : Nat
 ⊢ z = y + x
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example (x y : Nat) : x + y = y + x := by

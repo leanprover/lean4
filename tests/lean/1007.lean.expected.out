@@ -1,11 +1,11 @@
-1007.lean:8:9-8:17: warning: declaration uses 'sorry'
-1007.lean:9:9-9:20: warning: declaration uses 'sorry'
-1007.lean:11:33-11:41: warning: declaration uses 'sorry'
-1007.lean:15:9-15:20: warning: declaration uses 'sorry'
-1007.lean:33:0-33:8: warning: declaration uses 'sorry'
-1007.lean:34:0-34:8: warning: declaration uses 'sorry'
-1007.lean:38:4-38:8: warning: declaration uses 'sorry'
-1007.lean:39:4-39:7: warning: declaration uses 'sorry'
+1007.lean:8:9-8:17: warning: declaration uses `sorry`
+1007.lean:9:9-9:20: warning: declaration uses `sorry`
+1007.lean:11:33-11:41: warning: declaration uses `sorry`
+1007.lean:15:9-15:20: warning: declaration uses `sorry`
+1007.lean:33:0-33:8: warning: declaration uses `sorry`
+1007.lean:34:0-34:8: warning: declaration uses `sorry`
+1007.lean:38:4-38:8: warning: declaration uses `sorry`
+1007.lean:39:4-39:7: warning: declaration uses `sorry`
 1007.lean:56:64-56:78: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   IsLin fun x => sum fun i => norm x
 

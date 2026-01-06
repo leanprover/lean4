@@ -103,15 +103,6 @@ def Modifiers.isPartial : Modifiers → Bool
   | { recKind := .partial, .. }  => true
   | _                            => false
 
-/--
-Whether the declaration is explicitly `partial` or should be considered as such via `meta`. In the
-latter case, elaborators should not produce an error if partiality is unnecessary.
--/
-def Modifiers.isInferredPartial : Modifiers → Bool
-  | { recKind := .partial, .. }  => true
-  | { computeKind := .meta, .. } => true
-  | _                            => false
-
 def Modifiers.isNonrec : Modifiers → Bool
   | { recKind := .nonrec, .. } => true
   | _                          => false

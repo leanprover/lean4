@@ -85,8 +85,20 @@ where
         diagnostics := .empty
         stx := tac
         inner? := some { stx? := tac, task := inner.resultD default, cancelTk? }
-        finished := { stx? := tac, task := finished.resultD default, cancelTk? }
-        next := #[{ stx? := stxs, task := next.resultD default, cancelTk? }]
+        finished := {
+          stx? := tac, task := finished.resultD default, cancelTk?
+          -- Do not report range as it is identical to `inner?`'s and should not cover up
+          -- incremental reporting done in the latter.
+          reportingRange := .skip
+        }
+        next := #[{
+          stx? := stxs, task := next.resultD default, cancelTk?
+          -- Do not fall back to `inherit` if there are no more tactics as that would cover up
+          -- incremental reporting done in `inner?`. Do use default range in all other cases so that
+          -- reporting ranges are properly nested.
+          reportingRange :=
+            if stxs.getNumArgs == 0 then .skip else SnapshotTask.defaultReportingRange stxs
+        }]
       }
       -- Run `tac` in a fresh info tree state and store resulting state in snapshot for
       -- incremental reporting, then add back saved trees. Here we rely on `evalTactic`

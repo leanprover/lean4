@@ -17,6 +17,7 @@ import Lean.Meta.Tactic.Grind.RevertAll
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Proj
 import Lean.Meta.Tactic.Grind.ForallProp
+import Lean.Meta.Tactic.Grind.CtorIdx
 import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.EMatch
@@ -31,26 +32,44 @@ import Lean.Meta.Tactic.Grind.Core
 public section
 namespace Lean.Meta.Grind
 
+/--
+Returns the `ExtensionState` for the default `grind` attribute.
+-/
+def getDefaultExtensionState : MetaM ExtensionState :=
+  return grindExt.getState (← getEnv)
+
+def getOnlyExtensionState : MetaM ExtensionState := do
+  let s := grindExt.getState (← getEnv)
+  let casesTypes := s.casesTypes
+  let funCC := s.funCC
+  let extThms := s.extThms
+  return {
+    casesTypes, funCC, extThms
+  }
+
 structure Params where
   config      : Grind.Config
-  ematch      : EMatchTheorems := default
-  inj         : InjectiveTheorems := default
-  symPrios    : SymbolPriorities := {}
-  casesTypes  : CasesTypes := {}
+  extensions  : ExtensionStateArray := #[]
   extra       : PArray EMatchTheorem := {}
   extraInj    : PArray InjectiveTheorem := {}
   extraFacts  : PArray Expr := {}
-  funCCs      : NameSet := {}
+  symPrios    : SymbolPriorities := {}
   norm        : Simp.Context
   normProcs   : Array Simprocs
   anchorRefs? : Option (Array AnchorRef) := none
   -- TODO: inductives to split
 
-def mkParams (config : Grind.Config) : MetaM Params := do
+def mkParams (config : Grind.Config) (extensions : ExtensionStateArray) : MetaM Params := do
   let norm ← Grind.getSimpContext config
   let normProcs ← Grind.getSimprocs
   let symPrios ← getGlobalSymbolPriorities
-  return { config, norm, normProcs, symPrios }
+  return { config, norm, normProcs, symPrios, extensions }
+
+def mkDefaultParams (config : Grind.Config) : MetaM Params := do
+  mkParams config #[← getDefaultExtensionState]
+
+def mkOnlyParams (config : Grind.Config) : MetaM Params := do
+  mkParams config #[← getOnlyExtensionState]
 
 def mkMethods (evalTactic? : Option EvalTactic := none) : CoreM Methods := do
   let builtinPropagators ← builtinPropagatorsRef.get
@@ -62,6 +81,7 @@ def mkMethods (evalTactic? : Option EvalTactic := none) : CoreM Methods := do
       propagateReflCmp e
       let .const declName _ := e.getAppFn | return ()
       propagateProjEq e
+      propagateCtorIdxUp e
       if let some props := builtinPropagators.up[declName]? then
        props.forM fun prop => prop e
     propagateDown := fun e => do
@@ -84,26 +104,34 @@ private def discharge? (e : Expr) : SimpM (Option Expr) := do
   else
     return none
 
-def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTactic := none) : MetaM α := do
-  let (falseExpr, scState)  := shareCommonAlpha (mkConst ``False) {}
-  let (trueExpr, scState)   := shareCommonAlpha (mkConst ``True) scState
-  let (bfalseExpr, scState) := shareCommonAlpha (mkConst ``Bool.false) scState
-  let (btrueExpr, scState)  := shareCommonAlpha (mkConst ``Bool.true) scState
-  let (natZExpr, scState)   := shareCommonAlpha (mkNatLit 0) scState
-  let (ordEqExpr, scState)  := shareCommonAlpha (mkConst ``Ordering.eq) scState
-  let (intExpr, scState)    := shareCommonAlpha Int.mkType scState
-  let simprocs := params.normProcs
+open Sym
+
+def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTactic := none) : MetaM α := Sym.SymM.run do
+  let falseExpr  ← share <| mkConst ``False
+  let trueExpr   ← share <| mkConst ``True
+  let bfalseExpr ← share <| mkConst ``Bool.false
+  let btrueExpr  ← share <| mkConst ``Bool.true
+  let natZExpr   ← share <| mkNatLit 0
+  let ordEqExpr  ← share <| mkConst ``Ordering.eq
+  let intExpr    ← share <| Int.mkType
+  /- **Note**: Consider using `Sym.simp` in the future. -/
+  let simprocs  := params.normProcs
   let simpMethods := Simp.mkMethods simprocs discharge? (wellBehavedDischarge := true)
-  let simp := params.norm
+  let simp   := params.norm
   let config := params.config
   let symPrios := params.symPrios
+  let extensions := params.extensions
   let anchorRefs? := params.anchorRefs?
-  let funCCs := params.funCCs
-  x (← mkMethods evalTactic?).toMethodsRef { config, anchorRefs?, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr, symPrios, funCCs }
-    |>.run' { scState }
+  let debug := grind.debug.get (← getOptions)
+  x (← mkMethods evalTactic?).toMethodsRef
+    { config, anchorRefs?, simpMethods, simp, extensions, symPrios
+      trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr
+      debug }
+    |>.run' {}
 
-private def mkCleanState (mvarId : MVarId) (params : Params) : MetaM Clean.State := mvarId.withContext do
-  unless params.config.clean do return {}
+private def mkCleanState (mvarId : MVarId) : GrindM Clean.State := mvarId.withContext do
+  let config ← getConfig
+  unless config.clean do return {}
   let mut used : PHashSet Name := {}
   for localDecl in (← getLCtx) do
     used := used.insert localDecl.userName
@@ -121,26 +149,33 @@ def assertExtra (params : Params) : GoalM Unit := do
   for thm in params.extraInj do
     activateInjectiveTheorem thm 0
 
-private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
-  let mvarId ← if params.config.clean then mvarId.exposeNames else pure mvarId
+private def initENodeCore (e : Expr) (interpreted ctor : Bool) : GoalM Unit := do
+  if let .const declName _ := e then
+    updateIndicesFound (.const declName)
+  mkENodeCore e interpreted ctor (generation := 0) (funCC := false)
+
+/-- Returns a new goal for the given metavariable. -/
+public def mkGoal (mvarId : MVarId) : GrindM Goal := do
+  let config ← getConfig
+  let mvarId ← if config.clean then mvarId.exposeNames else pure mvarId
   let trueExpr ← getTrueExpr
   let falseExpr ← getFalseExpr
   let btrueExpr ← getBoolTrueExpr
   let bfalseExpr ← getBoolFalseExpr
   let natZeroExpr ← getNatZeroExpr
   let ordEqExpr ← getOrderingEqExpr
-  let thmMap := params.ematch
-  let casesTypes := params.casesTypes
-  let clean ← mkCleanState mvarId params
+  let extensions ← getExtensions
+  let thmEMatch := extensions.map fun ext => ext.ematch
+  let thmInj := extensions.map fun ext => ext.inj
+  let clean ← mkCleanState mvarId
   let sstates ← Solvers.mkInitialStates
-  GoalM.run' { mvarId, ematch.thmMap := thmMap, inj.thms := params.inj, split.casesTypes := casesTypes, clean, sstates } do
-    mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0) (funCC := false)
-    mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0) (funCC := false)
-    mkENodeCore btrueExpr (interpreted := false) (ctor := true) (generation := 0) (funCC := false)
-    mkENodeCore bfalseExpr (interpreted := false) (ctor := true) (generation := 0) (funCC := false)
-    mkENodeCore natZeroExpr (interpreted := true) (ctor := false) (generation := 0) (funCC := false)
-    mkENodeCore ordEqExpr (interpreted := false) (ctor := true) (generation := 0) (funCC := false)
-    assertExtra params
+  GoalM.run' { mvarId, ematch.thmMap := thmEMatch, inj.thms := thmInj, clean, sstates } do
+    initENodeCore falseExpr (interpreted := true) (ctor := false)
+    initENodeCore trueExpr (interpreted := true) (ctor := false)
+    initENodeCore btrueExpr (interpreted := false) (ctor := true)
+    initENodeCore bfalseExpr (interpreted := false) (ctor := true)
+    initENodeCore natZeroExpr (interpreted := true) (ctor := false)
+    initENodeCore ordEqExpr (interpreted := false) (ctor := true)
 
 structure Result where
   failure?   : Option Goal
@@ -217,37 +252,47 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
 
 /--
 When `Config.revert := false`, we preprocess the hypotheses, and add them to the `grind` state.
--/
-private def addHypotheses (goal : Goal) : GrindM Goal := GoalM.run' goal do
-  let mvarDecl ← goal.mvarId.getDecl
-  for localDecl in mvarDecl.lctx do
-    if (← isInconsistent) then return ()
-    let type := localDecl.type
-    if (← isProp type) then
-      let r ← preprocessHypothesis type
-      match r.proof? with
-      | none => add r.expr localDecl.toExpr
-      | some h => add r.expr <| mkApp4 (mkConst ``Eq.mp [0]) type r.expr h localDecl.toExpr
-    else
-      internalizeLocalDecl localDecl
+It starts at `goal.nextDeclIdx`. If `num?` is `some num`, then at most `num` local declarations are processed.
+Otherwise, all remaining local declarations are processed.
 
-private def initCore (mvarId : MVarId) (params : Params) : GrindM Goal := do
-  /-
-  **Note**: We used to use `abstractMVars` and `clearImpDetails` here.
-  These operations are now performed at `withProtectedMCtx`
-  -/
-  -- let mvarId ← mvarId.abstractMVars
-  -- let mvarId ← mvarId.clearImplDetails
-  let mvarId ← if params.config.clean || !params.config.revert then pure mvarId else mvarId.markAccessible
-  let mvarId ← if params.config.revert then mvarId.revertAll else pure mvarId
+Remark: this function assumes the local context does not contains holes with `none` in `decls`.
+-/
+def processHypotheses (goal : Goal) (num? : Option Nat := none) : GrindM Goal := GoalM.run' goal do
+  discard <| go.run
+where
+  go : ExceptT Unit GoalM Unit := do
+    let mvarDecl ← goal.mvarId.getDecl
+    mvarDecl.lctx.forM (start := goal.nextDeclIdx) fun localDecl => do
+      if (← isInconsistent) then
+        setNextDeclToEnd
+        throwThe Unit () -- interrupt
+      if let some num := num? then
+        if localDecl.index >= goal.nextDeclIdx + num then
+          modify fun goal => { goal with nextDeclIdx := localDecl.index }
+          throwThe Unit () -- interrupt
+      unless localDecl.isImplementationDetail do
+        let type := localDecl.type
+        if (← isProp type) then
+          let r ← preprocessHypothesis type
+          match r.proof? with
+          | none => add r.expr localDecl.toExpr
+          | some h => add r.expr <| mkApp4 (mkConst ``Eq.mp [0]) type r.expr h localDecl.toExpr
+        else
+          internalizeLocalDecl localDecl
+    setNextDeclToEnd -- Processed all local decls
+
+private def initCore (mvarId : MVarId) : GrindM Goal := do
+  let config ← getConfig
+  let mvarId ← if config.clean || !config.revert then pure mvarId else mvarId.markAccessible
+  let mvarId ← if config.revert then mvarId.revertAll else pure mvarId
   let mvarId ← mvarId.unfoldReducible
   let mvarId ← mvarId.betaReduce
   appendTagSuffix mvarId `grind
-  let goal ← mkGoal mvarId params
-  if params.config.revert then
+  let goal ← mkGoal mvarId
+  if config.revert then
     return goal
   else
-    addHypotheses goal
+    processHypotheses goal
 
 def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
   let issues     := (← get).issues
@@ -263,7 +308,8 @@ def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
 
 def GrindM.runAtGoal (mvarId : MVarId) (params : Params) (k : Goal → GrindM α) (evalTactic? : Option EvalTactic := none) : MetaM α := do
   let go : GrindM α := withGTransparency do
-    let goal ← initCore mvarId params
+    let goal ← initCore mvarId
+    let goal ← GoalM.run' goal <| assertExtra params
     k goal
   go.run params (evalTactic? := evalTactic?)
 
@@ -283,14 +329,24 @@ See issue #11806 for a motivating example.
 -/
 def withProtectedMCtx [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
     [MonadExcept Exception m] [MonadRuntimeException m]
-    (abstractProof : Bool) (mvarId : MVarId) (k : MVarId → m α) : m α := do
+    (config : Grind.Config) (mvarId : MVarId) (k : MVarId → m α) : m α := do
   /-
   **Note**: `instantiateGoalMVars` here also instantiates mvars occurring in hypotheses.
   This is particularly important when using `grind -revert`.
   -/
-  let mvarId ← mvarId.instantiateGoalMVars
-  let mvarId ← mvarId.abstractMVars
-  let mvarId ← mvarId.clearImplDetails
+  let mut mvarId ← mvarId.instantiateGoalMVars
+  /-
+  **TODO**: It would be nice to remove the following step, but
+  some tests break with unknown metavariable error when this
+  step is removed. The main issue is the `withNewMCtxDepth` step at
+  `main`.
+  -/
+  mvarId ← mvarId.abstractMVars
+  if config.revert then
+    /-
+    **Note**: We now skip implementation details at `addHypotheses`
+    -/
+    mvarId ← mvarId.clearImplDetails
   tryCatchRuntimeEx (main mvarId) fun ex => do
     mvarId.admit
     throw ex
@@ -300,22 +356,23 @@ where
     let (a, val) ← withNewMCtxDepth do
       let mvar' ← mkFreshExprSyntheticOpaqueMVar type
       let a ← k mvar'.mvarId!
-      let val ← finalize mvar'
+      let val ← instantiateMVarsProfiling mvar'
       return (a, val)
+    let val ← finalize val
     (mvarId.assign val : MetaM _)
     return a
 
-  finalize (mvar' : Expr) : MetaM Expr := do
-    trace[grind.debug.proof] "{← instantiateMVars mvar'}"
-    let type ← inferType mvar'
+  finalize (val : Expr) : MetaM Expr := do
+    trace[grind.debug.proof] "{val}"
+    let type ← inferType val
     -- `grind` proofs are often big, if `abstractProof` is true, we create an auxiliary theorem.
-    let val ← if !abstractProof then
-      instantiateMVarsProfiling mvar'
+    let val ← if !config.abstractProof then
+      pure val
     else if (← isProp type) then
-      mkAuxTheorem type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+      mkAuxTheorem type val (zetaDelta := true)
     else
       let auxName ← mkAuxDeclName `grind
-      mkAuxDefinition auxName type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+      mkAuxDefinition auxName type val (zetaDelta := true)
     return val
 
 end Lean.Meta.Grind

@@ -559,6 +559,24 @@ x_2 = l_Std_Time_PlainTime_now();
 return x_2;
 }
 }
+static lean_object* _init_l_Std_Time_DateTime_ofPlainDate___closed__0() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(86400u);
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Std_Time_DateTime_ofPlainDate___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_ofPlainDate___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -598,24 +616,6 @@ x_19 = l_Std_Time_Duration_ofNanoseconds(x_18);
 lean_dec(x_18);
 x_20 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_19);
 return x_20;
-}
-}
-static lean_object* _init_l_Std_Time_DateTime_ofPlainDate___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(86400u);
-x_2 = lean_nat_to_int(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Std_Time_DateTime_ofPlainDate___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_nat_to_int(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_ofPlainDate___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1148,6 +1148,15 @@ x_3 = l_Std_Time_ZonedDateTime_nowAt(x_1);
 return x_3;
 }
 }
+LEAN_EXPORT uint8_t l_Std_Time_ZonedDateTime_ofPlainDate___lam__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; uint8_t x_4; 
+x_3 = lean_ctor_get(x_2, 0);
+x_4 = lean_int_dec_le(x_1, x_3);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofPlainDate___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1184,15 +1193,6 @@ x_18 = l_Std_Time_Duration_ofNanoseconds(x_17);
 lean_dec(x_17);
 x_19 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_18);
 return x_19;
-}
-}
-LEAN_EXPORT uint8_t l_Std_Time_ZonedDateTime_ofPlainDate___lam__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; uint8_t x_4; 
-x_3 = lean_ctor_get(x_2, 0);
-x_4 = lean_int_dec_le(x_1, x_3);
-return x_4;
 }
 }
 static lean_object* _init_l_Std_Time_ZonedDateTime_ofPlainDate___closed__0() {

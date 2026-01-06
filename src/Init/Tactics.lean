@@ -369,6 +369,12 @@ In this setting all definitions that are not opaque are unfolded.
 -/
 syntax (name := withUnfoldingAll) "with_unfolding_all " tacticSeq : tactic
 
+/--
+`with_unfolding_none tacs` executes `tacs` using the `.none` transparency setting.
+In this setting no definitions are unfolded.
+-/
+syntax (name := withUnfoldingNone) "with_unfolding_none " tacticSeq : tactic
+
 /-- `first | tac | ...` runs each `tac` until one succeeds, or else fails. -/
 syntax (name := first) "first " withPosition((ppDedent(ppLine) colGe "| " tacticSeq)+) : tactic
 
@@ -998,7 +1004,7 @@ You can use `with` to provide the variables names for each constructor.
   uses tactic `tac₁` for the `nil` case, and `tac₂` for the `cons` case,
   and `a` and `as'` are used as names for the new variables introduced.
 - `cases h : e`, where `e` is a variable or an expression,
-  performs cases on `e` as above, but also adds a hypothesis `h : e = ...` to each hypothesis,
+  performs cases on `e` as above, but also adds a hypothesis `h : e = ...` to each goal,
   where `...` is the constructor instance for that particular case.
 -/
 syntax (name := cases) "cases " elimTarget,+ (" using " term)? (inductionAlts)? : tactic
@@ -1704,6 +1710,9 @@ structure LibrarySearchConfig where
   like `[*]`) are searched as a fallback when no concrete-keyed lemmas are found.
   Use `-star` to disable this fallback. -/
   star : Bool := true
+  /-- If true, collect all successful lemmas instead of stopping at the first complete solution.
+  Use `+all` to enable this behavior. -/
+  all : Bool := false
 
 /--
 Searches environment for definitions or theorems that can solve the goal using `exact`
@@ -1716,6 +1725,7 @@ ways to resolve the goal, and one wants to guide which lemma is used.
 Use `+grind` to enable `grind` as a fallback discharger for subgoals.
 Use `+try?` to enable `try?` as a fallback discharger for subgoals.
 Use `-star` to disable fallback to star-indexed lemmas (like `Empty.elim`, `And.left`).
+Use `+all` to collect all successful lemmas instead of stopping at the first.
 -/
 syntax (name := exact?) "exact?" optConfig (" using " (colGt ident),+)? : tactic
 
@@ -1729,6 +1739,7 @@ used when closing the goal.
 Use `+grind` to enable `grind` as a fallback discharger for subgoals.
 Use `+try?` to enable `try?` as a fallback discharger for subgoals.
 Use `-star` to disable fallback to star-indexed lemmas.
+Use `+all` to collect all successful lemmas instead of stopping at the first.
 -/
 syntax (name := apply?) "apply?" optConfig (" using " (colGt term),+)? : tactic
 

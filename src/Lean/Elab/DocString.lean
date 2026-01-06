@@ -1301,7 +1301,7 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
             continue
           else throw e
         | e => throw e
-    throwErrorAt name "Unkown role `{name}`"
+    throwErrorAt name "Unknown role `{name}`"
   | other =>
     throwErrorAt other "Unsupported syntax {other}"
 where

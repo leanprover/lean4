@@ -8,6 +8,7 @@ prelude
 public import Lean.AddDecl
 public import Lean.Meta.AppBuilder
 public import Lean.DefEqAttrib
+import Lean.Meta.WHNF
 public section
 namespace Lean.Meta
 

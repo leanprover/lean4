@@ -360,6 +360,19 @@ instance [BEq α] [Hashable α] : Union (DHashMap α β) := ⟨union⟩
 instance [BEq α] [Hashable α] : Inter (DHashMap α β) := ⟨inter⟩
 instance [BEq α] [Hashable α] : SDiff (DHashMap α β) := ⟨diff⟩
 
+/--
+Compares two hash maps using Boolean equality on keys and values.
+
+Returns `true` if the maps contain the same key-value pairs, `false` otherwise.
+-/
+def beq [LawfulBEq α] [∀ k, BEq (β k)] (a b : DHashMap α β) : Bool :=
+  Raw₀.beq ⟨a.1, a.2.size_buckets_pos⟩ ⟨b.1, b.2.size_buckets_pos⟩
+
+instance [LawfulBEq α] [∀ k, BEq (β k)] : BEq (DHashMap α β) := ⟨beq⟩
+
+@[inherit_doc DHashMap.beq] def Const.beq {β : Type v} [BEq α] [BEq β] (m₁ m₂ : DHashMap α (fun _ => β)) : Bool :=
+  Raw₀.Const.beq ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/

@@ -12,7 +12,6 @@ public import Lean.Elab.Tactic.ElabTerm
 import Lean.Meta.Tactic.FunIndCollect
 import Lean.Elab.App
 import Lean.Elab.Tactic.Generalize
-import Lean.ErrorExplanations.InductionWithNoAlts
 
 
 public section
@@ -364,7 +363,12 @@ where
           stx := mkNullNode altStxs
           diagnostics := .empty
           inner? := none
-          finished := { stx? := mkNullNode altStxs, reportingRange := .inherit, task := finished.resultD default, cancelTk? }
+          finished := {
+            stx? := mkNullNode altStxs, task := finished.resultD default, cancelTk?
+            -- Do not cover up progress from `next` as no significant work happens after `next` and
+            -- before `finished` is resolved.
+            reportingRange := .skip
+          }
           next := Array.zipWith
             (fun stx prom => { stx? := some stx, task := prom.resultD default, cancelTk? })
             altStxs altPromises
@@ -660,7 +664,7 @@ def checkForInductionWithNoAlts (tacticKind : String) (optInductionAlts : Syntax
     -- Usually errors are suppressed for syntax containing `.missing` nodes, but this named error is
     -- listed in `Lean.Core.getAndEmptySnapshotTasks` as an error that ignores suppression.
     throwNamedErrorAt optInductionAlts lean.inductionWithNoAlts
-      m!"Invalid syntax for {tacticKind} tactic: The `with` keyword must followed by a tactic or by an alternative (e.g. `| zero =>`), but here it is followed by the identifier `{var}`."
+      m!"Invalid syntax for {tacticKind} tactic: The `with` keyword must be followed by a tactic or by an alternative (e.g. `| zero =>`), but here it is followed by the identifier `{var}`."
 
 /--
 Separate out the optional `with` tactics from the rest of the alternates

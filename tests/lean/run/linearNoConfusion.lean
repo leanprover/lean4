@@ -20,30 +20,31 @@ inductive Vec.{u} (α : Type) : Nat → Type u where
   | cons1 {n} : α → Vec α n → Vec α (n + 1)
   | cons2 {n} : α → Vec α n → Vec α (n + 1)
 
-@[reducible] protected def Vec.noConfusionType'.{u_1, u} : {α : Type} →
-  Sort u_1 → {a : Nat} → Vec.{u} α a → {a : Nat} → Vec α a → Sort u_1 :=
-fun P _ x1 _ x2 =>
+@[reducible] protected def Vec.noConfusionType'.{u_1, u} : Sort u_1 →
+  {α : Type} → {a : Nat} → Vec.{u} α a →
+  {α : Type} → {a : Nat} → Vec α a → Sort u_1 :=
+fun P _ _ x1 _ _ x2 =>
   Vec.casesOn x1
     (if h : x2.ctorIdx = 0 then
       Vec.nil.elim (motive := fun _ _ => Sort u_1) x2 h (P → P)
     else P)
     (fun {n} a_1 a_2 => if h : x2.ctorIdx = 1 then
-      Vec.cons1.elim (motive := fun _ _ => Sort u_1) x2 h fun {n_1} a a_3 => (n = n_1 → a_1 = a → a_2 ≍ a_3 → P) → P
+      Vec.cons1.elim (motive := fun _ _ => Sort u_1) x2 h fun {n_1} a a_3 => (n = n_1 → a_1 ≍ a → a_2 ≍ a_3 → P) → P
      else P)
     (fun {n} a_1 a_2 => if h : x2.ctorIdx = 2 then
-      Vec.cons2.elim (motive := fun _ _ => Sort u_1) x2 h fun {n_1} a a_3 => (n = n_1 → a_1 = a → a_2 ≍ a_3 → P) → P
+      Vec.cons2.elim (motive := fun _ _ => Sort u_1) x2 h fun {n_1} a a_3 => (n = n_1 → a_1 ≍ a → a_2 ≍ a_3 → P) → P
      else P)
 
 /--
-info: @[reducible] protected def Vec.noConfusionType.{u_1, u} : {α : Type} →
-  Sort u_1 → {a : Nat} → Vec α a → {a' : Nat} → Vec α a' → Sort u_1 :=
-fun {α} P {a} t {a'} t' =>
+info: @[reducible] protected def Vec.noConfusionType.{u_1, u} : Sort u_1 →
+  {α : Type} → {a : Nat} → Vec α a → {α' : Type} → {a' : Nat} → Vec α' a' → Sort u_1 :=
+fun P {α} {a} t {α'} {a'} t' =>
   Vec.casesOn t (if h : t'.ctorIdx = 0 then Vec.nil.elim t' h (P → P) else P)
     (fun {n} a a_1 =>
-      if h : t'.ctorIdx = 1 then Vec.cons1.elim t' h fun {n_1} a_2 a_3 => (n = n_1 → a = a_2 → a_1 ≍ a_3 → P) → P
+      if h : t'.ctorIdx = 1 then Vec.cons1.elim t' h fun {n_1} a_2 a_3 => (n = n_1 → a ≍ a_2 → a_1 ≍ a_3 → P) → P
       else P)
     fun {n} a a_1 =>
-    if h : t'.ctorIdx = 2 then Vec.cons2.elim t' h fun {n_1} a_2 a_3 => (n = n_1 → a = a_2 → a_1 ≍ a_3 → P) → P else P
+    if h : t'.ctorIdx = 2 then Vec.cons2.elim t' h fun {n_1} a_2 a_3 => (n = n_1 → a ≍ a_2 → a_1 ≍ a_3 → P) → P else P
 -/
 #guard_msgs in
 #print Vec.noConfusionType

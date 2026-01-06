@@ -586,7 +586,6 @@ public theorem toList_eq_if_roc [LE α] [DecidableLE α] [UpwardEnumerable α]
         [] := by
   rw [Internal.toList_eq_toList_iter, Rxc.Iterator.toList_eq_match]; rfl
 
-@[simp]
 public theorem toList_eq_toList_rco [LE α] [DecidableLE α] [LT α] [DecidableLT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]
@@ -1300,7 +1299,6 @@ public theorem toArray_eq_match_rcc [LE α] [DecidableLE α] [UpwardEnumerable �
   simp only [← Internal.toList_eq_toList_iter, toList_eq_match_rcc]
   split <;> simp
 
-@[simp]
 public theorem toList_eq_toList_roo [LE α] [DecidableLE α] [LT α] [DecidableLT α]
     [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLT α]

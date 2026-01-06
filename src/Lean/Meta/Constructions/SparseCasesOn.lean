@@ -3,16 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
-
 module
-
 prelude
 public import Lean.Meta.Basic
 import Lean.AddDecl
 import Lean.Meta.Constructions.CtorIdx
 import Lean.Meta.AppBuilder
 import Lean.Meta.HasNotBit
-
+import Lean.Meta.WHNF
 /-!  See `mkSparseCasesOn` below.  -/
 
 namespace Lean.Meta
@@ -28,6 +26,19 @@ deriving BEq, Hashable
 
 private builtin_initialize sparseCasesOnCacheExt : EnvExtension (PHashMap SparseCasesOnKey Name) ←
   registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache, keep it local
+
+/-- Information necessary to recognize and split on sparse casesOn (in particular in MatchEqs) -/
+public structure SparseCasesOnInfo where
+  indName : Name
+  majorPos : Nat
+  arity : Nat
+  insterestingCtors : Array Name
+deriving Inhabited
+
+private builtin_initialize sparseCasesOnInfoExt : MapDeclarationExtension SparseCasesOnInfo ←
+  mkMapDeclarationExtension (exportEntriesFn := fun env s _ =>
+    -- Do not export for non-exposed defs
+    s.filter (fun n _ => env.find? n |>.any (·.hasValue)) |>.toArray)
 
 /--
 This module creates sparse variants of `casesOn` that have arms only for some of the constructors,
@@ -94,7 +105,7 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name :=
     let e := casesOnInfo.value!
     let e := mkAppN e params
     let motive' ← id do
-      mkLambdaFVars ism (← mkArrow catchAllType (mkAppN motive ism))
+      mkLambdaFVars ism (mkForall (← mkFreshUserName `else) BinderInfo.default catchAllType (mkAppN motive ism))
     let e := mkApp e motive'
     let e := mkAppN e indices
     let e := mkApp e major
@@ -123,8 +134,19 @@ public def mkSparseCasesOn (indName : Name) (ctors : Array Name) : MetaM Name :=
   addDecl (.defnDecl decl)
   modifyEnv fun env => sparseCasesOnCacheExt.modifyState env fun s => s.insert key declName
   setReducibleAttribute declName
-  modifyEnv fun env => markAuxRecursor env declName -- TODO: is this right?
   modifyEnv fun env => markSparseCasesOn env declName
+  modifyEnv fun env => sparseCasesOnInfoExt.insert env declName {
+    indName
+    majorPos := indInfo.numParams + 1 + indInfo.numIndices,
+    arity := indInfo.numParams + 1 + indInfo.numIndices + 1 + ctors.size + 1
+    insterestingCtors := ctors
+  }
+  enableRealizationsForConst declName
   pure declName
 
-end Lean.Meta
+public def getSparseCasesOnInfoCore (env : Environment) (sparseCasesOnName : Name) : (Option SparseCasesOnInfo) := do
+  sparseCasesOnInfoExt.find? env sparseCasesOnName
+
+public def getSparseCasesOnInfo (sparseCasesOnName : Name) : CoreM (Option SparseCasesOnInfo) := do
+  let env ← getEnv
+  return sparseCasesOnInfoExt.find? env sparseCasesOnName

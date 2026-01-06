@@ -4,16 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.RecursorInfo
 public import Lean.Meta.SynthInstance
 public import Lean.Meta.Tactic.Revert
 public import Lean.Meta.Tactic.Intro
 public import Lean.Meta.Tactic.FVarSubst
-
+import Lean.Meta.WHNF
 public section
-
 namespace Lean.Meta
 
 private partial def getTargetArity : Expr → Nat

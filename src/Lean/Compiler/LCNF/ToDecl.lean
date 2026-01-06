@@ -4,13 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Compiler.InitAttr
 public import Lean.Compiler.LCNF.ToLCNF
-
+import Lean.Meta.Transform
+import Lean.Meta.Match.MatcherInfo
 public section
-
 namespace Lean.Compiler.LCNF
 /--
 Inline constants tagged with the `[macro_inline]` attribute occurring in `e`.
@@ -85,6 +84,18 @@ def getDeclInfo? (declName : Name) : CoreM (Option ConstantInfo) := do
   let env ← getEnv
   return env.find? (mkUnsafeRecName declName) <|> env.find? declName
 
+def declIsNotUnsafe (declName : Name) : CoreM Bool := do
+  let env ← getEnv
+  let some info := env.find? declName | return true
+  if info.isUnsafe then
+    return false
+  else
+    if info matches .opaqueInfo .. then
+      -- check if its a partial def
+      return env.find? (Compiler.mkUnsafeRecName declName) |>.isNone
+    else
+      return true
+
 /--
 Convert the given declaration from the Lean environment into `Decl`.
 The steps for this are roughly:
@@ -97,7 +108,7 @@ The steps for this are roughly:
 def toDecl (declName : Name) : CompilerM Decl := do
   let declName := if let some name := isUnsafeRecName? declName then name else declName
   let some info ← getDeclInfo? declName | throwError "declaration `{.ofConstName declName}` not found"
-  let safe := !info.isPartial && !info.isUnsafe
+  let safe ← declIsNotUnsafe declName
   let env ← getEnv
   let inlineAttr? := getInlineAttribute? env declName
   let paramsFromTypeBinders (expr : Expr) : CompilerM (Array Param) := do

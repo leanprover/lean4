@@ -36,6 +36,8 @@ inductive TransparencyMode where
   | reducible
   /-- Unfolds reducible constants and constants tagged with the `@[instance]` attribute. -/
   | instances
+  /-- Do not unfold anything -/
+  | none
   deriving Inhabited, BEq
 
 /-- Which structure types should eta be used with? -/

@@ -159,6 +159,11 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
     checkObjVar x
   | .proj i x =>
     let xType ← getType x;
+    /-
+    Projections are a valid operation on `tobject`. Thus they should also
+    be a valid operation for both `object`, `tagged` and unboxed values
+    as they are subtypes.
+    -/
     match xType with
     | .object | .tobject =>
       checkObjType ty
@@ -167,6 +172,7 @@ def checkExpr (ty : IRType) (e : Expr) : M Unit := do
         checkEqTypes (tys[i]) ty
       else
         throwCheckerError "invalid proj index"
+    | .tagged => pure ()
     | _ => throwCheckerError s!"unexpected IR type '{xType}'"
   | .uproj _ x =>
     checkObjVar x

@@ -16,7 +16,6 @@ import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Proof
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 import Lean.Meta.Tactic.Grind.PropagateInj
-import Lean.Meta.Tactic.Grind.FunCC
 import Lean.Util.CollectLevelParams
 public section
 namespace Lean.Meta.Grind
@@ -89,12 +88,17 @@ where
     unless (← isEqFalse e) do return false
     return !(← isEqFalse e')
 
+def updateIndicesFound (k : HeadIndex) : GoalM Unit := do
+  if (← get).indicesFound.contains k then return ()
+  modify fun s => { s with indicesFound := s.indicesFound.insert k }
+
 /--
 Given an application `e` of the form `f a_1 ... a_n`,
 adds entry `f ↦ e` to `appMap`. Recall that `appMap` is a multi-map.
 -/
 private def updateAppMap (e : Expr) : GoalM Unit := do
   let key := e.toHeadIndex
+  updateIndicesFound key
   trace_goal[grind.debug.appMap] "{e} => {repr key}"
   modify fun s => { s with
     appMap := if let some es := s.appMap.find? key then
@@ -141,13 +145,13 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
         return ()
       unless (← isInductivePredicate declName) do
         return ()
-      if (← get).split.casesTypes.isSplit declName then
+      if (← isSplit declName) then
         addDefaultSplitCandidate e
       else if (← getConfig).splitIndPred then
         addDefaultSplitCandidate e
   | .fvar .. =>
     let .const declName _ := (← whnf (← inferType e)).getAppFn | return ()
-    if (← get).split.casesTypes.isSplit declName then
+    if (← isSplit declName) then
       addDefaultSplitCandidate e
   | .forallE _ d _ _ =>
     let currSplitSource := (← readThe Context).splitSource
@@ -270,8 +274,8 @@ private def addMatchEqns (f : Expr) (generation : Nat) : GoalM Unit := do
 
 @[specialize]
 private def activateTheoremsCore [TheoremLike α] (declName : Name)
-    (getThms : GoalM (Theorems α))
-    (setThms : Theorems α → GoalM Unit)
+    (getThms : GoalM (TheoremsArray α))
+    (setThms : TheoremsArray α → GoalM Unit)
     (reinsertThm : α → GoalM Unit)
     (activateThm : α → GoalM Unit) : GoalM Unit := do
   if let some (thms, s) := (← getThms).retrieve? declName then
@@ -280,10 +284,10 @@ private def activateTheoremsCore [TheoremLike α] (declName : Name)
       let origin := TheoremLike.getOrigin thm
       trace_goal[grind.debug.theorem.activate] "`{declName}` => `{origin.key}`"
       unless s.isErased origin do
-        let appMap  := (← get).appMap
-        let symbols := TheoremLike.getSymbols thm
-        let symbols := symbols.filter fun sym => !appMap.contains sym
-        let thm     := TheoremLike.setSymbols thm symbols
+        let indicesFound := (← get).indicesFound
+        let symbols      := TheoremLike.getSymbols thm
+        let symbols      := symbols.filter fun sym => !indicesFound.contains sym
+        let thm          := TheoremLike.setSymbols thm symbols
         match symbols with
         | [] =>
           trace_goal[grind.debug.theorem.activate] "`{origin.key}`"
@@ -439,7 +443,7 @@ private def tryEta (e : Expr) (generation : Nat) : GoalM Unit := do
 Returns `true` if we should use `funCC` for applications of the given constant symbol.
 -/
 private def useFunCongrAtDecl (declName : Name) : GrindM Bool := do
-  if (← readThe Grind.Context).funCCs.contains declName then
+  if (← hasFunCCModifier declName) then
     return true
   if (← isInstance declName) then
     /- **Note**: Instances are support elements. No `funCC` -/
@@ -463,6 +467,75 @@ private def useFunCongrAtFn (f : Expr) : GrindM Bool := do
   unless (← getConfig).funCC do return false
   let .const declName _ := f | return true
   useFunCongrAtDecl declName
+
+/--
+Returns true if `e` is a nonparametric literal.
+For example, `BitVec` and `Fin` are parametric literals, but `Nat` is not.
+-/
+private def isNonParametricLitValue (e : Expr) : MetaM Bool := do
+  if (← getNatValue? e).isSome then return true
+  if (← getIntValue? e).isSome then return true
+  if (getStringValue? e).isSome then return true
+  if (← getCharValue? e).isSome then return true
+  if (← getUInt8Value? e).isSome then return true
+  if (← getUInt16Value? e).isSome then return true
+  if (← getUInt32Value? e).isSome then return true
+  if (← getUInt64Value? e).isSome then return true
+  return false
+
+/--
+Internalizer for nonparametric literals (see `isNonParametricLitValue`).
+For this kind of literal, we do **not** internalize its children nor
+we activate theorems associated with their function symbol.
+This is relevant because we do not want to internalize, for example,
+the raw natural value in `OfNat.ofNat`. We also do not want to normalize
+the `2` in the integer literal `-2`.
+
+We used to use this optimization for parametric literals too. However,
+it triggered a bug during E-matching because we could have patterns of
+the form ``[P #0 (@OfNat.ofNat (Fin _) `[0] _)]``. See issue #11545.
+
+We still have support for parametric `OfNat.ofNat` literals since we don't
+want to internalize the raw natural value there. See `internalizeOfNatFinBitVecLiteral`.
+-/
+private def internalizeNonParametricLiteral (e : Expr) (generation : Nat) (parent? : Option Expr) : GoalM Unit := do
+  mkENode e generation
+  Solvers.internalize e parent?
+
+/--
+Returns `true` if `e` is a `OfNat.ofNat` literal of type `BitVec _` or `Fin _`.
+-/
+private def isOfNatFinBitVecLiteral (e : Expr) : MetaM Bool := do
+  let_expr OfNat.ofNat α _ _ := e | return false
+  match_expr α with
+  | BitVec _ => return (← getBitVecValue? e).isSome
+  | Fin _ => return (← getFinValue? e).isSome
+  | _ => return false
+
+/--
+Internalizer for parametric `OfNat.ofNat` literals (see `isOfNatFinBitVecLiteral`).
+For this kind of literal, we do **not** internalize its nested raw literal, but
+we do internalize the type and instance to address issue #11545.
+For example, we can have patterns of the form ``[P #0 (@OfNat.ofNat (Fin _) `[0] _)]``.
+
+**Note**: `BitVec.ofNat` were previously internalized using `internalizeNonParametricLiteral`,
+but it created problems when indexing theorems because `BitVec.ofNat` was not activated.
+We now internalize this kind of application as a regular one.
+-/
+private def internalizeOfNatFinBitVecLiteral (e : Expr) (generation : Nat) (parent? : Option Expr) : GoalM Unit := do
+  mkENode e generation
+  Solvers.internalize e parent?
+  let_expr OfNat.ofNat α _ inst := e | return ()
+  internalize α generation e
+  internalize inst generation e
+  registerParent e α
+  registerParent e inst
+  /-
+  **Note**: We must activate `OfNat.ofNat` because of patterns such as
+  ``[P #0 (@OfNat.ofNat (Fin _) `[0] _)]``
+  -/
+  updateIndicesFound (.const ``OfNat.ofNat)
+  activateTheorems ``OfNat.ofNat generation
 
 @[export lean_grind_internalize]
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do
@@ -515,6 +588,7 @@ where
     | .lit .. =>
       mkENode e generation
     | .const declName _ =>
+      updateIndicesFound (.const declName)
       mkENode e generation
       activateTheorems declName generation
     | .mvar .. =>
@@ -528,10 +602,10 @@ where
       reportIssue! "unexpected kernel projection term during internalization{indentExpr e}\n`grind` uses a pre-processing step that folds them as projection applications, the pre-processor failed to fold this term"
       mkENode' e generation
     | .app .. =>
-      if (← isLitValue e) then
-        -- We do not want to internalize the components of a literal value.
-        mkENode e generation
-        Solvers.internalize e parent?
+      if (← isNonParametricLitValue e) then
+        internalizeNonParametricLiteral e generation parent?
+      else if (← isOfNatFinBitVecLiteral e) then
+        internalizeOfNatFinBitVecLiteral e generation parent?
       else if e.isAppOfArity ``Grind.MatchCond 1 then
         internalizeMatchCond e generation
       else e.withApp fun f args => do

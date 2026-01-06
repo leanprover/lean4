@@ -159,9 +159,6 @@ theorem findSome?_replicate : findSome? f (replicate n a) = if n = 0 then none e
     findRev? p (xs.push a) = findRev? p xs := by
   cases xs; simp [h]
 
-@[deprecated findRev?_push_of_neg (since := "2025-06-12")]
-abbrev findRev?_cons_of_neg := @findRev?_push_of_neg
-
 @[grind =]
 theorem finRev?_push {xs : Vector α n} :
     findRev? p (xs.push a) = (Option.guard p a).or (xs.findRev? p) := by

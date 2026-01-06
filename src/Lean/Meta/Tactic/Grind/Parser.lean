@@ -138,7 +138,7 @@ example : f b = f c → a ≤ f a → f (f a) ≤ f (f (f a)) := by
 ```
 -/
 @[builtin_command_parser] def grindPattern := leading_parser
-  Term.attrKind >> "grind_pattern " >>  ident >> darrow >> sepBy1 termParser "," >> optional grindPatternCnstrs
+  Term.attrKind >> "grind_pattern " >>  optional ("[" >> ident >> "]") >> ident >> darrow >> sepBy1 termParser "," >> optional grindPatternCnstrs
 
 @[builtin_command_parser] def initGrindNorm := leading_parser
   "init_grind_norm " >> many ident >> "| " >> many ident

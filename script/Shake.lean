@@ -285,7 +285,9 @@ def isDeclMeta' (env : Environment) (declName : Name) : Bool :=
   -- references from any other context as compatible with both phases.
   let inferFor :=
     if declName.isStr && (declName.getString!.startsWith "match_" || declName.getString! == "_unsafe_rec") then declName.getPrefix else declName
-  isDeclMeta env inferFor
+  -- `isMarkedMeta` knows about non-defs such as `meta structure`, isDeclMeta knows about decls
+  -- implicitly marked meta
+  isMarkedMeta env inferFor || isDeclMeta env inferFor
 
 /--
 Given an `Expr` reference, returns the declaration name that should be considered the reference, if
@@ -466,7 +468,7 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
 
   let (module?, prelude?, imports) := decodeHeader headerStx
   if module?.any (·.raw.getTrailing?.any (·.toString.contains "shake: keep-downstream")) then
-    modify fun s => { s with preserve := s.preserve.union .pub {i} }
+    modify fun s => { s with preserve := s.preserve.union (if args.addPublic then .pub else .priv) {i} }
 
   let s ← get
 
@@ -486,9 +488,12 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
         IO.eprintln s!"Adding `{imp}` as additional dependency"
   for j in [0:s.mods.size] do
     for k in NeedsKind.all do
-      -- remove `meta` while preserving, no use-case for preserving `meta` so far
-      if s.transDepsOrig[i]!.has k j && s.preserve.has { k with isMeta := false } j then
-        deps := deps.union { k with isMeta := false } {j}
+      -- Remove `meta` while preserving, no use-case for preserving `meta` so far.
+      -- Downgrade to private unless `--add-public` is used.
+      if s.transDepsOrig[i]!.has k j &&
+          (s.preserve.has { k with isMeta := false, isExported := false } j ||
+           s.preserve.has { k with isMeta := false, isExported := true } j) then
+        deps := deps.union { k with isMeta := false, isExported := k.isExported && args.addPublic } {j}
 
   -- Do transitive reduction of `needs` in `deps`.
   if !addOnly then
@@ -793,16 +798,16 @@ public def main (args : List String) : IO UInt32 := do
     for stx in imports do
       let mod := decodeImport stx
       if remove.contains mod || seen.contains mod then
-        out := out ++ pos.extract (text.pos! stx.raw.getPos?.get!)
+        out := out ++ text.extract pos (text.pos! stx.raw.getPos?.get!)
         -- We use the end position of the syntax, but include whitespace up to the first newline
         pos := text.pos! stx.raw.getTailPos?.get! |>.find '\n' |>.next!
       seen := seen.insert mod
-    out := out ++ pos.extract insertion
+    out := out ++ text.extract pos insertion
     for mod in add do
       if !seen.contains mod then
         seen := seen.insert mod
         out := out ++ s!"{mod}\n"
-    out := out ++ insertion.extract text.endPos
+    out := out ++ text.extract insertion text.endPos
 
     IO.FS.writeFile path out
     count := count + 1

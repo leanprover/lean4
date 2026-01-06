@@ -32,7 +32,7 @@ private def config : ConfigWithKey :=
   { iota := false, proj := .no : Config }.toConfigWithKey
 
 def UnificationHints.add (hints : UnificationHints) (e : UnificationHintEntry) : UnificationHints :=
-  { hints with discrTree := hints.discrTree.insertCore e.keys e.val }
+  { hints with discrTree := hints.discrTree.insertKeyValue e.keys e.val }
 
 builtin_initialize unificationHintExtension : SimpleScopedEnvExtension UnificationHintEntry UnificationHints ←
   registerSimpleScopedEnvExtension {

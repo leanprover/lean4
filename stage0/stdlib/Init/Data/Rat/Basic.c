@@ -62,6 +62,7 @@ static lean_object* l_Rat_den__nz___autoParam___closed__4;
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT uint8_t l_Rat_isInt(lean_object*);
 lean_object* l_instNatCastInt___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l_Rat_normalize___auto__1;
 static lean_object* l_Rat_ceil___closed__0;
 LEAN_EXPORT lean_object* l_Rat_blt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Rat_instIntCast;
@@ -193,7 +194,6 @@ lean_object* lean_nat_div_exact(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Rat_instNatCast;
 LEAN_EXPORT lean_object* l_Rat_instNeg;
 static lean_object* l_Rat_term___x2f_x2e___00__closed__6;
-LEAN_EXPORT lean_object* l___auto_00___x40_Init_Data_Rat_Basic_277644297____hygCtx___hyg_6_;
 LEAN_EXPORT lean_object* l_instReprRat___lam__0___boxed(lean_object*, lean_object*);
 static lean_object* l_instHashableRat_hash___closed__0;
 LEAN_EXPORT lean_object* l_Rat_instMin;
@@ -946,7 +946,7 @@ return x_10;
 }
 }
 }
-static lean_object* _init_l___auto_00___x40_Init_Data_Rat_Basic_277644297____hygCtx___hyg_6_() {
+static lean_object* _init_l_Rat_normalize___auto__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2952,8 +2952,8 @@ l_instReprRat___lam__0___closed__1 = _init_l_instReprRat___lam__0___closed__1();
 lean_mark_persistent(l_instReprRat___lam__0___closed__1);
 l_instReprRat = _init_l_instReprRat();
 lean_mark_persistent(l_instReprRat);
-l___auto_00___x40_Init_Data_Rat_Basic_277644297____hygCtx___hyg_6_ = _init_l___auto_00___x40_Init_Data_Rat_Basic_277644297____hygCtx___hyg_6_();
-lean_mark_persistent(l___auto_00___x40_Init_Data_Rat_Basic_277644297____hygCtx___hyg_6_);
+l_Rat_normalize___auto__1 = _init_l_Rat_normalize___auto__1();
+lean_mark_persistent(l_Rat_normalize___auto__1);
 l_Rat_instNatCast = _init_l_Rat_instNatCast();
 lean_mark_persistent(l_Rat_instNatCast);
 l_Rat_instIntCast___closed__0 = _init_l_Rat_instIntCast___closed__0();

@@ -338,9 +338,6 @@ theorem testBit_bool_toNat (b : Bool) (i : Nat) :
   simp [testBit_eq_decide_div_mod_eq,
         Nat.mod_eq_of_lt]
 
-@[deprecated testBit_bool_toNat (since := "2025-06-22")]
-abbrev testBit_bool_to_nat := @testBit_bool_toNat
-
 /-- `testBit 1 i` is true iff the index `i` equals 0. -/
 theorem testBit_one_eq_true_iff_self_eq_zero {i : Nat} :
     Nat.testBit 1 i = true ↔ i = 0 := by

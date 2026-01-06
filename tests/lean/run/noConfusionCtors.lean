@@ -9,7 +9,7 @@ inductive L (α : Type u) : Type u where
 /--
 info: @[reducible] def L.cons.noConfusion.{u_1, u} : {α : Type u} →
   {P : Sort u_1} →
-    {x : α} → {xs : L α} → {x' : α} → {xs' : L α} → L.cons x xs = L.cons x' xs' → (x = x' → xs = xs' → P) → P
+    {x : α} → {xs : L α} → {x' : α} → {xs' : L α} → L.cons x xs = L.cons x' xs' → (x ≍ x' → xs ≍ xs' → P) → P
 -/
 #guard_msgs in
 #print sig L.cons.noConfusion
@@ -26,7 +26,7 @@ info: @[reducible] def Vec.cons.noConfusion.{u_1, u} : {α : Type u} →
         {xs : Vec α n} →
           {n' : Nat} →
             {x' : α} →
-              {xs' : Vec α n'} → n + 1 = n' + 1 → Vec.cons x xs ≍ Vec.cons x' xs' → (n = n' → x = x' → xs ≍ xs' → P) → P
+              {xs' : Vec α n'} → n + 1 = n' + 1 → Vec.cons x xs ≍ Vec.cons x' xs' → (n = n' → x ≍ x' → xs ≍ xs' → P) → P
 -/
 #guard_msgs in
 #print sig Vec.cons.noConfusion
@@ -48,7 +48,7 @@ inductive WithDep {α : Type u} (β : α → Type v) : Type (max u v) where
 info: @[reducible] def WithDep.intro.noConfusion.{u_1, u, v} : {α : Type u} →
   {β : α → Type v} →
     {P : Sort u_1} →
-      {a : α} → {b : β a} → {a' : α} → {b' : β a'} → WithDep.intro a b = WithDep.intro a' b' → (a = a' → b ≍ b' → P) → P
+      {a : α} → {b : β a} → {a' : α} → {b' : β a'} → WithDep.intro a b = WithDep.intro a' b' → (a ≍ a' → b ≍ b' → P) → P
 -/
 #guard_msgs in #print sig WithDep.intro.noConfusion
 
@@ -143,12 +143,12 @@ inductive HigherOrder (α : Type) : Type 1 where
 -- Test noConfusion with function arguments
 /--
 info: @[reducible] def HigherOrder.base.noConfusion.{u} : {α : Type} →
-  {P : Sort u} → {x x' : α} → HigherOrder.base x = HigherOrder.base x' → (x = x' → P) → P
+  {P : Sort u} → {x x' : α} → HigherOrder.base x = HigherOrder.base x' → (x ≍ x' → P) → P
 -/
 #guard_msgs in #print sig HigherOrder.base.noConfusion
 /--
 info: @[reducible] def HigherOrder.func.noConfusion.{u} : {α : Type} →
-  {P : Sort u} → {f f' : α → HigherOrder α} → HigherOrder.func f = HigherOrder.func f' → (f = f' → P) → P
+  {P : Sort u} → {f f' : α → HigherOrder α} → HigherOrder.func f = HigherOrder.func f' → (f ≍ f' → P) → P
 -/
 #guard_msgs in #print sig HigherOrder.func.noConfusion
 
@@ -178,19 +178,19 @@ inductive UnivPoly.{u, v} (α : Type u) (β : Type v) : Type (max u v) where
 -- Test universe-polymorphic noConfusion
 /--
 info: @[reducible] def UnivPoly.left.noConfusion.{u_1, u, v} : {α : Type u} →
-  {β : Type v} → {P : Sort u_1} → {a a' : α} → UnivPoly.left a = UnivPoly.left a' → (a = a' → P) → P
+  {β : Type v} → {P : Sort u_1} → {a a' : α} → UnivPoly.left a = UnivPoly.left a' → (a ≍ a' → P) → P
 -/
 #guard_msgs in #print sig UnivPoly.left.noConfusion
 /--
 info: @[reducible] def UnivPoly.right.noConfusion.{u_1, u, v} : {α : Type u} →
-  {β : Type v} → {P : Sort u_1} → {b b' : β} → UnivPoly.right b = UnivPoly.right b' → (b = b' → P) → P
+  {β : Type v} → {P : Sort u_1} → {b b' : β} → UnivPoly.right b = UnivPoly.right b' → (b ≍ b' → P) → P
 -/
 #guard_msgs in #print sig UnivPoly.right.noConfusion
 /--
 info: @[reducible] def UnivPoly.both.noConfusion.{u_1, u, v} : {α : Type u} →
   {β : Type v} →
     {P : Sort u_1} →
-      {a : α} → {b : β} → {a' : α} → {b' : β} → UnivPoly.both a b = UnivPoly.both a' b' → (a = a' → b = b' → P) → P
+      {a : α} → {b : β} → {a' : α} → {b' : β} → UnivPoly.both a b = UnivPoly.both a' b' → (a ≍ a' → b ≍ b' → P) → P
 -/
 #guard_msgs in #print sig UnivPoly.both.noConfusion
 
@@ -218,6 +218,6 @@ info: @[reducible] def ComplexVec.extend.noConfusion.{u_1, u} : {α : Type u} �
                   {rest' : ComplexVec α n' h'} →
                     n + 1 = n' + 1 →
                       ⋯ ≍ ⋯ →
-                        ComplexVec.extend x rest ≍ ComplexVec.extend x' rest' → (n = n' → x = x' → rest ≍ rest' → P) → P
+                        ComplexVec.extend x rest ≍ ComplexVec.extend x' rest' → (n = n' → x ≍ x' → rest ≍ rest' → P) → P
 -/
 #guard_msgs in #print sig ComplexVec.extend.noConfusion

@@ -1,5 +1,2 @@
 lean4checker found a problem in AddFalse
-uncaught exception: (kernel) declaration type mismatch, 'false' has type
-  Prop
-but it is expected to have type
-  False
+uncaught exception: THIS IS INTENTIONALLY WRONG

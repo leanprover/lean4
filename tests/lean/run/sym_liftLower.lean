@@ -1,6 +1,6 @@
 import Lean.Meta.Sym
+open Lean Meta Sym Internal
 
-open Lean Meta Grind Sym
 
 def tst1 : SymM Unit := do
   let x1 ← mkBVarS 0
@@ -20,4 +20,4 @@ forall (x : Nat), f x #1
 forall (x : Nat), f x #0
 -/
 #guard_msgs in
-#eval SymM.run' tst1
+#eval SymM.run tst1

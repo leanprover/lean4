@@ -9300,8 +9300,8 @@ goto block_45;
 block_17:
 {
 lean_object* x_15; lean_object* x_16; 
-x_15 = l_Lean_LocalContext_getUnusedName(x_12, x_13);
-lean_dec_ref(x_12);
+x_15 = l_Lean_LocalContext_getUnusedName(x_13, x_12);
+lean_dec_ref(x_13);
 x_16 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_16, 0, x_15);
 return x_16;
@@ -9311,7 +9311,7 @@ block_37:
 if (x_3 == 0)
 {
 lean_object* x_21; lean_object* x_22; 
-lean_dec_ref(x_19);
+lean_dec_ref(x_18);
 x_21 = l_Lean_PrettyPrinter_Delaborator_getUnusedName___closed__0;
 x_22 = l_Lean_PrettyPrinter_Delaborator_getPPOption___redArg(x_21, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_10);
@@ -9329,7 +9329,7 @@ lean_dec(x_24);
 if (x_25 == 0)
 {
 lean_free_object(x_22);
-x_12 = x_18;
+x_12 = x_19;
 x_13 = x_20;
 x_14 = lean_box(0);
 goto block_17;
@@ -9337,23 +9337,23 @@ goto block_17;
 else
 {
 uint8_t x_26; 
-x_26 = l_Lean_NameSet_contains(x_4, x_20);
+x_26 = l_Lean_NameSet_contains(x_4, x_19);
 if (x_26 == 0)
 {
 uint8_t x_27; 
-lean_inc(x_20);
-lean_inc_ref(x_18);
-x_27 = l___private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_getUnusedName_bodyUsesSuggestion(x_2, x_18, x_20);
+lean_inc(x_19);
+lean_inc_ref(x_20);
+x_27 = l___private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_getUnusedName_bodyUsesSuggestion(x_2, x_20, x_19);
 if (x_27 == 0)
 {
-lean_dec_ref(x_18);
-lean_ctor_set(x_22, 0, x_20);
+lean_dec_ref(x_20);
+lean_ctor_set(x_22, 0, x_19);
 return x_22;
 }
 else
 {
 lean_free_object(x_22);
-x_12 = x_18;
+x_12 = x_19;
 x_13 = x_20;
 x_14 = lean_box(0);
 goto block_17;
@@ -9362,7 +9362,7 @@ goto block_17;
 else
 {
 lean_free_object(x_22);
-x_12 = x_18;
+x_12 = x_19;
 x_13 = x_20;
 x_14 = lean_box(0);
 goto block_17;
@@ -9379,7 +9379,7 @@ x_29 = lean_unbox(x_28);
 lean_dec(x_28);
 if (x_29 == 0)
 {
-x_12 = x_18;
+x_12 = x_19;
 x_13 = x_20;
 x_14 = lean_box(0);
 goto block_17;
@@ -9387,24 +9387,24 @@ goto block_17;
 else
 {
 uint8_t x_30; 
-x_30 = l_Lean_NameSet_contains(x_4, x_20);
+x_30 = l_Lean_NameSet_contains(x_4, x_19);
 if (x_30 == 0)
 {
 uint8_t x_31; 
-lean_inc(x_20);
-lean_inc_ref(x_18);
-x_31 = l___private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_getUnusedName_bodyUsesSuggestion(x_2, x_18, x_20);
+lean_inc(x_19);
+lean_inc_ref(x_20);
+x_31 = l___private_Lean_PrettyPrinter_Delaborator_Basic_0__Lean_PrettyPrinter_Delaborator_getUnusedName_bodyUsesSuggestion(x_2, x_20, x_19);
 if (x_31 == 0)
 {
 lean_object* x_32; 
-lean_dec_ref(x_18);
+lean_dec_ref(x_20);
 x_32 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_32, 0, x_20);
+lean_ctor_set(x_32, 0, x_19);
 return x_32;
 }
 else
 {
-x_12 = x_18;
+x_12 = x_19;
 x_13 = x_20;
 x_14 = lean_box(0);
 goto block_17;
@@ -9412,7 +9412,7 @@ goto block_17;
 }
 else
 {
-x_12 = x_18;
+x_12 = x_19;
 x_13 = x_20;
 x_14 = lean_box(0);
 goto block_17;
@@ -9423,8 +9423,8 @@ goto block_17;
 else
 {
 uint8_t x_33; 
-lean_dec(x_20);
-lean_dec_ref(x_18);
+lean_dec_ref(x_20);
+lean_dec(x_19);
 x_33 = !lean_is_exclusive(x_22);
 if (x_33 == 0)
 {
@@ -9445,10 +9445,10 @@ return x_35;
 else
 {
 lean_object* x_36; 
-lean_dec(x_20);
-lean_dec_ref(x_18);
+lean_dec_ref(x_20);
+lean_dec(x_19);
 lean_dec_ref(x_7);
-x_36 = l_Lean_Core_withFreshMacroScope___redArg(x_19, x_9, x_10);
+x_36 = l_Lean_Core_withFreshMacroScope___redArg(x_18, x_9, x_10);
 return x_36;
 }
 }
@@ -9476,9 +9476,9 @@ lean_closure_set(x_43, 0, x_39);
 if (x_3 == 0)
 {
 lean_inc_ref(x_40);
-x_18 = x_40;
-x_19 = x_43;
-x_20 = x_39;
+x_18 = x_43;
+x_19 = x_39;
+x_20 = x_40;
 goto block_37;
 }
 else
@@ -9497,9 +9497,9 @@ return x_44;
 else
 {
 lean_inc_ref(x_40);
-x_18 = x_40;
-x_19 = x_43;
-x_20 = x_39;
+x_18 = x_43;
+x_19 = x_39;
+x_20 = x_40;
 goto block_37;
 }
 }

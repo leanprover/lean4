@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.ReifiedBVExpr
-// Imports: public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.Reflect public import Std.Tactic.BVDecide.Reflect
+// Imports: public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.Reflect public import Std.Tactic.BVDecide.Reflect import Lean.Meta.LitValues
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1311,6 +1311,7 @@ return x_4;
 }
 lean_object* initialize_Lean_Elab_Tactic_BVDecide_Frontend_BVDecide_Reflect(uint8_t builtin);
 lean_object* initialize_Std_Tactic_BVDecide_Reflect(uint8_t builtin);
+lean_object* initialize_Lean_Meta_LitValues(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_BVDecide_Frontend_BVDecide_ReifiedBVExpr(uint8_t builtin) {
 lean_object * res;
@@ -1320,6 +1321,9 @@ res = initialize_Lean_Elab_Tactic_BVDecide_Frontend_BVDecide_Reflect(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Tactic_BVDecide_Reflect(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_LitValues(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkEvalExpr___closed__0 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkEvalExpr___closed__0();

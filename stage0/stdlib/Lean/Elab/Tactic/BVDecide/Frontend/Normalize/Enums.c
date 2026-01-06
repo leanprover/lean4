@@ -11759,26 +11759,28 @@ return x_73;
 static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_initFn___lam__0___closed__9_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_2843671805____hygCtx___hyg_2_() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_box(0);
-x_3 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_initFn___lam__0___closed__8_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_2843671805____hygCtx___hyg_2_;
-x_4 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_initFn___lam__0___closed__7_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_2843671805____hygCtx___hyg_2_;
-x_5 = lean_box(1);
-x_6 = 0;
-x_7 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_initFn___lam__0___closed__6_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_2843671805____hygCtx___hyg_2_;
-x_8 = lean_alloc_ctor(0, 7, 3);
-lean_ctor_set(x_8, 0, x_7);
-lean_ctor_set(x_8, 1, x_5);
-lean_ctor_set(x_8, 2, x_4);
-lean_ctor_set(x_8, 3, x_3);
-lean_ctor_set(x_8, 4, x_2);
-lean_ctor_set(x_8, 5, x_1);
-lean_ctor_set(x_8, 6, x_2);
-lean_ctor_set_uint8(x_8, sizeof(void*)*7, x_6);
-lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 1, x_6);
-lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 2, x_6);
-return x_8;
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; 
+x_1 = 1;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_box(0);
+x_4 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_initFn___lam__0___closed__8_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_2843671805____hygCtx___hyg_2_;
+x_5 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_initFn___lam__0___closed__7_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_2843671805____hygCtx___hyg_2_;
+x_6 = lean_box(1);
+x_7 = 0;
+x_8 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_initFn___lam__0___closed__6_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_2843671805____hygCtx___hyg_2_;
+x_9 = lean_alloc_ctor(0, 7, 4);
+lean_ctor_set(x_9, 0, x_8);
+lean_ctor_set(x_9, 1, x_6);
+lean_ctor_set(x_9, 2, x_5);
+lean_ctor_set(x_9, 3, x_4);
+lean_ctor_set(x_9, 4, x_3);
+lean_ctor_set(x_9, 5, x_2);
+lean_ctor_set(x_9, 6, x_3);
+lean_ctor_set_uint8(x_9, sizeof(void*)*7, x_7);
+lean_ctor_set_uint8(x_9, sizeof(void*)*7 + 1, x_7);
+lean_ctor_set_uint8(x_9, sizeof(void*)*7 + 2, x_7);
+lean_ctor_set_uint8(x_9, sizeof(void*)*7 + 3, x_1);
+return x_9;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_initFn___lam__0_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_2843671805____hygCtx___hyg_2_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -11831,7 +11833,7 @@ x_17 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_El
 x_18 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_initFn___lam__0___closed__7_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_2843671805____hygCtx___hyg_2_;
 x_19 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_initFn___lam__0___closed__8_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_2843671805____hygCtx___hyg_2_;
 x_20 = lean_box(0);
-x_21 = lean_alloc_ctor(0, 7, 3);
+x_21 = lean_alloc_ctor(0, 7, 4);
 lean_ctor_set(x_21, 0, x_17);
 lean_ctor_set(x_21, 1, x_13);
 lean_ctor_set(x_21, 2, x_18);
@@ -11842,6 +11844,7 @@ lean_ctor_set(x_21, 6, x_20);
 lean_ctor_set_uint8(x_21, sizeof(void*)*7, x_7);
 lean_ctor_set_uint8(x_21, sizeof(void*)*7 + 1, x_7);
 lean_ctor_set_uint8(x_21, sizeof(void*)*7 + 2, x_7);
+lean_ctor_set_uint8(x_21, sizeof(void*)*7 + 3, x_9);
 lean_inc(x_16);
 x_22 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondFor(x_5, x_21, x_16, x_2, x_3);
 if (lean_obj_tag(x_22) == 0)
@@ -12015,7 +12018,7 @@ x_62 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_El
 x_63 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_initFn___lam__0___closed__7_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_2843671805____hygCtx___hyg_2_;
 x_64 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_initFn___lam__0___closed__8_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_2843671805____hygCtx___hyg_2_;
 x_65 = lean_box(0);
-x_66 = lean_alloc_ctor(0, 7, 3);
+x_66 = lean_alloc_ctor(0, 7, 4);
 lean_ctor_set(x_66, 0, x_62);
 lean_ctor_set(x_66, 1, x_58);
 lean_ctor_set(x_66, 2, x_63);
@@ -12026,6 +12029,7 @@ lean_ctor_set(x_66, 6, x_65);
 lean_ctor_set_uint8(x_66, sizeof(void*)*7, x_54);
 lean_ctor_set_uint8(x_66, sizeof(void*)*7 + 1, x_54);
 lean_ctor_set_uint8(x_66, sizeof(void*)*7 + 2, x_54);
+lean_ctor_set_uint8(x_66, sizeof(void*)*7 + 3, x_42);
 lean_inc(x_61);
 x_67 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEnumToBitVecLeFor(x_5, x_66, x_61, x_2, x_3);
 if (lean_obj_tag(x_67) == 0)
@@ -12119,7 +12123,7 @@ x_87 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_El
 x_88 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_initFn___lam__0___closed__7_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_2843671805____hygCtx___hyg_2_;
 x_89 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_initFn___lam__0___closed__8_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_2843671805____hygCtx___hyg_2_;
 x_90 = lean_box(0);
-x_91 = lean_alloc_ctor(0, 7, 3);
+x_91 = lean_alloc_ctor(0, 7, 4);
 lean_ctor_set(x_91, 0, x_87);
 lean_ctor_set(x_91, 1, x_83);
 lean_ctor_set(x_91, 2, x_88);
@@ -12130,6 +12134,7 @@ lean_ctor_set(x_91, 6, x_90);
 lean_ctor_set_uint8(x_91, sizeof(void*)*7, x_52);
 lean_ctor_set_uint8(x_91, sizeof(void*)*7 + 1, x_52);
 lean_ctor_set_uint8(x_91, sizeof(void*)*7 + 2, x_52);
+lean_ctor_set_uint8(x_91, sizeof(void*)*7 + 3, x_42);
 lean_inc(x_86);
 x_92 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEqIffEnumToBitVecEqFor(x_5, x_91, x_86, x_2, x_3);
 if (lean_obj_tag(x_92) == 0)
@@ -12383,7 +12388,7 @@ x_149 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_E
 x_150 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_initFn___lam__0___closed__7_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_2843671805____hygCtx___hyg_2_;
 x_151 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_initFn___lam__0___closed__8_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_2843671805____hygCtx___hyg_2_;
 x_152 = lean_box(0);
-x_153 = lean_alloc_ctor(0, 7, 3);
+x_153 = lean_alloc_ctor(0, 7, 4);
 lean_ctor_set(x_153, 0, x_149);
 lean_ctor_set(x_153, 1, x_145);
 lean_ctor_set(x_153, 2, x_150);
@@ -12394,6 +12399,7 @@ lean_ctor_set(x_153, 6, x_152);
 lean_ctor_set_uint8(x_153, sizeof(void*)*7, x_140);
 lean_ctor_set_uint8(x_153, sizeof(void*)*7 + 1, x_140);
 lean_ctor_set_uint8(x_153, sizeof(void*)*7 + 2, x_140);
+lean_ctor_set_uint8(x_153, sizeof(void*)*7 + 3, x_128);
 lean_inc(x_148);
 x_154 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEnumToBitVecLeFor(x_5, x_153, x_148, x_2, x_3);
 if (lean_obj_tag(x_154) == 0)
@@ -12476,7 +12482,7 @@ x_169 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_E
 x_170 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_initFn___lam__0___closed__7_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_2843671805____hygCtx___hyg_2_;
 x_171 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_initFn___lam__0___closed__8_00___x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_2843671805____hygCtx___hyg_2_;
 x_172 = lean_box(0);
-x_173 = lean_alloc_ctor(0, 7, 3);
+x_173 = lean_alloc_ctor(0, 7, 4);
 lean_ctor_set(x_173, 0, x_169);
 lean_ctor_set(x_173, 1, x_165);
 lean_ctor_set(x_173, 2, x_170);
@@ -12487,6 +12493,7 @@ lean_ctor_set(x_173, 6, x_172);
 lean_ctor_set_uint8(x_173, sizeof(void*)*7, x_138);
 lean_ctor_set_uint8(x_173, sizeof(void*)*7 + 1, x_138);
 lean_ctor_set_uint8(x_173, sizeof(void*)*7 + 2, x_138);
+lean_ctor_set_uint8(x_173, sizeof(void*)*7 + 3, x_128);
 lean_inc(x_168);
 x_174 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEqIffEnumToBitVecEqFor(x_5, x_173, x_168, x_2, x_3);
 if (lean_obj_tag(x_174) == 0)

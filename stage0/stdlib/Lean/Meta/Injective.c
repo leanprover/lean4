@@ -17586,7 +17586,7 @@ x_39 = l___private_Lean_Meta_Injective_0__Lean_Meta_initFn___lam__1___closed__5_
 x_40 = l___private_Lean_Meta_Injective_0__Lean_Meta_initFn___lam__1___closed__6_00___x40_Lean_Meta_Injective_677622092____hygCtx___hyg_2_;
 x_41 = l___private_Lean_Meta_Injective_0__Lean_Meta_initFn___lam__1___closed__7_00___x40_Lean_Meta_Injective_677622092____hygCtx___hyg_2_;
 x_42 = lean_box(0);
-x_43 = lean_alloc_ctor(0, 7, 3);
+x_43 = lean_alloc_ctor(0, 7, 4);
 lean_ctor_set(x_43, 0, x_39);
 lean_ctor_set(x_43, 1, x_1);
 lean_ctor_set(x_43, 2, x_40);
@@ -17597,6 +17597,7 @@ lean_ctor_set(x_43, 6, x_42);
 lean_ctor_set_uint8(x_43, sizeof(void*)*7, x_21);
 lean_ctor_set_uint8(x_43, sizeof(void*)*7 + 1, x_21);
 lean_ctor_set_uint8(x_43, sizeof(void*)*7 + 2, x_21);
+lean_ctor_set_uint8(x_43, sizeof(void*)*7 + 3, x_18);
 lean_inc(x_4);
 lean_inc_ref(x_3);
 lean_inc(x_32);

@@ -645,4 +645,4 @@
     tags: [other]
   run_config:
     <<: *time
-    cmd: lean --tstack=16384 engine_let_forall_exists_and.lean
+    cmd: lean --tstack=100000 engine_let_forall_exists_and.lean

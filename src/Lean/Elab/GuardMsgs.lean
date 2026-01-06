@@ -11,10 +11,13 @@ public import Lean.Server.CodeActions.Attr
 
 public section
 
-/-! `#guard_msgs` command for testing commands
+/-! `#guard_msgs` and `#guard_panic` commands for testing commands
 
-This module defines a command to test that another command produces the expected messages.
-See the docstring on the `#guard_msgs` command.
+This module defines commands to test that other commands produce expected messages:
+- `#guard_msgs`: tests that a command produces exactly the expected messages
+- `#guard_panic`: tests that a command produces a panic message (without checking the exact text)
+
+See the docstrings on the individual commands.
 -/
 
 open Lean Parser.Tactic Elab Command
@@ -176,20 +179,29 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
   | .exact => msgs
   | .sorted => msgs |>.toArray.qsort (· < ·) |>.toList
 
+/--
+Runs a command and collects all messages (sync and async) it produces.
+Clears the snapshot tasks after collection.
+Returns the collected messages.
+-/
+def runAndCollectMessages (cmd : Syntax) : CommandElabM MessageLog := do
+  -- do not forward snapshot as we don't want messages assigned to it to leak outside
+  withReader ({ · with snap? := none }) do
+    -- The `#guard_msgs` command is special-cased in `elabCommandTopLevel` to ensure linters only run once.
+    elabCommandTopLevel cmd
+  -- collect sync and async messages
+  let msgs := (← get).messages ++
+    (← get).snapshotTasks.foldl (· ++ ·.get.getAll.foldl (· ++ ·.diagnostics.msgLog) {}) {}
+  -- clear async messages as we don't want them to leak outside
+  modify ({ · with snapshotTasks := #[] })
+  return msgs
+
 @[builtin_command_elab Lean.guardMsgsCmd] def elabGuardMsgs : CommandElab
   | `(command| $[$dc?:docComment]? #guard_msgs%$tk $(spec?)? in $cmd) => do
     let expected : String := (← dc?.mapM (getDocStringText ·)).getD ""
         |>.trimAscii |>.copy |> removeTrailingWhitespaceMarker
     let { whitespace, ordering, filterFn, reportPositions } ← parseGuardMsgsSpec spec?
-    -- do not forward snapshot as we don't want messages assigned to it to leak outside
-    withReader ({ · with snap? := none }) do
-      -- The `#guard_msgs` command is special-cased in `elabCommandTopLevel` to ensure linters only run once.
-      elabCommandTopLevel cmd
-    -- collect sync and async messages
-    let msgs := (← get).messages ++
-      (← get).snapshotTasks.foldl (· ++ ·.get.getAll.foldl (· ++ ·.diagnostics.msgLog) {}) {}
-    -- clear async messages as we don't want them to leak outside
-    modify ({ · with snapshotTasks := #[] })
+    let msgs ← runAndCollectMessages cmd
     let mut toCheck : MessageLog := .empty
     let mut toPassthrough : MessageLog := .empty
     for msg in msgs.toList do
@@ -256,5 +268,27 @@ def guardMsgsCodeAction : CommandCodeAction := fun _ _ _ node => do
         }
       }
   }]
+
+@[builtin_command_elab Lean.guardPanicCmd] def elabGuardPanic : CommandElab
+  | `(command| #guard_panic in $cmd) => do
+    let msgs ← runAndCollectMessages cmd
+    -- Check if any message contains "PANIC"
+    let mut foundPanic := false
+    for msg in msgs.toList do
+      if msg.isSilent then continue
+      let msgStr ← msg.data.toString
+      -- Check if "PANIC" appears in the message
+      let parts := msgStr.splitOn "PANIC"
+      if parts.length > 1 then
+        foundPanic := true
+        break
+    if foundPanic then
+      -- Success - clear the messages so they don't appear
+      modify fun st => { st with messages := .empty }
+    else
+      -- Failed - put the messages back and add our error
+      modify fun st => { st with messages := msgs }
+      logError "Expected a PANIC but none was found"
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.GuardMsgs

@@ -399,3 +399,26 @@ info: foo
 run_cmd logInfo m!"foo"
 
 end Positions
+
+section GuardPanic
+
+/-! Tests for #guard_panic -/
+
+-- Test that #guard_panic succeeds when a panic occurs
+#guard_panic in
+run_cmd Lean.Elab.Command.liftTermElabM do
+  panic! "test panic"
+
+-- Test that #guard_panic fails when no panic occurs
+/-- error: Expected a PANIC but none was found -/
+#guard_msgs in
+#guard_panic in
+#check Nat
+
+-- Test that #guard_panic clears messages on success (no output expected)
+#guard_msgs in
+#guard_panic in
+run_cmd Lean.Elab.Command.liftTermElabM do
+  panic! "this message should not appear"
+
+end GuardPanic

@@ -874,6 +874,13 @@ syntax (name := guardMsgsCmd)
   (plainDocComment)? "#guard_msgs" (ppSpace guardMsgsSpec)? " in" ppLine command : command
 
 /--
+`#guard_panic in cmd` runs `cmd` and succeeds if the command produces a panic message.
+This is useful for testing that a command panics without matching the exact (volatile) panic text.
+-/
+syntax (name := guardPanicCmd)
+  "#guard_panic" " in" ppLine command : command
+
+/--
 Format and print the info trees for a given command.
 This is mostly useful for debugging info trees.
 -/

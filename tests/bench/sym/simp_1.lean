@@ -18,7 +18,7 @@ def mkSimpMethods : MetaM Sym.Simp.Methods := do
   let thms := thms.insert thm
   return { post := thms.rewrite }
 
-def simp (e : Expr) : MetaM (Sym.Simp.Result × Float) := Sym.SymM.run' do
+def simp (e : Expr) : MetaM (Sym.Simp.Result × Float) := Sym.SymM.run do
   let e ← Grind.shareCommon e
   let methods ← mkSimpMethods
   let startTime ← IO.monoNanosNow

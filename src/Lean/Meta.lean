@@ -59,3 +59,5 @@ public import Lean.Meta.Hint
 public import Lean.Meta.MethodSpecs
 public import Lean.Meta.CtorIdxHInj
 public import Lean.Meta.Sym
+public import Lean.Meta.MonadSimp
+public import Lean.Meta.HaveTelescope

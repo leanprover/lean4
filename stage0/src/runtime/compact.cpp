@@ -483,7 +483,7 @@ object * compacted_region::read() {
 
     while (m_next < m_end) {
         object * curr = reinterpret_cast<object*>(m_next);
-        uint8 tag = lean_ptr_tag(curr);
+        uint16 tag = lean_ptr_tag(curr);
         if (tag <= LeanMaxCtorTag) {
             fix_constructor(curr);
         } else {

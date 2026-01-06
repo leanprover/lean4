@@ -154,6 +154,7 @@ static lean_object* l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___lam__0___closed_
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardExpr_evalGuardCmd___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardExpr_evalGuardTargetConv___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardTargetConv_declRange__3___boxed(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_GuardExpr_evalGuardTarget___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardTarget__1___closed__1;
+static lean_object* l_Lean_Elab_Tactic_GuardExpr_MatchKind_toStringDescr___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardExpr_MatchKind_ctorElim___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_GuardExpr_evalGuardExpr___regBuiltin_Lean_Elab_Tactic_GuardExpr_evalGuardExpr__1___closed__3;
 static lean_object* l_Lean_Elab_Tactic_GuardExpr_evalGuardTarget___closed__5;
@@ -1639,6 +1640,14 @@ static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_MatchKind_toStringDescr__
 _start:
 {
 lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("definitionally equal (not unfolding any constants) to", 53, 53);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Elab_Tactic_GuardExpr_MatchKind_toStringDescr___closed__6() {
+_start:
+{
+lean_object* x_1; 
 x_1 = lean_mk_string_unchecked("alpha-equivalent to", 19, 19);
 return x_1;
 }
@@ -1676,19 +1685,25 @@ lean_object* x_6;
 x_6 = l_Lean_Elab_Tactic_GuardExpr_MatchKind_toStringDescr___closed__3;
 return x_6;
 }
-default: 
+case 3:
 {
 lean_object* x_7; 
 x_7 = l_Lean_Elab_Tactic_GuardExpr_MatchKind_toStringDescr___closed__4;
 return x_7;
-}
-}
 }
 default: 
 {
 lean_object* x_8; 
 x_8 = l_Lean_Elab_Tactic_GuardExpr_MatchKind_toStringDescr___closed__5;
 return x_8;
+}
+}
+}
+default: 
+{
+lean_object* x_9; 
+x_9 = l_Lean_Elab_Tactic_GuardExpr_MatchKind_toStringDescr___closed__6;
+return x_9;
 }
 }
 }
@@ -6134,9 +6149,9 @@ lean_closure_set(x_33, 0, x_18);
 lean_closure_set(x_33, 1, x_32);
 lean_closure_set(x_33, 2, x_31);
 lean_closure_set(x_33, 3, x_30);
-lean_closure_set(x_33, 4, x_21);
-lean_closure_set(x_33, 5, x_24);
-x_34 = l_Lean_Elab_Tactic_withMainContext___redArg(x_33, x_26, x_29, x_22, x_28, x_20, x_25, x_27, x_23);
+lean_closure_set(x_33, 4, x_24);
+lean_closure_set(x_33, 5, x_23);
+x_34 = l_Lean_Elab_Tactic_withMainContext___redArg(x_33, x_20, x_19, x_28, x_27, x_25, x_21, x_26, x_29);
 return x_34;
 }
 block_58:
@@ -6179,17 +6194,17 @@ x_55 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_55, 0, x_53);
 x_56 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_56, 0, x_54);
-x_19 = lean_box(0);
-x_20 = x_43;
-x_21 = x_37;
-x_22 = x_41;
-x_23 = x_46;
-x_24 = x_38;
-x_25 = x_44;
-x_26 = x_39;
-x_27 = x_45;
-x_28 = x_42;
-x_29 = x_40;
+x_19 = x_40;
+x_20 = x_39;
+x_21 = x_44;
+x_22 = lean_box(0);
+x_23 = x_38;
+x_24 = x_37;
+x_25 = x_43;
+x_26 = x_45;
+x_27 = x_42;
+x_28 = x_41;
+x_29 = x_46;
 x_30 = x_55;
 x_31 = x_56;
 goto block_35;
@@ -6200,17 +6215,17 @@ else
 lean_object* x_57; 
 lean_dec(x_49);
 x_57 = lean_box(0);
-x_19 = lean_box(0);
-x_20 = x_43;
-x_21 = x_37;
-x_22 = x_41;
-x_23 = x_46;
-x_24 = x_38;
-x_25 = x_44;
-x_26 = x_39;
-x_27 = x_45;
-x_28 = x_42;
-x_29 = x_40;
+x_19 = x_40;
+x_20 = x_39;
+x_21 = x_44;
+x_22 = lean_box(0);
+x_23 = x_38;
+x_24 = x_37;
+x_25 = x_43;
+x_26 = x_45;
+x_27 = x_42;
+x_28 = x_41;
+x_29 = x_46;
 x_30 = x_57;
 x_31 = x_57;
 goto block_35;
@@ -6298,9 +6313,9 @@ x_84 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_GuardExpr_evalGuardHyp___la
 lean_closure_set(x_84, 0, x_70);
 lean_closure_set(x_84, 1, x_83);
 lean_closure_set(x_84, 2, x_82);
-lean_closure_set(x_84, 3, x_73);
-lean_closure_set(x_84, 4, x_79);
-x_85 = l_Lean_Elab_Tactic_withMainContext___redArg(x_84, x_80, x_77, x_76, x_78, x_74, x_72, x_75, x_81);
+lean_closure_set(x_84, 3, x_77);
+lean_closure_set(x_84, 4, x_81);
+x_85 = l_Lean_Elab_Tactic_withMainContext___redArg(x_84, x_74, x_72, x_79, x_73, x_71, x_76, x_78, x_80);
 return x_85;
 }
 block_109:
@@ -6343,17 +6358,17 @@ x_106 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_106, 0, x_104);
 x_107 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_107, 0, x_105);
-x_71 = lean_box(0);
-x_72 = x_95;
-x_73 = x_88;
-x_74 = x_94;
-x_75 = x_96;
-x_76 = x_92;
-x_77 = x_91;
-x_78 = x_93;
-x_79 = x_89;
-x_80 = x_90;
-x_81 = x_97;
+x_71 = x_94;
+x_72 = x_91;
+x_73 = x_93;
+x_74 = x_90;
+x_75 = lean_box(0);
+x_76 = x_95;
+x_77 = x_88;
+x_78 = x_96;
+x_79 = x_92;
+x_80 = x_97;
+x_81 = x_89;
 x_82 = x_106;
 x_83 = x_107;
 goto block_86;
@@ -6364,17 +6379,17 @@ else
 lean_object* x_108; 
 lean_dec(x_100);
 x_108 = lean_box(0);
-x_71 = lean_box(0);
-x_72 = x_95;
-x_73 = x_88;
-x_74 = x_94;
-x_75 = x_96;
-x_76 = x_92;
-x_77 = x_91;
-x_78 = x_93;
-x_79 = x_89;
-x_80 = x_90;
-x_81 = x_97;
+x_71 = x_94;
+x_72 = x_91;
+x_73 = x_93;
+x_74 = x_90;
+x_75 = lean_box(0);
+x_76 = x_95;
+x_77 = x_88;
+x_78 = x_96;
+x_79 = x_92;
+x_80 = x_97;
+x_81 = x_89;
 x_82 = x_108;
 x_83 = x_108;
 goto block_86;
@@ -8359,6 +8374,8 @@ l_Lean_Elab_Tactic_GuardExpr_MatchKind_toStringDescr___closed__4 = _init_l_Lean_
 lean_mark_persistent(l_Lean_Elab_Tactic_GuardExpr_MatchKind_toStringDescr___closed__4);
 l_Lean_Elab_Tactic_GuardExpr_MatchKind_toStringDescr___closed__5 = _init_l_Lean_Elab_Tactic_GuardExpr_MatchKind_toStringDescr___closed__5();
 lean_mark_persistent(l_Lean_Elab_Tactic_GuardExpr_MatchKind_toStringDescr___closed__5);
+l_Lean_Elab_Tactic_GuardExpr_MatchKind_toStringDescr___closed__6 = _init_l_Lean_Elab_Tactic_GuardExpr_MatchKind_toStringDescr___closed__6();
+lean_mark_persistent(l_Lean_Elab_Tactic_GuardExpr_MatchKind_toStringDescr___closed__6);
 l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_GuardExpr_evalGuardExpr_spec__0___redArg___closed__0 = _init_l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_GuardExpr_evalGuardExpr_spec__0___redArg___closed__0();
 lean_mark_persistent(l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_GuardExpr_evalGuardExpr_spec__0___redArg___closed__0);
 l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_GuardExpr_evalGuardExpr_spec__0___redArg___closed__1 = _init_l_Lean_Elab_throwUnsupportedSyntax___at___00Lean_Elab_Tactic_GuardExpr_evalGuardExpr_spec__0___redArg___closed__1();

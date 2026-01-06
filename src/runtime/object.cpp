@@ -334,7 +334,7 @@ static void deactivate_task(lean_task_object * t);
 static void deactivate_promise(lean_promise_object * t);
 
 static void lean_del_core(object * o, object * & todo) {
-    uint8 tag = lean_ptr_tag(o);
+    uint16 tag = lean_ptr_tag(o);
     if (tag <= LeanMaxCtorTag) {
         object ** it  = lean_ctor_obj_cptr(o);
         object ** end = it + lean_ctor_num_objs(o);
@@ -519,7 +519,7 @@ extern "C" LEAN_EXPORT void lean_mark_persistent(object * o) {
             __lsan_ignore_object(o);
 #endif
 #endif
-            uint8_t tag = lean_ptr_tag(o);
+            uint16_t tag = lean_ptr_tag(o);
             if (tag <= LeanMaxCtorTag) {
                 object ** it  = lean_ctor_obj_cptr(o);
                 object ** end = it + lean_ctor_num_objs(o);
@@ -594,7 +594,7 @@ extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {
         todo.pop_back();
         if (!lean_is_scalar(o) && lean_is_st(o)) {
             o->m_rc = -o->m_rc;
-            uint8_t tag = lean_ptr_tag(o);
+            uint16_t tag = lean_ptr_tag(o);
             if (tag <= LeanMaxCtorTag) {
                 object ** it  = lean_ctor_obj_cptr(o);
                 object ** end = it + lean_ctor_num_objs(o);

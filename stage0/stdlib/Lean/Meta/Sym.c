@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Sym
-// Imports: public import Lean.Meta.Sym.SymM public import Lean.Meta.Sym.Main public import Lean.Meta.Sym.Util public import Lean.Meta.Sym.MaxFVar public import Lean.Meta.Sym.ReplaceS public import Lean.Meta.Sym.LooseBVarsS public import Lean.Meta.Sym.InstantiateS public import Lean.Meta.Sym.IsClass public import Lean.Meta.Sym.Intro
+// Imports: public import Lean.Meta.Sym.SymM public import Lean.Meta.Sym.Main public import Lean.Meta.Sym.Util public import Lean.Meta.Sym.MaxFVar public import Lean.Meta.Sym.ReplaceS public import Lean.Meta.Sym.LooseBVarsS public import Lean.Meta.Sym.InstantiateS public import Lean.Meta.Sym.IsClass public import Lean.Meta.Sym.Intro public import Lean.Meta.Sym.InstantiateMVarsS public import Lean.Meta.Sym.ProofInstInfo public import Lean.Meta.Sym.AbstractS public import Lean.Meta.Sym.Pattern
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22,6 +22,10 @@ lean_object* initialize_Lean_Meta_Sym_LooseBVarsS(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_InstantiateS(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_IsClass(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Sym_Intro(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Sym_InstantiateMVarsS(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Sym_ProofInstInfo(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Sym_AbstractS(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Sym_Pattern(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Sym(uint8_t builtin) {
 lean_object * res;
@@ -52,6 +56,18 @@ res = initialize_Lean_Meta_Sym_IsClass(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Sym_Intro(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Sym_InstantiateMVarsS(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Sym_ProofInstInfo(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Sym_AbstractS(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Sym_Pattern(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

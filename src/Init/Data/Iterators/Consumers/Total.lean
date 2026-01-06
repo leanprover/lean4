@@ -20,7 +20,7 @@ A wrapper around an iterator that provides total consumers. See `Iter.ensureTerm
 -/
 structure Iter.Total {α : Type w} (β : Type w) where
   /--
-  The wrapped iterator, which was wrapped by `Iter.allowNontermination`.
+  The wrapped iterator, which was wrapped by `Iter.ensureTermination`.
   -/
   it : Iter (α := α) β
 

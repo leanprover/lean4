@@ -400,10 +400,10 @@ when we convert this back into `have` form.
 In the base case, we include an optimization to avoid unnecessary zeta/beta reductions,
 by detecting a `simpHaveTelescope` proofs and removing the type hint.
 -/
-def simpHaveTelescope (e : Expr) : m MonadSimp.Result := do
+def simpHaveTelescope (e : Expr) (zetaUnused := true) : m MonadSimp.Result := do
   let info ← getHaveTelescopeInfo e
   assert! !info.haveInfo.isEmpty
-  let (fixed, used) ← info.computeFixedUsed (keepUnused := !(← getConfig).zetaUnused)
+  let (fixed, used) ← info.computeFixedUsed (keepUnused := !zetaUnused)
   let r ← simpHaveTelescopeAux info fixed used e 0 (Array.mkEmpty info.haveInfo.size)
   return r.toResult info.level e
 

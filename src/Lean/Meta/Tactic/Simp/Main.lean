@@ -389,7 +389,8 @@ def simpForall (e : Expr) : SimpM Result := withParent e do
 
 /-- Adapter for `Meta.simpHaveTelescope` -/
 def simpHaveTelescope (e : Expr) : SimpM Result := do
-  match (← Meta.simpHaveTelescope e) with
+  let zetaUnused := (← getConfig).zetaUnused
+  match (← Meta.simpHaveTelescope e zetaUnused) with
   | .rfl => return { expr := e }
   | .step e' h =>
     if debug.simp.check.have.get (← getOptions) then

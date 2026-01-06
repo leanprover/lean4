@@ -6,15 +6,14 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.SymM
-public import Lean.Meta.Tactic.Grind.AlphaShareBuilder
+public import Lean.Meta.Sym.AlphaShareBuilder
 namespace Lean.Meta.Sym
+open Internal
 /-!
 A version of `replace_fn.h` that ensures the resulting expression is maximally shared.
 -/
 open Grind
 abbrev M := StateT (Std.HashMap (ExprPtr × Nat) Expr) AlphaShareBuilderM
-
-export Grind (AlphaShareBuilderM liftBuilderM)
 
 def save (key : ExprPtr × Nat) (r : Expr) : M Expr := do
   modify fun cache => cache.insert key r

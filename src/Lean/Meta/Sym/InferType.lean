@@ -21,7 +21,7 @@ public def inferType (e : Expr) : SymM Expr := do
   if let some type := (← get).inferType.find? { expr := e } then
     return type
   else
-    let type ← Grind.shareCommonInc (← inferTypeWithoutCache e)
+    let type ← shareCommonInc (← inferTypeWithoutCache e)
     modify fun s => { s with inferType := s.inferType.insert { expr := e } type }
     return type
 

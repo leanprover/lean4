@@ -5,21 +5,20 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Sym.SymM
 namespace Lean.Meta.Sym
 open Grind
-
 /--
-Instantiates metavariables and applies `shareCommon`.
+Instantiates metavariables, unfold reducible, and applies `shareCommon`.
 -/
-def preprocessExpr (e : Expr) : GrindM Expr := do
+def preprocessExpr (e : Expr) : SymM Expr := do
   shareCommon (← instantiateMVars e)
 
 /--
 Helper function that removes gaps, instantiate metavariables, and applies `shareCommon`.
 Gaps are `none` cells at `lctx.decls`. In `SymM`, we assume these cells don't exist.
 -/
-def preprocessLCtx (lctx : LocalContext) : GrindM LocalContext := do
+def preprocessLCtx (lctx : LocalContext) : SymM LocalContext := do
   let auxDeclToFullName := lctx.auxDeclToFullName
   let mut fvarIdToDecl := {}
   let mut decls := {}
@@ -41,7 +40,7 @@ def preprocessLCtx (lctx : LocalContext) : GrindM LocalContext := do
 Instantiates assigned metavariables, applies `shareCommon`, and eliminates holes (aka `none` cells)
 in the local context.
 -/
-public def preprocessMVar (mvarId : MVarId) : GrindM MVarId := do
+public def preprocessMVar (mvarId : MVarId) : SymM MVarId := do
   let mvarDecl ← mvarId.getDecl
   let lctx ← preprocessLCtx mvarDecl.lctx
   let type ← preprocessExpr mvarDecl.type

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller, Leonardo de Moura
 -/
 module
+prelude
 public import Lean.Meta.Basic
 public import Lean.Meta.MonadSimp
 import Lean.Util.CollectFVars

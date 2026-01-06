@@ -22,9 +22,8 @@ public import Lean.Meta.Sym.AbstractS
 public import Lean.Meta.Sym.Pattern
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.InferType
--- public import Lean.Meta.Sym.Simp
+public import Lean.Meta.Sym.Simp
 public import Lean.Meta.Sym.Util
-
 
 /-!
 # Symbolic simulation support.

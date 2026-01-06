@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.Pattern
-import Lean.Meta.DiscrTree.Basic
+public import Lean.Meta.DiscrTree.Basic
 namespace Lean.Meta.Sym
 open DiscrTree
 

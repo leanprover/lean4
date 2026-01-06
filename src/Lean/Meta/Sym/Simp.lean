@@ -5,12 +5,12 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Sym.Simp.Congr
-public import Lean.Meta.Sym.Simp.CongrInfo
+-- public import Lean.Meta.Sym.Simp.Congr
+-- public import Lean.Meta.Sym.Simp.CongrInfo
 public import Lean.Meta.Sym.Simp.DiscrTree
-public import Lean.Meta.Sym.Simp.Main
-public import Lean.Meta.Sym.Simp.Result
-public import Lean.Meta.Sym.Simp.Rewrite
-public import Lean.Meta.Sym.Simp.SimpM
-public import Lean.Meta.Sym.Simp.Simproc
-public import Lean.Meta.Sym.Simp.Theorems
+-- public import Lean.Meta.Sym.Simp.Main
+-- public import Lean.Meta.Sym.Simp.Result
+-- public import Lean.Meta.Sym.Simp.Rewrite
+-- public import Lean.Meta.Sym.Simp.SimpM
+-- public import Lean.Meta.Sym.Simp.Simproc
+-- public import Lean.Meta.Sym.Simp.Theorems

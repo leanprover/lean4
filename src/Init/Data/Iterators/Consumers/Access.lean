@@ -9,6 +9,8 @@ prelude
 public import Init.Data.Iterators.Consumers.Loop
 public import Init.Data.Iterators.Consumers.Monadic.Access
 
+set_option linter.missingDocs true
+
 @[expose] public section
 
 namespace Std

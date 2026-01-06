@@ -11,6 +11,8 @@ public import Init.Data.Iterators.Consumers.Monadic.Total
 public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 public import Init.WFExtrinsicFix
 
+set_option linter.missingDocs true
+
 @[expose] public section
 
 /-!

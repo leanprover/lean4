@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Structure
-// Imports: public import Lean.AddDecl public import Lean.Meta.AppBuilder
+// Imports: public import Lean.AddDecl public import Lean.Meta.AppBuilder import Lean.Structure import Lean.Meta.Transform
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5807,8 +5807,8 @@ lean_object* x_93;
 x_93 = l_Lean_Expr_appArg_x21(x_5);
 if (lean_obj_tag(x_6) == 0)
 {
-x_63 = x_90;
-x_64 = x_93;
+x_63 = x_93;
+x_64 = x_90;
 goto block_83;
 }
 else
@@ -5831,8 +5831,8 @@ goto block_19;
 }
 else
 {
-x_63 = x_90;
-x_64 = x_93;
+x_63 = x_93;
+x_64 = x_90;
 goto block_83;
 }
 }
@@ -5862,7 +5862,7 @@ x_66 = l___private_Lean_Meta_Structure_0__Lean_Meta_etaStruct_x3f_getProjectedEx
 x_67 = l_Lean_Expr_getAppNumArgs(x_65);
 lean_inc(x_67);
 x_68 = lean_mk_array(x_67, x_66);
-x_69 = lean_nat_sub(x_67, x_63);
+x_69 = lean_nat_sub(x_67, x_64);
 lean_dec(x_67);
 x_70 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_65, x_68, x_69);
 x_71 = l___private_Lean_Meta_Structure_0__Lean_Meta_etaStruct_x3f_sameParams(x_3, x_70, x_7, x_8, x_9, x_10);
@@ -5879,7 +5879,7 @@ lean_dec(x_73);
 if (x_74 == 0)
 {
 lean_free_object(x_71);
-lean_dec_ref(x_64);
+lean_dec_ref(x_63);
 lean_dec(x_62);
 x_16 = lean_box(0);
 goto block_19;
@@ -5893,7 +5893,7 @@ if (lean_is_scalar(x_62)) {
  x_75 = x_62;
  lean_ctor_set_tag(x_75, 1);
 }
-lean_ctor_set(x_75, 0, x_64);
+lean_ctor_set(x_75, 0, x_63);
 lean_ctor_set(x_71, 0, x_75);
 return x_71;
 }
@@ -5908,7 +5908,7 @@ x_77 = lean_unbox(x_76);
 lean_dec(x_76);
 if (x_77 == 0)
 {
-lean_dec_ref(x_64);
+lean_dec_ref(x_63);
 lean_dec(x_62);
 x_16 = lean_box(0);
 goto block_19;
@@ -5922,7 +5922,7 @@ if (lean_is_scalar(x_62)) {
  x_78 = x_62;
  lean_ctor_set_tag(x_78, 1);
 }
-lean_ctor_set(x_78, 0, x_64);
+lean_ctor_set(x_78, 0, x_63);
 x_79 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_79, 0, x_78);
 return x_79;
@@ -5932,7 +5932,7 @@ return x_79;
 else
 {
 uint8_t x_80; 
-lean_dec_ref(x_64);
+lean_dec_ref(x_63);
 lean_dec(x_62);
 x_80 = !lean_is_exclusive(x_71);
 if (x_80 == 0)
@@ -10470,7 +10470,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_instantiateStructDefaultValueFn_x3f___redArg___lam__10___closed__2;
 x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(204u);
+x_3 = lean_unsigned_to_nat(202u);
 x_4 = l_Lean_Meta_instantiateStructDefaultValueFn_x3f___redArg___lam__10___closed__1;
 x_5 = l_Lean_Meta_instantiateStructDefaultValueFn_x3f___redArg___lam__10___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -10987,6 +10987,8 @@ return x_11;
 }
 lean_object* initialize_Lean_AddDecl(uint8_t builtin);
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin);
+lean_object* initialize_Lean_Structure(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Transform(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Structure(uint8_t builtin) {
 lean_object * res;
@@ -10996,6 +10998,12 @@ res = initialize_Lean_AddDecl(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_AppBuilder(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Structure(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Transform(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_getStructureName___closed__0 = _init_l_Lean_Meta_getStructureName___closed__0();

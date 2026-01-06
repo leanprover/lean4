@@ -2724,7 +2724,7 @@ x_27 = 0;
 x_28 = l___private_Lean_Meta_CtorIdxHInj_0__Lean_Meta_initFn___lam__1___closed__9_00___x40_Lean_Meta_CtorIdxHInj_1686831688____hygCtx___hyg_2_;
 x_29 = l___private_Lean_Meta_CtorIdxHInj_0__Lean_Meta_initFn___lam__1___closed__10_00___x40_Lean_Meta_CtorIdxHInj_1686831688____hygCtx___hyg_2_;
 x_30 = lean_box(0);
-x_31 = lean_alloc_ctor(0, 7, 3);
+x_31 = lean_alloc_ctor(0, 7, 4);
 lean_ctor_set(x_31, 0, x_26);
 lean_ctor_set(x_31, 1, x_1);
 lean_ctor_set(x_31, 2, x_28);
@@ -2735,6 +2735,7 @@ lean_ctor_set(x_31, 6, x_30);
 lean_ctor_set_uint8(x_31, sizeof(void*)*7, x_27);
 lean_ctor_set_uint8(x_31, sizeof(void*)*7 + 1, x_27);
 lean_ctor_set_uint8(x_31, sizeof(void*)*7 + 2, x_27);
+lean_ctor_set_uint8(x_31, sizeof(void*)*7 + 3, x_13);
 lean_inc(x_24);
 x_32 = l_Lean_Meta_realizeConst(x_10, x_2, x_25, x_31, x_24, x_3, x_4);
 if (lean_obj_tag(x_32) == 0)

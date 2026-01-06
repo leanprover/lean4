@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Pattern.Char
-// Imports: public import Init.Data.String.Pattern.Basic public import Init.Data.Iterators.Internal.Termination public import Init.Data.Iterators.Consumers.Monadic.Loop import Init.Data.String.Termination
+// Imports: public import Init.Data.String.Pattern.Basic public import Init.Data.Iterators.Consumers.Monadic.Loop import Init.Data.String.Termination
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -962,7 +962,6 @@ return x_3;
 }
 }
 lean_object* initialize_Init_Data_String_Pattern_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_Iterators_Internal_Termination(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Loop(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Termination(uint8_t builtin);
 static bool _G_initialized = false;
@@ -971,9 +970,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_String_Pattern_Basic(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Internal_Termination(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers_Monadic_Loop(builtin);

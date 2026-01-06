@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
-// Imports: public import Lean.Meta.Tactic.Grind.Arith.Util import Init.Grind.ToInt
+// Imports: public import Lean.Meta.Tactic.Grind.Arith.Util import Init.Grind.ToInt import Lean.Meta.LitValues
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1027,6 +1027,7 @@ return x_1;
 }
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Util(uint8_t builtin);
 lean_object* initialize_Init_Grind_ToInt(uint8_t builtin);
+lean_object* initialize_Lean_Meta_LitValues(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_ToIntInfo(uint8_t builtin) {
 lean_object * res;
@@ -1036,6 +1037,9 @@ res = initialize_Lean_Meta_Tactic_Grind_Arith_Util(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_ToInt(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_LitValues(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedToIntThms_default___closed__0 = _init_l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedToIntThms_default___closed__0();

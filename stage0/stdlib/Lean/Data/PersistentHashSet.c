@@ -20,6 +20,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_erase___redArg(lean_object*, l
 LEAN_EXPORT uint8_t l_Lean_PersistentHashSet_isEmpty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentHashSet_fold___closed__5;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_instEmptyCollection___redArg___boxed(lean_object*, lean_object*);
+size_t lean_uint64_to_usize(uint64_t);
 lean_object* l_List_mapTR_loop___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_foldM___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_forIn___redArg___lam__0(lean_object*, lean_object*, lean_object*);
@@ -32,6 +33,7 @@ static lean_object* l_Lean_PersistentHashSet_fold___closed__6;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_forIn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_empty___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_findD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashSet_contains(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentHashSet_fold___closed__4;
 lean_object* l_Lean_PersistentHashMap_forIn___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -56,6 +58,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_forIn(lean_object*, lean_objec
 lean_object* l_Lean_PersistentHashMap_toList___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_forIn___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_PersistentHashMap_contains___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_findD___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_toList___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashSet_contains___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -69,12 +72,15 @@ lean_object* l_Lean_PersistentHashMap_findEntry_x3f___redArg(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_empty___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_instEmptyCollection___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashSet_isEmpty___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_findD___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_instInhabited___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_instEmptyCollection___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_findKeyDAux___redArg(lean_object*, lean_object*, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_instForInOfMonad___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_erase(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_instForInOfMonad___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_findD___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_empty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_contains___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentHashSet_fold___closed__3;
@@ -346,6 +352,50 @@ lean_ctor_set(x_12, 0, x_11);
 return x_12;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_findD(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; uint64_t x_8; size_t x_9; lean_object* x_10; 
+lean_inc(x_5);
+x_7 = lean_apply_1(x_3, x_5);
+x_8 = lean_unbox_uint64(x_7);
+lean_dec(x_7);
+x_9 = lean_uint64_to_usize(x_8);
+x_10 = l_Lean_PersistentHashMap_findKeyDAux___redArg(x_2, x_4, x_9, x_5, x_6);
+return x_10;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_findD___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; uint64_t x_7; size_t x_8; lean_object* x_9; 
+lean_inc(x_4);
+x_6 = lean_apply_1(x_2, x_4);
+x_7 = lean_unbox_uint64(x_6);
+lean_dec(x_6);
+x_8 = lean_uint64_to_usize(x_7);
+x_9 = l_Lean_PersistentHashMap_findKeyDAux___redArg(x_1, x_3, x_8, x_4, x_5);
+return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_findD___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_PersistentHashSet_findD(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_findD___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_PersistentHashSet_findD___redArg(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_5);
+return x_6;
 }
 }
 LEAN_EXPORT uint8_t l_Lean_PersistentHashSet_contains(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

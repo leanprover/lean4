@@ -41,11 +41,17 @@ uint64_t x_4;
 x_4 = 13;
 return x_4;
 }
-default: 
+case 3:
 {
 uint64_t x_5; 
 x_5 = 17;
 return x_5;
+}
+default: 
+{
+uint64_t x_6; 
+x_6 = 19;
+return x_6;
 }
 }
 }
@@ -79,79 +85,134 @@ return x_1;
 LEAN_EXPORT uint8_t l_Lean_Meta_TransparencyMode_lt(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-switch (x_1) {
-case 2:
-{
 switch (x_2) {
-case 1:
+case 4:
 {
 uint8_t x_3; 
-x_3 = 1;
+x_3 = 0;
 return x_3;
 }
-case 0:
+case 2:
+{
+switch (x_1) {
+case 4:
 {
 uint8_t x_4; 
 x_4 = 1;
 return x_4;
 }
-case 3:
+case 2:
 {
 uint8_t x_5; 
-x_5 = 1;
+x_5 = 0;
 return x_5;
 }
-default: 
+case 3:
 {
 uint8_t x_6; 
 x_6 = 0;
 return x_6;
 }
+default: 
+{
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
+}
 }
 }
 case 3:
 {
-switch (x_2) {
-case 1:
-{
-uint8_t x_7; 
-x_7 = 1;
-return x_7;
-}
-case 0:
+switch (x_1) {
+case 4:
 {
 uint8_t x_8; 
 x_8 = 1;
 return x_8;
 }
-default: 
+case 2:
 {
 uint8_t x_9; 
-x_9 = 0;
+x_9 = 1;
 return x_9;
 }
-}
-}
-case 1:
-{
-if (x_2 == 0)
+case 3:
 {
 uint8_t x_10; 
-x_10 = 1;
+x_10 = 0;
 return x_10;
 }
-else
+default: 
 {
 uint8_t x_11; 
 x_11 = 0;
 return x_11;
 }
 }
-default: 
+}
+case 0:
+{
+switch (x_1) {
+case 4:
 {
 uint8_t x_12; 
-x_12 = 0;
+x_12 = 1;
 return x_12;
+}
+case 2:
+{
+uint8_t x_13; 
+x_13 = 1;
+return x_13;
+}
+case 3:
+{
+uint8_t x_14; 
+x_14 = 1;
+return x_14;
+}
+case 1:
+{
+uint8_t x_15; 
+x_15 = 1;
+return x_15;
+}
+default: 
+{
+uint8_t x_16; 
+x_16 = 0;
+return x_16;
+}
+}
+}
+default: 
+{
+switch (x_1) {
+case 4:
+{
+uint8_t x_17; 
+x_17 = 1;
+return x_17;
+}
+case 2:
+{
+uint8_t x_18; 
+x_18 = 1;
+return x_18;
+}
+case 3:
+{
+uint8_t x_19; 
+x_19 = 1;
+return x_19;
+}
+default: 
+{
+uint8_t x_20; 
+x_20 = 0;
+return x_20;
+}
+}
 }
 }
 }

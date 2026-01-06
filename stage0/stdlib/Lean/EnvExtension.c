@@ -41,6 +41,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkMapDeclarationExtension___redArg___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkStateFromImportedEntries___redArg___lam__1___closed__9;
 LEAN_EXPORT lean_object* l_List_foldl___at___00Lean_mkMapDeclarationExtension_spec__0___redArg(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Name_isAnonymous(lean_object*);
 static lean_object* l_Lean_SimplePersistentEnvExtensionDescr_name___autoParam___closed__10;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedMapDeclarationExtension_default___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkMapDeclarationExtension___redArg___lam__5(lean_object*, lean_object*, lean_object*);
@@ -1746,7 +1747,7 @@ static lean_object* _init_l_Lean_TagDeclarationExtension_tag___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("assertion violation: env.getModuleIdxFor\? declName |>.isNone -- See comment at `TagDeclarationExtension`\n  ", 107, 107);
+x_1 = lean_mk_string_unchecked("assertion violation: env.getModuleIdxFor\? declName |>.isNone -- See comment at `TagDeclarationExtension`\n    ", 109, 109);
 return x_1;
 }
 }
@@ -1755,8 +1756,8 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_TagDeclarationExtension_tag___closed__2;
-x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(109u);
+x_2 = lean_unsigned_to_nat(4u);
+x_3 = lean_unsigned_to_nat(113u);
 x_4 = l_Lean_TagDeclarationExtension_tag___closed__1;
 x_5 = l_Lean_TagDeclarationExtension_tag___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -1766,28 +1767,50 @@ return x_6;
 LEAN_EXPORT lean_object* l_Lean_TagDeclarationExtension_tag(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; 
-x_4 = l_Lean_Environment_getModuleIdxFor_x3f(x_2, x_3);
-if (lean_obj_tag(x_4) == 0)
+uint8_t x_8; 
+x_8 = l_Lean_Name_isAnonymous(x_3);
+if (x_8 == 0)
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_1, 0);
-x_6 = lean_ctor_get(x_5, 2);
-lean_inc(x_6);
-lean_inc(x_3);
-x_7 = l_Lean_PersistentEnvExtension_addEntry___redArg(x_1, x_2, x_3, x_6, x_3);
-lean_dec(x_6);
-return x_7;
+lean_object* x_9; 
+x_9 = l_Lean_Environment_getModuleIdxFor_x3f(x_2, x_3);
+if (lean_obj_tag(x_9) == 0)
+{
+goto block_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; 
-lean_dec_ref(x_4);
+lean_dec_ref(x_9);
+if (x_8 == 0)
+{
+lean_object* x_10; lean_object* x_11; 
 lean_dec(x_3);
 lean_dec_ref(x_1);
-x_8 = l_Lean_TagDeclarationExtension_tag___closed__3;
-x_9 = l_panic___at___00Lean_TagDeclarationExtension_tag_spec__0(x_2, x_8);
-return x_9;
+x_10 = l_Lean_TagDeclarationExtension_tag___closed__3;
+x_11 = l_panic___at___00Lean_TagDeclarationExtension_tag_spec__0(x_2, x_10);
+return x_11;
+}
+else
+{
+goto block_7;
+}
+}
+}
+else
+{
+lean_dec(x_3);
+lean_dec_ref(x_1);
+return x_2;
+}
+block_7:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_4 = lean_ctor_get(x_1, 0);
+x_5 = lean_ctor_get(x_4, 2);
+lean_inc(x_5);
+lean_inc(x_3);
+x_6 = l_Lean_PersistentEnvExtension_addEntry___redArg(x_1, x_2, x_3, x_5, x_3);
+lean_dec(x_5);
+return x_6;
 }
 }
 }
@@ -2457,7 +2480,7 @@ lean_dec_ref(x_1);
 x_8 = lean_box(0);
 x_9 = l_Lean_TagDeclarationExtension_tag___closed__0;
 x_10 = l_Lean_MapDeclarationExtension_insert___redArg___closed__0;
-x_11 = lean_unsigned_to_nat(151u);
+x_11 = lean_unsigned_to_nat(155u);
 x_12 = lean_unsigned_to_nat(4u);
 x_13 = l_Lean_MapDeclarationExtension_insert___redArg___closed__1;
 x_14 = 1;

@@ -370,10 +370,11 @@ def emitOffset (n : Nat) (offset : Nat) : M Unit := do
 
 def emitUSet (x : VarId) (cidx : Nat) (n : Nat) (y : VarId) : M Unit := do
   let ty := (← read).varTypes[x]!
-  if ty matches .union .. then
-    emit x; emit ".cs.c"; emit cidx; emit ".u["; emit n; emit "] = "; emit y; emitLn ";"
-  else if ty matches .struct .. then
-    emit x; emit ".u["; emit n; emit "] = "; emit y; emitLn ";"
+  if let .union _ tys := ty then
+    let .struct _ tys _ _ := tys[cidx]! | unreachable!
+    emit x; emit ".cs.c"; emit cidx; emit ".u["; emit (n - tys.size); emit "] = "; emit y; emitLn ";"
+  else if let .struct _ tys _ _ := ty then
+    emit x; emit ".u["; emit (n - tys.size); emit "] = "; emit y; emitLn ";"
   else
     emit "lean_ctor_set_usize("; emit x; emit ", "; emit n; emit ", "; emit y; emitLn ");"
 
@@ -483,10 +484,11 @@ def emitProj (z : VarId) (c : Nat) (i : Nat) (x : VarId) : M Unit := do
 def emitUProj (z : VarId) (cidx : Nat) (i : Nat) (x : VarId) : M Unit := do
   emitLhs z
   let ty := (← read).varTypes[x]!
-  if ty matches .union .. then
-    emit x; emit ".cs.c"; emit cidx; emit ".u["; emit i; emitLn "];"
-  else if ty matches .struct .. then
-    emit x; emit ".u["; emit i; emitLn "];"
+  if let .union _ tys := ty then
+    let .struct _ tys _ _ := tys[cidx]! | unreachable!
+    emit x; emit ".cs.c"; emit cidx; emit ".u["; emit (i - tys.size); emitLn "];"
+  else if let .struct _ tys _ _ := ty then
+    emit x; emit ".u["; emit (i - tys.size); emitLn "];"
   else
     emit "lean_ctor_get_usize("; emit x; emit ", "; emit i; emitLn ");"
 

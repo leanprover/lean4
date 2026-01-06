@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 -- public import Lean.Meta.Sym.Simp.Congr
--- public import Lean.Meta.Sym.Simp.CongrInfo
+public import Lean.Meta.Sym.Simp.CongrInfo
 public import Lean.Meta.Sym.Simp.DiscrTree
 -- public import Lean.Meta.Sym.Simp.Main
 -- public import Lean.Meta.Sym.Simp.Result

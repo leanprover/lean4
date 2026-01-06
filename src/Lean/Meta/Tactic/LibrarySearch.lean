@@ -13,6 +13,7 @@ public import Lean.Util.Heartbeats
 import Init.Grind.Util
 import Init.Try
 import Lean.Elab.Tactic.Basic
+import Lean.Linter.Deprecated
 
 public section
 
@@ -138,7 +139,9 @@ to find candidate lemmas.
 open LazyDiscrTree (InitEntry findMatches)
 
 private def addImport (name : Name) (constInfo : ConstantInfo) :
-    MetaM (Array (InitEntry (Name × DeclMod))) :=
+    MetaM (Array (InitEntry (Name × DeclMod))) := do
+  -- Don't report deprecated lemmas.
+  if Linter.isDeprecated (← getEnv) name then return #[]
   -- Don't report lemmas from metaprogramming namespaces.
   if name.isMetaprogramming then return #[] else
   forallTelescope constInfo.type fun _ type => do

@@ -49,7 +49,7 @@
       default →
         dec x_1;
         ret x_2
-    def Exp.ctorElim._boxed (x_1 : tagged) (x_2 : tobj) (x_3 : tobj) (x_4 : tobj) (x_5 : tobj) : tobj :=
+    def Exp.ctorElim._boxed (x_1 : tagged) (x_2 : tobj) (x_3 : tobj) (x_4 : tagged) (x_5 : tobj) : tobj :=
       let x_6 : tobj := Exp.ctorElim x_1 x_2 x_3 x_4 x_5;
       dec x_2;
       ret x_6

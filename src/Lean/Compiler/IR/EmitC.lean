@@ -11,6 +11,7 @@ public import Lean.Compiler.IR.EmitUtil
 public import Lean.Compiler.IR.NormIds
 public import Lean.Compiler.IR.SimpCase
 public import Lean.Compiler.IR.Boxing
+public import Lean.Compiler.IR.StructRC
 public import Lean.Compiler.ModPkgExt
 
 public section
@@ -342,10 +343,9 @@ def emitDecOfType (x : String) (ty : IRType) (n : Nat) (checkRef : Bool) : M Uni
     let id ← lookupStruct ty
     emit structDecFnPrefix; emit id; emit "("; emit x; emitLn ");"
   else
-    emit (if checkRef then "lean_dec" else "lean_dec_ref");
-    emit "("; emit x;
-    if n != 1 then emit ", "; emit n
-    emitLn ");"
+    n.forM fun _ _ => do
+      emit (if checkRef then "lean_dec" else "lean_dec_ref");
+      emit "("; emit x; emitLn ");"
 
 def emitDec (x : VarId) (n : Nat) (checkRef : Bool) : M Unit := do
   let ty := (← read).varTypes[x]!
@@ -1050,7 +1050,10 @@ def emitDeclAux (d : Decl) : M Unit := do
     | _ => pure ()
 
 def emitDecl (d : Decl) : M Unit := do
-  let d := d.normalizeIds; -- ensure we don't have gaps in the variable indices
+  -- this is a bit of weird optimization step since we are not allowed to run it for
+  -- interpreted code, so we run it here instead
+  let d := d.normalizeIds -- ensure we don't have gaps in the variable indices
+  let d := StructRC.visitDecl d
   try
     emitDeclAux d
   catch err =>

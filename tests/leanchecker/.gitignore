@@ -1,0 +1,9 @@
+# Build artifacts
+*.olean
+*.olean.private
+*.olean.server
+*.ir
+.built_marker
+
+# Test output
+*.produced.out

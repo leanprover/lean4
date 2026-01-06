@@ -8,7 +8,6 @@ prelude
 public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Sym.Simp.Result
 namespace Lean.Meta.Sym.Simp
-open Grind
 
 public abbrev Simproc.andThen (f g : Simproc) : Simproc := fun e₁ => do
   let r ← f e₁

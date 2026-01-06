@@ -6,14 +6,14 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
-import Lean.Meta.Tactic.Grind.AlphaShareBuilder
+import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.Result
 import Lean.Meta.Sym.Simp.Simproc
 import Lean.Meta.Sym.Simp.Congr
 import Lean.Meta.Sym.Simp.Funext
 namespace Lean.Meta.Sym.Simp
-open Grind
+open Internal
 
 def simpLambda (e : Expr) : SimpM Result := do
   -- **TODO**: Add free variable reuse
@@ -52,8 +52,7 @@ def simpStep : Simproc := fun e => do
   match e with
   | .lit _ | .sort _ | .bvar _ | .const .. | .fvar _  | .mvar _ => return .rfl
   | .proj .. =>
-    reportIssue! "unexpected kernel projection term during simplification{indentExpr e}\npre-process and fold them as projection applications"
-    return .rfl
+    throwError "unexpected kernel projection term during simplification{indentExpr e}\npre-process and fold them as projection applications"
   | .mdata m b =>
     let r ← simp b
     match r with

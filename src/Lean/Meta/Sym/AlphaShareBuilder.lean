@@ -144,4 +144,37 @@ def mkHaveS (x : Name) (t : Expr) (v : Expr) (b : Expr) : m Expr := do
     assertShared b
   share1 <| .letE x t v b true
 
+@[inline] def _root_.Lean.Expr.updateAppS! (e : Expr) (newFn : Expr) (newArg : Expr) : m Expr := do
+  let .app fn arg := e | panic! "application expected"
+  if isSameExpr fn newFn && isSameExpr arg newArg then return e else mkAppS newFn newArg
+
+@[inline] def _root_.Lean.Expr.updateMDataS! (e : Expr) (newExpr : Expr) : m Expr := do
+  let .mdata d a := e | panic! "mdata expected"
+  if isSameExpr a newExpr then return e else mkMDataS d newExpr
+
+@[inline] def _root_.Lean.Expr.updateProjS! (e : Expr) (newExpr : Expr) : m Expr := do
+  let .proj s i a := e | panic! "proj expected"
+  if isSameExpr a newExpr then return e else mkProjS s i newExpr
+
+@[inline] def _root_.Lean.Expr.updateForallS! (e : Expr) (newDomain : Expr) (newBody : Expr) : m Expr := do
+  let .forallE n d b bi := e | panic! "forall expected"
+  if isSameExpr d newDomain && isSameExpr b newBody then
+    return e
+  else
+    mkForallS n bi newDomain newBody
+
+@[inline] def _root_.Lean.Expr.updateLambdaS! (e : Expr) (newDomain : Expr) (newBody : Expr) : m Expr := do
+  let .lam n d b bi := e | panic! "lambda expected"
+  if isSameExpr d newDomain && isSameExpr b newBody then
+    return e
+  else
+    mkLambdaS n bi newDomain newBody
+
+@[inline] def _root_.Lean.Expr.updateLetS! (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : m Expr := do
+  let .letE n t v b nondep := e | panic! "let expression expected"
+  if isSameExpr t newType && isSameExpr v newVal && isSameExpr b newBody then
+    return e
+  else
+    mkLetS n newType newVal newBody nondep
+
 end Lean.Meta.Sym.Internal

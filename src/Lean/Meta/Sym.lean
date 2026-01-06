@@ -5,9 +5,10 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
+public import Lean.Meta.Sym.AlphaShareBuilder
+public import Lean.Meta.Sym.AlphaShareCommon
+public import Lean.Meta.Sym.ExprPtr
 public import Lean.Meta.Sym.SymM
-public import Lean.Meta.Sym.Main
-public import Lean.Meta.Sym.Util
 public import Lean.Meta.Sym.MaxFVar
 public import Lean.Meta.Sym.ReplaceS
 public import Lean.Meta.Sym.LooseBVarsS
@@ -21,7 +22,7 @@ public import Lean.Meta.Sym.Pattern
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.InferType
 public import Lean.Meta.Sym.Simp
-
+public import Lean.Meta.Sym.Util
 
 /-!
 # Symbolic simulation support.

@@ -6,12 +6,12 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
-import Lean.Meta.Tactic.Grind.AlphaShareBuilder
+import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.Result
 import Lean.Meta.Sym.Simp.CongrInfo
 namespace Lean.Meta.Sym.Simp
-open Grind
+open Internal
 
 /-!
 # Simplifying Application Arguments and Congruence Lemma Application

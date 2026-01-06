@@ -5,13 +5,12 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
+public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Tactic.Simp.Types
-public import Lean.Meta.Tactic.Grind.AlphaShareCommon
 public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.CheckResult
 public import Lean.Meta.Tactic.Grind.Extension
 public import Init.Data.Queue
-import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.HeadIndex
 import Lean.Meta.Tactic.Grind.ExtAttr
 import Lean.Meta.AbstractNestedProofs
@@ -20,6 +19,7 @@ import Lean.PrettyPrinter
 meta import Lean.Parser.Do
 public section
 namespace Lean.Meta.Grind
+export Sym (isSameExpr hashPtrExpr ExprPtr shareCommon shareCommonInc)
 
 /-- We use this auxiliary constant to mark delayed congruence proofs. -/
 def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
@@ -203,8 +203,6 @@ structure SplitDiagInfo where
 
 /-- State for the `GrindM` monad. -/
 structure State where
-  /-- `ShareCommon` (aka `Hash-consing`) state. -/
-  scState    : AlphaShareCommon.State := {}
   /--
   Congruence theorems generated so far. Recall that for constant symbols
   we rely on the reserved name feature (i.e., `mkHCongrWithArityForConst?`).
@@ -248,7 +246,7 @@ private opaque MethodsRefPointed : NonemptyType.{0}
 def MethodsRef : Type := MethodsRefPointed.type
 instance : Nonempty MethodsRef := by exact MethodsRefPointed.property
 
-abbrev GrindM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
+abbrev GrindM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State Sym.SymM
 
 @[inline] def mapGrindM [MonadControlT GrindM m] [Monad m] (f : {α : Type} → GrindM α → GrindM α) {α} (x : m α) : m α :=
   controlAt GrindM fun runInBase => f <| runInBase x
@@ -413,44 +411,6 @@ Abstracts nested proofs in `e`. This is a preprocessing step performed before in
 -/
 def abstractNestedProofs (e : Expr) : GrindM Expr :=
   Meta.abstractNestedProofs e
-
-/--
-Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
-been hash-consed. We perform this step before we internalize expressions.
--/
-def shareCommon (e : Expr) : GrindM Expr := do
-  let scState ← modifyGet fun s => (s.scState, { s with scState := {} })
-  let (e, scState) := shareCommonAlpha e scState
-  modify fun s => { s with scState }
-  return e
-
-/--
-Incremental variant of `shareCommon` for expressions constructed from already-shared subterms.
-
-Use this when an expression `e` was produced by a Lean API (e.g., `inferType`, `mkApp4`) that
-does not preserve maximal sharing, but the inputs to that API were already maximally shared.
-
-Unlike `shareCommon`, this function does not use a local `Std.HashMap ExprPtr Expr` to
-track visited nodes. This is more efficient when the number of new (unshared) nodes is small,
-which is the common case when wrapping API calls that build a few constructor nodes around
-shared inputs.
-
-Example:
-```
--- `a` and `b` are already maximally shared
-let result := mkApp2 f a b  -- result is not maximally shared
-let result ← shareCommonInc result -- efficiently restore sharing
-```
--/
-def shareCommonInc (e : Expr) : GrindM Expr := do
-  let scState ← modifyGet fun s => (s.scState, { s with scState := {} })
-  let (e, scState) := shareCommonAlphaInc e scState
-  modify fun s => { s with scState }
-  return e
-
-@[inherit_doc shareCommonInc]
-abbrev shareCommon' (e : Expr) : GrindM Expr :=
-  shareCommonInc e
 
 /-- Returns `true` if `e` is the internalized `True` expression.  -/
 def isTrueExpr (e : Expr) : GrindM Bool :=

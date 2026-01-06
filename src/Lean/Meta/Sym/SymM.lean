@@ -5,11 +5,16 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
-public import Lean.Meta.Tactic.Grind.Main
+public import Lean.Meta.Basic
+public import Lean.Meta.Sym.AlphaShareCommon
+public import Lean.Meta.CongrTheorems
 public section
 namespace Lean.Meta.Sym
-export Grind (ExprPtr Goal)
+
+register_builtin_option sym.debug : Bool := {
+  defValue := false
+  descr    := "check invariants"
+}
 
 /--
 Information about a single argument position in a function's type signature.
@@ -80,6 +85,8 @@ inductive CongrInfo where
 
 /-- Mutable state for the symbolic simulator framework. -/
 structure State where
+  /-- `ShareCommon` (aka `Hash-consing`) state. -/
+  share : AlphaShareCommon.State := {}
   /--
   Maps expressions to their maximal free variable (by declaration index).
 
@@ -111,7 +118,54 @@ structure State where
   -/
   getLevel : PHashMap ExprPtr Level := {}
   congrInfo : PHashMap ExprPtr CongrInfo := {}
+  debug : Bool := false
 
-abbrev SymM := ReaderT Grind.Params StateRefT State Grind.GrindM
+abbrev SymM := StateRefT State MetaM
+
+def SymM.run (x : SymM α) : MetaM α := do
+  let debug := sym.debug.get (← getOptions)
+  x |>.run' { debug }
+
+/--
+Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
+been hash-consed. We perform this step before we internalize expressions.
+-/
+def shareCommon (e : Expr) : SymM Expr := do
+  let share ← modifyGet fun s => (s.share, { s with share := {} })
+  let (e, share) := shareCommonAlpha e share
+  modify fun s => { s with share }
+  return e
+
+/--
+Incremental variant of `shareCommon` for expressions constructed from already-shared subterms.
+
+Use this when an expression `e` was produced by a Lean API (e.g., `inferType`, `mkApp4`) that
+does not preserve maximal sharing, but the inputs to that API were already maximally shared.
+
+Unlike `shareCommon`, this function does not use a local `Std.HashMap ExprPtr Expr` to
+track visited nodes. This is more efficient when the number of new (unshared) nodes is small,
+which is the common case when wrapping API calls that build a few constructor nodes around
+shared inputs.
+
+Example:
+```
+-- `a` and `b` are already maximally shared
+let result := mkApp2 f a b  -- result is not maximally shared
+let result ← shareCommonInc result -- efficiently restore sharing
+```
+-/
+def shareCommonInc (e : Expr) : SymM Expr := do
+  let share ← modifyGet fun s => (s.share, { s with share := {} })
+  let (e, share) := shareCommonAlphaInc e share
+  modify fun s => { s with share }
+  return e
+
+@[inherit_doc shareCommonInc]
+abbrev share (e : Expr) : SymM Expr :=
+  shareCommonInc e
+
+/-- Returns `true` if `sym.debug` is set -/
+@[inline] def isDebugEnabled : SymM Bool :=
+  return (← get).debug
 
 end Lean.Meta.Sym

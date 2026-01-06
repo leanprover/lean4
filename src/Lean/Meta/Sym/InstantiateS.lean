@@ -10,8 +10,7 @@ import Lean.Meta.Sym.ReplaceS
 import Lean.Meta.Sym.LooseBVarsS
 import Init.Grind
 namespace Lean.Meta.Sym
-open Grind
-
+open Internal
 /--
 Similar to `Lean.Expr.instantiateRevRange`.
 It assumes the input is maximally shared, and ensures the output is too.
@@ -68,7 +67,7 @@ def instantiateRangeS' (e : Expr) (beginIdx endIdx : Nat) (subst : Array Expr) :
           let v := subst[idx - s₁]
           liftLooseBVarsS' v 0 offset
         else
-          Grind.mkBVarS (idx - n)
+          mkBVarS (idx - n)
       else
         return some e
     | .lit _ | .mvar _ | .fvar _ | .const _ _ | .sort _ =>

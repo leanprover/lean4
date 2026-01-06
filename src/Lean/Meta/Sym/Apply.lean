@@ -105,14 +105,13 @@ Applies a backward rule to a goal, returning new subgoals.
 
 Throws an error if unification fails.
 -/
-public def BackwardRule.apply (goal : Goal) (rule : BackwardRule) : SymM (List Goal) := goal.withContext do
-  let type ← goal.mvarId.getType
-  if let some result ← rule.pattern.unify? type then
-    goal.mvarId.assign (mkValue rule.expr rule.pattern result)
+public def BackwardRule.apply (mvarId : MVarId) (rule : BackwardRule) : SymM (List MVarId) := mvarId.withContext do
+  let decl ← mvarId.getDecl
+  if let some result ← rule.pattern.unify? decl.type then
+    mvarId.assign (mkValue rule.expr rule.pattern result)
     return rule.resultPos.map fun i =>
-      let mvarId := result.args[i]!.mvarId!
-      { goal with mvarId }
+      result.args[i]!.mvarId!
   else
-    throwError "rule is not applicable to goal{goal.mvarId}rule:{indentExpr rule.expr}"
+    throwError "rule is not applicable to goal{mvarId}rule:{indentExpr rule.expr}"
 
 end Lean.Meta.Sym

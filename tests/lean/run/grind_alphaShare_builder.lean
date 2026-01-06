@@ -1,9 +1,8 @@
-import Lean.Meta.Tactic.Grind
-import Lean.Meta.Sym.Main
-open Lean Meta Grind Sym
+import Lean.Meta.Sym
+open Lean Meta Sym Internal
 set_option grind.debug true
 
-def test : GrindM Unit := do
+def test : SymM Unit := do
   let f  ← mkConstS `f
   let f₁ := mkConst `f
   let f₂ ← mkConstS `f
@@ -20,5 +19,5 @@ def test : GrindM Unit := do
     ==
     (← mkLambdaS `y .default (← mkConstS ``Nat) (← mkMDataS {} (← mkProjS ``Prod 0 (← mkAppS f₂ x₂))))
 
-#eval SymM.run' do
+#eval SymM.run do
   test

@@ -23,7 +23,7 @@ def genTerm (n : Nat) : Expr := Id.run do
 
 set_option maxRecDepth 10000000
 
-def tryIntros? (goals : List Goal) : SymM (Option (List Goal)) := do
+def tryIntros? (goals : List MVarId) : SymM (Option (List MVarId)) := do
   try
     let goal :: goals := goals | return none
     let (_, goal') ← intros goal
@@ -31,7 +31,7 @@ def tryIntros? (goals : List Goal) : SymM (Option (List Goal)) := do
   catch _ =>
     return none
 
-def tryApply? (rule : BackwardRule) (goals : List Goal) : SymM (Option (List Goal)) := do
+def tryApply? (rule : BackwardRule) (goals : List MVarId) : SymM (Option (List MVarId)) := do
   let goal :: goals := goals | return none
   try
     let goals' ← rule.apply goal
@@ -39,7 +39,7 @@ def tryApply? (rule : BackwardRule) (goals : List Goal) : SymM (Option (List Goa
   catch _ =>
     return none
 
-def tryApplyAny? (rules : List BackwardRule) (goals : List Goal) : SymM (Option (List Goal)) := do
+def tryApplyAny? (rules : List BackwardRule) (goals : List MVarId) : SymM (Option (List MVarId)) := do
   match rules with
   | [] => return none
   | rule :: rules =>
@@ -48,17 +48,17 @@ def tryApplyAny? (rules : List BackwardRule) (goals : List Goal) : SymM (Option 
     else
       tryApplyAny? rules goals
 
-def solve (n : Nat) (type : Expr) : MetaM Unit := profileM (msg := s!"size {n}") <| SymM.run' do
+def solve (n : Nat) (type : Expr) : MetaM Unit := profileM (msg := s!"size {n}") <| SymM.run do
   let mvarId := (← mkFreshExprMVar type).mvarId!
   let rules ← [``Exists.intro, ``And.intro, ``Eq.refl, ``True.intro].mapM fun declName => mkBackwardRuleFromDecl declName
-  let goal ← mkGoal mvarId
+  let goal ← preprocessMVar mvarId
   discard <| go 10000000 rules [goal]
   return ()
 where
-  go (fuel : Nat) (rules : List BackwardRule) (goals : List Goal) : SymM Bool := do
+  go (fuel : Nat) (rules : List BackwardRule) (goals : List MVarId) : SymM Bool := do
     let fuel + 1 := fuel | throwError "out of fuel"
     let goal :: goals' := goals | return true
-    if (← goal.mvarId.isAssigned) then
+    if (← goal.isAssigned) then
       go fuel rules goals'
     else
       if let some goals' ← tryIntros? goals then
@@ -66,7 +66,7 @@ where
       else if let some goals' ← tryApplyAny? rules goals then
         go fuel rules goals'
       else
-        throwError "Stuck at {goal.mvarId}"
+        throwError "Stuck at {goal}"
 
 def test (n : Nat) : MetaM Unit := do
   let e := genTerm n

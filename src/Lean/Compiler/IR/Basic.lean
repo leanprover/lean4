@@ -54,26 +54,15 @@ instance : ToString JoinPointId := ⟨fun a => "block_" ++ toString a.idx⟩
    - `void` is used to identify uses of the state token from `BaseIO` which do no longer need
      to be passed around etc. at this point in the pipeline.
 
-   - `struct` and `union` are used to return small values (e.g., `Option`, `Prod`, `Except`)
-      on the stack.
+   - `struct` and `union` are used for unboxed values that should be stored on the stack
+     (e.g., `Option`, `Prod`, `Except`). Note that `struct` and `union` are stored boxed
+     (i.e. as `lean_ctor_object`s) in the interpreter.
 
 Remark: the RC operations for `tobject` are slightly more expensive because we
 first need to test whether the `tobject` is really a pointer or not.
 
-Remark: the Lean runtime assumes that sizeof(void*) == sizeof(sizeT).
-Lean cannot be compiled on old platforms where this is not True.
-
-Disregard the following paragraph please.
-
-Since values of type `struct` and `union` are only used to return values,
-We assume they must be used/consumed "linearly". We use the term "linear" here
-to mean "exactly once" in each execution. That is, given `x : S`, where `S` is a struct,
-then one of the following must hold in each (execution) branch.
-1- `x` occurs only at a single `ret x` instruction. That is, it is being consumed by being returned.
-2- `x` occurs only at a single `ctor`. That is, it is being "consumed" by being stored into another `struct/union`.
-3- We extract (aka project) every single field of `x` exactly once. That is, we are consuming `x` by consuming each
-   of one of its components. Minor refinement: we don't need to consume scalar fields or struct/union
-   fields that do not contain object fields.
+Remark: the Lean runtime assumes that `sizeof(void*) == sizeof(size_t)`.
+Lean cannot be compiled on old platforms where this is not true.
 -/
 inductive IRType where
   | float | uint8 | uint16 | uint32 | uint64 | usize
@@ -81,15 +70,24 @@ inductive IRType where
   | float32
   /--
   Unboxed structures representing a particular constructor of an inductive type.
-  `usize` and `ssize` each are exactly the number of `size_t` values and the amount of
-  bytes spent by other scalars and should be equivalent to the values in `CtorInfo.usize` and
-  `CtorInfo.ssize` corresponding to the constructor.
+  The type `objects[i]` is the type of `proj[0, i] x` where `x` is a value of this type, or more
+  generally `proj[c, i]` when this type is the `c`-th constructor of a `union` type. Thus, the
+  amount of `objects` should be exactly `CtorInfo.size` for the corresponding constructor.
+
+  `usize` and `ssize` each are the number of `size_t` values and the amount of bytes spent by other
+  scalars respectively and should be equivalent to the values in `CtorInfo.usize` and
+  `CtorInfo.ssize` for the corresponding constructor.
+
+  There are two different models of `struct` types: the interpreter model, which stores `struct`s
+  as `lean_ctor_object`s that have their own reference count, and the compiled model, in which
+  `struct`s are stored as corresponding C `struct`s and RC operations on a `struct` correspond to
+  RC operations on every field.
   -/
   | struct (leanTypeName : Option Name)
     (objects : Array IRType) (usize ssize : Nat) : IRType
   /--
-  Unboxed tagged unions of multiple IR types. Each type in `types` should correspond to a
-  constructor of the inductive type `leanTypeName`.
+  Unboxed tagged unions of multiple IR types. Each type in `types` should be a `struct`
+  corresponding to a constructor of the inductive type `leanTypeName`.
   -/
   | union (leanTypeName : Name) (types : Array IRType) : IRType
   -- TODO: Move this upwards after a stage0 update.
@@ -101,11 +99,11 @@ namespace IRType
 
 def isScalar : IRType → Bool
   | float | float32 | uint8 | uint16 | uint32 | uint64 | usize => true
-  | _        => false
+  | _ => false
 
 def isObj : IRType → Bool
   | object | tagged | tobject | void => true
-  | _       => false
+  | _ => false
 
 def isStruct : IRType → Bool
   | struct _ _ _ _ | union _ _ => true
@@ -139,13 +137,53 @@ def isVoid : IRType → Bool
   | void => true
   | _ => false
 
+/--
+Returns `tagged`, `object` or `tobject` depending on whether the provided type is a definite
+reference and/or a possible reference in boxed form. For details on boxing, see `Expr.box`.
+-/
 def boxed : IRType → IRType
   | object | float | float32 => object
-  | void | tagged | uint8 | uint16 => tagged
+  | void | erased | tagged | uint8 | uint16 => tagged
   | union _ tys => if tys.any (· matches struct _ #[] 0 0) then tobject else object
   | struct _ #[] 0 0 => tagged
   | struct .. => object
-  | _ => tobject
+  | tobject | uint32 | uint64 | usize => tobject
+
+/--
+Normalize the object parts of the IR type, i.e. convert it into a type that is `compatibleWith` the
+provided type but with all occurrences of `object` and `tagged` replaced by `tobject` and all
+occurrences of `void` replaced by `erased`.
+-/
+def normalizeObject : IRType → IRType
+  | object | tagged => tobject
+  | struct nm tys us ss => struct nm (tys.map normalizeObject) us ss
+  | union nm tys => union nm (tys.map normalizeObject)
+  | void => erased
+  | ty => ty
+
+/--
+Returns whether the two types have compatible representation, that is they are equal modulo
+different reference types. If `strict` is `false` (default), object types (`object`, `tobject`,
+`tagged`) are considered to be compatible with erased types (`erased`, `void`).
+-/
+partial def compatibleWith (a b : IRType) (strict : Bool := false) : Bool :=
+  match a, b with
+  | float, float => true
+  | uint8, uint8 => true
+  | uint16, uint16 => true
+  | uint32, uint32 => true
+  | uint64, uint64 => true
+  | usize, usize => true
+  | float32, float32 => true
+  | erased, t | void, t =>
+    (t matches erased | void) || (!strict && t matches object | tobject | tagged)
+  | object, t | tobject, t | tagged, t =>
+    (t matches object | tobject | tagged) || (!strict && t matches erased | void)
+  | struct _ tys us ss, struct _ tys' us' ss' =>
+    us == us' && ss == ss' && tys.isEqv tys' (compatibleWith (strict := true))
+  | union _ tys, union _ tys' =>
+    tys.isEqv tys' (compatibleWith (strict := false))
+  | _, _ => false
 
 end IRType
 
@@ -197,9 +235,14 @@ def CtorInfo.type (info : CtorInfo) : IRType :=
   if info.isRef then .object else .tagged
 
 inductive Expr where
-  /-- We use `ctor` mainly for constructing Lean object/tobject values `lean_ctor_object` in the
-  runtime. This instruction is also used to create `struct` and `union` values where `i.cidx` is
-  used for the tag for a `union`. -/
+  /--
+  `let x : obj := ctor[i] ys...` allocates a `lean_ctor_object` with the tag `i.cidx` and a scalar
+  capacity of `i.usize * sizeof(size_t) + i.ssize`. If `i.isScalar` is true, instead returns
+  `lean_box(i.cidx)`. All arguments should be boxed values.
+
+  This instruction is also used to create `struct` and `union` values where `i.cidx` is used for
+  the tag and `ys` should have types corresponding to the `objects` parameter of `IRType.struct`.
+  -/
   | ctor (i : CtorInfo) (ys : Array Arg)
   | reset (n : Nat) (x : VarId)
   /-- `reuse x in ctor_i ys` instruction in the paper. -/
@@ -217,10 +260,31 @@ inductive Expr where
   | pap (c : FunId) (ys : Array Arg)
   /-- Application. `x` must be a `pap` value. -/
   | ap  (x : VarId) (ys : Array Arg)
-  /-- Given `x : ty` where `ty` is a scalar type, this operation returns a value of Type `tobject`.
-  For small scalar values, the result is a tagged pointer, and no memory allocation is performed. -/
+  /--
+  Converts an owned value into another owned value. The `box` instruction comes in three variants:
+  1. Given `x : ty` where `ty` is a scalar type, return a value of type `tobject`.
+     For small scalar values, the result is a tagged pointer, and no memory allocation is performed.
+  2. Given `x : ty` where `ty` is a struct/union type, return a value of type `object` or `tobject`
+     (depending on whether `ty` has scalar constructors). This operation is the identity function
+     in the interpreter model and is an allocation is the compiled model.
+  3. Given `x : ty` where `ty` is a struct/union type, return a value of another struct/union type
+     where different parts are boxed/unboxed. This variant is called a *reshape* and can contain
+     both boxing and unboxing. For example, `let y : {{tobj, tobj}, obj} := box x` with
+     `x : {obj, {tobj, tobj}}` unboxes the first component of `x` and boxes the second component
+     of `x` into a `lean_ctor_object`. This is also the identity function in the interpreter.
+
+  The last two variants are distinguished by the type of the variable declaration.
+  -/
   | box (ty : IRType) (x : VarId)
-  /-- Given `x : [t]object`, obtain the scalar value. -/
+  /--
+  Unboxed a boxed (`tagged` / `object` / `tobject`) value into a scalar or `struct` / `union` value.
+  The input value is taken borrowed and the result value is borrowed from the input value.
+  That is, no reference counting operations are performed and the RC of the result value may need
+  to be manually incremented and the RC of the input value may need to be decremented.
+
+  In the interpreter, unboxing into a `struct` or `union` is the identity function since `struct`
+  and `union` values are stored boxed in the interpreter.
+  -/
   | unbox (x : VarId)
   | lit (v : LitVal)
   /-- Return `1 : uint8` Iff `RC(x) > 1` -/
@@ -252,14 +316,18 @@ inductive FnBody where
   `struct`/`union` with tag `cidx` and `RC(x)` must be 1. -/
   | uset (x : VarId) (cidx : Nat) (i : Nat) (y : VarId) (b : FnBody)
   /-- Store `y : ty` at Position `sizeof(void*)*i + offset` in `x`. `x` must be a Constructor object
-  or `struct`/`union` with tag `cidx` and `RC(x)` must be 1.
-  `ty` must not be `object`, `tobject`, `erased` nor `Usize`. -/
+  or `struct`/`union` with tag `cidx` and `RC(x)` must be 1. `ty` must be a scalar type but not
+  `usize`. -/
   | sset (x : VarId) (cidx : Nat) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody)
-  /-- RC increment for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not.
-  If `persistent == true` then `x` is statically known to be a persistent object. -/
+  /-- RC increment for `object`. If c is `true`, then `inc` must check whether `x` is a tagged
+  pointer or not. If `persistent` is `true` then `x` is statically known to be a persistent object
+  and this operation does not need to be performed in compiled code. In compiled code, if the type
+  of `x` is a `struct` or `union` type, then instead all fields are incremented. -/
   | inc (x : VarId) (n : Nat) (c : Bool) (persistent : Bool) (b : FnBody)
-  /-- RC decrement for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not.
-  If `persistent == true` then `x` is statically known to be a persistent object. -/
+  /-- RC decrement for `object`. If c is `true`, then `inc` must check whether `x` is a tagged
+  pointer or not. If `persistent` is `true` then `x` is statically known to be a persistent object
+  and this operation does not need to be performed in compiled code. In compiled code, if the type
+  of `x` is a `struct` or `union` type, then instead all fields are decremented. -/
   | dec (x : VarId) (n : Nat) (c : Bool) (persistent : Bool) (b : FnBody)
   | del (x : VarId) (b : FnBody)
   | case (tid : Name) (x : VarId) (xType : IRType) (cs : Array Alt)

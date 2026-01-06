@@ -12,23 +12,62 @@ import Std.Data.TreeMap.AdditionalOperations
 
 public section
 
+/-!
+Optimizes reference counting instructions on struct/union variables. This pass assumes that an
+inc/dec on a struct/union corresponds to an inc/dec on all of its (active) non-scalar fields.
+This assumption is incompatible with the model of struct/union values that the interpreter uses:
+In the interpreter, struct/union values are simply passed as their boxed form and thus have their
+own reference count, contradicting the model of "inc/dec all fields".
+
+Thus this pass is only run *after* the regular IR passes, specifically from EmitC, or for debugging
+purposes when the trace class is activated.
+-/
+
 namespace Lean.IR.StructRC
 
+/--
+Describes an argument of a constructor.
+-/
 inductive ProjEntry where
+  /-- The value is erased. -/
   | erased
+  /--
+  The projection is contained in the variable `v` and there is an entry in the context that
+  describes the obligations on `v`.
+  -/
   | var (v : VarId)
+  /--
+  The projection was not bound to variable and its reference count still has to be changed by `rc`.
+  -/
   | unbound (rc : Int)
 deriving Inhabited, Repr
 
+/--
+Describes accumulated RC obligations of a variable.
+-/
 inductive Entry where
+  /-- The value is persistent or has a type that doesn't require reference counting (e.g. scalars). -/
   | persistent
+  /-- The value is of type `IRType.union _ tys` with some unknown constructor and the reference
+  count of each field still has to be changed by `rc`. -/
   | unknownUnion (tys : Array IRType) (rc : Int)
+  /-- The value is of type `IRType.struct _ tys _ _` or `IRType.union _ utys _ _` with
+  `utys[cidx] = IRType.struct _ tys _ _` and `fields` describes the RC obligations of each field. -/
   | struct (cidx : Nat) (tys : Array IRType) (fields : Vector ProjEntry tys.size)
+  /--
+  The value is of type `object` (if `checkRef` is false) or `tobject` (if `checkRef` is true) and
+  its reference count still has to be changed by `rc`.
+  -/
   | ref (checkRef : Bool) (rc : Int)
 deriving Inhabited, Repr
 
+/-- The context of `visitFnBody`. -/
 structure Context where
+  /-- A map from variable id to its corresponding RC obligations. There must be an entry for every
+  `struct`/`union` variable. -/
   vars : Std.TreeMap VarId Entry fun a b => compare a.idx b.idx := {}
+  /-- All preceding instructions that need to be `reshape`d. This is used to make `visitFnBody`
+  tail-recursive. -/
   instrs : Array FnBody := #[]
 
 abbrev M := StateM Nat
@@ -36,6 +75,11 @@ abbrev M := StateM Nat
 def mkFreshVar : M VarId :=
   modifyGet fun i => ({ idx := i }, i + 1)
 
+/--
+Returns whether RC operations need to be performed on a value of this type. This is restricted
+version of `IRType.isPossibleRef` that also returns false for structs and unions that only consist
+of scalars, e.g. `{uint8, tagged}`.
+-/
 partial def needsRC (ty : IRType) : Bool :=
   match ty with
   | .object | .tobject => true
@@ -50,7 +94,6 @@ def Entry.ofStruct (cidx : Nat) (ty : IRType) (rc : Int) : Entry :=
     .struct cidx tys (Vector.replicate tys.size (.unbound rc))
   | _ => unreachable!
 
-@[inline]
 def Entry.ofType (ty : IRType) (rc : Int) : Entry :=
   match ty with
   | ty@(.struct _ tys _ _) =>
@@ -70,6 +113,7 @@ def Entry.ofType (ty : IRType) (rc : Int) : Entry :=
 def Context.addVar (ctx : Context) (x : VarId) (ty : IRType) (rc : Int) : Context :=
   { ctx with vars := ctx.vars.insertIfNew x (.ofType ty rc) }
 
+/-- Add a variable entry if we need to (i.e. if `ty` is a struct type). -/
 def Context.addVarBasic (ctx : Context) (x : VarId) (ty : IRType) : Context :=
   match ty with
   | ty@(.struct _ tys _ _) =>
@@ -84,6 +128,9 @@ def Context.addVarBasic (ctx : Context) (x : VarId) (ty : IRType) : Context :=
       { ctx with vars := ctx.vars.insert x .persistent }
   | _ => ctx
 
+/--
+Given the entry `parentEntry` for `parent`, marks `proj : t` as the `idx`-th projection of `parent`.
+-/
 @[inline]
 def Context.addProjInfo (ctx : Context) (proj : VarId) (t : IRType) (idx : Nat)
     (parent : VarId) (parentEntry : Entry) : Context := Id.run do
@@ -124,6 +171,10 @@ partial def Context.accumulateRCDiff (v : VarId) (check : Bool) (rc : Int) (ctx 
       | .erased => return .erased
     { ctx with vars := ctx.vars.insert v (.struct cidx tys objs) }
 
+/--
+Performs all necessary accumulated RC increments and decrements on `v`. If `ignoreInc` is true then
+only decrements are performed and increments are ignored.
+-/
 partial def Context.useVar (ctx : Context) (v : VarId) (ignoreInc : Bool := false) : M Context := do
   match ctx.vars[v]? with
   | none | some .persistent => return ctx
@@ -169,6 +220,9 @@ def Context.useArg (ctx : Context) (a : Arg) : M Context :=
 def Context.addParams (params : Array Param) (ctx : Context) : Context :=
   params.foldl (init := ctx) fun ctx param => ctx.addVarBasic param.x param.ty
 
+/--
+Returns `ctx` but without any pending instructions or RC obligations.
+-/
 def Context.resetRC (ctx : Context) : Context :=
   let vars := ctx.vars.map fun
     | _, .unknownUnion tys _ => .unknownUnion tys 0
@@ -228,7 +282,7 @@ def visitExpr (x : VarId) (t : IRType) (v : Expr) (ctx : Context) : M Context :=
   | .isShared x => ctx.useVar x
   | .reset _ x => ctx.useVar x
   | .reuse x _ _ args => args.foldlM (·.useArg) (← ctx.useVar x)
-  | .box _ x => ctx.useVar x
+  | .box _ y => (ctx.addVarBasic x t).useVar y
   | .lit _ | .sproj .. | .uproj .. | .unbox _ => return ctx
   | .ctor c args =>
     if t.isStruct then
@@ -314,75 +368,8 @@ def visitDecl (decl : Decl) : Decl :=
     .fdecl f xs t b i
   | .extern .. => decl
 
-/--
-info: def hi (x_1 : {tobj, tobj}) : tobj :=
-  let x_2 : tobj := proj[0, 0] x_1;
-  let x_5 : tobj := proj[0, 1] x_1;
-  dec x_5;
-  let x_4 : tobj := test x_2;
-  ret x_4
--/
-#guard_msgs in
-#eval
-  let params : Array Param := #[
-    .mk ⟨1⟩ false (.struct ``Prod #[.tobject, .tobject] 0 0)
-  ]
-  let body :=
-    .vdecl ⟨2⟩ .tobject (.proj 0 0 ⟨1⟩) <|
-    .inc ⟨2⟩ 1 true false <|
-    --.vdecl ⟨3⟩ .tobject (.proj 0 1 ⟨1⟩) <|
-    --.inc ⟨3⟩ 1 true false <|
-    .dec ⟨1⟩ 1 false false <|
-    .vdecl ⟨4⟩ .tobject (.fap `test #[.var ⟨2⟩]) <|
-    .ret (.var ⟨4⟩)
-  visitDecl (.fdecl `hi params .tobject body {})
-
-/--
-info: def hi (x_1 : u8) (x_2 : {u8, obj}) (x_3 : tobj) : tobj :=
-  let x_4 : u8 := proj[0, 0] x_2;
-  case x_4 : u8 of
-  Bool.false →
-    dec x_3;
-    let x_5 : obj := proj[0, 1] x_2;
-    let x_6 : {u8, obj} := ctor_0[Prod.mk] x_1 x_5;
-    ret x_6
-  Bool.true →
-    let x_7 : obj := proj[0, 1] x_2;
-    let x_8 : u8 := 0;
-    let x_9 : obj := Array.push ◾ x_7 x_3;
-    let x_10 : {u8, obj} := ctor_0[Prod.mk] x_8 x_9;
-    ret x_10
--/
-#guard_msgs in
-#eval
-  let params : Array Param := #[
-    .mk ⟨1⟩ false .uint8,
-    .mk ⟨2⟩ false (.struct ``Prod #[.uint8, .object] 0 0),
-    .mk ⟨3⟩ false .tobject
-  ]
-  let body :=
-    .vdecl ⟨4⟩ .uint8 (.proj 0 0 ⟨2⟩) <|
-    .case ``Bool ⟨4⟩ .uint8 #[
-      .ctor (.mk ``Bool.false 0 0 0 0) <|
-        .dec ⟨3⟩ 1 true false <|
-        .vdecl ⟨5⟩ .object (.proj 0 1 ⟨2⟩) <|
-        .inc ⟨5⟩ 1 false false <|
-        .dec ⟨2⟩ 1 false false <|
-        .vdecl ⟨6⟩ (.struct ``Prod #[.uint8, .object] 0 0)
-          (.ctor (.mk ``Prod.mk 0 2 0 0) #[.var ⟨1⟩, .var ⟨5⟩]) <|
-        .ret (.var ⟨6⟩),
-      .ctor (.mk ``Bool.true 1 0 0 0) <|
-        .vdecl ⟨7⟩ .object (.proj 0 1 ⟨2⟩) <|
-        .inc ⟨7⟩ 1 false false <|
-        .dec ⟨2⟩ 1 false false <|
-        .vdecl ⟨8⟩ .uint8 (.lit (.num 0)) <|
-        .vdecl ⟨9⟩ .object (.fap ``Array.push #[.erased, .var ⟨7⟩, .var ⟨3⟩]) <|
-        .vdecl ⟨10⟩ (.struct ``Prod #[.uint8, .object] 0 0)
-          (.ctor (.mk ``Prod.mk 0 2 0 0) #[.var ⟨8⟩, .var ⟨9⟩]) <|
-        .ret (.var ⟨10⟩)
-    ]
-  visitDecl (.fdecl `hi params .tobject body {})
-
 end StructRC
+
+builtin_initialize registerTraceClass `compiler.ir.struct_rc (inherited := true)
 
 end Lean.IR

@@ -31,29 +31,6 @@ Wrapper around `IRType` where different object types are considered equal.
 structure IRTypeApprox where
   type : IRType
 
-def IRType.normalizeObject : IRType → IRType
-  | .object | .tobject | .tagged => .tobject
-  | .struct nm tys us ss => .struct nm (tys.map normalizeObject) us ss
-  | .union nm tys => .union nm (tys.map normalizeObject)
-  | ty => ty
-
-partial def IRType.beqApprox : IRType → IRType → Bool
-  | .float, .float => true
-  | .uint8, .uint8 => true
-  | .uint16, .uint16 => true
-  | .uint32, .uint32 => true
-  | .uint64, .uint64 => true
-  | .usize, .usize => true
-  | .float32, .float32 => true
-  | .erased, t | .void, t => (t matches .erased | .void)
-  | .object, t | .tobject, t | .tagged, t =>
-    (t matches .object | .tobject | .tagged)
-  | .struct _ tys us ss, .struct _ tys' us' ss' =>
-    us == us' && ss == ss' && tys.isEqv tys' beqApprox
-  | .union _ tys, .union _ tys' =>
-    tys.isEqv tys' beqApprox
-  | _, _ => false
-
 partial def IRType.hashApprox : IRType → UInt64
   | .float => 11
   | .uint8 => 13
@@ -70,12 +47,14 @@ partial def IRType.hashApprox : IRType → UInt64
     let : Hashable IRType := { hash := hashApprox }
     mixHash 43 (hash tys)
 
-instance : BEq IRTypeApprox := ⟨fun a b => a.type.beqApprox b.type⟩
+instance : BEq IRTypeApprox := ⟨fun a b => a.type.compatibleWith b.type (strict := true)⟩
 instance : Hashable IRTypeApprox := ⟨fun a => a.type.hashApprox⟩
 
 structure StructTypeInfo where
+  /-- The type itself after `normalizeObject`. -/
   type : IRType
-  reboxing : Array Nat
+  /-- The ids of struct types that this type can Reshape to. -/
+  reshapes : Array Nat
 deriving Inhabited
 
 abbrev StructTypeData := Array StructTypeInfo
@@ -99,20 +78,20 @@ partial def registerType (ty : IRType) : M Unit := do
     modify fun m => (m.1.push ⟨ty, #[]⟩, m.2.insert ⟨ty⟩ id)
   | some _ => pure ()
 
-def addReboxEntry (origin target : IRType) : M Unit := do
+def addReshapeEntry (origin target : IRType) : M Unit := do
   let id1 := (← get).2[IRTypeApprox.mk origin]!
   let id2 := (← get).2[IRTypeApprox.mk target]!
   modify fun m => (m.1.modify id1 fun info =>
-    if info.reboxing.contains id2 then info
-    else { info with reboxing := info.reboxing.push id2 }, m.2)
+    if info.reshapes.contains id2 then info
+    else { info with reshapes := info.reshapes.push id2 }, m.2)
 
-def addRebox (origin target : IRType) : M Unit := do
+def addReshape (origin target : IRType) : M Unit := do
   match origin, target with
   | .struct _ tys _ _, .struct _ tys' _ _
   | .union _ tys, .union _ tys' =>
     for ty in tys, ty' in tys' do
-      addRebox ty ty'
-    addReboxEntry origin target
+      addReshape ty ty'
+    addReshapeEntry origin target
   | _, _ => pure () -- ignore
 
 def collectParams (params : Array Param) : M Unit := do
@@ -125,7 +104,7 @@ partial def collectFnBody : FnBody → M Unit
     if t.isStruct then
       registerType t
       match v with
-      | .box t' _ => addRebox t' t
+      | .box t' _ => addReshape t' t
       | _ => pure ()
     collectFnBody b
   | .jdecl _ xs v b =>

@@ -84,27 +84,6 @@ def addBoxedVersions (env : Environment) (decls : Array Decl) : Array Decl :=
     | d => d
   decls ++ boxedDecls
 
-partial def eqvTypes (t₁ t₂ : IRType) (strict : Bool := false) : Bool :=
-  if t₁.isScalar then
-    t₁ == t₂
-  else if let .union _ tys := t₁ then
-    if let .union _ tys' := t₂ then
-      tys.isEqv tys' (eqvTypes (strict := true))
-    else
-      false
-  else if let .struct _ tys us ss := t₁ then
-    if let .struct _ tys' us' ss' := t₂ then
-      us == us' && ss == ss' && tys.isEqv tys' (eqvTypes (strict := true))
-    else
-      false
-  else if strict then
-    if t₁ matches .object | .tobject | .tagged then
-      t₂ matches .object | .tobject | .tagged
-    else
-      t₂ matches .erased | .void
-  else
-    !t₂.isScalarOrStruct
-
 structure BoxingContext where
   f : FunId
   localCtx : LocalContext := {}
@@ -198,7 +177,7 @@ def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
       if let .fap nm #[] := v then
         if expectedType.isObj && xType.isStruct then
           -- we create boxed versions specifically for struct constants (see `boxedConstDecl`)
-          return .fap (nm ++ `_boxed) #[]
+          return .fap (mkBoxedName nm) #[]
       let ctx ← read
       let s ← get
       /- Create auxiliary FnBody
@@ -215,7 +194,7 @@ def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
       match s.auxDeclCache.find? body with
       | some v => pure v
       | none   => do
-        let auxName  := ctx.f ++ ((`_boxed_const).appendIndexAfter s.nextAuxId)
+        let auxName  := ctx.f.str ("_boxed_const_" ++ s.nextAuxId.repr)
         let auxConst := .fap auxName #[]
         let auxDecl  := Decl.fdecl auxName #[] expectedType body {}
         modify fun s => { s with
@@ -228,7 +207,7 @@ def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
 
 @[inline] def castVarIfNeeded (x : VarId) (expected : IRType) (k : VarId → M FnBody) : M FnBody := do
   let xType ← getVarType x
-  if eqvTypes xType expected then
+  if xType.compatibleWith expected then
     k x
   else
     let y ← M.mkFresh
@@ -251,7 +230,7 @@ def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Arr
       xs' := xs'.push x
     | .var x =>
       let xType ← getVarType x
-      if eqvTypes xType expected then
+      if xType.compatibleWith expected then
         xs' := xs'.push (.var x)
       else
         let y ← M.mkFresh
@@ -280,7 +259,7 @@ def unboxResultIfNeeded (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M Fn
     return .vdecl x ty e b
 
 def castResultIfNeeded (x : VarId) (ty : IRType) (e : Expr) (eType : IRType) (b : FnBody) : M FnBody := do
-  if eqvTypes ty eType then
+  if ty.compatibleWith eType then
     return .vdecl x ty e b
   else
     let y ← M.mkFresh
@@ -474,7 +453,7 @@ def boxedConstDecl (f : FunId) (ty : IRType) : Decl :=
     let x_2 : tobj := box x_1;
     ret x_2
   -/
-  .fdecl (f ++ `_boxed) #[] ty.boxed (info := {}) <|
+  .fdecl (mkBoxedName f) #[] ty.boxed (info := {}) <|
     .vdecl { idx := 1 } ty (.fap f #[]) <|
     .vdecl { idx := 2 } ty.boxed (.box ty { idx := 1 }) <|
     .ret (.var { idx := 2 })
@@ -528,6 +507,8 @@ def explicitBoxing (decls : Array Decl) : CompilerM (Array Decl) := do
   let env ← getEnv
   return ExplicitBoxing.run env decls
 
+builtin_initialize registerTraceClass `compiler.ir.box_params (inherited := true)
 builtin_initialize registerTraceClass `compiler.ir.boxing (inherited := true)
+builtin_initialize registerTraceClass `compiler.ir.boxed_versions (inherited := true)
 
 end Lean.IR

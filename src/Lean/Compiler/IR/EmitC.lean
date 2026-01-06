@@ -895,7 +895,7 @@ def emitStructReshapeFn (origin target : IRType) (id1 id2 : Nat) : M Unit := do
         (fun i => compatibleReshape tys[i]! tys'[i]!)
         fun i _ => do
       emit "y.cs.c"; emit i; emit " = "
-      if tys[i].beqApprox tys'[i]! then
+      if tys[i].compatibleWith tys'[i]! then
         emit "x.cs.c"; emit i; emitLn ";"
       else
         emitReshapeFn tys[i] tys'[i]!
@@ -908,7 +908,7 @@ def emitStructReshapeFn (origin target : IRType) (id1 id2 : Nat) : M Unit := do
         continue
       if tys[i] matches .erased | .void then
         emit "y.i"; emit i; emitLn " = lean_box(0);"
-      else if tys[i].beqApprox tys'[i]! then
+      else if tys[i].compatibleWith tys'[i]! then
         emit "y.i"; emit i; emit " = x.i"; emit i; emitLn ";"
       else
         emit "y.i"; emit i; emit " = "
@@ -1008,7 +1008,7 @@ def emitStructDecls (cont : M α) : M α := do
       emitStructDeclsFor i data[i]
     for h : i in *...data.size do
       let info := data[i]
-      for reshape in info.reboxing do
+      for reshape in info.reshapes do
         emitStructReshapeFn info.type data[reshape]!.type i reshape
     cont
 

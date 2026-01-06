@@ -75,6 +75,10 @@ def compile (decls : Array Decl) : CompilerM (Array Decl) := do
   logDecls `result decls
   checkDecls decls
   decls ← toposortDecls decls
+  if (← getOptions).getBool (tracePrefixOptionName ++ `struct_rc) ||
+      (← getOptions).getBool tracePrefixOptionName then
+    let decls2 := decls.map StructRC.visitDecl
+    log (LogEntry.step `struct_rc decls2)
   addDecls decls
   inferMeta decls
   return decls

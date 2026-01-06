@@ -12,9 +12,9 @@ public import Lean.Meta.Sym.SymM
 -- public import Lean.Meta.Sym.Main
 public import Lean.Meta.Sym.MaxFVar
 public import Lean.Meta.Sym.ReplaceS
--- public import Lean.Meta.Sym.LooseBVarsS
--- public import Lean.Meta.Sym.InstantiateS
--- public import Lean.Meta.Sym.IsClass
+public import Lean.Meta.Sym.LooseBVarsS
+public import Lean.Meta.Sym.InstantiateS
+public import Lean.Meta.Sym.IsClass
 -- public import Lean.Meta.Sym.Intro
 -- public import Lean.Meta.Sym.InstantiateMVarsS
 -- public import Lean.Meta.Sym.ProofInstInfo

@@ -422,3 +422,40 @@ run_cmd Lean.Elab.Command.liftTermElabM do
   panic! "this message should not appear"
 
 end GuardPanic
+
+section Substring
+
+/-! Tests for substring matching -/
+
+-- Test that substring mode matches when expected is a substring of actual
+/-- Unknown identifier -/
+#guard_msgs (substring := true) in
+example : α := x
+
+-- Test that substring mode works with whitespace normalization
+/-- Unknown identifier -/
+#guard_msgs (substring := true, whitespace := lax) in
+example : α := x
+
+-- Test that substring mode fails when expected is not a substring
+/--
+error: ❌️ Docstring on `#guard_msgs` does not match generated message:
+
+error: Unknown identifier `x`
+-/
+#guard_msgs in
+/-- This text does not appear -/
+#guard_msgs (substring := true) in
+example : α := x
+
+-- Test that substring mode can match a middle portion
+/-- identifier -/
+#guard_msgs (substring := true) in
+example : α := x
+
+-- Test explicit substring := false (should behave like default)
+/-- error: Unknown identifier `x` -/
+#guard_msgs (substring := false) in
+example : α := x
+
+end Substring

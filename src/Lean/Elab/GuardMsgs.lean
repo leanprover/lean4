@@ -91,6 +91,8 @@ structure GuardMsgsSpec where
   ordering : MessageOrdering := .exact
   /-- Whether to report position information. -/
   reportPositions : Bool := false
+  /-- Whether to check for substring containment instead of exact match. -/
+  substring : Bool := false
 
 def parseGuardMsgsFilterAction (action? : Option (TSyntax ``guardMsgsFilterAction)) :
     CommandElabM FilterSpec := do
@@ -121,7 +123,7 @@ def parseGuardMsgsSpec (spec? : Option (TSyntax ``guardMsgsSpec)) : CommandElabM
     | `(guardMsgsSpec| ($[$elts:guardMsgsSpecElt],*)) => pure elts
     | _ => throwUnsupportedSyntax
   let defaultFilterFn := cfg.filterFn
-  let mut { whitespace, ordering, reportPositions .. } := cfg
+  let mut { whitespace, ordering, reportPositions, substring .. } := cfg
   let mut p? : Option (Message → FilterSpec) := none
   let pushP (action : FilterSpec) (msgP : Message → Bool) (p? : Option (Message → FilterSpec))
       (msg : Message) : FilterSpec :=
@@ -139,9 +141,11 @@ def parseGuardMsgsSpec (spec? : Option (TSyntax ``guardMsgsSpec)) : CommandElabM
     | `(guardMsgsSpecElt| ordering := sorted)       => ordering := .sorted
     | `(guardMsgsSpecElt| positions := true)        => reportPositions := true
     | `(guardMsgsSpecElt| positions := false)       => reportPositions := false
+    | `(guardMsgsSpecElt| substring := true)        => substring := true
+    | `(guardMsgsSpecElt| substring := false)       => substring := false
     | _ => throwUnsupportedSyntax
   let filterFn := p?.getD defaultFilterFn
-  return { filterFn, whitespace, ordering, reportPositions }
+  return { filterFn, whitespace, ordering, reportPositions, substring }
 
 /-- An info tree node corresponding to a failed `#guard_msgs` invocation,
 used for code action support. -/
@@ -200,7 +204,7 @@ def runAndCollectMessages (cmd : Syntax) : CommandElabM MessageLog := do
   | `(command| $[$dc?:docComment]? #guard_msgs%$tk $(spec?)? in $cmd) => do
     let expected : String := (← dc?.mapM (getDocStringText ·)).getD ""
         |>.trimAscii |>.copy |> removeTrailingWhitespaceMarker
-    let { whitespace, ordering, filterFn, reportPositions } ← parseGuardMsgsSpec spec?
+    let { whitespace, ordering, filterFn, reportPositions, substring } ← parseGuardMsgsSpec spec?
     let msgs ← runAndCollectMessages cmd
     let mut toCheck : MessageLog := .empty
     let mut toPassthrough : MessageLog := .empty
@@ -219,7 +223,13 @@ def runAndCollectMessages (cmd : Syntax) : CommandElabM MessageLog := do
     let strings ← toCheck.toList.mapM (messageToString · reportPos?)
     let strings := ordering.apply strings
     let res := "---\n".intercalate strings |>.trimAscii |>.copy
-    if whitespace.apply expected == whitespace.apply res then
+    let passed := if substring then
+      -- Substring mode: check that expected appears within res (after whitespace normalization)
+      (whitespace.apply res).containsSubstr (whitespace.apply expected)
+    else
+      -- Exact mode: check equality (after whitespace normalization)
+      whitespace.apply expected == whitespace.apply res
+    if passed then
       -- Passed. Only put toPassthrough messages back on the message log
       modify fun st => { st with messages := toPassthrough }
     else
@@ -277,9 +287,7 @@ def guardMsgsCodeAction : CommandCodeAction := fun _ _ _ node => do
     for msg in msgs.toList do
       if msg.isSilent then continue
       let msgStr ← msg.data.toString
-      -- Check if "PANIC" appears in the message
-      let parts := msgStr.splitOn "PANIC"
-      if parts.length > 1 then
+      if msgStr.containsSubstr "PANIC" then
         foundPanic := true
         break
     if foundPanic then

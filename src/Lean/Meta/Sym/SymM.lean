@@ -10,6 +10,12 @@ public import Lean.Meta.Sym.AlphaShareCommon
 public import Lean.Meta.CongrTheorems
 public section
 namespace Lean.Meta.Sym
+
+register_builtin_option sym.debug : Bool := {
+  defValue := false
+  descr    := "check invariants"
+}
+
 /--
 Information about a single argument position in a function's type signature.
 
@@ -112,11 +118,13 @@ structure State where
   -/
   getLevel : PHashMap ExprPtr Level := {}
   congrInfo : PHashMap ExprPtr CongrInfo := {}
+  debug : Bool := false
 
 abbrev SymM := StateRefT State MetaM
 
-def SymM.run (x : SymM α) : MetaM α :=
-  x |>.run' {}
+def SymM.run (x : SymM α) : MetaM α := do
+  let debug := sym.debug.get (← getOptions)
+  x |>.run' { debug }
 
 /--
 Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
@@ -155,5 +163,9 @@ def shareCommonInc (e : Expr) : SymM Expr := do
 @[inherit_doc shareCommonInc]
 abbrev share (e : Expr) : SymM Expr :=
   shareCommonInc e
+
+/-- Returns `true` if `sym.debug` is set -/
+@[inline] def isDebugEnabled : SymM Bool :=
+  return (← get).debug
 
 end Lean.Meta.Sym

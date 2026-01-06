@@ -5,37 +5,45 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Sym.SymM
 public section
-namespace Lean.Meta.Grind
+namespace Lean.Meta.Sym.Internal
 /-!
 Helper functions for constructing maximally shared expressions from maximally shared expressions.
+That is, `mkAppS f a` assumes that `f` and `a` are maximally shared.
+
+These functions are in the `Internal` namespace because they can be easily misused.
+We use them to construct safe functions.
 -/
-protected def Grind.share (e : Expr) : GrindM Expr := do
-  let key : AlphaKey := ⟨e⟩
-  if let some r := (← get).scState.set.find? key then
-    return r.expr
-  else
-    modify fun s => { s with scState.set := s.scState.set.insert key }
-    return e
-
-protected def Grind.assertShared (e : Expr) : GrindM Unit := do
-  assert! (← get).scState.set.contains ⟨e⟩
-
 class MonadShareCommon (m : Type → Type) where
-  share : Expr → m Expr
+  share1 : Expr → m Expr
   assertShared : Expr → m Unit
   isDebugEnabled : m Bool
 
 @[always_inline]
 instance (m n) [MonadLift m n] [MonadShareCommon m] : MonadShareCommon n where
-  share e := liftM (MonadShareCommon.share e : m Expr)
+  share1 e := liftM (MonadShareCommon.share1 e : m Expr)
   assertShared e := liftM (MonadShareCommon.assertShared e : m Unit)
   isDebugEnabled := liftM (MonadShareCommon.isDebugEnabled : m Bool)
 
-instance : MonadShareCommon GrindM where
-  share := Grind.share
-  assertShared := Grind.assertShared
+private def dummy : AlphaKey := { expr := mkConst `__dummy__}
+
+protected def Sym.share1 (e : Expr) : SymM Expr := do
+  let prev := (← get).share.set.findD { expr := e } dummy
+  if isSameExpr prev.expr dummy.expr then
+    -- `e` is new
+    modify fun s => { s with share.set := s.share.set.insert { expr := e } }
+    return e
+  else
+    return prev.expr
+
+protected def Sym.assertShared (e : Expr) : SymM Unit := do
+  let prev := (← get).share.set.findD { expr := e } dummy
+  assert! isSameExpr prev.expr e
+
+instance : MonadShareCommon SymM where
+  share1 := Sym.share1
+  assertShared := Sym.assertShared
   isDebugEnabled := isDebugEnabled
 
 /--
@@ -47,92 +55,93 @@ abbrev AlphaShareBuilderM := ReaderT Bool AlphaShareCommonM
 /--
 Helper function for lifting a `AlphaShareBuilderM` action to `GrindM`
 -/
-abbrev liftBuilderM (k : AlphaShareBuilderM α) : GrindM α := do
-  let scState ← modifyGet fun s => (s.scState, { s with scState := {} })
-  let (a, scState) := k (← isDebugEnabled) scState
-  modify fun s => { s with scState }
+abbrev liftBuilderM (k : AlphaShareBuilderM α) : SymM α := do
+  let share ← modifyGet fun s => (s.share, { s with share := {} })
+  let (a, share) := k (← isDebugEnabled) share
+  modify fun s => { s with share }
   return a
 
-protected def Builder.share (e : Expr) : AlphaShareBuilderM Expr := do
-  let key : AlphaKey := ⟨e⟩
-  if let some r := (← get).set.find? key then
-    return r.expr
-  else
-    modify fun s => { s with set := s.set.insert key }
+protected def Builder.share1 (e : Expr) : AlphaShareBuilderM Expr := do
+  let prev := (← get).set.findD { expr := e } dummy
+  if isSameExpr prev.expr dummy.expr then
+    -- `e` is new
+    modify fun { set := set } => { set := set.insert { expr := e } }
     return e
+  else
+    return prev.expr
 
 protected def Builder.assertShared (e : Expr) : AlphaShareBuilderM Unit := do
   assert! (← get).set.contains ⟨e⟩
 
 instance : MonadShareCommon AlphaShareBuilderM where
-  share := Builder.share
+  share1 := Builder.share1
   assertShared := Builder.assertShared
   isDebugEnabled := read
 
-open MonadShareCommon (share assertShared)
+open MonadShareCommon (share1 assertShared)
 
 variable [MonadShareCommon m]
 
 def mkLitS (l : Literal) : m Expr :=
-  share <| .lit l
+  share1 <| .lit l
 
 def mkConstS (declName : Name) (us : List Level := []) : m Expr :=
-  share <| .const declName us
+  share1 <| .const declName us
 
 def mkBVarS (idx : Nat) : m Expr :=
-  share <| .bvar idx
+  share1 <| .bvar idx
 
 def mkSortS (u : Level) : m Expr :=
-  share <| .sort u
+  share1 <| .sort u
 
 def mkFVarS (fvarId : FVarId) : m Expr :=
-  share <| .fvar fvarId
+  share1 <| .fvar fvarId
 
 def mkMVarS (mvarId : MVarId) : m Expr :=
-  share <| .mvar mvarId
+  share1 <| .mvar mvarId
 
 variable [Monad m]
 
 def mkMDataS (d : MData) (e : Expr) : m Expr := do
   if (← MonadShareCommon.isDebugEnabled) then
     assertShared e
-  share <| .mdata d e
+  share1 <| .mdata d e
 
 def mkProjS (structName : Name) (idx : Nat) (struct : Expr) : m Expr := do
   if (← MonadShareCommon.isDebugEnabled) then
     assertShared struct
-  share <| .proj structName idx struct
+  share1 <| .proj structName idx struct
 
 def mkAppS (f a : Expr) : m Expr := do
   if (← MonadShareCommon.isDebugEnabled) then
     assertShared f
     assertShared a
-  share <| .app f a
+  share1 <| .app f a
 
 def mkLambdaS (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : m Expr := do
   if (← MonadShareCommon.isDebugEnabled) then
     assertShared t
     assertShared b
-  share <| .lam x t b bi
+  share1 <| .lam x t b bi
 
 def mkForallS (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : m Expr := do
   if (← MonadShareCommon.isDebugEnabled) then
     assertShared t
     assertShared b
-  share <| .forallE x t b bi
+  share1 <| .forallE x t b bi
 
 def mkLetS (x : Name) (t : Expr) (v : Expr) (b : Expr) (nondep : Bool := false) : m Expr := do
   if (← MonadShareCommon.isDebugEnabled) then
     assertShared t
     assertShared v
     assertShared b
-  share <| .letE x t v b nondep
+  share1 <| .letE x t v b nondep
 
 def mkHaveS (x : Name) (t : Expr) (v : Expr) (b : Expr) : m Expr := do
   if (← MonadShareCommon.isDebugEnabled) then
     assertShared t
     assertShared v
     assertShared b
-  share <| .letE x t v b true
+  share1 <| .letE x t v b true
 
-end Lean.Meta.Grind
+end Lean.Meta.Sym.Internal

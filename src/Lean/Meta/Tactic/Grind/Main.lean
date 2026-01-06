@@ -104,17 +104,20 @@ private def discharge? (e : Expr) : SimpM (Option Expr) := do
   else
     return none
 
-def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTactic := none) : MetaM α := do
-  let (falseExpr, scState)  := shareCommonAlpha (mkConst ``False) {}
-  let (trueExpr, scState)   := shareCommonAlpha (mkConst ``True) scState
-  let (bfalseExpr, scState) := shareCommonAlpha (mkConst ``Bool.false) scState
-  let (btrueExpr, scState)  := shareCommonAlpha (mkConst ``Bool.true) scState
-  let (natZExpr, scState)   := shareCommonAlpha (mkNatLit 0) scState
-  let (ordEqExpr, scState)  := shareCommonAlpha (mkConst ``Ordering.eq) scState
-  let (intExpr, scState)    := shareCommonAlpha Int.mkType scState
-  let simprocs := params.normProcs
+open Sym
+
+def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTactic := none) : MetaM α := Sym.SymM.run do
+  let falseExpr  ← share <| mkConst ``False
+  let trueExpr   ← share <| mkConst ``True
+  let bfalseExpr ← share <| mkConst ``Bool.false
+  let btrueExpr  ← share <| mkConst ``Bool.true
+  let natZExpr   ← share <| mkNatLit 0
+  let ordEqExpr  ← share <| mkConst ``Ordering.eq
+  let intExpr    ← share <| Int.mkType
+  /- **Note**: Consider using `Sym.simp` in the future. -/
+  let simprocs  := params.normProcs
   let simpMethods := Simp.mkMethods simprocs discharge? (wellBehavedDischarge := true)
-  let simp := params.norm
+  let simp   := params.norm
   let config := params.config
   let symPrios := params.symPrios
   let extensions := params.extensions
@@ -124,7 +127,7 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
     { config, anchorRefs?, simpMethods, simp, extensions, symPrios
       trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr
       debug }
-    |>.run' { scState }
+    |>.run' {}
 
 private def mkCleanState (mvarId : MVarId) : GrindM Clean.State := mvarId.withContext do
   let config ← getConfig

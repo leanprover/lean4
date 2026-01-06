@@ -1,7 +1,7 @@
 import Lean.Meta.Sym
-set_option grind.debug true
-open Lean Meta Grind Sym
-
+set_option sym.debug true
+open Lean Meta Sym
+open Internal
 def tst1 : SymM Unit := do
   let f ← mkConstS `f
   let e ← mkAppS (← mkAppS (← mkAppS f (← mkBVarS 0)) (← mkBVarS 1)) (← shareCommon (mkNatLit 1))
@@ -31,7 +31,7 @@ info: fun x => f x b 1
 info: fun x => f x a 1
 -/
 #guard_msgs in
-#eval SymM.run' tst1
+#eval SymM.run tst1
 
 def tst2 : SymM Unit := do
   let f ← mkConstS `f
@@ -64,4 +64,4 @@ info: f #0 x w
 info: fun (x y : Nat) => f y x w
 -/
 #guard_msgs in
-#eval SymM.run' tst2
+#eval SymM.run tst2

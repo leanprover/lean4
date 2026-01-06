@@ -14,7 +14,7 @@ Instantiates metavariables occurring in `e`, and returns a maximally shared term
 public def instantiateMVarsS (e : Expr) : SymM Expr := do
   if e.hasMVar then
     -- **Note**: If this is a bottleneck, write a new function that combines both steps.
-    Grind.shareCommon (← instantiateMVars e)
+    shareCommon (← instantiateMVars e)
   else
     return e
 

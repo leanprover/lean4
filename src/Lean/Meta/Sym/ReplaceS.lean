@@ -6,15 +6,14 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.SymM
-public import Lean.Meta.Tactic.Grind.AlphaShareBuilder
+public import Lean.Meta.Sym.AlphaShareBuilder
 namespace Lean.Meta.Sym
+open Internal
 /-!
 A version of `replace_fn.h` that ensures the resulting expression is maximally shared.
 -/
 open Grind
 abbrev M := StateT (Std.HashMap (ExprPtr × Nat) Expr) AlphaShareBuilderM
-
-export Grind (AlphaShareBuilderM liftBuilderM)
 
 def save (key : ExprPtr × Nat) (r : Expr) : M Expr := do
   modify fun cache => cache.insert key r
@@ -34,12 +33,12 @@ mutual
 @[specialize] def visit (e : Expr) (offset : Nat) (fn : Expr → Nat → AlphaShareBuilderM (Option Expr)) : M Expr := do
   match e with
   | .lit _ | .mvar _ | .bvar _ | .fvar _ | .const _ _ | .sort _ => unreachable!
-  | .app f a => mkAppS (← visitChild f offset fn) (← visitChild a offset fn)
-  | .mdata m a => mkMDataS m (← visitChild a offset fn)
-  | .proj s i a => mkProjS s i (← visitChild a offset fn)
-  | .forallE n d b bi => mkForallS n bi (← visitChild d offset fn) (← visitChild b (offset+1) fn)
-  | .lam n d b bi => mkLambdaS n bi (← visitChild d offset fn) (← visitChild b (offset+1) fn)
-  | .letE n t v b d => mkLetS n (← visitChild t offset fn) (← visitChild v offset fn) (← visitChild b (offset+1) fn) (nondep := d)
+  | .app f a => e.updateAppS! (← visitChild f offset fn) (← visitChild a offset fn)
+  | .mdata _ a => e.updateMDataS! (← visitChild a offset fn)
+  | .proj _ _ a => e.updateProjS! (← visitChild a offset fn)
+  | .forallE _ d b _ => e.updateForallS! (← visitChild d offset fn) (← visitChild b (offset+1) fn)
+  | .lam _ d b _ => e.updateLambdaS! (← visitChild d offset fn) (← visitChild b (offset+1) fn)
+  | .letE _ t v b _ => e.updateLetS! (← visitChild t offset fn) (← visitChild v offset fn) (← visitChild b (offset+1) fn)
 end
 
 /--

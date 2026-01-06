@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.CongrTheorems
@@ -12,9 +11,8 @@ public import Lean.Meta.Eqns
 public import Lean.Meta.Tactic.Simp.SimpTheorems
 public import Lean.Meta.Tactic.Simp.SimpCongrTheorems
 import Lean.Meta.Tactic.Replace
-
+import Lean.Meta.FunInfo
 public section
-
 namespace Lean.Meta
 namespace Simp
 
@@ -648,6 +646,91 @@ def congrArgs (r : Result) (args : Array Expr) : SimpM Result := do
         r ← mkCongrFun r (← dsimp arg)
       i := i + 1
     return r
+
+/-- Helper function for `simpAppUsingCongr` -/
+private def mkCongrFun' (e : Expr) (r : Result) (a : Expr) : MetaM Result := do
+  let e' := e.updateApp! r.expr a
+  match r.proof? with
+  | none   => return { expr := e', proof? := none }
+  | some hf =>
+    let α ← inferType a
+    let u ← getLevel α
+    let v ← getLevel (← inferType e)
+    let f := e.appFn!
+    let .forallE x _ βx _ ← whnfD (← inferType f)
+      | throwError "failed to build congruence proof, function expected{indentExpr f}"
+    let β := Lean.mkLambda x .default α βx
+    return { expr := e', proof? := mkApp6 (mkConst ``congrFun [u, v]) α β f r.expr hf a }
+
+/-- Helper function for `simpAppUsingCongr` -/
+private def mkCongrPrefix (declName : Name) (e : Expr) : MetaM Expr := do
+  let α ← inferType e.appArg!
+  let u ← getLevel α
+  let β ← inferType e
+  let v ← getLevel β
+  return mkApp2 (mkConst declName [u, v]) α β
+
+/-- Helper function for `simpAppUsingCongr` -/
+private def mkCongrArg' (e : Expr) (f : Expr) (r : Result) : MetaM Result := do
+  let e' := e.updateApp! f r.expr
+  match r.proof? with
+  | none   => return { expr := e', proof? := none }
+  | some ha =>
+    let h ← mkCongrPrefix ``congrArg e
+    return { expr := e', proof? := mkApp4 h e.appArg! r.expr f ha }
+
+/-- Helper function for `simpAppUsingCongr` -/
+private def mkCongr' (e : Expr) (r₁ r₂ : Result) : MetaM Result := do
+  let e' := e.updateApp! r₁.expr r₂.expr
+  match r₁.proof?, r₂.proof? with
+  | none,    none    => return { expr := e', proof? := none }
+  | some hf,  none    =>
+    let h ← mkCongrPrefix ``congrFun' e
+    return { expr := e', proof? := mkApp4 h e.appFn! r₁.expr hf r₂.expr }
+  | none,    some ha  =>
+    let h ← mkCongrPrefix ``congrArg e
+    return { expr := e', proof? := mkApp4 h e.appArg! r₂.expr r₁.expr ha }
+  | some hf, some ha =>
+    let h ← mkCongrPrefix ``congr e
+    return { expr := e', proof? := mkApp6 h e.appFn! r₁.expr e.appArg! r₂.expr hf ha }
+
+/--
+Given an application `e`, recursively simplifies its function and arguments and constructs a proof
+using `congrArg`, `congrFun`, `congrFun'` and `congr`.
+-/
+def simpAppUsingCongr (e : Expr) : SimpM Result := do
+  let f := e.getAppFn
+  let numArgs := e.getAppNumArgs
+  let cfg ← getConfig
+  let infos := (← getFunInfoNArgs f numArgs).paramInfo
+  let rec visit (e : Expr) (i : Nat) : SimpM Result := do
+    if i == 0 then
+      simp f
+    else
+      let i := i - 1
+      let .app f a := e | unreachable!
+      let fr ← visit f i
+      if h : i < infos.size then
+        let info := infos[i]
+        trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {a} hasFwdDeps: {info.hasFwdDeps}"
+        if cfg.ground && info.isInstImplicit then
+          -- We don't visit instance implicit arguments when we are reducing ground terms.
+          -- Motivation: many instance implicit arguments are ground, and it does not make sense
+          -- to reduce them if the parent term is not ground.
+          -- TODO: consider using it as the default behavior.
+          -- We have considered it at https://github.com/leanprover/lean4/pull/3151
+          mkCongrFun' e fr a
+        else if !info.hasFwdDeps then
+          mkCongr' e fr (← simp a)
+        else if (← whnfD (← inferType f)).isArrow then
+          mkCongr' e fr (← simp a)
+        else
+          mkCongrFun' e fr (← dsimp a)
+      else if (← whnfD (← inferType f)).isArrow then
+        mkCongr' e fr (← simp a)
+      else
+        mkCongrFun' e fr (← dsimp a)
+  visit e numArgs
 
 /--
 Retrieve auto-generated congruence lemma for `f`.

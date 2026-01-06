@@ -98,46 +98,64 @@ invalidating the cache and causing O(2^n) behavior on conditional trees.
 - Avoids entering control-flow binders
 -/
 
-
 /-- Configuration options for the structural simplifier. -/
 structure Config where
-  /-- If `true`, unfold let-bindings (zeta reduction) during simplification. -/
-  zetaDelta : Bool := true
   /-- Maximum number of steps that can be performed by the simplifier. -/
   maxSteps : Nat := 0
   -- **TODO**: many are still missing
 
-/-- The result of simplifying some expression `e`. -/
-structure Result where
-  /-- The simplified version of `e` -/
-  expr           : Expr
-  /-- A proof that `e = expr`, where the simplified expression is on the RHS.
-  If `none`, the proof is assumed to be `refl`. -/
-  proof?         : Option Expr := none
-
 /--
-A simplification theorem for the structural simplifier.
+The result of simplifying an expression `e`.
 
-Contains both the theorem expression and a precomputed pattern for efficient unification
-during rewriting.
+The `done` flag controls whether simplification should continue after this result:
+- `done = false` (default): Continue with subsequent simplification steps
+- `done = true`: Stop processing, return this result as final
+
+## Use cases for `done = true`
+
+### In `pre` simprocs
+Skip simplification of certain subterms entirely:
+```
+def skipLambdas : Simproc := fun e =>
+  if e.isLambda then return .rfl (done := true)
+  else return .rfl
+```
+
+### In `post` simprocs
+Perform single-pass normalization without recursive simplification:
+```
+def singlePassNormalize : Simproc := fun e =>
+  if let some (e', h) ← tryNormalize e then
+    return .step e' h (done := true)
+  else return .rfl
+```
+With `done = true`, the result `e'` won't be recursively simplified.
+
+## Behavior
+
+The `done` flag affects:
+1. **`andThen` composition**: If the first simproc returns `done = true`,
+   the second simproc is skipped.
+2. **Recursive simplification**: After `pre` or `post` returns `.step e' h`,
+   `simp` normally recurses on `e'`. With `done = true`, recursion is skipped.
+
+The flag is orthogonal to caching: both `.rfl` and `.step` results are cached
+regardless of the `done` flag, and cached results are always treated as final.
 -/
-structure Theorem where
-  /-- The theorem expression, typically `Expr.const declName` for a named theorem. -/
-  expr    : Expr
-  /-- Precomputed pattern extracted from the theorem's type for efficient matching. -/
-  pattern : Pattern
-  /-- Right-hand side of the equation. -/
-  rhs     : Expr
+inductive Result where
+  /-- No change. If `done = true`, skip remaining simplification steps for this term. -/
+  | rfl (done : Bool := false)
+  /--
+  Simplified to `e'` with proof `proof : e = e'`.
+  If `done = true`, skip recursive simplification of `e'`. -/
+  | step (e' : Expr) (proof : Expr) (done : Bool := false)
 
-/-- Collection of simplification theorems available to the simplifier. -/
-structure Theorems where
-  /-- **TODO**: No indexing for now. We will add a structural discrimination tree later. -/
-  thms : Array Theorem := #[]
+private opaque MethodsRefPointed : NonemptyType.{0}
+def MethodsRef : Type := MethodsRefPointed.type
+instance : Nonempty MethodsRef := by exact MethodsRefPointed.property
 
 /-- Read-only context for the simplifier. -/
 structure Context where
-  /-- Available simplification theorems. -/
-  thms   : Theorems := {}
   /-- Simplifier configuration options. -/
   config : Config := {}
   /-- Size of the local context when simplification started.
@@ -159,30 +177,68 @@ structure State where
   binderStack : List (ExprPtr × FVarId) := []
   /-- Number of steps performed so far. -/
   numSteps := 0
+  /-- Cache for generated funext theorems -/
+  funext : PHashMap ExprPtr Expr := {}
 
 /-- Monad for the structural simplifier, layered on top of `SymM`. -/
-abbrev SimpM := ReaderT Context StateRefT State SymM
+abbrev SimpM := ReaderT MethodsRef $ ReaderT Context StateRefT State SymM
 
 instance : Inhabited (SimpM α) where
   default := throwError "<default>"
 
+abbrev Simproc := Expr → SimpM Result
+
+structure Methods where
+  pre        : Simproc  := fun _ => return .rfl
+  post       : Simproc  := fun _ => return .rfl
+  discharge? : Expr → SimpM (Option Expr) := fun _ => return none
+  /--
+  `wellBehavedDischarge` must **not** be set to `true` IF `discharge?`
+  access local declarations with index >= `Context.lctxInitIndices` when
+  `contextual := false`.
+  Reason: it would prevent us from aggressively caching `simp` results.
+  -/
+  wellBehavedDischarge : Bool := true
+  deriving Inhabited
+
+unsafe def Methods.toMethodsRefImpl (m : Methods) : MethodsRef :=
+  unsafeCast m
+
+@[implemented_by Methods.toMethodsRefImpl]
+opaque Methods.toMethodsRef (m : Methods) : MethodsRef
+
+unsafe abbrev MethodsRef.toMethodsImpl (m : MethodsRef) : Methods :=
+  unsafeCast m
+
+@[implemented_by MethodsRef.toMethodsImpl]
+opaque MethodsRef.toMethods (m : MethodsRef) : Methods
+
+def getMethods : SimpM Methods :=
+  return MethodsRef.toMethods (← read)
+
 /-- Runs a `SimpM` computation with the given theorems and configuration. -/
-abbrev SimpM.run (x : SimpM α) (thms : Theorems := {}) (config : Config := {}) : SymM α := do
+def SimpM.run (x : SimpM α) (methods : Methods := {}) (config : Config := {}) : SymM α := do
   let initialLCtxSize := (← getLCtx).decls.size
-  x { initialLCtxSize, thms, config } |>.run' {}
+  x methods.toMethodsRef { initialLCtxSize, config } |>.run' {}
 
 @[extern "lean_sym_simp"] -- Forward declaration
-opaque simp (e : Expr) : SimpM Result
+opaque simp : Simproc
 
 def getConfig : SimpM Config :=
-  return (← read).config
+  return (← readThe Context).config
 
 abbrev getCache : SimpM Cache :=
   return (← get).cache
 
+abbrev pre : Simproc := fun e => do
+  (← getMethods).pre e
+
+abbrev post : Simproc := fun e => do
+  (← getMethods).post e
+
 end Simp
 
-public def simp (e : Expr) (thms : Simp.Theorems := {}) (config : Simp.Config := {}) : SymM Simp.Result := do
-  Simp.SimpM.run (Simp.simp e) thms config
+abbrev simp (e : Expr) (methods :  Simp.Methods := {}) (config : Simp.Config := {}) : SymM Simp.Result := do
+  Simp.SimpM.run (Simp.simp e) methods config
 
 end Lean.Meta.Sym

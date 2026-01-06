@@ -22,8 +22,9 @@ structure Context extends Tactic.Context where
 open Meta.Grind (Goal)
 
 structure State where
-  state : Meta.Grind.State
-  goals : List Goal
+  symState   : Meta.Sym.State
+  grindState : Meta.Grind.State
+  goals      : List Goal
 
 structure SavedState where
   term   : Term.SavedState
@@ -288,8 +289,8 @@ open Grind
 def liftGrindM (k : GrindM α) : GrindTacticM α := do
   let ctx ← read
   let s ← get
-  let (a, state) ← liftMetaM <| (Grind.withGTransparency k) ctx.methods.toMethodsRef ctx.ctx |>.run s.state
-  modify fun s => { s with state }
+  let ((a, grindState), symState) ← liftMetaM <| StateRefT'.run ((Grind.withGTransparency k) ctx.methods.toMethodsRef ctx.ctx |>.run s.grindState) s.symState
+  modify fun s => { s with grindState, symState }
   return a
 
 def replaceMainGoal (goals : List Goal) : GrindTacticM Unit := do
@@ -358,15 +359,17 @@ def mkEvalTactic' (elaborator : Name) (params : Params) : TermElabM (Goal → TS
     let methods ← getMethods
     let grindCtx ← readThe Meta.Grind.Context
     let grindState ← get
+    let symState ← getThe Sym.State
     -- **Note**: we discard changes to `Term.State`
-    let (subgoals, grindState') ← Term.TermElabM.run' (ctx := termCtx) (s := termState) do
+    let (subgoals, grindState', symState') ← Term.TermElabM.run' (ctx := termCtx) (s := termState) do
       let (_, s) ← GrindTacticM.run
             (ctx := { recover := false, methods, ctx := grindCtx, params, elaborator })
-            (s := { state := grindState, goals := [goal] }) do
+            (s := { grindState, symState, goals := [goal] }) do
         evalGrindTactic stx.raw
         pruneSolvedGoals
-      return (s.goals, s.state)
+      return (s.goals, s.grindState, s.symState)
     set grindState'
+    set symState'
     return subgoals
   return eval
 
@@ -389,8 +392,9 @@ def GrindTacticM.runAtGoal (mvarId : MVarId) (params : Params) (k : GrindTacticM
       let ctx ← readThe Meta.Grind.Context
       /- Restore original config -/
       let ctx := { ctx with config := params.config }
-      let state ← get
-      pure (methods, ctx, { state, goals })
+      let grindState ← get
+      let symState ← getThe Sym.State
+      return (methods, ctx, { grindState, symState, goals })
   let tctx ← read
   k { tctx with methods, ctx, params } |>.run state
 

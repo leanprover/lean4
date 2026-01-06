@@ -1,7 +1,6 @@
 import Lean.Meta.Sym
-import Lean.Meta.Tactic.Grind.AlphaShareBuilder
-open Lean Meta Grind Sym
-
+open Lean Meta Sym
+open Internal
 def checkMaxFVar (e : Expr) (x : Expr) : SymM Unit := do
   let some fvarId ← getMaxFVar? e | unreachable!
   assert! x.fvarId! == fvarId
@@ -13,7 +12,7 @@ def test1 : MetaM Unit := do
   withLocalDeclD `y nat fun y => do
   let m₂ ← mkFreshExprMVar nat
   withLocalDeclD `z nat fun z => do
-  SymM.run' do
+  SymM.run do
   let x ← shareCommon x
   let y ← shareCommon y
   let z ← shareCommon z

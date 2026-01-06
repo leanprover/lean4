@@ -16,14 +16,13 @@ y : Nat := x + 1
 ⊢ x ≤ 2 * y
 -/
 #guard_msgs in
-run_meta SymM.run' do
+run_meta SymM.run do
   withLocalDeclD `x Nat.mkType fun x => do
   let m ← mkFreshExprMVar <| mkNatLE x (mkApp (mkConst ``f) x)
   let mvarId := m.mvarId!
   let mvarId ← unfoldTarget mvarId ``f
   let mvarId ← mvarId.liftLets
-  let goal ← mkGoal mvarId
-  logInfo goal.mvarId
-  let (_, goal) ← intro goal `y
-  logInfo goal.mvarId
+  logInfo mvarId
+  let (_, mvarId) ← intro mvarId `y
+  logInfo mvarId
   return ()

@@ -27,7 +27,7 @@ info: @Eq.refl ↦ none
 info: @congrArg ↦ none
 -/
 #guard_msgs in
-run_meta SymM.run' do
+run_meta SymM.run do
   logCongrInfo <| mkConst ``HAdd.hAdd [0, 0, 0]
   logCongrInfo <| mkConst ``And
   logCongrInfo <| mkConst ``Eq [1]

@@ -7,6 +7,7 @@ module
 prelude
 public import Lean.Meta.Sym.SymM
 import Lean.Meta.Sym.IsClass
+import Lean.Meta.Tactic.Grind.Util
 namespace Lean.Meta.Sym
 
 /--

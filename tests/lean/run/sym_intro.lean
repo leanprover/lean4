@@ -1,4 +1,4 @@
-import Lean.Meta.Sym
+import Lean
 
 macro "gen_term" n:num : term => do
   let mut stx ← `(True)
@@ -9,10 +9,9 @@ macro "gen_term" n:num : term => do
 open Lean Meta Sym Elab Tactic
 
 def test (mvarId : MVarId) : MetaM MVarId := do
-  SymM.run' do
-    let goal ← mkGoal mvarId
-    let (_, goal) ← intros goal
-    return goal.mvarId
+  SymM.run do
+    let (_, mvarId) ← intros mvarId
+    return mvarId
 
 /--
 trace: z✝² : Nat := 0

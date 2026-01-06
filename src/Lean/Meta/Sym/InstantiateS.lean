@@ -10,8 +10,7 @@ import Lean.Meta.Sym.ReplaceS
 import Lean.Meta.Sym.LooseBVarsS
 import Init.Grind
 namespace Lean.Meta.Sym
-open Grind
-
+open Internal
 /--
 Similar to `Lean.Expr.instantiateRevRange`.
 It assumes the input is maximally shared, and ensures the output is too.
@@ -68,7 +67,7 @@ def instantiateRangeS' (e : Expr) (beginIdx endIdx : Nat) (subst : Array Expr) :
           let v := subst[idx - s₁]
           liftLooseBVarsS' v 0 offset
         else
-          Grind.mkBVarS (idx - n)
+          mkBVarS (idx - n)
       else
         return some e
     | .lit _ | .mvar _ | .fvar _ | .const _ _ | .sort _ =>
@@ -166,34 +165,39 @@ where
       if let some r := (← get)[key]? then
         return r
       else
-        save key (← mkAppS (← visitAppDefault f offset) (← visitChild a offset))
+        save key (← e.updateAppS! (← visitAppDefault f offset) (← visitChild a offset))
     | e => visitChild e offset
 
-  visitAppBeta (f : Expr) (argsRev : Array Expr) (offset : Nat) : M Expr := do
+  visitAppBeta (e : Expr) (f : Expr) (argsRev : Array Expr) (offset : Nat) (modified : Bool) : M Expr := do
     match f with
-    | .app f a => visitAppBeta f (argsRev.push (← visitChild a offset)) offset
+    | .app f a =>
+      let a' ← visitChild a offset
+      visitAppBeta e f (argsRev.push a') offset (modified || !isSameExpr a a')
     | .bvar bidx =>
-      let f ← visitBVar f bidx offset
-      betaRevS f argsRev
+      let f' ← visitBVar f bidx offset
+      if modified || !isSameExpr f f' then
+        betaRevS f' argsRev
+      else
+        return e
     | _ => unreachable!
 
-  visitApp (f : Expr) (arg : Expr) (offset : Nat) : M Expr := do
-    let arg ← visitChild arg offset
+  visitApp (e : Expr) (f : Expr) (arg : Expr) (offset : Nat) (_ : e = .app f arg) : M Expr := do
+    let arg' ← visitChild arg offset
     if f.getAppFn.isBVar then
-      visitAppBeta f #[arg] offset
+      visitAppBeta e f #[arg'] offset (!isSameExpr arg arg')
     else
-      mkAppS (← visitAppDefault f offset) arg
+      e.updateAppS! (← visitAppDefault f offset) arg'
 
   visit (e : Expr) (offset : Nat) : M Expr := do
-    match e with
+    match h : e with
     | .lit _ | .mvar _ | .fvar _ | .const _ _ | .sort _ => unreachable!
     | .bvar bidx => visitBVar e bidx offset
-    | .app f a => visitApp f a offset
-    | .mdata m a => mkMDataS m (← visitChild a offset)
-    | .proj s i a => mkProjS s i (← visitChild a offset)
-    | .forallE n d b bi => mkForallS n bi (← visitChild d offset) (← visitChild b (offset+1))
-    | .lam n d b bi => mkLambdaS n bi (← visitChild d offset) (← visitChild b (offset+1))
-    | .letE n t v b d => mkLetS n (← visitChild t offset) (← visitChild v offset) (← visitChild b (offset+1)) (nondep := d)
+    | .app f a => visitApp e f a offset h
+    | .mdata _ a => e.updateMDataS! (← visitChild a offset)
+    | .proj _ _ a => e.updateProjS! (← visitChild a offset)
+    | .forallE _ d b _ => e.updateForallS! (← visitChild d offset) (← visitChild b (offset+1))
+    | .lam _ d b _ => e.updateLambdaS! (← visitChild d offset) (← visitChild b (offset+1))
+    | .letE _ t v b _ => e.updateLetS! (← visitChild t offset) (← visitChild v offset) (← visitChild b (offset+1))
 
 /--
 Similar to `instantiateRevS`, but beta-reduces nested applications whose function becomes a lambda

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.AppBuilder
 public import Lean.Compiler.CSimpAttr
@@ -12,9 +11,8 @@ public import Lean.Compiler.ImplementedByAttr
 public import Lean.Compiler.LCNF.Bind
 public import Lean.Compiler.NeverExtractAttr
 import Lean.Meta.CasesInfo
-
+import Lean.Meta.WHNF
 public section
-
 namespace Lean.Compiler.LCNF
 namespace ToLCNF
 

@@ -366,8 +366,10 @@ instance : GetElem? (List α) Nat α fun as i => i < as.length where
 theorem none_eq_getElem?_iff {l : List α} {i : Nat} : none = l[i]? ↔ length l ≤ i := by
   simp [eq_comm (a := none)]
 
-@[grind =]
 theorem getElem?_eq_none (h : length l ≤ i) : l[i]? = none := getElem?_eq_none_iff.mpr h
+
+grind_pattern getElem?_eq_none => l.length, l[i]? where
+  guard l.length ≤ i
 
 instance : LawfulGetElem (List α) Nat α fun as i => i < as.length where
   getElem?_def as i h := by

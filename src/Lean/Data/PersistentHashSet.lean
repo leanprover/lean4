@@ -45,6 +45,9 @@ variable {_ : BEq α} {_ : Hashable α}
   | some (a, _) => some a
   | none        => none
 
+@[inline] def findD (s : PersistentHashSet α) (a : α) (a₀ : α) : α :=
+  s.set.findKeyD a a₀
+
 @[inline] def contains (s : PersistentHashSet α) (a : α) : Bool :=
   s.set.contains a
 

@@ -67,6 +67,9 @@ theorem none_eq_getElem?_iff {l : BitVec w} : none = l[n]? ↔ w ≤ n := by
 @[simp]
 theorem getElem?_eq_none {l : BitVec w} (h : w ≤ n) : l[n]? = none := getElem?_eq_none_iff.mpr h
 
+grind_pattern BitVec.getElem?_eq_none => l[n]? where
+  guard w ≤ n
+
 theorem getElem?_eq (l : BitVec w) (i : Nat) :
     l[i]? = if h : i < w then some l[i] else none := by
   split <;> simp_all

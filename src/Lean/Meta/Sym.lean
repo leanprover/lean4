@@ -5,9 +5,10 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
+public import Lean.Meta.Sym.AlphaShareBuilder
+public import Lean.Meta.Sym.AlphaShareCommon
+public import Lean.Meta.Sym.ExprPtr
 public import Lean.Meta.Sym.SymM
-public import Lean.Meta.Sym.Main
-public import Lean.Meta.Sym.Util
 public import Lean.Meta.Sym.MaxFVar
 public import Lean.Meta.Sym.ReplaceS
 public import Lean.Meta.Sym.LooseBVarsS
@@ -20,12 +21,8 @@ public import Lean.Meta.Sym.AbstractS
 public import Lean.Meta.Sym.Pattern
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.InferType
-public import Lean.Meta.Sym.SimpM
-public import Lean.Meta.Sym.CongrInfo
-public import Lean.Meta.Sym.EqTrans
-public import Lean.Meta.Sym.Congr
-public import Lean.Meta.Sym.SimpResult
 public import Lean.Meta.Sym.Simp
+public import Lean.Meta.Sym.Util
 
 /-!
 # Symbolic simulation support.
@@ -64,6 +61,46 @@ whether `maxFVar[e]` is in `?m.lctx` — a single hash lookup, O(1).
 
 **Maintaining `maxFVar`:** The mapping is automatically updated when we use `getMaxFVar?`.
 
+### Structural matching and definitional equality
+
+**The problem:** The `isDefEq` predicate in `MetaM` is designed for elaboration and user-facing tactics.
+It supports reduction, type-class resolution, and many other features that can be expensive or have
+unpredictable running time. For symbolic simulation, where pattern matching is called frequently on
+large ground terms, these features become performance bottlenecks.
+
+**The solution:** In `SymM`, pattern matching and definitional equality are restricted to a more syntactic,
+predictable subset. Key design choices:
+
+1. **Reducible declarations are abbreviations.** Reducible declarations are eagerly expanded when indexing
+   terms and when entering symbolic simulation mode. During matching, we assume abbreviations have already
+   been expanded.
+
+  **Why `MetaM` `simp` cannot make this assumption**: The simplifier in `MetaM` is designed for interactive use,
+  where users want to preserve their abstractions. Even reducible definitions may represent meaningful
+  abstractions that users may not want unfolded. For example, when applying `simp` to `x ≥ y`, users
+  typically do not want it transformed to `y ≤ x` just because `GE.ge` is a reducible abbreviation.
+
+2. **Proofs are ignored.** We skip proof arguments during matching due to proof irrelevance. Proofs are
+   "noisy": they are typically built using different automation or manually, so we can have radically
+   different proof terms for the same trivial fact.
+
+3. **Instances are ignored.** Lean's class hierarchy contains many diamonds. For example, `Add Nat` can be
+   obtained directly from the `Nat` library or derived from the fact that `Nat` is a `Semiring`. Proof
+   automation like `grind` attempts to canonicalize instances, but this is expensive. Instead, we treat
+   instances as support terms and skip them during matching, and we check them later using the standard
+   definitionally equality test in a mode where only reducible and instance declarations are unfolded.
+
+   **The implicit assumption:** If two terms have the same instance type, they are definitionally equal.
+   This holds in well-designed Lean code. For example, the `Add Nat` instance from the `Nat` library is
+   definitionally equal to the one derived from `Semiring`, and this can be established by unfolding only
+   reducible and instance declarations. Code that violates this assumption is considered misuse of Lean's
+   instance system.
+
+4. **Types must be indexed.** Unlike proofs and instances, types cannot be ignored, without indexing them,
+   pattern matching produces too many candidates. Like other abbreviations, type abbreviations are expanded.
+   Note that given `def Foo : Type := Bla`, the terms `Foo` and `Bla` are *not* considered structurally
+   equal in the symbolic simulator framework.
+
 ### Skipping type checks on assignment
 
 **The problem:** In `MetaM`, assigning `?m := v` requires checking that `typeof(?m)` is definitionally
@@ -77,17 +114,6 @@ the terms were constructed. `SymM` tracks whether types are ground and skips the
 Checks are also skipped when nothing new can be learned from them assuming terms are all well-typed.
 For domain-specific constructors (e.g., `Exec.seq` in symbolic execution), types are typically ground,
 so the check is almost always skipped.
-
-### A syntactic definitional equality test
-
-**The problem:** The `isDefEq` predicate in `MetaM` is optimized for elaboration and user-facing tactics.
-It supports reduction, type-class resolution, and many other features that can be expensive or have
-unpredictable running time. For symbolic simulation, where `isDefEq` is called frequently, this can
-cause unexpected slowdowns.
-
-**The solution:** In `SymM`, the definitional equality test is optimized for the syntactic case. It avoids
-expensive steps such as lazy-delta reduction. Reduction rules such as `beta` are implemented with term
-size and algorithmic complexity in mind, ensuring predictable performance.
 
 ### `GrindM` state
 

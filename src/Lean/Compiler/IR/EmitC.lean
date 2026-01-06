@@ -904,7 +904,7 @@ def emitStructReshapeFn (origin target : IRType) (id1 id2 : Nat) : M Unit := do
         emit "(x.cs.c"; emit i; emitLn ");"
   | .struct _ tys us ss, .struct _ tys' _ _ =>
     if us ≠ 0 ∨ ss ≠ 0 then
-      emit "memcpy(&y, &x, sizeof(size_t)*"; emit us; emit "+"; emit ss; emitLn ");"
+      emit "memcpy(y.u, x.u, sizeof(size_t)*"; emit us; emit "+"; emit ss; emitLn ");"
     for h : i in *...tys.size do
       if tys'[i]! matches .erased | .void then
         continue
@@ -937,7 +937,7 @@ def emitStructBox (ty : IRType) (cidx : Nat) (x : String) : M Unit := do
   emit ", sizeof(size_t)*"; emit us; emit "+"; emit ss
   emitLn ");"
   if us ≠ 0 ∨ ss ≠ 0 then
-    emit "memcpy(lean_ctor_scalar_cptr(y), &x, sizeof(size_t)*"
+    emit "memcpy(lean_ctor_scalar_cptr(y), "; emit x; emit ".u, sizeof(size_t)*"
     emit us; emit "+"; emit ss; emitLn ");"
   for h : i in *...tys.size do
     emit "lean_ctor_set(y, "; emit i; emit ", "
@@ -977,7 +977,7 @@ def emitStructUnboxFn (ty : IRType) (id : Nat) : M Unit := do
   else
     let .struct _ tys us ss := ty | unreachable!
     if us ≠ 0 ∨ ss ≠ 0 then
-      emit "memcpy(&y, lean_ctor_scalar_cptr(x), sizeof(size_t)*"
+      emit "memcpy(y.u, lean_ctor_scalar_cptr(x), sizeof(size_t)*"
       emit us; emit "+"; emit ss; emitLn ");"
     for h : i in *...tys.size do
       if tys[i] matches .erased | .void then

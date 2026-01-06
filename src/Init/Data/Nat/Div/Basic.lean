@@ -167,7 +167,7 @@ def mod.inductionOn.{u}
       : motive x y :=
   div.inductionOn x y ind base
 
-@[simp] theorem mod_zero (a : Nat) : a % 0 = a :=
+@[simp, grind=] theorem mod_zero (a : Nat) : a % 0 = a :=
   have : (if 0 < 0 ∧ 0 ≤ a then (a - 0) % 0 else a) = a :=
     have h : ¬ (0 < 0 ∧ 0 ≤ a) := fun ⟨h₁, _⟩ => absurd h₁ (Nat.lt_irrefl _)
     if_neg h
@@ -414,6 +414,9 @@ theorem div_eq_of_lt (h₀ : a < b) : a / b = 0 := by
   intro h₁
   apply Nat.not_le_of_gt h₀ h₁.right
 
+grind_pattern div_eq_of_lt => a / b where
+  guard a < b
+
 protected theorem mul_div_cancel (m : Nat) {n : Nat} (H : 0 < n) : m * n / n = m := by
   let t := add_mul_div_right 0 m H
   rwa [Nat.zero_add, Nat.zero_div, Nat.zero_add] at t
@@ -434,6 +437,9 @@ protected theorem div_le_of_le_mul {m n : Nat} : ∀ {k}, m ≤ k * n → m / k 
 
 @[simp] theorem mul_div_right (n : Nat) {m : Nat} (H : 0 < m) : m * n / m = n := by
   induction n <;> simp_all [mul_succ]
+
+grind_pattern mul_div_right => m * n / m where
+  guard 0 < m
 
 @[simp] theorem mul_div_left (m : Nat) {n : Nat} (H : 0 < n) : m * n / n = m := by
   rw [Nat.mul_comm, mul_div_right _ H]

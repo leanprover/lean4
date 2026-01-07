@@ -647,7 +647,7 @@ inductive Iter.IsPlausibleIndirectSuccessorOf {α : Type w} {β : Type w} [Itera
     Iter (α := α) β → Iter (α := α) β → Prop where
   /-- Every iterator is a plausible indirect successor of itself. -/
   | refl (it : Iter (α := α) β) : IsPlausibleIndirectSuccessorOf it it
-  /-- The iterator is a plausible successor of one of the current iterator's successors. -/
+  /-- The iterator is a plausible indirect successor of one of the current iterator's successors. -/
   | cons_right {it'' it' it : Iter (α := α) β} (h' : it''.IsPlausibleIndirectSuccessorOf it')
       (h : it'.IsPlausibleSuccessorOf it) : it''.IsPlausibleIndirectSuccessorOf it
 

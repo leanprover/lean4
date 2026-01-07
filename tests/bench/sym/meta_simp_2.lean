@@ -10,13 +10,20 @@ namespace SimpBench
 def getProofSize (r : Simp.Result) : MetaM Nat := do
   (← r.getProof).numObjs
 
+def checkWithKernel (r : Simp.Result) : MetaM Float := do
+  let p := ShareCommon.shareCommon' (← r.getProof)
+  let startTime ← IO.monoNanosNow
+  Meta.checkWithKernel p
+  let endTime ← IO.monoNanosNow
+  return (endTime - startTime).toFloat / 1000000.0
+
 def mkSimpContext (config : Simp.Config := {}) : MetaM Simp.Context := do
   let s : SimpTheorems := {}
   let s ← s.addConst ``Nat.zero_add
   let config := { config with implicitDefEqProofs := false }
   Simp.mkContext config #[s] {}
 
-def simp (e : Expr) : MetaM (Simp.Result × Float) := Sym.SymM.run' do
+def simp (e : Expr) : MetaM (Simp.Result × Float) := do
   -- let e ← Grind.shareCommon e
   let startTime ← IO.monoNanosNow
   let (r, _) ← Meta.simp e (← mkSimpContext)
@@ -37,23 +44,27 @@ def mkLambdaBench (n : Nat) : MetaM Expr := do
         go n (xs.push x) (mkNatAdd zero (mkNatAdd e x))
   go n #[] zero
 
-def benchLambda (n : Nat) : MetaM Unit := do
+def benchLambda (n : Nat) (check := false) : MetaM Unit := do
   let e ← mkLambdaBench n
   let (r, timeMs) ← simp e
   let proofSize ← getProofSize r
-  IO.println s!"lambda_{n}: {timeMs}ms, proof_size={proofSize}"
+  if check then
+    let kMs ← checkWithKernel r
+    IO.println s!"lambda_{n}: {timeMs}ms, kernel: {kMs}ms, proof_size={proofSize}"
+  else
+    IO.println s!"lambda_{n}: {timeMs}ms, proof_size={proofSize}"
 
 set_option maxRecDepth 100000
 
 /-! ## Run all benchmarks -/
 def runAllBenchmarks : MetaM Unit := do
-  IO.println "=== Simplifier Stress Tests ==="
+  IO.println "=== Simplifier Lambda Telescope Stress Tests using `Meta.simp` ==="
   IO.println ""
 
   IO.println ""
-  IO.println "--- Benchmark 1: Transitivity chain ---"
+  IO.println "--- Benchmark 1: Lambda Telescope block ---"
   for n in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200] do
-    benchLambda n
+    benchLambda n (n < 500)
 
 #eval runAllBenchmarks
 

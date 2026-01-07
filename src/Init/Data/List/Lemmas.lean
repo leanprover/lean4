@@ -2941,9 +2941,6 @@ theorem getLast?_replicate {a : α} {n : Nat} : (replicate n a).getLast? = if n 
 
 /-! ### leftpad -/
 
--- We unfold `leftpad` and `rightpad` for verification purposes.
-attribute [simp, grind =] leftpad rightpad
-
 -- `length_leftpad` and `length_rightpad` are in `Init.Data.List.Nat.Basic`.
 
 theorem leftpad_prefix {n : Nat} {a : α} {l : List α} :

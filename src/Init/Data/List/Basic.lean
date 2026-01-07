@@ -717,6 +717,7 @@ Examples:
  * `["red", "green", "blue"].leftpad 3 "blank" = ["red", "green", "blue"]`
  * `["red", "green", "blue"].leftpad 1 "blank" = ["red", "green", "blue"]`
 -/
+@[simp, grind =]
 def leftpad (n : Nat) (a : α) (l : List α) : List α := replicate (n - length l) a ++ l
 
 
@@ -730,6 +731,7 @@ Examples:
  * `["red", "green", "blue"].rightpad 3 "blank" = ["red", "green", "blue"]`
  * `["red", "green", "blue"].rightpad 1 "blank" = ["red", "green", "blue"]`
 -/
+@[simp, grind =]
 def rightpad (n : Nat) (a : α) (l : List α) : List α := l ++ replicate (n - length l) a
 
 /-! ### reduceOption -/

@@ -52,6 +52,16 @@ public instance : Nonempty Workspace :=
 
 public hydrate_opaque_type OpaqueWorkspace Workspace
 
+/-- Returns the names of the root modules of the package's default targets. -/
+public def Package.defaultTargetRoots (self : Package) : Array Lean.Name :=
+  self.defaultTargets.flatMap fun target =>
+    if let some lib := self.findLeanLib? target then
+      lib.roots
+    else if let some exe := self.findLeanExe? target then
+      #[exe.root.name]
+    else
+      #[]
+
 namespace Workspace
 
 /-- **For internal use.** Whether this workspace is Lean itself.  -/
@@ -101,6 +111,10 @@ public def isRootArtifactCacheEnabled (ws : Workspace) : Bool :=
 /-- Options to pass to the Lean server when editing Lean files outside a library. -/
 @[inline] public def serverOptions (self : Workspace) : LeanOptions :=
   self.root.moreServerOptions
+
+/-- Returns the names of the root modules of the workpace root's default targets. -/
+@[inline] public def defaultTargetRoots (self : Workspace) : Array Lean.Name :=
+  self.root.defaultTargetRoots
 
 /-- The workspace's Lake manifest. -/
 @[inline] public def manifestFile (self : Workspace) : FilePath :=

@@ -9,7 +9,6 @@ prelude
 public import Init.Prelude
 public import Init.System.IO
 public import Lean.Util.Path
-import Lake.Load.Workspace
 import Lean.Environment
 import Lean.ExtraModUses
 import Lean.Parser.Module
@@ -621,7 +620,7 @@ local instance : Ord Import where
     compareOn fun imp => (!imp.isExported, imp.module.toString)
 
 /-- Run the shake analysis with the given arguments. -/
-public def run (args : Args) (defaultTargetModules : Array Name)
+public def run' (args : Args) (h : 0 < args.mods.size)
     (oleanSearchPath : SearchPath := {}) (srcSearchPath : SearchPath := {}) : IO UInt32 := do
   -- Initialize search paths: use provided paths or fall back to environment
   if oleanSearchPath.isEmpty then
@@ -636,12 +635,9 @@ public def run (args : Args) (defaultTargetModules : Array Name)
 
   let srcSearchPath ← if srcSearchPath.isEmpty then getSrcSearchPath else pure srcSearchPath
   -- the list of root modules
-  let mods := if args.mods.isEmpty then defaultTargetModules else args.mods
-  if mods.isEmpty then
-    IO.println "No modules specified and no default targets found"
-    return 1
+  let mods := args.mods
   -- Only submodules of `pkg` will be edited or have info reported on them
-  let pkg := mods[0]!.components.head!
+  let pkg := mods[0].getRoot
 
   -- Load all the modules
   let imps := mods.map ({ module := · })
@@ -725,25 +721,11 @@ public def run (args : Args) (defaultTargetModules : Array Name)
     println! "No edits required."
   return 0
 
-end Lake.Shake
-
-namespace Lake
-
-/-- Parse shake-specific options from command-line arguments. -/
-public def parseShakeArgs (argList : List String) : Shake.Args × Array Name := Id.run do
-  let rec go (args : Shake.Args) : List String → Shake.Args × Array Name
-    | [] => (args, args.mods)
-    | "--keep-implied" :: rest => go { args with keepImplied := true } rest
-    | "--keep-prefix" :: rest => go { args with keepPrefix := true } rest
-    | "--keep-public" :: rest => go { args with keepPublic := true } rest
-    | "--add-public" :: rest => go { args with addPublic := true } rest
-    | "--force" :: rest => go { args with force := true } rest
-    | "--fix" :: rest => go { args with fix := true } rest
-    | "--explain" :: rest => go { args with explain := true } rest
-    | "--trace" :: rest => go { args with trace := true } rest
-    | "--gh-style" :: rest => go { args with githubStyle := true } rest
-    | "--" :: rest => ({ args with mods := args.mods ++ rest.map (·.toName) }, args.mods ++ rest.map (·.toName))
-    | other :: rest => go { args with mods := args.mods.push other.toName } rest
-  go {} argList
-
-end Lake
+/-- Run the shake analysis with the given arguments. -/
+public def run (args : Args)
+    (oleanSearchPath : SearchPath := {}) (srcSearchPath : SearchPath := {}) : IO UInt32 := do
+  if h : 0 < args.mods.size then
+    run' args h oleanSearchPath srcSearchPath
+  else
+    println! "No modules specified."
+    return 1

@@ -33,6 +33,8 @@ protected def compare : Position → Position → Ordering
 
 instance : Ord Position := ⟨Position.compare⟩
 
+instance : LE Position := leOfOrd
+
 instance : ToFormat Position :=
   ⟨fun ⟨l, c⟩ => "⟨" ++ format l ++ ", " ++ format c ++ "⟩"⟩
 

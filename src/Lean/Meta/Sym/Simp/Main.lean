@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
+import Lean.Meta.MonadSimp
+import Lean.Meta.HaveTelescope
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.Result
@@ -14,6 +16,13 @@ import Lean.Meta.Sym.Simp.Congr
 import Lean.Meta.Sym.Simp.Funext
 namespace Lean.Meta.Sym.Simp
 open Internal
+
+instance : MonadSimp SimpM where
+  dsimp e := return e
+  withNewLemmas _ k := k
+  simp e := do match (← simp (← share e)) with
+    | .rfl _ => return .rfl
+    | .step e' h _ => return .step e' h
 
 def simpLambda (e : Expr) : SimpM Result := do
   -- **TODO**: Add free variable reuse
@@ -41,9 +50,16 @@ def simpForall (_ : Expr) : SimpM Result := do
   -- **TODO**
   return .rfl
 
-def simpLet (_ : Expr) : SimpM Result := do
-  -- **TODO**
-  return .rfl
+def simpLet (e : Expr) : SimpM Result := do
+  if !e.letNondep! then
+    /-
+    **Note**: We don't do anything if it is a dependent `let`.
+    Users may decide to `zeta`-expand them or apply `letToHave` at `pre`/`post`.
+    -/
+    return .rfl
+  else match (← Meta.simpHaveTelescope e) with
+    | .rfl => return .rfl
+    | .step e' h => return .step (← shareCommon e') h
 
 def simpApp (e : Expr) : SimpM Result := do
   congrArgs e

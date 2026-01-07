@@ -232,16 +232,20 @@ or an element `head : α` followed by a list `tail : List α`.
 See [Inductive types](https://lean-lang.org/theorem_proving_in_lean4/inductive_types.html)
 for more information.
 -/
+-- Parser that accepts both `where` and `Where` (for typo recovery).
+-- We use `symbol` rather than `nonReservedSymbol` because we need `Where` to be
+-- recognized as a keyword to prevent it from being parsed as a universe level.
+def whereKw : Parser := symbol " where" <|> symbol " Where"
 @[builtin_doc] def «inductive» := leading_parser
-  "inductive " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >>
+  "inductive " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> optional (symbol " :=" <|> whereKw) >>
   many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving
 @[builtin_doc] def «coinductive» := leading_parser
-  "coinductive " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >>
+  "coinductive " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> optional (symbol " :=" <|> whereKw) >>
   many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving
 def classInductive   := leading_parser
   atomic (group (symbol "class " >> "inductive ")) >>
   recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >>
-  optional (symbol " :=" <|> " where") >> many ctor >> optDeriving
+  optional (symbol " :=" <|> whereKw) >> many ctor >> optDeriving
 def structExplicitBinder := leading_parser
   atomic (declModifiers true >> "(") >>
   withoutPosition (many1 ident >> ppIndent optDeclSig >>
@@ -274,7 +278,7 @@ def «structure»          := leading_parser
     -- Note: no error recovery here due to clashing with the `class abbrev` syntax
     declId >>
     ppIndent (optDeclSig >> optional «extends») >>
-    optional ((symbol " := " <|> " where ") >> optional structCtor >> structFields) >>
+    optional ((symbol " := " <|> whereKw >> ppSpace) >> optional structCtor >> structFields) >>
     optDeriving
 @[builtin_command_parser] def declaration := leading_parser
   declModifiers false >>

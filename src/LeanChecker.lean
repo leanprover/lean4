@@ -55,21 +55,21 @@ def getCurrentModule : IO Name := do
 
 
 /--
-Run as e.g. `lake exe lean4checker` to check everything in the current project.
-or e.g. `lake exe lean4checker Mathlib.Data.Nat` to check everything with module name
+Run as e.g. `leanchecker` to check everything in the current project.
+or e.g. `leanchecker Mathlib.Data.Nat` to check everything with module name
 starting with `Mathlib.Data.Nat`.
 
 This will replay all the new declarations from the target file into the `Environment`
 as it was at the beginning of the file, using the kernel to check them.
 
-You can also use `lake exe lean4checker --fresh Mathlib.Data.Nat.Prime.Basic`
+You can also use `leanchecker --fresh Mathlib.Data.Nat.Prime.Basic`
 to replay all the constants (both imported and defined in that file) into a fresh environment.
 This can only be used on a single file.
 
 This is not an external verifier, simply a tool to detect "environment hacking".
 -/
 unsafe def main (args : List String) : IO UInt32 := do
-  -- Contributor's note: lean4lean is intended to have a CLI interface matching lean4checker,
+  -- Contributor's note: lean4lean is intended to have a CLI interface matching leanchecker,
   -- so if you want to make a change here please either make a sibling PR to
   -- https://github.com/digama0/lean4lean or ping @digama0 (Mario Carneiro) to go fix it.
   initSearchPath (← findSysroot)
@@ -110,6 +110,6 @@ unsafe def main (args : List String) : IO UInt32 := do
     for (m, t) in tasks do
       if verbose then IO.println s!"replaying {m}"
       if let .error e := t.get then
-        IO.eprintln s!"lean4checker found a problem in {m}"
+        IO.eprintln s!"leanchecker found a problem in {m}"
         throw e
   return 0

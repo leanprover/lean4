@@ -119,8 +119,18 @@ def union (t₁ t₂ : RBTree α cmp) : RBTree α cmp :=
 
 instance : Append (RBTree α cmp) := ⟨union⟩
 
+instance : Union (RBTree α cmp) := ⟨union⟩
+
 def diff (t₁ t₂ : RBTree α cmp) : RBTree α cmp :=
   t₂.fold .erase t₁
+
+instance : SDiff (RBTree α cmp) := ⟨diff⟩
+
+instance : Singleton α (RBTree α cmp) where
+  singleton := fun a => (mkRBTree α cmp).insert a
+
+instance : Inter (RBTree α cmp) where
+  inter := fun s t => s.fold (fun r a => if t.contains a then r.insert a else r) (mkRBTree α cmp)
 
 /--
 `filter f m` returns the `RBTree` consisting of all

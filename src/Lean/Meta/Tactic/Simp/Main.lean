@@ -389,8 +389,9 @@ def simpForall (e : Expr) : SimpM Result := withParent e do
 
 /-- Adapter for `Meta.simpHaveTelescope` -/
 def simpHaveTelescope (e : Expr) : SimpM Result := do
-  let zetaUnused := (← getConfig).zetaUnused
-  match (← Meta.simpHaveTelescope e zetaUnused) with
+  -- **Note**: Eliminating unused-let declarations in a single pass may produce O(n^2) proofs.
+  let zetaUnusedMode := if (← getConfig).zetaUnused then .singlePass else .no
+  match (← Meta.simpHaveTelescope e zetaUnusedMode) with
   | .rfl => return { expr := e }
   | .step e' h =>
     if debug.simp.check.have.get (← getOptions) then

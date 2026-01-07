@@ -24,11 +24,17 @@ def simp (e : Expr) : MetaM (Sym.Simp.Result × Float) := Sym.SymM.run do
   let startTime ← IO.monoNanosNow
   let r ← Sym.simp e methods { maxSteps := 100000000 }
   let endTime ← IO.monoNanosNow
+  let timeMs := (endTime - startTime).toFloat / 1000000.0
   -- logInfo e
   -- match r with
   -- | .rfl _ => logInfo "rfl"
-  -- | .step e' h _ => logInfo e'; logInfo h; check h
-  let timeMs := (endTime - startTime).toFloat / 1000000.0
+  -- | .step e' h _ =>
+  --   logInfo e'; logInfo h
+  --   let startTime ← IO.monoNanosNow
+  --   checkWithKernel h
+  --   let endTime ← IO.monoNanosNow
+  --   let timeMs := (endTime - startTime).toFloat / 1000000.0
+  --   logInfo s!"kernel time {timeMs} ms"
   return (r, timeMs)
 
 def mkLetBench (n : Nat) (includeUnused : Bool) : MetaM Expr := do

@@ -52,6 +52,7 @@ instance : EmptyCollection NameSet := ⟨empty⟩
 instance : Inhabited NameSet := ⟨empty⟩
 def insert (s : NameSet) (n : Name) : NameSet := Std.TreeSet.insert s n
 def contains (s : NameSet) (n : Name) : Bool := Std.TreeSet.contains s n
+instance : Membership Name NameSet := ⟨fun (s : NameSet) (n : Name) => s.contains n = true⟩
 instance [Monad m] : ForIn m NameSet Name :=
   inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
@@ -101,9 +102,23 @@ instance : EmptyCollection NameHashSet := ⟨empty⟩
 instance : Inhabited NameHashSet := ⟨{}⟩
 def insert (s : NameHashSet) (n : Name) := Std.HashSet.insert s n
 def contains (s : NameHashSet) (n : Name) : Bool := Std.HashSet.contains s n
+instance : Membership Name NameHashSet := ⟨fun (s : NameHashSet) (n : Name) => s.contains n = true⟩
 
 /-- `filter f s` returns the `NameHashSet` consisting of all `x` in `s` where `f x` returns `true`. -/
 def filter (f : Name → Bool) (s : NameHashSet) : NameHashSet := Std.HashSet.filter f s
+
+/-- The union of two `NameHashSet`s. -/
+def append (s t : NameHashSet) : NameHashSet :=
+  t.fold (init := s) fun s n => s.insert n
+
+instance : Append NameHashSet := ⟨NameHashSet.append⟩
+
+instance : Singleton Name NameHashSet where
+  singleton := fun n => (∅ : NameHashSet).insert n
+
+instance : Union NameHashSet where
+  union := NameHashSet.append
+
 end NameHashSet
 
 def MacroScopesView.isPrefixOf (v₁ v₂ : MacroScopesView) : Bool :=

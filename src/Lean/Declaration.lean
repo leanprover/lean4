@@ -61,6 +61,9 @@ def lt : ReducibilityHints → ReducibilityHints → Bool
   | .regular _,  .opaque     => true
   | _,           _           => false
 
+instance : LT ReducibilityHints := ⟨fun a b => a.lt b⟩
+instance (a b : ReducibilityHints) : Decidable (a < b) := inferInstanceAs (Decidable (a.lt b))
+
 protected def compare : ReducibilityHints → ReducibilityHints → Ordering
   | .abbrev,     .abbrev     => .eq
   | .abbrev,     _           => .lt

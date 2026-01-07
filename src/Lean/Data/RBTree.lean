@@ -91,6 +91,8 @@ instance [Repr α] : Repr (RBTree α cmp) where
 @[inline] def contains (t : RBTree α cmp) (a : α) : Bool :=
   (t.find? a).isSome
 
+instance : Membership α (RBTree α cmp) := ⟨fun (t : RBTree α cmp) (a : α) => t.contains a = true⟩
+
 def fromList (l : List α) (cmp : α → α → Ordering) : RBTree α cmp :=
   l.foldl insert (mkRBTree α cmp)
 
@@ -114,6 +116,8 @@ def union (t₁ t₂ : RBTree α cmp) : RBTree α cmp :=
     t₂
   else
     t₂.fold .insert t₁
+
+instance : Append (RBTree α cmp) := ⟨union⟩
 
 def diff (t₁ t₂ : RBTree α cmp) : RBTree α cmp :=
   t₂.fold .erase t₁

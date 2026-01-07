@@ -32,6 +32,19 @@ def lt : TransparencyMode → TransparencyMode → Bool
   | default,   all       => true
   | _,         _         => false
 
+instance : LT TransparencyMode := ⟨fun a b => a.lt b⟩
+instance (a b : TransparencyMode) : Decidable (a < b) := inferInstanceAs (Decidable (a.lt b))
+
+protected def beq : TransparencyMode → TransparencyMode → Bool
+  | none,      none      => true
+  | reducible, reducible => true
+  | instances, instances => true
+  | default,   default   => true
+  | all,       all       => true
+  | _,         _         => false
+
+instance : BEq TransparencyMode := ⟨TransparencyMode.beq⟩
+
 end TransparencyMode
 
 example (a b c : TransparencyMode) : a.lt b → b.lt c → a.lt c := by

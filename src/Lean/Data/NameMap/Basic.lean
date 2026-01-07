@@ -92,6 +92,8 @@ instance : EmptyCollection NameSSet := ⟨empty⟩
 instance : Inhabited NameSSet := ⟨empty⟩
 abbrev insert (s : NameSSet) (n : Name) : NameSSet := SSet.insert s n
 abbrev contains (s : NameSSet) (n : Name) : Bool := SSet.contains s n
+instance : Membership Name NameSSet := ⟨fun (s : NameSSet) (n : Name) => s.contains n = true⟩
+instance [Monad m] : ForIn m NameSSet Name := inferInstanceAs (ForIn _ (SSet _) ..)
 end NameSSet
 
 @[expose] def NameHashSet := Std.HashSet Name

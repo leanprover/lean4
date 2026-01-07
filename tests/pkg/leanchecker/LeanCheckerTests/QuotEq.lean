@@ -29,6 +29,6 @@ open Lean
   -- Replay from a fresh environment - this would fail before the fix
   -- if Quot was processed before Eq
   let freshEnv ← mkEmptyEnvironment
-  let _ ← freshEnv.replay constants
+  let _ ← freshEnv.replay' constants
 
   IO.println "Replay succeeded!"

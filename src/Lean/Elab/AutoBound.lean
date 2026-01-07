@@ -18,24 +18,46 @@ namespace Lean.Elab
 
 register_builtin_option autoImplicit : Bool := {
     defValue := true
-    descr    := "Unbound local variables in declaration headers become implicit arguments. In \"relaxed\" mode (default), any atomic identifier is eligible, otherwise only single character followed by numeric digits are eligible. For example, `def f (x : Vector α n) : Vector α n :=` automatically introduces the implicit variables {α n}."
+    descr    := "Unbound local variables in declaration headers become implicit arguments. By default, only lowercase identifiers followed by numbers, subscripts, underscores, and apostrophes are eligible for automatic implicit binding. If the `relaxedAutoImplicit` option is also set, any atomic identifier is eligible to become an implicit argument."
   }
 
 register_builtin_option relaxedAutoImplicit : Bool := {
-    defValue := true
-    descr    := "When \"relaxed\" mode is enabled, any atomic nonempty identifier is eligible for auto bound implicit locals (see option `autoImplicit`)."
+    defValue := false
+    descr    := "When \"relaxed\" mode is enabled, any atomic nonempty identifier is eligible for auto bound implicit locals (see option `autoImplicit`). This option has no effect with `autoImplicit` is `false`."
   }
+
+/--
+A valid automatically bound implicit (in not-relaxed mode) must begin with a lower-case letter;
+this function captures some of the valid lower-case Unicode codepoints that are also valid
+identifiers according to `Lean.isLetterLike`.
+
+This should really be replaced with a Unicode-aware `toLowerCase` once such a thing exists in Lean.
+-/
+private def isLetterLikeLower (c : Char) : Bool :=
+  c.isLower ||
+  (0x0df ≤ c.val && c.val ≤ 0x0ff && c.val ≠ 0x0f7) ||     -- Latin-1 supplement letters but ÷
+  (0x3b1 ≤ c.val && c.val ≤ 0x3c9 && c.val ≠ 0x3bb) ||     -- Lower greek, but lambda
+  (0x3ca ≤ c.val && c.val ≤ 0x3d1 && c.val ≠ 0x3cf) ||     -- Lower greek
+  (0x3d5 ≤ c.val && c.val ≤ 0x3f5 && (c.val &&& 1) = 1) || -- Lower greek and coptic (most of them)
+  (0x3d6 = c.val || 0x3f0 = c.val || 0x3f2 = c.val) ||     -- ϖ, ϰ, ϲ
+  (0x3f8 = c.val || 0x3fb = c.val || 0x3fc = c.val)        -- ϸ, ϻ, ϼ
+
 
 /--
 Checks whether a string is a name that can be auto-bound when the `relaxedAutoImplicit` option is
 set to `false`.
 
-In "strict" auto implicit mode, a identifier can only be auto-bound if it is a single character (`α`
-or `x`) or has an arbitrary postfix sequence of numbers, subscripts, and underscores. Therefore,
-both `αᵣₒₛₑ₂₁₁'''` and `X123_45` can be auto-bound even with `relaxedAutoBound` set to `false`.
+In "strict" auto implicit mode, a identifier can only be auto-bound if it is one or more lower-case
+characters (`α` or `xss` or `size`), optionally followed by an arbitrary sequence of numbers,
+subscripts, and underscores. Therefore, both `αᵣₒₛₑ₂₁₁'''` and `num123_45` can be auto-bound even
+with `relaxedAutoBound` set to `false`.
 -/
-private def isValidAutoBoundSuffix (s : String) : Bool :=
-  s.toRawSubstring.drop 1 |>.all fun c => c.isDigit || isSubScriptAlnum c || c == '_' || c == '\''
+public def isStrictAutoBoundIdentifier : Name → Bool
+  | .str .anonymous s =>
+    let varPrefix := s.toRawSubstring.dropRightWhile
+      (fun c => c.isDigit || isSubScriptAlnum c || c == '_' || c == '\'')
+    varPrefix.bsize > 0 && varPrefix.all isLetterLikeLower
+  | _ => false
 
 /-!
 Remark: Issue #255 exposed a nasty interaction between macro scopes and auto-bound-implicit names.
@@ -55,22 +77,20 @@ but it contains additional notes (above and beyond `Unknown identifier`) to atta
 an error message.
 -/
 
-def checkValidAutoBoundImplicitName (n : Name) (allowed : Bool) (relaxed : Bool) : Except MessageData Bool :=
+def checkValidAutoBoundImplicitName (n : Name) (allowed : Bool): Except MessageData Bool :=
   match n with
   | .str .anonymous s =>
     if s.length = 0 then
       .ok false
-    else if allowed && (relaxed || isValidAutoBoundSuffix s) then
+    else if allowed then
       .ok true
-    else if !allowed then
-      .error <| .note m!"It is not possible to treat `{.ofConstName n}` as an implicitly bound variable here because the `autoImplicit` option is set to `{.ofConstName ``false}`."
     else
-      .error <| .note m!"It is not possible to treat `{.ofConstName n}` as an implicitly bound variable here because it has multiple characters while the `relaxedAutoImplicit` option is set to `{.ofConstName ``false}`."
+      .error <| .note m!"It is not possible to treat `{.ofConstName n}` as an implicitly bound variable here because the `autoImplicit` option is set to `{.ofConstName ``false}`."
   | _ => .ok false
 
 def isValidAutoBoundLevelName (n : Name) (relaxed : Bool) : Bool :=
   match n with
-  | .str .anonymous s => s.length > 0 && (relaxed || (s.front.isLower && isValidAutoBoundSuffix s))
+  | .str .anonymous s => s.length > 0 && (relaxed || isStrictAutoBoundIdentifier n)
   | _ => false
 
 /--

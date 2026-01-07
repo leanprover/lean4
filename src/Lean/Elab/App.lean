@@ -1762,8 +1762,17 @@ where
       if (← read).autoBoundImplicitContext.isSome then
         let allowed := autoImplicit.get (← getOptions)
         let relaxed := relaxedAutoImplicit.get (← getOptions)
-        match checkValidAutoBoundImplicitName n (allowed := allowed) (relaxed := relaxed) with
-          | .ok true => throwAutoBoundImplicitLocal n
+        match checkValidAutoBoundImplicitName n (allowed := allowed) with
+          | .ok true =>
+            logInfo m!"{relaxed} huh {n} {allowed}"
+            if not relaxed && not (isStrictAutoBoundIdentifier n) then
+              logWarning
+                m!"The identifier {.ofConstName n} is not known and the `autoImplicit` option is \
+                `{.ofConstName ``true}`, so Lean will treat this identifier as a locally-bound \
+                variable. This is not a lower-case identifier, so this behavior is likely not what \
+                you intended. (Set the `relaxedAutoImplicit` option is set to \
+                `{.ofConstName ``true}` to silence this warning.)"
+            throwAutoBoundImplicitLocal n
           | .ok false => throwUnknownNameWithSuggestions n
           | .error msg => throwUnknownNameWithSuggestions (extraMsg := msg) n
     throwUnknownNameWithSuggestions n

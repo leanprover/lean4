@@ -863,14 +863,13 @@ static inline lean_object * lean_array_get_borrowed(lean_obj_arg def_val, b_lean
 }
 
 LEAN_EXPORT lean_obj_res lean_copy_expand_array(lean_obj_arg a, bool expand);
-
-static inline lean_obj_res lean_copy_array(lean_obj_arg a) {
-    return lean_copy_expand_array(a, false);
-}
+// Equivalent to `lean_copy_expand_array` but used as a gadget to spot `Array` non-linearities in
+// profiles.
+LEAN_EXPORT lean_obj_res lean_copy_expand_array_nonlinear(lean_obj_arg a, bool expand);
 
 static inline lean_obj_res lean_ensure_exclusive_array(lean_obj_arg a) {
     if (lean_is_exclusive(a)) return a;
-    return lean_copy_array(a);
+    return lean_copy_expand_array_nonlinear(a, false);
 }
 
 static inline lean_object * lean_array_uset(lean_obj_arg a, size_t i, lean_obj_arg v) {

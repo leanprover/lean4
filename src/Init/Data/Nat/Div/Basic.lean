@@ -414,9 +414,6 @@ theorem div_eq_of_lt (h₀ : a < b) : a / b = 0 := by
   intro h₁
   apply Nat.not_le_of_gt h₀ h₁.right
 
-grind_pattern div_eq_of_lt => a / b where
-  guard a < b
-
 protected theorem mul_div_cancel (m : Nat) {n : Nat} (H : 0 < n) : m * n / n = m := by
   let t := add_mul_div_right 0 m H
   rwa [Nat.zero_add, Nat.zero_div, Nat.zero_add] at t

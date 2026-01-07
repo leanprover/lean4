@@ -58,12 +58,12 @@ deriving instance BEq for Option
 @[simp, grind =] theorem map_some (a) (f : α → β) : (some a).map f = some (f a) := rfl
 
 /-- Lifts an optional value to any `Alternative`, sending `none` to `failure`. -/
-def getM [Alternative m] : Option α → m α
+def getM [Alternative m] [Pure m] : Option α → m α
   | none     => failure
   | some a   => pure a
 
-@[simp, grind =] theorem getM_none [Alternative m] : getM none = (failure : m α) := rfl
-@[simp, grind =] theorem getM_some [Alternative m] {a : α} : getM (some a) = (pure a : m α) := rfl
+@[simp, grind =] theorem getM_none [Alternative m] [Pure m] : getM none = (failure : m α) := rfl
+@[simp, grind =] theorem getM_some [Alternative m] [Pure m] {a : α} : getM (some a) = (pure a : m α) := rfl
 
 /-- Returns `true` on `some x` and `false` on `none`. -/
 @[inline] def isSome : Option α → Bool

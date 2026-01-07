@@ -34,8 +34,8 @@ Templates support the following variables (computed lazily):
 ## Environment Variables
 
 Backend selection is controlled by environment variables:
-- API backend: Set `ANTHROPIC_API_KEY` and `ENABLE_LEAN_CLAUDE_API=true`
-- CLI backend: Set `ENABLE_LEAN_CLAUDE_CODE=true`
+- API backend: Set `ANTHROPIC_API_KEY` and `LEAN_CLAUDE_API=true`
+- CLI backend: Set `LEAN_CLAUDE_CODE=true`
 
 -/
 
@@ -96,18 +96,18 @@ def selectBackend (config : Config) : IO Backend := do
 
   -- Check for API backend
   let apiKey? ← IO.getEnv "ANTHROPIC_API_KEY"
-  let apiEnabled? ← IO.getEnv "ENABLE_LEAN_CLAUDE_API"
+  let apiEnabled? ← IO.getEnv "LEAN_CLAUDE_API"
 
   if apiKey?.isSome && apiEnabled? == some "true" then
     return .api
 
   -- Check for CLI backend
-  let cliEnabled? ← IO.getEnv "ENABLE_LEAN_CLAUDE_CODE"
+  let cliEnabled? ← IO.getEnv "LEAN_CLAUDE_CODE"
   if cliEnabled? == some "true" then
     return .cli
 
   -- No backend available
-  throw <| .userError "Claude tactic requires either (ANTHROPIC_API_KEY + ENABLE_LEAN_CLAUDE_API=true) or ENABLE_LEAN_CLAUDE_CODE=true"
+  throw <| .userError "Claude tactic requires either (ANTHROPIC_API_KEY + LEAN_CLAUDE_API=true) or LEAN_CLAUDE_CODE=true"
 
 /-! ## Response Parsing -/
 

@@ -10,7 +10,7 @@ To run this test manually:
 2. Set the environment variables:
    ```bash
    export ANTHROPIC_API_KEY="your-api-key-here"
-   export ENABLE_LEAN_CLAUDE_API=true
+   export LEAN_CLAUDE_API=true
    ```
 3. Uncomment the test code below
 4. Run with:
@@ -20,7 +20,7 @@ To run this test manually:
    ```
    Or from the lean4 root:
    ```bash
-   ANTHROPIC_API_KEY="..." ENABLE_LEAN_CLAUDE_API=true \
+   ANTHROPIC_API_KEY="..." LEAN_CLAUDE_API=true \
      build/release/stage1/bin/lean --root=. -Dlinter.all=false \
      tests/lean/run/claudeAPITest.lean
    ```

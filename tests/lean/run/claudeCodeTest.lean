@@ -9,7 +9,7 @@ To run this test manually:
 1. Ensure you have Claude Code CLI installed and in your PATH
 2. Set the environment variable:
    ```bash
-   export ENABLE_LEAN_CLAUDE_CODE=true
+   export LEAN_CLAUDE_CODE=true
    ```
 3. Uncomment the test code below
 4. Run with:
@@ -19,7 +19,7 @@ To run this test manually:
    ```
    Or from the lean4 root:
    ```bash
-   ENABLE_LEAN_CLAUDE_CODE=true build/release/stage1/bin/lean \
+   LEAN_CLAUDE_CODE=true build/release/stage1/bin/lean \
      --root=. -Dlinter.all=false tests/lean/run/claudeCodeTest.lean
    ```
 

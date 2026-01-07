@@ -3,10 +3,12 @@ Copyright (c) 2023 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.CoreM
-import Lean.AddDecl
-import Lean.Util.FoldConsts
+public import Lean.AddDecl
+
+public section
 
 /-!
 # `Lean.Environment.replay`
@@ -22,24 +24,17 @@ after replaying any inductive definitions occurring in `constantMap`.
 * a verifier for an `Environment`, by sending everything to the kernel, or
 * a mechanism to safely transfer constants from one `Environment` to another.
 
-## Implementation notes
-
-This is a patched version of `Lean.Environment.Replay`, which is in the `lean4` repository
-up to `v4.18.0`, but will be deprecated in `v4.19.0` and then removed. Once it it removed,
-the prime on the `Replay'` namespace, the prime on `Lean.Environment.replay'`
-should be removed here.
-
 -/
 
 namespace Lean.Environment
 
-namespace Replay'
+namespace Replay
 
 structure Context where
   newConstants : Std.HashMap Name ConstantInfo
 
 structure State where
-  env : Kernel.Environment
+  env : Environment
   remaining : NameSet := {}
   pending : NameSet := {}
   postponedConstructors : NameSet := {}
@@ -86,18 +81,6 @@ partial def replayConstant (name : Name) : M Unit := do
       | .defnInfo   info =>
         addDecl (Declaration.defnDecl   info)
       | .thmInfo    info =>
-        -- Ignore duplicate theorems. This code is identical to that in `finalizeImport` before it
-        -- added extended duplicates support for the module system, which is not relevant for us
-        -- here as we always load all .olean information. We need this case *because* of the module
-        -- system -- as we have more data loaded than it, we might encounter duplicate private
-        -- theorems where elaboration under the module system would have only one of them in scope.
-        if let some (.thmInfo info') := (← get).env.find? ci.name then
-          if info.name == info'.name &&
-            info.type == info'.type &&
-            info.levelParams == info'.levelParams &&
-            info.all == info'.all
-          then
-            return
         addDecl (Declaration.thmDecl    info)
       | .axiomInfo  info =>
         addDecl (Declaration.axiomDecl  info)
@@ -131,9 +114,6 @@ partial def replayConstant (name : Name) : M Unit := do
       | .recInfo info =>
         modify fun s => { s with postponedRecursors := s.postponedRecursors.insert info.name }
       | .quotInfo _ =>
-        -- `Quot.lift` and `Quot.ind` have types that reference `Eq`,
-        -- so we need to ensure `Eq` is replayed before adding the quotient declaration.
-        replayConstant `Eq
         addDecl (Declaration.quotDecl)
       modify fun s => { s with pending := s.pending.erase name }
 
@@ -165,9 +145,9 @@ def checkPostponedRecursors : M Unit := do
       if ! (info == info') then throw <| IO.userError s!"Invalid recursor {ctor}"
     | _, _ => throw <| IO.userError s!"No such recursor {ctor}"
 
-end Replay'
+end Replay
 
-open Replay'
+open Replay
 
 /--
 "Replay" some constants into an `Environment`, sending them to the kernel for checking.
@@ -175,17 +155,17 @@ open Replay'
 Throws a `IO.userError` if the kernel rejects a constant,
 or if there are malformed recursors or constructors for inductive types.
 -/
-def replay' (newConstants : Std.HashMap Name ConstantInfo) (env : Environment) : IO Environment := do
+def replay (newConstants : Std.HashMap Name ConstantInfo) (env : Environment) : IO Environment := do
   let mut remaining : NameSet := ∅
   for (n, ci) in newConstants.toList do
     -- We skip unsafe constants, and also partial constants.
     -- Later we may want to handle partial constants.
     if !ci.isUnsafe && !ci.isPartial then
       remaining := remaining.insert n
-  let (_, s) ← StateRefT'.run (s := { env := env.toKernelEnv, remaining }) do
+  let (_, s) ← StateRefT'.run (s := { env, remaining }) do
     ReaderT.run (r := { newConstants }) do
       for n in remaining do
         replayConstant n
       checkPostponedConstructors
       checkPostponedRecursors
-  return .ofKernelEnv s.env
+  return s.env

@@ -38,6 +38,7 @@ public import Lean.Linter
 public import Lean.SubExpr
 public import Lean.LabelAttribute
 public import Lean.AddDecl
+public import Lean.Replay
 public import Lean.PrivateName
 public import Lean.LibrarySuggestions
 public import Lean.Namespace

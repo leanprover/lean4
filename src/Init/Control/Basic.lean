@@ -97,7 +97,7 @@ Error recovery and state can interact subtly. For example, the implementation of
 -/
 -- NB: List instance is in mathlib. Once upstreamed, add
 -- * `List`, where `failure` is the empty list and `<|>` concatenates.
-class Alternative (f : Type u → Type v) : Type (max (u+1) v) extends Applicative f where
+class Alternative (f : Type u → Type v) : Type (max (u+1) v) where
   /--
   Produces an empty collection or recoverable failure.  The `<|>` operator collects values or recovers
   from failures. See `Alternative` for more details.
@@ -111,20 +111,18 @@ class Alternative (f : Type u → Type v) : Type (max (u+1) v) extends Applicati
 
 instance (f : Type u → Type v) (α : Type u) [Alternative f] : OrElse (f α) := ⟨Alternative.orElse⟩
 
-variable {f : Type u → Type v} [Alternative f] {α : Type u}
-
 export Alternative (failure)
 
 /--
 If the proposition `p` is true, does nothing, else fails (using `failure`).
 -/
-@[always_inline, inline] def guard {f : Type → Type v} [Alternative f] (p : Prop) [Decidable p] : f Unit :=
+@[always_inline, inline] def guard {f : Type → Type v} [Alternative f] [Pure f] (p : Prop) [Decidable p] : f Unit :=
   if p then pure () else failure
 
 /--
 Returns `some x` if `f` succeeds with value `x`, else returns `none`.
 -/
-@[always_inline, inline] def optional (x : f α) : f (Option α) :=
+@[always_inline, inline] def optional {f : Type u → Type v} {α : Type u} [Alternative f] [Applicative f] (x : f α) : f (Option α) :=
   some <$> x <|> pure none
 
 class ToBool (α : Type u) where

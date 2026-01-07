@@ -582,7 +582,7 @@ instance : Alternative Option where
   orElse  := Option.orElse
 
 -- This is a duplicate of `Option.getM`; one may be deprecated in the future.
-def liftOption [Alternative m] : Option α → m α
+def liftOption [Alternative m] [Pure m] : Option α → m α
   | some a => pure a
   | none   => failure
 

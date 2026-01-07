@@ -5,6 +5,7 @@ Authors: Mario Carneiro, Sebastian Ullrich
 -/
 module
 
+prelude
 import Lean.Environment
 import Lean.ExtraModUses
 import Lean.Parser.Module

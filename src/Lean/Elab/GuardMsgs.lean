@@ -195,7 +195,7 @@ def runAndCollectMessages (cmd : Syntax) : CommandElabM MessageLog := do
     elabCommandTopLevel cmd
   -- collect sync and async messages
   let msgs := (← get).messages ++
-    (← get).snapshotTasks.foldl (· ++ ·.get.getAll.foldl (· ++ ·.diagnostics.msgLog) {}) {}
+    (← get).snapshotTasks.foldl (· ++ ·.get.getAll.foldl (· ++ ·.diagnostics.msgLog) .empty) .empty
   -- clear async messages as we don't want them to leak outside
   modify ({ · with snapshotTasks := #[] })
   return msgs
@@ -206,8 +206,8 @@ def runAndCollectMessages (cmd : Syntax) : CommandElabM MessageLog := do
         |>.trimAscii |>.copy |> removeTrailingWhitespaceMarker
     let { whitespace, ordering, filterFn, reportPositions, substring } ← parseGuardMsgsSpec spec?
     let msgs ← runAndCollectMessages cmd
-    let mut toCheck : MessageLog := .empty
-    let mut toPassthrough : MessageLog := .empty
+    let mut toCheck : MessageLog := MessageLog.empty
+    let mut toPassthrough : MessageLog := MessageLog.empty
     for msg in msgs.toList do
       if msg.isSilent then
         continue
@@ -225,7 +225,7 @@ def runAndCollectMessages (cmd : Syntax) : CommandElabM MessageLog := do
     let res := "---\n".intercalate strings |>.trimAscii |>.copy
     let passed := if substring then
       -- Substring mode: check that expected appears within res (after whitespace normalization)
-      (whitespace.apply res).containsSubstr (whitespace.apply expected)
+      (whitespace.apply res).contains (whitespace.apply expected)
     else
       -- Exact mode: check equality (after whitespace normalization)
       whitespace.apply expected == whitespace.apply res
@@ -287,12 +287,12 @@ def guardMsgsCodeAction : CommandCodeAction := fun _ _ _ node => do
     for msg in msgs.toList do
       if msg.isSilent then continue
       let msgStr ← msg.data.toString
-      if msgStr.containsSubstr "PANIC" then
+      if msgStr.contains "PANIC" then
         foundPanic := true
         break
     if foundPanic then
       -- Success - clear the messages so they don't appear
-      modify fun st => { st with messages := .empty }
+      modify fun st => { st with messages := MessageLog.empty }
     else
       -- Failed - put the messages back and add our error
       modify fun st => { st with messages := msgs }

@@ -406,11 +406,14 @@ section GuardPanic
 
 -- Test that #guard_panic succeeds when a panic occurs
 #guard_panic in
-run_cmd Lean.Elab.Command.liftTermElabM do
-  panic! "test panic"
+run_cmd (panic! "test panic" : Lean.Elab.Command.CommandElabM Unit)
 
 -- Test that #guard_panic fails when no panic occurs
-/-- error: Expected a PANIC but none was found -/
+/--
+info: Nat : Type
+---
+error: Expected a PANIC but none was found
+-/
 #guard_msgs in
 #guard_panic in
 #check Nat
@@ -418,8 +421,7 @@ run_cmd Lean.Elab.Command.liftTermElabM do
 -- Test that #guard_panic clears messages on success (no output expected)
 #guard_msgs in
 #guard_panic in
-run_cmd Lean.Elab.Command.liftTermElabM do
-  panic! "this message should not appear"
+run_cmd (panic! "this message should not appear" : Lean.Elab.Command.CommandElabM Unit)
 
 end GuardPanic
 
@@ -439,6 +441,8 @@ example : α := x
 
 -- Test that substring mode fails when expected is not a substring
 /--
+error: Unknown identifier `x`
+---
 error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
 error: Unknown identifier `x`

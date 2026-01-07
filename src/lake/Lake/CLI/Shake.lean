@@ -699,7 +699,10 @@ public def run (args : Args) (defaultTargetModules : Array Name)
     let mut seen : Std.HashSet Import := {}
     for stx in imports do
       let mod := decodeImport stx
-      if remove.contains mod || seen.contains mod then
+      -- Compare by module name only, ignoring isExported which may differ between
+      -- olean analysis and source file parsing
+      let shouldRemove := remove.any fun r => r.module == mod.module && r.isMeta == mod.isMeta
+      if shouldRemove || seen.contains mod then
         out := out ++ text.extract pos (text.pos! stx.raw.getPos?.get!)
         -- We use the end position of the syntax, but include whitespace up to the first newline
         pos := text.pos! stx.raw.getTailPos?.get! |>.find '\n' |>.next!

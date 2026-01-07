@@ -11,10 +11,13 @@ public import Lean.Server.CodeActions.Attr
 
 public section
 
-/-! `#guard_msgs` command for testing commands
+/-! `#guard_msgs` and `#guard_panic` commands for testing commands
 
-This module defines a command to test that another command produces the expected messages.
-See the docstring on the `#guard_msgs` command.
+This module defines commands to test that other commands produce expected messages:
+- `#guard_msgs`: tests that a command produces exactly the expected messages
+- `#guard_panic`: tests that a command produces a panic message (without checking the exact text)
+
+See the docstrings on the individual commands.
 -/
 
 open Lean Parser.Tactic Elab Command
@@ -88,6 +91,8 @@ structure GuardMsgsSpec where
   ordering : MessageOrdering := .exact
   /-- Whether to report position information. -/
   reportPositions : Bool := false
+  /-- Whether to check for substring containment instead of exact match. -/
+  substring : Bool := false
 
 def parseGuardMsgsFilterAction (action? : Option (TSyntax ``guardMsgsFilterAction)) :
     CommandElabM FilterSpec := do
@@ -118,7 +123,7 @@ def parseGuardMsgsSpec (spec? : Option (TSyntax ``guardMsgsSpec)) : CommandElabM
     | `(guardMsgsSpec| ($[$elts:guardMsgsSpecElt],*)) => pure elts
     | _ => throwUnsupportedSyntax
   let defaultFilterFn := cfg.filterFn
-  let mut { whitespace, ordering, reportPositions .. } := cfg
+  let mut { whitespace, ordering, reportPositions, substring .. } := cfg
   let mut p? : Option (Message → FilterSpec) := none
   let pushP (action : FilterSpec) (msgP : Message → Bool) (p? : Option (Message → FilterSpec))
       (msg : Message) : FilterSpec :=
@@ -136,9 +141,11 @@ def parseGuardMsgsSpec (spec? : Option (TSyntax ``guardMsgsSpec)) : CommandElabM
     | `(guardMsgsSpecElt| ordering := sorted)       => ordering := .sorted
     | `(guardMsgsSpecElt| positions := true)        => reportPositions := true
     | `(guardMsgsSpecElt| positions := false)       => reportPositions := false
+    | `(guardMsgsSpecElt| substring := true)        => substring := true
+    | `(guardMsgsSpecElt| substring := false)       => substring := false
     | _ => throwUnsupportedSyntax
   let filterFn := p?.getD defaultFilterFn
-  return { filterFn, whitespace, ordering, reportPositions }
+  return { filterFn, whitespace, ordering, reportPositions, substring }
 
 /-- An info tree node corresponding to a failed `#guard_msgs` invocation,
 used for code action support. -/
@@ -176,22 +183,31 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
   | .exact => msgs
   | .sorted => msgs |>.toArray.qsort (· < ·) |>.toList
 
+/--
+Runs a command and collects all messages (sync and async) it produces.
+Clears the snapshot tasks after collection.
+Returns the collected messages.
+-/
+def runAndCollectMessages (cmd : Syntax) : CommandElabM MessageLog := do
+  -- do not forward snapshot as we don't want messages assigned to it to leak outside
+  withReader ({ · with snap? := none }) do
+    -- The `#guard_msgs` command is special-cased in `elabCommandTopLevel` to ensure linters only run once.
+    elabCommandTopLevel cmd
+  -- collect sync and async messages
+  let msgs := (← get).messages ++
+    (← get).snapshotTasks.foldl (· ++ ·.get.getAll.foldl (· ++ ·.diagnostics.msgLog) .empty) .empty
+  -- clear async messages as we don't want them to leak outside
+  modify ({ · with snapshotTasks := #[] })
+  return msgs
+
 @[builtin_command_elab Lean.guardMsgsCmd] def elabGuardMsgs : CommandElab
   | `(command| $[$dc?:docComment]? #guard_msgs%$tk $(spec?)? in $cmd) => do
     let expected : String := (← dc?.mapM (getDocStringText ·)).getD ""
         |>.trimAscii |>.copy |> removeTrailingWhitespaceMarker
-    let { whitespace, ordering, filterFn, reportPositions } ← parseGuardMsgsSpec spec?
-    -- do not forward snapshot as we don't want messages assigned to it to leak outside
-    withReader ({ · with snap? := none }) do
-      -- The `#guard_msgs` command is special-cased in `elabCommandTopLevel` to ensure linters only run once.
-      elabCommandTopLevel cmd
-    -- collect sync and async messages
-    let msgs := (← get).messages ++
-      (← get).snapshotTasks.foldl (· ++ ·.get.getAll.foldl (· ++ ·.diagnostics.msgLog) {}) {}
-    -- clear async messages as we don't want them to leak outside
-    modify ({ · with snapshotTasks := #[] })
-    let mut toCheck : MessageLog := .empty
-    let mut toPassthrough : MessageLog := .empty
+    let { whitespace, ordering, filterFn, reportPositions, substring } ← parseGuardMsgsSpec spec?
+    let msgs ← runAndCollectMessages cmd
+    let mut toCheck : MessageLog := MessageLog.empty
+    let mut toPassthrough : MessageLog := MessageLog.empty
     for msg in msgs.toList do
       if msg.isSilent then
         continue
@@ -207,7 +223,13 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
     let strings ← toCheck.toList.mapM (messageToString · reportPos?)
     let strings := ordering.apply strings
     let res := "---\n".intercalate strings |>.trimAscii |>.copy
-    if whitespace.apply expected == whitespace.apply res then
+    let passed := if substring then
+      -- Substring mode: check that expected appears within res (after whitespace normalization)
+      (whitespace.apply res).contains (whitespace.apply expected)
+    else
+      -- Exact mode: check equality (after whitespace normalization)
+      whitespace.apply expected == whitespace.apply res
+    if passed then
       -- Passed. Only put toPassthrough messages back on the message log
       modify fun st => { st with messages := toPassthrough }
     else
@@ -256,5 +278,25 @@ def guardMsgsCodeAction : CommandCodeAction := fun _ _ _ node => do
         }
       }
   }]
+
+@[builtin_command_elab Lean.guardPanicCmd] def elabGuardPanic : CommandElab
+  | `(command| #guard_panic in $cmd) => do
+    let msgs ← runAndCollectMessages cmd
+    -- Check if any message contains "PANIC"
+    let mut foundPanic := false
+    for msg in msgs.toList do
+      if msg.isSilent then continue
+      let msgStr ← msg.data.toString
+      if msgStr.contains "PANIC" then
+        foundPanic := true
+        break
+    if foundPanic then
+      -- Success - clear the messages so they don't appear
+      modify fun st => { st with messages := MessageLog.empty }
+    else
+      -- Failed - put the messages back and add our error
+      modify fun st => { st with messages := msgs }
+      logError "Expected a PANIC but none was found"
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.GuardMsgs

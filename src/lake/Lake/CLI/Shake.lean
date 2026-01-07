@@ -6,10 +6,13 @@ Authors: Mario Carneiro, Sebastian Ullrich
 module
 
 prelude
+public import Init.Prelude
+public import Init.System.IO
+public import Lean.Util.Path
+import Lake.Load.Workspace
 import Lean.Environment
 import Lean.ExtraModUses
 import Lean.Parser.Module
-import Lake.Load.Workspace
 
 /-! # Shake: A Lean import minimizer
 
@@ -618,15 +621,20 @@ local instance : Ord Import where
     compareOn fun imp => (!imp.isExported, imp.module.toString)
 
 /-- Run the shake analysis with the given arguments. -/
-public def run (args : Args) (defaultTargetModules : Array Name) : IO UInt32 := do
-  initSearchPath (← findSysroot)
+public def run (args : Args) (defaultTargetModules : Array Name)
+    (oleanSearchPath : SearchPath := {}) (srcSearchPath : SearchPath := {}) : IO UInt32 := do
+  -- Initialize search paths: use provided paths or fall back to environment
+  if oleanSearchPath.isEmpty then
+    let _ ← initSearchPath (← findSysroot)
+  else
+    searchPathRef.set oleanSearchPath
 
   if !args.force then
     if (← IO.Process.output { cmd := "lake", args := #["build", "--no-build"] }).exitCode != 0 then
       IO.println "There are out of date oleans. Run `lake build` or `lake cache get` first"
       return 1
 
-  let srcSearchPath ← getSrcSearchPath
+  let srcSearchPath ← if srcSearchPath.isEmpty then getSrcSearchPath else pure srcSearchPath
   -- the list of root modules
   let mods := if args.mods.isEmpty then defaultTargetModules else args.mods
   if mods.isEmpty then

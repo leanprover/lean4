@@ -75,6 +75,16 @@ public structure LakeOptions where
   toolchain? : Option String := none
   rev? : Option String := none
   maxRevs : Nat := 100
+  /-- Shake options -/
+  shakeKeepImplied : Bool := false
+  shakeKeepPrefix : Bool := false
+  shakeKeepPublic : Bool := false
+  shakeAddPublic : Bool := false
+  shakeForce : Bool := false
+  shakeGithubStyle : Bool := false
+  shakeExplain : Bool := false
+  shakeTrace : Bool := false
+  shakeFix : Bool := false
 
 def LakeOptions.outLv (opts : LakeOptions) : LogLevel :=
   opts.outLv?.getD opts.verbosity.minLogLv
@@ -300,6 +310,16 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--"            => do
   let subArgs ← takeArgs
   modifyThe LakeOptions ({· with subArgs})
+-- Shake options
+| "--keep-implied" => modifyThe LakeOptions ({· with shakeKeepImplied := true})
+| "--keep-prefix" => modifyThe LakeOptions ({· with shakeKeepPrefix := true})
+| "--keep-public" => modifyThe LakeOptions ({· with shakeKeepPublic := true})
+| "--add-public" => modifyThe LakeOptions ({· with shakeAddPublic := true})
+| "--force" => modifyThe LakeOptions ({· with shakeForce := true})
+| "--gh-style" => modifyThe LakeOptions ({· with shakeGithubStyle := true})
+| "--explain" => modifyThe LakeOptions ({· with shakeExplain := true})
+| "--trace" => modifyThe LakeOptions ({· with shakeTrace := true})
+| "--fix" => modifyThe LakeOptions ({· with shakeFix := true})
 | opt             =>  throw <| CliError.unknownLongOption opt
 
 def lakeOption :=
@@ -359,6 +379,19 @@ def parseTemplateLangSpec (spec : String) : Except CliError (InitTemplate × Con
   | [tmp] => return (← parseTemplateSpec tmp, default)
   | _ => return default
 
+
+/-- Convert LakeOptions to Shake.Args. -/
+def LakeOptions.toShakeArgs (opts : LakeOptions) (mods : Array Lean.Name) : Shake.Args where
+  keepImplied := opts.shakeKeepImplied
+  keepPrefix := opts.shakeKeepPrefix
+  keepPublic := opts.shakeKeepPublic
+  addPublic := opts.shakeAddPublic
+  force := opts.shakeForce
+  githubStyle := opts.shakeGithubStyle
+  explain := opts.shakeExplain
+  trace := opts.shakeTrace
+  fix := opts.shakeFix
+  mods := mods
 
 /-! ## Commands -/
 
@@ -759,26 +792,31 @@ protected def clean : CliM PUnit := do
 
 /-- The `lake shake` command: minimize imports in Lean source files. -/
 protected def shake : CliM PUnit := do
-  processOptions lakeOption
+  -- Load workspace with current options
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
 
-  -- Get default target modules from workspace
-  let defaultTargetModules := ws.root.defaultTargets.flatMap fun target =>
-    if let some lib := ws.root.findLeanLib? target then
-      lib.roots
-    else if let some exe := ws.root.findLeanExe? target then
-      #[exe.config.root]
+  -- Get remaining arguments as module names
+  let modArgs ← takeArgs
+  let mods : Array Lean.Name := modArgs.toArray.map (·.toName)
+
+  -- Get default target modules from workspace if no modules specified
+  let defaultTargetModules :=
+    if mods.isEmpty then
+      ws.root.defaultTargets.flatMap fun target =>
+        if let some lib := ws.root.findLeanLib? target then
+          lib.roots
+        else if let some exe := ws.root.findLeanExe? target then
+          #[exe.config.root]
+        else
+          #[]
     else
-      #[]
+      mods
 
-  -- Get remaining arguments for shake-specific parsing
-  let shakeArgList ← takeArgs
-  let (shakeArgs, _) := parseShakeArgs shakeArgList
-
-  -- Run shake
-  let exitCode ← Shake.run shakeArgs defaultTargetModules
+  -- Run shake with workspace search paths
+  let shakeArgs := opts.toShakeArgs defaultTargetModules
+  let exitCode ← Shake.run shakeArgs defaultTargetModules ws.augmentedLeanPath ws.augmentedLeanSrcPath
   if exitCode != 0 then
     exit exitCode
 

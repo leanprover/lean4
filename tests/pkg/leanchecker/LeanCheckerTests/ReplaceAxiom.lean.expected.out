@@ -1,4 +1,4 @@
-lean4checker found a problem in ReplaceAxiom
+lean4checker found a problem in LeanCheckerTests.ReplaceAxiom
 uncaught exception: (kernel) application type mismatch
   False.elim @propext
 argument has type

@@ -1,4 +1,4 @@
-import OpenPrivate
+import LeanCheckerTests.OpenPrivate
 
 set_option Elab.async false
 

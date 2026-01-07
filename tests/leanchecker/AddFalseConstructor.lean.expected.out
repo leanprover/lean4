@@ -1,2 +1,0 @@
-lean4checker found a problem in AddFalseConstructor
-uncaught exception: No such constructor False.intro

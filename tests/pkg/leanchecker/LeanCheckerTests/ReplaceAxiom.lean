@@ -1,4 +1,4 @@
-import OpenPrivate
+import LeanCheckerTests.OpenPrivate
 
 open private Lean.Environment.setCheckedSync from Lean.Environment
 open private Lean.Kernel.Environment.mk from Lean.Environment

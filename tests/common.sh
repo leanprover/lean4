@@ -69,14 +69,14 @@ function check_ret {
 function exec_check_raw {
     ret=0
     exec_capture_raw "$@" || ret=$?
-    check_ret
+    check_ret "$@"
 }
 
 # produces filtered output intended for usage with `diff_produced`
 function exec_check {
     ret=0
     exec_capture "$@" || ret=$?
-    check_ret
+    check_ret "$@"
 }
 
 function diff_produced {

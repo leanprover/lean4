@@ -83,18 +83,6 @@ FOREACH(T ${LEANRUNTESTS})
   endif()
 ENDFOREACH(T)
 
-# LEANCHECKER TESTS
-file(GLOB LEANCHECKERTESTS "${LEAN_SOURCE_DIR}/../tests/leanchecker/*.lean")
-FOREACH(T ${LEANCHECKERTESTS})
-  if(NOT T MATCHES "\\.#")
-    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-    CMAKE_PATH(RELATIVE_PATH T BASE_DIRECTORY ${LEAN_SOURCE_DIR}/.. OUTPUT_VARIABLE T_PATH)
-    add_test(NAME "${T_PATH}"
-             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanchecker"
-             COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
-  endif()
-ENDFOREACH(T)
-
 # LEAN RUN doc/examples
 file(GLOB LEANDOCEXS "${LEAN_SOURCE_DIR}/../doc/examples/*.lean")
 FOREACH(T ${LEANDOCEXS})

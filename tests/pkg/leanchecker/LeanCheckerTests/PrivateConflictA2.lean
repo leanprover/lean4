@@ -2,6 +2,6 @@ module
 
 prelude
 public import Init.Core
-import PrivateConflictA
+import LeanCheckerTests.PrivateConflictA
 
 public theorem thm1' : True := thm1

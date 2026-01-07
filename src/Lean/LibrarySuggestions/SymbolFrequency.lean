@@ -69,10 +69,10 @@ public def localSymbolFrequency (n : Name) : MetaM Nat := do
 Helper function for running `MetaM` code during module export, when there is nothing but an `Environment` available.
 Panics on errors.
 -/
-public def _root_.Lean.Environment.unsafeRunMetaM [Inhabited α] (env : Environment) (x : MetaM α) : α :=
-   match unsafe unsafeEIO ((((withoutExporting x).run' {} {}).run' { fileName := "symbolFrequency", fileMap := default } { env })) with
+unsafe def _root_.Lean.Environment.unsafeRunMetaM [Inhabited α] (env : Environment) (x : MetaM α) : α :=
+   match unsafeEIO ((((withoutExporting x).run' {} {}).run' { fileName := "symbolFrequency", fileMap := default } { env })) with
    | Except.ok a => a
-   | Except.error ex => panic! match unsafe unsafeIO ex.toMessageData.toString with
+   | Except.error ex => panic! match unsafeIO ex.toMessageData.toString with
      | Except.ok s => s
      | Except.error ex => ex.toString
 
@@ -90,7 +90,7 @@ builtin_initialize symbolFrequencyExt : PersistentEnvExtension (NameMap Nat) Emp
     mkInitial       := pure ∅
     addImportedFn   := fun mapss _ => pure mapss
     addEntryFn      := nofun
-    exportEntriesFnEx := fun env _ _ => env.unsafeRunMetaM do return #[← cachedLocalSymbolFrequencyMap]
+    exportEntriesFnEx := fun env _ _ => unsafe env.unsafeRunMetaM do return #[← cachedLocalSymbolFrequencyMap]
     statsFn         := fun _ => "symbol frequency extension"
   }
 

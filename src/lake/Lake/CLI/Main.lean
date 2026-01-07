@@ -30,6 +30,7 @@ import Lake.CLI.Error
 import Lake.CLI.Actions
 import Lake.CLI.Translate
 import Lake.CLI.Serve
+import Lake.CLI.Shake
 import Init.Data.String.Search
 
 -- # CLI
@@ -756,6 +757,31 @@ protected def clean : CliM PUnit := do
       | some pkg => pure pkg
     pkgs.forM (·.clean)
 
+/-- The `lake shake` command: minimize imports in Lean source files. -/
+protected def shake : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let config ← mkLoadConfig opts
+  let ws ← loadWorkspace config
+
+  -- Get default target modules from workspace
+  let defaultTargetModules := ws.root.defaultTargets.flatMap fun target =>
+    if let some lib := ws.root.findLeanLib? target then
+      lib.roots
+    else if let some exe := ws.root.findLeanExe? target then
+      #[exe.config.root]
+    else
+      #[]
+
+  -- Get remaining arguments for shake-specific parsing
+  let shakeArgList ← takeArgs
+  let (shakeArgs, _) := parseShakeArgs shakeArgList
+
+  -- Run shake
+  let exitCode ← Shake.run shakeArgs defaultTargetModules
+  if exitCode != 0 then
+    exit exitCode
+
 protected def script : CliM PUnit := do
   if let some cmd ← takeArg? then
     processLeadingOptions lakeOption -- between `lake script <cmd>` and args
@@ -910,6 +936,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "lint"                => lake.lint
 | "check-lint"          => lake.checkLint
 | "clean"               => lake.clean
+| "shake"               => lake.shake
 | "script"              => lake.script
 | "scripts"             => lake.script.list
 | "run"                 => lake.script.run

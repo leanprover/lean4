@@ -570,6 +570,8 @@ structure MessageLog where
 namespace MessageLog
 def empty : MessageLog := {}
 
+instance : EmptyCollection MessageLog := ⟨empty⟩
+
 -- Despite having been deprecated, the archived `LeanInk` project (which CI still uses)
 -- relies on this name.
 @[deprecated "renamed to `unreported`; direct access should in general be avoided in favor of \

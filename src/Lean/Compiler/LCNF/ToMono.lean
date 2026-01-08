@@ -205,7 +205,7 @@ partial def decToMono (c : Cases) (_ : c.typeName == ``Decidable) : ToMonoM Code
       eraseParams ps
       let ctorName := if ctorName == ``Decidable.isTrue then ``Bool.true else ``Bool.false
       return .alt ctorName #[] (← k.toMono)
-  return .cases { c with resultType, alts, typeName := ``Bool }
+  return .cases ⟨``Bool, resultType, c.discr, alts⟩
 
 /-- Eliminate `cases` for `Nat`. -/
 partial def casesNatToMono (c: Cases) (_ : c.typeName == ``Nat) : ToMonoM Code := do
@@ -226,7 +226,7 @@ partial def casesNatToMono (c: Cases) (_ : c.typeName == ``Nat) : ToMonoM Code :
         return .alt ``Bool.false #[] (.let oneDecl (.let subOneDecl (← k.toMono)))
       else
         return .alt ``Bool.true #[] (← k.toMono)
-  return .let zeroDecl (.let isZeroDecl (.cases { discr := isZeroDecl.fvarId, resultType, alts, typeName := ``Bool }))
+  return .let zeroDecl (.let isZeroDecl (.cases ⟨``Bool, resultType, isZeroDecl.fvarId, alts⟩))
 
 /-- Eliminate `cases` for `Int`. -/
 partial def casesIntToMono (c: Cases) (_ : c.typeName == ``Int) : ToMonoM Code := do
@@ -251,7 +251,7 @@ partial def casesIntToMono (c: Cases) (_ : c.typeName == ``Int) : ToMonoM Code :
         let absDecl := { fvarId := p.fvarId, binderName := p.binderName, type := natType, value := .const ``Int.natAbs [] #[.fvar c.discr] }
         modifyLCtx fun lctx => lctx.addLetDecl absDecl
         return .alt ``Bool.false #[] (.let absDecl (← k.toMono))
-  return .let zeroNatDecl (.let zeroIntDecl (.let isNegDecl (.cases { discr := isNegDecl.fvarId, resultType, alts, typeName := ``Bool })))
+  return .let zeroNatDecl (.let zeroIntDecl (.let isNegDecl (.cases ⟨``Bool, resultType, isNegDecl.fvarId, alts⟩)))
 
 /-- Eliminate `cases` for `UInt` types. -/
 partial def casesUIntToMono (c : Cases) (uintName : Name) (_ : c.typeName == uintName) : ToMonoM Code := do
@@ -317,13 +317,13 @@ partial def casesThunkToMono (c : Cases) (_ : c.typeName == ``Thunk) : ToMonoM C
   let letValue := .const ``Thunk.get [] #[.erased, .fvar c.discr]
   let letDecl ← mkLetDecl (← mkFreshBinderName `_x) anyExpr letValue
   let paramType := .const `PUnit []
-  let decl := {
-    fvarId := p.fvarId
-    binderName := p.binderName
-    type := (← mkArrow paramType anyExpr)
-    params := #[← mkAuxParam paramType]
-    value := .let letDecl (.return letDecl.fvarId)
-  }
+  let decl := ⟨
+    p.fvarId,
+    p.binderName,
+    #[← mkAuxParam paramType],
+    (← mkArrow paramType anyExpr),
+    .let letDecl (.return letDecl.fvarId)
+  ⟩
   modifyLCtx fun lctx => lctx.addFunDecl decl
   let k ← k.toMono
   return .fun decl k
@@ -418,7 +418,7 @@ partial def Code.toMono (code : Code) : ToMonoM Code := do
             let ps ← mkFieldParamsForComputedFields ctorInfo.type ctorInfo.numParams numNewFields ps
             let k ← k.toMono
             return .alt implCtorName ps k
-        return .cases { discr := c.discr, resultType, typeName, alts }
+        return .cases ⟨typeName, resultType, c.discr, alts⟩
       else
         let alts ← c.alts.mapM fun alt =>
           match alt with

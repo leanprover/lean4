@@ -147,18 +147,11 @@ inductive Alt where
   | alt (ctorName : Name) (params : Array Param) (code : Code)
   | default (code : Code)
 
-structure FunDecl where
-  fvarId : FVarId
-  binderName : Name
-  params : Array Param
-  type : Expr
-  value : Code
+inductive FunDecl where
+  | mk (fvarId : FVarId) (binderName : Name) (params : Array Param) (type : Expr) (value : Code)
 
-structure Cases where
-  typeName : Name
-  resultType : Expr
-  discr : FVarId
-  alts : Array Alt
+inductive Cases where
+  | mk (typeName : Name) (resultType : Expr) (discr : FVarId) (alts : Array Alt)
   deriving Inhabited
 
 inductive Code where
@@ -172,6 +165,57 @@ inductive Code where
   deriving Inhabited
 
 end
+
+@[inline]
+def FunDecl.fvarId : FunDecl → FVarId
+  | .mk (fvarId := fvarId) .. => fvarId
+
+@[inline]
+def FunDecl.binderName : FunDecl → Name
+  | .mk (binderName := binderName) .. => binderName
+
+@[inline]
+def FunDecl.params : FunDecl → Array Param
+  | .mk (params := params) .. => params
+
+@[inline]
+def FunDecl.type : FunDecl → Expr
+  | .mk (type := type) .. => type
+
+@[inline]
+def FunDecl.value : FunDecl → Code
+  | .mk (value := value) .. => value
+
+@[inline]
+def FunDecl.updateBinderName : FunDecl → Name → FunDecl
+  | .mk fvarId _ params type value, new =>
+    .mk fvarId new params type value
+
+@[inline]
+def FunDecl.toParam (decl : FunDecl) (borrow : Bool) : Param :=
+  match decl with
+  | .mk fvarId binderName _ type .. => ⟨fvarId, binderName, type, borrow⟩
+
+@[inline]
+def Cases.typeName : Cases → Name
+  | .mk (typeName := typeName) .. => typeName
+
+@[inline]
+def Cases.resultType : Cases → Expr
+  | .mk (resultType := resultType) .. => resultType
+
+@[inline]
+def Cases.discr : Cases → FVarId
+  | .mk (discr := discr) .. => discr
+
+@[inline]
+def Cases.alts : Cases → Array Alt
+  | .mk (alts := alts) .. => alts
+
+@[inline]
+def Cases.updateAlts : Cases → Array Alt → Cases
+  | .mk typeName resultType discr _, new =>
+    .mk typeName resultType discr new
 
 deriving instance Inhabited for Alt
 deriving instance Inhabited for FunDecl
@@ -281,14 +325,18 @@ private unsafe def updateAltImp (alt : Alt) (ps' : Array Param) (k' : Code) : Al
 
 @[inline] private unsafe def updateAltsImp (c : Code) (alts : Array Alt) : Code :=
   match c with
-  | .cases cs => if ptrEq cs.alts alts then c else .cases { cs with alts }
+  | .cases cs => if ptrEq cs.alts alts then c else .cases <| cs.updateAlts alts
   | _ => unreachable!
 
 @[implemented_by updateAltsImp] opaque Code.updateAlts! (c : Code) (alts : Array Alt) : Code
 
 @[inline] private unsafe def updateCasesImp (c : Code) (resultType : Expr) (discr : FVarId) (alts : Array Alt) : Code :=
   match c with
-  | .cases cs => if ptrEq cs.alts alts && ptrEq cs.resultType resultType && cs.discr == discr then c else .cases { cs with discr, resultType, alts }
+  | .cases cs =>
+    if ptrEq cs.alts alts && ptrEq cs.resultType resultType && cs.discr == discr then
+      c
+    else
+      .cases <| ⟨cs.typeName, resultType, discr, alts⟩
   | _ => unreachable!
 
 @[implemented_by updateCasesImp] opaque Code.updateCases! (c : Code) (resultType : Expr) (discr : FVarId) (alts : Array Alt) : Code
@@ -368,7 +416,7 @@ private unsafe def updateFunDeclCoreImp (decl: FunDecl) (type : Expr) (params : 
   if ptrEq type decl.type && ptrEq params decl.params && ptrEq value decl.value then
     decl
   else
-    { decl with type, params, value }
+    ⟨decl.fvarId, decl.binderName, params, type, value⟩
 
 /--
 Low-level update `FunDecl` function. It does not update the local context.
@@ -378,7 +426,7 @@ to be updated.
 @[implemented_by updateFunDeclCoreImp] opaque FunDecl.updateCore (decl : FunDecl) (type : Expr) (params : Array Param) (value : Code) : FunDecl
 
 def Cases.extractAlt! (cases : Cases) (ctorName : Name) : Alt × Cases :=
-  let found i := (cases.alts[i], { cases with alts := cases.alts.eraseIdx i })
+  let found i := (cases.alts[i]!, cases.updateAlts (cases.alts.eraseIdx! i))
   if let some i := cases.alts.findFinIdx? fun | .alt ctorName' .. => ctorName == ctorName' | _ => false then
     found i
   else if let some i := cases.alts.findFinIdx? fun | .default _ => true | _ => false then

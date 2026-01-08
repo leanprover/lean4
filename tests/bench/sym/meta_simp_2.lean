@@ -20,6 +20,7 @@ def checkWithKernel (r : Simp.Result) : MetaM Float := do
 def mkSimpContext (config : Simp.Config := {}) : MetaM Simp.Context := do
   let s : SimpTheorems := {}
   let s ← s.addConst ``Nat.zero_add
+  let s ← s.addConst ``Nat.add_zero
   let config := { config with implicitDefEqProofs := false }
   Simp.mkContext config #[s] {}
 
@@ -34,14 +35,29 @@ def simp (e : Expr) : MetaM (Simp.Result × Float) := do
   let timeMs := (endTime - startTime).toFloat / 1000000.0
   return (r, timeMs)
 
+def ppExample (e : Expr) (info := false) : MetaM Unit := do
+  forallTelescope e fun _ e => do
+  IO.println "Example:"
+  IO.println (← ppExpr e)
+  IO.println "====>"
+  let (r, _) ← simp e
+  IO.println (← ppExpr r.expr)
+  let h ← r.getProof
+  IO.println "Proof:"
+  if info then
+    logInfo h
+  else
+    IO.println (← ppExpr h)
+
 def mkLambdaBench (n : Nat) : MetaM Expr := do
   let zero := mkNatLit 0
+  let one := mkNatLit 1
   let rec go (n : Nat) (xs : Array Expr) (e : Expr) : MetaM Expr := do
     match n with
     | 0 => mkLambdaFVars xs e
     | n+1 =>
       withLocalDeclD `x (mkConst ``Nat) fun x =>
-        go n (xs.push x) (mkNatAdd zero (mkNatAdd e x))
+        go n (xs.push x) (mkNatAdd zero (mkNatAdd e (mkNatAdd (mkNatAdd x one) zero)))
   go n #[] zero
 
 def benchLambda (n : Nat) (check := false) : MetaM Unit := do
@@ -63,6 +79,7 @@ def runAllBenchmarks : MetaM Unit := do
 
   IO.println ""
   IO.println "--- Benchmark 1: Lambda Telescope block ---"
+  ppExample (← mkLambdaBench 5)
   for n in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200] do
     benchLambda n (n < 500)
 

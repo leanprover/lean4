@@ -48,7 +48,7 @@ where
       if alts.isEmpty then
         throwError "`Code.bind` failed, empty `cases` found"
       let resultType ← mkCasesResultType alts
-      return .cases { c with alts, resultType }
+      return .cases ⟨c.typeName, resultType, c.discr, alts⟩
     | .return fvarId => f fvarId
     | .jmp fvarId .. =>
       unless (← read).contains fvarId do

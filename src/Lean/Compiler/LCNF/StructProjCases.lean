@@ -72,7 +72,7 @@ partial def visitCode (code : Code) : M Code := do
         modify fun s => { s with projMap := s.projMap.erase base }
         let resultType ← toMonoType (← k.inferType)
         let alts := #[.alt ctorInfo.name params k]
-        return .cases { typeName, resultType, discr := base, alts }
+        return .cases ⟨typeName, resultType, base, alts⟩
     | _ => return code.updateLet! (← decl.updateValue (← visitLetValue decl.value)) (← visitCode k)
   | .fun decl k =>
     let decl ← decl.updateValue (← visitCode decl.value)

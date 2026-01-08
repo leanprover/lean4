@@ -359,7 +359,7 @@ def mkLetDecl (binderName : Name) (type : Expr) (value : LetValue) : CompilerM L
 def mkFunDecl (binderName : Name) (type : Expr) (params : Array Param) (value : Code) : CompilerM FunDecl := do
   let fvarId ← mkFreshFVarId
   let binderName ← ensureNotAnonymous binderName `_f
-  let funDecl := { fvarId, binderName, type, params, value }
+  let funDecl := ⟨fvarId, binderName, params, type, value⟩
   modifyLCtx fun lctx => lctx.addFunDecl funDecl
   return funDecl
 
@@ -397,7 +397,7 @@ private unsafe def updateFunDeclImp (decl : FunDecl) (type : Expr) (params : Arr
   if ptrEq type decl.type && ptrEq params decl.params && ptrEq value decl.value then
     return decl
   else
-    let decl := { decl with type, params, value }
+    let decl := ⟨decl.fvarId, decl.binderName, params, type, value⟩
     modifyLCtx fun lctx => lctx.addFunDecl decl
     return decl
 

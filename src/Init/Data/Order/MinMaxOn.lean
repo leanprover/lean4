@@ -107,3 +107,49 @@ theorem apply_maxOn_ge_right [LE β] [DecidableLE β] [Std.IsLinearPreorder β] 
   split
   · assumption
   · apply Std.le_refl
+
+@[grind =]
+public theorem maxOn_assoc [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f : α → β}
+    {x y z : α} : maxOn f (maxOn f x y) z = maxOn f x (maxOn f y z) := by
+  open scoped Classical.Order in
+  simp only [maxOn]
+  split
+  · split
+    · split
+      · rfl
+      · rfl
+    · split
+      · have : ¬ f z ≤ f x := by assumption
+        have : f z ≤ f x := Std.le_trans ‹f z ≤ f y› ‹f y ≤ f x›
+        contradiction
+      · rfl
+  · split
+    · rfl
+    · have : f x < f y := Std.not_le.mp ‹¬ f y ≤ f x›
+      have : f y < f z := Std.not_le.mp ‹¬ f z ≤ f y›
+      have : f x < f z := Std.lt_trans ‹_› ‹_›
+      rw [if_neg]
+      exact Std.not_le.mpr ‹_›
+
+@[grind =]
+public theorem minOn_assoc [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f : α → β}
+    {x y z : α} : minOn f (minOn f x y) z = minOn f x (minOn f y z) := by
+  open scoped Classical.Order in
+  simp only [minOn]
+  split
+  · split
+    · split
+      · rfl
+      · rfl
+    · split
+      · have : ¬ f x ≤ f z := by assumption
+        have : f x ≤ f z := Std.le_trans ‹f x ≤ f y› ‹f y ≤ f z›
+        contradiction
+      · rfl
+  · split
+    · rfl
+    · have : f z < f y := Std.not_le.mp ‹¬ f y ≤ f z›
+      have : f y < f x := Std.not_le.mp ‹¬ f x ≤ f y›
+      have : f z < f x := Std.lt_trans ‹_› ‹_›
+      rw [if_neg]
+      exact Std.not_le.mpr ‹_›

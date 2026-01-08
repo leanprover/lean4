@@ -54,4 +54,27 @@ public protected def maxOn? [LE β] [DecidableLE β] (f : α → β) (l : List �
   | [] => none
   | x :: xs => some (xs.foldl (init := x) (maxOn f))
 
+@[grind =]
+theorem maxOn_singleton [LE β] [DecidableLE β] {x : α} {f : α → β} :
+    [x].maxOn f (of_decide_eq_false rfl) = x := by
+  simp [List.maxOn]
+
+@[grind =]
+theorem argmax_assoc [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β} {x y z : α} :
+    argmax f (argmax f x y) z = argmax f x (argmax f y z) := by
+  grind [argmax]
+
+instance [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β} :
+    Associative (argmax f) where
+  assoc := by apply argmax_assoc
+
+theorem List.argmax_cons
+    [LE β] [DecidableLE β] [IsLinearPreorder β] {x : α} {xs : List α} {f : α → β} :
+    (x :: xs).argmax f (by grind) =
+      if h : xs = [] then x else _root_.argmax f x (xs.argmax f h) := by
+  simp only [argmax]
+  match xs with
+  | [] => simp
+  | y :: xs => simp [foldl_assoc]
+
 end List

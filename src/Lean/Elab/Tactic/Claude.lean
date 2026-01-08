@@ -30,8 +30,8 @@ tactics that are tested for validity before being presented as "Try this:" sugge
 
 The tactic requires one of the following environment variable configurations:
 
-- **API backend**: Set `ANTHROPIC_API_KEY` and `ENABLE_LEAN_CLAUDE_API=true`
-- **CLI backend**: Set `ENABLE_LEAN_CLAUDE_CODE=true` (requires Claude Code CLI)
+- **API backend**: Set `ANTHROPIC_API_KEY` and `LEAN_CLAUDE_API=true`
+- **CLI backend**: Set `LEAN_CLAUDE_CODE=true` (requires Claude Code CLI)
 
 ## Options
 

@@ -167,34 +167,37 @@ def tryTactic (stx : Syntax) : TacticM Bool := do
     savedState.restore
     return false
 
-/-- Evaluate tactics from strings, returning those that succeed -/
-def evaluateTactics (tactics : Array String) : TacticM (Array (TSyntax `tactic)) := do
+/-- Evaluate tactics from strings, returning those that succeed.
+    Returns pairs of (original string, parsed syntax) to preserve formatting. -/
+def evaluateTactics (tactics : Array String) : TacticM (Array (String × Syntax)) := do
   let env ← getEnv
   let mut successful := #[]
 
   for tacStr in tactics do
-    -- Parse tactic string (may contain newlines for multi-step sequences)
-    match Parser.runParserCategory env `tactic tacStr with
-    | .ok stx =>
-      -- Try the tactic
+    -- Try parsing as tacticSeq first (handles multi-line), then single tactic
+    let stx? := match Parser.runParserCategory env `tacticSeq tacStr with
+      | .ok stx => some stx
+      | .error _ =>
+        match Parser.runParserCategory env `tactic tacStr with
+        | .ok stx => some stx
+        | .error _ => none
+
+    if let some stx := stx? then
       if ← tryTactic stx then
-        successful := successful.push ⟨stx⟩
-    | .error _ =>
-      -- Skip invalid tactics
-      continue
+        successful := successful.push (tacStr, stx)
 
   return successful
 
 /-! ## Suggestion Generation -/
 
 /-- Generate "Try this:" suggestions -/
-def generateSuggestions (successful : Array (TSyntax `tactic)) : TacticM Unit := do
+def generateSuggestions (successful : Array (String × Syntax)) : TacticM Unit := do
   if successful.isEmpty then
     throwError "Claude suggested no working tactics"
 
-  -- Show suggestions
+  -- Show suggestions using original string to preserve formatting (especially newlines)
   let suggestionObjs : Array Tactic.TryThis.Suggestion :=
-    successful.map fun (s : TSyntax `tactic) => { suggestion := .tsyntax s }
+    successful.map fun (tacStr, _stx) => { suggestion := .string tacStr }
   if suggestionObjs.size == 1 then
     Tactic.TryThis.addSuggestion (← getRef) suggestionObjs[0]!
   else

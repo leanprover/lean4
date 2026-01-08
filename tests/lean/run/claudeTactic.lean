@@ -96,3 +96,20 @@ Response:
 #guard_msgs in
 example : True := by
   claude
+
+-- Test 8: Multi-line tactic sequence (newline-separated tactics)
+-- This tests that "have h : Nat := 1\nomega" is correctly parsed as two tactics
+set_option tactic.claude.mock "{\"tactics\": [\"have h : Nat := 1\\nomega\"]}"
+
+/--
+info: Try this:
+  [apply] have h : Nat := 1
+  omega
+---
+error: unsolved goals
+n : Nat
+⊢ n + 1 > n
+-/
+#guard_msgs in
+example (n : Nat) : n + 1 > n := by
+  claude

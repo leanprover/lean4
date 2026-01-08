@@ -74,7 +74,7 @@ public def max? [Max α] (arr : Array α) : Option α :=
   else
     none
 
-/-! ### Compatibility with `List` -/
+/-! ### Prerequisite lemmas -/
 
 theorem foldlM.loop.normalize_stop [Monad m] {f : β → α → m β} {xs : Array α} {s hs i j b} :
     foldlM.loop f xs s hs i j b = foldlM.loop f xs xs.size (Nat.le_refl _) (Min.min i (s - j)) j b := by
@@ -142,6 +142,8 @@ theorem foldlM.loop_eq_foldlM_take [Monad m]
         clear ih
         simpa using loop.shift_one (xs := (x :: xs).toArray) (f := f) (b := b') (i := i) (j := 0)
     · simp_all
+
+/-! ### Compatibility with `List` -/
 
 theorem foldlM.loop_eq_foldlM_extract [Monad m] {f : β → α → m β} {xs : Array α} {i b} :
     foldlM.loop f xs xs.size (Nat.le_refl _) i j b = (xs.extract j (i + j)).foldlM (init := b) f := by

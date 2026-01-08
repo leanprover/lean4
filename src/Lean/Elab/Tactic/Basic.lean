@@ -369,6 +369,33 @@ def withoutRecover (x : TacticM α) : TacticM α :=
 def withRecover (recover : Bool) (x : TacticM α) : TacticM α :=
   withReader (fun ctx => { ctx with recover }) x
 
+/-! ## Message log utilities -/
+
+/-- Execute an action while suppressing any new messages it generates.
+    Restores the original message log after the action completes.
+    Useful for trying tactics without polluting the message log with errors from failed attempts. -/
+def withSuppressedMessages (action : TacticM α) : TacticM α := do
+  let initialLog ← Core.getMessageLog
+  try
+    action
+  finally
+    Core.setMessageLog initialLog
+
+/-- Execute an action and return any new messages it generates.
+    Restores the original message log afterward.
+    Useful for inspecting messages produced by a tactic without committing them. -/
+def withCapturedMessages (action : TacticM α) : TacticM (α × List Message) := do
+  let initialLog ← Core.getMessageLog
+  let initialMsgCount := initialLog.toList.length
+  let result ← action
+  let newMsgs := (← Core.getMessageLog).toList.drop initialMsgCount
+  Core.setMessageLog initialLog
+  return (result, newMsgs)
+
+/-- Check if any messages in the list are errors. -/
+def hasErrorMessages (msgs : List Message) : Bool :=
+  msgs.any (·.severity == .error)
+
 /--
 Like `throwErrorAt`, but, if recovery is enabled, logs the error instead.
 -/

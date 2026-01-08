@@ -338,12 +338,14 @@ where
                 deps := deps.union k {indMod}
       return deps
 
+abbrev Explanations := Std.HashMap (ModuleIdx × NeedsKind) (Option (Name × Name))
+
 /--
 Calculates the same as `calcNeeds` but tracing each module to a use-def declaration pair or
 `none` if merely a recorded extra use.
 -/
-def getExplanations (env : Environment) (i : ModuleIdx) :
-    Std.HashMap (ModuleIdx × NeedsKind) (Option (Name × Name)) := Id.run do
+def getExplanations (s : State) (i : ModuleIdx) : Explanations := Id.run do
+  let env := s.env
   let mut deps := default
   for ci in env.header.moduleData[i]!.constants do
     -- Added guard for cases like `structure` that are still exported even if private
@@ -364,18 +366,25 @@ def getExplanations (env : Environment) (i : ModuleIdx) :
 where
   /-- Accumulate the results from expression `e` into `deps`. -/
   visitExpr (k : NeedsKind) name e deps :=
+    let env := s.env
     Lean.Expr.foldConsts e deps fun c deps => Id.run do
       let mut deps := deps
       if let some c := getDepConstName? env c then
         if let some j := env.getModuleIdxFor? c then
           let k := { k with isMeta := k.isMeta && !isDeclMeta' env c }
-          if
-            if let some (some (name', _)) := deps[(j, k)]? then
-              decide (name.toString.length < name'.toString.length)
-            else true
-          then
-            deps := deps.insert (j, k) (name, c)
+          deps := addExplanation j k name c deps
+        for indMod in (indirectModUseExt.getState env)[c]?.getD #[] do
+          if s.transDeps[i]!.has k indMod then
+            deps := addExplanation indMod k name (`_indirect ++ c) deps
       return deps
+  addExplanation (j : ModuleIdx) (k : NeedsKind) (use def_ : Name) (deps : Explanations) : Explanations :=
+    if
+      if let some (some (name', _)) := deps[(j, k)]? then
+        decide (use.toString.length < name'.toString.length)
+      else true
+    then
+      deps.insert (j, k) (use, def_)
+    else deps
 
 partial def initStateFromEnv (env : Environment) : State := Id.run do
   let mut s := { env }
@@ -542,7 +551,7 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
         let mut imp : Import := { k with module := s.modNames[j]! }
         let mut j := j
         if args.trace then
-          IO.eprintln s!"`{imp}` is needed"
+          IO.eprintln s!"`{imp}` is needed{if needs.has k j then " (calculated)" else ""}"
         if args.addPublic && !k.isExported &&
             -- also add as public if previously `public meta`, which could be from automatic porting
             (s.transDepsOrig[i]!.has { k with isExported := true } j || s.transDepsOrig[i]!.has { k with isExported := true, isMeta := true } j) then
@@ -660,7 +669,7 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
   modify fun s => { s with transDeps := s.transDeps.set! i newTransDepsI }
 
   if args.explain then
-    let explanation := getExplanations s.env i
+    let explanation := getExplanations s i
     let sanitize n := if n.hasMacroScopes then (sanitizeName n).run' { options := {} } else n
     let run (imp : Import) := do
       let j := s.env.getModuleIdx? imp.module |>.get!

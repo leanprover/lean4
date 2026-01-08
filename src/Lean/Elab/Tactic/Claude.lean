@@ -46,11 +46,24 @@ This tactic is primarily intended for automation (e.g., as a fallback in `try?`)
 For interactive proof development, running a Claude Code session alongside your editor
 provides a more effective workflow with full conversation context.
 -/
-syntax (name := claude) "claude" : tactic
+syntax (name := claude) "claude" (str)? : tactic
 
 /-- Main tactic implementation. -/
 @[builtin_tactic Lean.Elab.Tactic.claude]
-def evalClaude : Tactic := fun _ => do
+def evalClaude : Tactic := fun stx => do
+  -- 0. Extract optional instruction string
+  let instruction? : Option String :=
+    if stx[1].isNone then none
+    else stx[1][0].isStrLit?
+
+  -- 0b. Validate punctuation if non-empty string is provided
+  if let some instr := instruction? then
+    let trimmed := instr.trimAsciiEnd.toString
+    if !trimmed.isEmpty then
+      if !['.', '!', '?'].contains trimmed.back then
+        logWarning "Instruction should end with punctuation (., !, or ?). Skipping Claude query."
+        return
+
   -- 1. Load config
   let config ← Claude.getConfig
 
@@ -65,6 +78,11 @@ def evalClaude : Tactic := fun _ => do
   let template := Claude.parseTemplate templateContent
   let ctx ← Claude.buildTemplateContext goal
   let prompt ← Claude.interpolateTemplate template ctx
+
+  -- 4b. Append instruction if provided
+  let prompt := match instruction? with
+    | some instr => if instr.trimAsciiEnd.toString.isEmpty then prompt else prompt ++ "\n\n" ++ instr
+    | none => prompt
 
   -- 5. Trace if enabled
   if config.tracePrompt then

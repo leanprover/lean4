@@ -253,3 +253,87 @@ error: unsolved goals
 #guard_msgs in
 example : True := by
   claude
+
+-- Test 19: Optional string argument with period
+set_option tactic.claude.mock "{\"tactics\": [\"trivial\"]}"
+
+/--
+info: Try this:
+  [apply] trivial
+---
+error: unsolved goals
+⊢ True
+-/
+#guard_msgs in
+example : True := by
+  claude "Use trivial here."
+
+-- Test 20: Optional string argument with exclamation mark
+set_option tactic.claude.mock "{\"tactics\": [\"rfl\"]}"
+
+/--
+info: Try this:
+  [apply] rfl
+---
+error: unsolved goals
+⊢ 1 = 1
+-/
+#guard_msgs in
+example : 1 = 1 := by
+  claude "This should be reflexivity!"
+
+-- Test 21: Optional string argument with question mark
+set_option tactic.claude.mock "{\"tactics\": [\"simp\"]}"
+
+/--
+info: Try this:
+  [apply] simp
+---
+error: unsolved goals
+n : Nat
+⊢ n + 0 = n
+-/
+#guard_msgs in
+example (n : Nat) : n + 0 = n := by
+  claude "Can you simplify this?"
+
+-- Test 22: Missing punctuation - should warn and skip
+set_option tactic.claude.mock "{\"tactics\": [\"trivial\"]}"
+
+/--
+warning: Instruction should end with punctuation (., !, or ?). Skipping Claude query.
+---
+error: unsolved goals
+⊢ True
+-/
+#guard_msgs in
+example : True := by
+  claude "No punctuation here"
+
+-- Test 23: Empty string - should proceed normally (no instruction appended)
+set_option tactic.claude.mock "{\"tactics\": [\"trivial\"]}"
+
+/--
+info: Try this:
+  [apply] trivial
+---
+error: unsolved goals
+⊢ True
+-/
+#guard_msgs in
+example : True := by
+  claude ""
+
+-- Test 24: Whitespace-only string - should proceed normally
+set_option tactic.claude.mock "{\"tactics\": [\"rfl\"]}"
+
+/--
+info: Try this:
+  [apply] rfl
+---
+error: unsolved goals
+⊢ 2 = 2
+-/
+#guard_msgs in
+example : 2 = 2 := by
+  claude "   "

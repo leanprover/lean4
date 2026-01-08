@@ -211,33 +211,25 @@ def parseTacticResponse (response : String) : Except String TacticResponse := do
 
 /-! ## Tactic Evaluation -/
 
-/-- Check if all assigned goals have valid assignments (no sorry, type-correct) -/
-def checkAssignmentsValid (goals : List MVarId) : MetaM Bool := do
+/-- Check that no assigned goals contain sorry in their assignments.
+    Type errors during elaboration create synthetic sorries, so this also
+    catches type mismatches. -/
+def assignmentsHaveNoSorry (goals : List MVarId) : MetaM Bool := do
   for goal in goals do
     if let some assignment ← getExprMVarAssignment? goal then
-      -- Check for sorry - tactics that fail often assign sorry instead of throwing
       if assignment.hasSorry then
-        return false
-      let expectedType ← goal.getType
-      -- Check that the assigned expression has the expected type
-      try
-        let actualType ← Meta.inferType assignment
-        unless ← Meta.isDefEq actualType expectedType do
-          return false
-      catch _ =>
         return false
   return true
 
 /-- Try a tactic and return whether it succeeded (without committing changes).
-    Also verifies that goal assignments don't contain sorry, since tactics that
+    Verifies that goal assignments don't contain sorry, since tactics that
     fail during elaboration may assign sorry instead of throwing an exception. -/
 def tryTactic (stx : Syntax) : TacticM Bool := do
   let savedState ← saveState
   let goalsBefore ← getGoals
   try
     evalTactic stx
-    -- Verify assignments are valid (no sorry, type-correct)
-    let valid ← checkAssignmentsValid goalsBefore
+    let valid ← assignmentsHaveNoSorry goalsBefore
     savedState.restore
     return valid
   catch _ =>

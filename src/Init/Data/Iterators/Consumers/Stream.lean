@@ -9,6 +9,8 @@ prelude
 public import Init.Data.Stream
 public import Init.Data.Iterators.Consumers.Access
 
+set_option linter.missingDocs true
+
 public section
 
 namespace Std

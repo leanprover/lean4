@@ -10,6 +10,7 @@ public import Init.Classical
 public import Init.Ext
 
 set_option doc.verso true
+set_option linter.missingDocs true
 
 public section
 
@@ -349,14 +350,24 @@ abbrev PlausibleIterStep.casesOn {IsPlausibleStep : IterStep α β → Prop}
 end IterStep
 
 /--
-The typeclass providing the step function of an iterator in `Iter (α := α) β` or
-`IterM (α := α) m β`.
+The step function of an iterator in `Iter (α := α) β` or `IterM (α := α) m β`.
 
 In order to allow intrinsic termination proofs when iterating with the `step` function, the
 step object is bundled with a proof that it is a "plausible" step for the given current iterator.
 -/
 class Iterator (α : Type w) (m : Type w → Type w') (β : outParam (Type w)) where
+  /--
+  A relation that governs the allowed steps from a given iterator.
+
+  The "plausible" steps are those which make sense for a given state; plausibility can ensure
+  properties such as the successor iterator being drawn from the same collection, that an iterator
+  resulting from a skip will return the same next value, or that the next item yielded is next one
+  in the original collection.
+  -/
   IsPlausibleStep : IterM (α := α) m β → IterStep (IterM (α := α) m β) β → Prop
+  /--
+  Carries out a step of iteration.
+  -/
   step : (it : IterM (α := α) m β) → m (Shrink <| PlausibleIterStep <| IsPlausibleStep it)
 
 section Monadic
@@ -369,7 +380,7 @@ def IterM.mk {α : Type w} (it : α) (m : Type w → Type w') (β : Type w) :
     IterM (α := α) m β :=
   ⟨it⟩
 
-@[deprecated IterM.mk (since := "2025-12-01"), inline, expose]
+@[deprecated IterM.mk (since := "2025-12-01"), inline, expose, inherit_doc IterM.mk]
 def Iterators.toIterM := @IterM.mk
 
 @[simp]
@@ -377,6 +388,7 @@ theorem IterM.mk_internalState {α m β} (it : IterM (α := α) m β) :
     .mk it.internalState m β = it :=
   rfl
 
+set_option linter.missingDocs false in
 @[deprecated IterM.mk_internalState (since := "2025-12-01")]
 def Iterators.toIterM_internalState := @IterM.mk_internalState
 
@@ -459,8 +471,10 @@ number of steps.
 -/
 inductive IterM.IsPlausibleIndirectOutput {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
     : IterM (α := α) m β → β → Prop where
+  /-- The output value could plausibly be emitted in the next step. -/
   | direct {it : IterM (α := α) m β} {out : β} : it.IsPlausibleOutput out →
       it.IsPlausibleIndirectOutput out
+  /-- The output value could plausibly be emitted in a step after the next step. -/
   | indirect {it it' : IterM (α := α) m β} {out : β} : it'.IsPlausibleSuccessorOf it →
       it'.IsPlausibleIndirectOutput out → it.IsPlausibleIndirectOutput out
 
@@ -470,7 +484,9 @@ finitely many steps. This relation is reflexive.
 -/
 inductive IterM.IsPlausibleIndirectSuccessorOf {α β : Type w} {m : Type w → Type w'}
     [Iterator α m β] : IterM (α := α) m β → IterM (α := α) m β → Prop where
+  /-- Every iterator is a plausible indirect successor of itself. -/
   | refl (it : IterM (α := α) m β) : it.IsPlausibleIndirectSuccessorOf it
+  /-- The iterator is a plausible successor of one of the current iterator's successors. -/
   | cons_right {it'' it' it : IterM (α := α) m β} (h' : it''.IsPlausibleIndirectSuccessorOf it')
       (h : it'.IsPlausibleSuccessorOf it) : it''.IsPlausibleIndirectSuccessorOf it
 
@@ -595,8 +611,10 @@ number of steps.
 -/
 inductive Iter.IsPlausibleIndirectOutput {α β : Type w} [Iterator α Id β] :
     Iter (α := α) β → β → Prop where
+  /-- The output value could plausibly be emitted in the next step. -/
   | direct {it : Iter (α := α) β} {out : β} : it.IsPlausibleOutput out →
       it.IsPlausibleIndirectOutput out
+  /-- The output value could plausibly be emitted in a step after the next step. -/
   | indirect {it it' : Iter (α := α) β} {out : β} : it'.IsPlausibleSuccessorOf it →
       it'.IsPlausibleIndirectOutput out → it.IsPlausibleIndirectOutput out
 
@@ -627,7 +645,9 @@ finitely many steps. This relation is reflexive.
 -/
 inductive Iter.IsPlausibleIndirectSuccessorOf {α : Type w} {β : Type w} [Iterator α Id β] :
     Iter (α := α) β → Iter (α := α) β → Prop where
+  /-- Every iterator is a plausible indirect successor of itself. -/
   | refl (it : Iter (α := α) β) : IsPlausibleIndirectSuccessorOf it it
+  /-- The iterator is a plausible indirect successor of one of the current iterator's successors. -/
   | cons_right {it'' it' it : Iter (α := α) β} (h' : it''.IsPlausibleIndirectSuccessorOf it')
       (h : it'.IsPlausibleSuccessorOf it) : it''.IsPlausibleIndirectSuccessorOf it
 
@@ -701,6 +721,11 @@ recursion over finite iterators. See also `IterM.finitelyManySteps` and `Iter.fi
 -/
 structure IterM.TerminationMeasures.Finite
     (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
+  /--
+  The wrapped iterator.
+
+  In the wrapper, its finiteness is used as a termination measure.
+  -/
   it : IterM (α := α) m β
 
 /--
@@ -827,6 +852,11 @@ recursion over productive iterators. See also `IterM.finitelyManySkips` and `Ite
 -/
 structure IterM.TerminationMeasures.Productive
     (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β] where
+  /--
+  The wrapped iterator.
+
+  In the wrapper, its productivity is used as a termination measure.
+  -/
   it : IterM (α := α) m β
 
 /--
@@ -930,6 +960,9 @@ library.
 -/
 class LawfulDeterministicIterator (α : Type w) (m : Type w → Type w') [Iterator α m β]
     where
+  /--
+  Every iterator with state `α` in monad `m` has exactly one plausible step.
+  -/
   isPlausibleStep_eq_eq : ∀ it : IterM (α := α) m β, ∃ step, it.IsPlausibleStep = (· = step)
 
 namespace Iterators
@@ -940,14 +973,13 @@ This structure provides a more convenient way to define `Finite α m` instances 
 -/
 structure FinitenessRelation (α : Type w) (m : Type w → Type w') {β : Type w}
     [Iterator α m β] where
-  /-
-  A well-founded relation such that if `it'` is a successor iterator of `it`, then
-  `Rel it' it`.
+  /--
+  A well-founded relation such that if `it'` is a successor iterator of `it`, then `Rel it' it`.
   -/
   Rel (it' it : IterM (α := α) m β) : Prop
-  /- A proof that `Rel` is well-founded. -/
+  /-- `Rel` is well-founded. -/
   wf : WellFounded Rel
-  /- A proof that if `it'` is a successor iterator of `it`, then `Rel it' it`. -/
+  /-- If `it'` is a successor iterator of `it`, then `Rel it' it`. -/
   subrelation : ∀ {it it'}, it'.IsPlausibleSuccessorOf it → Rel it' it
 
 theorem Finite.of_finitenessRelation
@@ -967,14 +999,13 @@ This structure provides a more convenient way to define `Productive α m` instan
 -/
 structure ProductivenessRelation (α : Type w) (m : Type w → Type w') {β : Type w}
     [Iterator α m β] where
-  /-
-  A well-founded relation such that if `it'` is obtained from `it` by skipping, then
-  `Rel it' it`.
+  /--
+  A well-founded relation such that if `it'` is obtained from `it` by skipping, then `Rel it' it`.
   -/
   Rel : (IterM (α := α) m β) → (IterM (α := α) m β) → Prop
-  /- A proof that `Rel` is well-founded. -/
+  /-- `Rel` is well-founded. -/
   wf : WellFounded Rel
-  /- A proof that if `it'` is obtained from `it` by skipping, then `Rel it' it`. -/
+  /-- If `it'` is obtained from `it` by skipping, then `Rel it' it`. -/
   subrelation : ∀ {it it'}, it'.IsPlausibleSkipSuccessorOf it → Rel it' it
 
 theorem Productive.of_productivenessRelation

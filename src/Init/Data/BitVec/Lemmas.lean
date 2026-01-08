@@ -6471,24 +6471,6 @@ theorem cpopNatRec_cons_of_lt {x : BitVec w} {b : Bool} (hn : w < n) :
 
 theorem cpopNatRec_zero_le (x : BitVec w) (n : Nat) :
     x.cpopNatRec n 0 ≤ w := by
-  induction n
-  · case zero =>
-    simp
-  · case succ n ihn =>
-    by_cases hle : n ≤ w
-    · by_cases hx : x.getLsbD n
-      · have := cpopNatRec_le (x := x) (acc := 1) (by omega)
-        have := lt_of_getLsbD hx
-        simp [hx]
-        omega
-      · have := cpopNatRec_le (x := x) (acc := 0) (by omega)
-        simp [hx]
-        omega
-    · simp [show w ≤ n by omega]
-      omega
-
-theorem cpopNatRec_zero_le' (x : BitVec w) (n : Nat) :
-    x.cpopNatRec n 0 ≤ w := by
   induction x
   · case nil => simp
   · case cons w b bv ih =>
@@ -6506,8 +6488,6 @@ theorem toNat_cpop_le (x : BitVec w) :
   simp only [cpop, toNat_ofNat, ge_iff_le]
   rw [Nat.mod_eq_of_lt (by omega)]
   exact hle
-
-
 
 theorem cpopNatRec_concat_of_lt {x : BitVec w} {b : Bool} (hn : 0 < n) :
     (concat x b).cpopNatRec n acc = b.toNat + x.cpopNatRec (n - 1) acc := by

@@ -3366,14 +3366,13 @@ theorem concat_extractLsb'_getLsb {w : Nat} (x : BitVec (w + 1)) : BitVec.concat
   · simp [h, hw, show (1 + (i - 1)) = i by omega, getElem_concat]
 
 @[elab_as_elim]
-theorem concat_induction (P : {w : Nat} → (BitVec w) → Prop)
-    (base : P 0#0)
-    (concat: ∀ {w : Nat} (b : Bool) (bv : BitVec w), P bv → P (bv.concat b)) :
-    ∀ {w : Nat} (x : BitVec w), P x := by
+theorem concat_induction {motive : (w : Nat) → BitVec w → Prop} (nil : motive 0 .nil)
+    (concat : ∀ {w : Nat} (bv : BitVec w) (b : Bool), motive w bv → motive (w + 1) (bv.concat b)) :
+    ∀ {w : Nat} (x : BitVec w), motive w x := by
   intros w x
   induction w
   case zero =>
-    simp [BitVec.eq_nil x, base]
+    simp only [BitVec.eq_nil x, nil]
   case succ wl ih =>
     rw [← concat_extractLsb'_getLsb x]
     apply concat
@@ -6368,7 +6367,7 @@ theorem two_pow_ctz_le_toNat_of_ne_zero {x : BitVec w} (hx : x ≠ 0#w) :
   have hclz := getLsbD_true_ctz_of_ne_zero (x := x) hx
   exact Nat.ge_two_pow_of_testBit hclz
 
-/-! ### cpop -/
+/-! ### Population Count -/
 
 @[simp]
 theorem cpopNatRec_zero_self {x : BitVec w} :
@@ -6491,7 +6490,7 @@ theorem cpopNatRec_zero_le (x : BitVec w) (n : Nat) :
 theorem cpopNatRec_zero_le' (x : BitVec w) (n : Nat) :
     x.cpopNatRec n 0 ≤ w := by
   induction x
-  · case base => simp
+  · case nil => simp
   · case cons w b bv ih =>
     by_cases hle : n ≤ w
     · have := cpopNatRec_cons_of_le (b := b) (x := bv) (n := n) (acc := 0) hle
@@ -6626,7 +6625,7 @@ theorem cpop_append {x : BitVec w} {y : BitVec u} :
 theorem toNat_cpop_not {x : BitVec w} :
     (~~~x).cpop.toNat = w - x.cpop.toNat := by
   induction x
-  case base =>
+  case nil =>
     simp
   case cons b x ih =>
     have := toNat_cpop_le x

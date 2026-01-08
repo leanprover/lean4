@@ -62,13 +62,4 @@ def _root_.Lean.MVarId.hrefl (mvarId : MVarId) : MetaM Unit := do
     let some [] ← observing? do mvarId.apply (mkConst ``HEq.refl [← mkFreshLevelMVar])
       | throwTacticEx `hrefl mvarId
 
-/--
-Close given goal using `Subsingleton.helim`.
--/
-def _root_.Lean.MVarId.helim (mvarId : MVarId) : MetaM (List MVarId) :=
-  mvarId.withContext do
-    let some subGoals ← observing? do mvarId.apply (mkConst ``Subsingleton.helim [← mkFreshLevelMVar])
-      | throwTacticEx `hrefl mvarId
-    return subGoals
-
 end Lean.Meta

@@ -886,7 +886,7 @@ private def generalize (discrs : Array Discr) (matchType : Expr) (altViews : Arr
       let matchType' ← forallBoundedTelescope matchType discrs.size fun ds type => do
         let type ← mkForallFVars ys type
         let (discrs', ds') := Array.unzip <| Array.zip discrExprs ds |>.filter fun (di, _) => di.isFVar
-        let type ← type.replaceFVarsM discrs' ds'
+        let type := type.replaceFVars discrs' ds'
         mkForallFVars ds type
       if (← isTypeCorrect matchType') then
         let discrs := discrs ++  ys.map fun y => { expr := y : Discr }
@@ -1119,11 +1119,11 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
       withRef altLHS.ref do
         for d in altLHS.fvarDecls do
           if d.hasExprMVar then
-            -- This code path is a vestige prior to fixing #8099, but it is still appears to be
-            -- important for testcase 1300.lean.
             tryPostpone
             withExistingLocalDecls altLHS.fvarDecls do
               runPendingTacticsAt d.type
+              if (← instantiateMVars d.type).hasExprMVar then
+                throwMVarError m!"Invalid match expression: The type of pattern variable '{d.toExpr}' contains metavariables:{indentExpr d.type}"
         for p in altLHS.patterns do
           if (← Match.instantiatePatternMVars p).hasExprMVar then
             tryPostpone

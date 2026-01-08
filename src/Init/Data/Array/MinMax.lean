@@ -26,9 +26,9 @@ Examples:
 * `#[4].min (by decide) = 4`
 * `#[1, 4, 2, 10, 6].min (by decide) = 1`
 -/
-public def min [Min α] (arr : Array α) (h : arr ≠ #[]) : α :=
+public protected def min [Min α] (arr : Array α) (h : arr ≠ #[]) : α :=
   haveI : arr.size > 0 := by simp [Array.size_pos_iff, h]
-  arr.foldl Min.min arr[0] (start := 1)
+  arr.foldl min arr[0] (start := 1)
 
 /-! ### min? -/
 
@@ -40,7 +40,7 @@ Examples:
 * `#[4].min? = some 4`
 * `#[1, 4, 2, 10, 6].min? = some 1`
 -/
-public def min? [Min α] (arr : Array α) : Option α :=
+public protected def min? [Min α] (arr : Array α) : Option α :=
   if h : arr ≠ #[] then
     some (arr.min h)
   else
@@ -55,9 +55,9 @@ Examples:
 * `#[4].max (by decide) = 4`
 * `#[1, 4, 2, 10, 6].max (by decide) = 10`
 -/
-public def max [Max α] (arr : Array α) (h : arr ≠ #[]) : α :=
+public protected def max [Max α] (arr : Array α) (h : arr ≠ #[]) : α :=
   haveI : arr.size > 0 := by simp [Array.size_pos_iff, h]
-  arr.foldl Max.max arr[0] (start := 1)
+  arr.foldl max arr[0] (start := 1)
 
 /-! ### max? -/
 
@@ -69,7 +69,7 @@ Examples:
 * `#[4].max? = some 4`
 * `#[1, 4, 2, 10, 6].max? = some 10`
 -/
-public def max? [Max α] (arr : Array α) : Option α :=
+public protected def max? [Max α] (arr : Array α) : Option α :=
   if h : arr ≠ #[] then
     some (arr.max h)
   else
@@ -78,13 +78,13 @@ public def max? [Max α] (arr : Array α) : Option α :=
 /-! ### Prerequisite lemmas -/
 
 theorem foldlM.loop.normalize_stop [Monad m] {f : β → α → m β} {xs : Array α} {s hs i j b} :
-    foldlM.loop f xs s hs i j b = foldlM.loop f xs xs.size (Nat.le_refl _) (Min.min i (s - j)) j b := by
+    foldlM.loop f xs s hs i j b = foldlM.loop f xs xs.size (Nat.le_refl _) (min i (s - j)) j b := by
   induction i generalizing j b
   · simp [foldlM.loop]
   · rename_i i ih
     simp +singlePass only [foldlM.loop.eq_def (i := i + 1)]
     split
-    · have : Min.min (i + 1) (s - j) = Min.min i (s - j - 1) + 1 := by omega
+    · have : min (i + 1) (s - j) = min i (s - j - 1) + 1 := by omega
       rw [this]
       rw [foldlM.loop, dif_pos (by omega)]
       apply bind_congr; intro
@@ -92,7 +92,7 @@ theorem foldlM.loop.normalize_stop [Monad m] {f : β → α → m β} {xs : Arra
       rfl
     · rw [foldlM.loop]
       split
-      · have : Min.min (i + 1) (s - j) = 0 := by omega
+      · have : min (i + 1) (s - j) = 0 := by omega
         rw [this]
       · rfl
 
@@ -276,12 +276,12 @@ public theorem min?_singleton [Min α] {x : α} : #[x].min? = some x :=
 -- We don't put `@[simp]` on `min?_singleton_append'`,
 -- because the definition in terms of `foldl` is not useful for proofs.
 public theorem min?_singleton_append' [Min α] {xs : Array α} :
-    (#[x] ++ xs).min? = some (xs.foldl Min.min x) := by
+    (#[x] ++ xs).min? = some (xs.foldl min x) := by
   simp [← min?_toList, toList_append, List.min?]
 
 @[simp]
-public theorem min?_singleton_append [Min α] [Std.Associative (Min.min : α → α → α)] {xs : Array α} :
-    (#[x] ++ xs).min? = some (xs.min?.elim x (Min.min x)) := by
+public theorem min?_singleton_append [Min α] [Std.Associative (min : α → α → α)] {xs : Array α} :
+    (#[x] ++ xs).min? = some (xs.min?.elim x (min x)) := by
   simp [← min?_toList, toList_append, List.min?_cons]
 
 @[simp]
@@ -315,7 +315,7 @@ public theorem min?_eq_some_iff [Min α] [LE α] {xs : Array α} [Std.IsLinearOr
   rcases xs with ⟨l⟩
   simpa using List.min?_eq_some_iff
 
-public theorem min?_replicate [Min α] [Std.IdempotentOp (Min.min : α → α → α)] {n : Nat} {a : α} :
+public theorem min?_replicate [Min α] [Std.IdempotentOp (min : α → α → α)] {n : Nat} {a : α} :
     (replicate n a).min? = if n = 0 then none else some a := by
   rw [← List.toArray_replicate, List.min?_toArray, List.min?_replicate]
 
@@ -324,8 +324,8 @@ public theorem min?_replicate_of_pos [Min α] [Std.MinEqOr α] {n : Nat} {a : α
     (replicate n a).min? = some a := by
   simp [min?_replicate, Nat.ne_of_gt h]
 
-public theorem foldl_min [Min α] [Std.IdempotentOp (Min.min : α → α → α)] [Std.Associative (Min.min : α → α → α)]
-    {xs : Array α} {a : α} : xs.foldl (init := a) Min.min = Min.min a (xs.min?.getD a) := by
+public theorem foldl_min [Min α] [Std.IdempotentOp (min : α → α → α)] [Std.Associative (min : α → α → α)]
+    {xs : Array α} {a : α} : xs.foldl (init := a) min = min a (xs.min?.getD a) := by
   rcases xs with ⟨l⟩
   simp [List.foldl_min]
 
@@ -341,12 +341,12 @@ public theorem max?_singleton [Max α] {x : α} : #[x].max? = some x :=
 
 -- We don't put `@[simp]` on `max?_singleton_append'`,
 -- because the definition in terms of `foldl` is not useful for proofs.
-public theorem max?_singleton_append' [Max α] {xs : Array α} : (#[x] ++ xs).max? = some (xs.foldl Max.max x) := by
+public theorem max?_singleton_append' [Max α] {xs : Array α} : (#[x] ++ xs).max? = some (xs.foldl max x) := by
   simp [← max?_toList, toList_append, List.max?]
 
 @[simp]
-public theorem max?_singleton_append [Max α] [Std.Associative (Max.max : α → α → α)] {xs : Array α} :
-    (#[x] ++ xs).max? = some (xs.max?.elim x (Max.max x)) := by
+public theorem max?_singleton_append [Max α] [Std.Associative (max : α → α → α)] {xs : Array α} :
+    (#[x] ++ xs).max? = some (xs.max?.elim x (max x)) := by
   simp [← max?_toList, toList_append, List.max?_cons]
 
 @[simp]
@@ -380,7 +380,7 @@ public theorem max?_eq_some_iff [Max α] [LE α] {xs : Array α} [Std.IsLinearOr
   rcases xs with ⟨l⟩
   simpa using List.max?_eq_some_iff
 
-public theorem max?_replicate [Max α] [Std.IdempotentOp (Max.max : α → α → α)] {n : Nat} {a : α} :
+public theorem max?_replicate [Max α] [Std.IdempotentOp (max : α → α → α)] {n : Nat} {a : α} :
     (replicate n a).max? = if n = 0 then none else some a := by
   rw [← List.toArray_replicate, List.max?_toArray, List.max?_replicate]
 
@@ -388,8 +388,8 @@ public theorem max?_replicate [Max α] [Std.IdempotentOp (Max.max : α → α �
     (replicate n a).max? = some a := by
   simp [max?_replicate, Nat.ne_of_gt h]
 
-public theorem foldl_max [Max α] [Std.IdempotentOp (Max.max : α → α → α)] [Std.Associative (Max.max : α → α → α)]
-    {xs : Array α} {a : α} : xs.foldl (init := a) Max.max = Max.max a (xs.max?.getD a) := by
+public theorem foldl_max [Max α] [Std.IdempotentOp (max : α → α → α)] [Std.Associative (max : α → α → α)]
+    {xs : Array α} {a : α} : xs.foldl (init := a) max = max a (xs.max?.getD a) := by
   rcases xs with ⟨l⟩
   simp [List.foldl_max]
 
@@ -425,9 +425,9 @@ public theorem min_replicate [Min α] [Std.MinEqOr α] {n : Nat} {a : α} (h : (
   have n_pos : 0 < n := by simpa [Nat.ne_zero_iff_zero_lt] using h
   simpa [min?_eq_some_min h] using (min?_replicate_of_pos (a := a) n_pos)
 
-public theorem foldl_min_eq_min [Min α] [Std.IdempotentOp (Min.min : α → α → α)]
-    [Std.Associative (Min.min : α → α → α)] {xs : Array α} (h : xs ≠ #[]) {a : α} :
-    xs.foldl Min.min a = Min.min a (xs.min h) := by
+public theorem foldl_min_eq_min [Min α] [Std.IdempotentOp (min : α → α → α)]
+    [Std.Associative (min : α → α → α)] {xs : Array α} (h : xs ≠ #[]) {a : α} :
+    xs.foldl min a = min a (xs.min h) := by
   simpa [min?_eq_some_min h] using foldl_min (xs := xs)
 
 /-! ### Lemmas about `max` -/
@@ -462,9 +462,9 @@ public theorem max_replicate [Max α] [Std.MaxEqOr α] {n : Nat} {a : α} (h : (
   have n_pos : 0 < n := by simpa [Nat.ne_zero_iff_zero_lt] using h
   simpa [max?_eq_some_max h] using (max?_replicate_of_pos (a := a) n_pos)
 
-public theorem foldl_max_eq_max [Max α] [Std.IdempotentOp (Max.max : α → α → α)]
-    [Std.Associative (Max.max : α → α → α)] {xs : Array α} (h : xs ≠ #[]) {a : α} :
-    xs.foldl Max.max a = Max.max a (xs.max h) := by
+public theorem foldl_max_eq_max [Max α] [Std.IdempotentOp (max : α → α → α)]
+    [Std.Associative (max : α → α → α)] {xs : Array α} (h : xs ≠ #[]) {a : α} :
+    xs.foldl max a = max a (xs.max h) := by
   simpa [max?_eq_some_max h] using foldl_max (xs := xs)
 
 end Array

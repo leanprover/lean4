@@ -386,4 +386,14 @@ theorem foldl_max_eq_max [Max α] [Std.IdempotentOp (max : α → α → α)] [S
     l.foldl max a = max a (l.max hl) := by
   simpa [max?_eq_some_max hl] using foldl_max (l := l)
 
+/-! ## Elements with minimal or maximal values -/
+
+section MinMaxOn
+
+-- protected def minOn [LE β] [DecidableLE β] (f : α → β) (l : List α) (h : l ≠ []) : α :=
+--   match l with
+--   | a :: as => as.foldl ()
+
+end MinMaxOn
+
 end List

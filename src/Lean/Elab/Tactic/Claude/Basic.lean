@@ -231,16 +231,19 @@ def assignmentsHaveNoSorry (goals : List MVarId) : MetaM Bool := do
   return true
 
 /-- Try a tactic and return whether it succeeded (without committing changes).
-    Verifies that goal assignments don't contain sorry, since tactics that
-    fail during elaboration may assign sorry instead of throwing an exception. -/
+    Verifies that:
+    1. Goal assignments don't contain sorry (catches type errors that assign synthetic sorry)
+    2. No error messages were logged during evaluation (catches errors logged via recover mode)
+    Uses `withCapturedMessages` to inspect the message log without polluting it. -/
 def tryTactic (stx : Syntax) : TacticM Bool := do
   let savedState ← saveState
   let goalsBefore ← getGoals
   try
-    evalTactic stx
+    let ((), newMsgs) ← withCapturedMessages do
+      evalTactic stx
     let valid ← assignmentsHaveNoSorry goalsBefore
     savedState.restore
-    return valid
+    return valid && !hasErrorMessages newMsgs
   catch _ =>
     savedState.restore
     return false

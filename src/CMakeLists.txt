@@ -695,7 +695,7 @@ endif()
 
 set(STDLIBS Init Std Lean Leanc)
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  list(APPEND STDLIBS Lake)
+  list(APPEND STDLIBS Lake LeanChecker)
 endif()
 
 add_custom_target(make_stdlib ALL
@@ -757,6 +757,12 @@ if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     DEPENDS lake_shared
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lake
+    VERBATIM)
+
+  add_custom_target(leanchecker ALL
+    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+    DEPENDS lake_shared
+    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanchecker
     VERBATIM)
 endif()
 

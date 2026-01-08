@@ -2,6 +2,22 @@ To build Lean you should use `make -j -C build/release`.
 
 To run a test you should use `cd tests/lean/run && ./test_single.sh example_test.lean`.
 
+## Using CI Artifacts (Fast Path)
+
+When you only need a working Lean build for a commit (not actively developing):
+- Use `script/build_artifact.py` to download pre-built CI artifacts (~30s vs 2-5min build)
+- Artifacts are cached in `~/.cache/lean_build_artifact/`
+- Falls back gracefully if no artifact available (old commit, CI failed, etc.)
+
+**When to use artifacts:**
+- Checking out a branch/PR to test or review
+- Bisecting to find a regression
+- Getting a reference build to compare against
+
+**When to build locally:**
+- Actively developing/modifying Lean source
+- Working on commits not yet in CI (your local changes)
+
 ## New features
 
 When asked to implement new features:

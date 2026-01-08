@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.TryThis
 public import Init.System.IO
+public import Init.Data.String.Search
 
 public section
 
@@ -115,37 +116,37 @@ structure TacticResponse where
   tactics : Array String
   deriving Inhabited
 
-/-- Extract JSON object by finding matching braces.
+/-- Extract JSON object by finding matching braces, respecting string literals.
     Given a string starting with `{`, returns the JSON object up to and including the matching `}`. -/
 private def extractJsonObject (s : String) : Option String := Id.run do
-  let mut depth := 0
-  let mut result := ""
+  let mut depth : Int := 0
+  let mut inString := false
+  let mut prevBackslash := false
+  let mut pos := 0
   for c in s.toList do
-    result := result.push c
-    if c == '{' then
-      depth := depth + 1
-    else if c == '}' then
-      depth := depth - 1
-      if depth == 0 then
-        return some result
+    pos := pos + 1
+    if inString then
+      if c == '\\' && !prevBackslash then
+        prevBackslash := true
+      else
+        if c == '"' && !prevBackslash then
+          inString := false
+        prevBackslash := false
+    else
+      if c == '"' then
+        inString := true
+      else if c == '{' then
+        depth := depth + 1
+      else if c == '}' then
+        depth := depth - 1
+        if depth == 0 then
+          return some (s.take pos).toString
   return none
 
 /-- Find the substring starting at the first occurrence of `pattern` in `s`.
     Returns everything from the pattern onwards, or `none` if not found. -/
-private def findSubstringFrom (s : String) (pattern : String) : Option String := Id.run do
-  if !s.contains pattern then
-    return none
-  -- Linear search for the pattern
-  let sList := s.toList
-  let pList := pattern.toList
-  let pLen := pList.length
-  let sLen := sList.length
-  for i in [0:sLen - pLen + 1] do
-    let slice := sList.drop i |>.take pLen
-    if slice == pList then
-      -- Found pattern at position i, return from here onwards
-      return some (String.ofList (sList.drop i))
-  return none
+private def findSubstringFrom (s : String) (pattern : String) : Option String :=
+  (s.find? pattern).map fun pos => pos.offset.extract s s.rawEndPos
 
 /-- Extract JSON from a response that may contain explanation text.
     Tries several strategies:
@@ -162,10 +163,10 @@ def extractJson (response : String) : String := Id.run do
   let mut blocks : Array (String × String) := #[]
 
   for line in lines do
-    let trimmed := line.toString.trimAscii.toString
+    let trimmed := line.trimAscii
     if trimmed.startsWith "```" && !inBlock then
       inBlock := true
-      currentLang := trimmed.drop 3 |>.trimAscii.toString  -- Get language tag
+      currentLang := trimmed.drop 3 |>.trimAscii.toString
       currentLines := #[]
     else if trimmed.startsWith "```" && inBlock then
       let content := "\n".intercalate currentLines.toList

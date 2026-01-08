@@ -28,7 +28,8 @@ def callClaudeCLI (prompt : String) : IO String := do
   }
 
   if output.exitCode != 0 then
-    throw <| .userError s!"claude CLI failed: {output.stderr}"
+    let errorMsg := if output.stderr.isEmpty then output.stdout else output.stderr
+    throw <| .userError s!"claude CLI failed (exit code {output.exitCode}): {errorMsg}"
 
   return output.stdout
 

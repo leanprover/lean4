@@ -238,3 +238,18 @@ error: unsolved goals
 #guard_msgs in
 example : 1 = 1 := by
   claude
+
+-- Test 18: JSON with braces inside tactic strings (tests extractJsonObject)
+-- The tactic contains `}` which should not break JSON extraction
+set_option tactic.claude.mock "{\"tactics\": [\"sorry } this has braces { inside\", \"trivial\"]}"
+
+/--
+info: Try this:
+  [apply] trivial
+---
+error: unsolved goals
+⊢ True
+-/
+#guard_msgs in
+example : True := by
+  claude

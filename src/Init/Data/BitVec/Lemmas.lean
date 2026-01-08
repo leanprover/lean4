@@ -6606,8 +6606,8 @@ theorem toNat_cpop_not {x : BitVec w} :
     simp
   case cons b x ih =>
     have := toNat_cpop_le x
-    have := Bool.toNat_le b
-    simp [ih]
-    omega
+    cases b
+    <;> simp [ih]
+    <;> omega
 
 end BitVec

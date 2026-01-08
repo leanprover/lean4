@@ -115,39 +115,94 @@ structure TacticResponse where
   tactics : Array String
   deriving Inhabited
 
-/-- Strip markdown code block wrapper if present (simple fallback in case Claude adds them) -/
-def stripMarkdownCodeBlock (response : String) : String := Id.run do
-  -- Very simple approach: if response contains ```, try to extract JSON from between fences
-  if !response.contains "```" then
-    return response
+/-- Extract JSON object by finding matching braces.
+    Given a string starting with `{`, returns the JSON object up to and including the matching `}`. -/
+private def extractJsonObject (s : String) : Option String := Id.run do
+  let mut depth := 0
+  let mut result := ""
+  for c in s.toList do
+    result := result.push c
+    if c == '{' then
+      depth := depth + 1
+    else if c == '}' then
+      depth := depth - 1
+      if depth == 0 then
+        return some result
+  return none
 
-  -- Split response into lines
+/-- Find the substring starting at the first occurrence of `pattern` in `s`.
+    Returns everything from the pattern onwards, or `none` if not found. -/
+private def findSubstringFrom (s : String) (pattern : String) : Option String := Id.run do
+  if !s.contains pattern then
+    return none
+  -- Linear search for the pattern
+  let sList := s.toList
+  let pList := pattern.toList
+  let pLen := pList.length
+  let sLen := sList.length
+  for i in [0:sLen - pLen + 1] do
+    let slice := sList.drop i |>.take pLen
+    if slice == pList then
+      -- Found pattern at position i, return from here onwards
+      return some (String.ofList (sList.drop i))
+  return none
+
+/-- Extract JSON from a response that may contain explanation text.
+    Tries several strategies:
+    1. Look for ```json code block
+    2. Look for any code block containing "tactics"
+    3. Find {"tactics": pattern directly in text
+    4. Fall back to trimmed original response -/
+def extractJson (response : String) : String := Id.run do
+  -- Collect all code blocks with their language tags
   let lines := (response.split (· == '\n')).toArray
-  -- Find line with opening ```
   let mut inBlock := false
-  let mut jsonLines := #[]
+  let mut currentLang := ""
+  let mut currentLines : Array String := #[]
+  let mut blocks : Array (String × String) := #[]
 
   for line in lines do
-    let lineStr := line.toString.trimAscii.toString
-    if lineStr.startsWith "```" && !inBlock then
-      -- Start of code block
+    let trimmed := line.toString.trimAscii.toString
+    if trimmed.startsWith "```" && !inBlock then
       inBlock := true
-    else if lineStr.startsWith "```" && inBlock then
-      -- End of code block
-      break
+      currentLang := trimmed.drop 3 |>.trimAscii.toString  -- Get language tag
+      currentLines := #[]
+    else if trimmed.startsWith "```" && inBlock then
+      let content := "\n".intercalate currentLines.toList
+      blocks := blocks.push (currentLang, content)
+      inBlock := false
+      currentLang := ""
+      currentLines := #[]
     else if inBlock then
-      -- Inside code block
-      jsonLines := jsonLines.push line.toString
+      currentLines := currentLines.push line.toString
 
-  if jsonLines.isEmpty then
-    return response
-  else
-    return "\n".intercalate jsonLines.toList
+  -- Strategy 1: Look for ```json code block
+  for (lang, content) in blocks do
+    if lang == "json" then
+      return content.trimAscii.toString
+
+  -- Strategy 2: Look for any code block containing "tactics"
+  for (_, content) in blocks do
+    if content.contains "\"tactics\"" then
+      return content.trimAscii.toString
+
+  -- Strategy 3: Find {"tactics" pattern directly in text (without code block)
+  if let some jsonStart := findSubstringFrom response "{\"tactics\"" then
+    if let some json := extractJsonObject jsonStart then
+      return json
+
+  -- Also try with space: { "tactics"
+  if let some jsonStart := findSubstringFrom response "{ \"tactics\"" then
+    if let some json := extractJsonObject jsonStart then
+      return json
+
+  -- Fallback: return trimmed original (for pure JSON responses)
+  return response.trimAscii.toString
 
 /-- Parse JSON response: `{"tactics": ["tactic1", "tactic2", ...]}` -/
 def parseTacticResponse (response : String) : Except String TacticResponse := do
-  -- Strip markdown code block if present
-  let cleanResponse := stripMarkdownCodeBlock response
+  -- Extract JSON from response (handles markdown code blocks, explanation text, etc.)
+  let cleanResponse := extractJson response
   let json ← Lean.Json.parse cleanResponse
   let tacticsJson ← json.getObjVal? "tactics"
   let tacticsArr ← tacticsJson.getArr?
@@ -156,16 +211,52 @@ def parseTacticResponse (response : String) : Except String TacticResponse := do
 
 /-! ## Tactic Evaluation -/
 
-/-- Try a tactic and return whether it succeeded (without committing changes) -/
+/-- Check if all assigned goals have valid assignments (no sorry, type-correct) -/
+def checkAssignmentsValid (goals : List MVarId) : MetaM Bool := do
+  for goal in goals do
+    if let some assignment ← getExprMVarAssignment? goal then
+      -- Check for sorry - tactics that fail often assign sorry instead of throwing
+      if assignment.hasSorry then
+        return false
+      let expectedType ← goal.getType
+      -- Check that the assigned expression has the expected type
+      try
+        let actualType ← Meta.inferType assignment
+        unless ← Meta.isDefEq actualType expectedType do
+          return false
+      catch _ =>
+        return false
+  return true
+
+/-- Try a tactic and return whether it succeeded (without committing changes).
+    Also verifies that goal assignments don't contain sorry, since tactics that
+    fail during elaboration may assign sorry instead of throwing an exception. -/
 def tryTactic (stx : Syntax) : TacticM Bool := do
   let savedState ← saveState
+  let goalsBefore ← getGoals
   try
     evalTactic stx
+    -- Verify assignments are valid (no sorry, type-correct)
+    let valid ← checkAssignmentsValid goalsBefore
     savedState.restore
-    return true
+    return valid
   catch _ =>
     savedState.restore
     return false
+
+/-- Run a parser on a string. Based on `runParserCategory` but takes a Parser directly.
+    See https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/quickest.20path.20from.20.60String.60.20to.20.60.60TSyntax.20.60tacticSeq.60.60
+    where Sebastian Ullrich confirms there's no direct API for this. -/
+def runParser (env : Environment) (parser : Parser.Parser) (input : String) (fileName := "<input>") : Except String Syntax :=
+  let p := Parser.andthenFn Parser.whitespace parser.fn
+  let ictx := Parser.mkInputContext input fileName
+  let s := p.run ictx { env, options := {} } (Parser.getTokenTable env) (Parser.mkParserState input)
+  if !s.allErrors.isEmpty then
+    .error (s.toErrorMsg ictx)
+  else if ictx.atEnd s.pos then
+    .ok s.stxStack.back
+  else
+    .error ((s.mkError "end of input").toErrorMsg ictx)
 
 /-- Evaluate tactics from strings, returning those that succeed.
     Returns pairs of (original string, parsed syntax) to preserve formatting. -/
@@ -174,17 +265,19 @@ def evaluateTactics (tactics : Array String) : TacticM (Array (String × Syntax)
   let mut successful := #[]
 
   for tacStr in tactics do
-    -- Try parsing as tacticSeq first (handles multi-line), then single tactic
-    let stx? := match Parser.runParserCategory env `tacticSeq tacStr with
-      | .ok stx => some stx
-      | .error _ =>
-        match Parser.runParserCategory env `tactic tacStr with
-        | .ok stx => some stx
-        | .error _ => none
+    -- For multi-line tactics, use tacticSeq parser; for single-line, use tactic category
+    let parseResult := if tacStr.contains '\n' then
+      runParser env Parser.Tactic.tacticSeq tacStr
+    else
+      Parser.runParserCategory env `tactic tacStr
 
-    if let some stx := stx? then
+    match parseResult with
+    | .ok stx =>
       if ← tryTactic stx then
         successful := successful.push (tacStr, stx)
+    | .error _ =>
+      -- Skip tactics that don't parse
+      continue
 
   return successful
 

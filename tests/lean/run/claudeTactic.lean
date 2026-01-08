@@ -113,3 +113,128 @@ n : Nat
 #guard_msgs in
 example (n : Nat) : n + 1 > n := by
   claude
+
+-- Test 9: Type error - exact with wrong type should be filtered out
+-- "exact 42" doesn't work for goal `True`, should not be suggested
+set_option tactic.claude.mock "{\"tactics\": [\"exact 42\", \"trivial\"]}"
+
+/--
+info: Try this:
+  [apply] trivial
+---
+error: unsolved goals
+⊢ True
+-/
+#guard_msgs in
+example : True := by
+  claude
+
+-- Test 10: Reference to non-existent hypothesis should be filtered out
+set_option tactic.claude.mock "{\"tactics\": [\"exact nonexistent_hyp\", \"trivial\"]}"
+
+/--
+info: Try this:
+  [apply] trivial
+---
+error: unsolved goals
+⊢ True
+-/
+#guard_msgs in
+example : True := by
+  claude
+
+-- Test 11: All tactics have type errors - should get "no working tactics"
+set_option tactic.claude.mock "{\"tactics\": [\"exact 42\", \"exact \\\"hello\\\"\", \"exact [1,2,3]\"]}"
+
+/--
+error: Claude suggested no working tactics
+-/
+#guard_msgs in
+example : True := by
+  claude
+
+-- Test 12: Multi-line where second tactic has type error
+-- "have h : Nat := 1\nexact h" - h is Nat but goal is True, should fail
+set_option tactic.claude.mock "{\"tactics\": [\"have h : Nat := 1\\nexact h\", \"trivial\"]}"
+
+/--
+info: Try this:
+  [apply] trivial
+---
+error: unsolved goals
+⊢ True
+-/
+#guard_msgs in
+example : True := by
+  claude
+
+-- Test 13: Tactic that parses but fails at runtime (apply to wrong goal)
+set_option tactic.claude.mock "{\"tactics\": [\"apply Nat.add_comm\", \"rfl\"]}"
+
+/--
+info: Try this:
+  [apply] rfl
+---
+error: unsolved goals
+⊢ 1 = 1
+-/
+#guard_msgs in
+example : 1 = 1 := by
+  claude
+
+-- Test 14: Using undefined lemma should be filtered
+set_option tactic.claude.mock "{\"tactics\": [\"exact this_lemma_does_not_exist\", \"rfl\"]}"
+
+/--
+info: Try this:
+  [apply] rfl
+---
+error: unsolved goals
+n : Nat
+⊢ n = n
+-/
+#guard_msgs in
+example (n : Nat) : n = n := by
+  claude
+
+-- Test 15: JSON in ```json code block with explanation text before
+set_option tactic.claude.mock "Here's the answer:\n\n```json\n{\"tactics\": [\"rfl\"]}\n```\n"
+
+/--
+info: Try this:
+  [apply] rfl
+---
+error: unsolved goals
+⊢ 1 = 1
+-/
+#guard_msgs in
+example : 1 = 1 := by
+  claude
+
+-- Test 16: Multiple code blocks, JSON is second (after a lean code block)
+set_option tactic.claude.mock "Goal:\n```lean\n⊢ True\n```\n\nTry:\n```json\n{\"tactics\": [\"trivial\"]}\n```\n"
+
+/--
+info: Try this:
+  [apply] trivial
+---
+error: unsolved goals
+⊢ True
+-/
+#guard_msgs in
+example : True := by
+  claude
+
+-- Test 17: JSON without code block markers (inline in text)
+set_option tactic.claude.mock "I think this works: {\"tactics\": [\"rfl\"]} is the answer"
+
+/--
+info: Try this:
+  [apply] rfl
+---
+error: unsolved goals
+⊢ 1 = 1
+-/
+#guard_msgs in
+example : 1 = 1 := by
+  claude

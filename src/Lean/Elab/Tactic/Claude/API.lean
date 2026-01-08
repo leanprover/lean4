@@ -44,8 +44,9 @@ def checkAPIError (json : Json) : Option (String × String) := do
   let message ← errorObj.getObjValAs? String "message" |>.toOption
   return (errorType, message)
 
-/-- Call Anthropic Messages API and return (content, inputTokens, outputTokens) -/
-def callClaudeAPI (prompt : String) (model : String) : IO (String × Nat × Nat) := do
+/-- Call Anthropic Messages API and return (content, inputTokens, outputTokens).
+    The timeout parameter specifies the maximum time in seconds (0 = no timeout). -/
+def callClaudeAPI (prompt : String) (model : String) (timeout : Nat := 60) : IO (String × Nat × Nat) := do
   let some apiKey ← IO.getEnv "ANTHROPIC_API_KEY"
     | throw <| .userError "ANTHROPIC_API_KEY not set"
 
@@ -61,10 +62,16 @@ def callClaudeAPI (prompt : String) (model : String) : IO (String × Nat × Nat)
     ])
   ]
 
+  -- Build curl args with optional timeout
+  let timeoutArgs : Array String := if timeout > 0 then
+    #["--connect-timeout", toString timeout, "--max-time", toString timeout]
+  else
+    #[]
+
   -- Call curl
   let output ← IO.Process.output {
     cmd := "curl"
-    args := #[
+    args := timeoutArgs ++ #[
       "-s", "-X", "POST",
       "https://api.anthropic.com/v1/messages",
       "-H", s!"x-api-key: {apiKey}",
@@ -75,6 +82,9 @@ def callClaudeAPI (prompt : String) (model : String) : IO (String × Nat × Nat)
   }
 
   if output.exitCode != 0 then
+    -- Exit code 28 is curl's timeout error
+    if output.exitCode == 28 then
+      throw <| .userError s!"API request timed out after {timeout} seconds"
     throw <| .userError s!"curl failed: {output.stderr}"
 
   -- Parse response

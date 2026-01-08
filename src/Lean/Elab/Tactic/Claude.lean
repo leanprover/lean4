@@ -37,6 +37,7 @@ The tactic requires one of the following environment variable configurations:
 
 - `set_option tactic.claude.model "claude-sonnet-4-20250514"` - Choose model (default: Opus)
 - `set_option tactic.claude.template "/path/to/template.txt"` - Custom prompt template
+- `set_option tactic.claude.timeout 60` - Timeout in seconds (default: 60, 0 = no timeout)
 - `set_option trace.claude.prompt true` - Show the prompt sent to Claude
 
 ## Usage Notes
@@ -74,10 +75,10 @@ def evalClaude : Tactic := fun _ => do
     | .mock resp =>
       pure (resp, none)
     | .api =>
-      let (content, inTokens, outTokens) ← Claude.API.callClaudeAPI prompt config.model
+      let (content, inTokens, outTokens) ← Claude.API.callClaudeAPI prompt config.model config.timeout
       pure (content, some (inTokens, outTokens))
     | .cli =>
-      let content ← Claude.CLI.callClaudeCLI prompt
+      let content ← Claude.CLI.callClaudeCLI prompt config.timeout
       pure (content, none)
 
   -- 7. Parse JSON response

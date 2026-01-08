@@ -64,6 +64,12 @@ register_builtin_option trace.claude.prompt : Bool := {
   descr := "Trace the prompt sent to Claude"
 }
 
+/-- Timeout in seconds for API/CLI calls (0 = no timeout) -/
+register_builtin_option tactic.claude.timeout : Nat := {
+  defValue := 60
+  descr := "Timeout in seconds for API/CLI calls (0 = no timeout)"
+}
+
 /-! ## Configuration -/
 
 structure Config where
@@ -71,6 +77,7 @@ structure Config where
   model : String
   mock : String
   tracePrompt : Bool
+  timeout : Nat
   deriving Inhabited
 
 def getConfig : TacticM Config := do
@@ -80,6 +87,7 @@ def getConfig : TacticM Config := do
     model := tactic.claude.model.get opts
     mock := tactic.claude.mock.get opts
     tracePrompt := trace.claude.prompt.get opts
+    timeout := tactic.claude.timeout.get opts
   }
 
 /-! ## Backend Selection -/

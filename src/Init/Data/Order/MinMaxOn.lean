@@ -9,11 +9,26 @@ prelude
 public import Init.NotationExtra
 public import Init.Data.Order.Lemmas
 
+/-! ## Definitions -/
+
+/--
+Returns either `x` or `y`, the one with the smaller value under `f`.
+
+If `f x ≤ f y`, it returns `x`, and otherwise returns `y`.
+-/
 public def minOn [LE β] [DecidableLE β] (f : α → β) (x y : α) :=
   if f x ≤ f y then x else y
 
+
+/--
+Returns either `x` or `y`, the one with the greater value under `f`.
+
+If `f x ≤ f y`, it returns `x`, and otherwise returns `y`.
+-/
 public def maxOn [LE β] [DecidableLE β] (f : α → β) (x y : α) :=
   if f y ≤ f x then x else y
+
+/-! ## `minOn` Lemmas -/
 
 theorem minOn_eq_or [LE β] [DecidableLE β] {f : α → β} {x y : α} :
     minOn f x y = x ∨ minOn f x y = y := by
@@ -52,6 +67,8 @@ theorem apply_minOn_le_right [LE β] [DecidableLE β] [Std.IsLinearPreorder β] 
   split
   · assumption
   · apply Std.le_refl
+
+/-! ## `maxOn` Lemmas -/
 
 theorem maxOn_eq_or [LE β] [DecidableLE β] {f : α → β} {x y : α} :
     maxOn f x y = x ∨ maxOn f x y = y := by

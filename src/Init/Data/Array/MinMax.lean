@@ -86,7 +86,6 @@ theorem foldlM.loop.normalize_stop [Monad m] {f : β → α → m β} {xs : Arra
     · have : Min.min (i + 1) (s - j) = Min.min i (s - j - 1) + 1 := by omega
       rw [this]
       rw [foldlM.loop, dif_pos (by omega)]
-      simp
       apply bind_congr; intro
       rw [ih]
       rfl
@@ -100,12 +99,12 @@ theorem foldlM.loop.shift_one [Monad m]
     {f : β → α → m β} {xs : Array α} {i j} {b} :
     foldlM.loop f xs xs.size (Nat.le_refl _) i (j + 1) b = foldlM.loop f (xs.toList.drop 1).toArray (xs.size - 1) (by simp) i j b := by
   induction i generalizing j b
-  · simp [foldlM.loop]
+  · simp only [loop, dite_eq_ite, ite_self]
   · rename_i i ih
     simp +singlePass only [foldlM.loop.eq_def (i := i + 1)]
     split <;> rename_i h
     · rw [dif_pos (by omega)]
-      simp
+      simp only [List.drop_one, List.getElem_toArray, List.getElem_tail, getElem_toList]
       apply bind_congr; intro
       simp [ih]
     · rw [dif_neg (by omega)]
@@ -135,9 +134,10 @@ theorem foldlM.loop_eq_foldlM_take [Monad m]
     · simp only [Nat.zero_add]
       match xs with
       | x :: xs =>
-        simp
+        simp only [List.getElem_toArray, List.getElem_cons_zero, List.size_toArray,
+          List.length_cons, List.take_succ_cons, List.foldlM_cons]
         apply bind_congr; intro b'
-        simp at ih
+        simp only [List.size_toArray] at ih
         rw [← ih]
         clear ih
         simpa using loop.shift_one (xs := (x :: xs).toArray) (f := f) (b := b') (i := i) (j := 0)
@@ -160,20 +160,20 @@ public theorem foldlM_eq_foldlM_extract [Monad m] {f : β → α → m β} {xs :
   split
   · rw [dif_pos (by omega)]
     rw [foldlM.loop.normalize_stop, foldlM.loop_eq_foldlM_extract, foldlM.loop_eq_foldlM_extract]
-    simp
+    simp only [Nat.le_refl, Nat.min_eq_left, size_extract, Nat.sub_zero, Nat.add_zero]
     congr 1
     · rw [← Array.toArray_toList (xs := xs)]
       simp only [List.extract_toArray, List.extract_eq_drop_take]
-      simp [List.take_take]
+      simp only [toArray_toList, List.drop_zero, List.take_take, mk.injEq, List.take_eq_take_iff]
       omega
     · omega
   · simp only [size_extract, Nat.le_refl, ↓reduceDIte, Nat.sub_zero]
     rw [foldlM.loop_eq_foldlM_extract, foldlM.loop.normalize_stop,  foldlM.loop_eq_foldlM_extract]
-    simp
+    simp only [size_extract, Nat.sub_zero, Nat.le_refl, Nat.min_eq_left, Nat.add_zero]
     congr 1
     · rw [← Array.toArray_toList (xs := xs)]
       simp only [List.extract_toArray, List.extract_eq_drop_take]
-      simp [List.take_take]
+      simp only [toArray_toList, List.drop_zero, List.take_take, mk.injEq, List.take_eq_take_iff]
       omega
     · omega
 
@@ -191,7 +191,7 @@ public theorem _root_.List.min_toArray [Min α] {l : List α} {h} :
   · induction l
     · contradiction
     · rename_i x xs
-      simp
+      simp only [List.getElem_toArray, List.getElem_cons_zero, List.size_toArray, List.length_cons]
       rw [List.toArray_cons, foldl_eq_foldl_extract]
       rw [← Array.foldl_toList, Array.toList_extract, List.extract_eq_drop_take]
       simp [List.min]
@@ -223,7 +223,7 @@ public theorem _root_.List.max_toArray [Max α] {l : List α} {h} :
   · induction l
     · contradiction
     · rename_i x xs
-      simp
+      simp only [List.getElem_toArray, List.getElem_cons_zero, List.size_toArray, List.length_cons]
       rw [List.toArray_cons, foldl_eq_foldl_extract]
       rw [← Array.foldl_toList, Array.toList_extract, List.extract_eq_drop_take]
       simp [List.max]
@@ -258,10 +258,12 @@ public theorem max?_toList [Max α] {xs : Array α} :
 
 /-! ### Lemmas about `min?` -/
 
-@[simp] public theorem min?_empty [Min α] : (#[] : Array α).min? = none :=
+@[simp]
+public theorem min?_empty [Min α] : (#[] : Array α).min? = none :=
   (rfl)
 
-@[simp] public theorem min?_singleton [Min α] {x : α} : #[x].min? = some x :=
+@[simp]
+public theorem min?_singleton [Min α] {x : α} : #[x].min? = some x :=
   (rfl)
 
 -- We don't put `@[simp]` on `min?_singleton_append'`,
@@ -270,11 +272,13 @@ public theorem min?_singleton_append' [Min α] {xs : Array α} :
     (#[x] ++ xs).min? = some (xs.foldl Min.min x) := by
   simp [← min?_toList, toList_append, List.min?]
 
-@[simp] public theorem min?_singleton_append [Min α] [Std.Associative (Min.min : α → α → α)] {xs : Array α} :
+@[simp]
+public theorem min?_singleton_append [Min α] [Std.Associative (Min.min : α → α → α)] {xs : Array α} :
     (#[x] ++ xs).min? = some (xs.min?.elim x (Min.min x)) := by
   simp [← min?_toList, toList_append, List.min?_cons]
 
-@[simp] public theorem min?_eq_none_iff {xs : Array α} [Min α] : xs.min? = none ↔ xs.isEmpty := by
+@[simp]
+public theorem min?_eq_none_iff {xs : Array α} [Min α] : xs.min? = none ↔ xs.isEmpty := by
   rcases xs with ⟨l⟩
   simp
 
@@ -308,7 +312,8 @@ public theorem min?_replicate [Min α] [Std.IdempotentOp (Min.min : α → α �
     (replicate n a).min? = if n = 0 then none else some a := by
   rw [← List.toArray_replicate, List.min?_toArray, List.min?_replicate]
 
-@[simp] public theorem min?_replicate_of_pos [Min α] [Std.MinEqOr α] {n : Nat} {a : α} (h : 0 < n) :
+@[simp]
+public theorem min?_replicate_of_pos [Min α] [Std.MinEqOr α] {n : Nat} {a : α} (h : 0 < n) :
     (replicate n a).min? = some a := by
   simp [min?_replicate, Nat.ne_of_gt h]
 
@@ -319,10 +324,12 @@ public theorem foldl_min [Min α] [Std.IdempotentOp (Min.min : α → α → α)
 
 /-! ### Lemmas about `max?` -/
 
-@[simp] public theorem max?_empty [Max α] : (#[] : Array α).max? = none :=
+@[simp]
+public theorem max?_empty [Max α] : (#[] : Array α).max? = none :=
   (rfl)
 
-@[simp] public theorem max?_singleton [Max α] {x : α} : #[x].max? = some x :=
+@[simp]
+public theorem max?_singleton [Max α] {x : α} : #[x].max? = some x :=
   (rfl)
 
 -- We don't put `@[simp]` on `max?_singleton_append'`,
@@ -330,11 +337,13 @@ public theorem foldl_min [Min α] [Std.IdempotentOp (Min.min : α → α → α)
 public theorem max?_singleton_append' [Max α] {xs : Array α} : (#[x] ++ xs).max? = some (xs.foldl Max.max x) := by
   simp [← max?_toList, toList_append, List.max?]
 
-@[simp] public theorem max?_singleton_append [Max α] [Std.Associative (Max.max : α → α → α)] {xs : Array α} :
+@[simp]
+public theorem max?_singleton_append [Max α] [Std.Associative (Max.max : α → α → α)] {xs : Array α} :
     (#[x] ++ xs).max? = some (xs.max?.elim x (Max.max x)) := by
   simp [← max?_toList, toList_append, List.max?_cons]
 
-@[simp] public theorem max?_eq_none_iff {xs : Array α} [Max α] : xs.max? = none ↔ xs.isEmpty := by
+@[simp]
+public theorem max?_eq_none_iff {xs : Array α} [Max α] : xs.max? = none ↔ xs.isEmpty := by
   rcases xs with ⟨l⟩
   simp
 
@@ -403,7 +412,8 @@ public theorem min_eq_iff [Min α] [LE α] {xs : Array α} [Std.IsLinearOrder α
     (h : xs ≠ #[]) : xs.min h = a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → a ≤ b := by
   simpa [min?_eq_some_min h] using (min?_eq_some_iff (xs := xs))
 
-@[simp] public theorem min_replicate [Min α] [Std.MinEqOr α] {n : Nat} {a : α} (h : (replicate n a) ≠ #[]) :
+@[simp]
+public theorem min_replicate [Min α] [Std.MinEqOr α] {n : Nat} {a : α} (h : (replicate n a) ≠ #[]) :
     (replicate n a).min h = a := by
   have n_pos : 0 < n := by simpa [Nat.ne_zero_iff_zero_lt] using h
   simpa [min?_eq_some_min h] using (min?_replicate_of_pos (a := a) n_pos)
@@ -439,7 +449,8 @@ public theorem le_max_of_mem [Max α] [LE α] [Std.IsLinearOrder α] [Std.Lawful
     a ≤ xs.max (ne_empty_of_mem ha) :=
   (Array.max?_eq_some_iff.mp (max?_eq_some_max (ne_empty_of_mem ha))).right a ha
 
-@[simp] public theorem max_replicate [Max α] [Std.MaxEqOr α] {n : Nat} {a : α} (h : (replicate n a) ≠ #[]) :
+@[simp]
+public theorem max_replicate [Max α] [Std.MaxEqOr α] {n : Nat} {a : α} (h : (replicate n a) ≠ #[]) :
     (replicate n a).max h = a := by
   have n_pos : 0 < n := by simpa [Nat.ne_zero_iff_zero_lt] using h
   simpa [max?_eq_some_max h] using (max?_replicate_of_pos (a := a) n_pos)

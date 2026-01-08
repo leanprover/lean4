@@ -7,6 +7,8 @@ module
 prelude
 public import Lean.Meta.Basic
 import Lean.Meta.InferType
+import Lean.Meta.Closure
+import Lean.Meta.AppBuilder
 namespace Lean.Meta.Sym.Simp
 /--
 Given `xs` containing free variables
@@ -24,31 +26,28 @@ This auxiliary theorem is used by the simplifier when visiting lambda expression
 public def mkFunextFor (xs : Array Expr) (β : Expr) : MetaM Expr := do
   let type ← mkForallFVars xs β
   let v ← getLevel β
+  let w ← getLevel type
   withLocalDeclD `f type fun f =>
   withLocalDeclD `g type fun g => do
   let lhs := mkAppN f xs
   let rhs := mkAppN g xs
-  let p := mkApp3 (mkConst ``Eq [v]) β lhs rhs
-  let p ← mkForallFVars xs p
+  let eq := mkApp3 (mkConst ``Eq [v]) β lhs rhs
+  let p ← mkForallFVars xs eq
   withLocalDeclD `h p fun h => do
-  let mut result := mkAppN h xs |>.abstract xs
-  let mut i := xs.size
-  let mut β := β.abstract xs
-  let mut v := v
-  let mut f := mkAppN f xs |>.abstract xs
-  let mut g := mkAppN g xs |>.abstract xs
-  while i > 0 do
-    i := i - 1
-    let x := xs[i]!
-    let α_i ← inferType x
-    let u_i ← getLevel α_i
-    let α_i := α_i.abstractRange i xs
-    f := f.appFn!.lowerLooseBVars 1 1
-    g := g.appFn!.lowerLooseBVars 1 1
-    result := mkLambda `x default α_i result
-    result := mkApp5 (mkConst ``funext [u_i, v]) α_i (mkLambda `x .default α_i β) f g result
-    β := mkForall `x .default α_i β
-    v := mkLevelIMax' u_i v
-  mkLambdaFVars #[f, g, h] result
+  let eqv ← mkLambdaFVars #[f, g] (← mkForallFVars xs eq)
+  let quotEqv := mkApp2 (mkConst ``Quot [w]) type eqv
+  withLocalDeclD `f' quotEqv fun f' => do
+  let lift := mkApp6 (mkConst ``Quot.lift [w, v]) type eqv β
+    (mkLambda `f .default type (mkAppN (.bvar 0) xs))
+    (mkLambda `f .default type (mkLambda `g .default type (mkLambda `h .default (mkApp2 eqv (.bvar 1) (.bvar 0)) (mkAppN (.bvar 0) xs))))
+    f'
+  let extfunAppVal ← mkLambdaFVars (#[f'] ++ xs) lift
+  let extfunApp := extfunAppVal
+  let quotSound := mkApp5 (mkConst ``Quot.sound [w]) type eqv f g h
+  let Quot_mk_f := mkApp3 (mkConst ``Quot.mk [w]) type eqv f
+  let Quot_mk_g := mkApp3 (mkConst ``Quot.mk [w]) type eqv g
+  let result := mkApp6 (mkConst ``congrArg [w, w]) quotEqv type Quot_mk_f Quot_mk_g extfunApp quotSound
+  let result ← mkLambdaFVars #[f, g, h] result
+  return result
 
 end Lean.Meta.Sym.Simp

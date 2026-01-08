@@ -188,8 +188,7 @@ where
         let rhs    := if hasParams then mkAppN minor xs else mkApp minor (mkConst `Unit.unit)
         let minors := minors.push minor
         let altInfos := altInfos.push { numFields := xs.size, numOverlaps := notAltHs.size, hasUnitThunk := !hasParams }
-        let fvarDecls ← lhs.fvarDecls.mapM instantiateLocalDeclMVars
-        let alt    := { ref := lhs.ref, idx := idx, rhs := rhs, fvarDecls := fvarDecls, patterns := lhs.patterns, cnstrs := [], notAltIdxs := notAltIdxs }
+        let alt    := { ref := lhs.ref, idx := idx, rhs := rhs, fvarDecls := lhs.fvarDecls, patterns := lhs.patterns, cnstrs := [], notAltIdxs := notAltIdxs }
         let alts   := alt :: alts
         loop lhss alts minors altInfos (notAlts.push notAlt)
 
@@ -1144,12 +1143,21 @@ Create a dependent matcher for `matchType` where `matchType` is of the form
 where `n = numDiscrs`, and the `lhss` are the left-hand-sides of the `match`-expression alternatives.
 Each `AltLHS` has a list of local declarations and a list of patterns.
 The number of patterns must be the same in each `AltLHS`.
+There must be no metavariables in the pattern variables or the patterns themselves.
 The generated matcher has the structure described at `MatcherInfo`. The motive argument is of the form
 `(motive : (a_1 : A_1) -> (a_2 : A_2[a_1]) -> ... -> (a_n : A_n[a_1, a_2, ... a_{n-1}]) -> Sort v)`
 where `v` is a universe parameter or 0 if `B[a_1, ..., a_n]` is a proposition.
 -/
 def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor input do
   let {matcherName, matchType, discrInfos, lhss, isSplitter} := input
+  let lhss ← lhss.mapM instantiateAltLHSMVars
+  for lhs in lhss do
+    for fvarDecl in lhs.fvarDecls do
+      if fvarDecl.hasExprMVar then
+        panic s!"The pattern variable {fvarDecl.userName} contained a metavariable. This is not supported by the match compiler."
+    for pat in lhs.patterns do
+      if pat.hasExprMVar then
+        panic s!"The pattern {← pat.toExpr false} contained a metavariable. This is not supported by the match compiler."
   let numDiscrs := discrInfos.size
   checkNumPatterns numDiscrs lhss
   forallBoundedTelescope matchType numDiscrs fun discrs matchTypeBody => do

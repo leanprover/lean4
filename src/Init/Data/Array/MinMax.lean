@@ -143,8 +143,6 @@ theorem foldlM.loop_eq_foldlM_take [Monad m]
         simpa using loop.shift_one (xs := (x :: xs).toArray) (f := f) (b := b') (i := i) (j := 0)
     · simp_all
 
-/-! ### Compatibility with `List` -/
-
 theorem foldlM.loop_eq_foldlM_extract [Monad m] {f : β → α → m β} {xs : Array α} {i b} :
     foldlM.loop f xs xs.size (Nat.le_refl _) i j b = (xs.extract j (i + j)).foldlM (init := b) f := by
   rw [loop.shift]
@@ -176,6 +174,8 @@ public theorem foldlM_eq_foldlM_extract [Monad m] {f : β → α → m β} {xs :
       simp only [toArray_toList, List.drop_zero, List.take_take, mk.injEq, List.take_eq_take_iff]
       omega
     · omega
+
+/-! ### Compatibility with `List` -/
 
 public theorem foldl_eq_foldl_extract {xs : Array α} {f : β → α → β} {init : β} :
     xs.foldl (init := init) (start := start) (stop := stop) f = (xs.extract start stop).foldl (init := init) f := by

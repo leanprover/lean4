@@ -16,7 +16,6 @@ import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Proof
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 import Lean.Meta.Tactic.Grind.PropagateInj
-import Lean.Meta.Tactic.Grind.FunCC
 import Lean.Util.CollectLevelParams
 public section
 namespace Lean.Meta.Grind
@@ -146,13 +145,13 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
         return ()
       unless (← isInductivePredicate declName) do
         return ()
-      if (← get).split.casesTypes.isSplit declName then
+      if (← isSplit declName) then
         addDefaultSplitCandidate e
       else if (← getConfig).splitIndPred then
         addDefaultSplitCandidate e
   | .fvar .. =>
     let .const declName _ := (← whnf (← inferType e)).getAppFn | return ()
-    if (← get).split.casesTypes.isSplit declName then
+    if (← isSplit declName) then
       addDefaultSplitCandidate e
   | .forallE _ d _ _ =>
     let currSplitSource := (← readThe Context).splitSource
@@ -275,8 +274,8 @@ private def addMatchEqns (f : Expr) (generation : Nat) : GoalM Unit := do
 
 @[specialize]
 private def activateTheoremsCore [TheoremLike α] (declName : Name)
-    (getThms : GoalM (Theorems α))
-    (setThms : Theorems α → GoalM Unit)
+    (getThms : GoalM (TheoremsArray α))
+    (setThms : TheoremsArray α → GoalM Unit)
     (reinsertThm : α → GoalM Unit)
     (activateThm : α → GoalM Unit) : GoalM Unit := do
   if let some (thms, s) := (← getThms).retrieve? declName then
@@ -444,7 +443,7 @@ private def tryEta (e : Expr) (generation : Nat) : GoalM Unit := do
 Returns `true` if we should use `funCC` for applications of the given constant symbol.
 -/
 private def useFunCongrAtDecl (declName : Name) : GrindM Bool := do
-  if (← readThe Grind.Context).funCCs.contains declName then
+  if (← hasFunCCModifier declName) then
     return true
   if (← isInstance declName) then
     /- **Note**: Instances are support elements. No `funCC` -/

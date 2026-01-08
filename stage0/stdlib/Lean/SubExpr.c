@@ -977,6 +977,8 @@ uint8_t x_6;
 x_6 = lean_nat_dec_le(x_4, x_4);
 if (x_6 == 0)
 {
+if (x_5 == 0)
+{
 return x_2;
 }
 else
@@ -986,6 +988,15 @@ x_7 = 0;
 x_8 = lean_usize_of_nat(x_4);
 x_9 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_SubExpr_Pos_ofArray_spec__0(x_1, x_7, x_8, x_2);
 return x_9;
+}
+}
+else
+{
+size_t x_10; size_t x_11; lean_object* x_12; 
+x_10 = 0;
+x_11 = lean_usize_of_nat(x_4);
+x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_SubExpr_Pos_ofArray_spec__0(x_1, x_10, x_11, x_2);
+return x_12;
 }
 }
 }

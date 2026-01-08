@@ -1401,6 +1401,8 @@ uint8_t x_34;
 x_34 = lean_nat_dec_le(x_29, x_29);
 if (x_34 == 0)
 {
+if (x_30 == 0)
+{
 lean_dec(x_21);
 lean_dec(x_11);
 lean_dec_ref(x_10);
@@ -1463,6 +1465,55 @@ return x_41;
 }
 }
 }
+else
+{
+size_t x_42; size_t x_43; lean_object* x_44; 
+x_42 = 0;
+x_43 = lean_usize_of_nat(x_29);
+x_44 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Meta_repeat_x27Core___at___00Lean_Meta_repeat_x27___at___00Lean_Elab_Tactic_evalRepeat_x27_spec__1_spec__1_spec__4(x_21, x_42, x_43, x_16, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+lean_dec(x_11);
+lean_dec_ref(x_10);
+lean_dec(x_9);
+lean_dec_ref(x_8);
+lean_dec(x_7);
+lean_dec_ref(x_6);
+lean_dec(x_5);
+lean_dec_ref(x_4);
+lean_dec(x_21);
+if (lean_obj_tag(x_44) == 0)
+{
+lean_object* x_45; 
+x_45 = lean_ctor_get(x_44, 0);
+lean_inc(x_45);
+lean_dec_ref(x_44);
+x_23 = x_45;
+x_24 = lean_box(0);
+goto block_28;
+}
+else
+{
+uint8_t x_46; 
+lean_dec(x_22);
+lean_dec(x_20);
+lean_dec(x_19);
+x_46 = !lean_is_exclusive(x_44);
+if (x_46 == 0)
+{
+return x_44;
+}
+else
+{
+lean_object* x_47; lean_object* x_48; 
+x_47 = lean_ctor_get(x_44, 0);
+lean_inc(x_47);
+lean_dec(x_44);
+x_48 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_48, 0, x_47);
+return x_48;
+}
+}
+}
+}
 block_28:
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; 
@@ -1485,7 +1536,7 @@ return x_27;
 }
 else
 {
-uint8_t x_42; 
+uint8_t x_49; 
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
@@ -1494,20 +1545,20 @@ lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
-x_42 = !lean_is_exclusive(x_17);
-if (x_42 == 0)
+x_49 = !lean_is_exclusive(x_17);
+if (x_49 == 0)
 {
 return x_17;
 }
 else
 {
-lean_object* x_43; lean_object* x_44; 
-x_43 = lean_ctor_get(x_17, 0);
-lean_inc(x_43);
+lean_object* x_50; lean_object* x_51; 
+x_50 = lean_ctor_get(x_17, 0);
+lean_inc(x_50);
 lean_dec(x_17);
-x_44 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_44, 0, x_43);
-return x_44;
+x_51 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_51, 0, x_50);
+return x_51;
 }
 }
 }

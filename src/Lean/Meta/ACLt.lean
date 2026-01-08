@@ -4,12 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Meta.DiscrTree
-
+public import Lean.Meta.DiscrTree.Main
+import Lean.Meta.WHNF
 public section
-
 namespace Lean
 
 def Expr.ctorWeight : Expr → UInt8

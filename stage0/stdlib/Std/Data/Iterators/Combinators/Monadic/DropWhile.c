@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Combinators.Monadic.DropWhile
-// Imports: public import Init.Data.Nat.Lemmas public import Init.Data.Iterators.Consumers.Monadic.Collect public import Init.Data.Iterators.Consumers.Monadic.Loop public import Init.Data.Iterators.Internal.Termination public import Init.Data.Iterators.PostconditionMonad
+// Imports: public import Init.Data.Nat.Lemmas public import Init.Data.Iterators.Consumers.Monadic.Collect public import Init.Data.Iterators.Consumers.Monadic.Loop public import Init.Data.Iterators.PostconditionMonad
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,14 +15,14 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_IterM_Intermediate_dropWhileM___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_Intermediate_dropWhileWithPostcondition(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_dropWhileM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_dropWhileM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_dropWhileM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_dropWhileM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_DropWhile_instIterator___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_Intermediate_dropWhileM___redArg(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_DropWhile_instIterator___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_DropWhile_instIterator___redArg___lam__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_dropWhileM___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_Intermediate_dropWhileM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_Intermediate_dropWhileM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_DropWhile_instIterator(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_Intermediate_dropWhile(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_dropWhile___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -39,7 +39,7 @@ LEAN_EXPORT lean_object* l_Std_IterM_dropWhileWithPostcondition(lean_object*, le
 LEAN_EXPORT lean_object* l_Std_IterM_Intermediate_dropWhileWithPostcondition___redArg(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_DropWhile_instIteratorLoop___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_DropWhile_instIteratorLoop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_Intermediate_dropWhileM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_Intermediate_dropWhileM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_WellFounded_opaqueFix_u2083___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_DropWhile_instIterator___redArg___lam__0(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Std_IterM_Intermediate_dropWhile___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -89,14 +89,14 @@ x_4 = l_Std_IterM_Intermediate_dropWhileWithPostcondition___redArg(x_3, x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Std_IterM_Intermediate_dropWhileM(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, uint8_t x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l_Std_IterM_Intermediate_dropWhileM(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, uint8_t x_7, lean_object* x_8) {
 _start:
 {
-lean_object* x_8; 
-x_8 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_8, 0, x_7);
-lean_ctor_set_uint8(x_8, sizeof(void*)*1, x_6);
-return x_8;
+lean_object* x_9; 
+x_9 = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(x_9, 0, x_8);
+lean_ctor_set_uint8(x_9, sizeof(void*)*1, x_7);
+return x_9;
 }
 }
 LEAN_EXPORT lean_object* l_Std_IterM_Intermediate_dropWhileM___redArg(uint8_t x_1, lean_object* x_2) {
@@ -109,15 +109,16 @@ lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_IterM_Intermediate_dropWhileM___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l_Std_IterM_Intermediate_dropWhileM___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-uint8_t x_8; lean_object* x_9; 
-x_8 = lean_unbox(x_6);
-x_9 = l_Std_IterM_Intermediate_dropWhileM(x_1, x_2, x_3, x_4, x_5, x_8, x_7);
+uint8_t x_9; lean_object* x_10; 
+x_9 = lean_unbox(x_7);
+x_10 = l_Std_IterM_Intermediate_dropWhileM(x_1, x_2, x_3, x_4, x_5, x_6, x_9, x_8);
+lean_dec(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
-return x_9;
+return x_10;
 }
 }
 LEAN_EXPORT lean_object* l_Std_IterM_Intermediate_dropWhileM___redArg___boxed(lean_object* x_1, lean_object* x_2) {
@@ -200,15 +201,15 @@ lean_dec(x_4);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_IterM_dropWhileM(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Std_IterM_dropWhileM(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-uint8_t x_7; lean_object* x_8; 
-x_7 = 1;
-x_8 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_8, 0, x_6);
-lean_ctor_set_uint8(x_8, sizeof(void*)*1, x_7);
-return x_8;
+uint8_t x_8; lean_object* x_9; 
+x_8 = 1;
+x_9 = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(x_9, 0, x_7);
+lean_ctor_set_uint8(x_9, sizeof(void*)*1, x_8);
+return x_9;
 }
 }
 LEAN_EXPORT lean_object* l_Std_IterM_dropWhileM___redArg(lean_object* x_1) {
@@ -222,14 +223,15 @@ lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_IterM_dropWhileM___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Std_IterM_dropWhileM___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_7; 
-x_7 = l_Std_IterM_dropWhileM(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_object* x_8; 
+x_8 = l_Std_IterM_dropWhileM(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
-return x_7;
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Std_IterM_dropWhile(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -648,7 +650,6 @@ return x_9;
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Collect(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Loop(uint8_t builtin);
-lean_object* initialize_Init_Data_Iterators_Internal_Termination(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_PostconditionMonad(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Combinators_Monadic_DropWhile(uint8_t builtin) {
@@ -662,9 +663,6 @@ res = initialize_Init_Data_Iterators_Consumers_Monadic_Collect(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers_Monadic_Loop(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Internal_Termination(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_PostconditionMonad(builtin);

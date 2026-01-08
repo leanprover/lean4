@@ -343,6 +343,14 @@ return x_11;
 }
 block_17:
 {
+if (x_5 == 0)
+{
+x_6 = x_13;
+x_7 = lean_box(0);
+goto block_12;
+}
+else
+{
 if (x_4 == 0)
 {
 x_6 = x_13;
@@ -357,6 +365,7 @@ x_16 = l_List_appendTR___redArg(x_13, x_15);
 x_6 = x_16;
 x_7 = lean_box(0);
 goto block_12;
+}
 }
 }
 }

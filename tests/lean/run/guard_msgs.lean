@@ -399,3 +399,67 @@ info: foo
 run_cmd logInfo m!"foo"
 
 end Positions
+
+section GuardPanic
+
+/-! Tests for #guard_panic -/
+
+-- Test that #guard_panic succeeds when a panic occurs
+#guard_panic in
+run_cmd (panic! "test panic" : Lean.Elab.Command.CommandElabM Unit)
+
+-- Test that #guard_panic fails when no panic occurs
+/--
+info: Nat : Type
+---
+error: Expected a PANIC but none was found
+-/
+#guard_msgs in
+#guard_panic in
+#check Nat
+
+-- Test that #guard_panic clears messages on success (no output expected)
+#guard_msgs in
+#guard_panic in
+run_cmd (panic! "this message should not appear" : Lean.Elab.Command.CommandElabM Unit)
+
+end GuardPanic
+
+section Substring
+
+/-! Tests for substring matching -/
+
+-- Test that substring mode matches when expected is a substring of actual
+/-- Unknown identifier -/
+#guard_msgs (substring := true) in
+example : α := x
+
+-- Test that substring mode works with whitespace normalization
+/-- Unknown identifier -/
+#guard_msgs (substring := true, whitespace := lax) in
+example : α := x
+
+-- Test that substring mode fails when expected is not a substring
+/--
+error: Unknown identifier `x`
+---
+error: ❌️ Docstring on `#guard_msgs` does not match generated message:
+
+error: Unknown identifier `x`
+-/
+#guard_msgs in
+/-- This text does not appear -/
+#guard_msgs (substring := true) in
+example : α := x
+
+-- Test that substring mode can match a middle portion
+/-- identifier -/
+#guard_msgs (substring := true) in
+example : α := x
+
+-- Test explicit substring := false (should behave like default)
+/-- error: Unknown identifier `x` -/
+#guard_msgs (substring := false) in
+example : α := x
+
+end Substring

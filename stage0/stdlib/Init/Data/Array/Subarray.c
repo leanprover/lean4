@@ -1278,36 +1278,50 @@ return x_13;
 }
 else
 {
-lean_object* x_14; uint8_t x_15; 
-x_14 = lean_array_get_size(x_6);
-x_15 = lean_nat_dec_le(x_8, x_14);
-if (x_15 == 0)
+lean_object* x_14; lean_object* x_15; uint8_t x_16; 
+x_14 = lean_alloc_closure((void*)(l_Subarray_forM___redArg___lam__0), 3, 1);
+lean_closure_set(x_14, 0, x_4);
+x_15 = lean_array_get_size(x_6);
+x_16 = lean_nat_dec_le(x_8, x_15);
+if (x_16 == 0)
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+uint8_t x_17; 
 lean_dec(x_8);
+x_17 = lean_nat_dec_lt(x_7, x_15);
+if (x_17 == 0)
+{
+lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+lean_dec_ref(x_14);
 lean_dec(x_7);
 lean_dec_ref(x_6);
-lean_dec(x_4);
-x_16 = lean_ctor_get(x_3, 0);
-lean_inc_ref(x_16);
+x_18 = lean_ctor_get(x_3, 0);
+lean_inc_ref(x_18);
 lean_dec_ref(x_3);
-x_17 = lean_ctor_get(x_16, 1);
-lean_inc(x_17);
-lean_dec_ref(x_16);
-x_18 = lean_apply_2(x_17, lean_box(0), x_9);
-return x_18;
+x_19 = lean_ctor_get(x_18, 1);
+lean_inc(x_19);
+lean_dec_ref(x_18);
+x_20 = lean_apply_2(x_19, lean_box(0), x_9);
+return x_20;
 }
 else
 {
-lean_object* x_19; size_t x_20; size_t x_21; lean_object* x_22; 
-x_19 = lean_alloc_closure((void*)(l_Subarray_forM___redArg___lam__0), 3, 1);
-lean_closure_set(x_19, 0, x_4);
-x_20 = lean_usize_of_nat(x_7);
+size_t x_21; size_t x_22; lean_object* x_23; 
+x_21 = lean_usize_of_nat(x_7);
 lean_dec(x_7);
-x_21 = lean_usize_of_nat(x_8);
+x_22 = lean_usize_of_nat(x_15);
+x_23 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_3, x_14, x_6, x_21, x_22, x_9);
+return x_23;
+}
+}
+else
+{
+size_t x_24; size_t x_25; lean_object* x_26; 
+x_24 = lean_usize_of_nat(x_7);
+lean_dec(x_7);
+x_25 = lean_usize_of_nat(x_8);
 lean_dec(x_8);
-x_22 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_3, x_19, x_6, x_20, x_21, x_9);
-return x_22;
+x_26 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_3, x_14, x_6, x_24, x_25, x_9);
+return x_26;
 }
 }
 }
@@ -1343,36 +1357,50 @@ return x_11;
 }
 else
 {
-lean_object* x_12; uint8_t x_13; 
-x_12 = lean_array_get_size(x_4);
-x_13 = lean_nat_dec_le(x_6, x_12);
-if (x_13 == 0)
+lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+x_12 = lean_alloc_closure((void*)(l_Subarray_forM___redArg___lam__0), 3, 1);
+lean_closure_set(x_12, 0, x_2);
+x_13 = lean_array_get_size(x_4);
+x_14 = lean_nat_dec_le(x_6, x_13);
+if (x_14 == 0)
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+uint8_t x_15; 
 lean_dec(x_6);
+x_15 = lean_nat_dec_lt(x_5, x_13);
+if (x_15 == 0)
+{
+lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_dec_ref(x_12);
 lean_dec(x_5);
 lean_dec_ref(x_4);
-lean_dec(x_2);
-x_14 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_14);
+x_16 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_16);
 lean_dec_ref(x_1);
-x_15 = lean_ctor_get(x_14, 1);
-lean_inc(x_15);
-lean_dec_ref(x_14);
-x_16 = lean_apply_2(x_15, lean_box(0), x_7);
-return x_16;
+x_17 = lean_ctor_get(x_16, 1);
+lean_inc(x_17);
+lean_dec_ref(x_16);
+x_18 = lean_apply_2(x_17, lean_box(0), x_7);
+return x_18;
 }
 else
 {
-lean_object* x_17; size_t x_18; size_t x_19; lean_object* x_20; 
-x_17 = lean_alloc_closure((void*)(l_Subarray_forM___redArg___lam__0), 3, 1);
-lean_closure_set(x_17, 0, x_2);
-x_18 = lean_usize_of_nat(x_5);
+size_t x_19; size_t x_20; lean_object* x_21; 
+x_19 = lean_usize_of_nat(x_5);
 lean_dec(x_5);
-x_19 = lean_usize_of_nat(x_6);
+x_20 = lean_usize_of_nat(x_13);
+x_21 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_1, x_12, x_4, x_19, x_20, x_7);
+return x_21;
+}
+}
+else
+{
+size_t x_22; size_t x_23; lean_object* x_24; 
+x_22 = lean_usize_of_nat(x_5);
+lean_dec(x_5);
+x_23 = lean_usize_of_nat(x_6);
 lean_dec(x_6);
-x_20 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_1, x_17, x_4, x_18, x_19, x_7);
-return x_20;
+x_24 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_1, x_12, x_4, x_22, x_23, x_7);
+return x_24;
 }
 }
 }

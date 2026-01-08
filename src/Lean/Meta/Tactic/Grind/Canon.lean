@@ -11,6 +11,7 @@ import Lean.Meta.FunInfo
 import Lean.Util.FVarSubset
 import Lean.Meta.IntInstTesters
 import Lean.Meta.NatInstTesters
+import Lean.Meta.Tactic.Grind.SynthInstance
 public section
 namespace Lean.Meta.Grind
 namespace Canon
@@ -67,9 +68,11 @@ private def isDefEqBounded (a b : Expr) (parent : Expr) : GoalM Bool := do
 
 /--
 Helper function for canonicalizing `e` occurring as the `i`th argument of an `f`-application.
-If `useIsDefEqBounded` is `true`, we try `isDefEqBounded` before returning false
+If `useIsDefEqBounded` is `true`, we try `isDefEqBounded` before returning false.
+
+Remark: `isInst` is `true` if element is an instance.
 -/
-private def canonElemCore (parent : Expr) (f : Expr) (i : Nat) (e : Expr) (useIsDefEqBounded : Bool) : GoalM Expr := do
+private def canonElemCore (parent : Expr) (f : Expr) (i : Nat) (e : Expr) (useIsDefEqBounded : Bool) (isInst := false) : GoalM Expr := do
   let s ← get'
   let key := { f, i, arg := e : CanonArgKey }
   /-
@@ -84,10 +87,36 @@ private def canonElemCore (parent : Expr) (f : Expr) (i : Nat) (e : Expr) (useIs
   modify' fun s => { s with canonArg := s.canonArg.insert key c }
   return c
 where
+  checkDefEq (e c : Expr) : GoalM Bool := do
+    if (← isDefEq e c) then
+      -- We used to check `c.fvarsSubset e` because it is not
+      -- in general safe to replace `e` with `c` if `c` has more free variables than `e`.
+      -- However, we don't revert previously canonicalized elements in the `grind` tactic.
+      -- Moreover, we store the canonicalizer state in the `Goal` because we case-split
+      -- and different locals are added in different branches.
+      modify' fun s => { s with canon := s.canon.insert e c }
+      trace_goal[grind.debug.canon] "found {e} ===> {c}"
+      return true
+    if useIsDefEqBounded then
+      -- If `e` and `c` are not types, we use `isDefEqBounded`
+      if (← isDefEqBounded e c parent) then
+        modify' fun s => { s with canon := s.canon.insert e c }
+        trace_goal[grind.debug.canon] "found using `isDefEqBounded`: {e} ===> {c}"
+        return true
+    return false
+
   go : GoalM Expr := do
+    let eType ← inferType e
+    if isInst then
+      /-
+      **Note**: Recall that some `grind` modules (e.g., `lia`) rely on instances defined directly in core.
+      This test ensures we use them as the canonical representative.
+      -/
+      if let some c := getBuiltinInstance? eType then
+        if (← checkDefEq e c) then
+          return c
     let s ← get'
     let key := (f, i)
-    let eType ← inferType e
     let cs := s.argMap.find? key |>.getD []
     for (c, cType) in cs do
       /-
@@ -100,28 +129,20 @@ where
       where `grind` unfolds the definition of `DHashMap.insert` and `TreeMap.insert`.
       -/
       if (← isDefEqD eType cType) then
-        if (← isDefEq e c) then
-          -- We used to check `c.fvarsSubset e` because it is not
-          -- in general safe to replace `e` with `c` if `c` has more free variables than `e`.
-          -- However, we don't revert previously canonicalized elements in the `grind` tactic.
-          -- Moreover, we store the canonicalizer state in the `Goal` because we case-split
-          -- and different locals are added in different branches.
-          modify' fun s => { s with canon := s.canon.insert e c }
-          trace_goal[grind.debug.canon] "found {e} ===> {c}"
+        if (← checkDefEq e c) then
           return c
-        if useIsDefEqBounded then
-          -- If `e` and `c` are not types, we use `isDefEqBounded`
-          if (← isDefEqBounded e c parent) then
-            modify' fun s => { s with canon := s.canon.insert e c }
-            trace_goal[grind.debug.canon] "found using `isDefEqBounded`: {e} ===> {c}"
-            return c
     trace_goal[grind.debug.canon] "({f}, {i}) ↦ {e}"
     modify' fun s => { s with canon := s.canon.insert e e, argMap := s.argMap.insert key ((e, eType)::cs) }
     return e
 
-private abbrev canonType (parent f : Expr) (i : Nat) (e : Expr) := withDefault <| canonElemCore parent f i e (useIsDefEqBounded := false)
-private abbrev canonInst (parent f : Expr) (i : Nat) (e : Expr) := withReducibleAndInstances <| canonElemCore parent f i e (useIsDefEqBounded := true)
-private abbrev canonImplicit (parent f : Expr) (i : Nat) (e : Expr) := withReducible <| canonElemCore parent f i e (useIsDefEqBounded := true)
+private abbrev canonType (parent f : Expr) (i : Nat) (e : Expr) :=
+  withDefault <| canonElemCore parent f i e (useIsDefEqBounded := false)
+
+private abbrev canonInst (parent f : Expr) (i : Nat) (e : Expr) :=
+  withReducibleAndInstances <| canonElemCore parent f i e (useIsDefEqBounded := true) (isInst := true)
+
+private abbrev canonImplicit (parent f : Expr) (i : Nat) (e : Expr) :=
+  withReducible <| canonElemCore parent f i e (useIsDefEqBounded := true)
 
 /--
 Return type for the `shouldCanon` function.
@@ -212,9 +233,9 @@ private def normOfNatArgs? (args : Array Expr) : MetaM (Option (Array Expr)) := 
       args := args.set 1 (mkRawNatLit val)
       modified := true
     let inst := args[2]
-    if (← isInstOfNatNat inst) && !args[0].isConstOf ``Nat then
+    if (← Structural.isInstOfNatNat inst) && !args[0].isConstOf ``Nat then
       return some (args.set 0 Nat.mkType |>.toArray)
-    else if (← isInstOfNatInt inst) && !args[0].isConstOf ``Int then
+    else if (← Structural.isInstOfNatInt inst) && !args[0].isConstOf ``Int then
       return some (args.set 0 Int.mkType |>.toArray)
     else if modified then
       return some args.toArray

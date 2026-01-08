@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.AppBuilder
 public import Lean.Compiler.CSimpAttr
@@ -12,9 +11,8 @@ public import Lean.Compiler.ImplementedByAttr
 public import Lean.Compiler.LCNF.Bind
 public import Lean.Compiler.NeverExtractAttr
 import Lean.Meta.CasesInfo
-
+import Lean.Meta.WHNF
 public section
-
 namespace Lean.Compiler.LCNF
 namespace ToLCNF
 
@@ -65,7 +63,7 @@ That is, our goal is to try to promote the pre join points `_alt.<idx>` into a p
 partial def bindCases (jpDecl : FunDecl) (cases : Cases) : CompilerM Code := do
   let (alts, s) ← visitAlts cases.alts |>.run {}
   let resultType ← mkCasesResultType alts
-  let result := .cases { cases with alts, resultType }
+  let result := .cases ⟨cases.typeName, resultType, cases.discr, alts⟩
   let result := s.foldl (init := result) fun result _ altJp => .jp altJp result
   return .jp jpDecl result
 where
@@ -149,7 +147,7 @@ where
       if alts.isEmpty then
         throwError "`Code.bind` failed, empty `cases` found"
       let resultType ← mkCasesResultType alts
-      return .cases { c with alts, resultType }
+      return .cases ⟨c.typeName, resultType, c.discr, alts⟩
     | .return fvarId => return .jmp jpDecl.fvarId #[.fvar fvarId]
     | .jmp .. | .unreach .. => return code
 
@@ -185,7 +183,7 @@ where
           result instead of a join point that takes a closure.
           -/
           eraseParam auxParam
-          let auxFunDecl := { auxParam with params := #[], value := .cases cases : FunDecl }
+          let auxFunDecl := ⟨auxParam.fvarId, auxParam.binderName, #[], auxParam.type, .cases cases⟩
           modifyLCtx fun lctx => lctx.addFunDecl auxFunDecl
           let auxFunDecl ← auxFunDecl.etaExpand
           go seq (i - 1) (.fun auxFunDecl c)
@@ -599,7 +597,7 @@ where
           let (altType, alt) ← visitAlt numParams args[i]!
           resultType := joinTypes altType resultType
           alts := alts.push alt
-        let cases : Cases := { typeName, discr := discrFVarId, resultType, alts }
+        let cases := ⟨typeName, resultType, discrFVarId, alts⟩
         let auxDecl ← mkAuxParam resultType
         pushElement (.cases auxDecl cases)
         let result := .fvar auxDecl.fvarId

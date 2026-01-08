@@ -4,15 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.SynthInstance
 public import Lean.Meta.DecLevel
 import Lean.Meta.SameCtorUtils
 import Lean.Data.Array
-
+import Lean.Meta.CtorRecognizer
+import Lean.Structure
 public section
-
 namespace Lean.Meta
 
 /-- Returns `id e` -/

@@ -268,7 +268,7 @@ where
         else
           altsNew := altsNew.push (alt.updateCode k)
     modify fun s => s.insert decl.fvarId jpAltMap
-    let value := LCNF.attachCodeDecls decls (.cases { cases with alts := altsNew })
+    let value := LCNF.attachCodeDecls decls (.cases <| cases.updateAlts altsNew)
     let decl ← decl.updateValue value
     let code := .jp decl (← visit k)
     return LCNF.attachCodeDecls jpAltDecls code

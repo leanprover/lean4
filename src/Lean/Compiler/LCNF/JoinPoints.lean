@@ -229,10 +229,8 @@ where
       | _, _ => return Code.updateLet! code decl (← go k)
     | .fun decl k =>
       if let some replacement := (← read)[decl.fvarId]? then
-        let newDecl := { decl with
-          binderName := replacement,
-          value := (← go decl.value)
-        }
+        let newValue ← go decl.value
+        let newDecl := ⟨decl.fvarId, replacement, decl.params, decl.type, newValue⟩
         modifyLCtx fun lctx => lctx.addFunDecl newDecl
         return .jp newDecl (← go k)
       else

@@ -113,6 +113,8 @@ theorem gcd_eq_right_iff_dvd (hb : 0 ≤ b) : gcd a b = b ↔ b ∣ a := by
 
 theorem gcd_assoc (a b c : Int) : gcd (gcd a b) c = gcd a (gcd b c) := Nat.gcd_assoc ..
 
+theorem gcd_left_comm (a b c : Int) : gcd a (gcd b c) = gcd b (gcd a c) := Nat.gcd_left_comm ..
+
 theorem gcd_mul_left (m n k : Int) : gcd (m * n) (m * k) = m.natAbs * gcd n k := by
   simp [gcd_eq_natAbs_gcd_natAbs, Nat.gcd_mul_left, natAbs_mul]
 

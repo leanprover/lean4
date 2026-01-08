@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Compiler.LCNF.SpecInfo
 public import Lean.Compiler.LCNF.MonadScope
@@ -13,7 +12,7 @@ import Lean.Compiler.LCNF.Simp
 import Lean.Compiler.LCNF.ToExpr
 import Lean.Compiler.LCNF.Level
 import Lean.Compiler.LCNF.Closure
-
+import Lean.Meta.Transform
 namespace Lean.Compiler.LCNF
 namespace Specialize
 
@@ -116,7 +115,7 @@ def isGround [TraverseFVar α] (e : α) : SpecializeM Bool := do
       match ← findFunDecl? fnFVarId with
       -- This ascription to `Bool` is required to avoid this being inferred as `Prop`,
       -- even with a type specified on the `let` binding.
-      | some { params, .. } => pure ((args.size < params.size) : Bool)
+      | some (.mk (params := params) ..) => pure ((args.size < params.size) : Bool)
       | none => pure false
     | _ => pure false
   let fvarId := decl.fvarId

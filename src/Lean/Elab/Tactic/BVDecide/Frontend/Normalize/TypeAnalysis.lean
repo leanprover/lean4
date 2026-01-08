@@ -195,16 +195,16 @@ where
       return false
 
     let ctorTyp := (← getConstInfoCtor constInfo.ctors.head!).type
-    let analyzer state arg := do return state || (← typeCasesRelevant (← arg.fvarId!.getType))
-    let interesting ← forallTelescope ctorTyp fun args _ => args.foldlM (init := false) analyzer
+    let interesting ← forallTelescope ctorTyp fun args _ =>
+      -- Note: Important not to short circuit here so that we collect information about all
+      -- arguments in case we want to split recursively.
+      args.foldlM (init := false) fun state arg => do
+        return state || (← typeCasesRelevant (← arg.fvarId!.getType))
     return interesting
 
   typeCasesRelevant (expr : Expr) : PreProcessM Bool := do
-    match_expr expr with
-    | BitVec n => return (← getNatValue? n).isSome
-    | _ =>
-      let some const := expr.getAppFn.constName? | return false
-      analyzeConst const
+    let some const := expr.getAppFn.constName? | return false
+    analyzeConst const
 
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

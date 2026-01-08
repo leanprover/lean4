@@ -1502,7 +1502,8 @@ def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
   return {
     base := .const {
       const2ModIdx    := {}
-      constants       := {}
+      -- Make sure we return a sharing-friendly map set to stage 2, like in `finalizeImport`.
+      constants       := SMap.empty.switch
       header          := { trustLevel }
       extensions      := exts
       irBaseExts      := exts

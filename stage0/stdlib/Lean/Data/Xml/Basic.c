@@ -445,6 +445,8 @@ uint8_t x_25;
 x_25 = lean_nat_dec_le(x_23, x_23);
 if (x_25 == 0)
 {
+if (x_24 == 0)
+{
 lean_dec_ref(x_21);
 x_12 = x_7;
 goto block_18;
@@ -456,6 +458,16 @@ x_26 = lean_usize_of_nat(x_23);
 x_27 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__2(x_21, x_20, x_26, x_7);
 lean_dec_ref(x_21);
 x_12 = x_27;
+goto block_18;
+}
+}
+else
+{
+size_t x_28; lean_object* x_29; 
+x_28 = lean_usize_of_nat(x_23);
+x_29 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__2(x_21, x_20, x_28, x_7);
+lean_dec_ref(x_21);
+x_12 = x_29;
 goto block_18;
 }
 }

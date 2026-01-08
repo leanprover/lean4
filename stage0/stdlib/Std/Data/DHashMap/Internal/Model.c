@@ -461,6 +461,8 @@ uint8_t x_6;
 x_6 = lean_nat_dec_le(x_3, x_3);
 if (x_6 == 0)
 {
+if (x_4 == 0)
+{
 lean_object* x_7; 
 x_7 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_7, 0, x_2);
@@ -477,6 +479,18 @@ x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_1);
 return x_11;
+}
+}
+else
+{
+size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
+x_12 = 0;
+x_13 = lean_usize_of_nat(x_3);
+x_14 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_DHashMap_Internal_withComputedSize_spec__0___redArg(x_1, x_12, x_13, x_2);
+x_15 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_1);
+return x_15;
 }
 }
 }

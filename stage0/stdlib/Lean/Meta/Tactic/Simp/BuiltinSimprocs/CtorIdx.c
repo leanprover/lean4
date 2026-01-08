@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Simp.BuiltinSimprocs.CtorIdx
-// Imports: public import Lean.Meta.Tactic.Simp.Simproc import Init.Simproc import Lean.Meta.Constructions.CtorIdx
+// Imports: public import Lean.Meta.Tactic.Simp.Simproc import Init.Simproc import Lean.Meta.Constructions.CtorIdx import Lean.Meta.CtorRecognizer
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -572,6 +572,7 @@ return x_2;
 lean_object* initialize_Lean_Meta_Tactic_Simp_Simproc(uint8_t builtin);
 lean_object* initialize_Init_Simproc(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Constructions_CtorIdx(uint8_t builtin);
+lean_object* initialize_Lean_Meta_CtorRecognizer(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_CtorIdx(uint8_t builtin) {
 lean_object * res;
@@ -584,6 +585,9 @@ res = initialize_Init_Simproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Constructions_CtorIdx(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_CtorRecognizer(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__0___redArg___closed__0 = _init_l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__0___redArg___closed__0();

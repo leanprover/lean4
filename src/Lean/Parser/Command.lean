@@ -964,7 +964,7 @@ Registers an error explanation.
 Note that the error name is not relativized to the current namespace.
 -/
 @[builtin_command_parser] def registerErrorExplanationStx := leading_parser
-  docComment >> "register_error_explanation " >> ident >> termParser
+  optional docComment >> "register_error_explanation " >> ident >> termParser
 
 /--
 Returns syntax for `private` or `public` visibility depending on `isPublic`. This function should be

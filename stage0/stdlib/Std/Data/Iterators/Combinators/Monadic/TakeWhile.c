@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Iterators.Combinators.Monadic.TakeWhile
-// Imports: public import Init.Data.Nat.Lemmas public import Init.Data.Iterators.Consumers.Monadic.Collect public import Init.Data.Iterators.Consumers.Monadic.Loop public import Init.Data.Iterators.Internal.Termination public import Init.Data.Iterators.PostconditionMonad
+// Imports: public import Init.Data.Nat.Lemmas public import Init.Data.Iterators.Consumers.Monadic.Collect public import Init.Data.Iterators.Consumers.Monadic.Loop public import Init.Data.Iterators.PostconditionMonad
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,8 +19,8 @@ LEAN_EXPORT lean_object* l_Std_Iterators_Types_TakeWhile_instIteratorLoop___boxe
 LEAN_EXPORT lean_object* l_Std_IterM_takeWhile___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Combinators_Monadic_TakeWhile_0__Std_Iterators_Types_TakeWhile_instFinitenessRelation(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_TakeWhile_instIteratorLoop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_takeWhileM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_IterM_takeWhileM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_takeWhileM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_IterM_takeWhileM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_takeWhile___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_IterM_takeWhileM___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Types_TakeWhile_instIteratorLoop___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -76,11 +76,11 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Std_IterM_takeWhileM(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Std_IterM_takeWhileM(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_inc(x_6);
-return x_6;
+lean_inc(x_7);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Std_IterM_takeWhileM___redArg(lean_object* x_1) {
@@ -90,15 +90,16 @@ lean_inc(x_1);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_IterM_takeWhileM___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Std_IterM_takeWhileM___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_7; 
-x_7 = l_Std_IterM_takeWhileM(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_object* x_8; 
+x_8 = l_Std_IterM_takeWhileM(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
-return x_7;
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Std_IterM_takeWhileM___redArg___boxed(lean_object* x_1) {
@@ -483,7 +484,6 @@ return x_10;
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Collect(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers_Monadic_Loop(uint8_t builtin);
-lean_object* initialize_Init_Data_Iterators_Internal_Termination(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_PostconditionMonad(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_Iterators_Combinators_Monadic_TakeWhile(uint8_t builtin) {
@@ -497,9 +497,6 @@ res = initialize_Init_Data_Iterators_Consumers_Monadic_Collect(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers_Monadic_Loop(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Internal_Termination(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_PostconditionMonad(builtin);

@@ -4314,7 +4314,7 @@ lean_inc_ref(x_4);
 x_11 = lean_apply_5(x_1, x_4, x_5, x_6, x_10, lean_box(0));
 if (lean_obj_tag(x_11) == 0)
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; uint8_t x_16; uint8_t x_17; lean_object* x_24; uint8_t x_25; uint8_t x_26; uint8_t x_27; uint8_t x_28; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
+lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; uint8_t x_16; uint8_t x_17; uint8_t x_24; lean_object* x_25; uint8_t x_26; uint8_t x_27; uint8_t x_28; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
 if (lean_is_exclusive(x_11)) {
@@ -4433,18 +4433,18 @@ x_50 = lean_ctor_get(x_5, 0);
 x_51 = lean_ctor_get(x_50, 3);
 if (lean_obj_tag(x_51) == 1)
 {
-x_24 = x_49;
-x_25 = x_40;
-x_26 = x_48;
+x_24 = x_48;
+x_25 = x_49;
+x_26 = x_40;
 x_27 = x_41;
 x_28 = x_41;
 goto block_29;
 }
 else
 {
-x_24 = x_49;
-x_25 = x_40;
-x_26 = x_48;
+x_24 = x_48;
+x_25 = x_49;
+x_26 = x_40;
 x_27 = x_41;
 x_28 = x_40;
 goto block_29;
@@ -4452,9 +4452,9 @@ goto block_29;
 }
 else
 {
-x_24 = x_49;
-x_25 = x_40;
-x_26 = x_48;
+x_24 = x_48;
+x_25 = x_49;
+x_26 = x_40;
 x_27 = x_41;
 x_28 = x_40;
 goto block_29;
@@ -4547,9 +4547,9 @@ block_23:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_18 = lean_alloc_ctor(0, 1, 3);
-lean_ctor_set(x_18, 0, x_14);
-lean_ctor_set_uint8(x_18, sizeof(void*)*1, x_16);
-lean_ctor_set_uint8(x_18, sizeof(void*)*1 + 1, x_15);
+lean_ctor_set(x_18, 0, x_15);
+lean_ctor_set_uint8(x_18, sizeof(void*)*1, x_14);
+lean_ctor_set_uint8(x_18, sizeof(void*)*1 + 1, x_16);
 lean_ctor_set_uint8(x_18, sizeof(void*)*1 + 2, x_17);
 x_19 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_19, 0, x_4);
@@ -4573,17 +4573,17 @@ block_29:
 if (lean_obj_tag(x_5) == 2)
 {
 x_14 = x_24;
-x_15 = x_28;
-x_16 = x_26;
+x_15 = x_25;
+x_16 = x_28;
 x_17 = x_27;
 goto block_23;
 }
 else
 {
 x_14 = x_24;
-x_15 = x_28;
-x_16 = x_26;
-x_17 = x_25;
+x_15 = x_25;
+x_16 = x_28;
+x_17 = x_26;
 goto block_23;
 }
 }

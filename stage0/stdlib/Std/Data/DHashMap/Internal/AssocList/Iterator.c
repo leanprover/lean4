@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DHashMap.Internal.AssocList.Iterator
-// Imports: import Init.Data.Nat.Lemmas public import Init.Data.Iterators.Consumers import Init.Data.Iterators.Internal.Termination public import Std.Data.DHashMap.Internal.AssocList.Basic
+// Imports: import Init.Data.Nat.Lemmas public import Init.Data.Iterators.Consumers public import Std.Data.DHashMap.Internal.AssocList.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -270,7 +270,6 @@ return x_2;
 }
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers(uint8_t builtin);
-lean_object* initialize_Init_Data_Iterators_Internal_Termination(uint8_t builtin);
 lean_object* initialize_Std_Data_DHashMap_Internal_AssocList_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_DHashMap_Internal_AssocList_Iterator(uint8_t builtin) {
@@ -281,9 +280,6 @@ res = initialize_Init_Data_Nat_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Iterators_Internal_Termination(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_DHashMap_Internal_AssocList_Basic(builtin);

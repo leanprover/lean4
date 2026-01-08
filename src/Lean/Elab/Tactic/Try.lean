@@ -821,13 +821,12 @@ private def addSuggestions (tk : Syntax) (s : Array Tactic.TryThis.Suggestion) :
     Tactic.TryThis.addSuggestions tk (s.map fun stx => stx) (origSpan? := (← getRef))
 
 def evalAndSuggest (tk : Syntax) (tac : TSyntax `tactic) (originalMaxHeartbeats : Nat) (config : Try.Config := {}) : TacticM Unit := do
-  let initialLog ← Core.getMessageLog
-  let tac' ← try
-    evalSuggest tac |>.run { terminal := true, root := tac, config, originalMaxHeartbeats }
-  catch _ =>
-    throwEvalAndSuggestFailed config
-  -- Restore message log to suppress "Try this" messages from intermediate tactic executions
-  Core.setMessageLog initialLog
+  -- Suppress "Try this" messages from intermediate tactic executions
+  let tac' ← withSuppressedMessages do
+    try
+      evalSuggest tac |>.run { terminal := true, root := tac, config, originalMaxHeartbeats }
+    catch _ =>
+      throwEvalAndSuggestFailed config
   let s := (getSuggestions tac')[*...config.max].toArray
   if s.isEmpty then
     throwEvalAndSuggestFailed config
@@ -985,13 +984,12 @@ private def wrapSuggestionWithBy (sugg : Tactic.TryThis.Suggestion) : TacticM Ta
 
 /-- Version of `evalAndSuggest` that wraps tactic suggestions with `by` for term mode. -/
 private def evalAndSuggestWithBy (tk : Syntax) (tac : TSyntax `tactic) (originalMaxHeartbeats : Nat) (config : Try.Config) : TacticM Unit := do
-  let initialLog ← Core.getMessageLog
-  let tac' ← try
-    evalSuggest tac |>.run { terminal := true, root := tac, config, originalMaxHeartbeats }
-  catch _ =>
-    throwEvalAndSuggestFailed config
-  -- Restore message log to suppress "Try this" messages from intermediate tactic executions
-  Core.setMessageLog initialLog
+  -- Suppress "Try this" messages from intermediate tactic executions
+  let tac' ← withSuppressedMessages do
+    try
+      evalSuggest tac |>.run { terminal := true, root := tac, config, originalMaxHeartbeats }
+    catch _ =>
+      throwEvalAndSuggestFailed config
   let suggestions := (getSuggestions tac')[*...config.max].toArray
   if suggestions.isEmpty then
     throwEvalAndSuggestFailed config

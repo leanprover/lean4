@@ -782,9 +782,16 @@ Position reporting for `#guard_msgs`:
 -/
 syntax guardMsgsPositions := &"positions" " := " guardMsgsPositionsArg
 
+/--
+Substring matching for `#guard_msgs`:
+- `substring := true` checks that the docstring appears as a substring of the output.
+- `substring := false` (the default) requires exact matching (modulo whitespace normalization).
+-/
+syntax guardMsgsSubstring := &"substring" " := " (&"true" <|> &"false")
+
 set_option linter.missingDocs false in
 syntax guardMsgsSpecElt :=
-  guardMsgsFilter <|> guardMsgsWhitespace <|> guardMsgsOrdering <|> guardMsgsPositions
+  guardMsgsFilter <|> guardMsgsWhitespace <|> guardMsgsOrdering <|> guardMsgsPositions <|> guardMsgsSubstring
 
 set_option linter.missingDocs false in
 syntax guardMsgsSpec := "(" guardMsgsSpecElt,* ")"
@@ -860,6 +867,11 @@ Position reporting:
   `#guard_msgs` appears.
 - `positions := false` does not report position info.
 
+Substring matching:
+- `substring := true` checks that the docstring appears as a substring of the output
+  (after whitespace normalization). This is useful when you only care about part of the message.
+- `substring := false` (the default) requires exact matching (modulo whitespace normalization).
+
 For example, `#guard_msgs (error, drop all) in cmd` means to check errors and drop
 everything else.
 
@@ -872,6 +884,13 @@ The top-level command elaborator only runs the linters if `#guard_msgs` is not p
 -/
 syntax (name := guardMsgsCmd)
   (plainDocComment)? "#guard_msgs" (ppSpace guardMsgsSpec)? " in" ppLine command : command
+
+/--
+`#guard_panic in cmd` runs `cmd` and succeeds if the command produces a panic message.
+This is useful for testing that a command panics without matching the exact (volatile) panic text.
+-/
+syntax (name := guardPanicCmd)
+  "#guard_panic" " in" ppLine command : command
 
 /--
 Format and print the info trees for a given command.

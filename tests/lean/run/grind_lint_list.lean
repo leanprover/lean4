@@ -7,13 +7,9 @@ import Lean.Elab.Tactic.Grind.LintExceptions
 -- #grind_lint inspect List.getLast?_concat
 #grind_lint skip List.getLast?_concat
 
--- TODO: We should consider changing the grind annotation for `List.getElem?_eq_none`
--- so it only fires if we've already proved the hypothesis holds. (i.e. the new gadget)
--- Other than that, everything looks sane here:
--- #grind_lint inspect List.getLast?_pmap
-#grind_lint skip List.getLast?_pmap
-
--- TODO: `List.Sublist.eq_of_length` should probably only fire when we've already proved the hypotheses.
+-- `List.getLast?_pmap` is reasonable at 31.
+#guard_msgs in
+#grind_lint inspect (min := 31) List.getLast?_pmap
 
 -- `List.replicate_sublist_iff` is reasonable at 30.
 #guard_msgs in

@@ -29,6 +29,10 @@ def mkNatVar (e : Expr) : GoalM (Expr × Expr) := do
 
 private def intIte : Expr := mkApp (mkConst ``ite [1]) Int.mkType
 
+/-
+**Note**: It is safe to use (the more efficient) structural instances tests here because `grind` uses the canonicalizer.
+-/
+open Structural in
 private partial def natToInt' (e : Expr) : GoalM (Expr × Expr) := do
   match_expr e with
   | HAdd.hAdd _ _ _ inst a b =>
@@ -115,6 +119,10 @@ def assertNatCast (e : Expr) (x : Var) : GoalM Unit := do
 def isNatTerm (e : Expr) : GoalM Bool :=
   return (← get').natToIntMap.contains { expr := e }
 
+/-
+**Note**: It is safe to use (the more efficient) structural instances tests here because `grind` uses the canonicalizer.
+-/
+open Structural in
 private partial def isNonneg (e : Expr) : MetaM Bool := do
   match_expr e with
   | OfNat.ofNat _ _ _ =>

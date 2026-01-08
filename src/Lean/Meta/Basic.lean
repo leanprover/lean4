@@ -34,6 +34,7 @@ def TransparencyMode.toUInt64 : TransparencyMode → UInt64
   | .default   => 1
   | .reducible => 2
   | .instances => 3
+  | .none      => 4
 
 def EtaStructMode.toUInt64 : EtaStructMode → UInt64
   | .all        => 0
@@ -506,6 +507,11 @@ structure Context where
    This is not a great solution, but a proper solution would require a more sophisticated caching mechanism.
   -/
   inTypeClassResolution : Bool := false
+  /--
+  When `cacheInferType := true`, the `inferType` results are cached if the input term does not contain
+  metavariables
+  -/
+  cacheInferType : Bool := true
 deriving Inhabited
 
 def Context.config (c : Context) : Config := c.keyedConfig.config
@@ -2480,6 +2486,14 @@ abbrev isDefEqGuarded (t s : Expr) : MetaM Bool :=
 def isDefEqNoConstantApprox (t s : Expr) : MetaM Bool :=
   approxDefEq <| isDefEq t s
 
+/-- Similar to `isDefEq`, but ensures default transparency is used. -/
+def isDefEqD (t s : Expr) : MetaM Bool :=
+  withDefault <| isDefEq t s
+
+/-- Similar to `isDefEq`, but ensures that only reducible definitions and instances can be reduced. -/
+def isDefEqI (t s : Expr) : MetaM Bool :=
+  withReducibleAndInstances <| isDefEq t s
+
 /--
 Returns `true` if `mvarId := val` was successfully assigned.
 This method uses the same assignment validation performed by `isDefEq`, but it does not check whether the types match.
@@ -2590,7 +2604,11 @@ where
         -- catch all exceptions
         let _ : MonadExceptOf _ MetaM := MonadAlwaysExcept.except
         observing do
-          realize)
+          -- The scope at which `enableRealizationsForConst forConst` was called is essentially
+          -- arbitrary, normalize here. As `realize` will not add new constants nor should it
+          -- directly be connected to user input to be checked, be permissive.
+          withoutExporting do
+            realize)
         <* addTraceAsMessages
     let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO
     let res ← match res? with

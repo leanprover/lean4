@@ -4,15 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.AppBuilder
 import Lean.ExtraModUses
-
+import Lean.ProjFns
+import Lean.Meta.Transform
+import Lean.Meta.WHNF
 public section
-
 namespace Lean.Meta
-
 /--
 Tags declarations to be unfolded during coercion elaboration.
 

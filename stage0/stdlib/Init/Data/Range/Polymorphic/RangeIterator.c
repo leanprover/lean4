@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Range.Polymorphic.RangeIterator
-// Imports: public import Init.Data.Iterators.Internal.Termination public import Init.Data.Iterators.Consumers.Access import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop public import Init.Data.Range.Polymorphic.PRange public import Init.Data.List.Sublist public import Init.WFExtrinsicFix
+// Imports: public import Init.Data.Iterators.Consumers.Access import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop public import Init.Data.Range.Polymorphic.PRange public import Init.Data.List.Sublist public import Init.WFExtrinsicFix
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3460,7 +3460,6 @@ lean_dec_ref(x_2);
 return x_11;
 }
 }
-lean_object* initialize_Init_Data_Iterators_Internal_Termination(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Consumers_Access(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Consumers_Monadic_Loop(uint8_t builtin);
 lean_object* initialize_Init_Data_Range_Polymorphic_PRange(uint8_t builtin);
@@ -3471,9 +3470,6 @@ LEAN_EXPORT lean_object* initialize_Init_Data_Range_Polymorphic_RangeIterator(ui
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Iterators_Internal_Termination(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Consumers_Access(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

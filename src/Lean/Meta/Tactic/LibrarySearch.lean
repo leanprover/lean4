@@ -13,6 +13,7 @@ public import Lean.Util.Heartbeats
 import Init.Grind.Util
 import Init.Try
 import Lean.Elab.Tactic.Basic
+import Lean.Linter.Deprecated
 
 public section
 
@@ -55,7 +56,7 @@ def grindDischarger (mvarId : MVarId) : MetaM (Option (List MVarId)) := do
     let [subgoal] ← mvarId.apply markerExpr
       | return none
     -- Solve the subgoal with grind
-    let params ← Grind.mkParams {}
+    let params ← Grind.mkDefaultParams {}
     let result ← Grind.main subgoal params
     if result.hasFailed then
       return none
@@ -83,9 +84,8 @@ def tryDischarger (mvarId : MVarId) : MetaM (Option (List MVarId)) := do
     let tacStx ← `(tactic| try?)
     let remainingGoals ← Elab.Term.TermElabM.run' <| Elab.Tactic.run subgoal do
       -- Suppress info messages from try?
-      let initialLog ← Core.getMessageLog
-      Elab.Tactic.evalTactic tacStx
-      Core.setMessageLog initialLog
+      Elab.Tactic.withSuppressedMessages do
+        Elab.Tactic.evalTactic tacStx
     if remainingGoals.isEmpty then
       return some []
     else
@@ -138,7 +138,9 @@ to find candidate lemmas.
 open LazyDiscrTree (InitEntry findMatches)
 
 private def addImport (name : Name) (constInfo : ConstantInfo) :
-    MetaM (Array (InitEntry (Name × DeclMod))) :=
+    MetaM (Array (InitEntry (Name × DeclMod))) := do
+  -- Don't report deprecated lemmas.
+  if Linter.isDeprecated (← getEnv) name then return #[]
   -- Don't report lemmas from metaprogramming namespaces.
   if name.isMetaprogramming then return #[] else
   forallTelescope constInfo.type fun _ type => do

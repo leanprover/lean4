@@ -796,7 +796,8 @@ theorem getElem?_eq_none {xs : Vector α n} (h : n ≤ i) : xs[i]? = none := by
 
 -- This is a more aggressive pattern than for `List/Array.getElem?_eq_none`, because
 -- `length/size` won't appear.
-grind_pattern Vector.getElem?_eq_none => xs[i]?
+grind_pattern Vector.getElem?_eq_none => xs[i]? where
+  guard n ≤ i
 
 @[simp] theorem getElem?_eq_getElem {xs : Vector α n} {i : Nat} (h : i < n) : xs[i]? = some xs[i] :=
   getElem?_pos ..

@@ -544,3 +544,13 @@ Eq.refl five
 -/
 #guard_msgs in
 #print instA._proof_1
+
+/-- Setup for #11715. -/
+
+public structure OpOperand2 where
+  nextUse : Option Nat
+
+public def func (ctx : Nat) (operand : OpOperand2) : Nat :=
+  match operand.nextUse with
+  | none => ctx
+  | some nextPtr => ctx

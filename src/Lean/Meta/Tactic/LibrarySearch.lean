@@ -84,9 +84,8 @@ def tryDischarger (mvarId : MVarId) : MetaM (Option (List MVarId)) := do
     let tacStx ← `(tactic| try?)
     let remainingGoals ← Elab.Term.TermElabM.run' <| Elab.Tactic.run subgoal do
       -- Suppress info messages from try?
-      let initialLog ← Core.getMessageLog
-      Elab.Tactic.evalTactic tacStx
-      Core.setMessageLog initialLog
+      Elab.Tactic.withSuppressedMessages do
+        Elab.Tactic.evalTactic tacStx
     if remainingGoals.isEmpty then
       return some []
     else

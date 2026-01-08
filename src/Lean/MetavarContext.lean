@@ -403,9 +403,9 @@ def getDelayedMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : MVarId) : m (Opt
 
 /-- Given a sequence of delayed assignments
    ```
-   mvarId₁ := mvarId₂ ...;
+   mvarId₁ := fun ... => mvarId₂;
    ...
-   mvarIdₙ := mvarId_root ...  -- where `mvarId_root` is not delayed assigned
+   mvarIdₙ := fun ... => mvarId_root  -- where `mvarId_root` is not delayed assigned
    ```
    in `mctx`, `getDelayedRoot mctx mvarId₁` return `mvarId_root`.
    If `mvarId₁` is not delayed assigned then return `mvarId₁` -/

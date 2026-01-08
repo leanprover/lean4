@@ -146,34 +146,56 @@ def logErrorNames (x : MetaM Unit) : MetaM Unit := do
         msg
   Core.setMessageLog newLog
 
+set_option trace.Elab.match true in
+set_option trace.Meta.Match.debug true in
+set_option trace.Meta.Match.match true in
+example (n : Nat) : Id (Fin (n + 1)) :=
+  have jp : ?m := ?rhs
+  match n with
+  | 0 => ?jmp1
+  | n + 1 => ?jmp2
+  where finally
+  case m => exact Fin (n + 1) → Id (Fin (n + 1))
+  case jmp1 => exact jp ⟨0, by decide⟩
+  case jmp2 => exact jp ⟨n, by omega⟩
+  case rhs => exact pure
+
 open Std IterM in
-example [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
+set_option trace.Elab.match true in
+set_option trace.Meta.Match.debug true in
+set_option trace.Meta.Match.match true in
+noncomputable def rhsThing' {m : Type → Type} [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
     {it₁ : IterM (α := α₁) m β₁}
     {memo : Option { out : β₁ //
         ∃ it : IterM (α := α₁) m β₁, it.IsPlausibleOutput out }}
     {it₂ : IterM (α := α₂) m β₂} :
-    (Intermediate.zip it₁ memo it₂).step = (do
-      match hm : ((fun x => x) memo) with
-      | none =>
-        match (← it₁.step).inflate with
-        | .yield it₁' out hp =>
-          pure <| .deflate <| .skip (Intermediate.zip it₁' (some ⟨out, _, _, hp⟩) it₂)
-            (.yieldLeft hm hp)
-        | .skip it₁' hp =>
-          pure <| .deflate <| .skip (Intermediate.zip it₁' none it₂)
-            (.skipLeft hm hp)
-        | .done hp =>
-          pure <| .deflate <| .done (.doneLeft hm hp)
-      | some out₁ =>
-        match (← it₂.step).inflate with
-        | .yield it₂' out₂ hp =>
-          pure <| .deflate <| .yield (Intermediate.zip it₁ none it₂') (out₁, out₂)
-            (.yieldRight hm hp)
-        | .skip it₂' hp =>
-          pure <| .deflate <| .skip (Intermediate.zip it₁ (some out₁) it₂')
-            (.skipRight hm hp)
-        | .done hp =>
-          pure <| .deflate <| .done (.doneRight hm hp)) := sorry
+    m (Shrink (Intermediate.zip it₁ memo it₂).Step) :=
+  match memo with
+  | none => pure ?hole
+  | some out₁ => pure sorry
+where finally
+  case hole => exact sorry
+
+set_option trace.Elab.match true in
+set_option trace.Meta.Match.debug true in
+set_option trace.Meta.Match.match true in
+set_option trace.Meta.Tactic.cases true in
+set_option trace.Meta.Tactic.induction true in
+set_option pp.mvars.delayed true in
+open Std IterM in
+noncomputable def rhsThing [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
+    {it₁ : IterM (α := α₁) m β₁}
+    {memo : Option { out : β₁ //
+        ∃ it : IterM (α := α₁) m β₁, it.IsPlausibleOutput out }}
+    {it₂ : IterM (α := α₂) m β₂} :
+    m (Shrink (Intermediate.zip it₁ memo it₂).Step) :=
+  have jp : Shrink (Intermediate.zip it₁ memo it₂).Step → ?σ → m (Shrink (Intermediate.zip it₁ memo it₂).Step) :=
+    fun a _ => pure a
+  match memo, jp with
+  | none, _ => pure sorry
+  | some out₁, _ => pure sorry
+where finally
+  case σ => exact Unit
 
 open Std IterM in
 example [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
@@ -202,7 +224,18 @@ example [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
           pure <| .deflate <| .skip (Intermediate.zip it₁ (some out₁) it₂')
             (.skipRight rfl hp)
         | .done hp =>
-          pure <| .deflate <| .done (.doneRight rfl hp)) := sorry
+          pure <| .deflate <| .done (.doneRight rfl hp)) := by
+  simp only [Intermediate.zip, step, Iterator.step]
+  split
+  · apply bind_congr
+    intro step
+    cases step.inflate using PlausibleIterStep.casesOn <;> rfl
+  · rename_i heq
+    cases heq
+    apply bind_congr
+    intro step
+    cases step.inflate using PlausibleIterStep.casesOn <;> rfl
+
 
 -- test case doLetElse
 example (x : Nat) : IO (Fin (x + 1)) := do
@@ -256,17 +289,28 @@ example (x : Nat) := Id.run (α := Fin (2 * x + 2)) do
     | _     => pure ⟨0, by grind⟩
   return ⟨y₁.val + y₂.val, by grind⟩
 
+-- Providing a motive
+example (x : Nat) := Id.run (α := Fin (2 * x + 2)) do
+  have y' : Fin (x + 1) := ⟨0, by grind⟩
+  let mut y₁ : Fin (x + 1) := ⟨0, by grind⟩
+  let y₂ ←
+    match (motive := ∀ x, Fin (x + 1)) x with
+    | z + 1 => y₁ := ⟨1, by grind⟩; pure ⟨1, by grind⟩
+    | _     => pure ⟨0, by grind⟩
+  return ⟨y₁.val + y₂.val, by grind⟩
+
 -- Specifying `(generalizing := false)` implies a constant motive.
 -- The motive is the result type of the join point and it is not refined without generalization.
 -- If we dependently match on `x`, the first RHS has type `Fin (x + 2)` but is expected to have type
 -- `Fin (0 + 2)`.
+set_option backward.do.legacy true in
+set_option trace.Elab.do true in
 def depMatchNeedsGeneralization (x : Nat) := Id.run (α := Fin (x + 2)) do
   let y : Fin (x + 1) <-
     match (generalizing := false) x with
-    | 0 => pure ⟨0, by grind⟩
-    | _ => pure ⟨0, by grind⟩
-  return ⟨↑y + 1, by grind⟩
-
+    | 0 => pure ⟨0, sorry⟩
+    | _ => pure ⟨0, sorry⟩
+  return ⟨↑y + 1, sorry⟩
 example (x : Nat) (h : x = 3) := Id.run (α := Fin (x + 2)) do
   let y : Fin (x + 1) <-
     match h with
@@ -308,6 +352,58 @@ example (p n : Nat) : Except String (Fin (2 * p + 2)) := Id.run <| ExceptT.run d
     catch _ =>
       a := a + 1
   return 0
+
+-- Example for why `match` needs to generalize join points
+set_option backward.do.legacy true in
+example (x : Nat) : Id (Fin (x + 2)) := Id.run do
+  let mut a := 1
+  let mut b := 2
+  let mut c := 3
+  let r : Fin (x + 1) ←
+    if a = 1 then
+      match x with
+      | 0 => a := a + 1; pure 0
+      | 42 => a := a + 42; pure 41
+      | _ => pure 0
+    else
+      b := b + 1; pure 0
+  if a + b + c < 10 then
+    pure 0
+  else
+    pure ⟨r + 1, sorry⟩
+
+example (x : Nat) : Id (Fin (x + 2)) :=
+  have a := 1
+  have b := 2
+  have c := 3
+  have jp (r : Fin (x + 1)) a b c : Id (Fin (x + 2)) :=
+    if a + b + c < 10 then
+      pure 0
+    else
+      pure ⟨r + 1, sorry⟩
+  if a = 1 then
+    match (motive := ∀ x (jp : Fin (x + 1) → (a b c : Nat) → Id (Fin (x + 2))), Id (Fin (x + 2))) x, jp with
+    | 0, jp => let a := a + 1; jp 0 a b c
+    | _, jp => jp 0 a b c
+  else
+    have b := b + 1; jp 0 a b c
+
+set_option trace.Compiler true in
+example (x : Nat) : Id (Fin (x + 2)) :=
+  have a := 1
+  have b := 2
+  have c := 3
+  have jp (r : Fin (x + 1)) a b : Id (Fin (x + 2)) :=
+    if a + b + c < 10 then
+      pure 0
+    else
+      pure ⟨r + 1, sorry⟩
+  if a = 1 then
+    match (motive := ∀ x (jp : Fin (x + 1) → (a b : Nat) → Id (Fin (x + 2))), Id (Fin (x + 2))) x, jp with
+    | 0, jp => let a := a + 1; jp 0 a b
+    | _, jp => jp 0 a b
+  else
+    have b := b + 1; jp 0 a b
 
 set_option backward.do.legacy false in
 #eval Id.run <| ExceptT.run (ε:=String) do
@@ -354,6 +450,12 @@ example : IO Nat := do
         break
   return i
 
+set_option trace.Meta.Match.debug true in
+set_option trace.Elab.do true in
+example (a b : Nat) (h : a = b) : Nat := Id.run do
+  match a, b, h with
+  | _, _, rfl => return 0
+
 -- Test that dependent matches do not leave behind unnecessary join point discriminants
 set_option trace.Elab.do true in
 example (o1 : Option Unit) (o2 : Option Unit) : Bool := Id.run do
@@ -385,7 +487,7 @@ in the application
   iter1.next h1
 -/
 #guard_msgs(error) in
-example (str1 str2 : String) (cutoff : Nat) : Unit := Id.run do
+example (str1 str2 : String) : Unit := Id.run do
   let mut iter1 := str1.startPos
   while h1 : ¬iter1.IsAtEnd do
     let mut iter2 := str2.startPos
@@ -430,7 +532,7 @@ in the application
   iter1.get h1
 -/
 #guard_msgs (error) in
-example (str1 str2 : String) (cutoff : Nat) : Unit := Id.run do
+example (str1 str2 : String) : Unit := Id.run do
   let mut iter1 := str1.startPos
   while h1 : ¬iter1.IsAtEnd do
     let mut iter2 := str2.startPos
@@ -486,8 +588,9 @@ example (url : String) (headers : Array String := #[]) (thing : Except String La
 -- set_option backward.do.legacy true in
 example (cache : Std.HashMap (Nat × Nat) Bool) : Bool := Id.run do
   let key := ⟨1, 2⟩
-  if let some r := cache[key]? then
-    return true
+  match cache[key]? with
+  | some r => return true
+  | none => pure ()
   let := cache.contains key
   return false
 

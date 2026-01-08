@@ -57,24 +57,7 @@ def isAtomicDiscr (discr : Syntax) : TermElabM Bool := do
 -- See expandNonAtomicDiscrs?
 private def elabAtomicDiscr (discr : Syntax) : TermElabM Expr := do
   let term := discr[1]
-  let discr ← elabTerm term none
-  let ty ← inferType discr
-  if ty.hasMVar && (← read).mayElabToJump then
-    -- If the discriminant type contains a metavariable, `match` elaboration may not succeed.
-    -- We will get a pending MVar for the `match`, and that will cause the surrounding join point
-    -- mechanism to postpone. It is unlikely that the inference problem is solvable later, so we
-    -- try to synthesize default instances in order to make progress on discriminants such as
-    -- `(m.get? "foo" <|> m.get? "bar")` to pick the default `HOrElse` instance.
-    -- It is sufficient to synthesize the top level of `ty` to see the `Except ?m`, however; hence
-    -- no need for `synthesizeSyntheticMVarsNoPostponing`.
-    trace[Elab.match] "synthesizing default instances for discriminant type {ty}"
-    synthesizeSyntheticMVarsUsingDefault
-    trace[Elab.match] "after synthesizing using default instances {ty}"
-    if ← isMVarApp ty then
-      -- If the discriminant type is still a metavariable, we postpone; that's what the join point
-      -- code would do anyway, but only after doing a lot more pointless work.
-      tryPostpone
-  return discr
+  elabTerm term none
 
 /-- Creates syntax for a fresh `h : `-notation annotation for a discriminant, copying source
     information from an existing annotation `stx`. -/
@@ -93,18 +76,17 @@ structure ElabMatchTypeAndDiscrsResult where
   /-- `true` when performing dependent elimination. We use this to decide whether we optimize the "match unit" case.
      See `isMatchUnit?`. -/
   isDep     : Bool
-  alts      : Array MatchAltView
 
-private partial def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptMotive : Syntax) (matchAltViews : Array MatchAltView) (expectedType : Expr)
+partial def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (motive? : Option Syntax) (expectedType : Expr)
       : TermElabM ElabMatchTypeAndDiscrsResult := do
-  if matchOptMotive.isNone then
-    elabDiscrs 0 #[]
-  else
+  match motive? with
+  | none => elabDiscrs 0 #[]
+  | some motive =>
     -- motive := leading_parser atomic ("(" >> nonReservedSymbol "motive" >> " := ") >> termParser >> ")"
-    let matchTypeStx := matchOptMotive[0][3]
+    let matchTypeStx := motive[3]
     let matchType ← elabType matchTypeStx
     let (discrs, isDep) ← elabDiscrsWithMatchType matchType
-    return { discrs := discrs, matchType := matchType, isDep := isDep, alts := matchAltViews }
+    return { discrs := discrs, matchType := matchType, isDep := isDep }
 where
   /-- Easy case: elaborate discriminant when the match-type has been explicitly provided by the user.  -/
   elabDiscrsWithMatchType (matchType : Expr) : TermElabM (Array Discr × Bool) := do
@@ -164,9 +146,9 @@ where
       let matchType := Lean.mkForall userName BinderInfo.default discrType matchTypeBody
       return { result with matchType }
     else
-      return { discrs, alts := matchAltViews, isDep := false, matchType := expectedType }
+      return { discrs, isDep := false, matchType := expectedType }
 
-def expandMacrosInPatterns (matchAlts : Array MatchAltView) : MacroM (Array MatchAltView) := do
+def expandMacrosInPatterns (matchAlts : Array (MatchAltView k)) : MacroM (Array (MatchAltView k)) := do
   matchAlts.mapM fun matchAlt => do
     let patterns ← matchAlt.patterns.mapM expandMacros
     pure { matchAlt with patterns := patterns }
@@ -177,19 +159,20 @@ private def getMatchGeneralizing? : Syntax → Option Bool
   | _ => none
 
 /-- Given the `stx` of a single match alternative, return a corresponding `MatchAltView`. -/
-def getMatchAlt : Syntax → Option MatchAltView
+def getMatchAlt (k : SyntaxNodeKinds) : TSyntax ``matchAlt → Option (MatchAltView k)
+  -- See the docstring for `matchAltExpr` for why we can return `TSyntax k`.
   | alt@`(matchAltExpr| | $patterns,* => $rhs) => some {
           ref      := alt,
           patterns := patterns,
-          lhs      := alt[1], -- this is the ref `$patterns,*`
-          rhs      := rhs
+          lhs      := alt.raw[1], -- this is the ref `$patterns,*`
+          rhs      := ⟨rhs⟩
         }
   | _ => none
 
 /-- Given `stx` a match-expression, return its alternatives. -/
-def getMatchAlts : Syntax → Array MatchAltView
-  | `(match $[$gen]? $[$motive]? $_discrs,* with $alts:matchAlt*) =>
-    alts.filterMap getMatchAlt
+def getMatchAlts : TSyntax k → Array (MatchAltView k)
+  | `(match$[$gen]? $[$motive]? $_discrs,* with $alts:matchAlt*) =>
+    alts.filterMap (getMatchAlt k)
   | _ => #[]
 
 @[builtin_term_elab inaccessible] def elabInaccessible : TermElab := fun stx expectedType? => do
@@ -211,7 +194,7 @@ open Lean.Elab.Term.Quotation in
 structure PatternVarDecl where
   fvarId : FVarId
 
-private partial def withPatternVars {α} (pVars : Array PatternVar) (k : Array PatternVarDecl → TermElabM α) : TermElabM α :=
+partial def withPatternVars {α} (pVars : Array PatternVar) (k : Array PatternVarDecl → TermElabM α) : TermElabM α :=
   let rec loop (i : Nat) (decls : Array PatternVarDecl) (userNames : Array Name) := do
     if h : i < pVars.size then
       let type ← mkFreshTypeMVar
@@ -775,7 +758,7 @@ end ToDepElimPattern
 def withDepElimPatterns (patternVarDecls : Array PatternVarDecl) (ps : Array Expr) (matchType : Expr) (k : Array LocalDecl → Array Pattern → Expr → TermElabM α) : TermElabM α := do
   ToDepElimPattern.main patternVarDecls ps matchType k
 
-private def withElaboratedLHS {α} (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (lhsStx : Syntax) (numDiscrs : Nat) (matchType : Expr)
+def withElaboratedLHS {α} (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (lhsStx : Syntax) (numDiscrs : Nat) (matchType : Expr)
     (k : AltLHS → Expr → TermElabM α) : ExceptT PatternElabException TermElabM α := do
   let (patterns, matchType) ← withSynthesize <| withRef lhsStx <| elabPatterns patternStxs numDiscrs matchType
   id (α := TermElabM α) do
@@ -829,31 +812,33 @@ where
   The array `toClear` contains variables that must be cleared before elaborating the `rhs` because
   they have been generalized/refined.
 -/
-private def elabMatchAltView (discrs : Array Discr) (alt : MatchAltView) (matchType : Expr) (toClear : Array FVarId) : ExceptT PatternElabException TermElabM (AltLHS × Expr) := withRef alt.ref do
-    let (patternVars, alt) ← collectPatternVars alt
-    trace[Elab.match] "patternVars: {patternVars}"
-    withPatternVars patternVars fun patternVarDecls => do
-      withElaboratedLHS patternVarDecls alt.patterns alt.lhs discrs.size matchType fun altLHS matchType =>
-        withEqs discrs altLHS.patterns fun eqs =>
-          withLocalInstances altLHS.fvarDecls do
-            trace[Elab.match] "elabMatchAltView: {matchType}"
-            -- connect match-generalized pattern fvars, which are a suffix of `latLHS.fvarDecls`,
-            -- to their original fvars (independently of whether they were cleared successfully) in the info tree
-            for (fvar, baseId) in altLHS.fvarDecls.toArray.reverse.zip toClear.reverse do
-              pushInfoLeaf <| .ofFVarAliasInfo { id := fvar.fvarId, baseId, userName := fvar.userName }
-            let matchType ← instantiateMVars matchType
-            -- If `matchType` is of the form `@m ...`, we create a new metavariable with the current scope.
-            -- This improves the effectiveness of the `isDefEq` default approximations
-            let matchType' ← if matchType.getAppFn.isMVar then mkFreshTypeMVar else pure matchType
-            withToClear toClear matchType' do
-              let rhs ← elabTermEnsuringType alt.rhs matchType'
-              -- We use all approximations to ensure the auxiliary type is defeq to the original one.
-              unless (← fullApproxDefEq <| isDefEq matchType' matchType) do
-                throwError "Type mismatch: Alternative {← mkHasTypeButIsExpectedMsg matchType' matchType}"
-              let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr ++ eqs
-              let rhs ← if xs.isEmpty then pure <| mkSimpleThunk rhs else mkLambdaFVars xs rhs
-              trace[Elab.match] "rhs: {rhs}"
-              return (altLHS, rhs)
+private def elabMatchAlt (elabRhs : List Pattern → TSyntax k → Expr → TermElabM Expr) (discrs : Array Discr)
+    (alt : MatchAltView k) (matchType : Expr) (toClear : Array FVarId) :
+    ExceptT PatternElabException TermElabM (AltLHS × Expr) := withRef alt.ref do
+  let (patternVars, alt) ← collectPatternVars alt
+  trace[Elab.match] "patternVars: {patternVars}"
+  withPatternVars patternVars fun patternVarDecls => do
+    withElaboratedLHS patternVarDecls alt.patterns alt.lhs discrs.size matchType fun altLHS matchType =>
+      withEqs discrs altLHS.patterns fun eqs =>
+        withLocalInstances altLHS.fvarDecls do
+          trace[Elab.match] "elabMatchAlt: {matchType}"
+          -- connect match-generalized pattern fvars, which are a suffix of `latLHS.fvarDecls`,
+          -- to their original fvars (independently of whether they were cleared successfully) in the info tree
+          for (fvar, baseId) in altLHS.fvarDecls.toArray.reverse.zip toClear.reverse do
+            pushInfoLeaf <| .ofFVarAliasInfo { id := fvar.fvarId, baseId, userName := fvar.userName }
+          let matchType ← instantiateMVars matchType
+          -- If `matchType` is of the form `@m ...`, we create a new metavariable with the current scope.
+          -- This improves the effectiveness of the `isDefEq` default approximations
+          let matchType' ← if matchType.getAppFn.isMVar then mkFreshTypeMVar else pure matchType
+          withToClear toClear matchType' do
+            let rhs ← elabRhs altLHS.patterns alt.rhs matchType'
+            -- We use all approximations to ensure the auxiliary type is defeq to the original one.
+            unless (← fullApproxDefEq <| isDefEq matchType' matchType) do
+              throwError "Type mismatch: Alternative {← mkHasTypeButIsExpectedMsg matchType' matchType}"
+            let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr ++ eqs
+            let rhs ← if xs.isEmpty then pure <| mkSimpleThunk rhs else mkLambdaFVars xs rhs
+            trace[Elab.match] "rhs: {rhs}"
+            return (altLHS, rhs)
 
 /--
   Collect problematic index for the "discriminant refinement feature". This method is invoked
@@ -869,12 +854,12 @@ where
       guard <| e.isApp && i < e.getAppNumArgs
       go (e.getArg! i) path
 
-structure GeneralizeResult where
+structure GeneralizeResult (k : SyntaxNodeKinds) where
   discrs    : Array Discr
   /-- `FVarId`s of the variables that have been generalized. We store them to clear after in each branch. -/
   toClear   : Array FVarId := #[]
   matchType : Expr
-  altViews  : Array MatchAltView
+  altViews  : Array (MatchAltView k)
   refined   : Bool := false
 
 /--
@@ -888,57 +873,56 @@ structure GeneralizeResult where
     but they become inaccessible since they are shadowed by the patterns variables. We assume this is ok since
     this is the exact behavior users would get if they had written it by hand. Recall there is no `clear` in term mode.
 -/
-private def generalize (discrs : Array Discr) (matchType : Expr) (altViews : Array MatchAltView) (generalizing? : Option Bool) : TermElabM GeneralizeResult := do
-  let gen := if let some g := generalizing? then g else true
-  if !gen then
+private def generalize (discrs : Array Discr) (matchType : Expr) (altViews : Array (MatchAltView k)) : TermElabM (GeneralizeResult k) := do
+  let discrExprs := discrs.map (·.expr)
+  /- let-decls are currently being ignored by the generalizer. -/
+  let ysFVarIds ← getFVarsToGeneralize discrExprs (ignoreLetDecls := true)
+  if ysFVarIds.isEmpty then
     return { discrs, matchType, altViews }
   else
-    let discrExprs := discrs.map (·.expr)
-    /- let-decls are currently being ignored by the generalizer. -/
-    let ysFVarIds ← getFVarsToGeneralize discrExprs (ignoreLetDecls := true)
-    if ysFVarIds.isEmpty then
-      return { discrs, matchType, altViews }
+    let ys := ysFVarIds.map mkFVar
+    let matchType' ← forallBoundedTelescope matchType discrs.size fun ds type => do
+      let type ← mkForallFVars ys type
+      let (discrs', ds') := Array.unzip <| Array.zip discrExprs ds |>.filter fun (di, _) => di.isFVar
+      let type := type.replaceFVars discrs' ds'
+      mkForallFVars ds type
+    if (← isTypeCorrect matchType') then
+      let discrs := discrs ++  ys.map fun y => { expr := y : Discr }
+      let altViews ← altViews.mapM fun altView => do
+        let patternVars ← getPatternsVars altView.patterns
+        -- We traverse backwards because we want to keep the most recent names.
+        -- For example, if `ys` contains `#[h, h]`, we want to make sure `mkFreshUsername is applied to the first `h`,
+        -- since it is already shadowed by the second.
+        let ysUserNames ← ys.foldrM (init := #[]) fun ys ysUserNames => do
+          let yDecl ← ys.fvarId!.getDecl
+          let mut yUserName := yDecl.userName
+          if ysUserNames.contains yUserName then
+            yUserName ← mkFreshUserName yUserName
+          -- Explicitly provided pattern variables shadow `y`
+          else if patternVars.any fun x => x.getId == yUserName then
+            yUserName ← mkFreshUserName yUserName
+          return ysUserNames.push yUserName
+        let ysIds ← ysUserNames.reverse.mapM fun n => return mkIdentFrom (← getRef) n
+        return { altView with patterns := altView.patterns ++ ysIds }
+      return { discrs, toClear := ysFVarIds, matchType := matchType', altViews, refined := true }
     else
-      let ys := ysFVarIds.map mkFVar
-      let matchType' ← forallBoundedTelescope matchType discrs.size fun ds type => do
-        let type ← mkForallFVars ys type
-        let (discrs', ds') := Array.unzip <| Array.zip discrExprs ds |>.filter fun (di, _) => di.isFVar
-        let type := type.replaceFVars discrs' ds'
-        mkForallFVars ds type
-      if (← isTypeCorrect matchType') then
-        let discrs := discrs ++  ys.map fun y => { expr := y : Discr }
-        let altViews ← altViews.mapM fun altView => do
-          let patternVars ← getPatternsVars altView.patterns
-          -- We traverse backwards because we want to keep the most recent names.
-          -- For example, if `ys` contains `#[h, h]`, we want to make sure `mkFreshUsername is applied to the first `h`,
-          -- since it is already shadowed by the second.
-          let ysUserNames ← ys.foldrM (init := #[]) fun ys ysUserNames => do
-            let yDecl ← ys.fvarId!.getDecl
-            let mut yUserName := yDecl.userName
-            if ysUserNames.contains yUserName then
-              yUserName ← mkFreshUserName yUserName
-            -- Explicitly provided pattern variables shadow `y`
-            else if patternVars.any fun x => x.getId == yUserName then
-              yUserName ← mkFreshUserName yUserName
-            return ysUserNames.push yUserName
-          let ysIds ← ysUserNames.reverse.mapM fun n => return mkIdentFrom (← getRef) n
-          return { altView with patterns := altView.patterns ++ ysIds }
-        return { discrs, toClear := ysFVarIds, matchType := matchType', altViews, refined := true }
-      else
-        return { discrs, matchType, altViews }
+      return { discrs, matchType, altViews }
 
-
-private partial def elabMatchAltViews (generalizing? : Option Bool) (discrs : Array Discr) (matchType : Expr) (altViews : Array MatchAltView) : TermElabM (Array Discr × Expr × Array (AltLHS × Expr) × Bool) := do
+partial def elabMatchAlts (elabRhs : List Pattern → TSyntax k → Expr → TermElabM Expr) (doGeneralize : Bool)
+    (discrs : Array Discr) (matchType : Expr) (altViews : Array (MatchAltView k)) :
+    TermElabM (Array Discr × Expr × Array (AltLHS × Expr) × Bool) := do
+  let altViews ← expandMacrosInPatterns altViews
   loop discrs #[] matchType altViews none
 where
   /--
     "Discriminant refinement" main loop.
     `first?` contains the first error message we found before updated the `discrs`. -/
-  loop (discrs : Array Discr) (toClear : Array FVarId) (matchType : Expr) (altViews : Array MatchAltView) (first? : Option (SavedState × Exception))
+  loop (discrs : Array Discr) (toClear : Array FVarId) (matchType : Expr) (altViews : Array (MatchAltView k)) (first? : Option (SavedState × Exception))
       : TermElabM (Array Discr × Expr × Array (AltLHS × Expr) × Bool) := do
     let s ← saveState
-    let { discrs := discrs', toClear := toClear', matchType := matchType', altViews := altViews', refined } ← generalize discrs matchType altViews generalizing?
-    match (← altViews'.mapM (fun altView => elabMatchAltView discrs' altView matchType' (toClear ++ toClear')) |>.run) with
+    let { discrs := discrs', toClear := toClear', matchType := matchType', altViews := altViews', refined } ←
+      if doGeneralize then generalize discrs matchType altViews else pure { discrs, matchType, altViews }
+    match (← altViews'.mapM (fun altView => elabMatchAlt elabRhs discrs' altView matchType' (toClear ++ toClear')) |>.run) with
     | Except.ok alts => return (discrs', matchType', alts, first?.isSome || refined)
     | Except.error { patternIdx := patternIdx, pathToIndex := pathToIndex, ex := ex } =>
       let discr := discrs[patternIdx]!
@@ -1032,6 +1016,7 @@ where
     check matchType
     return matchType
 
+private def elabTermMatchAlts := elabMatchAlts (fun _ (rhs : Term) ty => elabTermEnsuringType rhs ty)
 
 def mkMatcher (input : Meta.Match.MkMatcherInput) : TermElabM MatcherResult :=
   Meta.Match.mkMatcher input
@@ -1070,7 +1055,7 @@ def reportMatcherResultErrors (altLHSS : List AltLHS) (result : MatcherResult) :
   If `altLHSS + rhss` is encoding `| PUnit.unit => rhs[0]`, return `rhs[0]`
   Otherwise, return none.
 -/
-private def isMatchUnit? (altLHSS : List Match.AltLHS) (rhss : Array Expr) : MetaM (Option Expr) := do
+def isMatchUnit? (altLHSS : List Match.AltLHS) (rhss : Array Expr) : MetaM (Option Expr) := do
   assert! altLHSS.length == rhss.size
   match altLHSS with
   | [ { fvarDecls := [], patterns := [ Pattern.ctor `PUnit.unit .. ], .. } ] =>
@@ -1080,18 +1065,22 @@ private def isMatchUnit? (altLHSS : List Match.AltLHS) (rhss : Array Expr) : Met
     | _ => return none
   | _ => return none
 
-private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax) (altViews : Array MatchAltView) (matchOptMotive : Syntax) (expectedType : Expr)
-    : TermElabM Expr := do
-  let mut generalizing? := generalizing?
-  if !matchOptMotive.isNone then
+def checkMotiveCompatible (discrs : Array Syntax) (generalizing? : Option Bool) (motive? : Option Syntax) : TermElabM Bool := do
+  if let some motive := motive? then
+    if discrs.any fun d => !d[0].isNone then
+      throwErrorAt motive "match motive should not be provided when discriminants with equality proofs are used"
     if generalizing? == some true then
-      throwError "The '(generalizing := true)' parameter is not supported when the 'match' motive is explicitly provided"
-    generalizing? := some false
+      throwErrorAt motive "The '(generalizing := true)' parameter is not supported when the 'match' motive is explicitly provided"
+    return false                 -- do not generalize when the motive is provided
+  return generalizing?.getD true -- default to generalizing when no motive is provided
+
+private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax) (altViews : Array (MatchAltView `term)) (motive? : Option Syntax) (expectedType : Expr)
+    : TermElabM Expr := do
+  let doGeneralize ← checkMotiveCompatible discrStxs generalizing? motive?
   let (discrs, matchType, altLHSS, isDep, rhss) ← commitIfDidNotPostpone do
-    let ⟨discrs, matchType, isDep, altViews⟩ ← elabMatchTypeAndDiscrs discrStxs matchOptMotive altViews expectedType
-    let matchAlts ← liftMacroM <| expandMacrosInPatterns altViews
+    let ⟨discrs, matchType, isDep⟩ ← elabMatchTypeAndDiscrs discrStxs motive? expectedType
     trace[Elab.match] "matchType: {matchType}"
-    let (discrs, matchType, alts, refined) ← elabMatchAltViews generalizing? discrs matchType matchAlts
+    let (discrs, matchType, alts, refined) ← elabTermMatchAlts doGeneralize discrs matchType altViews
     let isDep := isDep || refined
     /-
      We should not use `synthesizeSyntheticMVarsNoPostponing` here. Otherwise, we will not be
@@ -1168,8 +1157,8 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
 private def getDiscrs (matchStx : Syntax) : Array Syntax :=
   matchStx[3].getSepArgs
 
-private def getMatchOptMotive (matchStx : Syntax) : Syntax :=
-  matchStx[2]
+private def getMatchOptMotive (matchStx : Syntax) : Option Syntax :=
+  matchStx[2].getOptional?
 
 open TSyntax.Compat in
 private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Syntax) :=
@@ -1260,13 +1249,13 @@ leading_parser "match " >> optional generalizingParam >> optional motive >> sepB
 ```
 Remark the `optIdent` must be `none` at `matchDiscr`. They are expanded by `expandMatchDiscr?`.
 -/
-private def elabMatchCore (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+private def elabMatchCore (stx : Term) (expectedType? : Option Expr) : TermElabM Expr := do
   let expectedType   ← waitExpectedTypeAndDiscrs stx expectedType?
   let discrStxs      := getDiscrs stx
   let gen?           := getMatchGeneralizing? stx
   let altViews       := getMatchAlts stx
-  let matchOptMotive := getMatchOptMotive stx
-  elabMatchAux gen? discrStxs altViews matchOptMotive expectedType
+  let motive?        := getMatchOptMotive stx
+  elabMatchAux gen? discrStxs altViews motive? expectedType
 
 private def isPatternVar (stx : Syntax) : TermElabM Bool := do
   match (← resolveId? stx "pattern") with
@@ -1285,20 +1274,16 @@ where
 @[builtin_term_elab «match»] def elabMatch : TermElab := fun stx expectedType? => do
   match stx with
   | `(match $discr:term with | $y:ident => $rhs) =>
-     if (← isPatternVar y) then expandSimpleMatch stx discr y rhs expectedType? else elabMatchDefault stx expectedType?
-  | _ => elabMatchDefault stx expectedType?
+     if (← isPatternVar y) then expandSimpleMatch stx discr y rhs expectedType? else elabMatchDefault ⟨stx⟩ expectedType?
+  | _ => elabMatchDefault ⟨stx⟩ expectedType?
 where
-  elabMatchDefault (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+  elabMatchDefault (stx : Term) (expectedType? : Option Expr) : TermElabM Expr := do
     match (← liftMacroM <| expandMatchAlts? stx) with
     | some stxNew => withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
     | none =>
     match (← expandNonAtomicDiscrs? stx) with
     | some stxNew => withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
     | none =>
-      let discrs         := getDiscrs stx
-      let matchOptMotive := getMatchOptMotive stx
-      if !matchOptMotive.isNone && discrs.any fun d => !d[0].isNone then
-        throwErrorAt matchOptMotive "match motive should not be provided when discriminants with equality proofs are used"
       elabMatchCore stx expectedType?
 
 builtin_initialize

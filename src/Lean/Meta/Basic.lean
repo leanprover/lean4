@@ -1099,6 +1099,13 @@ def _root_.Lean.Expr.abstractM (e : Expr) (xs : Array Expr) : MetaM Expr :=
   e.abstractRangeM xs.size xs
 
 /--
+Replace occurrences of the free variables `fvars` in `e` with `vs`.
+Similar to `Expr.replaceFVars`, but handles metavariables correctly.
+-/
+def _root_.Lean.Expr.replaceFVarsM (e : Expr) (fvars : Array Expr) (vs : Array Expr) : MetaM Expr :=
+  return (← e.abstractM fvars).instantiateRev vs
+
+/--
 Collect forward dependencies for the free variables in `toRevert`.
 Recall that when reverting free variables `xs`, we must also revert their forward dependencies.
 
@@ -2514,6 +2521,28 @@ def instantiateMVarsIfMVarApp (e : Expr) : MetaM Expr := do
     instantiateMVars e
   else
     return e
+
+/--
+If `e` is of the form `?n ...` and `?n := fun ... => ?m` is delayed assigned to an assigned
+synthetic opaque metavariable `?m`, instantiate `?n` with the abstracted delayed assignment.
+
+In contrast to `instantiateMVars`, this function also works when the assignment for `?m` contains
+metavariables.
+-/
+def instantiateSyntheticOpaqueMVarsIfMVarApp (e : Expr) : MetaM Expr := do
+  if !e.getAppFn.isMVar then
+    return e
+  let mut mvarId := e.getAppFn.mvarId!
+  let args := e.getAppArgs
+  let mut fvars := #[]
+  repeat do
+    let some da ← getDelayedMVarAssignment? mvarId | break
+    fvars := fvars ++ da.fvars
+    mvarId := da.mvarIdPending
+  let some val ← getExprMVarAssignment? mvarId
+    | return e
+  let val ← mvarId.withContext <| val.replaceFVarsM fvars args
+  instantiateMVars val
 
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
   profileitM Exception s!"instantiate metavars" (← getOptions) do

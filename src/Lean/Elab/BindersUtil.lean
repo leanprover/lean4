@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Parser.Term
 meta import Lean.Parser.Term
+meta import Lean.Parser.Do
 
 public section
 
@@ -47,15 +48,12 @@ def getMatchAltsNumPatterns (matchAlts : Syntax) : Nat :=
 open TSyntax.Compat in
 /--
   Expand a match alternative such as `| 0 | 1 => rhs` to an array containing `| 0 => rhs` and `| 1 => rhs`.
+  If there are macros in the patterns, we expand them as well.
 -/
-def expandMatchAlt (stx : TSyntax ``matchAlt) : Array (TSyntax ``matchAlt) :=
+def expandMatchAlt (stx : TSyntax ``matchAlt) : MacroM (Array (TSyntax ``matchAlt)) := do
   -- Not using syntax quotations here to keep source location
   -- of the pattern sequence (`$term,*`) intact
-  let patss := stx.raw[1].getSepArgs
-  if patss.size ≤ 1 then
-    #[stx]
-  else
-    patss.map fun pats => stx.raw.setArg 1 (mkNullNode #[pats])
+  stx.raw[1].getSepArgs.mapM fun pats => return stx.raw.setArg 1 (mkNullNode #[← expandMacros pats])
 
 def shouldExpandMatchAlt : TSyntax ``matchAlt → Bool
   | `(matchAltExpr| | $[$patss,*]|* => $_) => patss.size > 1
@@ -65,8 +63,14 @@ def expandMatchAlts? (stx : Syntax) : MacroM (Option Syntax) := do
   match stx with
   | `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*) =>
     if alts.any shouldExpandMatchAlt then
-      let alts ← alts.foldlM (init := #[]) fun alts alt => return alts ++ (expandMatchAlt alt)
+      let alts ← alts.foldlM (init := #[]) fun alts alt => return alts ++ (← expandMatchAlt alt)
       `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*)
+    else
+      return none
+  | `(doElem| match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*) =>
+    if alts.any shouldExpandMatchAlt then
+      let alts ← alts.foldlM (init := #[]) fun alts alt => return alts ++ (← expandMatchAlt alt)
+      `(doElem| match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*)
     else
       return none
   | _ => return none

@@ -197,10 +197,18 @@ public theorem _root_.List.min_toArray [Min α] {l : List α} {h} :
       rw [← Array.foldl_toList, Array.toList_extract, List.extract_eq_drop_take]
       simp [List.min]
 
+public theorem _root_.List.min_eq_min_toArray [Min α] {l : List α} {h} :
+    l.min h = l.toArray.min (by simpa [List.ne_nil_iff_length_pos] using h) := by
+  simp
+
 @[simp, grind =]
 public theorem min_toList [Min α] {xs : Array α} {h} :
     xs.toList.min h = xs.min (by simpa [List.ne_nil_iff_length_pos] using h) := by
   cases xs; simp
+
+public theorem min_eq_min_toList [Min α] {xs : Array α} {h} :
+    xs.min h = xs.toList.min (by simpa [List.ne_nil_iff_length_pos] using h) := by
+  simp
 
 @[simp, grind =]
 public theorem _root_.List.min?_toArray [Min α] {l : List α} :
@@ -229,7 +237,6 @@ public theorem _root_.List.max_toArray [Max α] {l : List α} {h} :
       rw [← Array.foldl_toList, Array.toList_extract, List.extract_eq_drop_take]
       simp [List.max]
 
-@[grind =]
 public theorem _root_.List.max_eq_max_toArray [Max α] {l : List α} {h} :
     l.max h = l.toArray.max (by simpa [List.ne_nil_iff_length_pos] using h) := by
   simp
@@ -239,7 +246,6 @@ public theorem max_toList [Max α] {xs : Array α} {h} :
     xs.toList.max h = xs.max (by simpa [List.ne_nil_iff_length_pos] using h) := by
   cases xs; simp
 
-@[grind =]
 public theorem max_eq_max_toList [Max α] {xs : Array α} {h} :
     xs.max h = xs.toList.max (by simpa [List.ne_nil_iff_length_pos] using h) := by
   simp

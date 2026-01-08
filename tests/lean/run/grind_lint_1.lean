@@ -104,18 +104,12 @@ info: instantiating `Array.findIdx_empty` triggers 20 additional `grind` theorem
 ---
 info: instantiating `Array.findIdx_singleton` triggers 16 additional `grind` theorem instantiations
 ---
-info: instantiating `Array.max_eq_max_toList` triggers 17 additional `grind` theorem instantiations
----
-info: instantiating `Array.max_toList` triggers 17 additional `grind` theorem instantiations
----
 info: Try this:
   [apply] #grind_lint check  (min := 15) in Array
   #grind_lint inspect Array.back?_empty
   #grind_lint inspect Array.count_empty
   #grind_lint inspect Array.findIdx_empty
   #grind_lint inspect Array.findIdx_singleton
-  #grind_lint inspect Array.max_eq_max_toList
-  #grind_lint inspect Array.max_toList
 -/
 #guard_msgs in
 #grind_lint check (min := 15) in Array

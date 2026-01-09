@@ -598,8 +598,8 @@ private def evalSuggestSimpAllTrace : TryTactic := fun tac => do
         | some mvarId => replaceMainGoal [mvarId]
         trace[try.debug] "`simp_all` succeeded"
         if (← read).config.only then
-          -- Remove +suggestions from config for the output (similar to SimpTrace.lean)
-          let filteredCfg ← filterSuggestionsFromSimpConfig configStx
+          -- Remove +suggestions and +locals from config for the output (similar to SimpTrace.lean)
+          let filteredCfg ← filterSuggestionsAndLocalsFromSimpConfig configStx
           -- Convert simp_all? to simp_all for mkSimpCallStx (similar to simpTraceToSimp)
           let tacWithoutTrace ← `(tactic| simp_all $filteredCfg:optConfig $[only%$_only]? $[[$_args,*]]?)
           let tac' ← mkSimpCallStx tacWithoutTrace stats.usedTheorems

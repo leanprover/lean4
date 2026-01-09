@@ -1,3 +1,9 @@
+/-- info: 3 -/
+#guard_msgs in #eval id (α := BaseIO _) do
+  let t1 ← BaseIO.joinTask $ pure $ Task.pure 1
+  let t2 ← BaseIO.joinTask $ pure $ Task.spawn fun _ => 2
+  return t1.get + t2.get
+
 #exit  -- TODO
 
 #eval id (α := IO _) do

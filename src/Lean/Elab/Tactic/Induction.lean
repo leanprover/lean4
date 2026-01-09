@@ -361,15 +361,17 @@ where
         let altPromises ← altStxs.mapM fun _ => IO.Promise.new
         let cancelTk? := (← readThe Core.Context).cancelTk?
         tacSnap.new.resolve {
-          -- save all relevant syntax here for comparison with next document version
-          stx := mkNullNode altStxs
-          diagnostics := .empty
-          inner? := none
-          finished := {
-            stx? := mkNullNode altStxs, task := finished.resultD default, cancelTk?
-            -- Do not cover up progress from `next` as no significant work happens after `next` and
-            -- before `finished` is resolved.
-            reportingRange := .skip
+          transformed.raw := {
+            -- save all relevant syntax here for comparison with next document version
+            stx := mkNullNode altStxs
+            diagnostics := .empty
+            inner? := none
+            finished := {
+              stx? := mkNullNode altStxs, task := finished.resultD default, cancelTk?
+              -- Do not cover up progress from `next` as no significant work happens after `next` and
+              -- before `finished` is resolved.
+              reportingRange := .skip
+            }
           }
           next := Array.zipWith
             (fun stx prom => { stx? := some stx, task := prom.resultD default, cancelTk? })
@@ -380,10 +382,12 @@ where
             let old ← tacSnap.old?
             -- waiting is fine here: this is the old version of the snapshot resolved above
             -- immediately at the beginning of the tactic
-            let old := old.val.get
+            -- (access to `raw` is fine here as there should be no transformation in this case
+            -- anyway, see `resolve` above)
+            let oldParsed := old.val.get.transformed.raw
             -- use old version of `mkNullNode altsSyntax` as guard, will be compared with new
             -- version and picked apart in `applyAltStx`
-            return ⟨old.stx, (← old.next[i]?)⟩
+            return ⟨oldParsed.stx, (← old.val.get.next[i]?)⟩
           new := prom
         }
         finished.resolve {

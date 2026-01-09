@@ -145,3 +145,46 @@ def Info.stx : Info → Syntax
   | ofChoiceInfo i         => i.stx
   | ofDocInfo i            => i.stx
   | ofDocElabInfo i        => i.stx
+
+private def CompletionInfo.setStx (stx : Syntax) : CompletionInfo → CompletionInfo
+  | dot i e?              => .dot { i with stx } e?
+  | id _ n dd lctx e?     => .id stx n dd lctx e?
+  | dotId _ n lctx e?     => .dotId stx n lctx e?
+  | fieldId _ n? lctx s   => .fieldId stx n? lctx s
+  | namespaceId _         => .namespaceId stx
+  | option _              => .option stx
+  | errorName _ pid       => .errorName stx pid
+  | endSection _ n? dd ns => .endSection stx n? dd ns
+  | tactic _              => .tactic stx
+
+private def Info.setStx (stx : Syntax) : Info → Info
+  | ofTacticInfo i         => ofTacticInfo { i with stx }
+  | ofTermInfo i           => ofTermInfo { i with stx }
+  | ofPartialTermInfo i    => ofPartialTermInfo { i with stx }
+  | ofCommandInfo i        => ofCommandInfo { i with stx }
+  | ofMacroExpansionInfo i => ofMacroExpansionInfo { i with stx }
+  | ofOptionInfo i         => ofOptionInfo { i with stx }
+  | ofErrorNameInfo i      => ofErrorNameInfo { i with stx }
+  | ofFieldInfo i          => ofFieldInfo { i with stx }
+  | ofCompletionInfo i     => ofCompletionInfo (i.setStx stx)
+  | ofCustomInfo i         => ofCustomInfo { i with stx }
+  | ofUserWidgetInfo i     => ofUserWidgetInfo { i with stx }
+  | ofFVarAliasInfo i      => ofFVarAliasInfo i
+  | ofFieldRedeclInfo i    => ofFieldRedeclInfo { i with stx }
+  | ofDelabTermInfo i      => ofDelabTermInfo { i with stx }
+  | ofChoiceInfo i         => ofChoiceInfo { i with stx }
+  | ofDocInfo i            => ofDocInfo { i with stx }
+  | ofDocElabInfo i        => ofDocElabInfo { i with stx }
+
+partial def InfoTree.addTrailing (trailing : Substring.Raw) : Elab.InfoTree → Elab.InfoTree
+  | .context i t => .context i (t.addTrailing trailing)
+  | .node info children =>
+    if let some stx := info.stx.addTrailing? trailing then
+      let info := info.setStx stx
+      let newChildren := children.map (·.addTrailing (stx.getTrailing?.getD trailing))
+      .node info newChildren
+    else
+      -- We assume proper nesting that precludes trailing whitespace being applicable to children
+      -- without being so to the parent node.
+      .node info children
+  | .hole mvarId => .hole mvarId

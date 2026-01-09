@@ -237,28 +237,41 @@ instance : Inhabited TacticFinishedSnapshot where
   default := { toSnapshot := default, state? := default, moreSnaps := default }
 
 instance : ToSnapshotTree TacticFinishedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, s.moreSnaps⟩
+  toSnapshotTreeM s := return ⟨← Snapshot.transform s.toSnapshot, ← s.moreSnaps.mapM (·.transform)⟩
 
 /-- Snapshot just before execution of a tactic. -/
-structure TacticParsedSnapshot extends Language.Snapshot where
+structure TacticParsedSnapshotInner (α : Type) extends Language.Snapshot where
   /-- Syntax tree of the tactic, stored and compared for incremental reuse. -/
   stx      : Syntax
   /-- Task for nested incrementality, if enabled for tactic. -/
-  inner?   : Option (SnapshotTask TacticParsedSnapshot) := none
+  inner?   : Option (SnapshotTask α) := none
   /-- Task for state after tactic execution. -/
   finished : SnapshotTask TacticFinishedSnapshot
+
+instance : Inhabited (TacticParsedSnapshotInner α) where
+  default := { toSnapshot := default, stx := default, finished := default }
+
+partial instance [ToSnapshotTree α] : ToSnapshotTree (TacticParsedSnapshotInner α) where
+  toSnapshotTreeM := go where
+    go s := withReader id do
+      return ⟨← Snapshot.transform s.toSnapshot,
+        (← s.inner?.toArray.mapM (·.transform)) ++
+        #[← s.finished.transform]⟩
+
+structure TacticParsedSnapshot where
+  transformed : TransformedSnap (TacticParsedSnapshotInner TacticParsedSnapshot)
   /-- Tasks for subsequent, potentially parallel, tactic steps. -/
   next     : Array (SnapshotTask TacticParsedSnapshot) := #[]
 
 instance : Inhabited TacticParsedSnapshot where
-  default := { toSnapshot := default, stx := default, finished := default }
+  default := { transformed := default }
 
 partial instance : ToSnapshotTree TacticParsedSnapshot where
-  toSnapshotTree := go where
-    go := fun s => ⟨s.toSnapshot,
-      s.inner?.toArray.map (·.map (sync := true) go) ++
-      #[s.finished.map (sync := true) toSnapshotTree] ++
-      s.next.map (·.map (sync := true) go)⟩
+  toSnapshotTreeM := go
+  where go s :=
+    withReader (·.compose s.transformed.transform) do
+      let _ : ToSnapshotTree TacticParsedSnapshot := ⟨go⟩
+      toSnapshotTreeM s.transformed.raw
 
 end Snapshot
 end Tactic

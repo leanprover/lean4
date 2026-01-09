@@ -1,3 +1,5 @@
+import Lean.LibrarySuggestions.Default
+
 /-!
 # Test for `first_par` combinator in try?
 
@@ -5,22 +7,30 @@ This tests that `try?` uses `first_par` internally to try multiple grind variant
 (`grind? +suggestions`, `grind? +locals`, `grind? +locals +suggestions`) in parallel
 and return the first successful result.
 
-Note: For simple goals like this, the `atomic` block (which includes `rfl` and basic grind
-variants) usually succeeds first, so `first_par` is not reached. The `first_par` is a
-fallback for when the atomic tactics fail.
+The test creates a scenario where:
+1. Basic tactics (rfl, assumption, simp) fail
+2. Basic grind fails
+3. But `grind +locals +suggestions` succeeds by finding a local theorem via library search
 -/
 
--- A local definition that grind needs to unfold
-def myDouble (n : Nat) : Nat := n + n
+structure MyPair (α : Type) where
+  fst : α
+  snd : α
 
--- try? finds multiple solutions: rfl works, and grind with the definition also works.
--- The atomic block (which includes grind? [= myDouble]) succeeds first.
+-- A theorem about MyPair that grind +suggestions can find via library search
+theorem myPair_eq (p : MyPair Nat) (h1 : p.fst = 1) (h2 : p.snd = 1) :
+    p = ⟨1, 1⟩ := by
+  cases p; simp_all
+
+-- A goal where:
+-- - atomic block fails (no simple solution, basic grind can't prove it)
+-- - first_par succeeds: grind +locals +suggestions finds myPair_eq
 /--
 info: Try these:
-  [apply] rfl
-  [apply] grind [= myDouble]
-  [apply] grind only [myDouble]
-  [apply] grind => instantiate only [myDouble]
+  [apply] grind +locals +suggestions
+  [apply] grind only [myPair_eq]
+  [apply] grind => instantiate only [myPair_eq]
 -/
 #guard_msgs in
-example (n : Nat) : myDouble n = n + n := by try?
+example (p : MyPair Nat) (h1 : p.fst = 1) (h2 : p.snd = 1) : p = ⟨1, 1⟩ := by
+  try?

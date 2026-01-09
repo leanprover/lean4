@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2014 Parikshit Khanna. All rights reserved.
+Copyright (c) 2026 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
+Authors: Paul Reichert
 -/
 module
 
@@ -73,53 +73,63 @@ private theorem minIdxOn.go_eq_of_forall_le [LE β] [DecidableLE β] {f : α →
       simp_all
     · simp_all
 
-private theorem aux {xs : List α} {k : Nat} {y : α} {ys : List α} (h : xs.drop k = y :: ys) :
-    xs.take (k + 1) = xs.take k ++ [y] := by
+private theorem aux' {xs : List α} {k : Nat} {y : α} {ys : List α} (h : xs.drop k = y :: ys) :
+    ∃ hlt : k < xs.length, xs[k] = y := by
   have hlt : k < xs.length := by
     false_or_by_contra
     have : drop k xs = [] := drop_of_length_le (by omega)
     simp [this] at h
-  rw [take_succ_eq_append_getElem hlt]
+  refine ⟨hlt, ?_⟩
   have := take_append_drop k xs
   rw [h] at this
-  conv => lhs; rhs; simp +singlePass only [← this]
+  simp +singlePass only [← this]
   rw [getElem_append_right (length_take_le _ _)]
   simp [length_take_of_le (Nat.le_of_lt hlt)]
 
+private theorem aux {xs : List α} {k : Nat} {y : α} {ys : List α} (h : xs.drop k = y :: ys) :
+    xs.take (k + 1) = xs.take k ++ [y] := by
+  obtain ⟨hlt, rfl⟩ := aux' h
+  rw [take_succ_eq_append_getElem hlt]
+
 private theorem minIdxOn_eq_go_drop [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β} {xs : List α} (h : xs ≠ [])
     {k : Nat} :
-    ∃ i, i ≤ k ∧ xs.minIdxOn f h = List.minIdxOn.go f ((xs.take (k + 1)).minOn f (by cases xs <;> simp_all)) i (k + 1) (xs.drop (k + 1)) := by
+    ∃ (i : Nat) (hlt : i < xs.length), i ≤ k ∧ xs[i] = (xs.take (k + 1)).minOn f (by simpa) ∧  xs.minIdxOn f h = List.minIdxOn.go f ((xs.take (k + 1)).minOn f (by cases xs <;> simp_all)) i (k + 1) (xs.drop (k + 1)) := by
   match xs with
   | y :: ys =>
     simp only [drop_succ_cons]
-    induction k generalizing xs
+    induction k
     · simp [minIdxOn]
     · rename_i k ih
-      specialize ih (xs := xs)
-      obtain ⟨i, hi, ih⟩ := ih
+      specialize ih
+      obtain ⟨i, hlt, hi, ih⟩ := ih
       simp only [ih, ← drop_drop]
+      simp at hlt
       match h : drop k ys with
       | [] =>
-        simp [drop_nil, minIdxOn.go, show i ≤ k + 1 from Nat.le_succ_of_le ‹i ≤ k›]
+        have : ys.length ≤ k := by simp_all
+        simp [drop_nil, minIdxOn.go, take_of_length_le, hi, ih, hlt, this, Nat.le_succ_of_le]
       | z :: zs =>
         simp only [minIdxOn.go]
         split
         · have : take (k + 1 + 1) (y :: ys) = take (k + 1) (y :: ys) ++ [z] := by apply aux ‹_›
           simp only [this]
           conv => congr; ext; rhs; rw [List.minOn_append (by simp) (by simp)]
+          conv => congr; ext; rhs; ext; rhs; rw [List.minOn_append (by simp) (by simp)]
           simp_all [minOn_eq_left]
-          exact ⟨i, Nat.le_succ_of_le ‹i ≤ k›, rfl⟩
+          exact ⟨i, Nat.le_succ_of_le ‹i ≤ k›, ⟨by omega, by simp [ih]⟩, rfl⟩
         · have : take (k + 1 + 1) (y :: ys) = take (k + 1) (y :: ys) ++ [z] := by apply aux ‹_›
           simp only [this]
           conv => congr; ext; rhs; rw [List.minOn_append (by simp) (by simp)]
+          conv => congr; ext; rhs; ext; rhs; rw [List.minOn_append (by simp) (by simp)]
           simp_all [minOn_eq_right]
-          exact ⟨k + 1, Nat.le_refl _, rfl⟩
+          obtain ⟨hlt, rfl⟩ := aux' h
+          exact ⟨k + 1, Nat.le_refl _, ⟨by omega, by simp⟩, rfl⟩
 
 theorem minIdxOn_le_of_getElem_le [LE β] [DecidableLE β] [IsLinearPreorder β]
     {f : α → β} {xs : List α} (h : xs ≠ [])
     {k : Nat} (hi : k < xs.length) (hle : f xs[k] ≤ f (xs.minOn f h)) :
     xs.minIdxOn f h ≤ k := by
-  obtain ⟨i, hi, h'⟩ := minIdxOn_eq_go_drop (f := f) h (k := k)
+  obtain ⟨i, _, hi, _, h'⟩ := minIdxOn_eq_go_drop (f := f) h (k := k)
   rw [h']
   refine Nat.le_trans ?_ hi
   apply Nat.le_of_eq
@@ -135,20 +145,31 @@ theorem getElem_minIdxOn [LE β] [DecidableLE β] [IsLinearPreorder β]
     {f : α → β} {xs : List α} (h : xs ≠ []) :
     haveI := minIdxOn_lt_length (f := f) h
     xs[xs.minIdxOn f h] = xs.minOn f h := by
-  obtain ⟨i, hi, h'⟩ := minIdxOn_eq_go_drop (f := f) h (k := xs.length)
-  rw [drop_eq_nil_of_le (by omega)] at h'
-  simp only [take_of_length_le (l := xs) (i := xs.length + 1) (by omega)] at h'
-  simp only [minIdxOn.go] at h'
-  simp only [minIdxOn]
-  split
-
+  obtain ⟨i, hlt, hi, heq, h'⟩ := minIdxOn_eq_go_drop (f := f) h (k := xs.length)
+  simp only [drop_eq_nil_of_le (as := xs) (i := xs.length + 1) (by omega), minIdxOn.go] at h'
+  simp [h', heq, take_of_length_le (l := xs) (i := xs.length + 1) (by omega)]
 
 theorem minIdxOn_eq_iff [LE β] [DecidableLE β] [IsLinearPreorder β]
     {f : α → β} {xs : List α} (h : xs ≠ []) {i : Nat} :
-    xs.minIdxOn f h = i ↔ ∃ hr : i < xs.length, xs[i] = xs.minOn f h ∧
-      ∀ (j : Nat) (hs : j < i), ¬ f xs[j] ≤ f xs[i] := by
+    xs.minIdxOn f h = i ↔ ∃ hi : i < xs.length, xs[i] = xs.minOn f h ∧
+      ∀ (j : Nat) (hj : j < i), ¬ f xs[j] ≤ f (xs.minOn f h) := by
   apply Iff.intro
   · rintro rfl
-    refine ⟨List.minIdxOn_lt_length h, ?_⟩
+    refine ⟨List.minIdxOn_lt_length h, List.getElem_minIdxOn h, ?_⟩
+    intro j hj hle
+    have := minIdxOn_le_of_getElem_le h (k := j) _ hle
+    omega
+  · rintro ⟨hlt, heq, h'⟩
+    specialize h' (xs.minIdxOn f h)
+    simp only [getElem_minIdxOn] at h'
+    apply le_antisymm
+    · apply minIdxOn_le_of_getElem_le h hlt
+      rw [heq]
+      apply le_refl
+    · false_or_by_contra
+      apply h' (by omega)
+      apply le_refl
+
+
 
 end List

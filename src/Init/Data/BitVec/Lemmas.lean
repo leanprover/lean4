@@ -2572,6 +2572,9 @@ theorem msb_signExtend {x : BitVec w} :
   · simp [h, BitVec.msb, getMsbD_signExtend, show v - w = 0 by omega]
   · simp [h, BitVec.msb, getMsbD_signExtend, show ¬ (v - w = 0) by omega]
 
+/-- Sign-extending to `w + n` bits, extracting bits `[w - 1 + n..n]`, and setting width
+back to `w` is equivalent to arithmetic right shift by `n`, since both sides discard the `n`
+least significant bits and replicate the sign bit into the upper bits. -/
 @[simp]
 theorem signExtend_extractLsb_setWidth {x : BitVec w} {n : Nat} :
     ((x.signExtend (w + n)).extractLsb (w - 1 + n) n).setWidth w = x.sshiftRight n := by

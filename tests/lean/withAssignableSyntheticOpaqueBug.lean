@@ -8,10 +8,15 @@ def tst : MetaM Unit := do
     return (← mkLambdaFVars #[x] m, m)
   IO.println (← ppExpr e)
   lambdaTelescope e fun _ b => do
-    assert! (← withAssignableSyntheticOpaque <| isDefEq b (mkNatLit 0))
     let m' := b.getAppFn
     assert! m'.isMVar
+    assert! (← withAssignableSyntheticOpaque <| isDefEq b (mkNatLit 0))
     IO.println (← getExprMVarAssignment? m'.mvarId!)
+    let some m ← getExprMVarAssignment? m.mvarId!
+      | IO.println f!"{m} is not assigned"
+    -- Currently, `m` gets assigned to an intermediate mvar to clear local hypotheses.
+    -- See `expandDelayedAssigned?` in Lean.Meta.ExprDefEq.
+    assert! m.isMVar
     IO.println (← getExprMVarAssignment? m.mvarId!)
     IO.println (← ppExpr (← instantiateMVars b))
     IO.println (← ppExpr m)

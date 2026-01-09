@@ -1546,25 +1546,54 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
   /-
     If `assignSyntheticOpaque` is true, we must follow the delayed assignment.
     Recall a delayed assignment `mvarId [xs] := mvarIdPending` is morally an assignment
-    `mvarId := fun xs => mvarIdPending` where `xs` are free variables in the scope of `mvarIdPending`,
-    but not in the scope of `mvarId`. We can only perform the abstraction when `mvarIdPending` has been fully synthesized.
-    That is, `instantiateMVars (mkMVar mvarIdPending)` does not contain any expression metavariables.
-    Here we just consume `fvar.size` arguments. That is, if `t` is of the form `mvarId as bs` where `as.size == fvars.size`,
-    we return `mvarIdPending bs`.
+    `mvarId := fun xs => mvarIdPending` where `xs` are free variables in the scope of
+    `mvarIdPending`, but not in the scope of `mvarId`. We can only perform the abstraction when
+    `mvarIdPending` has been fully synthesized. That is, `instantiateMVars (mkMVar mvarIdPending)`
+    does not contain any expression metavariables.
+
+    Here we just consume `fvar.size` arguments. That is, if `t` is of the form `mvarId as bs` where
+    `as.size == fvars.size`, we return `mvarIdPending bs`, as long as the context of
+    `mvarIdPending` is a subprefix of the local context. If the local context is a subprefix of
+    `mvarIdPending`'s  context, we attempt to clear the extra fvars from `mvarIdPending`'s context.
+    If the contexts are "skew", we intersect them and attempt to clear the excluded fvars from
+    `mvarIdPending`'s context.
 
     TODO: improve this transformation. Here is a possible improvement.
     Assume `t` is of the form `?m as` where `as` represent the arguments, and we are trying to solve
     `?m as =?= s[as]` where `s[as]` represents a term containing occurrences of `as`.
     We could try to compute the solution as usual `?m := fun ys => s[as/ys]`
-    We also have the delayed assignment `?m [xs] := ?n`, where `xs` are variables in the scope of `?n`,
-    and this delayed assignment is morally `?m := fun xs => ?n`.
-    Thus, we can reduce `?m as =?= s[as]` to `?n =?= s[as/xs]`, and solve it using `?n`'s local context.
-    This is more precise than simply dropping the arguments `as`.
+    We also have the delayed assignment `?m [xs] := ?n`, where `xs` are variables in the scope of
+    `?n`, and this delayed assignment is morally `?m := fun xs => ?n`.
+    Thus, we can reduce `?m as =?= s[as]` to `?n =?= s[as/xs]`, and solve it using `?n`'s local
+    context. This is more precise than simply dropping the arguments `as`.
   -/
   unless (← getConfig).assignSyntheticOpaque do return none
   let tArgs := t.getAppArgs
   if tArgs.size < fvars.size then return none
-  return some (mkAppRange (mkMVar mvarIdPending) fvars.size tArgs.size tArgs)
+  let lctx ← getLCtx
+  let declPending ← mvarIdPending.getDecl
+  if declPending.lctx.isSubPrefixOf lctx then
+    return mkAppRange (.mvar mvarIdPending) fvars.size tArgs.size tArgs
+  else if lctx.isSubPrefixOf declPending.lctx then
+    let type ← instantiateMVars declPending.type
+    -- Attempt to clear any novel fvars from `mvarIdPending`'s context
+    unless (← MetavarContext.isWellFormed lctx type) do return none
+    let newMVar ← mkFreshExprMVar type declPending.kind declPending.userName
+    mvarIdPending.assign newMVar
+    return mkAppRange newMVar fvars.size tArgs.size tArgs
+  else
+    let newLCtx := declPending.lctx.foldl (init := lctx) fun lctx decl =>
+      if lctx.contains decl.fvarId then lctx else lctx.erase decl.fvarId
+    let type ← instantiateMVars declPending.type
+    unless (← MetavarContext.isWellFormed newLCtx type) do return none
+    let insts := declPending.localInstances
+    let mut newLInsts : LocalInstances := #[]
+    for i in (← getLocalInstances) do
+      if insts.contains i then newLInsts := newLInsts.push i
+    let newMVar ← withLCtx newLCtx newLInsts <|
+      mkFreshExprMVar type declPending.kind declPending.userName
+    mvarIdPending.assign newMVar
+    return mkAppRange newMVar fvars.size tArgs.size tArgs
 
 private def isAssignable : Expr → MetaM Bool
   | .mvar mvarId => do let b ← mvarId.isReadOnlyOrSyntheticOpaque; pure (!b)

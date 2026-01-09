@@ -901,7 +901,7 @@ x_15 = lean_array_set(x_9, x_2, x_14);
 x_16 = lean_array_get_borrowed(x_10, x_1, x_2);
 lean_ctor_set(x_7, 1, x_15);
 x_17 = lean_box(0);
-x_18 = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Compiler_LCNF_PullFunDecls_0__Lean_Compiler_LCNF_PullFunDecls_attach_visit_spec__0___redArg(x_11, x_1, x_16, x_17, x_12, x_17, x_7);
+x_18 = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Compiler_LCNF_PullFunDecls_0__Lean_Compiler_LCNF_PullFunDecls_attach_visit_spec__0___redArg(x_11, x_16, x_1, x_17, x_12, x_17, x_7);
 x_19 = !lean_is_exclusive(x_18);
 if (x_19 == 0)
 {
@@ -987,7 +987,7 @@ x_45 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_45, 0, x_36);
 lean_ctor_set(x_45, 1, x_43);
 x_46 = lean_box(0);
-x_47 = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Compiler_LCNF_PullFunDecls_0__Lean_Compiler_LCNF_PullFunDecls_attach_visit_spec__0___redArg(x_39, x_1, x_44, x_46, x_40, x_46, x_45);
+x_47 = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Compiler_LCNF_PullFunDecls_0__Lean_Compiler_LCNF_PullFunDecls_attach_visit_spec__0___redArg(x_39, x_44, x_1, x_46, x_40, x_46, x_45);
 x_48 = lean_ctor_get(x_47, 1);
 lean_inc(x_48);
 if (lean_is_exclusive(x_47)) {
@@ -1081,24 +1081,24 @@ lean_dec(x_17);
 if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
-x_19 = lean_ctor_get(x_16, 1);
-lean_inc(x_19);
+x_19 = lean_ctor_get(x_2, 0);
+x_20 = lean_ctor_get(x_16, 1);
+lean_inc(x_20);
 lean_dec_ref(x_16);
-x_20 = lean_array_fget_borrowed(x_2, x_5);
-x_21 = lean_ctor_get(x_3, 0);
-x_22 = lean_ctor_get(x_20, 1);
-x_23 = lean_ctor_get(x_21, 0);
-x_24 = l_Std_DHashMap_Internal_Raw_u2080_contains___at___00__private_Lean_Compiler_LCNF_PullFunDecls_0__Lean_Compiler_LCNF_PullFunDecls_findFVarDirectDeps_go_spec__0___redArg(x_22, x_23);
+x_21 = lean_ctor_get(x_19, 0);
+x_22 = lean_array_fget_borrowed(x_3, x_5);
+x_23 = lean_ctor_get(x_22, 1);
+x_24 = l_Std_DHashMap_Internal_Raw_u2080_contains___at___00__private_Lean_Compiler_LCNF_PullFunDecls_0__Lean_Compiler_LCNF_PullFunDecls_findFVarDirectDeps_go_spec__0___redArg(x_23, x_21);
 if (x_24 == 0)
 {
 x_8 = x_4;
-x_9 = x_19;
+x_9 = x_20;
 goto block_13;
 }
 else
 {
 lean_object* x_25; lean_object* x_26; 
-x_25 = l___private_Lean_Compiler_LCNF_PullFunDecls_0__Lean_Compiler_LCNF_PullFunDecls_attach_visit(x_2, x_5, x_19);
+x_25 = l___private_Lean_Compiler_LCNF_PullFunDecls_0__Lean_Compiler_LCNF_PullFunDecls_attach_visit(x_3, x_5, x_20);
 x_26 = lean_ctor_get(x_25, 1);
 lean_inc(x_26);
 lean_dec_ref(x_25);

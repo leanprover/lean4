@@ -964,8 +964,9 @@ private unsafe def mkTryEvalSuggestStxUnsafe (goal : MVarId) (info : Try.Info) :
 
   let atomic ← `(tactic| attempt_all_par | $simple:tactic | $simp:tactic | $grind:tactic | simp_all)
   let atomicSuggestions ← mkAtomicWithSuggestionsStx
-  let funInds ← mkAllFunIndStx info atomic
-  let inds ← mkAllIndStx info atomic
+  let atomicOrSuggestions ← `(tactic| first | $atomic:tactic | $atomicSuggestions:tactic)
+  let funInds ← mkAllFunIndStx info atomicOrSuggestions
+  let inds ← mkAllIndStx info atomicOrSuggestions
   let extra ← `(tactic| (intros; first | $simple:tactic | $simp:tactic | exact?))
 
   -- Collect user-defined suggestions (runs after built-in tactics)

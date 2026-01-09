@@ -7,77 +7,46 @@ module
 
 prelude
 public import Std.Net
+public import Std.Internal.Http.Data.URI.Encoding
+public import Std.Internal.Http.Internal
 
 public section
 
-/-!
-# URI
-
-This modules defines all the URI related components like `RequestTarget`, `Path`, `Query` and others.
--/
-
-namespace Std.Http.URI
+namespace Std.Http
 
 set_option linter.all true
 
-private def hexDigit (n : UInt8) : UInt8 :=
-  if n < 10 then (n + '0'.toUInt8)
-  else (n - 10 + 'A'.toUInt8)
+/-!
+# URI Structure
 
-private def byteToHex (b : UInt8) : ByteArray :=
-  let hi := hexDigit (b >>> 4)
-  let lo := hexDigit (b &&& 0xF)
-  ByteArray.mk #['%'.toUInt8, hi, lo]
+This module defines the complete URI structure following RFC 3986, including
+schemes, authorities, paths, queries, fragments, and request targets.
 
-private def isUnreserved (c : UInt8) : Bool :=
-  (c ≥ '0'.toUInt8 && c ≤ '9'.toUInt8) || (c ≥ 'a'.toUInt8 && c ≤ 'z'.toUInt8) || (c ≥ 'A'.toUInt8 && c ≤ 'Z'.toUInt8)
-  || c = '-'.toUInt8 || c = '.'.toUInt8 || c = '_'.toUInt8 || c = '~'.toUInt8
-
-private def isPathAllowed (c : UInt8) : Bool :=
-  isUnreserved c
-  || c = ':'.toUInt8 || c = '@'.toUInt8 || c = '!'.toUInt8 || c = '$'.toUInt8
-  || c = '&'.toUInt8 || c = '\''.toUInt8 || c = '('.toUInt8 || c = ')'.toUInt8
-  || c = '*'.toUInt8 || c = '+'.toUInt8 || c = ','.toUInt8 || c = ';'.toUInt8
-  || c = '='.toUInt8
-
-/--
-Encodes a string as a URI component by percent-encoding all characters.
+All text components use the encoding types from `Std.Http.URI.Encoding` to ensure
+proper percent-encoding is maintained throughout.
 -/
-def encodeURIComponent (s : String) : String :=
-  let result := s.toUTF8.foldl (init := ByteArray.emptyWithCapacity s.utf8ByteSize) fun acc c =>
-    if isUnreserved c then  acc.push c else acc.append (byteToHex c)
 
-  String.fromUTF8! result
+namespace URI
 
 /--
-Encodes a string as a URI path component by percent-encoding characters not allowed in paths.
-Allows unreserved characters plus sub-delims (: @ ! $ & ' ( ) * + , ; =) commonly used in paths.
--/
-def encodeURIPathComponent (s : String) : String :=
-  let result := s.toUTF8.foldl (init := ByteArray.emptyWithCapacity s.utf8ByteSize) fun acc c =>
-    if isPathAllowed c then acc.push c else acc.append (byteToHex c)
-
-  String.fromUTF8! result
-
-/--
-URI scheme (e.g., "http", "https", "ftp").
+URI scheme identifier (e.g., "http", "https", "ftp").
 -/
 abbrev Scheme := String
 
 /--
-User information component containing the username and password.
+User information component containing the username and optional password.
+Both fields are stored as EncodedString to ensure proper percent-encoding.
 -/
 structure UserInfo where
+  /--
+  The username (percent-encoded).
+  -/
+  username : EncodedString
 
   /--
-  User info user name.
+  The optional password (percent-encoded).
   -/
-  username : String
-
-  /--
-  User info password.
-  -/
-  password : Option String
+  password : Option EncodedString
 deriving Inhabited, Repr
 
 /--
@@ -85,9 +54,9 @@ Host component of a URI, supporting domain names and IP addresses.
 -/
 inductive Host
   /--
-  A registered name (e.g., a domain name).
+  A registered domain name (percent-encoded).
   -/
-  | name (name : String)
+  | name (name : EncodedString)
 
   /--
   An IPv4 address.
@@ -119,19 +88,18 @@ TCP port number.
 abbrev Port := UInt16
 
 /--
-The authority component in a URI provides the necessary information for locating the resource
-on the network.
+The authority component of a URI, identifying the network location of the resource.
 
-* Reference: https://www.rfc-editor.org/rfc/rfc3986.html#section-3.2
+Reference: https://www.rfc-editor.org/rfc/rfc3986.html#section-3.2
 -/
 structure Authority where
   /--
-  Optional user information such as username and password.
+  Optional user information (username and password).
   -/
   userInfo: Option UserInfo := none
 
   /--
-  The host identifying the network location of the resource.
+  The host identifying the network location.
   -/
   host: Host
 
@@ -142,144 +110,267 @@ structure Authority where
 deriving Inhabited, Repr
 
 /--
-Abstraction of paths.
+Hierarchical path component of a URI.
+Each segment is stored as an EncodedString to ensure proper percent-encoding.
 -/
 structure Path where
   /--
-  Path segments making up the hierarchical structure.
+  The path segments making up the hierarchical structure (each segment is percent-encoded).
   -/
-  segments : Array String
+  segments : Array EncodedString
 
   /--
-  Whether the path is absolute (begins with a `/`) or relative.
+  Whether the path is absolute (begins with '/') or relative.
   -/
-  absolute : Bool := false
+  absolute : Bool
 deriving Inhabited, Repr
 
 instance : ToString Path where
   toString path :=
-    let result := String.intercalate "/" path.segments.toList
+    let result := String.intercalate "/" (path.segments.map toString).toList
     if path.absolute then "/" ++ result else result
-
 /--
-Query string represented as an array of key–value pairs.
+Query string represented as an array of key-value pairs.
+Keys are stored as EncodedQueryString to ensure proper encoding
+for application/x-www-form-urlencoded format.
+Values are optional to support parameters without values (e.g., "?flag").
+Order is preserved based on insertion order.
 -/
 @[expose]
-def Query := Array (String × Option String)
+def Query := Array (EncodedQueryString × EncodedQueryString)
+  deriving Repr
 
 namespace Query
 
 /--
-Gets all the names of the query parameters
+Extracts all query parameter names (decoded).
 -/
 @[expose]
-def names (query : Query) : List String :=
-  query.map Prod.fst |>.toList
+def names (query : Query) : List EncodedQueryString :=
+  query.map (fun p => p.fst)
+  |> Array.toList
+  |> List.eraseDups
 
 /--
-Gets all the values of the query parameters
+Extracts all query parameter values (decoded).
+Returns empty string for parameters without values.
+Includes all values for parameters that appear multiple times.
 -/
 @[expose]
-def values (query : Query) : Array String :=
-  query.map Prod.snd |>.map (Option.getD · "")
+def values (query : Query) : Array EncodedQueryString :=
+  query.map (fun p => p.snd)
 
 /--
-Gets all the values of the query parameters
+Extracts all query parameters as decoded (key, value) pairs.
+Includes duplicate keys if they appear multiple times.
 -/
 @[expose]
-def pairs (query : Query) : Array (String × String) :=
-  query.map (fun (x,y) => (x, y.getD ""))
+def pairs (query : Query) : Array (EncodedQueryString × EncodedQueryString) :=
+  query.map (fun (x, y) =>
+    (x, y))
 
 /--
-Encodes query params with percent encoding.
+Encodes a query parameter as a string in the format "key" or "key=value".
+The key and value are already percent-encoded in EncodedQueryString format.
 -/
-def encodeQueryParam (key : String) (value : Option String) : String :=
-  let encodedKey := encodeURIComponent key
-  match value with
-  | none => encodedKey
-  | some v =>
-      let encodedValue := encodeURIComponent v
-      s!"{encodedKey}={encodedValue}"
+def encodeQueryParam (key : EncodedQueryString) (value : EncodedQueryString) : String :=
+  match toString value with
+  | "" => toString key
+  | v => s!"{toString key}={toString v}"
+
+/--
+Finds the first decoded value of a query parameter by key name.
+Returns `none` if the key is not found.
+-/
+def find? (query : Query) (key : String) : Option EncodedQueryString :=
+  let encodedKey := EncodedQueryString.encode key
+  let matchingKey := Array.find? (fun x => x.fst.toByteArray = encodedKey.toByteArray) query
+  matchingKey.map (fun x => x.snd)
+
+/--
+Finds all decoded values of a query parameter by key name.
+Returns an empty array if the key is not found.
+-/
+def findAll (query : Query) (key : String) : Array EncodedQueryString :=
+  let encodedKey := EncodedQueryString.encode key
+  query.filterMap (fun x =>
+    if x.fst.toByteArray = encodedKey.toByteArray then
+      some (x.snd)
+    else none)
+
+/--
+Adds a query parameter to the query string.
+-/
+def insert (query : Query) (key : String) (value : String) : Query :=
+  let encodedKey := EncodedQueryString.encode key
+  let encodedValue := EncodedQueryString.encode value
+  query.push (encodedKey, encodedValue)
+
+/--
+Adds a query parameter to the query string.
+-/
+def insertEncoded (query : Query) (key : EncodedQueryString) (value : EncodedQueryString) : Query :=
+  query.push (key, value)
+
+/--
+Creates an empty query string.
+-/
+def empty : Query := #[]
+
+/--
+Creates a query string from a list of key-value pairs.
+-/
+def ofList (pairs : List (EncodedQueryString × EncodedQueryString)) : Query :=
+  pairs.toArray
+
+/--
+Checks if a query parameter exists.
+-/
+def contains (query : Query) (key : String) : Bool :=
+  let encodedKey := EncodedQueryString.encode key
+  query.any (fun x => x.fst.toByteArray = encodedKey.toByteArray)
+
+/--
+Removes all occurrences of a query parameter by key name.
+-/
+def erase (query : Query) (key : String) : Query :=
+  let encodedKey := EncodedQueryString.encode key
+  -- Filter out matching keys
+  query.filter (fun x => x.fst.toByteArray ≠ encodedKey.toByteArray)
+
+/--
+Converts the query to a properly encoded query string format.
+Example: "key1=value1&key2=value2&flag"
+-/
+def toString (query : Query) : String :=
+  let params := query.map (fun (k, v) => encodeQueryParam k v)
+  String.intercalate "&" params.toList
+
+instance : ToString Query where
+  toString := Query.toString
+
+instance : EmptyCollection Query :=
+  ⟨Query.empty⟩
+
+instance : Singleton (String × String) Query :=
+  ⟨fun ⟨k, v⟩ => Query.empty.insert k v⟩
+
+instance : Insert (String × String) Query :=
+  ⟨fun ⟨k, v⟩ q => q.insert k v⟩
 
 end Query
-
-instance : Repr Query :=
-  inferInstanceAs (Repr (Array (String × Option String)))
 
 end URI
 
 /--
 Complete URI structure following RFC 3986.
+All text components use encoded string types to ensure proper percent-encoding.
+
+Reference: https://www.rfc-editor.org/rfc/rfc3986.html
 -/
 structure URI where
   /--
-  The scheme of the URI (e.g., "http", "https", "ftp").
+  The URI scheme (e.g., "http", "https", "ftp").
   -/
   scheme : URI.Scheme
 
   /--
-  Optional authority component containing user info, host, and port.
+  Optional authority component (user info, host, and port).
   -/
   authority : Option URI.Authority
 
   /--
-  Path component of the URI, representing the hierarchical location.
+  The hierarchical path component.
   -/
-  path : { p : URI.Path // p.absolute }
+  path : URI.Path
 
   /--
-  Optional query string of the URI represented as key–value pairs.
+  Optional query string as key-value pairs.
   -/
-  query : Option URI.Query
+  query : URI.Query
 
   /--
-  Optional fragment identifier of the URI (the part after `#`).
+  Optional fragment identifier (the part after '#'), percent-encoded.
   -/
-  fragment : Option String
+  fragment : Option URI.EncodedString
 deriving Repr
 
 instance : Inhabited URI where
-  default := ⟨default, default, ⟨{ absolute := true, segments := #[] }, by simp⟩, default, default⟩
+  default := ⟨default, default, { absolute := true, segments := #[] }, URI.Query.empty, default⟩
 
 namespace URI
 
 /--
-Builder for constructing URIs with a fluent API.
+Fluent builder for constructing URIs.
+Takes raw (unencoded) strings and handles encoding automatically when building the final URI.
 -/
 structure Builder where
+  /--
+  The URI scheme (e.g., "http", "https").
+  -/
   scheme : Option String := none
+
+  /--
+  User information (username and optional password).
+  -/
   userInfo : Option UserInfo := none
+
+  /--
+  The host component.
+  -/
   host : Option Host := none
+
+  /--
+  The port number.
+  -/
   port : Option URI.Port := none
+
+  /--
+  Path segments (will be encoded when building).
+  -/
   pathSegments : Array String := #[]
+
+  /--
+  Query parameters as (key, optional value) pairs (will be encoded when building).
+  -/
   query : Array (String × Option String) := #[]
+
+  /--
+  Fragment identifier (will be encoded when building).
+  -/
   fragment : Option String := none
 deriving Inhabited
 
 namespace Builder
 
 /--
-Creates an empty builder.
+Creates an empty URI builder.
 -/
 def empty : Builder := {}
 
 /--
-Sets the scheme of the URI.
+Sets the URI scheme (e.g., "http", "https").
 -/
 def setScheme (b : Builder) (scheme : String) : Builder :=
   { b with scheme := some scheme }
 
 /--
-Sets the user information.
+Sets the user information with username and optional password.
+The strings will be automatically percent-encoded.
 -/
-def setUserInfo (b : Builder) (userInfo : UserInfo) : Builder :=
-  { b with userInfo := some userInfo }
+def setUserInfo (b : Builder) (username : String) (password : Option String := none) : Builder :=
+  { b with userInfo := some {
+      username := EncodedString.encode username
+      password := password.map EncodedString.encode
+    }
+  }
 
 /--
 Sets the host as a domain name.
+The domain name will be automatically percent-encoded.
 -/
 def setHost (b : Builder) (name : String) : Builder :=
-  { b with host := some (Host.name name) }
+  { b with host := some (Host.name (EncodedString.encode name)) }
 
 /--
 Sets the host as an IPv4 address.
@@ -300,47 +391,53 @@ def setPort (b : Builder) (port : Port) : Builder :=
   { b with port := some port }
 
 /--
-Sets the path segments and whether the path is absolute.
+Replaces all path segments.
+Segments will be automatically percent-encoded when building.
 -/
 def setPath (b : Builder) (segments : Array String) : Builder :=
   { b with pathSegments := segments }
 
 /--
-Appends a segment to the path.
+Appends a single segment to the path.
+The segment will be automatically percent-encoded when building.
 -/
 def appendPathSegment (b : Builder) (segment : String) : Builder :=
   { b with pathSegments := b.pathSegments.push segment }
 
 /--
 Adds a query parameter with a value.
+Both key and value will be automatically percent-encoded when building.
 -/
 def addQueryParam (b : Builder) (key : String) (value : String) : Builder :=
   { b with query := b.query.push (key, some value) }
 
 /--
 Adds a query parameter without a value (flag parameter).
+The key will be automatically percent-encoded when building.
 -/
 def addQueryFlag (b : Builder) (key : String) : Builder :=
   { b with query := b.query.push (key, none) }
 
 /--
-Sets the entire query array.
+Replaces all query parameters.
+Keys and values will be automatically percent-encoded when building.
 -/
 def setQuery (b : Builder) (query : Array (String × Option String)) : Builder :=
   { b with query := query }
 
 /--
 Sets the fragment identifier.
+The fragment will be automatically percent-encoded when building.
 -/
 def setFragment (b : Builder) (fragment : String) : Builder :=
   { b with fragment := some fragment }
 
 /--
-Builds a URI from the builder state.
-Returns `none` if required components (scheme) are missing.
+Builds a complete URI from the builder state, encoding all components.
+Defaults to "https" scheme if none is specified.
 -/
-def build (b : Builder) (hasScheme : b.scheme.isSome := by decide) : URI :=
-  let scheme := b.scheme.get hasScheme
+def build (b : Builder) : URI :=
+  let scheme := b.scheme.getD "https"
 
   let authority :=
     if b.host.isSome then
@@ -352,74 +449,56 @@ def build (b : Builder) (hasScheme : b.scheme.isSome := by decide) : URI :=
     else none
 
   let path : Path := {
-    segments := b.pathSegments
+    segments := b.pathSegments.map EncodedString.encode
     absolute := true
   }
 
-  let query := if b.query.isEmpty then none else some b.query
+  let query :=
+    b.query.map fun (k, v) =>
+      (EncodedQueryString.encode k, EncodedQueryString.encode (v.getD ""))
+
+  let query := URI.Query.ofList query.toList
 
   {
     scheme := scheme
     authority := authority
-    path := ⟨path, by unfold path; simp⟩
+    path
     query := query
-    fragment := b.fragment
+    fragment := b.fragment.map EncodedString.encode
   }
 
-/--
-Builds a URI from the builder, using default values for missing components.
--/
-def buildWithDefaults (b : Builder) : URI :=
-  let scheme := b.scheme.getD "http"
-
-  let authority :=
-    if b.host.isSome then
-      some {
-        userInfo := b.userInfo
-        host := b.host.get!
-        port := b.port
-      }
-    else none
-
-  let path : Path := {
-    segments := b.pathSegments
-    absolute := true
-  }
-
-  let query := if b.query.isEmpty then none else some b.query
-
-  {
-    scheme := scheme
-    authority := authority
-    path := ⟨path, by unfold path; simp⟩
-    query := query
-    fragment := b.fragment
-  }
-
-end URI.Builder
+end Builder
+end URI
 
 /--
 HTTP request target forms as defined in RFC 7230 Section 5.3.
+
+Reference: https://www.rfc-editor.org/rfc/rfc7230.html#section-5.3
 -/
 inductive RequestTarget where
   /--
-  Request target using an origin-form (most common form for HTTP requests),
-  consisting of a path, an optional query string, and an optional fragment.
+  Origin-form request target (most common for HTTP requests).
+  Consists of a path, optional query string, and optional fragment.
+  Example: `/path/to/resource?key=value#section`
   -/
-  | originForm (path : URI.Path) (query : Option URI.Query) (fragment : Option String)
+  | originForm (path : URI.Path) (query : Option URI.Query) (fragment : Option URI.EncodedString)
 
   /--
-  Request target using an absolute-form URI.
+  Absolute-form request target containing a complete URI.
+  Used when making requests through a proxy.
+  Example: `http://example.com:8080/path?key=value`
   -/
   | absoluteForm (uri : URI)
 
   /--
-  Request target using the authority-form (used for CONNECT requests).
+  Authority-form request target (used for CONNECT requests).
+  Example: `example.com:443`
   -/
   | authorityForm (authority : URI.Authority)
 
   /--
   Asterisk-form request target (used with OPTIONS requests).
+  Example: `*`
   -/
   | asteriskForm
 deriving Inhabited, Repr
@@ -427,23 +506,25 @@ deriving Inhabited, Repr
 namespace RequestTarget
 
 /--
-Returns the path component of a `RequestTarget`, if available.
+Extracts the path component from a request target, if available.
+Returns an empty relative path for targets without a path.
 -/
-def path? : RequestTarget → Option URI.Path
-  | .originForm p _ _ => some p
-  | .absoluteForm u => some u.path
-  | _ => none
+def path : RequestTarget → URI.Path
+  | .originForm p _ _ => p
+  | .absoluteForm u => u.path
+  | _ => { segments := #[], absolute := false }
 
 /--
-Returns the query component of a `RequestTarget`, if available.
+Extracts the query component from a request target, if available.
+Returns an empty array for targets without a query.
 -/
-def query? : RequestTarget → Option URI.Query
-  | .originForm _ q _ => q
+def query : RequestTarget → URI.Query
+  | .originForm _ q _ => q.getD URI.Query.empty
   | .absoluteForm u => u.query
-  | _ => none
+  | _ => URI.Query.empty
 
 /--
-Returns the authority component of a `RequestTarget`, if available.
+Extracts the authority component from a request target, if available.
 -/
 def authority? : RequestTarget → Option URI.Authority
   | .authorityForm a => some a
@@ -451,7 +532,15 @@ def authority? : RequestTarget → Option URI.Authority
   | _ => none
 
 /--
-Returns the full URI if the `RequestTarget` is in absolute form, otherwise `none`.
+Extracts the fragment component from a request target, if available.
+-/
+def fragment? : RequestTarget → Option URI.EncodedString
+  | .originForm _ _ frag => frag
+  | .absoluteForm u => u.fragment
+  | _ => none
+
+/--
+Extracts the full URI if the request target is in absolute form.
 -/
 def uri? : RequestTarget → Option URI
   | .absoluteForm u => some u
@@ -463,7 +552,7 @@ end RequestTarget
 
 instance : ToString URI.Host where
   toString
-    | .name n => URI.encodeURIComponent n
+    | .name n => toString n
     | .ipv4 addr => toString addr
     | .ipv6 addr => s!"[{toString addr}]"
 
@@ -471,8 +560,8 @@ instance : ToString URI.Authority where
   toString auth :=
     let userPart := match auth.userInfo with
       | none => ""
-      | some ⟨name, some pass⟩ => s!"{URI.encodeURIComponent name}:{URI.encodeURIComponent pass}@"
-      | some ⟨name, none⟩ => s!"{URI.encodeURIComponent name}@"
+      | some ⟨name, some pass⟩ => s!"{toString name}:{toString pass}@"
+      | some ⟨name, none⟩ => s!"{toString name}@"
     let hostPart := toString auth.host
     let portPart := match auth.port with
       | none => ""
@@ -482,7 +571,7 @@ instance : ToString URI.Authority where
 instance : ToString URI.Path where
   toString
     | ⟨segs, abs⟩ =>
-      let encodedSegs := segs.toList.map (fun seg => URI.encodeURIPathComponent seg)
+      let encodedSegs := segs.map toString |>.toList
       let core := String.intercalate "/" encodedSegs
       if abs then s!"/{core}" else core
 
@@ -490,24 +579,20 @@ instance : ToString URI.Query where
   toString q :=
     if q.isEmpty then "" else
       let encodedParams := q.toList.map fun (key, value) =>
-        match key with
-        | "" => match value with
-          | none => ""
-          | some v => s!"={URI.encodeURIComponent v}"
-        | k => URI.Query.encodeQueryParam k value
+        URI.Query.encodeQueryParam key value
       "?" ++ String.intercalate "&" encodedParams
 
 instance : ToString URI where
   toString uri :=
-    let schemePart :=  URI.encodeURIComponent uri.scheme
+    let schemePart :=  uri.scheme
     let authorityPart := match uri.authority with
       | none => ""
       | some auth => s!"://{toString auth}"
     let pathPart := toString uri.path
-    let queryPart := uri.query.map toString |>.getD ""
+    let queryPart := toString uri.query
     let fragmentPart := match uri.fragment with
       | none => ""
-      | some f => s!"#{URI.encodeURIComponent f}"
+      | some f => s!"#{toString f}"
     s!"{schemePart}{authorityPart}{pathPart}{queryPart}{fragmentPart}"
 
 instance : ToString RequestTarget where
@@ -515,7 +600,7 @@ instance : ToString RequestTarget where
     | .originForm path query frag =>
         let pathStr := toString path
         let queryStr := query.map toString |>.getD ""
-        let frag := frag.map ("#" ++ ·) |>.getD ""
+        let frag := frag.map (fun f => "#" ++ toString f) |>.getD ""
         s!"{pathStr}{queryStr}{frag}"
     | .absoluteForm uri => toString uri
     | .authorityForm auth => toString auth

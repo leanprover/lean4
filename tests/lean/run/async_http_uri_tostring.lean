@@ -20,7 +20,7 @@ def parseCheck (s : String) (exact : String := s) : IO Unit := do
 #eval parseCheck "/search?name=%E2%9C%93%20checked&emoji=%F0%9F%98%80"
 #eval parseCheck "/api?param1=value1&param2=value2&param3=value3"
 #eval parseCheck "/search?debug&verbose&q=test"
-#eval parseCheck "/api?empty=&also_empty=&has_value=something"
+#eval parseCheck "/api?empty&also_empty&has_value=something"
 #eval parseCheck "/search?q=cats%26dogs&filter=name%3Dmax"
 #eval parseCheck "/"
 #eval parseCheck "/api/v1/users/123/posts/456/comments/789"
@@ -46,7 +46,7 @@ def parseCheck (s : String) (exact : String := s) : IO Unit := do
 -- encode back using other rules that are the `pchar` parsing rules.
 
 #eval parseCheck "/very/long/path/with/many/segments/and/encoded%20spaces/and%2Bplus%2Bsigns/final%2Fsegment"
-                 "/very/long/path/with/many/segments/and/encoded%20spaces/and+plus+signs/final%2Fsegment"
+                 "/very/long/path/with/many/segments/and/encoded%20spaces/and%2Bplus%2Bsigns/final%2Fsegment"
 
 #eval parseCheck "/files/my%20document%2Epdf"
-                 "/files/my%20document.pdf"
+                 "/files/my%20document%2Epdf"

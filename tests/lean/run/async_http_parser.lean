@@ -155,7 +155,7 @@ info: Std.Http.Method.post / Std.Http.RequestTarget.originForm { segments := #["
 /--
 info: Std.Http.Method.put / Std.Http.RequestTarget.originForm
   { segments := #["data"], absolute := true }
-  (some #[("param1", some "value1"), ("param2", some "value2")])
+  (some #[("param1", "value1"), ("param2", "value2")])
   none / Std.Http.Version.v11
 -/
 #guard_msgs in

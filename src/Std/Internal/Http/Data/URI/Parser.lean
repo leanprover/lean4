@@ -97,41 +97,11 @@ private def hexToByte (digit : UInt8) : UInt8 :=
   else if digit <= 'F'.toUInt8 then digit - 'A'.toUInt8 + 10
   else digit - 'a'.toUInt8 + 10
 
-private def hexToByte? (digit : UInt8) : Option UInt8 :=
-  if digit ≥ '0'.toUInt8 ∧ digit ≤ '9'.toUInt8 then some (digit - '0'.toUInt8)
-  else if digit ≥ 'A'.toUInt8 ∧ digit ≤ 'F'.toUInt8 then some (digit - 'A'.toUInt8 + 10)
-  else if digit ≥ 'a'.toUInt8 ∧ digit ≤ 'f'.toUInt8 then some (digit - 'a'.toUInt8 + 10)
-  else none
-
 private def parsePctEncoded : Parser UInt8 := do
   skipByte '%'.toUInt8
   let hi ← hexToByte <$> satisfy isHexDigit
   let lo ← hexToByte <$> satisfy isHexDigit
   return (hi <<< 4) ||| lo
-
-/--
-Decode a percent encoded byte array to an extended ascii string.
--/
-public partial def percentDecode (ba : ByteArray) : Except String String := do
-  let rec loop (i : Nat) (acc : ByteArray) : Except String ByteArray :=
-    if i ≥ ba.size then
-      .ok acc
-    else
-      let c := ba.get! i
-      if c = '%'.toUInt8 then
-        if i + 2 ≥ ba.size then
-          Except.error "invalid percent encoding"
-        else
-          match hexToByte? (ba.get! (i+1)), hexToByte? (ba.get! (i+2)) with
-          | some hi, some lo => loop (i + 3) (acc.push ((hi <<< 4) ||| lo))
-          | _, _ => .error "cannot get values"
-      else
-        loop (i + 1) (acc.push c)
-
-  let result ← loop 0 .empty
-  match String.fromUTF8? result with
-  | some res => .ok res
-  | none => Except.error "invalid percent encoding"
 
 -- scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
 private def parseScheme : Parser URI.Scheme := do
@@ -156,7 +126,7 @@ private def parsePortNumber : Parser UInt16 := do
 private def parseUserInfo : Parser URI.UserInfo := do
   let userBytesName ← takeWhileUpTo (fun x => x ≠ ':'.toUInt8 ∧ isUserInfoChar x) 1024
 
-  let .ok userName := percentDecode userBytesName.toByteArray
+  let some userName := URI.EncodedString.fromByteArray? userBytesName.toByteArray
     | fail "invalid percent encoding in user info"
 
   let userPass ← if ← peekIs (· == ':'.toUInt8) then
@@ -164,7 +134,7 @@ private def parseUserInfo : Parser URI.UserInfo := do
 
       let userBytesPass ← takeWhileUpTo isUserInfoChar 1024
 
-      let .ok userStrPass := percentDecode userBytesPass.toByteArray
+      let some userStrPass := URI.EncodedString.fromByteArray? userBytesPass.toByteArray
         | fail "invalid percent encoding in user info"
 
       pure <| some userStrPass
@@ -205,7 +175,10 @@ private def parseHost : Parser URI.Host := do
     return .ipv4 (← parseIPv4)
   else
     let isHostName x := isUnreserved x ∨ x = '%'.toUInt8 ∨ isSubDelims x
-    let str ← ofExcept <| percentDecode (← takeWhileUpTo1 isHostName 1024).toByteArray
+
+    let some str := URI.EncodedString.fromByteArray? (← takeWhileUpTo1 isHostName 1024).toByteArray
+      | fail s!"invalid host"
+
     return .name str
 
 -- authority = [ userinfo "@" ] host [ ":" port ]
@@ -244,9 +217,15 @@ path-empty    = 0<pchar>
 /--
 Parses an URI with combined parsing and validation.
 -/
-def parsePath (forceAbsolute : Bool) : Parser URI.Path := do
+def parsePath (forceAbsolute : Bool) (allowEmpty : Bool) : Parser URI.Path := do
   let mut isAbsolute := false
-  let mut segments : Array String := #[]
+  let mut segments : Array _ := #[]
+
+  let isSegmentOrSlash ← peekIs (fun c => isPChar c ∨ c = '/'.toUInt8)
+
+  if ¬allowEmpty ∧ ((← isEof) ∨ ¬isSegmentOrSlash) then
+    fail "need a path"
+
   -- Check if path is absolute
   if ← peekIs (· == '/'.toUInt8) then
     isAbsolute := true
@@ -254,14 +233,18 @@ def parsePath (forceAbsolute : Bool) : Parser URI.Path := do
     if ← peekIs (· == '/'.toUInt8) then
       fail "it's a scheme starter"
   else if forceAbsolute then
-    fail "require '/' in path"
+    if allowEmpty ∧ ((← isEof) ∨ ¬isSegmentOrSlash) then
+      return { segments := segments, absolute := isAbsolute }
+    else
+      fail "require '/' in path"
   else
     pure ()
+
   -- Parse segments
   while (← peek?).isSome do
     let segmentBytes ← parseSegment
 
-    let .ok segmentStr := percentDecode segmentBytes.toByteArray
+    let some segmentStr := URI.EncodedString.fromByteArray? segmentBytes.toByteArray
       | fail "invalid percent encoding in path segment"
 
     segments := segments.push segmentStr
@@ -270,42 +253,55 @@ def parsePath (forceAbsolute : Bool) : Parser URI.Path := do
       skip
       -- If path ends with '/', add empty segment
       if (← peek?).isNone then
-        segments := segments.push ""
+        segments := segments.push (URI.EncodedString.empty)
     else
       break
 
   return { segments := segments, absolute := isAbsolute }
 
-
 -- query = *( pchar / "/" / "?" )
 private def parseQuery : Parser URI.Query := do
   let queryBytes ← takeWhileUpTo isQueryChar 1024
-  let queryStr := String.fromUTF8! queryBytes.toByteArray
 
-  let pairs ← queryStr.splitOn "&" |>.mapM fun pair => do
+  let some queryStr := String.fromUTF8? queryBytes.toByteArray
+    | fail "invalid query string"
+
+  let pairs : Option URI.Query := queryStr.splitOn "&" |>.foldlM (init := URI.Query.empty) fun acc pair => do
     match pair.splitOn "=" with
     | [key] =>
-      let .ok decodedKey := percentDecode key.toUTF8
-        | fail "invalid percent encoding in query key"
-      pure (decodedKey, none)
+      let key ← URI.EncodedQueryString.fromByteArray? key.toByteArray
+      let value ← URI.EncodedQueryString.fromByteArray? ByteArray.empty
+      pure (acc.insertEncoded key value)
     | key :: value =>
-      let .ok decodedKey := percentDecode key.toUTF8
-        | fail "invalid percent encoding in query key"
-      let .ok decodedValue := percentDecode (String.intercalate "=" value).toUTF8
-        | fail "invalid percent encoding in query value"
-      pure (decodedKey, some decodedValue)
-    | [] => pure ("", none)
+      let key ← URI.EncodedQueryString.fromByteArray? key.toByteArray
+      let value ←  URI.EncodedQueryString.fromByteArray? (String.intercalate "=" value).toByteArray
+      pure (acc.insertEncoded key value)
+    | [] => pure acc
 
-  return pairs.toArray
+  if let some pairs := pairs then
+    return pairs
+  else
+    fail "invalid query string"
 
 --  fragment = *( pchar / "/" / "?" )
-private def parseFragment : Parser String := do
+private def parseFragment : Parser URI.EncodedString := do
   let fragmentBytes ← takeWhileUpTo isFragmentChar 1024
 
-  let .ok fragmentStr := percentDecode fragmentBytes.toByteArray
+  let some fragmentStr := URI.EncodedString.fromByteArray? fragmentBytes.toByteArray
     | fail "invalid percent encoding in fragment"
 
   return fragmentStr
+
+private def parseHierPart : Parser (Option URI.Authority × URI.Path) := do
+  -- Check for "//" authority path-abempty
+  if (← tryOpt (skipString "//")).isSome then
+    let authority ← parseAuthority
+    let path ← parsePath true true  -- path-abempty (must start with "/" or be empty)
+    return (some authority, path)
+  else
+    -- path-absolute / path-rootless / path-empty
+    let path ← parsePath false true
+    return (none, path)
 
 /--
 Parses a URI (Uniform Resource Identifier).
@@ -317,13 +313,14 @@ public def parseURI : Parser URI := do
   let scheme ← parseScheme
   skipByte ':'.toUInt8
 
-  let authority ← optional (skipString "//" *> parseAuthority)
-  let path ← parsePath (authority.isSome)
+  let (authority, path) ← parseHierPart
 
   let query ← optional (skipByteChar '?' *> parseQuery)
+  let query := query.getD .empty
+
   let fragment ← optional (skipByteChar '#' *> parseFragment)
 
-  return { scheme, authority, path := ⟨ {path with absolute := true }, by simp⟩, query, fragment }
+  return { scheme, authority, path, query, fragment }
 
 /--
 Parses a request target with combined parsing and validation.
@@ -337,7 +334,7 @@ public def parseRequestTarget : Parser RequestTarget := do
   -- origin-form = absolute-path [ "?" query ]
   -- absolute-path = 1*( "/" segment )
   if ← peekIs (· == '/'.toUInt8) then
-    let path ← parsePath false
+    let path ← parsePath false true
     let query ← optional (skipByte '?'.toUInt8 *> parseQuery)
     let frag ← optional (skipByte '#'.toUInt8 *> parseFragment)
     return .originForm path query frag
@@ -360,11 +357,11 @@ public def parseRequestTarget : Parser RequestTarget := do
   -- absolute-URI  = scheme ":" hier-part [ "?" query ]
   if let some scheme := scheme then
     -- hier-part = "//" authority path-abempty
-    let authority ← optional (skipString "//" *> parseAuthority)
-    let path ← parsePath true
+    let (authority, path) ← parseHierPart
     let query ← optional (skipByteChar '?' *> parseQuery)
+    let query := query.getD URI.Query.empty
     let fragment ← optional (skipByteChar '#' *> parseFragment)
-    return .absoluteForm { path := ⟨ {path with absolute := true }, by simp⟩, scheme, authority, query, fragment }
+    return .absoluteForm { path, scheme, authority, query, fragment }
 
   fail "invalid request target"
 

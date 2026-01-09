@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
+public import Std.Internal.Http.Internal.Map
 public import Std.Internal.Http.Internal.Encode
 public import Std.Internal.Http.Internal.ChunkedBuffer
 

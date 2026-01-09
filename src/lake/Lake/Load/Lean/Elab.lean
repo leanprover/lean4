@@ -198,7 +198,7 @@ public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
   imported and the (shared) lock is then released.
 
   If the trace is out-of-date, Lake upgrades the trace to read-write handle
-  with an exclusive lock. Lake does this by first acquiring a exclusive lock to
+  with an exclusive lock. Lake does this by first acquiring an exclusive lock to
   configuration's lock file (i.e. `olean.lock`). While holding this lock, Lake
   releases the shared lock on the trace, re-opens the trace with a read-write
   handle, and acquires an exclusive lock on the trace. It then releases its
@@ -212,7 +212,7 @@ public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
 
     This is because we are already holding a shared lock on the trace.
     If multiple process race for this lock, one will get it and then
-    wait for an exclusive lock one the trace file, but be blocked by the
+    wait for an exclusive lock on the trace file, but be blocked by the
     other process with a shared lock waiting on this file.
 
     While there is likely a way to sequence this to avoid erroring,

@@ -434,8 +434,7 @@ theorem denote_blastCpop' (aig : AIG α) (xc : RefVec aig w) (x : BitVec w) (ass
     split at hgen
     · intros idx hidx
       rw [← hgen]
-      simp only [BitVec.ofNat_eq_ofNat, Lean.Elab.WF.paramLet, BitVec.addRecAux_succ,
-        BitVec.addRecAux_zero]
+      simp only [BitVec.ofNat_eq_ofNat, Lean.Elab.WF.paramLet]
       rw [blastCpop.denote_go (l_bv := BitVec.extractAndExtendPopulate w x)]
       · simp [show ¬ w = 0 by omega]
       · omega

@@ -2568,6 +2568,90 @@ def pps_layer {w : Nat}  (iter_num : Nat) (old_layer : BitVec (old_length * w))
                                     proof_new_layer_elements_eq_old_layer_add
 termination_by old_length - (iter_num * 2)
 
+/--
+  We construct a layer of the parallel-prefix-sum tree by summing two-by-two all the elements
+  in the old layer, returning a bitvector containing `(old_length + 1) / 2` nodes resulting from
+  this addition.
+-/
+def pps_layer_without_subtype {w : Nat}  (iter_num : Nat) (old_layer : BitVec (old_length * w))
+  (new_layer : BitVec (iter_num * w))
+  (hold : 2 * (iter_num - 1) < old_length) : BitVec (((old_length + 1)/2) * w) :=
+  if hlen : old_length - (iter_num * 2) = 0 then
+    have : ((old_length + 1)/2) = iter_num := by omega
+    new_layer.cast (by simp [this])
+  else
+    let op1 := old_layer.extractLsb' ((2 * iter_num) * w) w
+    let op2 := if hlt : (2 * iter_num + 1) < old_length
+                then old_layer.extractLsb' ((2 * iter_num + 1) * w) w
+                else 0#w
+    let new_layer' := (op1 + op2) ++ new_layer
+    have hcast : w + iter_num * w = (iter_num + 1) * w := by simp [Nat.add_mul]; omega
+    pps_layer_without_subtype (iter_num + 1) old_layer (new_layer'.cast hcast) (by omega)
+termination_by old_length - (iter_num * 2)
+
+theorem extractLsb'_pps_layer_prop
+  {w : Nat}  (iter_num : Nat) (old_layer : BitVec (old_length * w))
+  (new_layer : BitVec (iter_num * w))
+  (hold : 2 * (iter_num - 1) < old_length)
+  (proof_addition : ∀ i (_: i < iter_num) (_ : 2 * i < old_length),
+        new_layer.extractLsb' (i * w) w =
+          old_layer.extractLsb' ((2 * i) * w) w
+          + (if h : 2 * i + 1 < old_length then old_layer.extractLsb' ((2 * i + 1) * w) w else 0))
+  (ls : BitVec (((old_length + 1)/2) * w))
+  (hls : ls = pps_layer_without_subtype iter_num old_layer new_layer hold) :
+      ∀ i (_: i < (old_length + 1)/2) (_ : 2 * i < old_length),
+        ls.extractLsb' (i * w) w =
+          old_layer.extractLsb' ((2 * i) * w) w
+          + (if h : 2 * i + 1 < old_length then old_layer.extractLsb' ((2 * i + 1) * w) w else 0) := by
+  subst hls
+  unfold pps_layer_without_subtype
+  split
+  · intros i hi hi'
+    have hcast : iter_num * w = ((old_length + 1)/2) * w := by congr; omega
+    have : extractLsb' (i * w) w (BitVec.cast hcast new_layer) = extractLsb' (i * w) w new_layer := by simp [extractLsb'_cast]
+    rw [this]
+    apply proof_addition
+    <;> omega
+  · let op1 := old_layer.extractLsb' ((2 * iter_num) * w) w
+    let op2 := if hlt : (2 * iter_num + 1) < old_length
+                then old_layer.extractLsb' ((2 * iter_num + 1) * w) w
+                else 0#w
+    let new_layer' := (op1 + op2) ++ new_layer
+    have proof_old_layer_length_lt : 2 * (iter_num + 1 - 1) < old_length := by omega
+    have hcast : w + iter_num * w = (iter_num + 1) * w := by simp [Nat.add_mul]; omega
+    have proof_new_layer_elements_eq_old_layer_add :
+      ∀ (i : Nat),
+    i < iter_num + 1 →
+      2 * i < old_length →
+        extractLsb' (i * w) w (new_layer'.cast hcast) =
+          extractLsb' (2 * i * w) w old_layer +
+            if h : 2 * i + 1 < old_length then extractLsb' ((2 * i + 1) * w) w old_layer else 0 := by
+          intros i hi hi'
+          by_cases hlt : i < iter_num
+          · simp [new_layer']
+            rw [extractLsb'_cast]
+            rw [extractLsb'_append_eq_of_add_le (by
+              simp [show i * w + w = i * w + 1 * w by omega]
+              rw [← Nat.add_mul (n := i) (m := 1) (k := w)]
+              exact mul_le_mul_right w hlt)]
+            specialize proof_addition (i := i) hlt (by omega)
+            simp [proof_addition]
+          · rw [extractLsb'_cast]
+            simp [show i = iter_num by omega]
+            rw [extractLsb'_append_eq_left]
+            simp [op1, op2]
+    apply extractLsb'_pps_layer_prop (iter_num + 1) old_layer
+                                    (new_layer'.cast hcast)
+                                    (by omega)
+                                    proof_new_layer_elements_eq_old_layer_add
+    simp [new_layer']
+    have hcast : w + iter_num * w = (iter_num + 1) * w := by omega
+    have : BitVec.cast hcast ((extractLsb' (2 * iter_num * w) w old_layer +
+          if 2 * iter_num + 1 < old_length then extractLsb' ((2 * iter_num + 1) * w) w old_layer else 0#w) ++
+        new_layer) = BitVec.cast (by omega) (op1 + op2 ++ new_layer) := by
+      congr
+    simp [this]
+
 theorem extractLsb'_append_extractLsb'_eq_of_lt (a : BitVec (a_length * w)) (ha : 0 < a_length) :
   a = (a.extractLsb' ((a_length - 1) * w) w ++ a.extractLsb' 0 ((a_length - 1) * w)).cast
     (by rw [show w + (a_length - 1) * w= 1 * w + (a_length - 1) * w by omega,

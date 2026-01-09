@@ -314,15 +314,13 @@ theorem denote_blastAddVec
 
 
 theorem pss_eq_of_eq (x y : BitVec (l_length * w)) (hxy : x = y)
-  (xproof : x.addRecAux l_length 0#w = kx)
-  (yproof : y.addRecAux l_length 0#w = ky)
   (xproof_length : 0 < l_length)
   (yproof_length : 0 < l_length)
   (hk : kx = ky)
   (hxy : x = y)
   (xhw : 0 < w)
   (yhw : 0 < w) :
-  BitVec.pps x kx xproof xproof_length xhw ≍ BitVec.pps y ky yproof yproof_length yhw := by
+  BitVec.pps_without_subtype x kx xproof_length xhw ≍ BitVec.pps_without_subtype y ky yproof_length yhw := by
   subst hk
   subst hxy
   rfl
@@ -340,7 +338,7 @@ theorem denote_go
         (go aig l_length l h).vec.get idx hidx,
         assign
       ⟧ =
-      (BitVec.pps l_bv (l_bv.addRecAux l_length 0#w) (by rfl) (by omega) (by omega)).val.getLsbD idx := by
+      (BitVec.pps_without_subtype l_bv (l_bv.addRecAux l_length 0#w) (by omega) (by omega)).getLsbD idx := by
   intros idx hidx
   generalize hgen : go aig l_length l h = res
   unfold go at hgen
@@ -352,7 +350,7 @@ theorem denote_go
     rw [denote_go (l_length := (l_length + 1) / 2) (l_bv := bvRes) ]
     · conv =>
         rhs
-        unfold BitVec.pps
+        unfold BitVec.pps_without_subtype
       simp
       split
       · case _ h1 =>
@@ -362,7 +360,7 @@ theorem denote_go
                         (hls := by simp [bvRes])
         have hlbv : l_bv.getLsbD idx = (BitVec.extractLsb' (0 * w) w l_bv).getLsbD idx := by
           simp; omega
-        unfold BitVec.pps
+        unfold BitVec.pps_without_subtype
         simp
         have hresbv : bvRes.getLsbD idx = (BitVec.extractLsb' (0 * w) w bvRes).getLsbD idx := by
           simp; omega
@@ -398,15 +396,6 @@ theorem denote_go
 
         rw [this]
         congr 2
-        ext ls
-        simp
-        · constructor
-          <;> intro hcons
-          <;> simp [hcons]
-          <;> rw [← haddrec]
-        · congr
-          exact
-            heq_of_eqRec_eq (congrArg (Eq (layer.addRecAux ((l_length + 1) / 2) 0#w)) haddrec) rfl
     · omega
     · intros idx hidx
       rw [denote_blastAddVec (old_layer_bv := l_bv) (l_length := l_length)]
@@ -421,7 +410,7 @@ theorem denote_go
     have hval1 : l_length = 1 := by omega
     have hcast : l_length * w = w := by simp [hval1]
     specialize hpar idx (by omega)
-    unfold BitVec.pps
+    unfold BitVec.pps_without_subtype
     simp [hval1]
     have hcasteq: (hcast ▸ l).get idx hidx = l.get idx (by omega) := by
       congr
@@ -458,7 +447,7 @@ theorem denote_blastCpop' (aig : AIG α) (xc : RefVec aig w) (x : BitVec w) (ass
       · rw [← hgen]
         have : w = 1 := by omega
         subst this
-        simp [BitVec.pps, BitVec.extractAndExtendPopulate, BitVec.extractAndExtendPopulateAux_without_subtype, hx]
+        simp [BitVec.pps_without_subtype, BitVec.extractAndExtendPopulate, BitVec.extractAndExtendPopulateAux_without_subtype, hx]
       · simp [show w = 0 by omega]
 
 theorem cpop_eq_cpopNatRec {x : BitVec w} :

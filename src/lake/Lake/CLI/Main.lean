@@ -779,8 +779,14 @@ protected def shake : CliM PUnit := do
   let mods := if mods.isEmpty then ws.defaultTargetRoots else mods
   if h : 0 < mods.size then
     let args := {opts.shake with mods}
+    unless args.force do
+      let specs ← parseTargetSpecs ws []
+      let upToDate ← ws.checkNoBuild (buildSpecs specs)
+      unless upToDate do
+        error "there are out of date oleans; run `lake build` or fetch them from a cache first"
     -- Run shake with workspace search paths
-    let exitCode ← Shake.run' args h ws.augmentedLeanPath ws.augmentedLeanSrcPath
+    Lean.searchPathRef.set ws.augmentedLeanPath
+    let exitCode ← Shake.run' args h ws.augmentedLeanSrcPath
     if exitCode != 0 then
       exit exitCode
   else

@@ -2941,12 +2941,14 @@ def pps (l : BitVec (l_length * w)) (k : BitVec w)
       simp [addRecAux]
       ext k hk; simp⟩
   else
-    let ⟨new_layer, proof_new_layer⟩ := pps_layer 0 l 0#(0 * w) (by omega) (by simp)
+    let new_layer := pps_layer_without_subtype 0 l 0#(0 * w) (by omega)
+    let proof_new_layer := extractLsb'_pps_layer_prop 0 l 0#(0 * w) (by omega) (by simp)
     let l_length' := (l_length + 1) / 2
-    let proof_new_layer_length : 0 < l_length' :=by omega
+    let proof_new_layer_length : 0 < l_length' := by omega
     let proof_sum_eq : addRecAux new_layer ((l_length + 1) / 2) 0#w = k := by
       rw [← proof]
-      apply rec_add_eq_rec_add_iff (a := new_layer) (by omega) (b := l) (by omega) (by omega) (by omega) (n := (l_length + 1) / 2)
+      apply rec_add_eq_rec_add_iff (a := new_layer) (by omega) (b := l)
+        (by apply proof_new_layer; simp [new_layer]) (by omega) (by omega) (n := (l_length + 1) / 2)
     pps new_layer k proof_sum_eq proof_new_layer_length hw
 
 theorem getLsbD_extractAndExtendPopulate_add  {x : BitVec w} (hk : k < w):

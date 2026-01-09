@@ -2573,7 +2573,7 @@ theorem msb_signExtend {x : BitVec w} :
   · simp [h, BitVec.msb, getMsbD_signExtend, show ¬ (v - w = 0) by omega]
 
 @[simp]
-theorem signExtend_extractLsb_setWidth_eq_sshiftRight {x : BitVec w} {n : Nat} :
+theorem signExtend_extractLsb_setWidth {x : BitVec w} {n : Nat} :
     ((x.signExtend (w + n)).extractLsb (w - 1 + n) n).setWidth w = x.sshiftRight n := by
   ext i hi
   simp only [getElem_sshiftRight, getElem_setWidth, getLsbD_extract,

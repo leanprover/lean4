@@ -62,11 +62,4 @@ def parse! (string : String) : URI :=
   | some res => res
   | none => panic! "invalid request target"
 
-/--
-Decode a percent encoded `String` to an extended ascii string.
--/
-@[inline]
-def decodeURIComponent (string : String) : Except String String :=
-  Parser.percentDecode string.toUTF8
-
 end URI

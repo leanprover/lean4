@@ -305,6 +305,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.header! "Connection" "close"
     |>.body #[]
   handler := fun req => do
+    dbg_trace req.head.uri
     if hasUri req "/api/users/%C3%A9"
     then return Response.ok |>.body "found"
     else return Response.notFound |>.body ()

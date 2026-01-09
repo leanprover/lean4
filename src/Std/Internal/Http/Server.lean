@@ -132,8 +132,7 @@ def serve
 
   let runServer := do
     frameCancellation httpServer do
-      while not (← ContextAsync.isCancelled) do
-
+      while true do
         let result ← Selectable.one #[
           .case (server.acceptSelector) (fun x => pure <| some x),
           .case (← ContextAsync.doneSelector) (fun _ => pure none)
@@ -141,8 +140,7 @@ def serve
 
         match result with
         | some client => ContextAsync.background (frameCancellation httpServer (serveConnection client onRequest config))
-        | none => do
-          break
+        | none => break
 
   background (runServer httpServer.context)
 

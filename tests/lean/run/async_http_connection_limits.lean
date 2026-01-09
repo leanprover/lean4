@@ -121,7 +121,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request :=
     Request.new
     |>.method .get
-    |>.uri (.originForm (.mk #[String.ofList (List.replicate 2000 'a')] true) none none)
+    |>.uri (.originForm (.mk #[URI.EncodedString.encode <| String.ofList (List.replicate 2000 'a')] true) none none)
     |>.header! "Host" "api.example.com"
     |>.header! "Connection" "close"
     |>.body #[]
@@ -139,7 +139,7 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
   request :=
     Request.new
     |>.method .get
-    |>.uri (.originForm (.mk #[String.ofList (List.replicate 200 'a')] true) none none)
+    |>.uri (.originForm (.mk #[URI.EncodedString.encode <| String.ofList (List.replicate 200 'a')] true) none none)
     |>.header! "Host" (String.ofList (List.replicate 8230 'a'))
     |>.header! "Connection" "close"
     |>.body #[]

@@ -6583,12 +6583,12 @@ theorem cpop_cast (x : BitVec w) (h : w = v) :
 @[simp]
 theorem toNat_cpop_append {x : BitVec w} {y : BitVec u} :
     (x ++ y).cpop.toNat = x.cpop.toNat + y.cpop.toNat := by
-  induction w generalizing u
-  · case zero =>
-    simp [cpop]
-  · case succ w ihw =>
-    rw [← cons_msb_setWidth x, toNat_cpop_cons, cons_append, cpop_cast, toNat_cast,
-      toNat_cpop_cons, ihw, ← Nat.add_assoc]
+  induction x generalizing y
+  · case nil =>
+    simp
+  · case cons w b bv ih =>
+    simp [cons_append, ih]
+    omega
 
 theorem cpop_append {x : BitVec w} {y : BitVec u} :
     (x ++ y).cpop = x.cpop.setWidth (w + u) + y.cpop.setWidth (w + u) := by
@@ -6602,9 +6602,9 @@ theorem cpop_append {x : BitVec w} {y : BitVec u} :
 theorem toNat_cpop_not {x : BitVec w} :
     (~~~x).cpop.toNat = w - x.cpop.toNat := by
   induction x
-  case nil =>
+  · case nil =>
     simp
-  case cons b x ih =>
+  · case cons b x ih =>
     have := toNat_cpop_le x
     cases b
     <;> simp [ih]

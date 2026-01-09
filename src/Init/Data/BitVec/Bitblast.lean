@@ -2396,61 +2396,6 @@ theorem fastUmulOverflow (x y : BitVec w) :
 /-! ## Auxilliary lemmas for popcount -/
 
 /-- Recursively extract one bit at a time and extend it to width `w`. `hlen` emulates the behaviour of Vector to simplify proving the correctness of the circuit. -/
-def extractAndExtendPopulateAux (k len : Nat) (x : BitVec w) (acc : BitVec (k * len)) (hle : k ≤ w)
-    (hacc : ∀ i (_ : i < k), acc.extractLsb' (i * len) len = (x.extractLsb' i 1).setWidth len)
-    :
-   {l: BitVec (w * len) //
-    ∀ i, l.extractLsb' (i * len) len = (x.extractLsb' i 1).setWidth len
-   } :=
-  match hwi : w - k with
-  | 0 =>
-    ⟨acc.cast (by simp [show w = k by omega]),
-      by
-        intros j
-        have : k = w := by omega
-        by_cases hj : j < k
-        · specialize hacc j hj
-          exact hacc
-        · ext l hl
-          have := mul_le_mul_right (k := len) (n := w) (m := j)
-          simp [show w ≤ j + l by omega, show w * len ≤ j * len + l by omega]
-    ⟩
-  | n' + 1 =>
-    let acc' := BitVec.zeroExtend len (BitVec.extractLsb' k 1 x) ++ acc
-    let ⟨res, proof⟩ := extractAndExtendPopulateAux (k + 1) len x (acc'.cast (by simp [Nat.add_mul]; omega)) (by  omega)
-      (by
-      intros j hj
-      by_cases hj' : j < k
-      · have hproof : len + k * len = (k + 1) * len := by simp [Nat.add_mul, Nat.add_comm len (k * len)]
-        rw [extractLsb'_cast]
-        simp only [truncate_eq_setWidth, acc']
-        by_cases hlen0 : len = 0
-        · subst hlen0
-          simp [setWidth_eq_extractLsb']
-        · have h1 := Nat.mul_lt_mul_right (a := len) (b := j) (c := k) (by omega)
-          have := Nat.mul_le_mul_right (k := len) (n := j + 1) (m := k) (by omega)
-          simp only [hj', iff_true] at h1
-          simp only [extractLsb'_append_eq_ite, h1, ↓reduceDIte,
-            show j * len + len ≤ k * len by
-                rw [show j * len + len = j * len + 1 * len by omega, ← Nat.add_mul]; omega]
-          apply hacc
-          omega
-      · simp only [truncate_eq_setWidth, acc']
-        ext l hl
-        have : j = k := by omega
-        subst this
-        simp only [getElem_extractLsb', getLsbD_cast, getLsbD_append, le_add_right, getLsbD_of_ge,
-          Nat.add_sub_cancel_left, getLsbD_setWidth, getLsbD_extractLsb', Nat.lt_one_iff,
-          Bool.if_false_left, getElem_setWidth]
-        by_cases hl0 : l = 0
-        · simp only [hl0, Nat.add_zero, Nat.lt_irrefl, decide_false, Bool.not_false, decide_true,
-          Bool.true_and, and_eq_right_iff_imp, decide_eq_true_eq]
-          intros
-          omega
-        · simp only [hl0, decide_false, Bool.false_and, Bool.and_false]
-        )
-    ⟨res, proof⟩
-
 def extractAndExtendPopulateAux_without_subtype
   (k len : Nat) (x : BitVec w) (acc : BitVec (k * len)) (hle : k ≤ w) : BitVec (w * len) :=
   if hwi : w - k = 0 then
@@ -2518,25 +2463,25 @@ theorem extractLsb'_extractAndExtendPopulateAux_without_subtype
     · simp
     · omega
 
-
-
-
 theorem extractAndExtendPopulateAux_zero_eq (k len : Nat) (x : BitVec w) (acc : BitVec (k * len)) (heq : k = w)
     (hacc : ∀ i (_ : i < k), acc.extractLsb' (i * len) len = (x.extractLsb' i 1).setWidth len) :
-    (extractAndExtendPopulateAux k len x acc (by omega) hacc).val = acc.cast (by simp [heq]):= by
-  unfold extractAndExtendPopulateAux
+    (extractAndExtendPopulateAux_without_subtype k len x acc (by omega)) = acc.cast (by simp [heq]):= by
+  have := extractLsb'_extractAndExtendPopulateAux_without_subtype k len x acc (by omega) hacc
+  unfold extractAndExtendPopulateAux_without_subtype
   split
   · simp
   · omega
 
 @[simp]
 theorem extractAndExtendPopulateAux_of_length_zero (len : Nat) (x : BitVec 0) :
-    (extractAndExtendPopulateAux 0 len x (0#(0 * len)) (by omega) (by intros; omega)).val = (0#0).cast (by simp) := by
-  simp [extractAndExtendPopulateAux]
+    (extractAndExtendPopulateAux_without_subtype 0 len x (0#(0 * len)) (by omega)) = (0#0).cast (by simp) := by
+  have := extractLsb'_extractAndExtendPopulateAux_without_subtype 0 len x (0#(0 * len)) (by omega)
+            (by intros; simp; omega)
+  simp [extractAndExtendPopulateAux_without_subtype]
 
 /-- We instantiate `extractAndExtendPopulateAux` to extend each bit to `len`. -/
 def extractAndExtendPopulate (len : Nat) (x : BitVec w) : BitVec (w * len) :=
-    extractAndExtendPopulateAux 0 len x ((0#0).cast (by simp)) (by omega) (by intros; omega)
+    extractAndExtendPopulateAux_without_subtype 0 len x ((0#0).cast (by simp)) (by omega)
 
 @[simp]
 theorem extractAndExtendPopulate_of_length_zero (len : Nat) (x : BitVec 0) :
@@ -2547,8 +2492,9 @@ theorem extractLsb'_extractAndExtendPopulate_eq (i len : Nat) (x : BitVec w) :
     (extractAndExtendPopulate len x).extractLsb' (i * len) len =
     BitVec.zeroExtend len (BitVec.extractLsb' i 1 x) := by
   unfold extractAndExtendPopulate
-  let ⟨res, proof⟩ := extractAndExtendPopulateAux 0 len x ((0#0).cast (by simp)) (by omega) (by intros; omega)
-  specialize proof i
+  let res := extractAndExtendPopulateAux_without_subtype 0 len x ((0#0).cast (by simp)) (by omega)
+  let proof := extractLsb'_extractAndExtendPopulateAux_without_subtype 0 len x ((0#0).cast (by simp)) (by omega)
+                (by simp)
   by_cases hilt : i < w
   · ext j hj
     simp [proof]
@@ -2938,23 +2884,26 @@ theorem getLsbD_extractAndExtend_of_le_of_lt (w idx currIdx : Nat) (hw : 0 < w) 
     (BitVec.zeroExtend w (BitVec.extractLsb' currIdx 1 x)).getLsbD (idx - w * currIdx) =
     (BitVec.extractAndExtendPopulate w x).getLsbD idx := by
   unfold BitVec.extractAndExtendPopulate
-  have ⟨res, proof⟩ := BitVec.extractAndExtendPopulateAux 0 w x (BitVec.cast (by omega) 0#0) (by omega) (by omega)
+  have proof := extractLsb'_extractAndExtendPopulateAux_without_subtype 0 w x (BitVec.cast (by omega) 0#0) (by omega)
+  generalize hgen : extractAndExtendPopulateAux_without_subtype 0 w x (BitVec.cast (by omega) 0#0) (by omega) = res
+  -- have ⟨res, proof⟩ := BitVec.extractAndExtendPopulateAux 0 w x (BitVec.cast (by omega) 0#0) (by omega) (by omega)
   simp [Nat.mul_add] at hlt
   simp [show idx - w * currIdx < w by omega]
+
   by_cases h2 : idx - w * currIdx = 0
   · have hidx : idx = currIdx * w := by rw [Nat.mul_comm]; omega
     simp [h2]
     simp [hidx]
-    specialize proof currIdx
     have : res.getLsbD (currIdx * w) = (BitVec.extractLsb' (currIdx * w) w res)[0] := by
       simp
-    simp [this, proof]
+    rw [this]
+    rw [← hgen]
+    simp [proof]
   · have hidx : ∃ j, idx = currIdx * w + j := by
       refine Nat.exists_eq_add_of_le (by rw [Nat.mul_comm]; omega)
     obtain ⟨j, hj⟩ := hidx
     simp [h2]
     rw [hj]
-    specialize proof currIdx
     have : res.getLsbD (currIdx * w + j) = (BitVec.extractLsb' (currIdx * w) w res).getLsbD j := by
       simp
       intros ht
@@ -2962,15 +2911,15 @@ theorem getLsbD_extractAndExtend_of_le_of_lt (w idx currIdx : Nat) (hw : 0 < w) 
       · omega
       · rw [Nat.mul_comm] at hj
         omega
-    rw [this, proof]
-    simp only [getLsbD_setWidth, getLsbD_extractLsb', Nat.lt_one_iff, and_eq_false_imp,
+    rw [this, proof (by intros; simp; omega)]
+    · simp only [getLsbD_setWidth, getLsbD_extractLsb', Nat.lt_one_iff, and_eq_false_imp,
       decide_eq_true_eq]
-    intros hj' hj''
-    subst hj''
-    simp only [Nat.add_zero]
-    rw [Nat.mul_comm] at hj
-    omega
-
+      intros hj' hj''
+      subst hj''
+      simp only [Nat.add_zero]
+      rw [Nat.mul_comm] at hj
+      omega
+    · rw [hgen]
 
 theorem getLsbD_extractAndExtend {x : BitVec w} (hv : 0 < v):
     (BitVec.extractAndExtendPopulate v x).getLsbD k =

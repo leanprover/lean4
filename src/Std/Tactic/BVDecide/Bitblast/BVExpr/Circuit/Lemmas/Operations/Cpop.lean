@@ -466,7 +466,7 @@ theorem denote_blastCpop' (aig : AIG α) (xc : RefVec aig w) (x : BitVec w) (ass
       · rw [← hgen]
         have : w = 1 := by omega
         subst this
-        simp [BitVec.pps, BitVec.extractAndExtendPopulate, BitVec.extractAndExtendPopulateAux, hx]
+        simp [BitVec.pps, BitVec.extractAndExtendPopulate, BitVec.extractAndExtendPopulateAux_without_subtype, hx]
       · simp [show w = 0 by omega]
 
 theorem cpop_eq_cpopNatRec {x : BitVec w} :

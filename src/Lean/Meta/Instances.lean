@@ -114,8 +114,7 @@ For example:
 
 (The type of `inst` must not contain mvars.)
 
-Remark: `projInfo?` is `some` if the instance is a projection.
-We need this information because of the heuristic we use to annotate binder
+Remark: Projections need special support because of the heuristic we use to annotate binder
 information in projections. See PR #5376 and issue #5333. Before PR
 #5376, given a class `C` at
 ```
@@ -136,11 +135,18 @@ After the PR, we have
 C.toB {inst : A 20000} [self : @C inst] : @B ...
 ```
 Note the attribute `inst` is now just a regular implicit argument.
-To ensure `computeSynthOrder` works as expected, we should take
-this change into account while processing field `self`.
-This field is the one at position `projInfo?.numParams`.
+To ensure `computeSynthOrder` works as expected, we take this change into account
+while processing the self field.
+In particular, we say a *projection* is any instance with a type of the form
+```
+{a1 : A1} → ... → {an : An} → [C a1 ... an] → ...
+```
+where the first n parameters are not instance implicit
+(we show implicit parameters above, but explicit is accepted as well).
+This definition of a projection captures all the kinds of projections
+that the `structure`/`class` commands declare (both field and parent projections).
 -/
-private partial def computeSynthOrder (inst : Expr) (projInfo? : Option ProjectionFunctionInfo) : MetaM (Array Nat) :=
+private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
   withReducible do
   let instTy ← inferType inst
 
@@ -172,6 +178,16 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
         mvarId.assign argVars[i]!
       assignMVarsIn (← inferType (.mvar mvarId))
 
+  -- Before anything, detect if this is a (generalized) projection.
+  -- See the comment about projections in this function's docstring.
+  if let some idx := argBIs.findIdx? (·.isInstImplicit) then
+    let argTy ← inferType argVars[idx]!
+    argTy.withApp fun c tyArgs => do
+      -- If this is of the form `C argVars[0] argVars[1] ... argVars[idx-1]`,
+      -- then we treat this instance as a projection; the arguments before this one are the type's parameters
+      if c.isConst && tyArgs.size == idx && Nat.all idx fun i _ => argVars[i]! == tyArgs[i]! then
+        assignMVarsIn (← inferType argMVars[idx]!)
+
   -- We start by assigning all metavariables in non-out-params of the return value.
   -- These are assumed to not be mvars during TC search (or at least not assignable)
   let tyOutParams ← getSemiOutParamPositionsOf ty
@@ -187,11 +203,6 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
   while !toSynth.isEmpty do
     let next? ← toSynth.findM? fun i => do
       let argTy ← instantiateMVars (← inferType argMVars[i]!)
-      if let some projInfo := projInfo? then
-        if projInfo.numParams == i then
-          -- See comment regarding `projInfo?` at the beginning of this function
-          assignMVarsIn argTy
-          return true
       forallTelescopeReducing argTy fun _ argTy => do
       let argTy ← whnf argTy
       let argOutParams ← getSemiOutParamPositionsOf argTy
@@ -231,8 +242,7 @@ def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Meta
   let c ← mkConstWithLevelParams declName
   let keys ← mkInstanceKey c
   addGlobalInstance declName attrKind
-  let projInfo? ← getProjectionFnInfo? declName
-  let synthOrder ← computeSynthOrder c projInfo?
+  let synthOrder ← computeSynthOrder c
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
 
 /--

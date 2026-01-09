@@ -104,7 +104,7 @@ public theorem maxOn_eq_or [LE β] [DecidableLE β] {f : α → β} {x y : α} :
   · exact Or.inl rfl
   · exact Or.inr rfl
 
-@[grind =]
+@[simp, grind =]
 public theorem maxOn_self [LE β] [DecidableLE β] {f : α → β} {x : α} :
     maxOn f x x = x := by
   cases maxOn_eq_or (f := f) (x := x) (y := x) <;> assumption
@@ -173,6 +173,16 @@ public theorem maxOn_assoc [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f
       have : f x < f z := Std.lt_trans ‹_› ‹_›
       rw [if_neg]
       exact Std.not_le.mpr ‹_›
+
+public theorem max_apply [LE β] [DecidableLE β] [Max β] [Std.LawfulOrderLeftLeaningMax β]
+    {f : α → β} {x y : α} : max (f x) (f y) = f (maxOn f x y) := by
+  rw [Std.max_eq_if, maxOn]
+  split <;> rfl
+
+public theorem apply_maxOn [LE β] [DecidableLE β] [Max β] [Std.LawfulOrderLeftLeaningMax β]
+    {f : α → β} {x y : α} : f (maxOn f x y) = max (f x) (f y) := by
+  rw [Std.max_eq_if, maxOn]
+  split <;> rfl
 
 public instance [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f : α → β} :
     Std.Associative (maxOn f) where

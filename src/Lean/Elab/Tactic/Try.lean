@@ -731,6 +731,15 @@ private partial def evalSuggestAttemptAllPar (tacs : Array (TSyntax ``Parser.Tac
   else
     throwError "`attempt_all_par` failed"
 
+/-- `evalSuggest` for `first_par` tactic - returns first successful result, cancels others. -/
+private partial def evalSuggestFirstPar (tacs : Array (TSyntax ``Parser.Tactic.tacticSeq)) : TryTacticM (TSyntax `tactic) := do
+  unless (← read).terminal do
+    throwError "invalid occurrence of `first_par` in non-terminal position for `try?` script{indentD (← read).root}"
+  let ctx ← read
+  let jobs : List (TacticM (TSyntax `tactic)) := tacs.toList.map fun tacSeq =>
+    withOriginalHeartbeats (evalSuggestTacticSeq tacSeq) ctx
+  TacticM.parFirst jobs
+
 private partial def evalSuggestDefault (tac : TSyntax `tactic) : TryTacticM (TSyntax `tactic) := do
   let kind := tac.raw.getKind
   match (← getEvalFns kind) with
@@ -778,6 +787,7 @@ private partial def evalSuggestImpl : TryTactic := fun tac => do
   | `(tactic| try $tac:tacticSeq) => evalSuggestTry tac
   | `(tactic| attempt_all $[| $tacs]*) => evalSuggestAttemptAll tacs
   | `(tactic| attempt_all_par $[| $tacs]*) => evalSuggestAttemptAllPar tacs
+  | `(tactic| first_par $[| $tacs]*) => evalSuggestFirstPar tacs
   | _ =>
     let k := tac.raw.getKind
     if k == ``Parser.Tactic.seq1 then
@@ -881,7 +891,10 @@ Note: We previously included `simp_all? +suggestions` here, but removed it due t
 We would like to restore it in the future once `simp_all? +suggestions` is faster for general use.
 -/
 private def mkAtomicWithSuggestionsStx : CoreM (TSyntax `tactic) :=
-  `(tactic| grind? +suggestions)
+  `(tactic| first_par
+      | grind? +suggestions
+      | grind? +locals
+      | grind? +locals +suggestions)
 
 /-- `simple` tactics -/
 private def mkSimpleTacStx : CoreM (TSyntax `tactic) :=

@@ -5,6 +5,10 @@ Authors: Paul Reichert
 -/
 module
 
+prelude
+public import Init.Data.Order.ClassesExtra
+public import Init.Data.Order.LemmasExtra
+
 public section
 
 open Std
@@ -27,8 +31,18 @@ def Min.oppositeMax (min : Min α) : Max α where
   max a b := Min.min a b
 
 @[expose]
-def Max.oppositeMax (max : Max α) : Min α where
+def Max.oppositeMin (max : Max α) : Min α where
   min a b := Max.max a b
+
+instance DecidableLE.opposite [i : LE α] [id : DecidableLE α] :
+    haveI := i.opposite
+    DecidableLE α :=
+  fun a b => id b a
+
+instance DecidableLT.opposite [i : LT α] [id : DecidableLT α] :
+    haveI := i.opposite
+    DecidableLT α :=
+  fun a b => id b a
 
 instance LE.instReflOpposite [i : LE α] [Refl (α := α) (· ≤ ·)] :
     haveI := i.opposite
@@ -172,27 +186,27 @@ instance LawfulOrderMin.opposite [il : LE α] [im : Min α] [LawfulOrderMin α] 
 
 instance LawfulOrderSup.opposite [il : LE α] [im : Max α] [LawfulOrderSup α] :
     haveI := il.opposite
-    haveI := im.oppositeMax
+    haveI := im.oppositeMin
     LawfulOrderInf α :=
   letI := il.opposite
-  letI := im.oppositeMax
+  letI := im.oppositeMin
   { le_min_iff a b c := by
-      simp only [LE.opposite, Max.oppositeMax]
+      simp only [LE.opposite, Max.oppositeMin]
       letI := il; letI := im
       exact LawfulOrderSup.max_le_iff b c a }
 
 instance LawfulOrderMax.opposite [il : LE α] [im : Max α] [LawfulOrderMax α] :
     haveI := il.opposite
-    haveI := im.oppositeMax
+    haveI := im.oppositeMin
     LawfulOrderMin α :=
   letI := il.opposite
-  letI := im.oppositeMax
+  letI := im.oppositeMin
   { min_eq_or a b := by
-      simp only [Max.oppositeMax]
+      simp only [Max.oppositeMin]
       letI := il; letI := im
       exact MaxEqOr.max_eq_or a b
     le_min_iff a b c := by
-      simp only [LE.opposite, Max.oppositeMax]
+      simp only [LE.opposite, Max.oppositeMin]
       letI := il; letI := im
       exact LawfulOrderSup.max_le_iff b c a }
 
@@ -213,15 +227,15 @@ instance LawfulOrderLeftLeaningMin.opposite [il : LE α] [im : Min α] [LawfulOr
 
 instance LawfulOrderLeftLeaningMax.opposite [il : LE α] [im : Max α] [LawfulOrderLeftLeaningMax α] :
     haveI := il.opposite
-    haveI := im.oppositeMax
+    haveI := im.oppositeMin
     LawfulOrderLeftLeaningMin α :=
   letI := il.opposite
-  letI := im.oppositeMax
+  letI := im.oppositeMin
   { min_eq_left a b hab := by
-      simp only [Max.oppositeMax]
+      simp only [Max.oppositeMin]
       letI := il; letI := im
       exact LawfulOrderLeftLeaningMax.max_eq_left a b hab
     min_eq_right a b hab := by
-      simp only [Max.oppositeMax]
+      simp only [Max.oppositeMin]
       letI := il; letI := im
       exact LawfulOrderLeftLeaningMax.max_eq_right a b hab }

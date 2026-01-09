@@ -2450,6 +2450,76 @@ def extractAndExtendPopulateAux (k len : Nat) (x : BitVec w) (acc : BitVec (k * 
         )
     ⟨res, proof⟩
 
+def extractAndExtendPopulateAux_without_subtype
+  (k len : Nat) (x : BitVec w) (acc : BitVec (k * len)) (hle : k ≤ w) : BitVec (w * len) :=
+  if hwi : w - k = 0 then
+    acc.cast (by simp [show w = k by omega])
+  else
+    let acc' := BitVec.zeroExtend len (BitVec.extractLsb' k 1 x) ++ acc
+    extractAndExtendPopulateAux_without_subtype
+      (k + 1) len x (acc := acc'.cast (by simp [Nat.add_mul]; omega)) (by omega)
+
+theorem extractLsb'_extractAndExtendPopulateAux_without_subtype
+  (k len : Nat) (x : BitVec w) (acc : BitVec (k * len)) (hle : k ≤ w)
+  (hacc : ∀ i (_ : i < k), acc.extractLsb' (i * len) len = (x.extractLsb' i 1).setWidth len)
+  (l : BitVec (w * len))
+  (hl : l = extractAndExtendPopulateAux_without_subtype k len x acc hle) :
+    ∀ i, l.extractLsb' (i * len) len = (x.extractLsb' i 1).setWidth len := by
+  subst hl
+  unfold extractAndExtendPopulateAux_without_subtype
+  if hwi : w - k = 0 then
+    simp [hwi]
+    intros j
+    have : k = w := by omega
+    by_cases hj : j < k
+    · specialize hacc j hj
+      apply hacc
+    · ext l hl
+      have := mul_le_mul_right (k := len) (n := w) (m := j)
+      simp [show w ≤ j + l by omega, show w * len ≤ j * len + l by omega]
+  else
+    simp [hwi]
+    let acc' := BitVec.setWidth len (BitVec.extractLsb' k 1 x) ++ acc
+    have : acc' = BitVec.setWidth len (BitVec.extractLsb' k 1 x) ++ acc := by rfl
+    rw [← this]
+    apply extractLsb'_extractAndExtendPopulateAux_without_subtype
+      (k := k + 1)
+      (acc := acc'.cast (by simp [Nat.add_mul]; omega))
+    · intros j hj
+      by_cases hj' : j < k
+      · have hproof : len + k * len = (k + 1) * len := by simp [Nat.add_mul, Nat.add_comm len (k * len)]
+        rw [extractLsb'_cast]
+        simp only [acc']
+        by_cases hlen0 : len = 0
+        · subst hlen0
+          simp [setWidth_eq_extractLsb']
+        · have h1 := Nat.mul_lt_mul_right (a := len) (b := j) (c := k) (by omega)
+          have := Nat.mul_le_mul_right (k := len) (n := j + 1) (m := k) (by omega)
+          simp only [hj', iff_true] at h1
+          simp only [extractLsb'_append_eq_ite, h1, ↓reduceDIte,
+            show j * len + len ≤ k * len by
+                rw [show j * len + len = j * len + 1 * len by omega, ← Nat.add_mul]; omega]
+          apply hacc
+          omega
+      · simp only [acc']
+        ext l hl
+        have : j = k := by omega
+        subst this
+        simp only [getElem_extractLsb', getLsbD_cast, getLsbD_append, le_add_right, getLsbD_of_ge,
+          Nat.add_sub_cancel_left, getLsbD_setWidth, getLsbD_extractLsb', Nat.lt_one_iff,
+          Bool.if_false_left, getElem_setWidth]
+        by_cases hl0 : l = 0
+        · simp only [hl0, Nat.add_zero, Nat.lt_irrefl, decide_false, Bool.not_false, decide_true,
+          Bool.true_and, and_eq_right_iff_imp, decide_eq_true_eq]
+          intros
+          omega
+        · simp only [hl0, decide_false, Bool.false_and, Bool.and_false]
+    · simp
+    · omega
+
+
+
+
 theorem extractAndExtendPopulateAux_zero_eq (k len : Nat) (x : BitVec w) (acc : BitVec (k * len)) (heq : k = w)
     (hacc : ∀ i (_ : i < k), acc.extractLsb' (i * len) len = (x.extractLsb' i 1).setWidth len) :
     (extractAndExtendPopulateAux k len x acc (by omega) hacc).val = acc.cast (by simp [heq]):= by

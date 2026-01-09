@@ -25,9 +25,9 @@ theorem myPair_eq (p : MyPair Nat) (h1 : p.fst = 1) (h2 : p.snd = 1) :
 -- A goal where:
 -- - atomic block fails (no simple solution, basic grind can't prove it)
 -- - first_par succeeds: grind +locals +suggestions finds myPair_eq
+-- The +locals +suggestions flags are filtered out in the suggestion output
 /--
 info: Try these:
-  [apply] grind +locals +suggestions
   [apply] grind only [myPair_eq]
   [apply] grind => instantiate only [myPair_eq]
 -/

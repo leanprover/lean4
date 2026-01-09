@@ -308,20 +308,21 @@ def getGrindParams (stx : TSyntax `tactic) : Array Syntax :=
 /-- Filter out `+suggestions` and `+locals` from the config syntax -/
 def filterSuggestionsAndLocalsFromGrindConfig (config : TSyntax ``Lean.Parser.Tactic.optConfig) :
     TSyntax ``Lean.Parser.Tactic.optConfig :=
-  let configItems := config.raw.getArgs
-  let filteredItems := configItems.filter fun item =>
+  -- optConfig structure: (Tactic.optConfig [configItem1, configItem2, ...])
+  -- config.raw.getArgs returns #[null_node], so we need to filter the null node's children
+  let nullNode := config.raw[0]!
+  let configItems := nullNode.getArgs
+  let filteredItems := configItems.filter fun configItem =>
     -- Keep all items except +suggestions and +locals
-    -- Structure: null node -> configItem -> posConfigItem -> ["+", ident]
-    match item[0]? with
-    | some configItem => match configItem[0]? with
-      | some posConfigItem => match posConfigItem[1]? with
-        | some ident =>
-          let id := ident.getId
-          !(posConfigItem.getKind == ``Lean.Parser.Tactic.posConfigItem && (id == `suggestions || id == `locals))
-        | none => true
+    -- Structure: configItem -> posConfigItem -> ["+", ident]
+    match configItem[0]? with
+    | some posConfigItem => match posConfigItem[1]? with
+      | some ident =>
+        let id := ident.getId.eraseMacroScopes
+        !(posConfigItem.getKind == ``Lean.Parser.Tactic.posConfigItem && (id == `suggestions || id == `locals))
       | none => true
     | none => true
-  ⟨config.raw.setArgs filteredItems⟩
+  ⟨config.raw.setArg 0 (nullNode.setArgs filteredItems)⟩
 
 private def elabGrindConfig' (config : TSyntax ``Lean.Parser.Tactic.optConfig) (interactive : Bool) : TacticM Grind.Config := do
   if interactive then

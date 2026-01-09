@@ -224,7 +224,7 @@ theorem testBit_lt_two_pow {x i : Nat} (lt : x < 2^i) : x.testBit i = false := b
     exact Nat.not_le_of_gt lt (ge_two_pow_of_testBit p)
 
 theorem testBit_of_two_pow_le_and_two_pow_add_one_gt {n i : Nat}
-    (hle : 2^i ≤ n) (hgt : n < 2^(i + 1)) : n.testBit i := by
+    (hle : 2^i ≤ n) (hgt : n < 2^(i + 1)) : n.testBit i = true := by
   rcases exists_ge_and_testBit_of_ge_two_pow hle with ⟨i', ⟨_, _⟩⟩
   have : i = i' := by
     false_or_by_contra
@@ -241,7 +241,7 @@ theorem lt_pow_two_of_testBit (x : Nat) (p : ∀i, i ≥ n → testBit x i = fal
   have test_false := p _ i_ge_n
   simp [test_true] at test_false
 
-theorem testBit_log2 {n : Nat} (h : n ≠ 0) : n.testBit n.log2 := by
+theorem testBit_log2 {n : Nat} (h : n ≠ 0) : n.testBit n.log2 = true := by
   have := log2_eq_iff (n := n) (k := n.log2) (by omega)
   apply testBit_of_two_pow_le_and_two_pow_add_one_gt <;> omega
 

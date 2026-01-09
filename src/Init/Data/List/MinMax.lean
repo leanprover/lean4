@@ -164,9 +164,12 @@ theorem min?_eq_some_min [Min α] : {l : List α} → (hl : l ≠ []) →
     l.min? = some (l.min hl)
   | a::as, _ => by simp [List.min, List.min?_cons']
 
-theorem min_eq_get_min? [Min α] : (l : List α) → (hl : l ≠ []) →
+theorem min_eq_min?_get [Min α] : (l : List α) → (hl : l ≠ []) →
     l.min hl = l.min?.get (isSome_min?_of_ne_nil hl)
   | a::as, _ => by simp [List.min, List.min?_cons']
+
+@[deprecated min_eq_min?_get (since := "2025-01-09")]
+def min_eq_get_min? := @min_eq_min?_get
 
 theorem min_eq_head {α : Type u} [Min α] {l : List α} (hl : l ≠ [])
     (h : l.Pairwise (fun a b => min a b = a)) : l.min hl = l.head hl := by
@@ -350,9 +353,12 @@ theorem max?_eq_some_max [Max α] : {l : List α} → (hl : l ≠ []) →
     l.max? = some (l.max hl)
   | a::as, _ => by simp [List.max, List.max?_cons']
 
-theorem max_eq_get_max? [Max α] : (l : List α) → (hl : l ≠ []) →
+theorem max_eq_max?_get [Max α] : (l : List α) → (hl : l ≠ []) →
     l.max hl = l.max?.get (isSome_max?_of_ne_nil hl)
   | a::as, _ => by simp [List.max, List.max?_cons']
+
+@[deprecated max_eq_max?_get (since := "2025-01-09")]
+def max_eq_get_max? := @max_eq_max?_get
 
 theorem max_eq_head {α : Type u} [Max α] {l : List α} (hl : l ≠ [])
     (h : l.Pairwise (fun a b => max a b = a)) : l.max hl = l.head hl := by

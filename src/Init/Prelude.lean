@@ -907,7 +907,7 @@ instance [Inhabited α] : Inhabited (ULift α) where
 Lifts a type or proposition to a higher universe level.
 
 `PULift α` wraps a value of type `α`. It is a generalization of
-`PLift` that allows lifting values who's type may live in `Sort s`.
+`PLift` that allows lifting values whose type may live in `Sort s`.
 It also subsumes `PLift`.
 -/
 -- The universe variable `r` is written first so that `ULift.{r} α` can be used
@@ -3525,7 +3525,7 @@ instance : DecidableEq String.Pos.Raw :=
 /--
 A region or slice of some underlying string.
 
-A substring contains an string together with the start and end byte positions of a region of
+A substring contains a string together with the start and end byte positions of a region of
 interest. Actually extracting a substring requires copying and memory allocation, while many
 substrings of the same underlying string may exist with very little overhead, and they are more
 convenient than tracking the bounds by hand.

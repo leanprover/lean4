@@ -734,7 +734,7 @@ def recv (ch : CloseableChannel α) : BaseIO (Task (Option α)) :=
 
 open Internal.IO.Async in
 /--
-Creates a `Selector` that resolves once `ch` has data available and provides that that data.
+Creates a `Selector` that resolves once `ch` has data available and provides that data.
 In particular if `ch` is closed while waiting on this `Selector` and no data is available already
 this will resolve to `none`.
 -/

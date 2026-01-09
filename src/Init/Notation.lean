@@ -523,7 +523,7 @@ macro_rules
   | `(bif $c then $t else $e) => `(cond $c $t $e)
 
 /--
-Haskell-like pipe operator `<|`. `f <| x` means the same as the same as `f x`,
+Haskell-like pipe operator `<|`. `f <| x` means the same as `f x`,
 except that it parses `x` with lower precedence, which means that `f <| g <| x`
 is interpreted as `f (g x)` rather than `(f g) x`.
 -/
@@ -557,7 +557,7 @@ macro_rules
   | `($a |> $f)        => `($f $a)
 
 /--
-Alternative syntax for `<|`. `f $ x` means the same as the same as `f x`,
+Alternative syntax for `<|`. `f $ x` means the same as `f x`,
 except that it parses `x` with lower precedence, which means that `f $ g $ x`
 is interpreted as `f (g x)` rather than `(f g) x`.
 -/

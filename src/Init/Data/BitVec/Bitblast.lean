@@ -2513,60 +2513,6 @@ theorem extractLsb'_extractAndExtendPopulate_zero_eq (x : BitVec w) :
   rw [show 0 = 0 * w by omega, extractLsb'_extractAndExtendPopulate_eq (i := 0)]
   simp
 
-/-- given a flattened list of bitvectors `old_layer`, produce a `new_layer` adding
-  the elements of `old_layer` two-by-two. -/
-def pps_layer {w : Nat}  (iter_num : Nat) (old_layer : BitVec (old_length * w))
-  (new_layer : BitVec (iter_num * w))
-  (hold : 2 * (iter_num - 1) < old_length)
-  (proof_addition : ∀ i (_: i < iter_num) (_ : 2 * i < old_length),
-        new_layer.extractLsb' (i * w) w =
-          old_layer.extractLsb' ((2 * i) * w) w
-          + (if h : 2 * i + 1 < old_length then old_layer.extractLsb' ((2 * i + 1) * w) w else 0)) :
-    {ls : BitVec (((old_length + 1)/2) * w) //
-      ∀ i (_: i < (old_length + 1)/2) (_ : 2 * i < old_length),
-        ls.extractLsb' (i * w) w =
-          old_layer.extractLsb' ((2 * i) * w) w
-          + (if h : 2 * i + 1 < old_length then old_layer.extractLsb' ((2 * i + 1) * w) w else 0)} :=
-  match hlen : old_length - (iter_num * 2) with
-  | 0 =>
-    have : ((old_length + 1)/2) = iter_num := by omega
-    ⟨new_layer.cast (by simp [this]), by
-      simp [this]; exact proof_addition⟩
-  | n + 1 =>
-    let op1 := old_layer.extractLsb' ((2 * iter_num) * w) w
-    let op2 := if hlt : (2 * iter_num + 1) < old_length
-                then old_layer.extractLsb' ((2 * iter_num + 1) * w) w
-                else 0#w
-    let new_layer' := (op1 + op2) ++ new_layer
-    have proof_old_layer_length_lt : 2 * (iter_num + 1 - 1) < old_length := by omega
-    have hcast : w + iter_num * w = (iter_num + 1) * w := by simp [Nat.add_mul]; omega
-    have proof_new_layer_elements_eq_old_layer_add :
-      ∀ (i : Nat),
-    i < iter_num + 1 →
-      2 * i < old_length →
-        extractLsb' (i * w) w (new_layer'.cast hcast) =
-          extractLsb' (2 * i * w) w old_layer +
-            if h : 2 * i + 1 < old_length then extractLsb' ((2 * i + 1) * w) w old_layer else 0 := by
-          intros i hi hi'
-          by_cases hlt : i < iter_num
-          · simp [new_layer']
-            rw [extractLsb'_cast]
-            rw [extractLsb'_append_eq_of_add_le (by
-              simp [show i * w + w = i * w + 1 * w by omega]
-              rw [← Nat.add_mul (n := i) (m := 1) (k := w)]
-              exact mul_le_mul_right w hlt)]
-            specialize proof_addition (i := i) hlt (by omega)
-            simp [proof_addition]
-          · rw [extractLsb'_cast]
-            simp [show i = iter_num by omega]
-            rw [extractLsb'_append_eq_left]
-            simp [op1, op2]
-    pps_layer (iter_num + 1) old_layer
-                                    (new_layer'.cast hcast)
-                                    (by omega)
-                                    proof_new_layer_elements_eq_old_layer_add
-termination_by old_length - (iter_num * 2)
-
 /--
   We construct a layer of the parallel-prefix-sum tree by summing two-by-two all the elements
   in the old layer, returning a bitvector containing `(old_length + 1) / 2` nodes resulting from
@@ -2930,17 +2876,31 @@ theorem rec_add_eq_rec_add_iff
       · simp [show (b_length + 1) / 2 - 1 = 0 by omega, show b_length - 1 = 0 by omega]
 
 /-- construct the parallel prefix sum circuit of the flattend bitvectors in `l` -/
-def pps (l : BitVec (l_length * w)) (k : BitVec w)
-      (proof : addRecAux l l_length 0#w  = k)
-      (proof_length : 0 < l_length) (hw : 0 < w) :
-    {ls : BitVec (1 * w) // addRecAux ls 1 0#w = k} :=
+def pps_without_subtype (l : BitVec (l_length * w)) (k : BitVec w)
+      (proof_length : 0 < l_length) (hw : 0 < w) : BitVec (1 * w) :=
   if h : l_length = 1 then
-    ⟨l.cast (by simp [h]), by
-      simp [h] at proof
-      rw [← proof]
-      simp [addRecAux]
-      ext k hk; simp⟩
+    l.cast (by simp [h])
   else
+    let new_layer := pps_layer_without_subtype 0 l 0#(0 * w) (by omega)
+    let proof_new_layer := extractLsb'_pps_layer_prop 0 l 0#(0 * w) (by omega) (by simp)
+    let l_length' := (l_length + 1) / 2
+    let proof_new_layer_length : 0 < l_length' := by omega
+    pps_without_subtype new_layer k proof_new_layer_length hw
+
+theorem addRecAux_pps (l : BitVec (l_length * w)) (k : BitVec w)
+      (proof : addRecAux l l_length 0#w  = k)
+      (proof_length : 0 < l_length) (hw : 0 < w)
+      (ls : BitVec (1 * w))
+      (hls : ls = pps_without_subtype l k (by omega) hw) :
+      addRecAux ls 1 0#w = k := by
+  unfold pps_without_subtype at hls
+  split at hls
+  · case _ h =>
+    simp [h] at proof
+    rw [← proof]
+    simp [addRecAux, hls]
+    ext k hk; simp
+  · case _ h =>
     let new_layer := pps_layer_without_subtype 0 l 0#(0 * w) (by omega)
     let proof_new_layer := extractLsb'_pps_layer_prop 0 l 0#(0 * w) (by omega) (by simp)
     let l_length' := (l_length + 1) / 2
@@ -2949,7 +2909,8 @@ def pps (l : BitVec (l_length * w)) (k : BitVec w)
       rw [← proof]
       apply rec_add_eq_rec_add_iff (a := new_layer) (by omega) (b := l)
         (by apply proof_new_layer; simp [new_layer]) (by omega) (by omega) (n := (l_length + 1) / 2)
-    pps new_layer k proof_sum_eq proof_new_layer_length hw
+    apply addRecAux_pps new_layer k proof_sum_eq proof_new_layer_length hw
+    exact eq_of_toNat_eq (congrArg BitVec.toNat hls)
 
 theorem getLsbD_extractAndExtendPopulate_add  {x : BitVec w} (hk : k < w):
     (x.extractAndExtendPopulate w).getLsbD (pos * w + k) = ((x.extractLsb' pos 1).zeroExtend w).getLsbD k := by
@@ -3453,7 +3414,7 @@ theorem cpop_eq_recursive_addition {x : BitVec w} :
       by_cases hk0 : k = 0 <;> simp [hk0]
 
 theorem extractLsb'_pps_eq_cast {x : BitVec w} (h : 0 < w) :
-    let res := ((extractAndExtendPopulate w x).pps ((extractAndExtendPopulate w x).addRecAux w 0#w) (by simp) (by omega) (by omega)).val
+    let res := ((extractAndExtendPopulate w x).pps_without_subtype ((extractAndExtendPopulate w x).addRecAux w 0#w) (by omega) (by omega))
     extractLsb' 0 w res =
     (res).cast (by simp) := by
   simp
@@ -3465,14 +3426,21 @@ theorem cpop_eq_pps {x : BitVec w} :
   let k := arg.addRecAux w 0#w;
     (x.cpop) =
       if hw : w = 0 then 0#w
-      else ((pps (l := arg) (k := k) (by rfl) (by omega) (by omega)).val).cast (by simp) := by
-  simp
+      else ((pps_without_subtype (l := arg) (k := k) (by omega) (by omega))).cast (by simp) := by
   split
   · case _ hw =>
     subst hw
     simp [of_length_zero]
   · rw [cpop_eq_recursive_addition]
-    have proof := (pps (l := (extractAndExtendPopulate w x)) (k := (extractAndExtendPopulate w x).addRecAux w 0#w) (by rfl) (by omega) (by omega)).property
-    simp [← proof, extractLsb'_pps_eq_cast]
+    let res := pps_without_subtype (extractAndExtendPopulate w x) (k := (extractAndExtendPopulate w x).addRecAux w 0#w)
+                                    (by omega) (by omega)
+    have proof := addRecAux_pps (l := extractAndExtendPopulate w x)
+                                (k := (extractAndExtendPopulate w x).addRecAux w 0#w)
+                                (ls := res) (hls := by simp [res]) (hw := by omega)
+                                (proof := by rfl) (proof_length := by omega)
+
+    rw [← proof]
+    simp
+    rw [extractLsb'_pps_eq_cast]
 
 end BitVec

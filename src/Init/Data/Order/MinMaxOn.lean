@@ -37,7 +37,7 @@ public theorem minOn_eq_or [LE β] [DecidableLE β] {f : α → β} {x y : α} :
   · exact Or.inl rfl
   · exact Or.inr rfl
 
-@[grind =]
+@[simp, grind =]
 public theorem minOn_self [LE β] [DecidableLE β] {f : α → β} {x : α} :
     minOn f x x = x := by
   cases minOn_eq_or (f := f) (x := x) (y := x) <;> assumption
@@ -51,6 +51,13 @@ public theorem minOn_eq_left [LE β] [DecidableLE β] {f : α → β} {x y : α}
 public theorem minOn_eq_right [LE β] [DecidableLE β] {f : α → β} {x y : α} (h : ¬ f x ≤ f y) :
     minOn f x y = y := by
   simp [minOn, h]
+
+public theorem minOn_eq_right_of_lt
+    [LE β] [DecidableLE β] [LT β] [Std.Total (α := β) (· ≤ ·)] [Std.LawfulOrderLT β]
+    {f : α → β} {x y : α} (h : f y < f x) :
+    minOn f x y = y := by
+  apply minOn_eq_right
+  simpa [Std.not_le] using h
 
 @[grind =>]
 public theorem apply_minOn_le_left [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f : α → β}
@@ -67,6 +74,15 @@ public theorem apply_minOn_le_right [LE β] [DecidableLE β] [Std.IsLinearPreord
   split
   · assumption
   · apply Std.le_refl
+
+public theorem le_apply_minOn_iff [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f : α → β}
+    {x y : α} {b : β} :
+    b ≤ f (minOn f x y) ↔ b ≤ f x ∧ b ≤ f y := by
+  apply Iff.intro
+  · intro h
+    exact ⟨Std.le_trans h apply_minOn_le_left, Std.le_trans h apply_minOn_le_right⟩
+  · intro h
+    cases minOn_eq_or (f := f) (x := x) (y := y) <;> simp_all
 
 @[grind =]
 public theorem minOn_assoc [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f : α → β}
@@ -91,9 +107,14 @@ public theorem minOn_assoc [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f
       rw [if_neg]
       exact Std.not_le.mpr ‹_›
 
-instance [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f : α → β} :
+public instance [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f : α → β} :
     Std.Associative (minOn f) where
   assoc := by apply minOn_assoc
+
+public theorem min_apply [LE β] [DecidableLE β] [Min β] [Std.LawfulOrderLeftLeaningMin β]
+    {f : α → β} {x y : α} : min (f x) (f y) = f (minOn f x y) := by
+  rw [Std.min_eq_if, minOn]
+  split <;> rfl
 
 /-! ## `maxOn` Lemmas -/
 
@@ -174,6 +195,10 @@ public theorem maxOn_assoc [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f
       rw [if_neg]
       exact Std.not_le.mpr ‹_›
 
+public instance [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f : α → β} :
+    Std.Associative (maxOn f) where
+  assoc := by apply maxOn_assoc
+
 public theorem max_apply [LE β] [DecidableLE β] [Max β] [Std.LawfulOrderLeftLeaningMax β]
     {f : α → β} {x y : α} : max (f x) (f y) = f (maxOn f x y) := by
   rw [Std.max_eq_if, maxOn]
@@ -183,7 +208,3 @@ public theorem apply_maxOn [LE β] [DecidableLE β] [Max β] [Std.LawfulOrderLef
     {f : α → β} {x y : α} : f (maxOn f x y) = max (f x) (f y) := by
   rw [Std.max_eq_if, maxOn]
   split <;> rfl
-
-public instance [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f : α → β} :
-    Std.Associative (maxOn f) where
-  assoc := by apply maxOn_assoc

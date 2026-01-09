@@ -6,8 +6,11 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Order.Lemmas
 public import Init.Data.Order.MinMaxOn
+public import Init.Data.Int.OfNat
+import Init.Data.Order.Lemmas
+import Init.Data.List.Lemmas
+import Init.Data.List.Sublist
 
 set_option doc.verso true
 set_option linter.missingDocs true
@@ -54,27 +57,268 @@ public protected def maxOn? [LE β] [DecidableLE β] (f : α → β) (l : List �
   | [] => none
   | x :: xs => some (xs.foldl (init := x) (maxOn f))
 
-@[grind =]
-theorem maxOn_singleton [LE β] [DecidableLE β] {x : α} {f : α → β} :
+@[simp, grind =]
+public theorem maxOn_singleton [LE β] [DecidableLE β] {x : α} {f : α → β} :
     [x].maxOn f (of_decide_eq_false rfl) = x := by
   simp [List.maxOn]
 
-@[grind =]
-theorem argmax_assoc [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β} {x y z : α} :
-    argmax f (argmax f x y) z = argmax f x (argmax f y z) := by
-  grind [argmax]
-
-instance [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β} :
-    Associative (argmax f) where
-  assoc := by apply argmax_assoc
-
-theorem List.argmax_cons
-    [LE β] [DecidableLE β] [IsLinearPreorder β] {x : α} {xs : List α} {f : α → β} :
-    (x :: xs).argmax f (by grind) =
-      if h : xs = [] then x else _root_.argmax f x (xs.argmax f h) := by
-  simp only [argmax]
+public theorem maxOn_cons
+    [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {x : α} {xs : List α} {f : α → β} :
+    (x :: xs).maxOn f (by exact of_decide_eq_false rfl) =
+      if h : xs = [] then x else maxOn f x (xs.maxOn f h) := by
+  simp only [List.maxOn]
   match xs with
   | [] => simp
   | y :: xs => simp [foldl_assoc]
+
+@[grind .]
+theorem maxOn_mem [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {xs : List α}
+    {f : α → β} {h : xs ≠ []} : xs.maxOn f h ∈ xs := by
+  simp only [List.maxOn]
+  match xs with
+  | x :: xs =>
+    fun_induction xs.foldl (init := x) (_root_.maxOn f)
+    · simp
+    · rename_i x y _ ih
+      simp only [ne_eq, reduceCtorEq, not_false_eq_true, mem_cons, forall_const, foldl_cons] at ih ⊢
+      cases ih <;> rename_i heq
+      · cases maxOn_eq_or (f := f) (x := x) (y := y) <;> simp_all
+      · simp [*]
+
+@[grind =>]
+theorem le_apply_maxOn_of_mem [LE β] [DecidableLE β] [Std.IsLinearPreorder β]
+    {xs : List α} {f : α → β} {y : α} (hx : y ∈ xs) :
+    f y ≤ f (xs.maxOn f (List.ne_nil_of_mem hx)) := by
+  have h : xs ≠ [] := List.ne_nil_of_mem hx
+  simp only [List.maxOn]
+  match xs with
+  | x :: xs =>
+    fun_induction xs.foldl (init := x) (_root_.maxOn f) generalizing y
+    · simp only [mem_cons] at hx
+      simp_all [Std.le_refl _]
+    · rename_i x y _ ih
+      simp at ih ⊢
+      rcases mem_cons.mp hx with rfl | hx
+      · exact Std.le_trans left_le_apply_maxOn ih.1
+      · rcases mem_cons.mp hx with rfl | hx
+        · exact Std.le_trans right_le_apply_maxOn ih.1
+        · apply ih.2
+          assumption
+
+protected theorem apply_maxOn_le_iff [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {xs : List α}
+    {f : α → β} (h : xs ≠ []) {b : β} :
+    f (xs.maxOn f h) ≤ b ↔ ∀ x ∈ xs, f x ≤ b := by
+  match xs with
+  | x :: xs =>
+    rw [List.maxOn]
+    induction xs generalizing x
+    · simp
+    · rw [foldl_cons, foldl_assoc, apply_maxOn_le_iff]
+      simp_all
+
+protected theorem le_apply_maxOn_iff [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {xs : List α}
+    {f : α → β} (h : xs ≠ []) {b : β} :
+    b ≤ f (xs.maxOn f h) ↔ ∃ x ∈ xs, b ≤ f x := by
+  apply Iff.intro
+  · intro h
+    match xs with
+    | x :: xs =>
+      rw [List.maxOn] at h
+      induction xs generalizing x
+      · simpa using h
+      · rename_i y ys ih _
+        rw [foldl_cons] at h
+        specialize ih (maxOn f x y) (by simp) h
+        obtain ⟨z, hm, hle⟩ := ih
+        rcases mem_cons.mp hm with rfl | hm
+        · cases maxOn_eq_or (f := f) (x := x) (y := y)
+          · exact ⟨x, by simp_all⟩
+          · exact ⟨y, by simp_all⟩
+        · exact ⟨z, by simp_all⟩
+  · rintro ⟨x, hm, hx⟩
+    exact Std.le_trans hx (le_apply_maxOn_of_mem hm)
+
+protected theorem apply_maxOn_lt_iff
+     [LE β] [DecidableLE β] [LT β] [Std.IsLinearPreorder β] [Std.LawfulOrderLT β]
+    {xs : List α} {f : α → β} (h : xs ≠ []) {b : β} :
+    f (xs.maxOn f h) < b ↔ ∀ x ∈ xs, f x < b := by
+  simpa [Std.not_le] using not_congr <| xs.le_apply_maxOn_iff (f := f) h (b := b)
+
+theorem apply_maxOn_le_apply_maxOn_of_subset [LE β] [DecidableLE β] [Std.IsLinearPreorder β]
+    {xs ys : List α} {f : α → β} (hxs : ys ⊆ xs) (hys : ys ≠ []) :
+    haveI : xs ≠ [] := by intro h; rw [h] at hxs; simp_all [subset_nil]
+    f (ys.maxOn f hys) ≤ f (xs.maxOn f this) := by
+  rw [apply_maxOn_le_iff]
+  intro x hx
+  exact le_apply_maxOn_of_mem (hxs hx)
+
+theorem apply_maxOn_take_le [LE β] [DecidableLE β] [Std.IsLinearPreorder β]
+    {xs : List α} {f : α → β} {n : Nat} (h : xs.take n ≠ []) :
+    f ((xs.take n).maxOn f h) ≤ f (xs.maxOn f (List.ne_nil_of_take_ne_nil h)) := by
+  apply apply_maxOn_le_apply_maxOn_of_subset
+  apply take_subset
+
+@[grind =]
+theorem maxOn_append [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {xs ys : List α}
+    {f : α → β} (hxs : xs ≠ []) (hys : ys ≠ []) :
+    (xs ++ ys).maxOn f (by simp [hxs]) = maxOn f (xs.maxOn f hxs) (ys.maxOn f hys) := by
+  match xs, ys with
+  | x :: xs, y :: ys => simp [List.maxOn, foldl_assoc]
+
+theorem maxOn_eq_head [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {xs : List α}
+    {f : α → β} (h : xs ≠ []) (h' : ∀ x ∈ xs, f x ≤ f (xs.head h)) :
+    xs.maxOn f h = xs.head h := by
+  match xs with
+  | x :: xs =>
+    simp only [List.maxOn]
+    induction xs
+    · simp
+    · simp only [foldl_cons, head_cons]
+      rw [maxOn_eq_left] <;> simp_all
+
+theorem length_take {xs : List α} {n : Nat} :
+    (xs.take n).length = min xs.length n := by
+  induction n generalizing xs
+  · simp
+  · match xs with
+    | [] => simp
+    | x :: xs => simp [*]
+
+theorem getElem_take {xs : List α} {n : Nat} {i : Nat} {h : i < (xs.take n).length} :
+    have : i < xs.length := by
+      simp only [length_take] at h
+      exact Nat.lt_of_lt_of_le h (Nat.min_le_left _ _)
+    (xs.take n)[i] = xs[i] := by
+  induction n generalizing xs i
+  · simp at h
+  · match xs, i with
+    | [], _ | x :: xs, 0 | x :: xs, i + 1 => simp [*]
+
+/--
+{lean}`xs.maxOn f h` comes before any other element in {name}`xs` where {name}`f` attains its
+maximum.
+-/
+theorem maxOn_left_leaning
+    [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {xs : List α} {f : α → β} (h : xs ≠ []) :
+    ∃ j : Fin xs.length, xs[j] = xs.maxOn f h ∧
+      ∀ i : Fin j, ¬ f (xs.maxOn f h) ≤ f xs[i] := by
+  open scoped Classical.Order in
+  simp only [List.maxOn, Fin.getElem_fin, Std.not_le]
+  match xs with
+  | x :: xs =>
+    simp only
+    clear h
+    fun_induction xs.foldl (init := x) (_root_.maxOn f)
+    · exact ⟨⟨0, by simp⟩, by simp⟩
+    · rename_i x y xs ih
+      obtain ⟨j, ih⟩ := ih
+      by_cases hj : j.val = 0
+      · by_cases hm : f y ≤ f x
+        · exact ⟨⟨0, by simp⟩, by
+            simp only [← ih.1, hj]
+            simp [maxOn_eq_left hm]⟩
+        · simp only [Std.not_le] at hm
+          exact ⟨⟨1, by simp⟩, by
+            simp only [← ih.1, hj]
+            simp [maxOn_eq_right_of_lt, hm]⟩
+      · refine ⟨⟨j + 1, by simp⟩, ?_⟩
+        obtain ⟨j, _⟩ := Nat.exists_eq_succ_of_ne_zero hj
+        apply And.intro
+        · simp_all
+        · rintro ⟨i, hi⟩
+          match i with
+          | 0 | 1 =>
+            refine Std.lt_of_le_of_lt ?_ (ih.2 ⟨0, by simp_all⟩)
+            simp [left_le_apply_maxOn, right_le_apply_maxOn]
+          | i + 2 =>
+            refine Std.lt_of_le_of_lt ?_ (ih.2 ⟨i + 1, by simp_all⟩)
+            simp [Std.le_refl]
+
+/-- {lit}`List.maxOn?` returns {name}`none` when applied to an empty list. -/
+@[grind =]
+theorem maxOn?_nil [LE β] [DecidableLE β] {f : α → β} :
+    ([] : List α).maxOn? f = none := by
+  simp [List.maxOn?]
+
+theorem maxOn?_cons_eq_some_maxOn
+    [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f : α → β} {x : α} {xs : List α} :
+    (x :: xs).maxOn? f = some ((x :: xs).maxOn f (fun h => nomatch h)) := by
+  simp [List.maxOn?, List.maxOn]
+
+theorem maxOn?_eq_if
+    [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f : α → β} {xs : List α} :
+  xs.maxOn? f =
+    if h : xs ≠ [] then
+      some (xs.maxOn f h)
+    else
+      none := by
+  fun_cases xs.maxOn? f <;> simp [List.maxOn]
+
+@[grind =]
+theorem maxOn?_cons
+    [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f : α → β} {x : α} {xs : List α} :
+    (x :: xs).maxOn? f = some ((xs.maxOn? f).elim x (_root_.maxOn f x)) := by
+  simp only [List.maxOn?]
+  split <;> simp [foldl_assoc]
+
+theorem isSome_maxOn?_of_ne_nil [LE β] [DecidableLE β] {f : α → β} {xs : List α} (h : xs ≠ []) :
+    (xs.maxOn? f).isSome := by
+  fun_cases xs.maxOn? f
+  · contradiction
+  · simp
+
+theorem maxOn_eq_maxOn?_get [LE β] [DecidableLE β] {f : α → β} {xs : List α} (h : xs ≠ []) :
+    xs.maxOn f h = (xs.maxOn? f).get (isSome_maxOn?_of_ne_nil h) := by
+  fun_cases xs.maxOn? f
+  · contradiction
+  · simp [List.maxOn?, List.maxOn]
+
+theorem maxOn?_eq_some_maxOn [LE β] [DecidableLE β] {f : α → β} {xs : List α} (h : xs ≠ []) :
+    xs.maxOn? f = some (xs.maxOn f h) := by
+  simp [maxOn_eq_maxOn?_get h]
+
+theorem maxOn?_get_eq_maxOn [LE β] [DecidableLE β] {f : α → β} {xs : List α} (h : xs ≠ []) :
+    (xs.maxOn? f).get (isSome_maxOn?_of_ne_nil h) = xs.maxOn f h := by
+  rw [maxOn_eq_maxOn?_get]
+
+@[simp, grind =]
+theorem isSome_maxOn_iff_ne_nil
+    [LE β] [DecidableLE β] {f : α → β} {xs : List α} :
+    (xs.maxOn? f).isSome ↔ xs ≠ [] := by
+  fun_cases xs.maxOn? f <;> simp
+
+theorem maxOn_eq_of_maxOn?_eq_some
+    [LE β] [DecidableLE β] {f : α → β} {xs : List α} {x : α} (h : xs.maxOn? f = some x) :
+    xs.maxOn f (isSome_maxOn_iff_ne_nil.mp (Option.isSome_of_eq_some h)) = x := by
+  have h' := isSome_maxOn_iff_ne_nil.mp (Option.isSome_of_eq_some h)
+  rwa [maxOn?_eq_some_maxOn h', Option.some.injEq] at h
+
+@[grind =>]
+theorem isSome_maxOn?_of_mem
+    [LE β] [DecidableLE β] {f : α → β} {xs : List α} {x : α} (h : x ∈ xs) :
+    (xs.maxOn? f).isSome := by
+  apply isSome_maxOn?_of_ne_nil
+  exact ne_nil_of_mem h
+
+theorem List.le_apply_maxOn?_get_of_mem
+    [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {f : α → β} {xs : List α} {x : α} (h : x ∈ xs) :
+    f x ≤ f ((xs.maxOn? f).get (isSome_maxOn?_of_mem h)) := by
+  rw [maxOn?_get_eq_maxOn (ne_nil_of_mem h)]
+  apply le_apply_maxOn_of_mem h
+
+-- The suggested patterns are not useful because all involve `IsLinearPreorder`.
+grind_pattern List.le_apply_maxOn?_get_of_mem => x ∈ xs, (xs.maxOn? f).get _
+
+theorem List.maxOn?_left_leaning [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {xs : List α} {f : α → β} {x : α}
+    (hx : xs.maxOn? f = some x) :
+    ∃ j : Fin xs.length, xs[j] = x ∧ ∀ i : Fin j, ¬ f x ≤ f xs[i] := by
+  rw [← maxOn_eq_of_maxOn?_eq_some hx]
+  apply List.maxOn_left_leaning
+
+@[grind =]
+theorem List.maxOn?_append [LE β] [DecidableLE β] [Std.IsLinearPreorder β] (xs ys : List α) (f : α → β) :
+    (xs ++ ys).maxOn? f =
+      (xs.maxOn? f).merge (_root_.maxOn f) (ys.maxOn? f) := by
+  by_cases xs = [] <;> by_cases ys = [] <;> simp [*, maxOn?_eq_if, maxOn_append]
 
 end List

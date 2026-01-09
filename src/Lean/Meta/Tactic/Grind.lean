@@ -101,5 +101,7 @@ builtin_initialize registerTraceClass `grind.debug.proveEq
 builtin_initialize registerTraceClass `grind.debug.pushNewFact
 builtin_initialize registerTraceClass `grind.debug.appMap
 builtin_initialize registerTraceClass `grind.debug.ext
+builtin_initialize registerTraceClass `grind.debug.suggestions
+builtin_initialize registerTraceClass `grind.debug.locals
 
 end Lean

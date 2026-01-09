@@ -271,13 +271,13 @@ package or its dependencies. It merely verifies that one is specified.
 "
 
 def helpPack :=
-"Pack build artifacts into a archive for distribution
+"Pack build artifacts into an archive for distribution
 
 USAGE:
   lake pack [<file.tgz>]
 
 Packs the root package's `buildDir` into a gzip tar archive using `tar`.
-If a path for the archive is not specified, creates a archive in the package's
+If a path for the archive is not specified, creates an archive in the package's
 Lake directory (`.lake`) named according to its `buildArchive` setting.
 
 Does NOT build any artifacts. It just packs the existing ones."

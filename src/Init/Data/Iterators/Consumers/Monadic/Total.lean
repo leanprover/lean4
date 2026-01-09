@@ -9,12 +9,19 @@ prelude
 public import Init.Data.Iterators.Basic
 
 set_option doc.verso true
+set_option linter.missingDocs true
 
 public section
 
 namespace Std
 
+/--
+A wrapper around an iterator that provides total consumers. See `IterM.ensureTermination`.
+-/
 structure IterM.Total {α : Type w} (m : Type w → Type w') (β : Type w) where
+  /--
+  The wrapped iterator, which was wrapped by `IterM.ensureTermination`.
+  -/
   it : IterM (α := α) m β
 
 /--

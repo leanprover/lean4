@@ -119,7 +119,7 @@ instance (s : Slice) : Std.Iterator (ForwardSliceSearcher s) Id (SearchStep s) w
       -- **Invariant 1:** we have already covered everything up until `stackPos - needlePos` (exclusive),
       -- with matches and rejections.
       -- **Invariant 2:** `stackPos - needlePos` is a valid position
-      -- **Invariant 3:** the range from from `stackPos - needlePos` to `stackPos` (exclusive) is a
+      -- **Invariant 3:** the range from `stackPos - needlePos` to `stackPos` (exclusive) is a
       -- prefix of the pattern.
       if h₁ : stackPos < s.rawEndPos then
         let stackByte := s.getUTF8Byte stackPos h₁

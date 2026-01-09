@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Lemmas
-// Imports: import all Init.Data.Nat.Bitwise.Basic public import Init.Data.Nat.MinMax public import Init.Data.Nat.Log2 import all Init.Data.Nat.Log2 public import Init.Data.Nat.Power2 public import Init.Data.Nat.Mod import Init.TacticsExtra import Init.BinderPredicates
+// Imports: import all Init.Data.Nat.Bitwise.Basic public import Init.Data.Nat.MinMax public import Init.Data.Nat.Log2 import all Init.Data.Nat.Log2 public import Init.Data.Nat.Power2.Basic public import Init.Data.Nat.Mod import Init.TacticsExtra import Init.BinderPredicates
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -559,7 +559,7 @@ lean_object* initialize_Init_Data_Nat_Bitwise_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_MinMax(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Log2(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Log2(uint8_t builtin);
-lean_object* initialize_Init_Data_Nat_Power2(uint8_t builtin);
+lean_object* initialize_Init_Data_Nat_Power2_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Mod(uint8_t builtin);
 lean_object* initialize_Init_TacticsExtra(uint8_t builtin);
 lean_object* initialize_Init_BinderPredicates(uint8_t builtin);
@@ -580,7 +580,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Log2(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Power2(builtin);
+res = initialize_Init_Data_Nat_Power2_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Mod(builtin);

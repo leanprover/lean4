@@ -125,6 +125,22 @@ instance instDecidableEmpEq (ys : Array α) : Decidable (#[] = ys) :=
   | ⟨[]⟩ => isTrue rfl
   | ⟨_ :: _⟩ => isFalse (fun h => Array.noConfusion rfl (heq_of_eq h) (fun h => List.noConfusion rfl h))
 
+@[inline]
+def instDecidableEqEmpImpl (xs : Array α) : Decidable (xs = #[]) :=
+  decidable_of_iff xs.isEmpty <| by rcases xs with ⟨⟨⟩⟩ <;> simp [Array.isEmpty]
+
+@[inline]
+def instDecidableEmpEqImpl (xs : Array α) : Decidable (#[] = xs) :=
+  decidable_of_iff xs.isEmpty <| by rcases xs with ⟨⟨⟩⟩ <;> simp [Array.isEmpty]
+
+@[csimp]
+theorem instDecidableEqEmp_csimp : @instDecidableEqEmp = @instDecidableEqEmpImpl :=
+  Subsingleton.allEq _ _
+
+@[csimp]
+theorem instDecidableEmpEq_csimp : @instDecidableEmpEq = @instDecidableEmpEqImpl :=
+  Subsingleton.allEq _ _
+
 theorem beq_eq_decide [BEq α] (xs ys : Array α) :
     (xs == ys) = if h : xs.size = ys.size then
       decide (∀ (i : Nat) (h' : i < xs.size), xs[i] == ys[i]'(h ▸ h')) else false := by

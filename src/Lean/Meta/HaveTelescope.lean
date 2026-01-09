@@ -331,7 +331,41 @@ private def simpHaveTelescopeAux (info : HaveTelescopeInfo) (fixed : Array Bool)
         return res
       return { expr, exprType, exprInit := e, exprResult := expr, proof, modified := true }
 
-private def SimpHaveResult.toResult (u : Level) (source : Expr) : SimpHaveResult → MonadSimp.Result
+/-- Configuration for specifying how unused let-declarations are eliminated. -/
+inductive ZetaUnusedMode where
+  | /-- Do not eliminate unused `let`-declarations. -/
+    no
+  | /-- Simplify and eliminate unused `let`-declarations in a single pass. -/
+    singlePass
+  | /-- Simplify and then eliminate unused `let`-declarations. -/
+    twoPasses
+
+/-- Remove unused-let declarations. -/
+def zetaUnused (e : Expr) : MetaM Expr := do
+  letTelescope e fun xs body => do
+    let mut s := collectFVars {} body
+    let mut ys := #[]
+    let mut i := xs.size
+    while i > 0 do
+      i := i - 1
+      let x := xs[i]!
+      let xFVarId := x.fvarId!
+      if s.fvarSet.contains xFVarId then
+        let decl ← xFVarId.getDecl
+        s  := collectFVars s decl.type
+        s  := collectFVars s (decl.value (allowNondep := true))
+        ys := ys.push x
+    if ys.size == xs.size then
+      return e
+    else
+      mkLetFVars (generalizeNondepLet := false) ys.reverse body
+
+/--
+Constructs the final result. If `keepUnused` is `false`, it eliminates unused let-declarations from
+`exprResult` using `zetaUnused` above. This flag is used when we set `ZetaUnusedMode.twoPasses`.
+-/
+private def SimpHaveResult.toResult (u : Level) (source : Expr) (result : SimpHaveResult) (keepUnused : Bool) : MetaM MonadSimp.Result := do
+  match result with
   | { expr, exprType, exprInit, exprResult, proof, modified, .. } =>
     if modified then
       let proof :=
@@ -342,9 +376,25 @@ private def SimpHaveResult.toResult (u : Level) (source : Expr) : SimpHaveResult
             -- to construct the `SimpHaveResult`.
             -- If the kernel were to support `have` forms of the congruence lemmas this would not be necessary.
             mkExpectedPropHint (expectedProp := mkApp3 (mkConst ``Eq [u]) exprType exprInit expr) proof
-      .step exprResult proof
+      if keepUnused then
+        return .step exprResult proof
+      else
+        let exprResult' ← zetaUnused exprResult
+        if exprResult' == exprResult then
+          return .step exprResult proof
+        else
+          let proof := mkApp6 (mkConst ``Eq.trans [u]) exprType source exprResult exprResult' proof
+            (mkApp2 (mkConst ``Eq.refl [u]) exprType exprResult')
+          return .step exprResult' proof
+    else if keepUnused then
+      return .rfl
     else
-      .rfl
+      let exprResult ← zetaUnused source
+      if exprResult == source then
+        return .rfl
+      else
+        let proof := mkApp2 (mkConst ``Eq.refl [u]) exprType exprResult
+        return .step exprResult proof
 
 /--
 Routine for simplifying `have` telescopes. Used by `simpLet`.
@@ -401,11 +451,11 @@ when we convert this back into `have` form.
 In the base case, we include an optimization to avoid unnecessary zeta/beta reductions,
 by detecting a `simpHaveTelescope` proofs and removing the type hint.
 -/
-def simpHaveTelescope (e : Expr) (zetaUnused := true) : m MonadSimp.Result := do
+def simpHaveTelescope (e : Expr) (zetaUnusedMode : ZetaUnusedMode := .twoPasses) : m MonadSimp.Result := do
   let info ← getHaveTelescopeInfo e
   assert! !info.haveInfo.isEmpty
-  let (fixed, used) ← info.computeFixedUsed (keepUnused := !zetaUnused)
+  let (fixed, used) ← info.computeFixedUsed (keepUnused := zetaUnusedMode matches .no | .twoPasses)
   let r ← simpHaveTelescopeAux info fixed used e 0 (Array.mkEmpty info.haveInfo.size)
-  return r.toResult info.level e
+  r.toResult info.level e (keepUnused := zetaUnusedMode matches .no | .singlePass)
 
 end Lean.Meta

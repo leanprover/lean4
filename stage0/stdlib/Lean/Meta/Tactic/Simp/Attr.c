@@ -5620,7 +5620,7 @@ x_2 = 1;
 x_3 = 0;
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Meta_Simp_Context_mkDefault___redArg___closed__0;
-x_6 = lean_alloc_ctor(0, 2, 27);
+x_6 = lean_alloc_ctor(0, 2, 28);
 lean_ctor_set(x_6, 0, x_5);
 lean_ctor_set(x_6, 1, x_4);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2, x_3);
@@ -5650,6 +5650,7 @@ lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 23, x_2);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 24, x_2);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 25, x_2);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 26, x_3);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 27, x_3);
 return x_6;
 }
 }

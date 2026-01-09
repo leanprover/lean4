@@ -182,6 +182,7 @@ open LibrarySuggestions in
 def elabGrindSuggestions
     (params : Grind.Params) (suggestions : Array Suggestion := #[]) : MetaM Grind.Params := do
   let mut params := params
+  let mut added : Array Name := #[]
   for p in suggestions do
     let attr ← match p.flag with
     | some flag => parseModifier flag
@@ -190,6 +191,7 @@ def elabGrindSuggestions
     | .ematch kind =>
       try
         params ← addEMatchTheorem params (mkIdent p.name) p.name kind false (warn := false)
+        added := added.push p.name
       catch _ => pure () -- Don't worry if library suggestions gave bad theorems.
     | _ =>
       -- We could actually support arbitrary grind modifiers,
@@ -197,26 +199,40 @@ def elabGrindSuggestions
       -- but this would require a larger refactor.
       -- Let's only do this if there is a prospect of a library suggestion engine supporting this.
       throwError "unexpected modifier {p.flag}"
+  unless added.isEmpty do
+    trace[grind.debug.suggestions] "{added}"
   return params
 
-open LibrarySuggestions in
-def elabGrindParamsAndSuggestions
-    (params : Grind.Params)
-    (ps : TSyntaxArray ``Parser.Tactic.grindParam)
-    (suggestions : Array Suggestion := #[])
-    (only : Bool) (lax : Bool := false) : TermElabM Grind.Params := do
-  let params ← elabGrindParams params ps (lax := lax) (only := only)
-  elabGrindSuggestions params suggestions
+/-- Add all definitions from the current file. -/
+def elabGrindLocals (params : Grind.Params) : MetaM Grind.Params := do
+  let env ← getEnv
+  let mut params := params
+  let mut added : Array Name := #[]
+  for (name, ci) in env.constants.map₂.toList do
+    -- Filter similar to LibrarySuggestions.isDeniedPremise (but inlined to avoid dependency)
+    -- Skip internal details, but allow private names (which are accessible from current module)
+    if name.isInternalDetail && !isPrivateName name then continue
+    if (← Meta.isInstance name) then continue
+    match ci with
+    | .defnInfo _ =>
+      try
+        params ← addEMatchTheorem params (mkIdent name) name (.default false) false (warn := false)
+        added := added.push name
+      catch _ => pure ()
+    | _ => continue
+  unless added.isEmpty do
+    trace[grind.debug.locals] "{added}"
+  return params
 
 def mkGrindParams
     (config : Grind.Config) (only : Bool) (ps : TSyntaxArray ``Parser.Tactic.grindParam) (mvarId : MVarId) :
     TermElabM Grind.Params := do
   let params ← if only then Grind.mkOnlyParams config else Grind.mkDefaultParams config
-  let suggestions ← if config.suggestions then
-    LibrarySuggestions.select mvarId { caller := some "grind" }
-  else
-    pure #[]
-  let mut params ← elabGrindParamsAndSuggestions params ps suggestions (only := only) (lax := config.lax)
+  let mut params ← elabGrindParams params ps (lax := config.lax) (only := only)
+  if config.suggestions then
+    params ← elabGrindSuggestions params (← LibrarySuggestions.select mvarId { caller := some "grind" })
+  if config.locals then
+    params ← elabGrindLocals params
   trace[grind.debug.inj] "{params.extensions[0]!.inj.getOrigins.map (·.pp)}"
   if params.anchorRefs?.isSome then
     /-
@@ -289,17 +305,19 @@ def setGrindParams (stx : TSyntax `tactic) (params : Array Syntax) : TSyntax `ta
 def getGrindParams (stx : TSyntax `tactic) : Array Syntax :=
   stx.raw[grindParamsPos][1].getSepArgs
 
-/-- Filter out `+suggestions` from the config syntax -/
-def filterSuggestionsFromGrindConfig (config : TSyntax ``Lean.Parser.Tactic.optConfig) :
+/-- Filter out `+suggestions` and `+locals` from the config syntax -/
+def filterSuggestionsAndLocalsFromGrindConfig (config : TSyntax ``Lean.Parser.Tactic.optConfig) :
     TSyntax ``Lean.Parser.Tactic.optConfig :=
   let configItems := config.raw.getArgs
   let filteredItems := configItems.filter fun item =>
-    -- Keep all items except +suggestions
+    -- Keep all items except +suggestions and +locals
     -- Structure: null node -> configItem -> posConfigItem -> ["+", ident]
     match item[0]? with
     | some configItem => match configItem[0]? with
       | some posConfigItem => match posConfigItem[1]? with
-        | some ident => !(posConfigItem.getKind == ``Lean.Parser.Tactic.posConfigItem && ident.getId == `suggestions)
+        | some ident =>
+          let id := ident.getId
+          !(posConfigItem.getKind == ``Lean.Parser.Tactic.posConfigItem && (id == `suggestions || id == `locals))
         | none => true
       | none => true
     | none => true
@@ -345,7 +363,7 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
       let finish ← Grind.Action.mkFinish
       let goal :: _ ← Grind.getGoals
         | -- Goal was closed during initialization
-          let configStx' := filterSuggestionsFromGrindConfig configStx
+          let configStx' := filterSuggestionsAndLocalsFromGrindConfig configStx
           if termParamStxs.isEmpty then
             let tac ← `(tactic| grind $configStx':optConfig only)
             return #[tac]
@@ -357,7 +375,7 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
         -- let saved ← saveState
         match (← finish.run goal) with
         | .closed seq =>
-          let configStx' := filterSuggestionsFromGrindConfig configStx
+          let configStx' := filterSuggestionsAndLocalsFromGrindConfig configStx
           let tacs ← Grind.mkGrindOnlyTactics configStx' seq termParamStxs
           let seq := Grind.Action.mkGrindSeq seq
           let tac ← `(tactic| grind $configStx':optConfig => $seq:grindSeq)

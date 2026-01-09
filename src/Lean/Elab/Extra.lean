@@ -573,11 +573,16 @@ def elabDefaultOrNonempty : TermElab :=  fun stx expectedType? => do
   | some expectedType =>
     try
       mkDefault expectedType
-    catch ex => try
+    catch _ => try
       mkOfNonempty expectedType
     catch _ =>
       if stx[1].isNone then
-        throw ex
+        throwError "\
+          failed to synthesize '{.ofConstName ``Inhabited}' or '{.ofConstName ``Nonempty}' instance for\
+          {indentExpr expectedType}\n\
+          \n\
+          If this type is defined using the 'structure' or 'inductive' command, \
+          you can try adding a 'deriving Nonempty' clause to it."
       else
         -- It is in the context of an `unsafe` constant. We can use sorry instead.
         -- Another option is to make a recursive application since it is unsafe.

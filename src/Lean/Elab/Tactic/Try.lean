@@ -598,8 +598,8 @@ private def evalSuggestSimpAllTrace : TryTactic := fun tac => do
         | some mvarId => replaceMainGoal [mvarId]
         trace[try.debug] "`simp_all` succeeded"
         if (← read).config.only then
-          -- Remove +suggestions from config for the output (similar to SimpTrace.lean)
-          let filteredCfg ← filterSuggestionsFromSimpConfig configStx
+          -- Remove +suggestions and +locals from config for the output (similar to SimpTrace.lean)
+          let filteredCfg ← filterSuggestionsAndLocalsFromSimpConfig configStx
           -- Convert simp_all? to simp_all for mkSimpCallStx (similar to simpTraceToSimp)
           let tacWithoutTrace ← `(tactic| simp_all $filteredCfg:optConfig $[only%$_only]? $[[$_args,*]]?)
           let tac' ← mkSimpCallStx tacWithoutTrace stats.usedTheorems
@@ -821,13 +821,12 @@ private def addSuggestions (tk : Syntax) (s : Array Tactic.TryThis.Suggestion) :
     Tactic.TryThis.addSuggestions tk (s.map fun stx => stx) (origSpan? := (← getRef))
 
 def evalAndSuggest (tk : Syntax) (tac : TSyntax `tactic) (originalMaxHeartbeats : Nat) (config : Try.Config := {}) : TacticM Unit := do
-  let initialLog ← Core.getMessageLog
-  let tac' ← try
-    evalSuggest tac |>.run { terminal := true, root := tac, config, originalMaxHeartbeats }
-  catch _ =>
-    throwEvalAndSuggestFailed config
-  -- Restore message log to suppress "Try this" messages from intermediate tactic executions
-  Core.setMessageLog initialLog
+  -- Suppress "Try this" messages from intermediate tactic executions
+  let tac' ← withSuppressedMessages do
+    try
+      evalSuggest tac |>.run { terminal := true, root := tac, config, originalMaxHeartbeats }
+    catch _ =>
+      throwEvalAndSuggestFailed config
   let s := (getSuggestions tac')[*...config.max].toArray
   if s.isEmpty then
     throwEvalAndSuggestFailed config
@@ -985,13 +984,12 @@ private def wrapSuggestionWithBy (sugg : Tactic.TryThis.Suggestion) : TacticM Ta
 
 /-- Version of `evalAndSuggest` that wraps tactic suggestions with `by` for term mode. -/
 private def evalAndSuggestWithBy (tk : Syntax) (tac : TSyntax `tactic) (originalMaxHeartbeats : Nat) (config : Try.Config) : TacticM Unit := do
-  let initialLog ← Core.getMessageLog
-  let tac' ← try
-    evalSuggest tac |>.run { terminal := true, root := tac, config, originalMaxHeartbeats }
-  catch _ =>
-    throwEvalAndSuggestFailed config
-  -- Restore message log to suppress "Try this" messages from intermediate tactic executions
-  Core.setMessageLog initialLog
+  -- Suppress "Try this" messages from intermediate tactic executions
+  let tac' ← withSuppressedMessages do
+    try
+      evalSuggest tac |>.run { terminal := true, root := tac, config, originalMaxHeartbeats }
+    catch _ =>
+      throwEvalAndSuggestFailed config
   let suggestions := (getSuggestions tac')[*...config.max].toArray
   if suggestions.isEmpty then
     throwEvalAndSuggestFailed config

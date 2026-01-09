@@ -115,7 +115,7 @@ def isGround [TraverseFVar α] (e : α) : SpecializeM Bool := do
       match ← findFunDecl? fnFVarId with
       -- This ascription to `Bool` is required to avoid this being inferred as `Prop`,
       -- even with a type specified on the `let` binding.
-      | some { params, .. } => pure ((args.size < params.size) : Bool)
+      | some (.mk (params := params) ..) => pure ((args.size < params.size) : Bool)
       | none => pure false
     | _ => pure false
   let fvarId := decl.fvarId

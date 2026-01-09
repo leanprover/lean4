@@ -150,7 +150,7 @@ def parent (p : FilePath) : Option FilePath :=
 /--
 Extracts the last element of a path if it is a file or directory name.
 
-Returns `none ` if the last entry is a special name (such as `.` or `..`) or if the path is the root
+Returns `none` if the last entry is a special name (such as `.` or `..`) or if the path is the root
 directory.
 -/
 def fileName (p : FilePath) : Option String :=

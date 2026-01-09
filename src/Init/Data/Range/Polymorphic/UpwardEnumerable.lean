@@ -246,8 +246,12 @@ class InfinitelyUpwardEnumerable (α : Type u) [UpwardEnumerable α] where
 This propositional typeclass ensures that `UpwardEnumerable.succ?` is injective.
 -/
 class LinearlyUpwardEnumerable (α : Type u) [UpwardEnumerable α] where
+  /-- The implementation of `UpwardEnumerable.succ?` for `α` is injective. -/
   eq_of_succ?_eq : ∀ a b : α, UpwardEnumerable.succ? a = UpwardEnumerable.succ? b → a = b
 
+/--
+If a type is infinitely upwardly enumerable, then every element has a successor.
+-/
 theorem UpwardEnumerable.isSome_succ? {α : Type u} [UpwardEnumerable α]
     [InfinitelyUpwardEnumerable α] {a : α} : (succ? a).isSome :=
   InfinitelyUpwardEnumerable.isSome_succ? a

@@ -4175,7 +4175,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_withGTransparency___redArg___lam__1(l
 _start:
 {
 uint8_t x_5; uint8_t x_14; 
-x_14 = lean_ctor_get_uint8(x_4, sizeof(void*)*10 + 29);
+x_14 = lean_ctor_get_uint8(x_4, sizeof(void*)*10 + 30);
 if (x_14 == 0)
 {
 uint8_t x_15; 
@@ -24958,7 +24958,7 @@ x_107 = l_Lean_Meta_Grind_getConfig___redArg(x_7);
 x_108 = lean_ctor_get(x_107, 0);
 lean_inc(x_108);
 lean_dec_ref(x_107);
-x_184 = lean_ctor_get_uint8(x_108, sizeof(void*)*10 + 29);
+x_184 = lean_ctor_get_uint8(x_108, sizeof(void*)*10 + 30);
 lean_dec(x_108);
 if (x_184 == 0)
 {
@@ -28833,7 +28833,7 @@ x_216 = l_Lean_Meta_Grind_getConfig___redArg(x_208);
 x_217 = lean_ctor_get(x_216, 0);
 lean_inc(x_217);
 lean_dec_ref(x_216);
-x_218 = lean_ctor_get_uint8(x_217, sizeof(void*)*10 + 29);
+x_218 = lean_ctor_get_uint8(x_217, sizeof(void*)*10 + 30);
 lean_dec(x_217);
 if (x_218 == 0)
 {
@@ -52302,12 +52302,12 @@ if (lean_is_exclusive(x_104)) {
  lean_dec_ref(x_104);
  x_106 = lean_box(0);
 }
-x_137 = lean_ctor_get_uint8(x_103, sizeof(void*)*10 + 8);
+x_137 = lean_ctor_get_uint8(x_103, sizeof(void*)*10 + 9);
 lean_dec(x_103);
 if (x_137 == 0)
 {
 uint8_t x_138; 
-x_138 = lean_ctor_get_uint8(x_105, sizeof(void*)*10 + 9);
+x_138 = lean_ctor_get_uint8(x_105, sizeof(void*)*10 + 10);
 lean_dec(x_105);
 if (x_138 == 0)
 {
@@ -52484,12 +52484,12 @@ if (lean_is_exclusive(x_141)) {
  lean_dec_ref(x_141);
  x_143 = lean_box(0);
 }
-x_174 = lean_ctor_get_uint8(x_140, sizeof(void*)*10 + 8);
+x_174 = lean_ctor_get_uint8(x_140, sizeof(void*)*10 + 9);
 lean_dec(x_140);
 if (x_174 == 0)
 {
 uint8_t x_175; 
-x_175 = lean_ctor_get_uint8(x_142, sizeof(void*)*10 + 9);
+x_175 = lean_ctor_get_uint8(x_142, sizeof(void*)*10 + 10);
 lean_dec(x_142);
 if (x_175 == 0)
 {
@@ -52871,7 +52871,7 @@ x_79 = l_Lean_Meta_Grind_getConfig___redArg(x_4);
 x_80 = lean_ctor_get(x_79, 0);
 lean_inc(x_80);
 lean_dec_ref(x_79);
-x_81 = lean_ctor_get_uint8(x_80, sizeof(void*)*10 + 9);
+x_81 = lean_ctor_get_uint8(x_80, sizeof(void*)*10 + 10);
 lean_dec(x_80);
 if (x_81 == 0)
 {

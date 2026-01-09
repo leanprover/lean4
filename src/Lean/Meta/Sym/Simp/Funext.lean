@@ -7,7 +7,10 @@ module
 prelude
 public import Lean.Meta.Basic
 import Lean.Meta.InferType
+import Lean.Meta.Closure
+import Lean.Meta.AppBuilder
 namespace Lean.Meta.Sym.Simp
+
 /--
 Given `xs` containing free variables
 `(x₁ : α₁) (x₂ : α₂[x₁]) ... (xₙ : αₙ[x₁, ..., x_{n-1}])`
@@ -24,31 +27,67 @@ This auxiliary theorem is used by the simplifier when visiting lambda expression
 public def mkFunextFor (xs : Array Expr) (β : Expr) : MetaM Expr := do
   let type ← mkForallFVars xs β
   let v ← getLevel β
+  let w ← getLevel type
   withLocalDeclD `f type fun f =>
   withLocalDeclD `g type fun g => do
-  let lhs := mkAppN f xs
-  let rhs := mkAppN g xs
-  let p := mkApp3 (mkConst ``Eq [v]) β lhs rhs
-  let p ← mkForallFVars xs p
-  withLocalDeclD `h p fun h => do
-  let mut result := mkAppN h xs |>.abstract xs
-  let mut i := xs.size
-  let mut β := β.abstract xs
-  let mut v := v
-  let mut f := mkAppN f xs |>.abstract xs
-  let mut g := mkAppN g xs |>.abstract xs
-  while i > 0 do
-    i := i - 1
-    let x := xs[i]!
-    let α_i ← inferType x
-    let u_i ← getLevel α_i
-    let α_i := α_i.abstractRange i xs
-    f := f.appFn!.lowerLooseBVars 1 1
-    g := g.appFn!.lowerLooseBVars 1 1
-    result := mkLambda `x default α_i result
-    result := mkApp5 (mkConst ``funext [u_i, v]) α_i (mkLambda `x .default α_i β) f g result
-    β := mkForall `x .default α_i β
-    v := mkLevelIMax' u_i v
-  mkLambdaFVars #[f, g, h] result
+  let eq := mkApp3 (mkConst ``Eq [v]) β (mkAppN f xs) (mkAppN g xs)
+  withLocalDeclD `h (← mkForallFVars xs eq) fun h => do
+  let eqv ← mkLambdaFVars #[f, g] (← mkForallFVars xs eq)
+  let quotEqv := mkApp2 (mkConst ``Quot [w]) type eqv
+  withLocalDeclD `f' quotEqv fun f' => do
+  let lift := mkApp6 (mkConst ``Quot.lift [w, v]) type eqv β
+    (mkLambda `f .default type (mkAppN (.bvar 0) xs))
+    (mkLambda `f .default type (mkLambda `g .default type (mkLambda `h .default (mkApp2 eqv (.bvar 1) (.bvar 0)) (mkAppN (.bvar 0) xs))))
+    f'
+  let extfunAppVal ← mkLambdaFVars (#[f'] ++ xs) lift
+  let extfunApp := extfunAppVal
+  let quotSound := mkApp5 (mkConst ``Quot.sound [w]) type eqv f g h
+  let Quot_mk_f := mkApp3 (mkConst ``Quot.mk [w]) type eqv f
+  let Quot_mk_g := mkApp3 (mkConst ``Quot.mk [w]) type eqv g
+  let result := mkApp6 (mkConst ``congrArg [w, w]) quotEqv type Quot_mk_f Quot_mk_g extfunApp quotSound
+  let result ← mkLambdaFVars #[f, g, h] result
+  return result
+
+/--
+Given `xs` containing free variables
+`(x₁ : α₁) (x₂ : α₂[x₁]) ... (xₙ : αₙ[x₁, ..., x_{n-1}])`,
+creates the custom forall congruence theorem
+```
+∀ (p q : (x₁ : α₁) → (x₂ : α₂[x₁]) → ... → (xₙ : αₙ[x₁, ..., x_{n-1}]) → Prop)
+  (h : ∀ x₁ ... xₙ, p x₁ ... xₙ = q x₁ ... xₙ),
+  (∀ x₁ ... xₙ, p x₁ ... xₙ) = (∀ x₁ ... xₙ, q x₁ ... xₙ)
+```
+The theorem has three arguments `p`, `q`, and `h`.
+This auxiliary theorem is used by the simplifier when visiting forall expressions.
+The proof uses the approach used in `mkFunextFor` followed by an `Eq.ndrec`.
+-/
+public def mkForallCongrFor (xs : Array Expr) : MetaM Expr := do
+  let prop := mkSort 0
+  let type ← mkForallFVars xs prop
+  let w ← getLevel type
+  withLocalDeclD `p type fun p =>
+  withLocalDeclD `q type fun q => do
+  let eq := mkApp3 (mkConst ``Eq [1]) prop (mkAppN p xs) (mkAppN q xs)
+  withLocalDeclD `h (← mkForallFVars xs eq) fun h => do
+  let eqv ← mkLambdaFVars #[p, q] (← mkForallFVars xs eq)
+  let quotEqv := mkApp2 (mkConst ``Quot [w]) type eqv
+  withLocalDeclD `p' quotEqv fun p' => do
+  let lift := mkApp6 (mkConst ``Quot.lift [w, 1]) type eqv prop
+    (mkLambda `p .default type (mkAppN (.bvar 0) xs))
+    (mkLambda `p .default type (mkLambda `q .default type (mkLambda `h .default (mkApp2 eqv (.bvar 1) (.bvar 0)) (mkAppN (.bvar 0) xs))))
+    p'
+  let extfunAppVal ← mkLambdaFVars (#[p'] ++ xs) lift
+  let extfunApp := extfunAppVal
+  let quotSound := mkApp5 (mkConst ``Quot.sound [w]) type eqv p q h
+  let Quot_mk_p := mkApp3 (mkConst ``Quot.mk [w]) type eqv p
+  let Quot_mk_q := mkApp3 (mkConst ``Quot.mk [w]) type eqv q
+  let p_eq_q := mkApp6 (mkConst ``congrArg [w, w]) quotEqv type Quot_mk_p Quot_mk_q extfunApp quotSound
+  let lhs ← mkForallFVars xs (mkAppN p xs)
+  let rhs ← mkForallFVars xs (mkAppN q xs)
+  let motive ← mkLambdaFVars #[q] (mkApp3 (mkConst ``Eq [1]) prop lhs rhs)
+  let rfl := mkApp2 (mkConst ``Eq.refl [1]) prop lhs
+  let result := mkApp6 (mkConst ``Eq.ndrec [0, w]) type p motive rfl q p_eq_q
+  let result ← mkLambdaFVars #[p, q, h] result
+  return result
 
 end Lean.Meta.Sym.Simp

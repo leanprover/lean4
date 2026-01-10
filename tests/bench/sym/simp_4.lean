@@ -7,6 +7,8 @@ namespace SimpBench
 ## `SymM` Simplifier benchmarks
 -/
 
+def implies (p q : Prop) := p → q
+
 def getProofSize (r : Sym.Simp.Result) : MetaM Nat := do
   match r with
   | .rfl _ => return 0
@@ -75,23 +77,20 @@ def mkForallPrefix (n : Nat) (k : Array Expr → MetaM Expr) : MetaM Expr := do
       go n (xs.push x)
   go n #[]
 
-def mkForallBench (n : Nat) : MetaM Expr :=
+def mkForallBench (n : Nat) (useImplies : Bool) : MetaM Expr :=
   mkForallPrefix n fun xs => do
     let rec go (n : Nat) (e : Expr) : MetaM Expr := do
       match n with
       | 0 => return e
       | n+1 =>
-        let p₁ := mkNatEq xs[n]! (mkNatAdd (mkNatLit 0) xs[n]!)
-        let p₂ := mkNatEq (mkNatAdd (mkNatLit 0) xs[n]!) xs[n]!
-        let q := mkNatEq (mkNatLit 1) xs[n]!
-        if n % 2 == 0 then
-          go n (← mkArrow p₁ (← mkArrow q e))
+        if useImplies then
+          go n (mkApp2 (mkConst ``implies) (mkNatEq xs[n]! (mkNatAdd (mkNatLit 0) xs[n]!)) e)
         else
-          go n (← mkArrow (← mkArrow p₁ p₂) e)
+          go n (← mkArrow (mkNatEq xs[n]! (mkNatAdd (mkNatLit 0) xs[n]!)) e)
     go n (mkConst ``True)
 
-def benchForall (n : Nat) (check := false) : MetaM Unit := do
-  let e ← mkForallBench n
+def benchForall (n : Nat) (useImplies : Bool) (check := false) : MetaM Unit := do
+  let e ← mkForallBench n useImplies
   benchSimp s!"forall_{n}" e check
 
 set_option maxRecDepth 100000
@@ -101,16 +100,19 @@ def runAllBenchmarks : MetaM Unit := do
   IO.println "=== Simplifier Forall Telescope Stress Tests ==="
   IO.println ""
 
-  benchForall 600 false
-
-  if true then return ()
-
   IO.println ""
-  IO.println "--- Benchmark 1: Forall Telescope block ---"
-  ppExample (← mkForallBench 10)
+  IO.println "--- Benchmark 1: Forall Telescope block using arrows in the body ---"
+  ppExample (← mkForallBench 5 false)
 
   for n in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 300, 400] do
-    benchForall n (n < 500)
+    benchForall n false (n < 500)
+
+  IO.println ""
+  IO.println "--- Benchmark 1: Forall Telescope block using `implies` in the body ---"
+  ppExample (← mkForallBench 5 true)
+
+  for n in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 300, 400] do
+    benchForall n true (n < 500)
 
 #eval runAllBenchmarks
 

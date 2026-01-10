@@ -6432,7 +6432,7 @@ theorem cpopNatRec_le {x : BitVec w} (n : Nat) :
   · case succ n ihn =>
     have : (x.getLsbD n).toNat ≤ 1 := by cases x.getLsbD n <;> simp
     specialize ihn (acc := acc + (x.getLsbD n).toNat)
-    simp [cpopNatRec_succ]
+    simp
     omega
 
 @[simp]

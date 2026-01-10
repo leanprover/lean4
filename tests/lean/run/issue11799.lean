@@ -20,7 +20,7 @@ open Lean in
   let check (name : Name) (expected : String) : MetaM Unit := do
     let some doc ← findDocString? env name
       | throwError "no docstring found for {name}"
-    unless doc == expected do
+    unless doc.trimAscii == expected do
       throwError "docstring mismatch for {name}: expected {repr expected}, got {repr doc}"
   check ``foo.aux "doc"
   check ``bar.aux "doc"

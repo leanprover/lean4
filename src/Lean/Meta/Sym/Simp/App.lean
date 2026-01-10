@@ -40,7 +40,7 @@ inference on proof terms, which can be arbitrarily complex, and often destroys s
 Helper function for constructing a congruence proof using `congrFun'`, `congrArg`, `congr`.
 For the dependent case, use `mkCongrFun`
 -/
-def mkCongr (e : Expr) (f a : Expr) (fr : Result) (ar : Result) (_ : e = .app f a) : SymM Result := do
+public def mkCongr (e : Expr) (f a : Expr) (fr : Result) (ar : Result) (_ : e = .app f a) : SymM Result := do
   let mkCongrPrefix (declName : Name) : SymM Expr := do
     let α ← inferType a
     let u ← getLevel α
@@ -146,7 +146,7 @@ def congrThm (_e : Expr) (_ : CongrTheorem) : SimpM Result := do
 Main entry point for simplifying function application arguments.
 Dispatches to the appropriate strategy based on the function's `CongrInfo`.
 -/
-public def congrArgs (e : Expr) : SimpM Result := do
+public def simpAppArgs (e : Expr) : SimpM Result := do
   let f := e.getAppFn
   match (← getCongrInfo f) with
   | .none => return .rfl

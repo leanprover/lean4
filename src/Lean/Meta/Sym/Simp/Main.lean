@@ -12,7 +12,7 @@ import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.Result
 import Lean.Meta.Sym.Simp.Simproc
-import Lean.Meta.Sym.Simp.Congr
+import Lean.Meta.Sym.Simp.App
 import Lean.Meta.Sym.Simp.Funext
 namespace Lean.Meta.Sym.Simp
 open Internal
@@ -100,9 +100,6 @@ def simpLet (e : Expr) : SimpM Result := do
     | .rfl => return .rfl
     | .step e' h => return .step (← shareCommon e') h
 
-def simpApp (e : Expr) : SimpM Result := do
-  congrArgs e
-
 def simpStep : Simproc := fun e => do
   match e with
   | .lit _ | .sort _ | .bvar _ | .const .. | .fvar _  | .mvar _ => return .rfl
@@ -116,7 +113,7 @@ def simpStep : Simproc := fun e => do
   | .lam .. => simpLambda e
   | .forallE .. => simpForall e
   | .letE .. => simpLet e
-  | .app .. => simpApp e
+  | .app .. => simpAppArgs e
 
 abbrev cacheResult (e : Expr) (r : Result) : SimpM Result := do
   modify fun s => { s with cache := s.cache.insert { expr := e } r }

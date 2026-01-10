@@ -7,6 +7,7 @@ module
 prelude
 import Init.Grind.Lint
 import Lean.Elab.Tactic.Grind.Lint
+import Std
 
 -- We allow these as grind lemmas even though they triggers >20 further instantiations.
 -- See tests/lean/run/grind_lint_*.lean for more details.
@@ -19,8 +20,15 @@ import Lean.Elab.Tactic.Grind.Lint
 #grind_lint skip List.getLast_attach
 #grind_lint skip List.getLast_attachWith
 #grind_lint skip List.head_attachWith
+#grind_lint skip Array.back_singleton
 #grind_lint skip Array.count_singleton
 #grind_lint skip Array.foldl_empty
 #grind_lint skip Array.foldr_empty
+#grind_lint skip Array.getElem_zero_filter
+#grind_lint skip Array.getElem_zero_filterMap
+#grind_lint skip Std.ExtHashMap.getElem_filterMap'
+#grind_lint skip Std.ExtTreeMap.getElem_filterMap'
+#grind_lint skip Std.HashMap.getElem_filterMap'
+#grind_lint skip Std.TreeMap.getElem_filterMap'
 
 #grind_lint skip suffix sizeOf_spec

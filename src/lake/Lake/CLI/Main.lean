@@ -786,7 +786,7 @@ protected def shake : CliM PUnit := do
         error "there are out of date oleans; run `lake build` or fetch them from a cache first"
     -- Run shake with workspace search paths
     Lean.searchPathRef.set ws.augmentedLeanPath
-    let exitCode ← Shake.run' args h ws.augmentedLeanSrcPath
+    let exitCode ← Shake.run args h ws.augmentedLeanSrcPath
     if exitCode != 0 then
       exit exitCode
   else

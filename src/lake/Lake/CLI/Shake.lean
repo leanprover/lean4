@@ -622,9 +622,9 @@ local instance : Ord Import where
 /--
 Run the shake analysis with the given arguments.
 
-Assumes Lean's path has already been properly configured.
+Assumes Lean's search path has already been properly configured.
 -/
-public def run' (args : Args) (h : 0 < args.mods.size)
+public def run (args : Args) (h : 0 < args.mods.size)
     (srcSearchPath : SearchPath := {}) : IO UInt32 := do
 
   -- the list of root modules
@@ -688,10 +688,7 @@ public def run' (args : Args) (h : 0 < args.mods.size)
     let mut seen : Std.HashSet Import := {}
     for stx in imports do
       let mod := decodeImport stx
-      -- Compare by module name only, ignoring isExported which may differ between
-      -- olean analysis and source file parsing
-      let shouldRemove := remove.any fun r => r.module == mod.module && r.isMeta == mod.isMeta
-      if shouldRemove || seen.contains mod then
+      if remove.contains mod || seen.contains mod then
         out := out ++ text.extract pos (text.pos! stx.raw.getPos?.get!)
         -- We use the end position of the syntax, but include whitespace up to the first newline
         pos := text.pos! stx.raw.getTailPos?.get! |>.find '\n' |>.next!
@@ -713,24 +710,3 @@ public def run' (args : Args) (h : 0 < args.mods.size)
   else
     println! "No edits required."
   return 0
-
-/-- Run the shake analysis with the given arguments. -/
-public def run (args : Args)
-    (oleanSearchPath : SearchPath := {}) (srcSearchPath : SearchPath := {}) : IO UInt32 := do
-  -- Initialize search paths: use provided paths or fall back to environment
-  if oleanSearchPath.isEmpty then
-    initSearchPath (← findSysroot)
-  else
-    searchPathRef.set oleanSearchPath
-  let srcSearchPath ← if srcSearchPath.isEmpty then getSrcSearchPath else pure srcSearchPath
-  -- Ensure module oleans are up-to-date
-  if !args.force then
-    if (← IO.Process.output { cmd := "lake", args := #["build", "--no-build"] }).exitCode != 0 then
-      IO.println "There are out of date oleans. Run `lake build` or fetch them from a cache first."
-      return 1
-  -- Run shake
-  if h : 0 < args.mods.size then
-    run' args h srcSearchPath
-  else
-    println! "No modules specified."
-    return 1

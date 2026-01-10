@@ -3,8 +3,6 @@ source ../common.sh
 
 ./clean.sh
 
-TEST_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
-
 # Test the `lake shake` command
 
 # Copy input project to working directory
@@ -13,16 +11,16 @@ cp -r input/* .
 # Build the project first (shake needs .olean files)
 test_run build
 
-# Run shake to check for unused imports (using --force to skip the lake build --no-build check)
+# Run shake to check for unused imports
 # Shake exits with code 1 when issues are found, which is expected here
-lake_out shake --force Main || true
+lake_out shake Main || true
 match_pat 'remove.*Lib.B' produced.out
 
 # Test --fix mode: apply the fixes and verify the result
 ./clean.sh
 cp -r input/* .
 test_run build
-test_run shake --force --fix Main
+test_run shake --fix Main
 
 # Verify Main.lean matches expected (Lib.B import removed)
-check_diff "$TEST_DIR/expected/Main.lean" Main.lean
+check_diff expected/Main.lean Main.lean

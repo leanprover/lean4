@@ -111,6 +111,83 @@ def toCInitName (n : Name) : M String := do
 def emitCInitName (n : Name) : M Unit :=
   toCInitName n >>= emit
 
+def emitSpreadArg (ty : IRType) (name : Option String) (first : Bool) : M Bool := do
+  if let .struct _ tys 0 0 := ty then
+    let mut first := first
+    for h : i in *...tys.size do
+      let ty := tys[i]
+      if ty matches .erased then
+        continue
+      first ← emitSpreadArg ty (name.map fun nm => nm ++ "_" ++ i.repr) first
+    return first
+  if ty matches .void then
+    return first
+  unless first do
+    emit ", "
+  emit (← toCType ty)
+  if let some nm := name then
+    emit " "; emit nm
+  return false
+
+def emitSpreadArgs (ps : Array Param) (emitNames : Bool) : M Unit := do
+  let mut first := true
+  for p in ps do
+    first ← emitSpreadArg p.ty (if emitNames then some (toString p.x) else none) first
+
+def emitSpreadValue (ty : IRType) (name : String) : M Unit := do
+  if let .struct _ tys 0 0 := ty then
+    emit "{"
+    let mut first := true
+    for h : i in *...tys.size do
+      let ty := tys[i]
+      if ty matches .erased | .void then
+        continue
+      unless first do
+        emit ", "
+      emit ".i"; emit i; emit " = "
+      emitSpreadValue ty (name ++ "_" ++ i.repr)
+      first := false
+    emit "}"
+    return
+  emit name
+
+def emitSpreads (ps : Array Param) : M Unit := do
+  for p in ps do
+    if let .struct _ _ 0 0 := p.ty then
+      emit (← toCType p.ty); emit " "; emit p.x; emit " = ("; emit (← toCType p.ty); emit ")"
+      emitSpreadValue p.ty (toString p.x)
+      emitLn ";"
+
+def emitFullAppArg (ty : IRType) (nm : String) (first : Bool) : M Bool := do
+  if let .struct _ tys 0 0 := ty then
+    let mut first := first
+    for h : i in *...tys.size do
+      let ty := tys[i]
+      if ty matches .erased | .void then
+        continue
+      first ← emitFullAppArg ty (nm ++ ".i" ++ i.repr) first
+    return first
+  if ty matches .void then
+    return first
+  unless first do emit ", "
+  emit nm
+  return false
+
+def emitFullAppArgs (ps : Array Param) (args : Array Arg) : M Unit := do
+  let mut first := true
+  for h : i in *...args.size do
+    let ty := ps[i]!.ty
+    let arg := args[i]
+    if ty matches .void then
+      continue
+    match arg with
+    | .erased =>
+      unless first do emit ", "
+      emit "lean_box(0)"
+      first := false
+    | .var v =>
+      first ← emitFullAppArg ty (toString v) first
+
 def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M Unit := do
   let ps := decl.params
   let env ← getEnv
@@ -130,9 +207,7 @@ def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M U
     if ps.size > closureMaxArgs && isBoxedName decl.name then
       emit "lean_object**"
     else
-      ps.size.forM fun i _ => do
-        if i > 0 then emit ", "
-        emit (← toCType ps[i].ty)
+      emitSpreadArgs ps false
     emit ")"
   emitLn ";"
 
@@ -545,8 +620,7 @@ def emitFullApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do
   | .fdecl (xs := ps) .. | .extern (xs := ps) (ext := { entries := [.opaque], .. }) .. =>
     emitCName f
     if ys.size > 0 then
-      let (ys, _) := ys.zip ps |>.filter (fun (_, p) => !p.ty.isVoid) |>.unzip
-      emit "("; emitArgs ys; emit ")"
+      emit "("; emitFullAppArgs ps ys; emit ")"
     emitLn ";"
   | Decl.extern _ ps _ extData => emitExternCall f ps extData ys
 
@@ -1034,10 +1108,7 @@ def emitDeclAux (d : Decl) : M Unit := do
         if xs.size > closureMaxArgs && isBoxedName d.name then
           emit "lean_object** _args"
         else
-          xs.size.forM fun i _ => do
-            if i > 0 then emit ", "
-            let x := xs[i]
-            emit (← toCType x.ty); emit " "; emit x.x
+          emitSpreadArgs xs true
         emit ")"
       else
         emit ("_init_" ++ baseName ++ "()")
@@ -1046,6 +1117,7 @@ def emitDeclAux (d : Decl) : M Unit := do
         xs.size.forM fun i _ => do
           let x := xs[i]!
           emit "lean_object* "; emit x.x; emit " = _args["; emit i; emitLn "];"
+      emitSpreads xs
       emitLn "_start:";
       withReader (fun ctx => { ctx with mainFn := f, mainParams := xs }) (emitFnBody b);
       emitLn "}"

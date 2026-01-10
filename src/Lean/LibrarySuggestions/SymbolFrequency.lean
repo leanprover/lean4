@@ -28,7 +28,7 @@ skipping instance arguments and proofs.
 public def localSymbolFrequencyMap : MetaM (NameMap Nat) := do
   let env := (← getEnv)
   env.constants.map₂.foldlM (init := ∅) (fun acc m ci => do
-    if isDeniedPremise env m || !Lean.wasOriginallyTheorem env m then
+    if isDeniedPremise env m || !wasOriginallyTheorem env m then
       pure acc
     else
       ci.type.foldRelevantConstants (init := acc) fun n' acc => return acc.alter n' fun i? => some (i?.getD 0 + 1))

@@ -13,6 +13,7 @@ import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.Result
 import Lean.Meta.Sym.Simp.Simproc
 import Lean.Meta.Sym.Simp.App
+import Lean.Meta.Sym.Simp.Have
 import Lean.Meta.Sym.Simp.Funext
 namespace Lean.Meta.Sym.Simp
 open Internal
@@ -96,9 +97,8 @@ def simpLet (e : Expr) : SimpM Result := do
     Users may decide to `zeta`-expand them or apply `letToHave` at `pre`/`post`.
     -/
     return .rfl
-  else match (← Meta.simpHaveTelescope e) with
-    | .rfl => return .rfl
-    | .step e' h => return .step (← shareCommon e') h
+  else
+    simpHave e
 
 def simpStep : Simproc := fun e => do
   match e with

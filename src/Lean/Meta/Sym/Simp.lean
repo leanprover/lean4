@@ -14,3 +14,4 @@ public import Lean.Meta.Sym.Simp.Rewrite
 public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Sym.Simp.Simproc
 public import Lean.Meta.Sym.Simp.Theorems
+public import Lean.Meta.Sym.Simp.Have

@@ -24,7 +24,8 @@ namespace Parser
 attribute [run_builtin_parser_attribute_hooks]
   leadingNode termParser commandParser mkAntiquot nodeWithAntiquot sepBy sepBy1
   unicodeSymbol nonReservedSymbol
-  withCache withResetCache withPosition withPositionAfterLinebreak withoutPosition withForbidden withoutForbidden setExpected
+  withCache withResetCache withPosition withPositionAfterLinebreak withPositionFromLineStart
+  withoutPosition withForbidden withoutForbidden setExpected
   incQuotDepth decQuotDepth suppressInsideQuot evalInsideQuot
   withOpen withOpenDecl
   dbgTraceState

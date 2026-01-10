@@ -2,9 +2,9 @@
 -- showing this file might have looked like before any proofs are written.
 -- This file fills them all in with `grind`!
 import Std.Data.HashMap
+import Lean.LibrarySuggestions.Default
 
-
-macro_rules | `(tactic| get_elem_tactic_extensible) => `(tactic| grind)
+local macro_rules | `(tactic| get_elem_tactic_extensible) => `(tactic| grind)
 
 open Std
 
@@ -23,7 +23,10 @@ variable {m : IndexMap α β} {a : α} {b : β} {i : Nat}
 @[inline] def size (m : IndexMap α β) : Nat :=
   m.values.size
 
-@[local grind =] private theorem size_keys : m.keys.size = m.size := m.size_keys'
+attribute [local grind] size
+
+@[local grind =] private theorem size_keys : m.keys.size = m.size := size_keys' _
+@[local grind =] private theorem size_values : m.values.size = m.size := rfl
 
 def emptyWithCapacity (capacity := 8) : IndexMap α β where
   indices := HashMap.emptyWithCapacity capacity
@@ -46,8 +49,8 @@ instance : Membership α (IndexMap α β) where
 instance {m : IndexMap α β} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs (Decidable (a ∈ m.indices))
 
-@[local grind] private theorem mem_indices_of_mem {m : IndexMap α β} {a : α} :
-    a ∈ m ↔ a ∈ m.indices := Iff.rfl
+@[local grind _=_] private theorem mem_indices {m : IndexMap α β} {a : α} :
+    a ∈ m.indices ↔ a ∈ m := by rfl
 
 @[inline] def findIdx? (m : IndexMap α β) (a : α) : Option Nat := m.indices[a]?
 
@@ -62,23 +65,25 @@ variable [LawfulBEq α] [LawfulHashable α]
 
 attribute [local grind _=_] IndexMap.WF
 
+-- TODO: Considering activating this globally in https://github.com/leanprover/lean4/pull/11963
+grind_pattern getElem?_pos => c[i] where
+  guard dom c i
+
 private theorem getElem_indices_lt {h : a ∈ m} : m.indices[a] < m.size := by
-  have : m.indices[a]? = some m.indices[a] := by grind
+  -- have : m.indices[a]? = some m.indices[a] := by grind
   grind
 
 grind_pattern getElem_indices_lt => m.indices[a]
-
-attribute [local grind] size
 
 instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
   getElem m a h := m.values[m.indices[a]'h]
   getElem? m a := m.indices[a]?.bind (fun i => (m.values[i]?))
   getElem! m a := m.indices[a]?.bind (fun i => (m.values[i]?)) |>.getD default
 
-@[local grind] private theorem getElem_def (m : IndexMap α β) (a : α) (h : a ∈ m) : m[a] = m.values[m.indices[a]'h] := rfl
-@[local grind] private theorem getElem?_def (m : IndexMap α β) (a : α) :
+@[local grind =] private theorem getElem_def (m : IndexMap α β) (a : α) (h : a ∈ m) : m[a] = m.values[m.indices[a]'h] := rfl
+@[local grind =] private theorem getElem?_def (m : IndexMap α β) (a : α) :
     m[a]? = m.indices[a]?.bind (fun i => (m.values[i]?)) := rfl
-@[local grind] private theorem getElem!_def [Inhabited β] (m : IndexMap α β) (a : α) :
+@[local grind =] private theorem getElem!_def [Inhabited β] (m : IndexMap α β) (a : α) :
     m[a]! = (m.indices[a]?.bind (fun i => (m.values[i]?))).getD default := rfl
 
 instance : LawfulGetElem (IndexMap α β) α β (fun m a => a ∈ m) where
@@ -90,12 +95,12 @@ instance : LawfulGetElem (IndexMap α β) α β (fun m a => a ∈ m) where
   match h : m.indices[a]? with
   | some i =>
     { indices := m.indices
-      keys := m.keys.set i a
-      values := m.values.set i b }
+      keys    := m.keys.set i a
+      values  := m.values.set i b }
   | none =>
     { indices := m.indices.insert a m.size
-      keys := m.keys.push a
-      values := m.values.push b }
+      keys    := m.keys.push a
+      values  := m.values.push b }
 
 instance [LawfulBEq α] : Singleton (α × β) (IndexMap α β) :=
     ⟨fun ⟨a, b⟩ => (∅ : IndexMap α β).insert a b⟩
@@ -106,7 +111,7 @@ instance [LawfulBEq α] : Insert (α × β) (IndexMap α β) :=
 instance [LawfulBEq α] : LawfulSingleton (α × β) (IndexMap α β) :=
     ⟨fun _ => rfl⟩
 
-@[local grind] private theorem WF' (i : Nat) (a : α) (h₁ : i < m.keys.size) (h₂ : a ∈ m) :
+@[local grind .] private theorem WF' (i : Nat) (a : α) (h₁ : i < m.keys.size) (h₂ : a ∈ m) :
     m.keys[i] = a ↔ m.indices[a] = i := by
   have := m.WF i a
   grind
@@ -132,21 +137,25 @@ If the key is not present, the map is unchanged.
 
 /-! ### Verification theorems -/
 
-attribute [local grind] getIdx findIdx insert
-
-@[grind] theorem getIdx_findIdx (m : IndexMap α β) (a : α) (h : a ∈ m) :
-    m.getIdx (m.findIdx a) = m[a] := by grind
-
-@[grind] theorem mem_insert (m : IndexMap α β) (a a' : α) (b : β) :
+@[grind =] theorem mem_insert (m : IndexMap α β) (a a' : α) (b : β) :
     a' ∈ m.insert a b ↔ a' = a ∨ a' ∈ m := by
-  grind
+  grind +locals
 
-@[grind] theorem getElem_insert (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
+@[grind =] theorem getElem_insert (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.insert a b) :
     (m.insert a b)[a'] = if h' : a' == a then b else m[a'] := by
-  grind
+  grind +locals
 
-@[grind] theorem findIdx_insert_self (m : IndexMap α β) (a : α) (b : β) :
+@[grind =] theorem findIdx_insert_self (m : IndexMap α β) (a : α) (b : β) :
     (m.insert a b).findIdx a = if h : a ∈ m then m.findIdx a else m.size := by
-  grind
+  grind +locals
+
+theorem findIdx_lt (m : IndexMap α β) (a : α) (h : a ∈ m) :
+    m.findIdx a h < m.size := by
+  grind +locals
+
+grind_pattern findIdx_lt => m.findIdx a h
+
+@[grind =] theorem getIdx_findIdx (m : IndexMap α β) (a : α) (h : a ∈ m) :
+    m.getIdx (m.findIdx a) = m[a] := by grind +locals
 
 end IndexMap

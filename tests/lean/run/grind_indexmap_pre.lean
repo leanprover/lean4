@@ -10,8 +10,8 @@ structure IndexMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
   indices : HashMap α Nat
   keys : Array α
   values : Array β
-  size_keys' : keys.size = values.size := by grind
-  WF : ∀ (i : Nat) (a : α), keys[i]? = some a ↔ indices[a]? = some i := by grind
+  size_keys' : keys.size = values.size
+  WF : ∀ (i : Nat) (a : α), keys[i]? = some a ↔ indices[a]? = some i
 
 namespace IndexMap
 
@@ -25,6 +25,8 @@ def emptyWithCapacity (capacity := 8) : IndexMap α β where
   indices := HashMap.emptyWithCapacity capacity
   keys := Array.emptyWithCapacity capacity
   values := Array.emptyWithCapacity capacity
+  size_keys' := sorry
+  WF := sorry
 
 instance : EmptyCollection (IndexMap α β) where
   emptyCollection := emptyWithCapacity
@@ -106,9 +108,6 @@ If the key is not present, the map is unchanged.
 
 /-! ### Verification theorems -/
 
-theorem getIdx_findIdx (m : IndexMap α β) (a : α) (h : a ∈ m) :
-    m.getIdx (m.findIdx a h) sorry = m[a] := sorry
-
 theorem mem_insert (m : IndexMap α β) (a a' : α) (b : β) :
     a' ∈ m.insert a b ↔ a' = a ∨ a' ∈ m := by
   sorry
@@ -117,8 +116,15 @@ theorem getElem_insert (m : IndexMap α β) (a a' : α) (b : β) (h : a' ∈ m.i
     (m.insert a b)[a']'h = if h' : a' == a then b else m[a']'sorry := by
   sorry
 
+theorem findIdx_lt (m : IndexMap α β) (a : α) (h : a ∈ m) :
+    m.findIdx a h < m.size := by
+  sorry
+
 theorem findIdx_insert_self (m : IndexMap α β) (a : α) (b : β) :
     (m.insert a b).findIdx a sorry = if h : a ∈ m then m.findIdx a h else m.size := by
   sorry
+
+theorem getIdx_findIdx (m : IndexMap α β) (a : α) (h : a ∈ m) :
+    m.getIdx (m.findIdx a h) sorry = m[a] := sorry
 
 end IndexMap

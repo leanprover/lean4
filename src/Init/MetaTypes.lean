@@ -307,6 +307,9 @@ structure Config where
   For local theorems, use `+suggestions` instead.
   -/
   locals : Bool := false
+  /-- Maximum number of suggestions to retrieve from the library suggestion engine when `suggestions` is `true`.
+  If `none`, uses the default from `LibrarySuggestions.Config`. -/
+  maxSuggestions : Option Nat := none
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`

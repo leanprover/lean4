@@ -69,6 +69,39 @@ structure Context where
   /-- All preceding instructions that need to be `reshape`d. This is used to make `visitFnBody`
   tail-recursive. -/
   instrs : Array FnBody := #[]
+  rename : Std.TreeMap VarId Arg fun a b => compare a.idx b.idx := {}
+
+def Context.renameVar (ctx : Context) (a : VarId) : Arg :=
+  ctx.rename.getD a (.var a)
+
+def Context.renameVar! (ctx : Context) (a : VarId) : VarId :=
+  match ctx.rename[a]? with
+  | none => a
+  | some .erased => panic! "malformed IR"
+  | some (.var v) => v
+
+def Context.renameArg (ctx : Context) (a : Arg) : Arg :=
+  match a with
+  | .erased => .erased
+  | .var v => ctx.rename.getD v a
+
+def Context.renameArgs (ctx : Context) (a : Array Arg) : Array Arg :=
+  a.map ctx.renameArg
+
+def Context.insertRename (ctx : Context) (v : VarId) (a : Arg) : Context :=
+  { ctx with rename := ctx.rename.insert v a }
+
+def Context.insert (var : VarId) (e : Entry) (ctx : Context) : Context :=
+  { ctx with vars := ctx.vars.insert var e }
+
+def Context.insertIfNew (var : VarId) (e : Entry) (ctx : Context) : Context :=
+  { ctx with vars := ctx.vars.insertIfNew var e }
+
+def Context.remove (ctx : Context) (v : VarId) : Context :=
+  { ctx with vars := ctx.vars.erase v }
+
+def Context.addInstr (ctx : Context) (b : FnBody) : Context :=
+  { ctx with instrs := ctx.instrs.push b }
 
 abbrev M := StateM Nat
 
@@ -111,21 +144,21 @@ def Entry.ofType (ty : IRType) (rc : Int) : Entry :=
   | _ => .persistent
 
 def Context.addVar (ctx : Context) (x : VarId) (ty : IRType) (rc : Int) : Context :=
-  { ctx with vars := ctx.vars.insertIfNew x (.ofType ty rc) }
+  ctx.insertIfNew x (.ofType ty rc)
 
 /-- Add a variable entry if we need to (i.e. if `ty` is a struct type). -/
 def Context.addVarBasic (ctx : Context) (x : VarId) (ty : IRType) : Context :=
   match ty with
   | ty@(.struct _ tys _ _) =>
     if tys.any needsRC then
-      { ctx with vars := ctx.vars.insert x (.ofStruct 0 ty 0) }
+      ctx.insert x (.ofStruct 0 ty 0)
     else
-      { ctx with vars := ctx.vars.insert x .persistent }
+      ctx.insert x .persistent
   | .union _ tys =>
     if tys.any needsRC then
-      { ctx with vars := ctx.vars.insert x (.unknownUnion tys 0) }
+      ctx.insert x (.unknownUnion tys 0)
     else
-      { ctx with vars := ctx.vars.insert x .persistent }
+      ctx.insert x .persistent
   | _ => ctx
 
 /--
@@ -136,16 +169,15 @@ def Context.addProjInfo (ctx : Context) (proj : VarId) (t : IRType) (idx : Nat)
     (parent : VarId) (parentEntry : Entry) : Context := Id.run do
   let : Inhabited Context := ⟨ctx⟩
   let .struct cidx tys fields := parentEntry | unreachable!
-  let .unbound rc := fields[idx]! |
-    -- TODO: this happens occasionally when it feels like cse should've done something
-    let ctx := ctx.addVarBasic proj t
-    return { ctx with vars := ctx.vars.insert parent parentEntry }
-  let ctx := ctx.addVar proj t rc
-  let vars := ctx.vars.insert parent (.struct cidx tys (fields.set! idx (.var proj)))
-  { ctx with vars }
-
-def Context.addInstr (ctx : Context) (b : FnBody) : Context :=
-  { ctx with instrs := ctx.instrs.push b }
+  match fields[idx]! with
+  | .erased =>
+    return (ctx.insert parent parentEntry).insertRename proj .erased
+  | .var v =>
+    return (ctx.insert parent parentEntry).insertRename proj (.var v)
+  | .unbound rc =>
+    let ctx := ctx.addVar proj t rc
+    let ctx := ctx.insert parent (.struct cidx tys (fields.set! idx (.var proj)))
+    ctx.addInstr (.vdecl proj t (.proj cidx idx parent) .nil)
 
 def Context.emitRCDiff (v : VarId) (check : Bool) (rc : Int) (ctx : Context) : Context :=
   if rc > 0 then
@@ -160,16 +192,14 @@ partial def Context.accumulateRCDiff (v : VarId) (check : Bool) (rc : Int) (ctx 
   match ctx.vars[v]? with
   | none => ctx.emitRCDiff v check rc
   | some .persistent => ctx
-  | some (.ref check' rc') =>
-    { ctx with vars := ctx.vars.insert v (.ref (check && check') (rc + rc')) }
-  | some (.unknownUnion tys rc') =>
-    { ctx with vars := ctx.vars.insert v (.unknownUnion tys (rc + rc')) }
+  | some (.ref check' rc') => ctx.insert v (.ref (check && check') (rc + rc'))
+  | some (.unknownUnion tys rc') => ctx.insert v (.unknownUnion tys (rc + rc'))
   | some (.struct cidx tys objs) =>
     let (objs, ctx) := Id.run <| StateT.run (s := ctx) <| objs.mapM fun
       | .var v' => modifyGet fun ctx => (.var v', ctx.accumulateRCDiff v' true rc)
       | .unbound rc' => modifyGet fun ctx => (.unbound (rc + rc'), ctx)
       | .erased => return .erased
-    { ctx with vars := ctx.vars.insert v (.struct cidx tys objs) }
+    ctx.insert v (.struct cidx tys objs)
 
 /--
 Performs all necessary accumulated RC increments and decrements on `v`. If `ignoreInc` is true then
@@ -182,13 +212,13 @@ partial def Context.useVar (ctx : Context) (v : VarId) (ignoreInc : Bool := fals
     if ignoreInc ∧ rc ≥ 0 then
       return ctx
     let ctx := ctx.emitRCDiff v (tys.any (!·.isDefiniteRef)) rc
-    let ctx := { ctx with vars := ctx.vars.insert v (.unknownUnion tys 0) }
+    let ctx := ctx.insert v (.unknownUnion tys 0)
     return ctx
   | some (.ref check rc) =>
     if ignoreInc ∧ rc ≥ 0 then
       return ctx
     let ctx := ctx.emitRCDiff v check rc
-    let ctx := { ctx with vars := ctx.vars.insert v (.ref check 0) }
+    let ctx := ctx.insert v (.ref check 0)
     return ctx
   | some (.struct cidx tys objs) =>
     let mut ctx := ctx
@@ -209,7 +239,7 @@ partial def Context.useVar (ctx : Context) (v : VarId) (ignoreInc : Bool := fals
           ctx := ctx.addVar var ty 0
           objs := objs.set i (.var var)
       | .erased => pure ()
-    ctx := { ctx with vars := ctx.vars.insert v (.struct cidx tys objs) }
+    ctx := ctx.insert v (.struct cidx tys objs)
     return ctx
 
 def Context.useArg (ctx : Context) (a : Arg) : M Context :=
@@ -228,7 +258,7 @@ def Context.resetRC (ctx : Context) : Context :=
     | _, .unknownUnion tys _ => .unknownUnion tys 0
     | _, .ref c _ => .ref c 0
     | _, e => e
-  { vars }
+  { vars, rename := ctx.rename }
 
 def Context.finish (ctx : Context) : M Context := do
   let mut ctx := ctx
@@ -239,11 +269,8 @@ def Context.finish (ctx : Context) : M Context := do
 def Context.addCtorKnowledge (ctx : Context) (v : VarId) (cidx : Nat) : Context :=
   match ctx.vars[v]? with
   | some (.unknownUnion tys rc) =>
-    { ctx with vars := ctx.vars.insert v (.ofStruct cidx tys[cidx]! rc) }
+    ctx.insert v (.ofStruct cidx tys[cidx]! rc)
   | _ => ctx
-
-def Context.remove (ctx : Context) (v : VarId) : Context :=
-  { ctx with vars := ctx.vars.erase v }
 
 def atConstructorIndex (ty : IRType) (i : Nat) : Array IRType :=
   match ty with
@@ -257,34 +284,65 @@ def atConstructorIndex (ty : IRType) (i : Nat) : Array IRType :=
 def visitExpr (x : VarId) (t : IRType) (v : Expr) (ctx : Context) : M Context := do
   match v with
   | .proj c i y =>
+    let y := ctx.renameVar! y
+    let v := .proj c i y
     match ctx.vars[y]? with
-    | none => return ctx -- just an object projection, nothing to see here
+    | none => return ctx.addInstr (.vdecl x t v .nil) -- just an object projection, nothing to see here
     | some .persistent =>
-      return { ctx with vars := ctx.vars.insert x .persistent }
+      return (ctx.insert x .persistent).addInstr (.vdecl x t v .nil)
     | some (.unknownUnion tys rc) =>
       return ctx.addProjInfo x t i y (.ofStruct c tys[c]! rc)
     | some e@(.struct cidx ..) =>
       if c ≠ cidx then
-        return ctx.addInstr .unreachable
+        return (ctx.addInstr .unreachable).addInstr (.vdecl x t v .nil)
       else
         return ctx.addProjInfo x t i y e
     | some (.ref _ _) =>
-      return ctx.addVarBasic x t
-  | .fap _ args =>
+      return (ctx.addVarBasic x t).addInstr (.vdecl x t v .nil)
+  | .fap nm args =>
+    let args := ctx.renameArgs args
+    let v := .fap nm args
     if args.size = 0 then
-      return { ctx with vars := ctx.vars.insert x .persistent }
+      return (ctx.insert x .persistent).addInstr (.vdecl x t v .nil)
     else
-      args.foldlM (·.useArg) (ctx.addVarBasic x t)
-  | .ap x args =>
-    args.foldlM (·.useArg) (← ctx.useVar x)
-  | .pap _ args =>
-    args.foldlM (·.useArg) ctx
-  | .isShared x => ctx.useVar x
-  | .reset _ x => ctx.useVar x
-  | .reuse x _ _ args => args.foldlM (·.useArg) (← ctx.useVar x)
-  | .box _ y => (ctx.addVarBasic x t).useVar y
-  | .lit _ | .sproj .. | .uproj .. | .unbox _ => return ctx
+      return (← args.foldlM (·.useArg) (ctx.addVarBasic x t)).addInstr (.vdecl x t v .nil)
+  | .ap y args =>
+    match ctx.renameVar y with
+    | .erased =>
+      return ctx.insertRename x .erased
+    | .var y =>
+      let args := ctx.renameArgs args
+      let v := .ap y args
+      return (← args.foldlM (·.useArg) (← ctx.useVar y)).addInstr (.vdecl x t v .nil)
+  | .pap nm args =>
+    let args := ctx.renameArgs args
+    let v := .pap nm args
+    return (← args.foldlM (·.useArg) ctx).addInstr (.vdecl x t v .nil)
+  | .isShared y =>
+    match ctx.renameVar y with
+    | .erased => return ctx.addInstr (.vdecl x t (.lit (.num 1)) .nil)
+    | .var y =>
+      let v := .isShared y
+      return (← ctx.useVar y).addInstr (.vdecl x t v .nil)
+  | .reset n y =>
+    let y := ctx.renameVar! y
+    let v := .reset n y
+    return (← ctx.useVar y).addInstr (.vdecl x t v .nil)
+  | .reuse y i u args =>
+    let y := ctx.renameVar! y
+    let v := .reuse y i u args
+    return (← args.foldlM (·.useArg) (← ctx.useVar x)).addInstr (.vdecl x t v .nil)
+  | .box ty y =>
+    let y := ctx.renameVar! y
+    let v := .box ty y
+    return (← (ctx.addVarBasic x t).useVar y).addInstr (.vdecl x t v .nil)
+  | .lit _ => return ctx.addInstr (.vdecl x t v .nil)
+  | .sproj c n o y => return ctx.addInstr (.vdecl x t (.sproj c n o (ctx.renameVar! y)) .nil)
+  | .uproj c i y => return ctx.addInstr (.vdecl x t (.uproj c i (ctx.renameVar! y)) .nil)
+  | .unbox y => return ctx.addInstr (.vdecl x t (.unbox (ctx.renameVar! y)) .nil)
   | .ctor c args =>
+    let args := ctx.renameArgs args
+    let v := .ctor c args
     if t.isStruct then
       let tys := atConstructorIndex t c.cidx
       let e := .struct c.cidx tys <| Vector.ofFn fun ⟨i, _⟩ =>
@@ -295,16 +353,15 @@ def visitExpr (x : VarId) (t : IRType) (v : Expr) (ctx : Context) : M Context :=
         match args[i]! with
         | .var v => ctx.addVar v tys[i] 0
         | .erased => ctx
-      let ctx := { ctx with vars := ctx.vars.insert x e }
-      return ctx
+      let ctx := ctx.insert x e
+      return ctx.addInstr (.vdecl x t v .nil)
     else
-      args.foldlM (·.useArg) ctx
+      return (← args.foldlM (·.useArg) ctx).addInstr (.vdecl x t v .nil)
 
 partial def visitFnBody (body : FnBody) (ctx : Context) : M FnBody := do
   match body with
   | .vdecl x t v b =>
     let ctx ← visitExpr x t v ctx
-    let ctx := ctx.addInstr (.vdecl x t v .nil)
     visitFnBody b ctx
   | .jdecl j xs v b =>
     let v ← visitFnBody v (ctx.resetRC.addParams xs)
@@ -314,21 +371,33 @@ partial def visitFnBody (body : FnBody) (ctx : Context) : M FnBody := do
       -- increment on persistent value, ignore
       visitFnBody b ctx
     else
-      visitFnBody b (ctx.accumulateRCDiff x c n)
+      match ctx.renameVar x with
+      | .erased => visitFnBody b ctx
+      | .var x =>
+        visitFnBody b (ctx.accumulateRCDiff x c n)
   | .dec x n c p b =>
     if p then
       -- decrement on persistent value, ignore
       visitFnBody b ctx
     else
-      let ctx := ctx.accumulateRCDiff x c (-n)
-      -- we can delay increments but we shouldn't delay deallocations
-      let ctx ← ctx.useVar x (ignoreInc := true)
-      visitFnBody b ctx
+      match ctx.renameVar x with
+      | .erased => visitFnBody b ctx
+      | .var x =>
+        let ctx := ctx.accumulateRCDiff x c (-n)
+        -- we can delay increments but we shouldn't delay deallocations
+        let ctx ← ctx.useVar x (ignoreInc := true)
+        visitFnBody b ctx
   | .unreachable => return reshape ctx.instrs body
-  | .ret _ | .jmp _ _ =>
+  | .ret a =>
+    let a := ctx.renameArg a
     let ctx ← ctx.finish
-    return reshape ctx.instrs body
+    return reshape ctx.instrs (.ret a)
+  | .jmp jp args =>
+    let args := ctx.renameArgs args
+    let ctx ← ctx.finish
+    return reshape ctx.instrs (.jmp jp args)
   | .case nm x xTy alts =>
+    let x := ctx.renameVar! x
     if let some (.struct cidx _ _) := ctx.vars[x]? then
       -- because apparently this isn't guaranteed?!
       let body? := alts.findSome? fun alt =>
@@ -349,13 +418,26 @@ partial def visitFnBody (body : FnBody) (ctx : Context) : M FnBody := do
       return reshape instrs body
   | .del v b =>
     visitFnBody b (ctx.remove v |>.addInstr (.del v .nil))
-  | .sset v _ _ _ _ _ b
-  | .uset v _ _ _ b
-  | .setTag v _ b =>
+  | .sset v c i o y t b =>
+    let v := ctx.renameVar! v
+    let y := ctx.renameVar! y
     let ctx ← ctx.useVar v
-    let ctx := ctx.addInstr (body.setBody .nil)
+    let ctx := ctx.addInstr (.sset v c i o y t .nil)
+    visitFnBody b ctx
+  | .uset v c i y b =>
+    let v := ctx.renameVar! v
+    let y := ctx.renameVar! y
+    let ctx ← ctx.useVar v
+    let ctx := ctx.addInstr (.uset v c i y .nil)
+    visitFnBody b ctx
+  | .setTag v i b =>
+    let v := ctx.renameVar! v
+    let ctx ← ctx.useVar v
+    let ctx := ctx.addInstr (.setTag v i .nil)
     visitFnBody b ctx
   | .set v i a b =>
+    let v := ctx.renameVar! v
+    let a := ctx.renameArg a
     let ctx ← ctx.useVar v
     let ctx ← ctx.useArg a
     let ctx := ctx.addInstr (.set v i a .nil)

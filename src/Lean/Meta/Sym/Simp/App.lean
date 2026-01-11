@@ -79,6 +79,10 @@ def mkCongrFun (e : Expr) (f a : Expr) (f' : Expr) (hf : Expr) (_ : e = .app f a
   let h := mkApp6 (mkConst ``congrFun [u, v]) α β f f' hf a
   return .step e' h
 
+def whnfToForall (type : Expr) : MetaM Expr := do
+  if type.isForall then return type
+  whnfD type
+
 /--
 Simplify arguments of a function application with a fixed prefix structure.
 Recursively simplifies the trailing `suffixSize` arguments, leaving the first
@@ -93,15 +97,35 @@ def congrFixedPrefix (e : Expr) (prefixSize : Nat) (suffixSize : Nat) : SimpM Re
     -- **TODO**: over-applied case
     return .rfl
   else
-    go numArgs e
+    return (← go suffixSize e).1
 where
-  go (i : Nat) (e : Expr) : SimpM Result := do
-    if i == prefixSize then
-      return .rfl
+  go (i : Nat) (e : Expr) : SimpM (Result × Expr) := do
+    if i == 0 then
+      return (.rfl, ← inferType e)
     else
-      match h : e with
-      | .app f a => mkCongr e f a (← go (i - 1) f) (← simp a) h
-      | _ => unreachable!
+      let .app f a := e | unreachable!
+      let (hf, fType) ← go (i-1) f
+      let .forallE _ α β _ ← whnfToForall fType | throwError "function type expected"
+      match hf, (← simp a) with
+      | .rfl _,  .rfl _ => return (.rfl, β)
+      | .step f' hf _, .rfl _ =>
+        let e' ← mkAppS f' a
+        let u ← getLevel α
+        let v ← getLevel β
+        let h := mkApp6 (mkConst ``congrFun' [u, v]) α β f f' hf a
+        return (.step e' h, β)
+      | .rfl _, .step a' ha _ =>
+        let e' ← mkAppS f a'
+        let u ← getLevel α
+        let v ← getLevel β
+        let h := mkApp6 (mkConst ``congrArg [u, v]) α β a a' f ha
+        return (.step e' h, β)
+      | .step f' hf _, .step a' ha _ =>
+        let e' ← mkAppS f' a'
+        let u ← getLevel α
+        let v ← getLevel β
+        let h := mkApp8 (mkConst ``congr [u, v]) α β f f' a a' hf ha
+        return (.step e' h, β)
 
 /--
 Simplify arguments of a function application with interlaced rewritable/fixed arguments.

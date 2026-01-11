@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
+import Lean.Meta.Sym.Simp.Lambda
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.ReplaceS
@@ -338,7 +339,8 @@ where
           let h := mkApp6 (← mkCongrPrefix ``congr fType i) f f' a a' hf ha
           pure <| .step e' h
       return (r, fType.bindingBody!)
-    | e => return (← simp e, fType)
+    | .lam .. => return (← simpLambda e, fType)
+    | _ => unreachable!
 
   mkCongrPrefix (declName : Name) (fType : Expr) (i : Nat) : SymM Expr := do
     let α := fType.bindingDomain!
@@ -422,5 +424,15 @@ public def simpHaveAndZetaUnused (e₁ : Expr) : SimpM Result := do
       let h := mkApp6 (mkConst ``Eq.trans [r.u]) r.α e₁ e₂ e₃ h
         (mkApp2 (mkConst ``Eq.refl [r.u]) r.α e₃)
       return .step e₃ h
+
+public def simpLet (e : Expr) : SimpM Result := do
+  if !e.letNondep! then
+    /-
+    **Note**: We don't do anything if it is a dependent `let`.
+    Users may decide to `zeta`-expand them or apply `letToHave` at `pre`/`post`.
+    -/
+    return .rfl
+  else
+    simpHaveAndZetaUnused e
 
 end Lean.Meta.Sym.Simp

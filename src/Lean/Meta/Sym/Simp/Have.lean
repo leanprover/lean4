@@ -65,11 +65,11 @@ where
       go b (xs.push x) (xs'.push x') (args.push arg) (subst.push v') (types.push t') (varDeps.push varPos) fvarIdToPos
     else
       let e ← instantiateRevS e subst
-      let fType ← mkArrows types (← inferType e)
+      let α ← inferType e
+      let u ← getLevel α
+      let fType ← mkArrows types α
       let e ← mkLambdaFVarsS xs' e
       let e ← share <| mkAppN e args
-      let α ← inferType haveExpr
-      let u ← getLevel α
       let eq := mkApp3 (mkConst ``Eq [u]) α haveExpr e
       let h := mkApp2 (mkConst ``Eq.refl [u]) α haveExpr
       let h := mkExpectedPropHint h eq

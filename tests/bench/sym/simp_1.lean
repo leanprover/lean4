@@ -143,7 +143,7 @@ where
       mkAppM ``Prod.mk #[lhs, rhs]
 
 def benchTermTree (n : Nat) (check := true) : MetaM Unit := do
-  let e ← mkManySubterms n
+  let e ← mkTermTree n
   benchSimp s!"term_tree_{n}" e check
 
 

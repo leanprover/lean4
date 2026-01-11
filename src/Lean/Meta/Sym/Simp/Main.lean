@@ -13,7 +13,7 @@ import Lean.Meta.Sym.Simp.Result
 import Lean.Meta.Sym.Simp.Simproc
 import Lean.Meta.Sym.Simp.App
 import Lean.Meta.Sym.Simp.Have
-import Lean.Meta.Sym.Simp.Funext
+import Lean.Meta.Sym.Simp.Lambda
 namespace Lean.Meta.Sym.Simp
 open Internal
 

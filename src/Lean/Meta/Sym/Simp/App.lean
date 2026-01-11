@@ -79,14 +79,63 @@ def mkCongrFun (e : Expr) (f a : Expr) (f' : Expr) (hf : Expr) (_ : e = .app f a
   let h := mkApp6 (mkConst ``congrFun [u, v]) α β f f' hf a
   return .step e' h
 
-def whnfToForall (type : Expr) : MetaM Expr := do
+/--
+Reduces `type` to weak head normal form and verifies it is a `forall` expression.
+If `type` is already a `forall`, returns it unchanged (avoiding unnecessary work).
+The result is shared via `share` to maintain maximal sharing invariants.
+-/
+def whnfToForall (type : Expr) : SymM Expr := do
   if type.isForall then return type
-  whnfD type
+  let type ← whnfD type
+  unless type.isForall do throwError "function type expected{indentD type}"
+  share type
+
+/--
+Returns the type of an expression `e`. If `n > 0`, then `e` is an application
+with at least `n` arguments. This function assumes the `n` trailing arguments are non-dependent.
+Given `e` of the form `f a₁ a₂ ... aₙ`, the type of `e` is computed by
+inferring the type of `f` and traversing the forall telescope.
+
+We use this function to implement `congrFixedPrefix`. Recall that `inferType` is cached.
+This function tries to maximize the likelihood of a cache hit. For example,
+suppose `e` is `@HAdd.hAdd Nat Nat Nat instAdd 5` and `n = 1`. It is much more likely that
+`@HAdd.hAdd Nat Nat Nat instAdd` is already in the cache than
+`@HAdd.hAdd Nat Nat Nat instAdd 5`.
+-/
+def getFnType (e : Expr) (n : Nat) : SymM Expr := do
+  match n with
+  | 0 => inferType e
+  | n+1 =>
+    let type ← getFnType e.appFn! n
+    let .forallE _ _ β _ ← whnfToForall type | unreachable!
+    return β
 
 /--
 Simplify arguments of a function application with a fixed prefix structure.
 Recursively simplifies the trailing `suffixSize` arguments, leaving the first
 `prefixSize` arguments unchanged.
+
+For a function with `CongrInfo.fixedPrefix prefixSize suffixSize`, the arguments
+are structured as:
+```
+f a₁ ... aₚ b₁ ... bₛ
+  └───────┘ └───────┘
+   prefix    suffix (rewritable)
+```
+
+The prefix arguments (types, instances) should
+not be rewritten directly. Only the suffix arguments are recursively simplified.
+
+**Performance optimization**: We avoid calling `inferType` on applied expressions
+like `f a₁ ... aₚ b₁` or `f a₁ ... aₚ b₁ ... bₛ`, which would have poor cache hit rates.
+Instead, we infer the type of the function prefix `f a₁ ... aₚ`
+(e.g., `@HAdd.hAdd Nat Nat Nat instAdd`) which is probably shared across many applications,
+then traverse the forall telescope to extract argument and result types as needed.
+
+The helper `go` returns `Result × Expr` where the `Expr` is the function type at that
+position. However, the type is only meaningful (non-`default`) when `Result` is
+`.step`, since we only need types for constructing congruence proofs. This avoids
+unnecessary type inference when no rewriting occurs.
 -/
 def congrFixedPrefix (e : Expr) (prefixSize : Nat) (suffixSize : Nat) : SimpM Result := do
   let numArgs := e.getAppNumArgs
@@ -101,26 +150,29 @@ def congrFixedPrefix (e : Expr) (prefixSize : Nat) (suffixSize : Nat) : SimpM Re
 where
   go (i : Nat) (e : Expr) : SimpM (Result × Expr) := do
     if i == 0 then
-      return (.rfl, ← inferType e)
+      return (.rfl, default)
     else
       let .app f a := e | unreachable!
       let (hf, fType) ← go (i-1) f
-      let .forallE _ α β _ ← whnfToForall fType | throwError "function type expected"
       match hf, (← simp a) with
-      | .rfl _,  .rfl _ => return (.rfl, β)
+      | .rfl _,  .rfl _ => return (.rfl, default)
       | .step f' hf _, .rfl _ =>
+        let .forallE _ α β _ ← whnfToForall fType | unreachable!
         let e' ← mkAppS f' a
         let u ← getLevel α
         let v ← getLevel β
         let h := mkApp6 (mkConst ``congrFun' [u, v]) α β f f' hf a
         return (.step e' h, β)
       | .rfl _, .step a' ha _ =>
+        let fType ← getFnType f (i-1)
+        let .forallE _ α β _ ← whnfToForall fType | unreachable!
         let e' ← mkAppS f a'
         let u ← getLevel α
         let v ← getLevel β
         let h := mkApp6 (mkConst ``congrArg [u, v]) α β a a' f ha
         return (.step e' h, β)
       | .step f' hf _, .step a' ha _ =>
+        let .forallE _ α β _ ← whnfToForall fType | unreachable!
         let e' ← mkAppS f' a'
         let u ← getLevel α
         let v ← getLevel β

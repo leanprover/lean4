@@ -3359,7 +3359,8 @@ theorem extractLsb'_concat {x : BitVec (w + 1)} {y : Bool} :
   · simp
   · simp [show i - 1 < t by omega]
 
-theorem concat_extractLsb'_getLsb {w : Nat} (x : BitVec (w + 1)) : BitVec.concat (x.extractLsb' 1 w) (x.getLsb 0) = x := by
+theorem concat_extractLsb'_getLsb {x : BitVec (w + 1)} :
+    BitVec.concat (x.extractLsb' 1 w) (x.getLsb 0) = x := by
   ext i hw
   by_cases h : i = 0
   · simp [h]

@@ -236,8 +236,7 @@ theorem denote_blastAddVec
                               (ls := bvRes) (hls := by simp [bvRes])
         have bvRes_proof' := bvRes_proof iter_num (by omega) (by omega)
         let lhs_bv := BitVec.extractLsb' (2 * iter_num * w) w old_layer_bv
-        let rhs_bv := if h : 2 * iter_num + 1 < old_length
-                      then BitVec.extractLsb' ((2 * iter_num + 1) * w) w old_layer_bv else 0
+        let rhs_bv := BitVec.extractLsb' ((2 * iter_num + 1) * w) w old_layer_bv
         rw [denote_blastAdd (rhs := rhs_bv) (lhs := lhs_bv)]
         · -- have : ∀ k,  (BitVec.extractLsb' (iter_num * w) w bvRes).getLsbD k =
           let k := idx2 - iter_num * w
@@ -252,7 +251,7 @@ theorem denote_blastAddVec
             simp [hksum, Nat.add_mul] at hidx2
             omega
           simp only [this, decide_true, Bool.true_and] at hlsbd
-          simp only [dite_eq_ite, BitVec.ofNat_eq_ofNat, lhs_bv, rhs_bv]
+          simp only [lhs_bv, rhs_bv]
           rw [← hlsbd]
           simp [bvRes_proof]
         · intros idx hidx
@@ -275,23 +274,11 @@ theorem denote_blastAddVec
                       (blastAddVec._proof_9 aig iter_num old_layer))).get
                 idx hidx).hgate
         · intros idx1 hidx1
-          simp only [dite_eq_ite, BitVec.ofNat_eq_ofNat, rhs_bv]
+          simp only [rhs_bv]
           have :
-            ((if 2 * iter_num + 1 < old_length then BitVec.extractLsb' ((2 * iter_num + 1) * w) w old_layer_bv else 0#w).getLsbD idx1) =
+            ((BitVec.extractLsb' ((2 * iter_num + 1) * w) w old_layer_bv).getLsbD idx1) =
             ((decide (idx1 < w) && old_layer_bv.getLsbD ((2 * iter_num + 1) * w + idx1))) := by
             simp [hidx1]
-            split
-            · case _ hh =>
-              simp
-            · case _ hh =>
-              simp at hh
-              have h1 : old_length * w ≤ (2 * iter_num + 1) * w := by
-                exact Nat.mul_le_mul_right w hh
-              have h2 : old_length * w ≤ (2 * iter_num) * w + w := by
-                simp [Nat.add_mul] at h1; omega
-              have h3 : old_length * w ≤ (2 * iter_num + 1) * w + idx1 := by
-                omega
-              simp [h3]
           rw [this]
           have := BitVec.getLsbD_extractLsb' (x := old_layer_bv) (start := (2 * iter_num + 1) * w) (len := w) (i := idx1)
           rw [← this]
@@ -368,6 +355,8 @@ theorem denote_go
         congr 1
         rw [proof (by omega)]
         · simp
+          ext k hk
+          simp
         · omega
         · omega
       · case _ hg =>

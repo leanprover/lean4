@@ -7,9 +7,10 @@ module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Sym.AlphaShareBuilder
+import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.ReplaceS
+import Lean.Meta.Sym.AbstractS
 import Lean.Meta.Sym.InferType
-import Lean.Meta.Sym.Simp.App
 import Lean.Meta.AppBuilder
 import Lean.Meta.HaveTelescope
 import Lean.Util.CollectFVars
@@ -21,6 +22,7 @@ structure ToBetaAppResult where
   e : Expr
   h : Expr
   varDeps : Array (Array Nat)
+  fType : Expr
   deriving Inhabited
 
 def collectFVarIdsAt (e : Expr) (fvarIdToPos : FVarIdMap Nat) : Array FVarId :=
@@ -31,10 +33,19 @@ def collectFVarIdsAt (e : Expr) (fvarIdToPos : FVarIdMap Nat) : Array FVarId :=
     let pos₂ := fvarIdToPos.get! fvarId₂
     pos₁ < pos₂
 
-def toBetaApp (haveExpr : Expr) : SymM ToBetaAppResult := do
-  go haveExpr #[] #[] #[] #[] #[] {}
+open Internal in
+def mkArrows (αs : Array Expr) (β : Expr) : SymM Expr := do
+  go αs.size β (Nat.le_refl _)
 where
-  go (e : Expr) (xs xs' args subst : Array Expr) (varDeps : Array (Array Nat)) (fvarIdToPos : FVarIdMap Nat)
+  go (i : Nat) (β : Expr) (h : i ≤ αs.size) : SymM Expr := do
+    match i with
+    | 0 => return β
+    | i+1 => go i (← mkForallS `a .default αs[i] β) (by omega)
+
+def toBetaApp (haveExpr : Expr) : SymM ToBetaAppResult := do
+  go haveExpr #[] #[] #[] #[] #[] #[] {}
+where
+  go (e : Expr) (xs xs' args subst types : Array Expr) (varDeps : Array (Array Nat)) (fvarIdToPos : FVarIdMap Nat)
       : SymM ToBetaAppResult := do
     if let .letE n t v b (nondep := true) := e then
       assert! !t.hasLooseBVars
@@ -44,24 +55,25 @@ where
       let varPos := fvarIds.map (fvarIdToPos.getD · 0)
       let ys := fvarIds.map mkFVar
       let arg ← mkLambdaFVars ys v
-      withLocalDeclD n (← mkForallFVars ys t) fun x' => do
+      let t' ← share (← mkForallFVars ys t)
+      withLocalDeclD n t' fun x' => do
       let args' := fvarIds.map fun fvarId =>
         let pos := fvarIdToPos.get! fvarId
         subst[pos]!
-      let v' := mkAppN x' args'
+      let v' ← share <| mkAppN x' args'
       let fvarIdToPos := fvarIdToPos.insert x.fvarId! xs.size
-      go b (xs.push x) (xs'.push x') (args.push arg) (subst.push v') (varDeps.push varPos) fvarIdToPos
+      go b (xs.push x) (xs'.push x') (args.push arg) (subst.push v') (types.push t') (varDeps.push varPos) fvarIdToPos
     else
-      let e := e.instantiateRev subst
-      let e ← mkLambdaFVars xs' e
-      let e := mkAppN e args
+      let e ← instantiateRevS e subst
+      let fType ← mkArrows types (← inferType e)
+      let e ← mkLambdaFVarsS xs' e
+      let e ← share <| mkAppN e args
       let α ← inferType haveExpr
       let u ← getLevel α
       let eq := mkApp3 (mkConst ``Eq [u]) α haveExpr e
       let h := mkApp2 (mkConst ``Eq.refl [u]) α haveExpr
       let h := mkExpectedPropHint h eq
-      let e ← shareCommon e
-      return { α, u, e, h, varDeps }
+      return { α, u, e, h, varDeps, fType }
 
 def consumeForallN (type : Expr) (n : Nat) : Expr :=
   match n with
@@ -110,10 +122,37 @@ def toHave (e : Expr) (varDeps : Array (Array Nat)) : SymM Expr :=
       share result
   go f #[] 0
 
-def simpBetaApp (e : Expr) : SimpM Result := do
-  match h : e with
-  | .app f a => mkCongr e f a (← simpBetaApp f) (← simp a) h
-  | e => simp e
+open Internal in
+def simpBetaApp (e : Expr) (fType : Expr) : SimpM Result := do
+  return (← go e).1
+where
+  go (e : Expr) : SimpM (Result × Expr) := do
+    match e with
+    | .app f a =>
+      let (rf, fType) ← go f
+      let r ← match rf, (← simp a) with
+        | .rfl _, .rfl _ =>
+          pure .rfl
+        | .step f' hf _, .rfl _ =>
+          let e' ← mkAppS f' a
+          let h := mkApp4 (← mkCongrPrefix ``congrFun' fType) f f' hf a
+          pure <| .step e' h
+        | .rfl _, .step a' ha _ =>
+          let e' ← mkAppS f a'
+          let h := mkApp4 (← mkCongrPrefix ``congrArg fType) a a' f ha
+          pure <| .step e' h
+        | .step f' hf _, .step a' ha _ =>
+          let e' ← mkAppS f' a'
+          let h := mkApp6 (← mkCongrPrefix ``congr fType) f f' a a' hf ha
+          pure <| .step e' h
+      return (r, fType.bindingBody!)
+    | e => return (← simp e, fType)
+  mkCongrPrefix (declName : Name) (fType : Expr) : SymM Expr := do
+    let α := fType.bindingDomain!
+    let β := fType.bindingBody!
+    let u ← getLevel α
+    let v ← getLevel β
+    return mkApp2 (mkConst declName [u, v]) α β
 
 structure SimpHaveResult where
   result : Result
@@ -124,7 +163,7 @@ def simpHaveCore (e : Expr) : SimpM SimpHaveResult := do
   let e₁ := e
   let r ← toBetaApp e₁
   let e₂ := r.e
-  match (← simpBetaApp e₂) with
+  match (← simpBetaApp e₂ r.fType) with
   | .rfl _ => return { result := .rfl, α := r.α, u := r.u }
   | .step e₃ h _ =>
     let h₁ := mkApp6 (mkConst ``Eq.trans [r.u]) r.α e₁ e₂ e₃ r.h h

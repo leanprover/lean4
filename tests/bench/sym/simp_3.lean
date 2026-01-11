@@ -135,24 +135,24 @@ def runAllBenchmarks : MetaM Unit := do
   IO.println ""
   IO.println "--- Benchmark 1: have-telescope chain without unused variables ---"
   ppExample (← mkHaveChainBench 5 false)
-  run fun n => benchHaveChain n false (n < 600)
+  run fun n => benchHaveChain n false true
 
   IO.println "--- Benchmark 2: have-telescope chain with unused variables ---"
   ppExample (← mkHaveChainBench 5 true)
-  run fun n => benchHaveChain n true (n < 600)
+  run fun n => benchHaveChain n true true
 
   IO.println "--- Benchmark 3: have-telescope parallel declarations with simplified values ---"
   ppExample (← mkHaveParallelBench 5 true)
-  run fun n => benchHaveParallel n true (n < 600)
+  run fun n => benchHaveParallel n true true
 
   IO.println "--- Benchmark 4: have-telescope parallel declarations with unsimplified values ---"
   ppExample (← mkHaveParallelBench 5 false)
-  run fun n => benchHaveParallel n false (n < 600)
+  run fun n => benchHaveParallel n false true
 
   IO.println ""
   IO.println "--- Benchmark 5: have-telescope chain with 1 dep ---"
   ppExample (← mkHaveChain1Bench 5)
-  run fun n => benchHaveChain1 n (n < 600)
+  run fun n => benchHaveChain1 n true
 
 #eval runAllBenchmarks
 

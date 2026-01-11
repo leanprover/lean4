@@ -16,15 +16,99 @@ import Lean.Meta.HaveTelescope
 import Lean.Util.CollectFVars
 namespace Lean.Meta.Sym.Simp
 
+/-!
+# Have-Telescope Simplification for Sym.simp
+
+This module implements efficient simplification of `have`-telescopes (sequences of
+non-dependent `let` bindings) in the symbolic simplifier. The key insight is to
+transform telescopes into a "parallel" beta-application form, simplify the arguments
+independently, and then convert back to `have` form.
+
+## The Problem
+
+Consider a `have`-telescope:
+```
+have x₁ := v₁
+have x₂ := v₂[x₁]
+...
+have xₙ := vₙ[x₁, ..., xₙ₋₁]
+b[x₁, ..., xₙ]
+```
+
+Naively generating proofs using `have_congr` leads to **quadratic kernel type-checking time**.
+The issue is that when the kernel type-checks congruence proofs, it creates fresh free
+variables for each binder, destroying sharing and generating O(n²) terms.
+
+## The Solution: Virtual Parallelization
+
+We transform the sequential `have` telescope into a parallel beta-application:
+```
+(fun x₁ x₂' ... xₙ' => b[x₁, x₂' x₁, ..., xₙ' (xₙ₋₁' ...)]) v₁ (fun x₁ => v₂[x₁]) ... (fun ... xₙ₋₁ => vₙ[..., xₙ₋₁])
+```
+
+Each `xᵢ'` is now a function that takes its dependencies as arguments. This form:
+1. Is definitionally equal to the original (so conversion is free)
+2. Enables independent simplification of each argument
+3. Produces proofs that type-check in linear time using the existing efficient simplification procedure for lambdas.
+
+## Algorithm Overview
+
+1. **`toBetaApp`**: Transform `have`-telescope → parallel beta-application
+   - Track dependency graph: which `have` depends on which previous `have`s
+   - Convert each value `vᵢ[x₁, ..., xₖ]` to `(fun y₁ ... yₖ => vᵢ[y₁, ..., yₖ])`
+   - Build the body with appropriate applications
+
+2. **`simpBetaApp`**: Simplify the beta-application using congruence lemmas
+   - Simplify function and each argument independently
+   - Generate proof using `congr`, `congrArg`, `congrFun'`
+   - This procedure is optimized for functions taking **many** arguments.
+
+3. **`toHave`**: Convert simplified beta-application → `have`-telescope
+   - Reconstruct the `have` bindings from the lambda structure
+   - Apply each argument to recover original variable references
+-/
+
+/--
+Result of converting a `have`-telescope to a parallel beta-application.
+
+Given:
+```
+have x₁ := v₁; have x₂ := v₂[x₁]; ...; have xₙ := vₙ[...]; b[x₁, ..., xₙ]
+```
+
+We produce:
+```
+(fun x₁ x₂' ... xₙ' => b'[...]) v₁ (fun deps => v₂[deps]) ... (fun deps => vₙ[deps])
+```
+
+where each `xᵢ'` has type `deps_type → Tᵢ` and `b'` contains applications `xᵢ' (deps)`.
+-/
 structure ToBetaAppResult where
+  /-- Type of the input `have`-expression. -/
   α : Expr
+  /-- The universe level of `α`. -/
   u : Level
+  /-- The beta-application form: `(fun x₁ ... xₙ' => b') v₁ ... (fun deps => vₙ)`. -/
   e : Expr
+  /-- Proof that the original expression equals `e` (by reflexivity + hints, since definitionally equal). -/
   h : Expr
+  /--
+  Dependency information for each `have`.
+  `varDeps[i]` contains the indices of previous `have`s that `vᵢ` depends on.
+  Used by `toHave` to reconstruct the telescope.
+  -/
   varDeps : Array (Array Nat)
+  /--
+  The function type: `T₁ → (deps₁ → T₂) → ... → (depsₙ₋₁ → Tₙ) → β`.
+  Used to compute universe levels for congruence lemmas.
+  -/
   fType : Expr
   deriving Inhabited
 
+/--
+Collect free variable Ids that appear in `e` and are tracked in `fvarIdToPos`,
+sorted by their position in the telescope.
+-/
 def collectFVarIdsAt (e : Expr) (fvarIdToPos : FVarIdMap Nat) : Array FVarId :=
   let s := collectFVars {} e
   let fvarIds := s.fvarIds.filter (fvarIdToPos.contains ·)
@@ -34,6 +118,10 @@ def collectFVarIdsAt (e : Expr) (fvarIdToPos : FVarIdMap Nat) : Array FVarId :=
     pos₁ < pos₂
 
 open Internal in
+/--
+Build a chain of arrows `α₁ → α₂ → ... → αₙ → β` using the `mkForallS` wrapper
+(not `.forallE`) to preserve sharing.
+-/
 def mkArrows (αs : Array Expr) (β : Expr) : SymM Expr := do
   go αs.size β (Nat.le_refl _)
 where
@@ -42,9 +130,37 @@ where
     | 0 => return β
     | i+1 => go i (← mkForallS `a .default αs[i] β) (by omega)
 
+/--
+Transform a `have`-telescope into a parallel beta-application.
+
+**Input**: `have x₁ := v₁; ...; have xₙ := vₙ; b`
+
+**Output**: A `ToBetaAppResult` containing the equivalent beta-application.
+
+## Transformation Details
+
+For each `have xᵢ := vᵢ` where `vᵢ` depends on `xᵢ₁, ..., xᵢₖ` (aka `depsₖ`)
+- The argument becomes `fun depsₖ => vᵢ[depsₖ]`
+- The type becomes `Dᵢ₁ → ... → Dᵢₖ → Tᵢ` where `Dᵢⱼ` is the type of `xᵢⱼ`
+- In the body, `xᵢ` is replaced by `xᵢ' sᵢ₁ ... sᵢₖ` where `sᵢⱼ` is the replacement for `xᵢⱼ`
+
+The proof is `rfl` since the transformation is definitionally equal.
+-/
 def toBetaApp (haveExpr : Expr) : SymM ToBetaAppResult := do
   go haveExpr #[] #[] #[] #[] #[] #[] {}
 where
+  /--
+  Process the telescope recursively.
+
+  - `e`: Current expression (remaining telescope)
+  - `xs`: Original `have` binders (as fvars)
+  - `xs'`: New binders with function types (as fvars)
+  - `args`: Lambda-wrapped values `(fun deps => vᵢ)`
+  - `subst`: Substitution mapping old vars to applications `xᵢ' sᵢ₁ ... sᵢₖ`
+  - `types`: Types of the new binders
+  - `varDeps`: Dependency positions for each `have`
+  - `fvarIdToPos`: Map from fvar ID to telescope position
+  -/
   go (e : Expr) (xs xs' args subst types : Array Expr) (varDeps : Array (Array Nat)) (fvarIdToPos : FVarIdMap Nat)
       : SymM ToBetaAppResult := do
     if let .letE n t v b (nondep := true) := e then
@@ -75,12 +191,30 @@ where
       let h := mkExpectedPropHint h eq
       return { α, u, e, h, varDeps, fType }
 
+/--
+Strip `n` leading forall binders from a type.
+Used to extract the actual type from a function type when we know the number of arguments.
+-/
 def consumeForallN (type : Expr) (n : Nat) : Expr :=
   match n with
   | 0 => type
   | n+1 => consumeForallN type.bindingBody! n
 
 open Internal in
+/--
+Eliminate auxiliary applications `xᵢ' sᵢ₁ ... sᵢₖ` in the body when converting back to `have` form.
+
+After simplification, the body contains applications like `xᵢ' deps`. This function
+replaces them with the actual `have` variables `xᵢ`.
+
+**Parameters**:
+- `e`: Expression containing `xᵢ' deps` applications (with loose bvars)
+- `xs`: The actual `have` binders to substitute in
+- `varDeps`: Dependency information for each variable
+
+The function uses `replaceS` to traverse `e`, looking for applications of
+bound variables at the expected positions.
+-/
 def elimAuxApps (e : Expr) (xs : Array Expr) (varDeps : Array (Array Nat)) : SymM Expr := do
   let n := xs.size
   replaceS e fun e offset => do
@@ -104,6 +238,13 @@ def elimAuxApps (e : Expr) (xs : Array Expr) (varDeps : Array (Array Nat)) : Sym
         return some e
     | _ => return none
 
+/--
+Convert a simplified beta-application back to `have` form.
+
+**Input**: `(fun x₁ ... xₙ' => b') v₁ ... vₙ` with dependency info
+
+**Output**: `have x₁ := w₁; ...; have xₙ := wₙ; b`
+-/
 def toHave (e : Expr) (varDeps : Array (Array Nat)) : SymM Expr :=
   e.withApp fun f args => do
   if _h : args.size ≠ varDeps.size then unreachable! else
@@ -122,10 +263,23 @@ def toHave (e : Expr) (varDeps : Array (Array Nat)) : SymM Expr :=
       share result
   go f #[] 0
 
+/-- Result of extracting universe levels from a non-dependent function type. -/
 structure GetUnivsResult where
+  /-- Universe level of each argument type. -/
   argUnivs : Array Level
+  /-- Universe level of each partial application's result type. -/
   fnUnivs : Array Level
 
+/--
+Extract universe levels from a function type for use in congruence lemmas.
+
+For `α₁ → α₂ → ... → αₙ → β`:
+- `argUnivs[i]` = universe of `αᵢ₊₁`
+- `fnUnivs[i]` = universe of `αᵢ₊₁ → ... → β`
+
+These are needed because `congr`, `congrArg`, and `congrFun'` are universe-polymorphic,
+and we want to avoid a quadratic overhead.
+-/
 def getUnivs (fType : Expr) : SymM GetUnivsResult := do
   go fType #[]
 where
@@ -146,6 +300,21 @@ where
       return { argUnivs, fnUnivs }
 
 open Internal in
+/--
+Simplify a beta-application and generate a proof.
+
+This is the core simplification routine. Given `f a₁ ... aₙ`, it:
+1. Simplifies `f` and each `aᵢ` independently
+2. Combines the results using appropriate congruence lemmas
+
+## Congruence Lemma Selection
+
+For each application `f a`:
+- If both changed: use `congr : f = f' → a = a' → f a = f' a'`
+- If only `f` changed: use `congrFun' : f = f' → f a = f' a`
+- If only `a` changed: use `congrArg : a = a' → f a = f a'`
+- If neither changed: return `.rfl`
+-/
 def simpBetaApp (e : Expr) (fType : Expr) (fnUnivs argUnivs : Array Level) : SimpM Result := do
   return (← go e 0).1
 where
@@ -178,11 +347,32 @@ where
     let v := fnUnivs[i]!
     return mkApp2 (mkConst declName [u, v]) α β
 
+/-- Intermediate result for `have`-telescope simplification. -/
 structure SimpHaveResult where
   result : Result
   α : Expr
   u : Level
 
+/--
+Core implementation of `have`-telescope simplification.
+
+## Algorithm
+
+1. Convert the `have`-telescope to beta-application form (`toBetaApp`)
+2. Simplify the beta-application (`simpBetaApp`)
+3. If changed, convert back to `have` form (`toHave`)
+4. Chain the proofs using transitivity
+
+## Proof Structure
+
+```
+e₁ = e₂    (by rfl, definitional equality from toBetaApp)
+e₂ = e₃    (from simpBetaApp)
+e₃ = e₄    (by rfl, definitional equality from toHave)
+─────────────────────────────────────────────────────────
+e₁ = e₄    (by transitivity)
+```
+-/
 def simpHaveCore (e : Expr) : SimpM SimpHaveResult := do
   let e₁ := e
   let r ← toBetaApp e₁
@@ -199,9 +389,21 @@ def simpHaveCore (e : Expr) : SimpM SimpHaveResult := do
     let h  := mkApp6 (mkConst ``Eq.trans [r.u]) r.α e₁ e₃ e₄ h₁ h₂
     return { result := .step e₄ h, α := r.α, u := r.u }
 
+/--
+Simplify a `have`-telescope.
+
+This is the main entry point for `have`-telescope simplification in `Sym.simp`.
+See module documentation for the algorithm overview.
+-/
 public def simpHave (e : Expr) : SimpM Result := do
   return (← simpHaveCore e).result
 
+/--
+Simplify a `have`-telescope and eliminate unused bindings.
+
+This combines simplification with dead variable elimination in a single pass,
+avoiding quadratic behavior from multiple passes.
+-/
 public def simpHaveAndZetaUnused (e₁ : Expr) : SimpM Result := do
   let r ← simpHaveCore e₁
   match r.result with

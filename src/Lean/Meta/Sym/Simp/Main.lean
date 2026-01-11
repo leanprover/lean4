@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
-import Lean.Meta.MonadSimp
 import Lean.Meta.Sym.AlphaShareBuilder
-import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.Result
 import Lean.Meta.Sym.Simp.Simproc
 import Lean.Meta.Sym.Simp.App
@@ -17,16 +15,6 @@ import Lean.Meta.Sym.Simp.Lambda
 import Lean.Meta.Sym.Simp.Forall
 namespace Lean.Meta.Sym.Simp
 open Internal
-
-def simpLet (e : Expr) : SimpM Result := do
-  if !e.letNondep! then
-    /-
-    **Note**: We don't do anything if it is a dependent `let`.
-    Users may decide to `zeta`-expand them or apply `letToHave` at `pre`/`post`.
-    -/
-    return .rfl
-  else
-    simpHaveAndZetaUnused e
 
 def simpStep : Simproc := fun e => do
   match e with

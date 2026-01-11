@@ -423,4 +423,14 @@ public def simpHaveAndZetaUnused (e₁ : Expr) : SimpM Result := do
         (mkApp2 (mkConst ``Eq.refl [r.u]) r.α e₃)
       return .step e₃ h
 
+public def simpLet (e : Expr) : SimpM Result := do
+  if !e.letNondep! then
+    /-
+    **Note**: We don't do anything if it is a dependent `let`.
+    Users may decide to `zeta`-expand them or apply `letToHave` at `pre`/`post`.
+    -/
+    return .rfl
+  else
+    simpHaveAndZetaUnused e
+
 end Lean.Meta.Sym.Simp

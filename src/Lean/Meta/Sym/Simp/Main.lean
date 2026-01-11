@@ -98,7 +98,7 @@ def simpLet (e : Expr) : SimpM Result := do
     -/
     return .rfl
   else
-    simpHave e
+    simpHaveAndZetaUnused e
 
 def simpStep : Simproc := fun e => do
   match e with

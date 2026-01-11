@@ -11,6 +11,7 @@ import Lean.Meta.Sym.ReplaceS
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.App
 import Lean.Meta.AppBuilder
+import Lean.Meta.HaveTelescope
 import Lean.Util.CollectFVars
 namespace Lean.Meta.Sym.Simp
 
@@ -114,12 +115,17 @@ def simpBetaApp (e : Expr) : SimpM Result := do
   | .app f a => mkCongr e f a (← simpBetaApp f) (← simp a) h
   | e => simp e
 
-public def simpHave (e : Expr) : SimpM Result := do
+structure SimpHaveResult where
+  result : Result
+  α : Expr
+  u : Level
+
+def simpHaveCore (e : Expr) : SimpM SimpHaveResult := do
   let e₁ := e
   let r ← toBetaApp e₁
   let e₂ := r.e
   match (← simpBetaApp e₂) with
-  | .rfl _ => return .rfl
+  | .rfl _ => return { result := .rfl, α := r.α, u := r.u }
   | .step e₃ h _ =>
     let h₁ := mkApp6 (mkConst ``Eq.trans [r.u]) r.α e₁ e₂ e₃ r.h h
     let e₄ ← toHave e₃ r.varDeps
@@ -127,6 +133,28 @@ public def simpHave (e : Expr) : SimpM Result := do
     let h₂ := mkApp2 (mkConst ``Eq.refl [r.u]) r.α e₃
     let h₂ := mkExpectedPropHint h₂ eq
     let h  := mkApp6 (mkConst ``Eq.trans [r.u]) r.α e₁ e₃ e₄ h₁ h₂
-    return .step e₄ h
+    return { result := .step e₄ h, α := r.α, u := r.u }
+
+public def simpHave (e : Expr) : SimpM Result := do
+  return (← simpHaveCore e).result
+
+public def simpHaveAndZetaUnused (e₁ : Expr) : SimpM Result := do
+  let r ← simpHaveCore e₁
+  match r.result with
+  | .rfl _ =>
+    let e₂ ← zetaUnused e₁
+    if isSameExpr e₁ e₂ then
+      return .rfl
+    else
+      let h := mkApp2 (mkConst ``Eq.refl [r.u]) r.α e₂
+      return .step e₂ h
+  | .step e₂ h _ =>
+    let e₃ ← zetaUnused e₂
+    if isSameExpr e₂ e₃ then
+      return r.result
+    else
+      let h := mkApp6 (mkConst ``Eq.trans [r.u]) r.α e₁ e₂ e₃ h
+        (mkApp2 (mkConst ``Eq.refl [r.u]) r.α e₃)
+      return .step e₃ h
 
 end Lean.Meta.Sym.Simp

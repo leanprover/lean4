@@ -188,14 +188,14 @@ theorem denote_blastAddVec
           ⟦aig, old_layer.get idx hidx, assign⟧ = old_layer_bv.getLsbD idx)
   (hnew : ∀ (idx : Nat) (hidx : idx < iter_num * w),
           ⟦aig, new_layer.get idx hidx, assign⟧ =
-      (BitVec.pps_layer_without_subtype 0 (old_layer := old_layer_bv) 0#(0 * w) (by simp; omega)).getLsbD idx) :
+      (BitVec.parPreSum_layer 0 (old_layer := old_layer_bv) 0#(0 * w) (by simp; omega)).getLsbD idx) :
     ∀ (idx : Nat) (hidx : idx < (old_length + 1) / 2 * w),
       ⟦
         (blastAddVec aig iter_num old_layer new_layer hold').aig,
         (blastAddVec aig iter_num old_layer new_layer hold').vec.get idx hidx,
         assign
       ⟧ =
-      (BitVec.pps_layer_without_subtype 0 old_layer_bv 0#(0 * w) (by omega)).getLsbD idx := by
+      (BitVec.parPreSum_layer 0 old_layer_bv 0#(0 * w) (by omega)).getLsbD idx := by
   intros idx hidx
   generalize hgen : blastAddVec aig iter_num old_layer new_layer hold' = res
   unfold blastAddVec at hgen
@@ -231,8 +231,8 @@ theorem denote_blastAddVec
           · exact (new_layer.get idx2 (Eq.mpr_prop (Eq.refl (idx2 < iter_num * w)) hsplit)).hgate
         · exact (new_layer.get idx2 (Eq.mpr_prop (Eq.refl (idx2 < iter_num * w)) hsplit)).hgate
       · case _ hsplit1 =>
-        let bvRes := BitVec.pps_layer_without_subtype 0 old_layer_bv 0#(0 * w) (by omega)
-        have bvRes_proof := BitVec.extractLsb'_pps_layer_prop 0 old_layer_bv 0#(0 * w) (by omega) (by simp)
+        let bvRes := BitVec.parPreSum_layer 0 old_layer_bv 0#(0 * w) (by omega)
+        have bvRes_proof := BitVec.extractLsb'_parPreSum_layer 0 old_layer_bv 0#(0 * w) (by omega) (by simp)
                               (ls := bvRes) (hls := by simp [bvRes])
         have bvRes_proof' := bvRes_proof iter_num (by omega) (by omega)
         let lhs_bv := BitVec.extractLsb' (2 * iter_num * w) w old_layer_bv
@@ -333,7 +333,7 @@ theorem denote_go
   · rw [← hgen]
     simp
     have hcastZero : 0 = 0 / 2 * w := by omega
-    let bvRes := BitVec.pps_layer_without_subtype 0 l_bv 0#(0 * w) (by omega)
+    let bvRes := BitVec.parPreSum_layer 0 l_bv 0#(0 * w) (by omega)
     rw [denote_go (l_length := (l_length + 1) / 2) (l_bv := bvRes) ]
     · conv =>
         rhs
@@ -343,7 +343,7 @@ theorem denote_go
       · case _ h1 =>
         subst h1
         simp
-        have proof := BitVec.extractLsb'_pps_layer_prop 0 l_bv 0#(0 * w) (by omega) (ls := bvRes)
+        have proof := BitVec.extractLsb'_parPreSum_layer 0 l_bv 0#(0 * w) (by omega) (ls := bvRes)
                         (hls := by simp [bvRes])
         have hlbv : l_bv.getLsbD idx = (BitVec.extractLsb' (0 * w) w l_bv).getLsbD idx := by
           simp; omega
@@ -360,10 +360,10 @@ theorem denote_go
         · omega
         · omega
       · case _ hg =>
-        let layer := BitVec.pps_layer_without_subtype 0 l_bv (0#(0 * w)) h
-        have layer_proof := BitVec.extractLsb'_pps_layer_prop 0 l_bv (0#(0 * w)) h (by omega)
+        let layer := BitVec.parPreSum_layer 0 l_bv (0#(0 * w)) h
+        have layer_proof := BitVec.extractLsb'_parPreSum_layer 0 l_bv (0#(0 * w)) h (by omega)
                                 (ls := layer) (hls := by simp [layer])
-        have bvRes_proof := BitVec.extractLsb'_pps_layer_prop 0 l_bv 0#(0 * w) (by omega) (ls := bvRes)
+        have bvRes_proof := BitVec.extractLsb'_parPreSum_layer 0 l_bv 0#(0 * w) (by omega) (ls := bvRes)
                         (hls := by simp [bvRes])
         have : bvRes = layer := by
           ext k hk
@@ -379,7 +379,7 @@ theorem denote_go
               rw [← h_div]
               exact Eq.symm (Nat.div_add_mod k w)
           rw [show (k - k % w) / w = pos by rfl, show k % w = idx by rfl] at this
-        have haddrec := BitVec.rec_add_eq_rec_add_iff (a := bvRes) (b := l_bv) (b_length := l_length)
+        have haddrec := BitVec.addRecAux_eq_of (a := bvRes) (b := l_bv) (b_length := l_length)
                             (hadd := by omega) (hlen := by omega) (by omega)
                             (n := (l_length + 1) / 2) (by omega)
 

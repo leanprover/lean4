@@ -363,11 +363,32 @@ partial def declareVars : FnBody → Bool → M Bool
   | FnBody.jdecl _ xs _ b,    d => do declareParams xs; declareVars b (d || xs.size > 0)
   | e,                        d => if e.isTerminal then pure d else declareVars e.body d
 
+partial def optionLikePath (ty : IRType) : Option (List Nat) := Id.run do
+  match ty with
+  | .struct _ tys _ _ =>
+    for h : i in *...tys.size do
+      if let some l := optionLikePath tys[i] then
+        return i :: l
+    return none
+  | .tagged | .object | .tobject => return some []
+  | _ => return none
+
+def optionLike? (ty : IRType) : Option (List Nat) :=
+  match ty with
+  | .union _ #[.struct _ #[] 0 0, ty] => optionLikePath ty
+  | _ => none
+
+def emitPath (path : List Nat) : M Unit := do
+  emit ".cs.c1"; path.forM (emit s!".i{·}")
+
 def emitTag (x : VarId) (xType : IRType) : M Unit := do
   if xType.isObj then do
     emit "lean_obj_tag("; emit x; emit ")"
   else if xType.isStruct then
-    emit x; emit ".tag"
+    if let some a := optionLike? xType then
+      emit x; emitPath a; emit " != 0"
+    else
+      emit x; emit ".tag"
   else
     emit x
 
@@ -507,7 +528,12 @@ def emitCtorSetArgs (z : VarId) (ys : Array Arg) : M Unit :=
 
 def emitCtor (z : VarId) (t : IRType) (c : CtorInfo) (ys : Array Arg) : M Unit := do
   if let .union _ tys := t then
-    emit z; emit ".tag = "; emit c.cidx; emitLn ";"
+    if let some path := optionLike? t then
+      if c.cidx = 0 then
+        emit z; emitPath path; emitLn " = 0;"
+        return
+    else
+      emit z; emit ".tag = "; emit c.cidx; emitLn ";"
     let .struct _ tys _ _ := tys[c.cidx]! | unreachable!
     for h : i in *...ys.size do
       if tys[i]! matches .erased | .void then
@@ -867,7 +893,8 @@ partial def emitStructDefn (ty : IRType) (nm : String) : M Unit := do
       emit (← toCType tys[i]); emit " c"; emit i; emitLn ";"
     assert! tys.size ≤ 256
     emitLn "} cs;"
-    emitLn "uint8_t tag;"
+    if (optionLike? ty).isNone then
+      emitLn "uint8_t tag;"
   | .struct _ tys us ss =>
     for h : i in *...tys.size do
       if tys[i] matches .erased | .void then
@@ -931,7 +958,12 @@ def emitStructIncDecFn (ty : IRType) (id : Nat) (isInc : Bool) : M Unit := do
   if isInc then emitLn " x, size_t n) {" else emitLn " x) {"
 
   if let .union _ tys := ty then
-    emitUnionSwitch tys.size "x.tag" fun i _ => call s!"x.cs.c{i}" tys[i]
+    if let some path := optionLike? ty then
+      emit "if (x"; emitPath path; emitLn " != 0) {"
+      call s!"x.cs.c1" tys[1]!
+      emitLn "}"
+    else
+      emitUnionSwitch tys.size "x.tag" fun i _ => call s!"x.cs.c{i}" tys[i]
   else if let .struct _ tys _ _ := ty then
     for h : i in *...tys.size do
       call s!"x.i{i}" tys[i]
@@ -963,19 +995,47 @@ def emitStructReshapeFn (origin target : IRType) (id1 id2 : Nat) : M Unit := do
 
   match origin, target with
   | .union _ tys, .union _ tys' =>
-    emitLn "y.tag = x.tag;"
-    -- Note: through cse in the mono stage we can get "bad" reshapes
-    -- where e.g. `let a : Option UInt8 := none` and `let a : Option (Option UInt8) := none`
-    -- merged into one variable. In that case, ignore branches with incompatibilities.
-    emitUnionSwitchWithImpossible tys.size "x.tag"
-        (fun i => compatibleReshape tys[i]! tys'[i]!)
-        fun i _ => do
+    let reshapeUnion (i : Nat) : M Unit := do
       emit "y.cs.c"; emit i; emit " = "
-      if tys[i].compatibleWith tys'[i]! then
+      if tys[i]!.compatibleWith tys'[i]! then
         emit "x.cs.c"; emit i; emitLn ";"
       else
-        emitReshapeFn tys[i] tys'[i]!
+        emitReshapeFn tys[i]! tys'[i]!
         emit "(x.cs.c"; emit i; emitLn ");"
+    if let some path := optionLike? origin then
+      let compatible := compatibleReshape tys[1]! tys'[1]!
+      if !compatible then
+        if let some path2 := optionLike? target then
+          emit "y"; emitPath path2; emitLn " = 0;"
+        else
+          emitLn "y.tag = 0;"
+      else
+        emit "if (x"; emitPath path; emitLn "== 0) {"
+        if let some path2 := optionLike? target then
+          emit "y"; emitPath path2; emitLn " = 0;"
+        else
+          emitLn "y.tag = 0;"
+        emitLn "} else {"
+        if (optionLike? target).isNone then
+          emitLn "y.tag = 1;"
+        reshapeUnion 1
+        emitLn "}"
+    else if let some path := optionLike? target then
+      let compatible := compatibleReshape tys[1]! tys'[1]!
+      if !compatible then emit "y"; emitPath path; emitLn " = 0;" else
+      emitLn "if (x.tag == 0) {"
+      emit "y"; emitPath path; emitLn " = 0;"
+      emitLn "} else {"
+      reshapeUnion 1
+      emitLn "}"
+    else
+      emitLn "y.tag = x.tag;"
+      -- Note: through cse in the mono stage we can get "bad" reshapes
+      -- where e.g. `let a : Option UInt8 := none` and `let a : Option (Option UInt8) := none`
+      -- merged into one variable. In that case, ignore branches with incompatibilities.
+      emitUnionSwitchWithImpossible tys.size "x.tag"
+          (fun i => compatibleReshape tys[i]! tys'[i]!)
+          fun i _ => reshapeUnion i
   | .struct _ tys us ss, .struct _ tys' _ _ =>
     if us ≠ 0 ∨ ss ≠ 0 then
       emit "memcpy(y.u, x.u, sizeof(size_t)*"; emit us; emit "+"; emit ss; emitLn ");"
@@ -1029,8 +1089,15 @@ def emitStructBoxFn (ty : IRType) (id : Nat) : M Unit := do
   emit "("; emit (structType id); emitLn " x) {"
   emitLn "lean_object* y;"
   if let .union _ tys := ty then
-    emitUnionSwitch tys.size "x.tag" fun i _ => do
-      emitStructBox tys[i] i s!"x.cs.c{i}"
+    if let some path := optionLike? ty then
+      emitLn "if (x"; emitPath path; emit " == 0) {"
+      emitLn "y = lean_box(0);"
+      emitLn "} else {"
+      emitStructBox tys[1]! 1 s!"x.cs.c1"
+      emitLn "}"
+    else
+      emitUnionSwitch tys.size "x.tag" fun i _ => do
+        emitStructBox tys[i] i s!"x.cs.c{i}"
   else
     emitStructBox ty 0 "x"
   emitLn "return y;"
@@ -1043,11 +1110,20 @@ def emitStructUnboxFn (ty : IRType) (id : Nat) : M Unit := do
   emit (structType id); emitLn " y;"
 
   if let .union _ tys := ty then
-    emitLn "y.tag = lean_obj_tag(x);"
-    emitUnionSwitch tys.size "y.tag" fun i _ => do
-      emit "y.cs.c"; emit i; emit " = "
-      emitUnboxFn tys[i]
+    if let some path := optionLike? ty then
+      emitLn "if (lean_is_scalar(x)) {"
+      emit "y"; emitPath path; emitLn " = 0;"
+      emitLn "} else {"
+      emit "y.cs.c1 = "
+      emitUnboxFn tys[1]!
       emitLn "(x);"
+      emitLn "}"
+    else
+      emitLn "y.tag = lean_obj_tag(x);"
+      emitUnionSwitch tys.size "y.tag" fun i _ => do
+        emit "y.cs.c"; emit i; emit " = "
+        emitUnboxFn tys[i]
+        emitLn "(x);"
   else
     let .struct _ tys us ss := ty | unreachable!
     if us ≠ 0 ∨ ss ≠ 0 then

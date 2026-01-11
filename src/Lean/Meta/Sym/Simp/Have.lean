@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
+import Lean.Meta.Sym.Simp.Lambda
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.ReplaceS
@@ -338,7 +339,8 @@ where
           let h := mkApp6 (← mkCongrPrefix ``congr fType i) f f' a a' hf ha
           pure <| .step e' h
       return (r, fType.bindingBody!)
-    | e => return (← simp e, fType)
+    | .lam .. => return (← simpLambda e, fType)
+    | _ => unreachable!
 
   mkCongrPrefix (declName : Name) (fType : Expr) (i : Nat) : SymM Expr := do
     let α := fType.bindingDomain!

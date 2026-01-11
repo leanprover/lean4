@@ -41,6 +41,7 @@ if(LLD_PATH)
   string(APPEND LEAN_EXTRA_LINKER_FLAGS_DEFAULT " -fuse-ld=lld")
 endif()
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  # Create space in install names so they can be patched later in Nix.
   string(APPEND LEAN_EXTRA_LINKER_FLAGS_DEFAULT " -headerpad_max_install_names")
 endif()
 

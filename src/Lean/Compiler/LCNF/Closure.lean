@@ -156,7 +156,8 @@ mutual
 
   /-- Collect dependencies of the given expression. -/
   partial def collectType (type : Expr) : ClosureM Unit := do
-    type.forEachWhere Expr.isFVar fun e => collectFVar e.fvarId!
+    if type.hasFVar then
+      type.forEachWhere Expr.isFVar fun e => collectFVar e.fvarId!
 
 end
 

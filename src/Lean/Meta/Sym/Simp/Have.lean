@@ -122,36 +122,60 @@ def toHave (e : Expr) (varDeps : Array (Array Nat)) : SymM Expr :=
       share result
   go f #[] 0
 
-open Internal in
-def simpBetaApp (e : Expr) (fType : Expr) : SimpM Result := do
-  return (← go e).1
+structure GetUnivsResult where
+  argUnivs : Array Level
+  fnUnivs : Array Level
+
+def getUnivs (fType : Expr) : SymM GetUnivsResult := do
+  go fType #[]
 where
-  go (e : Expr) : SimpM (Result × Expr) := do
+  go (type : Expr) (argUnivs : Array Level) : SymM GetUnivsResult := do
+    match type with
+    | .forallE _ d b _ =>
+      go b (argUnivs.push (← getLevel d))
+    | _ =>
+      let mut v ← getLevel type
+      let mut i := argUnivs.size
+      let mut fnUnivs := #[]
+      while i > 0 do
+        i := i - 1
+        let u := argUnivs[i]!
+        v := mkLevelIMax' u v |>.normalize
+        fnUnivs := fnUnivs.push v
+      fnUnivs := fnUnivs.reverse
+      return { argUnivs, fnUnivs }
+
+open Internal in
+def simpBetaApp (e : Expr) (fType : Expr) (fnUnivs argUnivs : Array Level) : SimpM Result := do
+  return (← go e 0).1
+where
+  go (e : Expr) (i : Nat) : SimpM (Result × Expr) := do
     match e with
     | .app f a =>
-      let (rf, fType) ← go f
+      let (rf, fType) ← go f (i+1)
       let r ← match rf, (← simp a) with
         | .rfl _, .rfl _ =>
           pure .rfl
         | .step f' hf _, .rfl _ =>
           let e' ← mkAppS f' a
-          let h := mkApp4 (← mkCongrPrefix ``congrFun' fType) f f' hf a
+          let h := mkApp4 (← mkCongrPrefix ``congrFun' fType i) f f' hf a
           pure <| .step e' h
         | .rfl _, .step a' ha _ =>
           let e' ← mkAppS f a'
-          let h := mkApp4 (← mkCongrPrefix ``congrArg fType) a a' f ha
+          let h := mkApp4 (← mkCongrPrefix ``congrArg fType i) a a' f ha
           pure <| .step e' h
         | .step f' hf _, .step a' ha _ =>
           let e' ← mkAppS f' a'
-          let h := mkApp6 (← mkCongrPrefix ``congr fType) f f' a a' hf ha
+          let h := mkApp6 (← mkCongrPrefix ``congr fType i) f f' a a' hf ha
           pure <| .step e' h
       return (r, fType.bindingBody!)
     | e => return (← simp e, fType)
-  mkCongrPrefix (declName : Name) (fType : Expr) : SymM Expr := do
+
+  mkCongrPrefix (declName : Name) (fType : Expr) (i : Nat) : SymM Expr := do
     let α := fType.bindingDomain!
     let β := fType.bindingBody!
-    let u ← getLevel α
-    let v ← getLevel β
+    let u := argUnivs[i]!
+    let v := fnUnivs[i]!
     return mkApp2 (mkConst declName [u, v]) α β
 
 structure SimpHaveResult where
@@ -163,7 +187,8 @@ def simpHaveCore (e : Expr) : SimpM SimpHaveResult := do
   let e₁ := e
   let r ← toBetaApp e₁
   let e₂ := r.e
-  match (← simpBetaApp e₂ r.fType) with
+  let { fnUnivs, argUnivs } ← getUnivs r.fType
+  match (← simpBetaApp e₂ r.fType fnUnivs argUnivs) with
   | .rfl _ => return { result := .rfl, α := r.α, u := r.u }
   | .step e₃ h _ =>
     let h₁ := mkApp6 (mkConst ``Eq.trans [r.u]) r.α e₁ e₂ e₃ r.h h

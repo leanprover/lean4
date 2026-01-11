@@ -16,3 +16,4 @@ public import Lean.Meta.Sym.Simp.Simproc
 public import Lean.Meta.Sym.Simp.Theorems
 public import Lean.Meta.Sym.Simp.Have
 public import Lean.Meta.Sym.Simp.Lambda
+public import Lean.Meta.Sym.Simp.Forall

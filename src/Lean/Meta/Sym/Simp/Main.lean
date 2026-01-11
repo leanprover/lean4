@@ -14,53 +14,9 @@ import Lean.Meta.Sym.Simp.Simproc
 import Lean.Meta.Sym.Simp.App
 import Lean.Meta.Sym.Simp.Have
 import Lean.Meta.Sym.Simp.Lambda
+import Lean.Meta.Sym.Simp.Forall
 namespace Lean.Meta.Sym.Simp
 open Internal
-
-def simpArrow (e : Expr) : SimpM Result := do
-  let p := e.bindingDomain!
-  let q := e.bindingBody!
-  match (← simp p), (← simp q) with
-  | .rfl _, .rfl _ =>
-    return .rfl
-  | .step p' h _, .rfl _ =>
-    let u ← getLevel p
-    let v ← getLevel q
-    let e' ← e.updateForallS! p' q
-    return .step e' <| mkApp4 (mkConst ``implies_congr_left [u, v]) p p' q h
-  | .rfl _, .step q' h _ =>
-    let u ← getLevel p
-    let v ← getLevel q
-    let e' ← e.updateForallS! p q'
-    return .step e' <| mkApp4 (mkConst ``implies_congr_right [u, v]) p q q' h
-  | .step p' h₁ _, .step q' h₂ _ =>
-    let u ← getLevel p
-    let v ← getLevel q
-    let e' ← e.updateForallS! p' q'
-    return .step e' <| mkApp6 (mkConst ``implies_congr [u, v]) p p' q q' h₁ h₂
-
-def simpForall (e : Expr) : SimpM Result := do
-  if e.isArrow then
-    simpArrow e
-  else if (← isProp e) then
-    let n := getForallTelescopeSize e.bindingBody! 1
-    forallBoundedTelescope e n fun xs b => do
-    match (← simp b) with
-    | .rfl _ => return .rfl
-    | .step b' h _ =>
-      let h ← mkLambdaFVars xs h
-      let e' ← shareCommonInc (← mkForallFVars xs b')
-      -- **Note**: consider caching the forall-congr theorems
-      let hcongr ← mkForallCongrFor xs
-      return .step e' (mkApp3 hcongr (← mkLambdaFVars xs b) (← mkLambdaFVars xs b') h)
-  else
-    return .rfl
-where
-  -- **Note**: Optimize if this is quadratic in practice
-  getForallTelescopeSize (e : Expr) (n : Nat) : Nat :=
-    match e with
-    | .forallE _ _ b _ => if b.hasLooseBVar 0 then getForallTelescopeSize b (n+1) else n
-    | _ => n
 
 def simpLet (e : Expr) : SimpM Result := do
   if !e.letNondep! then

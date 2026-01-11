@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
-import Lean.Meta.InferType
 import Lean.Meta.Closure
-import Lean.Meta.AppBuilder
 namespace Lean.Meta.Sym.Simp
 
 /--

@@ -152,6 +152,7 @@ def run (k : Nat → MetaM Unit) : MetaM Unit := do
     k n
 
 set_option maxRecDepth 100000
+set_option maxHeartbeats 1000000
 
 /-! ## Run all benchmarks -/
 def runAllBenchmarks : MetaM Unit := do

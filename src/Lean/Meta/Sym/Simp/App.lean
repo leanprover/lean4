@@ -37,49 +37,6 @@ inference on proof terms, which can be arbitrarily complex, and often destroys s
 -/
 
 /--
-Helper function for constructing a congruence proof using `congrFun'`, `congrArg`, `congr`.
-For the dependent case, use `mkCongrFun`
--/
-public def mkCongr (e : Expr) (f a : Expr) (fr : Result) (ar : Result) (_ : e = .app f a) : SymM Result := do
-  let mkCongrPrefix (declName : Name) : SymM Expr := do
-    let α ← inferType a
-    let u ← getLevel α
-    let β ← inferType e
-    let v ← getLevel β
-    return mkApp2 (mkConst declName [u, v]) α β
-  match fr, ar with
-  | .rfl _,  .rfl _ => return .rfl
-  | .step f' hf _, .rfl _ =>
-    let e' ← mkAppS f' a
-    let h := mkApp4 (← mkCongrPrefix ``congrFun') f f' hf a
-    return .step e' h
-  | .rfl _, .step a' ha _ =>
-    let e' ← mkAppS f a'
-    let h := mkApp4 (← mkCongrPrefix ``congrArg) a a' f ha
-    return .step e' h
-  | .step f' hf _, .step a' ha _ =>
-    let e' ← mkAppS f' a'
-    let h := mkApp6 (← mkCongrPrefix ``congr) f f' a a' hf ha
-    return .step e' h
-
-/--
-Returns a proof using `congrFun`
-```
-congrFun.{u, v} {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x} (h : f = g) (a : α) : f a = g a
-```
--/
-def mkCongrFun (e : Expr) (f a : Expr) (f' : Expr) (hf : Expr) (_ : e = .app f a) : SymM Result := do
-  let .forallE x _ βx _ ← whnfD (← inferType f)
-    | throwError "failed to build congruence proof, function expected{indentExpr f}"
-  let α ← inferType a
-  let u ← getLevel α
-  let v ← getLevel (← inferType e)
-  let β := Lean.mkLambda x .default α βx
-  let e' ← mkAppS f' a
-  let h := mkApp6 (mkConst ``congrFun [u, v]) α β f f' hf a
-  return .step e' h
-
-/--
 Reduces `type` to weak head normal form and verifies it is a `forall` expression.
 If `type` is already a `forall`, returns it unchanged (avoiding unnecessary work).
 The result is shared via `share` to maintain maximal sharing invariants.
@@ -178,6 +135,49 @@ where
         let v ← getLevel β
         let h := mkApp8 (mkConst ``congr [u, v]) α β f f' a a' hf ha
         return (.step e' h, β)
+
+/--
+Helper function for constructing a congruence proof using `congrFun'`, `congrArg`, `congr`.
+For the dependent case, use `mkCongrFun`
+-/
+public def mkCongr (e : Expr) (f a : Expr) (fr : Result) (ar : Result) (_ : e = .app f a) : SymM Result := do
+  let mkCongrPrefix (declName : Name) : SymM Expr := do
+    let α ← inferType a
+    let u ← getLevel α
+    let β ← inferType e
+    let v ← getLevel β
+    return mkApp2 (mkConst declName [u, v]) α β
+  match fr, ar with
+  | .rfl _,  .rfl _ => return .rfl
+  | .step f' hf _, .rfl _ =>
+    let e' ← mkAppS f' a
+    let h := mkApp4 (← mkCongrPrefix ``congrFun') f f' hf a
+    return .step e' h
+  | .rfl _, .step a' ha _ =>
+    let e' ← mkAppS f a'
+    let h := mkApp4 (← mkCongrPrefix ``congrArg) a a' f ha
+    return .step e' h
+  | .step f' hf _, .step a' ha _ =>
+    let e' ← mkAppS f' a'
+    let h := mkApp6 (← mkCongrPrefix ``congr) f f' a a' hf ha
+    return .step e' h
+
+/--
+Returns a proof using `congrFun`
+```
+congrFun.{u, v} {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x} (h : f = g) (a : α) : f a = g a
+```
+-/
+def mkCongrFun (e : Expr) (f a : Expr) (f' : Expr) (hf : Expr) (_ : e = .app f a) : SymM Result := do
+  let .forallE x _ βx _ ← whnfD (← inferType f)
+    | throwError "failed to build congruence proof, function expected{indentExpr f}"
+  let α ← inferType a
+  let u ← getLevel α
+  let v ← getLevel (← inferType e)
+  let β := Lean.mkLambda x .default α βx
+  let e' ← mkAppS f' a
+  let h := mkApp6 (mkConst ``congrFun [u, v]) α β f f' hf a
+  return .step e' h
 
 /--
 Simplify arguments of a function application with interlaced rewritable/fixed arguments.

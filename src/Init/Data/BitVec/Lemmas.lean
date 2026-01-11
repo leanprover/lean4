@@ -3375,7 +3375,7 @@ theorem concat_induction {motive : (w : Nat) → BitVec w → Prop} (nil : motiv
   case zero =>
     simp only [BitVec.eq_nil x, nil]
   case succ wl ih =>
-    rw [← concat_extractLsb'_getLsb x]
+    rw [← concat_extractLsb'_getLsb (x := x)]
     apply concat
     apply ih
 
@@ -6608,7 +6608,6 @@ theorem toNat_cpop_not {x : BitVec w} :
   · case cons b x ih =>
     have := toNat_cpop_le x
     cases b
-    <;> simp [ih]
-    <;> omega
+    <;> (simp [ih]; omega)
 
 end BitVec

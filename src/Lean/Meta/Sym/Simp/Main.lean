@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.MonadSimp
-import Lean.Meta.HaveTelescope
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.Result
@@ -17,33 +16,6 @@ import Lean.Meta.Sym.Simp.Have
 import Lean.Meta.Sym.Simp.Funext
 namespace Lean.Meta.Sym.Simp
 open Internal
-
-instance : MonadSimp SimpM where
-  dsimp e := return e
-  withNewLemmas _ k := k
-  simp e := do match (← simp (← share e)) with
-    | .rfl _ => return .rfl
-    | .step e' h _ => return .step e' h
-
-def simpLambda (e : Expr) : SimpM Result := do
-  lambdaTelescope e fun xs b => do
-    match (← simp b) with
-    | .rfl _ => return .rfl
-    | .step b' h _ =>
-      let h ← mkLambdaFVars xs h
-      let e' ← shareCommonInc (← mkLambdaFVars xs b')
-      let funext ← getFunext xs b
-      return .step e' (mkApp3 funext e e' h)
-where
-  getFunext (xs : Array Expr) (b : Expr) : SimpM Expr := do
-    let key ← inferType e
-    if let some h := (← get).funext.find? { expr := key } then
-      return h
-    else
-      let β ← inferType b
-      let h ← mkFunextFor xs β
-      modify fun s => { s with funext := s.funext.insert { expr := key } h }
-      return h
 
 def simpArrow (e : Expr) : SimpM Result := do
   let p := e.bindingDomain!

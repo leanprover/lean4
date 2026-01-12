@@ -26,6 +26,11 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 
 namespace List
 
+/--
+Returns the index of an element of the non-empty list {name}`xs` that minimizes {name}`f`. 
+If {given}`x, y` are such that {lean}`f x = f y`, it returns the index of whichever comes first 
+in the list.
+-/
 @[inline]
 def minIdxOn [LE β] [DecidableLE β] (f : α → β) (xs : List α) (h : xs ≠ []) : Nat :=
   match xs with
@@ -41,17 +46,32 @@ where
         else
           go y j (j + 1) ys
 
+/--
+Returns the index of an element of {name}`xs` that minimizes {name}`f`. If {given}`x, y` 
+are such that {lean}`f x = f y`, it returns the index of whichever comes first in the list. 
+Returns {name}`none` if the list is empty.
+-/
 @[inline]
 def minIdxOn? [LE β] [DecidableLE β] (f : α → β) (xs : List α) : Option Nat :=
   match xs with
   | [] => none
   | y :: ys => some ((y :: ys).minIdxOn f (nomatch ·))
 
+/--
+Returns the index of an element of the non-empty list {name}`xs` that maximizes {name}`f`. 
+If {given}`x, y` are such that {lean}`f x = f y`, it returns the index of whichever comes first 
+in the list.
+-/
 @[inline]
 def maxIdxOn [LE β] [DecidableLE β] (f : α → β) (xs : List α) (h : xs ≠ []) : Nat :=
   letI := (inferInstanceAs (LE β)).opposite
   xs.minIdxOn f h
 
+/--
+Returns the index of an element of {name}`xs` that maximizes {name}`f`. If {given}`x, y` 
+are such that {lean}`f x = f y`, it returns the index of whichever comes first in the list. 
+Returns {name}`none` if the list is empty.
+-/
 @[inline]
 def maxIdxOn? [LE β] [DecidableLE β] (f : α → β) (xs : List α) : Option Nat :=
   letI := (inferInstanceAs (LE β)).opposite
@@ -364,7 +384,7 @@ theorem minIdxOn_replicate [LE β] [DecidableLE β] [Refl (α := β) (· ≤ ·)
 @[simp]
 theorem maxIdxOn_singleton [LE β] [DecidableLE β] {x : α} {f : α → β} :
     [x].maxIdxOn f (of_decide_eq_false rfl) = 0 :=
-  letI : LE β :=  (inferInstanceAs (LE β)).opposite
+  letI : LE β := (inferInstanceAs (LE β)).opposite
   minIdxOn_singleton
 
 theorem maxIdxOn_cons
@@ -373,13 +393,13 @@ theorem maxIdxOn_cons
       if h : xs = [] then 0
       else if f (xs.maxOn f h) ≤ f x then 0
       else (xs.maxIdxOn f h) + 1 :=
-  letI : LE β :=  (inferInstanceAs (LE β)).opposite
+  letI : LE β := (inferInstanceAs (LE β)).opposite
   minIdxOn_cons
 
 theorem maxIdxOn_eq_zero_iff [LE β] [DecidableLE β] [Std.IsLinearPreorder β]
     {xs : List α} {f : α → β} (h : xs ≠ []) :
     xs.maxIdxOn f h = 0 ↔ ∀ x ∈ xs, f x ≤ f (xs.head h) :=
-  letI : LE β :=  (inferInstanceAs (LE β)).opposite
+  letI : LE β := (inferInstanceAs (LE β)).opposite
   minIdxOn_eq_zero_iff h
 
 theorem maxIdxOn_append [LE β] [DecidableLE β] [Std.IsLinearPreorder β]
@@ -389,26 +409,26 @@ theorem maxIdxOn_append [LE β] [DecidableLE β] [Std.IsLinearPreorder β]
         xs.maxIdxOn f hxs
       else
         xs.length + ys.maxIdxOn f hys :=
-  letI : LE β :=  (inferInstanceAs (LE β)).opposite
+  letI : LE β := (inferInstanceAs (LE β)).opposite
   minIdxOn_append hxs hys
 
 theorem left_le_apply_maxIdxOn_append [LE β] [DecidableLE β] [Std.IsLinearPreorder β]
     {xs ys : List α} {f : α → β} (h : xs ≠ []) :
     xs.maxIdxOn f h ≤ (xs ++ ys).maxIdxOn f (by simp [h]) :=
-  letI : LE β :=  (inferInstanceAs (LE β)).opposite
+  letI : LE β := (inferInstanceAs (LE β)).opposite
   left_le_apply_minIdxOn_append h
 
 theorem apply_maxIdxOn_take_le [LE β] [DecidableLE β] [Std.IsLinearPreorder β]
     {xs : List α} {f : α → β} {i : Nat} (h : xs.take i ≠ []) :
     (xs.take i).maxIdxOn f h ≤ xs.maxIdxOn f (List.ne_nil_of_take_ne_nil h) :=
-  letI : LE β :=  (inferInstanceAs (LE β)).opposite
+  letI : LE β := (inferInstanceAs (LE β)).opposite
   apply_minIdxOn_take_le h
 
 @[simp]
 theorem maxIdxOn_replicate [LE β] [DecidableLE β] [Refl (α := β) (· ≤ ·)]
     {n : Nat} {a : α} {f : α → β} (h : replicate n a ≠ []) :
     (replicate n a).maxIdxOn f h = 0 :=
-  letI : LE β :=  (inferInstanceAs (LE β)).opposite
+  letI : LE β := (inferInstanceAs (LE β)).opposite
   minIdxOn_replicate h
 
 end List

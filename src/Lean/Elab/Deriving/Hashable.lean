@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Inductive
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.Deriving.Util
+import Lean.Compiler.IR.ToIRType
 
 public section
 
@@ -22,9 +23,35 @@ def mkHashableHeader (indVal : InductiveVal) : TermElabM Header := do
 
 def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Term := do
   let discrs ← mkDiscrs header indVal
-  let alts ← mkAlts
-  `(match $[$discrs],* with $alts:matchAlt*)
+  if let some trivialInfo ← IR.hasTrivialStructure? indVal.name then
+    let alt ← mkTrivialAlt trivialInfo
+    `(match $[$discrs],* with $alt:matchAlt)
+  else
+    let alts ← mkAlts
+    `(match $[$discrs],* with $alts:matchAlt*)
 where
+  mkTrivialAlt (trivialInfo : Compiler.LCNF.TrivialStructureInfo) : TermElabM (TSyntax ``matchAlt) := do
+    let ctorName := trivialInfo.ctorName
+    let ctorInfo ← getConstInfoCtor ctorName
+    let mut patterns := #[]
+    -- add `_` pattern for indices
+    for _ in *...indVal.numIndices do
+      patterns := patterns.push (← `(_))
+    let mut ctorArgs := #[]
+    -- add `_` for inductive parameters, they are inaccessible
+    for _ in *...indVal.numParams do
+      ctorArgs := ctorArgs.push (← `(_))
+    -- placeholder
+    let mut rhs ← `($(quote 0))
+    for i in *...ctorInfo.numFields do
+      if i == trivialInfo.fieldIdx then
+        let a := mkIdent (← mkFreshUserName `a)
+        ctorArgs := ctorArgs.push a
+        rhs ← `(hash $a:ident)
+      else
+        ctorArgs := ctorArgs.push (← `(_))
+    patterns := patterns.push (← `(@$(mkIdent ctorName):ident $ctorArgs:term*))
+    `(matchAltExpr| | $[$patterns:term],* => $rhs:term)
 
   mkAlts : TermElabM (Array (TSyntax ``matchAlt)) := do
     let mut alts := #[]

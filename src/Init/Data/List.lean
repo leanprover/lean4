@@ -16,6 +16,8 @@ public import Init.Data.List.Find
 public import Init.Data.List.Impl
 public import Init.Data.List.Lemmas
 public import Init.Data.List.MinMax
+public import Init.Data.List.MinMaxIdx
+public import Init.Data.List.MinMaxOn
 public import Init.Data.List.Monadic
 public import Init.Data.List.Nat
 public import Init.Data.List.Notation

@@ -93,7 +93,7 @@ protected theorem minOn_id [Min α] [LE α] [DecidableLE α] [LawfulOrderLeftLea
   | _ :: _ => simp
 
 @[grind .]
-protected theorem minOn_mem [LE β] [DecidableLE β] [IsLinearPreorder β] {xs : List α}
+protected theorem minOn_mem [LE β] [DecidableLE β] {xs : List α}
     {f : α → β} {h : xs ≠ []} : xs.minOn f h ∈ xs := by
   simp only [List.minOn]
   match xs with
@@ -260,7 +260,7 @@ protected theorem maxOn_id [Max α] [LE α] [DecidableLE α] [LawfulOrderLeftLea
   List.minOn_id h
 
 @[grind .]
-protected theorem maxOn_mem [LE β] [DecidableLE β] [IsLinearPreorder β] {xs : List α}
+protected theorem maxOn_mem [LE β] [DecidableLE β] {xs : List α}
     {f : α → β} {h : xs ≠ []} : xs.maxOn f h ∈ xs :=
   letI : LE β := (inferInstanceAs (LE β)).opposite
   List.minOn_mem (f := f)
@@ -444,7 +444,7 @@ protected theorem apply_minOn?_get_le_of_mem
 grind_pattern List.apply_minOn?_get_le_of_mem => x ∈ xs, (xs.minOn? f).get _
 
 @[grind <=]
-protected theorem minOn?_mem [LE β] [DecidableLE β] [IsLinearPreorder β] {xs : List α}
+protected theorem minOn?_mem [LE β] [DecidableLE β] {xs : List α}
     {f : α → β} (h : xs.minOn? f = some a) : a ∈ xs := by
   rw [← List.minOn_eq_of_minOn?_eq_some h]
   apply List.minOn_mem
@@ -562,7 +562,7 @@ protected theorem le_apply_maxOn?_get_of_mem
 grind_pattern List.le_apply_maxOn?_get_of_mem => x ∈ xs, (xs.maxOn? f).get _
 
 @[grind <=]
-protected theorem maxOn?_mem [LE β] [DecidableLE β] [IsLinearPreorder β] {xs : List α}
+protected theorem maxOn?_mem [LE β] [DecidableLE β] {xs : List α}
     {f : α → β} (h : xs.maxOn? f = some a) : a ∈ xs :=
   letI : LE β := (inferInstanceAs (LE β)).opposite
   List.minOn?_mem (f := f) h

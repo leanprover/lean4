@@ -10,7 +10,8 @@ public import Std.Data.Iterators.Combinators.Monadic.Drop
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators.Types
 
 /--
 Given an iterator `it` and a natural number `n`, `it.drop n` is an iterator that forwards all of
@@ -41,4 +42,4 @@ def Iter.drop {α : Type w} {β : Type w} (n : Nat) (it : Iter (α := α) β) :
     Iter (α := Drop α Id β) β :=
   it.toIterM.drop n |>.toIter
 
-end Std.Iterators
+end Std

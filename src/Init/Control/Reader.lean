@@ -51,3 +51,7 @@ A monad with access to a read-only value of type `ρ`. The value can be locally 
 `withReader`, but it cannot be mutated.
 -/
 abbrev ReaderM (ρ : Type u) := ReaderT ρ Id
+
+instance [Monad m] [MonadAttach m] : MonadAttach (ReaderT ρ m) where
+  CanReturn x a := Exists (fun r => MonadAttach.CanReturn (x.run r) a)
+  attach x := fun r => (fun ⟨a, h⟩ => ⟨a, r, h⟩) <$> MonadAttach.attach (x.run r)

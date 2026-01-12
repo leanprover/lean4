@@ -40,7 +40,7 @@ class Rcc.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type 
 This typeclass indicates how to obtain slices of elements of {lit}`α` over ranges in the index type
 {lit}`β`, the ranges being left-closed right-open.
 
-The type of resulting the slices is {lit}`γ`.
+The type of the resulting slices is {lit}`γ`.
 -/
 class Rco.Sliceable (α : Type u) (β : outParam (Type v)) (γ : outParam (Type w)) where
   /--

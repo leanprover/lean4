@@ -11,6 +11,8 @@ public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 public import Init.WFExtrinsicFix
 public import Init.Data.Iterators.Consumers.Monadic.Total
 
+set_option linter.missingDocs true
+
 public section
 
 /-!
@@ -31,9 +33,9 @@ types of iterators. A default implementation is provided. The typeclass `LawfulI
 asserts that an `IteratorLoop` instance equals the default implementation.
 -/
 
-namespace Std.Iterators
+namespace Std
 
-open Std.Internal
+open Std.Internal Std.Iterators
 
 section Typeclasses
 
@@ -70,6 +72,9 @@ provided by the standard library.
 @[ext]
 class IteratorLoop (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
     (n : Type x → Type x') where
+  /--
+  Iteration over the iterator `it` in the manner expected by `for` loops.
+  -/
   forIn : ∀ (_liftBind : (γ : Type w) → (δ : Type x) → (γ → n δ) → m γ → n δ) (γ : Type x),
       (plausible_forInStep : β → γ → ForInStep γ → Prop) →
       (it : IterM (α := α) m β) → γ →
@@ -82,7 +87,9 @@ end Typeclasses
 structure IteratorLoop.WithWF (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
     {γ : Type x} (PlausibleForInStep : β → γ → ForInStep γ → Prop)
     (hwf : IteratorLoop.WellFounded α m PlausibleForInStep) where
+  /-- Internal implementation detail of the iterator library. -/
   it : IterM (α := α) m β
+  /-- Internal implementation detail of the iterator library. -/
   acc : γ
 
 instance IteratorLoop.WithWF.instWellFoundedRelation
@@ -163,14 +170,15 @@ Asserts that a given `IteratorLoop` instance is equal to `IteratorLoop.defaultIm
 -/
 class LawfulIteratorLoop (α : Type w) (m : Type w → Type w') (n : Type x → Type x')
     [Monad m] [Monad n] [Iterator α m β] [i : IteratorLoop α m n] where
+  /-- The implementation of `IteratorLoop.forIn` in `i` is equal to the default implementation. -/
   lawful lift [LawfulMonadLiftBindFunction lift] γ it init
       (Pl : β → γ → ForInStep γ → Prop) (wf : IteratorLoop.WellFounded α m Pl)
       (f : (b : β) → it.IsPlausibleIndirectOutput b → (c : γ) → n (Subtype (Pl b c))) :
     i.forIn lift γ Pl it init f =
       IteratorLoop.defaultImplementation.forIn lift γ Pl it init f
 
-instance (α : Type w) (m : Type w → Type w') (n : Type x → Type x')
-    [Monad m] [Monad n] [Iterator α m β] [Finite α m] :
+instance instLawfulIteratorLoopDefaultImplementation (α : Type w) (m : Type w → Type w')
+    (n : Type x → Type x') [Monad m] [Monad n] [Iterator α m β] [Finite α m] :
     letI : IteratorLoop α m n := .defaultImplementation
     LawfulIteratorLoop α m n := by
   letI : IteratorLoop α m n := .defaultImplementation
@@ -212,13 +220,14 @@ def IterM.instForIn' {m : Type w → Type w'} {n : Type w → Type w''}
     ForIn' n (IterM (α := α) m β) β ⟨fun it out => it.IsPlausibleIndirectOutput out⟩ :=
   IteratorLoop.finiteForIn' (fun _ _ f x => monadLift x >>= f)
 
-instance {m : Type w → Type w'} {n : Type w → Type w''}
+instance IterM.instForInOfIteratorLoop {m : Type w → Type w'} {n : Type w → Type w''}
     {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoop α m n]
     [MonadLiftT m n] [Monad n] :
     ForIn n (IterM (α := α) m β) β :=
   haveI : ForIn' n (IterM (α := α) m β) β _ := IterM.instForIn'
   instForInOfForIn'
 
+/-- Internal implementation detail of the iterator library. -/
 @[always_inline, inline]
 def IterM.Partial.instForIn' {m : Type w → Type w'} {n : Type w → Type w''}
     {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoop α m n] [MonadLiftT m n] [Monad n] :
@@ -226,6 +235,7 @@ def IterM.Partial.instForIn' {m : Type w → Type w'} {n : Type w → Type w''}
   forIn' it init f :=
     haveI := @IterM.instForIn'; forIn' it.it init f
 
+/-- Internal implementation detail of the iterator library. -/
 @[always_inline, inline]
 def IterM.Total.instForIn' {m : Type w → Type w'} {n : Type w → Type w''}
     {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoop α m n] [MonadLiftT m n] [Monad n]
@@ -233,7 +243,7 @@ def IterM.Total.instForIn' {m : Type w → Type w'} {n : Type w → Type w''}
     ForIn' n (IterM.Total (α := α) m β) β ⟨fun it out => it.it.IsPlausibleIndirectOutput out⟩ where
   forIn' it init f := IterM.instForIn'.forIn' it.it init f
 
-instance {m : Type w → Type w'} {n : Type w → Type w''}
+instance IterM.Partial.instForInOfIteratorLoop {m : Type w → Type w'} {n : Type w → Type w''}
     {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoop α m n] [MonadLiftT m n] [Monad n] :
     ForIn n (IterM.Partial (α := α) m β) β :=
   haveI : ForIn' n (IterM.Partial (α := α) m β) β _ := IterM.Partial.instForIn'
@@ -246,12 +256,13 @@ instance {m : Type w → Type w'} {n : Type w → Type w''}
   haveI : ForIn' n (IterM.Total (α := α) m β) β _ := IterM.Total.instForIn'
   instForInOfForIn'
 
-instance {m : Type w → Type w'} {n : Type w → Type w''} {α : Type w} {β : Type w} [Iterator α m β]
-    [IteratorLoop α m n] [Monad n] [MonadLiftT m n] : ForM n (IterM (α := α) m β) β where
+instance IterM.instForMOfIteratorLoop {m : Type w → Type w'} {n : Type w → Type w''}
+    {α : Type w} {β : Type w} [Iterator α m β] [IteratorLoop α m n] [Monad n] [MonadLiftT m n] :
+    ForM n (IterM (α := α) m β) β where
   forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
 
-instance {m : Type w → Type w'} {n : Type w → Type w''} {α : Type w} {β : Type w} [Monad n]
-    [Iterator α m β] [IteratorLoop α m n] [MonadLiftT m n] :
+instance IterM.Partial.instForMOfItreratorLoop {m : Type w → Type w'} {n : Type w → Type w''}
+    {α : Type w} {β : Type w} [Monad n] [Iterator α m β] [IteratorLoop α m n] [MonadLiftT m n] :
     ForM n (IterM.Partial (α := α) m β) β where
   forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
 
@@ -943,4 +954,4 @@ def IterM.Partial.size {α : Type w} {m : Type w → Type w'} {β : Type w} [Ite
 
 end Count
 
-end Std.Iterators
+end Std

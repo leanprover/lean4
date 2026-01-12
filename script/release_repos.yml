@@ -50,12 +50,26 @@ repositories:
     dependencies:
       - lean4-cli
 
+  - name: lean4-unicode-basic
+    url: https://github.com/fgdorais/lean4-unicode-basic
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
+    dependencies: []
+
+  - name: BibtexQuery
+    url: https://github.com/dupuisf/BibtexQuery
+    toolchain-tag: true
+    stable-branch: false
+    branch: master
+    dependencies: [lean4-unicode-basic]
+
   - name: doc-gen4
     url: https://github.com/leanprover/doc-gen4
     toolchain-tag: true
     stable-branch: false
     branch: main
-    dependencies: [lean4-cli]
+    dependencies: [lean4-cli, BibtexQuery]
 
   - name: reference-manual
     url: https://github.com/leanprover/reference-manual
@@ -113,10 +127,30 @@ repositories:
     dependencies:
       - mathlib4
 
+  - name: verso-web-components
+    url: https://github.com/leanprover/verso-web-components
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
+    dependencies:
+      - verso
+
   - name: lean-fro.org
     url: https://github.com/leanprover/lean-fro.org
     toolchain-tag: false
     stable-branch: false
     branch: master
     dependencies:
-      - verso
+      - verso-web-components
+
+  - name: comparator
+    url: https://github.com/leanprover/comparator
+    toolchain-tag: true
+    stable-branch: false
+    branch: master
+
+  - name: lean4export
+    url: https://github.com/leanprover/lean4export
+    toolchain-tag: true
+    stable-branch: false
+    branch: master

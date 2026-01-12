@@ -5,11 +5,10 @@
 error: Failed to compile pattern matching: Stuck at
   remaining variables: [x✝:(String)]
   alternatives:
-    [toByteArray✝:(ByteArray),
-     isValidUTF8✝:(toByteArray✝.IsValidUTF8)] |- [(String.ofByteArray toByteArray✝ isValidUTF8✝)] => h_1 toByteArray✝
-      isValidUTF8✝
-    [] |- ["Eek"] => h_2 ()
-    [x✝:(String)] |- [x✝] => h_3 x✝
+    [toByteArray✝:(ByteArray), isValidUTF8✝:(toByteArray✝.IsValidUTF8)]
+    |- [(String.ofByteArray toByteArray✝ isValidUTF8✝)] => h_1 toByteArray✝ isValidUTF8✝
+    |- ["Eek"] => h_2 ()
+    |- [.(x✝)] => h_3 x✝
   examples:_
 -/
 #guard_msgs in
@@ -23,9 +22,10 @@ def stringMatch : Option Nat :=
 error: Failed to compile pattern matching: Stuck at
   remaining variables: [x✝:(Char)]
   alternatives:
-    [valid✝:(UInt32.isValidChar 5)] |- [(Char.mk 5 valid✝)] => h_1 valid✝
-    [] |- ['A'] => h_2 ()
-    [x✝:(Char)] |- [x✝] => h_3 x✝
+    [valid✝:(UInt32.isValidChar 5)]
+    |- [(Char.mk 5 valid✝)] => h_1 valid✝
+    |- ['A'] => h_2 ()
+    |- [.(x✝)] => h_3 x✝
   examples:_
 -/
 #guard_msgs in
@@ -39,9 +39,9 @@ def charMatch :=
 error: Failed to compile pattern matching: Stuck at
   remaining variables: [x✝:(UInt8)]
   alternatives:
-    [] |- [(UInt8.ofBitVec (BitVec.ofFin 3))] => h_1 ()
-    [] |- [5] => h_2 ()
-    [x✝:(UInt8)] |- [x✝] => h_3 x✝
+    |- [(UInt8.ofBitVec (BitVec.ofFin 3))] => h_1 ()
+    |- [5] => h_2 ()
+    |- [.(x✝)] => h_3 x✝
   examples:_
 -/
 #guard_msgs in

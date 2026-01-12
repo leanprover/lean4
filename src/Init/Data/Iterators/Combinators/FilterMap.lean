@@ -30,7 +30,8 @@ Several variants of these combinators are provided:
   iterator, and particularly for specialized termination proofs. If possible, avoid this.
 -/
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 -- We cannot use `inherit_doc` because the docstring for `IterM` states that a `MonadLiftT` instance
 -- is needed.
@@ -197,12 +198,8 @@ it.filterMapM     ---a'-----c'-------⊥
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For example, if `f` never returns `none`, then
 this combinator will preserve productiveness. If `f` is an `ExceptT` monad and will always fail,
-then `it.filterMapM` will be finite even if `it` isn't. In the first case, consider
-using the `map`/`mapM`/`mapWithPostcondition` combinators instead, which provide more instances out
-of the box.
-
-If that does not help, the more general combinator `it.filterMapWithPostcondition f` makes it
-possible to manually prove `Finite` and `Productive` instances depending on the concrete choice of `f`.
+then `it.filterMapM` will be finite even if `it` isn't. In such cases, the termination proof needs
+to be done manually.
 
 **Performance:**
 
@@ -211,7 +208,7 @@ returned `Option` value.
 -/
 @[always_inline, inline, expose]
 def Iter.filterMapM {α β γ : Type w} [Iterator α Id β] {m : Type w → Type w'}
-    [Monad m] (f : β → m (Option γ)) (it : Iter (α := α) β) :=
+    [Monad m] [MonadAttach m] (f : β → m (Option γ)) (it : Iter (α := α) β) :=
   (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.filterMapM f : IterM m γ)
 
 /--
@@ -237,10 +234,7 @@ it.filterM     ---a-----c-------⊥
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For example, if `f` is an `ExceptT` monad and
 will always fail, then `it.filterWithPostcondition` will be finite -- and productive -- even if `it`
-isn't.
-
-In such situations, the more general combinator `it.filterWithPostcondition f` makes it possible to
-manually prove `Finite` and `Productive` instances depending on the concrete choice of `f`.
+isn't. In such cases, the termination proof needs to be done manually.
 
 **Performance:**
 
@@ -248,7 +242,7 @@ For each value emitted by the base iterator `it`, this combinator calls `f`.
 -/
 @[always_inline, inline, expose]
 def Iter.filterM {α β : Type w} [Iterator α Id β] {m : Type w → Type w'}
-    [Monad m] (f : β → m (ULift Bool)) (it : Iter (α := α) β) :=
+    [Monad m] [MonadAttach m] (f : β → m (ULift Bool)) (it : Iter (α := α) β) :=
   (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.filterM f : IterM m β)
 
 /--
@@ -276,10 +270,8 @@ it.mapM     ---a'--b'--c'--d'-e'----⊥
 
 For certain mapping functions `f`, the resulting iterator will be finite (or productive) even though
 no `Finite` (or `Productive`) instance is provided. For example, if `f` is an `ExceptT` monad and
-will always fail, then `it.mapM` will be finite even if `it` isn't.
-
-If that does not help, the more general combinator `it.mapWithPostcondition f` makes it possible to
-manually prove `Finite` and `Productive` instances depending on the concrete choice of `f`.
+will always fail, then `it.mapM` will be finite even if `it` isn't. In such cases, the termination
+proof needs to be done manually.
 
 **Performance:**
 
@@ -287,7 +279,7 @@ For each value emitted by the base iterator `it`, this combinator calls `f`.
 -/
 @[always_inline, inline, expose]
 def Iter.mapM {α β γ : Type w} [Iterator α Id β] {m : Type w → Type w'}
-    [Monad m] (f : β → m γ) (it : Iter (α := α) β) :=
+    [Monad m] [MonadAttach m] (f : β → m γ) (it : Iter (α := α) β) :=
   (letI : MonadLift Id m := ⟨pure⟩; it.toIterM.mapM f : IterM m γ)
 
 @[always_inline, inline, inherit_doc IterM.filterMap, expose]
@@ -305,4 +297,4 @@ def Iter.map {α : Type w} {β : Type w} {γ : Type w} [Iterator α Id β]
     (f : β → γ) (it : Iter (α := α) β) :=
   ((it.toIterM.map f).toIter : Iter γ)
 
-end Std.Iterators
+end Std

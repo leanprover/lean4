@@ -21,6 +21,8 @@ These engines work together to handle equality reasoning, apply known theorems,
 propagate new facts, perform case analysis, and run specialized solvers
 for domains like linear arithmetic and commutative rings.
 
+See [the reference manual's chapter on `grind`](lean-manual://section/grind-tactic) for more information.
+
 `grind` is *not* designed for goals whose search space explodes combinatorially,
 think large pigeonhole instances, graph‑coloring reductions, high‑order N‑queens boards,
 or a 200‑variable Sudoku encoded as Boolean constraints.  Such encodings require
@@ -156,10 +158,10 @@ theorems and helps prevent an excessive number of instantiations.
 - `grind only [<name>, ...]` is like `grind [<name>, ...]` but does not use theorems tagged with `@[grind]`.
 - `grind (gen := <num>)` sets the maximum generation.
 
-### Linear integer arithmetic (`cutsat`)
+### Linear integer arithmetic (`lia`)
 
 `grind` can solve goals that reduce to **linear integer arithmetic (LIA)** using an
-integrated decision procedure called **`cutsat`**.  It understands
+integrated decision procedure called **`lia`**.  It understands
 
 * equalities   `p = 0`
 * inequalities  `p ≤ 0`
@@ -172,7 +174,7 @@ This *model-based* search is **complete for LIA**.
 
 #### Key options:
 
-* `grind -cutsat` disable the solver (useful for debugging)
+* `grind -lia` disable the solver (useful for debugging)
 * `grind +qlia` accept rational models (shrinks the search space but is incomplete for ℤ)
 
 #### Examples:
@@ -297,7 +299,7 @@ syntax (name := grindTrace)
 /--
 `cutsat` solves linear integer arithmetic goals.
 
-It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `cutsat` solver.
+It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `lia` solver.
 Please use `grind` instead if you need additional capabilities.
 
 **Deprecated**: Use `lia` instead.
@@ -307,7 +309,7 @@ syntax (name := cutsat) "cutsat" optConfig : tactic
 /--
 `lia` solves linear integer arithmetic goals.
 
-It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `cutsat` solver.
+It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `lia` solver.
 Please use `grind` instead if you need additional capabilities.
 -/
 syntax (name := lia) "lia" optConfig : tactic

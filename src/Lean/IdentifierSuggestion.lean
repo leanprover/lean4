@@ -18,15 +18,13 @@ open Elab.Term
 
 set_option doc.verso true
 
-public abbrev NameMapExtension := PersistentEnvExtension (Name × Array Name) (Name × Array Name) (NameMap NameSet)
-
 /--
 Create the extension mapping from existing identifiers to the incorrect alternatives for which we
 want to provide suggestions. This is mostly equivalent to a {name}`MapDeclarationExtension` or the
 extensions underlying {name}`ParametricAttribute` attributes, but it differs in allowing
 {name}`suggest_for` attributes to be assigned in files other than the ones where they were defined.
 -/
-def mkExistingToIncorrect : IO NameMapExtension := registerPersistentEnvExtension {
+def mkExistingToIncorrect : IO (PersistentEnvExtension (Name × Array Name) (Name × Array Name) (NameMap NameSet)) := registerPersistentEnvExtension {
   name := `Lean.identifierSuggestForAttr.existingToIncorrect
   mkInitial := pure {},
   addImportedFn := fun _ => pure {},
@@ -44,7 +42,7 @@ Create the extension mapping incorrect identifiers to the existing identifiers w
 replacements. This association is the opposite of the usual mapping for {name}`ParametricAttribute`
 attributes.
 -/
-def mkIncorrectToExisting : IO NameMapExtension := registerPersistentEnvExtension {
+def mkIncorrectToExisting : IO (PersistentEnvExtension (Name × Array Name) (Name × Array Name) (NameMap NameSet)) := registerPersistentEnvExtension {
   name := `Lean.identifierSuggestForAttr.incorrectToExisting
   mkInitial := pure {},
   addImportedFn := fun _ => pure {},
@@ -57,7 +55,7 @@ def mkIncorrectToExisting : IO NameMapExtension := registerPersistentEnvExtensio
       |>.qsort (lt := fun a b => Name.quickLt a.1 b.1)
 }
 
-builtin_initialize identifierSuggestionsImpl : NameMapExtension × NameMapExtension ←
+builtin_initialize identifierSuggestionsImpl : (PersistentEnvExtension (Name × Array Name) (Name × Array Name) (NameMap NameSet)) × (PersistentEnvExtension (Name × Array Name) (Name × Array Name) (NameMap NameSet)) ←
   let existingToIncorrect ← mkExistingToIncorrect
   let incorrectToExisting ← mkIncorrectToExisting
 
@@ -146,3 +144,20 @@ public def throwUnknownNameWithSuggestions (constName : Name) (idOrConst := "ide
           messageData? := .some m!"`{.ofConstName suggestion}`",
         }) ref
   throwUnknownIdentifierAt (declHint := declHint) ref (m!"Unknown {idOrConst} `{.ofConstName constName}`" ++ extraMsg ++ hint)
+
+public def Elab.Term.hintAutoImplicitFailure (exp : Expr) (expected := "a function") : TermElabM MessageData := do
+  let autoBound := (← readThe Context).autoBoundImplicitContext
+  unless autoBound.isSome && exp.isFVar && autoBound.get!.boundVariables.any (· == exp) do
+    return .nil
+  let name ← exp.fvarId!.getUserName
+  let baseMessage := m!"The identifier `{.ofName name}` is unknown, \
+    and Lean's `autoImplicit` option causes an unknown identifier to be treated as an implicitly \
+    bound variable with an unknown type. \
+    However, the unknown type cannot be {expected}, and {expected} is what Lean expects here. \
+    This is often the result of a typo or a missing `import` or `open` statement."
+  let suggestionExtra : MessageData := match (← getSuggestions name).toList with
+    | [] => .nil
+    | [opt] => Format.line ++ Format.line ++ m!"Perhaps you meant `{.ofConstName opt}` in place of `{.ofName name}`?"
+    | opts =>  Format.line ++ Format.line ++ m!"Perhaps you meant one of these in place of `{.ofName name}`:" ++
+        .joinSep (opts.map (indentD m!"• `{.ofConstName ·}`")) .nil
+  return MessageData.hint' (baseMessage ++ suggestionExtra)

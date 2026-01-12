@@ -54,6 +54,7 @@ lean_object* lean_byte_array_push(lean_object*, uint8_t);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 static lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___redArg___lam__0___closed__0;
 static lean_object* l_Lean_Data_Trie_matchPrefix___auto__1___closed__25;
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00__private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_findPrefix_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldl___at___00Array_appendList_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
@@ -113,7 +114,6 @@ LEAN_EXPORT lean_object* l_Lean_Data_Trie_matchPrefix___auto__1;
 static lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_findPrefix_go___redArg___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_upsert_insertEmpty(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00__private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux_spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_find_x3f___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_findPrefix_go(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Data_Trie_matchPrefix___auto__1___closed__1;
@@ -1228,21 +1228,21 @@ lean_inc_ref(x_18);
 lean_dec_ref(x_1);
 if (lean_obj_tag(x_17) == 1)
 {
-lean_object* x_31; lean_object* x_32; 
-x_31 = lean_ctor_get(x_17, 0);
-lean_inc(x_31);
+lean_object* x_34; lean_object* x_35; 
+x_34 = lean_ctor_get(x_17, 0);
+lean_inc(x_34);
 lean_dec_ref(x_17);
-x_32 = lean_array_push(x_2, x_31);
-x_19 = x_32;
-goto block_30;
+x_35 = lean_array_push(x_2, x_34);
+x_19 = x_35;
+goto block_33;
 }
 else
 {
 lean_dec(x_17);
 x_19 = x_2;
-goto block_30;
+goto block_33;
 }
-block_30:
+block_33:
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
 x_20 = lean_unsigned_to_nat(0u);
@@ -1264,6 +1264,8 @@ uint8_t x_25;
 x_25 = lean_nat_dec_le(x_21, x_21);
 if (x_25 == 0)
 {
+if (x_23 == 0)
+{
 lean_object* x_26; 
 lean_dec_ref(x_18);
 x_26 = lean_alloc_ctor(0, 2, 0);
@@ -1279,6 +1281,16 @@ x_28 = lean_usize_of_nat(x_21);
 x_29 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Data_Trie_0__Lean_Data_Trie_values_go_spec__0___redArg(x_18, x_27, x_28, x_22, x_19);
 lean_dec_ref(x_18);
 return x_29;
+}
+}
+else
+{
+size_t x_30; size_t x_31; lean_object* x_32; 
+x_30 = 0;
+x_31 = lean_usize_of_nat(x_21);
+x_32 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Data_Trie_0__Lean_Data_Trie_values_go_spec__0___redArg(x_18, x_30, x_31, x_22, x_19);
+lean_dec_ref(x_18);
+return x_32;
 }
 }
 }
@@ -2245,7 +2257,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00__private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux_spec__2(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00__private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux_spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -2325,7 +2337,7 @@ lean_dec_ref(x_18);
 x_22 = lean_array_to_list(x_19);
 x_23 = l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___redArg___closed__0;
 x_24 = l___private_Init_Data_List_Impl_0__List_zipWithTR_go(lean_box(0), lean_box(0), lean_box(0), x_20, x_21, x_22, x_23);
-x_25 = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00__private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux_spec__2(x_24, x_23);
+x_25 = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00__private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux_spec__1(x_24, x_23);
 return x_25;
 }
 }

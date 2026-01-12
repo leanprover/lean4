@@ -6,6 +6,7 @@ Authors: Sebastian Graf
 
 import Std
 import Lean.Elab.Tactic.Do.VCGen
+import Lean
 
 open Std.Do
 
@@ -906,4 +907,62 @@ example  : (hp : ∀m, m = 42 → q → p) → (hinv : ∀ (inv : Nat → Prop),
   -- exact hp ?n ?prf2
   case prf2 => rfl
   case inv => exact fun _ => True
-  case prf1 => trivial
+  case prf1 => grind
+
+variable {m} [Monad m]
+open Std Std.Iterators
+
+-- TODO: enable after stage0 update, such that MPL priorities work
+-- theorem forIn_eq_sum (xs : Array Nat) {m ps} [Monad m] [WPMonad m ps] :
+--     Triple (m := m) (do
+--       let mut sum : Nat := 0
+--       for n in xs.iter do
+--         sum := sum + n
+--       return sum) ⌜True⌝ (⇓r => ⌜r = xs.sum⌝) := by
+--   mvcgen
+--   case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum⌝
+--   all_goals grind
+
+-- TODO: enable after stage0 update, such that MPL priorities work
+-- theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [LawfulMonad m]
+--     [WPMonad m ps] :
+--     Triple (m := m) (do
+--       let mut sum : Nat := 0
+--       for n in (xs.iterM Id).map (· + 1) do
+--         sum := sum + n
+--       return sum) ⌜True⌝ (⇓r => ⌜r = xs.sum + xs.size⌝) := by
+--   mvcgen
+--   case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum + cur.prefix.length⌝
+--   all_goals grind
+
+theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [MonadAttach m]
+    [LawfulMonad m] [WeaklyLawfulMonadAttach m] [WPMonad m ps] :
+    Triple (m := m) (do
+      let mut sum : Nat := 0
+      for n in (xs.iterM Id).mapM (pure (f := m) <| · + 1) do
+        sum := sum + n
+      return sum) ⌜True⌝ (⇓r => ⌜r = xs.sum + xs.size⌝) := by
+  mvcgen
+  case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum + cur.prefix.length⌝
+  all_goals grind
+
+theorem forIn_filterMapM_eq_sum_add_size (xs : Array Nat) {m ps}
+    [Monad m] [LawfulMonad m] [MonadAttach m] [WeaklyLawfulMonadAttach m] [WPMonad m ps] :
+    Triple (m := m) (do
+      let mut sum : Nat := 0
+      for n in (xs.iterM Id).filterMapM (pure (f := m) <| some <| · + 1) do
+        sum := sum + n
+      return sum) ⌜True⌝ (⇓r => ⌜r = xs.sum + xs.size⌝) := by
+  mvcgen
+  case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum + cur.prefix.length⌝
+  all_goals grind
+
+theorem foldM_eq_sum (xs : Array Nat) {m ps} [Monad m] [LawfulMonad m]
+    [WPMonad m ps] :
+    Triple (m := m)
+      (xs.iter.foldM (m := m) (init := 0) (pure <| · + ·))
+      ⌜True⌝
+      (⇓r => ⌜r = xs.sum⌝) := by
+  mvcgen
+  case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum⌝
+  all_goals grind

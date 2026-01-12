@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Log
-// Imports: public import Lean.ErrorExplanations
+// Imports: public import Lean.ErrorExplanation
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1486,13 +1486,13 @@ x_7 = l_Lean_logUnknownDecl___redArg(x_2, x_3, x_4, x_5, x_6);
 return x_7;
 }
 }
-lean_object* initialize_Lean_ErrorExplanations(uint8_t builtin);
+lean_object* initialize_Lean_ErrorExplanation(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Log(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_ErrorExplanations(builtin);
+res = initialize_Lean_ErrorExplanation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_initFn___closed__0_00___x40_Lean_Log_3265821404____hygCtx___hyg_4_ = _init_l_Lean_initFn___closed__0_00___x40_Lean_Log_3265821404____hygCtx___hyg_4_();

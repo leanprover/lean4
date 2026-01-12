@@ -708,9 +708,7 @@ def compileDeclsImpl (declNames : Array Name) : CoreM Unit := do
 
 -- `ref?` is used for error reporting if available
 partial def compileDecls (decls : Array Name) (logErrors := true) : CoreM Unit := do
-  -- When inside `realizeConst`, do compilation synchronously so that `_cstage*` constants are found
-  -- by the replay code
-  if !Elab.async.get (← getOptions) || (← getEnv).isRealizing then
+  if !Elab.async.get (← getOptions) then
     let _ ← traceBlock "compiler env" (← getEnv).checked
     doCompile
     return

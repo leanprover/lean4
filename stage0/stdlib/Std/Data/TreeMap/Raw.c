@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.TreeMap.Raw
-// Imports: public import Std.Data.TreeMap.Raw.Basic public import Std.Data.TreeMap.Raw.AdditionalOperations public import Std.Data.TreeMap.Raw.Lemmas public import Std.Data.TreeMap.Raw.WF public import Std.Data.TreeMap.Raw.Iterator public import Std.Data.TreeMap.Raw.Slice
+// Imports: public import Std.Data.TreeMap.Raw.Basic public import Std.Data.TreeMap.Raw.AdditionalOperations public import Std.Data.TreeMap.Raw.Lemmas public import Std.Data.TreeMap.Raw.WF public import Std.Data.TreeMap.Raw.Iterator public import Std.Data.TreeMap.Raw.Slice public import Std.Data.TreeMap.Raw.DecidableEquiv
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,6 +19,7 @@ lean_object* initialize_Std_Data_TreeMap_Raw_Lemmas(uint8_t builtin);
 lean_object* initialize_Std_Data_TreeMap_Raw_WF(uint8_t builtin);
 lean_object* initialize_Std_Data_TreeMap_Raw_Iterator(uint8_t builtin);
 lean_object* initialize_Std_Data_TreeMap_Raw_Slice(uint8_t builtin);
+lean_object* initialize_Std_Data_TreeMap_Raw_DecidableEquiv(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_TreeMap_Raw(uint8_t builtin) {
 lean_object * res;
@@ -40,6 +41,9 @@ res = initialize_Std_Data_TreeMap_Raw_Iterator(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_TreeMap_Raw_Slice(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_TreeMap_Raw_DecidableEquiv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

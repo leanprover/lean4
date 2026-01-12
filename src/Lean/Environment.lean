@@ -1502,7 +1502,8 @@ def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
   return {
     base := .const {
       const2ModIdx    := {}
-      constants       := {}
+      -- Make sure we return a sharing-friendly map set to stage 2, like in `finalizeImport`.
+      constants       := SMap.empty.switch
       header          := { trustLevel }
       extensions      := exts
       irBaseExts      := exts
@@ -2446,14 +2447,14 @@ def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExistin
     }
     checked := dest.checked.map fun kenv =>
       replayKernel
-        oldEnv.toKernelEnv.extensions newEnv.toKernelEnv.extensions exts newPrivateConsts kenv
+        oldEnv.checked newEnv.checked exts newPrivateConsts kenv
       |>.toOption.getD kenv
     allRealizations := dest.allRealizations.map (sync := true) fun allRealizations =>
       newPrivateConsts.foldl (init := allRealizations) fun allRealizations c =>
         allRealizations.insert c.constInfo.name c
   }
 where
-  replayKernel (oldState newState : Array EnvExtensionState)
+  replayKernel (oldEnv newEnv : Task Kernel.Environment)
       (exts : Array (EnvExtension EnvExtensionState)) (consts : List AsyncConst)
       (kenv : Kernel.Environment) : Except Kernel.Exception Kernel.Environment := do
     let mut kenv := kenv
@@ -2464,8 +2465,8 @@ where
           -- safety: like in `modifyState`, but that one takes an elab env instead of a kernel env
           extensions := unsafe (ext.modifyStateImpl kenv.extensions <|
             replay
-              (ext.getStateImpl oldState)
-              (ext.getStateImpl newState)
+              (ext.getStateImpl oldEnv.get.extensions)
+              (ext.getStateImpl newEnv.get.extensions)
               (consts.map (·.constInfo.name))) }
     for c in consts do
       if skipExisting && (kenv.find? c.constInfo.name).isSome then
@@ -2613,9 +2614,12 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     let exts ← EnvExtension.envExtensionsRef.get
     -- NOTE: We must ensure that `realizeEnv.localRealizationCtxMap` is not reachable via `res`
     -- (such as by storing `realizeEnv` or `realizeEnv'` in a field or the closure) as `res` will be
-    -- stored in a promise in there, creating a cycle.
+    -- stored in a promise in there, creating a cycle. The closures stored in
+    -- `realizeEnv(').checked` should uphold this property as they are only concerned about the
+    -- kernel env but this cannot directly be enforced or checked except through the leak sanitizer
+    -- CI build.
     let replayKernel := replayConsts.replayKernel (skipExisting := true)
-      realizeEnv.toKernelEnv.extensions realizeEnv'.toKernelEnv.extensions exts newPrivateConsts
+      realizeEnv.checked realizeEnv'.checked exts newPrivateConsts
     let res : RealizeConstResult := { newConsts.private := newPrivateConsts, newConsts.public := newPublicConsts, replayKernel, dyn }
     pure (.mk res)
   let some res := res.get? RealizeConstResult | unreachable!

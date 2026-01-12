@@ -504,6 +504,16 @@ def inter (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
 instance : Inter (TreeSet α cmp) := ⟨inter⟩
 
 /--
+Compares two tree sets using Boolean equality on keys.
+
+Returns `true` if the sets contain the same keys, `false` otherwise.
+-/
+def beq (t₁ t₂ : TreeSet α cmp) : Bool :=
+  letI : Ord α := ⟨cmp⟩; TreeMap.beq t₁.inner t₂.inner
+
+instance : BEq (TreeSet α cmp) := ⟨beq⟩
+
+/--
 Computes the difference of the given tree sets.
 
 This function always iterates through the smaller set.

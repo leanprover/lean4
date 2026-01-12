@@ -796,7 +796,8 @@ theorem getElem?_eq_none {xs : Vector α n} (h : n ≤ i) : xs[i]? = none := by
 
 -- This is a more aggressive pattern than for `List/Array.getElem?_eq_none`, because
 -- `length/size` won't appear.
-grind_pattern Vector.getElem?_eq_none => xs[i]?
+grind_pattern Vector.getElem?_eq_none => xs[i]? where
+  guard n ≤ i
 
 @[simp] theorem getElem?_eq_getElem {xs : Vector α n} {i : Nat} (h : i < n) : xs[i]? = some xs[i] :=
   getElem?_pos ..
@@ -2303,16 +2304,8 @@ theorem foldr_eq_foldrM {f : α → β → β} {b} {xs : Vector α n} :
 @[simp] theorem idRun_foldlM {f : β → α → Id β} {b} {xs : Vector α n} :
     Id.run (xs.foldlM f b) = xs.foldl (f · · |>.run) b := foldl_eq_foldlM.symm
 
-@[deprecated idRun_foldlM (since := "2025-05-21")]
-theorem id_run_foldlM {f : β → α → Id β} {b} {xs : Vector α n} :
-    Id.run (xs.foldlM f b) = xs.foldl f b := foldl_eq_foldlM.symm
-
 @[simp] theorem idRun_foldrM {f : α → β → Id β} {b} {xs : Vector α n} :
     Id.run (xs.foldrM f b) = xs.foldr (f · · |>.run) b := foldr_eq_foldrM.symm
-
-@[deprecated idRun_foldrM (since := "2025-05-21")]
-theorem id_run_foldrM {f : α → β → Id β} {b} {xs : Vector α n} :
-    Id.run (xs.foldrM f b) = xs.foldr f b := foldr_eq_foldrM.symm
 
 @[simp] theorem foldlM_reverse [Monad m] {xs : Vector α n} {f : β → α → m β} {b} :
     xs.reverse.foldlM f b = xs.foldrM (fun x y => f y x) b := by
@@ -2364,19 +2357,6 @@ theorem foldl_map {f : β₁ → β₂} {g : α → β₂ → α} {xs : Vector �
 theorem foldr_map {f : α₁ → α₂} {g : α₂ → β → β} {xs : Vector α₁ n} {init : β} :
     (xs.map f).foldr g init = xs.foldr (fun x y => g (f x) y) init := by
   cases xs; simp [Array.foldr_map']
-
-@[deprecated "Deprecated without replacement; `filterMap` is not part of the `Vector` API." (since := "2025-05-09")]
-theorem foldl_filterMap {f : α → Option β} {g : γ → β → γ} {xs : Vector α n} {init : γ} :
-    (xs.toArray.filterMap f).foldl g init = xs.foldl (fun x y => match f y with | some b => g x b | none => x) init := by
-  rcases xs with ⟨xs, rfl⟩
-  simp [Array.foldl_filterMap']
-  rfl
-
-@[deprecated "Deprecated without replacement; `filterMap` is not part of the `Vector` API." (since := "2025-05-09")]
-theorem foldr_filterMap {f : α → Option β} {g : β → γ → γ} {xs : Vector α n} {init : γ} :
-    (xs.toArray.filterMap f).foldr g init = xs.foldr (fun x y => match f x with | some b => g b y | none => y) init := by
-  cases xs; simp [Array.foldr_filterMap']
-  rfl
 
 theorem foldl_flatMap {f : α → Vector β m} {g : γ → β → γ} {xs : Vector α n} {init : γ} :
     (xs.flatMap f).foldl g init = xs.foldl (fun acc x => (f x).foldl g acc) init := by
@@ -2618,18 +2598,6 @@ theorem contains_map [BEq β] {xs : Vector α n} {x : β} {f : α → β} :
   rcases xs with ⟨xs⟩
   simp
 
-@[deprecated "Deprecated without replacement; `filter` is not part of the `Vector` API." (since := "2025-05-09")]
-theorem contains_filter [BEq α] {xs : Vector α n} {x : α} {p : α → Bool} :
-    (xs.toArray.filter p).contains x = xs.any (fun a => x == a && p a) := by
-  rcases xs with ⟨xs, rfl⟩
-  simp
-
-@[deprecated "Deprecated without replacement; `filterMap` is not part of the `Vector` API." (since := "2025-05-09")]
-theorem contains_filterMap [BEq β] {xs : Vector α n} {x : β} {f : α → Option β} :
-    (xs.toArray.filterMap f).contains x = xs.any (fun a => (f a).any fun b => x == b) := by
-  rcases xs with ⟨xs, rfl⟩
-  simp
-
 @[simp, grind _=_]
 theorem contains_append [BEq α] {xs : Vector α n} {ys : Vector α m} {x : α} :
     (xs ++ ys).contains x = (xs.contains x || ys.contains x) := by
@@ -2752,32 +2720,6 @@ theorem any_eq_not_all_not {xs : Vector α n} {p : α → Bool} : xs.any p = !xs
 @[simp] theorem all_map {xs : Vector α n} {p : β → Bool} : (xs.map f).all p = xs.all (p ∘ f) := by
   rcases xs with ⟨xs, rfl⟩
   simp
-
-@[deprecated "Deprecated without replacement; `filter` is not part of the `Vector` API." (since := "2025-05-09")]
-theorem any_filter {xs : Vector α n} {p q : α → Bool} :
-    (xs.toArray.filter p).any q = xs.any fun a => p a && q a := by
-  rcases xs with ⟨xs, rfl⟩
-  simp
-
-@[deprecated "Deprecated without replacement; `filter` is not part of the `Vector` API." (since := "2025-05-09")]
-theorem all_filter {xs : Vector α n} {p q : α → Bool} :
-    (xs.toArray.filter p).all q = xs.all fun a => !(p a) || q a := by
-  rcases xs with ⟨xs, rfl⟩
-  simp
-
-@[deprecated "Deprecated without replacement; `filterMap` is not part of the `Vector` API." (since := "2025-05-09")]
-theorem any_filterMap {xs : Vector α n} {f : α → Option β} {p : β → Bool} :
-    (xs.toArray.filterMap f).any p = xs.any fun a => match f a with | some b => p b | none => false := by
-  rcases xs with ⟨xs, rfl⟩
-  simp
-  rfl
-
-@[deprecated "Deprecated without replacement; `filterMap` is not part of the `Vector` API." (since := "2025-05-09")]
-theorem all_filterMap {xs : Vector α n} {f : α → Option β} {p : β → Bool} :
-    (xs.toArray.filterMap f).all p = xs.all fun a => match f a with | some b => p b | none => true := by
-  rcases xs with ⟨xs, rfl⟩
-  simp
-  rfl
 
 @[simp, grind _=_] theorem any_append {xs : Vector α n} {ys : Vector α m} :
     (xs ++ ys).any f = (xs.any f || ys.any f) := by

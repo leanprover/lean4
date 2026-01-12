@@ -9,7 +9,7 @@ prelude
 public import Lean.CoreM
 public import Lean.Meta.Basic
 import Lean.Meta.Instances
-import Lean.LibrarySuggestions.SymbolFrequency
+import all Lean.LibrarySuggestions.SymbolFrequency
 public import Lean.LibrarySuggestions.Basic
 
 /-!
@@ -74,7 +74,7 @@ def prepareTriggers (names : Array Name) (maxTolerance : Float := 3.0) : MetaM (
   let mut map := {}
   let env ← getEnv
   let names := names.filter fun n =>
-    !isDeniedPremise env n && Lean.wasOriginallyTheorem env n
+    !isDeniedPremise env n && wasOriginallyTheorem env n
   for name in names do
     let triggers ← triggerSymbols (← getConstInfo name) maxTolerance
     for (trigger, tolerance) in triggers do
@@ -108,7 +108,7 @@ builtin_initialize sineQuaNonExt : PersistentEnvExtension (NameMap (List (Name �
     addImportedFn   := fun mapss _ => pure mapss
     addEntryFn      := nofun
     -- TODO: it would be nice to avoid the `toArray` here, e.g. via iterators.
-    exportEntriesFnEx := fun env _ _ => env.unsafeRunMetaM do return #[← prepareTriggers (env.constants.map₂.toArray.map (·.1))]
+    exportEntriesFnEx := fun env _ _ => unsafe env.unsafeRunMetaM do return #[← prepareTriggers (env.constants.map₂.toArray.map (·.1))]
     statsFn         := fun _ => "sine qua non premise selection extension"
   }
 

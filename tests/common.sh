@@ -25,7 +25,7 @@ function lean_has_llvm_support {
 }
 
 function compile_lean_c_backend {
-    lean -Dexperimental.module=true --c="$f.c" "$f" || fail "Failed to compile $f into C file"
+    lean --c="$f.c" "$f" || fail "Failed to compile $f into C file"
     leanc ${LEANC_OPTS-} -O3 -DNDEBUG -o "$f.out" "$@" "$f.c" || fail "Failed to compile C file $f.c"
 }
 
@@ -34,7 +34,7 @@ function compile_lean_llvm_backend {
     rm "*.ll" || true # remove debugging files.
     rm "*.bc" || true # remove bitcode files
     rm "*.o" || true # remove object files
-    lean -Dexperimental.module=true --bc="$f.linked.bc" "$f" || fail "Failed to compile $f into bitcode file"
+    lean --bc="$f.linked.bc" "$f" || fail "Failed to compile $f into bitcode file"
     leanc ${LEANC_OPTS-} -O3 -DNDEBUG -o "$f.out" "$@" "$f.linked.bc" || fail "Failed to link object file '$f.linked.bc'"
     set +o xtrace
 }
@@ -69,14 +69,14 @@ function check_ret {
 function exec_check_raw {
     ret=0
     exec_capture_raw "$@" || ret=$?
-    check_ret
+    check_ret "$@"
 }
 
 # produces filtered output intended for usage with `diff_produced`
 function exec_check {
     ret=0
     exec_capture "$@" || ret=$?
-    check_ret
+    check_ret "$@"
 }
 
 function diff_produced {

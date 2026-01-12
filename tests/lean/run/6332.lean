@@ -3,7 +3,7 @@ Regression test for #6332
 -/
 
 open Function (uncurry)
-open Std (Range)
+open Std.Legacy (Range)
 
 section Matrix
 

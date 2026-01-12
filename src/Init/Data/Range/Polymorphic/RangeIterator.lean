@@ -6,7 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.Consumers.Access
 import Init.Data.Iterators.Lemmas.Consumers.Monadic.Loop
 public import Init.Data.Range.Polymorphic.PRange
@@ -99,7 +98,7 @@ theorem Iterator.Monadic.isPlausibleStep_iff [UpwardEnumerable α] [LE α] [Deci
 theorem Iterator.Monadic.step_eq_step [UpwardEnumerable α] [LE α] [DecidableLE α]
     {it : IterM (α := Rxc.Iterator α) Id α} :
     it.step = pure (.deflate ⟨Iterator.Monadic.step it, isPlausibleStep_iff.mpr rfl⟩) := by
-  simp [IterM.step, Iterators.Iterator.step]
+  simp [IterM.step, Std.Iterator.step]
 
 theorem Iterator.isPlausibleStep_iff [UpwardEnumerable α] [LE α] [DecidableLE α]
     {it : Iter (α := Rxc.Iterator α) α} {step} :
@@ -118,10 +117,6 @@ theorem Iterator.step_eq_step [UpwardEnumerable α] [LE α] [DecidableLE α]
     {it : Iter (α := Rxc.Iterator α) α} :
     it.step = ⟨Iterator.step it, isPlausibleStep_iff.mpr rfl⟩ := by
   simp [Iter.step, step_eq_monadicStep, Monadic.step_eq_step, IterM.Step.toPure]
-
-instance Iterator.instIteratorCollect [UpwardEnumerable α] [LE α] [DecidableLE α]
-    {n : Type u → Type w} [Monad n] : IteratorCollect (Rxc.Iterator α) Id n :=
-  .defaultImplementation
 
 theorem Iterator.Monadic.isPlausibleOutput_next {a}
     [UpwardEnumerable α] [LE α] [DecidableLE α]
@@ -236,7 +231,7 @@ private def List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a 
 private def Iterator.instFinitenessRelation [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [Rxc.IsAlwaysFinite α] :
     FinitenessRelation (Rxc.Iterator α) Id where
-  rel it' it := it'.IsPlausibleSuccessorOf it
+  Rel it' it := it'.IsPlausibleSuccessorOf it
   wf := by
     constructor
     intro it
@@ -289,7 +284,7 @@ instance Iterator.instFinite [UpwardEnumerable α] [LE α] [DecidableLE α]
 private def Iterator.instProductivenessRelation [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] :
     ProductivenessRelation (Rxc.Iterator α) Id where
-  rel := emptyWf.rel
+  Rel := emptyWf.rel
   wf := emptyWf.wf
   subrelation {it it'} h := by
     exfalso
@@ -679,7 +674,7 @@ theorem Iterator.Monadic.isPlausibleStep_iff [UpwardEnumerable α] [LT α] [Deci
 theorem Iterator.Monadic.step_eq_step [UpwardEnumerable α] [LT α] [DecidableLT α]
     {it : IterM (α := Rxo.Iterator α) Id α} :
     it.step = pure (.deflate ⟨Iterator.Monadic.step it, isPlausibleStep_iff.mpr rfl⟩) := by
-  simp [IterM.step, Iterators.Iterator.step]
+  simp [IterM.step, Std.Iterator.step]
 
 theorem Iterator.isPlausibleStep_iff [UpwardEnumerable α] [LT α] [DecidableLT α]
     {it : Iter (α := Rxo.Iterator α) α} {step} :
@@ -698,10 +693,6 @@ theorem Iterator.step_eq_step [UpwardEnumerable α] [LT α] [DecidableLT α]
     {it : Iter (α := Rxo.Iterator α) α} :
     it.step = ⟨Iterator.step it, isPlausibleStep_iff.mpr rfl⟩ := by
   simp [Iter.step, step_eq_monadicStep, Monadic.step_eq_step, IterM.Step.toPure]
-
-instance Iterator.instIteratorCollect [UpwardEnumerable α] [LT α] [DecidableLT α]
-    {n : Type u → Type w} [Monad n] : IteratorCollect (Rxo.Iterator α) Id n :=
-  .defaultImplementation
 
 theorem Iterator.Monadic.isPlausibleOutput_next {a}
     [UpwardEnumerable α] [LT α] [DecidableLT α]
@@ -816,7 +807,7 @@ private def List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a 
 private def Iterator.instFinitenessRelation [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [Rxo.IsAlwaysFinite α] :
     FinitenessRelation (Rxo.Iterator α) Id where
-  rel it' it := it'.IsPlausibleSuccessorOf it
+  Rel it' it := it'.IsPlausibleSuccessorOf it
   wf := by
     constructor
     intro it
@@ -869,7 +860,7 @@ instance Iterator.instFinite [UpwardEnumerable α] [LT α] [DecidableLT α]
 private def Iterator.instProductivenessRelation [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] :
     ProductivenessRelation (Rxo.Iterator α) Id where
-  rel := emptyWf.rel
+  Rel := emptyWf.rel
   wf := emptyWf.wf
   subrelation {it it'} h := by
     exfalso
@@ -1245,7 +1236,7 @@ theorem Iterator.Monadic.isPlausibleStep_iff [UpwardEnumerable α]
 theorem Iterator.Monadic.step_eq_step [UpwardEnumerable α]
     {it : IterM (α := Rxi.Iterator α) Id α} :
     it.step = pure (.deflate ⟨Iterator.Monadic.step it, isPlausibleStep_iff.mpr rfl⟩) := by
-  simp [IterM.step, Iterators.Iterator.step]
+  simp [IterM.step, Std.Iterator.step]
 
 theorem Iterator.isPlausibleStep_iff [UpwardEnumerable α]
     {it : Iter (α := Rxi.Iterator α) α} {step} :
@@ -1264,10 +1255,6 @@ theorem Iterator.step_eq_step [UpwardEnumerable α]
     {it : Iter (α := Rxi.Iterator α) α} :
     it.step = ⟨Iterator.step it, isPlausibleStep_iff.mpr rfl⟩ := by
   simp [Iter.step, step_eq_monadicStep, Monadic.step_eq_step, IterM.Step.toPure]
-
-instance Iterator.instIteratorCollect [UpwardEnumerable α]
-    {n : Type u → Type w} [Monad n] : IteratorCollect (Rxi.Iterator α) Id n :=
-  .defaultImplementation
 
 theorem Iterator.Monadic.isPlausibleOutput_next {a} [UpwardEnumerable α]
     {it : IterM (α := Rxi.Iterator α) Id α} (h : it.internalState.next = some a) :
@@ -1342,7 +1329,7 @@ theorem Iterator.isSome_next_of_isPlausibleIndirectOutput
 private def Iterator.instFinitenessRelation [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] :
     FinitenessRelation (Rxi.Iterator α) Id where
-  rel it' it := it'.IsPlausibleSuccessorOf it
+  Rel it' it := it'.IsPlausibleSuccessorOf it
   wf := by
     constructor
     intro it
@@ -1387,7 +1374,7 @@ instance Iterator.instFinite [UpwardEnumerable α]
 private def Iterator.instProductivenessRelation [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] :
     ProductivenessRelation (Rxi.Iterator α) Id where
-  rel := emptyWf.rel
+  Rel := emptyWf.rel
   wf := emptyWf.wf
   subrelation {it it'} h := by
     exfalso

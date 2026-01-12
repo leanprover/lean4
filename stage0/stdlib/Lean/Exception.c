@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Exception
-// Imports: public import Lean.InternalExceptionId public import Lean.ErrorExplanations
+// Imports: public import Lean.InternalExceptionId public import Lean.ErrorExplanation
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2984,7 +2984,7 @@ return x_61;
 }
 }
 lean_object* initialize_Lean_InternalExceptionId(uint8_t builtin);
-lean_object* initialize_Lean_ErrorExplanations(uint8_t builtin);
+lean_object* initialize_Lean_ErrorExplanation(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Exception(uint8_t builtin) {
 lean_object * res;
@@ -2993,7 +2993,7 @@ _G_initialized = true;
 res = initialize_Lean_InternalExceptionId(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ErrorExplanations(builtin);
+res = initialize_Lean_ErrorExplanation(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instInhabitedException___closed__0 = _init_l_Lean_instInhabitedException___closed__0();

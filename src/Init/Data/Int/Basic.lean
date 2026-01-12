@@ -42,6 +42,7 @@ larger numbers use a fast arbitrary-precision arithmetic library (usually
 than the platform's pointer size (i.e. 63 bits on 64-bit architectures and 31 bits on 32-bit
 architectures).
 -/
+@[suggest_for ℤ]
 inductive Int : Type where
   /--
   A natural number is an integer.

@@ -194,7 +194,7 @@ where
 
 def locationLinksFromErrorNameInfo (eni : ErrorNameInfo) : GoToM (Array LeanLocationLink) := do
   let ctx ← read
-  let some explan := getErrorExplanationRaw? (← getEnv) eni.errorName
+  let some explan ← getErrorExplanation? eni.errorName
     | return #[]
   let some loc := explan.declLoc?
     | return #[]

@@ -144,7 +144,7 @@ instance : ToBool Bool where
 Converts the result of the monadic action `x` to a `Bool`. If it is `true`, returns it and ignores
 `y`; otherwise, runs `y` and returns its result.
 
-This a monadic counterpart to the short-circuiting `||` operator, usually accessed via the `<||>`
+This is a monadic counterpart to the short-circuiting `||` operator, usually accessed via the `<||>`
 operator.
 -/
 @[macro_inline] def orM {m : Type u → Type v} {β : Type u} [Monad m] [ToBool β] (x y : m β) : m β := do
@@ -161,7 +161,7 @@ recommended_spelling "orM" for "<||>" in [orM, «term_<||>_»]
 Converts the result of the monadic action `x` to a `Bool`. If it is `true`, returns `y`; otherwise,
 returns the original result of `x`.
 
-This a monadic counterpart to the short-circuiting `&&` operator, usually accessed via the `<&&>`
+This is a monadic counterpart to the short-circuiting `&&` operator, usually accessed via the `<&&>`
 operator.
 -/
 @[macro_inline] def andM {m : Type u → Type v} {β : Type u} [Monad m] [ToBool β] (x y : m β) : m β := do

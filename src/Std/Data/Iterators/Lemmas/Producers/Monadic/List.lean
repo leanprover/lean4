@@ -9,17 +9,18 @@ prelude
 public import Init.Data.Iterators.Lemmas.Producers.Monadic.List
 public import Std.Data.Iterators.Lemmas.Equivalence.Basic
 
-namespace Std.Iterators
-open Std.Internal
+
+namespace Std
+open Std.Internal Std.Iterators Std.Iterators.Types
 
 variable {m : Type w → Type w'} {n : Type w → Type w''} [Monad m] {β : Type w}
 
 -- We don't want to pollute `List` with this rarely used lemma.
-public theorem ListIterator.stepAsHetT_iterM [LawfulMonad m] {l : List β} :
+public theorem Types.ListIterator.stepAsHetT_iterM [LawfulMonad m] {l : List β} :
     (l.iterM m).stepAsHetT = (match l with
       | [] => pure .done
       | x :: xs => pure (.yield (xs.iterM m) x)) := by
-  simp only [List.iterM, toIterM, HetT.ext_iff, Equivalence.property_step, IterM.IsPlausibleStep,
+  simp only [List.iterM, IterM.mk, HetT.ext_iff, Equivalence.property_step, IterM.IsPlausibleStep,
     Iterator.IsPlausibleStep, Equivalence.prun_step]
   refine ⟨?_, ?_⟩
   · ext step
@@ -33,6 +34,6 @@ public theorem ListIterator.stepAsHetT_iterM [LawfulMonad m] {l : List β} :
     · cases l <;> simp [Pure.pure]
   · intro β f
     simp only [IterM.step, Iterator.step, pure_bind]
-    cases l <;> simp [Pure.pure, toIterM]
+    cases l <;> simp [Pure.pure, IterM.mk]
 
-end Std.Iterators
+end Std

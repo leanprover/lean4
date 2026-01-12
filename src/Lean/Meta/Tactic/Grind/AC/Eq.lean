@@ -228,7 +228,7 @@ private def EqCnstr.superposeWithAC (c₁ : EqCnstr) : ACM Unit := do
     if lhs₁.sharesVar lhs₂ then
       assert! lhs₁ != lhs₂
       let some (r₁, c, r₂) := lhs₁.superposeAC? lhs₂ | unreachable!
-      if grind.debug.get (← getOptions) then
+      if (← isDebugEnabled) then
         assert! lhs₁ == r₁.union c
         assert! lhs₂ == r₂.union c
       let c ← mkEqCnstr (c₁.rhs.union r₂) (c₂.rhs.union r₁) (.superpose_ac r₁ c r₂ c₁ c₂)
@@ -239,7 +239,7 @@ private def EqCnstr.superposeA (c₁ c₂ : EqCnstr) : ACM Unit := do
   let lhs₂ := c₂.lhs
   assert! lhs₁ != lhs₂
   if let some (p, c, s) := lhs₁.superpose? lhs₂ then
-    if grind.debug.get (← getOptions) then
+    if (← isDebugEnabled) then
       assert! lhs₁ == p ++ c
       assert! lhs₂ == c ++ s
     let c ← mkEqCnstr (c₁.rhs ++ s) (p ++ c₂.rhs) (.superpose p c s c₁ c₂)

@@ -115,7 +115,7 @@ theorem test_with_pretac_cases {m : Option Nat} (h : m = some 4) :
   | none => set 0)
   ⦃⇓ _ s => ⌜s = 4⌝⦄ := by
   mvcgen
-  with simp -- `simp` is a no-op on some goals, but it should not fail
+  with try simp
   | vc1 => grind
   | vc2 => grind
 

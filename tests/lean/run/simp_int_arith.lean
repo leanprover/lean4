@@ -286,13 +286,15 @@ info: theorem ex3 : ∀ (a b : Int), 6 ∣ a + (21 - a) + 3 * (a + 2 * b) + 12 �
 fun a b =>
   of_eq_true
     (Eq.trans
-      (congrArg (fun x => x ↔ 2 ∣ a + 2 * b + 11)
-        (id
-          (norm_dvd_gcd (RArray.branch 1 (RArray.leaf b) (RArray.leaf a)) 6
-            ((((Expr.var 1).add ((Expr.num 21).sub (Expr.var 1))).add
-                  (Expr.mulL 3 ((Expr.var 1).add (Expr.mulL 2 (Expr.var 0))))).add
-              (Expr.num 12))
-            2 (Poly.add 1 1 (Poly.add 2 0 (Poly.num 11))) 3 (eagerReduce (Eq.refl true)))))
+      (congrFun'
+        (congrArg Iff
+          (id
+            (norm_dvd_gcd (RArray.branch 1 (RArray.leaf b) (RArray.leaf a)) 6
+              ((((Expr.var 1).add ((Expr.num 21).sub (Expr.var 1))).add
+                    (Expr.mulL 3 ((Expr.var 1).add (Expr.mulL 2 (Expr.var 0))))).add
+                (Expr.num 12))
+              2 (Poly.add 1 1 (Poly.add 2 0 (Poly.num 11))) 3 (eagerReduce (Eq.refl true)))))
+        (2 ∣ a + 2 * b + 11))
       (iff_self (2 ∣ a + 2 * b + 11)))
 -/
 #guard_msgs (info) in

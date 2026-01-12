@@ -45,7 +45,7 @@ instance : Iterator (SubarrayIterator α) Id α where
   step it := pure <| .deflate ⟨SubarrayIterator.step it, rfl⟩
 
 private def SubarrayIterator.instFinitelessRelation : FinitenessRelation (SubarrayIterator α) Id where
-  rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.xs.stop - it.internalState.xs.start)
+  Rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.xs.stop - it.internalState.xs.start)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp [IterM.IsPlausibleSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, step] at h
@@ -59,7 +59,6 @@ private def SubarrayIterator.instFinitelessRelation : FinitenessRelation (Subarr
 instance SubarrayIterator.instFinite : Finite (SubarrayIterator α) Id :=
   .of_finitenessRelation instFinitelessRelation
 
-instance [Monad m] : IteratorCollect (SubarrayIterator α) Id m := .defaultImplementation
 instance [Monad m] : IteratorLoop (SubarrayIterator α) Id m := .defaultImplementation
 
 @[inline, expose]
@@ -130,16 +129,34 @@ The implementation of `ForIn.forIn` for `Subarray`, which allows it to be used w
 def Subarray.forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
   ForIn.forIn s b f
 
-namespace Array
-
 /--
 Allocates a new array that contains the contents of the subarray.
 -/
 @[coe]
-def ofSubarray (s : Subarray α) : Array α :=
+def Subarray.toArray (s : Subarray α) : Array α :=
   Slice.toArray s
 
-instance : Coe (Subarray α) (Array α) := ⟨ofSubarray⟩
+instance instCoeSubarrayArray : Coe (Subarray α) (Array α) :=
+  ⟨Subarray.toArray⟩
+
+@[inherit_doc Subarray.toArray]
+def Subarray.copy (s : Subarray α) : Array α :=
+  Slice.toArray s
+
+@[simp]
+theorem Subarray.copy_eq_toArray {s : Subarray α} :
+    s.copy = s.toArray :=
+  (rfl)
+
+theorem Subarray.sliceToArray_eq_toArray {s : Subarray α} :
+    Slice.toArray s = s.toArray :=
+  (rfl)
+
+namespace Array
+
+@[inherit_doc Subarray.toArray]
+def ofSubarray (s : Subarray α) : Array α :=
+  Slice.toArray s
 
 instance : Append (Subarray α) where
   append x y :=
@@ -157,7 +174,3 @@ instance [ToString α] : ToString (Subarray α) where
   toString s := toString s.toArray
 
 end Array
-
-@[inherit_doc Array.ofSubarray]
-def Subarray.toArray (s : Subarray α) : Array α :=
-  Array.ofSubarray s

@@ -47,7 +47,7 @@ public import Lean.Meta.Tactic.Grind.EMatchAction
 public import Lean.Meta.Tactic.Grind.Filter
 public import Lean.Meta.Tactic.Grind.CollectParams
 public import Lean.Meta.Tactic.Grind.Finish
-public import Lean.Meta.Tactic.Grind.FunCC
+public import Lean.Meta.Tactic.Grind.RegisterCommand
 public section
 namespace Lean
 
@@ -101,5 +101,7 @@ builtin_initialize registerTraceClass `grind.debug.proveEq
 builtin_initialize registerTraceClass `grind.debug.pushNewFact
 builtin_initialize registerTraceClass `grind.debug.appMap
 builtin_initialize registerTraceClass `grind.debug.ext
+builtin_initialize registerTraceClass `grind.debug.suggestions
+builtin_initialize registerTraceClass `grind.debug.locals
 
 end Lean

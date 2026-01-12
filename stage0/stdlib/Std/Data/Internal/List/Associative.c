@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Internal.List.Associative
-// Imports: public import Init.Data.Option.Attach public import Init.Data.List.Perm public import Init.Data.List.Monadic public import Std.Data.Internal.List.Defs import all Std.Data.Internal.List.Defs public import Init.Data.Order.Ord import Init.Data.Subtype.Order
+// Imports: public import Init.Data.Option.Attach public import Init.Data.List.Perm public import Init.Data.List.Monadic public import Std.Data.Internal.List.Defs import all Std.Data.Internal.List.Defs public import Init.Data.Order.Ord import Init.Data.Subtype.Order public import Init.Data.Order.ClassesExtra public import Init.Data.Order.LemmasExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -345,7 +345,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_Internal_List_getEntry_x21___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(10u);
-x_3 = lean_unsigned_to_nat(59u);
+x_3 = lean_unsigned_to_nat(61u);
 x_4 = l_Std_Internal_List_getEntry_x21___redArg___closed__1;
 x_5 = l_Std_Internal_List_getEntry_x21___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -2925,6 +2925,8 @@ lean_object* initialize_Std_Data_Internal_List_Defs(uint8_t builtin);
 lean_object* initialize_Std_Data_Internal_List_Defs(uint8_t builtin);
 lean_object* initialize_Init_Data_Order_Ord(uint8_t builtin);
 lean_object* initialize_Init_Data_Subtype_Order(uint8_t builtin);
+lean_object* initialize_Init_Data_Order_ClassesExtra(uint8_t builtin);
+lean_object* initialize_Init_Data_Order_LemmasExtra(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_Internal_List_Associative(uint8_t builtin) {
 lean_object * res;
@@ -2949,6 +2951,12 @@ res = initialize_Init_Data_Order_Ord(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Subtype_Order(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Order_ClassesExtra(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Order_LemmasExtra(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Internal_List_getEntry_x21___redArg___closed__2 = _init_l_Std_Internal_List_getEntry_x21___redArg___closed__2();

@@ -4,15 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.SynthInstance
 public import Lean.Meta.DecLevel
 import Lean.Meta.SameCtorUtils
 import Lean.Data.Array
-
+import Lean.Meta.CtorRecognizer
+import Lean.Structure
 public section
-
 namespace Lean.Meta
 
 /-- Returns `id e` -/
@@ -222,10 +221,9 @@ def congrArg? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) := do
     return some (α, f, h)
   if e.isAppOfArity ``congrFun 6 then
     let #[α, β, _f, _g, h, a] := e.getAppArgs | unreachable!
-    let α' ← withLocalDecl `x .default α fun x => do
-      mkForallFVars #[x] (β.beta #[x])
-    let f' ← withLocalDecl `x .default α' fun f => do
-      mkLambdaFVars #[f] (f.app a)
+    -- hot path, construct terms directly
+    let α' := .forallE `x α (β.beta #[.bvar 0]) .default
+    let f' := .lam `f α' (.app (.bvar 0) a) .default
     return some (α', f', h)
   return none
 
@@ -235,8 +233,8 @@ partial def mkCongrArg (f h : Expr) : MetaM Expr := do
     mkEqRefl (mkApp f a)
   else if let some (α, f₁, h₁) ← congrArg? h then
     -- Fuse nested `congrArg` for smaller proof terms, e.g. when using simp
-    let f' ← withLocalDecl `x .default α fun x => do
-      mkLambdaFVars #[x] (f.beta #[f₁.beta #[x]])
+    -- hot path, construct terms directly
+    let f' := .lam `x α (f.beta #[f₁.beta #[.bvar 0]]) .default
     mkCongrArg f' h₁
   else
     let hType ← infer h
@@ -255,8 +253,8 @@ def mkCongrFun (h a : Expr) : MetaM Expr := do
     mkEqRefl (mkApp f a)
   else if let some (α, f₁, h₁) ← congrArg? h then
     -- Fuse nested `congrArg` for smaller proof terms, e.g. when using simp
-    let f' ← withLocalDecl `x .default α fun x => do
-      mkLambdaFVars #[x] (f₁.beta #[x, a])
+    -- hot path, construct terms directly
+    let f' := .lam `x α (f₁.beta #[.bvar 0, a]) .default
     mkCongrArg f' h₁
   else
     let hType ← infer h

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Vector.Basic
+public import Init.Data.Slice.Array.Lemmas
 
 public section
 
@@ -32,10 +33,15 @@ macro_rules
           try rw [Std.Ric.mem_iff] at *
           try rw [Std.Rio.mem_iff] at *
           try rw [Std.Rii.mem_iff] at *
-          dsimp +zetaDelta only [
+          try dsimp +zetaDelta only [
             -- `Vector.size` needs to be unfolded because for `xs : Vector α n`, one needs to prove
             -- `i < n` instead of `i < xs.size`. Although `Vector.size` is reducible, this is
             -- not enough for `omega`.
             Vector.size] at *
+          -- If we're accessing elements of a subarray, we need to calculate its size.
+          try simp only [
+            Array.size_mkSlice_rco, Array.size_mkSlice_rcc, Array.size_mkSlice_rci,
+            Array.size_mkSlice_roo, Array.size_mkSlice_roc, Array.size_mkSlice_roi,
+            Array.size_mkSlice_rio, Array.size_mkSlice_ric, Array.size_mkSlice_rii]
           omega
         | done)

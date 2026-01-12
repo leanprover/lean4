@@ -30,10 +30,10 @@ match x with
 #eval h2 []
 
 def h3 (x : Array Nat) : Nat :=
-match x with
-| #[x]    => x
-| #[x, y] => x + y
-| xs      => xs.size
+  match x with
+  | #[x]    => x
+  | #[x, y] => x + y
+  | xs      => xs.size
 
 /-- info: 10 -/
 #guard_msgs in
@@ -44,6 +44,28 @@ match x with
 /-- info: 4 -/
 #guard_msgs in
 #eval h3 #[10, 20, 30, 40]
+
+/--
+error: Failed to compile pattern matching: Stuck at
+  remaining variables: [x✝:(Array Nat)]
+  alternatives:
+    [x:(Nat)]
+    |- [#[x]] => h_1 x
+    [x:(Nat), y:(Nat)]
+    |- [#[x, y]] => h_2 x y
+  examples:_
+-/
+#guard_msgs in
+def h4 (x : Array Nat) : Nat :=
+  match x with
+  | #[x]    => x
+  | #[x, y] => x + y
+
+def h5 (x : String) : Nat :=
+  match x with
+  | "val1" => 0
+  | "val2" => 1
+  | _      => 10
 
 inductive Image {α β : Type} (f : α → β) : β → Type
 | mk (a : α) : Image f (f a)
@@ -143,18 +165,11 @@ match n, parity n with
 | _, Parity.even j => false :: natToBin j
 | _, Parity.odd  j => true  :: natToBin j
 
+-- The refactoring #11695 also fixed this, because it is more likely to use
+-- value matching when it sees no actual constructors. Previously, the
+-- inaccessible pattern caused it to expand the literal to a constructor.
+
 set_option backward.match.sparseCases false in
-/--
-error: Tactic `cases` failed with a nested error:
-Dependent elimination failed: Failed to solve equation
-  n✝¹.succ = n✝.add n✝
-at case `Parity.even` after processing
-  (Nat.succ _), _
-the dependent pattern matcher can solve the following kinds of equations
-- <var> = <term> and <term> = <var>
-- <term> = <term> where the terms are definitionally equal
-- <constructor> = <constructor>, examples: List.cons x xs = List.cons y ys, and List.cons x xs = List.nil
--/
 #guard_msgs in
 partial def natToBinBadOld (n : Nat) : List Bool :=
 match n, parity n with
@@ -162,7 +177,17 @@ match n, parity n with
 | _, Parity.even j => false :: natToBin j
 | _, Parity.odd  j => true  :: natToBin j
 
--- Even with sparse matching, this can break
+-- Somehow the refactoring in #11695 also made this work, because
+-- `.succ 0` is treated as a value, not as a constructor pattern
+
+partial def natToBinBad2 (n : Nat) : List Bool :=
+match n, parity n with
+| 0, _             => []
+| .succ 0, _       => [true]
+| _, Parity.even j => false :: natToBin j
+| _, Parity.odd  j => true  :: natToBin j
+
+-- To still see the problem we have to make sure we do a constructor match:
 
 /--
 error: Tactic `cases` failed with a nested error:
@@ -175,13 +200,13 @@ the dependent pattern matcher can solve the following kinds of equations
 - <term> = <term> where the terms are definitionally equal
 - <constructor> = <constructor>, examples: List.cons x xs = List.cons y ys, and List.cons x xs = List.nil
 -/
-#guard_msgs in
-partial def natToBinBad2 (n : Nat) : List Bool :=
+#guard_msgs(pass trace, all) in
+partial def natToBinBad3 (n : Nat) : List Bool :=
 match n, parity n with
-| 0, _             => []
-| .succ 0, _       => [true]
-| _, Parity.even j => false :: natToBin j
-| _, Parity.odd  j => true  :: natToBin j
+| .succ (.succ n), _ => [true]
+| 0, _               => []
+| _, Parity.even j   => false :: natToBin j
+| _, Parity.odd  j   => true  :: natToBin j
 
 partial def natToBin2 (n : Nat) : List Bool :=
 match n, parity n with

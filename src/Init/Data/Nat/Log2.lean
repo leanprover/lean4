@@ -35,7 +35,7 @@ Examples:
  * `Nat.log2 7 = 2`
  * `Nat.log2 8 = 3`
 -/
-@[extern "lean_nat_log2"]
+@[expose, extern "lean_nat_log2"]
 def log2 (n : @& Nat) : Nat :=
   -- Lean "assembly"
   n.rec (fun _ => nat_lit 0) (fun _ ih n =>

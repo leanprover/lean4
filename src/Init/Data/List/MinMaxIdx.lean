@@ -148,6 +148,7 @@ private theorem minIdxOn_eq_go_drop [LE β] [DecidableLE β] [IsLinearPreorder �
           obtain ⟨hlt, rfl⟩ := exists_getElem_eq_of_drop_eq_cons h
           exact ⟨k + 1, by omega, Nat.le_refl _, by simp, rfl⟩
 
+@[grind ←]
 theorem minIdxOn_lt_length [LE β] [DecidableLE β] {f : α → β} {xs : List α} (h : xs ≠ []) :
     xs.minIdxOn f h < xs.length := by
   rw [minIdxOn.eq_def]
@@ -395,6 +396,33 @@ theorem maxIdxOn_singleton [LE β] [DecidableLE β] {x : α} {f : α → β} :
   letI : LE β := (inferInstanceAs (LE β)).opposite
   minIdxOn_singleton
 
+@[grind ←]
+theorem maxIdxOn_lt_length [LE β] [DecidableLE β] {f : α → β} {xs : List α} (h : xs ≠ []) :
+    xs.maxIdxOn f h < xs.length :=
+  letI : LE β := (inferInstanceAs (LE β)).opposite
+  minIdxOn_lt_length h
+
+theorem maxIdxOn_le_of_getElem_le [LE β] [DecidableLE β] [IsLinearPreorder β]
+    {f : α → β} {xs : List α} (h : xs ≠ [])
+    {k : Nat} (hi : k < xs.length) (hle : f (xs.maxOn f h) ≤ f xs[k]) :
+    xs.maxIdxOn f h ≤ k :=
+  letI : LE β := (inferInstanceAs (LE β)).opposite
+  minIdxOn_le_of_getElem_le h hi hle
+
+theorem getElem_maxIdxOn [LE β] [DecidableLE β] [IsLinearPreorder β]
+    {f : α → β} {xs : List α} (h : xs ≠ []) :
+    haveI := maxIdxOn_lt_length (f := f) h
+    xs[xs.maxIdxOn f h] = xs.maxOn f h :=
+  letI : LE β := (inferInstanceAs (LE β)).opposite
+  getElem_minIdxOn h
+
+theorem maxIdxOn_eq_iff [LE β] [DecidableLE β] [IsLinearPreorder β]
+    {f : α → β} {xs : List α} (h : xs ≠ []) {i : Nat} :
+    xs.maxIdxOn f h = i ↔ ∃ hi : i < xs.length, xs[i] = xs.maxOn f h ∧
+      ∀ (j : Nat) (hj : j < i), ¬ f (xs.maxOn f h) ≤ f xs[j] :=
+  letI : LE β := (inferInstanceAs (LE β)).opposite
+  minIdxOn_eq_iff h
+
 theorem maxIdxOn_cons
     [LE β] [DecidableLE β] [IsLinearPreorder β] {x : α} {xs : List α} {f : α → β} :
     (x :: xs).maxIdxOn f (by exact of_decide_eq_false rfl) =
@@ -438,5 +466,18 @@ theorem maxIdxOn_replicate [LE β] [DecidableLE β] [Refl (α := β) (· ≤ ·)
     (replicate n a).maxIdxOn f h = 0 :=
   letI : LE β := (inferInstanceAs (LE β)).opposite
   minIdxOn_replicate h
+
+theorem maxOn_left_leaning'
+    [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {xs : List α} {f : α → β} (h : xs ≠ []) :
+    ∃ j : Fin xs.length, xs[j] = xs.maxOn f h ∧
+      ∀ i : Fin j, ¬ f (xs.maxOn f h) ≤ f xs[i] := by
+  have := maxIdxOn_lt_length (f := f) h
+  refine ⟨⟨xs.maxIdxOn f h, this⟩, getElem_maxIdxOn h, ?_⟩
+  rintro ⟨i, hi⟩
+  simp only [Fin.getElem_fin]
+  simp only at hi
+  intro hle
+  have := maxIdxOn_le_of_getElem_le h (by omega) hle
+  omega
 
 end List

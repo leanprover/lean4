@@ -206,46 +206,6 @@ theorem minOn_eq_head [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {xs : L
     · simp only [foldl_cons, head_cons]
       rw [minOn_eq_left] <;> simp_all
 
-/--
-{lean}`xs.minOn f h` comes before any other element in {name}`xs` where {name}`f` attains its
-minimum.
--/
-theorem minOn_left_leaning
-    [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {xs : List α} {f : α → β} (h : xs ≠ []) :
-    ∃ j : Fin xs.length, xs[j] = xs.minOn f h ∧
-      ∀ i : Fin j, ¬ f xs[i] ≤ f (xs.minOn f h) := by
-  open scoped Classical.Order in
-  simp only [List.minOn, Fin.getElem_fin, Std.not_le]
-  match xs with
-  | x :: xs =>
-    simp only
-    clear h
-    fun_induction xs.foldl (init := x) (_root_.minOn f)
-    · exact ⟨⟨0, by simp⟩, by simp⟩
-    · rename_i x y xs ih
-      obtain ⟨j, ih⟩ := ih
-      by_cases hj : j.val = 0
-      · by_cases hm : f x ≤ f y
-        · exact ⟨⟨0, by simp⟩, by
-            simp only [← ih.1, hj]
-            simp [minOn_eq_left hm]⟩
-        · simp only [Std.not_le] at hm
-          exact ⟨⟨1, by simp⟩, by
-            simp only [← ih.1, hj]
-            simp [minOn_eq_right_of_lt, hm]⟩
-      · refine ⟨⟨j + 1, by simp⟩, ?_⟩
-        obtain ⟨j, _⟩ := Nat.exists_eq_succ_of_ne_zero hj
-        apply And.intro
-        · simp_all
-        · rintro ⟨i, hi⟩
-          match i with
-          | 0 | 1 =>
-            refine Std.lt_of_lt_of_le (ih.2 ⟨0, by simp_all⟩) ?_
-            simp [apply_minOn_le_left, apply_minOn_le_right]
-          | i + 2 =>
-            refine Std.lt_of_lt_of_le (ih.2 ⟨i + 1, by simp_all⟩) ?_
-            simp [Std.le_refl]
-
 protected theorem min_map
     [LE β] [DecidableLE β] [Min β] [Std.IsLinearPreorder β] [Std.LawfulOrderLeftLeaningMin β] {xs : List α} {f : α → β} (h : xs ≠ []) :
     (xs.map f).min (by simpa) = f (xs.minOn f h) := by
@@ -360,17 +320,6 @@ theorem maxOn_eq_head [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {xs : L
   letI : LE β := (inferInstanceAs (LE β)).opposite
   minOn_eq_head (f := f) h h'
 
-/--
-{lean}`xs.maxOn f h` comes before any other element in {name}`xs` where {name}`f` attains its
-maximum.
--/
-theorem maxOn_left_leaning
-    [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {xs : List α} {f : α → β} (h : xs ≠ []) :
-    ∃ j : Fin xs.length, xs[j] = xs.maxOn f h ∧
-      ∀ i : Fin j, ¬ f (xs.maxOn f h) ≤ f xs[i] :=
-  letI : LE β := (inferInstanceAs (LE β)).opposite
-  minOn_left_leaning (f := f) h
-
 protected theorem max_map
     [LE β] [DecidableLE β] [Max β] [Std.IsLinearPreorder β] [Std.LawfulOrderLeftLeaningMax β] {xs : List α} {f : α → β} (h : xs ≠ []) :
     (xs.map f).max (by simpa) = f (xs.maxOn f h) :=
@@ -466,12 +415,6 @@ theorem List.apply_minOn?_get_le_of_mem
 
 -- The suggested patterns are not useful because all involve `IsLinearPreorder`.
 grind_pattern List.apply_minOn?_get_le_of_mem => x ∈ xs, (xs.minOn? f).get _
-
-theorem List.minOn?_left_leaning [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {xs : List α} {f : α → β} {x : α}
-    (hx : xs.minOn? f = some x) :
-    ∃ j : Fin xs.length, xs[j] = x ∧ ∀ i : Fin j, ¬ f xs[i] ≤ f x := by
-  rw [← minOn_eq_of_minOn?_eq_some hx]
-  apply List.minOn_left_leaning
 
 @[grind <=]
 theorem minOn?_mem [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {xs : List α} {f : α → β}
@@ -582,12 +525,6 @@ theorem le_apply_maxOn?_get_of_mem
 
 -- The suggested patterns are not useful because all involve `IsLinearPreorder`.
 grind_pattern List.le_apply_maxOn?_get_of_mem => x ∈ xs, (xs.maxOn? f).get _
-
-theorem maxOn?_left_leaning [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {xs : List α} {f : α → β} {x : α}
-    (hx : xs.maxOn? f = some x) :
-    ∃ j : Fin xs.length, xs[j] = x ∧ ∀ i : Fin j, ¬ f x ≤ f xs[i] :=
-  letI : LE β := (inferInstanceAs (LE β)).opposite
-  List.minOn?_left_leaning (f := f) hx
 
 @[grind <=]
 theorem maxOn?_mem [LE β] [DecidableLE β] [Std.IsLinearPreorder β] {xs : List α} {f : α → β}

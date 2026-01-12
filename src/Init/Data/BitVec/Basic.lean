@@ -894,5 +894,6 @@ def addRecAux (x : BitVec (l * w)) (rem : Nat) (acc : BitVec w) : BitVec w :=
 /-- Recursive addition of the elements in a flattened bitvec. -/
 def addRec (x : BitVec (l * w)) : BitVec w := addRecAux x l 0#w
 
+def parPreSum (l : Nat) (x : BitVec k) : BitVec n := sorry
 
 end BitVec

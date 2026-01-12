@@ -126,9 +126,10 @@ theorem clz_congr (w : Nat) (x x' : BitVec w) (h : x = x') :
     BitVec.clz x' = BitVec.clz x := by
   simp [*]
 
-theorem cpop_congr (w : Nat) (x x' : BitVec w) (h : x = x') :
-    BitVec.cpop x' = BitVec.cpop x := by
-  simp [*]
+-- theorem parPreSum_congr (l : Nat) (x x' : BitVec w) (h : x = x') := sorry
+  --   BitVec.parPreSum l x' = BitVec.parPreSum l x := by
+  -- simp[*]
+
 
 end BitVec
 

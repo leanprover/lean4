@@ -256,7 +256,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
         let nparams := majorArgs.size - rule.nfields
         let rhs := mkAppRange rhs nparams majorArgs.size majorArgs
         let rhs := mkAppRange rhs (majorIdx + 1) recArgs.size recArgs
-        let rhs := headBeta rhs
+        let rhs := rhs.headBeta
         successK rhs
     | none => failK ()
   else

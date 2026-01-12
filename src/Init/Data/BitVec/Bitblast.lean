@@ -2820,7 +2820,7 @@ theorem addRecAux_eq_of
       · simp [show (b_length + 1) / 2 - 1 = 0 by omega, show b_length - 1 = 0 by omega]
 
 /-- construct the parallel prefix sum circuit of the flattend bitvectors in `l` -/
-def parPreSum (l : BitVec (l_length * w)) (k : BitVec w)
+def parPreSum_tree (l : BitVec (l_length * w)) (k : BitVec w)
       (proof_length : 0 < l_length) (hw : 0 < w) : BitVec (1 * w) :=
   if h : l_length = 1 then
     l.cast (by simp [h])
@@ -2829,15 +2829,15 @@ def parPreSum (l : BitVec (l_length * w)) (k : BitVec w)
     let proof_new_layer := extractLsb'_parPreSum_layer 0 l 0#(0 * w) (by omega) (by simp)
     let l_length' := (l_length + 1) / 2
     let proof_new_layer_length : 0 < l_length' := by omega
-    parPreSum new_layer k proof_new_layer_length hw
+    parPreSum_tree new_layer k proof_new_layer_length hw
 
 theorem addRecAux_parPreSum (l : BitVec (l_length * w)) (k : BitVec w)
       (proof : addRecAux l l_length 0#w  = k)
       (proof_length : 0 < l_length) (hw : 0 < w)
       (ls : BitVec (1 * w))
-      (hls : ls = parPreSum l k (by omega) hw) :
+      (hls : ls = parPreSum_tree l k (by omega) hw) :
       addRecAux ls 1 0#w = k := by
-  unfold parPreSum at hls
+  unfold parPreSum_tree at hls
   split at hls
   · case _ h =>
     simp [h] at proof
@@ -3358,7 +3358,7 @@ theorem cpop_eq_recursive_addition {x : BitVec w} :
       by_cases hk0 : k = 0 <;> simp [hk0]
 
 theorem extractLsb'_pps_eq_cast {x : BitVec w} (h : 0 < w) :
-    let res := ((extractAndExtendPopulate w x).parPreSum ((extractAndExtendPopulate w x).addRecAux w 0#w) (by omega) (by omega))
+    let res := ((extractAndExtendPopulate w x).parPreSum_tree ((extractAndExtendPopulate w x).addRecAux w 0#w) (by omega) (by omega))
     extractLsb' 0 w res =
     (res).cast (by simp) := by
   ext k hk
@@ -3369,13 +3369,13 @@ theorem cpop_eq_pps {x : BitVec w} :
   let k := arg.addRecAux w 0#w;
     (x.cpop) =
       if hw : w = 0 then 0#w
-      else ((parPreSum (l := arg) (k := k) (by omega) (by omega))).cast (by simp) := by
+      else ((parPreSum_tree (l := arg) (k := k) (by omega) (by omega))).cast (by simp) := by
   split
   · case _ hw =>
     subst hw
     simp [of_length_zero]
   · rw [cpop_eq_recursive_addition]
-    let res := parPreSum (extractAndExtendPopulate w x) (k := (extractAndExtendPopulate w x).addRecAux w 0#w)
+    let res := parPreSum_tree (extractAndExtendPopulate w x) (k := (extractAndExtendPopulate w x).addRecAux w 0#w)
                                     (by omega) (by omega)
     have proof := addRecAux_parPreSum (l := extractAndExtendPopulate w x)
                                 (k := (extractAndExtendPopulate w x).addRecAux w 0#w)

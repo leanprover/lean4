@@ -192,8 +192,6 @@ where
       unaryReflection innerExpr .reverse ``Std.Tactic.BVDecide.Reflect.BitVec.reverse_congr origExpr
     | BitVec.clz _ innerExpr =>
       unaryReflection innerExpr .clz ``Std.Tactic.BVDecide.Reflect.BitVec.clz_congr origExpr
-    | BitVec.cpop _ innerExpr =>
-      unaryReflection innerExpr .cpop ``Std.Tactic.BVDecide.Reflect.BitVec.cpop_congr origExpr
     | _ => return none
 
   /--

@@ -10,6 +10,7 @@ public import Lean.Compiler.ClosedTermCache
 public import Lean.Compiler.NeverExtractAttr
 public import Lean.Compiler.LCNF.Internalize
 public import Lean.Compiler.LCNF.ToExpr
+import Lean.Compiler.LCNF.PrettyPrinter
 
 public section
 
@@ -83,25 +84,26 @@ partial def shouldExtractLetValue (isRoot : Bool) (v : LetValue) : M Bool := do
   | .lit (.nat v) => return !isRoot || v >= Nat.pow 2 63
   | .lit _ | .erased => return !isRoot
   | .const name _ args =>
+    -- TODO: overapproximating, like this we never extract closed terms from our SCC even if the SCC
+    -- has actually been split open by now
     if (← read).sccDecls.any (·.name == name) then
       return false
     -- TODO: cleanup never extract annotations in core
     if hasNeverExtractAttribute (← getEnv) name then
       return false
+    let isPap := (← getMonoDecl? name).map (decide <| args.size < ·.getArity ) |>.getD false
     if let some constInfo := (← getEnv).find? name then
       let shouldExtractCtor :=
         constInfo.isCtor &&
         !(isExtern (← getEnv) name) &&
         (!(args.all isIrrelevantArg) || !isRoot)
       -- TODO: check fully applied ctor
-      let shouldExtract := shouldExtractCtor || extractionAllowlist.contains name
+      let shouldExtract := shouldExtractCtor || extractionAllowlist.contains name || isPap
       if !shouldExtract then
         return false
     else
-      if let some decl := ← getMonoDecl? name then
-        if args.size >= decl.getArity then
-          return false
-      if !(!isRoot && isClosedTermName (← getEnv) name) then
+      let isClosedApp := (!isRoot && isClosedTermName (← getEnv) name)
+      if !(isClosedApp || isPap) then
         return false
     args.allM shouldExtractArg
   | .fvar fnVar args =>
@@ -115,8 +117,9 @@ partial def shouldExtractArg (arg : Arg) : M Bool := do
   | .type _ | .erased => return true
 
 partial def shouldExtractFVar (fvarId : FVarId) : M Bool := do
-  if let some result := (← get).fvarDecisionCache[fvarId]? then
-    return result
+  if let some letDecl ← findLetDecl? fvarId then
+    let ret ← shouldExtractLetValue false letDecl.value
+    return ret
   else
     let result ← go
     modify fun s => { s with fvarDecisionCache := s.fvarDecisionCache.insert fvarId result }
@@ -135,7 +138,9 @@ mutual
 partial def visitCode (code : Code) : M Code := do
   match code with
   | .let decl k =>
-    if (← shouldExtractLetValue true decl.value) then
+    let should ← shouldExtractLetValue true decl.value
+    trace[Meta.debug] m!"Should extract: {← ppLetValue decl.value}? {should}"
+    if should then
       let ⟨_, decls⟩ ← extractLetValue decl.value |>.run {}
       let decls := decls.reverse.push (.let decl)
       let decls ← decls.mapM Internalize.internalizeCodeDecl |>.run' {}

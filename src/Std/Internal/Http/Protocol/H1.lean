@@ -138,7 +138,7 @@ private def updateKeepAlive (machine : Machine dir) (should : Bool) : Machine di
 -- Helper Functions
 
 private def extractBodyLengthFromHeaders (headers : Headers) : Option Body.Length :=
-  match (headers.get? (.new "Content-Length"), headers.hasEntry (.new "Transfer-Encoding") "chunked") with
+  match (headers.get? (.new "content-length"), headers.hasEntry (.new "transfer-encoding") "chunked") with
   | (some cl, false) => cl.value.toNat? >>= (some ∘ Body.Length.fixed)
   | (_, true) => some Body.Length.chunked
   | _ => none
@@ -152,7 +152,7 @@ def getMessageSize (req : Message.Head dir) : Option Body.Length := do
     if req.method == .head ∨ req.method == .connect then
       return .fixed 0
 
-  match (req.headers.getAll? (.new "Content-Length"), req.headers.hasEntry (.new "Transfer-Encoding") "chunked") with
+  match (req.headers.getAll? (.new "content-length"), req.headers.hasEntry (.new "transfer-encoding") "chunked") with
   | (some #[cl], false) => do
     let num ← cl.value.toNat?
     some (.fixed num)
@@ -283,7 +283,7 @@ def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : M
     if messageHead.headers.contains (.new "host") then
       messageHead.headers
     else if let some host := machine.host then
-      messageHead.headers.insert (.new "Host") host
+      messageHead.headers.insert (.new "host") host
     else
       messageHead.headers
 
@@ -291,23 +291,23 @@ def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : M
   let headers :=
     let identityOpt := machine.config.identityHeader
     match dir, identityOpt with
-    | .receiving, some server => headers.insert (.new "Server") server
-    | .sending, some userAgent => headers.insert (.new "User-Agent") userAgent
+    | .receiving, some server => headers.insert (.new "server") server
+    | .sending, some userAgent => headers.insert (.new "user-agent") userAgent
     | _, none => headers
 
   -- Add Connection: close if needed
   let headers :=
-    if !machine.keepAlive ∧ !headers.hasEntry (.new "Connection") "close" then
-      headers.insert (.new "Connection") (.new "close")
+    if !machine.keepAlive ∧ !headers.hasEntry (.new "connection") "close" then
+      headers.insert (.new "connection") (.new "close")
     else
       headers
 
   -- Add Content-Length or Transfer-Encoding if needed
   let headers :=
-    if !(headers.contains (.new "Content-Length") ∨ headers.contains (.new "Transfer-Encoding")) then
+    if !(headers.contains (.new "content-length") ∨ headers.contains (.new "transfer-encoding")) then
       match size with
-      | .fixed n => headers.insert (.new "Content-Length") (.ofString! <| toString n)
-      | .chunked => headers.insert (.new "Transfer-Encoding") (.new "chunked")
+      | .fixed n => headers.insert (.new "content-length") (.ofString! <| toString n)
+      | .chunked => headers.insert (.new "transfer-encoding") (.new "chunked")
     else
       headers
 

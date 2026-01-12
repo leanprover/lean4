@@ -225,19 +225,19 @@ theorem in_of_hasall (name : String) (inList : name ∈ list) (hasAll : HasAll h
     else
       in_of_hasall name (List.mem_of_ne_of_mem (Ne.intro (fun x => eq x.symm)) inList) tail
 
-theorem in_implies_valid (h : In name headers) : isValidHeaderName name :=
-  if h₀ : isValidHeaderName name then h₀ else by
+theorem in_implies_valid (h : In name headers) : isValidHeaderName name.toLower :=
+  if h₀ : isValidHeaderName name.toLower then h₀ else by
     unfold In HeaderName.ofString? at h
     simp [h₀] at h
 
-theorem mem_implies_valid (name : String) (inList : name ∈ list) (hasAll : HasAll headers list) : isValidHeaderName name :=
+theorem mem_implies_valid (name : String) (inList : name ∈ list) (hasAll : HasAll headers list) : isValidHeaderName name.toLower :=
   in_implies_valid (in_of_hasall name inList hasAll)
 
-theorem in_implies_mem (h : In nn headers) : ∃p : (isValidHeaderName nn), HeaderName.mk nn p ∈ headers := by
+theorem in_implies_mem (h : In nn headers) : ∃p : (isValidHeaderName nn.toLower ∧ isNormalForm nn.toLower), HeaderName.mk nn.toLower p.left p.right ∈ headers := by
   simp [In, HeaderName.ofString?] at h
-  if h2 : isValidHeaderName nn then
+  if h2 : isValidHeaderName nn.toLower ∧ isNormalForm nn.toLower then
     simp [eq_true h2] at h
-    exact ⟨_, h⟩
+    exact ⟨h2, h⟩
   else
     simp [eq_false h2] at h
 
@@ -267,14 +267,14 @@ Gets the value of a header by name.
 -/
 def get (hasAll : HasAll headers l) (name : String) (h : (name ∈ l) := by get_elem_tactic) : HeaderValue :=
   let h2 := in_implies_mem (in_of_hasall name h hasAll)
-  headers.get (HeaderName.mk name h2.choose) h2.choose_spec
+  headers.get (HeaderName.mk name.toLower h2.choose.left h2.choose.right) h2.choose_spec
 
 /--
 Gets all values of a header by name.
 -/
 def getAll (hasAll : HasAll headers l) (name : String) (h : (name ∈ l) := by get_elem_tactic) : Array HeaderValue :=
   let h2 := in_implies_mem (in_of_hasall name h hasAll)
-  headers.getAll (HeaderName.mk name h2.choose) h2.choose_spec
+  headers.getAll (HeaderName.mk name.toLower h2.choose.left h2.choose.right) h2.choose_spec
 
 instance : Decidable (HasAll h l) := decidable
 

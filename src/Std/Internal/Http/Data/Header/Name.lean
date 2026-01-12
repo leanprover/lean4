@@ -48,13 +48,13 @@ structure HeaderValue where
   The proof that it's a valid header value
   -/
   validHeaderValue : isValidHeaderValue value
-deriving BEq, Repr, DecidableEq
+deriving BEq, DecidableEq, Repr
 
 namespace HeaderValue
 
 instance : Hashable HeaderValue := ⟨Hashable.hash ∘ HeaderValue.value⟩
 
-instance : Inhabited HeaderValue := ⟨⟨"", by decide⟩⟩
+instance : Inhabited HeaderValue := ⟨⟨"", by native_decide⟩⟩
 
 /--
 Creates a new `HeaderValue` from a string with an optional proof of validity.
@@ -92,38 +92,10 @@ Returns `true` if they match.
 -/
 @[expose]
 def is (s : HeaderValue) (h : String) : Bool :=
-  s.value.toLower == h.toLower
-
-/--
-Concatenates two `HeaderValue` instances, preserving the validity guarantee.
--/
-def append (l : HeaderValue) (r : HeaderValue) : HeaderValue :=
-  ⟨l.value ++ r.value, ?_⟩
-where finally
-  unfold isValidHeaderValue
-  rw [String.toList_append, List.all_append, Bool.and_eq_true]
-  constructor
-  · exact l.validHeaderValue
-  · exact r.validHeaderValue
-
-instance : HAppend HeaderValue HeaderValue HeaderValue where
-  hAppend := HeaderValue.append
+  s.value == h.toLower
 
 instance : ToString HeaderValue where
   toString v := v.value
-
-/--
-Joins an array of `HeaderValue` instances with comma-space separation.
-Returns a single `HeaderValue` containing all values joined together.
-If the array is empty, returns an empty `HeaderValue`.
--/
-def joinCommaSep (x : Array HeaderValue) : HeaderValue :=
-  if h : 0 < x.size then
-    let first := x[0]'h
-    let rest := x[1...*]
-    rest.foldl (· ++ HeaderValue.new ", " ++ ·) first
-  else
-    .new ""
 
 end HeaderValue
 
@@ -148,6 +120,14 @@ abbrev isValidHeaderName (s : String) : Prop :=
   s.toList.all isValidHeaderNameChar ∧ !s.toList.isEmpty
 
 /--
+Proposition that a header name is in the internal normal form, meaning it has been
+normalized by lowercasing.
+-/
+@[expose]
+abbrev isNormalForm (s: String) : Prop :=
+  s = s.toLower
+
+/--
 A validated HTTP header name that ensures all characters conform to HTTP standards.
 Header names are case-insensitive according to HTTP specifications.
 -/
@@ -161,7 +141,12 @@ structure HeaderName where
   The proof that it's a valid header name
   -/
   validHeaderName : isValidHeaderName value
-deriving Repr, DecidableEq, BEq
+
+  /--
+  The proof that we stored the header name in normal form
+  -/
+  normalform: isNormalForm value
+deriving Repr, DecidableEq, BEq, Repr
 
 namespace HeaderName
 
@@ -169,23 +154,23 @@ namespace HeaderName
 Hash is based on lowercase version for case-insensitive comparison
 -/
 instance : Hashable HeaderName where
-  hash x := Hashable.hash x.value.toLower
+  hash x := Hashable.hash x.value
 
 /--
 Equality is case-insensitive
 -/
 instance : BEq HeaderName where
-  beq x y := x.value.toLower == y.value.toLower
+  beq x y := x.value == y.value
 
-instance : Inhabited HeaderName where default := ⟨"a", ⟨by decide, by decide⟩⟩
+instance : Inhabited HeaderName where default := ⟨"a", ⟨by decide, by decide⟩, by native_decide⟩
 
 /--
 Creates a new `HeaderName` from a string with an optional proof of validity.
 If no proof is provided, it attempts to prove validity automatically.
 -/
 @[expose]
-def new (s : String) (h : isValidHeaderName s := by decide) : HeaderName :=
-  ⟨s, h⟩
+def new (s : String) (h : isValidHeaderName s := by decide) (h₁ : isNormalForm s := by native_decide) : HeaderName :=
+  ⟨s, h, h₁⟩
 
 /--
 Attempts to create a `HeaderName` from a `String`, returning `none` if the string
@@ -193,8 +178,9 @@ contains invalid characters for HTTP header names or is empty.
 -/
 @[expose]
 def ofString? (s : String) : Option HeaderName :=
-  if h : isValidHeaderName s then
-    some ⟨s, h⟩
+  let val := s.toLower
+  if h : isValidHeaderName val ∧ isNormalForm val then
+    some ⟨val, h.left, h.right⟩
   else
     none
 
@@ -204,8 +190,9 @@ string contains invalid characters for HTTP header names or is empty.
 -/
 @[expose]
 def ofString! (s : String) : HeaderName :=
-  if h : isValidHeaderName s then
-    ⟨s, h⟩
+  let val := s.toLower
+  if h : isValidHeaderName val ∧ isNormalForm val then
+    ⟨val, h.left, h.right⟩
   else
     panic! s!"invalid header name: {s.quote}"
 
@@ -213,8 +200,11 @@ def ofString! (s : String) : HeaderName :=
 Gets the lowercase version of the header name for case-insensitive operations.
 -/
 @[inline]
-def toLower (name : HeaderName) : String :=
-  name.value.toLower
+def toCanonical (name : HeaderName) : String :=
+  let it := name.value.split '-'
+    |>.map (·.toString.capitalize)
+
+  String.intercalate "-" it.toList
 
 /--
 Performs a case-insensitive comparison between a `HeaderName` and a `String`.
@@ -222,10 +212,10 @@ Returns `true` if they match.
 -/
 @[expose]
 def is (name : HeaderName) (s : String) : Bool :=
-  name.value.toLower == s.toLower
+  name.value == s.toLower
 
 instance : ToString HeaderName where
-  toString name := name.value
+  toString name := name.toCanonical
 
 end HeaderName
 

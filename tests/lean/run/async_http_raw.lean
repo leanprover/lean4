@@ -140,7 +140,7 @@ def test100Continue : IO Unit := do
   let pair ← Mock.new
 
   let handler := fun (req : Request Body) => do
-    let expectHeader := req.head.headers.getLast? (.new "Expect") |>.getD (.new "")
+    let expectHeader := req.head.headers.getLast? (.new "expect") |>.getD (.new "")
     if expectHeader.is "100-continue" then
       return Response.new
         |>.status .continue
@@ -224,7 +224,7 @@ def testChunkedWithTrailer : IO Unit := do
     for chunk in req.body do
       body := body ++ String.fromUTF8! chunk.data
 
-    let checksum := req.head.headers.getLast? (.new "X-Checksum") |>.map (·.value) |>.getD ""
+    let checksum := req.head.headers.getLast? (.new "x-checksum") |>.map (·.value) |>.getD ""
 
     return Response.new
       |>.status .ok
@@ -252,12 +252,12 @@ def testContentNegotiation : IO Unit := do
   let pair ← Mock.new
 
   let handler := fun (req : Request Body) => do
-    if req.head.headers.hasEntry (.new "Accept") "application/json" then
+    if req.head.headers.hasEntry (.new "accept") "application/json" then
       return Response.new
         |>.status .accepted
         |>.header! "Content-Type" "application/json"
         |>.body "{\"message\": \"JSON response\", \"status\": \"accepted\"}"
-    else if req.head.headers.hasEntry (.new "Accept") "text/xml" then
+    else if req.head.headers.hasEntry (.new "accept") "text/xml" then
       return Response.new
         |>.status .ok
         |>.header! "Content-Type" "application/xml"

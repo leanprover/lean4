@@ -77,7 +77,7 @@ def testCancelSlowHandler : IO Unit := do
   IO.println <| res.map (String.fromUTF8! · |>.quote)
 
 /--
-info: (some ("HTTP/1.1 503 Service Unavailable\x0d\nContent-Length: 0\x0d\nconnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"))
+info: (some ("HTTP/1.1 503 Service Unavailable\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"))
 -/
 #guard_msgs in
 #eval testCancelSlowHandler
@@ -108,7 +108,7 @@ def testServerShutdownDuringRequest : IO Unit := do
   IO.println <| res.map (String.fromUTF8! · |>.quote)
 
 /--
-info: (some ("HTTP/1.1 503 Service Unavailable\x0d\nContent-Length: 0\x0d\nconnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"))
+info: (some ("HTTP/1.1 503 Service Unavailable\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"))
 -/
 #guard_msgs in
 #eval testServerShutdownDuringRequest

@@ -146,7 +146,7 @@ Builds and returns the final HTTP Response with the specified body as binary dat
 -/
 def binary (builder : Builder) (bytes : ByteArray) : Response Body :=
   builder
-    |>.header (.new "Content-Type") (.new "application/octet-stream")
+    |>.header (.new "content-type") (.new "application/octet-stream")
     |>.body (Body.bytes bytes)
 
 /--
@@ -154,7 +154,7 @@ Builds and returns the final HTTP Response with the specified body as plain text
 -/
 def text (builder : Builder) (body : String) : Response Body :=
   builder
-    |>.header (.new "Content-Type") (.new "text/plain; charset=utf-8")
+    |>.header (.new "content-type") (.new "text/plain; charset=utf-8")
     |>.body (body.toUTF8 |> Body.bytes)
 
 /--
@@ -162,7 +162,7 @@ Builds and returns the final HTTP Response with the specified body as HTML.
 -/
 def html (builder : Builder) (body : String) : Response Body :=
   builder
-    |>.header (.new "Content-Type") (.new "text/html; charset=utf-8")
+    |>.header (.new "content-type") (.new "text/html; charset=utf-8")
     |>.body (body.toUTF8 |> Body.bytes)
 
 end Builder

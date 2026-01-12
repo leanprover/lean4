@@ -10,6 +10,8 @@ public import Std.Do.PredTrans
 
 @[expose] public section
 
+set_option linter.missingDocs true
+
 /-!
 # Weakest precondition interpretation
 
@@ -44,9 +46,10 @@ universe u v
 variable {m : Type u → Type v}
 
 /--
-  A weakest precondition interpretation of a monadic program `x : m α` in terms of a
-  predicate transformer `PredTrans ps α`.
-  The monad `m` determines `ps : PostShape`. See the module comment for more details.
+A weakest precondition interpretation of a monadic program `x : m α` in terms of a predicate
+transformer `PredTrans ps α`. The monad `m` determines `ps : PostShape`.
+
+For practical reasoning, an instance of `WPMonad m ps` is typically needed in addition to `WP m ps`.
 -/
 class WP (m : Type u → Type v) (ps : outParam PostShape.{u}) where
   /-- Interpret a monadic program `x : m α` in terms of a predicate transformer `PredTrans ps α`. -/
@@ -60,6 +63,9 @@ macro_rules
   | `(wp⟦$x:term⟧) => `((WP.wp $x).apply)
   | `(wp⟦$x:term : $ty⟧) => `((WP.wp ($x : $ty)).apply)
 
+/--
+An unexpander for the `wp⟦...⟧` notation, causing it to be shown correctly in the pretty printer.
+-/
 @[app_unexpander PredTrans.apply]
 protected meta def unexpandWP : Lean.PrettyPrinter.Unexpander
   | `($_ $e) => match e with
@@ -67,6 +73,7 @@ protected meta def unexpandWP : Lean.PrettyPrinter.Unexpander
     | `(wp $e) => `(wp⟦$e⟧)
     | _ => throw ()
   | _ => throw ()
+
 instance Id.instWP : WP Id .pure where
   wp x := PredTrans.pure x.run
 
@@ -78,6 +85,9 @@ instance ReaderT.instWP [WP m ps] : WP (ReaderT ρ m) (.arg ρ ps) where
 
 instance ExceptT.instWP [WP m ps] : WP (ExceptT ε m) (.except ε ps) where
   wp x := PredTrans.pushExcept (wp x)
+
+instance OptionT.instWP [WP m ps] : WP (OptionT m) (.except PUnit ps) where
+  wp x := PredTrans.pushOption (wp x)
 
 instance EStateM.instWP : WP (EStateM ε σ) (.except ε (.arg σ .pure)) where
   wp x := -- Could define as PredTrans.mkExcept (PredTrans.modifyGetM (fun s => pure (EStateM.Result.toExceptState (x s))))
@@ -98,6 +108,8 @@ instance Reader.instWP : WP (ReaderM ρ) (.arg ρ .pure) :=
   inferInstanceAs (WP (ReaderT ρ Id) (.arg ρ .pure))
 instance Except.instWP : WP (Except ε) (.except ε .pure) :=
   inferInstanceAs (WP (ExceptT ε Id) (.except ε .pure))
+instance Option.instWP : WP Option (.except PUnit .pure) :=
+  inferInstanceAs (WP (OptionT Id) (.except PUnit .pure))
 
 /--
 Adequacy lemma for `Id.run`.

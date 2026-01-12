@@ -9,7 +9,6 @@ needed for Core and SimpLemmas.
 module
 
 prelude
-public import Init.Core
 public import Init.NotationExtra
 
 public section
@@ -311,10 +310,6 @@ theorem exists_or : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ ∃ x, q x :=
 
 theorem Exists.nonempty : (∃ x, p x) → Nonempty α | ⟨x, _⟩ => ⟨x⟩
 
-@[deprecated Exists.nonempty (since := "2025-05-19")]
-theorem nonempty_of_exists {α : Sort u} {p : α → Prop} : Exists (fun x => p x) → Nonempty α
-  | ⟨w, _⟩ => ⟨w⟩
-
 theorem not_forall_of_exists_not {p : α → Prop} : (∃ x, ¬p x) → ¬∀ x, p x
   | ⟨x, hn⟩, h => hn (h x)
 
@@ -441,19 +436,21 @@ theorem Decidable.not_or_self (p : Prop) [h : Decidable p] : ¬p ∨ p := by
 theorem Decidable.by_contra [Decidable p] : (¬p → False) → p := of_not_not
 
 /-- Construct a non-Prop by cases on an `Or`, when the left conjunct is decidable. -/
-protected def Or.by_cases [Decidable p] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
+@[expose] protected def Or.by_cases [Decidable p] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
   if hp : p then h₁ hp else h₂ (h.resolve_left hp)
 
 /-- Construct a non-Prop by cases on an `Or`, when the right conjunct is decidable. -/
-protected def Or.by_cases' [Decidable q] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
+@[expose] protected def Or.by_cases' [Decidable q] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
   if hq : q then h₂ hq else h₁ (h.resolve_right hq)
 
+@[inline]
 instance exists_prop_decidable {p} (P : p → Prop)
   [Decidable p] [∀ h, Decidable (P h)] : Decidable (∃ h, P h) :=
 if h : p then
   decidable_of_decidable_of_iff ⟨fun h2 => ⟨h, h2⟩, fun ⟨_, h2⟩ => h2⟩
 else isFalse fun ⟨h', _⟩ => h h'
 
+@[inline]
 instance forall_prop_decidable {p} (P : p → Prop)
   [Decidable p] [∀ h, Decidable (P h)] : Decidable (∀ h, P h) :=
 if h : p then
@@ -544,30 +541,14 @@ theorem Decidable.not_and_not_right [Decidable b] : ¬(a ∧ ¬b) ↔ (a → b) 
 theorem Decidable.not_and_iff_not_or_not [Decidable a] : ¬(a ∧ b) ↔ ¬a ∨ ¬b :=
   ⟨fun h => if ha : a then .inr (h ⟨ha, ·⟩) else .inl ha, not_and_of_not_or_not⟩
 
-set_option linter.missingDocs false in
-@[deprecated Decidable.not_and_iff_not_or_not (since := "2025-03-18")]
-abbrev Decidable.not_and_iff_or_not_not := @Decidable.not_and_iff_not_or_not
-
 theorem Decidable.not_and_iff_not_or_not' [Decidable b] : ¬(a ∧ b) ↔ ¬a ∨ ¬b :=
   ⟨fun h => if hb : b then .inl (h ⟨·, hb⟩) else .inr hb, not_and_of_not_or_not⟩
-
-set_option linter.missingDocs false in
-@[deprecated Decidable.not_and_iff_not_or_not' (since := "2025-03-18")]
-abbrev Decidable.not_and_iff_or_not_not' := @Decidable.not_and_iff_not_or_not'
 
 theorem Decidable.or_iff_not_not_and_not [Decidable a] [Decidable b] : a ∨ b ↔ ¬(¬a ∧ ¬b) := by
   rw [← not_or, not_not]
 
-set_option linter.missingDocs false in
-@[deprecated Decidable.or_iff_not_not_and_not (since := "2025-03-18")]
-abbrev Decidable.or_iff_not_and_not := @Decidable.or_iff_not_not_and_not
-
 theorem Decidable.and_iff_not_not_or_not [Decidable a] [Decidable b] : a ∧ b ↔ ¬(¬a ∨ ¬b) := by
   rw [← not_and_iff_not_or_not, not_not]
-
-set_option linter.missingDocs false in
-@[deprecated Decidable.and_iff_not_not_or_not (since := "2025-03-18")]
-abbrev Decidable.and_iff_not_or_not := @Decidable.and_iff_not_not_or_not
 
 theorem Decidable.imp_iff_right_iff [Decidable a] : (a → b ↔ b) ↔ a ∨ b :=
   Iff.intro
@@ -599,7 +580,7 @@ theorem Decidable.or_congr_right' [Decidable a] (h : ¬a → (b ↔ c)) : a ∨ 
 **Important**: this function should be used instead of `rw` on `Decidable b`, because the
 kernel will get stuck reducing the usage of `propext` otherwise,
 and `decide` will not work. -/
-@[inline] def decidable_of_iff (a : Prop) (h : a ↔ b) [Decidable a] : Decidable b :=
+@[inline, expose] def decidable_of_iff (a : Prop) (h : a ↔ b) [Decidable a] : Decidable b :=
   decidable_of_decidable_of_iff h
 
 /-- Transfer decidability of `b` to decidability of `a`, if the propositions are equivalent.
@@ -615,7 +596,7 @@ instance [DecidablePred p] : DecidablePred (p ∘ f) :=
 
 /-- Prove that `a` is decidable by constructing a boolean `b` and a proof that `b ↔ a`.
 (This is sometimes taken as an alternate definition of decidability.) -/
-def decidable_of_bool : ∀ (b : Bool), (b ↔ a) → Decidable a
+@[expose] def decidable_of_bool : ∀ (b : Bool), (b ↔ a) → Decidable a
   | true, h => isTrue (h.1 rfl)
   | false, h => isFalse (mt h.2 Bool.noConfusion)
 

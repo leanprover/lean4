@@ -1,2 +1,2 @@
-bintreeGoal.lean:53:4-53:18: warning: declaration uses 'sorry'
-bintreeGoal.lean:60:8-60:27: warning: declaration uses 'sorry'
+bintreeGoal.lean:53:4-53:18: warning: declaration uses `sorry`
+bintreeGoal.lean:60:8-60:27: warning: declaration uses `sorry`

@@ -9,6 +9,8 @@ prelude
 public import Std.Do.WP
 meta import Std.Do.SPred.Notation
 
+set_option linter.missingDocs true
+
 @[expose] public section
 
 /-!
@@ -27,11 +29,11 @@ universe u v
 variable {m : Type u → Type v} {ps : PostShape.{u}}
 
 /--
-  A Hoare triple for reasoning about monadic programs.
-  A proof for `Triple x P Q` is a *specification* for `x`:
-  If assertion `P` holds before `x`, then postcondition `Q` holds after running `x`.
+A Hoare triple for reasoning about monadic programs. A Hoare triple `Triple x P Q` is a
+*specification* for `x`: if assertion `P` holds before `x`, then postcondition `Q` holds after
+running `x`.
 
-  `⦃P⦄ x ⦃Q⦄` is convenient syntax for `Triple x P Q`.
+`⦃P⦄ x ⦃Q⦄` is convenient syntax for `Triple x P Q`.
 -/
 def Triple [WP m ps] {α : Type u} (x : m α) (P : Assertion ps) (Q : PostCond α ps) : Prop :=
   P ⊢ₛ wp⟦x⟧ Q
@@ -39,6 +41,9 @@ def Triple [WP m ps] {α : Type u} (x : m α) (P : Assertion ps) (Q : PostCond �
 @[inherit_doc Std.Do.Triple]
 scoped syntax:lead (name := triple) "⦃" term "⦄ " term:lead " ⦃" term "⦄" : term
 
+/--
+Unexpands Hoare triples to their high-level syntax during pretty printing.
+-/
 @[app_unexpander Triple]
 meta def unexpandTriple : Lean.PrettyPrinter.Unexpander
   | `($_ $x $P $Q) => do

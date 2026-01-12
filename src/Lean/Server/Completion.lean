@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Server.Completion.CompletionCollectors
-public import Lean.Server.RequestCancellation
 public import Std.Data.HashMap
 
 public section
@@ -33,7 +32,7 @@ partial def find?
     (mod      : Name)
     (pos      : Lsp.Position)
     (fileMap  : FileMap)
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (cmdStx   : Syntax)
     (infoTree : InfoTree)
     (caps     : ClientCapabilities)
@@ -57,6 +56,8 @@ partial def find?
           optionCompletion mod pos completionInfoPos i.ctx stx caps
         | .errorName _ partialId =>
           errorNameCompletion mod pos completionInfoPos i.ctx partialId caps
+        | .endSection _ id? danglingDot scopeNames =>
+          endSectionCompletion mod pos completionInfoPos id? danglingDot scopeNames
         | .tactic .. =>
           tacticCompletion mod pos completionInfoPos i.ctx
         | _ =>

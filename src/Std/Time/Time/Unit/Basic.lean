@@ -6,11 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time.Internal
 public import Std.Time.Time.Unit.Hour
-public import Std.Time.Time.Unit.Minute
-public import Std.Time.Time.Unit.Second
-public import Std.Time.Time.Unit.Nanosecond
 public import Std.Time.Time.Unit.Millisecond
 
 public section

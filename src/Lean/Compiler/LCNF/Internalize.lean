@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Compiler.LCNF.Types
 public import Lean.Compiler.LCNF.Bind
-public import Lean.Compiler.LCNF.CompilerM
 
 public section
 
@@ -121,7 +119,7 @@ partial def internalizeFunDecl (decl : FunDecl) : InternalizeM FunDecl := do
   let params ← decl.params.mapM internalizeParam
   let value ← internalizeCode decl.value
   let fvarId ← mkNewFVarId decl.fvarId
-  let decl := { decl with binderName, fvarId, params, type, value }
+  let decl := ⟨fvarId, binderName, params, type, value⟩
   modifyLCtx fun lctx => lctx.addFunDecl decl
   return decl
 
@@ -141,7 +139,7 @@ partial def internalizeCode (code : Code) : InternalizeM Code := do
       let alts ← c.alts.mapM fun
         | .alt ctorName params k => return .alt ctorName (← params.mapM internalizeParam) (← internalizeAltCode k)
         | .default k => return .default (← internalizeAltCode k)
-      return .cases { c with discr, alts, resultType }
+      return .cases ⟨c.typeName, resultType, discr, alts⟩
 
 end
 

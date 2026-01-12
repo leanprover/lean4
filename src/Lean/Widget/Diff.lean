@@ -7,11 +7,7 @@ Authors: E.W.Ayers
 module
 
 prelude
-public import Lean.Meta.PPGoal
-public import Lean.Widget.InteractiveCode
 public import Lean.Widget.InteractiveGoal
-public import Lean.Data.Lsp.Extra
-public import Lean.Elab.InfoTree
 
 namespace Lean.Widget
 

@@ -4,13 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
 module
-
 prelude
 public import Init.Notation
-
 public section
 set_option linter.missingDocs true -- keep it documented
-
 namespace Lean.Parser.Tactic
 
 /--
@@ -371,6 +368,12 @@ syntax (name := withReducibleAndInstances) "with_reducible_and_instances " tacti
 In this setting all definitions that are not opaque are unfolded.
 -/
 syntax (name := withUnfoldingAll) "with_unfolding_all " tacticSeq : tactic
+
+/--
+`with_unfolding_none tacs` executes `tacs` using the `.none` transparency setting.
+In this setting no definitions are unfolded.
+-/
+syntax (name := withUnfoldingNone) "with_unfolding_none " tacticSeq : tactic
 
 /-- `first | tac | ...` runs each `tac` until one succeeds, or else fails. -/
 syntax (name := first) "first " withPosition((ppDedent(ppLine) colGe "| " tacticSeq)+) : tactic
@@ -1001,13 +1004,13 @@ You can use `with` to provide the variables names for each constructor.
   uses tactic `tac₁` for the `nil` case, and `tac₂` for the `cons` case,
   and `a` and `as'` are used as names for the new variables introduced.
 - `cases h : e`, where `e` is a variable or an expression,
-  performs cases on `e` as above, but also adds a hypothesis `h : e = ...` to each hypothesis,
+  performs cases on `e` as above, but also adds a hypothesis `h : e = ...` to each goal,
   where `...` is the constructor instance for that particular case.
 -/
 syntax (name := cases) "cases " elimTarget,+ (" using " term)? (inductionAlts)? : tactic
 
 /--
-The `fun_induction` tactic is a convenience wrapper around the `induction` tactic to use the the
+The `fun_induction` tactic is a convenience wrapper around the `induction` tactic to use the
 functional induction principle.
 
 The tactic invocation
@@ -1694,14 +1697,37 @@ syntax (name := applyRules) "apply_rules" optConfig (&" only")? (args)? (using_)
 end SolveByElim
 
 /--
+Configuration for the `exact?` and `apply?` tactics.
+-/
+structure LibrarySearchConfig where
+  /-- If true, use `grind` as a discharger for subgoals that cannot be closed
+  by `solve_by_elim` alone. -/
+  grind : Bool := false
+  /-- If true, use `try?` as a discharger for subgoals that cannot be closed
+  by `solve_by_elim` alone. -/
+  try? : Bool := false
+  /-- If true (the default), star-indexed lemmas (with overly-general discrimination keys
+  like `[*]`) are searched as a fallback when no concrete-keyed lemmas are found.
+  Use `-star` to disable this fallback. -/
+  star : Bool := true
+  /-- If true, collect all successful lemmas instead of stopping at the first complete solution.
+  Use `+all` to enable this behavior. -/
+  all : Bool := false
+
+/--
 Searches environment for definitions or theorems that can solve the goal using `exact`
 with conditions resolved by `solve_by_elim`.
 
 The optional `using` clause provides identifiers in the local context that must be
 used by `exact?` when closing the goal.  This is most useful if there are multiple
 ways to resolve the goal, and one wants to guide which lemma is used.
+
+Use `+grind` to enable `grind` as a fallback discharger for subgoals.
+Use `+try?` to enable `try?` as a fallback discharger for subgoals.
+Use `-star` to disable fallback to star-indexed lemmas (like `Empty.elim`, `And.left`).
+Use `+all` to collect all successful lemmas instead of stopping at the first.
 -/
-syntax (name := exact?) "exact?" (" using " (colGt ident),+)? : tactic
+syntax (name := exact?) "exact?" optConfig (" using " (colGt ident),+)? : tactic
 
 /--
 Searches environment for definitions or theorems that can refine the goal using `apply`
@@ -1709,8 +1735,13 @@ with conditions resolved when possible with `solve_by_elim`.
 
 The optional `using` clause provides identifiers in the local context that must be
 used when closing the goal.
+
+Use `+grind` to enable `grind` as a fallback discharger for subgoals.
+Use `+try?` to enable `try?` as a fallback discharger for subgoals.
+Use `-star` to disable fallback to star-indexed lemmas.
+Use `+all` to collect all successful lemmas instead of stopping at the first.
 -/
-syntax (name := apply?) "apply?" (" using " (colGt term),+)? : tactic
+syntax (name := apply?) "apply?" optConfig (" using " (colGt term),+)? : tactic
 
 /--
 Syntax for excluding some names, e.g. `[-my_lemma, -my_theorem]`.
@@ -1762,11 +1793,12 @@ as well as tactics such as `next`, `case`, and `rename_i`.
 syntax (name := exposeNames) "expose_names" : tactic
 
 /--
-`#suggest_premises` will suggest premises for the current goal, using the currently registered premise selector.
+`#suggestions` will suggest relevant theorems from the library for the current goal,
+using the currently registered library suggestion engine.
 
 The suggestions are printed in the order of their confidence, from highest to lowest.
 -/
-syntax (name := suggestPremises) "suggest_premises" : tactic
+syntax (name := suggestions) "suggestions" : tactic
 
 /--
 Close fixed-width `BitVec` and `Bool` goals by obtaining a proof from an external SAT solver and
@@ -2176,12 +2208,16 @@ macro (name := mspecMacro) (priority:=low) "mspec" : tactic =>
 `mvcgen` will break down a Hoare triple proof goal like `⦃P⦄ prog ⦃Q⦄` into verification conditions,
 provided that all functions used in `prog` have specifications registered with `@[spec]`.
 
+### Verification Conditions and specifications
+
 A verification condition is an entailment in the stateful logic of `Std.Do.SPred`
 in which the original program `prog` no longer occurs.
 Verification conditions are introduced by the `mspec` tactic; see the `mspec` tactic for what they
 look like.
 When there's no applicable `mspec` spec, `mvcgen` will try and rewrite an application
 `prog = f a b c` with the simp set registered via `@[spec]`.
+
+### Features
 
 When used like `mvcgen +noLetElim [foo_spec, bar_def, instBEqFloat]`, `mvcgen` will additionally
 
@@ -2191,11 +2227,68 @@ When used like `mvcgen +noLetElim [foo_spec, bar_def, instBEqFloat]`, `mvcgen` w
 * unfold any method of the `instBEqFloat : BEq Float` instance in `prog`.
 * it will no longer substitute away `let`-expressions that occur at most once in `P`, `Q` or `prog`.
 
-Furthermore, `mvcgen` tries to close trivial verification conditions by `SPred.entails.rfl` or
-the tactic sequence `try (mpure_intro; trivial)`. The variant `mvcgen_no_trivial` does not do this.
+### Config options
 
-For debugging purposes there is also `mvcgen_step 42` which will do at most 42 VC generation
-steps. This is useful for bisecting issues with the generated VCs.
+`+noLetElim` is just one config option of many. Check out `Lean.Elab.Tactic.Do.VCGen.Config` for all
+options. Of particular note is `stepLimit = some 42`, which is useful for bisecting bugs in
+`mvcgen` and tracing its execution.
+
+### Extended syntax
+
+Often, `mvcgen` will be used like this:
+```
+mvcgen [...]
+case inv1 => by exact I1
+case inv2 => by exact I2
+all_goals (mleave; try grind)
+```
+There is special syntax for this:
+```
+mvcgen [...] invariants
+· I1
+· I2
+with grind
+```
+When `I1` and `I2` need to refer to inaccessibles (`mvcgen` will introduce a lot of them for program
+variables), you can use case label syntax:
+```
+mvcgen [...] invariants
+| inv1 _ acc _ => I1 acc
+| _ => I2
+with grind
+```
+This is more convenient than the equivalent `· by rename_i _ acc _; exact I1 acc`.
+
+### Invariant suggestions
+
+`mvcgen` will suggest invariants for you if you use the `invariants?` keyword.
+```
+mvcgen [...] invariants?
+```
+This is useful if you do not recall the exact syntax to construct invariants.
+Furthermore, it will suggest a concrete invariant encoding "this holds at the start of the loop and
+this must hold at the end of the loop" by looking at the corresponding VCs.
+Although the suggested invariant is a good starting point, it is too strong and requires users to
+interpolate it such that the inductive step can be proved. Example:
+```
+def mySum (l : List Nat) : Nat := Id.run do
+  let mut acc := 0
+  for x in l do
+    acc := acc + x
+  return acc
+
+/--
+info: Try this:
+  invariants
+    · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = 0 ∨ xs.suffix = [] ∧ letMuts = l.sum⌝
+-/
+#guard_msgs (info) in
+theorem mySum_suggest_invariant (l : List Nat) : mySum l = l.sum := by
+  generalize h : mySum l = r
+  apply Id.of_wp_run_eq h
+  mvcgen invariants?
+  all_goals admit
+```
 -/
 macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
   Macro.throwError "to use `mvcgen`, please include `import Std.Tactic.Do`"
@@ -2259,6 +2352,12 @@ Theorems tagged with the `wf_preprocess` attribute are used during the processin
 by well-founded recursion. They are applied to the function's body to add additional hypotheses,
 such as replacing `if c then _ else _` with `if h : c then _ else _` or `xs.map` with
 `xs.attach.map`. Also see `wfParam`.
+
+Warning: These rewrites are only applied to the declaration for the purpose of the logical
+definition, but do not affect the compiled code. In particular they can cause a function definition
+that diverges as compiled to be accepted without an explicit `partial` keyword, for example if they
+remove irrelevant subterms or change the evaluation order by hiding terms under binders. Therefore
+avoid tagging theorems with `[wf_preprocess]` unless they preserve also operational behavior.
 -/
 syntax (name := wf_preprocess) "wf_preprocess" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
 

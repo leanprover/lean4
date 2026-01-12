@@ -1,6 +1,7 @@
 import Std.Data.HashSet.Basic
 import Std.Data.HashSet.Raw
 import Std.Data.HashMap.AdditionalOperations
+import Std.Data.HashSet.Iterator
 
 open Std
 
@@ -58,6 +59,10 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.toArray
 
+/-- info: #[⟨1, 2⟩, ⟨2, 4⟩, ⟨3, 6⟩] -/
+#guard_msgs in
+#eval m.iter.toArray
+
 /-- info: [(1, 2), (2, 4), (3, 6)] -/
 #guard_msgs in
 #eval DHashMap.Raw.Const.toList m
@@ -74,9 +79,17 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.keysArray
 
+/-- info: #[1, 2, 3] -/
+#guard_msgs in
+#eval m.keysIter.toArray
+
 /-- info: [2, 4, 6] -/
 #guard_msgs in
 #eval m.values
+
+/-- info: #[2, 4, 6] -/
+#guard_msgs in
+#eval m.valuesIter.toArray
 
 /-- info: [⟨16, 9⟩, ⟨1, 2⟩, ⟨2, 4⟩, ⟨3, 6⟩] -/
 #guard_msgs in
@@ -148,6 +161,10 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.toArray
 
+/-- info: #[⟨1, 2⟩, ⟨2, 4⟩, ⟨3, 6⟩] -/
+#guard_msgs in
+#eval m.iter.toArray
+
 /-- info: [(1, 2), (2, 4), (3, 6)] -/
 #guard_msgs in
 #eval DHashMap.Const.toList m
@@ -164,9 +181,17 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.keysArray
 
+/-- info: #[1, 2, 3] -/
+#guard_msgs in
+#eval m.keysIter.toArray
+
 /-- info: [2, 4, 6] -/
 #guard_msgs in
 #eval m.values
+
+/-- info: #[2, 4, 6] -/
+#guard_msgs in
+#eval m.valuesIter.toArray
 
 /-- info: [⟨16, 9⟩, ⟨1, 2⟩, ⟨2, 4⟩, ⟨3, 6⟩] -/
 #guard_msgs in
@@ -238,6 +263,10 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.toArray
 
+/-- info: #[(1, 2), (2, 4), (3, 6)] -/
+#guard_msgs in
+#eval m.iter.toArray
+
 /-- info: [1, 2, 3] -/
 #guard_msgs in
 #eval m.keys
@@ -246,9 +275,17 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.keysArray
 
+/-- info: #[1, 2, 3] -/
+#guard_msgs in
+#eval m.keysIter.toArray
+
 /-- info: [2, 4, 6] -/
 #guard_msgs in
 #eval m.values
+
+/-- info: #[2, 4, 6] -/
+#guard_msgs in
+#eval m.valuesIter.toArray
 
 /-- info: [(16, 9), (1, 2), (2, 4), (3, 6)] -/
 #guard_msgs in
@@ -312,6 +349,10 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.toArray
 
+/-- info: #[(1, 2), (2, 4), (3, 6)] -/
+#guard_msgs in
+#eval m.iter.toArray
+
 /-- info: [1, 2, 3] -/
 #guard_msgs in
 #eval m.keys
@@ -320,9 +361,17 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.keysArray
 
+/-- info: #[1, 2, 3] -/
+#guard_msgs in
+#eval m.keysIter.toArray
+
 /-- info: [2, 4, 6] -/
 #guard_msgs in
 #eval m.values
+
+/-- info: #[2, 4, 6] -/
+#guard_msgs in
+#eval m.valuesIter.toArray
 
 /-- info: [(16, 9), (1, 2), (2, 4), (3, 6)] -/
 #guard_msgs in
@@ -426,6 +475,10 @@ def addKeyToState (k : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.toArray
 
+/-- info: #[1, 2, 1000000000] -/
+#guard_msgs in
+#eval m.iter.toArray
+
 /-- info: Std.HashSet.Raw.ofList [16, 1, 2, 1000000000] -/
 #guard_msgs in
 #eval m ∪ {16, 16}
@@ -499,6 +552,10 @@ def addKeyToState (k : Nat) : StateM Nat PUnit := do
 /-- info: #[1, 2, 1000000000] -/
 #guard_msgs in
 #eval m.toArray
+
+/-- info: #[1, 2, 1000000000] -/
+#guard_msgs in
+#eval m.iter.toArray
 
 /-- info: Std.HashSet.ofList [16, 1, 2, 1000000000] -/
 #guard_msgs in

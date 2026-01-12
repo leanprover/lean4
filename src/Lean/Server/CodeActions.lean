@@ -10,5 +10,3 @@ prelude
 public import Lean.Server.CodeActions.Attr
 public import Lean.Server.CodeActions.Basic
 public import Lean.Server.CodeActions.Provider
-
-public section

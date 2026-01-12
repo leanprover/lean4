@@ -4,18 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Simproc
-public import Init.Data.Nat.Simproc
-public import Lean.Util.SafeExponentiation
+public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Util
 public import Lean.Meta.LitValues
 public import Lean.Meta.Offset
-public import Lean.Meta.Tactic.Simp.Simproc
-public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Util
-
+import Lean.Util.SafeExponentiation
 public section
-
 namespace Nat
 open Lean Meta Simp
 

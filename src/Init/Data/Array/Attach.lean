@@ -6,10 +6,7 @@ Authors: Joachim Breitner, Mario Carneiro
 module
 
 prelude
-public import Init.Data.Array.Mem
-public import Init.Data.Array.Lemmas
 public import Init.Data.Array.Count
-public import Init.Data.List.Attach
 import all Init.Data.List.Attach
 
 public section
@@ -84,10 +81,10 @@ well-founded recursion mechanism to prove that the function terminates.
   simp [pmap]
 
 /-- Implementation of `pmap` using the zero-copy version of `attach`. -/
-@[inline] private def pmapImpl {P : α → Prop} (f : ∀ a, P a → β) (xs : Array α) (H : ∀ a ∈ xs, P a) :
+@[inline] def pmapImpl {P : α → Prop} (f : ∀ a, P a → β) (xs : Array α) (H : ∀ a ∈ xs, P a) :
     Array β := (xs.attachWith _ H).map fun ⟨x, h'⟩ => f x h'
 
-@[csimp] private theorem pmap_eq_pmapImpl : @pmap = @pmapImpl := by
+@[csimp] theorem pmap_eq_pmapImpl : @pmap = @pmapImpl := by
   funext α β p f xs H
   cases xs
   simp only [pmap, pmapImpl, List.attachWith_toArray, List.map_toArray, mk.injEq, List.map_attachWith_eq_pmap]
@@ -575,9 +572,6 @@ def unattach {α : Type _} {p : α → Prop} (xs : Array { x // p x }) : Array �
 @[simp] theorem unattach_empty {p : α → Prop} : (#[] : Array { x // p x }).unattach = #[] := by
   simp [unattach]
 
-@[deprecated unattach_empty (since := "2025-05-26")]
-abbrev unattach_nil := @unattach_empty
-
 @[simp] theorem unattach_push {p : α → Prop} {a : { x // p x }} {xs : Array { x // p x }} :
     (xs.push a).unattach = xs.unattach.push a.1 := by
   simp only [unattach, Array.map_push]
@@ -751,9 +745,6 @@ and simplifies these to the function directly taking the value.
 @[simp] theorem unattach_replicate {p : α → Prop} {n : Nat} {x : { x // p x }} :
     (Array.replicate n x).unattach = Array.replicate n x.1 := by
   simp [unattach]
-
-@[deprecated unattach_replicate (since := "2025-03-18")]
-abbrev unattach_mkArray := @unattach_replicate
 
 /-! ### Well-founded recursion preprocessing setup -/
 

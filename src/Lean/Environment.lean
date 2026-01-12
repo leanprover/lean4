@@ -6,15 +6,11 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Control.StateRef
 public import Init.Data.Array.BinSearch
 public import Init.Data.Stream
 public import Init.System.Promise
-public import Lean.ImportingFlag
 public import Lean.Data.NameTrie
-public import Lean.Data.SMap
 public import Lean.Setup
-public import Lean.Declaration
 public import Lean.LocalContext
 public import Lean.Util.Path
 public import Lean.Util.FindExpr
@@ -25,6 +21,7 @@ public import Lean.PrivateName
 public import Lean.LoadDynlib
 public import Init.Dynamic
 import Init.Data.Slice
+import Init.Data.String.TakeDrop
 
 public section
 
@@ -74,7 +71,6 @@ paths back together.
 namespace Lean
 register_builtin_option debug.skipKernelTC : Bool := {
   defValue := false
-  group    := "debug"
   descr    := "skip kernel type checker. WARNING: setting this option to true may compromise soundness because your proofs will not be checked by the Lean kernel"
 }
 
@@ -84,7 +80,7 @@ opaque EnvExtensionStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩�
 instance : Inhabited EnvExtensionState := EnvExtensionStateSpec.snd
 
 @[expose] def ModuleIdx := Nat
-  deriving BEq, ToString
+  deriving BEq, ToString, Hashable
 
 abbrev ModuleIdx.toNat (midx : ModuleIdx) : Nat := midx
 
@@ -158,6 +154,7 @@ deriving Inhabited, BEq, Repr
 structure EffectiveImport extends Import where
   /-- Phases for which the import's IR is available. -/
   irPhases : IRPhases
+deriving Inhabited
 
 /-- Environment fields that are not used often. -/
 structure EnvironmentHeader where
@@ -182,6 +179,12 @@ structure EnvironmentHeader where
   `ModuleIdx` for the same module.
   -/
   modules      : Array EffectiveImport := #[]
+  /--
+  Subset of `modules` for which `importAll` is `true`. This is assumed to be a much smaller set so
+  we precompute it instead of iterating over all of `modules` multiple times. However, note that
+  in a non-`module` file, this is identical to `modules`.
+  -/
+  importAllModules : Array EffectiveImport := modules.filter (·.importAll)
   /-- Module data for all imported modules. -/
   moduleData   : Array ModuleData := #[]
   deriving Nonempty
@@ -1499,7 +1502,8 @@ def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
   return {
     base := .const {
       const2ModIdx    := {}
-      constants       := {}
+      -- Make sure we return a sharing-friendly map set to stage 2, like in `finalizeImport`.
+      constants       := SMap.empty.switch
       header          := { trustLevel }
       extensions      := exts
       irBaseExts      := exts
@@ -1716,7 +1720,7 @@ passing (a prefix of) the file names to `readModuleDataParts`. `mod` is used to 
 arbitrary but deterministic base address for `mmap`.
 -/
 @[extern "lean_save_module_data_parts"]
-opaque saveModuleDataParts (mod : @& Name) (parts : Array (System.FilePath × ModuleData)) : IO Unit
+opaque saveModuleDataParts (mod : @& Name) (parts : @& Array (System.FilePath × ModuleData)) : IO Unit
 
 /--
 Loads the module data from the given file names. The files must be (a prefix of) the result of a
@@ -1869,6 +1873,9 @@ private def setImportedEntries (states : Array EnvExtensionState) (mods : Array 
 /-- "Forward declaration" for retrieving the number of builtin attributes. -/
 @[extern "lean_get_num_attributes"] opaque getNumBuiltinAttributes : IO Nat
 
+@[extern "lean_run_init_attrs"]
+private opaque runInitAttrs (env : Environment) (opts : Options) : IO Unit
+
 private def ensureExtensionsArraySize (env : Environment) : IO Environment := do
   let exts ← EnvExtension.ensureExtensionsArraySize env.base.private.extensions
   return env.modifyCheckedAsync ({ · with extensions := exts })
@@ -1888,6 +1895,11 @@ where
       let prevAttrSize ← getNumBuiltinAttributes
       let newState ← extDescr.addImportedFn s.importedEntries { env := env, opts := opts }
       let mut env := extDescr.toEnvExtension.setState (asyncMode := .sync) env { s with state := newState }
+      if extDescr.name == `Lean.regularInitAttr then
+        -- Run `[init]` attributes now. We do this after `setState` so `runInitAttrs` can access
+        -- `getModule(IR)Entries` but we should also do it before attempting to run user-defined
+        -- extensions further down in `pExtDescrs` so they can access initialized declarations.
+        runInitAttrs env opts
       env ← ensureExtensionsArraySize env
       if (← persistentEnvExtensionsRef.get).size > prevSize || (← getNumBuiltinAttributes) > prevAttrSize then
         -- This branch is executed when `pExtDescrs[i]` is the extension associated with the `init` attribute, and
@@ -1949,6 +1961,14 @@ structure ImportState where
   private moduleNames   : Array Name := #[]
 deriving Inhabited
 
+/-- Bumps all modules' `isExported` flag to true, intended for use in `shake` only. -/
+def ImportState.markAllExported (self : ImportState) : ImportState := Id.run do
+  let mut self := self
+  for (k, v) in self.moduleNameMap do
+    unless v.isExported do
+      self := { self with moduleNameMap := self.moduleNameMap.insert k { v with isExported := true } }
+  return self
+
 def throwAlreadyImported (s : ImportState) (const2ModIdx : Std.HashMap Name ModuleIdx) (modIdx : Nat) (cname : Name) : IO α := do
   let modName := s.moduleNames[modIdx]!
   let constModName := s.moduleNames[const2ModIdx[cname]!.toNat]!
@@ -1975,14 +1995,15 @@ private def findOLeanParts (mod : Name) : IO (Array System.FilePath) := do
   return fnames
 
 partial def importModulesCore
-    (imports : Array Import) (globalLevel : OLeanLevel := .private) (arts : NameMap ImportArtifacts := {}) :
+    (imports : Array Import) (globalLevel : OLeanLevel := .private)
+    (arts : NameMap ImportArtifacts := {}) (isExported : Bool := globalLevel < .private) :
     ImportStateM Unit := do
-  go imports (importAll := true) (isExported := globalLevel < .private) (needsData := true) (needsIRTrans := false)
+  go imports (importAll := true) (isExported := isExported) (needsData := true) (needsIRTrans := false)
   if globalLevel < .private then
     for i in imports do
       if let some mod := (← get).moduleNameMap[i.module]?.bind (·.mainModule?) then
         if !mod.isModule then
-          throw <| IO.userError s!"cannot import non`-module` {i.module} from `module`"
+          throw <| IO.userError s!"cannot import non-`module` {i.module} from `module`"
 /-
 When the module system is disabled for the root, we import all transitively referenced modules and
 ignore any module system annotations on the way.
@@ -2125,15 +2146,39 @@ and theorems are (mostly) opaque in Lean. For `Acc.rec`, we may unfold theorems
 during type-checking, but we are assuming this is not an issue in practice,
 and we are planning to address this issue in the future.
 -/
-private def subsumesInfo (cinfo₁ cinfo₂ : ConstantInfo) : Bool :=
+private def subsumesInfo (constMap : Std.HashMap Name ConstantInfo) (cinfo₁ cinfo₂ : ConstantInfo) : Bool :=
   cinfo₁.name == cinfo₂.name &&
     cinfo₁.type == cinfo₂.type &&
     cinfo₁.levelParams == cinfo₂.levelParams &&
     match cinfo₁, cinfo₂ with
     | .thmInfo tval₁, .thmInfo tval₂ => tval₁.all == tval₂.all
     | .thmInfo tval₁, .axiomInfo aval₂ => tval₁.all == [aval₂.name] && !aval₂.isUnsafe
-    | .axiomInfo aval₁, .axiomInfo aval₂ => aval₁.isUnsafe == aval₂.isUnsafe
+    | .axiomInfo aval₁, .axiomInfo aval₂ =>
+      -- In this case, we cannot a priori assume that both axioms came from theorems and thus their
+      -- former bodies are irrelevant - they could be both from definitions with different bodies
+      -- that were used to derive statements that would be contradictory if the axioms were merged.
+      -- Thus we do a rough, pure approximation of `Lean.Meta.isProp` that is sufficient for the
+      -- restricted types we use for realizable theorems and ensures the former bodies of the two
+      -- axioms must be irrelevant after all.
+      aval₁.isUnsafe == aval₂.isUnsafe && isPropCheap aval₁.type
     | _, _ => false
+where
+  /--
+  Check if `ty = ∀ ..., p xs...` and `p : ∀ args..., Prop` where `xs` and `args` are of the same
+  length.
+  -/
+  isPropCheap (ty : Expr) : Bool := Id.run do
+    let mut ty := ty
+    while ty.isForall do
+      let .forallE (body := body) .. := ty | return false
+      ty := body
+    let .const n .. := ty.getAppFn | return false
+    let some decl := constMap[n]? | return false
+    let mut p := decl.type
+    for _ in 0...ty.getAppNumArgs do
+      let .forallE (body := body) .. := p | return false
+      p := body
+    p.isProp
 
 /--
 Constructs environment from `importModulesCore` results.
@@ -2141,9 +2186,8 @@ Constructs environment from `importModulesCore` results.
 See also `importModules` for parameter documentation.
 -/
 def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
-    (leakEnv loadExts : Bool) (level := OLeanLevel.private) :
+    (leakEnv loadExts : Bool) (level := OLeanLevel.private) (isModule := level != .private) :
     IO Environment := do
-  let isModule := level != .private
   let modules := s.moduleNames.filterMap (s.moduleNameMap[·]?)
   let moduleData ← modules.mapM fun mod => do
     let some data := mod.mainModule? |
@@ -2172,9 +2216,9 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
         privateConstantMap := constantMap'
         if let some cinfoPrev := cinfoPrev? then
           -- Recall that the map has not been modified when `cinfoPrev? = some _`.
-          if subsumesInfo cinfo cinfoPrev then
+          if subsumesInfo privateConstantMap cinfo cinfoPrev then
             privateConstantMap := privateConstantMap.insert cname cinfo
-          else if !subsumesInfo cinfoPrev cinfo then
+          else if !subsumesInfo privateConstantMap cinfoPrev cinfo then
             throwAlreadyImported s const2ModIdx modIdx cname
       const2ModIdx := const2ModIdx.insertIfNew cname modIdx
     if let some data := irData[modIdx]? then
@@ -2189,7 +2233,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
         | (cinfoPrev?, constantMap') =>
           publicConstantMap := constantMap'
           if let some cinfoPrev := cinfoPrev? then
-            if subsumesInfo cinfo cinfoPrev then
+            if subsumesInfo publicConstantMap cinfo cinfoPrev then
               publicConstantMap := publicConstantMap.insert cname cinfo
             -- no need to check for duplicates again, `privateConstMap` should be a superset
 
@@ -2361,7 +2405,7 @@ Evaluates the given declaration under the given environment to a value of the gi
 This function is only safe to use if the type matches the declaration's type in the environment
 and if `enableInitializersExecution` has been used before importing any modules.
 
-If `checkMeta` is true (the default), the function checks that all referenced imported contants are
+If `checkMeta` is true (the default), the function checks that all referenced imported constants are
 marked or imported as `meta` or otherwise fails with an error. It should only be set to `false` in
 cases where it is acceptable for code to work only in the language server, where more IR is loaded,
 such as in `#eval`.
@@ -2401,13 +2445,17 @@ def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExistin
         else
           consts.add c
     }
-    checked := dest.checked.map fun kenv => replayKernel exts newPrivateConsts kenv |>.toOption.getD kenv
+    checked := dest.checked.map fun kenv =>
+      replayKernel
+        oldEnv.checked newEnv.checked exts newPrivateConsts kenv
+      |>.toOption.getD kenv
     allRealizations := dest.allRealizations.map (sync := true) fun allRealizations =>
       newPrivateConsts.foldl (init := allRealizations) fun allRealizations c =>
         allRealizations.insert c.constInfo.name c
   }
 where
-  replayKernel (exts : Array (EnvExtension EnvExtensionState)) (consts : List AsyncConst)
+  replayKernel (oldEnv newEnv : Task Kernel.Environment)
+      (exts : Array (EnvExtension EnvExtensionState)) (consts : List AsyncConst)
       (kenv : Kernel.Environment) : Except Kernel.Exception Kernel.Environment := do
     let mut kenv := kenv
     -- replay extensions first in case kernel checking needs them (`IR.declMapExt`)
@@ -2417,8 +2465,8 @@ where
           -- safety: like in `modifyState`, but that one takes an elab env instead of a kernel env
           extensions := unsafe (ext.modifyStateImpl kenv.extensions <|
             replay
-              (ext.getStateImpl oldEnv.toKernelEnv.extensions)
-              (ext.getStateImpl newEnv.toKernelEnv.extensions)
+              (ext.getStateImpl oldEnv.get.extensions)
+              (ext.getStateImpl newEnv.get.extensions)
               (consts.map (·.constInfo.name))) }
     for c in consts do
       if skipExisting && (kenv.find? c.constInfo.name).isSome then
@@ -2456,6 +2504,10 @@ unsafe def evalConstCheck (α) (env : Environment) (opts : Options) (typeName : 
     | _ => throwUnexpectedType typeName constName
 
 def hasUnsafe (env : Environment) (e : Expr) : Bool :=
+  -- This line should not affect the result value but it avoids potential blocking in `isUnsafe` as
+  -- there is a fast path for theorems, so we want to make sure we do not perceive them merely as
+  -- axioms (for imported theorems this does not matter as there is nothing to block on).
+  let env := env.setExporting false
   let c? := e.find? fun e => match e with
     | Expr.const c _ =>
       match env.findAsync? c with
@@ -2560,7 +2612,14 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
         { c with exts? := some <| .pure realizeEnv'.base.private.extensions }
       else c
     let exts ← EnvExtension.envExtensionsRef.get
-    let replayKernel := replayConsts.replayKernel (skipExisting := true) realizeEnv realizeEnv' exts newPrivateConsts
+    -- NOTE: We must ensure that `realizeEnv.localRealizationCtxMap` is not reachable via `res`
+    -- (such as by storing `realizeEnv` or `realizeEnv'` in a field or the closure) as `res` will be
+    -- stored in a promise in there, creating a cycle. The closures stored in
+    -- `realizeEnv(').checked` should uphold this property as they are only concerned about the
+    -- kernel env but this cannot directly be enforced or checked except through the leak sanitizer
+    -- CI build.
+    let replayKernel := replayConsts.replayKernel (skipExisting := true)
+      realizeEnv.checked realizeEnv'.checked exts newPrivateConsts
     let res : RealizeConstResult := { newConsts.private := newPrivateConsts, newConsts.public := newPublicConsts, replayKernel, dyn }
     pure (.mk res)
   let some res := res.get? RealizeConstResult | unreachable!
@@ -2669,6 +2728,14 @@ def mkDefinitionValInferringUnsafe [Monad m] [MonadEnv m] (name : Name) (levelPa
   let env ← getEnv
   let safety := if env.hasUnsafe type || env.hasUnsafe value then DefinitionSafety.unsafe else DefinitionSafety.safe
   return { name, levelParams, type, value, hints, safety }
+
+/-- Constructs a declaration from a theorem, resorting to an unsafe def if needed -/
+def mkThmOrUnsafeDef [Monad m] [MonadEnv m] (thm : TheoremVal) : m Declaration := do
+  let env ← getEnv
+  if env.hasUnsafe thm.type || env.hasUnsafe thm.value then
+    return .defnDecl { thm with safety := DefinitionSafety.unsafe, hints := .opaque }
+  else
+    return .thmDecl thm
 
 def getMaxHeight (env : Environment) (e : Expr) : UInt32 :=
   e.foldConsts 0 fun constName max =>

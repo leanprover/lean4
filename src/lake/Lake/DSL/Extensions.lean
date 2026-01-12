@@ -12,6 +12,9 @@ open Lean
 
 namespace Lake
 
+public builtin_initialize nameExt : EnvExtension (Nat × Name) ←
+  registerEnvExtension (pure ⟨0, .anonymous⟩)
+
 public builtin_initialize dirExt : EnvExtension (Option System.FilePath) ←
   registerEnvExtension (pure none)
 

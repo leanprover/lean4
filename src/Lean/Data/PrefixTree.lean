@@ -52,7 +52,7 @@ partial def find? (cmp : α → α → Ordering) (t : PrefixTreeNode α β cmp) 
       | some t => loop t ks
   loop t k
 
-/-- Returns the the value of the longest key in `t` that is a prefix of `k`, if any. -/
+/-- Returns the value of the longest key in `t` that is a prefix of `k`, if any. -/
 @[inline]
 partial def findLongestPrefix? (cmp : α → α → Ordering) (t : PrefixTreeNode α β cmp) (k : List α) : Option β :=
   let rec @[specialize] loop acc?

@@ -7,8 +7,6 @@ Authors: Sebastian Ullrich, Lars König, Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Data.Json.FromToJson.Basic
-public import Lean.Util.Path
 public import Lean.Server.Utils
 public import Lean.Data.Lsp.Internal
 public import Lean.Util.CollectFVars
@@ -196,7 +194,7 @@ where
 
 def locationLinksFromErrorNameInfo (eni : ErrorNameInfo) : GoToM (Array LeanLocationLink) := do
   let ctx ← read
-  let some explan := getErrorExplanationRaw? (← getEnv) eni.errorName
+  let some explan ← getErrorExplanation? eni.errorName
     | return #[]
   let some loc := explan.declLoc?
     | return #[]

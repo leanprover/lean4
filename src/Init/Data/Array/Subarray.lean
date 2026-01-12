@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.GetElem
 public import Init.Data.Array.Basic
 import Init.Data.Array.GetLit
 public import Init.Data.Slice.Basic
@@ -281,7 +280,7 @@ Checks whether any of the elements in a subarray satisfy a Boolean predicate.
 The elements are tested starting at the lowest index and moving up. The search terminates as soon as
 an element that satisfies the predicate is found.
 -/
-@[inline]
+@[inline, suggest_for Subarray.some]
 def any {α : Type u} (p : α → Bool) (as : Subarray α) : Bool :=
   Id.run <| as.anyM (pure <| p ·)
 
@@ -291,7 +290,7 @@ Checks whether all of the elements in a subarray satisfy a Boolean predicate.
 The elements are tested starting at the lowest index and moving up. The search terminates as soon as
 an element that does not satisfy the predicate is found.
 -/
-@[inline]
+@[inline, suggest_for Subarray.every]
 def all {α : Type u} (p : α → Bool) (as : Subarray α) : Bool :=
   Id.run <| as.allM (pure <| p ·)
 

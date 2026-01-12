@@ -91,14 +91,14 @@ info: matchOptionUnit.match_1.congr_eq_1.{u_1} (motive : Option Unit → Sort u_
 #check matchOptionUnit.match_1.congr_eq_1
 
 set_option linter.unusedVariables false in
-partial def utf16PosToCodepointPosFromAux (s : String) : Nat → String.Pos → Nat → Bool
+partial def utf16PosToCodepointPosFromAux (s : String) : Nat → String.Pos.Raw → Nat → Bool
   | 0,        _,       cp => true
   | utf16pos, utf8pos, cp => false
 
 /--
-info: utf16PosToCodepointPosFromAux.match_1.congr_eq_1.{u_1} (motive : Nat → String.Pos → Nat → Sort u_1) (x✝ : Nat)
-  (x✝¹ : String.Pos) (x✝² : Nat) (h_1 : (x : String.Pos) → (cp : Nat) → motive 0 x cp)
-  (h_2 : (utf16pos : Nat) → (utf8pos : String.Pos) → (cp : Nat) → motive utf16pos utf8pos cp) (x✝³ : String.Pos)
+info: utf16PosToCodepointPosFromAux.match_1.congr_eq_1.{u_1} (motive : Nat → String.Pos.Raw → Nat → Sort u_1) (x✝ : Nat)
+  (x✝¹ : String.Pos.Raw) (x✝² : Nat) (h_1 : (x : String.Pos.Raw) → (cp : Nat) → motive 0 x cp)
+  (h_2 : (utf16pos : Nat) → (utf8pos : String.Pos.Raw) → (cp : Nat) → motive utf16pos utf8pos cp) (x✝³ : String.Pos.Raw)
   (cp : Nat) (heq_1 : x✝ = 0) (heq_2 : x✝¹ = x✝³) (heq_3 : x✝² = cp) :
   (match x✝, x✝¹, x✝² with
     | 0, x, cp => h_1 x cp

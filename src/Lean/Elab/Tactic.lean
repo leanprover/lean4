@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Elab.Term
 public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.Tactic.ElabTerm
 public import Lean.Elab.Tactic.Induction
@@ -55,5 +54,3 @@ public import Lean.Elab.Tactic.SimpArith
 public import Lean.Elab.Tactic.Show
 public import Lean.Elab.Tactic.Lets
 public import Lean.Elab.Tactic.Do
-
-public section

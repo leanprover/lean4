@@ -51,6 +51,7 @@ builtin_initialize
   register_parser_alias withoutPosition { stackSz? := none }
   register_parser_alias withoutForbidden { stackSz? := none }
   register_parser_alias (kind := interpolatedStrKind) interpolatedStr
+  register_parser_alias (kind := hexnumKind) hexnum
   register_parser_alias orelse
   register_parser_alias andthen { stackSz? := none }
   register_parser_alias recover

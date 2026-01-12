@@ -108,6 +108,12 @@ def getCast? [BEq α] [LawfulBEq α] (a : α) : AssocList α β → Option (β a
       else es.getCast? a
 
 /-- Internal implementation detail of the hash map -/
+def getEntry? [BEq α] (a : α) : (l : AssocList α β) → Option ((a : α) × β a)
+  | nil => none
+  | cons k v es => if k == a then some ⟨k, v⟩
+      else es.getEntry? a
+
+/-- Internal implementation detail of the hash map -/
 def contains [BEq α] (a : α) : AssocList α β → Bool
   | nil => false
   | cons k _ l => k == a || l.contains a
@@ -121,6 +127,21 @@ def get {β : Type v} [BEq α] (a : α) : (l : AssocList α (fun _ => β)) → l
 def getCast [BEq α] [LawfulBEq α] (a : α) : (l : AssocList α β) → l.contains a → β a
   | cons k v es, h => if hka : k == a then cast (congrArg β (eq_of_beq hka)) v
       else es.getCast a (by rw [← h, contains, Bool.of_not_eq_true hka, Bool.false_or])
+
+/-- Internal implementation detail of the hash map -/
+def getEntry [BEq α] (a : α) : (l : AssocList α β) → l.contains a → (a : α) × β a
+  | cons k v es, h => if hka : k == a then ⟨k, v⟩
+      else es.getEntry a (by rw [← h, contains, Bool.of_not_eq_true hka, Bool.false_or])
+
+/-- Internal implementation detail of the hash map -/
+def getEntryD [BEq α] (a : α) (fallback : (a : α) × β a) : AssocList α β → (a : α) × β a
+  | nil => fallback
+  | cons k v es => if k == a then ⟨k, v⟩ else es.getEntryD a fallback
+
+/-- Internal implementation detail of the hash map -/
+def getEntry! [BEq α] (a : α) [Inhabited ((a : α) × β a)] : AssocList α β → (a : α) × β a
+  | nil => default
+  | cons k v es => if k == a then ⟨k, v⟩ else es.getEntry! a
 
 /-- Internal implementation detail of the hash map -/
 def getKey [BEq α] (a : α) : (l : AssocList α β) → l.contains a → α

@@ -6,8 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Sat.AIG.CachedGatesLemmas
-public import Std.Sat.AIG.LawfulVecOperator
 public import Std.Sat.AIG.RefVecOperator
 
 @[expose] public section

@@ -37,7 +37,7 @@ example (a b c d e f : Nat) :
     max a b = max c d →
     max b e = max d (max e f) →
     max c (max d e) = max (max a d) f := by
-  grind -cutsat only
+  grind -lia only
 
 /--
 error: `grind` failed
@@ -59,6 +59,7 @@ h_1 : ¬op (op a b) (op b c) = op (op c d) c
   [eqc] False propositions
     [prop] op (op a b) (op b c) = op (op c d) c
   [eqc] Equivalence classes
+    [eqc] {op (op a b), op (op c d)}
     [eqc] {op a b, op c d}
   [assoc] Operator `op`
     [basis] Basis

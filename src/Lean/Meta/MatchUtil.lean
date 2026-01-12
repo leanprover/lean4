@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Util.Recognizers
-public import Lean.Meta.Basic
 public import Lean.Meta.CtorRecognizer
 
 public section
@@ -44,6 +43,18 @@ def matchEqHEq? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) := do
     return none
   else
     return none
+
+/--
+  Return `some (α, lhs)` if `e` is of the form `@Eq α lhs rhs` or `@HEq α lhs β rhs`
+-/
+def matchEqHEqLHS? (e : Expr) : MetaM (Option (Expr × Expr)) := do
+  if let some (α, lhs, _rhs) ← matchEq? e then
+    return some (α, lhs)
+  else if let some (α, lhs, _β, _rhs) ← matchHEq? e then
+    return some (α, lhs)
+  else
+    return none
+
 
 def matchFalse (e : Expr) : MetaM Bool := do
   testHelper e fun e => return e.isFalse

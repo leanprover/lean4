@@ -3,22 +3,11 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
-
 module
 prelude
-public import Init.System.IO
-public import Lean.Attributes
 public import Lean.Meta.Tactic.Simp.SimpTheorems
-import Lean.Meta.Basic
-import Lean.Structure
-import Lean.Meta.CtorRecognizer
-import Lean.Meta.InferType
-import Lean.Meta.AppBuilder
-import Lean.ReservedNameAction
-import Lean.Meta.Tactic.Simp.SimpTheorems
-import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Simp.Main
-
+import Lean.Structure
 namespace Lean
 
 open Meta

@@ -8,8 +8,8 @@ module
 prelude
 public import Lean.Elab.Command
 public import Lean.Parser.Syntax
-public import Lean.Elab.Util
 public meta import Lean.Parser.Syntax
+import Lean.ExtraModUses
 
 public section
 
@@ -93,6 +93,7 @@ def elabParserName? (stx : Syntax.Ident) (checkMeta := true) : TermElabM (Option
   | [n@(.parser parser _)] =>
     if checkMeta && getIRPhases (← getEnv) parser == .runtime then
       throwError m!"Declaration `{.ofConstName parser}` must be marked or imported as `meta` to be used as parser"
+    recordExtraModUseFromDecl (isMeta := true) parser
     addTermInfo' stx (Lean.mkConst parser)
     return n
   | [n@(.alias _)] =>
@@ -243,12 +244,12 @@ where
 
   isValidAtom (s : String) : Bool :=
     -- Pretty-printing instructions shouldn't affect validity
-    let s := s.trim
+    let s := s.trimAscii.copy
     !s.isEmpty &&
     (s.front != '\'' || "''".isPrefixOf s) &&
     s.front != '\"' &&
     !(isIdBeginEscape s.front) &&
-    !(s.front == '`' && (s.endPos == ⟨1⟩ || isIdFirst (s.get ⟨1⟩) || isIdBeginEscape (s.get ⟨1⟩))) &&
+    !(s.front == '`' && (s.rawEndPos == ⟨1⟩ || isIdFirst (String.Pos.Raw.get s ⟨1⟩) || isIdBeginEscape (String.Pos.Raw.get s ⟨1⟩))) &&
     !s.front.isDigit &&
     !(s.any Char.isWhitespace)
 
@@ -330,7 +331,7 @@ private partial def mkNameFromParserSyntax (catName : Name) (stx : Syntax) : Mac
 where
   visit (stx : Syntax) (acc : String) : String :=
     match stx.isStrLit? with
-    | some val => acc ++ (val.trim.map fun c => if c.isWhitespace then '_' else c).capitalize
+    | some val => acc ++ (val.trimAscii.copy.map fun c => if c.isWhitespace then '_' else c).capitalize
     | none =>
       match stx with
       | Syntax.node _ k args =>
@@ -394,7 +395,10 @@ def elabSyntax (stx : Syntax) : CommandElabM Name := do
       syntax%$tk $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $[$ps:stx]* : $catStx) := stx
     | throwUnsupportedSyntax
   let cat := catStx.getId.eraseMacroScopes
-  unless (Parser.isParserCategory (← getEnv) cat) do
+  if let some cat := Parser.getParserCategory? (← getEnv) cat then
+    -- The category must be imported but is not directly referenced afterwards.
+    recordExtraModUseFromDecl (isMeta := true) cat.declName
+  else
     throwErrorAt catStx "unknown category `{cat}`"
   liftTermElabM <| Term.addCategoryInfo catStx cat
   let syntaxParser := mkNullNode ps

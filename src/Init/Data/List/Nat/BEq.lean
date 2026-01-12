@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Nat.Lemmas
-public import Init.Data.List.Basic
+import Init.Data.List.Lemmas
 
 public section
 

@@ -11,7 +11,6 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Lean.Language.Basic
 public import Lean.Elab.Command
 
 public section

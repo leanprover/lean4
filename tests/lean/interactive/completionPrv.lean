@@ -1,14 +1,14 @@
 private def longAndHopefullyUniqueBlaBlaBoo := 2
 
 #check longAndHopefullyUniqueBlaB
-                               --^ textDocument/completion
+                               --^ completion
 
 namespace Foo
 
 private def longAndHopefullyUniqueBooBoo := 3
 
 #check longAndHopefullyUniqueBooB
-                               --^ textDocument/completion
+                               --^ completion
 
 end Foo
 
@@ -20,8 +20,8 @@ private def S.getInc (s : S) : Nat :=
 
 def tst1 (s : S) : Nat :=
   s.g
-   --^ textDocument/completion
+   --^ completion
 
 def tst2 (s : S) : Nat :=
   s.
-  --^ textDocument/completion
+  --^ completion

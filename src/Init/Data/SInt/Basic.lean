@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Data.UInt.Basic
 
-public section
+@[expose] public section
 
 set_option linter.missingDocs true
 
@@ -23,7 +23,7 @@ Signed 8-bit integers.
 This type has special support in the compiler so it can be represented by an unboxed 8-bit value.
 -/
 structure Int8 where
-  private ofUInt8 ::
+  ofUInt8 ::
   /--
   Converts an 8-bit signed integer into the 8-bit unsigned integer that is its two's complement
   encoding.
@@ -36,7 +36,7 @@ Signed 16-bit integers.
 This type has special support in the compiler so it can be represented by an unboxed 16-bit value.
 -/
 structure Int16 where
-  private ofUInt16 ::
+  ofUInt16 ::
   /--
   Converts an 16-bit signed integer into the 16-bit unsigned integer that is its two's complement
   encoding.
@@ -49,7 +49,7 @@ Signed 32-bit integers.
 This type has special support in the compiler so it can be represented by an unboxed 32-bit value.
 -/
 structure Int32 where
-  private ofUInt32 ::
+  ofUInt32 ::
   /--
   Converts an 32-bit signed integer into the 32-bit unsigned integer that is its two's complement
   encoding.
@@ -62,7 +62,7 @@ Signed 64-bit integers.
 This type has special support in the compiler so it can be represented by an unboxed 64-bit value.
 -/
 structure Int64 where
-  private ofUInt64 ::
+  ofUInt64 ::
   /--
   Converts an 64-bit signed integer into the 64-bit unsigned integer that is its two's complement
   encoding.
@@ -76,7 +76,7 @@ On a 32-bit architecture, `ISize` is equivalent to `Int32`. On a 64-bit machine,
 `Int64`. This type has special support in the compiler so it can be represented by an unboxed value.
 -/
 structure ISize where
-  private ofUSize ::
+  ofUSize ::
   /--
   Converts a word-sized signed integer into the word-sized unsigned integer that is its two's
   complement encoding.
@@ -89,7 +89,7 @@ abbrev Int8.size : Nat := 256
 /--
 Obtain the `BitVec` that contains the 2's complement representation of the `Int8`.
 -/
-@[inline] def Int8.toBitVec (x : Int8) : BitVec 8 := x.toUInt8.toBitVec
+@[inline] def Int8.toBitVec (x : Int8) : BitVec 8 := x.toUInt8.toBitVec --
 
 theorem Int8.toBitVec.inj : {x y : Int8} → x.toBitVec = y.toBitVec → x = y
   | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
@@ -150,7 +150,7 @@ Converts an 8-bit signed integer to an arbitrary-precision integer that denotes 
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_to_int"]
+@[extern "lean_int8_to_int", tagged_return]
 def Int8.toInt (i : Int8) : Int := i.toBitVec.toInt
 /--
 Converts an 8-bit signed integer to a natural number, mapping all negative numbers to `0`.
@@ -503,7 +503,7 @@ Converts a 16-bit signed integer to an arbitrary-precision integer that denotes 
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int16_to_int"]
+@[extern "lean_int16_to_int", tagged_return]
 def Int16.toInt (i : Int16) : Int := i.toBitVec.toInt
 /--
 Converts a 16-bit signed integer to a natural number, mapping all negative numbers to `0`.

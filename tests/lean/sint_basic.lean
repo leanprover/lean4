@@ -1,3 +1,5 @@
+module
+
 #check Int8
 #eval Int8.ofInt 20
 #eval Int8.ofInt (-20)

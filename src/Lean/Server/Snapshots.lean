@@ -7,7 +7,6 @@ Authors: Wojciech Nawrocki
 module
 
 prelude
-public import Init.System.IO
 
 public import Lean.Elab.Import
 public import Lean.Elab.Command
@@ -33,7 +32,7 @@ structure Snapshot where
 
 namespace Snapshot
 
-def endPos (s : Snapshot) : String.Pos :=
+def endPos (s : Snapshot) : String.Pos.Raw :=
   s.mpState.pos
 
 def env (s : Snapshot) : Environment :=

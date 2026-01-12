@@ -6,15 +6,10 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Lean.Compiler.LCNF.PassManager
 public import Lean.Compiler.LCNF.PullLetDecls
 public import Lean.Compiler.LCNF.CSE
-public import Lean.Compiler.LCNF.Simp
-public import Lean.Compiler.LCNF.PullFunDecls
-public import Lean.Compiler.LCNF.ReduceJpArity
 public import Lean.Compiler.LCNF.JoinPoints
 public import Lean.Compiler.LCNF.Specialize
-public import Lean.Compiler.LCNF.PhaseExt
 public import Lean.Compiler.LCNF.ToMono
 public import Lean.Compiler.LCNF.LambdaLifting
 public import Lean.Compiler.LCNF.FloatLetIn
@@ -23,6 +18,7 @@ public import Lean.Compiler.LCNF.ElimDeadBranches
 public import Lean.Compiler.LCNF.StructProjCases
 public import Lean.Compiler.LCNF.ExtractClosed
 public import Lean.Compiler.LCNF.Visibility
+public import Lean.Compiler.LCNF.Simp
 
 public section
 
@@ -39,6 +35,13 @@ def init : Pass where
     return decls
   phase := .base
   shouldAlwaysRunCheck := true
+
+def checkMeta : Pass where
+  name  := `checkMeta
+  run   := fun decls => do
+    decls.forM LCNF.checkMeta
+    return decls
+  phase := .base
 
 -- Helper pass used for debugging purposes
 def trace (phase := Phase.base) : Pass where
@@ -71,6 +74,9 @@ open Pass
 def builtinPassManager : PassManager := {
   basePasses := #[
     init,
+    -- Check meta accesses now before optimizations may obscure references. This check should stay in
+    -- `lean` if some compilation is moved out.
+    Pass.checkMeta,
     pullInstances,
     cse (shouldElimFunDecls := false),
     simp,
@@ -89,6 +95,7 @@ def builtinPassManager : PassManager := {
     -- checked without nested functions whose bodies specialization does not require access to.
     checkTemplateVisibility,
     specialize,
+    findJoinPoints (occurrence := 1),
     simp (occurrence := 2),
     cse (shouldElimFunDecls := false) (occurrence := 1),
     saveBase, -- End of base phase
@@ -107,10 +114,10 @@ def builtinPassManager : PassManager := {
     commonJoinPointArgs,
     simp (occurrence := 4) (phase := .mono),
     floatLetIn (phase := .mono) (occurrence := 2),
-    elimDeadBranches,
     lambdaLifting,
     extendJoinPointContext (phase := .mono) (occurrence := 1),
     simp (occurrence := 5) (phase := .mono),
+    elimDeadBranches,
     cse (occurrence := 2) (phase := .mono),
     saveMono,  -- End of mono phase
     inferVisibility (phase := .mono),

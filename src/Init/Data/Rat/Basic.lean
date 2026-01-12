@@ -20,6 +20,7 @@ Rational numbers, implemented as a pair of integers `num / den` such that the
 denominator is positive and the numerator and denominator are coprime.
 -/
 -- `Rat` is not tagged with the `ext` attribute, since this is more often than not undesirable
+@[suggest_for ℚ]
 structure Rat where
   /-- Constructs a rational number from components.
   We rename the constructor to `mk'` to avoid a clash with the smart constructor. -/
@@ -181,12 +182,12 @@ because you don't want to unfold it. Use `Rat.inv_def` instead.)
 @[irreducible] protected def inv (a : Rat) : Rat :=
   if h : a.num < 0 then
     { num := -a.den, den := a.num.natAbs
-      den_nz := Nat.ne_of_gt (Int.natAbs_pos.2 (Int.ne_of_lt h))
-      reduced := Int.natAbs_neg a.den ▸ a.reduced.symm }
+      den_nz := by exact Nat.ne_of_gt (Int.natAbs_pos.2 (Int.ne_of_lt h))
+      reduced := by exact Int.natAbs_neg a.den ▸ a.reduced.symm }
   else if h : a.num > 0 then
     { num := a.den, den := a.num.natAbs
-      den_nz := Nat.ne_of_gt (Int.natAbs_pos.2 (Int.ne_of_gt h))
-      reduced := a.reduced.symm }
+      den_nz := by exact Nat.ne_of_gt (Int.natAbs_pos.2 (Int.ne_of_gt h))
+      reduced := by exact a.reduced.symm }
   else
     a
 

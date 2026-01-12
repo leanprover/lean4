@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Vector.Lemmas
-public import Init.Data.Array.Attach
 import all Init.Data.Array.Attach
 
 public section
@@ -86,10 +85,10 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
   simp
 
 /-- Implementation of `pmap` using the zero-copy version of `attach`. -/
-@[inline] private def pmapImpl {P : α → Prop} (f : ∀ a, P a → β) (xs : Vector α n) (H : ∀ a ∈ xs, P a) :
+@[inline] def pmapImpl {P : α → Prop} (f : ∀ a, P a → β) (xs : Vector α n) (H : ∀ a ∈ xs, P a) :
     Vector β n := (xs.attachWith _ H).map fun ⟨x, h'⟩ => f x h'
 
-@[csimp] private theorem pmap_eq_pmapImpl : @pmap = @pmapImpl := by
+@[csimp] theorem pmap_eq_pmapImpl : @pmap = @pmapImpl := by
   funext α β n p f xs h'
   rcases xs with ⟨xs, rfl⟩
   simp only [pmap, pmapImpl, attachWith_mk, map_mk, Array.map_attachWith_eq_pmap, eq_mk]
@@ -473,9 +472,6 @@ def unattach {α : Type _} {p : α → Prop} (xs : Vector { x // p x } n) : Vect
 
 theorem unattach_empty {p : α → Prop} : (#v[] : Vector { x // p x } 0).unattach = #v[] := by simp
 
-@[deprecated unattach_empty (since := "2025-05-26")]
-abbrev unattach_nil := @unattach_empty
-
 @[simp] theorem unattach_push {p : α → Prop} {a : { x // p x }} {xs : Vector { x // p x } n} :
     (xs.push a).unattach = xs.unattach.push a.1 := by
   simp only [unattach, Vector.map_push]
@@ -557,12 +553,12 @@ and simplifies these to the function directly taking the value.
   simp
   rw [Array.findSome?_subtype hf]
 
-@[simp] theorem find?_subtype {p : α → Prop} {xs : Array { x // p x }}
+@[simp] theorem find?_subtype {p : α → Prop} {xs : Vector { x // p x } n}
     {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     (xs.find? f).map Subtype.val = xs.unattach.find? g := by
-  rcases xs with ⟨l, rfl⟩
+  rcases xs with ⟨xs, rfl⟩
+  rw [find?_mk, Array.find?_subtype hf]
   simp
-  rw [Array.find?_subtype hf]
 
 @[simp] theorem all_subtype {p : α → Prop} {xs : Vector { x // p x } n} {f : { x // p x } → Bool} {g : α → Bool}
     (hf : ∀ x h, f ⟨x, h⟩ = g x) :
@@ -603,8 +599,5 @@ and simplifies these to the function directly taking the value.
 @[simp] theorem unattach_replicate {p : α → Prop} {n : Nat} {x : { x // p x }} :
     (replicate n x).unattach = replicate n x.1 := by
   simp [unattach]
-
-@[deprecated unattach_replicate (since := "2025-03-18")]
-abbrev unattach_mkVector := @unattach_replicate
 
 end Vector

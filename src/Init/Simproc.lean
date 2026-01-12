@@ -110,13 +110,13 @@ end Attr
 macro_rules
   | `($[$doc?:docComment]? simproc_decl $n:ident ($pattern:term) := $body) => do
     let simprocType := `Lean.Meta.Simp.Simproc
-    `($[$doc?:docComment]? def $n:ident : $(mkIdent simprocType) := $body
+    `($[$doc?:docComment]? meta def $n:ident : $(mkIdent simprocType) := $body
       simproc_pattern% $pattern => $n)
 
 macro_rules
   | `($[$doc?:docComment]? dsimproc_decl $n:ident ($pattern:term) := $body) => do
     let simprocType := `Lean.Meta.Simp.DSimproc
-    `($[$doc?:docComment]? def $n:ident : $(mkIdent simprocType) := $body
+    `($[$doc?:docComment]? meta def $n:ident : $(mkIdent simprocType) := $body
       simproc_pattern% $pattern => $n)
 
 macro_rules

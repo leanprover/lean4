@@ -130,7 +130,7 @@ If `grind!` is used, then only minimal indexable subexpressions are considered.
 syntax grindLR     := patternIgnore("⇒" <|> "=>")
 /--
 The `.` modifier instructs `grind` to select a multi-pattern by traversing the conclusion of the
-theorem, and then the hypotheses from eft to right. We say this is the default modifier.
+theorem, and then the hypotheses from left to right. We say this is the default modifier.
 Each time it encounters a subexpression which covers an argument which was not
 previously covered, it adds that subexpression as a pattern, until all arguments have been covered.
 If `grind!` is used, then only minimal indexable subexpressions are considered.
@@ -143,7 +143,7 @@ the `grind_pattern` command, which lets you specify how `grind` should
 match and use particular theorems.
 
 Example:
-- `grind [usr myThm]` means `grind` is using `myThm`, but with the
+- `grind [usr myThm]` means `grind` is using `myThm`, but with
   the custom pattern you defined with `grind_pattern`.
 -/
 syntax grindUsr    := &"usr"
@@ -188,6 +188,65 @@ where the term `f` contains at least one constant symbol.
 -/
 syntax grindInj    := &"inj"
 /--
+The `funCC` modifier marks global functions that support **function-valued congruence closure**.
+Given an application `f a₁ a₂ … aₙ`, when `funCC := true`,
+`grind` generates and tracks equalities for all partial applications:
+- `f a₁`
+- `f a₁ a₂`
+- `…`
+- `f a₁ a₂ … aₙ`
+-/
+syntax grindFunCC  := &"funCC"
+/--
+The `norm` modifier instructs `grind` to use a theorem as a normalization rule. That is,
+the theorem is applied during the preprocessing step.
+This feature is meant for advanced users who understand how the preprocessor and `grind`'s search
+procedure interact with each other.
+New users can still benefit from this feature by restricting its use to theorems that completely
+eliminate a symbol from the goal. Example:
+```
+theorem max_def : max n m = if n ≤ m then m else n
+```
+For a negative example, consider:
+```
+opaque f : Int → Int → Int → Int
+theorem fax1 : f x 0 1 = 1 := sorry
+theorem fax2 : f 1 x 1 = 1 := sorry
+attribute [grind norm] fax1
+attribute [grind =] fax2
+
+example (h : c = 1) : f c 0 c = 1 := by
+  grind -- fails
+```
+In this example, `fax1` is a normalization rule, but it is not applicable to the input goal since
+`f c 0 c` is not an instance of `f x 0 1`. However, `f c 0 c` matches the pattern `f 1 x 1` modulo
+the equality `c = 1`. Thus, `grind` instantiates `fax2` with `x := 0`, producing the equality
+`f 1 0 1 = 1`, which the normalizer simplifies to `True`. As a result, nothing useful is learned.
+In the future, we plan to include linters to automatically detect issues like these.
+Example:
+```
+opaque f : Nat → Nat
+opaque g : Nat → Nat
+
+@[grind norm] axiom fax : f x = x + 2
+@[grind norm ←] axiom fg : f x = g x
+
+example : f x ≥ 2 := by grind
+example : f x ≥ g x := by grind
+example : f x + g x ≥ 4 := by grind
+```
+-/
+syntax grindNorm  := &"norm" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")?
+/--
+The `unfold` modifier instructs `grind` to unfold the given definition during the preprocessing step.
+Example:
+```
+@[grind unfold] def h (x : Nat) := 2 * x
+example : 6 ∣ 3*h x := by grind
+```
+-/
+syntax grindUnfold := &"unfold"
+/--
 `symbol <prio>` sets the priority of a constant for `grind`’s pattern-selection
 procedure. `grind` prefers patterns that contain higher-priority symbols.
 Example:
@@ -214,7 +273,7 @@ syntax grindMod :=
     grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd
     <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager
     <|> grindCases <|> grindIntro <|> grindExt <|> grindGen <|> grindSym <|> grindInj
-    <|> grindDef
+    <|> grindFunCC <|> grindNorm <|> grindUnfold <|> grindDef
 
 /--
 Marks a theorem or definition for use by the `grind` tactic.
@@ -245,6 +304,7 @@ theorem fg_eq (h : x > 0) : f (g x) = x
 -- With minimal subexpression:
 @[grind! <-] theorem fg_eq (h : x > 0) : f (g x) = x
 -- Pattern selected: `g x`
+```
 -/
 syntax (name := grind!) "grind!" (ppSpace grindMod)? : attr
 /--

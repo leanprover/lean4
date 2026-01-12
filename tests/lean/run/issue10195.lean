@@ -82,22 +82,3 @@ info: theorem foo.eq_def.{u_1, u_2} : ∀ {n : Nat} (x : I n) (x' : I n),
 -/
 #guard_msgs(pass trace, all) in
 #print sig foo.eq_def
-
-
-noncomputable def nondep (x x' : I n) : Bool :=
- if h : P x then
- match (generalizing := false) x, x', id h with --NB: non-FVar discr
- | .cons a_2, .cons a_2', _ => nondep a_2 a_2'
- else false
-termination_by structural x
-
-/--
-info: theorem nondep.eq_def.{u_1, u_2} : ∀ {n : Nat} (x : I n) (x' : I n),
-  nondep x x' =
-    if h : P x then
-      match n, x, x', ⋯ with
-      | .(n + 1), a_2.cons, a_2'.cons, x => nondep a_2 a_2'
-    else false
--/
-#guard_msgs in
-#print sig nondep.eq_def

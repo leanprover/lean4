@@ -33,7 +33,7 @@ bool is_safe_ascii_str(const char *s, size_t len) {
 }
 
 // Std.Internal.IO.Async.DNS.getAddrInfo (host service : @& String) (family : UInt8) : IO (IO.Promise (Except IO.Error (Array IPAddr)))
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_arg service, uint8_t family, obj_arg /* w */) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_arg service, uint8_t family) {
     char const * name_cstr = lean_string_cstr(name);
     char const * service_cstr = lean_string_cstr(service);
 
@@ -81,7 +81,19 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
 
         for (struct addrinfo* ai = res; ai != NULL; ai = ai->ai_next) {
             const struct sockaddr* sin_addr = (const struct sockaddr*)ai->ai_addr;
-            in_addr_storage* storage_addr =  (in_addr_storage*)sin_addr->sa_data;
+
+            in_addr_storage* storage_addr;
+
+            if (sin_addr->sa_family == AF_INET) {
+                struct sockaddr_in* ipv4 = (struct sockaddr_in*)sin_addr;
+                storage_addr = (in_addr_storage*)&(ipv4->sin_addr);
+            } else if (sin_addr->sa_family == AF_INET6) {
+                struct sockaddr_in6* ipv6 = (struct sockaddr_in6*)sin_addr;
+                storage_addr = (in_addr_storage*)&(ipv6->sin6_addr);
+            } else {
+                continue;
+            }
+
             lean_object* addr = lean_in_addr_storage_to_ip_addr((short)sin_addr->sa_family, storage_addr);
             arr = lean_array_push(arr, addr);
         }
@@ -110,7 +122,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
 }
 
 // Std.Internal.IO.Async.DNS.getNameInfo (host : @& SocketAddress) : IO (IO.Promise (Except IO.Error (String × String)))
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr, obj_arg /* w */) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
 
@@ -161,14 +173,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr, obj_arg
 #else
 
 // Std.Internal.IO.Async.DNS.getAddrInfo (host service : @& String) (family : UInt8) : IO (IO.Promise (Except IO.Error (Array IPAddr)))
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_arg service, uint8_t family, int8_t protocol, obj_arg /* w */) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_arg service, uint8_t family, int8_t protocol) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );
 }
 
 // Std.Internal.IO.Async.DNS.getNameInfo (host : @& SocketAddress) : IO (IO.Promise (Except IO.Error (String × String)))
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg ip_addr, obj_arg /* w */) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg ip_addr) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );

@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.SizeOf
 public import Init.MetaTypes
 public import Init.WF
 

@@ -49,10 +49,14 @@ def PartialContextInfo.mergeIntoOuter?
     some { info with }
   | .parentDeclCtx _, none =>
     panic! "Unexpected incomplete InfoTree context info."
+  | .autoImplicitCtx _, none =>
+    panic! "Unexpected incomplete InfoTree context info."
   | .commandCtx innerInfo, some outer =>
-    some { outer with toCommandContextInfo := innerInfo }
+    some { outer with toCommandContextInfo := { innerInfo with cmdEnv? := outer.cmdEnv? <|> innerInfo.cmdEnv? } }
   | .parentDeclCtx innerParentDecl, some outer =>
     some { outer with parentDecl? := innerParentDecl }
+  | .autoImplicitCtx innerAutoImplicits, some outer =>
+    some { outer with autoImplicits := innerAutoImplicits }
 
 def CompletionInfo.stx : CompletionInfo → Syntax
   | dot i ..          => i.stx
@@ -287,6 +291,7 @@ def PartialContextInfo.format (ctx : PartialContextInfo) : Format :=
   match ctx with
   | .commandCtx _ => "command"
   | .parentDeclCtx n => s!"parent[{n}]"
+  | .autoImplicitCtx implicits => s!"autoImplicits[{implicits}]"
 
 partial def InfoTree.format (tree : InfoTree) (ctx? : Option ContextInfo := none) : IO Format := do
   match tree with
@@ -458,6 +463,16 @@ def withSaveParentDeclInfoContext [MonadFinally m] [MonadParentDecl m] (x : m α
       | return none
     return some <| .parentDeclCtx declName
 
+/--
+Resets the trees state `t₀`, runs `x` to produce a new trees state `t₁` and sets the state to be
+`t₀ ++ (InfoTree.context (PartialContextInfo.autoImplicitCtx Γ) <$> t₁)` where `Γ` is the set of
+auto-implicits provided by `MonadAutoImplicits m`.
+-/
+def withSaveAutoImplicitInfoContext [MonadFinally m] [MonadAutoImplicits m] (x : m α) : m α := do
+  withSavedPartialInfoContext x do
+    let autoImplicits ← getAutoImplicits
+    return some <| .autoImplicitCtx autoImplicits
+
 def getInfoHoleIdAssignment? (mvarId : MVarId) : m (Option InfoTree) :=
   return (← getInfoState).assignment[mvarId]
 
@@ -474,6 +489,10 @@ def withMacroExpansionInfo [MonadFinally m] [Monad m] [MonadInfoTree m] [MonadLC
     }
   withInfoContext x mkInfo
 
+/--
+Runs `x`. The last info tree that is pushed while running `x` is assigned to `mvarId`. All other
+pushed info trees are silently discarded.
+-/
 @[inline] def withInfoHole [MonadFinally m] [Monad m] [MonadInfoTree m] (mvarId : MVarId) (x : m α) : m α := do
   if (← getInfoState).enabled then
     let treesSaved ← getResetInfoTrees

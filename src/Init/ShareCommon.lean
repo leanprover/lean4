@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Util
 public import Init.Data.UInt.Basic
 
 public section

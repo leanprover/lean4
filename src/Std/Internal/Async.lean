@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Internal.Async.Basic
+public import Std.Internal.Async.ContextAsync
 public import Std.Internal.Async.Timer
 public import Std.Internal.Async.TCP
 public import Std.Internal.Async.UDP
@@ -16,5 +17,3 @@ public import Std.Internal.Async.Process
 public import Std.Internal.Async.System
 public import Std.Internal.Async.Signal
 public import Std.Internal.Async.IO
-
-public section

@@ -6,10 +6,8 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Array.Basic
 import all Init.Data.Array.Basic
 public import Init.Data.Array.TakeDrop
-public import Init.Data.List.Zip
 
 public section
 
@@ -168,9 +166,6 @@ theorem zipWith_eq_append_iff {f : α → β → γ} {as : Array α} {bs : Array
     zipWith f (replicate m a) (replicate n b) = replicate (min m n) (f a b) := by
   simp [← List.toArray_replicate]
 
-@[deprecated zipWith_replicate (since := "2025-03-18")]
-abbrev zipWith_mkArray := @zipWith_replicate
-
 theorem map_uncurry_zip_eq_zipWith {f : α → β → γ} {as : Array α} {bs : Array β} :
     map (Function.uncurry f) (as.zip bs) = zipWith f as bs := by
   cases as
@@ -296,9 +291,6 @@ theorem zip_eq_append_iff {as : Array α} {bs : Array β} :
     zip (replicate m a) (replicate n b) = replicate (min m n) (a, b) := by
   simp [← List.toArray_replicate]
 
-@[deprecated zip_replicate (since := "2025-03-18")]
-abbrev zip_mkArray := @zip_replicate
-
 theorem zip_eq_zip_take_min {as : Array α} {bs : Array β} :
     zip as bs = zip (as.take (min as.size bs.size)) (bs.take (min as.size bs.size)) := by
   cases as
@@ -350,9 +342,6 @@ theorem map_zipWithAll {δ : Type _} {f : α → β} {g : Option γ → Option �
     zipWithAll f (replicate n a) (replicate n b) = replicate n (f (some a) (some b)) := by
   simp [← List.toArray_replicate]
 
-@[deprecated zipWithAll_replicate (since := "2025-03-18")]
-abbrev zipWithAll_mkArray := @zipWithAll_replicate
-
 /-! ### zipWithM -/
 
 @[simp, grind =]
@@ -363,14 +352,6 @@ theorem zipWithM_eq_mapM_id_zipWith {m : Type v → Type w} [Monad m] [LawfulMon
   simp [List.zipWithM_toArray, ← List.zipWithM'_eq_zipWithM]
 
 /-! ### unzip -/
-
-@[deprecated fst_unzip (since := "2025-05-26")]
-theorem unzip_fst : (unzip l).fst = l.map Prod.fst := by
-  simp
-
-@[deprecated snd_unzip (since := "2025-05-26")]
-theorem unzip_snd : (unzip l).snd = l.map Prod.snd := by
-  simp
 
 @[grind =]
 theorem unzip_eq_map {xs : Array (α × β)} : unzip xs = (xs.map Prod.fst, xs.map Prod.snd) := by
@@ -409,8 +390,5 @@ theorem zip_of_prod {as : Array α} {bs : Array β} {xs : Array (α × β)} (hl 
 @[simp, grind =] theorem unzip_replicate {n : Nat} {a : α} {b : β} :
     unzip (replicate n (a, b)) = (replicate n a, replicate n b) := by
   ext1 <;> simp
-
-@[deprecated unzip_replicate (since := "2025-03-18")]
-abbrev unzip_mkArray := @unzip_replicate
 
 end Array

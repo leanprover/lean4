@@ -23,5 +23,3 @@ public import Lean.Data.Lsp.Workspace
 public import Lean.Data.Lsp.Ipc
 public import Lean.Data.Lsp.CodeActions
 public import Lean.Data.Lsp.Window
-
-public section

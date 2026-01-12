@@ -23,9 +23,9 @@ namespace Lake
 @[inline] public def KConfigDecl.get
   [Monad m] [MonadError m] [MonadLake m] (self : KConfigDecl kind)
 : m (ConfigTarget kind) := do
-  let some pkg ← findPackage? self.pkg
+  let some pkg ← findPackageByKey? self.pkg
     | error s!"package of target '{self.pkg}/{self.name}' not found in workspace"
-  let config := cast (by rw [self.kind_eq, pkg.name_eq]) self.config
+  let config := cast (by rw [self.kind_eq, pkg.keyName_eq]) self.config
   return ConfigTarget.mk pkg self.name config
 
 /-! ## Package Facets & Targets -/
@@ -40,13 +40,13 @@ public def Package.fetchTargetJob
 public protected def TargetDecl.fetch
   (self : TargetDecl) [FamilyOut (CustomData self.pkg) self.name α]
 : FetchM (Job α) := do
-  let some pkg ← findPackage? self.pkg
+  let some pkg ← findPackageByKey? self.pkg
     | error s!"package '{self.pkg}' of target '{self.name}' does not exist in workspace"
   fetch <| pkg.target self.name
 
 /-- Fetch the build job of the target. -/
 public def TargetDecl.fetchJob (self : TargetDecl) : FetchM OpaqueJob :=  do
-  let some pkg ← findPackage? self.pkg
+  let some pkg ← findPackageByKey? self.pkg
     | error s!"package '{self.pkg}' of target '{self.name}' does not exist in workspace"
   return (← (pkg.target self.name).fetch).toOpaque
 
@@ -54,12 +54,6 @@ public def TargetDecl.fetchJob (self : TargetDecl) : FetchM OpaqueJob :=  do
 @[inline] public protected def PackageFacetDecl.fetch
   (pkg : Package) (self : PackageFacetDecl) [FamilyOut FacetOut self.name α]
 : FetchM (Job α) := fetch <| pkg.facetCore self.name
-
-/-- Fetch the build job of a package facet. -/
-@[deprecated "Deprecated without replacement." (since := "2025-03-17")]
-public def PackageFacetConfig.fetchJob
-  (pkg : Package) (self : PackageFacetConfig name)
-: FetchM OpaqueJob := return (← fetch <| pkg.facet self.name).toOpaque
 
 /-- Fetch the build job of a library facet. -/
 public def Package.fetchFacetJob
@@ -73,12 +67,6 @@ public def Package.fetchFacetJob
 @[inline] public protected def ModuleFacetDecl.fetch
   (mod : Module) (self : ModuleFacetDecl) [FamilyOut FacetOut self.name α]
 : FetchM (Job α) := fetch <| mod.facetCore self.name
-
-/-- Fetch the build job of a module facet. -/
-@[deprecated "Deprecated without replacement." (since := "2025-03-17")]
-public def ModuleFacetConfig.fetchJob
-  (mod : Module) (self : ModuleFacetConfig name)
-: FetchM OpaqueJob := return (← fetch <| mod.facet self.name).toOpaque
 
 /-- Fetch the build job of a module facet. -/
 public def Module.fetchFacetJob (name : Name) (self : Module) : FetchM OpaqueJob :=
@@ -95,12 +83,6 @@ public def Module.fetchFacetJob (name : Name) (self : Module) : FetchM OpaqueJob
 @[inline] public protected def LibraryFacetDecl.fetch
   (lib : LeanLib) (self : LibraryFacetDecl) [FamilyOut FacetOut self.name α]
 : FetchM (Job α) := fetch <| lib.facetCore self.name
-
-/-- Fetch the build job of a library facet. -/
-@[deprecated "Deprecated without replacement," (since := "2025-03-17")]
-public def LibraryFacetConfig.fetchJob
-  (lib : LeanLib) (self : LibraryFacetConfig name)
-: FetchM OpaqueJob := return (← fetch <| lib.facet self.name).toOpaque
 
 /-- Fetch the build job of a library facet. -/
 public def LeanLib.fetchFacetJob

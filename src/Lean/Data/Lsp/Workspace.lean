@@ -8,7 +8,6 @@ module
 
 prelude
 public import Lean.Data.Lsp.Basic
-public import Lean.Data.Json.FromToJson.Basic
 
 public section
 
@@ -29,7 +28,7 @@ structure WorkspaceFolder where
 
 structure FileSystemWatcher where
   globPattern : String
-  kind : Option Nat := none
+  kind? : Option Nat := none
   deriving FromJson, ToJson
 
 namespace FileSystemWatcher

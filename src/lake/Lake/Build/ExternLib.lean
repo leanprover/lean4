@@ -6,11 +6,9 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lake.Util.Name
 public import Lake.Config.FacetConfig
 public import Lake.Build.Job.Monad
 import Lake.Build.Job.Register
-import Lake.Build.Actions
 import Lake.Build.Common
 import Lake.Build.Infos
 
@@ -70,7 +68,7 @@ def computeDynlibOfShared (sharedLibTarget : Job FilePath) : SpawnM (Job Dynlib)
       if Platform.isWindows then
         return {path := sharedLib, name := stem}
       else if stem.startsWith "lib" then
-        return {path := sharedLib, name := stem.drop 3}
+        return {path := sharedLib, name := stem.drop 3 |>.copy}
       else
         error s!"shared library `{sharedLib}` does not start with `lib`; this is not supported on Unix"
     else

@@ -7,12 +7,7 @@ module
 
 prelude
 public import Init.Data.Hashable
-public import Init.Data.Int.Basic
-public import Lean.Data.KVMap
-public import Lean.Data.SMap
 public import Lean.Level
-public import Std.Data.HashSet.Basic
-public import Std.Data.TreeSet.Basic
 
 public section
 
@@ -223,7 +218,7 @@ This is a persistent data structure implemented using `Std.TreeSet`. -/
 @[expose] def FVarIdSet := Std.TreeSet FVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
-instance : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
+instance [Monad m] : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
 def FVarIdSet.insert (s : FVarIdSet) (fvarId : FVarId) : FVarIdSet :=
   Std.TreeSet.insert s fvarId
@@ -277,7 +272,7 @@ def MVarIdSet.ofList (l : List MVarId) : MVarIdSet :=
 def MVarIdSet.ofArray (l : Array MVarId) : MVarIdSet :=
   Std.TreeSet.ofArray l _
 
-instance : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
+instance [Monad m] : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
 @[expose] def MVarIdMap (α : Type) := Std.TreeMap MVarId α (Name.quickCmp ·.name ·.name)
 
@@ -286,7 +281,7 @@ def MVarIdMap.insert (s : MVarIdMap α) (mvarId : MVarId) (a : α) : MVarIdMap �
 
 instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (Std.TreeMap _ _ _))
 
-instance : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) ..)
+instance [Monad m] : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) ..)
 
 instance : Inhabited (MVarIdMap α) where
   default := {}
@@ -709,28 +704,36 @@ def mkSimpleThunk (type : Expr) : Expr :=
 /--
 `.lit l` is now the preferred form.
 -/
-def mkLit (l : Literal) : Expr :=
+@[match_pattern, expose] def mkLit (l : Literal) : Expr :=
   .lit l
 
 /--
-Return the "raw" natural number `.lit (.natVal n)`.
+Returns the "raw" natural number `.lit (.natVal n)`.
 This is not the default representation used by the Lean frontend.
 See `mkNatLit`.
 -/
-def mkRawNatLit (n : Nat) : Expr :=
+@[match_pattern, expose] def mkRawNatLit (n : Nat) : Expr :=
   mkLit (.natVal n)
 
 /--
-Return a natural number literal used in the frontend. It is a `OfNat.ofNat` application.
+Returns `instOfNatNat n : OfNat Nat n`
+-/
+def mkInstOfNatNat (n : Expr) : Expr :=
+  mkApp (mkConst ``instOfNatNat) n
+
+def mkNatLitCore (n : Expr) : Expr :=
+  mkApp3 (mkConst ``OfNat.ofNat [levelZero]) (mkConst ``Nat) n (mkInstOfNatNat n)
+
+/--
+Returns a natural number literal used in the frontend. It is a `OfNat.ofNat` application.
 Recall that all theorems and definitions containing numeric literals are encoded using
 `OfNat.ofNat` applications in the frontend.
 -/
-def mkNatLit (n : Nat) : Expr :=
-  let r := mkRawNatLit n
-  mkApp3 (mkConst ``OfNat.ofNat [levelZero]) (mkConst ``Nat) r (mkApp (mkConst ``instOfNatNat) r)
+@[match_pattern, expose] def mkNatLit (n : Nat) : Expr :=
+  mkNatLitCore (mkRawNatLit n)
 
 /-- Return the string literal `.lit (.strVal s)` -/
-def mkStrLit (s : String) : Expr :=
+@[match_pattern, expose] def mkStrLit (s : String) : Expr :=
   mkLit (.strVal s)
 
 @[export lean_expr_mk_bvar] def mkBVarEx : Nat → Expr := mkBVar
@@ -957,17 +960,29 @@ def isCharLit : Expr → Bool
   | app (const c _) a => c == ``Char.ofNat && a.isRawNatLit
   | _                 => false
 
+/--
+If the expression is a constant, return that name.
+Otherwise panic.
+-/
 def constName! : Expr → Name
   | const n _ => n
   | _         => panic! "constant expected"
 
+/--
+If the expression is a constant, return that name.
+Otherwise return `Option.none`.
+-/
 def constName? : Expr → Option Name
   | const n _ => some n
   | _         => none
 
-/-- If the expression is a constant, return that name. Otherwise return `Name.anonymous`. -/
+/--
+If the expression is a constant, return that name.
+Otherwise return `Name.anonymous`.
+-/
 def constName (e : Expr) : Name :=
   e.constName?.getD Name.anonymous
+
 
 def constLevels! : Expr → List Level
   | const _ ls => ls
@@ -1267,7 +1282,7 @@ def getRevArg!' : Expr → Nat → Expr
   getRevArg! e (n - i - 1)
 
 /-- Similar to `getArg!`, but skips mdata -/
-@[inline] def getArg!' (e : Expr) (i : Nat) (n := e.getAppNumArgs) : Expr :=
+@[inline] def getArg!' (e : Expr) (i : Nat) (n := e.getAppNumArgs') : Expr :=
   getRevArg!' e (n - i - 1)
 
 /-- Given `f a₀ a₁ ... aₙ`, returns the `i`th argument or returns `v₀` if out of bounds. -/
@@ -2003,50 +2018,6 @@ def setAppPPExplicitForExposingMVars (e : Expr) : Expr :=
     mkAppN f args |>.setPPExplicit true
   | _      => e
 
-/--
-Returns true if `e` is an expression of the form `letFun v f`.
-Ideally `f` is a lambda, but we do not require that here.
-Warning: if the `let_fun` is applied to additional arguments (such as in `(let_fun f := id; id) 1`), this function returns `false`.
--/
-@[deprecated Expr.isHave (since := "2025-06-29")]
-def isLetFun (e : Expr) : Bool := e.isAppOfArity ``letFun 4
-
-/--
-Recognizes a `let_fun` expression.
-For `let_fun n : t := v; b`, returns `some (n, t, v, b)`, which are the first four arguments to `Lean.Expr.letE`.
-Warning: if the `let_fun` is applied to additional arguments (such as in `(let_fun f := id; id) 1`), this function returns `none`.
-
-`let_fun` expressions are encoded as `letFun v (fun (n : t) => b)`.
-They can be created using `Lean.Meta.mkLetFun`.
-
-If in the encoding of `let_fun` the last argument to `letFun` is eta reduced, this returns `Name.anonymous` for the binder name.
--/
-@[deprecated Expr.isHave (since := "2025-06-29")]
-def letFun? (e : Expr) : Option (Name × Expr × Expr × Expr) :=
-  match e with
-  | .app (.app (.app (.app (.const ``letFun _) t) _β) v) f =>
-    match f with
-    | .lam n _ b _ => some (n, t, v, b)
-    | _ => some (.anonymous, t, v, .app (f.liftLooseBVars 0 1) (.bvar 0))
-  | _ => none
-
-/--
-Like `Lean.Expr.letFun?`, but handles the case when the `let_fun` expression is possibly applied to additional arguments.
-Returns those arguments in addition to the values returned by `letFun?`.
--/
-@[deprecated Expr.isHave (since := "2025-06-29")]
-def letFunAppArgs? (e : Expr) : Option (Array Expr × Name × Expr × Expr × Expr) := do
-  guard <| 4 ≤ e.getAppNumArgs
-  guard <| e.isAppOf ``letFun
-  let args := e.getAppArgs
-  let t := args[0]!
-  let v := args[2]!
-  let f := args[3]!
-  let rest := args.extract 4 args.size
-  match f with
-  | .lam n _ b _ => some (rest, n, t, v, b)
-  | _ => some (rest, .anonymous, t, v, .app (f.liftLooseBVars 0 1) (.bvar 0))
-
 /-- Maps `f` on each immediate child of the given expression. -/
 @[specialize]
 def traverseChildren [Applicative M] (f : Expr → M Expr) : Expr → M Expr
@@ -2196,9 +2167,9 @@ def mkAndN : List Expr → Expr
   | [] => mkConst ``True
   | [p] => p
   | p :: ps => mkAnd p (mkAndN ps)
-/-- Return `Classical.em p` -/
+/-- Returns `Classical.em p` -/
 def mkEM (p : Expr) : Expr := mkApp (mkConst ``Classical.em) p
-/-- Return `p ↔ q` -/
+/-- Returns `p ↔ q` -/
 def mkIff (p q : Expr) : Expr := mkApp2 (mkConst ``Iff) p q
 
 /-! Constants for Nat typeclasses. -/
@@ -2276,9 +2247,10 @@ private def natEqPred : Expr :=
 def mkNatEq (a b : Expr) : Expr :=
   mkApp2 natEqPred a b
 
-/-- Given `a b : Prop`, return `a = b` -/
+private def propEq := mkApp (mkConst ``Eq [1]) (mkSort 0)
+/-- Given `a b : Prop`, returns `a = b` -/
 def mkPropEq (a b : Expr) : Expr :=
-  mkApp3 (mkConst ``Eq [levelOne]) (mkSort levelZero) a b
+  mkApp2 propEq a b
 
 /-! Constants for Int typeclasses. -/
 namespace Int
@@ -2375,6 +2347,13 @@ private def intLEPred : Expr :=
 /-- Given `a b : Int`, returns `a ≤ b` -/
 def mkIntLE (a b : Expr) : Expr :=
   mkApp2 intLEPred a b
+
+private def intLTPred : Expr :=
+  mkApp2 (mkConst ``LT.lt [0]) Int.mkType Int.mkInstLT
+
+/-- Given `a b : Int`, returns `a < b` -/
+def mkIntLT (a b : Expr) : Expr :=
+  mkApp2 intLTPred a b
 
 private def intEqPred : Expr :=
   mkApp (mkConst ``Eq [1]) Int.mkType

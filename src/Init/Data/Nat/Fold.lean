@@ -6,7 +6,6 @@ Authors: Floris van Doorn, Leonardo de Moura, Kim Morrison
 module
 
 prelude
-public import Init.Omega
 public import Init.Data.List.FinRange
 
 public section

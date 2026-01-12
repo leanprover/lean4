@@ -17,5 +17,4 @@ public import Lean.Linter.Omit
 public import Lean.Linter.List
 public import Lean.Linter.Sets
 public import Lean.Linter.UnusedSimpArgs
-
-public section
+public import Lean.Linter.Coe

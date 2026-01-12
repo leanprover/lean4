@@ -6,8 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Range.Polymorphic.Basic
 public import Init.Data.Vector.Basic
+public import Init.Data.Slice.Array.Lemmas
 
 public section
 
@@ -24,11 +24,24 @@ macro_rules
   | `(tactic| get_elem_tactic_extensible) =>
     `(tactic|
       first
-        | rw [Std.PRange.mem_iff_isSatisfied] at *
-          dsimp +zetaDelta only [Std.PRange.SupportsLowerBound.IsSatisfied, Std.PRange.SupportsUpperBound.IsSatisfied,
+        | try rw [Std.Rcc.mem_iff] at *
+          try rw [Std.Rco.mem_iff] at *
+          try rw [Std.Rci.mem_iff] at *
+          try rw [Std.Roc.mem_iff] at *
+          try rw [Std.Roo.mem_iff] at *
+          try rw [Std.Roi.mem_iff] at *
+          try rw [Std.Ric.mem_iff] at *
+          try rw [Std.Rio.mem_iff] at *
+          try rw [Std.Rii.mem_iff] at *
+          try dsimp +zetaDelta only [
             -- `Vector.size` needs to be unfolded because for `xs : Vector α n`, one needs to prove
             -- `i < n` instead of `i < xs.size`. Although `Vector.size` is reducible, this is
             -- not enough for `omega`.
             Vector.size] at *
+          -- If we're accessing elements of a subarray, we need to calculate its size.
+          try simp only [
+            Array.size_mkSlice_rco, Array.size_mkSlice_rcc, Array.size_mkSlice_rci,
+            Array.size_mkSlice_roo, Array.size_mkSlice_roc, Array.size_mkSlice_roi,
+            Array.size_mkSlice_rio, Array.size_mkSlice_ric, Array.size_mkSlice_rii]
           omega
         | done)

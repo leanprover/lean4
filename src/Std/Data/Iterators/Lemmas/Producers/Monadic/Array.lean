@@ -6,12 +6,9 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
-public import Init.Data.Iterators.Consumers
 public import Std.Data.Iterators.Producers.Monadic.Array
 public import Std.Data.Iterators.Lemmas.Consumers.Monadic
 public import Std.Data.Iterators.Lemmas.Producers.Monadic.List
-public import Std.Data.Iterators.Lemmas.Equivalence.Basic
 
 @[expose] public section
 
@@ -22,16 +19,16 @@ This module provides lemmas about the interactions of `Array.iterM` with `IterM.
 collectors.
 -/
 
-namespace Std.Iterators
+open Std Std.Iterators Std.Iterators.Types
 
 variable {m : Type w → Type w'} [Monad m] {β : Type w}
 
-theorem _root_.Array.iterM_eq_iterFromIdxM {array : Array β} :
+theorem Array.iterM_eq_iterFromIdxM {array : Array β} :
     array.iterM m = array.iterFromIdxM m 0 :=
   rfl
 
-theorem _root_.Array.step_iterFromIdxM {array : Array β} {pos : Nat} :
-    (array.iterFromIdxM m pos).step = (pure <| if h : pos < array.size then
+theorem Array.step_iterFromIdxM {array : Array β} {pos : Nat} :
+    (array.iterFromIdxM m pos).step = (pure <| .deflate <| if h : pos < array.size then
         .yield
           (array.iterFromIdxM m (pos + 1))
           array[pos]
@@ -40,8 +37,8 @@ theorem _root_.Array.step_iterFromIdxM {array : Array β} {pos : Nat} :
         .done (Nat.not_lt.mp h)) := by
   rfl
 
-theorem _root_.Array.step_iterM {array : Array β} :
-    (array.iterM m).step = (pure <| if h : 0 < array.size then
+theorem Array.step_iterM {array : Array β} :
+    (array.iterM m).step = (pure <| .deflate <| if h : 0 < array.size then
         .yield
           (array.iterFromIdxM m 1)
           array[0]
@@ -52,12 +49,13 @@ theorem _root_.Array.step_iterM {array : Array β} :
 
 section Equivalence
 
-theorem ArrayIterator.stepAsHetT_iterFromIdxM [LawfulMonad m] {array : Array β} {pos : Nat} :
-  (array.iterFromIdxM m pos).stepAsHetT = (if _ : pos < array.size then
+theorem Std.Iterators.Types.ArrayIterator.stepAsHetT_iterFromIdxM [LawfulMonad m] {array : Array β}
+    {pos : Nat} :
+    (array.iterFromIdxM m pos).stepAsHetT = (if _ : pos < array.size then
       pure (.yield (array.iterFromIdxM m (pos + 1)) array[pos])
     else
       pure .done) := by
-  simp only [Array.iterFromIdxM, toIterM, pure, HetT.ext_iff, Equivalence.property_step,
+  simp only [Array.iterFromIdxM, IterM.mk, pure, HetT.ext_iff, Equivalence.property_step,
     IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Equivalence.prun_step, ge_iff_le]
   refine ⟨?_, ?_⟩
   · ext step
@@ -94,8 +92,8 @@ theorem Array.iterFromIdxM_equiv_iterM_drop_toList {α : Type w} {array : Array 
   intro it
   match it with
   | Array.iterFromIdxM array _ pos =>
-    rw [ArrayIterator.stepAsHetT_iterFromIdxM, ListIterator.stepAsHetT_iterM]
-    simp [Array.iterFromIdxM, toIterM]
+    rw [ArrayIterator.stepAsHetT_iterFromIdxM, Types.ListIterator.stepAsHetT_iterM]
+    simp [Array.iterFromIdxM, IterM.mk]
     rw [show array = array.toList.toArray from Array.toArray_toList]
     generalize array.toList = l
     simp [Functor.map]
@@ -124,37 +122,35 @@ theorem Array.iterM_equiv_iterM_toList {α : Type w} {array : Array α} {m : Typ
 
 end Equivalence
 
-@[simp]
-theorem _root_.Array.toList_iterFromIdxM [LawfulMonad m] {array : Array β}
+@[simp, grind =]
+theorem Array.toList_iterFromIdxM [LawfulMonad m] {array : Array β}
     {pos : Nat} :
     (array.iterFromIdxM m pos).toList = pure (array.toList.drop pos) := by
   simp [Array.iterFromIdxM_equiv_iterM_drop_toList.toList_eq]
 
-@[simp]
-theorem _root_.Array.toList_iterM [LawfulMonad m] {array : Array β} :
+@[simp, grind =]
+theorem Array.toList_iterM [LawfulMonad m] {array : Array β} :
     (array.iterM m).toList = pure array.toList := by
   simp [Array.iterM_eq_iterFromIdxM, Array.toList_iterFromIdxM]
 
-@[simp]
-theorem _root_.Array.toArray_iterFromIdxM [LawfulMonad m] {array : Array β} {pos : Nat} :
+@[simp, grind =]
+theorem Array.toArray_iterFromIdxM [LawfulMonad m] {array : Array β} {pos : Nat} :
     (array.iterFromIdxM m pos).toArray = pure (array.extract pos) := by
   simp [← IterM.toArray_toList, Array.toList_iterFromIdxM]
   rw (occs := [2]) [← Array.toArray_toList (xs := array)]
   rw [← List.toArray_drop]
 
-@[simp]
-theorem _root_.Array.toArray_toIterM [LawfulMonad m] {array : Array β} :
+@[simp, grind =]
+theorem Array.toArray_toIterM [LawfulMonad m] {array : Array β} :
     (array.iterM m).toArray = pure array := by
   simp [Array.iterM_eq_iterFromIdxM, Array.toArray_iterFromIdxM]
 
-@[simp]
-theorem _root_.Array.toListRev_iterFromIdxM [LawfulMonad m] {array : Array β} {pos : Nat} :
+@[simp, grind =]
+theorem Array.toListRev_iterFromIdxM [LawfulMonad m] {array : Array β} {pos : Nat} :
     (array.iterFromIdxM m pos).toListRev = pure (array.toList.drop pos).reverse := by
   simp [IterM.toListRev_eq, Array.toList_iterFromIdxM]
 
-@[simp]
-theorem _root_.Array.toListRev_toIterM [LawfulMonad m] {array : Array β} :
+@[simp, grind =]
+theorem Array.toListRev_toIterM [LawfulMonad m] {array : Array β} :
     (array.iterM m).toListRev = pure array.toListRev := by
   simp [Array.iterM_eq_iterFromIdxM, Array.toListRev_iterFromIdxM]
-
-end Std.Iterators

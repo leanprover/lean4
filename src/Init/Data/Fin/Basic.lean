@@ -56,10 +56,6 @@ theorem Internal.ofNat_eq_ofNat {n : Nat} {hn} {a : Nat} :
   letI : NeZero n := ⟨Nat.pos_iff_ne_zero.1 hn⟩
   Fin.Internal.ofNat n hn a = Fin.ofNat n a := rfl
 
-@[deprecated Fin.ofNat (since := "2025-05-28")]
-protected def ofNat' (n : Nat) [NeZero n] (a : Nat) : Fin n :=
-  Fin.ofNat n a
-
 -- We provide this because other similar types have a `toNat` function, but `simp` rewrites
 -- `i.toNat` to `i.val`.
 /--
@@ -140,7 +136,7 @@ Modulus of bounded numbers, usually invoked via the `%` operator.
 The resulting value is that computed by the `%` operator on `Nat`.
 -/
 protected def mod : Fin n → Fin n → Fin n
-  | ⟨a, h⟩, ⟨b, _⟩ => ⟨a % b,  Nat.lt_of_le_of_lt (Nat.mod_le _ _) h⟩
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨a % b, by exact Nat.lt_of_le_of_lt (Nat.mod_le _ _) h⟩
 
 /--
 Division of bounded numbers, usually invoked via the `/` operator.
@@ -154,7 +150,7 @@ Examples:
  * `(5 : Fin 10) / (7 : Fin 10) = (0 : Fin 10)`
 -/
 protected def div : Fin n → Fin n → Fin n
-  | ⟨a, h⟩, ⟨b, _⟩ => ⟨a / b, Nat.lt_of_le_of_lt (Nat.div_le_self _ _) h⟩
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨a / b, by exact Nat.lt_of_le_of_lt (Nat.div_le_self _ _) h⟩
 
 /--
 Modulus of bounded numbers with respect to a `Nat`.
@@ -162,7 +158,7 @@ Modulus of bounded numbers with respect to a `Nat`.
 The resulting value is that computed by the `%` operator on `Nat`.
 -/
 def modn : Fin n → Nat → Fin n
-  | ⟨a, h⟩, m => ⟨a % m, Nat.lt_of_le_of_lt (Nat.mod_le _ _) h⟩
+  | ⟨a, h⟩, m => ⟨a % m, by exact Nat.lt_of_le_of_lt (Nat.mod_le _ _) h⟩
 
 /--
 Bitwise and.
@@ -246,6 +242,11 @@ instance neg (n : Nat) : Neg (Fin n) :=
 
 theorem neg_def (a : Fin n) : -a = ⟨(n - a) % n, Nat.mod_lt _ a.pos⟩ := rfl
 
+-- Later we give another version called `Fin.val_neg` that splits on `a = 0`.
+protected theorem val_neg' (a : Fin n) : ((-a : Fin n) : Nat) = (n - a) % n :=
+  rfl
+
+@[deprecated Fin.val_neg' (since := "2025-11-21")]
 protected theorem coe_neg (a : Fin n) : ((-a : Fin n) : Nat) = (n - a) % n :=
   rfl
 

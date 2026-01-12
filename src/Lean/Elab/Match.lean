@@ -6,15 +6,14 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Lean.Util.ForEachExprWhere
-public import Lean.Meta.CtorRecognizer
 public import Lean.Meta.Match.Match
 public import Lean.Meta.GeneralizeVars
-public import Lean.Meta.ForEachExpr
 public import Lean.Elab.BindersUtil
 public import Lean.Elab.PatternVar
 public import Lean.Elab.Quotation.Precheck
 public import Lean.Elab.SyntheticMVars
+import Lean.Meta.Match.Value
+import Lean.Meta.Match.NamedPatterns
 
 public section
 
@@ -165,7 +164,7 @@ def getMatchAlt : Syntax → Option MatchAltView
   | alt@`(matchAltExpr| | $patterns,* => $rhs) => some {
           ref      := alt,
           patterns := patterns,
-          lhs      := alt[1],
+          lhs      := alt[1], -- this is the ref `$patterns,*`
           rhs      := rhs
         }
   | _ => none
@@ -218,7 +217,7 @@ def Vec.map' (f : α → β) (xs : Vec α n) : Vec β n :=
 We had to include `n` and the `_`s because the type of `xs` depends on `n`.
 Moreover, `nil` and `cons a as` have different types.
 This was quite tedious. So, we have implemented an automatic "discriminant refinement procedure".
-The procedure is based on the observation that we get a type error whenenver we forget to include `_`s
+The procedure is based on the observation that we get a type error whenever we forget to include `_`s
 and the indices a discriminant depends on. So, we catch the exception, check whether the type of the discriminant
 is an indexed family, and add their indices as new discriminants.
 
@@ -759,13 +758,13 @@ end ToDepElimPattern
 def withDepElimPatterns (patternVarDecls : Array PatternVarDecl) (ps : Array Expr) (matchType : Expr) (k : Array LocalDecl → Array Pattern → Expr → TermElabM α) : TermElabM α := do
   ToDepElimPattern.main patternVarDecls ps matchType k
 
-private def withElaboratedLHS {α} (ref : Syntax) (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (lhsStx : Syntax) (numDiscrs : Nat) (matchType : Expr)
+private def withElaboratedLHS {α} (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (lhsStx : Syntax) (numDiscrs : Nat) (matchType : Expr)
     (k : AltLHS → Expr → TermElabM α) : ExceptT PatternElabException TermElabM α := do
   let (patterns, matchType) ← withSynthesize <| withRef lhsStx <| elabPatterns patternStxs numDiscrs matchType
   id (α := TermElabM α) do
     trace[Elab.match] "patterns: {patterns}"
     withDepElimPatterns patternVarDecls patterns matchType fun localDecls patterns matchType => do
-      k { ref := ref, fvarDecls := localDecls.toList, patterns := patterns.toList } matchType
+      k { ref := lhsStx, fvarDecls := localDecls.toList, patterns := patterns.toList } matchType
 
 /--
   Try to clear the free variables in `toClear` and auxiliary discriminants, and then execute `k` in the updated local context.
@@ -817,7 +816,7 @@ private def elabMatchAltView (discrs : Array Discr) (alt : MatchAltView) (matchT
     let (patternVars, alt) ← collectPatternVars alt
     trace[Elab.match] "patternVars: {patternVars}"
     withPatternVars patternVars fun patternVarDecls => do
-      withElaboratedLHS alt.ref patternVarDecls alt.patterns alt.lhs discrs.size matchType fun altLHS matchType =>
+      withElaboratedLHS patternVarDecls alt.patterns alt.lhs discrs.size matchType fun altLHS matchType =>
         withEqs discrs altLHS.patterns fun eqs =>
           withLocalInstances altLHS.fvarDecls do
             trace[Elab.match] "elabMatchAltView: {matchType}"

@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Data.Options
-import Lean.Meta.Transform
 import Lean.Meta.Inductive
 import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
@@ -141,6 +140,9 @@ def mkMatchNew (ctx : Context) (header : Header) (indVal : InductiveVal) : TermE
           let recField  := indValNum.map (ctx.auxFunNames[·]!)
           let isProof ← isProp xType
           todo := todo.push (a, b, recField, isProof)
+      if ctorArgs1.isEmpty then
+        -- Unit thunking argument
+        ctorArgs1 := ctorArgs1.push (← `(()))
       let rhs ← mkSameCtorRhs todo.toList
       `(@fun $ctorArgs1:term* $ctorArgs2:term* =>$rhs:term)
   if indVal.numCtors == 1 then

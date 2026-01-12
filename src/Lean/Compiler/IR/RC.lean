@@ -349,6 +349,10 @@ private def addDecIfNeeded (ctx : Context) (x : VarId) (b : FnBody) (bLiveVars :
   else b
 
 private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b : FnBody) (bLiveVars : LiveVars) : FnBody × LiveVars :=
+  -- `z` can be unused in `b` so we might have to drop it. Note that we do not remove the let
+  -- because we are in the impure phase of the compiler so `v` can have side effects that we don't
+  -- want to loose.
+  let b := addDecIfNeeded ctx z b bLiveVars
   let b := match v with
     | .ctor _ ys | .reuse _ _ _ ys | .pap _ ys =>
       addIncBeforeConsumeAll ctx ys (.vdecl z t v b) bLiveVars

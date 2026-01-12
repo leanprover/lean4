@@ -1,8 +1,8 @@
 /--
 info: Try this:
-  simp only [x]
+  [apply] simp only [x]
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example {P : Nat → Prop} : let x := 0; P x := by
@@ -12,9 +12,9 @@ example {P : Nat → Prop} : let x := 0; P x := by
 
 /--
 info: Try this:
-  simp_all only [x]
+  [apply] simp_all only [x]
 ---
-warning: declaration uses 'sorry'
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 example {P : Nat → Prop} : let x := 0; P x := by

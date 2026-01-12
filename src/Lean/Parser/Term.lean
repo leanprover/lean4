@@ -6,13 +6,9 @@ Authors: Leonardo de Moura, Sebastian Ullrich, Mario Carneiro
 module
 
 prelude
-public import Lean.Parser.Attr
-public import Lean.Parser.Level
-public import Lean.Parser.Term.Basic
 public import Lean.Parser.Term.Basic
 meta import Lean.Parser.Term.Basic
 public import Lean.Parser.Term.Doc
-meta import Lean.Parser.Basic
 import Lean.DocString.Parser
 public import Lean.DocString.Formatter
 
@@ -31,7 +27,7 @@ def versoCommentBodyFn : ParserFn := fun c s =>
     let iniSz := s.stackSize
     let commentEndPos := s.pos
     let endPos := c.prev (c.prev commentEndPos)
-    let endPos := if endPos ≤ c.inputString.endPos then endPos else c.inputString.endPos
+    let endPos := if endPos ≤ c.inputString.rawEndPos then endPos else c.inputString.rawEndPos
     let c' := c.setEndPos endPos (by unfold endPos; split <;> simp [*])
     let s := Doc.Parser.document {} c' (s.setPos startPos)
     let s :=
@@ -47,7 +43,7 @@ def versoCommentBodyFn : ParserFn := fun c s =>
         let trailing := c.mkEmptySubstringAt endPos
         let s :=
           s.pushSyntax <|
-          .atom (.original leading startPos trailing endPos) (c.inputString.extract startPos endPos)
+          .atom (.original leading startPos trailing endPos) (String.Pos.Raw.extract c.inputString startPos endPos)
         let s := s.mkNode `Lean.Doc.Syntax.parseFailure iniSz
         {s with recoveredErrors := #[]}
       else s

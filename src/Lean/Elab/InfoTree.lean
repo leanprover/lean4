@@ -9,5 +9,3 @@ module
 prelude
 public import Lean.Elab.InfoTree.Types
 public import Lean.Elab.InfoTree.Main
-
-public section

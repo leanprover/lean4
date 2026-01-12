@@ -7,4 +7,4 @@ def f (x : Lean.Syntax) (y : C) : IO Nat := do
   match x with
   | `($a + 1) =>
     if y.
-       --^ textDocument/completion
+       --^ completion

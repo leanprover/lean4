@@ -11,8 +11,6 @@ public import Lean.Data.DeclarationRange
 public import Lean.Data.OpenDecl
 public import Lean.MetavarContext
 public import Lean.Environment
-public import Lean.Data.Json.Basic
-public import Lean.Server.Rpc.Basic
 public import Lean.Widget.Types
 
 public section
@@ -20,12 +18,23 @@ public section
 namespace Lean.Elab
 
 /--
-Context after executing `liftTermElabM`.
+Context at the `CommandElabM/TermElabM` level. Created by `elabCommand` at the top level and then
+nestedly when relevant fields are affected (e.g. just before discarding the `mctx` when exiting from
+`TermElabM`).
+
 Note that the term information collected during elaboration may contain metavariables, and their
 assignments are stored at `mctx`.
 -/
 structure CommandContextInfo where
   env           : Environment
+  /--
+  Final environment at the end of `elabCommand`; empty for nested contexts. This environment can be
+  used to access information about the fully-elaborated current declaration such as declaration
+  ranges. It may not be a strict superset of `env` in case of backtracking, so `env` should be
+  preferred to access information about the elaboration context at the time this context object was
+  created.
+  -/
+  cmdEnv?       : Option Environment := none
   fileMap       : FileMap
   mctx          : MetavarContext := {}
   options       : Options        := {}
@@ -40,6 +49,7 @@ assignments are stored at `mctx`.
 -/
 structure ContextInfo extends CommandContextInfo where
   parentDecl? : Option Name := none
+  autoImplicits : Array Expr := #[]
 
 /--
 Context for a sub-`InfoTree`.
@@ -55,6 +65,7 @@ inductive PartialContextInfo where
   corresponding to the terms within the declaration.
   -/
   | parentDeclCtx (parentDecl : Name)
+  | autoImplicitCtx (autoImplicits : Array Expr)
   -- TODO: More constructors for the different kinds of scopes `commandCtx` is currently
   -- used for (e.g. eliminating `Info.updateContext?` would be nice!).
 
@@ -72,6 +83,8 @@ structure TermInfo extends ElabInfo where
   expectedType? : Option Expr
   expr : Expr
   isBinder : Bool := false
+  /-- Whether `expr` should always be displayed in the language server, e.g. in hovers. -/
+  isDisplayableTerm : Bool := false
   deriving Inhabited
 
 /--
@@ -99,7 +112,7 @@ inductive CompletionInfo where
   | namespaceId (stx : Syntax)
   | option (stx : Syntax)
   | errorName (stx partialId : Syntax)
-  | endSection (stx : Syntax) (scopeNames : List String)
+  | endSection (stx : Syntax) (id? : Option Name) (danglingDot : Bool) (scopeNames : List String)
   | tactic (stx : Syntax)
 
 /-- Info for an option reference (e.g. in `set_option`). -/
@@ -325,5 +338,10 @@ class MonadParentDecl (m : Type → Type) where
   getParentDeclName? : m (Option Name)
 
 export MonadParentDecl (getParentDeclName?)
+
+class MonadAutoImplicits (m : Type → Type) where
+  getAutoImplicits : m (Array Expr)
+
+export MonadAutoImplicits (getAutoImplicits)
 
 end Lean.Elab

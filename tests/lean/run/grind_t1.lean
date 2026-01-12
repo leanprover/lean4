@@ -186,6 +186,7 @@ example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
 trace: [grind.assert] ∀ (a : α), a ∈ b → p a
 [grind.ematch.pattern] h₁: [@Membership.mem `[α] `[List α] `[List.instMembership] `[b] #1]
 [grind.ematch.pattern] h₁: [p #1]
+[grind.assert] ∃ a, a ∈ b ∧ ¬p a
 [grind.assert] w ∈ b
 [grind.assert] ¬p w
 [grind.ematch.instance] h₁: w ∈ b → p w

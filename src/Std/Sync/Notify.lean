@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init.System.Promise
 public import Init.Data.Queue
 public import Std.Sync.Mutex
 public import Std.Internal.Async.Select
@@ -44,7 +43,7 @@ def Notify.Consumer.resolve (c : Consumer α) (x : α) : BaseIO Bool := do
     waiter.race lose win
 
 /--
-The central state structure for an a `Notify`.
+The central state structure for a `Notify`.
 -/
 structure Notify.State where
 

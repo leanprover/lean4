@@ -6,8 +6,6 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Notation
-public import Init.Data.Bool
 public import Init.Data.String.Basic
 
 @[expose] public section

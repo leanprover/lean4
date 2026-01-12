@@ -15,7 +15,7 @@ example {c} := Id.run do
 
 /--
 error: don't know how to synthesize implicit argument `ρ`
-  @forIn Id (List ?_) ?_ instForInOfForIn' PUnit Id.instMonad [] PUnit.unit fun x r => do
+  @forIn Id (List ?_) ?_ instForInOfForIn' PUnit [] PUnit.unit fun x r => do
     pure ()
     pure (ForInStep.yield PUnit.unit)
 context:
@@ -48,16 +48,16 @@ example {c} := Id.run do
 
 /--
 error: don't know how to synthesize implicit argument `d`
-  @forIn' Id (List ?_) ?_ inferInstance List.instForIn'InferInstanceMembership PUnit Id.instMonad [] PUnit.unit
-    fun x h r => do
+  @forIn' Id (List ?_) ?_ inferInstance List.instForIn'InferInstanceMembershipOfMonad PUnit [] PUnit.unit fun x h r =>
+    do
     pure ()
     pure (ForInStep.yield PUnit.unit)
 context:
 ⊢ outParam (Membership ?_ (List ?_))
 ---
 error: don't know how to synthesize implicit argument `ρ`
-  @forIn' Id (List ?_) ?_ inferInstance List.instForIn'InferInstanceMembership PUnit Id.instMonad [] PUnit.unit
-    fun x h r => do
+  @forIn' Id (List ?_) ?_ inferInstance List.instForIn'InferInstanceMembershipOfMonad PUnit [] PUnit.unit fun x h r =>
+    do
     pure ()
     pure (ForInStep.yield PUnit.unit)
 context:

@@ -301,6 +301,17 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
             .isFalse (by simp_all)
         | .var .. | .const .. | .bin .. | .un .. | .append .. | .replicate .. | .shiftLeft ..
         | .shiftRight .. | .arithShiftRight .. | .parPreSum .. => .isFalse (by simp)
+      | .parPreSum (w := lw) _ lexpr =>
+        match r with
+        | .parPreSum (w := rw) _ rexpr  =>
+          if h1 : lw = rw then
+            match decEq (h1 ▸ lexpr) rexpr with
+            | .isTrue h2 => .isTrue (by cases h1; simp_all)
+            | .isFalse h2 => .isFalse (by cases h1; simp_all)
+          else
+            .isFalse (by simp_all)
+        | .var .. | .const .. | .bin .. | .un .. | .append .. | .replicate .. | .shiftLeft ..
+        | .shiftRight .. | .arithShiftRight .. | .extract .. => .isFalse (by simp)
       | .bin llhs lop lrhs =>
         match r with
         | .bin rlhs rop rrhs =>
@@ -383,7 +394,6 @@ instance decEq : DecidableEq (BVExpr w) := fun l r =>
             .isFalse (by simp [h1])
         | .const .. | .var .. | .extract .. | .bin .. | .un .. | .append .. | .replicate ..
         | .shiftRight .. | .shiftLeft .. | .parPreSum .. => .isFalse (by simp)
-      | .parPreSum _ expr => sorry
 
 def toString : BVExpr w → String
   | .var idx => s!"var{idx}"

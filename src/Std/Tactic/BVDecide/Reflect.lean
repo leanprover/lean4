@@ -75,6 +75,10 @@ theorem extract_congr (start len : Nat) (w : Nat) (x x' : BitVec w) (h1 : x = x'
     BitVec.extractLsb' start len x' = BitVec.extractLsb' start len x := by
   simp[*]
 
+theorem parPreSum_congr (l w : Nat) (x x' : BitVec w) (h : x = x') :
+    BitVec.parPreSum l x' = BitVec.parPreSum l x := by
+  simp[*]
+
 theorem rotateLeft_congr (n : Nat) (w : Nat) (x x' : BitVec w) (h : x = x') :
     BitVec.rotateLeft x' n = BitVec.rotateLeft x n := by
   simp[*]
@@ -125,11 +129,6 @@ theorem reverse_congr (w : Nat) (x x' : BitVec w) (h : x = x') :
 theorem clz_congr (w : Nat) (x x' : BitVec w) (h : x = x') :
     BitVec.clz x' = BitVec.clz x := by
   simp [*]
-
--- theorem parPreSum_congr (l : Nat) (x x' : BitVec w) (h : x = x') := sorry
-  --   BitVec.parPreSum l x' = BitVec.parPreSum l x := by
-  -- simp[*]
-
 
 end BitVec
 

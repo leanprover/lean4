@@ -98,11 +98,15 @@ partial def shouldExtractLetValue (isRoot : Bool) (v : LetValue) : M Bool := do
       if !shouldExtract then
         return false
     else
-      let shouldExtract := !isRoot && isClosedTermName (← getEnv) name
-      if !shouldExtract then
+      if let some decl := ← getMonoDecl? name then
+        if args.size >= decl.getArity then
+          return false
+      if !(!isRoot && isClosedTermName (← getEnv) name) then
         return false
     args.allM shouldExtractArg
-  | .fvar fnVar args => return (← shouldExtractFVar fnVar) && (← args.allM shouldExtractArg)
+  | .fvar fnVar args =>
+    -- TODO: finetune, this could make a pap an fap which we want to avoid
+    return (← shouldExtractFVar fnVar) && (← args.allM shouldExtractArg)
   | .proj _ _ baseVar => shouldExtractFVar baseVar
 
 partial def shouldExtractArg (arg : Arg) : M Bool := do

@@ -269,25 +269,35 @@ theorem minIdxOn_eq_zero_iff [LE β] [DecidableLE β] [IsLinearPreorder β]
     · simp [minIdxOn.go]
     · simpa [minIdxOn.go_eq, List.le_apply_minOn_iff] using h
 
-private def combineMinIdx [LE β] [DecidableLE β]
+section Append
+
+/-!
+The proof of {name}`minOn_append` uses associativity of {name}`minOn` and applies {name}`foldl_assoc`.
+The proof of {name (scope := "Init.Data.List.MinMaxIdx")}`minIdxOn_append` is analogous, but the
+aggregation operation, {name (scope := "Init.Data.List.MinMaxIdx")}`combineMinIdxOn`, depends on
+the length of the lists to combine. After proving associativity of the aggregation operation,
+the proof closely follows the proof of {name}`foldl_assoc`.
+-/
+
+private def combineMinIdxOn [LE β] [DecidableLE β]
     (f : α → β) {xs ys : List α} (i j : Nat) (hi : i < xs.length) (hj : j < ys.length) : Nat :=
   if f xs[i] ≤ f ys[j] then
     i
   else
     xs.length + j
 
-private theorem combineMinIdx_lt [LE β] [DecidableLE β]
+private theorem combineMinIdxOn_lt [LE β] [DecidableLE β]
     (f : α → β) {xs ys : List α} {i j : Nat} (hi : i < xs.length) (hj : j < ys.length) :
-    combineMinIdx f i j hi hj < (xs ++ ys).length := by
-  simp only [combineMinIdx]
+    combineMinIdxOn f i j hi hj < (xs ++ ys).length := by
+  simp only [combineMinIdxOn]
   split <;> (simp; omega)
 
-private theorem combineMinIdx_assoc [LE β] [DecidableLE β] [IsLinearPreorder β]
+private theorem combineMinIdxOn_assoc [LE β] [DecidableLE β] [IsLinearPreorder β]
     {xs ys zs : List α} {i j k : Nat} {f : α → β} (hi : i < xs.length) (hj : j < ys.length) (hk : k < zs.length) :
-    combineMinIdx f (combineMinIdx f i j _ _) k
-      (combineMinIdx_lt f hi hj) hk = combineMinIdx f i (combineMinIdx f j k _ _) hi (combineMinIdx_lt f hj hk) := by
+    combineMinIdxOn f (combineMinIdxOn f i j _ _) k
+      (combineMinIdxOn_lt f hi hj) hk = combineMinIdxOn f i (combineMinIdxOn f j k _ _) hi (combineMinIdxOn_lt f hj hk) := by
   open scoped Classical.Order in
-  simp only [combineMinIdx]
+  simp only [combineMinIdxOn]
   split
   · rw [getElem_append_left (by omega)]
     split
@@ -312,26 +322,26 @@ private theorem combineMinIdx_assoc [LE β] [DecidableLE β] [IsLinearPreorder �
       have := not_le.mpr <| lt_trans h₂ h₁
       simp [*, Nat.add_assoc]
 
-private theorem minIdxOn_cons_take_succ_eq_append_of_drop_eq_cons [LE β] [DecidableLE β]
+private theorem minIdxOn_cons_aux [LE β] [DecidableLE β]
     [IsLinearPreorder β] {x : α} {xs : List α} {f : α → β} (hxs : xs ≠ []) :
     (x :: xs).minIdxOn f (by simp) =
-      combineMinIdx f _ _ (minIdxOn_lt_length (f := f) (cons_ne_nil x [])) (minIdxOn_lt_length (f := f) hxs) := by
-  rw [minIdxOn, combineMinIdx]
+      combineMinIdxOn f _ _ (minIdxOn_lt_length (f := f) (cons_ne_nil x [])) (minIdxOn_lt_length (f := f) hxs) := by
+  rw [minIdxOn, combineMinIdxOn]
   simp [minIdxOn.go_eq, hxs, List.getElem_minIdxOn, Nat.add_comm 1]
 
-private theorem minIdxOn_append_take_succ_eq_append_of_drop_eq_cons [LE β] [DecidableLE β]
+private theorem minIdxOn_append_aux [LE β] [DecidableLE β]
     [IsLinearPreorder β] {xs ys : List α} {f : α → β} (hxs : xs ≠ []) (hys : ys ≠ []) :
     (xs ++ ys).minIdxOn f (by simp [hxs]) =
-      combineMinIdx f _ _ (minIdxOn_lt_length (f := f) hxs) (minIdxOn_lt_length (f := f) hys) := by
+      combineMinIdxOn f _ _ (minIdxOn_lt_length (f := f) hxs) (minIdxOn_lt_length (f := f) hys) := by
   induction xs
   · contradiction
   · rename_i x xs ih
     match xs with
-    | [] => simp [minIdxOn_cons_take_succ_eq_append_of_drop_eq_cons (xs := ys) ‹_›]
+    | [] => simp [minIdxOn_cons_aux (xs := ys) ‹_›]
     | z :: zs =>
       simp +singlePass only [cons_append]
-      simp only [minIdxOn_cons_take_succ_eq_append_of_drop_eq_cons (xs := z :: zs ++ ys) (by simp), ih (by simp),
-        minIdxOn_cons_take_succ_eq_append_of_drop_eq_cons (xs := z :: zs) (by simp), combineMinIdx_assoc]
+      simp only [minIdxOn_cons_aux (xs := z :: zs ++ ys) (by simp), ih (by simp),
+        minIdxOn_cons_aux (xs := z :: zs) (by simp), combineMinIdxOn_assoc]
 
 theorem minIdxOn_append [LE β] [DecidableLE β] [IsLinearPreorder β]
     {xs ys : List α} {f : α → β} (hxs : xs ≠ []) (hys : ys ≠ []) :
@@ -340,7 +350,9 @@ theorem minIdxOn_append [LE β] [DecidableLE β] [IsLinearPreorder β]
         xs.minIdxOn f hxs
       else
         xs.length + ys.minIdxOn f hys := by
-  simp [minIdxOn_append_take_succ_eq_append_of_drop_eq_cons hxs hys, combineMinIdx, getElem_minIdxOn]
+  simp [minIdxOn_append_aux hxs hys, combineMinIdxOn, getElem_minIdxOn]
+
+end Append
 
 theorem left_le_apply_minIdxOn_append [LE β] [DecidableLE β] [IsLinearPreorder β]
     {xs ys : List α} {f : α → β} (h : xs ≠ []) :

@@ -18,18 +18,40 @@ set_option linter.missingDocs true
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
+/--
+Inverts an {name}`LE` instance.
+
+The result is an {lean}`LE α` instance where {lit}`a ≤ b` holds when {name}`le` would have
+{lit}`b ≤ a` hold.
+-/
 @[expose]
 def LE.opposite (le : LE α) : LE α where
   le a b := b ≤ a
 
+/--
+Inverts an {name}`LT` instance.
+
+The result is an {lean}`LT α` instance where {lit}`a < b` holds when {name}`lt` would have
+{lit}`b < a` hold.
+-/
 @[expose]
 def LT.opposite (lt : LT α) : LT α where
   lt a b := b < a
 
+/--
+Creates a {name}`Max` instance from a {name}`Min` instance.
+
+The result is a {lean}`Max α` instance that uses {lean}`min.min` as its {name}`max` operation.
+-/
 @[expose]
 def Min.oppositeMax (min : Min α) : Max α where
   max a b := Min.min a b
 
+/--
+Creates a {name}`Min` instance from a {name}`Max` instance.
+
+The result is a {lean}`Min α` instance that uses {lean}`max.max` as its {name}`min` operation.
+-/
 @[expose]
 def Max.oppositeMin (max : Max α) : Min α where
   min a b := Max.max a b

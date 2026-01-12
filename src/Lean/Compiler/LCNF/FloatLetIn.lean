@@ -36,10 +36,6 @@ inductive Decision where
   No decision has been made yet.
   -/
   | unknown
-  /--
-  The value is passed to an owned function later.
-  -/
-  | ownedUse
 deriving Hashable, BEq, Inhabited, Repr
 
 def Decision.ofAlt : Alt → Decision
@@ -171,9 +167,7 @@ where
 
   goFVar (plannedDecision : Decision) (var : FVarId) : StateRefT (Std.HashMap FVarId Decision) BaseFloatM Unit := do
     if let some decision := (← get)[var]? then
-      if decision matches .ownedUse then
-        return
-      else if decision matches .unknown then
+      if decision matches .unknown then
         modify fun s => s.insert var plannedDecision
       else if decision != plannedDecision then
         modify fun s => s.insert var .dont

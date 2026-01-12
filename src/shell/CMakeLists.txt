@@ -164,6 +164,10 @@ FOREACH(T ${LEANPKGTESTS})
     add_test(NAME "${T_PATH}"
             WORKING_DIRECTORY "${T}"
             COMMAND bash -c "${TEST_VARS} ./test.sh")
+    set_tests_properties("${T_PATH}" PROPERTIES
+            TIMEOUT                      500
+            TIMEOUT_SIGNAL_NAME          SIGTERM
+            TIMEOUT_SIGNAL_GRACE_PERIOD  5)
   endif()
 ENDFOREACH(T)
 

@@ -260,7 +260,7 @@ where
         dsimp only at heaig
         exact heaig
       ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastExtract) ..)⟩
-    | .parPreSum l expr => sorry
+    | .parPreSum l expr =>  sorry
     | .shiftLeft lhs rhs =>
       let ⟨⟨⟨aig, lhs⟩, hlaig⟩, cache⟩ := goCache aig lhs cache
       let ⟨⟨⟨aig, rhs⟩, hraig⟩, cache⟩ := goCache aig rhs cache

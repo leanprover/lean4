@@ -115,6 +115,8 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
         unsigned nextra = rec_args.size() - major_idx - 1;
         rhs = mk_app(rhs, nextra, rec_args.data() + major_idx + 1);
     }
+    /* beta-reduce the redex we just built, we do not want to cache that */
+    rhs = head_beta_reduce(rhs);
     return some_expr(rhs);
 }
 

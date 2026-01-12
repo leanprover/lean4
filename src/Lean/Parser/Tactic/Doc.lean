@@ -7,11 +7,10 @@ module
 
 prelude
 public import Lean.Environment
-import Lean.Attributes
-import Lean.DocString.Extension
 import Lean.Elab.InfoTree.Main
 meta import Lean.Parser.Attr
 import Lean.Parser.Extension
+import Lean.ExtraModUses
 
 public section
 
@@ -80,6 +79,7 @@ builtin_initialize
         | throwError "Invalid `[{name}]` attribute syntax"
 
       let tgtName ← Lean.Elab.realizeGlobalConstNoOverloadWithInfo tgt
+      recordExtraModUseFromDecl (isMeta := false) tgtName
 
       if !(isTactic (← getEnv) tgtName) then throwErrorAt tgt "`{tgtName}` is not a tactic"
       -- If the target is a known syntax kind, ensure that it's a tactic
@@ -260,12 +260,12 @@ def getTacticExtensions (env : Environment) (tactic : Name) : Array String := Id
 def getTacticExtensionString (env : Environment) (tactic : Name) : String := Id.run do
   let exts := getTacticExtensions env tactic
   if exts.size == 0 then ""
-  else "\n\nExtensions:\n\n" ++ String.join (exts.toList.map bullet) |>.trimRight
+  else "\n\nExtensions:\n\n" ++ String.join (exts.toList.map bullet) |>.trimAsciiEnd |>.copy
 where
-  indentLine (str: String) : String :=
-    (if str.all (·.isWhitespace) then str else "   " ++ str) ++ "\n"
+  indentLine (str : String.Slice) : String :=
+    (if str.all Char.isWhitespace then str.copy else "   " ++ str) ++ "\n"
   bullet (str : String) : String :=
-    let lines := str.splitOn "\n"
+    let lines := str.split '\n' |>.toList
     match lines with
     | [] => ""
     | [l] => " * " ++ l ++ "\n\n"

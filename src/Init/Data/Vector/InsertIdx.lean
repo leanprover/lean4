@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.Vector.Lemmas
-public import Init.Data.Array.InsertIdx
 
 public section
 
@@ -41,11 +40,6 @@ theorem eraseIdx_insertIdx_self {i : Nat} {xs : Vector α n} {h : i ≤ n} :
     (xs.insertIdx i a).eraseIdx i = xs := by
   rcases xs with ⟨xs, rfl⟩
   simp_all [Array.eraseIdx_insertIdx_self]
-
-@[deprecated eraseIdx_insertIdx_self (since := "2025-06-15")]
-theorem eraseIdx_insertIdx {i : Nat} {xs : Vector α n} {h : i ≤ n} :
-    (xs.insertIdx i a).eraseIdx i = xs := by
-  simp [eraseIdx_insertIdx_self]
 
 theorem insertIdx_eraseIdx_of_ge {xs : Vector α n}
     (w₁ : i < n) (w₂ : j ≤ n - 1) (h : i ≤ j) :

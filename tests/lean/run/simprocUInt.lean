@@ -1,3 +1,5 @@
+module
+
 section
 
 variable (x : Nat)
@@ -17,6 +19,9 @@ section
 
 variable (x : UInt8)
 
+example : (5 : UInt8) = 5 := by decide
+example : (5 : UInt8) ≤ 5 := by decide
+example : (5 : UInt8) < 6 := by decide
 #check_simp x = 2 + 3 ~> x = 5
 #check_simp x = 2 * 3 ~> x = 6
 #check_simp x = 2 - 3 ~> x = 255
@@ -40,6 +45,9 @@ section
 
 variable (x : UInt16)
 
+example : (5 : UInt16) = 5 := by decide
+example : (5 : UInt16) ≤ 5 := by decide
+example : (5 : UInt16) < 6 := by decide
 #check_simp x = 2 + 3 ~> x = 5
 #check_simp x = 2 * 3 ~> x = 6
 #check_simp x = 2 - 3 ~> x = 65535
@@ -63,6 +71,9 @@ section
 
 variable (x : UInt32)
 
+example : (5 : UInt32) = 5 := by decide
+example : (5 : UInt32) ≤ 5 := by decide
+example : (5 : UInt32) < 6 := by decide
 #check_simp x = 2 + 3 ~> x = 5
 #check_simp x = 2 * 3 ~> x = 6
 #check_simp x = 2 - 3 ~> x = 4294967295
@@ -86,6 +97,9 @@ section
 
 variable (x : UInt64)
 
+example : (5 : UInt64) = 5 := by decide
+example : (5 : UInt64) ≤ 5 := by decide
+example : (5 : UInt64) < 6 := by decide
 #check_simp x = 2 + 3 ~> x = 5
 #check_simp x = 2 * 3 ~> x = 6
 #check_simp x = 2 - 3 ~> x = 18446744073709551615

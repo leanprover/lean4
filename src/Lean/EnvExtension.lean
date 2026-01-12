@@ -66,8 +66,9 @@ instance {α σ : Type} [Inhabited σ] : Inhabited (SimplePersistentEnvExtension
 
 /-- Get the list of values used to update the state of the given
 `SimplePersistentEnvExtension` in the current file. -/
-def getEntries {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment) : List α :=
-  (PersistentEnvExtension.getState ext env).1
+def getEntries {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ)
+    (env : Environment) (asyncMode := ext.toEnvExtension.asyncMode) : List α :=
+  (PersistentEnvExtension.getState (asyncMode := asyncMode) ext env).1
 
 /-- Get the current state of the given `SimplePersistentEnvExtension`. -/
 def getState {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment)
@@ -104,9 +105,13 @@ instance : Inhabited TagDeclarationExtension :=
   inferInstanceAs (Inhabited (SimplePersistentEnvExtension Name NameSet))
 
 def tag (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : Environment :=
-  have : Inhabited Environment := ⟨env⟩
-  assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `TagDeclarationExtension`
-  ext.addEntry (asyncDecl := declName) env declName
+  if declName.isAnonymous then
+    -- This case might happen on partial elaboration; ignore instead of triggering any panics below
+    env
+  else
+    have : Inhabited Environment := ⟨env⟩
+    assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `TagDeclarationExtension`
+    ext.addEntry (asyncDecl := declName) env declName
 
 def isTagged (ext : TagDeclarationExtension) (env : Environment) (declName : Name)
     (asyncMode := ext.toEnvExtension.asyncMode) : Bool :=

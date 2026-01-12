@@ -6,12 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Compiler.ImplementedByAttr
-public import Lean.Compiler.LCNF.ElimDead
-public import Lean.Compiler.LCNF.AlphaEqv
-public import Lean.Compiler.LCNF.PrettyPrinter
-public import Lean.Compiler.LCNF.Bind
-public import Lean.Compiler.LCNF.Simp.FunDeclInfo
 public import Lean.Compiler.LCNF.Simp.InlineCandidate
 public import Lean.Compiler.LCNF.Simp.InlineProj
 public import Lean.Compiler.LCNF.Simp.Used
@@ -342,6 +336,18 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
               params.forM (eraseParam ·)
               markSimplified
               return k
+        if alts.all (·.getCode matches .unreach ..) then
+          alts.forM (liftM <| ·.getParams.forM eraseParam)
+          markSimplified
+          return .unreach resultType
+        /-
+        We considered handling a case where we drop a cases if it only has one non-unreachable
+        branch and doesn't rely on the params of that branch here. However, this has the potential
+        to hinder reuse in later passes as we loose information about the shape of a variable. We
+        might be able to reintroduce this at a later point if we track this information different
+        from cases.
+        -/
+
         markUsedFVar discr
         return code.updateCases! resultType discr alts
 end

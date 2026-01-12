@@ -7,6 +7,8 @@ module
 prelude
 public import Init.Data.Array.QSort
 public import Std.Data.HashSet
+public import Init.Data.Hashable
+
 public section
 namespace Lean.Meta.Grind
 

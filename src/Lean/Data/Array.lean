@@ -6,10 +6,9 @@ Authors: Joachim Breitner
 module
 
 prelude
-public import Init.Prelude
 import Init.Data.Stream
-import Init.Data.Range.Polymorphic.Nat
-import Init.Data.Range.Polymorphic.Iterators
+public import Init.Data.Range.Polymorphic.Nat
+public import Init.Data.Range.Polymorphic.Iterators
 
 namespace Array
 

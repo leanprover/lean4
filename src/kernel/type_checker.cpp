@@ -268,10 +268,9 @@ expr type_checker::infer_proj(expr const & e, bool infer_only) {
 /** \brief Return type of expression \c e, if \c infer_only is false, then it also check whether \c e is type correct or not.
     \pre closed(e) */
 expr type_checker::infer_type_core(expr const & e, bool infer_only) {
-    if (is_bvar(e))
+    if (has_loose_bvars(e))
         throw kernel_exception(env(), "type checker does not support loose bound variables, replace them with free variables before invoking it");
 
-    lean_assert(!has_loose_bvars(e));
     check_system("type checker", /* do_check_interrupted */ true);
 
     auto it = m_st->m_infer_type[infer_only].find(e);
@@ -1202,7 +1201,7 @@ void initialize_type_checker() {
     g_nat_xor      = new_persistent_expr_const({"Nat", "xor"});
     g_nat_shiftLeft  = new_persistent_expr_const({"Nat", "shiftLeft"});
     g_nat_shiftRight = new_persistent_expr_const({"Nat", "shiftRight"});
-    g_string_mk    = new_persistent_expr_const({"String", "mk"});
+    g_string_mk    = new_persistent_expr_const({"String", "ofList"});
     g_lean_reduce_bool = new_persistent_expr_const({"Lean", "reduceBool"});
     g_lean_reduce_nat  = new_persistent_expr_const({"Lean", "reduceNat"});
     register_name_generator_prefix(*g_kernel_fresh);

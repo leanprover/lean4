@@ -5,6 +5,7 @@
    "props": {},
    "javascriptHash": "2874772427606622741",
    "id": "helloWidget"}]}
+{"pos": {"line": 12, "character": 4}, "hash": "2874772427606622741"}
 {"sourcetext":
  "\n    import * as React from 'react';\n    export default function(props) {\n      const name = props.name || 'world'\n      return React.createElement('p', {}, name + '!')\n    }"}
 {"widgets":
@@ -14,6 +15,7 @@
    "props": {"name": "lean"},
    "javascriptHash": "2874772427606622741",
    "id": "helloWidget"}]}
+{"pos": {"line": 19, "character": 4}, "hash": "2874772427606622741"}
 {"sourcetext":
  "\n    import * as React from 'react';\n    export default function(props) {\n      const name = props.name || 'world'\n      return React.createElement('p', {}, name + '!')\n    }"}
 {"widgets":
@@ -25,8 +27,10 @@
    "props": {"name": "global"},
    "javascriptHash": "2874772427606622741",
    "id": "helloWidget"}]}
+{"pos": {"line": 25, "character": 2}, "hash": "2874772427606622741"}
 {"sourcetext":
  "\n    import * as React from 'react';\n    export default function(props) {\n      const name = props.name || 'world'\n      return React.createElement('p', {}, name + '!')\n    }"}
+{"pos": {"line": 25, "character": 2}, "hash": "2874772427606622741"}
 {"sourcetext":
  "\n    import * as React from 'react';\n    export default function(props) {\n      const name = props.name || 'world'\n      return React.createElement('p', {}, name + '!')\n    }"}
 {"widgets":
@@ -38,8 +42,10 @@
    "props": {"name": "global"},
    "javascriptHash": "2874772427606622741",
    "id": "helloWidget"}]}
+{"pos": {"line": 33, "character": 2}, "hash": "2874772427606622741"}
 {"sourcetext":
  "\n    import * as React from 'react';\n    export default function(props) {\n      const name = props.name || 'world'\n      return React.createElement('p', {}, name + '!')\n    }"}
+{"pos": {"line": 33, "character": 2}, "hash": "2874772427606622741"}
 {"sourcetext":
  "\n    import * as React from 'react';\n    export default function(props) {\n      const name = props.name || 'world'\n      return React.createElement('p', {}, name + '!')\n    }"}
 {"widgets": []}

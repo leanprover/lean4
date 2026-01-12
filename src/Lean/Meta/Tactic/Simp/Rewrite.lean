@@ -4,24 +4,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.ACLt
 public import Lean.Meta.Match.MatchEqsExt
-public import Lean.Meta.AppBuilder
-public import Lean.Meta.SynthInstance
-public import Lean.Meta.Tactic.Util
 public import Lean.Meta.Tactic.UnifyEq
-public import Lean.Meta.Tactic.Simp.Types
 public import Lean.Meta.Tactic.Simp.Arith
-public import Lean.Meta.Tactic.Simp.Simproc
 public import Lean.Meta.Tactic.Simp.Attr
 public import Lean.Meta.BinderNameHint
-
+import Lean.Meta.FunInfo
+import Lean.Meta.WHNF
 public section
-
 namespace Lean.Meta.Simp
-
 /--
 Helper type for implementing `discharge?'`
 -/

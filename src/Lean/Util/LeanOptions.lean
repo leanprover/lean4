@@ -6,7 +6,6 @@ Authors: Marc Huisinga
 module
 
 prelude
-public import Lean.Data.KVMap
 public import Lean.Data.Json.FromToJson.Basic
 
 public section

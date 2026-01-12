@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Compiler.IR.Basic
 public import Lean.Compiler.IR.FreeVars
 
 public section
@@ -69,7 +68,7 @@ partial def visitFnBody (w : Index) : FnBody → M Bool
         -- Instead of marking the join points that we have already been visited, we permanently remove `j` from the context.
         set (ctx.eraseJoinPointDecl j) *> visitFnBody w b
       | none   =>
-        -- `j` must be a local join point. So do nothing since we have already visite its body.
+        -- `j` must be a local join point. So do nothing since we have already visited its body.
         pure false
   | .ret x =>
     visitArg w x

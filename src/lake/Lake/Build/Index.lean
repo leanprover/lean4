@@ -31,7 +31,7 @@ private def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.k
   | .target pkg target =>
     if let some decl := pkg.findTargetDecl? target then
       if h : decl.kind.isAnonymous then
-        let key := BuildKey.packageTarget pkg.name target
+        let key := BuildKey.packageTarget pkg.keyName target
         fetchOrCreate key do (decl.targetConfig h).fetchFn pkg
       else
         let kind := ⟨decl.kind, by simp [decl.target_eq_type h]⟩

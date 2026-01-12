@@ -6,13 +6,10 @@ Authors: Leonardo de Moura, Mario Carneiro
 Notation for operators defined at Prelude.lean
 -/
 module
-
 prelude
 public import Init.Coe
-
 public section
 set_option linter.missingDocs true -- keep it documented
-
 namespace Lean
 
 /--
@@ -405,6 +402,7 @@ recommended_spelling "ge" for "≥" in [GE.ge, «term_≥_»]
 recommended_spelling "ge" for ">=" in [GE.ge, «term_>=_»]
 recommended_spelling "eq" for "=" in [Eq, «term_=_»]
 recommended_spelling "beq" for "==" in [BEq.beq, «term_==_»]
+recommended_spelling "heq" for "≍" in [HEq, «term_≍_»]
 
 @[inherit_doc] infixr:35 " /\\ " => And
 @[inherit_doc] infixr:35 " ∧ "   => And
@@ -525,7 +523,7 @@ macro_rules
   | `(bif $c then $t else $e) => `(cond $c $t $e)
 
 /--
-Haskell-like pipe operator `<|`. `f <| x` means the same as the same as `f x`,
+Haskell-like pipe operator `<|`. `f <| x` means the same as `f x`,
 except that it parses `x` with lower precedence, which means that `f <| g <| x`
 is interpreted as `f (g x)` rather than `(f g) x`.
 -/
@@ -559,7 +557,7 @@ macro_rules
   | `($a |> $f)        => `($f $a)
 
 /--
-Alternative syntax for `<|`. `f $ x` means the same as the same as `f x`,
+Alternative syntax for `<|`. `f $ x` means the same as `f x`,
 except that it parses `x` with lower precedence, which means that `f $ g $ x`
 is interpreted as `f (g x)` rather than `(f g) x`.
 -/
@@ -636,6 +634,24 @@ syntax (name := deprecated) "deprecated" (ppSpace ident)? (ppSpace str)?
     (" (" &"since" " := " str ")")? : attr
 
 /--
+The attribute `@[suggest_for ..]` on a declaration suggests likely ways in which
+someone might **incorrectly** refer to a definition.
+
+* `@[suggest_for String.endPos]` on the definition of `String.rawEndPos` suggests that `"str".endPos` might be correctable to `"str".rawEndPos`.
+* `@[suggest_for Either Result]` on the definition of `Except` suggests that `Either Nat String` might be correctable to `Except Nat String`.
+
+The namespace of the suggestions is always relative to the root namespace. In the namespace `X.Y`,
+adding an annotation `@[suggest_for Z.bar]` to `def Z.foo` will suggest `X.Y.Z.foo` only as a
+replacement for `Z.foo`. If your intent is to suggest `X.Y.Z.foo` as a replacement for
+`X.Y.Z.bar`, you must instead use the annotation `@[suggest_for X.Y.Z.bar]`.
+
+Suggestions can be defined for structure fields or inductive branches with the
+`attribute [suggest_for Exception] Except` syntax, and these attributes do not have to be added
+in the same module where the actual identifier was defined.
+-/
+syntax (name := suggest_for) "suggest_for" (ppSpace ident)+ : attr
+
+/--
 The `@[coe]` attribute on a function (which should also appear in a
 `instance : Coe A B := ⟨myFn⟩` declaration) allows the delaborator to show
 applications of this function as `↑` when printing expressions.
@@ -643,7 +659,7 @@ applications of this function as `↑` when printing expressions.
 syntax (name := Attr.coe) "coe" : attr
 
 /--
-This attribute marks a code action, which is used to suggest new tactics or replace existing ones.
+This attribute marks a code action that triggers on specific commands.
 
 * `@[command_code_action kind]`: This is a code action which applies to applications of the command
   `kind` (a command syntax kind), which can replace the command or insert things before or after it.
@@ -766,9 +782,16 @@ Position reporting for `#guard_msgs`:
 -/
 syntax guardMsgsPositions := &"positions" " := " guardMsgsPositionsArg
 
+/--
+Substring matching for `#guard_msgs`:
+- `substring := true` checks that the docstring appears as a substring of the output.
+- `substring := false` (the default) requires exact matching (modulo whitespace normalization).
+-/
+syntax guardMsgsSubstring := &"substring" " := " (&"true" <|> &"false")
+
 set_option linter.missingDocs false in
 syntax guardMsgsSpecElt :=
-  guardMsgsFilter <|> guardMsgsWhitespace <|> guardMsgsOrdering <|> guardMsgsPositions
+  guardMsgsFilter <|> guardMsgsWhitespace <|> guardMsgsOrdering <|> guardMsgsPositions <|> guardMsgsSubstring
 
 set_option linter.missingDocs false in
 syntax guardMsgsSpec := "(" guardMsgsSpecElt,* ")"
@@ -844,7 +867,12 @@ Position reporting:
   `#guard_msgs` appears.
 - `positions := false` does not report position info.
 
-For example, `#guard_msgs (error, drop all) in cmd` means to check warnings and drop
+Substring matching:
+- `substring := true` checks that the docstring appears as a substring of the output
+  (after whitespace normalization). This is useful when you only care about part of the message.
+- `substring := false` (the default) requires exact matching (modulo whitespace normalization).
+
+For example, `#guard_msgs (error, drop all) in cmd` means to check errors and drop
 everything else.
 
 The command elaborator has special support for `#guard_msgs` for linting.
@@ -858,6 +886,13 @@ syntax (name := guardMsgsCmd)
   (plainDocComment)? "#guard_msgs" (ppSpace guardMsgsSpec)? " in" ppLine command : command
 
 /--
+`#guard_panic in cmd` runs `cmd` and succeeds if the command produces a panic message.
+This is useful for testing that a command panics without matching the exact (volatile) panic text.
+-/
+syntax (name := guardPanicCmd)
+  "#guard_panic" " in" ppLine command : command
+
+/--
 Format and print the info trees for a given command.
 This is mostly useful for debugging info trees.
 -/
@@ -865,12 +900,12 @@ syntax (name := infoTreesCmd)
   "#info_trees" " in" ppLine command : command
 
 /--
-Specify a premise selection engine.
-Note that Lean does not ship a default premise selection engine,
+Specify a library suggestion engine.
+Note that Lean does not ship a default library suggestion engine,
 so this is only useful in conjunction with a downstream package which provides one.
 -/
-syntax (name := setPremiseSelectorCmd)
-  "set_premise_selector" term : command
+syntax (name := setLibrarySuggestionsCmd)
+  "set_library_suggestions" term : command
 
 namespace Parser
 

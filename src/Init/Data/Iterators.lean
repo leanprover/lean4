@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Iterators.Basic
 public import Init.Data.Iterators.PostconditionMonad
 public import Init.Data.Iterators.Consumers
+public import Init.Data.Iterators.Producers
 public import Init.Data.Iterators.Combinators
 public import Init.Data.Iterators.Lemmas
 public import Init.Data.Iterators.ToIterator

@@ -6,7 +6,6 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Omega.Constraint
 public import Lean.Elab.Tactic.Omega.OmegaM
 public import Lean.Elab.Tactic.Omega.MinNatAbs
 

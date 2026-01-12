@@ -5,14 +5,11 @@ Authors: David Thrane Christiansen
 -/
 module
 prelude
-public import Lean.ScopedEnvExtension
 import Std.Data.HashMap
-public import Lean.DocString.Types
 public import Lean.Elab.Term.TermElabM
 public import Lean.Elab.Command.Scope
 import Lean.DocString.Syntax
 import Lean.Meta.Hint
-import Lean.DocString.Markdown
 import Lean.BuiltinDocAttr
 
 set_option linter.missingDocs true
@@ -89,6 +86,9 @@ structure State where
   -/
   lctx : LocalContext
   /--
+  -/
+  localInstances : LocalInstances
+  /--
   The options.
 
   The `MonadLift TermElabM DocM` instance runs the lifted action with these options, so elaboration
@@ -132,10 +132,10 @@ instance : MonadStateOf State DocM :=
 
 instance : MonadLift TermElabM DocM where
   monadLift act := private DocM.mk fun _ _ st' => do
-    let {openDecls, lctx, options, ..} := (← st'.get)
+    let {openDecls, lctx, options, localInstances, ..} := (← st'.get)
     let v ←
       withTheReader Core.Context (fun ρ => { ρ with openDecls, options }) <|
-      withTheReader Meta.Context (fun ρ => { ρ with lctx }) <|
+      withTheReader Meta.Context (fun ρ => { ρ with lctx, localInstances }) <|
       act
     return v
 
@@ -147,16 +147,19 @@ private builtin_initialize modDocstringStateExt : EnvExtension (Option ModuleDoc
   registerEnvExtension (pure none)
 
 private def getModState
-    [Monad m] [MonadEnv m] [MonadLiftT IO m] [MonadLCtx m]
+    [Monad m] [MonadEnv m] [MonadLiftT IO m] [MonadLiftT MetaM m] [MonadLCtx m]
     [MonadResolveName m] [MonadOptions m] : m ModuleDocstringState := do
   if let some st := modDocstringStateExt.getState (← getEnv) then
     return st
   else
-    let lctx ← getLCtx
-    let openDecls ← getOpenDecls
-    let options ← getOptions
     let scopes := [{header := "", isPublic := true}]
-    let st : ModuleDocstringState := { scopes, openDecls, lctx, options, scopedExts := #[] }
+    let openDecls ← getOpenDecls
+    let lctx ← getLCtx
+    let localInstances ← Meta.getLocalInstances
+    let options ← getOptions
+    let scopedExts := #[]
+    let st : ModuleDocstringState :=
+      { scopes, openDecls, lctx, localInstances, options, scopedExts }
     modifyEnv fun env =>
       modDocstringStateExt.setState env st
     return st
@@ -200,7 +203,7 @@ def DocM.exec (declName : Name) (binders : Syntax) (act : DocM α)
       let options ← getOptions
       let scopes := [{header := "", isPublic := true}]
       let ((v, _), _) ← withTheReader Meta.Context (fun ρ => { ρ with localInstances }) <|
-        act.run { suggestionMode } |>.run {} |>.run { scopes, openDecls, lctx, options }
+        act.run { suggestionMode } |>.run {} |>.run { scopes, openDecls, lctx, localInstances, options }
       pure v
     finally
       scopedEnvExtensionsRef.set sc
@@ -275,7 +278,7 @@ where
     ids.getArgs.mapM fun x =>
       if x.getKind == identKind || x.getKind == ``hole then
         pure (some x)
-      else throwErrorAt x "identifer or `_` expected"
+      else throwErrorAt x "identifier or `_` expected"
 
 
 set_option linter.unusedVariables false in
@@ -1164,30 +1167,27 @@ If `true`, suggestions are provided for code elements.
 register_builtin_option doc.verso.suggestions : Bool := {
   defValue := true
   descr := "whether to provide suggestions for code elements"
-  group := "doc"
 }
 
 -- Normally, name suggestions should be provided relative to the current scope. But
 -- during bootstrapping, the names in question may not yet be defined, so builtin
 -- names need special handling.
 private def suggestionName (name : Name) : TermElabM Name := do
-  try
-    if (← getEnv).contains name then
-      unresolveNameGlobalAvoidingLocals name
-    else
-      builtinFallback
-  catch
-    | _ => builtinFallback
-where
-  builtinFallback := do
-    let name' ←
-      if (← builtinDocRoles.get).contains name then pure (some name)
-      else if (← builtinDocCodeBlocks.get).contains name then pure (some name)
-      else pure none
-    match name' with
-      | some (.str _ s) => return .str .anonymous s
-      | some n => return n
-      | none => return name
+  let name' ←
+    -- Builtin expander names never need namespacing
+    if (← builtinDocRoles.get).contains name then pure (some name)
+    else if (← builtinDocCodeBlocks.get).contains name then pure (some name)
+    else pure none
+  match name' with
+    | some (.str _ s) => return .str .anonymous s
+    | some n => return n
+    | none =>
+      -- If it exists, unresolve it
+      if (← getEnv).contains name then
+        unresolveNameGlobalAvoidingLocals name
+      else
+        -- Fall back to doing nothing
+        pure name
 
 private def sortSuggestions (ss : Array Meta.Hint.Suggestion) : Array Meta.Hint.Suggestion :=
   let cmp : (x y : Meta.Tactic.TryThis.SuggestionText) → Bool
@@ -1198,7 +1198,10 @@ private def sortSuggestions (ss : Array Meta.Hint.Suggestion) : Array Meta.Hint.
   ss.qsort (cmp ·.suggestion ·.suggestion)
 
 open Diff in
-private def mkSuggestion  (ref : Syntax) (hintTitle : MessageData) (newStrings : Array (String × Option String × Option String)) : DocM MessageData := do
+private def mkSuggestion
+    (ref : Syntax) (hintTitle : MessageData)
+    (newStrings : Array (String × Option String × Option String)) :
+    DocM MessageData := do
   match (← read).suggestionMode with
   | .interactive =>
     hintTitle.hint (newStrings.map fun (s, preInfo?, postInfo?) => { suggestion := s, preInfo?, postInfo? }) (ref? := some ref)
@@ -1206,12 +1209,12 @@ private def mkSuggestion  (ref : Syntax) (hintTitle : MessageData) (newStrings :
     let some ⟨b, e⟩ := ref.getRange?
       | pure m!""
     let text ← getFileMap
-    let pre := text.source.extract 0 b
-    let post := text.source.extract e text.source.endPos
+    let pre := String.Pos.Raw.extract text.source 0 b
+    let post := String.Pos.Raw.extract text.source e text.source.rawEndPos
     let edits := newStrings.map fun (s, _, _) =>
-      let lines := text.source.split (· == '\n') |>.toArray
+      let lines := text.source.split '\n' |>.toStringArray
       let s' := pre ++ s ++ post
-      let lines' := s'.split (· == '\n') |>.toArray
+      let lines' := s'.split '\n' |>.toStringArray
       let d := diff lines lines'
       toMessageData <| Diff.linesToString <| d.filter (·.1 != Action.skip)
     pure m!"\n\nHint: {hintTitle}\n{indentD <| m!"\n".joinSep edits.toList}"
@@ -1257,7 +1260,7 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
           catch | _ => pure ()
         unless suggestions.isEmpty do
           let text ← getFileMap
-          let str := text.source.extract b e
+          let str := String.Pos.Raw.extract text.source b e
           let ss : Array (String × Option String × Option String) ←
             suggestions.mapM fun {role, args, moreInfo} => do
               pure {
@@ -1268,6 +1271,11 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
                 snd.snd := moreInfo.map withSpace
               }
           let ss := ss.qsort (fun x y => x.1 < y.1)
+          let litSuggestion :=
+            ( "{lit}" ++ str,
+              some "Use the `lit` role:\n",
+              some "\nto mark the code as literal text and disable suggestions" )
+          let ss := ss.push litSuggestion
           let hint ← mkSuggestion stx m!"Insert a role to document it:" ss
           logWarning m!"Code element could be more specific.{hint}"
     return .code s.getString
@@ -1293,7 +1301,7 @@ public partial def elabInline (stx : TSyntax `inline) : DocM (Inline ElabInline)
             continue
           else throw e
         | e => throw e
-    throwErrorAt name "No expander for `{name}`"
+    throwErrorAt name "Unknown role `{name}`"
   | other =>
     throwErrorAt other "Unsupported syntax {other}"
 where
@@ -1359,7 +1367,7 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
             continue
           else throw e
         | e => throw e
-    throwErrorAt name "No directive expander for `{name}`"
+    throwErrorAt name "Unknown directive `{name}`"
   | `(block| ```%$opener | $s ```) =>
     if doc.verso.suggestions.get (← getOptions) then
       if let some ⟨b, e⟩ := opener.getRange? then
@@ -1370,7 +1378,7 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
           catch | _ => pure ()
         unless suggestions.isEmpty do
           let text ← getFileMap
-          let str := text.source.extract b e
+          let str := String.Pos.Raw.extract text.source b e
           let ss : Array (String × Option String × Option String) ←
             suggestions.mapM fun {name, args, moreInfo} => do
               pure {
@@ -1402,7 +1410,7 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
             continue
           else throw e
         | e => throw e
-    throwErrorAt name "No code block expander for `{name}`"
+    throwErrorAt name "Unknown code block `{name}`"
   | `(block| command{$name $args*}) =>
     let expanders ← commandExpandersFor name
     for (exName, ex) in expanders do
@@ -1421,7 +1429,7 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
             continue
           else throw e
         | e => throw e
-    throwErrorAt name "No document command elaborator for `{name}`"
+    throwErrorAt name "Unknown document command `{name}`"
   | `(block|%%%$_*%%%) =>
     let h ←
       if stx.raw.getRange?.isSome then m!"Remove it".hint #[""] (ref? := stx)
@@ -1488,6 +1496,7 @@ private def elabModSnippet'
           logErrorAt b m!"Incorrect header nesting: expected at most `{"#".pushn '#' maxLevel}` \
             but got `{"#".pushn '#' n}`"
         else
+          maxLevel := n + 1
           let title ←
             liftM <| withInfoContext (mkInfo := pure <| .ofDocInfo {elaborator := `no_elab, stx := b}) <|
               name.mapM elabInline
@@ -1598,10 +1607,12 @@ private def warnUnusedRefs : DocM Unit := do
 /-- Elaborates a sequence of blocks into a document. -/
 public def elabBlocks (blocks : TSyntaxArray `block) :
     DocM (Array (Block ElabInline ElabBlock) × Array (Part ElabInline ElabBlock Empty)) := do
-  let (v, _) ← elabBlocks' 0 |>.run blocks
-  let res ← fixupBlocks v
-  warnUnusedRefs
-  return res
+  -- Users should not need to make import needed for embedded terms public
+  withoutExporting do
+    let (v, _) ← elabBlocks' 0 |>.run blocks
+    let res ← fixupBlocks v
+    warnUnusedRefs
+    return res
 
 /-- Elaborates a sequence of blocks into a module doc snippet. -/
 public def elabModSnippet

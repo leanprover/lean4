@@ -6,7 +6,6 @@ Authors: François G. Dorais
 module
 
 prelude
-public import Init.Data.List.FinRange
 public import Init.Data.Array.OfFn
 
 public section

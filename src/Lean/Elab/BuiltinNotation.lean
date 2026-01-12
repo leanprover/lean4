@@ -6,14 +6,10 @@ Authors: Leonardo de Moura, Gabriel Ebner
 module
 
 prelude
-public import Lean.Compiler.BorrowedAnnotation
-public import Lean.Meta.KAbstract
-public import Lean.Meta.Closure
-public import Lean.Meta.MatchUtil
 public import Lean.Compiler.ImplementedByAttr
-public import Lean.Elab.SyntheticMVars
 public import Lean.Elab.Eval
 public import Lean.Elab.Binders
+public import Lean.IdentifierSuggestion
 meta import Lean.Parser.Do
 
 public section
@@ -61,7 +57,7 @@ open Meta
         (fun ival _ => do
           match ival.ctors with
           | [ctor] =>
-            if isInaccessiblePrivateName (← getEnv) ctor then
+            if (← isInaccessiblePrivateName ctor) then
               throwError "Invalid `⟨...⟩` notation: Constructor for `{ival.name}` is marked as private"
             let cinfo ← getConstInfoCtor ctor
             let numExplicitFields ← forallTelescopeReducing cinfo.type fun xs _ => do
@@ -466,7 +462,10 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
      let heqType ← inferType heq
      let heqType ← instantiateMVars heqType
      match (← Meta.matchEq? heqType) with
-     | none => throwError "invalid `▸` notation, argument{indentExpr heq}\nhas type{indentExpr heqType}\nequality expected"
+     | none => throwError "invalid `▸` notation, argument{indentExpr heq}\n\
+        has type{indentExpr heqType}\n\
+        equality expected\
+        {← Term.hintAutoImplicitFailure heq (expected := "an equality")}"
      | some (α, lhs, rhs) =>
        let mut lhs := lhs
        let mut rhs := rhs

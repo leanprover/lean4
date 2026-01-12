@@ -6,13 +6,9 @@ Authors: Leonardo de Moura, Kyle Miller
 module
 
 prelude
-public import Lean.Util.FindExpr
-public import Lean.Parser.Term
 public import Lean.Meta.Structure
 public import Lean.Elab.App
-public import Lean.Elab.Binders
 public import Lean.Elab.StructInstHint
-public import Lean.PrettyPrinter
 
 public section
 
@@ -808,7 +804,7 @@ private def synthOptParamFields : StructInstM Unit := do
           /-
           We must use `checkedAssign` here to ensure we do not create a cyclic
           assignment. See #3150.
-          This can happen when there are holes in the the fields the default value
+          This can happen when there are holes in the fields the default value
           depends on.
           Possible improvement: create a new `_` instead of returning `false` when
           `checkedAssign` fails. Reason: the field will not be needed after the
@@ -1194,7 +1190,7 @@ private def elabStructInstView (s : StructInstView) (structName : Name) (structT
     TermElabM Expr := withRef s.ref do
   let env ← getEnv
   let ctorVal := getStructureCtor env structName
-  if isInaccessiblePrivateName env ctorVal.name then
+  if (← isInaccessiblePrivateName ctorVal.name) then
     throwError "invalid \{...} notation, constructor for `{.ofConstName structName}` is marked as private"
   let { ctorFn, ctorFnType, structType, levels, params } ← mkCtorHeader ctorVal structType?
   let (_, fields) ← expandFields structName s.fields (recover := (← read).errToSorry)

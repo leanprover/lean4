@@ -6,11 +6,7 @@ Authors: Joseph Rotella
 module
 
 prelude
-public import Lean.ErrorExplanation
 meta import Lean.ErrorExplanation
-public import Lean.Meta.Eval
-public import Lean.Elab.Term
-public import Lean.Elab.Command
 public import Lean.Widget.UserWidget
 
 public section
@@ -88,24 +84,25 @@ def elabCheckedNamedError : TermElab := fun stx expType? => do
   addCompletionInfo <| CompletionInfo.errorName span partialId
   let name := id.getId.eraseMacroScopes
   pushInfoLeaf <| .ofErrorNameInfo { stx := id, errorName := name }
-  if let some explan := getErrorExplanationRaw? (← getEnv) name then
+  if let some explan ← getErrorExplanation? name then
     if let some removedVersion := explan.metadata.removedVersion? then
       logWarningAt id m!"The error name `{name}` was removed in Lean version {removedVersion} and \
         should not be used."
   else
-    logErrorAt id m!"There is no explanation associated with the name `{name}`. \
-      Add an explanation of this error to the `Lean.ErrorExplanations` module."
+    logErrorAt id m!"There is no explanation registered with the name `{name}`. \
+      Register an explanation for this error in the `Lean.ErrorExplanation` module."
   let stx' ← liftMacroM <| expandNamedErrorMacro stx
   elabTerm stx' expType?
 
 open Command in
 @[builtin_command_elab registerErrorExplanationStx] def elabRegisterErrorExplanation : CommandElab
-| `(registerErrorExplanationStx| $docStx:docComment register_error_explanation%$cmd $id:ident $t:term) => withRef cmd do
-  unless (← getEnv).contains ``Lean.ErrorExplanation do
+| `(registerErrorExplanationStx| $_docStx register_error_explanation%$cmd $id:ident $t:term) => withRef cmd do
+  unless (← getEnv).contains ``ErrorExplanation.Metadata do
     throwError "To use this command, add `import Lean.ErrorExplanation` to the header of this file"
+  recordExtraModUseFromDecl ``ErrorExplanation.Metadata (isMeta := true)
   let tp := mkConst ``ErrorExplanation.Metadata
   let metadata ← runTermElabM <| fun _ => unsafe do
-    let e ← elabTerm t tp
+    let e ← elabTermEnsuringType t tp
     if e.hasSyntheticSorry then throwAbortTerm
     evalExpr ErrorExplanation.Metadata tp e
   let name := id.getId
@@ -119,18 +116,8 @@ open Command in
     throwErrorAt id m!"Invalid name `{name}`: Error explanation names must have two components"
       ++ .note m!"The first component of an error explanation name identifies the package from \
         which the error originates, and the second identifies the error itself."
-  runTermElabM fun _ => validateDocComment docStx
-  let doc ← getDocStringText docStx
   if errorExplanationExt.getState (← getEnv) |>.contains name then
     throwErrorAt id m!"Cannot add explanation: An error explanation already exists for `{name}`"
-  if let .error (lineOffset, msg) := ErrorExplanation.processDoc doc then
-    let some range := docStx.raw[1].getRange? | throwError msg
-    let fileMap ← getFileMap
-    let ⟨startLine, _⟩ := fileMap.toPosition range.start
-    let errLine := startLine + lineOffset
-    let synth := Syntax.ofRange { start := fileMap.ofPosition ⟨errLine, 0⟩,
-                                  stop  := fileMap.ofPosition ⟨errLine + 1, 0⟩ }
-    throwErrorAt synth msg
   let (declLoc? : Option DeclarationLocation) ← do
     let map ← getFileMap
     let start := id.raw.getPos?.getD 0
@@ -139,5 +126,5 @@ open Command in
       module := (← getMainModule)
       range := .ofStringPositions map start fin
     }
-  modifyEnv (errorExplanationExt.addEntry · (name, { metadata, doc, declLoc? }))
+  modifyEnv (errorExplanationExt.addEntry · (name, { doc := "", metadata, declLoc? }))
 | _ => throwUnsupportedSyntax

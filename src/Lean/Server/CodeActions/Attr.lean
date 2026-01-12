@@ -17,9 +17,6 @@ public section
 * Attribute `@[hole_code_action]` collects code actions which will be called
   on each occurrence of a hole (`_`, `?_` or `sorry`).
 
-* Attribute `@[tactic_code_action]` collects code actions which will be called
-  on each occurrence of a tactic.
-
 * Attribute `@[command_code_action]` collects code actions which will be called
   on each occurrence of a command.
 -/
@@ -130,6 +127,7 @@ builtin_initialize
       let `(attr| command_code_action $args*) := stx | return
       let args ← args.mapM realizeGlobalConstNoOverloadWithInfo
       if (IR.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
+      args.forM (recordExtraModUseFromDecl (isMeta := false))
       modifyEnv (cmdCodeActionExt.addEntry · (⟨decl, args⟩, ← mkCommandCodeAction decl))
   }
 

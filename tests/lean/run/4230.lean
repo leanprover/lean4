@@ -7,7 +7,7 @@ termination_by input.size - curr
 
 /--
 info: Try this:
-  termination_by input.size - curr
+  [apply] termination_by input.size - curr
 -/
 #guard_msgs(drop warning, info) in
 theorem foo (curr : Nat) (input : Array Nat) (output : Array Nat)

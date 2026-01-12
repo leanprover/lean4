@@ -6,10 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Structure
-public import Lean.Elab.Attributes
 public import Lean.DocString.Add
-public import Lean.Parser.Command
 meta import Lean.Parser.Command
 
 public section
@@ -106,15 +103,6 @@ def Modifiers.isPartial : Modifiers → Bool
   | { recKind := .partial, .. }  => true
   | _                            => false
 
-/--
-Whether the declaration is explicitly `partial` or should be considered as such via `meta`. In the
-latter case, elaborators should not produce an error if partiality is unnecessary.
--/
-def Modifiers.isInferredPartial : Modifiers → Bool
-  | { recKind := .partial, .. }  => true
-  | { computeKind := .meta, .. } => true
-  | _                            => false
-
 def Modifiers.isNonrec : Modifiers → Bool
   | { recKind := .nonrec, .. } => true
   | _                          => false
@@ -162,7 +150,7 @@ def expandOptDocComment? [Monad m] [MonadError m] (optDocComment : Syntax) : m (
   match optDocComment.getOptional? with
   | none   => return none
   | some s => match s[1] with
-    | .atom _ val => return some (val.extract 0 (val.endPos - ⟨2⟩))
+    | .atom _ val => return some (String.Pos.Raw.extract val 0 (val.rawEndPos.unoffsetBy ⟨2⟩))
     | _           => throwErrorAt s "unexpected doc string{indentD s[1]}"
 
 section Methods

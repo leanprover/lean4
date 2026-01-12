@@ -9,7 +9,7 @@ namespace UnionFind
 
 /-- Parent of a union-find node, defaults to self when the node is a root -/
 def parentD (arr : Array UFNode) (i : Nat) : Nat :=
-  if h : i < arr.size then (arr.get i h).parent else i
+  if h : i < arr.size then arr[i].parent else i
 
 /-- Rank of a union-find node, defaults to 0 when the node is a root -/
 def rankD (arr : Array UFNode) (i : Nat) : Nat := 0
@@ -47,11 +47,11 @@ noncomputable def rankMax (self : UnionFind) := 0
 
 /-- Root of a union-find node. -/
 def root (self : UnionFind) (x : Fin self.size) : Fin self.size :=
-  let y := (self.arr.get x.1 x.2).parent
+  let y := self.arr[x.1].parent
   if h : y = x then
     x
   else
-    have : self.rankMax - self.rank (self.arr.get x.1 x.2).parent < self.rankMax - self.rank x :=
+    have : self.rankMax - self.rank self.arr[x.1].parent < self.rankMax - self.rank x :=
       sorry
     self.root ⟨y, sorry⟩
 termination_by self.rankMax - self.rank x

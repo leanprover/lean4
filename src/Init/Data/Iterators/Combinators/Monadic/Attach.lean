@@ -6,9 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Basic
-public import Init.Data.Iterators.Internal.Termination
-public import Init.Data.Iterators.Consumers.Collect
 public import Init.Data.Iterators.Consumers.Loop
 
 public section
@@ -43,12 +40,13 @@ instance Attach.instIterator {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] {P : β → Prop} :
     Iterator (Attach α m P) m { out : β // P out } where
   IsPlausibleStep it step := ∃ step', Monadic.modifyStep it step' = step
-  step it := (fun step => ⟨Monadic.modifyStep it step, step, rfl⟩) <$> it.internalState.inner.step
+  step it := (fun step => .deflate ⟨Monadic.modifyStep it step.inflate, step.inflate, rfl⟩) <$>
+      it.internalState.inner.step
 
 def Attach.instFinitenessRelation {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] [Finite α m] {P : β → Prop} :
     FinitenessRelation (Attach α m P) m where
-  rel := InvImage WellFoundedRelation.rel fun it => it.internalState.inner.finitelyManySteps
+  Rel := InvImage WellFoundedRelation.rel fun it => it.internalState.inner.finitelyManySteps
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     apply Relation.TransGen.single
@@ -69,7 +67,7 @@ instance Attach.instFinite {α β : Type w} {m : Type w → Type w'} [Monad m]
 def Attach.instProductivenessRelation {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] [Productive α m] {P : β → Prop} :
     ProductivenessRelation (Attach α m P) m where
-  rel := InvImage WellFoundedRelation.rel fun it => it.internalState.inner.finitelyManySkips
+  Rel := InvImage WellFoundedRelation.rel fun it => it.internalState.inner.finitelyManySkips
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     apply Relation.TransGen.single
@@ -87,37 +85,12 @@ instance Attach.instProductive {α β : Type w} {m : Type w → Type w'} [Monad 
     Productive (Attach α m P) m :=
   .of_productivenessRelation instProductivenessRelation
 
-instance Attach.instIteratorCollect {α β : Type w} {m : Type w → Type w'} [Monad m] [Monad n]
-    {P : β → Prop} [Iterator α m β] :
-    IteratorCollect (Attach α m P) m n :=
-  .defaultImplementation
-
-instance Attach.instIteratorCollectPartial {α β : Type w} {m : Type w → Type w'} [Monad m]
-    [Monad n] {P : β → Prop} [Iterator α m β] :
-    IteratorCollectPartial (Attach α m P) m n :=
-  .defaultImplementation
-
 instance Attach.instIteratorLoop {α β : Type w} {m : Type w → Type w'} [Monad m]
     {n : Type x → Type x'} [Monad n] {P : β → Prop} [Iterator α m β] :
     IteratorLoop (Attach α m P) m n :=
   .defaultImplementation
 
-instance Attach.instIteratorLoopPartial {α β : Type w} {m : Type w → Type w'} [Monad m]
-    {n : Type x → Type x'} [Monad n] {P : β → Prop} [Iterator α m β] :
-    IteratorLoopPartial (Attach α m P) m n :=
-  .defaultImplementation
-
-instance {α β : Type w} {m : Type w → Type w'} [Monad m]
-    {P : β → Prop} [Iterator α m β] [IteratorSize α m] :
-    IteratorSize (Attach α m P) m where
-  size it := IteratorSize.size it.internalState.inner
-
-instance {α β : Type w} {m : Type w → Type w'} [Monad m]
-    {P : β → Prop} [Iterator α m β] [IteratorSizePartial α m] :
-    IteratorSizePartial (Attach α m P) m where
-  size it := IteratorSizePartial.size it.internalState.inner
-
-end Types
+end Iterators.Types
 
 /--
 “Attaches” individual proofs to an iterator of values that satisfy a predicate `P`, returning an
@@ -132,7 +105,7 @@ iterator with values in the corresponding subtype `{ x // P x }`.
 def IterM.attachWith {α β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m β] (it : IterM (α := α) m β) (P : β → Prop)
     (h : ∀ out, it.IsPlausibleIndirectOutput out → P out) :
-    IterM (α := Types.Attach α m P) m { out : β // P out } :=
+    IterM (α := Iterators.Types.Attach α m P) m { out : β // P out } :=
   ⟨⟨it, h⟩⟩
 
-end Std.Iterators
+end Std

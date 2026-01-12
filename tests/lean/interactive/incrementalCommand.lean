@@ -41,7 +41,7 @@ wrap 1 def wrapped := by
   dbg_trace "w"
 
 /-!
-The example used to result in nothing but "declaration uses 'sorry'" (and using the downstream
+The example used to result in nothing but "declaration uses `sorry`" (and using the downstream
 "unreachable tactic" linter, the `simp` would be flagged) as `simp` among other elaborators
 accidentally swallowed the interrupt exception.
 -/

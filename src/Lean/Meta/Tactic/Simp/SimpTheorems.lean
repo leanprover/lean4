@@ -4,21 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.ScopedEnvExtension
-public import Lean.Util.Recognizers
-public import Lean.Meta.DiscrTree
+public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.Tactic.AuxLemma
-public import Lean.DefEqAttrib
 public import Lean.DocString
+import Lean.ExtraModUses
+import Lean.ProjFns
 import Lean.Meta.AppBuilder
 import Lean.Meta.Eqns
-
+import Lean.Meta.WHNF
 public section
 
 /-!
-This module contains types to manages simp theorems and sets theirof.
+This module contains types to manages simp theorems and sets thereof.
 
 Overview of types in this module:
 
@@ -41,7 +39,7 @@ namespace Lean.Meta
 
 register_builtin_option backward.dsimp.useDefEqAttr : Bool := {
   defValue := true
-  descr    := "Use `defeq` attribute rather than checking theorem body to decide whether a theroem \
+  descr    := "Use `defeq` attribute rather than checking theorem body to decide whether a theorem \
     can be used in `dsimp` or with `implicitDefEqProofs`."
 }
 
@@ -395,6 +393,8 @@ def mkSimpTheoremFromConst (declName : Name) (post := true) (inv := false)
       let mut r := #[]
       for (val, type) in (← preprocess val type inv (isGlobal := true)) do
         let auxName ← mkAuxLemma (kind? := `_simp) cinfo.levelParams type val (inferRfl := true)
+          (forceExpose := true)  -- These kinds of theorems are small and `to_additive` may need to
+                                 -- unfold them.
         r := r.push <| (← do mkSimpTheoremCore origin (mkConst auxName us) #[] (mkConst auxName) post prio (noIndexAtArgs := false))
       return r
     else
@@ -572,15 +572,12 @@ def SimpTheorems.addSimpTheorem (d : SimpTheorems) (e : SimpTheorem) : SimpTheor
   -- Erase the converse, if it exists
   let d := eraseFwdIfBwd d e
   if e.post then
-    { d with post := d.post.insertCore e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
+    { d with post := d.post.insertKeyValue e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
   else
-    { d with pre := d.pre.insertCore e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
+    { d with pre := d.pre.insertKeyValue e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
 where
   updateLemmaNames (s : PHashSet Origin) : PHashSet Origin :=
     s.insert e.origin
-
-@[deprecated SimpTheorems.addSimpTheorem (since := "2025-06-17")]
-def addSimpTheoremEntry := SimpTheorems.addSimpTheorem
 
 def SimpTheorems.addDeclToUnfoldCore (d : SimpTheorems) (declName : Name) : SimpTheorems :=
   { d with toUnfold := d.toUnfold.insert declName }
@@ -665,6 +662,16 @@ def mkSimpExt (name : Name := by exact decl_name%) : IO SimpExtension :=
     name     := name
     initial  := {}
     addEntry := fun d e => d.addSimpEntry e
+    exportEntry? := fun lvl e => do
+      -- export only annotations on public decls
+      let declName := match e with
+        | .thm t => match t.origin with
+          | .decl n _ _ => n
+          | _ => unreachable!
+        | .toUnfold n => n
+        | .toUnfoldThms n _ => n
+      guard (lvl == .private || !isPrivateName declName)
+      return e
   }
 
 abbrev SimpExtensionMap := Std.HashMap Name SimpExtension

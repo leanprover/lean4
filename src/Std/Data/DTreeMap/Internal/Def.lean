@@ -78,4 +78,11 @@ def toListModel : Impl α β → List ((a : α) × β a)
 @[simp] theorem toListModel_inner {sz k v l r} :
   (.inner sz k v l r : Impl α β).toListModel = l.toListModel ++ ⟨k, v⟩ :: r.toListModel := rfl
 
+/--
+  Computes the size of the tree. Used for verification of iterators.
+-/
+def treeSize : Internal.Impl α β → Nat
+  | .leaf => 0
+  | .inner _ _ _ l r => 1 + l.treeSize + treeSize r
+
 end Std.DTreeMap.Internal.Impl

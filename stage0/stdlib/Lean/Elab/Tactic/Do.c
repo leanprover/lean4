@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Do
-// Imports: Lean.Elab.Tactic.Do.ProofMode Lean.Elab.Tactic.Do.Syntax Lean.Elab.Tactic.Do.Attr Lean.Elab.Tactic.Do.LetElim Lean.Elab.Tactic.Do.Spec Lean.Elab.Tactic.Do.VCGen
+// Imports: public import Lean.Elab.Tactic.Do.ProofMode public import Lean.Elab.Tactic.Do.Syntax public import Lean.Elab.Tactic.Do.Attr public import Lean.Elab.Tactic.Do.LetElim public import Lean.Elab.Tactic.Do.Spec public import Lean.Elab.Tactic.Do.VCGen
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,33 +13,33 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Do_Syntax(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Do_Attr(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Do_LetElim(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Do_Spec(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Do_VCGen(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Do_Syntax(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Do_Attr(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Do_LetElim(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Do_Spec(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Do_VCGen(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Do(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Do(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_Tactic_Do_ProofMode(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Do_ProofMode(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Do_Syntax(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Do_Syntax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Do_Attr(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Do_Attr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Do_LetElim(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Do_LetElim(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Do_Spec(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Do_Spec(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Do_VCGen(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Do_VCGen(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

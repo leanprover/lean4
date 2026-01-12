@@ -69,6 +69,13 @@ instance : MonadStateOf σ (StateCpsT σ m) where
   modifyGet f := fun _ s k => let (a, s) := f s; k a s
 
 /--
+For continuation monads, it is not possible to provide a computable `MonadAttach` instance that
+actually adds information about the return value. Therefore, this instance always attaches a proof
+of `True`.
+-/
+instance : MonadAttach (StateCpsT ε m) := .trivial
+
+/--
 Runs an action from the underlying monad in the monad with state. The state is not modified.
 
 This function is typically implicitly accessed via a `MonadLiftT` instance as part of [automatic

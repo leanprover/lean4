@@ -9,6 +9,7 @@ prelude
 public import Init.Control.Lawful.Basic
 public import Init.Data.Subtype.Basic
 public import Init.PropLemmas
+public import Init.Control.Lawful.MonadLift.Basic
 
 public section
 
@@ -53,6 +54,11 @@ def PostconditionT.lift {α : Type w} {m : Type w → Type w'} [Functor m] (x : 
   ⟨fun _ => True, (⟨·, .intro⟩) <$> x⟩
 
 @[always_inline, inline, expose]
+def PostconditionT.attachLift {α : Type w} {m : Type w → Type w'} [MonadAttach m]
+    (x : m α) : PostconditionT m α :=
+  ⟨MonadAttach.CanReturn x, MonadAttach.attach x⟩
+
+@[always_inline, inline, expose]
 protected def PostconditionT.pure {m : Type w → Type w'} [Pure m] {α : Type w}
     (a : α) : PostconditionT m α :=
   ⟨fun y => a = y, pure <| ⟨a, rfl⟩⟩
@@ -66,7 +72,7 @@ def PostconditionT.liftWithProperty {α : Type w} {m : Type w → Type w'} {P : 
   ⟨P, x⟩
 
 /--
-Given a function `f : α → β`, returns a a function `PostconditionT m α → PostconditionT m β`,
+Given a function `f : α → β`, returns a function `PostconditionT m α → PostconditionT m β`,
 turning `PostconditionT m` into a functor.
 
 The postcondition of the `x.map f` states that the return value is the image under `f` of some
@@ -79,10 +85,10 @@ protected def PostconditionT.map {m : Type w → Type w'} [Functor m] {α : Type
     (fun a => ⟨f a.val, _, rfl⟩) <$> x.operation⟩
 
 /--
-Given a function `α → PostconditionT m β`, returns a a function
+Given a function `α → PostconditionT m β`, returns a function
 `PostconditionT m α → PostconditionT m β`, turning `PostconditionT m` into a monad.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 protected def PostconditionT.bind {m : Type w → Type w'} [Monad m] {α : Type w} {β : Type w}
     (x : PostconditionT m α) (f : α → PostconditionT m β) : PostconditionT m β :=
   ⟨fun b => ∃ a, x.Property a ∧ (f a).Property b,
@@ -114,6 +120,11 @@ Converts an operation from `PostConditionT m` to `m`, discarding the postconditi
 def PostconditionT.run {m : Type w → Type w'} [Monad m] {α : Type w} (x : PostconditionT m α) :
     m α :=
   (fun a => a.val) <$> x.operation
+
+theorem PostconditionT.run_eq_map {m : Type w → Type w'} [Monad m] {α : Type w}
+    {x : PostconditionT m α} :
+    x.run = Subtype.val <$> x.operation :=
+  (rfl)
 
 instance {m : Type w → Type w'} [Functor m] : Functor (PostconditionT m) where
   map := PostconditionT.map
@@ -223,6 +234,43 @@ theorem PostconditionT.operation_map {m : Type w → Type w'} [Functor m] {α : 
   rfl
 
 @[simp]
+theorem PostconditionT.operation_bind {m : Type w → Type w'} [Monad m] {α : Type w} {β : Type w}
+    {x : PostconditionT m α} {f : α → PostconditionT m β} :
+    (x.bind f).operation = (do
+      let a ← x.operation
+      (fun fa => ⟨fa.1, by exact⟨a.1, a.2, fa.2⟩⟩) <$> (f a.1).operation) := by
+  rfl
+
+theorem PostconditionT.operation_bind' {m : Type w → Type w'} [Monad m] {α : Type w} {β : Type w}
+    {x : PostconditionT m α} {f : α → PostconditionT m β} :
+    (x >>= f).operation = (do
+      let a ← x.operation
+      (fun fa => ⟨fa.1, by exact⟨a.1, a.2, fa.2⟩⟩) <$> (f a.1).operation) := by
+  rfl
+
+theorem PostconditionT.operation_eq_map_mk_operation {m : Type w → Type w'}
+    [Monad m] [LawfulMonad m] {x : PostconditionT m α} :
+    x.operation = (fun a => ⟨a.val, a.property⟩) <$> x.operation := by
+  simp
+
+theorem PostconditionT.operation_bind_eq_operation_bind_mk {m : Type w → Type w'}
+    [Monad m] {x : PostconditionT m α} {f : Subtype x.Property → m β} :
+    x.operation >>= f = x.operation >>= (fun a => f ⟨a.val, a.property⟩) := by
+  rfl
+
+@[simp]
+theorem PostconditionT.run_bind {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    {α : Type w} {β : Type w} {x : PostconditionT m α} {f : α → PostconditionT m β} :
+    (x.bind f).run = x.run >>= (f · |>.run) := by
+  simp [run_eq_map]
+
+@[simp]
+theorem PostconditionT.run_bind' {m : Type w → Type w'} [Monad m] [LawfulMonad m]
+    {α : Type w} {β : Type w} {x : PostconditionT m α} {f : α → PostconditionT m β} :
+    (x >>= f).run = x.run >>= (f · |>.run) :=
+  run_bind
+
+@[simp]
 theorem PostconditionT.property_lift {m : Type w → Type w'} [Functor m] {α : Type w}
     {x : m α} : (lift x : PostconditionT m α).Property = (fun _ => True) := by
   rfl
@@ -232,5 +280,32 @@ theorem PostconditionT.operation_lift {m : Type w → Type w'} [Functor m] {α :
     {x : m α} : (lift x : PostconditionT m α).operation =
       (⟨·, property_lift (m := m) ▸ True.intro⟩) <$> x := by
   rfl
+
+@[simp]
+theorem PostconditionT.run_attachLift {m : Type w → Type w'} [Monad m] [MonadAttach m]
+    [WeaklyLawfulMonadAttach m] {α : Type w}
+    {x : m α} : (attachLift x).run = x := by
+  simp [attachLift, run_eq_map, WeaklyLawfulMonadAttach.map_attach]
+
+@[simp]
+theorem PostconditionT.operation_attachLift {m : Type w → Type w'} [Monad m] [MonadAttach m]
+    {α : Type w} {x : m α} : (attachLift x : PostconditionT m α).operation =
+      MonadAttach.attach x := by
+  rfl
+
+instance {m : Type w → Type w'} {n : Type w → Type w''} [MonadLift m n] :
+    MonadLift (PostconditionT m) (PostconditionT n) where
+  monadLift x := ⟨_, monadLift x.operation⟩
+
+instance PostconditionT.instLawfulMonadLift {m : Type w → Type w'} {n : Type w → Type w''}
+    [MonadLift m n] [Monad m] [Monad n] [LawfulMonad m] [LawfulMonad n] [LawfulMonadLift m n] :
+    LawfulMonadLift (PostconditionT m) (PostconditionT n) where
+  monadLift_pure a := by
+    simp [MonadLift.monadLift, monadLift, LawfulMonadLift.monadLift_pure, pure,
+      PostconditionT.pure]
+  monadLift_bind x f := by
+    simp only [MonadLift.monadLift, bind, monadLift, LawfulMonadLift.monadLift_bind,
+      PostconditionT.bind, mk.injEq, heq_eq_eq, true_and]
+    simp only [map_eq_pure_bind, LawfulMonadLift.monadLift_bind, LawfulMonadLift.monadLift_pure]
 
 end Std.Iterators

@@ -9,6 +9,7 @@ prelude
 public import Init.Data.BitVec.Basic
 import all Init.Data.BitVec.Basic
 import Init.Data.Int.Bitwise.Lemmas
+import Init.Ext
 
 public section
 

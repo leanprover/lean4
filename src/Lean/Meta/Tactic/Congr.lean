@@ -8,8 +8,6 @@ module
 prelude
 public import Lean.Meta.CongrTheorems
 public import Lean.Meta.Tactic.Assert
-public import Lean.Meta.Tactic.Apply
-public import Lean.Meta.Tactic.Clear
 public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.Assumption
 
@@ -107,7 +105,8 @@ def MVarId.congrN (mvarId : MVarId) (depth : Nat := 1000000) (closePre := true) 
   return s.toList
 where
   post (mvarId : MVarId) : StateRefT (Array MVarId) MetaM Unit := do
-    if closePost && (← getTransparency) != .reducible then
+    let mode ← getTransparency
+    if closePost && mode != .reducible && mode != .none then
       if let some mvarId ← mvarId.congrPre then
         modify (·.push mvarId)
     else

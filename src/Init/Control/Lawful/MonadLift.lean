@@ -9,5 +9,3 @@ prelude
 public import Init.Control.Lawful.MonadLift.Basic
 public import Init.Control.Lawful.MonadLift.Lemmas
 public import Init.Control.Lawful.MonadLift.Instances
-
-public section

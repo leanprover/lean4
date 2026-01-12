@@ -6,7 +6,6 @@ Authors: Paul-Nicolas Madelaine, Robert Y. Lewis, Mario Carneiro, Gabriel Ebner
 module
 
 prelude
-public import Lean.Meta.CongrTheorems
 public import Lean.Meta.Tactic.Simp.Attr
 public import Lean.Meta.CoeAttr
 
@@ -146,7 +145,7 @@ be used by `norm_cast`.
 -/
 def addInfer (decl : Name)
     (kind := AttributeKind.global) (prio := eval_prio default) : MetaM Unit := do
-  let ty := (← getConstInfo decl).type
+  let ty := (← getConstVal decl).type
   match ← classifyType ty with
   | Label.elim => addElim decl kind prio
   | Label.squash => addSquash decl kind prio

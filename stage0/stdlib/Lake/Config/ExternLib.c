@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.ExternLib
-// Imports: Lake.Config.ConfigTarget
+// Imports: public import Lake.Config.ConfigTarget
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -187,51 +187,6 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Package_externLibs(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_2 = lean_ctor_get(x_1, 10);
-lean_inc_ref(x_2);
-x_3 = lean_unsigned_to_nat(0u);
-x_4 = l_Lake_Package_externLibs___closed__0;
-x_5 = lean_array_get_size(x_2);
-x_6 = l_Lake_Package_externLibs___closed__10;
-x_7 = lean_nat_dec_lt(x_3, x_5);
-if (x_7 == 0)
-{
-lean_dec(x_5);
-lean_dec_ref(x_2);
-lean_dec_ref(x_1);
-return x_4;
-}
-else
-{
-uint8_t x_8; 
-x_8 = lean_nat_dec_le(x_5, x_5);
-if (x_8 == 0)
-{
-lean_dec(x_5);
-lean_dec_ref(x_2);
-lean_dec_ref(x_1);
-return x_4;
-}
-else
-{
-lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; lean_object* x_13; 
-x_9 = l_Lake_ExternLib_keyword;
-x_10 = lean_alloc_closure((void*)(l_Lake_Package_externLibs___lam__0___boxed), 4, 2);
-lean_closure_set(x_10, 0, x_9);
-lean_closure_set(x_10, 1, x_1);
-x_11 = 0;
-x_12 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
-x_13 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_10, x_2, x_11, x_12, x_4);
-return x_13;
-}
-}
-}
-}
 LEAN_EXPORT lean_object* l_Lake_Package_externLibs___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -240,6 +195,59 @@ x_5 = l_Lake_Package_externLibs___lam__0(x_1, x_2, x_3, x_4);
 lean_dec_ref(x_4);
 lean_dec(x_1);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Package_externLibs(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_2 = lean_ctor_get(x_1, 13);
+lean_inc_ref(x_2);
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = l_Lake_Package_externLibs___closed__0;
+x_5 = lean_array_get_size(x_2);
+x_6 = l_Lake_Package_externLibs___closed__10;
+x_7 = lean_nat_dec_lt(x_3, x_5);
+if (x_7 == 0)
+{
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
+return x_4;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_8 = l_Lake_ExternLib_keyword;
+x_9 = lean_alloc_closure((void*)(l_Lake_Package_externLibs___lam__0___boxed), 4, 2);
+lean_closure_set(x_9, 0, x_8);
+lean_closure_set(x_9, 1, x_1);
+x_10 = lean_nat_dec_le(x_5, x_5);
+if (x_10 == 0)
+{
+if (x_7 == 0)
+{
+lean_dec_ref(x_9);
+lean_dec_ref(x_2);
+return x_4;
+}
+else
+{
+size_t x_11; size_t x_12; lean_object* x_13; 
+x_11 = 0;
+x_12 = lean_usize_of_nat(x_5);
+x_13 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_9, x_2, x_11, x_12, x_4);
+return x_13;
+}
+}
+else
+{
+size_t x_14; size_t x_15; lean_object* x_16; 
+x_14 = 0;
+x_15 = lean_usize_of_nat(x_5);
+x_16 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_9, x_2, x_14, x_15, x_4);
+return x_16;
+}
+}
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Package_findExternLib_x3f(lean_object* x_1, lean_object* x_2) {
@@ -365,7 +373,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = lean_ctor_get(x_1, 0);
-x_3 = lean_ctor_get(x_2, 3);
+x_3 = lean_ctor_get(x_2, 6);
 x_4 = lean_ctor_get(x_3, 1);
 x_5 = lean_ctor_get(x_4, 8);
 lean_inc_ref(x_5);
@@ -401,13 +409,13 @@ x_4 = l_Lean_Name_str___override(x_2, x_3);
 return x_4;
 }
 }
-lean_object* initialize_Lake_Config_ConfigTarget(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Config_ConfigTarget(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Config_ExternLib(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Config_ExternLib(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Config_ConfigTarget(builtin, lean_io_mk_world());
+res = initialize_Lake_Config_ConfigTarget(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_Package_externLibs___closed__0 = _init_l_Lake_Package_externLibs___closed__0();

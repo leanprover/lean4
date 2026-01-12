@@ -7,12 +7,10 @@ module
 
 prelude
 public import Lean.KeyedDeclsAttribute
-public import Lean.PrettyPrinter.Delaborator.Options
-public import Lean.PrettyPrinter.Delaborator.SubExpr
 public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
 import Lean.Elab.InfoTree.Main
-meta import Init.Data.String.Basic
 meta import Init.Data.ToString.Name
+import Lean.ExtraModUses
 
 public section
 
@@ -120,6 +118,7 @@ unsafe builtin_initialize delabAttribute : KeyedDeclsAttribute Delab ←
       if (← Elab.getInfoState).enabled && kind.getRoot == `app then
         let c := kind.replacePrefix `app .anonymous
         if (← getEnv).contains c then
+          recordExtraModUseFromDecl (isMeta := false) c
           Elab.addConstInfo stx c none
       pure kind
   }
@@ -470,7 +469,9 @@ unsafe builtin_initialize appUnexpanderAttribute : KeyedDeclsAttribute Unexpande
     descr := "Register an unexpander for applications of a given constant.",
     valueTypeName := `Lean.PrettyPrinter.Unexpander
     evalKey := fun _ stx => do
-      Elab.realizeGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)
+      let id ← Elab.realizeGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)
+      recordExtraModUseFromDecl (isMeta := false) id
+      return id
   }
 
 end Delaborator

@@ -6,9 +6,7 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lake.Util.Name
 public import Lake.Config.FacetConfig
-import Lake.Build.Actions
 import Lake.Build.Common
 import Lake.Build.Targets
 import Lake.Build.Job.Register
@@ -134,7 +132,7 @@ public def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=
 /--
 Build extra target dependencies of the library (e.g., `extraDepTargets`, `needs`). -/
 private def LeanLib.recBuildExtraDepTargets (self : LeanLib) : FetchM (Job Unit) := do
-  let mut job := Job.nil s!"{self.pkg.name}/{self.name}:extraDep"
+  let mut job := Job.nil s!"{self.pkg.baseName}/{self.name}:extraDep"
   job := job.mix (← self.pkg.extraDep.fetch)
   for target in self.extraDepTargets do
     job := job.mix (← self.pkg.fetchTargetJob target)

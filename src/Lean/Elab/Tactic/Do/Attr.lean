@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Simp
-public import Std.Do.Triple.Basic
 public import Std.Tactic.Do.Syntax
 
 public section
@@ -194,7 +193,7 @@ def mkSpecTheoremFromStx (ref : Syntax) (proof : Expr) (prio : Nat := eval_prio 
   mkSpecTheorem type (.stx (← mkFreshId) ref proof) prio
 
 def addSpecTheoremEntry (d : SpecTheorems) (e : SpecTheorem) : SpecTheorems :=
-  { d with specs := d.specs.insertCore e.keys e }
+  { d with specs := d.specs.insertKeyValue e.keys e }
 
 def addSpecTheorem (ext : SpecExtension) (declName : Name) (prio : Nat) (attrKind : AttributeKind) : MetaM Unit := do
   let thm ← mkSpecTheoremFromConst declName prio
@@ -217,7 +216,7 @@ def mkSpecAttr (ext : SpecExtension) : AttributeImpl where
   add   := fun declName stx attrKind => do
     let go : MetaM Unit := do
       let info ← getAsyncConstInfo declName
-      let prio ← getAttrParamOptPrio stx[3]
+      let prio ← if stx.getKind = ``Lean.Parser.Attr.spec then getAttrParamOptPrio stx[3] else getAttrParamOptPrio stx[1]
       try
         addSpecTheorem ext declName prio attrKind
       catch _ =>

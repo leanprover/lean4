@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Match.MatchPatternAttr
 public import Lean.Meta.Hint
 public import Lean.Elab.Arg
 public import Lean.Elab.MatchAltView
@@ -68,35 +67,13 @@ private def throwCtorExpected {α} (ident : Option Syntax) : M α := do
 
   if candidates.size = 0 then
     throwError message
-  else if h : candidates.size = 1 then
-    throwError message ++ .hint' m!"`{candidates[0]}` is similar"
-  else
-    let sorted := candidates.qsort (·.toString < ·.toString)
-    let diff :=
-      if candidates.size > 10 then [m!" (or {candidates.size - 10} others)"]
-      else []
-    let suggestions : MessageData := .group <|
-      .joinSep ((sorted.extract 0 10 |>.toList |>.map (showName env)) ++ diff)
-        ("," ++ Format.line)
-    throwError message ++ .group (.hint' ("These are similar:" ++ .nestD (Format.line ++ suggestions)))
-where
-  -- Create some `MessageData` for a name that shows it without an `@`, but with the metadata that
-  -- makes infoview hovers and the like work. This technique only works because the names are known
-  -- to be global constants, so we don't need the local context.
-  showName (env : Environment) (n : Name) : MessageData :=
-    let params :=
-      env.constants.find?' n |>.map (·.levelParams.map Level.param) |>.getD []
-    .ofFormatWithInfos {
-      fmt := "'" ++ .tag 0 (format n) ++ "'",
-      infos :=
-        .ofList [(0, .ofTermInfo {
-          lctx := .empty,
-          expr := .const n params,
-          stx := .ident .none (toString n).toSubstring n [.decl n []],
-          elaborator := `Delab,
-          expectedType? := none
-        })] _
-    }
+  let oneOfThese := if h : candidates.size = 1 then m!"`{candidates[0]}`" else m!"one of these"
+  let hint ← m!"Using {oneOfThese} would be valid:".hint (ref? := idStx) (candidates.map fun candidate => {
+    suggestion := mkIdent candidate
+    toCodeActionTitle? := .some (s!"Change to {·}")
+    messageData? := .some m!"`{.ofConstName candidate}`",
+  })
+  throwError message ++ hint
 
 private def throwInvalidPattern {α} : M α :=
   throwError "Invalid pattern"
@@ -220,7 +197,7 @@ private def processVar (idStx : Syntax) : M Syntax := do
 private def samePatternsVariables (startingAt : Nat) (s₁ s₂ : State) : Bool := Id.run do
   if h₁ : s₁.vars.size = s₂.vars.size then
     for h₂ : i in startingAt...s₁.vars.size do
-      if s₁.vars[i] != s₂.vars[i]'(by have y := Std.PRange.lt_upper_of_mem h₂; simp_all +zetaDelta) then
+      if s₁.vars[i] != s₂.vars[i] then
         return false
     true
   else

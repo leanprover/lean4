@@ -7,15 +7,8 @@ Authors: David Thrane Christiansen
 module
 
 prelude
-import Lean.Environment
-import Lean.Exception
-import Lean.Log
 import Lean.Elab.DocString
-import Lean.DocString.Extension
-import Lean.DocString.Links
-import Lean.Parser.Types
-import Lean.DocString.Parser
-import Lean.ResolveName
+public import Lean.DocString.Parser
 public import Lean.Elab.Term.TermElabM
 import Std.Data.HashMap
 
@@ -45,7 +38,7 @@ def validateDocComment
   for (⟨start, stop⟩, err) in errs do
     -- Report errors at their actual location if possible
     if let some pos := pos? then
-      let urlStx : Syntax := .atom (.synthetic (pos + start) (pos + stop)) (str.extract start stop)
+      let urlStx : Syntax := .atom (.synthetic (start.offsetBy pos) (stop.offsetBy pos)) (String.Pos.Raw.extract str start stop)
       logErrorAt urlStx err
     else
       logError err
@@ -72,9 +65,9 @@ def parseVersoDocString
     | throwErrorAt docComment m!"Documentation comment has no source location, cannot parse"
 
   -- Skip trailing `-/`
-  let endPos := text.source.prev <| text.source.prev endPos
-  let endPos := if endPos ≤ text.source.endPos then endPos else text.source.endPos
-  have endPos_valid : endPos ≤ text.source.endPos := by
+  let endPos := String.Pos.Raw.prev text.source <| endPos.prev text.source
+  let endPos := if endPos ≤ text.source.rawEndPos then endPos else text.source.rawEndPos
+  have endPos_valid : endPos ≤ text.source.rawEndPos := by
     unfold endPos
     split <;> simp [*]
 
@@ -159,7 +152,7 @@ def versoDocStringFromString
   }
   let s := mkParserState docComment
   -- TODO parse one block at a time for error recovery purposes
-  let s := (Doc.Parser.document).run ictx pmctx (getTokenTable env) s
+  let s := Doc.Parser.document.run ictx pmctx (getTokenTable env) s
 
   if !s.allErrors.isEmpty then
     for (pos, _, err) in s.allErrors do
@@ -206,10 +199,12 @@ Adds an elaborated Verso docstring to the environment.
 -/
 def addVersoDocStringCore [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] [MonadError m]
     (declName : Name) (docs : VersoDocString) : m Unit := do
-  let throwImported {α} : m α :=
-    throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
+  -- The decl name can be anonymous due to attempts to elaborate incomplete syntax. If the name is
+  -- anonymous, the `MapDeclarationExtension.insert` panics due to not being on the right async
+  -- branch. Better to just do nothing.
+  if declName.isAnonymous then return
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
-    throwImported
+    throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
   modifyEnv fun env =>
     versoDocStringExt.insert env declName docs
 

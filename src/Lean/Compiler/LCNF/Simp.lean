@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Compiler.LCNF.ReduceJpArity
-public import Lean.Compiler.LCNF.Renaming
 public import Lean.Compiler.LCNF.Simp.Basic
 public import Lean.Compiler.LCNF.Simp.FunDeclInfo
 public import Lean.Compiler.LCNF.Simp.JpCases

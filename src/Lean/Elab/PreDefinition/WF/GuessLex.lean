@@ -9,17 +9,15 @@ prelude
 public import Lean.Util.HasConstCache
 public import Lean.Meta.Match.MatcherApp.Transform
 public import Lean.Meta.Tactic.Cleanup
-public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.TryThis
 public import Lean.Meta.ArgsPacker
-public import Lean.Elab.RecAppSyntax
-public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.Mutual
 public import Lean.Elab.PreDefinition.Structural.Basic
 public import Lean.Elab.PreDefinition.TerminationMeasure
 public import Lean.Elab.PreDefinition.FixedParams
 public import Lean.Elab.PreDefinition.WF.Basic
 public import Lean.Data.Array
+import Lean.Meta.Tactic.Refl
 
 public section
 
@@ -29,7 +27,7 @@ This module finds lexicographic termination measures for well-founded recursion.
 
 Starting with basic measures (`sizeOf xᵢ` for all parameters `xᵢ`), and complex measures
 (e.g. `e₂ - e₁` if `e₁ < e₂` is found in the context of a recursive call) it tries all combinations
-until it finds one where all proof obligations go through with the given tactic (`decerasing_by`),
+until it finds one where all proof obligations go through with the given tactic (`decreasing_by`),
 if given, or the default `decreasing_tactic`.
 
 For mutual recursion, a single measure is not just one parameter, but one from each recursive
@@ -809,7 +807,7 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
   let recCalls := filterSubsumed recCalls
 
   -- For every function, the measures we want to use
-  -- (One for each non-forbiddend arg)
+  -- (One for each non-forbidden arg)
   let basicMeasures₁ ← simpleMeasures preDefs fixedParamPerms userVarNamess
   let basicMeasures₂ ← complexMeasures preDefs fixedParamPerms userVarNamess recCalls
   let basicMeasures := Array.zipWith (· ++ ·) basicMeasures₁ basicMeasures₂

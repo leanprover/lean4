@@ -6,8 +6,6 @@ Authors: Mario Carneiro
 module
 
 prelude
-public import Init.Tactics
-public import Init.Conv
 public import Init.NotationExtra
 
 public section

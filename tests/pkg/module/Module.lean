@@ -5,7 +5,9 @@ import Module.ImportedAll
 import Module.ImportedPrivateImported
 import Module.PrivateImported
 import Module.ImportedAllPrivateImported
+import Module.ImportedAllImportedAll
 import Module.NonModule
+import Module.MetaImported
 
 /-! # Module system basic tests -/
 

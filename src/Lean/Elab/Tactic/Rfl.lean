@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Rfl
-public import Lean.Elab.Tactic.Basic
 
 public section
 

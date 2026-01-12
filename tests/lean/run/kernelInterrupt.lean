@@ -13,7 +13,7 @@ open Lean
   let envPromise ← IO.Promise.new
   let tk ← IO.CancelToken.new
   let t := Task.spawn fun _ =>
-    let env := envPromise.result.get
+    let env := envPromise.result!.get
     let decl := .axiomDecl {
       name := `test
       levelParams := []

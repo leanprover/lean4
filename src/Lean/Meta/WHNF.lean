@@ -11,7 +11,6 @@ public import Lean.Util.Recognizers
 public import Lean.Util.SafeExponentiation
 public import Lean.Meta.GetUnfoldableConst
 public import Lean.Meta.FunInfo
-public import Lean.Meta.Offset
 public import Lean.Meta.CtorRecognizer
 public import Lean.Meta.Match.MatcherInfo
 public import Lean.Meta.Match.MatchPatternAttr
@@ -26,7 +25,7 @@ def toCtorIfLit : Expr → MetaM Expr
     if v == 0 then return mkConst ``Nat.zero
     else return mkApp (mkConst ``Nat.succ) (mkRawNatLit (v-1))
   | .lit (.strVal v) =>
-    Lean.Meta.whnf (mkApp (mkConst ``String.mk) (toExpr v.toList))
+    Lean.Meta.whnf (mkApp (mkConst ``String.ofList) (toExpr v.toList))
   | e => return e
 
 end Lean.Expr
@@ -78,7 +77,7 @@ def smartUnfoldingMatchAlt? (e : Expr) : Option Expr :=
 
 def isAuxDef (constName : Name) : MetaM Bool := do
   let env ← getEnv
-  return isAuxRecursor env constName || isNoConfusion env constName
+  return isAuxRecursor env constName
 
 /--
 Retrieves `ConstInfo` for `declName`.
@@ -646,7 +645,7 @@ partial def consumeUnusedLet (e : Expr) (consumeNondep : Bool := false) : Expr :
 
 /--
 Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
-expand let-expressions, expand assigned meta-variables.
+expand let-expressions, expand assigned meta-variables, unfold aux declarations.
 -/
 partial def whnfCore (e : Expr) : MetaM Expr :=
   go e
@@ -702,6 +701,7 @@ where
                 deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
               else
                 return e
+            | .axiomInfo val => recordUnfoldAxiom val.name; return e
             | _ => return e
       | .proj _ i c =>
         let k (c : Expr) := do
@@ -824,6 +824,8 @@ mutual
               recordUnfold fInfo.name
               deltaBetaDefinition fInfo fLvls e.getAppRevArgs (fun _ => pure none) (fun e => pure (some e))
             else
+              if fInfo.isAxiom then
+                recordUnfoldAxiom fInfo.name
               return none
           if smartUnfolding.get (← getOptions) then
             match ((← getEnv).find? (skipRealize := true) (mkSmartUnfoldingNameFor fInfo.name)) with
@@ -893,7 +895,10 @@ mutual
       if smartUnfolding.get (← getOptions) && (← getEnv).contains (mkSmartUnfoldingNameFor declName) then
         return none
       else
-        unless cinfo.hasValue do return none
+        unless cinfo.hasValue do
+          if cinfo.isAxiom then
+            recordUnfoldAxiom cinfo.name
+          return none
         deltaDefinition cinfo lvls
           (fun _ => pure none)
           (fun e => do recordUnfold declName; pure (some e))

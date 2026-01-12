@@ -8,7 +8,6 @@ module
 
 prelude
 public import Lean.Data.JsonRpc
-public import Lean.Data.Lsp.TextSync
 public import Lean.Data.Lsp.LanguageFeatures
 public import Lean.Data.Lsp.CodeActions
 public import Lean.Data.Lsp.Extra
@@ -111,6 +110,7 @@ structure ServerCapabilities where
   codeActionProvider?       : Option CodeActionOptions       := none
   inlayHintProvider?        : Option InlayHintOptions        := none
   signatureHelpProvider?    : Option SignatureHelpOptions    := none
+  colorProvider?            : Option DocumentColorOptions    := none
   experimental?             : Option LeanServerCapabilities  := none
   deriving ToJson, FromJson
 

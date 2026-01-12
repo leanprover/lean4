@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Core
 public import Init.Grind.AC
 public import Init.Data.Ord
 public section

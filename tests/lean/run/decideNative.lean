@@ -126,5 +126,7 @@ instance : Decidable ItsTrue2 :=
   panic! "oh no"
 
 -- Note: this test fails within VS Code
-/-- info: output: PANIC at instDecidableItsTrue2 decideNative:126:2: oh no -/
+/--
+info: output: PANIC at instDecidableItsTrue2 lean.run.decideNative:126:2: oh no
+-/
 #guard_msgs in example : ItsTrue2 := by collect_stdout native_decide

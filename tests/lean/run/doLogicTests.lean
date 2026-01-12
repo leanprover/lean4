@@ -4,10 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 
-import Std.Tactic.Do
-import Std.Tactic.Do.Syntax
 import Std
 import Lean.Elab.Tactic.Do.VCGen
+import Lean
 
 open Std.Do
 
@@ -235,7 +234,7 @@ theorem fib_triple : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n�
   if h : n = 0 then simp [h] else
   simp only [h, reduceIte]
   mspec -- Spec.pure
-  mspec Spec.forIn_range (⇓ ⟨xs, a, b⟩ => ⌜a = fib_spec xs.prefix.length ∧ b = fib_spec (xs.prefix.length + 1)⌝) ?step
+  mspec Spec.forIn_range (⇓ ⟨xs, a, b⟩ => ⌜a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)⌝) ?step
   case step => intros; mintro _; simp_all
   simp_all [Nat.sub_one_add_one]
 
@@ -246,7 +245,7 @@ theorem fib_triple_cases : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_sp
   mintro -
   simp only [fib_impl, h, reduceIte]
   mspec
-  mspec Spec.forIn_range (⇓ ⟨xs, a, b⟩ => ⌜a = fib_spec xs.prefix.length ∧ b = fib_spec (xs.prefix.length + 1)⌝) ?step
+  mspec Spec.forIn_range (⇓ ⟨xs, a, b⟩ => ⌜a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)⌝) ?step
   case step => intros; mintro _; mspec; mspec; simp_all
   simp_all [Nat.sub_one_add_one]
 
@@ -279,7 +278,7 @@ theorem fib_impl_vcs
 
 theorem fib_triple_vcs : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n⌝⦄ := by
   apply fib_impl_vcs
-  case I => intro n hn; exact (⇓ ⟨xs, a, b⟩ => ⌜a = fib_spec xs.prefix.length ∧ b = fib_spec (xs.prefix.length + 1)⌝)
+  case I => intro n hn; exact (⇓ ⟨xs, a, b⟩ => ⌜a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)⌝)
   case ret => mpure_intro; rfl
   case loop_pre => intros; mpure_intro; trivial
   case loop_post => simp_all [Nat.sub_one_add_one]
@@ -291,6 +290,24 @@ theorem fib_correct {n} : (fib_impl n).run = fib_spec n := by
   apply fib_triple
 
 end fib
+
+section regressions
+
+def mySum (l : Array Nat) : Nat := Id.run do
+  let mut out := 0
+  for i in l do
+    out := out + i
+  return out
+
+theorem mySum_correct (l : Array Nat) : mySum l = l.sum := by
+  generalize h : mySum l = x
+  apply Id.of_wp_run_eq h
+  -- This tests that `mspec` properly replaces the main goal.
+  -- Previously, we would get `No goals to be solved` here.
+  mspec
+  all_goals admit
+
+end regressions
 
 section WeNeedAProofMode
 
@@ -347,14 +364,14 @@ theorem fib_triple : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n�
   unfold fib_impl
   mvcgen
   case inv1 => exact ⇓ (xs, ⟨a, b⟩) =>
-    ⌜a = fib_spec xs.prefix.length ∧ b = fib_spec (xs.prefix.length + 1)⌝
+    ⌜a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)⌝
   all_goals simp_all +zetaDelta [Nat.sub_one_add_one]
 
 theorem fib_triple_step : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n⌝⦄ := by
   unfold fib_impl
   mvcgen (stepLimit := some 14) -- 13 still has a wp⟦·⟧
   case inv1 => exact ⇓ ⟨xs, a, b⟩ =>
-    ⌜a = fib_spec xs.prefix.length ∧ b = fib_spec (xs.prefix.length + 1)⌝
+    ⌜a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)⌝
   all_goals simp_all +zetaDelta [Nat.sub_one_add_one]
 
 attribute [local spec] fib_triple in
@@ -411,6 +428,8 @@ theorem add_unfold [Monad m] [WPMonad m sh] :
 
 theorem mkFreshPair_triple : ⦃⌜True⌝⦄ mkFreshPair ⦃⇓ (a, b) => ⌜a ≠ b⌝⦄ := by
   mvcgen -elimLets +trivial [mkFreshPair]
+  -- this tests whether `mSpec` immediately discharges by `rfl` and `And.intro` and in the process
+  -- eagerly instantiates some schematic variables.
   simp_all
 
 theorem sum_loop_spec :
@@ -467,11 +486,11 @@ theorem test_match_splitting {m : Option Nat} (h : m = some 4) :
 
 theorem test_sum :
   ⦃⌜True⌝⦄
-  do
+  (do
     let mut x := 0
     for i in [1:5] do
       x := x + i
-    pure (f := Id) x
+    pure x : Id _)
   ⦃⇓r => ⌜r < 30⌝⦄ := by
   mvcgen
   case inv1 => exact (⇓ (xs, r) => ⌜r + xs.suffix.length * 5 ≤ 25⌝)
@@ -656,7 +675,7 @@ def max_and_sum (xs : Array Nat) : Id (Nat × Nat) := do
 theorem max_and_sum_spec (xs : Array Nat) :
     ⦃⌜∀ i, (h : i < xs.size) → xs[i] ≥ 0⌝⦄ max_and_sum xs ⦃⇓ (m, s) => ⌜s ≤ m * xs.size⌝⦄ := by
   mvcgen [max_and_sum]
-  case inv1 => exact (⇓ ⟨xs, m, s⟩ => ⌜s ≤ m * xs.prefix.length⌝)
+  case inv1 => exact (⇓ ⟨xs, m, s⟩ => ⌜s ≤ m * xs.pos⌝)
   all_goals simp_all
   · rw [Nat.left_distrib]
     simp +zetaDelta only [Nat.mul_one, Nat.add_le_add_iff_right]
@@ -774,6 +793,23 @@ theorem mem_mergeWithAll [LawfulEqCmp cmp] {m₁ m₂ : ExtTreeMap α β cmp} {f
 
 end KimsUnivPolyUseCase
 
+namespace Slices
+
+def subarraySum (xs : Subarray Nat) : Nat := Id.run do
+  let mut sum := 0
+  for x in xs do
+    sum := sum + x
+  return sum
+
+theorem subarraySum_correct {xs : Subarray Nat} : subarraySum xs = xs.toList.sum := by
+  generalize h : subarraySum xs = r
+  apply Id.of_wp_run_eq h
+  mvcgen
+  case inv1 => exact ⇓⟨cursor, prefixSum⟩ => ⌜prefixSum = cursor.prefix.sum⌝
+  all_goals simp_all
+
+end Slices
+
 namespace PatricksFastExp
 
 def naive_expo (x n : Nat) : Nat := Id.run do
@@ -797,20 +833,18 @@ def fast_expo (x n : Nat) : Nat := Id.run do
 
   return y
 
-open Std.Do
-
 theorem naive_expo_correct (x n : Nat) : naive_expo x n = x^n := by
   generalize h : naive_expo x n = r
   apply Id.of_wp_run_eq h
   mvcgen
-  case inv1 => exact ⇓⟨xs, r⟩ => ⌜r = x^xs.prefix.length⌝
+  case inv1 => exact ⇓⟨xs, r⟩ => ⌜r = x^xs.pos⌝
   all_goals simp_all [Nat.pow_add_one]
 
 theorem fast_expo_correct (x n : Nat) : fast_expo x n = x^n := by
   generalize h : fast_expo x n = r
   apply Id.of_wp_run_eq h
   mvcgen
-  case inv1 => exact ⇓⟨xs, e, x', y⟩ => ⌜x' ^ e * y = x ^ n ∧ e ≤ n - xs.prefix.length⌝
+  case inv1 => exact ⇓⟨xs, e, x', y⟩ => ⌜x' ^ e * y = x ^ n ∧ e ≤ n - xs.pos⌝
   all_goals simp_all
   case vc1 b _ _ _ _ _ _ ih =>
     obtain ⟨e, y, x'⟩ := b
@@ -873,4 +907,62 @@ example  : (hp : ∀m, m = 42 → q → p) → (hinv : ∀ (inv : Nat → Prop),
   -- exact hp ?n ?prf2
   case prf2 => rfl
   case inv => exact fun _ => True
-  case prf1 => trivial
+  case prf1 => grind
+
+variable {m} [Monad m]
+open Std Std.Iterators
+
+-- TODO: enable after stage0 update, such that MPL priorities work
+-- theorem forIn_eq_sum (xs : Array Nat) {m ps} [Monad m] [WPMonad m ps] :
+--     Triple (m := m) (do
+--       let mut sum : Nat := 0
+--       for n in xs.iter do
+--         sum := sum + n
+--       return sum) ⌜True⌝ (⇓r => ⌜r = xs.sum⌝) := by
+--   mvcgen
+--   case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum⌝
+--   all_goals grind
+
+-- TODO: enable after stage0 update, such that MPL priorities work
+-- theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [LawfulMonad m]
+--     [WPMonad m ps] :
+--     Triple (m := m) (do
+--       let mut sum : Nat := 0
+--       for n in (xs.iterM Id).map (· + 1) do
+--         sum := sum + n
+--       return sum) ⌜True⌝ (⇓r => ⌜r = xs.sum + xs.size⌝) := by
+--   mvcgen
+--   case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum + cur.prefix.length⌝
+--   all_goals grind
+
+theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [MonadAttach m]
+    [LawfulMonad m] [WeaklyLawfulMonadAttach m] [WPMonad m ps] :
+    Triple (m := m) (do
+      let mut sum : Nat := 0
+      for n in (xs.iterM Id).mapM (pure (f := m) <| · + 1) do
+        sum := sum + n
+      return sum) ⌜True⌝ (⇓r => ⌜r = xs.sum + xs.size⌝) := by
+  mvcgen
+  case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum + cur.prefix.length⌝
+  all_goals grind
+
+theorem forIn_filterMapM_eq_sum_add_size (xs : Array Nat) {m ps}
+    [Monad m] [LawfulMonad m] [MonadAttach m] [WeaklyLawfulMonadAttach m] [WPMonad m ps] :
+    Triple (m := m) (do
+      let mut sum : Nat := 0
+      for n in (xs.iterM Id).filterMapM (pure (f := m) <| some <| · + 1) do
+        sum := sum + n
+      return sum) ⌜True⌝ (⇓r => ⌜r = xs.sum + xs.size⌝) := by
+  mvcgen
+  case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum + cur.prefix.length⌝
+  all_goals grind
+
+theorem foldM_eq_sum (xs : Array Nat) {m ps} [Monad m] [LawfulMonad m]
+    [WPMonad m ps] :
+    Triple (m := m)
+      (xs.iter.foldM (m := m) (init := 0) (pure <| · + ·))
+      ⌜True⌝
+      (⇓r => ⌜r = xs.sum⌝) := by
+  mvcgen
+  case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum⌝
+  all_goals grind

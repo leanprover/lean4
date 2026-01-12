@@ -6,8 +6,6 @@ Authors: Mario Carneiro
 module
 
 prelude
-import Lean.Elab.InfoTree.Main
-import Lean.DocString.Extension
 import Lean.DocString.Add
 
 namespace Lean
@@ -29,7 +27,8 @@ public builtin_initialize
       | `(attr| inherit_doc $[$id?:ident]?) => withRef stx[0] do
         let some id := id?
           | throwError "Invalid `[inherit_doc]` attribute: Could not infer doc source"
-        let declName ← Elab.realizeGlobalConstNoOverloadWithInfo id
+        -- allow inheriting private docstrings
+        let declName ← withoutExporting <| Elab.realizeGlobalConstNoOverloadWithInfo id
         if (← findSimpleDocString? (← getEnv) decl (includeBuiltin := false)).isSome then
           logWarning m!"{← mkConstWithLevelParams decl} already has a doc string"
         -- Outside the server, we do not have access to all docstrings

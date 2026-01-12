@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Log
 public import Lean.Parser.Level
-public import Lean.Elab.Exception
 public import Lean.Elab.AutoBound
 
 public section

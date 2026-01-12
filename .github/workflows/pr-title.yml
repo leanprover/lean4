@@ -10,11 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check PR title
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const msg = context.payload.pull_request? context.payload.pull_request.title : context.payload.merge_group.head_commit.message;
             console.log(`Message: ${msg}`)
-            if (!/^(feat|fix|doc|style|refactor|test|chore|perf): .*[^.]($|\n\n)/.test(msg)) {
+            if (!/^(feat|fix|doc|style|refactor|test|chore|perf): (?![A-Z][a-z]).*[^.]($|\n\n)/.test(msg)) {
               core.setFailed('PR title does not follow the Commit Convention (https://leanprover.github.io/lean4/doc/dev/commit_convention.html).');
             }

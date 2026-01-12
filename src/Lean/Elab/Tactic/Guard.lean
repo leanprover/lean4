@@ -9,8 +9,6 @@ prelude
 public import Init.Guard
 public import Lean.Elab.Command
 public import Lean.Elab.Tactic.Conv.Basic
-public import Lean.Meta.Basic
-public import Lean.Meta.Eval
 
 public section
 
@@ -69,6 +67,7 @@ def MatchKind.toStringDescr : MatchKind → String
   | .defEq .all => s!"definitionally equal (unfolding all constants) to"
   | .defEq .reducible => s!"definitionally equal (unfolding reducible constants) to"
   | .defEq .instances => s!"definitionally equal (unfolding instances) to"
+  | .defEq .none => s!"definitionally equal (not unfolding any constants) to"
   | .alphaEq => "alpha-equivalent to"
 
 /-- Elaborate `a` and `b` and then do the given equality test `mk`. We make sure to unify
@@ -160,7 +159,7 @@ def evalGuardCmd : Lean.Elab.Command.CommandElab
     let e ← instantiateMVars e
     let mvars ← getMVars e
     if mvars.isEmpty then
-      let v ← unsafe evalExpr Bool (mkConst ``Bool) e
+      let v ← unsafe evalExpr (checkMeta := false) Bool (mkConst ``Bool) e
       unless v do
         throwError "Expression{indentExpr e}\ndid not evaluate to `true`"
     else

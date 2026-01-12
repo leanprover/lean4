@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.ScopedEnvExtension
 public import Lean.Util.Recognizers
 public import Lean.Util.CollectMVars
 public import Lean.Meta.Basic

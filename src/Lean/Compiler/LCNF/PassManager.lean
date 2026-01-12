@@ -6,9 +6,6 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Lean.Attributes
-public import Lean.Environment
-public import Lean.Meta.Basic
 public import Lean.Compiler.LCNF.CompilerM
 
 public section

@@ -6,13 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Message
 public import Lean.InternalExceptionId
-public import Lean.Data.Options
-public import Lean.Util.MonadCache
 -- This import is necessary to ensure that any users of the `throwNamedError` macros have access to
 -- all declared explanations:
-public import Lean.ErrorExplanations
+public import Lean.ErrorExplanation
 
 public section
 
@@ -108,17 +105,8 @@ function directly.
 protected def «throwNamedErrorAt» [Monad m] [MonadError m] (ref : Syntax) (name : Name) (msg : MessageData) : m α :=
   withRef ref <| Lean.throwNamedError name msg
 
-/--
-Creates a `MessageData` that is tagged with `unknownIdentifierMessageTag`.
-This tag is used by the 'import unknown identifier' code action to detect messages that should
-prompt the code action.
-The end position of the range of an unknown identifier message should always point at the end of the
-unknown identifier.
-
-If `declHint` is specified, a corresponding hint is added to the message in case the name refers to
-a private declaration that is not accessible in the current context.
--/
-def mkUnknownIdentifierMessage [Monad m] [MonadEnv m] [MonadError m] (msg : MessageData)
+/-- Like `mkUnknownIdentifierMessage`, but does not tag the message. -/
+def mkUnknownIdentifierMessageCore [Monad m] [MonadEnv m] [MonadError m] (msg : MessageData)
     (declHint := Name.anonymous) : m MessageData := do
   let mut msg := msg
   let env ← getEnv
@@ -134,6 +122,21 @@ def mkUnknownIdentifierMessage [Monad m] [MonadEnv m] [MonadError m] (msg : Mess
           msg ++ .note m!"A private declaration `{c}` (from `{mod}`) exists but would need to be public to access here."
         else
           msg ++ .note m!"A public declaration `{c}` exists but is imported privately; consider adding `public import {mod}`."
+  return msg
+
+/--
+Creates a `MessageData` that is tagged with `unknownIdentifierMessageTag`.
+This tag is used by the 'import unknown identifier' code action to detect messages that should
+prompt the code action.
+The end position of the range of an unknown identifier message should always point at the end of the
+unknown identifier.
+
+If `declHint` is specified, a corresponding hint is added to the message in case the name refers to
+a private declaration that is not accessible in the current context.
+-/
+def mkUnknownIdentifierMessage [Monad m] [MonadEnv m] [MonadError m] (msg : MessageData)
+    (declHint := Name.anonymous) : m MessageData := do
+  let msg ← mkUnknownIdentifierMessageCore msg declHint
   return MessageData.tagged unknownIdentifierMessageTag msg
 
 /--
@@ -229,7 +232,10 @@ but it is also produced by `MacroM` which implemented in the prelude, and intern
 been defined yet.
 -/
 def Exception.isMaxRecDepth (ex : Exception) : Bool :=
-  ex matches error _ (.tagged `runtime.maxRecDepth _)
+  if let Exception.error _ msg := ex then
+    msg.stripNestedTags.kind == `runtime.maxRecDepth
+  else
+    false
 
 /--
 Increment the current recursion depth and then execute `x`.

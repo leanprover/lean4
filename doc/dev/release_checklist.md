@@ -69,6 +69,10 @@ We'll use `v4.6.0` as the intended release version as a running example.
     - `repl`:
       There are two copies of `lean-toolchain`/`lakefile.lean`:
       in the root, and in `test/Mathlib/`. Edit both, and run `lake update` in both directories.
+    - `lean-fro.org`:
+      After updating the toolchains and running `lake update`, you must run `scripts/update.sh` to regenerate
+      the site content. This script updates generated files that depend on the Lean version.
+      The `release_steps.py` script handles this automatically.
 - An awkward situation that sometimes occurs (e.g. with Verso) is that the `master`/`main` branch has already been moved
   to a nightly toolchain that comes *after* the stable toolchain we are
   targeting. In this case it is necessary to create a branch `releases/v4.6.0` from the last commit which was on

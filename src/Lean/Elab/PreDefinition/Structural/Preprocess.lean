@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Transform
 public import Lean.Elab.RecAppSyntax
 public import Lean.Meta.WHNF
 
@@ -44,8 +43,8 @@ Preprocesses the expressions to improve the effectiveness of `elimRecursion`.
   (typically abstracted) proofs.
 
 -/
-def preprocess (e : Expr) (recFnNames : Array Name) : CoreM Expr := do
-  let e ← unfoldIfArgIsConstOf recFnNames e
+def preprocess (e : Expr) (recFnNames : Array Name) (numFixedParams : Nat) : CoreM Expr := do
+  let e ← unfoldIfArgIsAppOf recFnNames numFixedParams e
   Core.transform e
     (pre := fun e =>
       if shouldBetaReduce e recFnNames then

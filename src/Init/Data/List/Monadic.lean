@@ -6,11 +6,9 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.TakeDrop
 public import Init.Data.List.Attach
 public import Init.Data.List.OfFn
 public import Init.Data.Array.Bootstrap
-public import Init.Data.List.Control
 import all Init.Data.List.Control
 
 public section
@@ -73,10 +71,6 @@ theorem mapM'_eq_mapM [Monad m] [LawfulMonad m] {f : α → m β} {l : List α} 
   induction l <;> simp_all
 
 @[simp, grind =] theorem idRun_mapM {l : List α} {f : α → Id β} : (l.mapM f).run = l.map (f · |>.run) :=
-  mapM_pure
-
-@[deprecated idRun_mapM (since := "2025-05-21")]
-theorem mapM_id {l : List α} {f : α → Id β} : (l.mapM f).run = l.map (f · |>.run) :=
   mapM_pure
 
 @[simp, grind =] theorem mapM_map [Monad m] [LawfulMonad m] {f : α → β} {g : β → m γ} {l : List α} :
@@ -390,13 +384,6 @@ theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m]
       l.attach.foldl (fun b ⟨a, h⟩ => f a h b |>.run) init :=
   forIn'_pure_yield_eq_foldl _ _
 
-@[deprecated idRun_forIn'_yield_eq_foldl (since := "2025-05-21")]
-theorem forIn'_yield_eq_foldl
-    {l : List α} (f : (a : α) → a ∈ l → β → β) (init : β) :
-    forIn' (m := Id) l init (fun a m b => .yield (f a m b)) =
-      l.attach.foldl (fun b ⟨a, h⟩ => f a h b) init :=
-  forIn'_pure_yield_eq_foldl _ _
-
 @[simp, grind =] theorem forIn'_map [Monad m] [LawfulMonad m]
     {l : List α} (g : α → β) (f : (b : β) → b ∈ l.map g → γ → m (ForInStep γ)) :
     forIn' (l.map g) init f = forIn' l init fun a h y => f (g a) (mem_map_of_mem h) y := by
@@ -449,13 +436,6 @@ theorem forIn_eq_foldlM [Monad m] [LawfulMonad m]
       l.foldl (fun b a => f a b |>.run) init :=
   forIn_pure_yield_eq_foldl _ _
 
-@[deprecated idRun_forIn_yield_eq_foldl (since := "2025-05-21")]
-theorem forIn_yield_eq_foldl
-    {l : List α} (f : α → β → β) (init : β) :
-    forIn (m := Id) l init (fun a b => .yield (f a b)) =
-      l.foldl (fun b a => f a b) init :=
-  forIn_pure_yield_eq_foldl _ _
-
 @[simp, grind =] theorem forIn_map [Monad m] [LawfulMonad m]
     {l : List α} {g : α → β} {f : β → γ → m (ForInStep γ)} :
     forIn (l.map g) init f = forIn l init fun a y => f (g a) y := by
@@ -481,9 +461,37 @@ theorem allM_eq_not_anyM_not [Monad m] [LawfulMonad m] {p : α → m Bool} {as :
     simp only [anyM, ih, pure_bind]
     split <;> simp_all
 
+@[simp] theorem anyM_nil [Monad m] {p : α → m Bool} :
+    ([] : List α).anyM p = pure false :=
+  (rfl)
+
+@[simp] theorem anyM_cons [Monad m] {p : α → m Bool} {x : α} {xs : List α} :
+    (x :: xs).anyM p = (do
+      if (← p x) then
+        return true
+      else
+        xs.anyM p) := by
+  rw [anyM]
+  apply bind_congr; intro px
+  split <;> simp
+
 @[simp] theorem allM_pure [Monad m] [LawfulMonad m] {p : α → Bool} {as : List α} :
     as.allM (m := m) (pure <| p ·) = pure (as.all p) := by
   simp [allM_eq_not_anyM_not, all_eq_not_any_not]
+
+@[simp] theorem allM_nil [Monad m] {p : α → m Bool} :
+    ([] : List α).allM p = pure true :=
+  (rfl)
+
+@[simp] theorem allM_cons [Monad m] {p : α → m Bool} {x : α} {xs : List α} :
+    (x :: xs).allM p = (do
+      if (← p x) then
+        xs.allM p
+      else
+        return false) := by
+  rw [allM]
+  apply bind_congr; intro px
+  split <;> simp
 
 /-! ### Recognizing higher order functions using a function that only depends on the value. -/
 

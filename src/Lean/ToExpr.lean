@@ -4,16 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
-public import Lean.Expr
 public import Lean.ToLevel
-public import Init.Data.BitVec.Basic
-public import Init.Data.SInt.Basic
-
+public import Init.Data.Rat.Basic
 public section
 universe u
-
 namespace Lean
 
 /--
@@ -53,6 +48,26 @@ where
     let r := mkRawNatLit n
     mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Int []) r
         (.app (.const ``instOfNat []) r)
+
+instance : ToExpr Rat where
+  toTypeExpr := .const ``Rat []
+  toExpr i   := if i.den == 1 then
+    mkInt i.num
+  else
+    mkApp6 (.const ``HDiv.hDiv [0, 0, 0]) (.const ``Rat []) (.const ``Rat []) (.const ``Rat [])
+      (mkApp2 (.const ``instHDiv [0]) (.const ``Rat []) (.const ``Rat.instDiv []))
+      (mkInt i.num) (mkInt i.den)
+where
+  mkInt (i : Int) : Expr :=
+    if 0 ≤ i then
+      mkNat i.toNat
+    else
+      mkApp3 (.const ``Neg.neg [0]) (.const ``Rat []) (.const ``Rat.instNeg [])
+        (mkNat (-i).toNat)
+  mkNat (n : Nat) : Expr :=
+    let r := mkRawNatLit n
+    mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Rat []) r
+        (.app (.const ``Rat.instOfNat []) r)
 
 instance : ToExpr (Fin n) where
   toTypeExpr := .app (mkConst ``Fin) (toExpr n)

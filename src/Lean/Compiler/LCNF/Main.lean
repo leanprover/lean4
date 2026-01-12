@@ -4,26 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Compiler.Options
-public import Lean.Compiler.ExternAttr
 public import Lean.Compiler.IR
-public import Lean.Compiler.IR.Basic
-public import Lean.Compiler.IR.Checker
-public import Lean.Compiler.IR.ToIR
-public import Lean.Compiler.LCNF.PassManager
 public import Lean.Compiler.LCNF.Passes
-public import Lean.Compiler.LCNF.PrettyPrinter
 public import Lean.Compiler.LCNF.ToDecl
 public import Lean.Compiler.LCNF.Check
-public import Lean.Compiler.LCNF.PullLetDecls
-public import Lean.Compiler.LCNF.PhaseExt
-public import Lean.Compiler.LCNF.CSE
-public import Lean.Compiler.LCNF.Visibility
-
+import Lean.Meta.Match.MatcherInfo
 public section
-
 namespace Lean.Compiler.LCNF
 /--
 We do not generate code for `declName` if
@@ -46,7 +34,7 @@ def shouldGenerateCode (declName : Name) : CoreM Bool := do
   if hasMacroInlineAttribute env declName then return false
   if (getImplementedBy? env declName).isSome then return false
   if (← Meta.isMatcher declName) then return false
-  if isCasesOnRecursor env declName then return false
+  if isCasesOnLike env declName then return false
   -- TODO: check if type class instance
   return true
 where
@@ -109,10 +97,6 @@ def run (declNames : Array Name) : CompilerM (Array IR.Decl) := withAtLeastMaxRe
         if !(isValidMainType info.type) then
           throwError "`main` function must have type `(List String →)? IO (UInt32 | Unit | PUnit)`"
   let decls ← declNames.mapM toDecl
-  -- Check meta accesses now before optimizations may obscure references. This check should stay in
-  -- `lean` if some compilation is moved out.
-  for decl in decls do
-    checkMeta (isMeta (← getEnv) decl.name) decl
   let decls := markRecDecls decls
   let manager ← getPassManager
   let isCheckEnabled := compiler.check.get (← getOptions)
@@ -147,10 +131,12 @@ def showDecl (phase : Phase) (declName : Name) : CoreM Format := do
   let some decl ← getDeclAt? declName phase | return "<not-available>"
   ppDecl' decl
 
-@[export lean_lcnf_compile_decls]
 def main (declNames : Array Name) : CoreM Unit := do
   withTraceNode `Compiler (fun _ => return m!"compiling: {declNames}") do
     CompilerM.run <| discard <| PassManager.run declNames
+
+builtin_initialize
+  compileDeclsRef.set main
 
 builtin_initialize
   registerTraceClass `Compiler.init (inherited := true)

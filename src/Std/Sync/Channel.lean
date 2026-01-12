@@ -6,12 +6,15 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Init.System.Promise
 public import Init.Data.Queue
 public import Std.Sync.Mutex
-public import Std.Internal.Async.Select
+public import Std.Internal.Async.IO
+import Init.Data.Vector.Basic
 
 public section
+
+open Std.Internal.Async.IO
+open Std.Internal.IO.Async
 
 /-!
 This module contains the implementation of `Std.Channel`. `Std.Channel` is a multi-producer
@@ -24,7 +27,6 @@ for cleaner code.
 -/
 
 namespace Std
-
 namespace CloseableChannel
 
 /--
@@ -732,7 +734,7 @@ def recv (ch : CloseableChannel α) : BaseIO (Task (Option α)) :=
 
 open Internal.IO.Async in
 /--
-Creates a `Selector` that resolves once `ch` has data available and provides that that data.
+Creates a `Selector` that resolves once `ch` has data available and provides that data.
 In particular if `ch` is closed while waiting on this `Selector` and no data is available already
 this will resolve to `none`.
 -/
@@ -752,6 +754,17 @@ partial def forAsync (f : α → BaseIO Unit) (ch : CloseableChannel α)
   BaseIO.bindTask (prio := prio) (← ch.recv) fun
     | none => return .pure ()
     | some v => do f v; ch.forAsync f prio
+
+instance [Inhabited α] : AsyncStream (CloseableChannel α) (Option α) where
+  next channel := channel.recvSelector
+
+instance [Inhabited α] : AsyncRead (CloseableChannel α) (Option α) where
+  read receiver := Internal.IO.Async.Async.ofIOTask receiver.recv
+
+instance [Inhabited α] : AsyncWrite (CloseableChannel α) α where
+  write receiver x := do
+    let task ← receiver.send x
+    Async.ofAsyncTask <| task.map (Except.mapError (IO.userError ∘ toString))
 
 /--
 This function is a no-op and just a convenient way to expose the synchronous API of the channel.
@@ -800,11 +813,10 @@ private partial def forIn [Monad m] [MonadLiftT BaseIO m]
   | none => pure b
 
 /-- `for msg in ch.sync do ...` receives all messages in the channel until it is closed. -/
-instance [MonadLiftT BaseIO m] : ForIn m (Sync α) α where
+instance [Monad m] [MonadLiftT BaseIO m] : ForIn m (Sync α) α where
   forIn ch b f := private ch.forIn f b
 
 end Sync
-
 end CloseableChannel
 
 /--
@@ -893,6 +905,17 @@ partial def forAsync [Inhabited α] (f : α → BaseIO Unit) (ch : Channel α)
     (prio : Task.Priority := .default) : BaseIO (Task Unit) := do
   BaseIO.bindTask (prio := prio) (← ch.recv) fun v => do f v; ch.forAsync f prio
 
+instance [Inhabited α] : AsyncStream (Channel α) α where
+  next channel := channel.recvSelector
+
+instance [Inhabited α] : AsyncRead (Channel α) α where
+  read receiver := Internal.IO.Async.Async.ofIOTask receiver.recv
+
+instance [Inhabited α] : AsyncWrite (Channel α) α where
+  write receiver x := do
+    let task ← receiver.send x
+    Async.ofTask task
+
 @[inherit_doc CloseableChannel.sync, inline]
 def sync (ch : Channel α) : Channel.Sync α := ch
 
@@ -927,7 +950,7 @@ private partial def forIn [Inhabited α] [Monad m] [MonadLiftT BaseIO m]
   | .yield b => ch.forIn f b
 
 /-- `for msg in ch.sync do ...` receives all messages in the channel until it is closed. -/
-instance [Inhabited α] [MonadLiftT BaseIO m] : ForIn m (Sync α) α where
+instance [Inhabited α] [Monad m] [MonadLiftT BaseIO m] : ForIn m (Sync α) α where
   forIn ch b f := private ch.forIn f b
 
 end Sync

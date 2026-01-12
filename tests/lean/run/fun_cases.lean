@@ -12,7 +12,7 @@ example (x : Option Nat) (f : Nat → Nat) : (x.map f).isSome = x.isSome := by
 
 /--
 info: List.map.fun_cases.{u_1} {α : Type u_1} (motive : List α → Prop) (case1 : motive [])
-  (case2 : ∀ (head : α) (as : List α), motive (head :: as)) (x✝ : List α) : motive x✝
+  (case2 : ∀ (head : α) (tail : List α), motive (head :: tail)) (x✝ : List α) : motive x✝
 -/
 #guard_msgs in
 #check List.map.fun_cases

@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.InternalExceptionId
 public import Lean.Exception
 
 public section
@@ -64,7 +63,12 @@ def isAbortTacticException (ex : Exception) : Bool :=
 def isAbortExceptionId (id : InternalExceptionId) : Bool :=
   id == abortCommandExceptionId || id == abortTermExceptionId || id == abortTacticExceptionId
 
-def mkMessageCore (fileName : String) (fileMap : FileMap) (data : MessageData) (severity : MessageSeverity) (pos : String.Pos) (endPos : String.Pos) : Message :=
+def isAbortException (ex : Exception) : Bool :=
+  match ex with
+  | Exception.internal id .. => isAbortExceptionId id
+  | _ => false
+
+def mkMessageCore (fileName : String) (fileMap : FileMap) (data : MessageData) (severity : MessageSeverity) (pos : String.Pos.Raw) (endPos : String.Pos.Raw) : Message :=
   let pos := fileMap.toPosition pos
   let endPos := fileMap.toPosition endPos
   { fileName, pos, endPos, data, severity }

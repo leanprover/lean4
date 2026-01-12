@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.AddDecl
-public import Lean.Meta.Basic
 public import Lean.DefEqAttrib
 
 public section
@@ -40,7 +39,7 @@ builtin_initialize auxLemmasExt : EnvExtension AuxLemmas ←
   users. For example, `simp` preprocessor may convert a lemma into multiple ones.
 -/
 def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) (kind? : Option Name := none)
-    (cache := true) (inferRfl := false) : MetaM Name := do
+    (cache := true) (inferRfl := false) (forceExpose := false) : MetaM Name := do
   let env ← getEnv
   let s := auxLemmasExt.getState env
   let key := { type, isPrivate := !env.isExporting }
@@ -60,7 +59,7 @@ def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) (kind? : O
           name := auxName
           levelParams, type, value
         }
-    addDecl decl
+    addDecl (forceExpose := forceExpose) decl
     if inferRfl then
       inferDefEqAttr auxName
     modifyEnv fun env => auxLemmasExt.modifyState env fun ⟨lemmas⟩ => ⟨lemmas.insert key (auxName, levelParams)⟩

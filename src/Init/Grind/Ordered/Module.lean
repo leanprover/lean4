@@ -6,7 +6,6 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Int.Order
 public import Init.Grind.Module.Basic
 public import Init.Grind.Ordered.Order
 
@@ -72,6 +71,9 @@ theorem add_lt_left_iff {a b : M} (c : M) : a < b ↔ a + c < b + c := by
 
 theorem add_lt_right_iff {a b : M} (c : M) : a < b ↔ c + a < c + b := by
   rw [add_comm c a, add_comm c b, add_lt_left_iff]
+
+theorem add_lt_add {a b c d : M} (hab : a < b) (hcd : c < d) : a + c < b + d :=
+  Preorder.lt_trans (add_lt_right a hcd) (add_lt_left hab d)
 
 end
 

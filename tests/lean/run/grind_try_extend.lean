@@ -13,7 +13,7 @@ meta def evalTryApply : TryTactic := fun tac => do
 
 /--
 info: Try this:
-  · trace "worked"; assumption
+  [apply] · trace "worked"; assumption
 -/
 #guard_msgs (info) in
 example (h : False) : False := by
@@ -24,12 +24,12 @@ example (h : False) : False := by
 elab stx:"my_try?" : tactic => do
   -- Things to try
   let toTry ← `(tactic| attempt_all | assumption | apply True | rfl)
-  evalAndSuggest stx toTry
+  evalAndSuggest stx toTry (originalMaxHeartbeats := 10^8)
 
 /--
 info: Try these:
-  • · trace "worked"; assumption
-  • rfl
+  [apply] · trace "worked"; assumption
+  [apply] rfl
 -/
 #guard_msgs (info) in
 example (a : Nat) (h : a = a) : a = a := by

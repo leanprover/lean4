@@ -9,7 +9,6 @@ prelude
 public import Std.Time
 public import Std.Internal.UV.UDP
 public import Std.Internal.Async.Select
-public import Std.Net.Addr
 
 public section
 
@@ -62,12 +61,20 @@ def connect (s : Socket) (addr : SocketAddress) : IO Unit :=
   s.native.connect addr
 
 /--
+Sends multiple data buffers through an UDP socket. The `addr` parameter specifies the destination
+address. If `addr` is `none`, the data is sent to the default peer address set by `connect`.
+-/
+@[inline]
+def sendAll (s : Socket) (data : Array ByteArray) (addr : Option SocketAddress := none) : Async Unit :=
+  Async.ofPromise <| s.native.send data addr
+
+/--
 Sends data through an UDP socket. The `addr` parameter specifies the destination address. If `addr`
 is `none`, the data is sent to the default peer address set by `connect`.
 -/
 @[inline]
 def send (s : Socket) (data : ByteArray) (addr : Option SocketAddress := none) : Async Unit :=
-  Async.ofPromise <| s.native.send data addr
+  Async.ofPromise <| s.native.send #[data] addr
 
 /--
 Receives data from an UDP socket. `size` is for the maximum bytes to receive.
@@ -84,20 +91,24 @@ def recv (s : Socket) (size : UInt64) : Async (ByteArray × Option SocketAddress
 Creates a `Selector` that resolves once `s` has data available, up to at most `size` bytes,
 and provides that data. If the socket has not been previously bound with `bind`, it is
 automatically bound to `0.0.0.0` (all interfaces) with a random port.
-Calling this function starts the data wait, so it must not be called in parallel with `recv`.
+Calling this function does starts the data wait, only when it's used with `Selectable.one` or `combine`.
+It must not be called in parallel with `recv`.
 -/
-def recvSelector (s : Socket) (size : UInt64) :
-    Async (Selector (ByteArray × Option SocketAddress)) := do
-  let readableWaiter ← s.native.waitReadable
-  return {
+def recvSelector (s : Socket) (size : UInt64) : Selector (ByteArray × Option SocketAddress) :=
+ {
     tryFn := do
+      let readableWaiter ← s.native.waitReadable
+
       if ← readableWaiter.isResolved then
         -- We know that this read should not block
         let res ← (s.recv size).block
         return some res
       else
+        s.native.cancelRecv
         return none
     registerFn waiter := do
+      let readableWaiter ← s.native.waitReadable
+
       -- If we get cancelled the promise will be dropped so prepare for that
       discard <| IO.mapTask (t := readableWaiter.result?) fun res => do
         match res with
@@ -113,6 +124,7 @@ def recvSelector (s : Socket) (size : UInt64) :
             catch e =>
               promise.resolve (.error e)
           waiter.race lose win
+
     unregisterFn := s.native.cancelRecv
   }
 

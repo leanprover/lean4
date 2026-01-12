@@ -7,7 +7,7 @@ Authors: David Thrane Christiansen
 module
 prelude
 public import Lean.PrettyPrinter.Formatter
-import Lean.DocString.Syntax
+import Lean.DocString.Parser
 
 
 namespace Lean.Doc.Parser
@@ -154,8 +154,10 @@ partial def versoSyntaxToString' (stx : Syntax) : ReaderT Nat (StateM String) Un
       out "\n"
       let i ← read
       let s := Syntax.decodeStrLit (atomString s) |>.getD ""
-        |>.split (· == '\n')
-        |>.map ("".pushn ' ' i ++ · ) |> "\n".intercalate
+        |>.split '\n'
+        |>.map (fun (s : String.Slice) => "".pushn ' ' i ++ s)
+        |>.toList
+        |> "\n".intercalate
       out s
       out <| "".pushn ' ' i
       out <| atomString tk2
@@ -204,7 +206,7 @@ def formatMetadata : Formatter := do
     pushLine
     visitAtom .anonymous
     pushLine
-    metadataContents.formatter
+    Parser.metadataContents.formatter
     pushLine
     visitAtom .anonymous
 

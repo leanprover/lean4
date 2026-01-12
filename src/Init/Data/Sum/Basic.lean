@@ -13,7 +13,7 @@ public section
 /-!
 # Disjoint union of types
 
-This file defines basic operations on the the sum type `α ⊕ β`.
+This file defines basic operations on the sum type `α ⊕ β`.
 
 `α ⊕ β` is the type made of a copy of `α` and a copy of `β`. It is also called *disjoint union*.
 

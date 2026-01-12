@@ -1,0 +1,17 @@
+{"item":
+ {"module":
+  {"uri": "file:///moduleHierarchyImports.lean",
+   "name": "«external:file:///moduleHierarchyImports.lean»"},
+  "kind": {"metaKind": "full", "isPrivate": false, "isAll": false}},
+ "children":
+ [{"item":
+   {"module":
+    {"uri": "file:///src/Lean/Server/Test/Refs.lean",
+     "name": "Lean.Server.Test.Refs"},
+    "kind": {"metaKind": "nonMeta", "isPrivate": false, "isAll": false}},
+   "children":
+   [{"item":
+     {"module":
+      {"uri": "file:///src/Init/Prelude.lean", "name": "Init.Prelude"},
+      "kind": {"metaKind": "nonMeta", "isPrivate": true, "isAll": false}},
+     "children": []}]}]}

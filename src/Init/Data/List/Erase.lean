@@ -7,7 +7,6 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-public import Init.Data.List.Pairwise
 public import Init.Data.List.Find
 
 public section
@@ -45,7 +44,7 @@ theorem eraseP_of_forall_not {l : List α} (h : ∀ a, a ∈ l → ¬p a) : l.er
   induction xs with
   | nil => simp
   | cons x xs ih =>
-    simp only [eraseP_cons, cond_eq_if]
+    simp only [eraseP_cons, cond_eq_ite]
     split <;> rename_i h
     · simp only [reduceCtorEq, cons.injEq, false_or]
       constructor
@@ -292,9 +291,11 @@ theorem eraseP_comm {l : List α} (h : ∀ a ∈ l, ¬ p a ∨ ¬ q a) :
       · simp [h₁, h₂]
       · simp [h₁, h₂, ih (fun b m => h b (mem_cons_of_mem _ m))]
 
+@[grind ←]
 theorem head_eraseP_mem {xs : List α} {p : α → Bool} (h) : (xs.eraseP p).head h ∈ xs :=
   eraseP_sublist.head_mem h
 
+@[grind ←]
 theorem getLast_eraseP_mem {xs : List α} {p : α → Bool} (h) : (xs.eraseP p).getLast h ∈ xs :=
   eraseP_sublist.getLast_mem h
 

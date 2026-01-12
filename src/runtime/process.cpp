@@ -235,7 +235,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         char *new_envp = new_env.get();
 
         if (env.size()) {
-            std::unordered_map<std::string, std::string> new_env_vars; // C++17 gives us no-copy std::string_view for this, much better!
+            lean::unordered_map<std::string, std::string> new_env_vars; // C++17 gives us no-copy std::string_view for this, much better!
             for (auto & entry : env) {
                 new_env_vars[entry.fst().data()] = entry.snd() ? entry.snd().get()->data() : std::string{};
             }

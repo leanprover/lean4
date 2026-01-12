@@ -434,7 +434,7 @@ protected theorem isSome_minOn?_of_mem
   apply List.isSome_minOn?_of_ne_nil
   exact ne_nil_of_mem h
 
-protected theorem List.apply_minOn?_get_le_of_mem
+protected theorem apply_minOn?_get_le_of_mem
     [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β} {xs : List α} {x : α} (h : x ∈ xs) :
     f ((xs.minOn? f).get (List.isSome_minOn?_of_mem h)) ≤ f x := by
   rw [List.minOn?_get_eq_minOn (ne_nil_of_mem h)]
@@ -464,7 +464,7 @@ protected theorem minOn?_replicate_of_pos [LE β] [DecidableLE β] [IsLinearPreo
   simp [List.minOn?_replicate, show n ≠ 0 from Nat.ne_zero_of_lt h]
 
 @[grind =]
-protected theorem List.minOn?_append [LE β] [DecidableLE β] [IsLinearPreorder β]
+protected theorem minOn?_append [LE β] [DecidableLE β] [IsLinearPreorder β]
     (xs ys : List α) (f : α → β) :
     (xs ++ ys).minOn? f =
       (xs.minOn? f).merge (_root_.minOn f) (ys.minOn? f) := by
@@ -581,7 +581,7 @@ protected theorem maxOn?_replicate_of_pos [LE β] [DecidableLE β] [IsLinearPreo
   List.minOn?_replicate_of_pos (f := f) h
 
 @[grind =]
-protected theorem List.maxOn?_append [LE β] [DecidableLE β] [IsLinearPreorder β]
+protected theorem maxOn?_append [LE β] [DecidableLE β] [IsLinearPreorder β]
     (xs ys : List α) (f : α → β) : (xs ++ ys).maxOn? f =
       (xs.maxOn? f).merge (_root_.maxOn f) (ys.maxOn? f) :=
   letI : LE β := (inferInstanceAs (LE β)).opposite

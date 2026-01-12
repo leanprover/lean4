@@ -26,7 +26,7 @@ public def minOn [LE β] [DecidableLE β] (f : α → β) (x y : α) :=
 /--
 Returns either `x` or `y`, the one with the greater value under `f`.
 
-If `f x ≤ f y`, it returns `x`, and otherwise returns `y`.
+If `f y ≤ f x`, it returns `x`, and otherwise returns `y`.
 -/
 public def maxOn [i : LE β] [DecidableLE β] (f : α → β) (x y : α) :=
   letI := i.opposite

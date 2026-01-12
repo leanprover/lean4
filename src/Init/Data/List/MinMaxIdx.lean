@@ -431,7 +431,7 @@ protected theorem maxIdxOn_singleton [LE β] [DecidableLE β] {x : α} {f : α �
   letI : LE β := (inferInstanceAs (LE β)).opposite
   List.minIdxOn_singleton
 
-@[grind ←]
+@[simp, grind ←]
 protected theorem maxIdxOn_lt_length [LE β] [DecidableLE β] {f : α → β} {xs : List α}
     (h : xs ≠ []) : xs.maxIdxOn f h < xs.length :=
   letI : LE β := (inferInstanceAs (LE β)).opposite

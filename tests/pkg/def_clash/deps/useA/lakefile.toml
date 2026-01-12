@@ -1,0 +1,8 @@
+name = "useA"
+
+[[lean_lib]]
+name = "UseA"
+
+[[require]]
+name = "fooA"
+path = "../fooA"

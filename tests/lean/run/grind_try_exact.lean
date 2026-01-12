@@ -7,7 +7,7 @@ theorem Pall : Q x → P x := sorry
 
 /--
 info: Try this:
-  exact Pall h
+  [apply] exact Pall h
 -/
 #guard_msgs (info) in
 example (h : Q x) (_ : x > 0) : P x := by
@@ -15,7 +15,7 @@ example (h : Q x) (_ : x > 0) : P x := by
 
 /--
 info: Try this:
-  · intros; expose_names; exact Pall h
+  [apply] · intros; expose_names; exact Pall h
 -/
 #guard_msgs (info) in
 example: Q x → True → P x := by
@@ -23,7 +23,7 @@ example: Q x → True → P x := by
 
 /--
 info: Try this:
-  · intros; expose_names; exact Pall h_1
+  [apply] · intros; expose_names; exact Pall h_1
 -/
 #guard_msgs (info) in
 example: True → Q x → True → P x := by
@@ -43,7 +43,7 @@ example : Q x := by
 
 /--
 info: Try this:
-  · expose_names; exact Pall h
+  [apply] · expose_names; exact Pall h
 -/
 #guard_msgs (info) in
 example (_ : Q x) (_ : x > 0) : P x := by

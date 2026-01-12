@@ -6,7 +6,6 @@ Authors: E.W.Ayers
 module
 
 prelude
-public import Lean.Meta.Basic
 public import Lean.SubExpr
 
 public section

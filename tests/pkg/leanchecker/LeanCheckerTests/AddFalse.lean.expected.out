@@ -1,0 +1,5 @@
+leanchecker found a problem in LeanCheckerTests.AddFalse
+uncaught exception: (kernel) declaration type mismatch, 'false' has type
+  Prop
+but it is expected to have type
+  False

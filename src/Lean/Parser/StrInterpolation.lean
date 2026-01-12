@@ -16,7 +16,7 @@ def isQuotableCharForStrInterpolant (c : Char) : Bool :=
 
 partial def interpolatedStrFn (p : ParserFn) : ParserFn := fun c s =>
   let stackSize := s.stackSize
-  let rec parse (startPos : String.Pos) (c : ParserContext) (s : ParserState) : ParserState :=
+  let rec parse (startPos : String.Pos.Raw) (c : ParserContext) (s : ParserState) : ParserState :=
     let i := s.pos
     if c.atEnd i then
       let s := s.mkError "unterminated string literal"

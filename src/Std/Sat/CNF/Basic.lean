@@ -6,8 +6,6 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.List.Lemmas
-public import Init.Data.List.Impl
 public import Std.Sat.CNF.Literal
 
 @[expose] public section

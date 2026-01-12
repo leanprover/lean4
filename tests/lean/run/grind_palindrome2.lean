@@ -13,12 +13,9 @@ where
     else
       true
 
--- This works nicely, but there is some human assistance here:
--- on the right hand side of the `suffices` we've asserted it's enough to check up to `j < xs.size / 2`
--- while the "natural" statement would be all the way to `j < xs.size - i`.
 theorem checkPalin1_correct : checkPalin1 xs = true ↔ IsPalindrome xs := by
   unfold checkPalin1
-  suffices ∀ i, checkPalin1.go xs i = true ↔ ∀ j, i ≤ j → (_ : j < xs.size / 2) → xs[j] = xs[xs.size - 1 - j] by
+  suffices ∀ i, checkPalin1.go xs i = true ↔ ∀ j, i ≤ j → (_ : j < xs.size - i) → xs[j] = xs[xs.size - 1 - j] by
     grind [IsPalindrome]
   intro i
   fun_induction checkPalin1.go with grind

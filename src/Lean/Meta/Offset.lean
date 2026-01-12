@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Control.Option
 public import Lean.Data.LBool
 public import Lean.Meta.Basic
 import Lean.Meta.NatInstTesters
@@ -20,6 +19,7 @@ private abbrev withInstantiatedMVars (e : Expr) (k : Expr → OptionT MetaM α) 
   else
     k eNew
 
+open Structural in -- TODO FIX
 /--
   Evaluate simple `Nat` expressions.
   Remark: this method assumes the given expression has type `Nat`. -/

@@ -1,5 +1,6 @@
 module
 meta import Lean.Meta.Tactic.Grind
+#exit -- TODO: reenable after we add support for running code in interactive mode
 
 def f (α : Type) [Add α] (a : α) := a + a + a
 

@@ -6,7 +6,6 @@ Authors: Jeremy Avigad, Leonardo de Moura, Mario Carneiro, Markus Himmel
 module
 
 prelude
-public import Init.Data.Nat.Gcd
 public import Init.Data.Nat.Lemmas
 
 public section

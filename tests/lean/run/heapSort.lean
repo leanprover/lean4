@@ -84,7 +84,7 @@ def singleton (lt) (x : α) : BinaryHeap α lt := ⟨#[x]⟩
 def size {lt} (self : BinaryHeap α lt) : Nat := self.1.size
 
 /-- `O(1)`. Get an element in the heap by index. -/
-def get {lt} (self : BinaryHeap α lt) (i : Fin self.size) : α := self.1.get i i.2
+def get {lt} (self : BinaryHeap α lt) (i : Fin self.size) : α := self.1[i]'i.2
 
 /-- `O(log n)`. Insert an element into a `BinaryHeap`, preserving the max-heap property. -/
 def insert {lt} (self : BinaryHeap α lt) (x : α) : BinaryHeap α lt where
@@ -96,7 +96,7 @@ def insert {lt} (self : BinaryHeap α lt) (x : α) : BinaryHeap α lt where
   simp [insert, size, size_heapifyUp]
 
 /-- `O(1)`. Get the maximum element in a `BinaryHeap`. -/
-def max {lt} (self : BinaryHeap α lt) : Option α := self.1.get? 0
+def max {lt} (self : BinaryHeap α lt) : Option α := self.1[0]?
 
 /-- Auxiliary for `popMax`. -/
 def popMaxAux {lt} (self : BinaryHeap α lt) : {a' : BinaryHeap α lt // a'.size = self.size - 1} :=
@@ -124,7 +124,7 @@ def extractMax {lt} (self : BinaryHeap α lt) : Option α × BinaryHeap α lt :=
   (self.max, self.popMax)
 
 theorem size_pos_of_max {lt} {self : BinaryHeap α lt} (e : self.max = some x) : 0 < self.size :=
-  Decidable.of_not_not fun h: ¬ 0 < self.1.size => by simp [BinaryHeap.max, Array.get?, h] at e
+  Decidable.of_not_not fun h: ¬ 0 < self.1.size => by simp [BinaryHeap.max, h] at e
 
 /-- `O(log n)`. Equivalent to `extractMax (self.insert x)`, except that extraction cannot fail. -/
 def insertExtractMax {lt} (self : BinaryHeap α lt) (x : α) : α × BinaryHeap α lt :=

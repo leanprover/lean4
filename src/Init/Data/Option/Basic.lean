@@ -15,7 +15,40 @@ public section
 
 namespace Option
 
-deriving instance DecidableEq for Option
+instance instDecidableEq {α} [inst : DecidableEq α] : DecidableEq (Option α) := fun a b =>
+  /-
+  Structured for compatibility with the decidable-equality-with-none instances.
+  -/
+  match a with
+  | none => match b with
+    | none => .isTrue rfl
+    | some _ => .isFalse (fun h => Option.noConfusion rfl (heq_of_eq h))
+  | some a => match b with
+    | none => .isFalse (fun h => Option.noConfusion rfl (heq_of_eq h))
+    | some b => match inst a b with
+      | .isTrue h => .isTrue (h ▸ rfl)
+      | .isFalse n => .isFalse (fun h => Option.noConfusion rfl (heq_of_eq h) (fun h' => absurd (eq_of_heq h') n))
+
+/--
+Equality with `none` is decidable even if the wrapped type does not have decidable equality.
+-/
+instance decidableEqNone (o : Option α) : Decidable (o = none) :=
+  /- We use a `match` instead of transferring from `isNone_iff_eq_none` for
+    compatibility with the `DecidableEq` instance. -/
+  match o with
+  | none => .isTrue rfl
+  | some _ => .isFalse (fun h => Option.noConfusion rfl (heq_of_eq h))
+
+/--
+Equality with `none` is decidable even if the wrapped type does not have decidable equality.
+-/
+instance decidableNoneEq (o : Option α) : Decidable (none = o) :=
+  /- We use a `match` instead of transferring from `isNone_iff_eq_none` for
+    compatibility with the `DecidableEq` instance. -/
+  match o with
+  | none => .isTrue rfl
+  | some _ => .isFalse (fun h => Option.noConfusion rfl (heq_of_eq h))
+
 deriving instance BEq for Option
 
 @[simp, grind =] theorem getD_none : getD none a = a := rfl
@@ -91,11 +124,6 @@ Examples:
 
 @[simp, grind =] theorem bind_none (f : α → Option β) : none.bind f = none := rfl
 @[simp, grind =] theorem bind_some (a) (f : α → Option β) : (some a).bind f = f a := rfl
-
-@[deprecated bind_none (since := "2025-05-03")]
-abbrev none_bind := @bind_none
-@[deprecated bind_some (since := "2025-05-03")]
-abbrev some_bind := @bind_some
 
 /--
 Runs the monadic action `f` on `o`'s value, if any, and returns the result, or  `none` if there is
@@ -390,27 +418,6 @@ Examples:
   | none => List.toArray .nil
   | some a => List.toArray (.cons a .nil)
 
-/--
-Applies a function to a two optional values if both are present. Otherwise, if one value is present,
-it is returned and the function is not used.
-
-The value is `some (f a b)` if the inputs are `some a` and `some b`. Otherwise, the behavior is
-equivalent to `Option.orElse`. If only one input is `some x`, then the value is `some x`. If both
-are `none`, then the value is `none`.
-
-Examples:
- * `Option.liftOrGet (· + ·) none (some 3) = some 3`
- * `Option.liftOrGet (· + ·) (some 2) (some 3) = some 5`
- * `Option.liftOrGet (· + ·) (some 2) none = some 2`
- * `Option.liftOrGet (· + ·) none none = none`
--/
-@[deprecated merge (since := "2025-04-04")]
-def liftOrGet (f : α → α → α) : Option α → Option α → Option α
-  | none, none => none
-  | some a, none => some a
-  | none, some b => some b
-  | some a, some b => some (f a b)
-
 /-- Lifts a relation `α → β → Prop` to a relation `Option α → Option β → Prop` by just adding
 `none ~ none`. -/
 inductive Rel (r : α → β → Prop) : Option α → Option β → Prop
@@ -526,13 +533,6 @@ instance [Min α] : Min (Option α) where min := Option.min
 @[simp, grind =] theorem min_none_right [Min α] {o : Option α} : min o none = none := by
   cases o <;> rfl
 
-@[deprecated min_none_right (since := "2025-05-12")]
-theorem min_some_none [Min α] {a : α} : min (some a) none = none := rfl
-@[deprecated min_none_left (since := "2025-05-12")]
-theorem min_none_some [Min α] {b : α} : min none (some b) = none := rfl
-@[deprecated min_none_left (since := "2025-05-12")]
-theorem min_none_none [Min α] : min (none : Option α) none = none := rfl
-
 /--
 The maximum of two optional values.
 
@@ -558,14 +558,6 @@ instance [Max α] : Max (Option α) where max := Option.max
   cases o <;> rfl
 @[simp, grind =] theorem max_none_right [Max α] {o : Option α} : max o none = o := by
   cases o <;> rfl
-
-@[deprecated max_none_right (since := "2025-05-12")]
-theorem max_some_none [Max α] {a : α} : max (some a) none = some a := rfl
-@[deprecated max_none_left (since := "2025-05-12")]
-theorem max_none_some [Max α] {b : α} : max none (some b) = some b := rfl
-@[deprecated max_none_left (since := "2025-05-12")]
-theorem max_none_none [Max α] : max (none : Option α) none = none := rfl
-
 
 end Option
 

@@ -10,6 +10,8 @@ public import Std.Do.SPred.Notation
 
 @[expose] public section
 
+set_option linter.missingDocs true
+
 namespace Std.Do.SPred
 
 /-!
@@ -27,7 +29,7 @@ variable {σs : List (Type u)}
 
 /-! # Entailment -/
 
-@[refl, simp]
+@[refl, simp, grind ←]
 theorem entails.refl (P : SPred σs) : P ⊢ₛ P := by
   induction σs with
   | nil => simp [entails]
@@ -88,21 +90,6 @@ theorem pure_elim' {φ : Prop} {P : SPred σs} : (φ → ⌜True⌝ ⊢ₛ P) �
 -- Ideally, we'd like to prove the following theorem:
 -- theorem pure_elim' {φ : Prop} : SPred.entails (σs:=σs) ⌜True⌝ ⌜φ⌝ → φ
 -- Unfortunately, this is only true if all `σs` are Inhabited.
-
-theorem and_pure {P Q : Prop} : ⌜P⌝ ∧ ⌜Q⌝ ⊣⊢ₛ (⌜P ∧ Q⌝ : SPred σs) := by
-  induction σs
-  case nil => rfl
-  case cons σ σs ih => intro s; simp only [and_cons]; exact ih
-
-theorem or_pure {P Q : Prop} : ⌜P⌝ ∨ ⌜Q⌝ ⊣⊢ₛ (⌜P ∨ Q⌝ : SPred σs) := by
-  induction σs
-  case nil => rfl
-  case cons σ σs ih => intro s; simp only [or_cons]; exact ih
-
-theorem imp_pure {P Q : Prop} : (⌜P⌝ → ⌜Q⌝) ⊣⊢ₛ (⌜P → Q⌝ : SPred σs) := by
-  induction σs
-  case nil => rfl
-  case cons σ σs ih => intro s; simp only [imp_cons]; exact ih
 
 /-! # Conjunction -/
 

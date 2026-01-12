@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.Tactic.ElabTerm
 
 public section

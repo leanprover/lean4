@@ -7,9 +7,6 @@ module
 
 prelude
 public import Init.Data.List.Nat.TakeDrop
-public import Init.Data.List.Range
-public import Init.Data.List.Pairwise
-public import Init.Data.List.Find
 public import Init.Data.List.Erase
 
 public section
@@ -103,14 +100,14 @@ theorem range'_eq_append_iff : range' s n step = xs ++ ys ↔ ∃ k, k ≤ n ∧
       · simp only [ih] at h
         obtain ⟨k, h, rfl, rfl⟩ := h
         refine ⟨k + 1, ?_⟩
-        simp_all [range'_succ, Nat.add_assoc]
+        simp_all [range'_succ, Nat.add_assoc, (by omega : n + 1 - (k + 1) = n - k)]
     · rintro ⟨k, h, rfl, rfl⟩
       cases k with
       | zero => simp [range'_succ]
       | succ k =>
         simp only [range'_succ, reduceCtorEq, false_and, cons.injEq, true_and, ih, exists_eq_left', false_or]
         refine ⟨k, ?_⟩
-        simp_all [Nat.add_assoc]
+        simp_all [Nat.add_assoc, (by omega : n + 1 - (k + 1) = n - k)]
 
 @[simp] theorem find?_range'_eq_some {s n : Nat} {i : Nat} {p : Nat → Bool} :
     (range' s n).find? p = some i ↔ p i ∧ i ∈ range' s n ∧ ∀ j, s ≤ j → j < i → !p j := by
@@ -203,7 +200,13 @@ theorem sum_range' : (range' start n step).sum = n * start + n * (n - 1) * step 
 theorem drop_range' : (List.range' start n step).drop k = List.range' (start + k * step) (n - k) step := by
   induction k generalizing start n with
   | zero => simp
-  | succ => cases n <;> simp [*, List.range'_succ, Nat.add_mul, ← Nat.add_assoc, Nat.add_right_comm]
+  | succ =>
+    cases n
+    · simp [*, Nat.add_mul, ← Nat.add_assoc, Nat.add_right_comm]
+    · simp only [range'_succ, drop_succ_cons, Nat.add_mul, Nat.one_mul, ← Nat.add_assoc,
+      Nat.add_right_comm, *]
+      rename_i n₁ _ n₂
+      rw [(by omega : n₂ + 1 - (n₁ + 1) = n₂ - n₁)]
 
 @[simp, grind =]
 theorem take_range'_of_length_le (h : n ≤ k) : (List.range' start n step).take k = List.range' start n step := by

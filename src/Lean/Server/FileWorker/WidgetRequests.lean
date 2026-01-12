@@ -7,10 +7,6 @@ Authors: Wojciech Nawrocki
 module
 
 prelude
-public import Lean.Widget.Basic
-public import Lean.Widget.InteractiveCode
-public import Lean.Widget.InteractiveGoal
-public import Lean.Widget.InteractiveDiagnostic
 
 public import Lean.Server.Rpc.RequestHandling
 public import Lean.Server.FileWorker.RequestHandling
@@ -160,7 +156,7 @@ def lazyTraceChildrenToInteractive (children : WithRpcRef LazyTraceChildren) :
 
 builtin_initialize registerBuiltinRpcProcedure ``lazyTraceChildrenToInteractive _ _ lazyTraceChildrenToInteractive
 
-private def kmpSearch (query text : String) : Array String.Pos := Id.run do
+private def kmpSearch (query text : String) : Array String.Pos.Raw := Id.run do
   if query.isEmpty then
     return #[]
   let query := query.toUTF8
@@ -191,35 +187,35 @@ where
 private def contains (query text : String) : Bool :=
   ! (kmpSearch query text).isEmpty
 
-private def matchEndPos (query : String) (startPos : String.Pos) : String.Pos :=
-  startPos + ⟨query.utf8ByteSize⟩
+private def matchEndPos (query : String) (startPos : String.Pos.Raw) : String.Pos.Raw :=
+  startPos + query
 
 @[specialize]
-private def hightlightStringMatches? (query text : String) (matchPositions : Array String.Pos)
-    (highlight : α) (offset : String.Pos := ⟨0⟩) (mapIdx : Nat → Nat := id) :
+private def hightlightStringMatches? (query text : String) (matchPositions : Array String.Pos.Raw)
+    (highlight : α) (offset : String.Pos.Raw := ⟨0⟩) (mapIdx : Nat → Nat := id) :
     Option (TaggedText α) := Id.run do
   if query.isEmpty || text.isEmpty || matchPositions.isEmpty then
     return none
   let mut anyMatch : Bool := false
   let mut r : Array (TaggedText α) := #[]
-  let mut p : String.Pos := ⟨0⟩
+  let mut p : String.Pos.Raw := ⟨0⟩
   for i in 0...matchPositions.size do
-    if p >= text.endPos then
+    if p >= text.rawEndPos then
       break
     let i := mapIdx i
     let globalMatchPos := matchPositions[i]!
-    let matchPos := globalMatchPos - offset
-    if matchPos >= text.endPos then
+    let matchPos := globalMatchPos.unoffsetBy offset
+    if matchPos >= text.rawEndPos then
       break
     if let some nonMatch := nonMatch? p matchPos then
       r := r.push nonMatch
     let globalMatchEndPos := matchEndPos query globalMatchPos
-    let matchEndPos := globalMatchEndPos - offset
-    let «match» := text.extract matchPos matchEndPos
+    let matchEndPos := globalMatchEndPos.unoffsetBy offset
+    let «match» := String.Pos.Raw.extract text matchPos matchEndPos
     r := r.push <| .tag highlight (.text «match»)
     p := matchEndPos
     anyMatch := true
-  if let some nonMatch := nonMatch? p text.endPos then
+  if let some nonMatch := nonMatch? p text.rawEndPos then
     r := r.push nonMatch
   if ! anyMatch then
     return none
@@ -227,20 +223,20 @@ private def hightlightStringMatches? (query text : String) (matchPositions : Arr
     return some r[0]
   return some (.append r)
 where
-  nonMatch? (p matchPosition : String.Pos) : Option (TaggedText α) := do
+  nonMatch? (p matchPosition : String.Pos.Raw) : Option (TaggedText α) := do
     guard <| p < matchPosition
-    let nonMatch := text.extract p matchPosition
+    let nonMatch := String.Pos.Raw.extract text p matchPosition
     return .text nonMatch
 
 private def findTaggedTextMatches (query : String) (tt : TaggedText α) (toText : α → String) :
-    Array String.Pos :=
+    Array String.Pos.Raw :=
   let tt : TaggedText Empty := tt.rewrite fun t _ => .text (toText t)
   kmpSearch query tt.stripTags
 
 private structure TaggedTextHighlightState where
   query        : String
-  ms           : Array String.Pos
-  p            : String.Pos
+  ms           : Array String.Pos.Raw
+  p            : String.Pos.Raw
   anyHighlight : Bool
 
 private def advanceTaggedTextHighlightState (text : String) (highlighted : α) :
@@ -255,11 +251,11 @@ private def advanceTaggedTextHighlightState (text : String) (highlighted : α) :
 where
   updateState (text : String) (isHighlighted : Bool) : StateM TaggedTextHighlightState Unit :=
     modify fun s =>
-      let p : String.Pos := s.p + ⟨text.utf8ByteSize⟩
+      let p : String.Pos.Raw := s.p.increaseBy text.utf8ByteSize
       let ms := updateMatches s.query s.ms p
       let anyHighlight := s.anyHighlight || isHighlighted
       { s with p, ms, anyHighlight }
-  updateMatches (query : String) (ms : Array String.Pos) (p : String.Pos) : Array String.Pos := Id.run do
+  updateMatches (query : String) (ms : Array String.Pos.Raw) (p : String.Pos.Raw) : Array String.Pos.Raw := Id.run do
     let n := ms.size
     let mut ms := ms
     for i in 0...n do

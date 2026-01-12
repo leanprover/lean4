@@ -5,9 +5,10 @@ open Std Internal IO Async
 def test1 : Async Nat := do
   let s1 ← Sleep.mk 1000
   let s2 ← Sleep.mk 1500
+
   Selectable.one #[
-    .case (← s2.selector) fun _ => return 2,
-    .case (← s1.selector) fun _ => return 1,
+    .case (s2.selector) fun _ => return 2,
+    .case (s1.selector) fun _ => return 1,
   ]
 
 /-- info: 1 -/

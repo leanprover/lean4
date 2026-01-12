@@ -6,14 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Util.Sorry
-public import Lean.Widget.Types
-public import Lean.Message
-public import Lean.DocString.Links
 -- This import is necessary to ensure that any users of the `logNamedError` macros have access to
 -- all declared explanations:
-public import Lean.ErrorExplanations
-public import Lean.Data.Json.Basic
+public import Lean.ErrorExplanation
 
 public section
 
@@ -44,9 +39,9 @@ instance (m n) [MonadLift m n] [MonadLog m] : MonadLog n where
 variable [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
 
 /--
-Return the position (as `String.pos`) associated with the current reference syntax (i.e., the syntax object returned by `getRef`.)
+Return the position (as `String.Pos.Raw`) associated with the current reference syntax (i.e., the syntax object returned by `getRef`.)
 -/
-def getRefPos : m String.Pos := do
+def getRefPos : m String.Pos.Raw := do
   let ref ← MonadLog.getRef
   return ref.getPos?.getD 0
 
@@ -91,8 +86,7 @@ If `msg` is tagged as a named error, appends the error description widget displa
 corresponding error name and explanation link. Otherwise, returns `msg` unaltered.
 -/
 private def MessageData.appendDescriptionWidgetIfNamed (msg : MessageData) : MessageData :=
-  let kind := stripNestedTags msg.kind
-  match errorNameOfKind? kind with
+  match msg.stripNestedTags.errorName? with
   | some errorName =>
     let url := manualRoot ++ s!"find/?domain={errorExplanationManualDomain}&name={errorName}"
     let inst := {
@@ -107,13 +101,6 @@ private def MessageData.appendDescriptionWidgetIfNamed (msg : MessageData) : Mes
     -- console output
     msg.composePreservingKind <| .ofWidget inst .nil
   | none => msg
-where
-  /-- Remove any `` `nested `` name components prepended by `throwNestedTacticEx`. -/
-  stripNestedTags : Name → Name
-  | .str p "nested" => stripNestedTags p
-  | .str p s => .str (stripNestedTags p) s
-  | .num p n => .num (stripNestedTags p) n
-  | .anonymous => .anonymous
 
 /--
 Log the message `msgData` at the position provided by `ref` with the given `severity`.

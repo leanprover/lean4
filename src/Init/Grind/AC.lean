@@ -6,9 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Core
 public import Init.Data.Nat.Lemmas
-public import Init.Data.RArray
 public import Init.Data.Bool
 import Init.LawfulBEqTactics
 
@@ -26,10 +24,10 @@ inductive Expr where
   | op (lhs rhs : Expr)
   deriving Inhabited, Repr, BEq
 
-noncomputable def Var.denote {α : Sort u} (ctx : Context α) (x : Var) : α :=
+noncomputable abbrev Var.denote {α : Sort u} (ctx : Context α) (x : Var) : α :=
   PLift.rec (fun x => x) (ctx.vars.get x)
 
-noncomputable def Expr.denote {α} (ctx : Context α) (e : Expr) : α :=
+noncomputable abbrev Expr.denote {α} (ctx : Context α) (e : Expr) : α :=
   Expr.rec (fun x => x.denote ctx) (fun _ _ ih₁ ih₂ => ctx.op ih₁ ih₂) e
 
 theorem Expr.denote_var {α} (ctx : Context α) (x : Var) : (Expr.var x).denote ctx = x.denote ctx := rfl
@@ -57,8 +55,11 @@ theorem Seq.beq'_eq (s₁ s₂ : Seq) : s₁.beq' s₂ = (s₁ = s₂) := by
 
 attribute [local simp] Seq.beq'_eq
 
-noncomputable def Seq.denote {α} (ctx : Context α) (s : Seq) : α :=
+noncomputable abbrev Seq.denote {α} (ctx : Context α) (s : Seq) : α :=
   Seq.rec (fun x => x.denote ctx) (fun x _ ih => ctx.op (x.denote ctx) ih) s
+
+set_option allowUnsafeReducibility true
+attribute [semireducible] Seq.denote
 
 theorem Seq.denote_var {α} (ctx : Context α) (x : Var) : (Seq.var x).denote ctx = x.denote ctx := rfl
 theorem Seq.denote_op {α} (ctx : Context α) (x : Var) (s : Seq) : (Seq.cons x s).denote ctx = ctx.op (x.denote ctx) (s.denote ctx) := rfl

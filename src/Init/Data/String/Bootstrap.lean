@@ -6,7 +6,6 @@ Author: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Data.List.Basic
 public import Init.Data.Char.Basic
 public import Init.Data.ByteArray.Bootstrap
 
@@ -14,7 +13,7 @@ public section
 
 namespace String
 
-instance : OfNat String.Pos (nat_lit 0) where
+instance : OfNat String.Pos.Raw (nat_lit 0) where
   ofNat := {}
 
 instance : Inhabited String where
@@ -57,13 +56,13 @@ end String
 namespace String.Internal
 
 @[extern "lean_string_posof"]
-opaque posOf (s : String) (c : Char) : Pos
+opaque posOf (s : String) (c : Char) : Pos.Raw
 
 @[extern "lean_string_offsetofpos"]
-opaque offsetOfPos (s : String) (pos : Pos) : Nat
+opaque offsetOfPos (s : String) (pos : Pos.Raw) : Nat
 
 @[extern "lean_string_utf8_extract"]
-opaque extract : (@& String) → (@& Pos) → (@& Pos) → String
+opaque extract : (@& String) → (@& Pos.Raw) → (@& Pos.Raw) → String
 
 @[extern "lean_string_length"]
 opaque length : (@& String) → Nat
@@ -75,7 +74,7 @@ opaque pushn (s : String) (c : Char) (n : Nat) : String
 opaque append : String → (@& String) → String
 
 @[extern "lean_string_utf8_next"]
-opaque next (s : @& String) (p : @& Pos) : Pos
+opaque next (s : @& String) (p : @& Pos.Raw) : Pos.Raw
 
 @[extern "lean_string_isempty"]
 opaque isEmpty (s : String) : Bool
@@ -93,16 +92,16 @@ opaque any (s : String) (p : Char → Bool) : Bool
 opaque contains (s : String) (c : Char) : Bool
 
 @[extern "lean_string_utf8_get"]
-opaque get (s : @& String) (p : @& Pos) : Char
+opaque get (s : @& String) (p : @& Pos.Raw) : Char
 
 @[extern "lean_string_capitalize"]
 opaque capitalize (s : String) : String
 
 @[extern "lean_string_utf8_at_end"]
-opaque atEnd : (@& String) → (@& Pos) → Bool
+opaque atEnd : (@& String) → (@& Pos.Raw) → Bool
 
 @[extern "lean_string_nextwhile"]
-opaque nextWhile (s : String) (p : Char → Bool) (i : String.Pos) : String.Pos
+opaque nextWhile (s : String) (p : Char → Bool) (i : String.Pos.Raw) : String.Pos.Raw
 
 @[extern "lean_string_trim"]
 opaque trim (s : String) : String
@@ -119,6 +118,9 @@ opaque drop (s : String) (n : Nat) : String
 @[extern "lean_string_dropright"]
 opaque dropRight (s : String) (n : Nat) : String
 
+@[extern "lean_string_get_byte_fast"]
+opaque getUTF8Byte (s : @& String) (n : Nat) (h : n < s.utf8ByteSize) : UInt8
+
 end String.Internal
 
 /--
@@ -130,6 +132,10 @@ Examples:
  * `['a', 'a', 'a'].asString = "aaa"`
 -/
 @[extern "lean_string_mk", expose]
+def String.ofList (data : List Char) : String :=
+  ⟨List.utf8Encode data,.intro data rfl⟩
+
+@[extern "lean_string_mk", expose, deprecated String.ofList (since := "2025-10-30")]
 def String.mk (data : List Char) : String :=
   ⟨List.utf8Encode data,.intro data rfl⟩
 
@@ -141,53 +147,53 @@ Examples:
  * `[].asString = ""`
  * `['a', 'a', 'a'].asString = "aaa"`
 -/
-@[expose]
+@[expose, inline, deprecated String.ofList (since := "2025-10-30")]
 def List.asString (s : List Char) : String :=
-  String.mk s
+  String.ofList s
 
-namespace Substring.Internal
+namespace Substring.Raw.Internal
 
 @[extern "lean_substring_tostring"]
-opaque toString : Substring → String
+opaque toString : Substring.Raw → String
 
 @[extern "lean_substring_drop"]
-opaque drop : Substring → Nat → Substring
+opaque drop : Substring.Raw → Nat → Substring.Raw
 
 @[extern "lean_substring_front"]
-opaque front (s : Substring) : Char
+opaque front (s : Substring.Raw) : Char
 
 @[extern "lean_substring_takewhile"]
-opaque takeWhile : Substring → (Char → Bool) → Substring
+opaque takeWhile : Substring.Raw → (Char → Bool) → Substring.Raw
 
 @[extern "lean_substring_extract"]
-opaque extract : Substring → String.Pos → String.Pos → Substring
+opaque extract : Substring.Raw → String.Pos.Raw → String.Pos.Raw → Substring.Raw
 
 @[extern "lean_substring_all"]
-opaque all (s : Substring) (p : Char → Bool) : Bool
+opaque all (s : Substring.Raw) (p : Char → Bool) : Bool
 
 @[extern "lean_substring_beq"]
-opaque beq (ss1 ss2 : Substring) : Bool
+opaque beq (ss1 ss2 : Substring.Raw) : Bool
 
 @[extern "lean_substring_isempty"]
-opaque isEmpty (ss : Substring) : Bool
+opaque isEmpty (ss : Substring.Raw) : Bool
 
 @[extern "lean_substring_get"]
-opaque get : Substring → String.Pos → Char
+opaque get : Substring.Raw → String.Pos.Raw → Char
 
 @[extern "lean_substring_prev"]
-opaque prev : Substring → String.Pos → String.Pos
+opaque prev : Substring.Raw → String.Pos.Raw → String.Pos.Raw
 
-end Substring.Internal
+end Substring.Raw.Internal
 
-namespace String.Pos.Internal
+namespace String.Pos.Raw.Internal
 
 @[extern "lean_string_pos_sub"]
-opaque sub : String.Pos → String.Pos → String.Pos
+opaque sub : String.Pos.Raw → String.Pos.Raw → String.Pos.Raw
 
 @[extern "lean_string_pos_min"]
-opaque min (p₁ p₂ : Pos) : Pos
+opaque min (p₁ p₂ : Pos.Raw) : Pos.Raw
 
-end String.Pos.Internal
+end String.Pos.Raw.Internal
 
 namespace Char
 

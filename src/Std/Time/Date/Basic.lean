@@ -8,7 +8,6 @@ module
 prelude
 public import Std.Time.Date.Unit.Basic
 public import Std.Time.Date.ValidDate
-public import Std.Time.Time.Basic
 
 public section
 

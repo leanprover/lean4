@@ -9,6 +9,8 @@ prelude
 public import Std.Do.WP
 meta import Std.Do.SPred.Notation
 
+set_option linter.missingDocs true
+
 @[expose] public section
 
 /-!
@@ -17,7 +19,7 @@ meta import Std.Do.SPred.Notation
 Hoare triples form the basis for compositional functional correctness proofs about monadic programs.
 
 As usual, `Triple x P Q` holds iff the precondition `P` entails the weakest precondition
-`wp⟦x⟧.apply Q` of `x : m α` for the postcondition `Q`.
+`wp⟦x⟧ Q` of `x : m α` for the postcondition `Q`.
 It is thus defined in terms of an instance `WP m ps`.
 -/
 
@@ -27,11 +29,11 @@ universe u v
 variable {m : Type u → Type v} {ps : PostShape.{u}}
 
 /--
-  A Hoare triple for reasoning about monadic programs.
-  A proof for `Triple x P Q` is a *specification* for `x`:
-  If assertion `P` holds before `x`, then postcondition `Q` holds after running `x`.
+A Hoare triple for reasoning about monadic programs. A Hoare triple `Triple x P Q` is a
+*specification* for `x`: if assertion `P` holds before `x`, then postcondition `Q` holds after
+running `x`.
 
-  `⦃P⦄ x ⦃Q⦄` is convenient syntax for `Triple x P Q`.
+`⦃P⦄ x ⦃Q⦄` is convenient syntax for `Triple x P Q`.
 -/
 def Triple [WP m ps] {α : Type u} (x : m α) (P : Assertion ps) (Q : PostCond α ps) : Prop :=
   P ⊢ₛ wp⟦x⟧ Q
@@ -39,6 +41,9 @@ def Triple [WP m ps] {α : Type u} (x : m α) (P : Assertion ps) (Q : PostCond �
 @[inherit_doc Std.Do.Triple]
 scoped syntax:lead (name := triple) "⦃" term "⦄ " term:lead " ⦃" term "⦄" : term
 
+/--
+Unexpands Hoare triples to their high-level syntax during pretty printing.
+-/
 @[app_unexpander Triple]
 meta def unexpandTriple : Lean.PrettyPrinter.Unexpander
   | `($_ $x $P $Q) => do
@@ -63,9 +68,20 @@ theorem bind [Monad m] [WPMonad m ps] {α β : Type u} {P : Assertion ps} {Q : �
   simp only [PostCond.entails, Assertion, ExceptConds.entails.refl, and_true]
   exact hf
 
+/--
+Conjunction for two Hoare triple specifications of a program `x`.
+This theorem is useful for decomposing proofs, because unrelated facts about `x` can be proven
+separately and then combined with this theorem.
+-/
 theorem and [WP m ps] (x : m α) (h₁ : Triple x P₁ Q₁) (h₂ : Triple x P₂ Q₂) : Triple x spred(P₁ ∧ P₂) (Q₁ ∧ₚ Q₂) :=
   (SPred.and_mono h₁ h₂).trans ((wp x).conjunctive Q₁ Q₂).mpr
 
+/--
+Modus ponens for two Hoare triple specifications of a program `x`.
+This theorem is useful for separating proofs. If `h₁ : Triple x P₁ Q₁` proves a basic property about
+`x` and `h₂ : Triple x P₂ (Q₁ →ₚ Q₂)` is an advanced proof for `Q₂` that builds on the basic proof
+for `Q₁`, then `mp x h₁ h₂` is a proof for `Q₂` about `x`.
+-/
 theorem mp [WP m ps] (x : m α) (h₁ : Triple x P₁ Q₁) (h₂ : Triple x P₂ (Q₁ →ₚ Q₂)) : Triple x spred(P₁ ∧ P₂) (Q₁ ∧ₚ Q₂) :=
   SPred.and_mono h₁ h₂ |>.trans ((wp x).conjunctive Q₁ (Q₁ →ₚ Q₂)).mpr |>.trans ((wp x).mono _ _ PostCond.and_imp)
 

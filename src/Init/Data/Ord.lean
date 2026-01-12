@@ -12,3 +12,4 @@ public import Init.Data.Ord.SInt
 public import Init.Data.Ord.String
 public import Init.Data.Ord.UInt
 public import Init.Data.Ord.Vector
+public import Init.Data.Ord.Array

@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Elab.Tactic.Simp
 public import Lean.Elab.Tactic.Conv.Basic
-public import Lean.HeadIndex
 
 public section
 

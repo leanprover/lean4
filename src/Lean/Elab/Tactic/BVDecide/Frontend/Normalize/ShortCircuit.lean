@@ -6,9 +6,7 @@ Authors: Tobias Grosser
 module
 
 prelude
-public import Lean.Elab.Tactic.Simp
 public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
-public import Lean.Elab.Tactic.BVDecide.Frontend.Attr
 public import Std.Tactic.BVDecide.Normalize.BitVec
 
 public section

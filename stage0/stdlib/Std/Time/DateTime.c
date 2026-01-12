@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.DateTime
-// Imports: Std.Time.DateTime.Timestamp Std.Time.DateTime.PlainDateTime Std.Time.Date.Unit.Month
+// Imports: public import Std.Time.DateTime.Timestamp public import Std.Time.DateTime.PlainDateTime import all Std.Time.Date.Unit.Month
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,7 +15,6 @@ extern "C" {
 #endif
 static lean_object* l_Std_Time_PlainDateTime_ofPlainTime___closed__0;
 lean_object* l_Std_Time_Duration_ofNanoseconds(lean_object*);
-lean_object* l_Std_Time_Internal_UnitVal_instNeg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDate_instHSubDuration___lam__0(lean_object*, lean_object*);
 lean_object* l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(lean_object*);
 static lean_object* l_Std_Time_PlainDateTime_ofPlainTime___closed__14;
@@ -211,7 +210,7 @@ x_6 = l_Std_Time_Timestamp_ofPlainDateAssumingUTC___closed__1;
 x_7 = l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(x_2);
 x_8 = lean_int_mul(x_7, x_4);
 lean_dec(x_7);
-x_9 = l_Std_Time_Internal_UnitVal_instNeg___lam__0(x_8);
+x_9 = lean_int_neg(x_8);
 lean_dec(x_8);
 x_10 = l_Std_Time_PlainDate_instHSubDuration___lam__0___closed__0;
 x_11 = l_Std_Time_Timestamp_getTimeAssumingUTC___closed__0;
@@ -521,7 +520,7 @@ lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc(x_8);
 lean_dec_ref(x_6);
-x_9 = l_Std_Time_Internal_UnitVal_instNeg___lam__0(x_4);
+x_9 = lean_int_neg(x_4);
 lean_dec(x_4);
 x_10 = lean_int_neg(x_5);
 lean_dec(x_5);
@@ -552,21 +551,21 @@ x_1 = lean_alloc_closure((void*)(l_Std_Time_PlainDateTime_instHSubDuration___lam
 return x_1;
 }
 }
-lean_object* initialize_Std_Time_DateTime_Timestamp(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Time_DateTime_PlainDateTime(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Time_Date_Unit_Month(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Time_DateTime_Timestamp(uint8_t builtin);
+lean_object* initialize_Std_Time_DateTime_PlainDateTime(uint8_t builtin);
+lean_object* initialize_Std_Time_Date_Unit_Month(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Time_DateTime(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Time_DateTime(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Time_DateTime_Timestamp(builtin, lean_io_mk_world());
+res = initialize_Std_Time_DateTime_Timestamp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Time_DateTime_PlainDateTime(builtin, lean_io_mk_world());
+res = initialize_Std_Time_DateTime_PlainDateTime(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Time_Date_Unit_Month(builtin, lean_io_mk_world());
+res = initialize_Std_Time_Date_Unit_Month(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Time_Timestamp_ofPlainDateAssumingUTC___closed__0 = _init_l_Std_Time_Timestamp_ofPlainDateAssumingUTC___closed__0();

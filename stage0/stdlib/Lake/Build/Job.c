@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Job
-// Imports: Lake.Build.Job.Basic Lake.Build.Job.Monad Lake.Build.Job.Register
+// Imports: public import Lake.Build.Job.Basic public import Lake.Build.Job.Monad public import Lake.Build.Job.Register
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,21 +13,21 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Lake_Build_Job_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Build_Job_Monad(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Build_Job_Register(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Build_Job_Basic(uint8_t builtin);
+lean_object* initialize_Lake_Build_Job_Monad(uint8_t builtin);
+lean_object* initialize_Lake_Build_Job_Register(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lake_Build_Job(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lake_Build_Job(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lake_Build_Job_Basic(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Job_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Job_Monad(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Job_Monad(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Job_Register(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Job_Register(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

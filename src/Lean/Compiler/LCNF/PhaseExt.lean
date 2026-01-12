@@ -114,7 +114,7 @@ def mkDeclExt (phase : Phase) (name : Name := by exact decl_name%) : IO DeclExt 
           if isDeclTransparent env phase decl.name then
             some decl
           else
-            some { decl with value := .extern { entries := [.opaque decl.name] } }
+            some { decl with value := .extern { entries := [.opaque] } }
       return entries
     statsFn := fun s =>
       let numEntries := s.foldl (init := 0) (fun count _ _ => count + 1)

@@ -5,8 +5,6 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.SemiringM
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommSemiringM
 import Lean.Meta.Tactic.Grind.Simp
@@ -82,6 +80,9 @@ partial def reifyCore? (e : Expr) (skipVar : Bool) (gen : Nat) : m (Option RingE
     | OfNat.ofNat _ n _ =>
       let some k ← getNatValue? n | toVar e
       return .num k
+    | BitVec.ofNat _ n =>
+      let some k ← getNatValue? n | toVar e
+      return .num k
     | _ => toVar e
   let toTopVar (e : Expr) : m (Option RingExpr) := do
     if skipVar then
@@ -99,7 +100,7 @@ partial def reifyCore? (e : Expr) (skipVar : Bool) (gen : Nat) : m (Option RingE
   | HSub.hSub _ _ _ i a b =>
     if (← isSubInst i) then return some (.sub (← go a) (← go b)) else asTopVar e
   | HPow.hPow _ _ _ i a b =>
-    let some k ← getNatValue? b | return none
+    let some k ← getNatValue? b | asTopVar e
     if (← isPowInst i) then return some (.pow (← go a) k) else asTopVar e
   | Neg.neg _ i a =>
     if (← isNegInst i) then return some (.neg (← go a)) else asTopVar e

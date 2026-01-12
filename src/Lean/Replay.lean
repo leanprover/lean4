@@ -6,9 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Lean.CoreM
 public import Lean.AddDecl
-public import Lean.Util.FoldConsts
 
 public section
 

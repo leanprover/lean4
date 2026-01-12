@@ -6,7 +6,6 @@ Authors: Lars König
 module
 
 prelude
-public import Lean.Data.Options
 public import Lean.Server.InfoUtils
 public import Lean.Linter.Basic
 
@@ -23,7 +22,7 @@ The result is `some []` if no `MacroExpansionInfo` was found on the way and
 
 Return the result reversed, s.t. the macro expansion that would be applied to
 the original syntax first is the first element of the returned list. -/
-def collectMacroExpansions? {m} [Monad m] (range : String.Range) (tree : Elab.InfoTree) : m <| Option <| List Elab.MacroExpansionInfo := do
+def collectMacroExpansions? {m} [Monad m] (range : Lean.Syntax.Range) (tree : Elab.InfoTree) : m <| Option <| List Elab.MacroExpansionInfo := do
   if let .some <| .some result ← go then
     return some result.reverse
   else

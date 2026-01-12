@@ -6,22 +6,19 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Option.Lemmas
 public import Std.Data.Iterators.Producers.Repeat
-public import Init.Data.Iterators.Consumers.Access
-public import Init.Data.Iterators.Consumers.Collect
-public import Std.Data.Iterators.Combinators.Take
-public import Std.Data.Iterators.Lemmas.Combinators.Take
+public import Init.Data.Iterators.Lemmas.Combinators.Take
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 variable {α : Type w} {f : α → α} {init : α}
 
 theorem Iter.step_repeat :
     (Iter.repeat f init).step = .yield (Iter.repeat f (f init)) init ⟨rfl, rfl⟩ := by
-  rfl
+  simp [Iter.«repeat», Iter.step, Iter.toIterM, IterM.step, Iterator.step, IterM.toIter]
 
 theorem Iter.atIdxSlow?_zero_repeat :
     (Iter.repeat f init).atIdxSlow? 0 = some init := by
@@ -56,4 +53,4 @@ theorem Iter.toList_take_repeat_succ {k : Nat} :
     ((Iter.repeat f init).take (k + 1)).toList = init :: ((Iter.repeat f (f init)).take k).toList := by
   rw [toList_eq_match_step, step_take, step_repeat]
 
-end Std.Iterators
+end Std

@@ -7,7 +7,6 @@ Authors: Gabriel Ebner, Marc Huisinga
 module
 
 prelude
-public import Lean.Data.Json.Basic
 public import Lean.Data.Json.Printer
 
 public section
@@ -47,6 +46,8 @@ instance : FromJson Int := ⟨Json.getInt?⟩
 instance : ToJson Int := ⟨fun n => Json.num n⟩
 instance : FromJson String := ⟨Json.getStr?⟩
 instance : ToJson String := ⟨fun s => s⟩
+instance : FromJson String.Slice := ⟨Except.map String.toSlice ∘ Json.getStr?⟩
+instance : ToJson String.Slice := ⟨fun s => s.copy⟩
 
 instance : FromJson System.FilePath := ⟨fun j => System.FilePath.mk <$> Json.getStr? j⟩
 instance : ToJson System.FilePath := ⟨fun p => p.toString⟩
@@ -156,7 +157,7 @@ def bignumToJson (n : Nat) : Json :=
 protected def _root_.USize.fromJson? (j : Json) : Except String USize := do
   let n ← bignumFromJson? j
   if n ≥ USize.size then
-    throw "value '{j}' is too large for `USize`"
+    throw s!"value '{j}' is too large for `USize`"
   return USize.ofNat n
 
 instance : FromJson USize where
@@ -168,7 +169,7 @@ instance : ToJson USize where
 protected def _root_.UInt64.fromJson? (j : Json) : Except String UInt64 := do
   let n ← bignumFromJson? j
   if n ≥ UInt64.size then
-    throw "value '{j}' is too large for `UInt64`"
+    throw s!"value '{j}' is too large for `UInt64`"
   return UInt64.ofNat n
 
 instance : FromJson UInt64 where

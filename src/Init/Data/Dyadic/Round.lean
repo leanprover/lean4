@@ -8,7 +8,6 @@ module
 prelude
 public import Init.Data.Dyadic.Basic
 import all Init.Data.Dyadic.Instances
-import Init.Data.Int.Bitwise.Lemmas
 import Init.Grind.Ordered.Rat
 import Init.Grind.Ordered.Field
 
@@ -29,7 +28,7 @@ theorem roundDown_le {x : Dyadic} {prec : Int} : roundDown x prec ≤ x :=
     match h : k - prec with
     | .ofNat l =>
       dsimp
-      rw [ofOdd_eq_ofIntWithPrec, le_iff_toRat]
+      rw [ofOdd_eq_ofIntWithPrec, ← toRat_le_toRat_iff]
       replace h : k = Int.ofNat l + prec := by omega
       subst h
       simp only [toRat_ofIntWithPrec_eq_mul_two_pow]
@@ -37,7 +36,7 @@ theorem roundDown_le {x : Dyadic} {prec : Int} : roundDown x prec ≤ x :=
       refine Lean.Grind.OrderedRing.mul_le_mul_of_nonneg_right ?_ (Rat.zpow_nonneg (by decide))
       rw [Int.shiftRight_eq_div_pow]
       rw [← Lean.Grind.Field.IsOrdered.mul_le_mul_iff_of_pos_right (c := 2^(Int.ofNat l)) (Rat.zpow_pos (by decide))]
-      simp only [Int.natCast_pow, Int.cast_ofNat_Int, Int.ofNat_eq_coe]
+      simp only [Int.natCast_pow, Int.cast_ofNat_Int, Int.ofNat_eq_natCast]
       rw [Rat.mul_assoc, ← Rat.zpow_add (by decide), Int.add_left_neg, Rat.zpow_zero, Rat.mul_one]
       have : (2 : Rat) ^ (l : Int) = (2 ^ l : Int) := by
         rw [Rat.zpow_natCast, Rat.intCast_pow, Rat.intCast_ofNat]

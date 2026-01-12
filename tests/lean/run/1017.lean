@@ -1,6 +1,6 @@
-namespace Stream
+namespace Std.Stream
 
-variable [Stream ρ τ] (s : ρ)
+variable [Std.Stream ρ τ] (s : ρ)
 
 def take (s : ρ) : Nat → List τ × ρ
 | 0 => ([], s)
@@ -52,4 +52,4 @@ def mwe [Stream ρ τ] (acc : α) : {l : ρ // isFinite l} → α
       mwe acc ⟨xs, by sorry⟩
   termination_by l => l
 
-end Stream
+end Std.Stream

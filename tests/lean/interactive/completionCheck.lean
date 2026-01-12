@@ -5,4 +5,4 @@ structure AVerySpecificStructureName2 where
   x : Nat
 
 #check AVerySpecificStructureName
-                               --^ textDocument/completion
+                               --^ completion

@@ -66,10 +66,9 @@ def Common.String.parse (_ : String) : List Nat := []
 
 namespace ExOpen1
 /--
-error: Invalid field `parse`: The environment does not contain `String.parse`
+error: Invalid field `parse`: The environment does not contain `String.parse`, so it is not possible to project the field `parse` from an expression
   ""
-has type
-  String
+of type `String`
 -/
 #guard_msgs in #check "".parse
 section

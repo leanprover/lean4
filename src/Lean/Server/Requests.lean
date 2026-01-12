@@ -7,55 +7,49 @@ Authors: Wojciech Nawrocki, Marc Huisinga
 module
 
 prelude
-public import Lean.DeclarationRange
 
-public import Lean.Data.Json.Basic
-public import Lean.Data.Lsp
-public import Lean.Elab.Command
 
 public import Lean.Server.RequestCancellation
-public import Lean.Server.ServerTask
 
 public import Lean.Server.FileSource
 public import Lean.Server.FileWorker.Utils
 
-public import Lean.Server.Rpc.Basic
 
 public import Std.Sync.Mutex
 
 public section
 
 /-- Checks whether `r` contains `hoverPos`, taking into account EOF according to `text`. -/
-def Lean.FileMap.rangeContainsHoverPos (text : Lean.FileMap) (r : String.Range)
-    (hoverPos : String.Pos) (includeStop := false) : Bool :=
+def Lean.FileMap.rangeContainsHoverPos (text : Lean.FileMap) (r : Lean.Syntax.Range)
+    (hoverPos : String.Pos.Raw) (includeStop := false) : Bool :=
   -- When `hoverPos` is at the very end of the file, it is *after* the last position in `text`.
   -- However, for `includeStop = false`, all ranges stop at the last position in `text`,
   -- which always excludes a `hoverPos` at the very end of the file.
   -- For the purposes of the language server, we generally assume that ranges that extend to
   -- the end of the file also include a `hoverPos` at the very end of the file.
-  let isRangeAtEOF := r.stop == text.source.endPos
+  let isRangeAtEOF := r.stop == text.source.rawEndPos
   r.contains hoverPos (includeStop := includeStop || isRangeAtEOF)
 
 def Lean.FileMap.rangeOverlapsRequestedRange
     (text : Lean.FileMap)
-    (documentRange : String.Range)
-    (requestedRange : String.Range)
+    (documentRange : Lean.Syntax.Range)
+    (requestedRange : Lean.Syntax.Range)
     (includeDocumentRangeStop := false)
     (includeRequestedRangeStop := false)
     : Bool :=
-  let isDocumentRangeAtEOF := documentRange.stop == text.source.endPos
+  let isDocumentRangeAtEOF := documentRange.stop == text.source.rawEndPos
   documentRange.overlaps requestedRange
     (includeFirstStop := includeDocumentRangeStop || isDocumentRangeAtEOF)
     (includeSecondStop := includeRequestedRangeStop)
 
 def Lean.FileMap.rangeIncludesRequestedRange
     (text : Lean.FileMap)
-    (documentRange : String.Range)
-    (requestedRange : String.Range)
+    (documentRange : Lean.Syntax.Range)
+    (requestedRange : Lean.Syntax.Range)
     (includeDocumentRangeStop := false)
     (includeRequestedRangeStop := false)
     : Bool :=
-  let isDocumentRangeAtEOF := documentRange.stop == text.source.endPos
+  let isDocumentRangeAtEOF := documentRange.stop == text.source.rawEndPos
   documentRange.includes requestedRange
     (includeSuperStop := includeDocumentRangeStop || isDocumentRangeAtEOF)
     (includeSubStop := includeRequestedRangeStop)
@@ -102,7 +96,7 @@ that contains `hoverPos` in its whitespace, which is not necessarily the correct
 (e.g. it may be indentation-sensitive).
 -/
 partial def SnapshotTree.findInfoTreeAtPos (text : FileMap) (tree : SnapshotTree)
-    (hoverPos : String.Pos) (includeStop : Bool) : ServerTask (Option Elab.InfoTree) :=
+    (hoverPos : String.Pos.Raw) (includeStop : Bool) : ServerTask (Option Elab.InfoTree) :=
   tree.foldSnaps (init := none) fun snap _ => Id.run do
     let some stx := snap.stx?
       -- One of the invariants of the snapshot tree is that `stx? = none` implies that
@@ -123,8 +117,28 @@ partial def SnapshotTree.findInfoTreeAtPos (text : FileMap) (tree : SnapshotTree
         | return (none, .proceed (foldChildren := true))
       return (infoTree, .done)
 
+partial def SnapshotTree.foldInfosInRange (tree : SnapshotTree) (requestedRange : Lean.Syntax.Range)
+    (init : α) (f : Elab.ContextInfo → Elab.Info → α → α) : ServerTask α :=
+  tree.foldSnaps (init := init) fun snap acc => Id.run do
+    let some stx := snap.stx?
+      | return .pure (acc, .proceed (foldChildren := false))
+    let some range := stx.getRangeWithTrailing? (canonicalOnly := true)
+      | return .pure (acc, .proceed (foldChildren := true))
+    if ! range.overlaps requestedRange (includeFirstStop := true) (includeSecondStop := true) then
+      return .pure (acc, .proceed (foldChildren := false))
+    return snap.task.asServerTask.mapCheap fun tree => Id.run do
+      let some infoTree := tree.element.infoTree?
+        | return (acc, .proceed (foldChildren := true))
+      let acc := infoTree.foldInfo (init := acc) fun ctx i acc => Id.run do
+        let some r := i.range?
+          | return acc
+        if ! r.overlaps requestedRange (includeFirstStop := true) (includeSecondStop := true) then
+          return acc
+        return f ctx i acc
+      return (acc, .proceed (foldChildren := true))
+
 partial def SnapshotTree.collectMessagesInRange (tree : SnapshotTree)
-    (requestedRange : String.Range) : ServerTask MessageLog :=
+    (requestedRange : Lean.Syntax.Range) : ServerTask MessageLog :=
   tree.foldSnaps (init := .empty) fun snap log => Id.run do
     let some stx := snap.stx?
       | return .pure (log, .proceed (foldChildren := true))
@@ -238,7 +252,7 @@ open FileWorker
 open Snapshots
 
 def runInIO (x : RequestM α) (ctx : RequestContext) : IO α := do
-  x.run ctx |>.adaptExcept (IO.userError ·.message)
+  x.run ctx |>.adapt (IO.userError ·.message)
 
 def readDoc [Monad m] [MonadReaderOf RequestContext m] : m EditableDocument := do
   let rc ← readThe RequestContext
@@ -352,7 +366,7 @@ def withWaitFindSnapAtPos
 
 open Language.Lean in
 /-- Finds the first `CommandParsedSnapshot` containing `hoverPos`, asynchronously. -/
-partial def findCmdParsedSnap (doc : EditableDocument) (hoverPos : String.Pos)
+partial def findCmdParsedSnap (doc : EditableDocument) (hoverPos : String.Pos.Raw)
     : ServerTask (Option CommandParsedSnapshot) := Id.run do
   let some headerParsed := doc.initSnap.result?
     | .pure none
@@ -394,7 +408,7 @@ See `SnapshotTree.findInfoTreeAtPos` for details on how the search is done.
 -/
 def findCmdDataAtPos
     (doc : EditableDocument)
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (includeStop : Bool)
     : ServerTask (Option (Syntax × Elab.InfoTree)) :=
   findCmdParsedSnap doc hoverPos |>.bindCheap fun
@@ -414,7 +428,7 @@ See `SnapshotTree.findInfoTreeAtPos` for details on how the search is done.
 -/
 partial def findInfoTreeAtPos
     (doc : EditableDocument)
-    (hoverPos : String.Pos)
+    (hoverPos : String.Pos.Raw)
     (includeStop : Bool)
     : ServerTask (Option Elab.InfoTree) :=
   findCmdDataAtPos doc hoverPos includeStop |>.mapCheap (·.map (·.2))

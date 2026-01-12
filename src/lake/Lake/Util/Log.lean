@@ -6,14 +6,13 @@ Authors: Mac Malone
 module
 
 prelude
-public import Init.System.IO
-public import Init.Data.Repr
-public import Init.Data.Ord.Basic
 public import Lean.Data.Json
 public import Lake.Util.Error
 public import Lake.Util.EStateT
 public import Lean.Message
 public import Lake.Util.Lift
+import Init.Data.String.TakeDrop
+import Init.Data.String.Modify
 
 open Lean
 
@@ -156,8 +155,8 @@ public instance : ToString LogEntry := ⟨LogEntry.toString⟩
   {level := .error, message}
 
 public def LogEntry.ofSerialMessage (msg : SerialMessage) : LogEntry :=
-  let str := if msg.caption.trim.isEmpty then
-     msg.data.trim else s!"{msg.caption.trim}:\n{msg.data.trim}"
+  let str := if msg.caption.trimAscii.isEmpty then
+     msg.data.trimAscii.copy else s!"{msg.caption.trimAscii}:\n{msg.data.trimAscii}"
   {
     level := .ofMessageSeverity msg.severity
     message := mkErrorStringWithPos msg.fileName msg.pos str none
@@ -409,6 +408,16 @@ from an `ELogT` (e.g., `LogIO`).
   let log ← getLog
   return (a, log.takeFrom iniPos)
 
+/-- If `x` produces any logs, group them into an error block. -/
+@[inline] public def throwIfLogs [Monad m] [MonadStateOf Log m] [MonadExceptOf Log.Pos m] (x : m α) : m α := do
+  let iniPos ← getLogPos
+  let a ← x
+  let endPos ← getLogPos
+  if iniPos ≠ endPos then
+    throw iniPos
+  else
+    return a
+
 /-- Performs `x` and backtracks any error to the log position before `x`. -/
 @[inline] public def withLogErrorPos
   [Monad m] [MonadStateOf Log m] [MonadExceptOf Log.Pos m] (self : m α)
@@ -428,8 +437,16 @@ from an `ELogT` (e.g., `LogIO`).
 @[inline] public def withLoggedIO
   [Monad m] [MonadLiftT BaseIO m] [MonadLog m] [MonadFinally m] (x : m α)
 : m α := do
-  let (out, a) ← IO.FS.withIsolatedStreams x
-  unless out.isEmpty do logInfo s!"stdout/stderr:\n{out.trim}"
+  let buf ← IO.mkRef { : IO.FS.Stream.Buffer }
+  let stdout ← IO.setStdout <| .ofBuffer buf
+  let stderr ← IO.setStderr <| .ofBuffer buf
+  let a ← try x finally
+    discard <| IO.setStdout stdout
+    discard <| IO.setStderr stderr
+  let buf ← liftM (m := BaseIO) buf.get
+  let out := String.fromUTF8! buf.data
+  unless out.isEmpty do
+    logInfo s!"stdout/stderr:\n{out.trimAscii}"
   return a
 
 /-- Throw with the logged error `message`. -/
@@ -576,28 +593,49 @@ a `failure` in the new monad.
 
 end ELogT
 
+/-- Configuration options for Lake logging. -/
+public structure LogConfig where
+  /--
+  Fail if entries of at least this level have been logged.
+
+  Unlike some build systems, this does **NOT** convert such log entries to
+  errors, and it does not necessarily abort execution when warnings are logged.
+
+  **NOTE:** Some logging monads do not support this option (e.g., `LoggerIO`).
+  -/
+  failLv : LogLevel := .error
+  /-- The minimum log level for an log entry to be reported. -/
+  outLv : LogLevel := .info
+  /-- Whether to use ANSI escape codes in log output. -/
+  ansiMode : AnsiMode := .auto
+  /-- Where to write logs. -/
+  out : OutStream := .stderr
+
+@[inline] public def LogConfig.getLogger [MonadLiftT BaseIO m] (self : LogConfig) : BaseIO (MonadLog m) := do
+  self.out.getLogger self.outLv self.ansiMode
+
 /-- A monad equipped with a log, a log error position, and the ability to perform I/O. -/
 public abbrev LogIO := ELogT BaseIO
 
-public instance : MonadLift IO LogIO := ⟨MonadError.runIO⟩
-
 namespace LogIO
 
+public instance : MonadLift IO LogIO := ⟨MonadError.runIO⟩
+
 /--
-Runs a `LogIO` action in `BaseIO`.
-Prints log entries of at least `minLv` to `out`.
+Runs a `LogIO` action in `BaseIO` using the specified log configuration.
+
+Returns `none` if the action fails or if an entry of at least `LogConfig.failLv` has been logged.
+On failure, all logs will be printed, ignoring the  `LogConfig.outLv` setting.
 -/
-@[inline] public def toBaseIO (self : LogIO α)
-  (minLv := LogLevel.info) (ansiMode := AnsiMode.auto) (out := OutStream.stderr)
+@[inline] public def toBaseIO
+  (self : LogIO α) (cfg : LogConfig := {})
 : BaseIO (Option α) := do
-  let logger ← out.getLogger minLv ansiMode
   let (a?, log) ← self.run? {}
-  replay log logger
-  return a?
-where
-  -- avoid specialization of this call at each call site
-  replay (log : Log) (logger : MonadLog BaseIO) : BaseIO Unit :=
-    log.replay (logger := logger)
+  let failed := a?.isNone ∨ cfg.failLv ≤ log.maxLv
+  let outLv := if failed then .trace else cfg.outLv
+  let logger ← cfg.out.getLogger outLv cfg.ansiMode
+  log.replay (logger := logger)
+  return if failed  then none else a?
 
 -- deprecated 2024-05-18, reversed 2024-10-18
 public abbrev captureLog := @ELogT.run?
@@ -609,31 +647,31 @@ A monad equipped with a log function and the ability to perform I/O.
 Unlike `LogIO`, log entries are not retained by the monad but instead eagerly
 passed to the log function.
 -/
-public abbrev LoggerIO := MonadLogT BaseIO (EIO PUnit)
+public abbrev LoggerIO := MonadLogT BaseIO (EIO Unit)
+
+namespace LoggerIO
 
 public instance : MonadError LoggerIO := ⟨MonadLog.error⟩
 public instance : MonadLift IO LoggerIO := ⟨MonadError.runIO⟩
 public instance : MonadLift LogIO LoggerIO := ⟨ELogT.replayLog⟩
 
-namespace LoggerIO
-
 /--
-Runs a `LoggerIO` action in `BaseIO`.
-Prints log entries of at least `minLv` to `out`.
+Runs a `LoggerIO` action in `BaseIO` using the specified log configuration.
+
+Does not support `LogConfig.failLv`.
 -/
 @[inline] public def toBaseIO
-  (self : LoggerIO α)
-  (minLv := LogLevel.info) (ansiMode := AnsiMode.auto) (out := OutStream.stderr)
-: BaseIO (Option α) := do
-  (·.toOption) <$> (self.run (← out.getLogger minLv ansiMode)).toBaseIO
+  (self : LoggerIO α) (cfg : LogConfig := {})
+: BaseIO (Option α) := do (·.toOption) <$> (self.run (← cfg.getLogger)).toBaseIO
 
+/-- Runs a `LoggerIO` action in `BaseIO` and returns the produced log. -/
 public def captureLog (self : LoggerIO α) : BaseIO (Option α × Log) := do
   let ref ← IO.mkRef ({} : Log)
   let e ← self.run ⟨fun e => ref.modify (·.push e)⟩ |>.toBaseIO
   return (e.toOption, ← ref.get)
 
 -- For parity with `LogIO.run?`
-public abbrev run? := @captureLog
+@[inherit_doc captureLog] public abbrev run? := @captureLog
 
 -- For parity with `LogIO.run?'`
 @[inline] public def run?'

@@ -6,10 +6,8 @@ Authors: Joe Hendrix, Harun Khan
 module
 
 prelude
-public import Init.Data.BitVec.Basic
 import all Init.Data.BitVec.Basic
 public import Init.Data.BitVec.Lemmas
-public import Init.Data.Nat.Lemmas
 public import Init.Data.Fin.Iterate
 
 public section
@@ -84,7 +82,7 @@ theorem iunfoldr_getLsbD' {f : Fin w → α → α × Bool} (state : Nat → α)
       intro i
       simp only [getLsbD_cons]
       have hj2 : j.val ≤ w := by simp
-      cases (Nat.lt_or_eq_of_le (Nat.lt_succ.mp i.isLt)) with
+      cases (Nat.lt_or_eq_of_le (Nat.lt_succ_iff.mp i.isLt)) with
       | inl h3 => simp [(Nat.ne_of_lt h3)]
                   exact (ih hj2).1 ⟨i.val, h3⟩
       | inr h3 => simp [h3]

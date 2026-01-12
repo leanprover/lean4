@@ -6,7 +6,6 @@ Authors: Josh Clune
 module
 
 prelude
-public import Init.NotationExtra
 public import Init.Data.Hashable
 
 @[expose] public section

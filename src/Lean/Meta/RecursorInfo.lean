@@ -6,8 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.AuxRecursor
-public import Lean.Util.FindExpr
 public import Lean.Meta.Basic
 
 public section

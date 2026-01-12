@@ -7,8 +7,6 @@ module
 
 prelude
 public import Std.Tactic.BVDecide.LRAT.Internal.Formula.Class
-public import Std.Tactic.BVDecide.LRAT.Internal.Assignment
-public import Std.Sat.CNF.Basic
 
 @[expose] public section
 

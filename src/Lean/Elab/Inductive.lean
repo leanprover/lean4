@@ -23,71 +23,82 @@ def Lean.Parser.Command.classInductive :=
   leading_parser atomic (group ("class " >> "inductive ")) >> declId >> optDeclSig >> optional ("where" <|> ":=") >> many ctor >> optDeriving
 ```
 -/
-private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : TermElabM InductiveView := do
+private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (isCoinductive : Bool) : TermElabM InductiveView := do
   let isClass := decl.isOfKind ``Parser.Command.classInductive
   let modifiers := if isClass then modifiers.addAttr { name := `class } else modifiers
   let (binders, type?) := expandOptDeclSig decl[2]
   let declId           := decl[1]
   let ⟨name, declName, levelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
-  if modifiers.isMeta then
-    modifyEnv (addMeta · declName)
-  addDeclarationRangesForBuiltin declName modifiers.stx decl
-  let ctors      ← decl[4].getArgs.mapM fun ctor => withRef ctor do
-    /-
-    ```
-    def ctor := leading_parser optional docComment >> "\n| " >> declModifiers >> rawIdent >> optDeclSig
-    ```
-    -/
-    let modifiersStx := ctor[2]
-    let mut ctorModifiers ← elabModifiers ⟨modifiersStx⟩
-    if let some leadingDocComment := ctor[0].getOptional? then
-      if ctorModifiers.docString?.isSome then
-        logErrorAt leadingDocComment "Duplicate doc string"
-      ctorModifiers := { ctorModifiers with
-        docString? := some (⟨leadingDocComment⟩, doc.verso.get (← getOptions)) }
-    if ctorModifiers.isPrivate && modifiers.isPrivate then
-      let hint ← do
-        let .original .. := modifiersStx.getHeadInfo | pure .nil
-        let some range := modifiersStx[2].getRangeWithTrailing? | pure .nil
-        -- Drop the doc comment from both the `declModifiers` and outer `ctor`, as well as
-        -- everything after the constructor name (yielding invalid syntax with the desired range)
-        let previewSpan? := ctor.modifyArgs (·[2...4].toArray.modify 0 (·.modifyArgs (·[1...*])))
-        MessageData.hint "Remove `private` modifier from constructor" #[{
-          suggestion := ""
-          span? := Syntax.ofRange range
-          previewSpan?
-          toCodeActionTitle? := some fun _ => "Delete `private` modifier"
-        }]
-      throwError m!"Constructor cannot be marked `private` because it is already in a `private` inductive datatype" ++ hint
-    if ctorModifiers.isProtected && modifiers.isPrivate then
-      throwError "Constructor cannot be `protected` because it is in a `private` inductive datatype"
-    checkValidCtorModifier ctorModifiers
-    let ctorName := ctor.getIdAt 3
-    let ctorName := declName ++ ctorName
-    let ctorName ← withRef ctor[3] <| applyVisibility ctorModifiers ctorName
-    let (binders, type?) := expandOptDeclSig ctor[4]
-    addDeclarationRangesFromSyntax ctorName ctor ctor[3]
+  -- In the case of mutual inductives, this is the earliests point where we can establish the
+  -- correct scope for each individual inductive declaration (used e.g. to infer ctor visibility
+  -- below), so let's do that now.
+  withExporting (isExporting := !isPrivateName declName) do
     if modifiers.isMeta then
-      modifyEnv (addMeta · ctorName)
-    return { ref := ctor, declId := ctor[3], modifiers := ctorModifiers, declName := ctorName, binders := binders, type? := type? : CtorView }
-  let computedFields ← (decl[5].getOptional?.map (·[1].getArgs) |>.getD #[]).mapM fun cf => withRef cf do
-    return { ref := cf, modifiers := cf[0], fieldId := cf[1].getId, type := ⟨cf[3]⟩, matchAlts := ⟨cf[4]⟩ }
-  let classes ← getOptDerivingClasses decl[6]
-  if decl[3][0].isToken ":=" then
-    -- https://github.com/leanprover/lean4/issues/5236
-    withRef decl[0] <| Linter.logLintIf Linter.linter.deprecated decl[3]
-      "`inductive ... :=` has been deprecated in favor of `inductive ... where`"
-  return {
-    ref             := decl
-    shortDeclName   := name
-    derivingClasses := classes
-    allowIndices    := true
-    allowSortPolymorphism := true
-    declId, modifiers, isClass, declName, levelNames
-    binders, type?, ctors
-    computedFields
-    docString?
-  }
+      modifyEnv (markMeta · declName)
+    addDeclarationRangesForBuiltin declName modifiers.stx decl
+    /-
+      Relates to issue
+      https://github.com/leanprover/lean4/issues/10503
+    -/
+    if declName.hasMacroScopes && isCoinductive then
+      throwError "Coinductive predicates are not allowed inside of macro scopes"
+    let ctors      ← decl[4].getArgs.mapM fun ctor => withRef ctor do
+      /-
+      ```
+      def ctor := leading_parser optional docComment >> "\n| " >> declModifiers >> rawIdent >> optDeclSig
+      ```
+      -/
+      let modifiersStx := ctor[2]
+      let mut ctorModifiers ← elabModifiers ⟨modifiersStx⟩
+      if let some leadingDocComment := ctor[0].getOptional? then
+        if ctorModifiers.docString?.isSome then
+          logErrorAt leadingDocComment "Duplicate doc string"
+        ctorModifiers := { ctorModifiers with
+          docString? := some (⟨leadingDocComment⟩, doc.verso.get (← getOptions)) }
+      if ctorModifiers.isPrivate && modifiers.isPrivate then
+        let hint ← do
+          let .original .. := modifiersStx.getHeadInfo | pure .nil
+          let some range := modifiersStx[2].getRangeWithTrailing? | pure .nil
+          -- Drop the doc comment from both the `declModifiers` and outer `ctor`, as well as
+          -- everything after the constructor name (yielding invalid syntax with the desired range)
+          let previewSpan? := ctor.modifyArgs (·[2...4].toArray.modify 0 (·.modifyArgs (·[1...*])))
+          MessageData.hint "Remove `private` modifier from constructor" #[{
+            suggestion := ""
+            span? := Syntax.ofRange range
+            previewSpan?
+            toCodeActionTitle? := some fun _ => "Delete `private` modifier"
+          }]
+        throwError m!"Constructor cannot be marked `private` because it is already in a `private` inductive datatype" ++ hint
+      if ctorModifiers.isProtected && modifiers.isPrivate then
+        throwError "Constructor cannot be `protected` because it is in a `private` inductive datatype"
+      checkValidCtorModifier ctorModifiers
+      let ctorName := ctor.getIdAt 3
+      let ctorName := declName ++ ctorName
+      let ctorName ← withRef ctor[3] <| applyVisibility ctorModifiers ctorName
+      let (binders, type?) := expandOptDeclSig ctor[4]
+      addDeclarationRangesFromSyntax ctorName ctor ctor[3]
+      if modifiers.isMeta then
+        modifyEnv (markMeta · ctorName)
+      return { ref := ctor, declId := ctor[3], modifiers := ctorModifiers, declName := ctorName, binders := binders, type? := type? : CtorView }
+    let computedFields ← (decl[5].getOptional?.map (·[1].getArgs) |>.getD #[]).mapM fun cf => withRef cf do
+      return { ref := cf, modifiers := cf[0], fieldId := cf[1].getId, type := ⟨cf[3]⟩, matchAlts := ⟨cf[4]⟩ }
+    let classes ← getOptDerivingClasses decl[6]
+    if decl[3][0].isToken ":=" then
+      -- https://github.com/leanprover/lean4/issues/5236
+      withRef decl[0] <| Linter.logLintIf Linter.linter.deprecated decl[3]
+        "`inductive ... :=` has been deprecated in favor of `inductive ... where`"
+    return {
+      ref             := decl
+      shortDeclName   := name
+      derivingClasses := classes
+      allowIndices    := true
+      allowSortPolymorphism := true
+      declId, modifiers, isClass, declName, levelNames
+      binders, type?, ctors
+      computedFields
+      docString?
+      isCoinductive := isCoinductive
+    }
 
 private def isInductiveFamily (numParams : Nat) (indFVar : Expr) : TermElabM Bool := do
   let indFVarType ← inferType indFVar
@@ -311,15 +322,20 @@ where
     throwNamedErrorAt ctorType lean.ctorResultingTypeMismatch "Unexpected resulting type for constructor `{declName}`: \
       Expected a type, but found{indentExpr resultingType}\nof type{lazyMsg}"
 
-@[builtin_inductive_elab Lean.Parser.Command.inductive, builtin_inductive_elab Lean.Parser.Command.classInductive]
-def elabInductiveCommand : InductiveElabDescr where
-  mkInductiveView (modifiers : Modifiers) (stx : Syntax) := do
-    let view ← inductiveSyntaxToView modifiers stx
+def mkInductiveElabDescr (isCoinductive := false) : InductiveElabDescr where
+mkInductiveView (modifiers : Modifiers) (stx : Syntax) := do
+    let view ← inductiveSyntaxToView modifiers stx isCoinductive
     return {
       view
       elabCtors := fun rs r params => do
         let ctors ← elabCtors (rs.map (·.indFVar)) params r
         return { ctors }
     }
+
+@[builtin_inductive_elab Lean.Parser.Command.inductive, builtin_inductive_elab Lean.Parser.Command.classInductive]
+def elabInductiveCommand : InductiveElabDescr := mkInductiveElabDescr
+
+@[builtin_inductive_elab Lean.Parser.Command.coinductive]
+def elabCoinductiveCommand : InductiveElabDescr := mkInductiveElabDescr (isCoinductive := true)
 
 end Lean.Elab.Command

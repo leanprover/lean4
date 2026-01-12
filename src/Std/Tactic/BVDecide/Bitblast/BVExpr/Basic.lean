@@ -7,8 +7,6 @@ module
 
 prelude
 public import Init.Data.Hashable
-public import Init.Data.BitVec.Lemmas
-public import Init.Data.RArray
 public import Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
 
 @[expose] public section

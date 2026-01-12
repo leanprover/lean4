@@ -11,6 +11,17 @@ public import Lean.Parser.Level
 public import Lean.Parser.Term.Doc
 meta import Lean.Parser.Basic
 
+/-!
+This module contains the bare minimum of term syntax that's required to get documentation syntax to
+parse, namely structure initializers and their dependencies.
+
+This matters because some term syntax (such as `let rec`) includes docstrings, but docstrings
+include metadata blocks that themselves include a structure initializer. Separating these layers
+prevents an import cycle.
+
+The remaining term syntax is found in `Lean.Parser.Term`. It may freely make use of documentation
+comments.
+-/
 
 public section
 

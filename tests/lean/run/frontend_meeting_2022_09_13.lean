@@ -60,7 +60,7 @@ end
 open Lean Elab Command in
 @[command_elab commandComment] def elabCommandComment : CommandElab := fun stx => do
    let .atom _ val := stx[1] | return ()
-   let str := val.extract 0 (val.endPos - ⟨3⟩)
+   let str := String.Pos.Raw.extract val 0 (val.rawEndPos.unoffsetBy ⟨3⟩)
    IO.println s!"str := {repr str}"
 
 //- My command comment hello world -//

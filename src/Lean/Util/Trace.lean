@@ -164,7 +164,6 @@ private def addTraceNode (oldTraces : PersistentArray TraceElem)
 
 register_builtin_option trace.profiler : Bool := {
   defValue := false
-  group    := "profiler"
   descr    :=
     "activate nested traces with execution time above `trace.profiler.threshold` and annotate with \
     time"
@@ -172,7 +171,6 @@ register_builtin_option trace.profiler : Bool := {
 
 register_builtin_option trace.profiler.threshold : Nat := {
   defValue := 10
-  group    := "profiler"
   descr    :=
     "threshold in milliseconds (or heartbeats if `trace.profiler.useHeartbeats` is true), \
     traces below threshold will not be activated"
@@ -180,21 +178,18 @@ register_builtin_option trace.profiler.threshold : Nat := {
 
 register_builtin_option trace.profiler.useHeartbeats : Bool := {
   defValue := false
-  group    := "profiler"
   descr    :=
     "if true, measure and report heartbeats instead of seconds"
 }
 
 register_builtin_option trace.profiler.output : String := {
   defValue := ""
-  group    := "profiler"
   descr    :=
     "output `trace.profiler` data in Firefox Profiler-compatible format to given file path"
 }
 
 register_builtin_option trace.profiler.output.pp : Bool := {
   defValue := false
-  group    := "profiler"
   descr    :=
     "if false, limit text in exported trace nodes to trace class name and `TraceData.tag`, if any
 
@@ -264,7 +259,7 @@ withTraceNode `isPosTrace (msg := (return m!"{ExceptToEmoji.toEmoji ·} checking
   return 0 < x
 ```
 
-The `cls`, `collapsed`, and `tag` arguments are fowarded to the constructor of `TraceData`.
+The `cls`, `collapsed`, and `tag` arguments are forwarded to the constructor of `TraceData`.
 -/
 def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls : Name)
     (msg : Except ε α → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
@@ -309,8 +304,8 @@ on an opt-in basis.
 def registerTraceClass (traceClassName : Name) (inherited := false) (ref : Name := by exact decl_name%) : IO Unit := do
   let optionName := `trace ++ traceClassName
   registerOption optionName {
+    name := optionName
     declName := ref
-    group := "trace"
     defValue := false
     descr := "enable/disable tracing for the given module and submodules"
   }
@@ -376,7 +371,7 @@ TODO: find better name for this function.
 -/
 def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
     [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] [ExceptToEmoji ε α] (cls : Name)
-    (msg : m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
+    (msg : Unit → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
   let _ := always.except
   let opts ← getOptions
   let clsEnabled ← isTracingEnabledFor cls
@@ -385,7 +380,7 @@ def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
   let oldTraces ← getResetTraces
   let ref ← getRef
   -- make sure to preserve context *before* running `k`
-  let msg ← withRef ref do addMessageContext (← msg)
+  let msg ← withRef ref do addMessageContext (← msg ())
   let (res, start, stop) ← withStartStop opts <| observing k
   let aboveThresh := trace.profiler.get opts &&
     stop - start > trace.profiler.threshold.unitAdjusted opts
@@ -407,7 +402,7 @@ def addTraceAsMessages [Monad m] [MonadRef m] [MonadLog m] [MonadTrace m] : m Un
   let traces ← getResetTraces
   if traces.isEmpty then
     return
-  let mut pos2traces : Std.HashMap (String.Pos × String.Pos) (Array MessageData) := ∅
+  let mut pos2traces : Std.HashMap (String.Pos.Raw × String.Pos.Raw) (Array MessageData) := ∅
   for traceElem in traces do
     let ref := replaceRef traceElem.ref (← getRef)
     let pos := ref.getPos?.getD 0

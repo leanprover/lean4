@@ -14,7 +14,7 @@ public section
 
 namespace Lean.Firefox
 
-/-! Definitions from https://github.com/firefox-devtools/profiler/blob/main/src/types/profile.js -/
+/-! Definitions from https://github.com/firefox-devtools/profiler/blob/main/src/types/profile.ts -/
 
 structure Milliseconds where
   ms : Float

@@ -55,58 +55,6 @@ example (n0 n : Nat) (h : id n0 = n) :
   · sorry
   · sorry
 
--- Variant where the discriminant is already a constructor (so substituting the generalized equation
--- may actually help)
-
-/--
-error: Tactic `split` failed: Could not split an `if` or `match` expression in the goal
-
-Hint: Use `set_option trace.split.failure true` to display additional diagnostic information
-
-n : Nat
-⊢ Fin.last n.succ =
-    match n.succ with
-    | 0 => Fin.last 0
-    | n.succ => Fin.last (n + 1)
--/
-#guard_msgs in
-example (n : Nat) : Fin.last n.succ = match (motive := ∀ n, Fin (n+1)) Nat.succ n with
-  | 0 => Fin.last 0
-  | n + 1 => Fin.last (n + 1) := by
-  split <;> rfl
-
--- Manual generalization; the type-incorrect variant done by split
-
-/--
-error: Type mismatch
-  match m with
-  | 0 => Fin.last 0
-  | n.succ => Fin.last (n + 1)
-has type
-  Fin (m + 1)
-but is expected to have type
-  Fin (n.succ + 1)
----
-error: (kernel) declaration has metavariables '_example'
--/
-#guard_msgs in
-example (n m : Nat) (h : n.succ = m) : Fin.last n.succ = match (motive := ∀ n, Fin (n+1)) m with
-  | 0 => Fin.last 0
-  | n + 1 => Fin.last (n + 1) := sorry
-
--- What about using ndrec here?
-
-example (n m : Nat) (h : n.succ = m) : Fin.last n.succ =
-  h.symm.ndrec (motive := fun n => Fin (n + 1))
-    (match (motive := ∀ n, Fin (n+1)) m with
-    | 0 => Fin.last 0
-    | n + 1 => Fin.last (n + 1)) := by
-  split
-  · contradiction
-  · -- the cast is still here!
-    cases h
-    -- now the cast can rfl away
-    rfl
 
 -- Variant with proof-valued discriminant. This works (and always has):
 

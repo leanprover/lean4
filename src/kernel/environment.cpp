@@ -28,7 +28,7 @@ extern "C" object* lean_kernel_set_diag(object*, object*);
 extern "C" uint8* lean_kernel_diag_is_enabled(object*);
 
 void diagnostics::record_unfold(name const & decl_name) {
-    m_obj = lean_kernel_record_unfold(to_obj_arg(), decl_name.to_obj_arg());
+    m_obj = lean_kernel_record_unfold(m_obj, decl_name.to_obj_arg());
 }
 
 scoped_diagnostics::scoped_diagnostics(environment const & env, bool collect) {

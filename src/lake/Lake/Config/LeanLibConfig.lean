@@ -49,7 +49,7 @@ public configuration LeanLibConfig (name : Name) extends LeanConfig where
   Used as a base for the file names of its static and dynamic binaries.
   Defaults to the mangled name of the target.
   -/
-  libName : String := name.mangle ""
+  libName : String := ""
 
   /--
   Whether static and shared binaries of this library should be prefixed with `lib` on Windows.
@@ -82,7 +82,7 @@ public configuration LeanLibConfig (name : Name) extends LeanConfig where
 
   /--
   An `Array` of library facets to build on a bare `lake build` of the library.
-  For example, `#[LeanLib.sharedLib]` will build the shared library facet.
+  For example, `#[LeanLib.sharedFacet]` will build the shared library facet.
   -/
   defaultFacets : Array Name := #[LeanLib.leanArtsFacet]
 
@@ -98,6 +98,18 @@ public configuration LeanLibConfig (name : Name) extends LeanConfig where
   -/
   nativeFacets (shouldExport : Bool) : Array (ModuleFacet FilePath) :=
     #[if shouldExport then Module.oExportFacet else Module.oFacet]
+
+  /--
+  Whether downstream packages can `import all` modules of this library.
+
+  If enabled, downstream users will be able to access the `private` internals of modules,
+  including definition bodies not marked as `@[expose]`.
+  This may also, in the future, prevent compiler optimization which rely on `private`
+  definitions being inaccessible outside their own package.
+
+  Defaults to `false`.
+  -/
+  allowImportAll : Bool := false
 
 deriving Inhabited
 

@@ -32,7 +32,10 @@ public import Lake.Util.OrderedTagAttribute
 public import Lake.Util.OrdHashSet
 public import Lake.Util.Proc
 public import Lake.Util.RBArray
+public import Lake.Util.Reservoir
 public import Lake.Util.Store
 public import Lake.Util.StoreInsts
+public import Lake.Util.String
 public import Lake.Util.Task
+public import Lake.Util.Url
 public import Lake.Util.Version

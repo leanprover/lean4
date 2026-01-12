@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.HashMap
-// Imports: Std.Data.HashMap.Basic Std.Data.HashMap.Lemmas Std.Data.HashMap.AdditionalOperations
+// Imports: public import Std.Data.HashMap.Basic public import Std.Data.HashMap.AdditionalOperations public import Std.Data.HashMap.Iterator public import Std.Data.HashMap.Lemmas public import Std.Data.HashMap.IteratorLemmas public import Std.Data.HashMap.DecidableEquiv
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,21 +13,33 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Std_Data_HashMap_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_HashMap_Lemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_HashMap_AdditionalOperations(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_HashMap_Basic(uint8_t builtin);
+lean_object* initialize_Std_Data_HashMap_AdditionalOperations(uint8_t builtin);
+lean_object* initialize_Std_Data_HashMap_Iterator(uint8_t builtin);
+lean_object* initialize_Std_Data_HashMap_Lemmas(uint8_t builtin);
+lean_object* initialize_Std_Data_HashMap_IteratorLemmas(uint8_t builtin);
+lean_object* initialize_Std_Data_HashMap_DecidableEquiv(uint8_t builtin);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Data_HashMap(uint8_t builtin, lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Data_HashMap(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Std_Data_HashMap_Basic(builtin, lean_io_mk_world());
+res = initialize_Std_Data_HashMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_HashMap_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Std_Data_HashMap_AdditionalOperations(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_HashMap_AdditionalOperations(builtin, lean_io_mk_world());
+res = initialize_Std_Data_HashMap_Iterator(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_HashMap_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_HashMap_IteratorLemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_HashMap_DecidableEquiv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

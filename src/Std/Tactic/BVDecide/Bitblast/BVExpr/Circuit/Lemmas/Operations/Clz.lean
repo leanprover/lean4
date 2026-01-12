@@ -6,7 +6,6 @@ Authors: Luisa Cicolini, Siddharth Bhat, Henrik Böving
 module
 
 prelude
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Clz
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
 
@@ -61,7 +60,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
         · simp [hx]
         · simp [Ref.hgate]
       · intro idx hidx
-        simp only [Nat.add_eq_zero, Nat.succ_ne_self, and_false, reduceIte,
+        simp only [Nat.add_eq_zero_iff, Nat.succ_ne_self, and_false, reduceIte,
           Nat.add_one_sub_one]
         rw [RefVec.denote_ite]
         split

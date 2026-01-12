@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Expr
 public import Lean.Util.PtrSet
 public import Lean.Declaration
 

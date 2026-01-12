@@ -156,9 +156,6 @@ theorem extract_append_left {xs : Vector α n} {ys : Vector α m} :
   ext i h
   simp
 
-@[deprecated extract_mkVector (since := "2025-03-18")]
-abbrev extract_mkVector := @extract_replicate
-
 theorem extract_add_left {xs : Vector α n} {i j k : Nat} :
     xs.extract (i + j) k = ((xs.extract i k).extract j (k - i)).cast (by omega) := by
   rcases xs with ⟨xs, rfl⟩
@@ -179,7 +176,6 @@ theorem set_eq_push_extract_append_extract {xs : Vector α n} {i : Nat} (h : i <
   rcases xs with ⟨as, rfl⟩
   simp [Array.set_eq_push_extract_append_extract]
 
-@[grind =]
 theorem extract_reverse {xs : Vector α n} {i j : Nat} :
     xs.reverse.extract i j = (xs.extract (n - j) (n - i)).reverse.cast (by omega) := by
   ext i h
@@ -187,10 +183,17 @@ theorem extract_reverse {xs : Vector α n} {i j : Nat} :
   congr 1
   omega
 
-@[grind =]
+grind_pattern extract_reverse => xs.reverse.extract i j where
+  i =/= n - _
+  j =/= n - _
+
 theorem reverse_extract {xs : Vector α n} {i j : Nat} :
     (xs.extract i j).reverse = (xs.reverse.extract (n - j) (n - i)).cast (by omega) := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.reverse_extract]
+
+grind_pattern reverse_extract => (xs.extract i j).reverse where
+  i =/= n - _
+  j =/= n - _
 
 end Vector

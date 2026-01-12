@@ -6,11 +6,9 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Data.Int.Linear
-public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
-import Lean.Data.PersistentArray
-import Lean.Meta.Tactic.Grind.ExprPtr
+import Lean.Meta.Sym.ExprPtr
 import Lean.Meta.Tactic.Grind.Arith.Util
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat

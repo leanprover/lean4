@@ -6,19 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Parser.Term
-public import Lean.Meta.Closure
-public import Lean.Meta.Check
-public import Lean.Meta.Transform
-public import Lean.PrettyPrinter.Delaborator.Options
-public import Lean.Elab.Command
-public import Lean.Elab.Match
-public import Lean.Elab.DefView
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.PreDefinition.Main
-public import Lean.Elab.PreDefinition.TerminationHint
-public import Lean.Elab.DeclarationRange
-public import Lean.Elab.WhereFinally
+import all Lean.Elab.ErrorUtils
 
 public section
 
@@ -104,6 +94,8 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
     throwError "'unsafe' theorems are not allowed"
   if newHeader.kind.isTheorem && newHeader.modifiers.isPartial then
     throwError "'partial' theorems are not allowed, 'partial' is a code generation directive"
+  if newHeader.kind.isTheorem && newHeader.modifiers.isMeta then
+    throwError "'meta' theorems are not allowed, 'meta' is a code generation directive"
   if newHeader.kind.isTheorem && newHeader.modifiers.isNoncomputable then
     throwError "'theorem' subsumes 'noncomputable', code is not generated for theorems"
   if newHeader.modifiers.isNoncomputable && newHeader.modifiers.isPartial then
@@ -148,10 +140,11 @@ private def registerFailedToInferDefTypeInfo (type : Expr) (view : DefView) :
   registerCustomErrorIfMVar type ref (m!"Failed to infer type of {msg}".tagWithErrorName failedToInferDefTypeErrorName)
 
 /--
-  Return `some [b, c]` if the given `views` are representing a declaration of the form
-  ```
-  opaque a b c : Nat
-  ```  -/
+Return `some [b, c]` if the given `views` are representing a declaration of the form
+```
+opaque a b c : Nat
+```
+-/
 private def isMultiConstant? (views : Array DefView) : Option (List Name) :=
   if views.size == 1 &&
      views[0]!.kind == .opaque &&
@@ -161,21 +154,40 @@ private def isMultiConstant? (views : Array DefView) : Option (List Name) :=
   else
     none
 
+/--
+Return `some [a, b, c]` if the given `views` are representing a declaration of the form
+```
+example a b c : Nat := ...
+```
+-/
+private def isExampleParams? (views : Array DefView) : Option (List Name) :=
+  if views.size == 1 &&
+     views[0]!.kind == .example &&
+     views[0]!.binders.getArgs.size > 0 &&
+     views[0]!.binders.getArgs.all (·.isIdent) then
+    some (views[0]!.binders.getArgs.toList.map (·.getId))
+  else
+    none
+
 private def getPendingMVarErrorMessage (views : Array DefView) : MessageData :=
-  match isMultiConstant? views with
-  | some ids =>
-    let idsStr := ", ".intercalate <| ids.map fun id => s!"`{id}`"
-    let paramsStr := ", ".intercalate <| ids.map fun id => s!"`({id} : _)`"
+  if let .some ids := isMultiConstant? views then
     MessageData.note m!"Multiple constants cannot be declared in a single declaration. \
-      The identifier(s) {idsStr} are being interpreted as parameters {paramsStr}."
-  | none =>
-    if views.all fun view => view.kind.isTheorem then
-      MessageData.note "All parameter types and holes (e.g., `_`) in the header of a theorem are resolved \
-        before the proof is processed; information from the proof cannot be used to infer what these values should be"
+      {interpretedAsParameters (ids)}"
+  else if views.all (·.kind.isTheorem) then
+    MessageData.note "All parameter types and holes (e.g., `_`) in the header of a theorem are resolved \
+      before the proof is processed; information from the proof cannot be used to infer what these values should be"
+  else if let .some ids := isExampleParams? views then
+    MessageData.note m!"Examples do not have names. {interpretedAsParameters ids}"
     else
       MessageData.note "Because this declaration's type has been explicitly provided, all parameter \
         types and holes (e.g., `_`) in its header are resolved before its body is processed; \
         information from the declaration body cannot be used to infer what these values should be"
+where
+  interpretedAsParameters (ids : List Name) : MessageData :=
+    let idsStr := ids.map (m!"`{.ofName ·}`") |>.toOxford
+    let paramsStr := ids.map (m!"`({.ofName ·} : _)`") |>.toOxford
+    m!"The identifier{ids.length.plural} {idsStr} {ids.length.plural "is" "are"} being interpreted \
+      as {ids.length.plural "a parameter" "parameters"} {paramsStr}."
 
 /--
 Convert terms of the form `OfNat <type> (OfNat.ofNat Nat <num> ..)` into `OfNat <type> <num>`.
@@ -375,7 +387,7 @@ private def expandWhereStructInst : Macro := fun whereStx => do
   let endOfStructureTkInfo : SourceInfo :=
     match structureStxTailInfo with
     | some (SourceInfo.original _ _ trailing _) =>
-      let tokenPos := trailing.str.prev trailing.stopPos
+      let tokenPos := trailing.stopPos.prev trailing.str
       let tokenEndPos := trailing.stopPos
       .synthetic tokenPos tokenEndPos true
     | _ => .none
@@ -491,7 +503,6 @@ register_builtin_option linter.unusedSectionVars : Bool := {
 
 register_builtin_option debug.proofAsSorry : Bool := {
   defValue := false
-  group    := "debug"
   descr    := "replace the bodies (proofs) of theorems with `sorry`"
 }
 
@@ -545,6 +556,14 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
               -- leads to more section variables being included than necessary
               instantiateMVarsProfiling val
         let val ← mkLambdaFVars xs val
+        if header.type?.isNone && (← getEnv).header.isModule && !(← getEnv).isExporting &&
+            !isPrivateName header.declName && header.kind != .example then
+          -- If the type of a non-exposed definition was elided, we need to check after the fact
+          -- whether it is in fact well-formed.
+          withRef header.declId do
+          withExporting do
+            let type ← instantiateMVars type
+            Meta.check type
         if linter.unusedSectionVars.get (← getOptions) && !header.type.hasSorry && !val.hasSorry then
           let unusedVars ← vars.filterMapM fun var => do
             let varDecl ← var.fvarId!.getDecl
@@ -1049,6 +1068,7 @@ def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHea
       kind        := header.kind
       declName    := header.declName
       binders     := header.binders
+      numSectionVars := sectionVars.size
       levelParams := [], -- we set it later
       modifiers   := header.modifiers
       type, value, termination
@@ -1087,7 +1107,7 @@ def getModifiersForLetRecs (mainHeaders : Array DefViewElabHeader) : Modifiers :
     if mainHeaders.any (·.modifiers.isNoncomputable) then .noncomputable
     else if mainHeaders.any (·.modifiers.isMeta) then .meta
     else .regular
-  recKind     := if mainHeaders.any fun h => h.modifiers.isInferredPartial then RecKind.partial else RecKind.default
+  recKind     := if mainHeaders.any fun h => h.modifiers.isPartial then RecKind.partial else RecKind.default
   isUnsafe    := mainHeaders.any fun h => h.modifiers.isUnsafe
 }
 
@@ -1189,10 +1209,19 @@ where
     let tacPromises ← views.mapM fun _ => IO.Promise.new
     let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
       Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
+    for view in views, declId in expandedDeclIds do
+      -- Add tags early so elaboration can access them
+      match view.modifiers.computeKind with
+      | .meta          => modifyEnv (markMeta · declId.declName)
+      | .noncomputable => modifyEnv (addNoncomputable · declId.declName)
+      | .regular       => pure ()
     withExporting (isExporting :=
       -- `example`s are always private unless explicitly marked `public`
+      -- (it would be more consistent to give them a private name as well but that exposes that
+      -- encoded name in e.g. kernel errors where it's hard to replace it)
       views.any (fun view => view.kind != .example || view.modifiers.isPublic) &&
       expandedDeclIds.any (!isPrivateName ·.declName)) do
+    withSaveInfoContext do  -- save adjusted env in info tree
     let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
     let headers ← levelMVarToParamHeaders views headers
     if let (#[view], #[declId]) := (views, expandedDeclIds) then
@@ -1214,7 +1243,9 @@ where
     assert! view.kind.isTheorem
     let env ← getEnv
     let async ← env.addConstAsync declId.declName .thm
-      (exportedKind? := guard (!isPrivateName declId.declName) *> some .axiom)
+      (exportedKind? :=
+        guard (!isPrivateName declId.declName || (← ResolveName.backward.privateInPublic.getM)) *>
+        some .axiom)
     setEnv async.mainEnv
 
     -- TODO: parallelize header elaboration as well? Would have to refactor auto implicits catch,
@@ -1291,13 +1322,31 @@ where
               logWarningAt attr.stx m!"Redundant `[expose]` attribute, it is meaningful on public \
                 definitions only"
 
+    -- Switch to private scope if...
     withoutExporting (when :=
-      headers.all (fun header =>
-        header.modifiers.isMeta ||
-        header.modifiers.attrs.any (·.name == `no_expose) ||
-        (!(header.kind == .def && sc.attrs.any (· matches `(attrInstance| expose))) &&
-         !header.modifiers.attrs.any (·.name == `expose) &&
-         !header.kind matches .abbrev | .instance))) do
+      (← headers.allM (fun header => do
+        -- ... there is a `@[no_expose]` attribute
+        if header.modifiers.attrs.any (·.name == `no_expose) then
+          return true
+        -- ... or NONE of the following:
+        -- ... this is a non-`meta` `def` inside a `@[expose] section`
+        if header.kind == .def && (!header.modifiers.isMeta || sc.isMeta) && sc.attrs.any (· matches `(attrInstance| expose)) then
+          return false
+        -- ... there is an `@[expose]` attribute directly on the def (of any kind or phase)
+        if header.modifiers.attrs.any (·.name == `expose) then
+          return false
+        -- ... this is an `abbrev`
+        if header.kind == .abbrev then
+          return false
+        -- ... this is a data instance
+        if header.kind == .instance then
+          if !(← isProp header.type) then
+            return false
+        return true))) do
+    -- Never export private decls from theorem bodies to make sure they stay irrelevant for rebuilds
+    withOptions (fun opts =>
+      if headers.any (·.kind.isTheorem) then ResolveName.backward.privateInPublic.set opts false else opts) do
+    withSaveInfoContext do  -- save adjusted env in info tree
     let headers := headers.map fun header =>
       { header with modifiers.attrs := header.modifiers.attrs.filter (!·.name ∈ [`expose, `no_expose]) }
     let values ← try
@@ -1368,7 +1417,7 @@ where
             and the parameters in the declaration, so for now we do not allow `classStx`
             to refer to section variables that were not included.
             -/
-            let info ← getConstInfo header.declName
+            let info ← withoutExporting <| getConstInfo header.declName
             lambdaTelescope info.value! fun xs _ => do
               let decl := mkAppN (.const header.declName (info.levelParams.map mkLevelParam)) xs
               processDefDeriving view decl

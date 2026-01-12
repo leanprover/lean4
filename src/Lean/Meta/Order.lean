@@ -7,7 +7,6 @@ Authors: Wojciech Różowski, Joachim Breitner
 module
 
 prelude
-public import Lean.Meta.InferType
 public import Lean.Meta.PProdN
 public import Lean.Meta.AppBuilder
 public import Init.Internal.Order.Basic

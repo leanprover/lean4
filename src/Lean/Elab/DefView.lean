@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Elab.Command
 public import Lean.Elab.DeclNameGen
 public import Lean.Elab.DeclUtil
 
@@ -221,7 +220,8 @@ def isDefLike (stx : Syntax) : Bool :=
 
 def mkDefView (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
   let declKind := stx.getKind
-  let modifiers := if modifiers.computeKind == .regular && (← getScope).isMeta then
+  let modifiers := if modifiers.computeKind == .regular && (← getScope).isMeta &&
+      declKind != ``Parser.Command.theorem && declKind != ``Parser.Command.example then
     { modifiers with computeKind := .meta }
   else modifiers
   if declKind == ``Parser.Command.«abbrev» then

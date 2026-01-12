@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Control.StateRef
 public import Std.Data.HashMap.Basic
 
 public section

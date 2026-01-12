@@ -1,3 +1,5 @@
+module
+
 #check Int8
 #eval Int8.ofInt 20
 #eval Int8.ofInt (-20)
@@ -10,8 +12,8 @@
 #eval Int8.ofNat 120 = 120
 #eval Int8.ofInt (-20) = -20
 #eval (Int8.ofInt (-2)).toInt = -2
-#eval (Int8.ofInt (-2)).toNat = 0
-#eval (Int8.ofInt (10)).toNat = 10
+#eval (Int8.ofInt (-2)).toNatClampNeg = 0
+#eval (Int8.ofInt (10)).toNatClampNeg = 10
 #eval (Int8.ofInt (10)).toInt = 10
 #eval Int8.ofNat (2^64) == 0
 #eval Int8.ofInt (-2^64) == 0
@@ -116,8 +118,8 @@ def myId8 (x : Int8) : Int8 := x
 #eval Int16.ofNat 120 = 120
 #eval Int16.ofInt (-20) = -20
 #eval (Int16.ofInt (-2)).toInt = -2
-#eval (Int16.ofInt (-2)).toNat = 0
-#eval (Int16.ofInt (10)).toNat = 10
+#eval (Int16.ofInt (-2)).toNatClampNeg = 0
+#eval (Int16.ofInt (10)).toNatClampNeg = 10
 #eval (Int16.ofInt (10)).toInt = 10
 #eval Int16.ofNat (2^64) == 0
 #eval Int16.ofInt (-2^64) == 0
@@ -198,8 +200,8 @@ def myId16 (x : Int16) : Int16 := x
 #eval Int32.ofNat 120 = 120
 #eval Int32.ofInt (-20) = -20
 #eval (Int32.ofInt (-2)).toInt = -2
-#eval (Int32.ofInt (-2)).toNat = 0
-#eval (Int32.ofInt (10)).toNat = 10
+#eval (Int32.ofInt (-2)).toNatClampNeg = 0
+#eval (Int32.ofInt (10)).toNatClampNeg = 10
 #eval (Int32.ofInt (10)).toInt = 10
 #eval Int32.ofNat (2^64) == 0
 #eval Int32.ofInt (-2^64) == 0
@@ -279,8 +281,8 @@ def myId32 (x : Int32) : Int32 := x
 #eval Int64.ofNat 120 = 120
 #eval Int64.ofInt (-20) = -20
 #eval (Int64.ofInt (-2)).toInt = -2
-#eval (Int64.ofInt (-2)).toNat = 0
-#eval (Int64.ofInt (10)).toNat = 10
+#eval (Int64.ofInt (-2)).toNatClampNeg = 0
+#eval (Int64.ofInt (10)).toNatClampNeg = 10
 #eval (Int64.ofInt (10)).toInt = 10
 #eval Int64.ofNat (2^64) == 0
 #eval Int64.ofInt (-2^64) == 0
@@ -361,8 +363,8 @@ def myId64 (x : Int64) : Int64 := x
 #eval ISize.ofNat 120 = 120
 #eval ISize.ofInt (-20) = -20
 #eval (ISize.ofInt (-2)).toInt = -2
-#eval (ISize.ofInt (-2)).toNat = 0
-#eval (ISize.ofInt (10)).toNat = 10
+#eval (ISize.ofInt (-2)).toNatClampNeg = 0
+#eval (ISize.ofInt (10)).toNatClampNeg = 10
 #eval (ISize.ofInt (10)).toInt = 10
 #eval ISize.ofNat (2^64) == 0
 #eval ISize.ofInt (-2^64) == 0

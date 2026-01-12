@@ -11,7 +11,7 @@ def f (c : D) : IO Unit :=
 where
   visit (c : D) : IO Unit :=
     let x := c.
-             --^ textDocument/completion
+             --^ completion
 
 abbrev E := D
 
@@ -20,4 +20,4 @@ def E.doubleF1 (e : E) :=
 
 def g (e : E) :=
   e.
-  --^ textDocument/completion
+  --^ completion

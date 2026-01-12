@@ -8,10 +8,7 @@ module
 prelude
 public import Lean.Runtime
 public import Lean.Compiler.ClosedTermCache
-public import Lean.Compiler.ExternAttr
-public import Lean.Compiler.IR.Basic
 public import Lean.Compiler.IR.CompilerM
-public import Lean.Compiler.IR.FreeVars
 public import Lean.Compiler.IR.ElimDeadVars
 public import Lean.Compiler.IR.ToIRType
 public import Lean.Data.AssocList
@@ -29,12 +26,6 @@ Assumptions:
   `Expr.isShared`, `Expr.isTaggedPtr`, and `FnBody.set`.
 -/
 
-def mkBoxedName (n : Name) : Name :=
-  Name.mkStr n "_boxed"
-
-def isBoxedName (name : Name) : Bool :=
-  name matches .str _ "_boxed"
-
 abbrev N := StateM Nat
 
 private def N.mkFresh : N VarId :=
@@ -42,7 +33,7 @@ private def N.mkFresh : N VarId :=
 
 def requiresBoxedVersion (env : Environment) (decl : Decl) : Bool :=
   let ps := decl.params
-  (ps.size > 0 && (decl.resultType.isScalar || ps.any (fun p => p.ty.isScalar || p.borrow) || isExtern env decl.name))
+  (ps.size > 0 && (decl.resultType.isScalar || ps.any (fun p => p.ty.isScalar || p.borrow || p.ty.isVoid) || isExtern env decl.name))
   || ps.size > closureMaxArgs
 
 def mkBoxedVersionAux (decl : Decl) : N Decl := do
@@ -62,7 +53,7 @@ def mkBoxedVersionAux (decl : Decl) : N Decl := do
     pure <| reshape newVDecls (.ret (.var r))
   else
     let newR ← N.mkFresh
-    let newVDecls := newVDecls.push (.vdecl newR .tobject (.box decl.resultType r) default)
+    let newVDecls := newVDecls.push (.vdecl newR decl.resultType.boxed (.box decl.resultType r) default)
     pure <| reshape newVDecls (.ret (.var newR))
   return Decl.fdecl (mkBoxedName decl.name) qs decl.resultType.boxed body decl.getInfo
 
@@ -276,8 +267,29 @@ def visitVDeclExpr (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody 
   | _     =>
     return .vdecl x ty e b
 
+/--
+Up to this point the type system of IR is quite loose so we can for example encounter situations
+such as
+```
+let y : obj := f x
+```
+where `f : obj -> uint8`. It is the job of the boxing pass to enforce a stricter obj/scalar
+separation and as such it needs to correct situations like this.
+-/
+def tryCorrectVDeclType (ty : IRType) (e : Expr) : M IRType :=
+  match e with
+  | .fap f _ => do
+    let decl ← getDecl f
+    return decl.resultType
+  | .pap .. => return .object
+  | .uproj .. => return .usize
+  | .ctor .. | .reuse .. | .ap .. | .lit .. | .sproj .. | .proj .. | .reset .. =>
+    return ty
+  | .unbox .. | .box .. | .isShared .. => unreachable!
+
 partial def visitFnBody : FnBody → M FnBody
   | .vdecl x t v b     => do
+    let t ← tryCorrectVDeclType t v
     let b ← withVDecl x t v (visitFnBody b)
     visitVDeclExpr x t v b
   | .jdecl j xs v b    => do

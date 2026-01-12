@@ -402,7 +402,6 @@ protected theorem isSome_minOn?_iff [LE β] [DecidableLE β] {f : α → β} {xs
     (xs.minOn? f).isSome ↔ xs ≠ [] := by
   fun_cases xs.minOn? f <;> simp
 
-@[grind =]
 protected theorem minOn_eq_get_minOn? [LE β] [DecidableLE β] {f : α → β} {xs : List α}
     (h : xs ≠ []) : xs.minOn f h = (xs.minOn? f).get (List.isSome_minOn?_iff.mpr h) := by
   fun_cases xs.minOn? f
@@ -514,7 +513,6 @@ protected theorem isSome_maxOn?_iff [LE β] [DecidableLE β] {f : α → β} {xs
     (xs.maxOn? f).isSome ↔ xs ≠ [] := by
   fun_cases xs.maxOn? f <;> simp
 
-@[grind =]
 protected theorem maxOn_eq_get_maxOn? [LE β] [DecidableLE β] {f : α → β} {xs : List α}
     (h : xs ≠ []) : xs.maxOn f h = (xs.maxOn? f).get (List.isSome_maxOn?_iff.mpr h) :=
   letI : LE β := (inferInstanceAs (LE β)).opposite

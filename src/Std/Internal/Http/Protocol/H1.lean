@@ -137,10 +137,28 @@ private def updateKeepAlive (machine : Machine dir) (should : Bool) : Machine di
 
 -- Helper Functions
 
+private def isChunked (headers : Headers) : Option Bool :=
+  if let some res := headers.get? (.new "transfer-encoding") then
+    let encodings := res.value.split "," |>.toArray.map (·.trimAscii.toString.toLower)
+    if encodings.isEmpty then
+      none
+    else
+      let chunkedCount := encodings.filter (· == "chunked") |>.size
+      let lastIsChunked := encodings.back? == some "chunked"
+
+      if chunkedCount > 1 then
+        none
+      else if chunkedCount = 1 ∧ ¬lastIsChunked then
+        none
+      else
+        some lastIsChunked
+  else
+    some false
+
 private def extractBodyLengthFromHeaders (headers : Headers) : Option Body.Length :=
-  match (headers.get? (.new "content-length"), headers.hasEntry (.new "transfer-encoding") "chunked") with
-  | (some cl, false) => cl.value.toNat? >>= (some ∘ Body.Length.fixed)
-  | (_, true) => some Body.Length.chunked
+  match (headers.get? (.new "content-length"), isChunked headers) with
+  | (some cl, some false) => cl.value.toNat? >>= (some ∘ Body.Length.fixed)
+  | (_, some true) => some Body.Length.chunked
   | _ => none
 
 def getMessageSize (req : Message.Head dir) : Option Body.Length := do
@@ -152,14 +170,12 @@ def getMessageSize (req : Message.Head dir) : Option Body.Length := do
     if req.method == .head ∨ req.method == .connect then
       return .fixed 0
 
-  match (req.headers.getAll? (.new "content-length"), req.headers.hasEntry (.new "transfer-encoding") "chunked") with
-  | (some #[cl], false) => do
-    let num ← cl.value.toNat?
-    some (.fixed num)
-  | (none, false) => some (.fixed 0)
-  | (none, true) => some .chunked
-  | (some _, false) => none -- To avoid request smuggling with multiple content-length headers.
-  | (some _, true) => none -- To avoid request smuggling!
+  match (req.headers.getAll? (.new "content-length"), isChunked req.headers) with
+  | (some #[cl], some false) => .fixed <$> cl.value.toNat?
+  | (none, some false) =>some (.fixed 0)
+  | (none, some true) => some .chunked
+  | (some _, some _) => none -- To avoid request smuggling with multiple content-length headers.
+  | (_, none) => none -- Error validating the chunked encoding
 
 -- State Checks
 

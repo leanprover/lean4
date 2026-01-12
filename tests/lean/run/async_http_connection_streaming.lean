@@ -71,7 +71,23 @@ def hasContentLength (req : Request Body) (length : String) : Bool :=
 
 /-- Check if request uses chunked transfer encoding. -/
 def isChunkedRequest (req : Request Body) : Bool :=
-  req.head.headers.hasEntry (.new "transfer-encoding") "chunked"
+  let headers := req.head.headers
+  if let some res := headers.get? (.new "transfer-encoding") then
+    let encodings := res.value.split "," |>.toArray.map (·.trimAscii.toString.toLower)
+    if encodings.isEmpty then
+      false
+    else
+      let chunkedCount := encodings.filter (· == "chunked") |>.size
+      let lastIsChunked := encodings.back? == some "chunked"
+
+      if chunkedCount > 1 then
+        false
+      else if chunkedCount = 1 ∧ ¬lastIsChunked then
+        false
+      else
+        lastIsChunked
+  else
+    false
 
 /-- Check if request has a specific header with a specific value. -/
 def hasHeader (req : Request Body) (name : String) (value : String) : Bool :=
@@ -206,6 +222,39 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     |>.uri! "/"
     |>.header! "Host" "example.com"
     |>.header! "Transfer-Encoding" "chunked"
+    |>.header! "Connection" "close"
+    |>.body #[
+      .mk "data1".toUTF8 #[],
+      .mk "data2".toUTF8 #[]
+    ]
+
+  handler := fun req => do
+    if isChunkedRequest req
+    then
+      let stream ← Body.ByteStream.empty
+      background do
+        for i in [0:2] do
+          discard <| stream.write s!"response{i}".toUTF8
+        stream.close
+      return Response.ok
+        |>.header (.new "content-length") (.new "18")
+        |>.body stream
+    else
+      return Response.badRequest
+        |>.body "not chunked"
+
+  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 18\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nresponse0response1"
+  chunked := true
+}
+
+#eval runTestCase {
+  name := "Chunked request with streaming response and other encodings"
+
+  request := Request.new
+    |>.method .post
+    |>.uri! "/"
+    |>.header! "Host" "example.com"
+    |>.header! "Transfer-Encoding" "gzip, chunked"
     |>.header! "Connection" "close"
     |>.body #[
       .mk "data1".toUTF8 #[],

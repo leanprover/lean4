@@ -1,5 +1,6 @@
 #include "util/options.h"
 
+// hey parser benefits are two stages away
 namespace lean {
 options get_default_options() {
     options opts;

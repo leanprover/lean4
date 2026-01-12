@@ -149,8 +149,8 @@ where
       | none => args.foldlM (fun b arg => visitArg arg false <||> pure b) false
       | some decl =>
         let mut res := false
-        for a in args, p in decl.params do
-          if ← visitArg a p.borrow then
+        for h : i in *...args.size do
+          if ← visitArg args[i] (decl.params[i]?.any (·.borrow)) then
             res := true
         return res
     | .fvar x args =>

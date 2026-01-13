@@ -286,50 +286,47 @@ theorem denote_blastParPreSumTree
 -- end blastCpop
 
 @[simp]
-theorem denote_blastParPreSum' (aig : AIG α) (l : Nat) (xc : ParPreSumTarget aig l)
+theorem denote_blastParPreSum (aig : AIG α) (l : Nat) (xc : ParPreSumTarget aig l)
       (x : BitVec w) (assign : α → Bool)
       (hx : ∀ (idx : Nat) (hidx : idx < xc.w), ⟦aig, xc.inner.get idx hidx, assign⟧ = x.getLsbD idx)
       :
       ∀ (idx : Nat) (hidx : idx < l),
         ⟦(blastParPreSum aig xc).aig, (blastParPreSum aig xc).vec.get idx hidx, assign⟧
-          = (BitVec.parPreSum l x).getLsbD idx := by sorry
---     generalize hgen : blastCpop aig xc = res
---     unfold blastCpop at hgen
---     rw [BitVec.cpop_eq_pps]
---     split at hgen
---     · intros idx hidx
---       rw [← hgen]
---       simp only [BitVec.ofNat_eq_ofNat, Lean.Elab.WF.paramLet, BitVec.addRecAux_succ,
---         BitVec.addRecAux_zero]
---       rw [blastCpop.denote_go (l_bv := BitVec.extractAndExtendPopulate w x)]
---       · simp [show ¬ w = 0 by omega]
---       · omega
---       · intros idx hidx
---         rw [blastCpop.denote_blastExtractAndExtendPopulate]
---         · omega
---         · exact hx
---     · split at hgen
---       · rw [← hgen]
---         have : w = 1 := by omega
---         subst this
---         simp [BitVec.pps_without_subtype, BitVec.extractAndExtendPopulate, BitVec.extractAndExtendPopulateAux_without_subtype, hx]
---       · simp [show w = 0 by omega]
+          = (BitVec.parPreSum l x).getLsbD idx := by
+    generalize hgen : blastParPreSum aig xc = res
+    unfold blastParPreSum at hgen
+    sorry
+    -- split at hgen
+    -- · intros idx hidx
+    --   rw [← hgen]
+    --   simp only [BitVec.ofNat_eq_ofNat, Lean.Elab.WF.paramLet, BitVec.addRecAux_succ,
+    --     BitVec.addRecAux_zero]
 
--- theorem cpop_eq_cpopNatRec {x : BitVec w} :
---     x.cpop = BitVec.ofNat w (BitVec.cpopNatRec x w 0) := by
---   simp [BitVec.cpop]
+    --   rw [blastCpop.denote_go (l_bv := BitVec.extractAndExtendPopulate w x)]
+    --   · simp [show ¬ w = 0 by omega]
+    --   · omega
+    --   · intros idx hidx
+    --     rw [blastCpop.denote_blastExtractAndExtendPopulate]
+    --     · omega
+    --     · exact hx
+    -- · split at hgen
+    --   · rw [← hgen]
+    --     have : w = 1 := by omega
+    --     subst this
+    --     simp [BitVec.pps_without_subtype, BitVec.extractAndExtendPopulate, BitVec.extractAndExtendPopulateAux_without_subtype, hx]
+    --   · simp [show w = 0 by omega]
 
 @[simp]
-theorem denote_blastParPreSum (aig : AIG α) (l : Nat) (xc : ParPreSumTarget aig l)
+theorem denote_blastParPreSum' (aig : AIG α) (l : Nat) (xc : ParPreSumTarget aig l)
         (x : BitVec w) (assign : α → Bool)
       (hx : ∀ (idx : Nat) (hidx : idx < xc.w), ⟦aig, xc.inner.get idx hidx, assign⟧ = x.getLsbD idx)
       :
       ∀ (idx : Nat) (hidx : idx < l),
         ⟦(blastParPreSum aig xc).aig, (blastParPreSum aig xc).vec.get idx hidx, assign⟧
-          = (BitVec.flattenedAdd l x).getLsbD idx := by sorry
-    -- rw [← cpop_eq_cpopNatRec]
-    -- apply denote_blastCpop'
-    -- simp [hx]
+          = (BitVec.flattenedAdd l x).getLsbD idx := by
+  rw [BitVec.flattenedAdd_eq_parPreSum]
+  apply denote_blastParPreSum
+  simp [hx]
 
 end blastParPreSum
 end bitblast

@@ -2513,69 +2513,6 @@ theorem extractLsb'_extractAndExtendPopulate_zero_eq (x : BitVec w) :
   rw [show 0 = 0 * w by omega, extractLsb'_extractAndExtendPopulate_eq (i := 0)]
   simp
 
-/--
-  We construct a layer of the parallel-prefix-sum tree by summing two-by-two all the elements
-  in the old layer, returning a bitvector containing `(old_length + 1) / 2` nodes resulting from
-  this addition.
--/
-def parPreSum_layer {w : Nat} (iter_num : Nat) (old_layer : BitVec (old_length * w))
-  (new_layer : BitVec (iter_num * w))
-  (hold : 2 * (iter_num - 1) < old_length) : BitVec (((old_length + 1)/2) * w) :=
-  if hlen : old_length - (iter_num * 2) = 0 then
-    have : ((old_length + 1)/2) = iter_num := by omega
-    new_layer.cast (by simp [this])
-  else
-    let op1 := old_layer.extractLsb' ((2 * iter_num) * w) w
-    let op2 := old_layer.extractLsb' ((2 * iter_num + 1) * w) w
-    let new_layer' := (op1 + op2) ++ new_layer
-    have hcast : w + iter_num * w = (iter_num + 1) * w := by simp [Nat.add_mul]; omega
-    parPreSum_layer (iter_num + 1) old_layer (new_layer'.cast hcast) (by omega)
-termination_by old_length - (iter_num * 2)
-
-theorem extractLsb'_parPreSum_layer
-  {w : Nat}  (iter_num : Nat) (old_layer : BitVec (old_length * w))
-  (new_layer : BitVec (iter_num * w))
-  (hold : 2 * (iter_num - 1) < old_length)
-  (proof_addition : ∀ i (_: i < iter_num) (_ : 2 * i < old_length),
-        new_layer.extractLsb' (i * w) w =
-          old_layer.extractLsb' ((2 * i) * w) w
-          + (old_layer.extractLsb' ((2 * i + 1) * w) w))
-  (ls : BitVec (((old_length + 1)/2) * w))
-  (hls : ls = parPreSum_layer iter_num old_layer new_layer hold) :
-      ∀ i (_: i < (old_length + 1)/2) (_ : 2 * i < old_length),
-        ls.extractLsb' (i * w) w =
-          old_layer.extractLsb' ((2 * i) * w) w
-          + (old_layer.extractLsb' ((2 * i + 1) * w) w) := by
-  subst hls
-  unfold parPreSum_layer
-  split
-  · intros i hi hi'
-    have hcast : iter_num * w = ((old_length + 1)/2) * w := by congr; omega
-    have : extractLsb' (i * w) w (BitVec.cast hcast new_layer) = extractLsb' (i * w) w new_layer := by simp [extractLsb'_cast]
-    rw [this]
-    apply proof_addition
-    <;> omega
-  · let op1 := old_layer.extractLsb' ((2 * iter_num) * w) w
-    let op2 := old_layer.extractLsb' ((2 * iter_num + 1) * w) w
-    let new_layer' := (op1 + op2) ++ new_layer
-    have proof_old_layer_length_lt : 2 * (iter_num + 1 - 1) < old_length := by omega
-    have hcast : w + iter_num * w = (iter_num + 1) * w := by simp [Nat.add_mul]; omega
-    apply extractLsb'_parPreSum_layer (iter_num + 1) old_layer (new_layer'.cast hcast) (by omega)
-    · intros i hi hi'
-      by_cases hlt : i < iter_num
-      · simp only [new_layer']
-        rw [extractLsb'_cast, extractLsb'_append_eq_of_add_le]
-        · specialize proof_addition (i := i) hlt (by omega)
-          simp [proof_addition]
-        · simp only [show i * w + w = i * w + 1 * w by omega, Nat.one_mul]
-          rw [← Nat.add_mul (n := i) (m := 1) (k := w)]
-          exact mul_le_mul_right w hlt
-      · rw [extractLsb'_cast]
-        simp [show i = iter_num by omega]
-        rw [extractLsb'_append_eq_left]
-    · simp [new_layer']
-      have hcast : w + iter_num * w = (iter_num + 1) * w := by omega
-      congr
 
 theorem extractLsb'_append_extractLsb'_eq_of_lt (a : BitVec (a_length * w)) (ha : 0 < a_length) :
   a = (a.extractLsb' ((a_length - 1) * w) w ++ a.extractLsb' 0 ((a_length - 1) * w)).cast
@@ -2819,43 +2756,6 @@ theorem addRecAux_eq_of
         · omega
       · simp [show (b_length + 1) / 2 - 1 = 0 by omega, show b_length - 1 = 0 by omega]
 
-/-- construct the parallel prefix sum circuit of the flattend bitvectors in `l` -/
-def parPreSum_tree (l : BitVec (l_length * w)) (k : BitVec w)
-      (proof_length : 0 < l_length) (hw : 0 < w) : BitVec (1 * w) :=
-  if h : l_length = 1 then
-    l.cast (by simp [h])
-  else
-    let new_layer := parPreSum_layer 0 l 0#(0 * w) (by omega)
-    let proof_new_layer := extractLsb'_parPreSum_layer 0 l 0#(0 * w) (by omega) (by simp)
-    let l_length' := (l_length + 1) / 2
-    let proof_new_layer_length : 0 < l_length' := by omega
-    parPreSum_tree new_layer k proof_new_layer_length hw
-
-theorem addRecAux_parPreSum (l : BitVec (l_length * w)) (k : BitVec w)
-      (proof : addRecAux l l_length 0#w  = k)
-      (proof_length : 0 < l_length) (hw : 0 < w)
-      (ls : BitVec (1 * w))
-      (hls : ls = parPreSum_tree l k (by omega) hw) :
-      addRecAux ls 1 0#w = k := by
-  unfold parPreSum_tree at hls
-  split at hls
-  · case _ h =>
-    simp [h] at proof
-    rw [← proof]
-    simp [addRecAux, hls]
-    ext k hk; simp
-  · case _ h =>
-    let new_layer := parPreSum_layer 0 l 0#(0 * w) (by omega)
-    let proof_new_layer := extractLsb'_parPreSum_layer 0 l 0#(0 * w) (by omega) (by simp)
-    let l_length' := (l_length + 1) / 2
-    let proof_new_layer_length : 0 < l_length' := by omega
-    let proof_sum_eq : addRecAux new_layer ((l_length + 1) / 2) 0#w = k := by
-      rw [← proof]
-      apply addRecAux_eq_of (a := new_layer) (by omega) (b := l)
-        (by apply proof_new_layer; simp [new_layer]) (by omega) (by omega) (n := (l_length + 1) / 2)
-    apply addRecAux_parPreSum new_layer k proof_sum_eq proof_new_layer_length hw
-    exact eq_of_toNat_eq (congrArg BitVec.toNat hls)
-
 theorem getLsbD_extractAndExtendPopulate_add  {x : BitVec w} (hk : k < w):
     (x.extractAndExtendPopulate w).getLsbD (pos * w + k) = ((x.extractLsb' pos 1).zeroExtend w).getLsbD k := by
 
@@ -2930,6 +2830,141 @@ theorem getLsbD_extractAndExtend {x : BitVec w} (hv : 0 < v):
     exact mul_mod_left (k / v) v
   rw [Nat.div_mul_cancel (by omega)]
   omega
+
+/--
+  We construct a layer of the parallel-prefix-sum tree by summing two-by-two all the elements
+  in the old layer, returning a bitvector containing `(old_length + 1) / 2` nodes resulting from
+  this addition.
+-/
+def parPreSum_layer {w : Nat} (iter_num : Nat) (old_layer : BitVec (old_length * w))
+  (new_layer : BitVec (iter_num * w))
+  (hold : 2 * (iter_num - 1) < old_length) : BitVec (((old_length + 1)/2) * w) :=
+  if hlen : old_length - (iter_num * 2) = 0 then
+    have : ((old_length + 1)/2) = iter_num := by omega
+    new_layer.cast (by simp [this])
+  else
+    let op1 := old_layer.extractLsb' ((2 * iter_num) * w) w
+    let op2 := old_layer.extractLsb' ((2 * iter_num + 1) * w) w
+    let new_layer' := (op1 + op2) ++ new_layer
+    have hcast : w + iter_num * w = (iter_num + 1) * w := by simp [Nat.add_mul]; omega
+    parPreSum_layer (iter_num + 1) old_layer (new_layer'.cast hcast) (by omega)
+termination_by old_length - (iter_num * 2)
+
+
+theorem extractLsb'_parPreSum_layer
+  {w : Nat}  (iter_num : Nat) (old_layer : BitVec (old_length * w))
+  (new_layer : BitVec (iter_num * w))
+  (hold : 2 * (iter_num - 1) < old_length)
+  (proof_addition : ∀ i (_: i < iter_num) (_ : 2 * i < old_length),
+        new_layer.extractLsb' (i * w) w =
+          old_layer.extractLsb' ((2 * i) * w) w
+          + (old_layer.extractLsb' ((2 * i + 1) * w) w))
+  (ls : BitVec (((old_length + 1)/2) * w))
+  (hls : ls = parPreSum_layer iter_num old_layer new_layer hold) :
+      ∀ i (_: i < (old_length + 1)/2) (_ : 2 * i < old_length),
+        ls.extractLsb' (i * w) w =
+          old_layer.extractLsb' ((2 * i) * w) w
+          + (old_layer.extractLsb' ((2 * i + 1) * w) w) := by
+  subst hls
+  unfold parPreSum_layer
+  split
+  · intros i hi hi'
+    have hcast : iter_num * w = ((old_length + 1)/2) * w := by congr; omega
+    have : extractLsb' (i * w) w (BitVec.cast hcast new_layer) = extractLsb' (i * w) w new_layer := by simp [BitVec.extractLsb'_cast]
+    rw [this]
+    apply proof_addition
+    <;> omega
+  · let op1 := old_layer.extractLsb' ((2 * iter_num) * w) w
+    let op2 := old_layer.extractLsb' ((2 * iter_num + 1) * w) w
+    let new_layer' := (op1 + op2) ++ new_layer
+    have proof_old_layer_length_lt : 2 * (iter_num + 1 - 1) < old_length := by omega
+    have hcast : w + iter_num * w = (iter_num + 1) * w := by simp [Nat.add_mul]; omega
+    apply extractLsb'_parPreSum_layer (iter_num + 1) old_layer (new_layer'.cast hcast) (by omega)
+    · intros i hi hi'
+      by_cases hlt : i < iter_num
+      · simp only [new_layer']
+        rw [extractLsb'_cast, extractLsb'_append_eq_of_add_le]
+        · specialize proof_addition (i := i) hlt (by omega)
+          simp [proof_addition]
+        · simp only [show i * w + w = i * w + 1 * w by omega, Nat.one_mul]
+          rw [← Nat.add_mul (n := i) (m := 1) (k := w)]
+          exact mul_le_mul_right w hlt
+      · rw [extractLsb'_cast]
+        simp [show i = iter_num by omega]
+        rw [extractLsb'_append_eq_left]
+    · simp [new_layer']
+      have hcast : w + iter_num * w = (iter_num + 1) * w := by omega
+      congr
+
+/-- construct the parallel prefix sum circuit of the flattend bitvectors in `l` -/
+def parPreSum_tree (l : BitVec (l_length * w))
+      (proof_length : 0 < l_length) (hw : 0 < w) : BitVec (1 * w) :=
+  if h : l_length = 1 then
+    l.cast (by simp [h])
+  else
+    let new_layer := parPreSum_layer 0 l 0#(0 * w) (by omega)
+    let proof_new_layer := extractLsb'_parPreSum_layer 0 l 0#(0 * w) (by omega) (by simp)
+    let l_length' := (l_length + 1) / 2
+    let proof_new_layer_length : 0 < l_length' := by omega
+    parPreSum_tree new_layer proof_new_layer_length hw
+
+/-- Addition of `l`-long words in a `w`-long flattened bitvector using parallel prefix sum. -/
+def parPreSum (l : Nat) (x : BitVec w) : BitVec l :=
+  if hl : l = 0 then
+    0#l
+  else
+    if hlt : w ≤ l then
+      x.zeroExtend l
+    else if hmodlt : 0 < w % l then
+      /- zero-extend to the closest multiple of `l` -/
+      have hzero : (w - w % l) % l = 0 := by
+        apply Nat.sub_mod_eq_zero_of_mod_eq
+        simp
+      let diff := (l - (w % l))
+      have hmodlt' := Nat.mod_lt (y := l) (x := w) (by omega)
+      have hmodeq : (w + diff) % l = 0 := by
+        simp only [diff]
+        rw [← Nat.add_sub_assoc (by omega), Nat.add_comm,
+          show l + w - w % l = l + (w - w % l) by omega]
+        simp [hzero]
+      let zext := x.zeroExtend (w + diff)
+      let init_length := (w + diff) / l
+      let zext := zext.cast (m := init_length * l)
+                            (by simp [init_length]; rw [Nat.div_mul_cancel (by omega)])
+      let res := parPreSum_tree zext (l_length := init_length) (by simp [init_length, show 0 < l by omega]; omega) (by omega)
+      res.cast (by simp)
+    else
+      /- cast and build parPreSum directly -/
+      let init_length := w / l
+      let x := x.cast (m := init_length * l) (by simp [init_length]; rw [Nat.div_mul_cancel (by omega)])
+      let res := parPreSum_tree x (l_length := init_length) (by simp [init_length, show 0 < l by omega]; omega) (by omega)
+      res.cast (by simp)
+
+theorem addRecAux_parPreSum (l : BitVec (l_length * w)) (k : BitVec w)
+      (proof : addRecAux l l_length 0#w  = k)
+      (proof_length : 0 < l_length) (hw : 0 < w)
+      (ls : BitVec (1 * w))
+      (hls : ls = parPreSum_tree l (by omega) hw) :
+      addRecAux ls 1 0#w = k := by
+  unfold parPreSum_tree at hls
+  split at hls
+  · case _ h =>
+    simp [h] at proof
+    rw [← proof]
+    simp [addRecAux, hls]
+    ext k hk; simp
+  · case _ h =>
+    let new_layer := parPreSum_layer 0 l 0#(0 * w) (by omega)
+    let proof_new_layer := extractLsb'_parPreSum_layer 0 l 0#(0 * w) (by omega) (by simp)
+    let l_length' := (l_length + 1) / 2
+    let proof_new_layer_length : 0 < l_length' := by omega
+    let proof_sum_eq : addRecAux new_layer ((l_length + 1) / 2) 0#w = k := by
+      rw [← proof]
+      apply addRecAux_eq_of (a := new_layer) (by omega) (b := l)
+        (by apply proof_new_layer; simp [new_layer]) (by omega) (by omega) (n := (l_length + 1) / 2)
+    apply addRecAux_parPreSum new_layer k proof_sum_eq proof_new_layer_length hw
+    exact eq_of_toNat_eq (congrArg BitVec.toNat hls)
+
 
 theorem extractAndExtendPopulate_setWidth {x : BitVec w} (hv : 0 < v) :
     (extractAndExtendPopulate v (setWidth m x)) =
@@ -3357,8 +3392,9 @@ theorem cpop_eq_recursive_addition {x : BitVec w} :
       rw [this]
       by_cases hk0 : k = 0 <;> simp [hk0]
 
+
 theorem extractLsb'_pps_eq_cast {x : BitVec w} (h : 0 < w) :
-    let res := ((extractAndExtendPopulate w x).parPreSum_tree ((extractAndExtendPopulate w x).addRecAux w 0#w) (by omega) (by omega))
+    let res := ((extractAndExtendPopulate w x).parPreSum_tree (by omega) (by omega))
     extractLsb' 0 w res =
     (res).cast (by simp) := by
   ext k hk
@@ -3366,21 +3402,55 @@ theorem extractLsb'_pps_eq_cast {x : BitVec w} (h : 0 < w) :
 
 theorem cpop_eq_pps {x : BitVec w} :
   let arg := extractAndExtendPopulate w x;
-  let k := arg.addRecAux w 0#w;
     (x.cpop) =
       if hw : w = 0 then 0#w
-      else ((parPreSum_tree (l := arg) (k := k) (by omega) (by omega))).cast (by simp) := by
+      else ((parPreSum_tree (l := arg)  (by omega) (by omega))).cast (by simp) := by
   split
   · case _ hw =>
     subst hw
     simp [of_length_zero]
   · rw [cpop_eq_recursive_addition]
-    let res := parPreSum_tree (extractAndExtendPopulate w x) (k := (extractAndExtendPopulate w x).addRecAux w 0#w)
+    let res := parPreSum_tree (extractAndExtendPopulate w x)
                                     (by omega) (by omega)
     have proof := addRecAux_parPreSum (l := extractAndExtendPopulate w x)
                                 (k := (extractAndExtendPopulate w x).addRecAux w 0#w)
                                 (ls := res) (hls := by simp [res]) (hw := by omega)
                                 (proof := by rfl) (proof_length := by omega)
     rw [← proof, addRecAux_succ, Nat.zero_mul, BitVec.zero_add, addRecAux_zero, extractLsb'_pps_eq_cast]
+
+theorem flattenedAdd_eq_parPreSum {x : BitVec w} (l : Nat) :
+    x.flattenedAdd l = x.parPreSum l := by
+  unfold flattenedAdd
+  split
+  · case _ hl =>
+    unfold parPreSum
+    simp [hl]
+  · case _ hl =>
+    split
+    · case _ hl' =>
+      unfold parPreSum
+      simp [hl']
+      omega
+    · case _ hl' =>
+      split
+      · case _ hmod =>
+        simp
+        sorry
+      · case _ hmod =>
+        simp
+        unfold parPreSum
+        simp [hl, hl', hmod]
+        let hcast : w = w / l * l := by rw [Nat.div_mul_cancel]; omega
+        generalize hgencast : x.cast hcast = xcast
+        generalize hgen : xcast.parPreSum_tree (by simp; omega) (by omega) = res
+        have proof := addRecAux_parPreSum (l_length := w / l)
+                                (k := xcast.addRecAux (w / l) 0#l)
+                                (ls := res) (hw := by omega)
+                                (proof := by rfl) (proof_length := by simp; omega)
+                                (hls := by simp [hgen])
+        rw [← proof]
+        ext
+        simp [← getLsbD_eq_getElem]
+        omega
 
 end BitVec

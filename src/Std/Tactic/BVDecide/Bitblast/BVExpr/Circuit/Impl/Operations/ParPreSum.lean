@@ -27,7 +27,7 @@ open Std.Sat
 
 namespace BVExpr
 namespace bitblast
-namespace ParPreSum
+namespace blastParPreSum
 
 variable [Hashable α] [DecidableEq α]
 
@@ -259,7 +259,7 @@ instance : AIG.LawfulVecOperator α ParPreSumTarget blastParPreSum where
     intros
     apply blastParPreSum_decl_eq
 
-end ParPreSum
+end blastParPreSum
 
 end bitblast
 end BVExpr

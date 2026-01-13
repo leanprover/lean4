@@ -44,7 +44,7 @@ def log (entry : LogEntry) : CompilerM Unit :=
 def tracePrefixOptionName := `trace.compiler.ir
 
 private def isLogEnabledFor (opts : Options) (optName : Name) : Bool :=
-  match opts.find optName with
+  match opts.get? optName with
   | some (DataValue.ofBool v) => v
   | _     => opts.getBool tracePrefixOptionName
 

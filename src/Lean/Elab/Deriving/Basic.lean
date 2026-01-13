@@ -232,7 +232,7 @@ def applyDerivingHandlers (className : Name) (typeNames : Array Name) (setExpose
   withScope (fun sc => { sc with
     attrs := if setExpose then Unhygienic.run `(Parser.Term.attrInstance| expose) :: sc.attrs else sc.attrs
     -- Deactivate some linting options that only make writing deriving handlers more painful.
-    opts := sc.opts.setBool `warn.exposeOnPrivate false
+    opts := sc.opts.set `warn.exposeOnPrivate false
     -- When any of the types are private, the deriving handler will need access to the private scope
     -- and should create private instances.
     isPublic := !typeNames.any isPrivateName }) do

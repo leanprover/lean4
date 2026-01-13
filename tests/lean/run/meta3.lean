@@ -5,8 +5,8 @@ open Lean.Meta
 
 def dbgOpt : Options :=
 let opt : Options := {};
-let opt := opt.setBool `trace.Meta true;
--- let opt := opt.setBool `trace.Meta.check false;
+let opt := opt.set `trace.Meta true;
+-- let opt := opt.set `trace.Meta.check false;
 opt
 
 def print (msg : MessageData) : MetaM Unit := do

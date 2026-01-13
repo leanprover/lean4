@@ -387,7 +387,7 @@ register_builtin_option internal.parseQuotWithCurrentStage : Bool := {
 def evalInsideQuot (declName : Name) : Parser → Parser := withFn fun f c s =>
   if c.quotDepth > 0 && !c.suppressInsideQuot && internal.parseQuotWithCurrentStage.get c.options && c.env.contains declName then
     adaptUncacheableContextFn (fun ctx =>
-      { ctx with options := ctx.options.setBool `interpreter.prefer_native false })
+      { ctx with options := ctx.options.set `interpreter.prefer_native false })
       (evalParserConst declName) c s
   else
     f c s
@@ -717,7 +717,7 @@ def parserOfStackFn (offset : Nat) : ParserFn := fun ctx s => Id.run do
       adaptUncacheableContextFn (fun ctx =>
         -- static quotations such as `(e) do not use the interpreter unless the above option is set,
         -- so for consistency neither should dynamic quotations using this function
-        { ctx with options := ctx.options.setBool `interpreter.prefer_native (!internal.parseQuotWithCurrentStage.get ctx.options) })
+        { ctx with options := ctx.options.set `interpreter.prefer_native (!internal.parseQuotWithCurrentStage.get ctx.options) })
         (evalParserConst parserName) ctx s
     | [.alias alias] =>
       match alias with

@@ -459,6 +459,12 @@
   build_config:
     cmd: ./compile.sh nat_repr.lean
 - attributes:
+    description: big_struct
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean big_struct.lean
+- attributes:
     description: unionfind
     tags: [other]
   run_config:

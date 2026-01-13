@@ -35,7 +35,7 @@ variable [Hashable α] [DecidableEq α]
 namespace BVExpr
 
 namespace bitblast
--- namespace blastCpop
+namespace blastParPreSum
 
 
 -- theorem denote_append {aig : AIG α} {n m : Nat} (assign : α → Bool)
@@ -465,6 +465,7 @@ namespace bitblast
 --     apply denote_blastCpop'
 --     simp [hx]
 
+end blastParPreSum
 end bitblast
 end BVExpr
 

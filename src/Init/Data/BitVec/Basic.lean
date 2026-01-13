@@ -894,7 +894,33 @@ def addRecAux (x : BitVec (l * w)) (rem : Nat) (acc : BitVec w) : BitVec w :=
 /-- Recursive addition of the elements in a flattened bitvec. -/
 def addRec (x : BitVec (l * w)) : BitVec w := addRecAux x l 0#w
 
-/-- Addition of `l`-long words in a `w`-long flattened bitvector using parallel prefix sum. -/
-def parPreSum (l : Nat) (x : BitVec w) : BitVec l := sorry
+/-- Add `l`-long portions of a `w`-long bitvector. -/
+def flattenedAdd (l : Nat) (x : BitVec w) : BitVec l :=
+  if hw0 : l = 0 then 0#l
+  else
+    if hlt : w ≤ l then
+      x.zeroExtend l
+    else
+      if hmod : 0 < w % l  then
+        /- zero-extend to the closest multiple of `l` -/
+      have hzero : (w - w % l) % l = 0 := by
+        apply Nat.sub_mod_eq_zero_of_mod_eq
+        simp
+      let diff := (l - (w % l))
+      have hmodlt' := Nat.mod_lt (y := l) (x := w) (by omega)
+      have hmodeq : (w + diff) % l = 0 := by
+        simp only [diff]
+        rw [← Nat.add_sub_assoc (by omega), Nat.add_comm,
+          show l + w - w % l = l + (w - w % l) by omega]
+        simp [hzero]
+      let zext := x.zeroExtend (w + diff)
+      let init_length := (w + diff) / l
+      let zext := zext.cast (m := init_length * l)
+                            (by simp [init_length]; rw [Nat.div_mul_cancel (by omega)])
+      addRecAux zext ((w + diff) / l) 0#l
+    else
+      let init_length := w / l
+      let x := x.cast (m := init_length * l) (by simp [init_length]; rw [Nat.div_mul_cancel (by omega)])
+      addRecAux x (w / l) 0#l
 
 end BitVec

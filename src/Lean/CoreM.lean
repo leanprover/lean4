@@ -239,7 +239,8 @@ structure Context where
   suppressElabErrors : Bool := false
   /-- Cache of `Lean.inheritedTraceOptions`. -/
   inheritedTraceOptions : Std.HashSet Name := {}
-  hasAnyTracing : Bool := false
+  /-- Cache of `MonadTrace.hasAnyTraceEnabled` -/
+  hasAnyTraceEnabled : Bool := false
   deriving Nonempty
 
 /-- CoreM is a monad for manipulating the Lean environment.
@@ -274,7 +275,7 @@ instance : MonadOptions CoreM where
 instance : MonadWithOptions CoreM where
   withOptions f x := do
     let options := f (← read).options
-    let hasAnyTracing := options.entries.any fun (k, v) => Id.run do
+    let hasAnyTraceEnabled := options.entries.any fun (k, v) => Id.run do
       if (`trace).isPrefixOf k then
         let .ofBool v := v | return false
         return v
@@ -288,7 +289,7 @@ instance : MonadWithOptions CoreM where
         { ctx with
           options
           diag
-          hasAnyTracing
+          hasAnyTraceEnabled
           maxRecDepth := maxRecDepth.get options })
       x
 

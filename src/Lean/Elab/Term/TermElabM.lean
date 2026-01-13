@@ -1075,7 +1075,7 @@ def throwTypeMismatchError (header? : Option MessageData) (expectedType : Expr) 
   | some f => Meta.throwAppTypeMismatch f e
 
 def withoutMacroStackAtErr (x : TermElabM α) : TermElabM α :=
-  withTheReader Core.Context (fun (ctx : Core.Context) => { ctx with options := pp.macroStack.set ctx.options false }) x
+  withOptions (fun options => pp.macroStack.set ctx.options false) x
 
 namespace ContainsPendingMVar
 

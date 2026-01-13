@@ -456,7 +456,7 @@ where
       withRef tk <| Meta.check e
       let e ← Term.levelMVarToParam (← instantiateMVars e)
       -- TODO: add options or notation for setting the following parameters
-      withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `smartUnfolding false }) do
+      withOptions (fun options => options.setBool `smartUnfolding false) do
         let e ← withTransparency (mode := TransparencyMode.all) <| reduce e (skipProofs := skipProofs) (skipTypes := skipTypes)
         logInfoAt tk e
 

@@ -85,6 +85,9 @@ class MonadTrace (m : Type → Type) where
   value may want to be cached, which is done in the stdlib in `CoreM`.
   -/
   getInheritedTraceOptions : m (Std.HashSet Name) := by exact inheritedTraceOptions.get
+  /--
+  A potential over approximation of whether any trace options have been enabled.
+  -/
   hasAnyTraceEnabled : m Bool
 
 export MonadTrace (getTraceState modifyTraceState)
@@ -268,9 +271,9 @@ The `cls`, `collapsed`, and `tag` arguments are forwarded to the constructor of 
 -/
 def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls : Name)
     (msg : Except ε α → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
-  let _ := always.except
   if !(← MonadTrace.hasAnyTraceEnabled) then
     return (← k)
+  let _ := always.except
   let opts ← getOptions
   let clsEnabled ← isTracingEnabledFor cls
   unless clsEnabled || trace.profiler.get opts do
@@ -379,6 +382,8 @@ TODO: find better name for this function.
 def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
     [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] [ExceptToEmoji ε α] (cls : Name)
     (msg : Unit → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
+  if !(← MonadTrace.hasAnyTraceEnabled) then
+    return (← k)
   let _ := always.except
   let opts ← getOptions
   let clsEnabled ← isTracingEnabledFor cls

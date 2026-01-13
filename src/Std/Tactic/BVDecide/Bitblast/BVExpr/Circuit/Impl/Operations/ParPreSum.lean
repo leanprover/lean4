@@ -252,8 +252,12 @@ theorem blastParPreSum_decl_eq (aig : AIG α)
           apply blastParPreSumTree_decl_eq
 
 instance : AIG.LawfulVecOperator α ParPreSumTarget blastParPreSum where
-  le_size := by sorry
-  decl_eq := by sorry
+  le_size := by
+    intros
+    apply blastParPreSum_le_size
+  decl_eq := by
+    intros
+    apply blastParPreSum_decl_eq
 
 end ParPreSum
 

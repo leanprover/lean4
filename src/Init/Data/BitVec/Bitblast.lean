@@ -3435,8 +3435,36 @@ theorem flattenedAdd_eq_parPreSum {x : BitVec w} (l : Nat) :
     · case _ hl' =>
       split
       · case _ hmod =>
+        have hzero : (w - w % l) % l = 0 := by
+          apply Nat.sub_mod_eq_zero_of_mod_eq
+          simp
+        unfold parPreSum
+        simp [hl, hl', hmod]
+        let diff := (l - (w % l))
+        have hmodlt' := Nat.mod_lt (y := l) (x := w) (by omega)
+        have hmodeq : (w + diff) % l = 0 := by
+          simp only [diff]
+          rw [← Nat.add_sub_assoc (by omega), Nat.add_comm,
+            show l + w - w % l = l + (w - w % l) by omega]
+          simp [hzero]
+        have zext := zeroExtend (w + diff) x;
+        let init_length := (w + diff) / l;
+        subst diff
+        generalize hgen : setWidth ((w + (l - w % l)) / l * l) x = z
+        generalize hgen : z.parPreSum_tree (by simp; omega) (by omega) = res
+        have proof := addRecAux_parPreSum (l_length := init_length)
+                                (k := z.addRecAux (init_length) 0#l)
+                                (ls := res) (hw := by omega)
+                                (proof_length := by simp [init_length]; omega)
+                                (proof := by rfl)
+                                (hls := by simp [hgen])
+        subst init_length
+        subst res
+        rw [← proof]
         simp
-        sorry
+        ext
+        simp [← getLsbD_eq_getElem]
+        omega
       · case _ hmod =>
         simp
         unfold parPreSum

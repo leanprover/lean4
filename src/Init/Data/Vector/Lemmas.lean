@@ -1026,13 +1026,12 @@ theorem mem_iff_getElem {a} {xs : Vector α n} : a ∈ xs ↔ ∃ (i : Nat) (h :
   ⟨getElem_of_mem, fun ⟨_, _, e⟩ => e ▸ getElem_mem ..⟩
 
 theorem exists_mem_iff_exists_getElem (P : α → Prop) (xs : Vector α n) :
-    (∃ x ∈ xs, P x) ↔ ∃ (i : Nat), ∃ hi, P (xs[i]'hi) := by
-  simp only [mem_iff_getElem]
-  apply Iff.intro
-  · rintro ⟨_, ⟨i, hi, rfl⟩, hP⟩
-    exact ⟨i, hi, hP⟩
-  · rintro ⟨i, hi, hP⟩
-    exact ⟨_, ⟨i, hi, rfl⟩, hP⟩
+    (∃ x ∈ xs, P x) ↔ ∃ (i : Nat), ∃ hi, P (xs[i]) := by
+  cases xs; simp [*, Array.exists_mem_iff_exists_getElem]
+
+theorem forall_mem_iff_forall_getElem (P : α → Prop) (xs : Vector α n) :
+    (∀ x ∈ xs, P x) ↔ ∀ (i : Nat) hi, P (xs[i]) := by
+  cases xs; simp [*, Array.forall_mem_iff_forall_getElem]
 
 theorem mem_iff_getElem? {a} {xs : Vector α n} : a ∈ xs ↔ ∃ i : Nat, xs[i]? = some a := by
   simp [getElem?_eq_some_iff, mem_iff_getElem]

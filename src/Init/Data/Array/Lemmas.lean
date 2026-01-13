@@ -482,6 +482,14 @@ theorem mem_iff_getElem {a} {xs : Array α} : a ∈ xs ↔ ∃ (i : Nat) (h : i 
 theorem mem_iff_getElem? {a} {xs : Array α} : a ∈ xs ↔ ∃ i : Nat, xs[i]? = some a := by
   simp [getElem?_eq_some_iff, mem_iff_getElem]
 
+theorem exists_mem_iff_exists_getElem (P : α → Prop) (xs : Array α) :
+    (∃ x ∈ xs, P x) ↔ ∃ (i : Nat), ∃ hi, P (xs[i]) := by
+  cases xs; simp [List.exists_mem_iff_exists_getElem]
+
+theorem forall_mem_iff_forall_getElem (P : α → Prop) (xs : Array α) :
+    (∀ x ∈ xs, P x) ↔ ∀ (i : Nat) hi, P (xs[i]) := by
+  cases xs; simp [List.forall_mem_iff_forall_getElem]
+
 theorem forall_getElem {xs : Array α} {p : α → Prop} :
     (∀ (i : Nat) h, p (xs[i]'h)) ↔ ∀ a, a ∈ xs → p a := by
   cases xs; simp [List.forall_getElem]

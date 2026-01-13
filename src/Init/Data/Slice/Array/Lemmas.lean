@@ -189,8 +189,7 @@ public theorem Array.stop_toSubarray {xs : Array α} {lo hi : Nat} :
     (xs.toSubarray lo hi).stop = min hi xs.size := by
   simp [toSubarray_eq_min, Subarray.stop]
 
-@[grind =]
-theorem Subarray.toList_eq {xs : Subarray α} :
+public theorem Subarray.toList_eq {xs : Subarray α} :
     xs.toList = (xs.array.extract xs.start xs.stop).toList := by
   let aslice := xs
   obtain ⟨⟨array, start, stop, h₁, h₂⟩⟩ := xs

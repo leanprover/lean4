@@ -1025,6 +1025,15 @@ theorem mem_of_back? {xs : Vector α n} {a : α} (h : xs.back? = some a) : a ∈
 theorem mem_iff_getElem {a} {xs : Vector α n} : a ∈ xs ↔ ∃ (i : Nat) (h : i < n), xs[i]'h = a :=
   ⟨getElem_of_mem, fun ⟨_, _, e⟩ => e ▸ getElem_mem ..⟩
 
+theorem exists_mem_iff_exists_getElem (P : α → Prop) (xs : Vector α n) :
+    (∃ x ∈ xs, P x) ↔ ∃ (i : Nat), ∃ hi, P (xs[i]'hi) := by
+  simp only [mem_iff_getElem]
+  apply Iff.intro
+  · rintro ⟨_, ⟨i, hi, rfl⟩, hP⟩
+    exact ⟨i, hi, hP⟩
+  · rintro ⟨i, hi, hP⟩
+    exact ⟨_, ⟨i, hi, rfl⟩, hP⟩
+
 theorem mem_iff_getElem? {a} {xs : Vector α n} : a ∈ xs ↔ ∃ i : Nat, xs[i]? = some a := by
   simp [getElem?_eq_some_iff, mem_iff_getElem]
 

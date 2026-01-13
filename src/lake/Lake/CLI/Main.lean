@@ -144,11 +144,15 @@ abbrev CliMainM := ExceptT CliError MainM
 abbrev CliStateM := StateT LakeOptions CliMainM
 abbrev CliM := ArgsT CliStateM
 
-def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
+@[inline] def CliMainM.run (self : CliMainM α) : BaseIO ExitCode := do
+  MainM.run <| (ExceptT.run self) >>= fun | .ok a => pure a | .error e => error e.toString
+
+@[inline] def CliStateM.run (self : CliStateM α) (args : List String) : BaseIO ExitCode := do
   let (elanInstall?, leanInstall?, lakeInstall?) ← findInstall?
-  let main := self.run' args |>.run' {args, elanInstall?, leanInstall?, lakeInstall?}
-  let main := main.run >>= fun | .ok a => pure a | .error e => error e.toString
-  main.run
+  StateT.run' self {args, elanInstall?, leanInstall?, lakeInstall?} |>.run
+
+@[inline] def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
+  StateT.run' self args |>.run args
 
 def CliStateM.runLogIO (x : LogIO α) : CliStateM α := do
   MainM.runLogIO x (← get).toLogConfig
@@ -160,153 +164,191 @@ def CliStateM.runLoggerIO (x : LoggerIO α) : CliStateM α := do
 
 instance (priority := low) : MonadLift LoggerIO CliStateM := ⟨CliStateM.runLoggerIO⟩
 
+def CliStateM.runIO (x : IO α) : CliStateM α := do
+  MainM.runLogIO x (← get).toLogConfig
+
+instance (priority := low) : MonadLift IO CliStateM := ⟨CliStateM.runIO⟩
+
+@[inline] def throwMissingArg (arg : String) : CliM α := do
+  throw <| CliError.missingArg arg
+
+instance : MonadThrowExpectedArg CliM := ⟨throwMissingArg⟩
+
+@[inline] def throwMissingOptArg (arg : String) : OptT CliStateM α := do
+  throw <| CliError.missingOptArg (← getOpt).copy arg
+
+instance : MonadThrowExpectedArg (OptT CliStateM) := ⟨throwMissingOptArg⟩
+
 /-! ## Argument Parsing -/
 
-def takeArg (arg : String) : CliM String := do
-  match (← takeArg?) with
-  | none => throw <| CliError.missingArg arg
-  | some arg => pure arg
+instance [Pure m] : MonadParseArg FilePath m :=
+  ⟨(pure <| FilePath.mk ·.copy)⟩
 
-def takeOptArg (opt arg : String) : CliM String := do
-  match (← takeArg?) with
-  | none => throw <| CliError.missingOptArg opt arg
-  | some arg => pure arg
+@[inline] def parseOptArgUsing
+  (descr : String) (f : String.Slice → Option α) (arg : String.Slice)
+: OptT CliStateM α := do
+  if let some a := f arg then
+    return a
+  else
+    throw <| CliError.invalidOptArg (← getOpt).copy descr
 
-@[inline] def takeOptArg' (opt arg : String) (f : String → Option α)  : CliM α := do
-  if let some a :=  f (← takeOptArg opt arg) then return a
-  throw <| CliError.invalidOptArg opt arg
+instance : MonadParseArg Nat (OptT CliStateM) where
+  parseArg := parseOptArgUsing "natural number" (·.toNat?)
+
+instance : MonadParseArg LogLevel (OptT CliStateM) where
+  parseArg := parseOptArgUsing "log level" LogLevel.ofString?
 
 /--
 Verify that there are no CLI arguments remaining
 before running the given action.
 -/
 def noArgsRem (act : CliStateM α) : CliM α := do
-  let args ← getArgs
-  if args.isEmpty then act else
-    throw <| CliError.unexpectedArguments args
+  match (← getArgs) with
+  | [] => act
+  | args => throw <| CliError.unexpectedArguments args
 
 /-! ## Option Parsing -/
 
-def getWantsHelp : CliStateM Bool :=
+@[inline] def getWantsHelp : CliStateM Bool :=
   (·.wantsHelp) <$> get
 
-def setConfigOpt (kvPair : String) : CliM PUnit :=
+def setConfigOpt (kvPair : String.Slice) : CliStateM PUnit :=
   let pos := kvPair.find '='
   let (key, val) :=
     if h : pos.IsAtEnd then
       (kvPair.toName, "")
     else
-      (kvPair.extract kvPair.startPos pos |>.toName, kvPair.extract (pos.next h) kvPair.endPos)
+      (kvPair.sliceTo pos |>.toName, kvPair.sliceFrom (pos.next h) |>.copy)
   modifyThe LakeOptions fun opts =>
     {opts with configOpts := opts.configOpts.insert key val}
 
-def lakeShortOption : (opt : Char) → CliM PUnit
-| 'q' => modifyThe LakeOptions ({· with verbosity := .quiet})
-| 'v' => modifyThe LakeOptions ({· with verbosity := .verbose})
-| 'd' => do let rootDir ← takeOptArg "-d" "path"; modifyThe LakeOptions ({· with rootDir})
-| 'f' => do let configFile ← takeOptArg "-f" "path"; modifyThe LakeOptions ({· with configFile})
-| 'o' => do let outputsFile? ← takeOptArg "-o" "path"; modifyThe LakeOptions ({· with outputsFile?})
-| 'K' => do setConfigOpt <| ← takeOptArg "-K" "key-value pair"
-| 'U' => do
-  logWarning "the '-U' shorthand for '--update' is deprecated"
-  modifyThe LakeOptions ({· with updateDeps := true})
-| 'R' => modifyThe LakeOptions ({· with reconfigure := true})
-| 'h' => modifyThe LakeOptions ({· with wantsHelp := true})
-| 'H' => modifyThe LakeOptions ({· with trustHash := false})
-| 'J' => modifyThe LakeOptions ({· with outFormat := .json})
-| opt => throw <| CliError.unknownShortOption opt
-
 /-- Returns an error if the string is not valid GitHub repository name. -/
 -- Limitations derived from https://github.com/dead-claudia/github-limits
-def validateRepo? (repo : String) : Option String := Id.run do
+def validateRepo? (repo : String.Slice) : Option String := Id.run do
   unless repo.all isValidRepoChar do
     return "invalid characters in repository name"
-  match repo.split '/' |>.toStringList with
-  | [owner, name] =>
-    if owner.length > 39 then
-      return "invalid repository name; owner must be at most 390 characters long"
-    if name.length > 100 then
-      return "invalid repository name; owner must be at most 100 characters long"
-  | _ => return "invalid repository name; must contain exactly one '/'"
+  if let [owner, name] := repo.split '/' |>.toList then
+    if owner.chars.count > 39 then
+      return "invalid repository name; owner must be at most 39 characters long"
+    if name.chars.count > 100 then
+      return "invalid repository name; name must be at most 100 characters long"
+  else
+    return "invalid repository name; must contain exactly one '/'"
   return none
 where
   /-- Returns whether `c` is a valid character in GitHub repository name -/
   isValidRepoChar (c : Char) : Bool :=
     c.isAlphanum || c == '-' || c == '_' || c == '.' || c == '/'
 
-def lakeLongOption : (opt : String) → CliM PUnit
-| "--quiet"       => modifyThe LakeOptions ({· with verbosity := .quiet})
-| "--verbose"     => modifyThe LakeOptions ({· with verbosity := .verbose})
-| "--update"      => modifyThe LakeOptions ({· with updateDeps := true})
-| "--keep-toolchain" => modifyThe LakeOptions ({· with updateToolchain := false})
-| "--reconfigure" => modifyThe LakeOptions ({· with reconfigure := true})
-| "--old"         => modifyThe LakeOptions ({· with oldMode := true})
-| "--text"        => modifyThe LakeOptions ({· with outFormat := .text})
-| "--json"        => modifyThe LakeOptions ({· with outFormat := .json})
-| "--no-build"    => modifyThe LakeOptions ({· with noBuild := true})
-| "--no-cache"    => modifyThe LakeOptions ({· with noCache := true})
-| "--try-cache"   => modifyThe LakeOptions ({· with noCache := false})
-| "--rehash"      => modifyThe LakeOptions ({· with trustHash := false})
-| "--offline"     => modifyThe LakeOptions ({· with offline := true})
-| "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
-| "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})
-| "--force-download" => modifyThe LakeOptions ({· with forceDownload := true})
-| "--scope" => do
-  let scope ← takeOptArg "--scope" "cache scope"
-  modifyThe LakeOptions ({· with scope? := some scope, repoScope := false})
-| "--repo" => do
-  let repo ← takeOptArg "--repo" "GitHub repository"
-  if let some e := validateRepo? repo then error e
-  modifyThe LakeOptions ({· with scope? := some repo, repoScope := true})
-| "--platform" => do
-  let platform ← takeOptArg "--platform" "cache platform"
-  if platform.length > 100 then
-    error "invalid platform; platform is expected to be at most 100 characters long"
-  modifyThe LakeOptions ({· with platform? := some platform})
-| "--toolchain" => do
-  let toolchain ← takeOptArg "--toolchain" "cache toolchain"
-  let toolchain := if toolchain.isEmpty then toolchain else normalizeToolchain toolchain
-  if toolchain.length > 256 then
-    error "invalid toolchain version; toolchain is expected to be at most 256 characters long"
-  modifyThe LakeOptions ({· with toolchain? := some toolchain})
-| "--rev" => do
-  let rev ← takeOptArg "--rev" "Git revision"
-  modifyThe LakeOptions ({· with rev? := some rev})
-| "--max-revs" => do
-  let some n ← (·.toNat?) <$> takeOptArg "--max-revs" "number of revisions"
-    | error "argument to `--max-revs` should be a natural number"
-  modifyThe LakeOptions ({· with maxRevs := n})
-| "--log-level"   => do
-  let outLv ← takeOptArg' "--log-level" "log level" LogLevel.ofString?
-  modifyThe LakeOptions ({· with outLv? := outLv})
-| "--fail-level"  => do
-  let failLv ← takeOptArg' "--fail-level" "log level" LogLevel.ofString?
-  modifyThe LakeOptions ({· with failLv})
-| "--ansi"        => modifyThe LakeOptions ({· with ansiMode := .ansi})
-| "--no-ansi"     => modifyThe LakeOptions ({· with ansiMode := .noAnsi})
-| "--packages"    => do
-  let file ← takeOptArg "--packages" "package overrides file"
-  let overrides ← Manifest.loadEntries file
-  modifyThe LakeOptions fun opts =>
-    {opts with packageOverrides := opts.packageOverrides ++ overrides}
-| "--dir"         => do
-  let rootDir ← takeOptArg "--dir" "path"
-  modifyThe LakeOptions ({· with rootDir})
-| "--file"        => do
-  let configFile ← takeOptArg "--file" "path"
-  modifyThe LakeOptions ({· with configFile})
-| "--help"        => modifyThe LakeOptions ({· with wantsHelp := true})
-| "--"            => do
-  let subArgs ← takeArgs
-  modifyThe LakeOptions ({· with subArgs})
-| opt             =>  throw <| CliError.unknownLongOption opt
+def lakeShortOption : ShortOptHandler CliStateM := .ofM do
+  match (← getOptChar) with
+  | 'q' => modifyThe LakeOptions ({· with verbosity := .quiet})
+  | 'v' => modifyThe LakeOptions ({· with verbosity := .verbose})
+  | 'd' => do
+    let rootDir ← takeOptArg "path"
+    modifyThe LakeOptions ({· with rootDir})
+  | 'f' => do
+    let configFile ← takeOptArg "path"
+    modifyThe LakeOptions ({· with configFile})
+  | 'o' => do
+    let outputsFile ← takeOptArg "path"
+    modifyThe LakeOptions ({· with outputsFile? := some outputsFile})
+  | 'K' => do setConfigOpt (← takeOptArg "key-value pair")
+  | 'U' => do
+    logWarning "the '-U' shorthand for '--update' is deprecated"
+    modifyThe LakeOptions ({· with updateDeps := true})
+  | 'R' => modifyThe LakeOptions ({· with reconfigure := true})
+  | 'h' => modifyThe LakeOptions ({· with wantsHelp := true})
+  | 'H' => modifyThe LakeOptions ({· with trustHash := false})
+  | 'J' => modifyThe LakeOptions ({· with outFormat := .json})
+  | opt => throw <| CliError.unknownShortOption opt
 
-def lakeOption :=
+def lakeLongOption : LongOptHandler CliStateM := .ofM do
+  match (← getOpt).copy with
+  | "--quiet"       => modifyThe LakeOptions ({· with verbosity := .quiet})
+  | "--verbose"     => modifyThe LakeOptions ({· with verbosity := .verbose})
+  | "--update"      => modifyThe LakeOptions ({· with updateDeps := true})
+  | "--keep-toolchain" => modifyThe LakeOptions ({· with updateToolchain := false})
+  | "--reconfigure" => modifyThe LakeOptions ({· with reconfigure := true})
+  | "--old"         => modifyThe LakeOptions ({· with oldMode := true})
+  | "--text"        => modifyThe LakeOptions ({· with outFormat := .text})
+  | "--json"        => modifyThe LakeOptions ({· with outFormat := .json})
+  | "--no-build"    => modifyThe LakeOptions ({· with noBuild := true})
+  | "--no-cache"    => modifyThe LakeOptions ({· with noCache := true})
+  | "--try-cache"   => modifyThe LakeOptions ({· with noCache := false})
+  | "--rehash"      => modifyThe LakeOptions ({· with trustHash := false})
+  | "--offline"     => modifyThe LakeOptions ({· with offline := true})
+  | "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
+  | "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})
+  | "--force-download" => modifyThe LakeOptions ({· with forceDownload := true})
+  | "--scope" => do
+    let scope ← takeOptArg "cache scope"
+    modifyThe LakeOptions ({· with scope? := some scope.copy, repoScope := false})
+  | "--repo" => do
+    let repo ← takeOptArg "GitHub repository"
+    if let some e := validateRepo? repo then error e
+    modifyThe LakeOptions ({· with scope? := some repo.copy, repoScope := true})
+  | "--platform" => do
+    let platform ← takeOptArg "cache platform"
+    let platform := platform.copy
+    if platform.length > 100 then
+      error "invalid platform; platform is expected to be at most 100 characters long"
+    modifyThe LakeOptions ({· with platform? := some platform})
+  | "--toolchain" => do
+    let toolchain ← takeOptArg "cache toolchain"
+    let toolchain := if toolchain.isEmpty then "" else normalizeToolchain toolchain
+    if toolchain.length > 256 then
+      error "invalid toolchain version; toolchain is expected to be at most 256 characters long"
+    modifyThe LakeOptions ({· with toolchain? := some toolchain})
+  | "--rev" => do
+    let rev ← takeOptArg "Git revision"
+    modifyThe LakeOptions ({· with rev? := some rev.copy})
+  | "--max-revs" => do
+    let maxRevs ← takeOptArg "number of revisions"
+    modifyThe LakeOptions ({· with maxRevs})
+  | "--log-level"   => do
+    let outLv ← takeOptArg "log level"
+    modifyThe LakeOptions ({· with outLv? := some outLv})
+  | "--fail-level"  => do
+    let failLv ← takeOptArg "log level"
+    modifyThe LakeOptions ({· with failLv})
+  | "--ansi"        => modifyThe LakeOptions ({· with ansiMode := .ansi})
+  | "--no-ansi"     => modifyThe LakeOptions ({· with ansiMode := .noAnsi})
+  | "--packages"    => do
+    let file ← takeOptArg "package overrides file"
+    let overrides ← Manifest.loadEntries (FilePath.mk file.copy)
+    modifyThe LakeOptions fun opts =>
+      {opts with packageOverrides := opts.packageOverrides ++ overrides}
+  | "--dir"         => do
+    let rootDir ← takeOptArg "path"
+    modifyThe LakeOptions ({· with rootDir := FilePath.mk rootDir.copy})
+  | "--file"        => do
+    let configFile ← takeOptArg "path"
+    modifyThe LakeOptions ({· with configFile := FilePath.mk configFile.copy})
+  | "--help"        => modifyThe LakeOptions ({· with wantsHelp := true})
+  | "--"            => do
+    let subArgs ← takeArgs
+    modifyThe LakeOptions ({· with subArgs})
+  | opt             =>  throw <| CliError.unknownLongOption opt
+
+def lakeOption : OptHandler CliStateM :=
   option {
     short := lakeShortOption
     long := lakeLongOption
     longShort := shortOptionWithArg lakeShortOption
   }
+
+def processLakeOptions : CliM PUnit := fun args => do
+  let args ← collectArgs args lakeOption -- specializes `collectArgs`
+  return (⟨⟩, args.toList)
+
+def processLeadingLakeOptions : CliM PUnit := fun args => do
+  let args ← processLeadingOptions args lakeOption -- specializes `processLeadingOptions`
+  return (⟨⟩, args)
+
+theorem run_processLeadingLakeOptions {as} :
+  StateT.run processLeadingLakeOptions as = (⟨(), ·⟩) <$> processLeadingOptions as lakeOption
+:= by rfl
 
 /-! ## Actions -/
 
@@ -374,9 +416,9 @@ namespace cache
   if pkg.isPlatformIndependent then "" else platform
 
 protected def get : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
-  let mappings? ← takeArg?
+  let mappings? : Option FilePath ← takeArg?
   noArgsRem do
   let cfg ← mkLoadConfig opts
   let ws ← loadWorkspace cfg
@@ -472,8 +514,8 @@ where
     return map
 
 protected def put : CliM PUnit := do
-  processOptions lakeOption
-  let file ← takeArg "mappings"
+  processLakeOptions
+  let file : FilePath ← takeArg "mappings"
   let opts ← getThe LakeOptions
   let some scope := opts.scope?
     | error "the `--scope` or `--repo` option must be set for `cache put`"
@@ -513,8 +555,8 @@ where
     To use `cache put`, these environment variables must be set to non-empty strings."
 
 protected def add : CliM PUnit := do
-  processOptions lakeOption
-  let file ← takeArg "mappings"
+  processLakeOptions
+  let file : FilePath ← takeArg "mappings"
   let pkg? ← takeArg?
   let opts ← getThe LakeOptions
   noArgsRem do
@@ -544,7 +586,7 @@ def cacheCli : (cmd : String) → CliM PUnit
 namespace script
 
 protected def list : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let config ← mkLoadConfig (← getThe LakeOptions)
   noArgsRem do
     let ws ← loadWorkspace config
@@ -553,7 +595,7 @@ protected def list : CliM PUnit := do
         IO.println script.name
 
 protected nonrec def run : CliM PUnit := do
-  processLeadingOptions lakeOption  -- between `lake [script] run` and `<name>`
+  processLeadingLakeOptions  -- between `lake [script] run` and `<name>`
   let config ← mkLoadConfig (← getThe LakeOptions)
   let ws ← loadWorkspace config
   if let some spec ← takeArg? then
@@ -566,7 +608,7 @@ protected nonrec def run : CliM PUnit := do
     exit 0
 
 protected def doc : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let spec ← takeArg "script name"
   let config ← mkLoadConfig (← getThe LakeOptions)
   noArgsRem do
@@ -591,21 +633,21 @@ def scriptCli : (cmd : String) → CliM PUnit
 /-! ### `lake` CLI -/
 
 protected def new : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let name ← takeArg "package name"
   let (tmp, lang) ← parseTemplateLangSpec <| ← takeArgD ""
   noArgsRem do new name tmp lang (← opts.computeEnv) opts.rootDir opts.offline
 
 protected def init : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let name := ← takeArgD "."
   let (tmp, lang) ← parseTemplateLangSpec <| ← takeArgD ""
   noArgsRem do init name tmp lang (← opts.computeEnv) opts.rootDir opts.offline
 
 protected def build : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
@@ -618,12 +660,12 @@ protected def build : CliM PUnit := do
   ws.runBuild (buildSpecs specs) buildConfig
 
 protected def checkBuild : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
   noArgsRem do exit <| if pkg.defaultTargets.isEmpty then 1 else 0
 
 protected def query : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
@@ -635,7 +677,7 @@ protected def query : CliM PUnit := do
   results.forM (IO.println ·)
 
 protected def queryKind : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
@@ -655,21 +697,21 @@ protected def queryKind : CliM PUnit := do
     | none => error "build failed"
 
 protected def resolveDeps : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   noArgsRem do
   discard <| loadWorkspace config
 
 protected def update : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   let toUpdate := (← getArgs).foldl (·.insert <| stringToLegalOrSimpleName ·) {}
   updateManifest config toUpdate
 
 protected def pack : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let file? ← takeArg?
   noArgsRem do
   let ws ← loadWorkspace (← mkLoadConfig (← getThe LakeOptions))
@@ -677,7 +719,7 @@ protected def pack : CliM PUnit := do
   ws.root.pack file
 
 protected def unpack : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let file? ← takeArg?
   noArgsRem do
   let ws ← loadWorkspace (← mkLoadConfig (← getThe LakeOptions))
@@ -685,7 +727,7 @@ protected def unpack : CliM PUnit := do
   ws.root.unpack file
 
 protected def upload : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let tag ← takeArg "release tag"
   noArgsRem do
   let ws ← loadWorkspace (← mkLoadConfig (← getThe LakeOptions))
@@ -693,7 +735,7 @@ protected def upload : CliM PUnit := do
 
 protected def cache : CliM PUnit := do
   if let some cmd ← takeArg? then
-    processLeadingOptions lakeOption -- between `lake cache <cmd>` and args
+    processLeadingLakeOptions -- between `lake cache <cmd>` and args
     if (← getWantsHelp) then
       IO.println <| helpCache cmd
     else
@@ -702,7 +744,7 @@ protected def cache : CliM PUnit := do
     throw <| CliError.missingCommand
 
 protected def setupFile : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let loadConfig ← mkLoadConfig opts
   let buildConfig := mkBuildConfig opts
@@ -717,7 +759,7 @@ protected def setupFile : CliM PUnit := do
   exit <| ← setupFile loadConfig filePath header buildConfig
 
 protected def test : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let ws ← loadWorkspace (← mkLoadConfig opts)
   noArgsRem do
@@ -725,12 +767,12 @@ protected def test : CliM PUnit := do
   exit <| ← x.run (mkLakeContext ws)
 
 protected def checkTest : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
   noArgsRem do exit <| if pkg.testDriver.isEmpty then 1 else 0
 
 protected def lint : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let ws ← loadWorkspace (← mkLoadConfig opts)
   noArgsRem do
@@ -738,12 +780,12 @@ protected def lint : CliM PUnit := do
   exit <| ← x.run (mkLakeContext ws)
 
 protected def checkLint : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
   noArgsRem do exit <| if pkg.lintDriver.isEmpty then 1 else 0
 
 protected def clean : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let config ← mkLoadConfig (← getThe LakeOptions)
   let ws ← loadWorkspace config
   let pkgSpecs ← takeArgs
@@ -758,7 +800,7 @@ protected def clean : CliM PUnit := do
 
 protected def script : CliM PUnit := do
   if let some cmd ← takeArg? then
-    processLeadingOptions lakeOption -- between `lake script <cmd>` and args
+    processLeadingLakeOptions -- between `lake script <cmd>` and args
     if (← getWantsHelp) then
       IO.println <| helpScript cmd
     else
@@ -767,7 +809,7 @@ protected def script : CliM PUnit := do
     throw <| CliError.missingCommand
 
 protected def serve : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let args := opts.subArgs.toArray
   let config ← mkLoadConfig opts
@@ -799,7 +841,7 @@ protected def exe : CliM PUnit := do
   exit <| ← (Lake.env exeFile.toString args.toArray).run <| mkLakeContext ws
 
 protected def lean : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let leanFile ← takeArg "Lean file"
   let opts ← getThe LakeOptions
   noArgsRem do
@@ -808,7 +850,7 @@ protected def lean : CliM PUnit := do
   exit rc
 
 protected def translateConfig : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let cfg ← mkLoadConfig opts
   let lang ← parseLangSpec (← takeArg "configuration language")
@@ -840,7 +882,7 @@ structure ReservoirConfig where
   deriving Lean.ToJson
 
 protected def reservoirConfig : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let cfg ← mkLoadConfig opts
   let _ ← id do
@@ -872,7 +914,7 @@ protected def reservoirConfig : CliM PUnit := do
   IO.println (toJson cfg).pretty
 
 protected def versionTags : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   let opts ← getThe LakeOptions
   let cfg ← mkLoadConfig opts
   noArgsRem do
@@ -883,7 +925,7 @@ protected def versionTags : CliM PUnit := do
       IO.println tag
 
 protected def selfCheck : CliM PUnit := do
-  processOptions lakeOption
+  processLakeOptions
   noArgsRem do verifyInstall (← getThe LakeOptions)
 
 protected def help : CliM PUnit := do
@@ -932,19 +974,46 @@ def lake : CliM PUnit := do
   match (← getArgs) with
   | [] => IO.println usage
   | ["--version"] => IO.println uiVersionString
-  | _ => -- normal CLI
-    processLeadingOptions lakeOption -- between `lake` and command
-    if let some cmd ← takeArg? then
-      processLeadingOptions lakeOption -- between `lake <cmd>` and args
-      if (← getWantsHelp) then
-        IO.println <| help cmd
-      else
-        lakeCli cmd
+  | _ => go -- normal CLI
+where @[inline] go := do
+  processLeadingLakeOptions -- between `lake` and command
+  if let some cmd ← takeArg? then
+    processLeadingLakeOptions -- between `lake <cmd>` and args
+    if (← getWantsHelp) then
+      IO.println <| help cmd
     else
-      if (← getWantsHelp) then
-        IO.println usage
-      else
-        throw <| CliError.missingCommand
+      lakeCli cmd
+  else
+    if (← getWantsHelp) then
+      IO.println usage
+    else
+      throw <| CliError.missingCommand
 
 public def cli (args : List String) : BaseIO ExitCode :=
-  inline <| (lake).run args
+  (lake).run args
+
+/- CLI sanity check -/
+
+theorem run_lake_cons_of_ne_version (h : a ≠ "--version") :
+  StateT.run lake (a :: as) = StateT.run lake.go (a :: as)
+:= by
+  simp only [lake, StateT.run_bind, ArgsT.run_getArgs, pure_bind]
+  split
+  · contradiction
+  · next h_eq => simp [h] at h_eq
+  · rfl
+
+theorem cli_of_isArg (h : IsArg cmd) :
+  cli [cmd] = (StateT.run' (lakeCli cmd) []).run [cmd]
+:= by
+  have ne_version : cmd ≠ "--version" := h.ne_of_isOpt (by decide)
+  simp only [cli, CliM.run, CliStateM.run, StateT.run'_eq]
+  simp only [run_lake_cons_of_ne_version ne_version, lake.go, getWantsHelp]
+  simp [processLeadingOptions_cons_of_isArg h, run_processLeadingLakeOptions, parseArg]
+
+theorem cli_help :
+  cli ["help"] = (CliStateM.runIO <| IO.println usage).run ["help"]
+:= by
+  have isArg_help : IsArg "help" := by decide
+  have lakeCli_help : lakeCli "help" = lake.help := by rfl
+  simp [cli_of_isArg isArg_help, lakeCli_help, lake.help, monadLift, MonadLift.monadLift]

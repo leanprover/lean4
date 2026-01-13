@@ -133,8 +133,8 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
     let (_, mvarId₂) ← mvarId₂.intro1
     solveEqOfCtorEq ctorName mvarId₁ h
     let mvarId₂ ← mvarId₂.casesAnd
-    if let some mvarId₂ ← mvarId₂.substEqs then
-      try mvarId₂.refl catch _ => throwError (injTheoremFailureHeader ctorName)
+    let mvarId₂ ← substVars mvarId₂
+    try mvarId₂.refl catch _ => throwError (injTheoremFailureHeader ctorName)
     mkLambdaFVars xs mvar
 
 private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do

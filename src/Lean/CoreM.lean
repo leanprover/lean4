@@ -371,7 +371,7 @@ instance : MonadTrace CoreM where
   getTraceState := return (← get).traceState
   modifyTraceState f := modify fun s => { s with traceState := f s.traceState }
   getInheritedTraceOptions := return (← read).inheritedTraceOptions
-  hasAnyTraceEnabled := return (← read).hasAnyTracing
+  hasAnyTraceEnabled := return (← read).hasAnyTraceEnabled
 
 structure SavedState extends State where
   /-- Number of heartbeats passed inside `withRestoreOrSaveFull`, not used otherwise. -/

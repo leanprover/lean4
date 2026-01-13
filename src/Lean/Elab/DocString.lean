@@ -135,7 +135,7 @@ instance : MonadLift TermElabM DocM where
     let {openDecls, lctx, options, localInstances, ..} := (← st'.get)
     let v ←
       withTheReader Core.Context (fun ρ => { ρ with openDecls }) <|
-      withOptions (fun _ => options)
+      withOptions (fun _ => options) <|
       withTheReader Meta.Context (fun ρ => { ρ with lctx, localInstances }) <|
       act
     return v

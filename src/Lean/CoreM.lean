@@ -215,6 +215,8 @@ structure Context where
   fileName       : String
   /-- Auxiliary datastructure for converting `String.Pos` into Line/Column number. -/
   fileMap        : FileMap
+  /-- The options for the `CoreM` computation. This field should only be modified through
+    `withOptions` while inside `CoreM`. -/
   options        : Options := {}
   currRecDepth   : Nat := 0
   maxRecDepth    : Nat := 1000

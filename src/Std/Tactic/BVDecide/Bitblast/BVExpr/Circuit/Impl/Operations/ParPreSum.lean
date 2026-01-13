@@ -31,7 +31,8 @@ namespace ParPreSum
 
 variable [Hashable α] [DecidableEq α]
 
-structure ParPreSumTarget (aig : AIG α) (len w : Nat) where
+structure ParPreSumTarget (aig : AIG α) (len : Nat) where
+  {w : Nat}
   len : Nat
   inner : AIG.RefVec aig w
 
@@ -156,12 +157,13 @@ theorem blastParPreSumTree_decl_eq (aig : AIG α)
 
 /-- We first extend all the single bits in the input BitVec w to have width `w`, then compute
 the parallel prefix sum given these bits.-/
-def blastParPreSum (aig : AIG α) (x : ParPreSumTarget aig l w) :
+def blastParPreSum (aig : AIG α) (x : ParPreSumTarget aig l) :
     AIG.RefVecEntry α l :=
   if  hw0 : l = 0 then
     let res := blastConst aig (w := l) (val := 0)
     ⟨aig, res⟩
   else
+    let w := x.w
     if hle : w < l then
       /- zero-extend to `l` -/
       let zextTarget : AIG.ExtendTarget aig l := {w := w, vec := x.inner}
@@ -169,7 +171,10 @@ def blastParPreSum (aig : AIG α) (x : ParPreSumTarget aig l w) :
       ⟨res.aig, res.vec⟩
     else if heq : w = l then
       /- cast and return as-is -/
-      ⟨aig, ⟨x.inner.refs.cast heq, by simp [x.inner.hrefs]⟩⟩
+      ⟨aig, ⟨x.inner.refs.cast heq, by
+        intros i h
+        simp only [Vector.getElem_cast]
+        apply x.inner.hrefs (i := i)⟩⟩
     else if hmodlt : 0 < w % l then
       /- zero-extend to the closest multiple of `l` -/
       have hzero : (w - w % l) % l = 0 := by
@@ -200,17 +205,18 @@ def blastParPreSum (aig : AIG α) (x : ParPreSumTarget aig l w) :
       blastParPreSumTree aig (l_length := init_length) (by simp [init_length]; omega) (l := castVec)
 
 
-theorem blastParPreSum_le_size (aig : AIG α) (l : Nat) (x : ParPreSumTarget aig l w) :
+theorem blastParPreSum_le_size (aig : AIG α) (l : Nat) (x : ParPreSumTarget aig l) :
     aig.decls.size ≤ (blastParPreSum aig x).aig.decls.size := by
   unfold blastParPreSum
   split
   · simp
-  · split
+  · simp
+    split
     · apply AIG.LawfulVecOperator.le_size
     · split
       · simp
       · split
-        · simp only
+        · let w := x.w
           let diff := l - w % l;
           let zextTarget : AIG.ExtendTarget aig (w + diff) := { w := w, vec := x.inner };
           have htmp : aig.decls.size ≤ (blastZeroExtend aig zextTarget).aig.decls.size := by
@@ -219,8 +225,8 @@ theorem blastParPreSum_le_size (aig : AIG α) (l : Nat) (x : ParPreSumTarget aig
           apply blastParPreSumTree_le_size
         · apply blastParPreSumTree_le_size
 
-theorem blastParPreSum_decl_eq {w : Nat} (l_length : Nat) (aig : AIG α)
-      (x : ParPreSumTarget aig l w) :
+theorem blastParPreSum_decl_eq (aig : AIG α)
+      (x : ParPreSumTarget aig l) :
     ∀ (idx : Nat) h1 h2,
       (blastParPreSum aig x).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
   generalize hgo : blastParPreSum aig x = res
@@ -245,9 +251,9 @@ theorem blastParPreSum_decl_eq {w : Nat} (l_length : Nat) (aig : AIG α)
         · rw [← hgo]
           apply blastParPreSumTree_decl_eq
 
--- instance : AIG.LawfulVecOperator (ParPreSumTarget aig len w) blastParPreSum where
---   le_size := by sorry
---   decl_eq := by sorry
+instance : AIG.LawfulVecOperator α ParPreSumTarget blastParPreSum where
+  le_size := by sorry
+  decl_eq := by sorry
 
 end ParPreSum
 

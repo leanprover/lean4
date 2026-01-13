@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Joe Hendrix, Harun Khan, Alex Keizer, Abdalrhman M Mohamed, Siddharth Bhat, Luisa Cicolini
+Authors: Joe Hendrix, Harun Khan, Alex Keizer, Abdalrhman M Mohamed, Siddharth Bhat, Luisa Cicolini, Fady Adal
 -/
 module
 
@@ -1711,9 +1711,13 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
   simp
   omega
 
+@[simp] theorem not_nil : ~~~nil = nil := by
+  simp
+
 @[simp] theorem not_zero : ~~~(0#n) = allOnes n := by
   ext
   simp
+
 
 @[simp] theorem not_allOnes : ~~~ allOnes w = 0#w := by
   ext
@@ -3348,6 +3352,17 @@ theorem msb_concat {w : Nat} {b : Bool} {x : BitVec w} :
 @[simp] theorem concat_xor_concat (x y : BitVec w) (a b : Bool) :
     (concat x a) ^^^ (concat y b) = concat (x ^^^ y) (a ^^ b) := by
   ext (_ | i) h <;> simp
+
+theorem concat_extractLsb'_getElem_zero (x : BitVec (w+1)) :
+    concat (extractLsb' 1 w x) x[0] = x := by
+  ext i
+  simp only [getElem_concat]
+  split
+  · simp_all
+  · rename_i h
+    have : 1 + (i - 1) = i := by simp +arith [Nat.sub_one_add_one h] 
+    rw [getElem_extractLsb', getLsbD_eq_getElem (by omega)]
+    simp [this]
 
 @[simp] theorem zero_concat_false : concat 0#w false = 0#(w + 1) := by
   ext
@@ -5218,11 +5233,19 @@ theorem shiftLeft_neg {x : BitVec w} {y : Nat} :
   ext
   simp [getElem_cons]
 
+@[simp] theorem true_cons_allOnes : cons true (allOnes w) = allOnes (w + 1) := by
+  ext
+  simp [getElem_cons]
+
 @[simp] theorem false_cons_zero : cons false 0#w = 0#(w + 1) := by
   ext
   simp [getElem_cons]
 
 @[simp] theorem zero_concat_true : concat 0#w true = 1#(w + 1) := by
+  ext
+  simp [getElem_concat]
+
+@[simp] theorem allOnes_concat_true : concat (allOnes w) true = allOnes (w + 1) := by
   ext
   simp [getElem_concat]
 

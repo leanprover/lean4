@@ -1355,8 +1355,9 @@ def saveContext : TermElabM SavedContext :=
 -/
 def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α := do
   withReader (fun ctx => { ctx with declName? := savedCtx.declName?, macroStack := savedCtx.macroStack, errToSorry := savedCtx.errToSorry }) <|
-    withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls }) <|
-      withLevelNames savedCtx.levelNames x
+    withTheReader Core.Context (fun ctx => { ctx with openDecls := savedCtx.openDecls }) <|
+      withOptions (fun _ => savedCtx.options) <|
+        withLevelNames savedCtx.levelNames x
 
 /--
 Delay the elaboration of `stx`, and return a fresh metavariable that works a placeholder.

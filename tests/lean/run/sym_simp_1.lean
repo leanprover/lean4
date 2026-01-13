@@ -31,3 +31,10 @@ example : ∀ x, 0 + x + 0 = x := by
 
 example : ∀ x, 0 + x + 0 = x := by
   sym_simp [Nat.add_zero, Nat.zero_add, eq_self, forall_true]
+
+example (p q : Prop) (hp : p) : if x + 0 = x then p else q := by
+  sym_simp [Nat.add_zero, eq_self, if_true]
+  exact hp
+
+example (as : Array Int) (i : Nat) (h : 0 + i < as.size) : as[0 + i] = as[i] := by
+  sym_simp [Nat.zero_add, eq_self]

@@ -149,6 +149,7 @@ inductive Result where
   Simplified to `e'` with proof `proof : e = e'`.
   If `done = true`, skip recursive simplification of `e'`. -/
   | step (e' : Expr) (proof : Expr) (done : Bool := false)
+  deriving Inhabited
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 def MethodsRef : Type := MethodsRefPointed.type

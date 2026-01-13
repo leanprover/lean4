@@ -14,10 +14,6 @@ open Std Do
 
 namespace List
 
-theorem exists_mem_iff_exists_getElem (P : α → Prop) (l : List α) :
-    (∃ x ∈ l, P x) ↔ ∃ (i : Nat), ∃ hi, P (l[i]'hi) := by
-  grind [mem_iff_getElem]
-
 /--
 `l.ExistsPair P` asserts that there are indices `i` and `j` such that `i < j` and `P l[i] l[j]` is true.
 -/

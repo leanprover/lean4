@@ -482,6 +482,24 @@ theorem mem_iff_getElem {a} {l : List α} : a ∈ l ↔ ∃ (i : Nat) (h : i < l
 theorem mem_iff_getElem? {a} {l : List α} : a ∈ l ↔ ∃ i : Nat, l[i]? = some a := by
   simp [getElem?_eq_some_iff, mem_iff_getElem]
 
+theorem exists_mem_iff_exists_getElem (P : α → Prop) (xs : List α) :
+    (∃ x ∈ xs, P x) ↔ ∃ (i : Nat), ∃ hi, P (xs[i]) := by
+  simp only [mem_iff_getElem]
+  apply Iff.intro
+  · rintro ⟨_, ⟨i, hi, rfl⟩, hP⟩
+    exact ⟨i, hi, hP⟩
+  · rintro ⟨i, hi, hP⟩
+    exact ⟨_, ⟨i, hi, rfl⟩, hP⟩
+
+theorem forall_mem_iff_forall_getElem (P : α → Prop) (xs : List α) :
+    (∀ x ∈ xs, P x) ↔ ∀ (i : Nat) hi, P (xs[i]) := by
+  simp only [mem_iff_getElem]
+  apply Iff.intro
+  · intro h i hi
+    exact h xs[i] ⟨i, hi, rfl⟩
+  · rintro h _ ⟨i, hi, rfl⟩
+    exact h i hi
+
 theorem forall_getElem {l : List α} {p : α → Prop} :
     (∀ (i : Nat) h, p (l[i]'h)) ↔ ∀ a, a ∈ l → p a := by
   induction l with

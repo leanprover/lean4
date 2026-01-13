@@ -135,6 +135,7 @@ instance : MonadRef CommandElabM where
 instance : MonadTrace CommandElabM where
   getTraceState := return (← get).traceState
   modifyTraceState f := modify fun s => { s with traceState := f s.traceState }
+  hasAnyTraceEnabled := return true
 
 instance : AddErrorMessageContext CommandElabM where
   add ref msg := do

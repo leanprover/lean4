@@ -239,6 +239,7 @@ structure Context where
   suppressElabErrors : Bool := false
   /-- Cache of `Lean.inheritedTraceOptions`. -/
   inheritedTraceOptions : Std.HashSet Name := {}
+  hasAnyTracing : Bool := false
   deriving Nonempty
 
 /-- CoreM is a monad for manipulating the Lean environment.
@@ -273,6 +274,12 @@ instance : MonadOptions CoreM where
 instance : MonadWithOptions CoreM where
   withOptions f x := do
     let options := f (← read).options
+    let hasAnyTracing := options.entries.any fun (k, v) => Id.run do
+      if (`trace).isPrefixOf k then
+        let .ofBool v := v | return false
+        return v
+      else
+        return false
     let diag := diagnostics.get options
     if Kernel.isDiagnosticsEnabled (← getEnv) != diag then
       modifyEnv fun env => Kernel.enableDiag env diag
@@ -281,6 +288,7 @@ instance : MonadWithOptions CoreM where
         { ctx with
           options
           diag
+          hasAnyTracing
           maxRecDepth := maxRecDepth.get options })
       x
 
@@ -362,6 +370,7 @@ instance : MonadTrace CoreM where
   getTraceState := return (← get).traceState
   modifyTraceState f := modify fun s => { s with traceState := f s.traceState }
   getInheritedTraceOptions := return (← read).inheritedTraceOptions
+  hasAnyTraceEnabled := return (← read).hasAnyTracing
 
 structure SavedState extends State where
   /-- Number of heartbeats passed inside `withRestoreOrSaveFull`, not used otherwise. -/

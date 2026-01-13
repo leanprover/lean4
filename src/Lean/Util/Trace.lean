@@ -85,6 +85,7 @@ class MonadTrace (m : Type → Type) where
   value may want to be cached, which is done in the stdlib in `CoreM`.
   -/
   getInheritedTraceOptions : m (Std.HashSet Name) := by exact inheritedTraceOptions.get
+  hasAnyTraceEnabled : m Bool
 
 export MonadTrace (getTraceState modifyTraceState)
 
@@ -92,6 +93,7 @@ instance (m n) [MonadLift m n] [MonadTrace m] : MonadTrace n where
   modifyTraceState := fun f => liftM (modifyTraceState f : m _)
   getTraceState    := liftM (getTraceState : m _)
   getInheritedTraceOptions := liftM (MonadTrace.getInheritedTraceOptions : m _)
+  hasAnyTraceEnabled := liftM (MonadTrace.hasAnyTraceEnabled : m _)
 
 variable {α : Type} {m : Type → Type} [Monad m] [MonadTrace m] [MonadOptions m] [MonadLiftT IO m]
 
@@ -115,7 +117,10 @@ where
 
 /-- Determine if tracing is available for a given class, checking ancestor classes if appropriate. -/
 def isTracingEnabledFor (cls : Name) : m Bool := do
-  return checkTraceOption (← MonadTrace.getInheritedTraceOptions) (← getOptions) cls
+  if !(← MonadTrace.hasAnyTraceEnabled) then
+    return false
+  else
+    return checkTraceOption (← MonadTrace.getInheritedTraceOptions) (← getOptions) cls
 
 @[inline] def getTraces : m (PersistentArray TraceElem) := do
   let s ← getTraceState
@@ -264,6 +269,8 @@ The `cls`, `collapsed`, and `tag` arguments are forwarded to the constructor of 
 def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls : Name)
     (msg : Except ε α → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
   let _ := always.except
+  if !(← MonadTrace.hasAnyTraceEnabled) then
+    return (← k)
   let opts ← getOptions
   let clsEnabled ← isTracingEnabledFor cls
   unless clsEnabled || trace.profiler.get opts do

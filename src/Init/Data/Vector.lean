@@ -24,3 +24,5 @@ public import Init.Data.Vector.Perm
 public import Init.Data.Vector.Find
 public import Init.Data.Vector.Algebra
 public import Init.Data.Vector.Stream
+public import Init.Data.Vector.Nat
+public import Init.Data.Vector.Int

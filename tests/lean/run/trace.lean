@@ -42,15 +42,14 @@ do withTraceNode `module.slow (fun _ => return m!"slow: {slow b}") do {
    trace[slow] (m!"slow message: " ++ (← pure (toString (slow b))))
 
 def run (x : M Unit) : M Unit :=
-withReader
-  (fun ctx =>
+withOptions
+  (fun opts =>
     -- Try commenting/uncommeting the following `setBool`s
-    let opts := ctx.options;
     let opts := opts.setBool `trace.module true;
     -- let opts := opts.setBool `trace.module.aux false;
     let opts := opts.setBool `trace.bughunt true;
     -- let opts := opts.setBool `trace.slow true;
-    { ctx with options := opts })
+    opts)
   (tryCatch (tryFinally x printTraces) (fun _ => IO.println "ERROR"))
 
 /--

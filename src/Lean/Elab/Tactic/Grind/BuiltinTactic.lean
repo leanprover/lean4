@@ -141,7 +141,7 @@ def ematchThms (only : Bool) (thms : Array EMatchTheorem) : GrindTacticM Unit :=
     let thms ← thms.mapM (preprocessTheorem · 0)
     if only then ematchOnly thms else ematch thms
   unless progress do
-    throwError "`instantiate` tactic failed to instantiate new facts, use `show_patterns` to see active theorems and their patterns."
+    throwError "`instantiate` tactic failed to instantiate new facts, use `show_local_thms` to see active local theorems and their patterns."
   liftAction Action.assertAll
 
 @[builtin_grind_tactic instantiate] def evalInstantiate : GrindTactic := fun stx => withMainContext do

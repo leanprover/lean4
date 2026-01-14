@@ -1447,4 +1447,10 @@ instance : LawfulOrderLT Int where
   lt_iff := by
     simp [← Int.not_le, Decidable.imp_iff_not_or, Std.Total.total]
 
+instance : LawfulOrderInf Int where
+  le_min_iff _ _ _ := Int.le_min
+
+instance : LawfulOrderSup Int where
+  max_le_iff _ _ _ := Int.max_le
+
 end Int

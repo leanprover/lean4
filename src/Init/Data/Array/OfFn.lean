@@ -67,6 +67,11 @@ theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i =
   · rintro ⟨i, rfl⟩
     apply mem_of_getElem (i := i) <;> simp
 
+theorem Array.map_ofFn {f : Fin n → α} {g : α → β} :
+    (Array.ofFn f).map g = Array.ofFn (g ∘ f) := by
+  apply Array.ext_getElem?
+  simp [Array.getElem?_ofFn]
+
 /-! ### ofFnM -/
 
 /-- Construct (in a monadic context) an array by applying a monadic function to each index. -/

@@ -51,14 +51,14 @@ theorem denote_blastParPreSumLayer
           ⟦aig, old_layer.get idx hidx, assign⟧ = old_layer_bv.getLsbD idx)
   (hnew : ∀ (idx : Nat) (hidx : idx < iter_num * w),
           ⟦aig, new_layer.get idx hidx, assign⟧ =
-      (BitVec.parPreSum_layer 0 (old_layer := old_layer_bv) 0#(0 * w) (by simp; omega)).getLsbD idx) :
+      (BitVec.parPreSumLayer (old_layer := old_layer_bv) 0#(0 * w) (by simp; omega)).getLsbD idx) :
     ∀ (idx : Nat) (hidx : idx < (old_length + 1) / 2 * w),
       ⟦
         (blastParPreSumLayer aig iter_num old_layer new_layer hold').aig,
         (blastParPreSumLayer aig iter_num old_layer new_layer hold').vec.get idx hidx,
         assign
       ⟧ =
-      (BitVec.parPreSum_layer 0 old_layer_bv 0#(0 * w) (by omega)).getLsbD idx := by
+      (BitVec.parPreSumLayer old_layer_bv 0#(0 * w) (by omega)).getLsbD idx := by
   intros idx hidx
   generalize hgen : blastParPreSumLayer aig iter_num old_layer new_layer hold' = res
   unfold blastParPreSumLayer at hgen
@@ -94,10 +94,9 @@ theorem denote_blastParPreSumLayer
           · exact (new_layer.get idx2 (Eq.mpr_prop (Eq.refl (idx2 < iter_num * w)) hsplit)).hgate
         · exact (new_layer.get idx2 (Eq.mpr_prop (Eq.refl (idx2 < iter_num * w)) hsplit)).hgate
       · case _ hsplit1 =>
-        let bvRes := BitVec.parPreSum_layer 0 old_layer_bv 0#(0 * w) (by omega)
-        have bvRes_proof := BitVec.extractLsb'_parPreSum_layer 0 old_layer_bv 0#(0 * w) (by omega) (by simp)
-                              (ls := bvRes) (hls := by simp [bvRes])
-        have bvRes_proof' := bvRes_proof iter_num (by omega) (by omega)
+        let bvRes := BitVec.parPreSumLayer old_layer_bv 0#(0 * w) (by omega)
+        have bvRes_proof := BitVec.extractLsb'_parPreSumLayer old_layer_bv 0#(0 * w) (by omega) (by omega)
+        have bvRes_proof' := bvRes_proof (by omega)
         let lhs_bv := BitVec.extractLsb' (2 * iter_num * w) w old_layer_bv
         let rhs_bv := BitVec.extractLsb' ((2 * iter_num + 1) * w) w old_layer_bv
         rw [denote_blastAdd (rhs := rhs_bv) (lhs := lhs_bv)]
@@ -106,7 +105,7 @@ theorem denote_blastParPreSumLayer
           have hksum : idx2 = iter_num * w + k := by omega
           rw [hksum]
           rw [show iter_num * w + k - iter_num * w = k by omega]
-          specialize bvRes_proof (i := iter_num) (by omega) (by omega)
+          specialize bvRes_proof (i := iter_num) (by omega)
           have hlsbd := BitVec.getLsbD_extractLsb' (x := bvRes) (start := iter_num * w) (len := w) (i := k)
           have : k < w := by
             apply Classical.byContradiction
@@ -116,7 +115,9 @@ theorem denote_blastParPreSumLayer
           simp only [this, decide_true, Bool.true_and] at hlsbd
           simp only [lhs_bv, rhs_bv]
           rw [← hlsbd]
-          simp [bvRes_proof]
+          exact
+            Bool.not_inj_iff.mp
+              (congrArg not (congrFun (congrArg BitVec.getLsbD (id (Eq.symm bvRes_proof))) k))
         · intros idx hidx
           simp only [BitVec.getLsbD_extractLsb', lhs_bv]
           have := BitVec.getLsbD_extractLsb' (x := old_layer_bv) (start := 2 * iter_num * w) (len := w) (i := idx)
@@ -176,7 +177,7 @@ theorem denote_blastParPreSumTree
         (blastParPreSumTree aig l h).vec.get idx hidx,
         assign
       ⟧ =
-      (BitVec.parPreSum_tree l_bv (by omega) (by omega)).getLsbD idx := by
+      (BitVec.parPreSumTree l_bv (by omega) (by omega)).getLsbD idx := by
   intros idx hidx
   generalize hgen : blastParPreSumTree aig l h = res
   unfold blastParPreSumTree at hgen
@@ -184,11 +185,11 @@ theorem denote_blastParPreSumTree
   · rw [← hgen]
     simp
     have hcastZero : 0 = 0 / 2 * w := by omega
-    let bvRes := BitVec.parPreSum_layer 0 l_bv 0#(0 * w) (by omega)
+    let bvRes := BitVec.parPreSumLayer l_bv 0#(0 * w) (by omega)
     rw [denote_blastParPreSumTree (l_length := (l_length + 1) / 2) (l_bv := bvRes)]
     · conv =>
         rhs
-        unfold BitVec.parPreSum_tree
+        unfold BitVec.parPreSumTree
         simp [show ¬ l_length = 1 by omega]
     · omega
     · intros idx hidx
@@ -204,7 +205,7 @@ theorem denote_blastParPreSumTree
     have hval1 : l_length = 1 := by omega
     have hcast : l_length * w = w := by simp [hval1]
     specialize hpar idx (by omega)
-    unfold BitVec.parPreSum_tree
+    unfold BitVec.parPreSumTree
     simp [hval1]
     have hcasteq: (hcast ▸ l).get idx hidx = l.get idx (by omega) := by
       congr

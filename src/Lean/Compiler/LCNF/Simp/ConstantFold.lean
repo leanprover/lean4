@@ -219,9 +219,9 @@ def Folder.mkBinaryDecisionProcedure [Literal α] [Literal β] {r : α → β �
   let result := folder arg₁ arg₂ |>.decide
   if (← getPhase) < .mono then
     if result then
-      return some <| .const ``Decidable.isTrue [] #[.erased]
+      return some <| .const ``Decidable.isTrue [] #[.erased, .erased]
     else
-      return some <| .const ``Decidable.isFalse [] #[.erased]
+      return some <| .const ``Decidable.isFalse [] #[.erased, .erased]
   else
     mkLit result
 

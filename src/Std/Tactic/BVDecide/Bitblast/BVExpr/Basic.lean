@@ -264,7 +264,7 @@ with
     | w, .arithShiftRight lhs rhs =>
       mixHash 37 <| mixHash (hash w) <| mixHash (hashCode _ lhs) (hashCode _ rhs)
     | w, .parPreSum _ expr =>
-      mixHash 41 <| mixHash (hash w) <| mixHash (hash w) (hashCode _ expr)
+      mixHash 41 <| mixHash (hash w) (hashCode _ expr)
 
 
 namespace BVExpr

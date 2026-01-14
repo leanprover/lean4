@@ -56,7 +56,7 @@ instance : EmptyCollection Options where
 
 def set {α : Type} [KVMap.Value α] (o : Options) (k : Name) (v : α) : Options where
   map := o.map.insert k (KVMap.Value.toDataValue v)
-  hasTrace := o.hasTrace || k.isPrefixOf `trace
+  hasTrace := o.hasTrace || (`trace).isPrefixOf k
 
 @[inline] def setBool (o : Options) (k : Name) (v : Bool) : Options :=
   o.set k v

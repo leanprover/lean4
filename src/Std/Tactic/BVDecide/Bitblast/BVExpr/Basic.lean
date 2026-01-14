@@ -471,6 +471,10 @@ theorem eval_extract : eval assign (.extract start len expr) = BitVec.extractLsb
   rfl
 
 @[simp]
+theorem eval_parPreSum : eval assign (.parPreSum len expr) = BitVec.flattenedAdd len (eval assign expr) := by
+  rfl
+
+@[simp]
 theorem eval_bin : eval assign (.bin lhs op rhs) = op.eval (lhs.eval assign) (rhs.eval assign) := by
   rfl
 

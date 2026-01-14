@@ -35,7 +35,6 @@ variable [Hashable α] [DecidableEq α]
 namespace BVExpr
 
 namespace bitblast
-namespace blastParPreSum
 
 
 theorem denote_blastParPreSumLayer
@@ -348,7 +347,6 @@ theorem denote_blastParPreSum' (aig : AIG α) (l : Nat) (xc : ParPreSumTarget ai
   apply denote_blastParPreSum
   simp [hx]
 
-end blastParPreSum
 end bitblast
 end BVExpr
 

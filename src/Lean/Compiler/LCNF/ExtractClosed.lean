@@ -53,7 +53,7 @@ structure Context where
 structure State where
   decls : Array Decl := {}
   /--
-  Cache for `shouldExtractLetValue` in order to avoid superlinear behavior.
+  Cache for `shouldExtractFVar` in order to avoid superlinear behavior.
   -/
   fvarDecisionCache : Std.HashMap FVarId Bool := {}
 

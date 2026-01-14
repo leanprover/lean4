@@ -38,3 +38,24 @@ example (p q : Prop) (hp : p) : if x + 0 = x then p else q := by
 
 example (as : Array Int) (i : Nat) (h : 0 + i < as.size) : as[0 + i] = as[i] := by
   sym_simp [Nat.zero_add, eq_self]
+
+/-- trace: ⊢ Nat.add 0 = id -/
+#guard_msgs in
+example : Nat.add (0 + 0) = id := by
+  sym_simp [Nat.zero_add]
+  trace_state
+  funext
+  simp
+
+/--
+trace: a : Nat
+β✝ : Type
+f : β✝ → Prop
+h : HEq a = f
+⊢ HEq a = f
+-/
+#guard_msgs in
+example (h : HEq a = f) : HEq (α := Nat) (0 + a) = f := by
+  sym_simp [Nat.zero_add]
+  trace_state
+  exact h

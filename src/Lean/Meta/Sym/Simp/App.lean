@@ -105,7 +105,7 @@ def congrFixedPrefix (e : Expr) (prefixSize : Nat) (suffixSize : Nat) : SimpM Re
     -- **TODO**: over-applied case
     return .rfl
   else
-    return (← go suffixSize e).1
+    return (← go (numArgs - prefixSize) e).1
 where
   go (i : Nat) (e : Expr) : SimpM (Result × Expr) := do
     if i == 0 then

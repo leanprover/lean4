@@ -1,4 +1,8 @@
-/-! This test ensures that we constant fold Decidable related things in base already -/
+/-!
+This test ensures that we constant fold Decidable related things in base already.
+Previously the below code would produce a series of nested join points that would only ever be
+simplified in the mono phase when we convert `Decidable` to `Bool`.
+-/
 
 /--
 trace: [Compiler.saveBase] size: 33

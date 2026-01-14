@@ -100,13 +100,19 @@ open Lean.Meta
       let app := mkConst ``ForInNew'.forInNew' [uρ, uα, mi.u, mi.v]
       let app := mkApp8 app mi.m ρ α p instForIn σ γ xs -- 3 args remaining: preS, kcons, knil
       pure (app, some p)
-  withLetDecl (← mkFreshUserName `kbreak) β breakRhs (kind := .implDetail) (nondep := true) fun kbreak => do
+  let kbreakName ← mkFreshUserName `__kbreak
+  let kcontinueName ← mkFreshUserName `__kcontinue
+  withLetDecl kbreakName β breakRhs (kind := .implDetail) (nondep := true) fun kbreak => do
+  let generalizeBlah discrs patternFVars matchResultType doBlockResultType := do
+    return doBlockResultType
+  withContFVarGeneralizer kbreakName generalizeBlah do
   let xh : Array (Name × (Array Expr → DoElabM Expr)) := match h?, p? with
     | some h, some p => #[(x.getId, fun _ => pure α), (h.getId, fun x => pure (mkApp2 p xs x[0]!))]
     | _, _ => #[(x.getId, fun _ => pure α)]
   withLocalDeclsD xh fun xh => do
-  withLocalDecl (← mkFreshUserName `kcontinue) .default β (kind := .implDetail) fun kcontinue => do
-  withLocalDecl (← mkFreshUserName `s) .default σ (kind := .implDetail) fun loopS => do
+  withLocalDecl kcontinueName .default β (kind := .implDetail) fun kcontinue => do
+  withContFVarGeneralizer kcontinueName generalizeBlah do
+  withLocalDecl (← mkFreshUserName `__s) .default σ (kind := .implDetail) fun loopS => do
   withProxyMutVarDefs fun elimProxyDefs => do
     let rootCtx ← getLCtx
     -- We will use `continueKVar` to stand in for the `DoElemCont` `dec` below.
@@ -155,7 +161,7 @@ open Lean.Meta
     -- Elaborate the continuation, now that `σ` is known. It will be the `break` handler.
     -- If there is a `break`, the code will be shared in the `kbreak` join point.
     breakRhs.mvarId!.withContext do
-      let e ← withLocalDeclD (← mkFreshUserName `s) σ fun postS => do mkLambdaFVars #[postS] <| ← do
+      let e ← withLocalDeclD (← mkFreshUserName `__s) σ fun postS => do mkLambdaFVars #[postS] <| ← do
         bindMutVarsFromTuple loopMutVarNames postS.fvarId! do
           unless ← isDefEq dec.resultType (← mkPUnit) do
             throwError m!"Type mismatch. `for` loops have result type {← mkPUnit}, but the rest of the `do` sequence expected {dec.resultType}."

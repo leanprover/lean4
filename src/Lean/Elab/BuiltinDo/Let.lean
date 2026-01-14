@@ -133,8 +133,9 @@ def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDec
   doElabToSyntax m!"let body of {vars}" contElab fun body => do
     elabNestedActions decl fun decl => do
     match letOrReassign with
-    | .have => Term.elabHaveDecl (← `(have $decl:letDecl; $body)) mγ
-    | _     => Term.elabLetDecl (← `(let $decl:letDecl; $body)) mγ
+    -- Only non-`mut` lets will be elaborated as `let`s; `let mut` and reassigns behave as `have`s.
+    | .let none => Term.elabLetDecl (← `(let $decl:letDecl; $body)) mγ
+    | _         => Term.elabHaveDecl (← `(have $decl:letDecl; $body)) mγ
 
 def elabDoLetOrReassignElse (letOrReassign : LetOrReassign) (pattern rhs : Term)
     (body? : Option (TSyntax ``doSeq)) (otherwise : TSyntax ``doSeq) (dec : DoElemCont) : DoElabM Expr := do
@@ -179,7 +180,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
       (kind := dec.kind) (contRef := dec.ref)
   | `(doPatDecl| $pattern:term ← $rhs $[| $otherwise?:doSeq $(rest?)?]?) =>
     let rest? := rest?.join
-    let x ← Term.mkFreshIdent pattern
+    let x := mkIdentFrom pattern (← mkFreshUserName `__x)
     elabDoIdDecl x none rhs (contRef := pattern) (declKind := .implDetail) do
       match letOrReassign, otherwise? with
       | .let mutTk?, some otherwise =>

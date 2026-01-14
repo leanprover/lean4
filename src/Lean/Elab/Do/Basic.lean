@@ -71,6 +71,14 @@ def CodeLiveness.lub (a b : CodeLiveness) : CodeLiveness :=
   | _, .deadSyntactically => a
   | _, _ => a
 
+/--
+A function that generalizes the type of a free variable binding a continuation
+(join point, `continue`, `break`, etc.) given the discriminants of a match alternative and the
+current `doBlockResultType`.
+-/
+abbrev ContFVarGeneralizer :=
+  (discrs : Array Expr) → (patternFVars : Array Expr) → (matchResultType : Expr) → (doBlockResultType : Expr) → MetaM Expr
+
 structure Context where
   /-- Inferred and cached information about the monad. -/
   monadInfo : MonadInfo
@@ -85,6 +93,11 @@ structure Context where
   doBlockResultType : Expr
   /-- Information about `return`, `break` and `continue` continuations. -/
   contInfo : ContInfoRef
+  /--
+  How to generalize the types of join points and other continuations (`continue`, `break`, etc.)
+  in a dependent pattern match.
+  -/
+  contFVarGeneralizers : Std.HashMap Name ContFVarGeneralizer := {}
   /--
   Whether the current `do` element is dead code. `elabDoElem` will emit a warning if not `.alive`.
   -/
@@ -655,6 +668,9 @@ def DoElemCont.elabAsSyntacticallyDeadCode (dec : DoElemCont) : DoElabM Unit :=
     s.restore
     Core.setMessageLog msg
 
+def withContFVarGeneralizer (name : Name) (generalizer : ContFVarGeneralizer) (k : DoElabM α) : DoElabM α :=
+  withReader (fun ctx => { ctx with contFVarGeneralizers := ctx.contFVarGeneralizers.insert name generalizer }) k
+
 /--
 Given a list of mut vars `vars` and an FVar `tupleVar` binding a tuple, bind the mut vars to the
 fields of the tuple and call `k` in the resulting local context.
@@ -709,6 +725,12 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElabM (Do
   let joinRhs ← mkFreshExprMVar joinTy (userName := `joinRhs)
   let returnCont := (← read).contInfo.toContInfo.returnCont
   withLetDecl joinName joinTy joinRhs (kind := .implDetail) (nondep := true) fun jp => do
+  let generalizeJP discrs patternFVars matchResultType doBlockResultType := do
+    return doBlockResultType
+    -- withLocalDecls
+    -- let σ ← mkProdN (← mutVarNames.mapM (LocalDecl.type <$> getLocalDeclFromUserName ·)) mi.u
+    -- return mkArrow matchResultType (← mkArrow σ (← mkMonadicType doBlockResultType))
+  withContFVarGeneralizer joinName generalizeJP do
   let returnDummyRhs := mkApp (mkConst ``id [mkLevelSucc mi.u]) returnCont.resultType
   withLocalDecl returnDummyName .default (← mkArrow returnCont.resultType returnCont.resultType) (kind := .implDetail) fun returnDummy => do
   -- trace[Elab.do] "returnDummy: {returnDummy}"
@@ -789,7 +811,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElabM (Do
 
   synthUsingDefEq "join RHS" joinRhs (← joinRhs.mvarId!.withContext do
     withLambda nondupDec.resultName nondupDec.resultType fun _ => do
-    withLambda (← mkFreshUserName `tuple) σ (bi := .default) (kind := .implDetail) fun s => do
+    withLambda (← mkFreshUserName `__s) σ (bi := .default) (kind := .implDetail) fun s => do
     bindMutVarsFromTuple mutVarNames.toList s.fvarId! do
       for x in mutVarNames do
         let newDecl ← getLocalDeclFromUserName x
@@ -1098,7 +1120,7 @@ private def elabDoElemFns (stx : TSyntax `doElem) (cont : DoElemCont)
 
 private def DoElemCont.mkUnit (ref : Syntax) (k : DoElabM Expr) : DoElabM DoElemCont := do
   let unit ← mkPUnit
-  let r ← mkFreshUserName `r
+  let r ← mkFreshUserName `__r
   return DoElemCont.mk r unit k .nonDuplicable ref .implDetail
 
 mutual

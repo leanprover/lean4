@@ -59,6 +59,7 @@ end Backtrack
 
 section Array
 
+set_option trace.Elab.do.match true in
 @[inline, expose]
 def findSomeM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m (Option β)) (as : Array α) : m (Option β) := do
   for a in as do
@@ -146,57 +147,6 @@ def logErrorNames (x : MetaM Unit) : MetaM Unit := do
         msg
   Core.setMessageLog newLog
 
-set_option trace.Elab.match true in
-set_option trace.Meta.Match.debug true in
-set_option trace.Meta.Match.match true in
-example (n : Nat) : Id (Fin (n + 1)) :=
-  have jp : ?m := ?rhs
-  match n with
-  | 0 => ?jmp1
-  | n + 1 => ?jmp2
-  where finally
-  case m => exact Fin (n + 1) → Id (Fin (n + 1))
-  case jmp1 => exact jp ⟨0, by decide⟩
-  case jmp2 => exact jp ⟨n, by omega⟩
-  case rhs => exact pure
-
-open Std IterM in
-set_option trace.Elab.match true in
-set_option trace.Meta.Match.debug true in
-set_option trace.Meta.Match.match true in
-noncomputable def rhsThing' {m : Type → Type} [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
-    {it₁ : IterM (α := α₁) m β₁}
-    {memo : Option { out : β₁ //
-        ∃ it : IterM (α := α₁) m β₁, it.IsPlausibleOutput out }}
-    {it₂ : IterM (α := α₂) m β₂} :
-    m (Shrink (Intermediate.zip it₁ memo it₂).Step) :=
-  match memo with
-  | none => pure ?hole
-  | some out₁ => pure sorry
-where finally
-  case hole => exact sorry
-
-set_option trace.Elab.match true in
-set_option trace.Meta.Match.debug true in
-set_option trace.Meta.Match.match true in
-set_option trace.Meta.Tactic.cases true in
-set_option trace.Meta.Tactic.induction true in
-set_option pp.mvars.delayed true in
-open Std IterM in
-noncomputable def rhsThing [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
-    {it₁ : IterM (α := α₁) m β₁}
-    {memo : Option { out : β₁ //
-        ∃ it : IterM (α := α₁) m β₁, it.IsPlausibleOutput out }}
-    {it₂ : IterM (α := α₂) m β₂} :
-    m (Shrink (Intermediate.zip it₁ memo it₂).Step) :=
-  have jp : Shrink (Intermediate.zip it₁ memo it₂).Step → ?σ → m (Shrink (Intermediate.zip it₁ memo it₂).Step) :=
-    fun a _ => pure a
-  match memo, jp with
-  | none, _ => pure sorry
-  | some out₁, _ => pure sorry
-where finally
-  case σ => exact Unit
-
 open Std IterM in
 example [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
     {it₁ : IterM (α := α₁) m β₁}
@@ -250,14 +200,23 @@ example (x : Nat) : IO (Fin (x + 1)) := do
   try
     if true then
       x := 10
-      match x with
-      | 2 => return ⟨x, by decide⟩
+      match h : x with
+      | 2 => return ⟨x, by grind⟩
       | _ => return 0
     else
       x := 5
   catch e =>
     x := x + 1
   return ⟨3, by decide⟩
+
+-- An example of a dependent match that does not refine the result type, but still refines one of
+-- the free variables
+set_option trace.Elab.match true in
+example (x : Nat) : Nat :=
+  have y : Fin (x + 1) := ⟨x, by grind⟩
+  match x with
+  | 42 => y
+  | _ => 0
 
 /-- info: Except.ok 23 -/
 #guard_msgs in
@@ -281,13 +240,13 @@ set_option backward.do.legacy true in
 
 -- Full-blown dependent match including refinement of the join point, but not the mut vars:
 example (x : Nat) := Id.run (α := Fin (2 * x + 2)) do
-  have y' : Fin (x + 1) := ⟨0, by grind⟩
+  -- have y' : Fin (x + 1) := ⟨0, by grind⟩
   let mut y₁ : Fin (x + 1) := ⟨0, by grind⟩
   let y₂ : Fin (x + 1) ←
     match h : x with
     | z + 1 => y₁ := ⟨1, by grind⟩; pure ⟨1, by grind⟩
-    | _     => pure ⟨0, by grind⟩
-  return ⟨y₁.val + y₂.val, by grind⟩
+    | _     => pure ⟨0, sorry⟩
+  return ⟨y₁.val + y₂.val, sorry⟩
 
 -- Providing a motive
 example (x : Nat) := Id.run (α := Fin (2 * x + 2)) do
@@ -295,7 +254,7 @@ example (x : Nat) := Id.run (α := Fin (2 * x + 2)) do
   let mut y₁ : Fin (x + 1) := ⟨0, by grind⟩
   let y₂ ←
     match (motive := ∀ x, Fin (x + 1)) x with
-    | z + 1 => y₁ := ⟨1, by grind⟩; pure ⟨1, by grind⟩
+    | z + 1 => pure ⟨1, by grind⟩
     | _     => pure ⟨0, by grind⟩
   return ⟨y₁.val + y₂.val, by grind⟩
 
@@ -355,7 +314,7 @@ example (p n : Nat) : Except String (Fin (2 * p + 2)) := Id.run <| ExceptT.run d
 
 -- Example for why `match` needs to generalize join points
 set_option backward.do.legacy true in
-example (x : Nat) : Id (Fin (x + 2)) := Id.run do
+example (x : Nat) : Id (Fin (x + 2)) := do
   let mut a := 1
   let mut b := 2
   let mut c := 3
@@ -363,7 +322,6 @@ example (x : Nat) : Id (Fin (x + 2)) := Id.run do
     if a = 1 then
       match x with
       | 0 => a := a + 1; pure 0
-      | 42 => a := a + 42; pure 41
       | _ => pure 0
     else
       b := b + 1; pure 0
@@ -572,6 +530,15 @@ example (toolchainFile : System.FilePath) : IO (Option Int) := do
     | e => throw e
 
 example (url : String) (headers : Array String := #[]) (thing : Except String Lake.JsonObject): IO Nat := do
+  match thing with
+  | .ok data =>
+    match (data.get? "response_code" <|> data.get? "http_code") with
+    | .ok (some code) => return code
+    | _ => panic s!"curl's JSON output did not contain a response code"
+  | .error e =>
+    panic s!"curl produced invalid JSON output: {e}"
+
+example (url : String) (headers : Array String := #[]) (thing : Except String Lake.JsonObject): IO Nat :=
   match thing with
   | .ok data =>
     match (data.get? "response_code" <|> data.get? "http_code") with

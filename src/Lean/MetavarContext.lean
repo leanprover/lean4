@@ -1277,6 +1277,7 @@ private def mkLambda' (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) (etaRed
 /--
 Similar to `LocalContext.mkBinding`, but handles metavariables correctly.
 This function trusts that `xs` has all forward dependencies that appear in `e` and that the variables are in order.
+It will panic when any of the `xs` is neither a free variable nor a metavariable.
 
 - If `usedOnly := true` then `forall` and `lambda` expressions are created only for used variables.
 - If `usedLetOnly := true` then `let` expressions are created only for used (let-) variables.

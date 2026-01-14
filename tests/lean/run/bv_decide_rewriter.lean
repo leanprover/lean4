@@ -680,8 +680,8 @@ example {x : BitVec 8} (h : ¬ x = 0#8) : (x <<< 1).ctz = x.ctz + 1 := by bv_dec
 example {x : BitVec 8} : x.ctz ≤ 8 := by bv_decide
 
 -- FLATADD
-example : (BitVec.ofNat 16 8211).flattenedAdd 4 = 6#4 := by bv_decide
-example : (0#64).flattenedAdd 4 = 0#4 := by bv_decide
+example : (BitVec.ofNat 16 8211).addRec 4 = 6#4 := by bv_decide
+example : (0#64).addRec 4 = 0#4 := by bv_decide
 
 section
 

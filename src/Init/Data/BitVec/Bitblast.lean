@@ -2774,9 +2774,9 @@ theorem addRecAux_parPreSum (l : BitVec (l_length * w)) (k : BitVec w)
     apply addRecAux_parPreSum new_layer k proof_sum_eq proof_new_layer_length hw
     exact eq_of_toNat_eq (congrArg BitVec.toNat hls)
 
-theorem flattenedAdd_eq_parPreSum {x : BitVec w} (l : Nat) :
-    x.flattenedAdd l = x.parPreSum l := by
-  unfold flattenedAdd
+theorem addRec_eq_parPreSum {x : BitVec w} (l : Nat) :
+    x.addRec l = x.parPreSum l := by
+  unfold addRec
   split
   · case _ hl =>
     unfold parPreSum

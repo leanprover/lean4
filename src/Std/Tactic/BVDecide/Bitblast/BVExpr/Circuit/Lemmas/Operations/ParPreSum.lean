@@ -342,8 +342,8 @@ theorem denote_blastParPreSum' (aig : AIG α) (l : Nat) (xc : ParPreSumTarget ai
       :
       ∀ (idx : Nat) (hidx : idx < l),
         ⟦(blastParPreSum aig xc).aig, (blastParPreSum aig xc).vec.get idx hidx, assign⟧
-          = (BitVec.flattenedAdd l x).getLsbD idx := by
-  rw [BitVec.flattenedAdd_eq_parPreSum]
+          = (BitVec.addRec l x).getLsbD idx := by
+  rw [BitVec.addRec_eq_parPreSum]
   apply denote_blastParPreSum
   simp [hx]
 

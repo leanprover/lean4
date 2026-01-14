@@ -157,19 +157,18 @@ protected theorem minIdxOn_nil_eq_iff_false [LE β] [DecidableLE β] {f : α →
     (h : [] ≠ []) : ([] : List α).minIdxOn f h = x ↔ False :=
   nomatch h
 
-@[simp, grind =]
+@[simp]
 protected theorem minIdxOn_singleton [LE β] [DecidableLE β] {x : α} {f : α → β} :
     [x].minIdxOn f (of_decide_eq_false rfl) = 0 := by
   rw [minIdxOn, minIdxOn.go]
 
-@[simp, grind ←]
+@[simp]
 protected theorem minIdxOn_lt_length [LE β] [DecidableLE β] {f : α → β} {xs : List α}
     (h : xs ≠ []) : xs.minIdxOn f h < xs.length := by
   rw [minIdxOn.eq_def]
   split
   simp [minIdxOn.go_lt_length_add]
 
-@[grind .]
 protected theorem minIdxOn_le_of_getElem_le [LE β] [DecidableLE β] [IsLinearPreorder β]
     {f : α → β} {xs : List α} (h : xs ≠ [])
     {k : Nat} (hi : k < xs.length) (hle : f xs[k] ≤ f (xs.minOn f h)) :
@@ -186,7 +185,7 @@ protected theorem minIdxOn_le_of_getElem_le [LE β] [DecidableLE β] [IsLinearPr
   apply mem_of_mem_drop
   exact hy
 
-@[simp, grind =]
+@[simp]
 protected theorem getElem_minIdxOn [LE β] [DecidableLE β] [IsLinearPreorder β]
     {f : α → β} {xs : List α} (h : xs ≠ []) :
     xs[xs.minIdxOn f h] = xs.minOn f h := by
@@ -370,7 +369,6 @@ protected theorem minIdxOn_append [LE β] [DecidableLE β] [IsLinearPreorder β]
 
 end Append
 
-@[grind .]
 protected theorem left_le_minIdxOn_append [LE β] [DecidableLE β] [IsLinearPreorder β]
     {xs ys : List α} {f : α → β} (h : xs ≠ []) :
     xs.minIdxOn f h ≤ (xs ++ ys).minIdxOn f (by simp [h]) := by
@@ -382,7 +380,6 @@ protected theorem left_le_minIdxOn_append [LE β] [DecidableLE β] [IsLinearPreo
     · have := List.minIdxOn_lt_length (f := f) h
       omega
 
-@[grind . ]
 protected theorem minIdxOn_take_le [LE β] [DecidableLE β] [IsLinearPreorder β]
     {xs : List α} {f : α → β} {i : Nat} (h : xs.take i ≠ []) :
     (xs.take i).minIdxOn f h ≤ xs.minIdxOn f (List.ne_nil_of_take_ne_nil h) := by
@@ -390,7 +387,7 @@ protected theorem minIdxOn_take_le [LE β] [DecidableLE β] [IsLinearPreorder β
   conv => rhs; simp +singlePass only [← this]
   apply List.left_le_minIdxOn_append
 
-@[simp, grind =]
+@[simp]
 protected theorem minIdxOn_replicate [LE β] [DecidableLE β] [Refl (α := β) (· ≤ ·)]
     {n : Nat} {a : α} {f : α → β} (h : replicate n a ≠ []) :
     (replicate n a).minIdxOn f h = 0 := by
@@ -416,19 +413,18 @@ protected theorem maxIdxOn_nil_eq_iff_false [LE β] [DecidableLE β] {f : α →
     (h : [] ≠ []) : ([] : List α).maxIdxOn f h = x ↔ False :=
   nomatch h
 
-@[simp, grind =]
+@[simp]
 protected theorem maxIdxOn_singleton [LE β] [DecidableLE β] {x : α} {f : α → β} :
     [x].maxIdxOn f (of_decide_eq_false rfl) = 0 :=
   letI : LE β := (inferInstanceAs (LE β)).opposite
   List.minIdxOn_singleton
 
-@[simp, grind ←]
+@[simp]
 protected theorem maxIdxOn_lt_length [LE β] [DecidableLE β] {f : α → β} {xs : List α}
     (h : xs ≠ []) : xs.maxIdxOn f h < xs.length :=
   letI : LE β := (inferInstanceAs (LE β)).opposite
   List.minIdxOn_lt_length h
 
-@[grind .]
 protected theorem maxIdxOn_le_of_getElem_le [LE β] [DecidableLE β] [IsLinearPreorder β]
     {f : α → β} {xs : List α} (h : xs ≠ [])
     {k : Nat} (hi : k < xs.length) (hle : f (xs.maxOn f h) ≤ f xs[k]) :
@@ -436,7 +432,7 @@ protected theorem maxIdxOn_le_of_getElem_le [LE β] [DecidableLE β] [IsLinearPr
   letI : LE β := (inferInstanceAs (LE β)).opposite
   List.minIdxOn_le_of_getElem_le h hi hle
 
-@[simp, grind =]
+@[simp]
 protected theorem getElem_maxIdxOn [LE β] [DecidableLE β] [IsLinearPreorder β]
     {f : α → β} {xs : List α} (h : xs ≠ []) :
     xs[xs.maxIdxOn f h] = xs.maxOn f h :=
@@ -475,38 +471,36 @@ protected theorem maxIdxOn_append [LE β] [DecidableLE β] [IsLinearPreorder β]
   letI : LE β := (inferInstanceAs (LE β)).opposite
   List.minIdxOn_append hxs hys
 
-@[grind .]
 protected theorem left_le_maxIdxOn_append [LE β] [DecidableLE β] [IsLinearPreorder β]
     {xs ys : List α} {f : α → β} (h : xs ≠ []) :
     xs.maxIdxOn f h ≤ (xs ++ ys).maxIdxOn f (by simp [h]) :=
   letI : LE β := (inferInstanceAs (LE β)).opposite
   List.left_le_minIdxOn_append h
 
-@[grind .]
 protected theorem maxIdxOn_take_le [LE β] [DecidableLE β] [IsLinearPreorder β]
     {xs : List α} {f : α → β} {i : Nat} (h : xs.take i ≠ []) :
     (xs.take i).maxIdxOn f h ≤ xs.maxIdxOn f (List.ne_nil_of_take_ne_nil h) :=
   letI : LE β := (inferInstanceAs (LE β)).opposite
   List.minIdxOn_take_le h
 
-@[simp, grind =]
+@[simp]
 protected theorem maxIdxOn_replicate [LE β] [DecidableLE β] [Refl (α := β) (· ≤ ·)]
     {n : Nat} {a : α} {f : α → β} (h : replicate n a ≠ []) :
     (replicate n a).maxIdxOn f h = 0 :=
   letI : LE β := (inferInstanceAs (LE β)).opposite
   List.minIdxOn_replicate h
 
-@[simp, grind =]
+@[simp]
 protected theorem minIdxOn?_nil [LE β] [DecidableLE β] {f : α → β} :
     ([] : List α).minIdxOn? f = none :=
   (rfl)
 
-@[simp, grind =]
+@[simp]
 protected theorem minIdxOn?_singleton [LE β] [DecidableLE β] {x : α} {f : α → β} :
     [x].minIdxOn? f = some 0 :=
   (rfl)
 
-@[simp, grind =]
+@[simp]
 protected theorem isSome_minIdxOn?_iff [LE β] [DecidableLE β] {f : α → β} {xs : List α} :
     (xs.minIdxOn? f).isSome ↔ xs ≠ [] := by
   cases xs <;> simp [minIdxOn?]
@@ -523,7 +517,6 @@ protected theorem get_minIdxOn?_eq_minIdxOn [LE β] [DecidableLE β] {f : α →
     (xs.minIdxOn? f).get h = xs.minIdxOn f (List.isSome_minIdxOn?_iff.mp h) := by
   rw [List.minIdxOn_eq_get_minIdxOn?]
 
-@[grind =]
 protected theorem minIdxOn?_eq_some_minIdxOn [LE β] [DecidableLE β] {f : α → β} {xs : List α}
     (h : xs ≠ []) : xs.minIdxOn? f = some (xs.minIdxOn f h) := by
   match xs with
@@ -577,13 +570,13 @@ protected theorem lt_length_of_minIdxOn?_eq_some [LE β] [DecidableLE β] {f : �
   have := List.minIdxOn_lt_length (f := f) hne
   simp_all
 
-@[simp, grind . ]
+@[simp]
 protected theorem get_minIdxOn?_lt_length [LE β] [DecidableLE β] {f : α → β} {xs : List α}
     (h : (xs.minIdxOn? f).isSome) : (xs.minIdxOn? f).get h < xs.length := by
   rw [List.get_minIdxOn?_eq_minIdxOn]
   apply List.minIdxOn_lt_length
 
-@[simp, grind =]
+@[simp]
 protected theorem getElem_get_minIdxOn? [LE β] [DecidableLE β] [IsLinearPreorder β]
     {f : α → β} {xs : List α} (h : (xs.minIdxOn? f).isSome) :
     xs[(xs.minIdxOn? f).get h] = xs.minOn f (List.isSome_minIdxOn?_iff.mp h) := by
@@ -599,7 +592,7 @@ protected theorem minIdxOn?_replicate [LE β] [DecidableLE β] [Refl (α := β) 
     (replicate n a).minIdxOn? f = if n = 0 then none else some 0 := by
   simp [List.minIdxOn?_eq_if]
 
-@[simp, grind =]
+@[simp]
 protected theorem minIdxOn?_replicate_of_pos [LE β] [DecidableLE β] [Refl (α := β) (· ≤ ·)]
     {n : Nat} {a : α} {f : α → β} (h : 0 < n) :
     (replicate n a).minIdxOn? f = some 0 := by
@@ -607,19 +600,19 @@ protected theorem minIdxOn?_replicate_of_pos [LE β] [DecidableLE β] [Refl (α 
 
 /-! ### maxIdxOn? -/
 
-@[simp, grind =]
+@[simp]
 protected theorem maxIdxOn?_nil [LE β] [DecidableLE β] {f : α → β} :
     ([] : List α).maxIdxOn? f = none :=
   letI : LE β := (inferInstanceAs (LE β)).opposite
   List.minIdxOn?_nil
 
-@[simp, grind =]
+@[simp]
 protected theorem maxIdxOn?_singleton [LE β] [DecidableLE β] {x : α} {f : α → β} :
     [x].maxIdxOn? f = some 0 :=
   letI : LE β := (inferInstanceAs (LE β)).opposite
   List.minIdxOn?_singleton
 
-@[simp, grind =]
+@[simp]
 protected theorem isSome_maxIdxOn?_iff [LE β] [DecidableLE β] {f : α → β} {xs : List α} :
     (xs.maxIdxOn? f).isSome ↔ xs ≠ [] := by
   letI : LE β := (inferInstanceAs (LE β)).opposite
@@ -637,7 +630,6 @@ protected theorem get_maxIdxOn?_eq_maxIdxOn [LE β] [DecidableLE β] {f : α →
   letI : LE β := (inferInstanceAs (LE β)).opposite
   exact List.get_minIdxOn?_eq_minIdxOn h
 
-@[grind =]
 protected theorem maxIdxOn?_eq_some_maxIdxOn [LE β] [DecidableLE β] {f : α → β} {xs : List α}
     (h : xs ≠ []) : xs.maxIdxOn? f = some (xs.maxIdxOn f h) := by
   letI : LE β := (inferInstanceAs (LE β)).opposite
@@ -691,13 +683,13 @@ protected theorem lt_length_of_maxIdxOn?_eq_some [LE β] [DecidableLE β] {f : �
   letI : LE β := (inferInstanceAs (LE β)).opposite
   exact List.lt_length_of_minIdxOn?_eq_some h
 
-@[simp, grind .]
+@[simp]
 protected theorem get_maxIdxOn?_lt_length [LE β] [DecidableLE β] {f : α → β} {xs : List α}
     (h : (xs.maxIdxOn? f).isSome) : (xs.maxIdxOn? f).get h < xs.length := by
   letI : LE β := (inferInstanceAs (LE β)).opposite
   exact List.get_minIdxOn?_lt_length h
 
-@[simp, grind =]
+@[simp]
 protected theorem getElem_get_maxIdxOn? [LE β] [DecidableLE β] [IsLinearPreorder β]
     {f : α → β} {xs : List α} (h : (xs.maxIdxOn? f).isSome) :
     xs[(xs.maxIdxOn? f).get h] = xs.maxOn f (List.isSome_maxIdxOn?_iff.mp h) := by
@@ -716,7 +708,7 @@ protected theorem maxIdxOn?_replicate [LE β] [DecidableLE β] [Refl (α := β) 
   letI : LE β := (inferInstanceAs (LE β)).opposite
   exact List.minIdxOn?_replicate
 
-@[simp, grind =]
+@[simp]
 protected theorem maxIdxOn?_replicate_of_pos [LE β] [DecidableLE β] [Refl (α := β) (· ≤ ·)]
     {n : Nat} {a : α} {f : α → β} (h : 0 < n) :
     (replicate n a).maxIdxOn? f = some 0 := by

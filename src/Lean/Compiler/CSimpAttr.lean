@@ -77,6 +77,10 @@ private def initFn :=
       discard <| add declName attrKind
   }
 
+def replaceName (env : Environment) (n : Name) : Name :=
+  let s := ext.getState env
+  s.map.findD n n
+
 def replaceConstants (env : Environment) (e : Expr) : Expr :=
   let s := ext.getState env
   e.replace fun e =>

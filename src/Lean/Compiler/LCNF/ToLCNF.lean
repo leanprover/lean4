@@ -721,7 +721,8 @@ where
       visit (f.beta e.getAppArgs)
 
   visitApp (e : Expr) : M Arg := do
-    if let .const declName us := CSimp.replaceConstants (← getEnv) e.getAppFn then
+    if let .const declName us := e.getAppFn then
+      let declName := CSimp.replaceName (← getEnv) declName
       if declName == ``Quot.lift then
         visitQuotLift e
       else if declName == ``Quot.mk then

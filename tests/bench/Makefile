@@ -1,12 +1,12 @@
 ## CONFIG
 
-LEAN_BENCHES = binarytrees deriv const_fold parser qsort rbmap rbmap_10 rbmap_1 unionfind
-CROSS_BENCHES = binarytrees deriv const_fold qsort rbmap rbmap_10 rbmap_1
+LEAN_BENCHES = binarytrees binarytrees.st deriv const_fold parser qsort rbmap rbmap_10 rbmap_2 rbmap_1 unionfind
+CROSS_BENCHES = binarytrees binarytrees.st deriv const_fold rbmap rbmap_10 rbmap_2 rbmap_1
 
 LEAN_CATS = .lean .no_reuse.lean .no_borrow.lean .no_st.lean
-CROSS_CATS = .lean .gc.lean .lean.perf .hs .gc.hs .hs.perf .ml .gc.ml .ml.perf .mlton .gc.mlton .mlton.perf .mlkit .gc.mlkit .mlkit.perf .swift .gc.swift .swift.perf
+CROSS_CATS = .lean .gc.lean .hs .gc.hs .ml .gc.ml .mlton .gc.mlton .mlkit .gc.mlkit .swift .gc.swift
 CROSS_TIME_CATS = .lean .hs .ml .mlton .mlkit .swift
-RETIRED_CATS = .gcc.lean .llvm.hs .strict.hs .flambda.ml
+RETIRED_CATS = .gcc.lean .llvm.hs .strict.hs .flambda.ml .lean.perf .hs.perf .ml.perf .mlton.perf .mlkit.perf .swift.perf
 
 LEAN_FLAGS =
 LEANC_FLAGS = -O3 -DNDEBUG
@@ -19,14 +19,14 @@ SWIFTC_FLAGS = -O -whole-module-optimization
 TEMCI_FLAGS = --settings cross.yaml
 
 TEMCI ?= temci
-LEAN_BIN ?= ../../bin
+LEAN_BIN ?= ../../build/release/stage1/bin
 GHC ?= ghc
 OCAML ?= ocamlopt.opt
 MLTON_BIN ?= /usr/bin
 MLKIT ?= mlkit
 SWIFTC ?= swiftc
 
-PARSER_TEST_FILE ?= ../../src/Init/Core.lean
+PARSER_TEST_FILE ?= ../../src/Init/Prelude.lean
 
 ## IMPLEMENTATION
 
@@ -71,17 +71,19 @@ all: report_lean.tex report_cross.tex report
 binarytrees.hs: binarytrees.ghc-6.hs; ln -f $< $@
 # NOTE: changed `-N4` rtsopt to `-N` to be less system-dependent
 binarytrees%hs.out: GHC_FLAGS += --make -O2 -XBangPatterns -dynamic -threaded -rtsopts -with-rtsopts='-N -K128M -H'
+binarytrees.st%hs.out: GHC_FLAGS += --make -O2 -XBangPatterns -dynamic -rtsopts -with-rtsopts='-K128M -H'
 
 %.ml.out: %.ml
 	$(OCAML) $(OCAML_FLAGS) $< -o $@
-%.gc.ml.out: OCAML_FLAGS += -runtime-variant i
-%.gc.ml: %.ml; ln -f $< $@
 %.flambda.ml.out: OCAML = $(OCAML_FLAMBDA)
 %.flambda.ml: %.ml; ln -f $< $@
 
-binarytrees.ml: binarytrees.ocaml-2.ml; ln -f $< $@
-binarytrees%ml.out: OCAML_FLAGS += -noassert -unsafe -fPIC -nodynlink -inline 100 -O3 unix.cmxa
+binarytrees.ml: binarytrees5_multicore.ml; ln -f $< $@
+binarytrees.st.ml: binarytrees5.ml; ln -f $< $@
+binarytrees%ml.out: OCAML_FLAGS += -noassert -fPIC -nodynlink -inline 100 -O3 -package domainslib -linkpkg
+binarytrees%ml.out: OCAML = ocamlfind ocamlopt
 
+binarytrees.st.sml: binarytrees.st.mlton-2.sml; ln -f $< $@
 %.mlton.out: %.sml
 	$(MLTON_BIN)/mlton $(MLTON_FLAGS) -output $@ $<
 %.gc.mlton.out: MLTON_FLAGS = -profile time
@@ -101,9 +103,11 @@ bench:
 bench/%.bench: %.out | bench
 	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS) -d $< "./$< $(BENCH_PARAMS)" --out $@
 
-bench/parser.%.bench: BENCH_PARAMS = $(PARSER_TEST_FILE) 100
+bench/parser.%.bench: BENCH_PARAMS = $(PARSER_TEST_FILE) 50
 
 bench/binarytrees.%.bench: BENCH_PARAMS = 21
+bench/binarytrees.ml.bench: BENCH_PARAMS = $$(nproc) 21
+bench/binarytrees.gc.ml.bench: BENCH_PARAMS = $$(nproc) 21
 
 bench/deriv.%.bench: BENCH_PARAMS = 10
 
@@ -116,6 +120,9 @@ bench/rbmap.%.bench: BENCH_PARAMS = 2000000
 rbmap_1.%.out: rbmap_checkpoint.%.out; ln -f $< $@
 bench/rbmap_1.%.bench: BENCH_PARAMS = 2000000 1
 
+rbmap_2.%.out: rbmap_checkpoint.%.out; ln -f $< $@
+bench/rbmap_2.%.bench: BENCH_PARAMS = 2000000 2
+
 rbmap_10.%.out: rbmap_checkpoint.%.out; ln -f $< $@
 bench/rbmap_10.%.bench: BENCH_PARAMS = 2000000 10
 
@@ -123,7 +130,7 @@ bench/unionfind.%.bench: BENCH_PARAMS = 3000000
 
 bench/%gc.lean.bench: %lean.out | bench
 	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS)\
-    -d $< "perf record -o $@.tmp ./$< $(BENCH_PARAMS) >/dev/null && perf report -i $@.tmp -t ';' --stdio -S 'lean_del,lean_dealloc_small,lean_free_small' | ./lean-gc.py"\
+    -d $< "perf record -o $@.tmp ./$< $(BENCH_PARAMS) >/dev/null && perf report -i $@.tmp -t ';' --stdio -S 'lean_inc_ref_cold,lean_inc_ref_n_cold,lean_dec_ref_cold,lean_del_core,lean_free_small' | ./lean-gc.py"\
 	  --runner output --out $@
 
 bench/%gc.hs.bench: %hs.out | bench
@@ -131,9 +138,9 @@ bench/%gc.hs.bench: %hs.out | bench
 		-d $< "./$< +RTS -t --machine-readable -RTS $(BENCH_PARAMS) 2>&1 >/dev/null | ./ghc-gc.py"\
 		--runner output --out $@
 
-bench/%gc.ml.bench: %gc.ml.out | bench
+bench/%gc.ml.bench: %ml.out | bench
 	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS)\
-		-d $< "echo > $@.tmp && OCAML_INSTR_FILE=$@.tmp time -ao $@.tmp -f '%e' ./$< $(BENCH_PARAMS) >/dev/null && ./ocaml-gc.py < $@.tmp"\
+		-d $< "time -ao $@.tmp -f '%U' olly trace $@.tmp './$< $(BENCH_PARAMS)' > /dev/null && ./ocaml-gc.py < $@.tmp"\
 		--runner output --out $@
 
 bench/%gc.mlton.bench: %gc.mlton.out | bench
@@ -156,14 +163,13 @@ bench/%.perf.bench: %.out | bench
 		-d $< "echo > $@.tmp && time -af '%e' perf stat -e cache-misses -x ';' ./$< $(BENCH_PARAMS) 2>&1 >/dev/null | ./perf.py"\
 		--runner output --out $@
 
-# fork() breaks instrumentation
-bench/binarytrees.gc.ml.bench: ; touch $@
-
 # no benchmarksgame versions
-bench/binarytrees%mlton.bench: ; touch $@
-bench/binarytrees%mlton.perf.bench: ; touch $@
-bench/binarytrees%mlkit.bench: ; touch $@
-bench/binarytrees%mlkit.perf.bench: ; touch $@
+bench/binarytrees.mlton.bench: ; touch $@
+bench/binarytrees.gc.mlton.bench: ; touch $@
+bench/binarytrees.mlton.perf.bench: ; touch $@
+bench/binarytrees.mlkit.bench: ; touch $@
+bench/binarytrees.gc.mlkit.bench: ; touch $@
+bench/binarytrees.mlkit.perf.bench: ; touch $@
 
 bench_lean: $(LEAN_INPUTS:%=bench/%.bench)
 bench_cross: $(CROSS_INPUTS:%=bench/%.bench)
@@ -195,12 +201,12 @@ report: report/index.html
 # yes.
 space = $() $()
 
-report_lean.csv: bench_lean
-	BENCHES=$(subst $(space),:,$(LEAN_BENCHES)) CATS=$(subst $(space),:,$(LEAN_CATS)) ./report.py > $@
+report_lean.csv report_lean_rbmap.csv: bench_lean
+	BENCHES=$(subst $(space),:,$(LEAN_BENCHES)) CATS=$(subst $(space),:,$(LEAN_CATS)) ./report.py report_lean
 	column -s';' -t < $@
 
-report_cross.csv: bench_cross
-	BENCHES=$(subst $(space),:,$(CROSS_BENCHES)) CATS=$(subst $(space),:,$(CROSS_CATS)) ./report.py > $@
+report_cross.csv report_cross_rbmap.csv: bench_cross
+	BENCHES=$(subst $(space),:,$(CROSS_BENCHES)) CATS=$(subst $(space),:,$(CROSS_CATS)) ./report.py report_cross
 	column -s';' -t < $@
 
 TO_TEX = 's/-/---/g;s/%/\\%/g;s/\.$$//g;s/(\([0-9]\)\([0-9]\))/\\ensuremath{\\tilde{\1}\\tilde{\2}}/g;s/(\([0-9]\))/\\ensuremath{\\tilde{\1}}/g;s/;/ \& /g;s/$$/\\\\/'

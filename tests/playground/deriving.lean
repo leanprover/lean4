@@ -198,7 +198,7 @@ def mkLocalInstanceLetDecls (ctx : Context) (argNames : Array Name) : TermElabM 
     let auxFunName   := ctx.auxFunNames[i]
     let currArgNames ← mkInductArgNames indVal
     let numParams    := indVal.nparams
-    let currIndices  := currArgNames[numParams:]
+    let currIndices  := currArgNames[numParams...*]
     let binders      ← mkImplicitBinders currIndices
     let argNamesNew  := argNames[:numParams] ++ currIndices
     let indType      ← mkInductiveApp indVal argNamesNew
@@ -303,7 +303,7 @@ def mkDerivingToString (typeName : Name) : CommandElabM Unit := do
 
 syntax[runTstKind] "runTst" : command
 
-@[commandElab runTstKind] def elabTst : CommandElab := fun stx =>
+@[command_elab runTstKind] def elabTst : CommandElab := fun stx =>
   mkDerivingToString `Test.Foo
 
 set_option trace.Meta.debug true

@@ -106,8 +106,8 @@ abbrev parserCore := parserCoreM Syntax
   | ⟨Result.ok _ it c s _, h⟩   := Result.ok a it c s tt
   | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
-@[inlineIfReduce] def strictOr  (b₁ b₂ : Bool) := b₁ || b₂
-@[inlineIfReduce] def strictAnd (b₁ b₂ : Bool) := b₁ && b₂
+@[inline_if_reduce] def strictOr  (b₁ b₂ : Bool) := b₁ || b₂
+@[inline_if_reduce] def strictAnd (b₁ b₂ : Bool) := b₁ && b₂
 
 @[inline] def parserCoreM.bind {α β : Type} (x : parserCoreM α) (f : α → parserCoreM β) : parserCoreM β :=
 λ r,
@@ -168,8 +168,8 @@ do tk ← monadLift peekToken,
    | Syntax.atom ⟨_, sym⟩ := do
      cfg ← readCfg,
      (match cfg.tokens.matchPrefix sym.mkIterator with
-      | some ⟨_, tkCfg⟩ := pure tkCfg.lbp
-      | _                := error "currLbp: unreachable")
+      | some tkCfg := pure tkCfg.lbp
+      | _          := error "currLbp: unreachable")
    | Syntax.rawNode {kind := @number, ..}     := pure maxPrec
    | Syntax.rawNode {kind := @stringLit, ..} := pure maxPrec
    | Syntax.ident _                            := pure maxPrec
@@ -182,7 +182,7 @@ do tk ← monadLift peekToken,
    match tk with
    | Syntax.atom ⟨_, sym⟩ := do
      cfg ← read,
-     -- some ⟨_, tkCfg⟩ ← pure (cfg.tokens.matchPrefix sym.mkIterator) | error "currLbp: unreachable",
+     -- some tkCfg ← pure (cfg.tokens.matchPrefix sym.mkIterator) | error "currLbp: unreachable",
      pure 0
    | Syntax.ident _ := pure maxPrec
    | Syntax.rawNode {kind := @number, ..} := pure maxPrec

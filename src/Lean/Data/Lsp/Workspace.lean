@@ -4,8 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
-import Lean.Data.Lsp.Basic
-import Lean.Data.Json
+module
+
+prelude
+public import Lean.Data.Lsp.Basic
+
+public section
 
 namespace Lean
 namespace Lsp
@@ -24,7 +28,7 @@ structure WorkspaceFolder where
 
 structure FileSystemWatcher where
   globPattern : String
-  kind : Option Nat := none
+  kind? : Option Nat := none
   deriving FromJson, ToJson
 
 namespace FileSystemWatcher

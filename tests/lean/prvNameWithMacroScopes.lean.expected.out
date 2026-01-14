@@ -1,2 +1,0 @@
-def Lean.instBEqFVarId : BEq Lean.FVarId :=
-{ beq := Lean.beqFVarId✝ }

@@ -1,0 +1,24 @@
+Success! Final stack:
+  [(Lean.Doc.Syntax.para
+    "para{"
+    [(Lean.Doc.Syntax.link
+      "["
+      [(Lean.Doc.Syntax.text
+        (str "\"[link A]\""))]
+      "]"
+      (Lean.Doc.Syntax.url
+       "("
+       (str "\"https://example.com\"")
+       ")"))
+     (Lean.Doc.Syntax.text (str "\" \""))
+     (Lean.Doc.Syntax.link
+      "["
+      [(Lean.Doc.Syntax.text
+        (str "\"[link B]\""))]
+      "]"
+      (Lean.Doc.Syntax.url
+       "("
+       (str "\"https://more.example.com\"")
+       ")"))]
+    "}")]
+All input consumed.

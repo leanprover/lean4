@@ -1,1 +1,1 @@
-@[implementedBy foo] opaque foo (x : Nat) : Nat
+@[implemented_by foo] opaque foo (x : Nat) : Nat

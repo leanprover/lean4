@@ -36,9 +36,9 @@ mutual
     | τ::τs => (τ.default, defaultList τs)
 end
 
-#eval T.default (.int 5) -- 5
-#eval T.default (.tuple [.int 5]) -- (5, ())
-#eval T.default (.tuple [.int 5, .int 6]) -- (5, 6, ())
+#guard T.default (.int 5) == 5
+#guard T.default (.tuple [.int 5]) == (5, ())
+#guard T.default (.tuple [.int 5, .int 6]) == (5, 6, ())
 
 end Ex1
 
@@ -87,8 +87,8 @@ mutual
     | τ₁::τ₂::τs => (τ₁.default, defaultList (τ₂::τs))
 end
 
-#eval T.default (.int 5) -- 5
-#eval T.default (.tuple [.int 5]) -- 5
-#eval T.default (.tuple [.int 5, .int 6]) -- (5, 6)
+#guard T.default (.int 5) == 5
+#guard T.default (.tuple [.int 5]) == 5
+#guard T.default (.tuple [.int 5, .int 6]) == (5, 6)
 
 end Ex2

@@ -4,4 +4,4 @@ variable {U V}
 
 def f : (U → V) → (U → U) := sorry
 
-#eval Lean.Compiler.compile #[``f]
+run_meta Lean.Compiler.compile #[``f]

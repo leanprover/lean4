@@ -16,7 +16,7 @@ namespace Lean.Syntax
 #eval run $ let id := miss; `($id + 1)
 end Lean.Syntax
 #eval run `(1 + 1)
-#eval run `([x,])
+#eval run `([x+])
 #eval run $ `(fun a => a) >>= pure
 #eval run $ `(def foo := 1)
 #eval run $ `(def foo := 1 def bar := 2)
@@ -67,10 +67,10 @@ def f' (stx : Syntax) : Unhygienic Syntax := match stx with
   | `(match $e:term with $alts:matchAlt*) => `(match $e:term with $alts:matchAlt*)
   | _ => unreachable!
 
-open Parser.Term
+open Parser.Term in
 #eval run do
   match ← `(structInstField|a := b) with
-  | `(Parser.Term.structInstField| $lhs:ident := $rhs) => pure #[lhs.raw, rhs]
+  | `(structInstField| $lhs:ident := $rhs) => pure #[lhs.raw, rhs]
   | _ => unreachable!
 
 #eval run do
@@ -79,6 +79,8 @@ open Parser.Term
   | `({ $f:ident := $e $[: $a?]?}) => pure "1"
   | stx                    => pure "2"
 
+/-! Parser alias quotation -/
+#check sufficesDecl  -- should not be in scope
 #eval run `(sufficesDecl|x from x)
 
 #eval run do
@@ -114,3 +116,15 @@ syntax "foo" term : term
   | `(a) => pure "0"
   | `(b) => pure "1"
   | _    => pure "2"
+
+declare_syntax_cat mycat
+syntax "mystx" : mycat
+#eval run `(mycat| mystx)
+
+-- should not introduce an anonymous ldecl
+example
+  | `([$_,*]) => id 0
+  | _ => 1
+
+syntax "test" ("a" <|> ("b" <|> "c")) : term
+#check fun e => `(test $e)

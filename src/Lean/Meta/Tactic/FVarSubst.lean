@@ -1,12 +1,16 @@
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Mario Carneiro
 -/
-import Lean.Data.AssocList
-import Lean.Expr
-import Lean.LocalContext
-import Lean.Util.ReplaceExpr
+module
+
+prelude
+public import Lean.Data.AssocList
+public import Lean.LocalContext
+public import Lean.Util.ReplaceExpr
+
+public section
 
 namespace Lean.Meta
 /--
@@ -34,7 +38,7 @@ def insert (s : FVarSubst) (fvarId : FVarId) (v : Expr) : FVarSubst :=
   if s.contains fvarId then s
   else
     let map := s.map.mapVal fun e => e.replaceFVarId fvarId v;
-    { map := map.insert fvarId v }
+    { map := map.insertNew fvarId v }
 
 def erase (s : FVarSubst) (fvarId : FVarId) : FVarSubst :=
   { map := s.map.erase fvarId }
@@ -63,12 +67,19 @@ def domain (s : FVarSubst) : List FVarId :=
 def any (p : FVarId → Expr → Bool) (s : FVarSubst) : Bool :=
   s.map.any p
 
+/--
+Constructs a substitution consisting of `s` followed by `t`.
+This satisfies `(s.append t).apply e = t.apply (s.apply e)`
+-/
+def append (s t : FVarSubst) : FVarSubst :=
+  s.1.foldl (fun s' k v => s'.insert k (t.apply v)) t
+
 end FVarSubst
 end Meta
 
 def LocalDecl.applyFVarSubst (s : Meta.FVarSubst) : LocalDecl → LocalDecl
-  | LocalDecl.cdecl i id n t bi   => LocalDecl.cdecl i id n (s.apply t) bi
-  | LocalDecl.ldecl i id n t v nd => LocalDecl.ldecl i id n (s.apply t) (s.apply v) nd
+  | LocalDecl.cdecl i id n t bi k   => LocalDecl.cdecl i id n (s.apply t) bi k
+  | LocalDecl.ldecl i id n t v nd k => LocalDecl.ldecl i id n (s.apply t) (s.apply v) nd k
 
 abbrev Expr.applyFVarSubst (s : Meta.FVarSubst) (e : Expr) : Expr :=
   s.apply e

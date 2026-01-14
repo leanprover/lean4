@@ -1,0 +1,12 @@
+a = -Coe.coe n : Prop
+a = -Coe.coe n : Prop
+-Coe.coe n = a : Prop
+-Coe.coe n = a : Prop
+a = Coe.coe n + Coe.coe n : Prop
+a = Coe.coe n + Coe.coe n : Prop
+a = 0 - Coe.coe n : Prop
+a = 0 - Coe.coe n : Prop
+a + -Coe.coe n : R
+a + -Coe.coe n : R
+-Coe.coe n + a : R
+-Coe.coe n + a : R

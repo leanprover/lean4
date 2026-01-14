@@ -1,0 +1,8 @@
+{"textDocument": {"uri": "file:///explicitAppInstHole.lean"},
+ "position": {"line": 4, "character": 29}}
+{"range":
+ {"start": {"line": 4, "character": 29}, "end": {"line": 4, "character": 30}},
+ "contents":
+ {"value":
+  "```lean\ninstDecidableTrue : Decidable True\n```\n***\nA *hole* (or *placeholder term*), which stands for an unknown term that is expected to be inferred based on context.\nFor example, in `@id _ Nat.zero`, the `_` must be the type of `Nat.zero`, which is `Nat`.\n\nThe way this works is that holes create fresh metavariables.\nThe elaborator is allowed to assign terms to metavariables while it is checking definitional equalities.\nThis is often known as *unification*.\n\nNormally, all holes must be solved for. However, there are a few contexts where this is not necessary:\n* In `match` patterns, holes are catch-all patterns.\n* In some tactics, such as `refine'` and `apply`, unsolved-for placeholders become new goals.\n\nRelated concept: implicit parameters are automatically filled in with holes during the elaboration process.\n\nSee also `?m` syntax (synthetic holes).\n\n***\n*import Init.Core*",
+  "kind": "markdown"}}

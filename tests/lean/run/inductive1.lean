@@ -43,7 +43,6 @@ inductive V (α : Type _) : Nat → Type _
 #check @V.rec
 #check @V.noConfusion
 #check @V.brecOn
-#check @V.binductionOn
 #check @V.casesOn
 #check @V.recOn
 #check @V.below

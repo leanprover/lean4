@@ -16,7 +16,7 @@ def mkVec : Vec α 0 := ⟨ #[], rfl ⟩
 def Vec.map (xs : Vec α n) (f : α → β) : Vec β n :=
   ⟨ xs.val.map f, sorry ⟩
 
-/- unbound implicit locals must be greek or lower case letters followed by numerical digits -/
+/- unbound implicit locals must be single characters followed by numerical digits -/
 def Vec.map2 (xs : Vec α size /- error: unknown identifier size -/) (f : α → β) : Vec β n :=
   ⟨ xs.val.map f, sorry ⟩
 
@@ -30,7 +30,7 @@ variable (xs : Vec α n) -- works
 
 def f := xs
 
-#check @f
+#check f
 
 #check f mkVec
 
@@ -62,7 +62,7 @@ def findSomeRevM? [Monad m] (as : Array α) (f : α → m (Option β)) : m (Opti
   pure none
 
 def findSomeRev? (as : Array α) (f : α → Option β) : Option β :=
-  Id.run <| findSomeRevM? as f
+  Id.run <| findSomeRevM? as (pure <| f ·)
 
 end Ex1
 

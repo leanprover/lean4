@@ -14,9 +14,9 @@ syntax (name := showBla) "show_bla_set" : command
 open Lean.Elab
 open Lean.Elab.Command
 
-@[commandElab insertBla] def elabInsertBla : CommandElab := fun stx => do
+@[command_elab insertBla] def elabInsertBla : CommandElab := fun stx => do
   IO.println s!"inserting {stx[1].getId}"
   modifyEnv fun env => blaExtension.addEntry env stx[1].getId
 
-@[commandElab showBla] def elabShowBla : CommandElab := fun stx => do
+@[command_elab showBla] def elabShowBla : CommandElab := fun stx => do
   IO.println s!"bla set: {blaExtension.getState (← getEnv) |>.toList}"

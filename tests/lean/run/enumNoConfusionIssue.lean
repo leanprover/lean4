@@ -1,11 +1,11 @@
-inductive MyBool :=
+inductive MyBool where
   | MyTrue
   | MyFalse
 
-inductive T :=
+inductive T where
   | mk (b: MyBool) (u: Unit)
 
-inductive isTrue: T → Type :=
+inductive isTrue: T → Type where
   | intro: isTrue (.mk .MyTrue ())
 
 example {τ: T} (h: isTrue τ): Unit :=

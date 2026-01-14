@@ -3,8 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Compiler.InitAttr
-import Lean.Compiler.IR.CompilerM
+module
+
+prelude
+public import Lean.Compiler.InitAttr
+public import Lean.Compiler.IR.CompilerM
+
+public section
 
 /-! # Helper functions for backend code generators -/
 
@@ -12,7 +17,7 @@ namespace Lean.IR
 /-- Return true iff `b` is of the form `let x := g ys; ret x` -/
 def isTailCallTo (g : Name) (b : FnBody) : Bool :=
   match b with
-  | FnBody.vdecl x _ (Expr.fap f _) (FnBody.ret (Arg.var y)) => x == y && f == g
+  | FnBody.vdecl x _ (Expr.fap f _) (FnBody.ret (.var y)) => x == y && f == g
   | _  => false
 
 def usesModuleFrom (env : Environment) (modulePrefix : Name) : Bool :=
@@ -50,8 +55,8 @@ end CollectUsedDecls
 def collectUsedDecls (env : Environment) (decl : Decl) (used : NameSet := {}) : NameSet :=
   (CollectUsedDecls.collectDecl decl env).run' used
 
-abbrev VarTypeMap  := HashMap VarId IRType
-abbrev JPParamsMap := HashMap JoinPointId (Array Param)
+abbrev VarTypeMap  := Std.HashMap VarId IRType
+abbrev JPParamsMap := Std.HashMap JoinPointId (Array Param)
 
 namespace CollectMaps
 abbrev Collector := (VarTypeMap × JPParamsMap) → (VarTypeMap × JPParamsMap)

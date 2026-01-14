@@ -10,7 +10,7 @@ example (P : Prop) : ∀ {p : P}, P := by
 example (P : Prop) : ∀ {p : P}, P := by
   exact no_implicit_lambda% id
 
-macro "exact'" x:term : tactic => `(exact no_implicit_lambda% $x)
+macro "exact'" x:term : tactic => `(tactic| exact no_implicit_lambda% $x)
 
 example (P : Prop) : ∀ {p : P}, P := by
   exact' id

@@ -6,7 +6,7 @@ class Get (Cont : Type u) (Idx : Type v) (Elem : outParam (Type w)) where
 export Get (get)
 
 instance [Inhabited α] : Get (Array α) Nat α where
-  get xs i := xs.get! i
+  get xs i := xs[i]!
 
 example (as : Array (Nat × Bool)) : Bool :=
   (get as 0).2

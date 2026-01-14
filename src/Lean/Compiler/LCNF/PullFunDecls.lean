@@ -3,9 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.DependsOn
-import Lean.Compiler.LCNF.PassManager
+module
+
+prelude
+public import Lean.Compiler.LCNF.DependsOn
+public import Lean.Compiler.LCNF.PassManager
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace PullFunDecls
@@ -16,7 +20,7 @@ Local function declaration and join point being pulled.
 structure ToPull where
   isFun : Bool
   decl  : FunDecl
-  used  : FVarIdSet
+  used  : FVarIdHashSet
   deriving Inhabited
 
 /--
@@ -85,7 +89,7 @@ partial def attach (ps : Array ToPull) (k : Code) : Code := Id.run do
   return k
 where
   go : StateM (Code × Array Bool) Unit := do
-    for i in [:ps.size] do
+    for i in *...ps.size do
       visit i
 
   visited (i : Nat) : StateM (Code × Array Bool) Bool :=
@@ -95,9 +99,9 @@ where
     unless (← visited i) do
       modify fun (k, visited) => (k, visited.set! i true)
       let pi := ps[i]!
-      for j in [:ps.size] do
+      for h : j in *...ps.size do
         unless (← visited j) do
-          let pj := ps[j]!
+          let pj := ps[j]
           if pj.used.contains pi.decl.fvarId then
             visit j
       modify fun (k, visited) => (pi.attach k, visited)
@@ -171,8 +175,8 @@ open PullFunDecls
 Pull local function declarations and join points in the given declaration.
 -/
 def Decl.pullFunDecls (decl : Decl) : CompilerM Decl := do
-  let (value, ps) ← pull decl.value |>.run []
-  let value := attach ps.toArray value
+  let (value, ps) ← decl.value.mapCodeM pull |>.run []
+  let value := value.mapCode (attach ps.toArray)
   return { decl with value }
 
 def pullFunDecls : Pass :=

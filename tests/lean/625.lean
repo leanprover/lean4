@@ -4,7 +4,7 @@ open Lean Lean.PrettyPrinter
 def foo : PUnit → PUnit := id
 def x   : PUnit := ()
 
-@[appUnexpander foo] def unexpandFoo : Unexpander := fun _ => `(sorry)
+@[app_unexpander foo] def unexpandFoo : Unexpander := fun _ => `(sorry)
 
 #eval do
   let e : Expr := mkApp (mkMData {} $ mkConst `foo [levelOne]) (mkConst `x)

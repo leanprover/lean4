@@ -40,6 +40,8 @@ match foo (Payload.mk 1 20) with
   | T.d i => "4: " ++ toString i
 | none => "5"
 
+/-- info: "1: 20" -/
+#guard_msgs in
 #eval wrongOutput
 
 def main (xs : List String) : IO Unit :=

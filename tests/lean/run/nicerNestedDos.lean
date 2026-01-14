@@ -5,7 +5,22 @@ def f (x : Nat) : IO Nat := do
     IO.println "done"
   pure (x + 1)
 
+/--
+info: hello
+---
+info: 3
+-/
+#guard_msgs in
 #eval f 2
+
+/--
+info: hello
+x: 10
+done
+---
+info: 11
+-/
+#guard_msgs in
 #eval f 10
 
 def g (x : Nat) : StateT Nat Id Unit := do

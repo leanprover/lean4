@@ -8,7 +8,7 @@ theorem Pos.roundtrip :
 
 theorem Pos.append_roundtrip :
   true = (List.all
-    (ps.bind fun p => ps.map fun q => (p,q))
+    (ps.flatMap fun p => ps.map fun q => (p,q))
     (fun (x,y) => (x ++ y) == (Pos.toArray <| (Pos.append (Pos.ofArray x) (Pos.ofArray y))))
   ) := by native_decide
 
@@ -18,4 +18,4 @@ theorem Pos.stringRoundtrip :
     some x == (Except.toOption $ Pos.fromString? $ Pos.toString $ x)
   ) := by native_decide
 
-#eval Pos.toString Nat.zero
+#guard Pos.toString Nat.zero == "/"

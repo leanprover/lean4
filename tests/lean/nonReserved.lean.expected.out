@@ -1,2 +1,2 @@
 10 : Nat
-nonReserved.lean:11:11: error: expected 'bla'
+nonReserved.lean:11:10-11:14: error: unexpected identifier; expected 'bla'

@@ -1,0 +1,6 @@
+f +' g : Nat → Nat
+(f +' g) 1 : Nat
+f * g : Nat → Nat
+(f * g) 1 : Nat
+mul f g : Nat → Nat
+mul f g (@OfNat.ofNat Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) : Nat

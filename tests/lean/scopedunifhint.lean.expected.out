@@ -1,43 +1,48 @@
-scopedunifhint.lean:28:13-28:14: error: application type mismatch
-  mul ?m x
+scopedunifhint.lean:28:11-28:12: error: application type mismatch
+  mul x
 argument
   x
 has type
   Nat : Type
 but is expected to have type
   ?m.α : Type ?u
-scopedunifhint.lean:29:18-29:24: error: application type mismatch
-  mul ?m (x, x)
+mul (sorryAx ?m.α true) (sorryAx ?m.α true) : ?m.α
+scopedunifhint.lean:29:11-29:17: error: application type mismatch
+  mul (x, x)
 argument
   (x, x)
 has type
   Nat × Nat : Type
 but is expected to have type
   ?m.α : Type ?u
-scopedunifhint.lean:33:9-33:10: error: application type mismatch
-  ?m*x
+mul (sorryAx ?m.α true) (sorryAx ?m.α true) : ?m.α
+scopedunifhint.lean:33:7-33:8: error: application type mismatch
+  mul x
 argument
   x
 has type
   Nat : Type
 but is expected to have type
   ?m.α : Type ?u
+sorryAx ?m.α true*sorryAx ?m.α true : ?m.α
 x*x : Nat.Magma.α
 x*x : Nat.Magma.α
-scopedunifhint.lean:39:18-39:24: error: application type mismatch
-  ?m*(x, x)
+scopedunifhint.lean:39:11-39:17: error: application type mismatch
+  mul (x, x)
 argument
   (x, x)
 has type
   Nat × Nat : Type
 but is expected to have type
   ?m.α : Type ?u
+sorryAx ?m.α true*sorryAx ?m.α true : ?m.α
 (x, x)*(x, x) : (Prod.Magma Nat.Magma Nat.Magma).α
-scopedunifhint.lean:56:16-56:22: error: application type mismatch
-  ?m*(x, x)
+scopedunifhint.lean:56:7-56:13: error: application type mismatch
+  mul (x, x)
 argument
   (x, x)
 has type
   Nat × Nat : Type
 but is expected to have type
   ?m.α : Type ?u
+sorryAx ?m.α true*sorryAx ?m.α true : ?m.α

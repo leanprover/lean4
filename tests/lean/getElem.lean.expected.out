@@ -1,14 +1,14 @@
 getElem.lean:2:2-2:6: error: failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
-  - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
 a : Array Nat
 i : Nat
-⊢ i < Array.size a
-def f2 : (a : Array Nat) → Fin (Array.size a) → Nat :=
+⊢ i < a.size
+def f2 : (a : Array Nat) → Fin a.size → Nat :=
 fun a i => a[i]
-def f3 : {n : Nat} → (a : Array Nat) → n ≤ Array.size a → Fin n → Nat :=
+def f3 : {n : Nat} → (a : Array Nat) → n ≤ a.size → Fin n → Nat :=
 fun {n} a h i => a[i]
 def f5 : (i : Nat) → i < n → Nat :=
 fun i h => a[i]

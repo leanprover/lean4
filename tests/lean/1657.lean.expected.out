@@ -1,1 +1,1 @@
-1657.lean:20:4-20:9: error: function `foo` has been recursively inlined more than #16, consider removing the attribute `[inlineIfReduce]` from this declaration or increasing the limit using `set_option compiler.maxRecInlineIfReduce <num>`
+1657.lean:20:4-20:9: error: function `foo` has been recursively inlined more than #16, consider removing the attribute `[inline_if_reduce]` from this declaration or increasing the limit using `set_option compiler.maxRecInlineIfReduce <num>`

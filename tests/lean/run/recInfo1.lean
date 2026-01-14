@@ -10,9 +10,6 @@ def showRecInfo (declName : Name) (majorPos? : Option Nat := none) : MetaM Unit 
 let info ← mkRecursorInfo declName majorPos?
 print (toString info)
 
-theorem Iff.elim {a b c} (h₁ : (a → b) → (b → a) → c) (h₂ : a ↔ b) : c :=
-  h₁ h₂.1 h₂.2
-
 set_option trace.Meta true
 set_option trace.Meta.isDefEq false
 

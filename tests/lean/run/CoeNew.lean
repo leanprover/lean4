@@ -19,8 +19,8 @@ instance constantFunctionCoe {α β : Type} : CoeFun (ConstantFunction α β) (f
 
 set_option pp.explicit true
 
-#synth CoeT { x : Nat // x > 0 } ⟨1, sorryAx _⟩ Nat
-#synth CoeT { x : Nat // x > 0 } ⟨1, sorryAx _⟩ Bool
+#synth CoeT { x : Nat // x > 0 } ⟨1, sorryAx _ false⟩ Nat
+#synth CoeT { x : Nat // x > 0 } ⟨1, sorryAx _ false⟩ Bool
 #synth CoeT Nat 0 (Option Nat)
 #synth CoeT Bool true (Option Nat)
 #synth CoeT Prop (0 = 1) Bool

@@ -7,6 +7,6 @@ example (x : Nat) (a : A (x + 0)) : f (x + 0) a = x := by
   sorry
 
 example (x : Nat) (a : A (x + 0)) : f (x + 0) a = x := by
-  simp (config := { dsimp := false })
+  simp (config := { dsimp := false, failIfUnchanged := false })
   trace_state -- ⊢ f (x + 0) a = x
   sorry

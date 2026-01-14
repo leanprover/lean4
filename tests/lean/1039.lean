@@ -10,7 +10,7 @@ namespace MyNamespace
 local elab "end" id:ident : command => do
   println!"foo"
   let node := mkNode ``Lean.Parser.Command.end
-    #[Lean.mkAtom "end", mkOptionalNode id]
+    #[Lean.mkAtom "end", mkNullNode #[id, mkOptionalNode none]]
   elabEnd node
 
 end MyNamespace -- print "foo"
@@ -21,7 +21,7 @@ namespace Something
 
 namespace MyNamespace
 
-@[local commandElab Lean.Parser.Command.end] def elabEnd' : CommandElab := fun stx =>
+@[local command_elab Lean.Parser.Command.end] def elabEnd' : CommandElab := fun stx =>
   match stx with
   | `(end $id:ident) => do
     println!"boo"

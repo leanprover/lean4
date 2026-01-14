@@ -3,6 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
+prelude
+public import Init.Core
+
+public section
 namespace Lean.Compiler.LCNF
 namespace Simp
 
@@ -24,11 +30,16 @@ structure Config where
   -/
   inlinePartial := false
   /--
-  If `implementedBy` is `true`, we apply the `implementedBy` replacements.
+  If `implementedBy` is `true`, we apply the `implemented_by` replacements.
   Remark: we only apply `casesOn` replacements at phase 2 because `cases` constructor
   may not have enough information for reconstructing the original `casesOn` application at
   phase 1.
   -/
   implementedBy := false
+  /--
+  If `inlineDefs` is `true` then top-level definitions are inlined when they are small are
+  annotated with inlining attributes.
+  -/
+  inlineDefs := true
   deriving Inhabited
 

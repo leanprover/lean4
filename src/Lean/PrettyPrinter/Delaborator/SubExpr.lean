@@ -3,9 +3,12 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Daniel Selsam, Wojciech Nawrocki
 -/
-import Lean.Meta.Basic
-import Lean.SubExpr
-import Lean.Data.RBMap
+module
+
+prelude
+public import Lean.SubExpr
+
+public section
 
 /-!
 # Subexpr utilities for delaborator.
@@ -15,7 +18,15 @@ in sync with the `Nat` "position" values that refer to them.
 
 namespace Lean.PrettyPrinter.Delaborator
 
-abbrev OptionsPerPos := RBMap SubExpr.Pos Options compare
+abbrev OptionsPerPos := Std.TreeMap SubExpr.Pos Options
+
+def OptionsPerPos.insertAt (optionsPerPos : OptionsPerPos) (pos : SubExpr.Pos) (name : Name) (value : DataValue) : OptionsPerPos :=
+  let opts := optionsPerPos.get? pos |>.getD {}
+  optionsPerPos.insert pos <| opts.insert name value
+
+/-- Merges two collections of options, where the second overrides the first. -/
+def OptionsPerPos.merge : OptionsPerPos → OptionsPerPos → OptionsPerPos :=
+  Std.TreeMap.mergeWith (fun _ => KVMap.mergeBy (fun _ _ dv => dv))
 
 namespace SubExpr
 
@@ -42,18 +53,58 @@ def withAppArg  (x : m α) : m α := do descend (← getExpr).appArg! 1 x
 def withType (x : m α) : m α := do
   descend (← Meta.inferType (← getExpr)) Pos.typeCoord x -- phantom positions for types
 
+/--
+Uses `xa` to compute the fold across the arguments of an application,
+where `xf` provides the initial value and is evaluated in the context of the head of the application.
+-/
 partial def withAppFnArgs (xf : m α) (xa : α → m α) : m α := do
   if (← getExpr).isApp then
     let acc ← withAppFn (withAppFnArgs xf xa)
     withAppArg (xa acc)
   else xf
 
+/--
+Uses `xa` to compute the fold across up to `maxArgs` outermost arguments of an application,
+where `xf` provides the initial value and is evaluated in the context of the application minus
+the arguments being folded across.
+-/
+def withBoundedAppFnArgs (maxArgs : Nat) (xf : m α) (xa : α → m α) : m α := do
+  match maxArgs, (← getExpr) with
+  | maxArgs' + 1, .app .. =>
+    let acc ← withAppFn (withBoundedAppFnArgs maxArgs' xf xa)
+    withAppArg (xa acc)
+  | _, _ => xf
+
+/--
+Runs `xf` in the context of `Lean.Expr.getBoundedAppFn maxArgs`.
+This is equivalent to `withBoundedAppFnArgs maxArgs xf pure`.
+-/
+def withBoundedAppFn (maxArgs : Nat) (xf : m α) : m α := do
+  let e ← getExpr
+  let numArgs := min maxArgs e.getAppNumArgs
+  let newPos := (← getPos).pushNaryFn numArgs
+  withTheReader SubExpr (fun cfg => { cfg with expr := e.getBoundedAppFn numArgs, pos := newPos }) xf
+
 def withBindingDomain (x : m α) : m α := do descend (← getExpr).bindingDomain! 0 x
 
-def withBindingBody (n : Name) (x : m α) : m α := do
+/--
+Assumes the `SubExpr` is a lambda or forall.
+1. Creates a local declaration for this binder using the name `n`.
+2. Evaluates `v` using the fvar for the local declaration.
+3. Enters the binding body, and evaluates `x` using this result.
+-/
+def withBindingBody' (n : Name) (v : Expr → m β) (x : β → m α) : m α := do
   let e ← getExpr
-  Meta.withLocalDecl n e.binderInfo e.bindingDomain! fun fvar =>
-    descend (e.bindingBody!.instantiate1 fvar) 1 x
+  Meta.withLocalDecl n e.binderInfo e.bindingDomain! fun fvar => do
+    let b ← v fvar
+    descend (e.bindingBody!.instantiate1 fvar) 1 (x b)
+
+/--
+Assumes the `SubExpr` is a lambda or forall.
+Creates a local declaration for this binder using the name `n`, enters the binding body, and evaluates `x`.
+-/
+def withBindingBody (n : Name) (x : m α) : m α :=
+  withBindingBody' n (fun _ => pure ()) (fun _ => x)
 
 def withProj (x : m α) : m α := do
   let Expr.proj _ _ e ← getExpr | unreachable!
@@ -72,8 +123,8 @@ def withLetValue (x : m α) : m α := do
   descend v 1 x
 
 def withLetBody (x : m α) : m α := do
-  let Expr.letE n t v b _ ← getExpr | unreachable!
-  Meta.withLetDecl n t v fun fvar =>
+  let Expr.letE n t v b nondep ← getExpr | unreachable!
+  Meta.withLetDecl n t v (nondep := nondep) fun fvar =>
     let b := b.instantiate1 fvar
     descend b 2 x
 
@@ -111,7 +162,10 @@ def HoleIterator.next (iter : HoleIterator) : HoleIterator :=
 
 /-- The positioning scheme guarantees that there will be an infinite number of extra positions
 which are never used by `Expr`s. The `HoleIterator` always points at the next such "hole".
-We use these to attach additional `Elab.Info`. -/
+We use these to attach additional `Elab.Info`.
+
+Note: these positions are incompatible with `Lean.SubExpr.Pos.push` since the iterator
+will eventually yield every child of every returned position. -/
 def nextExtraPos : m Pos := do
   let iter ← getThe HoleIterator
   let pos := iter.toPos

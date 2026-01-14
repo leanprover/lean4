@@ -1,8 +1,10 @@
-open Lean
+module
+import all Init.Prelude
 
+open Lean
 def exec (x : MacroM α) : Option α :=
   match x {
-      mainModule := `Expander
+      quotContext := `Expander
       currMacroScope := 0
       ref := default
       methods := default } { macroScope := 0 } with
@@ -13,4 +15,6 @@ def tst : MacroM String := do
   let n ← Macro.getCurrNamespace
   return toString n
 
+/-- info: some "[anonymous]" -/
+#guard_msgs in
 #eval exec tst

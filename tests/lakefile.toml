@@ -1,0 +1,5 @@
+name = "tests"
+
+[[lean_lib]]
+name = "Tests"
+globs = ["lean.*"]

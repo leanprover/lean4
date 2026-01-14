@@ -1,0 +1,21 @@
+Failure @47 (⟨7, 0⟩): expected indentation at least 1
+Final stack:
+  [(Lean.Doc.Syntax.dl
+    "dl{"
+    [(Lean.Doc.Syntax.desc
+      ":"
+      [(Lean.Doc.Syntax.text
+        (str "\" an excellent idea\""))]
+      "=>"
+      [(Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.text
+          (str "\"Let's say more!\""))]
+        "}")])
+     (Lean.Doc.Syntax.desc
+      ":"
+      [(Lean.Doc.Syntax.text (str "\" more\""))]
+      "=>"
+      <missing>)]
+    "}")]
+Remaining: ""

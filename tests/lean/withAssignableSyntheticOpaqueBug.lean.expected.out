@@ -1,4 +1,4 @@
-fun x => ?m x
+fun x => ?m
 none
 (some (OfNat.ofNat.{0} Nat 0 (instOfNatNat 0)))
 0

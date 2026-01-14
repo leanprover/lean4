@@ -3,7 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Expr
+module
+
+prelude
+public import Lean.Expr
+
+public section
 
 namespace Lean
 
@@ -31,6 +36,9 @@ mutual
     | _          => id
 end
 
+def visitLevels (us : List Level) : Visitor :=
+  fun s => us.foldl (fun s u => visitLevel u s) s
+
 mutual
   partial def visitExpr (e : Expr) : Visitor := fun s =>
     if !e.hasLevelParam then s
@@ -44,7 +52,7 @@ mutual
     | .letE _ t v b _  => visitExpr b ∘ visitExpr v ∘ visitExpr t
     | .app f a         => visitExpr a ∘ visitExpr f
     | .mdata _ b       => visitExpr b
-    | .const _ us      => fun s => us.foldl (fun s u => visitLevel u s) s
+    | .const _ us      => visitLevels us
     | .sort u          => visitLevel u
     | _                => id
 end

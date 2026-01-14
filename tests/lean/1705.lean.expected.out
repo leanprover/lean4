@@ -1,0 +1,2 @@
+1705.lean:1:22-1:23: error: type expected, got
+  (R : ?m)

@@ -1,4 +1,3 @@
-import Lean.Data.Rat
 open Lean
 
 #eval (15 : Rat) / 10

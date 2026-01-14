@@ -1,6 +1,6 @@
 def build (n : Nat) : Array Unit := Id.run <| do
   let mut out := #[]
-  for _ in [0:n] do
+  for _ in *...n do
     out := out.push ()
   out
 
@@ -10,7 +10,7 @@ def bench (f : ∀ {α : Type}, α → IO Unit := fun _ => pure ()) : IO Unit :=
   let n ← size
   let arr := build n
   timeit "time" $
-    for _ in [:1000] do
+    for _ in *...(1000 : Nat) do
       f $ #[1, 2, 3, 4].map fun ty => arr[ty]!
 
 #eval bench

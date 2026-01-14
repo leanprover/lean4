@@ -104,8 +104,8 @@ def text : Parser := -- {{{
       let s := takeWhile1Fn (not ∘ "{<>}$".contains) "HTML text" c s
       mkNodeToken `LX.text startPos c s } -- }}}
 
-@[combinatorFormatter text] def text.formatter : Formatter := pure ()
-@[combinatorParenthesizer text] def text.parenthesizer : Parenthesizer := pure ()
+@[combinator_formatter text] def text.formatter : Formatter := pure ()
+@[combinator_parenthesizer text] def text.parenthesizer : Parenthesizer := pure ()
 
 syntax text         : child
 syntax "{" term "}" : child
@@ -138,8 +138,8 @@ def pathLiteral : Parser := -- {{{
     let s := takeWhile1Fn (fun c => c == '/' || c.isAlphanum) "URL path" c s
     mkNodeToken `pathLiteral startPos c s } -- }}}
 
-@[combinatorFormatter pathLiteral] def pathLiteral.formatter : Formatter := pure ()
-@[combinatorParenthesizer pathLiteral] def pathLiteral.parenthesizer : Parenthesizer := pure ()
+@[combinator_formatter pathLiteral] def pathLiteral.formatter : Formatter := pure ()
+@[combinator_parenthesizer pathLiteral] def pathLiteral.parenthesizer : Parenthesizer := pure ()
 
 declare_syntax_cat pathItem
 syntax pathLiteral : pathItem
@@ -168,7 +168,7 @@ macro v:verb p:path " => " t:term : command => do -- {{{
 
 GET / => redirect "/greet/stranger"
 
-GET /greet/{name} => write 
+GET /greet/{name} => write
   <html>
     <h1>Hello, {name}!</h1>
   </html>

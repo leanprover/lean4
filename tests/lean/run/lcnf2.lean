@@ -10,7 +10,7 @@ def f (x : Nat) : Nat :=
   | 0 => 2
   | z+1 => z + y + 2
 
-#eval Compiler.compile #[``f]
+set_option trace.Compiler true
 
 def g (x : Nat) : Bool :=
   let pred? := match x with
@@ -19,9 +19,6 @@ def g (x : Nat) : Bool :=
   match pred? with
   | none => true
   | some _  => false
-
-set_option trace.Compiler true
-#eval Compiler.compile #[``g]
 
 
 abbrev TupleNTyp : Nat → Type 1
@@ -32,11 +29,11 @@ noncomputable abbrev TupleN : (n : Fin 1) → TupleNTyp n.val
   | 0 => Unit × Unit
 
 set_option pp.proofs true
-#eval Compiler.compile #[``TupleN]
+run_meta Compiler.compile #[``TupleN]
 
 
 def userControlled (a b : Nat) :=
   let f := fun _ => a
   f () + b
 
-#eval Compiler.compile #[``userControlled]
+run_meta Compiler.compile #[``userControlled]

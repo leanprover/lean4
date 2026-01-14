@@ -1,0 +1,73 @@
+if c✝ then do
+  t✝
+else e✝
+if c✝ then do
+  t✝;
+  t✝
+else e✝
+if c✝ then do
+  t✝
+else do
+  e✝
+if let x✝ := c✝ then do
+  t✝
+else do
+  e✝
+if c✝ then do
+  t✝
+else
+  if c✝ then do
+    t✝
+  else do
+    e✝
+do
+  if c✝ then 
+    t✝
+  else
+    e✝
+do
+  if c✝ then 
+    t✝
+  else if c✝ then
+    t✝
+  else
+    e✝
+def foo✝ := by
+  · skip; skip
+  · skip; skip
+    skip
+    (skip; skip)
+    ( skip; skip
+      try skip; skip
+      try
+        skip
+        skip
+      skip)
+by
+  try
+    skip
+    skip
+by try
+      skip
+      skip
+by try  skip
+        skip
+by  try skip
+        skip
+    skip
+{ foo✝ := bar✝
+  bar✝ := foo✝ + bar✝ }
+let x✝ :=
+  { foo✝ := bar✝
+    bar✝ := foo✝ + bar✝ }
+x✝
+def foo✝ : a✝ b✝ c✝ d✝ e✝ f✝ g✝ a✝ b✝ c✝ d✝ e✝ f✝ g✝ h✝
+    where
+  h✝ := 42
+  i✝ := 42
+  j✝ := 42
+  k✝ := 42
+calc
+  1 = 1 := rfl✝
+  1 = 1 := rfl✝
+by rw [] at h✝

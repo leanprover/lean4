@@ -3,11 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Meta.Reduce
-import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Replace
-import Lean.Elab.Tactic.Basic
-import Lean.Elab.Tactic.BuiltinTactic
+module
+
+prelude
+public import Lean.Meta.Tactic.Replace
+public import Lean.Elab.Tactic.BuiltinTactic
+
+public section
 
 namespace Lean.Elab.Tactic.Conv
 open Meta
@@ -51,7 +53,7 @@ def convert (lhs : Expr) (conv : TacticM Unit) : TacticM (Expr × Expr) := do
       liftM <| mvarId.refl <|> mvarId.inferInstance <|> pure ()
     pruneSolvedGoals
     unless (← getGoals).isEmpty do
-      throwError "convert tactic failed, there are unsolved goals\n{goalsToMessageData (← getGoals)}"
+      throwError "Tactic `conv` failed: There are unsolved goals\n{goalsToMessageData (← getGoals)}"
     pure ()
   finally
     setGoals savedGoals
@@ -59,7 +61,8 @@ def convert (lhs : Expr) (conv : TacticM Unit) : TacticM (Expr × Expr) := do
 
 def getLhsRhsCore (mvarId : MVarId) : MetaM (Expr × Expr) :=
   mvarId.withContext do
-    let some (_, lhs, rhs) ← matchEq? (← mvarId.getType) | throwError "invalid 'conv' goal"
+    let some (_, lhs, rhs) ← matchEq? (← mvarId.getType) |
+      throwError "Internal error: Conversion-mode tactic found an invalid `conv` goal"
     return (lhs, rhs)
 
 def getLhsRhs : TacticM (Expr × Expr) := do
@@ -85,49 +88,78 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
   liftMetaTactic1 fun mvarId => do
     mvarId.replaceTargetDefEq (mkLHSGoalRaw (← mkEq lhs' rhs))
 
-@[builtinTactic Lean.Parser.Tactic.Conv.whnf] def evalWhnf : Tactic := fun _ =>
+@[builtin_tactic Lean.Parser.Tactic.Conv.whnf] def evalWhnf : Tactic := fun _ =>
    withMainContext do
      changeLhs (← whnf (← getLhs))
 
-@[builtinTactic Lean.Parser.Tactic.Conv.reduce] def evalReduce : Tactic := fun _ =>
+@[builtin_tactic Lean.Parser.Tactic.Conv.reduce] def evalReduce : Tactic := fun _ =>
    withMainContext do
      changeLhs (← reduce (← getLhs))
 
-@[builtinTactic Lean.Parser.Tactic.Conv.zeta] def evalZeta : Tactic := fun _ =>
+@[builtin_tactic Lean.Parser.Tactic.Conv.zeta] def evalZeta : Tactic := fun _ =>
    withMainContext do
      changeLhs (← zetaReduce (← getLhs))
 
+/--
+Removes the hypothesis referred to by `fvarId` from the context of the currently focused `conv`
+goal, provided that `fvarId` is not referenced by another hypothesis or the current `conv`-focused
+target.
+-/
+def convClear (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId := do
+  let (lhs, rhs) ← getLhsRhsCore mvarId
+  unless rhs.isMVar do
+    return (← mvarId.clear fvarId)
+  let rhsKind ← rhs.mvarId!.getKind
+  -- Clear the fvar from the RHS mvar's context so that it isn't detected as a dependent. Note that
+  -- `clear` always produces a synthetic-opaque mvar, so we need to reset its kind afterward
+  let rhs' ← rhs.mvarId!.clear fvarId
+  rhs'.setKind rhsKind
+  let mvarId' ← mvarId.replaceTargetDefEq (mkLHSGoalRaw (← mkEq lhs (mkMVar rhs')))
+  let mvarIdCleared ← mvarId'.clear fvarId
+  return mvarIdCleared
+
+@[builtin_tactic Lean.Parser.Tactic.Conv.clear] def evalClear : Tactic := fun stx => do
+  match stx with
+  | `(conv| clear $hs*) => do
+    let fvarIds ← getFVarIds hs
+    let fvarIds ← withMainContext <| sortFVarIds fvarIds
+    for fvarId in fvarIds.reverse do
+      withMainContext do
+        let mvarId ← convClear (← getMainGoal) fvarId
+        replaceMainGoal [mvarId]
+  | _ => throwUnsupportedSyntax
+
 /-- Evaluate `sepByIndent conv "; " -/
 def evalSepByIndentConv (stx : Syntax) : TacticM Unit := do
-  for arg in stx.getArgs, i in [:stx.getArgs.size] do
+  for arg in stx.getArgs, i in *...stx.getArgs.size do
     if i % 2 == 0 then
       evalTactic arg
     else
       saveTacticInfoForToken arg
 
-@[builtinTactic Lean.Parser.Tactic.Conv.convSeq1Indented] def evalConvSeq1Indented : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.convSeq1Indented] def evalConvSeq1Indented : Tactic := fun stx => do
   evalSepByIndentConv stx[0]
 
-@[builtinTactic Lean.Parser.Tactic.Conv.convSeqBracketed] def evalConvSeqBracketed : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.convSeqBracketed] def evalConvSeqBracketed : Tactic := fun stx => do
   let initInfo ← mkInitialTacticInfo stx[0]
   withRef stx[2] <| closeUsingOrAdmit do
     -- save state before/after entering focus on `{`
     withInfoContext (pure ()) initInfo
     evalSepByIndentConv stx[1]
-    evalTactic (← `(tactic| all_goals (try rfl)))
+    evalTactic (← `(tactic| all_goals (try with_reducible rfl)))
 
-@[builtinTactic Lean.Parser.Tactic.Conv.nestedConv] def evalNestedConv : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.nestedConv] def evalNestedConv : Tactic := fun stx => do
   evalConvSeqBracketed stx[0]
 
-@[builtinTactic Lean.Parser.Tactic.Conv.convSeq] def evalConvSeq : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.convSeq] def evalConvSeq : Tactic := fun stx => do
   evalTactic stx[0]
 
-@[builtinTactic Lean.Parser.Tactic.Conv.convConvSeq] def evalConvConvSeq : Tactic := fun stx =>
+@[builtin_tactic Lean.Parser.Tactic.Conv.convConvSeq] def evalConvConvSeq : Tactic := fun stx =>
   withMainContext do
     let (lhsNew, proof) ← convert (← getLhs) (evalTactic stx[2][0])
     updateLhs lhsNew proof
 
-@[builtinTactic Lean.Parser.Tactic.Conv.paren] def evalParen : Tactic := fun stx =>
+@[builtin_tactic Lean.Parser.Tactic.Conv.paren] def evalParen : Tactic := fun stx =>
   evalTactic stx[1]
 
 /-- Mark goals of the form `⊢ a = ?m ..` with the conv goal annotation -/
@@ -143,11 +175,11 @@ def remarkAsConvGoal : TacticM Unit := do
       return mvarId
   setGoals newGoals
 
-@[builtinTactic Lean.Parser.Tactic.Conv.nestedTacticCore] def evalNestedTacticCore : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.nestedTacticCore] def evalNestedTacticCore : Tactic := fun stx => do
   let seq := stx[2]
   evalTactic seq; remarkAsConvGoal
 
-@[builtinTactic Lean.Parser.Tactic.Conv.nestedTactic] def evalNestedTactic : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.nestedTactic] def evalNestedTactic : Tactic := fun stx => do
   let seq := stx[2]
   let target ← getMainTarget
   if let some _ := isLHSGoal? target then
@@ -155,14 +187,14 @@ def remarkAsConvGoal : TacticM Unit := do
       mvarId.replaceTargetDefEq target.mdataExpr!
   focus do evalTactic seq; remarkAsConvGoal
 
-@[builtinTactic Lean.Parser.Tactic.Conv.convTactic] def evalConvTactic : Tactic := fun stx =>
+@[builtin_tactic Lean.Parser.Tactic.Conv.convTactic] def evalConvTactic : Tactic := fun stx =>
   evalTactic stx[2]
 
 private def convTarget (conv : Syntax) : TacticM Unit := withMainContext do
    let target ← getMainTarget
    let (targetNew, proof) ← convert target (withTacticInfoContext (← getRef) (evalTactic conv))
    liftMetaTactic1 fun mvarId => mvarId.replaceTargetEq targetNew proof
-   evalTactic (← `(tactic| try rfl))
+   evalTactic (← `(tactic| try with_reducible rfl))
 
 private def convLocalDecl (conv : Syntax) (hUserName : Name) : TacticM Unit := withMainContext do
    let localDecl ← getLocalDeclFromUserName hUserName
@@ -170,7 +202,7 @@ private def convLocalDecl (conv : Syntax) (hUserName : Name) : TacticM Unit := w
    liftMetaTactic1 fun mvarId =>
      return some (← mvarId.replaceLocalDecl localDecl.fvarId typeNew proof).mvarId
 
-@[builtinTactic Lean.Parser.Tactic.Conv.conv] def evalConv : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.conv] def evalConv : Tactic := fun stx => do
   match stx with
   | `(tactic| conv%$tk $[at $loc?]? in $(occs)? $p =>%$arr $code) =>
     evalTactic (← `(tactic| conv%$tk $[at $loc?]? =>%$arr pattern $(occs)? $p; ($code:convSeq)))
@@ -183,7 +215,7 @@ private def convLocalDecl (conv : Syntax) (hUserName : Name) : TacticM Unit := w
         convTarget code
   | _ => throwUnsupportedSyntax
 
-@[builtinTactic Lean.Parser.Tactic.Conv.first] partial def evalFirst : Tactic :=
+@[builtin_tactic Lean.Parser.Tactic.Conv.first] partial def evalFirst : Tactic :=
   Tactic.evalFirst
 
 end Lean.Elab.Tactic.Conv

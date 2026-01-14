@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <limits>
 #include "kernel/replace_fn.h"
 #include "kernel/declaration.h"
+#include "kernel/kernel_exception.h"
 #include "kernel/instantiate.h"
 
 namespace lean {
@@ -164,20 +165,36 @@ bool is_head_beta(expr const & t) {
     return is_app(t) && is_lambda(get_app_fn(t));
 }
 
-expr apply_beta(expr f, unsigned num_args, expr const * args) {
-    if (num_args == 0) {
-        return f;
-    } else if (!is_lambda(f)) {
-        return mk_rev_app(f, num_args, args);
-    } else {
-        unsigned m = 1;
-        while (is_lambda(binding_body(f)) && m < num_args) {
-            f = binding_body(f);
-            m++;
+static expr apply_beta_rec(expr e, unsigned i, unsigned num_rev_args, expr const * rev_args, bool preserve_data, bool zeta) {
+    if (is_lambda(e)) {
+        if (i + 1 < num_rev_args) {
+            return apply_beta_rec(binding_body(e), i+1, num_rev_args, rev_args, preserve_data, zeta);
+        } else {
+            return instantiate(binding_body(e), num_rev_args, rev_args);
         }
-        lean_assert(m <= num_args);
-        return mk_rev_app(instantiate(binding_body(f), m, args + (num_args - m)), num_args - m, args);
+    } else if (is_let(e)) {
+        if (zeta && i < num_rev_args) {
+            return apply_beta_rec(instantiate(let_body(e), let_value(e)), i, num_rev_args, rev_args, preserve_data, zeta);
+        } else {
+            unsigned n = num_rev_args - i;
+            return mk_rev_app(instantiate(e, i, rev_args + n), n, rev_args);
+        }
+    } else if (is_mdata(e)) {
+        if (preserve_data) {
+            unsigned n = num_rev_args - i;
+            return mk_rev_app(instantiate(e, i, rev_args + n), n, rev_args);
+        } else {
+            return apply_beta_rec(mdata_expr(e), i, num_rev_args, rev_args, preserve_data, zeta);
+        }
+    } else {
+        unsigned n = num_rev_args - i;
+        return mk_rev_app(instantiate(e, i, rev_args + n), n, rev_args);
     }
+}
+
+expr apply_beta(expr f, unsigned num_rev_args, expr const * rev_args, bool preserve_data, bool zeta) {
+    if (num_rev_args == 0) return f;
+    return apply_beta_rec(f, 0, num_rev_args, rev_args, preserve_data, zeta);
 }
 
 expr head_beta_reduce(expr const & t) {
@@ -246,11 +263,4 @@ expr instantiate_value_lparams(constant_info const & info, levels const & ls) {
     return instantiate_lparams(info.get_value(), info.get_lparams(), ls);
 }
 
-extern "C" LEAN_EXPORT object * lean_instantiate_type_lparams(b_obj_arg info, b_obj_arg ls) {
-    return instantiate_type_lparams(TO_REF(constant_info, info), TO_REF(levels, ls)).steal();
-}
-
-extern "C" LEAN_EXPORT object * lean_instantiate_value_lparams(b_obj_arg info, b_obj_arg ls) {
-    return instantiate_value_lparams(TO_REF(constant_info, info), TO_REF(levels, ls)).steal();
-}
 }

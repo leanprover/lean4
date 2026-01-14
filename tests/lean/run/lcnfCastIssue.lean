@@ -5,14 +5,14 @@ universe u v w
 inductive Id {A : Type u} : A → A → Type u
 | refl {a : A} : Id a a
 
-attribute [eliminator] Id.casesOn
+attribute [induction_eliminator] Id.casesOn
 
 infix:50 (priority := high) " = " => Id
 
 inductive Unit : Type u
 | star : Unit
 
-attribute [eliminator] Unit.casesOn
+attribute [induction_eliminator] Unit.casesOn
 
 notation "𝟏" => Unit
 notation "★" => Unit.star

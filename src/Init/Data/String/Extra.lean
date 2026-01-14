@@ -3,90 +3,119 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Control.Except
-import Init.Data.ByteArray
-import Init.SimpLemmas
-import Init.Data.Nat.Linear
-import Init.Util
-import Init.WFTactics
+import all Init.Data.ByteArray.Basic
+public import Init.Data.String.Basic
+import all Init.Data.String.Basic
+public import Init.Data.String.Substring
+public import Init.Data.String.Modify
+import Init.Data.String.Search
+
+public section
 
 namespace String
 
-/-- Interpret the string as the decimal representation of a natural number.
-
-Panics if the string is not a string of digits. -/
-def toNat! (s : String) : Nat :=
-  if s.isNat then
-    s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
-  else
-    panic! "Nat expected"
+@[deprecated ByteArray.utf8DecodeChar? (since := "2025-10-01")]
+abbrev utf8DecodeChar? (a : ByteArray) (i : Nat) : Option Char :=
+  a.utf8DecodeChar? i
 
 /--
-  Convert a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded `ByteArray` string to `String`.
-  The result is unspecified if `a` is not properly UTF-8 encoded.
+Checks whether an array of bytes is a valid UTF-8 encoding of a string.
 -/
-@[extern "lean_string_from_utf8_unchecked"]
-opaque fromUTF8Unchecked (a : @& ByteArray) : String
+@[deprecated ByteArray.validateUTF8 (since := "2025-10-01")]
+abbrev validateUTF8 (a : ByteArray) : Bool :=
+  a.validateUTF8
 
-/-- Convert the given `String` to a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded byte array. -/
-@[extern "lean_string_to_utf8"]
-opaque toUTF8 (a : @& String) : ByteArray
+private def findLeadingSpacesSize (s : String) : Nat :=
+  let it := s.startPos
+  let it := it.find? (· == '\n') |>.bind String.Pos.next?
+  match it with
+  | some it => consumeSpaces it 0 s.length
+  | none => 0
+where
+  consumeSpaces {s : String} (it : s.Pos) (curr min : Nat) : Nat :=
+    if h : it.IsAtEnd then min
+    else if it.get h == ' ' || it.get h == '\t' then consumeSpaces (it.next h) (curr + 1) min
+    else if it.get h == '\n' then findNextLine (it.next h) min
+    else findNextLine (it.next h) (Nat.min curr min)
+  termination_by it
+  findNextLine {s : String} (it : s.Pos) (min : Nat) : Nat :=
+    if h : it.IsAtEnd then min
+    else if it.get h == '\n' then consumeSpaces (it.next h) 0 min
+    else findNextLine (it.next h) min
+  termination_by it
 
-theorem one_le_csize (c : Char) : 1 ≤ csize c := by
-  simp [csize, Char.utf8Size]
-  repeat (first | split | decide)
+private def removeNumLeadingSpaces (n : Nat) (s : String) : String :=
+  consumeSpaces n s.startPos ""
+where
+  consumeSpaces (n : Nat) {s : String} (it : s.Pos) (r : String) : String :=
+     match n with
+     | 0 => saveLine it r
+     | n+1 =>
+       if h : it.IsAtEnd then r
+       else if it.get h == ' ' || it.get h == '\t' then consumeSpaces n (it.next h) r
+       else saveLine it r
+  termination_by (it, 1)
+  saveLine {s : String} (it : s.Pos) (r : String) : String :=
+    if h : it.IsAtEnd then r
+    else if it.get h  == '\n' then consumeSpaces n (it.next h) (r.push '\n')
+    else saveLine (it.next h) (r.push (it.get h))
+  termination_by (it, 0)
 
-@[simp] theorem pos_lt_eq (p₁ p₂ : Pos) : (p₁ < p₂) = (p₁.1 < p₂.1) := rfl
+/--
+Consistently de-indents the lines in a string, removing the same amount of leading whitespace from
+each line such that the least-indented line has no leading whitespace.
 
-@[simp] theorem pos_add_char (p : Pos) (c : Char) : (p + c).byteIdx = p.byteIdx + csize c := rfl
+The number of leading whitespace characters to remove from each line is determined by counting the
+number of leading space (`' '`) and tab (`'\t'`) characters on lines after the first line that also
+contain non-whitespace characters. No distinction is made between tab and space characters; both
+count equally.
 
-theorem eq_empty_of_bsize_eq_zero (h : s.endPos = {}) : s = "" := by
-  match s with
-  | ⟨[]⟩   => rfl
-  | ⟨c::cs⟩ =>
-    injection h with h
-    simp [endPos, utf8ByteSize, utf8ByteSize.go] at h
-    have : utf8ByteSize.go cs + 1 ≤ utf8ByteSize.go cs + csize c := Nat.add_le_add_left (one_le_csize c) _
-    simp_arith [h] at this
+The least number of leading whitespace characters found is then removed from the beginning of each
+line. The first line's leading whitespace is not counted when determining how far to de-indent the
+string, but leading whitespace is removed from it.
 
-theorem lt_next (s : String) (i : String.Pos) : i.1 < (s.next i).1 := by
-  simp_arith [next]; apply one_le_csize
+Examples:
+* `"Here:\n  fun x =>\n    x + 1".removeLeadingSpaces = "Here:\nfun x =>\n  x + 1"`
+* `"Here:\n\t\tfun x =>\n\t  \tx + 1".removeLeadingSpaces = "Here:\nfun x =>\n \tx + 1"`
+* `"Here:\n\t\tfun x =>\n \n\t  \tx + 1".removeLeadingSpaces = "Here:\nfun x =>\n\n \tx + 1"`
+-/
+def removeLeadingSpaces (s : String) : String :=
+  let n := findLeadingSpacesSize s
+  if n == 0 then s else removeNumLeadingSpaces n s
 
-theorem Iterator.sizeOf_next_lt_of_hasNext (i : String.Iterator) (h : i.hasNext) : sizeOf i.next < sizeOf i := by
-  cases i; rename_i s pos; simp [Iterator.next, Iterator.sizeOf_eq]; simp [Iterator.hasNext] at h
-  have := String.lt_next s pos
-  apply Nat.sub.elim (motive := fun k => k < _) (utf8ByteSize s) (String.next s pos).1
-  . intro _ k he
-    simp [he]; rw [Nat.add_comm, Nat.add_sub_assoc (Nat.le_of_lt this)]
-    have := Nat.zero_lt_sub_of_lt this
-    simp_all_arith
-  . intro; apply Nat.zero_lt_sub_of_lt h
+/--
+Replaces each `\r\n` with `\n` to normalize line endings, but does not validate that there are no
+isolated `\r` characters.
 
-macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply String.Iterator.sizeOf_next_lt_of_hasNext; assumption)
-
-theorem Iterator.sizeOf_next_lt_of_atEnd (i : String.Iterator) (h : ¬ i.atEnd = true) : sizeOf i.next < sizeOf i :=
-  have h : i.hasNext = true := by simp_arith [atEnd] at h; simp_arith [hasNext, h]
-  sizeOf_next_lt_of_hasNext i h
-
-macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply String.Iterator.sizeOf_next_lt_of_atEnd; assumption)
-
-namespace Iterator
-
-/-- Advance the given iterator until the predicate returns true or the end of the string is reached. -/
-@[specialize] def find (it : Iterator) (p : Char → Bool) : Iterator :=
-  if it.atEnd then it
-  else if p it.curr then it
-  else find it.next p
-
-@[specialize] def foldUntil (it : Iterator) (init : α) (f : α → Char → Option α) : α × Iterator :=
-  if it.atEnd then
-    (init, it)
-  else if let some a := f init it.curr then
-    foldUntil it.next a f
-  else
-    (init, it)
-
-end Iterator
+This is an optimized version of `String.replace text "\r\n" "\n"`.
+-/
+def crlfToLf (text : String) : String :=
+  go "" 0 0
+where
+  go (acc : String) (accStop pos : String.Pos.Raw) : String :=
+    if h : pos.atEnd text then
+      -- note: if accStop = 0 then acc is empty
+      if accStop = 0 then text else acc ++ accStop.extract text pos
+    else
+      let c := pos.get' text h
+      let pos' := pos.next' text h
+      if h' : ¬ pos'.atEnd text ∧ c == '\r' ∧ pos'.get text == '\n' then
+        let acc := acc ++ accStop.extract text pos
+        go acc pos' (pos'.next' text h'.1)
+      else
+        go acc accStop pos'
+  termination_by text.utf8ByteSize - pos.byteIdx
+  decreasing_by
+    decreasing_with
+      change text.utf8ByteSize - ((pos.next text).next text).byteIdx < text.utf8ByteSize - pos.byteIdx
+      have k := Nat.gt_of_not_le <| mt decide_eq_true h
+      exact Nat.sub_lt_sub_left k (Nat.lt_trans (String.Pos.Raw.lt_next text pos) (String.Pos.Raw.lt_next _ _))
+    decreasing_with
+      change text.utf8ByteSize - (pos.next text).byteIdx < text.utf8ByteSize - pos.byteIdx
+      have k := Nat.gt_of_not_le <| mt decide_eq_true h
+      exact Nat.sub_lt_sub_left k (String.Pos.Raw.lt_next _ _)
 
 end String

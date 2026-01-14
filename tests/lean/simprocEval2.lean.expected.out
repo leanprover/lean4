@@ -1,0 +1,32 @@
+x : Nat
+⊢ foo x = 10
+x : Nat
+⊢ foo x = 10
+x : Nat
+⊢ foo x = 10
+x : Nat
+⊢ foo x = 10
+x : Nat
+⊢ foo x - 3 = 7
+x : Nat
+⊢ foo x = 10
+x : Nat
+⊢ boo x
+x : Nat
+⊢ boo x
+x : Nat
+⊢ boo x
+x : Nat
+⊢ boo x
+x : Bool
+h : x = false
+⊢ x = false
+x : Bool
+h : x = true
+⊢ x = true
+x : Prop
+h : ¬x
+⊢ ¬x
+x : Prop
+h : x
+⊢ x

@@ -1,0 +1,11 @@
+implicitArgumentError.lean:18:6-18:9: error: don't know how to synthesize implicit argument `n`
+  @foo ?_
+context:
+⊢ Nat
+implicitArgumentError.lean:16:0-16:11: error: ❌️ Docstring on `#guard_msgs` does not match generated message:
+
+- error: don't know how to synthesize implicit argument 'n'
++ error: don't know how to synthesize implicit argument `n`
+    @foo ?_
+  context:
+  ⊢ Nat

@@ -1,43 +1,43 @@
 [Compiler.saveBase] size: 7
-    def f1 c a b :=
-      cases c
+    def f1 c a b : Nat :=
+      cases c : Nat
       | Bool.false =>
-        let _x.1 := Nat.add b a
-        let _x.2 := Nat.mul a b
-        let _x.3 := Nat.add _x.1 _x.2
-        _x.3
+        let _x.1 := Nat.add b a;
+        let _x.2 := Nat.mul a b;
+        let _x.3 := Nat.add _x.1 _x.2;
+        return _x.3
       | Bool.true =>
-        let _x.4 := Nat.add b a
-        _x.4
+        let _x.4 := Nat.add b a;
+        return _x.4
 [Compiler.saveBase] size: 7
-    def f2 c a b :=
-      cases c
+    def f2 c a b : Nat :=
+      cases c : Nat
       | Bool.false =>
-        let _x.1 := Nat.add b a
-        let _x.2 := Nat.mul a b
-        let _x.3 := Nat.add _x.1 _x.2
-        _x.3
+        let _x.1 := Nat.add b a;
+        let _x.2 := Nat.mul a b;
+        let _x.3 := Nat.add _x.1 _x.2;
+        return _x.3
       | Bool.true =>
-        let _x.4 := Nat.add b a
-        _x.4
+        let _x.4 := Nat.add b a;
+        return _x.4
 [Compiler.saveBase] size: 19
-    def f3 c c' a b :=
-      jp _jp.1 y z :=
-        let _x.2 := Nat.add y z
-        let _x.3 := Nat.mul z y
-        let _x.4 := Nat.add _x.2 _x.3
-        _x.4
-      jp _jp.5 y z :=
-        let _x.6 := Nat.add z y
-        let _x.7 := Nat.add _x.6 y
-        _x.7
-      jp _jp.8 y d z :=
-        cases d
+    def f3 c c' a b : Nat :=
+      jp _jp.1 y z : Nat :=
+        let _x.2 := Nat.add y z;
+        let _x.3 := Nat.mul z y;
+        let _x.4 := Nat.add _x.2 _x.3;
+        return _x.4;
+      jp _jp.5 y z : Nat :=
+        let _x.6 := Nat.add z y;
+        let _x.7 := Nat.add _x.6 y;
+        return _x.7;
+      jp _jp.8 y d z : Nat :=
+        cases d : Nat
         | C.c1 =>
           goto _jp.1 y z
         | _ =>
-          goto _jp.5 y z
-      cases c
+          goto _jp.5 y z;
+      cases c : Nat
       | C.c1 =>
         goto _jp.5 a b
       | C.c2 =>
@@ -47,27 +47,27 @@
       | C.c4 =>
         goto _jp.8 a c' a
 [Compiler.saveBase] size: 22
-    def f4 c c' a b :=
-      jp _jp.1 y z :=
-        let _x.2 := Nat.add y z
-        let _x.3 := Nat.mul z y
-        let _x.4 := Nat.add _x.2 _x.3
-        _x.4
-      jp _jp.5 y z :=
-        let _x.6 := Nat.add z y
-        let _x.7 := Nat.add _x.6 y
-        _x.7
-      jp _jp.8 y z d :=
-        cases d
+    def f4 c c' a b : Nat :=
+      jp _jp.1 y z : Nat :=
+        let _x.2 := Nat.add y z;
+        let _x.3 := Nat.mul z y;
+        let _x.4 := Nat.add _x.2 _x.3;
+        return _x.4;
+      jp _jp.5 y z : Nat :=
+        let _x.6 := Nat.add z y;
+        let _x.7 := Nat.add _x.6 y;
+        return _x.7;
+      jp _jp.8 y z d : Nat :=
+        cases d : Nat
         | C.c1 =>
           goto _jp.1 y z
         | C.c3 =>
-          let _x.9 := Nat.mul y y
-          let _x.10 := Nat.add _x.9 a
-          _x.10
+          let _x.9 := Nat.mul y y;
+          let _x.10 := Nat.add _x.9 a;
+          return _x.10
         | _ =>
-          goto _jp.5 y z
-      cases c
+          goto _jp.5 y z;
+      cases c : Nat
       | C.c1 =>
         goto _jp.5 a b
       | C.c2 =>

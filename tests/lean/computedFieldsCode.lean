@@ -11,7 +11,7 @@ inductive Exp
   | a4
   | a5
 with
-  @[computedField] hash : Exp → UInt64
+  @[computed_field] hash : Exp → UInt64
     | .var i => Hashable.hash i + 1000
     | .app a b => mixHash (hash a) (hash b)
     | _ => 42

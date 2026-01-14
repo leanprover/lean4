@@ -8,10 +8,10 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-/** \brief Given an inductive datatype \c n in \c env, add
-    <tt>n.cases_on</tt> to the environment.
+/** \brief Given an inductive datatype \c n in \c env, returns the declaration
+    for <tt>n.cases_on</tt>.
 
     \remark Throws an exception if \c n is not an inductive datatype.
 */
-environment mk_cases_on(environment const & env, name const & n);
+declaration mk_cases_on(environment const & env, name const & n);
 }

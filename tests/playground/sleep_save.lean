@@ -1,4 +1,4 @@
-macro "expensive_tactic" : tactic => `(sleep 5000)
+macro "expensive_tactic" : tactic => `(tactic| sleep 5000)
 
 example (h₁ : x = y) (h₂ : y = z) : z = x := by
   expensive_tactic

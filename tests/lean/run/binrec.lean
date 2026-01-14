@@ -29,8 +29,8 @@ theorem Nat.div2_lt (h : n ≠ 0) : n / 2 < n := by
   | n+4 =>
     rw [div_eq, if_pos]
     refine succ_lt_succ (Nat.lt_trans ?_ (lt_succ_self _))
-    exact @div2_lt (n+2) (by simp_arith)
-    simp_arith
+    exact @div2_lt (n+2) (by simp +arith)
+    simp +arith
 
 @[specialize]
 def Nat.binrec
@@ -44,8 +44,8 @@ def Nat.binrec
     bit_div_even h₂ ▸ ind false (n / 2) (fun _ => binrec motive base ind (n / 2))
   else
     bit_div_odd h₂ ▸ ind true  (n / 2) (fun _ => binrec motive base ind (n / 2))
-termination_by _ n => n
-decreasing_by exact Nat.div2_lt h₁
+termination_by n
+decreasing_by all_goals exact Nat.div2_lt h₁
 
 theorem Nat.binind
     (motive : Nat → Prop)
@@ -61,4 +61,4 @@ def Nat.toBit (n : Nat) : List Bool :=
     (fun b n ih => b :: ih ())
     n
 
-#eval Nat.toBit 18
+#guard Nat.toBit 18 == [false, true, false, false, true]

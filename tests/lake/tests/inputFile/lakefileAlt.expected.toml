@@ -1,0 +1,17 @@
+name = "test"
+defaultTargets = ["test"]
+
+[[lean_exe]]
+name = "test"
+needs = ["foo", "barz"]
+
+[[input_file]]
+name = "foo"
+path = "inputs/foo.txt"
+text = true
+
+[[input_dir]]
+name = "barz"
+path = "inputs/barz"
+text = true
+filter = {fileName = {startsWith = "b"}}

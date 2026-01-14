@@ -18,7 +18,7 @@ theorem equivalent: Run.run x = Run.run x := by
   apply Eq.refl (runT x)
 
 example : Run.run x = Run.run x := by
-  simp [Run.run]
+  simp (config := { decide := false }) [Run.run]
 
 end Ex1
 

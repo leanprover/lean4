@@ -7,7 +7,7 @@ for arg in "$@"; do
     [[ "$arg" = "-c" ]] && ldflags=()
     [[ "$arg" = "-v" ]] && v=1
 done
-cmd=(${LEAN_CC:-@CMAKE_C_COMPILER@} "-I$root/include" @LEANC_EXTRA_FLAGS@ @LEANC_INTERNAL_FLAGS@ "$@" "${ldflags[@]}" -Wno-unused-command-line-argument)
+cmd=(${LEAN_CC:-@CMAKE_C_COMPILER@} "-I$root/include" @LEANC_EXTRA_CC_FLAGS@ @LEANC_INTERNAL_FLAGS@ "$@" "${ldflags[@]}" -Wno-unused-command-line-argument)
 cmd=$(printf '%q ' "${cmd[@]}" | sed "s!ROOT!$root!g")
 [[ $v == 1 ]] && echo $cmd
 eval $cmd

@@ -1,6 +1,6 @@
-type elem = int32
+type elem = int  (* pointer-tagged like in Lean, int32 would be actually boxed *)
 
-let badRand (seed : elem) : elem = Int32.add (Int32.mul seed 1664525l) 1013904223l
+let badRand (seed : elem) : elem = seed * 1664525 + 1013904223
 
 let mkRandomArray (seed : elem) n =
   let s = ref seed in
@@ -56,7 +56,7 @@ let qsort arr =
 let main n =
   for _ = 0 to n-1 do
     for i = 0 to n-1 do
-      let xs = mkRandomArray (Int32.of_int i) i in
+      let xs = mkRandomArray i i in
       qsort xs;
       checkSortedAux xs 0
     done

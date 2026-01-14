@@ -3,8 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
+module
+
 prelude
-import Init.Util
+public import Init.Data.UInt.Basic
+
+public section
 
 namespace ShareCommon
 /-
@@ -64,7 +68,7 @@ unsafe def StateFactory.mkImpl : StateFactoryBuilder → StateFactory
       setInsert := @setInsert Object ⟨Object.eq⟩ ⟨Object.hash⟩
     : StateFactoryImpl }
 
-@[implementedBy StateFactory.mkImpl]
+@[implemented_by StateFactory.mkImpl]
 opaque StateFactory.mk : StateFactoryBuilder → StateFactory
 
 unsafe def StateFactory.get : StateFactory → StateFactoryImpl := unsafeCast
@@ -75,7 +79,7 @@ abbrev State (σ : StateFactory) : Type u := (StatePointed σ).type
 instance : Nonempty (State σ) := (StatePointed σ).property
 
 unsafe def mkStateImpl (σ : StateFactory) : State σ := unsafeCast (σ.get.mkState ())
-@[implementedBy mkStateImpl] opaque State.mk (σ : StateFactory) : State σ
+@[implemented_by mkStateImpl] opaque State.mk (σ : StateFactory) : State σ
 instance : Inhabited (State σ) := ⟨.mk σ⟩
 
 @[extern "lean_state_sharecommon"]
@@ -102,3 +106,11 @@ instance ShareCommonT.monadShareCommon [Monad m] : MonadShareCommon (ShareCommon
 
 @[inline] def ShareCommonT.run [Monad m] (x : ShareCommonT σ m α) : m α := x.run' default
 @[inline] def ShareCommonM.run (x : ShareCommonM σ α) : α := ShareCommonT.run x
+
+/--
+A more restrictive but efficient max sharing primitive.
+
+Remark: it optimizes the number of RC operations, and the strategy for caching results.
+-/
+@[extern "lean_sharecommon_quick"]
+def ShareCommon.shareCommon' (a : @& α) : α := a

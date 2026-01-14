@@ -12,8 +12,8 @@ namespace lean {
 
 using second_duration = std::chrono::duration<double>;
 
-bool get_profiler(options const &);
-second_duration get_profiling_threshold(options const &);
+LEAN_EXPORT bool get_profiler(options const &);
+LEAN_EXPORT second_duration get_profiling_threshold(options const &);
 
 void initialize_profiling();
 void finalize_profiling();

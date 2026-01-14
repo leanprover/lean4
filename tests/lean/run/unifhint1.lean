@@ -30,14 +30,14 @@ unif_hint (s : Magma) (m : Magma) (n : Magma) (β : Type u) (δ : Type v) where
 def f1 (x : Nat) : Nat :=
   mul x x
 
-#eval f1 10
+#guard f1 10 == 100
 
 def f2 (x y : Nat) : Nat × Nat :=
   mul (x, y) (x, y)
 
-#eval f2 10 20
+#guard f2 10 20 == (100, 400)
 
 def f3 (x y : Nat) : Nat × Nat × Nat :=
   mul (x, y, y) (x, y, y)
 
-#eval f3 7 24
+#guard f3 7 24 == (49, 576, 576)

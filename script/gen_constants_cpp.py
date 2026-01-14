@@ -7,7 +7,7 @@
 # Author: Leonardo de Moura
 #
 # Given a text file containing constants defined in the Lean libraries,
-# this script generates .h and .cpp files for initialing/finalizing theses constants
+# this script generates .h and .cpp files for initialing/finalizing these constants
 # as C++ name objects.
 #
 # This script is used to generate src/library/constants.cpp and src/library/constants.h

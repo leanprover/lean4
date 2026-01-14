@@ -1,0 +1,20 @@
+Success! Final stack:
+  [(Lean.Doc.Syntax.ol
+    "ol("
+    (num "1")
+    ")"
+    "{"
+    [(Lean.Doc.Syntax.li
+      "1."
+      [(Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.text (str "\"Hello\""))]
+        "}")])
+     (Lean.Doc.Syntax.li
+      "2."
+      [(Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.text (str "\"World\""))]
+        "}")])]
+    "}")]
+All input consumed.

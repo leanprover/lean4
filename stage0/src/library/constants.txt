@@ -7,7 +7,7 @@ And.rec
 And.casesOn
 Array
 Array.sz
-Array.data
+Array.toList
 autoParam
 bit0
 bit1
@@ -39,6 +39,7 @@ Eq.subst
 Eq.symm
 Eq.trans
 Float
+Float32
 FloatArray
 FloatArray.data
 False

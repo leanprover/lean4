@@ -6,6 +6,14 @@ false
 some "a"
 some "a/b"
 none
+some "/a/b"
+some "/"
+some "/"
+none
+true
+true
+true
+true
 some "b"
 some "b"
 some "b.tar"
@@ -17,3 +25,4 @@ none
 "a/b.tar.xz"
 "a/b.tar"
 "a/b.tar.gz"
+"a/b.tar.gz.bak"

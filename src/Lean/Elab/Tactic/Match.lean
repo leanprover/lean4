@@ -3,10 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Parser.Term
-import Lean.Elab.Match
-import Lean.Elab.Tactic.Basic
-import Lean.Elab.Tactic.Induction
+module
+
+prelude
+public import Lean.Elab.Match
+public import Lean.Elab.Tactic.Induction
+
+public section
 
 namespace Lean.Elab.Tactic
 open Meta
@@ -48,7 +51,7 @@ private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM
   let result  := result.setArg 5 (mkNode ``Parser.Term.matchAlts #[mkNullNode newAlts])
   return (result, newCases)
 
-@[builtinTactic Lean.Parser.Tactic.match]
+@[builtin_tactic Lean.Parser.Tactic.match]
 def evalMatch : Tactic := fun stx => do
   let tag ← getMainTag
   let (matchTerm, casesStx) ← liftMacroM <| mkAuxiliaryMatchTerm tag stx

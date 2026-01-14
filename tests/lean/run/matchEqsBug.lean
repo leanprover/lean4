@@ -4,8 +4,8 @@ syntax (name := test) "test%" ident : command
 open Lean.Elab
 open Lean.Elab.Command
 
-@[commandElab test] def elabTest : CommandElab := fun stx => do
-  let id ← resolveGlobalConstNoOverloadWithInfo stx[1]
+@[command_elab test] def elabTest : CommandElab := fun stx => do
+  let id ← liftCoreM <| realizeGlobalConstNoOverloadWithInfo stx[1]
   liftTermElabM do
     IO.println (repr (← Lean.Meta.Match.getEquationsFor id))
   return ()
@@ -25,8 +25,6 @@ def g (x : Unit) (y : Bool) : Unit :=
 set_option trace.Meta.Match.matchEqs true
 test% f.match_1
 #check f.match_1.splitter
-
-def g.match_1.splitter := 4
 
 test% g.match_1
 #check g.match_1.eq_1

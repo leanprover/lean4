@@ -113,7 +113,7 @@ unsigned utf8_to_unicode(uchar const * begin, uchar const * end) {
     auto it = begin;
     unsigned c = *it;
     ++it;
-    if (c < 128)
+    if (c < 0x80)
         return c;
     unsigned mask     = (1u << 6) -1;
     unsigned hmask    = mask;
@@ -164,40 +164,40 @@ optional<unsigned> get_utf8_first_byte_opt(unsigned char c) {
 
 unsigned next_utf8(char const * str, size_t size, size_t & i) {
     unsigned c = static_cast<unsigned char>(str[i]);
-    /* zero continuation (0 to 127) */
+    /* zero continuation (0 to 0x7F) */
     if ((c & 0x80) == 0) {
         i++;
         return c;
     }
 
-    /* one continuation (128 to 2047) */
+    /* one continuation (0x80 to 0x7FF) */
     if ((c & 0xe0) == 0xc0 && i + 1 < size) {
         unsigned c1 = static_cast<unsigned char>(str[i+1]);
         unsigned r = ((c & 0x1f) << 6) | (c1 & 0x3f);
-        if (r >= 128) {
+        if (r >= 0x80) {
             i += 2;
             return r;
         }
     }
 
-    /* two continuations (2048 to 55295 and 57344 to 65535) */
+    /* two continuations (0x800 to 0xD7FF and 0xE000 to 0xFFFF) */
     if ((c & 0xf0) == 0xe0 && i + 2 < size) {
         unsigned c1 = static_cast<unsigned char>(str[i+1]);
         unsigned c2 = static_cast<unsigned char>(str[i+2]);
         unsigned r = ((c & 0x0f) << 12) | ((c1 & 0x3f) << 6) | (c2 & 0x3f);
-        if (r >= 2048 && (r < 55296 || r > 57343)) {
+        if (r >= 0x800 && (r < 0xD800 || r > 0xDFFF)) {
             i += 3;
             return r;
         }
     }
 
-    /* three continuations (65536 to 1114111) */
+    /* three continuations (0x10000 to 0x10FFFF) */
     if ((c & 0xf8) == 0xf0 && i + 3 < size) {
         unsigned c1 = static_cast<unsigned char>(str[i+1]);
         unsigned c2 = static_cast<unsigned char>(str[i+2]);
         unsigned c3 = static_cast<unsigned char>(str[i+3]);
         unsigned r  = ((c & 0x07) << 18) | ((c1 & 0x3f) << 12) | ((c2 & 0x3f) << 6) | (c3 & 0x3f);
-        if (r >= 65536 && r <= 1114111) {
+        if (r >= 0x10000 && r <= 0x10FFFF) {
             i += 4;
             return r;
         }
@@ -218,6 +218,61 @@ void utf8_decode(std::string const & str, std::vector<unsigned> & out) {
     while (i < str.size()) {
         out.push_back(next_utf8(str, i));
     }
+}
+
+bool validate_utf8_one(uint8_t const * str, size_t size, size_t & pos) {
+    unsigned c = str[pos];
+    if ((c & 0x80) == 0) {
+        /* zero continuation (0 to 0x7F) */
+        pos++;
+    } else if ((c & 0xe0) == 0xc0) {
+        /* one continuation (0x80 to 0x7FF) */
+        if (pos + 1 >= size) return false;
+
+        unsigned c1 = str[pos+1];
+        if ((c1 & 0xc0) != 0x80) return false;
+
+        unsigned r = ((c & 0x1f) << 6) | (c1 & 0x3f);
+        if (r < 0x80) return false;
+
+        pos += 2;
+    } else if ((c & 0xf0) == 0xe0) {
+        /* two continuations (0x800 to 0xD7FF and 0xE000 to 0xFFFF) */
+        if (pos + 2 >= size) return false;
+
+        unsigned c1 = str[pos+1];
+        unsigned c2 = str[pos+2];
+        if ((c1 & 0xc0) != 0x80 || (c2 & 0xc0) != 0x80) return false;
+
+        unsigned r = ((c & 0x0f) << 12) | ((c1 & 0x3f) << 6) | (c2 & 0x3f);
+        if (r < 0x800 || (r >= 0xD800 && r <= 0xDFFF)) return false;
+
+        pos += 3;
+    } else if ((c & 0xf8) == 0xf0) {
+        /* three continuations (0x10000 to 0x10FFFF) */
+        if (pos + 3 >= size) return false;
+
+        unsigned c1 = str[pos+1];
+        unsigned c2 = str[pos+2];
+        unsigned c3 = str[pos+3];
+        if ((c1 & 0xc0) != 0x80 || (c2 & 0xc0) != 0x80 || (c3 & 0xc0) != 0x80) return false;
+
+        unsigned r = ((c & 0x07) << 18) | ((c1 & 0x3f) << 12) | ((c2 & 0x3f) << 6) | (c3 & 0x3f);
+        if (r < 0x10000 || r > 0x10FFFF) return false;
+
+        pos += 4;
+    } else {
+        return false;
+    }
+    return true;
+}
+
+bool validate_utf8(uint8_t const * str, size_t size, size_t & pos, size_t & i) {
+    while (pos < size) {
+        if (!validate_utf8_one(str, size, pos)) return false;
+        i++;
+    }
+    return true;
 }
 
 #define TAG_CONT    static_cast<unsigned char>(0b10000000)

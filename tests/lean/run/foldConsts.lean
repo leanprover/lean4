@@ -12,4 +12,6 @@ e.foldConsts [] List.cons
 def tst1 : IO Unit :=
 IO.println $ collectConsts (mkTerm 1000)
 
+/-- info: [b, a] -/
+#guard_msgs in
 #eval tst1

@@ -12,17 +12,17 @@ Remark: this example is based on an example found in the Idris manual.
 Vectors
 --------
 
-A `Vector` is a list of size `n` whose elements belong to a type `α`.
+A `Vec` is a list of size `n` whose elements belong to a type `α`.
 -/
 
-inductive Vector (α : Type u) : Nat → Type u
-  | nil : Vector α 0
-  | cons : α → Vector α n → Vector α (n+1)
+inductive Vec (α : Type u) : Nat → Type u
+  | nil : Vec α 0
+  | cons : α → Vec α n → Vec α (n+1)
 
 /-!
-We can overload the `List.cons` notation `::` and use it to create `Vector`s.
+We can overload the `List.cons` notation `::` and use it to create `Vec`s.
 -/
-infix:67 " :: " => Vector.cons
+infix:67 " :: " => Vec.cons
 
 /-!
 Now, we define the types of our simple functional language.
@@ -50,11 +50,11 @@ the builtin instance for `Add Int` as the solution.
 /-!
 Expressions are indexed by the types of the local variables, and the type of the expression itself.
 -/
-inductive HasType : Fin n → Vector Ty n → Ty → Type where
+inductive HasType : Fin n → Vec Ty n → Ty → Type where
   | stop : HasType 0 (ty :: ctx) ty
   | pop  : HasType k ctx ty → HasType k.succ (u :: ctx) ty
 
-inductive Expr : Vector Ty n → Ty → Type where
+inductive Expr : Vec Ty n → Ty → Type where
   | var   : HasType i ctx ty → Expr ctx ty
   | val   : Int → Expr ctx Ty.int
   | lam   : Expr (a :: ctx) ty → Expr ctx (Ty.fn a ty)
@@ -83,7 +83,7 @@ In practice, this means we use `stop` to refer to the most recently defined vari
 
 A value `Expr.val` carries a concrete representation of an integer.
 
-A lambda `Expr.lam` creates a function. In the scope of a function ot type `Ty.fn a ty`, there is a
+A lambda `Expr.lam` creates a function. In the scope of a function of type `Ty.fn a ty`, there is a
 new local variable of type `a`.
 
 A function application `Expr.app` produces a value of type `ty` given a function from `a` to `ty` and a value of type `a`.
@@ -102,8 +102,8 @@ indexed over the types in scope. Since an environment is just another form of li
 to the vector of local variable types, we overload again the notation `::` so that we can use the usual list syntax.
 Given a proof that a variable is defined in the context, we can then produce a value from the environment.
 -/
-inductive Env : Vector Ty n → Type where
-  | nil  : Env Vector.nil
+inductive Env : Vec Ty n → Type where
+  | nil  : Env Vec.nil
   | cons : Ty.interp a → Env ctx → Env (a :: ctx)
 
 infix:67 " :: " => Env.cons
@@ -139,7 +139,7 @@ def add : Expr ctx (Ty.fn Ty.int (Ty.fn Ty.int Ty.int)) :=
 More interestingly, a factorial function fact (e.g. `fun x => if (x == 0) then 1 else (fact (x-1) * x)`), can be written as.
 Note that this is a recursive (non-terminating) definition. For every input value, the interpreter terminates, but the
 definition itself is non-terminating. We use two tricks to make sure Lean accepts it. First, we use the auxiliary constructor
-`Expr.delay` to delay its unfolding. Second, we add the annotation `decreasing_by sorry` which can be viwed as
+`Expr.delay` to delay its unfolding. Second, we add the annotation `decreasing_by sorry` which can be viewed as
 "trust me, this recursive definition makes sense". Recall that `sorry` is an unsound axiom in Lean.
 -/
 
@@ -149,4 +149,4 @@ def fact : Expr ctx (Ty.fn Ty.int Ty.int) :=
            (op (·*·) (delay fun _ => app fact (op (·-·) (var stop) (val 1))) (var stop)))
   decreasing_by sorry
 
-#eval fact.interp Env.nil 10
+#eval! fact.interp Env.nil 10

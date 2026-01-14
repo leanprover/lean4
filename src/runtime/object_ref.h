@@ -20,7 +20,7 @@ public:
     explicit object_ref(obj_arg o):m_obj(o) {}
     object_ref(b_obj_arg o, bool):m_obj(o) { inc(o); }
     object_ref(object_ref const & s):m_obj(s.m_obj) { inc(m_obj); }
-    object_ref(object_ref && s):m_obj(s.m_obj) { s.m_obj = box(0); }
+    object_ref(object_ref && s) noexcept:m_obj(s.m_obj) { s.m_obj = box(0); }
     ~object_ref() { dec(m_obj); }
     object_ref & operator=(object_ref const & s) {
         inc(s.m_obj);
@@ -35,6 +35,10 @@ public:
         s.m_obj = box(0);
         return *this;
     }
+    void set_box(object * o) {
+        lean_assert(is_scalar(m_obj));
+        m_obj = o;
+    }
     object * raw() const { return m_obj; }
     object * steal() { object * r = m_obj; m_obj = box(0); return r; }
     object * to_obj_arg() const { inc(m_obj); return m_obj; }
@@ -42,7 +46,7 @@ public:
 };
 
 /* Remark: this function doesn't increase the reference counter of objs */
-object_ref mk_cnstr(unsigned tag, unsigned num_objs, object ** objs, unsigned scalar_sz = 0);
+LEAN_EXPORT object_ref mk_cnstr(unsigned tag, unsigned num_objs, object ** objs, unsigned scalar_sz = 0);
 inline object_ref mk_cnstr(unsigned tag, object * o, unsigned scalar_sz = 0) { return mk_cnstr(tag, 1, &o, scalar_sz); }
 inline object_ref mk_cnstr(unsigned tag, object * o1, object * o2, unsigned scalar_sz = 0) {
     object * os[2] = { o1, o2 };

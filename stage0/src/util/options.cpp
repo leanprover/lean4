@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "util/options.h"
 #include "util/option_declarations.h"
+#include "stdlib_flags.h"
 
 #ifndef LEAN_DEFAULT_VERBOSE
 #define LEAN_DEFAULT_VERBOSE true
@@ -48,6 +49,16 @@ name const & get_timeout_opt_name() {
 
 bool get_verbose(options const & opts) {
     return opts.get_bool(*g_verbose, LEAN_DEFAULT_VERBOSE);
+}
+
+/* getDefaultVerbose (_ : Unit) : Bool */
+extern "C" LEAN_EXPORT uint8 lean_internal_get_default_verbose(obj_arg) {
+    return LEAN_DEFAULT_VERBOSE;
+}
+
+/* getDefaultOptions (_ : Unit) : Options */
+extern "C" LEAN_EXPORT obj_res lean_internal_get_default_options(obj_arg) {
+    return get_default_options().steal();
 }
 
 options join(options const & opts1, options const & opts2) {

@@ -18,23 +18,23 @@ end Foo
 
 theorem tst1 (h : a ≤ b) : a + 2 ≤ b + 2 :=
   Foo.Bla.
-        --^ textDocument/completion
+        --^ completion
 #print ""
 
 open Foo in
 theorem tst2 (h : a ≤ b) : a + 2 ≤ b + 2 :=
   Bla.
-    --^ textDocument/completion
+    --^ completion
 #print ""
 
 theorem tst3 (h : a ≤ b) : a + 2 ≤ b + 2 :=
   let aux := Foo.Bla.  -- we don't have the expected type here
-                   --^ textDocument/completion
+                   --^ completion
   aux
 
 #print ""
 
 theorem tst4 (h : a ≤ b) : a + 2 ≤ b + 2 :=
   let aux := Foo.Bla.e  -- we don't have the expected type here
-                    --^ textDocument/completion
+                    --^ completion
   aux

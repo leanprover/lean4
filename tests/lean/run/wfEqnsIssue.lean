@@ -1,7 +1,7 @@
 def HList (αs : List (Type u)) : Type u := αs.foldr Prod.{u, u} PUnit
 
-@[matchPattern] def HList.nil : HList [] := ⟨⟩
-@[matchPattern] def HList.cons (a : α) (as : HList αs): HList (α :: αs) := (a, as)
+@[match_pattern] def HList.nil : HList [] := ⟨⟩
+@[match_pattern] def HList.cons (a : α) (as : HList αs): HList (α :: αs) := (a, as)
 
 def HList.set : {αs : _} → HList αs → (i : Fin αs.length) → αs.get i → HList αs
   | _ :: _, cons a as, ⟨0,          h⟩, b => cons b as
@@ -55,24 +55,6 @@ def Ctx.extend (x : α) : HList Γ → HList (α :: Γ) :=
 def Ctx.drop : HList (α :: Γ) → HList Γ
   | HList.cons a as => as
 
--- custom wf tactic
-theorem Nat.le_add_right_of_le (n m : Nat) : n ≤ m → n ≤ m + k :=
-  fun h => add_le_add h (Nat.zero_le _)
-
-macro_rules
-| `(tactic| decreasing_tactic) =>
- `(tactic|
-   (simp_wf
-    repeat (first | apply PSigma.Lex.right | apply PSigma.Lex.left)
-    simp [Nat.add_comm (n := 1), Nat.succ_add, Nat.mul_succ]
-    try apply Nat.lt_succ_of_le
-    repeat apply Nat.le_step
-    first
-    | repeat first | apply Nat.le_add_left | apply Nat.le_add_right_of_le
-    | assumption
-    all_goals apply Nat.le_refl
-))
-
 @[simp]
 def Stmt.mapCtx (f : HList Γ' → HList Γ) : Stmt m ω Γ Δ b c β → Stmt m ω Γ' Δ b c β
   | expr e => expr (e ∘ f)
@@ -84,4 +66,4 @@ def Stmt.mapCtx (f : HList Γ' → HList Γ) : Stmt m ω Γ Δ b c β → Stmt m
   | sfor e body => sfor (e ∘ f) (body.mapCtx (fun | HList.cons a as => HList.cons a (f as)))
   | sbreak => sbreak
   | scont => scont
-termination_by mapCtx _ s => sizeOf s
+termination_by s => sizeOf s

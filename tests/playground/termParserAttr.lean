@@ -12,9 +12,9 @@ do env  ← MetaIO.getEnv;
    pure ()
 
 open Lean.Parser
-@[termParser] def tst := parser! "(|" >> termParser >> "|)"
+@[term_parser] def tst := parser! "(|" >> term_parser >> "|)"
 
-@[termParser] def boo : ParserDescr :=
+@[term_parser] def boo : ParserDescr :=
 ParserDescr.node `boo
   (ParserDescr.andthen
     (ParserDescr.symbol "[|" 0)
@@ -24,11 +24,11 @@ ParserDescr.node `boo
 
 open Lean.Elab.Term
 
-@[termElab tst] def elabTst : TermElab :=
+@[term_elab tst] def elabTst : TermElab :=
 fun stx expected? =>
   elabTerm (stx.getArg 1) expected?
 
-@[termElab boo] def elabBoo : TermElab :=
+@[term_elab boo] def elabBoo : TermElab :=
 fun stx expected? =>
   elabTerm (stx.getArg 1) expected?
 

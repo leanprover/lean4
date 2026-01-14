@@ -4,7 +4,7 @@ syntax (name := test) "test%" ident : command
 open Lean.Elab
 open Lean.Elab.Command
 
-@[commandElab test] def elabTest : CommandElab := fun stx => do
+@[command_elab test] def elabTest : CommandElab := fun stx => do
   let id ← resolveGlobalConstNoOverloadWithInfo stx[1]
   liftTermElabM none do
     Lean.Meta.Match.mkEquationsFor id

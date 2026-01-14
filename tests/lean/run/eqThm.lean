@@ -6,7 +6,7 @@ def f : Nat → Bool → Nat
   | x+2, true => f x true
   | x+2, b => f x (not b)
 
-macro "urfl" : tactic => `(set_option smartUnfolding false in rfl)
+macro "urfl" : tactic => `(tactic| set_option smartUnfolding false in rfl)
 
 
 theorem f_main_eq : f x b = f.match_1 (fun _ _ => Nat) x b (fun _ => 1) (fun _ => 2) (fun _ => 3) (fun _ => 4) (fun x => f x true) (fun x b => f x (not b)) := by

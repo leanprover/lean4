@@ -43,7 +43,7 @@ inductive Ind where
   | ind2 : Ind → Ind
   /-- A doc string -/ | doc : Ind
 with
-  @[computedField] field : Ind → Nat
+  @[computed_field] field : Ind → Nat
   | _ => 1
 
 structure Foo where
@@ -53,7 +53,7 @@ structure Foo where
   {mk4 mk5 : Nat}
   [mk6 mk7 : Nat]
 
-class Bar (α : Prop) := mk ::
+class Bar (α : Prop) where mk ::
   (foo bar := 1)
 
 class Bar2 (α : Prop) where
@@ -96,7 +96,7 @@ elab (name := myCmd) (docComment)? "my_command" ident : command => pure ()
 my_command x
 
 open Lean.Linter.MissingDocs in
-@[missingDocsHandler myCmd]
+@[missing_docs_handler myCmd]
 def handleMyCmd : SimpleHandler := fun
   | `(my_command $x:ident) => lintNamed x "my_command"
   | _ => pure ()

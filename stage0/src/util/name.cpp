@@ -41,7 +41,7 @@ bool is_letter_like_unicode(unsigned u) {
 }
 bool is_sub_script_alnum_unicode(unsigned u) {
     return
-            (0x207f <= u && u <= 0x2089) || // n superscript and numberic subscripts
+            (0x207f <= u && u <= 0x2089) || // n superscript and numeric subscripts
             (0x2090 <= u && u <= 0x209c) || // letter-like subscripts
             (0x1d62 <= u && u <= 0x1d6a);   // letter-like subscripts
 }
@@ -294,7 +294,7 @@ std::string name::escape(char const * sep) const {
     return s.str();
 }
 
-std::ostream & operator<<(std::ostream & out, name const & n) {
+LEAN_EXPORT std::ostream & operator<<(std::ostream & out, name const & n) {
     display_name(out, n, false, lean_name_separator);
     return out;
 }

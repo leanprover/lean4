@@ -1,6 +1,6 @@
-typeIncorrectPat.lean:2:1-2:17: error: pattern
+typeIncorrectPat.lean:2:3-2:12: error: Type mismatch in pattern: Pattern
   true
 has type
-  Bool : Type
+  Bool
 but is expected to have type
-  fst✝ : Type
+  fst✝

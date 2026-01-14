@@ -14,7 +14,7 @@ class FooAC (α : Type) extends FooComm α, FooAssoc α where
   mul_comm (a b : α) : a * b = b * a
 
 set_option pp.all true
-#check @FooAC.mk
+#check FooAC.mk
 
 #print FooAC.toFooAssoc
 
@@ -24,7 +24,7 @@ class FooAssoc' (α : Type) extends FooAssoc α where
 class FooAC' (α : Type) extends FooComm α, FooAssoc' α where
   mul_comm (a b : α) : a * b = b * a
 
-#check @FooAC'.mk
+#check FooAC'.mk
 
 #print FooAC'.toFooAssoc'
 

@@ -12,7 +12,7 @@ def setOf {α : Type u} (p : α → Prop) : Set α :=
 
 namespace Set
 
-protected def mem (a : α) (s : Set α) :=
+protected def mem (s : Set α) (a : α) :=
   s a
 
 instance : Membership α (Set α) :=
@@ -30,13 +30,13 @@ protected def insert (a : α) (s : Set α) : Set α :=
 protected def singleton (a : α) : Set α :=
   fun b => b = a
 
-syntax "{" term,+ "}" : term
+instance : Insert α (Set α) := ⟨Set.insert⟩
+instance : Singleton α (Set α) := ⟨Set.singleton⟩
 
-macro_rules
-  | `({$x:term}) => `(Set.singleton $x)
-  | `({$x:term, $xs:term,*}) => `(Set.insert $x {$xs:term,*})
-
-#check { 1, 2 } -- Set Nat
+set_option pp.mvars false in
+/-- info: {1, 2} : ?_ -/
+#guard_msgs in
+#check { 1, 2 }
 
 end Set
 def f1 (a b : Nat) : Set Nat :=
@@ -45,15 +45,19 @@ def f1 (a b : Nat) : Set Nat :=
 def f2 (a b : Nat) : Foo :=
   { a, b }
 
-def f3 (a b : Nat) :=
+def f3 (a b : Nat) : Set Nat :=
   { a, b }
 
-#check f3 -- Nat → Nat → Set Nat
+/-- info: f3 (a b : Nat) : Set Nat -/
+#guard_msgs in
+#check f3
 
-def f4 (a b : α) :=
+def f4 (a b : α) : Set α :=
   { a, b }
 
-#check @f4 -- {α : Type u_1} → α → α → Set α
+/-- info: @f4 : {α : Type u_1} → α → α → Set α -/
+#guard_msgs in
+#check @f4
 
 def f5 (a b : Nat) :=
   { a, b : Foo }

@@ -1,0 +1,6 @@
+Success! Final stack:
+ • (num "1")
+ • "Lean.Doc.Parser.OrderedListType.numDot 1"
+
+Remaining:
+"1. "

@@ -1,5 +1,4 @@
-346.lean:10:6-10:16: error: unknown constant 'SomeType.b'
-346.lean:13:2-13:5: error: invalid field 'z', the environment does not contain 'Nat.z'
+346.lean:10:6-10:16: error(lean.unknownIdentifier): Unknown constant `SomeType.b`
+346.lean:13:4-13:5: error(lean.invalidField): Invalid field `z`: The environment does not contain `Nat.z`, so it is not possible to project the field `z` from an expression
   x
-has type
-  Nat
+of type `Nat`

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <chrono>
 #include <functional>
+#include <lean/lean.h>
 
 #ifndef LEAN_STACK_BUFFER_SPACE
 #define LEAN_STACK_BUFFER_SPACE 128*1024  // 128 Kb
@@ -20,6 +21,7 @@ namespace chrono = std::chrono;
 #if defined(LEAN_MULTI_THREAD)
 #include <thread>
 #include <mutex>
+#include <shared_mutex>
 #include <atomic>
 #include <condition_variable>
 #define LEAN_THREAD_LOCAL thread_local
@@ -28,6 +30,7 @@ namespace lean {
 using std::thread;
 using std::mutex;
 using std::recursive_mutex;
+using std::shared_timed_mutex;
 using std::atomic;
 using std::atomic_bool;
 using std::atomic_ushort;
@@ -50,7 +53,7 @@ namespace this_thread = std::this_thread;
 inline unsigned hardware_concurrency() { return std::thread::hardware_concurrency(); }
 /** Simple thread class that allows us to set the thread stack size.
     We implement it using pthreads on OSX/Linux and WinThreads on Windows. */
-class lthread {
+class LEAN_EXPORT lthread {
     static size_t m_thread_stack_size;
     struct imp;
     std::unique_ptr<imp> m_imp;
@@ -80,13 +83,13 @@ class atomic {
     T m_value;
 public:
     atomic(T const & v = T()):m_value(v) {}
-    atomic(T && v):m_value(std::forward<T>(v)) {}
+    atomic(T && v) noexcept(std::is_nothrow_move_constructible<T>::value):m_value(std::move(v)) {}
     atomic(atomic const & v):m_value(v.m_value) {}
-    atomic(atomic && v):m_value(std::forward<T>(v.m_value)) {}
+    atomic(atomic && v) noexcept(std::is_nothrow_move_constructible<T>::value):m_value(std::move(v.m_value)) {}
     atomic & operator=(T const & v) { m_value = v; return *this; }
-    atomic & operator=(T && v) { m_value = std::forward<T>(v); return *this; }
+    atomic & operator=(T && v) { m_value = std::move(v); return *this; }
     atomic & operator=(atomic const & v) { m_value = v.m_value; return *this; }
-    atomic & operator=(atomic && v) { m_value = std::forward<T>(v.m_value); return *this; }
+    atomic & operator=(atomic && v) { m_value = std::move(v.m_value); return *this; }
     operator T() const { return m_value; }
     void store(T const & v) { m_value = v; }
     T load() const { return m_value; }
@@ -144,12 +147,23 @@ public:
 class mutex {
 public:
     void lock() {}
+    bool try_lock() { return true; }
     void unlock() {}
 };
 class recursive_mutex {
 public:
     void lock() {}
+    bool try_lock() { return true; }
     void unlock() {}
+};
+class shared_timed_mutex {
+public:
+    void lock() {}
+    bool try_lock() { return true; }
+    void unlock() {}
+    void lock_shared() {}
+    bool try_lock_shared() { return true; }
+    void unlock_shared() {}
 };
 class condition_variable {
 public:
@@ -216,17 +230,22 @@ static T & GETTER_NAME() {                                              \
 }
 
 namespace lean {
+// module initializer pair (NOT for initializing individual threads!)
 void initialize_thread();
 void finalize_thread();
 
-typedef void (*thread_finalizer)(void *); // NOLINT
-void register_post_thread_finalizer(thread_finalizer fn, void * p);
-void register_thread_finalizer(thread_finalizer fn, void * p);
-void run_thread_finalizers();
-void run_post_thread_finalizers();
-void delete_thread_finalizer_manager();
+// thread initializer pair, for reverse FFI
+extern "C" LEAN_EXPORT void lean_initialize_thread();
+extern "C" LEAN_EXPORT void lean_finalize_thread();
 
-bool in_thread_finalization();
+typedef void (*thread_finalizer)(void *); // NOLINT
+LEAN_EXPORT void register_post_thread_finalizer(thread_finalizer fn, void * p);
+LEAN_EXPORT void register_thread_finalizer(thread_finalizer fn, void * p);
+LEAN_EXPORT void run_thread_finalizers();
+LEAN_EXPORT void run_post_thread_finalizers();
+LEAN_EXPORT void delete_thread_finalizer_manager();
+
+LEAN_EXPORT bool in_thread_finalization();
 
 /**
     \brief Add \c fn to the list of functions used to reset thread local storage.
@@ -237,7 +256,7 @@ bool in_thread_finalization();
     contains cached data that may not be valid anymore.
 
     \see reset_thread_local */
-void register_thread_local_reset_fn(std::function<void()> fn);
+LEAN_EXPORT void register_thread_local_reset_fn(std::function<void()> fn);
 
 /**
    \brief Reset thread local storage that contains cached
@@ -245,5 +264,5 @@ void register_thread_local_reset_fn(std::function<void()> fn);
 
    We invoke this function before processing a command
    and before executing a task. */
-void reset_thread_local();
+LEAN_EXPORT void reset_thread_local();
 }

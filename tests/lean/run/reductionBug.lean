@@ -16,4 +16,4 @@ def Expr.constFold : Expr Γ τ → Option Unit
 theorem Expr.constFold_sound {e : Expr Γ τ} : constFold e = some v → True := by
   intro h
   induction e with
-  | var   => simp only [constFold] at h
+  | var   => simp only [reduceCtorEq, constFold] at h

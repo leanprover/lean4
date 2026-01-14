@@ -2,4 +2,4 @@ import Lake
 open System Lake DSL
 
 package user_ext
-@[defaultTarget] lean_lib UserExt
+@[default_target] lean_lib UserExt

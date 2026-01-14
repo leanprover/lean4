@@ -21,9 +21,9 @@ def Lineage.container' {rtr i} : Lineage rtr i → (Option ID × Reactor)
 
 attribute [simp] Lineage.container'
 
-#check @Lineage.container'._eq_1
-#check @Lineage.container'._eq_2
-#check @Lineage.container'._eq_3
+#check @Lineage.container'.eq_1
+#check @Lineage.container'.eq_2
+#check @Lineage.container'.eq_3
 
 @[simp] def Lineage.container : Lineage rtr i → (Option ID × Reactor)
   | nested l@h:(nested ..) _ => l.container

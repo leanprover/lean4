@@ -20,9 +20,9 @@ example (X : Type) [Add X] (f : forall {A : Type} [Add A], A → A → A) (x : X
 
 def ex (f : Nat → Nat → Nat) : Nat := by
   specialize f _ _
-  exact f
   exact 10
   exact 2
+  exact f
 
 example : ex (· - ·) = 8 :=
   rfl

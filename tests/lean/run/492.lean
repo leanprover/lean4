@@ -15,4 +15,4 @@ example : ∃ n : Nat, n = n := by
   refine ⟨?n, ?h⟩
   case h =>
     refine rfl
-    case n => exact 3
+  case n => exact 3

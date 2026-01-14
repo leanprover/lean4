@@ -6,4 +6,4 @@ def test (a : Nat) :=
   | .succ b => b
   Nat.add foo .zero
 
-#eval Lean.Compiler.compile #[``test]
+run_meta Lean.Compiler.compile #[``test]

@@ -1,0 +1,6 @@
+error: TestExtern.lean:5:0: native implementation did not agree with reference implementation!
+Compare the outputs of:
+#eval Nat.not_add 4 5
+ and
+#eval match 4, 5 with
+| x, x_1 => 0

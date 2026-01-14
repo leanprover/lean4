@@ -1,0 +1,4 @@
+theorem ex1 : ∀ {p q : Prop}, (p ↔ q) → P q → P p :=
+fun {p q} h h' => Eq.mpr (id (propext (P_congr p q h))) h'
+theorem ex2 : ∀ {p q : Prop}, p = q → P q → P p :=
+fun {p q} h h' => Eq.mpr (id (propext (P_congr p q (Iff.of_eq h)))) h'

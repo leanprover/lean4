@@ -3,6 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
+prelude
+public import Init.Control.Except
+public import Init.Data.Option.Coe
+
+public section
 
 namespace Lean
 
@@ -13,19 +20,33 @@ class MonadBacktrack (s : outParam Type) (m : Type → Type) where
 
 export MonadBacktrack (saveState restoreState)
 
-@[specialize] def commitWhenSome? [Monad m] [MonadBacktrack s m] [MonadExcept ε m] (x? : m (Option α)) : m (Option α) := do
+/--
+Execute `x?`, but backtrack state if result is `none` or an exception was thrown.
+-/
+def commitWhenSome? [Monad m] [MonadBacktrack s m] [MonadExcept ε m] (x? : m (Option α)) : m (Option α) := do
   let s ← saveState
   try
     match (← x?) with
-    | some a => pure (some a)
+    | some a => return some a
     | none   =>
       restoreState s
-      pure none
+      return none
   catch ex =>
     restoreState s
     throw ex
 
-@[specialize] def commitWhen [Monad m] [MonadBacktrack s m] [MonadExcept ε m] (x : m Bool) : m Bool := do
+/--
+Execute `x?`, but backtrack state if result is `none` or an exception was thrown.
+If an exception is thrown, `none` is returned.
+That is, this function is similar to `commitWhenSome?`, but swallows the exception and returns `none`.
+-/
+def commitWhenSomeNoEx? [Monad m] [MonadBacktrack s m] [MonadExcept ε m] (x? : m (Option α)) : m (Option α) :=
+  try
+    commitWhenSome? x?
+  catch _ =>
+    return none
+
+def commitWhen [Monad m] [MonadBacktrack s m] [MonadExcept ε m] (x : m Bool) : m Bool := do
   let s ← saveState
   try
     match (← x) with
@@ -37,7 +58,7 @@ export MonadBacktrack (saveState restoreState)
     restoreState s
     throw ex
 
-@[specialize] def commitIfNoEx [Monad m] [MonadBacktrack s m] [MonadExcept ε m] (x : m α) : m α := do
+def commitIfNoEx [Monad m] [MonadBacktrack s m] [MonadExcept ε m] (x : m α) : m α := do
   let s ← saveState
   try
     x
@@ -45,14 +66,14 @@ export MonadBacktrack (saveState restoreState)
     restoreState s
     throw ex
 
-@[specialize] def withoutModifyingState [Monad m] [MonadFinally m] [MonadBacktrack s m] (x : m α) : m α := do
+def withoutModifyingState [Monad m] [MonadFinally m] [MonadBacktrack s m] (x : m α) : m α := do
   let s ← saveState
   try
     x
   finally
     restoreState s
 
-@[specialize] def observing? [Monad m] [MonadBacktrack s m] [MonadExcept ε m] (x : m α) : m (Option α) := do
+def observing? [Monad m] [MonadBacktrack s m] [MonadExcept ε m] (x : m α) : m (Option α) := do
   let s ← saveState
   try
     x

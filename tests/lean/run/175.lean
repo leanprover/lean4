@@ -6,9 +6,11 @@ open Lean.Elab.Term
 
 syntax (name := fooKind) "foo!" term : term
 
-@[termElab fooKind] def elabFoo : TermElab :=
+@[term_elab fooKind] def elabFoo : TermElab :=
 fun stx expectedType? => elabTerm (stx.getArg 1) expectedType?
 
+/-- info: 10 : Nat -/
+#guard_msgs in
 #check foo! 10
 
 end Foo
@@ -18,7 +20,7 @@ namespace Elab
 namespace Tactic
 open Meta
 
-@[builtinTactic clear] def myEvalClear : Tactic := -- this fails in the old-frontend because it eagerly resolves `clear` as `Lean.Meta.clear`.
+@[builtin_tactic clear] def myEvalClear : Tactic := -- this fails in the old-frontend because it eagerly resolves `clear` as `Lean.Meta.clear`.
 fun _ => pure ()
 
 end Tactic

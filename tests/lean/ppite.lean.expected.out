@@ -1,6 +1,6 @@
 def f : List Nat → IO Unit :=
 fun xs =>
-  List.forM xs fun x =>
+  xs.forM fun x =>
     if (x == 0) = true then do
       IO.println "foo"
       IO.println "zero"

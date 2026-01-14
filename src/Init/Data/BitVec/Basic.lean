@@ -893,31 +893,25 @@ def addRecAux (x : BitVec (l * w)) (rem : Nat) (acc : BitVec w) : BitVec w :=
 
 /-- Add `l`-long portions of a `w`-long bitvector. -/
 def addRec (l : Nat) (x : BitVec w) : BitVec l :=
-  if hw0 : l = 0 then 0#l
+  if hl0 : l = 0 then 0#l
   else
-    if hlt : w ≤ l then
+    if hle : w ≤ l then
       x.zeroExtend l
     else
       if hmod : 0 < w % l  then
-        /- zero-extend to the closest multiple of `l` -/
-      have hzero : (w - w % l) % l = 0 := by
-        apply Nat.sub_mod_eq_zero_of_mod_eq
-        simp
-      let diff := (l - (w % l))
-      have hmodlt' := Nat.mod_lt (y := l) (x := w) (by omega)
-      have hmodeq : (w + diff) % l = 0 := by
-        simp only [diff]
-        rw [← Nat.add_sub_assoc (by omega), Nat.add_comm,
-          show l + w - w % l = l + (w - w % l) by omega]
-        simp [hzero]
-      let zext := x.zeroExtend (w + diff)
-      let init_length := (w + diff) / l
-      let zext := zext.cast (m := init_length * l)
-                            (by simp [init_length]; rw [Nat.div_mul_cancel (by omega)])
-      addRecAux zext ((w + diff) / l) 0#l
-    else
-      let init_length := w / l
-      let x := x.cast (m := init_length * l) (by simp [init_length]; rw [Nat.div_mul_cancel (by omega)])
-      addRecAux x (w / l) 0#l
+        let diff := l - (w % l)
+        have hmodeq : (w + diff) % l = 0 := by
+          simp only [diff]
+          rw [← Nat.add_sub_assoc (by apply Nat.le_of_lt (Nat.mod_lt w (by omega))), Nat.add_comm,
+                Nat.add_sub_assoc (by exact Nat.mod_le w l)]
+          simp [Nat.sub_mod_eq_zero_of_mod_eq]
+        let zext := x.zeroExtend (w + diff)
+        let init_length := (w + diff) / l
+        let xcast := zext.cast (m := init_length * l) (by simp [init_length]; rw [Nat.div_mul_cancel (by omega)])
+        addRecAux xcast ((w + diff) / l) 0#l
+      else
+        let init_length := w / l
+        let xcast := x.cast (m := init_length * l) (by simp [init_length]; rw [Nat.div_mul_cancel (by omega)])
+        addRecAux xcast (w / l) 0#l
 
 end BitVec

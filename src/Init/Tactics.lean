@@ -546,7 +546,7 @@ introducing new local definitions.
 For example, given a local hypotheses if the form `h : let x := v; b x`, then `extract_lets z at h`
 introduces a new local definition `z := v` and changes `h` to be `h : b z`.
 -/
-syntax (name := extractLets) "extract_lets " optConfig (ppSpace colGt (ident <|> hole))* (location)? : tactic
+syntax (name := extractLets) "extract_lets" ppSpace optConfig (ppSpace colGt (ident <|> hole))* (location)? : tactic
 
 /--
 Lifts `let` and `have` expressions within a term as far out as possible.

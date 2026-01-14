@@ -55,8 +55,8 @@ theorem isSome_min?_of_mem {l : List α} [Min α] {a : α} (h : a ∈ l) :
     l.min?.isSome := by
   cases l <;> simp_all [min?_cons']
 
-theorem isSome_min?_of_ne_nil [Min α] : {l : List α} → (hl : l ≠ []) → l.min?.isSome
-  | x::xs, h => by simp [min?_cons']
+theorem isSome_min?_of_ne_nil [Min α] {l : List α} (hl : l ≠ []) : l.min?.isSome := by
+  rwa [isSome_min?_iff]
 
 theorem min?_eq_head? {α : Type u} [Min α] {l : List α}
     (h : l.Pairwise (fun a b => min a b = a)) : l.min? = l.head? := by
@@ -204,6 +204,7 @@ theorem min_le_of_mem [Min α] [LE α] [Std.IsLinearOrder α] [Std.LawfulOrderMi
     l.min (ne_nil_of_mem ha) ≤ a :=
   (min?_eq_some_iff.mp (min?_eq_some_min (List.ne_nil_of_mem ha))).right a ha
 
+@[grind =]
 protected theorem le_min_iff [Min α] [LE α] [LawfulOrderInf α]
     {l : List α} (hl : l ≠ []) : ∀ {x}, x ≤ l.min hl ↔ ∀ b, b ∈ l → x ≤ b :=
   le_min?_iff (min?_eq_some_min hl)

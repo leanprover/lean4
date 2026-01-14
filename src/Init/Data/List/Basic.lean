@@ -2017,6 +2017,7 @@ def sum {α} [Add α] [Zero α] : List α → α :=
 
 @[simp, grind =] theorem sum_nil [Add α] [Zero α] : ([] : List α).sum = 0 := rfl
 @[simp, grind =] theorem sum_cons [Add α] [Zero α] {a : α} {l : List α} : (a::l).sum = a + l.sum := rfl
+theorem sum_eq_foldr [Add α] [Zero α] {l : List α} : l.sum = l.foldr (· + ·) 0 := rfl
 
 /-! ### range -/
 

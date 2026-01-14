@@ -47,52 +47,138 @@ private def elabNonAtomicDiscrs (motive? : Option (TSyntax ``motive)) (discrs : 
 private abbrev DoMatchAltView := Term.MatchAltView ``doSeq
 
 /--
-Like `mkForallFVars (discr.map (·.toExpr)) e`, but handles non-FVar discriminants without panicking,
-by abstracting over them as if they were free variables that do not occur in `e`.
+Like `mkForallFVars (discr.map (·.toExpr)) ty`, but handles non-FVar discriminants by trying to
+`kabstract`.
 
-Note that it does not make sense to generalize `mkForallFVars` because it is unclear what binder
-name and info to pick for non-FVar discriminants.
+The caller should ensure that `ty` has its MVar dependencies on the discriminants eliminated before
+calling this function lest we end up with incomplete abstraction.
 -/
-private def mkForallDiscrs (discrs : Array Term.Discr) (e : Expr) : MetaM Expr := do
-  let rec loop (i : Nat) (xs : Array Expr) : MetaM Expr := do
-    if h : i < discrs.size then
-      let discr := discrs[i]
-      if discr.expr.isFVar then
-        loop (i + 1) (xs.push discr.expr)
-      else
-        withLocalDeclD (← mkFreshUserName `x) (← inferType discr.expr) fun x =>
-          loop (i + 1) (xs.push x)
-    else
-      mkForallFVars (usedLetOnly := false) xs e
-  loop 0 #[]
+private def abstractDiscrs (discrs : Array Expr) (type : Expr) : MetaM Expr := do
+  let mut type := type
+  for d in discrs.reverse do
+    type ← kabstract type d
+    let n ← d.fvarId?.casesOn (pure `x) (·.getUserName)
+    type := mkForall (← mkFreshUserName n) .default (← inferType d) type
+  return type
 
+/-- How much generalization over free variables should happen. -/
+inductive FVarGeneralizationPredicate where
+  | minimal
+  | when (p : LocalDecl → Bool)
+
+def FVarGeneralizationPredicate.satisfies (p : FVarGeneralizationPredicate) (decl : LocalDecl) : Bool :=
+  match p with
+  | .minimal => false
+  | .when p => p decl
+
+private def abstractDiscrsGeneralizingIf (p : FVarGeneralizationPredicate) (discrs : Array Expr) (type : Expr) :
+    MetaM (Array FVarId × Expr) := do
+  -- `elimMVarDeps` ensures that `Expr.abstract` in `kabstract` is sufficient and exposes otherwise
+  -- hidden forward dependencies to `Expr.containsFVar`.
+  let type ← elimMVarDeps discrs type
+  if p matches .minimal then
+    let type ← abstractDiscrs discrs type
+    if ← isTypeCorrect type then
+      return (#[], type)
+  -- Otherwise, we have to generalize even if `p matches .minimal`.
+  -- Compute the set of forward dependencies of the discriminants. This is the largest potential
+  -- set to generalize over. When `(generalizing := false)`, we will only generalize over a
+  -- necessary subset to make the motive type correct.
+  -- If there are metavariables involved, we get a lot of weak dependencies; we can simplify the
+  -- match prior to constructing the matcher when all metavariables must be assigned.
+  let gens ← getFVarsToGeneralize discrs (ignoreLetDecls := true)
+  trace[Elab.do.match] "all generalization candidates: {gens.map mkFVar}, type: {type}"
+  -- All the continuations are in `ysFVarIds`. Generalizing all of them would be too aggressive
+  -- to do by default (and it's the job of `Term.generalizeFVars`), but we need to generalize the
+  -- subset that are indices of the types of continuation variables.
+  -- We do so by
+  -- 1. Go through the locals `ysFVarIds` from back to front
+  --   i. We keep the local corresponding to continuation variables
+  --   ii. We keep the local that occur in the types of previously kept locals
+  -- 2. Abstract `resultType` over the kept locals
+  let mut kept := #[]
+  for y in gens.reverse do
+    let decl ← y.getDecl
+    if type.containsFVar y || p.satisfies decl then
+      kept := kept.push decl
+    else if ← kept.anyM fun k => localDeclDependsOn k y then
+      kept := kept.push decl
+  let contDiscrDecls := kept.reverse
+  let contDiscrs := contDiscrDecls.map (·.toExpr)
+  trace[Elab.do.match] "kept: {contDiscrs}"
+  let discrs := discrs ++ contDiscrs
+  let type ← abstractDiscrs discrs type
+  try check type catch ex =>
+    throwError "Invalid match expression. Inferred motive is not type correct: {indentExpr type}Please report this as a bug. Message: {ex.toMessageData}"
+  return (contDiscrDecls.map (·.fvarId), type)
+
+/--
+`replaceFVarsInForallBoundedDomain forallTelescope maxFVars vs es` calls `dom.replaceFVarsM vs es`
+on the first `maxFVars` forall domain types `dom` in `forallTelescope`.
+Crucially, it does *not* call `replaceFVarsM vs es` on the range; that is what differentiates it
+from a simple call to `forallTelescope.replaceFVarsM vs es`.
+-/
+private def replaceFVarsInForallBoundedDomain (forallTelescope : Expr) (maxFVars : Nat) (vs : Array Expr) (es : Array Expr) : MetaM Expr :=
+  loop #[] forallTelescope
+where
+  loop (fvars : Array Expr) (ty : Expr) : MetaM Expr := do
+    let defaultCase := mkForallFVars fvars (ty.instantiateRev fvars)
+    if fvars.size < maxFVars then
+      match ty with
+      | .forallE n d b bi =>
+        let d     := d.instantiateRev fvars
+        let d ← d.replaceFVarsM vs es -- This is the operation that we want to carry out!
+        withLocalDecl n bi d fun fv => do
+        loop (fvars.push fv) b
+      | _ => defaultCase
+    else defaultCase
+
+/--
+A generalizer that generalizes muts and continuation variables in addition to calling the regular,
+optional `Term.generalizeFVars` generalizer.
+
+Generalization of muts and continuation variables is not optional, just like discriminant refinement.
+If we wouldn't refine mut types, we would get errors when assigning the mut tuple types of join
+points and `break`.
+Example: If we do not generalize `mut s : Fin x` in a match on `x`, we still abstract
+`?σ := ?σ' x` (from `jp : resTy → ?σ → m γ`) and later on solve `?σ' x := Fin x` by
+`?σ' := fun x => Fin x`; so we'd generalize join point types but not the actual muts, leading to
+a failure when synthesizing jump sites.
+-/
 private def generalizeMutsContsFVars (mutVars : Array Ident)
-    (contGeneralizers : Std.HashMap Name ContFVarGeneralizer) (doGeneralize : Bool) : Term.Generalizer := fun discrExprs doResType => do
+    (contGeneralizers : Std.HashMap Name ContFVarGeneralizer) (doGeneralize : Bool) : Term.Generalizer k := fun discrs resultType altViews => do
+  let genPredicate decl :=
+    doGeneralize || mutVars.any (·.getId == decl.userName) || contGeneralizers.contains decl.userName
+  let discrExprs := discrs.map (·.expr)
+  let (newFVarIds, resultType) ← abstractDiscrsGeneralizingIf (.when genPredicate) discrExprs resultType
+  if newFVarIds.isEmpty then
+    return { discrs, toClear := #[], matchType := resultType, altViews, refined := false }
+  let (discrs, altViews) ← Term.addGeneralizedDiscrsAndAlts newFVarIds discrs altViews
+  return { discrs, toClear := newFVarIds, matchType := resultType, altViews, refined := true }
+
+/-
   let numOrigDiscrs := discrExprs.size
-  -- We keep `doResType` in an instantiated form that scopes over `ds` instead of `∀ds, doResType`.
+  -- We keep `resultType` in an instantiated form that scopes over `ds` instead of `∀ds, resultType`.
   -- Otherwise every generalizer would need to `forallBoundedTelescope` again.
-  -- However, the original `generalizeFVars` generalizer expects and returns the `∀ds, doResType` form.
-  forallBoundedTelescope doResType numOrigDiscrs fun ds doResType => do
-  -- We start by generalizing muts. This step is not optional, because if we wouldn't refine mut
-  -- types, we would get errors when assigning the mut tuple types of join points and `break`.
-  -- (Example: If we do not generalize `mut s : Fin x` in a match on `x`, we still abstract
-  -- `?σ := ?σ' x` and later on solve `?σ' x := Fin x` by `?σ' := fun x => Fin x`; so we'd
-  -- generalize join point types but not the actual muts.)
-  let (discrExprs, doResType) ←
-    genMuts discrExprs ds doResType fun discrExprs ds doResType => do
-    trace[Elab.do.match] "after generalizing muts: {(discrExprs, ds, doResType)}"
-    genConts discrExprs ds doResType fun discrExprs ds doResType => do
-    return (discrExprs, ← mkForallFVars ds doResType)
-  trace[Elab.do.match] "after generalizing conts and itnroducing forall: {(discrExprs, doResType)}"
-  let res ← Term.generalizeFVars doGeneralize discrExprs doResType
+  -- However, the original `generalizeFVars` generalizer expects and returns the `∀ds, resultType` form.
+  let (discrExprs, resultType) ← do
+    trace[Elab.do.match] "before forallBoundedTelescope {numOrigDiscrs}: {(discrExprs, resultType)}"
+    forallBoundedTelescope resultType numOrigDiscrs fun ds resultType => do
+    trace[Elab.do.match] "after forallBoundedTelescope {numOrigDiscrs}: {(discrExprs, ds, resultType)}"
+    genMuts discrExprs ds resultType fun discrExprs ds resultType => do
+    trace[Elab.do.match] "after generalizing muts: {(discrExprs, ds, resultType)}"
+    genConts discrExprs ds resultType fun discrExprs ds resultType => do
+    return (discrExprs, ← mkForallFVars ds resultType)
+  trace[Elab.do.match] "after generalizing conts and introducing forall: {(discrExprs, resultType)}"
+  let res ← Term.generalizeFVars doGeneralize discrExprs resultType
   trace[Elab.do.match] "generalization result: {res.map fun r => (r.fst.map mkFVar, r.snd)}"
   let newDiscrFVars := discrExprs.drop numOrigDiscrs |>.map Expr.fvarId!
   return match res with
-    | some (ys, doResType) => some (newDiscrFVars ++ ys, doResType)
-    | none => some (newDiscrFVars, doResType)
+    | some (ys, resultType) => some (newDiscrFVars ++ ys, resultType)
+    | none => some (newDiscrFVars, resultType)
 
 where
-  genMuts {α} (discrExprs : Array Expr) (ds : Array Expr) (doResType : Expr)
+  genMuts {α} (discrExprs : Array Expr) (ds : Array Expr) (resultType : Expr)
     (k : Array Expr → Array Expr → Expr → TermElabM α) : TermElabM α := do
     let numOrigDiscrs := discrExprs.size
     let rec loop (i : Nat) (discrExprs : Array Expr) (ds : Array Expr) : TermElabM α := do
@@ -100,27 +186,25 @@ where
         let mutVar := mutVars[i]
         let decl ← getLocalDeclFromUserName mutVar.getId
         let type ← decl.type.abstractM discrExprs
-        trace[Elab.do.match] "type after abstraction: {type}"
         if type.hasLooseBVars then
           let type := type.instantiateRev ds
-          withLocalDeclD mutVar.getId type fun mutD => do
+          -- We use `mkFreshUserName` because `elabDiscr` does it, too
+          withLocalDeclD (← mkFreshUserName mutVar.getId) type fun mutD => do
             loop (i + 1) (discrExprs.push decl.toExpr) (ds.push mutD)
         else
           loop (i + 1) discrExprs ds
       else
         let mutDiscrExprs := discrExprs.drop numOrigDiscrs
         let mutDs := ds.drop numOrigDiscrs
-        -- `doResType` is the `doBlockResultType`. Usually it does not depend on `mut` variables,
-        -- but with control effect lifting (e.g., in a `try` block), it can, because
-        --   * The type of a `mut b` may depend on a previous `mut a`
-        --   * The `doBlockResultType` may instantiate to a `StateT` wrapper when there's a
-        --     reassignment of `b`, so that `doBlockResultType` may depend on `a`.
-        -- In this case we want to replace every `a` with the refined `a`.
-        let doResType ← doResType.replaceFVarsM mutDiscrExprs mutDs
-        k discrExprs ds doResType
+        trace[Elab.do.match] "mutDiscrExprs: {mutDiscrExprs}, mutDs: {mutDs}, resultType: {resultType}"
+        check resultType
+        let resultType ← resultType.replaceFVarsM mutDiscrExprs mutDs
+        trace[Elab.do.match] "resultType after replacing mutDiscrExprs: {resultType}"
+        check resultType
+        k discrExprs ds resultType
     loop 0 discrExprs ds
 
-  genConts {α} (discrExprs : Array Expr) (ds : Array Expr) (doResType : Expr)
+  genConts {α} (discrExprs : Array Expr) (ds : Array Expr) (resultType : Expr)
     (k : Array Expr → Array Expr → Expr → TermElabM α) : TermElabM α := do
     let ysFVarIds ← getFVarsToGeneralize discrExprs (ignoreLetDecls := true)
     trace[Elab.do.match] "all generalization candidates: {ysFVarIds.map mkFVar}"
@@ -131,7 +215,7 @@ where
     -- 1. Go through the locals `ysFVarIds` from back to front
     --   i. We keep the local corresponding to continuation variables
     --   ii. We keep the local that occur in the types of previously kept locals
-    -- 2. Abstract `doResType` over the kept locals
+    -- 2. Abstract `resultType` over the kept locals
     let mut kept := #[]
     for y in ysFVarIds.reverse do
       let decl ← y.getDecl
@@ -141,13 +225,25 @@ where
         kept := kept.push decl
     -- This part is very similar to `Term.generalizeFVars`, but we use `replaceFVarsM` instead of
     -- `replaceFVars`.
-    let contDiscrExprs := kept.map (·.toExpr) |>.reverse
-    let doResType ← mkForallFVars contDiscrExprs doResType
-    let doResType ← doResType.replaceFVarsM discrExprs ds
-    forallBoundedTelescope doResType contDiscrExprs.size fun contDs doResType => do
-    trace[Elab.do.match] "kept: {contDiscrExprs}, contDs: {contDs}, doResType: {doResType}"
-    k (discrExprs ++ contDiscrExprs) (ds ++ contDs) doResType
-
+    let contDiscrDecls := kept.reverse
+    let contDiscrExprs := contDiscrDecls.map (·.toExpr)
+    let resultType ← mkForallFVars contDiscrExprs resultType
+        -- TODO: This is not the right place for the comment below.
+        -- `resultType` has the join point result type as range, which contains the `doBlockResultType`.
+        -- Usually it does not depend on `mut` variables,
+        -- but with control effect lifting (e.g., in a `try` block), it can, because
+        --   * The type of a `mut b` may depend on a previous `mut a`
+        --   * The `doBlockResultType` may instantiate to a `StateT` wrapper when there's a
+        --     reassignment of `b`, so that `doBlockResultType` may depend on `a`.
+        -- In this case we want to replace every `a` with the refined `a`.
+    -- Simply doing `resultType.replaceFVarsM discrExprs ds` would also generalize the motive even
+    -- if it was user-specified. We only want to replace in the types of `contDiscExprs`, which form
+    -- a forall telescope. Hence a special operation that leaves the range of the telescope unchanged.
+    let resultType ← replaceFVarsInForallBoundedDomain resultType contDiscrExprs.size discrExprs ds
+    forallBoundedTelescope resultType contDiscrExprs.size fun contDs resultType => do
+    trace[Elab.do.match] "kept: {contDiscrExprs}, contDs: {contDs}, resultType: {resultType}"
+    k (discrExprs ++ contDiscrExprs) (ds ++ contDs) resultType
+-/
 private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``motive))
     (discrs : TSyntaxArray ``matchDiscr) (alts : Array DoMatchAltView) (dec : DoElemCont) :
     DoElabM Expr := do
@@ -159,43 +255,51 @@ private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``m
 
   let mi := (← read).monadInfo
   let discrExprs := discrs |>.map (·.expr)
-
   if (mi.m.abstract discrExprs).hasLooseBVars then
     throwError "Invalid match expression: monad {mi.m} depends on one of the discriminants. \
       This is not supported by the `do` elaborator."
 
-  let resultType ← forallBoundedTelescope resultMotive discrExprs.size fun xs resultType =>
-    resultType.replaceFVarsM xs discrExprs
+  -- We do not support custom motives or `generalizing := false`. We always produce our own motive
+  -- by abstracting the expected type (`dec.resultType`) over the discriminants.
+  -- We *do* take the instantiated motive produced by `elabMatchTypeAndDiscrs` though because it
+  -- has instantiated metavariables in the result type.
+  let resultType := resultMotive.getForallBodyMaxDepth discrExprs.size |>.instantiateRev discrExprs
+  -- let resultType ← forallBoundedTelescope resultMotive discrExprs.size fun xs resultType =>
+  --   return resultType.replaceFVars xs discrExprs
   let dec := { dec with resultType } -- instantiate metavariables in the result type
-  -- `resultMotive` is no longer usable because it is not generalized below.
+  let mutVars := (← read).mutVars
+  let contGeneralizers := (← read).contFVarGeneralizers
+  let genPredicate decl :=
+    doGeneralize || mutVars.any (·.getId == decl.userName) || contGeneralizers.contains decl.userName
+  let (newDiscrFVarIds, resultMotive) ← abstractDiscrsGeneralizingIf (.when genPredicate) discrExprs resultType
+  let (discrs, alts) ← Term.addGeneralizedDiscrsAndAlts newDiscrFVarIds discrs alts
+  let discrExprs := discrs.map (·.expr)
 
   let doBlockResultType := (← read).doBlockResultType
   trace[Elab.do.match] "doBlockResultType: {doBlockResultType}"
-  let matchType ← mkForallDiscrs discrs (← mkMonadicType doBlockResultType)
-  trace[Elab.do.match] "discrExprs: {discrExprs}, matchType: {matchType}"
+  let matchType ← abstractDiscrs discrExprs (← mkMonadicType doBlockResultType)
+  check matchType
+  trace[Elab.do.match] "discrExprs: {discrExprs}, resultMotive: {resultMotive}, matchType: {matchType}"
   let returnType := (← getReturnCont).resultType
   trace[Elab.do.match] "returnType: {returnType}"
 
-  let mutVars := (← read).mutVars
-  let contGeneralizers := (← read).contFVarGeneralizers
-
-  let elabDoMatchRhs (discrs : Array Term.Discr) (patterns : List Match.Pattern) (rhs : TSyntax ``doSeq) (matchType : Expr) :
+  let elabDoMatchRhs (discrs : Array Term.Discr) (patterns : List Match.Pattern) (rhs : TSyntax ``doSeq) (resultType : Expr) :
       DoElabM Expr := do
     let discrExprs := discrs.map (·.expr)
     let discrExprs' := (← patterns.mapM (·.toExpr)).toArray
     trace[Elab.do.match] "discriminants after generalization: {discrExprs}, substitute with patterns: {discrExprs'}"
-    let resultType : Expr ← dec.resultType.replaceFVarsM discrExprs discrExprs'
     let returnType ← returnType.replaceFVarsM discrExprs discrExprs'
     let doBlockResultType ← doBlockResultType.replaceFVarsM discrExprs discrExprs'
-    trace[Elab.do.match] "rhs: {rhs}, resultType: {resultType}, returnType: {returnType}, doBlockResultType: {doBlockResultType}, matchType: {matchType}"
+    trace[Elab.do.match] "rhs: {rhs}, resultType: {resultType}, returnType: {returnType}, doBlockResultType: {doBlockResultType}"
     let ctx ← read
     let contInfo := { ctx.contInfo.toContInfo with returnCont.resultType := returnType }.toContInfoRef
     let ctx := { ctx with contInfo, doBlockResultType }
     withReader (fun _ => ctx) do elabDoSeq rhs { dec with resultType }
 
   let (discrs, matchType, alts, refined) ← controlAtTermElabM fun runInBase =>
-    Term.elabMatchAlts discrs matchType alts
-      (generalizer := generalizeMutsContsFVars mutVars contGeneralizers doGeneralize)
+    Term.elabMatchAlts discrs resultMotive alts
+    -- Term.elabMatchAlts discrs matchType alts
+      (generalizer := fun discrs matchType altViews => return { discrs, toClear := newDiscrFVarIds, matchType, altViews, refined := !newDiscrFVarIds.isEmpty })
       (elabRhs := (runInBase <| elabDoMatchRhs · · · ·))
   trace[Elab.do.match] "refined: {refined}, discrs after generalization: {discrs.map (·.expr)}"
   let isDep := isDep || refined

@@ -707,5 +707,3 @@ example (x : Bool) (h1 h2 : x = true) : foo x := by
   bv_normalize
   have : x = true := by assumption
   sorry
-
-#eval (8211#16).flattenedAdd 4

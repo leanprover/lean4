@@ -274,6 +274,8 @@ def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls :
     (msg : Except ε α → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
   let _ := always.except
   let opts ← getOptions
+  if !opts.hasTrace then
+    return (← k)
   let clsEnabled ← isTracingEnabledFor cls
   unless clsEnabled || trace.profiler.get opts do
     return (← k)
@@ -383,6 +385,8 @@ def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
     (msg : Unit → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
   let _ := always.except
   let opts ← getOptions
+  if !opts.hasTrace then
+    return (← k)
   let clsEnabled ← isTracingEnabledFor cls
   unless clsEnabled || trace.profiler.get opts do
     return (← k)

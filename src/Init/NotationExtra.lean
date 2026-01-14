@@ -337,8 +337,8 @@ macro_rules
   ```
 -/
 syntax (name := Lean.Parser.Command.classAbbrev)
-  declModifiers "class " "abbrev " declId bracketedBinder* (":" term)?
-  ":=" withPosition(group(colGe term ","?)*) : command
+  declModifiers "class" ppSpace "abbrev" ppSpace declId ppSpace
+  (bracketedBinder ppSpace)* (":" ppSpace term)? ":=" withPosition(group(colGe term ("," ppSpace)?)*) : command
 
 macro_rules
   | `($mods:declModifiers class abbrev $id $params* $[: $ty]? := $[ $parents $[,]? ]*) =>

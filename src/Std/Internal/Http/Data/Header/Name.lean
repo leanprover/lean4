@@ -13,11 +13,11 @@ public section
 /-!
 # Header Names and Values
 
-This module defines the `HeaderName` and `HeaderValue` types, which represent validated
+This module defines the `Name` and `Value` types, which represent validated
 HTTP header names and values that conform to HTTP standards.
 -/
 
-namespace Std.Http
+namespace Std.Http.Header
 
 set_option linter.all true
 
@@ -38,7 +38,7 @@ abbrev isValidHeaderValue (s : String) : Prop :=
 /--
 A validated HTTP header value that ensures all characters conform to HTTP standards.
 -/
-structure HeaderValue where
+structure Value where
   /--
   The string data
   -/
@@ -50,54 +50,54 @@ structure HeaderValue where
   validHeaderValue : isValidHeaderValue value
 deriving BEq, DecidableEq, Repr
 
-namespace HeaderValue
+namespace Value
 
-instance : Hashable HeaderValue := ⟨Hashable.hash ∘ HeaderValue.value⟩
+instance : Hashable Value := ⟨Hashable.hash ∘ Value.value⟩
 
-instance : Inhabited HeaderValue := ⟨⟨"", by native_decide⟩⟩
+instance : Inhabited Value := ⟨⟨"", by native_decide⟩⟩
 
 /--
-Creates a new `HeaderValue` from a string with an optional proof of validity.
+Creates a new `Value` from a string with an optional proof of validity.
 If no proof is provided, it attempts to prove validity automatically.
 -/
 @[expose]
-def new (s : String) (h : s.toList.all isValidHeaderCharNode := by decide) : HeaderValue :=
+def new (s : String) (h : s.toList.all isValidHeaderCharNode := by decide) : Value :=
   ⟨s, h⟩
 
 /--
-Attempts to create a `HeaderValue` from a `String`, returning `none` if the string
+Attempts to create a `Value` from a `String`, returning `none` if the string
 contains invalid characters for HTTP header values.
 -/
 @[expose]
-def ofString? (s : String) : Option HeaderValue :=
+def ofString? (s : String) : Option Value :=
   if h : s.toList.all isValidHeaderCharNode then
     some ⟨s, h⟩
   else
     none
 
 /--
-Creates a `HeaderValue` from a string, panicking with an error message if the
+Creates a `Value` from a string, panicking with an error message if the
 string contains invalid characters for HTTP header values.
 -/
 @[expose]
-def ofString! (s : String) : HeaderValue :=
+def ofString! (s : String) : Value :=
   if h : s.toList.all isValidHeaderCharNode then
     ⟨s, h⟩
   else
     panic! s!"invalid header value: {s.quote}"
 
 /--
-Performs a case-insensitive comparison between a `HeaderValue` and a `String`.
+Performs a case-insensitive comparison between a `Value` and a `String`.
 Returns `true` if they match.
 -/
 @[expose]
-def is (s : HeaderValue) (h : String) : Bool :=
+def is (s : Value) (h : String) : Bool :=
   s.value == h.toLower
 
-instance : ToString HeaderValue where
+instance : ToString Value where
   toString v := v.value
 
-end HeaderValue
+end Value
 
 /--
 Checks if a character is valid for use in an HTTP header name.
@@ -131,7 +131,7 @@ abbrev isNormalForm (s: String) : Prop :=
 A validated HTTP header name that ensures all characters conform to HTTP standards.
 Header names are case-insensitive according to HTTP specifications.
 -/
-structure HeaderName where
+structure Name where
   /--
   The original case-preserved string
   -/
@@ -148,36 +148,36 @@ structure HeaderName where
   normalform: isNormalForm value
 deriving Repr, DecidableEq, BEq, Repr
 
-namespace HeaderName
+namespace Name
 
 /--
 Hash is based on lowercase version for case-insensitive comparison
 -/
-instance : Hashable HeaderName where
+instance : Hashable Name where
   hash x := Hashable.hash x.value
 
 /--
 Equality is case-insensitive
 -/
-instance : BEq HeaderName where
+instance : BEq Name where
   beq x y := x.value == y.value
 
-instance : Inhabited HeaderName where default := ⟨"a", ⟨by decide, by decide⟩, by native_decide⟩
+instance : Inhabited Name where default := ⟨"a", ⟨by decide, by decide⟩, by native_decide⟩
 
 /--
-Creates a new `HeaderName` from a string with an optional proof of validity.
+Creates a new `Name` from a string with an optional proof of validity.
 If no proof is provided, it attempts to prove validity automatically.
 -/
 @[expose]
-def new (s : String) (h : isValidHeaderName s := by decide) (h₁ : isNormalForm s := by native_decide) : HeaderName :=
+def new (s : String) (h : isValidHeaderName s := by decide) (h₁ : isNormalForm s := by native_decide) : Name :=
   ⟨s, h, h₁⟩
 
 /--
-Attempts to create a `HeaderName` from a `String`, returning `none` if the string
+Attempts to create a `Name` from a `String`, returning `none` if the string
 contains invalid characters for HTTP header names or is empty.
 -/
 @[expose]
-def ofString? (s : String) : Option HeaderName :=
+def ofString? (s : String) : Option Name :=
   let val := s.toLower
   if h : isValidHeaderName val ∧ isNormalForm val then
     some ⟨val, h.left, h.right⟩
@@ -185,11 +185,11 @@ def ofString? (s : String) : Option HeaderName :=
     none
 
 /--
-Creates a `HeaderName` from a string, panicking with an error message if the
+Creates a `Name` from a string, panicking with an error message if the
 string contains invalid characters for HTTP header names or is empty.
 -/
 @[expose]
-def ofString! (s : String) : HeaderName :=
+def ofString! (s : String) : Name :=
   let val := s.toLower
   if h : isValidHeaderName val ∧ isNormalForm val then
     ⟨val, h.left, h.right⟩
@@ -200,23 +200,23 @@ def ofString! (s : String) : HeaderName :=
 Gets the lowercase version of the header name for case-insensitive operations.
 -/
 @[inline]
-def toCanonical (name : HeaderName) : String :=
+def toCanonical (name : Name) : String :=
   let it := name.value.split '-'
     |>.map (·.toString.capitalize)
 
   String.intercalate "-" it.toList
 
 /--
-Performs a case-insensitive comparison between a `HeaderName` and a `String`.
+Performs a case-insensitive comparison between a `Name` and a `String`.
 Returns `true` if they match.
 -/
 @[expose]
-def is (name : HeaderName) (s : String) : Bool :=
+def is (name : Name) (s : String) : Bool :=
   name.value == s.toLower
 
-instance : ToString HeaderName where
+instance : ToString Name where
   toString name := name.toCanonical
 
-end HeaderName
+end Name
 
-end Std.Http
+end Std.Http.Header

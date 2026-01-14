@@ -130,21 +130,21 @@ def uri! (builder : Builder) (uri : String) : Builder :=
 /--
 Adds a single header to the request being built
 -/
-def header (builder : Builder) (key : HeaderName) (value : HeaderValue) : Builder :=
+def header (builder : Builder) (key : Header.Name) (value : Header.Value) : Builder :=
   { builder with head := { builder.head with headers := builder.head.headers.insert key value } }
 
 /--
 Adds a single header to the request being built, panics if the header is invalid
 -/
 def header! (builder : Builder) (key : String) (value : String) : Builder :=
-  let key := HeaderName.ofString! key
-  let value := HeaderValue.ofString! value
+  let key := Header.Name.ofString! key
+  let value := Header.Value.ofString! value
   { builder with head := { builder.head with headers := builder.head.headers.insert key value } }
 
 /--
-Adds a header to the request being built only if the Option HeaderValue is Some
+Adds a header to the request being built only if the Option Header.Value is Some
 -/
-def headerOpt (builder : Builder) (key : HeaderName) (value : Option HeaderValue) : Builder :=
+def headerOpt (builder : Builder) (key : Header.Name) (value : Option Header.Value) : Builder :=
   match value with
   | some v => builder.header key v
   | none => builder

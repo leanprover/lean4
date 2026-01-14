@@ -86,7 +86,7 @@ structure Machine (dir : Direction) where
   /--
   Host header.
   -/
-  host : Option HeaderValue := none
+  host : Option Header.Value := none
 
 namespace Machine
 
@@ -528,7 +528,7 @@ partial def processRead (machine : Machine dir) : Machine dir :=
       else
         if let some result := result then
           if let some (name, value) := result then
-            if let some (name, headerValue) := Prod.mk <$> HeaderName.ofString? name <*> HeaderValue.ofString? value then
+            if let some (name, headerValue) := Prod.mk <$> Header.Name.ofString? name <*> Header.Value.ofString? value then
               machine
               |>.modifyReader (.addHeader name headerValue)
               |>.setReaderState (.needHeader (headerCount + 1))

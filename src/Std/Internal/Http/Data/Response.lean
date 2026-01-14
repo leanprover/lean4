@@ -110,15 +110,15 @@ def headers (builder : Builder) (headers : Headers) : Builder :=
 /--
 Adds a single header to the response being built
 -/
-def header (builder : Builder) (key : HeaderName) (value : HeaderValue) : Builder :=
+def header (builder : Builder) (key : Header.Name) (value : Header.Value) : Builder :=
   { builder with head := { builder.head with headers := builder.head.headers.insert key value } }
 
 /--
 Adds a single header to the response being built
 -/
 def header! (builder : Builder) (key : String) (value : String) : Builder :=
-  let key := HeaderName.ofString! key
-  let value := HeaderValue.ofString! value
+  let key := Header.Name.ofString! key
+  let value := Header.Value.ofString! value
   { builder with head := { builder.head with headers := builder.head.headers.insert key value } }
 
 /--

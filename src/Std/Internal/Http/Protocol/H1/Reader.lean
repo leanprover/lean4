@@ -145,7 +145,7 @@ def setMessageHead (messageHead : Message.Head dir) (reader : Reader dir) : Read
 Adds a header to the current message head.
 -/
 @[inline]
-def addHeader (name : HeaderName) (value : HeaderValue) (reader : Reader dir) : Reader dir :=
+def addHeader (name : Header.Name) (value : Header.Value) (reader : Reader dir) : Reader dir :=
   match dir with
   | .sending => { reader with messageHead := { reader.messageHead with headers := reader.messageHead.headers.insert name value } }
   | .receiving => { reader with messageHead := { reader.messageHead with headers := reader.messageHead.headers.insert name value } }

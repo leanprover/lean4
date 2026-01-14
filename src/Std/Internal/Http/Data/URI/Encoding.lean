@@ -243,19 +243,27 @@ underscore, tilde) and percent signs (for escape sequences).
 structure EncodedString where
   mk ::
 
-  /-- The underlying byte array containing the percent-encoded data. -/
+  /--
+  The underlying byte array containing the percent-encoded data.
+  -/
   toByteArray : ByteArray
 
-  /-- Proof that all characters in the byte array are valid encoded characters. -/
+  /--
+  Proof that all characters in the byte array are valid encoded characters.
+  -/
   valid : isAllowedEncodedChars toByteArray
 
 namespace EncodedString
 
-/-- Creates an empty encoded string. -/
+/--
+Creates an empty encoded string.
+-/
 def empty : EncodedString :=
   ⟨.empty, by native_decide⟩
 
-/-- Appends a single encoded character to an encoded string. -/
+/--
+Appends a single encoded character to an encoded string.
+-/
 def push (s : EncodedString) (c : UInt8) (h : isEncodedChar c) : EncodedString where
   toByteArray := s.toByteArray.push c
   valid := isAllowedEncodedChars.push s.valid h
@@ -322,19 +330,27 @@ instead of "%20".
 structure EncodedQueryString where
   mk ::
 
-  /-- The underlying byte array containing the percent-encoded query data. -/
+  /--
+  The underlying byte array containing the percent-encoded query data.
+  -/
   toByteArray : ByteArray
 
-  /-- Proof that all characters in the byte array are valid encoded query characters. -/
+  /--
+  Proof that all characters in the byte array are valid encoded query characters.
+  -/
   valid : isAllowedEncodedQueryChars toByteArray
 
 namespace EncodedQueryString
 
-/-- Creates an empty encoded query string. -/
+/--
+Creates an empty encoded query string.
+-/
 def empty : EncodedQueryString :=
   ⟨.empty, by native_decide⟩
 
-/-- Appends a single encoded query character to an encoded query string. -/
+/--
+Appends a single encoded query character to an encoded query string.
+-/
 def push (s : EncodedQueryString) (c : UInt8) (h : isEncodedQueryChar c) : EncodedQueryString where
   toByteArray := s.toByteArray.push c
   valid := isAllowedEncodedQueryChars.push s.valid h

@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Internal.Http.Data.Header.Name
+public import Std.Internal.Http.Data.Header.Basic
 public import Std.Internal.Http.Internal
 
 public section
@@ -34,13 +34,13 @@ structure Headers where
   /--
   The underlying multimap that stores headers.
   -/
-  map : MultiMap HeaderName HeaderValue
+  map : MultiMap Header.Name Header.Value
 deriving Inhabited, Repr
 
-instance : Membership HeaderName Headers where
+instance : Membership Header.Name Headers where
   mem s h := h ∈ s.map
 
-instance (name : HeaderName) (h : Headers) : Decidable (name ∈ h) :=
+instance (name : Header.Name) (h : Headers) : Decidable (name ∈ h) :=
   inferInstanceAs (Decidable (name ∈ h.map))
 
 namespace Headers
@@ -49,50 +49,50 @@ namespace Headers
 Proposition that a string corresponds to a valid header name present in the headers.
 -/
 abbrev In (s : String) (h : Headers) : Prop :=
-  match HeaderName.ofString? s with
+  match Header.Name.ofString? s with
   | some name => name ∈ h
   | none => False
 
 instance {s : String} {h : Headers} : Decidable (In s h) := by
   unfold In
-  cases headerName : HeaderName.ofString? s
+  cases headerName : Header.Name.ofString? s
   all_goals exact inferInstance
 
 /--
-Retrieves the first `HeaderValue` for the given key.
+Retrieves the first `Header.Value` for the given key.
 -/
 @[inline]
-def get (headers : Headers) (name : HeaderName) (h : name ∈ headers) : HeaderValue :=
+def get (headers : Headers) (name : Header.Name) (h : name ∈ headers) : Header.Value :=
   headers.map.get name h
 
 /--
-Retrieves all `HeaderValue` entries for the given key.
+Retrieves all `Header.Value` entries for the given key.
 -/
 @[inline]
-def getAll (headers : Headers) (name : HeaderName) (h : name ∈ headers) : Array HeaderValue :=
+def getAll (headers : Headers) (name : Header.Name) (h : name ∈ headers) : Array Header.Value :=
   headers.map.getAll name h
 
 /--
-Retrieves all `HeaderValue` entries for the given key.
+Retrieves all `Header.Value` entries for the given key.
 Returns `none` if the header is absent.
 -/
 @[inline]
-def getAll? (headers : Headers) (name : HeaderName) : Option (Array HeaderValue) :=
+def getAll? (headers : Headers) (name : Header.Name) : Option (Array Header.Value) :=
   headers.map.getAll? name
 
 /--
-Retrieves the first `HeaderValue` for the given key.
+Retrieves the first `Header.Value` for the given key.
 Returns `none` if the header is absent.
 -/
 @[inline]
-def get? (headers : Headers) (name : HeaderName) : Option HeaderValue :=
+def get? (headers : Headers) (name : Header.Name) : Option Header.Value :=
   headers.map.get? name
 
 /--
 Checks if the entry is present in the `Headers`.
 -/
 @[inline]
-def hasEntry (headers : Headers) (name : HeaderName) (value : String) : Bool :=
+def hasEntry (headers : Headers) (name : Header.Name) (value : String) : Bool :=
   headers.map.data.get? name
   |>.bind (fun x => x.val.find? (·.value == value))
   |>.isSome
@@ -102,35 +102,35 @@ Retrieves the last header value for the given key.
 Returns `none` if the header is absent.
 -/
 @[inline]
-def getLast? (headers : Headers) (name : HeaderName) : Option HeaderValue :=
+def getLast? (headers : Headers) (name : Header.Name) : Option Header.Value :=
   headers.map.getLast? name
 
 /--
 Like `get?`, but returns a default value if absent.
 -/
 @[inline]
-def getD (headers : Headers) (name : HeaderName) (d : HeaderValue) : HeaderValue :=
+def getD (headers : Headers) (name : Header.Name) (d : Header.Value) : Header.Value :=
   headers.map.getD name d
 
 /--
 Like `get?`, but panics if absent.
 -/
 @[inline]
-def get! (headers : Headers) (name : HeaderName) : HeaderValue :=
+def get! (headers : Headers) (name : Header.Name) : Header.Value :=
   headers.map.get! name
 
 /--
 Inserts a new key-value pair into the headers.
 -/
 @[inline]
-def insert (headers : Headers) (key : HeaderName) (value : HeaderValue) : Headers :=
+def insert (headers : Headers) (key : Header.Name) (value : Header.Value) : Headers :=
   { map := headers.map.insert key value }
 
 /--
 Inserts a new key with an array of values.
 -/
 @[inline]
-def insertMany (headers : Headers) (key : HeaderName) (value : Array HeaderValue) (p : value.size > 0) : Headers :=
+def insertMany (headers : Headers) (key : Header.Name) (value : Array Header.Value) (p : value.size > 0) : Headers :=
   { map := headers.map.insertMany key value p }
 
 /--
@@ -142,21 +142,21 @@ def empty : Headers :=
 /--
 Creates headers from a list of key-value pairs.
 -/
-def ofList (pairs : List (HeaderName × HeaderValue)) : Headers :=
+def ofList (pairs : List (Header.Name × Header.Value)) : Headers :=
   { map := MultiMap.ofList pairs }
 
 /--
 Checks if a header with the given name exists.
 -/
 @[inline]
-def contains (headers : Headers) (name : HeaderName) : Bool :=
+def contains (headers : Headers) (name : Header.Name) : Bool :=
   headers.map.contains name
 
 /--
 Removes a header with the given name.
 -/
 @[inline]
-def erase (headers : Headers) (name : HeaderName) : Headers :=
+def erase (headers : Headers) (name : Header.Name) : Headers :=
   { map := headers.map.erase name }
 
 /--
@@ -190,10 +190,10 @@ instance : Encode .v11 Headers where
 instance : EmptyCollection Headers :=
   ⟨Headers.empty⟩
 
-instance : Singleton (HeaderName × HeaderValue) Headers :=
+instance : Singleton (Header.Name × Header.Value) Headers :=
   ⟨fun ⟨a, b⟩ => (∅ : Headers).insert a b⟩
 
-instance : Insert (HeaderName × HeaderValue) Headers :=
+instance : Insert (Header.Name × Header.Value) Headers :=
   ⟨fun ⟨a, b⟩ s => s.insert a b⟩
 
 instance : Union Headers :=
@@ -225,17 +225,17 @@ theorem in_of_hasall (name : String) (inList : name ∈ list) (hasAll : HasAll h
     else
       in_of_hasall name (List.mem_of_ne_of_mem (Ne.intro (fun x => eq x.symm)) inList) tail
 
-theorem in_implies_valid (h : In name headers) : isValidHeaderName name.toLower :=
-  if h₀ : isValidHeaderName name.toLower then h₀ else by
-    unfold In HeaderName.ofString? at h
+theorem in_implies_valid (h : In name headers) : Header.isValidHeaderName name.toLower :=
+  if h₀ : Header.isValidHeaderName name.toLower then h₀ else by
+    unfold In Header.Name.ofString? at h
     simp [h₀] at h
 
-theorem mem_implies_valid (name : String) (inList : name ∈ list) (hasAll : HasAll headers list) : isValidHeaderName name.toLower :=
+theorem mem_implies_valid (name : String) (inList : name ∈ list) (hasAll : HasAll headers list) : Header.isValidHeaderName name.toLower :=
   in_implies_valid (in_of_hasall name inList hasAll)
 
-theorem in_implies_mem (h : In nn headers) : ∃p : (isValidHeaderName nn.toLower ∧ isNormalForm nn.toLower), HeaderName.mk nn.toLower p.left p.right ∈ headers := by
-  simp [In, HeaderName.ofString?] at h
-  if h2 : isValidHeaderName nn.toLower ∧ isNormalForm nn.toLower then
+theorem in_implies_mem (h : In nn headers) : ∃p : (Header.isValidHeaderName nn.toLower ∧ Header.isNormalForm nn.toLower), Header.Name.mk nn.toLower p.left p.right ∈ headers := by
+  simp [In, Header.Name.ofString?] at h
+  if h2 : Header.isValidHeaderName nn.toLower ∧ Header.isNormalForm nn.toLower then
     simp [eq_true h2] at h
     exact ⟨h2, h⟩
   else
@@ -265,16 +265,16 @@ def decidable : Decidable (HasAll h l) :=
 /--
 Gets the value of a header by name.
 -/
-def get (hasAll : HasAll headers l) (name : String) (h : (name ∈ l) := by get_elem_tactic) : HeaderValue :=
+def get (hasAll : HasAll headers l) (name : String) (h : (name ∈ l) := by get_elem_tactic) : Header.Value :=
   let h2 := in_implies_mem (in_of_hasall name h hasAll)
-  headers.get (HeaderName.mk name.toLower h2.choose.left h2.choose.right) h2.choose_spec
+  headers.get (Header.Name.mk name.toLower h2.choose.left h2.choose.right) h2.choose_spec
 
 /--
 Gets all values of a header by name.
 -/
-def getAll (hasAll : HasAll headers l) (name : String) (h : (name ∈ l) := by get_elem_tactic) : Array HeaderValue :=
+def getAll (hasAll : HasAll headers l) (name : String) (h : (name ∈ l) := by get_elem_tactic) : Array Header.Value :=
   let h2 := in_implies_mem (in_of_hasall name h hasAll)
-  headers.getAll (HeaderName.mk name.toLower h2.choose.left h2.choose.right) h2.choose_spec
+  headers.getAll (Header.Name.mk name.toLower h2.choose.left h2.choose.right) h2.choose_spec
 
 instance : Decidable (HasAll h l) := decidable
 

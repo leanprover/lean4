@@ -151,7 +151,7 @@ lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___regBuiltin_Lean_Elab_Tactic_Simpa_evalSimpa_declRange__3___closed__2;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00__private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00__private_Lean_Util_OccursCheck_0__Lean_occursCheck_visit___at___00Lean_occursCheck___at___00Lean_Elab_Tactic_Simpa_evalSimpa_spec__1_spec__1_spec__7_spec__16_spec__19_spec__25___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getExprMVarAssignment_x3f___at___00__private_Lean_Util_OccursCheck_0__Lean_occursCheck_visitMVar___at___00__private_Lean_Util_OccursCheck_0__Lean_occursCheck_visit___at___00Lean_occursCheck___at___00Lean_Elab_Tactic_Simpa_evalSimpa_spec__1_spec__1_spec__8_spec__18___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__2(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__2(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___regBuiltin_Lean_Elab_Tactic_Simpa_evalSimpa__1();
 static lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___closed__9;
 lean_object* l_Lean_Elab_Tactic_replaceMainGoal___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -292,7 +292,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___00Std
 LEAN_EXPORT lean_object* l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Elab_Tactic_Simpa_evalSimpa_spec__4_spec__7_spec__16(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Elab_Tactic_Simpa_evalSimpa_spec__6___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__4(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__4(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_withInfoTreeContext___at___00Lean_Elab_Tactic_Simpa_evalSimpa_spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___closed__6;
@@ -360,7 +360,7 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__4___closed__0;
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 static size_t l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00Lean_Elab_Tactic_Simpa_evalSimpa_spec__2_spec__3_spec__11___redArg___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___regBuiltin_Lean_Elab_Tactic_Simpa_evalSimpa__1___closed__0;
 static lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__5___closed__3;
 LEAN_EXPORT lean_object* l_Lean_MVarId_withContext___at___00Lean_Elab_Tactic_Simpa_evalSimpa_spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4417,7 +4417,7 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__2(lean_object* x_1, lean_object* x_2, uint8_t x_3, uint8_t x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, uint8_t x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15, lean_object* x_16, lean_object* x_17) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__2(lean_object* x_1, lean_object* x_2, uint8_t x_3, uint8_t x_4, uint8_t x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15, lean_object* x_16, lean_object* x_17) {
 _start:
 {
 lean_object* x_19; 
@@ -4490,7 +4490,7 @@ x_71 = lean_ctor_get(x_14, 6);
 x_72 = lean_ctor_get_uint8(x_14, sizeof(void*)*7 + 1);
 x_73 = lean_ctor_get_uint8(x_14, sizeof(void*)*7 + 2);
 x_74 = lean_ctor_get_uint8(x_14, sizeof(void*)*7 + 3);
-lean_ctor_set_uint8(x_63, 7, x_9);
+lean_ctor_set_uint8(x_63, 7, x_5);
 x_75 = l___private_Lean_Meta_Basic_0__Lean_Meta_Config_toKey(x_63);
 x_76 = lean_alloc_ctor(0, 1, 8);
 lean_ctor_set(x_76, 0, x_63);
@@ -4558,9 +4558,9 @@ lean_dec(x_15);
 lean_dec_ref(x_14);
 lean_dec(x_13);
 lean_dec_ref(x_12);
-lean_dec(x_8);
-lean_dec_ref(x_7);
-lean_dec_ref(x_5);
+lean_dec(x_9);
+lean_dec_ref(x_8);
+lean_dec_ref(x_6);
 lean_dec(x_1);
 x_83 = !lean_is_exclusive(x_78);
 if (x_83 == 0)
@@ -4620,7 +4620,7 @@ lean_ctor_set_uint8(x_114, 3, x_89);
 lean_ctor_set_uint8(x_114, 4, x_90);
 lean_ctor_set_uint8(x_114, 5, x_91);
 lean_ctor_set_uint8(x_114, 6, x_92);
-lean_ctor_set_uint8(x_114, 7, x_9);
+lean_ctor_set_uint8(x_114, 7, x_5);
 lean_ctor_set_uint8(x_114, 8, x_93);
 lean_ctor_set_uint8(x_114, 9, x_94);
 lean_ctor_set_uint8(x_114, 10, x_95);
@@ -4699,9 +4699,9 @@ lean_dec(x_15);
 lean_dec_ref(x_14);
 lean_dec(x_13);
 lean_dec_ref(x_12);
-lean_dec(x_8);
-lean_dec_ref(x_7);
-lean_dec_ref(x_5);
+lean_dec(x_9);
+lean_dec_ref(x_8);
+lean_dec_ref(x_6);
 lean_dec(x_1);
 x_123 = lean_ctor_get(x_118, 0);
 lean_inc(x_123);
@@ -4728,8 +4728,8 @@ if (x_53 == 0)
 {
 lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; 
 x_55 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__2___closed__1;
-lean_inc_ref(x_5);
-x_56 = l_Lean_indentExpr(x_5);
+lean_inc_ref(x_6);
+x_56 = l_Lean_indentExpr(x_6);
 x_57 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_57, 0, x_55);
 lean_ctor_set(x_57, 1, x_56);
@@ -4749,7 +4749,7 @@ lean_inc_ref(x_16);
 lean_inc(x_15);
 lean_inc_ref(x_14);
 lean_inc(x_24);
-x_61 = l_Lean_Elab_Term_throwTypeMismatchError___redArg(x_60, x_20, x_52, x_24, x_8, x_14, x_15, x_16, x_17);
+x_61 = l_Lean_Elab_Term_throwTypeMismatchError___redArg(x_60, x_20, x_52, x_24, x_9, x_14, x_15, x_16, x_17);
 lean_dec_ref(x_60);
 if (lean_obj_tag(x_61) == 0)
 {
@@ -4774,8 +4774,8 @@ lean_dec(x_15);
 lean_dec_ref(x_14);
 lean_dec(x_13);
 lean_dec_ref(x_12);
-lean_dec_ref(x_7);
-lean_dec_ref(x_5);
+lean_dec_ref(x_8);
+lean_dec_ref(x_6);
 lean_dec(x_1);
 return x_61;
 }
@@ -4785,7 +4785,7 @@ else
 lean_dec(x_52);
 lean_dec(x_50);
 lean_dec(x_20);
-lean_dec(x_8);
+lean_dec(x_9);
 x_25 = x_10;
 x_26 = x_11;
 x_27 = x_12;
@@ -4811,9 +4811,9 @@ lean_dec(x_15);
 lean_dec_ref(x_14);
 lean_dec(x_13);
 lean_dec_ref(x_12);
-lean_dec(x_8);
-lean_dec_ref(x_7);
-lean_dec_ref(x_5);
+lean_dec(x_9);
+lean_dec_ref(x_8);
+lean_dec_ref(x_6);
 lean_dec(x_1);
 x_126 = !lean_is_exclusive(x_51);
 if (x_126 == 0)
@@ -4842,23 +4842,23 @@ lean_dec(x_15);
 lean_dec_ref(x_14);
 lean_dec(x_13);
 lean_dec_ref(x_12);
-lean_dec(x_8);
-lean_dec_ref(x_7);
-lean_dec_ref(x_5);
+lean_dec(x_9);
+lean_dec_ref(x_8);
+lean_dec_ref(x_6);
 lean_dec(x_1);
 return x_49;
 }
 block_48:
 {
 lean_object* x_34; 
-x_34 = l_Lean_Meta_getMVars(x_5, x_29, x_30, x_31, x_32);
+x_34 = l_Lean_Meta_getMVars(x_6, x_29, x_30, x_31, x_32);
 if (lean_obj_tag(x_34) == 0)
 {
 lean_object* x_35; lean_object* x_36; 
 x_35 = lean_ctor_get(x_34, 0);
 lean_inc(x_35);
 lean_dec_ref(x_34);
-x_36 = l_Lean_Elab_Tactic_filterOldMVars___redArg(x_35, x_6, x_30);
+x_36 = l_Lean_Elab_Tactic_filterOldMVars___redArg(x_35, x_7, x_30);
 lean_dec(x_35);
 if (lean_obj_tag(x_36) == 0)
 {
@@ -4883,7 +4883,7 @@ if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; lean_object* x_41; 
 lean_dec_ref(x_39);
-x_40 = l_Lean_Name_mkStr1(x_7);
+x_40 = l_Lean_Name_mkStr1(x_8);
 x_41 = l_Lean_Elab_Tactic_closeMainGoal___redArg(x_40, x_24, x_4, x_26, x_27, x_28, x_29, x_30, x_31, x_32);
 return x_41;
 }
@@ -4896,7 +4896,7 @@ lean_dec_ref(x_29);
 lean_dec(x_28);
 lean_dec_ref(x_27);
 lean_dec(x_24);
-lean_dec_ref(x_7);
+lean_dec_ref(x_8);
 return x_39;
 }
 }
@@ -4909,7 +4909,7 @@ lean_dec_ref(x_29);
 lean_dec(x_28);
 lean_dec_ref(x_27);
 lean_dec(x_24);
-lean_dec_ref(x_7);
+lean_dec_ref(x_8);
 lean_dec(x_1);
 return x_38;
 }
@@ -4924,7 +4924,7 @@ lean_dec_ref(x_29);
 lean_dec(x_28);
 lean_dec_ref(x_27);
 lean_dec(x_24);
-lean_dec_ref(x_7);
+lean_dec_ref(x_8);
 lean_dec(x_1);
 x_42 = !lean_is_exclusive(x_36);
 if (x_42 == 0)
@@ -4953,7 +4953,7 @@ lean_dec_ref(x_29);
 lean_dec(x_28);
 lean_dec_ref(x_27);
 lean_dec(x_24);
-lean_dec_ref(x_7);
+lean_dec_ref(x_8);
 lean_dec(x_1);
 x_45 = !lean_is_exclusive(x_34);
 if (x_45 == 0)
@@ -4983,9 +4983,9 @@ lean_dec(x_15);
 lean_dec_ref(x_14);
 lean_dec(x_13);
 lean_dec_ref(x_12);
-lean_dec(x_8);
-lean_dec_ref(x_7);
-lean_dec_ref(x_5);
+lean_dec(x_9);
+lean_dec_ref(x_8);
+lean_dec_ref(x_6);
 lean_dec(x_1);
 x_129 = !lean_is_exclusive(x_23);
 if (x_129 == 0)
@@ -5013,9 +5013,9 @@ lean_dec(x_15);
 lean_dec_ref(x_14);
 lean_dec(x_13);
 lean_dec_ref(x_12);
-lean_dec(x_8);
-lean_dec_ref(x_7);
-lean_dec_ref(x_5);
+lean_dec(x_9);
+lean_dec_ref(x_8);
+lean_dec_ref(x_6);
 lean_dec(x_2);
 lean_dec(x_1);
 x_132 = !lean_is_exclusive(x_19);
@@ -5132,11 +5132,11 @@ _start:
 uint8_t x_19; uint8_t x_20; uint8_t x_21; lean_object* x_22; 
 x_19 = lean_unbox(x_3);
 x_20 = lean_unbox(x_4);
-x_21 = lean_unbox(x_9);
-x_22 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__2(x_1, x_2, x_19, x_20, x_5, x_6, x_7, x_8, x_21, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
+x_21 = lean_unbox(x_5);
+x_22 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__2(x_1, x_2, x_19, x_20, x_21, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_11);
 lean_dec_ref(x_10);
-lean_dec(x_6);
+lean_dec(x_7);
 return x_22;
 }
 }
@@ -5275,7 +5275,7 @@ x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__4(lean_object* x_1, lean_object* x_2, uint8_t x_3, uint8_t x_4, lean_object* x_5, uint8_t x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15, lean_object* x_16, lean_object* x_17, lean_object* x_18, lean_object* x_19, lean_object* x_20, lean_object* x_21) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__4(lean_object* x_1, lean_object* x_2, uint8_t x_3, uint8_t x_4, uint8_t x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15, lean_object* x_16, lean_object* x_17, lean_object* x_18, lean_object* x_19, lean_object* x_20, lean_object* x_21) {
 _start:
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; 
@@ -5353,7 +5353,7 @@ lean_dec_ref(x_11);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec_ref(x_8);
-lean_dec_ref(x_5);
+lean_dec_ref(x_6);
 lean_dec(x_2);
 x_248 = !lean_is_exclusive(x_247);
 if (x_248 == 0)
@@ -5417,7 +5417,7 @@ lean_dec_ref(x_11);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec_ref(x_8);
-lean_dec_ref(x_5);
+lean_dec_ref(x_6);
 x_221 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__4___closed__9;
 x_222 = l_Lean_indentExpr(x_216);
 x_223 = lean_alloc_ctor(7, 2, 0);
@@ -5494,7 +5494,7 @@ lean_dec_ref(x_11);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec_ref(x_8);
-lean_dec_ref(x_5);
+lean_dec_ref(x_6);
 lean_dec(x_2);
 x_234 = !lean_is_exclusive(x_217);
 if (x_234 == 0)
@@ -5529,7 +5529,7 @@ lean_dec_ref(x_11);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec_ref(x_8);
-lean_dec_ref(x_5);
+lean_dec_ref(x_6);
 lean_dec(x_2);
 x_237 = !lean_is_exclusive(x_215);
 if (x_237 == 0)
@@ -5557,7 +5557,7 @@ lean_dec_ref(x_16);
 lean_dec(x_15);
 lean_dec_ref(x_14);
 lean_dec_ref(x_13);
-lean_dec_ref(x_5);
+lean_dec_ref(x_6);
 lean_dec(x_1);
 x_251 = lean_ctor_get(x_18, 2);
 x_252 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__4___closed__13;
@@ -5853,18 +5853,18 @@ lean_inc(x_52);
 lean_dec_ref(x_51);
 x_53 = lean_box(x_3);
 x_54 = lean_box(x_4);
-x_55 = lean_box(x_6);
+x_55 = lean_box(x_5);
 lean_inc(x_52);
 x_56 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__2___boxed), 18, 9);
 lean_closure_set(x_56, 0, x_52);
 lean_closure_set(x_56, 1, x_50);
 lean_closure_set(x_56, 2, x_53);
 lean_closure_set(x_56, 3, x_54);
-lean_closure_set(x_56, 4, x_34);
-lean_closure_set(x_56, 5, x_33);
-lean_closure_set(x_56, 6, x_5);
-lean_closure_set(x_56, 7, x_32);
-lean_closure_set(x_56, 8, x_55);
+lean_closure_set(x_56, 4, x_55);
+lean_closure_set(x_56, 5, x_34);
+lean_closure_set(x_56, 6, x_33);
+lean_closure_set(x_56, 7, x_6);
+lean_closure_set(x_56, 8, x_32);
 lean_inc(x_36);
 x_57 = l_Lean_MVarId_withContext___at___00Lean_Elab_Tactic_Simpa_evalSimpa_spec__5___redArg(x_52, x_56, x_43, x_44, x_40, x_45, x_47, x_36, x_46, x_41);
 if (lean_obj_tag(x_57) == 0)
@@ -5917,7 +5917,7 @@ lean_dec(x_36);
 lean_dec_ref(x_34);
 lean_dec(x_33);
 lean_dec(x_32);
-lean_dec_ref(x_5);
+lean_dec_ref(x_6);
 lean_dec(x_2);
 x_61 = !lean_is_exclusive(x_51);
 if (x_61 == 0)
@@ -5954,7 +5954,7 @@ lean_dec(x_35);
 lean_dec_ref(x_34);
 lean_dec(x_33);
 lean_dec(x_32);
-lean_dec_ref(x_5);
+lean_dec_ref(x_6);
 lean_dec(x_2);
 x_64 = !lean_is_exclusive(x_49);
 if (x_64 == 0)
@@ -6042,7 +6042,7 @@ lean_dec(x_93);
 lean_dec_ref(x_70);
 lean_dec(x_69);
 lean_dec(x_68);
-lean_dec_ref(x_5);
+lean_dec_ref(x_6);
 x_100 = !lean_is_exclusive(x_98);
 if (x_100 == 0)
 {
@@ -6106,7 +6106,7 @@ goto block_31;
 else
 {
 lean_dec_ref(x_108);
-if (x_6 == 0)
+if (x_5 == 0)
 {
 lean_free_object(x_98);
 lean_free_object(x_91);
@@ -6270,7 +6270,7 @@ goto block_31;
 else
 {
 lean_dec_ref(x_127);
-if (x_6 == 0)
+if (x_5 == 0)
 {
 lean_free_object(x_91);
 lean_dec(x_80);
@@ -6458,7 +6458,7 @@ lean_dec_ref(x_72);
 lean_dec_ref(x_70);
 lean_dec(x_69);
 lean_dec(x_68);
-lean_dec_ref(x_5);
+lean_dec_ref(x_6);
 lean_dec(x_2);
 x_148 = !lean_is_exclusive(x_97);
 if (x_148 == 0)
@@ -6507,7 +6507,7 @@ lean_dec(x_151);
 lean_dec_ref(x_70);
 lean_dec(x_69);
 lean_dec(x_68);
-lean_dec_ref(x_5);
+lean_dec_ref(x_6);
 x_158 = lean_ctor_get(x_156, 1);
 lean_inc(x_158);
 if (lean_is_exclusive(x_156)) {
@@ -6572,7 +6572,7 @@ goto block_31;
 else
 {
 lean_dec_ref(x_165);
-if (x_6 == 0)
+if (x_5 == 0)
 {
 lean_dec(x_159);
 lean_dec(x_80);
@@ -6762,7 +6762,7 @@ lean_dec_ref(x_72);
 lean_dec_ref(x_70);
 lean_dec(x_69);
 lean_dec(x_68);
-lean_dec_ref(x_5);
+lean_dec_ref(x_6);
 lean_dec(x_2);
 x_187 = lean_ctor_get(x_155, 0);
 lean_inc(x_187);
@@ -6803,7 +6803,7 @@ lean_dec_ref(x_11);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec_ref(x_8);
-lean_dec_ref(x_5);
+lean_dec_ref(x_6);
 lean_dec(x_2);
 x_190 = !lean_is_exclusive(x_90);
 if (x_190 == 0)
@@ -6842,7 +6842,7 @@ lean_dec_ref(x_11);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec_ref(x_8);
-lean_dec_ref(x_5);
+lean_dec_ref(x_6);
 lean_dec(x_2);
 x_193 = !lean_is_exclusive(x_86);
 if (x_193 == 0)
@@ -6882,7 +6882,7 @@ lean_dec_ref(x_11);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec_ref(x_8);
-lean_dec_ref(x_5);
+lean_dec_ref(x_6);
 lean_dec(x_2);
 x_196 = !lean_is_exclusive(x_84);
 if (x_196 == 0)
@@ -6921,7 +6921,7 @@ lean_dec_ref(x_11);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec_ref(x_8);
-lean_dec_ref(x_5);
+lean_dec_ref(x_6);
 lean_dec(x_2);
 x_199 = !lean_is_exclusive(x_82);
 if (x_199 == 0)
@@ -6970,14 +6970,14 @@ _start:
 uint8_t x_23; uint8_t x_24; uint8_t x_25; lean_object* x_26; 
 x_23 = lean_unbox(x_3);
 x_24 = lean_unbox(x_4);
-x_25 = lean_unbox(x_6);
-x_26 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__4(x_1, x_2, x_23, x_24, x_5, x_25, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
+x_25 = lean_unbox(x_5);
+x_26 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__4(x_1, x_2, x_23, x_24, x_25, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
 lean_dec(x_12);
 lean_dec(x_7);
 return x_26;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, uint8_t x_7, lean_object* x_8, uint8_t x_9, lean_object* x_10, uint8_t x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15, lean_object* x_16, lean_object* x_17, lean_object* x_18, lean_object* x_19, lean_object* x_20, lean_object* x_21, lean_object* x_22) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, uint8_t x_7, lean_object* x_8, uint8_t x_9, uint8_t x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15, lean_object* x_16, lean_object* x_17, lean_object* x_18, lean_object* x_19, lean_object* x_20, lean_object* x_21, lean_object* x_22) {
 _start:
 {
 lean_object* x_24; 
@@ -7092,15 +7092,15 @@ x_53 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__1___
 lean_closure_set(x_53, 0, x_31);
 x_54 = lean_box(x_7);
 x_55 = lean_box(x_9);
-x_56 = lean_box(x_11);
+x_56 = lean_box(x_10);
 lean_inc(x_49);
 x_57 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__4___boxed), 22, 13);
 lean_closure_set(x_57, 0, x_8);
 lean_closure_set(x_57, 1, x_49);
 lean_closure_set(x_57, 2, x_54);
 lean_closure_set(x_57, 3, x_55);
-lean_closure_set(x_57, 4, x_10);
-lean_closure_set(x_57, 5, x_56);
+lean_closure_set(x_57, 4, x_56);
+lean_closure_set(x_57, 5, x_11);
 lean_closure_set(x_57, 6, x_12);
 lean_closure_set(x_57, 7, x_5);
 lean_closure_set(x_57, 8, x_6);
@@ -7127,7 +7127,7 @@ lean_dec(x_16);
 lean_dec_ref(x_15);
 lean_dec(x_14);
 lean_dec(x_12);
-lean_dec_ref(x_10);
+lean_dec_ref(x_11);
 lean_dec(x_8);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
@@ -7169,15 +7169,15 @@ x_66 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__1___
 lean_closure_set(x_66, 0, x_31);
 x_67 = lean_box(x_7);
 x_68 = lean_box(x_9);
-x_69 = lean_box(x_11);
+x_69 = lean_box(x_10);
 lean_inc(x_62);
 x_70 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__4___boxed), 22, 13);
 lean_closure_set(x_70, 0, x_8);
 lean_closure_set(x_70, 1, x_62);
 lean_closure_set(x_70, 2, x_67);
 lean_closure_set(x_70, 3, x_68);
-lean_closure_set(x_70, 4, x_10);
-lean_closure_set(x_70, 5, x_69);
+lean_closure_set(x_70, 4, x_69);
+lean_closure_set(x_70, 5, x_11);
 lean_closure_set(x_70, 6, x_12);
 lean_closure_set(x_70, 7, x_5);
 lean_closure_set(x_70, 8, x_6);
@@ -7204,7 +7204,7 @@ lean_dec(x_16);
 lean_dec_ref(x_15);
 lean_dec(x_14);
 lean_dec(x_12);
-lean_dec_ref(x_10);
+lean_dec_ref(x_11);
 lean_dec(x_8);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
@@ -7235,7 +7235,7 @@ lean_dec(x_44);
 lean_dec(x_31);
 lean_dec(x_14);
 lean_dec(x_12);
-lean_dec_ref(x_10);
+lean_dec_ref(x_11);
 lean_dec(x_8);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
@@ -7419,7 +7419,7 @@ lean_dec(x_16);
 lean_dec_ref(x_15);
 lean_dec(x_14);
 lean_dec(x_12);
-lean_dec_ref(x_10);
+lean_dec_ref(x_11);
 lean_dec(x_8);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
@@ -7455,7 +7455,7 @@ lean_dec(x_16);
 lean_dec_ref(x_15);
 lean_dec(x_14);
 lean_dec(x_12);
-lean_dec_ref(x_10);
+lean_dec_ref(x_11);
 lean_dec(x_8);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
@@ -7490,7 +7490,7 @@ lean_dec(x_16);
 lean_dec_ref(x_15);
 lean_dec(x_14);
 lean_dec(x_12);
-lean_dec_ref(x_10);
+lean_dec_ref(x_11);
 lean_dec(x_8);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
@@ -7806,8 +7806,8 @@ _start:
 uint8_t x_24; uint8_t x_25; uint8_t x_26; lean_object* x_27; 
 x_24 = lean_unbox(x_7);
 x_25 = lean_unbox(x_9);
-x_26 = lean_unbox(x_11);
-x_27 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__5(x_1, x_2, x_3, x_4, x_5, x_6, x_24, x_8, x_25, x_10, x_26, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22);
+x_26 = lean_unbox(x_10);
+x_27 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lam__5(x_1, x_2, x_3, x_4, x_5, x_6, x_24, x_8, x_25, x_26, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22);
 lean_dec(x_1);
 return x_27;
 }
@@ -9276,8 +9276,8 @@ lean_closure_set(x_426, 5, x_418);
 lean_closure_set(x_426, 6, x_423);
 lean_closure_set(x_426, 7, x_17);
 lean_closure_set(x_426, 8, x_424);
-lean_closure_set(x_426, 9, x_9);
-lean_closure_set(x_426, 10, x_425);
+lean_closure_set(x_426, 9, x_425);
+lean_closure_set(x_426, 10, x_9);
 lean_closure_set(x_426, 11, x_14);
 lean_closure_set(x_426, 12, x_20);
 lean_inc(x_32);

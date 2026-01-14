@@ -1455,13 +1455,15 @@ x_12 = lean_unsigned_to_nat(1u);
 x_13 = lean_nat_sub(x_6, x_12);
 lean_dec(x_6);
 x_14 = l_String_Slice_Pos_prevAux_go___redArg(x_2, x_13);
+lean_inc(x_14);
+lean_ctor_set(x_3, 0, x_14);
 x_15 = lean_nat_add(x_11, x_14);
 x_16 = lean_string_utf8_get_fast(x_10, x_15);
 lean_dec(x_15);
 x_17 = lean_uint32_dec_eq(x_16, x_7);
 if (x_17 == 0)
 {
-lean_ctor_set(x_3, 0, x_14);
+lean_dec(x_14);
 {
 lean_object* _tmp_3 = x_1;
 x_4 = _tmp_3;
@@ -1471,7 +1473,7 @@ goto _start;
 else
 {
 lean_object* x_19; 
-lean_free_object(x_3);
+lean_dec_ref(x_3);
 x_19 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_19, 0, x_14);
 return x_19;
@@ -1496,25 +1498,26 @@ x_22 = lean_unsigned_to_nat(0u);
 x_23 = lean_nat_dec_eq(x_20, x_22);
 if (x_23 == 0)
 {
-lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; uint32_t x_30; uint8_t x_31; 
+lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; uint32_t x_31; uint8_t x_32; 
 x_24 = lean_ctor_get(x_2, 0);
 x_25 = lean_ctor_get(x_2, 1);
 x_26 = lean_unsigned_to_nat(1u);
 x_27 = lean_nat_sub(x_20, x_26);
 lean_dec(x_20);
 x_28 = l_String_Slice_Pos_prevAux_go___redArg(x_2, x_27);
-x_29 = lean_nat_add(x_25, x_28);
-x_30 = lean_string_utf8_get_fast(x_24, x_29);
-lean_dec(x_29);
-x_31 = lean_uint32_dec_eq(x_30, x_21);
-if (x_31 == 0)
+lean_inc(x_28);
+x_29 = lean_alloc_ctor(0, 1, 4);
+lean_ctor_set(x_29, 0, x_28);
+lean_ctor_set_uint32(x_29, sizeof(void*)*1, x_21);
+x_30 = lean_nat_add(x_25, x_28);
+x_31 = lean_string_utf8_get_fast(x_24, x_30);
+lean_dec(x_30);
+x_32 = lean_uint32_dec_eq(x_31, x_21);
+if (x_32 == 0)
 {
-lean_object* x_32; 
-x_32 = lean_alloc_ctor(0, 1, 4);
-lean_ctor_set(x_32, 0, x_28);
-lean_ctor_set_uint32(x_32, sizeof(void*)*1, x_21);
+lean_dec(x_28);
 {
-lean_object* _tmp_2 = x_32;
+lean_object* _tmp_2 = x_29;
 lean_object* _tmp_3 = x_1;
 x_3 = _tmp_2;
 x_4 = _tmp_3;
@@ -1524,6 +1527,7 @@ goto _start;
 else
 {
 lean_object* x_34; 
+lean_dec_ref(x_29);
 x_34 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_34, 0, x_28);
 return x_34;

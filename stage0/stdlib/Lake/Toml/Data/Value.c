@@ -2706,37 +2706,37 @@ goto _start;
 LEAN_EXPORT lean_object* l_Lake_Toml_ppTable(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_17; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
-x_21 = lean_ctor_get(x_1, 0);
-x_22 = l_Lake_Toml_instInhabitedValue_default___closed__0;
-x_23 = lean_unsigned_to_nat(0u);
-x_24 = lean_array_get_size(x_21);
-x_25 = lean_nat_dec_lt(x_23, x_24);
-if (x_25 == 0)
+lean_object* x_2; lean_object* x_3; lean_object* x_17; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; 
+x_21 = l_Lake_Toml_instInhabitedValue_default___closed__0;
+x_22 = l_Lake_Toml_ppTable___closed__0;
+x_23 = lean_ctor_get(x_1, 0);
+x_24 = lean_unsigned_to_nat(0u);
+x_25 = lean_array_get_size(x_23);
+x_26 = lean_nat_dec_lt(x_24, x_25);
+if (x_26 == 0)
 {
-x_2 = x_22;
-x_3 = x_22;
+x_2 = x_21;
+x_3 = x_21;
 goto block_16;
 }
 else
 {
-lean_object* x_26; uint8_t x_27; 
-x_26 = l_Lake_Toml_ppTable___closed__0;
-x_27 = lean_nat_dec_le(x_24, x_24);
+uint8_t x_27; 
+x_27 = lean_nat_dec_le(x_25, x_25);
 if (x_27 == 0)
 {
-if (x_25 == 0)
+if (x_26 == 0)
 {
-x_2 = x_22;
-x_3 = x_22;
+x_2 = x_21;
+x_3 = x_21;
 goto block_16;
 }
 else
 {
 size_t x_28; size_t x_29; lean_object* x_30; 
 x_28 = 0;
-x_29 = lean_usize_of_nat(x_24);
-x_30 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Toml_ppTable_spec__5(x_21, x_28, x_29, x_26);
+x_29 = lean_usize_of_nat(x_25);
+x_30 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Toml_ppTable_spec__5(x_23, x_28, x_29, x_22);
 x_17 = x_30;
 goto block_20;
 }
@@ -2745,8 +2745,8 @@ else
 {
 size_t x_31; size_t x_32; lean_object* x_33; 
 x_31 = 0;
-x_32 = lean_usize_of_nat(x_24);
-x_33 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Toml_ppTable_spec__5(x_21, x_31, x_32, x_26);
+x_32 = lean_usize_of_nat(x_25);
+x_33 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_Toml_ppTable_spec__5(x_23, x_31, x_32, x_22);
 x_17 = x_33;
 goto block_20;
 }

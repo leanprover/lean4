@@ -7876,15 +7876,17 @@ if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_9 = lean_ctor_get(x_6, 0);
-x_10 = lean_ctor_get(x_9, 1);
-lean_inc_ref(x_10);
-x_11 = l_Lean_Widget_InteractiveTermGoal_pretty(x_9);
-x_12 = l_Lean_Server_FileWorker_handleHover___lam__6___closed__0;
-x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Std_Format_pretty(x_11, x_12, x_13, x_13);
+lean_inc(x_9);
+x_10 = l_Lean_Widget_InteractiveTermGoal_pretty(x_9);
+x_11 = l_Lean_Server_FileWorker_handleHover___lam__6___closed__0;
+x_12 = lean_unsigned_to_nat(0u);
+x_13 = l_Std_Format_pretty(x_10, x_11, x_12, x_12);
+x_14 = lean_ctor_get(x_9, 1);
+lean_inc_ref(x_14);
+lean_dec(x_9);
 x_15 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_15, 0, x_14);
-lean_ctor_set(x_15, 1, x_10);
+lean_ctor_set(x_15, 0, x_13);
+lean_ctor_set(x_15, 1, x_14);
 lean_ctor_set(x_6, 0, x_15);
 return x_1;
 }
@@ -7894,15 +7896,17 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean
 x_16 = lean_ctor_get(x_6, 0);
 lean_inc(x_16);
 lean_dec(x_6);
-x_17 = lean_ctor_get(x_16, 1);
-lean_inc_ref(x_17);
-x_18 = l_Lean_Widget_InteractiveTermGoal_pretty(x_16);
-x_19 = l_Lean_Server_FileWorker_handleHover___lam__6___closed__0;
-x_20 = lean_unsigned_to_nat(0u);
-x_21 = l_Std_Format_pretty(x_18, x_19, x_20, x_20);
+lean_inc(x_16);
+x_17 = l_Lean_Widget_InteractiveTermGoal_pretty(x_16);
+x_18 = l_Lean_Server_FileWorker_handleHover___lam__6___closed__0;
+x_19 = lean_unsigned_to_nat(0u);
+x_20 = l_Std_Format_pretty(x_17, x_18, x_19, x_19);
+x_21 = lean_ctor_get(x_16, 1);
+lean_inc_ref(x_21);
+lean_dec(x_16);
 x_22 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_22, 0, x_21);
-lean_ctor_set(x_22, 1, x_17);
+lean_ctor_set(x_22, 0, x_20);
+lean_ctor_set(x_22, 1, x_21);
 x_23 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_23, 0, x_22);
 lean_ctor_set(x_1, 0, x_23);
@@ -7934,15 +7938,17 @@ if (lean_is_exclusive(x_24)) {
  lean_dec_ref(x_24);
  x_27 = lean_box(0);
 }
-x_28 = lean_ctor_get(x_26, 1);
-lean_inc_ref(x_28);
-x_29 = l_Lean_Widget_InteractiveTermGoal_pretty(x_26);
-x_30 = l_Lean_Server_FileWorker_handleHover___lam__6___closed__0;
-x_31 = lean_unsigned_to_nat(0u);
-x_32 = l_Std_Format_pretty(x_29, x_30, x_31, x_31);
+lean_inc(x_26);
+x_28 = l_Lean_Widget_InteractiveTermGoal_pretty(x_26);
+x_29 = l_Lean_Server_FileWorker_handleHover___lam__6___closed__0;
+x_30 = lean_unsigned_to_nat(0u);
+x_31 = l_Std_Format_pretty(x_28, x_29, x_30, x_30);
+x_32 = lean_ctor_get(x_26, 1);
+lean_inc_ref(x_32);
+lean_dec(x_26);
 x_33 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_33, 0, x_32);
-lean_ctor_set(x_33, 1, x_28);
+lean_ctor_set(x_33, 0, x_31);
+lean_ctor_set(x_33, 1, x_32);
 if (lean_is_scalar(x_27)) {
  x_34 = lean_alloc_ctor(1, 1, 0);
 } else {
@@ -14874,13 +14880,16 @@ lean_inc(x_1129);
 x_1131 = l_Lean_Syntax_isOfKind(x_1129, x_1130);
 if (x_1131 == 0)
 {
-lean_object* x_1132; uint8_t x_1133; 
+lean_object* x_1132; lean_object* x_1133; lean_object* x_1134; uint8_t x_1135; 
 lean_dec(x_13);
-x_1132 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__9;
+x_1132 = lean_unsigned_to_nat(1u);
+x_1133 = l_Lean_Syntax_getArg(x_11, x_1132);
+x_1134 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__9;
 lean_inc(x_11);
-x_1133 = l_Lean_Syntax_isOfKind(x_11, x_1132);
-if (x_1133 == 0)
+x_1135 = l_Lean_Syntax_isOfKind(x_11, x_1134);
+if (x_1135 == 0)
 {
+lean_dec(x_1133);
 lean_dec(x_1129);
 lean_dec(x_11);
 x_2 = x_12;
@@ -14888,24 +14897,22 @@ goto _start;
 }
 else
 {
-lean_object* x_1135; 
-x_1135 = l_Lean_Syntax_getRange_x3f(x_11, x_1131);
-if (lean_obj_tag(x_1135) == 1)
-{
-uint8_t x_1136; 
-x_1136 = !lean_is_exclusive(x_1135);
-if (x_1136 == 0)
-{
-lean_object* x_1137; lean_object* x_1138; lean_object* x_1139; lean_object* x_1161; lean_object* x_1165; lean_object* x_1166; 
-x_1137 = lean_ctor_get(x_1135, 0);
-x_1165 = lean_unsigned_to_nat(1u);
-x_1166 = l_Lean_Syntax_getArg(x_11, x_1165);
+lean_object* x_1137; 
+x_1137 = l_Lean_Syntax_getRange_x3f(x_11, x_1131);
 lean_dec(x_11);
-if (x_1133 == 0)
+if (lean_obj_tag(x_1137) == 1)
+{
+uint8_t x_1138; 
+x_1138 = !lean_is_exclusive(x_1137);
+if (x_1138 == 0)
+{
+lean_object* x_1139; lean_object* x_1140; lean_object* x_1141; lean_object* x_1163; 
+x_1139 = lean_ctor_get(x_1137, 0);
+if (x_1135 == 0)
 {
 lean_object* x_1167; lean_object* x_1168; uint8_t x_1169; 
 lean_dec(x_1129);
-x_1167 = l_Lean_Syntax_getArg(x_1166, x_1165);
+x_1167 = l_Lean_Syntax_getArg(x_1133, x_1132);
 x_1168 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
 lean_inc(x_1167);
 x_1169 = l_Lean_Syntax_isOfKind(x_1167, x_1168);
@@ -14913,18 +14920,18 @@ if (x_1169 == 0)
 {
 lean_object* x_1170; lean_object* x_1171; 
 lean_dec(x_1167);
-lean_free_object(x_1135);
-x_1170 = l_Lean_Syntax_getArg(x_1166, x_1128);
-lean_dec(x_1166);
+lean_free_object(x_1137);
+x_1170 = l_Lean_Syntax_getArg(x_1133, x_1128);
+lean_dec(x_1133);
 lean_inc(x_1170);
 x_1171 = l_Lean_Syntax_isIdOrAtom_x3f(x_1170);
 if (lean_obj_tag(x_1171) == 0)
 {
 lean_object* x_1172; 
 x_1172 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1138 = x_1172;
-x_1139 = x_1170;
-goto block_1160;
+x_1140 = x_1172;
+x_1141 = x_1170;
+goto block_1162;
 }
 else
 {
@@ -14932,16 +14939,16 @@ lean_object* x_1173;
 x_1173 = lean_ctor_get(x_1171, 0);
 lean_inc(x_1173);
 lean_dec_ref(x_1171);
-x_1138 = x_1173;
-x_1139 = x_1170;
-goto block_1160;
+x_1140 = x_1173;
+x_1141 = x_1170;
+goto block_1162;
 }
 }
 else
 {
 lean_object* x_1174; lean_object* x_1175; uint8_t x_1176; 
 x_1174 = l_Lean_Syntax_getArg(x_1167, x_1128);
-x_1175 = l_Lean_Syntax_getArg(x_1167, x_1165);
+x_1175 = l_Lean_Syntax_getArg(x_1167, x_1132);
 lean_dec(x_1167);
 x_1176 = l_Lean_Syntax_isNone(x_1175);
 if (x_1176 == 0)
@@ -14955,18 +14962,18 @@ if (x_1178 == 0)
 lean_object* x_1179; lean_object* x_1180; 
 lean_dec(x_1175);
 lean_dec(x_1174);
-lean_free_object(x_1135);
-x_1179 = l_Lean_Syntax_getArg(x_1166, x_1128);
-lean_dec(x_1166);
+lean_free_object(x_1137);
+x_1179 = l_Lean_Syntax_getArg(x_1133, x_1128);
+lean_dec(x_1133);
 lean_inc(x_1179);
 x_1180 = l_Lean_Syntax_isIdOrAtom_x3f(x_1179);
 if (lean_obj_tag(x_1180) == 0)
 {
 lean_object* x_1181; 
 x_1181 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1138 = x_1181;
-x_1139 = x_1179;
-goto block_1160;
+x_1140 = x_1181;
+x_1141 = x_1179;
+goto block_1162;
 }
 else
 {
@@ -14974,38 +14981,38 @@ lean_object* x_1182;
 x_1182 = lean_ctor_get(x_1180, 0);
 lean_inc(x_1182);
 lean_dec_ref(x_1180);
-x_1138 = x_1182;
-x_1139 = x_1179;
-goto block_1160;
+x_1140 = x_1182;
+x_1141 = x_1179;
+goto block_1162;
 }
 }
 else
 {
 lean_object* x_1183; lean_object* x_1184; lean_object* x_1185; lean_object* x_1186; 
-lean_dec(x_1166);
-x_1183 = l_Lean_Syntax_getArg(x_1175, x_1165);
+lean_dec(x_1133);
+x_1183 = l_Lean_Syntax_getArg(x_1175, x_1132);
 lean_dec(x_1175);
 x_1184 = l_Lean_Syntax_getArgs(x_1183);
 lean_dec(x_1183);
 x_1185 = lean_box(0);
-lean_ctor_set(x_1135, 0, x_1184);
-x_1186 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1174, x_26, x_1185, x_1135);
-lean_dec_ref(x_1135);
-x_1161 = x_1186;
-goto block_1164;
+lean_ctor_set(x_1137, 0, x_1184);
+x_1186 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1174, x_26, x_1185, x_1137);
+lean_dec_ref(x_1137);
+x_1163 = x_1186;
+goto block_1166;
 }
 }
 else
 {
 lean_object* x_1187; lean_object* x_1188; lean_object* x_1189; 
 lean_dec(x_1175);
-lean_dec(x_1166);
-lean_free_object(x_1135);
+lean_free_object(x_1137);
+lean_dec(x_1133);
 x_1187 = lean_box(0);
 x_1188 = lean_box(0);
 x_1189 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1174, x_26, x_1187, x_1188);
-x_1161 = x_1189;
-goto block_1164;
+x_1163 = x_1189;
+goto block_1166;
 }
 }
 }
@@ -15017,7 +15024,7 @@ x_1191 = l_Lean_Syntax_isOfKind(x_1129, x_1190);
 if (x_1191 == 0)
 {
 lean_object* x_1192; lean_object* x_1193; uint8_t x_1194; 
-x_1192 = l_Lean_Syntax_getArg(x_1166, x_1165);
+x_1192 = l_Lean_Syntax_getArg(x_1133, x_1132);
 x_1193 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
 lean_inc(x_1192);
 x_1194 = l_Lean_Syntax_isOfKind(x_1192, x_1193);
@@ -15025,18 +15032,18 @@ if (x_1194 == 0)
 {
 lean_object* x_1195; lean_object* x_1196; 
 lean_dec(x_1192);
-lean_free_object(x_1135);
-x_1195 = l_Lean_Syntax_getArg(x_1166, x_1128);
-lean_dec(x_1166);
+lean_free_object(x_1137);
+x_1195 = l_Lean_Syntax_getArg(x_1133, x_1128);
+lean_dec(x_1133);
 lean_inc(x_1195);
 x_1196 = l_Lean_Syntax_isIdOrAtom_x3f(x_1195);
 if (lean_obj_tag(x_1196) == 0)
 {
 lean_object* x_1197; 
 x_1197 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1138 = x_1197;
-x_1139 = x_1195;
-goto block_1160;
+x_1140 = x_1197;
+x_1141 = x_1195;
+goto block_1162;
 }
 else
 {
@@ -15044,16 +15051,16 @@ lean_object* x_1198;
 x_1198 = lean_ctor_get(x_1196, 0);
 lean_inc(x_1198);
 lean_dec_ref(x_1196);
-x_1138 = x_1198;
-x_1139 = x_1195;
-goto block_1160;
+x_1140 = x_1198;
+x_1141 = x_1195;
+goto block_1162;
 }
 }
 else
 {
 lean_object* x_1199; lean_object* x_1200; uint8_t x_1201; 
 x_1199 = l_Lean_Syntax_getArg(x_1192, x_1128);
-x_1200 = l_Lean_Syntax_getArg(x_1192, x_1165);
+x_1200 = l_Lean_Syntax_getArg(x_1192, x_1132);
 lean_dec(x_1192);
 x_1201 = l_Lean_Syntax_isNone(x_1200);
 if (x_1201 == 0)
@@ -15067,18 +15074,18 @@ if (x_1203 == 0)
 lean_object* x_1204; lean_object* x_1205; 
 lean_dec(x_1200);
 lean_dec(x_1199);
-lean_free_object(x_1135);
-x_1204 = l_Lean_Syntax_getArg(x_1166, x_1128);
-lean_dec(x_1166);
+lean_free_object(x_1137);
+x_1204 = l_Lean_Syntax_getArg(x_1133, x_1128);
+lean_dec(x_1133);
 lean_inc(x_1204);
 x_1205 = l_Lean_Syntax_isIdOrAtom_x3f(x_1204);
 if (lean_obj_tag(x_1205) == 0)
 {
 lean_object* x_1206; 
 x_1206 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1138 = x_1206;
-x_1139 = x_1204;
-goto block_1160;
+x_1140 = x_1206;
+x_1141 = x_1204;
+goto block_1162;
 }
 else
 {
@@ -15086,38 +15093,38 @@ lean_object* x_1207;
 x_1207 = lean_ctor_get(x_1205, 0);
 lean_inc(x_1207);
 lean_dec_ref(x_1205);
-x_1138 = x_1207;
-x_1139 = x_1204;
-goto block_1160;
+x_1140 = x_1207;
+x_1141 = x_1204;
+goto block_1162;
 }
 }
 else
 {
 lean_object* x_1208; lean_object* x_1209; lean_object* x_1210; lean_object* x_1211; 
-lean_dec(x_1166);
-x_1208 = l_Lean_Syntax_getArg(x_1200, x_1165);
+lean_dec(x_1133);
+x_1208 = l_Lean_Syntax_getArg(x_1200, x_1132);
 lean_dec(x_1200);
 x_1209 = l_Lean_Syntax_getArgs(x_1208);
 lean_dec(x_1208);
 x_1210 = lean_box(0);
-lean_ctor_set(x_1135, 0, x_1209);
-x_1211 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1199, x_26, x_1210, x_1135);
-lean_dec_ref(x_1135);
-x_1161 = x_1211;
-goto block_1164;
+lean_ctor_set(x_1137, 0, x_1209);
+x_1211 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1199, x_26, x_1210, x_1137);
+lean_dec_ref(x_1137);
+x_1163 = x_1211;
+goto block_1166;
 }
 }
 else
 {
 lean_object* x_1212; lean_object* x_1213; lean_object* x_1214; 
 lean_dec(x_1200);
-lean_dec(x_1166);
-lean_free_object(x_1135);
+lean_free_object(x_1137);
+lean_dec(x_1133);
 x_1212 = lean_box(0);
 x_1213 = lean_box(0);
 x_1214 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1199, x_26, x_1212, x_1213);
-x_1161 = x_1214;
-goto block_1164;
+x_1163 = x_1214;
+goto block_1166;
 }
 }
 }
@@ -15125,12 +15132,12 @@ else
 {
 lean_object* x_1215; uint8_t x_1216; 
 x_1215 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__14;
-lean_inc(x_1166);
-x_1216 = l_Lean_Syntax_isOfKind(x_1166, x_1215);
+lean_inc(x_1133);
+x_1216 = l_Lean_Syntax_isOfKind(x_1133, x_1215);
 if (x_1216 == 0)
 {
 lean_object* x_1217; lean_object* x_1218; uint8_t x_1219; 
-x_1217 = l_Lean_Syntax_getArg(x_1166, x_1165);
+x_1217 = l_Lean_Syntax_getArg(x_1133, x_1132);
 x_1218 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
 lean_inc(x_1217);
 x_1219 = l_Lean_Syntax_isOfKind(x_1217, x_1218);
@@ -15138,18 +15145,18 @@ if (x_1219 == 0)
 {
 lean_object* x_1220; lean_object* x_1221; 
 lean_dec(x_1217);
-lean_free_object(x_1135);
-x_1220 = l_Lean_Syntax_getArg(x_1166, x_1128);
-lean_dec(x_1166);
+lean_free_object(x_1137);
+x_1220 = l_Lean_Syntax_getArg(x_1133, x_1128);
+lean_dec(x_1133);
 lean_inc(x_1220);
 x_1221 = l_Lean_Syntax_isIdOrAtom_x3f(x_1220);
 if (lean_obj_tag(x_1221) == 0)
 {
 lean_object* x_1222; 
 x_1222 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1138 = x_1222;
-x_1139 = x_1220;
-goto block_1160;
+x_1140 = x_1222;
+x_1141 = x_1220;
+goto block_1162;
 }
 else
 {
@@ -15157,16 +15164,16 @@ lean_object* x_1223;
 x_1223 = lean_ctor_get(x_1221, 0);
 lean_inc(x_1223);
 lean_dec_ref(x_1221);
-x_1138 = x_1223;
-x_1139 = x_1220;
-goto block_1160;
+x_1140 = x_1223;
+x_1141 = x_1220;
+goto block_1162;
 }
 }
 else
 {
 lean_object* x_1224; lean_object* x_1225; uint8_t x_1226; 
 x_1224 = l_Lean_Syntax_getArg(x_1217, x_1128);
-x_1225 = l_Lean_Syntax_getArg(x_1217, x_1165);
+x_1225 = l_Lean_Syntax_getArg(x_1217, x_1132);
 lean_dec(x_1217);
 x_1226 = l_Lean_Syntax_isNone(x_1225);
 if (x_1226 == 0)
@@ -15180,18 +15187,18 @@ if (x_1228 == 0)
 lean_object* x_1229; lean_object* x_1230; 
 lean_dec(x_1225);
 lean_dec(x_1224);
-lean_free_object(x_1135);
-x_1229 = l_Lean_Syntax_getArg(x_1166, x_1128);
-lean_dec(x_1166);
+lean_free_object(x_1137);
+x_1229 = l_Lean_Syntax_getArg(x_1133, x_1128);
+lean_dec(x_1133);
 lean_inc(x_1229);
 x_1230 = l_Lean_Syntax_isIdOrAtom_x3f(x_1229);
 if (lean_obj_tag(x_1230) == 0)
 {
 lean_object* x_1231; 
 x_1231 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1138 = x_1231;
-x_1139 = x_1229;
-goto block_1160;
+x_1140 = x_1231;
+x_1141 = x_1229;
+goto block_1162;
 }
 else
 {
@@ -15199,53 +15206,53 @@ lean_object* x_1232;
 x_1232 = lean_ctor_get(x_1230, 0);
 lean_inc(x_1232);
 lean_dec_ref(x_1230);
-x_1138 = x_1232;
-x_1139 = x_1229;
-goto block_1160;
+x_1140 = x_1232;
+x_1141 = x_1229;
+goto block_1162;
 }
 }
 else
 {
 lean_object* x_1233; lean_object* x_1234; lean_object* x_1235; lean_object* x_1236; 
-lean_dec(x_1166);
-x_1233 = l_Lean_Syntax_getArg(x_1225, x_1165);
+lean_dec(x_1133);
+x_1233 = l_Lean_Syntax_getArg(x_1225, x_1132);
 lean_dec(x_1225);
 x_1234 = l_Lean_Syntax_getArgs(x_1233);
 lean_dec(x_1233);
 x_1235 = lean_box(0);
-lean_ctor_set(x_1135, 0, x_1234);
-x_1236 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1224, x_26, x_1235, x_1135);
-lean_dec_ref(x_1135);
-x_1161 = x_1236;
-goto block_1164;
+lean_ctor_set(x_1137, 0, x_1234);
+x_1236 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1224, x_26, x_1235, x_1137);
+lean_dec_ref(x_1137);
+x_1163 = x_1236;
+goto block_1166;
 }
 }
 else
 {
 lean_object* x_1237; lean_object* x_1238; lean_object* x_1239; 
 lean_dec(x_1225);
-lean_dec(x_1166);
-lean_free_object(x_1135);
+lean_free_object(x_1137);
+lean_dec(x_1133);
 x_1237 = lean_box(0);
 x_1238 = lean_box(0);
 x_1239 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1224, x_26, x_1237, x_1238);
-x_1161 = x_1239;
-goto block_1164;
+x_1163 = x_1239;
+goto block_1166;
 }
 }
 }
 else
 {
 lean_object* x_1240; lean_object* x_1241; uint8_t x_1242; 
-x_1240 = l_Lean_Syntax_getArg(x_1166, x_1128);
+x_1240 = l_Lean_Syntax_getArg(x_1133, x_1128);
 x_1241 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__16;
 lean_inc(x_1240);
 x_1242 = l_Lean_Syntax_isOfKind(x_1240, x_1241);
 if (x_1242 == 0)
 {
 lean_object* x_1243; lean_object* x_1244; uint8_t x_1245; 
-x_1243 = l_Lean_Syntax_getArg(x_1166, x_1165);
-lean_dec(x_1166);
+x_1243 = l_Lean_Syntax_getArg(x_1133, x_1132);
+lean_dec(x_1133);
 x_1244 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
 lean_inc(x_1243);
 x_1245 = l_Lean_Syntax_isOfKind(x_1243, x_1244);
@@ -15253,16 +15260,16 @@ if (x_1245 == 0)
 {
 lean_object* x_1246; 
 lean_dec(x_1243);
-lean_free_object(x_1135);
+lean_free_object(x_1137);
 lean_inc(x_1240);
 x_1246 = l_Lean_Syntax_isIdOrAtom_x3f(x_1240);
 if (lean_obj_tag(x_1246) == 0)
 {
 lean_object* x_1247; 
 x_1247 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1138 = x_1247;
-x_1139 = x_1240;
-goto block_1160;
+x_1140 = x_1247;
+x_1141 = x_1240;
+goto block_1162;
 }
 else
 {
@@ -15270,16 +15277,16 @@ lean_object* x_1248;
 x_1248 = lean_ctor_get(x_1246, 0);
 lean_inc(x_1248);
 lean_dec_ref(x_1246);
-x_1138 = x_1248;
-x_1139 = x_1240;
-goto block_1160;
+x_1140 = x_1248;
+x_1141 = x_1240;
+goto block_1162;
 }
 }
 else
 {
 lean_object* x_1249; lean_object* x_1250; uint8_t x_1251; 
 x_1249 = l_Lean_Syntax_getArg(x_1243, x_1128);
-x_1250 = l_Lean_Syntax_getArg(x_1243, x_1165);
+x_1250 = l_Lean_Syntax_getArg(x_1243, x_1132);
 lean_dec(x_1243);
 x_1251 = l_Lean_Syntax_isNone(x_1250);
 if (x_1251 == 0)
@@ -15293,16 +15300,16 @@ if (x_1253 == 0)
 lean_object* x_1254; 
 lean_dec(x_1250);
 lean_dec(x_1249);
-lean_free_object(x_1135);
+lean_free_object(x_1137);
 lean_inc(x_1240);
 x_1254 = l_Lean_Syntax_isIdOrAtom_x3f(x_1240);
 if (lean_obj_tag(x_1254) == 0)
 {
 lean_object* x_1255; 
 x_1255 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1138 = x_1255;
-x_1139 = x_1240;
-goto block_1160;
+x_1140 = x_1255;
+x_1141 = x_1240;
+goto block_1162;
 }
 else
 {
@@ -15310,25 +15317,25 @@ lean_object* x_1256;
 x_1256 = lean_ctor_get(x_1254, 0);
 lean_inc(x_1256);
 lean_dec_ref(x_1254);
-x_1138 = x_1256;
-x_1139 = x_1240;
-goto block_1160;
+x_1140 = x_1256;
+x_1141 = x_1240;
+goto block_1162;
 }
 }
 else
 {
 lean_object* x_1257; lean_object* x_1258; lean_object* x_1259; lean_object* x_1260; 
 lean_dec(x_1240);
-x_1257 = l_Lean_Syntax_getArg(x_1250, x_1165);
+x_1257 = l_Lean_Syntax_getArg(x_1250, x_1132);
 lean_dec(x_1250);
 x_1258 = l_Lean_Syntax_getArgs(x_1257);
 lean_dec(x_1257);
 x_1259 = lean_box(0);
-lean_ctor_set(x_1135, 0, x_1258);
-x_1260 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1249, x_26, x_1259, x_1135);
-lean_dec_ref(x_1135);
-x_1161 = x_1260;
-goto block_1164;
+lean_ctor_set(x_1137, 0, x_1258);
+x_1260 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1249, x_26, x_1259, x_1137);
+lean_dec_ref(x_1137);
+x_1163 = x_1260;
+goto block_1166;
 }
 }
 else
@@ -15336,12 +15343,12 @@ else
 lean_object* x_1261; lean_object* x_1262; lean_object* x_1263; 
 lean_dec(x_1250);
 lean_dec(x_1240);
-lean_free_object(x_1135);
+lean_free_object(x_1137);
 x_1261 = lean_box(0);
 x_1262 = lean_box(0);
 x_1263 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1249, x_26, x_1261, x_1262);
-x_1161 = x_1263;
-goto block_1164;
+x_1163 = x_1263;
+goto block_1166;
 }
 }
 }
@@ -15349,19 +15356,19 @@ else
 {
 lean_object* x_1264; lean_object* x_1265; uint8_t x_1266; 
 x_1264 = lean_unsigned_to_nat(2u);
-x_1265 = l_Lean_Syntax_getArg(x_1166, x_1264);
+x_1265 = l_Lean_Syntax_getArg(x_1133, x_1264);
 x_1266 = l_Lean_Syntax_isNone(x_1265);
 if (x_1266 == 0)
 {
 uint8_t x_1267; 
 lean_inc(x_1265);
-x_1267 = l_Lean_Syntax_matchesNull(x_1265, x_1165);
+x_1267 = l_Lean_Syntax_matchesNull(x_1265, x_1132);
 if (x_1267 == 0)
 {
 lean_object* x_1268; lean_object* x_1269; uint8_t x_1270; 
 lean_dec(x_1265);
-x_1268 = l_Lean_Syntax_getArg(x_1166, x_1165);
-lean_dec(x_1166);
+x_1268 = l_Lean_Syntax_getArg(x_1133, x_1132);
+lean_dec(x_1133);
 x_1269 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
 lean_inc(x_1268);
 x_1270 = l_Lean_Syntax_isOfKind(x_1268, x_1269);
@@ -15369,16 +15376,16 @@ if (x_1270 == 0)
 {
 lean_object* x_1271; 
 lean_dec(x_1268);
-lean_free_object(x_1135);
+lean_free_object(x_1137);
 lean_inc(x_1240);
 x_1271 = l_Lean_Syntax_isIdOrAtom_x3f(x_1240);
 if (lean_obj_tag(x_1271) == 0)
 {
 lean_object* x_1272; 
 x_1272 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1138 = x_1272;
-x_1139 = x_1240;
-goto block_1160;
+x_1140 = x_1272;
+x_1141 = x_1240;
+goto block_1162;
 }
 else
 {
@@ -15386,16 +15393,16 @@ lean_object* x_1273;
 x_1273 = lean_ctor_get(x_1271, 0);
 lean_inc(x_1273);
 lean_dec_ref(x_1271);
-x_1138 = x_1273;
-x_1139 = x_1240;
-goto block_1160;
+x_1140 = x_1273;
+x_1141 = x_1240;
+goto block_1162;
 }
 }
 else
 {
 lean_object* x_1274; lean_object* x_1275; uint8_t x_1276; 
 x_1274 = l_Lean_Syntax_getArg(x_1268, x_1128);
-x_1275 = l_Lean_Syntax_getArg(x_1268, x_1165);
+x_1275 = l_Lean_Syntax_getArg(x_1268, x_1132);
 lean_dec(x_1268);
 x_1276 = l_Lean_Syntax_isNone(x_1275);
 if (x_1276 == 0)
@@ -15409,16 +15416,16 @@ if (x_1278 == 0)
 lean_object* x_1279; 
 lean_dec(x_1275);
 lean_dec(x_1274);
-lean_free_object(x_1135);
+lean_free_object(x_1137);
 lean_inc(x_1240);
 x_1279 = l_Lean_Syntax_isIdOrAtom_x3f(x_1240);
 if (lean_obj_tag(x_1279) == 0)
 {
 lean_object* x_1280; 
 x_1280 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1138 = x_1280;
-x_1139 = x_1240;
-goto block_1160;
+x_1140 = x_1280;
+x_1141 = x_1240;
+goto block_1162;
 }
 else
 {
@@ -15426,25 +15433,25 @@ lean_object* x_1281;
 x_1281 = lean_ctor_get(x_1279, 0);
 lean_inc(x_1281);
 lean_dec_ref(x_1279);
-x_1138 = x_1281;
-x_1139 = x_1240;
-goto block_1160;
+x_1140 = x_1281;
+x_1141 = x_1240;
+goto block_1162;
 }
 }
 else
 {
 lean_object* x_1282; lean_object* x_1283; lean_object* x_1284; lean_object* x_1285; 
 lean_dec(x_1240);
-x_1282 = l_Lean_Syntax_getArg(x_1275, x_1165);
+x_1282 = l_Lean_Syntax_getArg(x_1275, x_1132);
 lean_dec(x_1275);
 x_1283 = l_Lean_Syntax_getArgs(x_1282);
 lean_dec(x_1282);
 x_1284 = lean_box(0);
-lean_ctor_set(x_1135, 0, x_1283);
-x_1285 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1274, x_26, x_1284, x_1135);
-lean_dec_ref(x_1135);
-x_1161 = x_1285;
-goto block_1164;
+lean_ctor_set(x_1137, 0, x_1283);
+x_1285 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1274, x_26, x_1284, x_1137);
+lean_dec_ref(x_1137);
+x_1163 = x_1285;
+goto block_1166;
 }
 }
 else
@@ -15452,12 +15459,12 @@ else
 lean_object* x_1286; lean_object* x_1287; lean_object* x_1288; 
 lean_dec(x_1275);
 lean_dec(x_1240);
-lean_free_object(x_1135);
+lean_free_object(x_1137);
 x_1286 = lean_box(0);
 x_1287 = lean_box(0);
 x_1288 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1274, x_26, x_1286, x_1287);
-x_1161 = x_1288;
-goto block_1164;
+x_1163 = x_1288;
+goto block_1166;
 }
 }
 }
@@ -15473,8 +15480,8 @@ if (x_1291 == 0)
 {
 lean_object* x_1292; lean_object* x_1293; uint8_t x_1294; 
 lean_dec(x_1289);
-x_1292 = l_Lean_Syntax_getArg(x_1166, x_1165);
-lean_dec(x_1166);
+x_1292 = l_Lean_Syntax_getArg(x_1133, x_1132);
+lean_dec(x_1133);
 x_1293 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
 lean_inc(x_1292);
 x_1294 = l_Lean_Syntax_isOfKind(x_1292, x_1293);
@@ -15482,16 +15489,16 @@ if (x_1294 == 0)
 {
 lean_object* x_1295; 
 lean_dec(x_1292);
-lean_free_object(x_1135);
+lean_free_object(x_1137);
 lean_inc(x_1240);
 x_1295 = l_Lean_Syntax_isIdOrAtom_x3f(x_1240);
 if (lean_obj_tag(x_1295) == 0)
 {
 lean_object* x_1296; 
 x_1296 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1138 = x_1296;
-x_1139 = x_1240;
-goto block_1160;
+x_1140 = x_1296;
+x_1141 = x_1240;
+goto block_1162;
 }
 else
 {
@@ -15499,16 +15506,16 @@ lean_object* x_1297;
 x_1297 = lean_ctor_get(x_1295, 0);
 lean_inc(x_1297);
 lean_dec_ref(x_1295);
-x_1138 = x_1297;
-x_1139 = x_1240;
-goto block_1160;
+x_1140 = x_1297;
+x_1141 = x_1240;
+goto block_1162;
 }
 }
 else
 {
 lean_object* x_1298; lean_object* x_1299; uint8_t x_1300; 
 x_1298 = l_Lean_Syntax_getArg(x_1292, x_1128);
-x_1299 = l_Lean_Syntax_getArg(x_1292, x_1165);
+x_1299 = l_Lean_Syntax_getArg(x_1292, x_1132);
 lean_dec(x_1292);
 x_1300 = l_Lean_Syntax_isNone(x_1299);
 if (x_1300 == 0)
@@ -15522,16 +15529,16 @@ if (x_1302 == 0)
 lean_object* x_1303; 
 lean_dec(x_1299);
 lean_dec(x_1298);
-lean_free_object(x_1135);
+lean_free_object(x_1137);
 lean_inc(x_1240);
 x_1303 = l_Lean_Syntax_isIdOrAtom_x3f(x_1240);
 if (lean_obj_tag(x_1303) == 0)
 {
 lean_object* x_1304; 
 x_1304 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1138 = x_1304;
-x_1139 = x_1240;
-goto block_1160;
+x_1140 = x_1304;
+x_1141 = x_1240;
+goto block_1162;
 }
 else
 {
@@ -15539,25 +15546,25 @@ lean_object* x_1305;
 x_1305 = lean_ctor_get(x_1303, 0);
 lean_inc(x_1305);
 lean_dec_ref(x_1303);
-x_1138 = x_1305;
-x_1139 = x_1240;
-goto block_1160;
+x_1140 = x_1305;
+x_1141 = x_1240;
+goto block_1162;
 }
 }
 else
 {
 lean_object* x_1306; lean_object* x_1307; lean_object* x_1308; lean_object* x_1309; 
 lean_dec(x_1240);
-x_1306 = l_Lean_Syntax_getArg(x_1299, x_1165);
+x_1306 = l_Lean_Syntax_getArg(x_1299, x_1132);
 lean_dec(x_1299);
 x_1307 = l_Lean_Syntax_getArgs(x_1306);
 lean_dec(x_1306);
 x_1308 = lean_box(0);
-lean_ctor_set(x_1135, 0, x_1307);
-x_1309 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1298, x_26, x_1308, x_1135);
-lean_dec_ref(x_1135);
-x_1161 = x_1309;
-goto block_1164;
+lean_ctor_set(x_1137, 0, x_1307);
+x_1309 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1298, x_26, x_1308, x_1137);
+lean_dec_ref(x_1137);
+x_1163 = x_1309;
+goto block_1166;
 }
 }
 else
@@ -15565,12 +15572,12 @@ else
 lean_object* x_1310; lean_object* x_1311; lean_object* x_1312; 
 lean_dec(x_1299);
 lean_dec(x_1240);
-lean_free_object(x_1135);
+lean_free_object(x_1137);
 x_1310 = lean_box(0);
 x_1311 = lean_box(0);
 x_1312 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1298, x_26, x_1310, x_1311);
-x_1161 = x_1312;
-goto block_1164;
+x_1163 = x_1312;
+goto block_1166;
 }
 }
 }
@@ -15579,12 +15586,12 @@ else
 lean_object* x_1313; lean_object* x_1314; 
 lean_dec(x_1240);
 x_1313 = lean_box(0);
-lean_ctor_set(x_1135, 0, x_1289);
-x_1314 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_26, x_1166, x_21, x_22, x_23, x_1165, x_1128, x_1313, x_1135);
-lean_dec_ref(x_1135);
-lean_dec(x_1166);
-x_1161 = x_1314;
-goto block_1164;
+lean_ctor_set(x_1137, 0, x_1289);
+x_1314 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_26, x_1133, x_21, x_22, x_23, x_1132, x_1128, x_1313, x_1137);
+lean_dec_ref(x_1137);
+lean_dec(x_1133);
+x_1163 = x_1314;
+goto block_1166;
 }
 }
 }
@@ -15593,795 +15600,792 @@ else
 lean_object* x_1315; lean_object* x_1316; lean_object* x_1317; 
 lean_dec(x_1265);
 lean_dec(x_1240);
-lean_free_object(x_1135);
+lean_free_object(x_1137);
 x_1315 = lean_box(0);
 x_1316 = lean_box(0);
-x_1317 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_26, x_1166, x_21, x_22, x_23, x_1165, x_1128, x_1315, x_1316);
-lean_dec(x_1166);
-x_1161 = x_1317;
-goto block_1164;
+x_1317 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_26, x_1133, x_21, x_22, x_23, x_1132, x_1128, x_1315, x_1316);
+lean_dec(x_1133);
+x_1163 = x_1317;
+goto block_1166;
 }
 }
 }
 }
 }
-block_1160:
+block_1162:
 {
-lean_object* x_1140; 
-x_1140 = l_Lean_Syntax_getRange_x3f(x_1139, x_1131);
+lean_object* x_1142; 
+x_1142 = l_Lean_Syntax_getRange_x3f(x_1141, x_1131);
+lean_dec(x_1141);
+if (lean_obj_tag(x_1142) == 1)
+{
+uint8_t x_1143; 
+x_1143 = !lean_is_exclusive(x_1142);
+if (x_1143 == 0)
+{
+lean_object* x_1144; lean_object* x_1145; uint8_t x_1146; lean_object* x_1147; lean_object* x_1148; lean_object* x_1149; lean_object* x_1150; 
+x_1144 = lean_ctor_get(x_1142, 0);
+x_1145 = lean_box(0);
+x_1146 = 5;
+lean_inc_ref(x_1);
+x_1147 = l_Lean_Syntax_Range_toLspRange(x_1, x_1139);
+lean_inc_ref(x_1);
+x_1148 = l_Lean_Syntax_Range_toLspRange(x_1, x_1144);
+x_1149 = lean_alloc_ctor(0, 5, 1);
+lean_ctor_set(x_1149, 0, x_1140);
+lean_ctor_set(x_1149, 1, x_1145);
+lean_ctor_set(x_1149, 2, x_1147);
+lean_ctor_set(x_1149, 3, x_1148);
+lean_ctor_set(x_1149, 4, x_1145);
+lean_ctor_set_uint8(x_1149, sizeof(void*)*5, x_1146);
+lean_ctor_set_tag(x_1142, 0);
+lean_ctor_set(x_1142, 0, x_1149);
+x_1150 = lean_array_push(x_3, x_1142);
+x_2 = x_12;
+x_3 = x_1150;
+goto _start;
+}
+else
+{
+lean_object* x_1152; lean_object* x_1153; uint8_t x_1154; lean_object* x_1155; lean_object* x_1156; lean_object* x_1157; lean_object* x_1158; lean_object* x_1159; 
+x_1152 = lean_ctor_get(x_1142, 0);
+lean_inc(x_1152);
+lean_dec(x_1142);
+x_1153 = lean_box(0);
+x_1154 = 5;
+lean_inc_ref(x_1);
+x_1155 = l_Lean_Syntax_Range_toLspRange(x_1, x_1139);
+lean_inc_ref(x_1);
+x_1156 = l_Lean_Syntax_Range_toLspRange(x_1, x_1152);
+x_1157 = lean_alloc_ctor(0, 5, 1);
+lean_ctor_set(x_1157, 0, x_1140);
+lean_ctor_set(x_1157, 1, x_1153);
+lean_ctor_set(x_1157, 2, x_1155);
+lean_ctor_set(x_1157, 3, x_1156);
+lean_ctor_set(x_1157, 4, x_1153);
+lean_ctor_set_uint8(x_1157, sizeof(void*)*5, x_1154);
+x_1158 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_1158, 0, x_1157);
+x_1159 = lean_array_push(x_3, x_1158);
+x_2 = x_12;
+x_3 = x_1159;
+goto _start;
+}
+}
+else
+{
+lean_dec(x_1142);
+lean_dec_ref(x_1140);
 lean_dec(x_1139);
-if (lean_obj_tag(x_1140) == 1)
-{
-uint8_t x_1141; 
-x_1141 = !lean_is_exclusive(x_1140);
-if (x_1141 == 0)
-{
-lean_object* x_1142; lean_object* x_1143; uint8_t x_1144; lean_object* x_1145; lean_object* x_1146; lean_object* x_1147; lean_object* x_1148; 
-x_1142 = lean_ctor_get(x_1140, 0);
-x_1143 = lean_box(0);
-x_1144 = 5;
-lean_inc_ref(x_1);
-x_1145 = l_Lean_Syntax_Range_toLspRange(x_1, x_1137);
-lean_inc_ref(x_1);
-x_1146 = l_Lean_Syntax_Range_toLspRange(x_1, x_1142);
-x_1147 = lean_alloc_ctor(0, 5, 1);
-lean_ctor_set(x_1147, 0, x_1138);
-lean_ctor_set(x_1147, 1, x_1143);
-lean_ctor_set(x_1147, 2, x_1145);
-lean_ctor_set(x_1147, 3, x_1146);
-lean_ctor_set(x_1147, 4, x_1143);
-lean_ctor_set_uint8(x_1147, sizeof(void*)*5, x_1144);
-lean_ctor_set_tag(x_1140, 0);
-lean_ctor_set(x_1140, 0, x_1147);
-x_1148 = lean_array_push(x_3, x_1140);
-x_2 = x_12;
-x_3 = x_1148;
-goto _start;
-}
-else
-{
-lean_object* x_1150; lean_object* x_1151; uint8_t x_1152; lean_object* x_1153; lean_object* x_1154; lean_object* x_1155; lean_object* x_1156; lean_object* x_1157; 
-x_1150 = lean_ctor_get(x_1140, 0);
-lean_inc(x_1150);
-lean_dec(x_1140);
-x_1151 = lean_box(0);
-x_1152 = 5;
-lean_inc_ref(x_1);
-x_1153 = l_Lean_Syntax_Range_toLspRange(x_1, x_1137);
-lean_inc_ref(x_1);
-x_1154 = l_Lean_Syntax_Range_toLspRange(x_1, x_1150);
-x_1155 = lean_alloc_ctor(0, 5, 1);
-lean_ctor_set(x_1155, 0, x_1138);
-lean_ctor_set(x_1155, 1, x_1151);
-lean_ctor_set(x_1155, 2, x_1153);
-lean_ctor_set(x_1155, 3, x_1154);
-lean_ctor_set(x_1155, 4, x_1151);
-lean_ctor_set_uint8(x_1155, sizeof(void*)*5, x_1152);
-x_1156 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_1156, 0, x_1155);
-x_1157 = lean_array_push(x_3, x_1156);
-x_2 = x_12;
-x_3 = x_1157;
-goto _start;
-}
-}
-else
-{
-lean_dec(x_1140);
-lean_dec_ref(x_1138);
-lean_dec(x_1137);
 x_2 = x_12;
 goto _start;
 }
 }
-block_1164:
+block_1166:
 {
-lean_object* x_1162; lean_object* x_1163; 
-x_1162 = lean_ctor_get(x_1161, 0);
-lean_inc(x_1162);
-x_1163 = lean_ctor_get(x_1161, 1);
-lean_inc(x_1163);
-lean_dec_ref(x_1161);
-x_1138 = x_1162;
-x_1139 = x_1163;
-goto block_1160;
+lean_object* x_1164; lean_object* x_1165; 
+x_1164 = lean_ctor_get(x_1163, 0);
+lean_inc(x_1164);
+x_1165 = lean_ctor_get(x_1163, 1);
+lean_inc(x_1165);
+lean_dec_ref(x_1163);
+x_1140 = x_1164;
+x_1141 = x_1165;
+goto block_1162;
 }
 }
 else
 {
-lean_object* x_1318; lean_object* x_1319; lean_object* x_1320; lean_object* x_1334; lean_object* x_1338; lean_object* x_1339; 
-x_1318 = lean_ctor_get(x_1135, 0);
+lean_object* x_1318; lean_object* x_1319; lean_object* x_1320; lean_object* x_1334; 
+x_1318 = lean_ctor_get(x_1137, 0);
 lean_inc(x_1318);
-lean_dec(x_1135);
-x_1338 = lean_unsigned_to_nat(1u);
-x_1339 = l_Lean_Syntax_getArg(x_11, x_1338);
-lean_dec(x_11);
-if (x_1133 == 0)
+lean_dec(x_1137);
+if (x_1135 == 0)
 {
-lean_object* x_1340; lean_object* x_1341; uint8_t x_1342; 
+lean_object* x_1338; lean_object* x_1339; uint8_t x_1340; 
 lean_dec(x_1129);
-x_1340 = l_Lean_Syntax_getArg(x_1339, x_1338);
-x_1341 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1340);
-x_1342 = l_Lean_Syntax_isOfKind(x_1340, x_1341);
-if (x_1342 == 0)
+x_1338 = l_Lean_Syntax_getArg(x_1133, x_1132);
+x_1339 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1338);
+x_1340 = l_Lean_Syntax_isOfKind(x_1338, x_1339);
+if (x_1340 == 0)
 {
-lean_object* x_1343; lean_object* x_1344; 
-lean_dec(x_1340);
-x_1343 = l_Lean_Syntax_getArg(x_1339, x_1128);
-lean_dec(x_1339);
-lean_inc(x_1343);
-x_1344 = l_Lean_Syntax_isIdOrAtom_x3f(x_1343);
-if (lean_obj_tag(x_1344) == 0)
+lean_object* x_1341; lean_object* x_1342; 
+lean_dec(x_1338);
+x_1341 = l_Lean_Syntax_getArg(x_1133, x_1128);
+lean_dec(x_1133);
+lean_inc(x_1341);
+x_1342 = l_Lean_Syntax_isIdOrAtom_x3f(x_1341);
+if (lean_obj_tag(x_1342) == 0)
 {
-lean_object* x_1345; 
-x_1345 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1319 = x_1345;
-x_1320 = x_1343;
+lean_object* x_1343; 
+x_1343 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1319 = x_1343;
+x_1320 = x_1341;
 goto block_1333;
 }
 else
 {
-lean_object* x_1346; 
-x_1346 = lean_ctor_get(x_1344, 0);
+lean_object* x_1344; 
+x_1344 = lean_ctor_get(x_1342, 0);
+lean_inc(x_1344);
+lean_dec_ref(x_1342);
+x_1319 = x_1344;
+x_1320 = x_1341;
+goto block_1333;
+}
+}
+else
+{
+lean_object* x_1345; lean_object* x_1346; uint8_t x_1347; 
+x_1345 = l_Lean_Syntax_getArg(x_1338, x_1128);
+x_1346 = l_Lean_Syntax_getArg(x_1338, x_1132);
+lean_dec(x_1338);
+x_1347 = l_Lean_Syntax_isNone(x_1346);
+if (x_1347 == 0)
+{
+lean_object* x_1348; uint8_t x_1349; 
+x_1348 = lean_unsigned_to_nat(3u);
 lean_inc(x_1346);
-lean_dec_ref(x_1344);
-x_1319 = x_1346;
-x_1320 = x_1343;
-goto block_1333;
-}
-}
-else
-{
-lean_object* x_1347; lean_object* x_1348; uint8_t x_1349; 
-x_1347 = l_Lean_Syntax_getArg(x_1340, x_1128);
-x_1348 = l_Lean_Syntax_getArg(x_1340, x_1338);
-lean_dec(x_1340);
-x_1349 = l_Lean_Syntax_isNone(x_1348);
+x_1349 = l_Lean_Syntax_matchesNull(x_1346, x_1348);
 if (x_1349 == 0)
 {
-lean_object* x_1350; uint8_t x_1351; 
-x_1350 = lean_unsigned_to_nat(3u);
-lean_inc(x_1348);
-x_1351 = l_Lean_Syntax_matchesNull(x_1348, x_1350);
-if (x_1351 == 0)
+lean_object* x_1350; lean_object* x_1351; 
+lean_dec(x_1346);
+lean_dec(x_1345);
+x_1350 = l_Lean_Syntax_getArg(x_1133, x_1128);
+lean_dec(x_1133);
+lean_inc(x_1350);
+x_1351 = l_Lean_Syntax_isIdOrAtom_x3f(x_1350);
+if (lean_obj_tag(x_1351) == 0)
 {
-lean_object* x_1352; lean_object* x_1353; 
-lean_dec(x_1348);
-lean_dec(x_1347);
-x_1352 = l_Lean_Syntax_getArg(x_1339, x_1128);
-lean_dec(x_1339);
-lean_inc(x_1352);
-x_1353 = l_Lean_Syntax_isIdOrAtom_x3f(x_1352);
-if (lean_obj_tag(x_1353) == 0)
-{
-lean_object* x_1354; 
-x_1354 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1319 = x_1354;
-x_1320 = x_1352;
+lean_object* x_1352; 
+x_1352 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1319 = x_1352;
+x_1320 = x_1350;
 goto block_1333;
 }
 else
 {
-lean_object* x_1355; 
-x_1355 = lean_ctor_get(x_1353, 0);
-lean_inc(x_1355);
-lean_dec_ref(x_1353);
-x_1319 = x_1355;
-x_1320 = x_1352;
+lean_object* x_1353; 
+x_1353 = lean_ctor_get(x_1351, 0);
+lean_inc(x_1353);
+lean_dec_ref(x_1351);
+x_1319 = x_1353;
+x_1320 = x_1350;
 goto block_1333;
 }
 }
 else
 {
-lean_object* x_1356; lean_object* x_1357; lean_object* x_1358; lean_object* x_1359; lean_object* x_1360; 
-lean_dec(x_1339);
-x_1356 = l_Lean_Syntax_getArg(x_1348, x_1338);
-lean_dec(x_1348);
-x_1357 = l_Lean_Syntax_getArgs(x_1356);
-lean_dec(x_1356);
-x_1358 = lean_box(0);
-x_1359 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_1359, 0, x_1357);
-x_1360 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1347, x_26, x_1358, x_1359);
-lean_dec_ref(x_1359);
-x_1334 = x_1360;
+lean_object* x_1354; lean_object* x_1355; lean_object* x_1356; lean_object* x_1357; lean_object* x_1358; 
+lean_dec(x_1133);
+x_1354 = l_Lean_Syntax_getArg(x_1346, x_1132);
+lean_dec(x_1346);
+x_1355 = l_Lean_Syntax_getArgs(x_1354);
+lean_dec(x_1354);
+x_1356 = lean_box(0);
+x_1357 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_1357, 0, x_1355);
+x_1358 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1345, x_26, x_1356, x_1357);
+lean_dec_ref(x_1357);
+x_1334 = x_1358;
 goto block_1337;
 }
 }
 else
 {
-lean_object* x_1361; lean_object* x_1362; lean_object* x_1363; 
-lean_dec(x_1348);
-lean_dec(x_1339);
-x_1361 = lean_box(0);
-x_1362 = lean_box(0);
-x_1363 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1347, x_26, x_1361, x_1362);
-x_1334 = x_1363;
+lean_object* x_1359; lean_object* x_1360; lean_object* x_1361; 
+lean_dec(x_1346);
+lean_dec(x_1133);
+x_1359 = lean_box(0);
+x_1360 = lean_box(0);
+x_1361 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1345, x_26, x_1359, x_1360);
+x_1334 = x_1361;
 goto block_1337;
 }
 }
 }
 else
 {
-lean_object* x_1364; uint8_t x_1365; 
-x_1364 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__12;
-x_1365 = l_Lean_Syntax_isOfKind(x_1129, x_1364);
-if (x_1365 == 0)
+lean_object* x_1362; uint8_t x_1363; 
+x_1362 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__12;
+x_1363 = l_Lean_Syntax_isOfKind(x_1129, x_1362);
+if (x_1363 == 0)
 {
-lean_object* x_1366; lean_object* x_1367; uint8_t x_1368; 
-x_1366 = l_Lean_Syntax_getArg(x_1339, x_1338);
-x_1367 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1366);
-x_1368 = l_Lean_Syntax_isOfKind(x_1366, x_1367);
-if (x_1368 == 0)
+lean_object* x_1364; lean_object* x_1365; uint8_t x_1366; 
+x_1364 = l_Lean_Syntax_getArg(x_1133, x_1132);
+x_1365 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1364);
+x_1366 = l_Lean_Syntax_isOfKind(x_1364, x_1365);
+if (x_1366 == 0)
 {
-lean_object* x_1369; lean_object* x_1370; 
-lean_dec(x_1366);
-x_1369 = l_Lean_Syntax_getArg(x_1339, x_1128);
-lean_dec(x_1339);
-lean_inc(x_1369);
-x_1370 = l_Lean_Syntax_isIdOrAtom_x3f(x_1369);
-if (lean_obj_tag(x_1370) == 0)
+lean_object* x_1367; lean_object* x_1368; 
+lean_dec(x_1364);
+x_1367 = l_Lean_Syntax_getArg(x_1133, x_1128);
+lean_dec(x_1133);
+lean_inc(x_1367);
+x_1368 = l_Lean_Syntax_isIdOrAtom_x3f(x_1367);
+if (lean_obj_tag(x_1368) == 0)
 {
-lean_object* x_1371; 
-x_1371 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1319 = x_1371;
-x_1320 = x_1369;
+lean_object* x_1369; 
+x_1369 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1319 = x_1369;
+x_1320 = x_1367;
 goto block_1333;
 }
 else
 {
-lean_object* x_1372; 
-x_1372 = lean_ctor_get(x_1370, 0);
+lean_object* x_1370; 
+x_1370 = lean_ctor_get(x_1368, 0);
+lean_inc(x_1370);
+lean_dec_ref(x_1368);
+x_1319 = x_1370;
+x_1320 = x_1367;
+goto block_1333;
+}
+}
+else
+{
+lean_object* x_1371; lean_object* x_1372; uint8_t x_1373; 
+x_1371 = l_Lean_Syntax_getArg(x_1364, x_1128);
+x_1372 = l_Lean_Syntax_getArg(x_1364, x_1132);
+lean_dec(x_1364);
+x_1373 = l_Lean_Syntax_isNone(x_1372);
+if (x_1373 == 0)
+{
+lean_object* x_1374; uint8_t x_1375; 
+x_1374 = lean_unsigned_to_nat(3u);
 lean_inc(x_1372);
-lean_dec_ref(x_1370);
-x_1319 = x_1372;
-x_1320 = x_1369;
-goto block_1333;
-}
-}
-else
-{
-lean_object* x_1373; lean_object* x_1374; uint8_t x_1375; 
-x_1373 = l_Lean_Syntax_getArg(x_1366, x_1128);
-x_1374 = l_Lean_Syntax_getArg(x_1366, x_1338);
-lean_dec(x_1366);
-x_1375 = l_Lean_Syntax_isNone(x_1374);
+x_1375 = l_Lean_Syntax_matchesNull(x_1372, x_1374);
 if (x_1375 == 0)
 {
-lean_object* x_1376; uint8_t x_1377; 
-x_1376 = lean_unsigned_to_nat(3u);
-lean_inc(x_1374);
-x_1377 = l_Lean_Syntax_matchesNull(x_1374, x_1376);
-if (x_1377 == 0)
+lean_object* x_1376; lean_object* x_1377; 
+lean_dec(x_1372);
+lean_dec(x_1371);
+x_1376 = l_Lean_Syntax_getArg(x_1133, x_1128);
+lean_dec(x_1133);
+lean_inc(x_1376);
+x_1377 = l_Lean_Syntax_isIdOrAtom_x3f(x_1376);
+if (lean_obj_tag(x_1377) == 0)
 {
-lean_object* x_1378; lean_object* x_1379; 
-lean_dec(x_1374);
-lean_dec(x_1373);
-x_1378 = l_Lean_Syntax_getArg(x_1339, x_1128);
-lean_dec(x_1339);
-lean_inc(x_1378);
-x_1379 = l_Lean_Syntax_isIdOrAtom_x3f(x_1378);
-if (lean_obj_tag(x_1379) == 0)
-{
-lean_object* x_1380; 
-x_1380 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1319 = x_1380;
-x_1320 = x_1378;
+lean_object* x_1378; 
+x_1378 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1319 = x_1378;
+x_1320 = x_1376;
 goto block_1333;
 }
 else
 {
-lean_object* x_1381; 
-x_1381 = lean_ctor_get(x_1379, 0);
-lean_inc(x_1381);
-lean_dec_ref(x_1379);
-x_1319 = x_1381;
-x_1320 = x_1378;
+lean_object* x_1379; 
+x_1379 = lean_ctor_get(x_1377, 0);
+lean_inc(x_1379);
+lean_dec_ref(x_1377);
+x_1319 = x_1379;
+x_1320 = x_1376;
 goto block_1333;
 }
 }
 else
 {
-lean_object* x_1382; lean_object* x_1383; lean_object* x_1384; lean_object* x_1385; lean_object* x_1386; 
-lean_dec(x_1339);
-x_1382 = l_Lean_Syntax_getArg(x_1374, x_1338);
-lean_dec(x_1374);
-x_1383 = l_Lean_Syntax_getArgs(x_1382);
-lean_dec(x_1382);
-x_1384 = lean_box(0);
-x_1385 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_1385, 0, x_1383);
-x_1386 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1373, x_26, x_1384, x_1385);
-lean_dec_ref(x_1385);
-x_1334 = x_1386;
+lean_object* x_1380; lean_object* x_1381; lean_object* x_1382; lean_object* x_1383; lean_object* x_1384; 
+lean_dec(x_1133);
+x_1380 = l_Lean_Syntax_getArg(x_1372, x_1132);
+lean_dec(x_1372);
+x_1381 = l_Lean_Syntax_getArgs(x_1380);
+lean_dec(x_1380);
+x_1382 = lean_box(0);
+x_1383 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_1383, 0, x_1381);
+x_1384 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1371, x_26, x_1382, x_1383);
+lean_dec_ref(x_1383);
+x_1334 = x_1384;
 goto block_1337;
 }
 }
 else
 {
-lean_object* x_1387; lean_object* x_1388; lean_object* x_1389; 
-lean_dec(x_1374);
-lean_dec(x_1339);
-x_1387 = lean_box(0);
-x_1388 = lean_box(0);
-x_1389 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1373, x_26, x_1387, x_1388);
-x_1334 = x_1389;
+lean_object* x_1385; lean_object* x_1386; lean_object* x_1387; 
+lean_dec(x_1372);
+lean_dec(x_1133);
+x_1385 = lean_box(0);
+x_1386 = lean_box(0);
+x_1387 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1371, x_26, x_1385, x_1386);
+x_1334 = x_1387;
 goto block_1337;
 }
 }
 }
 else
 {
-lean_object* x_1390; uint8_t x_1391; 
-x_1390 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__14;
-lean_inc(x_1339);
-x_1391 = l_Lean_Syntax_isOfKind(x_1339, x_1390);
-if (x_1391 == 0)
+lean_object* x_1388; uint8_t x_1389; 
+x_1388 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__14;
+lean_inc(x_1133);
+x_1389 = l_Lean_Syntax_isOfKind(x_1133, x_1388);
+if (x_1389 == 0)
 {
-lean_object* x_1392; lean_object* x_1393; uint8_t x_1394; 
-x_1392 = l_Lean_Syntax_getArg(x_1339, x_1338);
-x_1393 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1392);
-x_1394 = l_Lean_Syntax_isOfKind(x_1392, x_1393);
-if (x_1394 == 0)
+lean_object* x_1390; lean_object* x_1391; uint8_t x_1392; 
+x_1390 = l_Lean_Syntax_getArg(x_1133, x_1132);
+x_1391 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1390);
+x_1392 = l_Lean_Syntax_isOfKind(x_1390, x_1391);
+if (x_1392 == 0)
 {
-lean_object* x_1395; lean_object* x_1396; 
-lean_dec(x_1392);
-x_1395 = l_Lean_Syntax_getArg(x_1339, x_1128);
-lean_dec(x_1339);
-lean_inc(x_1395);
-x_1396 = l_Lean_Syntax_isIdOrAtom_x3f(x_1395);
-if (lean_obj_tag(x_1396) == 0)
+lean_object* x_1393; lean_object* x_1394; 
+lean_dec(x_1390);
+x_1393 = l_Lean_Syntax_getArg(x_1133, x_1128);
+lean_dec(x_1133);
+lean_inc(x_1393);
+x_1394 = l_Lean_Syntax_isIdOrAtom_x3f(x_1393);
+if (lean_obj_tag(x_1394) == 0)
 {
-lean_object* x_1397; 
-x_1397 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1319 = x_1397;
-x_1320 = x_1395;
+lean_object* x_1395; 
+x_1395 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1319 = x_1395;
+x_1320 = x_1393;
 goto block_1333;
 }
 else
 {
-lean_object* x_1398; 
-x_1398 = lean_ctor_get(x_1396, 0);
+lean_object* x_1396; 
+x_1396 = lean_ctor_get(x_1394, 0);
+lean_inc(x_1396);
+lean_dec_ref(x_1394);
+x_1319 = x_1396;
+x_1320 = x_1393;
+goto block_1333;
+}
+}
+else
+{
+lean_object* x_1397; lean_object* x_1398; uint8_t x_1399; 
+x_1397 = l_Lean_Syntax_getArg(x_1390, x_1128);
+x_1398 = l_Lean_Syntax_getArg(x_1390, x_1132);
+lean_dec(x_1390);
+x_1399 = l_Lean_Syntax_isNone(x_1398);
+if (x_1399 == 0)
+{
+lean_object* x_1400; uint8_t x_1401; 
+x_1400 = lean_unsigned_to_nat(3u);
 lean_inc(x_1398);
-lean_dec_ref(x_1396);
-x_1319 = x_1398;
-x_1320 = x_1395;
-goto block_1333;
-}
-}
-else
-{
-lean_object* x_1399; lean_object* x_1400; uint8_t x_1401; 
-x_1399 = l_Lean_Syntax_getArg(x_1392, x_1128);
-x_1400 = l_Lean_Syntax_getArg(x_1392, x_1338);
-lean_dec(x_1392);
-x_1401 = l_Lean_Syntax_isNone(x_1400);
+x_1401 = l_Lean_Syntax_matchesNull(x_1398, x_1400);
 if (x_1401 == 0)
 {
-lean_object* x_1402; uint8_t x_1403; 
-x_1402 = lean_unsigned_to_nat(3u);
-lean_inc(x_1400);
-x_1403 = l_Lean_Syntax_matchesNull(x_1400, x_1402);
-if (x_1403 == 0)
+lean_object* x_1402; lean_object* x_1403; 
+lean_dec(x_1398);
+lean_dec(x_1397);
+x_1402 = l_Lean_Syntax_getArg(x_1133, x_1128);
+lean_dec(x_1133);
+lean_inc(x_1402);
+x_1403 = l_Lean_Syntax_isIdOrAtom_x3f(x_1402);
+if (lean_obj_tag(x_1403) == 0)
 {
-lean_object* x_1404; lean_object* x_1405; 
-lean_dec(x_1400);
-lean_dec(x_1399);
-x_1404 = l_Lean_Syntax_getArg(x_1339, x_1128);
-lean_dec(x_1339);
-lean_inc(x_1404);
-x_1405 = l_Lean_Syntax_isIdOrAtom_x3f(x_1404);
-if (lean_obj_tag(x_1405) == 0)
-{
-lean_object* x_1406; 
-x_1406 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1319 = x_1406;
-x_1320 = x_1404;
+lean_object* x_1404; 
+x_1404 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1319 = x_1404;
+x_1320 = x_1402;
 goto block_1333;
 }
 else
 {
-lean_object* x_1407; 
-x_1407 = lean_ctor_get(x_1405, 0);
-lean_inc(x_1407);
-lean_dec_ref(x_1405);
-x_1319 = x_1407;
-x_1320 = x_1404;
+lean_object* x_1405; 
+x_1405 = lean_ctor_get(x_1403, 0);
+lean_inc(x_1405);
+lean_dec_ref(x_1403);
+x_1319 = x_1405;
+x_1320 = x_1402;
 goto block_1333;
 }
 }
 else
 {
-lean_object* x_1408; lean_object* x_1409; lean_object* x_1410; lean_object* x_1411; lean_object* x_1412; 
-lean_dec(x_1339);
-x_1408 = l_Lean_Syntax_getArg(x_1400, x_1338);
-lean_dec(x_1400);
-x_1409 = l_Lean_Syntax_getArgs(x_1408);
-lean_dec(x_1408);
-x_1410 = lean_box(0);
-x_1411 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_1411, 0, x_1409);
-x_1412 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1399, x_26, x_1410, x_1411);
-lean_dec_ref(x_1411);
-x_1334 = x_1412;
+lean_object* x_1406; lean_object* x_1407; lean_object* x_1408; lean_object* x_1409; lean_object* x_1410; 
+lean_dec(x_1133);
+x_1406 = l_Lean_Syntax_getArg(x_1398, x_1132);
+lean_dec(x_1398);
+x_1407 = l_Lean_Syntax_getArgs(x_1406);
+lean_dec(x_1406);
+x_1408 = lean_box(0);
+x_1409 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_1409, 0, x_1407);
+x_1410 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1397, x_26, x_1408, x_1409);
+lean_dec_ref(x_1409);
+x_1334 = x_1410;
 goto block_1337;
 }
 }
 else
 {
-lean_object* x_1413; lean_object* x_1414; lean_object* x_1415; 
-lean_dec(x_1400);
-lean_dec(x_1339);
-x_1413 = lean_box(0);
-x_1414 = lean_box(0);
-x_1415 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1399, x_26, x_1413, x_1414);
-x_1334 = x_1415;
+lean_object* x_1411; lean_object* x_1412; lean_object* x_1413; 
+lean_dec(x_1398);
+lean_dec(x_1133);
+x_1411 = lean_box(0);
+x_1412 = lean_box(0);
+x_1413 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1397, x_26, x_1411, x_1412);
+x_1334 = x_1413;
 goto block_1337;
 }
 }
 }
 else
 {
-lean_object* x_1416; lean_object* x_1417; uint8_t x_1418; 
-x_1416 = l_Lean_Syntax_getArg(x_1339, x_1128);
-x_1417 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__16;
-lean_inc(x_1416);
-x_1418 = l_Lean_Syntax_isOfKind(x_1416, x_1417);
-if (x_1418 == 0)
+lean_object* x_1414; lean_object* x_1415; uint8_t x_1416; 
+x_1414 = l_Lean_Syntax_getArg(x_1133, x_1128);
+x_1415 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__16;
+lean_inc(x_1414);
+x_1416 = l_Lean_Syntax_isOfKind(x_1414, x_1415);
+if (x_1416 == 0)
 {
-lean_object* x_1419; lean_object* x_1420; uint8_t x_1421; 
-x_1419 = l_Lean_Syntax_getArg(x_1339, x_1338);
-lean_dec(x_1339);
-x_1420 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1419);
-x_1421 = l_Lean_Syntax_isOfKind(x_1419, x_1420);
-if (x_1421 == 0)
+lean_object* x_1417; lean_object* x_1418; uint8_t x_1419; 
+x_1417 = l_Lean_Syntax_getArg(x_1133, x_1132);
+lean_dec(x_1133);
+x_1418 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1417);
+x_1419 = l_Lean_Syntax_isOfKind(x_1417, x_1418);
+if (x_1419 == 0)
+{
+lean_object* x_1420; 
+lean_dec(x_1417);
+lean_inc(x_1414);
+x_1420 = l_Lean_Syntax_isIdOrAtom_x3f(x_1414);
+if (lean_obj_tag(x_1420) == 0)
+{
+lean_object* x_1421; 
+x_1421 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1319 = x_1421;
+x_1320 = x_1414;
+goto block_1333;
+}
+else
 {
 lean_object* x_1422; 
-lean_dec(x_1419);
-lean_inc(x_1416);
-x_1422 = l_Lean_Syntax_isIdOrAtom_x3f(x_1416);
-if (lean_obj_tag(x_1422) == 0)
-{
-lean_object* x_1423; 
-x_1423 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1319 = x_1423;
-x_1320 = x_1416;
+x_1422 = lean_ctor_get(x_1420, 0);
+lean_inc(x_1422);
+lean_dec_ref(x_1420);
+x_1319 = x_1422;
+x_1320 = x_1414;
 goto block_1333;
+}
 }
 else
 {
-lean_object* x_1424; 
-x_1424 = lean_ctor_get(x_1422, 0);
+lean_object* x_1423; lean_object* x_1424; uint8_t x_1425; 
+x_1423 = l_Lean_Syntax_getArg(x_1417, x_1128);
+x_1424 = l_Lean_Syntax_getArg(x_1417, x_1132);
+lean_dec(x_1417);
+x_1425 = l_Lean_Syntax_isNone(x_1424);
+if (x_1425 == 0)
+{
+lean_object* x_1426; uint8_t x_1427; 
+x_1426 = lean_unsigned_to_nat(3u);
 lean_inc(x_1424);
-lean_dec_ref(x_1422);
-x_1319 = x_1424;
-x_1320 = x_1416;
-goto block_1333;
-}
-}
-else
-{
-lean_object* x_1425; lean_object* x_1426; uint8_t x_1427; 
-x_1425 = l_Lean_Syntax_getArg(x_1419, x_1128);
-x_1426 = l_Lean_Syntax_getArg(x_1419, x_1338);
-lean_dec(x_1419);
-x_1427 = l_Lean_Syntax_isNone(x_1426);
+x_1427 = l_Lean_Syntax_matchesNull(x_1424, x_1426);
 if (x_1427 == 0)
 {
-lean_object* x_1428; uint8_t x_1429; 
-x_1428 = lean_unsigned_to_nat(3u);
-lean_inc(x_1426);
-x_1429 = l_Lean_Syntax_matchesNull(x_1426, x_1428);
-if (x_1429 == 0)
+lean_object* x_1428; 
+lean_dec(x_1424);
+lean_dec(x_1423);
+lean_inc(x_1414);
+x_1428 = l_Lean_Syntax_isIdOrAtom_x3f(x_1414);
+if (lean_obj_tag(x_1428) == 0)
+{
+lean_object* x_1429; 
+x_1429 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1319 = x_1429;
+x_1320 = x_1414;
+goto block_1333;
+}
+else
 {
 lean_object* x_1430; 
-lean_dec(x_1426);
-lean_dec(x_1425);
-lean_inc(x_1416);
-x_1430 = l_Lean_Syntax_isIdOrAtom_x3f(x_1416);
-if (lean_obj_tag(x_1430) == 0)
-{
-lean_object* x_1431; 
-x_1431 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1319 = x_1431;
-x_1320 = x_1416;
-goto block_1333;
-}
-else
-{
-lean_object* x_1432; 
-x_1432 = lean_ctor_get(x_1430, 0);
-lean_inc(x_1432);
-lean_dec_ref(x_1430);
-x_1319 = x_1432;
-x_1320 = x_1416;
+x_1430 = lean_ctor_get(x_1428, 0);
+lean_inc(x_1430);
+lean_dec_ref(x_1428);
+x_1319 = x_1430;
+x_1320 = x_1414;
 goto block_1333;
 }
 }
 else
 {
-lean_object* x_1433; lean_object* x_1434; lean_object* x_1435; lean_object* x_1436; lean_object* x_1437; 
-lean_dec(x_1416);
-x_1433 = l_Lean_Syntax_getArg(x_1426, x_1338);
-lean_dec(x_1426);
-x_1434 = l_Lean_Syntax_getArgs(x_1433);
-lean_dec(x_1433);
-x_1435 = lean_box(0);
-x_1436 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_1436, 0, x_1434);
-x_1437 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1425, x_26, x_1435, x_1436);
-lean_dec_ref(x_1436);
-x_1334 = x_1437;
+lean_object* x_1431; lean_object* x_1432; lean_object* x_1433; lean_object* x_1434; lean_object* x_1435; 
+lean_dec(x_1414);
+x_1431 = l_Lean_Syntax_getArg(x_1424, x_1132);
+lean_dec(x_1424);
+x_1432 = l_Lean_Syntax_getArgs(x_1431);
+lean_dec(x_1431);
+x_1433 = lean_box(0);
+x_1434 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_1434, 0, x_1432);
+x_1435 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1423, x_26, x_1433, x_1434);
+lean_dec_ref(x_1434);
+x_1334 = x_1435;
 goto block_1337;
 }
 }
 else
 {
-lean_object* x_1438; lean_object* x_1439; lean_object* x_1440; 
-lean_dec(x_1426);
-lean_dec(x_1416);
-x_1438 = lean_box(0);
-x_1439 = lean_box(0);
-x_1440 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1425, x_26, x_1438, x_1439);
-x_1334 = x_1440;
+lean_object* x_1436; lean_object* x_1437; lean_object* x_1438; 
+lean_dec(x_1424);
+lean_dec(x_1414);
+x_1436 = lean_box(0);
+x_1437 = lean_box(0);
+x_1438 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1423, x_26, x_1436, x_1437);
+x_1334 = x_1438;
 goto block_1337;
 }
 }
 }
 else
 {
-lean_object* x_1441; lean_object* x_1442; uint8_t x_1443; 
-x_1441 = lean_unsigned_to_nat(2u);
-x_1442 = l_Lean_Syntax_getArg(x_1339, x_1441);
-x_1443 = l_Lean_Syntax_isNone(x_1442);
-if (x_1443 == 0)
+lean_object* x_1439; lean_object* x_1440; uint8_t x_1441; 
+x_1439 = lean_unsigned_to_nat(2u);
+x_1440 = l_Lean_Syntax_getArg(x_1133, x_1439);
+x_1441 = l_Lean_Syntax_isNone(x_1440);
+if (x_1441 == 0)
 {
-uint8_t x_1444; 
-lean_inc(x_1442);
-x_1444 = l_Lean_Syntax_matchesNull(x_1442, x_1338);
-if (x_1444 == 0)
+uint8_t x_1442; 
+lean_inc(x_1440);
+x_1442 = l_Lean_Syntax_matchesNull(x_1440, x_1132);
+if (x_1442 == 0)
 {
-lean_object* x_1445; lean_object* x_1446; uint8_t x_1447; 
-lean_dec(x_1442);
-x_1445 = l_Lean_Syntax_getArg(x_1339, x_1338);
-lean_dec(x_1339);
-x_1446 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1445);
-x_1447 = l_Lean_Syntax_isOfKind(x_1445, x_1446);
-if (x_1447 == 0)
+lean_object* x_1443; lean_object* x_1444; uint8_t x_1445; 
+lean_dec(x_1440);
+x_1443 = l_Lean_Syntax_getArg(x_1133, x_1132);
+lean_dec(x_1133);
+x_1444 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1443);
+x_1445 = l_Lean_Syntax_isOfKind(x_1443, x_1444);
+if (x_1445 == 0)
+{
+lean_object* x_1446; 
+lean_dec(x_1443);
+lean_inc(x_1414);
+x_1446 = l_Lean_Syntax_isIdOrAtom_x3f(x_1414);
+if (lean_obj_tag(x_1446) == 0)
+{
+lean_object* x_1447; 
+x_1447 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1319 = x_1447;
+x_1320 = x_1414;
+goto block_1333;
+}
+else
 {
 lean_object* x_1448; 
-lean_dec(x_1445);
-lean_inc(x_1416);
-x_1448 = l_Lean_Syntax_isIdOrAtom_x3f(x_1416);
-if (lean_obj_tag(x_1448) == 0)
-{
-lean_object* x_1449; 
-x_1449 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1319 = x_1449;
-x_1320 = x_1416;
+x_1448 = lean_ctor_get(x_1446, 0);
+lean_inc(x_1448);
+lean_dec_ref(x_1446);
+x_1319 = x_1448;
+x_1320 = x_1414;
 goto block_1333;
+}
 }
 else
 {
-lean_object* x_1450; 
-x_1450 = lean_ctor_get(x_1448, 0);
+lean_object* x_1449; lean_object* x_1450; uint8_t x_1451; 
+x_1449 = l_Lean_Syntax_getArg(x_1443, x_1128);
+x_1450 = l_Lean_Syntax_getArg(x_1443, x_1132);
+lean_dec(x_1443);
+x_1451 = l_Lean_Syntax_isNone(x_1450);
+if (x_1451 == 0)
+{
+lean_object* x_1452; uint8_t x_1453; 
+x_1452 = lean_unsigned_to_nat(3u);
 lean_inc(x_1450);
-lean_dec_ref(x_1448);
-x_1319 = x_1450;
-x_1320 = x_1416;
-goto block_1333;
-}
-}
-else
-{
-lean_object* x_1451; lean_object* x_1452; uint8_t x_1453; 
-x_1451 = l_Lean_Syntax_getArg(x_1445, x_1128);
-x_1452 = l_Lean_Syntax_getArg(x_1445, x_1338);
-lean_dec(x_1445);
-x_1453 = l_Lean_Syntax_isNone(x_1452);
+x_1453 = l_Lean_Syntax_matchesNull(x_1450, x_1452);
 if (x_1453 == 0)
 {
-lean_object* x_1454; uint8_t x_1455; 
-x_1454 = lean_unsigned_to_nat(3u);
-lean_inc(x_1452);
-x_1455 = l_Lean_Syntax_matchesNull(x_1452, x_1454);
-if (x_1455 == 0)
+lean_object* x_1454; 
+lean_dec(x_1450);
+lean_dec(x_1449);
+lean_inc(x_1414);
+x_1454 = l_Lean_Syntax_isIdOrAtom_x3f(x_1414);
+if (lean_obj_tag(x_1454) == 0)
+{
+lean_object* x_1455; 
+x_1455 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1319 = x_1455;
+x_1320 = x_1414;
+goto block_1333;
+}
+else
 {
 lean_object* x_1456; 
-lean_dec(x_1452);
-lean_dec(x_1451);
-lean_inc(x_1416);
-x_1456 = l_Lean_Syntax_isIdOrAtom_x3f(x_1416);
-if (lean_obj_tag(x_1456) == 0)
-{
-lean_object* x_1457; 
-x_1457 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1319 = x_1457;
-x_1320 = x_1416;
-goto block_1333;
-}
-else
-{
-lean_object* x_1458; 
-x_1458 = lean_ctor_get(x_1456, 0);
-lean_inc(x_1458);
-lean_dec_ref(x_1456);
-x_1319 = x_1458;
-x_1320 = x_1416;
+x_1456 = lean_ctor_get(x_1454, 0);
+lean_inc(x_1456);
+lean_dec_ref(x_1454);
+x_1319 = x_1456;
+x_1320 = x_1414;
 goto block_1333;
 }
 }
 else
 {
-lean_object* x_1459; lean_object* x_1460; lean_object* x_1461; lean_object* x_1462; lean_object* x_1463; 
-lean_dec(x_1416);
-x_1459 = l_Lean_Syntax_getArg(x_1452, x_1338);
-lean_dec(x_1452);
-x_1460 = l_Lean_Syntax_getArgs(x_1459);
-lean_dec(x_1459);
-x_1461 = lean_box(0);
-x_1462 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_1462, 0, x_1460);
-x_1463 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1451, x_26, x_1461, x_1462);
-lean_dec_ref(x_1462);
-x_1334 = x_1463;
+lean_object* x_1457; lean_object* x_1458; lean_object* x_1459; lean_object* x_1460; lean_object* x_1461; 
+lean_dec(x_1414);
+x_1457 = l_Lean_Syntax_getArg(x_1450, x_1132);
+lean_dec(x_1450);
+x_1458 = l_Lean_Syntax_getArgs(x_1457);
+lean_dec(x_1457);
+x_1459 = lean_box(0);
+x_1460 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_1460, 0, x_1458);
+x_1461 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1449, x_26, x_1459, x_1460);
+lean_dec_ref(x_1460);
+x_1334 = x_1461;
 goto block_1337;
 }
 }
 else
 {
-lean_object* x_1464; lean_object* x_1465; lean_object* x_1466; 
-lean_dec(x_1452);
-lean_dec(x_1416);
-x_1464 = lean_box(0);
-x_1465 = lean_box(0);
-x_1466 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1451, x_26, x_1464, x_1465);
-x_1334 = x_1466;
+lean_object* x_1462; lean_object* x_1463; lean_object* x_1464; 
+lean_dec(x_1450);
+lean_dec(x_1414);
+x_1462 = lean_box(0);
+x_1463 = lean_box(0);
+x_1464 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1449, x_26, x_1462, x_1463);
+x_1334 = x_1464;
 goto block_1337;
 }
 }
 }
 else
 {
-lean_object* x_1467; lean_object* x_1468; uint8_t x_1469; 
-x_1467 = l_Lean_Syntax_getArg(x_1442, x_1128);
-lean_dec(x_1442);
-x_1468 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__18;
-lean_inc(x_1467);
-x_1469 = l_Lean_Syntax_isOfKind(x_1467, x_1468);
-if (x_1469 == 0)
+lean_object* x_1465; lean_object* x_1466; uint8_t x_1467; 
+x_1465 = l_Lean_Syntax_getArg(x_1440, x_1128);
+lean_dec(x_1440);
+x_1466 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__18;
+lean_inc(x_1465);
+x_1467 = l_Lean_Syntax_isOfKind(x_1465, x_1466);
+if (x_1467 == 0)
 {
-lean_object* x_1470; lean_object* x_1471; uint8_t x_1472; 
-lean_dec(x_1467);
-x_1470 = l_Lean_Syntax_getArg(x_1339, x_1338);
-lean_dec(x_1339);
-x_1471 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1470);
-x_1472 = l_Lean_Syntax_isOfKind(x_1470, x_1471);
-if (x_1472 == 0)
+lean_object* x_1468; lean_object* x_1469; uint8_t x_1470; 
+lean_dec(x_1465);
+x_1468 = l_Lean_Syntax_getArg(x_1133, x_1132);
+lean_dec(x_1133);
+x_1469 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1468);
+x_1470 = l_Lean_Syntax_isOfKind(x_1468, x_1469);
+if (x_1470 == 0)
+{
+lean_object* x_1471; 
+lean_dec(x_1468);
+lean_inc(x_1414);
+x_1471 = l_Lean_Syntax_isIdOrAtom_x3f(x_1414);
+if (lean_obj_tag(x_1471) == 0)
+{
+lean_object* x_1472; 
+x_1472 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1319 = x_1472;
+x_1320 = x_1414;
+goto block_1333;
+}
+else
 {
 lean_object* x_1473; 
-lean_dec(x_1470);
-lean_inc(x_1416);
-x_1473 = l_Lean_Syntax_isIdOrAtom_x3f(x_1416);
-if (lean_obj_tag(x_1473) == 0)
-{
-lean_object* x_1474; 
-x_1474 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1319 = x_1474;
-x_1320 = x_1416;
+x_1473 = lean_ctor_get(x_1471, 0);
+lean_inc(x_1473);
+lean_dec_ref(x_1471);
+x_1319 = x_1473;
+x_1320 = x_1414;
 goto block_1333;
+}
 }
 else
 {
-lean_object* x_1475; 
-x_1475 = lean_ctor_get(x_1473, 0);
+lean_object* x_1474; lean_object* x_1475; uint8_t x_1476; 
+x_1474 = l_Lean_Syntax_getArg(x_1468, x_1128);
+x_1475 = l_Lean_Syntax_getArg(x_1468, x_1132);
+lean_dec(x_1468);
+x_1476 = l_Lean_Syntax_isNone(x_1475);
+if (x_1476 == 0)
+{
+lean_object* x_1477; uint8_t x_1478; 
+x_1477 = lean_unsigned_to_nat(3u);
 lean_inc(x_1475);
-lean_dec_ref(x_1473);
-x_1319 = x_1475;
-x_1320 = x_1416;
-goto block_1333;
-}
-}
-else
-{
-lean_object* x_1476; lean_object* x_1477; uint8_t x_1478; 
-x_1476 = l_Lean_Syntax_getArg(x_1470, x_1128);
-x_1477 = l_Lean_Syntax_getArg(x_1470, x_1338);
-lean_dec(x_1470);
-x_1478 = l_Lean_Syntax_isNone(x_1477);
+x_1478 = l_Lean_Syntax_matchesNull(x_1475, x_1477);
 if (x_1478 == 0)
 {
-lean_object* x_1479; uint8_t x_1480; 
-x_1479 = lean_unsigned_to_nat(3u);
-lean_inc(x_1477);
-x_1480 = l_Lean_Syntax_matchesNull(x_1477, x_1479);
-if (x_1480 == 0)
+lean_object* x_1479; 
+lean_dec(x_1475);
+lean_dec(x_1474);
+lean_inc(x_1414);
+x_1479 = l_Lean_Syntax_isIdOrAtom_x3f(x_1414);
+if (lean_obj_tag(x_1479) == 0)
+{
+lean_object* x_1480; 
+x_1480 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1319 = x_1480;
+x_1320 = x_1414;
+goto block_1333;
+}
+else
 {
 lean_object* x_1481; 
-lean_dec(x_1477);
-lean_dec(x_1476);
-lean_inc(x_1416);
-x_1481 = l_Lean_Syntax_isIdOrAtom_x3f(x_1416);
-if (lean_obj_tag(x_1481) == 0)
-{
-lean_object* x_1482; 
-x_1482 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1319 = x_1482;
-x_1320 = x_1416;
-goto block_1333;
-}
-else
-{
-lean_object* x_1483; 
-x_1483 = lean_ctor_get(x_1481, 0);
-lean_inc(x_1483);
-lean_dec_ref(x_1481);
-x_1319 = x_1483;
-x_1320 = x_1416;
+x_1481 = lean_ctor_get(x_1479, 0);
+lean_inc(x_1481);
+lean_dec_ref(x_1479);
+x_1319 = x_1481;
+x_1320 = x_1414;
 goto block_1333;
 }
 }
 else
 {
-lean_object* x_1484; lean_object* x_1485; lean_object* x_1486; lean_object* x_1487; lean_object* x_1488; 
-lean_dec(x_1416);
-x_1484 = l_Lean_Syntax_getArg(x_1477, x_1338);
-lean_dec(x_1477);
-x_1485 = l_Lean_Syntax_getArgs(x_1484);
-lean_dec(x_1484);
-x_1486 = lean_box(0);
-x_1487 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_1487, 0, x_1485);
-x_1488 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1476, x_26, x_1486, x_1487);
-lean_dec_ref(x_1487);
-x_1334 = x_1488;
+lean_object* x_1482; lean_object* x_1483; lean_object* x_1484; lean_object* x_1485; lean_object* x_1486; 
+lean_dec(x_1414);
+x_1482 = l_Lean_Syntax_getArg(x_1475, x_1132);
+lean_dec(x_1475);
+x_1483 = l_Lean_Syntax_getArgs(x_1482);
+lean_dec(x_1482);
+x_1484 = lean_box(0);
+x_1485 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_1485, 0, x_1483);
+x_1486 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1474, x_26, x_1484, x_1485);
+lean_dec_ref(x_1485);
+x_1334 = x_1486;
 goto block_1337;
 }
 }
 else
 {
-lean_object* x_1489; lean_object* x_1490; lean_object* x_1491; 
-lean_dec(x_1477);
-lean_dec(x_1416);
-x_1489 = lean_box(0);
+lean_object* x_1487; lean_object* x_1488; lean_object* x_1489; 
+lean_dec(x_1475);
+lean_dec(x_1414);
+x_1487 = lean_box(0);
+x_1488 = lean_box(0);
+x_1489 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1474, x_26, x_1487, x_1488);
+x_1334 = x_1489;
+goto block_1337;
+}
+}
+}
+else
+{
+lean_object* x_1490; lean_object* x_1491; lean_object* x_1492; 
+lean_dec(x_1414);
 x_1490 = lean_box(0);
-x_1491 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1476, x_26, x_1489, x_1490);
-x_1334 = x_1491;
+x_1491 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_1491, 0, x_1465);
+x_1492 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_26, x_1133, x_21, x_22, x_23, x_1132, x_1128, x_1490, x_1491);
+lean_dec_ref(x_1491);
+lean_dec(x_1133);
+x_1334 = x_1492;
 goto block_1337;
 }
 }
 }
 else
 {
-lean_object* x_1492; lean_object* x_1493; lean_object* x_1494; 
-lean_dec(x_1416);
-x_1492 = lean_box(0);
-x_1493 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_1493, 0, x_1467);
-x_1494 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_26, x_1339, x_21, x_22, x_23, x_1338, x_1128, x_1492, x_1493);
-lean_dec_ref(x_1493);
-lean_dec(x_1339);
-x_1334 = x_1494;
-goto block_1337;
-}
-}
-}
-else
-{
-lean_object* x_1495; lean_object* x_1496; lean_object* x_1497; 
-lean_dec(x_1442);
-lean_dec(x_1416);
-x_1495 = lean_box(0);
-x_1496 = lean_box(0);
-x_1497 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_26, x_1339, x_21, x_22, x_23, x_1338, x_1128, x_1495, x_1496);
-lean_dec(x_1339);
-x_1334 = x_1497;
+lean_object* x_1493; lean_object* x_1494; lean_object* x_1495; 
+lean_dec(x_1440);
+lean_dec(x_1414);
+x_1493 = lean_box(0);
+x_1494 = lean_box(0);
+x_1495 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_26, x_1133, x_21, x_22, x_23, x_1132, x_1128, x_1493, x_1494);
+lean_dec(x_1133);
+x_1334 = x_1495;
 goto block_1337;
 }
 }
@@ -16455,9 +16459,9 @@ goto block_1333;
 }
 else
 {
-lean_dec(x_1135);
+lean_dec(x_1137);
+lean_dec(x_1133);
 lean_dec(x_1129);
-lean_dec(x_11);
 x_2 = x_12;
 goto _start;
 }
@@ -16465,31 +16469,31 @@ goto _start;
 }
 else
 {
-lean_object* x_1499; lean_object* x_1500; lean_object* x_1501; 
+lean_object* x_1497; lean_object* x_1498; lean_object* x_1499; 
 lean_dec(x_1129);
-x_1499 = lean_unsigned_to_nat(2u);
-x_1500 = l_Lean_Syntax_getArg(x_11, x_1499);
-x_1501 = l_Lean_Syntax_getOptional_x3f(x_1500);
-lean_dec(x_1500);
-if (lean_obj_tag(x_1501) == 0)
+x_1497 = lean_unsigned_to_nat(2u);
+x_1498 = l_Lean_Syntax_getArg(x_11, x_1497);
+x_1499 = l_Lean_Syntax_getOptional_x3f(x_1498);
+lean_dec(x_1498);
+if (lean_obj_tag(x_1499) == 0)
 {
-lean_object* x_1502; 
-x_1502 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__21;
+lean_object* x_1500; 
+x_1500 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__21;
 lean_inc(x_11);
-x_14 = x_1502;
+x_14 = x_1500;
 x_15 = x_11;
 goto block_20;
 }
 else
 {
-lean_object* x_1503; lean_object* x_1504; lean_object* x_1505; 
-x_1503 = lean_ctor_get(x_1501, 0);
-lean_inc(x_1503);
-lean_dec_ref(x_1501);
-x_1504 = l_Lean_TSyntax_getId(x_1503);
-x_1505 = l_Lean_Name_componentsRev(x_1504);
-x_14 = x_1505;
-x_15 = x_1503;
+lean_object* x_1501; lean_object* x_1502; lean_object* x_1503; 
+x_1501 = lean_ctor_get(x_1499, 0);
+lean_inc(x_1501);
+lean_dec_ref(x_1499);
+x_1502 = l_Lean_TSyntax_getId(x_1501);
+x_1503 = l_Lean_Name_componentsRev(x_1502);
+x_14 = x_1503;
+x_15 = x_1501;
 goto block_20;
 }
 }
@@ -16497,24 +16501,24 @@ goto block_20;
 }
 else
 {
-lean_object* x_1506; lean_object* x_1507; lean_object* x_1508; lean_object* x_1509; lean_object* x_1510; lean_object* x_1511; lean_object* x_1512; 
+lean_object* x_1504; lean_object* x_1505; lean_object* x_1506; lean_object* x_1507; lean_object* x_1508; lean_object* x_1509; lean_object* x_1510; 
 lean_dec(x_13);
-x_1506 = lean_unsigned_to_nat(1u);
-x_1507 = l_Lean_Syntax_getArg(x_11, x_1506);
-x_1508 = l_Lean_TSyntax_getId(x_1507);
-x_1509 = l_Lean_Name_componentsRev(x_1508);
-x_1510 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_1510, 0, x_1509);
-lean_ctor_set(x_1510, 1, x_11);
-lean_ctor_set(x_1510, 2, x_1507);
-lean_ctor_set(x_1510, 3, x_3);
-x_1511 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__0;
-x_1512 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_1512, 0, x_1510);
-lean_ctor_set(x_1512, 1, x_4);
+x_1504 = lean_unsigned_to_nat(1u);
+x_1505 = l_Lean_Syntax_getArg(x_11, x_1504);
+x_1506 = l_Lean_TSyntax_getId(x_1505);
+x_1507 = l_Lean_Name_componentsRev(x_1506);
+x_1508 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_1508, 0, x_1507);
+lean_ctor_set(x_1508, 1, x_11);
+lean_ctor_set(x_1508, 2, x_1505);
+lean_ctor_set(x_1508, 3, x_3);
+x_1509 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__0;
+x_1510 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_1510, 0, x_1508);
+lean_ctor_set(x_1510, 1, x_4);
 x_2 = x_12;
-x_3 = x_1511;
-x_4 = x_1512;
+x_3 = x_1509;
+x_4 = x_1510;
 goto _start;
 }
 block_20:
@@ -16545,2669 +16549,2673 @@ else
 lean_dec(x_7);
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_1514; lean_object* x_1515; 
-x_1514 = l_List_foldl___at___00__private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols_spec__0(x_1, x_3, x_4);
-x_1515 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_1515, 0, x_1514);
-return x_1515;
+lean_object* x_1512; lean_object* x_1513; 
+x_1512 = l_List_foldl___at___00__private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols_spec__0(x_1, x_3, x_4);
+x_1513 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_1513, 0, x_1512);
+return x_1513;
 }
 else
 {
-lean_object* x_1516; lean_object* x_1517; lean_object* x_1518; lean_object* x_1519; lean_object* x_1520; lean_object* x_1526; lean_object* x_1527; lean_object* x_1528; lean_object* x_1529; uint8_t x_1530; 
-x_1516 = lean_ctor_get(x_2, 0);
-lean_inc(x_1516);
-x_1517 = lean_ctor_get(x_2, 1);
-lean_inc(x_1517);
+lean_object* x_1514; lean_object* x_1515; lean_object* x_1516; lean_object* x_1517; lean_object* x_1518; lean_object* x_1524; lean_object* x_1525; lean_object* x_1526; lean_object* x_1527; uint8_t x_1528; 
+x_1514 = lean_ctor_get(x_2, 0);
+lean_inc(x_1514);
+x_1515 = lean_ctor_get(x_2, 1);
+lean_inc(x_1515);
 if (lean_is_exclusive(x_2)) {
  lean_ctor_release(x_2, 0);
  lean_ctor_release(x_2, 1);
- x_1518 = x_2;
+ x_1516 = x_2;
 } else {
  lean_dec_ref(x_2);
- x_1518 = lean_box(0);
+ x_1516 = lean_box(0);
 }
-x_1526 = l_Lean_Elab_InfoTree_hoverableInfoAtM_x3f___at___00Lean_Server_FileWorker_handleHover_spec__1___lam__1___closed__3;
-x_1527 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentHighlight_highlightReturn_x3f___closed__1;
-x_1528 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__1;
-x_1529 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__3;
-lean_inc(x_1516);
-x_1530 = l_Lean_Syntax_isOfKind(x_1516, x_1529);
-if (x_1530 == 0)
+x_1524 = l_Lean_Elab_InfoTree_hoverableInfoAtM_x3f___at___00Lean_Server_FileWorker_handleHover_spec__1___lam__1___closed__3;
+x_1525 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentHighlight_highlightReturn_x3f___closed__1;
+x_1526 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__1;
+x_1527 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__3;
+lean_inc(x_1514);
+x_1528 = l_Lean_Syntax_isOfKind(x_1514, x_1527);
+if (x_1528 == 0)
 {
-uint8_t x_1531; lean_object* x_1532; uint8_t x_1533; 
-x_1531 = 1;
-x_1532 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__5;
-lean_inc(x_1516);
-x_1533 = l_Lean_Syntax_isOfKind(x_1516, x_1532);
+uint8_t x_1529; lean_object* x_1530; uint8_t x_1531; 
+x_1529 = 1;
+x_1530 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__5;
+lean_inc(x_1514);
+x_1531 = l_Lean_Syntax_isOfKind(x_1514, x_1530);
+if (x_1531 == 0)
+{
+lean_object* x_1532; uint8_t x_1533; 
+lean_dec(x_1516);
+x_1532 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__7;
+lean_inc(x_1514);
+x_1533 = l_Lean_Syntax_isOfKind(x_1514, x_1532);
 if (x_1533 == 0)
 {
 lean_object* x_1534; uint8_t x_1535; 
-lean_dec(x_1518);
-x_1534 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__7;
-lean_inc(x_1516);
-x_1535 = l_Lean_Syntax_isOfKind(x_1516, x_1534);
+x_1534 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__9;
+lean_inc(x_1514);
+x_1535 = l_Lean_Syntax_isOfKind(x_1514, x_1534);
 if (x_1535 == 0)
 {
-lean_object* x_1536; uint8_t x_1537; 
-x_1536 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__9;
-lean_inc(x_1516);
-x_1537 = l_Lean_Syntax_isOfKind(x_1516, x_1536);
-if (x_1537 == 0)
-{
-lean_dec(x_1516);
-x_2 = x_1517;
+lean_dec(x_1514);
+x_2 = x_1515;
 goto _start;
 }
 else
 {
-lean_object* x_1539; 
-x_1539 = l_Lean_Syntax_getRange_x3f(x_1516, x_1535);
-if (lean_obj_tag(x_1539) == 1)
+lean_object* x_1537; 
+x_1537 = l_Lean_Syntax_getRange_x3f(x_1514, x_1533);
+if (lean_obj_tag(x_1537) == 1)
 {
-lean_object* x_1540; lean_object* x_1541; lean_object* x_1542; lean_object* x_1543; lean_object* x_1557; 
-x_1540 = lean_ctor_get(x_1539, 0);
-lean_inc(x_1540);
-if (lean_is_exclusive(x_1539)) {
- lean_ctor_release(x_1539, 0);
- x_1541 = x_1539;
+lean_object* x_1538; lean_object* x_1539; lean_object* x_1540; lean_object* x_1541; lean_object* x_1555; 
+x_1538 = lean_ctor_get(x_1537, 0);
+lean_inc(x_1538);
+if (lean_is_exclusive(x_1537)) {
+ lean_ctor_release(x_1537, 0);
+ x_1539 = x_1537;
 } else {
- lean_dec_ref(x_1539);
- x_1541 = lean_box(0);
+ lean_dec_ref(x_1537);
+ x_1539 = lean_box(0);
 }
-if (x_1537 == 0)
+if (x_1535 == 0)
 {
-lean_object* x_1561; lean_object* x_1562; lean_object* x_1563; lean_object* x_1564; uint8_t x_1565; 
-x_1561 = lean_unsigned_to_nat(1u);
-x_1562 = l_Lean_Syntax_getArg(x_1516, x_1561);
-lean_dec(x_1516);
-x_1563 = l_Lean_Syntax_getArg(x_1562, x_1561);
-x_1564 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1563);
-x_1565 = l_Lean_Syntax_isOfKind(x_1563, x_1564);
-if (x_1565 == 0)
+lean_object* x_1559; lean_object* x_1560; lean_object* x_1561; lean_object* x_1562; uint8_t x_1563; 
+x_1559 = lean_unsigned_to_nat(1u);
+x_1560 = l_Lean_Syntax_getArg(x_1514, x_1559);
+lean_dec(x_1514);
+x_1561 = l_Lean_Syntax_getArg(x_1560, x_1559);
+x_1562 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1561);
+x_1563 = l_Lean_Syntax_isOfKind(x_1561, x_1562);
+if (x_1563 == 0)
 {
-lean_object* x_1566; lean_object* x_1567; lean_object* x_1568; 
-lean_dec(x_1563);
-lean_dec(x_1541);
-x_1566 = lean_unsigned_to_nat(0u);
-x_1567 = l_Lean_Syntax_getArg(x_1562, x_1566);
-lean_dec(x_1562);
-lean_inc(x_1567);
-x_1568 = l_Lean_Syntax_isIdOrAtom_x3f(x_1567);
-if (lean_obj_tag(x_1568) == 0)
+lean_object* x_1564; lean_object* x_1565; lean_object* x_1566; 
+lean_dec(x_1561);
+lean_dec(x_1539);
+x_1564 = lean_unsigned_to_nat(0u);
+x_1565 = l_Lean_Syntax_getArg(x_1560, x_1564);
+lean_dec(x_1560);
+lean_inc(x_1565);
+x_1566 = l_Lean_Syntax_isIdOrAtom_x3f(x_1565);
+if (lean_obj_tag(x_1566) == 0)
 {
-lean_object* x_1569; 
-x_1569 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1542 = x_1569;
-x_1543 = x_1567;
-goto block_1556;
-}
-else
-{
-lean_object* x_1570; 
-x_1570 = lean_ctor_get(x_1568, 0);
-lean_inc(x_1570);
-lean_dec_ref(x_1568);
-x_1542 = x_1570;
-x_1543 = x_1567;
-goto block_1556;
-}
+lean_object* x_1567; 
+x_1567 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1540 = x_1567;
+x_1541 = x_1565;
+goto block_1554;
 }
 else
 {
-lean_object* x_1571; lean_object* x_1572; lean_object* x_1573; uint8_t x_1574; 
-x_1571 = lean_unsigned_to_nat(0u);
-x_1572 = l_Lean_Syntax_getArg(x_1563, x_1571);
-x_1573 = l_Lean_Syntax_getArg(x_1563, x_1561);
-lean_dec(x_1563);
-x_1574 = l_Lean_Syntax_isNone(x_1573);
+lean_object* x_1568; 
+x_1568 = lean_ctor_get(x_1566, 0);
+lean_inc(x_1568);
+lean_dec_ref(x_1566);
+x_1540 = x_1568;
+x_1541 = x_1565;
+goto block_1554;
+}
+}
+else
+{
+lean_object* x_1569; lean_object* x_1570; lean_object* x_1571; uint8_t x_1572; 
+x_1569 = lean_unsigned_to_nat(0u);
+x_1570 = l_Lean_Syntax_getArg(x_1561, x_1569);
+x_1571 = l_Lean_Syntax_getArg(x_1561, x_1559);
+lean_dec(x_1561);
+x_1572 = l_Lean_Syntax_isNone(x_1571);
+if (x_1572 == 0)
+{
+lean_object* x_1573; uint8_t x_1574; 
+x_1573 = lean_unsigned_to_nat(3u);
+lean_inc(x_1571);
+x_1574 = l_Lean_Syntax_matchesNull(x_1571, x_1573);
 if (x_1574 == 0)
 {
-lean_object* x_1575; uint8_t x_1576; 
-x_1575 = lean_unsigned_to_nat(3u);
-lean_inc(x_1573);
-x_1576 = l_Lean_Syntax_matchesNull(x_1573, x_1575);
-if (x_1576 == 0)
+lean_object* x_1575; lean_object* x_1576; 
+lean_dec(x_1571);
+lean_dec(x_1570);
+lean_dec(x_1539);
+x_1575 = l_Lean_Syntax_getArg(x_1560, x_1569);
+lean_dec(x_1560);
+lean_inc(x_1575);
+x_1576 = l_Lean_Syntax_isIdOrAtom_x3f(x_1575);
+if (lean_obj_tag(x_1576) == 0)
 {
-lean_object* x_1577; lean_object* x_1578; 
-lean_dec(x_1573);
-lean_dec(x_1572);
-lean_dec(x_1541);
-x_1577 = l_Lean_Syntax_getArg(x_1562, x_1571);
-lean_dec(x_1562);
-lean_inc(x_1577);
-x_1578 = l_Lean_Syntax_isIdOrAtom_x3f(x_1577);
-if (lean_obj_tag(x_1578) == 0)
-{
-lean_object* x_1579; 
-x_1579 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1542 = x_1579;
-x_1543 = x_1577;
-goto block_1556;
+lean_object* x_1577; 
+x_1577 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1540 = x_1577;
+x_1541 = x_1575;
+goto block_1554;
 }
 else
 {
-lean_object* x_1580; 
-x_1580 = lean_ctor_get(x_1578, 0);
-lean_inc(x_1580);
-lean_dec_ref(x_1578);
-x_1542 = x_1580;
-x_1543 = x_1577;
-goto block_1556;
+lean_object* x_1578; 
+x_1578 = lean_ctor_get(x_1576, 0);
+lean_inc(x_1578);
+lean_dec_ref(x_1576);
+x_1540 = x_1578;
+x_1541 = x_1575;
+goto block_1554;
 }
 }
 else
 {
-lean_object* x_1581; lean_object* x_1582; lean_object* x_1583; lean_object* x_1584; lean_object* x_1585; 
-lean_dec(x_1562);
-x_1581 = l_Lean_Syntax_getArg(x_1573, x_1561);
-lean_dec(x_1573);
-x_1582 = l_Lean_Syntax_getArgs(x_1581);
-lean_dec(x_1581);
-x_1583 = lean_box(0);
-if (lean_is_scalar(x_1541)) {
- x_1584 = lean_alloc_ctor(1, 1, 0);
+lean_object* x_1579; lean_object* x_1580; lean_object* x_1581; lean_object* x_1582; lean_object* x_1583; 
+lean_dec(x_1560);
+x_1579 = l_Lean_Syntax_getArg(x_1571, x_1559);
+lean_dec(x_1571);
+x_1580 = l_Lean_Syntax_getArgs(x_1579);
+lean_dec(x_1579);
+x_1581 = lean_box(0);
+if (lean_is_scalar(x_1539)) {
+ x_1582 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_1584 = x_1541;
+ x_1582 = x_1539;
 }
-lean_ctor_set(x_1584, 0, x_1582);
-x_1585 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1572, x_1531, x_1583, x_1584);
-lean_dec_ref(x_1584);
-x_1557 = x_1585;
-goto block_1560;
-}
-}
-else
-{
-lean_object* x_1586; lean_object* x_1587; lean_object* x_1588; 
-lean_dec(x_1573);
-lean_dec(x_1562);
-lean_dec(x_1541);
-x_1586 = lean_box(0);
-x_1587 = lean_box(0);
-x_1588 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1572, x_1531, x_1586, x_1587);
-x_1557 = x_1588;
-goto block_1560;
-}
+lean_ctor_set(x_1582, 0, x_1580);
+x_1583 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1570, x_1529, x_1581, x_1582);
+lean_dec_ref(x_1582);
+x_1555 = x_1583;
+goto block_1558;
 }
 }
 else
 {
-lean_object* x_1589; lean_object* x_1590; lean_object* x_1591; uint8_t x_1592; 
-x_1589 = lean_unsigned_to_nat(0u);
-x_1590 = l_Lean_Syntax_getArg(x_1516, x_1589);
-x_1591 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__12;
-x_1592 = l_Lean_Syntax_isOfKind(x_1590, x_1591);
-if (x_1592 == 0)
-{
-lean_object* x_1593; lean_object* x_1594; lean_object* x_1595; lean_object* x_1596; uint8_t x_1597; 
-x_1593 = lean_unsigned_to_nat(1u);
-x_1594 = l_Lean_Syntax_getArg(x_1516, x_1593);
-lean_dec(x_1516);
-x_1595 = l_Lean_Syntax_getArg(x_1594, x_1593);
-x_1596 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1595);
-x_1597 = l_Lean_Syntax_isOfKind(x_1595, x_1596);
-if (x_1597 == 0)
-{
-lean_object* x_1598; lean_object* x_1599; 
-lean_dec(x_1595);
-lean_dec(x_1541);
-x_1598 = l_Lean_Syntax_getArg(x_1594, x_1589);
-lean_dec(x_1594);
-lean_inc(x_1598);
-x_1599 = l_Lean_Syntax_isIdOrAtom_x3f(x_1598);
-if (lean_obj_tag(x_1599) == 0)
-{
-lean_object* x_1600; 
-x_1600 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1542 = x_1600;
-x_1543 = x_1598;
-goto block_1556;
+lean_object* x_1584; lean_object* x_1585; lean_object* x_1586; 
+lean_dec(x_1571);
+lean_dec(x_1560);
+lean_dec(x_1539);
+x_1584 = lean_box(0);
+x_1585 = lean_box(0);
+x_1586 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1570, x_1529, x_1584, x_1585);
+x_1555 = x_1586;
+goto block_1558;
+}
+}
 }
 else
 {
-lean_object* x_1601; 
-x_1601 = lean_ctor_get(x_1599, 0);
+lean_object* x_1587; lean_object* x_1588; lean_object* x_1589; uint8_t x_1590; 
+x_1587 = lean_unsigned_to_nat(0u);
+x_1588 = l_Lean_Syntax_getArg(x_1514, x_1587);
+x_1589 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__12;
+x_1590 = l_Lean_Syntax_isOfKind(x_1588, x_1589);
+if (x_1590 == 0)
+{
+lean_object* x_1591; lean_object* x_1592; lean_object* x_1593; lean_object* x_1594; uint8_t x_1595; 
+x_1591 = lean_unsigned_to_nat(1u);
+x_1592 = l_Lean_Syntax_getArg(x_1514, x_1591);
+lean_dec(x_1514);
+x_1593 = l_Lean_Syntax_getArg(x_1592, x_1591);
+x_1594 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1593);
+x_1595 = l_Lean_Syntax_isOfKind(x_1593, x_1594);
+if (x_1595 == 0)
+{
+lean_object* x_1596; lean_object* x_1597; 
+lean_dec(x_1593);
+lean_dec(x_1539);
+x_1596 = l_Lean_Syntax_getArg(x_1592, x_1587);
+lean_dec(x_1592);
+lean_inc(x_1596);
+x_1597 = l_Lean_Syntax_isIdOrAtom_x3f(x_1596);
+if (lean_obj_tag(x_1597) == 0)
+{
+lean_object* x_1598; 
+x_1598 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1540 = x_1598;
+x_1541 = x_1596;
+goto block_1554;
+}
+else
+{
+lean_object* x_1599; 
+x_1599 = lean_ctor_get(x_1597, 0);
+lean_inc(x_1599);
+lean_dec_ref(x_1597);
+x_1540 = x_1599;
+x_1541 = x_1596;
+goto block_1554;
+}
+}
+else
+{
+lean_object* x_1600; lean_object* x_1601; uint8_t x_1602; 
+x_1600 = l_Lean_Syntax_getArg(x_1593, x_1587);
+x_1601 = l_Lean_Syntax_getArg(x_1593, x_1591);
+lean_dec(x_1593);
+x_1602 = l_Lean_Syntax_isNone(x_1601);
+if (x_1602 == 0)
+{
+lean_object* x_1603; uint8_t x_1604; 
+x_1603 = lean_unsigned_to_nat(3u);
 lean_inc(x_1601);
-lean_dec_ref(x_1599);
-x_1542 = x_1601;
-x_1543 = x_1598;
-goto block_1556;
-}
-}
-else
-{
-lean_object* x_1602; lean_object* x_1603; uint8_t x_1604; 
-x_1602 = l_Lean_Syntax_getArg(x_1595, x_1589);
-x_1603 = l_Lean_Syntax_getArg(x_1595, x_1593);
-lean_dec(x_1595);
-x_1604 = l_Lean_Syntax_isNone(x_1603);
+x_1604 = l_Lean_Syntax_matchesNull(x_1601, x_1603);
 if (x_1604 == 0)
 {
-lean_object* x_1605; uint8_t x_1606; 
-x_1605 = lean_unsigned_to_nat(3u);
-lean_inc(x_1603);
-x_1606 = l_Lean_Syntax_matchesNull(x_1603, x_1605);
-if (x_1606 == 0)
+lean_object* x_1605; lean_object* x_1606; 
+lean_dec(x_1601);
+lean_dec(x_1600);
+lean_dec(x_1539);
+x_1605 = l_Lean_Syntax_getArg(x_1592, x_1587);
+lean_dec(x_1592);
+lean_inc(x_1605);
+x_1606 = l_Lean_Syntax_isIdOrAtom_x3f(x_1605);
+if (lean_obj_tag(x_1606) == 0)
 {
-lean_object* x_1607; lean_object* x_1608; 
-lean_dec(x_1603);
-lean_dec(x_1602);
-lean_dec(x_1541);
-x_1607 = l_Lean_Syntax_getArg(x_1594, x_1589);
-lean_dec(x_1594);
-lean_inc(x_1607);
-x_1608 = l_Lean_Syntax_isIdOrAtom_x3f(x_1607);
-if (lean_obj_tag(x_1608) == 0)
-{
-lean_object* x_1609; 
-x_1609 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1542 = x_1609;
-x_1543 = x_1607;
-goto block_1556;
+lean_object* x_1607; 
+x_1607 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1540 = x_1607;
+x_1541 = x_1605;
+goto block_1554;
 }
 else
 {
-lean_object* x_1610; 
-x_1610 = lean_ctor_get(x_1608, 0);
-lean_inc(x_1610);
-lean_dec_ref(x_1608);
-x_1542 = x_1610;
-x_1543 = x_1607;
-goto block_1556;
+lean_object* x_1608; 
+x_1608 = lean_ctor_get(x_1606, 0);
+lean_inc(x_1608);
+lean_dec_ref(x_1606);
+x_1540 = x_1608;
+x_1541 = x_1605;
+goto block_1554;
 }
 }
 else
 {
-lean_object* x_1611; lean_object* x_1612; lean_object* x_1613; lean_object* x_1614; lean_object* x_1615; 
-lean_dec(x_1594);
-x_1611 = l_Lean_Syntax_getArg(x_1603, x_1593);
-lean_dec(x_1603);
-x_1612 = l_Lean_Syntax_getArgs(x_1611);
-lean_dec(x_1611);
-x_1613 = lean_box(0);
-if (lean_is_scalar(x_1541)) {
- x_1614 = lean_alloc_ctor(1, 1, 0);
+lean_object* x_1609; lean_object* x_1610; lean_object* x_1611; lean_object* x_1612; lean_object* x_1613; 
+lean_dec(x_1592);
+x_1609 = l_Lean_Syntax_getArg(x_1601, x_1591);
+lean_dec(x_1601);
+x_1610 = l_Lean_Syntax_getArgs(x_1609);
+lean_dec(x_1609);
+x_1611 = lean_box(0);
+if (lean_is_scalar(x_1539)) {
+ x_1612 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_1614 = x_1541;
+ x_1612 = x_1539;
 }
-lean_ctor_set(x_1614, 0, x_1612);
-x_1615 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1602, x_1531, x_1613, x_1614);
-lean_dec_ref(x_1614);
-x_1557 = x_1615;
-goto block_1560;
-}
-}
-else
-{
-lean_object* x_1616; lean_object* x_1617; lean_object* x_1618; 
-lean_dec(x_1603);
-lean_dec(x_1594);
-lean_dec(x_1541);
-x_1616 = lean_box(0);
-x_1617 = lean_box(0);
-x_1618 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1602, x_1531, x_1616, x_1617);
-x_1557 = x_1618;
-goto block_1560;
-}
+lean_ctor_set(x_1612, 0, x_1610);
+x_1613 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1600, x_1529, x_1611, x_1612);
+lean_dec_ref(x_1612);
+x_1555 = x_1613;
+goto block_1558;
 }
 }
 else
 {
-lean_object* x_1619; lean_object* x_1620; lean_object* x_1621; uint8_t x_1622; 
-x_1619 = lean_unsigned_to_nat(1u);
-x_1620 = l_Lean_Syntax_getArg(x_1516, x_1619);
-lean_dec(x_1516);
-x_1621 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__14;
-lean_inc(x_1620);
-x_1622 = l_Lean_Syntax_isOfKind(x_1620, x_1621);
-if (x_1622 == 0)
-{
-lean_object* x_1623; lean_object* x_1624; uint8_t x_1625; 
-x_1623 = l_Lean_Syntax_getArg(x_1620, x_1619);
-x_1624 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1623);
-x_1625 = l_Lean_Syntax_isOfKind(x_1623, x_1624);
-if (x_1625 == 0)
-{
-lean_object* x_1626; lean_object* x_1627; 
-lean_dec(x_1623);
-lean_dec(x_1541);
-x_1626 = l_Lean_Syntax_getArg(x_1620, x_1589);
-lean_dec(x_1620);
-lean_inc(x_1626);
-x_1627 = l_Lean_Syntax_isIdOrAtom_x3f(x_1626);
-if (lean_obj_tag(x_1627) == 0)
-{
-lean_object* x_1628; 
-x_1628 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1542 = x_1628;
-x_1543 = x_1626;
-goto block_1556;
+lean_object* x_1614; lean_object* x_1615; lean_object* x_1616; 
+lean_dec(x_1601);
+lean_dec(x_1592);
+lean_dec(x_1539);
+x_1614 = lean_box(0);
+x_1615 = lean_box(0);
+x_1616 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1600, x_1529, x_1614, x_1615);
+x_1555 = x_1616;
+goto block_1558;
+}
+}
 }
 else
 {
-lean_object* x_1629; 
-x_1629 = lean_ctor_get(x_1627, 0);
+lean_object* x_1617; lean_object* x_1618; lean_object* x_1619; uint8_t x_1620; 
+x_1617 = lean_unsigned_to_nat(1u);
+x_1618 = l_Lean_Syntax_getArg(x_1514, x_1617);
+lean_dec(x_1514);
+x_1619 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__14;
+lean_inc(x_1618);
+x_1620 = l_Lean_Syntax_isOfKind(x_1618, x_1619);
+if (x_1620 == 0)
+{
+lean_object* x_1621; lean_object* x_1622; uint8_t x_1623; 
+x_1621 = l_Lean_Syntax_getArg(x_1618, x_1617);
+x_1622 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1621);
+x_1623 = l_Lean_Syntax_isOfKind(x_1621, x_1622);
+if (x_1623 == 0)
+{
+lean_object* x_1624; lean_object* x_1625; 
+lean_dec(x_1621);
+lean_dec(x_1539);
+x_1624 = l_Lean_Syntax_getArg(x_1618, x_1587);
+lean_dec(x_1618);
+lean_inc(x_1624);
+x_1625 = l_Lean_Syntax_isIdOrAtom_x3f(x_1624);
+if (lean_obj_tag(x_1625) == 0)
+{
+lean_object* x_1626; 
+x_1626 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1540 = x_1626;
+x_1541 = x_1624;
+goto block_1554;
+}
+else
+{
+lean_object* x_1627; 
+x_1627 = lean_ctor_get(x_1625, 0);
+lean_inc(x_1627);
+lean_dec_ref(x_1625);
+x_1540 = x_1627;
+x_1541 = x_1624;
+goto block_1554;
+}
+}
+else
+{
+lean_object* x_1628; lean_object* x_1629; uint8_t x_1630; 
+x_1628 = l_Lean_Syntax_getArg(x_1621, x_1587);
+x_1629 = l_Lean_Syntax_getArg(x_1621, x_1617);
+lean_dec(x_1621);
+x_1630 = l_Lean_Syntax_isNone(x_1629);
+if (x_1630 == 0)
+{
+lean_object* x_1631; uint8_t x_1632; 
+x_1631 = lean_unsigned_to_nat(3u);
 lean_inc(x_1629);
-lean_dec_ref(x_1627);
-x_1542 = x_1629;
-x_1543 = x_1626;
-goto block_1556;
-}
-}
-else
-{
-lean_object* x_1630; lean_object* x_1631; uint8_t x_1632; 
-x_1630 = l_Lean_Syntax_getArg(x_1623, x_1589);
-x_1631 = l_Lean_Syntax_getArg(x_1623, x_1619);
-lean_dec(x_1623);
-x_1632 = l_Lean_Syntax_isNone(x_1631);
+x_1632 = l_Lean_Syntax_matchesNull(x_1629, x_1631);
 if (x_1632 == 0)
 {
-lean_object* x_1633; uint8_t x_1634; 
-x_1633 = lean_unsigned_to_nat(3u);
-lean_inc(x_1631);
-x_1634 = l_Lean_Syntax_matchesNull(x_1631, x_1633);
-if (x_1634 == 0)
+lean_object* x_1633; lean_object* x_1634; 
+lean_dec(x_1629);
+lean_dec(x_1628);
+lean_dec(x_1539);
+x_1633 = l_Lean_Syntax_getArg(x_1618, x_1587);
+lean_dec(x_1618);
+lean_inc(x_1633);
+x_1634 = l_Lean_Syntax_isIdOrAtom_x3f(x_1633);
+if (lean_obj_tag(x_1634) == 0)
 {
-lean_object* x_1635; lean_object* x_1636; 
-lean_dec(x_1631);
-lean_dec(x_1630);
-lean_dec(x_1541);
-x_1635 = l_Lean_Syntax_getArg(x_1620, x_1589);
-lean_dec(x_1620);
-lean_inc(x_1635);
-x_1636 = l_Lean_Syntax_isIdOrAtom_x3f(x_1635);
-if (lean_obj_tag(x_1636) == 0)
-{
-lean_object* x_1637; 
-x_1637 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1542 = x_1637;
-x_1543 = x_1635;
-goto block_1556;
+lean_object* x_1635; 
+x_1635 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1540 = x_1635;
+x_1541 = x_1633;
+goto block_1554;
 }
 else
 {
-lean_object* x_1638; 
-x_1638 = lean_ctor_get(x_1636, 0);
-lean_inc(x_1638);
-lean_dec_ref(x_1636);
-x_1542 = x_1638;
-x_1543 = x_1635;
-goto block_1556;
+lean_object* x_1636; 
+x_1636 = lean_ctor_get(x_1634, 0);
+lean_inc(x_1636);
+lean_dec_ref(x_1634);
+x_1540 = x_1636;
+x_1541 = x_1633;
+goto block_1554;
 }
 }
 else
 {
-lean_object* x_1639; lean_object* x_1640; lean_object* x_1641; lean_object* x_1642; lean_object* x_1643; 
-lean_dec(x_1620);
-x_1639 = l_Lean_Syntax_getArg(x_1631, x_1619);
-lean_dec(x_1631);
-x_1640 = l_Lean_Syntax_getArgs(x_1639);
-lean_dec(x_1639);
-x_1641 = lean_box(0);
-if (lean_is_scalar(x_1541)) {
- x_1642 = lean_alloc_ctor(1, 1, 0);
+lean_object* x_1637; lean_object* x_1638; lean_object* x_1639; lean_object* x_1640; lean_object* x_1641; 
+lean_dec(x_1618);
+x_1637 = l_Lean_Syntax_getArg(x_1629, x_1617);
+lean_dec(x_1629);
+x_1638 = l_Lean_Syntax_getArgs(x_1637);
+lean_dec(x_1637);
+x_1639 = lean_box(0);
+if (lean_is_scalar(x_1539)) {
+ x_1640 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_1642 = x_1541;
+ x_1640 = x_1539;
 }
-lean_ctor_set(x_1642, 0, x_1640);
-x_1643 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1630, x_1531, x_1641, x_1642);
-lean_dec_ref(x_1642);
-x_1557 = x_1643;
-goto block_1560;
-}
-}
-else
-{
-lean_object* x_1644; lean_object* x_1645; lean_object* x_1646; 
-lean_dec(x_1631);
-lean_dec(x_1620);
-lean_dec(x_1541);
-x_1644 = lean_box(0);
-x_1645 = lean_box(0);
-x_1646 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1630, x_1531, x_1644, x_1645);
-x_1557 = x_1646;
-goto block_1560;
-}
+lean_ctor_set(x_1640, 0, x_1638);
+x_1641 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1628, x_1529, x_1639, x_1640);
+lean_dec_ref(x_1640);
+x_1555 = x_1641;
+goto block_1558;
 }
 }
 else
 {
-lean_object* x_1647; lean_object* x_1648; uint8_t x_1649; 
-x_1647 = l_Lean_Syntax_getArg(x_1620, x_1589);
-x_1648 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__16;
-lean_inc(x_1647);
-x_1649 = l_Lean_Syntax_isOfKind(x_1647, x_1648);
-if (x_1649 == 0)
+lean_object* x_1642; lean_object* x_1643; lean_object* x_1644; 
+lean_dec(x_1629);
+lean_dec(x_1618);
+lean_dec(x_1539);
+x_1642 = lean_box(0);
+x_1643 = lean_box(0);
+x_1644 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1628, x_1529, x_1642, x_1643);
+x_1555 = x_1644;
+goto block_1558;
+}
+}
+}
+else
 {
-lean_object* x_1650; lean_object* x_1651; uint8_t x_1652; 
-x_1650 = l_Lean_Syntax_getArg(x_1620, x_1619);
-lean_dec(x_1620);
-x_1651 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1650);
-x_1652 = l_Lean_Syntax_isOfKind(x_1650, x_1651);
-if (x_1652 == 0)
+lean_object* x_1645; lean_object* x_1646; uint8_t x_1647; 
+x_1645 = l_Lean_Syntax_getArg(x_1618, x_1587);
+x_1646 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__16;
+lean_inc(x_1645);
+x_1647 = l_Lean_Syntax_isOfKind(x_1645, x_1646);
+if (x_1647 == 0)
+{
+lean_object* x_1648; lean_object* x_1649; uint8_t x_1650; 
+x_1648 = l_Lean_Syntax_getArg(x_1618, x_1617);
+lean_dec(x_1618);
+x_1649 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1648);
+x_1650 = l_Lean_Syntax_isOfKind(x_1648, x_1649);
+if (x_1650 == 0)
+{
+lean_object* x_1651; 
+lean_dec(x_1648);
+lean_dec(x_1539);
+lean_inc(x_1645);
+x_1651 = l_Lean_Syntax_isIdOrAtom_x3f(x_1645);
+if (lean_obj_tag(x_1651) == 0)
+{
+lean_object* x_1652; 
+x_1652 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1540 = x_1652;
+x_1541 = x_1645;
+goto block_1554;
+}
+else
 {
 lean_object* x_1653; 
-lean_dec(x_1650);
-lean_dec(x_1541);
-lean_inc(x_1647);
-x_1653 = l_Lean_Syntax_isIdOrAtom_x3f(x_1647);
-if (lean_obj_tag(x_1653) == 0)
-{
-lean_object* x_1654; 
-x_1654 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1542 = x_1654;
-x_1543 = x_1647;
-goto block_1556;
+x_1653 = lean_ctor_get(x_1651, 0);
+lean_inc(x_1653);
+lean_dec_ref(x_1651);
+x_1540 = x_1653;
+x_1541 = x_1645;
+goto block_1554;
+}
 }
 else
 {
-lean_object* x_1655; 
-x_1655 = lean_ctor_get(x_1653, 0);
+lean_object* x_1654; lean_object* x_1655; uint8_t x_1656; 
+x_1654 = l_Lean_Syntax_getArg(x_1648, x_1587);
+x_1655 = l_Lean_Syntax_getArg(x_1648, x_1617);
+lean_dec(x_1648);
+x_1656 = l_Lean_Syntax_isNone(x_1655);
+if (x_1656 == 0)
+{
+lean_object* x_1657; uint8_t x_1658; 
+x_1657 = lean_unsigned_to_nat(3u);
 lean_inc(x_1655);
-lean_dec_ref(x_1653);
-x_1542 = x_1655;
-x_1543 = x_1647;
-goto block_1556;
-}
-}
-else
-{
-lean_object* x_1656; lean_object* x_1657; uint8_t x_1658; 
-x_1656 = l_Lean_Syntax_getArg(x_1650, x_1589);
-x_1657 = l_Lean_Syntax_getArg(x_1650, x_1619);
-lean_dec(x_1650);
-x_1658 = l_Lean_Syntax_isNone(x_1657);
+x_1658 = l_Lean_Syntax_matchesNull(x_1655, x_1657);
 if (x_1658 == 0)
 {
-lean_object* x_1659; uint8_t x_1660; 
-x_1659 = lean_unsigned_to_nat(3u);
-lean_inc(x_1657);
-x_1660 = l_Lean_Syntax_matchesNull(x_1657, x_1659);
-if (x_1660 == 0)
+lean_object* x_1659; 
+lean_dec(x_1655);
+lean_dec(x_1654);
+lean_dec(x_1539);
+lean_inc(x_1645);
+x_1659 = l_Lean_Syntax_isIdOrAtom_x3f(x_1645);
+if (lean_obj_tag(x_1659) == 0)
+{
+lean_object* x_1660; 
+x_1660 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1540 = x_1660;
+x_1541 = x_1645;
+goto block_1554;
+}
+else
 {
 lean_object* x_1661; 
-lean_dec(x_1657);
-lean_dec(x_1656);
-lean_dec(x_1541);
-lean_inc(x_1647);
-x_1661 = l_Lean_Syntax_isIdOrAtom_x3f(x_1647);
-if (lean_obj_tag(x_1661) == 0)
-{
-lean_object* x_1662; 
-x_1662 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1542 = x_1662;
-x_1543 = x_1647;
-goto block_1556;
-}
-else
-{
-lean_object* x_1663; 
-x_1663 = lean_ctor_get(x_1661, 0);
-lean_inc(x_1663);
-lean_dec_ref(x_1661);
-x_1542 = x_1663;
-x_1543 = x_1647;
-goto block_1556;
+x_1661 = lean_ctor_get(x_1659, 0);
+lean_inc(x_1661);
+lean_dec_ref(x_1659);
+x_1540 = x_1661;
+x_1541 = x_1645;
+goto block_1554;
 }
 }
 else
 {
-lean_object* x_1664; lean_object* x_1665; lean_object* x_1666; lean_object* x_1667; lean_object* x_1668; 
-lean_dec(x_1647);
-x_1664 = l_Lean_Syntax_getArg(x_1657, x_1619);
-lean_dec(x_1657);
-x_1665 = l_Lean_Syntax_getArgs(x_1664);
-lean_dec(x_1664);
-x_1666 = lean_box(0);
-if (lean_is_scalar(x_1541)) {
- x_1667 = lean_alloc_ctor(1, 1, 0);
+lean_object* x_1662; lean_object* x_1663; lean_object* x_1664; lean_object* x_1665; lean_object* x_1666; 
+lean_dec(x_1645);
+x_1662 = l_Lean_Syntax_getArg(x_1655, x_1617);
+lean_dec(x_1655);
+x_1663 = l_Lean_Syntax_getArgs(x_1662);
+lean_dec(x_1662);
+x_1664 = lean_box(0);
+if (lean_is_scalar(x_1539)) {
+ x_1665 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_1667 = x_1541;
+ x_1665 = x_1539;
 }
-lean_ctor_set(x_1667, 0, x_1665);
-x_1668 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1656, x_1531, x_1666, x_1667);
-lean_dec_ref(x_1667);
-x_1557 = x_1668;
-goto block_1560;
-}
-}
-else
-{
-lean_object* x_1669; lean_object* x_1670; lean_object* x_1671; 
-lean_dec(x_1657);
-lean_dec(x_1647);
-lean_dec(x_1541);
-x_1669 = lean_box(0);
-x_1670 = lean_box(0);
-x_1671 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1656, x_1531, x_1669, x_1670);
-x_1557 = x_1671;
-goto block_1560;
-}
+lean_ctor_set(x_1665, 0, x_1663);
+x_1666 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1654, x_1529, x_1664, x_1665);
+lean_dec_ref(x_1665);
+x_1555 = x_1666;
+goto block_1558;
 }
 }
 else
 {
-lean_object* x_1672; lean_object* x_1673; uint8_t x_1674; 
-x_1672 = lean_unsigned_to_nat(2u);
-x_1673 = l_Lean_Syntax_getArg(x_1620, x_1672);
-x_1674 = l_Lean_Syntax_isNone(x_1673);
-if (x_1674 == 0)
+lean_object* x_1667; lean_object* x_1668; lean_object* x_1669; 
+lean_dec(x_1655);
+lean_dec(x_1645);
+lean_dec(x_1539);
+x_1667 = lean_box(0);
+x_1668 = lean_box(0);
+x_1669 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1654, x_1529, x_1667, x_1668);
+x_1555 = x_1669;
+goto block_1558;
+}
+}
+}
+else
 {
-uint8_t x_1675; 
-lean_inc(x_1673);
-x_1675 = l_Lean_Syntax_matchesNull(x_1673, x_1619);
-if (x_1675 == 0)
+lean_object* x_1670; lean_object* x_1671; uint8_t x_1672; 
+x_1670 = lean_unsigned_to_nat(2u);
+x_1671 = l_Lean_Syntax_getArg(x_1618, x_1670);
+x_1672 = l_Lean_Syntax_isNone(x_1671);
+if (x_1672 == 0)
 {
-lean_object* x_1676; lean_object* x_1677; uint8_t x_1678; 
-lean_dec(x_1673);
-x_1676 = l_Lean_Syntax_getArg(x_1620, x_1619);
-lean_dec(x_1620);
-x_1677 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1676);
-x_1678 = l_Lean_Syntax_isOfKind(x_1676, x_1677);
-if (x_1678 == 0)
+uint8_t x_1673; 
+lean_inc(x_1671);
+x_1673 = l_Lean_Syntax_matchesNull(x_1671, x_1617);
+if (x_1673 == 0)
+{
+lean_object* x_1674; lean_object* x_1675; uint8_t x_1676; 
+lean_dec(x_1671);
+x_1674 = l_Lean_Syntax_getArg(x_1618, x_1617);
+lean_dec(x_1618);
+x_1675 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1674);
+x_1676 = l_Lean_Syntax_isOfKind(x_1674, x_1675);
+if (x_1676 == 0)
+{
+lean_object* x_1677; 
+lean_dec(x_1674);
+lean_dec(x_1539);
+lean_inc(x_1645);
+x_1677 = l_Lean_Syntax_isIdOrAtom_x3f(x_1645);
+if (lean_obj_tag(x_1677) == 0)
+{
+lean_object* x_1678; 
+x_1678 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1540 = x_1678;
+x_1541 = x_1645;
+goto block_1554;
+}
+else
 {
 lean_object* x_1679; 
-lean_dec(x_1676);
-lean_dec(x_1541);
-lean_inc(x_1647);
-x_1679 = l_Lean_Syntax_isIdOrAtom_x3f(x_1647);
-if (lean_obj_tag(x_1679) == 0)
-{
-lean_object* x_1680; 
-x_1680 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1542 = x_1680;
-x_1543 = x_1647;
-goto block_1556;
+x_1679 = lean_ctor_get(x_1677, 0);
+lean_inc(x_1679);
+lean_dec_ref(x_1677);
+x_1540 = x_1679;
+x_1541 = x_1645;
+goto block_1554;
+}
 }
 else
 {
-lean_object* x_1681; 
-x_1681 = lean_ctor_get(x_1679, 0);
+lean_object* x_1680; lean_object* x_1681; uint8_t x_1682; 
+x_1680 = l_Lean_Syntax_getArg(x_1674, x_1587);
+x_1681 = l_Lean_Syntax_getArg(x_1674, x_1617);
+lean_dec(x_1674);
+x_1682 = l_Lean_Syntax_isNone(x_1681);
+if (x_1682 == 0)
+{
+lean_object* x_1683; uint8_t x_1684; 
+x_1683 = lean_unsigned_to_nat(3u);
 lean_inc(x_1681);
-lean_dec_ref(x_1679);
-x_1542 = x_1681;
-x_1543 = x_1647;
-goto block_1556;
-}
-}
-else
-{
-lean_object* x_1682; lean_object* x_1683; uint8_t x_1684; 
-x_1682 = l_Lean_Syntax_getArg(x_1676, x_1589);
-x_1683 = l_Lean_Syntax_getArg(x_1676, x_1619);
-lean_dec(x_1676);
-x_1684 = l_Lean_Syntax_isNone(x_1683);
+x_1684 = l_Lean_Syntax_matchesNull(x_1681, x_1683);
 if (x_1684 == 0)
 {
-lean_object* x_1685; uint8_t x_1686; 
-x_1685 = lean_unsigned_to_nat(3u);
-lean_inc(x_1683);
-x_1686 = l_Lean_Syntax_matchesNull(x_1683, x_1685);
-if (x_1686 == 0)
+lean_object* x_1685; 
+lean_dec(x_1681);
+lean_dec(x_1680);
+lean_dec(x_1539);
+lean_inc(x_1645);
+x_1685 = l_Lean_Syntax_isIdOrAtom_x3f(x_1645);
+if (lean_obj_tag(x_1685) == 0)
+{
+lean_object* x_1686; 
+x_1686 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1540 = x_1686;
+x_1541 = x_1645;
+goto block_1554;
+}
+else
 {
 lean_object* x_1687; 
-lean_dec(x_1683);
-lean_dec(x_1682);
-lean_dec(x_1541);
-lean_inc(x_1647);
-x_1687 = l_Lean_Syntax_isIdOrAtom_x3f(x_1647);
-if (lean_obj_tag(x_1687) == 0)
-{
-lean_object* x_1688; 
-x_1688 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1542 = x_1688;
-x_1543 = x_1647;
-goto block_1556;
-}
-else
-{
-lean_object* x_1689; 
-x_1689 = lean_ctor_get(x_1687, 0);
-lean_inc(x_1689);
-lean_dec_ref(x_1687);
-x_1542 = x_1689;
-x_1543 = x_1647;
-goto block_1556;
+x_1687 = lean_ctor_get(x_1685, 0);
+lean_inc(x_1687);
+lean_dec_ref(x_1685);
+x_1540 = x_1687;
+x_1541 = x_1645;
+goto block_1554;
 }
 }
 else
 {
-lean_object* x_1690; lean_object* x_1691; lean_object* x_1692; lean_object* x_1693; lean_object* x_1694; 
-lean_dec(x_1647);
-x_1690 = l_Lean_Syntax_getArg(x_1683, x_1619);
-lean_dec(x_1683);
-x_1691 = l_Lean_Syntax_getArgs(x_1690);
-lean_dec(x_1690);
-x_1692 = lean_box(0);
-if (lean_is_scalar(x_1541)) {
- x_1693 = lean_alloc_ctor(1, 1, 0);
+lean_object* x_1688; lean_object* x_1689; lean_object* x_1690; lean_object* x_1691; lean_object* x_1692; 
+lean_dec(x_1645);
+x_1688 = l_Lean_Syntax_getArg(x_1681, x_1617);
+lean_dec(x_1681);
+x_1689 = l_Lean_Syntax_getArgs(x_1688);
+lean_dec(x_1688);
+x_1690 = lean_box(0);
+if (lean_is_scalar(x_1539)) {
+ x_1691 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_1693 = x_1541;
+ x_1691 = x_1539;
 }
-lean_ctor_set(x_1693, 0, x_1691);
-x_1694 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1682, x_1531, x_1692, x_1693);
-lean_dec_ref(x_1693);
-x_1557 = x_1694;
-goto block_1560;
-}
-}
-else
-{
-lean_object* x_1695; lean_object* x_1696; lean_object* x_1697; 
-lean_dec(x_1683);
-lean_dec(x_1647);
-lean_dec(x_1541);
-x_1695 = lean_box(0);
-x_1696 = lean_box(0);
-x_1697 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1682, x_1531, x_1695, x_1696);
-x_1557 = x_1697;
-goto block_1560;
-}
+lean_ctor_set(x_1691, 0, x_1689);
+x_1692 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1680, x_1529, x_1690, x_1691);
+lean_dec_ref(x_1691);
+x_1555 = x_1692;
+goto block_1558;
 }
 }
 else
 {
-lean_object* x_1698; lean_object* x_1699; uint8_t x_1700; 
-x_1698 = l_Lean_Syntax_getArg(x_1673, x_1589);
-lean_dec(x_1673);
-x_1699 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__18;
-lean_inc(x_1698);
-x_1700 = l_Lean_Syntax_isOfKind(x_1698, x_1699);
-if (x_1700 == 0)
+lean_object* x_1693; lean_object* x_1694; lean_object* x_1695; 
+lean_dec(x_1681);
+lean_dec(x_1645);
+lean_dec(x_1539);
+x_1693 = lean_box(0);
+x_1694 = lean_box(0);
+x_1695 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1680, x_1529, x_1693, x_1694);
+x_1555 = x_1695;
+goto block_1558;
+}
+}
+}
+else
 {
-lean_object* x_1701; lean_object* x_1702; uint8_t x_1703; 
-lean_dec(x_1698);
-x_1701 = l_Lean_Syntax_getArg(x_1620, x_1619);
-lean_dec(x_1620);
-x_1702 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1701);
-x_1703 = l_Lean_Syntax_isOfKind(x_1701, x_1702);
-if (x_1703 == 0)
+lean_object* x_1696; lean_object* x_1697; uint8_t x_1698; 
+x_1696 = l_Lean_Syntax_getArg(x_1671, x_1587);
+lean_dec(x_1671);
+x_1697 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__18;
+lean_inc(x_1696);
+x_1698 = l_Lean_Syntax_isOfKind(x_1696, x_1697);
+if (x_1698 == 0)
+{
+lean_object* x_1699; lean_object* x_1700; uint8_t x_1701; 
+lean_dec(x_1696);
+x_1699 = l_Lean_Syntax_getArg(x_1618, x_1617);
+lean_dec(x_1618);
+x_1700 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1699);
+x_1701 = l_Lean_Syntax_isOfKind(x_1699, x_1700);
+if (x_1701 == 0)
+{
+lean_object* x_1702; 
+lean_dec(x_1699);
+lean_dec(x_1539);
+lean_inc(x_1645);
+x_1702 = l_Lean_Syntax_isIdOrAtom_x3f(x_1645);
+if (lean_obj_tag(x_1702) == 0)
+{
+lean_object* x_1703; 
+x_1703 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1540 = x_1703;
+x_1541 = x_1645;
+goto block_1554;
+}
+else
 {
 lean_object* x_1704; 
-lean_dec(x_1701);
-lean_dec(x_1541);
-lean_inc(x_1647);
-x_1704 = l_Lean_Syntax_isIdOrAtom_x3f(x_1647);
-if (lean_obj_tag(x_1704) == 0)
-{
-lean_object* x_1705; 
-x_1705 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1542 = x_1705;
-x_1543 = x_1647;
-goto block_1556;
+x_1704 = lean_ctor_get(x_1702, 0);
+lean_inc(x_1704);
+lean_dec_ref(x_1702);
+x_1540 = x_1704;
+x_1541 = x_1645;
+goto block_1554;
+}
 }
 else
 {
-lean_object* x_1706; 
-x_1706 = lean_ctor_get(x_1704, 0);
+lean_object* x_1705; lean_object* x_1706; uint8_t x_1707; 
+x_1705 = l_Lean_Syntax_getArg(x_1699, x_1587);
+x_1706 = l_Lean_Syntax_getArg(x_1699, x_1617);
+lean_dec(x_1699);
+x_1707 = l_Lean_Syntax_isNone(x_1706);
+if (x_1707 == 0)
+{
+lean_object* x_1708; uint8_t x_1709; 
+x_1708 = lean_unsigned_to_nat(3u);
 lean_inc(x_1706);
-lean_dec_ref(x_1704);
-x_1542 = x_1706;
-x_1543 = x_1647;
-goto block_1556;
-}
-}
-else
-{
-lean_object* x_1707; lean_object* x_1708; uint8_t x_1709; 
-x_1707 = l_Lean_Syntax_getArg(x_1701, x_1589);
-x_1708 = l_Lean_Syntax_getArg(x_1701, x_1619);
-lean_dec(x_1701);
-x_1709 = l_Lean_Syntax_isNone(x_1708);
+x_1709 = l_Lean_Syntax_matchesNull(x_1706, x_1708);
 if (x_1709 == 0)
 {
-lean_object* x_1710; uint8_t x_1711; 
-x_1710 = lean_unsigned_to_nat(3u);
-lean_inc(x_1708);
-x_1711 = l_Lean_Syntax_matchesNull(x_1708, x_1710);
-if (x_1711 == 0)
+lean_object* x_1710; 
+lean_dec(x_1706);
+lean_dec(x_1705);
+lean_dec(x_1539);
+lean_inc(x_1645);
+x_1710 = l_Lean_Syntax_isIdOrAtom_x3f(x_1645);
+if (lean_obj_tag(x_1710) == 0)
+{
+lean_object* x_1711; 
+x_1711 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1540 = x_1711;
+x_1541 = x_1645;
+goto block_1554;
+}
+else
 {
 lean_object* x_1712; 
-lean_dec(x_1708);
-lean_dec(x_1707);
-lean_dec(x_1541);
-lean_inc(x_1647);
-x_1712 = l_Lean_Syntax_isIdOrAtom_x3f(x_1647);
-if (lean_obj_tag(x_1712) == 0)
-{
-lean_object* x_1713; 
-x_1713 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1542 = x_1713;
-x_1543 = x_1647;
-goto block_1556;
-}
-else
-{
-lean_object* x_1714; 
-x_1714 = lean_ctor_get(x_1712, 0);
-lean_inc(x_1714);
-lean_dec_ref(x_1712);
-x_1542 = x_1714;
-x_1543 = x_1647;
-goto block_1556;
+x_1712 = lean_ctor_get(x_1710, 0);
+lean_inc(x_1712);
+lean_dec_ref(x_1710);
+x_1540 = x_1712;
+x_1541 = x_1645;
+goto block_1554;
 }
 }
 else
 {
-lean_object* x_1715; lean_object* x_1716; lean_object* x_1717; lean_object* x_1718; lean_object* x_1719; 
-lean_dec(x_1647);
-x_1715 = l_Lean_Syntax_getArg(x_1708, x_1619);
-lean_dec(x_1708);
-x_1716 = l_Lean_Syntax_getArgs(x_1715);
-lean_dec(x_1715);
-x_1717 = lean_box(0);
-if (lean_is_scalar(x_1541)) {
- x_1718 = lean_alloc_ctor(1, 1, 0);
+lean_object* x_1713; lean_object* x_1714; lean_object* x_1715; lean_object* x_1716; lean_object* x_1717; 
+lean_dec(x_1645);
+x_1713 = l_Lean_Syntax_getArg(x_1706, x_1617);
+lean_dec(x_1706);
+x_1714 = l_Lean_Syntax_getArgs(x_1713);
+lean_dec(x_1713);
+x_1715 = lean_box(0);
+if (lean_is_scalar(x_1539)) {
+ x_1716 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_1718 = x_1541;
+ x_1716 = x_1539;
 }
-lean_ctor_set(x_1718, 0, x_1716);
-x_1719 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1707, x_1531, x_1717, x_1718);
-lean_dec_ref(x_1718);
-x_1557 = x_1719;
-goto block_1560;
-}
-}
-else
-{
-lean_object* x_1720; lean_object* x_1721; lean_object* x_1722; 
-lean_dec(x_1708);
-lean_dec(x_1647);
-lean_dec(x_1541);
-x_1720 = lean_box(0);
-x_1721 = lean_box(0);
-x_1722 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1707, x_1531, x_1720, x_1721);
-x_1557 = x_1722;
-goto block_1560;
-}
+lean_ctor_set(x_1716, 0, x_1714);
+x_1717 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1705, x_1529, x_1715, x_1716);
+lean_dec_ref(x_1716);
+x_1555 = x_1717;
+goto block_1558;
 }
 }
 else
 {
-lean_object* x_1723; lean_object* x_1724; lean_object* x_1725; 
-lean_dec(x_1647);
-x_1723 = lean_box(0);
-if (lean_is_scalar(x_1541)) {
- x_1724 = lean_alloc_ctor(1, 1, 0);
-} else {
- x_1724 = x_1541;
-}
-lean_ctor_set(x_1724, 0, x_1698);
-x_1725 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_1531, x_1620, x_1526, x_1527, x_1528, x_1619, x_1589, x_1723, x_1724);
-lean_dec_ref(x_1724);
-lean_dec(x_1620);
-x_1557 = x_1725;
-goto block_1560;
-}
-}
-}
-else
-{
-lean_object* x_1726; lean_object* x_1727; lean_object* x_1728; 
-lean_dec(x_1673);
-lean_dec(x_1647);
-lean_dec(x_1541);
-x_1726 = lean_box(0);
-x_1727 = lean_box(0);
-x_1728 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_1531, x_1620, x_1526, x_1527, x_1528, x_1619, x_1589, x_1726, x_1727);
-lean_dec(x_1620);
-x_1557 = x_1728;
-goto block_1560;
-}
-}
-}
-}
-}
-block_1556:
-{
-lean_object* x_1544; 
-x_1544 = l_Lean_Syntax_getRange_x3f(x_1543, x_1535);
-lean_dec(x_1543);
-if (lean_obj_tag(x_1544) == 1)
-{
-lean_object* x_1545; lean_object* x_1546; lean_object* x_1547; uint8_t x_1548; lean_object* x_1549; lean_object* x_1550; lean_object* x_1551; lean_object* x_1552; lean_object* x_1553; 
-x_1545 = lean_ctor_get(x_1544, 0);
-lean_inc(x_1545);
-if (lean_is_exclusive(x_1544)) {
- lean_ctor_release(x_1544, 0);
- x_1546 = x_1544;
-} else {
- lean_dec_ref(x_1544);
- x_1546 = lean_box(0);
-}
-x_1547 = lean_box(0);
-x_1548 = 5;
-lean_inc_ref(x_1);
-x_1549 = l_Lean_Syntax_Range_toLspRange(x_1, x_1540);
-lean_inc_ref(x_1);
-x_1550 = l_Lean_Syntax_Range_toLspRange(x_1, x_1545);
-x_1551 = lean_alloc_ctor(0, 5, 1);
-lean_ctor_set(x_1551, 0, x_1542);
-lean_ctor_set(x_1551, 1, x_1547);
-lean_ctor_set(x_1551, 2, x_1549);
-lean_ctor_set(x_1551, 3, x_1550);
-lean_ctor_set(x_1551, 4, x_1547);
-lean_ctor_set_uint8(x_1551, sizeof(void*)*5, x_1548);
-if (lean_is_scalar(x_1546)) {
- x_1552 = lean_alloc_ctor(0, 1, 0);
-} else {
- x_1552 = x_1546;
- lean_ctor_set_tag(x_1552, 0);
-}
-lean_ctor_set(x_1552, 0, x_1551);
-x_1553 = lean_array_push(x_3, x_1552);
-x_2 = x_1517;
-x_3 = x_1553;
-goto _start;
-}
-else
-{
-lean_dec(x_1544);
-lean_dec_ref(x_1542);
-lean_dec(x_1540);
-x_2 = x_1517;
-goto _start;
-}
-}
-block_1560:
-{
-lean_object* x_1558; lean_object* x_1559; 
-x_1558 = lean_ctor_get(x_1557, 0);
-lean_inc(x_1558);
-x_1559 = lean_ctor_get(x_1557, 1);
-lean_inc(x_1559);
-lean_dec_ref(x_1557);
-x_1542 = x_1558;
-x_1543 = x_1559;
-goto block_1556;
-}
-}
-else
-{
+lean_object* x_1718; lean_object* x_1719; lean_object* x_1720; 
+lean_dec(x_1706);
+lean_dec(x_1645);
 lean_dec(x_1539);
-lean_dec(x_1516);
-x_2 = x_1517;
+x_1718 = lean_box(0);
+x_1719 = lean_box(0);
+x_1720 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1705, x_1529, x_1718, x_1719);
+x_1555 = x_1720;
+goto block_1558;
+}
+}
+}
+else
+{
+lean_object* x_1721; lean_object* x_1722; lean_object* x_1723; 
+lean_dec(x_1645);
+x_1721 = lean_box(0);
+if (lean_is_scalar(x_1539)) {
+ x_1722 = lean_alloc_ctor(1, 1, 0);
+} else {
+ x_1722 = x_1539;
+}
+lean_ctor_set(x_1722, 0, x_1696);
+x_1723 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_1529, x_1618, x_1524, x_1525, x_1526, x_1617, x_1587, x_1721, x_1722);
+lean_dec_ref(x_1722);
+lean_dec(x_1618);
+x_1555 = x_1723;
+goto block_1558;
+}
+}
+}
+else
+{
+lean_object* x_1724; lean_object* x_1725; lean_object* x_1726; 
+lean_dec(x_1671);
+lean_dec(x_1645);
+lean_dec(x_1539);
+x_1724 = lean_box(0);
+x_1725 = lean_box(0);
+x_1726 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_1529, x_1618, x_1524, x_1525, x_1526, x_1617, x_1587, x_1724, x_1725);
+lean_dec(x_1618);
+x_1555 = x_1726;
+goto block_1558;
+}
+}
+}
+}
+}
+block_1554:
+{
+lean_object* x_1542; 
+x_1542 = l_Lean_Syntax_getRange_x3f(x_1541, x_1533);
+lean_dec(x_1541);
+if (lean_obj_tag(x_1542) == 1)
+{
+lean_object* x_1543; lean_object* x_1544; lean_object* x_1545; uint8_t x_1546; lean_object* x_1547; lean_object* x_1548; lean_object* x_1549; lean_object* x_1550; lean_object* x_1551; 
+x_1543 = lean_ctor_get(x_1542, 0);
+lean_inc(x_1543);
+if (lean_is_exclusive(x_1542)) {
+ lean_ctor_release(x_1542, 0);
+ x_1544 = x_1542;
+} else {
+ lean_dec_ref(x_1542);
+ x_1544 = lean_box(0);
+}
+x_1545 = lean_box(0);
+x_1546 = 5;
+lean_inc_ref(x_1);
+x_1547 = l_Lean_Syntax_Range_toLspRange(x_1, x_1538);
+lean_inc_ref(x_1);
+x_1548 = l_Lean_Syntax_Range_toLspRange(x_1, x_1543);
+x_1549 = lean_alloc_ctor(0, 5, 1);
+lean_ctor_set(x_1549, 0, x_1540);
+lean_ctor_set(x_1549, 1, x_1545);
+lean_ctor_set(x_1549, 2, x_1547);
+lean_ctor_set(x_1549, 3, x_1548);
+lean_ctor_set(x_1549, 4, x_1545);
+lean_ctor_set_uint8(x_1549, sizeof(void*)*5, x_1546);
+if (lean_is_scalar(x_1544)) {
+ x_1550 = lean_alloc_ctor(0, 1, 0);
+} else {
+ x_1550 = x_1544;
+ lean_ctor_set_tag(x_1550, 0);
+}
+lean_ctor_set(x_1550, 0, x_1549);
+x_1551 = lean_array_push(x_3, x_1550);
+x_2 = x_1515;
+x_3 = x_1551;
+goto _start;
+}
+else
+{
+lean_dec(x_1542);
+lean_dec_ref(x_1540);
+lean_dec(x_1538);
+x_2 = x_1515;
+goto _start;
+}
+}
+block_1558:
+{
+lean_object* x_1556; lean_object* x_1557; 
+x_1556 = lean_ctor_get(x_1555, 0);
+lean_inc(x_1556);
+x_1557 = lean_ctor_get(x_1555, 1);
+lean_inc(x_1557);
+lean_dec_ref(x_1555);
+x_1540 = x_1556;
+x_1541 = x_1557;
+goto block_1554;
+}
+}
+else
+{
+lean_dec(x_1537);
+lean_dec(x_1514);
+x_2 = x_1515;
 goto _start;
 }
 }
 }
 else
 {
-lean_object* x_1730; lean_object* x_1731; uint8_t x_1732; 
-x_1730 = lean_unsigned_to_nat(1u);
-x_1731 = l_Lean_Syntax_getArg(x_1516, x_1730);
-x_1732 = l_Lean_Syntax_isNone(x_1731);
-if (x_1732 == 0)
+lean_object* x_1728; lean_object* x_1729; uint8_t x_1730; 
+x_1728 = lean_unsigned_to_nat(1u);
+x_1729 = l_Lean_Syntax_getArg(x_1514, x_1728);
+x_1730 = l_Lean_Syntax_isNone(x_1729);
+if (x_1730 == 0)
 {
-lean_object* x_1733; lean_object* x_1734; lean_object* x_1735; uint8_t x_1736; 
-x_1733 = lean_unsigned_to_nat(0u);
-x_1734 = l_Lean_Syntax_getArg(x_1516, x_1733);
-x_1735 = lean_unsigned_to_nat(2u);
-lean_inc(x_1731);
-x_1736 = l_Lean_Syntax_matchesNull(x_1731, x_1735);
+lean_object* x_1731; lean_object* x_1732; lean_object* x_1733; uint8_t x_1734; 
+x_1731 = lean_unsigned_to_nat(0u);
+x_1732 = l_Lean_Syntax_getArg(x_1514, x_1731);
+x_1733 = lean_unsigned_to_nat(2u);
+lean_inc(x_1729);
+x_1734 = l_Lean_Syntax_matchesNull(x_1729, x_1733);
+if (x_1734 == 0)
+{
+lean_object* x_1735; uint8_t x_1736; 
+x_1735 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__9;
+lean_inc(x_1514);
+x_1736 = l_Lean_Syntax_isOfKind(x_1514, x_1735);
 if (x_1736 == 0)
 {
-lean_object* x_1737; uint8_t x_1738; 
-x_1737 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__9;
-lean_inc(x_1516);
-x_1738 = l_Lean_Syntax_isOfKind(x_1516, x_1737);
-if (x_1738 == 0)
-{
-lean_dec(x_1734);
-lean_dec(x_1731);
-lean_dec(x_1516);
-x_2 = x_1517;
+lean_dec(x_1732);
+lean_dec(x_1729);
+lean_dec(x_1514);
+x_2 = x_1515;
 goto _start;
 }
 else
 {
-lean_object* x_1740; 
-x_1740 = l_Lean_Syntax_getRange_x3f(x_1516, x_1736);
-lean_dec(x_1516);
-if (lean_obj_tag(x_1740) == 1)
+lean_object* x_1738; 
+x_1738 = l_Lean_Syntax_getRange_x3f(x_1514, x_1734);
+lean_dec(x_1514);
+if (lean_obj_tag(x_1738) == 1)
 {
-lean_object* x_1741; lean_object* x_1742; lean_object* x_1743; lean_object* x_1744; lean_object* x_1758; 
-x_1741 = lean_ctor_get(x_1740, 0);
-lean_inc(x_1741);
-if (lean_is_exclusive(x_1740)) {
- lean_ctor_release(x_1740, 0);
- x_1742 = x_1740;
+lean_object* x_1739; lean_object* x_1740; lean_object* x_1741; lean_object* x_1742; lean_object* x_1756; 
+x_1739 = lean_ctor_get(x_1738, 0);
+lean_inc(x_1739);
+if (lean_is_exclusive(x_1738)) {
+ lean_ctor_release(x_1738, 0);
+ x_1740 = x_1738;
 } else {
- lean_dec_ref(x_1740);
- x_1742 = lean_box(0);
+ lean_dec_ref(x_1738);
+ x_1740 = lean_box(0);
 }
-if (x_1738 == 0)
+if (x_1736 == 0)
 {
-lean_object* x_1762; lean_object* x_1763; uint8_t x_1764; 
-lean_dec(x_1734);
-x_1762 = l_Lean_Syntax_getArg(x_1731, x_1730);
-x_1763 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1762);
-x_1764 = l_Lean_Syntax_isOfKind(x_1762, x_1763);
-if (x_1764 == 0)
+lean_object* x_1760; lean_object* x_1761; uint8_t x_1762; 
+lean_dec(x_1732);
+x_1760 = l_Lean_Syntax_getArg(x_1729, x_1728);
+x_1761 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1760);
+x_1762 = l_Lean_Syntax_isOfKind(x_1760, x_1761);
+if (x_1762 == 0)
 {
-lean_object* x_1765; lean_object* x_1766; 
-lean_dec(x_1762);
-lean_dec(x_1742);
-x_1765 = l_Lean_Syntax_getArg(x_1731, x_1733);
-lean_dec(x_1731);
-lean_inc(x_1765);
-x_1766 = l_Lean_Syntax_isIdOrAtom_x3f(x_1765);
-if (lean_obj_tag(x_1766) == 0)
+lean_object* x_1763; lean_object* x_1764; 
+lean_dec(x_1760);
+lean_dec(x_1740);
+x_1763 = l_Lean_Syntax_getArg(x_1729, x_1731);
+lean_dec(x_1729);
+lean_inc(x_1763);
+x_1764 = l_Lean_Syntax_isIdOrAtom_x3f(x_1763);
+if (lean_obj_tag(x_1764) == 0)
 {
-lean_object* x_1767; 
-x_1767 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1743 = x_1767;
-x_1744 = x_1765;
-goto block_1757;
+lean_object* x_1765; 
+x_1765 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1741 = x_1765;
+x_1742 = x_1763;
+goto block_1755;
 }
 else
 {
-lean_object* x_1768; 
-x_1768 = lean_ctor_get(x_1766, 0);
+lean_object* x_1766; 
+x_1766 = lean_ctor_get(x_1764, 0);
+lean_inc(x_1766);
+lean_dec_ref(x_1764);
+x_1741 = x_1766;
+x_1742 = x_1763;
+goto block_1755;
+}
+}
+else
+{
+lean_object* x_1767; lean_object* x_1768; uint8_t x_1769; 
+x_1767 = l_Lean_Syntax_getArg(x_1760, x_1731);
+x_1768 = l_Lean_Syntax_getArg(x_1760, x_1728);
+lean_dec(x_1760);
+x_1769 = l_Lean_Syntax_isNone(x_1768);
+if (x_1769 == 0)
+{
+lean_object* x_1770; uint8_t x_1771; 
+x_1770 = lean_unsigned_to_nat(3u);
 lean_inc(x_1768);
-lean_dec_ref(x_1766);
-x_1743 = x_1768;
-x_1744 = x_1765;
-goto block_1757;
-}
-}
-else
-{
-lean_object* x_1769; lean_object* x_1770; uint8_t x_1771; 
-x_1769 = l_Lean_Syntax_getArg(x_1762, x_1733);
-x_1770 = l_Lean_Syntax_getArg(x_1762, x_1730);
-lean_dec(x_1762);
-x_1771 = l_Lean_Syntax_isNone(x_1770);
+x_1771 = l_Lean_Syntax_matchesNull(x_1768, x_1770);
 if (x_1771 == 0)
 {
-lean_object* x_1772; uint8_t x_1773; 
-x_1772 = lean_unsigned_to_nat(3u);
-lean_inc(x_1770);
-x_1773 = l_Lean_Syntax_matchesNull(x_1770, x_1772);
-if (x_1773 == 0)
+lean_object* x_1772; lean_object* x_1773; 
+lean_dec(x_1768);
+lean_dec(x_1767);
+lean_dec(x_1740);
+x_1772 = l_Lean_Syntax_getArg(x_1729, x_1731);
+lean_dec(x_1729);
+lean_inc(x_1772);
+x_1773 = l_Lean_Syntax_isIdOrAtom_x3f(x_1772);
+if (lean_obj_tag(x_1773) == 0)
 {
-lean_object* x_1774; lean_object* x_1775; 
-lean_dec(x_1770);
-lean_dec(x_1769);
-lean_dec(x_1742);
-x_1774 = l_Lean_Syntax_getArg(x_1731, x_1733);
-lean_dec(x_1731);
-lean_inc(x_1774);
-x_1775 = l_Lean_Syntax_isIdOrAtom_x3f(x_1774);
-if (lean_obj_tag(x_1775) == 0)
-{
-lean_object* x_1776; 
-x_1776 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1743 = x_1776;
-x_1744 = x_1774;
-goto block_1757;
+lean_object* x_1774; 
+x_1774 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1741 = x_1774;
+x_1742 = x_1772;
+goto block_1755;
 }
 else
 {
-lean_object* x_1777; 
-x_1777 = lean_ctor_get(x_1775, 0);
-lean_inc(x_1777);
-lean_dec_ref(x_1775);
-x_1743 = x_1777;
-x_1744 = x_1774;
-goto block_1757;
+lean_object* x_1775; 
+x_1775 = lean_ctor_get(x_1773, 0);
+lean_inc(x_1775);
+lean_dec_ref(x_1773);
+x_1741 = x_1775;
+x_1742 = x_1772;
+goto block_1755;
 }
 }
 else
 {
-lean_object* x_1778; lean_object* x_1779; lean_object* x_1780; lean_object* x_1781; lean_object* x_1782; 
-lean_dec(x_1731);
-x_1778 = l_Lean_Syntax_getArg(x_1770, x_1730);
-lean_dec(x_1770);
-x_1779 = l_Lean_Syntax_getArgs(x_1778);
-lean_dec(x_1778);
-x_1780 = lean_box(0);
-if (lean_is_scalar(x_1742)) {
- x_1781 = lean_alloc_ctor(1, 1, 0);
+lean_object* x_1776; lean_object* x_1777; lean_object* x_1778; lean_object* x_1779; lean_object* x_1780; 
+lean_dec(x_1729);
+x_1776 = l_Lean_Syntax_getArg(x_1768, x_1728);
+lean_dec(x_1768);
+x_1777 = l_Lean_Syntax_getArgs(x_1776);
+lean_dec(x_1776);
+x_1778 = lean_box(0);
+if (lean_is_scalar(x_1740)) {
+ x_1779 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_1781 = x_1742;
+ x_1779 = x_1740;
 }
-lean_ctor_set(x_1781, 0, x_1779);
-x_1782 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1769, x_1531, x_1780, x_1781);
-lean_dec_ref(x_1781);
-x_1758 = x_1782;
-goto block_1761;
-}
-}
-else
-{
-lean_object* x_1783; lean_object* x_1784; lean_object* x_1785; 
-lean_dec(x_1770);
-lean_dec(x_1742);
-lean_dec(x_1731);
-x_1783 = lean_box(0);
-x_1784 = lean_box(0);
-x_1785 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1769, x_1531, x_1783, x_1784);
-x_1758 = x_1785;
-goto block_1761;
-}
+lean_ctor_set(x_1779, 0, x_1777);
+x_1780 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1767, x_1529, x_1778, x_1779);
+lean_dec_ref(x_1779);
+x_1756 = x_1780;
+goto block_1759;
 }
 }
 else
 {
-lean_object* x_1786; uint8_t x_1787; 
-x_1786 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__12;
-x_1787 = l_Lean_Syntax_isOfKind(x_1734, x_1786);
-if (x_1787 == 0)
-{
-lean_object* x_1788; lean_object* x_1789; uint8_t x_1790; 
-x_1788 = l_Lean_Syntax_getArg(x_1731, x_1730);
-x_1789 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1788);
-x_1790 = l_Lean_Syntax_isOfKind(x_1788, x_1789);
-if (x_1790 == 0)
-{
-lean_object* x_1791; lean_object* x_1792; 
-lean_dec(x_1788);
-lean_dec(x_1742);
-x_1791 = l_Lean_Syntax_getArg(x_1731, x_1733);
-lean_dec(x_1731);
-lean_inc(x_1791);
-x_1792 = l_Lean_Syntax_isIdOrAtom_x3f(x_1791);
-if (lean_obj_tag(x_1792) == 0)
-{
-lean_object* x_1793; 
-x_1793 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1743 = x_1793;
-x_1744 = x_1791;
-goto block_1757;
+lean_object* x_1781; lean_object* x_1782; lean_object* x_1783; 
+lean_dec(x_1768);
+lean_dec(x_1740);
+lean_dec(x_1729);
+x_1781 = lean_box(0);
+x_1782 = lean_box(0);
+x_1783 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1767, x_1529, x_1781, x_1782);
+x_1756 = x_1783;
+goto block_1759;
+}
+}
 }
 else
 {
-lean_object* x_1794; 
-x_1794 = lean_ctor_get(x_1792, 0);
+lean_object* x_1784; uint8_t x_1785; 
+x_1784 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__12;
+x_1785 = l_Lean_Syntax_isOfKind(x_1732, x_1784);
+if (x_1785 == 0)
+{
+lean_object* x_1786; lean_object* x_1787; uint8_t x_1788; 
+x_1786 = l_Lean_Syntax_getArg(x_1729, x_1728);
+x_1787 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1786);
+x_1788 = l_Lean_Syntax_isOfKind(x_1786, x_1787);
+if (x_1788 == 0)
+{
+lean_object* x_1789; lean_object* x_1790; 
+lean_dec(x_1786);
+lean_dec(x_1740);
+x_1789 = l_Lean_Syntax_getArg(x_1729, x_1731);
+lean_dec(x_1729);
+lean_inc(x_1789);
+x_1790 = l_Lean_Syntax_isIdOrAtom_x3f(x_1789);
+if (lean_obj_tag(x_1790) == 0)
+{
+lean_object* x_1791; 
+x_1791 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1741 = x_1791;
+x_1742 = x_1789;
+goto block_1755;
+}
+else
+{
+lean_object* x_1792; 
+x_1792 = lean_ctor_get(x_1790, 0);
+lean_inc(x_1792);
+lean_dec_ref(x_1790);
+x_1741 = x_1792;
+x_1742 = x_1789;
+goto block_1755;
+}
+}
+else
+{
+lean_object* x_1793; lean_object* x_1794; uint8_t x_1795; 
+x_1793 = l_Lean_Syntax_getArg(x_1786, x_1731);
+x_1794 = l_Lean_Syntax_getArg(x_1786, x_1728);
+lean_dec(x_1786);
+x_1795 = l_Lean_Syntax_isNone(x_1794);
+if (x_1795 == 0)
+{
+lean_object* x_1796; uint8_t x_1797; 
+x_1796 = lean_unsigned_to_nat(3u);
 lean_inc(x_1794);
-lean_dec_ref(x_1792);
-x_1743 = x_1794;
-x_1744 = x_1791;
-goto block_1757;
-}
-}
-else
-{
-lean_object* x_1795; lean_object* x_1796; uint8_t x_1797; 
-x_1795 = l_Lean_Syntax_getArg(x_1788, x_1733);
-x_1796 = l_Lean_Syntax_getArg(x_1788, x_1730);
-lean_dec(x_1788);
-x_1797 = l_Lean_Syntax_isNone(x_1796);
+x_1797 = l_Lean_Syntax_matchesNull(x_1794, x_1796);
 if (x_1797 == 0)
 {
-lean_object* x_1798; uint8_t x_1799; 
-x_1798 = lean_unsigned_to_nat(3u);
-lean_inc(x_1796);
-x_1799 = l_Lean_Syntax_matchesNull(x_1796, x_1798);
-if (x_1799 == 0)
+lean_object* x_1798; lean_object* x_1799; 
+lean_dec(x_1794);
+lean_dec(x_1793);
+lean_dec(x_1740);
+x_1798 = l_Lean_Syntax_getArg(x_1729, x_1731);
+lean_dec(x_1729);
+lean_inc(x_1798);
+x_1799 = l_Lean_Syntax_isIdOrAtom_x3f(x_1798);
+if (lean_obj_tag(x_1799) == 0)
 {
-lean_object* x_1800; lean_object* x_1801; 
-lean_dec(x_1796);
-lean_dec(x_1795);
-lean_dec(x_1742);
-x_1800 = l_Lean_Syntax_getArg(x_1731, x_1733);
-lean_dec(x_1731);
-lean_inc(x_1800);
-x_1801 = l_Lean_Syntax_isIdOrAtom_x3f(x_1800);
-if (lean_obj_tag(x_1801) == 0)
-{
-lean_object* x_1802; 
-x_1802 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1743 = x_1802;
-x_1744 = x_1800;
-goto block_1757;
+lean_object* x_1800; 
+x_1800 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1741 = x_1800;
+x_1742 = x_1798;
+goto block_1755;
 }
 else
 {
-lean_object* x_1803; 
-x_1803 = lean_ctor_get(x_1801, 0);
-lean_inc(x_1803);
-lean_dec_ref(x_1801);
-x_1743 = x_1803;
-x_1744 = x_1800;
-goto block_1757;
+lean_object* x_1801; 
+x_1801 = lean_ctor_get(x_1799, 0);
+lean_inc(x_1801);
+lean_dec_ref(x_1799);
+x_1741 = x_1801;
+x_1742 = x_1798;
+goto block_1755;
 }
 }
 else
 {
-lean_object* x_1804; lean_object* x_1805; lean_object* x_1806; lean_object* x_1807; lean_object* x_1808; 
-lean_dec(x_1731);
-x_1804 = l_Lean_Syntax_getArg(x_1796, x_1730);
-lean_dec(x_1796);
-x_1805 = l_Lean_Syntax_getArgs(x_1804);
-lean_dec(x_1804);
-x_1806 = lean_box(0);
-if (lean_is_scalar(x_1742)) {
- x_1807 = lean_alloc_ctor(1, 1, 0);
+lean_object* x_1802; lean_object* x_1803; lean_object* x_1804; lean_object* x_1805; lean_object* x_1806; 
+lean_dec(x_1729);
+x_1802 = l_Lean_Syntax_getArg(x_1794, x_1728);
+lean_dec(x_1794);
+x_1803 = l_Lean_Syntax_getArgs(x_1802);
+lean_dec(x_1802);
+x_1804 = lean_box(0);
+if (lean_is_scalar(x_1740)) {
+ x_1805 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_1807 = x_1742;
+ x_1805 = x_1740;
 }
-lean_ctor_set(x_1807, 0, x_1805);
-x_1808 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1795, x_1531, x_1806, x_1807);
-lean_dec_ref(x_1807);
-x_1758 = x_1808;
-goto block_1761;
-}
-}
-else
-{
-lean_object* x_1809; lean_object* x_1810; lean_object* x_1811; 
-lean_dec(x_1796);
-lean_dec(x_1742);
-lean_dec(x_1731);
-x_1809 = lean_box(0);
-x_1810 = lean_box(0);
-x_1811 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1795, x_1531, x_1809, x_1810);
-x_1758 = x_1811;
-goto block_1761;
-}
+lean_ctor_set(x_1805, 0, x_1803);
+x_1806 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1793, x_1529, x_1804, x_1805);
+lean_dec_ref(x_1805);
+x_1756 = x_1806;
+goto block_1759;
 }
 }
 else
 {
-lean_object* x_1812; uint8_t x_1813; 
-x_1812 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__14;
-lean_inc(x_1731);
-x_1813 = l_Lean_Syntax_isOfKind(x_1731, x_1812);
-if (x_1813 == 0)
-{
-lean_object* x_1814; lean_object* x_1815; uint8_t x_1816; 
-x_1814 = l_Lean_Syntax_getArg(x_1731, x_1730);
-x_1815 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1814);
-x_1816 = l_Lean_Syntax_isOfKind(x_1814, x_1815);
-if (x_1816 == 0)
-{
-lean_object* x_1817; lean_object* x_1818; 
-lean_dec(x_1814);
-lean_dec(x_1742);
-x_1817 = l_Lean_Syntax_getArg(x_1731, x_1733);
-lean_dec(x_1731);
-lean_inc(x_1817);
-x_1818 = l_Lean_Syntax_isIdOrAtom_x3f(x_1817);
-if (lean_obj_tag(x_1818) == 0)
-{
-lean_object* x_1819; 
-x_1819 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1743 = x_1819;
-x_1744 = x_1817;
-goto block_1757;
+lean_object* x_1807; lean_object* x_1808; lean_object* x_1809; 
+lean_dec(x_1794);
+lean_dec(x_1740);
+lean_dec(x_1729);
+x_1807 = lean_box(0);
+x_1808 = lean_box(0);
+x_1809 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1793, x_1529, x_1807, x_1808);
+x_1756 = x_1809;
+goto block_1759;
+}
+}
 }
 else
 {
-lean_object* x_1820; 
-x_1820 = lean_ctor_get(x_1818, 0);
+lean_object* x_1810; uint8_t x_1811; 
+x_1810 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__14;
+lean_inc(x_1729);
+x_1811 = l_Lean_Syntax_isOfKind(x_1729, x_1810);
+if (x_1811 == 0)
+{
+lean_object* x_1812; lean_object* x_1813; uint8_t x_1814; 
+x_1812 = l_Lean_Syntax_getArg(x_1729, x_1728);
+x_1813 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1812);
+x_1814 = l_Lean_Syntax_isOfKind(x_1812, x_1813);
+if (x_1814 == 0)
+{
+lean_object* x_1815; lean_object* x_1816; 
+lean_dec(x_1812);
+lean_dec(x_1740);
+x_1815 = l_Lean_Syntax_getArg(x_1729, x_1731);
+lean_dec(x_1729);
+lean_inc(x_1815);
+x_1816 = l_Lean_Syntax_isIdOrAtom_x3f(x_1815);
+if (lean_obj_tag(x_1816) == 0)
+{
+lean_object* x_1817; 
+x_1817 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1741 = x_1817;
+x_1742 = x_1815;
+goto block_1755;
+}
+else
+{
+lean_object* x_1818; 
+x_1818 = lean_ctor_get(x_1816, 0);
+lean_inc(x_1818);
+lean_dec_ref(x_1816);
+x_1741 = x_1818;
+x_1742 = x_1815;
+goto block_1755;
+}
+}
+else
+{
+lean_object* x_1819; lean_object* x_1820; uint8_t x_1821; 
+x_1819 = l_Lean_Syntax_getArg(x_1812, x_1731);
+x_1820 = l_Lean_Syntax_getArg(x_1812, x_1728);
+lean_dec(x_1812);
+x_1821 = l_Lean_Syntax_isNone(x_1820);
+if (x_1821 == 0)
+{
+lean_object* x_1822; uint8_t x_1823; 
+x_1822 = lean_unsigned_to_nat(3u);
 lean_inc(x_1820);
-lean_dec_ref(x_1818);
-x_1743 = x_1820;
-x_1744 = x_1817;
-goto block_1757;
-}
-}
-else
-{
-lean_object* x_1821; lean_object* x_1822; uint8_t x_1823; 
-x_1821 = l_Lean_Syntax_getArg(x_1814, x_1733);
-x_1822 = l_Lean_Syntax_getArg(x_1814, x_1730);
-lean_dec(x_1814);
-x_1823 = l_Lean_Syntax_isNone(x_1822);
+x_1823 = l_Lean_Syntax_matchesNull(x_1820, x_1822);
 if (x_1823 == 0)
 {
-lean_object* x_1824; uint8_t x_1825; 
-x_1824 = lean_unsigned_to_nat(3u);
-lean_inc(x_1822);
-x_1825 = l_Lean_Syntax_matchesNull(x_1822, x_1824);
-if (x_1825 == 0)
+lean_object* x_1824; lean_object* x_1825; 
+lean_dec(x_1820);
+lean_dec(x_1819);
+lean_dec(x_1740);
+x_1824 = l_Lean_Syntax_getArg(x_1729, x_1731);
+lean_dec(x_1729);
+lean_inc(x_1824);
+x_1825 = l_Lean_Syntax_isIdOrAtom_x3f(x_1824);
+if (lean_obj_tag(x_1825) == 0)
 {
-lean_object* x_1826; lean_object* x_1827; 
-lean_dec(x_1822);
-lean_dec(x_1821);
-lean_dec(x_1742);
-x_1826 = l_Lean_Syntax_getArg(x_1731, x_1733);
-lean_dec(x_1731);
-lean_inc(x_1826);
-x_1827 = l_Lean_Syntax_isIdOrAtom_x3f(x_1826);
-if (lean_obj_tag(x_1827) == 0)
-{
-lean_object* x_1828; 
-x_1828 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1743 = x_1828;
-x_1744 = x_1826;
-goto block_1757;
+lean_object* x_1826; 
+x_1826 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1741 = x_1826;
+x_1742 = x_1824;
+goto block_1755;
 }
 else
 {
-lean_object* x_1829; 
-x_1829 = lean_ctor_get(x_1827, 0);
-lean_inc(x_1829);
-lean_dec_ref(x_1827);
-x_1743 = x_1829;
-x_1744 = x_1826;
-goto block_1757;
+lean_object* x_1827; 
+x_1827 = lean_ctor_get(x_1825, 0);
+lean_inc(x_1827);
+lean_dec_ref(x_1825);
+x_1741 = x_1827;
+x_1742 = x_1824;
+goto block_1755;
 }
 }
 else
 {
-lean_object* x_1830; lean_object* x_1831; lean_object* x_1832; lean_object* x_1833; lean_object* x_1834; 
-lean_dec(x_1731);
-x_1830 = l_Lean_Syntax_getArg(x_1822, x_1730);
-lean_dec(x_1822);
-x_1831 = l_Lean_Syntax_getArgs(x_1830);
-lean_dec(x_1830);
-x_1832 = lean_box(0);
-if (lean_is_scalar(x_1742)) {
- x_1833 = lean_alloc_ctor(1, 1, 0);
+lean_object* x_1828; lean_object* x_1829; lean_object* x_1830; lean_object* x_1831; lean_object* x_1832; 
+lean_dec(x_1729);
+x_1828 = l_Lean_Syntax_getArg(x_1820, x_1728);
+lean_dec(x_1820);
+x_1829 = l_Lean_Syntax_getArgs(x_1828);
+lean_dec(x_1828);
+x_1830 = lean_box(0);
+if (lean_is_scalar(x_1740)) {
+ x_1831 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_1833 = x_1742;
+ x_1831 = x_1740;
 }
-lean_ctor_set(x_1833, 0, x_1831);
-x_1834 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1821, x_1531, x_1832, x_1833);
-lean_dec_ref(x_1833);
-x_1758 = x_1834;
-goto block_1761;
-}
-}
-else
-{
-lean_object* x_1835; lean_object* x_1836; lean_object* x_1837; 
-lean_dec(x_1822);
-lean_dec(x_1742);
-lean_dec(x_1731);
-x_1835 = lean_box(0);
-x_1836 = lean_box(0);
-x_1837 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1821, x_1531, x_1835, x_1836);
-x_1758 = x_1837;
-goto block_1761;
-}
+lean_ctor_set(x_1831, 0, x_1829);
+x_1832 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1819, x_1529, x_1830, x_1831);
+lean_dec_ref(x_1831);
+x_1756 = x_1832;
+goto block_1759;
 }
 }
 else
 {
-lean_object* x_1838; lean_object* x_1839; uint8_t x_1840; 
-x_1838 = l_Lean_Syntax_getArg(x_1731, x_1733);
-x_1839 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__16;
-lean_inc(x_1838);
-x_1840 = l_Lean_Syntax_isOfKind(x_1838, x_1839);
-if (x_1840 == 0)
+lean_object* x_1833; lean_object* x_1834; lean_object* x_1835; 
+lean_dec(x_1820);
+lean_dec(x_1740);
+lean_dec(x_1729);
+x_1833 = lean_box(0);
+x_1834 = lean_box(0);
+x_1835 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1819, x_1529, x_1833, x_1834);
+x_1756 = x_1835;
+goto block_1759;
+}
+}
+}
+else
 {
-lean_object* x_1841; lean_object* x_1842; uint8_t x_1843; 
-x_1841 = l_Lean_Syntax_getArg(x_1731, x_1730);
-lean_dec(x_1731);
-x_1842 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1841);
-x_1843 = l_Lean_Syntax_isOfKind(x_1841, x_1842);
-if (x_1843 == 0)
+lean_object* x_1836; lean_object* x_1837; uint8_t x_1838; 
+x_1836 = l_Lean_Syntax_getArg(x_1729, x_1731);
+x_1837 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__16;
+lean_inc(x_1836);
+x_1838 = l_Lean_Syntax_isOfKind(x_1836, x_1837);
+if (x_1838 == 0)
+{
+lean_object* x_1839; lean_object* x_1840; uint8_t x_1841; 
+x_1839 = l_Lean_Syntax_getArg(x_1729, x_1728);
+lean_dec(x_1729);
+x_1840 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1839);
+x_1841 = l_Lean_Syntax_isOfKind(x_1839, x_1840);
+if (x_1841 == 0)
+{
+lean_object* x_1842; 
+lean_dec(x_1839);
+lean_dec(x_1740);
+lean_inc(x_1836);
+x_1842 = l_Lean_Syntax_isIdOrAtom_x3f(x_1836);
+if (lean_obj_tag(x_1842) == 0)
+{
+lean_object* x_1843; 
+x_1843 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1741 = x_1843;
+x_1742 = x_1836;
+goto block_1755;
+}
+else
 {
 lean_object* x_1844; 
-lean_dec(x_1841);
-lean_dec(x_1742);
-lean_inc(x_1838);
-x_1844 = l_Lean_Syntax_isIdOrAtom_x3f(x_1838);
-if (lean_obj_tag(x_1844) == 0)
-{
-lean_object* x_1845; 
-x_1845 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1743 = x_1845;
-x_1744 = x_1838;
-goto block_1757;
+x_1844 = lean_ctor_get(x_1842, 0);
+lean_inc(x_1844);
+lean_dec_ref(x_1842);
+x_1741 = x_1844;
+x_1742 = x_1836;
+goto block_1755;
+}
 }
 else
 {
-lean_object* x_1846; 
-x_1846 = lean_ctor_get(x_1844, 0);
+lean_object* x_1845; lean_object* x_1846; uint8_t x_1847; 
+x_1845 = l_Lean_Syntax_getArg(x_1839, x_1731);
+x_1846 = l_Lean_Syntax_getArg(x_1839, x_1728);
+lean_dec(x_1839);
+x_1847 = l_Lean_Syntax_isNone(x_1846);
+if (x_1847 == 0)
+{
+lean_object* x_1848; uint8_t x_1849; 
+x_1848 = lean_unsigned_to_nat(3u);
 lean_inc(x_1846);
-lean_dec_ref(x_1844);
-x_1743 = x_1846;
-x_1744 = x_1838;
-goto block_1757;
-}
-}
-else
-{
-lean_object* x_1847; lean_object* x_1848; uint8_t x_1849; 
-x_1847 = l_Lean_Syntax_getArg(x_1841, x_1733);
-x_1848 = l_Lean_Syntax_getArg(x_1841, x_1730);
-lean_dec(x_1841);
-x_1849 = l_Lean_Syntax_isNone(x_1848);
+x_1849 = l_Lean_Syntax_matchesNull(x_1846, x_1848);
 if (x_1849 == 0)
 {
-lean_object* x_1850; uint8_t x_1851; 
-x_1850 = lean_unsigned_to_nat(3u);
-lean_inc(x_1848);
-x_1851 = l_Lean_Syntax_matchesNull(x_1848, x_1850);
-if (x_1851 == 0)
+lean_object* x_1850; 
+lean_dec(x_1846);
+lean_dec(x_1845);
+lean_dec(x_1740);
+lean_inc(x_1836);
+x_1850 = l_Lean_Syntax_isIdOrAtom_x3f(x_1836);
+if (lean_obj_tag(x_1850) == 0)
+{
+lean_object* x_1851; 
+x_1851 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1741 = x_1851;
+x_1742 = x_1836;
+goto block_1755;
+}
+else
 {
 lean_object* x_1852; 
-lean_dec(x_1848);
-lean_dec(x_1847);
-lean_dec(x_1742);
-lean_inc(x_1838);
-x_1852 = l_Lean_Syntax_isIdOrAtom_x3f(x_1838);
-if (lean_obj_tag(x_1852) == 0)
-{
-lean_object* x_1853; 
-x_1853 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1743 = x_1853;
-x_1744 = x_1838;
-goto block_1757;
-}
-else
-{
-lean_object* x_1854; 
-x_1854 = lean_ctor_get(x_1852, 0);
-lean_inc(x_1854);
-lean_dec_ref(x_1852);
-x_1743 = x_1854;
-x_1744 = x_1838;
-goto block_1757;
+x_1852 = lean_ctor_get(x_1850, 0);
+lean_inc(x_1852);
+lean_dec_ref(x_1850);
+x_1741 = x_1852;
+x_1742 = x_1836;
+goto block_1755;
 }
 }
 else
 {
-lean_object* x_1855; lean_object* x_1856; lean_object* x_1857; lean_object* x_1858; lean_object* x_1859; 
-lean_dec(x_1838);
-x_1855 = l_Lean_Syntax_getArg(x_1848, x_1730);
-lean_dec(x_1848);
-x_1856 = l_Lean_Syntax_getArgs(x_1855);
-lean_dec(x_1855);
-x_1857 = lean_box(0);
-if (lean_is_scalar(x_1742)) {
- x_1858 = lean_alloc_ctor(1, 1, 0);
+lean_object* x_1853; lean_object* x_1854; lean_object* x_1855; lean_object* x_1856; lean_object* x_1857; 
+lean_dec(x_1836);
+x_1853 = l_Lean_Syntax_getArg(x_1846, x_1728);
+lean_dec(x_1846);
+x_1854 = l_Lean_Syntax_getArgs(x_1853);
+lean_dec(x_1853);
+x_1855 = lean_box(0);
+if (lean_is_scalar(x_1740)) {
+ x_1856 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_1858 = x_1742;
+ x_1856 = x_1740;
 }
-lean_ctor_set(x_1858, 0, x_1856);
-x_1859 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1847, x_1531, x_1857, x_1858);
-lean_dec_ref(x_1858);
-x_1758 = x_1859;
-goto block_1761;
-}
-}
-else
-{
-lean_object* x_1860; lean_object* x_1861; lean_object* x_1862; 
-lean_dec(x_1848);
-lean_dec(x_1838);
-lean_dec(x_1742);
-x_1860 = lean_box(0);
-x_1861 = lean_box(0);
-x_1862 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1847, x_1531, x_1860, x_1861);
-x_1758 = x_1862;
-goto block_1761;
-}
+lean_ctor_set(x_1856, 0, x_1854);
+x_1857 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1845, x_1529, x_1855, x_1856);
+lean_dec_ref(x_1856);
+x_1756 = x_1857;
+goto block_1759;
 }
 }
 else
 {
-lean_object* x_1863; uint8_t x_1864; 
-x_1863 = l_Lean_Syntax_getArg(x_1731, x_1735);
-x_1864 = l_Lean_Syntax_isNone(x_1863);
-if (x_1864 == 0)
+lean_object* x_1858; lean_object* x_1859; lean_object* x_1860; 
+lean_dec(x_1846);
+lean_dec(x_1836);
+lean_dec(x_1740);
+x_1858 = lean_box(0);
+x_1859 = lean_box(0);
+x_1860 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1845, x_1529, x_1858, x_1859);
+x_1756 = x_1860;
+goto block_1759;
+}
+}
+}
+else
 {
-uint8_t x_1865; 
-lean_inc(x_1863);
-x_1865 = l_Lean_Syntax_matchesNull(x_1863, x_1730);
-if (x_1865 == 0)
+lean_object* x_1861; uint8_t x_1862; 
+x_1861 = l_Lean_Syntax_getArg(x_1729, x_1733);
+x_1862 = l_Lean_Syntax_isNone(x_1861);
+if (x_1862 == 0)
 {
-lean_object* x_1866; lean_object* x_1867; uint8_t x_1868; 
-lean_dec(x_1863);
-x_1866 = l_Lean_Syntax_getArg(x_1731, x_1730);
-lean_dec(x_1731);
-x_1867 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1866);
-x_1868 = l_Lean_Syntax_isOfKind(x_1866, x_1867);
-if (x_1868 == 0)
+uint8_t x_1863; 
+lean_inc(x_1861);
+x_1863 = l_Lean_Syntax_matchesNull(x_1861, x_1728);
+if (x_1863 == 0)
+{
+lean_object* x_1864; lean_object* x_1865; uint8_t x_1866; 
+lean_dec(x_1861);
+x_1864 = l_Lean_Syntax_getArg(x_1729, x_1728);
+lean_dec(x_1729);
+x_1865 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1864);
+x_1866 = l_Lean_Syntax_isOfKind(x_1864, x_1865);
+if (x_1866 == 0)
+{
+lean_object* x_1867; 
+lean_dec(x_1864);
+lean_dec(x_1740);
+lean_inc(x_1836);
+x_1867 = l_Lean_Syntax_isIdOrAtom_x3f(x_1836);
+if (lean_obj_tag(x_1867) == 0)
+{
+lean_object* x_1868; 
+x_1868 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1741 = x_1868;
+x_1742 = x_1836;
+goto block_1755;
+}
+else
 {
 lean_object* x_1869; 
-lean_dec(x_1866);
-lean_dec(x_1742);
-lean_inc(x_1838);
-x_1869 = l_Lean_Syntax_isIdOrAtom_x3f(x_1838);
-if (lean_obj_tag(x_1869) == 0)
-{
-lean_object* x_1870; 
-x_1870 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1743 = x_1870;
-x_1744 = x_1838;
-goto block_1757;
+x_1869 = lean_ctor_get(x_1867, 0);
+lean_inc(x_1869);
+lean_dec_ref(x_1867);
+x_1741 = x_1869;
+x_1742 = x_1836;
+goto block_1755;
+}
 }
 else
 {
-lean_object* x_1871; 
-x_1871 = lean_ctor_get(x_1869, 0);
+lean_object* x_1870; lean_object* x_1871; uint8_t x_1872; 
+x_1870 = l_Lean_Syntax_getArg(x_1864, x_1731);
+x_1871 = l_Lean_Syntax_getArg(x_1864, x_1728);
+lean_dec(x_1864);
+x_1872 = l_Lean_Syntax_isNone(x_1871);
+if (x_1872 == 0)
+{
+lean_object* x_1873; uint8_t x_1874; 
+x_1873 = lean_unsigned_to_nat(3u);
 lean_inc(x_1871);
-lean_dec_ref(x_1869);
-x_1743 = x_1871;
-x_1744 = x_1838;
-goto block_1757;
-}
-}
-else
-{
-lean_object* x_1872; lean_object* x_1873; uint8_t x_1874; 
-x_1872 = l_Lean_Syntax_getArg(x_1866, x_1733);
-x_1873 = l_Lean_Syntax_getArg(x_1866, x_1730);
-lean_dec(x_1866);
-x_1874 = l_Lean_Syntax_isNone(x_1873);
+x_1874 = l_Lean_Syntax_matchesNull(x_1871, x_1873);
 if (x_1874 == 0)
 {
-lean_object* x_1875; uint8_t x_1876; 
-x_1875 = lean_unsigned_to_nat(3u);
-lean_inc(x_1873);
-x_1876 = l_Lean_Syntax_matchesNull(x_1873, x_1875);
-if (x_1876 == 0)
+lean_object* x_1875; 
+lean_dec(x_1871);
+lean_dec(x_1870);
+lean_dec(x_1740);
+lean_inc(x_1836);
+x_1875 = l_Lean_Syntax_isIdOrAtom_x3f(x_1836);
+if (lean_obj_tag(x_1875) == 0)
+{
+lean_object* x_1876; 
+x_1876 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1741 = x_1876;
+x_1742 = x_1836;
+goto block_1755;
+}
+else
 {
 lean_object* x_1877; 
-lean_dec(x_1873);
-lean_dec(x_1872);
-lean_dec(x_1742);
-lean_inc(x_1838);
-x_1877 = l_Lean_Syntax_isIdOrAtom_x3f(x_1838);
-if (lean_obj_tag(x_1877) == 0)
-{
-lean_object* x_1878; 
-x_1878 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1743 = x_1878;
-x_1744 = x_1838;
-goto block_1757;
-}
-else
-{
-lean_object* x_1879; 
-x_1879 = lean_ctor_get(x_1877, 0);
-lean_inc(x_1879);
-lean_dec_ref(x_1877);
-x_1743 = x_1879;
-x_1744 = x_1838;
-goto block_1757;
+x_1877 = lean_ctor_get(x_1875, 0);
+lean_inc(x_1877);
+lean_dec_ref(x_1875);
+x_1741 = x_1877;
+x_1742 = x_1836;
+goto block_1755;
 }
 }
 else
 {
-lean_object* x_1880; lean_object* x_1881; lean_object* x_1882; lean_object* x_1883; lean_object* x_1884; 
-lean_dec(x_1838);
-x_1880 = l_Lean_Syntax_getArg(x_1873, x_1730);
-lean_dec(x_1873);
-x_1881 = l_Lean_Syntax_getArgs(x_1880);
-lean_dec(x_1880);
-x_1882 = lean_box(0);
-if (lean_is_scalar(x_1742)) {
- x_1883 = lean_alloc_ctor(1, 1, 0);
+lean_object* x_1878; lean_object* x_1879; lean_object* x_1880; lean_object* x_1881; lean_object* x_1882; 
+lean_dec(x_1836);
+x_1878 = l_Lean_Syntax_getArg(x_1871, x_1728);
+lean_dec(x_1871);
+x_1879 = l_Lean_Syntax_getArgs(x_1878);
+lean_dec(x_1878);
+x_1880 = lean_box(0);
+if (lean_is_scalar(x_1740)) {
+ x_1881 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_1883 = x_1742;
+ x_1881 = x_1740;
 }
-lean_ctor_set(x_1883, 0, x_1881);
-x_1884 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1872, x_1531, x_1882, x_1883);
-lean_dec_ref(x_1883);
-x_1758 = x_1884;
-goto block_1761;
-}
-}
-else
-{
-lean_object* x_1885; lean_object* x_1886; lean_object* x_1887; 
-lean_dec(x_1873);
-lean_dec(x_1838);
-lean_dec(x_1742);
-x_1885 = lean_box(0);
-x_1886 = lean_box(0);
-x_1887 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1872, x_1531, x_1885, x_1886);
-x_1758 = x_1887;
-goto block_1761;
-}
+lean_ctor_set(x_1881, 0, x_1879);
+x_1882 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1870, x_1529, x_1880, x_1881);
+lean_dec_ref(x_1881);
+x_1756 = x_1882;
+goto block_1759;
 }
 }
 else
 {
-lean_object* x_1888; lean_object* x_1889; uint8_t x_1890; 
-x_1888 = l_Lean_Syntax_getArg(x_1863, x_1733);
-lean_dec(x_1863);
-x_1889 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__18;
-lean_inc(x_1888);
-x_1890 = l_Lean_Syntax_isOfKind(x_1888, x_1889);
-if (x_1890 == 0)
+lean_object* x_1883; lean_object* x_1884; lean_object* x_1885; 
+lean_dec(x_1871);
+lean_dec(x_1836);
+lean_dec(x_1740);
+x_1883 = lean_box(0);
+x_1884 = lean_box(0);
+x_1885 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1870, x_1529, x_1883, x_1884);
+x_1756 = x_1885;
+goto block_1759;
+}
+}
+}
+else
 {
-lean_object* x_1891; lean_object* x_1892; uint8_t x_1893; 
-lean_dec(x_1888);
-x_1891 = l_Lean_Syntax_getArg(x_1731, x_1730);
-lean_dec(x_1731);
-x_1892 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1891);
-x_1893 = l_Lean_Syntax_isOfKind(x_1891, x_1892);
-if (x_1893 == 0)
+lean_object* x_1886; lean_object* x_1887; uint8_t x_1888; 
+x_1886 = l_Lean_Syntax_getArg(x_1861, x_1731);
+lean_dec(x_1861);
+x_1887 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__18;
+lean_inc(x_1886);
+x_1888 = l_Lean_Syntax_isOfKind(x_1886, x_1887);
+if (x_1888 == 0)
+{
+lean_object* x_1889; lean_object* x_1890; uint8_t x_1891; 
+lean_dec(x_1886);
+x_1889 = l_Lean_Syntax_getArg(x_1729, x_1728);
+lean_dec(x_1729);
+x_1890 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1889);
+x_1891 = l_Lean_Syntax_isOfKind(x_1889, x_1890);
+if (x_1891 == 0)
+{
+lean_object* x_1892; 
+lean_dec(x_1889);
+lean_dec(x_1740);
+lean_inc(x_1836);
+x_1892 = l_Lean_Syntax_isIdOrAtom_x3f(x_1836);
+if (lean_obj_tag(x_1892) == 0)
+{
+lean_object* x_1893; 
+x_1893 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1741 = x_1893;
+x_1742 = x_1836;
+goto block_1755;
+}
+else
 {
 lean_object* x_1894; 
-lean_dec(x_1891);
-lean_dec(x_1742);
-lean_inc(x_1838);
-x_1894 = l_Lean_Syntax_isIdOrAtom_x3f(x_1838);
-if (lean_obj_tag(x_1894) == 0)
-{
-lean_object* x_1895; 
-x_1895 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1743 = x_1895;
-x_1744 = x_1838;
-goto block_1757;
+x_1894 = lean_ctor_get(x_1892, 0);
+lean_inc(x_1894);
+lean_dec_ref(x_1892);
+x_1741 = x_1894;
+x_1742 = x_1836;
+goto block_1755;
+}
 }
 else
 {
-lean_object* x_1896; 
-x_1896 = lean_ctor_get(x_1894, 0);
+lean_object* x_1895; lean_object* x_1896; uint8_t x_1897; 
+x_1895 = l_Lean_Syntax_getArg(x_1889, x_1731);
+x_1896 = l_Lean_Syntax_getArg(x_1889, x_1728);
+lean_dec(x_1889);
+x_1897 = l_Lean_Syntax_isNone(x_1896);
+if (x_1897 == 0)
+{
+lean_object* x_1898; uint8_t x_1899; 
+x_1898 = lean_unsigned_to_nat(3u);
 lean_inc(x_1896);
-lean_dec_ref(x_1894);
-x_1743 = x_1896;
-x_1744 = x_1838;
-goto block_1757;
-}
-}
-else
-{
-lean_object* x_1897; lean_object* x_1898; uint8_t x_1899; 
-x_1897 = l_Lean_Syntax_getArg(x_1891, x_1733);
-x_1898 = l_Lean_Syntax_getArg(x_1891, x_1730);
-lean_dec(x_1891);
-x_1899 = l_Lean_Syntax_isNone(x_1898);
+x_1899 = l_Lean_Syntax_matchesNull(x_1896, x_1898);
 if (x_1899 == 0)
 {
-lean_object* x_1900; uint8_t x_1901; 
-x_1900 = lean_unsigned_to_nat(3u);
-lean_inc(x_1898);
-x_1901 = l_Lean_Syntax_matchesNull(x_1898, x_1900);
-if (x_1901 == 0)
+lean_object* x_1900; 
+lean_dec(x_1896);
+lean_dec(x_1895);
+lean_dec(x_1740);
+lean_inc(x_1836);
+x_1900 = l_Lean_Syntax_isIdOrAtom_x3f(x_1836);
+if (lean_obj_tag(x_1900) == 0)
+{
+lean_object* x_1901; 
+x_1901 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1741 = x_1901;
+x_1742 = x_1836;
+goto block_1755;
+}
+else
 {
 lean_object* x_1902; 
-lean_dec(x_1898);
-lean_dec(x_1897);
-lean_dec(x_1742);
-lean_inc(x_1838);
-x_1902 = l_Lean_Syntax_isIdOrAtom_x3f(x_1838);
-if (lean_obj_tag(x_1902) == 0)
-{
-lean_object* x_1903; 
-x_1903 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1743 = x_1903;
-x_1744 = x_1838;
-goto block_1757;
-}
-else
-{
-lean_object* x_1904; 
-x_1904 = lean_ctor_get(x_1902, 0);
-lean_inc(x_1904);
-lean_dec_ref(x_1902);
-x_1743 = x_1904;
-x_1744 = x_1838;
-goto block_1757;
+x_1902 = lean_ctor_get(x_1900, 0);
+lean_inc(x_1902);
+lean_dec_ref(x_1900);
+x_1741 = x_1902;
+x_1742 = x_1836;
+goto block_1755;
 }
 }
 else
 {
-lean_object* x_1905; lean_object* x_1906; lean_object* x_1907; lean_object* x_1908; lean_object* x_1909; 
-lean_dec(x_1838);
-x_1905 = l_Lean_Syntax_getArg(x_1898, x_1730);
-lean_dec(x_1898);
-x_1906 = l_Lean_Syntax_getArgs(x_1905);
-lean_dec(x_1905);
-x_1907 = lean_box(0);
-if (lean_is_scalar(x_1742)) {
- x_1908 = lean_alloc_ctor(1, 1, 0);
+lean_object* x_1903; lean_object* x_1904; lean_object* x_1905; lean_object* x_1906; lean_object* x_1907; 
+lean_dec(x_1836);
+x_1903 = l_Lean_Syntax_getArg(x_1896, x_1728);
+lean_dec(x_1896);
+x_1904 = l_Lean_Syntax_getArgs(x_1903);
+lean_dec(x_1903);
+x_1905 = lean_box(0);
+if (lean_is_scalar(x_1740)) {
+ x_1906 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_1908 = x_1742;
+ x_1906 = x_1740;
 }
-lean_ctor_set(x_1908, 0, x_1906);
-x_1909 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1897, x_1531, x_1907, x_1908);
-lean_dec_ref(x_1908);
-x_1758 = x_1909;
-goto block_1761;
-}
-}
-else
-{
-lean_object* x_1910; lean_object* x_1911; lean_object* x_1912; 
-lean_dec(x_1898);
-lean_dec(x_1838);
-lean_dec(x_1742);
-x_1910 = lean_box(0);
-x_1911 = lean_box(0);
-x_1912 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1897, x_1531, x_1910, x_1911);
-x_1758 = x_1912;
-goto block_1761;
-}
+lean_ctor_set(x_1906, 0, x_1904);
+x_1907 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1895, x_1529, x_1905, x_1906);
+lean_dec_ref(x_1906);
+x_1756 = x_1907;
+goto block_1759;
 }
 }
 else
 {
-lean_object* x_1913; lean_object* x_1914; lean_object* x_1915; 
-lean_dec(x_1838);
-x_1913 = lean_box(0);
-if (lean_is_scalar(x_1742)) {
- x_1914 = lean_alloc_ctor(1, 1, 0);
-} else {
- x_1914 = x_1742;
-}
-lean_ctor_set(x_1914, 0, x_1888);
-x_1915 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_1531, x_1731, x_1526, x_1527, x_1528, x_1730, x_1733, x_1913, x_1914);
-lean_dec_ref(x_1914);
-lean_dec(x_1731);
-x_1758 = x_1915;
-goto block_1761;
-}
-}
-}
-else
-{
-lean_object* x_1916; lean_object* x_1917; lean_object* x_1918; 
-lean_dec(x_1863);
-lean_dec(x_1838);
-lean_dec(x_1742);
-x_1916 = lean_box(0);
-x_1917 = lean_box(0);
-x_1918 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_1531, x_1731, x_1526, x_1527, x_1528, x_1730, x_1733, x_1916, x_1917);
-lean_dec(x_1731);
-x_1758 = x_1918;
-goto block_1761;
-}
-}
-}
-}
-}
-block_1757:
-{
-lean_object* x_1745; 
-x_1745 = l_Lean_Syntax_getRange_x3f(x_1744, x_1736);
-lean_dec(x_1744);
-if (lean_obj_tag(x_1745) == 1)
-{
-lean_object* x_1746; lean_object* x_1747; lean_object* x_1748; uint8_t x_1749; lean_object* x_1750; lean_object* x_1751; lean_object* x_1752; lean_object* x_1753; lean_object* x_1754; 
-x_1746 = lean_ctor_get(x_1745, 0);
-lean_inc(x_1746);
-if (lean_is_exclusive(x_1745)) {
- lean_ctor_release(x_1745, 0);
- x_1747 = x_1745;
-} else {
- lean_dec_ref(x_1745);
- x_1747 = lean_box(0);
-}
-x_1748 = lean_box(0);
-x_1749 = 5;
-lean_inc_ref(x_1);
-x_1750 = l_Lean_Syntax_Range_toLspRange(x_1, x_1741);
-lean_inc_ref(x_1);
-x_1751 = l_Lean_Syntax_Range_toLspRange(x_1, x_1746);
-x_1752 = lean_alloc_ctor(0, 5, 1);
-lean_ctor_set(x_1752, 0, x_1743);
-lean_ctor_set(x_1752, 1, x_1748);
-lean_ctor_set(x_1752, 2, x_1750);
-lean_ctor_set(x_1752, 3, x_1751);
-lean_ctor_set(x_1752, 4, x_1748);
-lean_ctor_set_uint8(x_1752, sizeof(void*)*5, x_1749);
-if (lean_is_scalar(x_1747)) {
- x_1753 = lean_alloc_ctor(0, 1, 0);
-} else {
- x_1753 = x_1747;
- lean_ctor_set_tag(x_1753, 0);
-}
-lean_ctor_set(x_1753, 0, x_1752);
-x_1754 = lean_array_push(x_3, x_1753);
-x_2 = x_1517;
-x_3 = x_1754;
-goto _start;
-}
-else
-{
-lean_dec(x_1745);
-lean_dec_ref(x_1743);
-lean_dec(x_1741);
-x_2 = x_1517;
-goto _start;
-}
-}
-block_1761:
-{
-lean_object* x_1759; lean_object* x_1760; 
-x_1759 = lean_ctor_get(x_1758, 0);
-lean_inc(x_1759);
-x_1760 = lean_ctor_get(x_1758, 1);
-lean_inc(x_1760);
-lean_dec_ref(x_1758);
-x_1743 = x_1759;
-x_1744 = x_1760;
-goto block_1757;
-}
-}
-else
-{
+lean_object* x_1908; lean_object* x_1909; lean_object* x_1910; 
+lean_dec(x_1896);
+lean_dec(x_1836);
 lean_dec(x_1740);
-lean_dec(x_1734);
-lean_dec(x_1731);
-x_2 = x_1517;
+x_1908 = lean_box(0);
+x_1909 = lean_box(0);
+x_1910 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1895, x_1529, x_1908, x_1909);
+x_1756 = x_1910;
+goto block_1759;
+}
+}
+}
+else
+{
+lean_object* x_1911; lean_object* x_1912; lean_object* x_1913; 
+lean_dec(x_1836);
+x_1911 = lean_box(0);
+if (lean_is_scalar(x_1740)) {
+ x_1912 = lean_alloc_ctor(1, 1, 0);
+} else {
+ x_1912 = x_1740;
+}
+lean_ctor_set(x_1912, 0, x_1886);
+x_1913 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_1529, x_1729, x_1524, x_1525, x_1526, x_1728, x_1731, x_1911, x_1912);
+lean_dec_ref(x_1912);
+lean_dec(x_1729);
+x_1756 = x_1913;
+goto block_1759;
+}
+}
+}
+else
+{
+lean_object* x_1914; lean_object* x_1915; lean_object* x_1916; 
+lean_dec(x_1861);
+lean_dec(x_1836);
+lean_dec(x_1740);
+x_1914 = lean_box(0);
+x_1915 = lean_box(0);
+x_1916 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_1529, x_1729, x_1524, x_1525, x_1526, x_1728, x_1731, x_1914, x_1915);
+lean_dec(x_1729);
+x_1756 = x_1916;
+goto block_1759;
+}
+}
+}
+}
+}
+block_1755:
+{
+lean_object* x_1743; 
+x_1743 = l_Lean_Syntax_getRange_x3f(x_1742, x_1734);
+lean_dec(x_1742);
+if (lean_obj_tag(x_1743) == 1)
+{
+lean_object* x_1744; lean_object* x_1745; lean_object* x_1746; uint8_t x_1747; lean_object* x_1748; lean_object* x_1749; lean_object* x_1750; lean_object* x_1751; lean_object* x_1752; 
+x_1744 = lean_ctor_get(x_1743, 0);
+lean_inc(x_1744);
+if (lean_is_exclusive(x_1743)) {
+ lean_ctor_release(x_1743, 0);
+ x_1745 = x_1743;
+} else {
+ lean_dec_ref(x_1743);
+ x_1745 = lean_box(0);
+}
+x_1746 = lean_box(0);
+x_1747 = 5;
+lean_inc_ref(x_1);
+x_1748 = l_Lean_Syntax_Range_toLspRange(x_1, x_1739);
+lean_inc_ref(x_1);
+x_1749 = l_Lean_Syntax_Range_toLspRange(x_1, x_1744);
+x_1750 = lean_alloc_ctor(0, 5, 1);
+lean_ctor_set(x_1750, 0, x_1741);
+lean_ctor_set(x_1750, 1, x_1746);
+lean_ctor_set(x_1750, 2, x_1748);
+lean_ctor_set(x_1750, 3, x_1749);
+lean_ctor_set(x_1750, 4, x_1746);
+lean_ctor_set_uint8(x_1750, sizeof(void*)*5, x_1747);
+if (lean_is_scalar(x_1745)) {
+ x_1751 = lean_alloc_ctor(0, 1, 0);
+} else {
+ x_1751 = x_1745;
+ lean_ctor_set_tag(x_1751, 0);
+}
+lean_ctor_set(x_1751, 0, x_1750);
+x_1752 = lean_array_push(x_3, x_1751);
+x_2 = x_1515;
+x_3 = x_1752;
+goto _start;
+}
+else
+{
+lean_dec(x_1743);
+lean_dec_ref(x_1741);
+lean_dec(x_1739);
+x_2 = x_1515;
+goto _start;
+}
+}
+block_1759:
+{
+lean_object* x_1757; lean_object* x_1758; 
+x_1757 = lean_ctor_get(x_1756, 0);
+lean_inc(x_1757);
+x_1758 = lean_ctor_get(x_1756, 1);
+lean_inc(x_1758);
+lean_dec_ref(x_1756);
+x_1741 = x_1757;
+x_1742 = x_1758;
+goto block_1755;
+}
+}
+else
+{
+lean_dec(x_1738);
+lean_dec(x_1732);
+lean_dec(x_1729);
+x_2 = x_1515;
 goto _start;
 }
 }
 }
 else
 {
-lean_object* x_1920; lean_object* x_1921; lean_object* x_1922; lean_object* x_1927; uint8_t x_1928; 
-x_1920 = l_Lean_Syntax_getArg(x_1731, x_1733);
-x_1927 = l_Lean_Syntax_getArg(x_1731, x_1730);
-x_1928 = l_Lean_Syntax_isNone(x_1927);
-if (x_1928 == 0)
+lean_object* x_1918; lean_object* x_1919; lean_object* x_1920; lean_object* x_1925; uint8_t x_1926; 
+x_1918 = l_Lean_Syntax_getArg(x_1729, x_1731);
+x_1925 = l_Lean_Syntax_getArg(x_1729, x_1728);
+x_1926 = l_Lean_Syntax_isNone(x_1925);
+if (x_1926 == 0)
 {
-uint8_t x_1929; 
-lean_inc(x_1927);
-x_1929 = l_Lean_Syntax_matchesNull(x_1927, x_1735);
+uint8_t x_1927; 
+lean_inc(x_1925);
+x_1927 = l_Lean_Syntax_matchesNull(x_1925, x_1733);
+if (x_1927 == 0)
+{
+lean_object* x_1928; uint8_t x_1929; 
+x_1928 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__9;
+lean_inc(x_1514);
+x_1929 = l_Lean_Syntax_isOfKind(x_1514, x_1928);
 if (x_1929 == 0)
 {
-lean_object* x_1930; uint8_t x_1931; 
-x_1930 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__9;
-lean_inc(x_1516);
-x_1931 = l_Lean_Syntax_isOfKind(x_1516, x_1930);
-if (x_1931 == 0)
-{
-lean_dec(x_1927);
-lean_dec(x_1920);
-lean_dec(x_1734);
-lean_dec(x_1731);
-lean_dec(x_1516);
-x_2 = x_1517;
+lean_dec(x_1925);
+lean_dec(x_1918);
+lean_dec(x_1732);
+lean_dec(x_1729);
+lean_dec(x_1514);
+x_2 = x_1515;
 goto _start;
 }
 else
 {
-lean_object* x_1933; 
-x_1933 = l_Lean_Syntax_getRange_x3f(x_1516, x_1929);
-lean_dec(x_1516);
-if (lean_obj_tag(x_1933) == 1)
+lean_object* x_1931; 
+x_1931 = l_Lean_Syntax_getRange_x3f(x_1514, x_1927);
+lean_dec(x_1514);
+if (lean_obj_tag(x_1931) == 1)
 {
-lean_object* x_1934; lean_object* x_1935; lean_object* x_1936; lean_object* x_1937; lean_object* x_1951; 
-x_1934 = lean_ctor_get(x_1933, 0);
-lean_inc(x_1934);
-if (lean_is_exclusive(x_1933)) {
- lean_ctor_release(x_1933, 0);
- x_1935 = x_1933;
+lean_object* x_1932; lean_object* x_1933; lean_object* x_1934; lean_object* x_1935; lean_object* x_1949; 
+x_1932 = lean_ctor_get(x_1931, 0);
+lean_inc(x_1932);
+if (lean_is_exclusive(x_1931)) {
+ lean_ctor_release(x_1931, 0);
+ x_1933 = x_1931;
 } else {
- lean_dec_ref(x_1933);
- x_1935 = lean_box(0);
+ lean_dec_ref(x_1931);
+ x_1933 = lean_box(0);
 }
-if (x_1931 == 0)
+if (x_1929 == 0)
 {
-lean_object* x_1955; uint8_t x_1956; 
-lean_dec(x_1734);
-lean_dec(x_1731);
-x_1955 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1927);
-x_1956 = l_Lean_Syntax_isOfKind(x_1927, x_1955);
-if (x_1956 == 0)
+lean_object* x_1953; uint8_t x_1954; 
+lean_dec(x_1732);
+lean_dec(x_1729);
+x_1953 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1925);
+x_1954 = l_Lean_Syntax_isOfKind(x_1925, x_1953);
+if (x_1954 == 0)
+{
+lean_object* x_1955; 
+lean_dec(x_1933);
+lean_dec(x_1925);
+lean_inc(x_1918);
+x_1955 = l_Lean_Syntax_isIdOrAtom_x3f(x_1918);
+if (lean_obj_tag(x_1955) == 0)
+{
+lean_object* x_1956; 
+x_1956 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1934 = x_1956;
+x_1935 = x_1918;
+goto block_1948;
+}
+else
 {
 lean_object* x_1957; 
-lean_dec(x_1935);
-lean_dec(x_1927);
-lean_inc(x_1920);
-x_1957 = l_Lean_Syntax_isIdOrAtom_x3f(x_1920);
-if (lean_obj_tag(x_1957) == 0)
-{
-lean_object* x_1958; 
-x_1958 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1936 = x_1958;
-x_1937 = x_1920;
-goto block_1950;
+x_1957 = lean_ctor_get(x_1955, 0);
+lean_inc(x_1957);
+lean_dec_ref(x_1955);
+x_1934 = x_1957;
+x_1935 = x_1918;
+goto block_1948;
+}
 }
 else
 {
-lean_object* x_1959; 
-x_1959 = lean_ctor_get(x_1957, 0);
+lean_object* x_1958; lean_object* x_1959; uint8_t x_1960; 
+x_1958 = l_Lean_Syntax_getArg(x_1925, x_1731);
+x_1959 = l_Lean_Syntax_getArg(x_1925, x_1728);
+lean_dec(x_1925);
+x_1960 = l_Lean_Syntax_isNone(x_1959);
+if (x_1960 == 0)
+{
+lean_object* x_1961; uint8_t x_1962; 
+x_1961 = lean_unsigned_to_nat(3u);
 lean_inc(x_1959);
-lean_dec_ref(x_1957);
-x_1936 = x_1959;
-x_1937 = x_1920;
-goto block_1950;
-}
-}
-else
-{
-lean_object* x_1960; lean_object* x_1961; uint8_t x_1962; 
-x_1960 = l_Lean_Syntax_getArg(x_1927, x_1733);
-x_1961 = l_Lean_Syntax_getArg(x_1927, x_1730);
-lean_dec(x_1927);
-x_1962 = l_Lean_Syntax_isNone(x_1961);
+x_1962 = l_Lean_Syntax_matchesNull(x_1959, x_1961);
 if (x_1962 == 0)
 {
-lean_object* x_1963; uint8_t x_1964; 
-x_1963 = lean_unsigned_to_nat(3u);
-lean_inc(x_1961);
-x_1964 = l_Lean_Syntax_matchesNull(x_1961, x_1963);
-if (x_1964 == 0)
+lean_object* x_1963; 
+lean_dec(x_1959);
+lean_dec(x_1958);
+lean_dec(x_1933);
+lean_inc(x_1918);
+x_1963 = l_Lean_Syntax_isIdOrAtom_x3f(x_1918);
+if (lean_obj_tag(x_1963) == 0)
+{
+lean_object* x_1964; 
+x_1964 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1934 = x_1964;
+x_1935 = x_1918;
+goto block_1948;
+}
+else
 {
 lean_object* x_1965; 
-lean_dec(x_1961);
-lean_dec(x_1960);
-lean_dec(x_1935);
-lean_inc(x_1920);
-x_1965 = l_Lean_Syntax_isIdOrAtom_x3f(x_1920);
-if (lean_obj_tag(x_1965) == 0)
-{
-lean_object* x_1966; 
-x_1966 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1936 = x_1966;
-x_1937 = x_1920;
-goto block_1950;
-}
-else
-{
-lean_object* x_1967; 
-x_1967 = lean_ctor_get(x_1965, 0);
-lean_inc(x_1967);
-lean_dec_ref(x_1965);
-x_1936 = x_1967;
-x_1937 = x_1920;
-goto block_1950;
+x_1965 = lean_ctor_get(x_1963, 0);
+lean_inc(x_1965);
+lean_dec_ref(x_1963);
+x_1934 = x_1965;
+x_1935 = x_1918;
+goto block_1948;
 }
 }
 else
 {
-lean_object* x_1968; lean_object* x_1969; lean_object* x_1970; lean_object* x_1971; lean_object* x_1972; 
-lean_dec(x_1920);
-x_1968 = l_Lean_Syntax_getArg(x_1961, x_1730);
-lean_dec(x_1961);
-x_1969 = l_Lean_Syntax_getArgs(x_1968);
-lean_dec(x_1968);
-x_1970 = lean_box(0);
-if (lean_is_scalar(x_1935)) {
- x_1971 = lean_alloc_ctor(1, 1, 0);
+lean_object* x_1966; lean_object* x_1967; lean_object* x_1968; lean_object* x_1969; lean_object* x_1970; 
+lean_dec(x_1918);
+x_1966 = l_Lean_Syntax_getArg(x_1959, x_1728);
+lean_dec(x_1959);
+x_1967 = l_Lean_Syntax_getArgs(x_1966);
+lean_dec(x_1966);
+x_1968 = lean_box(0);
+if (lean_is_scalar(x_1933)) {
+ x_1969 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_1971 = x_1935;
+ x_1969 = x_1933;
 }
-lean_ctor_set(x_1971, 0, x_1969);
-x_1972 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1960, x_1531, x_1970, x_1971);
-lean_dec_ref(x_1971);
-x_1951 = x_1972;
-goto block_1954;
+lean_ctor_set(x_1969, 0, x_1967);
+x_1970 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1958, x_1529, x_1968, x_1969);
+lean_dec_ref(x_1969);
+x_1949 = x_1970;
+goto block_1952;
 }
 }
 else
 {
-lean_object* x_1973; lean_object* x_1974; lean_object* x_1975; 
-lean_dec(x_1961);
-lean_dec(x_1935);
-lean_dec(x_1920);
-x_1973 = lean_box(0);
-x_1974 = lean_box(0);
-x_1975 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1960, x_1531, x_1973, x_1974);
-x_1951 = x_1975;
-goto block_1954;
+lean_object* x_1971; lean_object* x_1972; lean_object* x_1973; 
+lean_dec(x_1959);
+lean_dec(x_1933);
+lean_dec(x_1918);
+x_1971 = lean_box(0);
+x_1972 = lean_box(0);
+x_1973 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1958, x_1529, x_1971, x_1972);
+x_1949 = x_1973;
+goto block_1952;
 }
 }
 }
 else
+{
+lean_object* x_1974; uint8_t x_1975; 
+x_1974 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__12;
+x_1975 = l_Lean_Syntax_isOfKind(x_1732, x_1974);
+if (x_1975 == 0)
 {
 lean_object* x_1976; uint8_t x_1977; 
-x_1976 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__12;
-x_1977 = l_Lean_Syntax_isOfKind(x_1734, x_1976);
+lean_dec(x_1729);
+x_1976 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1925);
+x_1977 = l_Lean_Syntax_isOfKind(x_1925, x_1976);
 if (x_1977 == 0)
 {
-lean_object* x_1978; uint8_t x_1979; 
-lean_dec(x_1731);
-x_1978 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1927);
-x_1979 = l_Lean_Syntax_isOfKind(x_1927, x_1978);
-if (x_1979 == 0)
+lean_object* x_1978; 
+lean_dec(x_1933);
+lean_dec(x_1925);
+lean_inc(x_1918);
+x_1978 = l_Lean_Syntax_isIdOrAtom_x3f(x_1918);
+if (lean_obj_tag(x_1978) == 0)
+{
+lean_object* x_1979; 
+x_1979 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1934 = x_1979;
+x_1935 = x_1918;
+goto block_1948;
+}
+else
 {
 lean_object* x_1980; 
-lean_dec(x_1935);
-lean_dec(x_1927);
-lean_inc(x_1920);
-x_1980 = l_Lean_Syntax_isIdOrAtom_x3f(x_1920);
-if (lean_obj_tag(x_1980) == 0)
-{
-lean_object* x_1981; 
-x_1981 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1936 = x_1981;
-x_1937 = x_1920;
-goto block_1950;
+x_1980 = lean_ctor_get(x_1978, 0);
+lean_inc(x_1980);
+lean_dec_ref(x_1978);
+x_1934 = x_1980;
+x_1935 = x_1918;
+goto block_1948;
+}
 }
 else
 {
-lean_object* x_1982; 
-x_1982 = lean_ctor_get(x_1980, 0);
+lean_object* x_1981; lean_object* x_1982; uint8_t x_1983; 
+x_1981 = l_Lean_Syntax_getArg(x_1925, x_1731);
+x_1982 = l_Lean_Syntax_getArg(x_1925, x_1728);
+lean_dec(x_1925);
+x_1983 = l_Lean_Syntax_isNone(x_1982);
+if (x_1983 == 0)
+{
+lean_object* x_1984; uint8_t x_1985; 
+x_1984 = lean_unsigned_to_nat(3u);
 lean_inc(x_1982);
-lean_dec_ref(x_1980);
-x_1936 = x_1982;
-x_1937 = x_1920;
-goto block_1950;
-}
-}
-else
-{
-lean_object* x_1983; lean_object* x_1984; uint8_t x_1985; 
-x_1983 = l_Lean_Syntax_getArg(x_1927, x_1733);
-x_1984 = l_Lean_Syntax_getArg(x_1927, x_1730);
-lean_dec(x_1927);
-x_1985 = l_Lean_Syntax_isNone(x_1984);
+x_1985 = l_Lean_Syntax_matchesNull(x_1982, x_1984);
 if (x_1985 == 0)
 {
-lean_object* x_1986; uint8_t x_1987; 
-x_1986 = lean_unsigned_to_nat(3u);
-lean_inc(x_1984);
-x_1987 = l_Lean_Syntax_matchesNull(x_1984, x_1986);
-if (x_1987 == 0)
+lean_object* x_1986; 
+lean_dec(x_1982);
+lean_dec(x_1981);
+lean_dec(x_1933);
+lean_inc(x_1918);
+x_1986 = l_Lean_Syntax_isIdOrAtom_x3f(x_1918);
+if (lean_obj_tag(x_1986) == 0)
+{
+lean_object* x_1987; 
+x_1987 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1934 = x_1987;
+x_1935 = x_1918;
+goto block_1948;
+}
+else
 {
 lean_object* x_1988; 
-lean_dec(x_1984);
-lean_dec(x_1983);
-lean_dec(x_1935);
-lean_inc(x_1920);
-x_1988 = l_Lean_Syntax_isIdOrAtom_x3f(x_1920);
-if (lean_obj_tag(x_1988) == 0)
-{
-lean_object* x_1989; 
-x_1989 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1936 = x_1989;
-x_1937 = x_1920;
-goto block_1950;
-}
-else
-{
-lean_object* x_1990; 
-x_1990 = lean_ctor_get(x_1988, 0);
-lean_inc(x_1990);
-lean_dec_ref(x_1988);
-x_1936 = x_1990;
-x_1937 = x_1920;
-goto block_1950;
+x_1988 = lean_ctor_get(x_1986, 0);
+lean_inc(x_1988);
+lean_dec_ref(x_1986);
+x_1934 = x_1988;
+x_1935 = x_1918;
+goto block_1948;
 }
 }
 else
 {
-lean_object* x_1991; lean_object* x_1992; lean_object* x_1993; lean_object* x_1994; lean_object* x_1995; 
-lean_dec(x_1920);
-x_1991 = l_Lean_Syntax_getArg(x_1984, x_1730);
-lean_dec(x_1984);
-x_1992 = l_Lean_Syntax_getArgs(x_1991);
-lean_dec(x_1991);
-x_1993 = lean_box(0);
-if (lean_is_scalar(x_1935)) {
- x_1994 = lean_alloc_ctor(1, 1, 0);
+lean_object* x_1989; lean_object* x_1990; lean_object* x_1991; lean_object* x_1992; lean_object* x_1993; 
+lean_dec(x_1918);
+x_1989 = l_Lean_Syntax_getArg(x_1982, x_1728);
+lean_dec(x_1982);
+x_1990 = l_Lean_Syntax_getArgs(x_1989);
+lean_dec(x_1989);
+x_1991 = lean_box(0);
+if (lean_is_scalar(x_1933)) {
+ x_1992 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_1994 = x_1935;
+ x_1992 = x_1933;
 }
-lean_ctor_set(x_1994, 0, x_1992);
-x_1995 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1983, x_1531, x_1993, x_1994);
-lean_dec_ref(x_1994);
-x_1951 = x_1995;
-goto block_1954;
+lean_ctor_set(x_1992, 0, x_1990);
+x_1993 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1981, x_1529, x_1991, x_1992);
+lean_dec_ref(x_1992);
+x_1949 = x_1993;
+goto block_1952;
 }
 }
 else
 {
-lean_object* x_1996; lean_object* x_1997; lean_object* x_1998; 
-lean_dec(x_1984);
-lean_dec(x_1935);
-lean_dec(x_1920);
-x_1996 = lean_box(0);
-x_1997 = lean_box(0);
-x_1998 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1983, x_1531, x_1996, x_1997);
-x_1951 = x_1998;
-goto block_1954;
+lean_object* x_1994; lean_object* x_1995; lean_object* x_1996; 
+lean_dec(x_1982);
+lean_dec(x_1933);
+lean_dec(x_1918);
+x_1994 = lean_box(0);
+x_1995 = lean_box(0);
+x_1996 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_1981, x_1529, x_1994, x_1995);
+x_1949 = x_1996;
+goto block_1952;
 }
 }
 }
 else
+{
+lean_object* x_1997; uint8_t x_1998; 
+x_1997 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__14;
+lean_inc(x_1729);
+x_1998 = l_Lean_Syntax_isOfKind(x_1729, x_1997);
+if (x_1998 == 0)
 {
 lean_object* x_1999; uint8_t x_2000; 
-x_1999 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__14;
-lean_inc(x_1731);
-x_2000 = l_Lean_Syntax_isOfKind(x_1731, x_1999);
+lean_dec(x_1729);
+x_1999 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1925);
+x_2000 = l_Lean_Syntax_isOfKind(x_1925, x_1999);
 if (x_2000 == 0)
 {
-lean_object* x_2001; uint8_t x_2002; 
-lean_dec(x_1731);
-x_2001 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1927);
-x_2002 = l_Lean_Syntax_isOfKind(x_1927, x_2001);
-if (x_2002 == 0)
+lean_object* x_2001; 
+lean_dec(x_1933);
+lean_dec(x_1925);
+lean_inc(x_1918);
+x_2001 = l_Lean_Syntax_isIdOrAtom_x3f(x_1918);
+if (lean_obj_tag(x_2001) == 0)
+{
+lean_object* x_2002; 
+x_2002 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1934 = x_2002;
+x_1935 = x_1918;
+goto block_1948;
+}
+else
 {
 lean_object* x_2003; 
-lean_dec(x_1935);
-lean_dec(x_1927);
-lean_inc(x_1920);
-x_2003 = l_Lean_Syntax_isIdOrAtom_x3f(x_1920);
-if (lean_obj_tag(x_2003) == 0)
-{
-lean_object* x_2004; 
-x_2004 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1936 = x_2004;
-x_1937 = x_1920;
-goto block_1950;
+x_2003 = lean_ctor_get(x_2001, 0);
+lean_inc(x_2003);
+lean_dec_ref(x_2001);
+x_1934 = x_2003;
+x_1935 = x_1918;
+goto block_1948;
+}
 }
 else
 {
-lean_object* x_2005; 
-x_2005 = lean_ctor_get(x_2003, 0);
+lean_object* x_2004; lean_object* x_2005; uint8_t x_2006; 
+x_2004 = l_Lean_Syntax_getArg(x_1925, x_1731);
+x_2005 = l_Lean_Syntax_getArg(x_1925, x_1728);
+lean_dec(x_1925);
+x_2006 = l_Lean_Syntax_isNone(x_2005);
+if (x_2006 == 0)
+{
+lean_object* x_2007; uint8_t x_2008; 
+x_2007 = lean_unsigned_to_nat(3u);
 lean_inc(x_2005);
-lean_dec_ref(x_2003);
-x_1936 = x_2005;
-x_1937 = x_1920;
-goto block_1950;
-}
-}
-else
-{
-lean_object* x_2006; lean_object* x_2007; uint8_t x_2008; 
-x_2006 = l_Lean_Syntax_getArg(x_1927, x_1733);
-x_2007 = l_Lean_Syntax_getArg(x_1927, x_1730);
-lean_dec(x_1927);
-x_2008 = l_Lean_Syntax_isNone(x_2007);
+x_2008 = l_Lean_Syntax_matchesNull(x_2005, x_2007);
 if (x_2008 == 0)
 {
-lean_object* x_2009; uint8_t x_2010; 
-x_2009 = lean_unsigned_to_nat(3u);
-lean_inc(x_2007);
-x_2010 = l_Lean_Syntax_matchesNull(x_2007, x_2009);
-if (x_2010 == 0)
+lean_object* x_2009; 
+lean_dec(x_2005);
+lean_dec(x_2004);
+lean_dec(x_1933);
+lean_inc(x_1918);
+x_2009 = l_Lean_Syntax_isIdOrAtom_x3f(x_1918);
+if (lean_obj_tag(x_2009) == 0)
+{
+lean_object* x_2010; 
+x_2010 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1934 = x_2010;
+x_1935 = x_1918;
+goto block_1948;
+}
+else
 {
 lean_object* x_2011; 
-lean_dec(x_2007);
-lean_dec(x_2006);
-lean_dec(x_1935);
-lean_inc(x_1920);
-x_2011 = l_Lean_Syntax_isIdOrAtom_x3f(x_1920);
-if (lean_obj_tag(x_2011) == 0)
-{
-lean_object* x_2012; 
-x_2012 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1936 = x_2012;
-x_1937 = x_1920;
-goto block_1950;
-}
-else
-{
-lean_object* x_2013; 
-x_2013 = lean_ctor_get(x_2011, 0);
-lean_inc(x_2013);
-lean_dec_ref(x_2011);
-x_1936 = x_2013;
-x_1937 = x_1920;
-goto block_1950;
+x_2011 = lean_ctor_get(x_2009, 0);
+lean_inc(x_2011);
+lean_dec_ref(x_2009);
+x_1934 = x_2011;
+x_1935 = x_1918;
+goto block_1948;
 }
 }
 else
 {
-lean_object* x_2014; lean_object* x_2015; lean_object* x_2016; lean_object* x_2017; lean_object* x_2018; 
-lean_dec(x_1920);
-x_2014 = l_Lean_Syntax_getArg(x_2007, x_1730);
-lean_dec(x_2007);
-x_2015 = l_Lean_Syntax_getArgs(x_2014);
-lean_dec(x_2014);
-x_2016 = lean_box(0);
-if (lean_is_scalar(x_1935)) {
- x_2017 = lean_alloc_ctor(1, 1, 0);
+lean_object* x_2012; lean_object* x_2013; lean_object* x_2014; lean_object* x_2015; lean_object* x_2016; 
+lean_dec(x_1918);
+x_2012 = l_Lean_Syntax_getArg(x_2005, x_1728);
+lean_dec(x_2005);
+x_2013 = l_Lean_Syntax_getArgs(x_2012);
+lean_dec(x_2012);
+x_2014 = lean_box(0);
+if (lean_is_scalar(x_1933)) {
+ x_2015 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_2017 = x_1935;
+ x_2015 = x_1933;
 }
-lean_ctor_set(x_2017, 0, x_2015);
-x_2018 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2006, x_1531, x_2016, x_2017);
-lean_dec_ref(x_2017);
-x_1951 = x_2018;
-goto block_1954;
+lean_ctor_set(x_2015, 0, x_2013);
+x_2016 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2004, x_1529, x_2014, x_2015);
+lean_dec_ref(x_2015);
+x_1949 = x_2016;
+goto block_1952;
 }
 }
 else
 {
-lean_object* x_2019; lean_object* x_2020; lean_object* x_2021; 
-lean_dec(x_2007);
-lean_dec(x_1935);
-lean_dec(x_1920);
-x_2019 = lean_box(0);
-x_2020 = lean_box(0);
-x_2021 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2006, x_1531, x_2019, x_2020);
-x_1951 = x_2021;
-goto block_1954;
+lean_object* x_2017; lean_object* x_2018; lean_object* x_2019; 
+lean_dec(x_2005);
+lean_dec(x_1933);
+lean_dec(x_1918);
+x_2017 = lean_box(0);
+x_2018 = lean_box(0);
+x_2019 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2004, x_1529, x_2017, x_2018);
+x_1949 = x_2019;
+goto block_1952;
 }
 }
 }
 else
+{
+lean_object* x_2020; uint8_t x_2021; 
+x_2020 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__16;
+lean_inc(x_1918);
+x_2021 = l_Lean_Syntax_isOfKind(x_1918, x_2020);
+if (x_2021 == 0)
 {
 lean_object* x_2022; uint8_t x_2023; 
-x_2022 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__16;
-lean_inc(x_1920);
-x_2023 = l_Lean_Syntax_isOfKind(x_1920, x_2022);
+lean_dec(x_1729);
+x_2022 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1925);
+x_2023 = l_Lean_Syntax_isOfKind(x_1925, x_2022);
 if (x_2023 == 0)
 {
-lean_object* x_2024; uint8_t x_2025; 
-lean_dec(x_1731);
-x_2024 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1927);
-x_2025 = l_Lean_Syntax_isOfKind(x_1927, x_2024);
-if (x_2025 == 0)
+lean_object* x_2024; 
+lean_dec(x_1933);
+lean_dec(x_1925);
+lean_inc(x_1918);
+x_2024 = l_Lean_Syntax_isIdOrAtom_x3f(x_1918);
+if (lean_obj_tag(x_2024) == 0)
+{
+lean_object* x_2025; 
+x_2025 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1934 = x_2025;
+x_1935 = x_1918;
+goto block_1948;
+}
+else
 {
 lean_object* x_2026; 
-lean_dec(x_1935);
-lean_dec(x_1927);
-lean_inc(x_1920);
-x_2026 = l_Lean_Syntax_isIdOrAtom_x3f(x_1920);
-if (lean_obj_tag(x_2026) == 0)
-{
-lean_object* x_2027; 
-x_2027 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1936 = x_2027;
-x_1937 = x_1920;
-goto block_1950;
+x_2026 = lean_ctor_get(x_2024, 0);
+lean_inc(x_2026);
+lean_dec_ref(x_2024);
+x_1934 = x_2026;
+x_1935 = x_1918;
+goto block_1948;
+}
 }
 else
 {
-lean_object* x_2028; 
-x_2028 = lean_ctor_get(x_2026, 0);
+lean_object* x_2027; lean_object* x_2028; uint8_t x_2029; 
+x_2027 = l_Lean_Syntax_getArg(x_1925, x_1731);
+x_2028 = l_Lean_Syntax_getArg(x_1925, x_1728);
+lean_dec(x_1925);
+x_2029 = l_Lean_Syntax_isNone(x_2028);
+if (x_2029 == 0)
+{
+lean_object* x_2030; uint8_t x_2031; 
+x_2030 = lean_unsigned_to_nat(3u);
 lean_inc(x_2028);
-lean_dec_ref(x_2026);
-x_1936 = x_2028;
-x_1937 = x_1920;
-goto block_1950;
-}
-}
-else
-{
-lean_object* x_2029; lean_object* x_2030; uint8_t x_2031; 
-x_2029 = l_Lean_Syntax_getArg(x_1927, x_1733);
-x_2030 = l_Lean_Syntax_getArg(x_1927, x_1730);
-lean_dec(x_1927);
-x_2031 = l_Lean_Syntax_isNone(x_2030);
+x_2031 = l_Lean_Syntax_matchesNull(x_2028, x_2030);
 if (x_2031 == 0)
 {
-lean_object* x_2032; uint8_t x_2033; 
-x_2032 = lean_unsigned_to_nat(3u);
-lean_inc(x_2030);
-x_2033 = l_Lean_Syntax_matchesNull(x_2030, x_2032);
-if (x_2033 == 0)
+lean_object* x_2032; 
+lean_dec(x_2028);
+lean_dec(x_2027);
+lean_dec(x_1933);
+lean_inc(x_1918);
+x_2032 = l_Lean_Syntax_isIdOrAtom_x3f(x_1918);
+if (lean_obj_tag(x_2032) == 0)
+{
+lean_object* x_2033; 
+x_2033 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1934 = x_2033;
+x_1935 = x_1918;
+goto block_1948;
+}
+else
 {
 lean_object* x_2034; 
-lean_dec(x_2030);
-lean_dec(x_2029);
-lean_dec(x_1935);
-lean_inc(x_1920);
-x_2034 = l_Lean_Syntax_isIdOrAtom_x3f(x_1920);
-if (lean_obj_tag(x_2034) == 0)
-{
-lean_object* x_2035; 
-x_2035 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1936 = x_2035;
-x_1937 = x_1920;
-goto block_1950;
-}
-else
-{
-lean_object* x_2036; 
-x_2036 = lean_ctor_get(x_2034, 0);
-lean_inc(x_2036);
-lean_dec_ref(x_2034);
-x_1936 = x_2036;
-x_1937 = x_1920;
-goto block_1950;
+x_2034 = lean_ctor_get(x_2032, 0);
+lean_inc(x_2034);
+lean_dec_ref(x_2032);
+x_1934 = x_2034;
+x_1935 = x_1918;
+goto block_1948;
 }
 }
 else
 {
-lean_object* x_2037; lean_object* x_2038; lean_object* x_2039; lean_object* x_2040; lean_object* x_2041; 
-lean_dec(x_1920);
-x_2037 = l_Lean_Syntax_getArg(x_2030, x_1730);
-lean_dec(x_2030);
-x_2038 = l_Lean_Syntax_getArgs(x_2037);
-lean_dec(x_2037);
-x_2039 = lean_box(0);
-if (lean_is_scalar(x_1935)) {
- x_2040 = lean_alloc_ctor(1, 1, 0);
+lean_object* x_2035; lean_object* x_2036; lean_object* x_2037; lean_object* x_2038; lean_object* x_2039; 
+lean_dec(x_1918);
+x_2035 = l_Lean_Syntax_getArg(x_2028, x_1728);
+lean_dec(x_2028);
+x_2036 = l_Lean_Syntax_getArgs(x_2035);
+lean_dec(x_2035);
+x_2037 = lean_box(0);
+if (lean_is_scalar(x_1933)) {
+ x_2038 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_2040 = x_1935;
+ x_2038 = x_1933;
 }
-lean_ctor_set(x_2040, 0, x_2038);
-x_2041 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2029, x_1531, x_2039, x_2040);
-lean_dec_ref(x_2040);
-x_1951 = x_2041;
-goto block_1954;
-}
-}
-else
-{
-lean_object* x_2042; lean_object* x_2043; lean_object* x_2044; 
-lean_dec(x_2030);
-lean_dec(x_1935);
-lean_dec(x_1920);
-x_2042 = lean_box(0);
-x_2043 = lean_box(0);
-x_2044 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2029, x_1531, x_2042, x_2043);
-x_1951 = x_2044;
-goto block_1954;
-}
+lean_ctor_set(x_2038, 0, x_2036);
+x_2039 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2027, x_1529, x_2037, x_2038);
+lean_dec_ref(x_2038);
+x_1949 = x_2039;
+goto block_1952;
 }
 }
 else
 {
-lean_object* x_2045; uint8_t x_2046; 
-x_2045 = l_Lean_Syntax_getArg(x_1731, x_1735);
-x_2046 = l_Lean_Syntax_isNone(x_2045);
-if (x_2046 == 0)
+lean_object* x_2040; lean_object* x_2041; lean_object* x_2042; 
+lean_dec(x_2028);
+lean_dec(x_1933);
+lean_dec(x_1918);
+x_2040 = lean_box(0);
+x_2041 = lean_box(0);
+x_2042 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2027, x_1529, x_2040, x_2041);
+x_1949 = x_2042;
+goto block_1952;
+}
+}
+}
+else
 {
-uint8_t x_2047; 
-lean_inc(x_2045);
-x_2047 = l_Lean_Syntax_matchesNull(x_2045, x_1730);
+lean_object* x_2043; uint8_t x_2044; 
+x_2043 = l_Lean_Syntax_getArg(x_1729, x_1733);
+x_2044 = l_Lean_Syntax_isNone(x_2043);
+if (x_2044 == 0)
+{
+uint8_t x_2045; 
+lean_inc(x_2043);
+x_2045 = l_Lean_Syntax_matchesNull(x_2043, x_1728);
+if (x_2045 == 0)
+{
+lean_object* x_2046; uint8_t x_2047; 
+lean_dec(x_2043);
+lean_dec(x_1729);
+x_2046 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1925);
+x_2047 = l_Lean_Syntax_isOfKind(x_1925, x_2046);
 if (x_2047 == 0)
 {
-lean_object* x_2048; uint8_t x_2049; 
-lean_dec(x_2045);
-lean_dec(x_1731);
-x_2048 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1927);
-x_2049 = l_Lean_Syntax_isOfKind(x_1927, x_2048);
-if (x_2049 == 0)
+lean_object* x_2048; 
+lean_dec(x_1933);
+lean_dec(x_1925);
+lean_inc(x_1918);
+x_2048 = l_Lean_Syntax_isIdOrAtom_x3f(x_1918);
+if (lean_obj_tag(x_2048) == 0)
+{
+lean_object* x_2049; 
+x_2049 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1934 = x_2049;
+x_1935 = x_1918;
+goto block_1948;
+}
+else
 {
 lean_object* x_2050; 
-lean_dec(x_1935);
-lean_dec(x_1927);
-lean_inc(x_1920);
-x_2050 = l_Lean_Syntax_isIdOrAtom_x3f(x_1920);
-if (lean_obj_tag(x_2050) == 0)
-{
-lean_object* x_2051; 
-x_2051 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1936 = x_2051;
-x_1937 = x_1920;
-goto block_1950;
+x_2050 = lean_ctor_get(x_2048, 0);
+lean_inc(x_2050);
+lean_dec_ref(x_2048);
+x_1934 = x_2050;
+x_1935 = x_1918;
+goto block_1948;
+}
 }
 else
 {
-lean_object* x_2052; 
-x_2052 = lean_ctor_get(x_2050, 0);
+lean_object* x_2051; lean_object* x_2052; uint8_t x_2053; 
+x_2051 = l_Lean_Syntax_getArg(x_1925, x_1731);
+x_2052 = l_Lean_Syntax_getArg(x_1925, x_1728);
+lean_dec(x_1925);
+x_2053 = l_Lean_Syntax_isNone(x_2052);
+if (x_2053 == 0)
+{
+lean_object* x_2054; uint8_t x_2055; 
+x_2054 = lean_unsigned_to_nat(3u);
 lean_inc(x_2052);
-lean_dec_ref(x_2050);
-x_1936 = x_2052;
-x_1937 = x_1920;
-goto block_1950;
-}
-}
-else
-{
-lean_object* x_2053; lean_object* x_2054; uint8_t x_2055; 
-x_2053 = l_Lean_Syntax_getArg(x_1927, x_1733);
-x_2054 = l_Lean_Syntax_getArg(x_1927, x_1730);
-lean_dec(x_1927);
-x_2055 = l_Lean_Syntax_isNone(x_2054);
+x_2055 = l_Lean_Syntax_matchesNull(x_2052, x_2054);
 if (x_2055 == 0)
 {
-lean_object* x_2056; uint8_t x_2057; 
-x_2056 = lean_unsigned_to_nat(3u);
-lean_inc(x_2054);
-x_2057 = l_Lean_Syntax_matchesNull(x_2054, x_2056);
-if (x_2057 == 0)
+lean_object* x_2056; 
+lean_dec(x_2052);
+lean_dec(x_2051);
+lean_dec(x_1933);
+lean_inc(x_1918);
+x_2056 = l_Lean_Syntax_isIdOrAtom_x3f(x_1918);
+if (lean_obj_tag(x_2056) == 0)
+{
+lean_object* x_2057; 
+x_2057 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1934 = x_2057;
+x_1935 = x_1918;
+goto block_1948;
+}
+else
 {
 lean_object* x_2058; 
-lean_dec(x_2054);
-lean_dec(x_2053);
-lean_dec(x_1935);
-lean_inc(x_1920);
-x_2058 = l_Lean_Syntax_isIdOrAtom_x3f(x_1920);
-if (lean_obj_tag(x_2058) == 0)
-{
-lean_object* x_2059; 
-x_2059 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1936 = x_2059;
-x_1937 = x_1920;
-goto block_1950;
-}
-else
-{
-lean_object* x_2060; 
-x_2060 = lean_ctor_get(x_2058, 0);
-lean_inc(x_2060);
-lean_dec_ref(x_2058);
-x_1936 = x_2060;
-x_1937 = x_1920;
-goto block_1950;
+x_2058 = lean_ctor_get(x_2056, 0);
+lean_inc(x_2058);
+lean_dec_ref(x_2056);
+x_1934 = x_2058;
+x_1935 = x_1918;
+goto block_1948;
 }
 }
 else
 {
-lean_object* x_2061; lean_object* x_2062; lean_object* x_2063; lean_object* x_2064; lean_object* x_2065; 
-lean_dec(x_1920);
-x_2061 = l_Lean_Syntax_getArg(x_2054, x_1730);
-lean_dec(x_2054);
-x_2062 = l_Lean_Syntax_getArgs(x_2061);
-lean_dec(x_2061);
-x_2063 = lean_box(0);
-if (lean_is_scalar(x_1935)) {
- x_2064 = lean_alloc_ctor(1, 1, 0);
+lean_object* x_2059; lean_object* x_2060; lean_object* x_2061; lean_object* x_2062; lean_object* x_2063; 
+lean_dec(x_1918);
+x_2059 = l_Lean_Syntax_getArg(x_2052, x_1728);
+lean_dec(x_2052);
+x_2060 = l_Lean_Syntax_getArgs(x_2059);
+lean_dec(x_2059);
+x_2061 = lean_box(0);
+if (lean_is_scalar(x_1933)) {
+ x_2062 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_2064 = x_1935;
+ x_2062 = x_1933;
 }
-lean_ctor_set(x_2064, 0, x_2062);
-x_2065 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2053, x_1531, x_2063, x_2064);
-lean_dec_ref(x_2064);
-x_1951 = x_2065;
-goto block_1954;
-}
-}
-else
-{
-lean_object* x_2066; lean_object* x_2067; lean_object* x_2068; 
-lean_dec(x_2054);
-lean_dec(x_1935);
-lean_dec(x_1920);
-x_2066 = lean_box(0);
-x_2067 = lean_box(0);
-x_2068 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2053, x_1531, x_2066, x_2067);
-x_1951 = x_2068;
-goto block_1954;
-}
+lean_ctor_set(x_2062, 0, x_2060);
+x_2063 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2051, x_1529, x_2061, x_2062);
+lean_dec_ref(x_2062);
+x_1949 = x_2063;
+goto block_1952;
 }
 }
 else
 {
-lean_object* x_2069; lean_object* x_2070; uint8_t x_2071; 
-x_2069 = l_Lean_Syntax_getArg(x_2045, x_1733);
-lean_dec(x_2045);
-x_2070 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__18;
-lean_inc(x_2069);
-x_2071 = l_Lean_Syntax_isOfKind(x_2069, x_2070);
+lean_object* x_2064; lean_object* x_2065; lean_object* x_2066; 
+lean_dec(x_2052);
+lean_dec(x_1933);
+lean_dec(x_1918);
+x_2064 = lean_box(0);
+x_2065 = lean_box(0);
+x_2066 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2051, x_1529, x_2064, x_2065);
+x_1949 = x_2066;
+goto block_1952;
+}
+}
+}
+else
+{
+lean_object* x_2067; lean_object* x_2068; uint8_t x_2069; 
+x_2067 = l_Lean_Syntax_getArg(x_2043, x_1731);
+lean_dec(x_2043);
+x_2068 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__18;
+lean_inc(x_2067);
+x_2069 = l_Lean_Syntax_isOfKind(x_2067, x_2068);
+if (x_2069 == 0)
+{
+lean_object* x_2070; uint8_t x_2071; 
+lean_dec(x_2067);
+lean_dec(x_1729);
+x_2070 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_1925);
+x_2071 = l_Lean_Syntax_isOfKind(x_1925, x_2070);
 if (x_2071 == 0)
 {
-lean_object* x_2072; uint8_t x_2073; 
-lean_dec(x_2069);
-lean_dec(x_1731);
-x_2072 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_1927);
-x_2073 = l_Lean_Syntax_isOfKind(x_1927, x_2072);
-if (x_2073 == 0)
+lean_object* x_2072; 
+lean_dec(x_1933);
+lean_dec(x_1925);
+lean_inc(x_1918);
+x_2072 = l_Lean_Syntax_isIdOrAtom_x3f(x_1918);
+if (lean_obj_tag(x_2072) == 0)
+{
+lean_object* x_2073; 
+x_2073 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1934 = x_2073;
+x_1935 = x_1918;
+goto block_1948;
+}
+else
 {
 lean_object* x_2074; 
-lean_dec(x_1935);
-lean_dec(x_1927);
-lean_inc(x_1920);
-x_2074 = l_Lean_Syntax_isIdOrAtom_x3f(x_1920);
-if (lean_obj_tag(x_2074) == 0)
-{
-lean_object* x_2075; 
-x_2075 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1936 = x_2075;
-x_1937 = x_1920;
-goto block_1950;
+x_2074 = lean_ctor_get(x_2072, 0);
+lean_inc(x_2074);
+lean_dec_ref(x_2072);
+x_1934 = x_2074;
+x_1935 = x_1918;
+goto block_1948;
+}
 }
 else
 {
-lean_object* x_2076; 
-x_2076 = lean_ctor_get(x_2074, 0);
+lean_object* x_2075; lean_object* x_2076; uint8_t x_2077; 
+x_2075 = l_Lean_Syntax_getArg(x_1925, x_1731);
+x_2076 = l_Lean_Syntax_getArg(x_1925, x_1728);
+lean_dec(x_1925);
+x_2077 = l_Lean_Syntax_isNone(x_2076);
+if (x_2077 == 0)
+{
+lean_object* x_2078; uint8_t x_2079; 
+x_2078 = lean_unsigned_to_nat(3u);
 lean_inc(x_2076);
-lean_dec_ref(x_2074);
-x_1936 = x_2076;
-x_1937 = x_1920;
-goto block_1950;
-}
-}
-else
-{
-lean_object* x_2077; lean_object* x_2078; uint8_t x_2079; 
-x_2077 = l_Lean_Syntax_getArg(x_1927, x_1733);
-x_2078 = l_Lean_Syntax_getArg(x_1927, x_1730);
-lean_dec(x_1927);
-x_2079 = l_Lean_Syntax_isNone(x_2078);
+x_2079 = l_Lean_Syntax_matchesNull(x_2076, x_2078);
 if (x_2079 == 0)
 {
-lean_object* x_2080; uint8_t x_2081; 
-x_2080 = lean_unsigned_to_nat(3u);
-lean_inc(x_2078);
-x_2081 = l_Lean_Syntax_matchesNull(x_2078, x_2080);
-if (x_2081 == 0)
+lean_object* x_2080; 
+lean_dec(x_2076);
+lean_dec(x_2075);
+lean_dec(x_1933);
+lean_inc(x_1918);
+x_2080 = l_Lean_Syntax_isIdOrAtom_x3f(x_1918);
+if (lean_obj_tag(x_2080) == 0)
+{
+lean_object* x_2081; 
+x_2081 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_1934 = x_2081;
+x_1935 = x_1918;
+goto block_1948;
+}
+else
 {
 lean_object* x_2082; 
-lean_dec(x_2078);
-lean_dec(x_2077);
-lean_dec(x_1935);
-lean_inc(x_1920);
-x_2082 = l_Lean_Syntax_isIdOrAtom_x3f(x_1920);
-if (lean_obj_tag(x_2082) == 0)
-{
-lean_object* x_2083; 
-x_2083 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_1936 = x_2083;
-x_1937 = x_1920;
-goto block_1950;
-}
-else
-{
-lean_object* x_2084; 
-x_2084 = lean_ctor_get(x_2082, 0);
-lean_inc(x_2084);
-lean_dec_ref(x_2082);
-x_1936 = x_2084;
-x_1937 = x_1920;
-goto block_1950;
+x_2082 = lean_ctor_get(x_2080, 0);
+lean_inc(x_2082);
+lean_dec_ref(x_2080);
+x_1934 = x_2082;
+x_1935 = x_1918;
+goto block_1948;
 }
 }
 else
 {
-lean_object* x_2085; lean_object* x_2086; lean_object* x_2087; lean_object* x_2088; lean_object* x_2089; 
-lean_dec(x_1920);
-x_2085 = l_Lean_Syntax_getArg(x_2078, x_1730);
-lean_dec(x_2078);
-x_2086 = l_Lean_Syntax_getArgs(x_2085);
-lean_dec(x_2085);
-x_2087 = lean_box(0);
-if (lean_is_scalar(x_1935)) {
- x_2088 = lean_alloc_ctor(1, 1, 0);
+lean_object* x_2083; lean_object* x_2084; lean_object* x_2085; lean_object* x_2086; lean_object* x_2087; 
+lean_dec(x_1918);
+x_2083 = l_Lean_Syntax_getArg(x_2076, x_1728);
+lean_dec(x_2076);
+x_2084 = l_Lean_Syntax_getArgs(x_2083);
+lean_dec(x_2083);
+x_2085 = lean_box(0);
+if (lean_is_scalar(x_1933)) {
+ x_2086 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_2088 = x_1935;
+ x_2086 = x_1933;
 }
-lean_ctor_set(x_2088, 0, x_2086);
-x_2089 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2077, x_1531, x_2087, x_2088);
-lean_dec_ref(x_2088);
-x_1951 = x_2089;
-goto block_1954;
-}
-}
-else
-{
-lean_object* x_2090; lean_object* x_2091; lean_object* x_2092; 
-lean_dec(x_2078);
-lean_dec(x_1935);
-lean_dec(x_1920);
-x_2090 = lean_box(0);
-x_2091 = lean_box(0);
-x_2092 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2077, x_1531, x_2090, x_2091);
-x_1951 = x_2092;
-goto block_1954;
-}
+lean_ctor_set(x_2086, 0, x_2084);
+x_2087 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2075, x_1529, x_2085, x_2086);
+lean_dec_ref(x_2086);
+x_1949 = x_2087;
+goto block_1952;
 }
 }
 else
 {
-lean_object* x_2093; lean_object* x_2094; lean_object* x_2095; 
-lean_dec(x_1927);
-lean_dec(x_1920);
-x_2093 = lean_box(0);
-if (lean_is_scalar(x_1935)) {
- x_2094 = lean_alloc_ctor(1, 1, 0);
-} else {
- x_2094 = x_1935;
-}
-lean_ctor_set(x_2094, 0, x_2069);
-x_2095 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_1531, x_1731, x_1526, x_1527, x_1528, x_1730, x_1733, x_2093, x_2094);
-lean_dec_ref(x_2094);
-lean_dec(x_1731);
-x_1951 = x_2095;
-goto block_1954;
-}
-}
-}
-else
-{
-lean_object* x_2096; lean_object* x_2097; lean_object* x_2098; 
-lean_dec(x_2045);
-lean_dec(x_1935);
-lean_dec(x_1927);
-lean_dec(x_1920);
-x_2096 = lean_box(0);
-x_2097 = lean_box(0);
-x_2098 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_1531, x_1731, x_1526, x_1527, x_1528, x_1730, x_1733, x_2096, x_2097);
-lean_dec(x_1731);
-x_1951 = x_2098;
-goto block_1954;
-}
-}
-}
-}
-}
-block_1950:
-{
-lean_object* x_1938; 
-x_1938 = l_Lean_Syntax_getRange_x3f(x_1937, x_1929);
-lean_dec(x_1937);
-if (lean_obj_tag(x_1938) == 1)
-{
-lean_object* x_1939; lean_object* x_1940; lean_object* x_1941; uint8_t x_1942; lean_object* x_1943; lean_object* x_1944; lean_object* x_1945; lean_object* x_1946; lean_object* x_1947; 
-x_1939 = lean_ctor_get(x_1938, 0);
-lean_inc(x_1939);
-if (lean_is_exclusive(x_1938)) {
- lean_ctor_release(x_1938, 0);
- x_1940 = x_1938;
-} else {
- lean_dec_ref(x_1938);
- x_1940 = lean_box(0);
-}
-x_1941 = lean_box(0);
-x_1942 = 5;
-lean_inc_ref(x_1);
-x_1943 = l_Lean_Syntax_Range_toLspRange(x_1, x_1934);
-lean_inc_ref(x_1);
-x_1944 = l_Lean_Syntax_Range_toLspRange(x_1, x_1939);
-x_1945 = lean_alloc_ctor(0, 5, 1);
-lean_ctor_set(x_1945, 0, x_1936);
-lean_ctor_set(x_1945, 1, x_1941);
-lean_ctor_set(x_1945, 2, x_1943);
-lean_ctor_set(x_1945, 3, x_1944);
-lean_ctor_set(x_1945, 4, x_1941);
-lean_ctor_set_uint8(x_1945, sizeof(void*)*5, x_1942);
-if (lean_is_scalar(x_1940)) {
- x_1946 = lean_alloc_ctor(0, 1, 0);
-} else {
- x_1946 = x_1940;
- lean_ctor_set_tag(x_1946, 0);
-}
-lean_ctor_set(x_1946, 0, x_1945);
-x_1947 = lean_array_push(x_3, x_1946);
-x_2 = x_1517;
-x_3 = x_1947;
-goto _start;
-}
-else
-{
-lean_dec(x_1938);
-lean_dec_ref(x_1936);
-lean_dec(x_1934);
-x_2 = x_1517;
-goto _start;
-}
-}
-block_1954:
-{
-lean_object* x_1952; lean_object* x_1953; 
-x_1952 = lean_ctor_get(x_1951, 0);
-lean_inc(x_1952);
-x_1953 = lean_ctor_get(x_1951, 1);
-lean_inc(x_1953);
-lean_dec_ref(x_1951);
-x_1936 = x_1952;
-x_1937 = x_1953;
-goto block_1950;
-}
-}
-else
-{
+lean_object* x_2088; lean_object* x_2089; lean_object* x_2090; 
+lean_dec(x_2076);
 lean_dec(x_1933);
-lean_dec(x_1927);
-lean_dec(x_1920);
-lean_dec(x_1734);
-lean_dec(x_1731);
-x_2 = x_1517;
+lean_dec(x_1918);
+x_2088 = lean_box(0);
+x_2089 = lean_box(0);
+x_2090 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2075, x_1529, x_2088, x_2089);
+x_1949 = x_2090;
+goto block_1952;
+}
+}
+}
+else
+{
+lean_object* x_2091; lean_object* x_2092; lean_object* x_2093; 
+lean_dec(x_1925);
+lean_dec(x_1918);
+x_2091 = lean_box(0);
+if (lean_is_scalar(x_1933)) {
+ x_2092 = lean_alloc_ctor(1, 1, 0);
+} else {
+ x_2092 = x_1933;
+}
+lean_ctor_set(x_2092, 0, x_2067);
+x_2093 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_1529, x_1729, x_1524, x_1525, x_1526, x_1728, x_1731, x_2091, x_2092);
+lean_dec_ref(x_2092);
+lean_dec(x_1729);
+x_1949 = x_2093;
+goto block_1952;
+}
+}
+}
+else
+{
+lean_object* x_2094; lean_object* x_2095; lean_object* x_2096; 
+lean_dec(x_2043);
+lean_dec(x_1933);
+lean_dec(x_1925);
+lean_dec(x_1918);
+x_2094 = lean_box(0);
+x_2095 = lean_box(0);
+x_2096 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_1529, x_1729, x_1524, x_1525, x_1526, x_1728, x_1731, x_2094, x_2095);
+lean_dec(x_1729);
+x_1949 = x_2096;
+goto block_1952;
+}
+}
+}
+}
+}
+block_1948:
+{
+lean_object* x_1936; 
+x_1936 = l_Lean_Syntax_getRange_x3f(x_1935, x_1927);
+lean_dec(x_1935);
+if (lean_obj_tag(x_1936) == 1)
+{
+lean_object* x_1937; lean_object* x_1938; lean_object* x_1939; uint8_t x_1940; lean_object* x_1941; lean_object* x_1942; lean_object* x_1943; lean_object* x_1944; lean_object* x_1945; 
+x_1937 = lean_ctor_get(x_1936, 0);
+lean_inc(x_1937);
+if (lean_is_exclusive(x_1936)) {
+ lean_ctor_release(x_1936, 0);
+ x_1938 = x_1936;
+} else {
+ lean_dec_ref(x_1936);
+ x_1938 = lean_box(0);
+}
+x_1939 = lean_box(0);
+x_1940 = 5;
+lean_inc_ref(x_1);
+x_1941 = l_Lean_Syntax_Range_toLspRange(x_1, x_1932);
+lean_inc_ref(x_1);
+x_1942 = l_Lean_Syntax_Range_toLspRange(x_1, x_1937);
+x_1943 = lean_alloc_ctor(0, 5, 1);
+lean_ctor_set(x_1943, 0, x_1934);
+lean_ctor_set(x_1943, 1, x_1939);
+lean_ctor_set(x_1943, 2, x_1941);
+lean_ctor_set(x_1943, 3, x_1942);
+lean_ctor_set(x_1943, 4, x_1939);
+lean_ctor_set_uint8(x_1943, sizeof(void*)*5, x_1940);
+if (lean_is_scalar(x_1938)) {
+ x_1944 = lean_alloc_ctor(0, 1, 0);
+} else {
+ x_1944 = x_1938;
+ lean_ctor_set_tag(x_1944, 0);
+}
+lean_ctor_set(x_1944, 0, x_1943);
+x_1945 = lean_array_push(x_3, x_1944);
+x_2 = x_1515;
+x_3 = x_1945;
+goto _start;
+}
+else
+{
+lean_dec(x_1936);
+lean_dec_ref(x_1934);
+lean_dec(x_1932);
+x_2 = x_1515;
+goto _start;
+}
+}
+block_1952:
+{
+lean_object* x_1950; lean_object* x_1951; 
+x_1950 = lean_ctor_get(x_1949, 0);
+lean_inc(x_1950);
+x_1951 = lean_ctor_get(x_1949, 1);
+lean_inc(x_1951);
+lean_dec_ref(x_1949);
+x_1934 = x_1950;
+x_1935 = x_1951;
+goto block_1948;
+}
+}
+else
+{
+lean_dec(x_1931);
+lean_dec(x_1925);
+lean_dec(x_1918);
+lean_dec(x_1732);
+lean_dec(x_1729);
+x_2 = x_1515;
 goto _start;
 }
 }
 }
 else
 {
-lean_dec(x_1927);
-lean_dec(x_1734);
-lean_dec(x_1731);
-x_1921 = x_5;
-x_1922 = lean_box(0);
-goto block_1926;
+lean_dec(x_1925);
+lean_dec(x_1732);
+lean_dec(x_1729);
+x_1919 = x_5;
+x_1920 = lean_box(0);
+goto block_1924;
 }
 }
 else
 {
-lean_dec(x_1927);
-lean_dec(x_1734);
-lean_dec(x_1731);
-x_1921 = x_5;
-x_1922 = lean_box(0);
-goto block_1926;
+lean_dec(x_1925);
+lean_dec(x_1732);
+lean_dec(x_1729);
+x_1919 = x_5;
+x_1920 = lean_box(0);
+goto block_1924;
 }
-block_1926:
+block_1924:
 {
-lean_object* x_1923; lean_object* x_1924; lean_object* x_1925; 
-x_1923 = l_Lean_TSyntax_getId(x_1920);
-lean_dec(x_1920);
-x_1924 = l_Lean_Name_getNumParts(x_1923);
-lean_dec(x_1923);
-x_1925 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols_popStack(x_1, x_1516, x_1517, x_1924, x_3, x_4, x_1921);
-return x_1925;
-}
-}
-}
-else
-{
-lean_object* x_2100; 
-lean_dec(x_1731);
-x_2100 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols_popStack(x_1, x_1516, x_1517, x_1730, x_3, x_4, x_5);
-return x_2100;
+lean_object* x_1921; lean_object* x_1922; lean_object* x_1923; 
+x_1921 = l_Lean_TSyntax_getId(x_1918);
+lean_dec(x_1918);
+x_1922 = l_Lean_Name_getNumParts(x_1921);
+lean_dec(x_1921);
+x_1923 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols_popStack(x_1, x_1514, x_1515, x_1922, x_3, x_4, x_1919);
+return x_1923;
 }
 }
 }
 else
 {
-lean_object* x_2101; lean_object* x_2102; lean_object* x_2103; uint8_t x_2104; 
-x_2101 = lean_unsigned_to_nat(0u);
-x_2102 = l_Lean_Syntax_getArg(x_1516, x_2101);
-x_2103 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__20;
-lean_inc(x_2102);
-x_2104 = l_Lean_Syntax_isOfKind(x_2102, x_2103);
-if (x_2104 == 0)
+lean_object* x_2098; 
+lean_dec(x_1729);
+x_2098 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols_popStack(x_1, x_1514, x_1515, x_1728, x_3, x_4, x_5);
+return x_2098;
+}
+}
+}
+else
 {
-lean_object* x_2105; uint8_t x_2106; 
-lean_dec(x_1518);
+lean_object* x_2099; lean_object* x_2100; lean_object* x_2101; uint8_t x_2102; 
+x_2099 = lean_unsigned_to_nat(0u);
+x_2100 = l_Lean_Syntax_getArg(x_1514, x_2099);
+x_2101 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__20;
+lean_inc(x_2100);
+x_2102 = l_Lean_Syntax_isOfKind(x_2100, x_2101);
+if (x_2102 == 0)
+{
+lean_object* x_2103; lean_object* x_2104; lean_object* x_2105; uint8_t x_2106; 
+lean_dec(x_1516);
+x_2103 = lean_unsigned_to_nat(1u);
+x_2104 = l_Lean_Syntax_getArg(x_1514, x_2103);
 x_2105 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__9;
-lean_inc(x_1516);
-x_2106 = l_Lean_Syntax_isOfKind(x_1516, x_2105);
+lean_inc(x_1514);
+x_2106 = l_Lean_Syntax_isOfKind(x_1514, x_2105);
 if (x_2106 == 0)
 {
-lean_dec(x_2102);
-lean_dec(x_1516);
-x_2 = x_1517;
+lean_dec(x_2104);
+lean_dec(x_2100);
+lean_dec(x_1514);
+x_2 = x_1515;
 goto _start;
 }
 else
 {
 lean_object* x_2108; 
-x_2108 = l_Lean_Syntax_getRange_x3f(x_1516, x_2104);
+x_2108 = l_Lean_Syntax_getRange_x3f(x_1514, x_2102);
+lean_dec(x_1514);
 if (lean_obj_tag(x_2108) == 1)
 {
-lean_object* x_2109; lean_object* x_2110; lean_object* x_2111; lean_object* x_2112; lean_object* x_2126; lean_object* x_2130; lean_object* x_2131; 
+lean_object* x_2109; lean_object* x_2110; lean_object* x_2111; lean_object* x_2112; lean_object* x_2126; 
 x_2109 = lean_ctor_get(x_2108, 0);
 lean_inc(x_2109);
 if (lean_is_exclusive(x_2108)) {
@@ -19217,742 +19225,739 @@ if (lean_is_exclusive(x_2108)) {
  lean_dec_ref(x_2108);
  x_2110 = lean_box(0);
 }
-x_2130 = lean_unsigned_to_nat(1u);
-x_2131 = l_Lean_Syntax_getArg(x_1516, x_2130);
-lean_dec(x_1516);
 if (x_2106 == 0)
 {
-lean_object* x_2132; lean_object* x_2133; uint8_t x_2134; 
-lean_dec(x_2102);
-x_2132 = l_Lean_Syntax_getArg(x_2131, x_2130);
-x_2133 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_2132);
-x_2134 = l_Lean_Syntax_isOfKind(x_2132, x_2133);
-if (x_2134 == 0)
+lean_object* x_2130; lean_object* x_2131; uint8_t x_2132; 
+lean_dec(x_2100);
+x_2130 = l_Lean_Syntax_getArg(x_2104, x_2103);
+x_2131 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_2130);
+x_2132 = l_Lean_Syntax_isOfKind(x_2130, x_2131);
+if (x_2132 == 0)
 {
-lean_object* x_2135; lean_object* x_2136; 
-lean_dec(x_2132);
+lean_object* x_2133; lean_object* x_2134; 
+lean_dec(x_2130);
 lean_dec(x_2110);
-x_2135 = l_Lean_Syntax_getArg(x_2131, x_2101);
-lean_dec(x_2131);
-lean_inc(x_2135);
-x_2136 = l_Lean_Syntax_isIdOrAtom_x3f(x_2135);
-if (lean_obj_tag(x_2136) == 0)
+x_2133 = l_Lean_Syntax_getArg(x_2104, x_2099);
+lean_dec(x_2104);
+lean_inc(x_2133);
+x_2134 = l_Lean_Syntax_isIdOrAtom_x3f(x_2133);
+if (lean_obj_tag(x_2134) == 0)
 {
-lean_object* x_2137; 
-x_2137 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_2111 = x_2137;
-x_2112 = x_2135;
+lean_object* x_2135; 
+x_2135 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_2111 = x_2135;
+x_2112 = x_2133;
 goto block_2125;
 }
 else
 {
-lean_object* x_2138; 
-x_2138 = lean_ctor_get(x_2136, 0);
+lean_object* x_2136; 
+x_2136 = lean_ctor_get(x_2134, 0);
+lean_inc(x_2136);
+lean_dec_ref(x_2134);
+x_2111 = x_2136;
+x_2112 = x_2133;
+goto block_2125;
+}
+}
+else
+{
+lean_object* x_2137; lean_object* x_2138; uint8_t x_2139; 
+x_2137 = l_Lean_Syntax_getArg(x_2130, x_2099);
+x_2138 = l_Lean_Syntax_getArg(x_2130, x_2103);
+lean_dec(x_2130);
+x_2139 = l_Lean_Syntax_isNone(x_2138);
+if (x_2139 == 0)
+{
+lean_object* x_2140; uint8_t x_2141; 
+x_2140 = lean_unsigned_to_nat(3u);
 lean_inc(x_2138);
-lean_dec_ref(x_2136);
-x_2111 = x_2138;
-x_2112 = x_2135;
-goto block_2125;
-}
-}
-else
-{
-lean_object* x_2139; lean_object* x_2140; uint8_t x_2141; 
-x_2139 = l_Lean_Syntax_getArg(x_2132, x_2101);
-x_2140 = l_Lean_Syntax_getArg(x_2132, x_2130);
-lean_dec(x_2132);
-x_2141 = l_Lean_Syntax_isNone(x_2140);
+x_2141 = l_Lean_Syntax_matchesNull(x_2138, x_2140);
 if (x_2141 == 0)
 {
-lean_object* x_2142; uint8_t x_2143; 
-x_2142 = lean_unsigned_to_nat(3u);
-lean_inc(x_2140);
-x_2143 = l_Lean_Syntax_matchesNull(x_2140, x_2142);
-if (x_2143 == 0)
-{
-lean_object* x_2144; lean_object* x_2145; 
-lean_dec(x_2140);
-lean_dec(x_2139);
+lean_object* x_2142; lean_object* x_2143; 
+lean_dec(x_2138);
+lean_dec(x_2137);
 lean_dec(x_2110);
-x_2144 = l_Lean_Syntax_getArg(x_2131, x_2101);
-lean_dec(x_2131);
-lean_inc(x_2144);
-x_2145 = l_Lean_Syntax_isIdOrAtom_x3f(x_2144);
-if (lean_obj_tag(x_2145) == 0)
+x_2142 = l_Lean_Syntax_getArg(x_2104, x_2099);
+lean_dec(x_2104);
+lean_inc(x_2142);
+x_2143 = l_Lean_Syntax_isIdOrAtom_x3f(x_2142);
+if (lean_obj_tag(x_2143) == 0)
 {
-lean_object* x_2146; 
-x_2146 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_2111 = x_2146;
-x_2112 = x_2144;
+lean_object* x_2144; 
+x_2144 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_2111 = x_2144;
+x_2112 = x_2142;
 goto block_2125;
 }
 else
 {
-lean_object* x_2147; 
-x_2147 = lean_ctor_get(x_2145, 0);
-lean_inc(x_2147);
-lean_dec_ref(x_2145);
-x_2111 = x_2147;
-x_2112 = x_2144;
+lean_object* x_2145; 
+x_2145 = lean_ctor_get(x_2143, 0);
+lean_inc(x_2145);
+lean_dec_ref(x_2143);
+x_2111 = x_2145;
+x_2112 = x_2142;
 goto block_2125;
 }
 }
 else
 {
-lean_object* x_2148; lean_object* x_2149; lean_object* x_2150; lean_object* x_2151; lean_object* x_2152; 
-lean_dec(x_2131);
-x_2148 = l_Lean_Syntax_getArg(x_2140, x_2130);
-lean_dec(x_2140);
-x_2149 = l_Lean_Syntax_getArgs(x_2148);
-lean_dec(x_2148);
-x_2150 = lean_box(0);
+lean_object* x_2146; lean_object* x_2147; lean_object* x_2148; lean_object* x_2149; lean_object* x_2150; 
+lean_dec(x_2104);
+x_2146 = l_Lean_Syntax_getArg(x_2138, x_2103);
+lean_dec(x_2138);
+x_2147 = l_Lean_Syntax_getArgs(x_2146);
+lean_dec(x_2146);
+x_2148 = lean_box(0);
 if (lean_is_scalar(x_2110)) {
- x_2151 = lean_alloc_ctor(1, 1, 0);
+ x_2149 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_2151 = x_2110;
+ x_2149 = x_2110;
 }
-lean_ctor_set(x_2151, 0, x_2149);
-x_2152 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2139, x_1531, x_2150, x_2151);
-lean_dec_ref(x_2151);
-x_2126 = x_2152;
+lean_ctor_set(x_2149, 0, x_2147);
+x_2150 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2137, x_1529, x_2148, x_2149);
+lean_dec_ref(x_2149);
+x_2126 = x_2150;
 goto block_2129;
 }
 }
 else
 {
-lean_object* x_2153; lean_object* x_2154; lean_object* x_2155; 
-lean_dec(x_2140);
-lean_dec(x_2131);
+lean_object* x_2151; lean_object* x_2152; lean_object* x_2153; 
+lean_dec(x_2138);
 lean_dec(x_2110);
-x_2153 = lean_box(0);
-x_2154 = lean_box(0);
-x_2155 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2139, x_1531, x_2153, x_2154);
-x_2126 = x_2155;
+lean_dec(x_2104);
+x_2151 = lean_box(0);
+x_2152 = lean_box(0);
+x_2153 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2137, x_1529, x_2151, x_2152);
+x_2126 = x_2153;
 goto block_2129;
 }
 }
 }
 else
 {
-lean_object* x_2156; uint8_t x_2157; 
-x_2156 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__12;
-x_2157 = l_Lean_Syntax_isOfKind(x_2102, x_2156);
-if (x_2157 == 0)
+lean_object* x_2154; uint8_t x_2155; 
+x_2154 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__12;
+x_2155 = l_Lean_Syntax_isOfKind(x_2100, x_2154);
+if (x_2155 == 0)
 {
-lean_object* x_2158; lean_object* x_2159; uint8_t x_2160; 
-x_2158 = l_Lean_Syntax_getArg(x_2131, x_2130);
-x_2159 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_2158);
-x_2160 = l_Lean_Syntax_isOfKind(x_2158, x_2159);
-if (x_2160 == 0)
+lean_object* x_2156; lean_object* x_2157; uint8_t x_2158; 
+x_2156 = l_Lean_Syntax_getArg(x_2104, x_2103);
+x_2157 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_2156);
+x_2158 = l_Lean_Syntax_isOfKind(x_2156, x_2157);
+if (x_2158 == 0)
 {
-lean_object* x_2161; lean_object* x_2162; 
-lean_dec(x_2158);
+lean_object* x_2159; lean_object* x_2160; 
+lean_dec(x_2156);
 lean_dec(x_2110);
-x_2161 = l_Lean_Syntax_getArg(x_2131, x_2101);
-lean_dec(x_2131);
-lean_inc(x_2161);
-x_2162 = l_Lean_Syntax_isIdOrAtom_x3f(x_2161);
-if (lean_obj_tag(x_2162) == 0)
+x_2159 = l_Lean_Syntax_getArg(x_2104, x_2099);
+lean_dec(x_2104);
+lean_inc(x_2159);
+x_2160 = l_Lean_Syntax_isIdOrAtom_x3f(x_2159);
+if (lean_obj_tag(x_2160) == 0)
 {
-lean_object* x_2163; 
-x_2163 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_2111 = x_2163;
-x_2112 = x_2161;
+lean_object* x_2161; 
+x_2161 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_2111 = x_2161;
+x_2112 = x_2159;
 goto block_2125;
 }
 else
 {
-lean_object* x_2164; 
-x_2164 = lean_ctor_get(x_2162, 0);
+lean_object* x_2162; 
+x_2162 = lean_ctor_get(x_2160, 0);
+lean_inc(x_2162);
+lean_dec_ref(x_2160);
+x_2111 = x_2162;
+x_2112 = x_2159;
+goto block_2125;
+}
+}
+else
+{
+lean_object* x_2163; lean_object* x_2164; uint8_t x_2165; 
+x_2163 = l_Lean_Syntax_getArg(x_2156, x_2099);
+x_2164 = l_Lean_Syntax_getArg(x_2156, x_2103);
+lean_dec(x_2156);
+x_2165 = l_Lean_Syntax_isNone(x_2164);
+if (x_2165 == 0)
+{
+lean_object* x_2166; uint8_t x_2167; 
+x_2166 = lean_unsigned_to_nat(3u);
 lean_inc(x_2164);
-lean_dec_ref(x_2162);
-x_2111 = x_2164;
-x_2112 = x_2161;
-goto block_2125;
-}
-}
-else
-{
-lean_object* x_2165; lean_object* x_2166; uint8_t x_2167; 
-x_2165 = l_Lean_Syntax_getArg(x_2158, x_2101);
-x_2166 = l_Lean_Syntax_getArg(x_2158, x_2130);
-lean_dec(x_2158);
-x_2167 = l_Lean_Syntax_isNone(x_2166);
+x_2167 = l_Lean_Syntax_matchesNull(x_2164, x_2166);
 if (x_2167 == 0)
 {
-lean_object* x_2168; uint8_t x_2169; 
-x_2168 = lean_unsigned_to_nat(3u);
-lean_inc(x_2166);
-x_2169 = l_Lean_Syntax_matchesNull(x_2166, x_2168);
-if (x_2169 == 0)
-{
-lean_object* x_2170; lean_object* x_2171; 
-lean_dec(x_2166);
-lean_dec(x_2165);
+lean_object* x_2168; lean_object* x_2169; 
+lean_dec(x_2164);
+lean_dec(x_2163);
 lean_dec(x_2110);
-x_2170 = l_Lean_Syntax_getArg(x_2131, x_2101);
-lean_dec(x_2131);
-lean_inc(x_2170);
-x_2171 = l_Lean_Syntax_isIdOrAtom_x3f(x_2170);
-if (lean_obj_tag(x_2171) == 0)
+x_2168 = l_Lean_Syntax_getArg(x_2104, x_2099);
+lean_dec(x_2104);
+lean_inc(x_2168);
+x_2169 = l_Lean_Syntax_isIdOrAtom_x3f(x_2168);
+if (lean_obj_tag(x_2169) == 0)
 {
-lean_object* x_2172; 
-x_2172 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_2111 = x_2172;
-x_2112 = x_2170;
+lean_object* x_2170; 
+x_2170 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_2111 = x_2170;
+x_2112 = x_2168;
 goto block_2125;
 }
 else
 {
-lean_object* x_2173; 
-x_2173 = lean_ctor_get(x_2171, 0);
-lean_inc(x_2173);
-lean_dec_ref(x_2171);
-x_2111 = x_2173;
-x_2112 = x_2170;
+lean_object* x_2171; 
+x_2171 = lean_ctor_get(x_2169, 0);
+lean_inc(x_2171);
+lean_dec_ref(x_2169);
+x_2111 = x_2171;
+x_2112 = x_2168;
 goto block_2125;
 }
 }
 else
 {
-lean_object* x_2174; lean_object* x_2175; lean_object* x_2176; lean_object* x_2177; lean_object* x_2178; 
-lean_dec(x_2131);
-x_2174 = l_Lean_Syntax_getArg(x_2166, x_2130);
-lean_dec(x_2166);
-x_2175 = l_Lean_Syntax_getArgs(x_2174);
-lean_dec(x_2174);
-x_2176 = lean_box(0);
+lean_object* x_2172; lean_object* x_2173; lean_object* x_2174; lean_object* x_2175; lean_object* x_2176; 
+lean_dec(x_2104);
+x_2172 = l_Lean_Syntax_getArg(x_2164, x_2103);
+lean_dec(x_2164);
+x_2173 = l_Lean_Syntax_getArgs(x_2172);
+lean_dec(x_2172);
+x_2174 = lean_box(0);
 if (lean_is_scalar(x_2110)) {
- x_2177 = lean_alloc_ctor(1, 1, 0);
+ x_2175 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_2177 = x_2110;
+ x_2175 = x_2110;
 }
-lean_ctor_set(x_2177, 0, x_2175);
-x_2178 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2165, x_1531, x_2176, x_2177);
-lean_dec_ref(x_2177);
-x_2126 = x_2178;
+lean_ctor_set(x_2175, 0, x_2173);
+x_2176 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2163, x_1529, x_2174, x_2175);
+lean_dec_ref(x_2175);
+x_2126 = x_2176;
 goto block_2129;
 }
 }
 else
 {
-lean_object* x_2179; lean_object* x_2180; lean_object* x_2181; 
-lean_dec(x_2166);
-lean_dec(x_2131);
+lean_object* x_2177; lean_object* x_2178; lean_object* x_2179; 
+lean_dec(x_2164);
 lean_dec(x_2110);
-x_2179 = lean_box(0);
-x_2180 = lean_box(0);
-x_2181 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2165, x_1531, x_2179, x_2180);
-x_2126 = x_2181;
+lean_dec(x_2104);
+x_2177 = lean_box(0);
+x_2178 = lean_box(0);
+x_2179 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2163, x_1529, x_2177, x_2178);
+x_2126 = x_2179;
 goto block_2129;
 }
 }
 }
 else
 {
-lean_object* x_2182; uint8_t x_2183; 
-x_2182 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__14;
-lean_inc(x_2131);
-x_2183 = l_Lean_Syntax_isOfKind(x_2131, x_2182);
-if (x_2183 == 0)
+lean_object* x_2180; uint8_t x_2181; 
+x_2180 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__14;
+lean_inc(x_2104);
+x_2181 = l_Lean_Syntax_isOfKind(x_2104, x_2180);
+if (x_2181 == 0)
 {
-lean_object* x_2184; lean_object* x_2185; uint8_t x_2186; 
-x_2184 = l_Lean_Syntax_getArg(x_2131, x_2130);
-x_2185 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_2184);
-x_2186 = l_Lean_Syntax_isOfKind(x_2184, x_2185);
-if (x_2186 == 0)
+lean_object* x_2182; lean_object* x_2183; uint8_t x_2184; 
+x_2182 = l_Lean_Syntax_getArg(x_2104, x_2103);
+x_2183 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_2182);
+x_2184 = l_Lean_Syntax_isOfKind(x_2182, x_2183);
+if (x_2184 == 0)
 {
-lean_object* x_2187; lean_object* x_2188; 
-lean_dec(x_2184);
+lean_object* x_2185; lean_object* x_2186; 
+lean_dec(x_2182);
 lean_dec(x_2110);
-x_2187 = l_Lean_Syntax_getArg(x_2131, x_2101);
-lean_dec(x_2131);
-lean_inc(x_2187);
-x_2188 = l_Lean_Syntax_isIdOrAtom_x3f(x_2187);
-if (lean_obj_tag(x_2188) == 0)
+x_2185 = l_Lean_Syntax_getArg(x_2104, x_2099);
+lean_dec(x_2104);
+lean_inc(x_2185);
+x_2186 = l_Lean_Syntax_isIdOrAtom_x3f(x_2185);
+if (lean_obj_tag(x_2186) == 0)
 {
-lean_object* x_2189; 
-x_2189 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_2111 = x_2189;
-x_2112 = x_2187;
+lean_object* x_2187; 
+x_2187 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_2111 = x_2187;
+x_2112 = x_2185;
 goto block_2125;
 }
 else
 {
-lean_object* x_2190; 
-x_2190 = lean_ctor_get(x_2188, 0);
+lean_object* x_2188; 
+x_2188 = lean_ctor_get(x_2186, 0);
+lean_inc(x_2188);
+lean_dec_ref(x_2186);
+x_2111 = x_2188;
+x_2112 = x_2185;
+goto block_2125;
+}
+}
+else
+{
+lean_object* x_2189; lean_object* x_2190; uint8_t x_2191; 
+x_2189 = l_Lean_Syntax_getArg(x_2182, x_2099);
+x_2190 = l_Lean_Syntax_getArg(x_2182, x_2103);
+lean_dec(x_2182);
+x_2191 = l_Lean_Syntax_isNone(x_2190);
+if (x_2191 == 0)
+{
+lean_object* x_2192; uint8_t x_2193; 
+x_2192 = lean_unsigned_to_nat(3u);
 lean_inc(x_2190);
-lean_dec_ref(x_2188);
-x_2111 = x_2190;
-x_2112 = x_2187;
-goto block_2125;
-}
-}
-else
-{
-lean_object* x_2191; lean_object* x_2192; uint8_t x_2193; 
-x_2191 = l_Lean_Syntax_getArg(x_2184, x_2101);
-x_2192 = l_Lean_Syntax_getArg(x_2184, x_2130);
-lean_dec(x_2184);
-x_2193 = l_Lean_Syntax_isNone(x_2192);
+x_2193 = l_Lean_Syntax_matchesNull(x_2190, x_2192);
 if (x_2193 == 0)
 {
-lean_object* x_2194; uint8_t x_2195; 
-x_2194 = lean_unsigned_to_nat(3u);
-lean_inc(x_2192);
-x_2195 = l_Lean_Syntax_matchesNull(x_2192, x_2194);
-if (x_2195 == 0)
-{
-lean_object* x_2196; lean_object* x_2197; 
-lean_dec(x_2192);
-lean_dec(x_2191);
+lean_object* x_2194; lean_object* x_2195; 
+lean_dec(x_2190);
+lean_dec(x_2189);
 lean_dec(x_2110);
-x_2196 = l_Lean_Syntax_getArg(x_2131, x_2101);
-lean_dec(x_2131);
-lean_inc(x_2196);
-x_2197 = l_Lean_Syntax_isIdOrAtom_x3f(x_2196);
-if (lean_obj_tag(x_2197) == 0)
+x_2194 = l_Lean_Syntax_getArg(x_2104, x_2099);
+lean_dec(x_2104);
+lean_inc(x_2194);
+x_2195 = l_Lean_Syntax_isIdOrAtom_x3f(x_2194);
+if (lean_obj_tag(x_2195) == 0)
 {
-lean_object* x_2198; 
-x_2198 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_2111 = x_2198;
-x_2112 = x_2196;
+lean_object* x_2196; 
+x_2196 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_2111 = x_2196;
+x_2112 = x_2194;
 goto block_2125;
 }
 else
 {
-lean_object* x_2199; 
-x_2199 = lean_ctor_get(x_2197, 0);
-lean_inc(x_2199);
-lean_dec_ref(x_2197);
-x_2111 = x_2199;
-x_2112 = x_2196;
+lean_object* x_2197; 
+x_2197 = lean_ctor_get(x_2195, 0);
+lean_inc(x_2197);
+lean_dec_ref(x_2195);
+x_2111 = x_2197;
+x_2112 = x_2194;
 goto block_2125;
 }
 }
 else
 {
-lean_object* x_2200; lean_object* x_2201; lean_object* x_2202; lean_object* x_2203; lean_object* x_2204; 
-lean_dec(x_2131);
-x_2200 = l_Lean_Syntax_getArg(x_2192, x_2130);
-lean_dec(x_2192);
-x_2201 = l_Lean_Syntax_getArgs(x_2200);
-lean_dec(x_2200);
-x_2202 = lean_box(0);
+lean_object* x_2198; lean_object* x_2199; lean_object* x_2200; lean_object* x_2201; lean_object* x_2202; 
+lean_dec(x_2104);
+x_2198 = l_Lean_Syntax_getArg(x_2190, x_2103);
+lean_dec(x_2190);
+x_2199 = l_Lean_Syntax_getArgs(x_2198);
+lean_dec(x_2198);
+x_2200 = lean_box(0);
 if (lean_is_scalar(x_2110)) {
- x_2203 = lean_alloc_ctor(1, 1, 0);
+ x_2201 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_2203 = x_2110;
+ x_2201 = x_2110;
 }
-lean_ctor_set(x_2203, 0, x_2201);
-x_2204 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2191, x_1531, x_2202, x_2203);
-lean_dec_ref(x_2203);
-x_2126 = x_2204;
+lean_ctor_set(x_2201, 0, x_2199);
+x_2202 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2189, x_1529, x_2200, x_2201);
+lean_dec_ref(x_2201);
+x_2126 = x_2202;
 goto block_2129;
 }
 }
 else
 {
-lean_object* x_2205; lean_object* x_2206; lean_object* x_2207; 
-lean_dec(x_2192);
-lean_dec(x_2131);
+lean_object* x_2203; lean_object* x_2204; lean_object* x_2205; 
+lean_dec(x_2190);
 lean_dec(x_2110);
-x_2205 = lean_box(0);
-x_2206 = lean_box(0);
-x_2207 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2191, x_1531, x_2205, x_2206);
-x_2126 = x_2207;
+lean_dec(x_2104);
+x_2203 = lean_box(0);
+x_2204 = lean_box(0);
+x_2205 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2189, x_1529, x_2203, x_2204);
+x_2126 = x_2205;
 goto block_2129;
 }
 }
 }
 else
 {
-lean_object* x_2208; lean_object* x_2209; uint8_t x_2210; 
-x_2208 = l_Lean_Syntax_getArg(x_2131, x_2101);
-x_2209 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__16;
-lean_inc(x_2208);
-x_2210 = l_Lean_Syntax_isOfKind(x_2208, x_2209);
-if (x_2210 == 0)
+lean_object* x_2206; lean_object* x_2207; uint8_t x_2208; 
+x_2206 = l_Lean_Syntax_getArg(x_2104, x_2099);
+x_2207 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__16;
+lean_inc(x_2206);
+x_2208 = l_Lean_Syntax_isOfKind(x_2206, x_2207);
+if (x_2208 == 0)
 {
-lean_object* x_2211; lean_object* x_2212; uint8_t x_2213; 
-x_2211 = l_Lean_Syntax_getArg(x_2131, x_2130);
-lean_dec(x_2131);
-x_2212 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_2211);
-x_2213 = l_Lean_Syntax_isOfKind(x_2211, x_2212);
-if (x_2213 == 0)
+lean_object* x_2209; lean_object* x_2210; uint8_t x_2211; 
+x_2209 = l_Lean_Syntax_getArg(x_2104, x_2103);
+lean_dec(x_2104);
+x_2210 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_2209);
+x_2211 = l_Lean_Syntax_isOfKind(x_2209, x_2210);
+if (x_2211 == 0)
+{
+lean_object* x_2212; 
+lean_dec(x_2209);
+lean_dec(x_2110);
+lean_inc(x_2206);
+x_2212 = l_Lean_Syntax_isIdOrAtom_x3f(x_2206);
+if (lean_obj_tag(x_2212) == 0)
+{
+lean_object* x_2213; 
+x_2213 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_2111 = x_2213;
+x_2112 = x_2206;
+goto block_2125;
+}
+else
 {
 lean_object* x_2214; 
-lean_dec(x_2211);
-lean_dec(x_2110);
-lean_inc(x_2208);
-x_2214 = l_Lean_Syntax_isIdOrAtom_x3f(x_2208);
-if (lean_obj_tag(x_2214) == 0)
-{
-lean_object* x_2215; 
-x_2215 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_2111 = x_2215;
-x_2112 = x_2208;
+x_2214 = lean_ctor_get(x_2212, 0);
+lean_inc(x_2214);
+lean_dec_ref(x_2212);
+x_2111 = x_2214;
+x_2112 = x_2206;
 goto block_2125;
+}
 }
 else
 {
-lean_object* x_2216; 
-x_2216 = lean_ctor_get(x_2214, 0);
+lean_object* x_2215; lean_object* x_2216; uint8_t x_2217; 
+x_2215 = l_Lean_Syntax_getArg(x_2209, x_2099);
+x_2216 = l_Lean_Syntax_getArg(x_2209, x_2103);
+lean_dec(x_2209);
+x_2217 = l_Lean_Syntax_isNone(x_2216);
+if (x_2217 == 0)
+{
+lean_object* x_2218; uint8_t x_2219; 
+x_2218 = lean_unsigned_to_nat(3u);
 lean_inc(x_2216);
-lean_dec_ref(x_2214);
-x_2111 = x_2216;
-x_2112 = x_2208;
-goto block_2125;
-}
-}
-else
-{
-lean_object* x_2217; lean_object* x_2218; uint8_t x_2219; 
-x_2217 = l_Lean_Syntax_getArg(x_2211, x_2101);
-x_2218 = l_Lean_Syntax_getArg(x_2211, x_2130);
-lean_dec(x_2211);
-x_2219 = l_Lean_Syntax_isNone(x_2218);
+x_2219 = l_Lean_Syntax_matchesNull(x_2216, x_2218);
 if (x_2219 == 0)
 {
-lean_object* x_2220; uint8_t x_2221; 
-x_2220 = lean_unsigned_to_nat(3u);
-lean_inc(x_2218);
-x_2221 = l_Lean_Syntax_matchesNull(x_2218, x_2220);
-if (x_2221 == 0)
+lean_object* x_2220; 
+lean_dec(x_2216);
+lean_dec(x_2215);
+lean_dec(x_2110);
+lean_inc(x_2206);
+x_2220 = l_Lean_Syntax_isIdOrAtom_x3f(x_2206);
+if (lean_obj_tag(x_2220) == 0)
+{
+lean_object* x_2221; 
+x_2221 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_2111 = x_2221;
+x_2112 = x_2206;
+goto block_2125;
+}
+else
 {
 lean_object* x_2222; 
-lean_dec(x_2218);
-lean_dec(x_2217);
-lean_dec(x_2110);
-lean_inc(x_2208);
-x_2222 = l_Lean_Syntax_isIdOrAtom_x3f(x_2208);
-if (lean_obj_tag(x_2222) == 0)
-{
-lean_object* x_2223; 
-x_2223 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_2111 = x_2223;
-x_2112 = x_2208;
-goto block_2125;
-}
-else
-{
-lean_object* x_2224; 
-x_2224 = lean_ctor_get(x_2222, 0);
-lean_inc(x_2224);
-lean_dec_ref(x_2222);
-x_2111 = x_2224;
-x_2112 = x_2208;
+x_2222 = lean_ctor_get(x_2220, 0);
+lean_inc(x_2222);
+lean_dec_ref(x_2220);
+x_2111 = x_2222;
+x_2112 = x_2206;
 goto block_2125;
 }
 }
 else
 {
-lean_object* x_2225; lean_object* x_2226; lean_object* x_2227; lean_object* x_2228; lean_object* x_2229; 
-lean_dec(x_2208);
-x_2225 = l_Lean_Syntax_getArg(x_2218, x_2130);
-lean_dec(x_2218);
-x_2226 = l_Lean_Syntax_getArgs(x_2225);
-lean_dec(x_2225);
-x_2227 = lean_box(0);
+lean_object* x_2223; lean_object* x_2224; lean_object* x_2225; lean_object* x_2226; lean_object* x_2227; 
+lean_dec(x_2206);
+x_2223 = l_Lean_Syntax_getArg(x_2216, x_2103);
+lean_dec(x_2216);
+x_2224 = l_Lean_Syntax_getArgs(x_2223);
+lean_dec(x_2223);
+x_2225 = lean_box(0);
 if (lean_is_scalar(x_2110)) {
- x_2228 = lean_alloc_ctor(1, 1, 0);
+ x_2226 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_2228 = x_2110;
+ x_2226 = x_2110;
 }
-lean_ctor_set(x_2228, 0, x_2226);
-x_2229 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2217, x_1531, x_2227, x_2228);
-lean_dec_ref(x_2228);
-x_2126 = x_2229;
+lean_ctor_set(x_2226, 0, x_2224);
+x_2227 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2215, x_1529, x_2225, x_2226);
+lean_dec_ref(x_2226);
+x_2126 = x_2227;
 goto block_2129;
 }
 }
 else
 {
-lean_object* x_2230; lean_object* x_2231; lean_object* x_2232; 
-lean_dec(x_2218);
-lean_dec(x_2208);
+lean_object* x_2228; lean_object* x_2229; lean_object* x_2230; 
+lean_dec(x_2216);
+lean_dec(x_2206);
 lean_dec(x_2110);
-x_2230 = lean_box(0);
-x_2231 = lean_box(0);
-x_2232 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2217, x_1531, x_2230, x_2231);
-x_2126 = x_2232;
+x_2228 = lean_box(0);
+x_2229 = lean_box(0);
+x_2230 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2215, x_1529, x_2228, x_2229);
+x_2126 = x_2230;
 goto block_2129;
 }
 }
 }
 else
 {
-lean_object* x_2233; lean_object* x_2234; uint8_t x_2235; 
-x_2233 = lean_unsigned_to_nat(2u);
-x_2234 = l_Lean_Syntax_getArg(x_2131, x_2233);
-x_2235 = l_Lean_Syntax_isNone(x_2234);
-if (x_2235 == 0)
+lean_object* x_2231; lean_object* x_2232; uint8_t x_2233; 
+x_2231 = lean_unsigned_to_nat(2u);
+x_2232 = l_Lean_Syntax_getArg(x_2104, x_2231);
+x_2233 = l_Lean_Syntax_isNone(x_2232);
+if (x_2233 == 0)
 {
-uint8_t x_2236; 
-lean_inc(x_2234);
-x_2236 = l_Lean_Syntax_matchesNull(x_2234, x_2130);
-if (x_2236 == 0)
+uint8_t x_2234; 
+lean_inc(x_2232);
+x_2234 = l_Lean_Syntax_matchesNull(x_2232, x_2103);
+if (x_2234 == 0)
 {
-lean_object* x_2237; lean_object* x_2238; uint8_t x_2239; 
-lean_dec(x_2234);
-x_2237 = l_Lean_Syntax_getArg(x_2131, x_2130);
-lean_dec(x_2131);
-x_2238 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_2237);
-x_2239 = l_Lean_Syntax_isOfKind(x_2237, x_2238);
-if (x_2239 == 0)
+lean_object* x_2235; lean_object* x_2236; uint8_t x_2237; 
+lean_dec(x_2232);
+x_2235 = l_Lean_Syntax_getArg(x_2104, x_2103);
+lean_dec(x_2104);
+x_2236 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_2235);
+x_2237 = l_Lean_Syntax_isOfKind(x_2235, x_2236);
+if (x_2237 == 0)
+{
+lean_object* x_2238; 
+lean_dec(x_2235);
+lean_dec(x_2110);
+lean_inc(x_2206);
+x_2238 = l_Lean_Syntax_isIdOrAtom_x3f(x_2206);
+if (lean_obj_tag(x_2238) == 0)
+{
+lean_object* x_2239; 
+x_2239 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_2111 = x_2239;
+x_2112 = x_2206;
+goto block_2125;
+}
+else
 {
 lean_object* x_2240; 
-lean_dec(x_2237);
-lean_dec(x_2110);
-lean_inc(x_2208);
-x_2240 = l_Lean_Syntax_isIdOrAtom_x3f(x_2208);
-if (lean_obj_tag(x_2240) == 0)
-{
-lean_object* x_2241; 
-x_2241 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_2111 = x_2241;
-x_2112 = x_2208;
+x_2240 = lean_ctor_get(x_2238, 0);
+lean_inc(x_2240);
+lean_dec_ref(x_2238);
+x_2111 = x_2240;
+x_2112 = x_2206;
 goto block_2125;
+}
 }
 else
 {
-lean_object* x_2242; 
-x_2242 = lean_ctor_get(x_2240, 0);
+lean_object* x_2241; lean_object* x_2242; uint8_t x_2243; 
+x_2241 = l_Lean_Syntax_getArg(x_2235, x_2099);
+x_2242 = l_Lean_Syntax_getArg(x_2235, x_2103);
+lean_dec(x_2235);
+x_2243 = l_Lean_Syntax_isNone(x_2242);
+if (x_2243 == 0)
+{
+lean_object* x_2244; uint8_t x_2245; 
+x_2244 = lean_unsigned_to_nat(3u);
 lean_inc(x_2242);
-lean_dec_ref(x_2240);
-x_2111 = x_2242;
-x_2112 = x_2208;
-goto block_2125;
-}
-}
-else
-{
-lean_object* x_2243; lean_object* x_2244; uint8_t x_2245; 
-x_2243 = l_Lean_Syntax_getArg(x_2237, x_2101);
-x_2244 = l_Lean_Syntax_getArg(x_2237, x_2130);
-lean_dec(x_2237);
-x_2245 = l_Lean_Syntax_isNone(x_2244);
+x_2245 = l_Lean_Syntax_matchesNull(x_2242, x_2244);
 if (x_2245 == 0)
 {
-lean_object* x_2246; uint8_t x_2247; 
-x_2246 = lean_unsigned_to_nat(3u);
-lean_inc(x_2244);
-x_2247 = l_Lean_Syntax_matchesNull(x_2244, x_2246);
-if (x_2247 == 0)
+lean_object* x_2246; 
+lean_dec(x_2242);
+lean_dec(x_2241);
+lean_dec(x_2110);
+lean_inc(x_2206);
+x_2246 = l_Lean_Syntax_isIdOrAtom_x3f(x_2206);
+if (lean_obj_tag(x_2246) == 0)
+{
+lean_object* x_2247; 
+x_2247 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_2111 = x_2247;
+x_2112 = x_2206;
+goto block_2125;
+}
+else
 {
 lean_object* x_2248; 
-lean_dec(x_2244);
-lean_dec(x_2243);
-lean_dec(x_2110);
-lean_inc(x_2208);
-x_2248 = l_Lean_Syntax_isIdOrAtom_x3f(x_2208);
-if (lean_obj_tag(x_2248) == 0)
-{
-lean_object* x_2249; 
-x_2249 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_2111 = x_2249;
-x_2112 = x_2208;
-goto block_2125;
-}
-else
-{
-lean_object* x_2250; 
-x_2250 = lean_ctor_get(x_2248, 0);
-lean_inc(x_2250);
-lean_dec_ref(x_2248);
-x_2111 = x_2250;
-x_2112 = x_2208;
+x_2248 = lean_ctor_get(x_2246, 0);
+lean_inc(x_2248);
+lean_dec_ref(x_2246);
+x_2111 = x_2248;
+x_2112 = x_2206;
 goto block_2125;
 }
 }
 else
 {
-lean_object* x_2251; lean_object* x_2252; lean_object* x_2253; lean_object* x_2254; lean_object* x_2255; 
-lean_dec(x_2208);
-x_2251 = l_Lean_Syntax_getArg(x_2244, x_2130);
-lean_dec(x_2244);
-x_2252 = l_Lean_Syntax_getArgs(x_2251);
-lean_dec(x_2251);
-x_2253 = lean_box(0);
+lean_object* x_2249; lean_object* x_2250; lean_object* x_2251; lean_object* x_2252; lean_object* x_2253; 
+lean_dec(x_2206);
+x_2249 = l_Lean_Syntax_getArg(x_2242, x_2103);
+lean_dec(x_2242);
+x_2250 = l_Lean_Syntax_getArgs(x_2249);
+lean_dec(x_2249);
+x_2251 = lean_box(0);
 if (lean_is_scalar(x_2110)) {
- x_2254 = lean_alloc_ctor(1, 1, 0);
+ x_2252 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_2254 = x_2110;
+ x_2252 = x_2110;
 }
-lean_ctor_set(x_2254, 0, x_2252);
-x_2255 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2243, x_1531, x_2253, x_2254);
-lean_dec_ref(x_2254);
-x_2126 = x_2255;
+lean_ctor_set(x_2252, 0, x_2250);
+x_2253 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2241, x_1529, x_2251, x_2252);
+lean_dec_ref(x_2252);
+x_2126 = x_2253;
 goto block_2129;
 }
 }
 else
 {
-lean_object* x_2256; lean_object* x_2257; lean_object* x_2258; 
-lean_dec(x_2244);
-lean_dec(x_2208);
+lean_object* x_2254; lean_object* x_2255; lean_object* x_2256; 
+lean_dec(x_2242);
+lean_dec(x_2206);
 lean_dec(x_2110);
-x_2256 = lean_box(0);
-x_2257 = lean_box(0);
-x_2258 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2243, x_1531, x_2256, x_2257);
-x_2126 = x_2258;
+x_2254 = lean_box(0);
+x_2255 = lean_box(0);
+x_2256 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2241, x_1529, x_2254, x_2255);
+x_2126 = x_2256;
 goto block_2129;
 }
 }
 }
 else
 {
-lean_object* x_2259; lean_object* x_2260; uint8_t x_2261; 
-x_2259 = l_Lean_Syntax_getArg(x_2234, x_2101);
-lean_dec(x_2234);
-x_2260 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__18;
-lean_inc(x_2259);
-x_2261 = l_Lean_Syntax_isOfKind(x_2259, x_2260);
-if (x_2261 == 0)
+lean_object* x_2257; lean_object* x_2258; uint8_t x_2259; 
+x_2257 = l_Lean_Syntax_getArg(x_2232, x_2099);
+lean_dec(x_2232);
+x_2258 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__18;
+lean_inc(x_2257);
+x_2259 = l_Lean_Syntax_isOfKind(x_2257, x_2258);
+if (x_2259 == 0)
 {
-lean_object* x_2262; lean_object* x_2263; uint8_t x_2264; 
-lean_dec(x_2259);
-x_2262 = l_Lean_Syntax_getArg(x_2131, x_2130);
-lean_dec(x_2131);
-x_2263 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
-lean_inc(x_2262);
-x_2264 = l_Lean_Syntax_isOfKind(x_2262, x_2263);
-if (x_2264 == 0)
+lean_object* x_2260; lean_object* x_2261; uint8_t x_2262; 
+lean_dec(x_2257);
+x_2260 = l_Lean_Syntax_getArg(x_2104, x_2103);
+lean_dec(x_2104);
+x_2261 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__10;
+lean_inc(x_2260);
+x_2262 = l_Lean_Syntax_isOfKind(x_2260, x_2261);
+if (x_2262 == 0)
+{
+lean_object* x_2263; 
+lean_dec(x_2260);
+lean_dec(x_2110);
+lean_inc(x_2206);
+x_2263 = l_Lean_Syntax_isIdOrAtom_x3f(x_2206);
+if (lean_obj_tag(x_2263) == 0)
+{
+lean_object* x_2264; 
+x_2264 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_2111 = x_2264;
+x_2112 = x_2206;
+goto block_2125;
+}
+else
 {
 lean_object* x_2265; 
-lean_dec(x_2262);
-lean_dec(x_2110);
-lean_inc(x_2208);
-x_2265 = l_Lean_Syntax_isIdOrAtom_x3f(x_2208);
-if (lean_obj_tag(x_2265) == 0)
-{
-lean_object* x_2266; 
-x_2266 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_2111 = x_2266;
-x_2112 = x_2208;
+x_2265 = lean_ctor_get(x_2263, 0);
+lean_inc(x_2265);
+lean_dec_ref(x_2263);
+x_2111 = x_2265;
+x_2112 = x_2206;
 goto block_2125;
+}
 }
 else
 {
-lean_object* x_2267; 
-x_2267 = lean_ctor_get(x_2265, 0);
+lean_object* x_2266; lean_object* x_2267; uint8_t x_2268; 
+x_2266 = l_Lean_Syntax_getArg(x_2260, x_2099);
+x_2267 = l_Lean_Syntax_getArg(x_2260, x_2103);
+lean_dec(x_2260);
+x_2268 = l_Lean_Syntax_isNone(x_2267);
+if (x_2268 == 0)
+{
+lean_object* x_2269; uint8_t x_2270; 
+x_2269 = lean_unsigned_to_nat(3u);
 lean_inc(x_2267);
-lean_dec_ref(x_2265);
-x_2111 = x_2267;
-x_2112 = x_2208;
-goto block_2125;
-}
-}
-else
-{
-lean_object* x_2268; lean_object* x_2269; uint8_t x_2270; 
-x_2268 = l_Lean_Syntax_getArg(x_2262, x_2101);
-x_2269 = l_Lean_Syntax_getArg(x_2262, x_2130);
-lean_dec(x_2262);
-x_2270 = l_Lean_Syntax_isNone(x_2269);
+x_2270 = l_Lean_Syntax_matchesNull(x_2267, x_2269);
 if (x_2270 == 0)
 {
-lean_object* x_2271; uint8_t x_2272; 
-x_2271 = lean_unsigned_to_nat(3u);
-lean_inc(x_2269);
-x_2272 = l_Lean_Syntax_matchesNull(x_2269, x_2271);
-if (x_2272 == 0)
+lean_object* x_2271; 
+lean_dec(x_2267);
+lean_dec(x_2266);
+lean_dec(x_2110);
+lean_inc(x_2206);
+x_2271 = l_Lean_Syntax_isIdOrAtom_x3f(x_2206);
+if (lean_obj_tag(x_2271) == 0)
+{
+lean_object* x_2272; 
+x_2272 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
+x_2111 = x_2272;
+x_2112 = x_2206;
+goto block_2125;
+}
+else
 {
 lean_object* x_2273; 
-lean_dec(x_2269);
-lean_dec(x_2268);
-lean_dec(x_2110);
-lean_inc(x_2208);
-x_2273 = l_Lean_Syntax_isIdOrAtom_x3f(x_2208);
-if (lean_obj_tag(x_2273) == 0)
-{
-lean_object* x_2274; 
-x_2274 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4___closed__2;
-x_2111 = x_2274;
-x_2112 = x_2208;
-goto block_2125;
-}
-else
-{
-lean_object* x_2275; 
-x_2275 = lean_ctor_get(x_2273, 0);
-lean_inc(x_2275);
-lean_dec_ref(x_2273);
-x_2111 = x_2275;
-x_2112 = x_2208;
+x_2273 = lean_ctor_get(x_2271, 0);
+lean_inc(x_2273);
+lean_dec_ref(x_2271);
+x_2111 = x_2273;
+x_2112 = x_2206;
 goto block_2125;
 }
 }
 else
 {
-lean_object* x_2276; lean_object* x_2277; lean_object* x_2278; lean_object* x_2279; lean_object* x_2280; 
-lean_dec(x_2208);
-x_2276 = l_Lean_Syntax_getArg(x_2269, x_2130);
-lean_dec(x_2269);
-x_2277 = l_Lean_Syntax_getArgs(x_2276);
-lean_dec(x_2276);
-x_2278 = lean_box(0);
+lean_object* x_2274; lean_object* x_2275; lean_object* x_2276; lean_object* x_2277; lean_object* x_2278; 
+lean_dec(x_2206);
+x_2274 = l_Lean_Syntax_getArg(x_2267, x_2103);
+lean_dec(x_2267);
+x_2275 = l_Lean_Syntax_getArgs(x_2274);
+lean_dec(x_2274);
+x_2276 = lean_box(0);
 if (lean_is_scalar(x_2110)) {
- x_2279 = lean_alloc_ctor(1, 1, 0);
+ x_2277 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_2279 = x_2110;
+ x_2277 = x_2110;
 }
-lean_ctor_set(x_2279, 0, x_2277);
-x_2280 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2268, x_1531, x_2278, x_2279);
-lean_dec_ref(x_2279);
-x_2126 = x_2280;
+lean_ctor_set(x_2277, 0, x_2275);
+x_2278 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2266, x_1529, x_2276, x_2277);
+lean_dec_ref(x_2277);
+x_2126 = x_2278;
 goto block_2129;
 }
 }
 else
 {
-lean_object* x_2281; lean_object* x_2282; lean_object* x_2283; 
-lean_dec(x_2269);
-lean_dec(x_2208);
+lean_object* x_2279; lean_object* x_2280; lean_object* x_2281; 
+lean_dec(x_2267);
+lean_dec(x_2206);
 lean_dec(x_2110);
-x_2281 = lean_box(0);
+x_2279 = lean_box(0);
+x_2280 = lean_box(0);
+x_2281 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2266, x_1529, x_2279, x_2280);
+x_2126 = x_2281;
+goto block_2129;
+}
+}
+}
+else
+{
+lean_object* x_2282; lean_object* x_2283; lean_object* x_2284; 
+lean_dec(x_2206);
 x_2282 = lean_box(0);
-x_2283 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__0(x_2268, x_1531, x_2281, x_2282);
-x_2126 = x_2283;
-goto block_2129;
-}
-}
-}
-else
-{
-lean_object* x_2284; lean_object* x_2285; lean_object* x_2286; 
-lean_dec(x_2208);
-x_2284 = lean_box(0);
 if (lean_is_scalar(x_2110)) {
- x_2285 = lean_alloc_ctor(1, 1, 0);
+ x_2283 = lean_alloc_ctor(1, 1, 0);
 } else {
- x_2285 = x_2110;
+ x_2283 = x_2110;
 }
-lean_ctor_set(x_2285, 0, x_2259);
-x_2286 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_1531, x_2131, x_1526, x_1527, x_1528, x_2130, x_2101, x_2284, x_2285);
-lean_dec_ref(x_2285);
-lean_dec(x_2131);
-x_2126 = x_2286;
+lean_ctor_set(x_2283, 0, x_2257);
+x_2284 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_1529, x_2104, x_1524, x_1525, x_1526, x_2103, x_2099, x_2282, x_2283);
+lean_dec_ref(x_2283);
+lean_dec(x_2104);
+x_2126 = x_2284;
 goto block_2129;
 }
 }
 }
 else
 {
-lean_object* x_2287; lean_object* x_2288; lean_object* x_2289; 
-lean_dec(x_2234);
-lean_dec(x_2208);
+lean_object* x_2285; lean_object* x_2286; lean_object* x_2287; 
+lean_dec(x_2232);
+lean_dec(x_2206);
 lean_dec(x_2110);
-x_2287 = lean_box(0);
-x_2288 = lean_box(0);
-x_2289 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_1531, x_2131, x_1526, x_1527, x_1528, x_2130, x_2101, x_2287, x_2288);
-lean_dec(x_2131);
-x_2126 = x_2289;
+x_2285 = lean_box(0);
+x_2286 = lean_box(0);
+x_2287 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lam__4(x_1529, x_2104, x_1524, x_1525, x_1526, x_2103, x_2099, x_2285, x_2286);
+lean_dec(x_2104);
+x_2126 = x_2287;
 goto block_2129;
 }
 }
@@ -19962,7 +19967,7 @@ goto block_2129;
 block_2125:
 {
 lean_object* x_2113; 
-x_2113 = l_Lean_Syntax_getRange_x3f(x_2112, x_2104);
+x_2113 = l_Lean_Syntax_getRange_x3f(x_2112, x_2102);
 lean_dec(x_2112);
 if (lean_obj_tag(x_2113) == 1)
 {
@@ -19997,7 +20002,7 @@ if (lean_is_scalar(x_2115)) {
 }
 lean_ctor_set(x_2121, 0, x_2120);
 x_2122 = lean_array_push(x_3, x_2121);
-x_2 = x_1517;
+x_2 = x_1515;
 x_3 = x_2122;
 goto _start;
 }
@@ -20006,7 +20011,7 @@ else
 lean_dec(x_2113);
 lean_dec_ref(x_2111);
 lean_dec(x_2109);
-x_2 = x_1517;
+x_2 = x_1515;
 goto _start;
 }
 }
@@ -20026,86 +20031,86 @@ goto block_2125;
 else
 {
 lean_dec(x_2108);
-lean_dec(x_2102);
+lean_dec(x_2104);
+lean_dec(x_2100);
+x_2 = x_1515;
+goto _start;
+}
+}
+}
+else
+{
+lean_object* x_2289; lean_object* x_2290; lean_object* x_2291; 
+lean_dec(x_2100);
+x_2289 = lean_unsigned_to_nat(2u);
+x_2290 = l_Lean_Syntax_getArg(x_1514, x_2289);
+x_2291 = l_Lean_Syntax_getOptional_x3f(x_2290);
+lean_dec(x_2290);
+if (lean_obj_tag(x_2291) == 0)
+{
+lean_object* x_2292; 
+x_2292 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__21;
+lean_inc(x_1514);
+x_1517 = x_2292;
+x_1518 = x_1514;
+goto block_1523;
+}
+else
+{
+lean_object* x_2293; lean_object* x_2294; lean_object* x_2295; 
+x_2293 = lean_ctor_get(x_2291, 0);
+lean_inc(x_2293);
+lean_dec_ref(x_2291);
+x_2294 = l_Lean_TSyntax_getId(x_2293);
+x_2295 = l_Lean_Name_componentsRev(x_2294);
+x_1517 = x_2295;
+x_1518 = x_2293;
+goto block_1523;
+}
+}
+}
+}
+else
+{
+lean_object* x_2296; lean_object* x_2297; lean_object* x_2298; lean_object* x_2299; lean_object* x_2300; lean_object* x_2301; lean_object* x_2302; 
 lean_dec(x_1516);
-x_2 = x_1517;
+x_2296 = lean_unsigned_to_nat(1u);
+x_2297 = l_Lean_Syntax_getArg(x_1514, x_2296);
+x_2298 = l_Lean_TSyntax_getId(x_2297);
+x_2299 = l_Lean_Name_componentsRev(x_2298);
+x_2300 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_2300, 0, x_2299);
+lean_ctor_set(x_2300, 1, x_1514);
+lean_ctor_set(x_2300, 2, x_2297);
+lean_ctor_set(x_2300, 3, x_3);
+x_2301 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__0;
+x_2302 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_2302, 0, x_2300);
+lean_ctor_set(x_2302, 1, x_4);
+x_2 = x_1515;
+x_3 = x_2301;
+x_4 = x_2302;
 goto _start;
 }
-}
-}
-else
+block_1523:
 {
-lean_object* x_2291; lean_object* x_2292; lean_object* x_2293; 
-lean_dec(x_2102);
-x_2291 = lean_unsigned_to_nat(2u);
-x_2292 = l_Lean_Syntax_getArg(x_1516, x_2291);
-x_2293 = l_Lean_Syntax_getOptional_x3f(x_2292);
-lean_dec(x_2292);
-if (lean_obj_tag(x_2293) == 0)
-{
-lean_object* x_2294; 
-x_2294 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__21;
-lean_inc(x_1516);
-x_1519 = x_2294;
-x_1520 = x_1516;
-goto block_1525;
-}
-else
-{
-lean_object* x_2295; lean_object* x_2296; lean_object* x_2297; 
-x_2295 = lean_ctor_get(x_2293, 0);
-lean_inc(x_2295);
-lean_dec_ref(x_2293);
-x_2296 = l_Lean_TSyntax_getId(x_2295);
-x_2297 = l_Lean_Name_componentsRev(x_2296);
-x_1519 = x_2297;
-x_1520 = x_2295;
-goto block_1525;
-}
-}
-}
-}
-else
-{
-lean_object* x_2298; lean_object* x_2299; lean_object* x_2300; lean_object* x_2301; lean_object* x_2302; lean_object* x_2303; lean_object* x_2304; 
-lean_dec(x_1518);
-x_2298 = lean_unsigned_to_nat(1u);
-x_2299 = l_Lean_Syntax_getArg(x_1516, x_2298);
-x_2300 = l_Lean_TSyntax_getId(x_2299);
-x_2301 = l_Lean_Name_componentsRev(x_2300);
-x_2302 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_2302, 0, x_2301);
-lean_ctor_set(x_2302, 1, x_1516);
-lean_ctor_set(x_2302, 2, x_2299);
-lean_ctor_set(x_2302, 3, x_3);
-x_2303 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__0;
-x_2304 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_2304, 0, x_2302);
-lean_ctor_set(x_2304, 1, x_4);
-x_2 = x_1517;
-x_3 = x_2303;
-x_4 = x_2304;
-goto _start;
-}
-block_1525:
-{
-lean_object* x_1521; lean_object* x_1522; lean_object* x_1523; 
-x_1521 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_1521, 0, x_1519);
-lean_ctor_set(x_1521, 1, x_1516);
-lean_ctor_set(x_1521, 2, x_1520);
-lean_ctor_set(x_1521, 3, x_3);
-x_1522 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__0;
-if (lean_is_scalar(x_1518)) {
- x_1523 = lean_alloc_ctor(1, 2, 0);
+lean_object* x_1519; lean_object* x_1520; lean_object* x_1521; 
+x_1519 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_1519, 0, x_1517);
+lean_ctor_set(x_1519, 1, x_1514);
+lean_ctor_set(x_1519, 2, x_1518);
+lean_ctor_set(x_1519, 3, x_3);
+x_1520 = l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__0;
+if (lean_is_scalar(x_1516)) {
+ x_1521 = lean_alloc_ctor(1, 2, 0);
 } else {
- x_1523 = x_1518;
+ x_1521 = x_1516;
 }
-lean_ctor_set(x_1523, 0, x_1521);
-lean_ctor_set(x_1523, 1, x_4);
-x_2 = x_1517;
-x_3 = x_1522;
-x_4 = x_1523;
+lean_ctor_set(x_1521, 0, x_1519);
+lean_ctor_set(x_1521, 1, x_4);
+x_2 = x_1515;
+x_3 = x_1520;
+x_4 = x_1521;
 goto _start;
 }
 }
@@ -20113,25 +20118,25 @@ goto _start;
 }
 else
 {
-uint8_t x_2306; 
+uint8_t x_2304; 
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
-x_2306 = !lean_is_exclusive(x_7);
-if (x_2306 == 0)
+x_2304 = !lean_is_exclusive(x_7);
+if (x_2304 == 0)
 {
 return x_7;
 }
 else
 {
-lean_object* x_2307; lean_object* x_2308; 
-x_2307 = lean_ctor_get(x_7, 0);
-lean_inc(x_2307);
+lean_object* x_2305; lean_object* x_2306; 
+x_2305 = lean_ctor_get(x_7, 0);
+lean_inc(x_2305);
 lean_dec(x_7);
-x_2308 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2308, 0, x_2307);
-return x_2308;
+x_2306 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2306, 0, x_2305);
+return x_2306;
 }
 }
 }

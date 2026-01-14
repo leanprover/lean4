@@ -1820,13 +1820,13 @@ goto block_13;
 block_13:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_8 = lean_unsigned_to_nat(0u);
-x_9 = lean_string_utf8_byte_size(x_5);
+x_8 = lean_string_utf8_byte_size(x_5);
+x_9 = lean_unsigned_to_nat(0u);
 lean_inc_ref(x_5);
 x_10 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_10, 0, x_5);
-lean_ctor_set(x_10, 1, x_8);
-lean_ctor_set(x_10, 2, x_9);
+lean_ctor_set(x_10, 1, x_9);
+lean_ctor_set(x_10, 2, x_8);
 x_11 = l_String_Slice_pos_x21(x_10, x_7);
 lean_dec(x_7);
 x_12 = l_String_Slice_Pos_nextn(x_10, x_11, x_4);

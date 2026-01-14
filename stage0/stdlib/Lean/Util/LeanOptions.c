@@ -172,6 +172,7 @@ static lean_object* l_Lean_instReprLeanOptions_repr___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_instFromJsonLeanOptionValue;
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_instReprLeanOption;
+LEAN_EXPORT lean_object* l_Lean_instOfNatLeanOptionValue(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instValueLeanOptionValue;
 LEAN_EXPORT lean_object* l_Lean_instFromJsonLeanOptions;
 LEAN_EXPORT lean_object* l_Lean_LeanOptionValue_ctorIdx___boxed(lean_object*);
@@ -900,6 +901,15 @@ _start:
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lean_instCoeNatLeanOptionValue___lam__0), 1, 0);
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_instOfNatLeanOptionValue(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_instFromJsonLeanOptionValue___lam__0___closed__0() {
@@ -2908,9 +2918,9 @@ goto block_52;
 block_44:
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; 
-x_41 = lean_nat_add(x_38, x_40);
+x_41 = lean_nat_add(x_39, x_40);
 lean_dec(x_40);
-lean_dec(x_38);
+lean_dec(x_39);
 if (lean_is_scalar(x_35)) {
  x_42 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -2929,7 +2939,7 @@ if (lean_is_scalar(x_25)) {
 lean_ctor_set(x_43, 0, x_37);
 lean_ctor_set(x_43, 1, x_28);
 lean_ctor_set(x_43, 2, x_29);
-lean_ctor_set(x_43, 3, x_39);
+lean_ctor_set(x_43, 3, x_38);
 lean_ctor_set(x_43, 4, x_42);
 return x_43;
 }
@@ -2955,8 +2965,8 @@ if (lean_obj_tag(x_31) == 0)
 lean_object* x_50; 
 x_50 = lean_ctor_get(x_31, 0);
 lean_inc(x_50);
-x_38 = x_49;
-x_39 = x_48;
+x_38 = x_48;
+x_39 = x_49;
 x_40 = x_50;
 goto block_44;
 }
@@ -2964,8 +2974,8 @@ else
 {
 lean_object* x_51; 
 x_51 = lean_unsigned_to_nat(0u);
-x_38 = x_49;
-x_39 = x_48;
+x_38 = x_48;
+x_39 = x_49;
 x_40 = x_51;
 goto block_44;
 }

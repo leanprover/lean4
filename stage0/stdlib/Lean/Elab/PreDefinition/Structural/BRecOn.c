@@ -7948,16 +7948,20 @@ return x_26;
 }
 block_38:
 {
-if (x_30 == 0)
-{
 double x_35; lean_object* x_36; 
 x_35 = l_Lean_addTrace___at___00__private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_toBelowAux_spec__1___closed__0;
+lean_inc_ref(x_5);
+lean_inc(x_1);
 x_36 = lean_alloc_ctor(0, 2, 17);
 lean_ctor_set(x_36, 0, x_1);
 lean_ctor_set(x_36, 1, x_5);
 lean_ctor_set_float(x_36, sizeof(void*)*2, x_35);
 lean_ctor_set_float(x_36, sizeof(void*)*2 + 8, x_35);
 lean_ctor_set_uint8(x_36, sizeof(void*)*2 + 16, x_4);
+if (x_30 == 0)
+{
+lean_dec_ref(x_5);
+lean_dec(x_1);
 x_13 = x_29;
 x_14 = x_33;
 x_15 = x_32;
@@ -7972,6 +7976,7 @@ goto block_27;
 else
 {
 lean_object* x_37; 
+lean_dec_ref(x_36);
 x_37 = lean_alloc_ctor(0, 2, 17);
 lean_ctor_set(x_37, 0, x_1);
 lean_ctor_set(x_37, 1, x_5);
@@ -8066,16 +8071,20 @@ return x_62;
 }
 block_74:
 {
-if (x_68 == 0)
-{
 double x_71; lean_object* x_72; 
 x_71 = l_Lean_addTrace___at___00__private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_toBelowAux_spec__1___closed__0;
+lean_inc_ref(x_5);
+lean_inc(x_1);
 x_72 = lean_alloc_ctor(0, 2, 17);
 lean_ctor_set(x_72, 0, x_1);
 lean_ctor_set(x_72, 1, x_5);
 lean_ctor_set_float(x_72, sizeof(void*)*2, x_71);
 lean_ctor_set_float(x_72, sizeof(void*)*2 + 8, x_71);
 lean_ctor_set_uint8(x_72, sizeof(void*)*2 + 16, x_4);
+if (x_68 == 0)
+{
+lean_dec_ref(x_5);
+lean_dec(x_1);
 x_49 = x_67;
 x_50 = x_66;
 x_51 = x_69;
@@ -8090,6 +8099,7 @@ goto block_63;
 else
 {
 lean_object* x_73; 
+lean_dec_ref(x_72);
 x_73 = lean_alloc_ctor(0, 2, 17);
 lean_ctor_set(x_73, 0, x_1);
 lean_ctor_set(x_73, 1, x_5);
@@ -11832,13 +11842,13 @@ x_95 = lean_ctor_get(x_91, 2);
 lean_inc(x_95);
 x_96 = lean_ctor_get(x_91, 4);
 lean_inc(x_96);
-x_97 = l___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_toBelowAux___lam__1___closed__0;
-x_98 = l_Lean_Expr_getAppNumArgs(x_1);
-lean_inc(x_98);
-x_99 = lean_mk_array(x_98, x_97);
+x_97 = l_Lean_Expr_getAppNumArgs(x_1);
+x_98 = l___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_toBelowAux___lam__1___closed__0;
+lean_inc(x_97);
+x_99 = lean_mk_array(x_97, x_98);
 x_100 = lean_unsigned_to_nat(1u);
-x_101 = lean_nat_sub(x_98, x_100);
-lean_dec(x_98);
+x_101 = lean_nat_sub(x_97, x_100);
+lean_dec(x_97);
 x_102 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_1, x_99, x_101);
 x_103 = lean_nat_add(x_94, x_100);
 x_104 = lean_nat_add(x_103, x_95);
@@ -12103,13 +12113,13 @@ x_171 = lean_ctor_get(x_167, 2);
 lean_inc(x_171);
 x_172 = lean_ctor_get(x_167, 4);
 lean_inc(x_172);
-x_173 = l___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_toBelowAux___lam__1___closed__0;
-x_174 = l_Lean_Expr_getAppNumArgs(x_1);
-lean_inc(x_174);
-x_175 = lean_mk_array(x_174, x_173);
+x_173 = l_Lean_Expr_getAppNumArgs(x_1);
+x_174 = l___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_toBelowAux___lam__1___closed__0;
+lean_inc(x_173);
+x_175 = lean_mk_array(x_173, x_174);
 x_176 = lean_unsigned_to_nat(1u);
-x_177 = lean_nat_sub(x_174, x_176);
-lean_dec(x_174);
+x_177 = lean_nat_sub(x_173, x_176);
+lean_dec(x_173);
 x_178 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_1, x_175, x_177);
 x_179 = lean_nat_add(x_170, x_176);
 x_180 = lean_nat_add(x_179, x_171);
@@ -12527,13 +12537,13 @@ x_281 = lean_ctor_get(x_277, 2);
 lean_inc(x_281);
 x_282 = lean_ctor_get(x_277, 4);
 lean_inc(x_282);
-x_283 = l___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_toBelowAux___lam__1___closed__0;
-x_284 = l_Lean_Expr_getAppNumArgs(x_1);
-lean_inc(x_284);
-x_285 = lean_mk_array(x_284, x_283);
+x_283 = l_Lean_Expr_getAppNumArgs(x_1);
+x_284 = l___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_toBelowAux___lam__1___closed__0;
+lean_inc(x_283);
+x_285 = lean_mk_array(x_283, x_284);
 x_286 = lean_unsigned_to_nat(1u);
-x_287 = lean_nat_sub(x_284, x_286);
-lean_dec(x_284);
+x_287 = lean_nat_sub(x_283, x_286);
+lean_dec(x_283);
 x_288 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_1, x_285, x_287);
 x_289 = lean_nat_add(x_280, x_286);
 x_290 = lean_nat_add(x_289, x_281);

@@ -306,7 +306,6 @@ lean_object* l_ExceptT_bind(lean_object*, lean_object*, lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_Widget_RpcEncodablePacket_trace_00___x40_Lean_Widget_InteractiveDiagnostic_1765450820____hygCtx___hyg_1__elim___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instFromJsonRpcEncodablePacket_fromJson___lam__1___closed__11_00___x40_Lean_Widget_InteractiveDiagnostic_2315129857____hygCtx___hyg_91_;
 static lean_object* l_Lean_Widget_instInhabitedMsgEmbed_default___closed__0;
-lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instFromJsonRpcEncodablePacket_fromJson___closed__6_00___x40_Lean_Widget_InteractiveDiagnostic_3833933514____hygCtx___hyg_105_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_msgToInteractive_fmtToTT_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_msgToInteractive_fmtToTT_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3693,59 +3692,54 @@ return x_14;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_15 = lean_ctor_get(x_9, 0);
 lean_inc(x_15);
 lean_dec_ref(x_9);
+x_16 = lean_unsigned_to_nat(0u);
 lean_inc(x_4);
-x_16 = lean_array_get_borrowed(x_4, x_15, x_5);
-lean_inc(x_16);
-x_17 = l_Lean_Widget_instFromJsonTaggedText_fromJson___at___00Lean_Widget_instRpcEncodableMsgEmbed_dec_00___x40_Lean_Widget_InteractiveDiagnostic_1765450820____hygCtx___hyg_1__spec__4(x_16);
-if (lean_obj_tag(x_17) == 0)
-{
-lean_object* x_18; 
+x_17 = lean_array_get(x_4, x_15, x_16);
+x_18 = lean_array_get(x_4, x_15, x_5);
 lean_dec(x_15);
-lean_dec(x_4);
-x_18 = l_Except_orElseLazy___redArg(x_17, x_3);
-lean_dec_ref(x_17);
-return x_18;
+x_19 = l_Lean_Widget_instFromJsonTaggedText_fromJson___at___00Lean_Widget_instRpcEncodableMsgEmbed_dec_00___x40_Lean_Widget_InteractiveDiagnostic_1765450820____hygCtx___hyg_1__spec__4(x_18);
+if (lean_obj_tag(x_19) == 0)
+{
+lean_object* x_20; 
+lean_dec(x_17);
+x_20 = l_Except_orElseLazy___redArg(x_19, x_3);
+lean_dec_ref(x_19);
+return x_20;
 }
 else
 {
-uint8_t x_19; 
-x_19 = !lean_is_exclusive(x_17);
-if (x_19 == 0)
+uint8_t x_21; 
+x_21 = !lean_is_exclusive(x_19);
+if (x_21 == 0)
 {
-lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_20 = lean_ctor_get(x_17, 0);
-x_21 = lean_unsigned_to_nat(0u);
-x_22 = lean_array_get(x_4, x_15, x_21);
-lean_dec(x_15);
+lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+x_22 = lean_ctor_get(x_19, 0);
 x_23 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_23, 0, x_22);
-lean_ctor_set(x_23, 1, x_20);
-lean_ctor_set(x_17, 0, x_23);
-x_24 = l_Except_orElseLazy___redArg(x_17, x_3);
-lean_dec_ref(x_17);
+lean_ctor_set(x_23, 0, x_17);
+lean_ctor_set(x_23, 1, x_22);
+lean_ctor_set(x_19, 0, x_23);
+x_24 = l_Except_orElseLazy___redArg(x_19, x_3);
+lean_dec_ref(x_19);
 return x_24;
 }
 else
 {
-lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
-x_25 = lean_ctor_get(x_17, 0);
+lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
+x_25 = lean_ctor_get(x_19, 0);
 lean_inc(x_25);
-lean_dec(x_17);
-x_26 = lean_unsigned_to_nat(0u);
-x_27 = lean_array_get(x_4, x_15, x_26);
-lean_dec(x_15);
-x_28 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_28, 0, x_27);
-lean_ctor_set(x_28, 1, x_25);
-x_29 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_29, 0, x_28);
-x_30 = l_Except_orElseLazy___redArg(x_29, x_3);
-lean_dec_ref(x_29);
-return x_30;
+lean_dec(x_19);
+x_26 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_26, 0, x_17);
+lean_ctor_set(x_26, 1, x_25);
+x_27 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_27, 0, x_26);
+x_28 = l_Except_orElseLazy___redArg(x_27, x_3);
+lean_dec_ref(x_27);
+return x_28;
 }
 }
 }

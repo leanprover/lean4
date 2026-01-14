@@ -3241,40 +3241,40 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lake_Package_loadFromEnv___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; 
+uint8_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_8 = 0;
+lean_inc(x_5);
+x_9 = l_Lean_Name_toString(x_5, x_8);
 lean_inc(x_5);
 lean_inc_ref(x_1);
-x_8 = l___private_Lake_Load_Lean_Eval_0__Lake_unsafeEvalConstCheck___redArg(x_1, x_2, x_3, x_5);
-x_9 = l_IO_ofExcept___at___00Lake_Package_loadFromEnv_spec__2___redArg(x_8);
-if (lean_obj_tag(x_9) == 0)
+x_10 = l___private_Lake_Load_Lean_Eval_0__Lake_unsafeEvalConstCheck___redArg(x_1, x_2, x_3, x_5);
+x_11 = l_IO_ofExcept___at___00Lake_Package_loadFromEnv_spec__2___redArg(x_10);
+if (lean_obj_tag(x_11) == 0)
 {
-lean_object* x_10; uint8_t x_11; lean_object* x_12; 
-x_10 = lean_ctor_get(x_9, 0);
-lean_inc(x_10);
-lean_dec_ref(x_9);
-x_11 = 1;
-lean_inc(x_5);
-x_12 = l_Lean_findDocString_x3f(x_1, x_5, x_11);
-if (lean_obj_tag(x_12) == 0)
+lean_object* x_12; uint8_t x_13; lean_object* x_14; 
+x_12 = lean_ctor_get(x_11, 0);
+lean_inc(x_12);
+lean_dec_ref(x_11);
+x_13 = 1;
+x_14 = l_Lean_findDocString_x3f(x_1, x_5, x_13);
+if (lean_obj_tag(x_14) == 0)
 {
-lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_13 = lean_ctor_get(x_12, 0);
-lean_inc(x_13);
-lean_dec_ref(x_12);
-x_14 = lean_ctor_get(x_4, 1);
-lean_inc(x_14);
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+x_15 = lean_ctor_get(x_14, 0);
+lean_inc(x_15);
+lean_dec_ref(x_14);
+x_16 = lean_ctor_get(x_4, 1);
+lean_inc(x_16);
 lean_dec_ref(x_4);
-x_15 = 0;
-x_16 = l_Lean_Name_toString(x_14, x_15);
-x_17 = l_Lake_Package_loadFromEnv___lam__1___closed__0;
-x_18 = lean_string_append(x_16, x_17);
-x_19 = l_Lean_Name_toString(x_5, x_15);
-x_20 = lean_string_append(x_18, x_19);
-lean_dec_ref(x_19);
+x_17 = l_Lean_Name_toString(x_16, x_8);
+x_18 = l_Lake_Package_loadFromEnv___lam__1___closed__0;
+x_19 = lean_string_append(x_17, x_18);
+x_20 = lean_string_append(x_19, x_9);
+lean_dec_ref(x_9);
 x_21 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_21, 0, x_20);
-lean_ctor_set(x_21, 1, x_10);
-lean_ctor_set(x_21, 2, x_13);
+lean_ctor_set(x_21, 1, x_12);
+lean_ctor_set(x_21, 2, x_15);
 x_22 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_22, 0, x_21);
 lean_ctor_set(x_22, 1, x_6);
@@ -3283,12 +3283,12 @@ return x_22;
 else
 {
 lean_object* x_23; lean_object* x_24; uint8_t x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
-lean_dec(x_10);
-lean_dec(x_5);
+lean_dec(x_12);
+lean_dec_ref(x_9);
 lean_dec_ref(x_4);
-x_23 = lean_ctor_get(x_12, 0);
+x_23 = lean_ctor_get(x_14, 0);
 lean_inc(x_23);
-lean_dec_ref(x_12);
+lean_dec_ref(x_14);
 x_24 = lean_io_error_to_string(x_23);
 x_25 = 3;
 x_26 = lean_alloc_ctor(0, 1, 1);
@@ -3305,12 +3305,13 @@ return x_29;
 else
 {
 lean_object* x_30; lean_object* x_31; uint8_t x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
+lean_dec_ref(x_9);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_1);
-x_30 = lean_ctor_get(x_9, 0);
+x_30 = lean_ctor_get(x_11, 0);
 lean_inc(x_30);
-lean_dec_ref(x_9);
+lean_dec_ref(x_11);
 x_31 = lean_io_error_to_string(x_30);
 x_32 = 3;
 x_33 = lean_alloc_ctor(0, 1, 1);

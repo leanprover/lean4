@@ -1969,8 +1969,8 @@ if (lean_obj_tag(x_74) == 0)
 {
 lean_dec(x_68);
 x_13 = x_72;
-x_14 = x_73;
-x_15 = lean_box(0);
+x_14 = lean_box(0);
+x_15 = x_73;
 x_16 = x_58;
 goto block_22;
 }
@@ -1988,12 +1988,12 @@ x_76 = l_Lean_LocalDecl_setUserName(x_75, x_68);
 x_77 = lean_ctor_get(x_76, 1);
 lean_inc(x_77);
 x_35 = x_72;
-x_36 = x_73;
-x_37 = x_71;
+x_36 = x_69;
+x_37 = lean_box(0);
 x_38 = x_70;
-x_39 = lean_box(0);
-x_40 = x_76;
-x_41 = x_69;
+x_39 = x_76;
+x_40 = x_71;
+x_41 = x_73;
 x_42 = x_77;
 goto block_45;
 }
@@ -2071,7 +2071,7 @@ block_22:
 {
 lean_object* x_17; lean_object* x_18; size_t x_19; size_t x_20; 
 x_17 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_17, 0, x_14);
+lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_13);
 x_18 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_18, 0, x_16);
@@ -2086,33 +2086,33 @@ block_34:
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 x_31 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_31, 0, x_29);
-x_32 = l_Lean_PersistentArray_set___redArg(x_28, x_30, x_31);
+lean_ctor_set(x_31, 0, x_27);
+x_32 = l_Lean_PersistentArray_set___redArg(x_26, x_30, x_31);
 lean_dec(x_30);
 x_33 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_33, 0, x_23);
+lean_ctor_set(x_33, 0, x_24);
 lean_ctor_set(x_33, 1, x_32);
-lean_ctor_set(x_33, 2, x_26);
-x_13 = x_25;
-x_14 = x_24;
-x_15 = lean_box(0);
+lean_ctor_set(x_33, 2, x_28);
+x_13 = x_23;
+x_14 = lean_box(0);
+x_15 = x_29;
 x_16 = x_33;
 goto block_22;
 }
 block_45:
 {
 lean_object* x_43; lean_object* x_44; 
-lean_inc_ref(x_40);
-x_43 = l_Lean_PersistentHashMap_insert___at___00__private_Lean_Meta_Tactic_ExposeNames_0__Lean_Meta_getLCtxWithExposedNames_spec__5___redArg(x_41, x_42, x_40);
-x_44 = lean_ctor_get(x_40, 0);
+lean_inc_ref(x_39);
+x_43 = l_Lean_PersistentHashMap_insert___at___00__private_Lean_Meta_Tactic_ExposeNames_0__Lean_Meta_getLCtxWithExposedNames_spec__5___redArg(x_36, x_42, x_39);
+x_44 = lean_ctor_get(x_39, 0);
 lean_inc(x_44);
-x_23 = x_43;
-x_24 = x_36;
-x_25 = x_35;
-x_26 = x_37;
-x_27 = lean_box(0);
-x_28 = x_38;
-x_29 = x_40;
+x_23 = x_35;
+x_24 = x_43;
+x_25 = lean_box(0);
+x_26 = x_38;
+x_27 = x_39;
+x_28 = x_40;
+x_29 = x_41;
 x_30 = x_44;
 goto block_34;
 }

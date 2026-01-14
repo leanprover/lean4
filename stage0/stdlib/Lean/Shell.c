@@ -2970,13 +2970,13 @@ x_11 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_11, 0, x_2);
 lean_ctor_set(x_11, 1, x_10);
 lean_ctor_set(x_11, 2, x_4);
-x_12 = l_String_Slice_toName(x_11);
-lean_dec_ref(x_11);
-x_13 = lean_string_utf8_next_fast(x_2, x_4);
+x_12 = lean_string_utf8_next_fast(x_2, x_4);
 lean_dec(x_4);
-x_14 = lean_string_utf8_extract(x_2, x_13, x_5);
+x_13 = l_String_Slice_toName(x_11);
+lean_dec_ref(x_11);
+x_14 = lean_string_utf8_extract(x_2, x_12, x_5);
 lean_dec_ref(x_2);
-x_15 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(x_9, x_12);
+x_15 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(x_9, x_13);
 lean_dec(x_9);
 if (lean_obj_tag(x_15) == 1)
 {
@@ -2985,7 +2985,7 @@ lean_free_object(x_7);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 lean_dec_ref(x_15);
-x_17 = l_Lean_Language_Lean_setOption(x_1, x_16, x_12, x_14);
+x_17 = l_Lean_Language_Lean_setOption(x_1, x_16, x_13, x_14);
 return x_17;
 }
 else
@@ -2994,7 +2994,7 @@ lean_object* x_18; lean_object* x_19;
 lean_dec(x_15);
 x_18 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_18, 0, x_14);
-x_19 = l_Lean_KVMap_insert(x_1, x_12, x_18);
+x_19 = l_Lean_KVMap_insert(x_1, x_13, x_18);
 lean_ctor_set(x_7, 0, x_19);
 return x_7;
 }
@@ -3012,13 +3012,13 @@ x_22 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_22, 0, x_2);
 lean_ctor_set(x_22, 1, x_21);
 lean_ctor_set(x_22, 2, x_4);
-x_23 = l_String_Slice_toName(x_22);
-lean_dec_ref(x_22);
-x_24 = lean_string_utf8_next_fast(x_2, x_4);
+x_23 = lean_string_utf8_next_fast(x_2, x_4);
 lean_dec(x_4);
-x_25 = lean_string_utf8_extract(x_2, x_24, x_5);
+x_24 = l_String_Slice_toName(x_22);
+lean_dec_ref(x_22);
+x_25 = lean_string_utf8_extract(x_2, x_23, x_5);
 lean_dec_ref(x_2);
-x_26 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(x_20, x_23);
+x_26 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(x_20, x_24);
 lean_dec(x_20);
 if (lean_obj_tag(x_26) == 1)
 {
@@ -3026,7 +3026,7 @@ lean_object* x_27; lean_object* x_28;
 x_27 = lean_ctor_get(x_26, 0);
 lean_inc(x_27);
 lean_dec_ref(x_26);
-x_28 = l_Lean_Language_Lean_setOption(x_1, x_27, x_23, x_25);
+x_28 = l_Lean_Language_Lean_setOption(x_1, x_27, x_24, x_25);
 return x_28;
 }
 else
@@ -3035,7 +3035,7 @@ lean_object* x_29; lean_object* x_30; lean_object* x_31;
 lean_dec(x_26);
 x_29 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_29, 0, x_25);
-x_30 = l_Lean_KVMap_insert(x_1, x_23, x_29);
+x_30 = l_Lean_KVMap_insert(x_1, x_24, x_29);
 x_31 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_31, 0, x_30);
 return x_31;

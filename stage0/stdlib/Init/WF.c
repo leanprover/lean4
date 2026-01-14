@@ -158,7 +158,7 @@ return x_3;
 LEAN_EXPORT uint8_t l_Prod_Lex_instDecidableRelOfDecidableEq___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_6 = lean_ctor_get(x_4, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_4, 1);
@@ -171,20 +171,20 @@ lean_inc(x_9);
 lean_dec_ref(x_5);
 lean_inc(x_8);
 lean_inc(x_6);
-x_10 = lean_apply_2(x_2, x_6, x_8);
-x_11 = lean_unbox(x_10);
-if (x_11 == 0)
+x_10 = lean_apply_2(x_1, x_6, x_8);
+x_11 = lean_apply_2(x_2, x_6, x_8);
+x_12 = lean_unbox(x_11);
+if (x_12 == 0)
 {
-lean_object* x_12; uint8_t x_13; 
-x_12 = lean_apply_2(x_1, x_6, x_8);
-x_13 = lean_unbox(x_12);
+uint8_t x_13; 
+x_13 = lean_unbox(x_10);
 if (x_13 == 0)
 {
 uint8_t x_14; 
 lean_dec(x_9);
 lean_dec(x_7);
 lean_dec_ref(x_3);
-x_14 = lean_unbox(x_12);
+x_14 = lean_unbox(x_10);
 return x_14;
 }
 else
@@ -199,12 +199,9 @@ else
 {
 uint8_t x_17; 
 lean_dec(x_9);
-lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
 lean_dec_ref(x_3);
-lean_dec_ref(x_1);
-x_17 = lean_unbox(x_10);
+x_17 = lean_unbox(x_11);
 return x_17;
 }
 }

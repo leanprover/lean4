@@ -4929,14 +4929,44 @@ goto _start;
 }
 else
 {
-lean_object* x_27; uint8_t x_28; 
-lean_inc_ref(x_24);
-x_27 = l_Lean_Expr_appFnCleanup___redArg(x_24);
-x_28 = l_Lean_Expr_isApp(x_27);
-if (x_28 == 0)
+lean_object* x_27; lean_object* x_28; uint8_t x_29; 
+x_27 = lean_ctor_get(x_24, 1);
+lean_inc_ref(x_27);
+x_28 = l_Lean_Expr_appFnCleanup___redArg(x_24);
+x_29 = l_Lean_Expr_isApp(x_28);
+if (x_29 == 0)
+{
+lean_dec_ref(x_28);
+lean_dec_ref(x_27);
+lean_dec(x_22);
+lean_dec(x_21);
+x_1 = x_16;
+goto _start;
+}
+else
+{
+lean_object* x_31; uint8_t x_32; 
+x_31 = l_Lean_Expr_appFnCleanup___redArg(x_28);
+x_32 = l_Lean_Expr_isApp(x_31);
+if (x_32 == 0)
+{
+lean_dec_ref(x_31);
+lean_dec_ref(x_27);
+lean_dec(x_22);
+lean_dec(x_21);
+x_1 = x_16;
+goto _start;
+}
+else
+{
+lean_object* x_34; lean_object* x_35; uint8_t x_36; 
+x_34 = l_Lean_Expr_appFnCleanup___redArg(x_31);
+x_35 = l_Lean_Grind_CommRing_Mon_findInvNumeralVar_x3f___closed__2;
+x_36 = l_Lean_Expr_isConstOf(x_34, x_35);
+lean_dec_ref(x_34);
+if (x_36 == 0)
 {
 lean_dec_ref(x_27);
-lean_dec_ref(x_24);
 lean_dec(x_22);
 lean_dec(x_21);
 x_1 = x_16;
@@ -4944,40 +4974,8 @@ goto _start;
 }
 else
 {
-lean_object* x_30; uint8_t x_31; 
-x_30 = l_Lean_Expr_appFnCleanup___redArg(x_27);
-x_31 = l_Lean_Expr_isApp(x_30);
-if (x_31 == 0)
-{
-lean_dec_ref(x_30);
-lean_dec_ref(x_24);
-lean_dec(x_22);
-lean_dec(x_21);
-x_1 = x_16;
-goto _start;
-}
-else
-{
-lean_object* x_33; lean_object* x_34; uint8_t x_35; 
-x_33 = l_Lean_Expr_appFnCleanup___redArg(x_30);
-x_34 = l_Lean_Grind_CommRing_Mon_findInvNumeralVar_x3f___closed__2;
-x_35 = l_Lean_Expr_isConstOf(x_33, x_34);
-lean_dec_ref(x_33);
-if (x_35 == 0)
-{
-lean_dec_ref(x_24);
-lean_dec(x_22);
-lean_dec(x_21);
-x_1 = x_16;
-goto _start;
-}
-else
-{
-lean_object* x_37; lean_object* x_38; uint8_t x_39; 
-x_37 = lean_ctor_get(x_24, 1);
-lean_inc_ref(x_37);
-lean_dec_ref(x_24);
-x_38 = l_Lean_Expr_cleanupAnnotations(x_37);
+lean_object* x_38; uint8_t x_39; 
+x_38 = l_Lean_Expr_cleanupAnnotations(x_27);
 x_39 = l_Lean_Expr_isApp(x_38);
 if (x_39 == 0)
 {
@@ -5002,14 +5000,30 @@ goto _start;
 }
 else
 {
-lean_object* x_44; uint8_t x_45; 
-lean_inc_ref(x_41);
-x_44 = l_Lean_Expr_appFnCleanup___redArg(x_41);
-x_45 = l_Lean_Expr_isApp(x_44);
-if (x_45 == 0)
+lean_object* x_44; lean_object* x_45; uint8_t x_46; 
+x_44 = lean_ctor_get(x_41, 1);
+lean_inc_ref(x_44);
+x_45 = l_Lean_Expr_appFnCleanup___redArg(x_41);
+x_46 = l_Lean_Expr_isApp(x_45);
+if (x_46 == 0)
+{
+lean_dec_ref(x_45);
+lean_dec_ref(x_44);
+lean_dec(x_22);
+lean_dec(x_21);
+x_1 = x_16;
+goto _start;
+}
+else
+{
+lean_object* x_48; lean_object* x_49; uint8_t x_50; 
+x_48 = l_Lean_Expr_appFnCleanup___redArg(x_45);
+x_49 = l_Lean_Grind_CommRing_Mon_findInvNumeralVar_x3f___closed__5;
+x_50 = l_Lean_Expr_isConstOf(x_48, x_49);
+lean_dec_ref(x_48);
+if (x_50 == 0)
 {
 lean_dec_ref(x_44);
-lean_dec_ref(x_41);
 lean_dec(x_22);
 lean_dec(x_21);
 x_1 = x_16;
@@ -5017,31 +5031,13 @@ goto _start;
 }
 else
 {
-lean_object* x_47; lean_object* x_48; uint8_t x_49; 
-x_47 = l_Lean_Expr_appFnCleanup___redArg(x_44);
-x_48 = l_Lean_Grind_CommRing_Mon_findInvNumeralVar_x3f___closed__5;
-x_49 = l_Lean_Expr_isConstOf(x_47, x_48);
-lean_dec_ref(x_47);
-if (x_49 == 0)
-{
-lean_dec_ref(x_41);
-lean_dec(x_22);
-lean_dec(x_21);
-x_1 = x_16;
-goto _start;
-}
-else
-{
-lean_object* x_51; lean_object* x_52; 
-x_51 = lean_ctor_get(x_41, 1);
-lean_inc_ref(x_51);
-lean_dec_ref(x_41);
+lean_object* x_52; 
 lean_inc(x_11);
 lean_inc_ref(x_10);
 lean_inc(x_9);
 lean_inc_ref(x_8);
-x_52 = l_Lean_Meta_getNatValue_x3f(x_51, x_8, x_9, x_10, x_11);
-lean_dec_ref(x_51);
+x_52 = l_Lean_Meta_getNatValue_x3f(x_44, x_8, x_9, x_10, x_11);
+lean_dec_ref(x_44);
 if (lean_obj_tag(x_52) == 0)
 {
 uint8_t x_53; 

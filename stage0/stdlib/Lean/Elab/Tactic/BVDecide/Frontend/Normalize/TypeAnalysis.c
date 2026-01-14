@@ -2476,13 +2476,13 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_10 = l_Lean_instInhabitedExpr;
-x_11 = lean_unsigned_to_nat(0u);
-x_12 = lean_mk_empty_array_with_capacity(x_3);
+x_11 = lean_mk_empty_array_with_capacity(x_3);
+x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_box(0);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_12);
-x_15 = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_TypeAnalysis_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_isSupportedMatch_trySimpleEnum_spec__1___redArg(x_3, x_10, x_2, x_4, x_13, x_11, x_14, x_5, x_6, x_7, x_8);
+lean_ctor_set(x_14, 1, x_11);
+x_15 = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_TypeAnalysis_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_isSupportedMatch_trySimpleEnum_spec__1___redArg(x_3, x_10, x_2, x_4, x_13, x_12, x_14, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_15) == 0)
 {
 uint8_t x_16; 

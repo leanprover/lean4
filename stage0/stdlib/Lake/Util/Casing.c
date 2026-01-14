@@ -109,24 +109,24 @@ lean_inc_ref(x_1);
 x_39 = l_String_Slice_slice_x21(x_1, x_28, x_29);
 lean_dec(x_29);
 lean_dec(x_28);
-x_40 = lean_ctor_get(x_39, 0);
-lean_inc_ref(x_40);
-x_41 = lean_ctor_get(x_39, 1);
-lean_inc(x_41);
-x_42 = lean_ctor_get(x_39, 2);
-lean_inc(x_42);
-lean_dec_ref(x_39);
 if (lean_is_scalar(x_30)) {
- x_43 = lean_alloc_ctor(0, 2, 0);
+ x_40 = lean_alloc_ctor(0, 2, 0);
 } else {
- x_43 = x_30;
+ x_40 = x_30;
 }
-lean_ctor_set(x_43, 0, x_35);
-lean_ctor_set(x_43, 1, x_35);
-x_11 = x_43;
-x_12 = x_40;
-x_13 = x_41;
-x_14 = x_42;
+lean_ctor_set(x_40, 0, x_35);
+lean_ctor_set(x_40, 1, x_35);
+x_41 = lean_ctor_get(x_39, 0);
+lean_inc_ref(x_41);
+x_42 = lean_ctor_get(x_39, 1);
+lean_inc(x_42);
+x_43 = lean_ctor_get(x_39, 2);
+lean_inc(x_43);
+lean_dec_ref(x_39);
+x_11 = x_40;
+x_12 = x_41;
+x_13 = x_42;
+x_14 = x_43;
 goto block_27;
 }
 }

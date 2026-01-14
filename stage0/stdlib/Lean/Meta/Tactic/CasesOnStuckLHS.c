@@ -140,13 +140,13 @@ if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 x_20 = lean_ctor_get(x_18, 0);
-x_21 = l___private_Lean_Meta_Tactic_CasesOnStuckLHS_0__Lean_Meta_casesOnStuckLHS_findFVar_x3f___closed__0;
-x_22 = l_Lean_Expr_getAppNumArgs(x_1);
-lean_inc(x_22);
-x_23 = lean_mk_array(x_22, x_21);
+x_21 = l_Lean_Expr_getAppNumArgs(x_1);
+x_22 = l___private_Lean_Meta_Tactic_CasesOnStuckLHS_0__Lean_Meta_casesOnStuckLHS_findFVar_x3f___closed__0;
+lean_inc(x_21);
+x_23 = lean_mk_array(x_21, x_22);
 x_24 = lean_unsigned_to_nat(1u);
-x_25 = lean_nat_sub(x_22, x_24);
-lean_dec(x_22);
+x_25 = lean_nat_sub(x_21, x_24);
+lean_dec(x_21);
 x_26 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_1, x_23, x_25);
 if (lean_obj_tag(x_20) == 0)
 {
@@ -352,13 +352,13 @@ lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean
 x_66 = lean_ctor_get(x_18, 0);
 lean_inc(x_66);
 lean_dec(x_18);
-x_67 = l___private_Lean_Meta_Tactic_CasesOnStuckLHS_0__Lean_Meta_casesOnStuckLHS_findFVar_x3f___closed__0;
-x_68 = l_Lean_Expr_getAppNumArgs(x_1);
-lean_inc(x_68);
-x_69 = lean_mk_array(x_68, x_67);
+x_67 = l_Lean_Expr_getAppNumArgs(x_1);
+x_68 = l___private_Lean_Meta_Tactic_CasesOnStuckLHS_0__Lean_Meta_casesOnStuckLHS_findFVar_x3f___closed__0;
+lean_inc(x_67);
+x_69 = lean_mk_array(x_67, x_68);
 x_70 = lean_unsigned_to_nat(1u);
-x_71 = lean_nat_sub(x_68, x_70);
-lean_dec(x_68);
+x_71 = lean_nat_sub(x_67, x_70);
+lean_dec(x_67);
 x_72 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_1, x_69, x_71);
 if (lean_obj_tag(x_66) == 0)
 {

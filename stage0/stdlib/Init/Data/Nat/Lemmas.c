@@ -271,23 +271,23 @@ return x_5;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_2, x_6);
 lean_inc_ref(x_1);
-x_8 = l_Nat_decidableExistsLT___redArg(x_1, x_7);
-if (x_8 == 0)
+lean_inc(x_7);
+x_8 = lean_apply_1(x_1, x_7);
+x_9 = l_Nat_decidableExistsLT___redArg(x_1, x_7);
+lean_dec(x_7);
+if (x_9 == 0)
 {
-lean_object* x_9; uint8_t x_10; 
-x_9 = lean_apply_1(x_1, x_7);
-x_10 = lean_unbox(x_9);
+uint8_t x_10; 
+x_10 = lean_unbox(x_8);
 return x_10;
 }
 else
 {
-lean_dec(x_7);
-lean_dec_ref(x_1);
-return x_8;
+return x_9;
 }
 }
 }

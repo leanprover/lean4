@@ -22152,17 +22152,17 @@ return x_182;
 block_53:
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; uint8_t x_38; lean_object* x_39; lean_object* x_40; uint8_t x_41; 
-x_31 = l_Lean_isTracingEnabledFor___at___00Lean_Meta_Grind_Arith_Linear_DiseqCnstr_split_spec__1___redArg(x_14, x_15);
-x_32 = lean_ctor_get(x_31, 0);
-lean_inc(x_32);
-lean_dec_ref(x_31);
-x_33 = lean_ctor_get(x_17, 0);
+x_31 = lean_ctor_get(x_17, 0);
+x_32 = l_Lean_isTracingEnabledFor___at___00Lean_Meta_Grind_Arith_Linear_DiseqCnstr_split_spec__1___redArg(x_14, x_15);
+x_33 = lean_ctor_get(x_32, 0);
+lean_inc(x_33);
+lean_dec_ref(x_32);
 x_34 = lean_mk_empty_array_with_capacity(x_30);
 lean_dec(x_30);
 x_35 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_Meta_Grind_Arith_Linear_resolveConflict_spec__1_spec__1(x_34, x_21);
 x_36 = l_Lean_Meta_Grind_Arith_Linear_resolveLowerDiseqConflict___closed__0;
-lean_inc(x_33);
-x_37 = l_Lean_Grind_Linarith_Poly_mul(x_33, x_36);
+lean_inc(x_31);
+x_37 = l_Lean_Grind_Linarith_Poly_mul(x_31, x_36);
 x_38 = 1;
 x_39 = lean_alloc_ctor(8, 4, 0);
 lean_ctor_set(x_39, 0, x_17);
@@ -22173,8 +22173,8 @@ x_40 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_40, 0, x_37);
 lean_ctor_set(x_40, 1, x_39);
 lean_ctor_set_uint8(x_40, sizeof(void*)*2, x_38);
-x_41 = lean_unbox(x_32);
-lean_dec(x_32);
+x_41 = lean_unbox(x_33);
+lean_dec(x_33);
 if (x_41 == 0)
 {
 lean_object* x_42; 

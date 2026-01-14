@@ -165,7 +165,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandElaboratingSnapshot_go(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 x_2 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_2);
 x_3 = lean_ctor_get(x_1, 2);
@@ -190,14 +190,14 @@ lean_inc(x_11);
 x_12 = lean_ctor_get(x_4, 1);
 lean_inc(x_12);
 x_13 = lean_alloc_closure((void*)(l_Lean_Language_Lean_instToSnapshotTreeCommandElaboratingSnapshot_go___lam__0___boxed), 1, 0);
-x_14 = l_Lean_Language_Lean_instToSnapshotTreeCommandElaboratingSnapshot_go___closed__0;
-x_15 = lean_alloc_closure((void*)(l_Lean_Language_Lean_instToSnapshotTreeCommandElaboratingSnapshot_go___lam__2), 1, 0);
-x_16 = 1;
-x_17 = l_Lean_Language_SnapshotTask_map___redArg(x_2, x_13, x_7, x_8, x_16);
-x_18 = l_Lean_Language_SnapshotTask_map___redArg(x_3, x_14, x_9, x_10, x_16);
-x_19 = l_Lean_Language_SnapshotTask_map___redArg(x_4, x_15, x_11, x_12, x_16);
+x_14 = 1;
+x_15 = l_Lean_Language_SnapshotTask_map___redArg(x_2, x_13, x_7, x_8, x_14);
+x_16 = l_Lean_Language_Lean_instToSnapshotTreeCommandElaboratingSnapshot_go___closed__0;
+x_17 = lean_alloc_closure((void*)(l_Lean_Language_Lean_instToSnapshotTreeCommandElaboratingSnapshot_go___lam__2), 1, 0);
+x_18 = l_Lean_Language_SnapshotTask_map___redArg(x_3, x_16, x_9, x_10, x_14);
+x_19 = l_Lean_Language_SnapshotTask_map___redArg(x_4, x_17, x_11, x_12, x_14);
 x_20 = l_Lean_Language_Lean_instToSnapshotTreeCommandElaboratingSnapshot_go___closed__1;
-x_21 = lean_array_push(x_20, x_17);
+x_21 = lean_array_push(x_20, x_15);
 x_22 = lean_array_push(x_21, x_18);
 x_23 = lean_array_push(x_22, x_19);
 x_24 = lean_array_push(x_23, x_6);

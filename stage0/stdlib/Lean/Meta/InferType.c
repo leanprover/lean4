@@ -9887,21 +9887,21 @@ case 5:
 lean_object* x_127; uint8_t x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; lean_object* x_133; lean_object* x_134; lean_object* x_135; 
 x_127 = lean_ctor_get(x_1, 0);
 x_128 = lean_ctor_get_uint8(x_2, sizeof(void*)*7 + 3);
-x_129 = l_Lean_Expr_getAppFn(x_127);
-x_130 = l___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___closed__0;
-x_131 = l_Lean_Expr_getAppNumArgs(x_1);
-lean_inc(x_131);
-x_132 = lean_mk_array(x_131, x_130);
+x_129 = l_Lean_Expr_getAppNumArgs(x_1);
+x_130 = l_Lean_Expr_getAppFn(x_127);
+x_131 = l___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___closed__0;
+lean_inc(x_129);
+x_132 = lean_mk_array(x_129, x_131);
 x_133 = lean_unsigned_to_nat(1u);
-x_134 = lean_nat_sub(x_131, x_133);
-lean_dec(x_131);
+x_134 = lean_nat_sub(x_129, x_133);
+lean_dec(x_129);
 lean_inc_ref(x_1);
 x_135 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_1, x_132, x_134);
 if (x_128 == 0)
 {
 lean_object* x_136; 
 lean_dec_ref(x_1);
-x_136 = l___private_Lean_Meta_InferType_0__Lean_Meta_inferAppType(x_129, x_135, x_2, x_3, x_4, x_5);
+x_136 = l___private_Lean_Meta_InferType_0__Lean_Meta_inferAppType(x_130, x_135, x_2, x_3, x_4, x_5);
 lean_dec_ref(x_135);
 return x_136;
 }
@@ -9934,7 +9934,7 @@ if (lean_obj_tag(x_144) == 0)
 lean_object* x_145; 
 lean_free_object(x_138);
 lean_inc(x_3);
-x_145 = l___private_Lean_Meta_InferType_0__Lean_Meta_inferAppType(x_129, x_135, x_2, x_3, x_4, x_5);
+x_145 = l___private_Lean_Meta_InferType_0__Lean_Meta_inferAppType(x_130, x_135, x_2, x_3, x_4, x_5);
 lean_dec_ref(x_135);
 if (lean_obj_tag(x_145) == 0)
 {
@@ -10162,7 +10162,7 @@ else
 lean_object* x_201; 
 lean_dec(x_140);
 lean_dec_ref(x_135);
-lean_dec_ref(x_129);
+lean_dec_ref(x_130);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
@@ -10192,7 +10192,7 @@ if (lean_obj_tag(x_206) == 0)
 {
 lean_object* x_207; 
 lean_inc(x_3);
-x_207 = l___private_Lean_Meta_InferType_0__Lean_Meta_inferAppType(x_129, x_135, x_2, x_3, x_4, x_5);
+x_207 = l___private_Lean_Meta_InferType_0__Lean_Meta_inferAppType(x_130, x_135, x_2, x_3, x_4, x_5);
 lean_dec_ref(x_135);
 if (lean_obj_tag(x_207) == 0)
 {
@@ -10309,7 +10309,7 @@ else
 lean_object* x_230; lean_object* x_231; 
 lean_dec(x_202);
 lean_dec_ref(x_135);
-lean_dec_ref(x_129);
+lean_dec_ref(x_130);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
@@ -10327,7 +10327,7 @@ else
 {
 uint8_t x_232; 
 lean_dec_ref(x_135);
-lean_dec_ref(x_129);
+lean_dec_ref(x_130);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
@@ -10353,7 +10353,7 @@ else
 {
 lean_object* x_235; 
 lean_dec_ref(x_1);
-x_235 = l___private_Lean_Meta_InferType_0__Lean_Meta_inferAppType(x_129, x_135, x_2, x_3, x_4, x_5);
+x_235 = l___private_Lean_Meta_InferType_0__Lean_Meta_inferAppType(x_130, x_135, x_2, x_3, x_4, x_5);
 lean_dec_ref(x_135);
 return x_235;
 }

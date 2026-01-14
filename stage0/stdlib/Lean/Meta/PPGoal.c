@@ -3231,26 +3231,26 @@ return x_2;
 static lean_object* _init_l_Lean_Meta_ppGoal___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(2u);
-x_2 = lean_nat_to_int(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = l_Lean_Meta_pp_auxDecls;
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_ppGoal___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_pp_auxDecls;
+x_1 = l_Lean_Meta_pp_implementationDetailHyps;
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_ppGoal___closed__4() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_Meta_pp_implementationDetailHyps;
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(2u);
+x_2 = lean_nat_to_int(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Meta_ppGoal___closed__5() {
@@ -3982,7 +3982,7 @@ return x_11;
 }
 else
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; lean_object* x_26; uint8_t x_27; uint8_t x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; uint8_t x_20; lean_object* x_21; uint8_t x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
 x_12 = lean_ctor_get(x_9, 0);
 lean_inc(x_12);
 lean_dec_ref(x_9);
@@ -3995,41 +3995,41 @@ lean_inc_ref(x_16);
 x_17 = lean_ctor_get(x_12, 4);
 lean_inc_ref(x_17);
 x_18 = lean_ctor_get_uint8(x_12, sizeof(void*)*7);
-x_19 = lean_box(1);
+x_19 = l_Lean_Meta_ppGoal___closed__2;
+x_20 = l_Lean_Option_get___at___00Lean_Meta_ppGoal_shouldShowLetValue_spec__0(x_13, x_19);
+x_21 = l_Lean_Meta_ppGoal___closed__3;
+x_22 = l_Lean_Option_get___at___00Lean_Meta_ppGoal_shouldShowLetValue_spec__0(x_13, x_21);
+x_23 = lean_box(1);
 lean_inc(x_13);
-x_20 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_20, 0, x_13);
-lean_ctor_set(x_20, 1, x_19);
-lean_ctor_set(x_20, 2, x_19);
+x_24 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_24, 0, x_13);
+lean_ctor_set(x_24, 1, x_23);
+lean_ctor_set(x_24, 2, x_23);
 lean_inc_ref(x_15);
-x_21 = l_Lean_LocalContext_sanitizeNames(x_15, x_20);
-x_22 = lean_ctor_get(x_21, 0);
-lean_inc(x_22);
-lean_dec_ref(x_21);
-x_23 = l_Lean_Meta_ppGoal___closed__2;
-x_24 = l_Lean_Meta_ppGoal___closed__3;
-x_25 = l_Lean_Option_get___at___00Lean_Meta_ppGoal_shouldShowLetValue_spec__0(x_13, x_24);
-x_26 = l_Lean_Meta_ppGoal___closed__4;
-x_27 = l_Lean_Option_get___at___00Lean_Meta_ppGoal_shouldShowLetValue_spec__0(x_13, x_26);
+x_25 = l_Lean_LocalContext_sanitizeNames(x_15, x_24);
+x_26 = lean_ctor_get(x_25, 0);
+lean_inc(x_26);
+lean_dec_ref(x_25);
+x_27 = l_Lean_Meta_ppGoal___closed__4;
 x_28 = l_Lean_MetavarKind_isSyntheticOpaque(x_18);
 x_29 = l_Lean_Meta_ppGoal___closed__6;
 x_30 = lean_unsigned_to_nat(0u);
-x_31 = lean_box(x_27);
+x_31 = lean_box(x_22);
 x_32 = lean_box(x_28);
-x_33 = lean_box(x_25);
-lean_inc(x_22);
+x_33 = lean_box(x_20);
+lean_inc(x_26);
 x_34 = lean_alloc_closure((void*)(l_Lean_Meta_ppGoal___lam__0___boxed), 15, 10);
 lean_closure_set(x_34, 0, x_31);
-lean_closure_set(x_34, 1, x_23);
+lean_closure_set(x_34, 1, x_27);
 lean_closure_set(x_34, 2, x_32);
 lean_closure_set(x_34, 3, x_33);
-lean_closure_set(x_34, 4, x_22);
+lean_closure_set(x_34, 4, x_26);
 lean_closure_set(x_34, 5, x_29);
 lean_closure_set(x_34, 6, x_30);
 lean_closure_set(x_34, 7, x_16);
 lean_closure_set(x_34, 8, x_12);
 lean_closure_set(x_34, 9, x_14);
-x_35 = l_Lean_Meta_withLCtx___at___00Lean_Meta_ppGoal_spec__1___redArg(x_22, x_17, x_34, x_2, x_3, x_4, x_5);
+x_35 = l_Lean_Meta_withLCtx___at___00Lean_Meta_ppGoal_spec__1___redArg(x_26, x_17, x_34, x_2, x_3, x_4, x_5);
 return x_35;
 }
 }

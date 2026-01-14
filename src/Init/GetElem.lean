@@ -410,6 +410,7 @@ instance : LawfulGetElem (Array α) Nat α fun xs i => i < xs.size where
     a.get!Internal i = a[i]! := by
   simp only [get!Internal, getD, getInternal_eq_getElem, getElem!_def]
   split <;> simp_all [getElem?_pos, getElem?_neg]
+  simp [default]
 
 end Array
 

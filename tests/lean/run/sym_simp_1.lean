@@ -38,3 +38,88 @@ example (p q : Prop) (hp : p) : if x + 0 = x then p else q := by
 
 example (as : Array Int) (i : Nat) (h : 0 + i < as.size) : as[0 + i] = as[i] := by
   sym_simp [Nat.zero_add, eq_self]
+
+/-- trace: ⊢ Nat.add 0 = id -/
+#guard_msgs in
+example : Nat.add (0 + 0) = id := by
+  sym_simp [Nat.zero_add]
+  trace_state
+  funext
+  simp
+
+/--
+trace: a : Nat
+β✝ : Type
+f : β✝ → Prop
+h : HEq a = f
+⊢ HEq a = f
+-/
+#guard_msgs in
+example (h : HEq a = f) : HEq (α := Nat) (0 + a) = f := by
+  sym_simp [Nat.zero_add]
+  trace_state
+  exact h
+
+/--
+trace: a b : Nat
+f : Nat → Nat
+h : f a = b
+⊢ id f a = b
+-/
+#guard_msgs in
+example (f : Nat → Nat) (h : f a = b) : id f (0 + a) = b := by
+  sym_simp [Nat.zero_add]
+  trace_state
+  exact h
+
+def f (_ : α) {β : Type} (b : β) : β := b
+
+/--
+trace: a : Nat
+g : Nat → Nat
+⊢ f 0 g a = g a
+-/
+#guard_msgs in
+example (g : Nat → Nat) : f (0 + 0) g (0 + a) = g a := by
+  sym_simp [Nat.zero_add]
+  trace_state
+  rfl
+
+def f' (_ : α) (b : β) := b
+
+/--
+trace: a : Nat
+g : Nat → Nat
+⊢ f' 0 g a = g a
+-/
+#guard_msgs in
+example (g : Nat → Nat) : f' (0 + 0) g (0 + a) = g a := by
+  sym_simp [Nat.zero_add]
+  trace_state
+  rfl
+
+/--
+trace: a b : Nat
+as : Array (Nat → Nat)
+i : Nat
+x✝ : i < as.size
+h : as[i] a = b
+⊢ as[i] a = b
+-/
+#guard_msgs in
+example (as : Array (Nat → Nat)) (i : Nat) (_ : i < as.size) (h : as[i] a = b) : as[0 + i] (0 + a) = b := by
+  sym_simp [Nat.zero_add]
+  trace_state
+  exact h
+
+/--
+trace: c a : Nat
+g : Nat → Nat
+h : ite (c > 0) a = g
+⊢ ite (c > 0) a = g
+-/
+#guard_msgs in
+example (h : ite (c > 0) a = g) : ite (c > 0) (0 + a) = g := by
+  sym_simp [Nat.zero_add]
+  trace_state
+  exact h

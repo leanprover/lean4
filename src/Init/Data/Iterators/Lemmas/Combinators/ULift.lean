@@ -14,7 +14,8 @@ public import Init.Data.Iterators.Lemmas.Consumers.Loop
 
 public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 variable {α : Type u} {β : Type u}
 
@@ -36,8 +37,7 @@ theorem Iter.step_uLift [Iterator α Id β] {it : Iter (α := α) β} :
 
 @[simp]
 theorem Iter.toList_uLift [Iterator α Id β] {it : Iter (α := α) β}
-    [Finite α Id] [IteratorCollect α Id Id]
-    [LawfulIteratorCollect α Id Id] :
+    [Finite α Id] :
     it.uLift.toList = it.toList.map ULift.up := by
   simp only [monadLift, uLift_eq_toIter_uLift_toIterM, IterM.toList_toIter]
   rw [IterM.toList_uLift]
@@ -45,15 +45,13 @@ theorem Iter.toList_uLift [Iterator α Id β] {it : Iter (α := α) β}
 
 @[simp]
 theorem Iter.toListRev_uLift [Iterator α Id β] {it : Iter (α := α) β}
-    [Finite α Id] [IteratorCollect α Id Id]
-    [LawfulIteratorCollect α Id Id] :
+    [Finite α Id] :
     it.uLift.toListRev = it.toListRev.map ULift.up := by
   rw [toListRev_eq, toListRev_eq, toList_uLift, List.map_reverse]
 
 @[simp]
 theorem Iter.toArray_uLift [Iterator α Id β] {it : Iter (α := α) β}
-    [Finite α Id] [IteratorCollect α Id Id]
-    [LawfulIteratorCollect α Id Id] :
+    [Finite α Id] :
     it.uLift.toArray = it.toArray.map ULift.up := by
   rw [← toArray_toList, ← toArray_toList, toList_uLift]
   simp [-toArray_toList]
@@ -66,4 +64,4 @@ theorem Iter.count_uLift [Iterator α Id β] {it : Iter (α := α) β}
   rw [IterM.count_uLift]
   simp [monadLift]
 
-end Std.Iterators
+end Std

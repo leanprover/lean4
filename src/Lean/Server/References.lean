@@ -86,19 +86,17 @@ def toLspRefInfo (i : RefInfo) : StateT Decls BaseIO Lsp.RefInfo := do
   let refToRefInfoLocation (ref : Reference) : StateT Decls BaseIO RefInfo.Location := do
     let parentDeclName? := ref.ci.parentDecl?
     let parentDeclNameString? := parentDeclName?.map (·.toString)
-    let .ok parentDeclInfo? ← EIO.toBaseIO <| ref.ci.runCoreM do
-        let some parentDeclName := parentDeclName?
-          | return none
-        -- Use `local` as it avoids unnecessary blocking, which is especially important when called
-        -- from the snapshot reporter. Specifically, if `ref` is from a tactic of an async theorem,
-        -- `parentDeclName` will not be available in the current environment and we would block only
-        -- to return `none` in the end anyway. At the end of elaboration, we rerun this function on
-        -- the full info tree with the main environment, so the access will succeed immediately.
-        let some parentDeclRanges := declRangeExt.find? (asyncMode := .local) (← getEnv) parentDeclName
-          | return none
-        return some <| .ofDeclarationRanges parentDeclRanges
-      -- we only use `CoreM` to get access to a `MonadEnv`, but these are currently all `IO`
-      | unreachable!
+    let parentDeclInfo? : Option DeclInfo := do
+      -- Use final command env that has decl ranges for current declaration as well
+      let cmdEnv ← ref.ci.cmdEnv?
+      let parentDeclName ← parentDeclName?
+      -- Use `local` as it avoids unnecessary blocking, which is especially important when called
+      -- from the snapshot reporter. Specifically, if `ref` is from a tactic of an async theorem,
+      -- `parentDeclName` will not be available in the current environment and we would block only
+      -- to return `none` in the end anyway. At the end of elaboration, we rerun this function on
+      -- the full info tree with the main environment, so the access will succeed immediately.
+      let parentDeclRanges ← declRangeExt.find? (asyncMode := .local) cmdEnv parentDeclName
+      return .ofDeclarationRanges parentDeclRanges
     if let some parentDeclNameString := parentDeclNameString? then
       if let some parentDeclInfo := parentDeclInfo? then
         modify (·.insert parentDeclNameString parentDeclInfo)
@@ -119,8 +117,9 @@ namespace ModuleRefs
 
 /-- Adds `ref` to the `RefInfo` corresponding to `ref.ident` in `self`. See `RefInfo.addRef`. -/
 def addRef (self : ModuleRefs) (ref : Reference) : ModuleRefs :=
-  let refInfo := self.getD ref.ident RefInfo.empty
-  self.insert ref.ident (refInfo.addRef ref)
+  self.alter ref.ident fun
+    | some refInfo => some <| refInfo.addRef ref
+    | none => some <| RefInfo.empty.addRef ref
 
 /-- Converts `refs` to a JSON-serializable `Lsp.ModuleRefs` and collects all decls. -/
 def toLspModuleRefs (refs : ModuleRefs) : BaseIO (Lsp.ModuleRefs × Decls) := StateT.run (s := ∅) do
@@ -376,9 +375,9 @@ def dedupReferences (refs : Array Reference) (allowSimultaneousBinderUse := fals
   for ref in refs do
     let isBinder := if allowSimultaneousBinderUse then some ref.isBinder else none
     let key := (ref.ident, isBinder, ref.range)
-    refsByIdAndRange := match refsByIdAndRange[key]? with
-      | some ref' => refsByIdAndRange.insert key { ref' with aliases := ref'.aliases ++ ref.aliases }
-      | none => refsByIdAndRange.insert key ref
+    refsByIdAndRange := refsByIdAndRange.alter key fun
+      | some ref' => some { ref' with aliases := ref'.aliases ++ ref.aliases }
+      | none => some ref
 
   let dedupedRefs := refsByIdAndRange.fold (init := #[]) fun refs _ ref => refs.push ref
   return dedupedRefs.qsort (·.range < ·.range)

@@ -375,6 +375,10 @@ theorem congr {α : Sort u} {β : Sort v} {f₁ f₂ : α → β} {a₁ a₂ : �
 theorem congrFun {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x} (h : Eq f g) (a : α) : Eq (f a) (g a) :=
   h ▸ rfl
 
+/-- Similar to `congrFun` but `β` does not depend on `α`. -/
+theorem congrFun' {α : Sort u} {β : Sort v} {f g : α → β} (h : Eq f g) (a : α) : Eq (f a) (g a) :=
+  h ▸ rfl
+
 /-!
 Initialize the Quotient Module, which effectively adds the following definitions:
 ```
@@ -903,7 +907,7 @@ instance [Inhabited α] : Inhabited (ULift α) where
 Lifts a type or proposition to a higher universe level.
 
 `PULift α` wraps a value of type `α`. It is a generalization of
-`PLift` that allows lifting values who's type may live in `Sort s`.
+`PLift` that allows lifting values whose type may live in `Sort s`.
 It also subsumes `PLift`.
 -/
 -- The universe variable `r` is written first so that `ULift.{r} α` can be used
@@ -2074,6 +2078,13 @@ protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
   | a, succ b => pred (Nat.sub a b)
 
 attribute [gen_constructor_elims] Nat
+
+-- Grind setup for Nat.ctorIdx, the built-in propagator for `.ctorIdx` does not kick in
+-- due to the special representation of Nat constructors.
+protected theorem Nat.ctorIdx_zero : Eq (Nat.ctorIdx 0) 0 := rfl
+protected theorem Nat.ctorIdx_succ : Eq (Nat.ctorIdx (succ n)) 1 := rfl
+grind_pattern Nat.ctorIdx_zero => Nat.ctorIdx 0
+grind_pattern Nat.ctorIdx_succ => Nat.ctorIdx (.succ n)
 
 instance instSubNat : Sub Nat where
   sub := Nat.sub
@@ -3514,7 +3525,7 @@ instance : DecidableEq String.Pos.Raw :=
 /--
 A region or slice of some underlying string.
 
-A substring contains an string together with the start and end byte positions of a region of
+A substring contains a string together with the start and end byte positions of a region of
 interest. Actually extracting a substring requires copying and memory allocation, while many
 substrings of the same underlying string may exist with very little overhead, and they are more
 convenient than tracking the bounds by hand.

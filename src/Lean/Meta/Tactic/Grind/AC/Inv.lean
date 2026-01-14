@@ -53,7 +53,7 @@ def checkStructInvs : ACM Unit := do
   checkDiseqs
 
 public def checkInvariants : GoalM Unit := do
-  unless grind.debug.get (← getOptions) do return ()
+  if (← isDebugEnabled) then
   for opId in *...(← get').structs.size do
     ACM.run opId checkStructInvs
 

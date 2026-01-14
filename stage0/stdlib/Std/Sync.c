@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sync
-// Imports: public import Std.Sync.Basic public import Std.Sync.Channel public import Std.Sync.Mutex public import Std.Sync.RecursiveMutex public import Std.Sync.Barrier public import Std.Sync.SharedMutex public import Std.Sync.Notify public import Std.Sync.Broadcast public import Std.Sync.StreamMap public import Std.Sync.CancellationToken
+// Imports: public import Std.Sync.Basic public import Std.Sync.Channel public import Std.Sync.Mutex public import Std.Sync.RecursiveMutex public import Std.Sync.Barrier public import Std.Sync.SharedMutex public import Std.Sync.Notify public import Std.Sync.Broadcast public import Std.Sync.StreamMap public import Std.Sync.CancellationToken public import Std.Sync.CancellationContext
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -23,6 +23,7 @@ lean_object* initialize_Std_Sync_Notify(uint8_t builtin);
 lean_object* initialize_Std_Sync_Broadcast(uint8_t builtin);
 lean_object* initialize_Std_Sync_StreamMap(uint8_t builtin);
 lean_object* initialize_Std_Sync_CancellationToken(uint8_t builtin);
+lean_object* initialize_Std_Sync_CancellationContext(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Sync(uint8_t builtin) {
 lean_object * res;
@@ -56,6 +57,9 @@ res = initialize_Std_Sync_StreamMap(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Sync_CancellationToken(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Sync_CancellationContext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -32,7 +32,6 @@ example (x y z : BitVec 100000) : x * y - z*z = 0 → z*z = y * x := by
 /--
 trace: [grind.issues] exponent 1024 exceeds threshold for exponentiation `(exp := 16)`
 [grind.issues] exponent 1024 exceeds threshold for exponentiation `(exp := 16)`
-[grind.issues] exponent 1024 exceeds threshold for exponentiation `(exp := 16)`
 -/
 #guard_msgs in
 set_option trace.grind.issues true in

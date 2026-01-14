@@ -77,7 +77,7 @@ private def checkIffStatus (e a b : Expr) : GoalM SplitStatus := do
   else
     return .notReady
 
-/-- Returns `true` is `c` is congruent to a case-split that was already performed. -/
+/-- Returns `true` if `c` is congruent to a case-split that was already performed. -/
 private def isCongrToPrevSplit (c : Expr) : GoalM Bool := do
   unless c.isApp do return false
   (← get).split.resolved.foldM (init := false) fun flag { expr := c' } => do
@@ -216,7 +216,11 @@ where
           return false
         else if numCases == 1 && !isRec && numCases' > 1 then
           return true
-        if (← getGeneration c.getExpr) < (← getGeneration c'.getExpr) then
+        /-
+        **Note**: We used to use `getGeneration c.getExpr` instead of `c.getGeneration`.
+        This was incorrect. The expression returned by `c.getExpr` may have not been internalized yet.
+        -/
+        else if (← c.getGeneration) < (← c'.getGeneration) then
           return true
         return numCases < numCases'
       if (← isBetter) then

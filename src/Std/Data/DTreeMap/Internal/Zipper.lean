@@ -329,11 +329,8 @@ public instance : Iterator (Zipper α β) Id ((a : α) × β a) where
   IsPlausibleStep it step := it.internalState.step = step
   step it := pure <| Shrink.deflate ⟨it.internalState.step, rfl⟩
 
-public instance : IteratorCollect (Zipper α β) Id Id := .defaultImplementation
-
-
 def Zipper.FinitenessRelation : FinitenessRelation (Zipper α β) Id where
-  rel t' t := t'.internalState.size < t.internalState.size
+  Rel t' t := t'.internalState.size < t.internalState.size
   wf := by
     apply InvImage.wf
     exact Nat.lt_wfRel.wf
@@ -440,10 +437,8 @@ public instance [Ord α] : Iterator (RxcIterator α β) Id ((a : α) × β a) wh
   IsPlausibleStep it step := it.internalState.step = step
   step it := pure <| Shrink.deflate ⟨it.internalState.step, rfl⟩
 
-public instance [Ord α] : IteratorCollect (RxcIterator α β) Id Id := .defaultImplementation
-
 def RxcIterator.FinitenessRelation [Ord α] : FinitenessRelation (RxcIterator α β) Id where
-  rel t' t := t'.internalState.iter.size < t.internalState.iter.size
+  Rel t' t := t'.internalState.iter.size < t.internalState.iter.size
   wf := by
     apply InvImage.wf
     exact Nat.lt_wfRel.wf
@@ -571,10 +566,8 @@ public instance [Ord α] : Iterator (RxoIterator α β) Id ((a : α) × β a) wh
   IsPlausibleStep it step := it.internalState.step = step
   step it := pure <| Shrink.deflate ⟨it.internalState.step, rfl⟩
 
-public instance [Ord α] : IteratorCollect (RxoIterator α β) Id Id := .defaultImplementation
-
 def RxoIterator.instFinitenessRelation [Ord α] : FinitenessRelation (RxoIterator α β) Id where
-  rel t' t := t'.internalState.iter.size < t.internalState.iter.size
+  Rel t' t := t'.internalState.iter.size < t.internalState.iter.size
   wf := by
     apply InvImage.wf
     exact Nat.lt_wfRel.wf

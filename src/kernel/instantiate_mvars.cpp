@@ -142,7 +142,7 @@ class instantiate_mvars_fn {
     metavar_ctx & m_mctx;
     instantiate_lmvars_fn m_level_fn;
     name_set m_already_normalized; // Store metavariables whose assignment has already been normalized.
-    absl::flat_hash_map<lean_object *, expr> m_cache;
+    std::unordered_map<lean_object *, expr> m_cache;
     std::vector<expr> m_saved; // Helper vector to prevent values from being garbage collected
 
     level visit_level(level const & l) {

@@ -125,7 +125,7 @@ end Internal
 namespace ForwardPattern
 
 variable {ρ : Type} {σ : Slice → Type}
-variable [∀ s, Std.Iterators.Iterator (σ s) Id (SearchStep s)]
+variable [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
 variable (pat : ρ) [ToForwardSearcher pat σ]
 
 @[specialize pat]
@@ -184,7 +184,7 @@ class BackwardPattern {ρ : Type} (pat : ρ) where
 namespace ToBackwardSearcher
 
 variable {ρ : Type} {σ : Slice → Type}
-variable [∀ s, Std.Iterators.Iterator (σ s) Id (SearchStep s)]
+variable [∀ s, Std.Iterator (σ s) Id (SearchStep s)]
 variable (pat : ρ) [ToBackwardSearcher pat σ]
 
 @[specialize pat]

@@ -81,10 +81,7 @@ theorem lt.dest {a b : Int} (h : a < b) : ∃ n : Nat, a + Nat.succ n = b :=
 @[simp, norm_cast] theorem ofNat_lt {n m : Nat} : (↑n : Int) < ↑m ↔ n < m := by
   rw [lt_iff_add_one_le, ← natCast_succ, ofNat_le]; rfl
 
-@[simp, norm_cast] theorem natCast_pos {n : Nat} : (0 : Int) < n ↔ 0 < n := ofNat_lt
-
-@[deprecated natCast_pos (since := "2025-05-13"), simp high]
-theorem ofNat_pos {n : Nat} : 0 < (↑n : Int) ↔ 0 < n := ofNat_lt
+@[simp high, norm_cast] theorem natCast_pos {n : Nat} : (0 : Int) < n ↔ 0 < n := ofNat_lt
 
 @[simp]
 theorem natCast_nonneg (n : Nat) : 0 ≤ (n : Int) := ⟨_⟩
@@ -92,6 +89,8 @@ theorem natCast_nonneg (n : Nat) : 0 ≤ (n : Int) := ⟨_⟩
 @[deprecated natCast_nonneg (since := "2025-10-26")]
 theorem ofNat_zero_le (n : Nat) : 0 ≤ (↑n : Int) := ofNat_le.2 n.zero_le
 
+-- This was still being used in `omega` as of 2025-12-12,
+-- so we're keeping this for another month.
 @[deprecated natCast_nonneg (since := "2025-05-13")]
 theorem ofNat_nonneg (n : Nat) : 0 ≤ (n : Int) := ⟨_⟩
 
@@ -474,6 +473,20 @@ protected theorem max_le {a b c : Int} : max a b ≤ c ↔ a ≤ c ∧ b ≤ c :
 protected theorem max_lt {a b c : Int} : max a b < c ↔ a < c ∧ b < c := by
   simp only [Int.lt_iff_add_one_le]
   simpa using Int.max_le (a := a + 1) (b := b + 1) (c := c)
+
+protected theorem max_eq_right_iff {a b : Int} : max a b = b ↔ a ≤ b := by
+  apply Iff.intro
+  · intro h
+    rw [← h]
+    apply Int.le_max_left
+  · apply Int.max_eq_right
+
+protected theorem max_eq_left_iff {a b : Int} : max a b = a ↔ b ≤ a := by
+  apply Iff.intro
+  · intro h
+    rw [← h]
+    apply Int.le_max_right
+  · apply Int.max_eq_left
 
 @[simp] theorem ofNat_max_zero (n : Nat) : (max (n : Int) 0) = n := by
   rw [Int.max_eq_left (natCast_nonneg n)]
@@ -913,6 +926,16 @@ protected theorem sub_right_le_of_le_add {a b c : Int} (h : a ≤ b + c) : a - c
   have h := Int.add_le_add_right h (-c)
   rwa [Int.add_neg_cancel_right] at h
 
+protected theorem sub_right_le_iff_le_add {a b c : Int} : a - c ≤ b ↔ a ≤ b + c :=
+  ⟨Int.le_add_of_sub_right_le, Int.sub_right_le_of_le_add⟩
+
+theorem toNat_sub_eq_zero_iff (m n : Int) : toNat (m - n) = 0 ↔ m ≤ n := by
+  rw [← ofNat_inj, ofNat_toNat, cast_ofNat_Int, Int.max_eq_right_iff, Int.sub_right_le_iff_le_add,
+    Int.zero_add]
+
+theorem zero_eq_toNat_sub_iff (m n : Int) : 0 = toNat (m - n) ↔ m ≤ n := by
+  rw [eq_comm (a := 0), toNat_sub_eq_zero_iff]
+
 protected theorem le_add_of_neg_add_le_left {a b c : Int} (h : -b + a ≤ c) : a ≤ b + c := by
   rw [Int.add_comm] at h
   exact Int.le_add_of_sub_left_le h
@@ -989,6 +1012,10 @@ protected theorem add_lt_of_lt_sub_right {a b c : Int} (h : a < c - b) : a + b <
 protected theorem lt_sub_right_of_add_lt {a b c : Int} (h : a + b < c) : a < c - b := by
   have h := Int.add_lt_add_right h (-b)
   rwa [Int.add_neg_cancel_right] at h
+
+protected theorem lt_sub_right_iff_add_lt {a b c : Int} :
+    a < c - b ↔ a + b < c :=
+  ⟨Int.add_lt_of_lt_sub_right, Int.lt_sub_right_of_add_lt⟩
 
 protected theorem lt_add_of_neg_add_lt {a b c : Int} (h : -b + a < c) : a < b + c := by
   have h := Int.add_lt_add_left h b

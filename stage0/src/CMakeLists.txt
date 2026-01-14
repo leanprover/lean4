@@ -10,7 +10,7 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
-set(LEAN_VERSION_MINOR 27)
+set(LEAN_VERSION_MINOR 28)
 set(LEAN_VERSION_PATCH 0)
 set(LEAN_VERSION_IS_RELEASE 0)  # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
@@ -39,6 +39,10 @@ set(LEAN_EXTRA_LINKER_FLAGS_DEFAULT "")
 find_program(LLD_PATH lld)
 if(LLD_PATH)
   string(APPEND LEAN_EXTRA_LINKER_FLAGS_DEFAULT " -fuse-ld=lld")
+endif()
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  # Create space in install names so they can be patched later in Nix.
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS_DEFAULT " -headerpad_max_install_names")
 endif()
 
 set(LEAN_EXTRA_LINKER_FLAGS ${LEAN_EXTRA_LINKER_FLAGS_DEFAULT} CACHE STRING "Additional flags used by the linker")
@@ -695,7 +699,7 @@ endif()
 
 set(STDLIBS Init Std Lean Leanc)
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  list(APPEND STDLIBS Lake)
+  list(APPEND STDLIBS Lake LeanChecker)
 endif()
 
 add_custom_target(make_stdlib ALL
@@ -757,6 +761,12 @@ if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     DEPENDS lake_shared
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lake
+    VERBATIM)
+
+  add_custom_target(leanchecker ALL
+    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+    DEPENDS lake_shared
+    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanchecker
     VERBATIM)
 endif()
 

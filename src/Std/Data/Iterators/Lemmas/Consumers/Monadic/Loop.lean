@@ -11,7 +11,8 @@ public import Std.Data.Iterators.Lemmas.Consumers.Monadic.Collect
 
 @[expose] public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 theorem IterM.Equiv.forIn_eq {α₁ α₂ β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} [Iterator α₁ m β] [Iterator α₂ m β]
@@ -74,4 +75,4 @@ theorem IterM.Equiv.drain_eq {α₁ α₂ β : Type w} {m : Type w → Type w'}
     ita.drain = itb.drain := by
   simp [IterM.drain_eq_fold, h.fold_eq]
 
-end Std.Iterators
+end Std

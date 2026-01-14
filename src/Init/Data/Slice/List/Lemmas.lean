@@ -15,11 +15,9 @@ import all Init.Data.Range.Polymorphic.Lemmas
 public import Init.Data.Slice.Lemmas
 public import Init.Data.Iterators.Lemmas
 
-open Std.Iterators Std.PRange
+open Std Std.PRange Std.Slice
 
 namespace ListSlice
-
-open Std.Slice
 
 theorem internalIter_eq {α : Type u} {s : ListSlice α} :
     Internal.iter s = match s.internalRepresentation.stop with

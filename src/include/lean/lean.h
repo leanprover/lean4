@@ -863,14 +863,13 @@ static inline lean_object * lean_array_get_borrowed(lean_obj_arg def_val, b_lean
 }
 
 LEAN_EXPORT lean_obj_res lean_copy_expand_array(lean_obj_arg a, bool expand);
-
-static inline lean_obj_res lean_copy_array(lean_obj_arg a) {
-    return lean_copy_expand_array(a, false);
-}
+// Equivalent to `lean_copy_expand_array` but used as a gadget to spot `Array` non-linearities in
+// profiles.
+LEAN_EXPORT lean_obj_res lean_copy_expand_array_nonlinear(lean_obj_arg a, bool expand);
 
 static inline lean_obj_res lean_ensure_exclusive_array(lean_obj_arg a) {
     if (lean_is_exclusive(a)) return a;
-    return lean_copy_array(a);
+    return lean_copy_expand_array_nonlinear(a, false);
 }
 
 static inline lean_object * lean_array_uset(lean_obj_arg a, size_t i, lean_obj_arg v) {
@@ -2062,15 +2061,17 @@ static inline uint8_t lean_int8_mul(uint8_t a1, uint8_t a2) {
 static inline uint8_t lean_int8_div(uint8_t a1, uint8_t a2) {
     int8_t lhs = (int8_t)a1;
     int8_t rhs = (int8_t)a2;
-
-    return (uint8_t)(rhs == 0 ? 0 : lhs / rhs);
+    if (rhs == 0) return 0;
+    // Widen to 16-bit to avoid x86 idiv overflow trap on INT8_MIN / -1
+    return (uint8_t)((int16_t)lhs / (int16_t)rhs);
 }
 
 static inline uint8_t lean_int8_mod(uint8_t a1, uint8_t a2) {
     int8_t lhs = (int8_t)a1;
     int8_t rhs = (int8_t)a2;
-
-    return (uint8_t)(rhs == 0 ? lhs : lhs % rhs);
+    if (rhs == 0) return (uint8_t)lhs;
+    // Widen to 16-bit to avoid x86 idiv overflow trap on INT8_MIN % -1
+    return (uint8_t)((int16_t)lhs % (int16_t)rhs);
 }
 
 static inline uint8_t lean_int8_land(uint8_t a1, uint8_t a2) {
@@ -2211,15 +2212,17 @@ static inline uint16_t lean_int16_mul(uint16_t a1, uint16_t a2) {
 static inline uint16_t lean_int16_div(uint16_t a1, uint16_t a2) {
     int16_t lhs = (int16_t)a1;
     int16_t rhs = (int16_t)a2;
-
-    return (uint16_t)(rhs == 0 ? 0 : lhs / rhs);
+    if (rhs == 0) return 0;
+    // Widen to 32-bit to avoid x86 idiv overflow trap on INT16_MIN / -1
+    return (uint16_t)((int32_t)lhs / (int32_t)rhs);
 }
 
 static inline uint16_t lean_int16_mod(uint16_t a1, uint16_t a2) {
     int16_t lhs = (int16_t)a1;
     int16_t rhs = (int16_t)a2;
-
-    return (uint16_t)(rhs == 0 ? lhs : lhs % rhs);
+    if (rhs == 0) return (uint16_t)lhs;
+    // Widen to 32-bit to avoid x86 idiv overflow trap on INT16_MIN % -1
+    return (uint16_t)((int32_t)lhs % (int32_t)rhs);
 }
 
 static inline uint16_t lean_int16_land(uint16_t a1, uint16_t a2) {
@@ -2359,15 +2362,17 @@ static inline uint32_t lean_int32_mul(uint32_t a1, uint32_t a2) {
 static inline uint32_t lean_int32_div(uint32_t a1, uint32_t a2) {
     int32_t lhs = (int32_t)a1;
     int32_t rhs = (int32_t)a2;
-
-    return (uint32_t)(rhs == 0 ? 0 : lhs / rhs);
+    if (rhs == 0) return 0;
+    // Widen to 64-bit to avoid x86 idiv overflow trap on INT32_MIN / -1
+    return (uint32_t)((int64_t)lhs / (int64_t)rhs);
 }
 
 static inline uint32_t lean_int32_mod(uint32_t a1, uint32_t a2) {
     int32_t lhs = (int32_t)a1;
     int32_t rhs = (int32_t)a2;
-
-    return (uint32_t)(rhs == 0 ? lhs : lhs % rhs);
+    if (rhs == 0) return (uint32_t)lhs;
+    // Widen to 64-bit to avoid x86 idiv overflow trap on INT32_MIN % -1
+    return (uint32_t)((int64_t)lhs % (int64_t)rhs);
 }
 
 static inline uint32_t lean_int32_land(uint32_t a1, uint32_t a2) {
@@ -2507,15 +2512,19 @@ static inline uint64_t lean_int64_mul(uint64_t a1, uint64_t a2) {
 static inline uint64_t lean_int64_div(uint64_t a1, uint64_t a2) {
     int64_t lhs = (int64_t)a1;
     int64_t rhs = (int64_t)a2;
-
-    return (uint64_t)(rhs == 0 ? 0 : lhs / rhs);
+    if (rhs == 0) return 0;
+    // Check for overflow: INT64_MIN / -1 would trap on x86 idiv
+    if (lhs == INT64_MIN && rhs == -1) return (uint64_t)INT64_MIN;
+    return (uint64_t)(lhs / rhs);
 }
 
 static inline uint64_t lean_int64_mod(uint64_t a1, uint64_t a2) {
     int64_t lhs = (int64_t)a1;
     int64_t rhs = (int64_t)a2;
-
-    return (uint64_t)(rhs == 0 ? lhs : lhs % rhs);
+    if (rhs == 0) return (uint64_t)lhs;
+    // Check for overflow: INT64_MIN % -1 would trap on x86 idiv
+    if (lhs == INT64_MIN && rhs == -1) return 0;
+    return (uint64_t)(lhs % rhs);
 }
 
 static inline uint64_t lean_int64_land(uint64_t a1, uint64_t a2) {

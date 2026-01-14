@@ -17,8 +17,8 @@ set_library_suggestions Lean.LibrarySuggestions.currentFile
 -- Expected: deprecatedTheorem should NOT appear in suggestions
 /--
 info: Library suggestions:
-  anotherNormalTheorem
   normalTheorem
+  anotherNormalTheorem
 -/
 #guard_msgs in
 example : True := by

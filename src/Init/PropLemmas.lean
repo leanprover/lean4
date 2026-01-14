@@ -310,10 +310,6 @@ theorem exists_or : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ ∃ x, q x :=
 
 theorem Exists.nonempty : (∃ x, p x) → Nonempty α | ⟨x, _⟩ => ⟨x⟩
 
-@[deprecated Exists.nonempty (since := "2025-05-19")]
-theorem nonempty_of_exists {α : Sort u} {p : α → Prop} : Exists (fun x => p x) → Nonempty α
-  | ⟨w, _⟩ => ⟨w⟩
-
 theorem not_forall_of_exists_not {p : α → Prop} : (∃ x, ¬p x) → ¬∀ x, p x
   | ⟨x, hn⟩, h => hn (h x)
 
@@ -600,7 +596,7 @@ instance [DecidablePred p] : DecidablePred (p ∘ f) :=
 
 /-- Prove that `a` is decidable by constructing a boolean `b` and a proof that `b ↔ a`.
 (This is sometimes taken as an alternate definition of decidability.) -/
-def decidable_of_bool : ∀ (b : Bool), (b ↔ a) → Decidable a
+@[expose] def decidable_of_bool : ∀ (b : Bool), (b ↔ a) → Decidable a
   | true, h => isTrue (h.1 rfl)
   | false, h => isFalse (mt h.2 Bool.noConfusion)
 

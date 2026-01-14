@@ -46,7 +46,7 @@ theorem ne_of_cmp_ne_eq {α : Type u} {cmp : α → α → Ordering} [Std.ReflCm
 
 end ReflCmp
 
-/-- A typeclasses for ordered types for which `compare a a = .eq` for all `a`. -/
+/-- A typeclass for ordered types for which `compare a a = .eq` for all `a`. -/
 abbrev ReflOrd (α : Type u) [Ord α] := ReflCmp (compare : α → α → Ordering)
 
 @[simp]

@@ -1900,6 +1900,29 @@ theorem WF.union! {_ : Ord α} [TransOrd α]
   . exact WF.insertManyIfNew! h₂
   . exact WF.insertMany! h₁
 
+theorem all_eq_all_toListModel {p : (a : α) → β a → Bool} {m : Impl α β} :
+    m.all p = m.toListModel.all (fun x => p x.1 x.2) := by
+  simp [all, ForIn.forIn, bind_pure_comp, map_pure, Id.run_bind]
+  rw [forIn_eq_forIn_toListModel, ← toList_eq_toListModel, forIn_eq_forIn']
+  induction m.toList with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [forIn'_eq_forIn, List.all_cons]
+    by_cases h : p hd.fst hd.snd = false
+    · simp [h]
+    · simp only [forIn'_eq_forIn] at ih
+      simp [h, ih]
+
+theorem beq_eq_beqModel {_ : Ord α} [BEq α] [TransOrd α] [LawfulBEq α] [LawfulBEqOrd α] [∀ k, BEq (β k)] {m₁ m₂ : Impl α β} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    Impl.beq m₁ m₂ = beqModel m₁.toListModel m₂.toListModel := by
+  simp [beq, beqModel, size_eq_length _ h₁.balanced, size_eq_length _ h₂.balanced, all_eq_all_toListModel,
+    get?_eq_getValueCast? h₂.ordered]
+
+theorem Const.beq_eq_beqModel {β : Type v} {_ : Ord α} [BEq α] [TransOrd α] [LawfulBEqOrd α] [BEq β] {m₁ m₂ : Impl α (fun _ => β)}  (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    beq m₁ m₂ = Const.beqModel m₁.toListModel m₂.toListModel := by
+  simp [beq, Const.beqModel, size_eq_length _ h₁.balanced, size_eq_length _ h₂.balanced, all_eq_all_toListModel,
+    get?_eq_getValue? h₂.ordered]
+
 theorem WF.constInsertMany! {β : Type v} {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ (α × β)] {l : ρ}
     {t : Impl α β} (h : t.WF) : (Const.insertMany! t l).1.WF :=
   (Const.insertMany! t l).2 h (fun _ _ _ h' => h'.insert!)

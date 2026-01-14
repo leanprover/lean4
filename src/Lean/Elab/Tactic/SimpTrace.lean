@@ -21,19 +21,21 @@ The `simp?` tactic is a simple wrapper around the simp with trace behavior.
 namespace Lean.Elab.Tactic
 open Lean Elab Parser Tactic Meta Simp Tactic.TryThis
 
-/-- Filter out `+suggestions` from the config syntax -/
-def filterSuggestionsFromSimpConfig (cfg : TSyntax ``Lean.Parser.Tactic.optConfig) :
+/-- Filter out `+suggestions` and `+locals` from the config syntax -/
+def filterSuggestionsAndLocalsFromSimpConfig (cfg : TSyntax ``Lean.Parser.Tactic.optConfig) :
     MetaM (TSyntax ``Lean.Parser.Tactic.optConfig) := do
   -- The config has one arg: a null node containing configItem nodes
   let nullNode := cfg.raw.getArg 0
   let configItems := nullNode.getArgs
 
-  -- Filter out configItem nodes that contain +suggestions
+  -- Filter out configItem nodes that contain +suggestions or +locals
   let filteredItems := configItems.filter fun item =>
     match item[0]?, item.getKind with
     | some posConfigItem, ``Lean.Parser.Tactic.configItem =>
       match posConfigItem[1]?, posConfigItem.getKind with
-      | some ident, ``Lean.Parser.Tactic.posConfigItem => ident.getId != `suggestions
+      | some ident, ``Lean.Parser.Tactic.posConfigItem =>
+        let id := ident.getId.eraseMacroScopes
+        id != `suggestions && id != `locals
       | _, _ => true
     | _, _ => true
 
@@ -72,7 +74,7 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
     else
       `(tactic| simp%$tk $cfg:optConfig $[$discharger]? $[only%$o]? [$argsArray,*] $[$loc]?)
     -- Build syntax for suggestion (without +suggestions config)
-    let filteredCfg ← filterSuggestionsFromSimpConfig cfg
+    let filteredCfg ← filterSuggestionsAndLocalsFromSimpConfig cfg
     let stxForSuggestion ← if bang.isSome then
       `(tactic| simp!%$tk $filteredCfg:optConfig $[$discharger]? $[only%$o]? [$argsArray,*] $[$loc]?)
     else
@@ -118,7 +120,7 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
         else
           `(tactic| simp_all%$tk $cfg:optConfig $[$discharger]? $[only%$o]? [$argsArray,*])
     -- Build syntax for suggestion (without +suggestions config)
-    let filteredCfg ← filterSuggestionsFromSimpConfig cfg
+    let filteredCfg ← filterSuggestionsAndLocalsFromSimpConfig cfg
     let stxForSuggestion ←
       if argsArray.isEmpty then
         if bang.isSome then

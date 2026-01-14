@@ -223,6 +223,16 @@ theorem testBit_lt_two_pow {x i : Nat} (lt : x < 2^i) : x.testBit i = false := b
     exfalso
     exact Nat.not_le_of_gt lt (ge_two_pow_of_testBit p)
 
+theorem testBit_of_two_pow_le_and_two_pow_add_one_gt {n i : Nat}
+    (hle : 2^i ≤ n) (hgt : n < 2^(i + 1)) : n.testBit i = true := by
+  rcases exists_ge_and_testBit_of_ge_two_pow hle with ⟨i', ⟨_, _⟩⟩
+  have : i = i' := by
+    false_or_by_contra
+    have : 2 ^ (i + 1) ≤ 2 ^ i' := Nat.pow_le_pow_of_le (by decide) (by omega)
+    have : n.testBit i' = false := testBit_lt_two_pow (by omega)
+    simp_all only [Bool.false_eq_true]
+  rwa [this]
+
 theorem lt_pow_two_of_testBit (x : Nat) (p : ∀i, i ≥ n → testBit x i = false) : x < 2^n := by
   apply Decidable.by_contra
   intro not_lt
@@ -230,6 +240,10 @@ theorem lt_pow_two_of_testBit (x : Nat) (p : ∀i, i ≥ n → testBit x i = fal
   have ⟨i, ⟨i_ge_n, test_true⟩⟩ := exists_ge_and_testBit_of_ge_two_pow x_ge_n
   have test_false := p _ i_ge_n
   simp [test_true] at test_false
+
+theorem testBit_log2 {n : Nat} (h : n ≠ 0) : n.testBit n.log2 = true := by
+  have := log2_eq_iff (n := n) (k := n.log2) (by omega)
+  apply testBit_of_two_pow_le_and_two_pow_add_one_gt <;> omega
 
 private theorem succ_mod_two : succ x % 2 = 1 - x % 2 := by
   induction x with
@@ -337,9 +351,6 @@ theorem testBit_bool_toNat (b : Bool) (i : Nat) :
   cases b <;> cases i <;>
   simp [testBit_eq_decide_div_mod_eq,
         Nat.mod_eq_of_lt]
-
-@[deprecated testBit_bool_toNat (since := "2025-06-22")]
-abbrev testBit_bool_to_nat := @testBit_bool_toNat
 
 /-- `testBit 1 i` is true iff the index `i` equals 0. -/
 theorem testBit_one_eq_true_iff_self_eq_zero {i : Nat} :

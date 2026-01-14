@@ -1,10 +1,10 @@
-815b.lean:1:4-1:13: warning: declaration uses 'sorry'
-815b.lean:6:9-6:17: warning: declaration uses 'sorry'
-815b.lean:7:9-7:14: warning: declaration uses 'sorry'
-815b.lean:8:9-8:13: warning: declaration uses 'sorry'
-815b.lean:9:9-9:13: warning: declaration uses 'sorry'
-815b.lean:10:9-10:13: warning: declaration uses 'sorry'
-815b.lean:11:9-11:13: warning: declaration uses 'sorry'
+815b.lean:1:4-1:13: warning: declaration uses `sorry`
+815b.lean:6:9-6:17: warning: declaration uses `sorry`
+815b.lean:7:9-7:14: warning: declaration uses `sorry`
+815b.lean:8:9-8:13: warning: declaration uses `sorry`
+815b.lean:9:9-9:13: warning: declaration uses `sorry`
+815b.lean:10:9-10:13: warning: declaration uses `sorry`
+815b.lean:11:9-11:13: warning: declaration uses `sorry`
 [Meta.synthInstance] ✅️ IsSmooth fun g a => f (g a) d
   [Meta.synthInstance] new goal IsSmooth fun g a => f (g a) d
     [Meta.synthInstance.instances] #[@identity, @const, @parm, @comp, @diag, @swap, inst✝]

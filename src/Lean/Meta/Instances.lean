@@ -4,14 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Data.Range.Polymorphic.Stream
-public import Lean.Meta.DiscrTree
+public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.CollectMVars
-
+import Lean.Meta.WHNF
 public section
-
 namespace Lean.Meta
 
 register_builtin_option synthInstance.checkSynthOrder : Bool := {
@@ -77,8 +75,8 @@ structure Instances where
 
 def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
   match e.globalName? with
-  | some n => { d with discrTree := d.discrTree.insertCore e.keys e, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n }
-  | none   => { d with discrTree := d.discrTree.insertCore e.keys e }
+  | some n => { d with discrTree := d.discrTree.insertKeyValue e.keys e, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n }
+  | none   => { d with discrTree := d.discrTree.insertKeyValue e.keys e }
 
 def Instances.eraseCore (d : Instances) (declName : Name) : Instances :=
   { d with erased := d.erased.insert declName, instanceNames := d.instanceNames.erase declName }

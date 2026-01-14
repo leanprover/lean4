@@ -10,7 +10,7 @@ theorem ex1 (a b c : α) : f (f a b) c = a := by
 info: theorem ex1.{u_1} : ∀ {α : Sort u_1} (a b c : α), f (f a b) c = a :=
 fun {α} a b c =>
   of_eq_true
-    (Eq.trans (congrArg (fun x => x = a) (Eq.trans (congrArg (fun x => f x c) (f_Eq a b)) (f_Eq a c))) (eq_self a))
+    (Eq.trans (congrFun' (congrArg Eq (Eq.trans (congrFun' (congrArg f (f_Eq a b)) c) (f_Eq a c))) a) (eq_self a))
 -/
 #guard_msgs in
 #print ex1
@@ -33,7 +33,7 @@ info: theorem ex2 : ∀ (p : Nat → Bool) (x : Nat), p x = true → (if p x = t
 fun p x h =>
   of_eq_true
     (Eq.trans
-      (congrArg (fun x => x = 1) (ite_cond_eq_true 1 2 (Eq.trans (congrArg (fun x => x = true) h) (eq_self true))))
+      (congrFun' (congrArg Eq (ite_cond_eq_true 1 2 (Eq.trans (congrFun' (congrArg Eq h) true) (eq_self true)))) 1)
       (eq_self 1))
 -/
 #guard_msgs in

@@ -2,7 +2,7 @@
 Tests for `partial_fixpoint` with explicit proofs
 -/
 
-/-- warning: declaration uses 'sorry' -/
+/-- warning: declaration uses `sorry` -/
 #guard_msgs in
 def nullary (x : Nat) : Option Unit := nullary (x + 1)
 partial_fixpoint monotonicity sorry

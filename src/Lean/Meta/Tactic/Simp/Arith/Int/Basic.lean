@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Init.Data.Int.Linear
 public import Lean.Util.SortExprs
@@ -12,9 +11,8 @@ public import Lean.Meta.IntInstTesters
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.KExprMap
 public import Lean.Data.RArray
-
+import Lean.Meta.LitValues
 public section
-
 namespace Int.Linear
 
 /-- Converts the linear polynomial into the "simplified" expression -/
@@ -137,28 +135,28 @@ where
       else addAsVar e
     | Int.neg a => return .neg (← toLinearExpr a)
     | Neg.neg _ i a =>
-      if (← isInstNegInt i) then return .neg (← toLinearExpr a)
+      if (← DefEq.isInstNegInt i) then return .neg (← toLinearExpr a)
       else addAsVar e
     | Int.add a b => return .add (← toLinearExpr a) (← toLinearExpr b)
     | Add.add _ i a b =>
-      if (← isInstAddInt i) then return .add (← toLinearExpr a) (← toLinearExpr b)
+      if (← DefEq.isInstAddInt i) then return .add (← toLinearExpr a) (← toLinearExpr b)
       else addAsVar e
     | HAdd.hAdd _ _ _ i a b =>
-      if (← isInstHAddInt i) then return .add (← toLinearExpr a) (← toLinearExpr b)
+      if (← DefEq.isInstHAddInt i) then return .add (← toLinearExpr a) (← toLinearExpr b)
       else addAsVar e
     | Int.sub a b => return .sub (← toLinearExpr a) (← toLinearExpr b)
     | Sub.sub _ i a b =>
-      if (← isInstSubInt i) then return .sub (← toLinearExpr a) (← toLinearExpr b)
+      if (← DefEq.isInstSubInt i) then return .sub (← toLinearExpr a) (← toLinearExpr b)
       else addAsVar e
     | HSub.hSub _ _ _ i a b =>
-      if (← isInstHSubInt i) then return .sub (← toLinearExpr a) (← toLinearExpr b)
+      if (← DefEq.isInstHSubInt i) then return .sub (← toLinearExpr a) (← toLinearExpr b)
       else addAsVar e
     | Int.mul a b => mul a b
     | Mul.mul _ i a b =>
-      if (← isInstMulInt i) then mul a b
+      if (← DefEq.isInstMulInt i) then mul a b
       else addAsVar e
     | HMul.hMul _ _ _ i a b =>
-      if (← isInstHMulInt i) then mul a b
+      if (← DefEq.isInstHMulInt i) then mul a b
       else addAsVar e
     | _ => addAsVar e
 
@@ -183,22 +181,22 @@ partial def leCnstr? (e : Expr) : M (Option (Int.Linear.Expr × Int.Linear.Expr)
   | Int.lt a b =>
     return (.add (← toLinearExpr a) (.num 1), ← toLinearExpr b)
   | LE.le _ i a b =>
-    guard (← isInstLEInt i)
+    guard (← DefEq.isInstLEInt i)
     return (← toLinearExpr a, ← toLinearExpr b)
   | LT.lt _ i a b =>
-    guard (← isInstLTInt i)
+    guard (← DefEq.isInstLTInt i)
     return (.add (← toLinearExpr a) (.num 1), ← toLinearExpr b)
   | GE.ge _ i a b =>
-    guard (← isInstLEInt i)
+    guard (← DefEq.isInstLEInt i)
     return (← toLinearExpr b, ← toLinearExpr a)
   | GT.gt _ i a b =>
-    guard (← isInstLTInt i)
+    guard (← DefEq.isInstLTInt i)
     return (.add (← toLinearExpr b) (.num 1), ← toLinearExpr a)
   | _ => failure
 
 partial def dvdCnstr? (e : Expr) : M (Option (Int × Int.Linear.Expr)) := OptionT.run do
   let_expr Dvd.dvd _ inst k b ← e | failure
-  guard (← isInstDvdInt inst)
+  guard (← DefEq.isInstDvdInt inst)
   let some k ← getIntValue? k | failure
   return (k, ← toLinearExpr b)
 

@@ -323,7 +323,7 @@ static lean_object* _init_l___private_Lake_CLI_Help_0__Lake_helpPack___closed__0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Pack build artifacts into a archive for distribution\n\nUSAGE:\n  lake pack [<file.tgz>]\n\nPacks the root package's `buildDir` into a gzip tar archive using `tar`.\nIf a path for the archive is not specified, creates a archive in the package's\nLake directory (`.lake`) named according to its `buildArchive` setting.\n\nDoes NOT build any artifacts. It just packs the existing ones.", 374, 374);
+x_1 = lean_mk_string_unchecked("Pack build artifacts into an archive for distribution\n\nUSAGE:\n  lake pack [<file.tgz>]\n\nPacks the root package's `buildDir` into a gzip tar archive using `tar`.\nIf a path for the archive is not specified, creates an archive in the package's\nLake directory (`.lake`) named according to its `buildArchive` setting.\n\nDoes NOT build any artifacts. It just packs the existing ones.", 376, 376);
 return x_1;
 }
 }

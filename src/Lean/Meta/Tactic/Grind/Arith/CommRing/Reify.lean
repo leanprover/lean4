@@ -80,6 +80,9 @@ partial def reifyCore? (e : Expr) (skipVar : Bool) (gen : Nat) : m (Option RingE
     | OfNat.ofNat _ n _ =>
       let some k ← getNatValue? n | toVar e
       return .num k
+    | BitVec.ofNat _ n =>
+      let some k ← getNatValue? n | toVar e
+      return .num k
     | _ => toVar e
   let toTopVar (e : Expr) : m (Option RingExpr) := do
     if skipVar then

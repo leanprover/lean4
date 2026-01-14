@@ -45,28 +45,28 @@ theorem count_iter_eq_size [ToIterator (Slice γ) Id α β]
 
 @[simp]
 theorem toArray_iter {s : Slice γ} [ToIterator (Slice γ) Id α β]
-    [Iterator α Id β] [IteratorCollect α Id Id]
+    [Iterator α Id β]
     [Finite α Id] :
     s.iter.toArray = s.toArray := by
   simp [Internal.iter_eq_iter, Internal.toArray_eq_toArray_iter]
 
 @[deprecated toArray_iter (since := "2025-11-13")]
 theorem toArray_eq_toArray_iter {s : Slice γ} [ToIterator (Slice γ) Id α β]
-    [Iterator α Id β] [IteratorCollect α Id Id]
+    [Iterator α Id β]
     [Finite α Id] :
     s.toArray = s.iter.toArray := by
   simp
 
 @[simp]
 theorem toList_iter {s : Slice γ} [ToIterator (Slice γ) Id α β]
-    [Iterator α Id β] [IteratorCollect α Id Id]
+    [Iterator α Id β]
     [Finite α Id] :
     s.iter.toList = s.toList := by
   simp [Internal.iter_eq_iter, Internal.toList_eq_toList_iter]
 
 @[deprecated toList_iter (since := "2025-11-13")]
 theorem toList_eq_toList_iter {s : Slice γ} [ToIterator (Slice γ) Id α β]
-    [Iterator α Id β] [IteratorCollect α Id Id]
+    [Iterator α Id β]
     [Finite α Id] :
     s.toList = s.iter.toList := by
   simp

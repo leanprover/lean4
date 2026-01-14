@@ -23,7 +23,6 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Binary_parseId(lean_o
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parsePos___closed__4;
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Text_parseActions_go(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillNegOrZero_go(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__3_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint32_to_uint8(uint32_t);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseZero___closed__3;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_lratProofToString___boxed(lean_object*);
@@ -34,11 +33,12 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillNegOrZ
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_skipNewline___closed__1;
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Binary_parseZero___closed__0;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__2_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint8_lor(uint8_t, uint8_t);
 uint8_t lean_byte_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseLit_go___closed__1;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__3_spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction_parseAdd_spec__1(lean_object*);
 extern lean_object* l_Int_instInhabited;
 static lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Text_parseActions_go___closed__1;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseLit(lean_object*);
@@ -53,7 +53,6 @@ lean_object* lean_mk_empty_byte_array(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToString_serializeRatHint(lean_object*);
 uint32_t lean_uint8_to_uint32(uint8_t);
 lean_object* lean_array_push(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*);
 uint8_t lean_uint64_dec_lt(uint64_t, uint64_t);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseRat(lean_object*, lean_object*);
@@ -89,7 +88,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseAction(lean_object*);
 static lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_getPivot___closed__0;
 lean_object* l_IO_FS_writeBinFile(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__2(lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_instNatCastInt___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_startAdd(lean_object*);
@@ -106,7 +105,9 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parsePos___closed__0;
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 lean_object* lean_nat_to_int(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__1(lean_object*, size_t, size_t, lean_object*);
 extern lean_object* l_ByteArray_empty;
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero_go___at___00Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction_parseAdd_spec__1_spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_lratProofToString(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Binary_parseZero(lean_object*);
 uint64_t lean_uint8_to_uint64(uint8_t);
@@ -115,7 +116,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCore___at___00Std_Tactic_BVDe
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseRat___closed__1;
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseRat___closed__0;
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_skipNewline___closed__3;
-LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero_go___at___00Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction_parseAdd_spec__2_spec__2(lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseNeg___closed__2;
 static lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseLit_go___closed__0;
 static lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Text_parseIdList_idWs___closed__2;
@@ -137,7 +137,6 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Binary_parsePos(lean_
 static lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToString_serializeRatHint___closed__0;
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_skipNewline(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction_parseAdd_spec__2(lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_skipNewline___closed__4;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_loadLRATProof(lean_object*);
 uint8_t lean_uint64_to_uint8(uint64_t);
@@ -151,7 +150,6 @@ LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tact
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero___redArg___closed__0;
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Binary_parseNeg___closed__0;
 static lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Text_parseIdList_idWs___closed__1;
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static uint8_t l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseLit_go___closed__4;
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseNeg___closed__1;
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_getPivot___boxed(lean_object*);
@@ -186,6 +184,7 @@ static lean_object* l_Std_Internal_Parsec_manyCore___at___00__private_Std_Tactic
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero_go___at___00Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction_parseAdd_spec__0_spec__0(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_addInt___closed__3;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__2_spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseLit_go___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseNeg___closed__5;
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseZero___closed__1;
@@ -215,7 +214,7 @@ LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tact
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseNeg(lean_object*);
 static lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_addInt___closed__4;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_uint8_to_nat(uint8_t);
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -251,6 +250,7 @@ lean_object* lean_byte_array_size(lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_addNat(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseDelete(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_lratProofToString_spec__0___closed__0;
 static uint8_t l_Std_Tactic_BVDecide_LRAT_Parser_Text_skipNewline___closed__2;
 static lean_object* _init_l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_getPivot___closed__0() {
@@ -8408,7 +8408,7 @@ x_3 = l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Pa
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero_go___at___00Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction_parseAdd_spec__2_spec__2(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero_go___at___00Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction_parseAdd_spec__1_spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
@@ -8484,12 +8484,12 @@ return x_21;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction_parseAdd_spec__2(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction_parseAdd_spec__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseRat___closed__0;
-x_3 = l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero_go___at___00Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction_parseAdd_spec__2_spec__2(x_2, x_1);
+x_3 = l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero_go___at___00Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction_parseAdd_spec__1_spec__2(x_2, x_1);
 return x_3;
 }
 }
@@ -8590,7 +8590,7 @@ lean_inc(x_29);
 x_30 = lean_ctor_get(x_28, 1);
 lean_inc(x_30);
 lean_dec_ref(x_28);
-x_31 = l_Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction_parseAdd_spec__2(x_29);
+x_31 = l_Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction_parseAdd_spec__1(x_29);
 if (lean_obj_tag(x_31) == 0)
 {
 uint8_t x_32; 
@@ -8996,7 +8996,7 @@ lean_inc(x_116);
 x_117 = lean_ctor_get(x_115, 1);
 lean_inc(x_117);
 lean_dec_ref(x_115);
-x_118 = l_Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction_parseAdd_spec__2(x_116);
+x_118 = l_Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction_parseAdd_spec__1(x_116);
 if (lean_obj_tag(x_118) == 0)
 {
 lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; uint8_t x_125; 
@@ -9297,7 +9297,7 @@ lean_inc(x_177);
 x_178 = lean_ctor_get(x_176, 1);
 lean_inc(x_178);
 lean_dec_ref(x_176);
-x_179 = l_Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction_parseAdd_spec__2(x_177);
+x_179 = l_Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction_parseAdd_spec__1(x_177);
 if (lean_obj_tag(x_179) == 0)
 {
 lean_object* x_180; lean_object* x_181; lean_object* x_182; lean_object* x_183; lean_object* x_184; lean_object* x_185; uint8_t x_186; 
@@ -9666,7 +9666,7 @@ lean_inc(x_251);
 x_252 = lean_ctor_get(x_250, 1);
 lean_inc(x_252);
 lean_dec_ref(x_250);
-x_253 = l_Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction_parseAdd_spec__2(x_251);
+x_253 = l_Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillZero___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction_parseAdd_spec__1(x_251);
 if (lean_obj_tag(x_253) == 0)
 {
 lean_object* x_254; lean_object* x_255; lean_object* x_256; lean_object* x_257; lean_object* x_258; lean_object* x_259; uint8_t x_260; 
@@ -10663,6 +10663,8 @@ uint8_t x_6;
 x_6 = lean_nat_dec_le(x_4, x_4);
 if (x_6 == 0)
 {
+if (x_5 == 0)
+{
 return x_2;
 }
 else
@@ -10672,6 +10674,15 @@ x_7 = 0;
 x_8 = lean_usize_of_nat(x_4);
 x_9 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToString_serializeIdList_spec__0(x_1, x_7, x_8, x_2);
 return x_9;
+}
+}
+else
+{
+size_t x_10; size_t x_11; lean_object* x_12; 
+x_10 = 0;
+x_11 = lean_usize_of_nat(x_4);
+x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToString_serializeIdList_spec__0(x_1, x_10, x_11, x_2);
+return x_12;
 }
 }
 }
@@ -10770,6 +10781,8 @@ uint8_t x_6;
 x_6 = lean_nat_dec_le(x_4, x_4);
 if (x_6 == 0)
 {
+if (x_5 == 0)
+{
 return x_2;
 }
 else
@@ -10779,6 +10792,15 @@ x_7 = 0;
 x_8 = lean_usize_of_nat(x_4);
 x_9 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToString_serializeRatHints_spec__0(x_1, x_7, x_8, x_2);
 return x_9;
+}
+}
+else
+{
+size_t x_10; size_t x_11; lean_object* x_12; 
+x_10 = 0;
+x_11 = lean_usize_of_nat(x_4);
+x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToString_serializeRatHints_spec__0(x_1, x_10, x_11, x_2);
+return x_12;
 }
 }
 }
@@ -10880,6 +10902,8 @@ uint8_t x_6;
 x_6 = lean_nat_dec_le(x_4, x_4);
 if (x_6 == 0)
 {
+if (x_5 == 0)
+{
 return x_2;
 }
 else
@@ -10889,6 +10913,15 @@ x_7 = 0;
 x_8 = lean_usize_of_nat(x_4);
 x_9 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToString_serializeClause_spec__0(x_1, x_7, x_8, x_2);
 return x_9;
+}
+}
+else
+{
+size_t x_10; size_t x_11; lean_object* x_12; 
+x_10 = 0;
+x_11 = lean_usize_of_nat(x_4);
+x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToString_serializeClause_spec__0(x_1, x_10, x_11, x_2);
+return x_12;
 }
 }
 }
@@ -11100,6 +11133,8 @@ uint8_t x_6;
 x_6 = lean_nat_dec_le(x_4, x_4);
 if (x_6 == 0)
 {
+if (x_5 == 0)
+{
 return x_2;
 }
 else
@@ -11109,6 +11144,15 @@ x_7 = 0;
 x_8 = lean_usize_of_nat(x_4);
 x_9 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_lratProofToString_spec__0(x_1, x_7, x_8, x_2);
 return x_9;
+}
+}
+else
+{
+size_t x_10; size_t x_11; lean_object* x_12; 
+x_10 = 0;
+x_11 = lean_usize_of_nat(x_4);
+x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_Tactic_BVDecide_LRAT_lratProofToString_spec__0(x_1, x_10, x_11, x_2);
+return x_12;
 }
 }
 }
@@ -11347,7 +11391,7 @@ x_3 = lean_byte_array_push(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__2(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__1(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -11417,7 +11461,7 @@ return x_4;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__3_spec__3(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__2_spec__3(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; uint8_t x_11; 
@@ -11450,6 +11494,8 @@ uint8_t x_20;
 x_20 = lean_nat_dec_le(x_18, x_18);
 if (x_20 == 0)
 {
+if (x_19 == 0)
+{
 lean_dec(x_14);
 x_6 = x_17;
 goto block_10;
@@ -11462,6 +11508,17 @@ x_22 = lean_usize_of_nat(x_18);
 x_23 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__0(x_14, x_21, x_22, x_17);
 lean_dec(x_14);
 x_6 = x_23;
+goto block_10;
+}
+}
+else
+{
+size_t x_24; size_t x_25; lean_object* x_26; 
+x_24 = 0;
+x_25 = lean_usize_of_nat(x_18);
+x_26 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__0(x_14, x_24, x_25, x_17);
+lean_dec(x_14);
+x_6 = x_26;
 goto block_10;
 }
 }
@@ -11481,7 +11538,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__3(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__2(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; uint8_t x_11; 
@@ -11514,6 +11571,8 @@ uint8_t x_20;
 x_20 = lean_nat_dec_le(x_18, x_18);
 if (x_20 == 0)
 {
+if (x_19 == 0)
+{
 lean_dec(x_14);
 x_6 = x_17;
 goto block_10;
@@ -11529,6 +11588,17 @@ x_6 = x_23;
 goto block_10;
 }
 }
+else
+{
+size_t x_24; size_t x_25; lean_object* x_26; 
+x_24 = 0;
+x_25 = lean_usize_of_nat(x_18);
+x_26 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__0(x_14, x_24, x_25, x_17);
+lean_dec(x_14);
+x_6 = x_26;
+goto block_10;
+}
+}
 }
 else
 {
@@ -11539,7 +11609,7 @@ block_10:
 size_t x_7; size_t x_8; lean_object* x_9; 
 x_7 = 1;
 x_8 = lean_usize_add(x_3, x_7);
-x_9 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__3_spec__3(x_1, x_2, x_8, x_4, x_6);
+x_9 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__2_spec__3(x_1, x_2, x_8, x_4, x_6);
 return x_9;
 }
 }
@@ -11587,6 +11657,8 @@ uint8_t x_39;
 x_39 = lean_nat_dec_le(x_37, x_37);
 if (x_39 == 0)
 {
+if (x_38 == 0)
+{
 x_13 = x_35;
 goto block_16;
 }
@@ -11600,74 +11672,108 @@ x_13 = x_42;
 goto block_16;
 }
 }
+else
+{
+size_t x_43; size_t x_44; lean_object* x_45; 
+x_43 = 0;
+x_44 = lean_usize_of_nat(x_37);
+x_45 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__0(x_29, x_43, x_44, x_35);
+x_13 = x_45;
+goto block_16;
+}
+}
 }
 case 1:
 {
-lean_object* x_43; lean_object* x_44; lean_object* x_45; uint8_t x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_61; uint8_t x_62; 
-x_43 = lean_ctor_get(x_27, 0);
-x_44 = lean_ctor_get(x_27, 1);
-x_45 = lean_ctor_get(x_27, 2);
-x_46 = l_Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction___closed__0;
-x_47 = lean_byte_array_push(x_3, x_46);
-lean_inc(x_43);
-x_48 = lean_nat_to_int(x_43);
-x_49 = l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_addInt(x_47, x_48);
-lean_dec(x_48);
-x_50 = lean_unsigned_to_nat(0u);
-x_61 = lean_array_get_size(x_44);
-x_62 = lean_nat_dec_lt(x_50, x_61);
-if (x_62 == 0)
+lean_object* x_46; lean_object* x_47; lean_object* x_48; uint8_t x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_67; uint8_t x_68; 
+x_46 = lean_ctor_get(x_27, 0);
+x_47 = lean_ctor_get(x_27, 1);
+x_48 = lean_ctor_get(x_27, 2);
+x_49 = l_Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction___closed__0;
+x_50 = lean_byte_array_push(x_3, x_49);
+lean_inc(x_46);
+x_51 = lean_nat_to_int(x_46);
+x_52 = l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_addInt(x_50, x_51);
+lean_dec(x_51);
+x_53 = lean_unsigned_to_nat(0u);
+x_67 = lean_array_get_size(x_47);
+x_68 = lean_nat_dec_lt(x_53, x_67);
+if (x_68 == 0)
 {
-x_51 = x_49;
-goto block_60;
+x_54 = x_52;
+goto block_66;
 }
 else
 {
-uint8_t x_63; 
-x_63 = lean_nat_dec_le(x_61, x_61);
-if (x_63 == 0)
+uint8_t x_69; 
+x_69 = lean_nat_dec_le(x_67, x_67);
+if (x_69 == 0)
 {
-x_51 = x_49;
-goto block_60;
+if (x_68 == 0)
+{
+x_54 = x_52;
+goto block_66;
 }
 else
 {
-size_t x_64; size_t x_65; lean_object* x_66; 
-x_64 = 0;
-x_65 = lean_usize_of_nat(x_61);
-x_66 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__2(x_44, x_64, x_65, x_49);
-x_51 = x_66;
-goto block_60;
+size_t x_70; size_t x_71; lean_object* x_72; 
+x_70 = 0;
+x_71 = lean_usize_of_nat(x_67);
+x_72 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__1(x_47, x_70, x_71, x_52);
+x_54 = x_72;
+goto block_66;
 }
 }
-block_60:
+else
 {
-uint8_t x_52; lean_object* x_53; lean_object* x_54; uint8_t x_55; 
-x_52 = 0;
-x_53 = lean_byte_array_push(x_51, x_52);
-x_54 = lean_array_get_size(x_45);
-x_55 = lean_nat_dec_lt(x_50, x_54);
-if (x_55 == 0)
+size_t x_73; size_t x_74; lean_object* x_75; 
+x_73 = 0;
+x_74 = lean_usize_of_nat(x_67);
+x_75 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__1(x_47, x_73, x_74, x_52);
+x_54 = x_75;
+goto block_66;
+}
+}
+block_66:
 {
-x_17 = x_53;
+uint8_t x_55; lean_object* x_56; lean_object* x_57; uint8_t x_58; 
+x_55 = 0;
+x_56 = lean_byte_array_push(x_54, x_55);
+x_57 = lean_array_get_size(x_48);
+x_58 = lean_nat_dec_lt(x_53, x_57);
+if (x_58 == 0)
+{
+x_17 = x_56;
 goto block_20;
 }
 else
 {
-uint8_t x_56; 
-x_56 = lean_nat_dec_le(x_54, x_54);
-if (x_56 == 0)
+uint8_t x_59; 
+x_59 = lean_nat_dec_le(x_57, x_57);
+if (x_59 == 0)
 {
-x_17 = x_53;
+if (x_58 == 0)
+{
+x_17 = x_56;
 goto block_20;
 }
 else
 {
-size_t x_57; size_t x_58; lean_object* x_59; 
-x_57 = 0;
-x_58 = lean_usize_of_nat(x_54);
-x_59 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__0(x_45, x_57, x_58, x_53);
-x_17 = x_59;
+size_t x_60; size_t x_61; lean_object* x_62; 
+x_60 = 0;
+x_61 = lean_usize_of_nat(x_57);
+x_62 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__0(x_48, x_60, x_61, x_56);
+x_17 = x_62;
+goto block_20;
+}
+}
+else
+{
+size_t x_63; size_t x_64; lean_object* x_65; 
+x_63 = 0;
+x_64 = lean_usize_of_nat(x_57);
+x_65 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__0(x_48, x_63, x_64, x_56);
+x_17 = x_65;
 goto block_20;
 }
 }
@@ -11675,137 +11781,185 @@ goto block_20;
 }
 case 2:
 {
-lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; uint8_t x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_84; lean_object* x_94; uint8_t x_95; 
-x_67 = lean_ctor_get(x_27, 0);
-x_68 = lean_ctor_get(x_27, 1);
-x_69 = lean_ctor_get(x_27, 3);
-x_70 = lean_ctor_get(x_27, 4);
-x_71 = l_Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction___closed__0;
-x_72 = lean_byte_array_push(x_3, x_71);
-lean_inc(x_67);
-x_73 = lean_nat_to_int(x_67);
-x_74 = l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_addInt(x_72, x_73);
-lean_dec(x_73);
-x_75 = lean_unsigned_to_nat(0u);
-x_94 = lean_array_get_size(x_68);
-x_95 = lean_nat_dec_lt(x_75, x_94);
-if (x_95 == 0)
+lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; uint8_t x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_96; lean_object* x_109; uint8_t x_110; 
+x_76 = lean_ctor_get(x_27, 0);
+x_77 = lean_ctor_get(x_27, 1);
+x_78 = lean_ctor_get(x_27, 3);
+x_79 = lean_ctor_get(x_27, 4);
+x_80 = l_Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction___closed__0;
+x_81 = lean_byte_array_push(x_3, x_80);
+lean_inc(x_76);
+x_82 = lean_nat_to_int(x_76);
+x_83 = l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_addInt(x_81, x_82);
+lean_dec(x_82);
+x_84 = lean_unsigned_to_nat(0u);
+x_109 = lean_array_get_size(x_77);
+x_110 = lean_nat_dec_lt(x_84, x_109);
+if (x_110 == 0)
 {
-x_84 = x_74;
-goto block_93;
+x_96 = x_83;
+goto block_108;
 }
 else
 {
-uint8_t x_96; 
-x_96 = lean_nat_dec_le(x_94, x_94);
-if (x_96 == 0)
+uint8_t x_111; 
+x_111 = lean_nat_dec_le(x_109, x_109);
+if (x_111 == 0)
 {
-x_84 = x_74;
-goto block_93;
+if (x_110 == 0)
+{
+x_96 = x_83;
+goto block_108;
 }
 else
 {
-size_t x_97; size_t x_98; lean_object* x_99; 
-x_97 = 0;
-x_98 = lean_usize_of_nat(x_94);
-x_99 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__2(x_68, x_97, x_98, x_74);
-x_84 = x_99;
-goto block_93;
+size_t x_112; size_t x_113; lean_object* x_114; 
+x_112 = 0;
+x_113 = lean_usize_of_nat(x_109);
+x_114 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__1(x_77, x_112, x_113, x_83);
+x_96 = x_114;
+goto block_108;
 }
 }
-block_83:
+else
 {
-lean_object* x_77; uint8_t x_78; 
-x_77 = lean_array_get_size(x_70);
-x_78 = lean_nat_dec_lt(x_75, x_77);
-if (x_78 == 0)
+size_t x_115; size_t x_116; lean_object* x_117; 
+x_115 = 0;
+x_116 = lean_usize_of_nat(x_109);
+x_117 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__1(x_77, x_115, x_116, x_83);
+x_96 = x_117;
+goto block_108;
+}
+}
+block_95:
 {
-x_9 = x_76;
+lean_object* x_86; uint8_t x_87; 
+x_86 = lean_array_get_size(x_79);
+x_87 = lean_nat_dec_lt(x_84, x_86);
+if (x_87 == 0)
+{
+x_9 = x_85;
 goto block_12;
 }
 else
 {
-uint8_t x_79; 
-x_79 = lean_nat_dec_le(x_77, x_77);
-if (x_79 == 0)
-{
-x_9 = x_76;
-goto block_12;
-}
-else
-{
-size_t x_80; size_t x_81; lean_object* x_82; 
-x_80 = 0;
-x_81 = lean_usize_of_nat(x_77);
-x_82 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__3(x_75, x_70, x_80, x_81, x_76);
-x_9 = x_82;
-goto block_12;
-}
-}
-}
-block_93:
-{
-uint8_t x_85; lean_object* x_86; lean_object* x_87; uint8_t x_88; 
-x_85 = 0;
-x_86 = lean_byte_array_push(x_84, x_85);
-x_87 = lean_array_get_size(x_69);
-x_88 = lean_nat_dec_lt(x_75, x_87);
+uint8_t x_88; 
+x_88 = lean_nat_dec_le(x_86, x_86);
 if (x_88 == 0)
 {
-x_76 = x_86;
-goto block_83;
+if (x_87 == 0)
+{
+x_9 = x_85;
+goto block_12;
 }
 else
 {
-uint8_t x_89; 
-x_89 = lean_nat_dec_le(x_87, x_87);
-if (x_89 == 0)
-{
-x_76 = x_86;
-goto block_83;
+size_t x_89; size_t x_90; lean_object* x_91; 
+x_89 = 0;
+x_90 = lean_usize_of_nat(x_86);
+x_91 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__2(x_84, x_79, x_89, x_90, x_85);
+x_9 = x_91;
+goto block_12;
+}
 }
 else
 {
-size_t x_90; size_t x_91; lean_object* x_92; 
-x_90 = 0;
-x_91 = lean_usize_of_nat(x_87);
-x_92 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__0(x_69, x_90, x_91, x_86);
-x_76 = x_92;
-goto block_83;
+size_t x_92; size_t x_93; lean_object* x_94; 
+x_92 = 0;
+x_93 = lean_usize_of_nat(x_86);
+x_94 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__2(x_84, x_79, x_92, x_93, x_85);
+x_9 = x_94;
+goto block_12;
+}
+}
+}
+block_108:
+{
+uint8_t x_97; lean_object* x_98; lean_object* x_99; uint8_t x_100; 
+x_97 = 0;
+x_98 = lean_byte_array_push(x_96, x_97);
+x_99 = lean_array_get_size(x_78);
+x_100 = lean_nat_dec_lt(x_84, x_99);
+if (x_100 == 0)
+{
+x_85 = x_98;
+goto block_95;
+}
+else
+{
+uint8_t x_101; 
+x_101 = lean_nat_dec_le(x_99, x_99);
+if (x_101 == 0)
+{
+if (x_100 == 0)
+{
+x_85 = x_98;
+goto block_95;
+}
+else
+{
+size_t x_102; size_t x_103; lean_object* x_104; 
+x_102 = 0;
+x_103 = lean_usize_of_nat(x_99);
+x_104 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__0(x_78, x_102, x_103, x_98);
+x_85 = x_104;
+goto block_95;
+}
+}
+else
+{
+size_t x_105; size_t x_106; lean_object* x_107; 
+x_105 = 0;
+x_106 = lean_usize_of_nat(x_99);
+x_107 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__0(x_78, x_105, x_106, x_98);
+x_85 = x_107;
+goto block_95;
 }
 }
 }
 }
 default: 
 {
-lean_object* x_100; uint8_t x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; uint8_t x_105; 
-x_100 = lean_ctor_get(x_27, 0);
-x_101 = l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseDelete___closed__0;
-x_102 = lean_byte_array_push(x_3, x_101);
-x_103 = lean_unsigned_to_nat(0u);
-x_104 = lean_array_get_size(x_100);
-x_105 = lean_nat_dec_lt(x_103, x_104);
-if (x_105 == 0)
+lean_object* x_118; uint8_t x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; uint8_t x_123; 
+x_118 = lean_ctor_get(x_27, 0);
+x_119 = l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseDelete___closed__0;
+x_120 = lean_byte_array_push(x_3, x_119);
+x_121 = lean_unsigned_to_nat(0u);
+x_122 = lean_array_get_size(x_118);
+x_123 = lean_nat_dec_lt(x_121, x_122);
+if (x_123 == 0)
 {
-x_21 = x_102;
+x_21 = x_120;
 goto block_24;
 }
 else
 {
-uint8_t x_106; 
-x_106 = lean_nat_dec_le(x_104, x_104);
-if (x_106 == 0)
+uint8_t x_124; 
+x_124 = lean_nat_dec_le(x_122, x_122);
+if (x_124 == 0)
 {
-x_21 = x_102;
+if (x_123 == 0)
+{
+x_21 = x_120;
 goto block_24;
 }
 else
 {
-size_t x_107; size_t x_108; lean_object* x_109; 
-x_107 = 0;
-x_108 = lean_usize_of_nat(x_104);
-x_109 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__0(x_100, x_107, x_108, x_102);
-x_21 = x_109;
+size_t x_125; size_t x_126; lean_object* x_127; 
+x_125 = 0;
+x_126 = lean_usize_of_nat(x_122);
+x_127 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__0(x_118, x_125, x_126, x_120);
+x_21 = x_127;
+goto block_24;
+}
+}
+else
+{
+size_t x_128; size_t x_129; lean_object* x_130; 
+x_128 = 0;
+x_129 = lean_usize_of_nat(x_122);
+x_130 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__0(x_118, x_128, x_129, x_120);
+x_21 = x_130;
 goto block_24;
 }
 }
@@ -11856,7 +12010,7 @@ goto block_8;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 size_t x_5; size_t x_6; lean_object* x_7; 
@@ -11864,7 +12018,7 @@ x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
-x_7 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__2(x_1, x_5, x_6, x_4);
+x_7 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__1(x_1, x_5, x_6, x_4);
 lean_dec_ref(x_1);
 return x_7;
 }
@@ -11895,7 +12049,7 @@ lean_dec_ref(x_1);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__3_spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__2_spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 size_t x_6; size_t x_7; lean_object* x_8; 
@@ -11903,13 +12057,13 @@ x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_7 = lean_unbox_usize(x_4);
 lean_dec(x_4);
-x_8 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__3_spec__3(x_1, x_2, x_6, x_7, x_5);
+x_8 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__2_spec__3(x_1, x_2, x_6, x_7, x_5);
 lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 size_t x_6; size_t x_7; lean_object* x_8; 
@@ -11917,7 +12071,7 @@ x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_7 = lean_unbox_usize(x_4);
 lean_dec(x_4);
-x_8 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__3(x_1, x_2, x_6, x_7, x_5);
+x_8 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tactic_BVDecide_LRAT_lratProofToBinary_go_spec__2(x_1, x_2, x_6, x_7, x_5);
 lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_8;

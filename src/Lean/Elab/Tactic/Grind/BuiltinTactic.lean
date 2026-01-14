@@ -153,9 +153,10 @@ def ematchThms (only : Bool) (thms : Array EMatchTheorem) : GrindTacticM Unit :=
   if let some thmRefs := thmRefs? then
     for thmRef in thmRefs do
       match thmRef with
+      -- **Note**: Delete `namespace` modifier. We should use a custom `grind` attribute for this.
       | `(Parser.Tactic.Grind.thm| namespace $ns:ident) =>
         let namespaceName := ns.getId
-        let scopedThms ← Grind.getEMatchTheoremsForNamespace namespaceName
+        let scopedThms ← Grind.grindExt.getEMatchTheoremsForNamespace namespaceName
         thms := thms ++ scopedThms
       | `(Parser.Tactic.Grind.thm| #$anchor:hexnum) => thms := thms ++ (← withRef thmRef <| elabLocalEMatchTheorem anchor)
       | `(Parser.Tactic.Grind.thm| $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id false)
@@ -229,8 +230,8 @@ where
     match kind with
     | .ematch .user =>
       ensureNoMinIndexable minIndexable
-      let s ← Grind.getEMatchTheorems
-      let thms := s.find (.decl declName)
+      let params := (← read).params
+      let thms := params.extensions.find (.decl declName)
       let thms := thms.filter fun thm => thm.kind == .user
       if thms.isEmpty then
         throwError "invalid use of `usr` modifier, `{.ofConstName declName}` does not have patterns specified with the command `grind_pattern`"
@@ -244,7 +245,7 @@ where
         elabEMatchTheorem declName (.default false) minIndexable
       else
         return thms.toArray
-    | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC =>
+    | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC | .norm .. | .unfold =>
       throwError "invalid modifier"
 
 def logAnchor (c : SplitInfo) : TermElabM Unit := do

@@ -3014,9 +3014,9 @@ goto block_334;
 block_326:
 {
 lean_object* x_317; lean_object* x_318; uint8_t x_319; 
-x_317 = lean_nat_add(x_314, x_316);
+x_317 = lean_nat_add(x_315, x_316);
 lean_dec(x_316);
-lean_dec(x_314);
+lean_dec(x_315);
 lean_inc_ref(x_284);
 if (lean_is_scalar(x_310)) {
  x_318 = lean_alloc_ctor(0, 5, 0);
@@ -3043,7 +3043,7 @@ lean_dec(x_323);
 x_324 = lean_ctor_get(x_284, 0);
 lean_dec(x_324);
 lean_ctor_set(x_284, 4, x_318);
-lean_ctor_set(x_284, 3, x_315);
+lean_ctor_set(x_284, 3, x_314);
 lean_ctor_set(x_284, 2, x_304);
 lean_ctor_set(x_284, 1, x_303);
 lean_ctor_set(x_284, 0, x_313);
@@ -3057,7 +3057,7 @@ x_325 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_325, 0, x_313);
 lean_ctor_set(x_325, 1, x_303);
 lean_ctor_set(x_325, 2, x_304);
-lean_ctor_set(x_325, 3, x_315);
+lean_ctor_set(x_325, 3, x_314);
 lean_ctor_set(x_325, 4, x_318);
 return x_325;
 }
@@ -3084,8 +3084,8 @@ if (lean_obj_tag(x_306) == 0)
 lean_object* x_332; 
 x_332 = lean_ctor_get(x_306, 0);
 lean_inc(x_332);
-x_314 = x_331;
-x_315 = x_330;
+x_314 = x_330;
+x_315 = x_331;
 x_316 = x_332;
 goto block_326;
 }
@@ -3093,8 +3093,8 @@ else
 {
 lean_object* x_333; 
 x_333 = lean_unsigned_to_nat(0u);
-x_314 = x_331;
-x_315 = x_330;
+x_314 = x_330;
+x_315 = x_331;
 x_316 = x_333;
 goto block_326;
 }
@@ -3220,9 +3220,9 @@ goto block_375;
 block_367:
 {
 lean_object* x_363; lean_object* x_364; lean_object* x_365; lean_object* x_366; 
-x_363 = lean_nat_add(x_360, x_362);
+x_363 = lean_nat_add(x_361, x_362);
 lean_dec(x_362);
-lean_dec(x_360);
+lean_dec(x_361);
 lean_inc_ref(x_284);
 if (lean_is_scalar(x_356)) {
  x_364 = lean_alloc_ctor(0, 5, 0);
@@ -3253,7 +3253,7 @@ if (lean_is_scalar(x_365)) {
 lean_ctor_set(x_366, 0, x_359);
 lean_ctor_set(x_366, 1, x_349);
 lean_ctor_set(x_366, 2, x_350);
-lean_ctor_set(x_366, 3, x_361);
+lean_ctor_set(x_366, 3, x_360);
 lean_ctor_set(x_366, 4, x_364);
 return x_366;
 }
@@ -3279,8 +3279,8 @@ if (lean_obj_tag(x_352) == 0)
 lean_object* x_373; 
 x_373 = lean_ctor_get(x_352, 0);
 lean_inc(x_373);
-x_360 = x_372;
-x_361 = x_371;
+x_360 = x_371;
+x_361 = x_372;
 x_362 = x_373;
 goto block_367;
 }
@@ -3288,8 +3288,8 @@ else
 {
 lean_object* x_374; 
 x_374 = lean_unsigned_to_nat(0u);
-x_360 = x_372;
-x_361 = x_371;
+x_360 = x_371;
+x_361 = x_372;
 x_362 = x_374;
 goto block_367;
 }

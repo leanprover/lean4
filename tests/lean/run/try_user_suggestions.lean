@@ -7,21 +7,23 @@ public meta import Lean.Elab.Tactic.Try
 
 open Lean Meta Elab Tactic Try
 
--- Define an opaque predicate that built-in tactics (including solve_by_elim) won't solve
+-- Define an opaque predicate that built-in tactics (including solve_by_elim) won't solve.
+-- The axiom name starts with `_` so that `exact?` treats it as an implementation detail and
+-- won't suggest it directly, allowing us to test user-defined suggestion generators.
 opaque CustomProp : Prop
-axiom customPropHolds : CustomProp
+axiom _customPropHolds : CustomProp
 
 section BasicTest
 -- Define a generator that suggests the custom lemma
 @[local try_suggestion]
 meta def customPropSolver (_goal : MVarId) (_info : Try.Info) : MetaM (Array (TSyntax `tactic)) := do
-  return #[← `(tactic| exact customPropHolds)]
+  return #[← `(tactic| exact _customPropHolds)]
 
 -- Test that try? picks up the user-defined suggestion
 -- Built-in tactics won't solve this, so only user suggestion appears
 /--
 info: Try this:
-  [apply] exact customPropHolds✝
+  [apply] exact _customPropHolds✝
 -/
 #guard_msgs in
 example : CustomProp := by
@@ -32,11 +34,11 @@ section PriorityTest
 -- Test priority ordering with multiple generators
 @[local try_suggestion 2000]
 meta def highPrioritySolver (_goal : MVarId) (_info : Try.Info) : MetaM (Array (TSyntax `tactic)) := do
-  return #[← `(tactic| apply customPropHolds)]
+  return #[← `(tactic| apply _customPropHolds)]
 
 @[local try_suggestion 1000]
 meta def midPrioritySolver (_goal : MVarId) (_info : Try.Info) : MetaM (Array (TSyntax `tactic)) := do
-  return #[← `(tactic| exact customPropHolds)]
+  return #[← `(tactic| exact _customPropHolds)]
 
 @[local try_suggestion 500]
 meta def lowPrioritySolver (_goal : MVarId) (_info : Try.Info) : MetaM (Array (TSyntax `tactic)) := do
@@ -46,8 +48,8 @@ meta def lowPrioritySolver (_goal : MVarId) (_info : Try.Info) : MetaM (Array (T
 -- Note: constructor doesn't work on opaque types, so lowPrioritySolver's suggestion is filtered out
 /--
 info: Try these:
-  [apply] apply customPropHolds✝
-  [apply] exact customPropHolds✝
+  [apply] apply _customPropHolds✝
+  [apply] exact _customPropHolds✝
 -/
 #guard_msgs in
 example : CustomProp := by
@@ -82,15 +84,15 @@ section DoubleSuggestion
 -- Use CustomProp which built-ins can't solve
 @[local try_suggestion]
 meta def doubleSuggestionSolver (_goal : MVarId) (_info : Try.Info) : MetaM (Array (TSyntax `tactic)) := do
-  return #[← `(tactic| show_term apply customPropHolds)]
+  return #[← `(tactic| show_term apply _customPropHolds)]
 
 -- Double-suggestion: when show_term produces a "Try this" message,
 -- both the original tactic and the extracted suggestion should appear
 -- The message from show_term during extraction is suppressed
 /--
 info: Try these:
-  [apply] show_term apply customPropHolds✝
-  [apply] exact customPropHolds
+  [apply] show_term apply _customPropHolds✝
+  [apply] exact _customPropHolds
 -/
 #guard_msgs in
 example : CustomProp := by
@@ -99,23 +101,23 @@ end DoubleSuggestion
 
 section RegisterCommand
 -- Test the register_try?_tactic convenience command
-register_try?_tactic (priority := 500) exact customPropHolds
+register_try?_tactic (priority := 500) exact _customPropHolds
 
 /--
 info: Try this:
-  [apply] exact customPropHolds
+  [apply] exact _customPropHolds
 -/
 #guard_msgs in
 example : CustomProp := by
   try?
 
 -- Test without explicit priority (should default to 1000, so appear before exact at 500)
-register_try?_tactic apply customPropHolds
+register_try?_tactic apply _customPropHolds
 
 /--
 info: Try these:
-  [apply] apply customPropHolds
-  [apply] exact customPropHolds
+  [apply] apply _customPropHolds
+  [apply] exact _customPropHolds
 -/
 #guard_msgs in
 example : CustomProp := by

@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Data.String.Pattern.Basic
-public import Init.Data.Iterators.Internal.Termination
 public import Init.Data.Iterators.Consumers.Monadic.Loop
 import Init.Data.String.Termination
 
@@ -32,7 +31,7 @@ namespace ForwardCharPredSearcher
 def iter (p : Char → Bool) (s : Slice) : Std.Iter (α := ForwardCharPredSearcher p s) (SearchStep s) :=
   { internalState := { currPos := s.startPos }}
 
-instance (s : Slice) : Std.Iterators.Iterator (ForwardCharPredSearcher p s) Id (SearchStep s) where
+instance (s : Slice) : Std.Iterator (ForwardCharPredSearcher p s) Id (SearchStep s) where
   IsPlausibleStep it
     | .yield it' out =>
       ∃ h1 : it.internalState.currPos ≠ s.endPos,
@@ -61,7 +60,7 @@ instance (s : Slice) : Std.Iterators.Iterator (ForwardCharPredSearcher p s) Id (
 
 
 def finitenessRelation : Std.Iterators.FinitenessRelation (ForwardCharPredSearcher p s) Id where
-  rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.currPos)
+  Rel := InvImage WellFoundedRelation.rel (fun it => it.internalState.currPos)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
     simp_wf
@@ -76,7 +75,7 @@ def finitenessRelation : Std.Iterators.FinitenessRelation (ForwardCharPredSearch
 instance : Std.Iterators.Finite (ForwardCharPredSearcher p s) Id :=
   .of_finitenessRelation finitenessRelation
 
-instance : Std.Iterators.IteratorLoop (ForwardCharPredSearcher p s) Id Id :=
+instance : Std.IteratorLoop (ForwardCharPredSearcher p s) Id Id :=
   .defaultImplementation
 
 @[default_instance]
@@ -105,7 +104,7 @@ namespace BackwardCharPredSearcher
 def iter (c : Char → Bool) (s : Slice) : Std.Iter (α := BackwardCharPredSearcher s) (SearchStep s) :=
   { internalState := { currPos := s.endPos, needle := c }}
 
-instance (s : Slice) : Std.Iterators.Iterator (BackwardCharPredSearcher s) Id (SearchStep s) where
+instance (s : Slice) : Std.Iterator (BackwardCharPredSearcher s) Id (SearchStep s) where
   IsPlausibleStep it
     | .yield it' out =>
       it.internalState.needle = it'.internalState.needle ∧
@@ -134,7 +133,7 @@ instance (s : Slice) : Std.Iterators.Iterator (BackwardCharPredSearcher s) Id (S
         pure (.deflate ⟨.yield nextIt (.rejected nextPos currPos), by simp [h1, h2, nextIt, nextPos]⟩)
 
 def finitenessRelation : Std.Iterators.FinitenessRelation (BackwardCharPredSearcher s) Id where
-  rel := InvImage WellFoundedRelation.rel
+  Rel := InvImage WellFoundedRelation.rel
       (fun it => it.internalState.currPos.offset.byteIdx)
   wf := InvImage.wf _ WellFoundedRelation.wf
   subrelation {it it'} h := by
@@ -152,7 +151,7 @@ def finitenessRelation : Std.Iterators.FinitenessRelation (BackwardCharPredSearc
 instance : Std.Iterators.Finite (BackwardCharPredSearcher s) Id :=
   .of_finitenessRelation finitenessRelation
 
-instance : Std.Iterators.IteratorLoop (BackwardCharPredSearcher s) Id Id :=
+instance : Std.IteratorLoop (BackwardCharPredSearcher s) Id Id :=
   .defaultImplementation
 
 @[default_instance]

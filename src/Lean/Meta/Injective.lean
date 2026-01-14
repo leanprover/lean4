@@ -124,17 +124,41 @@ def mkInjectiveEqTheoremNameFor (ctorName : Name) : Name :=
 private def mkInjectiveEqTheoremType? (ctorVal : ConstructorVal) : MetaM (Option Expr) :=
   mkInjectiveTheoremTypeCore? ctorVal true
 
+/--
+Collects all components of a nested `And`, as projections.
+(Avoids the binders that `MVarId.casesAnd` would introduce.)
+-/
+private partial def andProjections (e : Expr) : MetaM (Array Expr) := do
+  let rec go (e : Expr) (t : Expr) (acc : Array Expr) : MetaM (Array Expr) := do
+    match_expr t with
+    | And t1 t2 =>
+      let acc ← go (mkProj ``And 0 e) t1 acc
+      let acc ← go (mkProj ``And 0 e) t2 acc
+      return acc
+    | _ =>
+      return acc.push e
+  go e (← inferType e) #[]
+
 private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : MetaM Expr := do
   forallTelescopeReducing targetType fun xs type => do
     let mvar ← mkFreshExprSyntheticOpaqueMVar type
     let [mvarId₁, mvarId₂] ← mvar.mvarId!.apply (mkConst ``Eq.propIntro)
       | throwError "unexpected number of subgoals when proving injective theorem for constructor `{ctorName}`"
     let (h, mvarId₁) ← mvarId₁.intro1
-    let (_, mvarId₂) ← mvarId₂.intro1
     solveEqOfCtorEq ctorName mvarId₁ h
-    let mvarId₂ ← mvarId₂.casesAnd
-    if let some mvarId₂ ← mvarId₂.substEqs then
-      try mvarId₂.refl catch _ => throwError (injTheoremFailureHeader ctorName)
+    let mut mvarId₂ := mvarId₂
+    while true do
+      let t ← mvarId₂.getType
+      let some (conj, body) := t.arrow?  | break
+      match_expr conj with
+      | And lhs rhs =>
+        let [mvarId₂'] ← mvarId₂.applyN (mkApp3 (mkConst `Lean.injEq_helper) lhs rhs body) 1
+            | throwError "unexpected number of goals after applying `Lean.and_imp`"
+        mvarId₂ := mvarId₂'
+      | _ => pure ()
+      let (h, mvarId₂') ← mvarId₂.intro1
+      (_, mvarId₂) ← substEq mvarId₂' h
+    try mvarId₂.refl catch _ => throwError (injTheoremFailureHeader ctorName)
     mkLambdaFVars xs mvar
 
 private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do

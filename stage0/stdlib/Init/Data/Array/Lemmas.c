@@ -1318,21 +1318,33 @@ return x_3;
 }
 else
 {
-uint8_t x_8; 
-x_8 = lean_nat_dec_le(x_5, x_5);
-if (x_8 == 0)
+lean_object* x_8; uint8_t x_9; 
+x_8 = lean_alloc_closure((void*)(l_Array_toListRev___redArg___lam__0), 2, 0);
+x_9 = lean_nat_dec_le(x_5, x_5);
+if (x_9 == 0)
 {
+if (x_7 == 0)
+{
+lean_dec_ref(x_8);
 lean_dec_ref(x_2);
 return x_3;
 }
 else
 {
-lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; 
-x_9 = lean_alloc_closure((void*)(l_Array_toListRev___redArg___lam__0), 2, 0);
+size_t x_10; size_t x_11; lean_object* x_12; 
 x_10 = 0;
 x_11 = lean_usize_of_nat(x_5);
-x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(x_6, x_9, x_2, x_10, x_11, x_3);
+x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(x_6, x_8, x_2, x_10, x_11, x_3);
 return x_12;
+}
+}
+else
+{
+size_t x_13; size_t x_14; lean_object* x_15; 
+x_13 = 0;
+x_14 = lean_usize_of_nat(x_5);
+x_15 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(x_6, x_8, x_2, x_13, x_14, x_3);
+return x_15;
 }
 }
 }
@@ -1353,21 +1365,33 @@ return x_2;
 }
 else
 {
-uint8_t x_7; 
-x_7 = lean_nat_dec_le(x_4, x_4);
-if (x_7 == 0)
+lean_object* x_7; uint8_t x_8; 
+x_7 = lean_alloc_closure((void*)(l_Array_toListRev___redArg___lam__0), 2, 0);
+x_8 = lean_nat_dec_le(x_4, x_4);
+if (x_8 == 0)
 {
+if (x_6 == 0)
+{
+lean_dec_ref(x_7);
 lean_dec_ref(x_1);
 return x_2;
 }
 else
 {
-lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
-x_8 = lean_alloc_closure((void*)(l_Array_toListRev___redArg___lam__0), 2, 0);
+size_t x_9; size_t x_10; lean_object* x_11; 
 x_9 = 0;
 x_10 = lean_usize_of_nat(x_4);
-x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(x_5, x_8, x_1, x_9, x_10, x_2);
+x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(x_5, x_7, x_1, x_9, x_10, x_2);
 return x_11;
+}
+}
+else
+{
+size_t x_12; size_t x_13; lean_object* x_14; 
+x_12 = 0;
+x_13 = lean_usize_of_nat(x_4);
+x_14 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(x_5, x_7, x_1, x_12, x_13, x_2);
+return x_14;
 }
 }
 }

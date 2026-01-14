@@ -193,6 +193,28 @@ partial def findEntryAux [BEq α] : Node α β → USize → α → Option (α �
 def findEntry? {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → Option (α × β)
   | { root }, k => findEntryAux root (hash k |>.toUSize) k
 
+partial def findKeyDAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) (i : Nat) (k : α) (k₀ : α) : α :=
+  if h : i < keys.size then
+    let k' := keys[i]
+    if k == k' then k'
+    else findKeyDAtAux keys vals heq (i+1) k k₀
+  else k₀
+
+partial def findKeyDAux [BEq α] : Node α β → USize → α → α → α
+  | .entries entries, h, k, k₀ =>
+    let j     := (mod2Shift h shift).toNat
+    match entries[j]! with
+    | .null       => k₀
+    | .ref node   => findKeyDAux node (div2Shift h shift) k k₀
+    | .entry k' _ => if k == k' then k' else k₀
+  | .collision keys vals heq, _, k, k₀ => findKeyDAtAux keys vals heq 0 k k₀
+
+/--
+A more efficient `m.findEntry? a |>.map (·.1) |>.getD a₀`
+-/
+@[inline] def findKeyD {_ : BEq α} {_ : Hashable α} (m : PersistentHashMap α β) (a : α) (a₀ : α) : α :=
+  findKeyDAux m.root (hash a |>.toUSize) a a₀
+
 partial def containsAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) (i : Nat) (k : α) : Bool :=
   if h : i < keys.size then
     let k' := keys[i]

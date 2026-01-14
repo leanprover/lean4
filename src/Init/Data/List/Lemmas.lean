@@ -97,9 +97,10 @@ open Nat
 
 /-! ### length -/
 
--- Note: this is not a good `grind` candidate,
--- as in some circumstances it results in many case splits.
 theorem eq_nil_of_length_eq_zero (_ : length l = 0) : l = [] := match l with | [] => rfl
+
+grind_pattern eq_nil_of_length_eq_zero => length l where
+  guard l.length = 0
 
 theorem ne_nil_of_length_eq_add_one (_ : length l = n + 1) : l ≠ [] := fun _ => nomatch l
 
@@ -2566,16 +2567,8 @@ theorem foldr_eq_foldrM {f : α → β → β} {b : β} {l : List α} :
 theorem idRun_foldlM {f : β → α → Id β} {b : β} {l : List α} :
     Id.run (l.foldlM f b) = l.foldl (f · · |>.run) b := foldl_eq_foldlM.symm
 
-@[deprecated idRun_foldlM (since := "2025-05-21")]
-theorem id_run_foldlM {f : β → α → Id β} {b : β} {l : List α} :
-    Id.run (l.foldlM f b) = l.foldl f b := foldl_eq_foldlM.symm
-
 theorem idRun_foldrM {f : α → β → Id β} {b : β} {l : List α} :
     Id.run (l.foldrM f b) = l.foldr (f · · |>.run) b := foldr_eq_foldrM.symm
-
-@[deprecated idRun_foldrM (since := "2025-05-21")]
-theorem id_run_foldrM {f : α → β → Id β} {b : β} {l : List α} :
-    Id.run (l.foldrM f b) = l.foldr f b := foldr_eq_foldrM.symm
 
 @[simp] theorem foldlM_reverse [Monad m] {l : List α} {f : β → α → m β} {b : β} :
     l.reverse.foldlM f b = l.foldrM (fun x y => f y x) b := rfl
@@ -2947,9 +2940,6 @@ theorem getLast?_replicate {a : α} {n : Nat} : (replicate n a).getLast? = if n 
 /-! ## Additional operations -/
 
 /-! ### leftpad -/
-
--- We unfold `leftpad` and `rightpad` for verification purposes.
-attribute [simp, grind =] leftpad rightpad
 
 -- `length_leftpad` and `length_rightpad` are in `Init.Data.List.Nat.Basic`.
 

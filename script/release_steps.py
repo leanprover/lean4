@@ -23,6 +23,7 @@ What this script does:
    - Special merging strategies for repositories with nightly-testing branches
    - Safety checks for repositories using bump branches
    - Custom build and test procedures
+   - lean-fro.org: runs scripts/update.sh to regenerate site content
 
 6. Commits the changes with message "chore: bump toolchain to {version}"
 
@@ -412,20 +413,14 @@ def execute_release_steps(repo, version, config):
         run_command("lake update", cwd=repo_path, stream_output=True)
         print(blue("Running `lake update` in examples/hero..."))
         run_command("lake update", cwd=repo_path / "examples" / "hero", stream_output=True)
+
+        # Run scripts/update.sh to regenerate content
+        print(blue("Running `scripts/update.sh` to regenerate content..."))
+        run_command("scripts/update.sh", cwd=repo_path, stream_output=True)
+        print(green("Content regenerated successfully"))
     elif repo_name == "cslib":
         print(blue("Updating lakefile.toml..."))
         run_command(f'perl -pi -e \'s/"v4\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?"/"' + version + '"/g\' lakefile.*', cwd=repo_path)
-        
-        print(blue("Updating docs/lakefile.toml..."))
-        run_command(f'perl -pi -e \'s/"v4\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?"/"' + version + '"/g\' lakefile.*', cwd=repo_path / "docs")
-
-        # Update lean-toolchain in docs
-        print(blue("Updating docs/lean-toolchain..."))
-        docs_toolchain = repo_path / "docs" / "lean-toolchain"
-        with open(docs_toolchain, "w") as f:
-            f.write(f"leanprover/lean4:{version}\n")
-        print(green(f"Updated docs/lean-toolchain to leanprover/lean4:{version}"))
-
         run_command("lake update", cwd=repo_path, stream_output=True)
     elif dependencies:
         run_command(f'perl -pi -e \'s/"v4\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?"/"' + version + '"/g\' lakefile.*', cwd=repo_path)

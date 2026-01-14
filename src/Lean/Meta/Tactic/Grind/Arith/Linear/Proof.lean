@@ -486,6 +486,16 @@ def setInconsistent (h : UnsatProof) : LinearM Unit := do
     let h ← h.toExprProof
     closeGoal h
 
+def propagateImpEq (c : EqCnstr) : LinearM Unit := do
+  let .add 1 x (.add (-1) y .nil) := c.p | unreachable!
+  let a ← getVar x
+  let b ← getVar y
+  let h ← withProofContext do
+    let h ← mkIntModThmPrefix ``Grind.Linarith.imp_eq
+    return mkApp5 h (← mkPolyDecl c.p) (← mkVarDecl x) (← mkVarDecl y) eagerReflBoolTrue (← c.toExprProof)
+  let h := mkExpectedPropHint h (← mkEq a b)
+  pushEq a b h
+
 /-!
 A linarith proof may depend on decision variables.
 We collect them and perform non chronological backtracking.

@@ -128,6 +128,7 @@ theorem pure_elim {φ : Prop} (h1 : Q ⊢ₛ ⌜φ⌝) (h2 : φ → Q ⊢ₛ R) 
   and_self.mpr.trans <| imp_elim <| h1.trans <| pure_elim' fun h =>
     imp_intro' <| and_elim_l.trans (h2 h)
 
+@[grind ←]
 theorem pure_mono {φ₁ φ₂ : Prop} (h : φ₁ → φ₂) : ⌜φ₁⌝ ⊢ₛ (⌜φ₂⌝ : SPred σs) := pure_elim' <| pure_intro ∘ h
 theorem pure_congr {φ₁ φ₂ : Prop} (h : φ₁ ↔ φ₂) : ⌜φ₁⌝ ⊣⊢ₛ (⌜φ₂⌝ : SPred σs) := bientails.iff.mpr ⟨pure_mono h.1, pure_mono h.2⟩
 
@@ -219,7 +220,7 @@ Decomposing assertions in postconditions into conjunctions of simpler predicates
 chance that automation will be able to prove the entailment of the postcondition and the next precondition.
 -/
 class IsAnd (P : SPred σs) (Q₁ Q₂ : outParam (SPred σs)) where
-  /-- A proof the the decomposition is logically equivalent to the original predicate. -/
+  /-- A proof that the decomposition is logically equivalent to the original predicate. -/
   to_and : P ⊣⊢ₛ Q₁ ∧ Q₂
 instance (σs) (Q₁ Q₂ : SPred σs) : IsAnd (σs:=σs) spred(Q₁ ∧ Q₂) Q₁ Q₂ where to_and := .rfl
 instance (σs) : IsAnd (σs:=σs) ⌜p ∧ q⌝ ⌜p⌝ ⌜q⌝ where to_and := pure_and.symm

@@ -204,3 +204,7 @@ instance StateT.tryFinally {m : Type u → Type v} {σ : Type u} [MonadFinally m
       | some (a, s') => h (some a) s'
       | none         => h none s
     pure ((a, b), s'')
+
+instance [Monad m] [MonadAttach m] : MonadAttach (StateT σ m) where
+  CanReturn x a := Exists fun s => Exists fun s' => MonadAttach.CanReturn (x.run s) (a, s')
+  attach x := fun s => (fun ⟨⟨a, s'⟩, h⟩ => ⟨⟨a, s, s', h⟩, s'⟩) <$> MonadAttach.attach (x.run s)

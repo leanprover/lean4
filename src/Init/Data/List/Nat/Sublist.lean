@@ -60,9 +60,6 @@ theorem suffix_iff_getElem? {l₁ l₂ : List α} : l₁ <:+ l₂ ↔
     rw [w, getElem_reverse]
     exact Nat.lt_of_lt_of_le h le
 
-@[deprecated suffix_iff_getElem? (since := "2025-05-27")]
-abbrev isSuffix_iff := @suffix_iff_getElem?
-
 theorem suffix_iff_getElem {l₁ l₂ : List α} :
     l₁ <:+ l₂ ↔ ∃ (_ : l₁.length ≤ l₂.length), ∀ i (_ : i < l₁.length), l₂[i + l₂.length - l₁.length] = l₁[i] := by
   rw [suffix_iff_getElem?]
@@ -110,9 +107,6 @@ theorem infix_iff_getElem? {l₁ l₂ : List α} : l₁ <:+: l₂ ↔
       congr
       simp_all
       omega
-
-@[deprecated infix_iff_getElem? (since := "2025-05-27")]
-abbrev isInfix_iff := @infix_iff_getElem?
 
 theorem suffix_iff_eq_append : l₁ <:+ l₂ ↔ take (length l₂ - length l₁) l₂ ++ l₁ = l₂ :=
   ⟨by rintro ⟨r, rfl⟩; simp only [length_append, Nat.add_sub_cancel_right, take_left], fun e =>

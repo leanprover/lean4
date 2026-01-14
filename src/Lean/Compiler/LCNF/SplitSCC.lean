@@ -36,6 +36,8 @@ where
 end SplitScc
 
 public def splitScc (scc : Array Decl) : CompilerM (Array (Array Decl)) := do
+  if scc.size == 1 then
+    return #[scc]
   let declMap := Std.HashMap.ofArray <| scc.map fun decl => (decl.name, decl)
   let callers := Std.HashMap.ofArray <| ← scc.mapM fun decl => do
     let calls ← SplitScc.findSccCalls declMap decl

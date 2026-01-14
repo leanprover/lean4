@@ -3252,7 +3252,7 @@ Version of `Array.get!Internal` that does not increment the reference count of i
 This is only intended for direct use by the compiler.
 -/
 @[extern "lean_array_get_borrowed"]
-unsafe opaque Array.get!InternalBorrowed {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α
+unsafe opaque Array.get!InternalBorrowed {α : Type u} [inst : Inhabited (Unit → α)] (a : @& Array α) (i : @& Nat) : α := inst.default ()
 
 /--
 Use the indexing notation `a[i]!` instead.
@@ -3260,8 +3260,8 @@ Use the indexing notation `a[i]!` instead.
 Access an element from an array, or panic if the index is out of bounds.
 -/
 @[extern "lean_array_get"]
-def Array.get!Internal {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
-  Array.getD a i default
+def Array.get!Internal {α : Type u} [inst : Inhabited (Unit → α)] (a : @& Array α) (i : @& Nat) : α :=
+  Array.getD a i (inst.default ())
 
 /--
 Adds an element to the end of an array. The resulting array's size is one greater than the input

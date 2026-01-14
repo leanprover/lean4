@@ -139,7 +139,6 @@ partial def visitCode (code : Code) : M Code := do
   match code with
   | .let decl k =>
     let should ← shouldExtractLetValue true decl.value
-    trace[Meta.debug] m!"Should extract: {← ppLetValue decl.value}? {should}"
     if should then
       let ⟨_, decls⟩ ← extractLetValue decl.value |>.run {}
       let decls := decls.reverse.push (.let decl)

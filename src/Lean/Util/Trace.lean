@@ -428,4 +428,7 @@ def addTraceAsMessages [Monad m] [MonadRef m] [MonadLog m] [MonadTrace m] : m Un
     let data := .tagged `trace <| .trace { cls := .anonymous } .nil traceMsg
     logMessage <| Elab.mkMessageCore (← getFileName) (← getFileMap) data .information pos endPos
 
+builtin_initialize
+  registerTraceClass `debug
+
 end Lean

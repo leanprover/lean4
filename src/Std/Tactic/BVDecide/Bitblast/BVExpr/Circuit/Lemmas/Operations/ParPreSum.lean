@@ -166,7 +166,7 @@ theorem denote_blastParPreSumLayer
 
 theorem denote_blastParPreSumTree
   (aig : AIG α) (l_length : Nat)
-  (l : AIG.RefVec aig (l_length * w)) (hw : 1 < w)
+  (l : AIG.RefVec aig (l_length * w)) (hw : 1 ≤ w)
   (h : 0 < l_length)
   (l_bv : BitVec (l_length * w))
   (hpar : ∀ (idx : Nat) (hidx : idx < l_length * w),
@@ -217,7 +217,7 @@ theorem denote_blastParPreSumTree
 
 @[simp]
 theorem denote_blastParPreSum (aig : AIG α) (l : Nat) (xc : ParPreSumTarget aig l)
-      (x : BitVec w) (assign : α → Bool)
+      (x : BitVec (xc.w)) (assign : α → Bool)
       (hx : ∀ (idx : Nat) (hidx : idx < xc.w), ⟦aig, xc.inner.get idx hidx, assign⟧ = x.getLsbD idx)
       :
       ∀ (idx : Nat) (hidx : idx < l),
@@ -225,30 +225,120 @@ theorem denote_blastParPreSum (aig : AIG α) (l : Nat) (xc : ParPreSumTarget aig
           = (BitVec.parPreSum l x).getLsbD idx := by
     generalize hgen : blastParPreSum aig xc = res
     unfold blastParPreSum at hgen
-    sorry
-    -- split at hgen
-    -- · intros idx hidx
-    --   rw [← hgen]
-    --   simp only [BitVec.ofNat_eq_ofNat, Lean.Elab.WF.paramLet, BitVec.addRecAux_succ,
-    --     BitVec.addRecAux_zero]
+    split at hgen
+    · rw [← hgen]
+      simp
+      omega
+    · case _ h1 =>
+      simp only at hgen
+      split at hgen
+      · rw [← hgen]
+        unfold BitVec.parPreSum
+        simp only [denote_blastZeroExtend, hx, dite_eq_ite, Bool.if_false_right,
+          show ¬l = 0 by omega, reduceDIte, show xc.w ≤ l by omega, BitVec.truncate_eq_setWidth]
+        intros j hj
+        by_cases hlt : j < xc.w
+        · simp [hlt]
+          omega
+        · simp [hlt, show xc.w ≤ j by omega]
+      · split at hgen
+        · rw [← hgen]
+          unfold BitVec.parPreSum
+          simp [show ¬ l = 0 by omega, show xc.w ≤ l by omega]
+          intros j hj
+          simp [hj]
+          rw [← hx]
+          · congr 1
+          · omega
+        · split at hgen
+          · rw [← hgen]
+            unfold BitVec.parPreSum
+            simp only [show ¬l = 0 by omega, ↓reduceDIte, show ¬xc.w ≤ l by omega,
+              show 0 < xc.w % l by omega,
+              BitVec.getLsbD_cast]
+            have hzero : (xc.w - xc.w % l) % l = 0 := by
+              apply Nat.sub_mod_eq_zero_of_mod_eq
+              simp
+            let diff := (l - (xc.w % l))
+            have hmodlt' := Nat.mod_lt (y := l) (x := xc.w) (by omega)
+            have hmodeq : (xc.w + diff) % l = 0 := by
+              simp only [diff]
+              rw [← Nat.add_sub_assoc (by omega), Nat.add_comm,
+                show l + xc.w - xc.w % l = l + (xc.w - xc.w % l) by omega]
+              simp [hzero]
+            let zext := x.zeroExtend (xc.w + diff)
+            let init_length := (xc.w + diff) / l
+            generalize hzext : zext.cast (m := init_length * l)
+                                  (by simp [init_length]; rw [Nat.div_mul_cancel (by omega)]) = zext'
+            apply denote_blastParPreSumTree
+            · omega
+            · rw [← hzext]
+              simp [zext]
+              let zeroExtendTarget : ExtendTarget aig (xc.w + diff) := {w := xc.w, vec := xc.inner}
+              have := denote_blastZeroExtend (target := zeroExtendTarget) (assign := assign)
+              have hcast' : xc.w + (l - xc.w % l) = (xc.w + (l - xc.w % l)) / l * l := by
+                rw [Nat.div_mul_cancel (n := l)]
+                simp [diff] at hmodeq
+                omega
+              let zextb := blastZeroExtend aig zeroExtendTarget
+              let xccast := Vector.cast hcast' zextb.vec.refs
+              intros j hj
 
-    --   rw [blastCpop.denote_go (l_bv := BitVec.extractAndExtendPopulate w x)]
-    --   · simp [show ¬ w = 0 by omega]
-    --   · omega
-    --   · intros idx hidx
-    --     rw [blastCpop.denote_blastExtractAndExtendPopulate]
-    --     · omega
-    --     · exact hx
-    -- · split at hgen
-    --   · rw [← hgen]
-    --     have : w = 1 := by omega
-    --     subst this
-    --     simp [BitVec.pps_without_subtype, BitVec.extractAndExtendPopulate, BitVec.extractAndExtendPopulateAux_without_subtype, hx]
-    --   · simp [show w = 0 by omega]
+              let zext0 := (blastZeroExtend aig zeroExtendTarget)
+              let zext1 : zext0.aig.RefVec ((xc.w + (l - xc.w % l)) / l * l) :=
+                        {refs := Vector.cast hcast' zext0.vec.refs, hrefs := by simp [zext0]
+                                                                                intros k hk
+                                                                                have := zext0.vec.hrefs (i := k)
+                                                                                simp [diff, zext0] at this
+                                                                                apply this}
+              have heq : zext1.get j hj =
+                     zext0.vec.get j (by simp [diff]; omega) := by
+                simp [zext0, zext1, zeroExtendTarget]
+                congr 2
+                · simp [diff]
+                  rw [Nat.div_mul_cancel (by simp [diff] at hmodeq; omega)]
+                · simp [diff]
+                  rw [Nat.div_mul_cancel (by simp [diff] at hmodeq; omega)]
+                · congr
+                  · simp [diff]
+                    rw [Nat.div_mul_cancel (by simp [diff] at hmodeq; omega)]
+                  · exact
+                    heq_of_eqRec_eq (congrArg (Eq (xc.w + (l - xc.w % l))) (id (Eq.symm hcast')))
+                      rfl
+                · apply proof_irrel_heq
+                · apply heq_of_eqRec_eq (congrArg (LT.lt j) (id (Eq.symm hcast'))) rfl
+              have := denote_blastZeroExtend (target := zeroExtendTarget) (assign := assign) (idx := j)
+                                              (hidx := by simp [diff]; omega)
+              rw [heq]
+              simp [zext0, zeroExtendTarget]
+              split
+              · simp only [hx]
+                rw [BitVec.getLsbD_setWidth]
+                simp [hj]
+              · rw [BitVec.getLsbD_setWidth]
+                simp [show xc.w ≤ j by omega]
+          · rw [← hgen]
+            unfold BitVec.parPreSum
+            simp [show ¬l = 0 by omega, show ¬ xc.w ≤ l by omega, show ¬ 0 < xc.w % l by omega]
+            have hcast : xc.w = xc.w / l * l := by rw [Nat.div_mul_cancel]; omega
+            have hcast' : xc.w = xc.w / l * l := by rw [Nat.div_mul_cancel]; omega
+            generalize hxcast : BitVec.cast hcast x = xcast
+            let xccast : AIG.RefVec aig (xc.w / l * l) :=
+                  {refs := Vector.cast hcast' xc.inner.refs,
+                    hrefs := by simp [xc.inner.hrefs]}
+            apply denote_blastParPreSumTree
+            · omega
+            · intros idx hidx
+              have : xcast.getLsbD idx = x.getLsbD idx := by
+                rw [← hxcast]
+                simp
+              rw [this, ← hx]
+              · congr 2
+              · omega;
 
 @[simp]
 theorem denote_blastParPreSum' (aig : AIG α) (l : Nat) (xc : ParPreSumTarget aig l)
-        (x : BitVec w) (assign : α → Bool)
+        (x : BitVec xc.w) (assign : α → Bool)
       (hx : ∀ (idx : Nat) (hidx : idx < xc.w), ⟦aig, xc.inner.get idx hidx, assign⟧ = x.getLsbD idx)
       :
       ∀ (idx : Nat) (hidx : idx < l),

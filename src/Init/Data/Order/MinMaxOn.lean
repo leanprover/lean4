@@ -51,17 +51,15 @@ public theorem minOn_eq_or [LE β] [DecidableLE β] {f : α → β} {x y : α} :
   · exact Or.inl rfl
   · exact Or.inr rfl
 
-@[simp, grind =]
+@[simp]
 public theorem minOn_self [LE β] [DecidableLE β] {f : α → β} {x : α} :
     minOn f x x = x := by
   cases minOn_eq_or (f := f) (x := x) (y := x) <;> assumption
 
-@[grind =]
 public theorem minOn_eq_left [LE β] [DecidableLE β] {f : α → β} {x y : α} (h : f x ≤ f y) :
     minOn f x y = x := by
   simp [minOn, h]
 
-@[grind =]
 public theorem minOn_eq_right [LE β] [DecidableLE β] {f : α → β} {x y : α} (h : ¬ f x ≤ f y) :
     minOn f x y = y := by
   simp [minOn, h]
@@ -73,7 +71,6 @@ public theorem minOn_eq_right_of_lt
   apply minOn_eq_right
   simpa [not_le] using h
 
-@[grind =>]
 public theorem apply_minOn_le_left [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β}
     {x y : α} : f (minOn f x y) ≤ f x := by
   rw [minOn]
@@ -81,7 +78,6 @@ public theorem apply_minOn_le_left [LE β] [DecidableLE β] [IsLinearPreorder β
   · apply le_refl
   · exact le_of_not_ge ‹_›
 
-@[grind =>]
 public theorem apply_minOn_le_right [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β}
     {x y : α} : f (minOn f x y) ≤ f y := by
   rw [minOn]
@@ -98,7 +94,6 @@ public theorem le_apply_minOn_iff [LE β] [DecidableLE β] [IsLinearPreorder β]
   · intro h
     cases minOn_eq_or (f := f) (x := x) (y := y) <;> simp_all
 
-@[grind =]
 public theorem minOn_assoc [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β}
     {x y z : α} : minOn f (minOn f x y) z = minOn f x (minOn f y z) := by
   open scoped Classical.Order in
@@ -136,17 +131,15 @@ public theorem maxOn_eq_or [LE β] [DecidableLE β] {f : α → β} {x y : α} :
     maxOn f x y = x ∨ maxOn f x y = y :=
   @minOn_eq_or ..
 
-@[simp, grind =]
+@[simp]
 public theorem maxOn_self [LE β] [DecidableLE β] {f : α → β} {x : α} :
     maxOn f x x = x :=
   @minOn_self ..
 
-@[grind =]
 public theorem maxOn_eq_left [LE β] [DecidableLE β] {f : α → β} {x y : α} (h : f y ≤ f x) :
     maxOn f x y = x :=
   @minOn_eq_left (h := h) ..
 
-@[grind =]
 public theorem maxOn_eq_right [LE β] [DecidableLE β] {f : α → β} {x y : α} (h : ¬ f y ≤ f x) :
     maxOn f x y = y :=
   @minOn_eq_right (h := h) ..
@@ -159,13 +152,11 @@ public theorem maxOn_eq_right_of_lt
   letI : LT β := (inferInstanceAs (LT β)).opposite
   minOn_eq_right_of_lt (h := h) ..
 
-@[grind =>]
 public theorem left_le_apply_maxOn [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β}
     {x y : α} : f x ≤ f (maxOn f x y) :=
   letI : LE β := (inferInstanceAs (LE β)).opposite
   apply_minOn_le_left (f := f)
 
-@[grind =>]
 public theorem right_le_apply_maxOn [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β}
     {x y : α} : f y ≤ f (maxOn f x y) :=
   letI : LE β := (inferInstanceAs (LE β)).opposite
@@ -177,7 +168,6 @@ public theorem apply_maxOn_le_iff [LE β] [DecidableLE β] [IsLinearPreorder β]
   letI : LE β := (inferInstanceAs (LE β)).opposite
   le_apply_minOn_iff (f := f)
 
-@[grind =]
 public theorem maxOn_assoc [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β}
     {x y z : α} : maxOn f (maxOn f x y) z = maxOn f x (maxOn f y z) :=
   letI : LE β := (inferInstanceAs (LE β)).opposite

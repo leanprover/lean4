@@ -113,7 +113,7 @@ def getFnType (e : Expr) (n : Nat) : SymM Expr := do
     return β
 
 /--
-Simplify arguments of a function application with a fixed prefix structure.
+Simplifies arguments of a function application with a fixed prefix structure.
 Recursively simplifies the trailing `suffixSize` arguments, leaving the first
 `prefixSize` arguments unchanged.
 
@@ -139,7 +139,7 @@ position. However, the type is only meaningful (non-`default`) when `Result` is
 `.step`, since we only need types for constructing congruence proofs. This avoids
 unnecessary type inference when no rewriting occurs.
 -/
-def congrFixedPrefix (e : Expr) (prefixSize : Nat) (suffixSize : Nat) : SimpM Result := do
+def simpFixedPrefix (e : Expr) (prefixSize : Nat) (suffixSize : Nat) : SimpM Result := do
   let numArgs := e.getAppNumArgs
   if numArgs ≤ prefixSize then
     -- Nothing to be done
@@ -182,12 +182,12 @@ where
         return (.step e' h, β)
 
 /--
-Simplify arguments of a function application with interlaced rewritable/fixed arguments.
+Simplifies arguments of a function application with interlaced rewritable/fixed arguments.
 Uses `rewritable[i]` to determine whether argument `i` should be simplified.
 For rewritable arguments, calls `simp` and uses `congrFun'`, `congrArg`, and `congr`; for fixed arguments,
 uses `congrFun` to propagate changes from earlier arguments.
 -/
-def congrInterlaced (e : Expr) (rewritable : Array Bool) : SimpM Result := do
+def simpInterlaced (e : Expr) (rewritable : Array Bool) : SimpM Result := do
   let numArgs := e.getAppNumArgs
   if h : numArgs = 0 then
     -- Nothing to be done
@@ -262,7 +262,7 @@ See type `CongrArgKind`.
    - When `xs` or `i` are simplified, the proof is adjusted in the `rhs` of the auto-generated
      theorem.
 -/
-def congrThm (e : Expr) (thm : CongrTheorem) : SimpM Result := do
+def simpUsingCongrThm (e : Expr) (thm : CongrTheorem) : SimpM Result := do
   let argKinds := thm.argKinds
   if e.getAppNumArgs != argKinds.size then
     -- **TODO**: over/under-applied
@@ -342,8 +342,8 @@ public def simpAppArgs (e : Expr) : SimpM Result := do
   let f := e.getAppFn
   match (← getCongrInfo f) with
   | .none => return .rfl
-  | .fixedPrefix prefixSize suffixSize => congrFixedPrefix e prefixSize suffixSize
-  | .interlaced rewritable => congrInterlaced e rewritable
-  | .congrTheorem thm => congrThm e thm
+  | .fixedPrefix prefixSize suffixSize => simpFixedPrefix e prefixSize suffixSize
+  | .interlaced rewritable => simpInterlaced e rewritable
+  | .congrTheorem thm => simpUsingCongrThm e thm
 
 end Lean.Meta.Sym.Simp

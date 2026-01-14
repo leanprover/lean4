@@ -111,3 +111,15 @@ example (as : Array (Nat → Nat)) (i : Nat) (_ : i < as.size) (h : as[i] a = b)
   sym_simp [Nat.zero_add]
   trace_state
   exact h
+
+/--
+trace: c a : Nat
+g : Nat → Nat
+h : ite (c > 0) a = g
+⊢ ite (c > 0) a = g
+-/
+#guard_msgs in
+example (h : ite (c > 0) a = g) : ite (c > 0) (0 + a) = g := by
+  sym_simp [Nat.zero_add]
+  trace_state
+  exact h

@@ -117,8 +117,12 @@ def simpOverApplied (e : Expr) (numArgs : Nat) (simpFn : Expr → SimpM Result) 
       match h : e with
       | .app f a =>
         let fr ← visit f i
-        if (← whnfD (← inferType f)).isArrow then
-          mkCongr e f a fr (← simp a) h
+        let .forallE _ α β _ ← whnfD (← inferType f) | unreachable!
+        if !β.hasLooseBVars then
+          if (← isProp α) then
+            mkCongr e f a fr .rfl h
+          else
+            mkCongr e f a fr (← simp a) h
         else match fr with
           | .rfl _ => return .rfl
           | .step f' hf _ => mkCongrFun e f a f' hf h
@@ -378,8 +382,11 @@ def simpUsingCongrThm (e : Expr) (thm : CongrTheorem) : SimpM Result := do
   if numArgs > argKinds.size then
     simpOverApplied e (numArgs - argKinds.size) (simpEqArgs · (argKinds.size - 1) 0 #[])
   else if numArgs < argKinds.size then
-    -- **TODO**: under-applied
-    return .rfl
+    /-
+    **Note**: under-applied case. This can be optimized, but this case is so
+    rare that it is not worth doing it. We just reuse `simpOverApplied`
+    -/
+    simpOverApplied e e.getAppNumArgs (fun _ => return .rfl)
   else
     simpEqArgs e (argKinds.size - 1) 0 #[]
 

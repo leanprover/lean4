@@ -247,7 +247,12 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
     · apply LawfulVecOperator.isPrefix_aig
     · apply goCache_Inv_of_Inv
       exact hinv
-  · sorry
+  · rw [← hres]
+    dsimp only
+    apply Cache.Inv_cast
+    · apply LawfulVecOperator.isPrefix_aig
+    · apply goCache_Inv_of_Inv
+      exact hinv
   · rw [← hres]
     dsimp only
     apply Cache.Inv_cast
@@ -466,7 +471,11 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
     · symm
       apply BitVec.getLsbD_of_ge
       omega
-  · sorry
+  · rw [← hres, eval_parPreSum, denote_blastParPreSum]
+    · rw [BitVec.flattenedAdd_eq_parPreSum]
+    · intro idx hidx
+      rw [goCache_denote_eq]
+      exact hinv
   · rw [eval_shiftLeft, ← hres, denote_blastShiftLeft]
     · intro idx hidx
       rw [goCache_denote_mem_prefix]

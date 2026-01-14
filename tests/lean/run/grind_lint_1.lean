@@ -112,4 +112,4 @@ info: Try this:
   #grind_lint inspect Array.findIdx_singleton
 -/
 #guard_msgs in
-#grind_lint check  (min := 15) in Array
+#grind_lint check (min := 15) in Array

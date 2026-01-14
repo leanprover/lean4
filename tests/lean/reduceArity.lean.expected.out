@@ -1,7 +1,3 @@
-[Compiler.result] size: 1
-    def g (α : ◾) (n : Nat) (a : lcAny) (b : lcAny) (f : lcAny → lcAny) : lcAny :=
-      let _x.1 := g._redArg n a f;
-      return _x.1
 [Compiler.result] size: 9
     def g._redArg (n : Nat) (a : lcAny) (f : lcAny → lcAny) : lcAny :=
       let zero := 0;
@@ -15,6 +11,10 @@
         let _x.2 := g._redArg n.1 a f;
         let _x.3 := f _x.2;
         return _x.3
+[Compiler.result] size: 1
+    def g (α : ◾) (n : Nat) (a : lcAny) (b : lcAny) (f : lcAny → lcAny) : lcAny :=
+      let _x.1 := g._redArg n a f;
+      return _x.1
 [Compiler.result] size: 1
     def h._closed_0 : Nat → Nat :=
       let _x.1 := double;

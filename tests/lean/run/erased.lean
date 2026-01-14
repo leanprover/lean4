@@ -61,6 +61,16 @@ trace: [Compiler.result] size: 5
       let _x.2 : Array Lean.Name := _eval._closed_3.2;
       let _x.3 : Array Lean.Name := Array.push ◾ _x.2 _x.1;
       return _x.3
+[Compiler.result] size: 3
+    def _private.lean.run.erased.0._eval._closed_5 : Lean.Elab.Term.Context →
+      lcAny → Lean.Meta.Context → lcAny → Lean.Core.Context → lcAny → lcVoid → EST.Out Lean.Exception lcAny PUnit :=
+      let _x.1 : PUnit := PUnit.unit;
+      let _x.2 : Array Lean.Name := _eval._closed_4.2;
+      let _f.3 : Lean.Elab.Term.Context →
+        lcAny →
+          Lean.Meta.Context →
+            lcAny → Lean.Core.Context → lcAny → lcVoid → EST.Out Lean.Exception lcAny PUnit := _eval._lam_0.2 _x.2 _x.1;
+      return _f.3
 [Compiler.result] size: 9
     def _private.lean.run.erased.0._eval (a.1 : Lean.Elab.Command.Context) (a.2 : lcAny) (a.3 : lcVoid) : EST.Out
       Lean.Exception lcAny PUnit :=
@@ -74,8 +84,7 @@ trace: [Compiler.result] size: 5
       let _f.11 : Lean.Elab.Term.Context →
         lcAny →
           Lean.Meta.Context →
-            lcAny →
-              Lean.Core.Context → lcAny → lcVoid → EST.Out Lean.Exception lcAny PUnit := _eval._lam_0.2 _x.9 _x.10;
+            lcAny → Lean.Core.Context → lcAny → lcVoid → EST.Out Lean.Exception lcAny PUnit := _eval._closed_5.2;
       let _x.12 : EST.Out Lean.Exception lcAny PUnit := Lean.Elab.Command.liftTermElabM._redArg _f.11 a.1 a.2 a.3;
       return _x.12
 -/

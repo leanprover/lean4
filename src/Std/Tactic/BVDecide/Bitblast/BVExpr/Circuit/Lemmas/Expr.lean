@@ -472,7 +472,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       apply BitVec.getLsbD_of_ge
       omega
   · rw [← hres, eval_parPreSum, denote_blastParPreSum]
-    · rw [BitVec.flattenedAdd_eq_parPreSum]
+    · rw [BitVec.addRec_eq_parPreSum]
     · intro idx hidx
       rw [goCache_denote_eq]
       exact hinv

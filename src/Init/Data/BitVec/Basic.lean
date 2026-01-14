@@ -891,11 +891,8 @@ def addRecAux (x : BitVec (l * w)) (rem : Nat) (acc : BitVec w) : BitVec w :=
   | 0 => acc
   | n + 1 => x.addRecAux n (acc + x.extractLsb' (n * w) w)
 
-/-- Recursive addition of the elements in a flattened bitvec. -/
-def addRec (x : BitVec (l * w)) : BitVec w := addRecAux x l 0#w
-
 /-- Add `l`-long portions of a `w`-long bitvector. -/
-def flattenedAdd (l : Nat) (x : BitVec w) : BitVec l :=
+def addRec (l : Nat) (x : BitVec w) : BitVec l :=
   if hw0 : l = 0 then 0#l
   else
     if hlt : w ≤ l then

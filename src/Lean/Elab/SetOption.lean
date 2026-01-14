@@ -11,7 +11,13 @@ public import Lean.Elab.InfoTree
 public section
 namespace Lean.Elab
 
-variable [Monad m] [MonadOptions m] [MonadError m] [MonadLiftT (EIO Exception) m] [MonadInfoTree m]
+register_builtin_option linter.deprecated.options : Bool := {
+  defValue := true
+  descr := "if true, generate deprecation warnings for deprecated options"
+}
+
+variable [Monad m] [MonadOptions m] [MonadError m] [MonadLiftT (EIO Exception) m]
+  [MonadInfoTree m] [MonadLog m] [AddMessageContext m]
 
 private def throwUnconfigurable {α} (optionName : Name) : m α :=
   throwError "Invalid `set_option` command: The option `{optionName}` cannot be configured using \
@@ -42,6 +48,16 @@ where
         {indentExpr defValType}"
     | _ => throwUnconfigurable optionName
 
+private def checkDeprecatedOption (optionName : Name) (decl : OptionDecl) : m Unit := do
+  if linter.deprecated.options.get (← getOptions) then
+    let some attr := decl.deprecation | pure ()
+    let extraMsg := match attr.text?, attr.newName? with
+      | some text, _ => m!": {text}"
+      | none, none => m!""
+      | none, some newName => m!": Use `{newName}` instead"
+    logWarning <| .tagged `Lean.Linter.deprecatedAttr <|
+       m!"`{optionName}` has been deprecated" ++ extraMsg
+
 def elabSetOption (id : Syntax) (val : Syntax) : m Options := do
   let ref ← getRef
   -- For completion purposes, we discard `val` and any later arguments.
@@ -52,6 +68,7 @@ def elabSetOption (id : Syntax) (val : Syntax) : m Options := do
   pushInfoLeaf <| .ofOptionInfo { stx := id, optionName, declName := decl.declName }
   let rec setOption (val : DataValue) : m Options := do
     validateOptionValue optionName decl val
+    withRef id <| checkDeprecatedOption optionName decl
     return (← getOptions).insert optionName val
   match val.isStrLit? with
   | some str => setOption (DataValue.ofString str)

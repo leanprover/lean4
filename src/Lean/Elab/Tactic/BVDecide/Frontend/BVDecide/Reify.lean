@@ -195,7 +195,7 @@ where
     | BitVec.flattenedAdd _ lenExpr innerExpr =>
       let some len ← getNatValue? lenExpr | return none
       let some inner ← goOrAtom innerExpr | return none
-      let bvExpr := .parPreSum len inner.bvExpr
+      let bvExpr := .parPreSum (w := inner.width) len inner.bvExpr
       let expr := mkApp3 (mkConst ``BVExpr.parPreSum)
         (toExpr inner.width)
         lenExpr

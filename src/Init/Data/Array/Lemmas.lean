@@ -4289,9 +4289,12 @@ theorem getElem?_range {n : Nat} {i : Nat} : (Array.range n)[i]? = if i < n then
 -- Without further algebraic hypotheses, there's no useful `sum_push` lemma.
 
 @[simp, grind =]
-theorem sum_eq_sum_toList [Add α] [Zero α] {as : Array α} : as.toList.sum = as.sum := by
+theorem sum_toList [Add α] [Zero α] {as : Array α} : as.toList.sum = as.sum := by
   cases as
   simp [Array.sum, List.sum]
+
+@[deprecated sum_toList (since := "2026-01-14")]
+def sum_eq_sum_toList := @sum_toList
 
 @[simp, grind =]
 theorem sum_append_nat {as₁ as₂ : Array Nat} : (as₁ ++ as₂).sum = as₁.sum + as₂.sum := by

@@ -1844,13 +1844,25 @@ theorem append_eq_map_iff {f : α → β} :
     L₁ ++ L₂ = map f l ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ map f l₁ = L₁ ∧ map f l₂ = L₂ := by
   rw [eq_comm, map_eq_append_iff]
 
+theorem sum_append [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
+    [Std.LeftIdentity (α := α) (· + ·) 0] [Std.LawfulLeftIdentity (α := α) (· + ·) 0]
+    {l₁ l₂ : List α} : (l₁ ++ l₂).sum = l₁.sum + l₂.sum := by
+  induction l₁ generalizing l₂ <;> simp_all [Std.Associative.assoc, Std.LawfulLeftIdentity.left_id]
+
 @[simp, grind =]
 theorem sum_append_nat {l₁ l₂ : List Nat} : (l₁ ++ l₂).sum = l₁.sum + l₂.sum := by
-  induction l₁ generalizing l₂ <;> simp_all [Nat.add_assoc]
+  simp [sum_append]
+
+theorem sum_reverse [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
+    [Std.Commutative (α := α) (· + ·)]
+    [Std.LawfulLeftIdentity (α := α) (· + ·) 0] (xs : List α) : xs.reverse.sum = xs.sum := by
+  induction xs <;>
+    simp_all [sum_append, Std.Commutative.comm (α := α) _ 0,
+      Std.LawfulLeftIdentity.left_id, Std.Commutative.comm]
 
 @[simp, grind =]
 theorem sum_reverse_nat (xs : List Nat) : xs.reverse.sum = xs.sum := by
-  induction xs <;> simp_all [Nat.add_comm]
+  simp [sum_reverse]
 
 /-! ### concat
 
@@ -2718,6 +2730,9 @@ theorem foldl_eq_foldr_reverse {l : List α} {f : β → α → β} {b : β} :
 
 theorem foldr_eq_foldl_reverse {l : List α} {f : α → β → β} {b : β} :
     l.foldr f b = l.reverse.foldl (fun x y => f y x) b := by simp
+
+theorem sum_eq_foldl_nat {xs : List Nat} : xs.sum = xs.foldl (init := 0) (· + ·) := by
+  simp only [foldl_eq_foldr_reverse, Nat.add_comm, ← sum_eq_foldr, sum_reverse_nat]
 
 theorem foldl_assoc {op : α → α → α} [ha : Std.Associative op] :
     ∀ {l : List α} {a₁ a₂}, l.foldl op (op a₁ a₂) = op a₁ (l.foldl op a₂)

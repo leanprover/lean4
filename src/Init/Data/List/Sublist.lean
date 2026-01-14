@@ -1124,9 +1124,11 @@ theorem drop_subset (i) (l : List α) : drop i l ⊆ l :=
 
 grind_pattern drop_subset => drop i l ⊆ l
 
+@[grind →]
 theorem mem_of_mem_take {l : List α} (h : a ∈ l.take i) : a ∈ l :=
   take_subset _ _ h
 
+@[grind →]
 theorem mem_of_mem_drop {i} {l : List α} (h : a ∈ l.drop i) : a ∈ l :=
   drop_subset _ _ h
 

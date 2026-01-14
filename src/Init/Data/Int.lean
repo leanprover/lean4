@@ -12,6 +12,7 @@ public import Init.Data.Int.Compare
 public import Init.Data.Int.DivMod
 public import Init.Data.Int.Gcd
 public import Init.Data.Int.Lemmas
+public import Init.Data.Int.LemmasExtra
 public import Init.Data.Int.LemmasAux
 public import Init.Data.Int.Order
 public import Init.Data.Int.Pow

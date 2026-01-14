@@ -59,6 +59,10 @@ theorem ofFn_succ' {f : Fin (n+1) → α} :
   apply Vector.toArray_inj.mp
   simp [Array.ofFn_succ']
 
+theorem Vector.ofFn_getElem {xs : Vector α n} :
+    Vector.ofFn (fun i : Fin n => xs[i.val]) = xs := by
+  ext; simp
+
 /-! ### ofFnM -/
 
 /-- Construct (in a monadic context) a vector by applying a monadic function to each index. -/

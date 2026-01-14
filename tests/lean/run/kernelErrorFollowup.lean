@@ -13,7 +13,7 @@ theorem zero_eq_one : 0 = 1 := bad.elim
 
 /--
 info: def bad : Empty :=
-?_uniq.3
+?_uniq.4
 -/
 #guard_msgs in
 set_option pp.raw true in

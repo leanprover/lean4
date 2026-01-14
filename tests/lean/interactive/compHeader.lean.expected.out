@@ -3,7 +3,7 @@
 {"items":
  [{"label": "veryLongNam",
    "kind": 6,
-   "data": ["«external:file:///compHeader.lean»", 2, 22, 0, "f_uniq.7"]},
+   "data": ["«external:file:///compHeader.lean»", 2, 22, 0, "f_uniq.11"]},
   {"label": "veryLongNameForCompletion",
    "kind": 21,
    "data":
@@ -17,7 +17,7 @@ Resolution of veryLongNam:
 {"label": "veryLongNam",
  "kind": 6,
  "detail": "Sort u_1",
- "data": ["«external:file:///compHeader.lean»", 2, 22, 0, "f_uniq.7"]}
+ "data": ["«external:file:///compHeader.lean»", 2, 22, 0, "f_uniq.11"]}
 Resolution of veryLongNameForCompletion:
 {"label": "veryLongNameForCompletion",
  "kind": 21,

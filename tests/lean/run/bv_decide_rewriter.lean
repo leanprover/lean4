@@ -679,6 +679,9 @@ example {x : BitVec 8} (h : x = 0#8) : x.ctz = x.clz := by bv_decide
 example {x : BitVec 8} (h : ¬ x = 0#8) : (x <<< 1).ctz = x.ctz + 1 := by bv_decide
 example {x : BitVec 8} : x.ctz ≤ 8 := by bv_decide
 
+-- FLATADD
+example : (BitVec.ofNat 16 8211).flattenedAdd 4 = 6#4 := by bv_decide
+example : (0#64).flattenedAdd 4 = 0#4 := by bv_decide
 
 section
 
@@ -706,6 +709,3 @@ example (x : Bool) (h1 h2 : x = true) : foo x := by
   sorry
 
 #eval (8211#16).flattenedAdd 4
-
--- example : (BitVec.ofNat 16 8211).flattenedAdd 4 = 6#4 := by bv_decide
-example : (0#64).flattenedAdd 4 = 0#4 := by bv_decide

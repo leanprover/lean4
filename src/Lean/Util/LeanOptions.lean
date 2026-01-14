@@ -43,6 +43,9 @@ instance : Coe Bool LeanOptionValue where
 instance : Coe Nat LeanOptionValue where
   coe := LeanOptionValue.ofNat
 
+instance {n : Nat} : OfNat LeanOptionValue n where
+  ofNat := .ofNat n
+
 instance : FromJson LeanOptionValue where
   fromJson?
     | (s : String) => Except.ok s

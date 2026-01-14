@@ -13,6 +13,10 @@ public import Init.SizeOf
 public section
 set_option linter.missingDocs true -- keep it documented
 
+-- BEq instance for Option defined here so it's available early in the import chain
+-- (before Init.Grind.Config and Init.MetaTypes which need BEq (Option Nat))
+deriving instance BEq for Option
+
 @[expose] section
 
 universe u v w
@@ -337,7 +341,7 @@ inductive Exists {α : Sort u} (p : α → Prop) : Prop where
 An indication of whether a loop's body terminated early that's used to compile the `for x in xs`
 notation.
 
-A collection's `ForIn` or `ForIn'` instance describe's how to iterate over its elements. The monadic
+A collection's `ForIn` or `ForIn'` instance describes how to iterate over its elements. The monadic
 action that represents the body of the loop returns a `ForInStep α`, where `α` is the local state
 used to implement features such as `let mut`.
 -/
@@ -510,12 +514,12 @@ abbrev SSuperset [HasSSubset α] (a b : α) := SSubset b a
 
 /-- Notation type class for the union operation `∪`. -/
 class Union (α : Type u) where
-  /-- `a ∪ b` is the union of`a` and `b`. -/
+  /-- `a ∪ b` is the union of `a` and `b`. -/
   union : α → α → α
 
 /-- Notation type class for the intersection operation `∩`. -/
 class Inter (α : Type u) where
-  /-- `a ∩ b` is the intersection of`a` and `b`. -/
+  /-- `a ∩ b` is the intersection of `a` and `b`. -/
   inter : α → α → α
 
 /-- Notation type class for the set difference `\`. -/
@@ -538,10 +542,10 @@ infix:50 " ⊇ " => Superset
 /-- Strict superset relation: `a ⊃ b`  -/
 infix:50 " ⊃ " => SSuperset
 
-/-- `a ∪ b` is the union of`a` and `b`. -/
+/-- `a ∪ b` is the union of `a` and `b`. -/
 infixl:65 " ∪ " => Union.union
 
-/-- `a ∩ b` is the intersection of`a` and `b`. -/
+/-- `a ∩ b` is the intersection of `a` and `b`. -/
 infixl:70 " ∩ " => Inter.inter
 
 /--
@@ -1560,6 +1564,10 @@ instance {p q : Prop} [d : Decidable (p ↔ q)] : Decidable (p = q) :=
   match d with
   | isTrue h => isTrue (propext h)
   | isFalse h => isFalse fun heq => h (heq ▸ Iff.rfl)
+
+/-- Helper theorem for proving injectivity theorems -/
+theorem Lean.injEq_helper {P Q R : Prop} :
+  (P → Q → R) → (P ∧ Q → R) := by intro h ⟨h₁,h₂⟩; exact h h₁ h₂
 
 gen_injective_theorems% Array
 gen_injective_theorems% BitVec

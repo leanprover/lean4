@@ -102,7 +102,7 @@ noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop) (h
       ⟨xp.val, fun _ => xp.property⟩)
     (fun hp => ⟨choice h, fun h => absurd h hp⟩)
 
-/-- the Hilbert epsilon Function -/
+/-- The Hilbert epsilon function. -/
 noncomputable def epsilon {α : Sort u} [h : Nonempty α] (p : α → Prop) : α :=
   (strongIndefiniteDescription p h).val
 

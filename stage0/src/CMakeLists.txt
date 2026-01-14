@@ -40,6 +40,10 @@ find_program(LLD_PATH lld)
 if(LLD_PATH)
   string(APPEND LEAN_EXTRA_LINKER_FLAGS_DEFAULT " -fuse-ld=lld")
 endif()
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  # Create space in install names so they can be patched later in Nix.
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS_DEFAULT " -headerpad_max_install_names")
+endif()
 
 set(LEAN_EXTRA_LINKER_FLAGS ${LEAN_EXTRA_LINKER_FLAGS_DEFAULT} CACHE STRING "Additional flags used by the linker")
 set(LEAN_EXTRA_CXX_FLAGS "" CACHE STRING "Additional flags used by the C++ compiler. Unlike `CMAKE_CXX_FLAGS`, these will not be used to build e.g. cadical.")
@@ -695,7 +699,7 @@ endif()
 
 set(STDLIBS Init Std Lean Leanc)
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  list(APPEND STDLIBS Lake)
+  list(APPEND STDLIBS Lake LeanChecker)
 endif()
 
 add_custom_target(make_stdlib ALL
@@ -757,6 +761,12 @@ if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     DEPENDS lake_shared
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lake
+    VERBATIM)
+
+  add_custom_target(leanchecker ALL
+    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+    DEPENDS lake_shared
+    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanchecker
     VERBATIM)
 endif()
 

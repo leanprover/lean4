@@ -83,7 +83,7 @@ structure BVDecideConfig where
   -/
   maxSteps : Nat := Lean.Meta.Simp.defaultMaxSteps
   /--
-  Short-circuit multiplication as a abstraction-style optimization that triggers
+  Short-circuit multiplication as an abstraction-style optimization that triggers
   if matching multiplications are not needed to proof a goal.
   -/
   shortCircuit : Bool := false

@@ -74,7 +74,7 @@ def prepareTriggers (names : Array Name) (maxTolerance : Float := 3.0) : MetaM (
   let mut map := {}
   let env ← getEnv
   let names := names.filter fun n =>
-    !isDeniedPremise env n && Lean.wasOriginallyTheorem env n
+    !isDeniedPremise env n && wasOriginallyTheorem env n
   for name in names do
     let triggers ← triggerSymbols (← getConstInfo name) maxTolerance
     for (trigger, tolerance) in triggers do

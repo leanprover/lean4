@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Compiler.LCNF.FVarUtil
 public import Lean.Compiler.LCNF.PassManager
+import Lean.Compiler.IR.CompilerM
 
 public section
 
@@ -19,30 +20,27 @@ namespace FloatLetIn
 The decision of the float mechanism.
 -/
 inductive Decision where
-|
   /--
   Push into the arm with name `name`.
   -/
-  arm (name : Name)
-| /--
+  | arm (name : Name)
+  /--
   Push into the default arm.
   -/
-  default
-|
+  | default
   /--
   Don't move this declaration it is needed where it is right now.
   -/
-  dont
-|
+  | dont
   /--
   No decision has been made yet.
   -/
-  unknown
+  | unknown
 deriving Hashable, BEq, Inhabited, Repr
 
 def Decision.ofAlt : Alt → Decision
-| .alt name _ _ => .arm name
-| .default _ => .default
+  | .alt name _ _ => .arm name
+  | .default _ => .default
 
 /--
 The context for `BaseFloatM`.
@@ -112,6 +110,7 @@ def ignore? (decl : LetDecl) : BaseFloatM Bool :=  do
 Compute the initial decision for all declarations that `BaseFloatM` collected
 up to this point, with respect to `cs`. The initial decisions are:
 - `dont` if the declaration is detected by `ignore?`
+- `dont` if the a variable used by the declaration is later used as a potentially owned parameter
 - `dont` if the declaration is the discriminant of `cs` since we obviously need
   the discriminant to be computed before the match.
 - `dont` if we see the declaration being used in more than one cases arm
@@ -120,20 +119,55 @@ up to this point, with respect to `cs`. The initial decisions are:
 -/
 def initialDecisions (cs : Cases) : BaseFloatM (Std.HashMap FVarId Decision) := do
   let mut map := Std.HashMap.emptyWithCapacity (← read).decls.length
-  map ← (← read).decls.foldrM (init := map) fun val acc => do
+  let owned : Std.HashSet FVarId := ∅
+  (map, _) ← (← read).decls.foldlM (init := (map, owned)) fun (acc, owned) val => do
     if let .let decl := val then
       if (← ignore? decl) then
-        return acc.insert decl.fvarId .dont
-    return acc.insert val.fvarId .unknown
+        return (acc.insert decl.fvarId .dont, owned)
+    let (dont, owned) := (visitDecl (← getEnv) val).run owned
+    if dont then
+      return (acc.insert val.fvarId .dont, owned)
+    else
+      return (acc.insert val.fvarId .unknown, owned)
 
   if map.contains cs.discr then
     map := map.insert cs.discr .dont
   (_, map) ← goCases cs |>.run map
   return map
 where
+  visitDecl (env : Environment) (value : CodeDecl) : StateM (Std.HashSet FVarId) Bool := do
+    match value with
+    | .let decl => visitLetValue env decl.value
+    | _ => return false -- will need to investigate whether that can be a problem
+
+  visitLetValue (env : Environment) (value : LetValue) : StateM (Std.HashSet FVarId) Bool := do
+    match value with
+    | .proj _ _ x => visitArg (.fvar x) true
+    | .const nm _ args =>
+      let decl? := IR.findEnvDecl env nm
+      match decl? with
+      | none => args.foldlM (fun b arg => visitArg arg false <||> pure b) false
+      | some decl =>
+        let mut res := false
+        for h : i in *...args.size do
+          if ← visitArg args[i] (decl.params[i]?.any (·.borrow)) then
+            res := true
+        return res
+    | .fvar x args =>
+      args.foldlM (fun b arg => visitArg arg false <||> pure b)
+        (← visitArg (.fvar x) false)
+    | .erased | .lit _ => return false
+
+  visitArg (var : Arg) (borrowed : Bool) : StateM (Std.HashSet FVarId) Bool := do
+    let .fvar v := var | return false
+    let res := (← get).contains v
+    unless borrowed do
+      modify (·.insert v)
+    return res
+
   goFVar (plannedDecision : Decision) (var : FVarId) : StateRefT (Std.HashMap FVarId Decision) BaseFloatM Unit := do
     if let some decision := (← get)[var]? then
-      if decision == .unknown then
+      if decision matches .unknown then
         modify fun s => s.insert var plannedDecision
       else if decision != plannedDecision then
         modify fun s => s.insert var .dont

@@ -33,7 +33,10 @@ public def Theorem.rewrite (thm : Theorem) (e : Expr) : SimpM Result := do
     let rhs   := thm.rhs.instantiateLevelParams thm.pattern.levelParams result.us
     let rhs   ← shareCommonInc rhs
     let expr  ← instantiateRevBetaS rhs result.args
-    return .step expr proof
+    if isSameExpr e expr then
+      return .rfl
+    else
+      return .step expr proof
   else
     return .rfl
 

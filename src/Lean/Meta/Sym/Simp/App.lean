@@ -82,6 +82,50 @@ def mkCongrFun (e : Expr) (f a : Expr) (f' : Expr) (hf : Expr) (_ : e = .app f a
   return .step e' h
 
 /--
+Handles simplification of over-applied function terms.
+
+When a function has more arguments than expected by its `CongrInfo`, we need to handle
+the "extra" arguments separately. This function peels off `numArgs` trailing applications,
+simplifies the remaining function using `simpFn`, then rebuilds the term by simplifying
+and re-applying the trailing arguments.
+
+**Over-application** occurs when:
+- A function with `fixedPrefix prefixSize suffixSize` is applied to more than `prefixSize + suffixSize` arguments
+- A function with `interlaced` rewritable mask is applied to more than `mask.size` arguments
+- A function with a congruence theorem is applied to more than the theorem expects
+
+**Example**: If `f` has `CongrInfo.fixedPrefix 2 3` (expects 5 arguments) but we see `f a₁ a₂ a₃ a₄ a₅ b₁ b₂`,
+then `numArgs = 2` (the extra arguments) and we:
+1. Recursively simplify `f a₁ a₂ a₃ a₄ a₅` using the fixed prefix strategy (via `simpFn`)
+2. Simplify each extra argument `b₁` and `b₂`
+3. Rebuild the term using either `mkCongr` (for non-dependent arrows) or `mkCongrFun` (for dependent functions)
+
+**Parameters**:
+- `e`: The over-applied expression to simplify
+- `numArgs`: Number of excess arguments to peel off
+- `simpFn`: Strategy for simplifying the function after peeling (e.g., `simpFixedPrefix`, `simpInterlaced`, or `simpUsingCongrThm`)
+
+**Note**: This is a fallback path without specialized optimizations. The common case (correct number of arguments)
+is handled more efficiently by the specific strategies.
+-/
+def simpOverApplied (e : Expr) (numArgs : Nat) (simpFn : Expr → SimpM Result) : SimpM Result := do
+  let rec visit (e : Expr) (i : Nat) : SimpM Result := do
+    if i == 0 then
+      simpFn e
+    else
+      let i := i - 1
+      match h : e with
+      | .app f a =>
+        let fr ← visit f i
+        if (← whnfD (← inferType f)).isArrow then
+          mkCongr e f a fr (← simp a) h
+        else match fr with
+          | .rfl _ => return .rfl
+          | .step f' hf _ => mkCongrFun e f a f' hf h
+      | _ => unreachable!
+  visit e numArgs
+
+/--
 Reduces `type` to weak head normal form and verifies it is a `forall` expression.
 If `type` is already a `forall`, returns it unchanged (avoiding unnecessary work).
 The result is shared via `share` to maintain maximal sharing invariants.
@@ -145,11 +189,13 @@ def simpFixedPrefix (e : Expr) (prefixSize : Nat) (suffixSize : Nat) : SimpM Res
     -- Nothing to be done
     return .rfl
   else if numArgs > prefixSize + suffixSize then
-    -- **TODO**: over-applied case
-    return .rfl
+    simpOverApplied e (numArgs - prefixSize - suffixSize) (main suffixSize)
   else
-    return (← go (numArgs - prefixSize) e).1
+    main (numArgs - prefixSize) e
 where
+  main (n : Nat) (e : Expr) : SimpM Result := do
+    return (← go n e).1
+
   go (i : Nat) (e : Expr) : SimpM (Result × Expr) := do
     if i == 0 then
       return (.rfl, default)
@@ -193,8 +239,7 @@ def simpInterlaced (e : Expr) (rewritable : Array Bool) : SimpM Result := do
     -- Nothing to be done
     return .rfl
   else if h : numArgs > rewritable.size then
-    -- **TODO**: over-applied case
-    return .rfl
+    simpOverApplied e (numArgs - rewritable.size) (go rewritable.size · (Nat.le_refl _))
   else
     go numArgs e (by omega)
 where
@@ -264,9 +309,6 @@ See type `CongrArgKind`.
 -/
 def simpUsingCongrThm (e : Expr) (thm : CongrTheorem) : SimpM Result := do
   let argKinds := thm.argKinds
-  if e.getAppNumArgs != argKinds.size then
-    -- **TODO**: over/under-applied
-    return .rfl
   /-
   Constructs the non-`rfl` result. `argResults` contains the result for arguments with kind `.eq`.
   There is at least one non-`rfl` result in `argResults`.
@@ -332,7 +374,14 @@ def simpUsingCongrThm (e : Expr) (thm : CongrTheorem) : SimpM Result := do
         return .rfl
       else
         mkNonRflResult argResults.reverse
-  simpEqArgs e (argKinds.size - 1) 0 #[]
+  let numArgs := e.getAppNumArgs
+  if numArgs > argKinds.size then
+    simpOverApplied e (numArgs - argKinds.size) (simpEqArgs · (argKinds.size - 1) 0 #[])
+  else if numArgs < argKinds.size then
+    -- **TODO**: under-applied
+    return .rfl
+  else
+    simpEqArgs e (argKinds.size - 1) 0 #[]
 
 /--
 Main entry point for simplifying function application arguments.

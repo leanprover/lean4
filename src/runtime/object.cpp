@@ -649,6 +649,7 @@ extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {
 // Tasks
 
 LEAN_THREAD_PTR(lean_task_object, g_current_task_object);
+LEAN_THREAD_VALUE(unsigned, g_task_worker_id, 0);
 
 static lean_task_imp * alloc_task_imp(obj_arg c, unsigned prio, bool keep_alive) {
     lean_task_imp * imp = (lean_task_imp*)lean_alloc_small_object(sizeof(lean_task_imp));
@@ -688,6 +689,26 @@ class task_manager {
     condition_variable                            m_task_finished_cv;
     condition_variable                            m_dedicated_finished_cv;
     bool                                          m_shutting_down{false};
+    atomic_uint                                   m_worker_seq{0};
+
+    void trace_violation(char const * reason, unsigned worker_id) {
+        size_t tid_hash = std::hash<thread::id>{}(this_thread::get_id());
+        fprintf(g_saved_stderr,
+            "task_manager: %s: tm=%p worker_id=%u tid_hash=%zu mutex=%p queue_cv=%p shutting_down=%d queues=%u idle=%u std_workers=%zu max_std=%u max_prio=%u\n",
+            reason,
+            static_cast<void*>(this),
+            worker_id,
+            tid_hash,
+            static_cast<void*>(&m_mutex),
+            static_cast<void*>(&m_queue_cv),
+            static_cast<int>(m_shutting_down),
+            m_queues_size,
+            m_idle_std_workers,
+            m_std_workers.size(),
+            m_max_std_workers,
+            m_max_prio);
+        fflush(g_saved_stderr);
+    }
 
     lean_task_object * dequeue() {
         lean_assert(m_queues_size != 0);
@@ -749,8 +770,11 @@ class task_manager {
         if (m_shutting_down)
             return;
 
-        m_std_workers.emplace_back(new lthread([this]() {
+        unsigned worker_id = m_worker_seq.fetch_add(1, memory_order_relaxed) + 1;
+
+        m_std_workers.emplace_back(new lthread([this, worker_id]() {
             save_stack_info(false);
+            g_task_worker_id = worker_id;
             unique_lock<mutex> lock(m_mutex);
             m_idle_std_workers++;
             while (true) {
@@ -762,7 +786,14 @@ class task_manager {
                         // maximum was decreased by `task_get`), wait for someone else to become
                         // idle before picking up new work.
                         m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
-                    m_queue_cv.wait(lock);
+                    auto status = m_queue_cv.wait_for(lock, chrono::seconds(600));
+                    if (status == std::cv_status::timeout) {
+                        if (m_queues_size == 0 && m_shutting_down) {
+                            trace_violation("timeout_after_shutdown", worker_id);
+                        }
+                        // Assume for simplicity that shutdown does not happen at this instant
+                        m_queue_cv.wait(lock);
+                    }
                     continue;
                 }
 

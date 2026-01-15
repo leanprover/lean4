@@ -28,8 +28,8 @@ public import Init.Data.List.Find
 public import Init.Data.List.Impl
 public import Init.Data.List.Lemmas
 public import Init.Data.List.MinMax
-public import Init.Data.List.MinMaxIdx
-public import Init.Data.List.MinMaxOn
+-- public import Init.Data.List.MinMaxIdx
+-- public import Init.Data.List.MinMaxOn
 public import Init.Data.List.Monadic
 public import Init.Data.List.Nat
 public import Init.Data.List.Notation
@@ -88,8 +88,8 @@ public import Init.Data.Order.Lemmas
 public import Init.Data.Order.LemmasExtra
 public import Init.Data.Order.Factories
 public import Init.Data.Order.FactoriesExtra
-public import Init.Data.Order.MinMaxOn
-public import Init.Data.Order.Opposite
+-- public import Init.Data.Order.MinMaxOn
+-- public import Init.Data.Order.Opposite
 public import Init.Data.Order.PackageFactories
 public import Init.Data.Rat
 public import Init.Data.Dyadic

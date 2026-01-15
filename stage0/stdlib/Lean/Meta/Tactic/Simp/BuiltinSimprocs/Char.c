@@ -5536,15 +5536,16 @@ goto block_12;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; uint8_t x_17; 
-lean_inc_ref(x_13);
-x_15 = l_Lean_Expr_appFnCleanup___redArg(x_13);
-x_16 = l_Char_reduceVal___redArg___closed__1;
-x_17 = l_Lean_Expr_isConstOf(x_15, x_16);
-lean_dec_ref(x_15);
-if (x_17 == 0)
+lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
+x_15 = lean_ctor_get(x_13, 1);
+lean_inc_ref(x_15);
+x_16 = l_Lean_Expr_appFnCleanup___redArg(x_13);
+x_17 = l_Char_reduceVal___redArg___closed__1;
+x_18 = l_Lean_Expr_isConstOf(x_16, x_17);
+lean_dec_ref(x_16);
+if (x_18 == 0)
 {
-lean_dec_ref(x_13);
+lean_dec_ref(x_15);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
@@ -5553,12 +5554,9 @@ goto block_12;
 }
 else
 {
-lean_object* x_18; lean_object* x_19; 
+lean_object* x_19; 
 lean_dec(x_9);
-x_18 = lean_ctor_get(x_13, 1);
-lean_inc_ref(x_18);
-lean_dec_ref(x_13);
-x_19 = l_Lean_Meta_getCharValue_x3f(x_18, x_2, x_3, x_4, x_5);
+x_19 = l_Lean_Meta_getCharValue_x3f(x_15, x_2, x_3, x_4, x_5);
 if (lean_obj_tag(x_19) == 0)
 {
 uint8_t x_20; 
@@ -10142,15 +10140,16 @@ goto block_12;
 }
 else
 {
-lean_object* x_17; lean_object* x_18; uint8_t x_19; 
-lean_inc_ref(x_15);
-x_17 = l_Lean_Expr_appFnCleanup___redArg(x_15);
-x_18 = l_Char_reduceOfNatAux___redArg___closed__1;
-x_19 = l_Lean_Expr_isConstOf(x_17, x_18);
-lean_dec_ref(x_17);
-if (x_19 == 0)
+lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
+x_17 = lean_ctor_get(x_15, 1);
+lean_inc_ref(x_17);
+x_18 = l_Lean_Expr_appFnCleanup___redArg(x_15);
+x_19 = l_Char_reduceOfNatAux___redArg___closed__1;
+x_20 = l_Lean_Expr_isConstOf(x_18, x_19);
+lean_dec_ref(x_18);
+if (x_20 == 0)
 {
-lean_dec_ref(x_15);
+lean_dec_ref(x_17);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
@@ -10159,13 +10158,10 @@ goto block_12;
 }
 else
 {
-lean_object* x_20; lean_object* x_21; 
+lean_object* x_21; 
 lean_dec(x_9);
-x_20 = lean_ctor_get(x_15, 1);
-lean_inc_ref(x_20);
-lean_dec_ref(x_15);
-x_21 = l_Lean_Meta_getNatValue_x3f(x_20, x_2, x_3, x_4, x_5);
-lean_dec_ref(x_20);
+x_21 = l_Lean_Meta_getNatValue_x3f(x_17, x_2, x_3, x_4, x_5);
+lean_dec_ref(x_17);
 if (lean_obj_tag(x_21) == 0)
 {
 uint8_t x_22; 

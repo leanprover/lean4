@@ -6170,17 +6170,17 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_10 = lean_ctor_get(x_5, 2);
-x_11 = lean_ctor_get(x_10, 1);
-lean_inc_ref(x_11);
-x_12 = lean_box(0);
 lean_inc_ref(x_1);
-x_13 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_13, 0, x_1);
-lean_ctor_set(x_13, 1, x_1);
+x_11 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_11, 0, x_1);
+lean_ctor_set(x_11, 1, x_1);
+x_12 = lean_ctor_get(x_10, 1);
+lean_inc_ref(x_12);
+x_13 = lean_box(0);
 x_14 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_14, 0, x_12);
-lean_ctor_set(x_14, 1, x_13);
-x_15 = l_Lean_PersistentArray_forIn___at___00__private_Lean_Meta_Match_SolveOverlap_0__Lean_MVarId_contradictionQuick_spec__3(x_12, x_2, x_3, x_4, x_11, x_14, x_5, x_6, x_7, x_8);
+lean_ctor_set(x_14, 0, x_13);
+lean_ctor_set(x_14, 1, x_11);
+x_15 = l_Lean_PersistentArray_forIn___at___00__private_Lean_Meta_Match_SolveOverlap_0__Lean_MVarId_contradictionQuick_spec__3(x_13, x_2, x_3, x_4, x_12, x_14, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_15) == 0)
 {
 uint8_t x_16; 

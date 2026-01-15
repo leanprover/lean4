@@ -8113,18 +8113,18 @@ lean_inc_ref(x_38);
 x_39 = lean_ctor_get(x_38, 2);
 lean_inc(x_39);
 x_40 = lean_box(1);
-x_41 = l_Lean_Parser_Tactic_Doc_aliases___redArg___lam__12___closed__0;
-x_42 = lean_box(0);
+x_41 = l_Lean_Parser_Tactic_Doc_allTags___redArg___closed__0;
+x_42 = l_Lean_Parser_Tactic_Doc_aliases___redArg___lam__12___closed__0;
+x_43 = lean_box(0);
 lean_inc_ref(x_36);
-x_43 = l_Lean_PersistentEnvExtension_getState___redArg(x_40, x_37, x_36, x_39, x_42);
-x_44 = l_Std_DTreeMap_Internal_Impl_forInStep___at___00Lean_Parser_Tactic_Doc_allTags___at___00__private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn_00___x40_Lean_Parser_Tactic_Doc_1804727373____hygCtx___hyg_2__spec__1_spec__6___redArg(x_41, x_43);
-x_45 = lean_ctor_get(x_44, 0);
-lean_inc(x_45);
-lean_dec_ref(x_44);
-x_46 = l_Lean_Parser_Tactic_Doc_allTags___redArg___closed__0;
-x_60 = lean_ctor_get(x_45, 0);
+x_44 = l_Lean_PersistentEnvExtension_getState___redArg(x_40, x_37, x_36, x_39, x_43);
+x_45 = l_Std_DTreeMap_Internal_Impl_forInStep___at___00Lean_Parser_Tactic_Doc_allTags___at___00__private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn_00___x40_Lean_Parser_Tactic_Doc_1804727373____hygCtx___hyg_2__spec__1_spec__6___redArg(x_42, x_44);
+x_46 = lean_ctor_get(x_45, 0);
+lean_inc(x_46);
+lean_dec_ref(x_45);
+x_60 = lean_ctor_get(x_46, 0);
 lean_inc(x_60);
-lean_dec(x_45);
+lean_dec(x_46);
 x_47 = x_60;
 goto block_59;
 block_8:
@@ -8215,7 +8215,7 @@ goto block_8;
 block_59:
 {
 lean_object* x_48; lean_object* x_49; size_t x_50; size_t x_51; lean_object* x_52; 
-x_48 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_46, x_38, x_36, x_39, x_42);
+x_48 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_41, x_38, x_36, x_39, x_43);
 lean_dec(x_39);
 lean_dec_ref(x_38);
 x_49 = lean_ctor_get(x_48, 0);

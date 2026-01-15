@@ -6501,6 +6501,54 @@ x_1 = l_Lean_Server_statefulRequestHandlers;
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__6() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Server_instMonadLiftEIOExceptionRequestM___lam__0___boxed), 4, 0);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__7() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instMonadLiftBaseIOEIO___lam__0___boxed), 3, 0);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__5() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instMonadLiftT___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__7;
+x_2 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__5;
+x_3 = lean_alloc_closure((void*)(l_instMonadLiftTOfMonadLift___redArg___lam__0), 4, 2);
+lean_closure_set(x_3, 0, x_2);
+lean_closure_set(x_3, 1, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__9() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__6;
+x_2 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__8;
+x_3 = lean_alloc_closure((void*)(l_instMonadLiftTOfMonadLift___redArg___lam__0), 4, 2);
+lean_closure_set(x_3, 0, x_2);
+lean_closure_set(x_3, 1, x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -6849,54 +6897,6 @@ x_8 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequest
 lean_dec(x_5);
 lean_dec_ref(x_1);
 return x_8;
-}
-}
-static lean_object* _init_l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__6() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Server_instMonadLiftEIOExceptionRequestM___lam__0___boxed), 4, 0);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__7() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instMonadLiftBaseIOEIO___lam__0___boxed), 3, 0);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instMonadLiftT___lam__0___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__8() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__7;
-x_2 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__5;
-x_3 = lean_alloc_closure((void*)(l_instMonadLiftTOfMonadLift___redArg___lam__0), 4, 2);
-lean_closure_set(x_3, 0, x_2);
-lean_closure_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__9() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__6;
-x_2 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__8;
-x_3 = lean_alloc_closure((void*)(l_instMonadLiftTOfMonadLift___redArg___lam__0), 4, 2);
-lean_closure_set(x_3, 0, x_2);
-lean_closure_set(x_3, 1, x_1);
-return x_3;
 }
 }
 static lean_object* _init_l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__10() {
@@ -7319,24 +7319,24 @@ lean_inc_ref(x_24);
 x_25 = lean_st_mk_ref(x_24);
 x_26 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__4;
 x_27 = lean_st_ref_take(x_26);
+x_28 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__9;
 lean_inc_ref(x_3);
-x_28 = lean_alloc_closure((void*)(l_Lean_Server_registerLspRequestHandler___redArg___lam__0), 3, 2);
-lean_closure_set(x_28, 0, x_3);
-lean_closure_set(x_28, 1, x_4);
+x_29 = lean_alloc_closure((void*)(l_Lean_Server_registerLspRequestHandler___redArg___lam__0), 3, 2);
+lean_closure_set(x_29, 0, x_3);
+lean_closure_set(x_29, 1, x_4);
 lean_inc(x_6);
 lean_inc_ref(x_1);
-x_29 = lean_alloc_closure((void*)(l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___lam__1___boxed), 9, 5);
-lean_closure_set(x_29, 0, x_3);
-lean_closure_set(x_29, 1, x_1);
-lean_closure_set(x_29, 2, x_6);
-lean_closure_set(x_29, 3, x_8);
-lean_closure_set(x_29, 4, x_5);
+x_30 = lean_alloc_closure((void*)(l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___lam__1___boxed), 9, 5);
+lean_closure_set(x_30, 0, x_3);
+lean_closure_set(x_30, 1, x_1);
+lean_closure_set(x_30, 2, x_6);
+lean_closure_set(x_30, 3, x_8);
+lean_closure_set(x_30, 4, x_5);
 lean_inc_ref(x_1);
-x_30 = lean_alloc_closure((void*)(l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___lam__0___boxed), 7, 3);
-lean_closure_set(x_30, 0, x_1);
-lean_closure_set(x_30, 1, x_6);
-lean_closure_set(x_30, 2, x_9);
-x_31 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__9;
+x_31 = lean_alloc_closure((void*)(l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___lam__0___boxed), 7, 3);
+lean_closure_set(x_31, 0, x_1);
+lean_closure_set(x_31, 1, x_6);
+lean_closure_set(x_31, 2, x_9);
 x_32 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__11;
 x_33 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__15;
 x_34 = l_Lean_Server_registerLspRequestHandler___redArg___closed__3;
@@ -7345,35 +7345,35 @@ lean_closure_set(x_35, 0, x_21);
 x_36 = lean_alloc_closure((void*)(l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___lam__3___boxed), 2, 1);
 lean_closure_set(x_36, 0, x_21);
 lean_inc_ref(x_23);
-lean_inc_ref(x_29);
+lean_inc_ref(x_30);
 lean_inc(x_25);
 x_37 = lean_alloc_closure((void*)(l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___lam__6___boxed), 11, 8);
 lean_closure_set(x_37, 0, x_25);
-lean_closure_set(x_37, 1, x_29);
+lean_closure_set(x_37, 1, x_30);
 lean_closure_set(x_37, 2, x_35);
 lean_closure_set(x_37, 3, x_33);
 lean_closure_set(x_37, 4, x_11);
-lean_closure_set(x_37, 5, x_31);
+lean_closure_set(x_37, 5, x_28);
 lean_closure_set(x_37, 6, x_32);
 lean_closure_set(x_37, 7, x_23);
 lean_inc_ref(x_23);
-lean_inc_ref(x_30);
+lean_inc_ref(x_31);
 lean_inc(x_25);
 x_38 = lean_alloc_closure((void*)(l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___lam__9___boxed), 11, 8);
 lean_closure_set(x_38, 0, x_25);
-lean_closure_set(x_38, 1, x_30);
+lean_closure_set(x_38, 1, x_31);
 lean_closure_set(x_38, 2, x_36);
 lean_closure_set(x_38, 3, x_33);
 lean_closure_set(x_38, 4, x_11);
-lean_closure_set(x_38, 5, x_31);
+lean_closure_set(x_38, 5, x_28);
 lean_closure_set(x_38, 6, x_32);
 lean_closure_set(x_38, 7, x_23);
 x_39 = l_Lean_Server_registerLspRequestHandler___redArg___closed__4;
 x_40 = lean_alloc_ctor(0, 9, 0);
-lean_ctor_set(x_40, 0, x_28);
-lean_ctor_set(x_40, 1, x_29);
+lean_ctor_set(x_40, 0, x_29);
+lean_ctor_set(x_40, 1, x_30);
 lean_ctor_set(x_40, 2, x_37);
-lean_ctor_set(x_40, 3, x_30);
+lean_ctor_set(x_40, 3, x_31);
 lean_ctor_set(x_40, 4, x_38);
 lean_ctor_set(x_40, 5, x_23);
 lean_ctor_set(x_40, 6, x_24);
@@ -7428,24 +7428,24 @@ lean_inc_ref(x_54);
 x_55 = lean_st_mk_ref(x_54);
 x_56 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__4;
 x_57 = lean_st_ref_take(x_56);
+x_58 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__9;
 lean_inc_ref(x_3);
-x_58 = lean_alloc_closure((void*)(l_Lean_Server_registerLspRequestHandler___redArg___lam__0), 3, 2);
-lean_closure_set(x_58, 0, x_3);
-lean_closure_set(x_58, 1, x_4);
+x_59 = lean_alloc_closure((void*)(l_Lean_Server_registerLspRequestHandler___redArg___lam__0), 3, 2);
+lean_closure_set(x_59, 0, x_3);
+lean_closure_set(x_59, 1, x_4);
 lean_inc(x_6);
 lean_inc_ref(x_1);
-x_59 = lean_alloc_closure((void*)(l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___lam__1___boxed), 9, 5);
-lean_closure_set(x_59, 0, x_3);
-lean_closure_set(x_59, 1, x_1);
-lean_closure_set(x_59, 2, x_6);
-lean_closure_set(x_59, 3, x_8);
-lean_closure_set(x_59, 4, x_5);
+x_60 = lean_alloc_closure((void*)(l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___lam__1___boxed), 9, 5);
+lean_closure_set(x_60, 0, x_3);
+lean_closure_set(x_60, 1, x_1);
+lean_closure_set(x_60, 2, x_6);
+lean_closure_set(x_60, 3, x_8);
+lean_closure_set(x_60, 4, x_5);
 lean_inc_ref(x_1);
-x_60 = lean_alloc_closure((void*)(l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___lam__0___boxed), 7, 3);
-lean_closure_set(x_60, 0, x_1);
-lean_closure_set(x_60, 1, x_6);
-lean_closure_set(x_60, 2, x_9);
-x_61 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__9;
+x_61 = lean_alloc_closure((void*)(l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___lam__0___boxed), 7, 3);
+lean_closure_set(x_61, 0, x_1);
+lean_closure_set(x_61, 1, x_6);
+lean_closure_set(x_61, 2, x_9);
 x_62 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__11;
 x_63 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___closed__15;
 x_64 = l_Lean_Server_registerLspRequestHandler___redArg___closed__3;
@@ -7454,35 +7454,35 @@ lean_closure_set(x_65, 0, x_51);
 x_66 = lean_alloc_closure((void*)(l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___lam__3___boxed), 2, 1);
 lean_closure_set(x_66, 0, x_51);
 lean_inc_ref(x_53);
-lean_inc_ref(x_59);
+lean_inc_ref(x_60);
 lean_inc(x_55);
 x_67 = lean_alloc_closure((void*)(l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___lam__6___boxed), 11, 8);
 lean_closure_set(x_67, 0, x_55);
-lean_closure_set(x_67, 1, x_59);
+lean_closure_set(x_67, 1, x_60);
 lean_closure_set(x_67, 2, x_65);
 lean_closure_set(x_67, 3, x_63);
 lean_closure_set(x_67, 4, x_11);
-lean_closure_set(x_67, 5, x_61);
+lean_closure_set(x_67, 5, x_58);
 lean_closure_set(x_67, 6, x_62);
 lean_closure_set(x_67, 7, x_53);
 lean_inc_ref(x_53);
-lean_inc_ref(x_60);
+lean_inc_ref(x_61);
 lean_inc(x_55);
 x_68 = lean_alloc_closure((void*)(l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___lam__9___boxed), 11, 8);
 lean_closure_set(x_68, 0, x_55);
-lean_closure_set(x_68, 1, x_60);
+lean_closure_set(x_68, 1, x_61);
 lean_closure_set(x_68, 2, x_66);
 lean_closure_set(x_68, 3, x_63);
 lean_closure_set(x_68, 4, x_11);
-lean_closure_set(x_68, 5, x_61);
+lean_closure_set(x_68, 5, x_58);
 lean_closure_set(x_68, 6, x_62);
 lean_closure_set(x_68, 7, x_53);
 x_69 = l_Lean_Server_registerLspRequestHandler___redArg___closed__4;
 x_70 = lean_alloc_ctor(0, 9, 0);
-lean_ctor_set(x_70, 0, x_58);
-lean_ctor_set(x_70, 1, x_59);
+lean_ctor_set(x_70, 0, x_59);
+lean_ctor_set(x_70, 1, x_60);
 lean_ctor_set(x_70, 2, x_67);
-lean_ctor_set(x_70, 3, x_60);
+lean_ctor_set(x_70, 3, x_61);
 lean_ctor_set(x_70, 4, x_68);
 lean_ctor_set(x_70, 5, x_53);
 lean_ctor_set(x_70, 6, x_54);

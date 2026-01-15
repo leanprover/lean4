@@ -1402,16 +1402,20 @@ return x_22;
 }
 block_34:
 {
-if (x_24 == 0)
-{
 double x_31; lean_object* x_32; 
 x_31 = l_Lean_withTraceNode___at___00Lean_executeReservedNameAction_spec__1___redArg___closed__0;
+lean_inc_ref(x_5);
+lean_inc(x_1);
 x_32 = lean_alloc_ctor(0, 2, 17);
 lean_ctor_set(x_32, 0, x_1);
 lean_ctor_set(x_32, 1, x_5);
 lean_ctor_set_float(x_32, sizeof(void*)*2, x_31);
 lean_ctor_set_float(x_32, sizeof(void*)*2 + 8, x_31);
 lean_ctor_set_uint8(x_32, sizeof(void*)*2 + 16, x_4);
+if (x_24 == 0)
+{
+lean_dec_ref(x_5);
+lean_dec(x_1);
 x_11 = x_27;
 x_12 = x_28;
 x_13 = x_29;
@@ -1424,6 +1428,7 @@ goto block_23;
 else
 {
 lean_object* x_33; 
+lean_dec_ref(x_32);
 x_33 = lean_alloc_ctor(0, 2, 17);
 lean_ctor_set(x_33, 0, x_1);
 lean_ctor_set(x_33, 1, x_5);
@@ -1512,16 +1517,20 @@ return x_56;
 }
 block_68:
 {
-if (x_60 == 0)
-{
 double x_65; lean_object* x_66; 
 x_65 = l_Lean_withTraceNode___at___00Lean_executeReservedNameAction_spec__1___redArg___closed__0;
+lean_inc_ref(x_5);
+lean_inc(x_1);
 x_66 = lean_alloc_ctor(0, 2, 17);
 lean_ctor_set(x_66, 0, x_1);
 lean_ctor_set(x_66, 1, x_5);
 lean_ctor_set_float(x_66, sizeof(void*)*2, x_65);
 lean_ctor_set_float(x_66, sizeof(void*)*2 + 8, x_65);
 lean_ctor_set_uint8(x_66, sizeof(void*)*2 + 16, x_4);
+if (x_60 == 0)
+{
+lean_dec_ref(x_5);
+lean_dec(x_1);
 x_45 = x_59;
 x_46 = x_63;
 x_47 = x_62;
@@ -1534,6 +1543,7 @@ goto block_57;
 else
 {
 lean_object* x_67; 
+lean_dec_ref(x_66);
 x_67 = lean_alloc_ctor(0, 2, 17);
 lean_ctor_set(x_67, 0, x_1);
 lean_ctor_set(x_67, 1, x_5);

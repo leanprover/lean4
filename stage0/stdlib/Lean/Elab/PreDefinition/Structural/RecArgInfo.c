@@ -1408,7 +1408,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; size_t x_15; size_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; lean_object* x_14; lean_object* x_15; size_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_1, 2);
@@ -1424,16 +1424,16 @@ x_10 = lean_mk_array(x_7, x_9);
 lean_inc_ref(x_3);
 x_11 = l_Lean_Elab_FixedParamPerm_buildArgs___redArg(x_3, x_10, x_2);
 lean_dec_ref(x_10);
-x_12 = lean_array_get_size(x_11);
-x_13 = l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__2;
-x_14 = lean_array_push(x_5, x_4);
-x_15 = lean_array_size(x_14);
+x_12 = lean_array_push(x_5, x_4);
+x_13 = lean_array_size(x_12);
+x_14 = lean_array_get_size(x_11);
+x_15 = l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__2;
 x_16 = 0;
-x_17 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Structural_RecArgInfo_pickIndicesMajor_spec__1(x_6, x_11, x_14, x_15, x_16, x_13);
-x_18 = l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_Structural_RecArgInfo_pickIndicesMajor_spec__2___redArg(x_12, x_14, x_3, x_11, x_8, x_13);
+x_17 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Structural_RecArgInfo_pickIndicesMajor_spec__1(x_6, x_11, x_12, x_13, x_16, x_15);
+x_18 = l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_Structural_RecArgInfo_pickIndicesMajor_spec__2___redArg(x_14, x_12, x_3, x_11, x_8, x_15);
 lean_dec_ref(x_11);
 lean_dec_ref(x_3);
-lean_dec_ref(x_14);
+lean_dec_ref(x_12);
 x_19 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);

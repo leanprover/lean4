@@ -635,6 +635,9 @@ if(${STAGE} GREATER 1)
     COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/lean/libleanrt.a" "${CMAKE_BINARY_DIR}/lib/lean/libleanrt.a"
     COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/lean/libleancpp.a" "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a"
     COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/temp/libleancpp_1.a" "${CMAKE_BINARY_DIR}/lib/temp/libleancpp_1.a")
+  add_dependencies(leanrt_initial-exec copy-leancpp)
+  add_dependencies(leanrt copy-leancpp)
+  add_dependencies(leancpp_1 copy-leancpp)
   add_dependencies(leancpp copy-leancpp)
   if(LLVM)
       add_custom_target(copy-lean-h-bc

@@ -3418,32 +3418,30 @@ return x_61;
 }
 else
 {
-lean_object* x_62; lean_object* x_63; uint8_t x_64; 
-lean_inc_ref(x_55);
-x_62 = l_Lean_Expr_appFnCleanup___redArg(x_55);
-x_63 = l___private_Lean_Meta_Tactic_Simp_Arith_Nat_Basic_0__Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr_visit___closed__7;
-x_64 = l_Lean_Expr_isConstOf(x_62, x_63);
-if (x_64 == 0)
-{
-uint8_t x_65; 
-x_65 = l_Lean_Expr_isApp(x_62);
+lean_object* x_62; lean_object* x_63; lean_object* x_64; uint8_t x_65; 
+x_62 = lean_ctor_get(x_55, 1);
+lean_inc_ref(x_62);
+x_63 = l_Lean_Expr_appFnCleanup___redArg(x_55);
+x_64 = l___private_Lean_Meta_Tactic_Simp_Arith_Nat_Basic_0__Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr_visit___closed__7;
+x_65 = l_Lean_Expr_isConstOf(x_63, x_64);
 if (x_65 == 0)
 {
-lean_object* x_66; 
+uint8_t x_66; 
+x_66 = l_Lean_Expr_isApp(x_63);
+if (x_66 == 0)
+{
+lean_object* x_67; 
+lean_dec_ref(x_63);
 lean_dec_ref(x_62);
-lean_dec_ref(x_55);
 lean_dec_ref(x_19);
 lean_dec_ref(x_13);
-x_66 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_addAsVar(x_1, x_2, x_3, x_4, x_5, x_6);
-return x_66;
+x_67 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_addAsVar(x_1, x_2, x_3, x_4, x_5, x_6);
+return x_67;
 }
 else
 {
-lean_object* x_67; lean_object* x_68; lean_object* x_69; uint8_t x_70; 
-x_67 = lean_ctor_get(x_55, 1);
-lean_inc_ref(x_67);
-lean_dec_ref(x_55);
-x_68 = l_Lean_Expr_appFnCleanup___redArg(x_62);
+lean_object* x_68; lean_object* x_69; uint8_t x_70; 
+x_68 = l_Lean_Expr_appFnCleanup___redArg(x_63);
 x_69 = l___private_Lean_Meta_Tactic_Simp_Arith_Nat_Basic_0__Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr_visit___closed__9;
 x_70 = l_Lean_Expr_isConstOf(x_68, x_69);
 if (x_70 == 0)
@@ -3459,7 +3457,7 @@ if (x_73 == 0)
 {
 lean_object* x_74; 
 lean_dec_ref(x_68);
-lean_dec_ref(x_67);
+lean_dec_ref(x_62);
 lean_dec_ref(x_19);
 lean_dec_ref(x_13);
 x_74 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_addAsVar(x_1, x_2, x_3, x_4, x_5, x_6);
@@ -3474,7 +3472,7 @@ if (x_76 == 0)
 {
 lean_object* x_77; 
 lean_dec_ref(x_75);
-lean_dec_ref(x_67);
+lean_dec_ref(x_62);
 lean_dec_ref(x_19);
 lean_dec_ref(x_13);
 x_77 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_addAsVar(x_1, x_2, x_3, x_4, x_5, x_6);
@@ -3495,7 +3493,7 @@ lean_dec_ref(x_78);
 if (x_82 == 0)
 {
 lean_object* x_83; 
-lean_dec_ref(x_67);
+lean_dec_ref(x_62);
 lean_dec_ref(x_19);
 lean_dec_ref(x_13);
 x_83 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_addAsVar(x_1, x_2, x_3, x_4, x_5, x_6);
@@ -3508,7 +3506,7 @@ lean_inc(x_6);
 lean_inc_ref(x_5);
 lean_inc(x_4);
 lean_inc_ref(x_3);
-x_84 = l_Lean_Meta_DefEq_isInstHAddNat(x_67, x_3, x_4, x_5, x_6);
+x_84 = l_Lean_Meta_DefEq_isInstHAddNat(x_62, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_84) == 0)
 {
 lean_object* x_85; uint8_t x_86; 
@@ -3622,7 +3620,7 @@ lean_inc(x_6);
 lean_inc_ref(x_5);
 lean_inc(x_4);
 lean_inc_ref(x_3);
-x_100 = l_Lean_Meta_DefEq_isInstHMulNat(x_67, x_3, x_4, x_5, x_6);
+x_100 = l_Lean_Meta_DefEq_isInstHMulNat(x_62, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_100) == 0)
 {
 lean_object* x_101; uint8_t x_102; 
@@ -3689,7 +3687,7 @@ lean_inc(x_6);
 lean_inc_ref(x_5);
 lean_inc(x_4);
 lean_inc_ref(x_3);
-x_107 = l_Lean_Meta_DefEq_isInstAddNat(x_67, x_3, x_4, x_5, x_6);
+x_107 = l_Lean_Meta_DefEq_isInstAddNat(x_62, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_107) == 0)
 {
 lean_object* x_108; uint8_t x_109; 
@@ -3803,7 +3801,7 @@ lean_inc(x_6);
 lean_inc_ref(x_5);
 lean_inc(x_4);
 lean_inc_ref(x_3);
-x_123 = l_Lean_Meta_DefEq_isInstMulNat(x_67, x_3, x_4, x_5, x_6);
+x_123 = l_Lean_Meta_DefEq_isInstMulNat(x_62, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_123) == 0)
 {
 lean_object* x_124; uint8_t x_125; 
@@ -3864,8 +3862,8 @@ return x_129;
 else
 {
 lean_object* x_130; 
+lean_dec_ref(x_63);
 lean_dec_ref(x_62);
-lean_dec_ref(x_55);
 lean_inc_ref(x_13);
 x_130 = l_Lean_Meta_Structural_isInstOfNatNat___redArg(x_13, x_4);
 if (lean_obj_tag(x_130) == 0)
@@ -4628,14 +4626,15 @@ goto block_13;
 }
 else
 {
-lean_object* x_16; uint8_t x_17; 
-lean_inc_ref(x_14);
-x_16 = l_Lean_Expr_appFnCleanup___redArg(x_14);
-x_17 = l_Lean_Expr_isApp(x_16);
-if (x_17 == 0)
+lean_object* x_16; lean_object* x_17; uint8_t x_18; 
+x_16 = lean_ctor_get(x_14, 1);
+lean_inc_ref(x_16);
+x_17 = l_Lean_Expr_appFnCleanup___redArg(x_14);
+x_18 = l_Lean_Expr_isApp(x_17);
+if (x_18 == 0)
 {
+lean_dec_ref(x_17);
 lean_dec_ref(x_16);
-lean_dec_ref(x_14);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -4644,13 +4643,10 @@ goto block_13;
 }
 else
 {
-lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
-x_18 = lean_ctor_get(x_14, 1);
-lean_inc_ref(x_18);
-lean_dec_ref(x_14);
-x_19 = lean_ctor_get(x_16, 1);
+lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
+x_19 = lean_ctor_get(x_17, 1);
 lean_inc_ref(x_19);
-x_20 = l_Lean_Expr_appFnCleanup___redArg(x_16);
+x_20 = l_Lean_Expr_appFnCleanup___redArg(x_17);
 x_21 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearCnstr_x3f___closed__1;
 x_22 = l_Lean_Expr_isConstOf(x_20, x_21);
 if (x_22 == 0)
@@ -4666,7 +4662,7 @@ if (x_25 == 0)
 {
 lean_dec_ref(x_20);
 lean_dec_ref(x_19);
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -4690,7 +4686,7 @@ if (x_30 == 0)
 lean_dec_ref(x_27);
 lean_dec_ref(x_26);
 lean_dec_ref(x_19);
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -4723,7 +4719,7 @@ if (x_39 == 0)
 {
 lean_dec_ref(x_26);
 lean_dec_ref(x_19);
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -4753,7 +4749,7 @@ if (x_43 == 0)
 {
 lean_object* x_44; 
 lean_dec_ref(x_19);
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -4777,7 +4773,7 @@ lean_object* x_46; lean_object* x_47;
 x_46 = lean_ctor_get(x_45, 0);
 lean_inc(x_46);
 lean_dec_ref(x_45);
-x_47 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_18, x_2, x_3, x_4, x_5, x_6);
+x_47 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_16, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_47) == 0)
 {
 uint8_t x_48; 
@@ -4836,7 +4832,7 @@ return x_58;
 else
 {
 uint8_t x_59; 
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -4871,7 +4867,7 @@ if (x_63 == 0)
 {
 lean_object* x_64; lean_object* x_65; 
 lean_dec_ref(x_19);
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -4895,7 +4891,7 @@ lean_object* x_67; lean_object* x_68;
 x_67 = lean_ctor_get(x_66, 0);
 lean_inc(x_67);
 lean_dec_ref(x_66);
-x_68 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_18, x_2, x_3, x_4, x_5, x_6);
+x_68 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_16, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_68) == 0)
 {
 lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; 
@@ -4947,7 +4943,7 @@ return x_76;
 else
 {
 lean_object* x_77; lean_object* x_78; lean_object* x_79; 
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -4976,7 +4972,7 @@ else
 {
 uint8_t x_80; 
 lean_dec_ref(x_19);
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -5023,7 +5019,7 @@ if (x_86 == 0)
 {
 lean_object* x_87; 
 lean_dec_ref(x_19);
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -5047,7 +5043,7 @@ lean_object* x_89; lean_object* x_90;
 x_89 = lean_ctor_get(x_88, 0);
 lean_inc(x_89);
 lean_dec_ref(x_88);
-x_90 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_18, x_2, x_3, x_4, x_5, x_6);
+x_90 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_16, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_90) == 0)
 {
 uint8_t x_91; 
@@ -5108,7 +5104,7 @@ return x_103;
 else
 {
 uint8_t x_104; 
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -5143,7 +5139,7 @@ if (x_108 == 0)
 {
 lean_object* x_109; lean_object* x_110; 
 lean_dec_ref(x_19);
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -5167,7 +5163,7 @@ lean_object* x_112; lean_object* x_113;
 x_112 = lean_ctor_get(x_111, 0);
 lean_inc(x_112);
 lean_dec_ref(x_111);
-x_113 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_18, x_2, x_3, x_4, x_5, x_6);
+x_113 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_16, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_113) == 0)
 {
 lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; 
@@ -5220,7 +5216,7 @@ return x_122;
 else
 {
 lean_object* x_123; lean_object* x_124; lean_object* x_125; 
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -5249,7 +5245,7 @@ else
 {
 uint8_t x_126; 
 lean_dec_ref(x_19);
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -5296,7 +5292,7 @@ if (x_132 == 0)
 {
 lean_object* x_133; 
 lean_dec_ref(x_19);
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -5313,7 +5309,7 @@ lean_inc(x_6);
 lean_inc_ref(x_5);
 lean_inc(x_4);
 lean_inc_ref(x_3);
-x_134 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_18, x_2, x_3, x_4, x_5, x_6);
+x_134 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_16, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_134) == 0)
 {
 lean_object* x_135; lean_object* x_136; 
@@ -5414,7 +5410,7 @@ if (x_152 == 0)
 {
 lean_object* x_153; lean_object* x_154; 
 lean_dec_ref(x_19);
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -5431,7 +5427,7 @@ lean_inc(x_6);
 lean_inc_ref(x_5);
 lean_inc(x_4);
 lean_inc_ref(x_3);
-x_155 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_18, x_2, x_3, x_4, x_5, x_6);
+x_155 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_16, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_155) == 0)
 {
 lean_object* x_156; lean_object* x_157; 
@@ -5519,7 +5515,7 @@ else
 {
 uint8_t x_169; 
 lean_dec_ref(x_19);
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -5566,7 +5562,7 @@ if (x_175 == 0)
 {
 lean_object* x_176; 
 lean_dec_ref(x_19);
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -5583,7 +5579,7 @@ lean_inc(x_6);
 lean_inc_ref(x_5);
 lean_inc(x_4);
 lean_inc_ref(x_3);
-x_177 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_18, x_2, x_3, x_4, x_5, x_6);
+x_177 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_16, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_177) == 0)
 {
 lean_object* x_178; lean_object* x_179; 
@@ -5686,7 +5682,7 @@ if (x_197 == 0)
 {
 lean_object* x_198; lean_object* x_199; 
 lean_dec_ref(x_19);
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -5703,7 +5699,7 @@ lean_inc(x_6);
 lean_inc_ref(x_5);
 lean_inc(x_4);
 lean_inc_ref(x_3);
-x_200 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_18, x_2, x_3, x_4, x_5, x_6);
+x_200 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_16, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_200) == 0)
 {
 lean_object* x_201; lean_object* x_202; 
@@ -5792,7 +5788,7 @@ else
 {
 uint8_t x_215; 
 lean_dec_ref(x_19);
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -5838,7 +5834,7 @@ if (x_223 == 0)
 {
 lean_object* x_224; 
 lean_dec_ref(x_19);
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -5862,7 +5858,7 @@ lean_object* x_226; lean_object* x_227;
 x_226 = lean_ctor_get(x_225, 0);
 lean_inc(x_226);
 lean_dec_ref(x_225);
-x_227 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_18, x_2, x_3, x_4, x_5, x_6);
+x_227 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_16, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_227) == 0)
 {
 uint8_t x_228; 
@@ -5921,7 +5917,7 @@ return x_238;
 else
 {
 uint8_t x_239; 
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -5958,7 +5954,7 @@ if (x_245 == 0)
 {
 lean_object* x_246; lean_object* x_247; 
 lean_dec_ref(x_19);
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -5982,7 +5978,7 @@ lean_object* x_249; lean_object* x_250;
 x_249 = lean_ctor_get(x_248, 0);
 lean_inc(x_249);
 lean_dec_ref(x_248);
-x_250 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_18, x_2, x_3, x_4, x_5, x_6);
+x_250 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_16, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_250) == 0)
 {
 lean_object* x_251; lean_object* x_252; lean_object* x_253; lean_object* x_254; lean_object* x_255; 
@@ -6034,7 +6030,7 @@ return x_258;
 else
 {
 lean_object* x_259; lean_object* x_260; lean_object* x_261; 
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -6063,7 +6059,7 @@ else
 {
 uint8_t x_262; 
 lean_dec_ref(x_19);
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -6103,7 +6099,7 @@ lean_object* x_266; lean_object* x_267;
 x_266 = lean_ctor_get(x_265, 0);
 lean_inc(x_266);
 lean_dec_ref(x_265);
-x_267 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_18, x_2, x_3, x_4, x_5, x_6);
+x_267 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_16, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_267) == 0)
 {
 uint8_t x_268; 
@@ -6162,7 +6158,7 @@ return x_278;
 else
 {
 uint8_t x_279; 
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -6201,7 +6197,7 @@ lean_object* x_283; lean_object* x_284;
 x_283 = lean_ctor_get(x_282, 0);
 lean_inc(x_283);
 lean_dec_ref(x_282);
-x_284 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_18, x_2, x_3, x_4, x_5, x_6);
+x_284 = l_Lean_Meta_Simp_Arith_Nat_ToLinear_toLinearExpr(x_16, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_284) == 0)
 {
 uint8_t x_285; 
@@ -6264,7 +6260,7 @@ return x_299;
 else
 {
 uint8_t x_300; 
-lean_dec_ref(x_18);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);

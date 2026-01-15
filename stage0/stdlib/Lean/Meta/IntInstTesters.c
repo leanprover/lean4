@@ -1082,36 +1082,34 @@ goto block_10;
 }
 else
 {
-lean_object* x_13; uint8_t x_14; 
-lean_inc_ref(x_11);
-x_13 = l_Lean_Expr_appFnCleanup___redArg(x_11);
-x_14 = l_Lean_Expr_isApp(x_13);
-if (x_14 == 0)
+lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+x_13 = lean_ctor_get(x_11, 1);
+lean_inc_ref(x_13);
+x_14 = l_Lean_Expr_appFnCleanup___redArg(x_11);
+x_15 = l_Lean_Expr_isApp(x_14);
+if (x_15 == 0)
+{
+lean_dec_ref(x_14);
+lean_dec_ref(x_13);
+goto block_10;
+}
+else
+{
+lean_object* x_16; lean_object* x_17; uint8_t x_18; 
+x_16 = l_Lean_Expr_appFnCleanup___redArg(x_14);
+x_17 = l_Lean_Meta_Structural_isInstHAddInt___redArg___closed__1;
+x_18 = l_Lean_Expr_isConstOf(x_16, x_17);
+lean_dec_ref(x_16);
+if (x_18 == 0)
 {
 lean_dec_ref(x_13);
-lean_dec_ref(x_11);
 goto block_10;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; uint8_t x_17; 
-x_15 = l_Lean_Expr_appFnCleanup___redArg(x_13);
-x_16 = l_Lean_Meta_Structural_isInstHAddInt___redArg___closed__1;
-x_17 = l_Lean_Expr_isConstOf(x_15, x_16);
-lean_dec_ref(x_15);
-if (x_17 == 0)
-{
-lean_dec_ref(x_11);
-goto block_10;
-}
-else
-{
-lean_object* x_18; lean_object* x_19; 
+lean_object* x_19; 
 lean_dec(x_6);
-x_18 = lean_ctor_get(x_11, 1);
-lean_inc_ref(x_18);
-lean_dec_ref(x_11);
-x_19 = l_Lean_Meta_Structural_isInstAddInt___redArg(x_18, x_2);
+x_19 = l_Lean_Meta_Structural_isInstAddInt___redArg(x_13, x_2);
 return x_19;
 }
 }
@@ -1223,36 +1221,34 @@ goto block_10;
 }
 else
 {
-lean_object* x_13; uint8_t x_14; 
-lean_inc_ref(x_11);
-x_13 = l_Lean_Expr_appFnCleanup___redArg(x_11);
-x_14 = l_Lean_Expr_isApp(x_13);
-if (x_14 == 0)
+lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+x_13 = lean_ctor_get(x_11, 1);
+lean_inc_ref(x_13);
+x_14 = l_Lean_Expr_appFnCleanup___redArg(x_11);
+x_15 = l_Lean_Expr_isApp(x_14);
+if (x_15 == 0)
+{
+lean_dec_ref(x_14);
+lean_dec_ref(x_13);
+goto block_10;
+}
+else
+{
+lean_object* x_16; lean_object* x_17; uint8_t x_18; 
+x_16 = l_Lean_Expr_appFnCleanup___redArg(x_14);
+x_17 = l_Lean_Meta_Structural_isInstHSubInt___redArg___closed__1;
+x_18 = l_Lean_Expr_isConstOf(x_16, x_17);
+lean_dec_ref(x_16);
+if (x_18 == 0)
 {
 lean_dec_ref(x_13);
-lean_dec_ref(x_11);
 goto block_10;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; uint8_t x_17; 
-x_15 = l_Lean_Expr_appFnCleanup___redArg(x_13);
-x_16 = l_Lean_Meta_Structural_isInstHSubInt___redArg___closed__1;
-x_17 = l_Lean_Expr_isConstOf(x_15, x_16);
-lean_dec_ref(x_15);
-if (x_17 == 0)
-{
-lean_dec_ref(x_11);
-goto block_10;
-}
-else
-{
-lean_object* x_18; lean_object* x_19; 
+lean_object* x_19; 
 lean_dec(x_6);
-x_18 = lean_ctor_get(x_11, 1);
-lean_inc_ref(x_18);
-lean_dec_ref(x_11);
-x_19 = l_Lean_Meta_Structural_isInstSubInt___redArg(x_18, x_2);
+x_19 = l_Lean_Meta_Structural_isInstSubInt___redArg(x_13, x_2);
 return x_19;
 }
 }
@@ -1364,36 +1360,34 @@ goto block_10;
 }
 else
 {
-lean_object* x_13; uint8_t x_14; 
-lean_inc_ref(x_11);
-x_13 = l_Lean_Expr_appFnCleanup___redArg(x_11);
-x_14 = l_Lean_Expr_isApp(x_13);
-if (x_14 == 0)
+lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+x_13 = lean_ctor_get(x_11, 1);
+lean_inc_ref(x_13);
+x_14 = l_Lean_Expr_appFnCleanup___redArg(x_11);
+x_15 = l_Lean_Expr_isApp(x_14);
+if (x_15 == 0)
+{
+lean_dec_ref(x_14);
+lean_dec_ref(x_13);
+goto block_10;
+}
+else
+{
+lean_object* x_16; lean_object* x_17; uint8_t x_18; 
+x_16 = l_Lean_Expr_appFnCleanup___redArg(x_14);
+x_17 = l_Lean_Meta_Structural_isInstHMulInt___redArg___closed__1;
+x_18 = l_Lean_Expr_isConstOf(x_16, x_17);
+lean_dec_ref(x_16);
+if (x_18 == 0)
 {
 lean_dec_ref(x_13);
-lean_dec_ref(x_11);
 goto block_10;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; uint8_t x_17; 
-x_15 = l_Lean_Expr_appFnCleanup___redArg(x_13);
-x_16 = l_Lean_Meta_Structural_isInstHMulInt___redArg___closed__1;
-x_17 = l_Lean_Expr_isConstOf(x_15, x_16);
-lean_dec_ref(x_15);
-if (x_17 == 0)
-{
-lean_dec_ref(x_11);
-goto block_10;
-}
-else
-{
-lean_object* x_18; lean_object* x_19; 
+lean_object* x_19; 
 lean_dec(x_6);
-x_18 = lean_ctor_get(x_11, 1);
-lean_inc_ref(x_18);
-lean_dec_ref(x_11);
-x_19 = l_Lean_Meta_Structural_isInstMulInt___redArg(x_18, x_2);
+x_19 = l_Lean_Meta_Structural_isInstMulInt___redArg(x_13, x_2);
 return x_19;
 }
 }
@@ -1505,36 +1499,34 @@ goto block_10;
 }
 else
 {
-lean_object* x_13; uint8_t x_14; 
-lean_inc_ref(x_11);
-x_13 = l_Lean_Expr_appFnCleanup___redArg(x_11);
-x_14 = l_Lean_Expr_isApp(x_13);
-if (x_14 == 0)
+lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+x_13 = lean_ctor_get(x_11, 1);
+lean_inc_ref(x_13);
+x_14 = l_Lean_Expr_appFnCleanup___redArg(x_11);
+x_15 = l_Lean_Expr_isApp(x_14);
+if (x_15 == 0)
+{
+lean_dec_ref(x_14);
+lean_dec_ref(x_13);
+goto block_10;
+}
+else
+{
+lean_object* x_16; lean_object* x_17; uint8_t x_18; 
+x_16 = l_Lean_Expr_appFnCleanup___redArg(x_14);
+x_17 = l_Lean_Meta_Structural_isInstHDivInt___redArg___closed__1;
+x_18 = l_Lean_Expr_isConstOf(x_16, x_17);
+lean_dec_ref(x_16);
+if (x_18 == 0)
 {
 lean_dec_ref(x_13);
-lean_dec_ref(x_11);
 goto block_10;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; uint8_t x_17; 
-x_15 = l_Lean_Expr_appFnCleanup___redArg(x_13);
-x_16 = l_Lean_Meta_Structural_isInstHDivInt___redArg___closed__1;
-x_17 = l_Lean_Expr_isConstOf(x_15, x_16);
-lean_dec_ref(x_15);
-if (x_17 == 0)
-{
-lean_dec_ref(x_11);
-goto block_10;
-}
-else
-{
-lean_object* x_18; lean_object* x_19; 
+lean_object* x_19; 
 lean_dec(x_6);
-x_18 = lean_ctor_get(x_11, 1);
-lean_inc_ref(x_18);
-lean_dec_ref(x_11);
-x_19 = l_Lean_Meta_Structural_isInstDivInt___redArg(x_18, x_2);
+x_19 = l_Lean_Meta_Structural_isInstDivInt___redArg(x_13, x_2);
 return x_19;
 }
 }
@@ -1646,36 +1638,34 @@ goto block_10;
 }
 else
 {
-lean_object* x_13; uint8_t x_14; 
-lean_inc_ref(x_11);
-x_13 = l_Lean_Expr_appFnCleanup___redArg(x_11);
-x_14 = l_Lean_Expr_isApp(x_13);
-if (x_14 == 0)
+lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+x_13 = lean_ctor_get(x_11, 1);
+lean_inc_ref(x_13);
+x_14 = l_Lean_Expr_appFnCleanup___redArg(x_11);
+x_15 = l_Lean_Expr_isApp(x_14);
+if (x_15 == 0)
+{
+lean_dec_ref(x_14);
+lean_dec_ref(x_13);
+goto block_10;
+}
+else
+{
+lean_object* x_16; lean_object* x_17; uint8_t x_18; 
+x_16 = l_Lean_Expr_appFnCleanup___redArg(x_14);
+x_17 = l_Lean_Meta_Structural_isInstHModInt___redArg___closed__1;
+x_18 = l_Lean_Expr_isConstOf(x_16, x_17);
+lean_dec_ref(x_16);
+if (x_18 == 0)
 {
 lean_dec_ref(x_13);
-lean_dec_ref(x_11);
 goto block_10;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; uint8_t x_17; 
-x_15 = l_Lean_Expr_appFnCleanup___redArg(x_13);
-x_16 = l_Lean_Meta_Structural_isInstHModInt___redArg___closed__1;
-x_17 = l_Lean_Expr_isConstOf(x_15, x_16);
-lean_dec_ref(x_15);
-if (x_17 == 0)
-{
-lean_dec_ref(x_11);
-goto block_10;
-}
-else
-{
-lean_object* x_18; lean_object* x_19; 
+lean_object* x_19; 
 lean_dec(x_6);
-x_18 = lean_ctor_get(x_11, 1);
-lean_inc_ref(x_18);
-lean_dec_ref(x_11);
-x_19 = l_Lean_Meta_Structural_isInstModInt___redArg(x_18, x_2);
+x_19 = l_Lean_Meta_Structural_isInstModInt___redArg(x_13, x_2);
 return x_19;
 }
 }
@@ -2102,36 +2092,34 @@ goto block_10;
 }
 else
 {
-lean_object* x_13; uint8_t x_14; 
-lean_inc_ref(x_11);
-x_13 = l_Lean_Expr_appFnCleanup___redArg(x_11);
-x_14 = l_Lean_Expr_isApp(x_13);
-if (x_14 == 0)
+lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+x_13 = lean_ctor_get(x_11, 1);
+lean_inc_ref(x_13);
+x_14 = l_Lean_Expr_appFnCleanup___redArg(x_11);
+x_15 = l_Lean_Expr_isApp(x_14);
+if (x_15 == 0)
+{
+lean_dec_ref(x_14);
+lean_dec_ref(x_13);
+goto block_10;
+}
+else
+{
+lean_object* x_16; lean_object* x_17; uint8_t x_18; 
+x_16 = l_Lean_Expr_appFnCleanup___redArg(x_14);
+x_17 = l_Lean_Meta_Structural_isInstPowInt___redArg___closed__1;
+x_18 = l_Lean_Expr_isConstOf(x_16, x_17);
+lean_dec_ref(x_16);
+if (x_18 == 0)
 {
 lean_dec_ref(x_13);
-lean_dec_ref(x_11);
 goto block_10;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; uint8_t x_17; 
-x_15 = l_Lean_Expr_appFnCleanup___redArg(x_13);
-x_16 = l_Lean_Meta_Structural_isInstPowInt___redArg___closed__1;
-x_17 = l_Lean_Expr_isConstOf(x_15, x_16);
-lean_dec_ref(x_15);
-if (x_17 == 0)
-{
-lean_dec_ref(x_11);
-goto block_10;
-}
-else
-{
-lean_object* x_18; lean_object* x_19; 
+lean_object* x_19; 
 lean_dec(x_6);
-x_18 = lean_ctor_get(x_11, 1);
-lean_inc_ref(x_18);
-lean_dec_ref(x_11);
-x_19 = l_Lean_Meta_Structural_isInstNatPowInt___redArg(x_18, x_2);
+x_19 = l_Lean_Meta_Structural_isInstNatPowInt___redArg(x_13, x_2);
 return x_19;
 }
 }
@@ -2243,47 +2231,45 @@ goto block_10;
 }
 else
 {
-lean_object* x_13; uint8_t x_14; 
-lean_inc_ref(x_11);
-x_13 = l_Lean_Expr_appFnCleanup___redArg(x_11);
-x_14 = l_Lean_Expr_isApp(x_13);
-if (x_14 == 0)
+lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+x_13 = lean_ctor_get(x_11, 1);
+lean_inc_ref(x_13);
+x_14 = l_Lean_Expr_appFnCleanup___redArg(x_11);
+x_15 = l_Lean_Expr_isApp(x_14);
+if (x_15 == 0)
+{
+lean_dec_ref(x_14);
+lean_dec_ref(x_13);
+goto block_10;
+}
+else
+{
+lean_object* x_16; uint8_t x_17; 
+x_16 = l_Lean_Expr_appFnCleanup___redArg(x_14);
+x_17 = l_Lean_Expr_isApp(x_16);
+if (x_17 == 0)
+{
+lean_dec_ref(x_16);
+lean_dec_ref(x_13);
+goto block_10;
+}
+else
+{
+lean_object* x_18; lean_object* x_19; uint8_t x_20; 
+x_18 = l_Lean_Expr_appFnCleanup___redArg(x_16);
+x_19 = l_Lean_Meta_Structural_isInstHPowInt___redArg___closed__1;
+x_20 = l_Lean_Expr_isConstOf(x_18, x_19);
+lean_dec_ref(x_18);
+if (x_20 == 0)
 {
 lean_dec_ref(x_13);
-lean_dec_ref(x_11);
 goto block_10;
 }
 else
 {
-lean_object* x_15; uint8_t x_16; 
-x_15 = l_Lean_Expr_appFnCleanup___redArg(x_13);
-x_16 = l_Lean_Expr_isApp(x_15);
-if (x_16 == 0)
-{
-lean_dec_ref(x_15);
-lean_dec_ref(x_11);
-goto block_10;
-}
-else
-{
-lean_object* x_17; lean_object* x_18; uint8_t x_19; 
-x_17 = l_Lean_Expr_appFnCleanup___redArg(x_15);
-x_18 = l_Lean_Meta_Structural_isInstHPowInt___redArg___closed__1;
-x_19 = l_Lean_Expr_isConstOf(x_17, x_18);
-lean_dec_ref(x_17);
-if (x_19 == 0)
-{
-lean_dec_ref(x_11);
-goto block_10;
-}
-else
-{
-lean_object* x_20; lean_object* x_21; 
+lean_object* x_21; 
 lean_dec(x_6);
-x_20 = lean_ctor_get(x_11, 1);
-lean_inc_ref(x_20);
-lean_dec_ref(x_11);
-x_21 = l_Lean_Meta_Structural_isInstPowInt___redArg(x_20, x_2);
+x_21 = l_Lean_Meta_Structural_isInstPowInt___redArg(x_13, x_2);
 return x_21;
 }
 }

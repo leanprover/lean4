@@ -1826,9 +1826,8 @@ theorem append_eq_map_iff {f : α → β} :
     L₁ ++ L₂ = map f l ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ map f l₁ = L₁ ∧ map f l₂ = L₂ := by
   rw [eq_comm, map_eq_append_iff]
 
-theorem sum_append [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
-    [Std.LeftIdentity (α := α) (· + ·) 0] [Std.LawfulLeftIdentity (α := α) (· + ·) 0]
-    {l₁ l₂ : List α} : (l₁ ++ l₂).sum = l₁.sum + l₂.sum := by
+theorem sum_append [Add α] [Zero α] [Std.LawfulLeftIdentity (α := α) (· + ·) 0]
+    [Std.Associative (α := α) (· + ·)] {l₁ l₂ : List α} : (l₁ ++ l₂).sum = l₁.sum + l₂.sum := by
   induction l₁ generalizing l₂ <;> simp_all [Std.Associative.assoc, Std.LawfulLeftIdentity.left_id]
 
 theorem sum_reverse [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]

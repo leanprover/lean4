@@ -31,3 +31,5 @@ public import Init.Data.Array.Zip
 public import Init.Data.Array.InsertIdx
 public import Init.Data.Array.Extract
 public import Init.Data.Array.MinMax
+public import Init.Data.Array.Nat
+public import Init.Data.Array.Int

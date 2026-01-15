@@ -37,6 +37,10 @@ theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i =
   · rintro ⟨i, rfl⟩
     apply mem_of_getElem (i := i) <;> simp
 
+theorem map_ofFn {f : Fin n → α} {g : α → β} :
+    (Vector.ofFn f).map g = Vector.ofFn (g ∘ f) := by
+  simp [← Vector.toArray_inj, Array.map_ofFn]
+
 @[grind =] theorem back_ofFn {n} [NeZero n] {f : Fin n → α} :
     (ofFn f).back = f ⟨n - 1, by have := NeZero.ne n; omega⟩ := by
   simp [back]

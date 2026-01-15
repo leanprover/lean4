@@ -13,19 +13,6 @@ public section
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
-protected theorem Nat.sum_pos_iff_exists_pos {l : List Nat} : 0 < l.sum ↔ ∃ x ∈ l, 0 < x := by
-  induction l with
-  | nil => simp
-  | cons x xs ih =>
-    simp [← ih]
-    omega
-
--- TODO: Vector version
-protected theorem Nat.sum_eq_zero_iff_forall_eq {xs : List Nat} :
-    xs.sum = 0 ↔ ∀ x ∈ xs, x = 0 := by
-  rw [← Decidable.not_iff_not]
-  simp [← Nat.pos_iff_ne_zero, Nat.sum_pos_iff_exists_pos, List.exists_mem_iff_exists_getElem]
-
 namespace List
 
 open Nat

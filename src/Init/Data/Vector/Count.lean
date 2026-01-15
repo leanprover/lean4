@@ -70,6 +70,15 @@ theorem countP_le_size {xs : Vector α n} : countP p xs ≤ n := by
   cases xs
   simp
 
+/-- This lemma is only relevant for `grind`. -/
+@[grind ←=]
+theorem Grind.countP_eq_zero_of_forall {xs : Vector α n} (h : ∀ x ∈ xs, ¬ p x) : xs.countP p = 0 :=
+  countP_eq_zero.mpr h
+
+/-- This lemma is only relevant for `grind`. -/
+theorem Grind.not_of_countP_eq_zero_of_mem {xs : Vector α n} (h : xs.countP p = 0) (h' : x ∈ xs) : ¬ p x :=
+   countP_eq_zero.mp h _ h'
+
 @[simp] theorem countP_eq_size {p} {xs : Vector α n} : countP p xs = n ↔ ∀ a ∈ xs, p a := by
   rcases xs with ⟨xs, rfl⟩
   simp

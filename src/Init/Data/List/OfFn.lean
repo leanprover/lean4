@@ -109,6 +109,11 @@ theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i =
   · rintro ⟨i, rfl⟩
     apply mem_of_getElem (i := i) <;> simp
 
+theorem map_ofFn {f : Fin n → α} {g : α → β} :
+    (List.ofFn f).map g = List.ofFn (g ∘ f) := by
+  apply List.ext_getElem?
+  simp [List.getElem?_ofFn]
+
 @[grind =] theorem head_ofFn {n} {f : Fin n → α} (h : ofFn f ≠ []) :
     (ofFn f).head h = f ⟨0, Nat.pos_of_ne_zero (mt ofFn_eq_nil_iff.2 h)⟩ := by
   rw [← getElem_zero (length_ofFn ▸ Nat.pos_of_ne_zero (mt ofFn_eq_nil_iff.2 h)),

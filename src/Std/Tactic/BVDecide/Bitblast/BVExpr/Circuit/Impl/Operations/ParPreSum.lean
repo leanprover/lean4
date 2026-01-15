@@ -238,8 +238,8 @@ theorem blastParPreSum_decl_eq (aig : AIG α)
           · apply AIG.LawfulVecOperator.decl_eq
           · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size
             exact h2
-      · rw [← hgo]
-        apply blastParPreSumTree_decl_eq
+        · rw [← hgo]
+          apply blastParPreSumTree_decl_eq
 
 instance : AIG.LawfulVecOperator α ParPreSumTarget blastParPreSum where
   le_size := by

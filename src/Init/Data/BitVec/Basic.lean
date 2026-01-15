@@ -891,6 +891,13 @@ def addRecAux (x : BitVec (l * w)) (rem : Nat) (acc : BitVec w) : BitVec w :=
   | 0 => acc
   | n + 1 => x.addRecAux n (acc + x.extractLsb' (n * w) w)
 
+-- def addRecAux' (x : BitVec v) (rem : Nat) (acc : BitVec w) (h : rem ≤ v) : BitVec w :=
+--   if _h : 0 ≤ v - rem then
+--     addRecAux' x (rem + w) (acc + x.extractLsb' rem w) (by omega)
+--   else
+--     acc
+-- termination_by _
+
 /-- Add `l`-long portions of a `w`-long bitvector. -/
 def addRec (l : Nat) (x : BitVec w) : BitVec l :=
   if hl0 : l = 0 then 0#l

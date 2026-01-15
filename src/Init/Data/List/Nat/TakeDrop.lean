@@ -137,7 +137,6 @@ theorem take_append {l₁ l₂ : List α} {i : Nat} :
       congr 1
       omega
 
-@[grind =>]
 theorem take_append_of_le_length {l₁ l₂ : List α} {i : Nat} (h : i ≤ l₁.length) :
     (l₁ ++ l₂).take i = l₁.take i := by
   simp [take_append, Nat.sub_eq_zero_of_le h]
@@ -316,7 +315,6 @@ theorem drop_append {l₁ l₂ : List α} {i : Nat} :
       congr 1
       omega
 
-@[grind =>]
 theorem drop_append_of_le_length {l₁ l₂ : List α} {i : Nat} (h : i ≤ l₁.length) :
     (l₁ ++ l₂).drop i = l₁.drop i ++ l₂ := by
   simp [drop_append, Nat.sub_eq_zero_of_le h]
@@ -366,7 +364,7 @@ theorem drop_take : ∀ {i j : Nat} {l : List α}, drop i (take j l) = take (j -
     simp only [take_succ_cons, drop_succ_cons, drop_take, take_eq_take_iff, length_drop]
     omega
 
-@[simp, grind =] theorem drop_take_self : drop i (take i l) = [] := by
+@[simp] theorem drop_take_self : drop i (take i l) = [] := by
   rw [drop_take]
   simp
 

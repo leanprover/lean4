@@ -788,7 +788,7 @@ class task_manager {
                         m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
                     auto status = m_queue_cv.wait_for(lock, chrono::seconds(600));
                     if (status == std::cv_status::timeout) {
-                        if (m_queues_size == 0 && m_shutting_down) {
+                        if (m_shutting_down) {
                             trace_violation("timeout_after_shutdown", worker_id);
                         }
                         // Assume for simplicity that shutdown does not happen at this instant

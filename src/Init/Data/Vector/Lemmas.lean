@@ -1038,14 +1038,6 @@ theorem mem_of_back? {xs : Vector α n} {a : α} (h : xs.back? = some a) : a ∈
 theorem mem_iff_getElem {a} {xs : Vector α n} : a ∈ xs ↔ ∃ (i : Nat) (h : i < n), xs[i]'h = a :=
   ⟨getElem_of_mem, fun ⟨_, _, e⟩ => e ▸ getElem_mem ..⟩
 
-theorem exists_mem_iff_exists_getElem (P : α → Prop) (xs : Vector α n) :
-    (∃ x ∈ xs, P x) ↔ ∃ (i : Nat), ∃ hi, P (xs[i]) := by
-  cases xs; simp [*, Array.exists_mem_iff_exists_getElem]
-
-theorem forall_mem_iff_forall_getElem (P : α → Prop) (xs : Vector α n) :
-    (∀ x ∈ xs, P x) ↔ ∀ (i : Nat) hi, P (xs[i]) := by
-  cases xs; simp [*, Array.forall_mem_iff_forall_getElem]
-
 theorem mem_iff_getElem? {a} {xs : Vector α n} : a ∈ xs ↔ ∃ i : Nat, xs[i]? = some a := by
   simp [getElem?_eq_some_iff, mem_iff_getElem]
 
@@ -3039,13 +3031,6 @@ instance instDecidableExistsVectorSucc (P : Vector α (n+1) → Prop)
   decidable_of_iff (¬ ∀ xs, ¬ P xs) Classical.not_forall_not
 
 /-! ### sum -/
-
--- @[simp, grind =]
--- theorem sum_append_nat {xs₁ : Vector Nat n} {xs₂ : Vector Nat m} :
---     (xs₁ ++ xs₂).sum = xs₁.sum + xs₂.sum := by
---   rcases xs₁ with ⟨xs₁, rfl⟩
---   rcases xs₂ with ⟨xs₂, rfl⟩
---   simp [Array.sum_append_nat]
 
 @[simp, grind =] theorem sum_empty [Add α] [Zero α] : (#v[] : Vector α 0).sum = 0 := rfl
 theorem sum_eq_foldr [Add α] [Zero α] {xs : Vector α n} :

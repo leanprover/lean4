@@ -844,7 +844,7 @@ static inline lean_object * lean_array_get(lean_obj_arg def_val, b_lean_obj_arg 
        i > LEAN_MAX_SMALL_NAT == MAX_UNSIGNED >> 1
        but each array entry is 8 bytes in 64-bit machines and 4 in 32-bit ones.
        In both cases, we would be out-of-memory. */
-    return lean_array_get_panic(def_val);
+    return lean_array_get_panic(lean_apply_1(def_val, lean_box(0)));
 }
 
 static inline lean_object * lean_array_get_borrowed(lean_obj_arg def_val, b_lean_obj_arg a, b_lean_obj_arg i) {
@@ -859,7 +859,7 @@ static inline lean_object * lean_array_get_borrowed(lean_obj_arg def_val, b_lean
        i > LEAN_MAX_SMALL_NAT == MAX_UNSIGNED >> 1
        but each array entry is 8 bytes in 64-bit machines and 4 in 32-bit ones.
        In both cases, we would be out-of-memory. */
-    return lean_array_get_panic(def_val);
+    return lean_array_get_panic(lean_apply_1(def_val, lean_box(0)));
 }
 
 LEAN_EXPORT lean_obj_res lean_copy_expand_array(lean_obj_arg a, bool expand);

@@ -202,7 +202,7 @@ private partial def checkLocalInstanceParameters (type : Expr) : TermElabM Unit 
   -- We allow instance arguments so that local instances of the form
   -- `variable [∀ (a : α) [P a], Q a]`
   -- are accepted, per https://github.com/leanprover/lean4/issues/2311
-  if bi != .instImplicit && !b.hasLooseBVar 0 then
+  if bi != .instImplicit && !b.hasLooseBVar 0 && !(d == .const ``Unit []) then
     throwError "invalid parametric local instance, parameter with type{indentExpr d}\ndoes not have forward dependencies, type class resolution cannot use this kind of local instance because it will not be able to infer a value for this parameter."
   withLocalDecl n bi d fun x => checkLocalInstanceParameters (b.instantiate1 x)
 

@@ -103,8 +103,12 @@ class GetElem? (coll : Type u) (idx : Type v) (elem : outParam (Type w))
   if it is present, and otherwise panics at runtime and returns the `default` term
   from `Inhabited elem`.
   -/
-  getElem! [Inhabited elem] (xs : coll) (i : idx) : elem :=
-    match getElem? xs i with | some e => e | none => outOfBounds
+  getElem! [inst : [UnitClass] → Inhabited elem] (xs : coll) (i : idx) : elem :=
+    match getElem? xs i with
+    | some e => e
+    | none =>
+      have := inst
+      outOfBounds
 
 export GetElem? (getElem? getElem!)
 
@@ -387,13 +391,13 @@ end List
 namespace Array
 
 instance : GetElem (Array α) Nat α fun xs i => i < xs.size where
-  getElem xs i h := xs.getInternal i h
+  getElem := getInternal
 
 -- We provide a `GetElem?` instance, rather than using the low priority instance,
 -- so that we use the `@[extern]` definition of `get!Internal`.
 instance : GetElem? (Array α) Nat α fun xs i => i < xs.size where
   getElem? xs i := decidableGetElem? xs i
-  getElem! xs i := xs.get!Internal i
+  getElem! := @get!Internal α -- avoid the implicit lambda feature
 
 instance : LawfulGetElem (Array α) Nat α fun xs i => i < xs.size where
   getElem?_def xs i h := by

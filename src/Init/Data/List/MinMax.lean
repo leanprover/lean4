@@ -228,8 +228,12 @@ theorem isSome_max?_of_mem {l : List α} [Max α] {a : α} (h : a ∈ l) :
     l.max?.isSome := by
   cases l <;> simp_all [max?_cons']
 
-theorem isSome_max?_of_ne_nil [Max α] : {l : List α} → (hl : l ≠ []) → l.max?.isSome
-  | x::xs, h => by simp [max?_cons']
+theorem isSome_max?_iff [Max α] : {l : List α} → l.max?.isSome ↔ l ≠ []
+  | [] => by simp
+  | x::xs => by simp [max?_cons']
+
+theorem isSome_max?_of_ne_nil [Max α] {l : List α} (hl : l ≠ []) : l.max?.isSome := by
+  rwa [isSome_max?_iff]
 
 theorem max?_eq_head? {α : Type u} [Max α] {l : List α}
     (h : l.Pairwise (fun a b => max a b = a)) : l.max? = l.head? := by
@@ -363,6 +367,10 @@ theorem max_eq_get_max? [Max α] : (l : List α) → (hl : l ≠ []) →
     l.max hl = l.max?.get (isSome_max?_of_ne_nil hl)
   | a::as, _ => by simp [List.max, List.max?_cons']
 
+theorem max_singleton [Max α] {x : α} :
+    [x].max (cons_ne_nil _ _) = x := by
+  simp [List.max]
+
 theorem max_eq_head {α : Type u} [Max α] {l : List α} (hl : l ≠ [])
     (h : l.Pairwise (fun a b => max a b = a)) : l.max hl = l.head hl := by
   apply Option.some.inj
@@ -372,6 +380,7 @@ theorem max_eq_head {α : Type u} [Max α] {l : List α} (hl : l ≠ [])
 theorem max_mem [Max α] [MaxEqOr α] {l : List α} (hl : l ≠ []) : l.max hl ∈ l :=
   max?_mem (max?_eq_some_max hl)
 
+@[grind =]
 protected theorem max_le_iff [Max α] [LE α] [LawfulOrderSup α]
     {l : List α} (hl : l ≠ []) : ∀ {x}, l.max hl ≤ x ↔ ∀ b, b ∈ l → b ≤ x :=
   max?_le_iff (max?_eq_some_max hl)

@@ -70,6 +70,11 @@ def set {α : Type} [KVMap.Value α] (o : Options) (k : Name) (v : α) : Options
 @[inline] def setBool (o : Options) (k : Name) (v : Bool) : Options :=
   o.set k v
 
+def erase (o : Options) (k : Name) : Options where
+  map := o.map.erase k
+  -- `erase` is expected to be used even more rarely than `set`
+  hasTrace := o.map.keys.all (`trace).isPrefixOf
+
 def mergeBy (f : Name → DataValue → DataValue → DataValue) (o1 o2 : Options) : Options where
   map := o1.map.mergeWith f o2.map
   hasTrace := o1.hasTrace || o2.hasTrace

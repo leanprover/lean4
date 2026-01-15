@@ -457,10 +457,11 @@ if(LLVM AND ${STAGE} GREATER 0)
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,-dead_strip")
+  string(APPEND LEANC_EXTRA_CC_FLAGS " -fdata-sections -ffunction-sections")
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -Wl,-dead_strip")
 elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   string(APPEND LEANC_EXTRA_CC_FLAGS " -fdata-sections -ffunction-sections")
-  string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,--gc-sections")
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -Wl,--gc-sections")
 endif()
 
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

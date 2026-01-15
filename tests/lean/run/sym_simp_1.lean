@@ -123,3 +123,9 @@ example (h : ite (c > 0) a = g) : ite (c > 0) (0 + a) = g := by
   sym_simp [Nat.zero_add]
   trace_state
   exact h
+
+example (f : Nat → Nat) : id f a = f a := by
+  sym_simp [id_eq, eq_self]
+
+example (f : Nat → Nat) : id f (0 + a) = f a := by
+  sym_simp [id_eq, eq_self, Nat.zero_add]

@@ -108,7 +108,7 @@ then `numArgs = 2` (the extra arguments) and we:
 **Note**: This is a fallback path without specialized optimizations. The common case (correct number of arguments)
 is handled more efficiently by the specific strategies.
 -/
-def simpOverApplied (e : Expr) (numArgs : Nat) (simpFn : Expr → SimpM Result) : SimpM Result := do
+public def simpOverApplied (e : Expr) (numArgs : Nat) (simpFn : Expr → SimpM Result) : SimpM Result := do
   let rec visit (e : Expr) (i : Nat) : SimpM Result := do
     if i == 0 then
       simpFn e

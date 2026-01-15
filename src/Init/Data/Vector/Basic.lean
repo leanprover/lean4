@@ -12,6 +12,7 @@ public import Init.Data.Array.Range
 public import Init.Data.Range
 -- TODO: Making this private leads to a panic in Init.Grind.Ring.Poly.
 public import Init.Data.Slice.Array.Iterator
+import Init.Data.Array.Nat
 
 public section
 

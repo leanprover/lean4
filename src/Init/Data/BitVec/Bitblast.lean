@@ -2468,11 +2468,8 @@ def parPreSumTree (l : BitVec (l_length * w))
   Given flattened bitvector `x : BitVec w` and a length `l : Nat`,
   construct a parallel prefix sum circuit adding each available `l`-long word in `x`.
 -/
-def parPreSum (l : Nat) (x : BitVec w) : BitVec l :=
-  if hl : l = 0 then 0#l
-  else
-    if hlt : w ≤ l then x.zeroExtend l
-    else if hmodlt : 0 < w % l then
+def parPreSum (l : Nat) (x : BitVec w) (hl : 0 < l) (hlt : l < w): BitVec l :=
+    if hmodlt : 0 < w % l then
       let diff := l - (w % l)
         have hmodeq : (w + diff) % l = 0 := by
           simp only [diff]
@@ -2513,72 +2510,61 @@ theorem addRecAux_parPreSum (l : BitVec (l_length * w)) (k : BitVec w)
     let proof_new_layer_length : 0 < l_length' := by omega
     let proof_sum_eq : addRecAux new_layer ((l_length + 1) / 2) 0#w = k := by
       rw [← proof]
-      apply BitVec.addRecAux_eq_of (a := new_layer) (by omega) (b := l)
-        (by sorry) (by omega) (by omega) (n := (l_length + 1) / 2)
+      apply BitVec.addRecAux_eq_of (a := new_layer) (by omega) (b := l) (by omega)
+         (by omega) (by omega) (n := (l_length + 1) / 2)
     apply addRecAux_parPreSum new_layer k proof_sum_eq proof_new_layer_length hw
     exact eq_of_toNat_eq (congrArg BitVec.toNat hls)
 
-theorem addRec_eq_parPreSum {x : BitVec w} (l : Nat) :
-    x.addRec l = x.parPreSum l := by
+theorem addRec_eq_parPreSum {x : BitVec w} (l : Nat) (hl : 0 < l) (hlt : l < w) :
+    x.addRec l = x.parPreSum l hl hlt := by
   unfold addRec
+  simp [show ¬ l = 0 by omega, show ¬ w ≤ l by omega]
   split
-  · case _ hl =>
+  · case _ hmod =>
+    have hzero : (w - w % l) % l = 0 := by
+      apply Nat.sub_mod_eq_zero_of_mod_eq
+      simp
     unfold parPreSum
-    simp [hl]
-  · case _ hl =>
-    split
-    · case _ hl' =>
-      unfold parPreSum
-      simp [hl']
-      omega
-    · case _ hl' =>
-      split
-      · case _ hmod =>
-        have hzero : (w - w % l) % l = 0 := by
-          apply Nat.sub_mod_eq_zero_of_mod_eq
-          simp
-        unfold parPreSum
-        simp [hl, hl', hmod]
-        let diff := (l - (w % l))
-        have hmodlt' := Nat.mod_lt (y := l) (x := w) (by omega)
-        have hmodeq : (w + diff) % l = 0 := by
-          simp only [diff]
-          rw [← Nat.add_sub_assoc (by omega), Nat.add_comm,
-            show l + w - w % l = l + (w - w % l) by omega]
-          simp [hzero]
-        have zext := zeroExtend (w + diff) x;
-        let init_length := (w + diff) / l;
-        subst diff
-        generalize hgen : setWidth ((w + (l - w % l)) / l * l) x = z
-        generalize hgen : z.parPreSumTree (by simp; omega) (by omega) = res
-        have proof := addRecAux_parPreSum (l_length := init_length)
-                                (k := z.addRecAux (init_length) 0#l)
-                                (ls := res) (hw := by omega)
-                                (proof_length := by simp [init_length]; omega)
-                                (proof := by rfl)
-                                (hls := by simp [hgen])
-        subst init_length
-        subst res
-        rw [← proof]
-        simp
-        ext
-        simp [← getLsbD_eq_getElem]
-        omega
-      · case _ hmod =>
-        simp
-        unfold parPreSum
-        simp [hl, hl', hmod]
-        let hcast : w = w / l * l := by rw [Nat.div_mul_cancel]; omega
-        generalize hgencast : x.cast hcast = xcast
-        generalize hgen : xcast.parPreSumTree (by simp; omega) (by omega) = res
-        have proof := addRecAux_parPreSum (l_length := w / l)
-                                (k := xcast.addRecAux (w / l) 0#l)
-                                (ls := res) (hw := by omega)
-                                (proof := by rfl) (proof_length := by simp; omega)
-                                (hls := by simp [hgen])
-        rw [← proof]
-        ext
-        simp [← getLsbD_eq_getElem]
-        omega
+    simp [hmod]
+    let diff := (l - (w % l))
+    have hmodlt' := Nat.mod_lt (y := l) (x := w) (by omega)
+    have hmodeq : (w + diff) % l = 0 := by
+      simp only [diff]
+      rw [← Nat.add_sub_assoc (by omega), Nat.add_comm,
+        show l + w - w % l = l + (w - w % l) by omega]
+      simp [hzero]
+    have zext := zeroExtend (w + diff) x;
+    let init_length := (w + diff) / l;
+    subst diff
+    generalize hgen : setWidth ((w + (l - w % l)) / l * l) x = z
+    generalize hgen : z.parPreSumTree (by simp; omega) (by omega) = res
+    have proof := addRecAux_parPreSum (l_length := init_length)
+                            (k := z.addRecAux (init_length) 0#l)
+                            (ls := res) (hw := by omega)
+                            (proof_length := by simp [init_length]; omega)
+                            (proof := by rfl)
+                            (hls := by simp [hgen])
+    subst init_length
+    subst res
+    rw [← proof]
+    simp
+    ext
+    simp [← getLsbD_eq_getElem]
+    omega
+  · case _ hmod =>
+    unfold parPreSum
+    simp [hmod]
+    let hcast : w = w / l * l := by rw [Nat.div_mul_cancel]; omega
+    generalize hgencast : x.cast hcast = xcast
+    generalize hgen : xcast.parPreSumTree (by simp; omega) (by omega) = res
+    have proof := addRecAux_parPreSum (l_length := w / l)
+                            (k := xcast.addRecAux (w / l) 0#l)
+                            (ls := res) (hw := by omega)
+                            (proof := by rfl) (proof_length := by simp; omega)
+                            (hls := by simp [hgen])
+    rw [← proof]
+    ext
+    simp [← getLsbD_eq_getElem]
+    omega
 
 end BitVec

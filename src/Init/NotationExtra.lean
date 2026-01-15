@@ -338,7 +338,7 @@ macro_rules
 -/
 syntax (name := Lean.Parser.Command.classAbbrev)
   declModifiers "class" ppSpace "abbrev" ppSpace declId ppSpace
-  (bracketedBinder ppSpace)* (":" ppSpace term)? ":=" ppSpace
+  (bracketedBinder ppSpace)* (":" ppSpace term ppSpace)? ":=" ppSpace
   withPosition(group(colGe term ("," ppSpace)?)*) : command
 
 macro_rules

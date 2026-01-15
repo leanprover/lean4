@@ -88,8 +88,8 @@ public import Init.Data.Order.Lemmas
 public import Init.Data.Order.LemmasExtra
 public import Init.Data.Order.Factories
 public import Init.Data.Order.FactoriesExtra
--- public import Init.Data.Order.MinMaxOn
--- public import Init.Data.Order.Opposite
+public import Init.Data.Order.MinMaxOn
+public import Init.Data.Order.Opposite
 public import Init.Data.Order.PackageFactories
 public import Init.Data.Rat
 public import Init.Data.Dyadic

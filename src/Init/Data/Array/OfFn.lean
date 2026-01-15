@@ -53,6 +53,10 @@ theorem ofFn_succ' {f : Fin (n+1) → α} :
   apply Array.toList_inj.mp
   simp [List.ofFn_succ]
 
+theorem ofFn_getElem {xs : Array α} :
+    Array.ofFn (fun i : Fin xs.size => xs[i.val]) = xs := by
+  ext <;> simp
+
 @[simp]
 theorem ofFn_eq_empty_iff {f : Fin n → α} : ofFn f = #[] ↔ n = 0 := by
   rw [← Array.toList_inj]

@@ -56,23 +56,23 @@ The result is a {lean}`Min α` instance that uses {lean}`max.max` as its {name}`
 def Max.oppositeMin (max : Max α) : Min α where
   min a b := Max.max a b
 
-instance DecidableLE.opposite [i : LE α] [id : DecidableLE α] :
+instance DecidableLE.opposite {i : LE α} [id : DecidableLE α] :
     haveI := i.opposite
     DecidableLE α :=
   fun a b => id b a
 
-instance DecidableLT.opposite [i : LT α] [id : DecidableLT α] :
+instance DecidableLT.opposite {i : LT α} [id : DecidableLT α] :
     haveI := i.opposite
     DecidableLT α :=
   fun a b => id b a
 
-instance LE.instReflOpposite [i : LE α] [Refl (α := α) (· ≤ ·)] :
+instance LE.instReflOpposite {i : LE α} [Refl (α := α) (· ≤ ·)] :
     haveI := i.opposite
     Refl (α := α) (· ≤ ·) :=
   letI := i.opposite
   { refl a := letI := i; le_refl a }
 
-instance LE.instSymmOpposite [i : LE α] [Symm (α := α) (· ≤ ·)] :
+instance LE.instSymmOpposite {i : LE α} [Symm (α := α) (· ≤ ·)] :
     haveI := i.opposite
     Symm (α := α) (· ≤ ·) :=
   letI := i.opposite
@@ -81,7 +81,7 @@ instance LE.instSymmOpposite [i : LE α] [Symm (α := α) (· ≤ ·)] :
       letI := i
       exact Symm.symm b a hab }
 
-instance LE.instAntisymmOpposite [i : LE α] [Antisymm (α := α) (· ≤ ·)] :
+instance LE.instAntisymmOpposite {i : LE α} [Antisymm (α := α) (· ≤ ·)] :
     haveI := i.opposite
     Antisymm (α := α) (· ≤ ·) :=
   letI := i.opposite
@@ -90,7 +90,7 @@ instance LE.instAntisymmOpposite [i : LE α] [Antisymm (α := α) (· ≤ ·)] :
       letI := i
       exact le_antisymm hba hab }
 
-instance LE.instAsymmOpposite [i : LE α] [Asymm (α := α) (· ≤ ·)] :
+instance LE.instAsymmOpposite {i : LE α} [Asymm (α := α) (· ≤ ·)] :
     haveI := i.opposite
     Asymm (α := α) (· ≤ ·) :=
   letI := i.opposite
@@ -99,7 +99,7 @@ instance LE.instAsymmOpposite [i : LE α] [Asymm (α := α) (· ≤ ·)] :
       letI := i
       exact Asymm.asymm b a hab }
 
-instance LE.instTransOpposite [i : LE α] [Trans (· ≤ ·) (· ≤ ·) (· ≤ · : α → α → Prop)] :
+instance LE.instTransOpposite {i : LE α} [Trans (· ≤ ·) (· ≤ ·) (· ≤ · : α → α → Prop)] :
     haveI := i.opposite
     Trans (· ≤ ·) (· ≤ ·) (· ≤ · : α → α → Prop) :=
   letI := i.opposite
@@ -108,43 +108,43 @@ instance LE.instTransOpposite [i : LE α] [Trans (· ≤ ·) (· ≤ ·) (· ≤
       letI := i
       exact Trans.trans hbc hab }
 
-instance LE.instTotalOpposite [i : LE α] [Total (α := α) (· ≤ ·)] :
+instance LE.instTotalOpposite {i : LE α} [Total (α := α) (· ≤ ·)] :
     haveI := i.opposite
     Total (α := α) (· ≤ ·) :=
   letI := i.opposite
   { total a b := letI := i; le_total (a := b) (b := a) }
 
-instance LE.instIrreflOpposite [i : LE α] [Irrefl (α := α) (· ≤ ·)] :
+instance LE.instIrreflOpposite {i : LE α} [Irrefl (α := α) (· ≤ ·)] :
     haveI := i.opposite
     Irrefl (α := α) (· ≤ ·) :=
   letI := i.opposite
   { irrefl a := letI := i; Irrefl.irrefl (r := (· ≤ ·)) a }
 
-instance IsPreorder.opposite [i : LE α] [IsPreorder α] :
+instance IsPreorder.opposite {i : LE α} [IsPreorder α] :
     haveI := i.opposite
     IsPreorder α :=
   letI := i.opposite
   { le_refl a := le_refl a
     le_trans _ _ _ := le_trans }
 
-instance IsPartialOrder.opposite [i : LE α] [IsPartialOrder α] :
+instance IsPartialOrder.opposite {i : LE α} [IsPartialOrder α] :
     haveI := i.opposite
     IsPartialOrder α :=
   letI := i.opposite
   { le_antisymm _ _ := le_antisymm }
 
-instance IsLinearPreorder.opposite [i : LE α] [IsLinearPreorder α] :
+instance IsLinearPreorder.opposite {i : LE α} [IsLinearPreorder α] :
     haveI := i.opposite
     IsLinearPreorder α :=
   letI := i.opposite
   { le_total _ _ := le_total }
 
-instance IsLinearOrder.opposite [i : LE α] [IsLinearOrder α] :
+instance IsLinearOrder.opposite {i : LE α} [IsLinearOrder α] :
     haveI := i.opposite
     IsLinearOrder α :=
   letI := i.opposite; {}
 
-instance LawfulOrderOrd.opposite [il : LE α] [io : Ord α] [LawfulOrderOrd α] :
+instance LawfulOrderOrd.opposite {il : LE α} {io : Ord α} [LawfulOrderOrd α] :
     haveI := il.opposite
     haveI := io.opposite
     LawfulOrderOrd α :=
@@ -159,7 +159,7 @@ instance LawfulOrderOrd.opposite [il : LE α] [io : Ord α] [LawfulOrderOrd α] 
       letI := il; letI := io
       apply isGE_compare }
 
-instance LawfulOrderLT.opposite [il : LE α] [it : LT α] [LawfulOrderLT α] :
+instance LawfulOrderLT.opposite {il : LE α} {it : LT α} [LawfulOrderLT α] :
     haveI := il.opposite
     haveI := it.opposite
     LawfulOrderLT α :=
@@ -170,7 +170,7 @@ instance LawfulOrderLT.opposite [il : LE α] [it : LT α] [LawfulOrderLT α] :
       letI := il; letI := it
       exact LawfulOrderLT.lt_iff b a }
 
-instance LawfulOrderBEq.opposite [il : LE α] [ib : BEq α] [LawfulOrderBEq α] :
+instance LawfulOrderBEq.opposite {il : LE α} {ib : BEq α} [LawfulOrderBEq α] :
     haveI := il.opposite
     LawfulOrderBEq α :=
   letI := il.opposite
@@ -180,7 +180,7 @@ instance LawfulOrderBEq.opposite [il : LE α] [ib : BEq α] [LawfulOrderBEq α] 
       rw [LawfulOrderBEq.beq_iff_le_and_ge]
       exact and_comm }
 
-instance LawfulOrderInf.opposite [il : LE α] [im : Min α] [LawfulOrderInf α] :
+instance LawfulOrderInf.opposite {il : LE α} {im : Min α} [LawfulOrderInf α] :
     haveI := il.opposite
     haveI := im.oppositeMax
     LawfulOrderSup α :=
@@ -191,7 +191,7 @@ instance LawfulOrderInf.opposite [il : LE α] [im : Min α] [LawfulOrderInf α] 
       letI := il; letI := im
       exact LawfulOrderInf.le_min_iff c a b }
 
-instance LawfulOrderMin.opposite [il : LE α] [im : Min α] [LawfulOrderMin α] :
+instance LawfulOrderMin.opposite {il : LE α} {im : Min α} [LawfulOrderMin α] :
     haveI := il.opposite
     haveI := im.oppositeMax
     LawfulOrderMax α :=
@@ -206,7 +206,7 @@ instance LawfulOrderMin.opposite [il : LE α] [im : Min α] [LawfulOrderMin α] 
       letI := il; letI := im
       exact LawfulOrderInf.le_min_iff c a b }
 
-instance LawfulOrderSup.opposite [il : LE α] [im : Max α] [LawfulOrderSup α] :
+instance LawfulOrderSup.opposite {il : LE α} {im : Max α} [LawfulOrderSup α] :
     haveI := il.opposite
     haveI := im.oppositeMin
     LawfulOrderInf α :=
@@ -217,7 +217,7 @@ instance LawfulOrderSup.opposite [il : LE α] [im : Max α] [LawfulOrderSup α] 
       letI := il; letI := im
       exact LawfulOrderSup.max_le_iff b c a }
 
-instance LawfulOrderMax.opposite [il : LE α] [im : Max α] [LawfulOrderMax α] :
+instance LawfulOrderMax.opposite {il : LE α} {im : Max α} [LawfulOrderMax α] :
     haveI := il.opposite
     haveI := im.oppositeMin
     LawfulOrderMin α :=
@@ -232,7 +232,7 @@ instance LawfulOrderMax.opposite [il : LE α] [im : Max α] [LawfulOrderMax α] 
       letI := il; letI := im
       exact LawfulOrderSup.max_le_iff b c a }
 
-instance LawfulOrderLeftLeaningMin.opposite [il : LE α] [im : Min α] [LawfulOrderLeftLeaningMin α] :
+instance LawfulOrderLeftLeaningMin.opposite {il : LE α} {im : Min α} [LawfulOrderLeftLeaningMin α] :
     haveI := il.opposite
     haveI := im.oppositeMax
     LawfulOrderLeftLeaningMax α :=
@@ -247,7 +247,7 @@ instance LawfulOrderLeftLeaningMin.opposite [il : LE α] [im : Min α] [LawfulOr
       letI := il; letI := im
       exact LawfulOrderLeftLeaningMin.min_eq_right a b hab }
 
-instance LawfulOrderLeftLeaningMax.opposite [il : LE α] [im : Max α] [LawfulOrderLeftLeaningMax α] :
+instance LawfulOrderLeftLeaningMax.opposite {il : LE α} {im : Max α} [LawfulOrderLeftLeaningMax α] :
     haveI := il.opposite
     haveI := im.oppositeMin
     LawfulOrderLeftLeaningMin α :=

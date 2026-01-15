@@ -19,6 +19,30 @@ public section
 
 open Std
 
+attribute [local instance]
+  DecidableLE.opposite
+  DecidableLT.opposite
+  LE.instReflOpposite
+  LE.instSymmOpposite
+  LE.instAntisymmOpposite
+  LE.instAsymmOpposite
+  LE.instTransOpposite
+  LE.instTotalOpposite
+  LE.instIrreflOpposite
+  IsPreorder.opposite
+  IsPartialOrder.opposite
+  IsLinearPreorder.opposite
+  IsLinearOrder.opposite
+  LawfulOrderOrd.opposite
+  LawfulOrderLT.opposite
+  LawfulOrderBEq.opposite
+  LawfulOrderInf.opposite
+  LawfulOrderMin.opposite
+  LawfulOrderSup.opposite
+  LawfulOrderMax.opposite
+  LawfulOrderLeftLeaningMin.opposite
+  LawfulOrderLeftLeaningMax.opposite
+
 set_option doc.verso true
 set_option linter.missingDocs true
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.

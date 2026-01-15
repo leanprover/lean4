@@ -406,7 +406,7 @@ def toString : BVExpr w → String
   | .shiftLeft lhs rhs => s!"({lhs.toString} << {rhs.toString})"
   | .shiftRight lhs rhs => s!"({lhs.toString} >> {rhs.toString})"
   | .arithShiftRight lhs rhs => s!"({lhs.toString} >>a {rhs.toString})"
-  | .parPreSum l expr => s!"parPreSum {l} {toString expr}"
+  | .parPreSum l expr => s!"parPreSum {l} {expr.toString}"
 
 
 instance : ToString (BVExpr w) := ⟨toString⟩

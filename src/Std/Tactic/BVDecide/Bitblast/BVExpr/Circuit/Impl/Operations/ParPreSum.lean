@@ -8,7 +8,6 @@ module
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Sub
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Eq
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Append
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ZeroExtend
@@ -82,6 +81,7 @@ def blastParPreSumLayer (aig : AIG α)
   else
     have h : iter_num = (old_length + 1) / 2 := by omega
     ⟨aig, h ▸ new_layer⟩
+termination_by old_length - iter_num * 2
 
 theorem blastParPreSumLayer_le_size (aig : AIG α) (iter_num: Nat)
       (old_layer : AIG.RefVec aig (old_length * w)) (new_layer : AIG.RefVec aig (iter_num * w))
@@ -124,6 +124,7 @@ def blastParPreSumTree
   else
     have hcast : l_length * w = w := by simp [show l_length = 1 by omega]
     ⟨aig, hcast▸l⟩
+termination_by l_length
 
 theorem blastParPreSumTree_le_size (aig : AIG α)
       (old_layer : AIG.RefVec aig (old_length * w)) (h : 0 < old_length) :
@@ -163,17 +164,11 @@ def blastParPreSum (aig : AIG α) (x : ParPreSumTarget aig l) :
     ⟨aig, res⟩
   else
     let w := x.w
-    if hle : w < l then
+    if hle : w ≤ l then
       /- zero-extend to `l` -/
       let zextTarget : AIG.ExtendTarget aig l := {w := w, vec := x.inner}
       let res := blastZeroExtend aig zextTarget
       ⟨res.aig, res.vec⟩
-    else if heq : w = l then
-      /- cast and return as-is -/
-      ⟨aig, ⟨x.inner.refs.cast heq, by
-        intros i h
-        simp only [Vector.getElem_cast]
-        apply x.inner.hrefs (i := i)⟩⟩
     else if hmodlt : 0 < w % l then
       /- zero-extend to the closest multiple of `l` -/
       have hzero : (w - w % l) % l = 0 := by
@@ -213,16 +208,14 @@ theorem blastParPreSum_le_size (aig : AIG α) (l : Nat) (x : ParPreSumTarget aig
     split
     · apply AIG.LawfulVecOperator.le_size
     · split
-      · simp
-      · split
-        · let w := x.w
-          let diff := l - w % l;
-          let zextTarget : AIG.ExtendTarget aig (w + diff) := { w := w, vec := x.inner };
-          have htmp : aig.decls.size ≤ (blastZeroExtend aig zextTarget).aig.decls.size := by
-            exact AIG.LawfulVecOperator.le_size aig zextTarget
-          apply Nat.le_trans htmp
-          apply blastParPreSumTree_le_size
-        · apply blastParPreSumTree_le_size
+      · let w := x.w
+        let diff := l - w % l;
+        let zextTarget : AIG.ExtendTarget aig (w + diff) := { w := w, vec := x.inner };
+        have htmp : aig.decls.size ≤ (blastZeroExtend aig zextTarget).aig.decls.size := by
+          exact AIG.LawfulVecOperator.le_size aig zextTarget
+        apply Nat.le_trans htmp
+        apply blastParPreSumTree_le_size
+      · apply blastParPreSumTree_le_size
 
 theorem blastParPreSum_decl_eq (aig : AIG α)
       (x : ParPreSumTarget aig l) :
@@ -239,16 +232,14 @@ theorem blastParPreSum_decl_eq (aig : AIG α)
       intros i h1 h2
       apply AIG.LawfulVecOperator.decl_eq
     · split at hgo
-      · simp [← hgo]
-      · split at hgo
-        · rw [← hgo]
+      · · rw [← hgo]
           intros i h1 h2
           rw [blastParPreSumTree_decl_eq]
           · apply AIG.LawfulVecOperator.decl_eq
           · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size
             exact h2
-        · rw [← hgo]
-          apply blastParPreSumTree_decl_eq
+      · rw [← hgo]
+        apply blastParPreSumTree_decl_eq
 
 instance : AIG.LawfulVecOperator α ParPreSumTarget blastParPreSum where
   le_size := by

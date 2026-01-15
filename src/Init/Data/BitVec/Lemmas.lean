@@ -6757,7 +6757,7 @@ theorem addRecAux_eq_of
     (a : BitVec (a_length * w))
     (halen : a_length = (b_length + 1) / 2)
     (b : BitVec (b_length * w))
-    (hadd : ∀ (i : Nat) (_ : i < (b_length + 1) / 2) (_ : 2 * i < b_length),
+    (hadd : ∀ (i : Nat) (_ : i < (b_length + 1) / 2),
       extractLsb' (i * w) w a =
       extractLsb' (2 * i * w) w b + extractLsb' ((2 * i + 1) * w) w b)
     (hlen : 0 < a_length)
@@ -6774,7 +6774,7 @@ theorem addRecAux_eq_of
     have := extractLsb'_append_extractLsb' (len := (a_length - 1) * w) (x := a.cast hcast)
     rw [extractLsb'_cast, extractLsb'_cast] at this
     rw [extractLsb'_append_extractLsb'_eq_of_lt (a := a) (by omega),
-      addRecAux_append_extractLsb' (by omega), hadd (i := a_length - 1) (by omega) (by omega)]
+      addRecAux_append_extractLsb' (by omega), hadd (i := a_length - 1) (by omega)]
     let op1 := extractLsb' (2 * (a_length - 1) * w) w b
     let op2 := extractLsb' ((2 * (a_length - 1) + 1) * w) w b
     let taila := extractLsb' 0 ((a_length - 1) * w) a
@@ -6802,12 +6802,12 @@ theorem addRecAux_eq_of
                     (by omega) (a := taila) (b := tailb)
       by_cases hlt: 0 < (b_length + 1) / 2 - 1
       · apply ihn
-        · intros i hi hi'
+        · intros i hi
           simp only [taila]
           rw [extractLsb'_extractLsb'_of_le
                 (by simp [show i * w + w = (i + 1) * w by simp [Nat.add_mul]]
                     apply Nat.mul_le_mul_right w (by omega))]
-          specialize hadd (i := i) (by omega) (by omega)
+          specialize hadd (i := i) (by omega)
           rw [hadd]
           have hb1 := extractLsb'_extractLsb'_of_le (x := b) (start := 2 * i * w) (len := w)
                       (len' := (b_length - 1 - 1) * w)
@@ -6851,13 +6851,13 @@ theorem addRecAux_eq_of
       simp only [this, BitVec.add_zero, BitVec.add_right_inj]
       by_cases hlt: 0 < (b_length + 1) / 2 - 1
       · apply ihn
-        · intros i hi hi'
+        · intros i hi
           simp only [taila]
           have hlt : i < (b_length + 1) / 2 - 1 := by omega
           rw [extractLsb'_extractLsb'_of_le (by
             rw [show i * w + w = (i + 1) * w by simp [Nat.add_mul]]
             apply Nat.mul_le_mul_right w (by omega))]
-          specialize hadd (i := i) (by omega) (by omega)
+          specialize hadd (i := i) (by omega)
           simp only [hadd, tailb]
           rw [extractLsb'_extractLsb'_of_le (by
             rw [show 2 * i * w + w = (2 * i + 1) * w by simp [Nat.add_mul]]

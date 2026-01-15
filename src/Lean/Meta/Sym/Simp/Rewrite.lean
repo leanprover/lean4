@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Sym.Simp.Simproc
 public import Lean.Meta.Sym.Simp.Theorems
+public import Lean.Meta.Sym.Simp.App
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.Simp.DiscrTree
 namespace Lean.Meta.Sym.Simp
@@ -41,9 +42,11 @@ public def Theorem.rewrite (thm : Theorem) (e : Expr) : SimpM Result := do
     return .rfl
 
 public def Theorems.rewrite (thms : Theorems) : Simproc := fun e => do
-  -- **TODO**: over-applied terms
-  for thm in thms.getMatch e do
-    let result ← thm.rewrite e
+  for (thm, numExtra) in thms.getMatchWithExtra e do
+    let result ← if numExtra == 0 then
+      thm.rewrite e
+    else
+      simpOverApplied e numExtra thm.rewrite
     if !result.isRfl then
       return result
   return .rfl

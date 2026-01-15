@@ -456,11 +456,14 @@ if(LLVM AND ${STAGE} GREATER 0)
     message(VERBOSE "leanshared linker flags: '${LEANSHARED_LINKER_FLAGS}' | lean extra cxx flags '${CMAKE_CXX_FLAGS}'")
 endif()
 
-# get rid of unused parts of C++ stdlib
+# We always strip away unused declarations to reduce binary sizes as the time cost is small and the
+# potential benefit can be huge, especially when stripping `meta import`s.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,-dead_strip")
+  string(APPEND LEANC_EXTRA_CC_FLAGS " -fdata-sections -ffunction-sections")
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -Wl,-dead_strip")
 elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,--gc-sections")
+  string(APPEND LEANC_EXTRA_CC_FLAGS " -fdata-sections -ffunction-sections")
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -Wl,--gc-sections")
 endif()
 
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

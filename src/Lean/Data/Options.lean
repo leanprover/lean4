@@ -42,6 +42,12 @@ instance : BEq Options where
 instance : EmptyCollection Options where
   emptyCollection := .empty
 
+@[inline] def find? (o : Options) (k : Name) : Option DataValue :=
+  o.map.find? k
+
+@[deprecated find? (since := "2026-01-15")]
+def find := find?
+
 @[inline] def get? {α : Type} [KVMap.Value α] (o : Options) (k : Name) : Option α :=
   o.map.find? k |>.bind KVMap.Value.ofDataValue?
 
@@ -54,9 +60,12 @@ instance : EmptyCollection Options where
 @[inline] def contains (o : Options) (k : Name) : Bool :=
   o.map.contains k
 
-def set {α : Type} [KVMap.Value α] (o : Options) (k : Name) (v : α) : Options where
-  map := o.map.insert k (KVMap.Value.toDataValue v)
+@[inline] def insert (o : Options) (k : Name) (v : DataValue) : Options where
+  map := o.map.insert k v
   hasTrace := o.hasTrace || (`trace).isPrefixOf k
+
+def set {α : Type} [KVMap.Value α] (o : Options) (k : Name) (v : α) : Options :=
+  o.insert k (KVMap.Value.toDataValue v)
 
 @[inline] def setBool (o : Options) (k : Name) (v : Bool) : Options :=
   o.set k v

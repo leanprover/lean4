@@ -51,7 +51,7 @@ namespace Version
 /--
 Converts a pair of `Nat` to the corresponding `Version`.
 -/
-def fromNumber? : Nat → Nat → Option Version
+def ofNumber? : Nat → Nat → Option Version
   | 1, 1 => some .v11
   | 2, 0 => some .v20
   | 3, 0 => some .v30

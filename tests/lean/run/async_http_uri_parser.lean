@@ -1,6 +1,7 @@
 import Std.Internal.Http.Protocol.H1.Parser
 
 open Std.Http.Protocol
+open Std.Http.URI.Parser
 
 def runParser (parser : Std.Internal.Parsec.ByteArray.Parser α) (s : String) : IO α :=
   IO.ofExcept (parser.run s.toUTF8)
@@ -10,7 +11,7 @@ info: Std.Http.RequestTarget.originForm { segments := #["path", "with", "encoded
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "/path/with/encoded%20space"
+  let result ← runParser parseRequestTarget "/path/with/encoded%20space"
   IO.println (repr result)
 
 /--
@@ -18,7 +19,7 @@ info: Std.Http.RequestTarget.originForm { segments := #["path", "with", "encoded
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "/path/with/encoded%20space/"
+  let result ← runParser parseRequestTarget "/path/with/encoded%20space/"
   IO.println (repr result)
 
 /--
@@ -26,7 +27,7 @@ error: offset 0: invalid request target
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "path/with/encoded%20space"
+  let result ← runParser parseRequestTarget "path/with/encoded%20space"
   IO.println (repr result)
 
 /--
@@ -34,7 +35,7 @@ info: Std.Http.RequestTarget.asteriskForm
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "*"
+  let result ← runParser parseRequestTarget "*"
   IO.println (repr result)
 
 /--
@@ -42,14 +43,14 @@ info: some "lol🔥"
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "https://ata/b?ata=be#lol%F0%9F%94%A5"
+  let result ← runParser parseRequestTarget "https://ata/b?ata=be#lol%F0%9F%94%A5"
   IO.println (repr (result.fragment?.map (·.decode)))
 /--
 info: #[("q", "hello%20world"), ("category", "tech%2Bgames")]
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "/api/search?q=hello%20world&category=tech%2Bgames"
+  let result ← runParser parseRequestTarget "/api/search?q=hello%20world&category=tech%2Bgames"
   IO.println (repr result.query)
 
 /--
@@ -57,7 +58,7 @@ info: Std.Http.RequestTarget.originForm { segments := #["files", "my%20document%
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "/files/my%20document%2Epdf"
+  let result ← runParser parseRequestTarget "/files/my%20document%2Epdf"
   IO.println (repr result)
 
 /--
@@ -65,7 +66,7 @@ info: some "%F0%9F%98%80"
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "/search?name=%E2%9C%93%20checked&emoji=%F0%9F%98%80"
+  let result ← runParser parseRequestTarget "/search?name=%E2%9C%93%20checked&emoji=%F0%9F%98%80"
   IO.println (repr <| result.query.find? "emoji")
 
 /--
@@ -76,7 +77,7 @@ info: Std.Http.RequestTarget.originForm
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "/api?param1=value1&param2=value2&param3=value3"
+  let result ← runParser parseRequestTarget "/api?param1=value1&param2=value2&param3=value3"
   IO.println (repr result)
 
 /--
@@ -87,7 +88,7 @@ info: Std.Http.RequestTarget.originForm
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "/search?debug&verbose&q=test"
+  let result ← runParser parseRequestTarget "/search?debug&verbose&q=test"
   IO.println (repr result)
 
 /--
@@ -98,7 +99,7 @@ info: Std.Http.RequestTarget.originForm
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "/api?empty=&also_empty=&has_value=something"
+  let result ← runParser parseRequestTarget "/api?empty=&also_empty=&has_value=something"
   IO.println (repr result)
 
 /--
@@ -109,7 +110,7 @@ info: Std.Http.RequestTarget.originForm
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "/search?q=cats%26dogs&filter=name%3Dmax"
+  let result ← runParser parseRequestTarget "/search?q=cats%26dogs&filter=name%3Dmax"
   IO.println (repr result)
 
 /--
@@ -117,7 +118,7 @@ info: Std.Http.RequestTarget.originForm { segments := #[], absolute := true } no
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "/"
+  let result ← runParser parseRequestTarget "/"
   IO.println (repr result)
 
 /--
@@ -128,7 +129,7 @@ info: Std.Http.RequestTarget.originForm
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "/api/v1/users/123/posts/456/comments/789"
+  let result ← runParser parseRequestTarget "/api/v1/users/123/posts/456/comments/789"
   IO.println (repr result)
 
 /--
@@ -136,7 +137,7 @@ info: Std.Http.RequestTarget.originForm { segments := #["files", "..", "etc", "p
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "/files/../etc/passwd"
+  let result ← runParser parseRequestTarget "/files/../etc/passwd"
   IO.println (repr result)
 
 /--
@@ -144,7 +145,7 @@ info: Std.Http.RequestTarget.originForm { segments := #["path%2Fwith%2Fencoded%2
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "/path%2Fwith%2Fencoded%2Fslashes"
+  let result ← runParser parseRequestTarget "/path%2Fwith%2Fencoded%2Fslashes"
   IO.println (repr result)
 
 /--
@@ -153,7 +154,7 @@ info: Std.Http.RequestTarget.authorityForm
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "example.com:8080"
+  let result ← runParser parseRequestTarget "example.com:8080"
   IO.println (repr result)
 
 /--
@@ -166,7 +167,7 @@ info: Std.Http.RequestTarget.absoluteForm
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "https://example.com:8080/ata"
+  let result ← runParser parseRequestTarget "https://example.com:8080/ata"
   IO.println (repr result)
 
 /--
@@ -174,7 +175,7 @@ info: Std.Http.RequestTarget.authorityForm { userInfo := none, host := Std.Http.
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "192.168.1.1:3000"
+  let result ← runParser parseRequestTarget "192.168.1.1:3000"
   IO.println (repr result)
 
 /--
@@ -182,7 +183,7 @@ info: Std.Http.RequestTarget.authorityForm { userInfo := none, host := Std.Http.
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "[::1]:8080"
+  let result ← runParser parseRequestTarget "[::1]:8080"
   IO.println (repr result)
 
 /--
@@ -195,7 +196,7 @@ info: Std.Http.RequestTarget.absoluteForm
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "http://example.com/path/to/resource?query=value"
+  let result ← runParser parseRequestTarget "http://example.com/path/to/resource?query=value"
   IO.println (repr result)
 
 /--
@@ -208,7 +209,7 @@ info: Std.Http.RequestTarget.absoluteForm
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "https://api.example.com:443/v1/users?limit=10"
+  let result ← runParser parseRequestTarget "https://api.example.com:443/v1/users?limit=10"
   IO.println (repr result)
 
 /--
@@ -223,7 +224,7 @@ info: Std.Http.RequestTarget.absoluteForm
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "https://user%20b:pass@secure.example.com/private"
+  let result ← runParser parseRequestTarget "https://user%20b:pass@secure.example.com/private"
   IO.println (repr result)
 
 /--
@@ -236,7 +237,7 @@ info: Std.Http.RequestTarget.absoluteForm
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "http://[2001:db8::1]:8080/path"
+  let result ← runParser parseRequestTarget "http://[2001:db8::1]:8080/path"
   IO.println (repr result)
 
 /--
@@ -249,7 +250,7 @@ info: Std.Http.RequestTarget.absoluteForm
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "https://example.com/page#section1"
+  let result ← runParser parseRequestTarget "https://example.com/page#section1"
   IO.println (repr result)
 
 /--
@@ -257,7 +258,7 @@ error: offset 0: invalid request target
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "?query=only"
+  let result ← runParser parseRequestTarget "?query=only"
   IO.println (repr result)
 
 /--
@@ -265,7 +266,7 @@ error: offset 1: it's a scheme starter
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "//double//slash//path"
+  let result ← runParser parseRequestTarget "//double//slash//path"
   IO.println (repr result)
 
 /--
@@ -278,7 +279,7 @@ info: Std.Http.RequestTarget.originForm
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "/very/long/path/with/many/segments/and/encoded%20spaces/and%2Bplus%2Bsigns/final%2Fsegment"
+  let result ← runParser parseRequestTarget "/very/long/path/with/many/segments/and/encoded%20spaces/and%2Bplus%2Bsigns/final%2Fsegment"
   IO.println (repr result)
 
 /--
@@ -290,7 +291,7 @@ info: Std.Http.RequestTarget.originForm
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "/api?filters%5B%5D=active&filters%5B%5D=verified&sort%5Bname%5D=asc&sort%5Bdate%5D=desc"
+  let result ← runParser parseRequestTarget "/api?filters%5B%5D=active&filters%5B%5D=verified&sort%5Bname%5D=asc&sort%5Bdate%5D=desc"
   IO.println (repr result)
 
 /--
@@ -303,7 +304,7 @@ info: Std.Http.RequestTarget.absoluteForm
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "https://xn--nxasmq6b.xn--o3cw4h/path"
+  let result ← runParser parseRequestTarget "https://xn--nxasmq6b.xn--o3cw4h/path"
   IO.println (repr result)
 
 /--
@@ -312,7 +313,7 @@ info: Std.Http.RequestTarget.authorityForm
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "localhost:65535"
+  let result ← runParser parseRequestTarget "localhost:65535"
   IO.println (repr result)
 
 /--
@@ -320,5 +321,5 @@ info: Std.Http.RequestTarget.originForm { segments := #[], absolute := true } no
 -/
 #guard_msgs in
 #eval show IO _ from do
-  let result ← runParser Std.Http.Parser.parseRequestTarget "/"
+  let result ← runParser parseRequestTarget "/"
   IO.println (repr result)

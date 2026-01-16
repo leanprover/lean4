@@ -104,7 +104,7 @@ def ofByteArray (bs : ByteArray) : ChunkedBuffer :=
 Build from an array of ByteArrays directly.
 -/
 @[inline]
-def fromArray (bs : Array ByteArray) : ChunkedBuffer :=
+def ofArray (bs : Array ByteArray) : ChunkedBuffer :=
   { data := bs, size := bs.foldl (· + ·.size) 0 }
 
 /--
@@ -124,12 +124,12 @@ instance : Coe ByteArray ChunkedBuffer where
   coe := ofByteArray
 
 instance : Coe (Array ByteArray) ChunkedBuffer where
-  coe := fromArray
+  coe := ofArray
 
 instance : Append ChunkedBuffer where
   append := append
 
 instance : Repr ChunkedBuffer where
-  reprPrec bb _ := s!"ChunkedBuffer.fromArray {bb.data}"
+  reprPrec bb _ := s!"ChunkedBuffer.ofArray {bb.data}"
 
 end Std.Http.Internal.ChunkedBuffer

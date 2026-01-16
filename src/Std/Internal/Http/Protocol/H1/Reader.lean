@@ -16,8 +16,21 @@ public import Std.Internal.Http.Protocol.H1.Error
 
 public section
 
+/-!
+# HTTP/1.1 Reader
+
+This module defines the reader state machine for parsing incoming HTTP/1.1 messages.
+It tracks the parsing state including start line, headers, and body handling for
+both fixed-length and chunked transfer encodings.
+-/
+
 namespace Std.Http.Protocol.H1
 
+set_option linter.all true
+
+/--
+The state of the `Reader` state machine.
+-/
 inductive Reader.State (dir : Direction) : Type
   /--
   Initial state waiting for HTTP start line.
@@ -49,7 +62,6 @@ inductive Reader.State (dir : Direction) : Type
   -/
   | complete
 
-
   /--
   State that it has completed and cannot process more data.
   -/
@@ -61,6 +73,9 @@ inductive Reader.State (dir : Direction) : Type
   | failed (error : Error) : State dir
 deriving Inhabited, Repr, BEq
 
+/--
+Manages the reading state of the HTTP parsing and processing machine.
+-/
 structure Reader (dir : Direction) where
   /--
   The current state of the machine.

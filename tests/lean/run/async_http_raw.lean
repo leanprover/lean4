@@ -37,7 +37,7 @@ def testSizeLimit (pair : Mock.Client × Mock.Server) : IO Unit := do
         return Response.new
         |>.status .payloadTooLarge
         |>.header! "Connection" "close"
-        |>.body .zero
+        |>.body .empty
 
     return Response.new
       |>.status .ok
@@ -145,7 +145,7 @@ def test100Continue : IO Unit := do
       return Response.new
         |>.status .continue
         |>.header! "Connection" "close"
-        |>.body Body.zero
+        |>.body Body.empty
     else
       return Response.new
         |>.status .ok
@@ -252,12 +252,12 @@ def testContentNegotiation : IO Unit := do
   let pair ← Mock.new
 
   let handler := fun (req : Request Body) => do
-    if req.head.headers.hasEntry (.new "accept") "application/json" then
+    if req.head.headers.hasEntry (.new "accept") (.new "application/json") then
       return Response.new
         |>.status .accepted
         |>.header! "Content-Type" "application/json"
         |>.body "{\"message\": \"JSON response\", \"status\": \"accepted\"}"
-    else if req.head.headers.hasEntry (.new "accept") "text/xml" then
+    else if req.head.headers.hasEntry (.new "accept") (.new "text/xml") then
       return Response.new
         |>.status .ok
         |>.header! "Content-Type" "application/xml"

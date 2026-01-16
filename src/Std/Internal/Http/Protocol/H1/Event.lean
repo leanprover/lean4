@@ -16,7 +16,16 @@ public import Std.Internal.Http.Protocol.H1.Error
 
 public section
 
+/-!
+# HTTP/1.1 Events
+
+This module defines the events that can occur during HTTP/1.1 message processing,
+including header completion, data arrival, and error conditions.
+-/
+
 namespace Std.Http.Protocol.H1
+
+set_option linter.all true
 
 /--
 Events that can occur during HTTP message processing.

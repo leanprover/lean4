@@ -64,20 +64,20 @@ def isBasicGetRequest (req : Request Body) (uri : String) (host : String) : Bool
   req.head.method == .get ∧
   req.head.version == .v11 ∧
   toString req.head.uri = uri ∧
-  req.head.headers.hasEntry (.new "host") host
+  req.head.headers.hasEntry (.new "host") (.ofString! host)
 
 /-- Check if request has a specific Content-Length header. -/
 def hasContentLength (req : Request Body) (length : String) : Bool :=
-  req.head.headers.hasEntry (.new "content-length") length
+  req.head.headers.hasEntry (.new "content-length") (.ofString! length)
 
 /-- Check if request uses chunked transfer encoding. -/
 def isChunkedRequest (req : Request Body) : Bool :=
-  req.head.headers.hasEntry (.new "transfer-encoding") "chunked"
+  req.head.headers.hasEntry (.new "transfer-encoding") (.ofString! "chunked")
 
 /-- Check if request has a specific header with a specific value. -/
 def hasHeader (req : Request Body) (name : String) (value : String) : Bool :=
-  if let some name := HeaderName.ofString? name then
-    req.head.headers.hasEntry name value
+  if let some name := Header.Name.ofString? name then
+    req.head.headers.hasEntry name (.ofString! value)
   else
     false
 

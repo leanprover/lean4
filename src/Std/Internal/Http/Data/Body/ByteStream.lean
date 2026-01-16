@@ -51,17 +51,11 @@ private structure Producer where
   chunk : Chunk
   promise : IO.Promise Bool
 
-/--
-The central state structure for ByteStream. Maintains the following invariants:
-1. `values = ∅ ∨ consumers = ∅`
-2. `closed = true → consumers = ∅`
--/
 private structure State where
   /--
   Chunks pushed into the stream that are waiting to be consumed.
   -/
   values : Std.Queue Chunk
-
 
   /--
   Current amount of chunks buffered in the stream.
@@ -255,7 +249,6 @@ def write (stream : ByteStream) (data : ByteArray) (extensions : Array (String �
   let res : AsyncTask _ ← send' stream chunk
   await res
 
-
 /--
 Writes a complete chunk with extensions to the stream.
 -/
@@ -306,6 +299,7 @@ private def recvReady' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
   return !st.values.isEmpty || st.closed
 
 open Internal.IO.Async in
+
 /--
 Creates a `Selector` that resolves once the `ByteStream` has data available and provides that data.
 -/

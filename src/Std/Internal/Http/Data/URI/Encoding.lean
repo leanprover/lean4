@@ -292,7 +292,7 @@ def encode (s : String) : EncodedString :=
 Attempts to create an `EncodedString` from a `ByteArray`. Returns `some` if the byte array contains only
 valid encoded characters, `none` otherwise.
 -/
-def fromByteArray? (ba : ByteArray) : Option EncodedString :=
+def ofByteArray? (ba : ByteArray) : Option EncodedString :=
   if h : isAllowedEncodedChars ba then some ⟨ba, h⟩  else none
 
 instance : ToString EncodedString where
@@ -359,7 +359,7 @@ def push (s : EncodedQueryString) (c : UInt8) (h : isEncodedQueryChar c) : Encod
 Attempts to create an `EncodedQueryString` from a `ByteArray`. Returns `some` if the byte array contains
 only valid encoded query characters, `none` otherwise.
 -/
-def fromByteArray? (ba : ByteArray) : Option EncodedQueryString :=
+def ofByteArray? (ba : ByteArray) : Option EncodedQueryString :=
   if h : isAllowedEncodedQueryChars ba then some ⟨ba, h⟩  else none
 
 /--

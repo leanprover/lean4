@@ -3,14 +3,22 @@ import Std.Internal.Http.Protocol.H1.Parser
 open Std.Http.Protocol
 
 def runParser (parser : Std.Internal.Parsec.ByteArray.Parser α) (s : String) : IO α :=
-  IO.ofExcept (parser.run s.toUTF8)
+  IO.ofExcept ((parser <* Std.Internal.Parsec.eof).run s.toUTF8)
 
 def parseCheck (s : String) (exact : String := s) : IO Unit := do
-  let result ← runParser Std.Http.Parser.parseRequestTarget s
+  let result ← runParser Std.Http.URI.Parser.parseRequestTarget s
   if toString result = exact then
     pure ()
   else
     throw (.userError s!"expect {exact.quote} but got {(toString result).quote}")
+
+def parseCheckFail (s : String) : IO Unit := do
+  match (Std.Http.URI.Parser.parseRequestTarget <* Std.Internal.Parsec.eof).run s.toUTF8 with
+  | .ok r =>
+      throw <| .userError
+        s!"expected parse failure, but succeeded with {(repr r)}"
+  | .error _ =>
+      pure ()
 
 #eval parseCheck "/path/with/encoded%20space"
 #eval parseCheck "/path/with/encoded%20space/"
@@ -50,3 +58,30 @@ def parseCheck (s : String) (exact : String := s) : IO Unit := do
 
 #eval parseCheck "/files/my%20document%2Epdf"
                  "/files/my%20document%2Epdf"
+
+-- raw spaces (illegal)
+#eval parseCheckFail "/path with space"
+
+-- broken percent-encoding
+#eval parseCheckFail "/path/%"
+#eval parseCheckFail "/path/%2"
+#eval parseCheckFail "/path/%ZZ"
+
+-- empty input
+#eval parseCheckFail ""
+
+-- invalid ports
+#eval parseCheckFail "example.com:99999"
+#eval parseCheckFail "example.com:-1"
+#eval parseCheckFail "example.com:abc"
+
+-- malformed IPv6
+#eval parseCheckFail "[::1"
+#eval parseCheckFail "[:::1]:80"
+
+-- fragment-only is not a request-target
+#eval parseCheckFail "#frag"
+
+-- control characters
+#eval parseCheckFail "/path/\n"
+#eval parseCheckFail "/path/\u0000"

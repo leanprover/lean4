@@ -14,4 +14,10 @@ public import Std.Internal.Http.Data.Request
 public import Std.Internal.Http.Data.Response
 public import Std.Internal.Http.Data.URI
 public import Std.Internal.Http.Data.Status
-public import Std.Internal.Http.Data.Version
+
+/-!
+# HTTP Data Types
+
+This module re-exports all HTTP data types including request/response structures,
+headers, methods, status codes, URIs, and body handling.
+-/

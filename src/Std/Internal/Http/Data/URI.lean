@@ -28,8 +28,7 @@ Attempts to parse a `RequestTarget` from the given string.
 -/
 @[inline]
 def parse? (string : String) : Option RequestTarget :=
-  (Parser.parseRequestTarget <* Std.Internal.Parsec.eof).run string.toUTF8 |>.toOption
-
+  (URI.Parser.parseRequestTarget <* Std.Internal.Parsec.eof).run string.toUTF8 |>.toOption
 
 /--
 Parses a `RequestTarget` from the given string. Panics if parsing fails. Use `parse?`

@@ -16,10 +16,23 @@ public import Std.Internal.Http.Protocol.H1.Error
 
 public section
 
+/-!
+# HTTP/1.1 Writer
+
+This module defines the writer state machine for generating outgoing HTTP/1.1 messages.
+It handles encoding headers and body content for both fixed-length and chunked
+transfer encodings.
+-/
+
 namespace Std.Http.Protocol.H1
+
+set_option linter.all true
 
 open Internal
 
+/--
+The state of the `Writer` state machine.
+-/
 inductive Writer.State
   /--
   It only starts to write when part of the request is received.
@@ -64,7 +77,7 @@ inductive Writer.State
 deriving Inhabited, Repr, BEq
 
 /--
-Manages the writing state of the machine.
+Manages the writing state of the HTTP parsing and processing machine.
 -/
 structure Writer (dir : Direction) where
   /--

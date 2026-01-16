@@ -13,7 +13,14 @@ public import Std.Internal.Http.Data.URI.Basic
 
 public section
 
-namespace Std.Http.Parser
+/-!
+# URI Parser
+
+This module provides parsers for URIs and request targets according to RFC 3986.
+It handles parsing of schemes, authorities, paths, queries, and fragments.
+-/
+
+namespace Std.Http.URI.Parser
 
 set_option linter.all true
 
@@ -126,7 +133,7 @@ private def parsePortNumber : Parser UInt16 := do
 private def parseUserInfo : Parser URI.UserInfo := do
   let userBytesName ← takeWhileUpTo (fun x => x ≠ ':'.toUInt8 ∧ isUserInfoChar x) 1024
 
-  let some userName := URI.EncodedString.fromByteArray? userBytesName.toByteArray
+  let some userName := URI.EncodedString.ofByteArray? userBytesName.toByteArray
     | fail "invalid percent encoding in user info"
 
   let userPass ← if ← peekIs (· == ':'.toUInt8) then
@@ -134,7 +141,7 @@ private def parseUserInfo : Parser URI.UserInfo := do
 
       let userBytesPass ← takeWhileUpTo isUserInfoChar 1024
 
-      let some userStrPass := URI.EncodedString.fromByteArray? userBytesPass.toByteArray
+      let some userStrPass := URI.EncodedString.ofByteArray? userBytesPass.toByteArray
         | fail "invalid percent encoding in user info"
 
       pure <| some userStrPass
@@ -176,7 +183,7 @@ private def parseHost : Parser URI.Host := do
   else
     let isHostName x := isUnreserved x ∨ x = '%'.toUInt8 ∨ isSubDelims x
 
-    let some str := URI.EncodedString.fromByteArray? (← takeWhileUpTo1 isHostName 1024).toByteArray
+    let some str := URI.EncodedString.ofByteArray? (← takeWhileUpTo1 isHostName 1024).toByteArray
       | fail s!"invalid host"
 
     return .name str
@@ -244,7 +251,7 @@ def parsePath (forceAbsolute : Bool) (allowEmpty : Bool) : Parser URI.Path := do
   while (← peek?).isSome do
     let segmentBytes ← parseSegment
 
-    let some segmentStr := URI.EncodedString.fromByteArray? segmentBytes.toByteArray
+    let some segmentStr := URI.EncodedString.ofByteArray? segmentBytes.toByteArray
       | fail "invalid percent encoding in path segment"
 
     segments := segments.push segmentStr
@@ -269,12 +276,12 @@ private def parseQuery : Parser URI.Query := do
   let pairs : Option URI.Query := queryStr.splitOn "&" |>.foldlM (init := URI.Query.empty) fun acc pair => do
     match pair.splitOn "=" with
     | [key] =>
-      let key ← URI.EncodedQueryString.fromByteArray? key.toByteArray
-      let value ← URI.EncodedQueryString.fromByteArray? ByteArray.empty
+      let key ← URI.EncodedQueryString.ofByteArray? key.toByteArray
+      let value ← URI.EncodedQueryString.ofByteArray? ByteArray.empty
       pure (acc.insertEncoded key value)
     | key :: value =>
-      let key ← URI.EncodedQueryString.fromByteArray? key.toByteArray
-      let value ←  URI.EncodedQueryString.fromByteArray? (String.intercalate "=" value).toByteArray
+      let key ← URI.EncodedQueryString.ofByteArray? key.toByteArray
+      let value ←  URI.EncodedQueryString.ofByteArray? (String.intercalate "=" value).toByteArray
       pure (acc.insertEncoded key value)
     | [] => pure acc
 
@@ -287,7 +294,7 @@ private def parseQuery : Parser URI.Query := do
 private def parseFragment : Parser URI.EncodedString := do
   let fragmentBytes ← takeWhileUpTo isFragmentChar 1024
 
-  let some fragmentStr := URI.EncodedString.fromByteArray? fragmentBytes.toByteArray
+  let some fragmentStr := URI.EncodedString.ofByteArray? fragmentBytes.toByteArray
     | fail "invalid percent encoding in fragment"
 
   return fragmentStr
@@ -352,6 +359,9 @@ public def parseRequestTarget : Parser RequestTarget := do
     return scheme
 
   if let some authorityForm := authorityForm then
+    if scheme.isNone ∧ (authorityForm.authority?.bind (·.port) |>.isNone) then
+      fail "need a scheme to determine if the port is a port or a path"
+
     return authorityForm
 
   -- absolute-URI  = scheme ":" hier-part [ "?" query ]
@@ -365,4 +375,19 @@ public def parseRequestTarget : Parser RequestTarget := do
 
   fail "invalid request target"
 
-end Std.Http.Parser
+/--
+Parses an HTTP `Host` header value.
+-/
+public def parseHostHeader : Parser (URI.Host × Option UInt16) := do
+  let host ← parseHost
+
+  let port ← optional do
+    skipByte ':'.toUInt8
+    parsePortNumber
+
+  if ¬(← isEof) then
+    fail "invalid host header"
+
+  return (host, port)
+
+end Std.Http.URI.Parser

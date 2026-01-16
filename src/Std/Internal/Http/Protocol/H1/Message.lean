@@ -95,3 +95,35 @@ instance : EmptyCollection (Message.Head dir) where
     match dir with
     | .receiving => {}
     | .sending => {}
+
+private def isChunked (message : Message.Head dir) : Option Bool :=
+  let headers := message.headers
+
+  if let some res := headers.get? (.new "transfer-encoding") then
+    let encodings := res.value.split "," |>.toArray.map (·.trimAscii.toString.toLower)
+    if encodings.isEmpty then
+      none
+    else
+      let chunkedCount := encodings.filter (· == "chunked") |>.size
+      let lastIsChunked := encodings.back? == some "chunked"
+
+      if chunkedCount > 1 then
+        none
+      else if chunkedCount = 1 ∧ ¬lastIsChunked then
+        none
+      else
+        some lastIsChunked
+  else
+    some false
+
+/--
+Determines the message body size based on the `Content-Length` header and the `Transfer-Encoding` (chunked) flag.
+-/
+@[inline]
+def Message.Head.getSize (message : Message.Head dir) : Option Body.Length :=
+  match (message.headers.getAll? (.new "content-length"), isChunked message) with
+  | (some #[cl], some false) => .fixed <$> cl.value.toNat?
+  | (none, some false) =>some (.fixed 0)
+  | (none, some true) => some .chunked
+  | (some _, some _) => none -- To avoid request smuggling with multiple content-length headers.
+  | (_, none) => none -- Error validating the chunked encoding

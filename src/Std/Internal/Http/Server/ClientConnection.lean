@@ -10,9 +10,19 @@ public import Std.Internal.Http.Protocol.H1
 
 public section
 
+/-!
+# Client Connection
+
+This module defines the `ClientConnection` type class for abstracting over different
+transport mechanisms (TCP sockets, mock clients for testing, etc.) and provides
+a `Mock.Client` implementation for testing HTTP interactions.
+-/
+
 namespace Std
 namespace Http
 namespace Server
+
+set_option linter.all true
 
 open Std Internal IO Async TCP
 
@@ -42,11 +52,11 @@ instance : ClientConnection Socket.Client where
   recvSelector client expect := client.recvSelector expect
 
 open Internal.IO.Async in
-inductive MockClient.Consumer where
+private inductive MockClient.Consumer where
   | normal (promise : IO.Promise (Option ByteArray))
   | select (waiter : Waiter (Option ByteArray))
 
-def MockClient.Consumer.resolve (c : MockClient.Consumer) (data : Option ByteArray) : BaseIO Bool := do
+private def MockClient.Consumer.resolve (c : MockClient.Consumer) (data : Option ByteArray) : BaseIO Bool := do
   match c with
   | .normal promise =>
     promise.resolve data
@@ -58,7 +68,10 @@ def MockClient.Consumer.resolve (c : MockClient.Consumer) (data : Option ByteArr
       return true
     waiter.race lose win
 
-structure MockClient.State where
+/--
+
+-/
+private structure MockClient.State where
   /--
   Queue of data to be received by the client.
   -/
@@ -86,7 +99,7 @@ structure Mock.Client where
   /--
   State
   -/
-  state : Std.Mutex MockClient.State
+  private state : Std.Mutex MockClient.State
 
 namespace Mock.Client
 

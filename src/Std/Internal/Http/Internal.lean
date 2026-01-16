@@ -11,3 +11,10 @@ public import Std.Internal.Http.Internal.Encode
 public import Std.Internal.Http.Internal.ChunkedBuffer
 
 public section
+
+/-!
+# HTTP Internal Utilities
+
+This module re-exports internal utilities used by the HTTP library including
+data structures, encoding functions, and buffer management.
+-/

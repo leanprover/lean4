@@ -4,8 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 module
+
 prelude
 public import Std.Internal.Http.Data.Header.Name
+public import Std.Internal.Http.Data.URI
 public section
 
 /-!
@@ -126,7 +128,6 @@ deriving BEq, DecidableEq, Repr
 namespace TransferEncoding
 
 instance : Inhabited TransferEncoding := ⟨⟨#["chunked"], by native_decide⟩⟩
-
 
 /--
 Creates a TransferEncoding with a single encoding.
@@ -278,40 +279,33 @@ structure Host where
   /--
   The hostname
   -/
-  hostname : String
+  hostname : URI.Host
 
   /--
   Optional port number
   -/
-  port : Option Nat := none
-deriving BEq, DecidableEq, Repr
+  port : Option UInt16 := none
 
 namespace Host
 
-instance : Inhabited Host := ⟨⟨"localhost", none⟩⟩
+instance : Inhabited Host := ⟨⟨default, none⟩⟩
 
 /--
 Creates a Host header with just a hostname.
 -/
-def new (hostname : String) : Host := ⟨hostname, none⟩
-
-/--
-Creates a Host header with a hostname and port number.
--/
-def withPort (hostname : String) (port : Nat) : Host := ⟨hostname, some port⟩
-
-instance : ToString Host where
-  toString h :=
-    match h.port with
-    | none => h.hostname
-    | some p => s!"{h.hostname}:{p}"
+def ofString? (hostname : String) : Option Host :=
+  URI.Parser.parseHostHeader.run hostname.toUTF8
+  |>.toOption
+  |>.map (Function.uncurry Host.mk)
 
 end Host
 
 instance : Header Host where
   name _ := .new "host"
-  value h := .ofString! (toString h)
-  parse _ v := some ⟨v.value, none⟩ -- Simplified parsing
+  value h := .ofString! <|
+    (toString h.hostname) ++ (h.port.map ((":" ++ ·) ∘ toString) |>.getD "")
+
+  parse _ := Host.ofString? ∘ Header.Value.value -- Simplified parsing
 
 /--
 Represents the Connection header, which controls whether the network connection

@@ -168,7 +168,7 @@ private def handle
         currentTimeout := config.lingeringTimeout
         keepAliveTimeout := none
 
-        if let some length := Protocol.H1.Machine.getMessageSize head then
+        if let some length := head.getSize then
           requestStream.setKnownSize (some length)
 
         let newResponse := handler { head, body := (.stream requestStream) } connectionContext

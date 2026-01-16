@@ -18,7 +18,17 @@ public import Std.Internal.Http.Protocol.H1.Event
 
 public section
 
+/-!
+# HTTP/1.1 Protocol State Machine
+
+This module implements the core HTTP/1.1 protocol state machine that handles
+parsing requests/responses and generating output. The machine is direction-aware,
+supporting both server mode (receiving requests) and client mode (receiving responses).
+-/
+
 namespace Std.Http.Protocol.H1
+
+set_option linter.all true
 
 open Std Internal Parsec ByteArray
 open Internal
@@ -161,42 +171,49 @@ private def extractBodyLengthFromHeaders (headers : Headers) : Option Body.Lengt
   | (_, some true) => some Body.Length.chunked
   | _ => none
 
-def getMessageSize (req : Message.Head dir) : Option Body.Length := do
+private def checkMessageHead (message : Message.Head dir) : Option Body.Length := do
   match dir with
-  | .receiving => guard (req.headers.get? (.new "host") |>.isSome)
+  | .receiving => guard (message.headers.get? (.new "host") |>.isSome)
   | .sending => pure ()
 
   if let .receiving := dir then
-    if req.method == .head ∨ req.method == .connect then
+    if message.method == .head ∨ message.method == .connect then
       return .fixed 0
 
-  match (req.headers.getAll? (.new "content-length"), isChunked req.headers) with
-  | (some #[cl], some false) => .fixed <$> cl.value.toNat?
-  | (none, some false) =>some (.fixed 0)
-  | (none, some true) => some .chunked
-  | (some _, some _) => none -- To avoid request smuggling with multiple content-length headers.
-  | (_, none) => none -- Error validating the chunked encoding
+  message.getSize
 
 -- State Checks
 
+/--
+Returns `true` if the reader is in a failed state.
+-/
 @[inline]
 def failed (machine : Machine dir) : Bool :=
   match machine.reader.state with
   | .failed _ => true
   | _ => false
 
+/--
+Returns `true` if the reader has completed successfully.
+-/
 @[inline]
 def isReaderComplete (machine : Machine dir) : Bool :=
   match machine.reader.state with
   | .complete => true
   | _ => false
 
+/--
+Returns `true` if the reader is closed.
+-/
 @[inline]
 def isReaderClosed (machine : Machine dir) : Bool :=
   match machine.reader.state with
   | .closed => true
   | _ => false
 
+/--
+Returns `true` if the machine should flush buffered output.
+-/
 @[inline]
 def shouldFlush (machine : Machine dir) : Bool :=
   machine.failed ∨
@@ -204,11 +221,17 @@ def shouldFlush (machine : Machine dir) : Bool :=
   machine.writer.isReadyToSend ∨
   machine.writer.knownSize.isSome
 
+/--
+Returns `true` if the writer is waiting for headers of a new message.
+-/
 @[inline]
 def isWaitingMessage (machine : Machine dir) : Bool :=
   machine.writer.state == .waitingHeaders ∧
   ¬machine.writer.sentMessage
 
+/--
+Returns `true` if both reader and writer are closed and no output remains.
+-/
 @[inline]
 def halted (machine : Machine dir) : Bool :=
   match machine.reader.state, machine.writer.state with
@@ -272,7 +295,7 @@ private def processHeaders (machine : Machine dir) : Machine dir :=
   let shouldKeepAlive : Bool := machine.reader.messageHead.shouldKeepAlive
   let machine := updateKeepAlive machine shouldKeepAlive
 
-  match getMessageSize machine.reader.messageHead with
+  match checkMessageHead machine.reader.messageHead with
   | none => machine.setFailure .badMessage
   | some size =>
       let size := match size with

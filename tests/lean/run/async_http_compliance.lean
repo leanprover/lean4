@@ -44,7 +44,7 @@ def maximumSizeHandlerEcho (maxSize : Nat) (req: Request Body) : ContextAsync (R
         return Response.new
         |>.status .payloadTooLarge
         |>.header! "Connection" "close"
-        |>.body .zero
+        |>.body .empty
 
     return Response.new
       |>.status .ok

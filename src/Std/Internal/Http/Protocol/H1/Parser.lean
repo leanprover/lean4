@@ -116,7 +116,7 @@ def parseHttpVersion : Parser Version := do
   let major ← uint8
   skipByte '.'.toUInt8
   let minor ← uint8
-  opt <| Version.fromNumber? (major - 48 |>.toNat) (minor - 48 |>.toNat)
+  opt <| Version.ofNumber? (major - 48 |>.toNat) (minor - 48 |>.toNat)
 
 --   method         = token
 def parseMethod : Parser Method :=
@@ -143,7 +143,7 @@ public def parseRequestLine (limits : H1.Config) : Parser Request.Head := do
   let method ← parseMethod <* rsp limits
   let uri ← parseURI limits <* rsp limits
 
-  let uri ← match (Std.Http.Parser.parseRequestTarget <* eof).run uri with
+  let uri ← match (Std.Http.URI.Parser.parseRequestTarget <* eof).run uri with
   | .ok res => pure res
   | .error res => fail res
 

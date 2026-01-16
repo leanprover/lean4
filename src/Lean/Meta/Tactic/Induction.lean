@@ -20,11 +20,11 @@ private partial def getTargetArity : Expr → Nat
   | Expr.forallE _ _ b _ => getTargetArity b + 1
   | e                    => if e.isHeadBetaTarget then getTargetArity e.headBeta else 0
 
-private def addRecParams (mvarId : MVarId) (majorTypeArgs : Array Expr) : List (Option Nat) → Expr → MetaM Expr
+private def flatAddParams (mvarId : MVarId) (majorTypeArgs : Array Expr) : List (Option Nat) → Expr → MetaM Expr
   | [], recursor => pure recursor
   | some pos :: rest, recursor =>
     if h : pos < majorTypeArgs.size then
-      addRecParams mvarId majorTypeArgs rest (mkApp recursor (majorTypeArgs[pos]))
+      flatAddParams mvarId majorTypeArgs rest (mkApp recursor (majorTypeArgs[pos]))
     else
       throwTacticEx `induction mvarId "ill-formed recursor"
   | none :: rest, recursor => do
@@ -33,7 +33,7 @@ private def addRecParams (mvarId : MVarId) (majorTypeArgs : Array Expr) : List (
     match recursorType with
     | Expr.forallE _ d _ _ => do
       let param ← try synthInstance d catch _ => throwTacticEx `induction mvarId "failed to generate type class instance parameter"
-      addRecParams mvarId majorTypeArgs rest (mkApp recursor param)
+      flatAddParams mvarId majorTypeArgs rest (mkApp recursor param)
     | _ =>
       throwTacticEx `induction mvarId "ill-formed recursor"
 
@@ -188,7 +188,7 @@ def mkRecursorAppPrefix (mvarId : MVarId) (tacticName : Name) (majorFVarId : FVa
         throwNamedError lean.propRecLargeElim
           (mkTacticExMsg tacticName mvarId m!"recursor `{recursorInfo.recursorName}` can only eliminate into `Prop`")
       let recursor := mkConst recursorInfo.recursorName recursorLevels.toList
-      let recursor ← addRecParams mvarId majorTypeArgs recursorInfo.paramsPos recursor
+      let recursor ← flatAddParams mvarId majorTypeArgs recursorInfo.paramsPos recursor
       -- Compute motive
       let motive := target
       let motive ← if recursorInfo.depElim then

@@ -72,8 +72,8 @@ def set {α : Type} [KVMap.Value α] (o : Options) (k : Name) (v : α) : Options
 
 def erase (o : Options) (k : Name) : Options where
   map := o.map.erase k
-  -- `erase` is expected to be used even more rarely than `set`
-  hasTrace := o.map.keys.all (`trace).isPrefixOf
+  -- `erase` is expected to be used even more rarely than `set` so O(n) is fine
+  hasTrace := o.map.keys.any (`trace).isPrefixOf
 
 def mergeBy (f : Name → DataValue → DataValue → DataValue) (o1 o2 : Options) : Options where
   map := o1.map.mergeWith f o2.map

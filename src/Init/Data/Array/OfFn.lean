@@ -53,6 +53,7 @@ theorem ofFn_succ' {f : Fin (n+1) → α} :
   apply Array.toList_inj.mp
   simp [List.ofFn_succ]
 
+@[simp]
 theorem ofFn_getElem {xs : Array α} :
     Array.ofFn (fun i : Fin xs.size => xs[i.val]) = xs := by
   ext <;> simp
@@ -71,6 +72,7 @@ theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i =
   · rintro ⟨i, rfl⟩
     apply mem_of_getElem (i := i) <;> simp
 
+@[simp, grind =]
 theorem map_ofFn {f : Fin n → α} {g : α → β} :
     (Array.ofFn f).map g = Array.ofFn (g ∘ f) := by
   apply Array.ext_getElem?

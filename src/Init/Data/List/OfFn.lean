@@ -100,6 +100,7 @@ theorem ofFn_add {n m} {f : Fin (n + m) → α} :
 theorem ofFn_eq_nil_iff {f : Fin n → α} : ofFn f = [] ↔ n = 0 := by
   cases n <;> simp only [ofFn_zero, ofFn_succ, Nat.succ_ne_zero, reduceCtorEq]
 
+@[simp]
 theorem ofFn_getElem {xs : List α} :
     List.ofFn (fun i : Fin xs.length => xs[i.val]) = xs := by
   apply ext_getElem <;> simp
@@ -113,6 +114,7 @@ theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i =
   · rintro ⟨i, rfl⟩
     apply mem_of_getElem (i := i) <;> simp
 
+@[simp, grind =]
 theorem map_ofFn {f : Fin n → α} {g : α → β} :
     (List.ofFn f).map g = List.ofFn (g ∘ f) := by
   apply List.ext_getElem?

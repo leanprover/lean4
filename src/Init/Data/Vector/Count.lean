@@ -79,6 +79,9 @@ theorem Grind.countP_eq_zero_of_forall {xs : Vector α n} (h : ∀ x ∈ xs, ¬ 
 theorem Grind.not_of_countP_eq_zero_of_mem {xs : Vector α n} (h : xs.countP p = 0) (h' : x ∈ xs) : ¬ p x :=
    countP_eq_zero.mp h _ h'
 
+grind_pattern Grind.not_of_countP_eq_zero_of_mem => xs.countP p, x ∈ xs where
+  guard xs.countP p = 0
+
 @[simp] theorem countP_eq_size {p} {xs : Vector α n} : countP p xs = n ↔ ∀ a ∈ xs, p a := by
   rcases xs with ⟨xs, rfl⟩
   simp

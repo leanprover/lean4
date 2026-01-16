@@ -199,16 +199,17 @@ where
       let expr := mkApp3 (mkConst ``BVExpr.parPreSum)
         (toExpr inner.width)
         lenExpr
-        innerExpr
+        inner.expr
       let proof := do
         let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
         let some innerProof ← inner.evalsAtAtoms | return none
-        return mkApp5 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.parPreSum_congr)
+        let out :=  mkApp5 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.parPreSum_congr)
           lenExpr
           (toExpr inner.width)
           innerExpr
           innerEval
           innerProof
+        return out
       return some ⟨len, bvExpr, origExpr, proof, expr⟩
     | _ => return none
 

@@ -689,7 +689,7 @@ class task_manager {
     condition_variable                            m_dedicated_finished_cv;
     bool                                          m_shutting_down{false};
 
-    void trace_violation(char const * reason, unsigned worker_id) {
+    void trace_violation(char const * reason) {
         size_t tid_hash = std::hash<thread::id>{}(this_thread::get_id());
         fprintf(g_saved_stderr,
             "task_manager: %s: tm=%p tid_hash=%zu mutex=%p queue_cv=%p shutting_down=%d queues=%u idle=%u std_workers=%zu max_std=%u max_prio=%u\n",

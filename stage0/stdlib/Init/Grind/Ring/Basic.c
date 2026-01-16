@@ -81,7 +81,6 @@ static lean_object* l_Lean_Grind_CommSemiring_one__mul___autoParam___closed__18;
 static lean_object* l_Lean_Grind_CommSemiring_right__distrib___autoParam___closed__22;
 static lean_object* l_Lean_Grind_CommSemiring_right__distrib___autoParam___closed__49;
 LEAN_EXPORT lean_object* l_Lean_Grind_CommSemiring_one__mul___autoParam;
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lean_Grind_CommSemiring_right__distrib___autoParam___closed__29;
 static lean_object* l_Lean_Grind_CommSemiring_one__mul___autoParam___closed__8;
 static lean_object* l_Lean_Grind_CommSemiring_right__distrib___autoParam___closed__35;
@@ -199,6 +198,7 @@ static lean_object* l_Lean_Grind_CommSemiring_one__mul___autoParam___closed__41;
 static lean_object* l_Lean_Grind_CommSemiring_one__mul___autoParam___closed__20;
 static lean_object* l_Lean_Grind_Semiring_ofNat__succ___autoParam___closed__16;
 static lean_object* l_Lean_Grind_CommSemiring_one__mul___autoParam___closed__2;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Grind_Semiring_ofNat__succ___autoParam___closed__3;
 static lean_object* l_Lean_Grind_Semiring_ofNat__succ___autoParam___closed__13;
 static lean_object* l_Lean_Grind_CommSemiring_mul__zero___autoParam___closed__6;
@@ -257,9 +257,10 @@ return x_5;
 static lean_object* _init_l_Lean_Grind_Semiring_ofNat__succ___autoParam___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Grind_Semiring_ofNat__succ___autoParam___closed__6() {

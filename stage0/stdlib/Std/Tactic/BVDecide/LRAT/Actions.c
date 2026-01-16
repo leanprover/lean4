@@ -42,7 +42,6 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Action_ctorElim(lean_object*
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_instReprAction_repr___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_instToStringAction___redArg(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
-lean_object* l_Array_empty(lean_object*);
 lean_object* l_Bool_repr___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_instBEqAction_beq___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Action_toString___redArg___closed__1;
@@ -109,6 +108,7 @@ static lean_object* l_Std_Tactic_BVDecide_LRAT_instInhabitedAction_default___clo
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Action_ctorIdx___redArg(lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Action_toString___redArg___closed__9;
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Action_toString___redArg___closed__4;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Action_ctorIdx___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Action_addRup_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_instInhabitedAction(lean_object*, lean_object*);
@@ -312,9 +312,10 @@ return x_7;
 static lean_object* _init_l_Std_Tactic_BVDecide_LRAT_instInhabitedAction_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Std_Tactic_BVDecide_LRAT_instInhabitedAction_default___closed__1() {

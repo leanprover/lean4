@@ -103,7 +103,6 @@ static lean_object* l_Std_Internal_IO_Async_TCP_Socket_Client_connect___closed__
 uint32_t lean_uint32_of_nat(lean_object*);
 lean_object* lean_uv_tcp_listen(lean_object*, uint32_t);
 static lean_object* l_Std_Internal_IO_Async_TCP_Socket_Server_keepAlive___auto__1___closed__2;
-lean_object* l_Array_empty(lean_object*);
 uint8_t lean_bool_to_int8(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_TCP_Socket_Server_listen___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_TCP_Socket_Client_keepAlive___auto__1;
@@ -201,6 +200,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_TCP_Socket_Server_keepAlive(lea
 static lean_object* l_Std_Internal_IO_Async_TCP_Socket_Server_keepAlive___auto__1___closed__25;
 LEAN_EXPORT lean_object* l_IO_ofExcept___at___00Std_Internal_IO_Async_TCP_Socket_Server_acceptSelector_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_TCP_Socket_Client_getPeerName___boxed(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_TCP_Socket_Client_recv_x3f___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_TCP_Socket_Client_connect(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_TCP_Socket_Server_acceptSelector___lam__4(lean_object*, lean_object*);
@@ -1512,9 +1512,10 @@ return x_5;
 static lean_object* _init_l_Std_Internal_IO_Async_TCP_Socket_Server_keepAlive___auto__1___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Std_Internal_IO_Async_TCP_Socket_Server_keepAlive___auto__1___closed__6() {

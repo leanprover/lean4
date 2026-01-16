@@ -71,7 +71,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_matchPrefi
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_upsert_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_insert___redArg___lam__0___boxed(lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lean_Data_Trie_matchPrefix___auto__1___closed__7;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Data_Trie_0__Lean_Data_Trie_values_go_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
@@ -163,6 +162,7 @@ LEAN_EXPORT lean_object* l_Lean_Data_Trie_values___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_ctorIdx___redArg___boxed(lean_object*);
 static lean_object* l_Lean_Data_Trie_matchPrefix___auto__1___closed__28;
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_find_x3f_loop(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_insert___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Data_Trie_matchPrefix___auto__1___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_ctorIdx___redArg(lean_object* x_1) {
@@ -1404,9 +1404,10 @@ return x_3;
 static lean_object* _init_l___private_Lean_Data_Trie_0__Lean_Data_Trie_findPrefix_go___redArg___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_findPrefix_go___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1612,9 +1613,10 @@ return x_5;
 static lean_object* _init_l_Lean_Data_Trie_matchPrefix___auto__1___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Data_Trie_matchPrefix___auto__1___closed__6() {

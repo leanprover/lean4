@@ -89,7 +89,6 @@ static lean_object* l_Lean_SimplePersistentEnvExtensionDescr_name___autoParam___
 static lean_object* l_Lean_SimplePersistentEnvExtensionDescr_name___autoParam___closed__13;
 LEAN_EXPORT lean_object* l_Lean_mkTagDeclarationExtension___auto__1;
 static lean_object* l_Lean_mkStateFromImportedEntries___redArg___lam__1___closed__7;
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_mkTagDeclarationExtension_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkStateFromImportedEntries___redArg___lam__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_mkMapDeclarationExtension___redArg___lam__4___boxed(lean_object*, lean_object*);
@@ -250,6 +249,7 @@ static lean_object* l_Lean_SimplePersistentEnvExtensionDescr_name___autoParam___
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkTagDeclarationExtension___lam__0___boxed(lean_object*);
 static lean_object* l_Lean_MapDeclarationExtension_insert___redArg___closed__1;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_instInhabitedMapDeclarationExtension_default___lam__0___closed__0;
 LEAN_EXPORT uint8_t l_Array_binSearchAux___at___00Lean_TagDeclarationExtension_isTagged_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___00Lean_SimplePersistentEnvExtension_replayOfFilter_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -511,9 +511,10 @@ return x_5;
 static lean_object* _init_l_Lean_SimplePersistentEnvExtensionDescr_name___autoParam___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_SimplePersistentEnvExtensionDescr_name___autoParam___closed__6() {

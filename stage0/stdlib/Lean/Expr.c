@@ -545,7 +545,6 @@ LEAN_EXPORT lean_object* l_Lean_Expr_bindingBody_x21___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Expr_0__Lean_Expr_getBoundedAppArgsAux(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_litValue_x21___boxed(lean_object*);
 static lean_object* l_Lean_Nat_mkInstHPow___closed__2;
-lean_object* l_Array_empty(lean_object*);
 lean_object* l_Lean_Name_reprPrec___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_bindingBody_x21___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Expr_projExpr_x21___boxed(lean_object*);
@@ -835,6 +834,7 @@ lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_getOptParamDefault_x3f(lean_object*);
 static lean_object* l___private_Lean_Expr_0__Lean_intSubFn___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Expr_updateForallBinderInfos(lean_object*, lean_object*);
+lean_object* l_Array_instInhabited(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_mkAppN_spec__0(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_forallDomain___redArg(lean_object*);
 static lean_object* l_Lean_mkDecIsTrue___closed__2;
@@ -13905,7 +13905,7 @@ static lean_object* _init_l_panic___at___00__private_Lean_Expr_0__Lean_Expr_getA
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
+x_1 = l_Array_instInhabited(lean_box(0));
 return x_1;
 }
 }

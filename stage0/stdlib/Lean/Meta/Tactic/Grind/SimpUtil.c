@@ -75,7 +75,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Grind_registerNorm
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_SimpUtil_0____regBuiltin_Lean_Meta_Grind_simpOr_declare__26_00___x40_Lean_Meta_Tactic_Grind_SimpUtil_902628210____hygCtx___hyg_11____boxed(lean_object*);
 static lean_object* l_Lean_Meta_Grind_pushNot___redArg___closed__48;
 static lean_object* l_Lean_Meta_Grind_pushNot___redArg___closed__57;
-static lean_object* l_Lean_Meta_Grind_getSimpContext___closed__1;
 static lean_object* l_Lean_Meta_Grind_simpEq___redArg___closed__15;
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDeclD___at___00Lean_Meta_Grind_reduceCtorEqCheap_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_SimpUtil_0____regBuiltin_Lean_Meta_Grind_simpEq_declare__11___closed__7_00___x40_Lean_Meta_Tactic_Grind_SimpUtil_3241500959____hygCtx___hyg_12_;
@@ -314,7 +313,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDeclD___at___00Lean_Meta_Grind_red
 static lean_object* l_Lean_Meta_Grind_pushNot___redArg___closed__30;
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_SimpUtil_0____regBuiltin_Lean_Meta_Grind_simpOr_declare__26___closed__6_00___x40_Lean_Meta_Tactic_Grind_SimpUtil_902628210____hygCtx___hyg_11_;
-extern lean_object* l_Lean_Meta_Simp_defaultMaxSteps;
 static lean_object* l_Lean_Meta_Grind_pushNot___redArg___closed__35;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_SimpUtil_0____regBuiltin_Lean_Meta_Grind_simpOr_declare__26___closed__5_00___x40_Lean_Meta_Tactic_Grind_SimpUtil_902628210____hygCtx___hyg_11_;
 static lean_object* l_Lean_Meta_Grind_normalizeImp___closed__1;
@@ -7917,14 +7915,6 @@ return x_6;
 static lean_object* _init_l_Lean_Meta_Grind_getSimpContext___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_Meta_Simp_defaultMaxSteps;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_getSimpContext___closed__1() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(1u);
 x_2 = lean_mk_empty_array_with_capacity(x_1);
@@ -7953,7 +7943,7 @@ lean_inc(x_10);
 lean_dec_ref(x_9);
 x_11 = lean_ctor_get_uint8(x_1, sizeof(void*)*10 + 18);
 x_12 = lean_ctor_get_uint8(x_1, sizeof(void*)*10 + 19);
-x_13 = l_Lean_Meta_Grind_getSimpContext___closed__0;
+x_13 = lean_unsigned_to_nat(100000u);
 x_14 = lean_unsigned_to_nat(2u);
 x_15 = 0;
 x_16 = 1;
@@ -7989,7 +7979,7 @@ lean_ctor_set_uint8(x_18, sizeof(void*)*2 + 24, x_15);
 lean_ctor_set_uint8(x_18, sizeof(void*)*2 + 25, x_15);
 lean_ctor_set_uint8(x_18, sizeof(void*)*2 + 26, x_15);
 lean_ctor_set_uint8(x_18, sizeof(void*)*2 + 27, x_15);
-x_19 = l_Lean_Meta_Grind_getSimpContext___closed__1;
+x_19 = l_Lean_Meta_Grind_getSimpContext___closed__0;
 x_20 = lean_array_push(x_19, x_8);
 x_21 = l_Lean_Meta_Simp_mkContext___redArg(x_18, x_20, x_10, x_2, x_5);
 lean_dec(x_5);
@@ -8747,8 +8737,6 @@ l_Lean_Meta_Grind_getNormTheorems___closed__11 = _init_l_Lean_Meta_Grind_getNorm
 lean_mark_persistent(l_Lean_Meta_Grind_getNormTheorems___closed__11);
 l_Lean_Meta_Grind_getSimpContext___closed__0 = _init_l_Lean_Meta_Grind_getSimpContext___closed__0();
 lean_mark_persistent(l_Lean_Meta_Grind_getSimpContext___closed__0);
-l_Lean_Meta_Grind_getSimpContext___closed__1 = _init_l_Lean_Meta_Grind_getSimpContext___closed__1();
-lean_mark_persistent(l_Lean_Meta_Grind_getSimpContext___closed__1);
 l_Lean_Meta_Grind_normalizeImp___closed__0 = _init_l_Lean_Meta_Grind_normalizeImp___closed__0();
 lean_mark_persistent(l_Lean_Meta_Grind_normalizeImp___closed__0);
 l_Lean_Meta_Grind_normalizeImp___closed__1 = _init_l_Lean_Meta_Grind_normalizeImp___closed__1();

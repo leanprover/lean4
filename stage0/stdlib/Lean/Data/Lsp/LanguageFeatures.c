@@ -933,7 +933,6 @@ static lean_object* l_Lean_Lsp_instToJsonSymbolKind___lam__0___closed__28;
 static lean_object* l_Lean_Lsp_instFromJsonSemanticTokenModifier_fromJson___closed__9;
 static lean_object* l_Lean_Lsp_instFromJsonCallHierarchyIncomingCallsParams_fromJson___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Lsp_SymbolKind_enum_elim(lean_object*, uint8_t, lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonSemanticTokenModifier_fromJson___closed__8;
 static lean_object* l_Lean_Lsp_instToJsonFoldingRangeKind___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonSignatureInformation_fromJson(lean_object*);
@@ -2379,6 +2378,7 @@ lean_object* l_Lean_Lsp_instFromJsonRange_fromJson(lean_object*);
 static lean_object* l_Lean_Lsp_SemanticTokenType_names___closed__7;
 static lean_object* l_Lean_Lsp_instFromJsonCompletionItem_fromJson___closed__30;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instHashableCompletionItem_hash___boxed(lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonDocumentSymbolAux_fromJson___redArg___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonInlayHint_toJson(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonCallHierarchyIncomingCallsParams;
@@ -32701,9 +32701,10 @@ return x_1;
 static lean_object* _init_l_Lean_Lsp_instInhabitedCallHierarchyIncomingCall_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Lsp_instInhabitedCallHierarchyIncomingCall_default___closed__1() {

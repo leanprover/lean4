@@ -147,7 +147,6 @@ LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Lean_Elab_Term_hintAutoImpli
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 static lean_object* l_Lean_Elab_Term_hintAutoImplicitFailure___redArg___closed__16;
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__4(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownNameWithSuggestions___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwAttrMustBeGlobal___at___00Lean_initFn_00___x40_Lean_IdentifierSuggestion_3030853032____hygCtx___hyg_2__spec__2___redArg___closed__3;
@@ -858,29 +857,30 @@ return x_3;
 static lean_object* _init_l___private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect___lam__1___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect___lam__1(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_4 = l___private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect___lam__1___closed__0;
-x_5 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__1_spec__2(x_4, x_2);
-x_6 = lean_array_size(x_5);
-x_7 = 0;
-x_8 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__2(x_6, x_7, x_5);
-x_9 = lean_array_get_size(x_8);
-x_10 = lean_unsigned_to_nat(0u);
-x_11 = lean_nat_dec_eq(x_9, x_10);
+lean_object* x_4; lean_object* x_5; lean_object* x_6; size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = l___private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect___lam__1___closed__0;
+x_6 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__1_spec__2(x_5, x_2);
+x_7 = lean_array_size(x_6);
+x_8 = 0;
+x_9 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__2(x_7, x_8, x_6);
+x_10 = lean_array_get_size(x_9);
+x_11 = lean_nat_dec_eq(x_10, x_4);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_19; 
 x_12 = lean_unsigned_to_nat(1u);
-x_13 = lean_nat_sub(x_9, x_12);
-x_19 = lean_nat_dec_le(x_10, x_13);
+x_13 = lean_nat_sub(x_10, x_12);
+x_19 = lean_nat_dec_le(x_4, x_13);
 if (x_19 == 0)
 {
 lean_inc(x_13);
@@ -889,7 +889,7 @@ goto block_18;
 }
 else
 {
-x_14 = x_10;
+x_14 = x_4;
 goto block_18;
 }
 block_18:
@@ -901,14 +901,14 @@ if (x_15 == 0)
 lean_object* x_16; 
 lean_dec(x_13);
 lean_inc(x_14);
-x_16 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__3___redArg(x_8, x_14, x_14);
+x_16 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__3___redArg(x_9, x_14, x_14);
 lean_dec(x_14);
 return x_16;
 }
 else
 {
 lean_object* x_17; 
-x_17 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__3___redArg(x_8, x_14, x_13);
+x_17 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__3___redArg(x_9, x_14, x_13);
 lean_dec(x_13);
 return x_17;
 }
@@ -916,7 +916,7 @@ return x_17;
 }
 else
 {
-return x_8;
+return x_9;
 }
 }
 }
@@ -951,21 +951,21 @@ return x_2;
 LEAN_EXPORT lean_object* l___private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect___lam__3(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; size_t x_4; size_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_2 = l___private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect___lam__1___closed__0;
-x_3 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__1_spec__2(x_2, x_1);
-x_4 = lean_array_size(x_3);
-x_5 = 0;
-x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__2(x_4, x_5, x_3);
-x_7 = lean_array_get_size(x_6);
-x_8 = lean_unsigned_to_nat(0u);
-x_9 = lean_nat_dec_eq(x_7, x_8);
+lean_object* x_2; lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = l___private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect___lam__1___closed__0;
+x_4 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__1_spec__2(x_3, x_1);
+x_5 = lean_array_size(x_4);
+x_6 = 0;
+x_7 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__2(x_5, x_6, x_4);
+x_8 = lean_array_get_size(x_7);
+x_9 = lean_nat_dec_eq(x_8, x_2);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_17; 
 x_10 = lean_unsigned_to_nat(1u);
-x_11 = lean_nat_sub(x_7, x_10);
-x_17 = lean_nat_dec_le(x_8, x_11);
+x_11 = lean_nat_sub(x_8, x_10);
+x_17 = lean_nat_dec_le(x_2, x_11);
 if (x_17 == 0)
 {
 lean_inc(x_11);
@@ -974,7 +974,7 @@ goto block_16;
 }
 else
 {
-x_12 = x_8;
+x_12 = x_2;
 goto block_16;
 }
 block_16:
@@ -986,14 +986,14 @@ if (x_13 == 0)
 lean_object* x_14; 
 lean_dec(x_11);
 lean_inc(x_12);
-x_14 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__3___redArg(x_6, x_12, x_12);
+x_14 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__3___redArg(x_7, x_12, x_12);
 lean_dec(x_12);
 return x_14;
 }
 else
 {
 lean_object* x_15; 
-x_15 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__3___redArg(x_6, x_12, x_11);
+x_15 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_IdentifierSuggestion_0__Lean_mkExistingToIncorrect_spec__3___redArg(x_7, x_12, x_11);
 lean_dec(x_11);
 return x_15;
 }
@@ -1001,7 +1001,7 @@ return x_15;
 }
 else
 {
-return x_6;
+return x_7;
 }
 }
 }
@@ -3118,9 +3118,10 @@ return x_8;
 static lean_object* _init_l_Lean_getSuggestions___redArg___lam__1___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_getSuggestions___redArg___lam__1___closed__1() {

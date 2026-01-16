@@ -38,7 +38,6 @@ static lean_object* l_Lake_instReprDynlib_repr___redArg___closed__13;
 LEAN_EXPORT lean_object* l_Lake_Dynlib_instToString___lam__0___boxed(lean_object*);
 static lean_object* l_Lake_instReprDynlib_repr___redArg___closed__10;
 lean_object* lean_nat_to_int(lean_object*);
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lake_instReprDynlib_repr___redArg___closed__5;
 static lean_object* l_Lake_instReprDynlib_repr___redArg___closed__8;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedDynlib;
@@ -82,6 +81,7 @@ static lean_object* l_Lake_instReprDynlib_repr___redArg___closed__9;
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Lake_instReprDynlib_repr_spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Dynlib_instToJson;
 static lean_object* l_Lake_instReprDynlib_repr___redArg___closed__0;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Array_Array_repr___at___00Lake_instReprDynlib_repr_spec__0___closed__7;
 static lean_object* l_Array_Array_repr___at___00Lake_instReprDynlib_repr_spec__0___closed__3;
 static lean_object* _init_l_Lake_instInhabitedDynlib_default___closed__0() {
@@ -103,9 +103,10 @@ return x_1;
 static lean_object* _init_l_Lake_instInhabitedDynlib_default___closed__2() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lake_instInhabitedDynlib_default___closed__3() {

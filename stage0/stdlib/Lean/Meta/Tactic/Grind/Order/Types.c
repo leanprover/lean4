@@ -47,7 +47,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_ToPropagate_ctorIdx___boxed(lea
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Order_instInhabitedCnstrKind_default;
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Order_instInhabitedToPropagate_default___closed__0;
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Order_instInhabitedWeight_default___closed__0;
 static lean_object* l_Lean_Meta_Grind_Order_instInhabitedProofInfo_default___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_ToPropagate_ctorElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -94,6 +93,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_instInhabitedWeight_default;
 static lean_object* l_Lean_Meta_Grind_Order_instInhabitedState_default___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_CnstrKind_le_elim(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Order_instInhabitedCnstr_default___redArg___closed__0;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_modify_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_initFn_00___x40_Lean_Meta_Tactic_Grind_Order_Types_4206127938____hygCtx___hyg_2_();
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_CnstrKind_ctorIdx(uint8_t x_1) {
@@ -653,9 +653,10 @@ return x_1;
 static lean_object* _init_l_Lean_Meta_Grind_Order_instInhabitedState_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Meta_Grind_Order_instInhabitedState_default___closed__1() {

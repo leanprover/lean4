@@ -584,7 +584,6 @@ lean_object* l_instMonadEST(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_Const_alter___at___00Array_groupByKey___at___00Lean_Server_Watchdog_handleModuleHierarchyImports_spec__4_spec__4_spec__6___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_notifyAboutStaleDependency___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_handleIleanInfoUpdate___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_parseParams___at___00Lean_Server_Watchdog_handleReferenceRequest___at___00Lean_Server_Watchdog_handleRequest_spec__8_spec__21(lean_object*);
 lean_object* l_IO_FS_Stream_readLspMessage(lean_object*);
@@ -36034,9 +36033,10 @@ return x_7;
 static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_handleCallHierarchyIncomingCalls_collapseSameIncomingCalls_spec__1___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_handleCallHierarchyIncomingCalls_collapseSameIncomingCalls_spec__1(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
@@ -37958,9 +37958,10 @@ return x_9;
 static lean_object* _init_l_Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls(lean_object* x_1, lean_object* x_2) {
@@ -37997,14 +37998,14 @@ lean_dec(x_11);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
 lean_dec(x_12);
-x_14 = l_Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls___closed__0;
-x_15 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls_spec__2_spec__2(x_14, x_13);
+x_14 = lean_unsigned_to_nat(0u);
+x_15 = l_Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls___closed__0;
+x_16 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls_spec__2_spec__2(x_15, x_13);
 lean_dec(x_13);
-x_16 = lean_unsigned_to_nat(0u);
-x_17 = lean_array_get_size(x_15);
-x_18 = l_Array_filterMapM___at___00Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls_spec__3(x_7, x_1, x_6, x_15, x_16, x_17, x_2);
+x_17 = lean_array_get_size(x_16);
+x_18 = l_Array_filterMapM___at___00Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls_spec__3(x_7, x_1, x_6, x_16, x_14, x_17, x_2);
 lean_dec_ref(x_2);
-lean_dec_ref(x_15);
+lean_dec_ref(x_16);
 lean_dec(x_6);
 lean_dec_ref(x_1);
 if (lean_obj_tag(x_18) == 0)
@@ -38022,14 +38023,14 @@ if (lean_is_exclusive(x_18)) {
 x_21 = l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls_collapseSameOutgoingCalls(x_19);
 lean_dec(x_19);
 x_27 = lean_array_get_size(x_21);
-x_28 = lean_nat_dec_eq(x_27, x_16);
+x_28 = lean_nat_dec_eq(x_27, x_14);
 if (x_28 == 0)
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_34; 
 lean_free_object(x_9);
 x_29 = lean_unsigned_to_nat(1u);
 x_30 = lean_nat_sub(x_27, x_29);
-x_34 = lean_nat_dec_le(x_16, x_30);
+x_34 = lean_nat_dec_le(x_14, x_30);
 if (x_34 == 0)
 {
 lean_inc(x_30);
@@ -38038,7 +38039,7 @@ goto block_33;
 }
 else
 {
-x_31 = x_16;
+x_31 = x_14;
 goto block_33;
 }
 block_33:
@@ -38100,14 +38101,14 @@ lean_dec(x_35);
 x_37 = lean_ctor_get(x_36, 0);
 lean_inc(x_37);
 lean_dec(x_36);
-x_38 = l_Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls___closed__0;
-x_39 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls_spec__2_spec__2(x_38, x_37);
+x_38 = lean_unsigned_to_nat(0u);
+x_39 = l_Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls___closed__0;
+x_40 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls_spec__2_spec__2(x_39, x_37);
 lean_dec(x_37);
-x_40 = lean_unsigned_to_nat(0u);
-x_41 = lean_array_get_size(x_39);
-x_42 = l_Array_filterMapM___at___00Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls_spec__3(x_7, x_1, x_6, x_39, x_40, x_41, x_2);
+x_41 = lean_array_get_size(x_40);
+x_42 = l_Array_filterMapM___at___00Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls_spec__3(x_7, x_1, x_6, x_40, x_38, x_41, x_2);
 lean_dec_ref(x_2);
-lean_dec_ref(x_39);
+lean_dec_ref(x_40);
 lean_dec(x_6);
 lean_dec_ref(x_1);
 if (lean_obj_tag(x_42) == 0)
@@ -38125,13 +38126,13 @@ if (lean_is_exclusive(x_42)) {
 x_45 = l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls_collapseSameOutgoingCalls(x_43);
 lean_dec(x_43);
 x_51 = lean_array_get_size(x_45);
-x_52 = lean_nat_dec_eq(x_51, x_40);
+x_52 = lean_nat_dec_eq(x_51, x_38);
 if (x_52 == 0)
 {
 lean_object* x_53; lean_object* x_54; lean_object* x_55; uint8_t x_58; 
 x_53 = lean_unsigned_to_nat(1u);
 x_54 = lean_nat_sub(x_51, x_53);
-x_58 = lean_nat_dec_le(x_40, x_54);
+x_58 = lean_nat_dec_le(x_38, x_54);
 if (x_58 == 0)
 {
 lean_inc(x_54);
@@ -38140,7 +38141,7 @@ goto block_57;
 }
 else
 {
-x_55 = x_40;
+x_55 = x_38;
 goto block_57;
 }
 block_57:
@@ -38234,14 +38235,14 @@ lean_dec(x_65);
 x_68 = lean_ctor_get(x_67, 0);
 lean_inc(x_68);
 lean_dec(x_67);
-x_69 = l_Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls___closed__0;
-x_70 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls_spec__2_spec__2(x_69, x_68);
+x_69 = lean_unsigned_to_nat(0u);
+x_70 = l_Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls___closed__0;
+x_71 = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls_spec__2_spec__2(x_70, x_68);
 lean_dec(x_68);
-x_71 = lean_unsigned_to_nat(0u);
-x_72 = lean_array_get_size(x_70);
-x_73 = l_Array_filterMapM___at___00Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls_spec__3(x_62, x_1, x_61, x_70, x_71, x_72, x_2);
+x_72 = lean_array_get_size(x_71);
+x_73 = l_Array_filterMapM___at___00Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls_spec__3(x_62, x_1, x_61, x_71, x_69, x_72, x_2);
 lean_dec_ref(x_2);
-lean_dec_ref(x_70);
+lean_dec_ref(x_71);
 lean_dec(x_61);
 lean_dec_ref(x_1);
 if (lean_obj_tag(x_73) == 0)
@@ -38259,14 +38260,14 @@ if (lean_is_exclusive(x_73)) {
 x_76 = l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls_collapseSameOutgoingCalls(x_74);
 lean_dec(x_74);
 x_82 = lean_array_get_size(x_76);
-x_83 = lean_nat_dec_eq(x_82, x_71);
+x_83 = lean_nat_dec_eq(x_82, x_69);
 if (x_83 == 0)
 {
 lean_object* x_84; lean_object* x_85; lean_object* x_86; uint8_t x_89; 
 lean_dec(x_66);
 x_84 = lean_unsigned_to_nat(1u);
 x_85 = lean_nat_sub(x_82, x_84);
-x_89 = lean_nat_dec_le(x_71, x_85);
+x_89 = lean_nat_dec_le(x_69, x_85);
 if (x_89 == 0)
 {
 lean_inc(x_85);
@@ -38275,7 +38276,7 @@ goto block_88;
 }
 else
 {
-x_86 = x_71;
+x_86 = x_69;
 goto block_88;
 }
 block_88:

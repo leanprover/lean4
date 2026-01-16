@@ -70,7 +70,6 @@ LEAN_EXPORT lean_object* l_Std_Time_Day_Ordinal_instReprOfYear___boxed(lean_obje
 static lean_object* l_Std_Time_Day_Ordinal_instReprOfYear___closed__0;
 static lean_object* l_Std_Time_Day_instOrdOrdinal___closed__0;
 lean_object* lean_nat_to_int(lean_object*);
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Day_Ordinal_OfYear_toOffset(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Day_Ordinal_ofInt___redArg(lean_object*);
 lean_object* l_Std_Time_Internal_Bounded_instRepr___lam__0___boxed(lean_object*, lean_object*);
@@ -197,6 +196,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Day_instNegOffset;
 static lean_object* l_Std_Time_Day_Ordinal_instToStringOfYear___closed__0;
 static lean_object* l_Std_Time_Day_instSubOffset___closed__0;
 static lean_object* l_Std_Time_Day_Ordinal_OfYear_ofNat___auto__3___closed__6;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Std_Time_Day_Offset_toMilliseconds___closed__0;
 static lean_object* l_Std_Time_Day_Ordinal_OfYear_ofNat___auto__3___closed__20;
 static lean_object* l_Std_Time_Day_Ordinal_OfYear_ofNat___auto__3___closed__21;
@@ -953,9 +953,10 @@ return x_5;
 static lean_object* _init_l_Std_Time_Day_Ordinal_OfYear_ofNat___auto__3___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Std_Time_Day_Ordinal_OfYear_ofNat___auto__3___closed__6() {

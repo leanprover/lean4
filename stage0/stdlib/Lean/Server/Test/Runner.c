@@ -601,7 +601,6 @@ LEAN_EXPORT lean_object* l_Array_toJson___at___00Lean_Server_Test_Runner_Client_
 LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_Client_instToJsonWidgetInstance;
 lean_object* l_instMonadEST(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_Server_Test_Runner_Client_normalizedRef_spec__0(lean_object*, lean_object*, size_t);
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Array_toJson___at___00Lean_Server_Test_Runner_Client_instToJsonInteractiveGoalCore_toJson_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Test_Runner_Client_instFromJsonMsgEmbed_fromJson___closed__21;
 lean_object* l_IO_FS_Stream_readLspMessage(lean_object*);
@@ -1554,6 +1553,7 @@ static lean_object* l_Lean_Server_Test_Runner_Client_instFromJsonInteractiveGoal
 static lean_object* l_Lean_Server_Test_Runner_Client_instFromJsonInteractiveGoalCore_fromJson___closed__12;
 lean_object* l_Lean_Lsp_instFromJsonRange_fromJson(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_requestWithLoggedResponse___at___00Lean_Server_Test_Runner_logResponse___at___00Lean_Server_Test_Runner_processCompletion_spec__1_spec__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Server_Test_Runner_Client_instFromJsonInteractiveGoal_fromJson___closed__24;
 static lean_object* l_Lean_Server_Test_Runner_Client_instFromJsonSubexprInfo_fromJson___closed__7;
 static lean_object* l_Lean_Server_Test_Runner_processSymbols___closed__0;
@@ -47958,9 +47958,10 @@ return x_1;
 static lean_object* _init_l_Lean_Server_Test_Runner_processGoals___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_processGoals(lean_object* x_1, lean_object* x_2) {
@@ -48022,13 +48023,13 @@ goto block_60;
 else
 {
 lean_object* x_69; lean_object* x_70; lean_object* x_71; uint8_t x_72; 
-x_69 = l_Lean_Server_Test_Runner_processGoals___closed__5;
-x_70 = lean_unsigned_to_nat(0u);
+x_69 = lean_unsigned_to_nat(0u);
+x_70 = l_Lean_Server_Test_Runner_processGoals___closed__5;
 x_71 = lean_array_get_size(x_36);
-x_72 = lean_nat_dec_lt(x_70, x_71);
+x_72 = lean_nat_dec_lt(x_69, x_71);
 if (x_72 == 0)
 {
-x_61 = x_69;
+x_61 = x_70;
 goto block_68;
 }
 else
@@ -48039,7 +48040,7 @@ if (x_73 == 0)
 {
 if (x_72 == 0)
 {
-x_61 = x_69;
+x_61 = x_70;
 goto block_68;
 }
 else
@@ -48047,7 +48048,7 @@ else
 size_t x_74; size_t x_75; lean_object* x_76; 
 x_74 = 0;
 x_75 = lean_usize_of_nat(x_71);
-x_76 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_Test_Runner_processGoals_spec__5(x_36, x_74, x_75, x_69);
+x_76 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_Test_Runner_processGoals_spec__5(x_36, x_74, x_75, x_70);
 x_61 = x_76;
 goto block_68;
 }
@@ -48057,7 +48058,7 @@ else
 size_t x_77; size_t x_78; lean_object* x_79; 
 x_77 = 0;
 x_78 = lean_usize_of_nat(x_71);
-x_79 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_Test_Runner_processGoals_spec__5(x_36, x_77, x_78, x_69);
+x_79 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_Test_Runner_processGoals_spec__5(x_36, x_77, x_78, x_70);
 x_61 = x_79;
 goto block_68;
 }
@@ -48091,17 +48092,17 @@ else
 lean_object* x_49; lean_object* x_50; lean_object* x_51; uint8_t x_52; 
 lean_dec(x_38);
 lean_dec(x_35);
-x_49 = l_Lean_Server_Test_Runner_processGoals___closed__5;
-x_50 = lean_unsigned_to_nat(0u);
+x_49 = lean_unsigned_to_nat(0u);
+x_50 = l_Lean_Server_Test_Runner_processGoals___closed__5;
 x_51 = lean_array_get_size(x_36);
-x_52 = lean_nat_dec_lt(x_50, x_51);
+x_52 = lean_nat_dec_lt(x_49, x_51);
 if (x_52 == 0)
 {
 lean_dec(x_36);
 x_12 = x_43;
 x_13 = x_44;
 x_14 = lean_box(0);
-x_15 = x_49;
+x_15 = x_50;
 goto block_31;
 }
 else
@@ -48116,7 +48117,7 @@ lean_dec(x_36);
 x_12 = x_43;
 x_13 = x_44;
 x_14 = lean_box(0);
-x_15 = x_49;
+x_15 = x_50;
 goto block_31;
 }
 else
@@ -48124,7 +48125,7 @@ else
 size_t x_54; size_t x_55; lean_object* x_56; 
 x_54 = 0;
 x_55 = lean_usize_of_nat(x_51);
-x_56 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_Test_Runner_processGoals_spec__5(x_36, x_54, x_55, x_49);
+x_56 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_Test_Runner_processGoals_spec__5(x_36, x_54, x_55, x_50);
 lean_dec(x_36);
 x_12 = x_43;
 x_13 = x_44;
@@ -48138,7 +48139,7 @@ else
 size_t x_57; size_t x_58; lean_object* x_59; 
 x_57 = 0;
 x_58 = lean_usize_of_nat(x_51);
-x_59 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_Test_Runner_processGoals_spec__5(x_36, x_57, x_58, x_49);
+x_59 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_Test_Runner_processGoals_spec__5(x_36, x_57, x_58, x_50);
 lean_dec(x_36);
 x_12 = x_43;
 x_13 = x_44;

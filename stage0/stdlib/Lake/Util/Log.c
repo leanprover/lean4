@@ -275,7 +275,6 @@ LEAN_EXPORT lean_object* l_Lake_LoggerIO_instMonadError___lam__0___boxed(lean_ob
 lean_object* l_instMonadEST(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LoggerIO_instMonadLiftIO;
 LEAN_EXPORT lean_object* l_Lake_LoggerIO_instMonadLiftIO___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Log_filter___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Log_instEmptyCollection;
 LEAN_EXPORT lean_object* l_Lake_AnsiMode_auto_elim(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -736,6 +735,7 @@ LEAN_EXPORT lean_object* l_Lake_LogIO_captureLog___redArg(lean_object*, lean_obj
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instCoeStreamOutStream___closed__0;
 LEAN_EXPORT lean_object* l_Lake_ELog_alternative___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instReprVerbosity_repr(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LogLevel_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lake_LogEntry_ofMessage___boxed(lean_object*, lean_object*);
@@ -5466,9 +5466,10 @@ return x_7;
 static lean_object* _init_l_Lake_instInhabitedLog_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lake_instInhabitedLog_default() {
@@ -5483,7 +5484,7 @@ static lean_object* _init_l_Lake_instInhabitedLog() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_instInhabitedLog_default___closed__0;
+x_1 = l_Lake_instInhabitedLog_default;
 return x_1;
 }
 }

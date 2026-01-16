@@ -36,7 +36,6 @@ LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_instSliceableRccSlice___auto__1;
 static lean_object* l_Std_TreeSet_Raw_instSliceableRiiSlice___auto__1___closed__20;
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_instSliceableRioSlice___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_instSliceableRooSlice___boxed(lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_toList__roc___auto__1;
 static lean_object* l_Std_TreeSet_Raw_instSliceableRiiSlice___auto__1___closed__24;
 static lean_object* l_Std_TreeSet_Raw_instSliceableRiiSlice___auto__1___closed__13;
@@ -98,6 +97,7 @@ static lean_object* l_Std_TreeSet_Raw_instSliceableRiiSlice___auto__1___closed__
 static lean_object* l_Std_TreeSet_Raw_instSliceableRioSlice___closed__0;
 static lean_object* l_Std_TreeSet_Raw_instSliceableRiiSlice___auto__1___closed__4;
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_instSliceableRooSlice___auto__1;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_instSliceableRoiSlice___lam__0(lean_object*, lean_object*);
 static lean_object* l_Std_TreeSet_Raw_instSliceableRooSlice___closed__0;
 static lean_object* _init_l_Std_TreeSet_Raw_instSliceableRiiSlice___auto__1___closed__0() {
@@ -147,9 +147,10 @@ return x_5;
 static lean_object* _init_l_Std_TreeSet_Raw_instSliceableRiiSlice___auto__1___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Std_TreeSet_Raw_instSliceableRiiSlice___auto__1___closed__6() {

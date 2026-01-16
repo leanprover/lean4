@@ -570,7 +570,6 @@ lean_object* l_Lean_Syntax_getAtomVal(lean_object*);
 static lean_object* l_Lean_Elab_Term_elabScientificLit___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabNamedPatternErr___regBuiltin_Lean_Elab_Term_elabNamedPatternErr__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___00Lean_Elab_Term_elabSyntheticHole_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lean_Elab_Term_elabSort___regBuiltin_Lean_Elab_Term_elabSort_declRange__3___closed__0;
 lean_object* l_List_find_x3f___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_OpenDecl_elabOpenDecl___at___00Lean_Elab_Term_elabOpen_spec__2_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1563,6 +1562,7 @@ static lean_object* l_Lean_Elab_Term_elabProp___regBuiltin_Lean_Elab_Term_elabPr
 lean_object* l_Lean_mkLevelParam(lean_object*);
 static lean_object* l_Lean_Elab_Term_elabPipeCompletion___regBuiltin_Lean_Elab_Term_elabPipeCompletion__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_getResetInfoTrees___at___00Lean_Elab_withInfoTreeContext___at___00Lean_Elab_withMacroExpansionInfo___at___00Lean_Elab_Term_withMacroExpansion___at___00Lean_Elab_Term_elabWithDeclName_spec__0_spec__0_spec__1_spec__2___redArg___boxed(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Elab_Term_elabTypeOf___regBuiltin_Lean_Elab_Term_elabTypeOf__1___closed__0;
 static lean_object* l_Lean_resolveUniqueNamespace___at___00Lean_Elab_OpenDecl_elabOpenDecl___at___00Lean_Elab_Term_elabOpen_spec__2_spec__8___closed__1;
 static lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_Elab_Term_elabValueOf_spec__2_spec__3_spec__4_spec__5___redArg___closed__12;
@@ -29890,9 +29890,10 @@ return x_5;
 static lean_object* _init_l_Lean_Elab_OpenDecl_elabOpenDecl___at___00Lean_Elab_Term_elabOpen_spec__2___closed__24() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_OpenDecl_elabOpenDecl___at___00Lean_Elab_Term_elabOpen_spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {

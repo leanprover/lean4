@@ -215,7 +215,6 @@ lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Lean_Lsp_instInhabitedPublishDiagnosticsParams_default___closed__1;
 static lean_object* l_Lean_Lsp_instToJsonDiagnosticSeverity___lam__0___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Lsp_LeanDiagnosticTag_ctorIdx(uint8_t);
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instBEqDiagnosticSeverity;
 LEAN_EXPORT lean_object* l_Option_fromJson_x3f___at___00Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonDiagnosticWith_fromJson___at___00Array_fromJson_x3f___at___00Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonPublishDiagnosticsParams_fromJson_spec__1_spec__2_spec__3_spec__10_spec__16(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Lsp_instInhabitedDiagnosticTag;
@@ -535,6 +534,7 @@ static lean_object* l_Lean_Lsp_instFromJsonPublishDiagnosticsParams_fromJson___c
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Array_toJson___at___00Lean_Json_opt___at___00Lean_Lsp_instToJsonDiagnosticWith_toJson___at___00Array_toJson___at___00Lean_Lsp_instToJsonPublishDiagnosticsParams_toJson_spec__1_spec__1_spec__9_spec__12_spec__17(size_t, size_t, lean_object*);
 lean_object* l_Lean_Lsp_instFromJsonRange_fromJson(lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonLeanDiagnosticTag___lam__0___closed__3;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonDiagnosticWith_fromJson___redArg___closed__53;
 lean_object* l_instDecidableEqString___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instBEqLeanDiagnosticTag___closed__0;
@@ -5506,9 +5506,10 @@ return x_3;
 static lean_object* _init_l_Lean_Lsp_instInhabitedPublishDiagnosticsParams_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Lsp_instInhabitedPublishDiagnosticsParams_default___closed__1() {

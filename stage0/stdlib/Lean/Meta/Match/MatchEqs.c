@@ -228,7 +228,6 @@ static lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_getE
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDeclsDND___at___00__private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_genMatchCongrEqnsImpl_go_spec__4___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadEST(lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at___00__private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_withNewAlts_go_spec__0(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_getEquationsForImpl_go_spec__7___redArg___closed__0;
 lean_object* l_Lean_MVarId_deltaTarget(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -619,6 +618,7 @@ static lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_subs
 lean_object* l_Lean_mkLevelParam(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_proveCondEqThm_go___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_initFn_00___x40_Lean_Meta_Match_MatchEqs_1597551399____hygCtx___hyg_2_();
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getMatcherInfo_x3f___at___00__private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_getEquationsForImpl_go_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_genMatchCongrEqnsImpl_go_spec__2___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_getEquationsForImpl_go_spec__0_spec__0_spec__4_spec__10_spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -11255,45 +11255,45 @@ block_43:
 if (x_26 == 0)
 {
 lean_object* x_27; 
-lean_dec_ref(x_24);
+lean_dec_ref(x_22);
 lean_dec(x_18);
-lean_inc(x_20);
-lean_inc_ref(x_19);
-lean_inc(x_22);
+lean_inc(x_21);
+lean_inc_ref(x_20);
+lean_inc(x_19);
 lean_inc_ref(x_23);
-x_27 = l_Lean_MVarId_deltaTarget(x_25, x_2, x_23, x_22, x_19, x_20);
+x_27 = l_Lean_MVarId_deltaTarget(x_25, x_2, x_23, x_19, x_20, x_21);
 if (lean_obj_tag(x_27) == 0)
 {
 lean_object* x_28; lean_object* x_29; 
 x_28 = lean_ctor_get(x_27, 0);
 lean_inc(x_28);
 lean_dec_ref(x_27);
-lean_inc(x_20);
-lean_inc_ref(x_19);
-lean_inc(x_22);
+lean_inc(x_21);
+lean_inc_ref(x_20);
+lean_inc(x_19);
 lean_inc_ref(x_23);
-x_29 = l_Lean_MVarId_heqOfEq(x_28, x_23, x_22, x_19, x_20);
+x_29 = l_Lean_MVarId_heqOfEq(x_28, x_23, x_19, x_20, x_21);
 if (lean_obj_tag(x_29) == 0)
 {
 lean_object* x_30; lean_object* x_31; 
 x_30 = lean_ctor_get(x_29, 0);
 lean_inc(x_30);
 lean_dec_ref(x_29);
-lean_inc(x_22);
-x_31 = l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_proveCondEqThm_go(x_3, x_30, x_4, x_23, x_22, x_19, x_20);
+lean_inc(x_19);
+x_31 = l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_proveCondEqThm_go(x_3, x_30, x_4, x_23, x_19, x_20, x_21);
 lean_dec(x_4);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; 
 lean_dec_ref(x_31);
-x_32 = l_Lean_instantiateMVars___at___00Lean_Meta_Match_proveCondEqThm_spec__0___redArg(x_17, x_22);
-lean_dec(x_22);
+x_32 = l_Lean_instantiateMVars___at___00Lean_Meta_Match_proveCondEqThm_spec__0___redArg(x_17, x_19);
+lean_dec(x_19);
 return x_32;
 }
 else
 {
 uint8_t x_33; 
-lean_dec(x_22);
+lean_dec(x_19);
 lean_dec(x_17);
 x_33 = !lean_is_exclusive(x_31);
 if (x_33 == 0)
@@ -11316,9 +11316,9 @@ else
 {
 uint8_t x_36; 
 lean_dec_ref(x_23);
-lean_dec(x_22);
-lean_dec(x_20);
-lean_dec_ref(x_19);
+lean_dec(x_21);
+lean_dec_ref(x_20);
+lean_dec(x_19);
 lean_dec(x_17);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -11343,9 +11343,9 @@ else
 {
 uint8_t x_39; 
 lean_dec_ref(x_23);
-lean_dec(x_22);
-lean_dec(x_20);
-lean_dec_ref(x_19);
+lean_dec(x_21);
+lean_dec_ref(x_20);
+lean_dec(x_19);
 lean_dec(x_17);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -11371,9 +11371,9 @@ else
 lean_object* x_42; 
 lean_dec(x_25);
 lean_dec_ref(x_23);
-lean_dec(x_22);
-lean_dec(x_20);
-lean_dec_ref(x_19);
+lean_dec(x_21);
+lean_dec_ref(x_20);
+lean_dec(x_19);
 lean_dec(x_17);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -11384,7 +11384,7 @@ if (lean_is_scalar(x_18)) {
  x_42 = x_18;
  lean_ctor_set_tag(x_42, 1);
 }
-lean_ctor_set(x_42, 0, x_24);
+lean_ctor_set(x_42, 0, x_22);
 return x_42;
 }
 }
@@ -11440,24 +11440,24 @@ if (x_57 == 0)
 uint8_t x_58; 
 lean_inc(x_56);
 x_58 = l_Lean_Exception_isRuntime(x_56);
-x_19 = x_47;
-x_20 = x_48;
-x_21 = lean_box(0);
-x_22 = x_46;
+x_19 = x_46;
+x_20 = x_47;
+x_21 = x_48;
+x_22 = x_56;
 x_23 = x_45;
-x_24 = x_56;
+x_24 = lean_box(0);
 x_25 = x_52;
 x_26 = x_58;
 goto block_43;
 }
 else
 {
-x_19 = x_47;
-x_20 = x_48;
-x_21 = lean_box(0);
-x_22 = x_46;
+x_19 = x_46;
+x_20 = x_47;
+x_21 = x_48;
+x_22 = x_56;
 x_23 = x_45;
-x_24 = x_56;
+x_24 = lean_box(0);
 x_25 = x_52;
 x_26 = x_57;
 goto block_43;
@@ -11977,9 +11977,10 @@ return x_4;
 static lean_object* _init_l_Lean_Meta_Match_proveCondEqThm___closed__6() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_proveCondEqThm(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {

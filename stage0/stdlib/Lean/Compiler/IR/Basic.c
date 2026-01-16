@@ -235,7 +235,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_FnBody_ctorElim___redArg(lean_object*, lean_o
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Lean_IR_instToStringJoinPointId___lam__0___closed__0;
 static lean_object* l_Lean_IR_instReprVarId_repr___redArg___closed__8;
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lean_IR_mkIf___closed__7;
 LEAN_EXPORT lean_object* l_Lean_IR_instInhabitedCtorInfo;
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_IR_addParamsRename_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -580,6 +579,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_FnBody_ctorIdx(lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_IR_IRType_isScalar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_FnBody_vdecl_elim(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_LocalContext_getJPBody(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_IR_LocalContext_addParams_spec__0(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_IR_instAlphaEqvArg___closed__0;
@@ -5057,9 +5057,10 @@ return x_5;
 static lean_object* _init_l_Lean_IR_instInhabitedExpr_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_IR_instInhabitedExpr_default___closed__1() {
@@ -5941,9 +5942,10 @@ return x_5;
 static lean_object* _init_l_Lean_IR_instInhabitedFnBody_default__1___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_IR_instInhabitedFnBody_default__1___closed__1() {
@@ -7419,9 +7421,10 @@ return x_5;
 static lean_object* _init_l_Lean_IR_instInhabitedDecl_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_IR_instInhabitedDecl_default___closed__1() {

@@ -75,7 +75,6 @@ lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Rat_den__nz___autoParam___closed__9;
 lean_object* lean_nat_div(lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Rat_maybeNormalize___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Rat_term___x2f_x2e___00__closed__3;
 static lean_object* l_Rat___aux__Init__Data__Rat__Basic______unexpand__Rat__divInt__1___closed__1;
@@ -200,6 +199,7 @@ LEAN_EXPORT lean_object* l_Rat_instNeg;
 static lean_object* l_Rat_term___x2f_x2e___00__closed__6;
 LEAN_EXPORT lean_object* l_instReprRat___lam__0___boxed(lean_object*, lean_object*);
 static lean_object* l_instToStringRat___closed__0;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_instHashableRat_hash___closed__0;
 LEAN_EXPORT lean_object* l_Rat_instMin;
 LEAN_EXPORT lean_object* l_Rat_neg(lean_object*);
@@ -251,9 +251,10 @@ return x_5;
 static lean_object* _init_l_Rat_den__nz___autoParam___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Rat_den__nz___autoParam___closed__6() {

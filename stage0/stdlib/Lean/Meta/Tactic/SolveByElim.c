@@ -155,7 +155,6 @@ static lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_introsAfter___clos
 LEAN_EXPORT lean_object* l_Lean_MVarId_withContext___at___00Lean_Meta_SolveByElim_SolveByElimConfig_testPartialSolutions_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SolveByElim_initFn___closed__13_00___x40_Lean_Meta_Tactic_SolveByElim_1979843508____hygCtx___hyg_2_;
 lean_object* l_Lean_MVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_withContext___at___00Lean_Meta_SolveByElim_SolveByElimConfig_testPartialSolutions_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_requireUsingAll___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SolveByElim_initFn___closed__1_00___x40_Lean_Meta_Tactic_SolveByElim_1979843508____hygCtx___hyg_2_;
@@ -420,6 +419,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_accept(lean_o
 lean_object* l_Lean_MVarId_constructor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___at___00Lean_withTraceNode___at___00Lean_Meta_SolveByElim_applyTactics_spec__1_spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_inferInstance(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___00Lean_withTraceNode___at___00Lean_Meta_SolveByElim_applyTactics_spec__1_spec__1___redArg(lean_object*, lean_object*);
 static double l_Lean_withTraceNode___at___00Lean_Meta_SolveByElim_applyTactics_spec__1___redArg___closed__6;
 size_t lean_usize_land(size_t, size_t);
@@ -10852,9 +10852,10 @@ return x_3;
 static lean_object* _init_l_Lean_Meta_SolveByElim_mkAssumptionSet___closed__22() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Meta_SolveByElim_mkAssumptionSet___closed__23() {
@@ -11126,10 +11127,10 @@ x_94 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_94, 0, x_84);
 lean_ctor_set(x_94, 1, x_93);
 x_95 = l_List_mapTR_loop___at___00Lean_Meta_SolveByElim_mkAssumptionSet_spec__3(x_94, x_82);
-x_96 = l_Lean_Meta_SolveByElim_mkAssumptionSet___closed__22;
-x_97 = lean_unsigned_to_nat(0u);
+x_96 = lean_unsigned_to_nat(0u);
+x_97 = l_Lean_Meta_SolveByElim_mkAssumptionSet___closed__22;
 x_98 = lean_array_get_size(x_74);
-x_99 = lean_nat_dec_lt(x_97, x_98);
+x_99 = lean_nat_dec_lt(x_96, x_98);
 if (x_99 == 0)
 {
 lean_dec(x_74);
@@ -11140,7 +11141,7 @@ x_37 = x_95;
 x_38 = lean_box(0);
 x_39 = x_51;
 x_40 = x_52;
-x_41 = x_96;
+x_41 = x_97;
 goto block_49;
 }
 else
@@ -11159,14 +11160,14 @@ x_37 = x_95;
 x_38 = lean_box(0);
 x_39 = x_51;
 x_40 = x_52;
-x_41 = x_96;
+x_41 = x_97;
 goto block_49;
 }
 else
 {
 size_t x_101; lean_object* x_102; 
 x_101 = lean_usize_of_nat(x_98);
-x_102 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Meta_SolveByElim_mkAssumptionSet_spec__5(x_74, x_72, x_101, x_96);
+x_102 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Meta_SolveByElim_mkAssumptionSet_spec__5(x_74, x_72, x_101, x_97);
 lean_dec(x_74);
 x_34 = x_50;
 x_35 = x_82;
@@ -11183,7 +11184,7 @@ else
 {
 size_t x_103; lean_object* x_104; 
 x_103 = lean_usize_of_nat(x_98);
-x_104 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Meta_SolveByElim_mkAssumptionSet_spec__5(x_74, x_72, x_103, x_96);
+x_104 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Meta_SolveByElim_mkAssumptionSet_spec__5(x_74, x_72, x_103, x_97);
 lean_dec(x_74);
 x_34 = x_50;
 x_35 = x_82;

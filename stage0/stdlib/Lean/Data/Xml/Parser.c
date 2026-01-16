@@ -169,7 +169,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 static lean_object* l_Lean_Xml_Parser_endl___closed__7;
 static lean_object* l___private_Lean_Data_Xml_Parser_0__Lean_Xml_Parser_nameStartCharRanges___closed__20;
 static lean_object* l_Lean_Xml_Parser_Mixed___closed__2;
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lean_Xml_Parser_SDDecl___lam__0___closed__0;
 static lean_object* l_Lean_Xml_Parser_doctypedecl___closed__6;
 static lean_object* l_Lean_Xml_Parser_quote___redArg___closed__1;
@@ -431,6 +430,7 @@ LEAN_EXPORT lean_object* l_Lean_Xml_Parser_VersionInfo(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_quote___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Xml_Parser_PubidChar___closed__0;
 static lean_object* l_Lean_Xml_Parser_EmptyElemTag___closed__0;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_children(lean_object*);
 static lean_object* l_Lean_Xml_Parser_doctypedecl___closed__7;
 uint32_t l_Char_ofNat(lean_object*);
@@ -30828,9 +30828,10 @@ return x_2;
 static lean_object* _init_l_Lean_Xml_Parser_content___closed__2() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_content(lean_object* x_1) {

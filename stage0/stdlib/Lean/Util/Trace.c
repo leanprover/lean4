@@ -225,7 +225,6 @@ lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_
 static lean_object* l_Lean_trace_profiler_threshold_unitAdjusted___closed__0;
 static lean_object* l_Lean_initFn___closed__2_00___x40_Lean_Util_Trace_545552135____hygCtx___hyg_4_;
 lean_object* lean_nat_div(lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l___private_Lean_Util_Trace_0__Lean_expandTraceMacro___closed__70;
 static lean_object* l_Lean_instInhabitedTraceElem_default___closed__0;
 static lean_object* l___private_Lean_Util_Trace_0__Lean_initFn___closed__21_00___x40_Lean_Util_Trace_2826257906____hygCtx___hyg_2_;
@@ -796,9 +795,10 @@ return x_5;
 static lean_object* _init_l_Lean_MonadTrace_getInheritedTraceOptions___autoParam___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_MonadTrace_getInheritedTraceOptions___autoParam___closed__6() {

@@ -240,7 +240,6 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00Lean_Elab_Tactic_GuardMs
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 static lean_object* l_String_Slice_replace___at___00Lean_Elab_Tactic_GuardMsgs_revealTrailingWhitespace_spec__2___redArg___closed__4;
 lean_object* lean_nat_div(lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_getDocStringText___at___00Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs_spec__10_spec__23_spec__35_spec__40___redArg___closed__2;
 static lean_object* l_Lean_Elab_Tactic_GuardMsgs_parseGuardMsgsSpec___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Lean_Diff_diff___at___00Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs_spec__7_spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -633,6 +632,7 @@ LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___0
 static lean_object* l_Lean_Elab_Tactic_GuardMsgs_parseGuardMsgsFilterSeverity___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Tactic_GuardMsgs_parseGuardMsgsSpec_spec__0___closed__0;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_GuardMsgs_parseGuardMsgsFilterAction___closed__1;
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___00Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_decidableLT___boxed(lean_object*, lean_object*);
@@ -4250,9 +4250,10 @@ return x_3;
 static lean_object* _init_l_Lean_Elab_Tactic_GuardMsgs_parseGuardMsgsSpec___closed__8() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardMsgs_parseGuardMsgsSpec(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -4302,14 +4303,14 @@ x_73 = l_Lean_Syntax_getArg(x_54, x_72);
 lean_dec(x_54);
 x_74 = l_Lean_Syntax_getArgs(x_73);
 lean_dec(x_73);
-x_75 = l_Lean_Elab_Tactic_GuardMsgs_parseGuardMsgsSpec___closed__8;
-x_76 = lean_unsigned_to_nat(0u);
+x_75 = lean_unsigned_to_nat(0u);
+x_76 = l_Lean_Elab_Tactic_GuardMsgs_parseGuardMsgsSpec___closed__8;
 x_77 = lean_array_get_size(x_74);
-x_78 = lean_nat_dec_lt(x_76, x_77);
+x_78 = lean_nat_dec_lt(x_75, x_77);
 if (x_78 == 0)
 {
 lean_dec_ref(x_74);
-x_56 = x_75;
+x_56 = x_76;
 goto block_65;
 }
 else
@@ -4318,7 +4319,7 @@ lean_object* x_79; lean_object* x_80; uint8_t x_81;
 x_79 = lean_box(x_67);
 x_80 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_80, 0, x_79);
-lean_ctor_set(x_80, 1, x_75);
+lean_ctor_set(x_80, 1, x_76);
 x_81 = lean_nat_dec_le(x_77, x_77);
 if (x_81 == 0)
 {
@@ -4326,7 +4327,7 @@ if (x_78 == 0)
 {
 lean_dec_ref(x_80);
 lean_dec_ref(x_74);
-x_56 = x_75;
+x_56 = x_76;
 goto block_65;
 }
 else

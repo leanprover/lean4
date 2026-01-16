@@ -205,7 +205,6 @@ LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_all___redArg___lam__0___boxed(lean_ob
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_instUnion___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_getKeyLTD___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_size(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_valuesArray___redArg(lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_modify___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_term___x7em__;
@@ -563,9 +562,10 @@ return x_5;
 static lean_object* _init_l_Std_TreeMap_Raw___auto__1___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Std_TreeMap_Raw___auto__1___closed__6() {

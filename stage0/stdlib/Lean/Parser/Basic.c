@@ -379,7 +379,6 @@ LEAN_EXPORT lean_object* l_Lean_Parser_checkColGt___regBuiltin_Lean_Parser_check
 LEAN_EXPORT uint8_t l___private_Lean_Parser_Basic_0__Lean_Parser_identFnAux_parse___lam__1(uint32_t);
 LEAN_EXPORT lean_object* l_Lean_Parser_pushNone___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_nonReservedSymbolNoAntiquot___boxed(lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 lean_object* l_Lean_Parser_adaptCacheableContext(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_fieldIdxFn___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_ParserState_replaceLongest___boxed(lean_object*, lean_object*);
@@ -982,6 +981,7 @@ static lean_object* l_Lean_Parser_antiquotNestedExpr___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Parser_withPosition___lam__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_nameLitFn___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Parser_lookahead___regBuiltin_Lean_Parser_lookahead_docString__1();
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_mkAntiquotSplice___regBuiltin_Lean_Parser_mkAntiquotSplice_docString__1();
 static lean_object* l_Lean_Parser_epsilonInfo___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Basic_0__Lean_Parser_sepByFnAux_parse(lean_object*, lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -16702,9 +16702,10 @@ return x_9;
 static lean_object* _init_l_Lean_Parser_pushNone___lam__0___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Parser_pushNone___lam__0___closed__1() {

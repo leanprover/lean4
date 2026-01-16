@@ -139,7 +139,6 @@ static lean_object* l_Lake_LeanInstall_get___closed__4;
 static lean_object* l_Lake_envToBool_x3f___closed__23;
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_findLeanSysroot_x3f(lean_object*);
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lake_LeanInstall_get___closed__3;
 LEAN_EXPORT lean_object* l_Lake_findLeanCmdInstall_x3f___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_instReprLeanInstall_repr___redArg___closed__6;
@@ -312,6 +311,7 @@ extern lean_object* l_Lean_Compiler_FFI_getCFlags_x27;
 extern lean_object* l_Lake_defaultLeanLibDir;
 static lean_object* l_Lake_instReprLeanInstall_repr___redArg___closed__37;
 static lean_object* l_Lake_findElanInstall_x3f___closed__0;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Array_Array_repr___at___00Lake_instReprLeanInstall_repr_spec__0___closed__3;
 static lean_object* l_Lake_instReprLeanInstall_repr___redArg___closed__40;
 static lean_object* l___private_Lake_Config_InstallPath_0__Lake_LeanInstall_get_getGithash___closed__1;
@@ -1475,9 +1475,10 @@ return x_1;
 static lean_object* _init_l_Lake_instInhabitedLeanInstall_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lake_instInhabitedLeanInstall_default___closed__1() {

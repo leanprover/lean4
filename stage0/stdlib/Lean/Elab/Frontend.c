@@ -84,7 +84,6 @@ static lean_object* l_Lean_Elab_runFrontend___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_setParserState___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_instToJsonIlean_toJson(lean_object*);
 lean_object* l_Lean_Server_collectImports(lean_object*);
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_runCommandElabM___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Elab_Frontend_0__Lean_Elab_IO_processCommandsIncrementally_go_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_strict_or(uint8_t, uint8_t);
@@ -194,8 +193,8 @@ LEAN_EXPORT lean_object* l_Lean_Option_get_x3f___at___00Lean_Elab_runFrontend_sp
 lean_object* l_Lean_Firefox_instToJsonProfile_toJson(lean_object*);
 lean_object* l_List_get_x21Internal___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_runFrontend___lam__0(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_runFrontend___closed__8;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Elab_Frontend_0__Lean_Elab_IO_processCommandsIncrementally_go_spec__3___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___private_Lean_Elab_Frontend_0__Lean_Elab_IO_processCommandsIncrementally_go___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_updateCmdPos(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_processCommand___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2959,19 +2958,11 @@ static lean_object* _init_l_Lean_Elab_runFrontend___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_runFrontend___closed__7() {
-_start:
-{
-lean_object* x_1; 
 x_1 = lean_mk_string_unchecked(".olean serialization", 20, 20);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_runFrontend___closed__8() {
+static lean_object* _init_l_Lean_Elab_runFrontend___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3042,7 +3033,7 @@ x_182 = lean_ctor_get(x_181, 0);
 lean_inc(x_182);
 x_183 = lean_ctor_get(x_181, 1);
 lean_inc(x_183);
-x_184 = l_Lean_Elab_runFrontend___closed__8;
+x_184 = l_Lean_Elab_runFrontend___closed__7;
 x_185 = l_Lean_Language_SnapshotTask_map___redArg(x_181, x_184, x_182, x_183, x_23);
 lean_ctor_set(x_38, 0, x_185);
 x_159 = x_38;
@@ -3061,7 +3052,7 @@ x_188 = lean_ctor_get(x_187, 0);
 lean_inc(x_188);
 x_189 = lean_ctor_get(x_187, 1);
 lean_inc(x_189);
-x_190 = l_Lean_Elab_runFrontend___closed__8;
+x_190 = l_Lean_Elab_runFrontend___closed__7;
 x_191 = l_Lean_Language_SnapshotTask_map___redArg(x_187, x_190, x_188, x_189, x_23);
 x_192 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_192, 0, x_191);
@@ -3242,7 +3233,7 @@ lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; uint
 x_92 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_90);
 x_93 = l_Lean_Language_SnapshotTree_getAll(x_90);
-x_94 = l_Lean_Elab_runFrontend___closed__6;
+x_94 = lean_mk_empty_array_with_capacity(x_89);
 x_95 = lean_array_get_size(x_93);
 x_96 = lean_nat_dec_lt(x_89, x_95);
 lean_dec(x_89);
@@ -3324,7 +3315,7 @@ lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; 
 x_111 = lean_ctor_get(x_6, 0);
 lean_inc(x_111);
 lean_dec_ref(x_6);
-x_112 = l_Lean_Elab_runFrontend___closed__7;
+x_112 = l_Lean_Elab_runFrontend___closed__6;
 lean_inc_ref(x_105);
 x_113 = lean_alloc_closure((void*)(l_Lean_writeModule___boxed), 3, 2);
 lean_closure_set(x_113, 0, x_105);
@@ -3796,8 +3787,6 @@ l_Lean_Elab_runFrontend___closed__6 = _init_l_Lean_Elab_runFrontend___closed__6(
 lean_mark_persistent(l_Lean_Elab_runFrontend___closed__6);
 l_Lean_Elab_runFrontend___closed__7 = _init_l_Lean_Elab_runFrontend___closed__7();
 lean_mark_persistent(l_Lean_Elab_runFrontend___closed__7);
-l_Lean_Elab_runFrontend___closed__8 = _init_l_Lean_Elab_runFrontend___closed__8();
-lean_mark_persistent(l_Lean_Elab_runFrontend___closed__8);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

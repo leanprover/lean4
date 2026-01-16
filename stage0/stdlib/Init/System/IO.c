@@ -357,7 +357,6 @@ LEAN_EXPORT lean_object* l_IO_waitAny_x27___auto__1;
 lean_object* l_instMonadEST(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Process_Stdio_piped_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_IO_addHeartbeats(lean_object*);
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_EIO_adaptExcept___redArg___boxed(lean_object*, lean_object*, lean_object*);
 uint32_t lean_uint32_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
@@ -934,6 +933,7 @@ LEAN_EXPORT lean_object* l_IO_mapTask___redArg___lam__0___boxed(lean_object*, le
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__14;
 LEAN_EXPORT lean_object* l_IO_iterate___redArg(lean_object*, lean_object*);
 static lean_object* l_termPrintln_x21_____00__closed__7;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* lean_io_eprint(lean_object*);
 static lean_object* l_IO_waitAny___auto__1___closed__34;
 LEAN_EXPORT lean_object* l_IO_Process_Stdio_inherit_elim(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -4452,9 +4452,10 @@ return x_5;
 static lean_object* _init_l_IO_waitAny___auto__1___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_IO_waitAny___auto__1___closed__6() {

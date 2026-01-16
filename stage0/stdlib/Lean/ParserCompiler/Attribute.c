@@ -105,7 +105,6 @@ uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 uint8_t l_Lean_isMarkedMeta(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_recordExtraModUseFromDecl___at___00Lean_ParserCompiler_registerCombinatorAttribute_spec__2_spec__7___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute_default___closed__3;
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute___auto__1___closed__16;
 static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute_default___closed__0;
 static lean_object* l___private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_ParserCompiler_registerCombinatorAttribute_spec__2_spec__5___closed__9;
@@ -259,6 +258,7 @@ static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute_defau
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute_default___lam__0___closed__0;
 lean_object* l_Lean_Name_hash___override___boxed(lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_evalConst___at___00Lean_ParserCompiler_CombinatorAttribute_runDeclFor_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 static lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___redArg___closed__0;
@@ -507,9 +507,10 @@ return x_5;
 static lean_object* _init_l_Lean_ParserCompiler_registerCombinatorAttribute___auto__1___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_ParserCompiler_registerCombinatorAttribute___auto__1___closed__6() {

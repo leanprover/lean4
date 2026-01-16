@@ -157,7 +157,6 @@ static lean_object* l_Lean_IR_ExplicitRC_getDecl___closed__1;
 LEAN_EXPORT lean_object* l_Lean_IR_ExplicitRC_LiveVars_merge___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_CollectDerivedValInfo_visitParam_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_useArgs(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExplicitRC_addInc___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___00__private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_addDecAfterFullApp_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -231,6 +230,7 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00__p
 static lean_object* l___private_Lean_Compiler_IR_RC_0__Lean_IR_initFn___closed__10_00___x40_Lean_Compiler_IR_RC_3281171570____hygCtx___hyg_2_;
 static lean_object* l_Lean_IR_ExplicitRC_instInhabitedDerivedValInfo_default___closed__0;
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_instInhabited(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_IR_ExplicitRC_LiveVars_merge___lam__0(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_RC_0__Lean_IR_initFn___closed__12_00___x40_Lean_Compiler_IR_RC_3281171570____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_modify___at___00__private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_CollectDerivedValInfo_removeFromParent_spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -6240,7 +6240,7 @@ static lean_object* _init_l_panic___at___00Lean_IR_ExplicitRC_getJPParams_spec__
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
+x_1 = l_Array_instInhabited(lean_box(0));
 return x_1;
 }
 }

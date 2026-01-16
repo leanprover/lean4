@@ -1226,34 +1226,44 @@ uint8_t x_4;
 x_4 = !lean_is_exclusive(x_3);
 if (x_4 == 0)
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_5 = lean_ctor_get(x_3, 0);
 x_6 = lean_ctor_get(x_3, 1);
+x_7 = lean_ctor_get(x_3, 2);
 lean_inc(x_2);
-x_7 = l_Lean_PersistentHashMap_insert___at___00Lean_initFn_00___x40_Lean_Compiler_ClosedTermCache_3608529163____hygCtx___hyg_2__spec__0___redArg(x_5, x_1, x_2);
-x_8 = l_Lean_NameSet_insert(x_6, x_2);
-lean_ctor_set(x_3, 1, x_8);
-lean_ctor_set(x_3, 0, x_7);
+lean_inc_ref(x_1);
+x_8 = l_Lean_PersistentHashMap_insert___at___00Lean_initFn_00___x40_Lean_Compiler_ClosedTermCache_3608529163____hygCtx___hyg_2__spec__0___redArg(x_5, x_1, x_2);
+x_9 = l_Lean_NameSet_insert(x_6, x_2);
+x_10 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_10, 0, x_1);
+lean_ctor_set(x_10, 1, x_7);
+lean_ctor_set(x_3, 2, x_10);
+lean_ctor_set(x_3, 1, x_9);
+lean_ctor_set(x_3, 0, x_8);
 return x_3;
 }
 else
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_9 = lean_ctor_get(x_3, 0);
-x_10 = lean_ctor_get(x_3, 1);
-x_11 = lean_ctor_get(x_3, 2);
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_11 = lean_ctor_get(x_3, 0);
+x_12 = lean_ctor_get(x_3, 1);
+x_13 = lean_ctor_get(x_3, 2);
+lean_inc(x_13);
+lean_inc(x_12);
 lean_inc(x_11);
-lean_inc(x_10);
-lean_inc(x_9);
 lean_dec(x_3);
 lean_inc(x_2);
-x_12 = l_Lean_PersistentHashMap_insert___at___00Lean_initFn_00___x40_Lean_Compiler_ClosedTermCache_3608529163____hygCtx___hyg_2__spec__0___redArg(x_9, x_1, x_2);
-x_13 = l_Lean_NameSet_insert(x_10, x_2);
-x_14 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_14, 0, x_12);
-lean_ctor_set(x_14, 1, x_13);
-lean_ctor_set(x_14, 2, x_11);
-return x_14;
+lean_inc_ref(x_1);
+x_14 = l_Lean_PersistentHashMap_insert___at___00Lean_initFn_00___x40_Lean_Compiler_ClosedTermCache_3608529163____hygCtx___hyg_2__spec__0___redArg(x_11, x_1, x_2);
+x_15 = l_Lean_NameSet_insert(x_12, x_2);
+x_16 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_16, 0, x_1);
+lean_ctor_set(x_16, 1, x_13);
+x_17 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_17, 0, x_14);
+lean_ctor_set(x_17, 1, x_15);
+lean_ctor_set(x_17, 2, x_16);
+return x_17;
 }
 }
 }

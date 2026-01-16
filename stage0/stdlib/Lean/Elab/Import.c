@@ -46,7 +46,6 @@ lean_object* l_Lean_Parser_mkInputContext___redArg(lean_object*, lean_object*, u
 lean_object* lean_get_stdout();
 static lean_object* l_Lean_Elab_parseImports___closed__0;
 extern lean_object* l___private_Lean_Compiler_ModPkgExt_0__Lean_modPkgExt;
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_HeaderSyntax_startPos(lean_object*);
 static lean_object* l_Lean_Elab_HeaderSyntax_imports___closed__4;
 static lean_object* l_Lean_Elab_processHeaderCore___closed__2;
@@ -73,6 +72,7 @@ static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_printImportSrcs_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_HeaderSyntax_imports(lean_object*, uint8_t);
 LEAN_EXPORT uint8_t l_Lean_Option_get___at___00Lean_Elab_processHeaderCore_spec__0(lean_object*, lean_object*);
+lean_object* l_Array_instInhabited(lean_object*);
 static lean_object* l_Lean_Elab_HeaderSyntax_imports___closed__6;
 static lean_object* l_panic___at___00Lean_Elab_HeaderSyntax_imports_spec__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_parseImports___boxed(lean_object*, lean_object*, lean_object*);
@@ -183,7 +183,7 @@ static lean_object* _init_l_panic___at___00Lean_Elab_HeaderSyntax_imports_spec__
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
+x_1 = l_Array_instInhabited(lean_box(0));
 return x_1;
 }
 }

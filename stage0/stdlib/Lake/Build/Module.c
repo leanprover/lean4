@@ -391,7 +391,6 @@ LEAN_EXPORT lean_object* l___private_Lake_Build_Module_0__Lake_Module_computeArt
 static lean_object* l_Lake_Module_initFacetConfigs___closed__6;
 LEAN_EXPORT lean_object* l_Lake_Module_coExportFacetConfig;
 lean_object* lean_nat_div(lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_formatQuery___at___00Lake_Module_exportInfoFacetConfig_spec__0___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_depsFacetConfig;
 LEAN_EXPORT lean_object* l___private_Lake_Build_Module_0__Lake_Module_fetchOLeanCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1014,6 +1013,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_m
 static lean_object* l_Lake_Module_leanArtsFacetConfig___closed__2;
 static lean_object* l___private_Lake_Build_Module_0__Lake_Module_computeExportInfo___lam__0___closed__7;
 LEAN_EXPORT lean_object* l_Lake_setupServerModule(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lake_clearFileHash(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_formatQuery___at___00Lake_Module_importInfoFacetConfig_spec__0(uint8_t, lean_object*);
 static lean_object* l___private_Lake_Build_Module_0__Lake_instReprModuleDeps_repr___redArg___closed__0;
@@ -2321,9 +2321,10 @@ return x_3;
 static lean_object* _init_l_Lake_OrdHashSet_empty___at___00__private_Lake_Build_Module_0__Lake_Module_recParseImports_spec__1___closed__2() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lake_OrdHashSet_empty___at___00__private_Lake_Build_Module_0__Lake_Module_recParseImports_spec__1___closed__3() {
@@ -8564,9 +8565,10 @@ return x_9;
 static lean_object* _init_l___private_Lake_Build_Module_0__Lake_instInhabitedModuleDeps_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l___private_Lake_Build_Module_0__Lake_instInhabitedModuleDeps_default___closed__1() {

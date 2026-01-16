@@ -115,7 +115,6 @@ lean_object* l_Lean_Lsp_WorkspaceEdit_ofTextDocumentEdit(lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00Lean_Server_FileWorker_waitAllUnknownIdentifierMessageRanges_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_handleUnknownIdentifierCodeAction_spec__2_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 lean_object* l_IO_AsyncList_waitAll___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_FileWorker_computeQueries_spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_sendServerRequest___at___00Lean_Server_FileWorker_handleUnknownIdentifierCodeAction_spec__1___redArg(lean_object*, lean_object*, lean_object*);
@@ -10082,9 +10081,10 @@ return x_3;
 static lean_object* _init_l_Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f___closed__4() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -10097,13 +10097,13 @@ x_88 = lean_ctor_get(x_6, 0);
 x_89 = lean_ctor_get(x_88, 0);
 x_90 = lean_ctor_get(x_88, 1);
 x_91 = lean_ctor_get(x_89, 3);
-x_147 = l_Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f___closed__4;
-x_148 = lean_unsigned_to_nat(0u);
+x_147 = lean_unsigned_to_nat(0u);
+x_148 = l_Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f___closed__4;
 x_149 = lean_array_get_size(x_3);
-x_150 = lean_nat_dec_lt(x_148, x_149);
+x_150 = lean_nat_dec_lt(x_147, x_149);
 if (x_150 == 0)
 {
-x_92 = x_147;
+x_92 = x_148;
 x_93 = lean_box(0);
 goto block_140;
 }
@@ -10115,7 +10115,7 @@ if (x_151 == 0)
 {
 if (x_150 == 0)
 {
-x_92 = x_147;
+x_92 = x_148;
 x_93 = lean_box(0);
 goto block_140;
 }
@@ -10125,7 +10125,7 @@ size_t x_152; size_t x_153; lean_object* x_154;
 x_152 = 0;
 x_153 = lean_usize_of_nat(x_149);
 lean_inc_ref(x_6);
-x_154 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__4(x_6, x_3, x_152, x_153, x_147, x_4);
+x_154 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__4(x_6, x_3, x_152, x_153, x_148, x_4);
 x_141 = x_154;
 goto block_146;
 }
@@ -10136,7 +10136,7 @@ size_t x_155; size_t x_156; lean_object* x_157;
 x_155 = 0;
 x_156 = lean_usize_of_nat(x_149);
 lean_inc_ref(x_6);
-x_157 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__4(x_6, x_3, x_155, x_156, x_147, x_4);
+x_157 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__4(x_6, x_3, x_155, x_156, x_148, x_4);
 x_141 = x_157;
 goto block_146;
 }

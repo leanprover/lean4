@@ -89,7 +89,6 @@ LEAN_EXPORT lean_object* l_ByteArray_instGetElemNatUInt8LtSize___lam__0___boxed(
 uint8_t l_Array_instDecidableEqImpl___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_ByteArray_uget___auto__1___closed__13;
 extern lean_object* l_ByteArray_empty;
-lean_object* l_Array_empty(lean_object*);
 size_t lean_sarray_size(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_instGetElemNatUInt8LtSize;
 LEAN_EXPORT lean_object* l_ByteArray_foldlM_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -215,6 +214,7 @@ LEAN_EXPORT lean_object* l_ByteArray_Iterator_curr___boxed(lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_findFinIdx_x3f(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_pos___boxed(lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_instForInUInt8OfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_prevn___boxed(lean_object*, lean_object*);
 static lean_object* l_ByteArray_uget___auto__1___closed__7;
@@ -435,9 +435,10 @@ return x_5;
 static lean_object* _init_l_ByteArray_uget___auto__1___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_ByteArray_uget___auto__1___closed__6() {

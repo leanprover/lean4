@@ -49,7 +49,6 @@ LEAN_EXPORT lean_object* l_Std_LawfulOrderMin_of__le__min__iff___auto__3;
 static lean_object* l_Std_IsPreorder_of__le___auto__1___closed__25;
 static lean_object* l_Std_LawfulOrderMax_of__max__le__iff___auto__3___closed__4;
 static lean_object* l_Std_LawfulOrderMin_of__le__min__iff___auto__3___closed__14;
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Std_LawfulOrderMin_of__le__min__iff___auto__1___closed__8;
 static lean_object* l_Std_LawfulOrderMin_of__le__min__iff___auto__3___closed__13;
 static lean_object* l_Std_IsPreorder_of__le___auto__1___closed__21;
@@ -115,6 +114,7 @@ LEAN_EXPORT lean_object* l_Max_leftLeaningOfLE___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_LE_ofLT(lean_object*, lean_object*);
 static lean_object* l_Std_LawfulOrderMax_of__max__le__iff___auto__3___closed__2;
 static lean_object* l_Std_LawfulOrderMin_of__le__min__iff___auto__3___closed__1;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Std_IsPreorder_of__le___auto__1___closed__3;
 LEAN_EXPORT lean_object* l_Std_LawfulOrderMin_of__le__min__iff___auto__1;
 static lean_object* l_Std_IsPreorder_of__le___auto__1___closed__15;
@@ -243,9 +243,10 @@ return x_5;
 static lean_object* _init_l_Std_IsPreorder_of__le___auto__1___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Std_IsPreorder_of__le___auto__1___closed__6() {

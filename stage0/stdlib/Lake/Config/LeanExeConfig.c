@@ -96,7 +96,6 @@ LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_toLeanConfig___proj___lam__3(lean_
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_needs___proj___lam__0(lean_object*);
 static lean_object* l_Lake_LeanExeConfig___fields___closed__22;
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_instEmptyCollection(lean_object*);
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lake_LeanExeConfig_nativeFacets___proj___closed__3;
 static lean_object* l_Lake_LeanExeConfig_toLeanConfig___proj___closed__3;
 static lean_object* l_Lake_LeanExeConfig___fields___closed__33;
@@ -242,15 +241,17 @@ LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_extraDepTargets___proj___lam__0(le
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_LeanConfig___fields;
 static lean_object* l_Lake_LeanExeConfig_nativeFacets___proj___closed__0;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_LeanExeConfig___fields___closed__11;
 static uint8_t l_Lake_LeanExeConfig_instConfigInfo___closed__11;
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_srcDir_instConfigField___boxed(lean_object*);
 static lean_object* _init_l_Lake_instInhabitedLeanExeConfig_default___lam__0___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instInhabitedLeanExeConfig_default___lam__0(uint8_t x_1) {
@@ -305,9 +306,10 @@ return x_1;
 static lean_object* _init_l_Lake_instInhabitedLeanExeConfig_default___closed__4() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lake_instInhabitedLeanExeConfig_default___closed__5() {
@@ -2283,9 +2285,10 @@ return x_2;
 static lean_object* _init_l_Lake_LeanExeConfig___fields___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lake_LeanExeConfig___fields___closed__1() {

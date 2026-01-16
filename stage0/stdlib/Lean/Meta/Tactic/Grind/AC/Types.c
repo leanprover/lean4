@@ -52,7 +52,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_EqCnstr_compare___boxed(lean_objec
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_DiseqCnstrProof_simp__exact_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_DiseqCnstrProof_erase0_elim___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_AC_instInhabitedState_default___closed__1;
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lean_Meta_Grind_AC_instInhabitedStruct_default___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_acExt;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_DiseqCnstrProof_erase0_elim(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -120,6 +119,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_EqCnstrProof_ctorElim___redArg(lea
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_EqCnstrProof_erase0__rhs_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_DiseqCnstrProof_simp__exact_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_AC_instInhabitedEqCnstrProof;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Grind_AC_Seq_length(lean_object*);
 LEAN_EXPORT uint64_t l_Lean_Meta_Grind_AC_instHashableExpr__lean_hash(lean_object* x_1) {
 _start:
@@ -1324,9 +1324,10 @@ return x_1;
 static lean_object* _init_l_Lean_Meta_Grind_AC_instInhabitedState_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Meta_Grind_AC_instInhabitedState_default___closed__1() {

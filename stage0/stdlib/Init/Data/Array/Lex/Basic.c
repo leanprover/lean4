@@ -36,7 +36,6 @@ static lean_object* l_Array_lex___auto__1___closed__45;
 static lean_object* l_Array_lex___auto__1___closed__35;
 static lean_object* l_Array_lex___auto__1___closed__4;
 LEAN_EXPORT lean_object* l_Array_lex___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Array_lex___auto__1___closed__25;
 static lean_object* l_Array_lex___auto__1___closed__52;
 static lean_object* l_Array_lex___auto__1___closed__48;
@@ -92,6 +91,7 @@ static lean_object* l_Array_lex___auto__1___closed__28;
 static lean_object* l_Array_lex___auto__1___closed__58;
 static lean_object* l_Array_lex___auto__1___closed__7;
 static lean_object* l_Array_lex___auto__1___closed__29;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Array_lex___auto__1___closed__37;
 static lean_object* l_Array_lex___auto__1___closed__60;
 static lean_object* _init_l_Array_lex___auto__1___closed__0() {
@@ -141,9 +141,10 @@ return x_5;
 static lean_object* _init_l_Array_lex___auto__1___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Array_lex___auto__1___closed__6() {

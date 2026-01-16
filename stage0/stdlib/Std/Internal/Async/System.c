@@ -147,7 +147,6 @@ static lean_object* l_Std_Internal_IO_Async_System_instReprGroupId___closed__0;
 static lean_object* l_Std_Internal_IO_Async_System_instReprEnvironment_repr___redArg___closed__4;
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_getCPUInfo___boxed(lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_instReprSystemUser_repr___redArg___closed__25;
 static lean_object* l_Std_Internal_IO_Async_System_instReprSystemUser_repr___redArg___closed__12;
@@ -337,6 +336,7 @@ lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_ob
 static lean_object* l_Std_Internal_IO_Async_System_instReprEnvironment_repr___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_getSystemInfo();
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instReprEnvironment;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___00List_foldl___at___00Std_Format_joinSep___at___00List_repr___at___00Std_Internal_IO_Async_System_instReprEnvironment_repr_spec__0_spec__1_spec__3_spec__7(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instReprGroupId___lam__0(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_instReprCPUTimes_repr___redArg___closed__9;
@@ -2069,9 +2069,10 @@ return x_1;
 static lean_object* _init_l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Std_Internal_IO_Async_System_instInhabitedGroupInfo_default___closed__1() {

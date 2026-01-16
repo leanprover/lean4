@@ -40,7 +40,6 @@ LEAN_EXPORT lean_object* l_Lake_FacetConfig_toKind___boxed(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lake_mkFacetJobConfig___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t);
 static lean_object* l_Lake_instTypeNameModuleFacetDecl_unsafe__1___closed__2;
 static lean_object* l_Lake_KFacetConfig_kind__eq___autoParam___closed__14;
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lake_KFacetConfig_kind__eq___autoParam___closed__8;
 LEAN_EXPORT lean_object* l_Lake_FacetConfig_toKind___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_KFacetConfig_run___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -97,6 +96,7 @@ static lean_object* l_Lake_KFacetConfig_kind__eq___autoParam___closed__21;
 LEAN_EXPORT lean_object* l_Lake_FacetConfig_toKind_x3f___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkFacetJobConfig___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_KFacetConfig_kind__eq___autoParam;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* _init_l_Lake_instInhabitedFacetConfig_default___lam__0___closed__0() {
 _start:
 {
@@ -349,9 +349,10 @@ return x_5;
 static lean_object* _init_l_Lake_KFacetConfig_kind__eq___autoParam___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lake_KFacetConfig_kind__eq___autoParam___closed__6() {

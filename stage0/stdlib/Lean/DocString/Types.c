@@ -145,7 +145,6 @@ static lean_object* l_Lean_Doc_instReprDescItem_repr___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Doc_instOrdInline_ord___redArg___lam__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Lean_Doc_instOrdInline_ord___redArg___closed__0;
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_instOrdPart_ord___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_MathMode_ctorIdx(uint8_t);
 static lean_object* l_Lean_Doc_instInhabitedDescItem___closed__0;
@@ -362,6 +361,7 @@ LEAN_EXPORT lean_object* l_Lean_Doc_Block_empty(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_Block_para_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_instReprDescItem_repr___redArg___closed__6;
+static lean_object* l_Lean_Doc_instInhabitedListItem___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Doc_instReprDescItem_repr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Doc_Inline_image_elim___redArg(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -386,6 +386,7 @@ static lean_object* l_Lean_Doc_instReprInline_repr___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Doc_Part_cast___redArg___boxed(lean_object*);
 static lean_object* l_Lean_Doc_instReprBlock_repr___redArg___closed__21;
 LEAN_EXPORT lean_object* l_Lean_Doc_Block_concat_elim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Doc_instReprDescItem_repr___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Doc_instReprBlock_repr___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Doc_instInhabitedBlock_default___closed__1;
@@ -4280,9 +4281,10 @@ return x_3;
 static lean_object* _init_l_Lean_Doc_instInhabitedListItem_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Doc_instInhabitedListItem_default(lean_object* x_1) {
@@ -4293,11 +4295,19 @@ x_2 = l_Lean_Doc_instInhabitedListItem_default___closed__0;
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_Doc_instInhabitedListItem___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Doc_instInhabitedListItem_default(lean_box(0));
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Doc_instInhabitedListItem(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_Doc_instInhabitedListItem_default___closed__0;
+x_2 = l_Lean_Doc_instInhabitedListItem___closed__0;
 return x_2;
 }
 }
@@ -7068,9 +7078,10 @@ return x_5;
 static lean_object* _init_l_Lean_Doc_instInhabitedBlock_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Doc_instInhabitedBlock_default___closed__1() {
@@ -8257,6 +8268,8 @@ l_Lean_Doc_instReprListItem_repr___redArg___closed__12 = _init_l_Lean_Doc_instRe
 lean_mark_persistent(l_Lean_Doc_instReprListItem_repr___redArg___closed__12);
 l_Lean_Doc_instInhabitedListItem_default___closed__0 = _init_l_Lean_Doc_instInhabitedListItem_default___closed__0();
 lean_mark_persistent(l_Lean_Doc_instInhabitedListItem_default___closed__0);
+l_Lean_Doc_instInhabitedListItem___closed__0 = _init_l_Lean_Doc_instInhabitedListItem___closed__0();
+lean_mark_persistent(l_Lean_Doc_instInhabitedListItem___closed__0);
 l_Lean_Doc_instReprDescItem_repr___redArg___closed__0 = _init_l_Lean_Doc_instReprDescItem_repr___redArg___closed__0();
 lean_mark_persistent(l_Lean_Doc_instReprDescItem_repr___redArg___closed__0);
 l_Lean_Doc_instReprDescItem_repr___redArg___closed__1 = _init_l_Lean_Doc_instReprDescItem_repr___redArg___closed__1();

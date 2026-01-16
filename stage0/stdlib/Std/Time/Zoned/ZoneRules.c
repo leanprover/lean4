@@ -101,7 +101,6 @@ static lean_object* l_Std_Time_TimeZone_instReprTransition_repr___redArg___close
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Transition_findTransitionIndexForTimestamp___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___00Array_Array_repr___at___00Std_Time_TimeZone_instReprZoneRules_repr_spec__0_spec__0(lean_object*, lean_object*);
 static lean_object* l_Std_Time_TimeZone_instReprStdWall_repr___closed__2;
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Std_Time_TimeZone_instReprLocalTimeType_repr___redArg___closed__6;
 static lean_object* l_Std_Time_TimeZone_instReprLocalTimeType_repr___redArg___closed__15;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_instInhabitedLocalTimeType_default;
@@ -209,6 +208,7 @@ LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Transition_apply(lean_object*, lean
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_StdWall_standard_elim___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_Transition_timezoneAt___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_TimeZone_instReprUTLocal_repr___closed__5;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_instReprTransition_repr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_TimeZone_instReprLocalTimeType_repr_spec__0(lean_object*);
 static lean_object* l_Array_Array_repr___at___00Std_Time_TimeZone_instReprZoneRules_repr_spec__0___closed__6;
@@ -2177,9 +2177,10 @@ return x_1;
 static lean_object* _init_l_Std_Time_TimeZone_instInhabitedZoneRules_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Std_Time_TimeZone_instInhabitedZoneRules_default___closed__1() {

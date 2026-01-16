@@ -57,7 +57,6 @@ LEAN_EXPORT lean_object* l_Array_qpartition(lean_object*, lean_object*, lean_obj
 static lean_object* l_Array_qsort___auto__1___closed__6;
 static lean_object* l_Array_qsort___auto__1___closed__0;
 static lean_object* l_Array_qpartition___auto__1___closed__19;
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_match__8_splitter___redArg(lean_object*, lean_object*);
 static lean_object* l_Array_qpartition___auto__1___closed__26;
 static lean_object* l_Array_qsort___auto__1___closed__41;
@@ -137,6 +136,7 @@ static lean_object* l_Array_qpartition___auto__1___closed__12;
 static lean_object* l_Array_qsort___auto__1___closed__21;
 static lean_object* l_Array_qpartition___auto__1___closed__17;
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort___auto__1;
 static lean_object* _init_l_Array_qpartition___auto__1___closed__0() {
 _start:
@@ -185,9 +185,10 @@ return x_5;
 static lean_object* _init_l_Array_qpartition___auto__1___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Array_qpartition___auto__1___closed__6() {

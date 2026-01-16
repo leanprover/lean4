@@ -129,7 +129,6 @@ static lean_object* l_Lean_Language_instInhabitedDynamicSnapshot___closed__8;
 static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__23;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_waitAll(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___00Lean_Language_initFn_00___x40_Lean_Language_Basic_1801653074____hygCtx___hyg_4__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_mkIncrementalProcessor___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_instInhabitedSnapshotTree;
 static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__18;
@@ -313,6 +312,7 @@ LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_ReportingRange_ctorElim___
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_bindIO___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Snapshot_Diagnostics_empty___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Language_Basic_0__Lean_Language_reportMessages___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Language_instImpl___closed__1_00___x40_Lean_Language_Basic_3470488393____hygCtx___hyg_44_;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_ReportingRange_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Language_Basic_0__Lean_Language_SnapshotTree_waitAll_go(lean_object*);
@@ -435,9 +435,10 @@ return x_5;
 static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__6() {
@@ -1403,9 +1404,10 @@ return x_4;
 static lean_object* _init_l_Lean_Language_instInhabitedSnapshotTree_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Language_instInhabitedSnapshotTree_default___closed__1() {

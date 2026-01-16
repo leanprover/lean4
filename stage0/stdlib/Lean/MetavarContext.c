@@ -386,7 +386,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyMAux___at___00Lean_Persistent
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_erase___at___00Lean_MetavarContext_setMVarUserName_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MetavarContext_getLevelDepth(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MetavarKind_syntheticOpaque_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___00Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_getLevelMVarAssignmentExp_spec__0_spec__0_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
@@ -1001,6 +1000,7 @@ LEAN_EXPORT lean_object* l_Lean_instantiateLCtxMVars___redArg___lam__1___boxed(l
 extern lean_object* l_Lean_instInhabitedLocalContext_default;
 lean_object* l_Lean_mkLevelParam(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MetavarContext_isWellFormed___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateExprMVars___at___00Lean_instantiateMVarsCore_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_forM_loop___at___00Lean_MetavarContext_MkBinding_collectForwardDeps_spec__5___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_abstract_range(lean_object*, lean_object*, lean_object*);
@@ -1655,9 +1655,10 @@ return x_1;
 static lean_object* _init_l_Lean_instInhabitedMetavarDecl_default___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_instInhabitedMetavarDecl_default___closed__2() {

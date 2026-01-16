@@ -219,7 +219,6 @@ static lean_object* l_Lake_VerComparator_instToString___closed__0;
 static lean_object* l_Lake_instDecodeVersionToolchainVer___closed__0;
 static lean_object* l_Lake_instReprSemVerCore_repr___redArg___closed__8;
 LEAN_EXPORT lean_object* l___private_Lake_Util_Version_0__Lake_VerComponent_ctorIdx___boxed(lean_object*);
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ToolchainVer_toString___override___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_SemVerCore_instFromJson___lam__0(lean_object*);
 static lean_object* l_Lake_ToolchainVer_release___override___closed__0;
@@ -511,6 +510,7 @@ static lean_object* l___private_Lake_Util_Version_0__Lake_ComparatorOp_parseM_tr
 static lean_object* l___private_Lake_Util_Version_0__Lake_VerRange_parseM_go___closed__0;
 LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lake_VerRange_test_spec__0(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_ComparatorOp_eq_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_ToolchainVer_ofString___closed__2;
 LEAN_EXPORT lean_object* l___private_Lake_Util_Version_0__Lake_parseVerNat___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instReprSemVerCore_repr___redArg___closed__4;
@@ -8240,9 +8240,10 @@ return x_1;
 static lean_object* _init_l_Lake_instInhabitedVerRange_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lake_instInhabitedVerRange_default___closed__1() {

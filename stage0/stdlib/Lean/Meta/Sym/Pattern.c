@@ -226,7 +226,6 @@ LEAN_EXPORT lean_object* l_panic___at___00Lean_isLevelMVarAssignable___at___00__
 LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00__private_Lean_Meta_Sym_Pattern_0__Lean_Meta_Sym_preprocessPattern_spec__0_spec__0_spec__1_spec__4___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_MVarId_isAssigned___at___00__private_Lean_Meta_Sym_Pattern_0__Lean_Meta_Sym_isAssignedMVar_spec__0_spec__0_spec__1___redArg(lean_object*, size_t, lean_object*);
 lean_object* l_instMonadEST(lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l___private_Lean_Meta_Sym_Pattern_0__Lean_Meta_Sym_processPendingLevel___closed__0;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00__private_Lean_Meta_Sym_Pattern_0__Lean_Meta_Sym_isDefEqMainImpl_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_Pattern_0__Lean_Meta_Sym_pushPending___redArg(lean_object*, lean_object*, lean_object*);
@@ -339,6 +338,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_Pattern_0__Lean_Meta_Sym_isMi
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_mkEqPatternFromDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_Pattern_0__Lean_Meta_Sym_processPendingLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_instInhabited(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_Pattern_0__Lean_Meta_Sym_mkResult(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_mkLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t);
@@ -616,6 +616,7 @@ lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_ob
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_Pattern_0__Lean_Meta_Sym_mkPreResult(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelParam(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_Pattern_0__Lean_Meta_Sym_processPendingInst___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_Pattern_0__Lean_Meta_Sym_UnifyM_run(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_Pattern_0__Lean_Meta_Sym_MkPreResultResult_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_isAssigned___at___00__private_Lean_Meta_Sym_Pattern_0__Lean_Meta_Sym_isAssignedMVar_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -960,9 +961,10 @@ return x_7;
 static lean_object* _init_l_Lean_Meta_Sym_instInhabitedPattern_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Meta_Sym_instInhabitedPattern_default___closed__1() {
@@ -2321,7 +2323,7 @@ static lean_object* _init_l___private_Lean_Meta_Sym_Pattern_0__Lean_Meta_Sym_mkC
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
+x_1 = l_Array_instInhabited(lean_box(0));
 return x_1;
 }
 }

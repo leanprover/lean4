@@ -261,7 +261,6 @@ static lean_object* l_Lean_Lsp_instFromJsonLeanDeclIdent_fromJson___closed__5;
 static lean_object* l_Lean_Lsp_instFromJsonLeanILeanHeaderInfoParams_fromJson___closed__10;
 static lean_object* l_Lean_Lsp_instFromJsonOpenNamespace_fromJson___closed__5;
 static lean_object* l_Lean_Lsp_instFromJsonLeanLocationLink_fromJson___closed__26;
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonLeanQueryModuleParams;
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Lean_Lsp_instToJsonLeanIleanInfoParams_toJson_spec__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonLeanIdentifier_fromJson(lean_object*);
@@ -645,6 +644,7 @@ static lean_object* l_Lean_Lsp_instFromJsonLeanStaleDependencyParams_fromJson___
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanILeanHeaderInfoParams_toJson_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_RefInfo_Location_mk___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_instFromJsonRange_fromJson(lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonLeanQueryModuleParams_fromJson(lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonDeclInfo___lam__0___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonLeanIleanInfoParams_fromJson_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -17280,9 +17280,10 @@ return x_1;
 static lean_object* _init_l_Lean_Lsp_instInhabitedLeanQueryModuleResponse_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Lsp_instInhabitedLeanQueryModuleResponse_default() {
@@ -17297,7 +17298,7 @@ static lean_object* _init_l_Lean_Lsp_instInhabitedLeanQueryModuleResponse() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Lsp_instInhabitedLeanQueryModuleResponse_default___closed__0;
+x_1 = l_Lean_Lsp_instInhabitedLeanQueryModuleResponse_default;
 return x_1;
 }
 }

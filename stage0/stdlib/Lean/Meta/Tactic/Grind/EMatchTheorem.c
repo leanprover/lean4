@@ -621,7 +621,6 @@ LEAN_EXPORT lean_object* l_Lean_Core_transform___at___00__private_Lean_Meta_Tact
 lean_object* l_instMonadEST(lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_instInhabitedStateStack_default(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_EMatchTheoremKind_explainFailure___closed__10;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_EMatchTheoremKind_explainFailure___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_NormalizePattern_go_goArg(lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -46853,9 +46852,10 @@ return x_21;
 static lean_object* _init_l_Lean_Meta_Grind_mkEMatchTheoremUsingSingletonPatterns___lam__0___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static uint64_t _init_l_Lean_Meta_Grind_mkEMatchTheoremUsingSingletonPatterns___lam__0___closed__1() {

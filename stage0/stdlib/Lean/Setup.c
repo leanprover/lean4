@@ -209,7 +209,6 @@ LEAN_EXPORT lean_object* l_List_foldl___at___00List_foldl___at___00Std_Format_jo
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Lean_instFromJsonModuleHeader_fromJson___closed__0;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___00Lean_NameMap_toJson___at___00Lean_instToJsonModuleSetup_toJson_spec__2_spec__3(lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___00Prod_repr___at___00List_repr___at___00Lean_instReprModuleSetup_repr_spec__3_spec__3_spec__4(lean_object*, lean_object*);
 static lean_object* l_Option_repr___at___00Lean_instReprModuleArtifacts_repr_spec__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_ImportArtifacts_oleanParts(uint8_t, lean_object*);
@@ -483,6 +482,7 @@ static lean_object* l_Lean_instFromJsonModuleSetup_fromJson___closed__25;
 LEAN_EXPORT lean_object* l_Lean_ImportArtifacts_ir_x3f___boxed(lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_NameMap_toJson___at___00Lean_instToJsonModuleSetup_toJson_spec__2_spec__2___redArg___closed__8;
 static lean_object* l_Lean_instToStringImport___lam__0___closed__4;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Array_Array_repr___at___00Lean_instReprModuleHeader_repr_spec__0___closed__2;
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___00Lean_NameMap_toJson___at___00Lean_instToJsonModuleSetup_toJson_spec__2_spec__2___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldrM___at___00Lean_instReprModuleSetup_repr_spec__2(lean_object*, lean_object*);
@@ -2474,9 +2474,10 @@ return x_1;
 static lean_object* _init_l_Lean_instInhabitedModuleHeader_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_instInhabitedModuleHeader_default___closed__1() {
@@ -3385,9 +3386,10 @@ return x_1;
 static lean_object* _init_l_Lean_instInhabitedImportArtifacts_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_instInhabitedImportArtifacts_default() {
@@ -3402,7 +3404,7 @@ static lean_object* _init_l_Lean_instInhabitedImportArtifacts() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_instInhabitedImportArtifacts_default___closed__0;
+x_1 = l_Lean_instInhabitedImportArtifacts_default;
 return x_1;
 }
 }

@@ -41,7 +41,6 @@ LEAN_EXPORT lean_object* l_Lean_registerModuleEnvExtension___redArg___lam__1(lea
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_ModPkgExt_0__Lean_modPkgExt;
 static lean_object* l___private_Lean_Compiler_ModPkgExt_0__Lean_initFn___closed__6_00___x40_Lean_Compiler_ModPkgExt_1097734621____hygCtx___hyg_2_;
 static lean_object* l_Lean_registerModuleEnvExtension___auto__1___closed__12;
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lean_registerModuleEnvExtension___auto__1___closed__27;
 lean_object* l_Lean_mkPackageSymbolPrefix(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ModuleEnvExtension_instInhabited___redArg___boxed(lean_object*);
@@ -109,6 +108,7 @@ static lean_object* l_Lean_registerModuleEnvExtension___auto__1___closed__7;
 static lean_object* l_Lean_registerModuleEnvExtension___redArg___closed__0;
 static lean_object* l_Lean_registerModuleEnvExtension___auto__1___closed__13;
 LEAN_EXPORT lean_object* l_Lean_ModuleEnvExtension_getStateByIdx_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Environment_getModulePackageByIdx_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ModuleEnvExtension_instInhabited___redArg(lean_object*);
 static lean_object* _init_l_Lean_registerModuleEnvExtension___auto__1___closed__0() {
@@ -158,9 +158,10 @@ return x_5;
 static lean_object* _init_l_Lean_registerModuleEnvExtension___auto__1___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_registerModuleEnvExtension___auto__1___closed__6() {

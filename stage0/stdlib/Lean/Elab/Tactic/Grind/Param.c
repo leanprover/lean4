@@ -210,7 +210,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_elabGrindParams___boxed(lean_object*
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Meta_Grind_ExtensionStateArray_find_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Elab_Tactic_Grind_Param_0__Lean_Meta_Grind_Params_isInjectiveTheorem(lean_object*, lean_object*);
-lean_object* l_Array_empty(lean_object*);
 lean_object* l_List_find_x3f___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___00Lean_PersistentArray_findSomeRevMAux___at___00Lean_PersistentArray_findSomeRevM_x3f___at___00Lean_resolveLocalName___at___00__private_Lean_Elab_Tactic_Grind_Param_0__Lean_Elab_Tactic_processParam_spec__5_spec__7_spec__11_spec__13___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Grind_Param_0__Lean_Elab_Tactic_warnRedundantEMatchArg___closed__0;
@@ -530,6 +529,7 @@ static lean_object* l___private_Lean_Elab_Tactic_Grind_Param_0__Lean_Elab_Tactic
 static lean_object* l___private_Lean_Elab_Tactic_Grind_Param_0__Lean_Elab_Tactic_processParam___closed__16;
 static lean_object* l___private_Lean_Elab_Tactic_Grind_Param_0__Lean_Elab_Tactic_parseModifier___closed__4;
 lean_object* l_Lean_Meta_Grind_Extension_getEMatchTheorems___redArg(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getAsyncConstInfo___at___00Lean_Elab_Tactic_addEMatchTheorem_spec__0_spec__0_spec__1_spec__4_spec__5_spec__6___redArg___closed__5;
 static lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getAsyncConstInfo___at___00Lean_Elab_Tactic_addEMatchTheorem_spec__0_spec__0_spec__1_spec__4_spec__5_spec__6___redArg___closed__11;
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
@@ -18867,9 +18867,10 @@ return x_11;
 static lean_object* _init_l_Lean_Elab_Tactic_Grind_withParams___redArg___lam__0___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Grind_withParams___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15, lean_object* x_16, lean_object* x_17, lean_object* x_18, lean_object* x_19, uint8_t x_20, lean_object* x_21, lean_object* x_22, lean_object* x_23, lean_object* x_24, lean_object* x_25, lean_object* x_26, lean_object* x_27, lean_object* x_28, lean_object* x_29, lean_object* x_30, lean_object* x_31, lean_object* x_32, lean_object* x_33, lean_object* x_34, lean_object* x_35, lean_object* x_36, lean_object* x_37) {
@@ -19297,7 +19298,7 @@ lean_inc(x_39);
 lean_inc_ref(x_38);
 lean_inc(x_37);
 lean_inc_ref(x_36);
-x_43 = l_Lean_Elab_Tactic_elabGrindParams(x_33, x_2, x_3, x_31, x_32, x_36, x_37, x_38, x_39, x_40, x_41);
+x_43 = l_Lean_Elab_Tactic_elabGrindParams(x_33, x_2, x_3, x_32, x_31, x_36, x_37, x_38, x_39, x_40, x_41);
 if (lean_obj_tag(x_43) == 0)
 {
 lean_object* x_44; lean_object* x_45; uint8_t x_46; 
@@ -20456,8 +20457,8 @@ uint8_t x_288;
 x_288 = 1;
 if (x_3 == 0)
 {
-x_31 = x_287;
-x_32 = x_288;
+x_31 = x_288;
+x_32 = x_287;
 x_33 = x_1;
 x_34 = x_5;
 x_35 = x_6;
@@ -20486,8 +20487,8 @@ x_294 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_
 x_295 = lean_box(0);
 lean_ctor_set(x_1, 8, x_295);
 lean_ctor_set(x_1, 1, x_294);
-x_31 = x_287;
-x_32 = x_288;
+x_31 = x_288;
+x_32 = x_287;
 x_33 = x_1;
 x_34 = x_5;
 x_35 = x_6;
@@ -20534,8 +20535,8 @@ lean_ctor_set(x_308, 5, x_301);
 lean_ctor_set(x_308, 6, x_302);
 lean_ctor_set(x_308, 7, x_303);
 lean_ctor_set(x_308, 8, x_307);
-x_31 = x_287;
-x_32 = x_288;
+x_31 = x_288;
+x_32 = x_287;
 x_33 = x_308;
 x_34 = x_5;
 x_35 = x_6;

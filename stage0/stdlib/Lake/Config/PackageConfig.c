@@ -272,7 +272,6 @@ static lean_object* l_Lake_PackageConfig_releaseRepo___proj___closed__0;
 static lean_object* l_Lake_PackageConfig_instConfigInfo___closed__10;
 static lean_object* l_Lake_PackageConfig___fields___closed__29;
 static lean_object* l_Lake_PackageConfig___fields___closed__104;
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_testDriverArgs_instConfigField___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_PackageConfig_leanLibDir___proj___closed__2;
 static lean_object* l_Lake_instInhabitedPackageConfig_default___closed__2;
@@ -727,6 +726,7 @@ static lean_object* l_Lake_PackageConfig___fields___closed__39;
 extern lean_object* l_Lake_defaultLeanLibDir;
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_testDriver___proj___lam__1(lean_object*, lean_object*);
 static lean_object* l_Lake_PackageConfig_readmeFile___proj___closed__0;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_homepage_instConfigField(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_precompileModules_instConfigField(lean_object*, lean_object*);
 static lean_object* l_Lake_PackageConfig_bootstrap___proj___closed__4;
@@ -801,9 +801,10 @@ return x_1;
 static lean_object* _init_l_Lake_instInhabitedPackageConfig_default___closed__2() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lake_instInhabitedPackageConfig_default___closed__3() {
@@ -12341,9 +12342,10 @@ return x_3;
 static lean_object* _init_l_Lake_PackageConfig___fields___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lake_PackageConfig___fields___closed__1() {

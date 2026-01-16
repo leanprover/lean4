@@ -26,5 +26,5 @@ public configuration WorkspaceConfig where
   When enabled, Lake supports including different versions of a package (all with the same name)
   in the workspace depedency tree.
   -/
-  multiVersion : Option Bool := .none
+  experimentalMultiVersion : Option Bool := .none
   deriving Inhabited, Repr

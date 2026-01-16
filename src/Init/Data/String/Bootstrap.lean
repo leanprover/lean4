@@ -123,8 +123,6 @@ opaque getUTF8Byte (s : @& String) (n : Nat) (h : n < s.utf8ByteSize) : UInt8
 
 end String.Internal
 
-
-
 @[extern "lean_string_mk", expose, deprecated String.ofList (since := "2025-10-30")]
 def String.mk (data : List Char) : String :=
   ⟨List.utf8Encode data,.intro data rfl⟩

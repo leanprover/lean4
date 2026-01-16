@@ -25,10 +25,19 @@ def usesModuleFrom (env : Environment) (modulePrefix : Name) : Bool :=
 
 namespace CollectUsedDecls
 
-abbrev M := ReaderT Environment (StateM NameSet)
+structure State where
+  set : NameSet := {}
+  order : Array Name := #[]
+
+abbrev M := ReaderT Environment (StateM State)
 
 @[inline] def collect (f : FunId) : M Unit :=
-  modify fun s => s.insert f
+  modify fun { set, order } =>
+    let (contained, set) := set.containsThenInsert f
+    if !contained then
+      { set, order := order.push f }
+    else
+      { set, order }
 
 partial def collectFnBody : FnBody → M Unit
   | .vdecl _ _ v b   =>
@@ -46,14 +55,19 @@ def collectInitDecl (fn : Name) : M Unit := do
   | some initFn => collect initFn
   | _           => pure ()
 
-def collectDecl : Decl → M NameSet
-  | .fdecl (f := f) (body := b) .. => collectInitDecl f *> CollectUsedDecls.collectFnBody b *> get
-  | .extern (f := f) .. => collectInitDecl f *> get
+def collectDecl : Decl → M Unit
+  | .fdecl (f := f) (body := b) .. => collectInitDecl f *> CollectUsedDecls.collectFnBody b
+  | .extern (f := f) .. => collectInitDecl f
+
+def collectDeclLoop (decls : List Decl) : M Unit := do
+  decls.forM fun decl => do
+    collectDecl decl
+    collect decl.name
 
 end CollectUsedDecls
 
-def collectUsedDecls (env : Environment) (decl : Decl) (used : NameSet := {}) : NameSet :=
-  (CollectUsedDecls.collectDecl decl env).run' used
+def collectUsedDecls (env : Environment) (decls : List Decl) : Array Name :=
+  (CollectUsedDecls.collectDeclLoop decls env).run {} |>.snd.order
 
 abbrev VarTypeMap  := Std.HashMap VarId IRType
 abbrev JPParamsMap := Std.HashMap JoinPointId (Array Param)

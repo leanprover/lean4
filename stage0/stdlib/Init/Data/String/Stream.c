@@ -18,6 +18,7 @@ uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instStreamRawChar___lam__0(lean_object*);
+static lean_object* l_instStreamRawChar___closed__0;
 LEAN_EXPORT lean_object* l_instStreamRawChar___lam__0(lean_object* x_1) {
 _start:
 {
@@ -97,11 +98,19 @@ return x_23;
 }
 }
 }
-static lean_object* _init_l_instStreamRawChar() {
+static lean_object* _init_l_instStreamRawChar___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_instStreamRawChar___lam__0), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_instStreamRawChar() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_instStreamRawChar___closed__0;
 return x_1;
 }
 }
@@ -118,6 +127,8 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Stream(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_instStreamRawChar___closed__0 = _init_l_instStreamRawChar___closed__0();
+lean_mark_persistent(l_instStreamRawChar___closed__0);
 l_instStreamRawChar = _init_l_instStreamRawChar();
 lean_mark_persistent(l_instStreamRawChar);
 return lean_io_result_mk_ok(lean_box(0));

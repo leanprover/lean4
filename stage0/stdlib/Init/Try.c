@@ -1812,27 +1812,11 @@ return x_50;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Try_Marker(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_inc(x_2);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Try_Marker___redArg(lean_object* x_1) {
 _start:
 {
 lean_inc(x_1);
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Try_Marker___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Try_Marker(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Try_Marker___redArg___boxed(lean_object* x_1) {
@@ -1842,6 +1826,22 @@ lean_object* x_2;
 x_2 = l_Lean_Try_Marker___redArg(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Try_Marker(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_inc(x_2);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Try_Marker___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Try_Marker(x_1, x_2);
+lean_dec(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Try_markerUnexpander___redArg(lean_object* x_1, lean_object* x_2) {
@@ -1889,6 +1889,15 @@ lean_ctor_set(x_23, 1, x_2);
 return x_23;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Try_markerUnexpander___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Try_markerUnexpander___redArg(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Try_markerUnexpander(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1905,15 +1914,6 @@ x_4 = l_Lean_Try_markerUnexpander(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Try_markerUnexpander___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Try_markerUnexpander___redArg(x_1, x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 lean_object* initialize_Init_Tactics(uint8_t builtin);

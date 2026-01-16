@@ -451,6 +451,22 @@ return x_30;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_reportInstIssue___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+_start:
+{
+lean_object* x_11; 
+x_11 = l_Lean_Meta_Grind_Arith_Linear_reportInstIssue___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+lean_dec(x_9);
+lean_dec_ref(x_8);
+lean_dec(x_7);
+lean_dec_ref(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec_ref(x_3);
+lean_dec(x_2);
+return x_11;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_reportInstIssue(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
@@ -474,22 +490,6 @@ lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_12;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_reportInstIssue___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
-_start:
-{
-lean_object* x_11; 
-x_11 = l_Lean_Meta_Grind_Arith_Linear_reportInstIssue___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_9);
-lean_dec_ref(x_8);
-lean_dec(x_7);
-lean_dec_ref(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec_ref(x_3);
-lean_dec(x_2);
-return x_11;
 }
 }
 LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg_spec__0(lean_object* x_1) {
@@ -657,7 +657,7 @@ block_46:
 {
 lean_object* x_33; lean_object* x_34; 
 lean_inc_ref(x_1);
-x_33 = l_Lean_mkApp8(x_26, x_15, x_29, x_30, x_28, x_27, x_31, x_32, x_1);
+x_33 = l_Lean_mkApp8(x_26, x_15, x_30, x_31, x_28, x_27, x_29, x_32, x_1);
 lean_inc(x_11);
 lean_inc_ref(x_10);
 lean_inc(x_9);
@@ -743,9 +743,9 @@ x_52 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_
 x_53 = l_panic___at___00__private_Lean_Meta_Tactic_Grind_Arith_Linear_Reify_0__Lean_Meta_Grind_Arith_Linear_assertNatCastNonneg_spec__0(x_52);
 x_27 = x_47;
 x_28 = x_48;
-x_29 = x_49;
-x_30 = x_50;
-x_31 = x_51;
+x_29 = x_51;
+x_30 = x_49;
+x_31 = x_50;
 x_32 = x_53;
 goto block_46;
 }
@@ -757,9 +757,9 @@ lean_inc(x_54);
 lean_dec_ref(x_22);
 x_27 = x_47;
 x_28 = x_48;
-x_29 = x_49;
-x_30 = x_50;
-x_31 = x_51;
+x_29 = x_51;
+x_30 = x_49;
+x_31 = x_50;
 x_32 = x_54;
 goto block_46;
 }

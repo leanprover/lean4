@@ -521,6 +521,14 @@ lean_dec_ref(x_1);
 return x_9;
 }
 }
+static lean_object* _init_l_Lean_collectAxioms___redArg___lam__0___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_NameSet_empty;
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_collectAxioms___redArg___lam__0___closed__1() {
 _start:
 {
@@ -528,14 +536,6 @@ lean_object* x_1; lean_object* x_2;
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_Lean_collectAxioms___redArg___lam__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_NameSet_empty;
-return x_1;
 }
 }
 static lean_object* _init_l_Lean_collectAxioms___redArg___lam__0___closed__2() {
@@ -605,10 +605,10 @@ _G_initialized = true;
 res = initialize_Lean_MonadEnv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_collectAxioms___redArg___lam__0___closed__1 = _init_l_Lean_collectAxioms___redArg___lam__0___closed__1();
-lean_mark_persistent(l_Lean_collectAxioms___redArg___lam__0___closed__1);
 l_Lean_collectAxioms___redArg___lam__0___closed__0 = _init_l_Lean_collectAxioms___redArg___lam__0___closed__0();
 lean_mark_persistent(l_Lean_collectAxioms___redArg___lam__0___closed__0);
+l_Lean_collectAxioms___redArg___lam__0___closed__1 = _init_l_Lean_collectAxioms___redArg___lam__0___closed__1();
+lean_mark_persistent(l_Lean_collectAxioms___redArg___lam__0___closed__1);
 l_Lean_collectAxioms___redArg___lam__0___closed__2 = _init_l_Lean_collectAxioms___redArg___lam__0___closed__2();
 lean_mark_persistent(l_Lean_collectAxioms___redArg___lam__0___closed__2);
 return lean_io_result_mk_ok(lean_box(0));

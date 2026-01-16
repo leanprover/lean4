@@ -154,6 +154,16 @@ return x_10;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lake_Package_leanLibs___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lake_Package_leanLibs___lam__0(x_1, x_2, x_3, x_4);
+lean_dec_ref(x_4);
+lean_dec(x_1);
+return x_5;
+}
+}
 static lean_object* _init_l_Lake_Package_leanLibs___closed__0() {
 _start:
 {
@@ -276,16 +286,6 @@ lean_object* x_1; lean_object* x_2;
 x_1 = l_Lake_Package_leanLibs___closed__11;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Package_leanLibs___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lake_Package_leanLibs___lam__0(x_1, x_2, x_3, x_4);
-lean_dec_ref(x_4);
-lean_dec(x_1);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Package_leanLibs(lean_object* x_1) {

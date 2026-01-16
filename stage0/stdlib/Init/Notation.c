@@ -594,6 +594,7 @@ LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x3c_x3c
 LEAN_EXPORT lean_object* l_term___x3c_x7c__;
 static lean_object* l_term___u2223___00__closed__5;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x3c_x7c____1(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_instCoeOutTSyntaxSyntax___closed__0;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x7c_x3e____1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_precMax___closed__1;
 static lean_object* l_term___x5c_x2f___00__closed__5;
@@ -888,6 +889,7 @@ static lean_object* l_term_xac___00__closed__5;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__And__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_boolIfThenElse___closed__6;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__HOr__hOr__1___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_instCoeSyntaxNodeKindSyntaxNodeKinds___closed__0;
 static lean_object* l_term___x2a_x3e___00__closed__4;
 static lean_object* l_prioHigh___closed__0;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3d_x3d____1___closed__3;
@@ -1225,7 +1227,6 @@ static lean_object* l_Lean_Parser_commandUnseal_____00__closed__4;
 static lean_object* l_Lean_reduceCmd___closed__14;
 static lean_object* l___aux__Init__Notation______macroRules__term_x2d____1___closed__2;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__Inv__inv__1___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_instCoeSyntaxTSyntaxConsSyntaxNodeKindMkStr1Nil___closed__0;
 static lean_object* l_term___x7c_x7c___00__closed__6;
 static lean_object* l_Lean_Parser_Syntax_addPrio___closed__5;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x3d_x3d____2(lean_object*, lean_object*, lean_object*);
@@ -2301,11 +2302,19 @@ lean_dec(x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_instCoeOutTSyntaxSyntax___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_instCoeOutTSyntaxSyntax___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_instCoeOutTSyntaxSyntax(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_instCoeOutTSyntaxSyntax___lam__0___boxed), 1, 0);
+x_2 = l_Lean_instCoeOutTSyntaxSyntax___closed__0;
 return x_2;
 }
 }
@@ -2329,11 +2338,19 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_instCoeSyntaxNodeKindSyntaxNodeKinds() {
+static lean_object* _init_l_Lean_instCoeSyntaxNodeKindSyntaxNodeKinds___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lean_instCoeSyntaxNodeKindSyntaxNodeKinds___lam__0), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_instCoeSyntaxNodeKindSyntaxNodeKinds() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_instCoeSyntaxNodeKindSyntaxNodeKinds___closed__0;
 return x_1;
 }
 }
@@ -24269,19 +24286,11 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_instCoeSyntaxTSyntaxConsSyntaxNodeKindMkStr1Nil___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_instCoeOutTSyntaxSyntax___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_instCoeSyntaxTSyntaxConsSyntaxNodeKindMkStr1Nil() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_instCoeSyntaxTSyntaxConsSyntaxNodeKindMkStr1Nil___closed__0;
+x_1 = l_Lean_instCoeOutTSyntaxSyntax___closed__0;
 return x_1;
 }
 }
@@ -29038,6 +29047,10 @@ l_Lean_Parser_Syntax_subPrio___closed__3 = _init_l_Lean_Parser_Syntax_subPrio___
 lean_mark_persistent(l_Lean_Parser_Syntax_subPrio___closed__3);
 l_Lean_Parser_Syntax_subPrio = _init_l_Lean_Parser_Syntax_subPrio();
 lean_mark_persistent(l_Lean_Parser_Syntax_subPrio);
+l_Lean_instCoeOutTSyntaxSyntax___closed__0 = _init_l_Lean_instCoeOutTSyntaxSyntax___closed__0();
+lean_mark_persistent(l_Lean_instCoeOutTSyntaxSyntax___closed__0);
+l_Lean_instCoeSyntaxNodeKindSyntaxNodeKinds___closed__0 = _init_l_Lean_instCoeSyntaxNodeKindSyntaxNodeKinds___closed__0();
+lean_mark_persistent(l_Lean_instCoeSyntaxNodeKindSyntaxNodeKinds___closed__0);
 l_Lean_instCoeSyntaxNodeKindSyntaxNodeKinds = _init_l_Lean_instCoeSyntaxNodeKindSyntaxNodeKinds();
 lean_mark_persistent(l_Lean_instCoeSyntaxNodeKindSyntaxNodeKinds);
 l_precMax___closed__0 = _init_l_precMax___closed__0();
@@ -31300,8 +31313,6 @@ l_Lean_rawStx_quot = _init_l_Lean_rawStx_quot();
 lean_mark_persistent(l_Lean_rawStx_quot);
 l_Lean_Parser_Category_rawStx = _init_l_Lean_Parser_Category_rawStx();
 lean_mark_persistent(l_Lean_Parser_Category_rawStx);
-l_Lean_instCoeSyntaxTSyntaxConsSyntaxNodeKindMkStr1Nil___closed__0 = _init_l_Lean_instCoeSyntaxTSyntaxConsSyntaxNodeKindMkStr1Nil___closed__0();
-lean_mark_persistent(l_Lean_instCoeSyntaxTSyntaxConsSyntaxNodeKindMkStr1Nil___closed__0);
 l_Lean_instCoeSyntaxTSyntaxConsSyntaxNodeKindMkStr1Nil = _init_l_Lean_instCoeSyntaxTSyntaxConsSyntaxNodeKindMkStr1Nil();
 lean_mark_persistent(l_Lean_instCoeSyntaxTSyntaxConsSyntaxNodeKindMkStr1Nil);
 l_Lean_withAnnotateTerm___closed__0 = _init_l_Lean_withAnnotateTerm___closed__0();

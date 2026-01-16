@@ -134,6 +134,7 @@ static lean_object* l_Lean_Parser_Command_GrindCnstr_depthLt_formatter___closed_
 static lean_object* l_Lean_Parser_Command_GrindCnstr_sizeLt_parenthesizer___closed__5;
 static lean_object* l_Lean_Parser_Command_grindPattern___regBuiltin_Lean_Parser_Command_GrindCnstr_isGround_formatter__23___closed__0;
 static lean_object* l_Lean_Parser_Command_GrindCnstr_genLt___closed__2;
+static lean_object* l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__3;
 static lean_object* l_Lean_Parser_Command_grindPattern___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Parser_Command_GrindCnstr_sizeLt_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_GrindCnstr_notStrictValue_parenthesizer___closed__2;
@@ -151,6 +152,7 @@ lean_object* l_Lean_Parser_optional(lean_object*);
 static lean_object* l_Lean_Parser_Command_GrindCnstr_notValue_parenthesizer___closed__0;
 lean_object* l_Lean_Parser_termParser_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_nonReservedSymbol(lean_object*, uint8_t);
+static lean_object* l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__2;
 static lean_object* l_Lean_Parser_Command_grindPatternCnstr_formatter___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_Command_grindPattern___regBuiltin_Lean_Parser_Command_GrindCnstr_isStrictValue_formatter__11();
 static lean_object* l_Lean_Parser_Command_GrindCnstr_check_parenthesizer___closed__1;
@@ -428,6 +430,7 @@ lean_object* l_Lean_Parser_andthen(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Command_grindPattern_formatter(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_GrindCnstr_isValue_parenthesizer___closed__5;
 static lean_object* l_Lean_Parser_Command_grindPatternCnstr___closed__2;
+static lean_object* l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__4;
 static lean_object* l_Lean_Parser_Command_grindPatternCnstrs_formatter___closed__3;
 static lean_object* l_Lean_Parser_Command_GrindCnstr_defEq___closed__8;
 static lean_object* l_Lean_Parser_Command_grindPattern_formatter___closed__14;
@@ -6318,6 +6321,14 @@ x_8 = l_Lean_PrettyPrinter_Parenthesizer_andthen_parenthesizer(x_1, x_2, x_3, x_
 return x_8;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___lam__0(x_1, x_2, x_3, x_4, x_5, x_6);
+return x_8;
+}
+}
 static lean_object* _init_l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__0() {
 _start:
 {
@@ -6346,36 +6357,52 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+static lean_object* _init_l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__2() {
 _start:
 {
-lean_object* x_8; 
-x_8 = l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___lam__0(x_1, x_2, x_3, x_4, x_5, x_6);
-return x_8;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__1;
+x_2 = l_Lean_Parser_Command_GrindCnstr_isValue_parenthesizer___closed__2;
+x_3 = lean_alloc_closure((void*)(l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___lam__0___boxed), 7, 2);
+lean_closure_set(x_3, 0, x_2);
+lean_closure_set(x_3, 1, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Command_GrindCnstr_guard_parenthesizer___closed__4;
+x_2 = l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__2;
+x_3 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_andthen_parenthesizer___boxed), 7, 2);
+lean_closure_set(x_3, 0, x_2);
+lean_closure_set(x_3, 1, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__3;
+x_2 = lean_unsigned_to_nat(1024u);
+x_3 = l_Lean_Parser_Command_GrindCnstr_notDefEq___closed__1;
+x_4 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_leadingNode_parenthesizer___boxed), 8, 3);
+lean_closure_set(x_4, 0, x_3);
+lean_closure_set(x_4, 1, x_2);
+lean_closure_set(x_4, 2, x_1);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_6 = l_Lean_Parser_Command_GrindCnstr_notDefEq___closed__1;
-x_7 = l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__0;
-x_8 = lean_unsigned_to_nat(1024u);
-x_9 = l_Lean_Parser_Command_GrindCnstr_isValue_parenthesizer___closed__2;
-x_10 = l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__1;
-x_11 = lean_alloc_closure((void*)(l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___lam__0___boxed), 7, 2);
-lean_closure_set(x_11, 0, x_9);
-lean_closure_set(x_11, 1, x_10);
-x_12 = l_Lean_Parser_Command_GrindCnstr_guard_parenthesizer___closed__4;
-x_13 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_andthen_parenthesizer___boxed), 7, 2);
-lean_closure_set(x_13, 0, x_11);
-lean_closure_set(x_13, 1, x_12);
-x_14 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_leadingNode_parenthesizer___boxed), 8, 3);
-lean_closure_set(x_14, 0, x_6);
-lean_closure_set(x_14, 1, x_8);
-lean_closure_set(x_14, 2, x_13);
-x_15 = l_Lean_PrettyPrinter_Parenthesizer_withAntiquot_parenthesizer(x_7, x_14, x_1, x_2, x_3, x_4);
-return x_15;
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_6 = l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__0;
+x_7 = l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__4;
+x_8 = l_Lean_PrettyPrinter_Parenthesizer_withAntiquot_parenthesizer(x_6, x_7, x_1, x_2, x_3, x_4);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -8460,6 +8487,12 @@ lean_dec_ref(res);
 lean_mark_persistent(l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__0);
 l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__1 = _init_l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__1();
 lean_mark_persistent(l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__1);
+l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__2 = _init_l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__2();
+lean_mark_persistent(l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__2);
+l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__3 = _init_l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__3();
+lean_mark_persistent(l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__3);
+l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__4 = _init_l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__4();
+lean_mark_persistent(l_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer___closed__4);
 l_Lean_Parser_Command_grindPattern___regBuiltin_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer__113___closed__0 = _init_l_Lean_Parser_Command_grindPattern___regBuiltin_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer__113___closed__0();
 lean_mark_persistent(l_Lean_Parser_Command_grindPattern___regBuiltin_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer__113___closed__0);
 if (builtin) {res = l_Lean_Parser_Command_grindPattern___regBuiltin_Lean_Parser_Command_GrindCnstr_notDefEq_parenthesizer__113();

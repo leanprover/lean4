@@ -17,27 +17,11 @@ LEAN_EXPORT lean_object* l_List_iter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_iter___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_List_iter___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_iter___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_List_iter(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_inc(x_2);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_List_iter___redArg(lean_object* x_1) {
 _start:
 {
 lean_inc(x_1);
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_List_iter___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_List_iter(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_List_iter___redArg___boxed(lean_object* x_1) {
@@ -47,6 +31,22 @@ lean_object* x_2;
 x_2 = l_List_iter___redArg(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_List_iter(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_inc(x_2);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_List_iter___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_List_iter(x_1, x_2);
+lean_dec(x_2);
+return x_3;
 }
 }
 lean_object* initialize_Init_Data_Iterators_Producers_Monadic_List(uint8_t builtin);

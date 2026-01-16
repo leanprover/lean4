@@ -31,6 +31,7 @@ LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instForw
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instToForwardSearcherForallCharPropDecide(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_finitenessRelation___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher___boxed(lean_object*);
+static lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__1;
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_iter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardCharPredSearcher_instIteratorLoopIdSearchStep___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -43,6 +44,7 @@ LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instIte
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_iter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedForwardCharPredSearcher(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharBool(lean_object*);
+static lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__0;
 LEAN_EXPORT uint8_t l_String_Slice_Pattern_ForwardCharPredSearcher_instForwardPatternForallCharPropOfDecidablePred___redArg___lam__0(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharPropOfDecidablePred___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharPropOfDecidablePred(lean_object*, lean_object*);
@@ -527,16 +529,32 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
+static lean_object* _init_l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__0;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lean_alloc_closure((void*)(l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___lam__0___boxed), 1, 0);
-x_3 = lean_unsigned_to_nat(0u);
-x_4 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-return x_4;
+lean_object* x_2; 
+x_2 = l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__1;
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___boxed(lean_object* x_1) {
@@ -1082,6 +1100,10 @@ lean_dec_ref(res);
 res = initialize_Init_Data_String_Termination(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__0 = _init_l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__0();
+lean_mark_persistent(l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__0);
+l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__1 = _init_l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__1();
+lean_mark_persistent(l_String_Slice_Pattern_instInhabitedBackwardCharPredSearcher_default___closed__1);
 l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharBool___closed__0 = _init_l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharBool___closed__0();
 lean_mark_persistent(l_String_Slice_Pattern_BackwardCharPredSearcher_instBackwardPatternForallCharBool___closed__0);
 return lean_io_result_mk_ok(lean_box(0));

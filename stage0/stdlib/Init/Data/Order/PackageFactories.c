@@ -1545,6 +1545,15 @@ x_6 = lean_unbox(x_5);
 return x_6;
 }
 }
+LEAN_EXPORT lean_object* l_Std_instDecidableLE___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Std_instDecidableLE___redArg(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
 LEAN_EXPORT uint8_t l_Std_instDecidableLE(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1562,15 +1571,6 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_instDecidableLE___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Std_instDecidableLE___redArg(x_1, x_2, x_3);
-x_5 = lean_box(x_4);
-return x_5;
-}
-}
 LEAN_EXPORT uint8_t l_Std_instDecidableLT___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1581,6 +1581,15 @@ lean_dec_ref(x_1);
 x_5 = lean_apply_2(x_4, x_2, x_3);
 x_6 = lean_unbox(x_5);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_instDecidableLT___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Std_instDecidableLT___redArg(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
 }
 }
 LEAN_EXPORT uint8_t l_Std_instDecidableLT(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -1598,15 +1607,6 @@ uint8_t x_5; lean_object* x_6;
 x_5 = l_Std_instDecidableLT(x_1, x_2, x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_instDecidableLT___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Std_instDecidableLT___redArg(x_1, x_2, x_3);
-x_5 = lean_box(x_4);
-return x_5;
 }
 }
 LEAN_EXPORT uint8_t l_Std_FactoryInstances_beqOfDecidableLE___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1655,7 +1655,8 @@ LEAN_EXPORT lean_object* l_Std_FactoryInstances_beqOfDecidableLE(lean_object* x_
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Std_FactoryInstances_beqOfDecidableLE___redArg(x_3);
+x_4 = lean_alloc_closure((void*)(l_Std_FactoryInstances_beqOfDecidableLE___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(x_4, 0, x_3);
 return x_4;
 }
 }
@@ -1694,6 +1695,15 @@ return x_10;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Std_FactoryInstances_decidableLTOfLE___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Std_FactoryInstances_decidableLTOfLE___redArg(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
 LEAN_EXPORT uint8_t l_Std_FactoryInstances_decidableLTOfLE(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -1709,15 +1719,6 @@ uint8_t x_8; lean_object* x_9;
 x_8 = l_Std_FactoryInstances_decidableLTOfLE(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 x_9 = lean_box(x_8);
 return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_Std_FactoryInstances_decidableLTOfLE___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_Std_FactoryInstances_decidableLTOfLE___redArg(x_1, x_2, x_3);
-x_5 = lean_box(x_4);
-return x_5;
 }
 }
 static lean_object* _init_l_Std_Packages_PreorderOfLEArgs_le___autoParam___closed__0() {
@@ -8749,20 +8750,20 @@ x_1 = l_Std_PreorderPackage_ofLE___auto__1___closed__35;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_PartialOrderPackage_ofLE(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_PreorderPackage_ofLE___redArg(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Std_PartialOrderPackage_ofLE___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_PreorderPackage_ofLE___redArg(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_PartialOrderPackage_ofLE(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Std_PreorderPackage_ofLE___redArg(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT uint8_t l_Std_FactoryInstances_instOrdOfDecidableLE___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -8825,7 +8826,8 @@ LEAN_EXPORT lean_object* l_Std_FactoryInstances_instOrdOfDecidableLE(lean_object
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Std_FactoryInstances_instOrdOfDecidableLE___redArg(x_3);
+x_4 = lean_alloc_closure((void*)(l_Std_FactoryInstances_instOrdOfDecidableLE___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(x_4, 0, x_3);
 return x_4;
 }
 }
@@ -10745,6 +10747,15 @@ lean_inc_ref(x_3);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Std_LinearOrderPackage_toPartialOrderPackage___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_LinearOrderPackage_toPartialOrderPackage___redArg(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Std_LinearOrderPackage_toPartialOrderPackage(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -10760,15 +10771,6 @@ lean_object* x_3;
 x_3 = l_Std_LinearOrderPackage_toPartialOrderPackage(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_LinearOrderPackage_toPartialOrderPackage___redArg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_LinearOrderPackage_toPartialOrderPackage___redArg(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Std_Packages_LinearOrderOfLEArgs_min___autoParam___closed__0() {
@@ -12999,6 +13001,15 @@ lean_inc_ref(x_3);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Packages_LinearOrderOfLEArgs_toPartialOrderOfLEArgs___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Packages_LinearOrderOfLEArgs_toPartialOrderOfLEArgs___redArg(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Packages_LinearOrderOfLEArgs_toPartialOrderOfLEArgs(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -13014,15 +13025,6 @@ lean_object* x_3;
 x_3 = l_Std_Packages_LinearOrderOfLEArgs_toPartialOrderOfLEArgs(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Packages_LinearOrderOfLEArgs_toPartialOrderOfLEArgs___redArg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Packages_LinearOrderOfLEArgs_toPartialOrderOfLEArgs___redArg(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Std_LinearOrderPackage_ofLE___auto__1() {
@@ -16554,6 +16556,15 @@ lean_ctor_set(x_9, 1, x_2);
 return x_9;
 }
 }
+LEAN_EXPORT lean_object* l_Std_LinearPreorderPackage_ofOrd___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_LinearPreorderPackage_ofOrd___redArg(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Std_LinearPreorderPackage_ofOrd(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -16569,15 +16580,6 @@ lean_object* x_3;
 x_3 = l_Std_LinearPreorderPackage_ofOrd(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_LinearPreorderPackage_ofOrd___redArg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_LinearPreorderPackage_ofOrd___redArg(x_1);
-lean_dec_ref(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_FactoryInstances_instMinOfOrd___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -16613,7 +16615,8 @@ LEAN_EXPORT lean_object* l_Std_FactoryInstances_instMinOfOrd(lean_object* x_1, l
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_FactoryInstances_instMinOfOrd___redArg(x_2);
+x_3 = lean_alloc_closure((void*)(l_Std_FactoryInstances_instMinOfOrd___redArg___lam__0), 3, 1);
+lean_closure_set(x_3, 0, x_2);
 return x_3;
 }
 }
@@ -16650,7 +16653,8 @@ LEAN_EXPORT lean_object* l_Std_FactoryInstances_instMaxOfOrd(lean_object* x_1, l
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_FactoryInstances_instMaxOfOrd___redArg(x_2);
+x_3 = lean_alloc_closure((void*)(l_Std_FactoryInstances_instMaxOfOrd___redArg___lam__0), 3, 1);
+lean_closure_set(x_3, 0, x_2);
 return x_3;
 }
 }

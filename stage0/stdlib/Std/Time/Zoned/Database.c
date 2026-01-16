@@ -149,6 +149,19 @@ return x_27;
 }
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Time_Database_defaultGetZoneRules_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+size_t x_9; size_t x_10; lean_object* x_11; 
+x_9 = lean_unbox_usize(x_5);
+lean_dec(x_5);
+x_10 = lean_unbox_usize(x_6);
+lean_dec(x_6);
+x_11 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Time_Database_defaultGetZoneRules_spec__0(x_1, x_2, x_3, x_4, x_9, x_10, x_7);
+lean_dec_ref(x_4);
+return x_11;
+}
+}
 static uint8_t _init_l_Std_Time_Database_defaultGetZoneRules___closed__0() {
 _start:
 {
@@ -412,19 +425,6 @@ x_36 = l_Std_Time_Database_Windows_getZoneRules(x_1);
 lean_dec_ref(x_1);
 return x_36;
 }
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Time_Database_defaultGetZoneRules_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
-_start:
-{
-size_t x_9; size_t x_10; lean_object* x_11; 
-x_9 = lean_unbox_usize(x_5);
-lean_dec(x_5);
-x_10 = lean_unbox_usize(x_6);
-lean_dec(x_6);
-x_11 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Time_Database_defaultGetZoneRules_spec__0(x_1, x_2, x_3, x_4, x_9, x_10, x_7);
-lean_dec_ref(x_4);
-return x_11;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_Database_defaultGetZoneRules___boxed(lean_object* x_1, lean_object* x_2) {

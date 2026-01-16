@@ -44,6 +44,8 @@ static lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__
 extern lean_object* l_Lean_MessageData_nil;
 static lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__1;
 static lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__9;
+static lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__1;
+static lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___closed__0;
 static lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__1;
 static lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__6;
 static lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__0;
@@ -56,6 +58,7 @@ lean_object* lean_nat_mod(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__1;
 static lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_plural___redArg(lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString;
 static lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_plural___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -65,6 +68,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralD
 static lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__3;
 static lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData___closed__8;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__List_toOxford(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___closed__1;
 static lean_object* _init_l___private_Lean_Elab_ErrorUtils_0__Nat_toOrdinal___closed__0() {
 _start:
 {
@@ -672,11 +676,19 @@ x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString() {
+static lean_object* _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___lam__0), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___lam__0), 1, 0);
+x_1 = l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___closed__0;
 x_2 = l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsString___closed__0;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -684,11 +696,11 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__0() {
+static lean_object* _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_MessageData_nil;
+x_1 = l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___closed__1;
 return x_1;
 }
 }
@@ -712,16 +724,40 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData() {
+static lean_object* _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___lam__0), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_MessageData_nil;
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___lam__0), 1, 0);
-x_2 = l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__0;
+x_1 = l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__0;
+x_2 = l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__2;
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_plural___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -742,6 +778,17 @@ return x_2;
 }
 }
 }
+LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_plural___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Lean_Elab_ErrorUtils_0__Nat_plural___redArg(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_plural(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -760,17 +807,6 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Elab_ErrorUtils_0__Nat_plural___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l___private_Lean_Elab_ErrorUtils_0__Nat_plural___redArg(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_4;
 }
 }
 lean_object* initialize_Lean_Message(uint8_t builtin);
@@ -844,12 +880,20 @@ l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData = _init
 lean_mark_persistent(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasOxfordStringsMessageData);
 l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___lam__0___closed__0 = _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___lam__0___closed__0();
 lean_mark_persistent(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___lam__0___closed__0);
+l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___closed__0 = _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___closed__0();
+lean_mark_persistent(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___closed__0);
+l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___closed__1 = _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___closed__1();
+lean_mark_persistent(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString___closed__1);
 l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString = _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString();
 lean_mark_persistent(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsString);
-l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__0 = _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__0();
-lean_mark_persistent(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__0);
 l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___lam__0___closed__0 = _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___lam__0___closed__0();
 lean_mark_persistent(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___lam__0___closed__0);
+l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__0 = _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__0();
+lean_mark_persistent(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__0);
+l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__1 = _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__1();
+lean_mark_persistent(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__1);
+l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__2 = _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__2();
+lean_mark_persistent(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData___closed__2);
 l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData = _init_l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData();
 lean_mark_persistent(l___private_Lean_Elab_ErrorUtils_0__Lean_instHasPluralDefaultsMessageData);
 return lean_io_result_mk_ok(lean_box(0));

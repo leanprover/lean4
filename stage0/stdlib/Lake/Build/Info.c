@@ -30,6 +30,7 @@ LEAN_EXPORT lean_object* l_Lake_instToStringBuildInfo;
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_facet_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_key(lean_object*);
+static lean_object* l_Lake_instToStringBuildInfo___closed__0;
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_ctorIdx(lean_object* x_1) {
 _start:
 {
@@ -104,14 +105,6 @@ lean_dec(x_2);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_BuildInfo_target_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lake_BuildInfo_ctorElim___redArg(x_2, x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_target_elim___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -120,7 +113,7 @@ x_3 = l_Lake_BuildInfo_ctorElim___redArg(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_BuildInfo_facet_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lake_BuildInfo_target_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
@@ -134,6 +127,14 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lake_BuildInfo_ctorElim___redArg(x_1, x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_BuildInfo_facet_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lake_BuildInfo_ctorElim___redArg(x_2, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Package_key(lean_object* x_1) {
@@ -236,11 +237,19 @@ x_3 = l_Lake_BuildKey_toString(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_instToStringBuildInfo() {
+static lean_object* _init_l_Lake_instToStringBuildInfo___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lake_instToStringBuildInfo___lam__0), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_instToStringBuildInfo() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lake_instToStringBuildInfo___closed__0;
 return x_1;
 }
 }
@@ -257,6 +266,8 @@ lean_dec_ref(res);
 res = initialize_Lake_Build_Data(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lake_instToStringBuildInfo___closed__0 = _init_l_Lake_instToStringBuildInfo___closed__0();
+lean_mark_persistent(l_Lake_instToStringBuildInfo___closed__0);
 l_Lake_instToStringBuildInfo = _init_l_Lake_instToStringBuildInfo();
 lean_mark_persistent(l_Lake_instToStringBuildInfo);
 return lean_io_result_mk_ok(lean_box(0));

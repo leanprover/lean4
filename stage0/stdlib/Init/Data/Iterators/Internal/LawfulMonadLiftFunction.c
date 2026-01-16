@@ -15,20 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_Internal_idToMonad___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_idToMonad(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Internal_idToMonad(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_5);
-lean_dec_ref(x_2);
-x_6 = lean_ctor_get(x_5, 1);
-lean_inc(x_6);
-lean_dec_ref(x_5);
-x_7 = lean_apply_2(x_6, lean_box(0), x_4);
-return x_7;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Internal_idToMonad___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -41,6 +27,20 @@ lean_inc(x_4);
 lean_dec_ref(x_3);
 x_5 = lean_apply_2(x_4, lean_box(0), x_2);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Internal_idToMonad(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_5 = lean_ctor_get(x_2, 0);
+lean_inc_ref(x_5);
+lean_dec_ref(x_2);
+x_6 = lean_ctor_get(x_5, 1);
+lean_inc(x_6);
+lean_dec_ref(x_5);
+x_7 = lean_apply_2(x_6, lean_box(0), x_4);
+return x_7;
 }
 }
 lean_object* initialize_Init_Control_Lawful_MonadLift(uint8_t builtin);

@@ -34,6 +34,7 @@ static lean_object* l_Std_Time_HourMarker_toAbsolute___closed__14;
 LEAN_EXPORT lean_object* l_Std_Time_instDecidableEqHourMarker___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_HourMarker_ctorElim___redArg___boxed(lean_object*);
 static lean_object* l_Std_Time_HourMarker_toAbsolute___closed__7;
+static lean_object* l_Std_Time_HourMarker_toRelative___closed__3;
 static lean_object* l_Std_Time_HourMarker_toAbsolute___closed__4;
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instReprHourMarker;
@@ -85,6 +86,7 @@ LEAN_EXPORT lean_object* l_Std_Time_HourMarker_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_HourMarker_ofOrdinal(lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
+static lean_object* l_Std_Time_instOrdHourMarker___closed__0;
 lean_object* lean_int_neg(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_HourMarker_toRelative(lean_object*);
@@ -133,18 +135,27 @@ x_3 = l_Std_Time_HourMarker_toCtorIdx(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_HourMarker_ctorElim(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_inc(x_5);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_HourMarker_ctorElim___redArg(lean_object* x_1) {
 _start:
 {
 lean_inc(x_1);
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_HourMarker_ctorElim___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Time_HourMarker_ctorElim___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_HourMarker_ctorElim(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_inc(x_5);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_HourMarker_ctorElim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -158,11 +169,18 @@ lean_dec(x_2);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_HourMarker_ctorElim___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Time_HourMarker_am_elim___redArg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_HourMarker_am_elim___redArg___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Std_Time_HourMarker_ctorElim___redArg(x_1);
+x_2 = l_Std_Time_HourMarker_am_elim___redArg(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -172,13 +190,6 @@ _start:
 {
 lean_inc(x_4);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_HourMarker_am_elim___redArg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_HourMarker_am_elim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -191,11 +202,18 @@ lean_dec(x_4);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_HourMarker_am_elim___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Time_HourMarker_pm_elim___redArg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_HourMarker_pm_elim___redArg___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Std_Time_HourMarker_am_elim___redArg(x_1);
+x_2 = l_Std_Time_HourMarker_pm_elim___redArg(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -207,13 +225,6 @@ lean_inc(x_4);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_HourMarker_pm_elim___redArg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_HourMarker_pm_elim___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -222,15 +233,6 @@ x_5 = lean_unbox(x_2);
 x_6 = l_Std_Time_HourMarker_pm_elim(x_1, x_5, x_3, x_4);
 lean_dec(x_4);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_HourMarker_pm_elim___redArg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Time_HourMarker_pm_elim___redArg(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Std_Time_instReprHourMarker_repr___closed__0() {
@@ -486,11 +488,19 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Std_Time_instOrdHourMarker() {
+static lean_object* _init_l_Std_Time_instOrdHourMarker___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Std_Time_instOrdHourMarker___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Std_Time_instOrdHourMarker() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Std_Time_instOrdHourMarker___closed__0;
 return x_1;
 }
 }
@@ -750,12 +760,6 @@ lean_dec(x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_HourMarker_toRelative___lam__0(lean_object* x_1) {
-_start:
-{
-lean_internal_panic_unreachable();
-}
-}
 LEAN_EXPORT lean_object* l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -778,12 +782,36 @@ return x_7;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0___redArg(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
 x_8 = l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0___redArg(x_1, x_6, x_7);
 return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_1);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_HourMarker_toRelative___lam__0(lean_object* x_1) {
+_start:
+{
+lean_internal_panic_unreachable();
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_HourMarker_toRelative___lam__1(lean_object* x_1, lean_object* x_2) {
@@ -810,6 +838,14 @@ return x_2;
 static lean_object* _init_l_Std_Time_HourMarker_toRelative___closed__1() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Std_Time_HourMarker_toRelative___lam__0), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Std_Time_HourMarker_toRelative___closed__2() {
+_start:
+{
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = 1;
 x_2 = l_Std_Time_HourMarker_ofOrdinal___closed__0;
@@ -820,7 +856,7 @@ lean_ctor_set(x_4, 1, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Std_Time_HourMarker_toRelative___closed__2() {
+static lean_object* _init_l_Std_Time_HourMarker_toRelative___closed__3() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -864,7 +900,7 @@ x_11 = lean_int_dec_eq(x_1, x_4);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_12 = lean_alloc_closure((void*)(l_Std_Time_HourMarker_toRelative___lam__0), 1, 0);
+x_12 = l_Std_Time_HourMarker_toRelative___closed__1;
 lean_inc(x_1);
 x_13 = lean_alloc_closure((void*)(l_Std_Time_HourMarker_toRelative___lam__1), 2, 1);
 lean_closure_set(x_13, 0, x_1);
@@ -876,7 +912,7 @@ else
 {
 lean_object* x_15; 
 lean_dec(x_1);
-x_15 = l_Std_Time_HourMarker_toRelative___closed__1;
+x_15 = l_Std_Time_HourMarker_toRelative___closed__2;
 return x_15;
 }
 }
@@ -885,27 +921,9 @@ else
 {
 lean_object* x_16; 
 lean_dec(x_1);
-x_16 = l_Std_Time_HourMarker_toRelative___closed__2;
+x_16 = l_Std_Time_HourMarker_toRelative___closed__3;
 return x_16;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; 
-x_8 = l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_1);
-return x_8;
-}
-}
-LEAN_EXPORT lean_object* l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Or_by__cases___at___00Std_Time_HourMarker_toRelative_spec__0___redArg(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_4;
 }
 }
 lean_object* initialize_Std_Time_Time_Basic(uint8_t builtin);
@@ -933,6 +951,8 @@ l_Std_Time_instReprHourMarker___closed__0 = _init_l_Std_Time_instReprHourMarker_
 lean_mark_persistent(l_Std_Time_instReprHourMarker___closed__0);
 l_Std_Time_instReprHourMarker = _init_l_Std_Time_instReprHourMarker();
 lean_mark_persistent(l_Std_Time_instReprHourMarker);
+l_Std_Time_instOrdHourMarker___closed__0 = _init_l_Std_Time_instOrdHourMarker___closed__0();
+lean_mark_persistent(l_Std_Time_instOrdHourMarker___closed__0);
 l_Std_Time_instOrdHourMarker = _init_l_Std_Time_instOrdHourMarker();
 lean_mark_persistent(l_Std_Time_instOrdHourMarker);
 l_Std_Time_HourMarker_ofOrdinal___closed__0 = _init_l_Std_Time_HourMarker_ofOrdinal___closed__0();
@@ -975,6 +995,8 @@ l_Std_Time_HourMarker_toRelative___closed__1 = _init_l_Std_Time_HourMarker_toRel
 lean_mark_persistent(l_Std_Time_HourMarker_toRelative___closed__1);
 l_Std_Time_HourMarker_toRelative___closed__2 = _init_l_Std_Time_HourMarker_toRelative___closed__2();
 lean_mark_persistent(l_Std_Time_HourMarker_toRelative___closed__2);
+l_Std_Time_HourMarker_toRelative___closed__3 = _init_l_Std_Time_HourMarker_toRelative___closed__3();
+lean_mark_persistent(l_Std_Time_HourMarker_toRelative___closed__3);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

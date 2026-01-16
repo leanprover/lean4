@@ -218,6 +218,7 @@ static lean_object* l_Lake_DSL_postUpdateDecl___closed__0;
 static lean_object* l_Lake_DSL_getConfig___closed__10;
 static lean_object* l_Lake_DSL_leanLibCommand___closed__1;
 static lean_object* l_Lake_DSL_getConfig___closed__9;
+static lean_object* l_Lake_DSL_instCoePackageCommandCommand___closed__0;
 LEAN_EXPORT lean_object* l_Lake_DSL_externLibCommand;
 static lean_object* l_Lake_DSL_moduleFacetDecl___closed__6;
 static lean_object* l_Lake_DSL_packageTargetLit___closed__5;
@@ -293,7 +294,6 @@ static lean_object* l_Lake_DSL_externLibCommand___closed__2;
 static lean_object* l_Lake_DSL_packageTargetKeyLit___closed__11;
 static lean_object* l_Lake_DSL_inputFileCommand___closed__6;
 LEAN_EXPORT lean_object* l_Lake_DSL_externLibDeclSpec;
-static lean_object* l_Lake_DSL_instCoeRequireDeclCommand___closed__0;
 static lean_object* l_Lake_DSL_fromPath___closed__2;
 static lean_object* l_Lake_DSL_postUpdateDecl___closed__15;
 static lean_object* l_Lake_DSL_verSpec___closed__0;
@@ -939,11 +939,19 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lake_DSL_instCoePackageCommandCommand() {
+static lean_object* _init_l_Lake_DSL_instCoePackageCommandCommand___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lake_DSL_instCoePackageCommandCommand___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_DSL_instCoePackageCommandCommand() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lake_DSL_instCoePackageCommandCommand___closed__0;
 return x_1;
 }
 }
@@ -2161,19 +2169,11 @@ x_1 = l_Lake_DSL_requireDecl___closed__6;
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_DSL_instCoeRequireDeclCommand___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_DSL_instCoePackageCommandCommand___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
 static lean_object* _init_l_Lake_DSL_instCoeRequireDeclCommand() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_DSL_instCoeRequireDeclCommand___closed__0;
+x_1 = l_Lake_DSL_instCoePackageCommandCommand___closed__0;
 return x_1;
 }
 }
@@ -2743,7 +2743,7 @@ static lean_object* _init_l_Lake_DSL_instCoeLeanLibCommandCommand() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_DSL_instCoeRequireDeclCommand___closed__0;
+x_1 = l_Lake_DSL_instCoePackageCommandCommand___closed__0;
 return x_1;
 }
 }
@@ -2852,7 +2852,7 @@ static lean_object* _init_l_Lake_DSL_instCoeLeanExeCommandCommand() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_DSL_instCoeRequireDeclCommand___closed__0;
+x_1 = l_Lake_DSL_instCoePackageCommandCommand___closed__0;
 return x_1;
 }
 }
@@ -2961,7 +2961,7 @@ static lean_object* _init_l_Lake_DSL_instCoeInputFileCommandCommand() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_DSL_instCoeRequireDeclCommand___closed__0;
+x_1 = l_Lake_DSL_instCoePackageCommandCommand___closed__0;
 return x_1;
 }
 }
@@ -3070,7 +3070,7 @@ static lean_object* _init_l_Lake_DSL_instCoeInputDirCommandCommand() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_DSL_instCoeRequireDeclCommand___closed__0;
+x_1 = l_Lake_DSL_instCoePackageCommandCommand___closed__0;
 return x_1;
 }
 }
@@ -4656,6 +4656,8 @@ l_Lake_DSL_packageCommand___closed__24 = _init_l_Lake_DSL_packageCommand___close
 lean_mark_persistent(l_Lake_DSL_packageCommand___closed__24);
 l_Lake_DSL_packageCommand = _init_l_Lake_DSL_packageCommand();
 lean_mark_persistent(l_Lake_DSL_packageCommand);
+l_Lake_DSL_instCoePackageCommandCommand___closed__0 = _init_l_Lake_DSL_instCoePackageCommandCommand___closed__0();
+lean_mark_persistent(l_Lake_DSL_instCoePackageCommandCommand___closed__0);
 l_Lake_DSL_instCoePackageCommandCommand = _init_l_Lake_DSL_instCoePackageCommandCommand();
 lean_mark_persistent(l_Lake_DSL_instCoePackageCommandCommand);
 l_Lake_DSL_postUpdateDecl___closed__0 = _init_l_Lake_DSL_postUpdateDecl___closed__0();
@@ -4884,8 +4886,6 @@ l_Lake_DSL_requireDecl___closed__6 = _init_l_Lake_DSL_requireDecl___closed__6();
 lean_mark_persistent(l_Lake_DSL_requireDecl___closed__6);
 l_Lake_DSL_requireDecl = _init_l_Lake_DSL_requireDecl();
 lean_mark_persistent(l_Lake_DSL_requireDecl);
-l_Lake_DSL_instCoeRequireDeclCommand___closed__0 = _init_l_Lake_DSL_instCoeRequireDeclCommand___closed__0();
-lean_mark_persistent(l_Lake_DSL_instCoeRequireDeclCommand___closed__0);
 l_Lake_DSL_instCoeRequireDeclCommand = _init_l_Lake_DSL_instCoeRequireDeclCommand();
 lean_mark_persistent(l_Lake_DSL_instCoeRequireDeclCommand);
 l_Lake_DSL_buildDeclSig___closed__0 = _init_l_Lake_DSL_buildDeclSig___closed__0();

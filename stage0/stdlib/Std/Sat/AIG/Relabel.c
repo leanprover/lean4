@@ -171,43 +171,11 @@ x_3 = l_Std_Sat_AIG_Decl_relabel___redArg(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_Sat_AIG_relabel___redArg___closed__6() {
+static lean_object* _init_l_Std_Sat_AIG_relabel___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__6), 4, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Sat_AIG_relabel___redArg___closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__5___boxed), 4, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Sat_AIG_relabel___redArg___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__4___boxed), 4, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Sat_AIG_relabel___redArg___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__3), 4, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Sat_AIG_relabel___redArg___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__2___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__0), 4, 0);
 return x_1;
 }
 }
@@ -219,11 +187,43 @@ x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__1___boxed), 4, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_Sat_AIG_relabel___redArg___closed__0() {
+static lean_object* _init_l_Std_Sat_AIG_relabel___redArg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__0), 4, 0);
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__2___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Std_Sat_AIG_relabel___redArg___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__3), 4, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Std_Sat_AIG_relabel___redArg___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__4___boxed), 4, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Std_Sat_AIG_relabel___redArg___closed__5() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__5___boxed), 4, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Std_Sat_AIG_relabel___redArg___closed__6() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__6), 4, 0);
 return x_1;
 }
 }
@@ -450,20 +450,20 @@ _G_initialized = true;
 res = initialize_Std_Sat_AIG_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Sat_AIG_relabel___redArg___closed__6 = _init_l_Std_Sat_AIG_relabel___redArg___closed__6();
-lean_mark_persistent(l_Std_Sat_AIG_relabel___redArg___closed__6);
-l_Std_Sat_AIG_relabel___redArg___closed__5 = _init_l_Std_Sat_AIG_relabel___redArg___closed__5();
-lean_mark_persistent(l_Std_Sat_AIG_relabel___redArg___closed__5);
-l_Std_Sat_AIG_relabel___redArg___closed__4 = _init_l_Std_Sat_AIG_relabel___redArg___closed__4();
-lean_mark_persistent(l_Std_Sat_AIG_relabel___redArg___closed__4);
-l_Std_Sat_AIG_relabel___redArg___closed__3 = _init_l_Std_Sat_AIG_relabel___redArg___closed__3();
-lean_mark_persistent(l_Std_Sat_AIG_relabel___redArg___closed__3);
-l_Std_Sat_AIG_relabel___redArg___closed__2 = _init_l_Std_Sat_AIG_relabel___redArg___closed__2();
-lean_mark_persistent(l_Std_Sat_AIG_relabel___redArg___closed__2);
-l_Std_Sat_AIG_relabel___redArg___closed__1 = _init_l_Std_Sat_AIG_relabel___redArg___closed__1();
-lean_mark_persistent(l_Std_Sat_AIG_relabel___redArg___closed__1);
 l_Std_Sat_AIG_relabel___redArg___closed__0 = _init_l_Std_Sat_AIG_relabel___redArg___closed__0();
 lean_mark_persistent(l_Std_Sat_AIG_relabel___redArg___closed__0);
+l_Std_Sat_AIG_relabel___redArg___closed__1 = _init_l_Std_Sat_AIG_relabel___redArg___closed__1();
+lean_mark_persistent(l_Std_Sat_AIG_relabel___redArg___closed__1);
+l_Std_Sat_AIG_relabel___redArg___closed__2 = _init_l_Std_Sat_AIG_relabel___redArg___closed__2();
+lean_mark_persistent(l_Std_Sat_AIG_relabel___redArg___closed__2);
+l_Std_Sat_AIG_relabel___redArg___closed__3 = _init_l_Std_Sat_AIG_relabel___redArg___closed__3();
+lean_mark_persistent(l_Std_Sat_AIG_relabel___redArg___closed__3);
+l_Std_Sat_AIG_relabel___redArg___closed__4 = _init_l_Std_Sat_AIG_relabel___redArg___closed__4();
+lean_mark_persistent(l_Std_Sat_AIG_relabel___redArg___closed__4);
+l_Std_Sat_AIG_relabel___redArg___closed__5 = _init_l_Std_Sat_AIG_relabel___redArg___closed__5();
+lean_mark_persistent(l_Std_Sat_AIG_relabel___redArg___closed__5);
+l_Std_Sat_AIG_relabel___redArg___closed__6 = _init_l_Std_Sat_AIG_relabel___redArg___closed__6();
+lean_mark_persistent(l_Std_Sat_AIG_relabel___redArg___closed__6);
 l_Std_Sat_AIG_relabel___redArg___closed__7 = _init_l_Std_Sat_AIG_relabel___redArg___closed__7();
 lean_mark_persistent(l_Std_Sat_AIG_relabel___redArg___closed__7);
 l_Std_Sat_AIG_relabel___redArg___closed__8 = _init_l_Std_Sat_AIG_relabel___redArg___closed__8();

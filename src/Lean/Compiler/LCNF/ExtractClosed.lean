@@ -82,6 +82,10 @@ partial def shouldExtractLetValue (isRoot : Bool) (v : LetValue) : M Bool := do
         | _ => true
         if !shouldExtract then
           return false
+      if let some decl ← LCNF.getMonoDecl? name then
+        -- We don't want to extract constants as root terms
+        if decl.getArity == 0 then
+          return false
     args.allM shouldExtractArg
   | .fvar fnVar args => return (← shouldExtractFVar fnVar) && (← args.allM shouldExtractArg)
   | .proj _ _ baseVar => shouldExtractFVar baseVar

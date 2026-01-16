@@ -29,7 +29,7 @@ def checkDelab (e : Expr) (tgt? : Option Term) (name? : Option Name := none) : T
       pure e'
     catch ex => throwError "{pfix} failed to re-elaborate,\n{stx}\n{← ex.toMessageData.toString}"
 
-  withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `pp.all true }) do
+  withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.set `pp.all true }) do
     if not (← isDefEq e e') then
       println! "{pfix} {← inferType e} {← inferType e'}"
       throwError "{pfix} roundtrip not structurally equal\n\nOriginal: {e}\n\nSyntax: {stx}\n\nNew: {e'}"

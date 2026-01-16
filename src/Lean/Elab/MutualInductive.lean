@@ -1210,8 +1210,8 @@ private def applyComputedFields (indViews : Array InductiveView) : CommandElabM 
     computedFields := computedFields.push (declName, computedFieldNames)
   withScope (fun scope => { scope with
       opts := scope.opts
-        |>.setBool `bootstrap.genMatcherCode false
-        |>.setBool `elaboratingComputedFields true}) <|
+        |>.set `bootstrap.genMatcherCode false
+        |>.set `elaboratingComputedFields true}) <|
     elabCommand <| ← `(mutual $computedFieldDefs* end)
 
   liftTermElabM do Term.withDeclName indViews[0]!.declName do

@@ -102,8 +102,8 @@ def printTraces : m Unit := do
 def resetTraceState : m Unit :=
   modifyTraceState (fun _ => {})
 
-def checkTraceOption (inherited : Std.HashSet Name) (opts : Options) (cls : Name) : Bool :=
-  !opts.isEmpty && go (`trace ++ cls)
+@[inline] def checkTraceOption (inherited : Std.HashSet Name) (opts : Options) (cls : Name) : Bool :=
+  opts.hasTrace && go (`trace ++ cls)
 where
   go (opt : Name) : Bool :=
     if let some enabled := opts.get? opt then
@@ -116,6 +116,15 @@ where
 /-- Determine if tracing is available for a given class, checking ancestor classes if appropriate. -/
 def isTracingEnabledFor (cls : Name) : m Bool := do
   return checkTraceOption (← MonadTrace.getInheritedTraceOptions) (← getOptions) cls
+
+@[export lean_is_trace_class_enabled]
+private def isTracingEnabledForExport (opts : Options) (cls : Name) : BaseIO Bool := do
+  -- Replicate `checkTraceOption` fast path to make sure it happens before `IORef.get` (which
+  -- itself is slower than `MonadTrace.getInheritedTraceOptions` but at least that's only on the
+  -- slow path).
+  if !opts.hasTrace then
+    return false
+  return checkTraceOption (← inheritedTraceOptions.get) opts cls
 
 @[inline] def getTraces : m (PersistentArray TraceElem) := do
   let s ← getTraceState
@@ -265,6 +274,8 @@ def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls :
     (msg : Except ε α → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
   let _ := always.except
   let opts ← getOptions
+  if !opts.hasTrace then
+    return (← k)
   let clsEnabled ← isTracingEnabledFor cls
   unless clsEnabled || trace.profiler.get opts do
     return (← k)
@@ -374,6 +385,8 @@ def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
     (msg : Unit → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
   let _ := always.except
   let opts ← getOptions
+  if !opts.hasTrace then
+    return (← k)
   let clsEnabled ← isTracingEnabledFor cls
   unless clsEnabled || trace.profiler.get opts do
     return (← k)
@@ -414,5 +427,8 @@ def addTraceAsMessages [Monad m] [MonadRef m] [MonadLog m] [MonadTrace m] : m Un
     -- put them in a synthetic root node for now and let the rendering functions handle this case
     let data := .tagged `trace <| .trace { cls := .anonymous } .nil traceMsg
     logMessage <| Elab.mkMessageCore (← getFileName) (← getFileMap) data .information pos endPos
+
+builtin_initialize
+  registerTraceClass `debug
 
 end Lean

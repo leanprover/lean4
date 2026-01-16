@@ -1220,7 +1220,7 @@ Disables the option `doc.verso` while running a parser.
 public def withoutVersoSyntax (p : Parser) : Parser where
   fn :=
     adaptUncacheableContextFn
-      (fun c => { c with options := c.options.setBool `doc.verso false })
+      (fun c => { c with options := c.options.set `doc.verso false })
       p.fn
   info := p.info
 

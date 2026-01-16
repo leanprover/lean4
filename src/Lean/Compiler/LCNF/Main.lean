@@ -51,7 +51,7 @@ The trace can be viewed with `set_option trace.Compiler.step true`.
 def checkpoint (stepName : Name) (decls : Array Decl) (shouldCheck : Bool) : CompilerM Unit := do
   for decl in decls do
     trace[Compiler.stat] "{decl.name} : {decl.size}"
-    withOptions (fun opts => opts.setBool `pp.motives.pi false) do
+    withOptions (fun opts => opts.set `pp.motives.pi false) do
       let clsName := `Compiler ++ stepName
       if (← Lean.isTracingEnabledFor clsName) then
         Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl' decl}"

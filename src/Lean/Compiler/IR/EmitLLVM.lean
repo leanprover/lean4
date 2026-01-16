@@ -537,14 +537,15 @@ def emitFnDecls : M llvmctx Unit := do
   let env ← getEnv
   let decls := getDecls env
   let modDecls  : NameSet := decls.foldl (fun s d => s.insert d.name) {}
-  let usedDecls : NameSet := decls.foldl (fun s d => collectUsedDecls env d (s.insert d.name)) {}
-  let usedDecls := usedDecls.toList
-  for n in usedDecls do
-    let decl ← getDecl n
-    match getExternNameFor env `c decl.name with
-    | some cName => emitExternDeclAux decl cName
-    | none       => emitFnDecl decl (!modDecls.contains n)
   return ()
+  --let usedDecls : NameSet := decls.foldl (fun s d => collectUsedDecls env d (s.insert d.name)) {}
+  --let usedDecls := usedDecls.toList
+  --for n in usedDecls do
+  --  let decl ← getDecl n
+  --  match getExternNameFor env `c decl.name with
+  --  | some cName => emitExternDeclAux decl cName
+  --  | none       => emitFnDecl decl (!modDecls.contains n)
+  --return ()
 
 def emitLhsSlot_ (x : VarId) : M llvmctx (LLVM.LLVMType llvmctx × LLVM.Value llvmctx) := do
   let state ← get

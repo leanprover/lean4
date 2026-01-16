@@ -192,11 +192,10 @@ abbrev Simproc := Expr → SimpM Result
 structure Methods where
   pre        : Simproc  := fun _ => return .rfl
   post       : Simproc  := fun _ => return .rfl
-  discharge? : Expr → SimpM (Option Expr) := fun _ => return none
   /--
-  `wellBehavedDischarge` must **not** be set to `true` IF `discharge?`
-  access local declarations with index >= `Context.lctxInitIndices` when
-  `contextual := false`.
+  `wellBehavedMethods` must **not** be set to `true` IF their behavior
+  depends on hypotheses in the local context. For example, for applying
+  conditional rewrite rules.
   Reason: it would prevent us from aggressively caching `simp` results.
   -/
   wellBehavedDischarge : Bool := true

@@ -296,3 +296,28 @@ instance LawfulOrderLeftLeaningMax.opposite {il : LE α} {im : Max α} [LawfulOr
 -- type class resolution is too inefficient.
 set_option allowUnsafeReducibility true in
 attribute [irreducible] LE.opposite LT.opposite Min.oppositeMax Min.oppositeMax
+
+-- To further reduce performance regressions, we reduce the priority of all these instances.
+attribute [instance low]
+  DecidableLE.opposite
+  DecidableLT.opposite
+  LE.instReflOpposite
+  LE.instSymmOpposite
+  LE.instAntisymmOpposite
+  LE.instAsymmOpposite
+  LE.instTransOpposite
+  LE.instTotalOpposite
+  LE.instIrreflOpposite
+  IsPreorder.opposite
+  IsPartialOrder.opposite
+  IsLinearPreorder.opposite
+  IsLinearOrder.opposite
+  LawfulOrderOrd.opposite
+  LawfulOrderLT.opposite
+  LawfulOrderBEq.opposite
+  LawfulOrderInf.opposite
+  LawfulOrderMin.opposite
+  LawfulOrderSup.opposite
+  LawfulOrderMax.opposite
+  LawfulOrderLeftLeaningMin.opposite
+  LawfulOrderLeftLeaningMax.opposite

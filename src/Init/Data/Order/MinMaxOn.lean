@@ -46,7 +46,6 @@ If `f x ≤ f y`, it returns `x`, and otherwise returns `y`.
 public def minOn [LE β] [DecidableLE β] (f : α → β) (x y : α) :=
   if f x ≤ f y then x else y
 
-
 /--
 Returns either `x` or `y`, the one with the greater value under `f`.
 
@@ -66,7 +65,7 @@ public theorem maxOn_id [Max α] [LE α] [DecidableLE α] [LawfulOrderLeftLeanin
     maxOn id x y = max x y := by
   letI : LE α := (inferInstanceAs (LE α)).opposite
   letI : Min α := (inferInstanceAs (Max α)).oppositeMin
-  simp [maxOn, minOn_id, Max.oppositeMin, this]
+  simp [maxOn, minOn_id, Max.min_oppositeMin, this]
 
 public theorem minOn_eq_or [LE β] [DecidableLE β] {f : α → β} {x y : α} :
     minOn f x y = x ∨ minOn f x y = y := by
@@ -151,6 +150,10 @@ public theorem min_apply [LE β] [DecidableLE β] [Min β] [LawfulOrderLeftLeani
 
 /-! ## `maxOn` Lemmas -/
 
+public theorem maxOn_eq_minOn [le : LE β] [DecidableLE β] {f : α → β} {x y : α} :
+    maxOn f x y = (letI := le.opposite; minOn f x y) :=
+  (rfl)
+
 public theorem maxOn_eq_or [LE β] [DecidableLE β] {f : α → β} {x y : α} :
     maxOn f x y = x ∨ maxOn f x y = y :=
   @minOn_eq_or ..
@@ -160,13 +163,15 @@ public theorem maxOn_self [LE β] [DecidableLE β] {f : α → β} {x : α} :
     maxOn f x x = x :=
   @minOn_self ..
 
-public theorem maxOn_eq_left [LE β] [DecidableLE β] {f : α → β} {x y : α} (h : f y ≤ f x) :
-    maxOn f x y = x :=
-  @minOn_eq_left (h := h) ..
+public theorem maxOn_eq_left [le : LE β] [DecidableLE β] {f : α → β} {x y : α} (h : f y ≤ f x) :
+    maxOn f x y = x := by
+  simp only [maxOn_eq_minOn]
+  exact @minOn_eq_left (h := by simpa [LE.opposite_def]) ..
 
 public theorem maxOn_eq_right [LE β] [DecidableLE β] {f : α → β} {x y : α} (h : ¬ f y ≤ f x) :
-    maxOn f x y = y :=
-  @minOn_eq_right (h := h) ..
+    maxOn f x y = y := by
+  simp only [maxOn_eq_minOn]
+  exact @minOn_eq_right (h := by simpa [LE.opposite_def]) ..
 
 public theorem maxOn_eq_right_of_lt
     [LE β] [DecidableLE β] [LT β] [Total (α := β) (· ≤ ·)] [LawfulOrderLT β]
@@ -174,23 +179,31 @@ public theorem maxOn_eq_right_of_lt
     maxOn f x y = y :=
   letI : LE β := (inferInstanceAs (LE β)).opposite
   letI : LT β := (inferInstanceAs (LT β)).opposite
-  minOn_eq_right_of_lt (h := h) ..
+  minOn_eq_right_of_lt (h := by simpa [LT.lt_opposite_iff] using h) ..
 
-public theorem left_le_apply_maxOn [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β}
-    {x y : α} : f x ≤ f (maxOn f x y) :=
+theorem bla {α : Type u} {le : LE α} {i : DecidableLE α} :
+    i = (fun a b => Classical.propDecidable (a ≤ b)) := by
+  apply funext; intro a; apply funext; intro b
+  apply Subsingleton.allEq
+
+public theorem left_le_apply_maxOn [le : LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β}
+    {x y : α} : f x ≤ f (maxOn f x y) := by
+  rw [maxOn_eq_minOn]
   letI : LE β := (inferInstanceAs (LE β)).opposite
-  apply_minOn_le_left (f := f)
+  simpa only [LE.le_opposite_iff] using apply_minOn_le_left (f := f) ..
 
 public theorem right_le_apply_maxOn [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β}
-    {x y : α} : f y ≤ f (maxOn f x y) :=
+    {x y : α} : f y ≤ f (maxOn f x y) := by
+  rw [maxOn_eq_minOn]
   letI : LE β := (inferInstanceAs (LE β)).opposite
-  apply_minOn_le_right (f := f)
+  simpa only [LE.le_opposite_iff] using apply_minOn_le_right (f := f)
 
 public theorem apply_maxOn_le_iff [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β}
     {x y : α} {b : β} :
-    f (maxOn f x y) ≤ b ↔ f x ≤ b ∧ f y ≤ b :=
+    f (maxOn f x y) ≤ b ↔ f x ≤ b ∧ f y ≤ b := by
+  rw [maxOn_eq_minOn]
   letI : LE β := (inferInstanceAs (LE β)).opposite
-  le_apply_minOn_iff (f := f)
+  simpa only [LE.le_opposite_iff] using le_apply_minOn_iff (f := f)
 
 public theorem maxOn_assoc [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β}
     {x y z : α} : maxOn f (maxOn f x y) z = maxOn f x (maxOn f y z) :=
@@ -203,10 +216,10 @@ public instance [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β} :
     apply maxOn_assoc
 
 public theorem max_apply [LE β] [DecidableLE β] [Max β] [LawfulOrderLeftLeaningMax β]
-    {f : α → β} {x y : α} : max (f x) (f y) = f (maxOn f x y) :=
+    {f : α → β} {x y : α} : max (f x) (f y) = f (maxOn f x y) := by
   letI : LE β := (inferInstanceAs (LE β)).opposite
   letI : Min β := (inferInstanceAs (Max β)).oppositeMin
-  min_apply (f := f)
+  simpa [Max.min_oppositeMin] using min_apply (f := f)
 
 public theorem apply_maxOn [LE β] [DecidableLE β] [Max β] [LawfulOrderLeftLeaningMax β]
     {f : α → β} {x y : α} : f (maxOn f x y) = max (f x) (f y) :=

@@ -77,7 +77,7 @@ def maxIdxOn? [LE β] [DecidableLE β] (f : α → β) (xs : List α) : Option N
   letI := (inferInstanceAs (LE β)).opposite
   xs.minIdxOn? f
 
-protected theorem List.maxIdxOn_eq_minIdxOn {le : LE β} {_ : DecidableLE β} {f : α → β}
+protected theorem maxIdxOn_eq_minIdxOn {le : LE β} {_ : DecidableLE β} {f : α → β}
     {xs : List α} {h} :
     xs.maxIdxOn f h = (letI := le.opposite; xs.minIdxOn f h) :=
   (rfl)
@@ -409,11 +409,6 @@ protected theorem minIdxOn_replicate [LE β] [DecidableLE β] [Refl (α := β) (
       · have := le_refl (f a)
         contradiction
 
-protected theorem maxIdxOn_eq_minIdxOn {le : LE β} {_ : DecidableLE β} {f : α → β}
-    {xs : List α} {h} :
-    xs.maxIdxOn f h = (letI := le.opposite; xs.minIdxOn f h) := by
-  (rfl)
-
 @[simp]
 protected theorem maxIdxOn_nil_eq_iff_true [LE β] [DecidableLE β] {f : α → β} {x : Nat}
     (h : [] ≠ []) : ([] : List α).maxIdxOn f h = x ↔ True :=
@@ -616,7 +611,7 @@ protected theorem minIdxOn?_replicate_of_pos [LE β] [DecidableLE β] [Refl (α 
 
 /-! ### maxIdxOn? -/
 
-protected theorem List.maxIdxOn?_eq_minIdxOn? {le : LE β} {_ : DecidableLE β} {f : α → β}
+protected theorem maxIdxOn?_eq_minIdxOn? {le : LE β} {_ : DecidableLE β} {f : α → β}
     {xs : List α} :
     xs.maxIdxOn? f = (letI := le.opposite; xs.minIdxOn? f) :=
   (rfl)

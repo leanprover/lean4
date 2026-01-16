@@ -294,7 +294,6 @@ instance LawfulOrderLeftLeaningMax.opposite {il : LE α} {im : Max α} [LawfulOr
 
 -- When imported from a non-module, these instances are exposed, and reducing them during
 -- type class resolution is too inefficient.
-set_option allowUnsafeReducibility true in
 attribute [irreducible] LE.opposite LT.opposite Min.oppositeMax Min.oppositeMax
 
 -- To further reduce performance regressions, we reduce the priority of all these instances.

@@ -9,6 +9,8 @@ prelude
 public import Lean.Compiler.ImplementedByAttr
 import Lean.ExtraModUses
 import Lean.Compiler.Options
+import Lean.Compiler.NoncomputableAttr
+import Lean.AddDecl
 
 public section
 
@@ -139,7 +141,7 @@ where go (origDecl decl : Decl) : StateT NameSet CompilerM Unit := do
     for ref in collectUsedDecls code do
       if (← get).contains ref then
         continue
-      modify (·.insert decl.name)
+      modify (·.insert ref)
       if let some localDecl := baseExt.getState (← getEnv) |>.find? ref then
         -- check transitively through local decls
         if isPrivateName localDecl.name && (← localDecl.isTemplateLike) then
@@ -164,6 +166,29 @@ def inferVisibility (phase : Phase) : Pass where
           trace[Compiler.inferVisibility] m!"Marking {decl.name} as opaque because it is a public def"
           markDeclPublicRec phase decl
     return decls
+
+def checkNoncomputable : Pass where
+  phase := .base
+  name  := `checkNoncomputable
+  run decls := do
+    for decl in decls do
+      if !isNoncomputable (← getEnv) decl.name then
+        go decl |>.run' {}
+    return decls
+where go (decl : Decl) : StateT NameSet CompilerM Unit := do
+  decl.value.forCodeM fun code =>
+    for ref in collectUsedDecls code do
+      if (← get).contains ref then
+        continue
+      modify (·.insert ref)
+      if ref matches ``Quot.mk | ``Quot.lcInv then
+        continue
+      if !(getOriginalConstKind? (← getEnv) ref matches some .axiom | some .quot | some .induct | some .thm ||
+          isNoncomputable (← getEnv) ref) then
+        continue
+      if !isExtern (← getEnv) ref && (getImplementedBy? (← getEnv) ref).isNone then
+        throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{.ofConstName ref}', which is 'noncomputable'"
+
 
 builtin_initialize
   registerTraceClass `Compiler.inferVisibility

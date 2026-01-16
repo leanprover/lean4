@@ -12,10 +12,6 @@ public import Std.Internal.Http.Internal
 
 public section
 
-namespace Std.Http
-
-set_option linter.all true
-
 /-!
 # URI Structure
 
@@ -25,6 +21,10 @@ schemes, authorities, paths, queries, fragments, and request targets.
 All text components use the encoding types from `Std.Http.URI.Encoding` to ensure
 proper percent-encoding is maintained throughout.
 -/
+
+namespace Std.Http
+
+set_option linter.all true
 
 namespace URI
 
@@ -96,17 +96,17 @@ structure Authority where
   /--
   Optional user information (username and password).
   -/
-  userInfo: Option UserInfo := none
+  userInfo : Option UserInfo := none
 
   /--
   The host identifying the network location.
   -/
-  host: Host
+  host : Host
 
   /--
   Optional port number for connecting to the host.
   -/
-  port: Option Port := none
+  port : Option Port := none
 deriving Inhabited, Repr
 
 /--
@@ -129,6 +129,7 @@ instance : ToString Path where
   toString path :=
     let result := String.intercalate "/" (path.segments.map toString).toList
     if path.absolute then "/" ++ result else result
+
 /--
 Query string represented as an array of key-value pairs.
 Keys are stored as EncodedQueryString to ensure proper encoding
@@ -143,13 +144,14 @@ def Query := Array (EncodedQueryString × EncodedQueryString)
 namespace Query
 
 /--
-Extracts all query parameter names (decoded).
+Extracts all unique query parameter names.
 -/
 @[expose]
-def names (query : Query) : List EncodedQueryString :=
+def names (query : Query) : Array EncodedQueryString :=
   query.map (fun p => p.fst)
   |> Array.toList
   |> List.eraseDups
+  |> List.toArray
 
 /--
 Extracts all query parameter values (decoded).
@@ -161,13 +163,12 @@ def values (query : Query) : Array EncodedQueryString :=
   query.map (fun p => p.snd)
 
 /--
-Extracts all query parameters as decoded (key, value) pairs.
-Includes duplicate keys if they appear multiple times.
+Returns the query as an array of (key, value) pairs.
+This is an identity function since Query is already an array of pairs.
 -/
 @[expose]
-def pairs (query : Query) : Array (EncodedQueryString × EncodedQueryString) :=
-  query.map (fun (x, y) =>
-    (x, y))
+def toArray (query : Query) : Array (EncodedQueryString × EncodedQueryString) :=
+  query
 
 /--
 Encodes a query parameter as a string in the format "key" or "key=value".

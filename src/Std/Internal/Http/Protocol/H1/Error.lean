@@ -15,7 +15,16 @@ public import Std.Internal.Http.Protocol.H1.Message
 
 public section
 
+/-!
+# HTTP/1.1 Errors
+
+This module defines the error types for HTTP/1.1 protocol processing,
+including parsing errors, timeout errors, and connection errors.
+-/
+
 namespace Std.Http.Protocol.H1
+
+set_option linter.all true
 
 /--
 Specific HTTP processing errors with detailed information.

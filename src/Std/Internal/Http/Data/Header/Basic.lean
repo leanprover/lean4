@@ -11,9 +11,8 @@ public section
 /-!
 # Header
 
-This module defines the `Header` typeclass and common HTTP header types.
-It provides a type-safe way to work with HTTP headers while maintaining
-their semantic meaning and validation rules.
+This module defines the `Header` typeclass and common HTTP header types. It provides a type-safe way
+to work with HTTP headers while maintaining their semantic meaning and validation rules.
 -/
 
 namespace Std.Http
@@ -21,8 +20,7 @@ namespace Std.Http
 set_option linter.all true
 
 /--
-Typeclass for HTTP headers that associates a header name with a type and
-provides conversion to/from header values.
+Typeclass for HTTP headers that associates a header name with a type and provides conversion to/from header values.
 -/
 class Header (α : Type) where
   /--
@@ -54,13 +52,15 @@ deriving BEq, DecidableEq, Repr
 
 namespace ContentLength
 
-instance : Inhabited ContentLength := ⟨⟨0⟩⟩
+instance : Inhabited ContentLength :=
+  ⟨⟨0⟩⟩
 
 /--
 Creates a ContentLength from a natural number.
 -/
 @[inline]
-def new (n : Nat) : ContentLength := ⟨n⟩
+def new (n : Nat) : ContentLength :=
+  ⟨n⟩
 
 /--
 Attempts to parse a ContentLength from a string.

@@ -21,6 +21,8 @@ This module defines the `Body` type, which represents the body of an HTTP reques
 
 namespace Std.Http
 
+set_option linter.all true
+
 open Std Internal IO Async
 
 /--
@@ -31,7 +33,7 @@ inductive Body where
   /--
   Empty body with no content
   -/
-  | zero
+  | empty
 
   /--
   Body containing raw byte data stored in memory
@@ -51,7 +53,7 @@ Get content length of a body (if known).
 -/
 def getContentLength (body : Body) : Async Length :=
   match body with
-  | zero => pure <| .fixed 0
+  | empty => pure <| .fixed 0
   | .bytes data => pure <| .fixed data.size
   | .stream s => (Option.getD · .chunked) <$> s.getKnownSize
 
@@ -74,22 +76,22 @@ instance : Coe Body.ByteStream Body where
   coe := .stream
 
 instance : Coe Unit Body where
-  coe _ := Body.zero
+  coe _ := Body.empty
 
 instance : EmptyCollection Body where
-  emptyCollection := Body.zero
+  emptyCollection := Body.empty
 
 instance : ForIn Async Body Chunk where
   forIn body acc step :=
     match body with
-    | .zero => pure acc
+    | .empty => pure acc
     | .bytes data => return (← step (Chunk.mk data #[]) acc).value
     | .stream stream' => ByteStream.forIn stream' acc step
 
 instance : ForIn ContextAsync Body Chunk where
   forIn body acc step :=
     match body with
-    | .zero => pure acc
+    | .empty => pure acc
     | .bytes data => return (← step (Chunk.mk data #[]) acc).value
     | .stream stream' => ByteStream.forIn' stream' acc step
 

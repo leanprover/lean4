@@ -168,31 +168,31 @@ def html (builder : Builder) (body : String) : Response Body :=
 end Builder
 
 /--
-Creates a new HTTP Response builder with with 200 status code
+Creates a new HTTP Response builder with the 200 status code.
 -/
 def ok : Builder :=
   .empty |>.status .ok
 
 /--
-Creates a new HTTP Response builder with with provided status
+Creates a new HTTP Response builder with the provided status.
 -/
-def buildWithStatus (status : Status) : Builder :=
+def withStatus (status : Status) : Builder :=
   .empty |>.status status
 
 /--
-Creates a new HTTP Response builder with with 404 status code
+Creates a new HTTP Response builder with the 404 status code.
 -/
 def notFound : Builder :=
   .empty |>.status .notFound
 
 /--
-Creates a new HTTP Response builder with with 500 status code
+Creates a new HTTP Response builder with the 500 status code.
 -/
 def internalServerError : Builder :=
   .empty |>.status .internalServerError
 
 /--
-Creates a new HTTP Response builder with with 400 status code
+Creates a new HTTP Response builder with the 400 status code.
 -/
 def badRequest : Builder :=
   .empty |>.status .badRequest

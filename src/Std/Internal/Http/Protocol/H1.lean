@@ -313,7 +313,7 @@ def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : M
 
   -- Add Connection: close if needed
   let headers :=
-    if !machine.keepAlive ∧ !headers.hasEntry (.new "connection") "close" then
+    if !machine.keepAlive ∧ !headers.hasEntry (.new "connection") (.new "close") then
       headers.insert (.new "connection") (.new "close")
     else
       headers

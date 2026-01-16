@@ -82,7 +82,7 @@ namespace Method
 /--
 Converts a `String` into a `Method`.
 -/
-def fromString? : String → Option Method
+def ofString? : String → Option Method
   | "GET" => some .get
   | "HEAD" => some .head
   | "POST" => some .post
@@ -93,6 +93,14 @@ def fromString? : String → Option Method
   | "TRACE" => some .trace
   | "PATCH" => some .patch
   | _ => none
+
+/--
+Converts a `String` into a `Method`, panics if invalid.
+-/
+def ofString! (s : String) : Method :=
+  match ofString? s with
+  | some m => m
+  | none => panic! s!"invalid HTTP method: {s.quote}"
 
 instance : ToString Method where
   toString
@@ -109,6 +117,4 @@ instance : ToString Method where
 instance : Encode .v11 Method where
   encode buffer := buffer.writeString ∘ toString
 
-end Method
-end Http
-end Std
+end Std.Http.Method

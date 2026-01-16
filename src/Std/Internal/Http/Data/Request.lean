@@ -159,7 +159,7 @@ def body (builder : Builder) (body : t) : Request t :=
 Builds and returns the final HTTP Request without a body
 -/
 def build (builder : Builder) : Request Body :=
-  { head := builder.head, body := .zero }
+  { head := builder.head, body := .empty }
 
 /--
 Builds and returns the final HTTP Request with the specified body as binary data
@@ -196,7 +196,7 @@ def get (uri : RequestTarget) : Builder :=
   |>.uri uri
 
 /--
-Creates a new HTTP POST Request builder with the specified URI and body
+Creates a new HTTP POST Request builder with the specified URI.
 -/
 def post (uri : RequestTarget) : Builder :=
   new
@@ -204,7 +204,7 @@ def post (uri : RequestTarget) : Builder :=
   |>.uri uri
 
 /--
-Creates a new HTTP PUT Request builder with the specified URI and body
+Creates a new HTTP PUT Request builder with the specified URI.
 -/
 def put (uri : RequestTarget) : Builder :=
   new

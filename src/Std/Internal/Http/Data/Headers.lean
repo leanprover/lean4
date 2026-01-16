@@ -92,9 +92,9 @@ def get? (headers : Headers) (name : Header.Name) : Option Header.Value :=
 Checks if the entry is present in the `Headers`.
 -/
 @[inline]
-def hasEntry (headers : Headers) (name : Header.Name) (value : String) : Bool :=
+def hasEntry (headers : Headers) (name : Header.Name) (value : Header.Value) : Bool :=
   headers.map.data.get? name
-  |>.bind (fun x => x.val.find? (·.value == value))
+  |>.bind (fun x => x.val.find? (· == value))
   |>.isSome
 
 /--

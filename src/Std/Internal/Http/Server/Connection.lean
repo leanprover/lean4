@@ -257,7 +257,7 @@ private def handle
 
         match res.body with
         | .bytes data => machine := machine.sendData #[Chunk.mk data #[]] |>.userClosedBody
-        | .zero => machine := machine.userClosedBody
+        | .empty => machine := machine.userClosedBody
         | .stream stream => do
           let size ← stream.getKnownSize
           machine := machine.setKnownSize (size.getD .chunked)

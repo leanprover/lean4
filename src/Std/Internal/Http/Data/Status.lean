@@ -426,7 +426,7 @@ namespace Status
 /--
 Convert a Status to a numeric code. This is useful for sending the status code in a response.
 -/
-def toCode : Status -> UInt16
+def toCode : Status → UInt16
   | «continue» => 100
   | switchingProtocols => 101
   | processing => 102
@@ -493,9 +493,9 @@ def toCode : Status -> UInt16
   | other n => n
 
 /--
-Converts a `Uint16` to `Status`
+Converts a `UInt16` to `Status`.
 -/
-def ofCode : UInt16 -> Status
+def ofCode : UInt16 → Status
   | 100 => .«continue»
   | 101 => .switchingProtocols
   | 102 => .processing
@@ -560,75 +560,6 @@ def ofCode : UInt16 -> Status
   | 510 => .notExtended
   | 511 => .networkAuthenticationRequired
   | n => .other n
-
-/--
-Converts an `UInt16` to a `Status`.
--/
-def fromCode? : UInt16 → Status
-  | 100 => «continue»
-  | 101 => switchingProtocols
-  | 102 => processing
-  | 103 => earlyHints
-  | 200 => ok
-  | 201 => created
-  | 202 => accepted
-  | 203 => nonAuthoritativeInformation
-  | 204 => noContent
-  | 205 => resetContent
-  | 206 => partialContent
-  | 207 => multiStatus
-  | 208 => alreadyReported
-  | 226 => imUsed
-  | 300 => multipleChoices
-  | 301 => movedPermanently
-  | 302 => found
-  | 303 => seeOther
-  | 304 => notModified
-  | 305 => useProxy
-  | 306 => unused
-  | 307 => temporaryRedirect
-  | 308 => permanentRedirect
-  | 400 => badRequest
-  | 401 => unauthorized
-  | 402 => paymentRequired
-  | 403 => forbidden
-  | 404 => notFound
-  | 405 => methodNotAllowed
-  | 406 => notAcceptable
-  | 407 => proxyAuthenticationRequired
-  | 408 => requestTimeout
-  | 409 => conflict
-  | 410 => gone
-  | 411 => lengthRequired
-  | 412 => preconditionFailed
-  | 413 => payloadTooLarge
-  | 414 => uriTooLong
-  | 415 => unsupportedMediaType
-  | 416 => rangeNotSatisfiable
-  | 417 => expectationFailed
-  | 418 => imATeapot
-  | 421 => misdirectedRequest
-  | 422 => unprocessableEntity
-  | 423 => locked
-  | 424 => failedDependency
-  | 425 => tooEarly
-  | 426 => upgradeRequired
-  | 428 => preconditionRequired
-  | 429 => tooManyRequests
-  | 431 => requestHeaderFieldsTooLarge
-  | 451 => unavailableForLegalReasons
-  | 500 => internalServerError
-  | 501 => notImplemented
-  | 502 => badGateway
-  | 503 => serviceUnavailable
-  | 504 => gatewayTimeout
-  | 505 => httpVersionNotSupported
-  | 506 => variantAlsoNegotiates
-  | 507 => insufficientStorage
-  | 508 => loopDetected
-  | 510 => notExtended
-  | 511 => networkAuthenticationRequired
-  | n   => other n
 
 /--
 Checks if the type of the status code is informational, meaning that the request was received

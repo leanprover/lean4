@@ -11,7 +11,16 @@ public import Std.Internal.Http.Internal
 
 public section
 
+/-!
+# HTTP/1.1 Configuration
+
+This module defines the configuration options for HTTP/1.1 protocol processing,
+including connection limits, header constraints, and various size limits.
+-/
+
 namespace Std.Http.Protocol.H1
+
+set_option linter.all true
 
 open Std Internal Parsec ByteArray
 open Internal

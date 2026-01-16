@@ -44,7 +44,6 @@ inductive Version
   `HTTP/3.0`
   -/
   | v30
-
 deriving Repr, Inhabited, BEq, DecidableEq
 
 namespace Version
@@ -61,11 +60,19 @@ def fromNumber? : Nat → Nat → Option Version
 /--
 Converts `String` to the corresponding `Version`.
 -/
-def fromString? : String → Option Version
+def ofString? : String → Option Version
   | "HTTP/1.1" => some .v11
   | "HTTP/2.0" => some .v20
   | "HTTP/3.0" => some .v30
   | _ => none
+
+/--
+Converts `String` to the corresponding `Version`, panics if invalid.
+-/
+def ofString! (s : String) : Version :=
+  match ofString? s with
+  | some v => v
+  | none => panic! s!"invalid HTTP version: {s.quote}"
 
 /--
 Converts a `Version` to its corresponding major and minor numbers as a pair.

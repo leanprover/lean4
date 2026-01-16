@@ -25,7 +25,7 @@ set_option linter.all true
 Checks if a character is valid for use in an HTTP header value.
 -/
 @[expose]
-def isValidHeaderCharNode (c : Char) : Bool :=
+def isValidHeaderChar (c : Char) : Bool :=
   (0x21 ≤  c.val ∧  c.val ≤ 0x7E) ∨ c.val = 0x09 ∨ c.val = 0x20
 
 /--
@@ -33,7 +33,7 @@ Proposition that asserts all characters in a string are valid for HTTP header va
 -/
 @[expose]
 abbrev isValidHeaderValue (s : String) : Prop :=
-  s.toList.all isValidHeaderCharNode
+  s.toList.all isValidHeaderChar
 
 /--
 A validated HTTP header value that ensures all characters conform to HTTP standards.
@@ -61,7 +61,7 @@ Creates a new `Value` from a string with an optional proof of validity.
 If no proof is provided, it attempts to prove validity automatically.
 -/
 @[expose]
-def new (s : String) (h : s.toList.all isValidHeaderCharNode := by decide) : Value :=
+def new (s : String) (h : s.toList.all isValidHeaderChar := by decide) : Value :=
   ⟨s, h⟩
 
 /--
@@ -70,7 +70,7 @@ contains invalid characters for HTTP header values.
 -/
 @[expose]
 def ofString? (s : String) : Option Value :=
-  if h : s.toList.all isValidHeaderCharNode then
+  if h : s.toList.all isValidHeaderChar then
     some ⟨s, h⟩
   else
     none
@@ -81,7 +81,7 @@ string contains invalid characters for HTTP header values.
 -/
 @[expose]
 def ofString! (s : String) : Value :=
-  if h : s.toList.all isValidHeaderCharNode then
+  if h : s.toList.all isValidHeaderChar then
     ⟨s, h⟩
   else
     panic! s!"invalid header value: {s.quote}"
@@ -124,7 +124,7 @@ Proposition that a header name is in the internal normal form, meaning it has be
 normalized by lowercasing.
 -/
 @[expose]
-abbrev isNormalForm (s: String) : Prop :=
+abbrev isNormalForm (s : String) : Prop :=
   s = s.toLower
 
 /--
@@ -133,7 +133,7 @@ Header names are case-insensitive according to HTTP specifications.
 -/
 structure Name where
   /--
-  The original case-preserved string
+  The lowercased normalized header name string.
   -/
   value : String
 
@@ -145,8 +145,8 @@ structure Name where
   /--
   The proof that we stored the header name in normal form
   -/
-  normalform: isNormalForm value
-deriving Repr, DecidableEq, BEq, Repr
+  normalForm : isNormalForm value
+deriving Repr, DecidableEq, BEq
 
 namespace Name
 
@@ -197,7 +197,7 @@ def ofString! (s : String) : Name :=
     panic! s!"invalid header name: {s.quote}"
 
 /--
-Gets the lowercase version of the header name for case-insensitive operations.
+Converts the header name to canonical HTTP title case (e.g., "Content-Type").
 -/
 @[inline]
 def toCanonical (name : Name) : String :=

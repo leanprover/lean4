@@ -77,7 +77,7 @@ Checks whether the message indicates that the connection should be kept alive.
 -/
 @[inline]
 def Message.Head.shouldKeepAlive (message : Message.Head dir) : Bool :=
-  ¬message.headers.hasEntry (.new "connection") "close"
+  ¬message.headers.hasEntry (.new "connection") (.new "close")
   ∧ message.version = .v11
 
 instance : Repr (Message.Head dir) :=

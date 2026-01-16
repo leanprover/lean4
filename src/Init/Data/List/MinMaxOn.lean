@@ -262,6 +262,10 @@ protected theorem minOn_replicate [LE β] [DecidableLE β] [IsLinearPreorder β]
 
 /-! ### maxOn -/
 
+protected theorem maxOn_eq_minOn {le : LE β} {dle : DecidableLE β} {xs : List α} {f : α → β} {h} :
+    xs.maxOn f h = (letI := le.opposite; xs.minOn f h) :=
+  (rfl)
+
 @[simp]
 protected theorem maxOn_singleton [LE β] [DecidableLE β] {x : α} {f : α → β} :
     [x].maxOn f (of_decide_eq_false rfl) = x := by
@@ -274,13 +278,32 @@ protected theorem maxOn_cons
   letI : LE β := (inferInstanceAs (LE β)).opposite
   List.minOn_cons (f := f)
 
+protected theorem min_eq_max {min : Min α} {xs : List α} {h} :
+    xs.min h = (letI := min.oppositeMax; xs.max h) := by
+  simp only [List.min, List.max]
+  rw [Min.oppositeMax_def]
+  simp
+
+protected theorem max_eq_min {max : Max α} {xs : List α} {h} :
+    xs.max h = (letI := max.oppositeMin; xs.min h) := by
+  simp only [List.min, List.max]
+  rw [Max.oppositeMin_def]
+  simp
+
+protected theorem max?_eq_min? {max : Max α} {xs : List α} :
+    xs.max? = (letI := max.oppositeMin; xs.min?) := by
+  simp only [List.min?, List.max?]
+  rw [Max.oppositeMin_def]
+  simp
+
 @[simp]
 protected theorem maxOn_id [Max α] [LE α] [DecidableLE α] [LawfulOrderLeftLeaningMax α]
     {xs : List α} (h : xs ≠ []) :
-    xs.maxOn id h = xs.max h :=
+    xs.maxOn id h = xs.max h := by
+  simp only [List.maxOn_eq_minOn]
   letI : LE α := (inferInstanceAs (LE α)).opposite
   letI : Min α := (inferInstanceAs (Max α)).oppositeMin
-  List.minOn_id h
+  simpa only [List.max_eq_min] using List.minOn_id h
 
 @[simp]
 protected theorem maxOn_mem [LE β] [DecidableLE β] {xs : List α}
@@ -290,84 +313,93 @@ protected theorem maxOn_mem [LE β] [DecidableLE β] {xs : List α}
 
 protected theorem le_apply_maxOn_of_mem [LE β] [DecidableLE β] [IsLinearPreorder β]
     {xs : List α} {f : α → β} {y : α} (hx : y ∈ xs) :
-    f y ≤ f (xs.maxOn f (List.ne_nil_of_mem hx)) :=
+    f y ≤ f (xs.maxOn f (List.ne_nil_of_mem hx)) := by
+  rw [List.maxOn_eq_minOn]
   letI : LE β := (inferInstanceAs (LE β)).opposite
-  List.apply_minOn_le_of_mem (f := f) hx
+  simpa [LE.le_opposite_iff] using List.apply_minOn_le_of_mem (f := f) hx
 
 protected theorem apply_maxOn_le_iff [LE β] [DecidableLE β] [IsLinearPreorder β] {xs : List α}
     {f : α → β} (h : xs ≠ []) {b : β} :
-    f (xs.maxOn f h) ≤ b ↔ ∀ x ∈ xs, f x ≤ b :=
+    f (xs.maxOn f h) ≤ b ↔ ∀ x ∈ xs, f x ≤ b := by
+  rw [List.maxOn_eq_minOn]
   letI : LE β := (inferInstanceAs (LE β)).opposite
-  List.le_apply_minOn_iff (f := f) h
+  simpa [LE.le_opposite_iff] using List.le_apply_minOn_iff (f := f) h
 
 protected theorem le_apply_maxOn_iff [LE β] [DecidableLE β] [IsLinearPreorder β] {xs : List α}
     {f : α → β} (h : xs ≠ []) {b : β} :
-    b ≤ f (xs.maxOn f h) ↔ ∃ x ∈ xs, b ≤ f x :=
+    b ≤ f (xs.maxOn f h) ↔ ∃ x ∈ xs, b ≤ f x := by
+  rw [List.maxOn_eq_minOn]
   letI : LE β := (inferInstanceAs (LE β)).opposite
-  List.apply_minOn_le_iff (f := f) h
+  simpa [LE.le_opposite_iff] using List.apply_minOn_le_iff (f := f) h
 
 protected theorem apply_maxOn_lt_iff
      [LE β] [DecidableLE β] [LT β] [IsLinearPreorder β] [LawfulOrderLT β]
     {xs : List α} {f : α → β} (h : xs ≠ []) {b : β} :
-    f (xs.maxOn f h) < b ↔ ∀ x ∈ xs, f x < b :=
+    f (xs.maxOn f h) < b ↔ ∀ x ∈ xs, f x < b := by
   letI : LE β := (inferInstanceAs (LE β)).opposite
   letI : LT β := (inferInstanceAs (LT β)).opposite
-  List.lt_apply_minOn_iff (f := f) h
+  simpa [LT.lt_opposite_iff] using List.lt_apply_minOn_iff (f := f) h
 
 protected theorem lt_apply_maxOn_iff
      [LE β] [DecidableLE β] [LT β] [IsLinearPreorder β] [LawfulOrderLT β]
     {xs : List α} {f : α → β} (h : xs ≠ []) {b : β} :
-    b < f (xs.maxOn f h) ↔ ∃ x ∈ xs, b < f x :=
+    b < f (xs.maxOn f h) ↔ ∃ x ∈ xs, b < f x := by
   letI : LE β := (inferInstanceAs (LE β)).opposite
   letI : LT β := (inferInstanceAs (LT β)).opposite
-  List.apply_minOn_lt_iff (f := f) h
+  simpa [LT.lt_opposite_iff] using List.apply_minOn_lt_iff (f := f) h
 
 protected theorem apply_maxOn_le_apply_maxOn_of_subset [LE β] [DecidableLE β]
     [IsLinearPreorder β] {xs ys : List α} {f : α → β} (hxs : ys ⊆ xs) (hys : ys ≠ []) :
     haveI : xs ≠ [] := by intro h; rw [h] at hxs; simp_all [subset_nil]
-    f (ys.maxOn f hys) ≤ f (xs.maxOn f this) :=
+    f (ys.maxOn f hys) ≤ f (xs.maxOn f this) := by
+  rw [List.maxOn_eq_minOn]
   letI : LE β := (inferInstanceAs (LE β)).opposite
-  List.apply_minOn_le_apply_minOn_of_subset (f := f) hxs hys
+  simpa [LE.le_opposite_iff] using List.apply_minOn_le_apply_minOn_of_subset (f := f) hxs hys
 
 protected theorem apply_maxOn_take_le [LE β] [DecidableLE β] [IsLinearPreorder β]
     {xs : List α} {f : α → β} {i : Nat} (h : xs.take i ≠ []) :
-    f ((xs.take i).maxOn f h) ≤ f (xs.maxOn f (List.ne_nil_of_take_ne_nil h)) :=
+    f ((xs.take i).maxOn f h) ≤ f (xs.maxOn f (List.ne_nil_of_take_ne_nil h)) := by
+  rw [List.maxOn_eq_minOn]
   letI : LE β := (inferInstanceAs (LE β)).opposite
-  List.le_apply_minOn_take (f := f) h
+  simpa [LE.le_opposite_iff] using List.le_apply_minOn_take (f := f) h
 
 protected theorem le_apply_maxOn_append_left [LE β] [DecidableLE β] [IsLinearPreorder β]
     {xs ys : List α} {f : α → β} (h : xs ≠ []) :
     f (xs.maxOn f h) ≤
-      f ((xs ++ ys).maxOn f (append_ne_nil_of_left_ne_nil h ys)) :=
+      f ((xs ++ ys).maxOn f (append_ne_nil_of_left_ne_nil h ys)) := by
+  rw [List.maxOn_eq_minOn]
   letI : LE β := (inferInstanceAs (LE β)).opposite
-  List.apply_minOn_append_le_left (f := f) h
+  simpa [LE.le_opposite_iff] using List.apply_minOn_append_le_left (f := f) h
 
 protected theorem le_apply_maxOn_append_right [LE β] [DecidableLE β] [IsLinearPreorder β]
     {xs ys : List α} {f : α → β} (h : ys ≠ []) :
     f (ys.maxOn f h) ≤
-      f ((xs ++ ys).maxOn f (append_ne_nil_of_right_ne_nil xs h)) :=
+      f ((xs ++ ys).maxOn f (append_ne_nil_of_right_ne_nil xs h)) := by
+  rw [List.maxOn_eq_minOn]
   letI : LE β := (inferInstanceAs (LE β)).opposite
-  List.apply_minOn_append_le_right (f := f) h
+  simpa [LE.le_opposite_iff] using List.apply_minOn_append_le_right (f := f) h
 
 @[simp]
 protected theorem maxOn_append [LE β] [DecidableLE β] [IsLinearPreorder β] {xs ys : List α}
     {f : α → β} (hxs : xs ≠ []) (hys : ys ≠ []) :
-    (xs ++ ys).maxOn f (by simp [hxs]) = maxOn f (xs.maxOn f hxs) (ys.maxOn f hys) :=
+    (xs ++ ys).maxOn f (by simp [hxs]) = maxOn f (xs.maxOn f hxs) (ys.maxOn f hys) := by
+  rw [List.maxOn_eq_minOn]
   letI : LE β := (inferInstanceAs (LE β)).opposite
-  List.minOn_append (f := f) hxs hys
+  simpa [LE.le_opposite_iff] using List.minOn_append (f := f) hxs hys
 
 protected theorem maxOn_eq_head [LE β] [DecidableLE β] [IsLinearPreorder β] {xs : List α}
     {f : α → β} (h : xs ≠ []) (h' : ∀ x ∈ xs, f x ≤ f (xs.head h)) :
-    xs.maxOn f h = xs.head h :=
+    xs.maxOn f h = xs.head h := by
+  rw [List.maxOn_eq_minOn]
   letI : LE β := (inferInstanceAs (LE β)).opposite
-  List.minOn_eq_head (f := f) h h'
+  simpa [LE.le_opposite_iff] using List.minOn_eq_head (f := f) h (by simpa [LE.le_opposite_iff] using h')
 
 protected theorem max_map
     [LE β] [DecidableLE β] [Max β] [IsLinearPreorder β] [LawfulOrderLeftLeaningMax β] {xs : List α}
-    {f : α → β} (h : xs ≠ []) : (xs.map f).max (by simpa) = f (xs.maxOn f h) :=
+    {f : α → β} (h : xs ≠ []) : (xs.map f).max (by simpa) = f (xs.maxOn f h) := by
   letI : LE β := (inferInstanceAs (LE β)).opposite
   letI : Min β := (inferInstanceAs (Max β)).oppositeMin
-  List.min_map (f := f) h
+  simpa [List.max_eq_min] using List.min_map (f := f) h
 
 @[simp]
 protected theorem maxOn_replicate [LE β] [DecidableLE β] [IsLinearPreorder β]
@@ -482,6 +514,10 @@ protected theorem minOn?_append [LE β] [DecidableLE β] [IsLinearPreorder β]
 
 /-! ### maxOn? -/
 
+protected theorem maxOn?_eq_minOn? {le : LE β} {dle : DecidableLE β} {xs : List α} {f : α → β} :
+    xs.maxOn? f = (letI := le.opposite; xs.minOn? f) :=
+  (rfl)
+
 @[simp]
 protected theorem maxOn?_nil [LE β] [DecidableLE β] {f : α → β} :
     ([] : List α).maxOn? f = none :=
@@ -509,7 +545,7 @@ protected theorem maxOn?_id [Max α] [LE α] [DecidableLE α] [LawfulOrderLeftLe
     {xs : List α} : xs.maxOn? id = xs.max? := by
   letI : LE α := (inferInstanceAs (LE α)).opposite
   letI : Min α := (inferInstanceAs (Max α)).oppositeMin
-  exact List.minOn?_id
+  simpa only [List.maxOn?_eq_minOn?, List.max?_eq_min?] using List.minOn?_id (α := α)
 
 protected theorem maxOn?_eq_if
     [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β} {xs : List α} :
@@ -556,9 +592,10 @@ protected theorem isSome_maxOn?_of_mem
 
 protected theorem le_apply_get_maxOn?_of_mem
     [LE β] [DecidableLE β] [IsLinearPreorder β] {f : α → β} {xs : List α} {x : α} (h : x ∈ xs) :
-    f x ≤ f ((xs.maxOn? f).get (List.isSome_maxOn?_of_mem h)) :=
+    f x ≤ f ((xs.maxOn? f).get (List.isSome_maxOn?_of_mem h)) := by
+  simp only [List.maxOn?_eq_minOn?]
   letI : LE β := (inferInstanceAs (LE β)).opposite
-  List.apply_get_minOn?_le_of_mem (f := f) h
+  simpa [LE.le_opposite_iff] using List.apply_get_minOn?_le_of_mem (f := f) h
 
 protected theorem maxOn?_mem [LE β] [DecidableLE β] {xs : List α}
     {f : α → β} (h : xs.maxOn? f = some a) : a ∈ xs :=

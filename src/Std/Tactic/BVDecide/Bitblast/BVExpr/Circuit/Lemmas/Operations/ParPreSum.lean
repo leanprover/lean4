@@ -222,7 +222,7 @@ theorem denote_blastParPreSum (aig : AIG α) (l : Nat) (xc : ParPreSumTarget aig
       :
       ∀ (idx : Nat) (hidx : idx < l),
         ⟦(blastParPreSum aig xc).aig, (blastParPreSum aig xc).vec.get idx hidx, assign⟧
-          = (BitVec.addRec l x).getLsbD idx := by
+          = (BitVec.flatAdd l x).getLsbD idx := by
     generalize hgen : blastParPreSum aig xc = res
     unfold blastParPreSum at hgen
     split at hgen
@@ -233,7 +233,7 @@ theorem denote_blastParPreSum (aig : AIG α) (l : Nat) (xc : ParPreSumTarget aig
       simp only at hgen
       split at hgen
       · rw [← hgen]
-        unfold BitVec.addRec
+        unfold BitVec.flatAdd
         simp only [denote_blastZeroExtend, hx, dite_eq_ite, Bool.if_false_right,
           show ¬l = 0 by omega, reduceDIte, show xc.w ≤ l by omega, BitVec.truncate_eq_setWidth]
         intros j hj
@@ -242,7 +242,7 @@ theorem denote_blastParPreSum (aig : AIG α) (l : Nat) (xc : ParPreSumTarget aig
           omega
         · simp [hlt, show xc.w ≤ j by omega]
       · split at hgen
-        · rw [← hgen, BitVec.addRec_eq_parPreSum (hl := by omega) (hlt := by omega)]
+        · rw [← hgen, BitVec.flatAdd_eq_parPreSum (hl := by omega) (hlt := by omega)]
           unfold BitVec.parPreSum
           simp only [show 0 < xc.w % l by omega, ↓reduceDIte, BitVec.getLsbD_cast]
           have hzero : (xc.w - xc.w % l) % l = 0 := by
@@ -304,7 +304,7 @@ theorem denote_blastParPreSum (aig : AIG α) (l : Nat) (xc : ParPreSumTarget aig
               simp [hj]
             · rw [BitVec.getLsbD_setWidth]
               simp [show xc.w ≤ j by omega]
-        · rw [← hgen, BitVec.addRec_eq_parPreSum (hl := by omega) (hlt := by omega)]
+        · rw [← hgen, BitVec.flatAdd_eq_parPreSum (hl := by omega) (hlt := by omega)]
           unfold BitVec.parPreSum
           simp only [show ¬0 < xc.w % l by omega, reduceDIte, BitVec.getLsbD_cast]
           have hcast : xc.w = xc.w / l * l := by rw [Nat.div_mul_cancel]; omega

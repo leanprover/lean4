@@ -452,7 +452,7 @@ def eval (assign : Assignment) : BVExpr w → BitVec w
   | .shiftLeft lhs rhs => (eval assign lhs) <<< (eval assign rhs)
   | .shiftRight lhs rhs => (eval assign lhs) >>> (eval assign rhs)
   | .arithShiftRight lhs rhs => BitVec.sshiftRight' (eval assign lhs) (eval assign rhs)
-  | .parPreSum l expr => BitVec.addRec l (eval assign expr)
+  | .parPreSum l expr => BitVec.flatAdd l (eval assign expr)
 
 @[simp]
 theorem eval_var : eval assign ((.var idx) : BVExpr w) = (assign.get idx).bv.truncate w := by
@@ -471,7 +471,7 @@ theorem eval_extract : eval assign (.extract start len expr) = BitVec.extractLsb
   rfl
 
 @[simp]
-theorem eval_parPreSum : eval assign (.parPreSum len expr) = BitVec.addRec len (eval assign expr) := by
+theorem eval_parPreSum : eval assign (.parPreSum len expr) = BitVec.flatAdd len (eval assign expr) := by
   rfl
 
 @[simp]

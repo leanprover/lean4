@@ -76,8 +76,8 @@ def getIntValue? (e : Expr) : OptionT Id Int := do
 
 def getRatValue? (e : Expr) : OptionT Id Rat := do
   let_expr HDiv.hDiv _ _ _ _ n d := e | getIntValue? e
-  let n ← getIntValue? n
-  let d ← getNatValue? d
+  let n : Rat ← getIntValue? n
+  let d : Rat ← getNatValue? d
   return n / d
 
 structure BitVecValue where

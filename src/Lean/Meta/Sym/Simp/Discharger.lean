@@ -9,10 +9,64 @@ public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.AppBuilder
 namespace Lean.Meta.Sym.Simp
 
+/-!
+# Dischargers for Conditional Rewrite Rules
+
+This module provides dischargers for handling conditional rewrite rules in `Sym.simp`.
+A discharger attempts to prove side conditions that arise during rewriting.
+
+## Overview
+
+When applying a conditional rewrite rule `h : P → a = b`, the simplifier must prove
+the precondition `P` before using the rule. A `Discharger` is a function that attempts
+to construct such proofs.
+
+**Example**: Consider the rewrite rule:
+```
+theorem div_self (n : Nat) (h : n ≠ 0) : n / n = 1
+```
+When simplifying `x / x`, the discharger must prove `x ≠ 0` to apply this rule.
+
+## Design
+
+Dischargers work by:
+1. Attempting to simplify the side condition to `True`
+2. If successful, extracting a proof from the simplification result
+3. Returning `none` if the condition cannot be discharged
+
+This integrates naturally with `Simproc`-based simplification.
+-/
+
+/--
+A discharger attempts to prove propositions that arise as side conditions during rewriting.
+
+Given a proposition `e : Prop`, returns:
+- `some proof` if `e` can be proven
+- `none` if `e` cannot be discharged
+
+**Usage**: Dischargers are used by the simplifier when applying conditional rewrite rules.
+-/
 abbrev Discharger := Expr → SimpM (Option Expr)
 
-/-- Converts a `Simproc` into a discharger -/
-def mkDischarger (p : Simproc) : Discharger := fun e => do
+/--
+Converts a simplification procedure into a discharger.
+
+A `Simproc` can be used as a discharger by simplifying the side condition and
+checking if it reduces to `True`. If so, the equality proof is converted to
+a proof of the original proposition.
+
+**Algorithm**:
+1. Apply the simproc to the side condition `e`
+2. If `e` simplifies to `True` (via proof `h : e = True`), return `ofEqTrue h : e`
+3. Otherwise, return `none` (cannot discharge)
+
+**Parameters**:
+- `p`: A simplification procedure to use for discharging conditions
+
+**Example**: If `p` simplifies `5 < 10` to `True` via proof `h : (5 < 10) = True`,
+then `mkDischargerFromSimproc p` returns `ofEqTrue h : 5 < 10`.
+-/
+def mkDischargerFromSimproc (p : Simproc) : Discharger := fun e => do
   match (← p e) with
   | .rfl _ => return none
   | .step e' h _ =>
@@ -21,8 +75,31 @@ def mkDischarger (p : Simproc) : Discharger := fun e => do
     else
       return none
 
-/-- Returns a discharger that uses the simplifier itself as the discharger. -/
-def mkDefaultDischarger : Discharger :=
-  mkDischarger simp
+/--
+The default discharger uses the simplifier itself to discharge side conditions.
+
+This creates a natural recursive behavior: when applying conditional rules,
+the simplifier is invoked to prove their preconditions. This is effective because:
+
+1. **Ground terms**: Conditions like `5 ≠ 0` are evaluated by simprocs
+2. **Recursive simplification**: Complex conditions are reduced to simpler ones
+3. **Lemma application**: The simplifier can apply other rewrite rules to conditions
+-/
+def dischargeSimpSelf : Discharger :=
+  mkDischargerFromSimproc simp
+
+/--
+A discharger that fails to prove any side condition.
+
+This is used when conditional rewrite rules should not be applied. It immediately
+returns `none` for all propositions, effectively disabling conditional rewriting.
+
+**Use cases**:
+- Testing: Isolating unconditional rewriting behavior
+- Performance: Avoiding expensive discharge attempts when conditions are unlikely to hold
+- Controlled rewriting: Explicitly disabling conditional rules in specific contexts
+-/
+def dischargeNone : Discharger := fun _ =>
+  return none
 
 end Lean.Meta.Sym.Simp

@@ -530,6 +530,67 @@ def evalDvd (α : Expr) (a b : Expr) : SimpM Result :=
   | Int => evalBinPred getIntValue? (mkConst ``Int.dvd_eq_true) (mkConst ``Int.dvd_eq_false) (. ∣ .) a b
   | _ => return .rfl
 
+abbrev evalBinBoolPred (toValue? : Expr → Option α) (op : α → α → Bool) (a b : Expr) : SimpM Result := do
+  let some va := toValue? a | return .rfl
+  let some vb := toValue? b | return .rfl
+  let r := op va vb
+  let e ← share (toExpr r)
+  return .step e (if r then eagerReflBoolTrue else eagerReflBoolFalse) (done := true)
+
+abbrev evalBinBoolPredNat : (op : Nat → Nat → Bool) → (a b : Expr) → SimpM Result := evalBinBoolPred getNatValue?
+abbrev evalBinBoolPredInt : (op : Int → Int → Bool) → (a b : Expr) → SimpM Result := evalBinBoolPred getIntValue?
+abbrev evalBinBoolPredRat : (op : Rat → Rat → Bool) → (a b : Expr) → SimpM Result := evalBinBoolPred getRatValue?
+abbrev evalBinBoolPredUInt8 : (op : UInt8 → UInt8 → Bool) → (a b : Expr) → SimpM Result := evalBinBoolPred getUInt8Value?
+abbrev evalBinBoolPredUInt16 : (op : UInt16 → UInt16 → Bool) → (a b : Expr) → SimpM Result := evalBinBoolPred getUInt16Value?
+abbrev evalBinBoolPredUInt32 : (op : UInt32 → UInt32 → Bool) → (a b : Expr) → SimpM Result := evalBinBoolPred getUInt32Value?
+abbrev evalBinBoolPredUInt64 : (op : UInt64 → UInt64 → Bool) → (a b : Expr) → SimpM Result := evalBinBoolPred getUInt64Value?
+abbrev evalBinBoolPredInt8 : (op : Int8 → Int8 → Bool) → (a b : Expr) → SimpM Result := evalBinBoolPred getInt8Value?
+abbrev evalBinBoolPredInt16 : (op : Int16 → Int16 → Bool) → (a b : Expr) → SimpM Result := evalBinBoolPred getInt16Value?
+abbrev evalBinBoolPredInt32 : (op : Int32 → Int32 → Bool) → (a b : Expr) → SimpM Result := evalBinBoolPred getInt32Value?
+abbrev evalBinBoolPredInt64 : (op : Int64 → Int64 → Bool) → (a b : Expr) → SimpM Result := evalBinBoolPred getInt64Value?
+
+abbrev evalBinBoolPredFin (op : {n : Nat} → Fin n → Fin n → Bool) (a b : Expr) : SimpM Result := do
+  let some a := getFinValue? a | return .rfl
+  let some b := getFinValue? b | return .rfl
+  if h : a.n = b.n then
+    let r := op a.val (h ▸ b.val)
+    let e ← share (toExpr r)
+    return .step e (if r then eagerReflBoolTrue else eagerReflBoolFalse) (done := true)
+  else
+    return .rfl
+
+abbrev evalBinBoolPredBitVec (op : {n : Nat} → BitVec n → BitVec n → Bool) (a b : Expr) : SimpM Result := do
+  let some a := getBitVecValue? a | return .rfl
+  let some b := getBitVecValue? b | return .rfl
+  if h : a.n = b.n then
+    let r := op a.val (h ▸ b.val)
+    let e ← share (toExpr r)
+    return .step e (if r then eagerReflBoolTrue else eagerReflBoolFalse) (done := true)
+  else
+    return .rfl
+
+macro "declare_eval_bin_bool_pred" id:ident op:term : command =>
+  `(def $id:ident (α : Expr) (a b : Expr) : SimpM Result :=
+  match_expr α with
+  | Nat => evalBinBoolPredNat $op a b
+  | Int => evalBinBoolPredInt $op a b
+  | Rat => evalBinBoolPredRat $op a b
+  | Fin _ => evalBinBoolPredFin $op a b
+  | BitVec _ => evalBinBoolPredBitVec $op a b
+  | UInt8 => evalBinBoolPredUInt8 $op a b
+  | UInt16 => evalBinBoolPredUInt16 $op a b
+  | UInt32 => evalBinBoolPredUInt32 $op a b
+  | UInt64 => evalBinBoolPredUInt64 $op a b
+  | Int8 => evalBinBoolPredInt8 $op a b
+  | Int16 => evalBinBoolPredInt16 $op a b
+  | Int32 => evalBinBoolPredInt32 $op a b
+  | Int64 => evalBinBoolPredInt64 $op a b
+  | _ => return .rfl
+  )
+
+declare_eval_bin_bool_pred evalBEq (· == ·)
+declare_eval_bin_bool_pred evalBNe (· != ·)
+
 public structure EvalStepConfig where
   maxExponent := 255
 
@@ -576,8 +637,8 @@ public def evalGround (config : EvalStepConfig := {}) : Simproc := fun e =>
   | Dvd.dvd α _ a b => evalDvd α a b
   | Eq α a b => evalEq α a b
   | Ne α a b => evalNe α a b
-  | BEq.beq α _ a b => return .rfl
-  | bne α _ a b => return .rfl
+  | BEq.beq α _ a b => evalBEq α a b
+  | bne α _ a b => evalBNe α a b
   | _  => return .rfl
 
 end Lean.Meta.Sym.Simp

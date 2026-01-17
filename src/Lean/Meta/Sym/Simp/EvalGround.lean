@@ -64,6 +64,11 @@ Operations dispatch on the type expression directly. It assumes non-standard ins
 **TODO**: additional bit-vector operations, `Char`, `String` support
 -/
 
+def skipIfUnchanged (e : Expr) (result : Result) : Result :=
+  match result with
+  | .step e' _ _ => if isSameExpr e e' then .rfl else result
+  | _ => result
+
 def getNatValue? (e : Expr) : OptionT Id Nat := do
   let_expr OfNat.ofNat _ n _ := e | failure
   let .lit (.natVal n) := n | failure
@@ -222,7 +227,23 @@ macro "declare_eval_bin" id:ident op:term : command =>
 declare_eval_bin evalAdd (· + ·)
 declare_eval_bin evalSub (· - ·)
 declare_eval_bin evalMul (· * ·)
-declare_eval_bin evalDiv (· / ·)
+
+def evalDiv (e : Expr) (α : Expr) (a b : Expr) : SimpM Result :=
+  match_expr α with
+  | Nat => evalBinNat (. / .) a b
+  | Int => evalBinInt (. / .) a b
+  | Rat => return skipIfUnchanged e (← evalBinRat (. / .) a b)
+  | Fin _ => evalBinFin' (. / .) α a b
+  | BitVec _ => evalBinBitVec' (. / .) α a b
+  | UInt8 => evalBinUInt8 (. / .) a b
+  | UInt16 => evalBinUInt16 (. / .) a b
+  | UInt32 => evalBinUInt32 (. / .) a b
+  | UInt64 => evalBinUInt64 (. / .) a b
+  | Int8 => evalBinInt8 (. / .) a b
+  | Int16 => evalBinInt16 (. / .) a b
+  | Int32 => evalBinInt32 (. / .) a b
+  | Int64 => evalBinInt64 (. / .) a b
+  | _ => return .rfl
 
 def evalMod (α : Expr) (a b : Expr) : SimpM Result :=
   match_expr α with
@@ -610,7 +631,7 @@ public def evalGround (config : EvalStepConfig := {}) : Simproc := fun e =>
   | HAdd.hAdd α _ _ _ a b => evalAdd α a b
   | HSub.hSub α _ _ _ a b => evalSub α a b
   | HMul.hMul α _ _ _ a b => evalMul α a b
-  | HDiv.hDiv α _ _ _ a b => evalDiv α a b
+  | HDiv.hDiv α _ _ _ a b => evalDiv e α a b
   | HMod.hMod α _ _ _ a b => evalMod α a b
   | HPow.hPow α β _ _ a b => evalPow config.maxExponent α β a b
   | HAnd.hAnd α _ _ _ a b => evalAnd α a b
@@ -619,7 +640,7 @@ public def evalGround (config : EvalStepConfig := {}) : Simproc := fun e =>
   | HShiftLeft.hShiftLeft α β _ _ a b => evalShift (left := true) α β a b
   | HShiftRight.hShiftRight α β _ _ a b => evalShift (left := false) α β a b
   | Inv.inv α _ a => evalInv α a
-  | Neg.neg α _ a => evalNeg α a
+  | Neg.neg α _ a => return skipIfUnchanged e (← evalNeg α a)
   | Complement.complement α _ a => evalComplement α a
   | Nat.gcd a b => evalBinNat Nat.gcd a b
   | Nat.succ a => evalUnaryNat (· + 1) a

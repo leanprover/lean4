@@ -157,3 +157,21 @@ example : ∀ n : Nat, (n ≠ n) = False := by intro n; sym_simp
 example : 0 / 0 = 0 := by sym_simp  -- Nat division by zero
 example : 5 % 0 = 5 := by sym_simp  -- Nat mod by zero
 example : 0 ^ 0 = 1 := by sym_simp  -- 0^0 = 1 in Lean
+
+theorem ex₁ : (2 / 3 : Rat) + 2 / 3 = 8 / 6 := by sym_simp
+
+/--
+info: theorem ex₁ : 2 / 3 + 2 / 3 = 8 / 6 :=
+Eq.mpr (Eq.trans (congr (congrArg Eq (Eq.refl (4 / 3))) (Eq.refl (4 / 3))) (eq_self (4 / 3))) True.intro
+-/
+#guard_msgs in
+#print ex₁
+
+theorem ex₂ : (- 2) = (- (- (- 2))) := by sym_simp
+
+/--
+info: theorem ex₂ : -2 = - - -2 :=
+Eq.mpr (Eq.trans (congrArg (Eq (-2)) (congrArg Neg.neg (Eq.refl 2))) (eq_self (-2))) True.intro
+-/
+#guard_msgs in
+#print ex₂

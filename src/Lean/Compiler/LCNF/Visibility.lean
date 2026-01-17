@@ -181,14 +181,12 @@ where go (decl : Decl) : StateT NameSet CompilerM Unit := do
       if (← get).contains ref then
         continue
       modify (·.insert ref)
-      if ref matches ``Quot.mk | ``Quot.lcInv then
+      if ref matches ``Quot.mk | ``Quot.lcInv || isExtern (← getEnv) ref || (getImplementedBy? (← getEnv) ref).isSome then
         continue
-      if !(getOriginalConstKind? (← getEnv) ref matches some .axiom | some .quot | some .induct | some .thm ||
-          isNoncomputable (← getEnv) ref) then
-        continue
-      if !isExtern (← getEnv) ref && (getImplementedBy? (← getEnv) ref).isNone then
+      if isNoncomputable (← getEnv) ref then
         throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{.ofConstName ref}', which is 'noncomputable'"
-
+      else if getOriginalConstKind? (← getEnv) ref matches some .axiom | some .quot | some .induct | some .thm then
+        throwNamedError lean.dependsOnNoncomputable f!"`{ref}` not supported by code generator; consider marking definition as `noncomputable`"
 
 builtin_initialize
   registerTraceClass `Compiler.inferVisibility

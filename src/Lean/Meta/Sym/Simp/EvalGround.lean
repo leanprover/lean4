@@ -501,6 +501,29 @@ def evalEq (α : Expr) (a b : Expr) : SimpM Result :=
   | BitVec n => evalBitVecPred n (mkConst ``BitVec.eq_eq_true) (mkConst ``BitVec.eq_eq_false) (. = .) a b
   | _ => return .rfl
 
+def evalNe (α : Expr) (a b : Expr) : SimpM Result :=
+  match_expr α with
+  | Nat => evalBinPred getNatValue? (mkConst ``Nat.ne_eq_true) (mkConst ``Nat.ne_eq_false) (. ≠ .) a b
+  | Int => evalBinPred getIntValue? (mkConst ``Int.ne_eq_true) (mkConst ``Int.ne_eq_false) (. ≠ .) a b
+  | Rat => evalBinPred getRatValue? (mkConst ``Rat.ne_eq_true) (mkConst ``Rat.ne_eq_false) (. ≠ .) a b
+  | Int8 => evalBinPred getInt8Value? (mkConst ``Int8.ne_eq_true) (mkConst ``Int8.ne_eq_false) (. ≠ .) a b
+  | Int16 => evalBinPred getInt16Value? (mkConst ``Int16.ne_eq_true) (mkConst ``Int16.ne_eq_false) (. ≠ .) a b
+  | Int32 => evalBinPred getInt32Value? (mkConst ``Int32.ne_eq_true) (mkConst ``Int32.ne_eq_false) (. ≠ .) a b
+  | Int64 => evalBinPred getInt64Value? (mkConst ``Int64.ne_eq_true) (mkConst ``Int64.ne_eq_false) (. ≠ .) a b
+  | UInt8 => evalBinPred getUInt8Value? (mkConst ``UInt8.ne_eq_true) (mkConst ``UInt8.ne_eq_false) (. ≠ .) a b
+  | UInt16 => evalBinPred getUInt16Value? (mkConst ``UInt16.ne_eq_true) (mkConst ``UInt16.ne_eq_false) (. ≠ .) a b
+  | UInt32 => evalBinPred getUInt32Value? (mkConst ``UInt32.ne_eq_true) (mkConst ``UInt32.ne_eq_false) (. ≠ .) a b
+  | UInt64 => evalBinPred getUInt64Value? (mkConst ``UInt64.ne_eq_true) (mkConst ``UInt64.ne_eq_false) (. ≠ .) a b
+  | Fin n => evalFinPred n (mkConst ``Fin.ne_eq_true) (mkConst ``Fin.ne_eq_false) (. ≠ .) a b
+  | BitVec n => evalBitVecPred n (mkConst ``BitVec.ne_eq_true) (mkConst ``BitVec.ne_eq_false) (. ≠ .) a b
+  | _ => return .rfl
+
+def evalDvd (α : Expr) (a b : Expr) : SimpM Result :=
+  match_expr α with
+  | Nat => evalBinPred getNatValue? (mkConst ``Nat.dvd_eq_true) (mkConst ``Nat.dvd_eq_false) (. ∣ .) a b
+  | Int => evalBinPred getIntValue? (mkConst ``Int.dvd_eq_true) (mkConst ``Int.dvd_eq_false) (. ∣ .) a b
+  | _ => return .rfl
+
 public structure EvalStepConfig where
   maxExponent := 255
 
@@ -544,9 +567,9 @@ public def evalGround (config : EvalStepConfig := {}) : Simproc := fun e =>
   | GE.ge α _ a b => evalGE α a b
   | LT.lt α _ a b => evalLT α a b
   | GT.gt α _ a b => evalGT α a b
-  | Dvd.dvd α _ a b => return .rfl
+  | Dvd.dvd α _ a b => evalDvd α a b
   | Eq α a b => evalEq α a b
-  | Ne α a b => return .rfl
+  | Ne α a b => evalNe α a b
   | BEq.beq α _ a b => return .rfl
   | bne α _ a b => return .rfl
   | _  => return .rfl

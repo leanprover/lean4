@@ -181,4 +181,10 @@ theorem UInt64.ne_eq_false (a b : UInt64) (h : decide (a ≠ b) = false) : (a �
 theorem Fin.ne_eq_false (a b : Fin n) (h : decide (a ≠ b) = false) : (a ≠ b) = False := by simp_all
 theorem BitVec.ne_eq_false (a b : BitVec n) (h : decide (a ≠ b) = false) : (a ≠ b) = False := by simp_all
 
+theorem Nat.dvd_eq_true (a b : Nat) (h : decide (a ∣ b) = true) : (a ∣ b) = True := by simp_all
+theorem Int.dvd_eq_true (a b : Int) (h : decide (a ∣ b) = true) : (a ∣ b) = True := by simp_all
+
+theorem Nat.dvd_eq_false (a b : Nat) (h : decide (a ∣ b) = false) : (a ∣ b) = False := by simp_all
+theorem Int.dvd_eq_false (a b : Int) (h : decide (a ∣ b) = false) : (a ∣ b) = False := by simp_all
+
 end Lean.Sym

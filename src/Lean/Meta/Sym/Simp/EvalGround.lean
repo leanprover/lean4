@@ -97,7 +97,7 @@ def getBitVecValue? (e : Expr) : OptionT Id BitVecValue :=
   | OfNat.ofNat α v _ => do
     let_expr BitVec n := α | failure
     let n ← getNatValue? n
-    let v ← getNatValue? v
+    let .lit (.natVal v) := v | failure
     return ⟨n, BitVec.ofNat n v⟩
   | _ => failure
 

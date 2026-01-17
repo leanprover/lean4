@@ -6,7 +6,150 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Data.Nat.Basic
+public import Init.Data.Rat.Basic
 public import Init.Data.Int.Basic
+public import Init.Data.UInt.Basic
+public import Init.Data.SInt.Basic
 namespace Lean.Sym
+
+theorem Nat.lt_eq_true (a b : Nat) (h : decide (a < b) = true) : (a < b) = True := by simp_all
+theorem Int.lt_eq_true (a b : Int) (h : decide (a < b) = true) : (a < b) = True := by simp_all
+theorem Rat.lt_eq_true (a b : Rat) (h : decide (a < b) = true) : (a < b) = True := by simp_all
+theorem Int8.lt_eq_true (a b : Int8) (h : decide (a < b) = true) : (a < b) = True := by simp_all
+theorem Int16.lt_eq_true (a b : Int16) (h : decide (a < b) = true) : (a < b) = True := by simp_all
+theorem Int32.lt_eq_true (a b : Int32) (h : decide (a < b) = true) : (a < b) = True := by simp_all
+theorem Int64.lt_eq_true (a b : Int64) (h : decide (a < b) = true) : (a < b) = True := by simp_all
+theorem UInt8.lt_eq_true (a b : UInt8) (h : decide (a < b) = true) : (a < b) = True := by simp_all
+theorem UInt16.lt_eq_true (a b : UInt16) (h : decide (a < b) = true) : (a < b) = True := by simp_all
+theorem UInt32.lt_eq_true (a b : UInt32) (h : decide (a < b) = true) : (a < b) = True := by simp_all
+theorem UInt64.lt_eq_true (a b : UInt64) (h : decide (a < b) = true) : (a < b) = True := by simp_all
+theorem Fin.lt_eq_true (a b : Fin n) (h : decide (a < b) = true) : (a < b) = True := by simp_all
+theorem BitVec.lt_eq_true (a b : BitVec n) (h : decide (a < b) = true) : (a < b) = True := by simp_all
+
+theorem Nat.lt_eq_false (a b : Nat) (h : decide (a < b) = false) : (a < b) = False := by simp_all
+theorem Int.lt_eq_false (a b : Int) (h : decide (a < b) = false) : (a < b) = False := by simp_all
+theorem Rat.lt_eq_false (a b : Rat) (h : decide (a < b) = false) : (a < b) = False := by simp_all
+theorem Int8.lt_eq_false (a b : Int8) (h : decide (a < b) = false) : (a < b) = False := by simp_all
+theorem Int16.lt_eq_false (a b : Int16) (h : decide (a < b) = false) : (a < b) = False := by simp_all
+theorem Int32.lt_eq_false (a b : Int32) (h : decide (a < b) = false) : (a < b) = False := by simp_all
+theorem Int64.lt_eq_false (a b : Int64) (h : decide (a < b) = false) : (a < b) = False := by simp_all
+theorem UInt8.lt_eq_false (a b : UInt8) (h : decide (a < b) = false) : (a < b) = False := by simp_all
+theorem UInt16.lt_eq_false (a b : UInt16) (h : decide (a < b) = false) : (a < b) = False := by simp_all
+theorem UInt32.lt_eq_false (a b : UInt32) (h : decide (a < b) = false) : (a < b) = False := by simp_all
+theorem UInt64.lt_eq_false (a b : UInt64) (h : decide (a < b) = false) : (a < b) = False := by simp_all
+theorem Fin.lt_eq_false (a b : Fin n) (h : decide (a < b) = false) : (a < b) = False := by simp_all
+theorem BitVec.lt_eq_false (a b : BitVec n) (h : decide (a < b) = false) : (a < b) = False := by simp_all
+
+theorem Nat.le_eq_true (a b : Nat) (h : decide (a ≤ b) = true) : (a ≤ b) = True := by simp_all
+theorem Int.le_eq_true (a b : Int) (h : decide (a ≤ b) = true) : (a ≤ b) = True := by simp_all
+theorem Rat.le_eq_true (a b : Rat) (h : decide (a ≤ b) = true) : (a ≤ b) = True := by simp_all
+theorem Int8.le_eq_true (a b : Int8) (h : decide (a ≤ b) = true) : (a ≤ b) = True := by simp_all
+theorem Int16.le_eq_true (a b : Int16) (h : decide (a ≤ b) = true) : (a ≤ b) = True := by simp_all
+theorem Int32.le_eq_true (a b : Int32) (h : decide (a ≤ b) = true) : (a ≤ b) = True := by simp_all
+theorem Int64.le_eq_true (a b : Int64) (h : decide (a ≤ b) = true) : (a ≤ b) = True := by simp_all
+theorem UInt8.le_eq_true (a b : UInt8) (h : decide (a ≤ b) = true) : (a ≤ b) = True := by simp_all
+theorem UInt16.le_eq_true (a b : UInt16) (h : decide (a ≤ b) = true) : (a ≤ b) = True := by simp_all
+theorem UInt32.le_eq_true (a b : UInt32) (h : decide (a ≤ b) = true) : (a ≤ b) = True := by simp_all
+theorem UInt64.le_eq_true (a b : UInt64) (h : decide (a ≤ b) = true) : (a ≤ b) = True := by simp_all
+theorem Fin.le_eq_true (a b : Fin n) (h : decide (a ≤ b) = true) : (a ≤ b) = True := by simp_all
+theorem BitVec.le_eq_true (a b : BitVec n) (h : decide (a ≤ b) = true) : (a ≤ b) = True := by simp_all
+
+theorem Nat.le_eq_false (a b : Nat) (h : decide (a ≤ b) = false) : (a ≤ b) = False := by simp_all
+theorem Int.le_eq_false (a b : Int) (h : decide (a ≤ b) = false) : (a ≤ b) = False := by simp_all
+theorem Rat.le_eq_false (a b : Rat) (h : decide (a ≤ b) = false) : (a ≤ b) = False := by simp_all
+theorem Int8.le_eq_false (a b : Int8) (h : decide (a ≤ b) = false) : (a ≤ b) = False := by simp_all
+theorem Int16.le_eq_false (a b : Int16) (h : decide (a ≤ b) = false) : (a ≤ b) = False := by simp_all
+theorem Int32.le_eq_false (a b : Int32) (h : decide (a ≤ b) = false) : (a ≤ b) = False := by simp_all
+theorem Int64.le_eq_false (a b : Int64) (h : decide (a ≤ b) = false) : (a ≤ b) = False := by simp_all
+theorem UInt8.le_eq_false (a b : UInt8) (h : decide (a ≤ b) = false) : (a ≤ b) = False := by simp_all
+theorem UInt16.le_eq_false (a b : UInt16) (h : decide (a ≤ b) = false) : (a ≤ b) = False := by simp_all
+theorem UInt32.le_eq_false (a b : UInt32) (h : decide (a ≤ b) = false) : (a ≤ b) = False := by simp_all
+theorem UInt64.le_eq_false (a b : UInt64) (h : decide (a ≤ b) = false) : (a ≤ b) = False := by simp_all
+theorem Fin.le_eq_false (a b : Fin n) (h : decide (a ≤ b) = false) : (a ≤ b) = False := by simp_all
+theorem BitVec.le_eq_false (a b : BitVec n) (h : decide (a ≤ b) = false) : (a ≤ b) = False := by simp_all
+
+theorem Nat.gt_eq_true (a b : Nat) (h : decide (a > b) = true) : (a > b) = True := by simp_all
+theorem Int.gt_eq_true (a b : Int) (h : decide (a > b) = true) : (a > b) = True := by simp_all
+theorem Rat.gt_eq_true (a b : Rat) (h : decide (a > b) = true) : (a > b) = True := by simp_all
+theorem Int8.gt_eq_true (a b : Int8) (h : decide (a > b) = true) : (a > b) = True := by simp_all
+theorem Int16.gt_eq_true (a b : Int16) (h : decide (a > b) = true) : (a > b) = True := by simp_all
+theorem Int32.gt_eq_true (a b : Int32) (h : decide (a > b) = true) : (a > b) = True := by simp_all
+theorem Int64.gt_eq_true (a b : Int64) (h : decide (a > b) = true) : (a > b) = True := by simp_all
+theorem UInt8.gt_eq_true (a b : UInt8) (h : decide (a > b) = true) : (a > b) = True := by simp_all
+theorem UInt16.gt_eq_true (a b : UInt16) (h : decide (a > b) = true) : (a > b) = True := by simp_all
+theorem UInt32.gt_eq_true (a b : UInt32) (h : decide (a > b) = true) : (a > b) = True := by simp_all
+theorem UInt64.gt_eq_true (a b : UInt64) (h : decide (a > b) = true) : (a > b) = True := by simp_all
+theorem Fin.gt_eq_true (a b : Fin n) (h : decide (a > b) = true) : (a > b) = True := by simp_all
+theorem BitVec.gt_eq_true (a b : BitVec n) (h : decide (a > b) = true) : (a > b) = True := by simp_all
+
+theorem Nat.gt_eq_false (a b : Nat) (h : decide (a > b) = false) : (a > b) = False := by simp_all
+theorem Int.gt_eq_false (a b : Int) (h : decide (a > b) = false) : (a > b) = False := by simp_all
+theorem Rat.gt_eq_false (a b : Rat) (h : decide (a > b) = false) : (a > b) = False := by simp_all
+theorem Int8.gt_eq_false (a b : Int8) (h : decide (a > b) = false) : (a > b) = False := by simp_all
+theorem Int16.gt_eq_false (a b : Int16) (h : decide (a > b) = false) : (a > b) = False := by simp_all
+theorem Int32.gt_eq_false (a b : Int32) (h : decide (a > b) = false) : (a > b) = False := by simp_all
+theorem Int64.gt_eq_false (a b : Int64) (h : decide (a > b) = false) : (a > b) = False := by simp_all
+theorem UInt8.gt_eq_false (a b : UInt8) (h : decide (a > b) = false) : (a > b) = False := by simp_all
+theorem UInt16.gt_eq_false (a b : UInt16) (h : decide (a > b) = false) : (a > b) = False := by simp_all
+theorem UInt32.gt_eq_false (a b : UInt32) (h : decide (a > b) = false) : (a > b) = False := by simp_all
+theorem UInt64.gt_eq_false (a b : UInt64) (h : decide (a > b) = false) : (a > b) = False := by simp_all
+theorem Fin.gt_eq_false (a b : Fin n) (h : decide (a > b) = false) : (a > b) = False := by simp_all
+theorem BitVec.gt_eq_false (a b : BitVec n) (h : decide (a > b) = false) : (a > b) = False := by simp_all
+
+theorem Nat.ge_eq_true (a b : Nat) (h : decide (a ≥ b) = true) : (a ≥ b) = True := by simp_all
+theorem Int.ge_eq_true (a b : Int) (h : decide (a ≥ b) = true) : (a ≥ b) = True := by simp_all
+theorem Rat.ge_eq_true (a b : Rat) (h : decide (a ≥ b) = true) : (a ≥ b) = True := by simp_all
+theorem Int8.ge_eq_true (a b : Int8) (h : decide (a ≥ b) = true) : (a ≥ b) = True := by simp_all
+theorem Int16.ge_eq_true (a b : Int16) (h : decide (a ≥ b) = true) : (a ≥ b) = True := by simp_all
+theorem Int32.ge_eq_true (a b : Int32) (h : decide (a ≥ b) = true) : (a ≥ b) = True := by simp_all
+theorem Int64.ge_eq_true (a b : Int64) (h : decide (a ≥ b) = true) : (a ≥ b) = True := by simp_all
+theorem UInt8.ge_eq_true (a b : UInt8) (h : decide (a ≥ b) = true) : (a ≥ b) = True := by simp_all
+theorem UInt16.ge_eq_true (a b : UInt16) (h : decide (a ≥ b) = true) : (a ≥ b) = True := by simp_all
+theorem UInt32.ge_eq_true (a b : UInt32) (h : decide (a ≥ b) = true) : (a ≥ b) = True := by simp_all
+theorem UInt64.ge_eq_true (a b : UInt64) (h : decide (a ≥ b) = true) : (a ≥ b) = True := by simp_all
+theorem Fin.ge_eq_true (a b : Fin n) (h : decide (a ≥ b) = true) : (a ≥ b) = True := by simp_all
+theorem BitVec.ge_eq_true (a b : BitVec n) (h : decide (a ≥ b) = true) : (a ≥ b) = True := by simp_all
+
+theorem Nat.ge_eq_false (a b : Nat) (h : decide (a ≥ b) = false) : (a ≥ b) = False := by simp_all
+theorem Int.ge_eq_false (a b : Int) (h : decide (a ≥ b) = false) : (a ≥ b) = False := by simp_all
+theorem Rat.ge_eq_false (a b : Rat) (h : decide (a ≥ b) = false) : (a ≥ b) = False := by simp_all
+theorem Int8.ge_eq_false (a b : Int8) (h : decide (a ≥ b) = false) : (a ≥ b) = False := by simp_all
+theorem Int16.ge_eq_false (a b : Int16) (h : decide (a ≥ b) = false) : (a ≥ b) = False := by simp_all
+theorem Int32.ge_eq_false (a b : Int32) (h : decide (a ≥ b) = false) : (a ≥ b) = False := by simp_all
+theorem Int64.ge_eq_false (a b : Int64) (h : decide (a ≥ b) = false) : (a ≥ b) = False := by simp_all
+theorem UInt8.ge_eq_false (a b : UInt8) (h : decide (a ≥ b) = false) : (a ≥ b) = False := by simp_all
+theorem UInt16.ge_eq_false (a b : UInt16) (h : decide (a ≥ b) = false) : (a ≥ b) = False := by simp_all
+theorem UInt32.ge_eq_false (a b : UInt32) (h : decide (a ≥ b) = false) : (a ≥ b) = False := by simp_all
+theorem UInt64.ge_eq_false (a b : UInt64) (h : decide (a ≥ b) = false) : (a ≥ b) = False := by simp_all
+theorem Fin.ge_eq_false (a b : Fin n) (h : decide (a ≥ b) = false) : (a ≥ b) = False := by simp_all
+theorem BitVec.ge_eq_false (a b : BitVec n) (h : decide (a ≥ b) = false) : (a ≥ b) = False := by simp_all
+
+theorem Nat.eq_eq_true (a b : Nat) (h : decide (a = b) = true) : (a = b) = True := by simp_all
+theorem Int.eq_eq_true (a b : Int) (h : decide (a = b) = true) : (a = b) = True := by simp_all
+theorem Rat.eq_eq_true (a b : Rat) (h : decide (a = b) = true) : (a = b) = True := by simp_all
+theorem Int8.eq_eq_true (a b : Int8) (h : decide (a = b) = true) : (a = b) = True := by simp_all
+theorem Int16.eq_eq_true (a b : Int16) (h : decide (a = b) = true) : (a = b) = True := by simp_all
+theorem Int32.eq_eq_true (a b : Int32) (h : decide (a = b) = true) : (a = b) = True := by simp_all
+theorem Int64.eq_eq_true (a b : Int64) (h : decide (a = b) = true) : (a = b) = True := by simp_all
+theorem UInt8.eq_eq_true (a b : UInt8) (h : decide (a = b) = true) : (a = b) = True := by simp_all
+theorem UInt16.eq_eq_true (a b : UInt16) (h : decide (a = b) = true) : (a = b) = True := by simp_all
+theorem UInt32.eq_eq_true (a b : UInt32) (h : decide (a = b) = true) : (a = b) = True := by simp_all
+theorem UInt64.eq_eq_true (a b : UInt64) (h : decide (a = b) = true) : (a = b) = True := by simp_all
+theorem Fin.eq_eq_true (a b : Fin n) (h : decide (a = b) = true) : (a = b) = True := by simp_all
+theorem BitVec.eq_eq_true (a b : BitVec n) (h : decide (a = b) = true) : (a = b) = True := by simp_all
+
+theorem Nat.eq_eq_false (a b : Nat) (h : decide (a = b) = false) : (a = b) = False := by simp_all
+theorem Int.eq_eq_false (a b : Int) (h : decide (a = b) = false) : (a = b) = False := by simp_all
+theorem Rat.eq_eq_false (a b : Rat) (h : decide (a = b) = false) : (a = b) = False := by simp_all
+theorem Int8.eq_eq_false (a b : Int8) (h : decide (a = b) = false) : (a = b) = False := by simp_all
+theorem Int16.eq_eq_false (a b : Int16) (h : decide (a = b) = false) : (a = b) = False := by simp_all
+theorem Int32.eq_eq_false (a b : Int32) (h : decide (a = b) = false) : (a = b) = False := by simp_all
+theorem Int64.eq_eq_false (a b : Int64) (h : decide (a = b) = false) : (a = b) = False := by simp_all
+theorem UInt8.eq_eq_false (a b : UInt8) (h : decide (a = b) = false) : (a = b) = False := by simp_all
+theorem UInt16.eq_eq_false (a b : UInt16) (h : decide (a = b) = false) : (a = b) = False := by simp_all
+theorem UInt32.eq_eq_false (a b : UInt32) (h : decide (a = b) = false) : (a = b) = False := by simp_all
+theorem UInt64.eq_eq_false (a b : UInt64) (h : decide (a = b) = false) : (a = b) = False := by simp_all
+theorem Fin.eq_eq_false (a b : Fin n) (h : decide (a = b) = false) : (a = b) = False := by simp_all
+theorem BitVec.eq_eq_false (a b : BitVec n) (h : decide (a = b) = false) : (a = b) = False := by simp_all
 
 end Lean.Sym

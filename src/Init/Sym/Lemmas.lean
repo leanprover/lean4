@@ -10,6 +10,7 @@ public import Init.Data.Rat.Basic
 public import Init.Data.Int.Basic
 public import Init.Data.UInt.Basic
 public import Init.Data.SInt.Basic
+public section
 namespace Lean.Sym
 
 theorem Nat.lt_eq_true (a b : Nat) (h : decide (a < b) = true) : (a < b) = True := by simp_all

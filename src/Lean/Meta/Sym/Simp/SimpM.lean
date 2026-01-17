@@ -102,7 +102,6 @@ invalidating the cache and causing O(2^n) behavior on conditional trees.
 structure Config where
   /-- Maximum number of steps that can be performed by the simplifier. -/
   maxSteps : Nat := 1000
-  -- **TODO**: many are still missing
 
 /--
 The result of simplifying an expression `e`.

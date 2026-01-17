@@ -13,6 +13,8 @@ public import Init.Data.SInt.Basic
 public section
 namespace Lean.Sym
 
+theorem ne_self (a : α) : (a ≠ a) = False := by simp
+
 theorem Nat.lt_eq_true (a b : Nat) (h : decide (a < b) = true) : (a < b) = True := by simp_all
 theorem Int.lt_eq_true (a b : Int) (h : decide (a < b) = true) : (a < b) = True := by simp_all
 theorem Rat.lt_eq_true (a b : Rat) (h : decide (a < b) = true) : (a < b) = True := by simp_all

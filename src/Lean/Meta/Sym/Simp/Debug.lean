@@ -17,11 +17,14 @@ open Simp
 Helper functions for debugging purposes and creating tests.
 -/
 
-public def mkMethods (declNames : Array Name) : MetaM Methods := do
+public def mkSimprocFor (declNames : Array Name) : MetaM Simproc := do
   let mut thms : Theorems := {}
   for declName in declNames do
     thms := thms.insert (← mkTheoremFromDecl declName)
-  return { post := thms.rewrite }
+  return thms.rewrite
+
+public def mkMethods (declNames : Array Name) : MetaM Methods := do
+  return { post := (← mkSimprocFor declNames) }
 
 public def simpWith (k : Expr → SymM Result) (mvarId : MVarId) : MetaM (Option MVarId) := SymM.run do
   let mvarId ← preprocessMVar mvarId

@@ -75,12 +75,12 @@ namespace Workspace
   self.root.lakeDir
 
 /-- Whether the Lake artifact cache should be enabled by default for packages in the workspace. -/
-@[inline] public def enableArtifactCache (ws : Workspace) : Bool :=
-  ws.lakeEnv.enableArtifactCache
+public def enableArtifactCache (ws : Workspace) : Bool :=
+  ws.lakeEnv.enableArtifactCache? <|> ws.root.enableArtifactCache? |>.getD false
 
 /-- Whether the Lake artifact cache should is enabled for workspace's root package. -/
 public def isRootArtifactCacheEnabled (ws : Workspace) : Bool :=
-  ws.root.enableArtifactCache?.getD ws.enableArtifactCache
+  ws.root.enableArtifactCache? <|> ws.lakeEnv.enableArtifactCache? |>.getD false
 
 /-- The path to the workspace's remote packages directory relative to {lean}`dir`. -/
 @[inline] public def relPkgsDir (self : Workspace) : FilePath :=
@@ -286,6 +286,7 @@ to run executables.
 public def augmentedEnvVars (self : Workspace) : Array (String × Option String) :=
   let vars := self.lakeEnv.baseVars ++ #[
     ("LAKE_CACHE_DIR", some self.lakeCache.dir.toString),
+    ("LAKE_ARTIFACT_CACHE", toString self.enableArtifactCache),
     ("LEAN_PATH", some self.augmentedLeanPath.toString),
     ("LEAN_SRC_PATH", some self.augmentedLeanSrcPath.toString),
     -- Allow the Lean version to change dynamically within core

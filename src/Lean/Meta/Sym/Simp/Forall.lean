@@ -80,7 +80,12 @@ public def simpForall (e : Expr) : SimpM Result := do
     simpArrow e
   else if (← isProp e) then
     let n := getForallTelescopeSize e.bindingBody! 1
-    forallBoundedTelescope e n fun xs b => do
+    forallBoundedTelescope e n fun xs b => withoutModifyingCacheIfNotWellBehaved do
+      main xs b
+  else
+    return .rfl
+where
+  main (xs : Array Expr) (b : Expr) : SimpM Result := do
     match (← simp b) with
     | .rfl _ => return .rfl
     | .step b' h _ =>
@@ -89,9 +94,7 @@ public def simpForall (e : Expr) : SimpM Result := do
       -- **Note**: consider caching the forall-congr theorems
       let hcongr ← mkForallCongrFor xs
       return .step e' (mkApp3 hcongr (← mkLambdaFVars xs b) (← mkLambdaFVars xs b') h)
-  else
-    return .rfl
-where
+
   -- **Note**: Optimize if this is quadratic in practice
   getForallTelescopeSize (e : Expr) (n : Nat) : Nat :=
     match e with

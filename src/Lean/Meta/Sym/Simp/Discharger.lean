@@ -35,6 +35,12 @@ Dischargers work by:
 3. Returning `none` if the condition cannot be discharged
 
 This integrates naturally with `Simproc`-based simplification.
+
+## Important
+
+When using dischargers that access new local declarations introduced when
+visiting binders, it is the user's responsibility to set `wellBehavedMethods := false`.
+This setting will instruct `simp` to discard the cache after visiting the binder's body.
 -/
 
 /--

@@ -508,7 +508,8 @@ def evalGE (α : Expr) (a b : Expr) : SimpM Result :=
 def evalEq (α : Expr) (a b : Expr) : SimpM Result :=
   if isSameExpr a b then do
     let e ← share <| mkConst ``True
-    return .step e (mkApp2 (mkConst ``eq_self [1]) α a) (done := true)
+    let u ← getLevel α
+    return .step e (mkApp2 (mkConst ``eq_self [u]) α a) (done := true)
   else match_expr α with
   | Nat => evalBinPred getNatValue? (mkConst ``Nat.eq_eq_true) (mkConst ``Nat.eq_eq_false) (. = .) a b
   | Int => evalBinPred getIntValue? (mkConst ``Int.eq_eq_true) (mkConst ``Int.eq_eq_false) (. = .) a b
@@ -528,7 +529,8 @@ def evalEq (α : Expr) (a b : Expr) : SimpM Result :=
 def evalNe (α : Expr) (a b : Expr) : SimpM Result :=
   if isSameExpr a b then do
     let e ← share <| mkConst ``False
-    return .step e (mkApp2 (mkConst ``ne_self [1]) α a) (done := true)
+    let u ← getLevel α
+    return .step e (mkApp2 (mkConst ``ne_self [u]) α a) (done := true)
   else match_expr α with
   | Nat => evalBinPred getNatValue? (mkConst ``Nat.ne_eq_true) (mkConst ``Nat.ne_eq_false) (. ≠ .) a b
   | Int => evalBinPred getIntValue? (mkConst ``Int.ne_eq_true) (mkConst ``Int.ne_eq_false) (. ≠ .) a b

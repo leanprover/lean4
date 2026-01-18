@@ -780,6 +780,9 @@ class task_manager {
                         // maximum was decreased by `task_get`), wait for someone else to become
                         // idle before picking up new work.
                         m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
+                    if (m_shutting_down) {
+                            trace_violation("waiting during shutdown");
+                    }
                     auto status = m_queue_cv.wait_for(lock, chrono::seconds(600));
                     if (status == std::cv_status::timeout) {
                         if (m_shutting_down) {

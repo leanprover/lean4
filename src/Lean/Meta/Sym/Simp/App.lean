@@ -70,7 +70,7 @@ Returns a proof using `congrFun`
 congrFun.{u, v} {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x} (h : f = g) (a : α) : f a = g a
 ```
 -/
-def mkCongrFun (e : Expr) (f a : Expr) (f' : Expr) (hf : Expr) (_ : e = .app f a) : SymM Result := do
+def mkCongrFun (e : Expr) (f a : Expr) (f' : Expr) (hf : Expr) (_ : e = .app f a) (done := false) : SymM Result := do
   let .forallE x _ βx _ ← whnfD (← inferType f)
     | throwError "failed to build congruence proof, function expected{indentExpr f}"
   let α ← inferType a
@@ -79,7 +79,7 @@ def mkCongrFun (e : Expr) (f a : Expr) (f' : Expr) (hf : Expr) (_ : e = .app f a
   let β := Lean.mkLambda x .default α βx
   let e' ← mkAppS f' a
   let h := mkApp6 (mkConst ``congrFun [u, v]) α β f f' hf a
-  return .step e' h
+  return .step e' h done
 
 /--
 Handles simplification of over-applied function terms.
@@ -126,6 +126,43 @@ public def simpOverApplied (e : Expr) (numArgs : Nat) (simpFn : Expr → SimpM R
         else match fr with
           | .rfl _ => return .rfl
           | .step f' hf _ => mkCongrFun e f a f' hf h
+      | _ => unreachable!
+  visit e numArgs
+
+/--
+Handles over-applied function expressions by simplifying only the base function and
+propagating changes through extra arguments WITHOUT simplifying them.
+
+Unlike `simpOverApplied`, this function does not simplify the extra arguments themselves.
+It only uses congruence (`mkCongrFun`) to propagate changes when the base function is simplified.
+
+**Algorithm**:
+1. Peel off `numArgs` extra arguments from `e`
+2. Apply `simpFn` to simplify the base function
+3. If the base changed, propagate the change through each extra argument using `mkCongrFun`
+4. Return `.rfl` if the base function was not simplified
+
+**Parameters**:
+- `e`: The over-applied expression
+- `numArgs`: Number of excess arguments to peel off
+- `simpFn`: Strategy for simplifying the base function after peeling
+
+**Contrast with `simpOverApplied`**:
+- `simpOverApplied`: Fully simplifies both base and extra arguments
+- `propagateOverApplied`: Only simplifies base, appends extra arguments unchanged
+-/
+public def propagateOverApplied (e : Expr) (numArgs : Nat) (simpFn : Expr → SimpM Result) : SimpM Result := do
+  let rec visit (e : Expr) (i : Nat) : SimpM Result := do
+    if i == 0 then
+      simpFn e
+    else
+      let i := i - 1
+      match h : e with
+      | .app f a =>
+        let r ← visit f i
+        match r with
+        | .rfl _ => return r
+        | .step f' hf done => mkCongrFun e f a f' hf h done
       | _ => unreachable!
   visit e numArgs
 

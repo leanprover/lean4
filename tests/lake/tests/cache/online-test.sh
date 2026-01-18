@@ -34,6 +34,12 @@ with_cdn_endpoints() {
   "$@"
 }
 
+with_bogus_endpoints() {
+  LAKE_CACHE_ARTIFACT_ENDPOINT=https://example.com \
+  LAKE_CACHE_REVISION_ENDPOINT=https://example.com \
+  "$@"
+}
+
 # Since committing a Git repository to a Git repository is not well-supported,
 # We reinitialize the repository on each test.
 init_git
@@ -79,7 +85,7 @@ test_err "revision not found" cache get --repo='leanprover/bogus' --rev='bogus'
 test_err "outputs not found for revision" cache get --repo='leanprover/bogus' --rev=$REV
 
 # Test `cache get` skipping non-Reservoir dependencies
-test_run -f  non-reservoir.toml update
+test_run -f non-reservoir.toml update
 test_out 'hello: skipping non-Reservoir dependency' -f non-reservoir.toml cache get
 
 # Build artifacts
@@ -87,6 +93,10 @@ test_run build +Test -o .lake/outputs.jsonl
 test_exp -f .lake/outputs.jsonl
 test_cmd_eq 3 wc -l < .lake/outputs.jsonl
 test_cmd cp -r .lake/cache .lake/cache-backup
+
+# Test fetch from invalid URL
+with_bogus_endpoints test_err "failed to upload artifact" \
+  cache put .lake/outputs.jsonl --scope='!/test'
 
 # Test cache put/get with a custom endpoint
 with_upload_endpoints test_run cache put .lake/outputs.jsonl --scope='!/test'

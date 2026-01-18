@@ -689,7 +689,7 @@ class task_manager {
     condition_variable                            m_dedicated_finished_cv;
     bool                                          m_shutting_down{false};
 
-    void trace_violation(char const * reason) {
+    void internal_trace(char const * reason) {
         size_t tid_hash = std::hash<thread::id>{}(this_thread::get_id());
         fprintf(g_saved_stderr,
             "task_manager: %s: tm=%p tid_hash=%zu mutex=%p queue_cv=%p shutting_down=%d queues=%u idle=%u std_workers=%zu max_std=%u max_prio=%u\n",
@@ -781,12 +781,12 @@ class task_manager {
                         // idle before picking up new work.
                         m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
                     if (m_shutting_down) {
-                            trace_violation("waiting during shutdown");
+                            internal_trace("waiting during shutdown");
                     }
                     auto status = m_queue_cv.wait_for(lock, chrono::seconds(600));
                     if (status == std::cv_status::timeout) {
                         if (m_shutting_down) {
-                            trace_violation("timeout_after_shutdown");
+                            internal_trace("timeout after shutdown");
                         }
                         // Assume for simplicity that shutdown does not happen at this instant
                         m_queue_cv.wait(lock);
@@ -909,6 +909,7 @@ public:
             // we can assume that `m_std_workers` will not be changed after this line
         }
         m_queue_cv.notify_all();
+        internal_trace("shutdown called");
 #ifndef LEAN_EMSCRIPTEN
         // wait for all workers to finish
         for (auto & t : m_std_workers)

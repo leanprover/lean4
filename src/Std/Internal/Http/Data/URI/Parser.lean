@@ -122,7 +122,7 @@ private def parsePortNumber : Parser UInt16 := do
   let portStr := String.fromUTF8! portBytes.toByteArray
 
   let some portNum := String.toNat? portStr
-    | fail s!"invalid port number: {portStr}"
+    | fail s!"invalid port number:{portStr}"
 
   if portNum > 65535 then
     fail s!"port number too large: {portNum}"
@@ -332,48 +332,41 @@ public def parseURI : Parser URI := do
 /--
 Parses a request target with combined parsing and validation.
 -/
-public def parseRequestTarget : Parser RequestTarget := do
-
+public def parseRequestTarget : Parser RequestTarget :=
+  asterisk <|> origin <|> absolute <|> authority
+where
   -- The asterisk form
-  if (← tryOpt (skipByte '*'.toUInt8)).isSome then
+  asterisk : Parser RequestTarget := do
+    skipByte '*'.toUInt8
     return .asteriskForm
 
   -- origin-form = absolute-path [ "?" query ]
   -- absolute-path = 1*( "/" segment )
-  if ← peekIs (· == '/'.toUInt8) then
-    let path ← parsePath false true
-    let query ← optional (skipByte '?'.toUInt8 *> parseQuery)
-    let frag ← optional (skipByte '#'.toUInt8 *> parseFragment)
-    return .originForm path query frag
-
-  let authorityForm ← tryOpt do
-    let host ← parseHost
-    skipByteChar ':'
-    let port ← parsePortNumber
-    return RequestTarget.authorityForm { host, port := some port }
+  origin : Parser RequestTarget := attempt do
+    if ← peekIs (· == '/'.toUInt8) then
+      let path ← parsePath true true
+      let query ← optional (skipByte '?'.toUInt8 *> parseQuery)
+      let frag ← optional (skipByte '#'.toUInt8 *> parseFragment)
+      return .originForm path query frag
+    else
+      fail "not origin"
 
   -- absolute-URI  = scheme ":" hier-part [ "?" query ]
-  let scheme ← tryOpt do
+  absolute : Parser RequestTarget := attempt do
     let scheme ← parseScheme
     skipByte ':'.toUInt8
-    return scheme
-
-  if let some authorityForm := authorityForm then
-    if scheme.isNone ∧ (authorityForm.authority?.bind (·.port) |>.isNone) then
-      fail "need a scheme to determine if the port is a port or a path"
-
-    return authorityForm
-
-  -- absolute-URI  = scheme ":" hier-part [ "?" query ]
-  if let some scheme := scheme then
-    -- hier-part = "//" authority path-abempty
     let (authority, path) ← parseHierPart
     let query ← optional (skipByteChar '?' *> parseQuery)
     let query := query.getD URI.Query.empty
     let fragment ← optional (skipByteChar '#' *> parseFragment)
     return .absoluteForm { path, scheme, authority, query, fragment }
 
-  fail "invalid request target"
+  -- authority-form = host ":" port
+  authority : Parser RequestTarget := attempt do
+    let host ← parseHost
+    skipByteChar ':'
+    let port ← parsePortNumber
+    return .authorityForm { host, port := some port }
 
 /--
 Parses an HTTP `Host` header value.

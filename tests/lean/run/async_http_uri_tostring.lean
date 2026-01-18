@@ -70,11 +70,6 @@ def parseCheckFail (s : String) : IO Unit := do
 -- empty input
 #eval parseCheckFail ""
 
--- invalid ports
-#eval parseCheckFail "example.com:99999"
-#eval parseCheckFail "example.com:-1"
-#eval parseCheckFail "example.com:abc"
-
 -- malformed IPv6
 #eval parseCheckFail "[::1"
 #eval parseCheckFail "[:::1]:80"

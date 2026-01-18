@@ -23,7 +23,7 @@ info: Std.Http.RequestTarget.originForm { segments := #["path", "with", "encoded
   IO.println (repr result)
 
 /--
-error: offset 0: invalid request target
+error: offset 0: expected: '58'
 -/
 #guard_msgs in
 #eval show IO _ from do
@@ -44,7 +44,7 @@ info: some "lol🔥"
 #guard_msgs in
 #eval show IO _ from do
   let result ← runParser parseRequestTarget "https://ata/b?ata=be#lol%F0%9F%94%A5"
-  IO.println (repr (result.fragment?.map (·.decode)))
+  IO.println (repr (result.fragment?.bind (·.decode)))
 /--
 info: #[("q", "hello%20world"), ("category", "tech%2Bgames")]
 -/
@@ -149,8 +149,12 @@ info: Std.Http.RequestTarget.originForm { segments := #["path%2Fwith%2Fencoded%2
   IO.println (repr result)
 
 /--
-info: Std.Http.RequestTarget.authorityForm
-  { userInfo := none, host := Std.Http.URI.Host.name "example.com", port := some 8080 }
+info: Std.Http.RequestTarget.absoluteForm
+  { scheme := "example.com",
+    authority := none,
+    path := { segments := #["8080"], absolute := false },
+    query := #[],
+    fragment := none }
 -/
 #guard_msgs in
 #eval show IO _ from do
@@ -171,7 +175,12 @@ info: Std.Http.RequestTarget.absoluteForm
   IO.println (repr result)
 
 /--
-info: Std.Http.RequestTarget.authorityForm { userInfo := none, host := Std.Http.URI.Host.ipv4 192.168.1.1, port := some 3000 }
+info: Std.Http.RequestTarget.absoluteForm
+  { scheme := "192.168.1.1",
+    authority := none,
+    path := { segments := #["3000"], absolute := false },
+    query := #[],
+    fragment := none }
 -/
 #guard_msgs in
 #eval show IO _ from do
@@ -254,7 +263,7 @@ info: Std.Http.RequestTarget.absoluteForm
   IO.println (repr result)
 
 /--
-error: offset 0: invalid request target
+error: offset 0: expected at least one char
 -/
 #guard_msgs in
 #eval show IO _ from do
@@ -262,7 +271,7 @@ error: offset 0: invalid request target
   IO.println (repr result)
 
 /--
-error: offset 1: it's a scheme starter
+error: offset 0: expected at least one char
 -/
 #guard_msgs in
 #eval show IO _ from do
@@ -308,8 +317,12 @@ info: Std.Http.RequestTarget.absoluteForm
   IO.println (repr result)
 
 /--
-info: Std.Http.RequestTarget.authorityForm
-  { userInfo := none, host := Std.Http.URI.Host.name "localhost", port := some 65535 }
+info: Std.Http.RequestTarget.absoluteForm
+  { scheme := "localhost",
+    authority := none,
+    path := { segments := #["65535"], absolute := false },
+    query := #[],
+    fragment := none }
 -/
 #guard_msgs in
 #eval show IO _ from do

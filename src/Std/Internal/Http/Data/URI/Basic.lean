@@ -588,13 +588,13 @@ instance : ToString URI where
     let schemePart :=  uri.scheme
     let authorityPart := match uri.authority with
       | none => ""
-      | some auth => s!"://{toString auth}"
+      | some auth => s!"//{toString auth}"
     let pathPart := toString uri.path
     let queryPart := toString uri.query
     let fragmentPart := match uri.fragment with
       | none => ""
       | some f => s!"#{toString f}"
-    s!"{schemePart}{authorityPart}{pathPart}{queryPart}{fragmentPart}"
+    s!"{schemePart}:{authorityPart}{pathPart}{queryPart}{fragmentPart}"
 
 instance : ToString RequestTarget where
   toString

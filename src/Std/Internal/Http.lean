@@ -56,7 +56,10 @@ def main : IO Unit := do
 
 ## Working with Requests
 
-LITTLE DESCRIPTION
+Incoming requests are represented by `Request Body`, which bundles together the
+request line, parsed headers, and a lazily-consumed body. Headers are available
+immediately, while the body can be streamed or collected on demand, allowing handlers
+to efficiently process both small and large requests.
 
 ### Reading Headers
 
@@ -75,7 +78,9 @@ def handler (req : Request Body) : ContextAsync (Response Body) := do
 
 ### Reading Request Body
 
-LITTLE DESCRIPTION
+The request body is exposed as a stream, which can be consumed incrementally or collected into memory.
+Helper functions are provided to decode the body as UTF-8 text or raw bytes, with optional size limits
+to protect against unbounded payloads.
 
 ```lean
 def handler (req : Request Body) : ContextAsync (Response Body) := do
@@ -91,7 +96,9 @@ def handler (req : Request Body) : ContextAsync (Response Body) := do
 
 ## Building Responses
 
-LITTLE DESCRIPTION
+Responses are constructed using an API that starts from a status code and adds headers and a body.
+Common helpers exist for text, HTML, and binary responses, while still allowing full control overstatus
+codes and header values.
 
 ```lean
 -- Text response

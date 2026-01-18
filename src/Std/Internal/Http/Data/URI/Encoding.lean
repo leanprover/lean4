@@ -47,7 +47,7 @@ def isHexDigit (c : UInt8) : Bool :=
   (c ≥ 'A'.toUInt8 && c ≤ 'F'.toUInt8)
 
 /--
-Checks if a byte is an alphanumeric or decimal digit (0-9, a-z, or A-Z).
+Checks if a byte is an alphanumeric digit (0-9, a-z, or A-Z).
 -/
 def isAlphaNum (c : UInt8) : Bool :=
   (c ≥ '0'.toUInt8 && c ≤ '9'.toUInt8) ||

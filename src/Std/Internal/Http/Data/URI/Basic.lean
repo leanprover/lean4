@@ -154,9 +154,7 @@ def names (query : Query) : Array EncodedQueryString :=
   |> List.toArray
 
 /--
-Extracts all query parameter values (decoded).
-Returns empty string for parameters without values.
-Includes all values for parameters that appear multiple times.
+Extracts all query parameter values.
 -/
 @[expose]
 def values (query : Query) : Array EncodedQueryString :=

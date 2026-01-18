@@ -692,7 +692,7 @@ class task_manager {
     void internal_trace(char const * reason) {
         size_t tid_hash = std::hash<thread::id>{}(this_thread::get_id());
         fprintf(g_saved_stderr,
-            "task_manager: %s: tm=%p tid_hash=%zu mutex=%p queue_cv=%p shutting_down=%d queues=%u idle=%u std_workers=%zu max_std=%u max_prio=%u\n",
+            "task_manager: %s: tm=%p tid_hash=%zu mutex=%p queue_cv=%p shutting_down=%d queues=%u idle=%u std_workers=%zu max_std=%u max_prio=%u dedicated=%u\n",
             reason,
             static_cast<void*>(this),
             tid_hash,
@@ -703,7 +703,8 @@ class task_manager {
             m_idle_std_workers,
             m_std_workers.size(),
             m_max_std_workers,
-            m_max_prio);
+            m_max_prio,
+            m_num_dedicated_workers);
         fflush(g_saved_stderr);
     }
 
@@ -743,6 +744,9 @@ class task_manager {
             spawn_worker();
         else
             m_queue_cv.notify_one();
+            if (m_shutting_down) {
+                internal_trace("enqueue_core (just notified)");
+            }
     }
 
     void deactivate_task_core(unique_lock<mutex> & lock, lean_task_object * t) {
@@ -812,6 +816,9 @@ class task_manager {
             run_task(lock, t);
             m_num_dedicated_workers--;
             m_dedicated_finished_cv.notify_all();
+            if (m_shutting_down) {
+                internal_trace("spawn_dedicated_worker (just notified)");
+            }
         });
         // `lthread` will be implicitly freed, which frees up its control resources but does not terminate the thread
     }
@@ -867,6 +874,9 @@ class task_manager {
            dependencies, we can release `imp` and keep just the value */
         free_task_imp(imp);
         m_task_finished_cv.notify_all();
+        if (m_shutting_down) {
+            internal_trace("resolve_core (just notified)");
+        }
     }
 
     void handle_finished(unique_lock<mutex> & lock, lean_task_object * t, lean_task_imp * imp) {
@@ -973,6 +983,9 @@ public:
                 spawn_worker();
             else
                 m_queue_cv.notify_one();
+                if (m_shutting_down) {
+                    internal_trace("wait_for (just notified)");
+                }
         }
         m_task_finished_cv.wait(lock, [&]() { return t->m_value != nullptr; });
         if (in_pool) {

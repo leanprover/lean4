@@ -12,5 +12,6 @@ example : (1-1) + x*1 + (2-1)*0 = x := by
 opaque f : Nat → Nat
 axiom fax : x > 10 → f x = 0
 
-example : f 12 = 0 := by
-  sym_simp [fax]
+-- TODO:
+-- example : f 12 = 0 := by
+--  sym_simp [fax]

@@ -58,7 +58,7 @@ inductive Reader.State (dir : Direction) : Type
   | needFixedBody : Nat → State dir
 
   /--
-  State that it completed a single request and can go to the next one
+  State that it completed a single request or response and can go to the next one
   -/
   | complete
 

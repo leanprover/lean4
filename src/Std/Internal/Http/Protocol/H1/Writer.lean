@@ -35,7 +35,7 @@ The state of the `Writer` state machine.
 -/
 inductive Writer.State
   /--
-  It only starts to write when part of the request is received.
+  It starts writing only when part of the request is received.
   -/
   | pending
 
@@ -61,7 +61,7 @@ inductive Writer.State
   | writingBody (mode : Body.Length)
 
   /--
-  Shutting down, it will flush all the remaining data and cause it to shutdown.
+  It will flush all the remaining data and cause it to shutdown the machine.
   -/
   | shuttingDown
 
@@ -77,7 +77,7 @@ inductive Writer.State
 deriving Inhabited, Repr, BEq
 
 /--
-Manages the writing state of the HTTP parsing and processing machine.
+Manages the writing state of the HTTP generating and writing machine.
 -/
 structure Writer (dir : Direction) where
   /--
@@ -86,7 +86,7 @@ structure Writer (dir : Direction) where
   userData : Array Chunk := .empty
 
   /--
-  All the data that is going to get out of the writer.
+  All the data that is produced by the writer.
   -/
   outputData : ChunkedBuffer := .empty
 
@@ -112,14 +112,14 @@ structure Writer (dir : Direction) where
   sentMessage : Bool := false
 
   /--
-  This flags that the writer is closed so if we start to write the body we know exactly the size.
+  This flags that the body stream is closed so if we start to write the body we know exactly the size.
   -/
   userClosedBody : Bool := false
 
 namespace Writer
 
 /--
-Checks if the writer is closed (cannot process more data)
+Checks if the writer is ready to send data to the output.
 -/
 @[inline]
 def isReadyToSend {dir} (writer : Writer dir) : Bool :=
@@ -259,7 +259,7 @@ def shouldKeepAlive (writer : Writer dir) : Bool :=
 Closes the writer, transitioning to the closed state.
 -/
 @[inline]
-def close (reader : Writer dir) : Writer dir :=
-  { reader with state := .closed }
+def close (writer : Writer dir) : Writer dir :=
+  { writer with state := .closed }
 
 end Writer

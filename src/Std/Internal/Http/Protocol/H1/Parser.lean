@@ -31,7 +31,7 @@ def isAlpha (c : UInt8) : Bool :=
 
 @[inline]
 def isVChar (c : UInt8) : Bool :=
-  c ≥ 0x21 ∧ c ≤ 126
+  c ≥ 0x21 ∧ c ≤ 0x7E
 
 def isTokenCharacter (c : UInt8) : Bool :=
   isDigit c ∨ isAlpha c ∨ c == '!'.toUInt8 ∨ c == '#'.toUInt8 ∨ c == '$'.toUInt8 ∨ c == '%'.toUInt8 ∨

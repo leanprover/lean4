@@ -23,7 +23,7 @@ open Std Internal IO Async TCP
 set_option linter.all true
 
 /--
-Generic HTTP client interface that abstracts over different transport mechanisms.
+Generic HTTP interface that abstracts over different transport mechanisms.
 -/
 class Transport (α : Type) where
   /--
@@ -78,8 +78,8 @@ structure Mock.Server where
 namespace Mock
 
 /--
-Create a new pair of connected mock clients (client and server). They share the same underlying state
-for bidirectional communication.
+Create a mock server and client that are connected to each other and share the
+same underlying state, enabling bidirectional communication.
 -/
 def new : BaseIO (Mock.Client × Mock.Server) := do
   let first ← Std.CloseableChannel.new

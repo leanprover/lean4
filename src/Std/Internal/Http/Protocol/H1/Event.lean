@@ -28,46 +28,46 @@ namespace Std.Http.Protocol.H1
 set_option linter.all true
 
 /--
-Events that can occur during HTTP message processing.
+Events emitted during HTTP message processing.
 -/
 inductive Event (dir : Direction)
   /--
-  Event received when the headers end.
+  Indicates that all headers have been successfully parsed.
   -/
   | endHeaders (head : Message.Head dir)
 
   /--
-  Event received when some data arrives from the received message.
+  Carries a chunk of message body data.
   -/
   | gotData (final : Bool) (ext : Array (String × Option String)) (data : ByteSlice)
 
   /--
-  Event received when the input ends and more data is required to continue
+  Signals that additional input data is required to continue processing.
   -/
   | needMoreData (size : Option Nat)
 
   /--
-  Event received when parsing or processing fails with an error message.
+  Indicates a failure during parsing or processing.
   -/
   | failed (err : Error)
 
   /--
-  Event received when connection should be closed.
+  Requests that the connection be closed.
   -/
   | close
 
   /--
-  Need an answer
+  Indicates that a response is required.
   -/
   | needAnswer
 
   /--
-  Need a body
+  Indicates that a message body is required.
   -/
   | needBody
 
   /--
-  Awaiting the next message
+  Indicates readiness to process the next message.
   -/
   | next
 deriving Inhabited, Repr

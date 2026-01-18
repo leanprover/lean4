@@ -14,7 +14,7 @@ public section
 /-!
 # Config
 
-This module exposes the `Config`, a structure that describes all the timeout, request, headers
+This module exposes the `Config`, a structure that describes timeout, request and headers
 configuration of an HTTP Server.
 -/
 
@@ -47,7 +47,7 @@ structure Config where
   keepAliveTimeout : { x : Time.Millisecond.Offset // 0 < x } :=  ⟨12000, by decide⟩
 
   /--
-  Maximum timeout time for request more data.
+  Maximum time for requesting more data.
   -/
   requestTimeout : { x : Time.Millisecond.Offset // 0 < x } := ⟨13000, by decide⟩
 

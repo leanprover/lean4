@@ -13,12 +13,12 @@ public section
 /-!
 # Message
 
-This module provides types and operations for HTTP/1.1 messages, centered around the abstraction
-`Direction`, which indicates whether code is processing incoming requests (server-side, `Direction.receiving`)
-or outgoing requests (client-side, `Direction.sending`); the `Message.Head` type is parameterized by
-`Direction` and resolves to either `Request.Head` or `Response.Head` accordingly, enabling the writing
-of generic code that works uniformly across both client and server message heads while exposing common
-operations such as headers, version, and `shouldKeepAlive`, whose behavior adapts based on the chosen direction.
+This module provides types and operations for HTTP/1.1 messages, centered around the `Direction`
+type which models the server's role in message exchange: `Direction.receiving` for parsing incoming
+requests from clients, and `Direction.sending` for generating outgoing responses to clients.
+The `Message.Head` type is parameterized by `Direction` and resolves to `Request.Head` or
+`Response.Head` accordingly, enabling generic code that works uniformly across both phases
+while exposing common operations such as headers, version, and `shouldKeepAlive`
 -/
 
 namespace Std.Http.Protocol.H1
@@ -26,16 +26,16 @@ namespace Std.Http.Protocol.H1
 set_option linter.all true
 
 /--
-Direction of message flow in the HTTP connection in relation with requests.
+Direction of message flow from the server's perspective.
 -/
 inductive Direction
   /--
-  Processing incoming requests.
+  Receiving and parsing incoming requests from clients.
   -/
   | receiving
 
   /--
-  Processing outgoing requests.
+  Generating and sending outgoing responses to clients.
   -/
   | sending
 deriving BEq

@@ -61,8 +61,8 @@ extern "C" LEAN_EXPORT obj_res lean_internal_get_default_options(obj_arg) {
     return get_default_options().steal();
 }
 
-extern "C" LEAN_EXPORT obj_res lean_options_get_empty();
-options::options(): object_ref(lean_options_get_empty()) {}
+extern "C" LEAN_EXPORT obj_res lean_options_get_empty(obj_arg u);
+options::options(): object_ref(lean_options_get_empty(box(0))) {}
 
 extern "C" LEAN_EXPORT bool lean_options_get_bool(obj_arg opts, obj_arg n, bool default_value);
 bool options::get_bool(name const & n, bool default_value) const {

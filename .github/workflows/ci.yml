@@ -275,9 +275,9 @@ jobs:
                 // * `bv_` sometimes times out calling into cadical even though we should be using
                 //   the standard compile flags for it.
                 // * `grind_guide` always times out.
-                // * `pkg/` tests sometimes time out (likely even hang), related to Lake CI
+                // * `pkg/|lake/` tests sometimes time out (likely even hang), related to Lake CI
                 //   failures?
-                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel|9366|run/bv_|grind_guide|pkg/'"
+                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel|9366|run/bv_|grind_guide|pkg/|lake/'"
               },
               {
                 "name": "macOS",

@@ -5,6 +5,10 @@ structure S (n : Nat)
 structure T where
   n : Nat
 
+/--
+error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'badPair', which is 'noncomputable'
+-/
+#guard_msgs in
 def test1 : S badPair.2.1 := {}
 
 /--
@@ -13,7 +17,15 @@ error: failed to compile definition, consider marking it as 'noncomputable' beca
 #guard_msgs in
 def test2 : T := { n := badPair.2.1 }
 
+/--
+error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'badFun', which is 'noncomputable'
+-/
+#guard_msgs in
 def test3 (a : Nat) : S (badFun a) := {}
+/--
+error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'badFun', which is 'noncomputable'
+-/
+#guard_msgs in
 def test4 (a : Nat) : S ((badFun a) + 1) := {}
 
 /--
@@ -32,7 +44,15 @@ structure U (a : Nat × Nat)
 structure V where
   a : Nat × Nat
 
+/--
+error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'badFun', which is 'noncomputable'
+-/
+#guard_msgs in
 def test7 (a : Nat) : U (⟨badFun a, 0⟩) := {}
+/--
+error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'badFun', which is 'noncomputable'
+-/
+#guard_msgs in
 def test8 (a : Nat) : U ((V.mk ⟨badFun a, 1⟩).a) := {}
 
 /--

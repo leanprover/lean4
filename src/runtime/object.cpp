@@ -742,11 +742,12 @@ class task_manager {
         m_queues_size++;
         if (!m_idle_std_workers && m_std_workers.size() < m_max_std_workers)
             spawn_worker();
-        else
+        else {
             m_queue_cv.notify_one();
             if (m_shutting_down) {
                 internal_trace("enqueue_core (just notified)");
             }
+        }
     }
 
     void deactivate_task_core(unique_lock<mutex> & lock, lean_task_object * t) {
@@ -981,11 +982,12 @@ public:
             m_max_std_workers++;
             if (m_idle_std_workers == 0)
                 spawn_worker();
-            else
+            else {
                 m_queue_cv.notify_one();
                 if (m_shutting_down) {
                     internal_trace("wait_for (just notified)");
                 }
+            }
         }
         m_task_finished_cv.wait(lock, [&]() { return t->m_value != nullptr; });
         if (in_pool) {

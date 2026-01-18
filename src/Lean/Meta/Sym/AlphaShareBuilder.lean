@@ -177,4 +177,16 @@ def mkHaveS (x : Name) (t : Expr) (v : Expr) (b : Expr) : m Expr := do
   else
     mkLetS n newType newVal newBody nondep
 
+def mkAppS₂ (f a₁ a₂ : Expr) : m Expr := do
+  mkAppS (← mkAppS f a₁) a₂
+
+def mkAppS₃ (f a₁ a₂ a₃ : Expr) : m Expr := do
+  mkAppS (← mkAppS₂ f a₁ a₂) a₃
+
+def mkAppS₄ (f a₁ a₂ a₃ a₄ : Expr) : m Expr := do
+  mkAppS (← mkAppS₃ f a₁ a₂ a₃) a₄
+
+def mkAppS₅ (f a₁ a₂ a₃ a₄ a₅ : Expr) : m Expr := do
+  mkAppS (← mkAppS₄ f a₁ a₂ a₃ a₄) a₅
+
 end Lean.Meta.Sym.Internal

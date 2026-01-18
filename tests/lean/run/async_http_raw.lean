@@ -211,7 +211,7 @@ def testMaxRequestSize : IO Unit := do
   IO.println s!"{responseData.quote}"
 
 /--
-info: "HTTP/1.1 413 Request Entity Too Large\x0d\nContent-Length: 48\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: application/json\x0d\n\x0d\n{\"error\": \"Request too large\", \"max_size\": 1000}"
+info: "HTTP/1.1 413 Payload Too Large\x0d\nContent-Length: 48\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\nContent-Type: application/json\x0d\n\x0d\n{\"error\": \"Request too large\", \"max_size\": 1000}"
 -/
 #guard_msgs in
 #eval show IO _ from do testMaxRequestSize

@@ -166,6 +166,7 @@ structure Context where
   /-- Size of the local context when simplification started.
   Used to determine which free variables were introduced during simplification. -/
   initialLCtxSize : Nat
+  dischargeDepth  : Nat := 0
 
 /-- Cache mapping expressions (by pointer equality) to their simplified results. -/
 abbrev Cache := PHashMap ExprPtr Result

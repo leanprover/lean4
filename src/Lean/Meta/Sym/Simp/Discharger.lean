@@ -52,7 +52,16 @@ Given a proposition `e : Prop`, returns:
 
 **Usage**: Dischargers are used by the simplifier when applying conditional rewrite rules.
 -/
-abbrev Discharger := Expr → SimpM (Option Expr)
+public abbrev Discharger := Expr → SimpM (Option Expr)
+
+def resultToOptionProof (e : Expr) (result : Result) : Option Expr :=
+  match result with
+  | .rfl _ => none
+  | .step e' h _ =>
+    if e'.isTrue then
+      some <| mkOfEqTrueCore e h
+    else
+      none
 
 /--
 Converts a simplification procedure into a discharger.
@@ -72,14 +81,8 @@ a proof of the original proposition.
 **Example**: If `p` simplifies `5 < 10` to `True` via proof `h : (5 < 10) = True`,
 then `mkDischargerFromSimproc p` returns `ofEqTrue h : 5 < 10`.
 -/
-def mkDischargerFromSimproc (p : Simproc) : Discharger := fun e => do
-  match (← p e) with
-  | .rfl _ => return none
-  | .step e' h _ =>
-    if e'.isTrue then
-      return some <| mkOfEqTrueCore e h
-    else
-      return none
+public def mkDischargerFromSimproc (p : Simproc) : Discharger := fun e => do
+  return resultToOptionProof e (← p e)
 
 /--
 The default discharger uses the simplifier itself to discharge side conditions.
@@ -90,9 +93,16 @@ the simplifier is invoked to prove their preconditions. This is effective becaus
 1. **Ground terms**: Conditions like `5 ≠ 0` are evaluated by simprocs
 2. **Recursive simplification**: Complex conditions are reduced to simpler ones
 3. **Lemma application**: The simplifier can apply other rewrite rules to conditions
+
+It ensures the cached results are discarded, and increases the discharge depth to avoid
+infinite recursion.
 -/
-def dischargeSimpSelf : Discharger :=
-  mkDischargerFromSimproc simp
+public def dischargeSimpSelf : Discharger := fun e => do
+  if (← readThe Context).dischargeDepth > (← getConfig).maxDischargeDepth then
+    return none
+  withoutModifyingCache do
+  withTheReader Context (fun ctx => { ctx with dischargeDepth := ctx.dischargeDepth + 1 }) do
+    return resultToOptionProof e (← simp e)
 
 /--
 A discharger that fails to prove any side condition.
@@ -105,7 +115,7 @@ returns `none` for all propositions, effectively disabling conditional rewriting
 - Performance: Avoiding expensive discharge attempts when conditions are unlikely to hold
 - Controlled rewriting: Explicitly disabling conditional rules in specific contexts
 -/
-def dischargeNone : Discharger := fun _ =>
+public def dischargeNone : Discharger := fun _ =>
   return none
 
 end Lean.Meta.Sym.Simp

@@ -20,3 +20,4 @@ public import Lean.Meta.Sym.Simp.Forall
 public import Lean.Meta.Sym.Simp.Debug
 public import Lean.Meta.Sym.Simp.EvalGround
 public import Lean.Meta.Sym.Simp.Discharger
+public import Lean.Meta.Sym.Simp.ControlFlow

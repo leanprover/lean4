@@ -202,8 +202,8 @@ extern "C" float lean_float32_of_nat(lean_obj_arg a);
 
 static string_ref * g_boxed_mangled_suffix = nullptr;
 static name * g_interpreter_prefer_native = nullptr;
-static name * g_interpreter_step = nullptr;
-static name * g_interpreter_call = nullptr;
+DEBUG_CODE(static name * g_interpreter_step = nullptr;)
+DEBUG_CODE(static name * g_interpreter_call = nullptr;)
 
 // constants (lacking native declarations) initialized by `lean_run_init`
 // We can assume this variable is never written to and read from in parallel; see `enableInitializersExecution`.
@@ -1230,6 +1230,10 @@ void initialize_ir_interpreter() {
 void finalize_ir_interpreter() {
     delete ir::g_native_symbol_cache_mutex;
     delete ir::g_native_symbol_cache;
+    DEBUG_CODE({
+        delete ir::g_interpreter_call;
+        delete ir::g_interpreter_step;
+    });
     delete ir::g_init_globals;
     delete ir::g_interpreter_prefer_native;
     delete ir::g_boxed_mangled_suffix;

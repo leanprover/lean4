@@ -256,7 +256,7 @@ def shouldKeepAlive (writer : Writer dir) : Bool :=
   |>.getD true
 
 /--
-Closes the reader, transitioning to the closed state.
+Closes the writer, transitioning to the closed state.
 -/
 @[inline]
 def close (reader : Writer dir) : Writer dir :=

@@ -59,6 +59,6 @@ if you need a safe option-returning version.
 def parse! (string : String) : URI :=
   match parse? string with
   | some res => res
-  | none => panic! "invalid request target"
+  | none => panic! "invalid URI"
 
 end URI

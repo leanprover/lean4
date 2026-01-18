@@ -90,7 +90,6 @@ instance : Header ContentLength where
 
 /--
 Validates that "chunked" encoding, if present, appears exactly once and is last.
-Returns `valid` if the encoding list is valid, `invalid` otherwise.
 -/
 abbrev IsValidTransferEncoding (encodings : Array String) : Prop :=
   if encodings.isEmpty then

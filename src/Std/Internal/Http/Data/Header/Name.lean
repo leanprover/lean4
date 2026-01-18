@@ -92,7 +92,7 @@ Returns `true` if they match.
 -/
 @[expose]
 def is (s : Value) (h : String) : Bool :=
-  s.value == h.toLower
+  s.value.toLower == h.toLower
 
 instance : ToString Value where
   toString v := v.value

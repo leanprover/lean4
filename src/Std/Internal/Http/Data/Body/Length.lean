@@ -14,7 +14,7 @@ public section
 # Length
 
 This module defines the `Length` type, that represents the Content-Length or Transfer-Encoding
-of an HTTP Request or response.
+of an HTTP request or response.
 -/
 
 namespace Std.Http.Body

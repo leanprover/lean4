@@ -123,7 +123,7 @@ Determines the message body size based on the `Content-Length` header and the `T
 def Message.Head.getSize (message : Message.Head dir) : Option Body.Length :=
   match (message.headers.getAll? (.new "content-length"), isChunked message) with
   | (some #[cl], some false) => .fixed <$> cl.value.toNat?
-  | (none, some false) =>some (.fixed 0)
+  | (none, some false) => some (.fixed 0)
   | (none, some true) => some .chunked
   | (some _, some _) => none -- To avoid request smuggling with multiple content-length headers.
   | (_, none) => none -- Error validating the chunked encoding

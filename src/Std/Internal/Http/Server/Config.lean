@@ -115,6 +115,7 @@ structure Config where
   Maximum number of trailer headers (default: 100)
   -/
   maxTrailerHeaders : Nat := 100
+
 namespace Config
 
 /--

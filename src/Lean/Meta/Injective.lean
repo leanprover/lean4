@@ -152,9 +152,9 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
       let some (conj, body) := t.arrow?  | break
       match_expr conj with
       | And lhs rhs =>
-        let [mvarId₂'] ← mvarId₂.applyN (mkApp3 (mkConst `Lean.injEq_helper) lhs rhs body) 1
-            | throwError "unexpected number of goals after applying `Lean.and_imp`"
-        mvarId₂ := mvarId₂'
+        let e ← mkFreshExprSyntheticOpaqueMVar (← mkArrow lhs (← mkArrow rhs body))
+        mvarId₂.assign <| mkApp4 (mkConst `Lean.injEq_helper) lhs rhs body e
+        mvarId₂ := e.mvarId!
       | _ => pure ()
       let (h, mvarId₂') ← mvarId₂.intro1
       (_, mvarId₂) ← substEq mvarId₂' h

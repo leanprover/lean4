@@ -637,6 +637,8 @@ public def run (args : Args) (h : 0 < args.mods.size)
   let (_, s) ← importModulesCore imps (isExported := true) |>.run
   let s := s.markAllExported
   let mut env ← finalizeImport s (isModule := true) imps {} (leakEnv := false) (loadExts := false)
+  if env.header.moduleData.any (!·.isModule) then
+    throw <| .userError "`lake shake` only works with `module`s currently"
   -- the one env ext we want to initialize
   let is := indirectModUseExt.toEnvExtension.getState env
   let newState ← indirectModUseExt.addImportedFn is.importedEntries { env := env, opts := {} }

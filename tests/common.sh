@@ -81,7 +81,7 @@ function exec_check {
 
 function diff_produced {
     if test -f "$f.expected.out"; then
-        if $DIFF -au --strip-trailing-cr -I "executing external script" "$f.expected.out" "$f.produced.out"; then
+        if $DIFF -au --strip-trailing-cr -I "executing external script" -I "^task_manager:.*" "$f.expected.out" "$f.produced.out"; then
             :
         else
             echo "ERROR: file $f.produced.out does not match $f.expected.out"

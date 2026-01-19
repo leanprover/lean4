@@ -236,14 +236,14 @@ This is the `ExceptT` version of `Except.mapError`.
 -/
 @[always_inline, inline]
 protected def adapt {ε' α : Type u} (f : ε → ε') : ExceptT ε m α → ExceptT ε' m α := fun x =>
-  ExceptT.mk <| Except.mapError f <$> x
+  ExceptT.mk <| Except.mapError f <$> x.run
 
 end ExceptT
 
 @[always_inline]
 instance (m : Type u → Type v) (ε₁ : Type u) (ε₂ : Type u) [MonadExceptOf ε₁ m] : MonadExceptOf ε₁ (ExceptT ε₂ m) where
   throw e := ExceptT.mk <| throwThe ε₁ e
-  tryCatch x handle := ExceptT.mk <| tryCatchThe ε₁ x handle
+  tryCatch x handle := ExceptT.mk <| tryCatchThe ε₁ x.run (handle · |>.run)
 
 @[always_inline]
 instance (m : Type u → Type v) (ε : Type u) [Monad m] : MonadExceptOf ε (ExceptT ε m) where

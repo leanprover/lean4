@@ -7,13 +7,17 @@ module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Sym.AlphaShareBuilder
+import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.App
 import Lean.Meta.SynthInstance
-import Lean.Expr
+import Lean.Meta.WHNF
 import Init.Sym.Lemmas
 namespace Lean.Meta.Sym.Simp
 open Internal
 
+/--
+Simplifies a non-dependent `if-then-else` expression.
+-/
 def simpIte : Simproc := fun e => do
   let numArgs := e.getAppNumArgs
   if numArgs < 5 then return .rfl (done := true)
@@ -34,6 +38,22 @@ def simpIte : Simproc := fun e => do
         return .step e' h' (done := true)
 
 /--
+Simplifies a `match`-expression.
+-/
+def simpMatch (declName : Name) : Simproc := fun e => do
+  if let some e' ← reduceRecMatcher? e then
+    return .step e' (← mkEqRefl e')
+  let some info ← getMatcherInfo? declName
+    | return .rfl
+  -- **Note**: Simplify only the discriminants
+  let start := info.numParams + 1
+  let stop  := start + info.numDiscrs
+  let r ← simpAppArgRange e start stop
+  match r with
+  | .step .. => return r
+  | _ => return .rfl (done := true)
+
+/--
 Simplifies control-flow expressions such as `if-then-else` and `match` expressions.
 It visits only the conditions and discriminants.
 -/
@@ -44,6 +64,6 @@ public def simpControl : Simproc := fun e => do
     simpIte e
   else
     -- **TODO**: Add more cases
-    return .rfl
+    simpMatch declName e
 
 end Lean.Meta.Sym.Simp

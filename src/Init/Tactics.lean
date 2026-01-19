@@ -518,14 +518,13 @@ syntax location := withPosition(ppGroup(" at" (locationWildcard <|> locationHyp)
   assuming these are definitionally equal.
 * `change t' at h` will change hypothesis `h : t` to have type `t'`, assuming
   assuming `t` and `t'` are definitionally equal.
--/
-syntax (name := change) "change " term (location)? : tactic
-
-/--
 * `change a with b` will change occurrences of `a` to `b` in the goal,
   assuming `a` and `b` are definitionally equal.
 * `change a with b at h` similarly changes `a` to `b` in the type of hypothesis `h`.
 -/
+syntax (name := change) "change " term (location)? : tactic
+
+@[tactic_alt change]
 syntax (name := changeWith) "change " term " with " term (location)? : tactic
 
 /--
@@ -890,6 +889,8 @@ The definition can be unfolded, unlike definitions introduced by `have`.
   local variables `x : α`, `y : β`, and `z : γ`.
 * The syntax `let (eq := h) pat := e` is equivalent to `match h : e with | pat => _`,
   which adds the equation `h : e = pat` to the local context.
+* `let rec f : t := e` adds a recursive definition `f` to the current goal.
+  The syntax is the same as term-mode `let rec`.
 
 The tactic supports all the same syntax variants and options as the `let` term.
 
@@ -905,8 +906,7 @@ The tactic supports all the same syntax variants and options as the `let` term.
 -/
 macro "let" c:letConfig d:letDecl : tactic => `(tactic| refine_lift let $c:letConfig $d:letDecl; ?_)
 
-/-- `let rec f : t := e` adds a recursive definition `f` to the current goal.
-The syntax is the same as term-mode `let rec`. -/
+@[tactic_alt Lean.Parser.Tactic.tacticLet__]
 syntax (name := letrec) withPosition(atomic("let " &"rec ") letRecDecls) : tactic
 macro_rules
   | `(tactic| let rec $d) => `(tactic| refine_lift let rec $d; ?_)
@@ -1212,22 +1212,6 @@ while `congr 2` produces the intended `⊢ x + y = y + x`.
 syntax (name := congr) "congr" (ppSpace num)? : tactic
 
 
-/--
-In tactic mode, `if h : t then tac1 else tac2` can be used as alternative syntax for:
-```
-by_cases h : t
-· tac1
-· tac2
-```
-It performs case distinction on `h : t` or `h : ¬t` and `tac1` and `tac2` are the subproofs.
-
-You can use `?_` or `_` for either subproof to delay the goal to after the tactic, but
-if a tactic sequence is provided for `tac1` or `tac2` then it will require the goal to be closed
-by the end of the block.
--/
-syntax (name := tacDepIfThenElse)
-  ppRealGroup(ppRealFill(ppIndent("if " binderIdent " : " term " then") ppSpace matchRhsTacticSeq)
-    ppDedent(ppSpace) ppRealFill("else " matchRhsTacticSeq)) : tactic
 
 /--
 In tactic mode, `if t then tac1 else tac2` is alternative syntax for:
@@ -1236,14 +1220,32 @@ by_cases t
 · tac1
 · tac2
 ```
-It performs case distinction on `h† : t` or `h† : ¬t`, where `h†` is an anonymous
-hypothesis, and `tac1` and `tac2` are the subproofs. (It doesn't actually use
-nondependent `if`, since this wouldn't add anything to the context and hence would be
-useless for proving theorems. To actually insert an `ite` application use
-`refine if t then ?_ else ?_`.)
+It performs case distinction on `h† : t` or `h† : ¬t`, where `h†` is an anonymous hypothesis, and
+`tac1` and `tac2` are the subproofs. (It doesn't actually use nondependent `if`, since this wouldn't
+add anything to the context and hence would be useless for proving theorems. To actually insert an
+`ite` application use `refine if t then ?_ else ?_`.)
+
+The assumptions in each subgoal can be named. `if h : t then tac1 else tac2` can be used as
+alternative syntax for:
+```
+by_cases h : t
+· tac1
+· tac2
+```
+It performs case distinction on `h : t` or `h : ¬t`.
+
+You can use `?_` or `_` for either subproof to delay the goal to after the tactic, but
+if a tactic sequence is provided for `tac1` or `tac2` then it will require the goal to be closed
+by the end of the block.
 -/
 syntax (name := tacIfThenElse)
   ppRealGroup(ppRealFill(ppIndent("if " term " then") ppSpace matchRhsTacticSeq)
+    ppDedent(ppSpace) ppRealFill("else " matchRhsTacticSeq)) : tactic
+
+
+@[tactic_alt tacIfThenElse]
+syntax (name := tacDepIfThenElse)
+  ppRealGroup(ppRealFill(ppIndent("if " binderIdent " : " term " then") ppSpace matchRhsTacticSeq)
     ppDedent(ppSpace) ppRealFill("else " matchRhsTacticSeq)) : tactic
 
 /--

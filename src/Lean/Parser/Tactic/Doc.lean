@@ -191,12 +191,13 @@ builtin_initialize
       unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
       let `(«tactic_tag»|tactic_tag $tags*) := stx
         | throwError "Invalid `[{name}]` attribute syntax"
+
       if (← getEnv).find? decl |>.isSome then
         if !(isTactic (← getEnv) decl) then
-          throwErrorAt stx "`{decl}` is not a tactic"
+          throwErrorAt stx "`{.ofConstName decl}` is not a tactic"
 
       if let some tgt' := alternativeOfTactic (← getEnv) decl then
-        throwErrorAt stx "`{decl}` is an alternative form of `{tgt'}`"
+        throwErrorAt stx "`{.ofConstName decl}` is an alternative form of `{.ofConstName tgt'}`"
 
       for t in tags do
         let tagName := t.getId

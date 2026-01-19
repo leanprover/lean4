@@ -128,17 +128,23 @@ Note: This linter can be disabled with `set_option linter.tactic.docsOnAlt false
 attribute [tactic_alt my_trivial] «yetAnother»
 
 /-! # Querying Tactic Docs -/
+
+/-!
+`tm` is part of the below set because the tag attribute can't reject `someTerm` above before it is
+added. Because it's not a tactic, its first token is not found.
+-/
+
 /--
 info: Available tags: ⏎
   • `ctrl` — "control flow"
     Tactics that sequence or arrange other tactics ⏎
-    '<;>'
+    `<;>`
   • `extensible`
     Tactics that are intended to be extensible ⏎
-    'my_trivial'
+    `my_trivial`
   • `finishing`
     Finishing tactics that are intended to completely close a goal ⏎
-    'omega', 'my_trivial', 'someTerm'
+    `omega`, `my_trivial`, `tm`
 -/
 #guard_msgs in
 #print tactic tags

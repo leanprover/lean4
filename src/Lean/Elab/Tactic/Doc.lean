@@ -38,30 +38,32 @@ open Lean.Parser.Command
   | _ => throwError "Malformed 'register_tactic_tag' command"
 
 /--
-Gets the first string token in a parser description. For example, for a declaration like
-`syntax "squish " term " with " term : tactic`, it returns `some "squish "`, and for a declaration
-like `syntax tactic " <;;;> " tactic : tactic`, it returns `some " <;;;> "`.
+Computes a table that heuristically maps parser syntax kinds to their first tokens by inspecting the Pratt parsing tables for the `tactic syntax kind.
 
-Returns `none` for syntax declarations that don't contain a string constant.
+The table relies on each parser's `collectKinds` returning the kind in question; this is not the case for tactics defined via macros such as `declare_simp_like_tactic`
 -/
-private partial def getFirstTk (e : Expr) : MetaM (Option String) := do
-  match (← Meta.whnf e).getAppFnArgs with
-  | (``ParserDescr.node, #[_, _, p]) => getFirstTk p
-  | (``ParserDescr.trailingNode, #[_, _, _, p]) => getFirstTk p
-  | (``ParserDescr.unary, #[.app _ (.lit (.strVal "withPosition")), p]) => getFirstTk p
-  | (``ParserDescr.unary, #[.app _ (.lit (.strVal "atomic")), p]) => getFirstTk p
-  | (``ParserDescr.binary, #[.app _ (.lit (.strVal "andthen")), p, _]) => getFirstTk p
-  | (``ParserDescr.nonReservedSymbol, #[.lit (.strVal tk), _]) => pure (some tk)
-  | (``ParserDescr.symbol, #[.lit (.strVal tk)]) => pure (some tk)
-  | (``Parser.withAntiquot, #[_, p]) => getFirstTk p
-  | (``Parser.leadingNode, #[_, _, p]) => getFirstTk p
-  | (``HAndThen.hAndThen, #[_, _, _, _, p1, p2]) =>
-    if let some tk ← getFirstTk p1 then pure (some tk)
-    else getFirstTk (.app p2 (.const ``Unit.unit []))
-  | (``Parser.nonReservedSymbol, #[.lit (.strVal tk), _]) => pure (some tk)
-  | (``Parser.symbol, #[.lit (.strVal tk)]) => pure (some tk)
-  | _ => pure none
+def firstTacticTokens [Monad m] [MonadEnv m] : m (NameMap String) := do
+  let some tactics := (Lean.Parser.parserExtension.getState (← getEnv)).categories.find? `tactic
+    | return {}
 
+  let mut firstTokens : NameMap String := {}
+  firstTokens := addFirstTokens tactics tactics.tables.leadingTable firstTokens
+  firstTokens := addFirstTokens tactics tactics.tables.trailingTable firstTokens
+
+  return firstTokens
+where
+  addFirstTokens tactics table firsts : NameMap String :=
+    table.foldl (init := firsts) fun fsts tok ps =>
+      -- Skip antiquotes
+      if tok == `«$» then fsts
+      else
+        ps.foldl (init := fsts) fun fsts (p, _) =>
+          p.info.collectKinds {} |>.foldl (init := fsts) fun fsts k () =>
+            if tactics.kinds.contains k then
+              let tok := tok.toString (escape := false)
+              -- Arbitrarily selects one in case of overloading.
+              fsts.insert k tok
+            else fsts
 
 /--
 Creates some `MessageData` for a parser name.
@@ -71,18 +73,13 @@ identifiable leading token, then that token is shown. Otherwise, the underlying 
 without an `@`. The name includes metadata that makes infoview hovers and the like work. This
 only works for global constants, as the local context is not included.
 -/
-private def showParserName (n : Name) : MetaM MessageData := do
+private def showParserName [Monad m] [MonadEnv m] (firsts : NameMap String) (n : Name) : m MessageData := do
   let env ← getEnv
   let params :=
     env.constants.find?' n |>.map (·.levelParams.map Level.param) |>.getD []
-  let tok ←
-    if let some descr := env.find? n |>.bind (·.value?) then
-      if let some tk ← getFirstTk descr then
-        pure <| Std.Format.text tk.trimAscii.copy
-      else pure <| format n
-    else pure <| format n
+  let tok := firsts.get? n |>.map Std.Format.text |>.getD (format n)
   pure <| .ofFormatWithInfos {
-    fmt := "'" ++ .tag 0 tok ++ "'",
+    fmt := "`" ++ .tag 0 tok ++ "`",
     infos :=
       .ofList [(0, .ofTermInfo {
         lctx := .empty,
@@ -92,7 +89,6 @@ private def showParserName (n : Name) : MetaM MessageData := do
         expectedType? := none
       })] _
   }
-
 
 /--
 Displays all available tactic tags, with documentation.
@@ -106,20 +102,22 @@ Displays all available tactic tags, with documentation.
     for (tac, tag) in arr do
       mapping := mapping.insert tag (mapping.getD tag {} |>.insert tac)
 
+  let firsts ← firstTacticTokens
+
   let showDocs : Option String → MessageData
     | none => .nil
     | some d => Format.line ++ MessageData.joinSep ((d.split '\n').map (toMessageData ∘ String.Slice.copy)).toList Format.line
 
-  let showTactics (tag : Name) : MetaM MessageData := do
+  let showTactics (tag : Name) : CommandElabM MessageData := do
     match mapping.find? tag with
     | none => pure .nil
     | some tacs =>
       if tacs.isEmpty then pure .nil
       else
         let tacs := tacs.toArray.qsort (·.toString < ·.toString) |>.toList
-        pure (Format.line ++ MessageData.joinSep (← tacs.mapM showParserName) ", ")
+        pure (Format.line ++ MessageData.joinSep (← tacs.mapM (showParserName firsts)) ", ")
 
-  let tagDescrs ← liftTermElabM <| (← allTagsWithInfo).mapM fun (name, userName, docs) => do
+  let tagDescrs ← (← allTagsWithInfo).mapM fun (name, userName, docs) => do
     pure <| m!"• " ++
       MessageData.nestD (m!"`{name}`" ++
         (if name.toString != userName then m!" — \"{userName}\"" else MessageData.nil) ++
@@ -160,15 +158,14 @@ def allTacticDocs : MetaM (Array TacticDoc) := do
 
   let some tactics := (Lean.Parser.parserExtension.getState env).categories.find? `tactic
     | return #[]
+
+  let firstTokens ← firstTacticTokens
+
   for (tac, _) in tactics.kinds do
     -- Skip noncanonical tactics
     if let some _ := alternativeOfTactic env tac then continue
-    let userName : String ←
-      if let some descr := env.find? tac |>.bind (·.value?) then
-        if let some tk ← getFirstTk descr then
-          pure tk.trimAscii.copy
-        else pure tac.toString
-      else pure tac.toString
+
+    let userName : String := firstTokens.get? tac |>.getD tac.toString
 
     docs := docs.push {
       internalName := tac,

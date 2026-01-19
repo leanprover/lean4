@@ -1,3 +1,5 @@
+import Lean.Elab.CheckTactic
+
 variable (a b : Nat)
 
 /- bitwise operation tests -/

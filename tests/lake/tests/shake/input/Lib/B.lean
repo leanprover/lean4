@@ -1,1 +1,3 @@
-def valueB : Nat := 99
+module
+
+public def valueB : Nat := 99

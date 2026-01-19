@@ -1,4 +1,6 @@
+module
+
 import Lib.A
 
--- Only uses valueA, so Lib.B should be removed by shake
+-- Does not use Lib.B, uses Lib.A privately only
 def myValue : Nat := valueA

@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.GetLsbD
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
+import Init.Grind
 
 @[expose] public section
 
@@ -37,20 +38,12 @@ def bitblast (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig) : Return ai
     | .eq =>
       let res := mkEq aig ⟨lhsRefs, rhsRefs⟩
       let cache := cache.cast (AIG.LawfulOperator.le_size (f := mkEq) ..)
-      have := by
-        apply AIG.LawfulOperator.le_size_of_le_aig_size (f := mkEq)
-        dsimp only at hlhs hrhs
-        omega
-      ⟨⟨res, this⟩, cache⟩
+      ⟨⟨res, by grind⟩, cache⟩
     | .ult =>
       let res := mkUlt aig ⟨lhsRefs, rhsRefs⟩
       have := AIG.LawfulOperator.le_size (f := mkUlt) ..
       let cache := cache.cast this
-      have := by
-        apply AIG.LawfulOperator.le_size_of_le_aig_size (f := mkUlt)
-        dsimp only at hlhs hrhs
-        omega
-      ⟨⟨res, this⟩, cache⟩
+      ⟨⟨res, by grind⟩, cache⟩
   | .getLsbD expr idx =>
     /-
     Note: This blasts the entire expression up to `w` despite only needing it up to `idx`.
@@ -61,38 +54,15 @@ def bitblast (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig) : Return ai
     let res := blastGetLsbD aig ⟨refs, idx⟩
     ⟨⟨⟨aig, res⟩, hrefs⟩, cache⟩
 
+@[grind =]
 theorem bitblast_decl_eq (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig) :
     ∀ (idx : Nat) (h1) (h2), (bitblast aig input).result.val.aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
   intro idx h1 h2
   rcases input with ⟨pred, cache⟩
   unfold BVPred.bitblast
-  cases pred with
-  | bin lhs op rhs =>
-    cases op with
-    | eq =>
-      dsimp only
-      rw [AIG.LawfulOperator.decl_eq (f := mkEq)]
-      rw [BVExpr.bitblast_decl_eq]
-      rw [BVExpr.bitblast_decl_eq]
-      · apply BVExpr.bitblast_lt_size_of_lt_aig_size
-        assumption
-      · apply BVExpr.bitblast_lt_size_of_lt_aig_size
-        apply BVExpr.bitblast_lt_size_of_lt_aig_size
-        assumption
-    | ult =>
-      simp only
-      rw [AIG.LawfulOperator.decl_eq (f := mkUlt)]
-      rw [BVExpr.bitblast_decl_eq]
-      rw [BVExpr.bitblast_decl_eq]
-      · apply BVExpr.bitblast_lt_size_of_lt_aig_size
-        assumption
-      · apply BVExpr.bitblast_lt_size_of_lt_aig_size
-        apply BVExpr.bitblast_lt_size_of_lt_aig_size
-        assumption
-  | getLsbD expr idx =>
-    simp only
-    rw [BVExpr.bitblast_decl_eq]
+  grind
 
+@[grind! .]
 theorem bitblast_le_size (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig) :
     aig.decls.size ≤ (bitblast aig input).result.val.aig.decls.size := by
   exact (bitblast aig input).result.property

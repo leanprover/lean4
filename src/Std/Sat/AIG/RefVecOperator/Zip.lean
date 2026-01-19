@@ -115,6 +115,7 @@ theorem zip.go_le_size {aig : AIG α} (idx : Nat) (hidx) (s : RefVec aig idx)
   · simp
   termination_by len - idx
 
+@[grind! .]
 theorem zip_le_size (aig : AIG α) (input : BinaryRefVec aig len)
     (func : (aig : AIG α) → BinaryInput aig → Entrypoint α)
     [LawfulOperator α BinaryInput func] [LawfulZipOperator α func] :
@@ -143,6 +144,7 @@ theorem zip.go_decl_eq {aig : AIG α} (i) (hi) (lhs rhs : RefVec aig len)
     simp
 termination_by len - i
 
+@[grind =]
 theorem zip_decl_eq {aig : AIG α} (input : BinaryRefVec aig len)
     (func : (aig : AIG α) → BinaryInput aig → Entrypoint α)
     [LawfulOperator α BinaryInput func] [LawfulZipOperator α func] :

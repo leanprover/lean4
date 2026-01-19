@@ -21,6 +21,12 @@ example : f 12 = 0 := by
 example : (if true then a else b) = a := by
   sym_simp []
 
+example : (if True then a else b) = a := by
+  sym_simp []
+
+example : (if False then a else b) = b := by
+  sym_simp []
+
 example (f g : Nat → Nat) : (if a + 0 = a then f else g) a = f a := by
   sym_simp [Nat.add_zero]
 
@@ -110,3 +116,56 @@ example : (match Foo.mk3 c, Foo.mk2 b with | .mk1 _, _ => 1+0 | _, .mk2 _ => 2+1
 
 example : (match (true, false, true) with | (false, _, _) => 1 | (_, false, _) => 2 | _ => 3) = 2 := by
   sym_simp []
+
+example : (if _ : true then a else b) = a := by
+  sym_simp []
+
+example : (if _ : True then a else b) = a := by
+  sym_simp []
+
+example : (if _ : False then a else b) = b := by
+  sym_simp []
+
+example (f g : Nat → Nat) : (if _ : a + 0 = a then f else g) a = f a := by
+  sym_simp [Nat.add_zero]
+
+example (f g : Nat → Nat → Nat) : (if _ : a + 0 ≠ a then f else g) a (b + 0) = g a b := by
+  sym_simp [Nat.add_zero]
+
+/--
+trace: a b : Nat
+f g : Nat → Nat → Nat
+h : a = b
+⊢ (if h : a ≠ b then id f else id (id g)) a (b + 0) = g a b
+-/
+#guard_msgs in
+example (f g : Nat → Nat → Nat) (h : a = b) : (if _ : a + 0 ≠ b then id f else id (id g)) a (b + 0) = g a b := by
+  sym_simp [Nat.add_zero, id_eq]
+  trace_state -- `if-then-else` branches should not have been simplified
+  subst h
+  sym_simp [Nat.add_zero, id_eq]
+
+example : (bif true then a else b) = a := by
+  sym_simp []
+
+example : (bif false then a else b) = b := by
+  sym_simp []
+
+example (f g : Nat → Nat) : (bif a + 0 == a then f else g) a = f a := by
+  sym_simp [Nat.add_zero, beq_self_eq_true]
+
+example (f g : Nat → Nat → Nat) : (bif a + 0 != a then f else g) a (b + 0) = g a b := by
+  sym_simp [Nat.add_zero, bne_self_eq_false]
+
+/--
+trace: a b : Nat
+f g : Nat → Nat → Nat
+h : a = b
+⊢ (bif a != b then id f else id (id g)) a (b + 0) = g a b
+-/
+#guard_msgs in
+example (f g : Nat → Nat → Nat) (h : a = b) : (bif a + 0 != b then id f else id (id g)) a (b + 0) = g a b := by
+  sym_simp [Nat.add_zero, id_eq]
+  trace_state -- `cond` branches should not have been simplified
+  subst h
+  sym_simp [Nat.add_zero, bne_self_eq_false, id_eq]

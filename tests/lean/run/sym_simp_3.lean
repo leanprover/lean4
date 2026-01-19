@@ -39,3 +39,74 @@ example (f g : Nat → Nat → Nat) (h : a = b) : (if a + 0 ≠ b then id f else
   trace_state -- `if-then-else` branches should not have been simplified
   subst h
   sym_simp [Nat.add_zero, id_eq]
+
+def isNil (xs : List α) : Bool :=
+  match xs with
+  | [] => true
+  | _::_ => false
+
+example : isNil ([] : List Nat) = true := by
+  sym_simp [isNil.eq_def]
+
+inductive Kind where
+  | a | b | c
+
+def pick : Kind → Nat → Nat
+  | .a => Nat.succ
+  | .b => (2 * ·)
+  | .c => id
+
+example : pick .a 2 = 3 := by
+  sym_simp [pick.eq_def]
+
+example : pick .b 2 = 4 := by
+  sym_simp [pick.eq_def]
+
+example : pick .c 2 = 2 := by
+  sym_simp [pick.eq_def, id_eq]
+
+example : (match 1 - 1 with | 0 => 1 | _ => 2) = 1 := by
+  sym_simp []
+
+/--
+trace: c : Bool
+h : c = false
+⊢ (match 0, c with
+    | 0, true => 1 + 0
+    | 0, false => 2 + 1
+    | x, x_1 => 3 + 1) =
+    3
+-/
+#guard_msgs in
+example (h : c = false) : (match 1 - 1, c with | 0, true => 1+0 | 0, false => 2+1 | _, _ => 3+1) = 3 := by
+  sym_simp [] -- Only discriminant should have been simplified, simplifier must not visit branches
+  trace_state
+  subst c
+  sym_simp []
+
+/--
+trace: a : Nat
+h : a = 0
+⊢ (match a, false with
+    | 0, true => 1 + 0
+    | 0, false => 2 + 1
+    | x, x_1 => 3 + 1) =
+    3
+-/
+#guard_msgs in
+example (h : a = 0) : (match a, !true with | 0, true => 1+0 | 0, false => 2+1 | _, _ => 3+1) = 3 := by
+  sym_simp [Bool.not_true] -- Only discriminant should have been simplified, simplifier must not visit branches
+  trace_state
+  subst a
+  sym_simp []
+
+inductive Foo where
+  | mk1 (a : Nat)
+  | mk2 (b : Bool)
+  | mk3 (c : Int)
+
+example : (match Foo.mk3 c, Foo.mk2 b with | .mk1 _, _ => 1+0 | _, .mk2 _ => 2+1 | _, _ => id 4) = 3 := by
+  sym_simp [id_eq]
+
+example : (match (true, false, true) with | (false, _, _) => 1 | (_, false, _) => 2 | _ => 3) = 2 := by
+  sym_simp []

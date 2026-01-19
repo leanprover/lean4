@@ -439,4 +439,43 @@ public def simpAppArgs (e : Expr) : SimpM Result := do
   | .interlaced rewritable => simpInterlaced e rewritable
   | .congrTheorem thm => simpUsingCongrThm e thm
 
+/--
+Simplifies arguments in a specified range `[start, stop)` of a function application.
+
+Given an expression `f a₀ a₁ ... aₙ`, this function simplifies only the arguments
+at positions `start ≤ i < stop`, leaving arguments outside this range unchanged.
+Changes are propagated using congruence lemmas.
+
+**Use case**: Useful for control-flow simplification where we want to simplify only
+discriminants of a `match` expression without touching the branches.
+-/
+public def simpAppArgRange (e : Expr) (start stop : Nat) : SimpM Result := do
+  let numArgs := e.getAppNumArgs
+  assert! start < stop
+  if numArgs < start then return .rfl
+  let numArgs := numArgs - start
+  let stop := stop - start
+  let rec visit (e : Expr) (i : Nat) : SimpM Result := do
+    if i == 0 then
+      return .rfl
+    let i := i - 1
+    match h : e with
+    | .app f a =>
+      let fr ← visit f i
+      let skip : SimpM Result := do
+        match fr with
+        | .rfl _ => return .rfl
+        | .step f' hf _ => mkCongrFun e f a f' hf h
+      if i < stop then
+        let .forallE _ α β _ ← whnfD (← inferType f) | unreachable!
+        if !β.hasLooseBVars then
+          if (← isProp α) then
+            mkCongr e f a fr .rfl h
+          else
+            mkCongr e f a fr (← simp a) h
+        else skip
+      else skip
+    | _ => unreachable!
+  visit e numArgs
+
 end Lean.Meta.Sym.Simp

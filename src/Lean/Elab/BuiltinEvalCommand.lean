@@ -44,17 +44,20 @@ If there would be unsolved-for metavariables, tries hinting that the resulting t
 is a monadic value with the `CommandElabM`, `TermElabM`, or `IO` monads.
 Throws errors if the term is a proof or a type, but lifts props to `Bool` using `mkDecide`.
 -/
-private def elabTermForEval (term : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+private def elabTermForEval (fvars : Array Expr) (term : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   let ty ← expectedType?.getDM mkFreshTypeMVar
   let e ← Term.elabTermEnsuringType term ty
   synthesizeWithHinting ty
   let e ← instantiateMVars e
   if (← Term.logUnassignedUsingErrorInfos (← getMVars e)) then throwAbortTerm
+  if e.hasFVar then
+    let fvars := fvars.filter fun fvar => (Lean.collectFVars {} e).fvarSet.contains fvar.fvarId!
+    throwError m!"Cannot evaluate, contains free variables: {MessageData.andList (fvars.map toMessageData).toList}"
   if ← isProof e then
-    throwError m!"cannot evaluate, proofs are not computationally relevant"
+    throwError m!"Cannot evaluate, proofs are not computationally relevant"
   let e ← if (← isProp e) then mkDecide e else pure e
   if ← isType e then
-    throwError m!"cannot evaluate, types are not computationally relevant"
+    throwError m!"Cannot evaluate, types are not computationally relevant"
   trace[Elab.eval] "elaborated term:{indentExpr e}"
   return e
 where
@@ -101,7 +104,7 @@ private def addAndCompileExprForEval (declName : Name) (value : Expr) (allowSorr
     let axioms ← collectAxioms declName
     if axioms.contains ``sorryAx then
       throwError "\
-        aborting evaluation since the expression depends on the 'sorry' axiom, \
+        Aborting evaluation since the expression depends on the 'sorry' axiom, \
         which can lead to runtime instability and crashes.\n\n\
         To attempt to evaluate anyway despite the risks, use the '#eval!' command."
   return declName
@@ -161,7 +164,7 @@ Tries `mkFormat` if a `ToExpr` instance can't be synthesized.
 private def mkMessageData (e : Expr) : MetaM Expr := do
   (do guard <| eval.pp.get (← getOptions); mkAppM ``MessageData.ofExpr #[← mkToExpr e])
   <|> (return mkApp (mkConst ``MessageData.ofFormat) (← mkFormat e))
-  <|> do throwError m!"could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type{indentExpr (← inferType e)}"
+  <|> do throwError m!"Could not synthesize a `ToExpr`, `Repr`, or `ToString` instance for type{indentExpr (← inferType e)}"
 
 private structure EvalAction where
   eval : CommandElabM MessageData
@@ -211,7 +214,7 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
           discard <| withLocalDeclD `x ty fun x => mkT x
         catch _ =>
           throw ex
-        throwError m!"unable to synthesize `{.ofConstName ``MonadEval}` instance \
+        throwError m!"Unable to synthesize `{.ofConstName ``MonadEval}` instance \
           to adapt{indentExpr (← inferType e)}\n\
           to `{.ofConstName ``IO}` or `{.ofConstName ``CommandElabM}`."
       let declName ← addAndCompileExprForEval declName r (allowSorry := bang)
@@ -222,9 +225,9 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
     try
       -- Generate an action without executing it. We use `withoutModifyingEnv` to ensure
       -- we don't pollute the environment with auxiliary declarations.
-      let act : EvalAction ← liftTermElabM do Term.withDeclName (mkPrivateName (← getEnv) declName) do withoutModifyingEnv do
+      let act : EvalAction ← withoutModifyingEnv <| runTermElabM fun fvars => do Term.withDeclName (mkPrivateName (← getEnv) declName) do
         withSaveInfoContext do -- save the environment post-elaboration (for matchers, let rec, etc.)
-          let e ← elabTermForEval term expectedType?
+          let e ← elabTermForEval fvars term expectedType?
           -- If there is an elaboration error, don't evaluate!
           if e.hasSyntheticSorry then throwAbortTerm
           -- We want `#eval` to work even in the core library, so if `ofFormat` isn't available,

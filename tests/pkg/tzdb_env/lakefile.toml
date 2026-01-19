@@ -1,0 +1,5 @@
+name = "debug"
+
+[[lean_exe]]
+name = "release"
+root = "Main"

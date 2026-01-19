@@ -5,12 +5,13 @@ Authors: Mario Carneiro, Sebastian Ullrich
 -/
 module
 
+prelude
+public import Init.Prelude
+public import Init.System.IO
+public import Lean.Util.Path
 import Lean.Environment
 import Lean.ExtraModUses
-
-import Lake.CLI.Main
 import Lean.Parser.Module
-import Lake.Load.Workspace
 
 /-! # Shake: A Lean import minimizer
 
@@ -20,84 +21,12 @@ ensuring that every import is used to contribute some constant or other elaborat
 recorded by `recordExtraModUse` and friends.
 -/
 
-/-- help string for the command line interface -/
-def help : String := "Lean project tree shaking tool
-Usage: lake exe shake [OPTIONS] <MODULE>..
-
-Arguments:
-  <MODULE>
-    A module path like `Mathlib`. All files transitively reachable from the
-    provided module(s) will be checked.
-
-Options:
-  --force
-    Skips the `lake build --no-build` sanity check
-
-  --keep-implied
-    Preserves existing imports that are implied by other imports and thus not technically needed
-    anymore
-
-  --keep-prefix
-    If an import `X` would be replaced in favor of a more specific import `X.Y...` it implies,
-    preserves the original import instead. More generally, prefers inserting `import X` even if it
-    was not part of the original imports as long as it was in the original transitive import closure
-    of the current module.
-
-  --keep-public
-    Preserves all `public` imports to avoid breaking changes for external downstream modules
-
-  --add-public
-    Adds new imports as `public` if they have been in the original public closure of that module.
-    In other words, public imports will not be removed from a module unless they are unused even
-    in the private scope, and those that are removed will be re-added as `public` in downstream
-    modules even if only needed in the private scope there. Unlike `--keep-public`, this may
-    introduce breaking changes but will still limit the number of inserted imports.
-
-  --explain
-    Gives constants explaining why each module is needed
-
-  --fix
-    Apply the suggested fixes directly. Make sure you have a clean checkout
-    before running this, so you can review the changes.
-
-  --gh-style
-    Outputs messages that can be parsed by `gh-problem-matcher-wrap`
-
-Annotations:
-  The following annotations can be added to Lean files in order to configure the behavior of
-  `shake`. Only the substring `shake: ` directly followed by a directive is checked for, so multiple
-  directives can be mixed in one line such as `-- shake: keep-downstream, shake: keep-all`, and they
-  can be surrounded by arbitrary comments such as `-- shake: keep (metaprogram output dependency)`.
-
-  * `module -- shake: keep-downstream`:
-    Preserves this module in all (current) downstream modules, adding new imports of it if needed.
-
-  * `module -- shake: keep-all`:
-    Preserves all existing imports in this module as is. New imports now needed because of upstream
-    changes may still be added.
-
-  * `import X -- shake: keep`:
-    Preserves this specific import in the current module. The most common use case is to preserve a
-    public import that will be needed in downstream modules to make sense of the output of a
-    metaprogram defined in this module. For example, if a tactic is defined that may synthesize a
-    reference to a theorem when run, there is no way for `shake` to detect this by itself and the
-    module of that theorem should be publicly imported and annotated with `keep` in the tactic's
-    module.
-    ```
-    public import X  -- shake: keep (metaprogram output dependency)
-
-    ...
-
-    elab \"my_tactic\" : tactic => do
-      ... mkConst ``f -- `f`, defined in `X`, may appear in the output of this tactic
-    ```
-"
-
 open Lean
 
-/-- The parsed CLI arguments. See `help` for more information -/
-structure Args where
-  help : Bool := false
+namespace Lake.Shake
+
+/-- The parsed CLI arguments for shake. -/
+public structure Args where
   keepImplied : Bool := false
   keepPrefix : Bool := false
   keepPublic : Bool := false
@@ -640,7 +569,7 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
         if toRemove.any fun imp => imp == decodeImport stx then
           let pos := inputCtx.fileMap.toPosition stx.raw.getPos?.get!
           println! "{path}:{pos.line}:{pos.column+1}: warning: unused import \
-            (use `lake exe shake --fix` to fix this, or `lake exe shake --update` to ignore)"
+            (use `lake shake --fix` to fix this, or `lake shake --update` to ignore)"
       if !toAdd.isEmpty then
         -- we put the insert message on the beginning of the last import line
         let pos := inputCtx.fileMap.toPosition endHeader.offset
@@ -685,76 +614,31 @@ def visitModule (pkg : Name) (srcSearchPath : SearchPath)
         run j
     for i in toAdd do run i
 
-/-- Convert a list of module names to a bitset of module indexes -/
-def toBitset (s : State) (ns : List Name) : Bitset :=
-  ns.foldl (init := ∅) fun c name =>
-    match s.env.getModuleIdxFor? name with
-    | some i => c ∪ {i}
-    | none => c
-
 local instance : Ord Import where
   compare :=
     let _ := @lexOrd
     compareOn fun imp => (!imp.isExported, imp.module.toString)
 
-/-- The main entry point. See `help` for more information on arguments. -/
-public def main (args : List String) : IO UInt32 := do
-  initSearchPath (← findSysroot)
-  -- Parse the arguments
-  let rec parseArgs (args : Args) : List String → Args
-    | [] => args
-    | "--help" :: rest => parseArgs { args with help := true } rest
-    | "--keep-implied" :: rest => parseArgs { args with keepImplied := true } rest
-    | "--keep-prefix" :: rest => parseArgs { args with keepPrefix := true } rest
-    | "--keep-public" :: rest => parseArgs { args with keepPublic := true } rest
-    | "--add-public" :: rest => parseArgs { args with addPublic := true } rest
-    | "--force" :: rest => parseArgs { args with force := true } rest
-    | "--fix" :: rest => parseArgs { args with fix := true } rest
-    | "--explain" :: rest => parseArgs { args with explain := true } rest
-    | "--trace" :: rest => parseArgs { args with trace := true } rest
-    | "--gh-style" :: rest => parseArgs { args with githubStyle := true } rest
-    | "--" :: rest => { args with mods := args.mods ++ rest.map (·.toName) }
-    | other :: rest => parseArgs { args with mods := args.mods.push other.toName } rest
-  let args := parseArgs {} args
+/--
+Run the shake analysis with the given arguments.
 
-  -- Bail if `--help` is passed
-  if args.help then
-    IO.println help
-    IO.Process.exit 0
+Assumes Lean's search path has already been properly configured.
+-/
+public def run (args : Args) (h : 0 < args.mods.size)
+    (srcSearchPath : SearchPath := {}) : IO UInt32 := do
 
-  if !args.force then
-    if (← IO.Process.output { cmd := "lake", args := #["build", "--no-build"] }).exitCode != 0 then
-      IO.println "There are out of date oleans. Run `lake build` or `lake exe cache get` first"
-      IO.Process.exit 1
-
-  -- Determine default module(s) to run shake on
-  let defaultTargetModules : Array Name ← try
-    let (elanInstall?, leanInstall?, lakeInstall?) ← Lake.findInstall?
-    let config ← Lake.MonadError.runEIO <| Lake.mkLoadConfig { elanInstall?, leanInstall?, lakeInstall? }
-    let some workspace ← Lake.loadWorkspace config |>.toBaseIO
-      | throw <| IO.userError "failed to load Lake workspace"
-    let defaultTargetModules := workspace.root.defaultTargets.flatMap fun target =>
-      if let some lib := workspace.root.findLeanLib? target then
-        lib.roots
-      else if let some exe := workspace.root.findLeanExe? target then
-        #[exe.config.root]
-      else
-        #[]
-    pure defaultTargetModules
-  catch _ =>
-    pure #[]
-
-  let srcSearchPath ← getSrcSearchPath
   -- the list of root modules
-  let mods := if args.mods.isEmpty then defaultTargetModules else args.mods
+  let mods := args.mods
   -- Only submodules of `pkg` will be edited or have info reported on them
-  let pkg := mods[0]!.components.head!
+  let pkg := mods[0].getRoot
 
   -- Load all the modules
   let imps := mods.map ({ module := · })
   let (_, s) ← importModulesCore imps (isExported := true) |>.run
   let s := s.markAllExported
   let mut env ← finalizeImport s (isModule := true) imps {} (leakEnv := false) (loadExts := false)
+  if env.header.moduleData.any (!·.isModule) then
+    throw <| .userError "`lake shake` only works with `module`s currently"
   -- the one env ext we want to initialize
   let is := indirectModUseExt.toEnvExtension.getState env
   let newState ← indirectModUseExt.addImportedFn is.importedEntries { env := env, opts := {} }

@@ -36,10 +36,18 @@ Whether the build should show progress information.
 public def BuildConfig.showProgress (cfg : BuildConfig) : Bool :=
   (cfg.noBuild ∧ cfg.verbosity == .verbose) ∨ cfg.verbosity != .quiet
 
+/-- Mutable reference of registered build jobs. -/
+@[expose] -- for codegen
+public def JobQueue := IO.Ref (Array OpaqueJob)
+
+/-- Returns a new empty job queue. -/
+@[inline] public def mkJobQueue : BaseIO JobQueue :=
+  IO.mkRef #[]
+
 /-- A Lake context with a build configuration and additional build data. -/
 public structure BuildContext extends BuildConfig, Context where
   leanTrace : BuildTrace
-  registeredJobs : IO.Ref (Array OpaqueJob)
+  registeredJobs : JobQueue
 
 /-- A transformer to equip a monad with a `BuildContext`. -/
 public abbrev BuildT := ReaderT BuildContext

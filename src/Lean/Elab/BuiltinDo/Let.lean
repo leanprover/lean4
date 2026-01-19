@@ -137,34 +137,6 @@ def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDec
     | .let none => Term.elabLetDecl (← `(let $decl:letDecl; $body)) mγ
     | _         => Term.elabHaveDecl (← `(have $decl:letDecl; $body)) mγ
 
-def elabDoLetOrReassignElse (letOrReassign : LetOrReassign) (pattern rhs : Term)
-    (body? : Option (TSyntax ``doSeq)) (otherwise : TSyntax ``doSeq) (dec : DoElemCont) : DoElabM Expr := do
-  let vars ← getPatternVarsEx pattern
-  letOrReassign.checkMutVars vars
-  -- For plain variable reassignment, we infer the LHS as a term and use that as the expected type
-  -- of the RHS:
-  let pattern ←
-    if letOrReassign matches .reassign then
-      let e ← Term.withoutErrToSorry <| Term.elabTerm pattern none
-      let patType ← Term.exprToSyntax (← inferType e)
-      `(($pattern : $patType))
-    else
-      pure pattern
-  dec.withDuplicableCont fun mkDec => do
-  let otherwiseElab := elabDoSeqRefined otherwise mkDec
-  let bodyElab := elabWithReassignments letOrReassign vars <|
-    match body? with
-    | some body => elabDoSeqRefined body mkDec
-    | none      => elabWithRefinement mkDec (·.continueWithUnit)
-  doElabToSyntax m!"else case of {pattern}" otherwiseElab fun otherwise => do
-  doElabToSyntax m!"let body of {pattern}" bodyElab fun body => do
-    let mγ ← mkMonadicType (← read).doBlockResultType
-    elabNestedActions rhs fun rhs => do
-    withMayElabToJump true do
-    Term.elabTerm (← `(match $rhs:term with
-                       | $pattern => $body
-                       | _ => $otherwise)) mγ
-
 def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``doPatDecl]) (dec : DoElemCont) : DoElabM Expr := do
   match stx with
   | `(doIdDecl| $x:ident $[: $xType?]? ← $rhs) =>
@@ -225,7 +197,20 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetElse] def elabDoLetElse : DoElab := fun stx dec => do
   let `(doLetElse| let $[mut%$mutTk?]? $pattern := $rhs | $otherwise $(body?)?) := stx | throwUnsupportedSyntax
-  elabDoLetOrReassignElse (.let mutTk?) pattern rhs body? otherwise dec
+  let letOrReassign := LetOrReassign.let mutTk?
+  let vars ← getPatternVarsEx pattern
+  letOrReassign.checkMutVars vars
+  -- For plain variable reassignment, we infer the LHS as a term and use that as the expected type
+  -- of the RHS:
+  let pattern ←
+    if letOrReassign matches .reassign then
+      let e ← Term.withoutErrToSorry <| Term.elabTerm pattern none
+      let patType ← Term.exprToSyntax (← inferType e)
+      `(($pattern : $patType))
+    else
+      pure pattern
+  let body ← body?.getDM `(doSeq|pure PUnit.unit)
+  elabDoElem (← `(doElem| match $rhs:term with | $pattern => $body | _ => $otherwise)) dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetArrow] def elabDoLetArrow : DoElab := fun stx dec => do
   let `(doLetArrow| let $[mut%$mutTk?]? $decl) := stx | throwUnsupportedSyntax
@@ -238,3 +223,21 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   | `(doReassignArrow| $decl:doPatDecl) =>
     elabDoArrow .reassign decl dec
   | _ => throwUnsupportedSyntax
+
+@[builtin_macro Lean.Parser.Term.doLetExpr] def expandDoLetExpr : Macro := fun stx => match stx with
+  | `(doElem| let_expr $pat:matchExprPat := $discr:term
+                | $elseBranch:doSeq
+              $thenBranch) =>
+    `(doElem| match_expr (meta := false) $discr:term with
+              | $pat:matchExprPat => $thenBranch
+              | _ => $elseBranch)
+  | _ => Macro.throwUnsupported
+
+@[builtin_macro Lean.Parser.Term.doLetMetaExpr] def expandDoLetMetaExpr : Macro := fun stx => match stx with
+  | `(doElem| let_expr $pat:matchExprPat ← $discr:term
+                | $elseBranch:doSeq
+              $thenBranch) =>
+    `(doElem| match_expr $discr:term with
+              | $pat:matchExprPat => $thenBranch
+              | _ => $elseBranch)
+  | _ => Macro.throwUnsupported

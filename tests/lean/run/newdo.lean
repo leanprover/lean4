@@ -238,17 +238,18 @@ set_option backward.do.legacy true in
     return "unreachable"
   if x + y < 23 then pure "ok" else pure "wrong"
 
--- Full-blown dependent match including refinement of the join point, but not the mut vars:
+set_option pp.raw false in
+-- Full-blown dependent match including refinement of the join point and mut vars:
 example (x : Nat) := Id.run (α := Fin (2 * x + 2)) do
   -- have y' : Fin (x + 1) := ⟨0, by grind⟩
   let mut y₁ : Fin (x + 1) := ⟨0, by grind⟩
   let y₂ : Fin (x + 1) ←
     match h : x with
     | z + 1 => y₁ := ⟨1, by grind⟩; pure ⟨1, by grind⟩
-    | _     => pure ⟨0, sorry⟩
-  return ⟨y₁.val + y₂.val, sorry⟩
+    | _     => pure ⟨0, by grind⟩
+  return ⟨y₁.val + y₂.val, by grind⟩
 
--- Providing a motive
+-- Providing a motive... is not currently supported
 example (x : Nat) := Id.run (α := Fin (2 * x + 2)) do
   have y' : Fin (x + 1) := ⟨0, by grind⟩
   let mut y₁ : Fin (x + 1) := ⟨0, by grind⟩
@@ -258,29 +259,36 @@ example (x : Nat) := Id.run (α := Fin (2 * x + 2)) do
     | _     => pure ⟨0, by grind⟩
   return ⟨y₁.val + y₂.val, by grind⟩
 
--- Specifying `(generalizing := false)` implies a constant motive.
 -- The motive is the result type of the join point and it is not refined without generalization.
 -- If we dependently match on `x`, the first RHS has type `Fin (x + 2)` but is expected to have type
 -- `Fin (0 + 2)`.
-set_option backward.do.legacy true in
+set_option backward.do.legacy false in
 set_option trace.Elab.do true in
+set_option trace.Elab.do.match true in
 def depMatchNeedsGeneralization (x : Nat) := Id.run (α := Fin (x + 2)) do
   let y : Fin (x + 1) <-
     match (generalizing := false) x with
     | 0 => pure ⟨0, sorry⟩
     | _ => pure ⟨0, sorry⟩
-  return ⟨↑y + 1, sorry⟩
+  return ⟨y + 1, sorry⟩
+
 example (x : Nat) (h : x = 3) := Id.run (α := Fin (x + 2)) do
   let y : Fin (x + 1) <-
-    match h with
+    match hh : h with
     | rfl => pure ⟨0, by grind⟩
-  return ⟨↑y + 1, by grind⟩
+  return ⟨y + 1, by grind⟩
 
 example (x : Nat) (h : x = 3) := Id.run (α := Fin (x + 2)) do
   let y : Fin (x + 1) <-
     match (generalizing := false) h with
     | rfl => pure ⟨0, by grind⟩
-  return ⟨↑y + 1, by grind⟩
+  return ⟨y + 1, by grind⟩
+
+example (x : Nat) (h : x = 3) := Id.run (α := Fin (x + 3)) do
+  let y : Fin (x + 3) <-
+    match (generalizing := false) h with
+    | rfl => pure ⟨0, by grind⟩
+  return ⟨y + 1, by grind⟩
 
 -- Full-blown dependent match + try/catch + early return
 example (p n : Nat) := Id.run <| ExceptT.run (α := Fin (2 * p + 2)) (ε:=String) do
@@ -293,6 +301,7 @@ let mut a := 0    have y' : Fin (p + 1) := ⟨0, by grind⟩
   return ⟨y₁.val + y₂.val, by grind⟩
 
 -- Full-blown dependent match + try/catch, early return and break/continue
+set_option trace.Elab.do.match true in
 example (p n : Nat) : Except String (Fin (2 * p + 2)) := Id.run <| ExceptT.run do
   let mut a := 0
   for i in [n:n+10].toList do
@@ -682,28 +691,31 @@ set_option trace.Elab.do true in
 
 set_option trace.Elab.do true in
 /--
-trace: [Elab.do] let x := 1;
-    have kbreak := fun s =>
-      let x := s;
+trace: [Elab.do] have x := 1;
+    have __kbreak := fun __s =>
+      let x := __s;
       pure x;
     forInNew [1, 2, 3] x
-      (fun i kcontinue s =>
-        let x := s;
-        have kbreak_1 := fun s_1 =>
-          let x_1 := s_1;
-          if x_1 > 20 then kbreak x_1 else kcontinue x_1;
-        forInNew [4, 5, 6] x
-          (fun j kcontinue_1 s_1 =>
-            let x_1 := s_1;
-            have __do_jp := fun r tuple =>
-              let x_2 := tuple;
-              if j < 3 then kcontinue_1 x_2 else if j > 6 then kbreak_1 x_2 else kcontinue_1 x_2;
+      (fun i __kcontinue __s =>
+        let x_1 := __s;
+        have __kbreak_1 := fun __s_1 =>
+          let x_2 := __s_1;
+          if x_2 > 20 then __kbreak x_2 else __kcontinue x_2;
+        forInNew [4, 5, 6] x_1
+          (fun j __kcontinue_1 __s_1 =>
+            let x_2 := __s_1;
+            have __do_jp := fun __r __s_2 =>
+              let x_3 := __s_2;
+              if j < 3 then __kcontinue_1 x_3
+              else
+                let x_4 := x_3;
+                if j > 6 then __kbreak_1 x_4 else __kcontinue_1 x_4;
             if j < 5 then
-              let x := x_1 + j;
+              have x := x_2 + j;
               __do_jp PUnit.unit x
-            else __do_jp PUnit.unit x_1)
-          kbreak_1)
-      kbreak
+            else __do_jp PUnit.unit x_2)
+          __kbreak_1)
+      __kbreak
 -/
 #guard_msgs in
 example := Id.run doo
@@ -730,25 +742,32 @@ set_option trace.Elab.do true in
   return x + y + z
 
 /--
-info: (let x := 42;
-  let y := 0;
-  let z := 1;
-  forInNew [1, 2, 3] (x, z)
-    (fun i kcontinue s =>
-      let x := s.fst;
-      let z := s.snd;
-      let x_1 := x + i;
-      have __do_jp := fun r tuple =>
-        let z := tuple;
-        let z := z + i;
-        kcontinue (x_1, z);
-      if x_1 > 10 then
-        let z := z + i;
-        __do_jp PUnit.unit z
-      else __do_jp PUnit.unit z)
-    fun s =>
-    let x := s.fst;
-    let z := s.snd;
+info: (have x := 42;
+  have y := 0;
+  have z := 1;
+  forInNew [1, 2, 3] (x, y, z)
+    (fun i __kcontinue __s =>
+      let x := __s.fst;
+      let __s := __s.snd;
+      let y := __s.fst;
+      let z := __s.snd;
+      have x := x + i;
+      have __do_jp := fun __r __s =>
+        let x := __s.fst;
+        let __s := __s.snd;
+        let y := __s.fst;
+        let z := __s.snd;
+        have z := z + i;
+        __kcontinue (x, y, z);
+      if x > 10 then
+        have z := z + i;
+        __do_jp PUnit.unit (x, y, z)
+      else __do_jp PUnit.unit (x, y, z))
+    fun __s =>
+    let x := __s.fst;
+    let __s := __s.snd;
+    let y := __s.fst;
+    let z := __s.snd;
     pure (x + y + z)).run : Nat
 -/
 #guard_msgs (info) in
@@ -767,39 +786,60 @@ info: (let x := 42;
 -- set_option trace.Meta.isDefEq.assign true in
 -- set_option trace.Elab.do true in
 /--
-info: (let w := 23;
-  let x := 42;
-  let y := 0;
-  let z := 1;
-  have kbreak := fun s =>
-    let x := s.fst;
-    let s := s.snd;
-    let y := s.fst;
-    let z := s.snd;
+info: (have w := 23;
+  have x := 42;
+  have y := 0;
+  have z := 1;
+  have __kbreak := fun __s =>
+    let w := __s.fst;
+    let __s := __s.snd;
+    let x := __s.fst;
+    let __s := __s.snd;
+    let y := __s.fst;
+    let z := __s.snd;
     pure (w + x + y + z);
-  forInNew [1, 2, 3] (x, y, z)
-    (fun i kcontinue s =>
-      let x := s.fst;
-      let s := s.snd;
-      let y := s.fst;
-      let z := s.snd;
+  forInNew [1, 2, 3] (w, x, y, z)
+    (fun i __kcontinue __s =>
+      let w := __s.fst;
+      let __s := __s.snd;
+      let x := __s.fst;
+      let __s := __s.snd;
+      let y := __s.fst;
+      let z := __s.snd;
       if x < 20 then
-        let y := y - 2;
-        kbreak (x, y, z)
+        have y := y - 2;
+        __kbreak (w, x, y, z)
       else
-        have __do_jp := fun r tuple =>
-          let z := tuple;
+        let w_1 := (w, x, y, z).fst;
+        let __s := (w, x, y, z).snd;
+        let x_1 := __s.fst;
+        let __s := __s.snd;
+        let y_1 := __s.fst;
+        let z_1 := __s.snd;
+        have __do_jp := fun __r __s =>
+          let w := __s.fst;
+          let __s_1 := __s.snd;
+          let x := __s_1.fst;
+          let __s_2 := __s_1.snd;
+          let y := __s_2.fst;
+          let z := __s_2.snd;
           if x > 10 then
-            let x := x + 3;
-            kcontinue (x, y, z)
+            have x := x + 3;
+            __kcontinue (w, x, y, z)
           else
-            let x := x + i;
-            kcontinue (x, y, z);
-        if x = 3 then
-          let z := z + i;
-          __do_jp PUnit.unit z
-        else __do_jp PUnit.unit z)
-    kbreak).run : Nat
+            let w_2 := (w, x, y, z).fst;
+            let __s := (w, x, y, z).snd;
+            let x := __s.fst;
+            let __s := __s.snd;
+            let y := __s.fst;
+            let z := __s.snd;
+            have x := x + i;
+            __kcontinue (w_2, x, y, z);
+        if x_1 = 3 then
+          have z := z_1 + i;
+          __do_jp PUnit.unit (w_1, x_1, y_1, z)
+        else __do_jp PUnit.unit (w_1, x_1, y_1, z_1))
+    __kbreak).run : Nat
 -/
 #guard_msgs (info) in
 #check Id.run doo
@@ -816,7 +856,7 @@ info: (let w := 23;
 
 set_option trace.Compiler.saveBase true in
 /--
-trace: [Compiler.saveBase] size: 13
+trace: [Compiler.saveBase] size: 14
     def Do._example : Nat :=
       let w := 23;
       let x := 42;
@@ -830,110 +870,149 @@ trace: [Compiler.saveBase] size: 13
       let _x.6 := @List.cons _ z _x.5;
       let _x.7 := @Prod.mk _ _ y z;
       let _x.8 := @Prod.mk _ _ x _x.7;
-      let _x.9 := List.forInNew'._at_.Do._example.spec_0 _x.2 _x.1 w _x.6 _x.8;
-      return _x.9
-[Compiler.saveBase] size: 44
-    def List.forInNew'._at_.Do._example.spec_0 _x.1 _x.2 w l s : Nat :=
-      jp _jp.3 s.4 : Nat :=
-        let x := s.4 # 0;
-        let s.5 := s.4 # 1;
-        let y := s.5 # 0;
-        let z := s.5 # 1;
-        let _x.6 := Nat.add w x;
-        let _x.7 := Nat.add _x.6 y;
-        let _x.8 := Nat.add _x.7 z;
-        return _x.8;
+      let _x.9 := @Prod.mk _ _ w _x.8;
+      let _x.10 := List.forInNew'._at_.Do._example.spec_0 _x.2 _x.1 _x.6 _x.9;
+      return _x.10
+[Compiler.saveBase] size: 63
+    def List.forInNew'._at_.Do._example.spec_0 _x.1 _x.2 l s : Nat :=
+      jp _jp.3 __s.4 : Nat :=
+        let w := __s.4 # 0;
+        let _x.5 := __s.4 # 1;
+        let x := _x.5 # 0;
+        let _x.6 := _x.5 # 1;
+        let y := _x.6 # 0;
+        let z := _x.6 # 1;
+        let _x.7 := Nat.add w x;
+        let _x.8 := Nat.add _x.7 y;
+        let _x.9 := Nat.add _x.8 z;
+        return _x.9;
       cases l : Nat
       | List.nil =>
         goto _jp.3 s
-      | List.cons head.9 tail.10 =>
-        let _x.11 := s # 0;
-        let _x.12 := s # 1;
-        let _x.13 := _x.12 # 0;
-        jp _jp.14 tuple.15 : Nat :=
-          let _x.16 := 10;
-          let _x.17 := Nat.decLt _x.16 _x.11;
-          cases _x.17 : Nat
-          | Decidable.isFalse x.18 =>
-            let _x.19 := Nat.add _x.11 head.9;
-            let _x.20 := @Prod.mk _ _ _x.13 tuple.15;
-            let _x.21 := @Prod.mk _ _ _x.19 _x.20;
-            let _x.22 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 w tail.10 _x.21;
-            return _x.22
-          | Decidable.isTrue x.23 =>
-            let _x.24 := Nat.add _x.11 _x.1;
-            let _x.25 := @Prod.mk _ _ _x.13 tuple.15;
-            let _x.26 := @Prod.mk _ _ _x.24 _x.25;
-            let _x.27 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 w tail.10 _x.26;
-            return _x.27;
-        let _x.28 := _x.12 # 1;
-        let _x.29 := 20;
-        let _x.30 := Nat.decLt _x.11 _x.29;
-        cases _x.30 : Nat
-        | Decidable.isFalse x.31 =>
-          let _x.32 := instDecidableEqNat _x.11 _x.1;
-          cases _x.32 : Nat
-          | Decidable.isFalse x.33 =>
-            goto _jp.14 _x.28
-          | Decidable.isTrue x.34 =>
-            let _x.35 := Nat.add _x.28 head.9;
-            goto _jp.14 _x.35
-        | Decidable.isTrue x.36 =>
-          let _x.37 := Nat.sub _x.13 _x.2;
-          let _x.38 := @Prod.mk _ _ _x.37 _x.28;
-          let _x.39 := @Prod.mk _ _ _x.11 _x.38;
-          goto _jp.3 _x.39
-[Compiler.saveBase] size: 44
-    def List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 w l s : Nat :=
-      jp _jp.3 s.4 : Nat :=
-        let x := s.4 # 0;
-        let s.5 := s.4 # 1;
-        let y := s.5 # 0;
-        let z := s.5 # 1;
-        let _x.6 := Nat.add w x;
-        let _x.7 := Nat.add _x.6 y;
-        let _x.8 := Nat.add _x.7 z;
-        return _x.8;
+      | List.cons head.10 tail.11 =>
+        jp _jp.12 __s.13 : Nat :=
+          let _x.14 := __s.13 # 0;
+          let _x.15 := __s.13 # 1;
+          let _x.16 := _x.15 # 0;
+          let _x.17 := _x.15 # 1;
+          let _x.18 := _x.17 # 0;
+          let _x.19 := _x.17 # 1;
+          let _x.20 := 10;
+          let _x.21 := Nat.decLt _x.20 _x.16;
+          cases _x.21 : Nat
+          | Decidable.isFalse x.22 =>
+            let _x.23 := Nat.add _x.16 head.10;
+            let _x.24 := @Prod.mk _ _ _x.18 _x.19;
+            let _x.25 := @Prod.mk _ _ _x.23 _x.24;
+            let _x.26 := @Prod.mk _ _ _x.14 _x.25;
+            let _x.27 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 tail.11 _x.26;
+            return _x.27
+          | Decidable.isTrue x.28 =>
+            let _x.29 := Nat.add _x.16 _x.1;
+            let _x.30 := @Prod.mk _ _ _x.18 _x.19;
+            let _x.31 := @Prod.mk _ _ _x.29 _x.30;
+            let _x.32 := @Prod.mk _ _ _x.14 _x.31;
+            let _x.33 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 tail.11 _x.32;
+            return _x.33;
+        let _x.34 := s # 0;
+        let _x.35 := s # 1;
+        let _x.36 := _x.35 # 0;
+        let _x.37 := _x.35 # 1;
+        let _x.38 := _x.37 # 0;
+        let _x.39 := _x.37 # 1;
+        let _x.40 := 20;
+        let _x.41 := Nat.decLt _x.36 _x.40;
+        cases _x.41 : Nat
+        | Decidable.isFalse x.42 =>
+          let _x.43 := instDecidableEqNat _x.36 _x.1;
+          cases _x.43 : Nat
+          | Decidable.isFalse x.44 =>
+            let _x.45 := @Prod.mk _ _ _x.38 _x.39;
+            let _x.46 := @Prod.mk _ _ _x.36 _x.45;
+            let _x.47 := @Prod.mk _ _ _x.34 _x.46;
+            goto _jp.12 _x.47
+          | Decidable.isTrue x.48 =>
+            let _x.49 := Nat.add _x.39 head.10;
+            let _x.50 := @Prod.mk _ _ _x.38 _x.49;
+            let _x.51 := @Prod.mk _ _ _x.36 _x.50;
+            let _x.52 := @Prod.mk _ _ _x.34 _x.51;
+            goto _jp.12 _x.52
+        | Decidable.isTrue x.53 =>
+          let _x.54 := Nat.sub _x.38 _x.2;
+          let _x.55 := @Prod.mk _ _ _x.54 _x.39;
+          let _x.56 := @Prod.mk _ _ _x.36 _x.55;
+          let _x.57 := @Prod.mk _ _ _x.34 _x.56;
+          goto _jp.3 _x.57
+[Compiler.saveBase] size: 63
+    def List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 l s : Nat :=
+      jp _jp.3 __s.4 : Nat :=
+        let w := __s.4 # 0;
+        let _x.5 := __s.4 # 1;
+        let x := _x.5 # 0;
+        let _x.6 := _x.5 # 1;
+        let y := _x.6 # 0;
+        let z := _x.6 # 1;
+        let _x.7 := Nat.add w x;
+        let _x.8 := Nat.add _x.7 y;
+        let _x.9 := Nat.add _x.8 z;
+        return _x.9;
       cases l : Nat
       | List.nil =>
         goto _jp.3 s
-      | List.cons head.9 tail.10 =>
-        let _x.11 := s # 0;
-        let _x.12 := s # 1;
-        let _x.13 := _x.12 # 0;
-        jp _jp.14 tuple.15 : Nat :=
-          let _x.16 := 10;
-          let _x.17 := Nat.decLt _x.16 _x.11;
-          cases _x.17 : Nat
-          | Decidable.isFalse x.18 =>
-            let _x.19 := Nat.add _x.11 head.9;
-            let _x.20 := @Prod.mk _ _ _x.13 tuple.15;
-            let _x.21 := @Prod.mk _ _ _x.19 _x.20;
-            let _x.22 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 w tail.10 _x.21;
-            return _x.22
-          | Decidable.isTrue x.23 =>
-            let _x.24 := Nat.add _x.11 _x.1;
-            let _x.25 := @Prod.mk _ _ _x.13 tuple.15;
-            let _x.26 := @Prod.mk _ _ _x.24 _x.25;
-            let _x.27 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 w tail.10 _x.26;
-            return _x.27;
-        let _x.28 := _x.12 # 1;
-        let _x.29 := 20;
-        let _x.30 := Nat.decLt _x.11 _x.29;
-        cases _x.30 : Nat
-        | Decidable.isFalse x.31 =>
-          let _x.32 := instDecidableEqNat _x.11 _x.1;
-          cases _x.32 : Nat
-          | Decidable.isFalse x.33 =>
-            goto _jp.14 _x.28
-          | Decidable.isTrue x.34 =>
-            let _x.35 := Nat.add _x.28 head.9;
-            goto _jp.14 _x.35
-        | Decidable.isTrue x.36 =>
-          let _x.37 := Nat.sub _x.13 _x.2;
-          let _x.38 := @Prod.mk _ _ _x.37 _x.28;
-          let _x.39 := @Prod.mk _ _ _x.11 _x.38;
-          goto _jp.3 _x.39
+      | List.cons head.10 tail.11 =>
+        jp _jp.12 __s.13 : Nat :=
+          let _x.14 := __s.13 # 0;
+          let _x.15 := __s.13 # 1;
+          let _x.16 := _x.15 # 0;
+          let _x.17 := _x.15 # 1;
+          let _x.18 := _x.17 # 0;
+          let _x.19 := _x.17 # 1;
+          let _x.20 := 10;
+          let _x.21 := Nat.decLt _x.20 _x.16;
+          cases _x.21 : Nat
+          | Decidable.isFalse x.22 =>
+            let _x.23 := Nat.add _x.16 head.10;
+            let _x.24 := @Prod.mk _ _ _x.18 _x.19;
+            let _x.25 := @Prod.mk _ _ _x.23 _x.24;
+            let _x.26 := @Prod.mk _ _ _x.14 _x.25;
+            let _x.27 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 tail.11 _x.26;
+            return _x.27
+          | Decidable.isTrue x.28 =>
+            let _x.29 := Nat.add _x.16 _x.1;
+            let _x.30 := @Prod.mk _ _ _x.18 _x.19;
+            let _x.31 := @Prod.mk _ _ _x.29 _x.30;
+            let _x.32 := @Prod.mk _ _ _x.14 _x.31;
+            let _x.33 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 tail.11 _x.32;
+            return _x.33;
+        let _x.34 := s # 0;
+        let _x.35 := s # 1;
+        let _x.36 := _x.35 # 0;
+        let _x.37 := _x.35 # 1;
+        let _x.38 := _x.37 # 0;
+        let _x.39 := _x.37 # 1;
+        let _x.40 := 20;
+        let _x.41 := Nat.decLt _x.36 _x.40;
+        cases _x.41 : Nat
+        | Decidable.isFalse x.42 =>
+          let _x.43 := instDecidableEqNat _x.36 _x.1;
+          cases _x.43 : Nat
+          | Decidable.isFalse x.44 =>
+            let _x.45 := @Prod.mk _ _ _x.38 _x.39;
+            let _x.46 := @Prod.mk _ _ _x.36 _x.45;
+            let _x.47 := @Prod.mk _ _ _x.34 _x.46;
+            goto _jp.12 _x.47
+          | Decidable.isTrue x.48 =>
+            let _x.49 := Nat.add _x.39 head.10;
+            let _x.50 := @Prod.mk _ _ _x.38 _x.49;
+            let _x.51 := @Prod.mk _ _ _x.36 _x.50;
+            let _x.52 := @Prod.mk _ _ _x.34 _x.51;
+            goto _jp.12 _x.52
+        | Decidable.isTrue x.53 =>
+          let _x.54 := Nat.sub _x.38 _x.2;
+          let _x.55 := @Prod.mk _ _ _x.54 _x.39;
+          let _x.56 := @Prod.mk _ _ _x.36 _x.55;
+          let _x.57 := @Prod.mk _ _ _x.34 _x.56;
+          goto _jp.3 _x.57
 -/
 #guard_msgs in
 example := Id.run doo
@@ -950,31 +1029,37 @@ example := Id.run doo
 
 set_option trace.Elab.do true in
 /--
-trace: [Elab.do] let x := 42;
-    let y := 0;
-    have kbreak := fun s =>
-      let x := s;
-      pure (x + x + x + x);
-    forInNew [1, 2, 3] x
-      (fun i kcontinue s =>
-        let x := s;
-        have __do_jp := fun r tuple =>
-          let x_1 := tuple;
-          if x_1 > 10 then
-            let x := x_1 + 3;
-            kcontinue x
+trace: [Elab.do] have x := 42;
+    have y := 0;
+    have __kbreak := fun __s =>
+      let x_1 := __s.fst;
+      pure (x_1 + x_1 + x_1 + x_1);
+    forInNew [1, 2, 3] (x, y)
+      (fun i __kcontinue __s =>
+        let x_1 := __s.fst;
+        let y_1 := __s.snd;
+        have __do_jp := fun __r __s_1 =>
+          let x_2 := __s_1.fst;
+          let y_2 := __s_1.snd;
+          if x_2 > 10 then
+            have x_3 := x_2 + 3;
+            __kcontinue (x_3, y_2)
           else
-            if x_1 < 20 then
-              let x := x_1 - 2;
-              kbreak x
+            let x_3 := (x_2, y_2).fst;
+            let y_3 := (x_2, y_2).snd;
+            if x_3 < 20 then
+              have x_4 := x_3 - 2;
+              __kbreak (x_4, y_3)
             else
-              let x := x_1 + i;
-              kcontinue x;
-        if x = 3 then
-          let x := x + 1;
-          __do_jp PUnit.unit x
-        else __do_jp PUnit.unit x)
-      kbreak
+              let x_4 := (x_3, y_3).fst;
+              let y_4 := (x_3, y_3).snd;
+              have x_5 := x_4 + i;
+              __kcontinue (x_5, y_4);
+        if x_1 = 3 then
+          have x_2 := x_1 + 1;
+          __do_jp PUnit.unit (x_2, y_1)
+        else __do_jp PUnit.unit (x_1, y_1))
+      __kbreak
 -/
 #guard_msgs in
 example := Id.run doo
@@ -1045,30 +1130,33 @@ info: (let w := 23;
 set_option trace.Elab.do true in
 set_option trace.Compiler.saveBase true in
 /--
-trace: [Elab.do] let x := 42;
-    have kbreak := fun s =>
-      let x := s;
-      let x := x + 13;
-      let x := x + 13;
-      let x := x + 13;
-      let x := x + 13;
+trace: [Elab.do] have x := 42;
+    have __kbreak := fun __s =>
+      let x_1 := __s;
+      have x_2 := x_1 + 13;
+      have x_3 := x_2 + 13;
+      have x_4 := x_3 + 13;
+      have x := x_4 + 13;
       pure x;
     forInNew [1, 2, 3] x
-      (fun i kcontinue s =>
-        let x := s;
-        if x = 3 then pure x
+      (fun i __kcontinue __s =>
+        let x_1 := __s;
+        if x_1 = 3 then pure x_1
         else
-          if x > 10 then
-            let x := x + 3;
-            kcontinue x
+          let x_2 := x_1;
+          if x_2 > 10 then
+            have x := x_2 + 3;
+            __kcontinue x
           else
-            if x < 20 then
-              let x := x * 2;
-              kbreak x
+            let x_3 := x_2;
+            if x_3 < 20 then
+              have x := x_3 * 2;
+              __kbreak x
             else
-              let x := x + i;
-              kcontinue x)
-      kbreak
+              let x_4 := x_3;
+              have x := x_4 + i;
+              __kcontinue x)
+      __kbreak
 ---
 trace: [Compiler.saveBase] size: 9
     def Do._example : Nat :=
@@ -1084,9 +1172,9 @@ trace: [Compiler.saveBase] size: 9
       return _x.8
 [Compiler.saveBase] size: 29
     def List.forInNew'._at_.Do._example.spec_0 _x.1 _x.2 l s : Nat :=
-      jp _jp.3 s.4 : Nat :=
+      jp _jp.3 __s.4 : Nat :=
         let _x.5 := 13;
-        let x := Nat.add s.4 _x.5;
+        let x := Nat.add __s.4 _x.5;
         let x := Nat.add x _x.5;
         let x := Nat.add x _x.5;
         let x := Nat.add x _x.5;
@@ -1120,9 +1208,9 @@ trace: [Compiler.saveBase] size: 9
           return s
 [Compiler.saveBase] size: 29
     def List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 l s : Nat :=
-      jp _jp.3 s.4 : Nat :=
+      jp _jp.3 __s.4 : Nat :=
         let _x.5 := 13;
-        let x := Nat.add s.4 _x.5;
+        let x := Nat.add __s.4 _x.5;
         let x := Nat.add x _x.5;
         let x := Nat.add x _x.5;
         let x := Nat.add x _x.5;
@@ -1185,9 +1273,9 @@ trace: [Compiler.saveBase] size: 9
       return _x.8
 [Compiler.saveBase] size: 29
     def List.forInNew'._at_.Do._example.spec_0 _x.1 _x.2 l s : Nat :=
-      jp _jp.3 s.4 : Nat :=
+      jp _jp.3 __s.4 : Nat :=
         let _x.5 := 13;
-        let x := Nat.add s.4 _x.5;
+        let x := Nat.add __s.4 _x.5;
         let x := Nat.add x _x.5;
         let x := Nat.add x _x.5;
         let x := Nat.add x _x.5;
@@ -1221,9 +1309,9 @@ trace: [Compiler.saveBase] size: 9
           return s
 [Compiler.saveBase] size: 29
     def List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _x.2 l s : Nat :=
-      jp _jp.3 s.4 : Nat :=
+      jp _jp.3 __s.4 : Nat :=
         let _x.5 := 13;
-        let x := Nat.add s.4 _x.5;
+        let x := Nat.add __s.4 _x.5;
         let x := Nat.add x _x.5;
         let x := Nat.add x _x.5;
         let x := Nat.add x _x.5;
@@ -1273,25 +1361,25 @@ example := Id.run doo
 set_option trace.Elab.do true in
 set_option trace.Compiler.saveBase true in
 /--
-trace: [Elab.do] let x := 42;
-    let y := 0;
-    let z := 1;
+trace: [Elab.do] have x := 42;
+    have y := 0;
+    have z := 1;
     forInNew [1, 2, 3] (x, z)
-      (fun i kcontinue s =>
-        let x := s.fst;
-        let z := s.snd;
-        let x := x + i;
+      (fun i __kcontinue __s =>
+        let x := __s.fst;
+        let z := __s.snd;
+        have x := x + i;
         forInNew [i:10].toList z
-          (fun j kcontinue s =>
-            let z := s;
-            let z := z + x + j;
-            kcontinue z)
-          fun s =>
-          let z := s;
-          kcontinue (x, z))
-      fun s =>
-      let x := s.fst;
-      let z := s.snd;
+          (fun j __kcontinue __s =>
+            let z := __s;
+            have z := z + x + j;
+            __kcontinue z)
+          fun __s =>
+          let z := __s;
+          __kcontinue (x, z))
+      fun __s =>
+      let x := __s.fst;
+      let z := __s.snd;
       pure (x + y + z)
 ---
 trace: [Compiler.saveBase] size: 10
@@ -1469,30 +1557,33 @@ info: (let x := 42;
   return x)
 
 /--
-info: (let x := 42;
-  have kbreak := fun s =>
-    let x := s;
-    let x := x + 13;
-    let x := x + 13;
-    let x := x + 13;
-    let x := x + 13;
+info: (have x := 42;
+  have __kbreak := fun __s =>
+    let x := __s;
+    have x := x + 13;
+    have x := x + 13;
+    have x := x + 13;
+    have x := x + 13;
     pure x;
   forInNew [1, 2, 3] x
-    (fun i kcontinue s =>
-      let x := s;
+    (fun i __kcontinue __s =>
+      let x := __s;
       if x = 3 then pure x
       else
-        if x > 10 then
-          let x := x + 3;
-          kcontinue x
+        let x_1 := x;
+        if x_1 > 10 then
+          have x := x_1 + 3;
+          __kcontinue x
         else
+          let x := x_1;
           if x < 20 then
-            let x := x * 2;
-            kbreak x
+            have x := x * 2;
+            __kbreak x
           else
-            let x := x + i;
-            kcontinue x)
-    kbreak).run : Nat
+            let x := x;
+            have x := x + i;
+            __kcontinue x)
+    __kbreak).run : Nat
 -/
 #guard_msgs (info) in
 #check (Id.run do
@@ -1835,8 +1926,8 @@ example : (Id.run doo
 
 -- Test: elabToSyntax and postponement
 /--
-error: Invalid match expression: This pattern contains metavariables:
-  some y
+error: Invalid match expression: The type of pattern variable 'y' contains metavariables:
+  ?m.12
 -/
 #guard_msgs (error) in
 example := Id.run do
@@ -2203,6 +2294,7 @@ example {e : Id Nat} := doo if true then e else pure 13
 #check doo let mut x : Nat := 0; if true then {x := x + 1} else {pure ()}; pure x
 -- As well as fully resolve all instances in the following example where the expected monad is
 -- known. The next example wouldn't work without `Id.run`.
+set_option trace.Elab.do true in
 example := Id.run doo let mut x : Nat := 0; if true then {x := x + 1} else {pure ()}; pure x
 
 /-- error: mutable variable `x` cannot be shadowed -/
@@ -2277,14 +2369,14 @@ example := (Id.run do  let mut x := 0; x ← return 10)
 example := (Id.run doo let mut x := 0; x ← return 10)
 
 /--
-info: let x := 0;
+info: have x := 0;
 let y := 0;
 if true = true then pure 3
 else
-  let x := x + 5;
+  have x_1 := x + 5;
   let y_1 := 3;
-  let x := x;
-  pure (x + y) : ?m Nat
+  let x_2 := x_1;
+  pure (x_2 + y) : ?m Nat
 -/
 #guard_msgs (info) in
 #check doo
@@ -2298,17 +2390,17 @@ else
   return x + y
 
 /--
-info: let x := 0;
+info: have x := 0;
 let y := 0;
-have __do_jp := fun r tuple =>
-  let x := tuple;
-  pure (x + y);
+have __do_jp := fun __r __s =>
+  let x_1 := __s;
+  pure (x_1 + y);
 if true = true then
-  let x := x + 7;
+  have x := x + 7;
   let y := 3;
   __do_jp PUnit.unit x
 else
-  let x := x + 5;
+  have x := x + 5;
   __do_jp PUnit.unit x : ?m Nat
 -/
 #guard_msgs (info) in
@@ -2325,30 +2417,33 @@ else
 
 set_option trace.Elab.do true in
 /--
-trace: [Elab.do] let x := 42;
-    have kbreak := fun s =>
-      let x := s;
-      let x := x + 13;
-      let x := x + 13;
-      let x := x + 13;
-      let x := x + 13;
+trace: [Elab.do] have x := 42;
+    have __kbreak := fun __s =>
+      let x_1 := __s;
+      have x_2 := x_1 + 13;
+      have x_3 := x_2 + 13;
+      have x_4 := x_3 + 13;
+      have x := x_4 + 13;
       pure x;
     forInNew [1, 2, 3] x
-      (fun i kcontinue s =>
-        let x := s;
-        if x = 3 then pure x
+      (fun i __kcontinue __s =>
+        let x_1 := __s;
+        if x_1 = 3 then pure x_1
         else
-          if x > 10 then
-            let x := x + 3;
-            kcontinue x
+          let x_2 := x_1;
+          if x_2 > 10 then
+            have x := x_2 + 3;
+            __kcontinue x
           else
-            if x < 20 then
-              let x := x * 2;
-              kbreak x
+            let x_3 := x_2;
+            if x_3 < 20 then
+              have x := x_3 * 2;
+              __kbreak x
             else
-              let x := x + i;
-              kcontinue x)
-      kbreak
+              let x_4 := x_3;
+              have x := x_4 + i;
+              __kcontinue x)
+      __kbreak
 -/
 #guard_msgs in
 example := Id.run doo

@@ -94,10 +94,10 @@ structure Context where
   /-- Information about `return`, `break` and `continue` continuations. -/
   contInfo : ContInfoRef
   /--
-  How to generalize the types of join points and other continuations (`continue`, `break`, etc.)
-  in a dependent pattern match.
+  Join point and other continuation variables (`continue`, `break`, etc.) which are non-optional to
+  generalize in a dependent pattern match.
   -/
-  contFVarGeneralizers : Std.HashMap Name ContFVarGeneralizer := {}
+  contFVars : Std.HashSet Name := {}
   /--
   Whether the current `do` element is dead code. `elabDoElem` will emit a warning if not `.alive`.
   -/
@@ -392,29 +392,20 @@ def synthUsingDefEq (msg : String) (expected : Expr) (actual : Expr) : DoElabM U
     throwError "Failed to synthesize {msg}. {expected} is not definitionally equal to {actual}."
 
 /--
-Has the effect of ``e >>= fun (x : eResultTy) => $(← k `(x))``.
--/
-def mkBindCancellingPure (x : Name) (eResultTy e : Expr) (k : Expr → DoElabM Expr) (declKind : LocalDeclKind := .default) : DoElabM Expr := do
-  -- The .ofBinderName below is mainly to interpret `__do_lift` binders as implementation details.
-  let declKind := if declKind matches .default then .ofBinderName x else declKind
-  withLocalDecl x .default eResultTy (kind := declKind) fun x => do
-    let body ← k x
-    let body' := body.consumeMData
-    if body'.isAppOfArity ``Pure.pure 4 && body'.getArg! 3 == x then
-      if ← withNewMCtxDepth do isDefEq body' (← mkPureApp eResultTy x) then
-        return e
-    let kResultTy ← mkFreshResultType `kResultTy
-    let body ← Term.ensureHasType (← mkMonadicType kResultTy) body
-    let k ← mkLambdaFVars #[x] body
-    mkBindApp eResultTy kResultTy e k
-
-/--
 Like `controlAt TermElabM`, but it maintains the state using the `DoElabM`'s ref cell instead of returning it
 in the `TermElabM` result. This makes it possible to run multiple `DoElabM` computations in a row.
 -/
 @[inline]
 def controlAtTermElabM (k : (runInBase : ∀ {β}, DoElabM β → TermElabM β) → TermElabM α) : DoElabM α := fun ctx ref => do
   k (· ctx ref)
+
+@[inline]
+def mapTermElabM (f : ∀{α}, TermElabM α → TermElabM α) {α} (k : DoElabM α) : DoElabM α :=
+  controlAtTermElabM fun runInBase => f (runInBase <| k)
+
+@[inline]
+def map1TermElabM (f : ∀{α}, (β → TermElabM α) → TermElabM α) {α} (k : β → DoElabM α) : DoElabM α :=
+  controlAtTermElabM fun runInBase => f fun b => runInBase <| k b
 
 def withDeadCode (deadCode : CodeLiveness) (k : DoElabM α) : DoElabM α := do
   withReader (fun ctx => { ctx with deadCode }) k
@@ -590,8 +581,37 @@ Return `$e >>= fun ($dec.resultName : $dec.resultType) => $(← dec.k)`, cancell
 the bind if `$(← dec.k)` is `pure $dec.resultName`.
 -/
 def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := do
-  mkBindCancellingPure dec.resultName dec.resultType e (declKind := dec.declKind) fun _ =>
-    withRef? dec.ref dec.k
+  let x := dec.resultName
+  let eResultTy := dec.resultType
+  let k := dec.k
+  -- The .ofBinderName below is mainly to interpret `__do_lift` binders as implementation details.
+  let declKind := if dec.declKind matches .default then .ofBinderName x else dec.declKind
+  withRef? dec.ref do
+  let e' := e.consumeMData
+  if e'.isAppOfArity ``Pure.pure 4 then
+    let eRes := e'.getArg! 3
+    let e' ← mkPureApp eResultTy eRes
+    let (isPure, isDuplicable) ← withNewMCtxDepth do
+      let isPure ← isDefEq e e'
+      let isDuplicable ← pure eRes.isFVar <||> isDefEq eResultTy (← mkPUnit)
+      return (isPure, isDuplicable)
+    if isPure then
+      if isDuplicable then
+        return ← mapLetDeclZeta (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k
+      else
+        return ← mapLetDecl (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k
+
+  withLocalDecl x .default eResultTy (kind := declKind) fun x => do
+    let body ← k
+    let body' := body.consumeMData
+    if body'.isAppOfArity ``Pure.pure 4 && body'.getArg! 3 == x then
+      let body'' ← mkPureApp eResultTy x
+      if ← withNewMCtxDepth do isDefEq body' body'' then
+        return e
+    let kResultTy ← mkFreshResultType `kResultTy
+    let body ← Term.ensureHasType (← mkMonadicType kResultTy) body
+    let k ← mkLambdaFVars #[x] body
+    mkBindApp eResultTy kResultTy e k
 
 /--
 Return `let $k.resultName : PUnit := PUnit.unit; $(← k.k)`, ensuring that the result type of `k.k`
@@ -668,8 +688,8 @@ def DoElemCont.elabAsSyntacticallyDeadCode (dec : DoElemCont) : DoElabM Unit :=
     s.restore
     Core.setMessageLog msg
 
-def withContFVarGeneralizer (name : Name) (generalizer : ContFVarGeneralizer) (k : DoElabM α) : DoElabM α :=
-  withReader (fun ctx => { ctx with contFVarGeneralizers := ctx.contFVarGeneralizers.insert name generalizer }) k
+def withContFVar (name : Name) (k : DoElabM α) : DoElabM α :=
+  withReader (fun ctx => { ctx with contFVars := ctx.contFVars.insert name }) k
 
 /--
 Given a list of mut vars `vars` and an FVar `tupleVar` binding a tuple, bind the mut vars to the
@@ -709,7 +729,9 @@ elaborated once to fill in the RHS of this join point.
 This is useful for control-flow constructs like `if` and `match`, where multiple tail-called
 branches share the continuation.
 -/
-def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElabM (DoElemCont × Expr × Expr) → DoElabM Expr) : DoElabM Expr := do
+def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont → DoElabM Expr) : DoElabM Expr := do
+  if nondupDec.kind matches .duplicable .. then
+    return ← caller nondupDec
   let mi := (← read).monadInfo
   let γ := (← read).doBlockResultType
   let mγ ← mkMonadicType γ
@@ -725,38 +747,18 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElabM (Do
   let joinRhs ← mkFreshExprMVar joinTy (userName := `joinRhs)
   let returnCont := (← read).contInfo.toContInfo.returnCont
   withLetDecl joinName joinTy joinRhs (kind := .implDetail) (nondep := true) fun jp => do
-  let generalizeJP discrs patternFVars matchResultType doBlockResultType := do
-    return doBlockResultType
     -- withLocalDecls
     -- let σ ← mkProdN (← mutVarNames.mapM (LocalDecl.type <$> getLocalDeclFromUserName ·)) mi.u
     -- return mkArrow matchResultType (← mkArrow σ (← mkMonadicType doBlockResultType))
-  withContFVarGeneralizer joinName generalizeJP do
+  withContFVar joinName do
   let returnDummyRhs := mkApp (mkConst ``id [mkLevelSucc mi.u]) returnCont.resultType
   withLocalDecl returnDummyName .default (← mkArrow returnCont.resultType returnCont.resultType) (kind := .implDetail) fun returnDummy => do
   -- trace[Elab.do] "returnDummy: {returnDummy}"
   -- trace[Elab.do] "jp: {jp}"
   let contVarId ← mkFreshContVar (mutVarNames |>.push nondupDec.resultName |>.push joinName)
-  let dupDecTemplate :=
-    match nondupDec.kind with
-    | .duplicable .. => nondupDec
-    | .nonDuplicable => { nondupDec with k := contVarId.mkJump, kind := .duplicable }
-  let mkDuplicableDec := do
-    let jpDecl ← getLocalDeclFromUserName joinName
-    let returnDummyDecl ← getLocalDeclFromUserName returnDummyName
-    -- trace[Elab.do] "returnDummyDecl: {returnDummyDecl.toExpr}, jpDecl: {jpDecl.toExpr}"
-    let (refinedDecResultType, refinedDoBlockResultType, refinedReturnType) ← do
-      let .forallE _ resTy (.forallE _ _ mγ _) _ := (← instantiateMVarsIfMVarApp jpDecl.type).consumeMData
-        | throwError "join point {jpDecl.toExpr} was not a forall. This is a bug in the do elaborator."
-      let .forallE _ retTy _ _ := (← instantiateMVarsIfMVarApp returnDummyDecl.type).consumeMData
-        | throwError "join point {jpDecl.toExpr} was not a forall. This is a bug in the do elaborator."
-      let γ ← mkFreshResultType `γ
-      unless ← isDefEq (← mkMonadicType γ) mγ do
-        throwError "The monadic type changed from {← mkMonadicType γ} to {mγ}. This is not supported by the `do` elaborator."
-      pure (resTy, γ, retTy)
-    -- trace[Elab.do] "refinedDecResultType: {refinedDecResultType}, refinedDoBlockResultType: {refinedDoBlockResultType}, refinedReturnType: {refinedReturnType}, nondupDec.duplicable: {nondupDec.kind matches .duplicable ..}"
-    return ({ dupDecTemplate with resultType := refinedDecResultType }, refinedDoBlockResultType, refinedReturnType)
 
-  let e ← withSynthesizeForDo (caller mkDuplicableDec)
+  let e ← -- withSynthesizeForDo
+    caller { nondupDec with k := contVarId.mkJump, kind := .duplicable }
 
   let jumpCount ← contVarId.jumpCount
   --if jumpCount = 0 then
@@ -922,18 +924,6 @@ def withoutControl (k : DoElabM Expr) : DoElabM Expr := do
 @[inline]
 def withDoBlockResultType (doBlockResultType : Expr) (k : DoElabM α) : DoElabM α := do
   withReader (fun ctx => { ctx with doBlockResultType }) k
-
-/--
-Runs the given `do` elaborator with the refined `do` block result type on the refined continuation
-produced by `mkRefinedDec`. A compatible `mkRefinedDec` can be obtained by calling
-`DoElemCont.withDuplicableCont`.
--/
-def elabWithRefinement (mkRefinedDec : DoElabM (DoElemCont × Expr × Expr)) (doElab : DoElemCont → DoElabM Expr) : DoElabM Expr := do
-  let (refinedDec, doBlockResultType, returnType) ← mkRefinedDec
-  let ctx ← read
-  let contInfo := { ctx.contInfo.toContInfo with returnCont.resultType := returnType }.toContInfoRef
-  let ctx := { ctx with contInfo, doBlockResultType }
-  withReader (fun _ => ctx) do doElab refinedDec
 
 /--
 Prepare the context for elaborating the body of a `finally` block.
@@ -1163,14 +1153,6 @@ end
 
 def elabDoSeq (doSeq : TSyntax ``doSeq) (cont : DoElemCont) : DoElabM Expr := do
   elabDoElems1 (getDoElems doSeq) cont
-
-/--
-Elaborates the given `do` sequence with the refined `do` block result type on the refined
-continuation produced by `mkRefinedDec`. A compatible `mkRefinedDec` can be obtained by calling
-`DoElemCont.withDuplicableCont`.
--/
-def elabDoSeqRefined (doSeq : TSyntax ``doSeq) (mkRefinedDec : DoElabM (DoElemCont × Expr × Expr)) : DoElabM Expr := do
-  elabWithRefinement mkRefinedDec (elabDoSeq doSeq)
 
 @[builtin_doElem_elab doElemNoNestedAction] def elabDoElemNoNestedAction : DoElab := fun stx cont => do
   let `(doElemNoNestedAction| $e:doElem) := stx | throwUnsupportedSyntax

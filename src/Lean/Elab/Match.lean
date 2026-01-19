@@ -1036,9 +1036,12 @@ where
     let matchType ← indices.foldrM (init := matchType) fun index matchType => do
       let indexType ← inferType index
       let matchTypeBody ← kabstract matchType index
+      trace[Elab.match] "updateMatchType {index} {matchType} → {matchTypeBody}"
       let userName ← mkUserNameFor index
       return Lean.mkForall userName BinderInfo.default indexType matchTypeBody
+    trace[Elab.match] "pre check {matchType}"
     check matchType
+    trace[Elab.match] "post check {matchType}"
     return matchType
 
 private def elabTermMatchAlts :=
@@ -1223,10 +1226,9 @@ private def waitExpectedType (expectedType? : Option Expr) : TermElabM Expr := d
     | some expectedType => pure expectedType
     | none              => mkFreshTypeMVar
 
-private def tryPostponeIfDiscrTypeIsMVar (matchStx : Syntax) : TermElabM Unit := do
+private def tryPostponeIfDiscrTypeIsMVar (motive? : Option Syntax) (discrs : Array Syntax) : TermElabM Unit := do
   -- We don't wait for the discriminants types when match type is provided by user
-  if getMatchOptMotive matchStx |>.isNone then
-    let discrs := getDiscrs matchStx
+  if motive?.isNone then
     for discr in discrs do
       let term := discr[1]
       let d ← elabTerm term none
@@ -1263,9 +1265,9 @@ List.filter (fun p => match p with | (a, b) => a > b) xs
 ```
 When we visit `match p with | (a, b) => a > b`, we don't know the type of `p` yet.
 -/
-private def waitExpectedTypeAndDiscrs (matchStx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+def waitExpectedTypeAndDiscrs (motive? : Option Syntax) (discrs : Array Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   tryPostponeIfNoneOrMVar expectedType?
-  tryPostponeIfDiscrTypeIsMVar matchStx
+  tryPostponeIfDiscrTypeIsMVar motive? discrs
   match expectedType? with
   | some expectedType => return expectedType
   | none              => mkFreshTypeMVar
@@ -1277,12 +1279,12 @@ leading_parser "match " >> optional generalizingParam >> optional motive >> sepB
 Remark the `optIdent` must be `none` at `matchDiscr`. They are expanded by `expandMatchDiscr?`.
 -/
 private def elabMatchCore (stx : Term) (expectedType? : Option Expr) : TermElabM Expr := do
-  let expectedType   ← waitExpectedTypeAndDiscrs stx expectedType?
-  let discrStxs      := getDiscrs stx
   let gen?           := getMatchGeneralizing? stx
-  let altViews       := getMatchAlts stx
   let motive?        := getMatchOptMotive stx
-  elabMatchAux gen? discrStxs altViews motive? expectedType
+  let discrs         := getDiscrs stx
+  let expectedType   ← waitExpectedTypeAndDiscrs motive? discrs expectedType?
+  let altViews       := getMatchAlts stx
+  elabMatchAux gen? discrs altViews motive? expectedType
 
 private def isPatternVar (stx : Syntax) : TermElabM Bool := do
   match (← resolveId? stx "pattern") with

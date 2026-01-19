@@ -17,40 +17,55 @@ namespace Lean.Elab.Do
 open Lean.Parser.Term
 open Lean.Meta
 
+/--
+If the given syntax is a `doIf`, return an equivalent `doIf` that has an `else` but no `else if`s or
+`if let`s.
+-/
+private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx with
+  | `(doElem|if $_:doIfProp then $_ else $_) => pure none
+  | `(doElem|if $cond:doIfCond then $t $[else if $conds:doIfCond then $ts]* $[else $e?]?) => withRef stx do
+    let mut e : Syntax ← e?.getDM `(doSeq|pure PUnit.unit)
+    let mut eIsSeq := true
+    for (cond, t) in Array.zip (conds.reverse.push cond) (ts.reverse.push t) do
+      e ← if eIsSeq then pure e else `(doSeq|$(⟨e⟩):doElem)
+      e ← match cond with
+        | `(doIfCond|let $pat := $d) => `(doElem| match $d:term with | $pat:term => $t | _ => $(⟨e⟩))
+        | `(doIfCond|let $pat ← $d)  => `(doElem| match ← $d    with | $pat:term => $t | _ => $(⟨e⟩))
+        | `(doIfCond|$cond:doIfProp) => `(doElem| if $cond:doIfProp then $t else $(⟨e⟩))
+        | _                          => Macro.throwUnsupported
+      eIsSeq := false
+    return some e
+  | _ => Macro.throwUnsupported
+
 @[builtin_doElem_elab Lean.Parser.Term.doIf] def elabDoIf : DoElab := fun stx dec => do
-  let `(doIf|if $cond:doIfCond then $thenSeq $[else if $conds:doIfCond then $thenSeqs]* $[else $elseSeq?]?) := stx | throwUnsupportedSyntax
+  if let some stxNew ← liftMacroM <| expandDoIf? stx then
+    return ← Term.withMacroExpansion stx stxNew <| elabDoElem ⟨stxNew⟩ dec
+  let `(doIf|if $cond:doIfCond then $thenSeq else $elseSeq) := stx | throwUnsupportedSyntax
   let mγ ← mkMonadicType (← read).doBlockResultType
-  dec.withDuplicableCont fun mkDec => do
-  withMayElabToJump true do
-  let doElemToTerm doElem := doElabToSyntax m!"if branch {doElem}" (ref := doElem) (elabDoSeqRefined doElem mkDec)
-  let condsThens := #[(cond, thenSeq)] ++ Array.zip conds thenSeqs
-  let rec loop (i : Nat) : DoElabM Expr := do
-    if h : i < condsThens.size then
-      let (cond, thenSeq) := condsThens[i]
-      doElemToTerm thenSeq fun then_ => do
-      doElabToSyntax m!"else branch of {cond}" (loop (i + 1)) fun else_ => do
-      match cond with
-      | `(doIfCond|$cond) =>
-        elabNestedActions cond fun cond => do
-        Term.elabTerm (← `(if $cond then $then_ else $else_)) mγ
-      | `(doIfCond|_ : $cond) =>
-        elabNestedActions cond fun cond => do
-        Term.elabTerm (← `(if _ : $cond then $then_ else $else_)) mγ
-      | `(doIfCond|$h:ident : $cond) =>
-        elabNestedActions cond fun cond => do
-        Term.elabTerm (← `(if $h:ident : $cond then $then_ else $else_)) mγ
-      | `(doIfCond|let $pat := $d) =>
-        checkMutVarsForShadowing (← getPatternVarsEx pat)
-        elabNestedActions d fun d => do
-        Term.elabTerm (← `(match $d:term with | $pat => $then_ | _ => $else_)) mγ
-      | `(doIfCond|let $pat ← $rhs) =>
-        checkMutVarsForShadowing (← getPatternVarsEx pat)
-        let x ← Term.mkFreshIdent pat
-        elabDoIdDecl x none (← `(doElem| $rhs:term)) (contRef := pat) (declKind := .implDetail) do
-          Term.elabTerm (← `(match $x:term with | $pat => $then_ | _ => $else_)) mγ
-      | _ => throwUnsupportedSyntax
-    else
-      match elseSeq? with
-      | some elseSeq => elabDoSeqRefined elseSeq mkDec
-      | none         => elabWithRefinement mkDec DoElemCont.continueWithUnit
-  loop 0
+  let mi := (← read).monadInfo
+  dec.withDuplicableCont fun dec => do
+  elabNestedActions cond fun cond => do
+  match cond with
+  | `(doIfCond|$cond) =>
+    let cond ← Term.elabTermEnsuringType cond (mkSort .zero)
+    let decidable ← Term.mkInstMVar (mkApp (mkConst ``Decidable) cond)
+    let then_ ← elabDoSeq thenSeq dec
+    let else_ ← elabDoSeq elseSeq dec
+    return (mkApp5 (mkConst ``ite [mi.v.succ]) mγ cond decidable then_ else_)
+  | `(doIfCond|_ : $cond) =>
+    let cond ← Term.elabTermEnsuringType cond (mkSort .zero)
+    let decidable ← Term.mkInstMVar (mkApp (mkConst ``Decidable) cond)
+    let then_ ← withLocalDeclD (← mkFreshUserName `h) cond fun h => do
+      mkLambdaFVars #[h] (← elabDoSeq thenSeq dec)
+    let else_ ← withLocalDeclD (← mkFreshUserName `h) (mkApp (mkConst ``Not) cond) fun h => do
+      mkLambdaFVars #[h] (← elabDoSeq elseSeq dec)
+    return (mkApp5 (mkConst ``dite [mi.v.succ]) mγ cond decidable then_ else_)
+  | `(doIfCond|$h:ident : $cond) =>
+    let cond ← Term.elabTermEnsuringType cond (mkSort .zero)
+    let decidable ← Term.mkInstMVar (mkApp (mkConst ``Decidable) cond)
+    let then_ ← withLocalDeclD h.getId cond fun h => do
+      mkLambdaFVars #[h] (← elabDoSeq thenSeq dec)
+    let else_ ← withLocalDeclD h.getId (mkApp (mkConst ``Not) cond) fun h => do
+      mkLambdaFVars #[h] (← elabDoSeq elseSeq dec)
+    return (mkApp5 (mkConst ``dite [mi.v.succ]) mγ cond decidable then_ else_)
+  | _ => throwUnsupportedSyntax

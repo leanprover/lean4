@@ -103,15 +103,13 @@ open Lean.Meta
   let kbreakName ← mkFreshUserName `__kbreak
   let kcontinueName ← mkFreshUserName `__kcontinue
   withLetDecl kbreakName β breakRhs (kind := .implDetail) (nondep := true) fun kbreak => do
-  let generalizeBlah discrs patternFVars matchResultType doBlockResultType := do
-    return doBlockResultType
-  withContFVarGeneralizer kbreakName generalizeBlah do
+  withContFVar kbreakName do
   let xh : Array (Name × (Array Expr → DoElabM Expr)) := match h?, p? with
     | some h, some p => #[(x.getId, fun _ => pure α), (h.getId, fun x => pure (mkApp2 p xs x[0]!))]
     | _, _ => #[(x.getId, fun _ => pure α)]
   withLocalDeclsD xh fun xh => do
   withLocalDecl kcontinueName .default β (kind := .implDetail) fun kcontinue => do
-  withContFVarGeneralizer kcontinueName generalizeBlah do
+  withContFVar kcontinueName do
   withLocalDecl (← mkFreshUserName `__s) .default σ (kind := .implDetail) fun loopS => do
   withProxyMutVarDefs fun elimProxyDefs => do
     let rootCtx ← getLCtx

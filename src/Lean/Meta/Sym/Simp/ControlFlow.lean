@@ -7,10 +7,12 @@ module
 prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Sym.AlphaShareBuilder
+import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.App
 import Lean.Meta.SynthInstance
 import Lean.Meta.WHNF
+import Lean.Meta.AppBuilder
 import Init.Sym.Lemmas
 namespace Lean.Meta.Sym.Simp
 open Internal
@@ -32,9 +34,61 @@ def simpIte : Simproc := fun e => do
         return .step b <| mkApp (e.replaceFn ``ite_cond_eq_false) h
       else
         let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) c') | return .rfl
+        let inst' ← shareCommon inst'
         let e' := e.getBoundedAppFn 4
         let e' ← mkAppS₄ e' c' inst' a b
-        let h' := mkApp3 (e.replaceFn ``Lean.Sym.ite_cond_congr) c' inst' h
+        let h' := mkApp3 (e.replaceFn ``Sym.ite_cond_congr) c' inst' h
+        return .step e' h' (done := true)
+
+/--
+Simplifies a dependent `if-then-else` expression.
+-/
+def simpDIte : Simproc := fun e => do
+  let numArgs := e.getAppNumArgs
+  if numArgs < 5 then return .rfl (done := true)
+  propagateOverApplied e (numArgs - 5) fun e => do
+    let_expr dite _ c _ a b := e | return .rfl
+    match (← simp c) with
+    | .rfl _ => return .rfl (done := true)
+    | .step c' h _ =>
+      if c'.isTrue then
+        let h' ← shareCommon <| mkOfEqTrueCore c h
+        let a ← share <| a.betaRev #[h']
+        return .step a <| mkApp (e.replaceFn ``dite_cond_eq_true) h
+      else if c'.isFalse then
+        let h' ← shareCommon <| mkOfEqFalseCore c h
+        let b ← share <| b.betaRev #[h']
+        return .step b <| mkApp (e.replaceFn ``dite_cond_eq_false) h
+      else
+        let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) c') | return .rfl
+        let inst' ← shareCommon inst'
+        let e' := e.getBoundedAppFn 4
+        let h ← shareCommon h
+        let a ← share <| mkLambda `h .default c' (a.betaRev #[mkApp4 (mkConst ``Eq.mpr_prop) c c' h (mkBVar 0)])
+        let b ← share <| mkLambda `h .default (mkNot c') (b.betaRev #[mkApp4 (mkConst ``Eq.mpr_not) c c' h (mkBVar 0)])
+        let e' ← mkAppS₄ e' c' inst' a b
+        let h' := mkApp3 (e.replaceFn ``Sym.dite_cond_congr) c' inst' h
+        return .step e' h' (done := true)
+
+/--
+Simplifies a `cond` expression (aka Boolean `if-then-else`).
+-/
+def simpCond : Simproc := fun e => do
+  let numArgs := e.getAppNumArgs
+  if numArgs < 4 then return .rfl (done := true)
+  propagateOverApplied e (numArgs - 4) fun e => do
+    let_expr cond _ c a b := e | return .rfl
+    match (← simp c) with
+    | .rfl _ => return .rfl (done := true)
+    | .step c' h _ =>
+      if c'.isConstOf ``true then
+        return .step a <| mkApp (e.replaceFn ``Sym.cond_cond_eq_true) h
+      else if c'.isConstOf ``false then
+        return .step b <| mkApp (e.replaceFn ``Sym.cond_cond_eq_false) h
+      else
+        let e' := e.getBoundedAppFn 3
+        let e' ← mkAppS₃ e' c' a b
+        let h' := mkApp2 (e.replaceFn ``Sym.cond_cond_congr) c' h
         return .step e' h' (done := true)
 
 /--
@@ -62,8 +116,11 @@ public def simpControl : Simproc := fun e => do
   let .const declName _ := e.getAppFn | return .rfl
   if declName == ``ite then
     simpIte e
+  else if declName == ``cond then
+    simpCond e
+  else if declName == ``dite then
+    simpDIte e
   else
-    -- **TODO**: Add more cases
     simpMatch declName e
 
 end Lean.Meta.Sym.Simp

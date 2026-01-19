@@ -110,3 +110,25 @@ example : (match Foo.mk3 c, Foo.mk2 b with | .mk1 _, _ => 1+0 | _, .mk2 _ => 2+1
 
 example : (match (true, false, true) with | (false, _, _) => 1 | (_, false, _) => 2 | _ => 3) = 2 := by
   sym_simp []
+
+example : (if _ : true then a else b) = a := by
+  sym_simp []
+
+example (f g : Nat → Nat) : (if _ : a + 0 = a then f else g) a = f a := by
+  sym_simp [Nat.add_zero]
+
+example (f g : Nat → Nat → Nat) : (if _ : a + 0 ≠ a then f else g) a (b + 0) = g a b := by
+  sym_simp [Nat.add_zero]
+
+/--
+trace: a b : Nat
+f g : Nat → Nat → Nat
+h : a = b
+⊢ (if h : a ≠ b then id f else id (id g)) a (b + 0) = g a b
+-/
+#guard_msgs in
+example (f g : Nat → Nat → Nat) (h : a = b) : (if _ : a + 0 ≠ b then id f else id (id g)) a (b + 0) = g a b := by
+  sym_simp [Nat.add_zero, id_eq]
+  trace_state -- `if-then-else` branches should not have been simplified
+  subst h
+  sym_simp [Nat.add_zero, id_eq]

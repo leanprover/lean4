@@ -3485,13 +3485,13 @@ attribute [extern "lean_string_from_utf8_unchecked"] String.ofByteArray
 Creates a string that contains the characters in a list, in order.
 
 Examples:
- * `['L', '∃', '∀', 'N'].asString = "L∃∀N"`
- * `[].asString = ""`
- * `['a', 'a', 'a'].asString = "aaa"`
+ * `String.ofList ['L', '∃', '∀', 'N'] = "L∃∀N"`
+ * `String.ofList [] = ""`
+ * `String.ofList ['a', 'a', 'a'] = "aaa"`
 -/
 @[extern "lean_string_mk"]
 def String.ofList (data : List Char) : String :=
-  ⟨List.utf8Encode data,.intro data rfl⟩
+  ⟨List.utf8Encode data, .intro data rfl⟩
 
 /--
 Decides whether two strings are equal. Normally used via the `DecidableEq String` instance and the

@@ -889,8 +889,6 @@ The definition can be unfolded, unlike definitions introduced by `have`.
   local variables `x : α`, `y : β`, and `z : γ`.
 * The syntax `let (eq := h) pat := e` is equivalent to `match h : e with | pat => _`,
   which adds the equation `h : e = pat` to the local context.
-* `let rec f : t := e` adds a recursive definition `f` to the current goal.
-  The syntax is the same as term-mode `let rec`.
 
 The tactic supports all the same syntax variants and options as the `let` term.
 
@@ -906,7 +904,13 @@ The tactic supports all the same syntax variants and options as the `let` term.
 -/
 macro "let" c:letConfig d:letDecl : tactic => `(tactic| refine_lift let $c:letConfig $d:letDecl; ?_)
 
-@[tactic_alt Lean.Parser.Tactic.tacticLet__]
+/--
+`let rec f : t := e` adds a recursive definition `f` to the current goal.
+The syntax is the same as term-mode `let rec`.
+
+The tactic supports all the same syntax variants and options as the `let` term.
+-/
+@[tactic_name "let rec"]
 syntax (name := letrec) withPosition(atomic("let " &"rec ") letRecDecls) : tactic
 macro_rules
   | `(tactic| let rec $d) => `(tactic| refine_lift let rec $d; ?_)

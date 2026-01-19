@@ -8,6 +8,7 @@ module
 prelude
 import Lean.DocString
 public import Lean.Elab.Command
+public import Lean.Parser.Tactic.Doc
 
 public section
 
@@ -38,32 +39,42 @@ open Lean.Parser.Command
   | _ => throwError "Malformed 'register_tactic_tag' command"
 
 /--
-Computes a table that heuristically maps parser syntax kinds to their first tokens by inspecting the Pratt parsing tables for the `tactic syntax kind.
-
-The table relies on each parser's `collectKinds` returning the kind in question; this is not the case for tactics defined via macros such as `declare_simp_like_tactic`
+Computes a table that heuristically maps parser syntax kinds to their first tokens by inspecting the
+Pratt parsing tables for the `tactic syntax kind. If a custom name is provided for the tactic, then
+it is returned instead.
 -/
 def firstTacticTokens [Monad m] [MonadEnv m] : m (NameMap String) := do
-  let some tactics := (Lean.Parser.parserExtension.getState (← getEnv)).categories.find? `tactic
+  let env ← getEnv
+
+  let some tactics := (Lean.Parser.parserExtension.getState env).categories.find? `tactic
     | return {}
 
-  let mut firstTokens : NameMap String := {}
+  let mut firstTokens : NameMap String :=
+    tacticNameExt.toEnvExtension.getState env
+      |>.importedEntries
+      |>.push (tacticNameExt.exportEntriesFn env (tacticNameExt.getState env) .exported)
+      |>.foldl (init := {}) fun names inMods =>
+        inMods.foldl (init := names) fun names (k, n) =>
+          names.insert k n
+
   firstTokens := addFirstTokens tactics tactics.tables.leadingTable firstTokens
   firstTokens := addFirstTokens tactics tactics.tables.trailingTable firstTokens
 
   return firstTokens
 where
-  addFirstTokens tactics table firsts : NameMap String :=
-    table.foldl (init := firsts) fun fsts tok ps =>
+  addFirstTokens tactics table firsts : NameMap String := Id.run do
+    let mut firsts := firsts
+    for (tok, ps) in table do
       -- Skip antiquotes
-      if tok == `«$» then fsts
-      else
-        ps.foldl (init := fsts) fun fsts (p, _) =>
-          p.info.collectKinds {} |>.foldl (init := fsts) fun fsts k () =>
-            if tactics.kinds.contains k then
-              let tok := tok.toString (escape := false)
-              -- Arbitrarily selects one in case of overloading.
-              fsts.insert k tok
-            else fsts
+      if tok == `«$» then continue
+      for (p, _) in ps do
+        for (k, ()) in p.info.collectKinds {} do
+          if tactics.kinds.contains k then
+            let tok := tok.toString (escape := false)
+            -- It's important here that the already-existing mapping is preserved, because it will
+            -- contain any user-provided custom name, and these shouldn't be overridden.
+            firsts := firsts.alter k (·.getD tok)
+    return firsts
 
 /--
 Creates some `MessageData` for a parser name.
@@ -77,7 +88,8 @@ private def showParserName [Monad m] [MonadEnv m] (firsts : NameMap String) (n :
   let env ← getEnv
   let params :=
     env.constants.find?' n |>.map (·.levelParams.map Level.param) |>.getD []
-  let tok := firsts.get? n |>.map Std.Format.text |>.getD (format n)
+
+  let tok := ((← customTacticName n) <|> firsts.get? n).map Std.Format.text |>.getD (format n)
   pure <| .ofFormatWithInfos {
     fmt := "`" ++ .tag 0 tok ++ "`",
     infos :=
@@ -144,13 +156,13 @@ structure TacticDoc where
   /-- Any docstring extensions that have been specified -/
   extensionDocs : Array String
 
-def allTacticDocs : MetaM (Array TacticDoc) := do
+def allTacticDocs (includeUnnamed : Bool := true) : MetaM (Array TacticDoc) := do
   let env ← getEnv
-  let all :=
-    tacticTagExt.toEnvExtension.getState (← getEnv)
-      |>.importedEntries |>.push (tacticTagExt.exportEntriesFn (← getEnv) (tacticTagExt.getState (← getEnv)) .exported)
+  let allTags :=
+    tacticTagExt.toEnvExtension.getState env |>.importedEntries
+      |>.push (tacticTagExt.exportEntriesFn env (tacticTagExt.getState env) .exported)
   let mut tacTags : NameMap NameSet := {}
-  for arr in all do
+  for arr in allTags do
     for (tac, tag) in arr do
       tacTags := tacTags.insert tac (tacTags.getD tac {} |>.insert tag)
 
@@ -165,7 +177,11 @@ def allTacticDocs : MetaM (Array TacticDoc) := do
     -- Skip noncanonical tactics
     if let some _ := alternativeOfTactic env tac then continue
 
-    let userName : String := firstTokens.get? tac |>.getD tac.toString
+    let userName? : Option String := firstTokens.get? tac
+    let userName ←
+      if let some n := userName? then pure n
+      else if includeUnnamed then pure tac.toString
+      else continue
 
     docs := docs.push {
       internalName := tac,

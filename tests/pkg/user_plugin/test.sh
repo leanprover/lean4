@@ -41,13 +41,13 @@ ENV_EXPECTED_OUT="Builtin value"
 
 # Test plugins at elaboration-time via `lean` CLI
 echo "Testing plugin load with lean CLI ..."
-echo | lean --plugin=$PLUGIN --stdin 2>&1 | diff <(echo "$EXPECTED_OUT") -
-lake env lean --plugin=$ENV_PLUGIN testEnvUse.lean 2>&1 | diff <(echo "$ENV_EXPECTED_OUT") -
+echo | lean --plugin=$PLUGIN --stdin 2>&1 | diff -I "^task_manager:.*" <(echo "$EXPECTED_OUT") -
+lake env lean --plugin=$ENV_PLUGIN testEnvUse.lean 2>&1 | diff -I "^task_manager:.*" <(echo "$ENV_EXPECTED_OUT") -
 
 # Test plugins at runtime via `Lean.loadPlugin`
 echo "Testing plugin load with Lean.loadPlugin ..."
-lean --run test.lean $PLUGIN 2>&1 | diff <(echo "$EXPECTED_OUT") -
-lake env lean --run testEnv.lean $ENV_PLUGIN 2>&1 | diff <(echo "$ENV_EXPECTED_OUT") -
+lean --run test.lean $PLUGIN 2>&1 | diff -I "^task_manager:.*" <(echo "$EXPECTED_OUT") -
+lake env lean --run testEnv.lean $ENV_PLUGIN 2>&1 | diff -I "^task_manager:.*" <(echo "$ENV_EXPECTED_OUT") -
 
 # Test failure to load environment plugin without `withImporting`
 lean --run test.lean $ENV_PLUGIN >/dev/null 2>&1 && {

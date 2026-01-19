@@ -9,6 +9,7 @@ prelude
 public import Init.System.IOError
 public import Init.System.FilePath
 public import Init.Data.Ord.UInt
+public import Init.Data.SInt
 import Init.Data.String.TakeDrop
 import Init.Data.String.Search
 
@@ -831,6 +832,85 @@ cursor includes buffered writes. However, buffered writes followed by `IO.FS.Han
 `IO.FS.Handle.flush` before truncating.
 -/
 @[extern "lean_io_prim_handle_truncate"] opaque truncate (h : @& Handle) : IO Unit
+
+/--
+Specifies the reference point for a file seek operation.
+
+**Operating System Specifis:**
+* Windows: [`_fseeki64](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/fseek-fseeki64?view=msvc-170)
+* Linux: [`fseeko`](https://linux.die.net/man/3/fseeko)
+-/
+inductive SeekMode where
+  /--
+  Seek from the beginning of the file.
+
+  The read/write cursor is positioned relative to the beginning of the file.
+  An offset of zero is the first byte of the file. Offsets should be
+  non-negative.
+
+  * `fseeko` / `_fseeki64` value: `SEEK_SET`
+  -/
+  | start
+  /--
+  Seek from the current file position.
+
+  The read/write cursor is positioned relative to the current file position.
+  An offset of zero is the current byte of the file. Negative offsets are
+  permitted.
+
+  * `fseek` / `_fseeki64` value: `SEEK_CUR`
+  -/
+  | cur
+  /--
+  Seek from the end of the file.
+
+  The read/write cursor is positioned relative to the end of the file. An
+  offset of zero is one byte past the end of the file, while an offset of
+  (-1) is the is the last byte of the file. Positive offsets will move
+  past the end of the file.
+
+  * `fseek` / `_fseeki64` value: `SEEK_END`
+  -/
+  | end
+  deriving Repr, BEq, Inhabited
+
+/--
+Moves the read/write cursor to a specific position (FFI definition).
+
+The FFI definition of `seek` requires `(offset : UInt64)` due to FFI
+limitations. However, in reality `(offset : Int64)` is the correct type.
+This function avoids that confusion.
+-/
+@[extern "lean_io_prim_handle_seek"]
+private opaque primSeek (h : @& Handle) (mode : SeekMode) (offset : UInt64) : IO Unit
+
+/--
+Moves the read/write cursor to a specific position in the file.
+
+The `offset` is a signed 64-bit value in bytes. It is interpreted relative to:
+* the beginning of the file if `mode = .start`,
+* the current position if `mode = .cur`,
+* the end of the file if `mode = .end`.
+
+**Operating System Specifis:**
+* Windows: [`_fseeki64`](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/fseek-fseeki64?view=msvc-170)
+* Linux: [`fseeko`](https://linux.die.net/man/3/fseeko)
+-/
+@[inline] def seek (h : Handle) (mode : SeekMode) (offset : Int64) : IO Unit :=
+  primSeek h mode offset.toUInt64
+
+/--
+Returns the current position of the read/write cursor in the file.
+
+The position is measured in bytes from the beginning of the file.
+
+**Operating System Specifis:**
+* Windows: [`_ftelli64`](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/ftell-ftelli64?view=msvc-170)
+* Linux: [`ftello`](https://linux.die.net/man/3/ftello)
+-/
+@[extern "lean_io_prim_handle_tell"]
+opaque tell (h : @& Handle) : IO UInt64
+
 /--
 Reads up to the given number of bytes from the handle. If the returned array is empty, an
 end-of-file marker (EOF) has been reached.

@@ -136,7 +136,7 @@ lean_object* l_instMonadFinallyEST___lam__0___boxed(lean_object*, lean_object*, 
 static lean_object* l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__23;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at___00Lean_LibrarySuggestions_localSymbolFrequency_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_LibrarySuggestions_initFn___lam__4___closed__0_00___x40_Lean_LibrarySuggestions_SymbolFrequency_277729666____hygCtx___hyg_2_;
-uint8_t l_Lean_LibrarySuggestions_isDeniedPremise(lean_object*, lean_object*);
+uint8_t l_Lean_LibrarySuggestions_isDeniedPremise(lean_object*, lean_object*, uint8_t);
 static lean_object* l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__20;
 static lean_object* l_Lean_LibrarySuggestions_initFn___closed__1_00___x40_Lean_LibrarySuggestions_SymbolFrequency_277729666____hygCtx___hyg_2_;
 static lean_object* l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__38;
@@ -780,29 +780,30 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_LibrarySuggestions_localSymbolFrequencyMap___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
-uint8_t x_11; uint8_t x_26; 
+uint8_t x_11; uint8_t x_26; uint8_t x_27; 
+x_26 = 0;
 lean_inc(x_4);
 lean_inc_ref(x_2);
-x_26 = l_Lean_LibrarySuggestions_isDeniedPremise(x_2, x_4);
-if (x_26 == 0)
-{
-uint8_t x_27; 
-x_27 = l_Lean_wasOriginallyTheorem(x_2, x_4);
+x_27 = l_Lean_LibrarySuggestions_isDeniedPremise(x_2, x_4, x_26);
 if (x_27 == 0)
 {
-lean_object* x_28; 
+uint8_t x_28; 
+x_28 = l_Lean_wasOriginallyTheorem(x_2, x_4);
+if (x_28 == 0)
+{
+lean_object* x_29; 
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_1);
-x_28 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_28, 0, x_3);
-return x_28;
+x_29 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_29, 0, x_3);
+return x_29;
 }
 else
 {
-x_11 = x_26;
+x_11 = x_27;
 goto block_25;
 }
 }
@@ -810,7 +811,7 @@ else
 {
 lean_dec(x_4);
 lean_dec_ref(x_2);
-x_11 = x_26;
+x_11 = x_27;
 goto block_25;
 }
 block_25:

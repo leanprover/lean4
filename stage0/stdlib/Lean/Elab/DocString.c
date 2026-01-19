@@ -53287,10 +53287,10 @@ block_34:
 {
 lean_object* x_28; lean_object* x_29; size_t x_30; size_t x_31; lean_object* x_32; 
 x_28 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_28, 0, x_25);
+lean_ctor_set(x_28, 0, x_26);
 lean_ctor_set(x_28, 1, x_27);
 x_29 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_29, 0, x_26);
+lean_ctor_set(x_29, 0, x_25);
 lean_ctor_set(x_29, 1, x_28);
 x_30 = 1;
 x_31 = lean_usize_add(x_4, x_30);
@@ -53310,8 +53310,8 @@ x_42 = lean_string_append(x_41, x_2);
 x_43 = lean_box(0);
 if (lean_obj_tag(x_19) == 0)
 {
-x_25 = x_43;
-x_26 = x_42;
+x_25 = x_42;
+x_26 = x_43;
 x_27 = x_19;
 goto block_34;
 }
@@ -53326,8 +53326,8 @@ x_45 = lean_ctor_get(x_19, 0);
 x_46 = l___private_Lean_Elab_DocString_0__Lean_Doc_elabInline_withSpace(x_45);
 lean_dec(x_45);
 lean_ctor_set(x_19, 0, x_46);
-x_25 = x_43;
-x_26 = x_42;
+x_25 = x_42;
+x_26 = x_43;
 x_27 = x_19;
 goto block_34;
 }
@@ -53341,8 +53341,8 @@ x_48 = l___private_Lean_Elab_DocString_0__Lean_Doc_elabInline_withSpace(x_47);
 lean_dec(x_47);
 x_49 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_49, 0, x_48);
-x_25 = x_43;
-x_26 = x_42;
+x_25 = x_42;
+x_26 = x_43;
 x_27 = x_49;
 goto block_34;
 }

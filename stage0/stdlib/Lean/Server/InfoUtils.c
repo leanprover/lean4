@@ -10446,22 +10446,22 @@ return x_20;
 }
 block_28:
 {
-if (lean_obj_tag(x_22) == 1)
+if (lean_obj_tag(x_23) == 1)
 {
 lean_object* x_26; lean_object* x_27; 
-x_26 = lean_ctor_get(x_22, 0);
+x_26 = lean_ctor_get(x_23, 0);
 lean_inc(x_26);
-lean_dec_ref(x_22);
+lean_dec_ref(x_23);
 x_27 = lean_array_push(x_24, x_26);
-x_9 = x_23;
+x_9 = x_22;
 x_10 = x_27;
 x_11 = lean_box(0);
 goto block_21;
 }
 else
 {
-lean_dec(x_22);
-x_9 = x_23;
+lean_dec(x_23);
+x_9 = x_22;
 x_10 = x_24;
 x_11 = lean_box(0);
 goto block_21;
@@ -10490,8 +10490,8 @@ if (x_35 == 0)
 lean_object* x_36; 
 lean_ctor_set_tag(x_34, 3);
 x_36 = lean_array_push(x_30, x_34);
-x_22 = x_29;
-x_23 = x_31;
+x_22 = x_31;
+x_23 = x_29;
 x_24 = x_36;
 x_25 = lean_box(0);
 goto block_28;
@@ -10505,8 +10505,8 @@ lean_dec(x_34);
 x_38 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_38, 0, x_37);
 x_39 = lean_array_push(x_30, x_38);
-x_22 = x_29;
-x_23 = x_31;
+x_22 = x_31;
+x_23 = x_29;
 x_24 = x_39;
 x_25 = lean_box(0);
 goto block_28;
@@ -10515,8 +10515,8 @@ goto block_28;
 else
 {
 lean_dec(x_34);
-x_22 = x_29;
-x_23 = x_31;
+x_22 = x_31;
+x_23 = x_29;
 x_24 = x_30;
 x_25 = lean_box(0);
 goto block_28;
@@ -10550,7 +10550,7 @@ block_49:
 if (x_46 == 0)
 {
 lean_object* x_47; 
-lean_dec_ref(x_44);
+lean_dec_ref(x_45);
 x_47 = lean_box(0);
 x_29 = x_47;
 x_30 = x_2;
@@ -10569,7 +10569,7 @@ lean_dec(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_48 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_48, 0, x_44);
+lean_ctor_set(x_48, 0, x_45);
 return x_48;
 }
 }
@@ -10582,15 +10582,15 @@ if (x_52 == 0)
 uint8_t x_53; 
 lean_inc_ref(x_50);
 x_53 = l_Lean_Exception_isRuntime(x_50);
-x_44 = x_50;
-x_45 = lean_box(0);
+x_44 = lean_box(0);
+x_45 = x_50;
 x_46 = x_53;
 goto block_49;
 }
 else
 {
-x_44 = x_50;
-x_45 = lean_box(0);
+x_44 = lean_box(0);
+x_45 = x_50;
 x_46 = x_52;
 goto block_49;
 }
@@ -12238,18 +12238,18 @@ x_45 = lean_ctor_get(x_44, 3);
 if (lean_obj_tag(x_45) == 1)
 {
 x_17 = x_43;
-x_18 = x_42;
-x_19 = x_32;
-x_20 = x_33;
+x_18 = x_33;
+x_19 = x_42;
+x_20 = x_32;
 x_21 = x_33;
 goto block_22;
 }
 else
 {
 x_17 = x_43;
-x_18 = x_42;
-x_19 = x_32;
-x_20 = x_33;
+x_18 = x_33;
+x_19 = x_42;
+x_20 = x_32;
 x_21 = x_32;
 goto block_22;
 }
@@ -12257,9 +12257,9 @@ goto block_22;
 else
 {
 x_17 = x_43;
-x_18 = x_42;
-x_19 = x_32;
-x_20 = x_33;
+x_18 = x_33;
+x_19 = x_42;
+x_20 = x_32;
 x_21 = x_32;
 goto block_22;
 }
@@ -12366,16 +12366,16 @@ if (lean_obj_tag(x_5) == 2)
 {
 x_8 = x_17;
 x_9 = x_21;
-x_10 = x_18;
-x_11 = x_20;
+x_10 = x_19;
+x_11 = x_18;
 goto block_16;
 }
 else
 {
 x_8 = x_17;
 x_9 = x_21;
-x_10 = x_18;
-x_11 = x_19;
+x_10 = x_19;
+x_11 = x_20;
 goto block_16;
 }
 }

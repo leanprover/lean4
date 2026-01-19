@@ -340,7 +340,7 @@ LEAN_EXPORT lean_object* l_List_foldl___at___00__private_Lean_LibrarySuggestions
 LEAN_EXPORT lean_object* l___private_Lean_LibrarySuggestions_SineQuaNon_0__Lean_LibrarySuggestions_SineQuaNon_frequencyScore___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_LibrarySuggestions_SineQuaNon_0__Lean_LibrarySuggestions_SineQuaNon_sineQuaNon_go___closed__5;
 static lean_object* l___private_Lean_LibrarySuggestions_SineQuaNon_0__List_orderedInsert___auto__3___closed__24;
-uint8_t l_Lean_LibrarySuggestions_isDeniedPremise(lean_object*, lean_object*);
+uint8_t l_Lean_LibrarySuggestions_isDeniedPremise(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_LibrarySuggestions_SineQuaNon_initFn___lam__4_00___x40_Lean_LibrarySuggestions_SineQuaNon_1146880649____hygCtx___hyg_2____boxed(lean_object*);
 double l_Float_ofScientific(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_LibrarySuggestions_SineQuaNon_initFn___closed__51_00___x40_Lean_LibrarySuggestions_SineQuaNon_830398421____hygCtx___hyg_2_;
@@ -4034,7 +4034,7 @@ lean_object* x_12; uint8_t x_13;
 x_12 = lean_array_uget(x_2, x_3);
 lean_inc(x_12);
 lean_inc_ref(x_1);
-x_13 = l_Lean_LibrarySuggestions_isDeniedPremise(x_1, x_12);
+x_13 = l_Lean_LibrarySuggestions_isDeniedPremise(x_1, x_12, x_11);
 if (x_13 == 0)
 {
 uint8_t x_14; 

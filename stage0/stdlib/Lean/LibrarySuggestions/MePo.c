@@ -161,7 +161,7 @@ static lean_object* l___private_Lean_LibrarySuggestions_MePo_0__Lean_LibrarySugg
 LEAN_EXPORT double l___private_Lean_LibrarySuggestions_MePo_0__Lean_LibrarySuggestions_MePo_unweightedScore___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_LibrarySuggestions_MePo_0__Lean_LibrarySuggestions_MePo_mepo_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_LibrarySuggestions_MePo_0__Lean_LibrarySuggestions_MePo_initFn___closed__25_00___x40_Lean_LibrarySuggestions_MePo_1610293474____hygCtx___hyg_2_;
-uint8_t l_Lean_LibrarySuggestions_isDeniedPremise(lean_object*, lean_object*);
+uint8_t l_Lean_LibrarySuggestions_isDeniedPremise(lean_object*, lean_object*, uint8_t);
 double l_Float_ofScientific(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_LibrarySuggestions_MePo_0__Lean_LibrarySuggestions_MePo_mepo_spec__13___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT double l_Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lean_LibrarySuggestions_MePo_0__Lean_LibrarySuggestions_MePo_weightedScore_spec__1(lean_object*, double, lean_object*);
@@ -6882,23 +6882,23 @@ return x_4;
 LEAN_EXPORT lean_object* l_Lean_LibrarySuggestions_mepoSelector___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_6; uint8_t x_7; 
+lean_object* x_6; uint8_t x_7; uint8_t x_8; 
 x_6 = l_Lean_ConstantInfo_name(x_2);
-x_7 = l_Lean_LibrarySuggestions_isDeniedPremise(x_1, x_6);
-if (x_7 == 0)
+x_7 = 0;
+x_8 = l_Lean_LibrarySuggestions_isDeniedPremise(x_1, x_6, x_7);
+if (x_8 == 0)
 {
-uint8_t x_8; lean_object* x_9; lean_object* x_10; 
-x_8 = 1;
-x_9 = lean_box(x_8);
-x_10 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_10, 0, x_9);
-return x_10;
+uint8_t x_9; lean_object* x_10; lean_object* x_11; 
+x_9 = 1;
+x_10 = lean_box(x_9);
+x_11 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_11, 0, x_10);
+return x_11;
 }
 else
 {
-uint8_t x_11; lean_object* x_12; lean_object* x_13; 
-x_11 = 0;
-x_12 = lean_box(x_11);
+lean_object* x_12; lean_object* x_13; 
+x_12 = lean_box(x_7);
 x_13 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
 return x_13;

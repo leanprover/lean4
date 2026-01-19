@@ -878,9 +878,12 @@ public:
         {
             unique_lock<mutex> lock(m_mutex);
             m_shutting_down = true;
+            // We should notify workers of `m_shutting_down` being set inside the lock so that they
+            // cannot be between the check of `m_shutting_down` and the wait on `m_queue_cv` at this
+            // point.
+            m_queue_cv.notify_all();
             // we can assume that `m_std_workers` will not be changed after this line
         }
-        m_queue_cv.notify_all();
 #ifndef LEAN_EMSCRIPTEN
         // wait for all workers to finish
         for (auto & t : m_std_workers)

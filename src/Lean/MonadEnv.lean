@@ -193,16 +193,21 @@ def findModuleOf? [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m (O
   | none        => return none
   | some modIdx => return some ((← getEnv).allImportedModuleNames[modIdx.toNat]!)
 
-def isEnumType  [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m Bool := do
-  if let ConstantInfo.inductInfo info ← getConstInfo declName then
+def isEnumTypeCore (env : Environment) (declName : Name) : Bool :=
+  if let some (ConstantInfo.inductInfo info) := env.find? declName then
     if !info.type.isProp && info.numTypeFormers == 1 && info.numIndices == 0 && info.numParams == 0
        && !info.ctors.isEmpty && !info.isRec && !info.isUnsafe then
-      info.ctors.allM fun ctorName => do
-        let ConstantInfo.ctorInfo info ← getConstInfo ctorName | return false
-        return info.numFields == 0
+      info.ctors.all fun ctorName =>
+        if let ConstantInfo.ctorInfo info := env.find? ctorName then
+          info.numFields == 0
+        else
+          false
     else
-      return false
+      false
   else
-    return false
+    false
+
+def isEnumType [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
+  return isEnumTypeCore (← getEnv) declName
 
 end Lean

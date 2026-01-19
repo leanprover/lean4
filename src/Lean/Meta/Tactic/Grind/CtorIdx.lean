@@ -38,9 +38,7 @@ def propagateCtorIdxUp (e : Expr) : GoalM Unit := e.withApp fun f xs => do
       -- both types should be headed by the same type former
       unless bType.isAppOfArity indInfo.name (indInfo.numParams + indInfo.numIndices) do return
       let us := aType.getAppFn.constLevels!
-      let hinjName := mkCtorIdxHInjTheoremNameFor indInfo.name
-      unless (← getEnv).containsOnBranch hinjName do
-        let _ ← executeReservedNameAction hinjName
+      let hinjName ← mkCtorIdxHInjThmFor fnName
       let proof := mkConst hinjName us
       let proof := mkApp (mkAppN proof aType.getAppArgs) a
       let proof := mkApp (mkAppN proof bType.getAppArgs) b

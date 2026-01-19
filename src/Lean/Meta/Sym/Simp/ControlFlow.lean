@@ -24,9 +24,15 @@ def simpIte : Simproc := fun e => do
   let numArgs := e.getAppNumArgs
   if numArgs < 5 then return .rfl (done := true)
   propagateOverApplied e (numArgs - 5) fun e => do
-    let_expr ite _ c _ a b := e | return .rfl
+    let_expr f@ite α c _ a b := e | return .rfl
     match (← simp c) with
-    | .rfl _ => return .rfl (done := true)
+    | .rfl _ =>
+      if c.isTrue then
+        return .step a <| mkApp3 (mkConst ``ite_true f.constLevels!) α a b
+      else if c.isFalse then
+        return .step b <| mkApp3 (mkConst ``ite_false f.constLevels!) α a b
+      else
+        return .rfl (done := true)
     | .step c' h _ =>
       if c'.isTrue then
         return .step a <| mkApp (e.replaceFn ``ite_cond_eq_true) h
@@ -47,9 +53,17 @@ def simpDIte : Simproc := fun e => do
   let numArgs := e.getAppNumArgs
   if numArgs < 5 then return .rfl (done := true)
   propagateOverApplied e (numArgs - 5) fun e => do
-    let_expr dite _ c _ a b := e | return .rfl
+    let_expr f@dite α c _ a b := e | return .rfl
     match (← simp c) with
-    | .rfl _ => return .rfl (done := true)
+    | .rfl _ =>
+      if c.isTrue then
+        let a' ← share <| a.betaRev #[mkConst ``True.intro]
+        return .step a' <| mkApp3 (mkConst ``dite_true f.constLevels!) α a b
+      else if c.isFalse then
+        let b' ← share <| b.betaRev #[mkConst ``not_false]
+        return .step b' <| mkApp3 (mkConst ``dite_false f.constLevels!) α a b
+      else
+        return .rfl (done := true)
     | .step c' h _ =>
       if c'.isTrue then
         let h' ← shareCommon <| mkOfEqTrueCore c h
@@ -77,9 +91,15 @@ def simpCond : Simproc := fun e => do
   let numArgs := e.getAppNumArgs
   if numArgs < 4 then return .rfl (done := true)
   propagateOverApplied e (numArgs - 4) fun e => do
-    let_expr cond _ c a b := e | return .rfl
+    let_expr f@cond α c a b := e | return .rfl
     match (← simp c) with
-    | .rfl _ => return .rfl (done := true)
+    | .rfl _ =>
+      if c.isConstOf ``true then
+        return .step a <| mkApp3 (mkConst ``cond_true f.constLevels!) α a b
+      else if c.isConstOf ``false then
+        return .step b <| mkApp3 (mkConst ``cond_false f.constLevels!) α a b
+      else
+        return .rfl (done := true)
     | .step c' h _ =>
       if c'.isConstOf ``true then
         return .step a <| mkApp (e.replaceFn ``Sym.cond_cond_eq_true) h

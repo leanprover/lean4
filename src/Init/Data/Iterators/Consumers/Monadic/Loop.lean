@@ -911,7 +911,7 @@ Steps through the whole iterator, counting the number of outputs emitted.
 
 This function's runtime is linear in the number of steps taken by the iterator.
 -/
-@[always_inline, inline]
+@[always_inline, inline, suggest_for Std.Iterators.IterM.length Std.Iterators.IterM.Partial.length]
 def IterM.count {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     [IteratorLoop α m m] [Monad m] (it : IterM (α := α) m β) : m (ULift Nat) :=
   it.fold (init := .up 0) fun acc _ => .up (acc.down + 1)

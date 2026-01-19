@@ -264,7 +264,7 @@ Examples:
 * `"abc".length = 3`
 * `"L∃∀N".length = 4`
 -/
-@[extern "lean_string_length", expose, tagged_return]
+@[extern "lean_string_length", expose, tagged_return, suggest_for String.size]
 def String.length (b : @& String) : Nat :=
   b.toList.length
 

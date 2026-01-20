@@ -6,9 +6,13 @@ Author: Markus Himmel
 module
 
 prelude
+public import Init.Data.Fin.Basic
+public import Init.Data.UInt.Basic
 import Init.Data.Char.Lemmas
 import Init.Data.Char.Order
 import Init.Grind
+
+public section
 
 namespace Fin
 
@@ -173,7 +177,7 @@ theorem succ?_eq {c : Char} : c.succ? = c.ordinal.succ?.map Char.ofOrdinal := by
     have := c.valid
     grind [UInt32.lt_iff_toNat_lt]
 
-def succMany? (c : Char) (m : Nat) : Option Char :=
+def succMany? (m : Nat) (c : Char) : Option Char :=
   c.ordinal.succMany? m |>.map Char.ofOrdinal
 
 end Char

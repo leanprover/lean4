@@ -177,16 +177,33 @@ def Goal (n : Nat) : Prop :=
 
 set_option maxHeartbeats 0
 set_option maxRecDepth 100000
+open Lean Meta Elab Tactic
+
+/-- Helper function for executing a tactic `k` for solving `Goal n`. -/
+def driver (n : Nat) (check := true) (k : MVarId → MetaM Unit) : MetaM Unit := do
+  let some goal ← unfoldDefinition? (mkApp (mkConst ``Goal) (mkNatLit n)) | throwError "UNFOLD FAILED!"
+  let mvar ← mkFreshExprMVar goal
+  let startTime ← IO.monoNanosNow
+  k mvar.mvarId!
+  let endTime ← IO.monoNanosNow
+  let ms := (endTime - startTime).toFloat / 1000000.0
+  if check then
+    let startTime ← IO.monoNanosNow
+    checkWithKernel (← instantiateExprMVars mvar)
+    let endTime ← IO.monoNanosNow
+    let kernelMs := (endTime - startTime).toFloat / 1000000.0
+    IO.println s!"goal_{n}: {ms} ms, kernel: {kernelMs} ms"
+  else
+    IO.println s!"goal_{n}: {ms} ms"
 
 /-!
 `MetaM` Solution
 -/
-open Lean Meta Elab Tactic
+
 /-
 A tactic for solving goal `Goal n`
 -/
 macro "solve" : tactic => `(tactic| {
-  unfold Goal;
   intros m l;
   simp only [generated_cmd, repeated_cmds];
   apply Exec.seq_cps;
@@ -208,19 +225,8 @@ macro "solve" : tactic => `(tactic| {
 Solves a goal of the form `Goal n` using the `solve` tactic.
 -/
 def solveUsingMeta (n : Nat) (check := true) : MetaM Unit := do
-  let mvar ← mkFreshExprMVar (mkApp (mkConst ``Goal) (mkNatLit n))
-  let startTime ← IO.monoNanosNow
-  let ([], _) ← runTactic mvar.mvarId! (← `(tactic| solve)).raw {} {} | throwError "FAILED!"
-  let endTime ← IO.monoNanosNow
-  let ms := (endTime - startTime).toFloat / 1000000.0
-  if check then
-    let startTime ← IO.monoNanosNow
-    checkWithKernel (← instantiateExprMVars mvar)
-    let endTime ← IO.monoNanosNow
-    let kernelMs := (endTime - startTime).toFloat / 1000000.0
-    IO.println s!"goal_{n}: {ms} ms, kernel: {kernelMs} ms"
-  else
-    IO.println s!"goal_{n}: {ms} ms"
+  driver n check fun mvarId => do
+    let ([], _) ← runTactic mvarId (← `(tactic| solve)).raw {} {} | throwError "FAILED!"
 
 def runBenchUsingMeta : MetaM Unit := do
   IO.println "=== Symbolic Simulation Tests ==="

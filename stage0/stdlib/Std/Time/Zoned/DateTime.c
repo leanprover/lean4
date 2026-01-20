@@ -49,7 +49,6 @@ lean_object* l_Std_Time_Month_Ordinal_days(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_withMinutes___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_hour___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_alignedWeekOfMonth___redArg(lean_object*);
-static lean_object* l_Std_Time_DateTime_instInhabited___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_alignedWeekOfMonth___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_toPlainDateTime___redArg___boxed(lean_object*);
 lean_object* lean_int_emod(lean_object*, lean_object*);
@@ -492,19 +491,11 @@ lean_dec_ref(x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_Std_Time_DateTime_instInhabited___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_Time_instInhabitedTimestamp_default;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_instInhabited(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_Std_Time_DateTime_instInhabited___closed__0;
+x_2 = l_Std_Time_instInhabitedTimestamp_default;
 x_3 = lean_alloc_closure((void*)(l_Std_Time_DateTime_instInhabited___lam__0___boxed), 3, 2);
 lean_closure_set(x_3, 0, x_2);
 lean_closure_set(x_3, 1, x_1);
@@ -10125,8 +10116,6 @@ l_Std_Time_instOrdDateTime___closed__1 = _init_l_Std_Time_instOrdDateTime___clos
 lean_mark_persistent(l_Std_Time_instOrdDateTime___closed__1);
 l_Std_Time_DateTime_ofTimestamp___lam__0___closed__0 = _init_l_Std_Time_DateTime_ofTimestamp___lam__0___closed__0();
 lean_mark_persistent(l_Std_Time_DateTime_ofTimestamp___lam__0___closed__0);
-l_Std_Time_DateTime_instInhabited___closed__0 = _init_l_Std_Time_DateTime_instInhabited___closed__0();
-lean_mark_persistent(l_Std_Time_DateTime_instInhabited___closed__0);
 l_Std_Time_DateTime_addHours___closed__0 = _init_l_Std_Time_DateTime_addHours___closed__0();
 lean_mark_persistent(l_Std_Time_DateTime_addHours___closed__0);
 l_Std_Time_DateTime_addMinutes___closed__0 = _init_l_Std_Time_DateTime_addMinutes___closed__0();

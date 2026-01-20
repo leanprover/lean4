@@ -107,7 +107,6 @@ static lean_object* l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_d
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 static lean_object* l_Lean_addMessageContextPartial___at___00Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1_spec__2_spec__3_spec__7___redArg___closed__5;
-static lean_object* l_Lean_Linter_getLinterOptions___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__0___closed__0;
 uint8_t l_Lean_MessageData_hasTag(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt___lam__0___closed__4;
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
@@ -123,7 +122,6 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn___closed__2_00___x40_Lean_Linter_DocsOnAlt_861232146____hygCtx___hyg_4_;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 extern lean_object* l_Lean_warningAsError;
-static lean_object* l_Lean_Options_toLinterOptions___at___00Lean_Linter_getLinterOptions___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__0_spec__0___redArg___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn___closed__3_00___x40_Lean_Linter_DocsOnAlt_861232146____hygCtx___hyg_4_;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -185,7 +183,6 @@ static lean_object* l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter
 LEAN_EXPORT lean_object* l_Lean_Options_toLinterOptions___at___00Lean_Linter_getLinterOptions___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_structEq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___00__private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___at___00Lean_Elab_InfoTree_visitM_x27___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__3_spec__6_spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_getLinterDocsOnAlt___closed__0;
 static lean_object* l___private_Lean_Server_InfoUtils_0__Lean_Elab_InfoTree_visitM_go___at___00Lean_Elab_InfoTree_visitM_x27___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__3_spec__6___redArg___closed__2;
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -214,7 +211,6 @@ static lean_object* l_Lean_addMessageContextPartial___at___00Lean_logAt___at___0
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__4___lam__0(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_addMessageContextPartial___at___00Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1_spec__2_spec__3_spec__7___redArg___closed__3;
 static lean_object* l_Lean_Linter_initFn___closed__7_00___x40_Lean_Linter_DocsOnAlt_861232146____hygCtx___hyg_4_;
-static lean_object* l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1_spec__2_spec__3___closed__1;
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 static lean_object* l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt___closed__5;
 LEAN_EXPORT uint8_t l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1_spec__2_spec__3___lam__0(uint8_t, uint8_t, lean_object*);
@@ -469,19 +465,11 @@ x_2 = l_Lean_Linter_initFn_00___x40_Lean_Linter_DocsOnAlt_861232146____hygCtx___
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_getLinterDocsOnAlt___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Linter_linter_tactic_docsOnAlt;
-return x_1;
-}
-}
 LEAN_EXPORT uint8_t l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_getLinterDocsOnAlt(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_getLinterDocsOnAlt___closed__0;
+x_2 = l_Lean_Linter_linter_tactic_docsOnAlt;
 x_3 = l_Lean_Linter_getLinterValue(x_2, x_1);
 return x_3;
 }
@@ -730,14 +718,6 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Options_toLinterOptions___at___00Lean_Linter_getLinterOptions___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__0_spec__0___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Linter_linterSetsExt;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Options_toLinterOptions___at___00Lean_Linter_getLinterOptions___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__0_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -746,7 +726,7 @@ x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
 lean_dec(x_4);
-x_6 = l_Lean_Options_toLinterOptions___at___00Lean_Linter_getLinterOptions___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__0_spec__0___redArg___closed__0;
+x_6 = l_Lean_Linter_linterSetsExt;
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_7, 2);
@@ -773,14 +753,6 @@ lean_dec(x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Linter_getLinterOptions___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Elab_Command_instInhabitedScope_default;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Linter_getLinterOptions___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -789,7 +761,7 @@ x_4 = lean_st_ref_get(x_2);
 x_5 = lean_ctor_get(x_4, 2);
 lean_inc(x_5);
 lean_dec(x_4);
-x_6 = l_Lean_Linter_getLinterOptions___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__0___closed__0;
+x_6 = l_Lean_Elab_Command_instInhabitedScope_default;
 x_7 = l_List_head_x21___redArg(x_6, x_5);
 lean_dec(x_5);
 x_8 = lean_ctor_get(x_7, 1);
@@ -961,7 +933,7 @@ x_6 = lean_st_ref_get(x_2);
 x_7 = lean_ctor_get(x_6, 2);
 lean_inc(x_7);
 lean_dec(x_6);
-x_8 = l_Lean_Linter_getLinterOptions___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__0___closed__0;
+x_8 = l_Lean_Elab_Command_instInhabitedScope_default;
 x_9 = l_List_head_x21___redArg(x_8, x_7);
 lean_dec(x_7);
 x_10 = lean_ctor_get(x_9, 1);
@@ -1044,14 +1016,6 @@ _start:
 {
 lean_object* x_1; 
 x_1 = lean_mk_string_unchecked("", 0, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1_spec__2_spec__3___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_warningAsError;
 return x_1;
 }
 }
@@ -1590,7 +1554,7 @@ x_146 = lean_st_ref_get(x_6);
 x_147 = lean_ctor_get(x_146, 2);
 lean_inc(x_147);
 lean_dec(x_146);
-x_148 = l_Lean_Linter_getLinterOptions___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__0___closed__0;
+x_148 = l_Lean_Elab_Command_instInhabitedScope_default;
 x_149 = l_List_head_x21___redArg(x_148, x_147);
 lean_dec(x_147);
 x_150 = lean_ctor_get(x_149, 1);
@@ -1610,7 +1574,7 @@ goto block_144;
 else
 {
 lean_object* x_153; uint8_t x_154; 
-x_153 = l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1_spec__2_spec__3___closed__1;
+x_153 = l_Lean_warningAsError;
 x_154 = l_Lean_Option_get___at___00Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1_spec__2_spec__3_spec__8(x_150, x_153);
 lean_dec_ref(x_150);
 x_140 = x_145;
@@ -1986,7 +1950,7 @@ x_27 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00
 x_28 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_28, 0, x_12);
 lean_ctor_set(x_28, 1, x_27);
-x_29 = l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_getLinterDocsOnAlt___closed__0;
+x_29 = l_Lean_Linter_linter_tactic_docsOnAlt;
 x_30 = l_Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1(x_29, x_15, x_28, x_7, x_8);
 lean_dec(x_15);
 return x_30;
@@ -2037,7 +2001,7 @@ x_37 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00
 x_38 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_38, 0, x_12);
 lean_ctor_set(x_38, 1, x_37);
-x_39 = l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_getLinterDocsOnAlt___closed__0;
+x_39 = l_Lean_Linter_linter_tactic_docsOnAlt;
 x_40 = l_Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1(x_39, x_15, x_38, x_7, x_8);
 lean_dec(x_15);
 return x_40;
@@ -2193,7 +2157,7 @@ x_65 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00
 x_66 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_66, 0, x_64);
 lean_ctor_set(x_66, 1, x_65);
-x_67 = l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_getLinterDocsOnAlt___closed__0;
+x_67 = l_Lean_Linter_linter_tactic_docsOnAlt;
 x_68 = l_Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1(x_67, x_51, x_66, x_7, x_8);
 lean_dec(x_51);
 return x_68;
@@ -2361,7 +2325,7 @@ x_95 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00
 x_96 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_96, 0, x_94);
 lean_ctor_set(x_96, 1, x_95);
-x_97 = l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_getLinterDocsOnAlt___closed__0;
+x_97 = l_Lean_Linter_linter_tactic_docsOnAlt;
 x_98 = l_Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1(x_97, x_79, x_96, x_7, x_8);
 lean_dec(x_79);
 return x_98;
@@ -3412,7 +3376,7 @@ x_27 = lean_ctor_get(x_26, 0);
 lean_inc(x_27);
 lean_dec_ref(x_26);
 x_28 = l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt___lam__3___closed__2;
-x_29 = l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_getLinterDocsOnAlt___closed__0;
+x_29 = l_Lean_Linter_linter_tactic_docsOnAlt;
 x_30 = l_Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1(x_29, x_27, x_28, x_5, x_6);
 lean_dec(x_6);
 lean_dec(x_27);
@@ -3453,7 +3417,7 @@ x_33 = lean_ctor_get(x_32, 0);
 lean_inc(x_33);
 lean_dec_ref(x_32);
 x_34 = l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt___lam__3___closed__2;
-x_35 = l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_getLinterDocsOnAlt___closed__0;
+x_35 = l_Lean_Linter_linter_tactic_docsOnAlt;
 x_36 = l_Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1(x_35, x_33, x_34, x_5, x_6);
 lean_dec(x_6);
 lean_dec(x_33);
@@ -3915,9 +3879,7 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_Linter_linter_tactic_docsOnAlt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Linter_linter_tactic_docsOnAlt);
 lean_dec_ref(res);
-}l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_getLinterDocsOnAlt___closed__0 = _init_l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_getLinterDocsOnAlt___closed__0();
-lean_mark_persistent(l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_getLinterDocsOnAlt___closed__0);
-l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_isAltAttr___closed__0 = _init_l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_isAltAttr___closed__0();
+}l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_isAltAttr___closed__0 = _init_l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_isAltAttr___closed__0();
 lean_mark_persistent(l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_isAltAttr___closed__0);
 l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_isAltAttr___closed__1 = _init_l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_isAltAttr___closed__1();
 lean_mark_persistent(l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_isAltAttr___closed__1);
@@ -3949,10 +3911,6 @@ l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt___lam__2___
 lean_mark_persistent(l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt___lam__2___closed__0);
 l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt___lam__2___closed__1 = _init_l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt___lam__2___closed__1();
 lean_mark_persistent(l___private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt___lam__2___closed__1);
-l_Lean_Options_toLinterOptions___at___00Lean_Linter_getLinterOptions___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__0_spec__0___redArg___closed__0 = _init_l_Lean_Options_toLinterOptions___at___00Lean_Linter_getLinterOptions___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__0_spec__0___redArg___closed__0();
-lean_mark_persistent(l_Lean_Options_toLinterOptions___at___00Lean_Linter_getLinterOptions___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__0_spec__0___redArg___closed__0);
-l_Lean_Linter_getLinterOptions___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__0___closed__0 = _init_l_Lean_Linter_getLinterOptions___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__0___closed__0();
-lean_mark_persistent(l_Lean_Linter_getLinterOptions___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__0___closed__0);
 l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1_spec__2_spec__3___lam__0___closed__0 = _init_l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1_spec__2_spec__3___lam__0___closed__0();
 lean_mark_persistent(l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1_spec__2_spec__3___lam__0___closed__0);
 l_Lean_addMessageContextPartial___at___00Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1_spec__2_spec__3_spec__7___redArg___closed__0 = _init_l_Lean_addMessageContextPartial___at___00Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1_spec__2_spec__3_spec__7___redArg___closed__0();
@@ -3971,8 +3929,6 @@ l_Lean_addMessageContextPartial___at___00Lean_logAt___at___00Lean_logWarningAt__
 lean_mark_persistent(l_Lean_addMessageContextPartial___at___00Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1_spec__2_spec__3_spec__7___redArg___closed__6);
 l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1_spec__2_spec__3___closed__0 = _init_l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1_spec__2_spec__3___closed__0();
 lean_mark_persistent(l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1_spec__2_spec__3___closed__0);
-l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1_spec__2_spec__3___closed__1 = _init_l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1_spec__2_spec__3___closed__1();
-lean_mark_persistent(l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1_spec__2_spec__3___closed__1);
 l_Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1___closed__0 = _init_l_Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1___closed__0();
 lean_mark_persistent(l_Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1___closed__0);
 l_Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1___closed__1 = _init_l_Lean_Linter_logLint___at___00__private_Lean_Linter_DocsOnAlt_0__Lean_Linter_DocsOnAlt_docsOnAlt_spec__1___closed__1();

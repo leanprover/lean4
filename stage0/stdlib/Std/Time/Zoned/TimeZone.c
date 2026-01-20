@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_ofSeconds___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_Time_TimeZone_UTC___closed__2;
 static lean_object* l_Std_Time_TimeZone_UTC___closed__0;
 static lean_object* l_Std_Time_instReprTimeZone_repr___redArg___closed__20;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_GMT;
@@ -609,25 +608,17 @@ static lean_object* _init_l_Std_Time_TimeZone_UTC___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_Time_TimeZone_Offset_zero;
+x_1 = lean_mk_string_unchecked("UTC", 3, 3);
 return x_1;
 }
 }
 static lean_object* _init_l_Std_Time_TimeZone_UTC___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("UTC", 3, 3);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Time_TimeZone_UTC___closed__2() {
-_start:
-{
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = 0;
-x_2 = l_Std_Time_TimeZone_UTC___closed__1;
-x_3 = l_Std_Time_TimeZone_UTC___closed__0;
+x_2 = l_Std_Time_TimeZone_UTC___closed__0;
+x_3 = l_Std_Time_TimeZone_Offset_zero;
 x_4 = lean_alloc_ctor(0, 3, 1);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
@@ -640,7 +631,7 @@ static lean_object* _init_l_Std_Time_TimeZone_UTC() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_Time_TimeZone_UTC___closed__2;
+x_1 = l_Std_Time_TimeZone_UTC___closed__1;
 return x_1;
 }
 }
@@ -667,7 +658,7 @@ uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* 
 x_1 = 0;
 x_2 = l_Std_Time_TimeZone_GMT___closed__1;
 x_3 = l_Std_Time_TimeZone_GMT___closed__0;
-x_4 = l_Std_Time_TimeZone_UTC___closed__0;
+x_4 = l_Std_Time_TimeZone_Offset_zero;
 x_5 = lean_alloc_ctor(0, 3, 1);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);
@@ -821,8 +812,6 @@ l_Std_Time_TimeZone_UTC___closed__0 = _init_l_Std_Time_TimeZone_UTC___closed__0(
 lean_mark_persistent(l_Std_Time_TimeZone_UTC___closed__0);
 l_Std_Time_TimeZone_UTC___closed__1 = _init_l_Std_Time_TimeZone_UTC___closed__1();
 lean_mark_persistent(l_Std_Time_TimeZone_UTC___closed__1);
-l_Std_Time_TimeZone_UTC___closed__2 = _init_l_Std_Time_TimeZone_UTC___closed__2();
-lean_mark_persistent(l_Std_Time_TimeZone_UTC___closed__2);
 l_Std_Time_TimeZone_UTC = _init_l_Std_Time_TimeZone_UTC();
 lean_mark_persistent(l_Std_Time_TimeZone_UTC);
 l_Std_Time_TimeZone_GMT___closed__0 = _init_l_Std_Time_TimeZone_GMT___closed__0();

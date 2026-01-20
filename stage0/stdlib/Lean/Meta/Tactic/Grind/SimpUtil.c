@@ -250,7 +250,6 @@ static lean_object* l_Lean_Meta_Grind_simpOr___redArg___closed__4;
 static lean_object* l_Lean_Meta_Grind_pushNot___redArg___closed__19;
 static lean_object* l_Lean_Meta_Grind_simpOr___redArg___closed__7;
 lean_object* l_Lean_Expr_constLevels_x21(lean_object*);
-static lean_object* l_Lean_Meta_Grind_registerNormTheorems___closed__2;
 static lean_object* l_Lean_Meta_Grind_pushNot___redArg___closed__15;
 static lean_object* l_Lean_Meta_Grind_getSimprocs___redArg___closed__3;
 static lean_object* l_Lean_Meta_Grind_pushNot___redArg___closed__58;
@@ -642,23 +641,15 @@ static lean_object* _init_l_Lean_Meta_Grind_registerNormTheorems___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_Grind_normExt;
+x_1 = lean_mk_string_unchecked("`grind` normalization theorems have already been initialized", 60, 60);
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_Grind_registerNormTheorems___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`grind` normalization theorems have already been initialized", 60, 60);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_registerNormTheorems___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_Grind_registerNormTheorems___closed__1;
+x_1 = l_Lean_Meta_Grind_registerNormTheorems___closed__0;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -667,7 +658,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_registerNormTheorems(lean_object* x_1
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_24; 
-x_8 = l_Lean_Meta_Grind_registerNormTheorems___closed__0;
+x_8 = l_Lean_Meta_Grind_normExt;
 x_24 = l_Lean_Meta_SimpExtension_getTheorems___redArg(x_8, x_6);
 if (lean_obj_tag(x_24) == 0)
 {
@@ -683,7 +674,7 @@ lean_dec_ref(x_26);
 if (x_27 == 0)
 {
 lean_object* x_28; lean_object* x_29; 
-x_28 = l_Lean_Meta_Grind_registerNormTheorems___closed__2;
+x_28 = l_Lean_Meta_Grind_registerNormTheorems___closed__1;
 x_29 = l_Lean_throwError___at___00Lean_Meta_Grind_registerNormTheorems_spec__3___redArg(x_28, x_3, x_4, x_5, x_6);
 lean_dec(x_6);
 lean_dec_ref(x_5);
@@ -7798,7 +7789,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_getNormTheorems(lean_object* x_1, lea
 _start:
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = l_Lean_Meta_Grind_registerNormTheorems___closed__0;
+x_6 = l_Lean_Meta_Grind_normExt;
 x_7 = l_Lean_Meta_SimpExtension_getTheorems___redArg(x_6, x_4);
 if (lean_obj_tag(x_7) == 0)
 {
@@ -8322,8 +8313,6 @@ l_Lean_Meta_Grind_registerNormTheorems___closed__0 = _init_l_Lean_Meta_Grind_reg
 lean_mark_persistent(l_Lean_Meta_Grind_registerNormTheorems___closed__0);
 l_Lean_Meta_Grind_registerNormTheorems___closed__1 = _init_l_Lean_Meta_Grind_registerNormTheorems___closed__1();
 lean_mark_persistent(l_Lean_Meta_Grind_registerNormTheorems___closed__1);
-l_Lean_Meta_Grind_registerNormTheorems___closed__2 = _init_l_Lean_Meta_Grind_registerNormTheorems___closed__2();
-lean_mark_persistent(l_Lean_Meta_Grind_registerNormTheorems___closed__2);
 l___private_Lean_Meta_Tactic_Grind_SimpUtil_0__Lean_Meta_Grind_isBoolEqTarget___closed__0 = _init_l___private_Lean_Meta_Tactic_Grind_SimpUtil_0__Lean_Meta_Grind_isBoolEqTarget___closed__0();
 lean_mark_persistent(l___private_Lean_Meta_Tactic_Grind_SimpUtil_0__Lean_Meta_Grind_isBoolEqTarget___closed__0);
 l___private_Lean_Meta_Tactic_Grind_SimpUtil_0__Lean_Meta_Grind_isBoolEqTarget___closed__1 = _init_l___private_Lean_Meta_Tactic_Grind_SimpUtil_0__Lean_Meta_Grind_isBoolEqTarget___closed__1();

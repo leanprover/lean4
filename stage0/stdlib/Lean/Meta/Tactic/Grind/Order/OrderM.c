@@ -69,7 +69,6 @@ static lean_object* l_Lean_Meta_Grind_Order_getProof___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_OrderM_run___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_get_x21___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_outOfBounds___redArg(lean_object*);
-static lean_object* l_Lean_Meta_Grind_Order_modifyStruct___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___00Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Grind_Order_getNodeId_spec__0_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_getIntExpr___redArg(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -496,14 +495,6 @@ lean_dec(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Order_modifyStruct___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_Grind_Order_orderExt;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_modifyStruct___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -511,7 +502,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7;
 x_5 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Order_modifyStruct___redArg___lam__0___boxed), 3, 2);
 lean_closure_set(x_5, 0, x_2);
 lean_closure_set(x_5, 1, x_1);
-x_6 = l_Lean_Meta_Grind_Order_modifyStruct___redArg___closed__0;
+x_6 = l_Lean_Meta_Grind_Order_orderExt;
 x_7 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_modifyStateImpl___redArg(x_6, x_5, x_3);
 return x_7;
 }
@@ -2210,8 +2201,6 @@ l_Lean_Meta_Grind_Order_getStruct___closed__0 = _init_l_Lean_Meta_Grind_Order_ge
 lean_mark_persistent(l_Lean_Meta_Grind_Order_getStruct___closed__0);
 l_Lean_Meta_Grind_Order_getStruct___closed__1 = _init_l_Lean_Meta_Grind_Order_getStruct___closed__1();
 lean_mark_persistent(l_Lean_Meta_Grind_Order_getStruct___closed__1);
-l_Lean_Meta_Grind_Order_modifyStruct___redArg___closed__0 = _init_l_Lean_Meta_Grind_Order_modifyStruct___redArg___closed__0();
-lean_mark_persistent(l_Lean_Meta_Grind_Order_modifyStruct___redArg___closed__0);
 l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Grind_Order_getNodeId_spec__0_spec__0___redArg___closed__0 = _init_l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Grind_Order_getNodeId_spec__0_spec__0___redArg___closed__0();
 l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Grind_Order_getNodeId_spec__0_spec__0___redArg___closed__1 = _init_l_Lean_PersistentHashMap_findAux___at___00Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Grind_Order_getNodeId_spec__0_spec__0___redArg___closed__1();
 l_Lean_Meta_Grind_Order_getNodeId___closed__0 = _init_l_Lean_Meta_Grind_Order_getNodeId___closed__0();

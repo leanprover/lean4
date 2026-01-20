@@ -156,7 +156,6 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___00__private_Lean_Meta_Tact
 static lean_object* l_List_forIn_x27_loop___at___00__private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkParents_spec__3___redArg___closed__1;
 lean_object* l_Lean_Meta_Grind_getExprs___redArg(lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
-static lean_object* l_Lean_Meta_Grind_checkInvariants___closed__0;
 static lean_object* l_List_forIn_x27_loop___at___00__private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkParents_spec__3___redArg___closed__0;
 static lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00__private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkEqc_spec__3___closed__0;
 lean_object* l_Lean_PersistentArray_get_x21___redArg(lean_object*, lean_object*, lean_object*);
@@ -7699,14 +7698,6 @@ x_14 = l_Lean_PersistentArray_forIn___at___00Lean_Meta_Grind_checkInvariants_spe
 return x_14;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_checkInvariants___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_Grind_grind_debug_proofs;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_checkInvariants(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
@@ -7878,7 +7869,7 @@ else
 {
 lean_object* x_26; lean_object* x_27; uint8_t x_28; 
 x_26 = lean_ctor_get(x_23, 2);
-x_27 = l_Lean_Meta_Grind_checkInvariants___closed__0;
+x_27 = l_Lean_Meta_Grind_grind_debug_proofs;
 x_28 = l_Lean_Option_get___at___00Lean_Meta_Grind_checkInvariants_spec__0(x_26, x_27);
 if (x_28 == 0)
 {
@@ -8300,8 +8291,6 @@ l_List_forIn_x27_loop___at___00__private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta
 lean_mark_persistent(l_List_forIn_x27_loop___at___00__private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkProofs_spec__2___redArg___closed__6);
 l_List_forIn_x27_loop___at___00__private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkProofs_spec__2___redArg___closed__7 = _init_l_List_forIn_x27_loop___at___00__private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkProofs_spec__2___redArg___closed__7();
 lean_mark_persistent(l_List_forIn_x27_loop___at___00__private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkProofs_spec__2___redArg___closed__7);
-l_Lean_Meta_Grind_checkInvariants___closed__0 = _init_l_Lean_Meta_Grind_checkInvariants___closed__0();
-lean_mark_persistent(l_Lean_Meta_Grind_checkInvariants___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

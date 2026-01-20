@@ -273,7 +273,6 @@ static lean_object* l_Int_reduceTMod___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Int_reduceBmod___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_reduceTMod___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_reduceFMod___regBuiltin_Int_reduceFMod_declare__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_3783744016____hygCtx___hyg_18_();
-static lean_object* l_Int_reduceDvd___redArg___closed__18;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_0____regBuiltin_Int_isPosValue_declare__29_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_540685920____hygCtx___hyg_16____boxed(lean_object*);
 static lean_object* l_Int_reduceToNat___regBuiltin_Int_reduceToNat_declare__1___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_3298992367____hygCtx___hyg_15_;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_0____regBuiltin_Int_reduceDiv_declare__49___closed__8_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_1894218574____hygCtx___hyg_19_;
@@ -16288,38 +16287,30 @@ static lean_object* _init_l_Int_reduceDvd___redArg___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_eagerReflBoolTrue;
+x_1 = lean_mk_string_unchecked("True", 4, 4);
 return x_1;
 }
 }
 static lean_object* _init_l_Int_reduceDvd___redArg___closed__13() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("True", 4, 4);
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Int_reduceDvd___redArg___closed__12;
+x_2 = l_Lean_Name_mkStr1(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Int_reduceDvd___redArg___closed__14() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Int_reduceDvd___redArg___closed__13;
-x_2 = l_Lean_Name_mkStr1(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Int_reduceDvd___redArg___closed__15() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Int_reduceDvd___redArg___closed__14;
+x_2 = l_Int_reduceDvd___redArg___closed__13;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Int_reduceDvd___redArg___closed__16() {
+static lean_object* _init_l_Int_reduceDvd___redArg___closed__15() {
 _start:
 {
 lean_object* x_1; 
@@ -16327,22 +16318,22 @@ x_1 = lean_mk_string_unchecked("dvd_eq_true_of_mod_eq_zero", 26, 26);
 return x_1;
 }
 }
-static lean_object* _init_l_Int_reduceDvd___redArg___closed__17() {
+static lean_object* _init_l_Int_reduceDvd___redArg___closed__16() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_reduceDvd___redArg___closed__16;
+x_1 = l_Int_reduceDvd___redArg___closed__15;
 x_2 = l_Int_reduceUnary___redArg___closed__8;
 x_3 = l_Lean_Name_mkStr2(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Int_reduceDvd___redArg___closed__18() {
+static lean_object* _init_l_Int_reduceDvd___redArg___closed__17() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Int_reduceDvd___redArg___closed__17;
+x_2 = l_Int_reduceDvd___redArg___closed__16;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
@@ -16536,7 +16527,7 @@ if (x_45 == 0)
 lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; uint8_t x_51; 
 x_46 = l_Int_reduceDvd___redArg___closed__8;
 x_47 = l_Int_reduceDvd___redArg___closed__11;
-x_48 = l_Int_reduceDvd___redArg___closed__12;
+x_48 = l_Lean_eagerReflBoolTrue;
 x_49 = l_Lean_mkApp3(x_47, x_18, x_15, x_48);
 lean_ctor_set(x_40, 0, x_49);
 x_50 = lean_alloc_ctor(0, 2, 1);
@@ -16553,9 +16544,9 @@ return x_38;
 else
 {
 lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; uint8_t x_57; 
-x_52 = l_Int_reduceDvd___redArg___closed__15;
-x_53 = l_Int_reduceDvd___redArg___closed__18;
-x_54 = l_Int_reduceDvd___redArg___closed__12;
+x_52 = l_Int_reduceDvd___redArg___closed__14;
+x_53 = l_Int_reduceDvd___redArg___closed__17;
+x_54 = l_Lean_eagerReflBoolTrue;
 x_55 = l_Lean_mkApp3(x_53, x_18, x_15, x_54);
 lean_ctor_set(x_40, 0, x_55);
 x_56 = lean_alloc_ctor(0, 2, 1);
@@ -16587,7 +16578,7 @@ if (x_61 == 0)
 lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; uint8_t x_68; 
 x_62 = l_Int_reduceDvd___redArg___closed__8;
 x_63 = l_Int_reduceDvd___redArg___closed__11;
-x_64 = l_Int_reduceDvd___redArg___closed__12;
+x_64 = l_Lean_eagerReflBoolTrue;
 x_65 = l_Lean_mkApp3(x_63, x_18, x_15, x_64);
 x_66 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_66, 0, x_65);
@@ -16605,9 +16596,9 @@ return x_38;
 else
 {
 lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; uint8_t x_75; 
-x_69 = l_Int_reduceDvd___redArg___closed__15;
-x_70 = l_Int_reduceDvd___redArg___closed__18;
-x_71 = l_Int_reduceDvd___redArg___closed__12;
+x_69 = l_Int_reduceDvd___redArg___closed__14;
+x_70 = l_Int_reduceDvd___redArg___closed__17;
+x_71 = l_Lean_eagerReflBoolTrue;
 x_72 = l_Lean_mkApp3(x_70, x_18, x_15, x_71);
 x_73 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_73, 0, x_72);
@@ -16667,7 +16658,7 @@ if (x_82 == 0)
 lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; uint8_t x_89; lean_object* x_90; 
 x_83 = l_Int_reduceDvd___redArg___closed__8;
 x_84 = l_Int_reduceDvd___redArg___closed__11;
-x_85 = l_Int_reduceDvd___redArg___closed__12;
+x_85 = l_Lean_eagerReflBoolTrue;
 x_86 = l_Lean_mkApp3(x_84, x_18, x_15, x_85);
 if (lean_is_scalar(x_79)) {
  x_87 = lean_alloc_ctor(1, 1, 0);
@@ -16690,9 +16681,9 @@ return x_90;
 else
 {
 lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; uint8_t x_97; lean_object* x_98; 
-x_91 = l_Int_reduceDvd___redArg___closed__15;
-x_92 = l_Int_reduceDvd___redArg___closed__18;
-x_93 = l_Int_reduceDvd___redArg___closed__12;
+x_91 = l_Int_reduceDvd___redArg___closed__14;
+x_92 = l_Int_reduceDvd___redArg___closed__17;
+x_93 = l_Lean_eagerReflBoolTrue;
 x_94 = l_Lean_mkApp3(x_92, x_18, x_15, x_93);
 if (lean_is_scalar(x_79)) {
  x_95 = lean_alloc_ctor(1, 1, 0);
@@ -16797,7 +16788,7 @@ if (x_112 == 0)
 lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; uint8_t x_119; lean_object* x_120; lean_object* x_121; 
 x_113 = l_Int_reduceDvd___redArg___closed__8;
 x_114 = l_Int_reduceDvd___redArg___closed__11;
-x_115 = l_Int_reduceDvd___redArg___closed__12;
+x_115 = l_Lean_eagerReflBoolTrue;
 x_116 = l_Lean_mkApp3(x_114, x_18, x_15, x_115);
 if (lean_is_scalar(x_109)) {
  x_117 = lean_alloc_ctor(1, 1, 0);
@@ -16824,9 +16815,9 @@ return x_121;
 else
 {
 lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; uint8_t x_128; lean_object* x_129; lean_object* x_130; 
-x_122 = l_Int_reduceDvd___redArg___closed__15;
-x_123 = l_Int_reduceDvd___redArg___closed__18;
-x_124 = l_Int_reduceDvd___redArg___closed__12;
+x_122 = l_Int_reduceDvd___redArg___closed__14;
+x_123 = l_Int_reduceDvd___redArg___closed__17;
+x_124 = l_Lean_eagerReflBoolTrue;
 x_125 = l_Lean_mkApp3(x_123, x_18, x_15, x_124);
 if (lean_is_scalar(x_109)) {
  x_126 = lean_alloc_ctor(1, 1, 0);
@@ -16966,7 +16957,7 @@ if (x_147 == 0)
 lean_object* x_148; lean_object* x_149; lean_object* x_150; lean_object* x_151; lean_object* x_152; lean_object* x_153; uint8_t x_154; lean_object* x_155; lean_object* x_156; 
 x_148 = l_Int_reduceDvd___redArg___closed__8;
 x_149 = l_Int_reduceDvd___redArg___closed__11;
-x_150 = l_Int_reduceDvd___redArg___closed__12;
+x_150 = l_Lean_eagerReflBoolTrue;
 x_151 = l_Lean_mkApp3(x_149, x_18, x_15, x_150);
 if (lean_is_scalar(x_144)) {
  x_152 = lean_alloc_ctor(1, 1, 0);
@@ -16998,9 +16989,9 @@ return x_156;
 else
 {
 lean_object* x_157; lean_object* x_158; lean_object* x_159; lean_object* x_160; lean_object* x_161; lean_object* x_162; uint8_t x_163; lean_object* x_164; lean_object* x_165; 
-x_157 = l_Int_reduceDvd___redArg___closed__15;
-x_158 = l_Int_reduceDvd___redArg___closed__18;
-x_159 = l_Int_reduceDvd___redArg___closed__12;
+x_157 = l_Int_reduceDvd___redArg___closed__14;
+x_158 = l_Int_reduceDvd___redArg___closed__17;
+x_159 = l_Lean_eagerReflBoolTrue;
 x_160 = l_Lean_mkApp3(x_158, x_18, x_15, x_159);
 if (lean_is_scalar(x_144)) {
  x_161 = lean_alloc_ctor(1, 1, 0);
@@ -17214,7 +17205,7 @@ if (x_192 == 0)
 lean_object* x_193; lean_object* x_194; lean_object* x_195; lean_object* x_196; lean_object* x_197; lean_object* x_198; uint8_t x_199; lean_object* x_200; lean_object* x_201; 
 x_193 = l_Int_reduceDvd___redArg___closed__8;
 x_194 = l_Int_reduceDvd___redArg___closed__11;
-x_195 = l_Int_reduceDvd___redArg___closed__12;
+x_195 = l_Lean_eagerReflBoolTrue;
 x_196 = l_Lean_mkApp3(x_194, x_18, x_15, x_195);
 if (lean_is_scalar(x_189)) {
  x_197 = lean_alloc_ctor(1, 1, 0);
@@ -17246,9 +17237,9 @@ return x_201;
 else
 {
 lean_object* x_202; lean_object* x_203; lean_object* x_204; lean_object* x_205; lean_object* x_206; lean_object* x_207; uint8_t x_208; lean_object* x_209; lean_object* x_210; 
-x_202 = l_Int_reduceDvd___redArg___closed__15;
-x_203 = l_Int_reduceDvd___redArg___closed__18;
-x_204 = l_Int_reduceDvd___redArg___closed__12;
+x_202 = l_Int_reduceDvd___redArg___closed__14;
+x_203 = l_Int_reduceDvd___redArg___closed__17;
+x_204 = l_Lean_eagerReflBoolTrue;
 x_205 = l_Lean_mkApp3(x_203, x_18, x_15, x_204);
 if (lean_is_scalar(x_189)) {
  x_206 = lean_alloc_ctor(1, 1, 0);
@@ -19423,8 +19414,6 @@ l_Int_reduceDvd___redArg___closed__16 = _init_l_Int_reduceDvd___redArg___closed_
 lean_mark_persistent(l_Int_reduceDvd___redArg___closed__16);
 l_Int_reduceDvd___redArg___closed__17 = _init_l_Int_reduceDvd___redArg___closed__17();
 lean_mark_persistent(l_Int_reduceDvd___redArg___closed__17);
-l_Int_reduceDvd___redArg___closed__18 = _init_l_Int_reduceDvd___redArg___closed__18();
-lean_mark_persistent(l_Int_reduceDvd___redArg___closed__18);
 l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_0____regBuiltin_Int_reduceDvd_declare__157___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_2805314276____hygCtx___hyg_19_ = _init_l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_0____regBuiltin_Int_reduceDvd_declare__157___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_2805314276____hygCtx___hyg_19_();
 lean_mark_persistent(l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_0____regBuiltin_Int_reduceDvd_declare__157___closed__0_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_2805314276____hygCtx___hyg_19_);
 l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_0____regBuiltin_Int_reduceDvd_declare__157___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_2805314276____hygCtx___hyg_19_ = _init_l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_0____regBuiltin_Int_reduceDvd_declare__157___closed__1_00___x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_2805314276____hygCtx___hyg_19_();

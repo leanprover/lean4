@@ -87,7 +87,6 @@ static lean_object* l_Lean_instReprDeclarationRange_repr___redArg___closed__8;
 static lean_object* l_Lean_instToExprDeclarationRange___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_instReprDeclarationRange_repr_spec__0(lean_object*);
 static lean_object* l_Lean_instReprDeclarationRanges_repr___redArg___closed__5;
-static lean_object* l_Lean_instInhabitedDeclarationRange_default___closed__1;
 LEAN_EXPORT lean_object* l_Lean_instToExprDeclarationRanges;
 LEAN_EXPORT uint8_t l_Lean_instDecidableEqDeclarationLocation(lean_object*, lean_object*);
 static lean_object* l_Lean_instReprDeclarationRange_repr___redArg___closed__19;
@@ -127,17 +126,9 @@ static lean_object* l_Lean_instReprDeclarationLocation_repr___redArg___closed__2
 static lean_object* _init_l_Lean_instInhabitedDeclarationRange_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_instInhabitedPosition_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_instInhabitedDeclarationRange_default___closed__1() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_instInhabitedDeclarationRange_default___closed__0;
+x_2 = l_Lean_instInhabitedPosition_default;
 x_3 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -150,7 +141,7 @@ static lean_object* _init_l_Lean_instInhabitedDeclarationRange_default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_instInhabitedDeclarationRange_default___closed__1;
+x_1 = l_Lean_instInhabitedDeclarationRange_default___closed__0;
 return x_1;
 }
 }
@@ -1560,8 +1551,6 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instInhabitedDeclarationRange_default___closed__0 = _init_l_Lean_instInhabitedDeclarationRange_default___closed__0();
 lean_mark_persistent(l_Lean_instInhabitedDeclarationRange_default___closed__0);
-l_Lean_instInhabitedDeclarationRange_default___closed__1 = _init_l_Lean_instInhabitedDeclarationRange_default___closed__1();
-lean_mark_persistent(l_Lean_instInhabitedDeclarationRange_default___closed__1);
 l_Lean_instInhabitedDeclarationRange_default = _init_l_Lean_instInhabitedDeclarationRange_default();
 lean_mark_persistent(l_Lean_instInhabitedDeclarationRange_default);
 l_Lean_instInhabitedDeclarationRange = _init_l_Lean_instInhabitedDeclarationRange();

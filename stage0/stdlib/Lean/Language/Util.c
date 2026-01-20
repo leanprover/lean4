@@ -83,8 +83,7 @@ extern lean_object* l_Lean_trace_profiler_threshold;
 static lean_object* l___private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go___closed__14;
 static lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5_spec__7___redArg___closed__1;
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at___00Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5_spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__3;
-static lean_object* l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__4;
+static double l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__3;
 static lean_object* l___private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go___closed__15;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_trace___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -93,7 +92,6 @@ LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___00__private_Lean_Lang
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___at___00Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5_spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___at___00Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5_spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5_spec__7(lean_object*, lean_object*);
-static double l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__5;
 static lean_object* l___private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go___closed__5;
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addTrace___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -110,7 +108,6 @@ LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at___00Lean_withTraceNode___at
 static lean_object* l___private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go___closed__6;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__6;
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l___private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go___closed__18;
 LEAN_EXPORT lean_object* l_List_forM___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1385,37 +1382,13 @@ x_2 = lean_float_of_nat(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_trace_profiler;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_trace_profiler_threshold;
-return x_1;
-}
-}
-static double _init_l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__5() {
+static double _init_l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__3() {
 _start:
 {
 lean_object* x_1; double x_2; 
 x_1 = lean_unsigned_to_nat(1000u);
 x_2 = lean_float_of_nat(x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__6() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_trace_profiler_useHeartbeats;
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -1446,7 +1419,7 @@ x_245 = lean_unbox(x_82);
 if (x_245 == 0)
 {
 lean_object* x_246; uint8_t x_247; 
-x_246 = l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__3;
+x_246 = l_Lean_trace_profiler;
 x_247 = l_Lean_Option_get___at___00Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5_spec__8(x_9, x_246);
 if (x_247 == 0)
 {
@@ -1624,7 +1597,7 @@ x_140 = l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Langu
 x_141 = lean_float_div(x_139, x_140);
 x_142 = lean_float_of_nat(x_138);
 x_143 = lean_float_div(x_142, x_140);
-x_144 = l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__3;
+x_144 = l_Lean_trace_profiler;
 x_145 = l_Lean_Option_get___at___00Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5_spec__8(x_9, x_144);
 if (x_145 == 0)
 {
@@ -1642,10 +1615,10 @@ else
 if (x_134 == 0)
 {
 lean_object* x_146; lean_object* x_147; double x_148; double x_149; double x_150; 
-x_146 = l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__4;
+x_146 = l_Lean_trace_profiler_threshold;
 x_147 = l_Lean_Option_get___at___00Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5_spec__11(x_9, x_146);
 x_148 = lean_float_of_nat(x_147);
-x_149 = l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__5;
+x_149 = l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__3;
 x_150 = lean_float_div(x_148, x_149);
 x_123 = x_133;
 x_124 = x_136;
@@ -1659,7 +1632,7 @@ goto block_132;
 else
 {
 lean_object* x_151; lean_object* x_152; double x_153; 
-x_151 = l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__4;
+x_151 = l_Lean_trace_profiler_threshold;
 x_152 = l_Lean_Option_get___at___00Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5_spec__11(x_9, x_151);
 x_153 = lean_float_of_nat(x_152);
 x_123 = x_133;
@@ -1825,7 +1798,7 @@ lean_object* x_210; double x_211; double x_212; lean_object* x_213; uint8_t x_21
 x_210 = lean_io_get_num_heartbeats();
 x_211 = lean_float_of_nat(x_207);
 x_212 = lean_float_of_nat(x_210);
-x_213 = l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__3;
+x_213 = l_Lean_trace_profiler;
 x_214 = l_Lean_Option_get___at___00Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5_spec__8(x_9, x_213);
 if (x_214 == 0)
 {
@@ -1843,10 +1816,10 @@ else
 if (x_206 == 0)
 {
 lean_object* x_215; lean_object* x_216; double x_217; double x_218; double x_219; 
-x_215 = l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__4;
+x_215 = l_Lean_trace_profiler_threshold;
 x_216 = l_Lean_Option_get___at___00Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5_spec__11(x_9, x_215);
 x_217 = lean_float_of_nat(x_216);
-x_218 = l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__5;
+x_218 = l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__3;
 x_219 = lean_float_div(x_217, x_218);
 x_195 = x_205;
 x_196 = x_208;
@@ -1860,7 +1833,7 @@ goto block_204;
 else
 {
 lean_object* x_220; lean_object* x_221; double x_222; 
-x_220 = l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__4;
+x_220 = l_Lean_trace_profiler_threshold;
 x_221 = l_Lean_Option_get___at___00Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5_spec__11(x_9, x_220);
 x_222 = lean_float_of_nat(x_221);
 x_195 = x_205;
@@ -1881,7 +1854,7 @@ x_224 = l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___00Lean_withTra
 x_225 = lean_ctor_get(x_224, 0);
 lean_inc(x_225);
 lean_dec_ref(x_224);
-x_226 = l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__6;
+x_226 = l_Lean_trace_profiler_useHeartbeats;
 x_227 = l_Lean_Option_get___at___00Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5_spec__8(x_9, x_226);
 if (x_227 == 0)
 {
@@ -4216,12 +4189,6 @@ l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_Snap
 lean_mark_persistent(l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__1);
 l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__2 = _init_l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__2();
 l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__3 = _init_l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__3();
-lean_mark_persistent(l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__3);
-l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__4 = _init_l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__4();
-lean_mark_persistent(l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__4);
-l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__5 = _init_l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__5();
-l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__6 = _init_l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__6();
-lean_mark_persistent(l_Lean_withTraceNode___at___00__private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go_spec__5___redArg___closed__6);
 l___private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go___closed__0 = _init_l___private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go___closed__0();
 lean_mark_persistent(l___private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go___closed__0);
 l___private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go___closed__1 = _init_l___private_Lean_Language_Util_0__Lean_Language_SnapshotTree_trace_go___closed__1();

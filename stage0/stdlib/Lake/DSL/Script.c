@@ -26,7 +26,6 @@ lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__17;
 static lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__2;
 static lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__52;
-static lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__11;
 static lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__10;
 static lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__50;
 static lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__35;
@@ -2027,24 +2026,26 @@ static lean_object* _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDe
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_macroAttribute;
+x_1 = lean_mk_string_unchecked("_private", 8, 8);
 return x_1;
 }
 }
 static lean_object* _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("_private", 8, 8);
-return x_1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__0;
+x_2 = lean_box(0);
+x_3 = l_Lean_Name_str___override(x_2, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__1;
-x_2 = lean_box(0);
+x_1 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__0;
+x_2 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__1;
 x_3 = l_Lean_Name_str___override(x_2, x_1);
 return x_3;
 }
@@ -2053,7 +2054,7 @@ static lean_object* _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDe
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__0;
+x_1 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__1;
 x_2 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__2;
 x_3 = l_Lean_Name_str___override(x_2, x_1);
 return x_3;
@@ -2062,28 +2063,28 @@ return x_3;
 static lean_object* _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__4() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__1;
-x_2 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__3;
-x_3 = l_Lean_Name_str___override(x_2, x_1);
-return x_3;
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Script", 6, 6);
+return x_1;
 }
 }
 static lean_object* _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Script", 6, 6);
-return x_1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__4;
+x_2 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__3;
+x_3 = l_Lean_Name_str___override(x_2, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__5;
-x_2 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__4;
-x_3 = l_Lean_Name_str___override(x_2, x_1);
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__5;
+x_3 = l_Lean_Name_num___override(x_2, x_1);
 return x_3;
 }
 }
@@ -2091,9 +2092,9 @@ static lean_object* _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDe
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(0u);
+x_1 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__0;
 x_2 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__6;
-x_3 = l_Lean_Name_num___override(x_2, x_1);
+x_3 = l_Lean_Name_str___override(x_2, x_1);
 return x_3;
 }
 }
@@ -2101,7 +2102,7 @@ static lean_object* _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDe
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__0;
+x_1 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__1;
 x_2 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__7;
 x_3 = l_Lean_Name_str___override(x_2, x_1);
 return x_3;
@@ -2110,27 +2111,17 @@ return x_3;
 static lean_object* _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__9() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__1;
-x_2 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__8;
-x_3 = l_Lean_Name_str___override(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__10() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string_unchecked("expandScriptDecl", 16, 16);
 return x_1;
 }
 }
-static lean_object* _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__11() {
+static lean_object* _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__10;
-x_2 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__9;
+x_1 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__9;
+x_2 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__8;
 x_3 = l_Lean_Name_str___override(x_2, x_1);
 return x_3;
 }
@@ -2139,9 +2130,9 @@ LEAN_EXPORT lean_object* l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDec
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__0;
+x_2 = l_Lean_Elab_macroAttribute;
 x_3 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___closed__3;
-x_4 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__11;
+x_4 = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__10;
 x_5 = lean_alloc_closure((void*)(l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl), 3, 0);
 x_6 = l_Lean_KeyedDeclsAttribute_addBuiltin___redArg(x_2, x_3, x_4, x_5);
 return x_6;
@@ -2310,8 +2301,6 @@ l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_
 lean_mark_persistent(l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__9);
 l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__10 = _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__10();
 lean_mark_persistent(l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__10);
-l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__11 = _init_l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__11();
-lean_mark_persistent(l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1___closed__11);
 if (builtin) {res = l___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl___regBuiltin___private_Lake_DSL_Script_0__Lake_DSL_expandScriptDecl__1();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

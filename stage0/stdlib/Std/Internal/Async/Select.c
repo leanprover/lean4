@@ -106,7 +106,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 LEAN_EXPORT lean_object* l_IO_ofExcept___at___00Std_Internal_IO_Async_Selectable_one_spec__1___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_combine___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Std_Internal_IO_Async_Selectable_one_spec__2___redArg___lam__0(lean_object*, lean_object*);
-static lean_object* l_randNat___at___00__private_Std_Internal_Async_Select_0__Std_Internal_IO_Async_shuffleIt_go_spec__0___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Selectable_combine___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___redArg___lam__0___boxed(lean_object*);
 lean_object* lean_mk_io_user_error(lean_object*);
@@ -499,14 +498,6 @@ lean_dec(x_1);
 return x_5;
 }
 }
-static lean_object* _init_l_randNat___at___00__private_Std_Internal_Async_Select_0__Std_Internal_IO_Async_shuffleIt_go_spec__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_stdRange;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_randNat___at___00__private_Std_Internal_Async_Select_0__Std_Internal_IO_Async_shuffleIt_go_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -525,7 +516,7 @@ goto block_49;
 block_46:
 {
 lean_object* x_6; uint8_t x_7; 
-x_6 = l_randNat___at___00__private_Std_Internal_Async_Select_0__Std_Internal_IO_Async_shuffleIt_go_spec__0___closed__0;
+x_6 = l_stdRange;
 x_7 = !lean_is_exclusive(x_6);
 if (x_7 == 0)
 {
@@ -5366,8 +5357,6 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Internal_IO_Async_Waiter_race___redArg___closed__0 = _init_l_Std_Internal_IO_Async_Waiter_race___redArg___closed__0();
 lean_mark_persistent(l_Std_Internal_IO_Async_Waiter_race___redArg___closed__0);
-l_randNat___at___00__private_Std_Internal_Async_Select_0__Std_Internal_IO_Async_shuffleIt_go_spec__0___closed__0 = _init_l_randNat___at___00__private_Std_Internal_Async_Select_0__Std_Internal_IO_Async_shuffleIt_go_spec__0___closed__0();
-lean_mark_persistent(l_randNat___at___00__private_Std_Internal_Async_Select_0__Std_Internal_IO_Async_shuffleIt_go_spec__0___closed__0);
 l_Std_Internal_IO_Async_Selectable_one___redArg___lam__2___closed__0 = _init_l_Std_Internal_IO_Async_Selectable_one___redArg___lam__2___closed__0();
 lean_mark_persistent(l_Std_Internal_IO_Async_Selectable_one___redArg___lam__2___closed__0);
 l_Std_Internal_IO_Async_Selectable_one___redArg___lam__2___closed__1 = _init_l_Std_Internal_IO_Async_Selectable_one___redArg___lam__2___closed__1();

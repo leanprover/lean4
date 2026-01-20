@@ -61,7 +61,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNode___at___0
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00__private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___at___00Lean_Meta_introNCore_spec__0_spec__0_spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getType_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_mkAuxNameImp_mkAuxNameWithoutGivenName___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_mkFreshBinderNameForTactic___redArg___closed__0;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
@@ -5345,21 +5344,13 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Meta_mkFreshBinderNameForTactic___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_tactic_hygienic;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_mkFreshBinderNameForTactic___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; 
 x_6 = lean_ctor_get(x_2, 2);
 x_7 = lean_ctor_get(x_3, 2);
-x_8 = l_Lean_Meta_mkFreshBinderNameForTactic___redArg___closed__0;
+x_8 = l_Lean_Meta_tactic_hygienic;
 x_9 = l_Lean_Option_get___at___00Lean_Meta_mkFreshBinderNameForTactic_spec__0(x_7, x_8);
 x_10 = l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_mkFreshBinderNameForTacticCore___redArg(x_6, x_1, x_9, x_3, x_4);
 return x_10;
@@ -7682,7 +7673,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_13 = lean_ctor_get(x_8, 2);
-x_14 = l_Lean_Meta_mkFreshBinderNameForTactic___redArg___closed__0;
+x_14 = l_Lean_Meta_tactic_hygienic;
 x_15 = l_Lean_Option_get___at___00Lean_Meta_mkFreshBinderNameForTactic_spec__0(x_13, x_14);
 x_16 = l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___redArg___lam__1___closed__1;
 x_17 = lean_box(x_5);
@@ -8794,9 +8785,7 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_Meta_tactic_hygienic = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Meta_tactic_hygienic);
 lean_dec_ref(res);
-}l_Lean_Meta_mkFreshBinderNameForTactic___redArg___closed__0 = _init_l_Lean_Meta_mkFreshBinderNameForTactic___redArg___closed__0();
-lean_mark_persistent(l_Lean_Meta_mkFreshBinderNameForTactic___redArg___closed__0);
-l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_mkAuxNameImp_mkAuxNameWithoutGivenName___redArg___closed__0 = _init_l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_mkAuxNameImp_mkAuxNameWithoutGivenName___redArg___closed__0();
+}l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_mkAuxNameImp_mkAuxNameWithoutGivenName___redArg___closed__0 = _init_l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_mkAuxNameImp_mkAuxNameWithoutGivenName___redArg___closed__0();
 lean_mark_persistent(l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_mkAuxNameImp_mkAuxNameWithoutGivenName___redArg___closed__0);
 l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_mkAuxNameImp_mkAuxNameWithoutGivenName___redArg___closed__1 = _init_l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_mkAuxNameImp_mkAuxNameWithoutGivenName___redArg___closed__1();
 lean_mark_persistent(l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_mkAuxNameImp_mkAuxNameWithoutGivenName___redArg___closed__1);

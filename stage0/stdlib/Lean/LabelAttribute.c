@@ -165,7 +165,6 @@ static lean_object* l_Lean_Parser_Command_registerLabelAttr___closed__6;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__37;
 LEAN_EXPORT lean_object* l_Lean_mkLabelExt___lam__0(uint8_t, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__39;
-static lean_object* l_Lean_registerLabelAttr___closed__0;
 LEAN_EXPORT lean_object* l_Array_contains___at___00Lean_mkLabelExt_spec__0___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1581,14 +1580,6 @@ return x_71;
 }
 }
 }
-static lean_object* _init_l_Lean_registerLabelAttr___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_labelExtensionMapRef;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_registerLabelAttr(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1613,7 +1604,7 @@ if (x_8 == 0)
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_9 = lean_ctor_get(x_7, 0);
 lean_dec(x_9);
-x_10 = l_Lean_registerLabelAttr___closed__0;
+x_10 = l_Lean_labelExtensionMapRef;
 x_11 = lean_st_ref_take(x_10);
 lean_inc(x_6);
 x_12 = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_registerLabelAttr_spec__0___redArg(x_11, x_1, x_6);
@@ -1625,7 +1616,7 @@ else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 lean_dec(x_7);
-x_14 = l_Lean_registerLabelAttr___closed__0;
+x_14 = l_Lean_labelExtensionMapRef;
 x_15 = lean_st_ref_take(x_14);
 lean_inc(x_6);
 x_16 = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_registerLabelAttr_spec__0___redArg(x_15, x_1, x_6);
@@ -3048,7 +3039,7 @@ LEAN_EXPORT lean_object* l_Lean_labelled(lean_object* x_1, lean_object* x_2, lea
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = l_Lean_registerLabelAttr___closed__0;
+x_5 = l_Lean_labelExtensionMapRef;
 x_6 = lean_st_ref_get(x_5);
 x_7 = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_labelled_spec__0___redArg(x_6, x_1);
 lean_dec(x_6);
@@ -3283,8 +3274,6 @@ l_Lean_mkLabelAttr___closed__0 = _init_l_Lean_mkLabelAttr___closed__0();
 lean_mark_persistent(l_Lean_mkLabelAttr___closed__0);
 l_Lean_registerLabelAttr___auto__1 = _init_l_Lean_registerLabelAttr___auto__1();
 lean_mark_persistent(l_Lean_registerLabelAttr___auto__1);
-l_Lean_registerLabelAttr___closed__0 = _init_l_Lean_registerLabelAttr___closed__0();
-lean_mark_persistent(l_Lean_registerLabelAttr___closed__0);
 l_Lean_Parser_Command_registerLabelAttr___closed__0 = _init_l_Lean_Parser_Command_registerLabelAttr___closed__0();
 lean_mark_persistent(l_Lean_Parser_Command_registerLabelAttr___closed__0);
 l_Lean_Parser_Command_registerLabelAttr___closed__1 = _init_l_Lean_Parser_Command_registerLabelAttr___closed__1();

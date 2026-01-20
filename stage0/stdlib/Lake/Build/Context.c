@@ -16,6 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lake_getNoBuild___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanTrace___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftLakeMBuildTOfPure___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getIsQuiet(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_getNoBuild___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getIsOldMode___redArg(lean_object*, lean_object*);
@@ -25,12 +26,14 @@ LEAN_EXPORT lean_object* l_Lake_getTrustHash(lean_object*, lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lake_getBuildContext___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getIsQuiet___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getTrustHash___redArg___lam__0___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_mkJobQueue___boxed(lean_object*);
 static lean_object* l_Lake_getIsVerbose___redArg___closed__0;
 LEAN_EXPORT uint8_t l_Lake_getIsOldMode___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getVerbosity___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getVerbosity___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getBuildContext___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanTrace___redArg___lam__0(lean_object*);
+lean_object* lean_st_mk_ref(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getIsVerbose___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getBuildContext(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getVerbosity(lean_object*, lean_object*, lean_object*);
@@ -52,7 +55,9 @@ LEAN_EXPORT lean_object* l_Lake_getBuildConfig(lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lake_getIsQuiet___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftLakeMBuildTOfPure(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanTrace___redArg(lean_object*, lean_object*);
+static lean_object* l_Lake_mkJobQueue___closed__0;
 static lean_object* l_Lake_getTrustHash___redArg___closed__0;
+LEAN_EXPORT lean_object* l_Lake_mkJobQueue();
 static lean_object* l_Lake_getLeanTrace___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lake_getBuildConfig___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getNoBuild(lean_object*, lean_object*, lean_object*);
@@ -115,6 +120,32 @@ x_2 = l_Lake_BuildConfig_showProgress(x_1);
 lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
+}
+}
+static lean_object* _init_l_Lake_mkJobQueue___closed__0() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_mkJobQueue() {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lake_mkJobQueue___closed__0;
+x_3 = lean_st_mk_ref(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_mkJobQueue___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lake_mkJobQueue();
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftLakeMBuildTOfPure___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -642,6 +673,8 @@ lean_dec_ref(res);
 res = initialize_Lake_Build_Job_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lake_mkJobQueue___closed__0 = _init_l_Lake_mkJobQueue___closed__0();
+lean_mark_persistent(l_Lake_mkJobQueue___closed__0);
 l_Lake_getLeanTrace___redArg___closed__0 = _init_l_Lake_getLeanTrace___redArg___closed__0();
 lean_mark_persistent(l_Lake_getLeanTrace___redArg___closed__0);
 l_Lake_getBuildConfig___redArg___closed__0 = _init_l_Lake_getBuildConfig___redArg___closed__0();

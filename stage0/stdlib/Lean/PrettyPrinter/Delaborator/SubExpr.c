@@ -26,7 +26,6 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withBindingBod
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withAppFn___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetValue___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withAppArg___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_PrettyPrinter_Delaborator_OptionsPerPos_insertAt___closed__0;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withNaryArg___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withBoundedAppFnArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -87,7 +86,6 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_getPos(lean_ob
 lean_object* l_Lean_Meta_inferType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withType___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withType___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withBoundedAppFn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_descend___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedExpr;
@@ -115,7 +113,6 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_instInhabitedH
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetVarType___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SubExpr_Pos_push(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_binderInfo(lean_object*);
-static lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_HoleIterator_next___closed__0;
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___redArg___lam__0___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_getPos___redArg___lam__0(lean_object*, lean_object*);
@@ -1293,14 +1290,6 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_OptionsPerPos_insertAt___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Options_empty;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_OptionsPerPos_insertAt(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1309,7 +1298,7 @@ x_9 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_PrettyPrinter_Del
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; 
-x_10 = l_Lean_PrettyPrinter_Delaborator_OptionsPerPos_insertAt___closed__0;
+x_10 = l_Lean_Options_empty;
 x_5 = x_10;
 goto block_8;
 }
@@ -1809,19 +1798,11 @@ x_7 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withAppArg___redArg(x_3, x_4, x_5
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_withType___redArg___lam__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_SubExpr_Pos_typeCoord;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withType___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withType___redArg___lam__0___closed__0;
+x_4 = l_Lean_SubExpr_Pos_typeCoord;
 x_5 = l_Lean_PrettyPrinter_Delaborator_SubExpr_descend___redArg(x_1, x_3, x_4, x_2);
 return x_5;
 }
@@ -3019,14 +3000,6 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_HoleIterator_next___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_SubExpr_Pos_maxChildren;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_HoleIterator_next(lean_object* x_1) {
 _start:
 {
@@ -3052,7 +3025,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11;
 lean_dec(x_6);
 x_8 = lean_unsigned_to_nat(2u);
 x_9 = lean_nat_mul(x_8, x_4);
-x_10 = l_Lean_PrettyPrinter_Delaborator_SubExpr_HoleIterator_next___closed__0;
+x_10 = l_Lean_SubExpr_Pos_maxChildren;
 x_11 = lean_nat_mul(x_10, x_4);
 lean_dec(x_4);
 lean_ctor_set(x_1, 1, x_11);
@@ -3086,7 +3059,7 @@ lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean
 lean_dec(x_15);
 x_18 = lean_unsigned_to_nat(2u);
 x_19 = lean_nat_mul(x_18, x_13);
-x_20 = l_Lean_PrettyPrinter_Delaborator_SubExpr_HoleIterator_next___closed__0;
+x_20 = l_Lean_SubExpr_Pos_maxChildren;
 x_21 = lean_nat_mul(x_20, x_13);
 lean_dec(x_13);
 x_22 = lean_alloc_ctor(0, 2, 0);
@@ -3189,12 +3162,8 @@ l_Lean_Options_set___at___00Lean_PrettyPrinter_Delaborator_OptionsPerPos_insertA
 lean_mark_persistent(l_Lean_Options_set___at___00Lean_PrettyPrinter_Delaborator_OptionsPerPos_insertAt_spec__0___closed__0);
 l_Lean_Options_set___at___00Lean_PrettyPrinter_Delaborator_OptionsPerPos_insertAt_spec__0___closed__1 = _init_l_Lean_Options_set___at___00Lean_PrettyPrinter_Delaborator_OptionsPerPos_insertAt_spec__0___closed__1();
 lean_mark_persistent(l_Lean_Options_set___at___00Lean_PrettyPrinter_Delaborator_OptionsPerPos_insertAt_spec__0___closed__1);
-l_Lean_PrettyPrinter_Delaborator_OptionsPerPos_insertAt___closed__0 = _init_l_Lean_PrettyPrinter_Delaborator_OptionsPerPos_insertAt___closed__0();
-lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_OptionsPerPos_insertAt___closed__0);
 l_Std_DTreeMap_Internal_Impl_Const_alter___at___00Lean_PrettyPrinter_Delaborator_OptionsPerPos_merge_spec__0___redArg___closed__0 = _init_l_Std_DTreeMap_Internal_Impl_Const_alter___at___00Lean_PrettyPrinter_Delaborator_OptionsPerPos_merge_spec__0___redArg___closed__0();
 lean_mark_persistent(l_Std_DTreeMap_Internal_Impl_Const_alter___at___00Lean_PrettyPrinter_Delaborator_OptionsPerPos_merge_spec__0___redArg___closed__0);
-l_Lean_PrettyPrinter_Delaborator_SubExpr_withType___redArg___lam__0___closed__0 = _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_withType___redArg___lam__0___closed__0();
-lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_SubExpr_withType___redArg___lam__0___closed__0);
 l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___redArg___lam__0___closed__0 = _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___redArg___lam__0___closed__0();
 lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___redArg___lam__0___closed__0);
 l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___redArg___lam__0___closed__1 = _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___redArg___lam__0___closed__1();
@@ -3227,8 +3196,6 @@ l_Lean_PrettyPrinter_Delaborator_SubExpr_instInhabitedHoleIterator_default = _in
 lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_SubExpr_instInhabitedHoleIterator_default);
 l_Lean_PrettyPrinter_Delaborator_SubExpr_instInhabitedHoleIterator = _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_instInhabitedHoleIterator();
 lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_SubExpr_instInhabitedHoleIterator);
-l_Lean_PrettyPrinter_Delaborator_SubExpr_HoleIterator_next___closed__0 = _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_HoleIterator_next___closed__0();
-lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_SubExpr_HoleIterator_next___closed__0);
 l_Lean_PrettyPrinter_Delaborator_SubExpr_nextExtraPos___redArg___closed__0 = _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_nextExtraPos___redArg___closed__0();
 lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_SubExpr_nextExtraPos___redArg___closed__0);
 return lean_io_result_mk_ok(lean_box(0));

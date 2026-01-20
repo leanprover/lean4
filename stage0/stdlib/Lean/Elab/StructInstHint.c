@@ -35,7 +35,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 LEAN_EXPORT lean_object* l___private_Lean_Elab_StructInstHint_0__Lean_Elab_Term_StructInst_mkMissingFieldsHint_findLineEnd___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__6;
 lean_object* lean_array_push(lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__11;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_StructInstHint_0__Lean_Elab_Term_StructInst_mkMissingFieldsHint_findLineEnd(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_StructInstHint_0__Lean_Elab_Term_StructInst_mkMissingFieldsHint_isSingleLineStyle___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -106,13 +105,10 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_StructInstHint_0__Lean_Elab_Term_
 static lean_object* l_Lean_Options_set___at___00Lean_Option_set___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__0_spec__0___closed__0;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_string_is_valid_pos(lean_object*, lean_object*);
-static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__7;
-static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__9;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-static lean_object* l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__12;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__4;
 lean_object* l_Lean_PrettyPrinter_ppCategory(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -125,7 +121,6 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_StructInstHint_0__Lean_Elab_Term_StructInst_mkMissingFieldsHint_mkFieldsHintView_x3f___closed__0;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
-static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__10;
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -152,7 +147,6 @@ static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___
 static lean_object* l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___lam__0___closed__0;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l___private_Lean_Elab_StructInstHint_0__Lean_Elab_Term_StructInst_mkMissingFieldsHint_mkFieldsHintView_x3f___closed__3;
-static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__8;
 static lean_object* _init_l___private_Lean_Elab_StructInstHint_0__Lean_Elab_Term_StructInst_mkMissingFieldsHint_mkFieldsHintView_x3f___closed__0() {
 _start:
 {
@@ -1458,52 +1452,20 @@ static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_pp_mvars;
+x_1 = lean_mk_string_unchecked("term", 4, 4);
 return x_1;
 }
 }
 static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__2() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_diagnostics;
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_maxRecDepth;
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("term", 4, 4);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__5() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__4;
+x_1 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__1;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__6() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_Format_defWidth;
-return x_1;
-}
-}
-static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__7() {
+static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1511,28 +1473,28 @@ x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }
-static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__8() {
+static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__7;
+x_1 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__3;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__9() {
+static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__8;
+x_1 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__4;
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__10() {
+static lean_object* _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -1592,11 +1554,11 @@ x_43 = lean_ctor_get(x_28, 0);
 lean_inc_ref(x_43);
 lean_dec(x_28);
 x_44 = lean_box(1);
-x_45 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__1;
+x_45 = l_Lean_pp_mvars;
 x_46 = 0;
 lean_inc_ref(x_31);
 x_47 = l_Lean_Option_set___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__0(x_31, x_45, x_46);
-x_48 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__2;
+x_48 = l_Lean_diagnostics;
 x_49 = l_Lean_Option_get___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__1(x_47, x_48);
 x_103 = l_Lean_Kernel_isDiagnosticsEnabled(x_43);
 lean_dec_ref(x_43);
@@ -1621,7 +1583,7 @@ goto block_102;
 block_81:
 {
 lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; 
-x_65 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__3;
+x_65 = l_Lean_maxRecDepth;
 x_66 = l_Lean_Option_get___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__2(x_47, x_65);
 x_67 = lean_alloc_ctor(0, 14, 2);
 lean_ctor_set(x_67, 0, x_50);
@@ -1649,7 +1611,7 @@ lean_object* x_69; lean_object* x_70; lean_object* x_71;
 x_69 = lean_ctor_get(x_68, 0);
 lean_inc(x_69);
 lean_dec_ref(x_68);
-x_70 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__5;
+x_70 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__2;
 lean_inc(x_7);
 lean_inc_ref(x_6);
 x_71 = l_Lean_PrettyPrinter_ppCategory(x_70, x_69, x_6, x_7);
@@ -1659,7 +1621,7 @@ lean_object* x_72; lean_object* x_73; lean_object* x_74;
 x_72 = lean_ctor_get(x_71, 0);
 lean_inc(x_72);
 lean_dec_ref(x_71);
-x_73 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__6;
+x_73 = l_Std_Format_defWidth;
 x_74 = l_Std_Format_pretty(x_72, x_73, x_14, x_14);
 x_16 = x_74;
 x_17 = lean_box(0);
@@ -1731,7 +1693,7 @@ x_85 = lean_ctor_get(x_83, 0);
 x_86 = lean_ctor_get(x_83, 5);
 lean_dec(x_86);
 x_87 = l_Lean_Kernel_enableDiag(x_85, x_49);
-x_88 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__9;
+x_88 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__5;
 lean_ctor_set(x_83, 5, x_88);
 lean_ctor_set(x_83, 0, x_87);
 x_89 = lean_st_ref_set(x_7, x_83);
@@ -1786,7 +1748,7 @@ lean_inc(x_91);
 lean_inc(x_90);
 lean_dec(x_83);
 x_98 = l_Lean_Kernel_enableDiag(x_90, x_49);
-x_99 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__9;
+x_99 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__5;
 x_100 = lean_alloc_ctor(0, 9, 0);
 lean_ctor_set(x_100, 0, x_98);
 lean_ctor_set(x_100, 1, x_91);
@@ -1867,7 +1829,7 @@ else
 {
 lean_object* x_104; 
 lean_dec(x_13);
-x_104 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__10;
+x_104 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__6;
 x_16 = x_104;
 x_17 = lean_box(0);
 goto block_26;
@@ -2120,14 +2082,6 @@ return x_1;
 static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_Meta_Tactic_TryThis_format_inputWidth;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__0;
 x_2 = lean_alloc_ctor(1, 1, 0);
@@ -2135,7 +2089,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__3() {
+static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -2143,16 +2097,16 @@ x_1 = lean_mk_string_unchecked("Add missing fields:", 19, 19);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__4() {
+static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__3;
+x_1 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__2;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__5() {
+static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2161,7 +2115,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__6() {
+static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -2169,17 +2123,17 @@ x_1 = lean_mk_string_unchecked(" ", 1, 1);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__7() {
+static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__6;
+x_1 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__5;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__8() {
+static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -2187,7 +2141,7 @@ x_1 = lean_mk_string_unchecked("Init.Data.Option.BasicAux", 25, 25);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__9() {
+static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -2195,7 +2149,7 @@ x_1 = lean_mk_string_unchecked("Option.get!", 11, 11);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__10() {
+static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -2203,25 +2157,17 @@ x_1 = lean_mk_string_unchecked("value is none", 13, 13);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__11() {
+static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__10;
+x_1 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__9;
 x_2 = lean_unsigned_to_nat(14u);
 x_3 = lean_unsigned_to_nat(22u);
-x_4 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__9;
-x_5 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__8;
+x_4 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__8;
+x_5 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__7;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
 return x_6;
-}
-}
-static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__12() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_MessageData_nil;
-return x_1;
 }
 }
 static lean_object* _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___boxed__const__1() {
@@ -2334,7 +2280,7 @@ goto block_203;
 block_42:
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; uint8_t x_40; lean_object* x_41; 
-x_24 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__1;
+x_24 = l_Lean_Meta_Tactic_TryThis_format_inputWidth;
 x_25 = l_Lean_Option_get___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__2(x_19, x_24);
 lean_dec_ref(x_19);
 lean_inc(x_23);
@@ -2349,7 +2295,7 @@ if (lean_is_scalar(x_17)) {
 }
 lean_ctor_set(x_28, 0, x_27);
 x_29 = lean_box(0);
-x_30 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__2;
+x_30 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__1;
 x_31 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_31, 0, x_28);
 lean_ctor_set(x_31, 1, x_29);
@@ -2374,8 +2320,8 @@ lean_ctor_set(x_36, 0, x_31);
 lean_ctor_set(x_36, 1, x_34);
 lean_ctor_set(x_36, 2, x_29);
 lean_ctor_set_uint8(x_36, sizeof(void*)*3, x_35);
-x_37 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__4;
-x_38 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__5;
+x_37 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__3;
+x_38 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__4;
 x_39 = lean_array_push(x_38, x_36);
 x_40 = 0;
 x_41 = l_Lean_MessageData_hint(x_37, x_39, x_29, x_29, x_40, x_5, x_6);
@@ -2512,7 +2458,7 @@ if (x_93 == 0)
 if (x_87 == 0)
 {
 lean_object* x_98; 
-x_98 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__7;
+x_98 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__6;
 x_43 = x_85;
 x_44 = x_86;
 x_45 = x_88;
@@ -2695,7 +2641,7 @@ goto block_112;
 block_147:
 {
 lean_object* x_145; lean_object* x_146; 
-x_145 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__11;
+x_145 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__10;
 x_146 = l_panic___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__6(x_145);
 x_113 = x_134;
 x_114 = x_135;
@@ -2981,7 +2927,7 @@ lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec_ref(x_1);
-x_220 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__12;
+x_220 = l_Lean_MessageData_nil;
 x_221 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_221, 0, x_220);
 return x_221;
@@ -3057,14 +3003,6 @@ l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Ter
 lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__5);
 l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__6 = _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__6();
 lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__6);
-l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__7 = _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__7();
-lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__7);
-l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__8 = _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__8();
-lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__8);
-l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__9 = _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__9();
-lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__9);
-l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__10 = _init_l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__10();
-lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3___closed__10);
 l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__8___closed__0 = _init_l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__8___closed__0();
 lean_mark_persistent(l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__8___closed__0);
 l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__0 = _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__0();
@@ -3089,10 +3027,6 @@ l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__9 = _init_l_Lean_Elab_
 lean_mark_persistent(l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__9);
 l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__10 = _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__10();
 lean_mark_persistent(l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__10);
-l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__11 = _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__11();
-lean_mark_persistent(l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__11);
-l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__12 = _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__12();
-lean_mark_persistent(l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__12);
 l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___boxed__const__1 = _init_l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___boxed__const__1();
 lean_mark_persistent(l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___boxed__const__1);
 return lean_io_result_mk_ok(lean_box(0));

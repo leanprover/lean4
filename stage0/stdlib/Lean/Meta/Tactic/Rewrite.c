@@ -152,7 +152,6 @@ lean_object* l_Lean_Meta_getMVarsNoDelayed(lean_object*, lean_object*, lean_obje
 static lean_object* l_Lean_MVarId_rewrite___lam__1___closed__22;
 static lean_object* l_Lean_MVarId_rewrite___lam__1___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDeclD___at___00Lean_MVarId_rewrite_spec__8___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_MVarId_rewrite___lam__1___closed__47;
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDeclD___at___00Lean_MVarId_rewrite_spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_rewrite___lam__1___closed__16;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAtAux___at___00Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00Lean_MVarId_isAssigned___at___00Lean_MVarId_rewrite_spec__0_spec__0_spec__4_spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1191,28 +1190,20 @@ static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_tactic_skipAssignedInstances;
+x_1 = lean_mk_string_unchecked("Motive is dependent:", 20, 20);
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__8() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Motive is dependent:", 20, 20);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__9() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_MVarId_rewrite___lam__1___closed__8;
+x_1 = l_Lean_MVarId_rewrite___lam__1___closed__7;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__10() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -1220,16 +1211,16 @@ x_1 = lean_mk_string_unchecked("The rewrite tactic cannot substitute terms on wh
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__11() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_MVarId_rewrite___lam__1___closed__10;
+x_1 = l_Lean_MVarId_rewrite___lam__1___closed__9;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__12() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__11() {
 _start:
 {
 lean_object* x_1; 
@@ -1237,16 +1228,16 @@ x_1 = lean_mk_string_unchecked("\ndepends on the value", 21, 21);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__13() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_MVarId_rewrite___lam__1___closed__12;
+x_1 = l_Lean_MVarId_rewrite___lam__1___closed__11;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__14() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__13() {
 _start:
 {
 lean_object* x_1; 
@@ -1254,16 +1245,16 @@ x_1 = lean_mk_string_unchecked("motive is not type correct:", 27, 27);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__15() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_MVarId_rewrite___lam__1___closed__14;
+x_1 = l_Lean_MVarId_rewrite___lam__1___closed__13;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__16() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__15() {
 _start:
 {
 lean_object* x_1; 
@@ -1271,16 +1262,16 @@ x_1 = lean_mk_string_unchecked("\nError: ", 8, 8);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__17() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__16() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_MVarId_rewrite___lam__1___closed__16;
+x_1 = l_Lean_MVarId_rewrite___lam__1___closed__15;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__18() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__17() {
 _start:
 {
 lean_object* x_1; 
@@ -1288,16 +1279,16 @@ x_1 = lean_mk_string_unchecked("\n\nExplanation: The rewrite tactic rewrites an 
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__19() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__18() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_MVarId_rewrite___lam__1___closed__18;
+x_1 = l_Lean_MVarId_rewrite___lam__1___closed__17;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__20() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__19() {
 _start:
 {
 lean_object* x_1; 
@@ -1305,16 +1296,16 @@ x_1 = lean_mk_string_unchecked("' implies that 'm a = m b', which can be used wi
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__21() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__20() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_MVarId_rewrite___lam__1___closed__20;
+x_1 = l_Lean_MVarId_rewrite___lam__1___closed__19;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__22() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__21() {
 _start:
 {
 lean_object* x_1; 
@@ -1322,7 +1313,7 @@ x_1 = lean_mk_string_unchecked("Eq", 2, 2);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__23() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__22() {
 _start:
 {
 lean_object* x_1; 
@@ -1330,17 +1321,17 @@ x_1 = lean_mk_string_unchecked("mpr", 3, 3);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__24() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__23() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_MVarId_rewrite___lam__1___closed__23;
-x_2 = l_Lean_MVarId_rewrite___lam__1___closed__22;
+x_1 = l_Lean_MVarId_rewrite___lam__1___closed__22;
+x_2 = l_Lean_MVarId_rewrite___lam__1___closed__21;
 x_3 = l_Lean_Name_mkStr2(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__25() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__24() {
 _start:
 {
 lean_object* x_1; 
@@ -1348,16 +1339,16 @@ x_1 = lean_mk_string_unchecked("' to change the goal. However, if 'e' depends on
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__26() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__25() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_MVarId_rewrite___lam__1___closed__25;
+x_1 = l_Lean_MVarId_rewrite___lam__1___closed__24;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__27() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__26() {
 _start:
 {
 lean_object* x_1; 
@@ -1365,16 +1356,16 @@ x_1 = lean_mk_string_unchecked("Decidable", 9, 9);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__28() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__27() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_MVarId_rewrite___lam__1___closed__27;
+x_1 = l_Lean_MVarId_rewrite___lam__1___closed__26;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__29() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__28() {
 _start:
 {
 lean_object* x_1; 
@@ -1382,16 +1373,16 @@ x_1 = lean_mk_string_unchecked("' instances whose types depend on the rewritten 
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__30() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__29() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_MVarId_rewrite___lam__1___closed__29;
+x_1 = l_Lean_MVarId_rewrite___lam__1___closed__28;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__31() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__30() {
 _start:
 {
 lean_object* x_1; 
@@ -1399,16 +1390,16 @@ x_1 = lean_mk_string_unchecked("_a", 2, 2);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__32() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__31() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_MVarId_rewrite___lam__1___closed__31;
+x_1 = l_Lean_MVarId_rewrite___lam__1___closed__30;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__33() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__32() {
 _start:
 {
 lean_object* x_1; 
@@ -1416,16 +1407,16 @@ x_1 = lean_mk_string_unchecked("Did not find an occurrence of the pattern", 41, 
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__34() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__33() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_MVarId_rewrite___lam__1___closed__33;
+x_1 = l_Lean_MVarId_rewrite___lam__1___closed__32;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__35() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__34() {
 _start:
 {
 lean_object* x_1; 
@@ -1433,16 +1424,16 @@ x_1 = lean_mk_string_unchecked("\nin the target expression", 25, 25);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__36() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__35() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_MVarId_rewrite___lam__1___closed__35;
+x_1 = l_Lean_MVarId_rewrite___lam__1___closed__34;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__37() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__36() {
 _start:
 {
 lean_object* x_1; 
@@ -1450,16 +1441,16 @@ x_1 = lean_mk_string_unchecked("Invalid rewrite argument: The pattern to be subs
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__38() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__37() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_MVarId_rewrite___lam__1___closed__37;
+x_1 = l_Lean_MVarId_rewrite___lam__1___closed__36;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__39() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__38() {
 _start:
 {
 lean_object* x_1; 
@@ -1467,16 +1458,16 @@ x_1 = lean_mk_string_unchecked("`) in this equality", 19, 19);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__40() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__39() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_MVarId_rewrite___lam__1___closed__39;
+x_1 = l_Lean_MVarId_rewrite___lam__1___closed__38;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__41() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__40() {
 _start:
 {
 lean_object* x_1; 
@@ -1484,7 +1475,7 @@ x_1 = lean_mk_string_unchecked("a value of type", 15, 15);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__42() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__41() {
 _start:
 {
 lean_object* x_1; 
@@ -1492,7 +1483,7 @@ x_1 = lean_mk_string_unchecked("a proof of", 10, 10);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__43() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__42() {
 _start:
 {
 lean_object* x_1; 
@@ -1500,16 +1491,16 @@ x_1 = lean_mk_string_unchecked("Iff", 3, 3);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__44() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__43() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_MVarId_rewrite___lam__1___closed__43;
+x_1 = l_Lean_MVarId_rewrite___lam__1___closed__42;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__45() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__44() {
 _start:
 {
 lean_object* x_1; 
@@ -1517,21 +1508,21 @@ x_1 = lean_mk_string_unchecked("propext", 7, 7);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__46() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__45() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_MVarId_rewrite___lam__1___closed__45;
+x_1 = l_Lean_MVarId_rewrite___lam__1___closed__44;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__47() {
+static lean_object* _init_l_Lean_MVarId_rewrite___lam__1___closed__46() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_MVarId_rewrite___lam__1___closed__46;
+x_2 = l_Lean_MVarId_rewrite___lam__1___closed__45;
 x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
@@ -1608,7 +1599,7 @@ if (lean_is_exclusive(x_90)) {
 }
 lean_inc_ref(x_3);
 x_543 = l_Lean_mkAppN(x_3, x_91);
-x_544 = l_Lean_MVarId_rewrite___lam__1___closed__44;
+x_544 = l_Lean_MVarId_rewrite___lam__1___closed__43;
 x_545 = lean_unsigned_to_nat(2u);
 x_546 = l_Lean_Expr_isAppOfArity(x_94, x_544, x_545);
 if (x_546 == 0)
@@ -1643,7 +1634,7 @@ lean_object* x_551; lean_object* x_552; lean_object* x_553;
 x_551 = lean_ctor_get(x_550, 0);
 lean_inc(x_551);
 lean_dec_ref(x_550);
-x_552 = l_Lean_MVarId_rewrite___lam__1___closed__47;
+x_552 = l_Lean_MVarId_rewrite___lam__1___closed__46;
 x_553 = l_Lean_mkApp3(x_552, x_548, x_549, x_543);
 x_504 = x_553;
 x_505 = x_551;
@@ -1860,7 +1851,7 @@ lean_ctor_set(x_142, 0, x_135);
 lean_ctor_set(x_142, 1, x_141);
 x_143 = l_Lean_Expr_const___override(x_139, x_142);
 x_144 = l_Lean_mkApp6(x_143, x_128, x_126, x_124, x_123, x_122, x_125);
-x_145 = l_Lean_MVarId_rewrite___lam__1___closed__7;
+x_145 = l_Lean_Meta_tactic_skipAssignedInstances;
 x_146 = l_Lean_Option_get___at___00Lean_MVarId_rewrite_spec__7(x_138, x_145);
 if (x_146 == 0)
 {
@@ -1991,19 +1982,19 @@ lean_dec(x_172);
 if (x_173 == 0)
 {
 lean_object* x_174; lean_object* x_175; lean_object* x_176; lean_object* x_177; lean_object* x_178; lean_object* x_179; lean_object* x_180; lean_object* x_181; lean_object* x_182; lean_object* x_183; lean_object* x_184; lean_object* x_185; lean_object* x_186; lean_object* x_187; lean_object* x_188; 
-x_174 = l_Lean_MVarId_rewrite___lam__1___closed__9;
+x_174 = l_Lean_MVarId_rewrite___lam__1___closed__8;
 lean_inc_ref(x_157);
 x_175 = l_Lean_MessageData_ofExpr(x_157);
 x_176 = l_Lean_indentD(x_175);
 x_177 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_177, 0, x_174);
 lean_ctor_set(x_177, 1, x_176);
-x_178 = l_Lean_MVarId_rewrite___lam__1___closed__11;
+x_178 = l_Lean_MVarId_rewrite___lam__1___closed__10;
 x_179 = l_Lean_indentExpr(x_163);
 x_180 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_180, 0, x_178);
 lean_ctor_set(x_180, 1, x_179);
-x_181 = l_Lean_MVarId_rewrite___lam__1___closed__13;
+x_181 = l_Lean_MVarId_rewrite___lam__1___closed__12;
 x_182 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_182, 0, x_180);
 lean_ctor_set(x_182, 1, x_181);
@@ -2188,14 +2179,14 @@ if (x_216 == 0)
 {
 lean_object* x_217; lean_object* x_218; lean_object* x_219; lean_object* x_220; lean_object* x_221; lean_object* x_222; lean_object* x_223; lean_object* x_224; lean_object* x_225; lean_object* x_226; lean_object* x_227; lean_object* x_228; lean_object* x_229; lean_object* x_230; lean_object* x_231; lean_object* x_232; lean_object* x_233; lean_object* x_234; lean_object* x_235; lean_object* x_236; lean_object* x_237; lean_object* x_238; lean_object* x_239; lean_object* x_240; lean_object* x_241; lean_object* x_242; lean_object* x_243; 
 lean_dec_ref(x_213);
-x_217 = l_Lean_MVarId_rewrite___lam__1___closed__15;
+x_217 = l_Lean_MVarId_rewrite___lam__1___closed__14;
 lean_inc_ref(x_199);
 x_218 = l_Lean_MessageData_ofExpr(x_199);
 x_219 = l_Lean_indentD(x_218);
 x_220 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_220, 0, x_217);
 lean_ctor_set(x_220, 1, x_219);
-x_221 = l_Lean_MVarId_rewrite___lam__1___closed__17;
+x_221 = l_Lean_MVarId_rewrite___lam__1___closed__16;
 x_222 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_222, 0, x_220);
 lean_ctor_set(x_222, 1, x_221);
@@ -2203,7 +2194,7 @@ x_223 = l_Lean_Exception_toMessageData(x_212);
 x_224 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_224, 0, x_222);
 lean_ctor_set(x_224, 1, x_223);
-x_225 = l_Lean_MVarId_rewrite___lam__1___closed__19;
+x_225 = l_Lean_MVarId_rewrite___lam__1___closed__18;
 x_226 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_226, 0, x_224);
 lean_ctor_set(x_226, 1, x_225);
@@ -2212,25 +2203,25 @@ x_228 = l_Lean_MessageData_ofConstName(x_227, x_216);
 x_229 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_229, 0, x_226);
 lean_ctor_set(x_229, 1, x_228);
-x_230 = l_Lean_MVarId_rewrite___lam__1___closed__21;
+x_230 = l_Lean_MVarId_rewrite___lam__1___closed__20;
 x_231 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_231, 0, x_229);
 lean_ctor_set(x_231, 1, x_230);
-x_232 = l_Lean_MVarId_rewrite___lam__1___closed__24;
+x_232 = l_Lean_MVarId_rewrite___lam__1___closed__23;
 x_233 = l_Lean_MessageData_ofConstName(x_232, x_216);
 x_234 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_234, 0, x_231);
 lean_ctor_set(x_234, 1, x_233);
-x_235 = l_Lean_MVarId_rewrite___lam__1___closed__26;
+x_235 = l_Lean_MVarId_rewrite___lam__1___closed__25;
 x_236 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_236, 0, x_234);
 lean_ctor_set(x_236, 1, x_235);
-x_237 = l_Lean_MVarId_rewrite___lam__1___closed__28;
+x_237 = l_Lean_MVarId_rewrite___lam__1___closed__27;
 x_238 = l_Lean_MessageData_ofConstName(x_237, x_216);
 x_239 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_239, 0, x_236);
 lean_ctor_set(x_239, 1, x_238);
-x_240 = l_Lean_MVarId_rewrite___lam__1___closed__30;
+x_240 = l_Lean_MVarId_rewrite___lam__1___closed__29;
 x_241 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_241, 0, x_239);
 lean_ctor_set(x_241, 1, x_240);
@@ -2296,7 +2287,7 @@ lean_inc(x_259);
 x_260 = lean_alloc_closure((void*)(l_Lean_MVarId_rewrite___lam__0___boxed), 8, 2);
 lean_closure_set(x_260, 0, x_245);
 lean_closure_set(x_260, 1, x_259);
-x_261 = l_Lean_MVarId_rewrite___lam__1___closed__32;
+x_261 = l_Lean_MVarId_rewrite___lam__1___closed__31;
 x_262 = 0;
 lean_inc_ref(x_251);
 x_263 = l_Lean_mkLambda(x_261, x_262, x_251, x_248);
@@ -2602,12 +2593,12 @@ if (x_328 == 0)
 lean_object* x_329; lean_object* x_330; lean_object* x_331; lean_object* x_332; lean_object* x_333; lean_object* x_334; lean_object* x_335; lean_object* x_336; lean_object* x_337; 
 x_329 = lean_ctor_get(x_327, 0);
 x_330 = lean_ctor_get(x_327, 1);
-x_331 = l_Lean_MVarId_rewrite___lam__1___closed__34;
+x_331 = l_Lean_MVarId_rewrite___lam__1___closed__33;
 x_332 = l_Lean_indentExpr(x_330);
 lean_ctor_set_tag(x_327, 7);
 lean_ctor_set(x_327, 1, x_332);
 lean_ctor_set(x_327, 0, x_331);
-x_333 = l_Lean_MVarId_rewrite___lam__1___closed__36;
+x_333 = l_Lean_MVarId_rewrite___lam__1___closed__35;
 x_334 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_334, 0, x_327);
 lean_ctor_set(x_334, 1, x_333);
@@ -2682,12 +2673,12 @@ x_342 = lean_ctor_get(x_327, 1);
 lean_inc(x_342);
 lean_inc(x_341);
 lean_dec(x_327);
-x_343 = l_Lean_MVarId_rewrite___lam__1___closed__34;
+x_343 = l_Lean_MVarId_rewrite___lam__1___closed__33;
 x_344 = l_Lean_indentExpr(x_342);
 x_345 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_345, 0, x_343);
 lean_ctor_set(x_345, 1, x_344);
-x_346 = l_Lean_MVarId_rewrite___lam__1___closed__36;
+x_346 = l_Lean_MVarId_rewrite___lam__1___closed__35;
 x_347 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_347, 0, x_345);
 lean_ctor_set(x_347, 1, x_346);
@@ -2964,7 +2955,7 @@ if (lean_is_exclusive(x_395)) {
  lean_dec_ref(x_395);
  x_398 = lean_box(0);
 }
-x_399 = l_Lean_MVarId_rewrite___lam__1___closed__34;
+x_399 = l_Lean_MVarId_rewrite___lam__1___closed__33;
 x_400 = l_Lean_indentExpr(x_397);
 if (lean_is_scalar(x_398)) {
  x_401 = lean_alloc_ctor(7, 2, 0);
@@ -2974,7 +2965,7 @@ if (lean_is_scalar(x_398)) {
 }
 lean_ctor_set(x_401, 0, x_399);
 lean_ctor_set(x_401, 1, x_400);
-x_402 = l_Lean_MVarId_rewrite___lam__1___closed__36;
+x_402 = l_Lean_MVarId_rewrite___lam__1___closed__35;
 x_403 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_403, 0, x_401);
 lean_ctor_set(x_403, 1, x_402);
@@ -3271,7 +3262,7 @@ if (lean_is_exclusive(x_457)) {
  lean_dec_ref(x_457);
  x_460 = lean_box(0);
 }
-x_461 = l_Lean_MVarId_rewrite___lam__1___closed__34;
+x_461 = l_Lean_MVarId_rewrite___lam__1___closed__33;
 x_462 = l_Lean_indentExpr(x_459);
 if (lean_is_scalar(x_460)) {
  x_463 = lean_alloc_ctor(7, 2, 0);
@@ -3281,7 +3272,7 @@ if (lean_is_scalar(x_460)) {
 }
 lean_ctor_set(x_463, 0, x_461);
 lean_ctor_set(x_463, 1, x_462);
-x_464 = l_Lean_MVarId_rewrite___lam__1___closed__36;
+x_464 = l_Lean_MVarId_rewrite___lam__1___closed__35;
 x_465 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_465, 0, x_463);
 lean_ctor_set(x_465, 1, x_464);
@@ -3479,12 +3470,12 @@ lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_492 = l_Lean_MVarId_rewrite___lam__1___closed__38;
+x_492 = l_Lean_MVarId_rewrite___lam__1___closed__37;
 x_493 = l_Lean_MessageData_ofExpr(x_483);
 x_494 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_494, 0, x_492);
 lean_ctor_set(x_494, 1, x_493);
-x_495 = l_Lean_MVarId_rewrite___lam__1___closed__40;
+x_495 = l_Lean_MVarId_rewrite___lam__1___closed__39;
 x_496 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_496, 0, x_494);
 lean_ctor_set(x_496, 1, x_495);
@@ -3559,7 +3550,7 @@ lean_dec(x_514);
 if (x_515 == 0)
 {
 lean_object* x_516; 
-x_516 = l_Lean_MVarId_rewrite___lam__1___closed__41;
+x_516 = l_Lean_MVarId_rewrite___lam__1___closed__40;
 x_12 = x_506;
 x_13 = lean_box(0);
 x_14 = x_507;
@@ -3573,7 +3564,7 @@ goto block_31;
 else
 {
 lean_object* x_517; 
-x_517 = l_Lean_MVarId_rewrite___lam__1___closed__42;
+x_517 = l_Lean_MVarId_rewrite___lam__1___closed__41;
 x_12 = x_506;
 x_13 = lean_box(0);
 x_14 = x_507;
@@ -4384,8 +4375,6 @@ l_Lean_MVarId_rewrite___lam__1___closed__45 = _init_l_Lean_MVarId_rewrite___lam_
 lean_mark_persistent(l_Lean_MVarId_rewrite___lam__1___closed__45);
 l_Lean_MVarId_rewrite___lam__1___closed__46 = _init_l_Lean_MVarId_rewrite___lam__1___closed__46();
 lean_mark_persistent(l_Lean_MVarId_rewrite___lam__1___closed__46);
-l_Lean_MVarId_rewrite___lam__1___closed__47 = _init_l_Lean_MVarId_rewrite___lam__1___closed__47();
-lean_mark_persistent(l_Lean_MVarId_rewrite___lam__1___closed__47);
 l_Lean_MVarId_rewrite___closed__0 = _init_l_Lean_MVarId_rewrite___closed__0();
 lean_mark_persistent(l_Lean_MVarId_rewrite___closed__0);
 l_Lean_MVarId_rewrite___closed__1 = _init_l_Lean_MVarId_rewrite___closed__1();

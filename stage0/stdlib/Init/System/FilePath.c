@@ -29,7 +29,6 @@ static lean_object* l_System_instReprFilePath___closed__0;
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00String_Slice_revFind_x3f___at___00__private_Init_System_FilePath_0__System_FilePath_posOfLastSep_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_System_FilePath_exeExtension___closed__0;
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
-static uint8_t l_System_FilePath_pathSeparator___closed__0;
 LEAN_EXPORT uint8_t l_System_FilePath_isAbsolute(lean_object*);
 static lean_object* l_System_instInhabitedFilePath_default___closed__0;
 lean_object* l_String_quote(lean_object*);
@@ -358,19 +357,11 @@ x_1 = l_System_instToStringFilePath___closed__0;
 return x_1;
 }
 }
-static uint8_t _init_l_System_FilePath_pathSeparator___closed__0() {
-_start:
-{
-uint8_t x_1; 
-x_1 = l_System_Platform_isWindows;
-return x_1;
-}
-}
 static uint32_t _init_l_System_FilePath_pathSeparator() {
 _start:
 {
 uint8_t x_1; 
-x_1 = l_System_FilePath_pathSeparator___closed__0;
+x_1 = l_System_Platform_isWindows;
 if (x_1 == 0)
 {
 uint32_t x_2; 
@@ -431,7 +422,7 @@ static lean_object* _init_l_System_FilePath_pathSeparators() {
 _start:
 {
 uint8_t x_1; 
-x_1 = l_System_FilePath_pathSeparator___closed__0;
+x_1 = l_System_Platform_isWindows;
 if (x_1 == 0)
 {
 lean_object* x_2; 
@@ -466,7 +457,7 @@ static lean_object* _init_l_System_FilePath_exeExtension() {
 _start:
 {
 uint8_t x_1; 
-x_1 = l_System_FilePath_pathSeparator___closed__0;
+x_1 = l_System_Platform_isWindows;
 if (x_1 == 0)
 {
 lean_object* x_2; 
@@ -597,7 +588,7 @@ LEAN_EXPORT lean_object* l_System_FilePath_normalize(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_8; uint32_t x_25; uint8_t x_31; uint8_t x_40; 
-x_40 = l_System_FilePath_pathSeparator___closed__0;
+x_40 = l_System_Platform_isWindows;
 if (x_40 == 0)
 {
 x_31 = x_40;
@@ -902,7 +893,7 @@ x_17 = l_List_elem___at___00System_FilePath_normalize_spec__0(x_16, x_15);
 if (x_17 == 0)
 {
 uint8_t x_18; 
-x_18 = l_System_FilePath_pathSeparator___closed__0;
+x_18 = l_System_Platform_isWindows;
 if (x_18 == 0)
 {
 x_6 = x_18;
@@ -2644,7 +2635,7 @@ static uint32_t _init_l_System_SearchPath_separator() {
 _start:
 {
 uint8_t x_1; 
-x_1 = l_System_FilePath_pathSeparator___closed__0;
+x_1 = l_System_Platform_isWindows;
 if (x_1 == 0)
 {
 uint32_t x_2; 
@@ -2996,7 +2987,6 @@ l_System_instToStringFilePath___closed__0 = _init_l_System_instToStringFilePath_
 lean_mark_persistent(l_System_instToStringFilePath___closed__0);
 l_System_instToStringFilePath = _init_l_System_instToStringFilePath();
 lean_mark_persistent(l_System_instToStringFilePath);
-l_System_FilePath_pathSeparator___closed__0 = _init_l_System_FilePath_pathSeparator___closed__0();
 l_System_FilePath_pathSeparator = _init_l_System_FilePath_pathSeparator();
 l_System_FilePath_pathSeparators___closed__0___boxed__const__1 = _init_l_System_FilePath_pathSeparators___closed__0___boxed__const__1();
 lean_mark_persistent(l_System_FilePath_pathSeparators___closed__0___boxed__const__1);

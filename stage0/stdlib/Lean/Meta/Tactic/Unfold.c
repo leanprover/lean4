@@ -72,7 +72,6 @@ static lean_object* l_Lean_Meta_unfold___closed__0;
 static uint64_t l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_unfold_pre___closed__1;
 static lean_object* l_Lean_Meta_unfold___closed__10;
 uint8_t lean_name_eq(lean_object*, lean_object*);
-static lean_object* l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___redArg___closed__1;
 LEAN_EXPORT uint8_t l_Lean_Meta_unfold___lam__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isRflTheorem(lean_object*, lean_object*, lean_object*);
@@ -136,14 +135,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_unfoldLocalDecl___lam__0___boxed(lean_objec
 static lean_object* _init_l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___redArg___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_Meta_Simp_neutralConfig;
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___redArg___closed__1() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_mk_empty_array_with_capacity(x_1);
@@ -161,14 +152,14 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 lean_dec_ref(x_4);
-x_6 = l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___redArg___closed__0;
+x_6 = l_Lean_Meta_Simp_neutralConfig;
 x_7 = !lean_is_exclusive(x_6);
 if (x_7 == 0)
 {
 uint8_t x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = 1;
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 22, x_8);
-x_9 = l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___redArg___closed__1;
+x_9 = l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___redArg___closed__0;
 x_10 = l_Lean_Meta_Simp_mkContext___redArg(x_6, x_9, x_5, x_1, x_2);
 return x_10;
 }
@@ -239,7 +230,7 @@ lean_ctor_set_uint8(x_41, sizeof(void*)*2 + 24, x_36);
 lean_ctor_set_uint8(x_41, sizeof(void*)*2 + 25, x_37);
 lean_ctor_set_uint8(x_41, sizeof(void*)*2 + 26, x_38);
 lean_ctor_set_uint8(x_41, sizeof(void*)*2 + 27, x_39);
-x_42 = l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___redArg___closed__1;
+x_42 = l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___redArg___closed__0;
 x_43 = l_Lean_Meta_Simp_mkContext___redArg(x_41, x_42, x_5, x_1, x_2);
 return x_43;
 }
@@ -2561,8 +2552,6 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___redArg___closed__0 = _init_l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___redArg___closed__0();
 lean_mark_persistent(l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___redArg___closed__0);
-l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___redArg___closed__1 = _init_l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___redArg___closed__1();
-lean_mark_persistent(l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___redArg___closed__1);
 l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_unfold_pre___closed__0 = _init_l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_unfold_pre___closed__0();
 lean_mark_persistent(l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_unfold_pre___closed__0);
 l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_unfold_pre___closed__1 = _init_l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_unfold_pre___closed__1();

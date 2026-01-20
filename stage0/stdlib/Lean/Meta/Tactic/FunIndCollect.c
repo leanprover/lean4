@@ -107,7 +107,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 LEAN_EXPORT lean_object* l_Lean_Meta_FunInd_Collector_saveFunInd___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object*);
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_FunInd_SeenCalls_uniques___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_PersistentArray_forInAux___at___00Lean_PersistentArray_forIn___at___00__private_Lean_Meta_Tactic_FunIndCollect_0__Lean_Meta_FunInd_Collector_main_go_spec__1_spec__1_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_FunInd_instBEqCall___closed__0;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00Lean_Meta_FunInd_Collector_visit_spec__2_spec__3(lean_object*, lean_object*);
@@ -1826,16 +1825,8 @@ return x_7;
 static lean_object* _init_l_Lean_Meta_FunInd_SeenCalls_uniques___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_NameSet_empty;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_FunInd_SeenCalls_uniques___closed__1() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_FunInd_SeenCalls_uniques___closed__0;
+x_1 = l_Lean_NameSet_empty;
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -1847,7 +1838,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_2 = lean_ctor_get(x_1, 1);
-x_3 = l_Lean_Meta_FunInd_SeenCalls_uniques___closed__1;
+x_3 = l_Lean_Meta_FunInd_SeenCalls_uniques___closed__0;
 x_4 = lean_ctor_get(x_2, 1);
 x_5 = lean_array_size(x_4);
 x_6 = 0;
@@ -5019,8 +5010,6 @@ l_Lean_Meta_FunInd_instEmptyCollectionSeenCalls = _init_l_Lean_Meta_FunInd_instE
 lean_mark_persistent(l_Lean_Meta_FunInd_instEmptyCollectionSeenCalls);
 l_Lean_Meta_FunInd_SeenCalls_uniques___closed__0 = _init_l_Lean_Meta_FunInd_SeenCalls_uniques___closed__0();
 lean_mark_persistent(l_Lean_Meta_FunInd_SeenCalls_uniques___closed__0);
-l_Lean_Meta_FunInd_SeenCalls_uniques___closed__1 = _init_l_Lean_Meta_FunInd_SeenCalls_uniques___closed__1();
-lean_mark_persistent(l_Lean_Meta_FunInd_SeenCalls_uniques___closed__1);
 l_Lean_Meta_FunInd_Collector_visit___closed__0 = _init_l_Lean_Meta_FunInd_Collector_visit___closed__0();
 lean_mark_persistent(l_Lean_Meta_FunInd_Collector_visit___closed__0);
 l_Lean_Meta_FunInd_Collector_main___closed__0 = _init_l_Lean_Meta_FunInd_Collector_main___closed__0();

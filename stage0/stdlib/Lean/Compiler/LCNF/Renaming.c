@@ -54,7 +54,6 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Decl_applyRenaming___boxed(lean_ob
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Param_applyRenaming___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_DeclValue_mapCodeM___at___00Lean_Compiler_LCNF_Decl_applyRenaming_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_panic___at___00Lean_Compiler_LCNF_Code_applyRenaming_spec__1___closed__0;
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_updateAltCodeImp(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -602,19 +601,11 @@ lean_dec(x_1);
 return x_6;
 }
 }
-static lean_object* _init_l_panic___at___00Lean_Compiler_LCNF_Code_applyRenaming_spec__1___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_instInhabitedCode_default__1;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_panic___at___00Lean_Compiler_LCNF_Code_applyRenaming_spec__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_panic___at___00Lean_Compiler_LCNF_Code_applyRenaming_spec__1___closed__0;
+x_2 = l_Lean_Compiler_LCNF_instInhabitedCode_default__1;
 x_3 = lean_panic_fn(x_2, x_1);
 return x_3;
 }
@@ -2124,8 +2115,6 @@ _G_initialized = true;
 res = initialize_Lean_Compiler_LCNF_CompilerM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_panic___at___00Lean_Compiler_LCNF_Code_applyRenaming_spec__1___closed__0 = _init_l_panic___at___00Lean_Compiler_LCNF_Code_applyRenaming_spec__1___closed__0();
-lean_mark_persistent(l_panic___at___00Lean_Compiler_LCNF_Code_applyRenaming_spec__1___closed__0);
 l_Lean_Compiler_LCNF_Code_applyRenaming___closed__2 = _init_l_Lean_Compiler_LCNF_Code_applyRenaming___closed__2();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Code_applyRenaming___closed__2);
 l_Lean_Compiler_LCNF_Code_applyRenaming___closed__1 = _init_l_Lean_Compiler_LCNF_Code_applyRenaming___closed__1();

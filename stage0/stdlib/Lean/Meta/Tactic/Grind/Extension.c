@@ -123,7 +123,6 @@ static lean_object* l_Lean_Meta_Grind_mkExtension___auto__1___closed__27;
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static lean_object* l_Array_Array_repr___at___00Lean_Meta_Grind_instReprCnstrRHS_repr_spec__0___closed__8;
 static lean_object* l_Lean_Meta_Grind_instReprEMatchTheoremConstraint_repr___closed__9;
-static lean_object* l_Lean_Meta_Grind_instInhabitedEMatchTheorem_default___closed__1;
 static lean_object* l_Array_Array_repr___at___00Lean_Meta_Grind_instReprCnstrRHS_repr_spec__0___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentHashMap_0__Lean_PersistentHashMap_insertAux_traverse___at___00Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_Meta_Grind_Theorems_insert___at___00Lean_Meta_Grind_ExtensionState_addEntry_spec__0_spec__1_spec__2_spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremConstraint_notValue_elim(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -242,7 +241,6 @@ static lean_object* l_Lean_Meta_Grind_instBEqEMatchTheoremConstraint_beq___close
 static lean_object* l_Lean_Meta_Grind_instReprEMatchTheoremConstraint_repr___closed__27;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instTheoremLikeInjectiveTheorem;
 lean_object* lean_array_to_list(lean_object*);
-static lean_object* l_Lean_Meta_Grind_instInhabitedExtensionState_default___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Entry_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremKind_bwd_elim___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_instInhabitedEntry_default___closed__0;
@@ -5753,18 +5751,10 @@ return x_1;
 static lean_object* _init_l_Lean_Meta_Grind_instInhabitedEMatchTheorem_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_Meta_Grind_instInhabitedOrigin_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_instInhabitedEMatchTheorem_default___closed__1() {
-_start:
-{
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_1 = 0;
 x_2 = l_Lean_Meta_Grind_instInhabitedEMatchTheoremKind_default;
-x_3 = l_Lean_Meta_Grind_instInhabitedEMatchTheorem_default___closed__0;
+x_3 = l_Lean_Meta_Grind_instInhabitedOrigin_default;
 x_4 = lean_box(0);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = l_Lean_Meta_Grind_instInhabitedCnstrRHS_default___closed__3;
@@ -5786,7 +5776,7 @@ static lean_object* _init_l_Lean_Meta_Grind_instInhabitedEMatchTheorem_default()
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_Grind_instInhabitedEMatchTheorem_default___closed__1;
+x_1 = l_Lean_Meta_Grind_instInhabitedEMatchTheorem_default___closed__0;
 return x_1;
 }
 }
@@ -5986,7 +5976,7 @@ static lean_object* _init_l_Lean_Meta_Grind_instInhabitedInjectiveTheorem_defaul
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Meta_Grind_instInhabitedEMatchTheorem_default___closed__0;
+x_1 = l_Lean_Meta_Grind_instInhabitedOrigin_default;
 x_2 = lean_box(0);
 x_3 = l_Lean_Meta_Grind_instInhabitedCnstrRHS_default___closed__3;
 x_4 = l_Lean_Meta_Grind_instInhabitedCnstrRHS_default___closed__0;
@@ -6436,24 +6426,16 @@ static lean_object* _init_l_Lean_Meta_Grind_instInhabitedExtensionState_default_
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_NameSet_empty;
+x_1 = l_Lean_Meta_Grind_instInhabitedTheorems_default(lean_box(0));
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_Grind_instInhabitedExtensionState_default___closed__2() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_Meta_Grind_instInhabitedTheorems_default(lean_box(0));
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_instInhabitedExtensionState_default___closed__3() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Meta_Grind_instInhabitedExtensionState_default___closed__2;
-x_2 = l_Lean_Meta_Grind_instInhabitedExtensionState_default___closed__1;
+x_1 = l_Lean_Meta_Grind_instInhabitedExtensionState_default___closed__1;
+x_2 = l_Lean_NameSet_empty;
 x_3 = l_Lean_Meta_Grind_instInhabitedExtensionState_default___closed__0;
 x_4 = l_Lean_Meta_Grind_instInhabitedCasesTypes_default;
 x_5 = lean_alloc_ctor(0, 5, 0);
@@ -6469,7 +6451,7 @@ static lean_object* _init_l_Lean_Meta_Grind_instInhabitedExtensionState_default(
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_Grind_instInhabitedExtensionState_default___closed__3;
+x_1 = l_Lean_Meta_Grind_instInhabitedExtensionState_default___closed__2;
 return x_1;
 }
 }
@@ -9530,7 +9512,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Meta_Grind_mkExtension___closed__3;
-x_2 = l_Lean_Meta_Grind_instInhabitedExtensionState_default___closed__1;
+x_2 = l_Lean_NameSet_empty;
 x_3 = l_Lean_Meta_Grind_instInhabitedExtensionState_default___closed__0;
 x_4 = l_Lean_Meta_Grind_instInhabitedCasesTypes_default___closed__1;
 x_5 = lean_alloc_ctor(0, 5, 0);
@@ -10116,8 +10098,6 @@ l_Lean_Meta_Grind_instBEqEMatchTheoremConstraint = _init_l_Lean_Meta_Grind_instB
 lean_mark_persistent(l_Lean_Meta_Grind_instBEqEMatchTheoremConstraint);
 l_Lean_Meta_Grind_instInhabitedEMatchTheorem_default___closed__0 = _init_l_Lean_Meta_Grind_instInhabitedEMatchTheorem_default___closed__0();
 lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedEMatchTheorem_default___closed__0);
-l_Lean_Meta_Grind_instInhabitedEMatchTheorem_default___closed__1 = _init_l_Lean_Meta_Grind_instInhabitedEMatchTheorem_default___closed__1();
-lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedEMatchTheorem_default___closed__1);
 l_Lean_Meta_Grind_instInhabitedEMatchTheorem_default = _init_l_Lean_Meta_Grind_instInhabitedEMatchTheorem_default();
 lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedEMatchTheorem_default);
 l_Lean_Meta_Grind_instInhabitedEMatchTheorem = _init_l_Lean_Meta_Grind_instInhabitedEMatchTheorem();
@@ -10172,8 +10152,6 @@ l_Lean_Meta_Grind_instInhabitedExtensionState_default___closed__1 = _init_l_Lean
 lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedExtensionState_default___closed__1);
 l_Lean_Meta_Grind_instInhabitedExtensionState_default___closed__2 = _init_l_Lean_Meta_Grind_instInhabitedExtensionState_default___closed__2();
 lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedExtensionState_default___closed__2);
-l_Lean_Meta_Grind_instInhabitedExtensionState_default___closed__3 = _init_l_Lean_Meta_Grind_instInhabitedExtensionState_default___closed__3();
-lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedExtensionState_default___closed__3);
 l_Lean_Meta_Grind_instInhabitedExtensionState_default = _init_l_Lean_Meta_Grind_instInhabitedExtensionState_default();
 lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedExtensionState_default);
 l_Lean_Meta_Grind_instInhabitedExtensionState = _init_l_Lean_Meta_Grind_instInhabitedExtensionState();

@@ -158,7 +158,6 @@ static lean_object* l___private_Lean_Compiler_LCNF_SplitSCC_0__Lean_Compiler_LCN
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_SplitSCC_0__Lean_Compiler_LCNF_initFn___closed__11_00___x40_Lean_Compiler_LCNF_SplitSCC_1807176231____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC_add___at___00__private_Lean_Util_SCC_0__Lean_SCC_addSCC___at___00__private_Lean_Util_SCC_0__Lean_SCC_sccAux___at___00Lean_SCC_scc___at___00Lean_Compiler_LCNF_splitScc_spec__12_spec__18_spec__27_spec__32___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_splitScc___closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___at___00Lean_SCC_scc___at___00Lean_Compiler_LCNF_splitScc_spec__12_spec__17___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_LCNF_SplitSCC_0__Lean_Compiler_LCNF_SplitScc_findSccCalls_goCode_spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 static lean_object* l_Lean_addTrace___at___00Lean_Compiler_LCNF_splitScc_spec__15___redArg___closed__0;
@@ -3388,28 +3387,20 @@ static lean_object* _init_l_Lean_Compiler_LCNF_splitScc___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_instInhabitedDecl_default;
+x_1 = lean_mk_string_unchecked("Split SCC into ", 15, 15);
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Compiler_LCNF_splitScc___closed__4() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Split SCC into ", 15, 15);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_splitScc___closed__5() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Compiler_LCNF_splitScc___closed__4;
+x_1 = l_Lean_Compiler_LCNF_splitScc___closed__3;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_splitScc___closed__6() {
+static lean_object* _init_l_Lean_Compiler_LCNF_splitScc___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3455,7 +3446,7 @@ if (lean_is_exclusive(x_18)) {
  lean_dec_ref(x_18);
  x_20 = lean_box(0);
 }
-x_21 = l_Lean_Compiler_LCNF_splitScc___closed__3;
+x_21 = l_Lean_Compiler_LCNF_instInhabitedDecl_default;
 x_22 = l_Std_DHashMap_Internal_Raw_u2080_Const_insertMany___at___00Lean_Compiler_LCNF_splitScc_spec__8(x_13, x_16);
 lean_dec(x_16);
 x_23 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_splitScc___lam__0___boxed), 2, 1);
@@ -3474,7 +3465,7 @@ goto block_33;
 else
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
-x_35 = l_Lean_Compiler_LCNF_splitScc___closed__5;
+x_35 = l_Lean_Compiler_LCNF_splitScc___closed__4;
 lean_inc(x_27);
 x_36 = l_List_mapTR_loop___at___00Lean_Compiler_LCNF_splitScc_spec__14(x_27, x_25);
 x_37 = l_Lean_MessageData_ofList(x_36);
@@ -3527,7 +3518,7 @@ return x_42;
 else
 {
 lean_object* x_43; lean_object* x_44; lean_object* x_45; 
-x_43 = l_Lean_Compiler_LCNF_splitScc___closed__6;
+x_43 = l_Lean_Compiler_LCNF_splitScc___closed__5;
 x_44 = lean_array_push(x_43, x_1);
 x_45 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_45, 0, x_44);
@@ -4044,8 +4035,6 @@ l_Lean_Compiler_LCNF_splitScc___closed__4 = _init_l_Lean_Compiler_LCNF_splitScc_
 lean_mark_persistent(l_Lean_Compiler_LCNF_splitScc___closed__4);
 l_Lean_Compiler_LCNF_splitScc___closed__5 = _init_l_Lean_Compiler_LCNF_splitScc___closed__5();
 lean_mark_persistent(l_Lean_Compiler_LCNF_splitScc___closed__5);
-l_Lean_Compiler_LCNF_splitScc___closed__6 = _init_l_Lean_Compiler_LCNF_splitScc___closed__6();
-lean_mark_persistent(l_Lean_Compiler_LCNF_splitScc___closed__6);
 l___private_Lean_Compiler_LCNF_SplitSCC_0__Lean_Compiler_LCNF_initFn___closed__0_00___x40_Lean_Compiler_LCNF_SplitSCC_1807176231____hygCtx___hyg_2_ = _init_l___private_Lean_Compiler_LCNF_SplitSCC_0__Lean_Compiler_LCNF_initFn___closed__0_00___x40_Lean_Compiler_LCNF_SplitSCC_1807176231____hygCtx___hyg_2_();
 lean_mark_persistent(l___private_Lean_Compiler_LCNF_SplitSCC_0__Lean_Compiler_LCNF_initFn___closed__0_00___x40_Lean_Compiler_LCNF_SplitSCC_1807176231____hygCtx___hyg_2_);
 l___private_Lean_Compiler_LCNF_SplitSCC_0__Lean_Compiler_LCNF_initFn___closed__1_00___x40_Lean_Compiler_LCNF_SplitSCC_1807176231____hygCtx___hyg_2_ = _init_l___private_Lean_Compiler_LCNF_SplitSCC_0__Lean_Compiler_LCNF_initFn___closed__1_00___x40_Lean_Compiler_LCNF_SplitSCC_1807176231____hygCtx___hyg_2_();

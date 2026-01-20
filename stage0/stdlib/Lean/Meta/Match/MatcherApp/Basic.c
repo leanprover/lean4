@@ -48,7 +48,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__11(lean
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_getConstInfo___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_extract___redArg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__4;
 lean_object* l_Subarray_toArray___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__4___closed__0;
@@ -104,7 +103,7 @@ static lean_object* _init_l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_Match_instInhabitedAltParamInfo_default;
+x_1 = lean_mk_string_unchecked("Lean.Meta.Match.MatcherApp.Basic", 32, 32);
 return x_1;
 }
 }
@@ -112,7 +111,7 @@ static lean_object* _init_l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Meta.Match.MatcherApp.Basic", 32, 32);
+x_1 = lean_mk_string_unchecked("Lean.Meta.matchMatcherApp\?", 26, 26);
 return x_1;
 }
 }
@@ -120,27 +119,19 @@ static lean_object* _init_l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Meta.matchMatcherApp\?", 26, 26);
+x_1 = lean_mk_string_unchecked("expected constructor", 20, 20);
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__3() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("expected constructor", 20, 20);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__4() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__3;
+x_1 = l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__2;
 x_2 = lean_unsigned_to_nat(53u);
 x_3 = lean_unsigned_to_nat(62u);
-x_4 = l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__2;
-x_5 = l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__1;
+x_4 = l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__1;
+x_5 = l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -168,9 +159,9 @@ else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 lean_dec(x_1);
-x_10 = l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__0;
+x_10 = l_Lean_Meta_Match_instInhabitedAltParamInfo_default;
 x_11 = l_instInhabitedOfMonad___redArg(x_2, x_10);
-x_12 = l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__4;
+x_12 = l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__3;
 x_13 = l_panic___redArg(x_11, x_12);
 return x_13;
 }
@@ -900,8 +891,6 @@ l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__2 = _init_l_Lean_Met
 lean_mark_persistent(l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__2);
 l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__3 = _init_l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__3();
 lean_mark_persistent(l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__3);
-l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__4 = _init_l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__4();
-lean_mark_persistent(l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__3___closed__4);
 l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__4___closed__0 = _init_l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__4___closed__0();
 lean_mark_persistent(l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__4___closed__0);
 l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__5___closed__0 = _init_l_Lean_Meta_matchMatcherApp_x3f___redArg___lam__5___closed__0();

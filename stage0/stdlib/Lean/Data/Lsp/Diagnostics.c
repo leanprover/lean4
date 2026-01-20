@@ -234,7 +234,6 @@ static lean_object* l_Lean_Lsp_instFromJsonDiagnosticWith_fromJson___redArg___cl
 static lean_object* l_Lean_Lsp_instFromJsonDiagnosticRelatedInformation_fromJson___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instOrdDiagnosticTag;
 static lean_object* l_Lean_Lsp_instFromJsonDiagnosticRelatedInformation_fromJson___closed__13;
-static lean_object* l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_default___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Lsp_DiagnosticSeverity_information_elim___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonDiagnosticWith(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Lean_Lsp_instBEqDiagnosticWith_beq___at___00Lean_Lsp_instBEqPublishDiagnosticsParams_beq_spec__1_spec__9___boxed(lean_object*, lean_object*);
@@ -508,7 +507,6 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Lsp_instFromJsonDiagnosticWith_fromJson___redArg___closed__66;
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at___00Option_instBEq_beq___at___00Lean_Lsp_instBEqDiagnosticWith_beq___at___00Lean_Lsp_instBEqPublishDiagnosticsParams_beq_spec__1_spec__8_spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Option_instBEq_beq___at___00Lean_Lsp_instBEqDiagnosticWith_beq___at___00Lean_Lsp_instBEqPublishDiagnosticsParams_beq_spec__1_spec__1(lean_object*, lean_object*);
-static lean_object* l_Lean_Lsp_instInhabitedDiagnosticWith_default___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonDiagnosticWith_toJson(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Array_fromJson_x3f___at___00Option_fromJson_x3f___at___00Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonDiagnosticWith_fromJson___at___00Array_fromJson_x3f___at___00Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonPublishDiagnosticsParams_fromJson_spec__1_spec__2_spec__3_spec__10_spec__16_spec__18_spec__23___closed__0;
 static lean_object* l_Lean_Lsp_instToJsonDiagnosticRelatedInformation_toJson___closed__0;
@@ -2502,24 +2500,16 @@ static lean_object* _init_l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_d
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Lsp_instInhabitedLocation_default;
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_default___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("", 0, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_default___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_default___closed__1;
-x_2 = l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_default___closed__0;
+x_1 = l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_default___closed__0;
+x_2 = l_Lean_Lsp_instInhabitedLocation_default;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -2530,7 +2520,7 @@ static lean_object* _init_l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_d
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_default___closed__2;
+x_1 = l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_default___closed__1;
 return x_1;
 }
 }
@@ -3153,19 +3143,11 @@ x_1 = l_Lean_Lsp_instOrdDiagnosticRelatedInformation___closed__0;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Lsp_instInhabitedDiagnosticWith_default___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Lsp_instInhabitedRange_default;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Lsp_instInhabitedDiagnosticWith_default___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Lsp_instInhabitedDiagnosticWith_default___redArg___closed__0;
+x_2 = l_Lean_Lsp_instInhabitedRange_default;
 x_3 = lean_box(0);
 x_4 = lean_alloc_ctor(0, 11, 0);
 lean_ctor_set(x_4, 0, x_2);
@@ -5518,7 +5500,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Lsp_instInhabitedPublishDiagnosticsParams_default___closed__0;
 x_2 = lean_box(0);
-x_3 = l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_default___closed__1;
+x_3 = l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_default___closed__0;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
@@ -10142,8 +10124,6 @@ l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_default___closed__0 = _init
 lean_mark_persistent(l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_default___closed__0);
 l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_default___closed__1 = _init_l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_default___closed__1();
 lean_mark_persistent(l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_default___closed__1);
-l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_default___closed__2 = _init_l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_default___closed__2();
-lean_mark_persistent(l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_default___closed__2);
 l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_default = _init_l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_default();
 lean_mark_persistent(l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation_default);
 l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation = _init_l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation();
@@ -10202,8 +10182,6 @@ l_Lean_Lsp_instOrdDiagnosticRelatedInformation___closed__0 = _init_l_Lean_Lsp_in
 lean_mark_persistent(l_Lean_Lsp_instOrdDiagnosticRelatedInformation___closed__0);
 l_Lean_Lsp_instOrdDiagnosticRelatedInformation = _init_l_Lean_Lsp_instOrdDiagnosticRelatedInformation();
 lean_mark_persistent(l_Lean_Lsp_instOrdDiagnosticRelatedInformation);
-l_Lean_Lsp_instInhabitedDiagnosticWith_default___redArg___closed__0 = _init_l_Lean_Lsp_instInhabitedDiagnosticWith_default___redArg___closed__0();
-lean_mark_persistent(l_Lean_Lsp_instInhabitedDiagnosticWith_default___redArg___closed__0);
 l_Lean_Lsp_instBEqDiagnosticWith_beq___redArg___closed__0 = _init_l_Lean_Lsp_instBEqDiagnosticWith_beq___redArg___closed__0();
 lean_mark_persistent(l_Lean_Lsp_instBEqDiagnosticWith_beq___redArg___closed__0);
 l_Lean_Lsp_instBEqDiagnosticWith_beq___redArg___closed__1 = _init_l_Lean_Lsp_instBEqDiagnosticWith_beq___redArg___closed__1();

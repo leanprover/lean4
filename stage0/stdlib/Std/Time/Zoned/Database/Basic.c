@@ -20,7 +20,6 @@ lean_object* lean_uint32_to_nat(uint32_t);
 extern lean_object* l_Int_instInhabited;
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Std_Time_TimeZone_convertTZifV1_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Std_Time_TimeZone_convertTZifV1_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_Time_TimeZone_convertTransition___closed__0;
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Std_Time_TimeZone_convertTZifV1___closed__0;
 static lean_object* l_WellFounded_opaqueFix_u2083___at___00Std_Time_TimeZone_convertTZifV1_spec__0___redArg___closed__1;
@@ -246,14 +245,6 @@ x_3 = l_Rat_ofInt(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Std_Time_TimeZone_convertTransition___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_Time_TimeZone_instInhabitedLocalTimeType_default;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_convertTransition(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -262,7 +253,7 @@ x_4 = lean_ctor_get(x_3, 1);
 x_5 = lean_ctor_get(x_3, 2);
 x_6 = l_Int_instInhabited;
 x_7 = l_instInhabitedUInt8;
-x_8 = l_Std_Time_TimeZone_convertTransition___closed__0;
+x_8 = l_Std_Time_TimeZone_instInhabitedLocalTimeType_default;
 x_9 = lean_array_get_borrowed(x_6, x_4, x_2);
 x_10 = lean_box(x_7);
 x_11 = lean_array_get_borrowed(x_10, x_5, x_2);
@@ -697,8 +688,6 @@ lean_dec_ref(res);
 res = initialize_Std_Time_Zoned_Database_TzIf(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Time_TimeZone_convertTransition___closed__0 = _init_l_Std_Time_TimeZone_convertTransition___closed__0();
-lean_mark_persistent(l_Std_Time_TimeZone_convertTransition___closed__0);
 l_WellFounded_opaqueFix_u2083___at___00Std_Time_TimeZone_convertTZifV1_spec__0___redArg___closed__0 = _init_l_WellFounded_opaqueFix_u2083___at___00Std_Time_TimeZone_convertTZifV1_spec__0___redArg___closed__0();
 lean_mark_persistent(l_WellFounded_opaqueFix_u2083___at___00Std_Time_TimeZone_convertTZifV1_spec__0___redArg___closed__0);
 l_WellFounded_opaqueFix_u2083___at___00Std_Time_TimeZone_convertTZifV1_spec__0___redArg___closed__1 = _init_l_WellFounded_opaqueFix_u2083___at___00Std_Time_TimeZone_convertTZifV1_spec__0___redArg___closed__1();

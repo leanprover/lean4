@@ -23,7 +23,6 @@ lean_object* l_Std_Time_Duration_ofNanoseconds(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_nanosecond(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_addHours___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_object* l_Std_Time_instInhabitedZonedDateTime___private__1___closed__5;
 lean_object* l_Std_Time_TimeZone_LocalTimeType_getTimeZone(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_instHSubDuration;
 lean_object* l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(lean_object*);
@@ -57,7 +56,6 @@ lean_object* l_Std_Time_PlainDateTime_addMonthsRollOver(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_withDaysRollOver(lean_object*, lean_object*);
 static lean_object* l_Std_Time_ZonedDateTime_addWeeks___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_instHSubOffset__6;
-static lean_object* l_Std_Time_instInhabitedZonedDateTime___private__1___closed__3;
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_subNanoseconds___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_withMilliseconds___boxed(lean_object*, lean_object*);
@@ -104,7 +102,6 @@ lean_object* l_Std_Time_ValidDate_dayOfYear(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_year(lean_object*);
 static lean_object* l_Std_Time_ZonedDateTime_instHAddOffset__6___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_subHours(lean_object*, lean_object*);
-static lean_object* l_Std_Time_instInhabitedZonedDateTime___private__1___closed__4;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_offset(lean_object*);
 static lean_object* l_Std_Time_ZonedDateTime_instHAddOffset__2___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_subWeeks(lean_object*, lean_object*);
@@ -277,34 +274,10 @@ return x_2;
 static lean_object* _init_l_Std_Time_instInhabitedZonedDateTime___private__1___closed__2() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Std_Time_instInhabitedTimestamp_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Time_instInhabitedZonedDateTime___private__1___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_Time_TimeZone_instInhabitedZoneRules_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Time_instInhabitedZonedDateTime___private__1___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_Time_instInhabitedTimeZone_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Time_instInhabitedZonedDateTime___private__1___closed__5() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Std_Time_instInhabitedZonedDateTime___private__1___closed__4;
-x_2 = l_Std_Time_instInhabitedZonedDateTime___private__1___closed__3;
-x_3 = l_Std_Time_instInhabitedZonedDateTime___private__1___closed__2;
+x_1 = l_Std_Time_instInhabitedTimeZone_default;
+x_2 = l_Std_Time_TimeZone_instInhabitedZoneRules_default;
+x_3 = l_Std_Time_instInhabitedTimestamp_default;
 x_4 = l_Std_Time_instInhabitedZonedDateTime___private__1___closed__1;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_4);
@@ -318,7 +291,7 @@ static lean_object* _init_l_Std_Time_instInhabitedZonedDateTime___private__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_Time_instInhabitedZonedDateTime___private__1___closed__5;
+x_1 = l_Std_Time_instInhabitedZonedDateTime___private__1___closed__2;
 return x_1;
 }
 }
@@ -9414,12 +9387,6 @@ l_Std_Time_instInhabitedZonedDateTime___private__1___closed__1 = _init_l_Std_Tim
 lean_mark_persistent(l_Std_Time_instInhabitedZonedDateTime___private__1___closed__1);
 l_Std_Time_instInhabitedZonedDateTime___private__1___closed__2 = _init_l_Std_Time_instInhabitedZonedDateTime___private__1___closed__2();
 lean_mark_persistent(l_Std_Time_instInhabitedZonedDateTime___private__1___closed__2);
-l_Std_Time_instInhabitedZonedDateTime___private__1___closed__3 = _init_l_Std_Time_instInhabitedZonedDateTime___private__1___closed__3();
-lean_mark_persistent(l_Std_Time_instInhabitedZonedDateTime___private__1___closed__3);
-l_Std_Time_instInhabitedZonedDateTime___private__1___closed__4 = _init_l_Std_Time_instInhabitedZonedDateTime___private__1___closed__4();
-lean_mark_persistent(l_Std_Time_instInhabitedZonedDateTime___private__1___closed__4);
-l_Std_Time_instInhabitedZonedDateTime___private__1___closed__5 = _init_l_Std_Time_instInhabitedZonedDateTime___private__1___closed__5();
-lean_mark_persistent(l_Std_Time_instInhabitedZonedDateTime___private__1___closed__5);
 l_Std_Time_instInhabitedZonedDateTime___private__1 = _init_l_Std_Time_instInhabitedZonedDateTime___private__1();
 lean_mark_persistent(l_Std_Time_instInhabitedZonedDateTime___private__1);
 l_Std_Time_instInhabitedZonedDateTime = _init_l_Std_Time_instInhabitedZonedDateTime();

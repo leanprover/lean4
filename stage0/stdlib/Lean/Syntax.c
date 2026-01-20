@@ -283,7 +283,6 @@ lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SourceInfo_updateTrailing(lean_object*, lean_object*);
 static lean_object* l_Lean_isLitKind___closed__3;
 static lean_object* l_Lean_Syntax_mkAntiquotNode___closed__10;
-static lean_object* l_Lean_Syntax_structRangeEqWithTraceReuse___closed__6;
 static lean_object* l_List_mapTR_loop___at___00Lean_Syntax_identComponents_spec__1___closed__0;
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Lean_Syntax_identComponents_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_rewriteBottomUp___closed__0;
@@ -2460,7 +2459,7 @@ static lean_object* _init_l_Lean_Syntax_structRangeEqWithTraceReuse___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_Format_defWidth;
+x_1 = lean_mk_string_unchecked(" !=\n", 4, 4);
 return x_1;
 }
 }
@@ -2468,7 +2467,7 @@ static lean_object* _init_l_Lean_Syntax_structRangeEqWithTraceReuse___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" !=\n", 4, 4);
+x_1 = lean_mk_string_unchecked("trace", 5, 5);
 return x_1;
 }
 }
@@ -2476,7 +2475,7 @@ static lean_object* _init_l_Lean_Syntax_structRangeEqWithTraceReuse___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("trace", 5, 5);
+x_1 = lean_mk_string_unchecked("Elab", 4, 4);
 return x_1;
 }
 }
@@ -2484,25 +2483,17 @@ static lean_object* _init_l_Lean_Syntax_structRangeEqWithTraceReuse___closed__4(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Elab", 4, 4);
+x_1 = lean_mk_string_unchecked("reuse", 5, 5);
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Syntax_structRangeEqWithTraceReuse___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("reuse", 5, 5);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Syntax_structRangeEqWithTraceReuse___closed__6() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__5;
-x_2 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__4;
-x_3 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__3;
+x_1 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__4;
+x_2 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__3;
+x_3 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__2;
 x_4 = l_Lean_Name_mkStr3(x_3, x_2, x_1);
 return x_4;
 }
@@ -2522,7 +2513,7 @@ x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_box(x_4);
 x_8 = lean_alloc_closure((void*)(l_Lean_Syntax_structRangeEqWithTraceReuse___lam__0___boxed), 2, 1);
 lean_closure_set(x_8, 0, x_7);
-x_25 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__6;
+x_25 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__5;
 x_26 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(x_6, x_25);
 if (lean_obj_tag(x_26) == 0)
 {
@@ -2565,12 +2556,12 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__0;
 x_11 = lean_box(0);
 x_12 = l_Lean_Syntax_formatStx(x_2, x_11, x_5);
-x_13 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__1;
+x_13 = l_Std_Format_defWidth;
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = l_Std_Format_pretty(x_12, x_13, x_14, x_14);
 x_16 = lean_string_append(x_10, x_15);
 lean_dec_ref(x_15);
-x_17 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__2;
+x_17 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__1;
 x_18 = lean_string_append(x_16, x_17);
 x_19 = l_Lean_Syntax_formatStx(x_3, x_11, x_5);
 x_20 = l_Std_Format_pretty(x_19, x_13, x_14, x_14);
@@ -2909,7 +2900,7 @@ x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_box(x_4);
 x_8 = lean_alloc_closure((void*)(l_Lean_Syntax_structRangeEqWithTraceReuse___lam__0___boxed), 2, 1);
 lean_closure_set(x_8, 0, x_7);
-x_25 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__6;
+x_25 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__5;
 x_26 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(x_6, x_25);
 if (lean_obj_tag(x_26) == 0)
 {
@@ -2952,12 +2943,12 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__0;
 x_11 = lean_box(0);
 x_12 = l_Lean_Syntax_formatStx(x_2, x_11, x_5);
-x_13 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__1;
+x_13 = l_Std_Format_defWidth;
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = l_Std_Format_pretty(x_12, x_13, x_14, x_14);
 x_16 = lean_string_append(x_10, x_15);
 lean_dec_ref(x_15);
-x_17 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__2;
+x_17 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__1;
 x_18 = lean_string_append(x_16, x_17);
 x_19 = l_Lean_Syntax_formatStx(x_3, x_11, x_5);
 x_20 = l_Std_Format_pretty(x_19, x_13, x_14, x_14);
@@ -9616,8 +9607,6 @@ l_Lean_Syntax_structRangeEqWithTraceReuse___closed__4 = _init_l_Lean_Syntax_stru
 lean_mark_persistent(l_Lean_Syntax_structRangeEqWithTraceReuse___closed__4);
 l_Lean_Syntax_structRangeEqWithTraceReuse___closed__5 = _init_l_Lean_Syntax_structRangeEqWithTraceReuse___closed__5();
 lean_mark_persistent(l_Lean_Syntax_structRangeEqWithTraceReuse___closed__5);
-l_Lean_Syntax_structRangeEqWithTraceReuse___closed__6 = _init_l_Lean_Syntax_structRangeEqWithTraceReuse___closed__6();
-lean_mark_persistent(l_Lean_Syntax_structRangeEqWithTraceReuse___closed__6);
 l_Lean_Syntax_getAtomVal___closed__0 = _init_l_Lean_Syntax_getAtomVal___closed__0();
 lean_mark_persistent(l_Lean_Syntax_getAtomVal___closed__0);
 l_Lean_Syntax_asNode___closed__0 = _init_l_Lean_Syntax_asNode___closed__0();

@@ -58,7 +58,6 @@ uint8_t l_Lean_isMarkedMeta(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_collectUsedFDecls_collectFnBody_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_IR_inferMeta_spec__0___closed__0;
-static lean_object* l___private_Lean_Compiler_IR_Meta_0__Lean_IR_collectUsedFDecls___closed__0;
 static lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__2___closed__5;
 static lean_object* l___private_Lean_Compiler_IR_Meta_0__Lean_IR_initFn___closed__3_00___x40_Lean_Compiler_IR_Meta_3167601923____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -106,7 +105,6 @@ lean_object* l_Lean_PersistentHashMap_instInhabited(lean_object*, lean_object*, 
 extern lean_object* l_Lean_NameSet_empty;
 static lean_object* l_Lean_addMessageContextPartial___at___00Lean_addTrace___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__1_spec__1___closed__2;
 static lean_object* l___private_Lean_Compiler_IR_Meta_0__Lean_IR_initFn___closed__18_00___x40_Lean_Compiler_IR_Meta_3167601923____hygCtx___hyg_2_;
-static lean_object* l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__6;
 lean_object* l_Lean_Name_beq___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -403,19 +401,11 @@ return x_6;
 }
 }
 }
-static lean_object* _init_l___private_Lean_Compiler_IR_Meta_0__Lean_IR_collectUsedFDecls___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_NameSet_empty;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_Meta_0__Lean_IR_collectUsedFDecls(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l___private_Lean_Compiler_IR_Meta_0__Lean_IR_collectUsedFDecls___closed__0;
+x_2 = l_Lean_NameSet_empty;
 x_3 = l___private_Lean_Compiler_IR_Meta_0__Lean_IR_collectUsedFDecls_collectDecl(x_1, x_2);
 x_4 = lean_ctor_get(x_3, 1);
 lean_inc(x_4);
@@ -1914,15 +1904,7 @@ x_1 = lean_mk_string_unchecked("` which is neither marked nor imported as `meta`
 return x_1;
 }
 }
-static lean_object* _init_l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_IR_declMapExt;
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__5() {
+static lean_object* _init_l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1930,7 +1912,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Name_hash___override___boxed), 1, 0);
 return x_1;
 }
 }
-static lean_object* _init_l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__4() {
+static lean_object* _init_l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1938,12 +1920,12 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Name_beq___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__6() {
+static lean_object* _init_l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__5;
-x_2 = l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__4;
+x_1 = l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__4;
+x_2 = l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__3;
 x_3 = l_Lean_PersistentHashMap_instInhabited(lean_box(0), lean_box(0), x_2, x_1);
 return x_3;
 }
@@ -1956,13 +1938,13 @@ x_17 = l_Lean_NameSet_contains(x_4, x_3);
 if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-x_18 = l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__3;
+x_18 = l_Lean_IR_declMapExt;
 x_19 = lean_ctor_get(x_18, 0);
 lean_inc_ref(x_19);
 x_20 = lean_ctor_get(x_19, 2);
 lean_inc(x_20);
 lean_dec_ref(x_19);
-x_21 = l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__6;
+x_21 = l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__5;
 lean_inc(x_3);
 x_22 = l_Lean_NameSet_insert(x_4, x_3);
 x_23 = lean_box(0);
@@ -2339,7 +2321,7 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = l___private_Lean_Compiler_IR_Meta_0__Lean_IR_collectUsedFDecls___closed__0;
+x_6 = l_Lean_NameSet_empty;
 lean_inc(x_2);
 x_7 = l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go(x_1, x_2, x_2, x_6);
 if (lean_obj_tag(x_7) == 0)
@@ -2672,8 +2654,6 @@ _G_initialized = true;
 res = initialize_Lean_Compiler_IR_CompilerM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___private_Lean_Compiler_IR_Meta_0__Lean_IR_collectUsedFDecls___closed__0 = _init_l___private_Lean_Compiler_IR_Meta_0__Lean_IR_collectUsedFDecls___closed__0();
-lean_mark_persistent(l___private_Lean_Compiler_IR_Meta_0__Lean_IR_collectUsedFDecls___closed__0);
 l_Lean_isTracingEnabledFor___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__0___redArg___closed__0 = _init_l_Lean_isTracingEnabledFor___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__0___redArg___closed__0();
 lean_mark_persistent(l_Lean_isTracingEnabledFor___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__0___redArg___closed__0);
 l_Lean_isTracingEnabledFor___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__0___redArg___closed__1 = _init_l_Lean_isTracingEnabledFor___at___00__private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__0___redArg___closed__1();
@@ -2731,14 +2711,12 @@ l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__1 = _ini
 lean_mark_persistent(l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__1);
 l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__2 = _init_l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__2();
 lean_mark_persistent(l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__2);
+l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__4 = _init_l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__4();
+lean_mark_persistent(l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__4);
 l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__3 = _init_l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__3();
 lean_mark_persistent(l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__3);
 l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__5 = _init_l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__5();
 lean_mark_persistent(l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__5);
-l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__4 = _init_l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__4();
-lean_mark_persistent(l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__4);
-l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__6 = _init_l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__6();
-lean_mark_persistent(l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta_go___closed__6);
 l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta___closed__0 = _init_l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta___closed__0();
 lean_mark_persistent(l___private_Lean_Compiler_IR_Meta_0__Lean_IR_evalCheckMeta___closed__0);
 l___private_Lean_Compiler_IR_Meta_0__Lean_IR_initFn___closed__0_00___x40_Lean_Compiler_IR_Meta_3167601923____hygCtx___hyg_2_ = _init_l___private_Lean_Compiler_IR_Meta_0__Lean_IR_initFn___closed__0_00___x40_Lean_Compiler_IR_Meta_3167601923____hygCtx___hyg_2_();

@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 static lean_object* l_Lean_Compiler_LCNF_PullLetDecls_pullDecls___lam__0___closed__3;
-static lean_object* l_panic___at___00Lean_Compiler_LCNF_PullLetDecls_pullDecls_spec__2___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PullLetDecls_attachToPull___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_pullInstances___closed__2;
 static lean_object* l___private_Lean_Compiler_LCNF_PullLetDecls_0__Lean_Compiler_LCNF_initFn___closed__18_00___x40_Lean_Compiler_LCNF_PullLetDecls_3825914912____hygCtx___hyg_2_;
@@ -1150,19 +1149,11 @@ lean_dec_ref(x_1);
 return x_7;
 }
 }
-static lean_object* _init_l_panic___at___00Lean_Compiler_LCNF_PullLetDecls_pullDecls_spec__2___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_instInhabitedCode_default__1;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_panic___at___00Lean_Compiler_LCNF_PullLetDecls_pullDecls_spec__2(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_panic___at___00Lean_Compiler_LCNF_PullLetDecls_pullDecls_spec__2___closed__0;
+x_2 = l_Lean_Compiler_LCNF_instInhabitedCode_default__1;
 x_3 = lean_panic_fn(x_2, x_1);
 return x_3;
 }
@@ -3723,8 +3714,6 @@ l_Lean_Compiler_LCNF_PullLetDecls_withParams___redArg___closed__10 = _init_l_Lea
 lean_mark_persistent(l_Lean_Compiler_LCNF_PullLetDecls_withParams___redArg___closed__10);
 l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__0 = _init_l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__0();
 lean_mark_persistent(l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__0);
-l_panic___at___00Lean_Compiler_LCNF_PullLetDecls_pullDecls_spec__2___closed__0 = _init_l_panic___at___00Lean_Compiler_LCNF_PullLetDecls_pullDecls_spec__2___closed__0();
-lean_mark_persistent(l_panic___at___00Lean_Compiler_LCNF_PullLetDecls_pullDecls_spec__2___closed__0);
 l_Lean_Compiler_LCNF_PullLetDecls_pullDecls___lam__0___closed__2 = _init_l_Lean_Compiler_LCNF_PullLetDecls_pullDecls___lam__0___closed__2();
 lean_mark_persistent(l_Lean_Compiler_LCNF_PullLetDecls_pullDecls___lam__0___closed__2);
 l_Lean_Compiler_LCNF_PullLetDecls_pullDecls___lam__0___closed__1 = _init_l_Lean_Compiler_LCNF_PullLetDecls_pullDecls___lam__0___closed__1();

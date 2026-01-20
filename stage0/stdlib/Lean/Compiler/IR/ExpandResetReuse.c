@@ -168,7 +168,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__11_00___x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_IR_ExpandResetReuse_mkSlowPath_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00__private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__0_spec__1_spec__2_spec__4(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_IR_ExpandResetReuse_eraseProjIncForAux___closed__0;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_IR_reshape(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -1062,14 +1061,6 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_IR_ExpandResetReuse_eraseProjIncForAux___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_IR_instInhabitedFnBody_default__1;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_eraseProjIncForAux(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1080,7 +1071,7 @@ x_16 = lean_nat_dec_lt(x_14, x_15);
 if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; 
-x_17 = l_Lean_IR_ExpandResetReuse_eraseProjIncForAux___closed__0;
+x_17 = l_Lean_IR_instInhabitedFnBody_default__1;
 x_18 = l_Array_back_x21___redArg(x_17, x_2);
 switch (lean_obj_tag(x_18)) {
 case 0:
@@ -4224,8 +4215,6 @@ l_Lean_IR_ExpandResetReuse_mkProjMap___closed__0 = _init_l_Lean_IR_ExpandResetRe
 lean_mark_persistent(l_Lean_IR_ExpandResetReuse_mkProjMap___closed__0);
 l_Lean_IR_ExpandResetReuse_mkProjMap___closed__1 = _init_l_Lean_IR_ExpandResetReuse_mkProjMap___closed__1();
 lean_mark_persistent(l_Lean_IR_ExpandResetReuse_mkProjMap___closed__1);
-l_Lean_IR_ExpandResetReuse_eraseProjIncForAux___closed__0 = _init_l_Lean_IR_ExpandResetReuse_eraseProjIncForAux___closed__0();
-lean_mark_persistent(l_Lean_IR_ExpandResetReuse_eraseProjIncForAux___closed__0);
 l_Lean_IR_ExpandResetReuse_eraseProjIncFor___closed__0 = _init_l_Lean_IR_ExpandResetReuse_eraseProjIncFor___closed__0();
 lean_mark_persistent(l_Lean_IR_ExpandResetReuse_eraseProjIncFor___closed__0);
 l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__0_00___x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_ = _init_l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__0_00___x40_Lean_Compiler_IR_ExpandResetReuse_1583541931____hygCtx___hyg_2_();

@@ -89,7 +89,6 @@ lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findSyntheticIdentifierCompletion_x3f_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_isSyntheticTacticCompletion_isEmptyTacticBlock___boxed(lean_object*);
-static lean_object* l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findSyntheticFieldCompletion_x3f___closed__0;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeMAux___at___00Lean_PersistentArray_findSomeM_x3f___at___00__private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findOutermostContextInfo_x3f_go_spec__0_spec__0(lean_object*);
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findSyntheticIdentifierCompletion_x3f___lam__2(lean_object*);
@@ -3899,14 +3898,6 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findSyntheticFieldCompletion_x3f___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_LocalContext_empty;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findSyntheticFieldCompletion_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -3972,7 +3963,7 @@ lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean
 x_19 = lean_box(0);
 x_20 = lean_box(0);
 x_21 = lean_box(0);
-x_22 = l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findSyntheticFieldCompletion_x3f___closed__0;
+x_22 = l_Lean_LocalContext_empty;
 x_23 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_23, 0, x_20);
 lean_ctor_set(x_23, 1, x_21);
@@ -4034,7 +4025,7 @@ lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean
 x_35 = lean_box(0);
 x_36 = lean_box(0);
 x_37 = lean_box(0);
-x_38 = l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findSyntheticFieldCompletion_x3f___closed__0;
+x_38 = l_Lean_LocalContext_empty;
 x_39 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_39, 0, x_36);
 lean_ctor_set(x_39, 1, x_37);
@@ -4240,8 +4231,6 @@ l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion
 lean_mark_persistent(l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_isSyntheticStructFieldCompletion___lam__0___closed__0);
 l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_isSyntheticStructFieldCompletion___lam__0___closed__1 = _init_l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_isSyntheticStructFieldCompletion___lam__0___closed__1();
 lean_mark_persistent(l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_isSyntheticStructFieldCompletion___lam__0___closed__1);
-l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findSyntheticFieldCompletion_x3f___closed__0 = _init_l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findSyntheticFieldCompletion_x3f___closed__0();
-lean_mark_persistent(l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findSyntheticFieldCompletion_x3f___closed__0);
 l_Lean_Server_Completion_findSyntheticCompletions___closed__0 = _init_l_Lean_Server_Completion_findSyntheticCompletions___closed__0();
 lean_mark_persistent(l_Lean_Server_Completion_findSyntheticCompletions___closed__0);
 l_Lean_Server_Completion_findSyntheticCompletions___closed__1 = _init_l_Lean_Server_Completion_findSyntheticCompletions___closed__1();

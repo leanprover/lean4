@@ -50,7 +50,6 @@ LEAN_EXPORT lean_object* l_Prod_repr___boxed(lean_object*, lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Nat_toSuperscriptString(lean_object*);
 static lean_object* l_instReprSourceInfo_repr___closed__9;
 LEAN_EXPORT lean_object* l_List_repr_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_reprStr___redArg___closed__0;
 static lean_object* l_instReprUnit___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_instReprULift(lean_object*, lean_object*);
 static lean_object* l_instReprUSize___closed__0;
@@ -339,21 +338,13 @@ x_5 = lean_apply_2(x_2, x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_reprStr___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_Format_defWidth;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_reprStr___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_apply_2(x_1, x_2, x_3);
-x_5 = l_reprStr___redArg___closed__0;
+x_5 = l_Std_Format_defWidth;
 x_6 = l_Std_Format_pretty(x_4, x_5, x_3, x_3);
 return x_6;
 }
@@ -364,7 +355,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_apply_2(x_2, x_3, x_4);
-x_6 = l_reprStr___redArg___closed__0;
+x_6 = l_Std_Format_defWidth;
 x_7 = l_Std_Format_pretty(x_5, x_6, x_4, x_4);
 return x_7;
 }
@@ -4047,8 +4038,6 @@ _G_initialized = true;
 res = initialize_Init_Data_Format_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_reprStr___redArg___closed__0 = _init_l_reprStr___redArg___closed__0();
-lean_mark_persistent(l_reprStr___redArg___closed__0);
 l_instReprEmpty___closed__0 = _init_l_instReprEmpty___closed__0();
 lean_mark_persistent(l_instReprEmpty___closed__0);
 l_instReprEmpty = _init_l_instReprEmpty();

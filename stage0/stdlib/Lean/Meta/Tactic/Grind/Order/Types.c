@@ -87,7 +87,6 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_CnstrKind_le_elim___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_instInhabitedCnstr_default(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_ToPropagate_eqFalse_elim___redArg(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Order_get_x27___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_get_x27___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_instInhabitedWeight_default;
 static lean_object* l_Lean_Meta_Grind_Order_instInhabitedState_default___closed__3;
@@ -752,19 +751,11 @@ x_2 = l_Lean_Meta_Grind_Order_initFn_00___x40_Lean_Meta_Tactic_Grind_Order_Types
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Order_get_x27___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_Grind_Order_orderExt;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_get_x27___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = l_Lean_Meta_Grind_Order_get_x27___redArg___closed__0;
+x_4 = l_Lean_Meta_Grind_Order_orderExt;
 x_5 = l_Lean_Meta_Grind_SolverExtension_getState___redArg(x_4, x_1, x_2);
 return x_5;
 }
@@ -808,7 +799,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_modify_x27___redArg(lean_object
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = l_Lean_Meta_Grind_Order_get_x27___redArg___closed__0;
+x_4 = l_Lean_Meta_Grind_Order_orderExt;
 x_5 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_modifyStateImpl___redArg(x_4, x_1, x_2);
 return x_5;
 }
@@ -826,7 +817,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Order_modify_x27(lean_object* x_1, le
 _start:
 {
 lean_object* x_12; lean_object* x_13; 
-x_12 = l_Lean_Meta_Grind_Order_get_x27___redArg___closed__0;
+x_12 = l_Lean_Meta_Grind_Order_orderExt;
 x_13 = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverExtension_modifyStateImpl___redArg(x_12, x_1, x_2);
 return x_13;
 }
@@ -922,9 +913,7 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_Meta_Grind_Order_orderExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Meta_Grind_Order_orderExt);
 lean_dec_ref(res);
-}l_Lean_Meta_Grind_Order_get_x27___redArg___closed__0 = _init_l_Lean_Meta_Grind_Order_get_x27___redArg___closed__0();
-lean_mark_persistent(l_Lean_Meta_Grind_Order_get_x27___redArg___closed__0);
-return lean_io_result_mk_ok(lean_box(0));
+}return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus
 }

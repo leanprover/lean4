@@ -403,6 +403,7 @@ LEAN_EXPORT lean_object* l_USize_toBitVec___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instMonadStateOfOfMonadLift___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_instMonadLift___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_decEq___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_ofList___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_getInternalBorrowed___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_instMonadFunctor(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_liftM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1081,6 +1082,7 @@ LEAN_EXPORT lean_object* l_List_ctorElim(lean_object*, lean_object*, lean_object
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mkArray3___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Except_error_elim___redArg(lean_object*, lean_object*);
+lean_object* lean_string_mk(lean_object*);
 static lean_object* l_EStateM_instMonadStateOf___closed__2;
 static lean_object* l_USize_size___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Syntax_node_elim(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6390,6 +6392,14 @@ _start:
 lean_object* x_3; 
 x_3 = lean_string_from_utf8_unchecked(x_1);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_String_ofList___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_string_mk(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_String_decEq___boxed(lean_object* x_1, lean_object* x_2) {

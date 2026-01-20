@@ -43,7 +43,6 @@ static lean_object* l_Lean_initFn___closed__2_00___x40_Lean_Compiler_NeverExtrac
 LEAN_EXPORT lean_object* l_Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3___boxed(lean_object*);
 static lean_object* l_Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3___closed__6;
 static lean_object* l_Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3___closed__2;
-static lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit___closed__0;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn_00___x40_Lean_Compiler_NeverExtractAttr_1636298006____hygCtx___hyg_2____boxed(lean_object*);
@@ -288,19 +287,11 @@ x_2 = l_Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3();
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_neverExtractAttr;
-return x_1;
-}
-}
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit___closed__0;
+x_3 = l_Lean_neverExtractAttr;
 lean_inc(x_2);
 lean_inc_ref(x_1);
 x_4 = l_Lean_TagAttribute_hasTag(x_3, x_1, x_2);
@@ -407,9 +398,7 @@ lean_mark_persistent(l_Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_
 if (builtin) {res = l_Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-}l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit___closed__0 = _init_l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit___closed__0();
-lean_mark_persistent(l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit___closed__0);
-return lean_io_result_mk_ok(lean_box(0));
+}return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus
 }

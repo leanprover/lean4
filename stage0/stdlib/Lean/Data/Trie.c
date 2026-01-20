@@ -23,7 +23,6 @@ uint8_t lean_byte_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_insert___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Data_Trie_matchPrefix___auto__1___closed__3;
 static lean_object* l_Lean_Data_Trie_instToString___closed__0;
-static lean_object* l_Lean_Data_Trie_instToString___private__1___redArg___closed__0;
 static lean_object* l_Lean_Data_Trie_matchPrefix___auto__1___closed__19;
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_insert(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_findPrefix_go___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -2353,14 +2352,6 @@ x_3 = l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___redArg(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Data_Trie_instToString___private__1___redArg___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_Format_defWidth;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToString___private__1___redArg(lean_object* x_1) {
 _start:
 {
@@ -2368,7 +2359,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_obj
 x_2 = lean_box(1);
 x_3 = l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___redArg(x_1);
 x_4 = l_Std_Format_joinSep___at___00__private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux_spec__0(x_3, x_2);
-x_5 = l_Lean_Data_Trie_instToString___private__1___redArg___closed__0;
+x_5 = l_Std_Format_defWidth;
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = l_Std_Format_pretty(x_4, x_5, x_6, x_6);
 return x_7;
@@ -2489,8 +2480,6 @@ l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___redArg___lam__0___clo
 lean_mark_persistent(l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___redArg___lam__0___closed__0);
 l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___redArg___closed__0 = _init_l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___redArg___closed__0();
 lean_mark_persistent(l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___redArg___closed__0);
-l_Lean_Data_Trie_instToString___private__1___redArg___closed__0 = _init_l_Lean_Data_Trie_instToString___private__1___redArg___closed__0();
-lean_mark_persistent(l_Lean_Data_Trie_instToString___private__1___redArg___closed__0);
 l_Lean_Data_Trie_instToString___closed__0 = _init_l_Lean_Data_Trie_instToString___closed__0();
 lean_mark_persistent(l_Lean_Data_Trie_instToString___closed__0);
 return lean_io_result_mk_ok(lean_box(0));

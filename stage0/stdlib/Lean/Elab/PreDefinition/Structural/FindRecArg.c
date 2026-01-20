@@ -245,7 +245,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00Lean_Elab_Structural_nonIndicesFirst_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Util_Trace_0__Lean_checkTraceOption_go(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Structural_prettyParameterSet___closed__5;
 static lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_Structural_getRecArgInfos_spec__2___redArg___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_Structural_prettyParameterSet_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_tryAllArgs___redArg___closed__14;
@@ -1572,23 +1571,15 @@ static lean_object* _init_l_Lean_Elab_Structural_prettyParameterSet___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_Structural_instInhabitedRecArgInfo_default;
+x_1 = lean_mk_string_unchecked("parameter ", 10, 10);
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Elab_Structural_prettyParameterSet___closed__4() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("parameter ", 10, 10);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Structural_prettyParameterSet___closed__5() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Structural_prettyParameterSet___closed__4;
+x_1 = l_Lean_Elab_Structural_prettyParameterSet___closed__3;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -1723,7 +1714,7 @@ x_50 = l_Lean_instInhabitedExpr;
 x_51 = lean_unsigned_to_nat(0u);
 x_52 = lean_array_get(x_50, x_3, x_51);
 lean_dec_ref(x_3);
-x_53 = l_Lean_Elab_Structural_prettyParameterSet___closed__3;
+x_53 = l_Lean_Elab_Structural_instInhabitedRecArgInfo_default;
 x_54 = lean_array_get(x_53, x_4, x_51);
 lean_dec_ref(x_4);
 x_55 = l_Lean_Elab_Structural_prettyRecArg(x_2, x_52, x_54, x_5, x_6, x_7, x_8);
@@ -1735,7 +1726,7 @@ if (x_56 == 0)
 {
 lean_object* x_57; lean_object* x_58; lean_object* x_59; 
 x_57 = lean_ctor_get(x_55, 0);
-x_58 = l_Lean_Elab_Structural_prettyParameterSet___closed__5;
+x_58 = l_Lean_Elab_Structural_prettyParameterSet___closed__4;
 x_59 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_59, 0, x_58);
 lean_ctor_set(x_59, 1, x_57);
@@ -1748,7 +1739,7 @@ lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63;
 x_60 = lean_ctor_get(x_55, 0);
 lean_inc(x_60);
 lean_dec(x_55);
-x_61 = l_Lean_Elab_Structural_prettyParameterSet___closed__5;
+x_61 = l_Lean_Elab_Structural_prettyParameterSet___closed__4;
 x_62 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_62, 0, x_61);
 lean_ctor_set(x_62, 1, x_60);
@@ -17694,8 +17685,6 @@ l_Lean_Elab_Structural_prettyParameterSet___closed__3 = _init_l_Lean_Elab_Struct
 lean_mark_persistent(l_Lean_Elab_Structural_prettyParameterSet___closed__3);
 l_Lean_Elab_Structural_prettyParameterSet___closed__4 = _init_l_Lean_Elab_Structural_prettyParameterSet___closed__4();
 lean_mark_persistent(l_Lean_Elab_Structural_prettyParameterSet___closed__4);
-l_Lean_Elab_Structural_prettyParameterSet___closed__5 = _init_l_Lean_Elab_Structural_prettyParameterSet___closed__5();
-lean_mark_persistent(l_Lean_Elab_Structural_prettyParameterSet___closed__5);
 l_Lean_exprDependsOn___at___00__private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_hasBadIndexDep_x3f_spec__0___redArg___closed__0 = _init_l_Lean_exprDependsOn___at___00__private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_hasBadIndexDep_x3f_spec__0___redArg___closed__0();
 lean_mark_persistent(l_Lean_exprDependsOn___at___00__private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_hasBadIndexDep_x3f_spec__0___redArg___closed__0);
 l_Lean_exprDependsOn___at___00__private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_hasBadIndexDep_x3f_spec__0___redArg___closed__1 = _init_l_Lean_exprDependsOn___at___00__private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_hasBadIndexDep_x3f_spec__0___redArg___closed__1();

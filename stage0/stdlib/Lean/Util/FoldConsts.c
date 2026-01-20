@@ -19,7 +19,6 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___00__private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___00Std_DHashMap_Internal_Raw_u2080_expand___at___00Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00__private_Lean_Util_FoldConsts_0__Lean_Expr_FoldConstsImpl_fold_visit_spec__1_spec__2_spec__3_spec__4(lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
-static lean_object* l_Lean_Expr_getUsedConstantsAsSet___closed__1;
 size_t lean_uint64_to_usize(uint64_t);
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -989,20 +988,12 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Expr_getUsedConstantsAsSet___lam__0), 2,
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Expr_getUsedConstantsAsSet___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_NameSet_empty;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Expr_getUsedConstantsAsSet(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_2 = l_Lean_Expr_getUsedConstantsAsSet___closed__0;
-x_3 = l_Lean_Expr_getUsedConstantsAsSet___closed__1;
+x_3 = l_Lean_NameSet_empty;
 x_4 = l_Lean_Expr_FoldConstsImpl_foldUnsafe___redArg___closed__3;
 x_5 = l___private_Lean_Util_FoldConsts_0__Lean_Expr_FoldConstsImpl_fold_visit___redArg(x_2, x_1, x_3, x_4);
 x_6 = lean_ctor_get(x_5, 0);
@@ -1061,7 +1052,7 @@ lean_dec_ref(x_14);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 lean_dec_ref(x_15);
-x_17 = l_Lean_Expr_getUsedConstantsAsSet___closed__1;
+x_17 = l_Lean_NameSet_empty;
 x_18 = l_Lean_NameSet_insert(x_17, x_16);
 x_19 = l_Lean_NameSet_append(x_3, x_18);
 return x_19;
@@ -1083,7 +1074,7 @@ default:
 {
 lean_object* x_24; lean_object* x_25; 
 lean_dec_ref(x_1);
-x_24 = l_Lean_Expr_getUsedConstantsAsSet___closed__1;
+x_24 = l_Lean_NameSet_empty;
 x_25 = l_Lean_NameSet_append(x_3, x_24);
 return x_25;
 }
@@ -1129,8 +1120,6 @@ l_Lean_Expr_getUsedConstants___closed__1 = _init_l_Lean_Expr_getUsedConstants___
 lean_mark_persistent(l_Lean_Expr_getUsedConstants___closed__1);
 l_Lean_Expr_getUsedConstantsAsSet___closed__0 = _init_l_Lean_Expr_getUsedConstantsAsSet___closed__0();
 lean_mark_persistent(l_Lean_Expr_getUsedConstantsAsSet___closed__0);
-l_Lean_Expr_getUsedConstantsAsSet___closed__1 = _init_l_Lean_Expr_getUsedConstantsAsSet___closed__1();
-lean_mark_persistent(l_Lean_Expr_getUsedConstantsAsSet___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -143,7 +143,6 @@ static lean_object* l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr_declRange__3();
 static lean_object* l___private_Lean_Elab_MatchExpr_0__Lean_Elab_Term_MatchExpr_generate_loop___closed__9;
 lean_object* lean_array_to_list(lean_object*);
-static lean_object* l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr__1___closed__2;
 static lean_object* l_List_forIn_x27_loop___at___00__private_Lean_Elab_MatchExpr_0__Lean_Elab_Term_MatchExpr_generate_loop_spec__0___redArg___closed__11;
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_MatchExpr_0__Lean_Elab_Term_MatchExpr_generate_loop___closed__32;
@@ -7551,23 +7550,15 @@ static lean_object* _init_l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_macroAttribute;
+x_1 = lean_mk_string_unchecked("expandMatchExpr", 15, 15);
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr__1___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("expandMatchExpr", 15, 15);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr__1___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr__1___closed__1;
+x_1 = l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr__1___closed__0;
 x_2 = l_Lean_Elab_Term_MatchExpr_toElseAlt_x3f___closed__2;
 x_3 = l_Lean_Elab_Term_MatchExpr_getActuals___closed__8;
 x_4 = l_Lean_Elab_Term_MatchExpr_toElseAlt_x3f___closed__0;
@@ -7579,9 +7570,9 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr__1___closed__0;
+x_2 = l_Lean_Elab_macroAttribute;
 x_3 = l_Lean_Elab_Term_expandMatchExpr___closed__1;
-x_4 = l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr__1___closed__2;
+x_4 = l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr__1___closed__1;
 x_5 = lean_alloc_closure((void*)(l_Lean_Elab_Term_expandMatchExpr), 3, 0);
 x_6 = l_Lean_KeyedDeclsAttribute_addBuiltin___redArg(x_2, x_3, x_4, x_5);
 return x_6;
@@ -7691,7 +7682,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr__1___closed__2;
+x_2 = l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr__1___closed__1;
 x_3 = l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr_declRange__3___closed__6;
 x_4 = l_Lean_addBuiltinDeclarationRanges(x_2, x_3);
 return x_4;
@@ -7905,7 +7896,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_expandLetExpr___regBuiltin_Lean_Elab_T
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr__1___closed__0;
+x_2 = l_Lean_Elab_macroAttribute;
 x_3 = l_Lean_Elab_Term_expandLetExpr___closed__1;
 x_4 = l_Lean_Elab_Term_expandLetExpr___regBuiltin_Lean_Elab_Term_expandLetExpr__1___closed__1;
 x_5 = lean_alloc_closure((void*)(l_Lean_Elab_Term_expandLetExpr___boxed), 3, 0);
@@ -8338,8 +8329,6 @@ l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr__1_
 lean_mark_persistent(l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr__1___closed__0);
 l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr__1___closed__1 = _init_l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr__1___closed__1();
 lean_mark_persistent(l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr__1___closed__1);
-l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr__1___closed__2 = _init_l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr__1___closed__2();
-lean_mark_persistent(l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr__1___closed__2);
 if (builtin) {res = l_Lean_Elab_Term_expandMatchExpr___regBuiltin_Lean_Elab_Term_expandMatchExpr__1();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

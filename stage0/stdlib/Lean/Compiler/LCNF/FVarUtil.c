@@ -48,7 +48,6 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__4(le
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LetValue_mapFVarM___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_allFVarM___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instTraverseFVarArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___lam__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instTraverseFVarLetValue___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1886,7 +1885,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0__
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_instInhabitedCode_default__1;
+x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.Basic", 24, 24);
 return x_1;
 }
 }
@@ -1894,27 +1893,19 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Compiler.LCNF.Basic", 24, 24);
+x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateFunImp", 67, 67);
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__2() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("_private.Lean.Compiler.LCNF.Basic.0.Lean.Compiler.LCNF.updateFunImp", 67, 67);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__3() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(9u);
 x_3 = lean_unsigned_to_nat(364u);
-x_4 = l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__2;
-x_5 = l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__1;
+x_4 = l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__1;
+x_5 = l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
@@ -1976,8 +1967,8 @@ lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34;
 lean_dec_ref(x_4);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
-x_31 = l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__0;
-x_32 = l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__3;
+x_31 = l_Lean_Compiler_LCNF_instInhabitedCode_default__1;
+x_32 = l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__2;
 x_33 = l_panic___redArg(x_31, x_32);
 x_34 = lean_apply_2(x_3, lean_box(0), x_33);
 return x_34;
@@ -4504,8 +4495,6 @@ l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__1 = _init_l_Lean_
 lean_mark_persistent(l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__1);
 l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__2 = _init_l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__2();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__2);
-l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__3 = _init_l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__3();
-lean_mark_persistent(l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__3);
 l_Lean_Compiler_LCNF_instTraverseFVarCode___closed__0 = _init_l_Lean_Compiler_LCNF_instTraverseFVarCode___closed__0();
 lean_mark_persistent(l_Lean_Compiler_LCNF_instTraverseFVarCode___closed__0);
 l_Lean_Compiler_LCNF_instTraverseFVarCode___closed__1 = _init_l_Lean_Compiler_LCNF_instTraverseFVarCode___closed__1();

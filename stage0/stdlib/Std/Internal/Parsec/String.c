@@ -66,7 +66,6 @@ lean_object* lean_string_length(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_Parser_run(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_Internal_Parsec_String_Parser_run___redArg___closed__3;
 static lean_object* l_Std_Internal_Parsec_String_pchar___closed__1;
 static lean_object* l_Std_Internal_Parsec_String_digit___closed__0;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -354,19 +353,11 @@ static lean_object* _init_l_Std_Internal_Parsec_String_Parser_run___redArg___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_Format_defWidth;
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Internal_Parsec_String_Parser_run___redArg___closed__2() {
-_start:
-{
-lean_object* x_1; 
 x_1 = lean_mk_string_unchecked(": ", 2, 2);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_Internal_Parsec_String_Parser_run___redArg___closed__3() {
+static lean_object* _init_l_Std_Internal_Parsec_String_Parser_run___redArg___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -408,16 +399,16 @@ x_11 = l_Std_Internal_Parsec_String_Parser_run___redArg___closed__0;
 x_12 = l_Nat_reprFast(x_10);
 x_13 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
-x_14 = l_Std_Internal_Parsec_String_Parser_run___redArg___closed__1;
+x_14 = l_Std_Format_defWidth;
 x_15 = l_Std_Format_pretty(x_13, x_14, x_3, x_3);
 x_16 = lean_string_append(x_11, x_15);
 lean_dec_ref(x_15);
-x_17 = l_Std_Internal_Parsec_String_Parser_run___redArg___closed__2;
+x_17 = l_Std_Internal_Parsec_String_Parser_run___redArg___closed__1;
 x_18 = lean_string_append(x_16, x_17);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_23; 
-x_23 = l_Std_Internal_Parsec_String_Parser_run___redArg___closed__3;
+x_23 = l_Std_Internal_Parsec_String_Parser_run___redArg___closed__2;
 x_19 = x_23;
 goto block_22;
 }
@@ -1664,8 +1655,6 @@ l_Std_Internal_Parsec_String_Parser_run___redArg___closed__1 = _init_l_Std_Inter
 lean_mark_persistent(l_Std_Internal_Parsec_String_Parser_run___redArg___closed__1);
 l_Std_Internal_Parsec_String_Parser_run___redArg___closed__2 = _init_l_Std_Internal_Parsec_String_Parser_run___redArg___closed__2();
 lean_mark_persistent(l_Std_Internal_Parsec_String_Parser_run___redArg___closed__2);
-l_Std_Internal_Parsec_String_Parser_run___redArg___closed__3 = _init_l_Std_Internal_Parsec_String_Parser_run___redArg___closed__3();
-lean_mark_persistent(l_Std_Internal_Parsec_String_Parser_run___redArg___closed__3);
 l_Std_Internal_Parsec_String_pstring___closed__0 = _init_l_Std_Internal_Parsec_String_pstring___closed__0();
 lean_mark_persistent(l_Std_Internal_Parsec_String_pstring___closed__0);
 l_Std_Internal_Parsec_String_pchar___closed__0 = _init_l_Std_Internal_Parsec_String_pchar___closed__0();

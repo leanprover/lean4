@@ -3803,7 +3803,7 @@ instance {α : Type u} {f : Type u → Type v} [Applicative f] : Inhabited (α �
 instance {α : Type u} {f : Type u → Type v} [Applicative f] [Inhabited α] : Inhabited (f α) where
   default := pure default
 
-instance [Applicative f] : [Nonempty α] → Nonempty (f α)
+instance [Pure f] : [Nonempty α] → Nonempty (f α)
   | ⟨x⟩ => ⟨pure x⟩
 
 /--

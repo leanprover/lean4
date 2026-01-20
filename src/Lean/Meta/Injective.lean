@@ -194,11 +194,13 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
       introChunks := introChunks.push n
       mvarId₂ := mvarId₂'
     trace[Meta.injective] "after reverting {heqs.size} HEqs:\n{mvarId₂}"
-    -- Subst all homogeneous equalities
-    for eq in eqs do
-      mvarId₂.withContext do
-        trace[Meta.injective] "substituting{inlineExpr (mkFVar eq)}in\n{mvarId₂}"
-      (_, mvarId₂) ← substEq mvarId₂ eq
+    -- Now revert the other equalities, but without their variables
+    (_, mvarId₂) ← mvarId₂.revert eqs
+    trace[Meta.injective] "after reverting {eqs.size} Eqs:\n{mvarId₂}"
+    -- Intro and subst these equalities
+    for _ in [:eqs.size] do
+      let (h, mvarId₂') ← mvarId₂.intro1
+      (_, mvarId₂) ← substEq mvarId₂' h
     -- Now re-introduce and subst the HEqs
     for n in introChunks.reverse do
       let t ← mvarId₂.getType
@@ -210,6 +212,7 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
       mvarId₂.withContext do
         trace[Meta.injective] "substituting{inlineExpr (mkFVar h)}in\n{mvarId₂}"
       (_, mvarId₂) ← substEq mvarId₂ h
+    trace[Meta.injective] "after all substitution:\n{mvarId₂}"
     try mvarId₂.refl catch _ => throwError (injTheoremFailureHeader ctorName)
     mkLambdaFVars xs mvar
 

@@ -141,9 +141,9 @@ private partial def andProjections (e : Expr) : MetaM (Array Expr) := do
 
 /--
 Reverts a homogenenous or heterogeneous equality between two free variables,
-and also reverts the variables.
+and also reverts the variables. Returns number of reverted variables, with the equality last..
 -/
-private def revertEq (mvarId : MVarId) (h : FVarId) : MetaM MVarId := mvarId.withContext do
+private def revertEq (mvarId : MVarId) (h : FVarId) : MetaM (Nat × MVarId) := mvarId.withContext do
   let hType ← h.getType
   let (lhs, rhs) ← match_expr hType with
     | Eq _ lhs rhs => pure (lhs, rhs)
@@ -151,8 +151,11 @@ private def revertEq (mvarId : MVarId) (h : FVarId) : MetaM MVarId := mvarId.wit
     | _ => throwError "unexpected type in revertEq:{indentExpr hType}"
   let .fvar lhs := lhs | throwError "unexpected lhs in revertEq: {indentExpr hType}"
   let .fvar rhs := rhs | throwError "unexpected rhs in revertEq: {indentExpr hType}"
-  let (_, mvarId) ← mvarId.revert #[lhs, rhs, h]
-  return mvarId
+  let (hs1, mvarId) ← mvarId.revert #[h]
+  unless hs1.size == 1 do
+    throwError "unexpected number of reverted hypotheses in revertEq: {hs1.size}"
+  let (hs2, mvarId) ← mvarId.revert #[lhs, rhs]
+  return (hs1.size + hs2.size, mvarId)
 
 private def applyInjEqHelper (mvarId : MVarId) (lhs rhs body : Expr) : MetaM MVarId := mvarId.withContext do
   let e ← mkFreshExprSyntheticOpaqueMVar (← mkArrow lhs (← mkArrow rhs body))
@@ -178,23 +181,35 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
       | _ => pure ()
       let (h, mvarId₂') ← mvarId₂.intro1
       mvarId₂ := mvarId₂'
-      if (← mvarId₂.withContext h.getType).isEq then
+      let hType ← instantiateMVars (← mvarId₂.withContext h.getType)
+      if hType.isEq then
         eqs := eqs.push h
-      else
+      else if hType.isHEq then
         heqs := heqs.push h
+      else throwError "unexpected hypothesis of type{inlineExpr hType}in\n{mvarId₂}"
     -- Then revert the `HEq`s together with their variables, from back to front.
+    let mut introChunks : Array Nat := #[]
     for heq in heqs.reverse do
-      mvarId₂ ← revertEq mvarId₂ heq
+      let (n, mvarId₂') ← revertEq mvarId₂ heq
+      introChunks := introChunks.push n
+      mvarId₂ := mvarId₂'
+    trace[Meta.injective] "after reverting {heqs.size} HEqs:\n{mvarId₂}"
     -- Subst all homogeneous equalities
     for eq in eqs do
+      mvarId₂.withContext do
+        trace[Meta.injective] "substituting{inlineExpr (mkFVar eq)}in\n{mvarId₂}"
       (_, mvarId₂) ← substEq mvarId₂ eq
     -- Now re-introduce and subst the HEqs
-    while true do
+    for n in introChunks.reverse do
       let t ← mvarId₂.getType
       unless t.isForall do break
-      let (hs, mvarId₂') ← mvarId₂.introN 3
-      assert! hs.size = 3
-      (_, mvarId₂) ← substEq mvarId₂' hs[2]!
+      let (hs, mvarId₂') ← mvarId₂.introN n
+      mvarId₂ := mvarId₂'
+      assert! hs.size = n
+      let h := hs.back!
+      mvarId₂.withContext do
+        trace[Meta.injective] "substituting{inlineExpr (mkFVar h)}in\n{mvarId₂}"
+      (_, mvarId₂) ← substEq mvarId₂ h
     try mvarId₂.refl catch _ => throwError (injTheoremFailureHeader ctorName)
     mkLambdaFVars xs mvar
 

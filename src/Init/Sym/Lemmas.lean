@@ -14,6 +14,8 @@ public section
 namespace Lean.Sym
 
 theorem ne_self (a : α) : (a ≠ a) = False := by simp
+theorem not_true_eq : (¬ True) = False := by simp
+theorem not_false_eq : (¬ False) = True := by simp
 
 theorem ite_cond_congr {α : Sort u} (c : Prop) {inst : Decidable c} (a b : α)
     (c' : Prop) {inst' : Decidable c'} (h : c = c') : @ite α c inst a b = @ite α c' inst' a b := by

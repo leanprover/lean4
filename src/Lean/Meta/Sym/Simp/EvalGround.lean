@@ -9,6 +9,7 @@ public import Lean.Meta.Sym.Simp.SimpM
 import Init.Sym.Lemmas
 import Init.Data.Int.Gcd
 import Lean.Meta.Sym.LitValues
+import Lean.Meta.Sym.AlphaShareBuilder
 namespace Lean.Meta.Sym.Simp
 
 /-!
@@ -505,6 +506,16 @@ macro "declare_eval_bin_bool_pred" id:ident op:term : command =>
 declare_eval_bin_bool_pred evalBEq (· == ·)
 declare_eval_bin_bool_pred evalBNe (· != ·)
 
+open Internal in
+def evalNot (a : Expr) : SimpM Result :=
+  /-
+  **Note**: We added `evalNot` because some abbreviations expanded into `Not`s.
+  -/
+  match_expr a with
+  | True => return .step (← mkConstS ``False) (mkConst ``Sym.not_true_eq) (done := true)
+  | False => return .step (← mkConstS ``True) (mkConst ``Sym.not_false_eq) (done := true)
+  | _ => return .rfl
+
 public structure EvalStepConfig where
   maxExponent := 255
 
@@ -550,6 +561,7 @@ public def evalGround (config : EvalStepConfig := {}) : Simproc := fun e =>
   | Eq α a b => evalEq α a b
   | BEq.beq α _ a b => evalBEq α a b
   | bne α _ a b => evalBNe α a b
+  | Not a => evalNot a
   | _  => return .rfl
 
 end Lean.Meta.Sym.Simp

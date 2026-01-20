@@ -33,11 +33,11 @@ private def elabDoCatch (lifter : ControlLifter) (body : Expr) (catch_ : TSyntax
         if eType?.isSome then
           let inst ← Term.mkInstMVar <| mkApp2 (mkConst ``MonadExceptOf [uε, mi.u, mi.v]) ε mi.m
           pure <| mkApp6 (mkConst ``tryCatchThe [uε, mi.u, mi.v])
-            ε mi.m inst lifter.stMγ body
+            ε mi.m inst lifter.liftedDoBlockResultType body
         else
           let inst ← Term.mkInstMVar <| mkApp2 (mkConst ``MonadExcept [uε, mi.u, mi.v]) ε mi.m
           pure <| mkApp6 (mkConst ``MonadExcept.tryCatch [uε, mi.u, mi.v])
-            ε mi.m inst lifter.stMγ body
+            ε mi.m inst lifter.liftedDoBlockResultType body
       let catch_ ← lifter.lift (elabDoSeq catchSeq)
       let catch_ ← mkLambdaFVars #[x] catch_
       return catcher catch_
@@ -74,5 +74,5 @@ private def elabDoCatch (lifter : ControlLifter) (body : Expr) (catch_ : TSyntax
         let instMonadFinally ← Term.mkInstMVar <| mkApp (mkConst ``MonadFinally [mi.u, mi.v]) mi.m
         let instFunctor ← Term.mkInstMVar <| mkApp (mkConst ``Functor [mi.u, mi.v]) mi.m
         pure <| mkApp7 (mkConst ``tryFinally [mi.u, mi.v])
-          mi.m lifter.stMγ β instMonadFinally instFunctor body fin
+          mi.m lifter.liftedDoBlockResultType β instMonadFinally instFunctor body fin
   (← lifter.restoreCont).mkBindUnlessPure body

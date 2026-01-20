@@ -1977,11 +1977,21 @@ where
     let sFn := s.getAppFn
     if !sFn.isMVar then
       return false
-    if (← isAssignable sFn) then
-      let ctorApp := mkApp (mkAppN (mkConst ctorVal.name sTypeFn.constLevels!) sType.getAppArgs) v
-      processAssignment' s ctorApp
-    else
+    if !(← isAssignable sFn) then
       return false
+    -- The constructor with all parameters applied. The field is the remaining argument.
+    let ctor := mkAppN (mkConst ctorVal.name sTypeFn.constLevels!) sType.getAppArgs
+    /-
+    We might not yet have ensured that `(?m ...).1` and `v` have defeq types, which is necessary for `⟨v⟩` to be type-correct.
+    By this point we have already done some of the work of `Lean.Meta.inferProjType`,
+    and from here getting the binding domain of `inferType ctor` is a reasonably efficient way to compute the type of `(?m ...).1`.
+    https://github.com/leanprover/lean4/issues/6420
+    -/
+    let .forallE _ ty _ _ ← whnf (← inferType ctor) | return false
+    unless (← isDefEq ty (← inferType v)) do
+      return false
+    let ctorApp := mkApp ctor v
+    processAssignment' s ctorApp
 
 /--
   Given applications `t` and `s` that are in WHNF (modulo the current transparency setting),

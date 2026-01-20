@@ -1565,7 +1565,21 @@ instance {p q : Prop} [d : Decidable (p ↔ q)] : Decidable (p = q) :=
   | isTrue h => isTrue (propext h)
   | isFalse h => isFalse fun heq => h (heq ▸ Iff.rfl)
 
+namespace Lean.InjEq
+
+/-- Helper definition for proving injectivity theorems -/
+def imp (P Q : Prop) : Prop := P → Q
+
+local notation P " ⟶ " Q => imp P Q
+
 /-- Helper theorem for proving injectivity theorems -/
+theorem curry {P Q R : Prop} : (P ⟶ (Q ⟶ R)) → ((P ∧ Q) ⟶ R) := by
+  intro h ⟨h₁,h₂⟩; exact h h₁ h₂
+
+end Lean.InjEq
+
+
+/-- Helper theorem for proving injectivity theorems (remove after stage0 update) -/
 theorem Lean.injEq_helper {P Q R : Prop} :
   (P → Q → R) → (P ∧ Q → R) := by intro h ⟨h₁,h₂⟩; exact h h₁ h₂
 

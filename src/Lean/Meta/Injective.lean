@@ -147,18 +147,26 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
     let (h, mvarId₁) ← mvarId₁.intro1
     solveEqOfCtorEq ctorName mvarId₁ h
     let mut mvarId₂ := mvarId₂
+    -- Replace implication with `Lean.InjEq.imp`
+    let t ← mvarId₂.getType
+    let some (P, Q) := t.arrow? | throwError injTheoremFailureHeader ctorName
+    let imp := mkConst `Lean.InjEq.imp
+    mvarId₂ ← mvarId₂.change (mkApp2 imp P Q)
     while true do
       let t ← mvarId₂.getType
-      let some (conj, body) := t.arrow?  | break
-      match_expr conj with
-      | And lhs rhs =>
-        let e ← mkFreshExprSyntheticOpaqueMVar (← mkArrow lhs (← mkArrow rhs body))
-        mvarId₂.assign <| mkApp4 (mkConst `Lean.injEq_helper) lhs rhs body e
-        mvarId₂ := e.mvarId!
-      | _ => pure ()
-      let (h, mvarId₂') ← mvarId₂.intro1
-      (_, mvarId₂) ← substEq mvarId₂' h
-    try mvarId₂.refl catch _ => throwError (injTheoremFailureHeader ctorName)
+      match_expr t with
+      | Lean.InjEq.imp conj body =>
+          match_expr conj with
+          | And lhs rhs =>
+            let e ← mvarId₂.withContext do
+              mkFreshExprSyntheticOpaqueMVar (mkApp2 imp lhs (mkApp2 imp rhs body))
+            mvarId₂.assign <| mkApp4 (mkConst `Lean.InjEq.curry) lhs rhs body e
+            mvarId₂ := e.mvarId!
+          | _ => pure ()
+          let (h, mvarId₂') ← mvarId₂.intro1
+          (_, mvarId₂) ← substEq mvarId₂' h
+      | _ => break
+    try mvarId₂.refl catch _ => throwError injTheoremFailureHeader ctorName
     mkLambdaFVars xs mvar
 
 private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do

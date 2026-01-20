@@ -139,6 +139,21 @@ private partial def andProjections (e : Expr) : MetaM (Array Expr) := do
       return acc.push e
   go e (← inferType e) #[]
 
+/--
+Reverts a homogenenous or heterogeneous equality between two free variables,
+and also reverts the variables.
+-/
+private def revertEq (mvarId : MVarId) (h : FVarId) : MetaM MVarId := mvarId.withContext do
+  let hType ← h.getType
+  let (lhs, rhs) ← match_expr hType with
+    | Eq _ lhs rhs => pure (lhs, rhs)
+    | HEq _ lhs _ rhs => pure (lhs, rhs)
+    | _ => throwError "unexpected type in revertEq:{indentExpr hType}"
+  let .fvar lhs := lhs | throwError "unexpected lhs in revertEq: {indentExpr hType}"
+  let .fvar rhs := rhs | throwError "unexpected rhs in revertEq: {indentExpr hType}"
+  let (_, mvarId) ← mvarId.revert #[lhs, rhs, h]
+  return mvarId
+
 private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : MetaM Expr := do
   forallTelescopeReducing targetType fun xs type => do
     let mvar ← mkFreshExprSyntheticOpaqueMVar type
@@ -147,17 +162,31 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
     let (h, mvarId₁) ← mvarId₁.intro1
     solveEqOfCtorEq ctorName mvarId₁ h
     let mut mvarId₂ := mvarId₂
+    -- First intro all the equalities
+    let mut eqs := #[]
     while true do
       let t ← mvarId₂.getType
       let some (conj, body) := t.arrow?  | break
       match_expr conj with
       | And lhs rhs =>
-        let e ← mkFreshExprSyntheticOpaqueMVar (← mkArrow lhs (← mkArrow rhs body))
+        let e ← mvarId₂.withContext do mkFreshExprSyntheticOpaqueMVar (← mkArrow lhs (← mkArrow rhs body))
         mvarId₂.assign <| mkApp4 (mkConst `Lean.injEq_helper) lhs rhs body e
         mvarId₂ := e.mvarId!
       | _ => pure ()
       let (h, mvarId₂') ← mvarId₂.intro1
-      (_, mvarId₂) ← substEq mvarId₂' h
+      eqs := eqs.push h
+      mvarId₂ := mvarId₂'
+    -- Then revert the equalities together with their variables, from back to front.
+    for eq in eqs.reverse do
+      mvarId₂ ← revertEq mvarId₂ eq
+    -- Now re-introduce and subst equalities
+    while true do
+      let t ← mvarId₂.getType
+      unless t.isForall do break
+      let (hs, mvarId₂') ← mvarId₂.introN 3
+      unless hs.size = 3 do
+        throwError "unexpected goal while re-introducing equalities:{indentD t}"
+      (_, mvarId₂) ← substEq mvarId₂' hs[2]!
     try mvarId₂.refl catch _ => throwError (injTheoremFailureHeader ctorName)
     mkLambdaFVars xs mvar
 

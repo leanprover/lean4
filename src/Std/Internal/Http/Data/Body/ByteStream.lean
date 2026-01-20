@@ -101,7 +101,7 @@ deriving Nonempty
 namespace ByteStream
 
 /--
-Creates a new ByteStream with a specified capacity (ignored for now, could be used for bounded implementation).
+Creates a new ByteStream with a specified capacity.
 -/
 def emptyWithCapacity (capacity : Nat := 128) : Async ByteStream := do
   return {

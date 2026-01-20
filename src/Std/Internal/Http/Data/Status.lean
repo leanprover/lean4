@@ -419,7 +419,7 @@ instance : ToString Status where
     | .loopDetected => "Loop Detected"
     | .notExtended => "Not Extended"
     | .networkAuthenticationRequired => "Network Authentication Required"
-    | .other _ => "<none>"
+    | .other n => toString n
 
 namespace Status
 

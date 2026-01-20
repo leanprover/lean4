@@ -97,7 +97,7 @@ def handler (req : Request Body) : ContextAsync (Response Body) := do
 ## Building Responses
 
 Responses are constructed using an API that starts from a status code and adds headers and a body.
-Common helpers exist for text, HTML, and binary responses, while still allowing full control overstatus
+Common helpers exist for text, HTML, and binary responses, while still allowing full control over status
 codes and header values.
 
 ```lean

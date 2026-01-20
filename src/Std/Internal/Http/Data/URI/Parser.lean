@@ -113,7 +113,7 @@ private def parsePctEncoded : Parser UInt8 := do
 -- scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
 private def parseScheme : Parser URI.Scheme := do
   let schemeBytes ← takeWhileUpTo1 isSchemeChar 63
-  return String.fromUTF8! schemeBytes.toByteArray
+  return ⟨String.fromUTF8! schemeBytes.toByteArray |>.toLower, .lower_isLowerCase⟩
 
 -- port = *DIGIT
 private def parsePortNumber : Parser UInt16 := do
@@ -141,12 +141,15 @@ private def parseUserInfo : Parser URI.UserInfo := do
 
       let userBytesPass ← takeWhileUpTo isUserInfoChar 1024
 
-      let some userStrPass := URI.EncodedString.ofByteArray? userBytesPass.toByteArray
+      let some userStrPass := URI.EncodedString.ofByteArray? userBytesPass.toByteArray >>= URI.EncodedString.decode
         | fail "invalid percent encoding in user info"
 
       pure <| some userStrPass
     else
       pure none
+
+  let some userName := userName.decode
+    | fail "invalid username"
 
   return ⟨userName, userPass⟩
 
@@ -183,10 +186,10 @@ private def parseHost : Parser URI.Host := do
   else
     let isHostName x := isUnreserved x ∨ x = '%'.toUInt8 ∨ isSubDelims x
 
-    let some str := URI.EncodedString.ofByteArray? (← takeWhileUpTo1 isHostName 1024).toByteArray
+    let some str := URI.EncodedString.ofByteArray? (← takeWhileUpTo1 isHostName 1024).toByteArray >>= URI.EncodedString.decode
       | fail s!"invalid host"
 
-    return .name str
+    return .name str.toLower .lower_isLowerCase
 
 -- authority = [ userinfo "@" ] host [ ":" port ]
 private def parseAuthority : Parser URI.Authority := do
@@ -276,13 +279,12 @@ private def parseQuery : Parser URI.Query := do
   let pairs : Option URI.Query := queryStr.splitOn "&" |>.foldlM (init := URI.Query.empty) fun acc pair => do
     match pair.splitOn "=" with
     | [key] =>
-      let key ← URI.EncodedQueryString.ofByteArray? key.toByteArray
-      let value ← URI.EncodedQueryString.ofByteArray? ByteArray.empty
-      pure (acc.insertEncoded key value)
+      let key ← URI.EncodedQueryString.ofString? key
+      pure (acc.insertEncoded key none)
     | key :: value =>
-      let key ← URI.EncodedQueryString.ofByteArray? key.toByteArray
-      let value ←  URI.EncodedQueryString.ofByteArray? (String.intercalate "=" value).toByteArray
-      pure (acc.insertEncoded key value)
+      let key ← URI.EncodedQueryString.ofString? key
+      let value ←  URI.EncodedQueryString.ofString? (String.intercalate "=" value)
+      pure (acc.insertEncoded key (some value))
     | [] => pure acc
 
   if let some pairs := pairs then
@@ -325,7 +327,10 @@ public def parseURI : Parser URI := do
   let query ← optional (skipByteChar '?' *> parseQuery)
   let query := query.getD .empty
 
-  let fragment ← optional (skipByteChar '#' *> parseFragment)
+  let fragment ← optional do
+    let some result := (← (skipByteChar '#' *> parseFragment)) |>.decode
+      | fail "invalid fragment parse encoding"
+    return result
 
   return { scheme, authority, path, query, fragment }
 
@@ -333,7 +338,7 @@ public def parseURI : Parser URI := do
 Parses a request target with combined parsing and validation.
 -/
 public def parseRequestTarget : Parser RequestTarget :=
-  asterisk <|> origin <|> absolute <|> authority
+  asterisk <|> origin <|> authority <|> absolute
 where
   -- The asterisk form
   asterisk : Parser RequestTarget := do
@@ -346,7 +351,11 @@ where
     if ← peekIs (· == '/'.toUInt8) then
       let path ← parsePath true true
       let query ← optional (skipByte '?'.toUInt8 *> parseQuery)
-      let frag ← optional (skipByte '#'.toUInt8 *> parseFragment)
+      let frag ← optional do
+        let some result := (← (skipByteChar '#' *> parseFragment)) |>.decode
+          | fail "invalid fragment parse encoding"
+        return result
+
       return .originForm path query frag
     else
       fail "not origin"
@@ -358,7 +367,11 @@ where
     let (authority, path) ← parseHierPart
     let query ← optional (skipByteChar '?' *> parseQuery)
     let query := query.getD URI.Query.empty
-    let fragment ← optional (skipByteChar '#' *> parseFragment)
+    let fragment ← optional do
+      let some result := (← (skipByteChar '#' *> parseFragment)) |>.decode
+        | fail "invalid fragment parse encoding"
+      return result
+
     return .absoluteForm { path, scheme, authority, query, fragment }
 
   -- authority-form = host ":" port

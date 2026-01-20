@@ -103,7 +103,19 @@ Applies a backward rule to a goal, returning new subgoals.
 2. Assigns the goal metavariable to the theorem application
 3. Returns new goals for unassigned arguments (per `resultPos`)
 
-Throws an error if unification fails.
+Returns `none` if unification fails.
+-/
+public def BackwardRule.apply? (mvarId : MVarId) (rule : BackwardRule) : SymM (Option (List MVarId)) := mvarId.withContext do
+  let decl ← mvarId.getDecl
+  if let some result ← rule.pattern.unify? decl.type then
+    mvarId.assign (mkValue rule.expr rule.pattern result)
+    return some <| rule.resultPos.map fun i =>
+      result.args[i]!.mvarId!
+  else
+    return none
+
+/--
+Similar to `BackwardRule.apply?`, but throws an error if unification fails.
 -/
 public def BackwardRule.apply (mvarId : MVarId) (rule : BackwardRule) : SymM (List MVarId) := mvarId.withContext do
   let decl ← mvarId.getDecl

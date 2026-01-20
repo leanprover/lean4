@@ -169,3 +169,29 @@ example (f g : Nat → Nat → Nat) (h : a = b) : (bif a + 0 != b then id f else
   trace_state -- `cond` branches should not have been simplified
   subst h
   sym_simp [Nat.add_zero, bne_self_eq_false, id_eq]
+
+def pw (n : Nat) : Nat :=
+  match n with
+  | 0 => 1
+  | n+1 => 2 * pw n
+
+example : pw 0 = 1 := by
+  sym_simp [pw.eq_1]
+
+example : pw 2 = 4 := by
+  sym_simp [pw.eq_1, pw.eq_2]
+
+example : pw 4 = 16 := by
+  sym_simp [pw.eq_1, pw.eq_2]
+
+example : pw (a + 2) = 2 * (2 * pw a) := by
+  sym_simp [pw.eq_2]
+
+example : pw (Nat.succ a) = 2 * pw a := by
+  sym_simp [pw.eq_2]
+
+example : pw (a + 3) = 2 * (2 * (2 * pw a)) := by
+  sym_simp [pw.eq_2]
+
+example : pw (Nat.succ (Nat.succ a)) = 2 * (2 * pw a) := by
+  sym_simp [pw.eq_2]

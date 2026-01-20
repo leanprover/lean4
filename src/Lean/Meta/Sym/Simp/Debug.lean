@@ -43,7 +43,7 @@ public def simpWith (k : Expr → SymM Result) (mvarId : MVarId) : MetaM (Option
     else
       return some mvarNew.mvarId!
 
-public def simpGoal (declNames : Array Name) (mvarId : MVarId) : MetaM (Option MVarId) := SymM.run do
+public def simpGoal (declNames : Array Name) (mvarId : MVarId) : MetaM (Option MVarId) := SymM.run do mvarId.withContext do
   let methods ← mkMethods declNames
   simpWith (simp · methods) mvarId
 

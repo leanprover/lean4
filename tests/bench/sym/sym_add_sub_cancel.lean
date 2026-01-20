@@ -177,39 +177,14 @@ def Goal (n : Nat) : Prop :=
 
 set_option maxHeartbeats 0
 set_option maxRecDepth 100000
-
-/-!
-`MetaM` Solution
--/
 open Lean Meta Elab Tactic
-/-
-A tactic for solving goal `Goal n`
--/
-macro "solve" : tactic => `(tactic| {
-  unfold Goal;
-  intros m l;
-  dsimp [generated_cmd, repeated_cmds];
-  apply Exec.seq_cps;
-  apply Exec.input;
-  intros v;
-  repeat (
-    apply Exec.seq_cps;
-    apply Exec.set;
-    simp [Expr.eval];
-    simp [PartialMap.get_put_diff, PartialMap.get_put, PartialMap.put_put, Binop.interp_add,
-          Binop.interp_sub, Word.add_sub_cancel];
-    try rfl);
-  apply Exec.skip;
-  simp [PartialMap.get_put, PartialMap.put_put, PartialMap.get_put_diff]
-})
 
-/--
-Solves a goal of the form `Goal n` using the `solve` tactic.
--/
-def solveUsingMeta (n : Nat) (check := true) : MetaM Unit := do
-  let mvar ← mkFreshExprMVar (mkApp (mkConst ``Goal) (mkNatLit n))
+/-- Helper function for executing a tactic `k` for solving `Goal n`. -/
+def driver (n : Nat) (check := true) (k : MVarId → MetaM Unit) : MetaM Unit := do
+  let some goal ← unfoldDefinition? (mkApp (mkConst ``Goal) (mkNatLit n)) | throwError "UNFOLD FAILED!"
+  let mvar ← mkFreshExprMVar goal
   let startTime ← IO.monoNanosNow
-  let ([], _) ← runTactic mvar.mvarId! (← `(tactic| solve)).raw {} {} | throwError "FAILED!"
+  k mvar.mvarId!
   let endTime ← IO.monoNanosNow
   let ms := (endTime - startTime).toFloat / 1000000.0
   if check then
@@ -220,6 +195,38 @@ def solveUsingMeta (n : Nat) (check := true) : MetaM Unit := do
     IO.println s!"goal_{n}: {ms} ms, kernel: {kernelMs} ms"
   else
     IO.println s!"goal_{n}: {ms} ms"
+
+/-!
+`MetaM` Solution
+-/
+
+/-
+A tactic for solving goal `Goal n`
+-/
+macro "solve" : tactic => `(tactic| {
+  intros m l;
+  simp only [generated_cmd, repeated_cmds];
+  apply Exec.seq_cps;
+  apply Exec.input;
+  intros v;
+  repeat (
+    apply Exec.seq_cps;
+    apply Exec.set;
+    simp only [Expr.eval];
+    simp only [PartialMap.get_put_diff, PartialMap.get_put, PartialMap.put_put, Binop.interp_add,
+          Binop.interp_sub, Word.add_sub_cancel, Option.some.injEq, not_false_eq_true, String.reduceEq, ne_eq];
+    try rfl);
+  apply Exec.skip;
+  simp only [List.cons.injEq, IOEvent.IN.injEq, and_true, PartialMap.put_put, PartialMap.get_put,
+    Option.some.injEq, and_self, exists_eq']
+})
+
+/--
+Solves a goal of the form `Goal n` using the `solve` tactic.
+-/
+def solveUsingMeta (n : Nat) (check := true) : MetaM Unit := do
+  driver n check fun mvarId => do
+    let ([], _) ← runTactic mvarId (← `(tactic| solve)).raw {} {} | throwError "FAILED!"
 
 def runBenchUsingMeta : MetaM Unit := do
   IO.println "=== Symbolic Simulation Tests ==="

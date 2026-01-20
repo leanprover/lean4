@@ -1,4 +1,5 @@
 -- set_option trace.Meta.injective true
+
 /-!
 A mix of propositional and dependent fields
 -/

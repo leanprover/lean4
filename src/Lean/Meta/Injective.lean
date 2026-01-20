@@ -182,9 +182,10 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
       let (h, mvarId₂') ← mvarId₂.intro1
       mvarId₂ := mvarId₂'
       let hType ← instantiateMVars (← mvarId₂.withContext h.getType)
-      if hType.isEq then
+      -- The heq.isEmpty is a hack
+      if hType.isEq && heqs.isEmpty then
         eqs := eqs.push h
-      else if hType.isHEq then
+      else if hType.isEq || hType.isHEq then
         heqs := heqs.push h
       else throwError "unexpected hypothesis of type{inlineExpr hType}in\n{mvarId₂}"
     -- Then revert the `HEq`s together with their variables, from back to front.

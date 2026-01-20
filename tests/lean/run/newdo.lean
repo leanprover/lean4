@@ -227,6 +227,14 @@ example (x : Nat) : Nat :=
     return 44
   if res then pure 23 else return 33
 
+set_option trace.Elab.match true in
+#eval Id.run <| ExceptT.run (ε:=String) do
+  let res ←
+    let false := true | pure true
+    throw "error"
+    return 44
+  if res then pure 23 else return 33
+
 set_option backward.do.legacy true in
 /-- info: "ok" -/
 #guard_msgs in
@@ -266,7 +274,7 @@ example (x : Nat) := Id.run (α := Fin (2 * x + 2)) do
 -- The motive is the result type of the join point and it is not refined without generalization.
 -- If we dependently match on `x`, the first RHS has type `Fin (x + 2)` but is expected to have type
 -- `Fin (0 + 2)`.
-set_option backward.do.legacy false in
+-- set_option backward.do.legacy true in
 set_option trace.Elab.do true in
 set_option trace.Elab.do.match true in
 def depMatchNeedsGeneralization (x : Nat) := Id.run (α := Fin (x + 2)) do
@@ -288,10 +296,20 @@ example (x : Nat) (h : x = 3) := Id.run (α := Fin (x + 2)) do
     | rfl => pure ⟨0, by grind⟩
   return ⟨y + 1, by grind⟩
 
+-- It would be too tedious to fix the following example.
+-- We would need to abstract the new discriminant `3` in any of the join point types
+-- and if so, generalize. It's like collecting forward dependencies but with arbitrary patterns.
+-- We don't support this; the user should instead specify `x` as a discriminant.
+/--
+error: The inferred match motive ⏎
+  Fin (x + x)
+or the monadic result type ⏎
+  Id (Fin (x + x))
+had occurrences of free variables that depend on the discriminants, but no continuation variables were generalized. This is not supported by the `do` elaborator. Supply missing indices as disciminants to fix this.
+-/
+#guard_msgs (error) in
 example (x : Nat) (h : x = 3) := Id.run (α := Fin (x + 3)) do
-  let y : Fin (x + 3) <-
-    match (generalizing := false) h with
-    | rfl => pure ⟨0, by grind⟩
+  let y : Fin (x + 3) <- match h with | rfl => pure ⟨0, by grind⟩
   return ⟨y - 1, by grind⟩
 
 -- Full-blown dependent match + try/catch + early return
@@ -326,7 +344,7 @@ example (p n : Nat) : Except String (Fin (2 * p + 2)) := Id.run <| ExceptT.run d
   return 0
 
 -- Example for why `match` needs to generalize join points
-set_option backward.do.legacy true in
+-- set_option backward.do.legacy true in
 example (x : Nat) : Id (Fin (x + 2)) := do
   let mut a := 1
   let mut b := 2
@@ -2065,23 +2083,6 @@ set_option backward.do.legacy false in
       x := 5
   catch e =>
     x := x + 1)
-
-set_option trace.Elab.do true in
-set_option trace.Meta.isDefEq true in
-set_option trace.Meta.isDefEq.assign true in
--- Test: Try/catch with let mut and match refinement
-#check Id.run <| ExceptT.run (ε:=String) (α := Fin 17) doo
-  let mut x := 0
-  try
-    if true then
-      x := 10
-      let 2 := x | return 0
-      return ⟨x, by decide⟩
-    else
-      x := 5
-  catch e =>
-    x := x + 1
-  return ⟨3, by decide⟩
 
 #check (Id.run <| ExceptT.run (ε:=String) do
   let mut x := 0

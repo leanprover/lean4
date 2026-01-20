@@ -65,7 +65,7 @@ instance : Union Bitset where
 instance : XorOp Bitset where
   xor a b := { toNat := a.toNat ^^^ b.toNat }
 
-def has (s : Bitset) (i : Nat) : Bool := s ∩ {i} ≠ ∅
+def has (s : Bitset) (i : Nat) : Bool := s.toNat.testBit i
 
 end Bitset
 
@@ -166,8 +166,19 @@ structure State where
   /-- Edits to be applied to the module imports. -/
   edits : Edits := {}
 
+  -- Memoizations
+  reservedNames : Std.HashSet Name := Id.run do
+    let mut m := {}
+    for (c, _) in env.constants do
+      if isReservedName env c then
+        m := m.insert c
+    return m
+  indirectModUses : Std.HashMap Name (Array ModuleIdx) :=
+    indirectModUseExt.getState env
+  modNames : Array Name :=
+    env.header.moduleNames
+
 def State.mods (s : State) := s.env.header.moduleData
-def State.modNames (s : State) := s.env.header.moduleNames
 
 /--
 Given module `j`'s transitive dependencies, computes the union of `transImps` and the transitive
@@ -222,9 +233,9 @@ def isDeclMeta' (env : Environment) (declName : Name) : Bool :=
 Given an `Expr` reference, returns the declaration name that should be considered the reference, if
 any.
 -/
-def getDepConstName? (env : Environment) (ref : Name) : Option Name := do
+def getDepConstName? (s : State) (ref : Name) : Option Name := do
   -- Ignore references to reserved names, they can be re-generated in-place
-  guard <| !isReservedName env ref
+  guard <| !s.reservedNames.contains ref
   -- `_simp_...` constants are similar, use base decl instead
   return if ref.isStr && ref.getString!.startsWith "_simp_" then
     ref.getPrefix
@@ -257,12 +268,12 @@ where
     let env := s.env
     Lean.Expr.foldConsts e deps fun c deps => Id.run do
       let mut deps := deps
-      if let some c := getDepConstName? env c then
+      if let some c := getDepConstName? s c then
         if let some j := env.getModuleIdxFor? c then
           let k := { k with isMeta := k.isMeta && !isDeclMeta' env c }
           if j != i then
             deps := deps.union k {j}
-            for indMod in (indirectModUseExt.getState env)[c]?.getD #[] do
+            for indMod in s.indirectModUses[c]?.getD #[] do
               if s.transDeps[i]!.has k indMod then
                 deps := deps.union k {indMod}
       return deps
@@ -298,11 +309,11 @@ where
     let env := s.env
     Lean.Expr.foldConsts e deps fun c deps => Id.run do
       let mut deps := deps
-      if let some c := getDepConstName? env c then
+      if let some c := getDepConstName? s c then
         if let some j := env.getModuleIdxFor? c then
           let k := { k with isMeta := k.isMeta && !isDeclMeta' env c }
           deps := addExplanation j k name c deps
-        for indMod in (indirectModUseExt.getState env)[c]?.getD #[] do
+        for indMod in s.indirectModUses[c]?.getD #[] do
           if s.transDeps[i]!.has k indMod then
             deps := addExplanation indMod k name (`_indirect ++ c) deps
       return deps
@@ -636,7 +647,7 @@ public def run (args : Args) (h : 0 < args.mods.size)
   let imps := mods.map ({ module := · })
   let (_, s) ← importModulesCore imps (isExported := true) |>.run
   let s := s.markAllExported
-  let mut env ← finalizeImport s (isModule := true) imps {} (leakEnv := false) (loadExts := false)
+  let mut env ← finalizeImport s (isModule := true) imps {} (leakEnv := true) (loadExts := false)
   if env.header.moduleData.any (!·.isModule) then
     throw <| .userError "`lake shake` only works with `module`s currently"
   -- the one env ext we want to initialize

@@ -57,7 +57,7 @@ def markJP (j : JoinPointId) : M Unit :=
 def getDecl (c : Name) : M Decl := do
   let ctx ← read
   match findEnvDecl' (← getEnv) c ctx.decls with
-  | none   => throwCheckerError s!"depends on declaration '{c}' and '{ctx.decls}', which has no executable code; consider marking definition as 'noncomputable'"
+  | none   => throwCheckerError s!"depends on declaration '{c}', which has no executable code; consider marking definition as 'noncomputable'"
   | some d => pure d
 
 def checkVar (x : VarId) : M Unit := do

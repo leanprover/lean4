@@ -75,7 +75,7 @@ def getFinValue? (e : Expr) : OptionT Id FinValue := do
 
 def getCharValue? (e : Expr) : OptionT Id Char := do
   let_expr Char.ofNat n := e | failure
-  let n ← getNatValue? n
+  let .lit (.natVal n) := n | failure
   return Char.ofNat n
 
 def getStringValue? (e : Expr) : Option String :=

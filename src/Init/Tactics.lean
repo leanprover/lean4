@@ -910,7 +910,7 @@ The syntax is the same as term-mode `let rec`.
 
 The tactic supports all the same syntax variants and options as the `let` term.
 -/
--- Uncomment after stage0 update: @[tactic_name "let rec"]
+@[tactic_name "let rec"]
 syntax (name := letrec) withPosition(atomic("let " &"rec ") letRecDecls) : tactic
 macro_rules
   | `(tactic| let rec $d) => `(tactic| refine_lift let rec $d; ?_)

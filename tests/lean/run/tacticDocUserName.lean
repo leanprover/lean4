@@ -20,10 +20,6 @@ This test ensures that user-facing tactic names shipped with Lean are kept unamb
     let kindsForToken ← kindsForToken.filterM fun k => do
       pure <| (Parser.Tactic.Doc.alternativeOfTactic (← getEnv) k).isNone
 
-    -- Until a stage0 update allows let rec to have a custom name, ignore it. Then update this test.
-    let kindsForToken := kindsForToken.filter (· ≠ ``Lean.Parser.Tactic.letrec)
-    if firstTok.contains ' ' then throwError "Test needs updating after stage0 update (see comment)"
-
     -- If it's ambiguous, log an error.
     if kindsForToken.length > 1 then
       let kinds := MessageData.andList <| kindsForToken.map (m!"`{.ofConstName ·}`")
@@ -45,12 +41,13 @@ This test ensures that user-facing tactic names are found for all the tactics th
 This test spot-checks tactics defined in a few ways to make sure they all have user-facing names:
  * Defined using `syntax ... : tactic`, both leading and trailing (`intros` and `<;>`)
  * Defined using `declare_simp_like_tactic` (`simpAutoUnfold`)
- * Defined with custom user-facing names (`Lean.Parser.Tactic.letrec`) (after stage0 update)
+ * Defined with custom user-facing names (`Lean.Parser.Tactic.letrec`)
 -/
 /--
 info: (some intro)
 (some <;>)
 (some simp!)
+(some (let rec))
 -/
 #guard_msgs in
 #eval show MetaM Unit from do
@@ -58,4 +55,4 @@ info: (some intro)
   IO.println (firsts.get? ``Lean.Parser.Tactic.intro)
   IO.println (firsts.get? ``Lean.Parser.Tactic.«tactic_<;>_»)
   IO.println (firsts.get? ``Lean.Parser.Tactic.simpAutoUnfold)
-  --IO.println (firsts.get? ``Lean.Parser.Tactic.letrec)
+  IO.println (firsts.get? ``Lean.Parser.Tactic.letrec)

@@ -48,24 +48,25 @@ private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx wit
   match cond with
   | `(doIfCond|$cond) =>
     let cond ← Term.elabTermEnsuringType cond (mkSort .zero)
-    let decidable ← Term.mkInstMVar (mkApp (mkConst ``Decidable) cond)
     let then_ ← elabDoSeq thenSeq dec
     let else_ ← elabDoSeq elseSeq dec
-    return (mkApp5 (mkConst ``ite [mi.v.succ]) mγ cond decidable then_ else_)
+    -- We resolve the instance only here so that we see more error messages when `cond` is a `sorry`
+    let decidable ← Term.mkInstMVar (mkApp (mkConst ``Decidable) cond)
+    return mkApp5 (mkConst ``ite [mi.v.succ]) mγ cond decidable then_ else_
   | `(doIfCond|_ : $cond) =>
     let cond ← Term.elabTermEnsuringType cond (mkSort .zero)
-    let decidable ← Term.mkInstMVar (mkApp (mkConst ``Decidable) cond)
     let then_ ← withLocalDeclD (← mkFreshUserName `h) cond fun h => do
       mkLambdaFVars #[h] (← elabDoSeq thenSeq dec)
     let else_ ← withLocalDeclD (← mkFreshUserName `h) (mkApp (mkConst ``Not) cond) fun h => do
       mkLambdaFVars #[h] (← elabDoSeq elseSeq dec)
-    return (mkApp5 (mkConst ``dite [mi.v.succ]) mγ cond decidable then_ else_)
+    let decidable ← Term.mkInstMVar (mkApp (mkConst ``Decidable) cond)
+    return mkApp5 (mkConst ``dite [mi.v.succ]) mγ cond decidable then_ else_
   | `(doIfCond|$h:ident : $cond) =>
     let cond ← Term.elabTermEnsuringType cond (mkSort .zero)
-    let decidable ← Term.mkInstMVar (mkApp (mkConst ``Decidable) cond)
     let then_ ← withLocalDeclD h.getId cond fun h => do
       mkLambdaFVars #[h] (← elabDoSeq thenSeq dec)
     let else_ ← withLocalDeclD h.getId (mkApp (mkConst ``Not) cond) fun h => do
       mkLambdaFVars #[h] (← elabDoSeq elseSeq dec)
-    return (mkApp5 (mkConst ``dite [mi.v.succ]) mγ cond decidable then_ else_)
+    let decidable ← Term.mkInstMVar (mkApp (mkConst ``Decidable) cond)
+    return mkApp5 (mkConst ``dite [mi.v.succ]) mγ cond decidable then_ else_
   | _ => throwUnsupportedSyntax

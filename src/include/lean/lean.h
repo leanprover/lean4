@@ -1264,6 +1264,67 @@ static inline lean_object * lean_set_external_data(lean_object * o, void * data)
     }
 }
 
+/* Integer scalars */
+
+static inline int64_t lean_scalar_to_int64(b_lean_obj_arg a) {
+    assert(lean_is_scalar(a));
+    if (sizeof(void*) == 8)
+        return (int)((unsigned)lean_unbox(a)); /* NOLINT */
+    else
+        return ((int)((size_t)a)) >> 1; /* NOLINT */
+}
+
+static inline int lean_scalar_to_int(b_lean_obj_arg a) {
+    assert(lean_is_scalar(a));
+    if (sizeof(void*) == 8)
+        return (int)((unsigned)lean_unbox(a)); /* NOLINT */
+    else
+        return ((int)((size_t)a)) >> 1; /* NOLINT */
+}
+
+/* Big numbers */
+
+LEAN_EXPORT lean_obj_res lean_mpz_of_usize(size_t a);
+LEAN_EXPORT lean_obj_res lean_mpz_of_uint64(uint64_t a);
+LEAN_EXPORT lean_obj_res lean_mpz_of_uint32(uint32_t a);
+LEAN_EXPORT lean_obj_res lean_mpz_of_unsigned(unsigned a);
+LEAN_EXPORT lean_obj_res lean_mpz_of_isize(size_t a);
+LEAN_EXPORT lean_obj_res lean_mpz_of_int64(uint64_t a);
+LEAN_EXPORT lean_obj_res lean_mpz_of_int32(uint32_t a);
+LEAN_EXPORT lean_obj_res lean_mpz_of_signed(int a);
+LEAN_EXPORT lean_obj_res lean_mpz_to_nat(lean_obj_arg a);
+LEAN_EXPORT lean_obj_res lean_mpz_to_int(lean_obj_arg a);
+
+static inline lean_obj_res lean_mpz_of_nat(lean_obj_arg a) {
+    if (lean_is_scalar(a))
+        return lean_mpz_of_usize(lean_unbox(a));
+    else
+        return a;
+}
+
+static inline lean_obj_res lean_mpz_of_int(lean_obj_arg a) {
+    if (lean_is_scalar(a))
+        return lean_mpz_of_signed(lean_scalar_to_int(a));
+    else
+        return a;
+}
+
+LEAN_EXPORT bool lean_mpz_eq(b_lean_obj_arg a1, b_lean_obj_arg a2);
+LEAN_EXPORT bool lean_mpz_le(b_lean_obj_arg a1, b_lean_obj_arg a2);
+LEAN_EXPORT bool lean_mpz_lt(b_lean_obj_arg a1, b_lean_obj_arg a2);
+
+static inline LEAN_ALWAYS_INLINE uint8_t lean_mpz_dec_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    return lean_mpz_eq(a1, a2);
+}
+
+static inline LEAN_ALWAYS_INLINE uint8_t lean_mpz_dec_le(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    return lean_mpz_le(a1, a2);
+}
+
+static inline LEAN_ALWAYS_INLINE uint8_t lean_mpz_dec_lt(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    return lean_mpz_lt(a1, a2);
+}
+
 /* Natural numbers */
 
 #define LEAN_MAX_SMALL_NAT (SIZE_MAX >> 1)
@@ -1284,8 +1345,14 @@ LEAN_EXPORT lean_object * lean_nat_big_lor(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_nat_big_xor(lean_object * a1, lean_object * a2);
 
 LEAN_EXPORT lean_obj_res lean_cstr_to_nat(char const * n);
-LEAN_EXPORT lean_obj_res lean_big_usize_to_nat(size_t n);
-LEAN_EXPORT lean_obj_res lean_big_uint64_to_nat(uint64_t n);
+static inline LEAN_ALWAYS_INLINE LEAN_EXPORT lean_obj_res lean_big_usize_to_nat(size_t n) {
+    assert(n > LEAN_MAX_SMALL_NAT);
+    return lean_mpz_of_usize(n);
+}
+static inline LEAN_ALWAYS_INLINE LEAN_EXPORT lean_obj_res lean_big_uint64_to_nat(uint64_t n) {
+    assert(n > LEAN_MAX_SMALL_NAT);
+    return lean_mpz_of_uint64(n);
+}
 static inline lean_obj_res lean_usize_to_nat(size_t n) {
     if (LEAN_LIKELY(n <= LEAN_MAX_SMALL_NAT))
         return lean_box(n);
@@ -1491,9 +1558,21 @@ LEAN_EXPORT bool lean_int_big_lt(lean_object * a1, lean_object * a2);
 LEAN_EXPORT bool lean_int_big_nonneg(lean_object * a);
 
 LEAN_EXPORT lean_object * lean_cstr_to_int(char const * n);
-LEAN_EXPORT lean_object * lean_big_int_to_int(int n);
-LEAN_EXPORT lean_object * lean_big_size_t_to_int(size_t n);
-LEAN_EXPORT lean_object * lean_big_int64_to_int(int64_t n);
+
+static inline LEAN_ALWAYS_INLINE lean_object * lean_big_int_to_int(int n) {
+    assert(n < LEAN_MIN_SMALL_INT || n > LEAN_MAX_SMALL_INT);
+    return lean_mpz_of_signed(n);
+}
+
+static inline LEAN_ALWAYS_INLINE lean_object * lean_big_size_t_to_int(size_t n) {
+    assert(n <= LEAN_MAX_SMALL_INT);
+    return lean_mpz_of_usize(n);
+}
+
+static inline LEAN_ALWAYS_INLINE lean_object * lean_big_int64_to_int(int64_t n) {
+    assert(n < LEAN_MIN_SMALL_INT || n > LEAN_MAX_SMALL_INT);
+    return lean_mpz_of_int64((uint64_t)n);
+}
 
 static inline lean_obj_res lean_int_to_int(int n) {
     if (sizeof(void*) == 8)
@@ -1509,22 +1588,6 @@ static inline lean_obj_res lean_int64_to_int(int64_t n) {
         return lean_box((unsigned)((int)n)); /* NOLINT */
     else
         return lean_big_int64_to_int(n);
-}
-
-static inline int64_t lean_scalar_to_int64(b_lean_obj_arg a) {
-    assert(lean_is_scalar(a));
-    if (sizeof(void*) == 8)
-        return (int)((unsigned)lean_unbox(a)); /* NOLINT */
-    else
-        return ((int)((size_t)a)) >> 1; /* NOLINT */
-}
-
-static inline int lean_scalar_to_int(b_lean_obj_arg a) {
-    assert(lean_is_scalar(a));
-    if (sizeof(void*) == 8)
-        return (int)((unsigned)lean_unbox(a)); /* NOLINT */
-    else
-        return ((int)((size_t)a)) >> 1; /* NOLINT */
 }
 
 static inline lean_obj_res lean_nat_to_int(lean_obj_arg a) {
@@ -1753,7 +1816,11 @@ static inline bool lean_int_lt(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     }
 }
 
-LEAN_EXPORT lean_obj_res lean_big_int_to_nat(lean_obj_arg a);
+static inline LEAN_ALWAYS_INLINE lean_obj_res lean_big_int_to_nat(lean_obj_arg a) {
+    assert(!lean_is_scalar(a));
+    return lean_mpz_to_nat(a);
+}
+
 static inline lean_obj_res lean_int_to_nat(lean_obj_arg a) {
     assert(!lean_int_lt(a, lean_box(0)));
     if (lean_is_scalar(a)) {

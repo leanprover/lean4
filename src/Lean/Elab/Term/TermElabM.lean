@@ -50,7 +50,6 @@ structure SavedContext where
   macroStack     : MacroStack
   errToSorry     : Bool
   levelNames     : List Name
-  mayElabToJump    : Bool
   fixedTermElabs : Array FixedTermElabRef
 
 /-- The kind of a tactic metavariable, used for additional error reporting. -/
@@ -334,14 +333,6 @@ structure Context where
   If `checkDeprecated := true`, then `Linter.checkDeprecated` when creating constants.
   -/
   checkDeprecated : Bool := true
-  /--
-  Whether the elaborator may possibly elaborate to a join point jump.
-  Always false for pure term elaborators.
-  It is set by the `do` elaborator in the alternatives of a `match` or `if` expression.
-  When this flag is set, postponed synthetic metavariables cause the whole `match` expression to
-  postpone.
-  -/
-  mayElabToJump : Bool := false
   /--
   Fixed term elaborators for supporting `elabToSyntax`.
   -/
@@ -1360,7 +1351,6 @@ def saveContext : TermElabM SavedContext :=
     openDecls      := (← getOpenDecls)
     errToSorry     := (← read).errToSorry
     levelNames     := (← get).levelNames
-    mayElabToJump  := (← read).mayElabToJump
     fixedTermElabs := (← read).fixedTermElabs
   }
 
@@ -1372,7 +1362,6 @@ def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α
         declName? := savedCtx.declName?,
         macroStack := savedCtx.macroStack,
         errToSorry := savedCtx.errToSorry,
-        mayElabToJump := savedCtx.mayElabToJump,
         fixedTermElabs := savedCtx.fixedTermElabs,
       }) <|
     withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls }) <|

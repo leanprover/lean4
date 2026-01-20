@@ -114,60 +114,8 @@ structure MonadInstanceCache where
   cachedBind : Option Expr := none
   deriving Nonempty
 
-/--
-A continuation metavariable.
-
-When generating jumps to join points or filling in expressions for `break` or `continue`, it is
-still unclear what mutable variables need to be passed, because it depends on which mutable
-variables were reassigned in the control flow path to *any* of the jumps.
-
-The mechanism of `ContVarId` allows to delay the assignment of the jump expressions until the local
-contexts of all the jumps are known.
--/
-structure ContVarId where
-  name : Name
-  deriving Inhabited, BEq, Hashable
-
-/--
-Information about a jump site associated to `ContVarId`.
-There will be one instance per jump site to a join point, or for each `break` or `continue`
-element.
--/
-structure ContVarJump where
-  /--
-  The metavariable to be assigned with the jump to the join point.
-  Conveniently, its captured local context is that of the jump, in which the new mutable variable
-  definitions and result variable are in scope.
-  -/
-  mvar : Expr
-  /-- A reference for error reporting. -/
-  ref : Syntax
-  /-- The term elaborator context at the jump site. -/
-  termCtx : Term.Context
-  /-- The do elaborator context at the jump site. -/
-  doCtx : Context
-
-/--
-Information about a `ContVarId`.
--/
-structure ContVarInfo where
-  /--
-  A superset of the local variable names that the jumps will refer to. Often the `mut` variables.
-  Any `let`-bound FV will be turned into a `have`-bound FV by setting their `nondep` flag in the
-  local context of the metavariable for the jump site. This is a technicality to ensure that
-  `isDefEq` will not inline the `let`s.
-  -/
-  tunneledVars : Std.HashSet Name
-  /-- Local context at the time the continuation variable was created. -/
-  lctx : LocalContext
-  /-- The tracked jumps to the continuation. Each contains a metavariable to be assigned later. -/
-  jumps : Array ContVarJump
-  /-- The least upper bound of the dead code flag at all jump sites. -/
-  deadCode : CodeLiveness := .deadSyntactically
-
 structure State where
   monadInstanceCache : MonadInstanceCache := {}
-  contVars : Std.HashMap ContVarId ContVarInfo := {}
   deriving Nonempty
 
 abbrev DoElabM := ReaderT Context <| StateRefT State Term.TermElabM
@@ -448,98 +396,6 @@ def addReachingDefsAsNonDep (rootCtx childCtx : LocalContext) (tunneledVars : St
   return rootCtx
 
 /--
-Creates a new continuation variable of type `m α` given the result type `α`.
-The `tunneledVars` is a superset of the `let`-bound variable names that the jumps will refer to.
-Often it will be the `mut` variables. Leaving it empty inlines `let`-bound variables at jump sites.
--/
-def mkFreshContVar (tunneledVars : Array Name) : DoElabM ContVarId := do
-  let name ← mkFreshId
-  let contVarId := ContVarId.mk name
-  let tunneledVars := Std.HashSet.ofArray tunneledVars
-  let cvInfo := { jumps := #[], lctx := (← getLCtx), tunneledVars }
-  modify fun s => { s with contVars := s.contVars.insert contVarId cvInfo }
-  return contVarId
-
-def ContVarId.find (contVarId : ContVarId) : DoElabM ContVarInfo := do
-  match (← get).contVars.get? contVarId with
-  | some info => return info
-  | none => throwError "contVarId {contVarId.name} not found"
-
-/-- Creates a new jump site for the continuation variable, to be synthesized later. -/
-def ContVarId.mkJump (contVarId : ContVarId) : DoElabM Expr := do
-  let info ← contVarId.find
-  let lctx ← addReachingDefsAsNonDep info.lctx (← getLCtx) info.tunneledVars.inner
-  -- no need to add local instances as well; jumps don't need them
-  let type ← mkMonadicType (← read).doBlockResultType
-  let mvar ← withLCtx' lctx (mkFreshExprMVar type) -- assigned by `synthesizeJumps`
-  -- trace[Elab.do] "mkJump: {contVarId.name}, {mvar}, {repr mvar}, deadCode: {(← read).deadCode}, {mvar.mvarId!}"
-  -- If it's dead syntactically, don't even bother registering the jump
-  let deadCode := (← read).deadCode
-  unless deadCode matches .deadSyntactically do
-    let jumps := info.jumps.push { mvar, ref := (← getRef), termCtx := (← readThe _), doCtx := (← read) }
-    let info := { info with jumps, deadCode := info.deadCode.lub deadCode }
-    modify fun s => { s with contVars := s.contVars.insert contVarId { info with jumps } }
-  return mvar
-
-/-- The number of non-syntactically dead jump sites allocated for the continuation variable. -/
-def ContVarId.jumpCount (contVarId : ContVarId) : DoElabM Nat := do
-  let info ← contVarId.find
-  return info.jumps |>.size
-
-/--
-Synthesize the jump sites for the continuation variable.
-`k` is run once for each jump site, in the `LocalContext` of the jump site.
-The result of `k` is used to fill in the jump site.
--/
-def ContVarId.synthesizeJumps (contVarId : ContVarId) (k : DoElabM Expr) : DoElabM Unit := do
-  let info ← contVarId.find
-  for jump in info.jumps do
-    jump.mvar.mvarId!.withContext do
-    withRef jump.ref do
-      let res ← withReader (fun _ => jump.doCtx) <| withTheReader _ (fun _ => jump.termCtx) k
-      -- trace[Elab.do] "jump site: {res} assign to {(← instantiateMVars jump.mvar).getAppFn.mvarId!}"
-      synthUsingDefEq "jump site" jump.mvar res
-
-/--
-Get the least upper bound of the dead code flags at all jump sites.
--/
-def ContVarId.getDeadCode (contVarId : ContVarId) : DoElabM CodeLiveness := do
-  let info ← contVarId.find
-  return info.deadCode
-
-/--
-Adds the given local declaration to the local context of the metavariable of each jump site.
-This is useful for adding, e.g. join point declarations post-hoc to the local context of the jump
-sites.
--/
-def ContVarId.addDeclToJumpSites! (contVarId : ContVarId) (decl : LocalDecl) : DoElabM Unit := do
-  let info ← contVarId.find
-  for jump in info.jumps do
-    let mut mvarId := jump.mvar.mvarId!
-    repeat
-      let found ← mvarId.withContext do return (← getLCtx).find? decl.fvarId |>.isSome
-      unless found do
-        mvarId.modifyLCtx fun lctx => lctx.addDecl decl
-      -- A simple `instantiateMVars` is not enough here because of functions like
-      -- `MkBinding.elimApp` which go through one layer of assignment at a time.
-      if let some assignment ← getExprMVarAssignment? mvarId then
-        mvarId := assignment.getAppFn.mvarId!
-      else
-        break
-
-def ContVarId.erase (contVarId : ContVarId) : DoElabM Unit := do
-  modify fun s => { s with contVars := s.contVars.erase contVarId }
-
-/--
-The subset of `(← read).mutVars` that were reassigned at any of the jump sites of the continuation
-variable relative to `rootCtx`. The result array has the same order as `(← read).mutVars`.
--/
-def ContVarId.getReassignedMutVars (contVarId : ContVarId) (rootCtx : LocalContext) : DoElabM (Std.HashSet Name) := do
-  let info ← contVarId.find
-  let childCtxs ← info.jumps.mapM fun j => return (← j.mvar.mvarId!.getDecl).lctx
-  return Lean.Elab.Do.getReassignedMutVars rootCtx (.ofArray <| (← read).mutVars.map (·.getId)) childCtxs
-
-/--
 Restores the local context to `oldCtx` and adds the new reaching definitions of the mut vars and
 result. Then resume the continuation `k` with the `mutVars` restored to the given `oldMutVars`.
 
@@ -625,60 +481,6 @@ def DoElemCont.continueWithUnit (ref : Syntax) (dec : DoElemCont) : DoElabM Expr
   discard <| Term.ensureHasType dec.resultType unit
   mapLetDeclZeta dec.resultName (← mkPUnit) unit (nondep := true) (kind := dec.declKind) fun _ =>
     withRef? dec.ref (dec.k ref)
-
-partial def withSynthesizeForDo (k : DoElabM α) : DoElabM α :=
-  controlAtTermElabM fun runInBase => do
-    let pendingMVarsSaved := (← get).pendingMVars
-    modify fun s => { s with pendingMVars := [] }
-    try runInBase do
-      let a ← k
-      synth
-      return a
-    finally
-      modify fun s => { s with pendingMVars := s.pendingMVars ++ pendingMVarsSaved }
-where
-  isPostponedSyntheticMVarOfMonadicType (mvarId : MVarId) : DoElabM Bool := do
-    let some decl ← Term.getSyntheticMVarDecl? mvarId | return false
-    let .postponed ctx := decl.kind | return false
-    if !ctx.mayElabToJump then return false -- Don't care
-    -- The `withNewMCtxDepth` means that no MVar except α is assignable.
-    -- This /appears/ to have the potential to result in a check that is not conservative, a worry
-    -- that SG thinks is unfounded.
-    -- The worry is that `mvarId.getType` might be a metavariable `?m` that could instantiate to
-    -- `m ?α`, in which case the defeq check will fail and `mvarId` will not be considered for
-    -- "might contain a jump to a joinpoint".
-    -- Hence it might be more conservative to save and restore the MetaM state.
-    -- However, this worry is unfounded given that `?m` could not be the type of an elaborated
-    -- `do` element; it must always unify with `m ?α`.
-    withNewMCtxDepth do
-    let α ← mkFreshResultType
-    let mα ← mkMonadicType α
-    let type ← mvarId.getType
-    -- The `forallTelescope` should not be necessary; if a relevant elaboration problem is
-    -- postponed, it should have type `m ?α`.
-    -- forallTelescope type fun _xs type => do
-    let res ← withReducible <| isDefEq type mα
-    -- if res then
-    --   trace[Elab.do] "isPostponedSyntheticMVarOfMonadicType: {mkMVar mvarId}, {← mvarId.getType}, {mα}, {res}"
-    return res
-
-  getSomeSyntheticMVarsRef : DoElabM Syntax := do
-    for mvarId in (← liftM (m := TermElabM) get).pendingMVars do
-      if let some decl ← Term.getSyntheticMVarDecl? mvarId then
-        if decl.stx.getPos?.isSome then
-          return decl.stx
-    return .missing
-  synth : DoElabM Unit := do
-    let rec loop (_ : Unit) : DoElabM Unit := do
-      withRef (← getSomeSyntheticMVarsRef) <| withIncRecDepth do
-        let relevantMVars ← (← liftM (m := TermElabM) get).pendingMVars.filterM isPostponedSyntheticMVarOfMonadicType
-        -- trace[Elab.do] "relevantMVars: {relevantMVars.map (mkMVar ·)}"
-        if !relevantMVars.isEmpty then
-          if ← Term.synthesizeSyntheticMVarsStep (postponeOnError := true) (runTactics := false) then
-            loop ()
-          else
-            Term.tryPostpone
-    loop ()
 
 /-- Elaborate the `DoElemCont` with the `deadCode` flag set to `deadSyntactically` to emit warnings. -/
 def DoElemCont.elabAsSyntacticallyDeadCode (dec : DoElemCont) : DoElabM Unit :=
@@ -840,30 +642,6 @@ def getContinueCont : DoElabM (Option (DoElabM Expr)) := do
   return (← read).contInfo.toContInfo.continueCont
 
 /--
-Introduce proxy redefinitions for *all* mut vars and call the continuation `k` with a function
-`elimProxyDefs : Expr → MetaM Expr` similar to `mkLetFVars` that will replace the proxy defs with
-the actual reassigned or original definitions.
--/
-@[inline]
-def withProxyMutVarDefs [Inhabited α] (k : (Expr → MetaM Expr) → DoElabM α) : DoElabM α := do
-  let mutVars := (← read).mutVars
-  let outerCtx ← getLCtx
-  let outerDecls := mutVars.map (outerCtx.getFromUserName! ·.getId)
-  withLocalDeclsDND (← outerDecls.mapM fun x => do return (x.userName, x.type)) (kind := .implDetail) fun proxyDefs => do
-    let proxyCtx ← getLCtx
-    let elimProxyDefs e : MetaM Expr := do
-      let innerCtx ← getLCtx
-      let actualDefs := proxyDefs.map fun pDef =>
-        let x := (proxyCtx.getFVar! pDef).userName
-        let iDef := (innerCtx.getFromUserName! x).toExpr
-        if iDef == pDef then
-          (outerCtx.getFromUserName! x).toExpr  -- original definition
-        else
-          iDef                                  -- reassigned definition
-      e.replaceFVarsM proxyDefs actualDefs
-    k elimProxyDefs
-
-/--
 Prepare the context for elaborating the body of a loop.
 This includes setting the return continuation, break continuation, continue continuation, as
 well as the changed result type of the `do` block in the loop body.
@@ -895,10 +673,6 @@ There is no support for `mut` vars, `break`, `continue` or `return` in a `finall
 def enterFinally (resultType : Expr) (k : DoElabM Expr) : DoElabM Expr := do
   withoutControl do
   withDoBlockResultType resultType k
-
-/-- Execute `x` with the updated flag `mayElabToJump`. -/
-def withMayElabToJump (mayElabToJump : Bool) (x : DoElabM α) : DoElabM α :=
-  withTheReader Term.Context (fun ctx => { ctx with mayElabToJump := mayElabToJump }) x
 
 /-- Extracts `MonadInfo` and monadic result type `α` from the expected type of a `do` block `m α`. -/
 private partial def extractMonadInfo (expectedType? : Option Expr) : Term.TermElabM (MonadInfo × Expr) := do

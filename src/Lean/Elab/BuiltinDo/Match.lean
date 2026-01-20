@@ -314,7 +314,6 @@ private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``m
       let r := mkAppN r rhss
       trace[Elab.match] "result: {r}"
       return r
-  withMayElabToJump false do
   Term.elabToSyntax finishMatchExpr (Term.elabTerm · mγ)
 
 @[builtin_doElem_elab Lean.Parser.Term.doMatch] partial def elabDoMatch : DoElab := fun stx dec => do
@@ -354,6 +353,5 @@ where elabDoMatchExprNoMeta (discr : Term) (alts : TSyntax ``matchExprAlts) (dec
           let alts : TSyntax ``matchExprAlts := ⟨alts.raw.modifyArg 1 (·.setArg 3 rhs)⟩
           let mγ ← mkMonadicType (← read).doBlockResultType
           elabNestedActions discr fun discrs => do
-          withMayElabToJump true do
           Term.elabTerm (← `(match_expr $discr with $alts)) mγ
     elabMatch 0 (alts.raw[0].getArgs.map (⟨·⟩))

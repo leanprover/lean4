@@ -22,7 +22,7 @@ open Lean.Meta
   elabNestedActions (e?.getD ⟨.missing⟩) fun e => do
   -- When using the ControlLifter framework, `returnCont.resultType` can be different than the
   -- result type of the `do` block. That's why we track it separately.
-  let e ← withMayElabToJump false do match e.raw with
+  let e ← match e.raw with
     | .missing => Term.ensureHasType returnCont.resultType (← mkPUnitUnit)
     | _        => Term.elabTermEnsuringType e returnCont.resultType
   dec.elabAsSyntacticallyDeadCode -- emit dead code warnings
@@ -44,7 +44,7 @@ open Lean.Meta
   let `(doExpr| $e:term) := stx | throwUnsupportedSyntax
   let mα ← mkMonadicType dec.resultType
   elabNestedActions e fun e => do
-  let e ← withMayElabToJump false <| Term.elabTermEnsuringType e mα
+  let e ← Term.elabTermEnsuringType e mα
   dec.mkBindUnlessPure stx e
 
 @[builtin_doElem_elab Lean.Parser.Term.doNested] def elabDoNested : DoElab := fun stx dec => do

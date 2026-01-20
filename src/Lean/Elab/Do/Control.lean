@@ -183,42 +183,6 @@ def ControlStack.mkPure (base : ControlStack) (pureDeadCode : IO.Ref CodeLivenes
   let r ← getFVarFromUserName resultName
   base.runInBase <| mkApp4 (mkConst ``Pure.pure [mi.u, mi.v]) mi.m instPure (← inferType r) r
 
-def ControlStack.synthesizeBreakContinue (breakTName breakName : Name) (m : ControlStack) (kvar : ContVarId) (mstMγ : Expr) : DoElabM Unit := do
-  let mi := { (← read).monadInfo with m := (← m.m) }
-  let inst ← mkInstMonad mi
-  let m' := mkApp (mkConst breakTName [mi.u, mi.v]) mi.m
-  let α ← mkFreshResultType `α
-  -- trace[Elab.do] "synthesizeBreakContinue: {mkApp m' α}, {mstMγ}"
-  synthUsingDefEq "break/continue result type" (mkApp m' α) mstMγ
-  kvar.synthesizeJumps do
-    m.runInBase <| mkApp3 (mkConst breakName [mi.u, mi.v]) α mi.m inst
-
-def ControlStack.synthesizeContinue := synthesizeBreakContinue ``ContinueT ``ContinueT.continue
-def ControlStack.synthesizeBreak := synthesizeBreakContinue ``BreakT ``BreakT.break
-
-def ControlStack.synthesizeReturn (base : ControlStack) (resultName : Name) (returnKVar : ContVarId) (mstMγ : Expr) : DoElabM Unit := do
-  let mi := { (← read).monadInfo with m := (← base.m) }
-  let instMonad ← mkInstMonad mi
-  returnKVar.synthesizeJumps do
-    let r ← getFVarFromUserName resultName
-    let ρ ← inferType r
-    -- mstMγ is not dependently refined my pattern matches, hence its ρ will not be either.
-    -- So we'll match out *some* ρ' and throw it away; we know that it's defeq to ρ modulo refinements.
-    let ρ' ← mkFreshResultType `ρ
-    let δ ← mkFreshResultType `δ
-    let stMγ := mkApp2 (mkConst ``Except [mi.u, mi.v]) ρ' δ
-    synthUsingDefEq "early return result type" (mkApp mi.m stMγ) mstMγ
-    return mkApp5 (mkConst ``EarlyReturnT.return [mi.u, mi.v]) ρ mi.m δ instMonad r
-
-def ControlStack.synthesizePure (base : ControlStack) (resultName : Name) (pureKVar : ContVarId) : DoElabM Unit := do
-  let mi := { (← read).monadInfo with m := (← base.m) }
-  let instMonad ← mkInstMonad mi
-  let instPure := instMonad |> mkApp2 (mkConst ``Monad.toApplicative [mi.u, mi.v]) mi.m
-                            |> mkApp2 (mkConst ``Applicative.toPure [mi.u, mi.v]) mi.m
-  pureKVar.synthesizeJumps do
-    let r ← getFVarFromUserName resultName
-    base.runInBase <| mkApp4 (mkConst ``Pure.pure [mi.u, mi.v]) mi.m instPure (← inferType r) r
-
 structure ControlLifter where
   mutVars : Array Name
   origCont : DoElemCont
@@ -229,8 +193,9 @@ structure ControlLifter where
   pureDeadCode : IO.Ref CodeLiveness
   liftedDoBlockResultType : Expr
 
-#reduce (types := true) List (Except Nat (Option (Option Bool) × String))
-#reduce (types := true) OptionT (OptionT (StateT String (ExceptT Nat List))) Bool
+-- abbrev M := List
+-- #reduce (types := true) M (Except Nat (Option (Option Bool) × String))
+-- #reduce (types := true) OptionT (OptionT (StateT String (ExceptT Nat M))) Bool
 
 def ControlLifter.ofCont (dec : DoElemCont) : DoElabM ControlLifter := do
   let mi := (← read).monadInfo
@@ -296,7 +261,7 @@ def ControlLifter.lift (l : ControlLifter) (elabElem : DoElemCont → DoElabM Ex
   let contInfo := ContInfo.toContInfoRef { breakCont, continueCont, returnCont }
   let pureCont := { l.origCont with k _ := l.pureBase.mkPure l.pureDeadCode l.origCont.resultName, kind := .duplicable }
   withReader (fun ctx => { ctx with contInfo, doBlockResultType := l.liftedDoBlockResultType }) do
-    withSynthesizeForDo (elabElem pureCont)
+    elabElem pureCont
 
 def ControlLifter.restoreCont (l : ControlLifter) : DoElabM DoElemCont := do
   -- The success continuation `l.origCont` is dead code iff `l.pureKVar` is.

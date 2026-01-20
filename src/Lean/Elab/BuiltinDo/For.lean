@@ -138,9 +138,8 @@ open Lean.Meta
 
     -- Elaborate the loop body, which must have result type `PUnit`.
     -- The `withSynthesizeForDo` is so that we see all jump sites before continuing elaboration.
-    let body ← withSynthesizeForDo do
+    let body ←
       enterLoopBody breakCont continueCont do
-      withMayElabToJump true do
       bindMutVarsFromTuple loopMutVarNames loopS.fvarId! do
       elabDoSeq body { dec with k _ := continueCont, kind := .duplicable }
 

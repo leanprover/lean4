@@ -7,14 +7,15 @@ module
 prelude
 public import Lean.Meta.Sym.SymM
 import Lean.Meta.Sym.IsClass
-import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Sym.Util
+import Lean.Meta.Transform
 namespace Lean.Meta.Sym
 
 /--
 Preprocesses types that used for pattern matching and unification.
 -/
 public def preprocessType (type : Expr) : MetaM Expr := do
-  let type ← Grind.unfoldReducible type
+  let type ← Sym.unfoldReducible type
   let type ← Core.betaReduce type
   zetaReduce type
 

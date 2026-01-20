@@ -415,44 +415,6 @@ def evalLE (α : Expr) (a b : Expr) : SimpM Result :=
   | Char => evalBinPred getCharValue? (mkConst ``Char.le_eq_true) (mkConst ``Char.le_eq_false) (. ≤ .) a b
   | _ => return .rfl
 
-def evalGT (α : Expr) (a b : Expr) : SimpM Result :=
-  match_expr α with
-  | Nat => evalBinPred getNatValue? (mkConst ``Nat.gt_eq_true) (mkConst ``Nat.gt_eq_false) (. > .) a b
-  | Int => evalBinPred getIntValue? (mkConst ``Int.gt_eq_true) (mkConst ``Int.gt_eq_false) (. > .) a b
-  | Rat => evalBinPred getRatValue? (mkConst ``Rat.gt_eq_true) (mkConst ``Rat.gt_eq_false) (. > .) a b
-  | Int8 => evalBinPred getInt8Value? (mkConst ``Int8.gt_eq_true) (mkConst ``Int8.gt_eq_false) (. > .) a b
-  | Int16 => evalBinPred getInt16Value? (mkConst ``Int16.gt_eq_true) (mkConst ``Int16.gt_eq_false) (. > .) a b
-  | Int32 => evalBinPred getInt32Value? (mkConst ``Int32.gt_eq_true) (mkConst ``Int32.gt_eq_false) (. > .) a b
-  | Int64 => evalBinPred getInt64Value? (mkConst ``Int64.gt_eq_true) (mkConst ``Int64.gt_eq_false) (. > .) a b
-  | UInt8 => evalBinPred getUInt8Value? (mkConst ``UInt8.gt_eq_true) (mkConst ``UInt8.gt_eq_false) (. > .) a b
-  | UInt16 => evalBinPred getUInt16Value? (mkConst ``UInt16.gt_eq_true) (mkConst ``UInt16.gt_eq_false) (. > .) a b
-  | UInt32 => evalBinPred getUInt32Value? (mkConst ``UInt32.gt_eq_true) (mkConst ``UInt32.gt_eq_false) (. > .) a b
-  | UInt64 => evalBinPred getUInt64Value? (mkConst ``UInt64.gt_eq_true) (mkConst ``UInt64.gt_eq_false) (. > .) a b
-  | Fin n => evalFinPred n (mkConst ``Fin.gt_eq_true) (mkConst ``Fin.gt_eq_false) (. > .) a b
-  | BitVec n => evalBitVecPred n (mkConst ``BitVec.gt_eq_true) (mkConst ``BitVec.gt_eq_false) (. > .) a b
-  | String => evalBinPred getNatValue? (mkConst ``String.gt_eq_true) (mkConst ``String.gt_eq_false) (. > .) a b
-  | Char => evalBinPred getIntValue? (mkConst ``Char.gt_eq_true) (mkConst ``Char.gt_eq_false) (. > .) a b
-  | _ => return .rfl
-
-def evalGE (α : Expr) (a b : Expr) : SimpM Result :=
-  match_expr α with
-  | Nat => evalBinPred getNatValue? (mkConst ``Nat.ge_eq_true) (mkConst ``Nat.ge_eq_false) (. ≥ .) a b
-  | Int => evalBinPred getIntValue? (mkConst ``Int.ge_eq_true) (mkConst ``Int.ge_eq_false) (. ≥ .) a b
-  | Rat => evalBinPred getRatValue? (mkConst ``Rat.ge_eq_true) (mkConst ``Rat.ge_eq_false) (. ≥ .) a b
-  | Int8 => evalBinPred getInt8Value? (mkConst ``Int8.ge_eq_true) (mkConst ``Int8.ge_eq_false) (. ≥ .) a b
-  | Int16 => evalBinPred getInt16Value? (mkConst ``Int16.ge_eq_true) (mkConst ``Int16.ge_eq_false) (. ≥ .) a b
-  | Int32 => evalBinPred getInt32Value? (mkConst ``Int32.ge_eq_true) (mkConst ``Int32.ge_eq_false) (. ≥ .) a b
-  | Int64 => evalBinPred getInt64Value? (mkConst ``Int64.ge_eq_true) (mkConst ``Int64.ge_eq_false) (. ≥ .) a b
-  | UInt8 => evalBinPred getUInt8Value? (mkConst ``UInt8.ge_eq_true) (mkConst ``UInt8.ge_eq_false) (. ≥ .) a b
-  | UInt16 => evalBinPred getUInt16Value? (mkConst ``UInt16.ge_eq_true) (mkConst ``UInt16.ge_eq_false) (. ≥ .) a b
-  | UInt32 => evalBinPred getUInt32Value? (mkConst ``UInt32.ge_eq_true) (mkConst ``UInt32.ge_eq_false) (. ≥ .) a b
-  | UInt64 => evalBinPred getUInt64Value? (mkConst ``UInt64.ge_eq_true) (mkConst ``UInt64.ge_eq_false) (. ≥ .) a b
-  | Fin n => evalFinPred n (mkConst ``Fin.ge_eq_true) (mkConst ``Fin.ge_eq_false) (. ≥ .) a b
-  | BitVec n => evalBitVecPred n (mkConst ``BitVec.ge_eq_true) (mkConst ``BitVec.ge_eq_false) (. ≥ .) a b
-  | String => evalBinPred getNatValue? (mkConst ``String.ge_eq_true) (mkConst ``String.ge_eq_false) (. ≥ .) a b
-  | Char => evalBinPred getIntValue? (mkConst ``Char.ge_eq_true) (mkConst ``Char.ge_eq_false) (. ≥ .) a b
-  | _ => return .rfl
-
 def evalEq (α : Expr) (a b : Expr) : SimpM Result :=
   if isSameExpr a b then do
     let e ← share <| mkConst ``True
@@ -606,9 +568,7 @@ public def evalGround (config : EvalStepConfig := {}) : Simproc := fun e =>
   | Int.fmod a b => evalBinInt Int.fmod a b
   | Int.bmod a b => evalIntBMod a b
   | LE.le α _ a b => evalLE α a b
-  | GE.ge α _ a b => evalGE α a b
   | LT.lt α _ a b => evalLT α a b
-  | GT.gt α _ a b => evalGT α a b
   | Dvd.dvd α _ a b => evalDvd α a b
   | Eq α a b => evalEq α a b
   | Ne α a b => evalNe α a b

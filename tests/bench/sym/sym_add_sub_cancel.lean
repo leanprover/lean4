@@ -188,19 +188,20 @@ A tactic for solving goal `Goal n`
 macro "solve" : tactic => `(tactic| {
   unfold Goal;
   intros m l;
-  dsimp [generated_cmd, repeated_cmds];
+  simp only [generated_cmd, repeated_cmds];
   apply Exec.seq_cps;
   apply Exec.input;
   intros v;
   repeat (
     apply Exec.seq_cps;
     apply Exec.set;
-    simp [Expr.eval];
-    simp [PartialMap.get_put_diff, PartialMap.get_put, PartialMap.put_put, Binop.interp_add,
-          Binop.interp_sub, Word.add_sub_cancel];
+    simp only [Expr.eval];
+    simp only [PartialMap.get_put_diff, PartialMap.get_put, PartialMap.put_put, Binop.interp_add,
+          Binop.interp_sub, Word.add_sub_cancel, Option.some.injEq, not_false_eq_true, String.reduceEq, ne_eq];
     try rfl);
   apply Exec.skip;
-  simp [PartialMap.get_put, PartialMap.put_put, PartialMap.get_put_diff]
+  simp only [List.cons.injEq, IOEvent.IN.injEq, and_true, PartialMap.put_put, PartialMap.get_put,
+    Option.some.injEq, and_self, exists_eq']
 })
 
 /--

@@ -887,13 +887,13 @@ def cpop (x : BitVec w) : BitVec w := BitVec.ofNat w (cpopNatRec x w 0)
 
 /-- Recursive addition of `l` elements with length `w` in a flattened bitvec,
   starting from the `rem`-th element. -/
-def flatRecAdd (x : BitVec (l * w)) (rem : Nat) (acc : BitVec w) : BitVec w :=
+def hAddRec (x : BitVec (l * w)) (rem : Nat) (acc : BitVec w) : BitVec w :=
   match rem with
   | 0 => acc
-  | n + 1 => x.flatRecAdd n (acc + x.extractLsb' (n * w) w)
+  | n + 1 => x.hAddRec n (acc + x.extractLsb' (n * w) w)
 
 /-- Add `l`-long portions of a `w`-long bitvector. -/
-def flatAdd (l : Nat) (x : BitVec w) : BitVec l :=
+def hAdd (l : Nat) (x : BitVec w) : BitVec l :=
   if hl0 : l = 0 then 0#l
   else
     if hle : w ≤ l then
@@ -909,10 +909,10 @@ def flatAdd (l : Nat) (x : BitVec w) : BitVec l :=
         let zext := x.zeroExtend (w + diff)
         let init_length := (w + diff) / l
         let xcast := zext.cast (m := init_length * l) (by rw [Nat.div_mul_cancel (by omega)])
-        flatRecAdd xcast ((w + diff) / l) 0#l
+        hAddRec xcast ((w + diff) / l) 0#l
       else
         let init_length := w / l
         let xcast := x.cast (m := init_length * l) (by rw [Nat.div_mul_cancel (by omega)])
-        flatRecAdd xcast (w / l) 0#l
+        hAddRec xcast (w / l) 0#l
 
 end BitVec

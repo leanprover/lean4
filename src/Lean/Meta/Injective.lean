@@ -171,8 +171,10 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
     solveEqOfCtorEq ctorName mvarId₁ h
     let mut mvarId₂ := mvarId₂
     -- First intro all the equalities
-    let mut eqs := #[]
-    let mut heqs := #[]
+    -- Also keep track of which fvars these will rewrite
+    let mut eqs := #[]  -- Equalities between non-dependent variables
+    let mut heqs := #[] -- Equlaities between dependent variables
+    let mut vars := #[] -- Variables that will be rewritten
     while true do
       let t ← mvarId₂.getType
       let some (conj, body) := t.arrow?  | break
@@ -182,12 +184,15 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
       let (h, mvarId₂') ← mvarId₂.intro1
       mvarId₂ := mvarId₂'
       let hType ← instantiateMVars (← mvarId₂.withContext h.getType)
-      -- The heq.isEmpty is a hack
-      if hType.isEq && heqs.isEmpty then
-        eqs := eqs.push h
-      else if hType.isEq || hType.isHEq then
+      let (alpha, a) ← match_expr hType with
+        | Eq α a _ => pure (α, a)
+        | HEq α a _ _ => pure (α, a)
+        | _ => throwError "unexpected hypothesis of type{inlineExpr hType}in\n{mvarId₂}"
+      if (← vars.anyM (exprDependsOn alpha ·)) then
         heqs := heqs.push h
-      else throwError "unexpected hypothesis of type{inlineExpr hType}in\n{mvarId₂}"
+      else
+        eqs := eqs.push h
+      vars := vars.push a.fvarId!
     -- Then revert the `HEq`s together with their variables, from back to front.
     let mut introChunks : Array Nat := #[]
     for heq in heqs.reverse do

@@ -181,19 +181,22 @@ private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : Me
       | _ => pure ()
       let (h, mvarId₂') ← mvarId₂.intro1
       mvarId₂ := mvarId₂'
+      /-
       let hType ← instantiateMVars (← mvarId₂.withContext h.getType)
       if hType.isEq then
         eqs := eqs.push h
       else if hType.isHEq then
         heqs := heqs.push h
       else throwError "unexpected hypothesis of type{inlineExpr hType}in\n{mvarId₂}"
+      -/
+      heqs := heqs.push h
     -- Then revert the `HEq`s together with their variables, from back to front.
     let mut introChunks : Array Nat := #[]
     for heq in heqs.reverse do
       let (n, mvarId₂') ← revertEq mvarId₂ heq
       introChunks := introChunks.push n
       mvarId₂ := mvarId₂'
-    trace[Meta.injective] "after reverting {heqs.size} HEqs:\n{mvarId₂}"
+    trace[Meta.injective] "after reverting {heqs.size} HEqs in blocks {introChunks}:\n{mvarId₂}"
     -- Now revert the other equalities, but without their variables
     (_, mvarId₂) ← mvarId₂.revert eqs
     trace[Meta.injective] "after reverting {eqs.size} Eqs:\n{mvarId₂}"

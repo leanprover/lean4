@@ -16,6 +16,8 @@ import Lean.Meta.Sym.IsClass
 import Lean.Meta.Sym.MaxFVar
 import Lean.Meta.Sym.ProofInstInfo
 import Lean.Meta.Sym.AlphaShareBuilder
+import Lean.Meta.Sym.LitValues
+import Lean.Meta.Sym.Offset
 namespace Lean.Meta.Sym
 open Internal
 
@@ -347,12 +349,42 @@ where
     let some value ← fvarId.getValue? | return false
     process p value
 
-  processApp (p : Expr) (e : Expr) : UnifyM Bool := do
-    let f := p.getAppFn
-    let .const declName _ := f | processAppDefault p e
+  processOffset (p : Offset) (e : Offset) : UnifyM Bool := do
+   -- **Note** Recall that we don't assume patterns are maximally shared terms.
+    match p, e with
+    | .num _, .num _ => unreachable!
+    | .num k₁, .add e k₂ =>
+      if k₁ < k₂ then return false
+      process (mkNatLit (k₁ - k₂)) e
+    | .add p k₁, .num k₂ =>
+      if k₂ < k₁ then return false
+      process p (← share (mkNatLit (k₂ - k₁)))
+    | .add p k₁, .add e k₂ =>
+      if k₁ == k₂ then
+        process p e
+      else if k₁ < k₂ then
+        if k₁ == 0 then return false
+        process p (← share (mkNatAdd e (mkNatLit (k₂ - k₁))))
+      else
+        if k₂ == 0 then return false
+        process (mkNatAdd p (mkNatLit (k₁ - k₂))) e
+
+  processConstApp (declName : Name) (p : Expr) (e : Expr) : UnifyM Bool := do
     let some info := (← read).pattern.fnInfos.find? declName | process.processAppDefault p e
     let numArgs := p.getAppNumArgs
     processAppWithInfo p e (numArgs - 1) info
+
+  processApp (p : Expr) (e : Expr) : UnifyM Bool := withIncRecDepth do
+    let f := p.getAppFn
+    let .const declName _ := f | processAppDefault p e
+    if (← processConstApp declName p e) then
+      return true
+    else if let some p' := isOffset?' declName p then
+      processOffset p' (toOffset e)
+    else if let some e' := isOffset? e then
+      processOffset (toOffset p) e'
+    else
+      return false
 
   processAppWithInfo (p : Expr) (e : Expr) (i : Nat) (info : ProofInstInfo) : UnifyM Bool := do
     let .app fp ap := p | if e.isApp then return false else process p e

@@ -17,10 +17,14 @@ namespace IR
 public inductive GroundArg where
   | tagged (val : Nat)
   | reference (n : Name)
+  | rawReference (s : String)
   deriving Inhabited
 
 public inductive GroundExpr where
-  | ctor (idx : Nat) (args : Array GroundArg)
+  /--
+  TODO: Crucial!!! scalarArgs must be padded to 8
+  -/
+  | ctor (idx : Nat) (objArgs : Array GroundArg) (usizeArgs : Array USize) (scalarArgs : Array UInt8)
   | string (data : String)
   | pap (func : FunId) (args : Array GroundArg)
   | nameMkStr (args : Array (Name × String))
@@ -91,7 +95,7 @@ where
       | .num .. => failure
     | .ctor i args =>
       guard <| i.usize == 0 && i.ssize == 0 && !args.isEmpty
-      return .ctor i.cidx (← compileArgs args)
+      return .ctor i.cidx (← compileArgs args) #[] #[]
     | .fap ``Name.mkStr1 args
     | .fap ``Name.mkStr2 args
     | .fap ``Name.mkStr3 args

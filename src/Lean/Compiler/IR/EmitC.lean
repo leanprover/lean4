@@ -157,18 +157,35 @@ where
   -- TODO: careful with c int literals
   groundToCLit (e : GroundExpr) : GroundM (String × String) := do
     match e with
-    | .ctor idx args =>
-      let args ← args.mapM groundArgToCLit
-      let argArray := String.intercalate "," args.toList
-      let header := mkCtorHeader args.size 0 0 idx
-      return ("lean_ctor_object", s!"\{ .m_header = {header}, .m_objs = \{{argArray}}}")
+    | .ctor idx objArgs usizeArgs scalarArgs =>
+      let header := mkCtorHeader objArgs.size usizeArgs.size scalarArgs.size idx
+      let objArgs ← objArgs.mapM groundArgToCLit
+      let usizeArgs : Array String := usizeArgs.map fun val => s!"(lean_object*)(size_t)({val}ULL)"
+      assert! scalarArgs.size % 8 == 0
+      let scalarArgs : Array String := Id.run do
+        let chunks := scalarArgs.size / 8
+        let mut packed := Array.emptyWithCapacity chunks
+        for idx in 0...chunks do
+          let b1 := scalarArgs[idx * 8]!
+          let b2 := scalarArgs[idx * 8 + 1]!
+          let b3 := scalarArgs[idx * 8 + 2]!
+          let b4 := scalarArgs[idx * 8 + 3]!
+          let b5 := scalarArgs[idx * 8 + 4]!
+          let b6 := scalarArgs[idx * 8 + 5]!
+          let b7 := scalarArgs[idx * 8 + 6]!
+          let b8 := scalarArgs[idx * 8 + 7]!
+          let lit := s!"LEAN_SCALAR_PTR_LITERAL({b1}, {b2}, {b3}, {b4}, {b5}, {b6}, {b7}, {b8})"
+          packed := packed.push lit
+        return packed
+      let argArray := String.intercalate "," (objArgs ++ usizeArgs ++ scalarArgs).toList
+      return ("lean_ctor_object", s!"\{.m_header = {header}, .m_objs = \{{argArray}}}")
     | .string data =>
       let leanStringTag := 249
       let header := mkHeader 0 0 leanStringTag
       let size := data.utf8ByteSize + 1 -- null byte
       let length := data.length
       let data : String := quoteString data
-      return ("lean_string_object", s!"\{ .m_header = {header}, .m_size = {size}, .m_capacity = {size}, .m_length = {length}, .m_data = {data}}")
+      return ("lean_string_object", s!"\{.m_header = {header}, .m_size = {size}, .m_capacity = {size}, .m_length = {length}, .m_data = {data}}")
     | .pap func args =>
       let numFixed := args.size
       let leanClosureTag := 245
@@ -177,23 +194,28 @@ where
       let arity := (← getDecl func).params.size
       let args ← args.mapM groundArgToCLit
       let argArray := String.intercalate "," args.toList
-      return ("lean_closure_object", s!"\{ .m_header = {header}, .m_fun = {funPtr}, .m_arity = {arity}, .m_num_fixed = {numFixed}, .m_objs = \{{argArray}} }")
+      return ("lean_closure_object", s!"\{.m_header = {header}, .m_fun = {funPtr}, .m_arity = {arity}, .m_num_fixed = {numFixed}, .m_objs = \{{argArray}} }")
     | .nameMkStr args =>
       let (leaf, _) ← groundNameStrToCLit args
       return ("lean_ctor_object", leaf)
 
   groundNameStrToCLit (args : Array (Name × String)) : GroundM (String × Name) := do
     assert! args.size > 0
-    let header := mkCtorHeader 2 0 8 1
+    let uint64ToByteArray (n : UInt64) := #[
+        n.toUInt8,
+        (n >>> 0x08).toUInt8,
+        (n >>> 0x10).toUInt8,
+        (n >>> 0x18).toUInt8,
+        (n >>> 0x20).toUInt8,
+        (n >>> 0x28).toUInt8,
+        (n >>> 0x30).toUInt8,
+        (n >>> 0x38).toUInt8,
+      ]
     if args.size == 1 then
       let (ref, component) := args[0]!
       let name := Name.mkStr1 component
-      let argArray := String.intercalate "," [
-        ← groundArgToCLit <| .tagged 0,
-        ← groundArgToCLit <| .reference ref,
-        s!"(lean_object*){name.hash}ULL"
-      ]
-      let obj := s!"\{ .m_header = {header}, .m_objs = \{{argArray}}}"
+      let hash := uint64ToByteArray name.hash
+      let (_, obj) ← groundToCLit <| .ctor 1 #[.tagged 0, .reference ref] #[] hash
       return (obj, name)
     else
       let (ref, component) := args.back!
@@ -201,18 +223,15 @@ where
       let (lit, name) ← groundNameStrToCLit args
       let auxName ← mkAuxDecl "lean_ctor_object" lit
       let name := Name.str name component
-      let argArray := String.intercalate "," [
-        s!"(lean_object*)&{auxName}",
-        ← groundArgToCLit <| .reference ref,
-        s!"(lean_object*){name.hash}ULL"
-      ]
-      let obj := s!"\{ .m_header = {header}, .m_objs = \{{argArray}}}"
+      let hash := uint64ToByteArray name.hash
+      let (_, obj) ← groundToCLit <| .ctor 1 #[.rawReference auxName, .reference ref] #[] hash
       return (obj, name)
 
   groundArgToCLit (a : GroundArg) : GroundM String := do
     match a with
     | .tagged val => return s!"((lean_object*)(((size_t)({val}) << 1) | 1))"
     | .reference decl => return s!"((lean_object*)&{mkValueName (← toCName decl)})"
+    | .rawReference decl => return s!"((lean_object*)&{decl})"
 
   mkCtorHeader (numObjs : Nat) (usize : Nat) (ssize : Nat) (tag : Nat) : String :=
     let size := s!"sizeof(lean_ctor_object) + sizeof(void*)*{numObjs} + {ctorScalarSizeStr usize ssize}"
@@ -224,9 +243,6 @@ where
 def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M Unit := do
   let ps := decl.params
   let env ← getEnv
-  if isClosedTermName env decl.name && !isGroundDecl env decl.name then
-    pure ()
-    --dbg_trace s!"{decl}"
 
   if isGroundDecl env decl.name then
     emitGroundDecl decl cppBaseName

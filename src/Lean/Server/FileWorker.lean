@@ -793,21 +793,24 @@ section MessageHandling
         rpcEncode resp st.objects |>.map (·) ({st with objects := ·})
       return some <| .pure { response? := resp, serialized := resp.compress, isComplete := true }
     | "codeAction/resolve" =>
+      let jsonParams := params
       let params ← RequestM.parseRequestParams CodeAction params
       let some data := params.data?
         | throw (RequestError.invalidParams "Expected a data field on CodeAction.")
       let data ← RequestM.parseRequestParams CodeActionResolveData data
-      if data.providerName != importAllUnknownIdentifiersProvider then
-        return none
-      return some <| ← RequestM.asTask do
-        let unknownIdentifierRanges ← waitAllUnknownIdentifierMessageRanges st.doc
-        if unknownIdentifierRanges.isEmpty then
-          let p := toJson params
-          return { response? := p, serialized := p.compress, isComplete := true }
-        let action? ← handleResolveImportAllUnknownIdentifiersCodeAction? id params unknownIdentifierRanges
-        let action := action?.getD params
-        let action := toJson action
-        return { response? := action, serialized := action.compress, isComplete := true }
+      if data.providerName == importUnknownIdentifiersProvider then
+        return some <| RequestTask.pure { response? := jsonParams, serialized := jsonParams.compress, isComplete := true }
+      if data.providerName == importAllUnknownIdentifiersProvider then
+        return some <| ← RequestM.asTask do
+          let unknownIdentifierRanges ← waitAllUnknownIdentifierMessageRanges st.doc
+          if unknownIdentifierRanges.isEmpty then
+            let p := toJson params
+            return { response? := p, serialized := p.compress, isComplete := true }
+          let action? ← handleResolveImportAllUnknownIdentifiersCodeAction? id params unknownIdentifierRanges
+          let action := action?.getD params
+          let action := toJson action
+          return { response? := action, serialized := action.compress, isComplete := true }
+      return none
     | _ =>
       return none
 

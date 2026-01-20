@@ -392,6 +392,8 @@ def evalLT (α : Expr) (a b : Expr) : SimpM Result :=
   | UInt64 => evalBinPred getUInt64Value? (mkConst ``UInt64.lt_eq_true) (mkConst ``UInt64.lt_eq_false) (. < .) a b
   | Fin n => evalFinPred n (mkConst ``Fin.lt_eq_true) (mkConst ``Fin.lt_eq_false) (. < .) a b
   | BitVec n => evalBitVecPred n (mkConst ``BitVec.lt_eq_true) (mkConst ``BitVec.lt_eq_false) (. < .) a b
+  | String => evalBinPred getStringValue? (mkConst ``String.lt_eq_true) (mkConst ``String.lt_eq_false) (. < .) a b
+  | Char => evalBinPred getCharValue? (mkConst ``Char.lt_eq_true) (mkConst ``Char.lt_eq_false) (. < .) a b
   | _ => return .rfl
 
 def evalLE (α : Expr) (a b : Expr) : SimpM Result :=
@@ -409,6 +411,8 @@ def evalLE (α : Expr) (a b : Expr) : SimpM Result :=
   | UInt64 => evalBinPred getUInt64Value? (mkConst ``UInt64.le_eq_true) (mkConst ``UInt64.le_eq_false) (. ≤ .) a b
   | Fin n => evalFinPred n (mkConst ``Fin.le_eq_true) (mkConst ``Fin.le_eq_false) (. ≤ .) a b
   | BitVec n => evalBitVecPred n (mkConst ``BitVec.le_eq_true) (mkConst ``BitVec.le_eq_false) (. ≤ .) a b
+  | String => evalBinPred getStringValue? (mkConst ``String.le_eq_true) (mkConst ``String.le_eq_false) (. ≤ .) a b
+  | Char => evalBinPred getCharValue? (mkConst ``Char.le_eq_true) (mkConst ``Char.le_eq_false) (. ≤ .) a b
   | _ => return .rfl
 
 def evalGT (α : Expr) (a b : Expr) : SimpM Result :=
@@ -426,6 +430,8 @@ def evalGT (α : Expr) (a b : Expr) : SimpM Result :=
   | UInt64 => evalBinPred getUInt64Value? (mkConst ``UInt64.gt_eq_true) (mkConst ``UInt64.gt_eq_false) (. > .) a b
   | Fin n => evalFinPred n (mkConst ``Fin.gt_eq_true) (mkConst ``Fin.gt_eq_false) (. > .) a b
   | BitVec n => evalBitVecPred n (mkConst ``BitVec.gt_eq_true) (mkConst ``BitVec.gt_eq_false) (. > .) a b
+  | String => evalBinPred getNatValue? (mkConst ``String.gt_eq_true) (mkConst ``String.gt_eq_false) (. > .) a b
+  | Char => evalBinPred getIntValue? (mkConst ``Char.gt_eq_true) (mkConst ``Char.gt_eq_false) (. > .) a b
   | _ => return .rfl
 
 def evalGE (α : Expr) (a b : Expr) : SimpM Result :=
@@ -443,6 +449,8 @@ def evalGE (α : Expr) (a b : Expr) : SimpM Result :=
   | UInt64 => evalBinPred getUInt64Value? (mkConst ``UInt64.ge_eq_true) (mkConst ``UInt64.ge_eq_false) (. ≥ .) a b
   | Fin n => evalFinPred n (mkConst ``Fin.ge_eq_true) (mkConst ``Fin.ge_eq_false) (. ≥ .) a b
   | BitVec n => evalBitVecPred n (mkConst ``BitVec.ge_eq_true) (mkConst ``BitVec.ge_eq_false) (. ≥ .) a b
+  | String => evalBinPred getNatValue? (mkConst ``String.ge_eq_true) (mkConst ``String.ge_eq_false) (. ≥ .) a b
+  | Char => evalBinPred getIntValue? (mkConst ``Char.ge_eq_true) (mkConst ``Char.ge_eq_false) (. ≥ .) a b
   | _ => return .rfl
 
 def evalEq (α : Expr) (a b : Expr) : SimpM Result :=
@@ -464,6 +472,8 @@ def evalEq (α : Expr) (a b : Expr) : SimpM Result :=
   | UInt64 => evalBinPred getUInt64Value? (mkConst ``UInt64.eq_eq_true) (mkConst ``UInt64.eq_eq_false) (. = .) a b
   | Fin n => evalFinPred n (mkConst ``Fin.eq_eq_true) (mkConst ``Fin.eq_eq_false) (. = .) a b
   | BitVec n => evalBitVecPred n (mkConst ``BitVec.eq_eq_true) (mkConst ``BitVec.eq_eq_false) (. = .) a b
+  | Char => evalBinPred getCharValue? (mkConst ``Char.eq_eq_true) (mkConst ``Char.eq_eq_false) (. = .) a b
+  | String => evalBinPred getStringValue? (mkConst ``String.eq_eq_true) (mkConst ``String.eq_eq_false) (. = .) a b
   | _ => return .rfl
 
 def evalNe (α : Expr) (a b : Expr) : SimpM Result :=
@@ -485,6 +495,8 @@ def evalNe (α : Expr) (a b : Expr) : SimpM Result :=
   | UInt64 => evalBinPred getUInt64Value? (mkConst ``UInt64.ne_eq_true) (mkConst ``UInt64.ne_eq_false) (. ≠ .) a b
   | Fin n => evalFinPred n (mkConst ``Fin.ne_eq_true) (mkConst ``Fin.ne_eq_false) (. ≠ .) a b
   | BitVec n => evalBitVecPred n (mkConst ``BitVec.ne_eq_true) (mkConst ``BitVec.ne_eq_false) (. ≠ .) a b
+  | String => evalBinPred getStringValue? (mkConst ``String.ne_eq_true) (mkConst ``String.ne_eq_false) (. ≠ .) a b
+  | Char => evalBinPred getCharValue? (mkConst ``Char.ne_eq_true) (mkConst ``Char.ne_eq_false) (. ≠ .) a b
   | _ => return .rfl
 
 def evalDvd (α : Expr) (a b : Expr) : SimpM Result :=

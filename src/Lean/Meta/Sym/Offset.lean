@@ -33,17 +33,6 @@ def Offset.inc : Offset → Nat → Offset
   | .num k,   k' => .num (k+k')
   | .add e k, k' => .add e (k+k')
 
-/-- Decrements the constant part of the offset by `k'`. -/
-def Offset.dec : Offset → Nat → Offset
-  | .num k,   k' => .num (k-k')
-  | .add e k, k' => .add e (k-k')
-
-
-/-- Returns the constant part of the offset. -/
-def Offset.getK : Offset → Nat
-  | .num k => k
-  | .add _ k => k
-
 /--
 Returns `some offset` if `e` is an offset term. That is, it is of the form
 - `Nat.succ a`, OR
@@ -100,11 +89,5 @@ partial def toOffset (e : Expr) : Offset :=
     let .lit (.natVal n) := n | .add e 0
     .num n
   | _ => .add e 0
-
-/-- Converts offset back into an expression -/
-def Offset.toExpr : Offset → Expr
-  | .num n   => mkNatLit n
-  | .add e 0 => e
-  | .add e n => mkNatAdd e (mkNatLit n)
 
 end Lean.Meta.Sym

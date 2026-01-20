@@ -82,11 +82,24 @@ open Lean.Meta
   elabNestedActions xs fun xs => do
   let xs ← Term.elabTermEnsuringType xs ρ
   let mi := (← read).monadInfo
-  let σ ← mkFreshExprMVar (mkSort (mkLevelSucc mi.u)) (userName := `σ) -- assigned below
-  let γ := (← read).doBlockResultType
-  let β ← mkArrow σ (← mkMonadicType γ)
   let mutVars := (← read).mutVars
   let mutVarNames := mutVars.map (·.getId)
+  -- TODO: Refine set of loop mut vars
+  -- Compute the set of mut vars that were reassigned on the path to a back jump (`continue`).
+  -- Take care to preserve the declaration order that is manifest in the array `mutVars`.
+  let loopMutVars := mutVars
+  let loopMutVarNames := loopMutVars.map (·.getId) |>.toList
+  let useLoopMutVars : TermElabM (Array Expr) := do
+    let mut defs := #[]
+    for x in loopMutVars do
+      let defn ← getFVarFromUserName x.getId
+      Term.addTermInfo' x defn
+      defs := defs.push defn
+    return defs
+  -- let σ ← mkFreshExprMVar (mkSort (mkLevelSucc mi.u)) (userName := `σ) -- assigned below
+  let (preS, σ) ← mkProdMkN (← useLoopMutVars) mi.u
+  let γ := (← read).doBlockResultType
+  let β ← mkArrow σ (← mkMonadicType γ)
   let breakRhs ← mkFreshExprMVar β -- assigned below
   let (app, p?) ← match h? with
     | none =>
@@ -111,50 +124,25 @@ open Lean.Meta
   withLocalDecl kcontinueName .default β (kind := .implDetail) fun kcontinue => do
   withContFVar kcontinueName do
   withLocalDecl (← mkFreshUserName `__s) .default σ (kind := .implDetail) fun loopS => do
-  withProxyMutVarDefs fun elimProxyDefs => do
+  -- withProxyMutVarDefs fun elimProxyDefs => do
     let rootCtx ← getLCtx
-    -- We will use `continueKVar` to stand in for the `DoElemCont` `dec` below.
-    -- Adding `dec.resultName` to the list of tunneled vars helps with some MVar assignment issues.
-    let continueKVar ← mkFreshContVar (mutVarNames.push dec.resultName)
-    let breakKVar ← mkFreshContVar mutVarNames
+
+    let continueCont := do
+      let (tuple, _tupleTy) ← mkProdMkN (← useLoopMutVars) mi.u
+      return mkApp kcontinue tuple
+    let break? ← IO.mkRef false
+    let breakCont := do
+      break?.set true
+      let (tuple, _tupleTy) ← mkProdMkN (← useLoopMutVars) mi.u
+      return mkApp kbreak tuple
 
     -- Elaborate the loop body, which must have result type `PUnit`.
     -- The `withSynthesizeForDo` is so that we see all jump sites before continuing elaboration.
     let body ← withSynthesizeForDo do
-      enterLoopBody breakKVar.mkJump continueKVar.mkJump do
+      enterLoopBody breakCont continueCont do
       withMayElabToJump true do
-      elabDoSeq body { dec with k := continueKVar.mkJump, kind := .duplicable }
-
-    -- Compute the set of mut vars that were reassigned on the path to a back jump (`continue`).
-    -- Take care to preserve the declaration order that is manifest in the array `mutVars`.
-    let loopMutVars ← do
-      let ctn ← continueKVar.getReassignedMutVars rootCtx
-      let brk ← breakKVar.getReassignedMutVars rootCtx
-      pure (ctn.union brk)
-    let loopMutVars := mutVars.filter (loopMutVars.contains ·.getId)
-    let loopMutVarNames := loopMutVars.map (·.getId) |>.toList
-
-    let useLoopMutVars : TermElabM (Array Expr) := do
-      let mut defs := #[]
-      for x in loopMutVars do
-        let defn ← getFVarFromUserName x.getId
-        Term.addTermInfo' x defn
-        defs := defs.push defn
-      return defs
-
-    -- Assign the state tuple type and the initial tuple of states.
-    let preS ← σ.mvarId!.withContext do
-      let (tuple, tupleTy) ← mkProdMkN (← useLoopMutVars) mi.u
-      synthUsingDefEq "state tuple type" σ tupleTy
-      pure tuple
-
-    -- Synthesize the `continue` and `break` jumps.
-    continueKVar.synthesizeJumps do
-      let (tuple, _tupleTy) ← mkProdMkN (← useLoopMutVars) mi.u
-      return mkApp kcontinue tuple
-    breakKVar.synthesizeJumps do
-      let (tuple, _tupleTy) ← mkProdMkN (← useLoopMutVars) mi.u
-      return mkApp kbreak tuple
+      bindMutVarsFromTuple loopMutVarNames loopS.fvarId! do
+      elabDoSeq body { dec with k := continueCont, kind := .duplicable }
 
     -- Elaborate the continuation, now that `σ` is known. It will be the `break` handler.
     -- If there is a `break`, the code will be shared in the `kbreak` join point.
@@ -166,14 +154,14 @@ open Lean.Meta
           dec.continueWithUnit
       synthUsingDefEq "break RHS" breakRhs e
 
-    -- Finally eliminate the proxy variables from the loop body.
-    -- * Point non-reassigned mut var defs to the pre state
-    -- * Point the initial defs of reassigned mut vars to the loop state
-    -- Done by `elimProxyDefs` below.
-    let body ← bindMutVarsFromTuple loopMutVarNames loopS.fvarId! do
-      elimProxyDefs body
+    -- -- Finally eliminate the proxy variables from the loop body.
+    -- -- * Point non-reassigned mut var defs to the pre state
+    -- -- * Point the initial defs of reassigned mut vars to the loop state
+    -- -- Done by `elimProxyDefs` below.
+    -- let body ← bindMutVarsFromTuple loopMutVarNames loopS.fvarId! do
+    --   elimProxyDefs body
 
-    let needBreakJoin := (← breakKVar.jumpCount) > 0 && dec.kind matches .nonDuplicable
+    let needBreakJoin := (← break?.get) && dec.kind matches .nonDuplicable
     let kcons ← mkLambdaFVars (xh ++ #[kcontinue, loopS]) body
     let knil := if needBreakJoin then kbreak else breakRhs
     let app := mkApp3 app preS kcons knil

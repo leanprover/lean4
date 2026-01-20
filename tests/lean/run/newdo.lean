@@ -497,6 +497,15 @@ but is expected to have type
   iter1 ≠ str1.endPos
 in the application
   iter1.get h1
+---
+error: Application type mismatch: The argument
+  h1
+has type
+  ¬iter1✝.IsAtEnd
+but is expected to have type
+  iter1 ≠ str1.endPos
+in the application
+  iter1.next h1
 -/
 #guard_msgs (error) in
 example (str1 str2 : String) : Unit := Id.run do
@@ -801,11 +810,11 @@ info: (have w := 23;
   forInNew [1, 2, 3] (w, x, y, z)
     (fun i __kcontinue __s =>
       let w := __s.fst;
-      let __s := __s.snd;
-      let x := __s.fst;
-      let __s := __s.snd;
-      let y := __s.fst;
-      let z := __s.snd;
+      let __s_1 := __s.snd;
+      let x := __s_1.fst;
+      let __s_2 := __s_1.snd;
+      let y := __s_2.fst;
+      let z := __s_2.snd;
       if x < 20 then
         have y := y - 2;
         __kbreak (w, x, y, z)
@@ -818,11 +827,11 @@ info: (have w := 23;
         let z_1 := __s.snd;
         have __do_jp := fun __r __s =>
           let w := __s.fst;
-          let __s_1 := __s.snd;
-          let x := __s_1.fst;
-          let __s_2 := __s_1.snd;
-          let y := __s_2.fst;
-          let z := __s_2.snd;
+          let __s_3 := __s.snd;
+          let x := __s_3.fst;
+          let __s_4 := __s_3.snd;
+          let y := __s_4.fst;
+          let z := __s_4.snd;
           if x > 10 then
             have x := x + 3;
             __kcontinue (w, x, y, z)
@@ -1364,27 +1373,38 @@ set_option trace.Compiler.saveBase true in
 trace: [Elab.do] have x := 42;
     have y := 0;
     have z := 1;
-    forInNew [1, 2, 3] (x, z)
+    forInNew [1, 2, 3] (x, y, z)
       (fun i __kcontinue __s =>
         let x := __s.fst;
+        let __s := __s.snd;
+        let y := __s.fst;
         let z := __s.snd;
         have x := x + i;
-        forInNew [i:10].toList z
+        forInNew [i:10].toList (x, y, z)
           (fun j __kcontinue __s =>
-            let z := __s;
+            let x := __s.fst;
+            let __s := __s.snd;
+            let y := __s.fst;
+            let z := __s.snd;
             have z := z + x + j;
-            __kcontinue z)
+            __kcontinue (x, y, z))
           fun __s =>
-          let z := __s;
-          __kcontinue (x, z))
+          let x := __s.fst;
+          let __s := __s.snd;
+          let y := __s.fst;
+          let z := __s.snd;
+          __kcontinue (x, y, z))
       fun __s =>
       let x := __s.fst;
+      let __s := __s.snd;
+      let y := __s.fst;
       let z := __s.snd;
       pure (x + y + z)
 ---
-trace: [Compiler.saveBase] size: 10
+trace: [Compiler.saveBase] size: 12
     def Do._example : Nat :=
       let x := 42;
+      let y := 0;
       let z := 1;
       let _x.1 := 2;
       let _x.2 := 3;
@@ -1392,101 +1412,160 @@ trace: [Compiler.saveBase] size: 10
       let _x.4 := @List.cons _ _x.2 _x.3;
       let _x.5 := @List.cons _ _x.1 _x.4;
       let _x.6 := @List.cons _ z _x.5;
-      let _x.7 := @Prod.mk _ _ x z;
-      let _x.8 := List.forInNew'._at_.Do._example.spec_1 z _x.6 _x.7;
-      return _x.8
-[Compiler.saveBase] size: 8
-    def List.forInNew'._at_.Do._example.spec_0 _x.1 _y.2 l s : Nat :=
+      let _x.7 := @Prod.mk _ _ y z;
+      let _x.8 := @Prod.mk _ _ x _x.7;
+      let _x.9 := List.forInNew'._at_.Do._example.spec_1 z _x.6 _x.8;
+      return _x.9
+[Compiler.saveBase] size: 19
+    def List.forInNew'._at_.Do._example.spec_0 _y.1 l s : Nat :=
       cases l : Nat
       | List.nil =>
-        let _x.3 := @Prod.mk _ _ _x.1 s;
-        let _x.4 := _y.2 _x.3;
-        return _x.4
-      | List.cons head.5 tail.6 =>
-        let _x.7 := Nat.add s _x.1;
-        let _x.8 := Nat.add _x.7 head.5;
-        let _x.9 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _y.2 tail.6 _x.8;
-        return _x.9
-[Compiler.saveBase] size: 8
-    def List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _y.2 l s : Nat :=
+        let _x.2 := s # 0;
+        let _x.3 := s # 1;
+        let _x.4 := _x.3 # 0;
+        let _x.5 := _x.3 # 1;
+        let _x.6 := @Prod.mk _ _ _x.4 _x.5;
+        let _x.7 := @Prod.mk _ _ _x.2 _x.6;
+        let _x.8 := _y.1 _x.7;
+        return _x.8
+      | List.cons head.9 tail.10 =>
+        let _x.11 := s # 0;
+        let _x.12 := s # 1;
+        let _x.13 := _x.12 # 0;
+        let _x.14 := _x.12 # 1;
+        let _x.15 := Nat.add _x.14 _x.11;
+        let _x.16 := Nat.add _x.15 head.9;
+        let _x.17 := @Prod.mk _ _ _x.13 _x.16;
+        let _x.18 := @Prod.mk _ _ _x.11 _x.17;
+        let _x.19 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _y.1 tail.10 _x.18;
+        return _x.19
+[Compiler.saveBase] size: 19
+    def List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _y.1 l s : Nat :=
       cases l : Nat
       | List.nil =>
-        let _x.3 := @Prod.mk _ _ _x.1 s;
-        let _x.4 := _y.2 _x.3;
-        return _x.4
-      | List.cons head.5 tail.6 =>
-        let _x.7 := Nat.add s _x.1;
-        let _x.8 := Nat.add _x.7 head.5;
-        let _x.9 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _x.1 _y.2 tail.6 _x.8;
-        return _x.9
-[Compiler.saveBase] size: 18
+        let _x.2 := s # 0;
+        let _x.3 := s # 1;
+        let _x.4 := _x.3 # 0;
+        let _x.5 := _x.3 # 1;
+        let _x.6 := @Prod.mk _ _ _x.4 _x.5;
+        let _x.7 := @Prod.mk _ _ _x.2 _x.6;
+        let _x.8 := _y.1 _x.7;
+        return _x.8
+      | List.cons head.9 tail.10 =>
+        let _x.11 := s # 0;
+        let _x.12 := s # 1;
+        let _x.13 := _x.12 # 0;
+        let _x.14 := _x.12 # 1;
+        let _x.15 := Nat.add _x.14 _x.11;
+        let _x.16 := Nat.add _x.15 head.9;
+        let _x.17 := @Prod.mk _ _ _x.13 _x.16;
+        let _x.18 := @Prod.mk _ _ _x.11 _x.17;
+        let _x.19 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0.spec_0 _y.1 tail.10 _x.18;
+        return _x.19
+[Compiler.saveBase] size: 25
     def List.forInNew'._at_.Do._example.spec_1 z l s : Nat :=
       cases l : Nat
       | List.nil =>
         let x := s # 0;
-        let z := s # 1;
-        let _x.1 := Nat.add x z;
-        return _x.1
-      | List.cons head.2 tail.3 =>
-        let _x.4 := s # 0;
-        let _x.5 := s # 1;
-        let _x.6 := Nat.add _x.4 head.2;
-        let _x.7 := 10;
-        let _x.8 := Nat.sub _x.7 head.2;
-        let _x.9 := Nat.add _x.8 z;
-        let _x.10 := 1;
-        let _x.11 := Nat.sub _x.9 _x.10;
-        let _x.12 := Nat.add head.2 _x.11;
-        let _x.13 := @List.nil _;
-        let _x.14 := List.range'TR.go z _x.11 _x.12 _x.13;
-        let _x.15 := List.forInNew'._at_.Do._example.spec_0._at_.List.forInNew'._at_.Do._example.spec_1.spec_4 z tail.3 _x.6 _x.14 _x.5;
-        return _x.15
-[Compiler.saveBase] size: 18
+        let _x.1 := s # 1;
+        let y := _x.1 # 0;
+        let z := _x.1 # 1;
+        let _x.2 := Nat.add x y;
+        let _x.3 := Nat.add _x.2 z;
+        return _x.3
+      | List.cons head.4 tail.5 =>
+        let _x.6 := s # 0;
+        let _x.7 := s # 1;
+        let _x.8 := _x.7 # 0;
+        let _x.9 := _x.7 # 1;
+        let _x.10 := Nat.add _x.6 head.4;
+        let _x.11 := 10;
+        let _x.12 := Nat.sub _x.11 head.4;
+        let _x.13 := Nat.add _x.12 z;
+        let _x.14 := 1;
+        let _x.15 := Nat.sub _x.13 _x.14;
+        let _x.16 := Nat.add head.4 _x.15;
+        let _x.17 := @List.nil _;
+        let _x.18 := List.range'TR.go z _x.15 _x.16 _x.17;
+        let _x.19 := @Prod.mk _ _ _x.8 _x.9;
+        let _x.20 := @Prod.mk _ _ _x.10 _x.19;
+        let _x.21 := List.forInNew'._at_.Do._example.spec_0._at_.List.forInNew'._at_.Do._example.spec_1.spec_4 z tail.5 _x.18 _x.20;
+        return _x.21
+[Compiler.saveBase] size: 25
     def List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_1.spec_2 z l s : Nat :=
       cases l : Nat
       | List.nil =>
         let x := s # 0;
-        let z := s # 1;
-        let _x.1 := Nat.add x z;
-        return _x.1
-      | List.cons head.2 tail.3 =>
-        let _x.4 := s # 0;
-        let _x.5 := s # 1;
-        let _x.6 := Nat.add _x.4 head.2;
-        let _x.7 := 10;
-        let _x.8 := Nat.sub _x.7 head.2;
-        let _x.9 := Nat.add _x.8 z;
-        let _x.10 := 1;
-        let _x.11 := Nat.sub _x.9 _x.10;
-        let _x.12 := Nat.add head.2 _x.11;
-        let _x.13 := @List.nil _;
-        let _x.14 := List.range'TR.go z _x.11 _x.12 _x.13;
-        let _x.15 := List.forInNew'._at_.Do._example.spec_0._at_.List.forInNew'._at_.Do._example.spec_1.spec_4 z tail.3 _x.6 _x.14 _x.5;
-        return _x.15
-[Compiler.saveBase] size: 8
-    def List.forInNew'._at_.Do._example.spec_0._at_.List.forInNew'._at_.Do._example.spec_1.spec_4 z tail.1 _x.2 l s : Nat :=
+        let _x.1 := s # 1;
+        let y := _x.1 # 0;
+        let z := _x.1 # 1;
+        let _x.2 := Nat.add x y;
+        let _x.3 := Nat.add _x.2 z;
+        return _x.3
+      | List.cons head.4 tail.5 =>
+        let _x.6 := s # 0;
+        let _x.7 := s # 1;
+        let _x.8 := _x.7 # 0;
+        let _x.9 := _x.7 # 1;
+        let _x.10 := Nat.add _x.6 head.4;
+        let _x.11 := 10;
+        let _x.12 := Nat.sub _x.11 head.4;
+        let _x.13 := Nat.add _x.12 z;
+        let _x.14 := 1;
+        let _x.15 := Nat.sub _x.13 _x.14;
+        let _x.16 := Nat.add head.4 _x.15;
+        let _x.17 := @List.nil _;
+        let _x.18 := List.range'TR.go z _x.15 _x.16 _x.17;
+        let _x.19 := @Prod.mk _ _ _x.8 _x.9;
+        let _x.20 := @Prod.mk _ _ _x.10 _x.19;
+        let _x.21 := List.forInNew'._at_.Do._example.spec_0._at_.List.forInNew'._at_.Do._example.spec_1.spec_4 z tail.5 _x.18 _x.20;
+        return _x.21
+[Compiler.saveBase] size: 19
+    def List.forInNew'._at_.Do._example.spec_0._at_.List.forInNew'._at_.Do._example.spec_1.spec_4 z tail.1 l s : Nat :=
       cases l : Nat
       | List.nil =>
-        let _x.3 := @Prod.mk _ _ _x.2 s;
-        let _x.4 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_1.spec_2 z tail.1 _x.3;
-        return _x.4
-      | List.cons head.5 tail.6 =>
-        let _x.7 := Nat.add s _x.2;
-        let _x.8 := Nat.add _x.7 head.5;
-        let _x.9 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0._at_.List.forInNew'._at_.Do._example.spec_1.spec_4.spec_4 _x.2 z tail.1 tail.6 _x.8;
-        return _x.9
-[Compiler.saveBase] size: 8
-    def List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0._at_.List.forInNew'._at_.Do._example.spec_1.spec_4.spec_4 _x.1 z tail.2 l s : Nat :=
+        let _x.2 := s # 0;
+        let _x.3 := s # 1;
+        let _x.4 := _x.3 # 0;
+        let _x.5 := _x.3 # 1;
+        let _x.6 := @Prod.mk _ _ _x.4 _x.5;
+        let _x.7 := @Prod.mk _ _ _x.2 _x.6;
+        let _x.8 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_1.spec_2 z tail.1 _x.7;
+        return _x.8
+      | List.cons head.9 tail.10 =>
+        let _x.11 := s # 0;
+        let _x.12 := s # 1;
+        let _x.13 := _x.12 # 0;
+        let _x.14 := _x.12 # 1;
+        let _x.15 := Nat.add _x.14 _x.11;
+        let _x.16 := Nat.add _x.15 head.9;
+        let _x.17 := @Prod.mk _ _ _x.13 _x.16;
+        let _x.18 := @Prod.mk _ _ _x.11 _x.17;
+        let _x.19 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0._at_.List.forInNew'._at_.Do._example.spec_1.spec_4.spec_4 z tail.1 tail.10 _x.18;
+        return _x.19
+[Compiler.saveBase] size: 19
+    def List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0._at_.List.forInNew'._at_.Do._example.spec_1.spec_4.spec_4 z tail.1 l s : Nat :=
       cases l : Nat
       | List.nil =>
-        let _x.3 := @Prod.mk _ _ _x.1 s;
-        let _x.4 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_1.spec_2 z tail.2 _x.3;
-        return _x.4
-      | List.cons head.5 tail.6 =>
-        let _x.7 := Nat.add s _x.1;
-        let _x.8 := Nat.add _x.7 head.5;
-        let _x.9 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0._at_.List.forInNew'._at_.Do._example.spec_1.spec_4.spec_4 _x.1 z tail.2 tail.6 _x.8;
-        return _x.9
+        let _x.2 := s # 0;
+        let _x.3 := s # 1;
+        let _x.4 := _x.3 # 0;
+        let _x.5 := _x.3 # 1;
+        let _x.6 := @Prod.mk _ _ _x.4 _x.5;
+        let _x.7 := @Prod.mk _ _ _x.2 _x.6;
+        let _x.8 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_1.spec_2 z tail.1 _x.7;
+        return _x.8
+      | List.cons head.9 tail.10 =>
+        let _x.11 := s # 0;
+        let _x.12 := s # 1;
+        let _x.13 := _x.12 # 0;
+        let _x.14 := _x.12 # 1;
+        let _x.15 := Nat.add _x.14 _x.11;
+        let _x.16 := Nat.add _x.15 head.9;
+        let _x.17 := @Prod.mk _ _ _x.13 _x.16;
+        let _x.18 := @Prod.mk _ _ _x.11 _x.17;
+        let _x.19 := List.forInNew'._at_.List.forInNew'._at_.Do._example.spec_0._at_.List.forInNew'._at_.Do._example.spec_1.spec_4.spec_4 z tail.1 tail.10 _x.18;
+        return _x.19
 -/
 #guard_msgs in
 example := Id.run doo

@@ -6638,7 +6638,8 @@ theorem toNat_cpop_not {x : BitVec w} :
     cases b
     <;> (simp [ih]; omega)
 
-/-! ### Recursive Addition -/
+/-! ### Horizontal Addition -/
+
 theorem extractLsb'_append_extractLsb'_eq_of_lt (a : BitVec (a_length * w)) (ha : 0 < a_length) :
   a = (a.extractLsb' ((a_length - 1) * w) w ++ a.extractLsb' 0 ((a_length - 1) * w)).cast
     (by rw [show w + (a_length - 1) * w= 1 * w + (a_length - 1) * w by omega,
@@ -6651,94 +6652,139 @@ theorem extractLsb'_append_extractLsb'_eq_of_lt (a : BitVec (a_length * w)) (ha 
     rw [← getLsbD_eq_getElem]
 
 @[simp]
-theorem flatRecAdd_zero (x : BitVec (l * w)) (acc : BitVec w):
-  x.flatRecAdd 0 acc = acc := rfl
+theorem hAddRec_zero (x : BitVec (l * w)) (acc : BitVec w):
+  x.hAddRec 0 acc = acc := rfl
 
 @[simp]
-theorem flatRecAdd_succ (x : BitVec (l * w)) (n : Nat) (acc : BitVec w) :
-  x.flatRecAdd (n + 1) acc = x.flatRecAdd n (acc + extractLsb' (n * w) w x) := rfl
+theorem hAddRec_succ (x : BitVec (l * w)) (n : Nat) (acc : BitVec w) :
+  x.hAddRec (n + 1) acc = x.hAddRec n (acc + extractLsb' (n * w) w x) := rfl
 
-theorem flatRecAdd_zero_add (x : BitVec (l * w)) (n : Nat) (acc : BitVec w) :
-    (x.flatRecAdd n 0#w) + acc = x.flatRecAdd n acc := by
+theorem hAddRec_eq (x : BitVec (l * w)) (n : Nat) (acc : BitVec w) :
+     x.hAddRec n acc = x.hAddRec n 0#w + acc := by
   induction n generalizing acc
   · simp
   · case _ n ihn =>
-    have ih1 := ihn (acc := extractLsb' (n * w) w x)
-    have ih2 := ihn (acc := acc + extractLsb' (n * w) w x)
-    simp only [flatRecAdd_succ, BitVec.zero_add, ← ih1, BitVec.add_assoc, ← ih2,
-      BitVec.add_right_inj]
+    simp only [hAddRec_succ, BitVec.zero_add, ihn (acc := extractLsb' (n * w) w x), BitVec.add_assoc,
+      ihn (acc := acc + extractLsb' (n * w) w x), BitVec.add_right_inj]
     rw [BitVec.add_comm (x := acc)]
 
-theorem flatRecAdd_add (x : BitVec (l * w)) (n : Nat) (acc acc' : BitVec w) :
-    x.flatRecAdd n (acc + acc') = (x.flatRecAdd n acc) + acc' := by
-  simp [← flatRecAdd_zero_add (acc := acc + acc'), ← flatRecAdd_zero_add (acc := acc), BitVec.add_assoc]
+theorem hAddRec_add (x : BitVec (l * w)) (n : Nat) (acc acc' : BitVec w) :
+    x.hAddRec n (acc + acc') = (x.hAddRec n acc) + acc' := by
+  simp [hAddRec_eq (acc := acc + acc'), hAddRec_eq (acc := acc), BitVec.add_assoc]
 
-theorem flatRecAdd_extractLsb' (a : BitVec (length * w)) (h : r ≤ length):
-    a.flatRecAdd r 0#w =
-    (extractLsb' 0 (r * w) a).flatRecAdd r 0#w:= by
-  induction r generalizing a length
-  · simp [flatRecAdd]
-  · case _ diff ihdiff =>
-    simp only [flatRecAdd_succ, BitVec.zero_add]
-    rw [extractLsb'_extractLsb'_of_le (by simp [Nat.add_mul]), ← flatRecAdd_zero_add,
-      ← flatRecAdd_zero_add (x := extractLsb' 0 ((diff + 1) * w) a),
-      ihdiff (a := a) (by omega), ihdiff (a := extractLsb' 0 ((diff + 1) * w) a) (by omega), extractLsb'_extractLsb'_of_le (by simp [Nat.add_mul])]
-
-theorem recursive_addition_eq_of_le' (a : BitVec (length * w)) (h : r ≤ length) (hk : r ≤ k):
-    a.flatRecAdd r 0#w =
-    (extractLsb' 0 (k * w) a).flatRecAdd r 0#w:= by
+theorem extractLsb'_hAddRec_of_le (a : BitVec (length * w)) (h : r ≤ k):
+    (extractLsb' 0 (k * w) a).hAddRec r 0#w = a.hAddRec r 0#w := by
   induction r generalizing a length k
-  · simp [flatRecAdd]
+  · simp [hAddRec]
   · case _ diff ihdiff =>
-    simp only [flatRecAdd_succ, BitVec.zero_add]
+    simp only [hAddRec_succ, BitVec.zero_add]
     rw [extractLsb'_extractLsb'_of_le
-        (by simp only [show diff * w + w = (diff + 1) * w by simp [Nat.add_mul]]; exact Nat.mul_le_mul_right w hk), ← flatRecAdd_zero_add, ← flatRecAdd_zero_add (x := extractLsb' 0 (k * w) a),
-        ihdiff (a := a) (by omega) (k := k) (by omega),
-        ihdiff (a := extractLsb' 0 (k * w) a) (by omega) (k := k) (by omega)]
+        (by simp only [show diff * w + w = (diff + 1) * w by simp [Nat.add_mul]]; exact Nat.mul_le_mul_right w h),
+        hAddRec_eq (x := a),  hAddRec_eq (x := extractLsb' 0 (k * w) a),
+        ihdiff (a := a) (by omega) (k := k)]
+
+theorem hAddRec_of_le {a : BitVec (l * w)} (acc : BitVec w) (hn : l ≤ n) :
+    a.hAddRec n acc = a.hAddRec l acc := by
+  induction n generalizing l
+  · case zero =>
+    simp [show l = 0 by omega]
+  · case _ n ihn =>
+    simp [hAddRec_add]
+    by_cases hln : l ≤ n
+    · simp only [← ihn (by omega), BitVec.add_right_eq_self]
+      ext k hk
+      have : l * w ≤ n * w := by exact Nat.mul_le_mul_right w hln
+      simp [show l * w ≤ n * w + k by omega]
+    · simp [show l = n + 1 by omega, hAddRec_add]
+
+theorem hAddRec_append {a : BitVec (a_length * w)} {b : BitVec (b_length * w)} :
+      ((a ++ b).cast (m := (a_length + b_length) * w) (by simp [Nat.add_mul])).hAddRec (a_length + b_length) 0#w =
+      a.hAddRec a_length 0#w + b.hAddRec b_length 0#w := by
+    induction a_length generalizing b_length
+    · rw [hAddRec_of_le (l := 0) (hn := by omega)]
+      simp
+      have hcast : 0 * w + b_length * w = (0 + b_length) * w := by simp
+      sorry
+    · case _ a_length' ih =>
+      simp
+      rw [hAddRec_eq (x := a)]
+      rw [BitVec.add_assoc, BitVec.add_comm, BitVec.add_assoc, BitVec.add_comm (x := b.hAddRec b_length 0#w)]
+      rw [← extractLsb'_hAddRec_of_le (a := a) (k := a_length')]
+      rw [← ih]
+      · simp [show a_length' + 1 + b_length = (a_length' + b_length) + 1 by omega]
+        rw [BitVec.hAddRec_eq, BitVec.add_comm]
+        have : b_length * w ≤ (a_length' + b_length) * w := by apply Nat.mul_le_mul_right (k := w) (by omega)
+        congr 1
+        · ext k hk
+          simp [getLsbD_append]
+          split
+          · case _ h =>
+            omega
+          · case _ h =>
+            congr
+            simp [Nat.add_mul]
+            omega
+        ·
+          sorry
+      · omega
+      -- by_cases hle : a_length' + b_length ≤ n
+      -- ·
+
+      --   sorry
+      -- · sorry
+      -- rw [hAddRec_of_le (l := a_length' + 1) (hn := by omega)]
+      -- rw [hAddRec_of_le (l := b_length) (hn := by omega)]
+      -- by_
+      -- sorry
 
 theorem cast_recursive_addition_eq_of_le' {a_length' w : Nat} (a : BitVec ((a_length'.succ + 1) * w)):
     let hcast : w + (a_length'.succ + 1 - 1) * w = (a_length'.succ + 1) * w := by
       simp [Nat.add_mul]
       omega
-    (BitVec.cast hcast (extractLsb' ((a_length' + 1) * w) w a ++ extractLsb' 0 ((a_length' + 1) * w) a)).flatRecAdd
+    (BitVec.cast hcast (extractLsb' ((a_length' + 1) * w) w a ++ extractLsb' 0 ((a_length' + 1) * w) a)).hAddRec
     a_length' 0#w =
-    (extractLsb' 0 (a_length' * w) a).flatRecAdd a_length' 0#w := by
+    (extractLsb' 0 (a_length' * w) a).hAddRec a_length' 0#w := by
+  simp
   have : extractLsb' ((a_length' + 1) * w) w a ++ extractLsb' 0 ((a_length' + 1) * w) a = a.cast (by simp [Nat.add_mul]; omega) := by
+    rw [extractLsb'_append_extractLsb'_eq_of_lt (a := a) (by omega)]
+    simp
     ext k hk
-    simp only [Nat.succ_eq_add_one, getElem_append, getElem_extractLsb', Nat.zero_add, dite_eq_ite,
-      getElem_cast]
+    simp only [getElem_append, getElem_extractLsb', Nat.zero_add, getLsbD_cast, dite_eq_ite]
     split
-    · rw [← getLsbD_eq_getElem]
-    · simp [show (a_length' + 1) * w + (k - (a_length' + 1) * w) = k by omega, ← getLsbD_eq_getElem]
-  simp only [this, Nat.succ_eq_add_one, Nat.add_one_sub_one, cast_cast, cast_eq]
-  rw [recursive_addition_eq_of_le']
+    · case _ h =>
+      simp [getLsbD_append, h]
+    · case _ h =>
+      simp [h, show (a_length' + 1) * w + (k - (a_length' + 1) * w) = k by omega, getLsbD_append]
+      omega
+  simp only [this, Nat.succ_eq_add_one, cast_cast, cast_eq]
+  rw [extractLsb'_hAddRec_of_le]
   <;> omega
 
 
 
 
-theorem flatRecAdd_append_extractLsb' {a : BitVec (a_length * w)} (ha : 0 < a_length) :
+theorem hAddRec_append_extractLsb' {a : BitVec (a_length * w)} (ha : 0 < a_length) :
     let hc : w + (a_length - 1) * w = a_length * w := by
       simp [Nat.sub_mul]; rw [← Nat.add_sub_assoc (by exact Nat.le_mul_of_pos_left w ha)]; omega
-    ((a.extractLsb' ((a_length - 1) * w) w ++ a.extractLsb' 0 ((a_length - 1) * w)).cast hc).flatRecAdd a_length 0#w
+    ((a.extractLsb' ((a_length - 1) * w) w ++ a.extractLsb' 0 ((a_length - 1) * w)).cast hc).hAddRec a_length 0#w
     =
-      a.extractLsb' ((a_length - 1) * w) w + (a.extractLsb' 0 ((a_length - 1) * w)).flatRecAdd (a_length - 1) 0#w
+      a.extractLsb' ((a_length - 1) * w) w + (a.extractLsb' 0 ((a_length - 1) * w)).hAddRec (a_length - 1) 0#w
      := by
   let newEl := a.extractLsb' ((a_length - 1) * w) w
   rw [show a.extractLsb' ((a_length - 1) * w) w  = newEl by rfl]
   induction a_length
   · omega
   · case _ a_length' iha' =>
-    simp only [Nat.add_one_sub_one, flatRecAdd_succ, BitVec.zero_add]
+    simp only [Nat.add_one_sub_one, hAddRec_succ, BitVec.zero_add]
     conv =>
       rhs
-      unfold flatRecAdd
+      unfold hAddRec
     split
     · ext k hk
-      simp [newEl, getLsbD_append, flatRecAdd]
+      simp [newEl, getLsbD_append, hAddRec]
       omega
     · case _ a_length' =>
-      simp only [flatRecAdd_succ]
+      simp only [hAddRec_succ]
       have hc1 : w + (a_length'.succ + 1 - 1) * w = (a_length'.succ + 1) * w := by simp [Nat.add_mul, Nat.add_assoc]; omega
       have hadd1 :
         extractLsb' ((a_length' + 1) * w) w (BitVec.cast hc1 (newEl ++ extractLsb' 0 ((a_length' + 1) * w) a)) =
@@ -6760,36 +6806,35 @@ theorem flatRecAdd_append_extractLsb' {a : BitVec (a_length * w)} (ha : 0 < a_le
       rw [hadd1, hadd2, hadd3]
       congr
       simp only [Nat.succ_eq_add_one, Nat.add_one_sub_one, BitVec.zero_add, newEl]
-      rw [← flatRecAdd_zero_add, cast_recursive_addition_eq_of_le',
-          ← recursive_addition_eq_of_le' (h := by omega),
-          ← flatRecAdd_zero_add (x := extractLsb' 0 ((a_length' + 1) * w) a),
-          ← recursive_addition_eq_of_le' (h := by omega) (hk := by omega)]
+      rw [hAddRec_eq, cast_recursive_addition_eq_of_le',
+          extractLsb'_hAddRec_of_le (h := by omega),
+          hAddRec_eq (x := extractLsb' 0 ((a_length' + 1) * w) a)]
       simp only [Nat.succ_eq_add_one, ← BitVec.add_assoc, BitVec.add_left_inj]
       rw [BitVec.add_comm]
-      omega
+      simp
+      rw [extractLsb'_hAddRec_of_le (h := by omega)]
 
-theorem flatRecAdd_eq_of
-    (a : BitVec (a_length * w))
-    (halen : a_length = (b_length + 1) / 2)
-    (b : BitVec (b_length * w))
+
+theorem hAddRec_eq_of
+    {a : BitVec (a_length * w)} {b : BitVec (b_length * w)}
+
     (hadd : ∀ (i : Nat) (_ : i < (b_length + 1) / 2),
       extractLsb' (i * w) w a =
       extractLsb' (2 * i * w) w b + extractLsb' ((2 * i + 1) * w) w b)
-    (hlen : 0 < a_length)
-    (n : Nat)
-    (hn : n = a_length) :
-      a.flatRecAdd a_length 0#w = b.flatRecAdd b_length 0#w := by
-  induction n generalizing a_length b_length
+    (hlen : a_length = (b_length + 1) / 2) (hlen' : 0 < a_length) :
+      a.hAddRec a_length 0#w = b.hAddRec b_length 0#w := by
+  let n := a_length
+  induction hn : n generalizing a_length b_length
   · simp [show a_length = 0 by omega, show b_length = 0 by omega]
   · case _ n' ihn =>
     have hcast : a_length * w = w + (a_length - 1) * w := by
       rw [Nat.add_comm w, Nat.sub_mul, Nat.one_mul, Nat.sub_add_cancel]
       simp only [show (w ≤ a_length * w) = (1 * w ≤ a_length * w) by simp, Nat.one_mul]
-      exact Nat.mul_le_mul_right w hlen
+      exact Nat.mul_le_mul_right w hlen'
     have := extractLsb'_append_extractLsb' (len := (a_length - 1) * w) (x := a.cast hcast)
     rw [extractLsb'_cast, extractLsb'_cast] at this
     rw [extractLsb'_append_extractLsb'_eq_of_lt (a := a) (by omega),
-      flatRecAdd_append_extractLsb' (by omega), hadd (i := a_length - 1) (by omega)]
+      hAddRec_append_extractLsb' (by omega), hadd (i := a_length - 1) (by omega)]
     let op1 := extractLsb' (2 * (a_length - 1) * w) w b
     let op2 := extractLsb' ((2 * (a_length - 1) + 1) * w) w b
     let taila := extractLsb' 0 ((a_length - 1) * w) a
@@ -6797,8 +6842,8 @@ theorem flatRecAdd_eq_of
     · conv =>
         rhs
         rw [extractLsb'_append_extractLsb'_eq_of_lt (a := b) (by omega),
-            flatRecAdd_append_extractLsb' (by omega),
-            extractLsb'_append_extractLsb'_eq_of_lt (a := extractLsb' 0 ((b_length - 1) * w) b) (by omega), flatRecAdd_append_extractLsb' (by omega)]
+            hAddRec_append_extractLsb' (by omega),
+            extractLsb'_append_extractLsb'_eq_of_lt (a := extractLsb' 0 ((b_length - 1) * w) b) (by omega), hAddRec_append_extractLsb' (by omega)]
       rw [show extractLsb' (2 * (a_length - 1) * w) w b  = op1 by rfl,
           show extractLsb' ((2 * (a_length - 1) + 1) * w) w b = op2 by rfl,
           show extractLsb' 0 ((a_length - 1) * w) a = taila by rfl,
@@ -6806,7 +6851,7 @@ theorem flatRecAdd_eq_of
             rw [show (b_length - 1 - 1) * w + w = (b_length - 1 - 1 + 1) * w by simp [Nat.add_mul]]
             refine Nat.mul_le_mul_right w (by omega)),
           extractLsb'_extractLsb'_of_le (by simp; apply Nat.mul_le_mul_right (k := w); omega)]
-      subst halen
+      subst hlen
       have hop1_eq : extractLsb' ((b_length - 1 - 1) * w) w b = op1 := by simp [op1]; congr; omega
       have hop2_eq : extractLsb' ((b_length - 1) * w) w b = op2 := by simp [op2]; congr; omega
       let tailb := extractLsb' 0 ((b_length - 1 - 1) * w) b
@@ -6814,7 +6859,7 @@ theorem flatRecAdd_eq_of
           hop1_eq, hop2_eq, ← BitVec.add_assoc, BitVec.add_comm op1 op2]
       simp only [BitVec.add_right_inj]
       specialize ihn (a_length := ((b_length + 1) / 2 - 1)) (b_length := (b_length - 1 - 1))
-                    (by omega) (a := taila) (b := tailb)
+                    (a := taila) (b := tailb)
       by_cases hlt: 0 < (b_length + 1) / 2 - 1
       · apply ihn
         · intros i hi
@@ -6836,19 +6881,20 @@ theorem flatRecAdd_eq_of
           simp [← hb1, ← hb2, tailb]
         · omega
         · omega
+        · omega
       · simp [show (b_length + 1) / 2 - 1 = 0 by omega, show b_length - 1 - 1 = 0 by omega]
     · conv =>
         rhs
         rw [extractLsb'_append_extractLsb'_eq_of_lt (a := b) (by omega),
-          flatRecAdd_append_extractLsb' (by omega)]
+          hAddRec_append_extractLsb' (by omega)]
       rw [show extractLsb' (2 * (a_length - 1) * w) w b  = op1 by rfl,
           show extractLsb' 0 ((a_length - 1) * w) a = taila by rfl]
       have hop1_eq : extractLsb' ((b_length - 1) * w) w b = op1 := by simp [op1]; congr; omega
       let tailb := extractLsb' 0 ((b_length - 1) * w) b
       rw [show extractLsb' 0 ((b_length - 1) * w) b = tailb by rfl, hop1_eq]
-      subst halen
+      subst hlen
       specialize ihn (a_length := (b_length + 1) / 2 - 1) (b_length := (b_length - 1))
-                    (by omega) (a := taila) (b := tailb)
+                     (a := taila) (b := tailb)
       have : extractLsb' ((2 * ((b_length + 1) / 2 - 1) + 1) * w) w b = 0#w := by
         have : b_length ≤ (2 * ((b_length + 1) / 2 - 1) + 1) := by
           simp [Nat.mul_sub]
@@ -6880,6 +6926,7 @@ theorem flatRecAdd_eq_of
           rw [extractLsb'_extractLsb'_of_le (by
             rw [show (2 * i + 1) * w + w = (2 * i + 1 + 1) * w by simp [Nat.add_mul]]
             apply Nat.mul_le_mul_right w (by omega))]
+        · omega
         · omega
         · omega
       · simp [show (b_length + 1) / 2 - 1 = 0 by omega, show b_length - 1 = 0 by omega]

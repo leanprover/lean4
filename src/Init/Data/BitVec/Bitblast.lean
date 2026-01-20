@@ -2490,34 +2490,33 @@ def parPreSum (l : Nat) (x : BitVec w) (hl : 0 < l) (hlt : l < w): BitVec l :=
       res.cast (by simp)
 
 
-theorem flatRecAdd_parPreSum (l : BitVec (l_length * w)) (k : BitVec w)
-      (proof : flatRecAdd l l_length 0#w  = k)
+theorem hAddRec_parPreSum (l : BitVec (l_length * w)) (k : BitVec w)
+      (proof : hAddRec l l_length 0#w  = k)
       (proof_length : 0 < l_length) (hw : 0 < w)
       (ls : BitVec (1 * w))
       (hls : ls = parPreSumTree l (by omega) hw) :
-      flatRecAdd ls 1 0#w = k := by
+      hAddRec ls 1 0#w = k := by
   unfold parPreSumTree at hls
   split at hls
   · case _ h =>
     simp [h] at proof
     rw [← proof]
-    simp [flatRecAdd, hls]
+    simp [hAddRec, hls]
     ext k hk; simp
   · case _ h =>
     let new_layer := parPreSumLayer l 0#(0 * w) (by omega)
     let proof_new_layer := BitVec.extractLsb'_parPreSumLayer l 0#(0 * w) (by omega) (by omega)
     let l_length' := (l_length + 1) / 2
     let proof_new_layer_length : 0 < l_length' := by omega
-    let proof_sum_eq : flatRecAdd new_layer ((l_length + 1) / 2) 0#w = k := by
+    let proof_sum_eq : hAddRec new_layer ((l_length + 1) / 2) 0#w = k := by
       rw [← proof]
-      apply BitVec.flatRecAdd_eq_of (a := new_layer) (by omega) (b := l) (by omega)
-         (by omega) (by omega) (n := (l_length + 1) / 2)
-    apply flatRecAdd_parPreSum new_layer k proof_sum_eq proof_new_layer_length hw
+      apply BitVec.hAddRec_eq_of (a := new_layer) (by omega) (b := l) (by omega) (by omega)
+    apply hAddRec_parPreSum new_layer k proof_sum_eq proof_new_layer_length hw
     exact eq_of_toNat_eq (congrArg BitVec.toNat hls)
 
-theorem flatAdd_eq_parPreSum {x : BitVec w} (l : Nat) (hl : 0 < l) (hlt : l < w) :
-    x.flatAdd l = x.parPreSum l hl hlt := by
-  unfold flatAdd
+theorem hAdd_eq_parPreSum {x : BitVec w} (l : Nat) (hl : 0 < l) (hlt : l < w) :
+    x.hAdd l = x.parPreSum l hl hlt := by
+  unfold hAdd
   simp [show ¬ l = 0 by omega, show ¬ w ≤ l by omega]
   split
   · case _ hmod =>
@@ -2538,8 +2537,8 @@ theorem flatAdd_eq_parPreSum {x : BitVec w} (l : Nat) (hl : 0 < l) (hlt : l < w)
     subst diff
     generalize hgen : setWidth ((w + (l - w % l)) / l * l) x = z
     generalize hgen : z.parPreSumTree (by simp; omega) (by omega) = res
-    have proof := flatRecAdd_parPreSum (l_length := init_length)
-                            (k := z.flatRecAdd (init_length) 0#l)
+    have proof := hAddRec_parPreSum (l_length := init_length)
+                            (k := z.hAddRec (init_length) 0#l)
                             (ls := res) (hw := by omega)
                             (proof_length := by simp [init_length]; omega)
                             (proof := by rfl)
@@ -2557,8 +2556,8 @@ theorem flatAdd_eq_parPreSum {x : BitVec w} (l : Nat) (hl : 0 < l) (hlt : l < w)
     let hcast : w = w / l * l := by rw [Nat.div_mul_cancel]; omega
     generalize hgencast : x.cast hcast = xcast
     generalize hgen : xcast.parPreSumTree (by simp; omega) (by omega) = res
-    have proof := flatRecAdd_parPreSum (l_length := w / l)
-                            (k := xcast.flatRecAdd (w / l) 0#l)
+    have proof := hAddRec_parPreSum (l_length := w / l)
+                            (k := xcast.hAddRec (w / l) 0#l)
                             (ls := res) (hw := by omega)
                             (proof := by rfl) (proof_length := by simp; omega)
                             (hls := by simp [hgen])

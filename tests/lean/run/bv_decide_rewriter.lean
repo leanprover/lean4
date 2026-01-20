@@ -679,12 +679,12 @@ example {x : BitVec 8} (h : x = 0#8) : x.ctz = x.clz := by bv_decide
 example {x : BitVec 8} (h : ¬ x = 0#8) : (x <<< 1).ctz = x.ctz + 1 := by bv_decide
 example {x : BitVec 8} : x.ctz ≤ 8 := by bv_decide
 
--- FLATADD
-example : (BitVec.ofNat 16 8211).flatAdd 4 = 6#4 := by bv_decide
-example : (0#64).flatAdd 4 = 0#4 := by bv_decide
-example : BitVec.flatAdd 4 ((BitVec.replicate 8 (BitVec.ofNat 2 2)).cast (m := 16) (by simp)) = 8 := by
+-- hAdd
+example : (BitVec.ofNat 16 8211).hAdd 4 = 6#4 := by bv_decide
+example : (0#64).hAdd 4 = 0#4 := by bv_decide
+example : BitVec.hAdd 4 ((BitVec.replicate 8 (BitVec.ofNat 2 2)).cast (m := 16) (by simp)) = 8 := by
     bv_decide
-example (hx : x = 0#8) : BitVec.flatAdd 8 x = 0 := by bv_decide
+example (hx : x = 0#8) : BitVec.hAdd 8 x = 0 := by bv_decide
 
 
 section

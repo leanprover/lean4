@@ -71,11 +71,14 @@ void lean_notify_assert(const char * fileName, int line, const char * condition)
 #ifdef LEAN_EXPORTING
 #ifdef _WIN32
 #define LEAN_EXPORT __declspec(dllexport)
+#define LEAN_HIDDEN
 #else
 #define LEAN_EXPORT __attribute__((visibility("default")))
+#define LEAN_HIDDEN __attribute__((visibility("hidden")))
 #endif
 #else
 #define LEAN_EXPORT
+#define LEAN_HIDDEN
 #endif
 
 #define LEAN_BYTE(Var, Index) *(((uint8_t*)&Var)+Index)

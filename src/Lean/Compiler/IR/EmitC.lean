@@ -106,7 +106,7 @@ def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M U
   let env ← getEnv
   if ps.isEmpty then
     if isExternal then emit "extern "
-    else if isClosedTermName env decl.name then emit "static "
+    else if isClosedTermName env decl.name then emit "LEAN_HIDDEN static "
     else emit "LEAN_EXPORT "
   else
     if !isExternal then emit "LEAN_EXPORT "
@@ -675,7 +675,7 @@ def emitDeclAux (d : Decl) : M Unit := do
     | .fdecl (f := f) (xs := xs) (type := t) (body := b) .. =>
       let baseName ← toCName f;
       if xs.size == 0 then
-        emit "static "
+        emit "LEAN_HIDDEN static "
       else
         emit "LEAN_EXPORT "  -- make symbol visible to the interpreter
       emit (toCType t); emit " ";

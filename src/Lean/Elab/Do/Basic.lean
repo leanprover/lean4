@@ -214,8 +214,11 @@ structure DoElemCont where
   The continuation to elaborate the `rest` of the block. It assumes that the result of the `do`
   block is bound to `resultName` with the correct type (that is, `resultType`, potentially refined
   by a dependent `match`).
+  It takes a `Syntax` argument to identify the syntactic jump site by source position.
+  This is important for counting the number of jumps after elaboration in order to omit
+  unnecessary join points.
   -/
-  k : DoElabM Expr
+  k : Syntax → DoElabM Expr
   /--
   Whether we are OK with generating the code of the continuation multiple times, e.g. in different
   branches of a `match` or `if`.
@@ -308,7 +311,7 @@ def DoElemCont.mkPure (resultType : Expr) : TermElabM DoElemCont := do
   return {
     resultName := r,
     resultType,
-    k := do let decl ← getLocalDeclFromUserName r; mkPureApp decl.type decl.toExpr,
+    k _ := do let decl ← getLocalDeclFromUserName r; mkPureApp decl.type decl.toExpr,
     kind := .duplicable
     ref := .missing
     declKind := .implDetail  -- Does not matter much, because `mkPureApp` does not do
@@ -580,7 +583,7 @@ def withLCtxKeepingMutVarDefs (oldLCtx : LocalContext) (oldCtx : Context) (resul
 Return `$e >>= fun ($dec.resultName : $dec.resultType) => $(← dec.k)`, cancelling
 the bind if `$(← dec.k)` is `pure $dec.resultName`.
 -/
-def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := do
+def DoElemCont.mkBindUnlessPure (ref : Syntax) (dec : DoElemCont) (e : Expr) : DoElabM Expr := do
   let x := dec.resultName
   let eResultTy := dec.resultType
   let k := dec.k
@@ -597,12 +600,12 @@ def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := 
       return (isPure, isDuplicable)
     if isPure then
       if isDuplicable then
-        return ← mapLetDeclZeta (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k
+        return ← mapLetDeclZeta (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k ref
       else
-        return ← mapLetDecl (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k
+        return ← mapLetDecl (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k ref
 
   withLocalDecl x .default eResultTy (kind := declKind) fun x => do
-    let body ← k
+    let body ← k ref
     let body' := body.consumeMData
     if body'.isAppOfArity ``Pure.pure 4 && body'.getArg! 3 == x then
       let body'' ← mkPureApp eResultTy x
@@ -617,11 +620,11 @@ def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := 
 Return `let $k.resultName : PUnit := PUnit.unit; $(← k.k)`, ensuring that the result type of `k.k`
 is `PUnit` and then immediately zeta-reduce the `let`.
 -/
-def DoElemCont.continueWithUnit (dec : DoElemCont) : DoElabM Expr := do
+def DoElemCont.continueWithUnit (ref : Syntax) (dec : DoElemCont) : DoElabM Expr := do
   let unit ← mkPUnitUnit
   discard <| Term.ensureHasType dec.resultType unit
   mapLetDeclZeta dec.resultName (← mkPUnit) unit (nondep := true) (kind := dec.declKind) fun _ =>
-    withRef? dec.ref dec.k
+    withRef? dec.ref (dec.k ref)
 
 partial def withSynthesizeForDo (k : DoElabM α) : DoElabM α :=
   controlAtTermElabM fun runInBase => do
@@ -683,7 +686,7 @@ def DoElemCont.elabAsSyntacticallyDeadCode (dec : DoElemCont) : DoElabM Unit :=
   withDeadCode .deadSyntactically do
   withLocalDecl dec.resultName .default (← mkFreshResultType) (kind := .implDetail) fun _ => do
     let s ← Term.saveState
-    discard <| dec.k
+    discard <| dec.k .missing
     let msg ← Core.getMessageLog -- case in point! capture it
     s.restore
     Core.setMessageLog msg
@@ -722,6 +725,25 @@ private def withLambdaIf (b : Bool) (name : Name) (type : Expr) (k : DoElabM Exp
   if b then withLambda name type (fun _ => k) kind bi else k
 
 /--
+  Backtrackable state for the `TermElabM` monad.
+-/
+structure SavedState where
+  «term» : Term.SavedState
+  «do» : State
+  deriving Nonempty
+
+def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : DoElabM Unit := do
+  s.term.restore (restoreInfo := restoreInfo)
+  set s.do
+
+protected def DoElabM.saveState : DoElabM SavedState :=
+  return { «term» := (← Term.saveState), «do» := (← get) }
+
+instance : MonadBacktrack SavedState DoElabM where
+  saveState      := DoElabM.saveState
+  restoreState b := b.restore
+
+/--
 Call `caller` with a duplicable proxy of `dec`.
 When the proxy is elaborated more than once, a join point is introduced so that `dec` is only
 elaborated once to fill in the RHS of this join point.
@@ -732,127 +754,68 @@ branches share the continuation.
 def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont → DoElabM Expr) : DoElabM Expr := do
   if nondupDec.kind matches .duplicable .. then
     return ← caller nondupDec
-  let mi := (← read).monadInfo
   let γ := (← read).doBlockResultType
   let mγ ← mkMonadicType γ
-  let rootCtx ← getLCtx
   let mutVars := (← read).mutVars
   let mutVarNames := mutVars.map (·.getId)
   let joinName ← mkFreshUserName `__do_jp
-  let returnDummyName ← mkFreshUserName `__return_dummy
   -- σ is the tuple type of the mut vars, or mγ if jumpCount = 0. Hence it is either level mi.u or mi.v.
   -- let σ ← mkFreshTypeMVar (userName := `σ)
-  let σ ← mkProdN (← mutVarNames.mapM (LocalDecl.type <$> getLocalDeclFromUserName ·)) mi.u
-  let joinTy ← mkArrow nondupDec.resultType (← mkArrow σ mγ)
-  let joinRhs ← mkFreshExprMVar joinTy (userName := `joinRhs)
-  let returnCont := (← read).contInfo.toContInfo.returnCont
-  withLetDecl joinName joinTy joinRhs (kind := .implDetail) (nondep := true) fun jp => do
-    -- withLocalDecls
-    -- let σ ← mkProdN (← mutVarNames.mapM (LocalDecl.type <$> getLocalDeclFromUserName ·)) mi.u
-    -- return mkArrow matchResultType (← mkArrow σ (← mkMonadicType doBlockResultType))
+  let mutDecls ← mutVarNames.mapM (getLocalDeclFromUserName ·)
+  let mutTypes := mutDecls.map (·.type)
+  let joinTy ← mkArrow nondupDec.resultType (← mkArrowN mutTypes mγ)
+  let joinRhsMVar ← mkFreshExprSyntheticOpaqueMVar joinTy
+  withLetDecl joinName joinTy joinRhsMVar (kind := .implDetail) (nondep := true) fun jp => do
   withContFVar joinName do
-  let returnDummyRhs := mkApp (mkConst ``id [mkLevelSucc mi.u]) returnCont.resultType
-  withLocalDecl returnDummyName .default (← mkArrow returnCont.resultType returnCont.resultType) (kind := .implDetail) fun returnDummy => do
-  -- trace[Elab.do] "returnDummy: {returnDummy}"
-  -- trace[Elab.do] "jp: {jp}"
-  let contVarId ← mkFreshContVar (mutVarNames |>.push nondupDec.resultName |>.push joinName)
-
-  let e ← -- withSynthesizeForDo
-    caller { nondupDec with k := contVarId.mkJump, kind := .duplicable }
-
-  let jumpCount ← contVarId.jumpCount
-  --if jumpCount = 0 then
-  --  nondupDec.elabAsSyntacticallyDeadCode
-  --  -- Trick: the join point is dead and we are going to substitue it away.
-  --  -- But we cannot elaborate `nondupDec.k` in the right context to produce
-  --  -- a term to substitue. Hence we say that `σ` is `mγ`, so that the join point
-  --  -- definition can be `fun _ σ => σ`.
-  --  synthUsingDefEq "dead join state type" σ mγ
-  --  synthUsingDefEq "join RHS" joinRhs <|
-  --    mkLambda `r .default nondupDec.resultType <|
-  --    mkLambda `σ .default mγ <| .bvar 0
-  --  return ← e.replaceFVarsM #[jp, returnDummy] #[joinRhs, returnDummyRhs]
-
-  -- Otherwise, we had at least one jump and potentially more (runtime-semantically dead) occs.
-  -- Fill in `joinTy`, `joinRhs` and the jumps associated with `contVarId`.
-
-  -- Compute the union of all reassigned mut vars. These + `r` constitute the parameters
-  -- of the join point. We take a little care to preserve the declaration order that is manifest
-  -- in the array `(← read).mutVars`.
-  -- let reassignedMutVars ← contVarId.getReassignedMutVars rootCtx
-  -- let reassignedMutVars := mutVars.filter (reassignedMutVars.contains ·.getId)
-
-  -- Assign the `argTy` based on the types of the reassigned mut vars and the result type.
-  --let reassignedDecls ← reassignedMutVars.mapM (getLocalDeclFromUserName ·.getId)
-  --let reassignedTys := reassignedDecls.map (·.type)
-  ---- We cannot assign `mkProdN (#[resultType] ++ reassignedTys) u` directly here, because while
-  ---- the result type is refined by dependent pattern matching, the types of the reassigned mut
-  ---- vars are *not*. The `mut` vars are not generalized because they are `let` bound.
-  ---- If we were to assign `reassignedTys` directly, these types would be refined. Hence we first
-  ---- use fresh MVars instead (which will not be `abstractM` when synthesizing). Then we assign
-  ---- the MVars after having assigned `argTy`. Phew.
-  --let u := (← read).monadInfo.u
-  --let reassignedTyDummys ← reassignedTys.mapM fun _ => mkFreshExprMVar (mkSort (mkLevelSucc u))
-  --synthUsingDefEq "join argument type" σ (← mkProdN reassignedTyDummys u)
-  --for dummy in reassignedTyDummys, ty in reassignedTys do
-  --  let dummy ← instantiateMVars dummy
-  --  dummy.withApp fun mvar args => do
-  --    let mut declInfos := #[]
-  --    let argTys ← args.mapM (inferType ·)
-  --    for h : i in *...argTys.size do
-  --      let argTy := argTys[i]
-  --      let argTy' xs := return (← argTy.abstractRangeM i args) |>.instantiateRev xs
-  --      declInfos := declInfos.push (`_, BinderInfo.default, argTy')
-  --    let ty ← withLocalDecls declInfos fun xs => mkLambdaFVars xs ty
-  --    -- We cannot use defeq for the assignment because the LCtx of `mvar` does not contain `args`.
-  --    -- However, the assignment is safe because `mvar` only occurs applied to `args`, so `args`
-  --    -- must be in scope at all uses.
-  --    mvar.mvarId!.assign ty
-
-  -- Assign the `joinRhs` with the result of the continuation.
-
-  synthUsingDefEq "join RHS" joinRhs (← joinRhs.mvarId!.withContext do
-    withLambda nondupDec.resultName nondupDec.resultType fun _ => do
-    withLambda (← mkFreshUserName `__s) σ (bi := .default) (kind := .implDetail) fun s => do
-    bindMutVarsFromTuple mutVarNames.toList s.fvarId! do
-      for x in mutVarNames do
-        let newDecl ← getLocalDeclFromUserName x
-        if let some baseId := (← read).mutVarDefs[x]? then
-          if newDecl.fvarId != baseId then
-            pushInfoLeaf <| .ofFVarAliasInfo { userName := x, id := newDecl.fvarId, baseId }
-      nondupDec.k)
-
-  -- Finally, assign the ContVars with the jump to `jp`.
-  -- When there is only one jump, we have already synthesized it and should not attempt to do so
-  -- again.
-  let zetad ← IO.mkRef false
-  contVarId.synthesizeJumps do
+  let calls : IO.Ref (Std.HashMap String.Pos.Raw Bool) ← IO.mkRef {}
+  let deadCode : IO.Ref CodeLiveness ← IO.mkRef .deadSyntactically
+  let mkJump ref : DoElabM Expr := do
     let jp' ← getFVarFromUserName joinName
     let result ← getFVarFromUserName nondupDec.resultName
-    let mut muts := #[]
+    let mut e := mkApp jp' result
     for x in mutVars do
       let newDefn ← getLocalDeclFromUserName x.getId
       Term.addTermInfo' x newDefn.toExpr
-      muts := muts.push newDefn.toExpr
-    let (tuple, _tupleTy) ← mkProdMkN muts mi.u
-    -- trace[Elab.do] "jp: {jp'.toExpr}, result: {result}, tuple: {tuple}"
-    if jumpCount == 1 && jp' == jp then
-      -- The defeq check is for dependent matches, where the join point might have been
-      -- reintroduced under a different name, in which case we risk defeq failures due to
-      -- differing contexts and types.
-      -- TODO: we could also undo the tupling here; we currently get a chain of renaming `let`s.
-      zetad.set true
-      return joinRhs.betaRev #[tuple, result]
-    else
-      return mkApp2 jp' result tuple
+      e := mkApp e newDefn.toExpr
+    let refined := jp' != jp  -- whether we have generalized `jp` in a `match`
+    if let some pos := ref.getPos? then
+      calls.modify (·.insert pos refined)
+    deadCode.modify (·.lub (← read).deadCode)
+    return e
 
-  if ← zetad.get then -- 0 case has been handled above
+  let elabBody := caller { nondupDec with k := mkJump, kind := .duplicable }
+  let s ← saveState
+  let body? : Option Expr ←
+    try
+      some <$> elabBody
+    catch ex => match ex with
+      | .error .. => throw ex
+      | .internal id _ =>
+        if id == postponeExceptionId && !(← readThe Term.Context).mayPostpone then
+          s.restore
+          pure none
+        else
+          throw ex
+
+  let joinRhs ← joinRhsMVar.mvarId!.withContext do
+    withLocalDeclD nondupDec.resultName nondupDec.resultType fun r => do
+    withLocalDeclsDND (mutDecls.map fun (d : LocalDecl) => (d.userName, d.type)) fun muts => do
+    mkLambdaFVars (#[r] ++ muts) (← nondupDec.k .missing)
+  joinRhsMVar.mvarId!.assign joinRhs
+
+  let body ← match body? with | some body => pure body | none => elabBody
+
+  -- TODO: Warn about dead code in nondupDec.ref
+
+  let calls ← calls.get
+  if calls.size > 1 || calls.any (fun _ refined => refined) then
+    mkLetFVars (generalizeNondepLet := false) #[jp] body
+  else
     -- It's well-typed to substitute `joinRhs` for `jp` here, and the remaining uses
     -- of `jp` are dead code.
-    e.replaceFVarsM #[jp, returnDummy] #[joinRhs, returnDummyRhs]
-  else
-    let e ← e.replaceFVarsM #[returnDummy] #[returnDummyRhs]
-    mkLetFVars (generalizeNondepLet := false) (usedLetOnly := true) #[jp] e
+    -- TODO: We should also immediately beta reduce the body; write a custom transform that is
+    -- basically `replaceFVars` but also does the beta reduction.
+    body.replaceFVarsM #[jp] #[joinRhs]
 
 /--
 Create syntax standing in for an unelaborated metavariable.
@@ -992,65 +955,6 @@ def doElabToSyntax (hint : MessageData) (doElab : DoElabM Expr) (k : Term → Do
     Term.elabToSyntax (hint? := hint) (ref := ref)
       (fun _ => runInBase doElab) (runInBase ∘ k)
 
-/--
-  Backtrackable state for the `TermElabM` monad.
--/
-structure SavedState where
-  «term» : Term.SavedState
-  «do» : State
-  deriving Nonempty
-
-def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : DoElabM Unit := do
-  s.term.restore (restoreInfo := restoreInfo)
-  set s.do
-
-protected def DoElabM.saveState : DoElabM SavedState :=
-  return { «term» := (← Term.saveState), «do» := (← get) }
-
-instance : MonadBacktrack SavedState DoElabM where
-  saveState      := DoElabM.saveState
-  restoreState b := b.restore
-
-section MatcherSimplification
-
-private def simplifyMatchers (e : Expr) : MetaM Expr := do
-  -- We want to simplify matches where discriminants are constant, that is, neither their value nor
-  -- their type has been refined.
-  -- Plan:
-  -- 1. Look at each match alternative. Introduce binders, then see which `discr[i]`s are constant
-  --    by checking whether `args[i]` in `motive args...` is one of the binders and whether its type
-  --    is the same as that of `discr[i]`.
-  --    (That is, check that its type is not dependent on the preceding binders.)
-  --    Also check whether the arg has forward dependencies in the binders that follow.
-  -- 2. Eliminate constantly instantiated parameters (stemming from closure over MVars) by substitution.
-  transform e (usedLetOnly := true) (pre := fun e => do
-    let some matcherApp ← matchMatcherApp? e | return .continue
-    trace[Elab.do] "matcherApp: {matcherApp.toExpr}"
-    for h : i in *...matcherApp.discrs.size do
-      let discr := matcherApp.discrs[i]
-      let discrType ← inferType discr
-      unless discrType.isForall do continue
-      let mut refined := false
-      for alt in matcherApp.alts do
-        let b ← lambdaBoundedTelescope alt matcherApp.discrs.size fun discrs' alt => do
-          if i >= discrs'.size then
-            trace[Elab.do] "oopsie discrs': {discrs'}"
-            return true
-          if ← isDefEq discrs'[i]! discr then
-            return false
-          else
-            return true
-        refined := refined || b
-      if refined then
-        trace[Elab.do] "{discr} is a candidate to substitute"
-    -- if matcherApp.alts.size
-    -- matcherApp.alts.forM fun alt => do
-    --   let some matcherApp ← matchMatcherApp? alt | return ()
-    --   matcherApp.alts.forM fun alt => do
-    return .continue)
-
-end MatcherSimplification
-
 unsafe def mkDoElemElabAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute DoElab) :=
   mkElabAttribute DoElab `builtin_doElem_elab `doElem_elab `Lean.Parser.Term.doElem ``Lean.Elab.Do.DoElab "do element" ref
 
@@ -1108,7 +1012,7 @@ private def elabDoElemFns (stx : TSyntax `doElem) (cont : DoElemCont)
               throw ex
           | _ => throw ex
 
-private def DoElemCont.mkUnit (ref : Syntax) (k : DoElabM Expr) : DoElabM DoElemCont := do
+private def DoElemCont.mkUnit (ref : Syntax) (k : Syntax → DoElabM Expr) : DoElabM DoElemCont := do
   let unit ← mkPUnit
   let r ← mkFreshUserName `__r
   return DoElemCont.mk r unit k .nonDuplicable ref .implDetail
@@ -1145,8 +1049,8 @@ partial def elabDoElems1 (doElems : Array (TSyntax `doElem)) (cont : DoElemCont)
     throwError "Empty array of `do` elements passed to `elabDoElems1`."
   else
   let back := doElems.back
-  let initCont ← DoElemCont.mkUnit .missing (throwError "always replaced")
-  let mkCont el k := { initCont with ref := el, k }
+  let initCont ← DoElemCont.mkUnit .missing (fun _ => throwError "always replaced")
+  let mkCont el k := { initCont with ref := el, k := fun _ref => k }
   let (_, res) := doElems.pop.foldr (init := (back, elabDoElem back cont)) fun el (prev, k) => (el, elabDoElem el (mkCont prev k))
   res
 end
@@ -1286,7 +1190,7 @@ def elabNestedActions (stx : TSyntax kind) (k : TSyntax kind → DoElabM Expr) :
   if doElems.isEmpty then
     k stx
   else
-    elabDoElems1 doElems (← DoElemCont.mkUnit stx (k stx))
+    elabDoElems1 doElems (← DoElemCont.mkUnit stx (fun _ref => k stx))
 
 def elabNestedActionsArray (stxs : Array (TSyntax kind)) (k : Array (TSyntax kind) → DoElabM Expr) : DoElabM Expr := do
   let pairs ← stxs.mapM expandNestedActions
@@ -1295,4 +1199,4 @@ def elabNestedActionsArray (stxs : Array (TSyntax kind)) (k : Array (TSyntax kin
   if doElems.isEmpty then
     k stxs
   else
-    elabDoElems1 doElems (← DoElemCont.mkUnit (stxs[0]?.getD (TSyntax.mk .missing)).raw (k stxs))
+    elabDoElems1 doElems (← DoElemCont.mkUnit (stxs[0]?.getD (TSyntax.mk .missing)).raw (fun _ref => k stxs))

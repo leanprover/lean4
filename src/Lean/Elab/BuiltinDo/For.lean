@@ -142,7 +142,7 @@ open Lean.Meta
       enterLoopBody breakCont continueCont do
       withMayElabToJump true do
       bindMutVarsFromTuple loopMutVarNames loopS.fvarId! do
-      elabDoSeq body { dec with k := continueCont, kind := .duplicable }
+      elabDoSeq body { dec with k _ := continueCont, kind := .duplicable }
 
     -- Elaborate the continuation, now that `σ` is known. It will be the `break` handler.
     -- If there is a `break`, the code will be shared in the `kbreak` join point.
@@ -151,7 +151,7 @@ open Lean.Meta
         bindMutVarsFromTuple loopMutVarNames postS.fvarId! do
           unless ← isDefEq dec.resultType (← mkPUnit) do
             throwError m!"Type mismatch. `for` loops have result type {← mkPUnit}, but the rest of the `do` sequence expected {dec.resultType}."
-          dec.continueWithUnit
+          dec.continueWithUnit .missing
       synthUsingDefEq "break RHS" breakRhs e
 
     -- -- Finally eliminate the proxy variables from the loop body.

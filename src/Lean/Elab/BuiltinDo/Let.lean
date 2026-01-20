@@ -129,11 +129,12 @@ def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDec
       | _ => throwError m!"Impossible case in elabDoLetOrReassign. This is an elaborator bug.\n{decl}"
     else
       pure decl
-  let contElab : DoElabM Expr := elabWithReassignments letOrReassign vars dec.continueWithUnit
+  let contElab : DoElabM Expr := elabWithReassignments letOrReassign vars (dec.continueWithUnit decl)
   doElabToSyntax m!"let body of {vars}" contElab fun body => do
     elabNestedActions decl fun decl => do
     match letOrReassign with
     -- Only non-`mut` lets will be elaborated as `let`s; `let mut` and reassigns behave as `have`s.
+    -- TODO: Undo this change once we have the attribute-based inference stuff
     | .let none => Term.elabLetDecl (← `(let $decl:letDecl; $body)) mγ
     | _         => Term.elabHaveDecl (← `(have $decl:letDecl; $body)) mγ
 
@@ -148,12 +149,12 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
         let decl ← getLocalDeclFromUserName x.getId
         some <$> Term.exprToSyntax decl.type
       | _, _ => pure xType?
-    elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x dec.continueWithUnit)
+    elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x ∘ dec.continueWithUnit)
       (kind := dec.kind) (contRef := dec.ref)
   | `(doPatDecl| $pattern:term ← $rhs $[| $otherwise?:doSeq $(rest?)?]?) =>
     let rest? := rest?.join
     let x := mkIdentFrom pattern (← mkFreshUserName `__x)
-    elabDoIdDecl x none rhs (contRef := pattern) (declKind := .implDetail) do
+    elabDoIdDecl x none rhs (contRef := pattern) (declKind := .implDetail) fun _ref => do
       match letOrReassign, otherwise? with
       | .let mutTk?, some otherwise =>
         elabDoElem (← `(doElem| let $[mut%$mutTk?]? $pattern:term := $x | $otherwise:doSeq $(rest?)?)) dec
@@ -182,7 +183,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   let `(doLetRec| let rec $decls:letRecDecls) := stx | throwUnsupportedSyntax
   let vars ← getLetRecDeclsVars decls
   let mγ ← mkMonadicType (← read).doBlockResultType
-  doElabToSyntax m!"let rec body of group {vars}" dec.continueWithUnit fun body => do
+  doElabToSyntax m!"let rec body of group {vars}" (dec.continueWithUnit decls) fun body => do
     -- Let recs may never have nested actions. We expand just for the sake of error messages.
     -- This suppresses error messages for the let body. Not sure if this is a good call, but it was
     -- the status quo of the legacy `do` elaborator.

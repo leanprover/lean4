@@ -770,7 +770,23 @@ class task_manager {
                 // idle before picking up new work.
                 // But during shutdown, we skip this throttling:
                 // because the finalizer might have called m_queue_cv.notify_all() for the last
-                // time, we don't want to get stuck behind the wait(). 
+                // time, we don't want to get stuck behind the wait().
+                if (m_shutting_down &&
+                    m_queues_size > 0 &&
+                    m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
+                    if (std::getenv("LEAN_TASK_SHUTDOWN_PANIC")) {
+                        lean_internal_panic("task_manager: shutdown throttling hit");
+                    } else if (std::getenv("LEAN_TASK_SHUTDOWN_TRACE")) {
+                        std::cerr
+                            << "task_manager: shutdown throttling hit"
+                            << " tm=" << this
+                            << " queues=" << m_queues_size
+                            << " idle=" << m_idle_std_workers
+                            << " std_workers=" << m_std_workers.size()
+                            << " max_std=" << m_max_std_workers
+                            << "\n";
+                    }
+                }
                 if (!m_shutting_down &&
                     m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
                     m_queue_cv.wait(lock);

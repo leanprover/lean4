@@ -3,7 +3,9 @@ open Lean Meta Elab Tactic
 
 elab "sym_simp" : tactic => do
   let methods : Sym.Simp.Methods := { post := Sym.Simp.evalGround }
-  liftMetaTactic1 <| Sym.simpWith (Sym.simp · methods)
+  liftMetaTactic1 fun mvarId => Sym.SymM.run do
+    let mvarId ← Sym.preprocessMVar mvarId
+    (← Sym.simpGoal mvarId methods).toOption
 
 -- Basic arithmetic: Nat
 example : 2 + 3 = 5 := by sym_simp

@@ -81,7 +81,7 @@ public def simpForall (e : Expr) : SimpM Result := do
   else if (← isProp e) then
     let n := getForallTelescopeSize e.bindingBody! 1
     forallBoundedTelescope e n fun xs b => withoutModifyingCacheIfNotWellBehaved do
-      main xs (← share b)
+      main xs (← shareCommon b)
   else
     return .rfl
 where
@@ -90,7 +90,7 @@ where
     | .rfl _ => return .rfl
     | .step b' h _ =>
       let h ← mkLambdaFVars xs h
-      let e' ← share (← mkForallFVars xs b')
+      let e' ← shareCommon (← mkForallFVars xs b')
       -- **Note**: consider caching the forall-congr theorems
       let hcongr ← mkForallCongrFor xs
       return .step e' (mkApp3 hcongr (← mkLambdaFVars xs b) (← mkLambdaFVars xs b') h)

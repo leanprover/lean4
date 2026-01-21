@@ -1438,7 +1438,8 @@ where doRealize inductName := do
                     let body' ←
                       withRewrittenMotive goal (inProdLambdaLastArg (rwFun names)) fun goal' =>
                       -- The Split.simpMatch here is much more crude than how we usually do things here
-                      withRewrittenMotive goal' Split.simpMatch fun goal'' =>
+                      withRewrittenMotive goal' Split.simpMatch fun goal'' => do
+                        let body := (← Split.simpMatch body).expr
                         buildInductionBody (oldIHs ++ newIHs) #[] goal'' oldIHs newIHs isRecCall body
                     oldIHs.forM fun oldIH => do
                       if body'.containsFVar oldIH then

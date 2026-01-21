@@ -118,6 +118,7 @@ def brecOnToRec' (e : Expr) : MetaM Expr := e.withApp fun fn args => do
       let ihNum ← getCtorIHNum recName ctorName
       withBelowComponents belowType (n := ihNum) fun ihs _moreBelow below => do
         let lhs := mkApp lhs below
+        let lhs := lhs.headBeta
         let rhs := mkAppN rhs ihs
         trace[Elab.definition.structural.brecOnToRec] "defeq task:{indentExpr lhs}\n=?={indentExpr rhs}"
         check lhs

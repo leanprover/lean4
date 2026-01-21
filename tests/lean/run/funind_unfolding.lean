@@ -599,3 +599,36 @@ info: binaryWithMatch.induct_unfolding (motive : Nat → Nat → Nat → Prop)
 -/
 #guard_msgs in
 #check binaryWithMatch.induct_unfolding
+
+inductive Poly where
+  | num (k : Int)
+  | add (k : Int) (v : Int) (p : Poly)
+
+-- set_option trace.Meta.FunInd true in
+def Poly.mulMon (k : Int) (m : Int) (p : Poly) : Poly :=
+  bif k == 0 then
+    .num 0
+  else bif m == 0 then
+    p
+  else
+    go p
+where
+  go : Poly → Poly
+   | .num k' =>
+     bif k' == 0 then
+       .num 0
+     else
+       .add (k*k') m (.num 0)
+   | .add k' m' p => .add (k*k') (m.mul m') (go p)
+
+/--
+info: Poly.mulMon.go.induct_unfolding (k m : Int) (motive : Poly → Poly → Prop)
+  (case1 : ∀ (k : Int), (k == 0) = true → motive (Poly.num k) (Poly.num 0))
+  (case2 : ∀ (k_1 : Int), (k_1 == 0) = false → motive (Poly.num k_1) (Poly.add (k * k_1) m (Poly.num 0)))
+  (case3 :
+    ∀ (k_1 v : Int) (p : Poly),
+      motive p (Poly.mulMon.go k m p) → motive (Poly.add k_1 v p) (Poly.add (k * k_1) (m.mul v) (Poly.mulMon.go k m p)))
+  (a✝ : Poly) : motive a✝ (Poly.mulMon.go k m a✝)
+-/
+#guard_msgs(pass trace, all) in
+#check Poly.mulMon.go.induct_unfolding

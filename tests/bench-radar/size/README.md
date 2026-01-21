@@ -6,6 +6,8 @@ It expects to be executed after the `build` benchmark.
 The following general metrics are collected:
 
 - `size/libleanshared.so//bytes`
+- `size/libleanshared.so//dynamic symbols`
+- `size/libLake_shared.so//dynamic symbols`
 
 The following metrics are collected from the entire build process:
 
@@ -34,3 +36,7 @@ The following metrics are collected only for the `Init` library.
 - `size/init/.olean.server//bytes`
 - `size/init/.olean.private//files`
 - `size/init/.olean.private//bytes`
+
+The following metric measures the size of all files produced by a `make install`.
+
+- `size/install//bytes`

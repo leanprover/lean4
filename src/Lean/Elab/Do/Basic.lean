@@ -619,9 +619,8 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
   else
     -- It's well-typed to substitute `joinRhs` for `jp` here, and the remaining uses
     -- of `jp` are dead code.
-    -- TODO: We should also immediately beta reduce the body; write a custom transform that is
-    -- basically `replaceFVars` but also does the beta reduction.
-    body.replaceFVarsM #[jp] #[joinRhs]
+    let body ← elimMVarDeps #[jp] body  -- first expose all dependencies on `jp`. No-op when no MVars.
+    zetaDeltaFVars body #[jp.fvarId!] (allowNondep := true)  -- then zeta reduce the defn of `jp`
 
 /--
 Create syntax standing in for an unelaborated metavariable.

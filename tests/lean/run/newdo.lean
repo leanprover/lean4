@@ -736,8 +736,7 @@ trace: [Elab.do] have x := 1;
           (fun j __kcontinue_1 __s_1 =>
             let x_2 := __s_1;
             have __do_jp := fun __r x_3 =>
-              if j < 3 then __kcontinue_1 x_3
-              else (fun __r_1 x_4 => if j > 6 then __kbreak_1 x_4 else __kcontinue_1 x_4) PUnit.unit x_3;
+              if j < 3 then __kcontinue_1 x_3 else if j > 6 then __kbreak_1 x_3 else __kcontinue_1 x_3;
             if j < 5 then
               have x := x_2 + j;
               __do_jp PUnit.unit x
@@ -834,21 +833,17 @@ info: (have w := 23;
         have y := y - 2;
         __kbreak (w, x, y, z)
       else
-        (fun __r w x y z =>
-            have __do_jp := fun __r w x y z =>
-              if x > 10 then
-                have x := x + 3;
-                __kcontinue (w, x, y, z)
-              else
-                (fun __r w x y z =>
-                    have x := x + i;
-                    __kcontinue (w, x, y, z))
-                  PUnit.unit w x y z;
-            if x = 3 then
-              have z := z + i;
-              __do_jp PUnit.unit w x y z
-            else __do_jp PUnit.unit w x y z)
-          PUnit.unit w x y z)
+        have __do_jp := fun __r w x y z =>
+          if x > 10 then
+            have x := x + 3;
+            __kcontinue (w, x, y, z)
+          else
+            have x := x + i;
+            __kcontinue (w, x, y, z);
+        if x = 3 then
+          have z := z + i;
+          __do_jp PUnit.unit w x y z
+        else __do_jp PUnit.unit w x y z)
     __kbreak).run : Nat
 -/
 #guard_msgs (info) in
@@ -1029,16 +1024,12 @@ trace: [Elab.do] have x := 42;
             have x_3 := x_2 + 3;
             __kcontinue (x_3, y_2)
           else
-            (fun __r_1 x_3 y_3 =>
-                if x_3 < 20 then
-                  have x_4 := x_3 - 2;
-                  __kbreak (x_4, y_3)
-                else
-                  (fun __r_2 x_4 y_4 =>
-                      have x_5 := x_4 + i;
-                      __kcontinue (x_5, y_4))
-                    PUnit.unit x_3 y_3)
-              PUnit.unit x_2 y_2;
+            if x_2 < 20 then
+              have x_3 := x_2 - 2;
+              __kbreak (x_3, y_2)
+            else
+              have x_3 := x_2 + i;
+              __kcontinue (x_3, y_2);
         if x_1 = 3 then
           have x := x_1 + 1;
           __do_jp PUnit.unit x y_1
@@ -1127,22 +1118,16 @@ trace: [Elab.do] have x := 42;
         let x_1 := __s;
         if x_1 = 3 then pure x_1
         else
-          (fun __r x_2 =>
-              if x_2 > 10 then
-                have x := x_2 + 3;
-                __kcontinue x
-              else
-                (fun __r_1 x_3 =>
-                    if x_3 < 20 then
-                      have x := x_3 * 2;
-                      __kbreak x
-                    else
-                      (fun __r_2 x_4 =>
-                          have x := x_4 + i;
-                          __kcontinue x)
-                        PUnit.unit x_3)
-                  PUnit.unit x_2)
-            PUnit.unit x_1)
+          if x_1 > 10 then
+            have x := x_1 + 3;
+            __kcontinue x
+          else
+            if x_1 < 20 then
+              have x := x_1 * 2;
+              __kbreak x
+            else
+              have x := x_1 + i;
+              __kcontinue x)
       __kbreak
 ---
 trace: [Compiler.saveBase] size: 9
@@ -1627,22 +1612,16 @@ info: (have x := 42;
       let x := __s;
       if x = 3 then pure x
       else
-        (fun __r x =>
-            if x > 10 then
-              have x := x + 3;
-              __kcontinue x
-            else
-              (fun __r x =>
-                  if x < 20 then
-                    have x := x * 2;
-                    __kbreak x
-                  else
-                    (fun __r x =>
-                        have x := x + i;
-                        __kcontinue x)
-                      PUnit.unit x)
-                PUnit.unit x)
-          PUnit.unit x)
+        if x > 10 then
+          have x := x + 3;
+          __kcontinue x
+        else
+          if x < 20 then
+            have x := x * 2;
+            __kbreak x
+          else
+            have x := x + i;
+            __kcontinue x)
     __kbreak).run : Nat
 -/
 #guard_msgs (info) in
@@ -2411,6 +2390,7 @@ example : Unit := (Id.run doo let n ← if true then pure 3 else pure 42)
 example := (Id.run do  let mut x := 0; x ← return 10)
 example := (Id.run doo let mut x := 0; x ← return 10)
 
+set_option diagnostics true in
 /--
 info: have x := 0;
 let y := 0;
@@ -2470,22 +2450,16 @@ trace: [Elab.do] have x := 42;
         let x_1 := __s;
         if x_1 = 3 then pure x_1
         else
-          (fun __r x_2 =>
-              if x_2 > 10 then
-                have x := x_2 + 3;
-                __kcontinue x
-              else
-                (fun __r_1 x_3 =>
-                    if x_3 < 20 then
-                      have x := x_3 * 2;
-                      __kbreak x
-                    else
-                      (fun __r_2 x_4 =>
-                          have x := x_4 + i;
-                          __kcontinue x)
-                        PUnit.unit x_3)
-                  PUnit.unit x_2)
-            PUnit.unit x_1)
+          if x_1 > 10 then
+            have x := x_1 + 3;
+            __kcontinue x
+          else
+            if x_1 < 20 then
+              have x := x_1 * 2;
+              __kbreak x
+            else
+              have x := x_1 + i;
+              __kcontinue x)
       __kbreak
 -/
 #guard_msgs in

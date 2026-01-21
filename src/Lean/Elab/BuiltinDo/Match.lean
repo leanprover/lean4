@@ -20,6 +20,32 @@ namespace Lean.Elab.Do
 open Lean.Parser.Term
 open Lean.Meta
 
+/--
+Expand a `doMatch` into a term `match` term. We do this for `match_syntax` only.
+Reason: In case of a dependent match, we cannot guarantee that generalization of join points and
+`mut` vars will succeed.
+The rest of the code in this file is concerned with copying just enough code from the term `match`
+elaborator to guarantee that said generalization will always succeed.
+-/
+private def expandToTermMatch : DoElab := fun stx dec => do
+  let `(doMatch| match $discrs:matchDiscr,* with $alts:matchAlt*) := stx | throwUnsupportedSyntax
+  let mγ ← mkMonadicType (← read).doBlockResultType
+  -- trace[Elab.do] "expandToTermMatch. mγ: {mγ}, dec.resultType: {dec.resultType}, dec.duplicable: {dec.kind matches .duplicable ..}"
+  dec.withDuplicableCont fun dec => do
+  let rec loop i (alts : Array (TSyntax ``matchAlt)) := do
+    if h : i < alts.size then
+      match alts[i] with
+      | `(matchAltExpr| | $patterns,* => $seq) =>
+        let vars ← getPatternsVarsEx patterns
+        checkMutVarsForShadowing vars
+        doElabToSyntax m!"match_syntax alternative {patterns.getElems}" (ref := seq) (elabDoSeq ⟨seq⟩ dec) fun rhs => do
+          loop (i + 1) (alts.set i (← `(matchAltExpr| | $patterns,* => $rhs)))
+      | _ => throwUnsupportedSyntax
+    else
+      elabNestedActionsArray discrs.getElems fun discrs => do
+      Term.elabTerm (← `(match $[$discrs],* with $alts:matchAlt*)) mγ
+  loop 0 alts
+
 -- cf. Term.expandNonAtomicDiscrs?
 private def elabNonAtomicDiscrs (motive? : Option (TSyntax ``motive)) (discrs : TSyntaxArray ``matchDiscr) (k : TSyntaxArray ``matchDiscr → DoElabM α) : DoElabM α := do
   if motive?.isSome then
@@ -312,6 +338,15 @@ private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``m
       return r
   Term.elabToSyntax finishMatchExpr (Term.elabTerm · mγ)
 
+def isSyntaxMatch (alts : Array (TSyntax ``matchAlt)) : Bool :=
+  alts.any (fun alt =>
+    match alt with
+    | `(matchAltExpr| | $pats,* => $_) =>
+      pats.getElems.any (fun
+      | `($_@$pat) => pat.raw.isQuot
+      | pat        => pat.raw.isQuot)
+    | _ => false)
+
 def getAltsPatternVars (alts : TSyntaxArray ``matchAlt) : TermElabM (Array Ident) := do
   let mut vars := #[]
   for alt in alts do
@@ -324,11 +359,15 @@ def getAltsPatternVars (alts : TSyntaxArray ``matchAlt) : TermElabM (Array Ident
   let `(doMatch| match $[(generalizing := $gen?)]? $(motive?)? $discrs,* with $alts:matchAlt*) := stx | throwUnsupportedSyntax
   if let some stxNew ← liftMacroM <| Term.expandMatchAlts? stx then
     return ← Term.withMacroExpansion stx stxNew <| elabDoElem ⟨stxNew⟩ dec
+  if isSyntaxMatch alts then
+    return ← expandToTermMatch stx dec
   if let some motive? := motive? then
     throwErrorAt motive? "The `do` elaborator does not support custom motives. Try type ascription to provide expected types."
   let gen? := gen?.map (· matches `(trueVal| true))
   let doGeneralize := gen?.getD true
+  trace[Elab.do.match] "alts: {alts}"
   checkMutVarsForShadowing (← getAltsPatternVars alts)
+  trace[Elab.do.match] "after checkMutVarsForShadowing"
   elabDoMatchCore doGeneralize motive? discrs (alts.filterMap (Term.getMatchAlt ``doSeq)) dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doMatchExpr] def elabDoMatchExpr : DoElab := fun stx dec => do

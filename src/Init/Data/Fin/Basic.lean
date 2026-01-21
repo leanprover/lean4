@@ -37,6 +37,7 @@ This differs from adding `1`, which instead wraps around.
 Examples:
  * `(2 : Fin 3).succ = (3 : Fin 4)`
  * `(2 : Fin 3) + 1 = (0 : Fin 3)`
+ * `(2 : Fin 3).succ? = none`
 -/
 def succ : Fin n → Fin (n + 1)
   | ⟨i, h⟩ => ⟨i+1, Nat.succ_lt_succ h⟩

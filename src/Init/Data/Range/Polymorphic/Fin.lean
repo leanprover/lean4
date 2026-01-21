@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Range.Polymorphic.Instances
+public import Init.Data.Fin.OverflowAware
 import Init.Grind
 
 public section
@@ -16,21 +17,45 @@ open Std Std.PRange
 namespace Fin
 
 instance : UpwardEnumerable (Fin n) where
-  succ? i := if h : i + 1 < n then some ⟨i + 1, h⟩ else none
-  succMany? i m := if h : i + m < n then some ⟨i + m, h⟩ else none
+  succ? i := i.addNat? 1
+  succMany? m i := i.addNat? m
+
+@[simp]
+theorem pRangeSucc?_eq : PRange.succ? (α := Fin n) = (·.addNat? 1) := rfl
+
+@[simp]
+theorem pRangeSuccMany?_eq : PRange.succMany? m (α := Fin n) = (·.addNat? m) :=
+  rfl
 
 instance : LawfulUpwardEnumerable (Fin n) where
   ne_of_lt a b := by
-    simpa [UpwardEnumerable.LT, UpwardEnumerable.succMany?, ← Fin.val_inj] using by grind
-  succMany?_zero a := by simp [UpwardEnumerable.succMany?]
-  succMany?_add_one n a := by
-    simpa [UpwardEnumerable.succMany?, UpwardEnumerable.succ?] using by grind
+    simpa [UpwardEnumerable.LT, ← Fin.val_inj, Fin.addNat?_eq_some_iff] using by grind
+  succMany?_zero a := by simp
+  succMany?_add_one m a := by simpa [Fin.addNat?_eq_dif] using by grind
 
 instance : LawfulUpwardEnumerableLE (Fin n) where
   le_iff x y := by
-    simp only [le_def, UpwardEnumerable.LE, succMany?, Option.dite_none_right_eq_some,
-      Option.some.injEq, ← val_inj, exists_prop]
+    simp only [le_def, UpwardEnumerable.LE, pRangeSuccMany?_eq, Fin.addNat?_eq_dif,
+      Option.dite_none_right_eq_some, Option.some.injEq, ← val_inj, exists_prop]
     exact ⟨fun h => ⟨y - x, by grind⟩, by grind⟩
+
+instance : Least? (Fin 0) where
+  least? := none
+
+instance : LawfulUpwardEnumerableLeast? (Fin 0) where
+  least?_le a := False.elim (Nat.not_lt_zero _ a.isLt)
+
+@[simp]
+theorem least?_eq_of_zero : Least?.least? (α := Fin 0) = none := rfl
+
+instance [NeZero n] : Least? (Fin n) where
+  least? := some 0
+
+instance [NeZero n] : LawfulUpwardEnumerableLeast? (Fin n) where
+  least?_le a := ⟨0, rfl, (LawfulUpwardEnumerableLE.le_iff 0 a).1 (Fin.zero_le _)⟩
+
+@[simp]
+theorem least?_eq [NeZero n] : Least?.least? (α := Fin n) = some 0 := rfl
 
 instance : LawfulUpwardEnumerableLT (Fin n) := inferInstance
 
@@ -46,7 +71,7 @@ instance : Rxc.LawfulHasSize (Fin n) where
     grind
   size_eq_succ_of_succ?_eq_some lo hi x := by
     simp [Rxc.HasSize.size, Fin.le_def, UpwardEnumerable.succ?]
-    grind
+    grind [Fin.addNat?_eq_dif]
 
 instance : Rxc.IsAlwaysFinite (Fin n) := inferInstance
 
@@ -63,7 +88,7 @@ instance : Rxi.LawfulHasSize (Fin n) where
     grind
   size_eq_succ_of_succ?_eq_some lo lo' := by
     simp [Rxi.HasSize.size, UpwardEnumerable.succ?]
-    grind
+    grind [Fin.addNat?_eq_dif]
 
 instance : Rxi.IsAlwaysFinite (Fin n) := inferInstance
 

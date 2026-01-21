@@ -101,7 +101,7 @@ open Lean.Meta
   discard <| Term.ensureHasType (mkSort (mkLevelSucc mi.u)) σ -- to assign universe MVars of `mut` vars
   let γ := (← read).doBlockResultType
   let β ← mkArrow σ (← mkMonadicType γ)
-  let breakRhs ← mkFreshExprMVar β -- assigned below
+  let breakRhsMVar ← mkFreshExprSyntheticOpaqueMVar β -- assigned below
   let (app, p?) ← match h? with
     | none =>
       let instForIn ← Term.mkInstMVar <| mkApp3 (mkConst ``ForInNew [uρ, uα, mi.u, mi.v]) mi.m ρ α
@@ -116,7 +116,7 @@ open Lean.Meta
       pure (app, some p)
   let kbreakName ← mkFreshUserName `__kbreak
   let kcontinueName ← mkFreshUserName `__kcontinue
-  withLetDecl kbreakName β breakRhs (kind := .implDetail) (nondep := true) fun kbreak => do
+  withLetDecl kbreakName β breakRhsMVar (kind := .implDetail) (nondep := true) fun kbreak => do
   withContFVar kbreakName do
   let xh : Array (Name × (Array Expr → DoElabM Expr)) := match h?, p? with
     | some h, some p => #[(x.getId, fun _ => pure α), (h.getId, fun x => pure (mkApp2 p xs x[0]!))]
@@ -149,11 +149,11 @@ open Lean.Meta
 
     -- Elaborate the continuation, now that `σ` is known. It will be the `break` handler.
     -- If there is a `break`, the code will be shared in the `kbreak` join point.
-    breakRhs.mvarId!.withContext do
-      let e ← withLocalDeclD (← mkFreshUserName `__s) σ fun postS => do mkLambdaFVars #[postS] <| ← do
+    let breakRhs ← breakRhsMVar.mvarId!.withContext do
+      withLocalDeclD (← mkFreshUserName `__s) σ fun postS => do mkLambdaFVars #[postS] <| ← do
         bindMutVarsFromTuple loopMutVarNames postS.fvarId! do
           dec.continueWithUnit .missing
-      synthUsingDefEq "break RHS" breakRhs e
+    breakRhsMVar.mvarId!.assign breakRhs
 
     let needBreakJoin := (← break?.get) && dec.kind matches .nonDuplicable
     let kcons ← mkLambdaFVars (xh ++ #[kcontinue, loopS]) body
@@ -162,4 +162,4 @@ open Lean.Meta
     if needBreakJoin then
       mkLetFVars (generalizeNondepLet := false) #[kbreak] app
     else
-      return ← app.replaceFVarsM #[kbreak] #[breakRhs]
+      inlineJoinPointM app kbreak

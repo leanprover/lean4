@@ -138,6 +138,10 @@ def ControlStack.continueT (baseMonadInfo : MonadInfo) (m : ControlStack) : Cont
 private def mkInstMonad (mi : MonadInfo) : TermElabM Expr := do
   Term.mkInstMVar (mkApp (mkConst ``Monad [mi.u, mi.v]) mi.m)
 
+private def synthUsingDefEq (msg : String) (expected : Expr) (actual : Expr) : DoElabM Unit := do
+  unless ← isDefEq expected actual do
+    throwError "Failed to synthesize {msg}. {expected} is not definitionally equal to {actual}."
+
 def ControlStack.mkBreak (base : ControlStack) (hasContinue : Bool) : DoElabM Expr := do
   let mi := { (← read).monadInfo with m := (← base.m) }
   let inst ← mkInstMonad mi

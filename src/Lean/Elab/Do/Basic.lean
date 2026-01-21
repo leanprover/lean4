@@ -338,10 +338,6 @@ def checkMutVarsForShadowing (xs : Array Ident) : DoElabM Unit := do
 def mkFreshResultType (userName := `α) (kind := MetavarKind.natural) : DoElabM Expr := do
   mkFreshExprMVar (mkSort (mkLevelSucc (← read).monadInfo.u)) (userName := userName) (kind := kind)
 
-def synthUsingDefEq (msg : String) (expected : Expr) (actual : Expr) : DoElabM Unit := do
-  unless ← isDefEq expected actual do
-    throwError "Failed to synthesize {msg}. {expected} is not definitionally equal to {actual}."
-
 /--
 Like `controlAt TermElabM`, but it maintains the state using the `DoElabM`'s ref cell instead of returning it
 in the `TermElabM` result. This makes it possible to run multiple `DoElabM` computations in a row.
@@ -550,6 +546,19 @@ instance : MonadBacktrack SavedState DoElabM where
   saveState      := DoElabM.saveState
   restoreState b := b.restore
 
+def inlineJoinPointM (body : Expr) (jp : Expr) : MetaM Expr := do
+  let some value ← jp.fvarId!.getValue? (allowNondep := true) | throwError "Internal error: join point {jp} has no value"
+  -- So, first zeta-reduce the defn of `jp` into its exposed uses
+  let body ← zetaDeltaFVars body #[jp.fvarId!] (allowNondep := true)
+  -- Furthermore, replace the remaining occurrences (in MVars contexts) by a dummy value.
+  -- It works to substitute an inhabited instance, but I want to measure whether this is actually
+  -- necessary.
+  -- let u ← getLevel joinTy
+  -- if let LOption.some inh ← joinRhsMVar.mvarId!.withContext do trySynthInstance (mkApp (mkConst ``Inhabited [u]) joinTy) then
+  --   body.replaceFVarsM #[jp] #[mkApp2 (mkConst ``Inhabited.default [u]) joinTy inh]
+  -- else
+  body.replaceFVarsM #[jp] #[value]
+
 /--
 Call `caller` with a duplicable proxy of `dec`.
 When the proxy is elaborated more than once, a join point is introduced so that `dec` is only
@@ -619,16 +628,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
   else
     -- It's well-typed to substitute `joinRhs` for `jp` here, and the remaining uses
     -- of `jp` (e.g., in MVar contexts) are considered dead code.
-    -- So, first zeta-reduce the defn of `jp`
-    let body ← zetaDeltaFVars body #[jp.fvarId!] (allowNondep := true)
-    -- and replace the remaining occurrences (in MVars contexts) by a dummy value
-    -- It works to substitute an inhabited instance, but I want to measure whether this is actually
-    -- necessary.
-    -- let u ← getLevel joinTy
-    -- if let LOption.some inh ← joinRhsMVar.mvarId!.withContext do trySynthInstance (mkApp (mkConst ``Inhabited [u]) joinTy) then
-    --   body.replaceFVarsM #[jp] #[mkApp2 (mkConst ``Inhabited.default [u]) joinTy inh]
-    -- else
-    body.replaceFVarsM #[jp] #[joinRhs]
+    inlineJoinPointM body jp
 
 /--
 Create syntax standing in for an unelaborated metavariable.

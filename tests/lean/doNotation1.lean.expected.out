@@ -2,7 +2,6 @@ doNotation1.lean:4:0-4:1: error: Variable `y` cannot be mutated. Only variables 
       If you did not intend to mutate but define `y`, consider using `let y` instead
 doNotation1.lean:8:3-8:4: error: Variable `y` cannot be mutated. Only variables declared using `let mut` can be mutated.
       If you did not intend to mutate but define `y`, consider using `let y` instead
-doNotation1.lean:7:0-8:18: error: Type mismatch. `for` loops have result type PUnit, but the rest of the `do` sequence expected List (Nat × Nat).
 doNotation1.lean:12:2-12:3: error: Variable `p` cannot be mutated. Only variables declared using `let mut` can be mutated.
       If you did not intend to mutate but define `p`, consider using `let p` instead
 doNotation1.lean:20:7-20:23: error: Type mismatch
@@ -44,3 +43,4 @@ but is expected to have type
   IO Bool
 doNotation1.lean:72:0-72:18: warning: This `do` element and its control-flow region are dead code. Consider removing it.
 doNotation1.lean:77:0-77:32: warning: This `do` element and its control-flow region are dead code. Consider removing it.
+doNotation1.lean:81:0-82:9: error: Type mismatch. `for` loops have result type PUnit, but the rest of the `do` sequence expected List (Nat × Nat).

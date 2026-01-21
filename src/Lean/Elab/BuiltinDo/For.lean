@@ -137,6 +137,9 @@ open Lean.Meta
       let (tuple, _tupleTy) ← mkProdMkN (← useLoopMutVars) mi.u
       return mkApp kbreak tuple
 
+    unless ← isDefEq dec.resultType (← mkPUnit) do
+      throwError m!"Type mismatch. `for` loops have result type {← mkPUnit}, but the rest of the `do` sequence expected {dec.resultType}."
+
     -- Elaborate the loop body, which must have result type `PUnit`.
     -- The `withSynthesizeForDo` is so that we see all jump sites before continuing elaboration.
     let body ←
@@ -149,17 +152,8 @@ open Lean.Meta
     breakRhs.mvarId!.withContext do
       let e ← withLocalDeclD (← mkFreshUserName `__s) σ fun postS => do mkLambdaFVars #[postS] <| ← do
         bindMutVarsFromTuple loopMutVarNames postS.fvarId! do
-          unless ← isDefEq dec.resultType (← mkPUnit) do
-            throwError m!"Type mismatch. `for` loops have result type {← mkPUnit}, but the rest of the `do` sequence expected {dec.resultType}."
           dec.continueWithUnit .missing
       synthUsingDefEq "break RHS" breakRhs e
-
-    -- -- Finally eliminate the proxy variables from the loop body.
-    -- -- * Point non-reassigned mut var defs to the pre state
-    -- -- * Point the initial defs of reassigned mut vars to the loop state
-    -- -- Done by `elimProxyDefs` below.
-    -- let body ← bindMutVarsFromTuple loopMutVarNames loopS.fvarId! do
-    --   elimProxyDefs body
 
     let needBreakJoin := (← break?.get) && dec.kind matches .nonDuplicable
     let kcons ← mkLambdaFVars (xh ++ #[kcontinue, loopS]) body

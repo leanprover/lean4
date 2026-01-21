@@ -3,11 +3,11 @@
 def f1 (x : Nat) : IO Nat := do
 y := 1  -- error 'y' cannot be reassigned
 
-def f2 (xs : List (Nat × Nat)) : List (Nat × Nat) := Id.run <| do
-for (x, y) in xs do -- error, `for` result type is PUnit but expected type is List (Nat × Nat)
+def f2 (xs : List (Nat × Nat)) : Unit := Id.run <| do
+for (x, y) in xs do
   (y, x) := (x, y) -- error 'y' (and 'x') cannot be reassigned
 
-def f3 (xs : List (Nat × Nat)) : List (Nat × Nat) := Id.run <| do
+def f3 (xs : List (Nat × Nat)) : Unit := Id.run <| do
 for p in xs do
   p := (p.2, p.1) -- works. `forInMap` requires a variable
 
@@ -76,3 +76,7 @@ def f14 (x : Nat) : IO Nat := do
 let y ← if x == 0 then return 100 else return 200
 IO.println ("y: " ++ toString y) -- warn unreachable
 return 0
+
+example (xs : List (Nat × Nat)) : List (Nat × Nat) := Id.run <| do
+for _ in xs do -- error, `for` result type is PUnit but expected type is List (Nat × Nat)
+  pure ()

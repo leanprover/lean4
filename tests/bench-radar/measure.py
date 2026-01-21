@@ -10,8 +10,6 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
-OUTFILE = Path() / "measurements.jsonl"
-
 
 @dataclass
 class PerfMetric:
@@ -126,7 +124,7 @@ def measure(cmd: list[str], metrics: list[str]) -> list[Result]:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description=f"Measure resource usage of a command using perf and rusage. The results are appended to {OUTFILE.name}.",
+        description="Measure resource usage of a command using perf and rusage."
     )
     parser.add_argument(
         "-t",
@@ -143,6 +141,12 @@ if __name__ == "__main__":
         help=f"metrics to measure. Can be specified multiple times. Available metrics: {', '.join(sorted(ALL_METRICS))}",
     )
     parser.add_argument(
+        "-o",
+        "--output",
+        type=Path,
+        default=Path() / "measurements.jsonl",
+    )
+    parser.add_argument(
         "cmd",
         nargs="*",
         help="command to measure the resource usage of",
@@ -151,11 +155,12 @@ if __name__ == "__main__":
 
     topics: list[str] = args.topic
     metrics: list[str] = args.metric
+    output: Path = args.output
     cmd: list[str] = args.cmd
 
     results = measure(cmd, metrics)
 
-    with open(OUTFILE, "a+") as f:
+    with open(output, "a") as f:
         for result in results:
             for topic in topics:
                 f.write(f"{result.fmt(topic)}\n")

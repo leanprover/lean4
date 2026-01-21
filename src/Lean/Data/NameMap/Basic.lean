@@ -57,6 +57,8 @@ def insert (s : NameSet) (n : Name) : NameSet := Std.TreeSet.insert s n
 def contains (s : NameSet) (n : Name) : Bool := Std.TreeSet.contains s n
 instance [Monad m] : ForIn m NameSet Name :=
   inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
+instance : ForInNew m NameSet Name :=
+  inferInstanceAs (ForInNew _ (Std.TreeSet _ _) ..)
 
 /-- The union of two `NameSet`s. -/
 def append (s t : NameSet) : NameSet :=

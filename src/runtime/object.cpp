@@ -762,8 +762,14 @@ class task_manager {
                         // maximum was decreased by `task_get`), wait for someone else to become
                         // idle before picking up new work.
                         m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
+
+                    if (m_shutting_down) {
+                        std::cerr << "task_manager (stderr): identified race / panicking" << std::endl;
+                        std::cout << "task_manager: identified race / panicking" << std::endl;
+                        std::exit(97);
+                    }
+
                     m_queue_cv.wait(lock);
-                    continue;
                 }
 
                 lean_task_object * t = dequeue();

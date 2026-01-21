@@ -179,6 +179,13 @@ structure EnvironmentHeader where
   `ModuleIdx` for the same module.
   -/
   modules      : Array EffectiveImport := #[]
+  /-- For `getModuleIdx?` -/
+  private moduleName2Idx : Std.HashMap Name ModuleIdx := Id.run do
+    let mut m := {}
+    for _h : idx in [0:modules.size] do
+      let mod := modules[idx]
+      m := m.insert mod.module idx
+    return m
   /--
   Subset of `modules` for which `importAll` is `true`. This is assumed to be a much smaller set so
   we precompute it instead of iterating over all of `modules` multiple times. However, note that
@@ -267,7 +274,7 @@ structure Environment where
   -/
   private irBaseExts      : Array EnvExtensionState
   /-- The header contains additional information that is set at import time. -/
-  header                  : EnvironmentHeader := {}
+  header                  : EnvironmentHeader := private_decl% {}
 deriving Nonempty
 
 /-- Exceptions that can be raised by the kernel when type checking new declarations. -/
@@ -1174,7 +1181,7 @@ def isSafeDefinition (env : Environment) (declName : Name) : Bool :=
   | _ => false
 
 def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
-  env.header.modules.findIdx? (·.module == moduleName)
+  env.header.moduleName2Idx[moduleName]?
 
 end Environment
 

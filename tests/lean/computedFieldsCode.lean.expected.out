@@ -251,7 +251,7 @@
       let x_4 : u64 := Exp.hash._override x_2;
       let x_5 : u64 := mixHash x_3 x_4;
       let x_6 : obj := ctor_1.0.8[Exp.app._impl] x_1 x_2;
-      sset x_6[2, 0] : u64 := x_5;
+      sset x_6[1, 2, 0] : u64 := x_5;
       ret x_6
 [Compiler.IR] [result]
     def Exp.a1._override : tobj :=

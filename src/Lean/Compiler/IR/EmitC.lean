@@ -196,36 +196,35 @@ where
       let argArray := String.intercalate "," args.toList
       return ("lean_closure_object", s!"\{.m_header = {header}, .m_fun = {funPtr}, .m_arity = {arity}, .m_num_fixed = {numFixed}, .m_objs = \{{argArray}} }")
     | .nameMkStr args =>
-      let (leaf, _) ← groundNameStrToCLit args
-      return ("lean_ctor_object", leaf)
+      let obj ← groundNameMkStrToCLit args
+      return ("lean_ctor_object", obj)
 
-  groundNameStrToCLit (args : Array (Name × String)) : GroundM (String × Name) := do
+  uint64ToByteArray (n : UInt64) : Array UInt8 := #[
+      n.toUInt8,
+      (n >>> 0x08).toUInt8,
+      (n >>> 0x10).toUInt8,
+      (n >>> 0x18).toUInt8,
+      (n >>> 0x20).toUInt8,
+      (n >>> 0x28).toUInt8,
+      (n >>> 0x30).toUInt8,
+      (n >>> 0x38).toUInt8,
+    ]
+
+  groundNameMkStrToCLit (args : Array (Name × UInt64)) : GroundM String := do
     assert! args.size > 0
-    let uint64ToByteArray (n : UInt64) := #[
-        n.toUInt8,
-        (n >>> 0x08).toUInt8,
-        (n >>> 0x10).toUInt8,
-        (n >>> 0x18).toUInt8,
-        (n >>> 0x20).toUInt8,
-        (n >>> 0x28).toUInt8,
-        (n >>> 0x30).toUInt8,
-        (n >>> 0x38).toUInt8,
-      ]
     if args.size == 1 then
-      let (ref, component) := args[0]!
-      let name := Name.mkStr1 component
-      let hash := uint64ToByteArray name.hash
+      let (ref, hash) := args[0]!
+      let hash := uint64ToByteArray hash
       let (_, obj) ← groundToCLit <| .ctor 1 #[.tagged 0, .reference ref] #[] hash
-      return (obj, name)
+      return obj
     else
-      let (ref, component) := args.back!
+      let (ref, hash) := args.back!
       let args := args.pop
-      let (lit, name) ← groundNameStrToCLit args
+      let lit ← groundNameMkStrToCLit args
       let auxName ← mkAuxDecl "lean_ctor_object" lit
-      let name := Name.str name component
-      let hash := uint64ToByteArray name.hash
+      let hash := uint64ToByteArray hash
       let (_, obj) ← groundToCLit <| .ctor 1 #[.rawReference auxName, .reference ref] #[] hash
-      return (obj, name)
+      return obj
 
   groundArgToCLit (a : GroundArg) : GroundM String := do
     match a with
@@ -243,6 +242,9 @@ where
 def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M Unit := do
   let ps := decl.params
   let env ← getEnv
+  if isClosedTermName env decl.name && !isGroundDecl env decl.name then
+    pure ()
+    --dbg_trace s!"{decl}"
 
   if isGroundDecl env decl.name then
     emitGroundDecl decl cppBaseName

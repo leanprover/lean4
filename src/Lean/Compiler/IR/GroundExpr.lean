@@ -27,7 +27,7 @@ public inductive GroundExpr where
   | ctor (idx : Nat) (objArgs : Array GroundArg) (usizeArgs : Array USize) (scalarArgs : Array UInt8)
   | string (data : String)
   | pap (func : FunId) (args : Array GroundArg)
-  | nameMkStr (args : Array (Name × String))
+  | nameMkStr (args : Array (Name × UInt64))
   deriving Inhabited
 
 public structure GroundExtState where
@@ -82,7 +82,7 @@ where
   @[inline]
   record (id : VarId) (val : GroundValue) : M Unit :=
     modify fun s => { s with groundMap := s.groundMap.insert id val }
-    
+
   compileNonFinalExpr (id : VarId) (ty : IRType) (expr : Expr) (b : FnBody) : M GroundExpr := do
     match expr with
     | .fap c #[] =>
@@ -164,6 +164,17 @@ where
       compileSetChain id idx objArgs usizeArgs scalarArgs b
     | _ => failure
 
+  uint64ToByteArray (n : UInt64) : Array UInt8 := #[
+      n.toUInt8,
+      (n >>> 0x08).toUInt8,
+      (n >>> 0x10).toUInt8,
+      (n >>> 0x18).toUInt8,
+      (n >>> 0x20).toUInt8,
+      (n >>> 0x28).toUInt8,
+      (n >>> 0x30).toUInt8,
+      (n >>> 0x38).toUInt8,
+    ]
+
   compileFinalExpr (ty : IRType) (e : Expr) : M GroundExpr := do
     match e with
     | .lit v =>
@@ -173,6 +184,18 @@ where
     | .ctor i args =>
       guard <| i.usize == 0 && i.ssize == 0 && !args.isEmpty
       return .ctor i.cidx (← compileArgs args) #[] #[]
+    | .fap ``Name.num._override args =>
+      let pre ← compileArg args[0]!
+      let .tagged i ← compileArg args[1]! | failure
+      let name := Name.num (← interpNameLiteral pre) i
+      let hash := name.hash
+      return .ctor 2 #[pre, .tagged i] #[] (uint64ToByteArray hash)
+    | .fap ``Name.str._override args =>
+      let pre ← compileArg args[0]!
+      let (ref, str) ← compileStrArg args[1]!
+      let name := Name.str (← interpNameLiteral pre) str
+      let hash := name.hash
+      return .ctor 1 #[pre, .reference ref] #[] (uint64ToByteArray hash)
     | .fap ``Name.mkStr1 args
     | .fap ``Name.mkStr2 args
     | .fap ``Name.mkStr3 args
@@ -181,22 +204,56 @@ where
     | .fap ``Name.mkStr6 args
     | .fap ``Name.mkStr7 args
     | .fap ``Name.mkStr8 args =>
-      let args ← args.mapM fun arg => do
-        let .var var := arg | failure
-        let (.arg (.reference name)) := (← get).groundMap[var]! | failure
-        let some (.string val) := getGroundExpr (← getEnv) name | failure
-        return (name, val)
-      return .nameMkStr args
+      let mut nameAcc := Name.anonymous
+      let mut processedArgs := Array.emptyWithCapacity args.size
+      for arg in args do
+        let (ref, str) ← compileStrArg arg
+        nameAcc := .str nameAcc str
+        processedArgs := processedArgs.push (ref, nameAcc.hash)
+      return .nameMkStr processedArgs
     | .pap c ys => return .pap c (← compileArgs ys)
     | _ => failure
 
+  compileArg (arg : Arg) : M GroundArg := do
+    match arg with
+    | .var var =>
+      let .arg arg := (← get).groundMap[var]! | failure
+      return arg
+    | .erased => return .tagged 0
+
   compileArgs (args : Array Arg) : M (Array GroundArg) := do
-    args.mapM fun arg => do
-      match arg with
-      | .var var =>
-        let .arg arg := (← get).groundMap[var]! | failure
-        return arg
-      | .erased => return .tagged 0
+    args.mapM compileArg
+
+  compileStrArg (arg : Arg) : M (Name × String) := do
+    let .var var := arg | failure
+    let (.arg (.reference ref)) := (← get).groundMap[var]! | failure
+    let some (.string val) := getGroundExpr (← getEnv) ref | failure
+    return (ref, val)
+
+  interpStringLiteral (arg : GroundArg) : M String := do
+    let .reference ref := arg | failure
+    let some (.string val) := getGroundExpr (← getEnv) ref | failure
+    return val
+
+  interpNameLiteral (arg : GroundArg) : M Name := do
+    match arg with
+    | .tagged 0 => return .anonymous
+    | .reference ref =>
+      match getGroundExpr (← getEnv) ref with
+      | some (.ctor 1 #[pre, .reference ref] _ _) =>
+        let pre ← interpNameLiteral pre
+        let str ← interpStringLiteral (.reference ref)
+        return .str pre str
+      | some (.ctor 2 #[pre, .tagged i] _ _) =>
+        let pre ← interpNameLiteral pre
+        return .num pre i
+      | some (.nameMkStr args) =>
+        args.foldlM (init := .anonymous) fun acc (ref, _) => do
+          let part ← interpStringLiteral (.reference ref)
+          return .str acc part
+      | _ => failure
+    | _ => failure
+
 
 public def Decl.detectGround (d : Decl) : CompilerM Unit := do
   if !isClosedTermName (← getEnv) d.name then return ()

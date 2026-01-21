@@ -2398,7 +2398,7 @@ if true = true then pure 3
 else
   have x_1 := x + 5;
   let y_1 := 3;
-  (fun __r x_2 => pure (x_2 + y)) PUnit.unit x_1 : ?m Nat
+  pure (x_1 + y) : ?m Nat
 -/
 #guard_msgs (info) in
 #check doo

@@ -618,9 +618,17 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
     mkLetFVars (generalizeNondepLet := false) #[jp] body
   else
     -- It's well-typed to substitute `joinRhs` for `jp` here, and the remaining uses
-    -- of `jp` are dead code.
-    let body ← elimMVarDeps #[jp] body  -- first expose all dependencies on `jp`. No-op when no MVars.
-    zetaDeltaFVars body #[jp.fvarId!] (allowNondep := true)  -- then zeta reduce the defn of `jp`
+    -- of `jp` (e.g., in MVar contexts) are considered dead code.
+    -- So, first zeta-reduce the defn of `jp`
+    let body ← zetaDeltaFVars body #[jp.fvarId!] (allowNondep := true)
+    -- and replace the remaining occurrences (in MVars contexts) by a dummy value
+    -- It works to substitute an inhabited instance, but I want to measure whether this is actually
+    -- necessary.
+    -- let u ← getLevel joinTy
+    -- if let LOption.some inh ← joinRhsMVar.mvarId!.withContext do trySynthInstance (mkApp (mkConst ``Inhabited [u]) joinTy) then
+    --   body.replaceFVarsM #[jp] #[mkApp2 (mkConst ``Inhabited.default [u]) joinTy inh]
+    -- else
+    body.replaceFVarsM #[jp] #[joinRhs]
 
 /--
 Create syntax standing in for an unelaborated metavariable.

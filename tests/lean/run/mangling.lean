@@ -13,7 +13,7 @@ def checkMangle (n : Name) (s : String) : IO Unit := do
   if .demangle s ≠ n then
     throw <| .userError s!"failed: {s} demangles to {Lean.Name.demangle s} but expected {n}"
   if n ≠ .anonymous ∧ mkMangledBoxedName s ≠ (mkBoxedName n).mangle "" then
-    throw <| .userError s!"failed: {mkBoxedName n} mangles to {(mkBoxedName n).mangle ""} but
+    throw <| .userError s!"failed: {mkBoxedName n} mangles to {(mkBoxedName n).mangle ""} but \
       mkMangledBoxedName produced {mkMangledBoxedName s}"
 
 /-!

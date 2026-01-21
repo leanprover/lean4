@@ -1286,7 +1286,7 @@ private def elabMatchCore (stx : Term) (expectedType? : Option Expr) : TermElabM
   let altViews       := getMatchAlts stx
   elabMatchAux gen? discrs altViews motive? expectedType
 
-private def isPatternVar (stx : Syntax) : TermElabM Bool := do
+def isPatternVar (stx : Syntax) : TermElabM Bool := do
   match (← resolveId? stx "pattern") with
   | none   => return isAtomicIdent stx
   | some f => match f with

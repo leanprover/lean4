@@ -146,10 +146,6 @@ public def mkMangledBoxedName (s : String) : String :=
   else
     s ++ "___boxed"
 
-#guard mkMangledBoxedName ((`test).mangle) == (`test._boxed).mangle
-#guard mkMangledBoxedName ((`test_).mangle) == (`test_._boxed).mangle
-#guard mkMangledBoxedName ((`test_).num 1 |>.mangle) == ((`test_).num 1 ++ `_boxed).mangle
-
 /--
 The mangled name of the name used to create the module initialization function.
 

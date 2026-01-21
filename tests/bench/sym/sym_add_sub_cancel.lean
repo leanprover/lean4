@@ -234,8 +234,8 @@ def runBenchUsingMeta : MetaM Unit := do
   for n in [10, 20, 30, 40, 50, 60, 70, 80] do
     solveUsingMeta n
 
+#eval runBenchUsingMeta
 -- goal_80: 1467.414291 ms, kernel: 120.162250 ms
--- #eval runBenchUsingMeta
 
 /-!
 `SymM` Solution
@@ -258,7 +258,12 @@ elab "sym_simp" "[" declNames:ident,* "]" : tactic => do
     pre  := Sym.Simp.simpControl
     post := Sym.Simp.evalGround.andThen rewrite
   }
-  liftMetaTactic1 <| Sym.simpWith methods
+  liftMetaTactic1 fun mvarId => Sym.SymM.run do
+    let mvarId ← Sym.preprocessMVar mvarId
+    (← Sym.simpGoal mvarId methods).toOption
+
+example (l : PartialMap String Word) : ((l.put "b" x).put "a" y).get "b" = x := by
+  sym_simp [PartialMap.get_put_diff, PartialMap.get_put]
 
 partial def solve (mvarId : MVarId) : SymM Unit := do
   let exec_cpsRule ← mkBackwardRuleFromDecl ``Exec.seq_cps
@@ -273,27 +278,26 @@ partial def solve (mvarId : MVarId) : SymM Unit := do
   let finalSimpMethods ← mkMethods #[``List.cons.injEq, ``IOEvent.IN.injEq, ``and_true, ``true_and, ``PartialMap.put_put, ``PartialMap.get_put,
     ``Option.some.injEq, ``and_self, ``exists_eq_True]
   -- Initialize
+  let mvarId ← preprocessMVar mvarId
   let (_, mvarId) ← Sym.introN mvarId 2
-  let some mvarId ← simpWith unfoldMethods mvarId | failure
-  let some [mvarId] ← exec_cpsRule.apply? mvarId | failure
-  let some [mvarId] ← inputRule.apply? mvarId | failure
+  let .goal mvarId ← Sym.simpGoal mvarId unfoldMethods | failure
+  let .goals [mvarId] ← exec_cpsRule.apply mvarId | failure
+  let .goals [mvarId] ← inputRule.apply mvarId | failure
   let (_, mvarId) ← Sym.introN mvarId 1
   -- Loop
   let rec loop (mvarId : MVarId) : SymM MVarId := do
-    mvarId.withContext do logInfo m!"{← mvarId.getType}"
-    let some [mvarId] ← exec_cpsRule.apply? mvarId | return mvarId
-    let some [mvarId', mvarId, _] ← setRule.apply? mvarId | failure
-    let some mvarId' ← simpWith evalMethods mvarId' | failure
-    let some mvarId' ← simpWith simpMethods mvarId' | failure
-    let some [] ← rflRule.apply? mvarId' | failure
-    -- let some mvarId ← simpWith simpMethods mvarId | failure
+    -- mvarId.withContext do logInfo m!"{← mvarId.getType}"
+    let .goals [mvarId] ← exec_cpsRule.apply mvarId | return mvarId
+    let .goals [mvarId', mvarId, _] ← setRule.apply mvarId | failure
+    let .goal mvarId' ← Sym.simpGoal mvarId' evalMethods | failure
+    let .goal mvarId' ← Sym.simpGoal mvarId' simpMethods | failure
+    let .goals [] ← rflRule.apply mvarId' | failure
     loop mvarId
 
   let mvarId ← loop mvarId
-
-  let some [mvarId] ← skipRule.apply? mvarId | failure
-  let some mvarId ← simpWith finalSimpMethods mvarId | failure
-
+  let .goals [mvarId] ← skipRule.apply mvarId | failure
+  let .goal mvarId ← Sym.simpGoal mvarId finalSimpMethods { maxSteps := 100000 } | failure
+  logInfo mvarId -- **TODO**: get_put theorem is not behaving correctly
   mvarId.admit
   return
 
@@ -301,5 +305,4 @@ def solveUsingSym (n : Nat) (check := true) : MetaM Unit := do
   driver n check fun mvarId => SymM.run do solve mvarId
 
 set_option maxRecDepth 100000
-set_option trace.Meta.debug true
-#eval solveUsingSym 2
+#eval solveUsingSym 4

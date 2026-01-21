@@ -1100,7 +1100,7 @@ def checkMotiveCompatible (discrs : Array Syntax) (generalizing? : Option Bool) 
     if discrs.any fun d => !d[0].isNone then
       throwErrorAt motive "match motive should not be provided when discriminants with equality proofs are used"
     if generalizing? == some true then
-      throwErrorAt motive "The '(generalizing := true)' parameter is not supported when the 'match' motive is explicitly provided"
+      throwError "The '(generalizing := true)' parameter is not supported when the 'match' motive is explicitly provided"
     return false                 -- do not generalize when the motive is provided
   return generalizing?.getD true -- default to generalizing when no motive is provided
 

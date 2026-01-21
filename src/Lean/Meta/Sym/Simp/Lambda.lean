@@ -48,14 +48,14 @@ def mkFunextFor (xs : Array Expr) (β : Expr) : MetaM Expr := do
 
 public def simpLambda (e : Expr) : SimpM Result := do
   lambdaTelescope e fun xs b => withoutModifyingCacheIfNotWellBehaved do
-    main xs b
+    main xs (← share b)
 where
   main (xs : Array Expr) (b : Expr) : SimpM Result := do
     match (← simp b) with
     | .rfl _ => return .rfl
     | .step b' h _ =>
       let h ← mkLambdaFVars xs h
-      let e' ← shareCommonInc (← mkLambdaFVars xs b')
+      let e' ← share (← mkLambdaFVars xs b')
       let funext ← getFunext xs b
       return .step e' (mkApp3 funext e e' h)
 

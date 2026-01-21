@@ -141,7 +141,6 @@ private def findInterpDecl (env : Environment) (declName : Name) : Option Decl :
 
 namespace ExplicitBoxing
 
--- Note: we rely on this specific implementation for `mkMangledBoxedName`
 def mkBoxedName (n : Name) : Name :=
   Name.mkStr n "_boxed"
 

@@ -3,57 +3,57 @@
 {"items":
  [{"label": "value",
    "kind": 5,
-   "data": ["«external:file:///match.lean»", 6, 11, 1, "cS.value"]},
+   "data": ["file:///match.lean", 6, 11, 1, "cS.value"]},
   {"label": "fn1",
    "kind": 5,
-   "data": ["«external:file:///match.lean»", 6, 11, 1, "cS.fn1"]},
+   "data": ["file:///match.lean", 6, 11, 1, "cS.fn1"]},
   {"label": "name",
    "kind": 5,
-   "data": ["«external:file:///match.lean»", 6, 11, 1, "cS.name"]}],
+   "data": ["file:///match.lean", 6, 11, 1, "cS.name"]}],
  "isIncomplete": false}
 Resolution of value:
 {"label": "value",
  "kind": 5,
  "detail": "S → Bool",
- "data": ["«external:file:///match.lean»", 6, 11, 1, "cS.value"]}
+ "data": ["file:///match.lean", 6, 11, 1, "cS.value"]}
 Resolution of fn1:
 {"label": "fn1",
  "kind": 5,
  "detail": "S → Nat",
- "data": ["«external:file:///match.lean»", 6, 11, 1, "cS.fn1"]}
+ "data": ["file:///match.lean", 6, 11, 1, "cS.fn1"]}
 Resolution of name:
 {"label": "name",
  "kind": 5,
  "detail": "S → String",
- "data": ["«external:file:///match.lean»", 6, 11, 1, "cS.name"]}
+ "data": ["file:///match.lean", 6, 11, 1, "cS.name"]}
 {"textDocument": {"uri": "file:///match.lean"},
  "position": {"line": 10, "character": 10}}
 {"items":
  [{"label": "value",
    "kind": 5,
-   "data": ["«external:file:///match.lean»", 10, 10, 1, "cS.value"]},
+   "data": ["file:///match.lean", 10, 10, 1, "cS.value"]},
   {"label": "fn1",
    "kind": 5,
-   "data": ["«external:file:///match.lean»", 10, 10, 1, "cS.fn1"]},
+   "data": ["file:///match.lean", 10, 10, 1, "cS.fn1"]},
   {"label": "name",
    "kind": 5,
-   "data": ["«external:file:///match.lean»", 10, 10, 1, "cS.name"]}],
+   "data": ["file:///match.lean", 10, 10, 1, "cS.name"]}],
  "isIncomplete": false}
 Resolution of value:
 {"label": "value",
  "kind": 5,
  "detail": "S → Bool",
- "data": ["«external:file:///match.lean»", 10, 10, 1, "cS.value"]}
+ "data": ["file:///match.lean", 10, 10, 1, "cS.value"]}
 Resolution of fn1:
 {"label": "fn1",
  "kind": 5,
  "detail": "S → Nat",
- "data": ["«external:file:///match.lean»", 10, 10, 1, "cS.fn1"]}
+ "data": ["file:///match.lean", 10, 10, 1, "cS.fn1"]}
 Resolution of name:
 {"label": "name",
  "kind": 5,
  "detail": "S → String",
- "data": ["«external:file:///match.lean»", 10, 10, 1, "cS.name"]}
+ "data": ["file:///match.lean", 10, 10, 1, "cS.name"]}
 {"textDocument": {"uri": "file:///match.lean"},
  "position": {"line": 14, "character": 2}}
 {"rendered": "```lean\nx : Nat\n⊢ 0 + x = x\n```",

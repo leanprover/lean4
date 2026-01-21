@@ -102,6 +102,19 @@ Check if `declName` is recorded as being a `SimpleGroundExpr`.
 public def isSimpleGroundDecl (env : Environment) (declName : Name) : Bool :=
   (simpleGroundDeclExt.getState env).constNames.contains declName
 
+public def uint64ToByteArray (n : UInt64) : Array UInt8 :=
+  #[
+    n.toUInt8,
+    (n >>> 0x08).toUInt8,
+    (n >>> 0x10).toUInt8,
+    (n >>> 0x18).toUInt8,
+    (n >>> 0x20).toUInt8,
+    (n >>> 0x28).toUInt8,
+    (n >>> 0x30).toUInt8,
+    (n >>> 0x38).toUInt8,
+  ]
+
+
 inductive SimpleGroundValue where
   | arg (arg : SimpleGroundArg)
   | uint8 (val : UInt8)
@@ -222,17 +235,6 @@ where
     | _ => failure
 
   -- TODO: dedup
-  uint64ToByteArray (n : UInt64) : Array UInt8 := #[
-      n.toUInt8,
-      (n >>> 0x08).toUInt8,
-      (n >>> 0x10).toUInt8,
-      (n >>> 0x18).toUInt8,
-      (n >>> 0x20).toUInt8,
-      (n >>> 0x28).toUInt8,
-      (n >>> 0x30).toUInt8,
-      (n >>> 0x38).toUInt8,
-    ]
-
   compileFinalExpr (e : Expr) : M SimpleGroundExpr := do
     match e with
     | .lit v =>

@@ -199,17 +199,6 @@ where
       let obj ← groundNameMkStrToCLit args
       return ("lean_ctor_object", obj)
 
-  uint64ToByteArray (n : UInt64) : Array UInt8 := #[
-      n.toUInt8,
-      (n >>> 0x08).toUInt8,
-      (n >>> 0x10).toUInt8,
-      (n >>> 0x18).toUInt8,
-      (n >>> 0x20).toUInt8,
-      (n >>> 0x28).toUInt8,
-      (n >>> 0x30).toUInt8,
-      (n >>> 0x38).toUInt8,
-    ]
-
   groundNameMkStrToCLit (args : Array (Name × UInt64)) : GroundM String := do
     assert! args.size > 0
     let info := { name := ``Name.str._impl, cidx := 1, size := 2, usize := 0, ssize := 8  }

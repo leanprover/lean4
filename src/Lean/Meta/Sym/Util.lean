@@ -32,6 +32,7 @@ def preprocessLCtx (lctx : LocalContext) : SymM LocalContext := do
         let type ← preprocessExpr type
         let value ← preprocessExpr value
         pure <| LocalDecl.ldecl index fvarId userName type value nondep kind
+    index := index + 1
     decls := decls.push (some decl)
     fvarIdToDecl := fvarIdToDecl.insert decl.fvarId decl
   return { fvarIdToDecl, decls, auxDeclToFullName }

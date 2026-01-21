@@ -12358,7 +12358,6 @@ x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
 lean_dec(x_7);
-lean_inc(x_1);
 x_9 = l_Lean_Environment_getModuleIdx_x3f(x_8, x_1);
 if (lean_obj_tag(x_9) == 1)
 {

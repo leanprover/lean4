@@ -1777,7 +1777,7 @@ _start:
 {
 lean_object* x_7; uint8_t x_8; 
 x_7 = l_Lean_Environment_header(x_1);
-x_8 = lean_ctor_get_uint8(x_7, sizeof(void*)*6 + 4);
+x_8 = lean_ctor_get_uint8(x_7, sizeof(void*)*7 + 4);
 lean_dec_ref(x_7);
 if (x_8 == 0)
 {

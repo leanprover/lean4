@@ -43477,7 +43477,7 @@ x_143 = lean_ctor_get(x_136, 4);
 lean_inc_ref(x_143);
 lean_dec(x_136);
 x_144 = l_Lean_Environment_header(x_138);
-x_145 = lean_ctor_get_uint8(x_144, sizeof(void*)*6 + 4);
+x_145 = lean_ctor_get_uint8(x_144, sizeof(void*)*7 + 4);
 lean_dec_ref(x_144);
 x_146 = lean_alloc_closure((void*)(l_Lean_Meta_Match_mkMatcherAuxDefinition___lam__0___boxed), 3, 2);
 lean_closure_set(x_146, 0, x_142);

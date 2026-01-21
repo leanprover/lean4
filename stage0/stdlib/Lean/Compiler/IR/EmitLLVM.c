@@ -52417,7 +52417,6 @@ x_30 = lean_array_uget(x_6, x_7);
 x_31 = lean_ctor_get(x_30, 0);
 lean_inc(x_31);
 lean_dec(x_30);
-lean_inc(x_31);
 x_32 = l_Lean_Environment_getModuleIdx_x3f(x_4, x_31);
 if (lean_obj_tag(x_32) == 1)
 {
@@ -52921,7 +52920,6 @@ x_122 = lean_array_uget(x_6, x_7);
 x_123 = lean_ctor_get(x_122, 0);
 lean_inc(x_123);
 lean_dec(x_122);
-lean_inc(x_123);
 x_124 = l_Lean_Environment_getModuleIdx_x3f(x_4, x_123);
 if (lean_obj_tag(x_124) == 1)
 {

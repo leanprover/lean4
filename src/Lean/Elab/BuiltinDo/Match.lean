@@ -185,7 +185,7 @@ private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``m
       throwError "Invalid match expression: monad {mi.m} depends on one of the discriminants. \
         This is not supported by the `do` elaborator."
 
-    Term.synthesizeSyntheticMVarsUsingDefault
+    Term.synthesizeSyntheticMVars -- using default would be too strong here; omitting it would be too weak to provoke the bad discrminant refinement error
     -- We do not support custom motives or `generalizing := false`. We always produce our own motive
     -- by abstracting the expected type (`dec.resultType`) over the discriminants.
     -- We *do* take the instantiated motive produced by `elabMatchTypeAndDiscrs` though because it
@@ -365,9 +365,7 @@ def getAltsPatternVars (alts : TSyntaxArray ``matchAlt) : TermElabM (Array Ident
     throwErrorAt motive? "The `do` elaborator does not support custom motives. Try type ascription to provide expected types."
   let gen? := gen?.map (· matches `(trueVal| true))
   let doGeneralize := gen?.getD true
-  trace[Elab.do.match] "alts: {alts}"
   checkMutVarsForShadowing (← getAltsPatternVars alts)
-  trace[Elab.do.match] "after checkMutVarsForShadowing"
   elabDoMatchCore doGeneralize motive? discrs (alts.filterMap (Term.getMatchAlt ``doSeq)) dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doMatchExpr] def elabDoMatchExpr : DoElab := fun stx dec => do

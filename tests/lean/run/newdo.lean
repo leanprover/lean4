@@ -305,7 +305,8 @@ error: The inferred match motive ⏎
   Fin (x + x)
 or the monadic result type ⏎
   Id (Fin (x + x))
-had occurrences of free variables that depend on the discriminants, but no continuation variables were generalized. This is not supported by the `do` elaborator. Supply missing indices as disciminants to fix this.
+had occurrences of free variables that depend on the discriminants, but no continuation variables were generalized.
+This is not supported by the `do` elaborator. Supply missing indices as disciminants to fix this.
 -/
 #guard_msgs (error) in
 example (x : Nat) (h : x = 3) := Id.run (α := Fin (x + 3)) do

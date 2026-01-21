@@ -71,7 +71,23 @@ def hasContentLength (req : Request Body) (length : String) : Bool :=
 
 /-- Check if request uses chunked transfer encoding. -/
 def isChunkedRequest (req : Request Body) : Bool :=
-  req.head.headers.hasEntry (.new "transfer-encoding") (.ofString! "chunked")
+  let headers := req.head.headers
+  if let some res := headers.get? (.new "transfer-encoding") then
+    let encodings := res.value.split "," |>.toArray.map (·.trimAscii.toString.toLower)
+    if encodings.isEmpty then
+      false
+    else
+      let chunkedCount := encodings.filter (· == "chunked") |>.size
+      let lastIsChunked := encodings.back? == some "chunked"
+
+      if chunkedCount > 1 then
+        false
+      else if chunkedCount = 1 ∧ ¬lastIsChunked then
+        false
+      else
+        lastIsChunked
+  else
+    false
 
 /-- Check if request has a specific header with a specific value. -/
 def hasHeader (req : Request Body) (name : String) (value : String) : Bool :=
@@ -369,4 +385,303 @@ def hasUri (req : Request Body) (uri : String) : Bool :=
     else return Response.new |>.status .unsupportedMediaType |>.body "unsupported"
 
   expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 13\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nprocessed xml"
+}
+
+-- Limits
+
+#eval
+  let bigString := String.fromUTF8! (ByteArray.mk (Array.ofFn (n := 257) (fun _ => 65)))
+
+  runTestCase {
+  name := "Huge String request"
+
+  request := Request.new
+    |>.method .head
+    |>.uri! "/api/users"
+    |>.header! "Host" "api.example.com"
+    |>.header! bigString "a"
+    |>.header! "Connection" "close"
+    |>.body #[]
+
+  handler := fun req => do
+    if hasMethod req .head
+    then return Response.ok
+      |>.header (.ofString! bigString) (.ofString! "ata")
+      |>.body ""
+    else return Response.notFound
+      |>.body ()
+  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+}
+
+#eval runTestCase {
+  name := "Request line too long"
+
+  request :=
+    Request.new
+    |>.method .get
+    |>.uri (.originForm (.mk #[URI.EncodedString.encode <| String.ofList (List.replicate 2000 'a')] true) none none)
+    |>.header! "Host" "api.example.com"
+    |>.header! "Connection" "close"
+    |>.body #[]
+
+  handler := fun req => do
+    return Response.ok
+      |>.body (toString (toString req.head.uri).length)
+
+  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+}
+
+#eval runTestCase {
+  name := "Header long"
+
+  request :=
+    Request.new
+    |>.method .get
+    |>.uri (.originForm (.mk #[URI.EncodedString.encode <| String.ofList (List.replicate 200 'a')] true) none none)
+    |>.header! "Host" (String.ofList (List.replicate 8230 'a'))
+    |>.header! "Connection" "close"
+    |>.body #[]
+
+  handler := fun req => do
+    return Response.ok
+      |>.body (toString (toString req.head.uri).length)
+
+  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+}
+
+#eval runTestCase {
+  name := "Too many headers"
+
+  request := Id.run do
+    let mut req := Request.new
+      |>.method .get
+      |>.uri! "/api/data"
+      |>.header! "Host" "api.example.com"
+      |>.header! "Connection" "close"
+
+    for i in [0:101] do
+      req := req |>.header! s!"X-Header-{i}" s!"value{i}"
+
+    return req |>.body #[]
+
+  handler := fun _ => do
+    return Response.ok
+      |>.body "success"
+
+  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+}
+
+#eval runTestCase {
+  name := "Header value too long"
+
+  request := Request.new
+    |>.method .get
+    |>.uri! "/api/test"
+    |>.header! "Host" "api.example.com"
+    |>.header! "X-Long-Value" (String.ofList (List.replicate 9000 'x'))
+    |>.header! "Connection" "close"
+    |>.body #[]
+
+  handler := fun _ => do
+    return Response.ok
+      |>.body "ok"
+
+  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+}
+
+#eval runTestCase {
+  name := "Total headers size too large"
+
+  request := Id.run do
+    let mut req := Request.new
+      |>.method .get
+      |>.uri! "/api/data"
+      |>.header! "Host" "api.example.com"
+      |>.header! "Connection" "close"
+
+    for i in [0:200] do
+      req := req |>.header! s!"X-Header-{i}" (String.ofList (List.replicate 200 'a'))
+    return req |>.body #[]
+
+  handler := fun _ => do
+    return Response.ok
+      |>.body "success"
+
+  expected := "HTTP/1.1 400 Bad Request\x0d\nContent-Length: 0\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n"
+}
+
+-- Tests
+
+#eval runTestCase {
+  name := "Streaming response with fixed Content-Length"
+
+  request := Request.new
+    |>.method .get
+    |>.uri! "/stream"
+    |>.header! "Host" "example.com"
+    |>.header! "Connection" "close"
+    |>.body #[]
+
+  handler := fun req => do
+    let stream ← Body.ByteStream.empty
+
+    background do
+      for i in [0:3] do
+        let sleep ← Sleep.mk 5
+        sleep.wait
+        discard <| stream.write s!"chunk{i}\n".toUTF8
+      stream.close
+
+    return Response.ok
+      |>.header (.new "content-length") (.new "21")
+      |>.body stream
+
+  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 21\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nchunk0\nchunk1\nchunk2\n"
+}
+
+#eval runTestCase {
+  name := "Streaming response with setKnownSize fixed"
+
+  request := Request.new
+    |>.method .get
+    |>.uri! "/stream-sized"
+    |>.header! "Host" "example.com"
+    |>.header! "Connection" "close"
+    |>.body #[]
+
+  handler := fun _ => do
+    let stream ← Body.ByteStream.empty
+    stream.setKnownSize (some (.fixed 15))
+
+    background do
+      for i in [0:3] do
+        discard <| stream.write s!"data{i}".toUTF8
+
+      stream.close
+
+    return Response.ok
+      |>.body stream
+
+  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 15\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\ndata0data1data2"
+}
+
+#eval runTestCase {
+  name := "Streaming response with chunked encoding"
+
+  request := Request.new
+    |>.method .get
+    |>.uri! "/stream-chunked"
+    |>.header! "Host" "example.com"
+    |>.header! "Connection" "close"
+    |>.body #[]
+
+  handler := fun _ => do
+    let stream ← Body.ByteStream.empty
+
+    background do
+      discard <| stream.write "hello".toUTF8
+      discard <| stream.write "world".toUTF8
+      stream.close
+    return Response.ok
+      |>.body stream
+
+  expected := "HTTP/1.1 200 OK\x0d\nTransfer-Encoding: chunked\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\n5\x0d\nhello\x0d\n5\x0d\nworld\x0d\n0\x0d\n\x0d\n"
+}
+
+#eval runTestCase {
+  name := "Chunked request with streaming response"
+
+  request := Request.new
+    |>.method .post
+    |>.uri! "/"
+    |>.header! "Host" "example.com"
+    |>.header! "Transfer-Encoding" "chunked"
+    |>.header! "Connection" "close"
+    |>.body #[
+      .mk "data1".toUTF8 #[],
+      .mk "data2".toUTF8 #[]
+    ]
+
+  handler := fun req => do
+    if isChunkedRequest req
+    then
+      let stream ← Body.ByteStream.empty
+      background do
+        for i in [0:2] do
+          discard <| stream.write s!"response{i}".toUTF8
+        stream.close
+      return Response.ok
+        |>.header (.new "content-length") (.new "18")
+        |>.body stream
+    else
+      return Response.badRequest |>.body "not chunked"
+
+  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 18\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nresponse0response1"
+  chunked := true
+}
+
+#eval runTestCase {
+  name := "Chunked request with streaming response"
+
+  request := Request.new
+    |>.method .post
+    |>.uri! "/"
+    |>.header! "Host" "example.com"
+    |>.header! "Transfer-Encoding" "chunked"
+    |>.header! "Connection" "close"
+    |>.body #[
+      .mk "data1".toUTF8 #[],
+      .mk "data2".toUTF8 #[]
+    ]
+
+  handler := fun req => do
+    if isChunkedRequest req
+    then
+      let stream ← Body.ByteStream.empty
+      background do
+        for i in [0:2] do
+          discard <| stream.write s!"response{i}".toUTF8
+        stream.close
+      return Response.ok
+        |>.header (.new "content-length") (.new "18")
+        |>.body stream
+    else
+      return Response.badRequest
+        |>.body "not chunked"
+
+  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 18\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nresponse0response1"
+  chunked := true
+}
+
+#eval runTestCase {
+  name := "Chunked request with streaming response and other encodings"
+
+  request := Request.new
+    |>.method .post
+    |>.uri! "/"
+    |>.header! "Host" "example.com"
+    |>.header! "Transfer-Encoding" "gzip, chunked"
+    |>.header! "Connection" "close"
+    |>.body #[
+      .mk "data1".toUTF8 #[],
+      .mk "data2".toUTF8 #[]
+    ]
+
+  handler := fun req => do
+    if isChunkedRequest req
+    then
+      let stream ← Body.ByteStream.empty
+      background do
+        for i in [0:2] do
+          discard <| stream.write s!"response{i}".toUTF8
+        stream.close
+      return Response.ok
+        |>.header (.new "content-length") (.new "18")
+        |>.body stream
+    else
+      return Response.badRequest
+        |>.body "not chunked"
+
+  expected := "HTTP/1.1 200 OK\x0d\nContent-Length: 18\x0d\nConnection: close\x0d\nServer: LeanHTTP/1.1\x0d\n\x0d\nresponse0response1"
+  chunked := true
 }

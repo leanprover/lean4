@@ -219,6 +219,65 @@ def is (name : Name) (s : String) : Bool :=
 instance : ToString Name where
   toString name := name.toCanonical
 
+/--
+Standard Content-Type header name
+-/
+def contentType : Header.Name := .new "content-type"
+
+/--
+Standard Content-Length header name
+-/
+def contentLength : Header.Name := .new "content-length"
+
+/--
+Standard Host header name
+-/
+def host : Header.Name := .new "host"
+
+/--
+Standard Authorization header name
+-/
+def authorization : Header.Name := .new "authorization"
+
+/--
+Standard User-Agent header name
+-/
+def userAgent : Header.Name := .new "user-agent"
+
+/--
+Standard Accept header name
+-/
+def accept : Header.Name := .new "accept"
+
+/--
+Standard Connection header name
+-/
+def connection : Header.Name := .new "connection"
+
+/--
+Standard Transfer-Encoding header name
+-/
+def transferEncoding : Header.Name := .new "transfer-encoding"
+
+/--
+Standard Server header name
+-/
+def server : Header.Name := .new "server"
+
 end Name
+
+namespace Value
+
+/--
+Standard "close" header value for Connection header
+-/
+def close : Header.Value := .new "close"
+
+/--
+Standard "chunked" header value for Transfer-Encoding header
+-/
+def chunked : Header.Value := .new "chunked"
+
+end Value
 
 end Std.Http.Header

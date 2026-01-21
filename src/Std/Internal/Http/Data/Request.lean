@@ -227,4 +227,39 @@ def patch (uri : RequestTarget) : Builder :=
   |>.method .patch
   |>.uri uri
 
+/--
+Creates a new HTTP HEAD Request builder with the specified URI.
+Named `head'` to avoid conflict with the `head` field accessor.
+-/
+def head' (uri : RequestTarget) : Builder :=
+  new
+  |>.method .head
+  |>.uri uri
+
+/--
+Creates a new HTTP OPTIONS Request builder with the specified URI.
+Use `Request.options (RequestTarget.asteriskForm)` for server-wide OPTIONS.
+-/
+def options (uri : RequestTarget) : Builder :=
+  new
+  |>.method .options
+  |>.uri uri
+
+/--
+Creates a new HTTP CONNECT Request builder with the specified URI.
+Typically used with `RequestTarget.authorityForm` for tunneling.
+-/
+def connect (uri : RequestTarget) : Builder :=
+  new
+  |>.method .connect
+  |>.uri uri
+
+/--
+Creates a new HTTP TRACE Request builder with the specified URI
+-/
+def trace (uri : RequestTarget) : Builder :=
+  new
+  |>.method .trace
+  |>.uri uri
+
 end Std.Http.Request

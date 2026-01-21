@@ -179,6 +179,58 @@ Merges two headers, with the second taking precedence for duplicate keys.
 def merge (headers1 headers2 : Headers) : Headers :=
   { map := headers1.map ∪ headers2.map }
 
+/--
+Converts the headers to a list of key-value pairs (flattened).
+Each header with multiple values produces multiple pairs.
+-/
+def toList (headers : Headers) : List (Header.Name × Header.Value) :=
+  headers.map.toList
+
+/--
+Converts the headers to an array of key-value pairs (flattened).
+Each header with multiple values produces multiple pairs.
+-/
+def toArray (headers : Headers) : Array (Header.Name × Header.Value) :=
+  headers.map.toArray
+
+/--
+Folds over all key-value pairs in the headers.
+-/
+def fold (headers : Headers) (init : α) (f : α → Header.Name → Header.Value → α) : α :=
+  headers.map.toArray.foldl (fun acc (k, v) => f acc k v) init
+
+/--
+Maps a function over all header values, producing new headers.
+-/
+def mapValues (headers : Headers) (f : Header.Name → Header.Value → Header.Value) : Headers :=
+  let pairs := headers.map.toArray.map (fun (k, v) => (k, f k v))
+  { map := pairs.foldl (fun acc (k, v) => acc.insert k v) MultiMap.empty }
+
+/--
+Filters and maps over header key-value pairs.
+Returns only the pairs for which the function returns `some`.
+-/
+def filterMap (headers : Headers) (f : Header.Name → Header.Value → Option Header.Value) : Headers :=
+  let pairs := headers.map.toArray.filterMap (fun (k, v) =>
+    match f k v with
+    | some v' => some (k, v')
+    | none => none)
+  { map := pairs.foldl (fun acc (k, v) => acc.insert k v) MultiMap.empty }
+
+/--
+Filters header key-value pairs, keeping only those that satisfy the predicate.
+-/
+def filter (headers : Headers) (f : Header.Name → Header.Value → Bool) : Headers :=
+  headers.filterMap (fun k v => if f k v then some v else none)
+
+/--
+Updates the first value of a header if it exists, or inserts if it doesn't.
+Replaces all existing values for that header with the new value.
+-/
+def update (headers : Headers) (name : Header.Name) (f : Option Header.Value → Header.Value) : Headers :=
+  let newValue := f (headers.get? name)
+  { map := headers.map.erase name |>.insert name newValue }
+
 instance : ToString Headers where
   toString headers :=
     let pairs := headers.map.toArray.map (fun (k, v) => s!"{k}: {v.value}")

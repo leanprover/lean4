@@ -197,4 +197,65 @@ Creates a new HTTP Response builder with the 400 status code.
 def badRequest : Builder :=
   .empty |>.status .badRequest
 
+/--
+Creates a new HTTP Response builder with the 201 status code.
+-/
+def created : Builder :=
+  .empty |>.status .created
+
+/--
+Creates a new HTTP Response builder with the 202 status code.
+-/
+def accepted : Builder :=
+  .empty |>.status .accepted
+
+/--
+Creates a new HTTP Response builder with the 401 status code.
+-/
+def unauthorized : Builder :=
+  .empty |>.status .unauthorized
+
+/--
+Creates a new HTTP Response builder with the 403 status code.
+-/
+def forbidden : Builder :=
+  .empty |>.status .forbidden
+
+/--
+Creates a new HTTP Response builder with the 409 status code.
+-/
+def conflict : Builder :=
+  .empty |>.status .conflict
+
+/--
+Creates a new HTTP Response builder with the 503 status code.
+-/
+def serviceUnavailable : Builder :=
+  .empty |>.status .serviceUnavailable
+
+/--
+Creates a redirect response with the 302 Found status code (temporary redirect).
+-/
+def redirect (location : String) : Builder :=
+  Builder.empty
+  |>.status .found
+  |>.header! "Location" location
+
+/--
+Creates a redirect response with the 301 Moved Permanently status code (permanent redirect).
+-/
+def redirectPermanent (location : String) : Builder :=
+  Builder.empty
+  |>.status .movedPermanently
+  |>.header! "Location" location
+
+/--
+Creates a redirect response with a configurable status code.
+Use `permanent := true` for 301 Moved Permanently, `permanent := false` for 302 Found.
+-/
+def redirectWith (location : String) (permanent : Bool) : Builder :=
+  Builder.empty
+  |>.status (if permanent then .movedPermanently else .found)
+  |>.header! "Location" location
+
 end Response

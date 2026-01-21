@@ -211,6 +211,14 @@ def normalize (p : Path) : Path :=
 
   { p with segments := (loop p.segments.toList []).toArray }
 
+/--
+Returns the path segments as decoded strings.
+Segments that cannot be decoded as UTF-8 are returned as their raw encoded form.
+-/
+def toDecodedSegments (p : Path) : Array String :=
+  p.segments.map fun seg =>
+    seg.decode.getD (toString seg)
+
 end Path
 
 /--
@@ -317,6 +325,30 @@ def erase (query : Query) (key : String) : Query :=
   let encodedKey := EncodedQueryString.encode key
   -- Filter out matching keys
   query.filter (fun x => x.fst.toByteArray ≠ encodedKey.toByteArray)
+
+/--
+Gets the first value of a query parameter by key name, decoded as a string.
+Returns `none` if the key is not found or if the value cannot be decoded as UTF-8.
+-/
+def get (query : Query) (key : String) : Option String :=
+  match query.find? key with
+  | none => none
+  | some none => some ""  -- Key exists but has no value
+  | some (some encoded) => encoded.decode
+
+/--
+Gets the first value of a query parameter by key name, decoded as a string.
+Returns the default value if the key is not found or if the value cannot be decoded.
+-/
+def getD (query : Query) (key : String) (default : String) : String :=
+  query.get key |>.getD default
+
+/--
+Sets a query parameter, replacing all existing values for that key.
+Both key and value will be automatically percent-encoded.
+-/
+def set (query : Query) (key : String) (value : String) : Query :=
+  query.erase key |>.insert key value
 
 /--
 Converts the query to a properly encoded query string format.

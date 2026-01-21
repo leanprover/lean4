@@ -148,7 +148,7 @@ private def updateKeepAlive (machine : Machine dir) (should : Bool) : Machine di
 -- Helper Functions
 
 private def isChunked (headers : Headers) : Option Bool :=
-  if let some res := headers.get? (.new "transfer-encoding") then
+  if let some res := headers.get? Header.Name.transferEncoding then
     let encodings := res.value.split "," |>.toArray.map (·.trimAscii.toString.toLower)
     if encodings.isEmpty then
       none
@@ -166,14 +166,14 @@ private def isChunked (headers : Headers) : Option Bool :=
     some false
 
 private def extractBodyLengthFromHeaders (headers : Headers) : Option Body.Length :=
-  match (headers.get? (.new "content-length"), isChunked headers) with
+  match (headers.get? Header.Name.contentLength, isChunked headers) with
   | (some cl, some false) => cl.value.toNat? >>= (some ∘ Body.Length.fixed)
   | (_, some true) => some Body.Length.chunked
   | _ => none
 
 private def checkMessageHead (message : Message.Head dir) : Option Body.Length := do
   match dir with
-  | .receiving => guard (message.headers.get? (.new "host") |>.isSome)
+  | .receiving => guard (message.headers.get? Header.Name.host |>.isSome)
   | .sending => pure ()
 
   if let .receiving := dir then
@@ -319,10 +319,10 @@ def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : M
   let size := Writer.determineTransferMode machine.writer
 
   let headers :=
-    if messageHead.headers.contains (.new "host") then
+    if messageHead.headers.contains Header.Name.host then
       messageHead.headers
     else if let some host := machine.host then
-      messageHead.headers.insert (.new "host") host
+      messageHead.headers.insert Header.Name.host host
     else
       messageHead.headers
 
@@ -330,23 +330,23 @@ def setHeaders (messageHead : Message.Head dir.swap) (machine : Machine dir) : M
   let headers :=
     let identityOpt := machine.config.identityHeader
     match dir, identityOpt with
-    | .receiving, some server => headers.insert (.new "server") server
-    | .sending, some userAgent => headers.insert (.new "user-agent") userAgent
+    | .receiving, some server => headers.insert Header.Name.server server
+    | .sending, some userAgent => headers.insert Header.Name.userAgent userAgent
     | _, none => headers
 
   -- Add Connection: close if needed
   let headers :=
-    if !machine.keepAlive ∧ !headers.hasEntry (.new "connection") (.new "close") then
-      headers.insert (.new "connection") (.new "close")
+    if !machine.keepAlive ∧ !headers.hasEntry Header.Name.connection Header.Value.close then
+      headers.insert Header.Name.connection Header.Value.close
     else
       headers
 
   -- Add Content-Length or Transfer-Encoding if needed
   let headers :=
-    if !(headers.contains (.new "content-length") ∨ headers.contains (.new "transfer-encoding")) then
+    if !(headers.contains Header.Name.contentLength ∨ headers.contains Header.Name.transferEncoding) then
       match size with
-      | .fixed n => headers.insert (.new "content-length") (.ofString! <| toString n)
-      | .chunked => headers.insert (.new "transfer-encoding") (.new "chunked")
+      | .fixed n => headers.insert Header.Name.contentLength (.ofString! <| toString n)
+      | .chunked => headers.insert Header.Name.transferEncoding Header.Value.chunked
     else
       headers
 

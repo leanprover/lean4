@@ -40,6 +40,17 @@ def parse! (string : String) : RequestTarget :=
   | some res => res
   | none => panic! "invalid request target"
 
+/--
+Creates an origin-form request target from a path string.
+The path should start with '/' (e.g., "/api/users" or "/search?q=test").
+Panics if the string is not a valid origin-form request target.
+-/
+@[inline]
+def originForm! (path : String) : RequestTarget :=
+  match parse? path with
+  | some (.originForm p q f) => .originForm p q f
+  | _ => panic! s!"invalid origin-form request target: {path}"
+
 end RequestTarget
 
 namespace URI

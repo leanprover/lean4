@@ -609,6 +609,15 @@ an apparently valid request.
 def isServerError (c : Status) : Bool :=
   500 ≤ c.toCode ∧ c.toCode < 600
 
+/--
+Checks if the status code indicates an error (either client error 4xx or server error 5xx).
+
+* Reference: https://httpwg.org/specs/rfc9110.html#status.codes
+-/
+@[inline]
+def isError (c : Status) : Bool :=
+  c.isClientError ∨ c.isServerError
+
 instance : Encode .v11 Status where
   encode buffer status := buffer
     |>.writeString (toString <| toCode status)

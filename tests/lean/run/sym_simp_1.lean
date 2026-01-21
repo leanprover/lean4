@@ -115,7 +115,7 @@ example (as : Array (Nat → Nat)) (i : Nat) (_ : i < as.size) (h : as[i] a = b)
 /--
 trace: c a : Nat
 g : Nat → Nat
-h : ite (c > 0) a = g
+h : ite (0 < c) a = g
 ⊢ ite (0 < c) a = g
 -/
 #guard_msgs in

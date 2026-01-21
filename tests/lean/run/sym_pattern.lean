@@ -13,9 +13,9 @@ def test1 : SymM Unit := do
   let e ← shareCommon (← getConstInfo ``ex).value!
   let some r₁ ← pEx.match? e | throwError "failed"
   logInfo <| mkAppN (mkConst ``Exists.intro r₁.us) r₁.args
-  let some r₂ ← pAnd.match? (← Sym.inferType r₁.args[3]!) | throwError "failed"
+  let some r₂ ← pAnd.match? (← Sym.inferType r₁.args[3]!) | failure
   logInfo <| mkAppN (mkConst ``And.intro r₂.us) r₂.args
-  let some r₃ ← pEq.unify? (← Sym.inferType r₂.args[3]!) | throwError "failed"
+  let some r₃ ← pEq.unify? (← Sym.inferType r₂.args[3]!) | failure
   logInfo <| mkAppN (mkConst ``Eq.refl r₃.us) r₃.args
 
 /--
@@ -36,10 +36,10 @@ def test2 : SymM Unit := do
   let rulePax  ← mkBackwardRuleFromDecl ``pax
   let mvar ← mkFreshExprMVar (← getConstInfo ``ex).value!
   let mvarId ← preprocessMVar mvar.mvarId!
-  let [mvarId, _] ← ruleEx.apply mvarId | throwError "Failed"
-  let [mvarId₁, mvarId₂] ← ruleAnd.apply mvarId | throwError "Failed"
-  let [] ← rulePax.apply mvarId₁ | throwError "Failed"
-  let [] ← ruleRefl.apply mvarId₂ | throwError "Failed"
+  let .subgoals [mvarId, _] ← ruleEx.apply mvarId | failure
+  let .subgoals [mvarId₁, mvarId₂] ← ruleAnd.apply mvarId | failure
+  let .subgoals [] ← rulePax.apply mvarId₁ | failure
+  let .subgoals [] ← ruleRefl.apply mvarId₂ | failure
   logInfo mvar
 
 /--
@@ -62,7 +62,7 @@ def test3 : SymM Unit := do
   let mvar ← mkFreshExprMVar target
   let mvarId ← preprocessMVar mvar.mvarId!
   let rule ← mkBackwardRuleFromDecl ``pFoo
-  let [] ← rule.apply mvarId | throwError "failed"
+  let .subgoals [] ← rule.apply mvarId | failure
   logInfo mvar
 
 /-- info: pFoo (3 + y) -/
@@ -78,7 +78,7 @@ def test4 : SymM Unit := do
   let target := mkApp (mkConst ``p) (mkApp2 (mkConst ``foo) x m1)
   let target ← shareCommon target
   let p ← mkPatternFromDecl ``pFoo
-  let some r ← p.match? target | throwError "failed"
+  let some r ← p.match? target | failure
   logInfo <| mkAppN (mkConst ``pFoo r.us) r.args
 
 /-- info: pFoo (3 + y) -/

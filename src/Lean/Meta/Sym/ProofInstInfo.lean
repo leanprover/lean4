@@ -20,27 +20,33 @@ public def preprocessType (type : Expr) : MetaM Expr := do
   zetaReduce type
 
 /--
+Analyzes whether the given free variables (aka arguments) are proofs or instances.
+Returns `none` if no arguments are proofs or instances.
+-/
+public def mkProofInstArgInfo? (xs : Array Expr) : MetaM (Option ProofInstInfo) := do
+  let env ← getEnv
+  let mut argsInfo := #[]
+  let mut found := false
+  for x in xs do
+    let type ← Meta.inferType x
+    let isInstance := isClass? env type |>.isSome
+    let isProof ← isProp type
+    if isInstance || isProof then
+      found := true
+    argsInfo := argsInfo.push { isInstance, isProof }
+  if found then
+    return some { argsInfo }
+  else
+    return none
+
+/--
 Analyzes the type signature of `declName` and returns information about which arguments
 are proofs or instances. Returns `none` if no arguments are proofs or instances.
 -/
 public def mkProofInstInfo? (declName : Name) : MetaM (Option ProofInstInfo) := do
   let info ← getConstInfo declName
   let type ← preprocessType info.type
-  forallTelescopeReducing type fun xs _ => do
-    let env ← getEnv
-    let mut argsInfo := #[]
-    let mut found := false
-    for x in xs do
-      let type ← Meta.inferType x
-      let isInstance := isClass? env type |>.isSome
-      let isProof ← isProp type
-      if isInstance || isProof then
-        found := true
-      argsInfo := argsInfo.push { isInstance, isProof }
-    if found then
-      return some { argsInfo }
-    else
-      return none
+  forallTelescopeReducing type fun xs _ => mkProofInstArgInfo? xs
 
 /--
 Returns information about the type signature of `declName`. It contains information about which arguments

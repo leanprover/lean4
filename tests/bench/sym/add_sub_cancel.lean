@@ -307,5 +307,7 @@ def solveUsingSym (n : Nat) (check := true) : MetaM Unit := do
   driver n check fun mvarId => SymM.run do solve mvarId
 
 set_option maxRecDepth 100000
-#eval solveUsingSym 40
--- goal_100: 370.033833 ms, kernel: 432.021250 ms
+#eval solveUsingSym 80
+-- goal_40: 49.065042 ms, kernel: 35.214791 ms
+-- goal_80: 157.440000 ms, kernel: 101.177958 ms
+-- goal_100: 236.273125 ms, kernel: 158.136958 ms

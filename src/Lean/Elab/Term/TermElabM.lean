@@ -796,8 +796,7 @@ def withMacroExpansion [Monad n] [MonadControlT TermElabM n] (beforeStx afterStx
 Node kind for the `Lean.Elab.Term.elabToSyntax` functionality.
 It is an implementation detail of `Lean.Elab.Term.elabToSyntax`.
 -/
-@[run_builtin_parser_attribute_hooks]
-protected def _root_.Lean.Parser.Term.elabToSyntax : Lean.Parser.Parser := leading_parser
+@[builtin_term_parser] protected def _root_.Lean.Parser.Term.elabToSyntax : Lean.Parser.Parser := leading_parser
   "elabToSyntax% " >> Parser.numLit
 
 /-- Refer to the given term elaborator by a scoped `Syntax` object. -/

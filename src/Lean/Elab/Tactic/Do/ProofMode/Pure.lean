@@ -122,8 +122,8 @@ def MGoal.pureTrivial (goal : MGoal) : OptionT MetaM Expr := do
         -- This is more efficient than to elaborate the `trivial` tactic.
         m.mvarId!.applyRflAndAndIntro
       catch _ =>
-        let ([], _) ← runTactic m.mvarId! (← `(tactic| trivial))
-          | failure
+        let ([], _) ← runTactic m.mvarId! (← `(tactic| trivial)) | failure
+        pure ()
       return ((), m)
     return prf
   catch _ => failure

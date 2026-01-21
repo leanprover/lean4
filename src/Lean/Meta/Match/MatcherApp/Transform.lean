@@ -335,7 +335,7 @@ def transform
                         catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
               let alt' ← onAlt altIdx altType altParams alt
               mkLambdaFVars (ys ++ ys2 ++ ys3 ++ ys4) alt'
-        let alt' ← if splitterAltInfo.hasUnitThunk then
+        if splitterAltInfo.hasUnitThunk then
           -- The splitter expects a thunked alternative, but we don't want the `x : Unit` to be in
           -- the context (e.g. in functional induction), so use Function.const rather than a lambda
           mkAppM ``Function.const #[mkConst ``Unit, alt']

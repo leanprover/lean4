@@ -79,7 +79,6 @@ open Lean.Meta
   let uρ ← mkFreshLevelMVar
   let α ← mkFreshExprMVar (mkSort (mkLevelSucc uα)) (userName := `α) -- assigned by outParam
   let ρ ← mkFreshExprMVar (mkSort (mkLevelSucc uρ)) (userName := `ρ) -- assigned in the next line
-  elabNestedActions xs fun xs => do
   let xs ← Term.elabTermEnsuringType xs ρ
   let mi := (← read).monadInfo
   let mutVars := (← read).mutVars
@@ -92,16 +91,20 @@ open Lean.Meta
   let useLoopMutVars : TermElabM (Array Expr) := do
     let mut defs := #[]
     for x in loopMutVars do
-      let defn ← getFVarFromUserName x.getId
-      Term.addTermInfo' x defn
-      defs := defs.push defn
+      let defn ← getLocalDeclFromUserName x.getId
+      Term.addTermInfo' x defn.toExpr
+      -- ForInNew forces all mut vars into the same universe: that of the do block result type.
+      discard <| Term.ensureHasType (mkSort (mkLevelSucc mi.u)) defn.type
+      defs := defs.push defn.toExpr
     return defs
-  -- let σ ← mkFreshExprMVar (mkSort (mkLevelSucc mi.u)) (userName := `σ) -- assigned below
+
+  unless ← isDefEq dec.resultType (← mkPUnit) do
+    logError m!"Type mismatch. `for` loops have result type {← mkPUnit}, but the rest of the `do` sequence expected {dec.resultType}."
+
   let (preS, σ) ← mkProdMkN (← useLoopMutVars) mi.u
-  discard <| Term.ensureHasType (mkSort (mkLevelSucc mi.u)) σ -- to assign universe MVars of `mut` vars
+
   let γ := (← read).doBlockResultType
   let β ← mkArrow σ (← mkMonadicType γ)
-  let breakRhsMVar ← mkFreshExprSyntheticOpaqueMVar β -- assigned below
   let (app, p?) ← match h? with
     | none =>
       let instForIn ← Term.mkInstMVar <| mkApp3 (mkConst ``ForInNew [uρ, uα, mi.u, mi.v]) mi.m ρ α
@@ -114,8 +117,10 @@ open Lean.Meta
       let app := mkConst ``ForInNew'.forInNew' [uρ, uα, mi.u, mi.v]
       let app := mkApp8 app mi.m ρ α p instForIn σ γ xs -- 3 args remaining: preS, kcons, knil
       pure (app, some p)
+  let s ← mkFreshUserName `__s
   let kbreakName ← mkFreshUserName `__kbreak
   let kcontinueName ← mkFreshUserName `__kcontinue
+  let breakRhsMVar ← mkFreshExprSyntheticOpaqueMVar β
   withLetDecl kbreakName β breakRhsMVar (kind := .implDetail) (nondep := true) fun kbreak => do
   withContFVar kbreakName do
   let xh : Array (Name × (Array Expr → DoElabM Expr)) := match h?, p? with
@@ -124,38 +129,35 @@ open Lean.Meta
   withLocalDeclsD xh fun xh => do
   withLocalDecl kcontinueName .default β (kind := .implDetail) fun kcontinue => do
   withContFVar kcontinueName do
-  withLocalDecl (← mkFreshUserName `__s) .default σ (kind := .implDetail) fun loopS => do
+  withLocalDecl s .default σ (kind := .implDetail) fun loopS => do
   -- withProxyMutVarDefs fun elimProxyDefs => do
-    let rootCtx ← getLCtx
-
     let continueCont := do
       let (tuple, _tupleTy) ← mkProdMkN (← useLoopMutVars) mi.u
       return mkApp kcontinue tuple
-    let break? ← IO.mkRef false
+    -- let break? ← IO.mkRef false
     let breakCont := do
-      break?.set true
+      -- break?.set true
       let (tuple, _tupleTy) ← mkProdMkN (← useLoopMutVars) mi.u
       return mkApp kbreak tuple
 
-    unless ← isDefEq dec.resultType (← mkPUnit) do
-      throwError m!"Type mismatch. `for` loops have result type {← mkPUnit}, but the rest of the `do` sequence expected {dec.resultType}."
-
     -- Elaborate the loop body, which must have result type `PUnit`.
-    -- The `withSynthesizeForDo` is so that we see all jump sites before continuing elaboration.
     let body ←
       enterLoopBody breakCont continueCont do
       bindMutVarsFromTuple loopMutVarNames loopS.fvarId! do
-      elabDoSeq body { dec with k _ := continueCont, kind := .duplicable }
+      elabDoSeq body { dec with k := continueCont, kind := .duplicable }
 
-    -- Elaborate the continuation, now that `σ` is known. It will be the `break` handler.
+    -- Elaborate the `break` continuation.
     -- If there is a `break`, the code will be shared in the `kbreak` join point.
+    -- We elaborate the continuation before the body so that type info from the continuation may
+    -- flow into the loop body.
     let breakRhs ← breakRhsMVar.mvarId!.withContext do
-      withLocalDeclD (← mkFreshUserName `__s) σ fun postS => do mkLambdaFVars #[postS] <| ← do
+      withLocalDeclD s σ fun postS => do mkLambdaFVars #[postS] <| ← do
         bindMutVarsFromTuple loopMutVarNames postS.fvarId! do
-          dec.continueWithUnit .missing
-    breakRhsMVar.mvarId!.assign breakRhs
+          dec.continueWithUnit
+    unless ← breakRhsMVar.mvarId!.checkedAssign breakRhs do
+      throwError "Failed to assign break continuation"
 
-    let needBreakJoin := (← break?.get) && dec.kind matches .nonDuplicable
+    let needBreakJoin := dec.kind matches .nonDuplicable -- && (← break?.get)
     let kcons ← mkLambdaFVars (xh ++ #[kcontinue, loopS]) body
     let knil := if needBreakJoin then kbreak else breakRhs
     let app := mkApp3 app preS kcons knil

@@ -33,13 +33,12 @@ def getExprPatternVarsEx (exprPattern : TSyntax ``matchExprPat) : TermElabM (Arr
   | some var => return #[var] ++ pvars.filter (·.raw.isIdent) |>.map (⟨·⟩)
   | none => return pvars.filter (·.raw.isIdent) |>.map (⟨·⟩)
 
-def elabDoIdDecl (x : Ident) (xType? : Option Term) (rhs : TSyntax `doElem) (contRef : Syntax) (k : Syntax → DoElabM Expr)
+def elabDoIdDecl (x : Ident) (xType? : Option Term) (rhs : TSyntax `doElem) (contRef : Syntax) (k : DoElabM Expr)
     (kind : DoElemContKind := .nonDuplicable) (declKind : LocalDeclKind := .default) : DoElabM Expr := do
   let xType ← Term.elabType (xType?.getD (mkHole x))
   let lctx ← getLCtx
   let ctx ← read
-  elabNestedActions rhs fun rhs => do
-  elabDoElem rhs <| .mk (kind := kind) (declKind := declKind) (ref := contRef) x.getId xType fun ref => do
+  elabDoElem rhs <| .mk (kind := kind) (declKind := declKind) (ref := contRef) x.getId xType do
     withLCtxKeepingMutVarDefs lctx ctx x.getId do
       Term.addLocalVarInfo x (← getFVarFromUserName x.getId)
-      k ref
+      k

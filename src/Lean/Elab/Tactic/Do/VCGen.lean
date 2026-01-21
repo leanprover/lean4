@@ -466,7 +466,7 @@ def elabMVCGen : Tactic := fun stx => withMainContext do
     vcs.flatMapM fun vc => List.toArray <$> Term.withSynthesize do
       Tactic.run vc (Tactic.evalTactic tac *> Tactic.pruneSolvedGoals)
   let invariants ← Term.TermElabM.run' do
-    let invariants ← if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) invariants else pure invariants
+    if ctx.config.leave then runOnVCs (← `(tactic| try mleave)) invariants else pure invariants
   trace[Elab.Tactic.Do.vcgen] "before elabInvariants {← (invariants ++ vcs).mapM fun m => m.getTag}"
   elabInvariants stx[3] invariants (suggestInvariant vcs)
   let invariants ← invariants.filterM (not <$> ·.isAssigned)

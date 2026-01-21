@@ -39,6 +39,7 @@ public def levenshtein (str1 str2 : String) (cutoff : Nat) : Option Nat := Id.ru
     let mut iter2 := str2.startPos
     let mut j : Fin (len2 + 1) := 0
     let cur1 := iter1.get h1
+    iter1 := iter1.next h1
     while h2 : ¬iter2.IsAtEnd do
       let j' : Fin _ := j + 1
       let deletionCost := v0[j'] + 1
@@ -50,7 +51,6 @@ public def levenshtein (str1 str2 : String) (cutoff : Nat) : Option Nat := Id.ru
       v1 := v1.set j' cost
       iter2 := iter2.next h2
       j := j + 1
-    iter1 := iter1.next h1
     i := i + 1
     -- Terminate early if it's impossible that the result is below the cutoff
     if v1.all (· > cutoff) then return none

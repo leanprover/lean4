@@ -20,6 +20,7 @@ structure MatcherApp extends Match.MatcherInfo where
   discrs        : Array Expr
   alts          : Array Expr
   remaining     : Array Expr
+  deriving Inhabited
 
 /--
 Recognizes if `e` is a matcher application, and destructs it into the `MatcherApp` data structure.

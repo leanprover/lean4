@@ -11,6 +11,8 @@ import Init.NotationExtra
 import Init.Control.Basic
 import Std.Data.Iterators.Lemmas.Combinators.Monadic.Zip
 import Lake.Util.JsonObject
+import Lean.Elab.Tactic.Do.ProofMode.MGoal
+import Lean.Elab.Tactic.Do.ProofMode.Pure
 
 open Lean Parser Meta Elab Do
 
@@ -117,7 +119,6 @@ private meta def expandIfThenElse'
       pure hole
   mkCase thenTk pos `(?pos)
 
-
 end Tactic
 
 section Blah
@@ -133,6 +134,11 @@ def f2 (x : Nat) : ExceptT String (StateT Nat Id) Nat := do
 def f9 (xs : List Nat) : IO (List Nat) := do
 return xs
 return xs -- warn unreachable
+
+example (declName : Name) (x : Bool) (f : String → MetaM Bool) : MetaM Unit := do
+  let res ← match x with | _ => throwError m!"`{.ofConstName declName}` has no docstring"
+  let _ ← f res
+  throwError "No metadata satisfied the predicate"
 
 def logErrorNames (x : MetaM Unit) : MetaM Unit := do
   Core.setMessageLog {}
@@ -186,6 +192,148 @@ example [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
     intro step
     cases step.inflate using PlausibleIterStep.casesOn <;> rfl
 
+section Array
+
+-- Test that `forInNew` forces all mut vars into the same universe
+example {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
+  let mut ys := #[]
+  for b in mask, x in xs do
+    if b then ys := ys.push x
+  return ys
+
+example (xs : Array Nat) : Id (Array String) := do
+  let mut res := #[]
+  for x in xs do
+    if res.size > 0 then
+      match res.back!, x with
+      | x, 0 => res := res.set! (res.size - 1) x
+      | x, n => res := res.set! (res.size - 1) (x ++ toString n)
+    else res := res.push (toString x)
+  return res
+
+end Array
+
+namespace Repros
+
+-- Extracted from Lake.Build.Run. Tests if postponement and coercion insertion.
+example : StateM (Nat × String) Unit := do
+  let resetCtrl ← modifyGet fun s => (s.fst, {s with snd := ""})
+  if resetCtrl.isValidChar then
+    pure ()
+
+structure AppImplicitArg where s : Term
+def AppImplicitArg.syntax? (arg : AppImplicitArg) : Option Syntax := some arg.s
+
+-- Extracted from Lean.PrettyPrinter.Delab.Builtins. Tests the interaction between `match` elaboration
+-- and default instances.
+example (fnStx : Syntax) (args : Array AppImplicitArg) : Option Syntax := do
+  let x ← pure (f := Option) none <|> pure (f := Option) none
+  match x with
+  | none => have args : Array Syntax := args.filterMap (·.syntax?); return fnStx
+  | some stx => return stx
+
+-- Extracted from Lean.Language.Util. Tests that we try elaborating the join point RHS when
+-- elaboration of the match fails
+open Lean Language SnapshotTask in
+partial example (s : SnapshotTree) : CoreM Unit :=
+  go .skip s
+where go range? s := do
+  match range? with
+  | .some _ => pure ()
+  | .inherit => pure ()
+  | .skip => pure ()
+  s.children.toList.forM fun c => go c.reportingRange c.get
+
+-- Extracted from Lean.Compiler.LCNF.Specialize.lean. Tests that we default when elaborating the
+-- return argument.
+example (paramsInfo : Array Nat) (args : Array Nat) : Array Nat := Id.run do
+  let mut result := #[]
+  for info in paramsInfo, arg in args do
+    result := result.push arg
+  pure <| result ++ args[paramsInfo.size...*]
+
+-- Extracted from Lake.Config.Artifact. Tests that we allow pending instance resolution problems in
+-- match discriminants which can be resolved when elaborating the match RHS.
+example (data : Json) (k : String → Except String α) : Except String α := do
+  match fromJson? data with
+  | .ok out => k out
+  | .error e => throw s!"artifact in unexpected JSON format: {e}"
+
+-- Reproducer from Paul for testing that we elaborate the ρ synthesizing default instances.
+example : Id Unit := do
+  for x in 1...5 do
+    pure ()
+  return
+
+structure MatchAltView' where
+  patterns : Array Nat
+
+open Lean Meta in
+example (alt : MatchAltView') (collect : Nat → MetaM Nat) : MetaM (MatchAltView') := do
+  let patterns ← alt.patterns.mapM fun p => do
+    trace[Elab.match] "{p}"
+    collect p
+  return { alt with patterns := patterns }
+
+set_option trace.Elab.do true in
+set_option trace.Elab.match true in
+example (tf : Float) (qf? : Option Float) : Id Unit := do
+  if match qf? with | none => true | some qf => tf < qf then
+    pure ()
+
+set_option backward.do.legacy true in
+set_option trace.Elab.match true in
+example (tf : Float) (qf? : Option Float) : Id Unit := do
+  if match qf? with | none => true | some qf => tf < qf then
+    pure ()
+
+-- This test ensures that `doLetElse` does not interpret the structure as a `doSeqBracketed`.
+example (x : Nat) : Id (Bool × Bool) := do
+  let 42 := x | { fst := true, snd := false } |> pure
+  { fst := true, snd := false } |> pure
+
+-- Test that `_ ← e` is allowed to discard results. (Implication: Can't expand to `x ← e`).
+example (x : Nat) : Id Nat := do
+  _ ← pure true
+  return 0
+
+-- This test documents a regression wrt. the old do elaborator. Note that the result type of the
+-- match (i.e., the type of `mvar'`) will be a metavariable `?m.7` (which *might* depend on `e`).
+-- Since `?m.7` occurs in the type of `jp : MVarId → MetaM ?m.7` and `?m.7` is weakly dependent on
+-- `e`, we generalize the match to include `jp` as a discriminant. But the type of `jp` contains a
+-- metavariable which leads to indefinite postponement before calling the match compiler.
+-- The old elaborator did not generalize over `jp` because it was let-bound, not have-bound.
+-- The workaround is to turn off generalization (`(generalizing := false)`) or to provide an
+-- expected type for `mvar'`.
+/--
+error: Invalid field notation: Type of
+  mvar'
+is not known; cannot resolve field `withContext`
+
+Hint: Consider replacing the field projection with a call to one of the following:
+  • `MVarId.withContext`
+  • `MessageData.withContext`
+  • `Grind.Goal.withContext`
+-/
+#guard_msgs(error) in
+open Lean Meta in
+example (subgoals : List (Option Expr × MVarId)) : MetaM Unit :=
+  discard <| subgoals.mapM fun ⟨e, mv⟩ ↦ do
+    let mvar' ← match e with | none => pure mv | some _ => pure mv
+    mvar'.withContext <| mvar'.assign Nat.mkType
+
+open Lean Meta in
+example (subgoals : List (Option Expr × MVarId)) : MetaM Unit :=
+  discard <| subgoals.mapM fun ⟨e, mv⟩ ↦ do
+    let mvar' : MVarId ← match e with | none => pure mv | some _ => pure mv
+    mvar'.withContext <| mvar'.assign Nat.mkType
+
+example (subgoals : List (Option Expr × MVarId)) : MetaM Unit :=
+  discard <| subgoals.mapM fun ⟨e, mv⟩ ↦ do
+    let mvar' ← match (generalizing := false) e with | none => pure mv | some _ => pure mv
+    mvar'.withContext <| mvar'.assign Nat.mkType
+
+end Repros
 
 -- test case doLetElse
 example (x : Nat) : IO (Fin (x + 1)) := do
@@ -218,24 +366,7 @@ example (x : Nat) : Nat :=
   | 42 => y
   | _ => 0
 
-/-- info: Except.ok 23 -/
-#guard_msgs in
-#eval Id.run <| ExceptT.run (ε:=String) do
-  let res ←
-    let false := true | pure true
-    throw "error"
-    return 44
-  if res then pure 23 else return 33
-
-set_option trace.Elab.match true in
-#eval Id.run <| ExceptT.run (ε:=String) do
-  let res ←
-    let false := true | pure true
-    throw "error"
-    return 44
-  if res then pure 23 else return 33
-
-set_option backward.do.legacy true in
+-- set_option backward.do.legacy true in
 /-- info: "ok" -/
 #guard_msgs in
 #eval Id.run do
@@ -297,9 +428,9 @@ example (x : Nat) (h : x = 3) := Id.run (α := Fin (x + 2)) do
   return ⟨y + 1, by grind⟩
 
 -- It would be too tedious to fix the following example.
--- We would need to abstract the new discriminant `3` in any of the join point types
--- and if so, generalize. It's like collecting forward dependencies but with arbitrary patterns.
--- We don't support this; the user should instead specify `x` as a discriminant.
+-- We would need to kabstract the new discriminant `z + z` in any of the join point types in order
+-- to determine whether we need to generalize. It's like collecting forward dependencies but with
+-- arbitrary patterns. We don't support this; the user should instead specify `x` as a discriminant.
 /--
 error: The inferred match motive ⏎
   Fin (x + x)
@@ -309,8 +440,8 @@ had occurrences of free variables that depend on the discriminants, but no conti
 This is not supported by the `do` elaborator. Supply missing indices as disciminants to fix this.
 -/
 #guard_msgs (error) in
-example (x : Nat) (h : x = 3) := Id.run (α := Fin (x + 3)) do
-  let y : Fin (x + 3) <- match h with | rfl => pure ⟨0, by grind⟩
+example (x z : Nat) (h : x = z + z) := Id.run (α := Fin (x + (z + z))) do
+  let y : Fin (x + z + z) <- match h with | rfl => pure ⟨0, by grind⟩
   return ⟨y - 1, by grind⟩
 
 -- Full-blown dependent match + try/catch + early return
@@ -579,6 +710,14 @@ example (url : String) (headers : Array String := #[]) (thing : Except String La
   | .error e =>
     panic s!"curl produced invalid JSON output: {e}"
 
+open Lean.Server in
+example (handler : LspResponse respType → RequestM α)
+    (r : SerializedLspResponse) (response : Json) [FromJson respType] : RequestM α := do
+  let .ok response := fromJson? response
+    | throw <| RequestError.internalError "Failed to convert response of previous request handler when chaining stateful LSP request handlers"
+  let r := { r with response := response }
+  handler r
+
 example (url : String) (headers : Array String := #[]) (thing : Except String Lake.JsonObject): IO Nat :=
   match thing with
   | .ok data =>
@@ -619,9 +758,10 @@ example [Monad m] : ForIn' m (Option α) α inferInstance where
 elab_rules : doElem <= dec
   | `(doElem| for $x:ident in $xs invariant $cursorBinder $stateBinders* => $body do $doSeq) => do
     --trace[Elab.do] "cursorBinder: {cursorBinder}"
-    let call ← elabDoElem (← `(doElem| for $x:ident in $xs do $doSeq)) dec
+    let call ← elabDoElem (← `(doElem| for $x:ident in $xs do $doSeq)) dec (catchExPostpone := false)
+    mapLetTelescope call fun _xs call => do -- ForIn may introduce a break join point
     let_expr ForInNew.forInNew m ρ α instForIn σ γ xs s kcons knil := call
-      | throwError "Internal elaboration error: `for` loop did not elaborate to a call of `Foldable.foldr`."
+      | throwError "Internal elaboration error: `for` loop did not elaborate to a call of `Foldable.foldr`; got {call}."
     call.withApp fun head args => do
     let [u, v, w, x] := head.constLevels!
       | throwError "`Foldable.foldrEta` had wrong number of levels {head.constLevels!}"
@@ -695,6 +835,7 @@ set_option trace.Elab.do true in
 #check Id.run <| ExceptT.run doo
   let e ← try
       let x := 0
+      let _ := 42
       throw "error"
     catch e : String =>
       pure e
@@ -729,20 +870,19 @@ trace: [Elab.do] have x := 1;
       pure x;
     forInNew [1, 2, 3] x
       (fun i __kcontinue __s =>
-        let x_1 := __s;
-        have __kbreak_1 := fun __s_1 =>
-          let x_2 := __s_1;
-          if x_2 > 20 then __kbreak x_2 else __kcontinue x_2;
-        forInNew [4, 5, 6] x_1
-          (fun j __kcontinue_1 __s_1 =>
-            let x_2 := __s_1;
-            have __do_jp := fun __r x_3 =>
-              if j < 3 then __kcontinue_1 x_3 else if j > 6 then __kbreak_1 x_3 else __kcontinue_1 x_3;
+        let x := __s;
+        have __kbreak := fun __s =>
+          let x := __s;
+          if x > 20 then __kbreak x else __kcontinue x;
+        forInNew [4, 5, 6] x
+          (fun j __kcontinue __s =>
+            let x := __s;
+            have __do_jp := fun __r x => if j < 3 then __kcontinue x else if j > 6 then __kbreak x else __kcontinue x;
             if j < 5 then
-              have x := x_2 + j;
+              have x := x + j;
               __do_jp PUnit.unit x
-            else __do_jp PUnit.unit x_2)
-          __kbreak_1)
+            else __do_jp PUnit.unit x)
+          __kbreak)
       __kbreak
 -/
 #guard_msgs in
@@ -1014,27 +1154,27 @@ set_option trace.Elab.do true in
 trace: [Elab.do] have x := 42;
     have y := 0;
     have __kbreak := fun __s =>
-      let x_1 := __s.fst;
-      pure (x_1 + x_1 + x_1 + x_1);
+      let x := __s.fst;
+      pure (x + x + x + x);
     forInNew [1, 2, 3] (x, y)
       (fun i __kcontinue __s =>
-        let x_1 := __s.fst;
-        let y_1 := __s.snd;
-        have __do_jp := fun __r x_2 y_2 =>
-          if x_2 > 10 then
-            have x_3 := x_2 + 3;
-            __kcontinue (x_3, y_2)
+        let x := __s.fst;
+        let y := __s.snd;
+        have __do_jp := fun __r x y =>
+          if x > 10 then
+            have x := x + 3;
+            __kcontinue (x, y)
           else
-            if x_2 < 20 then
-              have x_3 := x_2 - 2;
-              __kbreak (x_3, y_2)
+            if x < 20 then
+              have x := x - 2;
+              __kbreak (x, y)
             else
-              have x_3 := x_2 + i;
-              __kcontinue (x_3, y_2);
-        if x_1 = 3 then
-          have x := x_1 + 1;
-          __do_jp PUnit.unit x y_1
-        else __do_jp PUnit.unit x_1 y_1)
+              have x := x + i;
+              __kcontinue (x, y);
+        if x = 3 then
+          have x := x + 1;
+          __do_jp PUnit.unit x y
+        else __do_jp PUnit.unit x y)
       __kbreak
 -/
 #guard_msgs in
@@ -1108,26 +1248,26 @@ set_option trace.Compiler.saveBase true in
 /--
 trace: [Elab.do] have x := 42;
     have __kbreak := fun __s =>
-      let x_1 := __s;
-      have x_2 := x_1 + 13;
-      have x_3 := x_2 + 13;
-      have x_4 := x_3 + 13;
-      have x := x_4 + 13;
+      let x := __s;
+      have x := x + 13;
+      have x := x + 13;
+      have x := x + 13;
+      have x := x + 13;
       pure x;
     forInNew [1, 2, 3] x
       (fun i __kcontinue __s =>
-        let x_1 := __s;
-        if x_1 = 3 then pure x_1
+        let x := __s;
+        if x = 3 then pure x
         else
-          if x_1 > 10 then
-            have x := x_1 + 3;
+          if x > 10 then
+            have x := x + 3;
             __kcontinue x
           else
-            if x_1 < 20 then
-              have x := x_1 * 2;
+            if x < 20 then
+              have x := x * 2;
               __kbreak x
             else
-              have x := x_1 + i;
+              have x := x + i;
               __kcontinue x)
       __kbreak
 ---
@@ -1942,6 +2082,14 @@ example : (Id.run doo
       return 13
   return x + y) := by rfl
 
+set_option trace.Elab.postpone true in
+example := Id.run doo
+  let x := true
+  if let 0 ← pure 42 then -- TODO: introduces weird metavariables. investigate!
+    pure 42
+  else
+    pure 9
+
 -- Test: ifCondLet and else if
 example : (Id.run doo
   let mut x := 0
@@ -1967,7 +2115,7 @@ example : (Id.run doo
 -- Test: elabToSyntax and postponement
 /--
 error: Invalid match expression: The type of pattern variable 'y' contains metavariables:
-  ?m.12
+  ?m.13
 -/
 #guard_msgs (error) in
 example := Id.run do
@@ -2281,7 +2429,7 @@ Hint: Adding type annotations and supplying implicit arguments to functions can 
 example := doo return 42
 /--
 error: typeclass instance problem is stuck
-  Bind ?m.14
+  Bind ?m.23
 
 Note: Lean will not try to resolve this typeclass instance problem because the type argument to `Bind` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
 
@@ -2440,26 +2588,26 @@ set_option trace.Elab.do true in
 /--
 trace: [Elab.do] have x := 42;
     have __kbreak := fun __s =>
-      let x_1 := __s;
-      have x_2 := x_1 + 13;
-      have x_3 := x_2 + 13;
-      have x_4 := x_3 + 13;
-      have x := x_4 + 13;
+      let x := __s;
+      have x := x + 13;
+      have x := x + 13;
+      have x := x + 13;
+      have x := x + 13;
       pure x;
     forInNew [1, 2, 3] x
       (fun i __kcontinue __s =>
-        let x_1 := __s;
-        if x_1 = 3 then pure x_1
+        let x := __s;
+        if x = 3 then pure x
         else
-          if x_1 > 10 then
-            have x := x_1 + 3;
+          if x > 10 then
+            have x := x + 3;
             __kcontinue x
           else
-            if x_1 < 20 then
-              have x := x_1 * 2;
+            if x < 20 then
+              have x := x * 2;
               __kbreak x
             else
-              have x := x_1 + i;
+              have x := x + i;
               __kcontinue x)
       __kbreak
 -/

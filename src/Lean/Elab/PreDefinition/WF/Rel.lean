@@ -40,12 +40,13 @@ def checkCodomains (names : Array Name) (fixedParamPerms : FixedParamPerms) (fix
     codomains := codomains.push codomain
 
   let codomain0 := codomains[0]!
+  let codomains' := codomains -- TODO: can remove this after attribute-based mut var inference is implemented
   for h : i in 1...codomains.size do
-    unless ← isDefEqGuarded codomain0 codomains[i] do
+    unless ← isDefEqGuarded codomain0 codomains'[i] do
       throwErrorAt termMeasures[i]!.ref m!"The termination measures of mutually recursive functions " ++
         m!"must have the same return type, but the termination measure of {names[0]!} has type" ++
         m!"{indentExpr codomain0}\n" ++
-        m!"while the termination measure of {names[i]!} has type{indentExpr codomains[i]}\n" ++
+        m!"while the termination measure of {names[i]!} has type{indentExpr codomains'[i]}\n" ++
         "Try using `sizeOf` explicitly"
   return codomain0
 

@@ -9,6 +9,7 @@ prelude
 public import Init.System.IOError
 public import Init.System.FilePath
 public import Init.Data.Ord.UInt
+public import Init.Control.Do -- TODO: Can remove once attribute-based effect inference works
 import Init.Data.String.TakeDrop
 import Init.Data.String.Search
 

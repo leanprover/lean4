@@ -336,8 +336,9 @@ public partial def mkBelowMatcher (matcherApp : MatcherApp) (belowParams : Array
     -- | a, b, ABC.thing ..., c, d ==> | a, b, .(ABC.thing ...), ABC.below.thing ..., c, d
     let mut newLHSs := #[]
     let mut lhssArray := input.lhss.toArray
-    for h : j in *...lhssArray.size do
-      let (newLHS, newDeclsAdd) ← addBelowPattern belowName i lhssArray[j]
+    let lhssArray' := lhssArray -- TODO: can remove this after attribute-based mut var inference is implemented
+    for h : j in *...lhssArray'.size do
+      let (newLHS, newDeclsAdd) ← addBelowPattern belowName i lhssArray'[j]
       newLHSs := newLHSs.push newLHS
       newDecls := newDecls.modify j (· ++ newDeclsAdd)
     input := { input with discrInfos := input.discrInfos.insertIdx! (i + 1) {}, lhss := newLHSs.toList }

@@ -471,7 +471,8 @@ where
 private def hasSorry (stx : Syntax) : Bool :=
   stx.find? (fun
     -- `@[unused_variables_ignore_fn]` can be used to extend this list
-    | `(sorry) | `(tactic| sorry) | `(tactic| admit) => true
+    -- ``| `(tactic| admit)`` expands to the same as ``| `(tactic| sorry)``
+    | `(sorry) | `(tactic| sorry) => true
     | _ => false) |>.isSome
 
 /-- Reports unused variable warnings on each command. Use `linter.unusedVariables` to disable. -/

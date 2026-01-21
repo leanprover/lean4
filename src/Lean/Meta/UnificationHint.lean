@@ -112,7 +112,7 @@ where
   isDefEqPattern p e :=
     withReducible <| Meta.isExprDefEqAux p e
 
-  tryCandidate candidate : MetaM Bool :=
+  tryCandidate (candidate : Name) : MetaM Bool :=
     withTraceNode `Meta.isDefEq.hint
       (return m!"{exceptBoolEmoji ·} hint {candidate} at {t} =?= {s}") do
     checkpointDefEq do

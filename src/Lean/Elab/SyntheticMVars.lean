@@ -385,8 +385,9 @@ private def throwStuckAtUniverseCnstr : TermElabM Unit := do
     unless found.contains (lhs, rhs) do
       found := found.insert (lhs, rhs)
       uniqueEntries := uniqueEntries.push entry
-  for h : i in 1...uniqueEntries.size do
-    logErrorAt uniqueEntries[i].ref (← mkLevelStuckErrorMessage uniqueEntries[i]!)
+  let entries := uniqueEntries -- TODO: Possbily zeta once attribute solution to mut var inference is implemented
+  for h : i in 1...entries.size do
+    logErrorAt entries[i].ref (← mkLevelStuckErrorMessage entries[i])
   throwErrorAt uniqueEntries[0]!.ref (← mkLevelStuckErrorMessage uniqueEntries[0]!)
 
 /--
@@ -573,7 +574,7 @@ mutual
     Return `true` if at least one of them was synthesized. -/
   partial def synthesizeSyntheticMVarsStep (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool := do
     let ctx ← read
-    traceAtCmdPos `Elab.resuming fun _ =>
+    traceAtCmdPos `Elab.resume fun _ =>
       m!"resuming synthetic metavariables, mayPostpone: {ctx.mayPostpone}, postponeOnError: {postponeOnError}"
     let pendingMVars    := (← get).pendingMVars
     let numSyntheticMVars := pendingMVars.length

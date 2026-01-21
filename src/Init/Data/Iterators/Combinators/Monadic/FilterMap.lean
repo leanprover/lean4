@@ -222,7 +222,7 @@ instance Map.instProductive {α β γ : Type w} {m : Type w → Type w'}
 
 instance FilterMap.instIteratorLoopNew {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type x → Type x'}
-    [Monad n] [Monad o] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
+    [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} :
     IteratorLoopNew (FilterMap α m n lift f) n o :=
   .defaultImplementation
@@ -236,8 +236,8 @@ instance FilterMap.instIteratorLoop {α β γ : Type w} {m : Type w → Type w'}
 
 instance Map.instIteratorLoopNew {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} {o : Type x → Type x'}
-    [Monad n] [Monad o] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
-    {f : β → PostconditionT n γ} [Finite α m] :
+    [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
+    {f : β → PostconditionT n γ} :
     IteratorLoopNew (Map α m n lift f) n o :=
   .defaultImplementation
 

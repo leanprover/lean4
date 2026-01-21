@@ -285,13 +285,13 @@ private def toInductive (mvar : MVarId) (cs : List Name)
       let subgoals ← nCasesSum n mvar h
       let _ ← (cs.zip (subgoals.zip s)).mapM fun ⟨constr_name, ⟨h, mv⟩, bs, e⟩ ↦ do
         let n := (bs.filter id).length
-        let (mvar', _fvars, numHEqs) ← match e with
+        let ((mvar' : MVarId), numHEqs) ← match e with
         | none =>
-            let (id, fvarIds) ← nCasesProd (n-1) mv h
-            pure ⟨id, fvarIds, 0⟩
+            let (id, _fvarIds) ← nCasesProd (n-1) mv h
+            pure ⟨id, 0⟩
         | some 0 => do let ⟨mvar', fvars⟩ ← nCasesProd n mv h
                           let mvar'' ← mvar'.tryClear fvars.getLast!
-                          pure ⟨mvar'', fvars, 0⟩
+                          pure ⟨mvar'', 0⟩
         | some (e + 1) => do
           let (mv', fvars) ← nCasesProd n mv h
           let lastfv := fvars.getLast!
@@ -310,7 +310,7 @@ private def toInductive (mvar : MVarId) (cs : List Name)
             let ⟨fv, mv'⟩ ← mv.intro1
             let #[res] ← mv'.cases fv | throwError "expected one case subgoal"
             return res.mvarId) mv3
-          pure (mv4, fvars, numHEqs)
+          pure (mv4, numHEqs)
         mvar'.withContext do
           let fvarIds := (← getLCtx).getFVarIds.toList
           let gs := fvarIds.take gs.length

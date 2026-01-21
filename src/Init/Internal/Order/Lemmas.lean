@@ -378,8 +378,8 @@ theorem monotone_modifyM (a : Array α) (i : Nat) (f : γ → α → m α) (hmon
   · apply monotone_const
 
 @[partial_fixpoint_monotone]
-theorem monotone_forInNew'_loop {m : Type v → Type w} {α : Type u} {β σ : Type v}
-    [PartialOrder α] [∀ α, PartialOrder (m α)]
+theorem monotone_forInNew'_loop {m : Type u → Type v} {α : Type uu} {β σ : Type u}
+    [∀ α, PartialOrder (m α)]
     (as : Array α) (init : σ) (kcons : γ → (a : α) → a ∈ as → (σ → m β) → σ → m β) (knil : γ → σ → m β)
     (i : Nat) (h : i ≤ as.size)
     (hmonocons : ∀ a (h : a ∈ as) (k : γ → σ → m β) s (_ : ∀ s, monotone fun x => k x s), monotone (fun x => kcons x a h (k x) s)) (hmononil : monotone knil) :
@@ -397,8 +397,8 @@ theorem monotone_forInNew'_loop {m : Type v → Type w} {α : Type u} {β σ : T
     apply ih
 
 @[partial_fixpoint_monotone]
-theorem monotone_forInNew' {m : Type v → Type w} {α : Type u} {β σ : Type v}
-    [PartialOrder α] [∀ α, PartialOrder (m α)]
+theorem monotone_forInNew' {m : Type u → Type v} {α : Type uu} {β σ : Type u}
+    [∀ α, PartialOrder (m α)]
     (as : Array α) (init : σ) (kcons : γ → (a : α) → a ∈ as → (σ → m β) → σ → m β) (knil : γ → σ → m β)
     (hmonocons : ∀ a (h : a ∈ as) (k : γ → σ → m β) s (_ : ∀ s, monotone fun x => k x s), monotone (fun x => kcons x a h (k x) s)) (hmononil : monotone knil) :
     monotone (fun x => forInNew' as init (kcons x) (knil x)) := by
@@ -407,8 +407,8 @@ theorem monotone_forInNew' {m : Type v → Type w} {α : Type u} {β σ : Type v
   apply hmononil
 
 @[partial_fixpoint_monotone]
-theorem monotone_forInNew {m : Type v → Type w} {α : Type u} {β σ : Type v}
-    [PartialOrder α] [∀ α, PartialOrder (m α)]
+theorem monotone_forInNew {m : Type u → Type v} {α : Type uu} {β σ : Type u}
+    [∀ α, PartialOrder (m α)]
     (as : Array α) (init : σ) (kcons : γ → α → (σ → m β) → σ → m β) (knil : γ → σ → m β)
     (hmonocons : ∀ a (k : γ → σ → m β) s (_ : ∀ s, monotone fun x => k x s), monotone (fun x => kcons x a (k x) s)) (hmononil : monotone knil) :
     monotone (fun x => forInNew as init (kcons x) (knil x)) := by
@@ -564,17 +564,29 @@ theorem monotone_findSomeM?
     (f : γ → α → m (Option β)) (xs : Array α) (hmono : monotone f) :
     monotone (fun x => xs.findSomeM? (f x)) := by
   unfold Array.findSomeM?
-  apply monotone_bind
-  · apply monotone_forIn
-    apply monotone_of_monotone_apply
-    intro y
-    apply monotone_of_monotone_apply
-    intro r
-    apply monotone_bind
-    · apply monotone_apply
-      apply hmono
+  first
+  | apply monotone_bind
+    · apply monotone_forIn
+      apply monotone_of_monotone_apply
+      intro y
+      apply monotone_of_monotone_apply
+      intro r
+      apply monotone_bind
+      · apply monotone_apply
+        apply hmono
+      · apply monotone_const
     · apply monotone_const
-  · apply monotone_const
+  | apply monotone_forInNew
+    · intros _ _ _ hmonok
+      apply monotone_bind
+      · apply monotone_apply
+        apply hmono
+      · apply monotone_of_monotone_apply
+        intro x
+        match x with
+        | none   => apply hmonok
+        | some x => apply monotone_const
+    · apply monotone_const
 
 @[partial_fixpoint_monotone]
 theorem monotone_findM?
@@ -582,17 +594,29 @@ theorem monotone_findM?
     (f : γ → α → m Bool) (xs : Array α) (hmono : monotone f) :
     monotone (fun x => xs.findM? (f x)) := by
   unfold Array.findM?
-  apply monotone_bind
-  · apply monotone_forIn
-    apply monotone_of_monotone_apply
-    intro y
-    apply monotone_of_monotone_apply
-    intro r
-    apply monotone_bind
-    · apply monotone_apply
-      apply hmono
+  first
+  | apply monotone_bind
+    · apply monotone_forIn
+      apply monotone_of_monotone_apply
+      intro y
+      apply monotone_of_monotone_apply
+      intro r
+      apply monotone_bind
+      · apply monotone_apply
+        apply hmono
+      · apply monotone_const
     · apply monotone_const
-  · apply monotone_const
+  | apply monotone_forInNew
+    · intros _ _ _ hmonok
+      apply monotone_bind
+      · apply monotone_apply
+        apply hmono
+      · apply monotone_of_monotone_apply
+        intro x
+        match x with
+        | false => apply hmonok
+        | true  => apply monotone_const
+    · apply monotone_const
 
 @[partial_fixpoint_monotone]
 theorem monotone_findIdxM?
@@ -600,17 +624,29 @@ theorem monotone_findIdxM?
     (f : γ → α → m Bool) (xs : Array α) (hmono : monotone f) :
     monotone (fun x => xs.findIdxM? (f x)) := by
   unfold Array.findIdxM?
-  apply monotone_bind
-  · apply monotone_forIn
-    apply monotone_of_monotone_apply
-    intro y
-    apply monotone_of_monotone_apply
-    intro r
-    apply monotone_bind
-    · apply monotone_apply
-      apply hmono
+  first
+  | apply monotone_bind
+    · apply monotone_forIn
+      apply monotone_of_monotone_apply
+      intro y
+      apply monotone_of_monotone_apply
+      intro r
+      apply monotone_bind
+      · apply monotone_apply
+          apply hmono
+        · apply monotone_const
+      · apply monotone_const
+  | apply monotone_forInNew
+    · intros _ _ _ hmonok
+      apply monotone_bind
+      · apply monotone_apply
+        apply hmono
+      · apply monotone_of_monotone_apply
+        intro x
+        match x with
+        | false => apply hmonok
+        | true  => apply monotone_const
     · apply monotone_const
-  · apply monotone_const
 
 @[partial_fixpoint_monotone]
 theorem monotone_anyM_loop

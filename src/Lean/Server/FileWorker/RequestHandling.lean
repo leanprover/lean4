@@ -445,7 +445,7 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
 
     addRangeFromSyntax (text : FileMap) kind stx := addRange text kind stx.getPos? stx.getTailPos?
 
-    addRange (text : FileMap) kind start? stop? := do
+    addRange (text : FileMap) kind (start? stop? : Option String.Pos.Raw) := do
       if let (some startP, some endP) := (start?, stop?) then
         let startP := text.utf8PosToLspPos startP
         let endP := text.utf8PosToLspPos endP

@@ -138,6 +138,9 @@ section Utils
     def contains (m : RequestQueueMap) (id : RequestID) : Bool :=
       m.reqs.contains id
 
+    instance : ForInNew m RequestQueueMap (RequestID × JsonRpc.Request Json) where
+      forInNew map init kcons knil := map.queue.forInNew init (fun _ a b => kcons a b) knil
+
     instance [Monad m] : ForIn m RequestQueueMap (RequestID × JsonRpc.Request Json) where
       forIn map init f := map.queue.forIn (fun _ a b => f a b) init
   end RequestQueueMap

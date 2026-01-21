@@ -99,13 +99,11 @@ def elabWithReassignments (letOrReassign : LetOrReassign) (vars : Array Ident) (
     letOrReassign.registerReassignAliasInfo vars
     k
 
-def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDecl)
+partial def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDecl)
     (dec : DoElemCont) : DoElabM Expr := do
   let vars ← getLetDeclVars decl
   letOrReassign.checkMutVars vars
-  let mγ ← mkMonadicType (← read).doBlockResultType
-  -- For plain variable reassignment, we infer the LHS as a term and use that as the expected type
-  -- of the RHS:
+  -- Some decl preprocessing on the patterns and expected types:
   let decl ←
     if letOrReassign matches .reassign then
       match decl with
@@ -129,14 +127,40 @@ def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDec
       | _ => throwError m!"Impossible case in elabDoLetOrReassign. This is an elaborator bug.\n{decl}"
     else
       pure decl
-  let contElab : DoElabM Expr := elabWithReassignments letOrReassign vars (dec.continueWithUnit decl)
-  doElabToSyntax m!"let body of {vars}" contElab fun body => do
-    elabNestedActions decl fun decl => do
-    match letOrReassign with
+
+  let mγ ← mkMonadicType (← read).doBlockResultType
+  match decl with
+  | `(letDecl| $decl:letEqnsDecl) =>
+    let declNew ← `(letDecl| $(⟨← liftMacroM <| Term.expandLetEqnsDecl decl⟩):letIdDecl)
+    return ← Term.withMacroExpansion decl declNew <| elabDoLetOrReassign letOrReassign declNew dec
+  | `(letDecl| $pattern:term $[: $xType?]? := $rhs) =>
+    let rhs ← match xType? with | some xType => `(($rhs : $xType)) | none => pure rhs
+    let contElab : DoElabM Expr := elabWithReassignments letOrReassign vars dec.continueWithUnit
+    doElabToSyntax m!"let body of {pattern}" contElab fun body => do
+    -- The infamous MVar postponement trick below popularized by `if` is necessary in Lake.CLI.Main.
+    -- We need it because we specify a constant motive, otherwise the `match` elaborator would have postponed.
+    let mvar ← Lean.withRef rhs `(?m)
+    let term ← `(let_mvar% ?m := $rhs;
+                 wait_if_type_mvar% ?m;
+                 match (motive := ∀_, $(← Term.exprToSyntax mγ)) $mvar:term with
+                 | $pattern:term => $body)
+    Term.withMacroExpansion (← getRef) term do Term.elabTermEnsuringType term (some mγ)
+  | `(letDecl| $decl:letIdDecl) =>
+    let { id, binders, type, value } := Term.mkLetIdDeclView decl
+    let id ← if id.isIdent then pure id else Term.mkFreshIdent id (canonical := true)
     -- Only non-`mut` lets will be elaborated as `let`s; `let mut` and reassigns behave as `have`s.
-    -- TODO: Undo this change once we have the attribute-based inference stuff
-    | .let none => Term.elabLetDecl (← `(let $decl:letDecl; $body)) mγ
-    | _         => Term.elabHaveDecl (← `(have $decl:letDecl; $body)) mγ
+    -- TODO: Perhaps make let muts actually behave as let muts again once the attribute-based inference stuff is in place
+    let nondep := !(letOrReassign matches .let none)
+    let config := { nondep }
+    controlAtTermElabM fun runInBase => do
+    Term.withElabLetDeclAux config id binders type value fun x val => runInBase do
+      elabWithReassignments letOrReassign vars do
+      let body ← dec.continueWithUnit >>= instantiateMVars
+      if config.zeta then
+        body.replaceFVarsM #[x] #[val]
+      else
+        mkLetFVars #[x] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
+  | _ => throwUnsupportedSyntax
 
 def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``doPatDecl]) (dec : DoElemCont) : DoElabM Expr := do
   match stx with
@@ -149,15 +173,20 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
         let decl ← getLocalDeclFromUserName x.getId
         some <$> Term.exprToSyntax decl.type
       | _, _ => pure xType?
-    elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x ∘ dec.continueWithUnit)
+    elabDoIdDecl x xType? rhs (declareMutVar? letOrReassign.getLetMutTk? x <| dec.continueWithUnit)
       (kind := dec.kind) (contRef := dec.ref)
-  | `(doPatDecl| $pattern:term ← $rhs $[| $otherwise?:doSeq $(rest?)?]?) =>
+  | `(doPatDecl| _%$pattern ← $rhs) =>
+    let x := mkIdentFrom pattern (← mkFreshUserName `__x)
+    trace[Elab.do] "wildcard arrow: {rhs}, dec.ref: {dec.ref}"
+    elabDoIdDecl x none rhs dec.continueWithUnit (kind := dec.kind) (contRef := dec.ref)
+  | `(doPatDecl| $pattern:term ← $rhs $[| $otherwise? $(rest?)?]?) =>
     let rest? := rest?.join
     let x := mkIdentFrom pattern (← mkFreshUserName `__x)
-    elabDoIdDecl x none rhs (contRef := pattern) (declKind := .implDetail) fun _ref => do
+    trace[Elab.do] "pattern let arrow: {pattern} <- {rhs}, dec.ref: {dec.ref}"
+    elabDoIdDecl x none rhs (contRef := pattern) (declKind := .implDetail) do
       match letOrReassign, otherwise? with
       | .let mutTk?, some otherwise =>
-        elabDoElem (← `(doElem| let $[mut%$mutTk?]? $pattern:term := $x | $otherwise:doSeq $(rest?)?)) dec
+        elabDoElem (← `(doElem| let $[mut%$mutTk?]? $pattern:term := $x | $otherwise $(rest?)?)) dec
       | .let mutTk?, _ =>
         elabDoElem (← `(doElem| let $[mut%$mutTk?]? $pattern:term := $x)) dec
       | .have, some _otherwise =>
@@ -183,11 +212,10 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   let `(doLetRec| let rec $decls:letRecDecls) := stx | throwUnsupportedSyntax
   let vars ← getLetRecDeclsVars decls
   let mγ ← mkMonadicType (← read).doBlockResultType
-  doElabToSyntax m!"let rec body of group {vars}" (dec.continueWithUnit decls) fun body => do
+  doElabToSyntax m!"let rec body of group {vars}" dec.continueWithUnit fun body => do
     -- Let recs may never have nested actions. We expand just for the sake of error messages.
     -- This suppresses error messages for the let body. Not sure if this is a good call, but it was
     -- the status quo of the legacy `do` elaborator.
-    elabNestedActions decls fun decls => do
     Term.elabTerm (← `(let rec $decls:letRecDecls; $body)) mγ
 
 @[builtin_doElem_elab Lean.Parser.Term.doReassign] def elabDoReassign : DoElab := fun stx dec => do
@@ -201,12 +229,12 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   let letOrReassign := LetOrReassign.let mutTk?
   let vars ← getPatternVarsEx pattern
   letOrReassign.checkMutVars vars
-  let mut body ← body?.getDM `(doSeq|pure PUnit.unit)
+  let mut body ← body?.getDM `(doSeqIndent|pure PUnit.unit)
   -- In case of `let mut`, we need to re-declare the pattern variables as `let mut`s inside `body`.
   if mutTk?.isSome then
     for var in vars do
-      body ← `(doSeq| let mut $var := $var; do $body)
-  elabDoElem (← `(doElem| match $rhs:term with | $pattern => $body | _ => $otherwise)) dec
+      body ← `(doSeqIndent| let mut $var := $var; do $body:doSeqIndent)
+  elabDoElem (← `(doElem| match $rhs:term with | $pattern => $body:doSeqIndent | _ => $otherwise:doSeqIndent)) dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetArrow] def elabDoLetArrow : DoElab := fun stx dec => do
   let `(doLetArrow| let $[mut%$mutTk?]? $decl) := stx | throwUnsupportedSyntax
@@ -219,21 +247,3 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   | `(doReassignArrow| $decl:doPatDecl) =>
     elabDoArrow .reassign decl dec
   | _ => throwUnsupportedSyntax
-
-@[builtin_macro Lean.Parser.Term.doLetExpr] def expandDoLetExpr : Macro := fun stx => match stx with
-  | `(doElem| let_expr $pat:matchExprPat := $discr:term
-                | $elseBranch:doSeq
-              $thenBranch) =>
-    `(doElem| match_expr (meta := false) $discr:term with
-              | $pat:matchExprPat => $thenBranch
-              | _ => $elseBranch)
-  | _ => Macro.throwUnsupported
-
-@[builtin_macro Lean.Parser.Term.doLetMetaExpr] def expandDoLetMetaExpr : Macro := fun stx => match stx with
-  | `(doElem| let_expr $pat:matchExprPat ← $discr:term
-                | $elseBranch:doSeq
-              $thenBranch) =>
-    `(doElem| match_expr $discr:term with
-              | $pat:matchExprPat => $thenBranch
-              | _ => $elseBranch)
-  | _ => Macro.throwUnsupported

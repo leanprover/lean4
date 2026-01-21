@@ -625,8 +625,8 @@ def congrArgs (r : Result) (args : Array Expr) : SimpM Result := do
     let mut i := 0
     for arg in args do
       if h : i < infos.size then
-        trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
         let info := infos[i]
+        trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {info.hasFwdDeps}"
         if cfg.ground && info.isInstImplicit then
           -- We don't visit instance implicit arguments when we are reducing ground terms.
           -- Motivation: many instance implicit arguments are ground, and it does not make sense

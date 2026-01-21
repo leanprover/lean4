@@ -19,9 +19,8 @@ open Lean.Meta
 @[builtin_doElem_elab Lean.Parser.Term.doExpr] def elabDoExpr : DoElab := fun stx dec => do
   let `(doExpr| $e:term) := stx | throwUnsupportedSyntax
   let mα ← mkMonadicType dec.resultType
-  elabNestedActions e fun e => do
   let e ← Term.elabTermEnsuringType e mα
-  dec.mkBindUnlessPure stx e
+  dec.mkBindUnlessPure e
 
 @[builtin_doElem_elab Lean.Parser.Term.doNested] def elabDoNested : DoElab := fun stx dec => do
   let `(doNested| do $doSeq) := stx | throwUnsupportedSyntax
@@ -34,23 +33,17 @@ open Lean.Meta
 @[builtin_doElem_elab Lean.Parser.Term.doDbgTrace] def elabDoDbgTrace : DoElab := fun stx dec => do
   let `(doDbgTrace| dbg_trace $msg:term) := stx | throwUnsupportedSyntax
   let mγ ← mkMonadicType (← read).doBlockResultType
-  let body ← dec.continueWithUnit stx
-  let body ← Term.exprToSyntax body
-  elabNestedActions msg fun msg => do
+  doElabToSyntax "dbg_trace body" dec.continueWithUnit fun body => do
   Term.elabTerm (← `(dbg_trace $msg; $body)) mγ
 
 @[builtin_doElem_elab Lean.Parser.Term.doAssert] def elabDoAssert : DoElab := fun stx dec => do
   let `(doAssert| assert! $cond) := stx | throwUnsupportedSyntax
   let mγ ← mkMonadicType (← read).doBlockResultType
-  let body ← dec.continueWithUnit stx
-  let body ← Term.exprToSyntax body
-  elabNestedActions cond fun cond => do
+  doElabToSyntax "assert! body" dec.continueWithUnit fun body => do
   Term.elabTerm (← `(assert! $cond; $body)) mγ
 
 @[builtin_doElem_elab Lean.Parser.Term.doDebugAssert] def elabDoDebugAssert : DoElab := fun stx dec => do
   let `(doDebugAssert| debug_assert! $cond) := stx | throwUnsupportedSyntax
   let mγ ← mkMonadicType (← read).doBlockResultType
-  let body ← dec.continueWithUnit stx
-  let body ← Term.exprToSyntax body
-  elabNestedActions cond fun cond => do
+  doElabToSyntax "debug_assert! body" dec.continueWithUnit fun body => do
   Term.elabTerm (← `(debug_assert! $cond; $body)) mγ

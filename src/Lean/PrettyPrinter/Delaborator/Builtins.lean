@@ -1232,10 +1232,9 @@ where
   delabBranch (h? : Option Name) : DelabM (Syntax × Name) := do
     let e ← getExpr
     guard e.isLambda
-    let h ← match h? with
-      | some h => return (← withBindingBody h delab, h)
-      | none   => withBindingBodyUnusedName fun h => do
-        return (← delab, h.getId)
+    match h? with
+    | some h => return (← withBindingBody h delab, h)
+    | none   => withBindingBodyUnusedName fun h => return (← delab, h.getId)
 
 @[builtin_delab app.cond]
 def delabCond : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation <| withOverApp 4 do

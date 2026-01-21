@@ -44,8 +44,11 @@ first because solving it often solves `?w`.
 def mkResultPos (pattern : Pattern) : List Nat := Id.run do
   let auxPrefix := `_sym_pre
   -- Initialize "found" mask with arguments that can be synthesized by type class resolution.
-  let mut found := pattern.isInstance
   let numArgs := pattern.varTypes.size
+  let mut found := if let some varInfos := pattern.varInfos? then
+     varInfos.argsInfo.map fun info : ProofInstArgInfo => info.isInstance
+  else
+     Array.replicate numArgs false
   let auxVars := pattern.varTypes.mapIdx fun i _ => mkFVar ⟨.num auxPrefix i⟩
   -- Collect arguments that occur in the pattern
   for fvarId in collectFVars {} (pattern.pattern.instantiateRev auxVars) |>.fvarIds do

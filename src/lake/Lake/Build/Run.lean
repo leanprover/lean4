@@ -345,7 +345,7 @@ Run a build function in the Workspace's context using the provided configuration
 Reports incremental build progress and build logs. In quiet mode, only reports
 failing build jobs (e.g., when using `-q` or non-verbose `--no-build`).
 -/
-@[inline] public def Workspace.runFetchM
+public def Workspace.runFetchM
   (ws : Workspace) (build : FetchM α) (cfg : BuildConfig := {}) (caption := "job computation")
 : IO α := do
   let jobs ← mkJobQueue
@@ -380,7 +380,7 @@ public def Workspace.checkNoBuild
   let mctx ← mkMonitorContext cfg jobs
   let job ← ws.startBuild cfg jobs build
   let result ← monitorBuild mctx job
-  return result.isOk && !result.wantsRebuild
+  return result.isOk -- `isOk` means no failures, and thus no `--no-build` failures
 
 /-- Run a build function in the Workspace's context and await the result. -/
 public def Workspace.runBuild

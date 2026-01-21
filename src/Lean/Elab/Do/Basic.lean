@@ -437,7 +437,7 @@ def withLCtxKeepingMutVarDefs (oldLCtx : LocalContext) (oldCtx : Context) (resul
 
 /--
 Return `$e >>= fun ($dec.resultName : $dec.resultType) => $(← dec.k)`, cancelling
-the bind if `$(← dec.k)` is `pure $dec.resultName`.
+the bind if `$(← dec.k)` is `pure $dec.resultName` or `e` is some `pure` computation.
 -/
 def DoElemCont.mkBindUnlessPure (ref : Syntax) (dec : DoElemCont) (e : Expr) : DoElabM Expr := do
   let x := dec.resultName
@@ -446,30 +446,35 @@ def DoElemCont.mkBindUnlessPure (ref : Syntax) (dec : DoElemCont) (e : Expr) : D
   -- The .ofBinderName below is mainly to interpret `__do_lift` binders as implementation details.
   let declKind := if dec.declKind matches .default then .ofBinderName x else dec.declKind
   withRef? dec.ref do
-  let e' := e.consumeMData
-  if e'.isAppOfArity ``Pure.pure 4 then
-    let eRes := e'.getArg! 3
-    let e' ← mkPureApp eResultTy eRes
-    let (isPure, isDuplicable) ← withNewMCtxDepth do
-      let isPure ← isDefEq e e'
-      let isDuplicable ← pure eRes.isFVar <||> isDefEq eResultTy (← mkPUnit)
-      return (isPure, isDuplicable)
-    if isPure then
-      if isDuplicable then
-        return ← mapLetDeclZeta (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k ref
-      else
-        return ← mapLetDecl (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k ref
-
-  withLocalDecl x .default eResultTy (kind := declKind) fun x => do
+  withLocalDecl x .default eResultTy (kind := declKind) fun xFVar => do
     let body ← k ref
     let body' := body.consumeMData
-    if body'.isAppOfArity ``Pure.pure 4 && body'.getArg! 3 == x then
-      let body'' ← mkPureApp eResultTy x
+    -- First try to contract `e >>= pure` into `e`.
+    -- Reason: for `pure e >>= pure`, we want to get `pure e` and not `have xFVar := e; pure xFVar`.
+    if body'.isAppOfArity ``Pure.pure 4 && body'.getArg! 3 == xFVar then
+      let body'' ← mkPureApp eResultTy xFVar
       if ← withNewMCtxDepth do isDefEq body' body'' then
         return e
+
+    -- Now test whether we can contract `pure e >>= k` into `have xFVar := e; k xFVar`. We zeta `xFVar` when
+    -- `e` is duplicable; we don't look at `k` to see whether it is used at most once.
+    let e' := e.consumeMData
+    if e'.isAppOfArity ``Pure.pure 4 then
+      let eRes := e'.getArg! 3
+      let e' ← mkPureApp eResultTy eRes
+      let (isPure, isDuplicable) ← withNewMCtxDepth do
+        let isPure ← isDefEq e e'
+        let isDuplicable ← pure eRes.isFVar <||> isDefEq eResultTy (← mkPUnit)
+        return (isPure, isDuplicable)
+      if isPure then
+        if isDuplicable then
+          return ← mapLetDeclZeta (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k ref
+        else
+          return ← mapLetDecl (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k ref
+
     let kResultTy ← mkFreshResultType `kResultTy
     let body ← Term.ensureHasType (← mkMonadicType kResultTy) body
-    let k ← mkLambdaFVars #[x] body
+    let k ← mkLambdaFVars #[xFVar] body
     mkBindApp eResultTy kResultTy e k
 
 /--

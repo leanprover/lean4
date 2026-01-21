@@ -1144,6 +1144,18 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
     let r := mkAppN r (discrs.map (·.expr))
     let r := mkAppN r rhss
     trace[Elab.match] "result: {r}"
+    try
+      withNewMCtxDepth do
+        let u ← mkFreshLevelMVar
+        let v ← mkFreshLevelMVar
+        let m ← mkFreshExprMVar (← mkArrow (mkSort (mkLevelSucc u)) (mkSort (mkLevelSucc v)))
+        let α ← mkFreshExprMVar (mkSort (mkLevelSucc u))
+        let ty ← inferType r
+        if ← isDefEq (mkApp m α) ty then
+          if let LOption.some inst ← trySynthInstance (mkApp (Lean.mkConst ``Monad [u, v]) m) then
+            let isDep := matchType.getForallBodyMaxDepth numDiscrs |>.hasLooseBVars
+            logInfo m!"Monadic `match` {inst}. Is dependent: {isDep}; {motive}"
+    catch _ => pure ()
     return r
 
 -- leading_parser "match " >> optional generalizingParam >> optional motive >> sepBy1 matchDiscr ", " >> " with " >> ppDedent matchAlts

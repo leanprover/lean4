@@ -1,0 +1,45 @@
+Can push `do` inside match arms:
+  * lake/Lake/Build/Index.lean:30:2: Monadic `match` EquipT.instMonad. Is dependent: true; fun info => FetchM (Job (BuildData info.key))
+  * lake/Lake/Build/Target/Fetch.lean:106:2: Monadic `match` EquipT.instMonad. Is dependent: true; fun self => FetchM (Job (BuildData self))
+  * Lean/Elab/Parallel.lean:81:4: Monadic `match` instMonadBaseIO. Is dependent: true; fun x =>
+
+Can be rewritten to term `match`:
+  * Std/Data/Iterators/Lemmas/Combinators/Monadic/Drop.lean:21:8: Monadic `match` inst✝¹. Is dependent: true; fun n => m (Shrink (drop n it).Step)
+  * Init/Data/Iterators/Lemmas/Combinators/Monadic/Take.lean:33:24: Monadic `match` inst✝¹. Is dependent: true; fun n => m (Shrink (take n it).Step)
+  * Std/Data/Iterators/Lemmas/Combinators/Monadic/Zip.lean:44:6: Monadic `match` inst✝². Is dependent: true; fun memo => m (Shrink (Intermediate.zip it₁ memo it₂).Step)
+
+Can be rewritte to term `match` by manually writing `>>=`:
+  * Init/Data/Iterators/Lemmas/Combinators/Monadic/FlatMap.lean:21:4: Monadic `match` inst✝². Is dependent: true; fun it₂ => m (Shrink (it₁.flattenAfter it₂).Step)
+  * Init/Data/Iterators/Lemmas/Combinators/Monadic/FlatMap.lean:130:4: Monadic `match` inst✝⁵. Is dependent: true; fun it₂ => m (Shrink (flatMapAfterM f it₁ it₂).Step)
+  * Init/Data/Iterators/Lemmas/Combinators/Monadic/FlatMap.lean:171:4: Monadic `match` inst✝³. Is dependent: true; fun it₂ => m (Shrink (flatMapAfter f it₁ it₂).Step)
+  * Init/Data/Iterators/Lemmas/Combinators/FlatMap.lean:120:4: Monadic `match` inst✝⁵. Is dependent: true; fun it₂ => m (Shrink (flatMapAfterM f it₁ it₂).Step)
+
+Syntactically a term `match` already:
+  *  Init/Data/Iterators/Combinators/Monadic/FlatMap.lean:229:4: Monadic `match` inst✝². Is dependent: true; fun it => m (Shrink (PlausibleIterStep (IsPlausibleStep it)))
+  * Init/Data/Iterators/Lemmas/Producers/Monadic/List.lean:36:23: Monadic `match` inst✝. Is dependent: true; fun l => m (Shrink (l.iterM m).Step)
+  * Init/Data/String/Pattern/Char.lean:49:10: Monadic `match` Id.instMonad. Is dependent: true; fun x =>
+  * Init/Data/String/Pattern/Char.lean:114:10: Monadic `match` Id.instMonad. Is dependent: true; fun x =>
+  * Init/Data/String/Pattern/Pred.lean:50:10: Monadic `match` Id.instMonad. Is dependent: true; fun x =>
+  * Init/Data/String/Pattern/Pred.lean:124:10: Monadic `match` Id.instMonad. Is dependent: true; fun x =>
+  * Init/Data/String/Pattern/String.lean:108:4: Monadic `match` Id.instMonad. Is dependent: true; fun iter =>
+  * Init/Data/String/Pattern/String.lean:107:10: Monadic `match` Id.instMonad. Is dependent: true; fun x =>
+  * Init/Data/String/Slice.lean:144:2: Monadic `match` Id.instMonad. Is dependent: true; fun x =>
+  * Init/Data/String/Slice.lean:231:2: Monadic `match` Id.instMonad. Is dependent: true; fun x =>
+  * Std/Time/Format/Basic.lean:1160:4: Monadic `match` instMonad. Is dependent: true; fun format => Parser (TypeFormat (Modifier.G format))
+  * Std/Time/Format/Basic.lean:1165:4: Monadic `match` instMonad. Is dependent: true; fun format => Parser (TypeFormat (Modifier.y format))
+  * Std/Time/Format/Basic.lean:1171:4: Monadic `match` instMonad. Is dependent: true; fun format => Parser (TypeFormat (Modifier.u format))
+  * Std/Time/Format/Basic.lean:1178:4: Monadic `match` instMonad. Is dependent: true; fun format => Parser (TypeFormat (Modifier.MorL format))
+  * Std/Time/Format/Basic.lean:1185:4: Monadic `match` instMonad. Is dependent: true; fun format => Parser (TypeFormat (Modifier.Qorq format))
+  * Std/Time/Format/Basic.lean:1193:4: Monadic `match` instMonad. Is dependent: true; fun format => Parser (TypeFormat (Modifier.E format))
+  * Std/Time/Format/Basic.lean:1198:4: Monadic `match` instMonad. Is dependent: true; fun format => Parser (TypeFormat (Modifier.eorc format))
+  * Std/Time/Format/Basic.lean:1205:4: Monadic `match` instMonad. Is dependent: true; fun format => Parser (TypeFormat (Modifier.a format))
+  * Std/Time/Format/Basic.lean:1221:4: Monadic `match` instMonad. Is dependent: true; fun format => Parser (TypeFormat (Modifier.S format))
+  * Std/Time/Format/Basic.lean:1229:4: Monadic `match` instMonad. Is dependent: true; fun format => Parser (TypeFormat (Modifier.z format))
+  * Std/Time/Format/Basic.lean:1233:4: Monadic `match` instMonad. Is dependent: true; fun format => Parser (TypeFormat (Modifier.O format))
+  * Std/Time/Format/Basic.lean:1246:4: Monadic `match` instMonad. Is dependent: true; fun format => Parser (TypeFormat (Modifier.x format))
+  * Std/Time/Format/Basic.lean:1258:4: Monadic `match` instMonad. Is dependent: true; fun format => Parser (TypeFormat (Modifier.Z format))
+  * Std/Time/Format/Basic.lean:1159:2: Monadic `match` instMonad. Is dependent: true; fun x => Parser (TypeFormat x)
+  * Std/Time/Format/Basic.lean:1403:2: Monadic `match` instMonadOption. Is dependent: true; fun aw => Option aw.type
+  * Std/Time/Format.lean:188:33: Monadic `match` instMonadOption. Is dependent: true; fun x => Option (TypeFormat x)
+  * Std/Time/Format.lean:267:33: Monadic `match` instMonadOption. Is dependent: true; fun x => Option (TypeFormat x)
+  * Std/Time/Format.lean:452:33: Monadic `match` instMonadOption. Is dependent: true; fun x => Option (TypeFormat x)

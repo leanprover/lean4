@@ -12,7 +12,7 @@ public import Lean.Compiler.IR.NormIds
 public import Lean.Compiler.IR.SimpCase
 public import Lean.Compiler.IR.Boxing
 public import Lean.Compiler.ModPkgExt
-import Lean.Compiler.IR.GroundExpr
+import Lean.Compiler.IR.SimpleGroundExpr
 
 public section
 
@@ -133,10 +133,10 @@ structure GroundState where
 abbrev GroundM := StateT GroundState M
 
 partial def emitGroundDecl (decl : Decl) (cppBaseName : String) : M Unit := do
-  let some ground := getGroundExpr (← getEnv) decl.name | unreachable!
+  let some ground := getSimpleGroundExpr (← getEnv) decl.name | unreachable!
   discard <| compileGround ground |>.run {}
 where
-  compileGround (ground : GroundExpr) : GroundM Unit := do
+  compileGround (ground : SimpleGroundExpr) : GroundM Unit := do
     let (type, groundLit) ← groundToCLit ground
     let valueName := mkValueName cppBaseName
     emitLn <| s!"static {type} {valueName} = {groundLit};"
@@ -154,11 +154,11 @@ where
     emitLn <| s!"static {type} {name} = {value};"
     return name
 
-  -- TODO: careful with c int literals
-  groundToCLit (e : GroundExpr) : GroundM (String × String) := do
+  groundToCLit (e : SimpleGroundExpr) : GroundM (String × String) := do
     match e with
-    | .ctor idx objArgs usizeArgs scalarArgs =>
-      let header := mkCtorHeader objArgs.size usizeArgs.size scalarArgs.size idx
+    | .ctor info objArgs usizeArgs scalarArgs =>
+      assert! !info.isScalar
+      let header := mkCtorHeader info.size info.usize info.ssize info.cidx
       let objArgs ← objArgs.mapM groundArgToCLit
       let usizeArgs : Array String := usizeArgs.map fun val => s!"(lean_object*)(size_t)({val}ULL)"
       assert! scalarArgs.size % 8 == 0
@@ -212,10 +212,11 @@ where
 
   groundNameMkStrToCLit (args : Array (Name × UInt64)) : GroundM String := do
     assert! args.size > 0
+    let info := { name := ``Name.str._impl, cidx := 1, size := 2, usize := 0, ssize := 8  }
     if args.size == 1 then
       let (ref, hash) := args[0]!
       let hash := uint64ToByteArray hash
-      let (_, obj) ← groundToCLit <| .ctor 1 #[.tagged 0, .reference ref] #[] hash
+      let (_, obj) ← groundToCLit <| .ctor info #[.tagged 0, .reference ref] #[] hash
       return obj
     else
       let (ref, hash) := args.back!
@@ -223,10 +224,10 @@ where
       let lit ← groundNameMkStrToCLit args
       let auxName ← mkAuxDecl "lean_ctor_object" lit
       let hash := uint64ToByteArray hash
-      let (_, obj) ← groundToCLit <| .ctor 1 #[.rawReference auxName, .reference ref] #[] hash
+      let (_, obj) ← groundToCLit <| .ctor info #[.rawReference auxName, .reference ref] #[] hash
       return obj
 
-  groundArgToCLit (a : GroundArg) : GroundM String := do
+  groundArgToCLit (a : SimpleGroundArg) : GroundM String := do
     match a with
     | .tagged val => return s!"((lean_object*)(((size_t)({val}) << 1) | 1))"
     | .reference decl => return s!"((lean_object*)&{mkValueName (← toCName decl)})"
@@ -242,11 +243,8 @@ where
 def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M Unit := do
   let ps := decl.params
   let env ← getEnv
-  if isClosedTermName env decl.name && !isGroundDecl env decl.name then
-    pure ()
-    --dbg_trace s!"{decl}"
 
-  if isGroundDecl env decl.name then
+  if isSimpleGroundDecl env decl.name then
     emitGroundDecl decl cppBaseName
   else
     if ps.isEmpty then
@@ -792,7 +790,7 @@ def emitDeclAux (d : Decl) : M Unit := do
   let env ← getEnv
   let (_, jpMap) := mkVarJPMaps d
   withReader (fun ctx => { ctx with jpMap := jpMap }) do
-  unless hasInitAttr env d.name || isGroundDecl env d.name do
+  unless hasInitAttr env d.name || isSimpleGroundDecl env d.name do
     match d with
     | .fdecl (f := f) (xs := xs) (type := t) (body := b) .. =>
       let baseName ← toCName f;
@@ -871,7 +869,7 @@ def emitDeclInit (d : Decl) : M Unit := do
       if getBuiltinInitFnNameFor? env d.name |>.isSome then
         emit "}"
     | _ =>
-      if !isGroundDecl env d.name then
+      if !isSimpleGroundDecl env d.name then
         emitCName n; emit " = "; emitCInitName n; emitLn "();"; emitMarkPersistent d n
 
 def emitInitFn : M Unit := do

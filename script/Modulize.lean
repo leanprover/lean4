@@ -38,11 +38,11 @@ def main (args : List String) : IO Unit := do
     let startPos := header.raw.getPos? |>.getD parserState.pos
 
     let dummyEnv ← mkEmptyEnvironment
-    let (initCmd, parserState', _) :=
+    let (initCmd, parserState', msgs') :=
       Parser.parseCommand inputCtx { env := dummyEnv, options := {} } parserState msgs
 
-    -- insert section if any trailing command
-    if !initCmd.isOfKind ``Parser.Command.eoi then
+    -- insert section if any trailing command (or error, which could be from an unknown command)
+    if !initCmd.isOfKind ``Parser.Command.eoi || msgs'.hasErrors then
       let insertPos? :=
           -- put below initial module docstring if any
           guard (initCmd.isOfKind ``Parser.Command.moduleDoc) *> initCmd.getTailPos? <|>

@@ -10,6 +10,7 @@ public import Lean.Elab.BuiltinDo.Basic
 public import Lean.Elab.BuiltinDo.Let
 public import Lean.Elab.BuiltinDo.Match
 public import Lean.Elab.BuiltinDo.If
+public import Lean.Elab.BuiltinDo.Jump
 public import Lean.Elab.BuiltinDo.Misc
 public import Lean.Elab.BuiltinDo.For
 public import Lean.Elab.BuiltinDo.TryCatch

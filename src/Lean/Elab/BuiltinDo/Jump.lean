@@ -22,7 +22,7 @@ open Lean.Meta
   elabNestedActions (e?.getD ⟨.missing⟩) fun e => do
   -- When using the ControlLifter framework, `returnCont.resultType` can be different than the
   -- result type of the `do` block. That's why we track it separately.
-  let e ← withMayElabToJump false do match e.raw with
+  let e ← match e.raw with
     | .missing => Term.ensureHasType returnCont.resultType (← mkPUnitUnit)
     | _        => Term.elabTermEnsuringType e returnCont.resultType
   dec.elabAsSyntacticallyDeadCode -- emit dead code warnings
@@ -39,10 +39,3 @@ open Lean.Meta
     | throwError "`continue` must be nested inside a loop"
   dec.elabAsSyntacticallyDeadCode -- emit dead code warnings
   continueCont
-
-@[builtin_doElem_elab Lean.Parser.Term.doExpr] def elabDoExpr : DoElab := fun stx dec => do
-  let `(doExpr| $e:term) := stx | throwUnsupportedSyntax
-  let mα ← mkMonadicType dec.resultType
-  elabNestedActions e fun e => do
-  let e ← withMayElabToJump false <| Term.elabTermEnsuringType e mα
-  dec.mkBindUnlessPure e

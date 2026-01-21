@@ -304,13 +304,13 @@ and log are saved to `traceFile`, if the build completes without a fatal error
   (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM α)
   (action : JobAction := .build)
 : JobM α := do
+  updateAction action
   let noBuildTraceFile := traceFile.addExtension "nobuild"
   if (← getNoBuild) then
-    updateAction .build
+    modify ({· with wantsRebuild := true})
     writeBuildTrace noBuildTraceFile depTrace Json.null {}
     error s!"target is out-of-date and needs to be rebuilt"
   else
-    updateAction action
     let startTime ← IO.monoMsNow
     try
       let iniPos ← getLogPos

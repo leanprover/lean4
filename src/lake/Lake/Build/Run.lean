@@ -57,7 +57,7 @@ private structure MonitorContext where
 private structure MonitorState where
   jobNo : Nat := 0
   totalJobs : Nat := 0
-  didBuild : Bool := false
+  wantsRebuild : Bool := false
   failures : Array String
   resetCtrl : String
   lastUpdate : Nat
@@ -114,16 +114,17 @@ private def renderProgress (running unfinished : Array OpaqueJob) (h : 0 < unfin
     flush
 
 private def reportJob (job : OpaqueJob) : MonitorM PUnit := do
-  let {jobNo, totalJobs, didBuild, ..} ← get
+  let {jobNo, totalJobs, ..} ← get
   let {failLv, outLv, showOptional, out, useAnsi, showProgress, minAction, showTime, ..} ← read
   let {task, caption, optional, ..} := job
-  let {log, action, buildTime, ..} := task.get.state
+  let {log, action, wantsRebuild, buildTime, ..} := task.get.state
   let maxLv := log.maxLv
   let failed := strictAnd log.hasEntries (maxLv ≥ failLv)
-   if !didBuild && action = .build then
-    modify fun s => {s with didBuild := true}
   if failed && !optional then
-    modify fun s => {s with failures := s.failures.push caption}
+    modify fun s => {s with
+      failures := s.failures.push caption
+      wantsRebuild := s.wantsRebuild || wantsRebuild
+    }
   let hasOutput := failed || (log.hasEntries && maxLv ≥ outLv)
   let showJob :=
     (!optional || showOptional) &&
@@ -195,7 +196,7 @@ end Monitor
 
 /-- **For internal use only.** -/
 public structure MonitorResult where
-  didBuild : Bool
+  wantsRebuild : Bool
   failures : Array String
   numJobs : Nat
 
@@ -233,11 +234,11 @@ def monitorJobs'
   return {
     failures := s.failures
     numJobs := s.totalJobs
-    didBuild := s.didBuild
+    wantsRebuild := s.wantsRebuild
   }
 
 /-- The job monitor function. An auxiliary definition for `runFetchM`. -/
-@[inline, deprecated "Deprecated without replacement" (since := "2025-01-08")]
+@[inline, deprecated "Deprecated without replacement." (since := "2025-01-08")]
 public def monitorJobs
   (initJobs : Array OpaqueJob)
   (jobs : IO.Ref (Array OpaqueJob))
@@ -334,7 +335,7 @@ def Workspace.finalizeBuild
   reportResult cfg ctx.out result
   if let some outputsFile := cfg.outputsFile? then
     ws.saveOutputs (logger := ctx.logger) ctx.out outputsFile (cfg.verbosity matches .verbose)
-  if cfg.noBuild && result.didBuild then
+  if cfg.noBuild && result.wantsRebuild then
     IO.Process.exit noBuildCode.toUInt8
   else
     IO.ofExcept result.out
@@ -379,7 +380,7 @@ public def Workspace.checkNoBuild
   let mctx ← mkMonitorContext cfg jobs
   let job ← ws.startBuild cfg jobs build
   let result ← monitorBuild mctx job
-  return result.isOk && !result.didBuild
+  return result.isOk && !result.wantsRebuild
 
 /-- Run a build function in the Workspace's context and await the result. -/
 public def Workspace.runBuild

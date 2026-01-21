@@ -167,17 +167,17 @@ private def generalizeMutsContsFVars (initialGenFVars : Array FVarId) (mutVars :
   return { discrs, toClear := initialGenFVars ++ newGenFVars, matchType, altViews, refined := true }
 
 private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``motive))
-    (discrs : TSyntaxArray ``matchDiscr) (alts : Array DoMatchAltView) (origDec : DoElemCont) :
+    (discrs : TSyntaxArray ``matchDiscr) (alts : Array DoMatchAltView) (nondupDec : DoElemCont) :
     DoElabM Expr := do
+  nondupDec.withDuplicableCont fun dec => do
   let doBlockResultType := (← read).doBlockResultType
   let mγ ← mkMonadicType doBlockResultType
-  origDec.withDuplicableCont fun dec => do
   elabNestedActionsArray discrs fun discrs => do
   elabNonAtomicDiscrs motive? discrs fun discrs => do
-  discard <| Term.waitExpectedTypeAndDiscrs motive? discrs dec.resultType
+  discard <| Term.waitExpectedTypeAndDiscrs motive? discrs nondupDec.resultType
   let (discrs, matchType, alts, isDep) ← mapTermElabM Term.commitIfDidNotPostpone do
     let ⟨discrs, resultMotive, isDep⟩ ← Term.withSynthesize <|
-       Term.elabMatchTypeAndDiscrs discrs motive? dec.resultType
+       Term.elabMatchTypeAndDiscrs discrs motive? nondupDec.resultType
 
     let mi := (← read).monadInfo
     let discrExprs := discrs |>.map (·.expr)
@@ -243,7 +243,7 @@ private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``m
         let hasGeneralizedContVars ← (← read).contFVars.toArray.anyM fun contFVar => do
           let some decl := outerLCtx.findFromUserName? contFVar | return false
           return discrs.any (·.expr == decl.toExpr)
-        if origDec.kind matches .nonDuplicable && motiveDependent && !hasGeneralizedContVars then
+        if nondupDec.kind matches .nonDuplicable && motiveDependent && !hasGeneralizedContVars then
           -- The example here is
           -- example (x : Nat) (h : x = 3) := Id.run (α := Fin (x + 3)) do
           --   let y : Fin (x + 3) <- match h with | rfl => pure ⟨0, by grind⟩

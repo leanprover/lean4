@@ -614,12 +614,18 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
   let joinRhs ← joinRhsMVar.mvarId!.withContext do
     withLocalDeclD nondupDec.resultName nondupDec.resultType fun r => do
     withLocalDeclsDND (mutDecls.map fun (d : LocalDecl) => (d.userName, d.type)) fun muts => do
-    withDeadCode (← deadCode.get) do
     for (x, newX) in mutVars.zip muts do Term.addTermInfo' x newX
-    mkLambdaFVars (#[r] ++ muts) (← nondupDec.k .missing)
-  joinRhsMVar.mvarId!.assign joinRhs
+    let live ← deadCode.get
+    (if body?.isSome then withDeadCode live else id) do
+    let e ← nondupDec.k .missing
+    mkLambdaFVars (#[r] ++ muts) e
+  discard <| joinRhsMVar.mvarId!.checkedAssign joinRhs
 
-  let body ← match body? with | some body => pure body | none => elabBody
+  let body ←
+    match body? with
+    | some body => pure body
+    -- | none => controlAtTermElabM fun runInBase => Term.withoutPostponing (runInBase elabBody)
+    | none => elabBody
 
   let calls ← calls.get
   if calls.size > 1 || calls.any (fun _ refined => refined) then

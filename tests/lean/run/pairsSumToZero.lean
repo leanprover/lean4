@@ -79,7 +79,8 @@ theorem pairsSumToZero_correct (l : List Int) : pairsSumToZero l ↔ l.ExistsPai
 
 /--
 trace: l : List Int
-⊢ (forInNew l ∅ (fun x kcontinue s => if -x ∈ s then pure true else kcontinue (s.insert x)) fun s => pure false).run =
+⊢ (forInNew l ∅ (fun x __kcontinue __s => if -x ∈ __s then pure true else __kcontinue (__s.insert x)) fun __s =>
+          pure false).run =
       true ↔
     List.ExistsPair (fun a b => a + b = 0) l
 ---

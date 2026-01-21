@@ -124,8 +124,8 @@ theorem nodup_twice_correct_invariants_with (l : List Int) : nodup_twice l ↔ l
   invariants
   · fun traversalState seen =>
       ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝
-  · fun traversalState seen =>
-      ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝
+  · fun traversalState ⟨seen, seen2⟩ =>
+      ⌜(∀ x, x ∈ seen2 ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝
   with grind
 
 theorem nodup_twice_correct_invariants_multiple_with (l : List Int) : nodup_twice l ↔ l.Nodup := by
@@ -135,14 +135,14 @@ theorem nodup_twice_correct_invariants_multiple_with (l : List Int) : nodup_twic
   invariants
   · fun traversalState seen =>
       ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝
-  · fun traversalState seen =>
-      ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝
+  · fun traversalState ⟨seen, seen2⟩ =>
+      ⌜(∀ x, x ∈ seen2 ↔ x ∈ traversalState.prefix) ∧ traversalState.prefix.Nodup⌝
   with grind
 
 /--
 error: Lacking definitions for the following invariants.
 
-  InvariantNew l (HashSet Int) PostShape.pure
+  InvariantNew l (HashSet Int × HashSet Int) PostShape.pure
 -/
 #guard_msgs in
 theorem nodup_twice_missing_one_invariant (l : List Int) : nodup_twice l ↔ l.Nodup := by
@@ -159,7 +159,7 @@ error: Lacking definitions for the following invariants.
 
   InvariantNew l (HashSet Int) PostShape.pure
   ⏎
-  InvariantNew l (HashSet Int) PostShape.pure
+  InvariantNew l (HashSet Int × HashSet Int) PostShape.pure
 -/
 #guard_msgs in
 theorem nodup_twice_missing_two_invariants (l : List Int) : nodup_twice l ↔ l.Nodup := by

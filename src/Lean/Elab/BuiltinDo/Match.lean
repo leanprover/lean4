@@ -312,6 +312,14 @@ private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``m
       return r
   Term.elabToSyntax finishMatchExpr (Term.elabTerm · mγ)
 
+def getAltsPatternVars (alts : TSyntaxArray ``matchAlt) : TermElabM (Array Ident) := do
+  let mut vars := #[]
+  for alt in alts do
+    let `(matchAltExpr| | $patterns,* => $_) := alt | throwUnsupportedSyntax
+    let patternVars ← getPatternsVarsEx patterns
+    vars := vars ++ patternVars
+  return vars
+
 @[builtin_doElem_elab Lean.Parser.Term.doMatch] partial def elabDoMatch : DoElab := fun stx dec => do
   let `(doMatch| match $[(generalizing := $gen?)]? $(motive?)? $discrs,* with $alts:matchAlt*) := stx | throwUnsupportedSyntax
   if let some stxNew ← liftMacroM <| Term.expandMatchAlts? stx then
@@ -320,6 +328,7 @@ private def elabDoMatchCore (doGeneralize : Bool) (motive? : Option (TSyntax ``m
     throwErrorAt motive? "The `do` elaborator does not support custom motives. Try type ascription to provide expected types."
   let gen? := gen?.map (· matches `(trueVal| true))
   let doGeneralize := gen?.getD true
+  checkMutVarsForShadowing (← getAltsPatternVars alts)
   elabDoMatchCore doGeneralize motive? discrs (alts.filterMap (Term.getMatchAlt ``doSeq)) dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doMatchExpr] def elabDoMatchExpr : DoElab := fun stx dec => do

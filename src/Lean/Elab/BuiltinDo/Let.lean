@@ -201,16 +201,11 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   let letOrReassign := LetOrReassign.let mutTk?
   let vars ← getPatternVarsEx pattern
   letOrReassign.checkMutVars vars
-  -- For plain variable reassignment, we infer the LHS as a term and use that as the expected type
-  -- of the RHS:
-  let pattern ←
-    if letOrReassign matches .reassign then
-      let e ← Term.withoutErrToSorry <| Term.elabTerm pattern none
-      let patType ← Term.exprToSyntax (← inferType e)
-      `(($pattern : $patType))
-    else
-      pure pattern
-  let body ← body?.getDM `(doSeq|pure PUnit.unit)
+  let mut body ← body?.getDM `(doSeq|pure PUnit.unit)
+  -- In case of `let mut`, we need to re-declare the pattern variables as `let mut`s inside `body`.
+  if mutTk?.isSome then
+    for var in vars do
+      body ← `(doSeq| let mut $var := $var; do $body)
   elabDoElem (← `(doElem| match $rhs:term with | $pattern => $body | _ => $otherwise)) dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetArrow] def elabDoLetArrow : DoElab := fun stx dec => do

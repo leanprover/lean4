@@ -10,8 +10,8 @@
           return _x.4;
       cases b : EST.Out IO.Error lcAny PUnit
       | Bool.false =>
-        let _x.10 := 1;
-        goto _jp.2 _x.10 a.1
+        let a := 1;
+        goto _jp.2 a a.1
       | Bool.true =>
-        let _x.11 := 0;
-        goto _jp.2 _x.11 a.1
+        let a := 0;
+        goto _jp.2 a a.1

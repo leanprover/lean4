@@ -11,6 +11,7 @@ public import Lean.Meta.PProdN
 public import Lean.Meta.Match.MatcherApp.Transform
 public import Lean.Elab.PreDefinition.Structural.Basic
 public import Lean.Elab.PreDefinition.Structural.RecArgInfo
+public import Lean.Elab.PreDefinition.Structural.BRecOnToRec
 
 public section
 
@@ -291,6 +292,7 @@ def mkBRecOnApp (positions : Positions) (fnIdx : Nat) (brecOnConst : Nat → Exp
     let brecOn := brecOnConst recArgInfo.indIdx
     let brecOn := mkAppN brecOn indexMajorArgs
     let brecOn := mkAppN brecOn packedFArgs
+    let brecOn ← brecOnToRec brecOn
     let some (size, idx) := positions.findSome? fun pos => (pos.size, ·) <$> pos.finIdxOf? fnIdx
       | throwError "mkBRecOnApp: Could not find {fnIdx} in {positions}"
     let brecOn ← PProdN.projM size idx brecOn

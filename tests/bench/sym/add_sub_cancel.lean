@@ -234,20 +234,22 @@ def runBenchUsingMeta : MetaM Unit := do
   for n in [10, 20, 30, 40, 50, 60, 70, 80] do
     solveUsingMeta n
 
-#eval runBenchUsingMeta
+#eval solveUsingMeta 40
+
+-- #eval runBenchUsingMeta
 -- goal_80: 1467.414291 ms, kernel: 120.162250 ms
 
 /-!
 `SymM` Solution
 -/
 
-theorem exists_eq_True (a : α) : (∃ x, x = a) = True := by
+theorem exists_eq_True (a : α) : (∃ x, a = x) = True := by
   simp
 
 open Sym
 
 def mkMethods (declNames : Array Name) : MetaM Sym.Simp.Methods := do
-  let rewrite ← Sym.mkSimprocFor declNames
+  let rewrite ← Sym.mkSimprocFor declNames Sym.Simp.dischargeSimpSelf
   return {
     post := Sym.Simp.evalGround.andThen rewrite
   }
@@ -275,8 +277,9 @@ partial def solve (mvarId : MVarId) : SymM Unit := do
   let evalMethods ← mkMethods #[``Expr.eval.eq_1, ``Expr.eval.eq_2, ``Expr.eval.eq_3]
   let simpMethods ← mkMethods #[``PartialMap.get_put_diff, ``PartialMap.get_put, ``PartialMap.put_put, ``Binop.interp_add,
           ``Binop.interp_sub, ``Word.add_sub_cancel, ``Option.some.injEq, ``not_false_eq_true, ``ne_eq]
-  let finalSimpMethods ← mkMethods #[``List.cons.injEq, ``IOEvent.IN.injEq, ``and_true, ``true_and, ``PartialMap.put_put, ``PartialMap.get_put,
-    ``Option.some.injEq, ``and_self, ``exists_eq_True]
+  let finalSimpMethods ← mkMethods #[``List.cons.injEq, ``IOEvent.IN.injEq, ``and_true, ``true_and,
+    ``PartialMap.put_put, ``PartialMap.get_put, ``PartialMap.get_put_diff, ``Option.some.injEq,
+    ``and_self, ``exists_eq_True, ``Word.add_sub_cancel]
   -- Initialize
   let mvarId ← preprocessMVar mvarId
   let (_, mvarId) ← Sym.introN mvarId 2
@@ -286,23 +289,23 @@ partial def solve (mvarId : MVarId) : SymM Unit := do
   let (_, mvarId) ← Sym.introN mvarId 1
   -- Loop
   let rec loop (mvarId : MVarId) : SymM MVarId := do
-    -- mvarId.withContext do logInfo m!"{← mvarId.getType}"
     let .goals [mvarId] ← exec_cpsRule.apply mvarId | return mvarId
     let .goals [mvarId', mvarId, _] ← setRule.apply mvarId | failure
     let .goal mvarId' ← Sym.simpGoal mvarId' evalMethods | failure
     let .goal mvarId' ← Sym.simpGoal mvarId' simpMethods | failure
     let .goals [] ← rflRule.apply mvarId' | failure
+    -- The following step is not in the `MetaM` version, but it helps performance
+    -- let .goal mvarId ← Sym.trySimpGoal mvarId simpMethods | failure
     loop mvarId
 
   let mvarId ← loop mvarId
   let .goals [mvarId] ← skipRule.apply mvarId | failure
-  let .goal mvarId ← Sym.simpGoal mvarId finalSimpMethods { maxSteps := 100000 } | failure
-  logInfo mvarId -- **TODO**: get_put theorem is not behaving correctly
-  mvarId.admit
+  let .closed ← Sym.simpGoal mvarId finalSimpMethods { maxSteps := 100000 } | failure
   return
 
 def solveUsingSym (n : Nat) (check := true) : MetaM Unit := do
   driver n check fun mvarId => SymM.run do solve mvarId
 
 set_option maxRecDepth 100000
-#eval solveUsingSym 4
+#eval solveUsingSym 40
+-- goal_100: 370.033833 ms, kernel: 432.021250 ms

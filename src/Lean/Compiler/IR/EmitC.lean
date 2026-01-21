@@ -580,7 +580,7 @@ def emitFullApp (z : VarId) (t : IRType) (f : FunId) (ys : Array Arg) : M Unit :
   match decl with
   | .fdecl (xs := ps) .. | .extern (xs := ps) (ext := { entries := [.opaque], .. }) .. =>
     let env ← getEnv
-    if ys.isEmpty && isClosedTermName env f && !isGroundDecl env f then
+    if ys.isEmpty && isClosedTermName env f && !isSimpleGroundDecl env f then
       emitClosedTermRead t f
     else
       emitCName f

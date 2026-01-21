@@ -73,4 +73,14 @@ def getFinValue? (e : Expr) : OptionT Id FinValue := do
   let : NeZero n := ⟨h⟩
   return { n, val := Fin.ofNat n v }
 
+def getCharValue? (e : Expr) : OptionT Id Char := do
+  let_expr Char.ofNat n := e | failure
+  let .lit (.natVal n) := n | failure
+  return Char.ofNat n
+
+def getStringValue? (e : Expr) : Option String :=
+  match e with
+  | .lit (.strVal s) => some s
+  | _ => none
+
 end Lean.Meta.Sym

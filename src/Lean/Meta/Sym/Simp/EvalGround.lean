@@ -9,6 +9,7 @@ public import Lean.Meta.Sym.Simp.SimpM
 import Init.Sym.Lemmas
 import Init.Data.Int.Gcd
 import Lean.Meta.Sym.LitValues
+import Lean.Meta.Sym.AlphaShareBuilder
 namespace Lean.Meta.Sym.Simp
 
 /-!
@@ -392,6 +393,8 @@ def evalLT (α : Expr) (a b : Expr) : SimpM Result :=
   | UInt64 => evalBinPred getUInt64Value? (mkConst ``UInt64.lt_eq_true) (mkConst ``UInt64.lt_eq_false) (. < .) a b
   | Fin n => evalFinPred n (mkConst ``Fin.lt_eq_true) (mkConst ``Fin.lt_eq_false) (. < .) a b
   | BitVec n => evalBitVecPred n (mkConst ``BitVec.lt_eq_true) (mkConst ``BitVec.lt_eq_false) (. < .) a b
+  | String => evalBinPred getStringValue? (mkConst ``String.lt_eq_true) (mkConst ``String.lt_eq_false) (. < .) a b
+  | Char => evalBinPred getCharValue? (mkConst ``Char.lt_eq_true) (mkConst ``Char.lt_eq_false) (. < .) a b
   | _ => return .rfl
 
 def evalLE (α : Expr) (a b : Expr) : SimpM Result :=
@@ -409,40 +412,8 @@ def evalLE (α : Expr) (a b : Expr) : SimpM Result :=
   | UInt64 => evalBinPred getUInt64Value? (mkConst ``UInt64.le_eq_true) (mkConst ``UInt64.le_eq_false) (. ≤ .) a b
   | Fin n => evalFinPred n (mkConst ``Fin.le_eq_true) (mkConst ``Fin.le_eq_false) (. ≤ .) a b
   | BitVec n => evalBitVecPred n (mkConst ``BitVec.le_eq_true) (mkConst ``BitVec.le_eq_false) (. ≤ .) a b
-  | _ => return .rfl
-
-def evalGT (α : Expr) (a b : Expr) : SimpM Result :=
-  match_expr α with
-  | Nat => evalBinPred getNatValue? (mkConst ``Nat.gt_eq_true) (mkConst ``Nat.gt_eq_false) (. > .) a b
-  | Int => evalBinPred getIntValue? (mkConst ``Int.gt_eq_true) (mkConst ``Int.gt_eq_false) (. > .) a b
-  | Rat => evalBinPred getRatValue? (mkConst ``Rat.gt_eq_true) (mkConst ``Rat.gt_eq_false) (. > .) a b
-  | Int8 => evalBinPred getInt8Value? (mkConst ``Int8.gt_eq_true) (mkConst ``Int8.gt_eq_false) (. > .) a b
-  | Int16 => evalBinPred getInt16Value? (mkConst ``Int16.gt_eq_true) (mkConst ``Int16.gt_eq_false) (. > .) a b
-  | Int32 => evalBinPred getInt32Value? (mkConst ``Int32.gt_eq_true) (mkConst ``Int32.gt_eq_false) (. > .) a b
-  | Int64 => evalBinPred getInt64Value? (mkConst ``Int64.gt_eq_true) (mkConst ``Int64.gt_eq_false) (. > .) a b
-  | UInt8 => evalBinPred getUInt8Value? (mkConst ``UInt8.gt_eq_true) (mkConst ``UInt8.gt_eq_false) (. > .) a b
-  | UInt16 => evalBinPred getUInt16Value? (mkConst ``UInt16.gt_eq_true) (mkConst ``UInt16.gt_eq_false) (. > .) a b
-  | UInt32 => evalBinPred getUInt32Value? (mkConst ``UInt32.gt_eq_true) (mkConst ``UInt32.gt_eq_false) (. > .) a b
-  | UInt64 => evalBinPred getUInt64Value? (mkConst ``UInt64.gt_eq_true) (mkConst ``UInt64.gt_eq_false) (. > .) a b
-  | Fin n => evalFinPred n (mkConst ``Fin.gt_eq_true) (mkConst ``Fin.gt_eq_false) (. > .) a b
-  | BitVec n => evalBitVecPred n (mkConst ``BitVec.gt_eq_true) (mkConst ``BitVec.gt_eq_false) (. > .) a b
-  | _ => return .rfl
-
-def evalGE (α : Expr) (a b : Expr) : SimpM Result :=
-  match_expr α with
-  | Nat => evalBinPred getNatValue? (mkConst ``Nat.ge_eq_true) (mkConst ``Nat.ge_eq_false) (. ≥ .) a b
-  | Int => evalBinPred getIntValue? (mkConst ``Int.ge_eq_true) (mkConst ``Int.ge_eq_false) (. ≥ .) a b
-  | Rat => evalBinPred getRatValue? (mkConst ``Rat.ge_eq_true) (mkConst ``Rat.ge_eq_false) (. ≥ .) a b
-  | Int8 => evalBinPred getInt8Value? (mkConst ``Int8.ge_eq_true) (mkConst ``Int8.ge_eq_false) (. ≥ .) a b
-  | Int16 => evalBinPred getInt16Value? (mkConst ``Int16.ge_eq_true) (mkConst ``Int16.ge_eq_false) (. ≥ .) a b
-  | Int32 => evalBinPred getInt32Value? (mkConst ``Int32.ge_eq_true) (mkConst ``Int32.ge_eq_false) (. ≥ .) a b
-  | Int64 => evalBinPred getInt64Value? (mkConst ``Int64.ge_eq_true) (mkConst ``Int64.ge_eq_false) (. ≥ .) a b
-  | UInt8 => evalBinPred getUInt8Value? (mkConst ``UInt8.ge_eq_true) (mkConst ``UInt8.ge_eq_false) (. ≥ .) a b
-  | UInt16 => evalBinPred getUInt16Value? (mkConst ``UInt16.ge_eq_true) (mkConst ``UInt16.ge_eq_false) (. ≥ .) a b
-  | UInt32 => evalBinPred getUInt32Value? (mkConst ``UInt32.ge_eq_true) (mkConst ``UInt32.ge_eq_false) (. ≥ .) a b
-  | UInt64 => evalBinPred getUInt64Value? (mkConst ``UInt64.ge_eq_true) (mkConst ``UInt64.ge_eq_false) (. ≥ .) a b
-  | Fin n => evalFinPred n (mkConst ``Fin.ge_eq_true) (mkConst ``Fin.ge_eq_false) (. ≥ .) a b
-  | BitVec n => evalBitVecPred n (mkConst ``BitVec.ge_eq_true) (mkConst ``BitVec.ge_eq_false) (. ≥ .) a b
+  | String => evalBinPred getStringValue? (mkConst ``String.le_eq_true) (mkConst ``String.le_eq_false) (. ≤ .) a b
+  | Char => evalBinPred getCharValue? (mkConst ``Char.le_eq_true) (mkConst ``Char.le_eq_false) (. ≤ .) a b
   | _ => return .rfl
 
 def evalEq (α : Expr) (a b : Expr) : SimpM Result :=
@@ -464,27 +435,8 @@ def evalEq (α : Expr) (a b : Expr) : SimpM Result :=
   | UInt64 => evalBinPred getUInt64Value? (mkConst ``UInt64.eq_eq_true) (mkConst ``UInt64.eq_eq_false) (. = .) a b
   | Fin n => evalFinPred n (mkConst ``Fin.eq_eq_true) (mkConst ``Fin.eq_eq_false) (. = .) a b
   | BitVec n => evalBitVecPred n (mkConst ``BitVec.eq_eq_true) (mkConst ``BitVec.eq_eq_false) (. = .) a b
-  | _ => return .rfl
-
-def evalNe (α : Expr) (a b : Expr) : SimpM Result :=
-  if isSameExpr a b then do
-    let e ← share <| mkConst ``False
-    let u ← getLevel α
-    return .step e (mkApp2 (mkConst ``ne_self [u]) α a) (done := true)
-  else match_expr α with
-  | Nat => evalBinPred getNatValue? (mkConst ``Nat.ne_eq_true) (mkConst ``Nat.ne_eq_false) (. ≠ .) a b
-  | Int => evalBinPred getIntValue? (mkConst ``Int.ne_eq_true) (mkConst ``Int.ne_eq_false) (. ≠ .) a b
-  | Rat => evalBinPred getRatValue? (mkConst ``Rat.ne_eq_true) (mkConst ``Rat.ne_eq_false) (. ≠ .) a b
-  | Int8 => evalBinPred getInt8Value? (mkConst ``Int8.ne_eq_true) (mkConst ``Int8.ne_eq_false) (. ≠ .) a b
-  | Int16 => evalBinPred getInt16Value? (mkConst ``Int16.ne_eq_true) (mkConst ``Int16.ne_eq_false) (. ≠ .) a b
-  | Int32 => evalBinPred getInt32Value? (mkConst ``Int32.ne_eq_true) (mkConst ``Int32.ne_eq_false) (. ≠ .) a b
-  | Int64 => evalBinPred getInt64Value? (mkConst ``Int64.ne_eq_true) (mkConst ``Int64.ne_eq_false) (. ≠ .) a b
-  | UInt8 => evalBinPred getUInt8Value? (mkConst ``UInt8.ne_eq_true) (mkConst ``UInt8.ne_eq_false) (. ≠ .) a b
-  | UInt16 => evalBinPred getUInt16Value? (mkConst ``UInt16.ne_eq_true) (mkConst ``UInt16.ne_eq_false) (. ≠ .) a b
-  | UInt32 => evalBinPred getUInt32Value? (mkConst ``UInt32.ne_eq_true) (mkConst ``UInt32.ne_eq_false) (. ≠ .) a b
-  | UInt64 => evalBinPred getUInt64Value? (mkConst ``UInt64.ne_eq_true) (mkConst ``UInt64.ne_eq_false) (. ≠ .) a b
-  | Fin n => evalFinPred n (mkConst ``Fin.ne_eq_true) (mkConst ``Fin.ne_eq_false) (. ≠ .) a b
-  | BitVec n => evalBitVecPred n (mkConst ``BitVec.ne_eq_true) (mkConst ``BitVec.ne_eq_false) (. ≠ .) a b
+  | Char => evalBinPred getCharValue? (mkConst ``Char.eq_eq_true) (mkConst ``Char.eq_eq_false) (. = .) a b
+  | String => evalBinPred getStringValue? (mkConst ``String.eq_eq_true) (mkConst ``String.eq_eq_false) (. = .) a b
   | _ => return .rfl
 
 def evalDvd (α : Expr) (a b : Expr) : SimpM Result :=
@@ -554,6 +506,16 @@ macro "declare_eval_bin_bool_pred" id:ident op:term : command =>
 declare_eval_bin_bool_pred evalBEq (· == ·)
 declare_eval_bin_bool_pred evalBNe (· != ·)
 
+open Internal in
+def evalNot (a : Expr) : SimpM Result :=
+  /-
+  **Note**: We added `evalNot` because some abbreviations expanded into `Not`s.
+  -/
+  match_expr a with
+  | True => return .step (← mkConstS ``False) (mkConst ``Sym.not_true_eq) (done := true)
+  | False => return .step (← mkConstS ``True) (mkConst ``Sym.not_false_eq) (done := true)
+  | _ => return .rfl
+
 public structure EvalStepConfig where
   maxExponent := 255
 
@@ -594,14 +556,12 @@ public def evalGround (config : EvalStepConfig := {}) : Simproc := fun e =>
   | Int.fmod a b => evalBinInt Int.fmod a b
   | Int.bmod a b => evalIntBMod a b
   | LE.le α _ a b => evalLE α a b
-  | GE.ge α _ a b => evalGE α a b
   | LT.lt α _ a b => evalLT α a b
-  | GT.gt α _ a b => evalGT α a b
   | Dvd.dvd α _ a b => evalDvd α a b
   | Eq α a b => evalEq α a b
-  | Ne α a b => evalNe α a b
   | BEq.beq α _ a b => evalBEq α a b
   | bne α _ a b => evalBNe α a b
+  | Not a => evalNot a
   | _  => return .rfl
 
 end Lean.Meta.Sym.Simp

@@ -122,10 +122,25 @@ example : ((2 : Int) ≠ 3) = True := by sym_simp
 example : ((1 : Rat) / 2 < 2 / 3) = True := by sym_simp
 example : ((1 : Rat) / 2 = 2 / 4) = True := by sym_simp
 
+-- Predicates: String
+example : "hello" < "world" := by sym_simp
+example : "a" ≤ "a" := by sym_simp
+example : ¬ "a" > "b" := by sym_simp
+example : "a" = "a" := by sym_simp
+example : "a" ≠ "b" := by sym_simp
+
+-- Predicates: Char
+example : 'h' < 'w' := by sym_simp
+example : 'a' ≤ 'a' := by sym_simp
+example : ¬ 'a' > 'b' := by sym_simp
+example : 'a' = 'a' := by sym_simp
+example : 'a' ≠ 'b' := by sym_simp
+
 -- Predicates: Fixed-width
 example : ((100 : UInt8) < 200) = True := by sym_simp
 example : ((-50 : Int8) < 50) = True := by sym_simp
 example : ((1000 : UInt16) ≤ 1000) = True := by sym_simp
+example : ((-50 : Int8) > 50) = False := by sym_simp
 
 -- Predicates: BitVec
 example : ((5 : BitVec 8) < 10) = True := by sym_simp

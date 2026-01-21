@@ -37,7 +37,7 @@ example (f g : Nat → Nat → Nat) : (if a + 0 ≠ a then f else g) a (b + 0) =
 trace: a b : Nat
 f g : Nat → Nat → Nat
 h : a = b
-⊢ (if a ≠ b then id f else id (id g)) a (b + 0) = g a b
+⊢ (if ¬a = b then id f else id (id g)) a (b + 0) = g a b
 -/
 #guard_msgs in
 example (f g : Nat → Nat → Nat) (h : a = b) : (if a + 0 ≠ b then id f else id (id g)) a (b + 0) = g a b := by
@@ -136,7 +136,7 @@ example (f g : Nat → Nat → Nat) : (if _ : a + 0 ≠ a then f else g) a (b + 
 trace: a b : Nat
 f g : Nat → Nat → Nat
 h : a = b
-⊢ (if h : a ≠ b then id f else id (id g)) a (b + 0) = g a b
+⊢ (if h : ¬a = b then id f else id (id g)) a (b + 0) = g a b
 -/
 #guard_msgs in
 example (f g : Nat → Nat → Nat) (h : a = b) : (if _ : a + 0 ≠ b then id f else id (id g)) a (b + 0) = g a b := by

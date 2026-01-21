@@ -1332,7 +1332,7 @@ builtin_initialize
         trace[Elab.match] "discr {d} : {← instantiateMVars dType}"
         tryPostponeIfMVar dType
       let discrs := discrs.map fun discr => mkNode ``Lean.Parser.Term.matchDiscr #[mkNullNode, discr.raw]
-      elabMatchAux none discrs #[] mkNullNode expectedType
+      elabMatchAux none discrs #[] none expectedType
     else
       let rec loop (discrs : List Term) (discrsNew : Array Syntax) : TermElabM Term := do
         match discrs with

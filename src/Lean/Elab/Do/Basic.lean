@@ -607,12 +607,11 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
   let joinRhs ← joinRhsMVar.mvarId!.withContext do
     withLocalDeclD nondupDec.resultName nondupDec.resultType fun r => do
     withLocalDeclsDND (mutDecls.map fun (d : LocalDecl) => (d.userName, d.type)) fun muts => do
+    withDeadCode (← deadCode.get) do
     mkLambdaFVars (#[r] ++ muts) (← nondupDec.k .missing)
   joinRhsMVar.mvarId!.assign joinRhs
 
   let body ← match body? with | some body => pure body | none => elabBody
-
-  -- TODO: Warn about dead code in nondupDec.ref
 
   let calls ← calls.get
   if calls.size > 1 || calls.any (fun _ refined => refined) then

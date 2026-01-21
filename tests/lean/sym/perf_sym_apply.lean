@@ -33,7 +33,7 @@ def tryIntros? (goals : List MVarId) : SymM (Option (List MVarId)) := do
 
 def tryApply? (rule : BackwardRule) (goals : List MVarId) : SymM (Option (List MVarId)) := do
   let goal :: goals := goals | return none
-  let .subgoals goals' ← rule.apply goal | return none
+  let .goals goals' ← rule.apply goal | return none
   return some (goals' ++ goals)
 
 def tryApplyAny? (rules : List BackwardRule) (goals : List MVarId) : SymM (Option (List MVarId)) := do

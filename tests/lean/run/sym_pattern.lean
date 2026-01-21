@@ -36,10 +36,10 @@ def test2 : SymM Unit := do
   let rulePax  ← mkBackwardRuleFromDecl ``pax
   let mvar ← mkFreshExprMVar (← getConstInfo ``ex).value!
   let mvarId ← preprocessMVar mvar.mvarId!
-  let .subgoals [mvarId, _] ← ruleEx.apply mvarId | failure
-  let .subgoals [mvarId₁, mvarId₂] ← ruleAnd.apply mvarId | failure
-  let .subgoals [] ← rulePax.apply mvarId₁ | failure
-  let .subgoals [] ← ruleRefl.apply mvarId₂ | failure
+  let .goals [mvarId, _] ← ruleEx.apply mvarId | failure
+  let .goals [mvarId₁, mvarId₂] ← ruleAnd.apply mvarId | failure
+  let .goals [] ← rulePax.apply mvarId₁ | failure
+  let .goals [] ← ruleRefl.apply mvarId₂ | failure
   logInfo mvar
 
 /--
@@ -62,7 +62,7 @@ def test3 : SymM Unit := do
   let mvar ← mkFreshExprMVar target
   let mvarId ← preprocessMVar mvar.mvarId!
   let rule ← mkBackwardRuleFromDecl ``pFoo
-  let .subgoals [] ← rule.apply mvarId | failure
+  let .goals [] ← rule.apply mvarId | failure
   logInfo mvar
 
 /-- info: pFoo (3 + y) -/

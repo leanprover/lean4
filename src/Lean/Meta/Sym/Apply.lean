@@ -98,7 +98,7 @@ def mkValue (expr : Expr) (pattern : Pattern) (result : MatchUnifyResult) : Expr
 
 public inductive ApplyResult where
   | notApplicable
-  | subgoals (mvarId : List MVarId)
+  | goals (mvarId : List MVarId)
 
 /--
 Applies a backward rule to a goal, returning new subgoals.
@@ -113,7 +113,7 @@ public def BackwardRule.apply (mvarId : MVarId) (rule : BackwardRule) : SymM App
   let decl ← mvarId.getDecl
   if let some result ← rule.pattern.unify? decl.type then
     mvarId.assign (mkValue rule.expr rule.pattern result)
-    return .subgoals <| rule.resultPos.map fun i =>
+    return .goals <| rule.resultPos.map fun i =>
       result.args[i]!.mvarId!
   else
     return .notApplicable
@@ -122,7 +122,7 @@ public def BackwardRule.apply (mvarId : MVarId) (rule : BackwardRule) : SymM App
 Similar to `BackwardRule.apply', but throws an error if unification fails.
 -/
 public def BackwardRule.apply' (mvarId : MVarId) (rule : BackwardRule) : SymM (List MVarId) := do
-  let .subgoals mvarIds ← rule.apply mvarId
+  let .goals mvarIds ← rule.apply mvarId
     | throwError "rule is not applicable to goal{mvarId}rule:{indentExpr rule.expr}"
   return mvarIds
 

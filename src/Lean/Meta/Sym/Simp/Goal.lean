@@ -23,7 +23,7 @@ public inductive SimpGoalResult where
   /-- The goal was closed (simplified to `True`). -/
   | closed
   /-- The goal was simplified to a new goal. -/
-  | simp (mvarId : MVarId)
+  | goal (mvarId : MVarId)
 
 /--
 Converts a `SimpGoalResult` to an optional goal.
@@ -32,7 +32,7 @@ Returns `none` if closed, `some mvarId` if simplified, or throws an error if no 
 public def SimpGoalResult.toOption : SimpGoalResult → CoreM (Option MVarId)
   | .noProgress => throwError "`Sym.simp` made no progress "
   | .closed => return none
-  | .simp mvarId => return some mvarId
+  | .goal mvarId => return some mvarId
 
 /--
 Simplifies the target of `mvarId` using `Sym.simp`.
@@ -55,6 +55,15 @@ public def simpGoal (mvarId : MVarId) (methods :  Simp.Methods := {}) (config : 
       mvarNew.mvarId!.assign (mkConst ``True.intro)
       return .closed
     else
-      return .simp mvarNew.mvarId!
+      return .goal mvarNew.mvarId!
+
+/--
+Similar to `simpGoal`, but returns `.goal mvarId` if no progress was made.
+-/
+public def trySimpGoal (mvarId : MVarId) (methods :  Simp.Methods := {}) (config : Simp.Config := {})
+    : SymM SimpGoalResult := do
+  match (← simpGoal mvarId methods config) with
+  | .noProgress => return .goal mvarId
+  | r => return r
 
 end Lean.Meta.Sym

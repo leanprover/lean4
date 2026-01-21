@@ -50,14 +50,14 @@ private structure MonitorContext where
   /-- How often to poll jobs (in milliseconds). -/
   updateFrequency : Nat
 
-@[inline] def MonitorContext.logger (ctx : MonitorContext) : MonadLog IO :=
+@[inline] def MonitorContext.logger (ctx : MonitorContext) : MonadLog BaseIO :=
   .stream ctx.out ctx.outLv ctx.useAnsi
 
 /-- State of the Lake build monitor. -/
 private structure MonitorState where
   jobNo : Nat := 0
   totalJobs : Nat := 0
-  didBuild : Bool := false
+  wantsRebuild : Bool := false
   failures : Array String
   resetCtrl : String
   lastUpdate : Nat
@@ -114,16 +114,17 @@ private def renderProgress (running unfinished : Array OpaqueJob) (h : 0 < unfin
     flush
 
 private def reportJob (job : OpaqueJob) : MonitorM PUnit := do
-  let {jobNo, totalJobs, didBuild, ..} ← get
+  let {jobNo, totalJobs, ..} ← get
   let {failLv, outLv, showOptional, out, useAnsi, showProgress, minAction, showTime, ..} ← read
   let {task, caption, optional, ..} := job
-  let {log, action, buildTime, ..} := task.get.state
+  let {log, action, wantsRebuild, buildTime, ..} := task.get.state
   let maxLv := log.maxLv
   let failed := strictAnd log.hasEntries (maxLv ≥ failLv)
-   if !didBuild && action = .build then
-    modify fun s => {s with didBuild := true}
   if failed && !optional then
-    modify fun s => {s with failures := s.failures.push caption}
+    modify fun s => {s with
+      failures := s.failures.push caption
+      wantsRebuild := s.wantsRebuild || wantsRebuild
+    }
   let hasOutput := failed || (log.hasEntries && maxLv ≥ outLv)
   let showJob :=
     (!optional || showOptional) &&
@@ -195,7 +196,7 @@ end Monitor
 
 /-- **For internal use only.** -/
 public structure MonitorResult where
-  didBuild : Bool
+  wantsRebuild : Bool
   failures : Array String
   numJobs : Nat
 
@@ -233,11 +234,11 @@ def monitorJobs'
   return {
     failures := s.failures
     numJobs := s.totalJobs
-    didBuild := s.didBuild
+    wantsRebuild := s.wantsRebuild
   }
 
 /-- The job monitor function. An auxiliary definition for `runFetchM`. -/
-@[inline, deprecated "Deprecated without replacement" (since := "2025-01-08")]
+@[inline, deprecated "Deprecated without replacement." (since := "2025-01-08")]
 public def monitorJobs
   (initJobs : Array OpaqueJob)
   (jobs : IO.Ref (Array OpaqueJob))
@@ -259,9 +260,9 @@ public def monitorJobs
 public def noBuildCode : ExitCode := 3
 
 def Workspace.saveOutputs
-  [logger : MonadLog IO] (ws : Workspace)
+  [logger : MonadLog BaseIO] (ws : Workspace)
   (out : IO.FS.Stream) (outputsFile : FilePath) (isVerbose : Bool)
-: IO Unit := do
+: BaseIO Unit := do
   unless ws.isRootArtifactCacheEnabled do
     logWarning s!"{ws.root.prettyName}: \
       the artifact cache is not enabled for this package, so the artifacts described \
@@ -313,13 +314,20 @@ def monitorJob (ctx : MonitorContext) (job : Job α) : BaseIO (BuildResult α) :
   else
     return {toMonitorResult := result, out := .error "build failed"}
 
-def monitorFetchM
-  (mctx : MonitorContext) (bctx : BuildContext) (build : FetchM α)
+def mkBuildContext' (ws : Workspace) (cfg : BuildConfig) (jobs : JobQueue) : BuildContext where
+  opaqueWs := ws
+  toBuildConfig := cfg
+  registeredJobs := jobs
+  leanTrace := .ofHash (pureHash ws.lakeEnv.leanGithash)
+    s!"Lean {Lean.versionStringCore}, commit {ws.lakeEnv.leanGithash}"
+
+def Workspace.startBuild
+  (ws : Workspace)  (cfg : BuildConfig) (jobs : JobQueue) (build : FetchM α)
   (caption := "job computation")
-: BaseIO (BuildResult α) := do
+: BaseIO (Job α) := do
+  let bctx := mkBuildContext' ws cfg jobs
   let compute := Job.async build (caption := caption)
-  let job ← compute.run.run'.run bctx |>.run nilTrace
-  monitorJob mctx job
+  compute.run.run'.run bctx |>.run nilTrace
 
 def Workspace.finalizeBuild
   (ws : Workspace) (cfg : BuildConfig) (ctx : MonitorContext) (result : BuildResult α)
@@ -327,17 +335,10 @@ def Workspace.finalizeBuild
   reportResult cfg ctx.out result
   if let some outputsFile := cfg.outputsFile? then
     ws.saveOutputs (logger := ctx.logger) ctx.out outputsFile (cfg.verbosity matches .verbose)
-  if cfg.noBuild && result.didBuild then
+  if cfg.noBuild && result.wantsRebuild then
     IO.Process.exit noBuildCode.toUInt8
   else
     IO.ofExcept result.out
-
-def mkBuildContext' (ws : Workspace) (cfg : BuildConfig) (jobs : JobQueue) : BuildContext where
-  opaqueWs := ws
-  toBuildConfig := cfg
-  registeredJobs := jobs
-  leanTrace := .ofHash (pureHash ws.lakeEnv.leanGithash)
-    s!"Lean {Lean.versionStringCore}, commit {ws.lakeEnv.leanGithash}"
 
 /--
 Run a build function in the Workspace's context using the provided configuration.
@@ -349,16 +350,13 @@ public def Workspace.runFetchM
 : IO α := do
   let jobs ← mkJobQueue
   let mctx ← mkMonitorContext cfg jobs
-  let bctx := mkBuildContext' ws cfg jobs
-  let result ← monitorFetchM mctx bctx build caption
+  let job ← ws.startBuild cfg jobs build caption
+  let result ← monitorJob mctx job
   ws.finalizeBuild cfg mctx result
 
-def monitorBuild
-  (mctx : MonitorContext) (bctx : BuildContext) (build : FetchM (Job α))
-  (caption := "job computation")
-: BaseIO (BuildResult α) := do
-  let result ← monitorFetchM mctx bctx build caption
-   match result.out with
+def monitorBuild (mctx : MonitorContext) (job : Job (Job α)) : BaseIO (BuildResult α) := do
+  let result ← monitorJob mctx job
+  match result.out with
   | .ok job =>
     if let some a ← job.wait? then
       return {result with out := .ok a}
@@ -374,24 +372,24 @@ Returns whether a build is needed to validate `build`. Does not report on the at
 
 This is equivalent to checking whether `lake build --no-build` exits with code 0.
 -/
-@[inline] public def Workspace.checkNoBuild
+public def Workspace.checkNoBuild
   (ws : Workspace) (build : FetchM (Job α))
 : BaseIO Bool := do
   let jobs ← mkJobQueue
   let cfg := {noBuild := true}
   let mctx ← mkMonitorContext cfg jobs
-  let bctx := mkBuildContext' ws cfg jobs
-  let result ← monitorBuild mctx bctx build
-  return result.isOk && !result.didBuild
+  let job ← ws.startBuild cfg jobs build
+  let result ← monitorBuild mctx job
+  return result.isOk -- `isOk` means no failures, and thus no `--no-build` failures
 
 /-- Run a build function in the Workspace's context and await the result. -/
-@[inline] public def Workspace.runBuild
+public def Workspace.runBuild
   (ws : Workspace) (build : FetchM (Job α)) (cfg : BuildConfig := {})
 : IO α := do
   let jobs ← mkJobQueue
   let mctx ← mkMonitorContext cfg jobs
-  let bctx := mkBuildContext' ws cfg jobs
-  let result ← monitorBuild mctx bctx build
+  let job ← ws.startBuild cfg jobs build
+  let result ← monitorBuild mctx job
   ws.finalizeBuild cfg mctx result
 
 /-- Produce a build job in the Lake monad's workspace and await the result. -/

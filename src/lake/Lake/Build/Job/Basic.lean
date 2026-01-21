@@ -63,6 +63,8 @@ public structure JobState where
   log : Log := {}
   /-- Tracks whether this job performed any significant build action. -/
   action : JobAction := .unknown
+  /-- Whether this job failed due to a request to rebuild for `--no-build`. -/
+  wantsRebuild : Bool := false
   /-- Current trace of a build job. -/
   trace : BuildTrace := .nil
   /-- How long the job spent building (in milliseconds). -/
@@ -72,6 +74,7 @@ public structure JobState where
 public def JobState.merge (a b : JobState) : JobState where
   log := a.log ++ b.log
   action := a.action.merge b.action
+  wantsRebuild := a.wantsRebuild || b.wantsRebuild
   trace := mixTrace a.trace b.trace
   buildTime := a.buildTime + b.buildTime
 

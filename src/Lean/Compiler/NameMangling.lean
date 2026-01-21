@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.Setup
 import Init.Data.String.TakeDrop
-import Init.Guard
 
 namespace String
 

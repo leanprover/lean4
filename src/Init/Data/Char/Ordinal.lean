@@ -8,10 +8,22 @@ module
 prelude
 public import Init.Data.Fin.OverflowAware
 public import Init.Data.UInt.Basic
+public import Init.Data.Function
 import Init.Data.Char.Lemmas
 import Init.Data.Char.Order
 import Init.Grind
-public import Init.Data.Function
+
+/-!
+# Bijection between `Char` and `Fin Char.numCodePoints`
+
+In this file, we construct a bijection between `Char` and `Fin Char.numCodePoints` and show that
+it is compatible with various operations. Since `Fin` is simpler than `Char` due to being based
+on natural numbers instead of `UInt32` and not having a hole in the middle (surrogate code points),
+this is sometimes useful to simplify reasoning about `Char`.
+
+We use these declarations in the construction of `Char` ranges, see the module
+`Init.Data.Range.Polymorphic.Char`.
+-/
 
 set_option doc.verso true
 
@@ -68,8 +80,8 @@ def succ? (c : Char) : Option Char :=
   else if h₂ : c.val < 0x10ffff then
     some ⟨c.val + 1, by
       have := c.valid
-      simp [← UInt32.toNat_inj, UInt32.lt_iff_toNat_lt, UInt32.toNat_add, UInt32.isValidChar,
-        Nat.isValidChar] at *
+      simp only [UInt32.lt_iff_toNat_lt, UInt32.reduceToNat, Nat.not_lt, ← UInt32.toNat_inj,
+        UInt32.isValidChar, Nat.isValidChar, UInt32.toNat_add, Nat.reducePow] at *
       omega⟩
   else none
 
@@ -83,29 +95,35 @@ This function is specificed by its interaction with {name}`Char.ordinal`, see
 def succMany? (m : Nat) (c : Char) : Option Char :=
   c.ordinal.addNat? m |>.map Char.ofOrdinal
 
-@[simp]
 theorem coe_ordinal {c : Char} :
-    (c.ordinal : Nat) = if c.val < 0xd800 then c.val.toNat else c.val.toNat - Char.numSurrogates := by
+    (c.ordinal : Nat) =
+      if c.val < 0xd800 then
+        c.val.toNat
+      else
+        c.val.toNat - Char.numSurrogates := by
   grind [Char.ordinal]
 
 @[simp]
 theorem ordinal_zero : '\x00'.ordinal = 0 := by
   ext
-  simp
+  simp [coe_ordinal]
 
-@[simp]
 theorem val_ofOrdinal {f : Fin Char.numCodePoints} :
-    (Char.ofOrdinal f).val = if h : (f : Nat) < 0xd800 then UInt32.ofNatLT f (by grind) else UInt32.ofNatLT (f + Char.numSurrogates) (by grind) := by
+    (Char.ofOrdinal f).val =
+      if h : (f : Nat) < 0xd800 then
+        UInt32.ofNatLT f (by grind)
+      else
+        UInt32.ofNatLT (f + Char.numSurrogates) (by grind) := by
   grind [Char.ofOrdinal]
 
 @[simp]
 theorem ofOrdinal_ordinal {c : Char} : Char.ofOrdinal c.ordinal = c := by
   ext
-  simp
+  simp only [val_ofOrdinal, coe_ordinal, UInt32.ofNatLT_add]
   split
   · grind [UInt32.lt_iff_toNat_lt, UInt32.ofNatLT_toNat]
   · rw [dif_neg]
-    · simp [← UInt32.toNat_inj]
+    · simp only [← UInt32.toNat_inj, UInt32.toNat_add, UInt32.toNat_ofNatLT, Nat.reducePow]
       rw [Nat.sub_add_cancel]
       · grind [UInt32.toNat_lt]
       · grind [UInt32.lt_iff_toNat_lt]
@@ -115,14 +133,14 @@ theorem ofOrdinal_ordinal {c : Char} : Char.ofOrdinal c.ordinal = c := by
 @[simp]
 theorem ordinal_ofOrdinal {f : Fin Char.numCodePoints} : (Char.ofOrdinal f).ordinal = f := by
   ext
-  simp
+  simp [coe_ordinal, val_ofOrdinal]
   split
   · rw [if_pos, UInt32.toNat_ofNatLT]
     simpa [UInt32.lt_iff_toNat_lt]
-  · rw [if_neg, UInt32.toNat_add, UInt32.toNat_ofNatLT, UInt32.toNat_ofNatLT, Nat.mod_eq_of_lt, Nat.add_sub_cancel]
+  · rw [if_neg, UInt32.toNat_add, UInt32.toNat_ofNatLT, UInt32.toNat_ofNatLT, Nat.mod_eq_of_lt,
+      Nat.add_sub_cancel]
     · grind
-    · simp [UInt32.lt_iff_toNat_lt]
-      grind
+    · simpa [UInt32.lt_iff_toNat_lt] using by grind
 
 @[simp]
 theorem ordinal_comp_ofOrdinal : Char.ordinal ∘ Char.ofOrdinal = id := by
@@ -140,7 +158,8 @@ theorem ordinal_injective : Function.Injective Char.ordinal :=
   fun _ _ => ordinal_inj.1
 
 @[simp]
-theorem ofOrdinal_inj {f g : Fin Char.numCodePoints} : Char.ofOrdinal f = Char.ofOrdinal g ↔ f = g :=
+theorem ofOrdinal_inj {f g : Fin Char.numCodePoints} :
+    Char.ofOrdinal f = Char.ofOrdinal g ↔ f = g :=
   ⟨fun h => by simpa using congrArg Char.ordinal h, (· ▸ rfl)⟩
 
 theorem ofOrdinal_injective : Function.Injective Char.ofOrdinal :=
@@ -149,34 +168,35 @@ theorem ofOrdinal_injective : Function.Injective Char.ofOrdinal :=
 theorem ordinal_le_of_le {c d : Char} (h : c ≤ d) : c.ordinal ≤ d.ordinal := by
   have := c.valid
   have := d.valid
-  simp [Char.le_def, UInt32.le_iff_toNat_le] at h
-  simp [Fin.le_def, UInt32.lt_iff_toNat_lt]
-  grind
+  simp only [le_def, UInt32.le_iff_toNat_le] at h
+  simpa [coe_ordinal, Fin.le_def, UInt32.lt_iff_toNat_lt] using by grind
 
-theorem ofOrdinal_le_of_le {f g : Fin Char.numCodePoints} (h : f ≤ g) : Char.ofOrdinal f ≤ Char.ofOrdinal g := by
-  simp [Fin.le_def] at h
-  simp [Char.le_def, UInt32.le_iff_toNat_le]
+theorem ofOrdinal_le_of_le {f g : Fin Char.numCodePoints} (h : f ≤ g) :
+    Char.ofOrdinal f ≤ Char.ofOrdinal g := by
+  simp only [Fin.le_def] at h
+  simp only [le_def, val_ofOrdinal, UInt32.ofNatLT_add, UInt32.le_iff_toNat_le]
   split
   · simp only [UInt32.toNat_ofNatLT]
     split
     · simpa
-    · simp
-      grind
+    · simpa using by grind
   · simp only [UInt32.toNat_add, UInt32.toNat_ofNatLT, Nat.reducePow]
     rw [dif_neg (by grind)]
-    simp
+    simp only [UInt32.toNat_add, UInt32.toNat_ofNatLT, Nat.reducePow]
     grind
 
 theorem le_iff_ordinal_le {c d : Char} : c ≤ d ↔ c.ordinal ≤ d.ordinal :=
   ⟨ordinal_le_of_le, fun h => by simpa using ofOrdinal_le_of_le h⟩
 
-theorem le_iff_ofOrdinal_le {f g : Fin Char.numCodePoints} : f ≤ g ↔ Char.ofOrdinal f ≤ Char.ofOrdinal g :=
+theorem le_iff_ofOrdinal_le {f g : Fin Char.numCodePoints} :
+    f ≤ g ↔ Char.ofOrdinal f ≤ Char.ofOrdinal g :=
   ⟨ofOrdinal_le_of_le, fun h => by simpa using ordinal_le_of_le h⟩
 
 theorem lt_iff_ordinal_lt {c d : Char} : c < d ↔ c.ordinal < d.ordinal := by
   simp only [Std.lt_iff_le_and_not_ge, le_iff_ordinal_le]
 
-theorem lt_iff_ofOrdinal_lt {f g : Fin Char.numCodePoints} : f < g ↔ Char.ofOrdinal f < Char.ofOrdinal g := by
+theorem lt_iff_ofOrdinal_lt {f g : Fin Char.numCodePoints} :
+    f < g ↔ Char.ofOrdinal f < Char.ofOrdinal g := by
   simp only [Std.lt_iff_le_and_not_ge, le_iff_ofOrdinal_le]
 
 theorem succ?_eq {c : Char} : c.succ? = (c.ordinal.addNat? 1).map Char.ofOrdinal := by
@@ -186,17 +206,14 @@ theorem succ?_eq {c : Char} : c.succ? = (c.ordinal.addNat? 1).map Char.ofOrdinal
     · simp only [coe_ordinal, Option.map_some, Option.some.injEq, Char.ext_iff, val_ofOrdinal,
         UInt32.ofNatLT_add, UInt32.reduceOfNatLT]
       split
-      · simp
-        grind [UInt32.lt_iff_toNat_lt]
+      · simpa using by grind [UInt32.lt_iff_toNat_lt]
       · grind
-    · simp
+    · simp [coe_ordinal]
       grind [UInt32.lt_iff_toNat_lt]
   | case2 =>
     rw [Fin.addNat?_eq_some]
-    · simp [*, Char.ext_iff]
-      rfl
-    · simp [*]
-      grind
+    · simp [coe_ordinal, *, Char.ext_iff, val_ofOrdinal, numSurrogates]
+    · simp [coe_ordinal, *, numCodePoints]
   | case3 =>
     rw [Fin.addNat?_eq_some]
     · simp only [coe_ordinal, Option.map_some, Option.some.injEq, Char.ext_iff, val_ofOrdinal,
@@ -204,17 +221,14 @@ theorem succ?_eq {c : Char} : c.succ? = (c.ordinal.addNat? 1).map Char.ofOrdinal
       split
       · grind
       · rw [dif_neg]
-        · simp [← UInt32.toNat_inj]
-          grind [UInt32.lt_iff_toNat_lt, UInt32.toNat_inj]
+        · simpa [← UInt32.toNat_inj] using by grind [UInt32.lt_iff_toNat_lt, UInt32.toNat_inj]
         · have := c.valid
           grind [UInt32.lt_iff_toNat_lt, UInt32.toNat_inj]
-    · simp
-      grind [UInt32.lt_iff_toNat_lt]
+    · simpa [coe_ordinal] using by grind [UInt32.lt_iff_toNat_lt]
   | case4 =>
     rw [eq_comm]
-    simp [Fin.addNat?_eq_none_iff]
     have := c.valid
-    grind [UInt32.lt_iff_toNat_lt]
+    simpa [coe_ordinal, Fin.addNat?_eq_none_iff] using by grind [UInt32.lt_iff_toNat_lt]
 
 theorem map_ordinal_succ? {c : Char} : c.succ?.map ordinal = c.ordinal.addNat? 1 := by
   simp [succ?_eq]

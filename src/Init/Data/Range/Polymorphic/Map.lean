@@ -9,31 +9,16 @@ prelude
 public import Init.Data.Range.Polymorphic.Instances
 public import Init.Data.Function
 import Init.Data.Order.Lemmas
+import Init.Data.Option.Function
 
 public section
 
-/--!
+/-!
 # Mappings between `UpwardEnumerable` types
 
 In this file we build machinery for pulling back lawfulness properties for `UpwardEnumerable` along
 injective functions that commute with the relevant operations.
 -/
-
-theorem Option.map_injective {f : α → β} (hf : Function.Injective f) :
-    Function.Injective (Option.map f) := by
-  intros a b hab
-  cases a <;> cases b <;> simp_all <;> exact hf hab
-
-@[simp]
-theorem Option.elim_map {f : α → β} {g' : γ} {g : β → γ} (o : Option α) :
-    (o.map f).elim g' g = o.elim g' (g ∘ f) := by
-  cases o <;> simp
-
-theorem Option.apply_get {f : α → β} {o : Option α} {h} :
-    f (o.get h) = (o.map f).get (by simp [h]) := by
-  cases o
-  · simp at h
-  · simp
 
 namespace Std
 

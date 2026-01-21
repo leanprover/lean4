@@ -245,7 +245,8 @@ private def handle
         machine := newMachine
         waitingResponse := newWaitingResponse
 
-      | .response (.error _) =>
+      | .response (.error err) =>
+        IO.eprintln s!"error: {err}"
         let (newMachine, newWaitingResponse) := handleError machine .internalServerError waitingResponse
         machine := newMachine
         waitingResponse := newWaitingResponse
@@ -286,12 +287,8 @@ server.listen backlog
 
 -- Enter an infinite loop to handle incoming client connections
 while true do
-  -- Accept a new client connection.
   let client ← server.accept
-
-  -- Handle the client connection concurrently in the background `serveConnection` will process requests
-  -- and handle failures using the provided callbacks and config
-  background (serveConnection client onRequest onFailure config)
+  background (serveConnection client onRequest config)
 ```
 -/
 def serveConnection [Transport t] (client : t) (onRequest : Request Body → ContextAsync (Response Body)) (config : Config) : ContextAsync Unit := do

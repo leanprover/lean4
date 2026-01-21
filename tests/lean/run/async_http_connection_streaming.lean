@@ -17,7 +17,6 @@ structure TestCase where
   chunked : Bool := false
   deriving Inhabited
 
-/-- Convert an HTTP request to a byte array, optionally using chunked encoding. -/
 def toByteArray (req : Request (Array Chunk)) (chunked := false) : IO ByteArray := Async.block do
   let mut data := String.toUTF8 <| toString req.head
   let toByteArray (part : Chunk) := Internal.Encode.encode .v11 .empty part |>.toByteArray

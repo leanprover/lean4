@@ -135,11 +135,11 @@ private def tryWakeProducer [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLif
   if st.amount < st.capacity then
     if let some (producer, producers) := st.producers.dequeue? then
       let chunk := producer.chunk
-      if st.amount + chunk.size <= st.capacity then
+      if st.amount + 1 <= st.capacity then
         -- We have space for this chunk
         set { st with
           values := st.values.enqueue chunk,
-          amount := st.amount + chunk.size,
+          amount := st.amount + 1,
           producers
         }
         producer.promise.resolve true

@@ -88,15 +88,18 @@ def new : BaseIO (Mock.Client × Mock.Server) := do
   return (⟨⟨first, second⟩⟩, ⟨⟨first, second⟩⟩)
 
 /--
-Receive data from a channel, joining all available data. First does a blocking recv, then greedily
-consumes all available data with tryRecv.
+Receive data from a channel, joining all available data up to the expected size. First does a
+blocking recv, then greedily consumes available data with tryRecv until `expect` bytes are reached.
 -/
-def recvJoined (recvChan : Std.CloseableChannel ByteArray) (_expect : UInt64) : Async (Option ByteArray) := do
+def recvJoined (recvChan : Std.CloseableChannel ByteArray) (expect : Option UInt64) : Async (Option ByteArray) := do
   match ← await (← recvChan.recv) with
   | none => return none
   | some first =>
     let mut result := first
     repeat
+      if let some expect := expect then
+        if result.size.toUInt64 ≥ expect then break
+
       match ← recvChan.tryRecv with
       | none => break
       | some chunk => result := result ++ chunk
@@ -146,7 +149,7 @@ def send (client : Mock.Client) (data : ByteArray) : Async Unit :=
 /--
 Receive data, joining all available chunks.
 -/
-def recv? (client : Mock.Client) (expect : UInt64 := 0) : Async (Option ByteArray) :=
+def recv? (client : Mock.Client) (expect : Option UInt64 := none) : Async (Option ByteArray) :=
   Mock.recvJoined (getRecvChan client) expect
 
 /--
@@ -195,7 +198,7 @@ def send (server : Mock.Server) (data : ByteArray) : Async Unit :=
 /--
 Receive data, joining all available chunks.
 -/
-def recv? (server : Mock.Server) (expect : UInt64 := 0) : Async (Option ByteArray) :=
+def recv? (server : Mock.Server) (expect : Option UInt64 := none) : Async (Option ByteArray) :=
   Mock.recvJoined (getRecvChan server) expect
 
 /--
@@ -216,12 +219,12 @@ def tryRecv? (server : Mock.Server) (_expect : UInt64 := 0) : BaseIO (Option Byt
 end Mock.Server
 
 instance : Transport Mock.Client where
-  recv client expect := Mock.recvJoined (Mock.Client.getRecvChan client) expect
+  recv client expect := Mock.recvJoined (Mock.Client.getRecvChan client) (some expect)
   sendAll client data := Mock.sendAll (Mock.Client.getSendChan client) data
   recvSelector client _ := Mock.recvSelector (Mock.Client.getRecvChan client)
 
 instance : Transport Mock.Server where
-  recv server expect := Mock.recvJoined (Mock.Server.getRecvChan server) expect
+  recv server expect := Mock.recvJoined (Mock.Server.getRecvChan server) (some expect)
   sendAll server data := Mock.sendAll (Mock.Server.getSendChan server) data
   recvSelector server _ := Mock.recvSelector (Mock.Server.getRecvChan server)
 

@@ -140,21 +140,11 @@ def handler (req : Request Body) : ContextAsync (Response Body) := do
 Configure server behavior with `Server.Config`:
 
 ```lean
-def config : Server.Config := {
-  -- Connection timeouts
-  keepAliveTimeout := ⟨30000⟩,  -- 30 seconds
-  lingeringTimeout := 5000,     -- 5 seconds
-
-  -- Size limits
-  maximumRecvSize := 65536,     -- 64KB max receive buffer
-  defaultPayloadBytes := 8192,  -- 8KB default payload
-
-  -- HTTP/1.1 specific settings
-  toH1Config := {
-    maxMessages := 100,         -- Max requests per connection
-    maxHeaders := 100,          -- Max headers per request
-    enableKeepAlive := true
-  }
+def config : Std.Http.Config := {
+  keepAliveTimeout := ⟨30000, by decide⟩,
+  lingeringTimeout := 5000,
+  maximumRecvSize := 65536,
+  defaultPayloadBytes := 8192,
 }
 
 let server ← Server.serve address handler config

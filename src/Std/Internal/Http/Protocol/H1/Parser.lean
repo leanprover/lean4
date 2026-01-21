@@ -123,7 +123,7 @@ def parseMethod : Parser Method :=
   (skipBytes "GET".toUTF8 <&> fun _ => Method.get)
   <|> (skipBytes "HEAD".toUTF8 <&> fun _ => Method.head)
   <|> (attempt <| skipBytes "POST".toUTF8 <&> fun _ => Method.post)
-  <|> (skipBytes "PUT".toUTF8 <&> fun _ => Method.put)
+  <|> (attempt <| skipBytes "PUT".toUTF8 <&> fun _ => Method.put)
   <|> (skipBytes "DELETE".toUTF8 <&> fun _ => Method.delete)
   <|> (skipBytes "CONNECT".toUTF8 <&> fun _ => Method.connect)
   <|> (skipBytes "OPTIONS".toUTF8 <&> fun _ => Method.options)
@@ -166,7 +166,8 @@ Parses a single header.
 field-line CRLF / CRLF
 -/
 public def parseSingleHeader (limits : H1.Config) : Parser (Option (String × String)) := do
-  if (← peek?) == some '\r'.toUInt8 ∨ (← peek?) == some '\n'.toUInt8 then
+  let next ← peek?
+  if next == some '\r'.toUInt8 ∨ next == some '\n'.toUInt8 then
     crlf
     pure none
   else
@@ -177,7 +178,7 @@ def parseQuotedPair : Parser UInt8 := do
   skipByte '\\'.toUInt8
   let b ← any
 
-  if b == '\t'.toUInt8 ∨ b == ' '.toUInt8 || isVChar b || isObsChar b then
+  if b == '\t'.toUInt8 ∨ b == ' '.toUInt8 ∨ isVChar b ∨ isObsChar b then
     return b
   else
     fail s!"invalid quoted-pair byte: {Char.ofUInt8 b |>.quote}"
@@ -310,7 +311,4 @@ public def parseLastChunkBody (limits : H1.Config) : Parser Unit := do
   discard <| manyItems (parseTrailerHeader limits) limits.maxTrailerHeaders
   crlf
 
-end H1
-end Protocol
-end Http
-end Std
+end Std.Http.Protocol.H1

@@ -201,10 +201,10 @@ Converts the header name to canonical HTTP title case (e.g., "Content-Type").
 -/
 @[inline]
 def toCanonical (name : Name) : String :=
-  let it := name.value.split '-'
-    |>.map (·.toString.capitalize)
+  let it := name.value.splitOn "-"
+    |>.map (·.capitalize)
 
-  String.intercalate "-" it.toList
+  String.intercalate "-" it
 
 /--
 Performs a case-insensitive comparison between a `Name` and a `String`.

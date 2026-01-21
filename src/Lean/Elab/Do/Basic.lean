@@ -795,9 +795,6 @@ private def elabDoElemFns (stx : TSyntax `doElem) (cont : DoElemCont)
             if id == unsupportedSyntaxExceptionId then
               s.restore
               elabDoElemFns stx cont elabFns
-            else if id == postponeExceptionId then
-              -- s.restore -- TODO: figure out if this is the right thing to do
-              throw ex
             else
               throw ex
           | _ => throw ex

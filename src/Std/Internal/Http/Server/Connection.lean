@@ -125,6 +125,7 @@ private def handle
     (connection : Connection α)
     (config : Config)
     (connectionContext : CancellationContext)
+    (onError : Error → Async Unit)
     (handler : Request Body → ContextAsync (Response Body)) : Async Unit := do
 
   let mut machine := connection.machine
@@ -246,7 +247,7 @@ private def handle
         waitingResponse := newWaitingResponse
 
       | .response (.error err) =>
-        IO.eprintln s!"error: {err}"
+        onError err
         let (newMachine, newWaitingResponse) := handleError machine .internalServerError waitingResponse
         machine := newMachine
         waitingResponse := newWaitingResponse
@@ -288,11 +289,13 @@ server.listen backlog
 -- Enter an infinite loop to handle incoming client connections
 while true do
   let client ← server.accept
-  background (serveConnection client onRequest config)
+  background (serveConnection client onRequest onError config)
 ```
 -/
-def serveConnection [Transport t] (client : t) (onRequest : Request Body → ContextAsync (Response Body)) (config : Config) : ContextAsync Unit := do
+def serveConnection
+    [Transport t] (client : t) (onRequest : Request Body → ContextAsync (Response Body))
+    (onError : Error → Async Unit) (config : Config) : ContextAsync Unit := do
   Connection.mk client { config := config.toH1Config }
-  |>.handle config (← ContextAsync.getContext) onRequest
+  |>.handle config (← ContextAsync.getContext) onError onRequest
 
 end Std.Http.Server

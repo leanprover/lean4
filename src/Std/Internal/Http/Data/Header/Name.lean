@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.String
+public import Std.Internal.Http.Internal
 
 public section
 
@@ -18,6 +19,7 @@ HTTP header names and values that conform to HTTP standards.
 -/
 
 namespace Std.Http.Header
+open Internal.String
 
 set_option linter.all true
 

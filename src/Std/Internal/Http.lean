@@ -50,7 +50,7 @@ def handler (req : Request Body) : ContextAsync (Response Body) := do
 
 def main : IO Unit := do
   let address := .v4 (.mk (.ofParts 127 0 0 1) 8080)
-  let server ← (Server.serve address handler).block
+  let server ← (Server.serve address handler (IO.eprintln ·)).block
   server.waitShutdown.block
 ```
 
@@ -147,7 +147,7 @@ def config : Std.Http.Config := {
   defaultPayloadBytes := 8192,
 }
 
-let server ← Server.serve address handler config
+let server ← Server.serve address handler (IO.eprintln ·) config
 ```
 
 ## Architecture

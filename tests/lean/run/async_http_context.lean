@@ -19,7 +19,7 @@ def testCancelSlowHandlerNotSendingData : IO Unit := do
         Async.sleep 10000
         return Response.ok
           |>.body "should not complete"
-      ) (config := { lingeringTimeout := 1000, keepAliveTimeout := ⟨1000, by decide⟩ })
+      ) (config := { lingeringTimeout := 1000, keepAliveTimeout := ⟨1000, by decide⟩ }) (fun _ => pure ())
       client.getRecvChan.close
 
     op ctx
@@ -56,7 +56,7 @@ def testCancelSlowHandler : IO Unit := do
         Async.sleep 10000
         return Response.ok
           |>.body "should not complete"
-      ) (config := { lingeringTimeout := 1000, keepAliveTimeout := ⟨1000, by decide⟩ })
+      ) (config := { lingeringTimeout := 1000, keepAliveTimeout := ⟨1000, by decide⟩ }) (fun _ => pure ())
       client.getRecvChan.close
 
     -- Send a simple request
@@ -96,7 +96,7 @@ def testServerShutdownDuringRequest : IO Unit := do
       Std.Http.Server.serveConnection server (fun _req => do
         Async.sleep 100000
         return Response.ok |>.body "should not complete"
-      ) (config := { lingeringTimeout := 5000 })
+      ) (config := { lingeringTimeout := 5000 }) (fun _ => pure ())
 
     op.runIn ctx
 
@@ -135,7 +135,7 @@ def testCancelDuringStreaming : IO Unit := Async.block do
             Async.sleep 50
           s.close
         )
-    ) (config := { lingeringTimeout := 3000 })
+    ) (config := { lingeringTimeout := 3000 }) (fun _ => pure ())
 
   op ctx
 
@@ -166,7 +166,7 @@ def testContextFork : IO Unit := Async.block do
         Async.sleep 10000
         return Response.ok
           |>.body "should not complete"
-    ) (config := { lingeringTimeout := 3000 })
+    ) (config := { lingeringTimeout := 3000 }) (fun _ => pure ())
 
   op parentCtx
 
@@ -196,7 +196,7 @@ def testRaceWithCancellation : IO Unit := Async.block do
       ContextAsync.race
         (do Async.sleep 50; return Response.ok |>.body "fast")
         (do Async.sleep 10000; return Response.ok |>.body "slow")
-    ) (config := { lingeringTimeout := 3000 })
+    ) (config := { lingeringTimeout := 3000 }) (fun _ => pure ())
 
   op ctx
 
@@ -233,7 +233,7 @@ def testHandlerChecksCancellation : IO Unit := Async.block do
         Async.sleep 50
 
       return Response.ok |>.body "completed"
-    ) (config := { lingeringTimeout := 3000 })
+    ) (config := { lingeringTimeout := 3000 }) (fun _ => pure ())
 
   op ctx
 
@@ -263,7 +263,7 @@ def testMultipleConcurrentRequestsWithCancel : IO Unit := Async.block do
     Std.Http.Server.serveConnection server1 (fun _req => do
       Async.sleep 10000
       return Response.ok |>.body "server1"
-    ) (config := { lingeringTimeout := 3000 })
+    ) (config := { lingeringTimeout := 3000 }) (fun _ => pure ())
 
   op ctx
 
@@ -271,7 +271,7 @@ def testMultipleConcurrentRequestsWithCancel : IO Unit := Async.block do
     Std.Http.Server.serveConnection server2 (fun _req => do
       Async.sleep 10000
       return Response.ok |>.body "server2"
-    ) (config := { lingeringTimeout := 3000 })
+    ) (config := { lingeringTimeout := 3000 }) (fun _ => pure ())
 
   op ctx
 
@@ -301,7 +301,7 @@ def testDeadlineCancellation : IO Unit := Async.block do
     Std.Http.Server.serveConnection server (fun _req => do
       Async.sleep 10000
       return Response.ok |>.body "should timeout"
-    ) (config := { lingeringTimeout := 3000 })
+    ) (config := { lingeringTimeout := 3000 }) (fun _ => pure ())
 
   op ctx
 
@@ -334,7 +334,7 @@ def testCompletedRequestNotAffected : IO Unit := Async.block do
     Std.Http.Server.serveConnection server (fun _req => do
       -- Fast handler that completes before cancellation
       return Response.ok |>.body "completed"
-    ) (config := { lingeringTimeout := 3000 })
+    ) (config := { lingeringTimeout := 3000 }) (fun _ => pure ())
 
   op ctx
 

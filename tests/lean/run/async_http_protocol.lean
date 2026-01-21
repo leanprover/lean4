@@ -35,7 +35,7 @@ def sendRequest (client : Mock.Client) (server : Mock.Server) (req : Request (Ar
   let data ← requestToByteArray req
 
   client.send data
-  Std.Http.Server.serveConnection server onRequest (config := { lingeringTimeout := 3000, keepAliveTimeout := ⟨1000, by decide⟩ })
+  Std.Http.Server.serveConnection server onRequest (fun _ => pure ()) (config := { lingeringTimeout := 3000, keepAliveTimeout := ⟨1000, by decide⟩ })
     |>.run
 
   let res ← client.recv?

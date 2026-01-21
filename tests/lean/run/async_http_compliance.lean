@@ -25,7 +25,7 @@ def sendRawBytes (data : Array ByteArray)
 
   client.close
 
-  Std.Http.Server.serveConnection server onRequest config |>.run
+  Std.Http.Server.serveConnection server onRequest (fun _ => pure ()) config |>.run
 
   let res ← client.recv?
   pure <| res.getD .empty

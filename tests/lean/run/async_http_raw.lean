@@ -21,7 +21,7 @@ def sendRawBytes (pair : Mock.Client × Mock.Server) (data : ByteArray)
   let (client, server) := pair
 
   client.send data
-  Std.Http.Server.serveConnection server onRequest config
+  Std.Http.Server.serveConnection server onRequest (fun _ => pure ()) config
   |>.runIn (← CancellationContext.new)
 
   let res ← client.recv?

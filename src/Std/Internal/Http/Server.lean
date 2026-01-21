@@ -122,6 +122,7 @@ and TCP connections, and returns a `Server` structure that can be used to cancel
 def serve
     (addr : Net.SocketAddress)
     (onRequest : Request Body → ContextAsync (Response Body))
+    (onError : IO.Error → Async Unit)
     (config : Config := {}) (backlog : UInt32 := 128) : Async Server := do
 
   let httpServer ← Server.new config
@@ -139,7 +140,7 @@ def serve
         ]
 
         match result with
-        | some client => ContextAsync.background (frameCancellation httpServer (serveConnection client onRequest config))
+        | some client => ContextAsync.background (frameCancellation httpServer (serveConnection client onRequest onError config))
         | none => break
 
   background (runServer httpServer.context)

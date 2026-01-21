@@ -32,7 +32,7 @@ public structure EqnInfo where
   deriving Inhabited
 
 /--
-Searches in the lhs of goal for a `.brecOn` application, possibly with extra arguments
+Searches in the lhs of goal for a `.brecOn` or `.rec` application, possibly with extra arguments
 and under `PProd` projections. Returns the `.brecOn` application and the context
 `(fun x => (x).1.2.3 extraArgs = rhs)`.
 -/
@@ -45,14 +45,14 @@ where
     if let .proj t n e := f then
       return ← go e fun brecOnApp x c => k brecOnApp x (mkAppN (mkProj t n c) xs)
     if let .const name _ := f then
-      if isBRecOnRecursor (← getEnv) name then
+      if isBRecOnRecursor (← getEnv) name || (← isRec name) then
         let arity ← forallTelescope (← inferType f) fun xs _ => return xs.size
         if arity ≤ xs.size then
           let brecOnApp := mkAppN f xs[:arity]
           let extraArgs := xs[arity:]
           return ← withLocalDeclD `x (← inferType brecOnApp) fun x =>
             k brecOnApp x (mkAppN x extraArgs)
-    throwError "could not find `.brecOn` application in{indentExpr e}"
+    throwError "could not find `.brecOn` or `.rec` application in{indentExpr e}"
 
 def deltaRHS? (mvarId : MVarId) (declName : Name) : MetaM (Option MVarId) := mvarId.withContext do
   let target ← mvarId.getType'
@@ -63,6 +63,8 @@ def deltaRHS? (mvarId : MVarId) (declName : Name) : MetaM (Option MVarId) := mva
 /--
 Creates the proof of the unfolding theorem for `declName` with type `type`. It
 
+For course-of-value recursion:
+
 1. unfolds the function on the left to expose the `.brecOn` application
 2. rewrites that using the `.brecOn.eq` theorem, unrolling it once
 3. let-binds the last argument, which should be the `.brecOn.go` call of type `.below …`.
@@ -71,6 +73,13 @@ Creates the proof of the unfolding theorem for `declName` with type `type`. It
 4. repeatedly splits `match` statements (because on the left we have `match` statements with extra
    `.below` arguments, and on the right we have the original `match` statements) until the goal
    is solved using `rfl` or `contradiction`.
+
+For primitive recursion:
+
+1. unfolds the function on the left to expose the `.rec` application
+2. splits the major premise
+3. uses `rfl`
+
 -/
 partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
   withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} proving:{indentExpr type}") do
@@ -84,30 +93,36 @@ partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
 where
   goUnfold (mvarId : MVarId) : MetaM Unit := do
     withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} goUnfold:\n{MessageData.ofGoal mvarId}") do
-    let mvarId' ← mvarId.withContext do
+    mvarId.withContext do
       -- This should now be headed by `.brecOn`
       let goal ← mvarId.getType
       let (brecOnApp, context) ← findBRecOnLHS goal
       let brecOnName := brecOnApp.getAppFn.constName!
-      let us := brecOnApp.getAppFn.constLevels!
-      let brecOnThmName := brecOnName.str "eq"
-      let brecOnAppArgs := brecOnApp.getAppArgs
-      unless (← hasConst brecOnThmName) do
-        throwError "no theorem `{brecOnThmName}`\n{MessageData.ofGoal mvarId}"
-      -- We don't just `← inferType eqThmApp` as that beta-reduces more than we want
-      let eqThmType ← inferType (mkConst brecOnThmName us)
-      let eqThmType ← instantiateForall eqThmType brecOnAppArgs
-      let some (_, _, rwRhs) := eqThmType.eq? | throwError "theorem `{brecOnThmName}` is not an equality\n{MessageData.ofGoal mvarId}"
-      let recArg := rwRhs.getAppArgs.back!
-      trace[Elab.definition.structural.eqns] "abstracting{inlineExpr recArg} from{indentExpr rwRhs}"
-      let mvarId2 ← mvarId.define `r (← inferType recArg) recArg
-      let (r, mvarId3) ← mvarId2.intro1P
-      let mvarId4 ← mvarId3.withContext do
-        let goal' := mkApp rwRhs.appFn! (mkFVar r)
-        let thm ← mkCongrArg context (mkAppN (mkConst brecOnThmName us) brecOnAppArgs)
-        mvarId3.replaceTargetEq (mkApp context goal') thm
-      pure mvarId4
-    go mvarId'
+      if (← isRec brecOnName) then
+        let some mvarIds ← casesOnStuckLHS? mvarId
+          | throwError "casesOnStuckLHS? failed\n{mvarId}"
+        mvarIds.forM fun mvarId =>
+          unless (← tryURefl mvarId) do
+            throwError "could not close goal after splitting rec major premise\n{mvarId}"
+      else
+        let us := brecOnApp.getAppFn.constLevels!
+        let brecOnThmName := brecOnName.str "eq"
+        let brecOnAppArgs := brecOnApp.getAppArgs
+        unless (← hasConst brecOnThmName) do
+          throwError "no theorem `{brecOnThmName}`\n{MessageData.ofGoal mvarId}"
+        -- We don't just `← inferType eqThmApp` as that beta-reduces more than we want
+        let eqThmType ← inferType (mkConst brecOnThmName us)
+        let eqThmType ← instantiateForall eqThmType brecOnAppArgs
+        let some (_, _, rwRhs) := eqThmType.eq? | throwError "theorem `{brecOnThmName}` is not an equality\n{MessageData.ofGoal mvarId}"
+        let recArg := rwRhs.getAppArgs.back!
+        trace[Elab.definition.structural.eqns] "abstracting{inlineExpr recArg} from{indentExpr rwRhs}"
+        let mvarId2 ← mvarId.define `r (← inferType recArg) recArg
+        let (r, mvarId3) ← mvarId2.intro1P
+        let mvarId4 ← mvarId3.withContext do
+          let goal' := mkApp rwRhs.appFn! (mkFVar r)
+          let thm ← mkCongrArg context (mkAppN (mkConst brecOnThmName us) brecOnAppArgs)
+          mvarId3.replaceTargetEq (mkApp context goal') thm
+        go mvarId4
 
   go (mvarId : MVarId) : MetaM Unit := do
     withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} step:\n{MessageData.ofGoal mvarId}") do

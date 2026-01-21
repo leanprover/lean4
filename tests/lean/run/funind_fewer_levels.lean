@@ -5,15 +5,18 @@ if the original function has a parameter that disappears.
 -/
 
 namespace Structural
+
+-- set_option trace.Meta.FunInd true
+
 def foo.{u} : Nat → PUnit.{u}
 | 0 => .unit
 | n+1 => foo n
 
 /--
-info: Structural.foo.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), motive n → motive n.succ)
+info: Structural.foo.induct (motive : Nat → Prop) (case1 : motive Nat.zero) (case2 : ∀ (n : Nat), motive n → motive n.succ)
   (a✝ : Nat) : motive a✝
 -/
-#guard_msgs in
+#guard_msgs(pass trace, all) in
 #check foo.induct
 
 example : foo n = .unit := by

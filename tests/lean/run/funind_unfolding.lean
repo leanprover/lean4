@@ -1,5 +1,34 @@
 axiom testSorry : α
 
+
+def Nat.id : Nat → Nat
+  | 0 => 0
+  | n+1 => Nat.id n
+termination_by structural x => x
+
+/--
+info: Nat.id.induct_unfolding (motive : Nat → Nat → Prop) (case1 : motive Nat.zero 0)
+  (case2 : ∀ (n : Nat), motive n n.id → motive n.succ n.id) (a✝ : Nat) : motive a✝ a✝.id
+-/
+#guard_msgs in
+#check Nat.id.induct_unfolding
+
+
+-- set_option trace.Meta.FunInd true in
+def smap (f : α → β) : List α → List β
+  | []    => []
+  | a::as => f a :: smap f as
+termination_by structural l => l
+
+/--
+info: smap.induct_unfolding.{u_1, u_2} {α : Type u_1} {β : Type u_2} (f : α → β) (motive : List α → List β → Prop)
+  (case1 : motive [] [])
+  (case2 : ∀ (head : α) (tail : List α), motive tail (smap f tail) → motive (head :: tail) (f head :: smap f tail))
+  (a✝ : List α) : motive a✝ (smap f a✝)
+-/
+#guard_msgs(pass trace, all) in
+#check smap.induct_unfolding
+
 def fib : Nat → Nat
   | 0 => 0
   | 1 => 1

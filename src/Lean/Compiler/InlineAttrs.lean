@@ -36,6 +36,7 @@ private def isValidMacroInline (declName : Name) : CoreM Bool := do
   let env ← getEnv
   let isRec (declName' : Name) : Bool :=
     isBRecOnRecursor env declName' ||
+    isRecCore env declName' ||
     declName' == ``WellFounded.fix ||
     declName' == ``WellFounded.Nat.fix ||
     declName' == declName ++ `_unary -- Auxiliary declaration created by `WF` module

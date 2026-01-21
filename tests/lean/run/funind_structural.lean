@@ -4,6 +4,18 @@ set_option guard_msgs.diff true
 This module tests functional induction principles on *structurally* recursive functions.
 -/
 
+def Nat.id : Nat → Nat
+  | 0 => 0
+  | n+1 => Nat.id n
+termination_by structural x => x
+
+/--
+info: Nat.id.induct (motive : Nat → Prop) (case1 : motive Nat.zero) (case2 : ∀ (n : Nat), motive n → motive n.succ)
+  (a✝ : Nat) : motive a✝
+-/
+#guard_msgs in
+#check Nat.id.induct
+
 def fib : Nat → Nat
   | 0 | 1 => 0
   | n+2 => fib n + fib (n+1)

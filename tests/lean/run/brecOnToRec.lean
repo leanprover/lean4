@@ -17,14 +17,15 @@ termination_by structural n => n
 /-- N.rec -/
 #guard_msgs (substring := true) in #print N.id
 
-set_option trace.Elab.definition.structural.brecOnToRec true in
+-- set_option trace.Elab.definition.structural.brecOnToRec true in
 def N.add : N → N → N
   | a, N.zero => a
   | a, N.succ b => N.succ (N.add a b)
 termination_by structural _ n => n
 
-/-- N.rec -/
-#guard_msgs (substring := true) in #print N.add
+-- TODO
+-- /-- N.rec -/
+-- #guard_msgs (substring := true) in #print N.add
 
 inductive Tree α where
   | leaf : α → Tree α

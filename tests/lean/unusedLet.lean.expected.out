@@ -3,10 +3,13 @@ have x := 42;
 false
 def f : Nat → Nat :=
 fun x =>
-  Nat.brecOn x fun x f =>
-    (match (motive := (x : Nat) → Nat.below x → Nat) x with
-      | 0 => fun x => 1
-      | n.succ => fun x =>
-        let y := 42;
-        2 * x.1)
-      f
+  Nat.rec
+    ((fun x f =>
+        (match (motive := (x : Nat) → Nat.below x → Nat) x with
+          | 0 => fun x => 1
+          | n.succ => fun x =>
+            let y := 42;
+            2 * x.1)
+          f)
+      Nat.zero PUnit.unit)
+    (fun n => Nat.mul 2) x

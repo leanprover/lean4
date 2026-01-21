@@ -18,6 +18,7 @@ lean_object* l_Lean_Meta_Sym_Simp_mkEqTrans(lean_object*, lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_instAndThenSimproc;
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_instAndThenSimproc___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_instAndThenSimproc___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Sym_Simp_instAndThenSimproc___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_Simproc_andThen(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_Simproc_andThen(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
@@ -1012,11 +1013,19 @@ x_13 = l_Lean_Meta_Sym_Simp_instAndThenSimproc___lam__0(x_1, x_2, x_3, x_4, x_5,
 return x_13;
 }
 }
-static lean_object* _init_l_Lean_Meta_Sym_Simp_instAndThenSimproc() {
+static lean_object* _init_l_Lean_Meta_Sym_Simp_instAndThenSimproc___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lean_Meta_Sym_Simp_instAndThenSimproc___lam__0___boxed), 12, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_Sym_Simp_instAndThenSimproc() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Meta_Sym_Simp_instAndThenSimproc___closed__0;
 return x_1;
 }
 }
@@ -1033,6 +1042,8 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Sym_Simp_Result(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lean_Meta_Sym_Simp_instAndThenSimproc___closed__0 = _init_l_Lean_Meta_Sym_Simp_instAndThenSimproc___closed__0();
+lean_mark_persistent(l_Lean_Meta_Sym_Simp_instAndThenSimproc___closed__0);
 l_Lean_Meta_Sym_Simp_instAndThenSimproc = _init_l_Lean_Meta_Sym_Simp_instAndThenSimproc();
 lean_mark_persistent(l_Lean_Meta_Sym_Simp_instAndThenSimproc);
 return lean_io_result_mk_ok(lean_box(0));

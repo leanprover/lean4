@@ -18,6 +18,7 @@ uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_instOrd;
 LEAN_EXPORT lean_object* l_String_instOrd___lam__0___boxed(lean_object*, lean_object*);
+static lean_object* l_String_instOrd___closed__0;
 LEAN_EXPORT uint8_t l_String_instOrd___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -59,11 +60,19 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_String_instOrd() {
+static lean_object* _init_l_String_instOrd___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_String_instOrd___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_String_instOrd() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_String_instOrd___closed__0;
 return x_1;
 }
 }
@@ -80,6 +89,8 @@ lean_dec_ref(res);
 res = initialize_Init_Data_String_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_String_instOrd___closed__0 = _init_l_String_instOrd___closed__0();
+lean_mark_persistent(l_String_instOrd___closed__0);
 l_String_instOrd = _init_l_String_instOrd();
 lean_mark_persistent(l_String_instOrd);
 return lean_io_result_mk_ok(lean_box(0));

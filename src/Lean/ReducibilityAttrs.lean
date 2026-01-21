@@ -107,6 +107,9 @@ register_builtin_option allowUnsafeReducibility : Bool := {
 
 private def validate (declName : Name) (status : ReducibilityStatus) (attrKind : AttributeKind) : CoreM Unit := do
   let suffix := .note "Use `set_option allowUnsafeReducibility true` to override reducibility status validation"
+  -- Allow global visibility attributes even on non-exported definitions - they may be relevant for
+  -- downstream non-`module`s.
+  withoutExporting do
   unless allowUnsafeReducibility.get (← getOptions) do
     match (← getConstInfo declName) with
     | .defnInfo _ =>

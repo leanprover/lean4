@@ -14,10 +14,12 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_initFn_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2_();
+static lean_object* l_Lake_initFn___closed__1_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lake_dirExt;
 LEAN_EXPORT lean_object* l_Lake_initFn___lam__0_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_initFn_00___x40_Lake_DSL_Extensions_3376486231____hygCtx___hyg_2____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_initFn___lam__0_00___x40_Lake_DSL_Extensions_4018895451____hygCtx___hyg_2_(lean_object*);
+static lean_object* l_Lake_initFn___closed__0_00___x40_Lake_DSL_Extensions_3376486231____hygCtx___hyg_2_;
 lean_object* l_Lean_registerEnvExtension___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_initFn___lam__0_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2_(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_optsExt;
@@ -30,12 +32,21 @@ LEAN_EXPORT lean_object* l_Lake_initFn___lam__0_00___x40_Lake_DSL_Extensions_401
 LEAN_EXPORT lean_object* l_Lake_initFn_00___x40_Lake_DSL_Extensions_4018895451____hygCtx___hyg_2_();
 LEAN_EXPORT lean_object* l_Lake_initFn_00___x40_Lake_DSL_Extensions_4018895451____hygCtx___hyg_2____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_nameExt;
+static lean_object* l_Lake_initFn___closed__0_00___x40_Lake_DSL_Extensions_4018895451____hygCtx___hyg_2_;
 LEAN_EXPORT lean_object* l_Lake_initFn___lam__0_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2_(lean_object* x_1) {
 _start:
 {
 lean_object* x_3; 
 x_3 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_3, 0, x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_initFn___lam__0_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2____boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lake_initFn___lam__0_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2_(x_1);
 return x_3;
 }
 }
@@ -51,25 +62,25 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_initFn___lam__0_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2____boxed(lean_object* x_1, lean_object* x_2) {
+static lean_object* _init_l_Lake_initFn___closed__1_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2_() {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Lake_initFn___lam__0_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2_(x_1);
-return x_3;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lake_initFn___closed__0_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2_;
+x_2 = lean_alloc_closure((void*)(l_Lake_initFn___lam__0_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2____boxed), 2, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_initFn_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2_() {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l_Lake_initFn___closed__0_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2_;
-x_3 = lean_alloc_closure((void*)(l_Lake_initFn___lam__0_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2____boxed), 2, 1);
-lean_closure_set(x_3, 0, x_2);
-x_4 = lean_box(0);
-x_5 = lean_box(2);
-x_6 = l_Lean_registerEnvExtension___redArg(x_3, x_4, x_5);
-return x_6;
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_2 = l_Lake_initFn___closed__1_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2_;
+x_3 = lean_box(0);
+x_4 = lean_box(2);
+x_5 = l_Lean_registerEnvExtension___redArg(x_2, x_3, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_initFn_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2____boxed(lean_object* x_1) {
@@ -97,13 +108,22 @@ x_3 = l_Lake_initFn___lam__0_00___x40_Lake_DSL_Extensions_4018895451____hygCtx__
 return x_3;
 }
 }
+static lean_object* _init_l_Lake_initFn___closed__0_00___x40_Lake_DSL_Extensions_4018895451____hygCtx___hyg_2_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_alloc_closure((void*)(l_Lake_initFn___lam__0_00___x40_Lake_DSL_Extensions_4018895451____hygCtx___hyg_2____boxed), 2, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_initFn_00___x40_Lake_DSL_Extensions_4018895451____hygCtx___hyg_2_() {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = lean_box(0);
-x_3 = lean_alloc_closure((void*)(l_Lake_initFn___lam__0_00___x40_Lake_DSL_Extensions_4018895451____hygCtx___hyg_2____boxed), 2, 1);
-lean_closure_set(x_3, 0, x_2);
+x_3 = l_Lake_initFn___closed__0_00___x40_Lake_DSL_Extensions_4018895451____hygCtx___hyg_2_;
 x_4 = lean_box(2);
 x_5 = l_Lean_registerEnvExtension___redArg(x_3, x_2, x_4);
 return x_5;
@@ -134,13 +154,22 @@ x_3 = l_Lake_initFn___lam__0_00___x40_Lake_DSL_Extensions_3376486231____hygCtx__
 return x_3;
 }
 }
+static lean_object* _init_l_Lake_initFn___closed__0_00___x40_Lake_DSL_Extensions_3376486231____hygCtx___hyg_2_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_alloc_closure((void*)(l_Lake_initFn___lam__0_00___x40_Lake_DSL_Extensions_3376486231____hygCtx___hyg_2____boxed), 2, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_initFn_00___x40_Lake_DSL_Extensions_3376486231____hygCtx___hyg_2_() {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = lean_box(0);
-x_3 = lean_alloc_closure((void*)(l_Lake_initFn___lam__0_00___x40_Lake_DSL_Extensions_3376486231____hygCtx___hyg_2____boxed), 2, 1);
-lean_closure_set(x_3, 0, x_2);
+x_3 = l_Lake_initFn___closed__0_00___x40_Lake_DSL_Extensions_3376486231____hygCtx___hyg_2_;
 x_4 = lean_box(2);
 x_5 = l_Lean_registerEnvExtension___redArg(x_3, x_2, x_4);
 return x_5;
@@ -165,17 +194,23 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_initFn___closed__0_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2_ = _init_l_Lake_initFn___closed__0_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2_();
 lean_mark_persistent(l_Lake_initFn___closed__0_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2_);
+l_Lake_initFn___closed__1_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2_ = _init_l_Lake_initFn___closed__1_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2_();
+lean_mark_persistent(l_Lake_initFn___closed__1_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2_);
 if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_Extensions_855666303____hygCtx___hyg_2_();
 if (lean_io_result_is_error(res)) return res;
 l_Lake_nameExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lake_nameExt);
 lean_dec_ref(res);
-}if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_Extensions_4018895451____hygCtx___hyg_2_();
+}l_Lake_initFn___closed__0_00___x40_Lake_DSL_Extensions_4018895451____hygCtx___hyg_2_ = _init_l_Lake_initFn___closed__0_00___x40_Lake_DSL_Extensions_4018895451____hygCtx___hyg_2_();
+lean_mark_persistent(l_Lake_initFn___closed__0_00___x40_Lake_DSL_Extensions_4018895451____hygCtx___hyg_2_);
+if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_Extensions_4018895451____hygCtx___hyg_2_();
 if (lean_io_result_is_error(res)) return res;
 l_Lake_dirExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lake_dirExt);
 lean_dec_ref(res);
-}if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_Extensions_3376486231____hygCtx___hyg_2_();
+}l_Lake_initFn___closed__0_00___x40_Lake_DSL_Extensions_3376486231____hygCtx___hyg_2_ = _init_l_Lake_initFn___closed__0_00___x40_Lake_DSL_Extensions_3376486231____hygCtx___hyg_2_();
+lean_mark_persistent(l_Lake_initFn___closed__0_00___x40_Lake_DSL_Extensions_3376486231____hygCtx___hyg_2_);
+if (builtin) {res = l_Lake_initFn_00___x40_Lake_DSL_Extensions_3376486231____hygCtx___hyg_2_();
 if (lean_io_result_is_error(res)) return res;
 l_Lake_optsExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lake_optsExt);

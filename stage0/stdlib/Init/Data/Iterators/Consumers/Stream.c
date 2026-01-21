@@ -75,7 +75,8 @@ LEAN_EXPORT lean_object* l_Std_instStreamIterOfProductiveOfIteratorAccessId(lean
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Std_instStreamIterOfProductiveOfIteratorAccessId___redArg(x_5);
+x_6 = lean_alloc_closure((void*)(l_Std_instStreamIterOfProductiveOfIteratorAccessId___redArg___lam__0), 2, 1);
+lean_closure_set(x_6, 0, x_5);
 return x_6;
 }
 }

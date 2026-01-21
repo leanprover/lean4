@@ -30,7 +30,6 @@ static lean_object* l_Vector_count__range_x27___auto__1___closed__19;
 static lean_object* l_Vector_count__range_x27___auto__1___closed__6;
 static lean_object* l_Vector_count__range_x27___auto__1___closed__24;
 static lean_object* l_Vector_count__range_x27___auto__1___closed__12;
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Vector_count__range_x27___auto__1___closed__13;
 static lean_object* l_Vector_count__range_x27___auto__1___closed__28;
 static lean_object* l_Vector_count__range_x27___auto__1___closed__0;
@@ -50,6 +49,7 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 static lean_object* l_Vector_count__range_x27___auto__1___closed__16;
 lean_object* l_Lean_mkAtom(lean_object*);
 static lean_object* l_Vector_count__range_x27___auto__1___closed__26;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* _init_l_Vector_count__range_x27___auto__1___closed__0() {
 _start:
 {
@@ -97,9 +97,10 @@ return x_5;
 static lean_object* _init_l_Vector_count__range_x27___auto__1___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Vector_count__range_x27___auto__1___closed__6() {

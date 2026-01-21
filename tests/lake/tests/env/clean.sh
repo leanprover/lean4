@@ -1,1 +1,1 @@
-rm -f produced.out
+rm -f produced.out lake-manifest.json

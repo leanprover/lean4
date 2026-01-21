@@ -35,6 +35,7 @@ LEAN_EXPORT lean_object* l_Dyadic_ofIntWithPrec(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Int_trailingZeros_aux_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableEqDyadic___boxed(lean_object*, lean_object*);
 lean_object* lean_int_emod(lean_object*, lean_object*);
+static lean_object* l_Dyadic_instNatCast___closed__0;
 LEAN_EXPORT lean_object* l_Dyadic_instLT;
 LEAN_EXPORT lean_object* l_Dyadic_instLE;
 LEAN_EXPORT uint8_t l_Dyadic_ble(lean_object*, lean_object*);
@@ -43,6 +44,7 @@ LEAN_EXPORT uint8_t l_Dyadic_instDecidableLT(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_instOfNat(lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_instHShiftLeftInt;
 LEAN_EXPORT lean_object* l_Dyadic_ofIntWithPrec___boxed(lean_object*, lean_object*);
+static lean_object* l_Dyadic_toRat___closed__0;
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_neg(lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_sub(lean_object*, lean_object*);
@@ -65,6 +67,7 @@ static lean_object* l_Dyadic_instIntCast___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Rat_toDyadic_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Rat_toDyadic_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Dyadic_add_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Dyadic_instHShiftRightNat___closed__0;
 LEAN_EXPORT lean_object* l_Int_trailingZeros_aux___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_roundUp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_instHShiftRightInt;
@@ -124,6 +127,7 @@ lean_object* l_Rat_ofInt(lean_object*);
 lean_object* lean_int_neg(lean_object*);
 static lean_object* l_Dyadic_instMul___closed__0;
 lean_object* lean_nat_add(lean_object*, lean_object*);
+static lean_object* l_Dyadic_instHShiftLeftNat___closed__0;
 LEAN_EXPORT lean_object* l_Int_cast___at___00Dyadic_toRat_spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Dyadic_instHShiftLeftNat;
 LEAN_EXPORT lean_object* l_Dyadic_ctorElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -226,6 +230,15 @@ x_7 = lean_apply_3(x_2, x_6, lean_box(0), lean_box(0));
 return x_7;
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Int_trailingZeros_aux_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l___private_Init_Data_Dyadic_Basic_0__Int_trailingZeros_aux_match__1_splitter___redArg(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Int_trailingZeros_aux_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -242,15 +255,6 @@ x_7 = l___private_Init_Data_Dyadic_Basic_0__Int_trailingZeros_aux_match__1_split
 lean_dec(x_3);
 lean_dec(x_1);
 return x_7;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Int_trailingZeros_aux_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l___private_Init_Data_Dyadic_Basic_0__Int_trailingZeros_aux_match__1_splitter___redArg(x_1, x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Dyadic_ctorIdx(lean_object* x_1) {
@@ -316,14 +320,6 @@ lean_dec(x_2);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Dyadic_zero_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Dyadic_ctorElim___redArg(x_2, x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Dyadic_zero_elim___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -332,7 +328,7 @@ x_3 = l_Dyadic_ctorElim___redArg(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Dyadic_ofOdd_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Dyadic_zero_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
@@ -346,6 +342,14 @@ _start:
 lean_object* x_3; 
 x_3 = l_Dyadic_ctorElim___redArg(x_1, x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Dyadic_ofOdd_elim(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Dyadic_ctorElim___redArg(x_2, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT uint8_t l_instDecidableEqDyadic_decEq(lean_object* x_1, lean_object* x_2) {
@@ -516,11 +520,19 @@ x_3 = l_Dyadic_ofInt(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Dyadic_instNatCast() {
+static lean_object* _init_l_Dyadic_instNatCast___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Dyadic_instNatCast___lam__0), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Dyadic_instNatCast() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Dyadic_instNatCast___closed__0;
 return x_1;
 }
 }
@@ -1117,11 +1129,19 @@ lean_dec(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Dyadic_instHShiftLeftNat() {
+static lean_object* _init_l_Dyadic_instHShiftLeftNat___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Dyadic_instHShiftLeftNat___lam__0), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Dyadic_instHShiftLeftNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Dyadic_instHShiftLeftNat___closed__0;
 return x_1;
 }
 }
@@ -1135,11 +1155,19 @@ lean_dec(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Dyadic_instHShiftRightNat() {
+static lean_object* _init_l_Dyadic_instHShiftRightNat___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Dyadic_instHShiftRightNat___lam__0), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Dyadic_instHShiftRightNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Dyadic_instHShiftRightNat___closed__0;
 return x_1;
 }
 }
@@ -1160,103 +1188,111 @@ x_3 = l_Rat_ofInt(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Dyadic_toRat___closed__0() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = l_Nat_cast___at___00Dyadic_toRat_spec__0(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Dyadic_toRat(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_Nat_cast___at___00Dyadic_toRat_spec__0(x_2);
-return x_3;
+lean_object* x_2; 
+x_2 = l_Dyadic_toRat___closed__0;
+return x_2;
 }
 else
 {
-uint8_t x_4; 
-x_4 = !lean_is_exclusive(x_1);
-if (x_4 == 0)
+uint8_t x_3; 
+x_3 = !lean_is_exclusive(x_1);
+if (x_3 == 0)
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_5 = lean_ctor_get(x_1, 0);
-x_6 = lean_ctor_get(x_1, 1);
-x_7 = l_Int_trailingZeros_aux___redArg___closed__1;
-x_8 = lean_int_dec_lt(x_6, x_7);
-if (x_8 == 0)
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_4 = lean_ctor_get(x_1, 0);
+x_5 = lean_ctor_get(x_1, 1);
+x_6 = l_Int_trailingZeros_aux___redArg___closed__1;
+x_7 = lean_int_dec_lt(x_5, x_6);
+if (x_7 == 0)
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_9 = lean_nat_abs(x_6);
-lean_dec(x_6);
-x_10 = lean_unsigned_to_nat(2u);
-x_11 = lean_nat_pow(x_10, x_9);
-lean_dec(x_9);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_nat_abs(x_5);
+lean_dec(x_5);
+x_9 = lean_unsigned_to_nat(2u);
+x_10 = lean_nat_pow(x_9, x_8);
+lean_dec(x_8);
 lean_ctor_set_tag(x_1, 0);
-lean_ctor_set(x_1, 1, x_11);
+lean_ctor_set(x_1, 1, x_10);
 return x_1;
 }
 else
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 lean_free_object(x_1);
-x_12 = lean_nat_abs(x_6);
-lean_dec(x_6);
-x_13 = lean_unsigned_to_nat(1u);
-x_14 = lean_nat_sub(x_12, x_13);
-lean_dec(x_12);
-x_15 = lean_unsigned_to_nat(2u);
-x_16 = lean_nat_add(x_14, x_13);
-lean_dec(x_14);
-x_17 = lean_nat_pow(x_15, x_16);
-lean_dec(x_16);
-x_18 = lean_nat_to_int(x_17);
-x_19 = lean_int_mul(x_5, x_18);
-lean_dec(x_18);
+x_11 = lean_nat_abs(x_5);
 lean_dec(x_5);
-x_20 = l_Rat_ofInt(x_19);
-return x_20;
+x_12 = lean_unsigned_to_nat(1u);
+x_13 = lean_nat_sub(x_11, x_12);
+lean_dec(x_11);
+x_14 = lean_unsigned_to_nat(2u);
+x_15 = lean_nat_add(x_13, x_12);
+lean_dec(x_13);
+x_16 = lean_nat_pow(x_14, x_15);
+lean_dec(x_15);
+x_17 = lean_nat_to_int(x_16);
+x_18 = lean_int_mul(x_4, x_17);
+lean_dec(x_17);
+lean_dec(x_4);
+x_19 = l_Rat_ofInt(x_18);
+return x_19;
 }
 }
 else
 {
-lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
-x_21 = lean_ctor_get(x_1, 0);
-x_22 = lean_ctor_get(x_1, 1);
-lean_inc(x_22);
+lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
+x_20 = lean_ctor_get(x_1, 0);
+x_21 = lean_ctor_get(x_1, 1);
 lean_inc(x_21);
+lean_inc(x_20);
 lean_dec(x_1);
-x_23 = l_Int_trailingZeros_aux___redArg___closed__1;
-x_24 = lean_int_dec_lt(x_22, x_23);
-if (x_24 == 0)
+x_22 = l_Int_trailingZeros_aux___redArg___closed__1;
+x_23 = lean_int_dec_lt(x_21, x_22);
+if (x_23 == 0)
 {
-lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
-x_25 = lean_nat_abs(x_22);
-lean_dec(x_22);
-x_26 = lean_unsigned_to_nat(2u);
-x_27 = lean_nat_pow(x_26, x_25);
-lean_dec(x_25);
-x_28 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_28, 0, x_21);
-lean_ctor_set(x_28, 1, x_27);
-return x_28;
+lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+x_24 = lean_nat_abs(x_21);
+lean_dec(x_21);
+x_25 = lean_unsigned_to_nat(2u);
+x_26 = lean_nat_pow(x_25, x_24);
+lean_dec(x_24);
+x_27 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_27, 0, x_20);
+lean_ctor_set(x_27, 1, x_26);
+return x_27;
 }
 else
 {
-lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
-x_29 = lean_nat_abs(x_22);
-lean_dec(x_22);
-x_30 = lean_unsigned_to_nat(1u);
-x_31 = lean_nat_sub(x_29, x_30);
-lean_dec(x_29);
-x_32 = lean_unsigned_to_nat(2u);
-x_33 = lean_nat_add(x_31, x_30);
-lean_dec(x_31);
-x_34 = lean_nat_pow(x_32, x_33);
-lean_dec(x_33);
-x_35 = lean_nat_to_int(x_34);
-x_36 = lean_int_mul(x_21, x_35);
-lean_dec(x_35);
+lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
+x_28 = lean_nat_abs(x_21);
 lean_dec(x_21);
-x_37 = l_Rat_ofInt(x_36);
-return x_37;
+x_29 = lean_unsigned_to_nat(1u);
+x_30 = lean_nat_sub(x_28, x_29);
+lean_dec(x_28);
+x_31 = lean_unsigned_to_nat(2u);
+x_32 = lean_nat_add(x_30, x_29);
+lean_dec(x_30);
+x_33 = lean_nat_pow(x_31, x_32);
+lean_dec(x_32);
+x_34 = lean_nat_to_int(x_33);
+x_35 = lean_int_mul(x_20, x_34);
+lean_dec(x_34);
+lean_dec(x_20);
+x_36 = l_Rat_ofInt(x_35);
+return x_36;
 }
 }
 }
@@ -1315,66 +1351,6 @@ _start:
 lean_object* x_6; 
 x_6 = l___private_Init_Data_Dyadic_Basic_0__Dyadic_toRat_match__1_splitter___redArg(x_2, x_3, x_4, x_5);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Dyadic_add_match__3_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_7; 
-lean_dec(x_6);
-lean_dec(x_5);
-x_7 = lean_apply_1(x_4, x_3);
-return x_7;
-}
-else
-{
-lean_dec(x_4);
-if (lean_obj_tag(x_3) == 0)
-{
-uint8_t x_8; 
-lean_dec(x_6);
-x_8 = !lean_is_exclusive(x_2);
-if (x_8 == 0)
-{
-lean_object* x_9; 
-x_9 = lean_apply_2(x_5, x_2, lean_box(0));
-return x_9;
-}
-else
-{
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_10 = lean_ctor_get(x_2, 0);
-x_11 = lean_ctor_get(x_2, 1);
-lean_inc(x_11);
-lean_inc(x_10);
-lean_dec(x_2);
-x_12 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_12, 0, x_10);
-lean_ctor_set(x_12, 1, x_11);
-x_13 = lean_apply_2(x_5, x_12, lean_box(0));
-return x_13;
-}
-}
-else
-{
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-lean_dec(x_5);
-x_14 = lean_ctor_get(x_2, 0);
-lean_inc(x_14);
-x_15 = lean_ctor_get(x_2, 1);
-lean_inc(x_15);
-lean_dec_ref(x_2);
-x_16 = lean_ctor_get(x_3, 0);
-lean_inc(x_16);
-x_17 = lean_ctor_get(x_3, 1);
-lean_inc(x_17);
-lean_dec_ref(x_3);
-x_18 = lean_apply_6(x_6, x_14, x_15, lean_box(0), x_16, x_17, lean_box(0));
-return x_18;
-}
-}
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Dyadic_add_match__3_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -1437,50 +1413,63 @@ return x_17;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Dyadic_add_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Dyadic_add_match__3_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_6 = lean_unsigned_to_nat(0u);
-x_7 = l_Int_trailingZeros_aux___redArg___closed__1;
-x_8 = lean_int_dec_lt(x_2, x_7);
+if (lean_obj_tag(x_2) == 0)
+{
+lean_object* x_7; 
+lean_dec(x_6);
+lean_dec(x_5);
+x_7 = lean_apply_1(x_4, x_3);
+return x_7;
+}
+else
+{
+lean_dec(x_4);
+if (lean_obj_tag(x_3) == 0)
+{
+uint8_t x_8; 
+lean_dec(x_6);
+x_8 = !lean_is_exclusive(x_2);
 if (x_8 == 0)
 {
-lean_object* x_9; uint8_t x_10; 
+lean_object* x_9; 
+x_9 = lean_apply_2(x_5, x_2, lean_box(0));
+return x_9;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_10 = lean_ctor_get(x_2, 0);
+x_11 = lean_ctor_get(x_2, 1);
+lean_inc(x_11);
+lean_inc(x_10);
+lean_dec(x_2);
+x_12 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_12, 0, x_10);
+lean_ctor_set(x_12, 1, x_11);
+x_13 = lean_apply_2(x_5, x_12, lean_box(0));
+return x_13;
+}
+}
+else
+{
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 lean_dec(x_5);
-x_9 = lean_nat_abs(x_2);
-x_10 = lean_nat_dec_eq(x_9, x_6);
-if (x_10 == 1)
-{
-lean_object* x_11; lean_object* x_12; 
-lean_dec(x_9);
-lean_dec(x_4);
-x_11 = lean_box(0);
-x_12 = lean_apply_1(x_3, x_11);
-return x_12;
+x_14 = lean_ctor_get(x_2, 0);
+lean_inc(x_14);
+x_15 = lean_ctor_get(x_2, 1);
+lean_inc(x_15);
+lean_dec_ref(x_2);
+x_16 = lean_ctor_get(x_3, 0);
+lean_inc(x_16);
+x_17 = lean_ctor_get(x_3, 1);
+lean_inc(x_17);
+lean_dec_ref(x_3);
+x_18 = lean_apply_6(x_6, x_14, x_15, lean_box(0), x_16, x_17, lean_box(0));
+return x_18;
 }
-else
-{
-lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_dec(x_3);
-x_13 = lean_unsigned_to_nat(1u);
-x_14 = lean_nat_sub(x_9, x_13);
-lean_dec(x_9);
-x_15 = lean_apply_1(x_4, x_14);
-return x_15;
-}
-}
-else
-{
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-lean_dec(x_4);
-lean_dec(x_3);
-x_16 = lean_nat_abs(x_2);
-x_17 = lean_unsigned_to_nat(1u);
-x_18 = lean_nat_sub(x_16, x_17);
-lean_dec(x_16);
-x_19 = lean_apply_1(x_5, x_18);
-return x_19;
 }
 }
 }
@@ -1531,15 +1520,6 @@ return x_18;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Dyadic_add_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l___private_Init_Data_Dyadic_Basic_0__Dyadic_add_match__1_splitter(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_2);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Dyadic_add_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1547,6 +1527,62 @@ lean_object* x_5;
 x_5 = l___private_Init_Data_Dyadic_Basic_0__Dyadic_add_match__1_splitter___redArg(x_1, x_2, x_3, x_4);
 lean_dec(x_1);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Dyadic_add_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = l_Int_trailingZeros_aux___redArg___closed__1;
+x_8 = lean_int_dec_lt(x_2, x_7);
+if (x_8 == 0)
+{
+lean_object* x_9; uint8_t x_10; 
+lean_dec(x_5);
+x_9 = lean_nat_abs(x_2);
+x_10 = lean_nat_dec_eq(x_9, x_6);
+if (x_10 == 1)
+{
+lean_object* x_11; lean_object* x_12; 
+lean_dec(x_9);
+lean_dec(x_4);
+x_11 = lean_box(0);
+x_12 = lean_apply_1(x_3, x_11);
+return x_12;
+}
+else
+{
+lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_dec(x_3);
+x_13 = lean_unsigned_to_nat(1u);
+x_14 = lean_nat_sub(x_9, x_13);
+lean_dec(x_9);
+x_15 = lean_apply_1(x_4, x_14);
+return x_15;
+}
+}
+else
+{
+lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+lean_dec(x_4);
+lean_dec(x_3);
+x_16 = lean_nat_abs(x_2);
+x_17 = lean_unsigned_to_nat(1u);
+x_18 = lean_nat_sub(x_16, x_17);
+lean_dec(x_16);
+x_19 = lean_apply_1(x_5, x_18);
+return x_19;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Dyadic_add_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l___private_Init_Data_Dyadic_Basic_0__Dyadic_add_match__1_splitter(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_2);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Dyadic_pow_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1698,6 +1734,15 @@ return x_11;
 }
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Rat_toDyadic_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Init_Data_Dyadic_Basic_0__Rat_toDyadic_match__1_splitter___redArg(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Rat_toDyadic_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1713,15 +1758,6 @@ lean_object* x_5;
 x_5 = l___private_Init_Data_Dyadic_Basic_0__Rat_toDyadic_match__1_splitter(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Dyadic_Basic_0__Rat_toDyadic_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l___private_Init_Data_Dyadic_Basic_0__Rat_toDyadic_match__1_splitter___redArg(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Dyadic_roundDown(lean_object* x_1, lean_object* x_2) {
@@ -2131,6 +2167,8 @@ l_Dyadic_instIntCast___closed__0 = _init_l_Dyadic_instIntCast___closed__0();
 lean_mark_persistent(l_Dyadic_instIntCast___closed__0);
 l_Dyadic_instIntCast = _init_l_Dyadic_instIntCast();
 lean_mark_persistent(l_Dyadic_instIntCast);
+l_Dyadic_instNatCast___closed__0 = _init_l_Dyadic_instNatCast___closed__0();
+lean_mark_persistent(l_Dyadic_instNatCast___closed__0);
 l_Dyadic_instNatCast = _init_l_Dyadic_instNatCast();
 lean_mark_persistent(l_Dyadic_instNatCast);
 l_Dyadic_instAdd___closed__0 = _init_l_Dyadic_instAdd___closed__0();
@@ -2167,10 +2205,16 @@ l_Dyadic_instHShiftRightInt___closed__0 = _init_l_Dyadic_instHShiftRightInt___cl
 lean_mark_persistent(l_Dyadic_instHShiftRightInt___closed__0);
 l_Dyadic_instHShiftRightInt = _init_l_Dyadic_instHShiftRightInt();
 lean_mark_persistent(l_Dyadic_instHShiftRightInt);
+l_Dyadic_instHShiftLeftNat___closed__0 = _init_l_Dyadic_instHShiftLeftNat___closed__0();
+lean_mark_persistent(l_Dyadic_instHShiftLeftNat___closed__0);
 l_Dyadic_instHShiftLeftNat = _init_l_Dyadic_instHShiftLeftNat();
 lean_mark_persistent(l_Dyadic_instHShiftLeftNat);
+l_Dyadic_instHShiftRightNat___closed__0 = _init_l_Dyadic_instHShiftRightNat___closed__0();
+lean_mark_persistent(l_Dyadic_instHShiftRightNat___closed__0);
 l_Dyadic_instHShiftRightNat = _init_l_Dyadic_instHShiftRightNat();
 lean_mark_persistent(l_Dyadic_instHShiftRightNat);
+l_Dyadic_toRat___closed__0 = _init_l_Dyadic_toRat___closed__0();
+lean_mark_persistent(l_Dyadic_toRat___closed__0);
 l_Dyadic_instLT = _init_l_Dyadic_instLT();
 lean_mark_persistent(l_Dyadic_instLT);
 l_Dyadic_instLE = _init_l_Dyadic_instLE();

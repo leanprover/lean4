@@ -58,7 +58,8 @@ LEAN_EXPORT lean_object* l_Subtype_instMin(lean_object* x_1, lean_object* x_2, l
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Subtype_instMin___redArg(x_2);
+x_5 = lean_alloc_closure((void*)(l_Subtype_instMin___redArg___lam__0), 3, 1);
+lean_closure_set(x_5, 0, x_2);
 return x_5;
 }
 }
@@ -75,7 +76,8 @@ LEAN_EXPORT lean_object* l_Subtype_instMax(lean_object* x_1, lean_object* x_2, l
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Subtype_instMax___redArg(x_2);
+x_5 = lean_alloc_closure((void*)(l_Subtype_instMin___redArg___lam__0), 3, 1);
+lean_closure_set(x_5, 0, x_2);
 return x_5;
 }
 }

@@ -57,6 +57,7 @@ lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 static lean_object* l_Lean_instReprPosition_repr___redArg___closed__10;
 lean_object* l_Array_back_x21___redArg(lean_object*, lean_object*);
+static lean_object* l_Lean_Position_instToExpr___closed__2;
 lean_object* l_List_foldl___at___00Array_appendList_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_instReprPosition_repr___redArg___closed__11;
 lean_object* l_Nat_reprFast(lean_object*);
@@ -70,7 +71,6 @@ static lean_object* l_Lean_instFromJsonPosition_fromJson___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Position_instToString;
 static lean_object* l_Lean_instToJsonPosition_toJson___closed__0;
 lean_object* lean_nat_to_int(lean_object*);
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_lineStart___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_instFromJsonPosition_fromJson___closed__14;
 LEAN_EXPORT lean_object* l_Lean_Position_instToFormat;
@@ -101,11 +101,13 @@ LEAN_EXPORT lean_object* l_Lean_Position_instToExpr___lam__0(lean_object*);
 lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 uint8_t l_Prod_lexLtDec___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Position_instToExpr___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Data_Position_0__Lean_FileMap_toPosition_toColumn(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_instToJsonPosition;
 LEAN_EXPORT lean_object* l_Lean_FileMap_getLastLine___boxed(lean_object*);
 static lean_object* l_Lean_instInhabitedFileMap_default___closed__1;
+static lean_object* l_Lean_Position_instToFormat___closed__0;
 static lean_object* l_Lean_instFromJsonPosition_fromJson___closed__13;
 LEAN_EXPORT lean_object* l_Lean_instFromJsonPosition;
 LEAN_EXPORT lean_object* l_String_toFileMap(lean_object*);
@@ -124,6 +126,7 @@ LEAN_EXPORT lean_object* l_Lean_FileMap_toPosition___boxed(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lean_instInhabitedPosition;
 static lean_object* l_Lean_instFromJsonPosition_fromJson___closed__10;
 static lean_object* l_Lean_Position_instToExpr___lam__0___closed__2;
+static lean_object* l_Lean_Position_instToString___closed__0;
 static lean_object* l_Lean_Position_instToFormat___lam__0___closed__5;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getNat_x3f(lean_object*);
@@ -151,6 +154,7 @@ static lean_object* l_Lean_instReprPosition_repr___redArg___closed__3;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Position_instToFormat___lam__0___closed__2;
 static lean_object* l_Lean_instFromJsonPosition_fromJson___closed__11;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Position_instToFormat___lam__0___closed__0;
 static lean_object* l_Lean_instReprPosition_repr___redArg___closed__15;
 static lean_object* l_Lean_instReprPosition___closed__0;
@@ -233,22 +237,20 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_instReprPosition_repr___redArg___closed__4() {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_instReprPosition_repr_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_instReprPosition_repr___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" := ", 4, 4);
+x_1 = lean_mk_string_unchecked("{ ", 2, 2);
 return x_1;
-}
-}
-static lean_object* _init_l_Lean_instReprPosition_repr___redArg___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_instReprPosition_repr___redArg___closed__4;
-x_2 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_instReprPosition_repr___redArg___closed__1() {
@@ -279,6 +281,24 @@ x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
+}
+}
+static lean_object* _init_l_Lean_instReprPosition_repr___redArg___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked(" := ", 4, 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_instReprPosition_repr___redArg___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_instReprPosition_repr___redArg___closed__4;
+x_2 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_instReprPosition_repr___redArg___closed__6() {
@@ -347,11 +367,11 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_instReprPosition_repr___redArg___closed__0() {
+static lean_object* _init_l_Lean_instReprPosition_repr___redArg___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("{ ", 2, 2);
+x_1 = lean_mk_string_unchecked(" }", 2, 2);
 return x_1;
 }
 }
@@ -381,14 +401,6 @@ x_1 = l_Lean_instReprPosition_repr___redArg___closed__0;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_Lean_instReprPosition_repr___redArg___closed__13() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" }", 2, 2);
-return x_1;
 }
 }
 static lean_object* _init_l_Lean_instReprPosition_repr___redArg___closed__17() {
@@ -549,14 +561,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_instReprPosition_repr___redArg(x_1);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Nat_cast___at___00Lean_instReprPosition_repr_spec__0(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_nat_to_int(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_instReprPosition_repr___boxed(lean_object* x_1, lean_object* x_2) {
@@ -723,6 +727,15 @@ lean_object* x_3; lean_object* x_4;
 x_3 = l_Lean_Json_getObjValD(x_1, x_2);
 x_4 = l_Lean_Json_getNat_x3f(x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___00Lean_instFromJsonPosition_fromJson_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Json_getObjValAs_x3f___at___00Lean_instFromJsonPosition_fromJson_spec__0(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_instFromJsonPosition_fromJson___closed__0() {
@@ -1017,15 +1030,6 @@ return x_34;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___00Lean_instFromJsonPosition_fromJson_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Json_getObjValAs_x3f___at___00Lean_instFromJsonPosition_fromJson_spec__0(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
 static lean_object* _init_l_Lean_instFromJsonPosition___closed__0() {
 _start:
 {
@@ -1262,11 +1266,19 @@ return x_27;
 }
 }
 }
-static lean_object* _init_l_Lean_Position_instToFormat() {
+static lean_object* _init_l_Lean_Position_instToFormat___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lean_Position_instToFormat___lam__0), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Position_instToFormat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Position_instToFormat___closed__0;
 return x_1;
 }
 }
@@ -1293,7 +1305,7 @@ x_12 = lean_string_append(x_10, x_11);
 return x_12;
 }
 }
-static lean_object* _init_l_Lean_Position_instToString() {
+static lean_object* _init_l_Lean_Position_instToString___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -1301,14 +1313,12 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Position_instToString___lam__0), 1, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Position_instToExpr___closed__0() {
+static lean_object* _init_l_Lean_Position_instToString() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_instFromJsonPosition_fromJson___closed__2;
-x_3 = l_Lean_mkConst(x_2, x_1);
-return x_3;
+lean_object* x_1; 
+x_1 = l_Lean_Position_instToString___closed__0;
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Position_instToExpr___lam__0___closed__0() {
@@ -1369,16 +1379,42 @@ lean_dec_ref(x_9);
 return x_10;
 }
 }
-static lean_object* _init_l_Lean_Position_instToExpr() {
+static lean_object* _init_l_Lean_Position_instToExpr___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Position_instToExpr___lam__0), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Position_instToExpr___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Position_instToExpr___lam__0), 1, 0);
+x_1 = lean_box(0);
+x_2 = l_Lean_instFromJsonPosition_fromJson___closed__2;
+x_3 = l_Lean_mkConst(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Position_instToExpr___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Position_instToExpr___closed__1;
 x_2 = l_Lean_Position_instToExpr___closed__0;
 x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
+}
+}
+static lean_object* _init_l_Lean_Position_instToExpr() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Position_instToExpr___closed__2;
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_instInhabitedFileMap_default___closed__0() {
@@ -1392,9 +1428,10 @@ return x_1;
 static lean_object* _init_l_Lean_instInhabitedFileMap_default___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_instInhabitedFileMap_default___closed__2() {
@@ -1820,13 +1857,13 @@ goto block_13;
 block_13:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_8 = lean_unsigned_to_nat(0u);
-x_9 = lean_string_utf8_byte_size(x_5);
+x_8 = lean_string_utf8_byte_size(x_5);
+x_9 = lean_unsigned_to_nat(0u);
 lean_inc_ref(x_5);
 x_10 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_10, 0, x_5);
-lean_ctor_set(x_10, 1, x_8);
-lean_ctor_set(x_10, 2, x_9);
+lean_ctor_set(x_10, 1, x_9);
+lean_ctor_set(x_10, 2, x_8);
 x_11 = l_String_Slice_pos_x21(x_10, x_7);
 lean_dec(x_7);
 x_12 = l_String_Slice_Pos_nextn(x_10, x_11, x_4);
@@ -1920,16 +1957,18 @@ l_Lean_instInhabitedPosition_default = _init_l_Lean_instInhabitedPosition_defaul
 lean_mark_persistent(l_Lean_instInhabitedPosition_default);
 l_Lean_instInhabitedPosition = _init_l_Lean_instInhabitedPosition();
 lean_mark_persistent(l_Lean_instInhabitedPosition);
-l_Lean_instReprPosition_repr___redArg___closed__4 = _init_l_Lean_instReprPosition_repr___redArg___closed__4();
-lean_mark_persistent(l_Lean_instReprPosition_repr___redArg___closed__4);
-l_Lean_instReprPosition_repr___redArg___closed__5 = _init_l_Lean_instReprPosition_repr___redArg___closed__5();
-lean_mark_persistent(l_Lean_instReprPosition_repr___redArg___closed__5);
+l_Lean_instReprPosition_repr___redArg___closed__0 = _init_l_Lean_instReprPosition_repr___redArg___closed__0();
+lean_mark_persistent(l_Lean_instReprPosition_repr___redArg___closed__0);
 l_Lean_instReprPosition_repr___redArg___closed__1 = _init_l_Lean_instReprPosition_repr___redArg___closed__1();
 lean_mark_persistent(l_Lean_instReprPosition_repr___redArg___closed__1);
 l_Lean_instReprPosition_repr___redArg___closed__2 = _init_l_Lean_instReprPosition_repr___redArg___closed__2();
 lean_mark_persistent(l_Lean_instReprPosition_repr___redArg___closed__2);
 l_Lean_instReprPosition_repr___redArg___closed__3 = _init_l_Lean_instReprPosition_repr___redArg___closed__3();
 lean_mark_persistent(l_Lean_instReprPosition_repr___redArg___closed__3);
+l_Lean_instReprPosition_repr___redArg___closed__4 = _init_l_Lean_instReprPosition_repr___redArg___closed__4();
+lean_mark_persistent(l_Lean_instReprPosition_repr___redArg___closed__4);
+l_Lean_instReprPosition_repr___redArg___closed__5 = _init_l_Lean_instReprPosition_repr___redArg___closed__5();
+lean_mark_persistent(l_Lean_instReprPosition_repr___redArg___closed__5);
 l_Lean_instReprPosition_repr___redArg___closed__6 = _init_l_Lean_instReprPosition_repr___redArg___closed__6();
 lean_mark_persistent(l_Lean_instReprPosition_repr___redArg___closed__6);
 l_Lean_instReprPosition_repr___redArg___closed__7 = _init_l_Lean_instReprPosition_repr___redArg___closed__7();
@@ -1944,16 +1983,14 @@ l_Lean_instReprPosition_repr___redArg___closed__11 = _init_l_Lean_instReprPositi
 lean_mark_persistent(l_Lean_instReprPosition_repr___redArg___closed__11);
 l_Lean_instReprPosition_repr___redArg___closed__12 = _init_l_Lean_instReprPosition_repr___redArg___closed__12();
 lean_mark_persistent(l_Lean_instReprPosition_repr___redArg___closed__12);
-l_Lean_instReprPosition_repr___redArg___closed__0 = _init_l_Lean_instReprPosition_repr___redArg___closed__0();
-lean_mark_persistent(l_Lean_instReprPosition_repr___redArg___closed__0);
+l_Lean_instReprPosition_repr___redArg___closed__13 = _init_l_Lean_instReprPosition_repr___redArg___closed__13();
+lean_mark_persistent(l_Lean_instReprPosition_repr___redArg___closed__13);
 l_Lean_instReprPosition_repr___redArg___closed__14 = _init_l_Lean_instReprPosition_repr___redArg___closed__14();
 lean_mark_persistent(l_Lean_instReprPosition_repr___redArg___closed__14);
 l_Lean_instReprPosition_repr___redArg___closed__15 = _init_l_Lean_instReprPosition_repr___redArg___closed__15();
 lean_mark_persistent(l_Lean_instReprPosition_repr___redArg___closed__15);
 l_Lean_instReprPosition_repr___redArg___closed__16 = _init_l_Lean_instReprPosition_repr___redArg___closed__16();
 lean_mark_persistent(l_Lean_instReprPosition_repr___redArg___closed__16);
-l_Lean_instReprPosition_repr___redArg___closed__13 = _init_l_Lean_instReprPosition_repr___redArg___closed__13();
-lean_mark_persistent(l_Lean_instReprPosition_repr___redArg___closed__13);
 l_Lean_instReprPosition_repr___redArg___closed__17 = _init_l_Lean_instReprPosition_repr___redArg___closed__17();
 lean_mark_persistent(l_Lean_instReprPosition_repr___redArg___closed__17);
 l_Lean_instReprPosition___closed__0 = _init_l_Lean_instReprPosition___closed__0();
@@ -2014,12 +2051,14 @@ l_Lean_Position_instToFormat___lam__0___closed__4 = _init_l_Lean_Position_instTo
 lean_mark_persistent(l_Lean_Position_instToFormat___lam__0___closed__4);
 l_Lean_Position_instToFormat___lam__0___closed__5 = _init_l_Lean_Position_instToFormat___lam__0___closed__5();
 lean_mark_persistent(l_Lean_Position_instToFormat___lam__0___closed__5);
+l_Lean_Position_instToFormat___closed__0 = _init_l_Lean_Position_instToFormat___closed__0();
+lean_mark_persistent(l_Lean_Position_instToFormat___closed__0);
 l_Lean_Position_instToFormat = _init_l_Lean_Position_instToFormat();
 lean_mark_persistent(l_Lean_Position_instToFormat);
+l_Lean_Position_instToString___closed__0 = _init_l_Lean_Position_instToString___closed__0();
+lean_mark_persistent(l_Lean_Position_instToString___closed__0);
 l_Lean_Position_instToString = _init_l_Lean_Position_instToString();
 lean_mark_persistent(l_Lean_Position_instToString);
-l_Lean_Position_instToExpr___closed__0 = _init_l_Lean_Position_instToExpr___closed__0();
-lean_mark_persistent(l_Lean_Position_instToExpr___closed__0);
 l_Lean_Position_instToExpr___lam__0___closed__0 = _init_l_Lean_Position_instToExpr___lam__0___closed__0();
 lean_mark_persistent(l_Lean_Position_instToExpr___lam__0___closed__0);
 l_Lean_Position_instToExpr___lam__0___closed__1 = _init_l_Lean_Position_instToExpr___lam__0___closed__1();
@@ -2028,6 +2067,12 @@ l_Lean_Position_instToExpr___lam__0___closed__2 = _init_l_Lean_Position_instToEx
 lean_mark_persistent(l_Lean_Position_instToExpr___lam__0___closed__2);
 l_Lean_Position_instToExpr___lam__0___closed__3 = _init_l_Lean_Position_instToExpr___lam__0___closed__3();
 lean_mark_persistent(l_Lean_Position_instToExpr___lam__0___closed__3);
+l_Lean_Position_instToExpr___closed__0 = _init_l_Lean_Position_instToExpr___closed__0();
+lean_mark_persistent(l_Lean_Position_instToExpr___closed__0);
+l_Lean_Position_instToExpr___closed__1 = _init_l_Lean_Position_instToExpr___closed__1();
+lean_mark_persistent(l_Lean_Position_instToExpr___closed__1);
+l_Lean_Position_instToExpr___closed__2 = _init_l_Lean_Position_instToExpr___closed__2();
+lean_mark_persistent(l_Lean_Position_instToExpr___closed__2);
 l_Lean_Position_instToExpr = _init_l_Lean_Position_instToExpr();
 lean_mark_persistent(l_Lean_Position_instToExpr);
 l_Lean_instInhabitedFileMap_default___closed__0 = _init_l_Lean_instInhabitedFileMap_default___closed__0();

@@ -210,7 +210,9 @@ LEAN_EXPORT lean_object* l_Std_Iterators_Types_Empty_instIteratorLoop(lean_objec
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Std_Iterators_Types_Empty_instIteratorLoop___redArg(x_4, x_5);
+x_6 = lean_alloc_closure((void*)(l_Std_Iterators_Types_Empty_instIteratorLoop___redArg___lam__3), 8, 2);
+lean_closure_set(x_6, 0, x_5);
+lean_closure_set(x_6, 1, x_4);
 return x_6;
 }
 }

@@ -44,6 +44,13 @@ def measure_bytes_for_file(topic: str, path: Path) -> int:
     print_result(f"{topic}//bytes", size, "B")
     return size
 
+def measure_bytes_for_dir(topic: str, path: Path) -> int:
+    total = 0
+    for path in path.rglob("*"):
+        if path.is_file():
+            total += path.stat().st_size
+    print_result(f"{topic}//bytes", total, "B")
+    return total
 
 def measure_symbols_for_file(topic: str, path: Path) -> int:
     result = subprocess.run(
@@ -63,6 +70,7 @@ if __name__ == "__main__":
     measure_symbols_for_file(
         "size/libLake_shared.so", STAGE3_LEAN / "libLake_shared.so"
     )
+    measure_bytes_for_dir("size/install", STAGE3 / "install")
 
     # Stdlib
     measure_lines("size/all/.c", STAGE3_TEMP.glob("**/*.c"))

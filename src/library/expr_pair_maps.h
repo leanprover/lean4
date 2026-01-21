@@ -11,5 +11,5 @@ Author: Leonardo de Moura
 namespace lean {
 // Map based on structural equality
 template<typename T>
-using expr_pair_struct_map = std::unordered_map<expr_pair, T, expr_pair_hash, expr_pair_eq>;
+using expr_pair_struct_map = lean::unordered_map<expr_pair, T, expr_pair_hash, expr_pair_eq>;
 }

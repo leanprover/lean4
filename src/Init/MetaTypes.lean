@@ -143,6 +143,7 @@ end DSimp
 
 namespace Simp
 
+@[inline]
 def defaultMaxSteps := 100000
 
 /--

@@ -364,14 +364,6 @@ x_1 = l_Std_Time_Millisecond_instOrdOrdinal___closed__2;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___00Nat_cast___at___00Std_Time_Millisecond_instReprOffset_spec__0_spec__0(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_nat_to_int(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Std_Time_Millisecond_instReprOffset___closed__0() {
 _start:
 {
@@ -386,6 +378,14 @@ _start:
 lean_object* x_1; 
 x_1 = l_Std_Time_Millisecond_instReprOffset___closed__0;
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Nat_cast___at___00Std_Time_Millisecond_instReprOffset_spec__0_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_Millisecond_instReprOffset_spec__0(lean_object* x_1) {
@@ -631,14 +631,23 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Millisecond_Ordinal_ofInt(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Time_Millisecond_Ordinal_ofInt___redArg(lean_object* x_1) {
 _start:
 {
 lean_inc(x_1);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Millisecond_Ordinal_ofInt___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Time_Millisecond_Ordinal_ofInt___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Time_Millisecond_Ordinal_ofInt___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Millisecond_Ordinal_ofInt(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_inc(x_1);
@@ -654,12 +663,11 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Millisecond_Ordinal_ofInt___redArg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Time_Millisecond_Ordinal_ofNat___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Std_Time_Millisecond_Ordinal_ofInt___redArg(x_1);
-lean_dec(x_1);
+x_2 = l_instNatCastInt___lam__0(x_1);
 return x_2;
 }
 }
@@ -669,14 +677,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_instNatCastInt___lam__0(x_1);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_Millisecond_Ordinal_ofNat___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_instNatCastInt___lam__0(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_Millisecond_Ordinal_ofFin(lean_object* x_1) {

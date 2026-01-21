@@ -16,10 +16,14 @@ extern "C" {
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__3(lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__1___lam__0(lean_object*, lean_object*);
+static lean_object* l_instSliceableArrayNatSubarray__7___closed__0;
+static lean_object* l_instSliceableArrayNatSubarray__8___closed__0;
+static lean_object* l_instSliceableSubarrayNat__6___closed__0;
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__6___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__5(lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__5___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__4___lam__0(lean_object*, lean_object*);
+static lean_object* l_instSliceableArrayNatSubarray__2___closed__0;
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__6___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__1(lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__4(lean_object*);
@@ -27,9 +31,17 @@ LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray___lam__0(lean_object*, 
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__2___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__7(lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__6(lean_object*);
+static lean_object* l_instSliceableSubarrayNat__1___closed__0;
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__2(lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__3(lean_object*);
+static lean_object* l_instSliceableSubarrayNat__7___closed__0;
+static lean_object* l_instSliceableSubarrayNat___closed__0;
+static lean_object* l_instSliceableSubarrayNat__4___closed__0;
+static lean_object* l_instSliceableSubarrayNat__5___closed__0;
+static lean_object* l_instSliceableArrayNatSubarray__6___closed__0;
+static lean_object* l_instSliceableSubarrayNat__2___closed__0;
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__7(lean_object*);
+static lean_object* l_instSliceableSubarrayNat__8___closed__0;
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__2(lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__6___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__7___lam__0(lean_object*, lean_object*);
@@ -38,8 +50,12 @@ LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__4(lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__6___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__6(lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__8(lean_object*);
+static lean_object* l_instSliceableArrayNatSubarray___closed__0;
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__1(lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__3___lam__0(lean_object*, lean_object*);
+static lean_object* l_instSliceableArrayNatSubarray__3___closed__0;
+static lean_object* l_instSliceableArrayNatSubarray__5___closed__0;
+static lean_object* l_instSliceableArrayNatSubarray__1___closed__0;
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__7___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__5___lam__0___boxed(lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
@@ -58,7 +74,9 @@ LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__8(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__3___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__4___lam__0(lean_object*, lean_object*);
+static lean_object* l_instSliceableSubarrayNat__3___closed__0;
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__1___lam__0(lean_object*, lean_object*);
+static lean_object* l_instSliceableArrayNatSubarray__4___closed__0;
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__8___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -76,11 +94,19 @@ x_7 = l_Array_toSubarray___redArg(x_1, x_3, x_6);
 return x_7;
 }
 }
+static lean_object* _init_l_instSliceableArrayNatSubarray___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableArrayNatSubarray___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSliceableArrayNatSubarray___lam__0), 2, 0);
+x_2 = l_instSliceableArrayNatSubarray___closed__0;
 return x_2;
 }
 }
@@ -97,11 +123,19 @@ x_5 = l_Array_toSubarray___redArg(x_1, x_3, x_4);
 return x_5;
 }
 }
+static lean_object* _init_l_instSliceableArrayNatSubarray__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableArrayNatSubarray__1___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSliceableArrayNatSubarray__1___lam__0), 2, 0);
+x_2 = l_instSliceableArrayNatSubarray__1___closed__0;
 return x_2;
 }
 }
@@ -127,11 +161,19 @@ return x_7;
 }
 }
 }
+static lean_object* _init_l_instSliceableArrayNatSubarray__2___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableArrayNatSubarray__2___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__2(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSliceableArrayNatSubarray__2___lam__0), 2, 0);
+x_2 = l_instSliceableArrayNatSubarray__2___closed__0;
 return x_2;
 }
 }
@@ -157,11 +199,19 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_instSliceableArrayNatSubarray__3___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableArrayNatSubarray__3___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__3(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSliceableArrayNatSubarray__3___lam__0___boxed), 2, 0);
+x_2 = l_instSliceableArrayNatSubarray__3___closed__0;
 return x_2;
 }
 }
@@ -181,11 +231,19 @@ x_7 = l_Array_toSubarray___redArg(x_1, x_6, x_4);
 return x_7;
 }
 }
+static lean_object* _init_l_instSliceableArrayNatSubarray__4___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableArrayNatSubarray__4___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__4(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSliceableArrayNatSubarray__4___lam__0), 2, 0);
+x_2 = l_instSliceableArrayNatSubarray__4___closed__0;
 return x_2;
 }
 }
@@ -222,11 +280,19 @@ lean_dec(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_instSliceableArrayNatSubarray__5___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableArrayNatSubarray__5___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__5(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSliceableArrayNatSubarray__5___lam__0___boxed), 2, 0);
+x_2 = l_instSliceableArrayNatSubarray__5___closed__0;
 return x_2;
 }
 }
@@ -250,11 +316,19 @@ lean_dec(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_instSliceableArrayNatSubarray__6___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableArrayNatSubarray__6___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__6(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSliceableArrayNatSubarray__6___lam__0___boxed), 2, 0);
+x_2 = l_instSliceableArrayNatSubarray__6___closed__0;
 return x_2;
 }
 }
@@ -267,11 +341,19 @@ x_4 = l_Array_toSubarray___redArg(x_1, x_3, x_2);
 return x_4;
 }
 }
+static lean_object* _init_l_instSliceableArrayNatSubarray__7___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableArrayNatSubarray__7___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__7(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSliceableArrayNatSubarray__7___lam__0), 2, 0);
+x_2 = l_instSliceableArrayNatSubarray__7___closed__0;
 return x_2;
 }
 }
@@ -285,11 +367,19 @@ x_5 = l_Array_toSubarray___redArg(x_1, x_3, x_4);
 return x_5;
 }
 }
+static lean_object* _init_l_instSliceableArrayNatSubarray__8___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableArrayNatSubarray__8___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_instSliceableArrayNatSubarray__8(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSliceableArrayNatSubarray__8___lam__0), 2, 0);
+x_2 = l_instSliceableArrayNatSubarray__8___closed__0;
 return x_2;
 }
 }
@@ -382,11 +472,19 @@ goto block_11;
 }
 }
 }
+static lean_object* _init_l_instSliceableSubarrayNat___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableSubarrayNat___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSliceableSubarrayNat___lam__0), 2, 0);
+x_2 = l_instSliceableSubarrayNat___closed__0;
 return x_2;
 }
 }
@@ -476,11 +574,19 @@ goto block_11;
 }
 }
 }
+static lean_object* _init_l_instSliceableSubarrayNat__1___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableSubarrayNat__1___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSliceableSubarrayNat__1___lam__0), 2, 0);
+x_2 = l_instSliceableSubarrayNat__1___closed__0;
 return x_2;
 }
 }
@@ -533,11 +639,19 @@ return x_10;
 }
 }
 }
+static lean_object* _init_l_instSliceableSubarrayNat__2___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableSubarrayNat__2___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__2(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSliceableSubarrayNat__2___lam__0), 2, 0);
+x_2 = l_instSliceableSubarrayNat__2___closed__0;
 return x_2;
 }
 }
@@ -632,11 +746,19 @@ goto block_11;
 }
 }
 }
+static lean_object* _init_l_instSliceableSubarrayNat__3___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableSubarrayNat__3___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__3(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSliceableSubarrayNat__3___lam__0), 2, 0);
+x_2 = l_instSliceableSubarrayNat__3___closed__0;
 return x_2;
 }
 }
@@ -729,11 +851,19 @@ goto block_11;
 }
 }
 }
+static lean_object* _init_l_instSliceableSubarrayNat__4___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableSubarrayNat__4___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__4(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSliceableSubarrayNat__4___lam__0), 2, 0);
+x_2 = l_instSliceableSubarrayNat__4___closed__0;
 return x_2;
 }
 }
@@ -797,11 +927,19 @@ lean_dec(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_instSliceableSubarrayNat__5___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableSubarrayNat__5___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__5(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSliceableSubarrayNat__5___lam__0___boxed), 2, 0);
+x_2 = l_instSliceableSubarrayNat__5___closed__0;
 return x_2;
 }
 }
@@ -866,11 +1004,19 @@ lean_dec(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_instSliceableSubarrayNat__6___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableSubarrayNat__6___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__6(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSliceableSubarrayNat__6___lam__0___boxed), 2, 0);
+x_2 = l_instSliceableSubarrayNat__6___closed__0;
 return x_2;
 }
 }
@@ -924,11 +1070,19 @@ return x_10;
 }
 }
 }
+static lean_object* _init_l_instSliceableSubarrayNat__7___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableSubarrayNat__7___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__7(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSliceableSubarrayNat__7___lam__0), 2, 0);
+x_2 = l_instSliceableSubarrayNat__7___closed__0;
 return x_2;
 }
 }
@@ -948,11 +1102,19 @@ lean_dec_ref(x_1);
 return x_3;
 }
 }
+static lean_object* _init_l_instSliceableSubarrayNat__8___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceableSubarrayNat__8___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_instSliceableSubarrayNat__8(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instSliceableSubarrayNat__8___lam__0___boxed), 2, 0);
+x_2 = l_instSliceableSubarrayNat__8___closed__0;
 return x_2;
 }
 }
@@ -973,6 +1135,42 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Range_Polymorphic_Nat(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_instSliceableArrayNatSubarray___closed__0 = _init_l_instSliceableArrayNatSubarray___closed__0();
+lean_mark_persistent(l_instSliceableArrayNatSubarray___closed__0);
+l_instSliceableArrayNatSubarray__1___closed__0 = _init_l_instSliceableArrayNatSubarray__1___closed__0();
+lean_mark_persistent(l_instSliceableArrayNatSubarray__1___closed__0);
+l_instSliceableArrayNatSubarray__2___closed__0 = _init_l_instSliceableArrayNatSubarray__2___closed__0();
+lean_mark_persistent(l_instSliceableArrayNatSubarray__2___closed__0);
+l_instSliceableArrayNatSubarray__3___closed__0 = _init_l_instSliceableArrayNatSubarray__3___closed__0();
+lean_mark_persistent(l_instSliceableArrayNatSubarray__3___closed__0);
+l_instSliceableArrayNatSubarray__4___closed__0 = _init_l_instSliceableArrayNatSubarray__4___closed__0();
+lean_mark_persistent(l_instSliceableArrayNatSubarray__4___closed__0);
+l_instSliceableArrayNatSubarray__5___closed__0 = _init_l_instSliceableArrayNatSubarray__5___closed__0();
+lean_mark_persistent(l_instSliceableArrayNatSubarray__5___closed__0);
+l_instSliceableArrayNatSubarray__6___closed__0 = _init_l_instSliceableArrayNatSubarray__6___closed__0();
+lean_mark_persistent(l_instSliceableArrayNatSubarray__6___closed__0);
+l_instSliceableArrayNatSubarray__7___closed__0 = _init_l_instSliceableArrayNatSubarray__7___closed__0();
+lean_mark_persistent(l_instSliceableArrayNatSubarray__7___closed__0);
+l_instSliceableArrayNatSubarray__8___closed__0 = _init_l_instSliceableArrayNatSubarray__8___closed__0();
+lean_mark_persistent(l_instSliceableArrayNatSubarray__8___closed__0);
+l_instSliceableSubarrayNat___closed__0 = _init_l_instSliceableSubarrayNat___closed__0();
+lean_mark_persistent(l_instSliceableSubarrayNat___closed__0);
+l_instSliceableSubarrayNat__1___closed__0 = _init_l_instSliceableSubarrayNat__1___closed__0();
+lean_mark_persistent(l_instSliceableSubarrayNat__1___closed__0);
+l_instSliceableSubarrayNat__2___closed__0 = _init_l_instSliceableSubarrayNat__2___closed__0();
+lean_mark_persistent(l_instSliceableSubarrayNat__2___closed__0);
+l_instSliceableSubarrayNat__3___closed__0 = _init_l_instSliceableSubarrayNat__3___closed__0();
+lean_mark_persistent(l_instSliceableSubarrayNat__3___closed__0);
+l_instSliceableSubarrayNat__4___closed__0 = _init_l_instSliceableSubarrayNat__4___closed__0();
+lean_mark_persistent(l_instSliceableSubarrayNat__4___closed__0);
+l_instSliceableSubarrayNat__5___closed__0 = _init_l_instSliceableSubarrayNat__5___closed__0();
+lean_mark_persistent(l_instSliceableSubarrayNat__5___closed__0);
+l_instSliceableSubarrayNat__6___closed__0 = _init_l_instSliceableSubarrayNat__6___closed__0();
+lean_mark_persistent(l_instSliceableSubarrayNat__6___closed__0);
+l_instSliceableSubarrayNat__7___closed__0 = _init_l_instSliceableSubarrayNat__7___closed__0();
+lean_mark_persistent(l_instSliceableSubarrayNat__7___closed__0);
+l_instSliceableSubarrayNat__8___closed__0 = _init_l_instSliceableSubarrayNat__8___closed__0();
+lean_mark_persistent(l_instSliceableSubarrayNat__8___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

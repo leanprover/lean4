@@ -32,8 +32,8 @@ def myFunction (x : Nat) : Nat := x + 1
 -- Second test: should show only the two theorems (not myFunction)
 /--
 info: Library suggestions:
-  anotherTheorem
   myLocalTheorem
+  anotherTheorem
 -/
 #guard_msgs in
 example : False → True := by

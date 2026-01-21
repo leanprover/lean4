@@ -289,8 +289,10 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   in their usual location within the build directory. Thus, projects with custom build
   scripts that rely on specific location of artifacts may wish to disable this feature.
 
-  If `none` (the default), the cache will be disabled by default unless
-  the `LAKE_ARTIFACT_CACHE` environment variable is set to true.
+  If `none` (the default), this will fallback to (in order):
+  * The `LAKE_ARTIFACT_CACHE` environment variable (if set)
+  * The workspace root's `enableArtifactCache` configuration (if set and this package is a dependency)
+  * Lake's default: `false`
   -/
   enableArtifactCache?, enableArtifactCache : Option Bool := none
 

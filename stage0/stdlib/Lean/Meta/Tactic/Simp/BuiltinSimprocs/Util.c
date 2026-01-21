@@ -46,19 +46,19 @@ static lean_object* l_Lean_Meta_Simp_evalPropStep___redArg___closed__2;
 static lean_object* l_Lean_Meta_Simp_evalPropStep___redArg___closed__16;
 static lean_object* l_Lean_Meta_Simp_evalPropStep___redArg___closed__7;
 static lean_object* l_Lean_Meta_Simp_evalPropStep___redArg___closed__19;
-static lean_object* _init_l_Lean_Meta_Simp_evalPropStep___redArg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("false", 5, 5);
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_Meta_Simp_evalPropStep___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_mk_string_unchecked("Bool", 4, 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_Simp_evalPropStep___redArg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
@@ -441,6 +441,15 @@ return x_75;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Meta_Simp_evalPropStep___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+uint8_t x_8; lean_object* x_9; 
+x_8 = lean_unbox(x_2);
+x_9 = l_Lean_Meta_Simp_evalPropStep___redArg(x_1, x_8, x_3, x_4, x_5, x_6);
+return x_9;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_evalPropStep(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -461,15 +470,6 @@ lean_dec(x_3);
 return x_12;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_evalPropStep___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-uint8_t x_8; lean_object* x_9; 
-x_8 = lean_unbox(x_2);
-x_9 = l_Lean_Meta_Simp_evalPropStep___redArg(x_1, x_8, x_3, x_4, x_5, x_6);
-return x_9;
-}
-}
 lean_object* initialize_Lean_Meta_Tactic_Simp_Simproc(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Util(uint8_t builtin) {
@@ -479,10 +479,10 @@ _G_initialized = true;
 res = initialize_Lean_Meta_Tactic_Simp_Simproc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_Simp_evalPropStep___redArg___closed__1 = _init_l_Lean_Meta_Simp_evalPropStep___redArg___closed__1();
-lean_mark_persistent(l_Lean_Meta_Simp_evalPropStep___redArg___closed__1);
 l_Lean_Meta_Simp_evalPropStep___redArg___closed__0 = _init_l_Lean_Meta_Simp_evalPropStep___redArg___closed__0();
 lean_mark_persistent(l_Lean_Meta_Simp_evalPropStep___redArg___closed__0);
+l_Lean_Meta_Simp_evalPropStep___redArg___closed__1 = _init_l_Lean_Meta_Simp_evalPropStep___redArg___closed__1();
+lean_mark_persistent(l_Lean_Meta_Simp_evalPropStep___redArg___closed__1);
 l_Lean_Meta_Simp_evalPropStep___redArg___closed__2 = _init_l_Lean_Meta_Simp_evalPropStep___redArg___closed__2();
 lean_mark_persistent(l_Lean_Meta_Simp_evalPropStep___redArg___closed__2);
 l_Lean_Meta_Simp_evalPropStep___redArg___closed__3 = _init_l_Lean_Meta_Simp_evalPropStep___redArg___closed__3();

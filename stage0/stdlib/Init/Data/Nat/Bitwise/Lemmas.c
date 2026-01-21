@@ -26,7 +26,6 @@ static lean_object* l_Nat_bitwise__div__two__pow___auto__9___closed__10;
 LEAN_EXPORT lean_object* l_Nat_bitwise__mul__two__pow___auto__9;
 static lean_object* l_Nat_bitwise__div__two__pow___auto__9___closed__2;
 static lean_object* l_Nat_bitwise__div__two__pow___auto__9___closed__7;
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Nat_bitwise__div__two__pow___auto__9___closed__21;
 static lean_object* l_Nat_bitwise__div__two__pow___auto__9___closed__6;
 static lean_object* l_Nat_bitwise__div__two__pow___auto__9___closed__16;
@@ -43,6 +42,7 @@ static lean_object* l_Nat_bitwise__div__two__pow___auto__9___closed__3;
 lean_object* l_Lean_mkAtom(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_bitwise__div__two__pow___auto__9;
 static lean_object* l_Nat_bitwise__div__two__pow___auto__9___closed__0;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Nat_bitwise__div__two__pow___auto__9___closed__19;
 static lean_object* l_Nat_bitwise__div__two__pow___auto__9___closed__11;
 static lean_object* _init_l_Nat_bitwise__div__two__pow___auto__9___closed__0() {
@@ -92,9 +92,10 @@ return x_5;
 static lean_object* _init_l_Nat_bitwise__div__two__pow___auto__9___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Nat_bitwise__div__two__pow___auto__9___closed__6() {

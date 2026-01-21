@@ -5,48 +5,9 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Basic
-import Lean.Meta.InferType
-import Lean.Meta.Closure
-import Lean.Meta.AppBuilder
+public import Lean.Meta.Sym.Simp.SimpM
+import Lean.Meta.Sym.AlphaShareBuilder
 namespace Lean.Meta.Sym.Simp
-
-/--
-Given `xs` containing free variables
-`(x₁ : α₁) (x₂ : α₂[x₁]) ... (xₙ : αₙ[x₁, ..., x_{n-1}])`
-and `β` a type of the form `β[x₁, ..., xₙ]`,
-creates the custom function extensionality theorem
-```
-∀ (f g : (x₁ : α₁) → (x₂ : α₂[x₁]) → ... → (xₙ : αₙ[x₁, ..., x_{n-1}]) → β[x₁, ..., xₙ])
-  (h : ∀ x₁ ... xₙ, f x₁ ... xₙ = g x₁ ... xₙ),
-  f = g
-```
-The theorem has three arguments `f`, `g`, and `h`.
-This auxiliary theorem is used by the simplifier when visiting lambda expressions.
--/
-public def mkFunextFor (xs : Array Expr) (β : Expr) : MetaM Expr := do
-  let type ← mkForallFVars xs β
-  let v ← getLevel β
-  let w ← getLevel type
-  withLocalDeclD `f type fun f =>
-  withLocalDeclD `g type fun g => do
-  let eq := mkApp3 (mkConst ``Eq [v]) β (mkAppN f xs) (mkAppN g xs)
-  withLocalDeclD `h (← mkForallFVars xs eq) fun h => do
-  let eqv ← mkLambdaFVars #[f, g] (← mkForallFVars xs eq)
-  let quotEqv := mkApp2 (mkConst ``Quot [w]) type eqv
-  withLocalDeclD `f' quotEqv fun f' => do
-  let lift := mkApp6 (mkConst ``Quot.lift [w, v]) type eqv β
-    (mkLambda `f .default type (mkAppN (.bvar 0) xs))
-    (mkLambda `f .default type (mkLambda `g .default type (mkLambda `h .default (mkApp2 eqv (.bvar 1) (.bvar 0)) (mkAppN (.bvar 0) xs))))
-    f'
-  let extfunAppVal ← mkLambdaFVars (#[f'] ++ xs) lift
-  let extfunApp := extfunAppVal
-  let quotSound := mkApp5 (mkConst ``Quot.sound [w]) type eqv f g h
-  let Quot_mk_f := mkApp3 (mkConst ``Quot.mk [w]) type eqv f
-  let Quot_mk_g := mkApp3 (mkConst ``Quot.mk [w]) type eqv g
-  let result := mkApp6 (mkConst ``congrArg [w, w]) quotEqv type Quot_mk_f Quot_mk_g extfunApp quotSound
-  let result ← mkLambdaFVars #[f, g, h] result
-  return result
 
 /--
 Given `xs` containing free variables
@@ -61,7 +22,7 @@ The theorem has three arguments `p`, `q`, and `h`.
 This auxiliary theorem is used by the simplifier when visiting forall expressions.
 The proof uses the approach used in `mkFunextFor` followed by an `Eq.ndrec`.
 -/
-public def mkForallCongrFor (xs : Array Expr) : MetaM Expr := do
+def mkForallCongrFor (xs : Array Expr) : MetaM Expr := do
   let prop := mkSort 0
   let type ← mkForallFVars xs prop
   let w ← getLevel type
@@ -89,5 +50,55 @@ public def mkForallCongrFor (xs : Array Expr) : MetaM Expr := do
   let result := mkApp6 (mkConst ``Eq.ndrec [0, w]) type p motive rfl q p_eq_q
   let result ← mkLambdaFVars #[p, q, h] result
   return result
+
+open Internal
+
+public def simpArrow (e : Expr) : SimpM Result := do
+  let p := e.bindingDomain!
+  let q := e.bindingBody!
+  match (← simp p), (← simp q) with
+  | .rfl _, .rfl _ =>
+    return .rfl
+  | .step p' h _, .rfl _ =>
+    let u ← getLevel p
+    let v ← getLevel q
+    let e' ← e.updateForallS! p' q
+    return .step e' <| mkApp4 (mkConst ``implies_congr_left [u, v]) p p' q h
+  | .rfl _, .step q' h _ =>
+    let u ← getLevel p
+    let v ← getLevel q
+    let e' ← e.updateForallS! p q'
+    return .step e' <| mkApp4 (mkConst ``implies_congr_right [u, v]) p q q' h
+  | .step p' h₁ _, .step q' h₂ _ =>
+    let u ← getLevel p
+    let v ← getLevel q
+    let e' ← e.updateForallS! p' q'
+    return .step e' <| mkApp6 (mkConst ``implies_congr [u, v]) p p' q q' h₁ h₂
+
+public def simpForall (e : Expr) : SimpM Result := do
+  if e.isArrow then
+    simpArrow e
+  else if (← isProp e) then
+    let n := getForallTelescopeSize e.bindingBody! 1
+    forallBoundedTelescope e n fun xs b => withoutModifyingCacheIfNotWellBehaved do
+      main xs b
+  else
+    return .rfl
+where
+  main (xs : Array Expr) (b : Expr) : SimpM Result := do
+    match (← simp b) with
+    | .rfl _ => return .rfl
+    | .step b' h _ =>
+      let h ← mkLambdaFVars xs h
+      let e' ← shareCommonInc (← mkForallFVars xs b')
+      -- **Note**: consider caching the forall-congr theorems
+      let hcongr ← mkForallCongrFor xs
+      return .step e' (mkApp3 hcongr (← mkLambdaFVars xs b) (← mkLambdaFVars xs b') h)
+
+  -- **Note**: Optimize if this is quadratic in practice
+  getForallTelescopeSize (e : Expr) (n : Nat) : Nat :=
+    match e with
+    | .forallE _ _ b _ => if b.hasLooseBVar 0 then getForallTelescopeSize b (n+1) else n
+    | _ => n
 
 end Lean.Meta.Sym.Simp

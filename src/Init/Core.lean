@@ -13,6 +13,10 @@ public import Init.SizeOf
 public section
 set_option linter.missingDocs true -- keep it documented
 
+-- BEq instance for Option defined here so it's available early in the import chain
+-- (before Init.Grind.Config and Init.MetaTypes which need BEq (Option Nat))
+deriving instance BEq for Option
+
 @[expose] section
 
 universe u v w
@@ -1560,6 +1564,10 @@ instance {p q : Prop} [d : Decidable (p ↔ q)] : Decidable (p = q) :=
   match d with
   | isTrue h => isTrue (propext h)
   | isFalse h => isFalse fun heq => h (heq ▸ Iff.rfl)
+
+/-- Helper theorem for proving injectivity theorems -/
+theorem Lean.injEq_helper {P Q R : Prop} :
+  (P → Q → R) → (P ∧ Q → R) := by intro h ⟨h₁,h₂⟩; exact h h₁ h₂
 
 gen_injective_theorems% Array
 gen_injective_theorems% BitVec

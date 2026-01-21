@@ -99,7 +99,8 @@ def _root_.Lean.MVarId.getNondepPropHyps (mvarId : MVarId) : MetaM (Array FVarId
   let removeDeps (e : Expr) (candidates : FVarIdHashSet) : MetaM FVarIdHashSet := do
     let e ← instantiateMVars e
     let visit : StateRefT FVarIdHashSet MetaM FVarIdHashSet := do
-      e.forEachWhere Expr.isFVar fun e => modify fun s => s.erase e.fvarId!
+      if e.hasFVar then
+        e.forEachWhere Expr.isFVar fun e => modify fun s => s.erase e.fvarId!
       get
     visit |>.run' candidates
   mvarId.withContext do

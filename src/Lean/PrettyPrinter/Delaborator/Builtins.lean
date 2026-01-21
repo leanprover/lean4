@@ -142,7 +142,7 @@ def withMDataOptions [Inhabited α] (x : DelabM α) : DelabM α := do
     for (k, v) in m do
       if (`pp).isPrefixOf k then
         let opts := posOpts.get? pos |>.getD {}
-        posOpts := posOpts.insert pos (opts.insert k v)
+        posOpts := posOpts.insert pos (opts.set k v)
     withReader ({ · with optionsPerPos := posOpts }) $ withMDataExpr x
   | _ => x
 

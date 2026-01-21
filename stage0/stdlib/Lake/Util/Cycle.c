@@ -25,6 +25,7 @@ LEAN_EXPORT lean_object* l_Lake_instMonadCycleOfMonadCycleOf___redArg___lam__0(l
 LEAN_EXPORT lean_object* l_Lake_instMonadCycleOfMonadCycleOf___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadCallStackOfOfMonadLiftOfMonadFunctor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadCycleOfOfMonadLiftOfMonadFunctor___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lake_instMonadCallStackOfCallStackTOfMonad___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instMonadCallStackOfMonadCallStackOf(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_inhabitedOfMonadCycle___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadCallStackOfOfMonadLiftOfMonadFunctor___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -364,11 +365,19 @@ lean_dec(x_4);
 return x_5;
 }
 }
+static lean_object* _init_l_Lake_instMonadCallStackOfCallStackTOfMonad___redArg___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lake_instMonadCallStackOfCallStackTOfMonad___redArg___lam__0___boxed), 4, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_instMonadCallStackOfCallStackTOfMonad___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lean_alloc_closure((void*)(l_Lake_instMonadCallStackOfCallStackTOfMonad___redArg___lam__0___boxed), 4, 0);
+x_2 = l_Lake_instMonadCallStackOfCallStackTOfMonad___redArg___closed__0;
 x_3 = lean_alloc_closure((void*)(l_ReaderT_read), 4, 3);
 lean_closure_set(x_3, 0, lean_box(0));
 lean_closure_set(x_3, 1, lean_box(0));
@@ -582,33 +591,6 @@ return x_25;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_guardCycle(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
-_start:
-{
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_9 = lean_ctor_get(x_6, 0);
-lean_inc_ref(x_9);
-x_10 = lean_ctor_get(x_5, 1);
-lean_inc(x_10);
-lean_dec_ref(x_5);
-x_11 = lean_ctor_get(x_6, 1);
-lean_inc(x_11);
-lean_dec_ref(x_6);
-x_12 = lean_ctor_get(x_9, 0);
-lean_inc(x_12);
-x_13 = lean_ctor_get(x_9, 1);
-lean_inc(x_13);
-lean_dec_ref(x_9);
-x_14 = lean_alloc_closure((void*)(l_Lake_guardCycle___redArg___lam__1), 6, 5);
-lean_closure_set(x_14, 0, x_4);
-lean_closure_set(x_14, 1, x_7);
-lean_closure_set(x_14, 2, x_13);
-lean_closure_set(x_14, 3, x_8);
-lean_closure_set(x_14, 4, x_11);
-x_15 = lean_apply_4(x_10, lean_box(0), lean_box(0), x_12, x_14);
-return x_15;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_guardCycle___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -636,6 +618,33 @@ x_12 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_9, x_11);
 return x_12;
 }
 }
+LEAN_EXPORT lean_object* l_Lake_guardCycle(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_9 = lean_ctor_get(x_6, 0);
+lean_inc_ref(x_9);
+x_10 = lean_ctor_get(x_5, 1);
+lean_inc(x_10);
+lean_dec_ref(x_5);
+x_11 = lean_ctor_get(x_6, 1);
+lean_inc(x_11);
+lean_dec_ref(x_6);
+x_12 = lean_ctor_get(x_9, 0);
+lean_inc(x_12);
+x_13 = lean_ctor_get(x_9, 1);
+lean_inc(x_13);
+lean_dec_ref(x_9);
+x_14 = lean_alloc_closure((void*)(l_Lake_guardCycle___redArg___lam__1), 6, 5);
+lean_closure_set(x_14, 0, x_4);
+lean_closure_set(x_14, 1, x_7);
+lean_closure_set(x_14, 2, x_13);
+lean_closure_set(x_14, 3, x_8);
+lean_closure_set(x_14, 4, x_11);
+x_15 = lean_apply_4(x_10, lean_box(0), lean_box(0), x_12, x_14);
+return x_15;
+}
+}
 lean_object* initialize_Init_Data_ToString(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
 static bool _G_initialized = false;
@@ -653,6 +662,8 @@ l_Lake_formatCycle___redArg___lam__0___closed__0 = _init_l_Lake_formatCycle___re
 lean_mark_persistent(l_Lake_formatCycle___redArg___lam__0___closed__0);
 l_Lake_formatCycle___redArg___closed__0 = _init_l_Lake_formatCycle___redArg___closed__0();
 lean_mark_persistent(l_Lake_formatCycle___redArg___closed__0);
+l_Lake_instMonadCallStackOfCallStackTOfMonad___redArg___closed__0 = _init_l_Lake_instMonadCallStackOfCallStackTOfMonad___redArg___closed__0();
+lean_mark_persistent(l_Lake_instMonadCallStackOfCallStackTOfMonad___redArg___closed__0);
 l_Lake_guardCycle___redArg___lam__1___closed__0 = _init_l_Lake_guardCycle___redArg___lam__1___closed__0();
 lean_mark_persistent(l_Lake_guardCycle___redArg___lam__1___closed__0);
 return lean_io_result_mk_ok(lean_box(0));

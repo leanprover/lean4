@@ -25,7 +25,9 @@ LEAN_EXPORT lean_object* l_Lean_Grind_instToIntBitVecUint___boxed(lean_object*);
 static lean_object* l_Lean_Grind_instToIntInt32SintOfNatNat___closed__0;
 static lean_object* l_Lean_Grind_instToIntNatCiOfNatInt___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUInt16UintOfNatNat;
+static lean_object* l_Lean_Grind_instToIntUInt8UintOfNatNat___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntInt16SintOfNatNat;
+static lean_object* l_Lean_Grind_instToIntUInt64UintOfNatNat___closed__0;
 lean_object* l_id___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntNatCiOfNatInt;
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntBitVecUint(lean_object*);
@@ -41,6 +43,7 @@ lean_object* lean_uint64_to_nat(uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntFinCoOfNatIntCast(lean_object*);
 lean_object* l_Nat_cast(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUInt64UintOfNatNat;
+static lean_object* l_Lean_Grind_instToIntUInt16UintOfNatNat___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUInt64UintOfNatNat___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntInt32SintOfNatNat;
 static lean_object* l_Lean_Grind_instToIntNatCiOfNatInt___closed__0;
@@ -53,7 +56,9 @@ LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUInt32UintOfNatNat___lam__0(uint3
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUSizeUintNumBits;
 static lean_object* l_Lean_Grind_instToIntInt8SintOfNatNat___closed__0;
+static lean_object* l_Lean_Grind_instToIntUSizeUintNumBits___closed__0;
 lean_object* l_Int16_toInt___boxed(lean_object*);
+static lean_object* l_Lean_Grind_instToIntUInt32UintOfNatNat___closed__0;
 lean_object* lean_uint16_to_nat(uint16_t);
 lean_object* l_ISize_toInt___boxed(lean_object*);
 static lean_object* l_Lean_Grind_instToIntIntIi___closed__0;
@@ -139,11 +144,19 @@ x_3 = l_Lean_Grind_instToIntUInt8UintOfNatNat___lam__0(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Grind_instToIntUInt8UintOfNatNat() {
+static lean_object* _init_l_Lean_Grind_instToIntUInt8UintOfNatNat___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntUInt8UintOfNatNat___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Grind_instToIntUInt8UintOfNatNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Grind_instToIntUInt8UintOfNatNat___closed__0;
 return x_1;
 }
 }
@@ -165,11 +178,19 @@ x_3 = l_Lean_Grind_instToIntUInt16UintOfNatNat___lam__0(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Grind_instToIntUInt16UintOfNatNat() {
+static lean_object* _init_l_Lean_Grind_instToIntUInt16UintOfNatNat___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntUInt16UintOfNatNat___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Grind_instToIntUInt16UintOfNatNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Grind_instToIntUInt16UintOfNatNat___closed__0;
 return x_1;
 }
 }
@@ -192,11 +213,19 @@ x_3 = l_Lean_Grind_instToIntUInt32UintOfNatNat___lam__0(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Grind_instToIntUInt32UintOfNatNat() {
+static lean_object* _init_l_Lean_Grind_instToIntUInt32UintOfNatNat___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntUInt32UintOfNatNat___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Grind_instToIntUInt32UintOfNatNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Grind_instToIntUInt32UintOfNatNat___closed__0;
 return x_1;
 }
 }
@@ -219,11 +248,19 @@ x_3 = l_Lean_Grind_instToIntUInt64UintOfNatNat___lam__0(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Grind_instToIntUInt64UintOfNatNat() {
+static lean_object* _init_l_Lean_Grind_instToIntUInt64UintOfNatNat___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntUInt64UintOfNatNat___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Grind_instToIntUInt64UintOfNatNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Grind_instToIntUInt64UintOfNatNat___closed__0;
 return x_1;
 }
 }
@@ -246,11 +283,19 @@ x_3 = l_Lean_Grind_instToIntUSizeUintNumBits___lam__0(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Grind_instToIntUSizeUintNumBits() {
+static lean_object* _init_l_Lean_Grind_instToIntUSizeUintNumBits___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lean_Grind_instToIntUSizeUintNumBits___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Grind_instToIntUSizeUintNumBits() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Grind_instToIntUSizeUintNumBits___closed__0;
 return x_1;
 }
 }
@@ -378,14 +423,24 @@ l_Lean_Grind_instToIntNatCiOfNatInt___closed__1 = _init_l_Lean_Grind_instToIntNa
 lean_mark_persistent(l_Lean_Grind_instToIntNatCiOfNatInt___closed__1);
 l_Lean_Grind_instToIntNatCiOfNatInt = _init_l_Lean_Grind_instToIntNatCiOfNatInt();
 lean_mark_persistent(l_Lean_Grind_instToIntNatCiOfNatInt);
+l_Lean_Grind_instToIntUInt8UintOfNatNat___closed__0 = _init_l_Lean_Grind_instToIntUInt8UintOfNatNat___closed__0();
+lean_mark_persistent(l_Lean_Grind_instToIntUInt8UintOfNatNat___closed__0);
 l_Lean_Grind_instToIntUInt8UintOfNatNat = _init_l_Lean_Grind_instToIntUInt8UintOfNatNat();
 lean_mark_persistent(l_Lean_Grind_instToIntUInt8UintOfNatNat);
+l_Lean_Grind_instToIntUInt16UintOfNatNat___closed__0 = _init_l_Lean_Grind_instToIntUInt16UintOfNatNat___closed__0();
+lean_mark_persistent(l_Lean_Grind_instToIntUInt16UintOfNatNat___closed__0);
 l_Lean_Grind_instToIntUInt16UintOfNatNat = _init_l_Lean_Grind_instToIntUInt16UintOfNatNat();
 lean_mark_persistent(l_Lean_Grind_instToIntUInt16UintOfNatNat);
+l_Lean_Grind_instToIntUInt32UintOfNatNat___closed__0 = _init_l_Lean_Grind_instToIntUInt32UintOfNatNat___closed__0();
+lean_mark_persistent(l_Lean_Grind_instToIntUInt32UintOfNatNat___closed__0);
 l_Lean_Grind_instToIntUInt32UintOfNatNat = _init_l_Lean_Grind_instToIntUInt32UintOfNatNat();
 lean_mark_persistent(l_Lean_Grind_instToIntUInt32UintOfNatNat);
+l_Lean_Grind_instToIntUInt64UintOfNatNat___closed__0 = _init_l_Lean_Grind_instToIntUInt64UintOfNatNat___closed__0();
+lean_mark_persistent(l_Lean_Grind_instToIntUInt64UintOfNatNat___closed__0);
 l_Lean_Grind_instToIntUInt64UintOfNatNat = _init_l_Lean_Grind_instToIntUInt64UintOfNatNat();
 lean_mark_persistent(l_Lean_Grind_instToIntUInt64UintOfNatNat);
+l_Lean_Grind_instToIntUSizeUintNumBits___closed__0 = _init_l_Lean_Grind_instToIntUSizeUintNumBits___closed__0();
+lean_mark_persistent(l_Lean_Grind_instToIntUSizeUintNumBits___closed__0);
 l_Lean_Grind_instToIntUSizeUintNumBits = _init_l_Lean_Grind_instToIntUSizeUintNumBits();
 lean_mark_persistent(l_Lean_Grind_instToIntUSizeUintNumBits);
 l_Lean_Grind_instToIntInt8SintOfNatNat___closed__0 = _init_l_Lean_Grind_instToIntInt8SintOfNatNat___closed__0();

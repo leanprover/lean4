@@ -213,13 +213,17 @@ def Folder.mkBinary [Literal α] [Literal β] [Literal γ] (folder : α → β �
   mkLit <| folder arg₁ arg₂
 
 def Folder.mkBinaryDecisionProcedure [Literal α] [Literal β] {r : α → β → Prop} (folder : (a : α) → (b : β) → Decidable (r a b)) : Folder := fun args => do
-  if (← getPhase) < .mono then
-    return none
   let #[.fvar fvarId₁, .fvar fvarId₂] := args | return none
   let some arg₁ ← getLit fvarId₁ | return none
   let some arg₂ ← getLit fvarId₂ | return none
-  let boolLit := folder arg₁ arg₂ |>.decide
-  mkLit boolLit
+  let result := folder arg₁ arg₂ |>.decide
+  if (← getPhase) < .mono then
+    if result then
+      return some <| .const ``Decidable.isTrue [] #[.erased, .erased]
+    else
+      return some <| .const ``Decidable.isFalse [] #[.erased, .erased]
+  else
+    mkLit result
 
 /--
 Provide a folder for an operation with a left neutral element.

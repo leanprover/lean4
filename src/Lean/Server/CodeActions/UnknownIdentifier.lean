@@ -224,17 +224,22 @@ def computeQueries
       break
   return queries
 
-def importAllUnknownIdentifiersProvider : Name := `unknownIdentifiers
+def importAllUnknownIdentifiersProvider : Name := `allUnknownIdentifiers
+def importUnknownIdentifiersProvider : Name := `unknownIdentifiers
+
+def mkUnknownIdentifierCodeActionData (params : CodeActionParams)
+    (name := importUnknownIdentifiersProvider) : CodeActionResolveData := {
+  params,
+  providerName := name
+  providerResultIndex := 0
+  : CodeActionResolveData
+}
 
 def importAllUnknownIdentifiersCodeAction (params : CodeActionParams) (kind : String) : CodeAction := {
   title := "Import all unambiguous unknown identifiers"
   kind? := kind
-  data? := some <| toJson {
-    params,
-    providerName := importAllUnknownIdentifiersProvider
-    providerResultIndex := 0
-    : CodeActionResolveData
-  }
+  data? := some <| toJson <|
+    mkUnknownIdentifierCodeActionData params importAllUnknownIdentifiersProvider
 }
 
 private def mkImportText (ctx : Elab.ContextInfo) (mod : Name) :
@@ -311,6 +316,7 @@ def handleUnknownIdentifierCodeAction
               insertion.edit
             ]
           }
+          data? := some <| toJson <| mkUnknownIdentifierCodeActionData params
         }
         if isExactMatch then
           hasUnambiguousImportCodeAction := true
@@ -322,6 +328,7 @@ def handleUnknownIdentifierCodeAction
             textDocument := doc.versionedIdentifier
             edits := #[insertion.edit]
           }
+          data? := some <| toJson <| mkUnknownIdentifierCodeActionData params
         }
   if hasUnambiguousImportCodeAction then
     unknownIdentifierCodeActions := unknownIdentifierCodeActions.push <|

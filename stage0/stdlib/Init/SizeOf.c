@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_instSizeOfNat___lam__0(lean_object*);
+static lean_object* l_instSizeOfNat___closed__0;
 static lean_object* l_instSizeOfDefault___closed__0;
 LEAN_EXPORT lean_object* l_default_sizeOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSizeOfDefault(lean_object*);
@@ -73,11 +74,19 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_instSizeOfNat() {
+static lean_object* _init_l_instSizeOfNat___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_instSizeOfNat___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_instSizeOfNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_instSizeOfNat___closed__0;
 return x_1;
 }
 }
@@ -104,7 +113,8 @@ LEAN_EXPORT lean_object* l_instSizeOfForallUnit(lean_object* x_1, lean_object* x
 _start:
 {
 lean_object* x_3; 
-x_3 = l_instSizeOfForallUnit___redArg(x_2);
+x_3 = lean_alloc_closure((void*)(l_instSizeOfForallUnit___redArg___lam__0), 2, 1);
+lean_closure_set(x_3, 0, x_2);
 return x_3;
 }
 }
@@ -119,6 +129,8 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_instSizeOfDefault___closed__0 = _init_l_instSizeOfDefault___closed__0();
 lean_mark_persistent(l_instSizeOfDefault___closed__0);
+l_instSizeOfNat___closed__0 = _init_l_instSizeOfNat___closed__0();
+lean_mark_persistent(l_instSizeOfNat___closed__0);
 l_instSizeOfNat = _init_l_instSizeOfNat();
 lean_mark_persistent(l_instSizeOfNat);
 return lean_io_result_mk_ok(lean_box(0));

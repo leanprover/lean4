@@ -29,6 +29,7 @@ LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize___lam__0___boxed(lean_object*, 
 lean_object* lean_nat_pow(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+static lean_object* l_BitVec_instRxcHasSize___closed__0;
 LEAN_EXPORT lean_object* l_BitVec_instUpwardEnumerable___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instUpwardEnumerable___lam__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -36,6 +37,7 @@ LEAN_EXPORT lean_object* l_BitVec_instRxcHasSize(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instRxiHasSize(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+static lean_object* l_BitVec_instRxoHasSize___closed__0;
 LEAN_EXPORT lean_object* l_BitVec_instUpwardEnumerable___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -146,11 +148,19 @@ lean_dec(x_1);
 return x_3;
 }
 }
+static lean_object* _init_l_BitVec_instRxcHasSize___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_BitVec_instRxcHasSize___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_BitVec_instRxcHasSize(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_BitVec_instRxcHasSize___lam__0___boxed), 2, 0);
+x_2 = l_BitVec_instRxcHasSize___closed__0;
 return x_2;
 }
 }
@@ -186,11 +196,19 @@ lean_dec(x_1);
 return x_3;
 }
 }
+static lean_object* _init_l_BitVec_instRxoHasSize___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_BitVec_instRxoHasSize___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_BitVec_instRxoHasSize(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_BitVec_instRxoHasSize___lam__0___boxed), 2, 0);
+x_2 = l_BitVec_instRxoHasSize___closed__0;
 return x_2;
 }
 }
@@ -254,6 +272,10 @@ lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_BitVec_instRxcHasSize___closed__0 = _init_l_BitVec_instRxcHasSize___closed__0();
+lean_mark_persistent(l_BitVec_instRxcHasSize___closed__0);
+l_BitVec_instRxoHasSize___closed__0 = _init_l_BitVec_instRxoHasSize___closed__0();
+lean_mark_persistent(l_BitVec_instRxoHasSize___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

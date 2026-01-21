@@ -19,6 +19,7 @@ LEAN_EXPORT lean_object* l_MonadAttach_trivial___redArg___lam__1(lean_object*, l
 LEAN_EXPORT lean_object* l_MonadAttach_pbind___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MonadAttach_trivial___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_MonadAttach_pbind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_MonadAttach_trivial___redArg___closed__0;
 LEAN_EXPORT lean_object* l_MonadAttach_trivial___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_MonadAttach_trivial(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MonadAttach_pbind___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
@@ -78,6 +79,14 @@ x_6 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_2, x_4);
 return x_6;
 }
 }
+static lean_object* _init_l_MonadAttach_trivial___redArg___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_MonadAttach_trivial___redArg___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_MonadAttach_trivial___redArg(lean_object* x_1) {
 _start:
 {
@@ -88,7 +97,7 @@ lean_dec_ref(x_1);
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_3);
 lean_dec_ref(x_2);
-x_4 = lean_alloc_closure((void*)(l_MonadAttach_trivial___redArg___lam__0___boxed), 1, 0);
+x_4 = l_MonadAttach_trivial___redArg___closed__0;
 x_5 = lean_alloc_closure((void*)(l_MonadAttach_trivial___redArg___lam__1), 4, 2);
 lean_closure_set(x_5, 0, x_3);
 lean_closure_set(x_5, 1, x_4);
@@ -112,6 +121,8 @@ _G_initialized = true;
 res = initialize_Init_Control_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_MonadAttach_trivial___redArg___closed__0 = _init_l_MonadAttach_trivial___redArg___closed__0();
+lean_mark_persistent(l_MonadAttach_trivial___redArg___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -69,19 +69,11 @@ lean_dec(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Grind_nodeDefUnexpander___redArg___closed__3() {
+static lean_object* _init_l_Lean_Grind_nodeDefUnexpander___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("app", 3, 3);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Grind_nodeDefUnexpander___redArg___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Term", 4, 4);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -93,11 +85,19 @@ x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Grind_nodeDefUnexpander___redArg___closed__0() {
+static lean_object* _init_l_Lean_Grind_nodeDefUnexpander___redArg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean", 4, 4);
+x_1 = lean_mk_string_unchecked("Term", 4, 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Grind_nodeDefUnexpander___redArg___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("app", 3, 3);
 return x_1;
 }
 }
@@ -299,14 +299,14 @@ lean_dec_ref(res);
 res = initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Grind_nodeDefUnexpander___redArg___closed__3 = _init_l_Lean_Grind_nodeDefUnexpander___redArg___closed__3();
-lean_mark_persistent(l_Lean_Grind_nodeDefUnexpander___redArg___closed__3);
-l_Lean_Grind_nodeDefUnexpander___redArg___closed__2 = _init_l_Lean_Grind_nodeDefUnexpander___redArg___closed__2();
-lean_mark_persistent(l_Lean_Grind_nodeDefUnexpander___redArg___closed__2);
-l_Lean_Grind_nodeDefUnexpander___redArg___closed__1 = _init_l_Lean_Grind_nodeDefUnexpander___redArg___closed__1();
-lean_mark_persistent(l_Lean_Grind_nodeDefUnexpander___redArg___closed__1);
 l_Lean_Grind_nodeDefUnexpander___redArg___closed__0 = _init_l_Lean_Grind_nodeDefUnexpander___redArg___closed__0();
 lean_mark_persistent(l_Lean_Grind_nodeDefUnexpander___redArg___closed__0);
+l_Lean_Grind_nodeDefUnexpander___redArg___closed__1 = _init_l_Lean_Grind_nodeDefUnexpander___redArg___closed__1();
+lean_mark_persistent(l_Lean_Grind_nodeDefUnexpander___redArg___closed__1);
+l_Lean_Grind_nodeDefUnexpander___redArg___closed__2 = _init_l_Lean_Grind_nodeDefUnexpander___redArg___closed__2();
+lean_mark_persistent(l_Lean_Grind_nodeDefUnexpander___redArg___closed__2);
+l_Lean_Grind_nodeDefUnexpander___redArg___closed__3 = _init_l_Lean_Grind_nodeDefUnexpander___redArg___closed__3();
+lean_mark_persistent(l_Lean_Grind_nodeDefUnexpander___redArg___closed__3);
 l_Lean_Grind_nodeDefUnexpander___redArg___closed__4 = _init_l_Lean_Grind_nodeDefUnexpander___redArg___closed__4();
 lean_mark_persistent(l_Lean_Grind_nodeDefUnexpander___redArg___closed__4);
 l_Lean_Grind_nodeDefUnexpander___redArg___closed__5 = _init_l_Lean_Grind_nodeDefUnexpander___redArg___closed__5();

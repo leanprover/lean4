@@ -15,18 +15,21 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRocSlice(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__22;
+static lean_object* l_Std_TreeMap_instSliceableRioSlice___closed__0;
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRooSlice(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__8;
 LEAN_EXPORT lean_object* l_Std_TreeMap_toList__rii___auto__1;
 static lean_object* l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__14;
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRciSlice(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
+static lean_object* l_Std_TreeMap_instSliceableRiiSlice___closed__0;
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRicSlice___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_toList__rcc___auto__1;
 static lean_object* l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__1;
 static lean_object* l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__19;
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRccSlice___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRioSlice(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_TreeMap_instSliceableRcoSlice___closed__0;
 static lean_object* l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__4;
 LEAN_EXPORT lean_object* l_Std_TreeMap_toList__roo___auto__1;
 static lean_object* l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__12;
@@ -38,10 +41,10 @@ static lean_object* l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__5;
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRoiSlice___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__16;
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRicSlice___auto__1;
-lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRcoSlice(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_toList__roi___auto__1;
 static lean_object* l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__3;
+static lean_object* l_Std_TreeMap_instSliceableRooSlice___closed__0;
 LEAN_EXPORT lean_object* l_Std_TreeMap_toList__ric___auto__1;
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRioSlice___lam__0(lean_object*, lean_object*);
 static lean_object* l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__15;
@@ -61,11 +64,14 @@ static lean_object* l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__7;
 static lean_object* l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__9;
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRciSlice___auto__1;
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRccSlice___auto__1;
+static lean_object* l_Std_TreeMap_instSliceableRccSlice___closed__0;
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRcoSlice___auto__1;
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRoiSlice(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_TreeMap_instSliceableRocSlice___closed__0;
 LEAN_EXPORT lean_object* l_Std_TreeMap_toList__rco___auto__1;
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRccSlice___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRcoSlice___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_TreeMap_instSliceableRicSlice___closed__0;
 LEAN_EXPORT lean_object* l_Std_TreeMap_toList__roc___auto__1;
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRooSlice___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRocSlice___auto__1;
@@ -73,6 +79,7 @@ static lean_object* l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__24;
 LEAN_EXPORT lean_object* l_Std_TreeMap_toList__rci___auto__1;
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRiiSlice___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__26;
+static lean_object* l_Std_TreeMap_instSliceableRoiSlice___closed__0;
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRicSlice(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__25;
 static lean_object* l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__13;
@@ -87,9 +94,11 @@ static lean_object* l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__20;
 lean_object* l_Lean_mkAtom(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRicSlice___lam__0(lean_object*, lean_object*);
 static lean_object* l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__18;
+static lean_object* l_Std_TreeMap_instSliceableRciSlice___closed__0;
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRocSlice___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRioSlice___auto__1;
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRooSlice___auto__1;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRiiSlice___lam__0(lean_object*, lean_object*);
 static lean_object* _init_l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__0() {
 _start:
@@ -138,9 +147,10 @@ return x_5;
 static lean_object* _init_l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__6() {
@@ -389,11 +399,19 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Std_TreeMap_instSliceableRiiSlice___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Std_TreeMap_instSliceableRiiSlice___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRiiSlice(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Std_TreeMap_instSliceableRiiSlice___lam__0), 2, 0);
+x_4 = l_Std_TreeMap_instSliceableRiiSlice___closed__0;
 return x_4;
 }
 }
@@ -432,11 +450,19 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Std_TreeMap_instSliceableRicSlice___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Std_TreeMap_instSliceableRicSlice___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRicSlice(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Std_TreeMap_instSliceableRicSlice___lam__0), 2, 0);
+x_4 = l_Std_TreeMap_instSliceableRicSlice___closed__0;
 return x_4;
 }
 }
@@ -475,11 +501,19 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Std_TreeMap_instSliceableRioSlice___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Std_TreeMap_instSliceableRioSlice___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRioSlice(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Std_TreeMap_instSliceableRioSlice___lam__0), 2, 0);
+x_4 = l_Std_TreeMap_instSliceableRioSlice___closed__0;
 return x_4;
 }
 }
@@ -518,11 +552,19 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Std_TreeMap_instSliceableRciSlice___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Std_TreeMap_instSliceableRciSlice___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRciSlice(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Std_TreeMap_instSliceableRciSlice___lam__0), 2, 0);
+x_4 = l_Std_TreeMap_instSliceableRciSlice___closed__0;
 return x_4;
 }
 }
@@ -561,11 +603,19 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Std_TreeMap_instSliceableRcoSlice___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Std_TreeMap_instSliceableRcoSlice___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRcoSlice(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Std_TreeMap_instSliceableRcoSlice___lam__0), 2, 0);
+x_4 = l_Std_TreeMap_instSliceableRcoSlice___closed__0;
 return x_4;
 }
 }
@@ -604,11 +654,19 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Std_TreeMap_instSliceableRccSlice___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Std_TreeMap_instSliceableRccSlice___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRccSlice(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Std_TreeMap_instSliceableRccSlice___lam__0), 2, 0);
+x_4 = l_Std_TreeMap_instSliceableRccSlice___closed__0;
 return x_4;
 }
 }
@@ -647,11 +705,19 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Std_TreeMap_instSliceableRoiSlice___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Std_TreeMap_instSliceableRoiSlice___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRoiSlice(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Std_TreeMap_instSliceableRoiSlice___lam__0), 2, 0);
+x_4 = l_Std_TreeMap_instSliceableRoiSlice___closed__0;
 return x_4;
 }
 }
@@ -690,11 +756,19 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Std_TreeMap_instSliceableRocSlice___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Std_TreeMap_instSliceableRocSlice___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRocSlice(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Std_TreeMap_instSliceableRocSlice___lam__0), 2, 0);
+x_4 = l_Std_TreeMap_instSliceableRocSlice___closed__0;
 return x_4;
 }
 }
@@ -733,11 +807,19 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Std_TreeMap_instSliceableRooSlice___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Std_TreeMap_instSliceableRooSlice___lam__0), 2, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Std_TreeMap_instSliceableRooSlice(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Std_TreeMap_instSliceableRooSlice___lam__0), 2, 0);
+x_4 = l_Std_TreeMap_instSliceableRooSlice___closed__0;
 return x_4;
 }
 }
@@ -827,38 +909,56 @@ l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__26 = _init_l_Std_TreeMap
 lean_mark_persistent(l_Std_TreeMap_instSliceableRiiSlice___auto__1___closed__26);
 l_Std_TreeMap_instSliceableRiiSlice___auto__1 = _init_l_Std_TreeMap_instSliceableRiiSlice___auto__1();
 lean_mark_persistent(l_Std_TreeMap_instSliceableRiiSlice___auto__1);
+l_Std_TreeMap_instSliceableRiiSlice___closed__0 = _init_l_Std_TreeMap_instSliceableRiiSlice___closed__0();
+lean_mark_persistent(l_Std_TreeMap_instSliceableRiiSlice___closed__0);
 l_Std_TreeMap_toList__rii___auto__1 = _init_l_Std_TreeMap_toList__rii___auto__1();
 lean_mark_persistent(l_Std_TreeMap_toList__rii___auto__1);
 l_Std_TreeMap_instSliceableRicSlice___auto__1 = _init_l_Std_TreeMap_instSliceableRicSlice___auto__1();
 lean_mark_persistent(l_Std_TreeMap_instSliceableRicSlice___auto__1);
+l_Std_TreeMap_instSliceableRicSlice___closed__0 = _init_l_Std_TreeMap_instSliceableRicSlice___closed__0();
+lean_mark_persistent(l_Std_TreeMap_instSliceableRicSlice___closed__0);
 l_Std_TreeMap_toList__ric___auto__1 = _init_l_Std_TreeMap_toList__ric___auto__1();
 lean_mark_persistent(l_Std_TreeMap_toList__ric___auto__1);
 l_Std_TreeMap_instSliceableRioSlice___auto__1 = _init_l_Std_TreeMap_instSliceableRioSlice___auto__1();
 lean_mark_persistent(l_Std_TreeMap_instSliceableRioSlice___auto__1);
+l_Std_TreeMap_instSliceableRioSlice___closed__0 = _init_l_Std_TreeMap_instSliceableRioSlice___closed__0();
+lean_mark_persistent(l_Std_TreeMap_instSliceableRioSlice___closed__0);
 l_Std_TreeMap_toList__rio___auto__1 = _init_l_Std_TreeMap_toList__rio___auto__1();
 lean_mark_persistent(l_Std_TreeMap_toList__rio___auto__1);
 l_Std_TreeMap_instSliceableRciSlice___auto__1 = _init_l_Std_TreeMap_instSliceableRciSlice___auto__1();
 lean_mark_persistent(l_Std_TreeMap_instSliceableRciSlice___auto__1);
+l_Std_TreeMap_instSliceableRciSlice___closed__0 = _init_l_Std_TreeMap_instSliceableRciSlice___closed__0();
+lean_mark_persistent(l_Std_TreeMap_instSliceableRciSlice___closed__0);
 l_Std_TreeMap_toList__rci___auto__1 = _init_l_Std_TreeMap_toList__rci___auto__1();
 lean_mark_persistent(l_Std_TreeMap_toList__rci___auto__1);
 l_Std_TreeMap_instSliceableRcoSlice___auto__1 = _init_l_Std_TreeMap_instSliceableRcoSlice___auto__1();
 lean_mark_persistent(l_Std_TreeMap_instSliceableRcoSlice___auto__1);
+l_Std_TreeMap_instSliceableRcoSlice___closed__0 = _init_l_Std_TreeMap_instSliceableRcoSlice___closed__0();
+lean_mark_persistent(l_Std_TreeMap_instSliceableRcoSlice___closed__0);
 l_Std_TreeMap_toList__rco___auto__1 = _init_l_Std_TreeMap_toList__rco___auto__1();
 lean_mark_persistent(l_Std_TreeMap_toList__rco___auto__1);
 l_Std_TreeMap_instSliceableRccSlice___auto__1 = _init_l_Std_TreeMap_instSliceableRccSlice___auto__1();
 lean_mark_persistent(l_Std_TreeMap_instSliceableRccSlice___auto__1);
+l_Std_TreeMap_instSliceableRccSlice___closed__0 = _init_l_Std_TreeMap_instSliceableRccSlice___closed__0();
+lean_mark_persistent(l_Std_TreeMap_instSliceableRccSlice___closed__0);
 l_Std_TreeMap_toList__rcc___auto__1 = _init_l_Std_TreeMap_toList__rcc___auto__1();
 lean_mark_persistent(l_Std_TreeMap_toList__rcc___auto__1);
 l_Std_TreeMap_instSliceableRoiSlice___auto__1 = _init_l_Std_TreeMap_instSliceableRoiSlice___auto__1();
 lean_mark_persistent(l_Std_TreeMap_instSliceableRoiSlice___auto__1);
+l_Std_TreeMap_instSliceableRoiSlice___closed__0 = _init_l_Std_TreeMap_instSliceableRoiSlice___closed__0();
+lean_mark_persistent(l_Std_TreeMap_instSliceableRoiSlice___closed__0);
 l_Std_TreeMap_toList__roi___auto__1 = _init_l_Std_TreeMap_toList__roi___auto__1();
 lean_mark_persistent(l_Std_TreeMap_toList__roi___auto__1);
 l_Std_TreeMap_instSliceableRocSlice___auto__1 = _init_l_Std_TreeMap_instSliceableRocSlice___auto__1();
 lean_mark_persistent(l_Std_TreeMap_instSliceableRocSlice___auto__1);
+l_Std_TreeMap_instSliceableRocSlice___closed__0 = _init_l_Std_TreeMap_instSliceableRocSlice___closed__0();
+lean_mark_persistent(l_Std_TreeMap_instSliceableRocSlice___closed__0);
 l_Std_TreeMap_toList__roc___auto__1 = _init_l_Std_TreeMap_toList__roc___auto__1();
 lean_mark_persistent(l_Std_TreeMap_toList__roc___auto__1);
 l_Std_TreeMap_instSliceableRooSlice___auto__1 = _init_l_Std_TreeMap_instSliceableRooSlice___auto__1();
 lean_mark_persistent(l_Std_TreeMap_instSliceableRooSlice___auto__1);
+l_Std_TreeMap_instSliceableRooSlice___closed__0 = _init_l_Std_TreeMap_instSliceableRooSlice___closed__0();
+lean_mark_persistent(l_Std_TreeMap_instSliceableRooSlice___closed__0);
 l_Std_TreeMap_toList__roo___auto__1 = _init_l_Std_TreeMap_toList__roo___auto__1();
 lean_mark_persistent(l_Std_TreeMap_toList__roo___auto__1);
 return lean_io_result_mk_ok(lean_box(0));

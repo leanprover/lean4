@@ -43,6 +43,9 @@ instance : Coe Bool LeanOptionValue where
 instance : Coe Nat LeanOptionValue where
   coe := LeanOptionValue.ofNat
 
+instance {n : Nat} : OfNat LeanOptionValue n where
+  ofNat := .ofNat n
+
 instance : FromJson LeanOptionValue where
   fromJson?
     | (s : String) => Except.ok s
@@ -97,9 +100,9 @@ def LeanOptions.appendArray (self : LeanOptions) (new : Array LeanOption) : Lean
 instance : HAppend LeanOptions (Array LeanOption) LeanOptions := ⟨LeanOptions.appendArray⟩
 
 def LeanOptions.toOptions (leanOptions : LeanOptions) : Options := Id.run do
-  let mut options := KVMap.empty
+  let mut options := Options.empty
   for ⟨name, optionValue⟩ in leanOptions.values do
-    options := options.insert name optionValue.toDataValue
+    options := options.set name optionValue.toDataValue
   return options
 
 def LeanOptions.fromOptions? (options : Options) : Option LeanOptions := do

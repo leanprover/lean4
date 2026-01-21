@@ -24,7 +24,6 @@ static lean_object* l_Lean_initFn___closed__1_00___x40_Lean_Compiler_Noncomputab
 LEAN_EXPORT lean_object* l_Lean_isNoncomputable___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_TagDeclarationExtension_tag(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_addNoncomputable___closed__0;
 LEAN_EXPORT lean_object* l_Lean_initFn_00___x40_Lean_Compiler_NoncomputableAttr_168799903____hygCtx___hyg_2____boxed(lean_object*);
 lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_initFn___closed__0_00___x40_Lean_Compiler_NoncomputableAttr_168799903____hygCtx___hyg_2_() {
@@ -71,19 +70,11 @@ x_2 = l_Lean_initFn_00___x40_Lean_Compiler_NoncomputableAttr_168799903____hygCtx
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_addNoncomputable___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_noncomputableExt;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_addNoncomputable(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_Lean_addNoncomputable___closed__0;
+x_3 = l_Lean_noncomputableExt;
 x_4 = l_Lean_TagDeclarationExtension_tag(x_3, x_1, x_2);
 return x_4;
 }
@@ -92,7 +83,7 @@ LEAN_EXPORT uint8_t l_Lean_isNoncomputable(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_3 = l_Lean_addNoncomputable___closed__0;
+x_3 = l_Lean_noncomputableExt;
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_4, 2);
@@ -132,9 +123,7 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_noncomputableExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_noncomputableExt);
 lean_dec_ref(res);
-}l_Lean_addNoncomputable___closed__0 = _init_l_Lean_addNoncomputable___closed__0();
-lean_mark_persistent(l_Lean_addNoncomputable___closed__0);
-return lean_io_result_mk_ok(lean_box(0));
+}return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus
 }

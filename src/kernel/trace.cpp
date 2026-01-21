@@ -13,113 +13,26 @@ Author: Leonardo de Moura
 #include "kernel/trace.h"
 
 namespace lean {
-static name_set *            g_trace_classes = nullptr;
-static name_map<name_set>  * g_trace_aliases = nullptr;
-MK_THREAD_LOCAL_GET_DEF(std::vector<name>, get_enabled_trace_classes);
-MK_THREAD_LOCAL_GET_DEF(std::vector<name>, get_disabled_trace_classes);
-LEAN_THREAD_PTR(elab_environment,      g_env);
-LEAN_THREAD_PTR(options,               g_opts);
+LEAN_THREAD_PTR(const options,               g_opts);
 
 void register_trace_class(name const & n, name const & decl_name) {
     register_option(name("trace") + n, decl_name, data_value_kind::Bool, "false",
                     "(trace) enable/disable tracing for the given module and submodules");
-    g_trace_classes->insert(n);
 }
 
-void register_trace_class_alias(name const & n, name const & alias) {
-    name_set new_s;
-    if (auto s = g_trace_aliases->find(n))
-        new_s = *s;
-    new_s.insert(alias);
-    g_trace_aliases->insert(n, new_s);
-}
-
-bool is_trace_enabled() {
-    return !get_enabled_trace_classes().empty();
-}
-
-static void update_class(std::vector<name> & cs, name const & c) {
-    if (std::find(cs.begin(), cs.end(), c) == cs.end()) {
-        cs.push_back(c);
-    }
-}
-
-static void enable_trace_class(name const & c) {
-    update_class(get_enabled_trace_classes(), c);
-}
-
-static void disable_trace_class(name const & c) {
-    update_class(get_disabled_trace_classes(), c);
-}
-
-static bool is_trace_class_set_core(std::vector<name> const & cs, name const & n) {
-    for (name const & p : cs) {
-        if (is_prefix_of(p, n)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-static bool is_trace_class_set(std::vector<name> const & cs, name const & n) {
-    if (is_trace_class_set_core(cs, n))
-        return true;
-    auto it = n;
-    while (true) {
-        if (auto s = g_trace_aliases->find(it)) {
-            bool found = false;
-            s->for_each([&](name const & alias) {
-                    if (!found && is_trace_class_set_core(cs, alias))
-                        found = true;
-                });
-            if (found)
-                return true;
-        }
-        if (it.is_atomic())
-            return false;
-        it = it.get_prefix();
-    }
-}
-
+extern "C" bool lean_is_trace_class_enabled(obj_arg opts, obj_arg cls);
 bool is_trace_class_enabled(name const & n) {
-    if (!is_trace_enabled())
-        return false;
-    if (is_trace_class_set(get_disabled_trace_classes(), n))
-        return false; // it was explicitly disabled
-    return is_trace_class_set(get_enabled_trace_classes(), n);
+    return lean_is_trace_class_enabled(g_opts->to_obj_arg(), n.to_obj_arg());
 }
 
-
-void scope_trace_env::init(elab_environment * env, options * opts) {
-    m_enable_sz  = get_enabled_trace_classes().size();
-    m_disable_sz = get_disabled_trace_classes().size();
-    m_old_env    = g_env;
-    m_old_opts   = g_opts;
-    g_env        = env;
-    name trace("trace");
-    if (opts && g_opts != opts) {
-        opts->for_each([&](name const & n) {
-                if (is_prefix_of(trace, n)) {
-                    name cls        = n.replace_prefix(trace, name());
-                    if (opts->get_bool(n, false))
-                        enable_trace_class(cls);
-                    else
-                        disable_trace_class(cls);
-                }
-            });
-    }
-    g_opts = opts;
-}
 
 scope_trace_env::scope_trace_env(elab_environment const & env, options const & o) {
-    init(const_cast<elab_environment*>(&env), const_cast<options*>(&o));
+    m_old_opts = g_opts;
+    g_opts = &o;
 }
 
 scope_trace_env::~scope_trace_env() {
-    g_env  = const_cast<elab_environment*>(m_old_env);
     g_opts = const_cast<options*>(m_old_opts);
-    get_enabled_trace_classes().resize(m_enable_sz);
-    get_disabled_trace_classes().resize(m_disable_sz);
 }
 
 extern "C" obj_res lean_io_eprint(obj_arg s);
@@ -140,21 +53,9 @@ std::ostream & operator<<(std::ostream & ios, tclass const & c) {
 }
 
 void initialize_trace() {
-    g_trace_classes = new name_set();
-    g_trace_aliases = new name_map<name_set>();
-
-    register_trace_class(name{"debug"});
 }
 
 void finalize_trace() {
-    delete g_trace_classes;
-    delete g_trace_aliases;
 }
-
-/*
-@[export lean_mk_metavar_ctx]
-def mkMetavarContext : Unit → MetavarContext := fun _ => {}
-*/
-extern "C" lean_object* lean_mk_metavar_ctx(lean_object*);
 
 }

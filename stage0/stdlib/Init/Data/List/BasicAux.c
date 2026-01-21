@@ -177,11 +177,11 @@ static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__Li
 LEAN_EXPORT lean_object* l_List_partitionMap___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_getD___redArg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_List_partitionM___closed__0;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__33;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__34;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__47;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__52;
+static lean_object* l_List_partitionM___redArg___closed__0;
 static lean_object* l_List_getLast_x21___redArg___closed__3;
 static lean_object* l_List_tacticSizeOf__list__dec___closed__2;
 LEAN_EXPORT lean_object* l_List_getD___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -204,6 +204,16 @@ return x_5;
 }
 }
 }
+LEAN_EXPORT lean_object* l_List_getD___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_List_getD___redArg(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_List_getD(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -222,21 +232,11 @@ lean_dec(x_2);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_List_getD___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_List_getD___redArg(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_1);
-return x_4;
-}
-}
-static lean_object* _init_l_List_getLast_x21___redArg___closed__2() {
+static lean_object* _init_l_List_getLast_x21___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("empty list", 10, 10);
+x_1 = lean_mk_string_unchecked("Init.Data.List.BasicAux", 23, 23);
 return x_1;
 }
 }
@@ -248,11 +248,11 @@ x_1 = lean_mk_string_unchecked("List.getLast!", 13, 13);
 return x_1;
 }
 }
-static lean_object* _init_l_List_getLast_x21___redArg___closed__0() {
+static lean_object* _init_l_List_getLast_x21___redArg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Init.Data.List.BasicAux", 23, 23);
+x_1 = lean_mk_string_unchecked("empty list", 10, 10);
 return x_1;
 }
 }
@@ -288,6 +288,15 @@ return x_5;
 }
 }
 }
+LEAN_EXPORT lean_object* l_List_getLast_x21___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_List_getLast_x21___redArg(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_List_getLast_x21(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -303,15 +312,6 @@ lean_object* x_4;
 x_4 = l_List_getLast_x21(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_List_getLast_x21___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_List_getLast_x21___redArg(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 static lean_object* _init_l_List_head_x21___redArg___closed__0() {
@@ -355,6 +355,15 @@ return x_5;
 }
 }
 }
+LEAN_EXPORT lean_object* l_List_head_x21___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_List_head_x21___redArg(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_List_head_x21(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -372,12 +381,20 @@ lean_dec(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_List_head_x21___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_panic___at___00List_tail_x21_spec__0___redArg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_box(0);
+x_3 = lean_panic_fn(x_2, x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_panic___at___00List_tail_x21_spec__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_List_head_x21___redArg(x_1, x_2);
-lean_dec(x_2);
+x_3 = l_panic___at___00List_tail_x21_spec__0___redArg(x_2);
 return x_3;
 }
 }
@@ -402,15 +419,6 @@ x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at___00List_tail_x21_spec__0___redArg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_box(0);
-x_3 = lean_panic_fn(x_2, x_1);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_List_tail_x21___redArg(lean_object* x_1) {
 _start:
 {
@@ -430,19 +438,20 @@ return x_4;
 }
 }
 }
+LEAN_EXPORT lean_object* l_List_tail_x21___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_List_tail_x21___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_List_tail_x21(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
 x_3 = l_List_tail_x21___redArg(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_panic___at___00List_tail_x21_spec__0(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_panic___at___00List_tail_x21_spec__0___redArg(x_2);
 return x_3;
 }
 }
@@ -453,34 +462,6 @@ lean_object* x_3;
 x_3 = l_List_tail_x21(x_1, x_2);
 lean_dec(x_2);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_List_tail_x21___redArg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_List_tail_x21___redArg(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_partitionM_go___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, uint8_t x_7) {
-_start:
-{
-if (x_7 == 0)
-{
-lean_object* x_8; lean_object* x_9; 
-x_8 = lean_array_push(x_1, x_2);
-x_9 = l___private_Init_Data_List_BasicAux_0__List_partitionM_go___redArg(x_3, x_4, x_5, x_6, x_8);
-return x_9;
-}
-else
-{
-lean_object* x_10; lean_object* x_11; 
-x_10 = lean_array_push(x_6, x_2);
-x_11 = l___private_Init_Data_List_BasicAux_0__List_partitionM_go___redArg(x_3, x_4, x_5, x_10, x_1);
-return x_11;
-}
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_partitionM_go___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -560,6 +541,25 @@ return x_24;
 }
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_partitionM_go___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, uint8_t x_7) {
+_start:
+{
+if (x_7 == 0)
+{
+lean_object* x_8; lean_object* x_9; 
+x_8 = lean_array_push(x_1, x_2);
+x_9 = l___private_Init_Data_List_BasicAux_0__List_partitionM_go___redArg(x_3, x_4, x_5, x_6, x_8);
+return x_9;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; 
+x_10 = lean_array_push(x_6, x_2);
+x_11 = l___private_Init_Data_List_BasicAux_0__List_partitionM_go___redArg(x_3, x_4, x_5, x_10, x_1);
+return x_11;
+}
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_partitionM_go(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -568,7 +568,7 @@ x_8 = l___private_Init_Data_List_BasicAux_0__List_partitionM_go___redArg(x_3, x_
 return x_8;
 }
 }
-static lean_object* _init_l_List_partitionM___closed__0() {
+static lean_object* _init_l_List_partitionM___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -577,22 +577,22 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_List_partitionM(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; lean_object* x_7; 
-x_6 = l_List_partitionM___closed__0;
-x_7 = l___private_Init_Data_List_BasicAux_0__List_partitionM_go___redArg(x_3, x_4, x_5, x_6, x_6);
-return x_7;
-}
-}
 LEAN_EXPORT lean_object* l_List_partitionM___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = l_List_partitionM___closed__0;
+x_4 = l_List_partitionM___redArg___closed__0;
 x_5 = l___private_Init_Data_List_BasicAux_0__List_partitionM_go___redArg(x_1, x_2, x_3, x_4, x_4);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_List_partitionM(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; lean_object* x_7; 
+x_6 = l_List_partitionM___redArg___closed__0;
+x_7 = l___private_Init_Data_List_BasicAux_0__List_partitionM_go___redArg(x_3, x_4, x_5, x_6, x_6);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_partitionMap_go___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -652,22 +652,22 @@ x_8 = l___private_Init_Data_List_BasicAux_0__List_partitionMap_go___redArg(x_4, 
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_List_partitionMap(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; lean_object* x_7; 
-x_6 = l_List_partitionM___closed__0;
-x_7 = l___private_Init_Data_List_BasicAux_0__List_partitionMap_go___redArg(x_4, x_5, x_6, x_6);
-return x_7;
-}
-}
 LEAN_EXPORT lean_object* l_List_partitionMap___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_List_partitionM___closed__0;
+x_3 = l_List_partitionM___redArg___closed__0;
 x_4 = l___private_Init_Data_List_BasicAux_0__List_partitionMap_go___redArg(x_1, x_2, x_3, x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_List_partitionMap(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; lean_object* x_7; 
+x_6 = l_List_partitionM___redArg___closed__0;
+x_7 = l___private_Init_Data_List_BasicAux_0__List_partitionMap_go___redArg(x_4, x_5, x_6, x_6);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -724,22 +724,6 @@ lean_dec(x_4);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
-_start:
-{
-lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-lean_inc(x_4);
-x_9 = lean_alloc_closure((void*)(l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___redArg___lam__0___boxed), 6, 5);
-lean_closure_set(x_9, 0, x_8);
-lean_closure_set(x_9, 1, x_1);
-lean_closure_set(x_9, 2, x_2);
-lean_closure_set(x_9, 3, x_3);
-lean_closure_set(x_9, 4, x_4);
-x_10 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___redArg(x_5, x_4, x_6);
-x_11 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_10, x_9);
-return x_11;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -783,6 +767,22 @@ x_13 = lean_apply_1(x_3, x_10);
 x_14 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_13, x_12);
 return x_14;
 }
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_inc(x_4);
+x_9 = lean_alloc_closure((void*)(l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___redArg___lam__0___boxed), 6, 5);
+lean_closure_set(x_9, 0, x_8);
+lean_closure_set(x_9, 1, x_1);
+lean_closure_set(x_9, 2, x_2);
+lean_closure_set(x_9, 3, x_3);
+lean_closure_set(x_9, 4, x_4);
+x_10 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___redArg(x_5, x_4, x_6);
+x_11 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_10, x_9);
+return x_11;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -939,20 +939,20 @@ return x_2;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_mapMono(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at___00List_mapMono_spec__0___redArg(x_3, x_2);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_List_mapMono___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
 x_3 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at___00List_mapMono_spec__0___redArg(x_2, x_1);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_List_mapMono(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at___00List_mapMono_spec__0___redArg(x_3, x_2);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at___00List_mapMono_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2144,6 +2144,15 @@ return x_12;
 }
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_get_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l___private_Init_Data_List_BasicAux_0__List_get_match__1_splitter___redArg(x_1, x_2, x_3, x_4);
+lean_dec(x_2);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_get_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -2161,15 +2170,6 @@ lean_dec(x_4);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_get_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l___private_Init_Data_List_BasicAux_0__List_get_match__1_splitter___redArg(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
-return x_5;
-}
-}
 lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_BasicAux(uint8_t builtin) {
@@ -2179,12 +2179,12 @@ _G_initialized = true;
 res = initialize_Init_Data_Nat_Linear(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_List_getLast_x21___redArg___closed__2 = _init_l_List_getLast_x21___redArg___closed__2();
-lean_mark_persistent(l_List_getLast_x21___redArg___closed__2);
-l_List_getLast_x21___redArg___closed__1 = _init_l_List_getLast_x21___redArg___closed__1();
-lean_mark_persistent(l_List_getLast_x21___redArg___closed__1);
 l_List_getLast_x21___redArg___closed__0 = _init_l_List_getLast_x21___redArg___closed__0();
 lean_mark_persistent(l_List_getLast_x21___redArg___closed__0);
+l_List_getLast_x21___redArg___closed__1 = _init_l_List_getLast_x21___redArg___closed__1();
+lean_mark_persistent(l_List_getLast_x21___redArg___closed__1);
+l_List_getLast_x21___redArg___closed__2 = _init_l_List_getLast_x21___redArg___closed__2();
+lean_mark_persistent(l_List_getLast_x21___redArg___closed__2);
 l_List_getLast_x21___redArg___closed__3 = _init_l_List_getLast_x21___redArg___closed__3();
 lean_mark_persistent(l_List_getLast_x21___redArg___closed__3);
 l_List_head_x21___redArg___closed__0 = _init_l_List_head_x21___redArg___closed__0();
@@ -2195,8 +2195,8 @@ l_List_tail_x21___redArg___closed__0 = _init_l_List_tail_x21___redArg___closed__
 lean_mark_persistent(l_List_tail_x21___redArg___closed__0);
 l_List_tail_x21___redArg___closed__1 = _init_l_List_tail_x21___redArg___closed__1();
 lean_mark_persistent(l_List_tail_x21___redArg___closed__1);
-l_List_partitionM___closed__0 = _init_l_List_partitionM___closed__0();
-lean_mark_persistent(l_List_partitionM___closed__0);
+l_List_partitionM___redArg___closed__0 = _init_l_List_partitionM___redArg___closed__0();
+lean_mark_persistent(l_List_partitionM___redArg___closed__0);
 l_List_tacticSizeOf__list__dec___closed__0 = _init_l_List_tacticSizeOf__list__dec___closed__0();
 lean_mark_persistent(l_List_tacticSizeOf__list__dec___closed__0);
 l_List_tacticSizeOf__list__dec___closed__1 = _init_l_List_tacticSizeOf__list__dec___closed__1();

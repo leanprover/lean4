@@ -69,7 +69,6 @@ LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___lam__0(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_instInhabitedDocumentMeta_default___closed__2;
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___lam__1(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -125,6 +124,14 @@ lean_ctor_set(x_4, 0, x_3);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_IO_throwServerError___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_IO_throwServerError___redArg(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_IO_throwServerError(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -139,14 +146,6 @@ _start:
 lean_object* x_4; 
 x_4 = l_IO_throwServerError(x_1, x_2);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_IO_throwServerError___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_IO_throwServerError___redArg(x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___lam__0(lean_object* x_1, lean_object* x_2, uint8_t x_3, size_t x_4) {
@@ -842,15 +841,6 @@ x_5 = l_IO_FS_Stream_chainLeft(x_1, x_2, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_5; lean_object* x_6; 
-x_5 = lean_string_append(x_1, x_3);
-x_6 = lean_apply_2(x_2, x_5, lean_box(0));
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -876,6 +866,15 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_IO_FS_Stream_withPrefix___lam__0(x_1, x_2, x_3, x_4);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_string_append(x_1, x_3);
+x_6 = lean_apply_2(x_2, x_5, lean_box(0));
 return x_6;
 }
 }
@@ -958,17 +957,9 @@ return x_1;
 static lean_object* _init_l_Lean_Server_instInhabitedDocumentMeta_default___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_instInhabitedFileMap_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Server_instInhabitedDocumentMeta_default___closed__2() {
-_start:
-{
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = 0;
-x_2 = l_Lean_Server_instInhabitedDocumentMeta_default___closed__1;
+x_2 = l_Lean_instInhabitedFileMap_default;
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_box(0);
 x_5 = l_Lean_Server_instInhabitedDocumentMeta_default___closed__0;
@@ -985,7 +976,7 @@ static lean_object* _init_l_Lean_Server_instInhabitedDocumentMeta_default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Server_instInhabitedDocumentMeta_default___closed__2;
+x_1 = l_Lean_Server_instInhabitedDocumentMeta_default___closed__1;
 return x_1;
 }
 }
@@ -1134,6 +1125,19 @@ return x_4;
 }
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_foldDocumentChanges_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+size_t x_5; size_t x_6; lean_object* x_7; 
+x_5 = lean_unbox_usize(x_2);
+lean_dec(x_2);
+x_6 = lean_unbox_usize(x_3);
+lean_dec(x_3);
+x_7 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_foldDocumentChanges_spec__0(x_1, x_5, x_6, x_4);
+lean_dec_ref(x_1);
+return x_7;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Server_foldDocumentChanges(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1173,19 +1177,6 @@ x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lea
 return x_12;
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_foldDocumentChanges_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-size_t x_5; size_t x_6; lean_object* x_7; 
-x_5 = lean_unbox_usize(x_2);
-lean_dec(x_2);
-x_6 = lean_unbox_usize(x_3);
-lean_dec(x_3);
-x_7 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Server_foldDocumentChanges_spec__0(x_1, x_5, x_6, x_4);
-lean_dec_ref(x_1);
-return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_foldDocumentChanges___boxed(lean_object* x_1, lean_object* x_2) {
@@ -1470,6 +1461,15 @@ x_3 = l_String_dropPrefix_x3f___at___00__private_Lean_Server_Utils_0__Lean_Serve
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00__private_Lean_Server_Utils_0__Lean_Server_externalNameToUri_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_String_dropPrefix_x3f___at___00__private_Lean_Server_Utils_0__Lean_Server_externalNameToUri_x3f_spec__0(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l___private_Lean_Server_Utils_0__Lean_Server_externalNameToUri_x3f(lean_object* x_1) {
 _start:
 {
@@ -1532,15 +1532,6 @@ lean_dec(x_1);
 x_13 = lean_box(0);
 return x_13;
 }
-}
-}
-LEAN_EXPORT lean_object* l_String_dropPrefix_x3f___at___00__private_Lean_Server_Utils_0__Lean_Server_externalNameToUri_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_String_dropPrefix_x3f___at___00__private_Lean_Server_Utils_0__Lean_Server_externalNameToUri_x3f_spec__0(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
 }
 }
 static lean_object* _init_l_Lean_Server_documentUriFromModule_x3f___closed__0() {
@@ -1871,6 +1862,17 @@ return x_8;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Option_instBEq_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
 static lean_object* _init_l_Lean_Server_moduleFromDocumentUri___closed__0() {
 _start:
 {
@@ -2142,17 +2144,6 @@ return x_50;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_Option_instBEq_beq___at___00Lean_Server_moduleFromDocumentUri_spec__0(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-x_4 = lean_box(x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Server_moduleFromDocumentUri___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -2230,8 +2221,6 @@ l_Lean_Server_instInhabitedDocumentMeta_default___closed__0 = _init_l_Lean_Serve
 lean_mark_persistent(l_Lean_Server_instInhabitedDocumentMeta_default___closed__0);
 l_Lean_Server_instInhabitedDocumentMeta_default___closed__1 = _init_l_Lean_Server_instInhabitedDocumentMeta_default___closed__1();
 lean_mark_persistent(l_Lean_Server_instInhabitedDocumentMeta_default___closed__1);
-l_Lean_Server_instInhabitedDocumentMeta_default___closed__2 = _init_l_Lean_Server_instInhabitedDocumentMeta_default___closed__2();
-lean_mark_persistent(l_Lean_Server_instInhabitedDocumentMeta_default___closed__2);
 l_Lean_Server_instInhabitedDocumentMeta_default = _init_l_Lean_Server_instInhabitedDocumentMeta_default();
 lean_mark_persistent(l_Lean_Server_instInhabitedDocumentMeta_default);
 l_Lean_Server_instInhabitedDocumentMeta = _init_l_Lean_Server_instInhabitedDocumentMeta();

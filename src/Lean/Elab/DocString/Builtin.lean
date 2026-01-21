@@ -1267,7 +1267,7 @@ def «set_option» (option : Ident) (value : DataValue) : DocM (Block ElabInline
   pushInfoLeaf <| .ofOptionInfo { stx := option, optionName, declName := decl.declName }
   validateOptionValue optionName decl value
   let o ← getOptions
-  modify fun s => { s with options := o.insert optionName value }
+  modify fun s => { s with options := o.set optionName value }
   return .empty
 
 /--

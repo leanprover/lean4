@@ -11,6 +11,7 @@ import Lean.Util.ForEachExpr
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Match.Basic
 import Lean.Meta.Tactic.TryThis
+import Lean.Meta.Sym.Util
 public section
 namespace Lean.Meta.Grind
 /-!
@@ -281,7 +282,7 @@ private theorem normConfig_zetaDelta : normConfig.zetaDelta = true := rfl
 
 def preprocessPattern (pat : Expr) (normalizePattern := true) : MetaM Expr := do
   let pat ← instantiateMVars pat
-  let pat ← unfoldReducible pat
+  let pat ← Sym.unfoldReducible pat
   let pat ← if normalizePattern then normalize pat normConfig else pure pat
   let pat ← detectOffsets pat
   let pat ← foldProjs pat

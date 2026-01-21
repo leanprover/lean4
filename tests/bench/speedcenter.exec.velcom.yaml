@@ -459,6 +459,18 @@
   build_config:
     cmd: ./compile.sh nat_repr.lean
 - attributes:
+    description: big_struct
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean big_struct.lean
+- attributes:
+    description: big_struct_dep
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: lean big_struct_dep.lean
+- attributes:
     description: unionfind
     tags: [other]
   run_config:
@@ -640,3 +652,10 @@
   run_config:
     <<: *time
     cmd: lean ../lean/run/grind_ring_5.lean
+- attributes:
+    description: leanchecker --fresh Init
+    tags: [other]
+  run_config:
+    <<: *time
+    cmd: leanchecker --fresh Init
+    max_runs: 1

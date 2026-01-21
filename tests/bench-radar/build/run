@@ -8,7 +8,11 @@ STAGE3="build/release/stage3"
 # Build previous stages and warm up stage3
 cmake --preset release
 timeout -s KILL 1h time make -C build/release -j"$(nproc)" stage3
-find "$STAGE3" -name "*.olean" -delete
+pushd "$STAGE3"
+mkdir install
+make install DESTDIR=install
+find lib -name "*.olean" -delete
+popd
 
 # Use stage2 binaries from now on
 #

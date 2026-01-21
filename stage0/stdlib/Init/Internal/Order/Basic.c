@@ -891,14 +891,6 @@ x_2 = lean_box(0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Order_instPartialOrderExceptT(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_apply_1(x_4, lean_box(0));
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Order_instPartialOrderExceptT___redArg(lean_object* x_1) {
 _start:
 {
@@ -907,7 +899,7 @@ x_2 = lean_apply_1(x_1, lean_box(0));
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Order_instCCPOExceptT(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_Order_instPartialOrderExceptT(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
@@ -923,12 +915,12 @@ x_2 = lean_apply_1(x_1, lean_box(0));
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Order_instPartialOrderOptionT(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Order_instCCPOExceptT(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_4; 
-x_4 = lean_apply_1(x_3, lean_box(0));
-return x_4;
+lean_object* x_5; 
+x_5 = lean_apply_1(x_4, lean_box(0));
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Order_instPartialOrderOptionT___redArg(lean_object* x_1) {
@@ -939,7 +931,7 @@ x_2 = lean_apply_1(x_1, lean_box(0));
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Order_instCCPOOptionT(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Order_instPartialOrderOptionT(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -953,6 +945,14 @@ _start:
 lean_object* x_2; 
 x_2 = lean_apply_1(x_1, lean_box(0));
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Order_instCCPOOptionT(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_apply_1(x_3, lean_box(0));
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Order_instPartialOrderReaderT(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

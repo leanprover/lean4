@@ -6,13 +6,55 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.SymM
+public import Lean.Meta.Transform
+import Init.Grind.Util
+import Lean.Meta.WHNF
 namespace Lean.Meta.Sym
-open Grind
+
+/--
+Returns `true` if `declName` is the name of a grind helper declaration that
+should not be unfolded by `unfoldReducible`.
+-/
+def isGrindGadget (declName : Name) : Bool :=
+  declName == ``Grind.EqMatch
+
+/--
+Auxiliary function for implementing `unfoldReducible` and `unfoldReducibleSimproc`.
+Performs a single step.
+-/
+public def unfoldReducibleStep (e : Expr) : MetaM TransformStep := do
+  let .const declName _ := e.getAppFn | return .continue
+  unless (← isReducible declName) do return .continue
+  if isGrindGadget declName then return .continue
+  -- See comment at isUnfoldReducibleTarget.
+  if (← getEnv).isProjectionFn declName then return .continue
+  let some v ← unfoldDefinition? e | return .continue
+  return .visit v
+
+def isUnfoldReducibleTarget (e : Expr) : CoreM Bool := do
+  let env ← getEnv
+  return Option.isSome <| e.find? fun e => Id.run do
+    let .const declName _ := e | return false
+    if getReducibilityStatusCore env declName matches .reducible then
+      -- Remark: it is wasteful to unfold projection functions since
+      -- kernel projections are folded again in the `foldProjs` preprocessing step.
+      return !isGrindGadget declName && !env.isProjectionFn declName
+    else
+      return false
+
+/--
+Unfolds all `reducible` declarations occurring in `e`.
+This is meant as a preprocessing step. It does **not** guarantee maximally shared terms
+-/
+public def unfoldReducible (e : Expr) : MetaM Expr := do
+  if !(← isUnfoldReducibleTarget e) then return e
+  Meta.transform e (pre := unfoldReducibleStep)
+
 /--
 Instantiates metavariables, unfold reducible, and applies `shareCommon`.
 -/
 def preprocessExpr (e : Expr) : SymM Expr := do
-  shareCommon (← instantiateMVars e)
+  shareCommon (← unfoldReducible (← instantiateMVars e))
 
 /--
 Helper function that removes gaps, instantiate metavariables, and applies `shareCommon`.

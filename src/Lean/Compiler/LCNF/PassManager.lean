@@ -87,6 +87,7 @@ pipeline.
 structure PassManager where
   basePasses : Array Pass
   monoPasses : Array Pass
+  monoPassesNoLambda : Array Pass
   deriving Inhabited
 
 instance : ToString Phase where
@@ -114,6 +115,7 @@ private def validatePasses (phase : Phase) (passes : Array Pass) : CoreM Unit :=
 def validate (manager : PassManager) : CoreM Unit := do
   validatePasses .base manager.basePasses
   validatePasses .mono manager.monoPasses
+  validatePasses .mono manager.monoPassesNoLambda
 
 def findOccurrenceBounds (targetName : Name) (passes : Array Pass) : CoreM (Nat × Nat) := do
   let mut lowest := none

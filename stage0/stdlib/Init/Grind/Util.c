@@ -87,26 +87,10 @@ static lean_object* l_Lean_Grind_markerUnexpander___redArg___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Grind_markerUnexpander___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_eqMatchUnexpander___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Grind_nestedProofUnexpander___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Grind_nestedDecidable(lean_object* x_1, uint8_t x_2) {
-_start:
-{
-return x_2;
-}
-}
 LEAN_EXPORT uint8_t l_Lean_Grind_nestedDecidable___redArg(uint8_t x_1) {
 _start:
 {
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_nestedDecidable___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; lean_object* x_5; 
-x_3 = lean_unbox(x_2);
-x_4 = l_Lean_Grind_nestedDecidable(x_1, x_3);
-x_5 = lean_box(x_4);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_nestedDecidable___redArg___boxed(lean_object* x_1) {
@@ -119,11 +103,20 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_simpMatchDiscrsOnly(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lean_Grind_nestedDecidable(lean_object* x_1, uint8_t x_2) {
 _start:
 {
-lean_inc(x_2);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_nestedDecidable___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; uint8_t x_4; lean_object* x_5; 
+x_3 = lean_unbox(x_2);
+x_4 = l_Lean_Grind_nestedDecidable(x_1, x_3);
+x_5 = lean_box(x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_simpMatchDiscrsOnly___redArg(lean_object* x_1) {
@@ -133,15 +126,6 @@ lean_inc(x_1);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_simpMatchDiscrsOnly___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Grind_simpMatchDiscrsOnly(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Grind_simpMatchDiscrsOnly___redArg___boxed(lean_object* x_1) {
 _start:
 {
@@ -149,6 +133,22 @@ lean_object* x_2;
 x_2 = l_Lean_Grind_simpMatchDiscrsOnly___redArg(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_simpMatchDiscrsOnly(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_inc(x_2);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_simpMatchDiscrsOnly___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Grind_simpMatchDiscrsOnly(x_1, x_2);
+lean_dec(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_offset(lean_object* x_1, lean_object* x_2) {
@@ -664,27 +664,11 @@ lean_dec(x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Grind_Marker(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_inc(x_2);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Grind_Marker___redArg(lean_object* x_1) {
 _start:
 {
 lean_inc(x_1);
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_Marker___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Grind_Marker(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Grind_Marker___redArg___boxed(lean_object* x_1) {
@@ -694,6 +678,22 @@ lean_object* x_2;
 x_2 = l_Lean_Grind_Marker___redArg(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_Marker(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_inc(x_2);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_Marker___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Grind_Marker(x_1, x_2);
+lean_dec(x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Grind_markerUnexpander___redArg___closed__0() {
@@ -724,19 +724,19 @@ x_1 = lean_mk_string_unchecked("by", 2, 2);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Grind_markerUnexpander___redArg___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("tacticSeq", 9, 9);
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_Grind_markerUnexpander___redArg___closed__3() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Grind_markerUnexpander___redArg___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("tacticSeq", 9, 9);
 return x_1;
 }
 }
@@ -884,6 +884,15 @@ lean_ctor_set(x_23, 1, x_2);
 return x_23;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Grind_markerUnexpander___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Grind_markerUnexpander___redArg(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Grind_markerUnexpander(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -900,15 +909,6 @@ x_4 = l_Lean_Grind_markerUnexpander(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Grind_markerUnexpander___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Grind_markerUnexpander___redArg(x_1, x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 lean_object* initialize_Init_Classical(uint8_t builtin);
@@ -962,10 +962,10 @@ l_Lean_Grind_markerUnexpander___redArg___closed__1 = _init_l_Lean_Grind_markerUn
 lean_mark_persistent(l_Lean_Grind_markerUnexpander___redArg___closed__1);
 l_Lean_Grind_markerUnexpander___redArg___closed__2 = _init_l_Lean_Grind_markerUnexpander___redArg___closed__2();
 lean_mark_persistent(l_Lean_Grind_markerUnexpander___redArg___closed__2);
-l_Lean_Grind_markerUnexpander___redArg___closed__4 = _init_l_Lean_Grind_markerUnexpander___redArg___closed__4();
-lean_mark_persistent(l_Lean_Grind_markerUnexpander___redArg___closed__4);
 l_Lean_Grind_markerUnexpander___redArg___closed__3 = _init_l_Lean_Grind_markerUnexpander___redArg___closed__3();
 lean_mark_persistent(l_Lean_Grind_markerUnexpander___redArg___closed__3);
+l_Lean_Grind_markerUnexpander___redArg___closed__4 = _init_l_Lean_Grind_markerUnexpander___redArg___closed__4();
+lean_mark_persistent(l_Lean_Grind_markerUnexpander___redArg___closed__4);
 l_Lean_Grind_markerUnexpander___redArg___closed__5 = _init_l_Lean_Grind_markerUnexpander___redArg___closed__5();
 lean_mark_persistent(l_Lean_Grind_markerUnexpander___redArg___closed__5);
 l_Lean_Grind_markerUnexpander___redArg___closed__6 = _init_l_Lean_Grind_markerUnexpander___redArg___closed__6();

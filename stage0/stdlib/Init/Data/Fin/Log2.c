@@ -18,20 +18,29 @@ LEAN_EXPORT lean_object* l_Fin_log2___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_log2(lean_object*, lean_object*);
 lean_object* lean_nat_log2(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_log2___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Fin_log2(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_nat_log2(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Fin_log2___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
 x_2 = lean_nat_log2(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Fin_log2___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Fin_log2___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Fin_log2(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_nat_log2(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Fin_log2___boxed(lean_object* x_1, lean_object* x_2) {
@@ -42,15 +51,6 @@ x_3 = l_Fin_log2(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Fin_log2___redArg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Fin_log2___redArg(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 lean_object* initialize_Init_Data_Nat_Log2(uint8_t builtin);

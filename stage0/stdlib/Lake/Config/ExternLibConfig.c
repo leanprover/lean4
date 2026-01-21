@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Lake_instInhabitedExternLibConfig___closed__0;
+static lean_object* l_Lake_instInhabitedExternLibConfig_default___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedExternLibConfig_default___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedExternLibConfig_default(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedExternLibConfig(lean_object*, lean_object*);
@@ -22,14 +22,33 @@ static lean_object* l_Lake_instInhabitedExternLibConfig_default___lam__0___close
 static lean_object* l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__3;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedExternLibConfig___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__0;
-static lean_object* l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__5;
 extern lean_object* l_Lake_instInhabitedJobState_default;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedExternLibConfig_default___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedExternLibConfig_default___lam__0___boxed(lean_object*);
-static lean_object* l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__4;
 static lean_object* l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__1;
 extern lean_object* l_Lake_Log_instInhabitedPos_default;
-static lean_object* _init_l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__4() {
+static lean_object* _init_l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__0() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lake_instInhabitedJobState_default;
+x_2 = l_Lake_Log_instInhabitedPos_default;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__0;
+x_2 = lean_task_pure(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -37,51 +56,14 @@ x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_instInhabitedJobState_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_Log_instInhabitedPos_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__1;
-x_2 = l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__0;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
 static lean_object* _init_l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__2;
-x_2 = lean_task_pure(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__5() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = 0;
-x_2 = l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__4;
+x_2 = l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__2;
 x_3 = lean_box(0);
-x_4 = l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__3;
+x_4 = l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__1;
 x_5 = lean_alloc_ctor(0, 3, 1);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);
@@ -94,7 +76,7 @@ LEAN_EXPORT lean_object* l_Lake_instInhabitedExternLibConfig_default___lam__0(le
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__5;
+x_2 = l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__3;
 return x_2;
 }
 }
@@ -107,11 +89,19 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lake_instInhabitedExternLibConfig_default___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lake_instInhabitedExternLibConfig_default___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_instInhabitedExternLibConfig_default(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lake_instInhabitedExternLibConfig_default___lam__0___boxed), 1, 0);
+x_3 = l_Lake_instInhabitedExternLibConfig_default___closed__0;
 return x_3;
 }
 }
@@ -125,19 +115,11 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_instInhabitedExternLibConfig___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_instInhabitedExternLibConfig_default___lam__0___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_instInhabitedExternLibConfig(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lake_instInhabitedExternLibConfig___closed__0;
+x_3 = l_Lake_instInhabitedExternLibConfig_default___closed__0;
 return x_3;
 }
 }
@@ -160,20 +142,16 @@ _G_initialized = true;
 res = initialize_Lake_Build_Job_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__4 = _init_l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__4();
-lean_mark_persistent(l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__4);
-l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__1 = _init_l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__1();
-lean_mark_persistent(l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__1);
 l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__0 = _init_l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__0();
 lean_mark_persistent(l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__0);
+l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__1 = _init_l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__1();
+lean_mark_persistent(l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__1);
 l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__2 = _init_l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__2();
 lean_mark_persistent(l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__2);
 l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__3 = _init_l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__3();
 lean_mark_persistent(l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__3);
-l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__5 = _init_l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__5();
-lean_mark_persistent(l_Lake_instInhabitedExternLibConfig_default___lam__0___closed__5);
-l_Lake_instInhabitedExternLibConfig___closed__0 = _init_l_Lake_instInhabitedExternLibConfig___closed__0();
-lean_mark_persistent(l_Lake_instInhabitedExternLibConfig___closed__0);
+l_Lake_instInhabitedExternLibConfig_default___closed__0 = _init_l_Lake_instInhabitedExternLibConfig_default___closed__0();
+lean_mark_persistent(l_Lake_instInhabitedExternLibConfig_default___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

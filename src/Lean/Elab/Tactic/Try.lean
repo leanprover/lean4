@@ -196,17 +196,22 @@ private def evalSuggestAtomic (tac : TSyntax `tactic) : TacticM (TSyntax `tactic
   else
     return tac
 
-/-- Check if a config contains `+suggestions` -/
-private def configHasSuggestions (config : TSyntax ``Lean.Parser.Tactic.optConfig) : Bool :=
-  let configItems := config.raw.getArgs
-  configItems.any fun item =>
-    match item[0]? with
-    | some configItem => match configItem[0]? with
+/-- Check if a config contains `+suggestions` or `+locals` -/
+private def configHasSuggestionsOrLocals (config : TSyntax ``Lean.Parser.Tactic.optConfig) : Bool :=
+  -- optConfig structure: (Tactic.optConfig [configItem1, configItem2, ...])
+  -- config.raw.getArgs returns #[null_node], so we need to access the null node's children
+  let nullNode := config.raw[0]?
+  match nullNode with
+  | some node =>
+    node.getArgs.any fun configItem =>
+      match configItem[0]? with
       | some posConfigItem => match posConfigItem[1]? with
-        | some ident => posConfigItem.getKind == ``Lean.Parser.Tactic.posConfigItem && ident.getId == `suggestions
+        | some ident =>
+          let id := ident.getId.eraseMacroScopes
+          posConfigItem.getKind == ``Lean.Parser.Tactic.posConfigItem && (id == `suggestions || id == `locals)
         | none => false
       | none => false
-    | none => false
+  | none => false
 
 private def grindTraceToGrind (tac : TSyntax `tactic) : TacticM (TSyntax `tactic) := do
   match tac with
@@ -534,7 +539,7 @@ private def evalSuggestGrindTrace : TryTactic := fun tac => do
       trace[try.debug] ">> {tac1}"
     if (← read).config.only then
       -- If config has +suggestions, only return the 'only' version, not the original
-      if configHasSuggestions configStx then
+      if configHasSuggestionsOrLocals configStx then
         mkTrySuggestions tacs
       else
         mkTrySuggestions (#[tac] ++ tacs)
@@ -552,7 +557,7 @@ private def evalSuggestSimpTrace : TryTactic := fun tac => do (← getMainGoal).
       if (← read).config.only then
         let tac' ← mkSimpCallStx tac stats.usedTheorems
         -- If config has +suggestions, only return the 'only' version, not the original
-        if configHasSuggestions configStx then
+        if configHasSuggestionsOrLocals configStx then
           mkTrySuggestions #[tac']
         else
           mkTrySuggestions #[tac, tac']
@@ -565,7 +570,7 @@ private def evalSuggestSimpAllTrace : TryTactic := fun tac => do
   | `(tactic| simp_all? $[!%$_bang]? $configStx:optConfig $(_discharger)? $[only%$_only]? $[[$_args,*]]?) =>
     (← getMainGoal).withContext do
       withOriginalHeartbeats do
-        let hasSuggestions := configHasSuggestions configStx
+        let hasSuggestionsOrLocals := configHasSuggestionsOrLocals configStx
 
         -- Get library suggestions if +suggestions is present
         let config ← elabSimpConfig configStx (kind := .simpAll)
@@ -603,8 +608,8 @@ private def evalSuggestSimpAllTrace : TryTactic := fun tac => do
           -- Convert simp_all? to simp_all for mkSimpCallStx (similar to simpTraceToSimp)
           let tacWithoutTrace ← `(tactic| simp_all $filteredCfg:optConfig $[only%$_only]? $[[$_args,*]]?)
           let tac' ← mkSimpCallStx tacWithoutTrace stats.usedTheorems
-          -- If config has +suggestions, only return the 'only' version, not the original
-          if hasSuggestions then
+          -- If config has +suggestions or +locals, only return the 'only' version, not the original
+          if hasSuggestionsOrLocals then
             mkTrySuggestions #[tac']
           else
             mkTrySuggestions #[tac, tac']
@@ -731,6 +736,15 @@ private partial def evalSuggestAttemptAllPar (tacs : Array (TSyntax ``Parser.Tac
   else
     throwError "`attempt_all_par` failed"
 
+/-- `evalSuggest` for `first_par` tactic - returns first successful result, cancels others. -/
+private partial def evalSuggestFirstPar (tacs : Array (TSyntax ``Parser.Tactic.tacticSeq)) : TryTacticM (TSyntax `tactic) := do
+  unless (← read).terminal do
+    throwError "invalid occurrence of `first_par` in non-terminal position for `try?` script{indentD (← read).root}"
+  let ctx ← read
+  let jobs : List (TacticM (TSyntax `tactic)) := tacs.toList.map fun tacSeq =>
+    withOriginalHeartbeats (evalSuggestTacticSeq tacSeq) ctx
+  TacticM.parFirst jobs
+
 private partial def evalSuggestDefault (tac : TSyntax `tactic) : TryTacticM (TSyntax `tactic) := do
   let kind := tac.raw.getKind
   match (← getEvalFns kind) with
@@ -778,6 +792,7 @@ private partial def evalSuggestImpl : TryTactic := fun tac => do
   | `(tactic| try $tac:tacticSeq) => evalSuggestTry tac
   | `(tactic| attempt_all $[| $tacs]*) => evalSuggestAttemptAll tacs
   | `(tactic| attempt_all_par $[| $tacs]*) => evalSuggestAttemptAllPar tacs
+  | `(tactic| first_par $[| $tacs]*) => evalSuggestFirstPar tacs
   | _ =>
     let k := tac.raw.getKind
     if k == ``Parser.Tactic.seq1 then
@@ -881,7 +896,10 @@ Note: We previously included `simp_all? +suggestions` here, but removed it due t
 We would like to restore it in the future once `simp_all? +suggestions` is faster for general use.
 -/
 private def mkAtomicWithSuggestionsStx : CoreM (TSyntax `tactic) :=
-  `(tactic| grind? +suggestions)
+  `(tactic| first_par
+      | grind? +suggestions
+      | grind? +locals
+      | grind? +locals +suggestions)
 
 /-- `simple` tactics -/
 private def mkSimpleTacStx : CoreM (TSyntax `tactic) :=
@@ -946,8 +964,9 @@ private unsafe def mkTryEvalSuggestStxUnsafe (goal : MVarId) (info : Try.Info) :
 
   let atomic ← `(tactic| attempt_all_par | $simple:tactic | $simp:tactic | $grind:tactic | simp_all)
   let atomicSuggestions ← mkAtomicWithSuggestionsStx
-  let funInds ← mkAllFunIndStx info atomic
-  let inds ← mkAllIndStx info atomic
+  let atomicOrSuggestions ← `(tactic| first | $atomic:tactic | $atomicSuggestions:tactic)
+  let funInds ← mkAllFunIndStx info atomicOrSuggestions
+  let inds ← mkAllIndStx info atomicOrSuggestions
   let extra ← `(tactic| (intros; first | $simple:tactic | $simp:tactic | exact?))
 
   -- Collect user-defined suggestions (runs after built-in tactics)

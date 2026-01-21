@@ -19,8 +19,11 @@ module
 public def foo : String := "bar"
 EOF
 
-# Test cross-package `import all` is prevented by default
-test_err 'cannot `import all` the module' build ErrorTest.CrossPackageImportAll
+# Test cross-package `import all`
+# previosuly prevented by default
+# test_err 'cannot `import all` the module' build ErrorTest.CrossPackageImportAll
+# currently allowed
+test_run build ErrorTest.CrossPackageImportAll
 # Test cross-package `import all` is allowed when `allowImportAll = true` is set
 test_run build Test.CrossPackageImportAll
 

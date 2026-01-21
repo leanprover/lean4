@@ -51,7 +51,6 @@ static lean_object* l_Array_insertionSort___auto__1___closed__45;
 static lean_object* l_Array_insertionSort___auto__1___closed__29;
 static lean_object* l_Array_insertionSort___auto__1___closed__15;
 static lean_object* l_Array_insertionSort___auto__1___closed__5;
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Array_insertionSort___auto__1___closed__48;
 static lean_object* l_Array_insertionSort___auto__1___closed__27;
 static lean_object* l_Array_insertionSort___auto__1___closed__59;
@@ -90,6 +89,7 @@ static lean_object* l_Array_insertionSort___auto__1___closed__50;
 static lean_object* l_Array_insertionSort___auto__1___closed__7;
 static lean_object* l_Array_insertionSort___auto__1___closed__6;
 static lean_object* l_Array_insertionSort___auto__1___closed__41;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Array_insertionSort___auto__1___closed__10;
 static lean_object* l_Array_insertionSort___auto__1___closed__0;
 static lean_object* l_Array_insertionSort___auto__1___closed__34;
@@ -141,9 +141,10 @@ return x_5;
 static lean_object* _init_l_Array_insertionSort___auto__1___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Array_insertionSort___auto__1___closed__6() {
@@ -826,16 +827,6 @@ x_6 = l___private_Init_Data_Array_InsertionSort_0__Array_insertionSort_traverse_
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Array_insertionSort(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = lean_array_get_size(x_2);
-x_6 = l___private_Init_Data_Array_InsertionSort_0__Array_insertionSort_traverse___redArg(x_3, x_2, x_4, x_5);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l_Array_insertionSort___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -844,6 +835,16 @@ x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_array_get_size(x_1);
 x_5 = l___private_Init_Data_Array_InsertionSort_0__Array_insertionSort_traverse___redArg(x_2, x_1, x_3, x_4);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Array_insertionSort(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = lean_array_get_size(x_2);
+x_6 = l___private_Init_Data_Array_InsertionSort_0__Array_insertionSort_traverse___redArg(x_3, x_2, x_4, x_5);
+return x_6;
 }
 }
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin);

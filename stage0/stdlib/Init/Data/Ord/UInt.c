@@ -27,13 +27,18 @@ LEAN_EXPORT uint8_t l_UInt8_instOrd___lam__0(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_UInt64_instOrd;
 LEAN_EXPORT lean_object* l_UInt8_instOrd___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_UInt32_instOrd___lam__0(uint32_t, uint32_t);
+static lean_object* l_UInt8_instOrd___closed__0;
+static lean_object* l_UInt16_instOrd___closed__0;
 LEAN_EXPORT uint8_t l_UInt64_instOrd___lam__0(uint64_t, uint64_t);
 uint8_t lean_uint16_dec_eq(uint16_t, uint16_t);
 LEAN_EXPORT lean_object* l_UInt32_instOrd;
+static lean_object* l_USize_instOrd___closed__0;
 LEAN_EXPORT lean_object* l_UInt16_instOrd;
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
+static lean_object* l_UInt64_instOrd___closed__0;
 uint8_t lean_uint32_dec_lt(uint32_t, uint32_t);
+static lean_object* l_UInt32_instOrd___closed__0;
 LEAN_EXPORT lean_object* l_UInt64_instOrd___lam__0___boxed(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_UInt8_instOrd;
@@ -79,11 +84,19 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_UInt8_instOrd() {
+static lean_object* _init_l_UInt8_instOrd___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_UInt8_instOrd___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_UInt8_instOrd() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_UInt8_instOrd___closed__0;
 return x_1;
 }
 }
@@ -128,11 +141,19 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_UInt16_instOrd() {
+static lean_object* _init_l_UInt16_instOrd___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_UInt16_instOrd___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_UInt16_instOrd() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_UInt16_instOrd___closed__0;
 return x_1;
 }
 }
@@ -179,11 +200,19 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_UInt32_instOrd() {
+static lean_object* _init_l_UInt32_instOrd___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_UInt32_instOrd___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_UInt32_instOrd() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_UInt32_instOrd___closed__0;
 return x_1;
 }
 }
@@ -230,11 +259,19 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_UInt64_instOrd() {
+static lean_object* _init_l_UInt64_instOrd___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_UInt64_instOrd___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_UInt64_instOrd() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_UInt64_instOrd___closed__0;
 return x_1;
 }
 }
@@ -281,11 +318,19 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_USize_instOrd() {
+static lean_object* _init_l_USize_instOrd___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_USize_instOrd___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_USize_instOrd() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_USize_instOrd___closed__0;
 return x_1;
 }
 }
@@ -302,14 +347,24 @@ lean_dec_ref(res);
 res = initialize_Init_Data_UInt_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_UInt8_instOrd___closed__0 = _init_l_UInt8_instOrd___closed__0();
+lean_mark_persistent(l_UInt8_instOrd___closed__0);
 l_UInt8_instOrd = _init_l_UInt8_instOrd();
 lean_mark_persistent(l_UInt8_instOrd);
+l_UInt16_instOrd___closed__0 = _init_l_UInt16_instOrd___closed__0();
+lean_mark_persistent(l_UInt16_instOrd___closed__0);
 l_UInt16_instOrd = _init_l_UInt16_instOrd();
 lean_mark_persistent(l_UInt16_instOrd);
+l_UInt32_instOrd___closed__0 = _init_l_UInt32_instOrd___closed__0();
+lean_mark_persistent(l_UInt32_instOrd___closed__0);
 l_UInt32_instOrd = _init_l_UInt32_instOrd();
 lean_mark_persistent(l_UInt32_instOrd);
+l_UInt64_instOrd___closed__0 = _init_l_UInt64_instOrd___closed__0();
+lean_mark_persistent(l_UInt64_instOrd___closed__0);
 l_UInt64_instOrd = _init_l_UInt64_instOrd();
 lean_mark_persistent(l_UInt64_instOrd);
+l_USize_instOrd___closed__0 = _init_l_USize_instOrd___closed__0();
+lean_mark_persistent(l_USize_instOrd___closed__0);
 l_USize_instOrd = _init_l_USize_instOrd();
 lean_mark_persistent(l_USize_instOrd);
 return lean_io_result_mk_ok(lean_box(0));

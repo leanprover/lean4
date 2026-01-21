@@ -19,7 +19,7 @@ If `partial_apps = true`, then given a term `g a b`, we also apply the function 
 and not only to `g`, `a`, and `b`.
 */
 template<bool partial_apps> class for_each_fn {
-    std::unordered_set<lean_object *> m_cache;
+    lean::unordered_set<lean_object *> m_cache;
     std::function<bool(expr const &)> m_f; // NOLINT
 
     bool visited(expr const & e) {
@@ -95,7 +95,7 @@ class for_each_offset_fn {
             return hash((size_t)p.first, p.second);
         }
     };
-    std::unordered_set<std::pair<lean_object *, unsigned>, key_hasher> m_cache;
+    lean::unordered_set<std::pair<lean_object *, unsigned>, key_hasher> m_cache;
     std::function<bool(expr const &, unsigned)> m_f; // NOLINT
 
     bool visited(expr const & e, unsigned offset) {

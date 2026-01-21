@@ -14,4 +14,4 @@ ok: {"a": [{"baz": {"arr": []}}, [{"a": [{"baz": {"arr": []}}, []]}]]}
 ok: {"a": 42}
 ok: "a"
 ok: {}
-Except.error "no inductive constructor matched"
+Except.error "no inductive tag found"

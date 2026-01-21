@@ -41,8 +41,8 @@ public def findSpec (database : SpecTheorems) (wp : Expr) : MetaM SpecTheorem :=
       -- information why the defeq check failed, so we do it again.
       withOptions (fun o =>
         if o.getBool `trace.Elab.Tactic.Do.spec then
-          o |>.setBool `pp.universes true
-            |>.setBool `trace.Meta.isDefEq true
+          o |>.set `pp.universes true
+            |>.set `trace.Meta.isDefEq true
         else
           o) do
       withTraceNode `Elab.Tactic.Do.spec (fun _ => return m!"Defeq check for {type} failed.") do

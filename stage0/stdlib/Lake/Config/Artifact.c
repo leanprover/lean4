@@ -21,13 +21,13 @@ extern lean_object* l_System_instInhabitedFilePath_default;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_instReprArtifactDescr_repr___redArg___closed__4;
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
-static lean_object* l_Lake_instInhabitedArtifactDescr_default___closed__2;
 LEAN_EXPORT lean_object* l_Lake_instReprArtifactDescr;
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Lake_instReprArtifactDescr_repr_spec__0(lean_object*);
 static lean_object* l_Lake_instReprArtifactDescr_repr___redArg___closed__17;
 static lean_object* l_Lake_instReprArtifact_repr___redArg___closed__4;
 lean_object* l_String_quote(lean_object*);
 lean_object* l_Lake_Hash_ofHex_x3f(lean_object*);
+static lean_object* l_Lake_ArtifactDescr_instToJson___closed__0;
 static lean_object* l_Lake_instReprArtifact_repr___redArg___closed__7;
 static lean_object* l_Lake_instReprArtifact_repr___redArg___closed__6;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedArtifact_default;
@@ -88,7 +88,6 @@ LEAN_EXPORT lean_object* l_Lake_ArtifactDescr_relPath___boxed(lean_object*);
 static lean_object* l_Lake_instReprArtifactDescr_repr___redArg___closed__2;
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Lake_Artifact_trace(lean_object*);
-static lean_object* l_Lake_instInhabitedArtifact_default___closed__3;
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 static lean_object* l_Lake_ArtifactDescr_ofFilePath_x3f___closed__1;
 static lean_object* l_Lake_instReprArtifactDescr_repr___redArg___closed__9;
@@ -97,10 +96,11 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Artifact_withName(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_artifactPath(uint64_t, lean_object*);
 static lean_object* l_Lake_instReprArtifactDescr_repr___redArg___closed__12;
-static uint64_t l_Lake_instInhabitedArtifactDescr_default___closed__0;
+static lean_object* l_Lake_instInhabitedArtifactDescr_default___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instReprArtifactDescr_repr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instReprArtifactDescr_repr___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instReprArtifact_repr___redArg(lean_object*);
+static lean_object* l_Lake_ArtifactDescr_instToString___closed__0;
 static lean_object* l_Lake_Artifact_trace___closed__0;
 static lean_object* l_Lake_instReprArtifact_repr___redArg___closed__8;
 static lean_object* l_Lake_instInhabitedArtifactDescr_default___closed__1;
@@ -158,15 +158,7 @@ lean_dec_ref(x_2);
 return x_4;
 }
 }
-static uint64_t _init_l_Lake_instInhabitedArtifactDescr_default___closed__0() {
-_start:
-{
-uint64_t x_1; 
-x_1 = l_Lake_Hash_nil;
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_instInhabitedArtifactDescr_default___closed__1() {
+static lean_object* _init_l_Lake_instInhabitedArtifactDescr_default___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -174,12 +166,12 @@ x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_instInhabitedArtifactDescr_default___closed__2() {
+static lean_object* _init_l_Lake_instInhabitedArtifactDescr_default___closed__1() {
 _start:
 {
 lean_object* x_1; uint64_t x_2; lean_object* x_3; 
-x_1 = l_Lake_instInhabitedArtifactDescr_default___closed__1;
-x_2 = l_Lake_instInhabitedArtifactDescr_default___closed__0;
+x_1 = l_Lake_instInhabitedArtifactDescr_default___closed__0;
+x_2 = l_Lake_Hash_nil;
 x_3 = lean_alloc_ctor(0, 1, 8);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set_uint64(x_3, sizeof(void*)*1, x_2);
@@ -190,7 +182,7 @@ static lean_object* _init_l_Lake_instInhabitedArtifactDescr_default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_instInhabitedArtifactDescr_default___closed__2;
+x_1 = l_Lake_instInhabitedArtifactDescr_default___closed__1;
 return x_1;
 }
 }
@@ -202,22 +194,20 @@ x_1 = l_Lake_instInhabitedArtifactDescr_default;
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__4() {
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Lake_instReprArtifactDescr_repr_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" := ", 4, 4);
+x_1 = lean_mk_string_unchecked("{ ", 2, 2);
 return x_1;
-}
-}
-static lean_object* _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lake_instReprArtifactDescr_repr___redArg___closed__4;
-x_2 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__1() {
@@ -248,6 +238,24 @@ x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
+}
+}
+static lean_object* _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked(" := ", 4, 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lake_instReprArtifactDescr_repr___redArg___closed__4;
+x_2 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__6() {
@@ -316,11 +324,11 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__0() {
+static lean_object* _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("{ ", 2, 2);
+x_1 = lean_mk_string_unchecked(" }", 2, 2);
 return x_1;
 }
 }
@@ -350,14 +358,6 @@ x_1 = l_Lake_instReprArtifactDescr_repr___redArg___closed__0;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__13() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" }", 2, 2);
-return x_1;
 }
 }
 static lean_object* _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__17() {
@@ -444,14 +444,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lake_instReprArtifactDescr_repr___redArg(x_1);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Nat_cast___at___00Lake_instReprArtifactDescr_repr_spec__0(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_nat_to_int(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instReprArtifactDescr_repr___boxed(lean_object* x_1, lean_object* x_2) {
@@ -569,11 +561,19 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lake_ArtifactDescr_instToString() {
+static lean_object* _init_l_Lake_ArtifactDescr_instToString___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lake_ArtifactDescr_instToString___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_ArtifactDescr_instToString() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lake_ArtifactDescr_instToString___closed__0;
 return x_1;
 }
 }
@@ -616,11 +616,19 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lake_ArtifactDescr_instToJson() {
+static lean_object* _init_l_Lake_ArtifactDescr_instToJson___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lake_ArtifactDescr_instToJson___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_ArtifactDescr_instToJson() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lake_ArtifactDescr_instToJson___closed__0;
 return x_1;
 }
 }
@@ -667,12 +675,18 @@ return x_6;
 }
 }
 }
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lake_ArtifactDescr_ofFilePath_x3f_spec__0(lean_object* x_1, lean_object* x_2, uint32_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lake_ArtifactDescr_ofFilePath_x3f_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_10; 
-x_10 = l_WellFounded_opaqueFix_u2083___at___00Lake_ArtifactDescr_ofFilePath_x3f_spec__0___redArg(x_1, x_2, x_3, x_4, x_7, x_8);
-return x_10;
+uint32_t x_7; lean_object* x_8; 
+x_7 = lean_unbox_uint32(x_3);
+lean_dec(x_3);
+x_8 = l_WellFounded_opaqueFix_u2083___at___00Lake_ArtifactDescr_ofFilePath_x3f_spec__0___redArg(x_1, x_2, x_7, x_4, x_5, x_6);
+lean_dec(x_6);
+lean_dec(x_4);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
+return x_8;
 }
 }
 static lean_object* _init_l_Lake_ArtifactDescr_ofFilePath_x3f___closed__0() {
@@ -798,7 +812,7 @@ if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; uint64_t x_26; 
 x_23 = lean_ctor_get(x_21, 0);
-x_24 = l_Lake_instInhabitedArtifactDescr_default___closed__1;
+x_24 = l_Lake_instInhabitedArtifactDescr_default___closed__0;
 x_25 = lean_alloc_ctor(0, 1, 8);
 lean_ctor_set(x_25, 0, x_24);
 x_26 = lean_unbox_uint64(x_23);
@@ -813,7 +827,7 @@ lean_object* x_27; lean_object* x_28; lean_object* x_29; uint64_t x_30; lean_obj
 x_27 = lean_ctor_get(x_21, 0);
 lean_inc(x_27);
 lean_dec(x_21);
-x_28 = l_Lake_instInhabitedArtifactDescr_default___closed__1;
+x_28 = l_Lake_instInhabitedArtifactDescr_default___closed__0;
 x_29 = lean_alloc_ctor(0, 1, 8);
 lean_ctor_set(x_29, 0, x_28);
 x_30 = lean_unbox_uint64(x_27);
@@ -835,6 +849,14 @@ return x_32;
 }
 }
 }
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lake_ArtifactDescr_ofFilePath_x3f_spec__0(lean_object* x_1, lean_object* x_2, uint32_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+_start:
+{
+lean_object* x_10; 
+x_10 = l_WellFounded_opaqueFix_u2083___at___00Lake_ArtifactDescr_ofFilePath_x3f_spec__0___redArg(x_1, x_2, x_3, x_4, x_7, x_8);
+return x_10;
+}
+}
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lake_ArtifactDescr_ofFilePath_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -847,20 +869,6 @@ lean_dec(x_4);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 return x_11;
-}
-}
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lake_ArtifactDescr_ofFilePath_x3f_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-uint32_t x_7; lean_object* x_8; 
-x_7 = lean_unbox_uint32(x_3);
-lean_dec(x_3);
-x_8 = l_WellFounded_opaqueFix_u2083___at___00Lake_ArtifactDescr_ofFilePath_x3f_spec__0___redArg(x_1, x_2, x_7, x_4, x_5, x_6);
-lean_dec(x_6);
-lean_dec(x_4);
-lean_dec_ref(x_2);
-lean_dec_ref(x_1);
-return x_8;
 }
 }
 static lean_object* _init_l_Lake_ArtifactDescr_fromJson_x3f___closed__0() {
@@ -934,39 +942,31 @@ return x_1;
 static lean_object* _init_l_Lake_instInhabitedArtifact_default___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_System_instInhabitedFilePath_default;
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_instInhabitedArtifact_default___closed__1() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lake_instInhabitedArtifact_default___closed__2() {
+static lean_object* _init_l_Lake_instInhabitedArtifact_default___closed__1() {
 _start:
 {
 uint32_t x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = 0;
-x_2 = l_Lake_instInhabitedArtifact_default___closed__1;
+x_2 = l_Lake_instInhabitedArtifact_default___closed__0;
 x_3 = lean_alloc_ctor(0, 1, 4);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set_uint32(x_3, sizeof(void*)*1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_instInhabitedArtifact_default___closed__3() {
+static lean_object* _init_l_Lake_instInhabitedArtifact_default___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lake_instInhabitedArtifact_default___closed__2;
-x_2 = l_Lake_instInhabitedArtifactDescr_default___closed__1;
-x_3 = l_Lake_instInhabitedArtifact_default___closed__0;
+x_1 = l_Lake_instInhabitedArtifact_default___closed__1;
+x_2 = l_Lake_instInhabitedArtifactDescr_default___closed__0;
+x_3 = l_System_instInhabitedFilePath_default;
 x_4 = l_Lake_instInhabitedArtifactDescr_default;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_4);
@@ -980,7 +980,7 @@ static lean_object* _init_l_Lake_instInhabitedArtifact_default() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_instInhabitedArtifact_default___closed__3;
+x_1 = l_Lake_instInhabitedArtifact_default___closed__2;
 return x_1;
 }
 }
@@ -1396,24 +1396,25 @@ lean_dec_ref(res);
 l_Lake_artifactPath___closed__0 = _init_l_Lake_artifactPath___closed__0();
 lean_mark_persistent(l_Lake_artifactPath___closed__0);
 l_Lake_instInhabitedArtifactDescr_default___closed__0 = _init_l_Lake_instInhabitedArtifactDescr_default___closed__0();
+lean_mark_persistent(l_Lake_instInhabitedArtifactDescr_default___closed__0);
 l_Lake_instInhabitedArtifactDescr_default___closed__1 = _init_l_Lake_instInhabitedArtifactDescr_default___closed__1();
 lean_mark_persistent(l_Lake_instInhabitedArtifactDescr_default___closed__1);
-l_Lake_instInhabitedArtifactDescr_default___closed__2 = _init_l_Lake_instInhabitedArtifactDescr_default___closed__2();
-lean_mark_persistent(l_Lake_instInhabitedArtifactDescr_default___closed__2);
 l_Lake_instInhabitedArtifactDescr_default = _init_l_Lake_instInhabitedArtifactDescr_default();
 lean_mark_persistent(l_Lake_instInhabitedArtifactDescr_default);
 l_Lake_instInhabitedArtifactDescr = _init_l_Lake_instInhabitedArtifactDescr();
 lean_mark_persistent(l_Lake_instInhabitedArtifactDescr);
-l_Lake_instReprArtifactDescr_repr___redArg___closed__4 = _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__4();
-lean_mark_persistent(l_Lake_instReprArtifactDescr_repr___redArg___closed__4);
-l_Lake_instReprArtifactDescr_repr___redArg___closed__5 = _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__5();
-lean_mark_persistent(l_Lake_instReprArtifactDescr_repr___redArg___closed__5);
+l_Lake_instReprArtifactDescr_repr___redArg___closed__0 = _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__0();
+lean_mark_persistent(l_Lake_instReprArtifactDescr_repr___redArg___closed__0);
 l_Lake_instReprArtifactDescr_repr___redArg___closed__1 = _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__1();
 lean_mark_persistent(l_Lake_instReprArtifactDescr_repr___redArg___closed__1);
 l_Lake_instReprArtifactDescr_repr___redArg___closed__2 = _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__2();
 lean_mark_persistent(l_Lake_instReprArtifactDescr_repr___redArg___closed__2);
 l_Lake_instReprArtifactDescr_repr___redArg___closed__3 = _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__3();
 lean_mark_persistent(l_Lake_instReprArtifactDescr_repr___redArg___closed__3);
+l_Lake_instReprArtifactDescr_repr___redArg___closed__4 = _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__4();
+lean_mark_persistent(l_Lake_instReprArtifactDescr_repr___redArg___closed__4);
+l_Lake_instReprArtifactDescr_repr___redArg___closed__5 = _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__5();
+lean_mark_persistent(l_Lake_instReprArtifactDescr_repr___redArg___closed__5);
 l_Lake_instReprArtifactDescr_repr___redArg___closed__6 = _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__6();
 lean_mark_persistent(l_Lake_instReprArtifactDescr_repr___redArg___closed__6);
 l_Lake_instReprArtifactDescr_repr___redArg___closed__7 = _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__7();
@@ -1428,24 +1429,26 @@ l_Lake_instReprArtifactDescr_repr___redArg___closed__11 = _init_l_Lake_instReprA
 lean_mark_persistent(l_Lake_instReprArtifactDescr_repr___redArg___closed__11);
 l_Lake_instReprArtifactDescr_repr___redArg___closed__12 = _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__12();
 lean_mark_persistent(l_Lake_instReprArtifactDescr_repr___redArg___closed__12);
-l_Lake_instReprArtifactDescr_repr___redArg___closed__0 = _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__0();
-lean_mark_persistent(l_Lake_instReprArtifactDescr_repr___redArg___closed__0);
+l_Lake_instReprArtifactDescr_repr___redArg___closed__13 = _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__13();
+lean_mark_persistent(l_Lake_instReprArtifactDescr_repr___redArg___closed__13);
 l_Lake_instReprArtifactDescr_repr___redArg___closed__14 = _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__14();
 lean_mark_persistent(l_Lake_instReprArtifactDescr_repr___redArg___closed__14);
 l_Lake_instReprArtifactDescr_repr___redArg___closed__15 = _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__15();
 lean_mark_persistent(l_Lake_instReprArtifactDescr_repr___redArg___closed__15);
 l_Lake_instReprArtifactDescr_repr___redArg___closed__16 = _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__16();
 lean_mark_persistent(l_Lake_instReprArtifactDescr_repr___redArg___closed__16);
-l_Lake_instReprArtifactDescr_repr___redArg___closed__13 = _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__13();
-lean_mark_persistent(l_Lake_instReprArtifactDescr_repr___redArg___closed__13);
 l_Lake_instReprArtifactDescr_repr___redArg___closed__17 = _init_l_Lake_instReprArtifactDescr_repr___redArg___closed__17();
 lean_mark_persistent(l_Lake_instReprArtifactDescr_repr___redArg___closed__17);
 l_Lake_instReprArtifactDescr___closed__0 = _init_l_Lake_instReprArtifactDescr___closed__0();
 lean_mark_persistent(l_Lake_instReprArtifactDescr___closed__0);
 l_Lake_instReprArtifactDescr = _init_l_Lake_instReprArtifactDescr();
 lean_mark_persistent(l_Lake_instReprArtifactDescr);
+l_Lake_ArtifactDescr_instToString___closed__0 = _init_l_Lake_ArtifactDescr_instToString___closed__0();
+lean_mark_persistent(l_Lake_ArtifactDescr_instToString___closed__0);
 l_Lake_ArtifactDescr_instToString = _init_l_Lake_ArtifactDescr_instToString();
 lean_mark_persistent(l_Lake_ArtifactDescr_instToString);
+l_Lake_ArtifactDescr_instToJson___closed__0 = _init_l_Lake_ArtifactDescr_instToJson___closed__0();
+lean_mark_persistent(l_Lake_ArtifactDescr_instToJson___closed__0);
 l_Lake_ArtifactDescr_instToJson = _init_l_Lake_ArtifactDescr_instToJson();
 lean_mark_persistent(l_Lake_ArtifactDescr_instToJson);
 l_Lake_ArtifactDescr_ofFilePath_x3f___closed__0 = _init_l_Lake_ArtifactDescr_ofFilePath_x3f___closed__0();
@@ -1464,8 +1467,6 @@ l_Lake_instInhabitedArtifact_default___closed__1 = _init_l_Lake_instInhabitedArt
 lean_mark_persistent(l_Lake_instInhabitedArtifact_default___closed__1);
 l_Lake_instInhabitedArtifact_default___closed__2 = _init_l_Lake_instInhabitedArtifact_default___closed__2();
 lean_mark_persistent(l_Lake_instInhabitedArtifact_default___closed__2);
-l_Lake_instInhabitedArtifact_default___closed__3 = _init_l_Lake_instInhabitedArtifact_default___closed__3();
-lean_mark_persistent(l_Lake_instInhabitedArtifact_default___closed__3);
 l_Lake_instInhabitedArtifact_default = _init_l_Lake_instInhabitedArtifact_default();
 lean_mark_persistent(l_Lake_instInhabitedArtifact_default);
 l_Lake_instInhabitedArtifact = _init_l_Lake_instInhabitedArtifact();

@@ -226,7 +226,13 @@ def opt [ToJson α] (k : String) : Option α → List (String × Json)
   | none   => []
   | some o => [⟨k, toJson o⟩]
 
-/-- Parses a JSON-encoded `structure` or `inductive` constructor. Used mostly by `deriving FromJson`. -/
+/-- Returns the string value or single key name, if any. -/
+def getTag? : Json → Option String
+  | .str tag => some tag
+  | .obj kvs => guard (kvs.size == 1) *> kvs.minKey?
+  | _        => none
+
+-- TODO: delete after rebootstrap
 def parseTagged
     (json : Json)
     (tag : String)
@@ -258,6 +264,29 @@ def parseTagged
               Except.error s!"incorrect number of fields: {fields.size} ≟ {nFields}"
           | Except.error err => Except.error err
     | Except.error err => Except.error err
+
+/--
+Parses a JSON-encoded `structure` or `inductive` constructor, assuming the tag has already been
+checked and `nFields` is nonzero. Used mostly by `deriving FromJson`.
+-/
+def parseCtorFields
+    (json : Json)
+    (tag : String)
+    (nFields : Nat)
+    (fieldNames? : Option (Array Name)) : Except String (Array Json) := do
+  let payload  ← getObjVal? json tag
+  match fieldNames? with
+  | some fieldNames =>
+    fieldNames.mapM (getObjVal? payload ·.getString!)
+  | none =>
+    if nFields == 1 then
+      Except.ok #[payload]
+    else
+      let fields ← getArr? payload
+      if fields.size == nFields then
+        Except.ok fields
+      else
+        Except.error s!"incorrect number of fields: {fields.size} ≟ {nFields}"
 
 end Json
 end Lean

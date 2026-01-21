@@ -38,6 +38,9 @@ def Theorems.insert (thms : Theorems) (thm : Theorem) : Theorems :=
 def Theorems.getMatch (thms : Theorems) (e : Expr) : Array Theorem :=
   Sym.getMatch thms.thms e
 
+def Theorems.getMatchWithExtra (thms : Theorems) (e : Expr) : Array (Theorem × Nat) :=
+  Sym.getMatchWithExtra thms.thms e
+
 def mkTheoremFromDecl (declName : Name) : MetaM Theorem := do
   let (pattern, rhs) ← mkEqPatternFromDecl declName
   return { expr := mkConst declName, pattern, rhs }

@@ -123,18 +123,6 @@ opaque getUTF8Byte (s : @& String) (n : Nat) (h : n < s.utf8ByteSize) : UInt8
 
 end String.Internal
 
-/--
-Creates a string that contains the characters in a list, in order.
-
-Examples:
- * `['L', '∃', '∀', 'N'].asString = "L∃∀N"`
- * `[].asString = ""`
- * `['a', 'a', 'a'].asString = "aaa"`
--/
-@[extern "lean_string_mk", expose]
-def String.ofList (data : List Char) : String :=
-  ⟨List.utf8Encode data,.intro data rfl⟩
-
 @[extern "lean_string_mk", expose, deprecated String.ofList (since := "2025-10-30")]
 def String.mk (data : List Char) : String :=
   ⟨List.utf8Encode data,.intro data rfl⟩

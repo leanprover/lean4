@@ -93,6 +93,15 @@ lean_ctor_set(x_6, 2, x_5);
 return x_6;
 }
 }
+LEAN_EXPORT lean_object* l_Lake_instAlternativeOfMonadOfMonadExceptOfPUnit__lake___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lake_instAlternativeOfMonadOfMonadExceptOfPUnit__lake___redArg(x_1, x_2);
+lean_dec_ref(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_instAlternativeOfMonadOfMonadExceptOfPUnit__lake(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -108,15 +117,6 @@ lean_object* x_4;
 x_4 = l_Lake_instAlternativeOfMonadOfMonadExceptOfPUnit__lake(x_1, x_2, x_3);
 lean_dec_ref(x_2);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_instAlternativeOfMonadOfMonadExceptOfPUnit__lake___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lake_instAlternativeOfMonadOfMonadExceptOfPUnit__lake___redArg(x_1, x_2);
-lean_dec_ref(x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftTOfMonadLift__lake___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -140,7 +140,8 @@ LEAN_EXPORT lean_object* l_Lake_instMonadLiftTOfMonadLift__lake(lean_object* x_1
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lake_instMonadLiftTOfMonadLift__lake___redArg(x_3);
+x_4 = lean_alloc_closure((void*)(l_Lake_instMonadLiftTOfMonadLift__lake___redArg___lam__0), 3, 1);
+lean_closure_set(x_4, 0, x_3);
 return x_4;
 }
 }
@@ -165,7 +166,8 @@ LEAN_EXPORT lean_object* l_Lake_instMonadLiftTIdOfPure__lake(lean_object* x_1, l
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lake_instMonadLiftTIdOfPure__lake___redArg(x_2);
+x_3 = lean_alloc_closure((void*)(l_Lake_instMonadLiftTIdOfPure__lake___redArg___lam__0), 3, 1);
+lean_closure_set(x_3, 0, x_2);
 return x_3;
 }
 }
@@ -259,7 +261,9 @@ LEAN_EXPORT lean_object* l_Lake_instMonadLiftTExceptOfPureOfMonadExceptOf__lake(
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lake_instMonadLiftTExceptOfPureOfMonadExceptOf__lake___redArg(x_3, x_4);
+x_5 = lean_alloc_closure((void*)(l_Lake_instMonadLiftTExceptOfPureOfMonadExceptOf__lake___redArg___lam__0), 4, 2);
+lean_closure_set(x_5, 0, x_4);
+lean_closure_set(x_5, 1, x_3);
 return x_5;
 }
 }
@@ -298,7 +302,10 @@ LEAN_EXPORT lean_object* l_Lake_instMonadLiftTReaderTOfBindOfMonadReaderOf__lake
 _start:
 {
 lean_object* x_7; 
-x_7 = l_Lake_instMonadLiftTReaderTOfBindOfMonadReaderOf__lake___redArg(x_4, x_5, x_6);
+x_7 = lean_alloc_closure((void*)(l_Lake_instMonadLiftTReaderTOfBindOfMonadReaderOf__lake___redArg___lam__1), 5, 3);
+lean_closure_set(x_7, 0, x_6);
+lean_closure_set(x_7, 1, x_4);
+lean_closure_set(x_7, 2, x_5);
 return x_7;
 }
 }

@@ -154,6 +154,26 @@ x_2 = lean_unsigned_to_nat(0u);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_4 = lean_ctor_get(x_1, 0);
+x_5 = lean_ctor_get(x_1, 1);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_4, 1);
+lean_inc(x_6);
+x_7 = lean_box(0);
+lean_inc(x_2);
+x_8 = lean_apply_2(x_2, x_7, x_3);
+x_9 = lean_alloc_closure((void*)(l___private_Init_While_0__Lean_Loop_forIn_loop___redArg___lam__0), 4, 3);
+lean_closure_set(x_9, 0, x_6);
+lean_closure_set(x_9, 1, x_1);
+lean_closure_set(x_9, 2, x_2);
+x_10 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_8, x_9);
+return x_10;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -180,26 +200,6 @@ return x_8;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-x_6 = lean_ctor_get(x_4, 1);
-lean_inc(x_6);
-x_7 = lean_box(0);
-lean_inc(x_2);
-x_8 = lean_apply_2(x_2, x_7, x_3);
-x_9 = lean_alloc_closure((void*)(l___private_Init_While_0__Lean_Loop_forIn_loop___redArg___lam__0), 4, 3);
-lean_closure_set(x_9, 0, x_6);
-lean_closure_set(x_9, 1, x_1);
-lean_closure_set(x_9, 2, x_2);
-x_10 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_8, x_9);
-return x_10;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -208,20 +208,20 @@ x_6 = l___private_Init_While_0__Lean_Loop_forIn_loop___redArg(x_3, x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Loop_forIn(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l___private_Init_While_0__Lean_Loop_forIn_loop___redArg(x_3, x_6, x_5);
-return x_7;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
 x_4 = l___private_Init_While_0__Lean_Loop_forIn_loop___redArg(x_1, x_3, x_2);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Loop_forIn(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l___private_Init_While_0__Lean_Loop_forIn_loop___redArg(x_3, x_6, x_5);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_instForInLoopUnitOfMonad___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -245,7 +245,8 @@ LEAN_EXPORT lean_object* l_Lean_instForInLoopUnitOfMonad(lean_object* x_1, lean_
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_instForInLoopUnitOfMonad___redArg(x_2);
+x_3 = lean_alloc_closure((void*)(l_Lean_instForInLoopUnitOfMonad___redArg___lam__0), 5, 1);
+lean_closure_set(x_3, 0, x_2);
 return x_3;
 }
 }

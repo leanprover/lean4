@@ -3,18 +3,18 @@
 {"items":
  [{"label": "Foo",
    "kind": 6,
-   "data": ["«external:file:///533.lean»", 4, 10, 0, "f_uniq.3"]},
+   "data": ["«external:file:///533.lean»", 4, 10, 0, "f_uniq.4"]},
   {"label": "F",
    "kind": 6,
-   "data": ["«external:file:///533.lean»", 4, 10, 0, "f_uniq.7"]}],
+   "data": ["«external:file:///533.lean»", 4, 10, 0, "f_uniq.8"]}],
  "isIncomplete": false}
 Resolution of Foo:
 {"label": "Foo",
  "kind": 6,
  "detail": "Sort ?u",
- "data": ["«external:file:///533.lean»", 4, 10, 0, "f_uniq.3"]}
+ "data": ["«external:file:///533.lean»", 4, 10, 0, "f_uniq.4"]}
 Resolution of F:
 {"label": "F",
  "kind": 6,
  "detail": "Sort ?u",
- "data": ["«external:file:///533.lean»", 4, 10, 0, "f_uniq.7"]}
+ "data": ["«external:file:///533.lean»", 4, 10, 0, "f_uniq.8"]}

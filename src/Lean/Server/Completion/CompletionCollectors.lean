@@ -597,7 +597,8 @@ def tacticCompletion
     (completionInfoPos : Nat)
     (ctx               : ContextInfo)
     : IO (Array ResolvableCompletionItem) := ctx.runMetaM .empty do
-  let allTacticDocs ← Tactic.Doc.allTacticDocs
+  -- Don't include tactics that are identified only by their internal parser name
+  let allTacticDocs ← Tactic.Doc.allTacticDocs (includeUnnamed := false)
   let items : Array ResolvableCompletionItem := allTacticDocs.map fun tacticDoc => {
       label          := tacticDoc.userName
       detail?        := none

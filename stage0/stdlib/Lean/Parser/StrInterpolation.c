@@ -133,6 +133,15 @@ return x_8;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00__private_Lean_Parser_StrInterpolation_0__Lean_Parser_interpolatedStrFn_parse_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Option_instBEq_beq___at___00__private_Lean_Parser_StrInterpolation_0__Lean_Parser_interpolatedStrFn_parse_spec__0(x_1, x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
 static lean_object* _init_l___private_Lean_Parser_StrInterpolation_0__Lean_Parser_interpolatedStrFn_parse___closed__0() {
 _start:
 {
@@ -340,15 +349,6 @@ x_50 = l_Lean_Parser_ParserState_mkNode(x_48, x_49, x_2);
 lean_dec(x_2);
 return x_50;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Option_instBEq_beq___at___00__private_Lean_Parser_StrInterpolation_0__Lean_Parser_interpolatedStrFn_parse_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_Option_instBEq_beq___at___00__private_Lean_Parser_StrInterpolation_0__Lean_Parser_interpolatedStrFn_parse_spec__0(x_1, x_2);
-x_4 = lean_box(x_3);
-return x_4;
 }
 }
 static lean_object* _init_l_Lean_Parser_interpolatedStrFn___closed__0() {

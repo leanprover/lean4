@@ -40,7 +40,7 @@ public structure Env where
   -/
   noCache : Bool
   /-- Whether the Lake artifact cache should be enabled by default (i.e., `LAKE_ARTIFACT_CACHE`). -/
-  enableArtifactCache : Bool
+  enableArtifactCache? : Option Bool
   /-- Whether the system cache has been disabled (`LAKE_CACHE_DIR` is set but empty). -/
   noSystemCache : Bool := false
   /--
@@ -158,7 +158,7 @@ public def compute
     pkgUrlMap := ← computePkgUrlMap
     reservoirApiUrl := ← getUrlD "RESERVOIR_API_URL" s!"{reservoirBaseUrl}/v1"
     noCache := (noCache <|> (← IO.getEnv "LAKE_NO_CACHE").bind envToBool?).getD false
-    enableArtifactCache := (← IO.getEnv "LAKE_ARTIFACT_CACHE").bind envToBool? |>.getD false
+    enableArtifactCache? := (← IO.getEnv "LAKE_ARTIFACT_CACHE").bind envToBool?
     cacheKey? := (← IO.getEnv "LAKE_CACHE_KEY").map (·.trimAscii.copy)
     cacheArtifactEndpoint? := (← IO.getEnv "LAKE_CACHE_ARTIFACT_ENDPOINT").map normalizeUrl
     cacheRevisionEndpoint? := (← IO.getEnv "LAKE_CACHE_REVISION_ENDPOINT").map normalizeUrl
@@ -269,7 +269,6 @@ public def baseVars (env : Env) : Array (String × Option String)  :=
     ("LAKE_HOME", env.lake.home.toString),
     ("LAKE_PKG_URL_MAP", toJson env.pkgUrlMap |>.compress),
     ("LAKE_NO_CACHE", toString env.noCache),
-    ("LAKE_ARTIFACT_CACHE", toString env.enableArtifactCache),
     ("LAKE_CACHE_KEY", env.cacheKey?),
     ("LAKE_CACHE_ARTIFACT_ENDPOINT", env.cacheArtifactEndpoint?),
     ("LAKE_CACHE_REVISION_ENDPOINT", env.cacheRevisionEndpoint?),
@@ -283,6 +282,7 @@ public def baseVars (env : Env) : Array (String × Option String)  :=
 public def vars (env : Env) : Array (String × Option String)  :=
   let vars := env.baseVars ++ #[
     ("LAKE_CACHE_DIR", if let some cache := env.lakeCache? then cache.dir.toString else ""),
+    ("LAKE_ARTIFACT_CACHE", if let some b := env.enableArtifactCache? then toString b else ""),
     ("LEAN_PATH", some env.leanPath.toString),
     ("LEAN_SRC_PATH", some env.leanSrcPath.toString),
     ("LEAN_GITHASH", env.leanGithash),

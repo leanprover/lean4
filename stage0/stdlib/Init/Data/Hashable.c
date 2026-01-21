@@ -37,6 +37,8 @@ LEAN_EXPORT lean_object* l_instHashableUInt16;
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_instHashableArray___redArg___lam__1___closed__5;
 LEAN_EXPORT uint64_t l_instHashableInt___lam__0(lean_object*);
+static lean_object* l_instHashablePEmpty___closed__0;
+static lean_object* l_instHashableInt___closed__0;
 LEAN_EXPORT lean_object* l_instHashableArray___redArg___lam__1___boxed__const__1;
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT uint64_t l_instHashablePUnit___lam__0(lean_object*);
@@ -89,6 +91,7 @@ static lean_object* l_instHashableArray___redArg___lam__1___closed__0;
 LEAN_EXPORT lean_object* l_instHashableOption(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_hash64(uint64_t);
 LEAN_EXPORT lean_object* l_instHashableUInt64;
+static lean_object* l_instHashableBool___closed__0;
 lean_object* l_UInt32_toUInt64___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instHashableProd___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHashablePUnit;
@@ -99,12 +102,15 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHashableInt;
+static lean_object* l_instHashable___closed__0;
 lean_object* lean_nat_add(lean_object*, lean_object*);
+static lean_object* l_instHashableUInt64___closed__0;
 LEAN_EXPORT lean_object* l_instHashableArray___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHashableList___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHashableArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHashableList(lean_object*, lean_object*);
+static lean_object* l_instHashablePUnit___closed__0;
 LEAN_EXPORT uint64_t l_instHashableBool___lam__0(uint8_t);
 static lean_object* _init_l_instHashableNat___closed__0() {
 _start:
@@ -172,7 +178,9 @@ LEAN_EXPORT lean_object* l_instHashableProd(lean_object* x_1, lean_object* x_2, 
 _start:
 {
 lean_object* x_5; 
-x_5 = l_instHashableProd___redArg(x_3, x_4);
+x_5 = lean_alloc_closure((void*)(l_instHashableProd___redArg___lam__0___boxed), 3, 2);
+lean_closure_set(x_5, 0, x_3);
+lean_closure_set(x_5, 1, x_4);
 return x_5;
 }
 }
@@ -203,11 +211,19 @@ x_4 = lean_box_uint64(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_instHashableBool() {
+static lean_object* _init_l_instHashableBool___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_instHashableBool___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_instHashableBool() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_instHashableBool___closed__0;
 return x_1;
 }
 }
@@ -227,11 +243,19 @@ x_4 = lean_box_uint64(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_instHashablePEmpty() {
+static lean_object* _init_l_instHashablePEmpty___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_instHashablePEmpty___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_instHashablePEmpty() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_instHashablePEmpty___closed__0;
 return x_1;
 }
 }
@@ -252,11 +276,19 @@ x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_instHashablePUnit() {
+static lean_object* _init_l_instHashablePUnit___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_instHashablePUnit___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_instHashablePUnit() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_instHashablePUnit___closed__0;
 return x_1;
 }
 }
@@ -307,7 +339,8 @@ LEAN_EXPORT lean_object* l_instHashableOption(lean_object* x_1, lean_object* x_2
 _start:
 {
 lean_object* x_3; 
-x_3 = l_instHashableOption___redArg(x_2);
+x_3 = lean_alloc_closure((void*)(l_instHashableOption___redArg___lam__0___boxed), 2, 1);
+lean_closure_set(x_3, 0, x_2);
 return x_3;
 }
 }
@@ -403,43 +436,11 @@ x_6 = lean_box_uint64(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_instHashableArray___redArg___lam__1___closed__6() {
+static lean_object* _init_l_instHashableArray___redArg___lam__1___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__6), 4, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instHashableArray___redArg___lam__1___closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__5___boxed), 4, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instHashableArray___redArg___lam__1___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__4___boxed), 4, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instHashableArray___redArg___lam__1___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__3), 4, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_instHashableArray___redArg___lam__1___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__2___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__0), 4, 0);
 return x_1;
 }
 }
@@ -451,11 +452,43 @@ x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__1___boxed), 4, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_instHashableArray___redArg___lam__1___closed__0() {
+static lean_object* _init_l_instHashableArray___redArg___lam__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__0), 4, 0);
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__2___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_instHashableArray___redArg___lam__1___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__3), 4, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_instHashableArray___redArg___lam__1___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__4___boxed), 4, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_instHashableArray___redArg___lam__1___closed__5() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__5___boxed), 4, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_instHashableArray___redArg___lam__1___closed__6() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Id_instMonad___lam__6), 4, 0);
 return x_1;
 }
 }
@@ -656,11 +689,19 @@ x_4 = lean_box_uint64(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_instHashableUInt64() {
+static lean_object* _init_l_instHashableUInt64___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_instHashableUInt64___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_instHashableUInt64() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_instHashableUInt64___closed__0;
 return x_1;
 }
 }
@@ -759,11 +800,19 @@ x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_instHashableInt() {
+static lean_object* _init_l_instHashableInt___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_instHashableInt___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_instHashableInt() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_instHashableInt___closed__0;
 return x_1;
 }
 }
@@ -784,11 +833,19 @@ x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_instHashable___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instHashable___lam__0___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_instHashable(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instHashable___lam__0___boxed), 1, 0);
+x_2 = l_instHashable___closed__0;
 return x_2;
 }
 }
@@ -827,28 +884,34 @@ l_instHashableNat = _init_l_instHashableNat();
 lean_mark_persistent(l_instHashableNat);
 l_instHashableRaw = _init_l_instHashableRaw();
 lean_mark_persistent(l_instHashableRaw);
+l_instHashableBool___closed__0 = _init_l_instHashableBool___closed__0();
+lean_mark_persistent(l_instHashableBool___closed__0);
 l_instHashableBool = _init_l_instHashableBool();
 lean_mark_persistent(l_instHashableBool);
+l_instHashablePEmpty___closed__0 = _init_l_instHashablePEmpty___closed__0();
+lean_mark_persistent(l_instHashablePEmpty___closed__0);
 l_instHashablePEmpty = _init_l_instHashablePEmpty();
 lean_mark_persistent(l_instHashablePEmpty);
+l_instHashablePUnit___closed__0 = _init_l_instHashablePUnit___closed__0();
+lean_mark_persistent(l_instHashablePUnit___closed__0);
 l_instHashablePUnit = _init_l_instHashablePUnit();
 lean_mark_persistent(l_instHashablePUnit);
 l_instHashableList___redArg___lam__1___boxed__const__1 = _init_l_instHashableList___redArg___lam__1___boxed__const__1();
 lean_mark_persistent(l_instHashableList___redArg___lam__1___boxed__const__1);
-l_instHashableArray___redArg___lam__1___closed__6 = _init_l_instHashableArray___redArg___lam__1___closed__6();
-lean_mark_persistent(l_instHashableArray___redArg___lam__1___closed__6);
-l_instHashableArray___redArg___lam__1___closed__5 = _init_l_instHashableArray___redArg___lam__1___closed__5();
-lean_mark_persistent(l_instHashableArray___redArg___lam__1___closed__5);
-l_instHashableArray___redArg___lam__1___closed__4 = _init_l_instHashableArray___redArg___lam__1___closed__4();
-lean_mark_persistent(l_instHashableArray___redArg___lam__1___closed__4);
-l_instHashableArray___redArg___lam__1___closed__3 = _init_l_instHashableArray___redArg___lam__1___closed__3();
-lean_mark_persistent(l_instHashableArray___redArg___lam__1___closed__3);
-l_instHashableArray___redArg___lam__1___closed__2 = _init_l_instHashableArray___redArg___lam__1___closed__2();
-lean_mark_persistent(l_instHashableArray___redArg___lam__1___closed__2);
-l_instHashableArray___redArg___lam__1___closed__1 = _init_l_instHashableArray___redArg___lam__1___closed__1();
-lean_mark_persistent(l_instHashableArray___redArg___lam__1___closed__1);
 l_instHashableArray___redArg___lam__1___closed__0 = _init_l_instHashableArray___redArg___lam__1___closed__0();
 lean_mark_persistent(l_instHashableArray___redArg___lam__1___closed__0);
+l_instHashableArray___redArg___lam__1___closed__1 = _init_l_instHashableArray___redArg___lam__1___closed__1();
+lean_mark_persistent(l_instHashableArray___redArg___lam__1___closed__1);
+l_instHashableArray___redArg___lam__1___closed__2 = _init_l_instHashableArray___redArg___lam__1___closed__2();
+lean_mark_persistent(l_instHashableArray___redArg___lam__1___closed__2);
+l_instHashableArray___redArg___lam__1___closed__3 = _init_l_instHashableArray___redArg___lam__1___closed__3();
+lean_mark_persistent(l_instHashableArray___redArg___lam__1___closed__3);
+l_instHashableArray___redArg___lam__1___closed__4 = _init_l_instHashableArray___redArg___lam__1___closed__4();
+lean_mark_persistent(l_instHashableArray___redArg___lam__1___closed__4);
+l_instHashableArray___redArg___lam__1___closed__5 = _init_l_instHashableArray___redArg___lam__1___closed__5();
+lean_mark_persistent(l_instHashableArray___redArg___lam__1___closed__5);
+l_instHashableArray___redArg___lam__1___closed__6 = _init_l_instHashableArray___redArg___lam__1___closed__6();
+lean_mark_persistent(l_instHashableArray___redArg___lam__1___closed__6);
 l_instHashableArray___redArg___lam__1___closed__7 = _init_l_instHashableArray___redArg___lam__1___closed__7();
 lean_mark_persistent(l_instHashableArray___redArg___lam__1___closed__7);
 l_instHashableArray___redArg___lam__1___closed__8 = _init_l_instHashableArray___redArg___lam__1___closed__8();
@@ -869,6 +932,8 @@ l_instHashableUInt32___closed__0 = _init_l_instHashableUInt32___closed__0();
 lean_mark_persistent(l_instHashableUInt32___closed__0);
 l_instHashableUInt32 = _init_l_instHashableUInt32();
 lean_mark_persistent(l_instHashableUInt32);
+l_instHashableUInt64___closed__0 = _init_l_instHashableUInt64___closed__0();
+lean_mark_persistent(l_instHashableUInt64___closed__0);
 l_instHashableUInt64 = _init_l_instHashableUInt64();
 lean_mark_persistent(l_instHashableUInt64);
 l_instHashableUSize___closed__0 = _init_l_instHashableUSize___closed__0();
@@ -879,8 +944,12 @@ l_instHashableChar = _init_l_instHashableChar();
 lean_mark_persistent(l_instHashableChar);
 l_instHashableInt___lam__0___closed__0 = _init_l_instHashableInt___lam__0___closed__0();
 lean_mark_persistent(l_instHashableInt___lam__0___closed__0);
+l_instHashableInt___closed__0 = _init_l_instHashableInt___closed__0();
+lean_mark_persistent(l_instHashableInt___closed__0);
 l_instHashableInt = _init_l_instHashableInt();
 lean_mark_persistent(l_instHashableInt);
+l_instHashable___closed__0 = _init_l_instHashable___closed__0();
+lean_mark_persistent(l_instHashable___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -308,8 +308,8 @@ def setOption (opts : Options) (decl : OptionDecl) (name : Name) (val : String) 
   match decl.defValue with
   | .ofBool _ =>
     match val with
-    | "true"  => return opts.insert name true
-    | "false" => return opts.insert name false
+    | "true"  => return opts.set name true
+    | "false" => return opts.set name false
     | _ =>
       throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
         it must be true/false"
@@ -317,8 +317,8 @@ def setOption (opts : Options) (decl : OptionDecl) (name : Name) (val : String) 
     let some val := val.toNat?
       | throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
           it must be a natural number"
-    return opts.insert name val
-  | .ofString _ => return opts.insert name val
+    return opts.set name val
+  | .ofString _ => return opts.set name val
   | _ => throw <| .userError s!"invalid -D parameter, configuration option '{name}' \
             cannot be set in the command line, use set_option command"
 
@@ -342,7 +342,7 @@ def reparseOptions (opts : Options) : IO Options := do
 If the option is defined in a library, use '-D{`weak ++ name}' to set it conditionally"
 
     let .ofString val := val
-      | opts' := opts'.insert name val  -- Already parsed
+      | opts' := opts'.set name val  -- Already parsed
 
     opts' ← setOption opts' decl name val
 

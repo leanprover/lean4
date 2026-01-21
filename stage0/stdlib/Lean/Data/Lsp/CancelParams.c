@@ -23,7 +23,6 @@ static lean_object* l_Lean_Lsp_instFromJsonCancelParams_fromJson___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonCancelParams_toJson(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonCancelParams_fromJson_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instToJsonCancelParams_toJson___closed__0;
-static lean_object* l_Lean_Lsp_instInhabitedCancelParams_default___closed__0;
 static lean_object* l_Lean_Lsp_instFromJsonCancelParams_fromJson___closed__4;
 lean_object* l_List_foldl___at___00Array_appendList_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
@@ -56,7 +55,7 @@ static lean_object* l_Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonCa
 static lean_object* l_Lean_Lsp_instToJsonCancelParams_toJson___closed__1;
 static lean_object* l_Lean_Lsp_instToJsonCancelParams___closed__0;
 static lean_object* l_Lean_Lsp_instFromJsonCancelParams___closed__0;
-static lean_object* _init_l_Lean_Lsp_instInhabitedCancelParams_default___closed__0() {
+static lean_object* _init_l_Lean_Lsp_instInhabitedCancelParams_default() {
 _start:
 {
 lean_object* x_1; 
@@ -64,19 +63,11 @@ x_1 = l_Lean_JsonRpc_instInhabitedRequestID_default;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Lsp_instInhabitedCancelParams_default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Lsp_instInhabitedCancelParams_default___closed__0;
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_Lsp_instInhabitedCancelParams() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Lsp_instInhabitedCancelParams_default___closed__0;
+x_1 = l_Lean_JsonRpc_instInhabitedRequestID_default;
 return x_1;
 }
 }
@@ -334,6 +325,15 @@ return x_14;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonCancelParams_fromJson_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonCancelParams_fromJson_spec__0(x_1, x_2);
+lean_dec_ref(x_2);
+return x_3;
+}
+}
 static lean_object* _init_l_Lean_Lsp_instFromJsonCancelParams_fromJson___closed__0() {
 _start:
 {
@@ -522,15 +522,6 @@ return x_17;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonCancelParams_fromJson_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Json_getObjValAs_x3f___at___00Lean_Lsp_instFromJsonCancelParams_fromJson_spec__0(x_1, x_2);
-lean_dec_ref(x_2);
-return x_3;
-}
-}
 static lean_object* _init_l_Lean_Lsp_instFromJsonCancelParams___closed__0() {
 _start:
 {
@@ -556,8 +547,6 @@ _G_initialized = true;
 res = initialize_Lean_Data_JsonRpc(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Lsp_instInhabitedCancelParams_default___closed__0 = _init_l_Lean_Lsp_instInhabitedCancelParams_default___closed__0();
-lean_mark_persistent(l_Lean_Lsp_instInhabitedCancelParams_default___closed__0);
 l_Lean_Lsp_instInhabitedCancelParams_default = _init_l_Lean_Lsp_instInhabitedCancelParams_default();
 lean_mark_persistent(l_Lean_Lsp_instInhabitedCancelParams_default);
 l_Lean_Lsp_instInhabitedCancelParams = _init_l_Lean_Lsp_instInhabitedCancelParams();

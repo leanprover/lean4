@@ -112,3 +112,15 @@ set_option pp.all true in
 -- duplicate definitions link to the original
 def mkFoo₁ := 1
      --^ textDocument/definition
+
+-- go-to-projection should be able to look through reducible definitions
+@[reducible] def foo'' (n : Nat) := Foo2.foo n
+
+#check foo'' 0
+      --^ textDocument/definition
+
+-- go-to-projection should not be able to look through semi-reducible definitions
+def foo''' (n : Nat) := Foo2.foo n
+
+#check foo''' 0
+      --^ textDocument/definition

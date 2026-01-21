@@ -267,14 +267,17 @@ jobs:
                 "test": true,
                 // turn off custom allocator & symbolic functions to make LSAN do its magic
                 "CMAKE_PRESET": "sanitize",
-                // `StackOverflow*` correctly triggers ubsan.
-                // `reverse-ffi` fails to link in sanitizers.
-                // `interactive` and `async_select_channel` fail nondeterministically, would need to
-                // be investigated..
-                // 9366 is too close to timeout.
-                // `bv_` sometimes times out calling into cadical even though we should be using the
-                // standard compile flags for it.
-                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel|9366|run/bv_'"
+                // * `StackOverflow*` correctly triggers ubsan.
+                // * `reverse-ffi` fails to link in sanitizers.
+                // * `interactive` and `async_select_channel` fail nondeterministically, would need
+                //   to be investigated..
+                // * 9366 is too close to timeout.
+                // * `bv_` sometimes times out calling into cadical even though we should be using
+                //   the standard compile flags for it.
+                // * `grind_guide` always times out.
+                // * `pkg/|lake/` tests sometimes time out (likely even hang), related to Lake CI
+                //   failures?
+                "CTEST_OPTIONS": "-E 'StackOverflow|reverse-ffi|interactive|async_select_channel|9366|run/bv_|grind_guide|pkg/|lake/'"
               },
               {
                 "name": "macOS",

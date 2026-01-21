@@ -21,7 +21,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Std_Slice_Self_eq___autoParam___closed__18;
 static lean_object* l_Std_Slice_Self_eq___autoParam___closed__21;
 static lean_object* l_Std_Slice_Self_eq___autoParam___closed__8;
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Std_Slice_Self_eq___autoParam___closed__1;
 static lean_object* l_Std_Slice_Self_eq___autoParam___closed__14;
 static lean_object* l_Std_Slice_Self_eq___autoParam___closed__9;
@@ -40,6 +39,7 @@ static lean_object* l_Std_Slice_Self_eq___autoParam___closed__15;
 lean_object* l_Lean_mkAtom(lean_object*);
 static lean_object* l_Std_Slice_Self_eq___autoParam___closed__5;
 static lean_object* l_Std_Slice_Self_eq___autoParam___closed__13;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Std_Slice_Self_eq___autoParam___closed__19;
 static lean_object* _init_l_Std_Slice_Self_eq___autoParam___closed__0() {
 _start:
@@ -88,9 +88,10 @@ return x_5;
 static lean_object* _init_l_Std_Slice_Self_eq___autoParam___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Std_Slice_Self_eq___autoParam___closed__6() {

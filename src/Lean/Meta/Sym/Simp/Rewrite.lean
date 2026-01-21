@@ -8,6 +8,8 @@ prelude
 public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Sym.Simp.Simproc
 public import Lean.Meta.Sym.Simp.Theorems
+public import Lean.Meta.Sym.Simp.App
+public import Lean.Meta.Sym.Simp.Discharger
 import Lean.Meta.Sym.InstantiateS
 import Lean.Meta.Sym.Simp.DiscrTree
 namespace Lean.Meta.Sym.Simp
@@ -27,20 +29,35 @@ def mkValue (expr : Expr) (pattern : Pattern) (result : MatchUnifyResult) : Expr
 /--
 Tries to rewrite `e` using the given theorem.
 -/
-public def Theorem.rewrite (thm : Theorem) (e : Expr) : SimpM Result := do
+public def Theorem.rewrite (thm : Theorem) (e : Expr) (d : Discharger := dischargeNone) : SimpM Result := do
   if let some result ← thm.pattern.match? e then
+    -- **Note**: Potential optimization: check whether pattern covers all variables.
+    for arg in result.args do
+      let .mvar mvarId := arg | pure ()
+      unless (← mvarId.isAssigned) do
+        let decl ← mvarId.getDecl
+        if let some val ← d decl.type then
+          mvarId.assign val
+        else
+          -- **Note**: Failed to discharge hypothesis.
+          return .rfl
     let proof := mkValue thm.expr thm.pattern result
     let rhs   := thm.rhs.instantiateLevelParams thm.pattern.levelParams result.us
     let rhs   ← shareCommonInc rhs
     let expr  ← instantiateRevBetaS rhs result.args
-    return .step expr proof
+    if isSameExpr e expr then
+      return .rfl
+    else
+      return .step expr proof
   else
     return .rfl
 
-public def Theorems.rewrite (thms : Theorems) : Simproc := fun e => do
-  -- **TODO**: over-applied terms
-  for thm in thms.getMatch e do
-    let result ← thm.rewrite e
+public def Theorems.rewrite (thms : Theorems) (d : Discharger := dischargeNone) : Simproc := fun e => do
+  for (thm, numExtra) in thms.getMatchWithExtra e do
+    let result ← if numExtra == 0 then
+      thm.rewrite e d
+    else
+      simpOverApplied e numExtra (thm.rewrite · d)
     if !result.isRfl then
       return result
   return .rfl

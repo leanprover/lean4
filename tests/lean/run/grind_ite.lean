@@ -155,6 +155,21 @@ theorem normalize_spec (assign : Std.HashMap Nat Bool) (e : IfExpr) :
     ∧ ∀ (v : Nat), v ∈ vars (normalize assign e) → ¬ v ∈ assign := by
   fun_induction normalize with grind +locals
 
+-- In fact we can even solve this goal with `try?`:
+/--
+[apply] (fun_induction normalize) <;> grind
+-/
+#guard_msgs (substring := true) in
+attribute [local grind] normalized hasNestedIf hasConstantIf hasRedundantIf disjoint vars eval List.disjoint in
+example (assign : Std.HashMap Nat Bool) (e : IfExpr) :
+    (normalize assign e).normalized
+    ∧ (∀ f, (normalize assign e).eval f = e.eval fun w => assign[w]?.getD (f w))
+    ∧ ∀ (v : Nat), v ∈ vars (normalize assign e) → ¬ v ∈ assign := by
+  try?
+
+-- We can even solve it with just `try?` without the `local grind` attributes,
+-- although it is quite slow and all the suggestions look complicated.
+
 -- We can also prove other variations, where we spell "`v` is not in `assign`"
 -- different ways, and `grind` doesn't mind.
 

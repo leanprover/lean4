@@ -316,9 +316,10 @@ builtin_initialize typePrefixDenyListExt : SimplePersistentEnvExtension Name (Li
 def isDeniedModule (env : Environment) (moduleName : Name) : Bool :=
   (moduleDenyListExt.getState env).any fun p => moduleName.anyS (· == p)
 
-def isDeniedPremise (env : Environment) (name : Name) : Bool := Id.run do
+def isDeniedPremise (env : Environment) (name : Name) (allowPrivate : Bool := false) : Bool := Id.run do
   if name == ``sorryAx then return true
-  if name.isInternalDetail then return true
+  -- Allow private names through if allowPrivate is set (e.g., for currentFile selector)
+  if name.isInternalDetail && !(allowPrivate && isPrivateName name) then return true
   if Lean.Meta.isInstanceCore env name then return true
   if Lean.Linter.isDeprecated env name then return true
   if (nameDenyListExt.getState env).any (fun p => name.anyS (· == p)) then return true
@@ -358,14 +359,14 @@ def currentFile : Selector := fun _ cfg => do
   let max := cfg.maxSuggestions
   -- Use map₂ from the staged map, which contains locally defined constants
   let mut suggestions := #[]
-  for (name, ci) in env.constants.map₂.toList do
+  for (name, _) in env.constants.map₂ do
     if suggestions.size >= max then
       break
-    if isDeniedPremise env name then
+    -- Allow private names since they're accessible from the current module
+    if isDeniedPremise env name (allowPrivate := true) then
       continue
-    match ci with
-    | .thmInfo _ => suggestions := suggestions.push { name := name, score := 1.0 }
-    | _ => continue
+    if wasOriginallyTheorem env name then
+      suggestions := suggestions.push { name := name, score := 1.0 }
   return suggestions
 
 builtin_initialize librarySuggestionsExt : SimplePersistentEnvExtension Name (Option Name) ←

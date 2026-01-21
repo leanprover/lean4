@@ -29,6 +29,7 @@ static lean_object* l_Bool___aux__Init__Data__Bool______macroRules__Bool__term__
 LEAN_EXPORT lean_object* l_boolPredToPred(lean_object*);
 LEAN_EXPORT lean_object* l_Bool_instMax___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Bool_instDecidableLe___boxed(lean_object*, lean_object*);
+static lean_object* l_Bool_instMax___closed__0;
 LEAN_EXPORT uint8_t l_Bool_instDecidableExistsOfDecidablePred___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Bool_toNat(uint8_t);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
@@ -79,6 +80,7 @@ static lean_object* l_Bool___aux__Init__Data__Bool______macroRules__Bool__term__
 LEAN_EXPORT uint8_t l_Bool_instDecidableLe(uint8_t, uint8_t);
 static lean_object* l_Bool_term___x5e_x5e___00__closed__6;
 static lean_object* l_Bool___aux__Init__Data__Bool______macroRules__Bool__term___x5e_x5e____1___closed__0;
+static lean_object* l_Bool_instMin___closed__0;
 static lean_object* l_Bool___aux__Init__Data__Bool______unexpand__Bool__xor__1___closed__1;
 LEAN_EXPORT uint8_t l_Bool_instMin___lam__0(uint8_t, uint8_t);
 static lean_object* l_Bool_toInt___closed__1;
@@ -562,6 +564,15 @@ return x_10;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Bool_instDecidableForallOfDecidablePred___redArg___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Bool_instDecidableForallOfDecidablePred___redArg(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT uint8_t l_Bool_instDecidableForallOfDecidablePred(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -577,15 +588,6 @@ uint8_t x_3; lean_object* x_4;
 x_3 = l_Bool_instDecidableForallOfDecidablePred(x_1, x_2);
 x_4 = lean_box(x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Bool_instDecidableForallOfDecidablePred___redArg___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Bool_instDecidableForallOfDecidablePred___redArg(x_1);
-x_3 = lean_box(x_2);
-return x_3;
 }
 }
 LEAN_EXPORT uint8_t l_Bool_instDecidableExistsOfDecidablePred___redArg(lean_object* x_1) {
@@ -613,6 +615,15 @@ return x_8;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Bool_instDecidableExistsOfDecidablePred___redArg___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Bool_instDecidableExistsOfDecidablePred___redArg(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT uint8_t l_Bool_instDecidableExistsOfDecidablePred(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -628,15 +639,6 @@ uint8_t x_3; lean_object* x_4;
 x_3 = l_Bool_instDecidableExistsOfDecidablePred(x_1, x_2);
 x_4 = lean_box(x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Bool_instDecidableExistsOfDecidablePred___redArg___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Bool_instDecidableExistsOfDecidablePred___redArg(x_1);
-x_3 = lean_box(x_2);
-return x_3;
 }
 }
 static lean_object* _init_l_Bool_instLE() {
@@ -731,11 +733,19 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Bool_instMax() {
+static lean_object* _init_l_Bool_instMax___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Bool_instMax___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Bool_instMax() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Bool_instMax___closed__0;
 return x_1;
 }
 }
@@ -763,11 +773,19 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Bool_instMin() {
+static lean_object* _init_l_Bool_instMin___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Bool_instMin___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Bool_instMin() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Bool_instMin___closed__0;
 return x_1;
 }
 }
@@ -922,8 +940,12 @@ l_Bool_instLE = _init_l_Bool_instLE();
 lean_mark_persistent(l_Bool_instLE);
 l_Bool_instLT = _init_l_Bool_instLT();
 lean_mark_persistent(l_Bool_instLT);
+l_Bool_instMax___closed__0 = _init_l_Bool_instMax___closed__0();
+lean_mark_persistent(l_Bool_instMax___closed__0);
 l_Bool_instMax = _init_l_Bool_instMax();
 lean_mark_persistent(l_Bool_instMax);
+l_Bool_instMin___closed__0 = _init_l_Bool_instMin___closed__0();
+lean_mark_persistent(l_Bool_instMin___closed__0);
 l_Bool_instMin = _init_l_Bool_instMin();
 lean_mark_persistent(l_Bool_instMin);
 l_Bool_toInt___closed__0 = _init_l_Bool_toInt___closed__0();

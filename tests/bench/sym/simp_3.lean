@@ -49,8 +49,9 @@ def ppExample (e : Expr) : MetaM Unit := do
   IO.println "====>"
   match (← simp e).1 with
   | .rfl _ => IO.println "<no change>"
-  | .step e' _ _ =>
+  | .step e' h _ =>
     IO.println (← ppExpr e')
+    IO.println (← ppExpr h)
   IO.println ""
 
 def benchSimp (name : String) (e : Expr) (check := false) : MetaM Unit :=
@@ -121,8 +122,7 @@ def benchHaveChain1 (n : Nat) (check : Bool := false) : MetaM Unit := do
   benchSimp s!"have_chain1_{n}" e check
 
 def run (k : Nat → MetaM Unit) : MetaM Unit := do
-  for n in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 200, 300, 400, 500,
-    600, 700, 800, 900, 1000, 1200, 1400, 1600, 1800, 2000] do
+  for n in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 200, 300, 400, 500] do
     k n
 
 set_option maxRecDepth 100000
@@ -135,24 +135,24 @@ def runAllBenchmarks : MetaM Unit := do
   IO.println ""
   IO.println "--- Benchmark 1: have-telescope chain without unused variables ---"
   ppExample (← mkHaveChainBench 5 false)
-  run fun n => benchHaveChain n false (n < 110)
+  run fun n => benchHaveChain n false true
 
   IO.println "--- Benchmark 2: have-telescope chain with unused variables ---"
   ppExample (← mkHaveChainBench 5 true)
-  run fun n => benchHaveChain n true (n < 120)
+  run fun n => benchHaveChain n true true
 
   IO.println "--- Benchmark 3: have-telescope parallel declarations with simplified values ---"
   ppExample (← mkHaveParallelBench 5 true)
-  run fun n => benchHaveParallel n true (n < 120)
+  run fun n => benchHaveParallel n true true
 
   IO.println "--- Benchmark 4: have-telescope parallel declarations with unsimplified values ---"
   ppExample (← mkHaveParallelBench 5 false)
-  run fun n => benchHaveParallel n false (n < 120)
+  run fun n => benchHaveParallel n false true
 
   IO.println ""
   IO.println "--- Benchmark 5: have-telescope chain with 1 dep ---"
   ppExample (← mkHaveChain1Bench 5)
-  run fun n => benchHaveChain1 n (n < 600)
+  run fun n => benchHaveChain1 n true
 
 #eval runAllBenchmarks
 

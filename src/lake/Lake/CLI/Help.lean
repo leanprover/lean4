@@ -30,6 +30,7 @@ COMMANDS:
   lint                  lint the package using the configured lint driver
   check-lint            check if there is a properly configured lint driver
   clean                 remove build outputs
+  shake                 minimize imports in source files
   env <cmd> <args>...   execute a command in Lake's environment
   lean <file>           elaborate a Lean file in Lake's context
   update                update dependencies and save them to the manifest
@@ -310,6 +311,44 @@ USAGE:
 If no package is specified, deletes the build directories of every package in
 the workspace. Otherwise, just deletes those of the specified packages."
 
+def helpShake :=
+"Minimize imports in Lean source files
+
+USAGE:
+  lake shake [OPTIONS] [<MODULE>...]
+
+Checks the current project for unused imports by analyzing generated `.olean`
+files to deduce required imports and ensuring that every import contributes
+some constant or other elaboration dependency.
+
+ARGUMENTS:
+  <MODULE>              A module path like `Mathlib`. All files transitively
+                        reachable from the provided module(s) will be checked.
+                        If not specified, uses the package's default targets.
+
+OPTIONS:
+  --force               Skip the `lake build --no-build` sanity check
+  --keep-implied        Preserve imports implied by other imports
+  --keep-prefix         Prefer parent module imports over specific submodules
+  --keep-public         Preserve all `public` imports for API stability
+  --add-public          Add new imports as `public` if they were in the
+                        original public closure
+  --explain             Show which constants require each import
+  --fix                 Apply suggested fixes directly to source files
+  --gh-style            Output in GitHub problem matcher format
+
+ANNOTATIONS:
+  Source files can contain special comments to control shake behavior:
+
+  * `module -- shake: keep-downstream`
+    Preserves this module in all downstream modules
+
+  * `module -- shake: keep-all`
+    Preserves all existing imports in this module
+
+  * `import X -- shake: keep`
+    Preserves this specific import"
+
 def helpCacheCli :=
 "Manage the Lake cache
 
@@ -557,6 +596,7 @@ public def help : (cmd : String) → String
 | "lint"                => helpLint
 | "check-lint"          => helpCheckLint
 | "clean"               => helpClean
+| "shake"               => helpShake
 | "script"              => helpScriptCli
 | "scripts"             => helpScriptList
 | "run"                 => helpScriptRun

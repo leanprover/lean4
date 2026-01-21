@@ -23,6 +23,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_instForInListSliceOfMonad___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_ListSlice_instToIterator(lean_object*);
 LEAN_EXPORT lean_object* l_ListSlice_instToIterator___lam__0(lean_object*);
+static lean_object* l_instSliceSizeListSliceData___closed__0;
 LEAN_EXPORT lean_object* l_List_instReprListSlice___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_instReprListSlice___redArg(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -31,7 +32,6 @@ lean_object* l_List_toSlice___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_ListSlice_repr(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_instAppendListSlice___lam__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_instAppendListSlice___lam__0(lean_object*, lean_object*, lean_object*);
-static lean_object* l_List_ListSlice_repr___redArg___closed__2;
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_instSliceSizeListSliceData___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_instToStringListSlice___redArg___lam__1___closed__0;
@@ -47,14 +47,18 @@ lean_object* l_List_appendTR___redArg(lean_object*, lean_object*);
 lean_object* l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instForInListSliceOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+static lean_object* l_List_instAppendListSlice___closed__0;
 LEAN_EXPORT lean_object* l_instSliceSizeListSliceData(lean_object*);
 lean_object* l_List_toString___redArg(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_instToStringListSlice(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_WellFounded_opaqueFix_u2083___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_ListSlice_instToIterator___closed__0;
+static lean_object* l_instSliceSizeListSliceData___closed__1;
 static lean_object* l_List_ListSlice_repr___redArg___closed__0;
 LEAN_EXPORT lean_object* l_List_instToStringListSlice___redArg___lam__1(lean_object*, lean_object*, lean_object*);
+static lean_object* l_List_instAppendListSlice___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_List_ListSlice_repr___redArg___closed__1;
 LEAN_EXPORT lean_object* l_ListSlice_instToIterator___lam__0(lean_object* x_1) {
@@ -131,11 +135,19 @@ return x_20;
 }
 }
 }
+static lean_object* _init_l_ListSlice_instToIterator___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_ListSlice_instToIterator___lam__0), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_ListSlice_instToIterator(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_ListSlice_instToIterator___lam__0), 1, 0);
+x_2 = l_ListSlice_instToIterator___closed__0;
 return x_2;
 }
 }
@@ -326,14 +338,30 @@ return x_5;
 }
 }
 }
+static lean_object* _init_l_instSliceSizeListSliceData___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instSliceSizeListSliceData___lam__0___boxed), 4, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_instSliceSizeListSliceData___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_instSliceSizeListSliceData___closed__0;
+x_2 = lean_alloc_closure((void*)(l_instSliceSizeListSliceData___lam__1), 2, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_instSliceSizeListSliceData(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_alloc_closure((void*)(l_instSliceSizeListSliceData___lam__0___boxed), 4, 0);
-x_3 = lean_alloc_closure((void*)(l_instSliceSizeListSliceData___lam__1), 2, 1);
-lean_closure_set(x_3, 0, x_2);
-return x_3;
+lean_object* x_2; 
+x_2 = l_instSliceSizeListSliceData___closed__1;
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_instForInListSliceOfMonad___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
@@ -608,7 +636,8 @@ LEAN_EXPORT lean_object* l_instForInListSliceOfMonad(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_4; 
-x_4 = l_instForInListSliceOfMonad___redArg(x_3);
+x_4 = lean_alloc_closure((void*)(l_instForInListSliceOfMonad___redArg___lam__3), 5, 1);
+lean_closure_set(x_4, 0, x_3);
 return x_4;
 }
 }
@@ -793,11 +822,11 @@ goto block_37;
 block_14:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_9 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(x_1, x_8, x_7);
+x_9 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(x_1, x_8, x_5);
 x_10 = lean_array_to_list(x_9);
 x_11 = l_List_appendTR___redArg(x_6, x_10);
 x_12 = l_List_lengthTR___redArg(x_11);
-x_13 = l_List_toSlice___redArg(x_11, x_5, x_12);
+x_13 = l_List_toSlice___redArg(x_11, x_7, x_12);
 lean_dec(x_12);
 lean_dec(x_11);
 return x_13;
@@ -819,9 +848,9 @@ if (lean_obj_tag(x_18) == 0)
 {
 lean_ctor_set(x_4, 1, x_17);
 lean_ctor_set(x_4, 0, x_19);
-x_5 = x_19;
+x_5 = x_20;
 x_6 = x_22;
-x_7 = x_20;
+x_7 = x_19;
 x_8 = x_4;
 goto block_14;
 }
@@ -836,9 +865,9 @@ x_25 = lean_nat_add(x_23, x_24);
 lean_dec(x_23);
 lean_ctor_set(x_4, 1, x_17);
 lean_ctor_set(x_4, 0, x_25);
-x_5 = x_19;
+x_5 = x_20;
 x_6 = x_22;
-x_7 = x_20;
+x_7 = x_19;
 x_8 = x_4;
 goto block_14;
 }
@@ -861,9 +890,9 @@ lean_object* x_32;
 x_32 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_32, 0, x_28);
 lean_ctor_set(x_32, 1, x_26);
-x_5 = x_28;
+x_5 = x_29;
 x_6 = x_31;
-x_7 = x_29;
+x_7 = x_28;
 x_8 = x_32;
 goto block_14;
 }
@@ -879,9 +908,9 @@ lean_dec(x_33);
 x_36 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_36, 0, x_35);
 lean_ctor_set(x_36, 1, x_26);
-x_5 = x_28;
+x_5 = x_29;
 x_6 = x_31;
-x_7 = x_29;
+x_7 = x_28;
 x_8 = x_36;
 goto block_14;
 }
@@ -889,19 +918,7 @@ goto block_14;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_instAppendListSlice(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_alloc_closure((void*)(l_List_instAppendListSlice___lam__0), 3, 0);
-lean_inc_ref(x_2);
-x_3 = lean_alloc_closure((void*)(l_List_instAppendListSlice___lam__2), 4, 2);
-lean_closure_set(x_3, 0, x_2);
-lean_closure_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_List_ListSlice_repr___redArg___closed__0() {
+static lean_object* _init_l_List_instAppendListSlice___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -909,7 +926,26 @@ x_1 = lean_alloc_closure((void*)(l_List_instAppendListSlice___lam__0), 3, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_List_ListSlice_repr___redArg___closed__1() {
+static lean_object* _init_l_List_instAppendListSlice___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_List_instAppendListSlice___closed__0;
+x_2 = lean_alloc_closure((void*)(l_List_instAppendListSlice___lam__2), 4, 2);
+lean_closure_set(x_2, 0, x_1);
+lean_closure_set(x_2, 1, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_List_instAppendListSlice(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_List_instAppendListSlice___closed__1;
+return x_2;
+}
+}
+static lean_object* _init_l_List_ListSlice_repr___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -917,11 +953,11 @@ x_1 = lean_mk_string_unchecked(".toSlice 0 ", 11, 11);
 return x_1;
 }
 }
-static lean_object* _init_l_List_ListSlice_repr___redArg___closed__2() {
+static lean_object* _init_l_List_ListSlice_repr___redArg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_List_ListSlice_repr___redArg___closed__1;
+x_1 = l_List_ListSlice_repr___redArg___closed__0;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -943,7 +979,7 @@ if (lean_is_exclusive(x_2)) {
  lean_dec_ref(x_2);
  x_5 = lean_box(0);
 }
-x_6 = l_List_ListSlice_repr___redArg___closed__0;
+x_6 = l_List_instAppendListSlice___closed__0;
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_19; lean_object* x_20; 
@@ -977,7 +1013,7 @@ x_9 = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___redArg(x_
 x_10 = lean_array_to_list(x_9);
 lean_inc(x_10);
 x_11 = l_List_repr___redArg(x_1, x_10);
-x_12 = l_List_ListSlice_repr___redArg___closed__2;
+x_12 = l_List_ListSlice_repr___redArg___closed__1;
 if (lean_is_scalar(x_5)) {
  x_13 = lean_alloc_ctor(5, 2, 0);
 } else {
@@ -1036,7 +1072,8 @@ LEAN_EXPORT lean_object* l_List_instReprListSlice(lean_object* x_1, lean_object*
 _start:
 {
 lean_object* x_3; 
-x_3 = l_List_instReprListSlice___redArg(x_2);
+x_3 = lean_alloc_closure((void*)(l_List_instReprListSlice___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(x_3, 0, x_2);
 return x_3;
 }
 }
@@ -1142,7 +1179,7 @@ LEAN_EXPORT lean_object* l_List_instToStringListSlice___redArg(lean_object* x_1)
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_List_ListSlice_repr___redArg___closed__0;
+x_2 = l_List_instAppendListSlice___closed__0;
 x_3 = lean_alloc_closure((void*)(l_List_instToStringListSlice___redArg___lam__1), 3, 2);
 lean_closure_set(x_3, 0, x_2);
 lean_closure_set(x_3, 1, x_1);
@@ -1190,14 +1227,22 @@ lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_ListSlice_instToIterator___closed__0 = _init_l_ListSlice_instToIterator___closed__0();
+lean_mark_persistent(l_ListSlice_instToIterator___closed__0);
+l_instSliceSizeListSliceData___closed__0 = _init_l_instSliceSizeListSliceData___closed__0();
+lean_mark_persistent(l_instSliceSizeListSliceData___closed__0);
+l_instSliceSizeListSliceData___closed__1 = _init_l_instSliceSizeListSliceData___closed__1();
+lean_mark_persistent(l_instSliceSizeListSliceData___closed__1);
 l_List_instAppendListSlice___lam__2___closed__0 = _init_l_List_instAppendListSlice___lam__2___closed__0();
 lean_mark_persistent(l_List_instAppendListSlice___lam__2___closed__0);
+l_List_instAppendListSlice___closed__0 = _init_l_List_instAppendListSlice___closed__0();
+lean_mark_persistent(l_List_instAppendListSlice___closed__0);
+l_List_instAppendListSlice___closed__1 = _init_l_List_instAppendListSlice___closed__1();
+lean_mark_persistent(l_List_instAppendListSlice___closed__1);
 l_List_ListSlice_repr___redArg___closed__0 = _init_l_List_ListSlice_repr___redArg___closed__0();
 lean_mark_persistent(l_List_ListSlice_repr___redArg___closed__0);
 l_List_ListSlice_repr___redArg___closed__1 = _init_l_List_ListSlice_repr___redArg___closed__1();
 lean_mark_persistent(l_List_ListSlice_repr___redArg___closed__1);
-l_List_ListSlice_repr___redArg___closed__2 = _init_l_List_ListSlice_repr___redArg___closed__2();
-lean_mark_persistent(l_List_ListSlice_repr___redArg___closed__2);
 l_List_instToStringListSlice___redArg___lam__1___closed__0 = _init_l_List_instToStringListSlice___redArg___lam__1___closed__0();
 lean_mark_persistent(l_List_instToStringListSlice___redArg___lam__1___closed__0);
 return lean_io_result_mk_ok(lean_box(0));

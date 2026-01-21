@@ -151,7 +151,6 @@ static lean_object* l_Std_Time_Month_Ordinal_march___closed__0;
 static lean_object* l_Std_Time_Month_Ordinal_ofNat___auto__1___closed__12;
 static lean_object* l_Std_Time_Month_Ordinal_toSeconds___closed__20;
 static lean_object* l_Std_Time_Month_Ordinal_days___closed__18;
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Std_Time_Month_Ordinal_may___closed__0;
 static lean_object* l_Std_Time_Month_Ordinal_september___closed__5;
 lean_object* l_Std_Time_Internal_Bounded_instRepr___lam__0___boxed(lean_object*, lean_object*);
@@ -377,6 +376,7 @@ static lean_object* l___private_Std_Time_Date_Unit_Month_0__Std_Time_Month_Ordin
 static lean_object* l_Std_Time_Month_Ordinal_february___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_Month_instDecidableEqOrdinal___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Month_Ordinal_november___closed__1;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Month_instOfNatOrdinal(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Month_Ordinal_toNat(lean_object*);
 static lean_object* l_Std_Time_Month_Ordinal_ofNat___auto__1___closed__19;
@@ -1807,14 +1807,23 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Month_Ordinal_ofInt(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Time_Month_Ordinal_ofInt___redArg(lean_object* x_1) {
 _start:
 {
 lean_inc(x_1);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Month_Ordinal_ofInt___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Time_Month_Ordinal_ofInt___redArg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Time_Month_Ordinal_ofInt___redArg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Month_Ordinal_ofInt(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_inc(x_1);
@@ -1828,15 +1837,6 @@ lean_object* x_3;
 x_3 = l_Std_Time_Month_Ordinal_ofInt(x_1, x_2);
 lean_dec(x_1);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_Month_Ordinal_ofInt___redArg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Time_Month_Ordinal_ofInt___redArg(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Std_Time_Month_Ordinal_ofNat___auto__1___closed__0() {
@@ -1886,9 +1886,10 @@ return x_5;
 static lean_object* _init_l_Std_Time_Month_Ordinal_ofNat___auto__1___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Std_Time_Month_Ordinal_ofNat___auto__1___closed__6() {
@@ -2129,20 +2130,20 @@ x_1 = l_Std_Time_Month_Ordinal_ofNat___auto__1___closed__26;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Month_Ordinal_ofNat(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_instNatCastInt___lam__0(x_1);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_Month_Ordinal_ofNat___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
 x_2 = l_instNatCastInt___lam__0(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Month_Ordinal_ofNat(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_instNatCastInt___lam__0(x_1);
+return x_3;
 }
 }
 static lean_object* _init_l_Std_Time_Month_Ordinal_toNat___closed__0() {
@@ -2194,14 +2195,6 @@ return x_5;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Int_cast___at___00Std_Time_Month_Ordinal_toSeconds_spec__2(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Rat_ofInt(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_Month_Ordinal_toSeconds_spec__1(lean_object* x_1) {
 _start:
 {
@@ -2210,13 +2203,12 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_Month_Ordinal_toSeconds_spec__0(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Int_cast___at___00Std_Time_Month_Ordinal_toSeconds_spec__2(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_nat_to_int(x_1);
-x_3 = l_Rat_ofInt(x_2);
-return x_3;
+lean_object* x_2; 
+x_2 = l_Rat_ofInt(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Std_Time_Month_Ordinal_toSeconds___closed__0() {
@@ -2502,6 +2494,15 @@ x_3 = lean_unbox(x_1);
 x_4 = l_Std_Time_Month_Ordinal_toSeconds(x_3, x_2);
 lean_dec(x_2);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Nat_cast___at___00Std_Time_Month_Ordinal_toSeconds_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_nat_to_int(x_1);
+x_3 = l_Rat_ofInt(x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Std_Time_Month_Ordinal_toMinutes___closed__0() {

@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_instBEqOfDecidableEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkGateCached_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Bool_toNat(uint8_t);
@@ -20,7 +21,6 @@ lean_object* l_Std_Sat_AIG_getConstant___redArg(lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkAtomCached___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkGateCached(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_instBEqOfDecidableEq___redArg(lean_object*);
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkGateCached___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkConstCached___redArg(uint8_t);
@@ -73,7 +73,8 @@ lean_ctor_set(x_9, 0, x_4);
 x_10 = lean_alloc_closure((void*)(l_Std_Sat_AIG_instHashableDecl_hash___boxed), 3, 2);
 lean_closure_set(x_10, 0, lean_box(0));
 lean_closure_set(x_10, 1, x_1);
-x_11 = l_instBEqOfDecidableEq___redArg(x_8);
+x_11 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(x_11, 0, x_8);
 lean_inc_ref(x_9);
 lean_inc_ref(x_10);
 lean_inc_ref(x_11);
@@ -130,7 +131,8 @@ lean_ctor_set(x_26, 0, x_4);
 x_27 = lean_alloc_closure((void*)(l_Std_Sat_AIG_instHashableDecl_hash___boxed), 3, 2);
 lean_closure_set(x_27, 0, lean_box(0));
 lean_closure_set(x_27, 1, x_1);
-x_28 = l_instBEqOfDecidableEq___redArg(x_25);
+x_28 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(x_28, 0, x_25);
 lean_inc_ref(x_26);
 lean_inc_ref(x_27);
 lean_inc_ref(x_28);
@@ -186,17 +188,6 @@ x_6 = l_Std_Sat_AIG_mkAtomCached___redArg(x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkConstCached(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5) {
-_start:
-{
-lean_object* x_6; lean_object* x_7; 
-x_6 = lean_unsigned_to_nat(0u);
-x_7 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_7, 0, x_6);
-lean_ctor_set_uint8(x_7, sizeof(void*)*1, x_5);
-return x_7;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkConstCached___redArg(uint8_t x_1) {
 _start:
 {
@@ -206,6 +197,26 @@ x_3 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_1);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkConstCached___redArg___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = lean_unbox(x_1);
+x_3 = l_Std_Sat_AIG_mkConstCached___redArg(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkConstCached(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5) {
+_start:
+{
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(x_7, 0, x_6);
+lean_ctor_set_uint8(x_7, sizeof(void*)*1, x_5);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkConstCached___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -218,15 +229,6 @@ lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkConstCached___redArg___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = lean_unbox(x_1);
-x_3 = l_Std_Sat_AIG_mkConstCached___redArg(x_2);
-return x_3;
 }
 }
 static lean_object* _init_l_Std_Sat_AIG_mkGateCached_go___redArg___closed__0() {
@@ -281,7 +283,8 @@ lean_ctor_set(x_4, 0, x_19);
 x_23 = lean_alloc_closure((void*)(l_Std_Sat_AIG_instHashableDecl_hash___boxed), 3, 2);
 lean_closure_set(x_23, 0, lean_box(0));
 lean_closure_set(x_23, 1, x_1);
-x_24 = l_instBEqOfDecidableEq___redArg(x_15);
+x_24 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(x_24, 0, x_15);
 lean_inc_ref(x_4);
 lean_inc_ref(x_23);
 lean_inc_ref(x_24);
@@ -709,7 +712,8 @@ lean_ctor_set(x_4, 0, x_94);
 x_98 = lean_alloc_closure((void*)(l_Std_Sat_AIG_instHashableDecl_hash___boxed), 3, 2);
 lean_closure_set(x_98, 0, lean_box(0));
 lean_closure_set(x_98, 1, x_1);
-x_99 = l_instBEqOfDecidableEq___redArg(x_90);
+x_99 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(x_99, 0, x_90);
 lean_inc_ref(x_4);
 lean_inc_ref(x_98);
 lean_inc_ref(x_99);
@@ -1013,7 +1017,8 @@ lean_ctor_set(x_158, 1, x_157);
 x_159 = lean_alloc_closure((void*)(l_Std_Sat_AIG_instHashableDecl_hash___boxed), 3, 2);
 lean_closure_set(x_159, 0, lean_box(0));
 lean_closure_set(x_159, 1, x_1);
-x_160 = l_instBEqOfDecidableEq___redArg(x_150);
+x_160 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(x_160, 0, x_150);
 lean_inc_ref(x_158);
 lean_inc_ref(x_159);
 lean_inc_ref(x_160);

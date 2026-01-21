@@ -117,8 +117,9 @@ namespace ModuleRefs
 
 /-- Adds `ref` to the `RefInfo` corresponding to `ref.ident` in `self`. See `RefInfo.addRef`. -/
 def addRef (self : ModuleRefs) (ref : Reference) : ModuleRefs :=
-  let refInfo := self.getD ref.ident RefInfo.empty
-  self.insert ref.ident (refInfo.addRef ref)
+  self.alter ref.ident fun
+    | some refInfo => some <| refInfo.addRef ref
+    | none => some <| RefInfo.empty.addRef ref
 
 /-- Converts `refs` to a JSON-serializable `Lsp.ModuleRefs` and collects all decls. -/
 def toLspModuleRefs (refs : ModuleRefs) : BaseIO (Lsp.ModuleRefs × Decls) := StateT.run (s := ∅) do
@@ -374,9 +375,9 @@ def dedupReferences (refs : Array Reference) (allowSimultaneousBinderUse := fals
   for ref in refs do
     let isBinder := if allowSimultaneousBinderUse then some ref.isBinder else none
     let key := (ref.ident, isBinder, ref.range)
-    refsByIdAndRange := match refsByIdAndRange[key]? with
-      | some ref' => refsByIdAndRange.insert key { ref' with aliases := ref'.aliases ++ ref.aliases }
-      | none => refsByIdAndRange.insert key ref
+    refsByIdAndRange := refsByIdAndRange.alter key fun
+      | some ref' => some { ref' with aliases := ref'.aliases ++ ref.aliases }
+      | none => some ref
 
   let dedupedRefs := refsByIdAndRange.fold (init := #[]) fun refs _ ref => refs.push ref
   return dedupedRefs.qsort (·.range < ·.range)

@@ -30,9 +30,6 @@ namespace BVExpr
 namespace bitblast
 namespace blastClz
 
-example (x : Nat) (hx : 0 < x) : ∃ y, x = y + 1 := by
-  exact Nat.exists_eq_add_one.mpr hx
-
 theorem go_denote_eq {w : Nat} (aig : AIG α)
     (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool)
     (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)

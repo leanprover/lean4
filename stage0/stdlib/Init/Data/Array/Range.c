@@ -29,7 +29,6 @@ static lean_object* l_Array_count__range_x27___auto__1___closed__14;
 static lean_object* l_Array_count__range_x27___auto__1___closed__8;
 static lean_object* l_Array_count__range_x27___auto__1___closed__6;
 static lean_object* l_Array_count__range_x27___auto__1___closed__2;
-lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Array_count__range_x27___auto__1___closed__16;
 static lean_object* l_Array_count__range_x27___auto__1___closed__19;
 static lean_object* l_Array_count__range_x27___auto__1___closed__17;
@@ -55,6 +54,7 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Lean_mkAtom(lean_object*);
 static lean_object* l_Array_count__range_x27___auto__1___closed__23;
 static lean_object* l_Array_count__range_x27___auto__1___closed__10;
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Array_count__range_x27___auto__1___closed__28;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Range_0__Array_ofFn_go_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
@@ -80,6 +80,15 @@ return x_9;
 }
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Range_0__Array_ofFn_go_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Init_Data_Array_Range_0__Array_ofFn_go_match__1_splitter___redArg(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Range_0__Array_ofFn_go_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -96,15 +105,6 @@ x_7 = l___private_Init_Data_Array_Range_0__Array_ofFn_go_match__1_splitter(x_1, 
 lean_dec(x_3);
 lean_dec(x_1);
 return x_7;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Range_0__Array_ofFn_go_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l___private_Init_Data_Array_Range_0__Array_ofFn_go_match__1_splitter___redArg(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_4;
 }
 }
 static lean_object* _init_l_Array_count__range_x27___auto__1___closed__0() {
@@ -154,9 +154,10 @@ return x_5;
 static lean_object* _init_l_Array_count__range_x27___auto__1___closed__5() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Array_count__range_x27___auto__1___closed__6() {

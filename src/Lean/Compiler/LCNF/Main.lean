@@ -11,6 +11,7 @@ public import Lean.Compiler.LCNF.Passes
 public import Lean.Compiler.LCNF.ToDecl
 public import Lean.Compiler.LCNF.Check
 import Lean.Meta.Match.MatcherInfo
+import Lean.Compiler.LCNF.SplitSCC
 public section
 namespace Lean.Compiler.LCNF
 /--
@@ -50,14 +51,12 @@ The trace can be viewed with `set_option trace.Compiler.step true`.
 def checkpoint (stepName : Name) (decls : Array Decl) (shouldCheck : Bool) : CompilerM Unit := do
   for decl in decls do
     trace[Compiler.stat] "{decl.name} : {decl.size}"
-    withOptions (fun opts => opts.setBool `pp.motives.pi false) do
+    withOptions (fun opts => opts.set `pp.motives.pi false) do
       let clsName := `Compiler ++ stepName
       if (← Lean.isTracingEnabledFor clsName) then
         Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl' decl}"
       if shouldCheck then
         decl.check
-  if shouldCheck then
-    checkDeadLocalDecls decls
 
 def isValidMainType (type : Expr) : Bool :=
   let isValidResultName (name : Name) : Bool :=
@@ -74,7 +73,7 @@ def isValidMainType (type : Expr) : Bool :=
 
 namespace PassManager
 
-def run (declNames : Array Name) : CompilerM (Array IR.Decl) := withAtLeastMaxRecDepth 8192 do
+def run (declNames : Array Name) : CompilerM (Array (Array IR.Decl)) := withAtLeastMaxRecDepth 8192 do
   /-
   Note: we need to increase the recursion depth because we currently do to save phase1
   declarations in .olean files. Then, we have to recursively compile all dependencies,
@@ -100,31 +99,33 @@ def run (declNames : Array Name) : CompilerM (Array IR.Decl) := withAtLeastMaxRe
   let decls := markRecDecls decls
   let manager ← getPassManager
   let isCheckEnabled := compiler.check.get (← getOptions)
-  let decls ← profileitM Exception "compilation (LCNF base)" (← getOptions) do
-    let mut decls := decls
-    for pass in manager.basePasses do
-      decls ← withTraceNode `Compiler (fun _ => return m!"compiler phase: {pass.phase}, pass: {pass.name}") do
-        withPhase pass.phase <| pass.run decls
-      withPhase pass.phaseOut <| checkpoint pass.name decls (isCheckEnabled || pass.shouldAlwaysRunCheck)
-    return decls
-  let decls ← profileitM Exception "compilation (LCNF mono)" (← getOptions) do
-    let mut decls := decls
-    for pass in manager.monoPasses do
-      decls ← withTraceNode `Compiler (fun _ => return m!"compiler phase: {pass.phase}, pass: {pass.name}") do
-        withPhase pass.phase <| pass.run decls
-      withPhase pass.phaseOut <| checkpoint pass.name decls (isCheckEnabled || pass.shouldAlwaysRunCheck)
-    return decls
-  if (← Lean.isTracingEnabledFor `Compiler.result) then
-    for decl in decls do
-      let decl ← normalizeFVarIds decl
-      Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl' decl}"
-  profileitM Exception "compilation (IR)" (← getOptions) do
-    let irDecls ← IR.toIR decls
-    IR.compile irDecls
+  let decls ← runPassManagerPart "compilation (LCNF base)" manager.basePasses decls isCheckEnabled
+  let decls ← runPassManagerPart "compilation (LCNF mono)" manager.monoPasses decls isCheckEnabled
+  let sccs ← withTraceNode `Compiler.splitSCC (fun _ => return m!"Splitting up SCC") do
+    splitScc decls
+  sccs.mapM fun decls => do
+    let decls ← runPassManagerPart "compilation (LCNF mono)" manager.monoPassesNoLambda decls isCheckEnabled
+    if (← Lean.isTracingEnabledFor `Compiler.result) then
+      for decl in decls do
+        let decl ← normalizeFVarIds decl
+        Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl' decl}"
+    profileitM Exception "compilation (IR)" (← getOptions) do
+      let irDecls ← IR.toIR decls
+      IR.compile irDecls
+where
+  runPassManagerPart (profilerName : String) (passes : Array Pass) (decls : Array Decl)
+      (isCheckEnabled : Bool) : CompilerM (Array Decl) := do
+    profileitM Exception profilerName (← getOptions) do
+      let mut decls := decls
+      for pass in passes do
+        decls ← withTraceNode `Compiler (fun _ => return m!"compiler phase: {pass.phase}, pass: {pass.name}") do
+          withPhase pass.phase <| pass.run decls
+        withPhase pass.phaseOut <| checkpoint pass.name decls (isCheckEnabled || pass.shouldAlwaysRunCheck)
+      return decls
 
 end PassManager
 
-def compile (declNames : Array Name) : CoreM (Array IR.Decl) :=
+def compile (declNames : Array Name) : CoreM (Array (Array IR.Decl)) :=
   CompilerM.run <| PassManager.run declNames
 
 def showDecl (phase : Phase) (declName : Name) : CoreM Format := do

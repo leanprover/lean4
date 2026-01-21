@@ -45,3 +45,7 @@ feat: add optional binder limit to `mkPatternFromTheorem`
 This PR adds a `num?` parameter to `mkPatternFromTheorem` to control how many
 leading quantifiers are stripped when creating a pattern.
 ```
+
+## CI Log Retrieval
+
+When CI jobs fail, investigate immediately - don't wait for other jobs to complete. Individual job logs are often available even while other jobs are still running. Try `gh run view <run-id> --log` or `gh run view <run-id> --log-failed`, or use `gh run view <run-id> --job=<job-id>` to target the specific failed job. Sleeping is fine when asked to monitor CI and no failures exist yet, but once any job fails, investigate that failure immediately.

@@ -26,38 +26,15 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Action_ac___boxed(lean_object*, lean_
 static lean_object* l_Lean_Meta_Grind_Action_ac___lam__0___closed__3;
 lean_object* l_Lean_Meta_Grind_Action_solverAction(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Grind_Action_ac___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Action_ac___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Action_ac___lam__0___closed__2;
 static lean_object* l_Lean_Meta_Grind_Action_ac___closed__0;
-static lean_object* _init_l_Lean_Meta_Grind_Action_ac___closed__0() {
+static lean_object* _init_l_Lean_Meta_Grind_Action_ac___lam__0___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_AC_check___boxed), 10, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Action_ac___lam__0___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("ac", 2, 2);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Action_ac___lam__0___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Grind", 5, 5);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Grind_Action_ac___lam__0___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
+x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
@@ -69,11 +46,27 @@ x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Action_ac___lam__0___closed__0() {
+static lean_object* _init_l_Lean_Meta_Grind_Action_ac___lam__0___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean", 4, 4);
+x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_Action_ac___lam__0___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Grind", 5, 5);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_Action_ac___lam__0___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("ac", 2, 2);
 return x_1;
 }
 }
@@ -125,12 +118,28 @@ lean_dec(x_1);
 return x_10;
 }
 }
+static lean_object* _init_l_Lean_Meta_Grind_Action_ac___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Action_ac___lam__0___boxed), 9, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_Action_ac___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_AC_check___boxed), 10, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Action_ac(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_13 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Action_ac___lam__0___boxed), 9, 0);
-x_14 = l_Lean_Meta_Grind_Action_ac___closed__0;
+x_13 = l_Lean_Meta_Grind_Action_ac___closed__0;
+x_14 = l_Lean_Meta_Grind_Action_ac___closed__1;
 x_15 = l_Lean_Meta_Grind_Action_solverAction(x_14, x_13, x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_15;
 }
@@ -156,20 +165,22 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_AC_Eq(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_Grind_Action_ac___closed__0 = _init_l_Lean_Meta_Grind_Action_ac___closed__0();
-lean_mark_persistent(l_Lean_Meta_Grind_Action_ac___closed__0);
-l_Lean_Meta_Grind_Action_ac___lam__0___closed__4 = _init_l_Lean_Meta_Grind_Action_ac___lam__0___closed__4();
-lean_mark_persistent(l_Lean_Meta_Grind_Action_ac___lam__0___closed__4);
-l_Lean_Meta_Grind_Action_ac___lam__0___closed__3 = _init_l_Lean_Meta_Grind_Action_ac___lam__0___closed__3();
-lean_mark_persistent(l_Lean_Meta_Grind_Action_ac___lam__0___closed__3);
-l_Lean_Meta_Grind_Action_ac___lam__0___closed__2 = _init_l_Lean_Meta_Grind_Action_ac___lam__0___closed__2();
-lean_mark_persistent(l_Lean_Meta_Grind_Action_ac___lam__0___closed__2);
-l_Lean_Meta_Grind_Action_ac___lam__0___closed__1 = _init_l_Lean_Meta_Grind_Action_ac___lam__0___closed__1();
-lean_mark_persistent(l_Lean_Meta_Grind_Action_ac___lam__0___closed__1);
 l_Lean_Meta_Grind_Action_ac___lam__0___closed__0 = _init_l_Lean_Meta_Grind_Action_ac___lam__0___closed__0();
 lean_mark_persistent(l_Lean_Meta_Grind_Action_ac___lam__0___closed__0);
+l_Lean_Meta_Grind_Action_ac___lam__0___closed__1 = _init_l_Lean_Meta_Grind_Action_ac___lam__0___closed__1();
+lean_mark_persistent(l_Lean_Meta_Grind_Action_ac___lam__0___closed__1);
+l_Lean_Meta_Grind_Action_ac___lam__0___closed__2 = _init_l_Lean_Meta_Grind_Action_ac___lam__0___closed__2();
+lean_mark_persistent(l_Lean_Meta_Grind_Action_ac___lam__0___closed__2);
+l_Lean_Meta_Grind_Action_ac___lam__0___closed__3 = _init_l_Lean_Meta_Grind_Action_ac___lam__0___closed__3();
+lean_mark_persistent(l_Lean_Meta_Grind_Action_ac___lam__0___closed__3);
+l_Lean_Meta_Grind_Action_ac___lam__0___closed__4 = _init_l_Lean_Meta_Grind_Action_ac___lam__0___closed__4();
+lean_mark_persistent(l_Lean_Meta_Grind_Action_ac___lam__0___closed__4);
 l_Lean_Meta_Grind_Action_ac___lam__0___closed__5 = _init_l_Lean_Meta_Grind_Action_ac___lam__0___closed__5();
 lean_mark_persistent(l_Lean_Meta_Grind_Action_ac___lam__0___closed__5);
+l_Lean_Meta_Grind_Action_ac___closed__0 = _init_l_Lean_Meta_Grind_Action_ac___closed__0();
+lean_mark_persistent(l_Lean_Meta_Grind_Action_ac___closed__0);
+l_Lean_Meta_Grind_Action_ac___closed__1 = _init_l_Lean_Meta_Grind_Action_ac___closed__1();
+lean_mark_persistent(l_Lean_Meta_Grind_Action_ac___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

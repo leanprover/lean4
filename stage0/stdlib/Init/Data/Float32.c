@@ -63,6 +63,7 @@ LEAN_EXPORT lean_object* l_Float32_atan2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Float32_sub___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Float32_toUInt64___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instNegFloat32;
+static lean_object* l_float32Spec___closed__0;
 LEAN_EXPORT lean_object* l_Float32_repr(float, lean_object*);
 float lean_uint8_to_float32(uint8_t);
 float sinf(float);
@@ -114,6 +115,7 @@ float cosf(float);
 size_t lean_float32_to_usize(float);
 LEAN_EXPORT lean_object* l_float32Spec;
 float lean_float32_scaleb(float, lean_object*);
+static lean_object* l_instMaxFloat32___closed__0;
 LEAN_EXPORT lean_object* l_Float32_exp___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Float32_toFloat___boxed(lean_object*);
 lean_object* lean_float32_to_string(float);
@@ -138,6 +140,7 @@ LEAN_EXPORT lean_object* l_Float32_isInf___boxed(lean_object*);
 float lean_uint32_to_float32(uint32_t);
 double lean_float32_to_float(float);
 LEAN_EXPORT lean_object* l_Float32_log2___boxed(lean_object*);
+static lean_object* l_instMinFloat32___closed__0;
 static lean_object* l_instNegFloat32___closed__0;
 LEAN_EXPORT lean_object* l_instMulFloat32;
 uint32_t lean_float32_to_uint32(float);
@@ -151,6 +154,7 @@ LEAN_EXPORT lean_object* l_Float_toFloat32___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Float32_mul___boxed(lean_object*, lean_object*);
 float ceilf(float);
 LEAN_EXPORT lean_object* l_USize_toFloat32___boxed(lean_object*);
+static lean_object* l_float32Spec___closed__1;
 LEAN_EXPORT lean_object* l_Float32_cbrt___boxed(lean_object*);
 float lean_usize_to_float32(size_t);
 LEAN_EXPORT lean_object* l_Float32_pow___boxed(lean_object*, lean_object*);
@@ -170,21 +174,36 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_float32Spec() {
+static lean_object* _init_l_float32Spec___closed__0() {
 _start:
 {
-uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+uint8_t x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = 1;
 x_2 = lean_box(x_1);
 x_3 = lean_alloc_closure((void*)(l_float32Spec___lam__0___boxed), 3, 1);
 lean_closure_set(x_3, 0, x_2);
-x_4 = lean_box(0);
-lean_inc_ref(x_3);
-x_5 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_5, 0, x_4);
-lean_ctor_set(x_5, 1, x_3);
-lean_ctor_set(x_5, 2, x_3);
-return x_5;
+return x_3;
+}
+}
+static lean_object* _init_l_float32Spec___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_float32Spec___closed__0;
+x_2 = lean_box(0);
+x_3 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+lean_ctor_set(x_3, 2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_float32Spec() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_float32Spec___closed__1;
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Float32_add___boxed(lean_object* x_1, lean_object* x_2) {
@@ -1000,11 +1019,19 @@ x_6 = lean_box_float32(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_instMinFloat32() {
+static lean_object* _init_l_instMinFloat32___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_instMinFloat32___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_instMinFloat32() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_instMinFloat32___closed__0;
 return x_1;
 }
 }
@@ -1036,11 +1063,19 @@ x_6 = lean_box_float32(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_instMaxFloat32() {
+static lean_object* _init_l_instMaxFloat32___closed__0() {
 _start:
 {
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_instMaxFloat32___lam__0___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_instMaxFloat32() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_instMaxFloat32___closed__0;
 return x_1;
 }
 }
@@ -1087,6 +1122,10 @@ _G_initialized = true;
 res = initialize_Init_Data_Float(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_float32Spec___closed__0 = _init_l_float32Spec___closed__0();
+lean_mark_persistent(l_float32Spec___closed__0);
+l_float32Spec___closed__1 = _init_l_float32Spec___closed__1();
+lean_mark_persistent(l_float32Spec___closed__1);
 l_float32Spec = _init_l_float32Spec();
 lean_mark_persistent(l_float32Spec);
 l_instAddFloat32___closed__0 = _init_l_instAddFloat32___closed__0();
@@ -1133,8 +1172,12 @@ l_instHomogeneousPowFloat32___closed__0 = _init_l_instHomogeneousPowFloat32___cl
 lean_mark_persistent(l_instHomogeneousPowFloat32___closed__0);
 l_instHomogeneousPowFloat32 = _init_l_instHomogeneousPowFloat32();
 lean_mark_persistent(l_instHomogeneousPowFloat32);
+l_instMinFloat32___closed__0 = _init_l_instMinFloat32___closed__0();
+lean_mark_persistent(l_instMinFloat32___closed__0);
 l_instMinFloat32 = _init_l_instMinFloat32();
 lean_mark_persistent(l_instMinFloat32);
+l_instMaxFloat32___closed__0 = _init_l_instMaxFloat32___closed__0();
+lean_mark_persistent(l_instMaxFloat32___closed__0);
 l_instMaxFloat32 = _init_l_instMaxFloat32();
 lean_mark_persistent(l_instMaxFloat32);
 return lean_io_result_mk_ok(lean_box(0));

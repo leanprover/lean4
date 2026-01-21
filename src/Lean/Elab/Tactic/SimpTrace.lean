@@ -34,7 +34,7 @@ def filterSuggestionsAndLocalsFromSimpConfig (cfg : TSyntax ``Lean.Parser.Tactic
     | some posConfigItem, ``Lean.Parser.Tactic.configItem =>
       match posConfigItem[1]?, posConfigItem.getKind with
       | some ident, ``Lean.Parser.Tactic.posConfigItem =>
-        let id := ident.getId
+        let id := ident.getId.eraseMacroScopes
         id != `suggestions && id != `locals
       | _, _ => true
     | _, _ => true

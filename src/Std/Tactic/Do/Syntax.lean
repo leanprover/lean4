@@ -290,6 +290,7 @@ syntax "∀" binderIdent : mintroPat
 @[tactic_alt Lean.Parser.Tactic.mintroMacro]
 syntax (name := mintro) "mintro" (ppSpace colGt mintroPat)+ : tactic
 
+@[tactic_alt Lean.Parser.Tactic.mintroMacro]
 macro (name := mintroError) "mintro" : tactic => Macro.throwError "`mintro` expects at least one pattern"
 
 macro_rules

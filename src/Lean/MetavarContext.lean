@@ -786,9 +786,6 @@ def localDeclDependsOnPred [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (pf :
 
 namespace MetavarContext
 
-@[export lean_mk_metavar_ctx]
-def mkMetavarContext : Unit → MetavarContext := fun _ => {}
-
 /-- Low level API for adding/declaring metavariable declarations.
    It is used to implement actions in the monads `MetaM`, `ElabM` and `TacticM`.
    It should not be used directly since the argument `(mvarId : MVarId)` is assumed to be "unique". -/

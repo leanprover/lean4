@@ -52,6 +52,10 @@ structure Context where
 
 structure State where
   decls : Array Decl := {}
+  /--
+  Cache for `shouldExtractFVar` in order to avoid superlinear behavior.
+  -/
+  fvarDecisionCache : Std.HashMap FVarId Bool := {}
 
 abbrev M := ReaderT Context $ StateRefT State CompilerM
 
@@ -78,6 +82,10 @@ partial def shouldExtractLetValue (isRoot : Bool) (v : LetValue) : M Bool := do
         | _ => true
         if !shouldExtract then
           return false
+      if let some decl ← LCNF.getMonoDecl? name then
+        -- We don't want to extract constants as root terms
+        if decl.getArity == 0 then
+          return false
     args.allM shouldExtractArg
   | .fvar fnVar args => return (← shouldExtractFVar fnVar) && (← args.allM shouldExtractArg)
   | .proj _ _ baseVar => shouldExtractFVar baseVar
@@ -88,10 +96,18 @@ partial def shouldExtractArg (arg : Arg) : M Bool := do
   | .type _ | .erased => return true
 
 partial def shouldExtractFVar (fvarId : FVarId) : M Bool := do
-  if let some letDecl ← findLetDecl? fvarId then
-    shouldExtractLetValue false letDecl.value
+  if let some result := (← get).fvarDecisionCache[fvarId]? then
+    return result
   else
-    return false
+    let result ← go
+    modify fun s => { s with fvarDecisionCache := s.fvarDecisionCache.insert fvarId result }
+    return result
+where
+  go : M Bool := do
+    if let some letDecl ← findLetDecl? fvarId then
+      shouldExtractLetValue false letDecl.value
+    else
+      return false
 
 end
 

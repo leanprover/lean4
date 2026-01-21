@@ -67,7 +67,8 @@ LEAN_EXPORT lean_object* l_Std_instMaxSubtypeOfMaxEqOr(lean_object* x_1, lean_ob
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Std_instMaxSubtypeOfMaxEqOr___redArg(x_2);
+x_5 = lean_alloc_closure((void*)(l_Std_instMaxSubtypeOfMaxEqOr___redArg___lam__0), 3, 1);
+lean_closure_set(x_5, 0, x_2);
 return x_5;
 }
 }

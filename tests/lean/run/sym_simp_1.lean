@@ -7,7 +7,7 @@ set_option warn.sorry false
 
 elab "sym_simp" "[" declNames:ident,* "]" : tactic => do
   let declNames ← declNames.getElems.mapM fun s => realizeGlobalConstNoOverload s.raw
-  liftMetaTactic1 <| Sym.simpGoal declNames
+  liftMetaTactic1 <| Sym.simpGoalUsing declNames
 
 theorem heq_self : (x ≍ x) = True := by simp
 theorem forall_true {α : Sort u} : (∀ _ : α, True) = True := by simp

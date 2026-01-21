@@ -9,6 +9,7 @@ public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Sym.Simp.Discharger
 import Lean.Meta.Sym.Simp.Theorems
 import Lean.Meta.Sym.Simp.Rewrite
+import Lean.Meta.Sym.Simp.Goal
 import Lean.Meta.Sym.Util
 import Lean.Meta.Tactic.Util
 import Lean.Meta.AppBuilder
@@ -27,24 +28,9 @@ public def mkSimprocFor (declNames : Array Name) (d : Discharger := dischargeNon
 public def mkMethods (declNames : Array Name) : MetaM Methods := do
   return { post := (← mkSimprocFor declNames) }
 
-public def simpWith (methods : Methods) (mvarId : MVarId) : MetaM (Option MVarId) := SymM.run do mvarId.withContext do
-  let mvarId ← preprocessMVar mvarId
-  let decl ← mvarId.getDecl
-  let target := decl.type
-  match (← simp target methods) with
-  | .rfl _ => throwError "`Sym.simp` made no progress "
-  | .step target' h _ =>
-    let mvarNew ← mkFreshExprSyntheticOpaqueMVar target' decl.userName
-    let h ← mkAppM ``Eq.mpr #[h, mvarNew]
-    mvarId.assign h
-    if target'.isTrue then
-      mvarNew.mvarId!.assign (mkConst ``True.intro)
-      return none
-    else
-      return some mvarNew.mvarId!
-
-public def simpGoal (declNames : Array Name) (mvarId : MVarId) : MetaM (Option MVarId) := SymM.run do
+public def simpGoalUsing (declNames : Array Name) (mvarId : MVarId) : MetaM (Option MVarId) := SymM.run do
   let methods ← mkMethods declNames
-  simpWith methods mvarId
+  let mvarId ← preprocessMVar mvarId
+  (← simpGoal mvarId methods).toOption
 
 end Lean.Meta.Sym

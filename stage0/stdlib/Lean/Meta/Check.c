@@ -7667,7 +7667,7 @@ x_13 = lean_ctor_get(x_12, 0);
 lean_inc_ref(x_13);
 lean_dec(x_12);
 x_14 = l_Lean_Environment_header(x_13);
-x_15 = lean_ctor_get_uint8(x_14, sizeof(void*)*6 + 4);
+x_15 = lean_ctor_get_uint8(x_14, sizeof(void*)*7 + 4);
 lean_dec_ref(x_14);
 if (x_15 == 0)
 {

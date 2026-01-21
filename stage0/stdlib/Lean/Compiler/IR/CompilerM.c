@@ -2188,7 +2188,7 @@ block_11:
 {
 lean_object* x_6; uint8_t x_7; 
 x_6 = l_Lean_Environment_header(x_1);
-x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*6 + 4);
+x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*7 + 4);
 lean_dec_ref(x_6);
 if (x_7 == 0)
 {

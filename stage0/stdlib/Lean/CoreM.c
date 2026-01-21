@@ -2311,7 +2311,7 @@ _start:
 {
 lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = l_Lean_Environment_header(x_1);
-x_5 = lean_ctor_get_uint8(x_4, sizeof(void*)*6 + 4);
+x_5 = lean_ctor_get_uint8(x_4, sizeof(void*)*7 + 4);
 lean_dec_ref(x_4);
 x_6 = l___private_Lean_CoreM_0__Lean_DeclNameGenerator_idxs(x_2);
 x_7 = l_List_foldrTR___at___00__private_Lean_CoreM_0__Lean_DeclNameGenerator_mkUniqueName_curr_spec__0(x_3, x_6);

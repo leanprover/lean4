@@ -1568,7 +1568,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; uint8_t x_9; 
 x_8 = l_Lean_Environment_header(x_1);
-x_9 = lean_ctor_get_uint8(x_8, sizeof(void*)*6 + 4);
+x_9 = lean_ctor_get_uint8(x_8, sizeof(void*)*7 + 4);
 lean_dec_ref(x_8);
 if (x_9 == 0)
 {
@@ -8306,8 +8306,8 @@ block_16:
 {
 lean_object* x_14; lean_object* x_15; 
 x_14 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_14, 0, x_12);
-lean_ctor_set(x_14, 1, x_11);
+lean_ctor_set(x_14, 0, x_11);
+lean_ctor_set(x_14, 1, x_12);
 x_15 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_15, 0, x_14);
 return x_15;
@@ -8432,8 +8432,8 @@ lean_dec(x_23);
 lean_dec_ref(x_22);
 lean_dec(x_21);
 lean_dec_ref(x_20);
-x_11 = x_19;
-x_12 = x_50;
+x_11 = x_50;
+x_12 = x_19;
 x_13 = lean_box(0);
 goto block_16;
 }

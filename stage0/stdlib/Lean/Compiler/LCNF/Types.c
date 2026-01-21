@@ -5306,7 +5306,7 @@ lean_inc_ref(x_12);
 lean_dec(x_11);
 x_13 = l_Lean_Environment_header(x_12);
 lean_dec_ref(x_12);
-x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*6 + 4);
+x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*7 + 4);
 lean_dec_ref(x_13);
 if (x_14 == 0)
 {
@@ -6327,7 +6327,7 @@ lean_inc_ref(x_280);
 lean_dec(x_279);
 x_281 = l_Lean_Environment_header(x_280);
 lean_dec_ref(x_280);
-x_282 = lean_ctor_get_uint8(x_281, sizeof(void*)*6 + 4);
+x_282 = lean_ctor_get_uint8(x_281, sizeof(void*)*7 + 4);
 lean_dec_ref(x_281);
 if (x_282 == 0)
 {

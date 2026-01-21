@@ -14173,7 +14173,6 @@ x_8 = lean_array_uget(x_4, x_3);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 lean_dec(x_8);
-lean_inc(x_9);
 x_10 = l_Lean_Environment_getModuleIdx_x3f(x_1, x_9);
 if (lean_obj_tag(x_10) == 1)
 {

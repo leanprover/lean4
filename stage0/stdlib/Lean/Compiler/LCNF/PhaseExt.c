@@ -810,7 +810,7 @@ _start:
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = l_Lean_Environment_header(x_1);
-x_4 = lean_ctor_get_uint8(x_3, sizeof(void*)*6 + 4);
+x_4 = lean_ctor_get_uint8(x_3, sizeof(void*)*7 + 4);
 lean_dec_ref(x_3);
 if (x_4 == 0)
 {
@@ -945,7 +945,7 @@ _start:
 {
 lean_object* x_4; uint8_t x_5; 
 x_4 = l_Lean_Environment_header(x_1);
-x_5 = lean_ctor_get_uint8(x_4, sizeof(void*)*6 + 4);
+x_5 = lean_ctor_get_uint8(x_4, sizeof(void*)*7 + 4);
 lean_dec_ref(x_4);
 if (x_5 == 0)
 {
@@ -5443,7 +5443,6 @@ x_7 = lean_st_ref_get(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
 lean_dec(x_7);
-lean_inc(x_1);
 x_9 = l_Lean_Environment_getModuleIdx_x3f(x_8, x_1);
 if (lean_obj_tag(x_9) == 1)
 {

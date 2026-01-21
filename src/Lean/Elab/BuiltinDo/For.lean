@@ -98,6 +98,7 @@ open Lean.Meta
     return defs
   -- let σ ← mkFreshExprMVar (mkSort (mkLevelSucc mi.u)) (userName := `σ) -- assigned below
   let (preS, σ) ← mkProdMkN (← useLoopMutVars) mi.u
+  discard <| Term.ensureHasType (mkSort (mkLevelSucc mi.u)) σ -- to assign universe MVars of `mut` vars
   let γ := (← read).doBlockResultType
   let β ← mkArrow σ (← mkMonadicType γ)
   let breakRhs ← mkFreshExprMVar β -- assigned below

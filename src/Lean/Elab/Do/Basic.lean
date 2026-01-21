@@ -590,9 +590,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
     let result ← getFVarFromUserName nondupDec.resultName
     let mut e := mkApp jp' result
     for x in mutVars do
-      let newDefn ← getLocalDeclFromUserName x.getId
-      Term.addTermInfo' x newDefn.toExpr
-      e := mkApp e newDefn.toExpr
+      e := mkApp e (← getFVarFromUserName x.getId)
     let refined := jp' != jp  -- whether we have generalized `jp` in a `match`
     if let some pos := ref.getPos? then
       calls.modify (·.insert pos refined)
@@ -617,6 +615,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
     withLocalDeclD nondupDec.resultName nondupDec.resultType fun r => do
     withLocalDeclsDND (mutDecls.map fun (d : LocalDecl) => (d.userName, d.type)) fun muts => do
     withDeadCode (← deadCode.get) do
+    for (x, newX) in mutVars.zip muts do Term.addTermInfo' x newX
     mkLambdaFVars (#[r] ++ muts) (← nondupDec.k .missing)
   joinRhsMVar.mvarId!.assign joinRhs
 

@@ -131,11 +131,11 @@ theorem suffix_iff_eq_drop : l₁ <:+ l₂ ↔ l₁ = drop (length l₂ - length
   ⟨fun h => append_cancel_left <| (suffix_iff_eq_append.1 h).trans (take_append_drop _ _).symm,
     fun e => e.symm ▸ drop_suffix _ _⟩
 
-theorem prefix_map_iff_inj {f : α → β} (hf : Function.Injective f) :
+theorem prefix_map_iff_of_injective {f : α → β} (hf : Function.Injective f) :
     l₁.map f <+: l₂.map f ↔ l₁ <+: l₂ := by
   simp [prefix_iff_eq_take, ← map_take, map_inj_right hf]
 
-theorem suffix_map_iff_inj {f : α → β} (hf : Function.Injective f) :
+theorem suffix_map_iff_of_injective {f : α → β} (hf : Function.Injective f) :
     l₁.map f <:+ l₂.map f ↔ l₁ <:+ l₂ := by
   simp [suffix_iff_eq_drop, ← map_drop, map_inj_right hf]
 

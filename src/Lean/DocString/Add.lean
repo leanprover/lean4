@@ -125,7 +125,7 @@ Parses and elaborates a Verso module docstring.
 def versoModDocString
     (range : DeclarationRange) (doc : TSyntax ``document) :
     TermElabM VersoModuleDocs.Snippet := do
-  let level := getVersoModuleDocs (← getEnv) |>.terminalNesting |>.map (· + 1)
+  let level := getMainVersoModuleDocs (← getEnv) |>.terminalNesting |>.map (· + 1)
   Doc.elabModSnippet range (doc.raw.getArgs.map (⟨·⟩)) (level.getD 0) |>.execForModule
 
 

@@ -11,6 +11,8 @@ public import Std.Sat.CNF.Relabel
 
 @[expose] public section
 
+set_option debug.byAsSorry true
+
 namespace Std
 namespace Sat
 
@@ -48,23 +50,29 @@ theorem Clause.of_maxLiteral_eq_none (c : Clause Nat) (h : c.maxLiteral = none) 
   simp only [maxLiteral, List.max?_eq_none_iff, List.map_eq_nil_iff] at h
   simp only [h, not_mem_nil] at hlit
 
+def _root_.Array.max? [Max α] (xs : Array α) : Option α :=
+  if h : 0 < xs.size then
+    some <| xs.foldl max xs[0] (start := 1)
+  else
+    none
+
 /--
 Obtain the literal with the largest identifier in `f`.
 -/
 def maxLiteral (f : CNF Nat) : Option Nat :=
-  List.filterMap Clause.maxLiteral f |>.max?
+  f.clauses.filterMap Clause.maxLiteral |>.max?
 
 theorem of_maxLiteral_eq_some' (f : CNF Nat) (h : f.maxLiteral = some maxLit) :
-    ∀ clause, clause ∈ f → clause.maxLiteral = some localMax → localMax ≤ maxLit := by
+    ∀ (clause : Clause Nat), clause ∈ f → clause.maxLiteral = some localMax → localMax ≤ maxLit := by
   intro clause hclause1 hclause2
   simp [maxLiteral, List.max?_eq_some_iff] at h
   rcases h with ⟨_, hclause3⟩
   apply hclause3 localMax clause hclause1 hclause2
 
 theorem of_maxLiteral_eq_some (f : CNF Nat) (h : f.maxLiteral = some maxLit) :
-    ∀ lit, Mem lit f → lit ≤ maxLit := by
+    ∀ lit, VarMem lit f → lit ≤ maxLit := by
   intro lit hlit
-  dsimp [Mem] at hlit
+  dsimp [VarMem] at hlit
   rcases hlit with ⟨clause, ⟨hclause1, hclause2⟩⟩
   rcases Clause.maxLiteral_eq_some_of_mem clause hclause2 with ⟨localMax, hlocal⟩
   have h1 := of_maxLiteral_eq_some' f h clause hclause1 hlocal
@@ -72,10 +80,10 @@ theorem of_maxLiteral_eq_some (f : CNF Nat) (h : f.maxLiteral = some maxLit) :
   omega
 
 theorem of_maxLiteral_eq_none (f : CNF Nat) (h : f.maxLiteral = none) :
-    ∀ lit, ¬Mem lit f := by
+    ∀ lit, ¬VarMem lit f := by
   intro lit hlit
   simp only [maxLiteral, List.max?_eq_none_iff] at h
-  dsimp [Mem] at hlit
+  dsimp [VarMem] at hlit
   rcases hlit with ⟨clause, ⟨hclause1, hclause2⟩⟩
   have := Clause.of_maxLiteral_eq_none clause (List.forall_none_of_filterMap_eq_nil h clause hclause1) lit
   contradiction
@@ -88,7 +96,7 @@ def numLiterals (f : CNF Nat) :=
   | none => 0
   | some n => n + 1
 
-theorem lt_numLiterals {f : CNF Nat} (h : Mem v f) : v < numLiterals f := by
+theorem lt_numLiterals {f : CNF Nat} (h : VarMem v f) : v < numLiterals f := by
   dsimp [numLiterals]
   split <;> rename_i h2
   · exfalso
@@ -96,7 +104,7 @@ theorem lt_numLiterals {f : CNF Nat} (h : Mem v f) : v < numLiterals f := by
   · have := of_maxLiteral_eq_some f h2 v h
     omega
 
-theorem numLiterals_pos {f : CNF Nat} (h : Mem v f) : 0 < numLiterals f :=
+theorem numLiterals_pos {f : CNF Nat} (h : VarMem v f) : 0 < numLiterals f :=
   Nat.lt_of_le_of_lt (Nat.zero_le _) (lt_numLiterals h)
 
 /--
@@ -106,7 +114,7 @@ This operation might be useful when e.g. using the literals to index into an arr
 without conducting bounds checks.
 -/
 def relabelFin (f : CNF Nat) : CNF (Fin f.numLiterals) :=
-  if h : ∃ v, Mem v f then
+  if h : ∃ v, VarMem v f then
     let n := f.numLiterals
     f.relabel fun i =>
       if w : i < n then
@@ -115,7 +123,23 @@ def relabelFin (f : CNF Nat) : CNF (Fin f.numLiterals) :=
       else
         ⟨0, numLiterals_pos h.choose_spec⟩
   else
-    List.replicate f.length []
+    ⟨Array.replicate f.clauses.size []⟩
+
+private theorem not_exists_mem : (¬ ∃ v, VarMem v f) ↔ ∃ n, f.clauses = Array.replicate n [] := by
+  simp only [← Internal.any_not_isEmpty_iff_exists_mem]
+  simp
+  constructor
+  · intro h
+    exists f.clauses.size
+    rw [Array.eq_replicate_iff]
+    constructor
+    · simp
+    · sorry
+  · intro h x hx
+    rcases h with ⟨n, hn⟩
+    sorry
+    --simp only [hn, Array.mem_replicate, ne_eq] at hx
+    --exact hx.right
 
 @[simp] theorem unsat_relabelFin {f : CNF Nat} : Unsat f.relabelFin ↔ Unsat f := by
   dsimp [relabelFin]
@@ -127,14 +151,22 @@ def relabelFin (f : CNF Nat) : CNF (Fin f.numLiterals) :=
     split <;> rename_i a_lt
     · simp
     · contradiction
-  · cases f with
-    | nil => simp
-    | cons c g =>
-      simp only [not_exists_mem] at h
-      obtain ⟨n, h⟩ := h
-      cases n with
-      | zero => simp at h
-      | succ n => simp_all [List.replicate_succ]
+  · simp at h
+    rcases f with ⟨clauses⟩
+    sorry
+    --cases clauses with
+    --| nil =>
+    --  simp
+    --  rw [← CNF.empty, ← CNF.empty]
+    --  simp
+    --| cons c cs =>
+    --  rw [List.length_cons, List.replicate_succ, ← CNF.add, ← CNF.add]
+    --  have : c = [] := by
+    --    simp [VarMem, Clause.Mem] at h
+    --    rw [List.eq_nil_iff_forall_not_mem]
+    --    intro lit
+    --    rcases lit with ⟨var, _ | _⟩ <;> simp [h var]
+    --  simp [this]
 
 end CNF
 

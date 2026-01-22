@@ -41,7 +41,7 @@ def blastParPreSumLayer (aig : AIG α)
   (old_layer : AIG.RefVec aig (old_length * w))
   (new_layer : AIG.RefVec aig (iter_num * w))
   (hold : 2 * (iter_num - 1) < old_length) :
-   AIG.RefVecEntry α ((old_length+ 1)/2 * w) :=
+   AIG.RefVecEntry α ((old_length + 1)/2 * w) :=
   if  hlen : 0 < old_length - (iter_num * 2) then
     -- lhs
     let targetExtract : ExtractTarget aig w := {vec := old_layer, start := 2 * iter_num * w}

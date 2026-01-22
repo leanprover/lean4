@@ -29,7 +29,9 @@ def addPreDefsFromUnary (docCtx : LocalContext × LocalInstances) (preDefs : Arr
   let preDefNonRec := unaryPreDefNonRec.filterAttrs fun attr => attr.name != `implemented_by
   let declNames := preDefs.toList.map (·.declName)
 
-  preDefs.forM (markAsRecursive ·.declName)
+  preDefs.forM fun preDef =>
+    unless preDef.kind.isTheorem do
+      markAsRecursive preDef.declName
 
   -- Do not complain if the user sets @[semireducible], which usually is a noop,
   -- we recognize that below and then do not set @[irreducible]

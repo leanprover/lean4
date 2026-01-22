@@ -140,9 +140,10 @@ def structuralRecursion
   preDefsNonRec.forM fun preDefNonRec => do
     let preDefNonRec ← eraseRecAppSyntax preDefNonRec
     prependError m!"structural recursion failed, produced type incorrect term" do
+      unless preDefNonRec.kind.isTheorem do
+        markAsRecursive preDefNonRec.declName
       -- We create the `_unsafe_rec` before we abstract nested proofs.
       -- Reason: the nested proofs may be referring to the _unsafe_rec.
-      markAsRecursive preDefNonRec.declName
       addNonRec docCtx preDefNonRec (applyAttrAfterCompilation := false) (all := names.toList)
   let preDefs ← preDefs.mapM (eraseRecAppSyntax ·)
   addAndCompilePartialRec docCtx preDefs

@@ -231,48 +231,63 @@ def solveUsingMeta (n : Nat) (check := true) : MetaM Unit := do
 def runBenchUsingMeta : MetaM Unit := do
   IO.println "=== Symbolic Simulation Tests ==="
   IO.println ""
-  for n in [10, 20, 30, 40, 50, 60, 70, 80] do
+  for n in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100] do
     solveUsingMeta n
 
-#eval solveUsingMeta 40
-
--- #eval runBenchUsingMeta
--- goal_80: 1467.414291 ms, kernel: 120.162250 ms
+#eval runBenchUsingMeta
 
 /-!
 `SymM` Solution
 -/
 
+/--
+Helper theorem for `Sym.simp`.
+**Note**: In the `Sym` framework, we currently do not have adapters for
+converting theorems of the form `∀ xs, p xs` into rewriting rules `∀ x, p xs = True`.
+-/
 theorem exists_eq_True (a : α) : (∃ x, a = x) = True := by
   simp
 
 open Sym
 
+/--
+Helper function for creating a `Sym.Simp.Methods` object that applies
+the ground simprocs and then used the given theorem names as rewriting rules.
+-/
 def mkMethods (declNames : Array Name) : MetaM Sym.Simp.Methods := do
   let rewrite ← Sym.mkSimprocFor declNames Sym.Simp.dischargeSimpSelf
   return {
     post := Sym.Simp.evalGround.andThen rewrite
   }
 
-elab "sym_simp" "[" declNames:ident,* "]" : tactic => do
-  let rewrite ← Sym.mkSimprocFor (← declNames.getElems.mapM fun s => realizeGlobalConstNoOverload s.raw) Sym.Simp.dischargeSimpSelf
-  let methods : Sym.Simp.Methods := {
-    pre  := Sym.Simp.simpControl
-    post := Sym.Simp.evalGround.andThen rewrite
-  }
-  liftMetaTactic1 fun mvarId => Sym.SymM.run do
-    let mvarId ← Sym.preprocessMVar mvarId
-    (← Sym.simpGoal mvarId methods).toOption
-
-example (l : PartialMap String Word) : ((l.put "b" x).put "a" y).get "b" = x := by
-  sym_simp [PartialMap.get_put_diff, PartialMap.get_put]
-
+/--
+Solves the goal `mvarId` for the benchmark `Goal n` using `SymM`.
+Recall that the strategy above applies the following sequence of theorems
+repeatedly
+```lean
+    apply Exec.seq_cps;
+    apply Exec.set;
+    simp only [Expr.eval];
+    simp only [PartialMap.get_put_diff, PartialMap.get_put, PartialMap.put_put, Binop.interp_add,
+          Binop.interp_sub, Word.add_sub_cancel, Option.some.injEq, not_false_eq_true, String.reduceEq, ne_eq];
+    try rfl
+```
+If `simpEagerly` is `true`, we add an extra simplification step at the end of each iteration.
+It ensure the main goal does keep increasing in size after each iteration.
+-/
 partial def solve (mvarId : MVarId) (simpEagerly : Bool) : SymM Unit := do
+  /-
+  Creates an `BackwardRule` for each theorem `T` we want to use `apply T`.
+  -/
   let exec_cpsRule ← mkBackwardRuleFromDecl ``Exec.seq_cps
   let inputRule ← mkBackwardRuleFromDecl ``Exec.input
   let skipRule ← mkBackwardRuleFromDecl ``Exec.skip
   let setRule ← mkBackwardRuleFromDecl ``Exec.set
   let rflRule ← mkBackwardRuleFromDecl ``Eq.refl
+  /-
+  Creates simplification methods for each collection of rewriting rules we want to apply.
+  Recall Lean creates equational lemmas of the form `_eq_<idx>` for definitions.
+  -/
   let unfoldMethods ← mkMethods #[``generated_cmd.eq_1, ``repeated_cmds.eq_1, ``repeated_cmds.eq_2]
   let evalMethods ← mkMethods #[``Expr.eval.eq_1, ``Expr.eval.eq_2, ``Expr.eval.eq_3]
   let simpMethods ← mkMethods #[``PartialMap.get_put_diff, ``PartialMap.get_put, ``PartialMap.put_put, ``Binop.interp_add,
@@ -280,37 +295,63 @@ partial def solve (mvarId : MVarId) (simpEagerly : Bool) : SymM Unit := do
   let finalSimpMethods ← mkMethods #[``List.cons.injEq, ``IOEvent.IN.injEq, ``and_true, ``true_and,
     ``PartialMap.put_put, ``PartialMap.get_put, ``PartialMap.get_put_diff, ``Option.some.injEq,
     ``and_self, ``exists_eq_True, ``Word.add_sub_cancel]
-  -- Initialize
+  -- ## Initialize
+  -- `processMVar` ensures the input goal becomes a `Sym` compatible goal.
   let mvarId ← preprocessMVar mvarId
+  -- `intro m l`
   let (_, mvarId) ← Sym.introN mvarId 2
+  -- `simp only [generated_cmd, repeated_cmds]`
   let .goal mvarId ← Sym.simpGoal mvarId unfoldMethods | failure
+  -- `apply Exec.seq_cps`
   let .goals [mvarId] ← exec_cpsRule.apply mvarId | failure
+  -- `apply Exec.input`
   let .goals [mvarId] ← inputRule.apply mvarId | failure
+  -- `intro v`
   let (_, mvarId) ← Sym.introN mvarId 1
-  -- Loop
+  -- ## Loop
+  -- We simulate the `repeat` block using a tail-recursive function `loop`
   let rec loop (mvarId : MVarId) : SymM MVarId := do
+    -- `apply Exec.seq_cps`
     let .goals [mvarId] ← exec_cpsRule.apply mvarId | return mvarId
+    -- `apply Exec.set`
+    -- `Exec.set` generates 3 goals, but the third one corresponds to `v`.
+    -- The metavariable corresponding to `v` is assigned at the `apply rfl` step.
     let .goals [mvarId', mvarId, _] ← setRule.apply mvarId | failure
+    -- `simp only [Expr.eval]`
     let .goal mvarId' ← Sym.simpGoal mvarId' evalMethods | failure
+    -- `simp only [PartialMap.get_put_diff, PartialMap.get_put, PartialMap.put_put, Binop.interp_add, Binop.interp_sub, Word.add_sub_cancel, Option.some.injEq, not_false_eq_true, String.reduceEq, ne_eq]`
     let .goal mvarId' ← Sym.simpGoal mvarId' simpMethods | failure
+    -- `apply rfl`
     let .goals [] ← rflRule.apply mvarId' | failure
     if simpEagerly then
       -- The following step is not in the `MetaM` version, but it helps performance
+      -- `simp only [PartialMap.get_put_diff, PartialMap.get_put, PartialMap.put_put, Binop.interp_add, Binop.interp_sub, Word.add_sub_cancel, Option.some.injEq, not_false_eq_true, String.reduceEq, ne_eq]`
       let .goal mvarId ← Sym.trySimpGoal mvarId simpMethods | failure
       loop mvarId
     else
       loop mvarId
   let mvarId ← loop mvarId
+  -- `apply Exec.skip`
   let .goals [mvarId] ← skipRule.apply mvarId | failure
   let .closed ← Sym.simpGoal mvarId finalSimpMethods { maxSteps := 100000 } | failure
   return
 
-def solveUsingSym (n : Nat) (check := true) (simpEagerly : Bool) : MetaM Unit := do
+def solveUsingSym (n : Nat) (simpEagerly : Bool := false) (check := true) : MetaM Unit := do
   driver n check fun mvarId => SymM.run do solve mvarId simpEagerly
 
-set_option maxRecDepth 100000
--- set_option profiler true
-#eval solveUsingSym 200 true false -- No eager simplification
--- goal_200: 778.797584 ms, kernel: 538.355625 ms
-#eval solveUsingSym 200 true true -- No eager simplification
--- goal_200: goal_200: 123.957000 ms, kernel: 37.756625 ms
+def runBenchUsingSym (simpEagerly : Bool := false) : MetaM Unit := do
+  IO.println "=== Symbolic Simulation Tests ==="
+  IO.println ""
+  for n in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100] do
+    solveUsingSym n simpEagerly
+
+#eval runBenchUsingSym
+#eval runBenchUsingSym true
+#eval solveUsingSym 150 false true
+#eval solveUsingSym 200 false true
+
+#eval solveUsingSym 200 true true
+#eval solveUsingSym 300 true true
+#eval solveUsingSym 400 true true
+#eval solveUsingSym 500 true true
+#eval solveUsingSym 600 true true

@@ -579,7 +579,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (caller : DoElemCont 
     return e
 
   let elabBody := caller { nondupDec with k := mkJump, kind := .duplicable }
-  let body? : Option Expr ← elabBody
+  let body? : Option Expr ← observingPostpone elabBody
 
   let joinRhs ← joinRhsMVar.mvarId!.withContext do
     withLocalDeclD nondupDec.resultName nondupDec.resultType fun r => do

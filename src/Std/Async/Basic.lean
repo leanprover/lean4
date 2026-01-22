@@ -797,34 +797,6 @@ def raceAll [Inhabited α] [ForM (EAsync ε) c (EAsync ε α)] (xs : c) (prio :=
   let result ← MonadAwait.await promise.result!
   EAsync.ofExcept result
 
-/--
-Resource acquisition pattern for async computations. Acquires a resource, runs an action with it,
-and ensures the resource is released even if the action fails.
-
-The release action uses `BaseAsync` to ensure it always runs regardless of errors, and its
-errors (if any) are ignored to preserve the original error from the use action.
--/
-@[inline, specialize]
-def bracket (acquire : EAsync ε α) (release : α → BaseAsync Unit) (use : α → EAsync ε β) : EAsync ε β :=
-  -- EAsync ε α = BaseAsync (Except ε α), so we work in BaseAsync
-  .mk <| BaseAsync.bind acquire fun
-    | .error e => BaseAsync.pure (.error e)
-    | .ok resource => BaseAsync.bind (use resource) fun result => do
-      _ ← release resource
-      BaseAsync.pure result
-
-/--
-Resource acquisition pattern where both acquire and release may fail with the same error type.
-If `use` fails, that error is returned. If `use` succeeds but `release` fails, the release
-error is returned.
--/
-@[inline, specialize]
-def bracketFull (acquire : EAsync ε α) (release : α → EAsync ε Unit) (use : α → EAsync ε β) : EAsync ε β := do
-  let resource ← acquire
-  let result ← use resource
-  release resource
-  return result
-
 instance : ToAsync (ETask ε α) (EAsync ε α) where
   toAsync := EAsync.ofTask
 
@@ -947,26 +919,6 @@ until the end.
 @[inline, specialize]
 def raceAll [Inhabited α] [ForM (EAsync IO.Error) c (EAsync IO.Error α)] (xs : c) (prio := Task.Priority.default) : Async α :=
   EAsync.raceAll xs prio
-
-/--
-Resource acquisition pattern for async computations. Acquires a resource, runs an action with it,
-and ensures the resource is released even if the action fails.
-
-The release action uses `BaseAsync` to ensure it always runs regardless of errors, and its
-errors (if any) are ignored to preserve the original error from the use action.
--/
-@[inline, specialize]
-def bracket (acquire : Async α) (release : α → BaseAsync Unit) (use : α → Async β) : Async β :=
-  EAsync.bracket acquire release use
-
-/--
-Resource acquisition pattern where both acquire and release may fail with `IO.Error`.
-If `use` fails, that error is returned. If `use` succeeds but `release` fails, the release
-error is returned.
--/
-@[inline, specialize]
-def bracketFull (acquire : Async α) (release : α → Async Unit) (use : α → Async β) : Async β :=
-  EAsync.bracketFull acquire release use
 
 instance : ToAsync (AsyncTask α) (Async α) where
   toAsync := Async.ofAsyncTask

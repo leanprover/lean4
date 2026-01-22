@@ -357,6 +357,7 @@ private def Package.discriminant (self : Package) :=
   else
     s!"{self.prettyName}@{self.version}"
 
+set_option linter.unusedVariables.funArgs false in
 private def fetchImportInfo
   (fileName : String) (pkgName modName : Name) (header : ModuleHeader)
 : FetchM (Job ModuleImportInfo) := do

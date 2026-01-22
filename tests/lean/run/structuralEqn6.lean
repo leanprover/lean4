@@ -8,15 +8,14 @@ where
       else acc
   termination_by structural k
 
--- Disable to get a toolchain
--- /--
--- info: equations:
--- @[defeq] theorem trailingZeros.aux.eq_1 : ∀ (i : Int) (hi : i ≠ 0) (acc k_2 : Nat) (x_1 : k_2 + 1 ≠ 0)
---   (hk_2 : i.natAbs ≤ k_2 + 1),
---   trailingZeros.aux k_2.succ i hi hk_2 acc = if h : i % 2 = 0 then trailingZeros.aux k_2 (i / 2) ⋯ ⋯ (acc + 1) else acc
--- -/
--- #guard_msgs(pass trace, all) in
--- #print equations trailingZeros.aux
+/--
+info: equations:
+@[defeq] theorem trailingZeros.aux.eq_1 : ∀ (i : Int) (hi : i ≠ 0) (acc k_2 : Nat) (x_1 : k_2 + 1 ≠ 0)
+  (hk_2 : i.natAbs ≤ k_2 + 1),
+  trailingZeros.aux k_2.succ i hi hk_2 acc = if h : i % 2 = 0 then trailingZeros.aux k_2 (i / 2) ⋯ ⋯ (acc + 1) else acc
+-/
+#guard_msgs(pass trace, all) in
+#print equations trailingZeros.aux
 
 
 -- set_option trace.Elab.definition.eqns true

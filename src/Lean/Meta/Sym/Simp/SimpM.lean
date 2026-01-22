@@ -101,7 +101,7 @@ invalidating the cache and causing O(2^n) behavior on conditional trees.
 /-- Configuration options for the structural simplifier. -/
 structure Config where
   /-- Maximum number of steps that can be performed by the simplifier. -/
-  maxSteps : Nat := 100000
+  maxSteps : Nat := 100_000
   /--
   Maximum depth of reentrant simplifier calls through dischargers.
   Prevents infinite loops when conditional rewrite rules trigger recursive discharge attempts.
@@ -173,16 +173,13 @@ abbrev Cache := PHashMap ExprPtr Result
 
 /-- Mutable state for the simplifier. -/
 structure State where
+  /-- Number of steps performed so far. -/
+  numSteps := 0
   /--
   Cache of previously simplified expressions to avoid redundant work.
   **Note**: Consider moving to `SymM.State`
   -/
   cache : Cache := {}
-  /-- Stack of free variables available for reuse when re-entering binders.
-  Each entry is (type pointer, fvarId). -/
-  binderStack : List (ExprPtr × FVarId) := []
-  /-- Number of steps performed so far. -/
-  numSteps := 0
   /-- Cache for generated funext theorems -/
   funext : PHashMap ExprPtr Expr := {}
 
@@ -221,8 +218,13 @@ opaque MethodsRef.toMethods (m : MethodsRef) : Methods
 def getMethods : SimpM Methods :=
   return MethodsRef.toMethods (← read)
 
+/-- Runs a `SimpM` computation with the given theorems, configuration, and initial state -/
+def SimpM.run (x : SimpM α) (methods : Methods := {}) (config : Config := {}) (s : State := {}) : SymM (α × State) := do
+  let initialLCtxSize := (← getLCtx).decls.size
+  x methods.toMethodsRef { initialLCtxSize, config } |>.run s
+
 /-- Runs a `SimpM` computation with the given theorems and configuration. -/
-def SimpM.run (x : SimpM α) (methods : Methods := {}) (config : Config := {}) : SymM α := do
+def SimpM.run' (x : SimpM α) (methods : Methods := {}) (config : Config := {}) : SymM α := do
   let initialLCtxSize := (← getLCtx).decls.size
   x methods.toMethodsRef { initialLCtxSize, config } |>.run' {}
 
@@ -243,7 +245,8 @@ abbrev post : Simproc := fun e => do
 
 abbrev withoutModifyingCache (k : SimpM α) : SimpM α := do
   let cache ← getCache
-  try k finally modify fun s => { s with cache }
+  let funext := (← get).funext
+  try k finally modify fun s => { s with cache, funext }
 
 abbrev withoutModifyingCacheIfNotWellBehaved (k : SimpM α) : SimpM α := do
   if (← getMethods).wellBehavedMethods then k else withoutModifyingCache k
@@ -251,6 +254,6 @@ abbrev withoutModifyingCacheIfNotWellBehaved (k : SimpM α) : SimpM α := do
 end Simp
 
 abbrev simp (e : Expr) (methods :  Simp.Methods := {}) (config : Simp.Config := {}) : SymM Simp.Result := do
-  Simp.SimpM.run (Simp.simp e) methods config
+  Simp.SimpM.run' (Simp.simp e) methods config
 
 end Lean.Meta.Sym

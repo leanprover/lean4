@@ -35,6 +35,28 @@ public def SimpGoalResult.toOption : SimpGoalResult → CoreM (Option MVarId)
   | .closed => return none
   | .goal mvarId => return some mvarId
 
+public def SimpGoalResult.ignoreNoProgress : SimpGoalResult → MVarId → SimpGoalResult
+  | .noProgress, mvarId => .goal mvarId
+  | r, _ => r
+
+/--
+Converts a `Simp.Result` value into `SimpGoalResult`.
+-/
+public def Simp.Result.toSimpGoalResult (result : Simp.Result) (mvarId : MVarId) : SymM SimpGoalResult := do
+  let decl ← mvarId.getDecl
+  match result with
+  | .rfl _ => return .noProgress
+  | .step target' h _ =>
+    let mvarNew ← mkFreshExprSyntheticOpaqueMVar target' decl.userName
+    let u ← getLevel decl.type
+    let h := mkApp4 (mkConst ``Eq.mpr [u]) decl.type target' h mvarNew
+    mvarId.assign h
+    if target'.isTrue then
+      mvarNew.mvarId!.assign (mkConst ``True.intro)
+      return .closed
+    else
+      return .goal mvarNew.mvarId!
+
 /--
 Simplifies the target of `mvarId` using `Sym.simp`.
 Returns `.closed` if the target simplifies to `True`, `.simp mvarId'` if simplified
@@ -45,19 +67,7 @@ This function assumed the input goal is a valid `Sym` goal (e.g., expressions ar
 public def simpGoal (mvarId : MVarId) (methods :  Simp.Methods := {}) (config : Simp.Config := {})
     : SymM SimpGoalResult := mvarId.withContext do
   let decl ← mvarId.getDecl
-  let target := decl.type
-  match (← simp target methods config) with
-  | .rfl _ => return .noProgress
-  | .step target' h _ =>
-    let mvarNew ← mkFreshExprSyntheticOpaqueMVar target' decl.userName
-    let u ← getLevel target
-    let h := mkApp4 (mkConst ``Eq.mpr [u]) target target' h mvarNew
-    mvarId.assign h
-    if target'.isTrue then
-      mvarNew.mvarId!.assign (mkConst ``True.intro)
-      return .closed
-    else
-      return .goal mvarNew.mvarId!
+  (← simp decl.type methods config).toSimpGoalResult mvarId
 
 /--
 Similar to `simpGoal`, but returns `.goal mvarId` if no progress was made.

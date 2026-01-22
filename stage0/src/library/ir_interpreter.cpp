@@ -63,8 +63,7 @@ typedef object_ref lit_val;
 typedef object_ref ctor_info;
 
 type to_type(object * obj) {
-    if (!is_scalar(obj)) throw exception("unsupported IRType");
-    else return static_cast<type>(unbox(obj));
+    return static_cast<type>(lean_obj_tag(obj));
 }
 type cnstr_get_type(object_ref const & o, unsigned i) { return to_type(cnstr_get(o.raw(), i)); }
 
@@ -97,13 +96,13 @@ var_id const & expr_reuse_obj(expr const & e) { lean_assert(expr_tag(e) == expr_
 ctor_info const & expr_reuse_ctor(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reuse); return cnstr_get_ref_t<ctor_info>(e, 1); }
 bool expr_reuse_update_header(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reuse); return get_bool_field(e.raw(), 3); }
 array_ref<arg> const & expr_reuse_args(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Reuse); return cnstr_get_ref_t<array_ref<arg>>(e, 2); }
-nat const & expr_proj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Proj); return cnstr_get_ref_t<nat>(e, 0); }
-var_id const & expr_proj_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Proj); return cnstr_get_ref_t<var_id>(e, 1); }
-nat const & expr_uproj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind::UProj); return cnstr_get_ref_t<nat>(e, 0); }
-var_id const & expr_uproj_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::UProj); return cnstr_get_ref_t<var_id>(e, 1); }
-nat const & expr_sproj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind::SProj); return cnstr_get_ref_t<nat>(e, 0); }
-nat const & expr_sproj_offset(expr const & e) { lean_assert(expr_tag(e) == expr_kind::SProj); return cnstr_get_ref_t<nat>(e, 1); }
-var_id const & expr_sproj_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::SProj); return cnstr_get_ref_t<var_id>(e, 2); }
+nat const & expr_proj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Proj); return cnstr_get_ref_t<nat>(e, 1); }
+var_id const & expr_proj_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Proj); return cnstr_get_ref_t<var_id>(e, 2); }
+nat const & expr_uproj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind::UProj); return cnstr_get_ref_t<nat>(e, 1); }
+var_id const & expr_uproj_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::UProj); return cnstr_get_ref_t<var_id>(e, 2); }
+nat const & expr_sproj_idx(expr const & e) { lean_assert(expr_tag(e) == expr_kind::SProj); return cnstr_get_ref_t<nat>(e, 1); }
+nat const & expr_sproj_offset(expr const & e) { lean_assert(expr_tag(e) == expr_kind::SProj); return cnstr_get_ref_t<nat>(e, 2); }
+var_id const & expr_sproj_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::SProj); return cnstr_get_ref_t<var_id>(e, 3); }
 fun_id const & expr_fap_fun(expr const & e) { lean_assert(expr_tag(e) == expr_kind::FAp); return cnstr_get_ref_t<fun_id>(e, 0); }
 array_ref<arg> const & expr_fap_args(expr const & e) { lean_assert(expr_tag(e) == expr_kind::FAp); return cnstr_get_ref_t<array_ref<arg>>(e, 1); }
 fun_id const & expr_pap_fun(expr const & e) { lean_assert(expr_tag(e) == expr_kind::PAp); return cnstr_get_ref_t<name>(e, 0); }
@@ -133,6 +132,7 @@ enum class fn_body_kind { VDecl, JDecl, Set, SetTag, USet, SSet, Inc, Dec, Del, 
 fn_body_kind fn_body_tag(fn_body const & a) { return is_scalar(a.raw()) ? static_cast<fn_body_kind>(unbox(a.raw())) : static_cast<fn_body_kind>(cnstr_tag(a.raw())); }
 var_id const & fn_body_vdecl_var(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::VDecl); return cnstr_get_ref_t<var_id>(b, 0); }
 type fn_body_vdecl_type(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::VDecl); return cnstr_get_type(b, 1); }
+object_ref const & fn_body_vdecl_type_ref(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::VDecl); return cnstr_get_ref(b, 1); }
 expr const & fn_body_vdecl_expr(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::VDecl); return cnstr_get_ref_t<expr>(b, 2); }
 fn_body const & fn_body_vdecl_cont(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::VDecl); return cnstr_get_ref_t<fn_body>(b, 3); }
 jp_id const & fn_body_jdecl_id(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::JDecl); return cnstr_get_ref_t<jp_id>(b, 0); }
@@ -147,15 +147,15 @@ var_id const & fn_body_set_tag_var(fn_body const & b) { lean_assert(fn_body_tag(
 nat const & fn_body_set_tag_cidx(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SetTag); return cnstr_get_ref_t<nat>(b, 1); }
 fn_body const & fn_body_set_tag_cont(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SetTag); return cnstr_get_ref_t<fn_body>(b, 2); }
 var_id const & fn_body_uset_target(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::USet); return cnstr_get_ref_t<var_id>(b, 0); }
-nat const & fn_body_uset_idx(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::USet); return cnstr_get_ref_t<nat>(b, 1); }
-var_id const & fn_body_uset_source(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::USet); return cnstr_get_ref_t<var_id>(b, 2); }
-fn_body const & fn_body_uset_cont(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::USet); return cnstr_get_ref_t<fn_body>(b, 3); }
+nat const & fn_body_uset_idx(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::USet); return cnstr_get_ref_t<nat>(b, 2); }
+var_id const & fn_body_uset_source(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::USet); return cnstr_get_ref_t<var_id>(b, 3); }
+fn_body const & fn_body_uset_cont(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::USet); return cnstr_get_ref_t<fn_body>(b, 4); }
 var_id const & fn_body_sset_target(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_ref_t<var_id>(b, 0); }
-nat const & fn_body_sset_idx(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_ref_t<nat>(b, 1); }
-nat const & fn_body_sset_offset(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_ref_t<nat>(b, 2); }
-var_id const & fn_body_sset_source(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_ref_t<var_id>(b, 3); }
-type fn_body_sset_type(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_type(b, 4); }
-fn_body const & fn_body_sset_cont(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_ref_t<fn_body>(b, 5); }
+nat const & fn_body_sset_idx(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_ref_t<nat>(b, 2); }
+nat const & fn_body_sset_offset(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_ref_t<nat>(b, 3); }
+var_id const & fn_body_sset_source(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_ref_t<var_id>(b, 4); }
+type fn_body_sset_type(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_type(b, 5); }
+fn_body const & fn_body_sset_cont(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::SSet); return cnstr_get_ref_t<fn_body>(b, 6); }
 var_id const & fn_body_inc_var(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Inc); return cnstr_get_ref_t<var_id>(b, 0); }
 nat const & fn_body_inc_val(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Inc); return cnstr_get_ref_t<nat>(b, 1); }
 bool fn_body_inc_maybe_scalar(fn_body const & b) { lean_assert(fn_body_tag(b) == fn_body_kind::Inc); return get_bool_field(b.raw(), 3); }
@@ -200,7 +200,6 @@ option_ref<decl> find_ir_decl_boxed(elab_environment const & env, name const & n
 extern "C" double lean_float_of_nat(lean_obj_arg a);
 extern "C" float lean_float32_of_nat(lean_obj_arg a);
 
-static string_ref * g_boxed_mangled_suffix = nullptr;
 static name * g_interpreter_prefer_native = nullptr;
 DEBUG_CODE(static name * g_interpreter_step = nullptr;)
 DEBUG_CODE(static name * g_interpreter_call = nullptr;)
@@ -216,6 +215,12 @@ string_ref get_symbol_stem(elab_environment const & env, name const & fn) {
     return string_ref(lean_get_symbol_stem(env.to_obj_arg(), fn.to_obj_arg()));
 }
 
+extern "C" obj_res lean_mk_mangled_boxed_name(obj_arg str);
+
+string_ref mk_mangled_boxed_name(string_ref const & str) {
+    return string_ref(lean_mk_mangled_boxed_name(str.to_obj_arg()));
+}
+
 extern "C" object * lean_ir_format_fn_body_head(object * b);
 std::string format_fn_body_head(fn_body const & b) {
     object_ref s(lean_ir_format_fn_body_head(b.to_obj_arg()));
@@ -223,8 +228,8 @@ std::string format_fn_body_head(fn_body const & b) {
 }
 
 static bool type_is_scalar(type t) {
-    return t != type::Object && t != type::Tagged && t != type::TObject && t != type::Irrelevant
-            && t != type::Void;
+    return t == type::Float || t == type::Float32 || t == type::UInt8 || t == type::UInt16 ||
+        t == type::UInt32 || t == type::UInt64 || t == type::USize;
 }
 
 extern "C" object* lean_get_regular_init_fn_name_for(object* env, object* fn);
@@ -279,10 +284,11 @@ object * box_t(value v, type t) {
     case type::TObject:
     case type::Irrelevant:
     case type::Void:
-        return v.m_obj;
+    // Note: structs and unions are not supported by the interpreter
+    // and thus are passed around in boxed form, i.e. unbox and box are no-ops
     case type::Struct:
     case type::Union:
-        throw exception("not implemented yet");
+        return v.m_obj;
     }
     lean_unreachable();
 }
@@ -304,7 +310,9 @@ value unbox_t(object * o, type t) {
         break;
     case type::Struct:
     case type::Union:
-        throw exception("not implemented yet");
+        // Note: structs and unions are not supported by the interpreter
+        // and thus are passed around in boxed form, i.e. unbox and box are no-ops
+        return value(o);
     }
     lean_unreachable();
 }
@@ -445,7 +453,7 @@ private:
     }
 
     /** \brief Allocate constructor object with given tag and arguments */
-    object * alloc_ctor(ctor_info const & i, array_ref<arg> const & args) {
+    object * alloc_ctor(ctor_info const & i, array_ref<arg> const & args, object_ref const & tref) {
         size_t tag = ctor_info_tag(i).get_small_value();
         // number of boxed object fields
         size_t size = ctor_info_size(i).get_small_value();
@@ -458,8 +466,27 @@ private:
             return box(tag);
         } else {
             object *o = alloc_cnstr(tag, size, usize * sizeof(void *) + ssize);
-            for (size_t i = 0; i < args.size(); i++) {
-                cnstr_set(o, i, eval_arg(args[i]).m_obj);
+            if (is_scalar(tref.raw())) {
+                for (size_t i = 0; i < args.size(); i++) {
+                    cnstr_set(o, i, eval_arg(args[i]).m_obj);
+                }
+            } else {
+                // struct or union
+                object_ref const * t_ref = &tref;
+                if (to_type(tref.raw()) == type::Union) {
+                    array_ref<object_ref> const & types = cnstr_get_ref_t<array_ref<object_ref>>(tref, 1);
+                    lean_assert(tag < types.size());
+                    t_ref = &types[tag];
+                }
+                lean_assert(to_type(t_ref->raw()) == type::Struct);
+                array_ref<object_ref> const & types = cnstr_get_ref_t<array_ref<object_ref>>(*t_ref, 1);
+                lean_assert(types.size() == args.size());
+                for (size_t i = 0; i < args.size(); i++) {
+                    type t = to_type(types[i].raw());
+                    value arg = eval_arg(args[i]);
+                    object * val = box_t(arg, t);
+                    cnstr_set(o, i, val);
+                }
             }
             return o;
         }
@@ -478,10 +505,11 @@ private:
         return cls;
     }
 
-    value eval_expr(expr const & e, type t) {
+    value eval_expr(expr const & e, object_ref const & tref) {
+        type t = to_type(tref.raw());
         switch (expr_tag(e)) {
             case expr_kind::Ctor:
-                return value { alloc_ctor(expr_ctor_info(e), expr_ctor_args(e)) };
+                return value { alloc_ctor(expr_ctor_info(e), expr_ctor_args(e), tref) };
             case expr_kind::Reset: { // release fields if unique reference in preparation for `Reuse` below
                 object * o = var(expr_reset_obj(e)).m_obj;
                 if (is_exclusive(o)) {
@@ -499,7 +527,7 @@ private:
                 // check if `Reset` above had a unique reference it consumed
                 if (is_scalar(o)) {
                     // fall back to regular allocation
-                    return alloc_ctor(expr_reuse_ctor(e), expr_reuse_args(e));
+                    return alloc_ctor(expr_reuse_ctor(e), expr_reuse_args(e), tref);
                 } else {
                     // create new constructor object in-place
                     if (expr_reuse_update_header(e)) {
@@ -512,6 +540,20 @@ private:
                 }
             }
             case expr_kind::Proj: // object field access
+                if (LEAN_UNLIKELY(type_is_scalar(t))) {
+                    // possible for unboxed structs
+                    object * field = cnstr_get(var(expr_proj_obj(e)).m_obj, expr_proj_idx(e).get_small_value());
+                    switch (t) {
+                        case type::Float: return value::from_float(lean_unbox_float(field));
+                        case type::Float32: return value::from_float32(lean_unbox_float32(field));
+                        case type::UInt8: return lean_unbox(field);
+                        case type::UInt16: return lean_unbox(field);
+                        case type::UInt32: return lean_unbox_uint32(field);
+                        case type::UInt64: return lean_unbox_uint64(field);
+                        case type::USize: return lean_unbox_usize(field);
+                        default: lean_unreachable();
+                    }
+                }
                 return cnstr_get(var(expr_proj_obj(e)).m_obj, expr_proj_idx(e).get_small_value());
             case expr_kind::UProj: // USize field access
                 return cnstr_get_usize(var(expr_uproj_obj(e)).m_obj, expr_uproj_idx(e).get_small_value());
@@ -666,7 +708,7 @@ private:
                         check_system();
                         break;
                     }
-                    value v = eval_expr(fn_body_vdecl_expr(b), fn_body_vdecl_type(b));
+                    value v = eval_expr(fn_body_vdecl_expr(b), fn_body_vdecl_type_ref(b));
                     // NOTE: `var` must be called *after* `eval_expr` because the stack may get resized and invalidate
                     // the pointer
                     var(fn_body_vdecl_var(b)) = v;
@@ -843,7 +885,7 @@ private:
         symbol_cache_entry e_new { get_decl(fn), {nullptr, false} };
         if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern || has_init_attribute(m_env, fn)) {
             string_ref mangled = get_symbol_stem(m_env, fn);
-            string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
+            string_ref boxed_mangled = mk_mangled_boxed_name(mangled);
             // check for boxed version first
             if (void *p_boxed = lookup_symbol_in_cur_exe(boxed_mangled.data())) {
                 e_new.m_native.m_addr = p_boxed;
@@ -893,8 +935,6 @@ private:
         symbol_cache_entry e = lookup_symbol(fn);
         if (e.m_native.m_addr) {
             // we can assume that all native code has been initialized (see e.g. `evalConst`)
-
-            // constants do not have boxed wrappers, but we'll survive
             switch (t) {
                 case type::Float: return value::from_float(*static_cast<double *>(e.m_native.m_addr));
                 case type::Float32: return value::from_float32(*static_cast<float *>(e.m_native.m_addr));
@@ -911,7 +951,9 @@ private:
                     return *static_cast<object **>(e.m_native.m_addr);
                 case type::Struct:
                 case type::Union:
-                    throw exception("not implemented yet");
+                    // we generate boxed wrappers specifically for struct/union constants
+                    lean_assert(e.m_native.m_boxed);
+                    return *static_cast<object **>(e.m_native.m_addr);
             }
         }
 
@@ -965,7 +1007,7 @@ private:
         } else {
             if (decl_tag(e.m_decl) == decl_kind::Extern) {
                 string_ref mangled = get_symbol_stem(m_env, fn);
-                string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
+                string_ref boxed_mangled = mk_mangled_boxed_name(mangled);
                 throw exception(sstream() << "Could not find native implementation of external declaration '" << fn
                                           << "' (symbols '" << boxed_mangled.data() << "' or '" << mangled.data() << "').\n"
                                           << "For declarations from `Init`, `Std`, or `Lean`, you need to set `supportInterpreter := true` "
@@ -1212,8 +1254,6 @@ extern "C" LEAN_EXPORT object * lean_run_init(object * env, object * opts, objec
 }
 
 void initialize_ir_interpreter() {
-    ir::g_boxed_mangled_suffix = new string_ref("___boxed");
-    mark_persistent(ir::g_boxed_mangled_suffix->raw());
     ir::g_interpreter_prefer_native = new name({"interpreter", "prefer_native"});
     ir::g_init_globals = new name_hash_map<object *>();
     register_bool_option(*ir::g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE, "(interpreter) whether to use precompiled code where available");
@@ -1236,6 +1276,5 @@ void finalize_ir_interpreter() {
     });
     delete ir::g_init_globals;
     delete ir::g_interpreter_prefer_native;
-    delete ir::g_boxed_mangled_suffix;
 }
 }

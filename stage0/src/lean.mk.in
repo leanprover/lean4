@@ -110,14 +110,19 @@ endif
 # On Windows, rebuild .o not intended for shared libraries
 # without dllexport because of symbol limit;
 # on other platforms, no point in bothering
-$(TEMP_OUT)/%.o: $(TEMP_OUT)/%.o.export
 ifeq (@CMAKE_SYSTEM_NAME@, Windows)
+ifdef LLVM
+$(TEMP_OUT)/%.o: $(BC_OUT)/%.bc
+else
+$(TEMP_OUT)/%.o: $(C_OUT)/%.c
+endif
 ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Building $<"
 endif
 	@mkdir -p "$(@D)"
-	llvm-objcopy --remove-section .drectve $< $@
+	$(LEANC) -c -o $@ $< $(LEANC_OPTS)
 else
+$(TEMP_OUT)/%.o: $(TEMP_OUT)/%.o.export
 	ln -f $< $@
 endif
 

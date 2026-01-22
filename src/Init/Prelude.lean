@@ -2810,6 +2810,8 @@ structure Char where
   /-- The value must be a legal scalar value. -/
   valid : val.isValidChar
 
+grind_pattern Char.valid => self.val
+
 private theorem isValidChar_UInt32 {n : Nat} (h : n.isValidChar) : LT.lt n UInt32.size :=
   match h with
   | Or.inl h      => Nat.lt_trans h (of_decide_eq_true rfl)

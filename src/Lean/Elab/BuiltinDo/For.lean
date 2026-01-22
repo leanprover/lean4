@@ -141,7 +141,6 @@ open Lean.Meta
       throwError m!"Type mismatch. `for` loops have result type {← mkPUnit}, but the rest of the `do` sequence expected {dec.resultType}."
 
     -- Elaborate the loop body, which must have result type `PUnit`.
-    -- The `withSynthesizeForDo` is so that we see all jump sites before continuing elaboration.
     let body ←
       enterLoopBody breakCont continueCont do
       bindMutVarsFromTuple loopMutVarNames loopS.fvarId! do
